@@ -1,3 +1,12 @@
+// Main (Player)
+//
+// Purpose: Entry point for the standalone song player embed
+//
+// This module:
+// - Initializes synth playback with song URL loading
+// - Renders player controls and oscilloscope display
+// - Handles play/pause, volume, and loop controls
+
 // Copyright (c) 2012-2022 John Nesky and contributing authors, distributed under the MIT license, see accompanying the LICENSE.md file.
 
 import { Dictionary, DictionaryArray, EnvelopeType, InstrumentType, Transition, Chord, Envelope, Config, sampleLoadEvents, SampleLoadedEvent } from "../synth/SynthConfig";

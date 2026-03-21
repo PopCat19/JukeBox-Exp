@@ -6,6 +6,6 @@
 # - Runs full build via npm
 # - Deploys website directory to App Engine
 
-npm run build
+bun run build
 
 gcloud app deploy --project beepbox-synth website/app.yaml

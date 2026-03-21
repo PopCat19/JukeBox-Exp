@@ -8,13 +8,13 @@
 
 set -e
 
-npm run deploy-files
+bun run deploy-files
 
 # Compile editor/main.ts into build/editor/main.js and dependencies
-npx tsc
+bunx tsc
 
 # Combine build/editor/main.js and dependencies into to_deploy/beepbox_editor.min.js
-npx rollup build/editor/main.js \
+bunx rollup build/editor/main.js \
 	--file to_deploy/beepbox_editor.min.js \
 	--format iife \
 	--output.name beepbox \
@@ -23,7 +23,7 @@ npx rollup build/editor/main.js \
 	--plugin @rollup/plugin-node-resolve
 
 # Minify to_deploy/beepbox_editor.min.js into to_deploy/beepbox_editor.min.js
-npx terser \
+bunx terser \
 	to_deploy/beepbox_editor.min.js \
 	-o to_deploy/beepbox_editor.min.js \
 	--compress \
@@ -32,10 +32,10 @@ npx terser \
 	--mangle-props regex="/^_.+/;"
 
 # Compile player/main.ts into build/player/main.js and dependencies
-npx tsc -p tsconfig_player.json
+bunx tsc -p tsconfig_player.json
 
 # Combine build/player/main.js and dependencies into to_deploy/player/beepbox_player.min..js
-npx rollup ./build/player/main.js \
+bunx rollup ./build/player/main.js \
 	--file ./to_deploy/player/beepbox_player.min.js \
 	--format iife \
 	--output.name beepbox \
@@ -43,7 +43,7 @@ npx rollup ./build/player/main.js \
 	--plugin @rollup/plugin-node-resolve
 
 # Minify to_deploy/player/beepbox_player.min.js into to_deploy/player/beepbox_player.min.js
-npx terser \
+bunx terser \
 	./to_deploy/player/beepbox_player.min.js \
 	-o ./to_deploy/player/beepbox_player.min.js \
 	--compress \

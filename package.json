@@ -17,7 +17,7 @@
 	"main": "main.js",
 	"icon": "path.join(__dirname, 'icon.ico')",
 	"scripts": {
-		"build": "npm run build-synth && npm run build-player && npm run build-editor && npm run build-website",
+		"build": "bun run build-synth && bun run build-player && bun run build-editor && bun run build-website",
 		"build-synth": "bash ./scripts/compile_beepbox_synth.sh",
 		"build-player": "bash ./scripts/compile_beepbox_player.sh",
 		"build-editor": "bash ./scripts/compile_beepbox_editor.sh",
@@ -26,11 +26,11 @@
 		"build-website": "bash ./scripts/compile_beepbox_website.sh",
 		"deploy-files": "bash ./scripts/deploy_files.sh",
 		"start": "electron ./to_deploy",
-		"package": "electron-packager ./to_deploy --platform=darwin,linux,win32 --arch=ia32,x64 --asar --overwrite && npm run build-offline-html",
-		"package-host": "electron-packager ./to_deploy slarmoosbox --asar --overwrite && npm run build-offline-html",
+		"package": "electron-packager ./to_deploy --platform=darwin,linux,win32 --arch=ia32,x64 --asar --overwrite && bun run build-offline-html",
+		"package-host": "electron-packager ./to_deploy slarmoosbox --asar --overwrite && bun run build-offline-html",
 		"live_editor": "bash ./scripts/live_editor.sh",
 		"live_editor_typeless": "bash ./scripts/live_editor_typeless.sh",
-		"let": "npm run live_editor_typeless",
+		"let": "bun run live_editor_typeless",
 		"lint": "eslint editor/ synth/ player/ global/",
 		"lint:fix": "eslint editor/ synth/ player/ global/ --fix"
 	},

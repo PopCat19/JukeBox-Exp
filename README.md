@@ -17,30 +17,16 @@ Slarmoo's Box, as well as the beepmods which it's based on, are free projects. I
 
 ## Compiling
 
-The compilation procedure is identical to the repository for BeepBox. I will include the excerpt on compiling from that page's readme below for convenience:
-
 The source code is available under the MIT license. The code is written in
-[TypeScript](https://www.typescriptlang.org/), which requires
-[node & npm](https://www.npmjs.com/get-npm), so install those first. Then to
-build this project, open a command line ([Git Bash](https://gitforwindows.org/)) and run:
+[TypeScript](https://www.typescriptlang.org/) and requires
+[Bun](https://bun.sh), so install that first. Then to
+build this project, open a command line and run:
 
 ```
 git clone https://github.com/slarmoo/slarmoosbox.git
 cd slarmoosbox
-npm install
-npm run build
-```
-
-JummBox (and by extension, Slarmoo's Box) makes a divergence from BeepBox that necessitates an additional dependency:
-rather than using the (rather poor) default HTML select implementation, the custom
-library [select2](https://select2.org) is employed. select2 has an explicit dependency
-on [jQuery](https://jquery.com) as well, so you may need to install the following
-additional dependencies if they are not picked up automatically.
-
-```
-npm install select2
-npm install @types/select2
-npm install @types/jquery
+bun install
+bun run build
 ```
 
 ## Code
@@ -53,7 +39,7 @@ game. After compiling the synth code, open website/synth_example.html to see a
 demo using it. To rebuild just the synth code, run:
 
 ```
-npm run build-synth
+bun run build-synth
 ```
 
 The [editor/](editor) folder has additional code to display the online song
@@ -61,14 +47,14 @@ editor interface. After compiling the editor code, open website/index.html to
 see the editor interface. To rebuild just the editor code, run:
 
 ```
-npm run build-editor
+bun run build-editor
 ```
 
 The [player/](player) folder has a miniature song player interface for embedding
 on other sites. To rebuild just the player code, run:
 
 ```
-npm run build-player
+bun run build-player
 ```
 
 The [website/](website) folder contains index.html files to view the interfaces.
@@ -89,16 +75,16 @@ Additionally, random envelopes rely on [js-xxhash](https://npmjs.com/package/js-
 
 If you'd like to BUILD the offline version, enter the following into the command line of your choice:
 ```
-npm run build-offline
+bun run build-offline
 ```
 
 
 After building, you can then enter the following to run it for testing purposes:
 ```
-npm run start
+bun run start
 ```
 
-And to package, run (do ```npm run package-host``` for your host platform; you may need to run git bash as an administrator for non-host platforms):
+And to package, run (do `bun run package-host` for your host platform; you may need to run git bash as an administrator for non-host platforms):
 ```
-npm run package
+bun run package
 ```
