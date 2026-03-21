@@ -320,7 +320,7 @@ export class Song {
 
         //This is the tab's display name
         const now: Date = new Date();
-        this.title = `${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, "0")}${String(now.getDate()).padStart(2, "0")}`;
+        this.title = `Untitled-${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, "0")}${String(now.getDate()).padStart(2, "0")}`;
         document.title = this.title + " - " + EditorConfig.versionDisplayName;
         if (andResetChannels) {
             this.pitchChannelCount = 2;
