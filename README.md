@@ -29,6 +29,24 @@ bun install
 bun run build
 ```
 
+## Nix
+
+A [flake.nix](flake.nix) is provided for Nix users. It wraps the same bun build
+pipeline described above and adds dev tooling.
+
+```
+nix develop          # bun, shfmt, shellcheck, nixfmt in PATH
+bun install && bun run build
+```
+
+The `formatter` output runs `nixfmt` on `.nix` files:
+
+```
+nix fmt
+```
+
+Non-nix users can ignore `flake.nix` entirely — the manual `bun` flow is unchanged.
+
 ## Code
 
 The code is divided into several folders. This architecture is identical to BeepBox's.
