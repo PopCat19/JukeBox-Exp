@@ -22,10 +22,15 @@ offline/node_modules
 /global/*.js.map
 
 # Deprecated (removed from tracking)
-/archive/
 /website/foolish_editor.js
 /website/foolish_editor.min.js
 /website/**/*.js.map
+
+# Build outputs (rebuild with bun run build)
+/website/beepbox_editor.min.js
+/website/beepbox_synth.min.js
+/website/player/beepbox_player.min.js
+/website/manual/EditorConfig.min.js
 
 # Backup files
 /**/*.ts.bak
