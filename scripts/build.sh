@@ -5,6 +5,7 @@
 # This script:
 # - Bundles synth, player, editor, and EditorConfig with esbuild
 # - Supports --offline flag to set OFFLINE=true in editor and player bundles
+# - Outputs to dist/ (gitignored), separate from website/ source assets
 
 set -Eeuo pipefail
 
@@ -15,6 +16,8 @@ for arg in "$@"; do
 	esac
 done
 
+mkdir -p dist/player dist/manual
+
 bunx esbuild \
 	--format=iife \
 	--global-name=beepbox \
@@ -22,7 +25,7 @@ bunx esbuild \
 	--minify \
 	--sourcemap \
 	"${offline_flag}" \
-	--outfile=website/beepbox_synth.min.js
+	--outfile=dist/beepbox_synth.min.js
 
 bunx esbuild \
 	--format=iife \
@@ -31,7 +34,7 @@ bunx esbuild \
 	--minify \
 	--sourcemap \
 	"${offline_flag}" \
-	--outfile=website/player/beepbox_player.min.js
+	--outfile=dist/player/beepbox_player.min.js
 
 bunx esbuild \
 	--format=iife \
@@ -40,7 +43,7 @@ bunx esbuild \
 	--minify \
 	--sourcemap \
 	"${offline_flag}" \
-	--outfile=website/beepbox_editor.min.js
+	--outfile=dist/beepbox_editor.min.js
 
 bunx esbuild \
 	--format=iife \
@@ -48,4 +51,4 @@ bunx esbuild \
 	--bundle editor/EditorConfig.ts \
 	--minify \
 	--sourcemap \
-	--outfile=website/manual/EditorConfig.min.js
+	--outfile=dist/manual/EditorConfig.min.js
