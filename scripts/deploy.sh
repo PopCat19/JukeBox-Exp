@@ -14,6 +14,13 @@ if ! git remote get-url origin &>/dev/null; then
 	exit 1
 fi
 
+if ! git diff --quiet || ! git diff --cached --quiet; then
+	echo "Warning: uncommitted changes detected. Deployed gh-pages will reflect HEAD ($(git rev-parse --short HEAD)), not working tree:" >&2
+	git diff --name-only
+	git diff --cached --name-only
+	echo "Commit or stash changes before deploying to keep source and site in sync." >&2
+fi
+
 bun run build
 
 # Merge website/ source assets into dist/ (does not overwrite build outputs)
