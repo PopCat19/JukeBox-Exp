@@ -1,21 +1,17 @@
-#compiled binaries
-a.out
-*.o
-*.so
-*.dylib
-*.exe
-#big unnessecary folders
-.dropbox
+# OS/editor artifacts
 .DS_Store
+.dropbox
 .vs
 /.vscode
+
+# Dependencies
 /node_modules
 offline/node_modules
-#unneeded mod inheritance
-/website/**/beepbox*.js.map
-/website/beepbox_offline.html
-/website/jummbox_offline.html
-#for github pages / live editor
+
+# Build outputs
+/build
+/scripts/build/
+/to_deploy/
 /editor/*.js
 /player/*.js
 /synth/*.js
@@ -24,13 +20,17 @@ offline/node_modules
 /player/*.js.map
 /synth/*.js.map
 /global/*.js.map
-#unsure
+
+# Deprecated (removed from tracking)
+/archive/
+/website/foolish_editor.js
+/website/foolish_editor.min.js
+/website/**/*.js.map
+
+# Backup files
 /**/*.ts.bak
 /**/*.html.bak
-#for offline
-/build
-/scripts/build/
-/to_deploy/
-#for deployment
+
+# Deployment
 deployFiles.sh
 pm2handler.cjs
