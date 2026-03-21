@@ -1,3 +1,11 @@
+// ShortenerConfigPrompt
+//
+// Purpose: Provides dialog for configuring URL shortener settings
+//
+// This module:
+// - Presents UI for URL shortener service selection
+// - Applies shortener configuration
+
 import { HTML } from "imperative-html/dist/esm/elements-strict";
 import { SongDocument } from "./SongDocument";
 import { Prompt } from "./Prompt";

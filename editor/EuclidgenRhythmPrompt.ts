@@ -1,3 +1,11 @@
+// EuclidgenRhythmPrompt
+//
+// Purpose: Provides dialog for generating Euclidean rhythm patterns
+//
+// This module:
+// - Implements Euclidean rhythm algorithm for note placement
+// - Applies generated rhythms to pattern notes
+
 // Copyright (C) 2012-2023 John Nesky and contributing authors, distributed under the MIT license, see the accompanying LICENSE.md file.
 
 import { Config } from "../synth/SynthConfig";

@@ -1,3 +1,11 @@
+// Util
+//
+// Purpose: Provides shared math and conversion utilities for the synth engine
+//
+// This module:
+// - Implements range clamping, parsing, and legacy key conversion
+// - Provides fade timing and detune conversion functions
+
 // Copyright (c) 2012-2022 John Nesky and contributing authors, distributed under the MIT license, see accompanying the LICENSE.md file.
 
 import { Config } from "./SynthConfig";

@@ -1,3 +1,11 @@
+// ExportPrompt
+//
+// Purpose: Provides dialog for exporting songs as audio, MIDI, or URL formats
+//
+// This module:
+// - Handles WAV, MP3, OGG, OPUS, and MIDI export workflows
+// - Manages export progress and file download
+
 // Copyright (c) 2012-2022 John Nesky and contributing authors, distributed under the MIT license, see accompanying the LICENSE.md file.
 
 import { InstrumentType, /*EnvelopeType,*/ Config, getArpeggioPitchIndex } from "../synth/SynthConfig";

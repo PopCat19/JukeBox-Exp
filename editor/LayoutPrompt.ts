@@ -1,3 +1,11 @@
+// LayoutPrompt
+//
+// Purpose: Provides dialog for selecting editor layout mode
+//
+// This module:
+// - Presents layout options (small, long, tall, wide)
+// - Applies selected layout to the editor
+
 // Copyright (c) 2012-2022 John Nesky and contributing authors, distributed under the MIT license, see accompanying the LICENSE.md file.
 
 import { SongDocument } from "./SongDocument";

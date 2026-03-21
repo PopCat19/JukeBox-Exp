@@ -1,3 +1,11 @@
+// KeyboardLayout
+//
+// Purpose: Maps physical keyboard keys to musical note inputs
+//
+// This module:
+// - Defines keyboard-to-note mappings for different layouts
+// - Handles key event translation to pitch values
+
 // Copyright (c) 2012-2022 John Nesky and contributing authors, distributed under the MIT license, see accompanying the LICENSE.md file.
 
 import { Config } from "../synth/SynthConfig";

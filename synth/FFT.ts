@@ -1,3 +1,11 @@
+// FFT
+//
+// Purpose: Implements real-valued Fourier transform and frequency analysis utilities
+//
+// This module:
+// - Provides inverse real Fourier transform for waveform generation
+// - Scales frequency components by constant or per-element factors
+
 // Copyright (c) 2012-2022 John Nesky and contributing authors, distributed under the MIT license, see accompanying the LICENSE.md file.
 
 // interface shared by number[], Float32Array, and other typed arrays in JavaScript.

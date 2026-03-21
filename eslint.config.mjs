@@ -1,3 +1,7 @@
+// ESLint Config
+//
+// Purpose: Configures ESLint with TypeScript support and recommended rules
+
 import eslint from "@eslint/js";
 import tseslint from "typescript-eslint";
 

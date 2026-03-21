@@ -1,3 +1,11 @@
+// SpectrumEditor
+//
+// Purpose: Renders interactive spectrum control point editor for noise channel waveforms
+//
+// This module:
+// - Draws spectrum amplitude bar visualization
+// - Handles spectrum point drag editing
+
 // Copyright (c) 2012-2022 John Nesky and contributing authors, distributed under the MIT license, see accompanying the LICENSE.md file.
 
 import { Config } from "../synth/SynthConfig";

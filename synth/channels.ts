@@ -1,3 +1,11 @@
+// Channels
+//
+// Purpose: Defines the Channel class for grouping instruments, patterns, and bars
+//
+// This module:
+// - Stores per-channel instrument and pattern arrays
+// - Tracks mute state and channel naming
+
 import type { Instrument } from "./instruments";
 import type { Pattern } from "./notes";
 

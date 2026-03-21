@@ -1,4 +1,11 @@
 #!/bin/bash
+#
+# Purpose: Starts live development server with fast typeless editor compilation
+#
+# This script:
+# - Bundles editor, player, and synth with esbuild (no type checking)
+# - Serves site locally with auto-reload via five-server
+
 set -e
 
 # Defaults to opening index_debug.html in a browser, but that can be disabled
@@ -6,9 +13,9 @@ set -e
 # npm run live-editor-fast-typeless -- --headless
 open_browser_path=/index_debug.html
 for arg in "$@"; do
-  case "$arg" in
-    '--headless') open_browser_path=false;;
-  esac
+	case "$arg" in
+	'--headless') open_browser_path=false ;;
+	esac
 done
 
 # This is similar to live_editor.sh, but instead of compiling with tsc and
@@ -17,7 +24,7 @@ done
 # JS output has some slight differences, so check the other build strategies
 # before publishing updates.
 npx concurrently \
-  "npx esbuild --format=iife --keep-names --global-name=beepbox --bundle ./synth/synth.js --outfile=website/beepbox_synth.js --sourcemap --watch" \
-  "npx esbuild --format=iife --keep-names --global-name=beepbox --bundle ./player/main.js --outfile=website/player/beepbox_player.min.js --sourcemap --watch --define:OFFLINE=false" \
+	"npx esbuild --format=iife --keep-names --global-name=beepbox --bundle ./synth/synth.js --outfile=website/beepbox_synth.js --sourcemap --watch" \
+	"npx esbuild --format=iife --keep-names --global-name=beepbox --bundle ./player/main.js --outfile=website/player/beepbox_player.min.js --sourcemap --watch --define:OFFLINE=false" \
 	"npx esbuild --format=iife --keep-names --global-name=beepbox --bundle ./editor/main.js --outfile=website/beepbox_editor.js --sourcemap --watch" \
 	"npx five-server --wait=200 --watch=website --port=4000 --open=$open_browser_path website/"

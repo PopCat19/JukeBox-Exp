@@ -1,3 +1,11 @@
+// FilterEditor
+//
+// Purpose: Renders interactive EQ and note filter control point editor
+//
+// This module:
+// - Draws filter frequency response visualization
+// - Handles control point drag interaction and filter morphing
+
 // Copyright (c) 2012-2022 John Nesky and contributing authors, distributed under the MIT license, see accompanying the LICENSE.md file.
 
 import { FilterCoefficients, FrequencyResponse } from "../synth/filtering";

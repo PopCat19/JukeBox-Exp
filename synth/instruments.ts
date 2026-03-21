@@ -1,3 +1,13 @@
+// Instruments
+//
+// Purpose: Defines instrument settings, filter configuration, and modulation parameters
+//
+// This module:
+// - Manages instrument properties (type, effects, operators, envelopes)
+// - Handles filter control points and legacy filter conversion
+// - Supports FM, chip, noise, spectrum, drumset, and mod channel types
+// - Provides JSON serialization for all instrument settings
+
 import { Config, FilterType, SustainType, EnvelopeType, InstrumentType, EffectType, Transition, Unison, Chord, Vibrato, Envelope, AutomationTarget, Dictionary, DictionaryArray, toNameMap, effectsIncludeTransition, effectsIncludeChord, effectsIncludePitchShift, effectsIncludeDetune, effectsIncludeVibrato, effectsIncludeNoteFilter, effectsIncludeDistortion, effectsIncludeBitcrusher, effectsIncludePanning, effectsIncludeChorus, effectsIncludeEcho, effectsIncludeReverb, effectsIncludeNoteRange, effectsIncludeRingModulation, effectsIncludeGranular, effectsIncludePhaser, effectsIncludeInvertWave, LFOEnvelopeTypes } from "./SynthConfig";
 import { FilterCoefficients, FrequencyResponse } from "./filtering";
 import { clamp, detuneToCents, centsToDetune, fadeInSettingToSeconds, secondsToFadeInSetting, fadeOutSettingToTicks, ticksToFadeOutSetting } from "./util";

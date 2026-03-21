@@ -1,3 +1,11 @@
+// LoopEditor
+//
+// Purpose: Renders loop region start/end controls in the song editor
+//
+// This module:
+// - Handles loop point drag interaction
+// - Updates loop region on the song document
+
 // Copyright (c) 2012-2022 John Nesky and contributing authors, distributed under the MIT license, see accompanying the LICENSE.md file.
 
 import { SongDocument } from "./SongDocument";

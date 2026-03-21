@@ -1,3 +1,11 @@
+// SustainPrompt
+//
+// Purpose: Provides dialog for configuring string sustain type and level
+//
+// This module:
+// - Presents sustain type selector (acoustic/bright)
+// - Applies sustain settings to the instrument
+
 // Copyright (c) 2012-2022 John Nesky and contributing authors, distributed under the MIT license, see accompanying the LICENSE.md file.
 
 import { Config } from "../synth/SynthConfig";

@@ -1,3 +1,12 @@
+// SynthConfig
+//
+// Purpose: Defines core configuration constants, enums, and shared data for the synth engine
+//
+// This module:
+// - Stores instrument types, effect types, envelope types, and scale definitions
+// - Provides dictionary-based enum lookup and configuration arrays
+// - Manages sample loading, chip wave data, and modulator definitions
+
 /*!
 Copyright (c) 2012-2022 John Nesky and contributing authors
 

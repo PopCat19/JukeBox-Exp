@@ -1,3 +1,12 @@
+// SongRecovery
+//
+// Purpose: Manages automatic song state recovery and backup persistence
+//
+// This module:
+// - Saves periodic song snapshots to localStorage
+// - Provides recovery dialog for restoring lost work
+// - Generates unique identifiers for song tracking
+
 // Copyright (c) 2012-2022 John Nesky and contributing authors, distributed under the MIT license, see accompanying the LICENSE.md file.
 
 import { Dictionary } from "../synth/SynthConfig";

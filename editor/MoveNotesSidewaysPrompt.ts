@@ -1,3 +1,11 @@
+// MoveNotesSidewaysPrompt
+//
+// Purpose: Provides dialog for shifting selected notes horizontally in time
+//
+// This module:
+// - Presents UI for selecting shift amount and direction
+// - Applies note position offset to selected notes
+
 // Copyright (c) 2012-2022 John Nesky and contributing authors, distributed under the MIT license, see accompanying the LICENSE.md file.
 
 import { Config } from "../synth/SynthConfig";

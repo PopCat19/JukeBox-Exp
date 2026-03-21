@@ -1,3 +1,11 @@
+// Events
+//
+// Purpose: Provides a simple publish-subscribe event system for cross-module communication
+//
+// This module:
+// - Manages named event listeners with type-erased callbacks
+// - Dispatches events to all registered listeners
+
 //A simple events system for effectively direct links without actualy linking files or references
 class EventManager {
     private activeEvents: string[] = [];

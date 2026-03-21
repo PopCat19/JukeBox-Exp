@@ -1,3 +1,11 @@
+// CustomThemePrompt
+//
+// Purpose: Provides dialog for editing and applying custom color themes
+//
+// This module:
+// - Renders color picker UI for theme customization
+// - Applies custom theme settings to the editor
+
 import { HTML } from "imperative-html/dist/esm/elements-strict";
 import { Prompt } from "./Prompt";
 import { SongDocument } from "./SongDocument";

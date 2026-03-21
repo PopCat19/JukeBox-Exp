@@ -1,3 +1,11 @@
+// Preferences
+//
+// Purpose: Manages user preference settings with localStorage persistence
+//
+// This module:
+// - Stores editor display, behavior, and audio preferences
+// - Handles preference serialization and defaults
+
 // Copyright (c) 2012-2022 John Nesky and contributing authors, distributed under the MIT license, see accompanying the LICENSE.md file.
 
 import {Scale, Config} from "../synth/SynthConfig";

@@ -1,3 +1,11 @@
+// MidiInput
+//
+// Purpose: Manages real-time MIDI device input for live note playback
+//
+// This module:
+// - Connects to available MIDI devices via Web MIDI API
+// - Translates MIDI note-on/off events to editor actions
+
 // Copyright (c) 2012-2022 John Nesky and contributing authors, distributed under the MIT license, see accompanying the LICENSE.md file.
 
 import { Config } from "../synth/SynthConfig";

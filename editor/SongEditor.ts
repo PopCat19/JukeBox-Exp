@@ -1,3 +1,12 @@
+// SongEditor
+//
+// Purpose: Main editor UI composing all sub-editors and managing editor layout
+//
+// This module:
+// - Assembles pattern, track, and settings editor panels
+// - Handles top-level keyboard shortcuts and menu interactions
+// - Coordinates editor state refresh on song changes
+
 // Copyright (c) 2012-2022 John Nesky and contributing authors, distributed under the MIT license, see accompanying the LICENSE.md file.
 
 //import {Layout} from "./Layout";

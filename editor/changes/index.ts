@@ -1,3 +1,10 @@
+// Changes - Index
+//
+// Purpose: Barrel re-export of all editor change classes
+//
+// This module:
+// - Re-exports note, instrument, filter, slider, song, and utility changes
+
 // Copyright (c) 2012-2022 John Nesky and contributing authors, distributed under the MIT license, see accompanying the LICENSE.md file.
 
 export { patternsContainSameInstruments, discardInvalidPatternInstruments, unionOfUsedNotes, generateScaleMap } from "./util";

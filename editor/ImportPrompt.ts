@@ -1,3 +1,11 @@
+// ImportPrompt
+//
+// Purpose: Provides dialog for importing songs from URLs, files, or clipboard data
+//
+// This module:
+// - Parses song data from various input formats
+// - Handles version detection and format migration on import
+
 // Copyright (c) 2012-2022 John Nesky and contributing authors, distributed under the MIT license, see accompanying the LICENSE.md file.
 
 import { InstrumentType, Config } from "../synth/SynthConfig";

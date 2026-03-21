@@ -1,3 +1,12 @@
+// Changes - Song
+//
+// Purpose: Implements undoable changes for song-level settings and structure
+//
+// This module:
+// - Provides change classes for tempo, key, scale, and rhythm
+// - Handles channel add, remove, reorder, and bar manipulation
+// - Manages song metadata and loop region changes
+
 // Copyright (c) 2012-2022 John Nesky and contributing authors, distributed under the MIT license, see accompanying the LICENSE.md file.
 
 import { Config, EffectType, InstrumentType } from "../../synth/SynthConfig";

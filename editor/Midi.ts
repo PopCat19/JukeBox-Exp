@@ -1,3 +1,11 @@
+// Midi
+//
+// Purpose: Handles MIDI file parsing and export for song data interchange
+//
+// This module:
+// - Reads MIDI file binary format into note data
+// - Writes song data as standard MIDI file
+
 // Copyright (c) 2012-2022 John Nesky and contributing authors, distributed under the MIT license, see accompanying the LICENSE.md file.
 
 export const defaultMidiExpression: number = 0x7F;

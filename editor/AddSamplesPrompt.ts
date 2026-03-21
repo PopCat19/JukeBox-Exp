@@ -1,3 +1,11 @@
+// AddSamplesPrompt
+//
+// Purpose: Provides dialog for importing and loading audio sample files
+//
+// This module:
+// - Handles file input for audio sample import
+// - Manages sample loading state and user feedback
+
 import { HTML, SVG } from "imperative-html/dist/esm/elements-strict";
 import { Dictionary, Config } from "../synth/SynthConfig";
 import { clamp, parseFloatWithDefault, parseIntWithDefault } from "../synth";

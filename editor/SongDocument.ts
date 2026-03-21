@@ -1,3 +1,12 @@
+// SongDocument
+//
+// Purpose: Central song document model managing undo history, synth, and editor state
+//
+// This module:
+// - Manages song data, undo/redo history, and change tracking
+// - Coordinates synth playback and editor selection state
+// - Handles URL persistence and song recovery
+
 // Copyright (c) 2012-2022 John Nesky and contributing authors, distributed under the MIT license, see accompanying the LICENSE.md file.
 
 import { Config } from "../synth/SynthConfig";

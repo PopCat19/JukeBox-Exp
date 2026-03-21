@@ -1,3 +1,11 @@
+// LimiterPrompt
+//
+// Purpose: Provides dialog for configuring song limiter and compressor settings
+//
+// This module:
+// - Renders threshold, ratio, and decay controls
+// - Applies limiter settings to the song
+
 // Copyright (C) 2020 John Nesky, distributed under the MIT license.
 
 import { HTML, SVG } from "imperative-html/dist/esm/elements-strict";

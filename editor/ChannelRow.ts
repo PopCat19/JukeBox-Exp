@@ -1,3 +1,11 @@
+// ChannelRow
+//
+// Purpose: Renders individual channel rows in the track editor view
+//
+// This module:
+// - Displays channel patterns and bar sequence visually
+// - Handles channel row interaction and selection
+
 // Copyright (C) 2021 John Nesky, distributed under the MIT license.
 
 import { Pattern } from "../synth";

@@ -1,3 +1,11 @@
+// ThemePrompt
+//
+// Purpose: Provides dialog for selecting editor color theme
+//
+// This module:
+// - Presents theme selection list with preview
+// - Applies selected theme to the editor
+
 // Copyright (C) 2020 John Nesky, distributed under the MIT license.
 
 import { HTML } from "imperative-html/dist/esm/elements-strict";

@@ -1,4 +1,10 @@
 #!/bin/bash
+#
+# Purpose: Builds and deploys the website to Google App Engine
+#
+# This script:
+# - Runs full build via npm
+# - Deploys website directory to App Engine
 
 npm run build
 

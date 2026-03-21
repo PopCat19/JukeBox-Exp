@@ -1,3 +1,11 @@
+// Changes - Filters
+//
+// Purpose: Implements undoable changes for filter control points and settings
+//
+// This module:
+// - Provides ChangeFilterPoint, ChangeFilterAdd, and ChangeFilterRemove classes
+// - Handles EQ and note filter configuration changes
+
 // Copyright (c) 2012-2022 John Nesky and contributing authors, distributed under the MIT license, see accompanying the LICENSE.md file.
 
 import { FilterType, EffectType, AutomationTarget, Config } from "../../synth/SynthConfig";

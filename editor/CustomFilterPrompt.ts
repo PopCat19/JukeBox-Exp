@@ -1,3 +1,11 @@
+// CustomFilterPrompt
+//
+// Purpose: Provides dialog for configuring custom EQ and note filter curves
+//
+// This module:
+// - Renders interactive filter control point editor
+// - Applies filter settings to the instrument
+
 // Copyright (C) 2020 John Nesky, distributed under the MIT license.
 
 import { HTML, SVG } from "imperative-html/dist/esm/elements-strict";

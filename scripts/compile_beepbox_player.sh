@@ -1,4 +1,11 @@
 #!/bin/bash
+#
+# Purpose: Compiles the player TypeScript entry point into JavaScript bundle
+#
+# This script:
+# - Transpiles TypeScript with tsc, bundles with rollup, and minifies with terser
+# - Outputs compiled JS to website/player directory with source maps
+
 set -e
 
 # Compile player/main.ts into build/player/main.js and dependencies

@@ -1,3 +1,11 @@
+// ArrayBufferReader
+//
+// Purpose: Reads binary data from ArrayBuffer with multi-byte integer and string support
+//
+// This module:
+// - Provides sequential read operations on binary buffers
+// - Supports variable-length integer decoding
+
 // Copyright (c) 2012-2022 John Nesky and contributing authors, distributed under the MIT license, see accompanying the LICENSE.md file.
 
 // Note: All methods are big endian.

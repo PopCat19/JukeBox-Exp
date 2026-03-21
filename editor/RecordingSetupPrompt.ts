@@ -1,3 +1,11 @@
+// RecordingSetupPrompt
+//
+// Purpose: Provides dialog for configuring live recording input settings
+//
+// This module:
+// - Manages recording quantization and input device selection
+// - Applies recording settings to the performance mode
+
 // Copyright (c) 2012-2022 John Nesky and contributing authors, distributed under the MIT license, see accompanying the LICENSE.md file.
 
 import { Config } from "../synth/SynthConfig";

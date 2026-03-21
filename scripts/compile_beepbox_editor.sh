@@ -1,4 +1,11 @@
 #!/bin/bash
+#
+# Purpose: Compiles the editor TypeScript entry point into JavaScript bundle
+#
+# This script:
+# - Transpiles TypeScript with tsc, bundles with rollup, and minifies with terser
+# - Outputs compiled JS to website directory with source maps
+
 set -e
 
 # Compile editor/main.ts into build/editor/main.js and dependencies

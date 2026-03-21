@@ -1,3 +1,11 @@
+// SampleLoadingStatusPrompt
+//
+// Purpose: Provides dialog showing progress of audio sample loading
+//
+// This module:
+// - Displays sample loading status per instrument
+// - Shows loading progress indicators
+
 import { HTML } from "imperative-html/dist/esm/elements-strict";
 import { sampleLoadingState, SampleLoadingStatus, getSampleLoadingStatusName, ChipWave, Config } from "../synth/SynthConfig";
 import { ColorConfig } from "./ColorConfig";

@@ -1,3 +1,11 @@
+// Changes - Sliders
+//
+// Purpose: Implements undoable changes for continuous instrument slider values
+//
+// This module:
+// - Provides change classes for volume, pan, effects, and operator sliders
+// - Handles incremental and absolute slider value changes
+
 // Copyright (c) 2012-2022 John Nesky and contributing authors, distributed under the MIT license, see accompanying the LICENSE.md file.
 
 import { Config } from "../../synth/SynthConfig";

@@ -1,3 +1,12 @@
+// Serialization
+//
+// Purpose: Provides base64 encoding/decoding and bitfield read/write utilities for song data
+//
+// This module:
+// - Encodes and decodes 32-bit numbers using base64 characters
+// - Implements BitFieldReader and BitFieldWriter for compact song serialization
+// - Defines song tag codes for URL-based song format parsing
+
 export function encode32BitNumber(buffer: number[], x: number): void {
     // 0b11_
     buffer.push(base64IntToCharCode[(x >>> (6 * 5)) & 0x3]);

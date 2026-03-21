@@ -1,3 +1,11 @@
+// MuteEditor
+//
+// Purpose: Renders channel mute/solo controls in the track editor
+//
+// This module:
+// - Displays mute and solo buttons for each channel
+// - Handles mute state changes on the song document
+
 // Copyright (c) 2012-2022 John Nesky and contributing authors, distributed under the MIT license, see accompanying the LICENSE.md file.
 
 import { SongDocument } from "./SongDocument";

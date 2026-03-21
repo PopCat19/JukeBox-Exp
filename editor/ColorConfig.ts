@@ -1,3 +1,12 @@
+// ColorConfig
+//
+// Purpose: Manages color theme definitions and CSS variable resolution for the editor
+//
+// This module:
+// - Defines named color themes and their CSS variable mappings
+// - Provides computed style lookup for dynamic rendering
+// - Handles theme switching and custom theme support
+
 // Copyright (c) 2012-2022 John Nesky and contributing authors, distributed under the MIT license, see accompanying the LICENSE.md file.
 
 import { BeepBoxOption, DictionaryArray, toNameMap, Config } from "../synth/SynthConfig";

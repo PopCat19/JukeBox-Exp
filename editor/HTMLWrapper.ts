@@ -1,3 +1,11 @@
+// HTMLWrapper
+//
+// Purpose: Wraps HTML input elements with undo-aware change tracking
+//
+// This module:
+// - Binds input and slider elements to prospective and committed changes
+// - Provides InputBox and Slider wrapper classes
+
 // Copyright (C) 2020 John Nesky, distributed under the MIT license.
 // A few wrapper classes that add functionality onto existing HTML elements, namely binding some events to an implementation-specified change class
 

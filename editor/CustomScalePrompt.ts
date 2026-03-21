@@ -1,3 +1,11 @@
+// CustomScalePrompt
+//
+// Purpose: Provides dialog for defining custom musical scale intervals
+//
+// This module:
+// - Presents UI for selecting scale degrees
+// - Applies custom scale to the song
+
 // Copyright (C) 2020 John Nesky, distributed under the MIT license.
 
 import { Config } from "../synth/SynthConfig";

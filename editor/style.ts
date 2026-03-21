@@ -1,3 +1,12 @@
+// Style
+//
+// Purpose: Injects editor CSS styles and handles theme-dependent styling
+//
+// This module:
+// - Defines editor layout CSS with responsive breakpoints
+// - Injects CSS using ColorConfig template variables
+// - Styles all editor sub-components (pattern, track, settings panels)
+
 // Copyright (c) 2012-2022 John Nesky and contributing authors, distributed under the MIT license, see accompanying the LICENSE.md file.
 
 import { getLocalStorageItem } from "../synth/SynthConfig";

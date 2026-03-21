@@ -1,3 +1,11 @@
+// Change
+//
+// Purpose: Defines base classes for undoable and grouped editor mutations
+//
+// This module:
+// - Provides Change and UndoableChange base classes for state modifications
+// - Implements ChangeGroup and ChangeSequence for batching changes
+
 // Copyright (c) 2012-2022 John Nesky and contributing authors, distributed under the MIT license, see accompanying the LICENSE.md file.
 
 export class Change {

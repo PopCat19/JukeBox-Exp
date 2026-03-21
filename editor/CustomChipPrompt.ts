@@ -1,3 +1,11 @@
+// CustomChipPrompt
+//
+// Purpose: Provides dialog for editing custom chip wave sample data
+//
+// This module:
+// - Renders interactive waveform editor for chip wave samples
+// - Applies custom chip wave settings to the instrument
+
 // Copyright (C) 2020 John Nesky, distributed under the MIT license.
 
 import { HTML, SVG } from "imperative-html/dist/esm/elements-strict";

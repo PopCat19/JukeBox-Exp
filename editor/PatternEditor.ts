@@ -1,3 +1,12 @@
+// PatternEditor
+//
+// Purpose: Renders the main note editing canvas and handles note interaction
+//
+// This module:
+// - Draws note grid, pitch labels, and note rectangles
+// - Handles note placement, selection, and drag editing
+// - Manages keyboard input for note entry and editing
+
 // Copyright (c) 2012-2022 John Nesky and contributing authors, distributed under the MIT license, see accompanying the LICENSE.md file.
 
 import { getLocalStorageItem, Chord, Transition, Config, effectsIncludeNoteRange } from "../synth/SynthConfig";

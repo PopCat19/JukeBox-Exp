@@ -1,3 +1,12 @@
+// Notes
+//
+// Purpose: Defines Note, NotePin, and Pattern data structures for song composition
+//
+// This module:
+// - Manages note pitch, timing, and volume envelope pins
+// - Handles pattern serialization to and from JSON
+// - Provides note cloning and interval detection
+
 import { Config } from "./SynthConfig";
 import { clamp } from "./util";
 import type { Song } from "./song";

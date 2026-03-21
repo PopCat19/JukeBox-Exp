@@ -1,3 +1,13 @@
+// Song
+//
+// Purpose: Manages song data model, URL serialization, and JSON import/export
+//
+// This module:
+// - Stores song metadata (title, tempo, key, scale, channels)
+// - Encodes and decodes songs to and from URL hash format
+// - Handles JSON import with multi-version and multi-variant support
+// - Manages per-channel instrument and pattern configuration
+
 import { Config, FilterType, SustainType, EnvelopeType, InstrumentType, EffectType, Envelope, Dictionary, DictionaryArray, toNameMap, effectsIncludeTransition, effectsIncludeChord, effectsIncludePitchShift, effectsIncludeDetune, effectsIncludeVibrato, effectsIncludeNoteFilter, effectsIncludeDistortion, effectsIncludeBitcrusher, effectsIncludePanning, effectsIncludeChorus, effectsIncludeEcho, effectsIncludeReverb, effectsIncludeNoteRange, effectsIncludeRingModulation, effectsIncludeGranular, effectsIncludePhaser, effectsIncludeInvertWave, LFOEnvelopeTypes, RandomEnvelopeTypes, startLoadingSample, sampleLoadingState, SampleLoadingState, sampleLoadEvents, SampleLoadedEvent, SampleLoadingStatus, loadBuiltInSamples } from "./SynthConfig";
 import { clamp, validateRange, convertLegacyKeyToKeyAndOctave, parseFloatWithDefault, parseIntWithDefault, secondsToFadeInSetting, ticksToFadeOutSetting } from "./util";
 import { BitFieldReader, BitFieldWriter, encode32BitNumber, decode32BitNumber, encodeUnisonSettings, base64IntToCharCode, base64CharCodeToInt, CharCode, SongTagCode } from "./serialization";

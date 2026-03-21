@@ -1,3 +1,11 @@
+// BeatsPerBarPrompt
+//
+// Purpose: Provides dialog for changing the number of beats per bar
+//
+// This module:
+// - Presents UI for selecting beats-per-bar value
+// - Applies the change to the song document
+
 // Copyright (c) 2012-2022 John Nesky and contributing authors, distributed under the MIT license, see accompanying the LICENSE.md file.
 
 import { Config } from "../synth/SynthConfig";

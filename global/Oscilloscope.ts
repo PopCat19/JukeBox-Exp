@@ -1,3 +1,12 @@
+// Oscilloscope
+//
+// Purpose: Renders real-time audio waveform visualization on a canvas element
+//
+// This module:
+// - Draws left and right channel waveforms as pixel columns
+// - Listens for oscilloscope update events from the synth engine
+// - Supports configurable canvas scaling
+
 import { ColorConfig } from "../editor/ColorConfig";
 import { events } from "./Events";
 

@@ -1,3 +1,12 @@
+// Changes - Instruments
+//
+// Purpose: Implements undoable changes for instrument settings and properties
+//
+// This module:
+// - Provides change classes for all instrument parameters
+// - Handles instrument type switching and preset application
+// - Manages envelope, operator, and effect configuration changes
+
 // Copyright (c) 2012-2022 John Nesky and contributing authors, distributed under the MIT license, see accompanying the LICENSE.md file.
 
 import { Algorithm, FilterType, SustainType, InstrumentType, EffectType, Config, effectsIncludeDistortion, LFOEnvelopeTypes, RandomEnvelopeTypes } from "../../synth/SynthConfig";

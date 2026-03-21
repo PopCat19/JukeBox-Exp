@@ -1,4 +1,11 @@
 #!/bin/bash
+#
+# Purpose: Builds the EditorConfig bundle for the manual/reference pages
+#
+# This script:
+# - Transpiles editor/EditorConfig.ts, bundles with rollup, and minifies with terser
+# - Outputs compiled JS to website/manual directory with source maps
+
 set -e
 
 # Compile editor/EditorConfig.ts into build/editor/EditorConfig.js and dependencies

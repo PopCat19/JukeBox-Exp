@@ -1,3 +1,11 @@
+// ArrayBufferWriter
+//
+// Purpose: Writes binary data to ArrayBuffer with multi-byte integer and string support
+//
+// This module:
+// - Provides sequential write operations to binary buffers
+// - Supports variable-length integer encoding
+
 // Copyright (c) 2012-2022 John Nesky and contributing authors, distributed under the MIT license, see accompanying the LICENSE.md file.
 
 function transfer(source: ArrayBuffer, length: number): ArrayBuffer {

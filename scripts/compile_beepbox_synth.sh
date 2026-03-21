@@ -1,4 +1,11 @@
 #!/bin/bash
+#
+# Purpose: Compiles the synth engine TypeScript into standalone JavaScript bundle
+#
+# This script:
+# - Transpiles TypeScript with tsc, bundles with rollup, and minifies with terser
+# - Outputs compiled JS to website directory with source maps
+
 set -e
 
 # Compile synth/synth.ts into build/synth/synth.js and dependencies

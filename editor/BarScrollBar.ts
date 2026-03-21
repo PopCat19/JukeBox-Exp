@@ -1,3 +1,11 @@
+// BarScrollBar
+//
+// Purpose: Renders and manages the horizontal bar navigation scrollbar
+//
+// This module:
+// - Handles drag-based scrolling to navigate song bars
+// - Updates scrollbar position based on current playback
+
 // Copyright (c) 2012-2022 John Nesky and contributing authors, distributed under the MIT license, see accompanying the LICENSE.md file.
 
 

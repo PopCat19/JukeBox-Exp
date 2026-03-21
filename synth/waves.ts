@@ -1,3 +1,12 @@
+// Waves
+//
+// Purpose: Generates custom waveform data for spectrum, harmonics, and granular synthesis
+//
+// This module:
+// - Computes spectrum and harmonics waveforms via inverse Fourier transform
+// - Manages wave hash caching for dirty-check optimization
+// - Implements grain envelope and delay logic for granular synthesis
+
 import { Config, drawNoiseSpectrum, getDrumWave, performIntegralOld, InstrumentType } from "./SynthConfig";
 import { scaleElementsByFactor, inverseRealFourierTransform } from "./FFT";
 import { fittingPowerOfTwo } from "./util";

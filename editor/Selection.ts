@@ -1,3 +1,12 @@
+// Selection
+//
+// Purpose: Manages note and bar selection state with clipboard copy/paste support
+//
+// This module:
+// - Tracks rectangular selection region in pattern and track editors
+// - Handles copy, paste, and selection-based editing operations
+// - Manages box selection via mouse drag
+
 // Copyright (c) 2012-2022 John Nesky and contributing authors, distributed under the MIT license, see accompanying the LICENSE.md file.
 
 import { Dictionary, Config } from "../synth/SynthConfig";

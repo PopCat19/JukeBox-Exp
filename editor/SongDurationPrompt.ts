@@ -1,3 +1,11 @@
+// SongDurationPrompt
+//
+// Purpose: Provides dialog for adjusting song length and loop end bar
+//
+// This module:
+// - Presents UI for setting bar count and loop region
+// - Applies duration changes to the song
+
 // Copyright (c) 2012-2022 John Nesky and contributing authors, distributed under the MIT license, see accompanying the LICENSE.md file.
 
 import { Config } from "../synth/SynthConfig";

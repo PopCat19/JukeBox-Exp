@@ -1,3 +1,11 @@
+// Main
+//
+// Purpose: Entry point that initializes the song editor and binds it to the DOM
+//
+// This module:
+// - Creates SongDocument and SongEditor instances
+// - Handles URL hash loading and mobile detection
+
 // Copyright (c) 2012-2022 John Nesky and contributing authors, distributed under the MIT license, see accompanying the LICENSE.md file.
 
 import { Dictionary, DictionaryArray, EnvelopeType, InstrumentType, Transition, Chord, Envelope, Config } from "../synth/SynthConfig";

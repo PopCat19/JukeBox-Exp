@@ -1,4 +1,11 @@
 #!/bin/bash
+#
+# Purpose: Builds offline-ready editor and player bundles with assets
+#
+# This script:
+# - Transpiles, bundles, and minifies editor and player JS with OFFLINE=true
+# - Copies offline assets (fonts, icons, jQuery, select2) to deploy directory
+
 set -e
 
 npm run deploy-files
@@ -20,7 +27,7 @@ npx terser \
 	to_deploy/beepbox_editor.min.js \
 	-o to_deploy/beepbox_editor.min.js \
 	--compress \
-    --define OFFLINE=true \
+	--define OFFLINE=true \
 	--mangle \
 	--mangle-props regex="/^_.+/;"
 
@@ -40,7 +47,7 @@ npx terser \
 	./to_deploy/player/beepbox_player.min.js \
 	-o ./to_deploy/player/beepbox_player.min.js \
 	--compress \
-    --define OFFLINE=true \
+	--define OFFLINE=true \
 	--mangle \
 	--mangle-props regex="/^_.+/;"
 

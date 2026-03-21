@@ -1,3 +1,12 @@
+// SongPerformance
+//
+// Purpose: Manages live performance mode with real-time note input and recording
+//
+// This module:
+// - Handles live keyboard note input during playback
+// - Manages bass chord and note recording into patterns
+// - Tracks pitch state and temporary note additions
+
 // Copyright (c) 2012-2022 John Nesky and contributing authors, distributed under the MIT license, see accompanying the LICENSE.md file.
 
 import { Config } from "../synth/SynthConfig";

@@ -1,3 +1,11 @@
+// Service Worker
+//
+// Purpose: Provides offline caching and fetch interception for PWA support
+//
+// This module:
+// - Pre-caches editor, player, and sample assets on install
+// - Intercepts fetch requests to serve from cache when offline
+// - Updates cache with new responses for local and CDN resources
 
 const cacheName = "Slarmoo's Box";
 

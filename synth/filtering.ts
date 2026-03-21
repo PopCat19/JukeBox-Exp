@@ -228,7 +228,16 @@ export class FilterCoefficients {
 		this.a[1] = g - 1.0;
 		this.b[0] = g;
 		this.b[1] = 0.0;
-		/*
+// Filtering
+//
+// Purpose: Computes digital audio filter coefficients and frequency response analysis
+//
+// This module:
+// - Implements IIR filter coefficient computation (low-pass, high-pass, peak)
+// - Provides frequency response analysis for filter visualization
+// - Supports 1st and 2nd order Butterworth and simplified filter designs
+
+/*
 		// Alternatively:
 		const g: number = 1.0 / (2.0 * Math.sin(cornerRadiansPerSample / 2));
 		const a0: number = g;

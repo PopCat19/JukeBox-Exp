@@ -1,3 +1,12 @@
+// Changes - Util
+//
+// Purpose: Shared utility functions for editor change operations
+//
+// This module:
+// - Provides pattern instrument validation and union operations
+// - Implements scale map generation, pattern deduplication, and note projection
+// - Generates random waveforms for instrument creation
+
 // Copyright (c) 2012-2022 John Nesky and contributing authors, distributed under the MIT license, see accompanying the LICENSE.md file.
 
 import { Config } from "../../synth/SynthConfig";

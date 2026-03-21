@@ -1,3 +1,11 @@
+// Layout
+//
+// Purpose: Manages editor layout modes and responsive CSS grid configuration
+//
+// This module:
+// - Defines layout variants (small, long, tall, wide, AB Special, focus)
+// - Injects layout-specific CSS into the document via style element
+
 // Copyright (c) 2012-2022 John Nesky and contributing authors, distributed under the MIT license, see accompanying the LICENSE.md file.
 
 import { HTML } from "imperative-html/dist/esm/elements-strict";

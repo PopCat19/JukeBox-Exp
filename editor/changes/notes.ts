@@ -1,3 +1,12 @@
+// Changes - Notes
+//
+// Purpose: Implements undoable changes for note editing and pattern manipulation
+//
+// This module:
+// - Provides change classes for note add, remove, pitch, and length editing
+// - Handles pattern copy, paste, transpose, and scale operations
+// - Manages track and pattern selection changes
+
 // Copyright (c) 2012-2022 John Nesky and contributing authors, distributed under the MIT license, see accompanying the LICENSE.md file.
 
 import { Config, Dictionary } from "../../synth/SynthConfig";

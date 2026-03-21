@@ -1,3 +1,11 @@
+// EnvelopeEditor
+//
+// Purpose: Renders envelope editor UI for instrument automation envelopes
+//
+// This module:
+// - Draws envelope curve visualization
+// - Handles envelope point editing and drag interaction
+
 // Copyright (c) 2012-2022 John Nesky and contributing authors, distributed under the MIT license, see accompanying the LICENSE.md file.
 
 import { InstrumentType, Config, DropdownID, LFOEnvelopeTypes, RandomEnvelopeTypes } from "../synth/SynthConfig";

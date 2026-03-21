@@ -1,3 +1,11 @@
+// Deque
+//
+// Purpose: Implements a double-ended queue with dynamic circular buffer
+//
+// This module:
+// - Provides O(1) push/pop at both front and back
+// - Manages automatic buffer resizing
+
 // Copyright (c) 2012-2022 John Nesky and contributing authors, distributed under the MIT license, see accompanying the LICENSE.md file.
 
 export class Deque<T> {

@@ -1,3 +1,11 @@
+// ChangeNotifier
+//
+// Purpose: Implements observer pattern for notifying editor components of state changes
+//
+// This module:
+// - Tracks dirty state and registered watchers
+// - Batches and dispatches change notifications
+
 // Copyright (c) 2012-2022 John Nesky and contributing authors, distributed under the MIT license, see accompanying the LICENSE.md file.
 
 export class ChangeNotifier {

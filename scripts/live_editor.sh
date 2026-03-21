@@ -1,4 +1,12 @@
 #!/bin/bash
+#
+# Purpose: Starts live development server with type-checked editor compilation
+#
+# This script:
+# - Watches TypeScript source for changes via tsc --watch and rollup -w
+# - Recompiles and rebundles editor on file modification
+# - Serves site locally with auto-reload via five-server
+
 set -e
 
 # Defaults to opening index_debug.html in a browser, but that can be disabled
@@ -6,9 +14,9 @@ set -e
 # npm run live-editor -- --headless
 open_browser_path=/index_debug.html
 for arg in "$@"; do
-  case "$arg" in
-    '--headless') open_browser_path=false;;
-  esac
+	case "$arg" in
+	'--headless') open_browser_path=false ;;
+	esac
 done
 
 # Uses the "concurrently" npm package to execute multiple tasks simultaneously.
@@ -25,4 +33,4 @@ done
 npx concurrently \
 	"npx tsc -p scripts/tsconfig_editor.json --watch --preserveWatchOutput" \
 	"npx rollup build/editor/main.js --file website/beepbox_editor.js --format iife --output.name beepbox --context exports --sourcemap --plugin rollup-plugin-sourcemaps --plugin @rollup/plugin-node-resolve --watch.buildDelay 200 -w" \
-  "npx five-server --wait=200 --watch=website --port=4000 --open=$open_browser_path website/"
+	"npx five-server --wait=200 --watch=website --port=4000 --open=$open_browser_path website/"

@@ -1,4 +1,11 @@
 #!/bin/bash
+#
+# Purpose: Generates offline HTML file by injecting compiled JS into template
+#
+# This script:
+# - Uses sed to inject editor JS, jQuery, select2, and sample data into HTML template
+# - Outputs self-contained offline HTML to to_deploy directory
+
 set -e
 
 # Combine the html and js into a single file for the html version
@@ -15,4 +22,4 @@ sed \
 	-e '/INSERT_MARIOPAINTBOXSAMPLES_SCRIPT_HERE/{r website/mario_paintbox_samples.js' -e 'd' -e '}' \
 	-e '/INSERT_NINTARIBOXSAMPLES_SCRIPT_HERE/{r website/nintaribox_samples.js' -e 'd' -e '}' \
 	website/slarmoosbox_offline_template.html \
-	> to_deploy/slarmoosbox_offline_HTML.html
+	>to_deploy/slarmoosbox_offline_HTML.html

@@ -1,3 +1,12 @@
+// Index
+//
+// Purpose: Barrel re-export organizing synth modules by dependency layer
+//
+// This module:
+// - Re-exports util, serialization, notes, waves, instruments, channels, song, and synth
+// - Orders exports by dependency hierarchy (Layer 0 utilities through Layer 7 synth)
+// - Re-exports key types from SynthConfig for consumer convenience
+
 // Stratified Module Hierarchy - barrel re-export
 // Layer 0: Utilities
 export { clamp, validateRange, parseFloatWithDefault, parseIntWithDefault, convertLegacyKeyToKeyAndOctave, epsilon, fittingPowerOfTwo, detuneToCents, centsToDetune, fadeInSettingToSeconds, secondsToFadeInSetting, fadeOutSettingToTicks, ticksToFadeOutSetting, getOperatorWave } from "./util";

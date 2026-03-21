@@ -1,3 +1,11 @@
+// VisualLoopControlsPrompt
+//
+// Purpose: Provides dialog for configuring visual loop display and chip wave loop settings
+//
+// This module:
+// - Manages chip wave loop start/end point configuration
+// - Handles loop mode selection (loop, ping-pong, once)
+
 import { HTML, SVG } from "imperative-html/dist/esm/elements-strict";
 import { sampleLoadingState, SampleLoadingStatus, ChipWave, Config } from "../synth/SynthConfig";
 import { Instrument } from "../synth";

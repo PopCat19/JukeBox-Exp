@@ -1,3 +1,11 @@
+// OctaveScrollBar
+//
+// Purpose: Renders vertical octave navigation scrollbar for the pattern editor
+//
+// This module:
+// - Handles drag-based octave scrolling
+// - Updates visible octave range on the pattern editor
+
 // Copyright (c) 2012-2022 John Nesky and contributing authors, distributed under the MIT license, see accompanying the LICENSE.md file.
 
 import { Config } from "../synth/SynthConfig";

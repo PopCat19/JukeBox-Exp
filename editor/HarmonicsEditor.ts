@@ -1,3 +1,11 @@
+// HarmonicsEditor
+//
+// Purpose: Renders interactive harmonics control point editor for waveform design
+//
+// This module:
+// - Draws harmonics amplitude bar visualization
+// - Handles harmonics point drag editing
+
 // Copyright (c) 2012-2022 John Nesky and contributing authors, distributed under the MIT license, see accompanying the LICENSE.md file.
 
 import { Config } from "../synth/SynthConfig";

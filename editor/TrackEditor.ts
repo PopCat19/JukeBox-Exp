@@ -1,3 +1,11 @@
+// TrackEditor
+//
+// Purpose: Renders the bar/track timeline view showing channel patterns across bars
+//
+// This module:
+// - Draws bar grid with pattern numbers and colors
+// - Handles bar selection, drag reordering, and pattern assignment
+
 // Copyright (c) 2012-2022 John Nesky and contributing authors, distributed under the MIT license, see accompanying the LICENSE.md file.
 
 import { ColorConfig } from "./ColorConfig";
