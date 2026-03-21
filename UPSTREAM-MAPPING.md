@@ -8,11 +8,11 @@ Upstream has a single `editor/changes.ts`. This fork splits it into modules unde
 
 | Upstream content | Fork path |
 |---|---|
-| Song-level changes (`ChangeTempo`, `ChangeOctaveCount`, etc.) | `editor/changes/song.ts` |
+| Song-level changes (`ChangeTempo`, `ChangeOctaveCount`, `ChangeVolume`, `ChangePan`, etc.) | `editor/changes/song.ts` |
 | Instrument changes (`ChangePreset`, `ChangeChipWave`, etc.) | `editor/changes/instruments.ts` |
 | Note/pattern changes (`ChangeNoteAdded`, `ChangeTranspose`, etc.) | `editor/changes/notes.ts` |
 | Filter changes (`ChangeEQFilterType`, etc.) | `editor/changes/filters.ts` |
-| Slider changes (`ChangeVolume`, `ChangePan`, etc.) | `editor/changes/sliders.ts` |
+| Slider changes (`ChangeEchoDelay`, `ChangeReverb`, etc.) | `editor/changes/sliders.ts` |
 | Utilities (`generateScaleMap`, `discardInvalidPatternInstruments`) | `editor/changes/util.ts` |
 | Exports | `editor/changes/index.ts` (barrel) |
 
@@ -26,16 +26,18 @@ Upstream has a single `synth/synth.ts`. This fork splits it into modules:
 | `SongTagCode`, `base64IntToCharCode`, `BitFieldReader/Writer` | `synth/serialization.ts` |
 | `Instrument` class | `synth/instruments.ts` |
 | `Note`, `Pattern`, `Channel` classes | `synth/channels.ts`, `synth/notes.ts` |
-| Chip waves, noise definitions | `synth/waves.ts` |
+| Spectrum, harmonics, granular waveform classes | `synth/waves.ts` |
 | Shared utilities (`clamp`, etc.) | `synth/util.ts` |
 | Re-exports | `synth/index.ts` |
-| `Config`, `InstrumentType`, enums | `synth/SynthConfig.ts` (unchanged) |
+| `Config`, `InstrumentType`, enums, chip wave/noise presets | `synth/SynthConfig.ts` (unchanged) |
+| Synthesis engine (remaining after extraction) | `synth/synth.ts` (reduced from upstream) |
+| Shared with upstream (unchanged) | `synth/Deque.ts`, `synth/FFT.ts`, `synth/filtering.ts` |
 
 ## 1:1 mapping (no structural change)
 
 These directories map directly — upstream file paths match fork paths:
 
-- `editor/*.ts` (except `changes.ts`)
+- `editor/*.ts` (except `changes.ts` → `changes/` dir, and fork-only `OctaveCountPrompt.ts`)
 - `player/*.ts`
 - `global/*.ts`
 
