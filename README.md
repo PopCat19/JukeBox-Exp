@@ -23,8 +23,8 @@ The source code is available under the MIT license. The code is written in
 build this project, open a command line and run:
 
 ```
-git clone https://github.com/slarmoo/slarmoosbox.git
-cd slarmoosbox
+git clone https://github.com/PopCat19/JukeBox-Exp.git
+cd JukeBox-Exp
 bun install
 bun run build
 ```
