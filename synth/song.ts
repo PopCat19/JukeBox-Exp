@@ -317,7 +317,8 @@ export class Song {
         }
 
         //This is the tab's display name
-        this.title = "Untitled";
+        const now: Date = new Date();
+        this.title = `${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, "0")}${String(now.getDate()).padStart(2, "0")}`;
         document.title = this.title + " - " + EditorConfig.versionDisplayName;
         if (andResetChannels) {
             this.pitchChannelCount = 5; //Slarmoo's Box: 3

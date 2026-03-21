@@ -23,7 +23,7 @@ export interface ChannelColors extends BeepBoxOption {
 export class ColorConfig {
     public static colorLookup: Map<number, ChannelColors> = new Map<number, ChannelColors>();
 	public static usesColorFormula: boolean = false;
-	public static readonly defaultTheme: string = "violet verdant";
+	public static readonly defaultTheme: string = "nebula";
     public static readonly themes: { [name: string]: string } = {
 	"dark classic": ``,
         "dark competition": `
