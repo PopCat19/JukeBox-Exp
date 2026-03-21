@@ -6,7 +6,9 @@
 # - Creates deployment directory structure
 # - Copies compiled JS, sample data, HTML, and theme resources
 
-mkdir to_deploy -p
+set -Eeuo pipefail
+
+mkdir -p to_deploy
 mkdir to_deploy/player -p
 mkdir to_deploy/theme_resources -p
 

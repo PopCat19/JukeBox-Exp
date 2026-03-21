@@ -37,6 +37,7 @@
               nativeBuildInputs = [ pkgs.bun ];
               buildPhase = ''
                 bun install --frozen-lockfile --no-save
+                rm -rf node_modules/.cache
               '';
               installPhase = ''
                 cp -r node_modules $out
@@ -68,8 +69,8 @@
         apps.default = {
           type = "app";
           program = toString (
-            pkgs.writeShellScript "serve" ''
-              exec ${pkgs.bun}/bin/bun run live_editor_typeless
+            pkgs.writeShellScript "jukebox-dev" ''
+              exec ${pkgs.bun}/bin/bun run dev
             ''
           );
         };
