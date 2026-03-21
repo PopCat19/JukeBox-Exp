@@ -15,7 +15,7 @@ import { EditorConfig, isMobile, prettyNumber, Preset, PresetCategory } from "./
 import { EuclideanRhythmPrompt } from "./EuclidgenRhythmPrompt";
 import { ExportPrompt } from "./ExportPrompt";
 import "./Layout"; // Imported here for the sake of ensuring this code is transpiled early.
-import { Instrument, Channel, Synth } from "../synth";
+import { Instrument, Channel, detuneToCents } from "../synth";
 import { HTML, SVG } from "imperative-html/dist/esm/elements-strict";
 import { Preferences } from "./Preferences";
 import { HarmonicsEditor, HarmonicsEditorPrompt } from "./HarmonicsEditor";
@@ -2894,7 +2894,7 @@ export class SongEditor {
             if (effectsIncludeDetune(instrument.effects)) {
                 this._detuneSliderRow.style.display = "";
                 this._detuneSlider.updateValue(instrument.detune - Config.detuneCenter);
-                this._detuneSlider.input.title = (Synth.detuneToCents(instrument.detune)) + " cent(s)";
+                this._detuneSlider.input.title = (detuneToCents(instrument.detune)) + " cent(s)";
             } else {
                 this._detuneSliderRow.style.display = "none";
             }

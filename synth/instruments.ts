@@ -1,9 +1,7 @@
-import { Config, FilterType, SustainType, EnvelopeType, InstrumentType, EffectType, EnvelopeComputeIndex, Transition, Unison, Chord, Vibrato, Envelope, AutomationTarget, Dictionary, DictionaryArray, toNameMap, effectsIncludeTransition, effectsIncludeChord, effectsIncludePitchShift, effectsIncludeDetune, effectsIncludeVibrato, effectsIncludeNoteFilter, effectsIncludeDistortion, effectsIncludeBitcrusher, effectsIncludePanning, effectsIncludeChorus, effectsIncludeEcho, effectsIncludeReverb, effectsIncludeNoteRange, effectsIncludeRingModulation, effectsIncludeGranular, effectsIncludePhaser, effectsIncludeInvertWave, LFOEnvelopeTypes, RandomEnvelopeTypes, OperatorWave } from "./SynthConfig";
+import { Config, FilterType, SustainType, EnvelopeType, InstrumentType, EffectType, Transition, Unison, Chord, Vibrato, Envelope, AutomationTarget, Dictionary, DictionaryArray, toNameMap, effectsIncludeTransition, effectsIncludeChord, effectsIncludePitchShift, effectsIncludeDetune, effectsIncludeVibrato, effectsIncludeNoteFilter, effectsIncludeDistortion, effectsIncludeBitcrusher, effectsIncludePanning, effectsIncludeChorus, effectsIncludeEcho, effectsIncludeReverb, effectsIncludeNoteRange, effectsIncludeRingModulation, effectsIncludeGranular, effectsIncludePhaser, effectsIncludeInvertWave, LFOEnvelopeTypes } from "./SynthConfig";
 import { FilterCoefficients, FrequencyResponse } from "./filtering";
-import { clamp, fittingPowerOfTwo, detuneToCents, centsToDetune, fadeInSettingToSeconds, secondsToFadeInSetting, fadeOutSettingToTicks, ticksToFadeOutSetting, getOperatorWave } from "./util";
+import { clamp, detuneToCents, centsToDetune, fadeInSettingToSeconds, secondsToFadeInSetting, fadeOutSettingToTicks, ticksToFadeOutSetting } from "./util";
 import { SpectrumWave, HarmonicsWave } from "./waves";
-import type { Song } from "./song";
-import type { Channel } from "./channels";
 export class Operator {
     public frequency: number = 4;
     public amplitude: number = 0;
@@ -667,7 +665,7 @@ export class EnvelopeSettings {
 // Settings that were available to old versions of BeepBox but are no longer available in the
 // current version that need to be reinterpreted as a group to determine the best way to
 // represent them in the current version.
-interface LegacySettings {
+export interface LegacySettings {
     filterCutoff?: number;
     filterResonance?: number;
     filterEnvelope?: Envelope;
@@ -676,7 +674,7 @@ interface LegacySettings {
     feedbackEnvelope?: Envelope;
 }
 
-interface HeldMod {
+export interface HeldMod {
     volume: number;
     channelIndex: number;
     instrumentIndex: number;

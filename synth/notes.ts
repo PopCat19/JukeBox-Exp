@@ -1,4 +1,4 @@
-import { Config, InstrumentType, EffectType, EnvelopeType, effectsIncludeTransition, effectsIncludeChord, effectsIncludePitchShift, effectsIncludeDetune, effectsIncludeVibrato, effectsIncludeNoteFilter, effectsIncludeDistortion, effectsIncludeBitcrusher, effectsIncludePanning, effectsIncludeChorus, effectsIncludeEcho, effectsIncludeReverb, effectsIncludeNoteRange, effectsIncludeRingModulation, effectsIncludeGranular, effectsIncludePhaser, effectsIncludeInvertWave, Dictionary, DictionaryArray, toNameMap, FilterType, SustainType, EnvelopeComputeIndex, Transition, Unison, Chord, Vibrato, Envelope, AutomationTarget, LFOEnvelopeTypes, RandomEnvelopeTypes } from "./SynthConfig";
+import { Config } from "./SynthConfig";
 import { clamp } from "./util";
 import type { Song } from "./song";
 import type { Channel } from "./channels";

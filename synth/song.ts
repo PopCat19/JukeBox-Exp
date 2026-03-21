@@ -1,9 +1,10 @@
-import { Config, FilterType, SustainType, EnvelopeType, InstrumentType, EffectType, EnvelopeComputeIndex, Transition, Unison, Chord, Vibrato, Envelope, AutomationTarget, Dictionary, DictionaryArray, toNameMap, effectsIncludeTransition, effectsIncludeChord, effectsIncludePitchShift, effectsIncludeDetune, effectsIncludeVibrato, effectsIncludeNoteFilter, effectsIncludeDistortion, effectsIncludeBitcrusher, effectsIncludePanning, effectsIncludeChorus, effectsIncludeEcho, effectsIncludeReverb, effectsIncludeNoteRange, effectsIncludeRingModulation, effectsIncludeGranular, effectsIncludePhaser, effectsIncludeInvertWave, LFOEnvelopeTypes, RandomEnvelopeTypes, calculateRingModHertz } from "./SynthConfig";
-import { clamp, convertLegacyKeyToKeyAndOctave, parseFloatWithDefault, parseIntWithDefault, fittingPowerOfTwo, detuneToCents, centsToDetune, fadeInSettingToSeconds, secondsToFadeInSetting, fadeOutSettingToTicks, ticksToFadeOutSetting } from "./util";
+import { Config, FilterType, SustainType, EnvelopeType, InstrumentType, EffectType, Envelope, Dictionary, DictionaryArray, toNameMap, effectsIncludeTransition, effectsIncludeChord, effectsIncludePitchShift, effectsIncludeDetune, effectsIncludeVibrato, effectsIncludeNoteFilter, effectsIncludeDistortion, effectsIncludeBitcrusher, effectsIncludePanning, effectsIncludeChorus, effectsIncludeEcho, effectsIncludeReverb, effectsIncludeNoteRange, effectsIncludeRingModulation, effectsIncludeGranular, effectsIncludePhaser, effectsIncludeInvertWave, LFOEnvelopeTypes, RandomEnvelopeTypes, startLoadingSample, sampleLoadingState, SampleLoadingState, sampleLoadEvents, SampleLoadedEvent, SampleLoadingStatus, loadBuiltInSamples } from "./SynthConfig";
+import { clamp, validateRange, convertLegacyKeyToKeyAndOctave, parseFloatWithDefault, parseIntWithDefault, secondsToFadeInSetting, ticksToFadeOutSetting } from "./util";
 import { BitFieldReader, BitFieldWriter, encode32BitNumber, decode32BitNumber, encodeUnisonSettings, base64IntToCharCode, base64CharCodeToInt, CharCode, SongTagCode } from "./serialization";
 import { NotePin, Note, makeNotePin, Pattern } from "./notes";
-import { Instrument } from "./instruments";
+import { FilterControlPoint, FilterSettings, Instrument, LegacySettings } from "./instruments";
 import { Channel } from "./channels";
+import { Preset, EditorConfig } from "../editor/EditorConfig";
 export class Song {
     private static readonly _format: string = Config.jsonFormat;
     private static readonly _oldestBeepboxVersion: number = 2;
