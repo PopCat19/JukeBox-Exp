@@ -5,7 +5,7 @@ import { isMobile, EditorConfig } from "./EditorConfig";
 import { ColorConfig } from "./ColorConfig";
 import "./style"; // Import for the side effects, there's no exports.
 import { SongEditor } from "./SongEditor";
-import { NotePin, Note, Pattern, Instrument, Channel, Song, Synth } from "../synth/synth";
+import { NotePin, Note, Pattern, Instrument, Channel, Song, Synth } from "../synth";
 import { SongDocument } from "./SongDocument";
 import { ExportPrompt } from "./ExportPrompt";
 import { ChangePreset } from "./changes";

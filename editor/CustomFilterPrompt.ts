@@ -6,7 +6,7 @@ import { SongDocument } from "./SongDocument";
 import { Config } from "../synth/SynthConfig";
 import { FilterEditor } from "./FilterEditor";
 import { SongEditor } from "./SongEditor";
-import { FilterSettings } from "../synth/synth";
+import { FilterSettings } from "../synth";
 import { ColorConfig } from "./ColorConfig";
 
 //namespace beepbox {
