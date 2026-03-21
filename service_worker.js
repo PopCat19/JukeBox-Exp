@@ -7,7 +7,7 @@
 // - Intercepts fetch requests to serve from cache when offline
 // - Updates cache with new responses for local and CDN resources
 
-const cacheName = "Slarmoo's Box";
+const cacheName = "JukeBox";
 
 self.addEventListener("install", function(event) {
 	event.waitUntil(

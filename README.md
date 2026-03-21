@@ -1,6 +1,7 @@
-# Slarmoo's Box (Experimental)
+# JukeBox (Experimental)
 
 Browser-based tool for sketching and sharing instrumental music.
+Forked from [JukeeBox/JukeBox_TypeScript](https://github.com/JukeeBox/JukeBox_TypeScript).
 A mod of [Ultrabox](https://ultraabox.github.io) / [JummBox](https://github.com/jummbus/jummbox) / [BeepBox](https://beepbox.co).
 
 This fork is experimental. Expect breaking changes.
