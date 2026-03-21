@@ -503,6 +503,8 @@ export class ExportPrompt implements Prompt {
         } else {
             const script = document.createElement("script");
             script.src = "https://cdn.jsdelivr.net/npm/lamejs@1.2.0/lame.min.js";
+            script.integrity = "sha384-2rzUf3HDgNCBY8eyfofLg9zB+RqSUf3+WMtg5pT41cPnJiljByo3xttywbnon6Bp";
+            script.crossOrigin = "anonymous";
             script.onload = whenEncoderIsAvailable;
             document.head.appendChild(script);
         }

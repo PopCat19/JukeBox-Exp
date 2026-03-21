@@ -119,7 +119,7 @@ export class TrackEditor {
 
         if (this._barDropDown.value == "barBefore" || this._barDropDown.value == "barAfter") {
 
-            //var prevBar = this._doc.bar;
+            //let prevBar = this._doc.bar;
 
             this._doc.bar = this._barDropDownBar - 1 + moveBarOffset;
 
@@ -138,7 +138,7 @@ export class TrackEditor {
         }
         else if (this._barDropDown.value == "deleteBar") {
 
-            //var prevBar = this._doc.bar;
+            //let prevBar = this._doc.bar;
 
             this._doc.bar = this._barDropDownBar;
 
@@ -432,7 +432,7 @@ export class TrackEditor {
 
             if (this._renderedBarCount < this._doc.song.barCount) {
                 this._barNumbers.length = this._doc.song.barCount;
-                for (var pos = this._renderedBarCount; pos < this._barNumbers.length; pos++) {
+                for (let pos = this._renderedBarCount; pos < this._barNumbers.length; pos++) {
                     this._barNumbers[pos] = SVG.text({ "font-family": "sans-serif", "font-size": "8px", "text-anchor": "middle", "font-weight": "bold", "x": (pos * this._barWidth + this._barWidth / 2) + "px", "y": "7px", fill: ColorConfig.secondaryText }, "" + (pos + 1));
                     if (pos % 4 == 0) {
                         // Highlighting every 4 bars
@@ -443,7 +443,7 @@ export class TrackEditor {
                 this._renderedBarCount = this._doc.song.barCount;
             }
             else if (this._renderedBarCount > this._doc.song.barCount) {
-                for (var pos = this._renderedBarCount - 1; pos >= this._doc.song.barCount; pos--) {
+                for (let pos = this._renderedBarCount - 1; pos >= this._doc.song.barCount; pos--) {
                     this._barNumberContainer.removeChild(this._barNumbers[pos]);
                 }
                 this._barNumbers.length = this._doc.song.barCount;
@@ -451,7 +451,7 @@ export class TrackEditor {
             }
 
             // Update x of bar editor numbers
-            for (var pos = 0; pos < this._barNumbers.length; pos++) {
+            for (let pos = 0; pos < this._barNumbers.length; pos++) {
                 this._barNumbers[pos].setAttribute("x", (pos * this._barWidth + this._barWidth / 2) + "px");
             }
 

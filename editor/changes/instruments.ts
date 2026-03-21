@@ -74,7 +74,7 @@ export class ChangeCustomAlgorythmorFeedback extends Change {
         if (mode == "algorithm") {
             const oldArray: number[][] = doc.song.channels[doc.channel].instruments[doc.getCurrentInstrument()].customAlgorithm.modulatedBy;
             const oldCarriercount: number = doc.song.channels[doc.channel].instruments[doc.getCurrentInstrument()].customAlgorithm.carrierCount;
-            var comparisonResult: boolean = true;
+            let comparisonResult: boolean = true;
             if (carry != oldCarriercount) {
                 comparisonResult = false;
             } else {
@@ -103,7 +103,7 @@ export class ChangeCustomAlgorythmorFeedback extends Change {
             }
         } else if (mode == "feedback") {
             const oldArray: number[][] = doc.song.channels[doc.channel].instruments[doc.getCurrentInstrument()].customFeedbackType.indices;
-            var comparisonResult: boolean = true;
+            let comparisonResult: boolean = true;
             for (let i: number = 0; i < oldArray.length; i++) {
                 if (oldArray[i].length != newArray[i].length) {
                     comparisonResult = false;

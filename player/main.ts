@@ -179,8 +179,8 @@ if (!showOscilloscope) {
 }
 const titleText: HTMLHeadingElement = h1({ style: "flex-grow: 1; margin: 0 1px; margin-left: 10px; overflow: hidden;" }, "");
 	const editLink: HTMLAnchorElement = a({target: "_top", style: "margin: 0 4px;"}, "✎ Edit");
-	const copyLink: HTMLAnchorElement = a({href: "javascript:void(0)", style: "margin: 0 4px;"}, "⎘ Copy URL");
-	const shareLink: HTMLAnchorElement = a({href: "javascript:void(0)", style: "margin: 0 4px;"}, "⤳ Share");
+	const copyLink: HTMLAnchorElement = a({href: "#", style: "margin: 0 4px;"}, "⎘ Copy URL");
+	const shareLink: HTMLAnchorElement = a({href: "#", style: "margin: 0 4px;"}, "⤳ Share");
 	const fullscreenLink: HTMLAnchorElement = a({target: "_top", style: "margin: 0 4px;"}, "⇱ Fullscreen");
 
 let draggingPlayhead: boolean = false;
@@ -230,8 +230,7 @@ const volumeBarContainer: SVGSVGElement = SVG.svg({ style: `touch-action: none; 
 	outVolumeCap,
 );
 const sampleLoadingBar: HTMLDivElement = div({ style: `width: 0%; height: 100%; background-color: ${ColorConfig.indicatorPrimary};` });
-// const sampleFailedBar: HTMLDivElement = div({ style: `width: 0%; height: 100%; background-color: ${ColorConfig.sampleFailed};` });
-const sampleLoadingBarContainer: HTMLDivElement = div({ class: `sampleLoadingContainer`, style: `overflow: hidden; margin: auto; width: 90%; height: 50%; background-color: var(--empty-sample-bar, ${ColorConfig.indicatorSecondary});`, preserveAspectRatio: "none" }, sampleLoadingBar, /*sampleFailedBar*/);
+const sampleLoadingBarContainer: HTMLDivElement = div({ class: `sampleLoadingContainer`, style: `overflow: hidden; margin: auto; width: 90%; height: 50%; background-color: var(--empty-sample-bar, ${ColorConfig.indicatorSecondary});`, preserveAspectRatio: "none" }, sampleLoadingBar);
 const sampleLoadingStatusContainer: HTMLDivElement = div({},
 	div({ class: "selectRow", style: "overflow: hidden; margin: auto; width: 160px; height: 10px; " },
 		sampleLoadingBarContainer,
@@ -299,12 +298,6 @@ function loadSong(songString: string, reuseParams: boolean): void {
 	synth.snapToStart();
 	const updatedSongString: string = synth.song!.toBase64String();
 	editLink.href = "../" + (OFFLINE ? "index.html" : "") + "#" + updatedSongString;
-	//@jummbus - these lines convert old url vers loaded into the player to the new url ver. The problem is, if special chars are included,
-	// they appear to get double-encoded (e.g. the '%' in %20 is encoded again), which breaks the link. Disabled for now until I have a chance
-	// to look into it more.
-	//const hashQueryParams = new URLSearchParams(reuseParams ? location.hash.slice(1) : "");
-	//hashQueryParams.set("song", updatedSongString);
-	//location.hash = hashQueryParams.toString();
 }
 
 function hashUpdatedExternally(): void {
@@ -335,9 +328,6 @@ function hashUpdatedExternally(): void {
 						titleText.textContent = synth.song.title;
 					}
 					break;
-				//case "title":
-				//	titleText.textContent = decodeURIComponent(value);
-				//	break;
 				case "loop":
 					synth.loopRepeatCount = (value != "1") ? 0 : -1;
 					renderLoopIcon();
@@ -502,23 +492,23 @@ function renderPlayhead(): void {
 			const noteFlashElementsForThisBar: SVGPathElement[] = noteFlashElementsPerBar[playheadBar];
 
 			if (noteFlashElementsForThisBar != null && playheadBar !== currentNoteFlashBar) {
-				for (var i = currentNoteFlashElements.length - 1; i >= 0; i--) {
-					var element: SVGPathElement = currentNoteFlashElements[i];
+				for (let i = currentNoteFlashElements.length - 1; i >= 0; i--) {
+					let element: SVGPathElement = currentNoteFlashElements[i];
 					const outsideOfCurrentBar = Number(element.getAttribute("note-bar")) !== playheadBar;
 					const isInvisible: boolean = element.style.opacity === "0";
 					if (outsideOfCurrentBar && isInvisible) {
 						removeFromUnorderedArray(currentNoteFlashElements, i);
 					}
 				}
-				for (var i = 0; i < noteFlashElementsForThisBar.length; i++) {
-					var element: SVGPathElement = noteFlashElementsForThisBar[i];
+				for (let i = 0; i < noteFlashElementsForThisBar.length; i++) {
+					let element: SVGPathElement = noteFlashElementsForThisBar[i];
 					currentNoteFlashElements.push(element);
 				}
 			}
 
 			if (currentNoteFlashElements != null) {
-				for (var i = 0; i < currentNoteFlashElements.length; i++) {
-					var element: SVGPathElement = currentNoteFlashElements[i];
+				for (let i = 0; i < currentNoteFlashElements.length; i++) {
+					let element: SVGPathElement = currentNoteFlashElements[i];
 					const noteStart: number = Number(element.getAttribute("note-start")) / partsPerBar;
 					const noteEnd: number = Number(element.getAttribute("note-end")) / partsPerBar;
 					const noteBar: number = Number(element.getAttribute("note-bar"));
@@ -785,15 +775,8 @@ function updateSampleLoadingBar(_e: Event): void {
 			? 0
 			: Math.floor((e.samplesLoaded / e.totalSamples) * 100)
 	);
-	// const failedPercent: number = (
-	// 	e.totalSamples === 0
-	// 		? 0
-	// 		: Math.floor((e.samplesFailed / e.totalSamples) * 100)
-	// );
-	// sampleNum = Boolean(percent > 0 && failedPercent > 0);
-	sampleLoadingBarContainer.title = "Total Samples: " + String(e.totalSamples) + "; Loaded Samples: " + String(e.samplesLoaded) + "; ";//Samples Failed: " + String(e.samplesFailed) + ";";
+	sampleLoadingBarContainer.title = "Total Samples: " + String(e.totalSamples) + "; Loaded Samples: " + String(e.samplesLoaded) + "; ";
 	sampleLoadingBar.style.width = `${percent}%`;
-	// sampleFailedBar.style.width = `${failedPercent + Number(sampleNum)}%`;
 	if (e.totalSamples != 0) {
 		sampleLoadingBarContainer.style.backgroundColor = "var(--indicator-secondary)";
 	} else {
@@ -831,8 +814,8 @@ playButton.addEventListener("click", onTogglePlay);
 loopButton.addEventListener("click", onToggleLoop);
 volumeSlider.addEventListener("input", onVolumeChange);
 zoomButton.addEventListener("click", onToggleZoom);
-copyLink.addEventListener("click", onCopyClicked);
-shareLink.addEventListener("click", onShareClicked);
+copyLink.addEventListener("click", (e) => { e.preventDefault(); onCopyClicked(); });
+shareLink.addEventListener("click", (e) => { e.preventDefault(); onShareClicked(); });
 window.addEventListener("hashchange", hashUpdatedExternally);
 sampleLoadEvents.addEventListener("sampleloaded", updateSampleLoadingBar.bind(this));
 

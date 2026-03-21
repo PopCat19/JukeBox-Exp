@@ -2346,10 +2346,10 @@ export function getDrumWave(index: number, inverseRealFourierTransform: Function
 			scaleElementsByFactor!(wave, 1.0 / Math.sqrt(Config.chipNoiseLength));
 		} else if (index == 5) {
 			// "Shine" drums from modbox!
-			var drumBuffer = 1;
-			for (var i = 0; i < Config.chipNoiseLength; i++) {
+			let drumBuffer = 1;
+			for (let i = 0; i < Config.chipNoiseLength; i++) {
 				wave[i] = (drumBuffer & 1) * 2.0 - 1.0;
-				var newBuffer = drumBuffer >> 1;
+				let newBuffer = drumBuffer >> 1;
 				if (((drumBuffer + newBuffer) & 1) == 1) {
 					newBuffer += 10 << 2;
 				}
@@ -2363,10 +2363,10 @@ export function getDrumWave(index: number, inverseRealFourierTransform: Function
 			scaleElementsByFactor!(wave, 1.0 / Math.sqrt(Config.chipNoiseLength));
 		} else if (index == 7) {
 			// "Cutter" drums from modbox!
-			var drumBuffer = 1;
-			for (var i = 0; i < Config.chipNoiseLength; i++) {
+			let drumBuffer = 1;
+			for (let i = 0; i < Config.chipNoiseLength; i++) {
 				wave[i] = (drumBuffer & 1) * 4.0 * (Math.random() * 14 + 1) - 8.0;
-				var newBuffer = drumBuffer >> 1;
+				let newBuffer = drumBuffer >> 1;
 				if (((drumBuffer + newBuffer) & 1) == 1) {
 					newBuffer += 15 << 2;
 				}
@@ -2374,10 +2374,10 @@ export function getDrumWave(index: number, inverseRealFourierTransform: Function
 			}
 		} else if (index == 8) {
 			// "Metallic" drums from modbox!
-			var drumBuffer = 1;
-			for (var i = 0; i < Config.chipNoiseLength; i++) {
+			let drumBuffer = 1;
+			for (let i = 0; i < Config.chipNoiseLength; i++) {
 				wave[i] = (drumBuffer & 1) / 2.0 - 0.5;
-				var newBuffer = drumBuffer >> 1;
+				let newBuffer = drumBuffer >> 1;
 				if (((drumBuffer + newBuffer) & 1) == 1) {
 					newBuffer -= 10 << 2;
 				}
@@ -2401,10 +2401,10 @@ export function getDrumWave(index: number, inverseRealFourierTransform: Function
             }
         }
         else if (index == 11) {
-            var drumBuffer = 1;
-            for (var i = 0; i < Config.chipNoiseLength; i++) {
+            let drumBuffer = 1;
+            for (let i = 0; i < Config.chipNoiseLength; i++) {
                 wave[i] = Math.round((drumBuffer & 1));
-                var newBuffer = drumBuffer >> 1;
+                let newBuffer = drumBuffer >> 1;
                 if (((drumBuffer + newBuffer) & 1) == 1) {
                     newBuffer -= 10 << 2;
                 }
@@ -2423,7 +2423,7 @@ export function getDrumWave(index: number, inverseRealFourierTransform: Function
             b0 = b1 = b2 = b3 = b4 = b5 = b6 = 0.0;
             
             for (let i = 0; i < Config.chipNoiseLength; i++) {
-                var white = Math.random() * 2 - 1;
+                let white = Math.random() * 2 - 1;
                 b0 = 0.99886 * b0 + white * 0.0555179;
                 b1 = 0.99332 * b1 + white * 0.0750759;
                 b2 = 0.96900 * b2 + white * 0.1538520;
@@ -2439,7 +2439,7 @@ export function getDrumWave(index: number, inverseRealFourierTransform: Function
             let lastOut = 0.0;
             
             for (let i = 0; i < Config.chipNoiseLength; i++) {
-                var white = Math.random() * 2 - 1;
+                let white = Math.random() * 2 - 1;
                 wave[i] = (lastOut + (0.02 * white)) / 1.02;
                 lastOut = wave[i];
                 wave[i] *= 14;

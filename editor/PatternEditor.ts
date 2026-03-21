@@ -710,8 +710,8 @@ export class PatternEditor {
             const modPlayhead: number = this._doc.synth.playhead - playheadBar;
 
             // note flash
-            for (var i = 0; i < noteFlashElements.length; i++) {
-                var element: SVGPathElement = noteFlashElements[i];
+            for (let i = 0; i < noteFlashElements.length; i++) {
+                let element: SVGPathElement = noteFlashElements[i];
                 const noteStart: number = Number(element.getAttribute("note-start")) / (this._doc.song.beatsPerBar * Config.partsPerBeat)
                 const noteEnd: number = Number(element.getAttribute("note-end")) / (this._doc.song.beatsPerBar * Config.partsPerBeat)
                 if ((modPlayhead >= noteStart) && this._doc.prefs.notesFlashWhenPlayed) {
@@ -732,8 +732,8 @@ export class PatternEditor {
             this._svgPlayhead.setAttribute("visibility", "hidden");
 
             // dogeiscut: lazy fix boohoo
-            for (var i = 0; i < noteFlashElements.length; i++) {
-                var element: SVGPathElement = noteFlashElements[i];
+            for (let i = 0; i < noteFlashElements.length; i++) {
+                let element: SVGPathElement = noteFlashElements[i];
                 element.style.opacity = "0"
             }
         }
@@ -936,18 +936,18 @@ export class PatternEditor {
 
         // Special case, treat null change as Song volume.
         if (change == null) {
-            var modulator = Config.modulators.dictionary["song volume"];
+            let modulator = Config.modulators.dictionary["song volume"];
             applyToMods.push(modulator.index);
             if (toApply) applyValues.push(this._doc.prefs.volume - modulator.convertRealFactor);
         }
         // Also for song volume, when holding the slider at a single value.
         else if (this._doc.continuingModRecordingChange != null && this._doc.continuingModRecordingChange.storedChange == null && this._doc.continuingModRecordingChange.storedSlider == null) {
-            var modulator = Config.modulators.dictionary["song volume"];
+            let modulator = Config.modulators.dictionary["song volume"];
             applyToMods.push(modulator.index);
             if (toApply) applyValues.push(this._doc.continuingModRecordingChange.storedValues![0]);
         }
         else if (change instanceof ChangeTempo) {
-            var modulator = Config.modulators.dictionary["tempo"];
+            let modulator = Config.modulators.dictionary["tempo"];
             applyToMods.push(modulator.index);
             if (toApply) applyValues.push(this._doc.song.tempo - modulator.convertRealFactor);
             // Move the actual value back, since we just want to update the modulated value and not the base slider.
@@ -998,7 +998,7 @@ export class PatternEditor {
 
             // Reset the original point, if it was the instrument's default eq/note filter.
             for (let i: number = 0; i < useFilter.controlPointCount; i++) {
-                var point = useFilter.controlPoints[i];
+                let point = useFilter.controlPoints[i];
                 if (Object.is(point, preMoveData.point)) {
                     // Reset the filter point to its previous value, as just the mods are being changed.
                     point.freq = preMoveData.freq;
@@ -1010,7 +1010,7 @@ export class PatternEditor {
         /* Song reverb - a casualty of splitting to reverb per instrument, it's not modulate-able via slider!
         else if (change instanceof ChangeSongReverb) { } */
         else if (change instanceof ChangeVolume) {
-            var modulator = Config.modulators.dictionary["mix volume"];
+            let modulator = Config.modulators.dictionary["mix volume"];
             applyToMods.push(modulator.index);
             if (toApply) applyValues.push(instrument.volume - modulator.convertRealFactor);
             // Move the actual value back, since we just want to update the modulated value and not the base slider.
@@ -1019,7 +1019,7 @@ export class PatternEditor {
                 instrument.volume = slider.getValueBeforeProspectiveChange();
         }
         else if (change instanceof ChangePan) {
-            var modulator = Config.modulators.dictionary["pan"];
+            let modulator = Config.modulators.dictionary["pan"];
             applyToMods.push(modulator.index);
             if (toApply) applyValues.push(instrument.pan - modulator.convertRealFactor);
             // Move the actual value back, since we just want to update the modulated value and not the base slider.
@@ -1029,7 +1029,7 @@ export class PatternEditor {
             }
         }
         else if (change instanceof ChangeReverb) {
-            var modulator = Config.modulators.dictionary["reverb"];
+            let modulator = Config.modulators.dictionary["reverb"];
             applyToMods.push(modulator.index);
             if (toApply) applyValues.push(instrument.reverb - modulator.convertRealFactor);
             // Move the actual value back, since we just want to update the modulated value and not the base slider.
@@ -1039,7 +1039,7 @@ export class PatternEditor {
             }
         }
         else if (change instanceof ChangeDistortion) {
-            var modulator = Config.modulators.dictionary["distortion"];
+            let modulator = Config.modulators.dictionary["distortion"];
             applyToMods.push(modulator.index);
             if (toApply) applyValues.push(instrument.distortion - modulator.convertRealFactor);
             // Move the actual value back, since we just want to update the modulated value and not the base slider.
@@ -1049,7 +1049,7 @@ export class PatternEditor {
             }
         }
         else if (change instanceof ChangeRingMod) {
-            var modulator = Config.modulators.dictionary["ring modulation"];
+            let modulator = Config.modulators.dictionary["ring modulation"];
             applyToMods.push(modulator.index);
             if (toApply) applyValues.push(instrument.ringModulation - modulator.convertRealFactor);
             // Move the actual value back, since we just want to update the modulated value and not the base slider.
@@ -1059,7 +1059,7 @@ export class PatternEditor {
             }
         }
         else if (change instanceof ChangeRingModHz) {
-            var modulator = Config.modulators.dictionary["ring mod hertz"];
+            let modulator = Config.modulators.dictionary["ring mod hertz"];
             applyToMods.push(modulator.index);
             if (toApply) applyValues.push(instrument.ringModulationHz - modulator.convertRealFactor);
             // Move the actual value back, since we just want to update the modulated value and not the base slider.
@@ -1070,7 +1070,7 @@ export class PatternEditor {
             }
         }
         else if (change instanceof ChangeGranular) {
-            var modulator = Config.modulators.dictionary["granular"];
+            let modulator = Config.modulators.dictionary["granular"];
             applyToMods.push(modulator.index);
             if (toApply) applyValues.push(instrument.granular - modulator.convertRealFactor);
             // Move the actual value back, since we just want to update the modulated value and not the base slider.
@@ -1080,7 +1080,7 @@ export class PatternEditor {
             }
         }
         else if (change instanceof ChangeGrainAmounts) {
-            var modulator = Config.modulators.dictionary["grain freq"];
+            let modulator = Config.modulators.dictionary["grain freq"];
             applyToMods.push(modulator.index);
             if (toApply) applyValues.push(instrument.grainAmounts - modulator.convertRealFactor);
             // Move the actual value back, since we just want to update the modulated value and not the base slider.
@@ -1090,7 +1090,7 @@ export class PatternEditor {
             }
         }
         else if (change instanceof ChangeGrainSize) {
-            var modulator = Config.modulators.dictionary["grain size"];
+            let modulator = Config.modulators.dictionary["grain size"];
             applyToMods.push(modulator.index);
             if (toApply) applyValues.push(instrument.grainSize - modulator.convertRealFactor);
             // Move the actual value back, since we just want to update the modulated value and not the base slider.
@@ -1101,7 +1101,7 @@ export class PatternEditor {
             }
         }
         else if (change instanceof ChangeGrainRange) {
-            var modulator = Config.modulators.dictionary["grain range"];
+            let modulator = Config.modulators.dictionary["grain range"];
             applyToMods.push(modulator.index);
             if (toApply) applyValues.push(instrument.grainRange - modulator.convertRealFactor);
             // Move the actual value back, since we just want to update the modulated value and not the base slider.
@@ -1112,7 +1112,7 @@ export class PatternEditor {
             }
         }
         else if (change instanceof ChangeOperatorAmplitude) {
-            var modulator = Config.modulators.dictionary["fm slider " + (change.operatorIndex + 1)];
+            let modulator = Config.modulators.dictionary["fm slider " + (change.operatorIndex + 1)];
             applyToMods.push(modulator.index);
             if (toApply) applyValues.push(instrument.operators[change.operatorIndex].amplitude - modulator.convertRealFactor);
             // Move the actual value back, since we just want to update the modulated value and not the base slider.
@@ -1122,7 +1122,7 @@ export class PatternEditor {
             }
         }
         else if (change instanceof ChangeFeedbackAmplitude) {
-            var modulator = Config.modulators.dictionary["fm feedback"];
+            let modulator = Config.modulators.dictionary["fm feedback"];
             applyToMods.push(modulator.index);
             if (toApply) applyValues.push(instrument.feedbackAmplitude - modulator.convertRealFactor);
             // Move the actual value back, since we just want to update the modulated value and not the base slider.
@@ -1132,7 +1132,7 @@ export class PatternEditor {
             }
         }
         else if (change instanceof ChangePulseWidth) {
-            var modulator = Config.modulators.dictionary["pulse width"];
+            let modulator = Config.modulators.dictionary["pulse width"];
             applyToMods.push(modulator.index);
             if (toApply) applyValues.push(instrument.pulseWidth - modulator.convertRealFactor);
             // Move the actual value back, since we just want to update the modulated value and not the base slider.
@@ -1143,7 +1143,7 @@ export class PatternEditor {
         }
         // PWM decimal offset code for UB, DOUBLE-CHECK THAT THIS IS CORRECT
         else if (change instanceof ChangeDecimalOffset) {
-            var modulator = Config.modulators.dictionary["decimal offset"];
+            let modulator = Config.modulators.dictionary["decimal offset"];
             applyToMods.push(modulator.index);
             if (toApply) applyValues.push(instrument.decimalOffset - modulator.convertRealFactor);
             // Move the actual value back, since we just want to update the modulated value and not the base slider.
@@ -1153,7 +1153,7 @@ export class PatternEditor {
             }
         }
         else if (change instanceof ChangeDetune) {
-            var modulator = Config.modulators.dictionary["detune"];
+            let modulator = Config.modulators.dictionary["detune"];
             applyToMods.push(modulator.index);
             if (toApply) applyValues.push(instrument.detune - modulator.convertRealFactor - Config.detuneCenter);
             // Move the actual value back, since we just want to update the modulated value and not the base slider.
@@ -1163,7 +1163,7 @@ export class PatternEditor {
             }
         }
         else if (change instanceof ChangeVibratoDepth) {
-            var modulator = Config.modulators.dictionary["vibrato depth"];
+            let modulator = Config.modulators.dictionary["vibrato depth"];
             applyToMods.push(modulator.index);
             if (toApply) applyValues.push(instrument.vibratoDepth * 25 - modulator.convertRealFactor);
             // Move the actual value back, since we just want to update the modulated value and not the base slider.
@@ -1173,7 +1173,7 @@ export class PatternEditor {
             }
         }
         else if (change instanceof ChangeVibratoSpeed) {
-            var modulator = Config.modulators.dictionary["vibrato speed"];
+            let modulator = Config.modulators.dictionary["vibrato speed"];
             applyToMods.push(modulator.index);
             if (toApply) applyValues.push(instrument.vibratoSpeed - modulator.convertRealFactor);
             // Move the actual value back, since we just want to update the modulated value and not the base slider.
@@ -1183,7 +1183,7 @@ export class PatternEditor {
             }
         }
         else if (change instanceof ChangeVibratoDelay) {
-            var modulator = Config.modulators.dictionary["vibrato delay"];
+            let modulator = Config.modulators.dictionary["vibrato delay"];
             applyToMods.push(modulator.index);
             if (toApply) applyValues.push(instrument.vibratoDelay - modulator.convertRealFactor);
             // Move the actual value back, since we just want to update the modulated value and not the base slider.
@@ -1193,7 +1193,7 @@ export class PatternEditor {
             }
         }
         else if (change instanceof ChangeArpeggioSpeed) {
-            var modulator = Config.modulators.dictionary["arp speed"];
+            let modulator = Config.modulators.dictionary["arp speed"];
             applyToMods.push(modulator.index);
             if (toApply) applyValues.push(instrument.arpeggioSpeed - modulator.convertRealFactor);
             // Move the actual value back, since we just want to update the modulated value and not the base slider.
@@ -1203,7 +1203,7 @@ export class PatternEditor {
             }
         }
         else if (change instanceof ChangePanDelay) {
-            var modulator = Config.modulators.dictionary["pan delay"];
+            let modulator = Config.modulators.dictionary["pan delay"];
             applyToMods.push(modulator.index);
             if (toApply) applyValues.push(instrument.panDelay - modulator.convertRealFactor);
             // Move the actual value back, since we just want to update the modulated value and not the base slider.
@@ -1273,7 +1273,7 @@ export class PatternEditor {
 
             // Reset the original point, if it was the instrument's default eq/note filter.
             for (let i: number = 0; i < useFilter.controlPointCount; i++) {
-                var point = useFilter.controlPoints[i];
+                let point = useFilter.controlPoints[i];
                 if (Object.is(point, preMoveData.point)) {
                     // Reset the filter point to its previous value, as just the mods are being changed.
                     point.freq = preMoveData.freq;
@@ -1283,7 +1283,7 @@ export class PatternEditor {
 
         }
         else if (change instanceof ChangeBitcrusherQuantization) {
-            var modulator = Config.modulators.dictionary["bit crush"];
+            let modulator = Config.modulators.dictionary["bit crush"];
             applyToMods.push(modulator.index);
             if (toApply) applyValues.push(instrument.bitcrusherQuantization - modulator.convertRealFactor);
             // Move the actual value back, since we just want to update the modulated value and not the base slider.
@@ -1293,7 +1293,7 @@ export class PatternEditor {
             }
         }
         else if (change instanceof ChangeBitcrusherFreq) {
-            var modulator = Config.modulators.dictionary["freq crush"];
+            let modulator = Config.modulators.dictionary["freq crush"];
             applyToMods.push(modulator.index);
             if (toApply) applyValues.push(instrument.bitcrusherFreq - modulator.convertRealFactor);
             // Move the actual value back, since we just want to update the modulated value and not the base slider.
@@ -1303,7 +1303,7 @@ export class PatternEditor {
             }
         }
         else if (change instanceof ChangeEchoSustain) {
-            var modulator = Config.modulators.dictionary["echo"];
+            let modulator = Config.modulators.dictionary["echo"];
             applyToMods.push(modulator.index);
             if (toApply) applyValues.push(instrument.echoSustain - modulator.convertRealFactor);
             // Move the actual value back, since we just want to update the modulated value and not the base slider.
@@ -1313,7 +1313,7 @@ export class PatternEditor {
             }
         }
         else if (change instanceof ChangeChorus) {
-            var modulator = Config.modulators.dictionary["chorus"];
+            let modulator = Config.modulators.dictionary["chorus"];
             applyToMods.push(modulator.index);
             if (toApply) applyValues.push(instrument.chorus - modulator.convertRealFactor);
             // Move the actual value back, since we just want to update the modulated value and not the base slider.
@@ -1323,7 +1323,7 @@ export class PatternEditor {
             }
         }
         else if (change instanceof ChangeEQFilterSimpleCut) {
-            var modulator = Config.modulators.dictionary["eq filt cut"];
+            let modulator = Config.modulators.dictionary["eq filt cut"];
             applyToMods.push(modulator.index);
             if (toApply) applyValues.push(instrument.eqFilterSimpleCut - modulator.convertRealFactor);
             // Move the actual value back, since we just want to update the modulated value and not the base slider.
@@ -1333,7 +1333,7 @@ export class PatternEditor {
             }
         }
         else if (change instanceof ChangeEQFilterSimplePeak) {
-            var modulator = Config.modulators.dictionary["eq filt peak"];
+            let modulator = Config.modulators.dictionary["eq filt peak"];
             applyToMods.push(modulator.index);
             if (toApply) applyValues.push(instrument.eqFilterSimplePeak - modulator.convertRealFactor);
             // Move the actual value back, since we just want to update the modulated value and not the base slider.
@@ -1343,7 +1343,7 @@ export class PatternEditor {
             }
         }
         else if (change instanceof ChangeNoteFilterSimpleCut) {
-            var modulator = Config.modulators.dictionary["note filt cut"];
+            let modulator = Config.modulators.dictionary["note filt cut"];
             applyToMods.push(modulator.index);
             if (toApply) applyValues.push(instrument.noteFilterSimpleCut - modulator.convertRealFactor);
             // Move the actual value back, since we just want to update the modulated value and not the base slider.
@@ -1353,7 +1353,7 @@ export class PatternEditor {
             }
         }
         else if (change instanceof ChangeNoteFilterSimplePeak) {
-            var modulator = Config.modulators.dictionary["note filt peak"];
+            let modulator = Config.modulators.dictionary["note filt peak"];
             applyToMods.push(modulator.index);
             if (toApply) applyValues.push(instrument.noteFilterSimplePeak - modulator.convertRealFactor);
             // Move the actual value back, since we just want to update the modulated value and not the base slider.
@@ -1363,7 +1363,7 @@ export class PatternEditor {
             }
         }
         else if (change instanceof ChangePitchShift) {
-            var modulator = Config.modulators.dictionary["pitch shift"];
+            let modulator = Config.modulators.dictionary["pitch shift"];
             applyToMods.push(modulator.index);
             if (toApply) applyValues.push(instrument.pitchShift - Config.pitchShiftCenter - modulator.convertRealFactor);
             // Move the actual value back, since we just want to update the modulated value and not the base slider.
@@ -1373,7 +1373,7 @@ export class PatternEditor {
             }
         }
         else if (change instanceof ChangeStringSustain) {
-            var modulator = Config.modulators.dictionary["sustain"];
+            let modulator = Config.modulators.dictionary["sustain"];
             applyToMods.push(modulator.index);
             if (toApply) applyValues.push(instrument.stringSustain - modulator.convertRealFactor);
             // Move the actual value back, since we just want to update the modulated value and not the base slider.
@@ -1383,7 +1383,7 @@ export class PatternEditor {
             }
         }
         else if (change instanceof ChangeEnvelopeSpeed) {
-            var modulator = Config.modulators.dictionary["envelope speed"];
+            let modulator = Config.modulators.dictionary["envelope speed"];
             applyToMods.push(modulator.index);
             if (toApply) applyValues.push(instrument.envelopeSpeed - modulator.convertRealFactor);
             // Move the actual value back, since we just want to update the modulated value and not the base slider.
@@ -1393,7 +1393,7 @@ export class PatternEditor {
             }
         }
         else if (change instanceof ChangeSupersawDynamism) {
-            var modulator = Config.modulators.dictionary["dynamism"];
+            let modulator = Config.modulators.dictionary["dynamism"];
             applyToMods.push(modulator.index);
             if (toApply) applyValues.push(instrument.supersawDynamism - modulator.convertRealFactor);
             // Move the actual value back, since we just want to update the modulated value and not the base slider.
@@ -1403,7 +1403,7 @@ export class PatternEditor {
             }
         }
         else if (change instanceof ChangeSupersawSpread) {
-            var modulator = Config.modulators.dictionary["spread"];
+            let modulator = Config.modulators.dictionary["spread"];
             applyToMods.push(modulator.index);
             if (toApply) applyValues.push(instrument.supersawSpread - modulator.convertRealFactor);
             // Move the actual value back, since we just want to update the modulated value and not the base slider.
@@ -1413,7 +1413,7 @@ export class PatternEditor {
             }
         }
         else if (change instanceof ChangeSupersawShape) {
-            var modulator = Config.modulators.dictionary["saw shape"];
+            let modulator = Config.modulators.dictionary["saw shape"];
             applyToMods.push(modulator.index);
             if (toApply) applyValues.push(instrument.supersawShape - modulator.convertRealFactor);
             // Move the actual value back, since we just want to update the modulated value and not the base slider.
@@ -1422,7 +1422,7 @@ export class PatternEditor {
                 instrument.supersawShape = slider.getValueBeforeProspectiveChange();
             }
         } else if (change instanceof ChangePerEnvelopeSpeed) {
-            var modulator = Config.modulators.dictionary["individual envelope speed"];
+            let modulator = Config.modulators.dictionary["individual envelope speed"];
             applyToMods.push(modulator.index);
             const envelopeIndex: number = change.getIndex();
             if (toApply) applyValues.push(EnvelopeEditor.convertIndexSpeed(instrument.envelopes[envelopeIndex].perEnvelopeSpeed, "index") - modulator.convertRealFactor);
@@ -1434,7 +1434,7 @@ export class PatternEditor {
             applyToEnvelopeTargets.push(envelopeIndex);
 
         } else if (change instanceof ChangeEnvelopeLowerBound) {
-            var modulator = Config.modulators.dictionary["individual envelope lower bound"];
+            let modulator = Config.modulators.dictionary["individual envelope lower bound"];
             applyToMods.push(modulator.index);
             const envelopeIndex: number = change.getIndex();
             if (toApply) applyValues.push(instrument.envelopes[envelopeIndex].perEnvelopeLowerBound*10 - modulator.convertRealFactor);
@@ -1446,7 +1446,7 @@ export class PatternEditor {
             applyToEnvelopeTargets.push(envelopeIndex);
 
         } else if (change instanceof ChangeEnvelopeUpperBound) {
-            var modulator = Config.modulators.dictionary["individual envelope upper bound"];
+            let modulator = Config.modulators.dictionary["individual envelope upper bound"];
             applyToMods.push(modulator.index);
             const envelopeIndex: number = change.getIndex();
             if (toApply) applyValues.push(instrument.envelopes[envelopeIndex].perEnvelopeUpperBound*10 - modulator.convertRealFactor);
@@ -1493,7 +1493,7 @@ export class PatternEditor {
 
                 if (pattern == null) {
                     // Hunt for instrument matching this setting and swap to it.
-                    var rtn;
+                    let rtn;
                     if (applyToFilterTargets.length > applyIndex)
                         rtn = getMatchingInstrumentAndMod(applyToMods[applyIndex], channel, undefined, applyToFilterTargets[applyIndex]);
                     else if (applyToEnvelopeTargets.length > applyIndex)
@@ -1515,7 +1515,7 @@ export class PatternEditor {
                         changedPatterns = true;
                     }
                 } else {
-                    var rtn;
+                    let rtn;
                     if (applyToFilterTargets.length > applyIndex)
                         rtn = getMatchingInstrumentAndMod(applyToMods[applyIndex], channel, pattern.instruments[0], applyToFilterTargets[applyIndex]);
                     else if (applyToEnvelopeTargets.length > applyIndex)

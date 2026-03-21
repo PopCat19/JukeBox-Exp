@@ -20,6 +20,10 @@ export default tseslint.config(
     },
     {
         rules: {
+            // Enforce strict equality and ban var
+            "eqeqeq": ["error", "always"],
+            "no-var": "error",
+
             // Relax rules for legacy codebase
             "@typescript-eslint/no-unused-vars": ["warn", { argsIgnorePattern: "^_", varsIgnorePattern: "^_" }],
             "@typescript-eslint/no-explicit-any": "off",

@@ -7288,17 +7288,17 @@ export class Synth {
                 let pulseWave# = sawPhaseB# - sawPhaseA#;
                 if (!instrumentState.aliases) {
                     if (sawPhaseA# < phaseDelta#) {
-                        var t = sawPhaseA# / phaseDelta#;
+                        let t = sawPhaseA# / phaseDelta#;
                         pulseWave# += (t + t - t * t - 1) * 0.5;
                     } else if (sawPhaseA# > 1.0 - phaseDelta#) {
-                        var t = (sawPhaseA# - 1.0) / phaseDelta#;
+                        let t = (sawPhaseA# - 1.0) / phaseDelta#;
                         pulseWave# += (t + t + t * t + 1) * 0.5;
                     }
                     if (sawPhaseB# < phaseDelta#) {
-                        var t = sawPhaseB# / phaseDelta#;
+                        let t = sawPhaseB# / phaseDelta#;
                         pulseWave# -= (t + t - t * t - 1) * 0.5;
                     } else if (sawPhaseB# > 1.0 - phaseDelta#) {
-                        var t = (sawPhaseB# - 1.0) / phaseDelta#;
+                        let t = (sawPhaseB# - 1.0) / phaseDelta#;
                         pulseWave# -= (t + t + t * t + 1) * 0.5;
                     }
                 }
@@ -7399,10 +7399,10 @@ export class Synth {
             // This is a PolyBLEP, which smooths out discontinuities at any frequency to reduce aliasing. 
             if (!instrumentState.aliases) {
                 if (phase0 < phaseDelta) {
-                    var t = phase0 / phaseDelta;
+                    let t = phase0 / phaseDelta;
                     supersawSample -= (t + t - t * t - 1) * 0.5;
                 } else if (phase0 > 1.0 - phaseDelta) {
-                    var t = (phase0 - 1.0) / phaseDelta;
+                    let t = (phase0 - 1.0) / phaseDelta;
                     supersawSample -= (t + t + t * t + 1) * 0.5;
                 }
             }

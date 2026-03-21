@@ -2537,7 +2537,7 @@ export class Song {
             case SongTagCode.channelNames: {
                 for (let channel: number = 0; channel < this.getChannelCount(); channel++) {
                     // Length of channel name string. Due to some crazy Unicode characters this needs to be 2 bytes...
-                    var channelNameLength;
+                    let channelNameLength;
                     if (beforeFour && !fromGoldBox && !fromUltraBox && !fromSlarmoosBox && !fromJukeBox)
                         channelNameLength = base64CharCodeToInt[compressed.charCodeAt(charIndex++)]
                     else
