@@ -1,9 +1,10 @@
 {
-	"name": "JukeBox",
+	"name": "jukebox-exp",
 	"version": "0.1.4",
-	"description": "Slarmoo's Box is a mod of Ultrabox that aims to advance Beepbox's capabilities.",
-	"author": "Slarmoo",
+	"description": "Unofficial experimental fork of JukeBox. Browser-based tool for sketching and sharing instrumental music.",
+	"author": "PopCat19",
 	"contributors": [
+		"PopCat19",
 		"Slarmoo",
 		"Main",
 		"Neputendo",
