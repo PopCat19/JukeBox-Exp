@@ -305,7 +305,7 @@ export class Song {
         this.octave = 0;
         this.loopStart = 0;
         this.loopLength = 4;
-        this.tempo = 150; //Default tempo returned to 150 for consistency with BeepBox and JummBox
+        this.tempo = 160;
         this.reverb = 0;
         this.beatsPerBar = 8;
         this.barCount = 16;
