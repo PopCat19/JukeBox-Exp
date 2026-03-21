@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 #
 # Purpose: Compiles the editor TypeScript entry point into JavaScript bundle
 #

@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 #
 # Purpose: Builds the EditorConfig bundle for the manual/reference pages
 #

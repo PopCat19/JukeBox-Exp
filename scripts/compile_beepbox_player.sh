@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 #
 # Purpose: Compiles the player TypeScript entry point into JavaScript bundle
 #

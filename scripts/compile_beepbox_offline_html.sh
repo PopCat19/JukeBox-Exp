@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 #
 # Purpose: Generates offline HTML file by injecting compiled JS into template
 #

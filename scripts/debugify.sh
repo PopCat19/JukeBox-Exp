@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 #
 # Purpose: Renames compiled editor output to minified filename and plays alert beeps
 #
