@@ -8,7 +8,6 @@
 
 // Copyright (c) 2012-2022 John Nesky and contributing authors, distributed under the MIT license, see accompanying the LICENSE.md file.
 
-import { Config } from "../synth/SynthConfig";
 import { SongDocument } from "./SongDocument";
 import { HTML, SVG } from "imperative-html/dist/esm/elements-strict";
 import { ChangeOctave } from "./changes";
@@ -19,7 +18,7 @@ export class OctaveScrollBar {
     private readonly _editorWidth: number = 20;
     private readonly _editorHeight: number = 481;
     private readonly _notchHeight: number = 4.0;
-    private readonly _octaveCount: number = Config.pitchOctaves;
+    private readonly _octaveCount: number = this._doc.song.octaveCount;
     private readonly _octaveHeight: number = (this._editorHeight - this._notchHeight) / this._octaveCount;
 
     private readonly _handle: SVGRectElement = SVG.rect({ fill: ColorConfig.uiWidgetBackground, x: 2, y: 0, width: this._editorWidth - 4 });
@@ -144,7 +143,7 @@ export class OctaveScrollBar {
         if (this._doc.song.getChannelIsNoise(this._doc.channel) || this._doc.song.getChannelIsMod(this._doc.channel)) return;
         if (this._dragging) {
             const visibleOctaveCount: number = this._doc.getVisibleOctaveCount();
-            const scrollableOctaves: number = Config.pitchOctaves - visibleOctaveCount;
+            const scrollableOctaves: number = this._doc.song.octaveCount - visibleOctaveCount;
             const continuingProspectiveChange: boolean = this._doc.lastChangeWas(this._change);
             const oldValue: number = continuingProspectiveChange ? this._change!.oldValue : this._doc.song.channels[this._doc.channel].octave;
 
@@ -180,7 +179,7 @@ export class OctaveScrollBar {
                 if (this._change != null) this._doc.record(this._change);
             } else {
                 const visibleOctaveCount: number = this._doc.getVisibleOctaveCount();
-                const scrollableOctaves: number = Config.pitchOctaves - visibleOctaveCount;
+                const scrollableOctaves: number = this._doc.song.octaveCount - visibleOctaveCount;
                 const canReplaceLastChange: boolean = this._doc.lastChangeWas(this._change);
                 const oldValue: number = canReplaceLastChange ? this._change!.oldValue : this._doc.song.channels[this._doc.channel].octave;
 

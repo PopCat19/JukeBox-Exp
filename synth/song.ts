@@ -38,6 +38,7 @@ export class Song {
     public scale: number;
     public scaleCustom: boolean[] = [];
     public key: number;
+    public octaveCount: number;
     public octave: number;
     public tempo: number;
     public reverb: number;
@@ -300,6 +301,7 @@ export class Song {
         //this.scaleCustom = [true, false, true, true, false, false, false, true, true, false, true, true];
         //this.scaleCustom = [true, false, false, false, false, false, false, false, false, false, false, false];
         this.key = 0;
+        this.octaveCount = 8;
         this.octave = 0;
         this.loopStart = 0;
         this.loopLength = 4;
@@ -377,6 +379,7 @@ export class Song {
             buffer.push(encodedSongTitle.charCodeAt(i));
         }
 
+        buffer.push(SongTagCode.octaveCount, base64IntToCharCode[this.octaveCount]);
         buffer.push(SongTagCode.channelCount, base64IntToCharCode[this.pitchChannelCount], base64IntToCharCode[this.noiseChannelCount], base64IntToCharCode[this.modChannelCount]);
         buffer.push(SongTagCode.scale, base64IntToCharCode[this.scale]);
         if (this.scale == Config.scales["dictionary"]["Custom"].index) {
@@ -1313,6 +1316,9 @@ export class Song {
 
                 charIndex += songNameLength;
             } break;
+            case SongTagCode.octaveCount: {
+                this.octaveCount = base64CharCodeToInt[compressed.charCodeAt(charIndex++)];
+            } break;
             case SongTagCode.channelCount: {
                 this.pitchChannelCount = base64CharCodeToInt[compressed.charCodeAt(charIndex++)];
                 this.noiseChannelCount = base64CharCodeToInt[compressed.charCodeAt(charIndex++)];
@@ -1508,16 +1514,16 @@ export class Song {
             case SongTagCode.channelOctave: {
                 if (beforeThree && fromBeepBox) {
                     const channelIndex: number = base64CharCodeToInt[compressed.charCodeAt(charIndex++)];
-                    this.channels[channelIndex].octave = clamp(0, Config.pitchOctaves, base64CharCodeToInt[compressed.charCodeAt(charIndex++)] + 1);
+                    this.channels[channelIndex].octave = clamp(0, this.octaveCount, base64CharCodeToInt[compressed.charCodeAt(charIndex++)] + 1);
                     if (channelIndex >= this.pitchChannelCount) this.channels[channelIndex].octave = 0;
                 } else if ((beforeNine && fromBeepBox) || ((fromJummBox && beforeFive) || (beforeFour && fromGoldBox))) {
                     for (let channelIndex: number = 0; channelIndex < this.getChannelCount(); channelIndex++) {
-                        this.channels[channelIndex].octave = clamp(0, Config.pitchOctaves, base64CharCodeToInt[compressed.charCodeAt(charIndex++)] + 1);
+                        this.channels[channelIndex].octave = clamp(0, this.octaveCount, base64CharCodeToInt[compressed.charCodeAt(charIndex++)] + 1);
                         if (channelIndex >= this.pitchChannelCount) this.channels[channelIndex].octave = 0;
                     }
                 } else {
                     for (let channelIndex: number = 0; channelIndex < this.pitchChannelCount; channelIndex++) {
-                        this.channels[channelIndex].octave = clamp(0, Config.pitchOctaves, base64CharCodeToInt[compressed.charCodeAt(charIndex++)]);
+                        this.channels[channelIndex].octave = clamp(0, this.octaveCount, base64CharCodeToInt[compressed.charCodeAt(charIndex++)]);
                     }
                     for (let channelIndex: number = this.pitchChannelCount; channelIndex < this.getChannelCount(); channelIndex++) {
                         this.channels[channelIndex].octave = 0;
@@ -4316,7 +4322,7 @@ export class Song {
                 }
 
                 if (channelObject["octaveScrollBar"] != undefined) {
-                    channel.octave = clamp(0, Config.pitchOctaves, (channelObject["octaveScrollBar"] | 0) + 1);
+                    channel.octave = clamp(0, this.octaveCount, (channelObject["octaveScrollBar"] | 0) + 1);
                     if (isNoiseChannel) channel.octave = 0;
                 }
 

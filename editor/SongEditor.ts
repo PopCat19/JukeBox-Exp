@@ -13,6 +13,7 @@
 import { sampleLoadEvents, SampleLoadedEvent, InstrumentType, EffectType, Config, effectsIncludeTransition, effectsIncludeChord, effectsIncludePitchShift, effectsIncludeDetune, effectsIncludeVibrato, effectsIncludeNoteFilter, effectsIncludeDistortion, effectsIncludeBitcrusher, effectsIncludePanning, effectsIncludeChorus, effectsIncludeEcho, effectsIncludeReverb, effectsIncludeRingModulation, effectsIncludeGranular, DropdownID, calculateRingModHertz, effectsIncludePhaser, effectsIncludeInvertWave, effectsIncludeNoteRange } from "../synth/SynthConfig";
 import { BarScrollBar } from "./BarScrollBar";
 import { BeatsPerBarPrompt } from "./BeatsPerBarPrompt";
+import { OctaveCountPrompt } from "./OctaveCountPrompt";
 import { Change, ChangeGroup } from "./Change";
 import { ChannelSettingsPrompt } from "./ChannelSettingsPrompt";
 import { ColorConfig, ChannelColors } from "./ColorConfig";
@@ -801,6 +802,7 @@ export class SongEditor {
         option({ value: "generateEuclideanRhythm" }, "Generate Euclidean Rhythm... (" + EditorConfig.ctrlSymbol + "E)"),
         option({ value: "beatsPerBar" }, "Change Beats Per Bar... (⇧B)"),
         option({ value: "barCount" }, "Change Song Length... (L)"),
+        option({ value: "octaves" }, "Change Octave Count..."),
         option({ value: "channelSettings" }, "Channel Settings... (Q)"),
         option({ value: "limiterSettings" }, "Limiter Settings... (⇧L)"),
         option({ value: "addExternal" }, "Add Custom Samples... (⇧Q)"),
@@ -2252,6 +2254,9 @@ export class SongEditor {
                     break;
                 case "beatsPerBar":
                     this.prompt = new BeatsPerBarPrompt(this.doc);
+                    break;
+                case "octaves":
+                    this.prompt = new OctaveCountPrompt(this.doc);
                     break;
                 case "moveNotesSideways":
                     this.prompt = new MoveNotesSidewaysPrompt(this.doc);
@@ -5603,7 +5608,7 @@ export class SongEditor {
     }
 
     private _zoomOut = (): void => {
-        this.doc.prefs.visibleOctaves = Math.min(Config.pitchOctaves, this.doc.prefs.visibleOctaves + 1);
+        this.doc.prefs.visibleOctaves = Math.min(this.doc.song.octaveCount, this.doc.prefs.visibleOctaves + 1);
         this.doc.prefs.save();
         this.doc.notifier.changed();
         this.refocusStage();
@@ -5706,6 +5711,9 @@ export class SongEditor {
                 break;
             case "beatsPerBar":
                 this._openPrompt("beatsPerBar");
+                break;
+            case "octaves":
+                this._openPrompt("octaves");
                 break;
             case "moveNotesSideways":
                 this._openPrompt("moveNotesSideways");
