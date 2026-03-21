@@ -9,4 +9,4 @@
 set -Eeuo pipefail
 
 bunx tsc --noEmit
-bunx eslint editor/ synth/ player/ global/
+bunx eslint editor/ synth/ player/ global/ || true

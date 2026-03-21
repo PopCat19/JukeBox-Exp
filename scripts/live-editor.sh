@@ -15,7 +15,7 @@ for arg in "$@"; do
 	esac
 done
 
-bunx concurrently \
+bunx concurrently --kill-others \
 	"bunx esbuild --format=iife --keep-names --global-name=beepbox --bundle ./synth/synth.ts --outfile=website/beepbox_synth.js --sourcemap --watch" \
 	"bunx esbuild --format=iife --keep-names --global-name=beepbox --bundle ./player/main.ts --outfile=website/player/beepbox_player.js --sourcemap --watch --define:OFFLINE=false" \
 	"bunx esbuild --format=iife --keep-names --global-name=beepbox --bundle ./editor/main.ts --outfile=website/beepbox_editor.js --sourcemap --watch" \

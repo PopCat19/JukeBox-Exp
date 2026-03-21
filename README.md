@@ -2,7 +2,7 @@
 
 Slarmoo's Box is an online tool for sketching and sharing instrumental music.
 You can find it [here](https://github.com/slarmoo/slarmoosbox/).
-It is a modification of [Ultrabox](https://ultraabox.github.io), which is a modification of [JummBox](https://github.com/jummbus/jummbox), which inturn is a modification of the [original BeepBox](https://beepbox.co).
+It is a modification of [Ultrabox](https://ultraabox.github.io), which is a modification of [JummBox](https://github.com/jummbus/jummbox), which in turn is a modification of the [original BeepBox](https://beepbox.co).
 
 Slarmoo's Box is a mod of Ultrabox that aims to advance Beepbox's capabilities. Feel free to contribute!
 
@@ -29,23 +29,25 @@ bun install
 bun run build
 ```
 
-## Nix
+The build uses [esbuild](https://esbuild.github.io/) to bundle all four targets:
+synth, player, editor, and EditorConfig.
 
-A [flake.nix](flake.nix) is provided for Nix users. It wraps the same bun build
-pipeline described above and adds dev tooling.
+## Development
 
-```
-nix develop          # bun, shfmt, shellcheck, nixfmt in PATH
-bun install && bun run build
-```
-
-The `formatter` output runs `nixfmt` on `.nix` files:
+Start the live dev server with:
 
 ```
-nix fmt
+bun run dev
 ```
 
-Non-nix users can ignore `flake.nix` entirely — the manual `bun` flow is unchanged.
+This watches source files with esbuild and serves the site locally with
+auto-reload. Open the URL printed in the terminal.
+
+Type-check and lint with:
+
+```
+bun run lint
+```
 
 ## Code
 
@@ -54,26 +56,14 @@ The code is divided into several folders. This architecture is identical to Beep
 The [synth/](synth) folder has just the code you need to be able to play Slarmoo's Box
 songs out loud, and you could use this code in your own projects, like a web
 game. After compiling the synth code, open website/synth_example.html to see a
-demo using it. To rebuild just the synth code, run:
-
-```
-bun run build-synth
-```
+demo using it.
 
 The [editor/](editor) folder has additional code to display the online song
 editor interface. After compiling the editor code, open website/index.html to
-see the editor interface. To rebuild just the editor code, run:
-
-```
-bun run build-editor
-```
+see the editor interface.
 
 The [player/](player) folder has a miniature song player interface for embedding
-on other sites. To rebuild just the player code, run:
-
-```
-bun run build-player
-```
+on other sites.
 
 The [website/](website) folder contains index.html files to view the interfaces.
 The build process outputs JavaScript files into this folder.
@@ -86,23 +76,4 @@ Most of the dependencies are listed in [package.json](package.json), although
 [jsdelivr](https://www.jsdelivr.com/) for exporting .mp3 files. If the user
 attempts to export an .mp3 file, Slarmoo's Box will direct the browser to download
 that dependency on demand. 
-Additionally, random envelopes rely on [js-xxhash](https://npmjs.com/package/js-xxhash) for fast hashing. 
-
-
-## Offline version
-
-If you'd like to BUILD the offline version, enter the following into the command line of your choice:
-```
-bun run build-offline
-```
-
-
-After building, you can then enter the following to run it for testing purposes:
-```
-bun run start
-```
-
-And to package, run (do `bun run package-host` for your host platform; you may need to run git bash as an administrator for non-host platforms):
-```
-bun run package
-```
+Additionally, random envelopes rely on [js-xxhash](https://npmjs.com/package/js-xxhash) for fast hashing.

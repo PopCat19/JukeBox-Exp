@@ -22,7 +22,7 @@ bunx esbuild \
 	--minify \
 	--sourcemap \
 	"${offline_flag}" \
-	--outfile=website/beepbox_synth.js
+	--outfile=website/beepbox_synth.min.js
 
 bunx esbuild \
 	--format=iife \
@@ -31,7 +31,7 @@ bunx esbuild \
 	--minify \
 	--sourcemap \
 	"${offline_flag}" \
-	--outfile=website/player/beepbox_player.js
+	--outfile=website/player/beepbox_player.min.js
 
 bunx esbuild \
 	--format=iife \
@@ -40,7 +40,7 @@ bunx esbuild \
 	--minify \
 	--sourcemap \
 	"${offline_flag}" \
-	--outfile=website/beepbox_editor.js
+	--outfile=website/beepbox_editor.min.js
 
 bunx esbuild \
 	--format=iife \
@@ -48,4 +48,4 @@ bunx esbuild \
 	--bundle editor/EditorConfig.ts \
 	--minify \
 	--sourcemap \
-	--outfile=website/manual/EditorConfig.js
+	--outfile=website/manual/EditorConfig.min.js
