@@ -28,10 +28,10 @@ trap 'rm -rf "$tmpdir"' EXIT
 
 git init -q "$tmpdir"
 cp -a dist/. "$tmpdir/"
-(cd "$tmpdir" && git add -A && git commit -q -m "deploy: $commit_sha")
-tree_sha=$(git -C "$tmpdir" rev-parse HEAD^{tree})
+tmp_commit=$(cd "$tmpdir" && git add -A && git commit -q -m "deploy: $commit_sha" && git rev-parse HEAD)
 
-# Create gh-pages commit in the main repo using that tree
-commit=$(git commit-tree "$tree_sha" -m "deploy: $commit_sha")
-git push -f origin "${commit}:refs/heads/gh-pages"
+# Import the commit into the main repo and push to gh-pages
+git fetch --no-tags "$tmpdir" "$tmp_commit:refs/heads/gh-pages" 2>/dev/null ||
+	git fetch --no-tags "$tmpdir" "+$tmp_commit:refs/heads/gh-pages"
+git push -f origin "refs/heads/gh-pages:refs/heads/gh-pages"
 echo "Deployed $commit_sha to gh-pages"
