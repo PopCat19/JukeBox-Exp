@@ -493,7 +493,7 @@ export class AddSamplesPrompt {
                 let chipWaveStartOffset: number | null = null;
                 let chipWaveLoopMode: number | null = null;
                 let chipWavePlayBackwards: boolean = false;
-                let optionsStartIndex: number = url.indexOf("!");
+                const optionsStartIndex: number = url.indexOf("!");
                 let optionsEndIndex: number = -1;
                 let parsedSampleOptions: boolean = false;
                 if (optionsStartIndex === 0) {

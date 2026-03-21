@@ -35,7 +35,7 @@ export class SpectrumEditor {
     private _ampPrev: number = 0;
     private _mouseDown: boolean = false;
     private _change: ChangeSpectrum | null = null;
-    private _renderedPath: String = "";
+    private _renderedPath: string = "";
     private _renderedFifths: boolean = true;
     private instrument: Instrument;
     // private _initial: SpectrumWave = new SpectrumWave(this._spectrumIndex != null);
@@ -70,9 +70,9 @@ export class SpectrumEditor {
 
     public storeChange = (): void => {
         // Check if change is unique compared to the current history state
-        var sameCheck = true;
+        let sameCheck = true;
         if (this._changeQueue.length > 0) {
-            for (var i = 0; i < Config.spectrumControlPoints; i++) {
+            for (let i = 0; i < Config.spectrumControlPoints; i++) {
                 if (this._changeQueue[this._undoHistoryState][i] != this.instrument.spectrumWave.spectrum[i]) {
                     sameCheck = false; i = Config.spectrumControlPoints;
                 }
@@ -271,7 +271,7 @@ export class SpectrumEditor {
         let lastValue: number = 0;
         let path: string = "M 0 " + prettyNumber(this._editorHeight) + " ";
         for (let i: number = 0; i < Config.spectrumControlPoints; i++) {
-            let nextValue: number = spectrumWave.spectrum[i];
+            const nextValue: number = spectrumWave.spectrum[i];
             if (lastValue != 0 || nextValue != 0) {
                 path += "L ";
             } else {
@@ -376,9 +376,9 @@ export class SpectrumEditorPrompt implements Prompt {
                 this.spectrumEditors[i] = new SpectrumEditor(this._doc, Config.drumCount - 1 - i, true);
                 this.spectrumEditors[i].setSpectrumWave(this._songEditor._drumsetSpectrumEditors[Config.drumCount - 1 - i].getSpectrumWave().spectrum);
             }
-            let colors = ColorConfig.getChannelColor(this._doc.song, this._doc.channel);
+            const colors = ColorConfig.getChannelColor(this._doc.song, this._doc.channel);
             for (let i: number = 0; i < Config.drumCount; i++) {
-                let newSpectrumButton: HTMLButtonElement = HTML.button({ class: "no-underline", style: "max-width: 2em;" }, "" + (i + 1));
+                const newSpectrumButton: HTMLButtonElement = HTML.button({ class: "no-underline", style: "max-width: 2em;" }, "" + (i + 1));
                 this._drumsetButtons.push(newSpectrumButton);
                 this._drumsetButtonContainer.appendChild(newSpectrumButton);
                 newSpectrumButton.addEventListener("click", () => { this._setDrumSpectrum(i); });

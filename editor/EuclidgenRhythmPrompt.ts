@@ -103,7 +103,7 @@ function generateEuclideanRhythm(steps: number, pulses: number, offset: number):
     // "The Euclidean Algorithm Generates Traditional Musical Rhythms"
     // by Godfried Toussaint. It can be found here:
     // http://cgm.cs.mcgill.ca/~godfried/publications/banff-extended.pdf
-    let columns: number[][] = [];
+    const columns: number[][] = [];
     for (let step: number = 0; step < steps; step++)
         columns.push([step >= pulses ? 0 : 1]);
     let a: number = steps;
@@ -392,8 +392,8 @@ export class EuclideanRhythmPrompt implements Prompt {
             if (savedData != null) {
                 const rawSequences: any = savedData["sequences"];
                 if (rawSequences != null && Array.isArray(rawSequences)) {
-                    let parsedSequences: Sequence[] = [];
-                    for (let rawSequence of rawSequences) {
+                    const parsedSequences: Sequence[] = [];
+                    for (const rawSequence of rawSequences) {
                         parsedSequences.push({
                             steps: Math.max(this._minSteps, Math.min(this._maxSteps, rawSequence["steps"] ?? this._doc.song.beatsPerBar)),
                             pulses: Math.max(0, Math.min(this._maxSteps, rawSequence["pulses"] ?? 5)),
@@ -495,8 +495,8 @@ export class EuclideanRhythmPrompt implements Prompt {
         type ResultingSequence = Note[];
         type ResultingBar = ResultingSequence[];
         type ResultingChannel = ResultingBar[];
-        let allNewNotesByChannel: Map<number, ResultingChannel> = new Map();
-        let pitchesToBeGenerated: Map<number, boolean> = new Map();
+        const allNewNotesByChannel: Map<number, ResultingChannel> = new Map();
+        const pitchesToBeGenerated: Map<number, boolean> = new Map();
 
         for (let bar: number = firstBar; bar < lastBar; bar++) {
             // `bar` is an "absolute" coordinate, but we really want 0 to
@@ -542,7 +542,7 @@ export class EuclideanRhythmPrompt implements Prompt {
                     allNewNotesByChannel.set(channelIndex, resultingChannel);
                 }
                 const resultingBar: ResultingBar = resultingChannel[relativeBar];
-                let resultingSequence: ResultingSequence = resultingBar[sequenceIndex];
+                const resultingSequence: ResultingSequence = resultingBar[sequenceIndex];
                 const firstStep: number = Math.floor((beatsPerBar * relativeBar) / stepSize);
                 const lastStep: number = Math.ceil((beatsPerBar * (relativeBar + 1)) / stepSize); // Exclusive.
                 for (let step: number = firstStep; step < lastStep; step++) {
@@ -601,7 +601,7 @@ export class EuclideanRhythmPrompt implements Prompt {
                     throw new Error("Couldn't create new pattern");
                 }
 
-                let merged: Note[] = [];
+                const merged: Note[] = [];
 
                 // Clean the pitch lines that we will be adding notes to:
                 // go through all the notes and remove the pitches we will add.
@@ -612,7 +612,7 @@ export class EuclideanRhythmPrompt implements Prompt {
                 // this generator ever starts supporting multi-pitch sequences.
                 for (let oldNoteIndex: number = oldNotes.length - 1; oldNoteIndex >= 0; oldNoteIndex--) {
                     const oldNote: Note = oldNotes[oldNoteIndex];
-                    let newPitches: number[] = [];
+                    const newPitches: number[] = [];
                     for (const oldPitch of oldNote.pitches) {
                         if (!pitchesToBeGenerated.has(oldPitch)) {
                             newPitches.push(oldPitch);
@@ -632,7 +632,7 @@ export class EuclideanRhythmPrompt implements Prompt {
                     part: number; // aka time
                     note: Note;
                 }
-                let timeline: MergeableEvent[] = [];
+                const timeline: MergeableEvent[] = [];
                 for (const note of oldNotes) {
                     timeline.push({ noteType: "old", eventType: "start", part: note.start, note: note });
                     timeline.push({ noteType: "old", eventType: "end", part: note.end, note: note });
@@ -652,9 +652,9 @@ export class EuclideanRhythmPrompt implements Prompt {
                     part: number; // aka time
                     events: MergeableEvent[];
                 }
-                let eventGroups: MergeableEventGroup[] = [];
+                const eventGroups: MergeableEventGroup[] = [];
                 let currentEventGroup: MergeableEventGroup | null = null;
-                for (let event of timeline) {
+                for (const event of timeline) {
                     if (currentEventGroup == null) {
                         currentEventGroup = { part: event.part, events: [event] };
                     } else {
@@ -673,12 +673,12 @@ export class EuclideanRhythmPrompt implements Prompt {
                     noteType: "old" | "new";
                     note: Note;
                 }
-                let heldNotes: MergeableNote[] = [];
+                const heldNotes: MergeableNote[] = [];
                 let mergedStartPart: number = 0;
                 let mergedEndPart: number = 0;
-                let notesToDrop: Set<Note> = new Set();
-                let notesToAdd: MergeableNote[] = [];
-                let setOfPitchesToCommit: Set<number> = new Set();
+                const notesToDrop: Set<Note> = new Set();
+                const notesToAdd: MergeableNote[] = [];
+                const setOfPitchesToCommit: Set<number> = new Set();
                 for (const eventGroup of eventGroups) {
                     if (heldNotes.length === 0) {
                         // There's no notes currently held, so we should be at the start of
@@ -757,7 +757,7 @@ export class EuclideanRhythmPrompt implements Prompt {
                             const mergedNoteLength: number = mergedEndPart - mergedStartPart;
                             const mergedStartRelativeToOldStart: number = mergedStartPart - theOldNote.start;
                             const mergedEndRelativeToOldStart: number = mergedEndPart - theOldNote.start;
-                            let newPins: NotePin[] = [];
+                            const newPins: NotePin[] = [];
                             let firstVisibleOldPinIndex: number = -1;
                             let lastVisibleOldPinIndex: number = -1; // Inclusive.
                             let leftAdjacentOldPinIndex: number = 0;
@@ -834,15 +834,15 @@ export class EuclideanRhythmPrompt implements Prompt {
                             throw new Error("Ended up generating note with no pitches");
                         }
                         merged.push(mergedNote);
-                        for (let note of notesToDrop) {
+                        for (const note of notesToDrop) {
                             for (let heldNoteIndex = heldNotes.length - 1; heldNoteIndex >= 0; heldNoteIndex--) {
-                                let heldNote: Note = heldNotes[heldNoteIndex].note;
+                                const heldNote: Note = heldNotes[heldNoteIndex].note;
                                 if (note === heldNote) {
                                     heldNotes.splice(heldNoteIndex, 1);
                                 }
                             }
                         }
-                        for (let note of notesToAdd) heldNotes.push(note);
+                        for (const note of notesToAdd) heldNotes.push(note);
                         setOfPitchesToCommit.clear();
                         notesToDrop.clear();
                         while (notesToAdd.length > 0) notesToAdd.pop();
@@ -1325,7 +1325,7 @@ export class EuclideanRhythmPrompt implements Prompt {
             container.removeChild(container.firstChild);
         }
 
-        let toPushAtTheEnd: SVGElement[] = [];
+        const toPushAtTheEnd: SVGElement[] = [];
 
         const beatWidth: number = this._barPreviewWidth / beatsPerBar;
         const partWidth: number = beatWidth / partsPerBeat;
@@ -1414,7 +1414,7 @@ export class EuclideanRhythmPrompt implements Prompt {
                 }
 
                 if (continuesLastPattern) {
-                    let indicatorOffset: number = 2 + padding;
+                    const indicatorOffset: number = 2 + padding;
                     const arrowHeight: number = Math.min(h, 20);
                     const arrowY: number = y + h / 2;
 
@@ -1436,7 +1436,7 @@ export class EuclideanRhythmPrompt implements Prompt {
             }
         }
 
-        for (let element of toPushAtTheEnd) {
+        for (const element of toPushAtTheEnd) {
             container.appendChild(element);
         }
     }

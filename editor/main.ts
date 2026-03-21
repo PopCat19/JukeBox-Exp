@@ -43,8 +43,8 @@ $("#pitchPresetSelect").on('select2:open', function () {
     $('.select2-dropdown').css('opacity', 1);
     $('#pitchPresetSelect')
     setTimeout(() => {
-        let groups = $('.select2-container--open .select2-results__group');
-        let options = $('.select2-container--open .select2-results__option');
+        const groups = $('.select2-container--open .select2-results__group');
+        const options = $('.select2-container--open .select2-results__option');
 
         $.each(groups, (index, v) => {
             $(v).siblings().hide();
@@ -64,8 +64,8 @@ $("#drumPresetSelect").on('select2:open', function () {
     $('.select2-dropdown').css('opacity', 1);
     $('#drumPresetSelect')
     setTimeout(() => {
-        let groups = $('.select2-container--open .select2-results__group');
-        let options = $('.select2-container--open .select2-results__option');
+        const groups = $('.select2-container--open .select2-results__group');
+        const options = $('.select2-container--open .select2-results__option');
 
         $.each(groups, (index, v) => {
             $(v).siblings().hide();

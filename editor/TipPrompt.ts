@@ -741,9 +741,9 @@ export class TipPrompt implements Prompt {
 			default:
 				// Check for modSetinfo#
 				if (type.indexOf("modSetInfo") >= 0) {
-					let modNum: number = +type[type.length - 1];
-					let modulator: number = _doc.song.channels[_doc.channel].instruments[_doc.getCurrentInstrument()].modulators[modNum];
-					let pList: HTMLParagraphElement[] = [];
+					const modNum: number = +type[type.length - 1];
+					const modulator: number = _doc.song.channels[_doc.channel].instruments[_doc.getCurrentInstrument()].modulators[modNum];
+					const pList: HTMLParagraphElement[] = [];
 					for (let s: number = 0; s < Config.modulators[modulator].promptDesc.length; s++) {
 						pList.push(p(
 							Config.modulators[modulator].promptDesc[s]

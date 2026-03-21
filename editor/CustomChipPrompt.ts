@@ -55,10 +55,10 @@ export class CustomChipPromptCanvas {
         }
 
 
-        let col: string = ColorConfig.getChannelColor(this._doc.song, this._doc.channel).primaryNote;
+        const col: string = ColorConfig.getChannelColor(this._doc.song, this._doc.channel).primaryNote;
 
         for (let i: number = 0; i <= 64; i++) {
-            let val: number = this._doc.song.channels[this._doc.channel].instruments[this._doc.getCurrentInstrument()].customChipWave[i];
+            const val: number = this._doc.song.channels[this._doc.channel].instruments[this._doc.getCurrentInstrument()].customChipWave[i];
             this.chipData[i] = val;
             this.startingChipData[i] = val;
             this._blocks.appendChild(SVG.rect({ fill: col, x: (i * this._editorWidth / 64), y: (val + 24) * (this._editorHeight / 49), width: this._editorWidth / 64, height: this._editorHeight / 49 }));
@@ -83,9 +83,9 @@ export class CustomChipPromptCanvas {
 
     public _storeChange = (): void => {
         // Check if change is unique compared to the current history state
-        var sameCheck = true;
+        let sameCheck = true;
         if (this._changeQueue.length > 0) {
-            for (var i = 0; i < 64; i++) {
+            for (let i = 0; i < 64; i++) {
                 if (this._changeQueue[this._undoHistoryState][i] != this.chipData[i]) {
                     sameCheck = false; i = 64;
                 }
@@ -198,17 +198,17 @@ export class CustomChipPromptCanvas {
 
             // Paint between mouse drag indices unless a click just happened.
             if (this._lastIndex != -1 && this._lastIndex != index) {
-                var lowest = index;
-                var highest = this._lastIndex;
-                var startingAmp = amp;
-                var endingAmp = this._lastAmp;
+                let lowest = index;
+                let highest = this._lastIndex;
+                let startingAmp = amp;
+                let endingAmp = this._lastAmp;
                 if (this._lastIndex < index) {
                     lowest = this._lastIndex;
                     highest = index;
                     startingAmp = this._lastAmp;
                     endingAmp = amp;
                 }
-                for (var i = lowest; i <= highest; i++) {
+                for (let i = lowest; i <= highest; i++) {
                     const medAmp: number = Math.round(startingAmp + (endingAmp - startingAmp) * ((i - lowest) / (highest - lowest)));
                     this.chipData[i] = medAmp - 24;
                     this._blocks.children[i].setAttribute("y", "" + (medAmp * (this._editorHeight / 49)));
@@ -238,7 +238,7 @@ export class CustomChipPromptCanvas {
     }
 
     public render(): void {
-        for (var i = 0; i < 64; i++) {
+        for (let i = 0; i < 64; i++) {
             this._blocks.children[i].setAttribute("y", "" + ((this.chipData[i] + 24) * (this._editorHeight / 49)));
         }
     }

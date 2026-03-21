@@ -229,22 +229,22 @@ export function sigma(a: number, b: (i: number) => number, c: number): number {
 
 // Custom chip generation functions.
 export function randomSineWave(wave: Float32Array): void {
-    let randomRoundWave: Float32Array = new Float32Array(64);
-    let waveLength: number = 64;
+    const randomRoundWave: Float32Array = new Float32Array(64);
+    const waveLength: number = 64;
     let foundNonZero = false;
     const roundedWaveType: number = (Math.random() * 2 + 1) | 0;
     if (roundedWaveType == 1 || roundedWaveType == 3) {
-        let randomNumber1 = Math.random() * 2 + 0.5;
-        let randomNumber2 = Math.random() * 13 + 3;
-        let randomNumber3 = Math.random() * 48 - 24;
+        const randomNumber1 = Math.random() * 2 + 0.5;
+        const randomNumber2 = Math.random() * 13 + 3;
+        const randomNumber3 = Math.random() * 48 - 24;
         for (let i = 0; i < waveLength; i++) {
             randomRoundWave[i] = clamp(-24, 24 + 1, Math.round(mod(randomNumber3 + ((Math.sin((i + randomNumber3) / randomNumber2) * 24) + i * randomNumber1), 48) - 24));
         }
     } else if (roundedWaveType == 2) {
-        let randomNumber1 = Math.random() * 0.19 + 0.06;
-        let randomNumber2 = Math.random() * 2 + 1;
-        let randomNumber3 = Math.random() * 48 - 24;
-        let randomNumber4 = Math.random() * 2 - 1;
+        const randomNumber1 = Math.random() * 0.19 + 0.06;
+        const randomNumber2 = Math.random() * 2 + 1;
+        const randomNumber3 = Math.random() * 48 - 24;
+        const randomNumber4 = Math.random() * 2 - 1;
         for (let i = 0; i < waveLength; i++) {
             randomRoundWave[i] = clamp(-24, 24 + 1, Math.round(randomNumber4 * Math.abs(2 * Math.floor((Math.sin((i / randomNumber2) * randomNumber1 + randomNumber3) * Math.cos((i * randomNumber2) * (randomNumber1 / 2)) * 24))) - randomNumber4 * 24));
         }
@@ -265,14 +265,14 @@ export function randomSineWave(wave: Float32Array): void {
     if (!foundNonZero) randomSineWave(wave);
 }
 export function randomPulses(wave: Float32Array): void {
-    let randomPulse: Float32Array = new Float32Array(64);
-    let waveLength: number = 64;
+    const randomPulse: Float32Array = new Float32Array(64);
+    const waveLength: number = 64;
     let foundNonZero = false;
-    let randomNumber2 = Math.round(Math.random() * 15 + 15);
-    let randomNumber3 = Math.round(Math.random() * 3 + 1);
-    let randomNumber4 = Math.round(Math.random() * 13 + 2);
+    const randomNumber2 = Math.round(Math.random() * 15 + 15);
+    const randomNumber3 = Math.round(Math.random() * 3 + 1);
+    const randomNumber4 = Math.round(Math.random() * 13 + 2);
     for (let i = 0; i < waveLength; i++) {
-        let randomNumber1 = sigma(mod(i, randomNumber2), (i) => 1, randomNumber4);
+        const randomNumber1 = sigma(mod(i, randomNumber2), (i) => 1, randomNumber4);
         randomPulse[i] = clamp(-24, 24 + 1, Math.round(mod(24 * (sigma(i, (i) => randomNumber1, Math.round(randomNumber2 / randomNumber3))), 24.0000000000001)));
     }
     for (let i = 0; i < waveLength; i++) {
@@ -291,22 +291,22 @@ export function randomPulses(wave: Float32Array): void {
     if (!foundNonZero) randomPulses(wave);
 }
 export function randomChipWave(wave: Float32Array): void {
-    let randomChip: Float32Array = new Float32Array(64);
-    let waveLength: number = 64;
+    const randomChip: Float32Array = new Float32Array(64);
+    const waveLength: number = 64;
     let foundNonZero = false;
     const chipType: number = (Math.random() * 2 + 1) | 0;
     if (chipType == 1) {
-        let randomNumber1 = Math.random() * 3;
-        let randomNumber2 = Math.random() * 0.99 - 1;
-        let randomNumber3 = Math.random() * 9 + 2;
-        let randomNumber4 = Math.random() * 2 - 1;
+        const randomNumber1 = Math.random() * 3;
+        const randomNumber2 = Math.random() * 0.99 - 1;
+        const randomNumber3 = Math.random() * 9 + 2;
+        const randomNumber4 = Math.random() * 2 - 1;
         for (let i = 0; i < waveLength; i++) {
             randomChip[i] = clamp(-24, 24 + 1, (Math.round(Math.abs(randomNumber4 * mod(((randomNumber2 / randomNumber3) * randomNumber3) + (sigma(i / (randomNumber1 * randomNumber1), (i) => randomNumber3, randomNumber1 * -randomNumber2)) * randomNumber4, 24)))) * 2 - 24);
         }
     } else if (chipType == 2) {
-        let randomNumber1 = Math.random() * 3;
-        let randomNumber2 = Math.random() * 2 - 1;
-        let randomNumber3 = Math.random() * 100;
+        const randomNumber1 = Math.random() * 3;
+        const randomNumber2 = Math.random() * 2 - 1;
+        const randomNumber3 = Math.random() * 100;
         for (let i = 0; i < waveLength; i++) {
             randomChip[i] = clamp(-24, 24 + 1, mod(Math.round(mod((sigma(i / randomNumber1, (i) => (randomNumber1 * randomNumber3), 0)), 25 + randomNumber2) * 24), 48) - 24);
         }
@@ -327,8 +327,8 @@ export function randomChipWave(wave: Float32Array): void {
     if (!foundNonZero) randomChipWave(wave);
 }
 export function biasedFullyRandom(wave: Float32Array): void {
-    let fullyRandomWave: Float32Array = new Float32Array(64);
-    let waveLength: number = 64;
+    const fullyRandomWave: Float32Array = new Float32Array(64);
+    const waveLength: number = 64;
     let foundNonZero = false;
     for (let i: number = 0; i < waveLength; i++) {
         const v = Math.random() * 2 - 1;
@@ -352,8 +352,8 @@ export function biasedFullyRandom(wave: Float32Array): void {
     if (!foundNonZero) biasedFullyRandom(wave);
 }
 export function fullyRandom(wave: Float32Array): void {
-    let fullyRandomWave: Float32Array = new Float32Array(64);
-    let waveLength: number = 64;
+    const fullyRandomWave: Float32Array = new Float32Array(64);
+    const waveLength: number = 64;
     for (let i: number = 0; i < waveLength; i++) {
         fullyRandomWave[i] = clamp(-24, 24 + 1, ((Math.random() * 48) | 0) - 24);
     }

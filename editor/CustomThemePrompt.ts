@@ -218,7 +218,7 @@ export class CustomThemePrompt implements Prompt {
         reader.addEventListener("load", (event: Event): void => {
             //this._doc.prompt = null;
             //this._doc.goBackToStart();
-            let base64 = <string>reader.result;
+            const base64 = <string>reader.result;
             window.localStorage.setItem("customTheme", base64);
             const value = `url("${window.localStorage.getItem('customTheme')}")`
             console.log('setting', value)
@@ -234,7 +234,7 @@ export class CustomThemePrompt implements Prompt {
         reader.addEventListener("load", (event: Event): void => {
             //this._doc.prompt = null;
             //this._doc.goBackToStart();
-            let base64 = <string>reader.result;
+            const base64 = <string>reader.result;
             window.localStorage.setItem("customTheme2", base64);
             const value = `url("${window.localStorage.getItem('customTheme2')}")`
             document.body.style.backgroundImage = `url(${base64})`;

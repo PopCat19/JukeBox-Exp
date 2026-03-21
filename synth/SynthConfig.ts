@@ -1699,7 +1699,7 @@ export class Config {
     public static generateQuarterSineWave(): Float32Array {
         const wave: Float32Array = new Float32Array(Config.sineWaveLength + 1);
         for (let i: number = 0; i < Config.sineWaveLength + 1; i++) {
-            let q = Math.floor((i*4)/Config.sineWaveLength);
+            const q = Math.floor((i*4)/Config.sineWaveLength);
 
             if (q == 0 || q == 2) {
                 wave[i] = Math.abs(Math.sin(i * Math.PI * 2.0 / Config.sineWaveLength));
@@ -2254,7 +2254,7 @@ function centerAndNormalizeWave(wave: Array<number>): Float32Array {
 export function performIntegral(wave: { length: number, [index: number]: number }): Float32Array {
     // Perform the integral on the wave. The synth function will perform the derivative to get the original wave back but with antialiasing.
     let cumulative: number = 0.0;
-    let newWave: Float32Array = new Float32Array(wave.length);
+    const newWave: Float32Array = new Float32Array(wave.length);
     for (let i: number = 0; i < wave.length; i++) {
         newWave[i] = cumulative;
         cumulative += wave[i];
@@ -2404,13 +2404,13 @@ export function getDrumWave(index: number, inverseRealFourierTransform: Function
         }
         else if (index == 12) {
             for (let i = 0; i < Config.chipNoiseLength; i++) {
-                var ultraboxnewchipnoiserand = Math.random();
+                const ultraboxnewchipnoiserand = Math.random();
                 wave[i] = Math.pow(ultraboxnewchipnoiserand, Math.clz32(ultraboxnewchipnoiserand));
             }
         }
         else if (index == 13) {
             // https://noisehack.com/generate-noise-web-audio-api/
-            var b0 = 0, b1 = 0, b2 = 0, b3, b4, b5, b6;
+            let b0 = 0, b1 = 0, b2 = 0, b3, b4, b5, b6;
             b0 = b1 = b2 = b3 = b4 = b5 = b6 = 0.0;
             
             for (let i = 0; i < Config.chipNoiseLength; i++) {
@@ -2427,7 +2427,7 @@ export function getDrumWave(index: number, inverseRealFourierTransform: Function
             }
         }
         else if (index == 14) {
-            var lastOut = 0.0;
+            let lastOut = 0.0;
             
             for (let i = 0; i < Config.chipNoiseLength; i++) {
                 var white = Math.random() * 2 - 1;
@@ -2456,7 +2456,7 @@ export function drawNoiseSpectrum(wave: Float32Array, waveLength: number, lowOct
     let combinedAmplitude: number = 0.0;
     for (let i: number = lowIndex; i < highIndex; i++) {
 
-        let lerped: number = lowPower + (highPower - lowPower) * (Math.log2(i) - lowOctave) / (highOctave - lowOctave);
+        const lerped: number = lowPower + (highPower - lowPower) * (Math.log2(i) - lowOctave) / (highOctave - lowOctave);
         let amplitude: number = Math.pow(2, (lerped - 1) * 7 + 1) * lerped;
 
         amplitude *= Math.pow(i / referenceIndex, overallSlope);
@@ -2567,7 +2567,7 @@ export function rawChipToIntegrated(raw: DictionaryArray<ChipWave>): DictionaryA
         value.index = i;
         dictionary[value.name] = <ChipWave>value;
     }
-    for (let key in dictionary) {
+    for (const key in dictionary) {
         dictionary[key].samples = performIntegral(dictionary[key].samples);
     }
     const result: DictionaryArray<ChipWave> = <DictionaryArray<ChipWave>><any>newArray;

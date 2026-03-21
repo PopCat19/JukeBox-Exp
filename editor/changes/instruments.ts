@@ -23,7 +23,7 @@ export class ChangeCustomWave extends Change {
     constructor(doc: SongDocument, newArray: Float32Array) {
         super();
         const oldArray: Float32Array = doc.song.channels[doc.channel].instruments[doc.getCurrentInstrument()].customChipWave;
-        var comparisonResult: boolean = true;
+        let comparisonResult: boolean = true;
         for (let i: number = 0; i < oldArray.length; i++) {
             if (oldArray[i] != newArray[i]) {
                 comparisonResult = false;
@@ -31,7 +31,7 @@ export class ChangeCustomWave extends Change {
             }
         }
         if (comparisonResult == false) {
-            let instrument: Instrument = doc.song.channels[doc.channel].instruments[doc.getCurrentInstrument()];
+            const instrument: Instrument = doc.song.channels[doc.channel].instruments[doc.getCurrentInstrument()];
             for (let i: number = 0; i < newArray.length; i++) {
                 instrument.customChipWave[i] = newArray[i];
             }
@@ -84,7 +84,7 @@ export class ChangeCustomAlgorythmorFeedback extends Change {
                 }
             }
             if (comparisonResult == false) {
-                let instrument: Instrument = doc.song.channels[doc.channel].instruments[doc.getCurrentInstrument()];
+                const instrument: Instrument = doc.song.channels[doc.channel].instruments[doc.getCurrentInstrument()];
 
                 instrument.customAlgorithm.set(carry, newArray);
 
@@ -110,7 +110,7 @@ export class ChangeCustomAlgorythmorFeedback extends Change {
             }
 
             if (!comparisonResult) {
-                let instrument: Instrument = doc.song.channels[doc.channel].instruments[doc.getCurrentInstrument()];
+                const instrument: Instrument = doc.song.channels[doc.channel].instruments[doc.getCurrentInstrument()];
 
                 instrument.customFeedbackType.set(newArray);
 
@@ -429,7 +429,7 @@ export class ChangeRandomGeneratedInstrument extends Change {
                         // Might wanna do this Random*Config.____.length thing for all envelope/unison randomization?
                         instrument.drumsetEnvelopes[i] = Math.floor(Math.random() * Config.envelopes.length);
                         const spectrum: number[] = [];
-                        let randomFactor: number = Math.floor(Math.random() * 3)
+                        const randomFactor: number = Math.floor(Math.random() * 3)
                         for (let j = 0; j < Config.spectrumControlPoints; j++) {
                             if (randomFactor == 0 || randomFactor == 3) spectrum[j] = Math.pow(Math.random(), 3) * 0.25;
                             else if (randomFactor == 1) spectrum[j] = Math.pow(Math.random(), ((i / 8) + 1));
@@ -1202,8 +1202,8 @@ export class ChangeRandomGeneratedInstrument extends Change {
                     // The custom chip randomizing is a little different. It uses a random algorithm
                     // (seen as the functions below) to give the waveform unique shapes other than messy
                     // custom chip sounds. 
-                    let randomGeneratedArray: Float32Array = new Float32Array(64);
-                    let randomGeneratedArrayIntegral: Float32Array = new Float32Array(65);
+                    const randomGeneratedArray: Float32Array = new Float32Array(64);
+                    const randomGeneratedArrayIntegral: Float32Array = new Float32Array(65);
                     const algorithmFunction: (wave: Float32Array) => void = selectWeightedRandom([
                         { item: randomSineWave, weight: 4 },
                         { item: randomPulses, weight: 4 },
@@ -1310,7 +1310,7 @@ export class ChangeUnisonVoices extends Change {
     constructor(doc: SongDocument, oldValue: number, newValue: number) {
         super();
         const instrument: Instrument = doc.song.channels[doc.channel].instruments[doc.getCurrentInstrument()];
-        let prevUnison: number = instrument.unison;
+        const prevUnison: number = instrument.unison;
         if (oldValue != newValue || prevUnison != Config.unisons.length) {
             instrument.unisonVoices = newValue;
             instrument.unison = Config.unisons.length; // Custom
@@ -1325,7 +1325,7 @@ export class ChangeUnisonSpread extends Change {
     constructor(doc: SongDocument, oldValue: number, newValue: number) {
         super();
         const instrument: Instrument = doc.song.channels[doc.channel].instruments[doc.getCurrentInstrument()];
-        let prevUnison: number = instrument.unison;
+        const prevUnison: number = instrument.unison;
         if (oldValue != newValue || prevUnison != Config.unisons.length) {
             instrument.unisonSpread = newValue;
             instrument.unison = Config.unisons.length; // Custom
@@ -1340,7 +1340,7 @@ export class ChangeUnisonOffset extends Change {
     constructor(doc: SongDocument, oldValue: number, newValue: number) {
         super();
         const instrument: Instrument = doc.song.channels[doc.channel].instruments[doc.getCurrentInstrument()];
-        let prevUnison: number = instrument.unison;
+        const prevUnison: number = instrument.unison;
         if (oldValue != newValue || prevUnison != Config.unisons.length) {
             instrument.unisonOffset = newValue;
             instrument.unison = Config.unisons.length; // Custom
@@ -1355,7 +1355,7 @@ export class ChangeUnisonExpression extends Change {
     constructor(doc: SongDocument, oldValue: number, newValue: number) {
         super();
         const instrument: Instrument = doc.song.channels[doc.channel].instruments[doc.getCurrentInstrument()];
-        let prevUnison: number = instrument.unison;
+        const prevUnison: number = instrument.unison;
         if (oldValue != newValue || prevUnison != Config.unisons.length) {
             instrument.unisonExpression = newValue;
             instrument.unison = Config.unisons.length; // Custom
@@ -1370,7 +1370,7 @@ export class ChangeUnisonSign extends Change {
     constructor(doc: SongDocument, oldValue: number, newValue: number) {
         super();
         const instrument: Instrument = doc.song.channels[doc.channel].instruments[doc.getCurrentInstrument()];
-        let prevUnison: number = instrument.unison;
+        const prevUnison: number = instrument.unison;
         if (oldValue != newValue || prevUnison != Config.unisons.length) {
             instrument.unisonSign = newValue;
             instrument.unison = Config.unisons.length; // Custom
@@ -1417,7 +1417,7 @@ export class ChangeVibratoDepth extends Change {
     constructor(doc: SongDocument, oldValue: number, newValue: number) {
         super();
         const instrument: Instrument = doc.song.channels[doc.channel].instruments[doc.getCurrentInstrument()];
-        let prevVibrato: number = instrument.vibrato;
+        const prevVibrato: number = instrument.vibrato;
         doc.synth.unsetMod(Config.modulators.dictionary["vibrato depth"].index, doc.channel, doc.getCurrentInstrument());
 
         doc.notifier.changed();
@@ -1451,7 +1451,7 @@ export class ChangeVibratoSpeed extends Change {
     constructor(doc: SongDocument, oldValue: number, newValue: number) {
         super();
         const instrument: Instrument = doc.song.channels[doc.channel].instruments[doc.getCurrentInstrument()];
-        let prevVibrato: number = instrument.vibrato;
+        const prevVibrato: number = instrument.vibrato;
         doc.synth.unsetMod(Config.modulators.dictionary["vibrato speed"].index, doc.channel, doc.getCurrentInstrument());
 
         doc.notifier.changed();
@@ -1469,7 +1469,7 @@ export class ChangeVibratoDelay extends Change {
     constructor(doc: SongDocument, oldValue: number, newValue: number) {
         super();
         const instrument: Instrument = doc.song.channels[doc.channel].instruments[doc.getCurrentInstrument()];
-        let prevVibrato: number = instrument.vibrato;
+        const prevVibrato: number = instrument.vibrato;
         doc.synth.unsetMod(Config.modulators.dictionary["vibrato delay"].index, doc.channel, doc.getCurrentInstrument());
 
         doc.notifier.changed();
@@ -1488,7 +1488,7 @@ export class ChangeVibratoType extends Change {
         super();
         const instrument: Instrument = doc.song.channels[doc.channel].instruments[doc.getCurrentInstrument()];
         const oldValue: number = instrument.vibratoType;
-        let prevVibrato: number = instrument.vibrato;
+        const prevVibrato: number = instrument.vibrato;
 
         doc.notifier.changed();
         if (oldValue != newValue || prevVibrato != Config.vibratos.length) {

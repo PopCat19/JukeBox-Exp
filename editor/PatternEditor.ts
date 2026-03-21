@@ -258,12 +258,12 @@ export class PatternEditor {
                 label.innerText = "" + this._modDragLowerBound;
             }
 
-            let presValue: number = Math.floor(Math.max(Number(this._modDragLowerBound), Math.min(Number(this._modDragUpperBound), converted)));
+            const presValue: number = Math.floor(Math.max(Number(this._modDragLowerBound), Math.min(Number(this._modDragUpperBound), converted)));
             if (label.innerText != presValue + "")
                 label.innerText = presValue + "";
 
             // This is me being too lazy to fiddle with the css to get it to align center.
-            let xOffset: number = (+(presValue >= 10.0)) + (+(presValue >= 100.0)) + (+(presValue < 0.0)) + (+(presValue <= -10.0));
+            const xOffset: number = (+(presValue >= 10.0)) + (+(presValue >= 100.0)) + (+(presValue < 0.0)) + (+(presValue <= -10.0));
             this._modDragValueLabelLeft = +prettyNumber(Math.max(Math.min(this._editorWidth - 10 - xOffset * 8, this._partWidth * (this._modDragNote.start + this._modDragPin.time) - 4 - xOffset * 4), 2));
             this.modDragValueLabel.style.setProperty("left", "" + this._modDragValueLabelLeft + "px");
 
@@ -380,12 +380,12 @@ export class PatternEditor {
                     this.modDragValueLabel.style.setProperty("display", "");
                     const mod: number = Math.max(0, Config.modCount - 1 - this._cursor.curNote.pitches[0]);
 
-                    let setting: number = this._doc.song.channels[this._doc.channel].instruments[this._doc.getCurrentInstrument(this._barOffset)].modulators[mod];
+                    const setting: number = this._doc.song.channels[this._doc.channel].instruments[this._doc.getCurrentInstrument(this._barOffset)].modulators[mod];
 
-                    let presValue: number = this._cursor.curNote.pins[pinIdx].size + Config.modulators[setting].convertRealFactor;
+                    const presValue: number = this._cursor.curNote.pins[pinIdx].size + Config.modulators[setting].convertRealFactor;
 
                     // This is me being too lazy to fiddle with the css to get it to align center.
-                    let xOffset: number = (+(presValue >= 10.0)) + (+(presValue >= 100.0)) + (+(presValue < 0.0)) + (+(presValue <= -10.0));
+                    const xOffset: number = (+(presValue >= 10.0)) + (+(presValue >= 100.0)) + (+(presValue < 0.0)) + (+(presValue <= -10.0));
 
                     this._modDragValueLabelWidth = 8 + xOffset * 8;
                     this._modDragValueLabelLeft = +prettyNumber(Math.max(Math.min(this._editorWidth - 10 - xOffset * 8, this._partWidth * (this._cursor.curNote.start + this._cursor.curNote.pins[pinIdx].time) - 4 - xOffset * 4), 2));
@@ -559,7 +559,7 @@ export class PatternEditor {
                 }
 
                 // Scale volume of copied pin to cap for this row
-                let maxHeight: number = this._doc.song.getVolumeCap(this._doc.song.getChannelIsMod(this._doc.channel), this._doc.channel, this._doc.getCurrentInstrument(this._barOffset), this._cursor.pitch);
+                const maxHeight: number = this._doc.song.getVolumeCap(this._doc.song.getChannelIsMod(this._doc.channel), this._doc.channel, this._doc.getCurrentInstrument(this._barOffset), this._cursor.pitch);
                 let maxFoundHeight: number = 0;
                 for (const pin of this._cursor.pins) {
                     if (pin.size > maxFoundHeight) {
@@ -664,7 +664,7 @@ export class PatternEditor {
 
     public resetCopiedPins = (): void => {
         const maxDivision: number = this._getMaxDivision();
-        let cap: number = this._doc.song.getVolumeCap(false);
+        const cap: number = this._doc.song.getVolumeCap(false);
         this._copiedPinChannels.length = this._doc.song.getChannelCount();
         this._stashCursorPinVols.length = this._doc.song.getChannelCount();
         for (let i: number = 0; i < this._doc.song.pitchChannelCount; i++) {
@@ -796,10 +796,10 @@ export class PatternEditor {
 
         // For a given setting and a given channel, find the instrument and mod number that influences the setting.
         function getMatchingInstrumentAndMod(applyToMod: number, modChannel: Channel, modInsIndex?: number | undefined, modFilterIndex?: number | undefined, modEnvIndex?: number | undefined): number[] {
-            let startIndex: number = (modInsIndex == undefined) ? 0 : modInsIndex;
-            let endIndex: number = (modInsIndex == undefined) ? modChannel.instruments.length - 1 : modInsIndex;
+            const startIndex: number = (modInsIndex == undefined) ? 0 : modInsIndex;
+            const endIndex: number = (modInsIndex == undefined) ? modChannel.instruments.length - 1 : modInsIndex;
             for (let instrumentIndex: number = startIndex; instrumentIndex <= endIndex; instrumentIndex++) {
-                let instrument: Instrument = modChannel.instruments[instrumentIndex];
+                const instrument: Instrument = modChannel.instruments[instrumentIndex];
                 for (let mod: number = 0; mod < Config.modCount; mod++) {
                     // Non-song application
                     if (instrument.modulators[mod] == applyToMod && !Config.modulators[instrument.modulators[mod]].forSong && (instrument.modChannels[mod] == thisRef._doc.channel)) {
@@ -918,9 +918,9 @@ export class PatternEditor {
         const sequence: ChangeSequence = new ChangeSequence();
 
         const instrument: Instrument = this._doc.song.channels[this._doc.channel].instruments[this._doc.getCurrentInstrument()];
-        let applyToMods: number[] = [];
-        let applyToFilterTargets: number[] = [];
-        let applyToEnvelopeTargets: number[] = [];
+        const applyToMods: number[] = [];
+        const applyToFilterTargets: number[] = [];
+        const applyToEnvelopeTargets: number[] = [];
         let applyValues: number[] = [];
         let toApply: boolean = true;
         let slider: Slider | null = null;
@@ -963,8 +963,8 @@ export class PatternEditor {
             const preMoveData: FilterMoveData = useChange.getMoveData(true);
             const postMoveData: FilterMoveData = useChange.getMoveData(false);
             const song = this._doc.song;
-            let useFilter: FilterSettings = song.eqFilter;
-            var modulatorIndex = Config.modulators.dictionary["song eq"].index;
+            const useFilter: FilterSettings = song.eqFilter;
+            const modulatorIndex = Config.modulators.dictionary["song eq"].index;
 
             if (song.tmpEqFilterEnd == null) {
                 song.tmpEqFilterStart = new FilterSettings();
@@ -1471,10 +1471,10 @@ export class PatternEditor {
 
         for (let applyIndex: number = 0; applyIndex < applyToMods.length; applyIndex++) {
             // Search the current bar (and only the current bar) for active instruments (and only active instruments) matching to the related mod to apply to.
-            let usedPatterns: Pattern[] = [];
-            let usedInstruments: Instrument[] = [];
-            let usedInstrumentIndices: number[] = [];
-            let usedModIndices: number[] = [];
+            const usedPatterns: Pattern[] = [];
+            const usedInstruments: Instrument[] = [];
+            const usedInstrumentIndices: number[] = [];
+            const usedModIndices: number[] = [];
 
             for (let channelIndex: number = this._doc.song.pitchChannelCount + this._doc.song.noiseChannelCount; channelIndex < this._doc.song.getChannelCount(); channelIndex++) {
                 const channel: Channel = this._doc.song.channels[channelIndex];
@@ -1569,7 +1569,7 @@ export class PatternEditor {
 
                     // Found a suitable instrument to use, now add the setting
                     if (useInstrument != -1) {
-                        let instrument: Instrument = channel.instruments[useInstrument];
+                        const instrument: Instrument = channel.instruments[useInstrument];
                         for (let mod: number = 0; mod < Config.modCount; mod++) {
                             if (instrument.modulators[mod] == Config.modulators.dictionary["none"].index) {
                                 instrument.modulators[mod] = applyToMods[applyIndex];
@@ -1687,10 +1687,10 @@ export class PatternEditor {
                     }
                 }
 
-                let prevPart: number = Math.max(0, currentPart - timeQuantum);
-                let endPart: number = Math.min(currentPart + timeQuantum + addLength, Config.partsPerBeat * this._doc.song.beatsPerBar);
+                const prevPart: number = Math.max(0, currentPart - timeQuantum);
+                const endPart: number = Math.min(currentPart + timeQuantum + addLength, Config.partsPerBeat * this._doc.song.beatsPerBar);
 
-                let continuous: boolean = (toApply == false);
+                const continuous: boolean = (toApply == false);
 
                 // Make a new note if enough time has elapsed since the prior note.
                 if (latestNote == null || currentPart - latestNote.end >= newNoteDist) {
@@ -1782,7 +1782,7 @@ export class PatternEditor {
                 }
 
                 // A few sanity checks.
-                let lastNoteEnds: number[] = [-1, -1, -1, -1, -1, -1];
+                const lastNoteEnds: number[] = [-1, -1, -1, -1, -1, -1];
                 usedPatterns[i].notes.sort(function (a, b) { return (a.start == b.start) ? a.pitches[0] - b.pitches[0] : a.start - b.start; });
                 for (let checkIndex: number = 0; checkIndex < usedPatterns[i].notes.length; checkIndex++) {
                     const note: Note = usedPatterns[i].notes[checkIndex];
@@ -1823,7 +1823,7 @@ export class PatternEditor {
             this.modDragValueLabel.style.setProperty("pointer-events", "none");
 
             if (window.getSelection) {
-                let sel: Selection | null = window.getSelection();
+                const sel: Selection | null = window.getSelection();
                 if (sel != null)
                     sel.removeAllRanges();
             }
@@ -1831,10 +1831,10 @@ export class PatternEditor {
             if (discardChanges) {
                 this._modDragPin.size = this._modDragStartValue;
 
-                let presValue: number = this._modDragStartValue + Config.modulators[this._modDragSetting].convertRealFactor;
+                const presValue: number = this._modDragStartValue + Config.modulators[this._modDragSetting].convertRealFactor;
 
                 // This is me being too lazy to fiddle with the css to get it to align center.
-                let xOffset: number = (+(presValue >= 10.0)) + (+(presValue >= 100.0)) + (+(presValue < 0.0)) + (+(presValue <= -10.0));
+                const xOffset: number = (+(presValue >= 10.0)) + (+(presValue >= 100.0)) + (+(presValue < 0.0)) + (+(presValue <= -10.0));
                 this._modDragValueLabelLeft = +prettyNumber(Math.max(Math.min(this._editorWidth - 10 - xOffset * 8, this._partWidth * (this._modDragNote.start + this._modDragPin.time) - 4 - xOffset * 4), 2));
                 this.modDragValueLabel.style.setProperty("left", "" + this._modDragValueLabelLeft + "px");
 
@@ -1868,7 +1868,7 @@ export class PatternEditor {
             this.modDragValueLabel.style.setProperty("pointer-events", "fill");
             this.modDragValueLabel.setAttribute("contenteditable", "true");
             if (window.getSelection) {
-                let sel: Selection | null = window.getSelection();
+                const sel: Selection | null = window.getSelection();
                 if (sel != null)
                     sel.selectAllChildren(this.modDragValueLabel);
             }
@@ -2003,7 +2003,7 @@ export class PatternEditor {
                     this._dragChange = sequence;
                     this._doc.setProspectiveChange(this._dragChange);
 
-                    let scale = this._doc.song.scale == Config.scales.dictionary["Custom"].index ? this._doc.song.scaleCustom : Config.scales[this._doc.song.scale].flags;
+                    const scale = this._doc.song.scale == Config.scales.dictionary["Custom"].index ? this._doc.song.scaleCustom : Config.scales[this._doc.song.scale].flags;
                     const notesInScale: number = scale.filter(x => x).length;
                     const pitchRatio: number = this._doc.song.getChannelIsNoise(this._doc.channel) ? 1 : 12 / notesInScale;
                     const draggedParts: number = Math.round((this._mouseX - this._mouseXStart) / (this._partWidth * minDivision)) * minDivision;
@@ -2165,7 +2165,7 @@ export class PatternEditor {
                         this._dragVisible = true;
                     }
 
-                    let prevPattern: Pattern | null = this._pattern;
+                    const prevPattern: Pattern | null = this._pattern;
 
                     this._pattern = this._doc.getCurrentPattern(this._barOffset);
 
@@ -2223,13 +2223,13 @@ export class PatternEditor {
                     let nextPin: NotePin = this._cursor.curNote.pins[0];
                     let bendSize: number = 0;
                     let bendInterval: number = 0;
-                    let cap: number = this._doc.song.getVolumeCap(this._doc.song.getChannelIsMod(this._doc.channel), this._doc.channel, this._doc.getCurrentInstrument(this._barOffset), this._cursor.pitch);
+                    const cap: number = this._doc.song.getVolumeCap(this._doc.song.getChannelIsMod(this._doc.channel), this._doc.channel, this._doc.getCurrentInstrument(this._barOffset), this._cursor.pitch);
 
                     // Dragging gets a bit faster after difference in drag counts is >8.
-                    let dragFactorSlow: number = 25.0 / Math.pow(cap, 0.4);
-                    let dragFactorFast: number = 22.0 / Math.pow(cap, 0.5);
-                    let dragSign: number = (this._mouseYStart > this._mouseY ? 1 : -1);
-                    let dragCounts: number = Math.min(Math.abs(this._mouseYStart - this._mouseY) / dragFactorSlow, 8) + Math.max(0, Math.abs(this._mouseYStart - this._mouseY) / dragFactorFast - 8);
+                    const dragFactorSlow: number = 25.0 / Math.pow(cap, 0.4);
+                    const dragFactorFast: number = 22.0 / Math.pow(cap, 0.5);
+                    const dragSign: number = (this._mouseYStart > this._mouseY ? 1 : -1);
+                    const dragCounts: number = Math.min(Math.abs(this._mouseYStart - this._mouseY) / dragFactorSlow, 8) + Math.max(0, Math.abs(this._mouseYStart - this._mouseY) / dragFactorFast - 8);
 
                     // Note volume drag overrides attempts to make a pattern selection
                     if (dragCounts > 0) {
@@ -2810,8 +2810,8 @@ export class PatternEditor {
             if (this._pattern != null) {
                 // Force max height of mod channels to conform to settings.
                 for (const note of this._pattern.notes) {
-                    let pitch = note.pitches[0]; // No pitch bend possible in mod channels.
-                    let maxHeight: number = this._doc.song.getVolumeCap(true, this._doc.channel, this._doc.getCurrentInstrument(this._barOffset), pitch);
+                    const pitch = note.pitches[0]; // No pitch bend possible in mod channels.
+                    const maxHeight: number = this._doc.song.getVolumeCap(true, this._doc.channel, this._doc.getCurrentInstrument(this._barOffset), pitch);
                     let maxFoundHeight: number = 0;
                     for (const pin of note.pins) {
                         if (pin.size > maxFoundHeight) {
@@ -2901,7 +2901,7 @@ export class PatternEditor {
         }
 
         for (let j: number = 0; j < Config.pitchesPerOctave; j++) {
-            let scale = this._doc.song.scale == Config.scales.dictionary["Custom"].index ? this._doc.song.scaleCustom : Config.scales[this._doc.song.scale].flags;
+            const scale = this._doc.song.scale == Config.scales.dictionary["Custom"].index ? this._doc.song.scaleCustom : Config.scales[this._doc.song.scale].flags;
 
             this._backgroundPitchRows[j].style.visibility = scale[j] ? "visible" : "hidden";
         }
@@ -2991,8 +2991,8 @@ export class PatternEditor {
                 for (let i: number = 0; i < note.pitches.length; i++) {
                     const pitch: number = note.pitches[i];
                     let notePath: SVGPathElement = SVG.path();
-                    let colorPrimary: string = (disabled ? ColorConfig.disabledNotePrimary : ColorConfig.getChannelColor(this._doc.song, this._doc.channel).primaryNote);
-                    let colorSecondary: string = (disabled ? ColorConfig.disabledNoteSecondary : ColorConfig.getChannelColor(this._doc.song, this._doc.channel).secondaryNote);
+                    const colorPrimary: string = (disabled ? ColorConfig.disabledNotePrimary : ColorConfig.getChannelColor(this._doc.song, this._doc.channel).primaryNote);
+                    const colorSecondary: string = (disabled ? ColorConfig.disabledNoteSecondary : ColorConfig.getChannelColor(this._doc.song, this._doc.channel).secondaryNote);
                     notePath.setAttribute("fill", colorSecondary);
                     notePath.setAttribute("pointer-events", "none");
                     this._drawNote(notePath, pitch, note.start, note.pins, (this._pitchHeight - this._pitchBorder) / 2 + 1, false, this._octaveOffset);
@@ -3059,11 +3059,11 @@ export class PatternEditor {
                     this.modDragValueLabel.style.setProperty("pointer-events", "none");
                     this.modDragValueLabel.setAttribute("contenteditable", "false");
                     this.modDragValueLabel.style.setProperty("color", "#FFFFFF");
-                    let setting: number = this._doc.song.channels[this._doc.channel].instruments[this._doc.getCurrentInstrument(this._barOffset)].modulators[Config.modCount - 1 - note.pitches[0]];
-                    let presValue: number = this._dragSize + Config.modulators[setting].convertRealFactor;
+                    const setting: number = this._doc.song.channels[this._doc.channel].instruments[this._doc.getCurrentInstrument(this._barOffset)].modulators[Config.modCount - 1 - note.pitches[0]];
+                    const presValue: number = this._dragSize + Config.modulators[setting].convertRealFactor;
 
                     // This is me being too lazy to fiddle with the css to get it to align center.
-                    let xOffset: number = (+(presValue >= 10.0)) + (+(presValue >= 100.0)) + (+(presValue < 0.0)) + (+(presValue <= -10.0));
+                    const xOffset: number = (+(presValue >= 10.0)) + (+(presValue >= 100.0)) + (+(presValue < 0.0)) + (+(presValue <= -10.0));
 
                     this._modDragValueLabelWidth = 8 + xOffset * 8;
                     this._modDragValueLabelLeft = +prettyNumber(Math.max(Math.min(this._editorWidth - 10 - xOffset * 8, this._partWidth * this._dragTime - 4 - xOffset * 4), 2));
@@ -3091,28 +3091,28 @@ export class PatternEditor {
         let pathString: string = "M " + prettyNumber(this._partWidth * (start + nextPin.time) + endOffset) + " " + prettyNumber(this._pitchToPixelHeight(pitch - offset) + radius * (showSize ? nextPin.size / cap : 1.0)) + " ";
 
         for (let i: number = 1; i < pins.length; i++) {
-            let prevPin: NotePin = nextPin;
+            const prevPin: NotePin = nextPin;
             nextPin = pins[i];
-            let prevSide: number = this._partWidth * (start + prevPin.time) + (i == 1 ? endOffset : 0);
-            let nextSide: number = this._partWidth * (start + nextPin.time) - (i == pins.length - 1 ? endOffset : 0);
-            let prevHeight: number = this._pitchToPixelHeight(pitch + prevPin.interval - offset);
-            let nextHeight: number = this._pitchToPixelHeight(pitch + nextPin.interval - offset);
-            let prevSize: number = showSize ? prevPin.size / cap : 1.0;
-            let nextSize: number = showSize ? nextPin.size / cap : 1.0;
+            const prevSide: number = this._partWidth * (start + prevPin.time) + (i == 1 ? endOffset : 0);
+            const nextSide: number = this._partWidth * (start + nextPin.time) - (i == pins.length - 1 ? endOffset : 0);
+            const prevHeight: number = this._pitchToPixelHeight(pitch + prevPin.interval - offset);
+            const nextHeight: number = this._pitchToPixelHeight(pitch + nextPin.interval - offset);
+            const prevSize: number = showSize ? prevPin.size / cap : 1.0;
+            const nextSize: number = showSize ? nextPin.size / cap : 1.0;
             pathString += "L " + prettyNumber(prevSide) + " " + prettyNumber(prevHeight - radius * prevSize) + " ";
             if (prevPin.interval > nextPin.interval) pathString += "L " + prettyNumber(prevSide + 1) + " " + prettyNumber(prevHeight - radius * prevSize) + " ";
             if (prevPin.interval < nextPin.interval) pathString += "L " + prettyNumber(nextSide - 1) + " " + prettyNumber(nextHeight - radius * nextSize) + " ";
             pathString += "L " + prettyNumber(nextSide) + " " + prettyNumber(nextHeight - radius * nextSize) + " ";
         }
         for (let i: number = pins.length - 2; i >= 0; i--) {
-            let prevPin: NotePin = nextPin;
+            const prevPin: NotePin = nextPin;
             nextPin = pins[i];
-            let prevSide: number = this._partWidth * (start + prevPin.time) - (i == pins.length - 2 ? endOffset : 0);
-            let nextSide: number = this._partWidth * (start + nextPin.time) + (i == 0 ? endOffset : 0);
-            let prevHeight: number = this._pitchToPixelHeight(pitch + prevPin.interval - offset);
-            let nextHeight: number = this._pitchToPixelHeight(pitch + nextPin.interval - offset);
-            let prevSize: number = showSize ? prevPin.size / cap : 1.0;
-            let nextSize: number = showSize ? nextPin.size / cap : 1.0;
+            const prevSide: number = this._partWidth * (start + prevPin.time) - (i == pins.length - 2 ? endOffset : 0);
+            const nextSide: number = this._partWidth * (start + nextPin.time) + (i == 0 ? endOffset : 0);
+            const prevHeight: number = this._pitchToPixelHeight(pitch + prevPin.interval - offset);
+            const nextHeight: number = this._pitchToPixelHeight(pitch + nextPin.interval - offset);
+            const prevSize: number = showSize ? prevPin.size / cap : 1.0;
+            const nextSize: number = showSize ? nextPin.size / cap : 1.0;
             pathString += "L " + prettyNumber(prevSide) + " " + prettyNumber(prevHeight + radius * prevSize) + " ";
             if (prevPin.interval < nextPin.interval) pathString += "L " + prettyNumber(prevSide - 1) + " " + prettyNumber(prevHeight + radius * prevSize) + " ";
             if (prevPin.interval > nextPin.interval) pathString += "L " + prettyNumber(nextSide + 1) + " " + prettyNumber(nextHeight + radius * nextSize) + " ";

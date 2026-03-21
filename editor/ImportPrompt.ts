@@ -184,7 +184,7 @@ export class ImportPrompt implements Prompt {
         const noteEvents: NoteEvent[][] = [[], [], [], [], [], [], [], [], [], [], [], [], [], [], [], []];
         const pitchBendEvents: PitchBendEvent[][] = [[], [], [], [], [], [], [], [], [], [], [], [], [], [], [], []];
         const noteSizeEvents: NoteSizeEvent[][] = [[], [], [], [], [], [], [], [], [], [], [], [], [], [], [], []];
-        let tempoChanges: TempoChange[] = [];
+        const tempoChanges: TempoChange[] = [];
         let microsecondsPerBeat: number = 500000; // Tempo in microseconds per "quarter" note, commonly known as a "beat", default is equivalent to 120 beats per minute.
         let beatsPerBar: number = 8;
         let numSharps: number = 0;
@@ -571,7 +571,7 @@ export class ImportPrompt implements Prompt {
                 let pitchSum: number = 0;
                 let pitchCount: number = 0;
 
-                for (let noteEvent of noteEvents[midiChannel]) {
+                for (const noteEvent of noteEvents[midiChannel]) {
                     const nextEventMidiTick: number = noteEvent.midiTick;
                     const nextEventPart: number = quantizeMidiTickToPart(nextEventMidiTick);
 
@@ -653,7 +653,7 @@ export class ImportPrompt implements Prompt {
                                 const shiftedHeldPitch: number = heldPitches[0] * midiIntervalScale - channelBasePitch;
                                 const initialBeepBoxPitch: number = Math.round((shiftedHeldPitch + currentMidiInterval) / intervalScale);
                                 const heldPitchOffset: number = Math.round(currentMidiInterval - channelBasePitch);
-                                let firstPin: NotePin = makeNotePin(0, 0, Math.round(currentVelocity * currentMidiNoteSize));
+                                const firstPin: NotePin = makeNotePin(0, 0, Math.round(currentVelocity * currentMidiNoteSize));
                                 note.pins.push(firstPin);
 
                                 interface PotentialPin {
@@ -824,9 +824,9 @@ export class ImportPrompt implements Prompt {
         }
         // Add mod channel to hold the tempo changes, if necessary.
         if (tempoChanges.length > 1) {
-            let tempoModChannel = new Channel();
+            const tempoModChannel = new Channel();
             modChannels.push(tempoModChannel);
-            let tempoModInstrument = new Instrument(false, true);
+            const tempoModInstrument = new Instrument(false, true);
             tempoModInstrument.setTypeAndReset(9 /* InstrumentType.mod */, false, true);
             tempoModInstrument.modulators[0] = Config.modulators.dictionary["tempo"].index;
             tempoModInstrument.modChannels[0] = -1;
@@ -852,12 +852,12 @@ export class ImportPrompt implements Prompt {
                     changeEndMidiTick = nextChange.midiTick;
                     changeEndPart = quantizeMidiTickToPart(changeEndMidiTick);
                 }
-                let startBar = Math.floor(changeStartPart / partsPerBar);
-                let endBar = Math.ceil(changeEndPart / partsPerBar);
+                const startBar = Math.floor(changeStartPart / partsPerBar);
+                const endBar = Math.ceil(changeEndPart / partsPerBar);
                 for (let bar = startBar; bar < endBar; bar++) {
                     const barStartPart = bar * partsPerBar;
                     const noteStartPart = Math.max(0, prevChangeEndPart - barStartPart);
-                    let noteEndPart = Math.min(partsPerBar, changeEndPart - barStartPart);
+                    const noteEndPart = Math.min(partsPerBar, changeEndPart - barStartPart);
                     if (noteStartPart < noteEndPart) {
                         // Ensure a pattern exists for the current bar before inserting notes into it.
                         if (currentBar != bar || pattern == null) {

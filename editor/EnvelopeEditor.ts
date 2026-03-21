@@ -22,7 +22,7 @@ export class EnvelopeEditor {
 	public readonly extraSettingsDropdownGroups: HTMLDivElement[] = [];
 	public readonly extraRandomSettingsGroups: HTMLDivElement[] = [];
 	public readonly extraLFODropdownGroups: HTMLDivElement[] = [];
-	public readonly openExtraSettingsDropdowns: Boolean[] = [];
+	public readonly openExtraSettingsDropdowns: boolean[] = [];
 	public readonly perEnvelopeSpeedGroups: HTMLElement[] = [];
 
 	//pitch envelope sliders/boxes

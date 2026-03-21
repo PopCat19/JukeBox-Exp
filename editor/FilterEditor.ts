@@ -28,7 +28,7 @@ export class FilterEditor {
         this._highlight,
         this._controlPointPath,
     );
-    private selfUndoSettings: String[] = [];
+    private selfUndoSettings: string[] = [];
     private selfUndoHistoryPos: number = 0;
     private readonly _label: HTMLDivElement = HTML.div({ style: "position: absolute; bottom: 0; left: 2px; font-size: 8px; line-height: 1; pointer-events: none;" });
 
@@ -123,14 +123,14 @@ export class FilterEditor {
                 if (this._forSong) {
                     const subFilter: FilterSettings | null = this._doc.song.eqSubFilters[i];
                     if (subFilter != null) {
-                        let parsedFilter: FilterSettings = new FilterSettings();
+                        const parsedFilter: FilterSettings = new FilterSettings();
                         parsedFilter.fromJsonObject(subFilter.toJsonObject());
                         this._subFilters[i] = parsedFilter;
                     }
                 } else {
                     const subFilter: FilterSettings | null = this._useNoteFilter ? instrument.noteSubFilters[i] : instrument.eqSubFilters[i];
                     if (subFilter != null) {
-                        let parsedFilter: FilterSettings = new FilterSettings();
+                        const parsedFilter: FilterSettings = new FilterSettings();
                         parsedFilter.fromJsonObject(subFilter.toJsonObject());
                         this._subFilters[i] = parsedFilter;
                     }
@@ -323,8 +323,8 @@ export class FilterEditor {
         this._deletingPoint = false;
 
         if (this.coordText != null && !this._mouseDown) {
-            let gain: number = Math.round(this._yToGain(this._mouseY));
-            let freq: number = Math.round(this._xToFreq(this._mouseX));
+            const gain: number = Math.round(this._yToGain(this._mouseY));
+            const freq: number = Math.round(this._xToFreq(this._mouseX));
             if (freq >= 0 && freq < Config.filterFreqRange && gain >= 0 && gain < Config.filterGainRange)
                 this.coordText.innerText = "(" + freq + ", " + gain + ")";
             else
@@ -363,7 +363,7 @@ export class FilterEditor {
             } else {
                 const freqDelta: number = this._xToFreq(this._mouseX) - this._freqStart;
                 const gainDelta: number = this._yToGain(this._mouseY) - this._gainStart;
-                let point: FilterControlPoint = this._useFilterSettings.controlPoints[this._selectedIndex];
+                const point: FilterControlPoint = this._useFilterSettings.controlPoints[this._selectedIndex];
                 const gain: number = Math.max(0, Math.min(Config.filterGainRange - 1, Math.round(point.gain + gainDelta)));
                 const freq: number = this._findNearestFreqSlot(this._useFilterSettings, point.freq + freqDelta, this._selectedIndex);
 
@@ -422,12 +422,12 @@ export class FilterEditor {
                 if (this._selectedIndex < this._useFilterSettings.controlPointCount && this._selectedIndex != -1) {
                     const point: FilterControlPoint = this._useFilterSettings.controlPoints[this._selectedIndex];
                     if (this._forSong) {
-                        let change: ChangeSongFilterAddPoint = new ChangeSongFilterAddPoint(this._doc, this._useFilterSettings, point, this._selectedIndex, true);
+                        const change: ChangeSongFilterAddPoint = new ChangeSongFilterAddPoint(this._doc, this._useFilterSettings, point, this._selectedIndex, true);
                         if (!this._larger) {
                                 this._doc.record(change);
                             }
                     } else {
-                        let change: ChangeFilterAddPoint = new ChangeFilterAddPoint(this._doc, this._useFilterSettings, point, this._selectedIndex, this._useNoteFilter, true);
+                        const change: ChangeFilterAddPoint = new ChangeFilterAddPoint(this._doc, this._useFilterSettings, point, this._selectedIndex, this._useNoteFilter, true);
                         if (!this._larger) {
                                 this._doc.record(change);
                             }
@@ -586,7 +586,7 @@ export class FilterEditor {
 
     // Save settings on prompt close (record a change from first settings to newest)
     public saveSettings() {
-        let firstFilter: FilterSettings = new FilterSettings;
+        const firstFilter: FilterSettings = new FilterSettings;
         const instrument: Instrument = this._doc.song.channels[this._doc.channel].instruments[this._doc.getCurrentInstrument()];
         firstFilter.fromJsonObject(JSON.parse(String(this.selfUndoSettings[0])));
         if (this._forSong) {
@@ -602,18 +602,18 @@ export class FilterEditor {
             this.selfUndoHistoryPos--;
             // Jump back and load latest state of this subfilter. Also save subfilter settings for current index
             if (this.selfUndoSettings[this.selfUndoHistoryPos + 1] != null && this.selfUndoSettings[this.selfUndoHistoryPos + 1].startsWith("jmp")) {
-                let str: String = this.selfUndoSettings[this.selfUndoHistoryPos + 1];
-                let jumpIndex = +str.substring(3, str.indexOf("|"));
+                const str: string = this.selfUndoSettings[this.selfUndoHistoryPos + 1];
+                const jumpIndex = +str.substring(3, str.indexOf("|"));
                 this.swapToSubfilter(this._subfilterIndex, jumpIndex);
                 return jumpIndex;
                 // Jumping to FIRST state of this subfilter
             } else if (this.selfUndoSettings[this.selfUndoHistoryPos].startsWith("jmp")) {
-                let savedFilter: FilterSettings = new FilterSettings();
-                let str: String = this.selfUndoSettings[this.selfUndoHistoryPos];
+                const savedFilter: FilterSettings = new FilterSettings();
+                const str: string = this.selfUndoSettings[this.selfUndoHistoryPos];
                 savedFilter.fromJsonObject(JSON.parse(str.substring(str.indexOf(":") + 1)));
                 this.swapToSettings(savedFilter, false);
             } else {
-                let savedFilter: FilterSettings = new FilterSettings();
+                const savedFilter: FilterSettings = new FilterSettings();
                 savedFilter.fromJsonObject(JSON.parse(String(this.selfUndoSettings[this.selfUndoHistoryPos])));
                 this.swapToSettings(savedFilter, false);
             }
@@ -627,12 +627,12 @@ export class FilterEditor {
             this.selfUndoHistoryPos++;
             // Check if next index in undo queue is a command to jump to a new filter index
             if (this.selfUndoSettings[this.selfUndoHistoryPos].startsWith("jmp")) {
-                let str: String = this.selfUndoSettings[this.selfUndoHistoryPos];
-                let jumpIndex = +str.substring(str.indexOf("|") + 1, str.indexOf(":"));
+                const str: string = this.selfUndoSettings[this.selfUndoHistoryPos];
+                const jumpIndex = +str.substring(str.indexOf("|") + 1, str.indexOf(":"));
                 this.swapToSubfilter(this._subfilterIndex, jumpIndex, false);
                 return jumpIndex;
             } else {
-                let savedFilter: FilterSettings = new FilterSettings();
+                const savedFilter: FilterSettings = new FilterSettings();
                 savedFilter.fromJsonObject(JSON.parse(String(this.selfUndoSettings[this.selfUndoHistoryPos])));
                 this.swapToSettings(savedFilter, false);
             }
@@ -653,7 +653,7 @@ export class FilterEditor {
         if (newIndex >= this._useFilterSettings.controlPointCount)
             return;
 
-        let tmp: FilterControlPoint = this._useFilterSettings.controlPoints[this._selectedIndex];
+        const tmp: FilterControlPoint = this._useFilterSettings.controlPoints[this._selectedIndex];
         this._useFilterSettings.controlPoints[this._selectedIndex] = this._useFilterSettings.controlPoints[newIndex];
         this._useFilterSettings.controlPoints[newIndex] = tmp;
 
@@ -663,13 +663,13 @@ export class FilterEditor {
     public swapToSubfilter(oldIndex: number, newIndex: number, useHistory: boolean = false) {
         if (oldIndex != newIndex) {
             // Save current subfilter
-            let currFilter: FilterSettings = new FilterSettings();
+            const currFilter: FilterSettings = new FilterSettings();
             currFilter.fromJsonObject(this._filterSettings.toJsonObject());
             this._subFilters[oldIndex] = currFilter;
 
             // Copy main filter at this time
             if (this._subFilters[newIndex] == undefined) {
-                let parsedFilter: FilterSettings = new FilterSettings();
+                const parsedFilter: FilterSettings = new FilterSettings();
                 parsedFilter.fromJsonObject(this._subFilters[0].toJsonObject());
                 this._subFilters[newIndex] = parsedFilter;
             }
@@ -709,7 +709,7 @@ export class FilterEditor {
         this._writingMods = forceModRender && this._mouseDown;
         const instrument: Instrument = this._doc.song.channels[this._doc.channel].instruments[this._doc.getCurrentInstrument()];
         const filterSettings: FilterSettings = this._forSong ? this._doc.song.eqFilter : (this._useNoteFilter ? instrument.noteFilter : instrument.eqFilter);
-        let displayMods: boolean = (activeMods && !this._larger && (forceModRender || (!this._mouseOver && !this._mouseDragging && !this._mouseDown)) && this._doc.synth.playing);
+        const displayMods: boolean = (activeMods && !this._larger && (forceModRender || (!this._mouseOver && !this._mouseDragging && !this._mouseDown)) && this._doc.synth.playing);
         if (displayMods)
             this._controlPointPath.style.setProperty("fill", `${ColorConfig.overwritingModSlider}`);
         else if (!this._larger)

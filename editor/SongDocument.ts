@@ -189,7 +189,7 @@ export class SongDocument {
 			window.history.forward();
 		} else {
 			let currentIndex: number = Number(window.sessionStorage.getItem("currentUndoIndex"));
-			let newestIndex: number = Number(window.sessionStorage.getItem("newestUndoIndex"));
+			const newestIndex: number = Number(window.sessionStorage.getItem("newestUndoIndex"));
 			if (currentIndex != newestIndex) {
 				currentIndex = (currentIndex + 1) % SongDocument._maximumUndoHistory;
 				window.sessionStorage.setItem("currentUndoIndex", String(currentIndex));
@@ -203,7 +203,7 @@ export class SongDocument {
 			window.history.back();
 		} else {
 			let currentIndex: number = Number(window.sessionStorage.getItem("currentUndoIndex"));
-			let oldestIndex: number = Number(window.sessionStorage.getItem("oldestUndoIndex"));
+			const oldestIndex: number = Number(window.sessionStorage.getItem("oldestUndoIndex"));
 			if (currentIndex != oldestIndex) {
 				currentIndex = (currentIndex + SongDocument._maximumUndoHistory - 1) % SongDocument._maximumUndoHistory;
 				window.sessionStorage.setItem("currentUndoIndex", String(currentIndex));
@@ -358,7 +358,7 @@ export class SongDocument {
         } else {
             this._recovery.saveVersion(this._recoveryUid, this.song.title, hash);
         }
-        let state: HistoryState = { canUndo: true, sequenceNumber: this._sequenceNumber, bar: this.bar, channel: this.channel, instrument: this.viewedInstrument[this.channel], recoveryUid: this._recoveryUid, prompt: this.prompt, selection: this.selection.toJSON() };
+        const state: HistoryState = { canUndo: true, sequenceNumber: this._sequenceNumber, bar: this.bar, channel: this.channel, instrument: this.viewedInstrument[this.channel], recoveryUid: this._recoveryUid, prompt: this.prompt, selection: this.selection.toJSON() };
         if (this._stateShouldBePushed) {
             this._pushState(state, hash);
         } else {

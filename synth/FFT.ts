@@ -40,7 +40,7 @@ function reverseIndexBits(array: NumberArray, fullArrayLength: number): void {
 		j = ((j & 0xf0f0) >> 4) | ((j & 0x0f0f) << 4);
 			j = ((j           >> 8) | ((j &   0xff) << 8)) >> finalShift;
 		if (j > i) {
-			let temp: number = array[i];
+			const temp: number = array[i];
 			array[i] = array[j];
 			array[j] = temp;
 		}

@@ -33,7 +33,7 @@ export class HarmonicsEditor {
     private _ampPrev: number = 0;
     private _mouseDown: boolean = false;
     private _change: ChangeHarmonics | null = null;
-    private _renderedPath: String = "";
+    private _renderedPath: string = "";
     private _renderedFifths: boolean = true;
     private instrument: Instrument;
 
@@ -70,9 +70,9 @@ export class HarmonicsEditor {
 
     public storeChange = (): void => {
         // Check if change is unique compared to the current history state
-        var sameCheck = true;
+        let sameCheck = true;
         if (this._changeQueue.length > 0) {
-            for (var i = 0; i < Config.harmonicsControlPoints; i++) {
+            for (let i = 0; i < Config.harmonicsControlPoints; i++) {
                 if (this._changeQueue[this._undoHistoryState][i] != this.instrument.harmonicsWave.harmonics[i]) {
                     sameCheck = false; i = Config.harmonicsControlPoints;
                 }
@@ -253,11 +253,11 @@ export class HarmonicsEditor {
             return (1 - (point / Config.harmonicsMax)) * this._editorHeight;
         }
 
-        let bottom: string = prettyNumber(this._editorHeight);
+        const bottom: string = prettyNumber(this._editorHeight);
         let path: string = "";
         for (let i: number = 0; i < Config.harmonicsControlPoints - 1; i++) {
             if (harmonicsWave.harmonics[i] == 0) continue;
-            let xPos: string = prettyNumber((i + 0.5) * (this._editorWidth - 8) / (Config.harmonicsControlPoints - 1));
+            const xPos: string = prettyNumber((i + 0.5) * (this._editorWidth - 8) / (Config.harmonicsControlPoints - 1));
             path += "M " + xPos + " " + bottom + " ";
             path += "L " + xPos + " " + prettyNumber(controlPointToHeight(harmonicsWave.harmonics[i])) + " ";
         }

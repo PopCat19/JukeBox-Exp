@@ -95,15 +95,15 @@ export class Pattern {
     }
 
     public toJsonObject(song: Song, channel: Channel, isModChannel: boolean): any {
-        const noteArray: Object[] = [];
+        const noteArray: object[] = [];
         for (const note of this.notes) {
             // Only one ins per pattern is enforced in mod channels.
-            let instrument: Instrument = channel.instruments[this.instruments[0]];
-            let mod: number = Math.max(0, Config.modCount - note.pitches[0] - 1);
-            let volumeCap: number = song.getVolumeCapForSetting(isModChannel, instrument.modulators[mod], instrument.modFilterTypes[mod]);
-            const pointArray: Object[] = [];
+            const instrument: Instrument = channel.instruments[this.instruments[0]];
+            const mod: number = Math.max(0, Config.modCount - note.pitches[0] - 1);
+            const volumeCap: number = song.getVolumeCapForSetting(isModChannel, instrument.modulators[mod], instrument.modFilterTypes[mod]);
+            const pointArray: object[] = [];
             for (const pin of note.pins) {
-                let useVol: number = isModChannel ? Math.round(pin.size) : Math.round(pin.size * 100 / volumeCap);
+                const useVol: number = isModChannel ? Math.round(pin.size) : Math.round(pin.size * 100 / volumeCap);
                 pointArray.push({
                     "tick": (pin.time + note.start) * Config.rhythms[song.rhythm].stepsPerBeat / Config.partsPerBeat,
                     "pitchBend": pin.interval,
@@ -174,8 +174,8 @@ export class Pattern {
                 //let noteClock: number = tickClock;
                 let startInterval: number = 0;
 
-                let instrument: Instrument = channel.instruments[this.instruments[0]];
-                let mod: number = Math.max(0, Config.modCount - note.pitches[0] - 1);
+                const instrument: Instrument = channel.instruments[this.instruments[0]];
+                const mod: number = Math.max(0, Config.modCount - note.pitches[0] - 1);
 
                 for (let k: number = 0; k < noteObject["points"].length; k++) {
                     const pointObject: any = noteObject["points"][k];
@@ -185,7 +185,7 @@ export class Pattern {
                     const time: number = Math.round((+pointObject["tick"]) * Config.partsPerBeat / importedPartsPerBeat);
 
                     // Only one instrument per pattern allowed in mod channels.
-                    let volumeCap: number = song.getVolumeCapForSetting(isModChannel, instrument.modulators[mod], instrument.modFilterTypes[mod]);
+                    const volumeCap: number = song.getVolumeCapForSetting(isModChannel, instrument.modulators[mod], instrument.modFilterTypes[mod]);
 
                     // The strange volume formula used for notes is not needed for mods. Some rounding errors were possible.
                     // A "forMod" signifier was added to new JSON export to detect when the higher precision export was used in a file.

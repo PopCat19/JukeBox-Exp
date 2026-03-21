@@ -77,10 +77,10 @@ export class CustomAlgorithm {
 
     public fromPreset(other: number): void {
         this.reset();
-        let preset = Config.algorithms6Op[other]
+        const preset = Config.algorithms6Op[other]
         this.name = preset.name;
         this.carrierCount = preset.carrierCount;
-        for (var i = 0; i < preset.modulatedBy.length; i++) {
+        for (let i = 0; i < preset.modulatedBy.length; i++) {
             this.modulatedBy[i] = Array.from(preset.modulatedBy[i]);
             this.associatedCarrier[i] = preset.associatedCarrier[i];
         }
@@ -120,8 +120,8 @@ export class CustomFeedBack { //feels redunant
 
     public fromPreset(other: number): void {
         this.reset();
-        let preset = Config.feedbacks6Op[other]
-        for (var i = 0; i < preset.indices.length; i++) {
+        const preset = Config.feedbacks6Op[other]
+        for (let i = 0; i < preset.indices.length; i++) {
             this.indices[i] = Array.from(preset.indices[i]);
             for (let j = 0; j < preset.indices[i].length; j++) {
                 this.name += preset.indices[i][j];
@@ -231,7 +231,7 @@ export class FilterSettings {
         controlPoint.set(freqSetting, gainSetting);
     }
 
-    public toJsonObject(): Object {
+    public toJsonObject(): object {
         const filterArray: any[] = [];
         for (let i: number = 0; i < this.controlPointCount; i++) {
             const point: FilterControlPoint = this.controlPoints[i];
@@ -281,7 +281,7 @@ export class FilterSettings {
     // Interpolate two FilterSettings, where pos=0 is filterA and pos=1 is filterB
     public static lerpFilters(filterA: FilterSettings, filterB: FilterSettings, pos: number): FilterSettings {
 
-        let lerpedFilter: FilterSettings = new FilterSettings();
+        const lerpedFilter: FilterSettings = new FilterSettings();
 
         // One setting or another is null, return the other.
         if (filterA == null) {
@@ -515,7 +515,7 @@ export class EnvelopeSettings {
         this.discrete = false;
     }
 
-    public toJsonObject(): Object {
+    public toJsonObject(): object {
         const envelopeObject: any = {
             "target": Config.instrumentAutomationTargets[this.target].name,
             "envelope": Config.newEnvelopes[this.envelope].name,
@@ -550,7 +550,7 @@ export class EnvelopeSettings {
         this.target = target.index;
 
         let envelope: Envelope = Config.envelopes.dictionary["none"];
-        let isTremolo2: Boolean = false;
+        let isTremolo2: boolean = false;
         if (format == "slarmoosbox") {
             if (envelopeObject["envelope"] == "tremolo2") {
                 envelope = Config.newEnvelopes[EnvelopeType.lfo];
@@ -1149,7 +1149,7 @@ export class Instrument {
         }
     }
 
-    public toJsonObject(): Object {
+    public toJsonObject(): object {
         const instrumentObject: any = {
             "type": Config.instrumentTypeNames[this.type],
             "volume": this.volume,
@@ -1392,7 +1392,7 @@ export class Instrument {
                 instrumentObject["unisonSign"] = this.unisonSign;
             }
         } else if (this.type == InstrumentType.fm || this.type == InstrumentType.fm6op) {
-            const operatorArray: Object[] = [];
+            const operatorArray: object[] = [];
             for (const operator of this.operators) {
                 operatorArray.push({
                     "frequency": Config.operatorFrequencies[operator.frequency].name,
@@ -1608,7 +1608,7 @@ export class Instrument {
         }
         // modbox pitch shift, known in that mod as "octave offset"
         if (instrumentObject["octoff"] != undefined) {
-            let potentialPitchShift: string = instrumentObject["octoff"];
+            const potentialPitchShift: string = instrumentObject["octoff"];
             this.effects = (this.effects | (1 << EffectType.pitchShift));
 
             if ((potentialPitchShift == "+1 (octave)") || (potentialPitchShift == "+2 (2 octaves)")) {
@@ -1907,7 +1907,7 @@ export class Instrument {
                 // SynthBox feedback support
                 if (this.feedbackType6Op == -1) {
                     // These are all of the SynthBox feedback presets that aren't present in Gold/UltraBox
-                    let synthboxLegacyFeedbacks: DictionaryArray<any> = toNameMap([
+                    const synthboxLegacyFeedbacks: DictionaryArray<any> = toNameMap([
                         { name: "2⟲ 3⟲", indices: [[], [2], [3], [], [], []] },
                         { name: "3⟲ 4⟲", indices: [[], [], [3], [4], [], []] },
                         { name: "4⟲ 5⟲", indices: [[], [], [], [4], [5], []] },
@@ -1936,7 +1936,7 @@ export class Instrument {
                         { name: "1→2→3→4→5→6", indices: [[], [1], [2], [3], [4], [5]] },
                     ]);
 
-                    let synthboxFeedbackType = synthboxLegacyFeedbacks[synthboxLegacyFeedbacks.findIndex(feedback => feedback.name == instrumentObject["feedbackType"])]!.indices;
+                    const synthboxFeedbackType = synthboxLegacyFeedbacks[synthboxLegacyFeedbacks.findIndex(feedback => feedback.name == instrumentObject["feedbackType"])]!.indices;
 
                     if (synthboxFeedbackType != undefined) {
                         this.feedbackType6Op = 0;

@@ -42,7 +42,7 @@ export class Box {
             this._renderedIndex = index;
             this._text.data = String(index);
         }
-        let useColor: string = selected ? ColorConfig.c_invertedText : color;
+        const useColor: string = selected ? ColorConfig.c_invertedText : color;
         if (this._renderedLabelColor != useColor) {
             this._label.style.color = useColor;
             this._renderedLabelColor = useColor;

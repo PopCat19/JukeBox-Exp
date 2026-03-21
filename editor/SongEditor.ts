@@ -132,22 +132,22 @@ function buildPresetOptions(isNoise: boolean, idSet: string): HTMLSelectElement 
         if (category.name == "String Presets" && foundAny) {
 
             // Put violin 2 after violin 1
-            let moveViolin2 = group.removeChild(group.children[11]);
+            const moveViolin2 = group.removeChild(group.children[11]);
             group.insertBefore(moveViolin2, group.children[1]);
         }
 
         if (category.name == "Flute Presets" && foundAny) {
 
             // Put flute 2 after flute 1
-            let moveFlute2 = group.removeChild(group.children[11]);
+            const moveFlute2 = group.removeChild(group.children[11]);
             group.insertBefore(moveFlute2, group.children[1]);
         }
 
         if (category.name == "Keyboard Presets" && foundAny) {
 
             // Put grand piano 2 and 3 after grand piano 1
-            let moveGrandPiano2 = group.removeChild(group.children[9]);
-            let moveGrandPiano3 = group.removeChild(group.children[9]);
+            const moveGrandPiano2 = group.removeChild(group.children[9]);
+            const moveGrandPiano3 = group.removeChild(group.children[9]);
             group.insertBefore(moveGrandPiano3, group.children[1]);
             group.insertBefore(moveGrandPiano2, group.children[1]);
         }
@@ -228,7 +228,7 @@ class CustomChipCanvas {
 
         this.renderedArray.set(chipData);
 
-        var ctx = this.canvas.getContext("2d") as CanvasRenderingContext2D;
+        const ctx = this.canvas.getContext("2d") as CanvasRenderingContext2D;
 
         // Black BG
         ctx.fillStyle = ColorConfig.getComputed("--editor-background");
@@ -247,7 +247,7 @@ class CustomChipCanvas {
         ctx.fillStyle = renderColor;
 
         for (let x: number = 0; x < 64; x++) {
-            var y: number = chipData[x] + 26;
+            const y: number = chipData[x] + 26;
             ctx.fillRect(x * 2, y - 2, 2, 4);
 
             this.newArray[x] = y - 26;
@@ -257,25 +257,25 @@ class CustomChipCanvas {
     private _onMouseMove = (event: MouseEvent): void => {
         if (this.mouseDown) {
 
-            var x = (event.clientX || event.pageX) - this.canvas.getBoundingClientRect().left;
-            var y = Math.floor((event.clientY || event.pageY) - this.canvas.getBoundingClientRect().top);
+            const x = (event.clientX || event.pageX) - this.canvas.getBoundingClientRect().left;
+            let y = Math.floor((event.clientY || event.pageY) - this.canvas.getBoundingClientRect().top);
 
             if (y < 2) y = 2;
             if (y > 50) y = 50;
 
-            var ctx = this.canvas.getContext("2d") as CanvasRenderingContext2D;
+            const ctx = this.canvas.getContext("2d") as CanvasRenderingContext2D;
 
             if (this.continuousEdit == true && Math.abs(this.lastX - x) < 40) {
 
-                var lowerBound = (x < this.lastX) ? x : this.lastX;
-                var upperBound = (x < this.lastX) ? this.lastX : x;
+                const lowerBound = (x < this.lastX) ? x : this.lastX;
+                const upperBound = (x < this.lastX) ? this.lastX : x;
 
                 for (let i = lowerBound; i <= upperBound; i += 2) {
 
-                    var progress = (Math.abs(x - this.lastX) > 2.0) ? ((x > this.lastX) ?
+                    const progress = (Math.abs(x - this.lastX) > 2.0) ? ((x > this.lastX) ?
                         1.0 - ((i - lowerBound) / (upperBound - lowerBound))
                         : ((i - lowerBound) / (upperBound - lowerBound))) : 0.0;
-                    var j = Math.round(y + (this.lastY - y) * progress);
+                    const j = Math.round(y + (this.lastY - y) * progress);
 
                     ctx.fillStyle = ColorConfig.getComputed("--editor-background");
                     ctx.fillRect(Math.floor(i / 2) * 2, 0, 2, 53);
@@ -314,7 +314,7 @@ class CustomChipCanvas {
             this.lastY = y;
 
             // Preview - update integral used for sound synthesis based on new array, not actual stored array. When mouse is released, real update will happen.
-            let instrument: Instrument = this._doc.song.channels[this._doc.channel].instruments[this._doc.getCurrentInstrument()];
+            const instrument: Instrument = this._doc.song.channels[this._doc.channel].instruments[this._doc.getCurrentInstrument()];
 
             let sum: number = 0.0;
             for (let i: number = 0; i < this.newArray.length; i++) {
@@ -435,7 +435,7 @@ class CustomAlgorythmCanvas {
             this.inverseModulation = [[], [], [], [], [], []];
             this.lookUpArray = [[], [], [], [], [], []];
 
-            var oldMods = this._doc.song.channels[this._doc.channel].instruments[this._doc.getCurrentInstrument()].customAlgorithm;
+            const oldMods = this._doc.song.channels[this._doc.channel].instruments[this._doc.getCurrentInstrument()].customAlgorithm;
             this.carriers = oldMods.carrierCount;
             for (let i: number = 0; i < oldMods.modulatedBy.length; i++) {
                 for (let o: number = 0; o < oldMods.modulatedBy[i].length; o++) {
@@ -447,7 +447,7 @@ class CustomAlgorythmCanvas {
                 this.feedback = [[], [], [], [], [], []];
                 this.inverseFeedback = [[], [], [], [], [], []];
 
-                var oldfeed = this._doc.song.channels[this._doc.channel].instruments[this._doc.getCurrentInstrument()].customFeedbackType.indices;
+                const oldfeed = this._doc.song.channels[this._doc.channel].instruments[this._doc.getCurrentInstrument()].customFeedbackType.indices;
                 for (let i: number = 0; i < oldfeed.length; i++) {
                     for (let o: number = 0; o < oldfeed[i].length; o++) {
                         this.inverseFeedback[oldfeed[i][o] - 1].push(i + 1);
@@ -462,7 +462,7 @@ class CustomAlgorythmCanvas {
                 this.lookUpArray[i] = [0, i];
             } else {
                 if (this.inverseModulation[i][0] != undefined) {
-                    let testPos = [this.drawArray.length - (this.lookUpArray[this.inverseModulation[i][this.inverseModulation[i].length - 1] - 1][0] + 2), this.lookUpArray[this.inverseModulation[i][this.inverseModulation[i].length - 1] - 1][1]];
+                    const testPos = [this.drawArray.length - (this.lookUpArray[this.inverseModulation[i][this.inverseModulation[i].length - 1] - 1][0] + 2), this.lookUpArray[this.inverseModulation[i][this.inverseModulation[i].length - 1] - 1][1]];
                     if (this.drawArray[testPos[0]][testPos[1]] != undefined) {
                         while (this.drawArray[testPos[0]][testPos[1]] != undefined && testPos[1] < 6) {
                             testPos[1]++;
@@ -477,7 +477,7 @@ class CustomAlgorythmCanvas {
                         this.lookUpArray[i] = [this.drawArray.length - (testPos[0] + 1), testPos[1]];
                     }
                 } else {
-                    let testPos = [5, 0];
+                    const testPos = [5, 0];
                     while (this.drawArray[testPos[0]][testPos[1]] != undefined && testPos[1] < 6) {
                         testPos[1]++;
                         if (this.drawArray[testPos[0]][testPos[1]] == undefined) {
@@ -497,9 +497,9 @@ class CustomAlgorythmCanvas {
                 ctx.strokeStyle = ColorConfig.getArbitaryChannelColor("pitch", off).primaryChannel;
                 const set = off * 2 + 0.5;
                 for (let i: number = 0; i < this.inverseFeedback[off].length; i++) {
-                    let tar: number = this.inverseFeedback[off][i] - 1;
-                    let srtpos: number[] = this.lookUpArray[off];
-                    let tarpos: number[] = this.lookUpArray[tar];
+                    const tar: number = this.inverseFeedback[off][i] - 1;
+                    const srtpos: number[] = this.lookUpArray[off];
+                    const tarpos: number[] = this.lookUpArray[tar];
                     ctx.beginPath();
                     ctx.moveTo(srtpos[1] * 24 + 12 + set, (6 - srtpos[0] - 1) * 24 + 12);
                     ctx.lineTo(srtpos[1] * 24 + 12 + set, (6 - srtpos[0] - 1) * 24 + 12 + set);
@@ -550,9 +550,9 @@ class CustomAlgorythmCanvas {
             ctx.strokeStyle = ColorConfig.getArbitaryChannelColor("pitch", off).primaryChannel;
             const set = off * 2 - 1 + 0.5;
             for (let i: number = 0; i < this.inverseModulation[off].length; i++) {
-                let tar: number = this.inverseModulation[off][i] - 1;
-                let srtpos: number[] = this.lookUpArray[off];
-                let tarpos: number[] = this.lookUpArray[tar];
+                const tar: number = this.inverseModulation[off][i] - 1;
+                const srtpos: number[] = this.lookUpArray[off];
+                const tarpos: number[] = this.lookUpArray[tar];
                 ctx.beginPath();
                 ctx.moveTo(srtpos[1] * 24 + 12 + set, (6 - srtpos[0] - 1) * 24 + 12);
                 ctx.lineTo(srtpos[1] * 24 + 12 + set, (6 - srtpos[0] - 1) * 24 + 12 + set);
@@ -584,7 +584,7 @@ class CustomAlgorythmCanvas {
 
     public redrawCanvas(noReset: boolean = false): void {
         this.fillDrawArray(noReset);
-        var ctx = this.canvas.getContext("2d") as CanvasRenderingContext2D;
+        const ctx = this.canvas.getContext("2d") as CanvasRenderingContext2D;
 
         // Black BG
         ctx.fillStyle = ColorConfig.getComputed("--editor-background");
@@ -622,15 +622,15 @@ class CustomAlgorythmCanvas {
     private _onMouseMove = (event: MouseEvent): void => {
         if (this.mouseDown) {//todo rework to handle draging and single clicks differently
 
-            var x = (event.clientX || event.pageX) - this.canvas.getBoundingClientRect().left;
-            var y = Math.floor((event.clientY || event.pageY) - this.canvas.getBoundingClientRect().top);
+            const x = (event.clientX || event.pageX) - this.canvas.getBoundingClientRect().left;
+            const y = Math.floor((event.clientY || event.pageY) - this.canvas.getBoundingClientRect().top);
 
-            var ctx = this.canvas.getContext("2d") as CanvasRenderingContext2D;
+            const ctx = this.canvas.getContext("2d") as CanvasRenderingContext2D;
 
             ctx.fillStyle = ColorConfig.getComputedChannelColor(this._doc.song, this._doc.channel).primaryNote;
 
-            var yindex = Math.ceil(y / 12)
-            var xindex = Math.ceil(x / 12)
+            let yindex = Math.ceil(y / 12)
+            let xindex = Math.ceil(x / 12)
             yindex = (yindex / 2) - Math.floor(yindex / 2) >= 0.5 ? Math.floor(yindex / 2) : -1;
             xindex = (xindex / 2) + 0.5 - Math.floor(xindex / 2) <= 0.5 ? Math.floor(xindex / 2) - 1 : -1;
             yindex = yindex >= 0 && yindex <= 5 ? yindex : -1;
@@ -649,7 +649,7 @@ class CustomAlgorythmCanvas {
                 if (this.drawArray?.[yindex]?.[xindex] != undefined) {
                     if (this.mode == "feedback") {
                         const newmod = this.drawArray[yindex][xindex]
-                        let check = this.feedback[newmod - 1].indexOf(this.selected);
+                        const check = this.feedback[newmod - 1].indexOf(this.selected);
                         if (check != -1) {
                             this.feedback[newmod - 1].splice(check, 1);
                         } else {
@@ -667,14 +667,14 @@ class CustomAlgorythmCanvas {
                         } else {
                             const newmod = this.drawArray[yindex][xindex]
                             if (this.selected > newmod) { //todo try to rebalence then do this in algorithm mode otherwise input as needed
-                                let check = this.newMods[newmod - 1].indexOf(this.selected);
+                                const check = this.newMods[newmod - 1].indexOf(this.selected);
                                 if (check != -1) {
                                     this.newMods[newmod - 1].splice(check, 1);
                                 } else {
                                     this.newMods[newmod - 1].push(this.selected);
                                 }
                             } else {
-                                let check = this.newMods[this.selected - 1].indexOf(newmod);
+                                const check = this.newMods[this.selected - 1].indexOf(newmod);
                                 if (check != -1) {
                                     this.newMods[this.selected - 1].splice(check, 1);
                                 } else {
@@ -1621,26 +1621,26 @@ export class SongEditor {
         this._modTargetIndicators = [];
         for (let mod: number = 0; mod < Config.modCount; mod++) {
 
-            let modChannelBox: HTMLSelectElement = select({ style: "width: 100%; color: currentColor; text-overflow:ellipsis;" });
-            let modInstrumentBox: HTMLSelectElement = select({ style: "width: 100%; color: currentColor;" });
+            const modChannelBox: HTMLSelectElement = select({ style: "width: 100%; color: currentColor; text-overflow:ellipsis;" });
+            const modInstrumentBox: HTMLSelectElement = select({ style: "width: 100%; color: currentColor;" });
 
-            let modNameRow: HTMLDivElement = div({ class: "operatorRow", style: "height: 1em; margin-bottom: 0.65em;" },
+            const modNameRow: HTMLDivElement = div({ class: "operatorRow", style: "height: 1em; margin-bottom: 0.65em;" },
                 div({ class: "tip", style: "width: 10%; max-width: 5.4em;", id: "modChannelText" + mod, onclick: () => this._openPrompt("modChannel") }, "Ch:"),
                 div({ class: "selectContainer", style: 'width: 35%;' }, modChannelBox),
                 div({ class: "tip", style: "width: 1.2em; margin-left: 0.8em;", id: "modInstrumentText" + mod, onclick: () => this._openPrompt("modInstrument") }, "Ins:"),
                 div({ class: "selectContainer", style: "width: 10%;" }, modInstrumentBox),
             );
 
-            let modSetBox: HTMLSelectElement = select();
-            let modFilterBox: HTMLSelectElement = select();
-            let modEnvelopeBox: HTMLSelectElement = select();
-            let modSetRow: HTMLDivElement = div({ class: "selectRow", id: "modSettingText" + mod, style: "margin-bottom: 0.9em; color: currentColor;" }, span({ class: "tip", onclick: () => this._openPrompt("modSet") }, "Setting: "), span({ class: "tip", style: "font-size:x-small;", onclick: () => this._openPrompt("modSetInfo" + mod) }, "?"), div({ class: "selectContainer" }, modSetBox));
-            let modFilterRow: HTMLDivElement = div({ class: "selectRow", id: "modFilterText" + mod, style: "margin-bottom: 0.9em; color: currentColor;" }, span({ class: "tip", onclick: () => this._openPrompt("modFilter" + mod) }, "Target: "), div({ class: "selectContainer" }, modFilterBox));
-            let modEnvelopeRow: HTMLDivElement = div({ class: "selectRow", id: "modEnvelopeText" + mod, style: "margin-bottom: 0.9em; color: currentColor;" }, span({ class: "tip", onclick: () => this._openPrompt("modEnvelope") }, "Envelope: "), div({ class: "selectContainer" }, modEnvelopeBox));
+            const modSetBox: HTMLSelectElement = select();
+            const modFilterBox: HTMLSelectElement = select();
+            const modEnvelopeBox: HTMLSelectElement = select();
+            const modSetRow: HTMLDivElement = div({ class: "selectRow", id: "modSettingText" + mod, style: "margin-bottom: 0.9em; color: currentColor;" }, span({ class: "tip", onclick: () => this._openPrompt("modSet") }, "Setting: "), span({ class: "tip", style: "font-size:x-small;", onclick: () => this._openPrompt("modSetInfo" + mod) }, "?"), div({ class: "selectContainer" }, modSetBox));
+            const modFilterRow: HTMLDivElement = div({ class: "selectRow", id: "modFilterText" + mod, style: "margin-bottom: 0.9em; color: currentColor;" }, span({ class: "tip", onclick: () => this._openPrompt("modFilter" + mod) }, "Target: "), div({ class: "selectContainer" }, modFilterBox));
+            const modEnvelopeRow: HTMLDivElement = div({ class: "selectRow", id: "modEnvelopeText" + mod, style: "margin-bottom: 0.9em; color: currentColor;" }, span({ class: "tip", onclick: () => this._openPrompt("modEnvelope") }, "Envelope: "), div({ class: "selectContainer" }, modEnvelopeBox));
 
 
             // @jummbus: I could template this up above and simply create from the template, especially since I also reuse it in song settings, but unsure how to do that with imperative-html :P
-            let modTarget: SVGElement = SVG.svg({ style: "transform: translate(0px, 1px);", width: "1.5em", height: "1em", viewBox: "0 0 200 200" }, [
+            const modTarget: SVGElement = SVG.svg({ style: "transform: translate(0px, 1px);", width: "1.5em", height: "1em", viewBox: "0 0 200 200" }, [
                 SVG.path({ d: "M90 155 l0 -45 -45 0 c-25 0 -45 -4 -45 -10 0 -5 20 -10 45 -10 l45 0 0 -45 c0 -25 5 -45 10 -45 6 0 10 20 10 45 l0 45 45 0 c25 0 45 5 45 10 0 6 -20 10 -45 10 l -45 0 0 45 c0 25 -4 45 -10 45 -5 0 -10 -20 -10 -45z" }),
                 SVG.path({ d: "M42 158 c-15 -15 -16 -38 -2 -38 6 0 10 7 10 15 0 8 7 15 15 15 8 0 15 5 15 10 0 14 -23 13 -38 -2z" }),
                 SVG.path({ d: "M120 160 c0 -5 7 -10 15 -10 8 0 15 -7 15 -15 0 -8 5 -15 10 -15 14 0 13 23 -2 38 -15 15 -38 16 -38 2z" }),
@@ -1751,7 +1751,7 @@ export class SongEditor {
             this._operatorAmplitudeSliders[i].container.style.setProperty("--mod-border-radius", "50%");
         }
 
-        let thisRef: SongEditor = this;
+        const thisRef: SongEditor = this;
         for (let mod: number = 0; mod < Config.modCount; mod++) {
             this._modChannelBoxes[mod].addEventListener("change", function () { thisRef._whenSetModChannel(mod); });
             this._modInstrumentBoxes[mod].addEventListener("change", function () { thisRef._whenSetModInstrument(mod); });
@@ -1912,7 +1912,7 @@ export class SongEditor {
         }
 
         if (target.textContent == "▼") {
-            let instrument: Instrument = this.doc.song.channels[this.doc.channel].instruments[this.doc.getCurrentInstrument()];
+            const instrument: Instrument = this.doc.song.channels[this.doc.channel].instruments[this.doc.getCurrentInstrument()];
             target.textContent = "▲";
             if (dropdown == DropdownID.EnvelopeSettings) {
                 group.style.display = "flex";
@@ -1971,7 +1971,7 @@ export class SongEditor {
                     if (this._showModSliders[setting][index] == true) {
                         this._showModSliders[setting][index] = false;
                         this._newShowModSliders[setting][index] = false;
-                        let slider: Slider | null = this.getSliderForModSetting(setting, index);
+                        const slider: Slider | null = this.getSliderForModSetting(setting, index);
                         
                         if (slider != null) {
                             slider.container.classList.remove("modSlider");
@@ -1982,13 +1982,13 @@ export class SongEditor {
             }
         } else {
 
-            let instrument: number = this.doc.getCurrentInstrument();
+            const instrument: number = this.doc.getCurrentInstrument();
             const anyModActive: boolean = this.doc.synth.isAnyModActive(this.doc.channel, instrument);
 
             // Check and update mod values on sliders
             if (anyModActive) {
 
-                let instrument: number = this.doc.getCurrentInstrument();
+                const instrument: number = this.doc.getCurrentInstrument();
 
                 function updateModSlider(editor: SongEditor, slider: Slider, setting: number, channel: number, instrument: number, index: number): boolean {
                     if (editor.doc.synth.isModActive(setting, channel, instrument)) {
@@ -2038,7 +2038,7 @@ export class SongEditor {
                         this._newShowModSliders[setting][index] = Boolean(this._showModSliders[setting][index]);
 
                         // Check for newer value
-                        let slider: Slider | null = this.getSliderForModSetting(setting, index);
+                        const slider: Slider | null = this.getSliderForModSetting(setting, index);
 
                         if (slider != null) {
                             this._newShowModSliders[setting][index] = updateModSlider(this, slider, setting, this.doc.channel, instrument, index);
@@ -2065,7 +2065,7 @@ export class SongEditor {
                     for (let index: number = 0; index <= Config.modulators[setting].maxIndex; index++) {
                         if (this._newShowModSliders[setting][index] != this._showModSliders[setting][index]) {
                             this._showModSliders[setting][index] = this._newShowModSliders[setting][index];
-                            let slider: Slider | null = this.getSliderForModSetting(setting, index);
+                            const slider: Slider | null = this.getSliderForModSetting(setting, index);
 
                             if (slider != null) {
 
@@ -2510,7 +2510,7 @@ export class SongEditor {
         }
         this._effectsSelect.selectedIndex = -1;
         for (let i: number = 0; i < Config.effectOrder.length; i++) {
-            let effectFlag: number = Config.effectOrder[i];
+            const effectFlag: number = Config.effectOrder[i];
             const selected: boolean = ((instrument.effects & (1 << effectFlag)) != 0);
             const label: string = (selected ? textOnIcon : textOffIcon) + Config.effectNames[effectFlag];
             const option: HTMLOptionElement = <HTMLOptionElement>this._effectsSelect.children[i + 1];
@@ -3076,7 +3076,7 @@ export class SongEditor {
             this.envelopeEditor.rerenderExtraSettings();
 
             for (let chordIndex: number = 0; chordIndex < Config.chords.length; chordIndex++) {
-                let hidden: boolean = (!Config.instrumentTypeHasSpecialInterval[instrument.type] && Config.chords[chordIndex].customInterval);
+                const hidden: boolean = (!Config.instrumentTypeHasSpecialInterval[instrument.type] && Config.chords[chordIndex].customInterval);
                 const option: Element = this._chordSelect.children[chordIndex];
                 if (hidden) {
                     if (!option.hasAttribute("hidden")) {
@@ -3211,8 +3211,8 @@ export class SongEditor {
 
             for (let mod: number = 0; mod < Config.modCount; mod++) {
 
-                let instrument: Instrument = this.doc.song.channels[this.doc.channel].instruments[this.doc.getCurrentInstrument()];
-                let modChannel: number = Math.max(0, instrument.modChannels[mod]);
+                const instrument: Instrument = this.doc.song.channels[this.doc.channel].instruments[this.doc.getCurrentInstrument()];
+                const modChannel: number = Math.max(0, instrument.modChannels[mod]);
                 let modInstrument: number = instrument.modInstruments[mod];
 
                 // Boundary checking
@@ -3254,7 +3254,7 @@ export class SongEditor {
 
                 this._modChannelBoxes[mod].selectedIndex = instrument.modChannels[mod] + 2; // Offset to get to first pitch channel
 
-                let channel: Channel = this.doc.song.channels[modChannel];
+                const channel: Channel = this.doc.song.channels[modChannel];
 
                 // Build options for modulator instruments (make sure it has the right number).
                 if (this._modInstrumentBoxes[mod].children.length != channel.instruments.length + 2) {
@@ -3271,7 +3271,7 @@ export class SongEditor {
                 // If non-zero pattern, point to which instrument(s) is/are the current
                 if (channel.bars[this.doc.bar] > 0) {
 
-                    let usedInstruments: number[] = channel.patterns[channel.bars[this.doc.bar] - 1].instruments;
+                    const usedInstruments: number[] = channel.patterns[channel.bars[this.doc.bar] - 1].instruments;
 
                     for (let i: number = 0; i < channel.instruments.length; i++) {
 
@@ -3320,7 +3320,7 @@ export class SongEditor {
 
                         // Build a list of target instrument indices, types and other info. It will be a single type for a single instrument, but with "all" and "active" it could be more.
                         // All or active are included together. Active allows any to be set, just in case the user fiddles with which are active later.
-                        let tgtInstrumentTypes: InstrumentType[] = [];
+                        const tgtInstrumentTypes: InstrumentType[] = [];
                         let anyInstrumentAdvancedEQ:   boolean = false,
                             anyInstrumentSimpleEQ:     boolean = false,
                             anyInstrumentAdvancedNote: boolean = false,
@@ -3354,7 +3354,7 @@ export class SongEditor {
                             anyInstrumentInvertWave:   boolean = true,
                             allInstrumentGranulars:    boolean = true;
                             
-                        let instrumentCandidates: number[] = [];
+                        const instrumentCandidates: number[] = [];
                         if (modInstrument >= channel.instruments.length) {
                             for (let i: number = 0; i < channel.instruments.length; i++) {
                                 instrumentCandidates.push(i);
@@ -3363,7 +3363,7 @@ export class SongEditor {
                             instrumentCandidates.push(modInstrument);
                         }
                         for (let i: number = 0; i < instrumentCandidates.length; i++) {
-                            let instrumentIndex = instrumentCandidates[i];
+                            const instrumentIndex = instrumentCandidates[i];
 
                             if (!tgtInstrumentTypes.includes(channel.instruments[instrumentIndex].type))
                                 tgtInstrumentTypes.push(channel.instruments[instrumentIndex].type);
@@ -3630,7 +3630,7 @@ export class SongEditor {
                         buildOptions(this._modSetBoxes[mod], unusedSettingList);
                     }
 
-                    let setIndex: number = settingList.indexOf(Config.modulators[instrument.modulators[mod]].name);
+                    const setIndex: number = settingList.indexOf(Config.modulators[instrument.modulators[mod]].name);
 
                     // Catch instances where invalid set forced setting to "none"
                     if (setIndex == -1) {
@@ -3680,7 +3680,7 @@ export class SongEditor {
                 }
 
                 let filterType: string = Config.modulators[instrument.modulators[mod]].name;
-                let useSongEq: boolean = filterType == "song eq";
+                const useSongEq: boolean = filterType == "song eq";
                 if (useSongEq) filterType = "eq filter";
                 if (filterType == "eq filter" || filterType == "note filter") {
                     $("#modFilterText" + mod).get(0)!.style.display = "";
@@ -3688,7 +3688,7 @@ export class SongEditor {
                     $("#modSettingText" + mod).get(0)!.style.setProperty("margin-bottom", "2px");
 
                     let useInstrument: number = instrument.modInstruments[mod];
-                    let modChannel: Channel = this.doc.song.channels[Math.max(0, instrument.modChannels[mod])];
+                    const modChannel: Channel = this.doc.song.channels[Math.max(0, instrument.modChannels[mod])];
                     let tmpCount: number = -1;
                     if (useInstrument >= modChannel.instruments.length) {
                         // Use greatest number of dots among all instruments if setting is 'all' or 'active'. If it won't have an effect on one, no worry.
@@ -3766,13 +3766,13 @@ export class SongEditor {
 
                 }
 
-                let envelopes: string = Config.modulators[instrument.modulators[mod]].name;
+                const envelopes: string = Config.modulators[instrument.modulators[mod]].name;
                 if (envelopes == "individual envelope speed" || envelopes == "reset envelope" || envelopes == "individual envelope lower bound" || envelopes == "individual envelope upper bound") {
                     $("#modEnvelopeText" + mod).get(0)!.style.display = "";
                     $("#modFilterText" + mod).get(0)!.style.display = "none";
                     $("#modSettingText" + mod).get(0)!.style.setProperty("margin-bottom", "2px");
 
-                    let modChannel: Channel = this.doc.song.channels[Math.max(0, instrument.modChannels[mod])];
+                    const modChannel: Channel = this.doc.song.channels[Math.max(0, instrument.modChannels[mod])];
                     let envCount: number = -1;
                     // Use greatest envelope count among all instruments if setting is 'all' or 'active'. If it won't have an effect on one, no worry.
                     for (let i: number = 0; i < modChannel.instruments.length; i++) {
@@ -3792,7 +3792,7 @@ export class SongEditor {
                     if (instrument.modEnvelopeNumbers[mod] >= this._modEnvelopeBoxes[mod].length) {
                         this._modEnvelopeBoxes[mod].classList.add("invalidSetting");
                         instrument.invalidModulators[mod] = true;
-                        let useName: string = "envelope " + (instrument.modEnvelopeNumbers[mod]);
+                        const useName: string = "envelope " + (instrument.modEnvelopeNumbers[mod]);
                         this._modEnvelopeBoxes[mod].insertBefore(option({ value: useName, style: "color: red;" }, useName), this._modEnvelopeBoxes[mod].children[0]);
                         this._modEnvelopeBoxes[mod].selectedIndex = 0;
 
@@ -4087,9 +4087,9 @@ export class SongEditor {
     }
 
     private _usageCheck(channelIndex: number, instrumentIndex: number): void {
-        var instrumentUsed = false;
-        var patternUsed = false;
-        var modUsed = false;
+        let instrumentUsed = false;
+        let patternUsed = false;
+        let modUsed = false;
         const channel: Channel = this.doc.song.channels[channelIndex];
 
         if (channelIndex < this.doc.song.pitchChannelCount + this.doc.song.noiseChannelCount) {
@@ -4108,10 +4108,10 @@ export class SongEditor {
             }
         }
 
-        let lowestSelX: number = Math.min(this.doc.selection.boxSelectionX0, this.doc.selection.boxSelectionX1);
-        let highestSelX: number = Math.max(this.doc.selection.boxSelectionX0, this.doc.selection.boxSelectionX1);
-        let lowestSelY: number = Math.min(this.doc.selection.boxSelectionY0, this.doc.selection.boxSelectionY1);
-        let highestSelY: number = Math.max(this.doc.selection.boxSelectionY0, this.doc.selection.boxSelectionY1);
+        const lowestSelX: number = Math.min(this.doc.selection.boxSelectionX0, this.doc.selection.boxSelectionX1);
+        const highestSelX: number = Math.max(this.doc.selection.boxSelectionX0, this.doc.selection.boxSelectionX1);
+        const lowestSelY: number = Math.min(this.doc.selection.boxSelectionY0, this.doc.selection.boxSelectionY1);
+        const highestSelY: number = Math.max(this.doc.selection.boxSelectionY0, this.doc.selection.boxSelectionY1);
 
         if (channel.bars[this.doc.bar] != 0) {
             for (let i: number = 0; i < this.doc.song.barCount; i++) {
@@ -5259,7 +5259,7 @@ export class SongEditor {
 
     private _randomPreset(): void {
         const isNoise: boolean = this.doc.song.getChannelIsNoise(this.doc.channel);
-        let presetValue: number = pickRandomPresetValue(isNoise,this.doc.prefs.rollNoveltyPresets)
+        const presetValue: number = pickRandomPresetValue(isNoise,this.doc.prefs.rollNoveltyPresets)
 
         if (presetValue > 0) {
             this.doc.record(new ChangePreset(this.doc, presetValue));
@@ -5273,7 +5273,7 @@ export class SongEditor {
 
     private _nextPreset(): void {
         const isNoise: boolean = this.doc.song.getChannelIsNoise(this.doc.channel);
-        let presetValue: number = pickNextPresetValue(isNoise,this.doc.prefs.rollNoveltyPresets)
+        const presetValue: number = pickNextPresetValue(isNoise,this.doc.prefs.rollNoveltyPresets)
 
         if (presetValue > 0) {
             this.doc.record(new ChangePreset(this.doc, presetValue));
@@ -5342,7 +5342,7 @@ export class SongEditor {
 
     public _refocus = (): void => {
         // Waits a bit because select2 "steals" back focus even after the close event fires.
-        var selfRef = this;
+        const selfRef = this;
         setTimeout(function () { selfRef.mainLayer.focus(); }, 20);
     }
 
@@ -5416,8 +5416,8 @@ export class SongEditor {
 
     private _whenSetModChannel = (mod: number): void => {
 
-        let instrument: Instrument = this.doc.song.channels[this.doc.channel].instruments[this.doc.getCurrentInstrument()];
-        let previouslyUnset: boolean = (instrument.modulators[mod] == 0 || Config.modulators[instrument.modulators[mod]].forSong);
+        const instrument: Instrument = this.doc.song.channels[this.doc.channel].instruments[this.doc.getCurrentInstrument()];
+        const previouslyUnset: boolean = (instrument.modulators[mod] == 0 || Config.modulators[instrument.modulators[mod]].forSong);
 
         this.doc.selection.setModChannel(mod, this._modChannelBoxes[mod].selectedIndex);
 
@@ -5818,12 +5818,12 @@ export class SongEditor {
     private _customWavePresetHandler = (event: Event): void => {
 
         // Update custom wave value
-        let customWaveArray: Float32Array = new Float32Array(64);
-        let index: number = this._customWavePresetDrop.selectedIndex - 1;
+        const customWaveArray: Float32Array = new Float32Array(64);
+        const index: number = this._customWavePresetDrop.selectedIndex - 1;
         let maxValue: number = Number.MIN_VALUE;
         let minValue: number = Number.MAX_VALUE;
         let arrayPoint: number = 0;
-        let arrayStep: number = (Config.chipWaves[index].samples.length - 1) / 64.0;
+        const arrayStep: number = (Config.chipWaves[index].samples.length - 1) / 64.0;
 
         for (let i: number = 0; i < 64; i++) {
             // Compute derivative to get original wave.

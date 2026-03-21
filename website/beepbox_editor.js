@@ -495,7 +495,7 @@ var beepbox = (function (exports) {
         static generateQuarterSineWave() {
             const wave = new Float32Array(_a$1.sineWaveLength + 1);
             for (let i = 0; i < _a$1.sineWaveLength + 1; i++) {
-                let q = Math.floor((i * 4) / _a$1.sineWaveLength);
+                const q = Math.floor((i * 4) / _a$1.sineWaveLength);
                 if (q == 0 || q == 2) {
                     wave[i] = Math.abs(Math.sin(i * Math.PI * 2.0 / _a$1.sineWaveLength));
                 }
@@ -1647,7 +1647,7 @@ var beepbox = (function (exports) {
     }
     function performIntegral(wave) {
         let cumulative = 0.0;
-        let newWave = new Float32Array(wave.length);
+        const newWave = new Float32Array(wave.length);
         for (let i = 0; i < wave.length; i++) {
             newWave[i] = cumulative;
             cumulative += wave[i];
@@ -1782,12 +1782,12 @@ var beepbox = (function (exports) {
             }
             else if (index == 12) {
                 for (let i = 0; i < Config.chipNoiseLength; i++) {
-                    var ultraboxnewchipnoiserand = Math.random();
+                    const ultraboxnewchipnoiserand = Math.random();
                     wave[i] = Math.pow(ultraboxnewchipnoiserand, Math.clz32(ultraboxnewchipnoiserand));
                 }
             }
             else if (index == 13) {
-                var b0 = 0, b1 = 0, b2 = 0, b3, b4, b5, b6;
+                let b0 = 0, b1 = 0, b2 = 0, b3, b4, b5, b6;
                 b0 = b1 = b2 = b3 = b4 = b5 = b6 = 0.0;
                 for (let i = 0; i < Config.chipNoiseLength; i++) {
                     var white = Math.random() * 2 - 1;
@@ -1803,7 +1803,7 @@ var beepbox = (function (exports) {
                 }
             }
             else if (index == 14) {
-                var lastOut = 0.0;
+                let lastOut = 0.0;
                 for (let i = 0; i < Config.chipNoiseLength; i++) {
                     var white = Math.random() * 2 - 1;
                     wave[i] = (lastOut + (0.02 * white)) / 1.02;
@@ -1826,7 +1826,7 @@ var beepbox = (function (exports) {
         const retroWave = getDrumWave(0, null, null);
         let combinedAmplitude = 0.0;
         for (let i = lowIndex; i < highIndex; i++) {
-            let lerped = lowPower + (highPower - lowPower) * (Math.log2(i) - lowOctave) / (highOctave - lowOctave);
+            const lerped = lowPower + (highPower - lowPower) * (Math.log2(i) - lowOctave) / (highOctave - lowOctave);
             let amplitude = Math.pow(2, (lerped - 1) * 7 + 1) * lerped;
             amplitude *= Math.pow(i / referenceIndex, overallSlope);
             combinedAmplitude += amplitude;
@@ -1923,7 +1923,7 @@ var beepbox = (function (exports) {
             value.index = i;
             dictionary[value.name] = value;
         }
-        for (let key in dictionary) {
+        for (const key in dictionary) {
             dictionary[key].samples = performIntegral(dictionary[key].samples);
         }
         const result = newArray;
@@ -4427,76 +4427,76 @@ var beepbox = (function (exports) {
                         break;
                     }
                 }
-                var regex = /\(([^\,)]+)/;
-                let newChannelSecondary = ColorConfig.getComputed(regex.exec(base.secondaryChannel)[1]);
-                let newChannelPrimary = ColorConfig.getComputed(regex.exec(base.primaryChannel)[1]);
-                let newNoteSecondary = ColorConfig.getComputed(regex.exec(base.secondaryNote)[1]);
-                let newNotePrimary = ColorConfig.getComputed(regex.exec(base.primaryNote)[1]);
+                const regex = /\(([^\,)]+)/;
+                const newChannelSecondary = ColorConfig.getComputed(regex.exec(base.secondaryChannel)[1]);
+                const newChannelPrimary = ColorConfig.getComputed(regex.exec(base.primaryChannel)[1]);
+                const newNoteSecondary = ColorConfig.getComputed(regex.exec(base.secondaryNote)[1]);
+                const newNotePrimary = ColorConfig.getComputed(regex.exec(base.primaryNote)[1]);
                 return { secondaryChannel: newChannelSecondary, primaryChannel: newChannelPrimary, secondaryNote: newNoteSecondary, primaryNote: newNotePrimary };
             }
-            let colorFormulaPitchLimit = this.c_colorFormulaPitchLimit;
-            let colorFormulaNoiseLimit = this.c_colorFormulaNoiseLimit;
-            let colorFormulaModLimit = this.c_colorFormulaModLimit;
+            const colorFormulaPitchLimit = this.c_colorFormulaPitchLimit;
+            const colorFormulaNoiseLimit = this.c_colorFormulaNoiseLimit;
+            const colorFormulaModLimit = this.c_colorFormulaModLimit;
             switch (type) {
                 case ("noise"): {
-                    let newChannelSecondary = "hsl(" + ((this.c_noiseSecondaryChannelHue + ((channel * this.c_noiseSecondaryChannelHueScale) / this.c_noiseChannelCountOverride) * 256) % colorFormulaNoiseLimit) + ","
+                    const newChannelSecondary = "hsl(" + ((this.c_noiseSecondaryChannelHue + ((channel * this.c_noiseSecondaryChannelHueScale) / this.c_noiseChannelCountOverride) * 256) % colorFormulaNoiseLimit) + ","
                         + (this.c_noiseSecondaryChannelSat + channel * this.c_noiseSecondaryChannelSatScale) + "%,"
                         + (this.c_noiseSecondaryChannelLum + channel * this.c_noiseSecondaryChannelLumScale) + "%)";
-                    let newChannelPrimary = "hsl(" + ((this.c_noisePrimaryChannelHue + ((channel * this.c_noisePrimaryChannelHueScale) / this.c_noiseChannelCountOverride) * 256) % colorFormulaNoiseLimit) + ","
+                    const newChannelPrimary = "hsl(" + ((this.c_noisePrimaryChannelHue + ((channel * this.c_noisePrimaryChannelHueScale) / this.c_noiseChannelCountOverride) * 256) % colorFormulaNoiseLimit) + ","
                         + (this.c_noisePrimaryChannelSat + channel * this.c_noisePrimaryChannelSatScale) + "%,"
                         + (this.c_noisePrimaryChannelLum + channel * this.c_noisePrimaryChannelLumScale) + "%)";
-                    let newNoteSecondary = "hsl(" + ((this.c_noiseSecondaryNoteHue + ((channel * this.c_noiseSecondaryNoteHueScale) / this.c_noiseChannelCountOverride) * 256) % colorFormulaNoiseLimit) + ","
+                    const newNoteSecondary = "hsl(" + ((this.c_noiseSecondaryNoteHue + ((channel * this.c_noiseSecondaryNoteHueScale) / this.c_noiseChannelCountOverride) * 256) % colorFormulaNoiseLimit) + ","
                         + (this.c_noiseSecondaryNoteSat + channel * this.c_noiseSecondaryNoteSatScale) + "%,"
                         + (this.c_noiseSecondaryNoteLum + channel * this.c_noiseSecondaryNoteLumScale) + "%)";
-                    let newNotePrimary = "hsl(" + ((this.c_noisePrimaryNoteHue + ((channel * this.c_noisePrimaryNoteHueScale) / this.c_noiseChannelCountOverride) * 256) % colorFormulaNoiseLimit) + ","
+                    const newNotePrimary = "hsl(" + ((this.c_noisePrimaryNoteHue + ((channel * this.c_noisePrimaryNoteHueScale) / this.c_noiseChannelCountOverride) * 256) % colorFormulaNoiseLimit) + ","
                         + (this.c_noisePrimaryNoteSat + channel * this.c_noisePrimaryNoteSatScale) + "%,"
                         + (this.c_noisePrimaryNoteLum + channel * this.c_noisePrimaryNoteLumScale) + "%)";
-                    let newChannelColors = { secondaryChannel: newChannelSecondary, primaryChannel: newChannelPrimary, secondaryNote: newNoteSecondary, primaryNote: newNotePrimary };
+                    const newChannelColors = { secondaryChannel: newChannelSecondary, primaryChannel: newChannelPrimary, secondaryNote: newNoteSecondary, primaryNote: newNotePrimary };
                     return newChannelColors;
                 }
                 case ("mod"): {
-                    let newChannelSecondary = "hsl(" + ((this.c_modSecondaryChannelHue + ((channel * this.c_modSecondaryChannelHueScale) / this.c_modChannelCountOverride) * 256) % colorFormulaModLimit) + ","
+                    const newChannelSecondary = "hsl(" + ((this.c_modSecondaryChannelHue + ((channel * this.c_modSecondaryChannelHueScale) / this.c_modChannelCountOverride) * 256) % colorFormulaModLimit) + ","
                         + (this.c_modSecondaryChannelSat + channel * this.c_modSecondaryChannelSatScale) + "%,"
                         + (this.c_modSecondaryChannelLum + channel * this.c_modSecondaryChannelLumScale) + "%)";
-                    let newChannelPrimary = "hsl(" + ((this.c_modPrimaryChannelHue + ((channel * this.c_modPrimaryChannelHueScale) / this.c_modChannelCountOverride) * 256) % colorFormulaModLimit) + ","
+                    const newChannelPrimary = "hsl(" + ((this.c_modPrimaryChannelHue + ((channel * this.c_modPrimaryChannelHueScale) / this.c_modChannelCountOverride) * 256) % colorFormulaModLimit) + ","
                         + (this.c_modPrimaryChannelSat + channel * this.c_modPrimaryChannelSatScale) + "%,"
                         + (this.c_modPrimaryChannelLum + channel * this.c_modPrimaryChannelLumScale) + "%)";
-                    let newNoteSecondary = "hsl(" + ((this.c_modSecondaryNoteHue + ((channel * this.c_modSecondaryNoteHueScale) / this.c_modChannelCountOverride) * 256) % colorFormulaModLimit) + ","
+                    const newNoteSecondary = "hsl(" + ((this.c_modSecondaryNoteHue + ((channel * this.c_modSecondaryNoteHueScale) / this.c_modChannelCountOverride) * 256) % colorFormulaModLimit) + ","
                         + (this.c_modSecondaryNoteSat + channel * this.c_modSecondaryNoteSatScale) + "%,"
                         + (this.c_modSecondaryNoteLum + channel * this.c_modSecondaryNoteLumScale) + "%)";
-                    let newNotePrimary = "hsl(" + ((this.c_modPrimaryNoteHue + ((channel * this.c_modPrimaryNoteHueScale) / this.c_modChannelCountOverride) * 256) % colorFormulaModLimit) + ","
+                    const newNotePrimary = "hsl(" + ((this.c_modPrimaryNoteHue + ((channel * this.c_modPrimaryNoteHueScale) / this.c_modChannelCountOverride) * 256) % colorFormulaModLimit) + ","
                         + (this.c_modPrimaryNoteSat + channel * this.c_modPrimaryNoteSatScale) + "%,"
                         + (this.c_modPrimaryNoteLum + channel * this.c_modPrimaryNoteLumScale) + "%)";
-                    let newChannelColors = { secondaryChannel: newChannelSecondary, primaryChannel: newChannelPrimary, secondaryNote: newNoteSecondary, primaryNote: newNotePrimary };
+                    const newChannelColors = { secondaryChannel: newChannelSecondary, primaryChannel: newChannelPrimary, secondaryNote: newNoteSecondary, primaryNote: newNotePrimary };
                     return newChannelColors;
                 }
                 case ("pitch"):
                 default: {
-                    let newChannelSecondary = "hsl(" + ((this.c_pitchSecondaryChannelHue + (channel * this.c_pitchSecondaryChannelHueScale / this.c_pitchChannelCountOverride) * 256) % colorFormulaPitchLimit) + ","
+                    const newChannelSecondary = "hsl(" + ((this.c_pitchSecondaryChannelHue + (channel * this.c_pitchSecondaryChannelHueScale / this.c_pitchChannelCountOverride) * 256) % colorFormulaPitchLimit) + ","
                         + (this.c_pitchSecondaryChannelSat * (1 - (this.c_pitchSecondaryChannelSatScale * Math.floor(channel / 7)))) + "%,"
                         + (this.c_pitchSecondaryChannelLum * (1 - (this.c_pitchSecondaryChannelLumScale * Math.floor(channel / 7)))) + "%)";
-                    let newChannelPrimary = "hsl(" + ((this.c_pitchPrimaryChannelHue + (channel * this.c_pitchPrimaryChannelHueScale / this.c_pitchChannelCountOverride) * 256) % colorFormulaPitchLimit) + ","
+                    const newChannelPrimary = "hsl(" + ((this.c_pitchPrimaryChannelHue + (channel * this.c_pitchPrimaryChannelHueScale / this.c_pitchChannelCountOverride) * 256) % colorFormulaPitchLimit) + ","
                         + (this.c_pitchPrimaryChannelSat * (1 - (this.c_pitchPrimaryChannelSatScale * Math.floor(channel / 7)))) + "%,"
                         + (this.c_pitchPrimaryChannelLum * (1 - (this.c_pitchPrimaryChannelLumScale * Math.floor(channel / 7)))) + "%)";
-                    let newNoteSecondary = "hsl(" + ((this.c_pitchSecondaryNoteHue + (channel * this.c_pitchSecondaryNoteHueScale / this.c_pitchChannelCountOverride) * 256) % colorFormulaPitchLimit) + ","
+                    const newNoteSecondary = "hsl(" + ((this.c_pitchSecondaryNoteHue + (channel * this.c_pitchSecondaryNoteHueScale / this.c_pitchChannelCountOverride) * 256) % colorFormulaPitchLimit) + ","
                         + (this.c_pitchSecondaryNoteSat * (1 - (this.c_pitchSecondaryNoteSatScale * Math.floor(channel / 7)))) + "%,"
                         + (this.c_pitchSecondaryNoteLum * (1 - (this.c_pitchSecondaryNoteLumScale * Math.floor(channel / 7)))) + "%)";
-                    let newNotePrimary = "hsl(" + ((this.c_pitchPrimaryNoteHue + (channel * this.c_pitchPrimaryNoteHueScale / this.c_pitchChannelCountOverride) * 256) % colorFormulaPitchLimit) + ","
+                    const newNotePrimary = "hsl(" + ((this.c_pitchPrimaryNoteHue + (channel * this.c_pitchPrimaryNoteHueScale / this.c_pitchChannelCountOverride) * 256) % colorFormulaPitchLimit) + ","
                         + (this.c_pitchPrimaryNoteSat * (1 - (this.c_pitchPrimaryNoteSatScale * Math.floor(channel / 7)))) + "%,"
                         + (this.c_pitchPrimaryNoteLum * (1 - (this.c_pitchPrimaryNoteLumScale * Math.floor(channel / 7)))) + "%)";
-                    let newChannelColors = { secondaryChannel: newChannelSecondary, primaryChannel: newChannelPrimary, secondaryNote: newNoteSecondary, primaryNote: newNotePrimary };
+                    const newChannelColors = { secondaryChannel: newChannelSecondary, primaryChannel: newChannelPrimary, secondaryNote: newNoteSecondary, primaryNote: newNotePrimary };
                     return newChannelColors;
                 }
             }
         }
         static getComputedChannelColor(song, channel) {
             if (!this.usesColorFormula) {
-                let base = ColorConfig.getChannelColor(song, channel);
-                var regex = /\(([^\,)]+)/;
-                let newChannelSecondary = ColorConfig.getComputed(regex.exec(base.secondaryChannel)[1]);
-                let newChannelPrimary = ColorConfig.getComputed(regex.exec(base.primaryChannel)[1]);
-                let newNoteSecondary = ColorConfig.getComputed(regex.exec(base.secondaryNote)[1]);
-                let newNotePrimary = ColorConfig.getComputed(regex.exec(base.primaryNote)[1]);
+                const base = ColorConfig.getChannelColor(song, channel);
+                const regex = /\(([^\,)]+)/;
+                const newChannelSecondary = ColorConfig.getComputed(regex.exec(base.secondaryChannel)[1]);
+                const newChannelPrimary = ColorConfig.getComputed(regex.exec(base.primaryChannel)[1]);
+                const newNoteSecondary = ColorConfig.getComputed(regex.exec(base.secondaryNote)[1]);
+                const newNotePrimary = ColorConfig.getComputed(regex.exec(base.primaryNote)[1]);
                 return { secondaryChannel: newChannelSecondary, primaryChannel: newChannelPrimary, secondaryNote: newNoteSecondary, primaryNote: newNotePrimary };
             }
             else {
@@ -4521,57 +4521,57 @@ var beepbox = (function (exports) {
                     return ColorConfig.colorLookup.get(channel);
                 }
                 else {
-                    let colorFormulaPitchLimit = this.c_colorFormulaPitchLimit;
-                    let colorFormulaNoiseLimit = this.c_colorFormulaNoiseLimit;
-                    let colorFormulaModLimit = this.c_colorFormulaModLimit;
+                    const colorFormulaPitchLimit = this.c_colorFormulaPitchLimit;
+                    const colorFormulaNoiseLimit = this.c_colorFormulaNoiseLimit;
+                    const colorFormulaModLimit = this.c_colorFormulaModLimit;
                     if (channel < song.pitchChannelCount) {
-                        let newChannelSecondary = "hsl(" + ((this.c_pitchSecondaryChannelHue + (channel * this.c_pitchSecondaryChannelHueScale / this.c_pitchChannelCountOverride) * 256) % colorFormulaPitchLimit) + ","
+                        const newChannelSecondary = "hsl(" + ((this.c_pitchSecondaryChannelHue + (channel * this.c_pitchSecondaryChannelHueScale / this.c_pitchChannelCountOverride) * 256) % colorFormulaPitchLimit) + ","
                             + (this.c_pitchSecondaryChannelSat * (1 - (this.c_pitchSecondaryChannelSatScale * Math.floor(channel / 9)))) + "%,"
                             + (this.c_pitchSecondaryChannelLum * (1 - (this.c_pitchSecondaryChannelLumScale * Math.floor(channel / 9)))) + "%)";
-                        let newChannelPrimary = "hsl(" + ((this.c_pitchPrimaryChannelHue + (channel * this.c_pitchPrimaryChannelHueScale / this.c_pitchChannelCountOverride) * 256) % colorFormulaPitchLimit) + ","
+                        const newChannelPrimary = "hsl(" + ((this.c_pitchPrimaryChannelHue + (channel * this.c_pitchPrimaryChannelHueScale / this.c_pitchChannelCountOverride) * 256) % colorFormulaPitchLimit) + ","
                             + (this.c_pitchPrimaryChannelSat * (1 - (this.c_pitchPrimaryChannelSatScale * Math.floor(channel / 9)))) + "%,"
                             + (this.c_pitchPrimaryChannelLum * (1 - (this.c_pitchPrimaryChannelLumScale * Math.floor(channel / 9)))) + "%)";
-                        let newNoteSecondary = "hsl(" + ((this.c_pitchSecondaryNoteHue + (channel * this.c_pitchSecondaryNoteHueScale / this.c_pitchChannelCountOverride) * 256) % colorFormulaPitchLimit) + ","
+                        const newNoteSecondary = "hsl(" + ((this.c_pitchSecondaryNoteHue + (channel * this.c_pitchSecondaryNoteHueScale / this.c_pitchChannelCountOverride) * 256) % colorFormulaPitchLimit) + ","
                             + (this.c_pitchSecondaryNoteSat * (1 - (this.c_pitchSecondaryNoteSatScale * Math.floor(channel / 9)))) + "%,"
                             + (this.c_pitchSecondaryNoteLum * (1 - (this.c_pitchSecondaryNoteLumScale * Math.floor(channel / 9)))) + "%)";
-                        let newNotePrimary = "hsl(" + ((this.c_pitchPrimaryNoteHue + (channel * this.c_pitchPrimaryNoteHueScale / this.c_pitchChannelCountOverride) * 256) % colorFormulaPitchLimit) + ","
+                        const newNotePrimary = "hsl(" + ((this.c_pitchPrimaryNoteHue + (channel * this.c_pitchPrimaryNoteHueScale / this.c_pitchChannelCountOverride) * 256) % colorFormulaPitchLimit) + ","
                             + (this.c_pitchPrimaryNoteSat * (1 - (this.c_pitchPrimaryNoteSatScale * Math.floor(channel / 9)))) + "%,"
                             + (this.c_pitchPrimaryNoteLum * (1 - (this.c_pitchPrimaryNoteLumScale * Math.floor(channel / 9)))) + "%)";
-                        let newChannelColors = { secondaryChannel: newChannelSecondary, primaryChannel: newChannelPrimary, secondaryNote: newNoteSecondary, primaryNote: newNotePrimary };
+                        const newChannelColors = { secondaryChannel: newChannelSecondary, primaryChannel: newChannelPrimary, secondaryNote: newNoteSecondary, primaryNote: newNotePrimary };
                         ColorConfig.colorLookup.set(channel, newChannelColors);
                         return newChannelColors;
                     }
                     else if (channel < song.pitchChannelCount + song.noiseChannelCount) {
-                        let newChannelSecondary = "hsl(" + ((this.c_noiseSecondaryChannelHue + (((channel - song.pitchChannelCount) * this.c_noiseSecondaryChannelHueScale) / this.c_noiseChannelCountOverride) * 256) % colorFormulaNoiseLimit) + ","
+                        const newChannelSecondary = "hsl(" + ((this.c_noiseSecondaryChannelHue + (((channel - song.pitchChannelCount) * this.c_noiseSecondaryChannelHueScale) / this.c_noiseChannelCountOverride) * 256) % colorFormulaNoiseLimit) + ","
                             + (this.c_noiseSecondaryChannelSat + channel * this.c_noiseSecondaryChannelSatScale) + "%,"
                             + (this.c_noiseSecondaryChannelLum + channel * this.c_noiseSecondaryChannelLumScale) + "%)";
-                        let newChannelPrimary = "hsl(" + ((this.c_noisePrimaryChannelHue + (((channel - song.pitchChannelCount) * this.c_noisePrimaryChannelHueScale) / this.c_noiseChannelCountOverride) * 256) % colorFormulaNoiseLimit) + ","
+                        const newChannelPrimary = "hsl(" + ((this.c_noisePrimaryChannelHue + (((channel - song.pitchChannelCount) * this.c_noisePrimaryChannelHueScale) / this.c_noiseChannelCountOverride) * 256) % colorFormulaNoiseLimit) + ","
                             + (this.c_noisePrimaryChannelSat + channel * this.c_noisePrimaryChannelSatScale) + "%,"
                             + (this.c_noisePrimaryChannelLum + channel * this.c_noisePrimaryChannelLumScale) + "%)";
-                        let newNoteSecondary = "hsl(" + ((this.c_noiseSecondaryNoteHue + (((channel - song.pitchChannelCount) * this.c_noiseSecondaryNoteHueScale) / this.c_noiseChannelCountOverride) * 256) % colorFormulaNoiseLimit) + ","
+                        const newNoteSecondary = "hsl(" + ((this.c_noiseSecondaryNoteHue + (((channel - song.pitchChannelCount) * this.c_noiseSecondaryNoteHueScale) / this.c_noiseChannelCountOverride) * 256) % colorFormulaNoiseLimit) + ","
                             + (this.c_noiseSecondaryNoteSat + channel * this.c_noiseSecondaryNoteSatScale) + "%,"
                             + (this.c_noiseSecondaryNoteLum + channel * this.c_noiseSecondaryNoteLumScale) + "%)";
-                        let newNotePrimary = "hsl(" + ((this.c_noisePrimaryNoteHue + (((channel - song.pitchChannelCount) * this.c_noisePrimaryNoteHueScale) / this.c_noiseChannelCountOverride) * 256) % colorFormulaNoiseLimit) + ","
+                        const newNotePrimary = "hsl(" + ((this.c_noisePrimaryNoteHue + (((channel - song.pitchChannelCount) * this.c_noisePrimaryNoteHueScale) / this.c_noiseChannelCountOverride) * 256) % colorFormulaNoiseLimit) + ","
                             + (this.c_noisePrimaryNoteSat + channel * this.c_noisePrimaryNoteSatScale) + "%,"
                             + (this.c_noisePrimaryNoteLum + channel * this.c_noisePrimaryNoteLumScale) + "%)";
-                        let newChannelColors = { secondaryChannel: newChannelSecondary, primaryChannel: newChannelPrimary, secondaryNote: newNoteSecondary, primaryNote: newNotePrimary };
+                        const newChannelColors = { secondaryChannel: newChannelSecondary, primaryChannel: newChannelPrimary, secondaryNote: newNoteSecondary, primaryNote: newNotePrimary };
                         ColorConfig.colorLookup.set(channel, newChannelColors);
                         return newChannelColors;
                     }
                     else {
-                        let newChannelSecondary = "hsl(" + ((this.c_modSecondaryChannelHue + (((channel - song.pitchChannelCount - song.noiseChannelCount) * this.c_modSecondaryChannelHueScale) / this.c_modChannelCountOverride) * 256) % colorFormulaModLimit) + ","
+                        const newChannelSecondary = "hsl(" + ((this.c_modSecondaryChannelHue + (((channel - song.pitchChannelCount - song.noiseChannelCount) * this.c_modSecondaryChannelHueScale) / this.c_modChannelCountOverride) * 256) % colorFormulaModLimit) + ","
                             + (this.c_modSecondaryChannelSat + channel * this.c_modSecondaryChannelSatScale) + "%,"
                             + (this.c_modSecondaryChannelLum + channel * this.c_modSecondaryChannelLumScale) + "%)";
-                        let newChannelPrimary = "hsl(" + ((this.c_modPrimaryChannelHue + (((channel - song.pitchChannelCount - song.noiseChannelCount) * this.c_modPrimaryChannelHueScale) / this.c_modChannelCountOverride) * 256) % colorFormulaModLimit) + ","
+                        const newChannelPrimary = "hsl(" + ((this.c_modPrimaryChannelHue + (((channel - song.pitchChannelCount - song.noiseChannelCount) * this.c_modPrimaryChannelHueScale) / this.c_modChannelCountOverride) * 256) % colorFormulaModLimit) + ","
                             + (this.c_modPrimaryChannelSat + channel * this.c_modPrimaryChannelSatScale) + "%,"
                             + (this.c_modPrimaryChannelLum + channel * this.c_modPrimaryChannelLumScale) + "%)";
-                        let newNoteSecondary = "hsl(" + ((this.c_modSecondaryNoteHue + (((channel - song.pitchChannelCount - song.noiseChannelCount) * this.c_modSecondaryNoteHueScale) / this.c_modChannelCountOverride) * 256) % colorFormulaModLimit) + ","
+                        const newNoteSecondary = "hsl(" + ((this.c_modSecondaryNoteHue + (((channel - song.pitchChannelCount - song.noiseChannelCount) * this.c_modSecondaryNoteHueScale) / this.c_modChannelCountOverride) * 256) % colorFormulaModLimit) + ","
                             + (this.c_modSecondaryNoteSat + channel * this.c_modSecondaryNoteSatScale) + "%,"
                             + (this.c_modSecondaryNoteLum + channel * this.c_modSecondaryNoteLumScale) + "%)";
-                        let newNotePrimary = "hsl(" + ((this.c_modPrimaryNoteHue + (((channel - song.pitchChannelCount - song.noiseChannelCount) * this.c_modPrimaryNoteHueScale) / this.c_modChannelCountOverride) * 256) % colorFormulaModLimit) + ","
+                        const newNotePrimary = "hsl(" + ((this.c_modPrimaryNoteHue + (((channel - song.pitchChannelCount - song.noiseChannelCount) * this.c_modPrimaryNoteHueScale) / this.c_modChannelCountOverride) * 256) % colorFormulaModLimit) + ","
                             + (this.c_modPrimaryNoteSat + channel * this.c_modPrimaryNoteSatScale) + "%,"
                             + (this.c_modPrimaryNoteLum + channel * this.c_modPrimaryNoteLumScale) + "%)";
-                        let newChannelColors = { secondaryChannel: newChannelSecondary, primaryChannel: newChannelPrimary, secondaryNote: newNoteSecondary, primaryNote: newNotePrimary };
+                        const newChannelColors = { secondaryChannel: newChannelSecondary, primaryChannel: newChannelPrimary, secondaryNote: newNoteSecondary, primaryNote: newNotePrimary };
                         ColorConfig.colorLookup.set(channel, newChannelColors);
                         return newChannelColors;
                     }
@@ -13570,7 +13570,7 @@ li.select2-results__option[role=group] > strong:hover {
         if (ticks <= lower)
             return 0;
         for (let i = 1; i < Config.fadeOutTicks.length; i++) {
-            let upper = Config.fadeOutTicks[i];
+            const upper = Config.fadeOutTicks[i];
             if (ticks <= upper)
                 return (ticks < (lower + upper) / 2) ? i - 1 : i;
             lower = upper;
@@ -13607,18 +13607,18 @@ li.select2-results__option[role=group] > strong:hover {
     function encodeUnisonSettings(buffer, v, s, o, e, i) {
         buffer.push(base64IntToCharCode[v]);
         buffer.push(base64IntToCharCode[Number((s > 0))]);
-        let cleanS = Math.round(Math.abs(s) * 1000);
-        let cleanSDivided = Math.floor(cleanS / 63);
+        const cleanS = Math.round(Math.abs(s) * 1000);
+        const cleanSDivided = Math.floor(cleanS / 63);
         buffer.push(base64IntToCharCode[cleanS % 63], base64IntToCharCode[cleanSDivided % 63], base64IntToCharCode[Math.floor(cleanSDivided / 63)]);
         buffer.push(base64IntToCharCode[Number((o > 0))]);
-        let cleanO = Math.round(Math.abs(o) * 1000);
-        let cleanODivided = Math.floor(cleanO / 63);
+        const cleanO = Math.round(Math.abs(o) * 1000);
+        const cleanODivided = Math.floor(cleanO / 63);
         buffer.push(base64IntToCharCode[cleanO % 63], base64IntToCharCode[cleanODivided % 63], base64IntToCharCode[Math.floor(cleanODivided / 63)]);
         buffer.push(base64IntToCharCode[Number((e > 0))]);
-        let cleanE = Math.round(Math.abs(e) * 1000);
+        const cleanE = Math.round(Math.abs(e) * 1000);
         buffer.push(base64IntToCharCode[cleanE % 63], base64IntToCharCode[Math.floor(cleanE / 63)]);
         buffer.push(base64IntToCharCode[Number((i > 0))]);
-        let cleanI = Math.round(Math.abs(i) * 1000);
+        const cleanI = Math.round(Math.abs(i) * 1000);
         buffer.push(base64IntToCharCode[cleanI % 63], base64IntToCharCode[Math.floor(cleanI / 63)]);
     }
     const base64IntToCharCode = [48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 45, 95];
@@ -13819,12 +13819,12 @@ li.select2-results__option[role=group] > strong:hover {
         toJsonObject(song, channel, isModChannel) {
             const noteArray = [];
             for (const note of this.notes) {
-                let instrument = channel.instruments[this.instruments[0]];
-                let mod = Math.max(0, Config.modCount - note.pitches[0] - 1);
-                let volumeCap = song.getVolumeCapForSetting(isModChannel, instrument.modulators[mod], instrument.modFilterTypes[mod]);
+                const instrument = channel.instruments[this.instruments[0]];
+                const mod = Math.max(0, Config.modCount - note.pitches[0] - 1);
+                const volumeCap = song.getVolumeCapForSetting(isModChannel, instrument.modulators[mod], instrument.modFilterTypes[mod]);
                 const pointArray = [];
                 for (const pin of note.pins) {
-                    let useVol = isModChannel ? Math.round(pin.size) : Math.round(pin.size * 100 / volumeCap);
+                    const useVol = isModChannel ? Math.round(pin.size) : Math.round(pin.size * 100 / volumeCap);
                     pointArray.push({
                         "tick": (pin.time + note.start) * Config.rhythms[song.rhythm].stepsPerBeat / Config.partsPerBeat,
                         "pitchBend": pin.interval,
@@ -13886,15 +13886,15 @@ li.select2-results__option[role=group] > strong:hover {
                     if (note.pitches.length < 1)
                         continue;
                     let startInterval = 0;
-                    let instrument = channel.instruments[this.instruments[0]];
-                    let mod = Math.max(0, Config.modCount - note.pitches[0] - 1);
+                    const instrument = channel.instruments[this.instruments[0]];
+                    const mod = Math.max(0, Config.modCount - note.pitches[0] - 1);
                     for (let k = 0; k < noteObject["points"].length; k++) {
                         const pointObject = noteObject["points"][k];
                         if (pointObject == undefined || pointObject["tick"] == undefined)
                             continue;
                         const interval = (pointObject["pitchBend"] == undefined) ? 0 : (pointObject["pitchBend"] | 0);
                         const time = Math.round((+pointObject["tick"]) * Config.partsPerBeat / importedPartsPerBeat);
-                        let volumeCap = song.getVolumeCapForSetting(isModChannel, instrument.modulators[mod], instrument.modFilterTypes[mod]);
+                        const volumeCap = song.getVolumeCapForSetting(isModChannel, instrument.modulators[mod], instrument.modFilterTypes[mod]);
                         let size;
                         if (pointObject["volume"] == undefined) {
                             size = volumeCap;
@@ -13993,7 +13993,7 @@ li.select2-results__option[role=group] > strong:hover {
             j = ((j & 0xf0f0) >> 4) | ((j & 0x0f0f) << 4);
             j = ((j >> 8) | ((j & 0xff) << 8)) >> finalShift;
             if (j > i) {
-                let temp = array[i];
+                const temp = array[i];
                 array[i] = array[j];
                 array[j] = temp;
             }
@@ -14522,10 +14522,10 @@ li.select2-results__option[role=group] > strong:hover {
         }
         fromPreset(other) {
             this.reset();
-            let preset = Config.algorithms6Op[other];
+            const preset = Config.algorithms6Op[other];
             this.name = preset.name;
             this.carrierCount = preset.carrierCount;
-            for (var i = 0; i < preset.modulatedBy.length; i++) {
+            for (let i = 0; i < preset.modulatedBy.length; i++) {
                 this.modulatedBy[i] = Array.from(preset.modulatedBy[i]);
                 this.associatedCarrier[i] = preset.associatedCarrier[i];
             }
@@ -14559,8 +14559,8 @@ li.select2-results__option[role=group] > strong:hover {
         }
         fromPreset(other) {
             this.reset();
-            let preset = Config.feedbacks6Op[other];
-            for (var i = 0; i < preset.indices.length; i++) {
+            const preset = Config.feedbacks6Op[other];
+            for (let i = 0; i < preset.indices.length; i++) {
                 this.indices[i] = Array.from(preset.indices[i]);
                 for (let j = 0; j < preset.indices[i].length; j++) {
                     this.name += preset.indices[i][j];
@@ -14707,7 +14707,7 @@ li.select2-results__option[role=group] > strong:hover {
             return true;
         }
         static lerpFilters(filterA, filterB, pos) {
-            let lerpedFilter = new FilterSettings();
+            const lerpedFilter = new FilterSettings();
             if (filterA == null) {
                 return filterA;
             }
@@ -15880,7 +15880,7 @@ li.select2-results__option[role=group] > strong:hover {
                 this.pitchShift = clamp(0, Config.pitchShiftRange, Math.round(+instrumentObject["pitchShiftSemitones"]));
             }
             if (instrumentObject["octoff"] != undefined) {
-                let potentialPitchShift = instrumentObject["octoff"];
+                const potentialPitchShift = instrumentObject["octoff"];
                 this.effects = (this.effects | (1 << 7));
                 if ((potentialPitchShift == "+1 (octave)") || (potentialPitchShift == "+2 (2 octaves)")) {
                     this.pitchShift = 24;
@@ -16168,7 +16168,7 @@ li.select2-results__option[role=group] > strong:hover {
                     }
                     this.feedbackType6Op = Config.feedbacks6Op.findIndex(feedback6Op => feedback6Op.name == instrumentObject["feedbackType"]);
                     if (this.feedbackType6Op == -1) {
-                        let synthboxLegacyFeedbacks = toNameMap([
+                        const synthboxLegacyFeedbacks = toNameMap([
                             { name: "2⟲ 3⟲", indices: [[], [2], [3], [], [], []] },
                             { name: "3⟲ 4⟲", indices: [[], [], [3], [4], [], []] },
                             { name: "4⟲ 5⟲", indices: [[], [], [], [4], [5], []] },
@@ -16196,7 +16196,7 @@ li.select2-results__option[role=group] > strong:hover {
                             { name: "2→3→4→5→6", indices: [[], [1], [2], [3], [4], [5]] },
                             { name: "1→2→3→4→5→6", indices: [[], [1], [2], [3], [4], [5]] },
                         ]);
-                        let synthboxFeedbackType = synthboxLegacyFeedbacks[synthboxLegacyFeedbacks.findIndex(feedback => feedback.name == instrumentObject["feedbackType"])].indices;
+                        const synthboxFeedbackType = synthboxLegacyFeedbacks[synthboxLegacyFeedbacks.findIndex(feedback => feedback.name == instrumentObject["feedbackType"])].indices;
                         if (synthboxFeedbackType != undefined) {
                             this.feedbackType6Op = 0;
                             this.customFeedbackType.set(synthboxFeedbackType);
@@ -16631,37 +16631,37 @@ li.select2-results__option[role=group] > strong:hover {
                     modCount = Config.modCount - modCount - 1;
                     const instrument = this.channels[modChannel].instruments[modInstrument];
                     let vol = Config.modulators[instrument.modulators[modCount]].newNoteVol;
-                    let currentIndex = instrument.modulators[modCount];
-                    let tempoIndex = Config.modulators.dictionary["tempo"].index;
+                    const currentIndex = instrument.modulators[modCount];
+                    const tempoIndex = Config.modulators.dictionary["tempo"].index;
                     if (currentIndex == tempoIndex)
                         vol = this.tempo - Config.modulators[tempoIndex].convertRealFactor;
                     if (!Config.modulators[currentIndex].forSong && instrument.modInstruments[modCount] < this.channels[instrument.modChannels[modCount]].instruments.length) {
-                        let chorusIndex = Config.modulators.dictionary["chorus"].index;
-                        let reverbIndex = Config.modulators.dictionary["reverb"].index;
-                        let panningIndex = Config.modulators.dictionary["pan"].index;
-                        let panDelayIndex = Config.modulators.dictionary["pan delay"].index;
-                        let distortionIndex = Config.modulators.dictionary["distortion"].index;
-                        let detuneIndex = Config.modulators.dictionary["detune"].index;
-                        let vibratoDepthIndex = Config.modulators.dictionary["vibrato depth"].index;
-                        let vibratoSpeedIndex = Config.modulators.dictionary["vibrato speed"].index;
-                        let vibratoDelayIndex = Config.modulators.dictionary["vibrato delay"].index;
-                        let arpSpeedIndex = Config.modulators.dictionary["arp speed"].index;
-                        let bitCrushIndex = Config.modulators.dictionary["bit crush"].index;
-                        let freqCrushIndex = Config.modulators.dictionary["freq crush"].index;
-                        let echoIndex = Config.modulators.dictionary["echo"].index;
-                        let echoDelayIndex = Config.modulators.dictionary["echo delay"].index;
-                        let pitchShiftIndex = Config.modulators.dictionary["pitch shift"].index;
-                        let ringModIndex = Config.modulators.dictionary["ring modulation"].index;
-                        let ringModHertzIndex = Config.modulators.dictionary["ring mod hertz"].index;
-                        let granularIndex = Config.modulators.dictionary["granular"].index;
-                        let grainAmountIndex = Config.modulators.dictionary["grain freq"].index;
-                        let grainSizeIndex = Config.modulators.dictionary["grain size"].index;
-                        let grainRangeIndex = Config.modulators.dictionary["grain range"].index;
-                        let envSpeedIndex = Config.modulators.dictionary["envelope speed"].index;
-                        let perEnvSpeedIndex = Config.modulators.dictionary["individual envelope speed"].index;
-                        let perEnvLowerIndex = Config.modulators.dictionary["individual envelope lower bound"].index;
-                        let perEnvUpperIndex = Config.modulators.dictionary["individual envelope upper bound"].index;
-                        let instrumentIndex = instrument.modInstruments[modCount];
+                        const chorusIndex = Config.modulators.dictionary["chorus"].index;
+                        const reverbIndex = Config.modulators.dictionary["reverb"].index;
+                        const panningIndex = Config.modulators.dictionary["pan"].index;
+                        const panDelayIndex = Config.modulators.dictionary["pan delay"].index;
+                        const distortionIndex = Config.modulators.dictionary["distortion"].index;
+                        const detuneIndex = Config.modulators.dictionary["detune"].index;
+                        const vibratoDepthIndex = Config.modulators.dictionary["vibrato depth"].index;
+                        const vibratoSpeedIndex = Config.modulators.dictionary["vibrato speed"].index;
+                        const vibratoDelayIndex = Config.modulators.dictionary["vibrato delay"].index;
+                        const arpSpeedIndex = Config.modulators.dictionary["arp speed"].index;
+                        const bitCrushIndex = Config.modulators.dictionary["bit crush"].index;
+                        const freqCrushIndex = Config.modulators.dictionary["freq crush"].index;
+                        const echoIndex = Config.modulators.dictionary["echo"].index;
+                        const echoDelayIndex = Config.modulators.dictionary["echo delay"].index;
+                        const pitchShiftIndex = Config.modulators.dictionary["pitch shift"].index;
+                        const ringModIndex = Config.modulators.dictionary["ring modulation"].index;
+                        const ringModHertzIndex = Config.modulators.dictionary["ring mod hertz"].index;
+                        const granularIndex = Config.modulators.dictionary["granular"].index;
+                        const grainAmountIndex = Config.modulators.dictionary["grain freq"].index;
+                        const grainSizeIndex = Config.modulators.dictionary["grain size"].index;
+                        const grainRangeIndex = Config.modulators.dictionary["grain range"].index;
+                        const envSpeedIndex = Config.modulators.dictionary["envelope speed"].index;
+                        const perEnvSpeedIndex = Config.modulators.dictionary["individual envelope speed"].index;
+                        const perEnvLowerIndex = Config.modulators.dictionary["individual envelope lower bound"].index;
+                        const perEnvUpperIndex = Config.modulators.dictionary["individual envelope upper bound"].index;
+                        const instrumentIndex = instrument.modInstruments[modCount];
                         switch (currentIndex) {
                             case chorusIndex:
                                 vol = this.channels[instrument.modChannels[modCount]].instruments[instrumentIndex].chorus - Config.modulators[chorusIndex].convertRealFactor;
@@ -16751,8 +16751,8 @@ li.select2-results__option[role=group] > strong:hover {
                     return Config.noteSizeMax;
                 else {
                     modCount = Config.modCount - modCount - 1;
-                    let instrument = this.channels[modChannel].instruments[modInstrument];
-                    let modulator = Config.modulators[instrument.modulators[modCount]];
+                    const instrument = this.channels[modChannel].instruments[modInstrument];
+                    const modulator = Config.modulators[instrument.modulators[modCount]];
                     let cap = modulator.maxRawVol;
                     if (cap != undefined) {
                         if (modulator.name == "eq filter" || modulator.name == "note filter" || modulator.name == "song eq") {
@@ -16877,11 +16877,11 @@ li.select2-results__option[role=group] > strong:hover {
         }
         toBase64String() {
             let bits;
-            let buffer = [];
+            const buffer = [];
             buffer.push(Song._variant);
             buffer.push(base64IntToCharCode[Song._latestJukeBoxVersion]);
             buffer.push(78);
-            var encodedSongTitle = encodeURIComponent(this.title);
+            const encodedSongTitle = encodeURIComponent(this.title);
             buffer.push(base64IntToCharCode[encodedSongTitle.length >> 6], base64IntToCharCode[encodedSongTitle.length & 0x3f]);
             for (let i = 0; i < encodedSongTitle.length; i++) {
                 buffer.push(encodedSongTitle.charCodeAt(i));
@@ -16889,7 +16889,7 @@ li.select2-results__option[role=group] > strong:hover {
             buffer.push(110, base64IntToCharCode[this.pitchChannelCount], base64IntToCharCode[this.noiseChannelCount], base64IntToCharCode[this.modChannelCount]);
             buffer.push(115, base64IntToCharCode[this.scale]);
             if (this.scale == Config.scales["dictionary"]["Custom"].index) {
-                for (var i = 1; i < Config.pitchesPerOctave; i++) {
+                for (let i = 1; i < Config.pitchesPerOctave; i++) {
                     buffer.push(base64IntToCharCode[this.scaleCustom[i] ? 1 : 0]);
                 }
             }
@@ -16942,7 +16942,7 @@ li.select2-results__option[role=group] > strong:hover {
             }
             buffer.push(85);
             for (let channel = 0; channel < this.getChannelCount(); channel++) {
-                var encodedChannelName = encodeURIComponent(this.channels[channel].name);
+                const encodedChannelName = encodeURIComponent(this.channels[channel].name);
                 buffer.push(base64IntToCharCode[encodedChannelName.length >> 6], base64IntToCharCode[encodedChannelName.length & 0x3f]);
                 for (let i = 0; i < encodedChannelName.length; i++) {
                     buffer.push(encodedChannelName.charCodeAt(i));
@@ -17353,7 +17353,7 @@ li.select2-results__option[role=group] > strong:hover {
                 if (isModChannel) {
                     const neededModInstrumentIndexBits = Song.getNeededBits(this.getMaxInstrumentsPerChannel() + 2);
                     for (let instrumentIndex = 0; instrumentIndex < channel.instruments.length; instrumentIndex++) {
-                        let instrument = this.channels[channelIndex].instruments[instrumentIndex];
+                        const instrument = this.channels[channelIndex].instruments[instrumentIndex];
                         for (let mod = 0; mod < Config.modCount; mod++) {
                             const modChannel = instrument.modChannels[mod];
                             const modInstrument = instrument.modInstruments[mod];
@@ -17429,7 +17429,7 @@ li.select2-results__option[role=group] > strong:hover {
                                 shapeBits.write(11, note.pins[0].size);
                             }
                             let shapePart = 0;
-                            let startPitch = note.pitches[0];
+                            const startPitch = note.pitches[0];
                             let currentPitch = startPitch;
                             const pitchBends = [];
                             for (let i = 1; i < note.pins.length; i++) {
@@ -17523,7 +17523,7 @@ li.select2-results__option[role=group] > strong:hover {
                 }
             }
             let stringLength = bits.lengthBase64();
-            let digits = [];
+            const digits = [];
             while (stringLength > 0) {
                 digits.unshift(base64IntToCharCode[stringLength & 0x3f]);
                 stringLength = stringLength >> 6;
@@ -17633,7 +17633,7 @@ li.select2-results__option[role=group] > strong:hover {
             let willLoadLegacySamplesForOldSongs = false;
             if (fromJukeBox || fromSlarmoosBox || fromUltraBox || fromGoldBox) {
                 compressed = compressed.replaceAll("%7C", "|");
-                var compressed_array = compressed.split("|");
+                const compressed_array = compressed.split("|");
                 compressed = compressed_array.shift();
                 if (EditorConfig.customSamples == null || EditorConfig.customSamples.join(", ") != compressed_array.join(", ")) {
                     Song._restoreChipWaveListToDefault();
@@ -17716,7 +17716,7 @@ li.select2-results__option[role=group] > strong:hover {
                 switch (command = compressed.charCodeAt(charIndex++)) {
                     case 78:
                         {
-                            var songNameLength = (base64CharCodeToInt[compressed.charCodeAt(charIndex++)] << 6) + base64CharCodeToInt[compressed.charCodeAt(charIndex++)];
+                            const songNameLength = (base64CharCodeToInt[compressed.charCodeAt(charIndex++)] << 6) + base64CharCodeToInt[compressed.charCodeAt(charIndex++)];
                             this.title = decodeURIComponent(compressed.substring(charIndex, charIndex + songNameLength));
                             document.title = this.title + " - " + EditorConfig.versionDisplayName;
                             charIndex += songNameLength;
@@ -17752,7 +17752,7 @@ li.select2-results__option[role=group] > strong:hover {
                         {
                             this.scale = clamp(0, Config.scales.length, base64CharCodeToInt[compressed.charCodeAt(charIndex++)]);
                             if (this.scale == Config.scales["dictionary"]["Custom"].index) {
-                                for (var i = 1; i < Config.pitchesPerOctave; i++) {
+                                for (let i = 1; i < Config.pitchesPerOctave; i++) {
                                     this.scaleCustom[i] = base64CharCodeToInt[compressed.charCodeAt(charIndex++)] == 1;
                                 }
                             }
@@ -17918,7 +17918,7 @@ li.select2-results__option[role=group] > strong:hover {
                     case 114:
                         {
                             if (!fromUltraBox && !fromSlarmoosBox && !fromJukeBox) {
-                                let newRhythm = base64CharCodeToInt[compressed.charCodeAt(charIndex++)];
+                                const newRhythm = base64CharCodeToInt[compressed.charCodeAt(charIndex++)];
                                 this.rhythm = clamp(0, Config.rhythms.length, newRhythm);
                                 if (fromJummBox && beforeThree || fromBeepBox) {
                                     if (this.rhythm == Config.rhythms.dictionary["÷3 (triplets)"].index || this.rhythm == Config.rhythms.dictionary["÷6"].index) {
@@ -18169,7 +18169,7 @@ li.select2-results__option[role=group] > strong:hover {
                                     }
                                     instrument.eqSubFilters[0] = instrument.eqFilter;
                                     if ((fromJummBox && !beforeFive) || (fromGoldBox && !beforeFour) || fromUltraBox || fromSlarmoosBox || fromJukeBox) {
-                                        let usingSubFilterBitfield = (base64CharCodeToInt[compressed.charCodeAt(charIndex++)] << 6) | (base64CharCodeToInt[compressed.charCodeAt(charIndex++)]);
+                                        const usingSubFilterBitfield = (base64CharCodeToInt[compressed.charCodeAt(charIndex++)] << 6) | (base64CharCodeToInt[compressed.charCodeAt(charIndex++)]);
                                         for (let j = 0; j < Config.filterMorphCount - 1; j++) {
                                             if (usingSubFilterBitfield & (1 << j)) {
                                                 const originalSubfilterControlPointCount = base64CharCodeToInt[compressed.charCodeAt(charIndex++)];
@@ -18500,7 +18500,7 @@ li.select2-results__option[role=group] > strong:hover {
                                         charIndex += 3;
                                     }
                                     this.eqSubFilters[0] = this.eqFilter;
-                                    let usingSubFilterBitfield = (base64CharCodeToInt[compressed.charCodeAt(charIndex++)] << 6) | (base64CharCodeToInt[compressed.charCodeAt(charIndex++)]);
+                                    const usingSubFilterBitfield = (base64CharCodeToInt[compressed.charCodeAt(charIndex++)] << 6) | (base64CharCodeToInt[compressed.charCodeAt(charIndex++)]);
                                     for (let j = 0; j < Config.filterMorphCount - 1; j++) {
                                         if (usingSubFilterBitfield & (1 << j)) {
                                             const originalSubfilterControlPointCount = base64CharCodeToInt[compressed.charCodeAt(charIndex++)];
@@ -18681,7 +18681,7 @@ li.select2-results__option[role=group] > strong:hover {
                                         }
                                         instrument.noteSubFilters[0] = instrument.noteFilter;
                                         if ((fromJummBox && !beforeFive) || (fromGoldBox) || (fromUltraBox) || (fromSlarmoosBox) || fromJukeBox) {
-                                            let usingSubFilterBitfield = (base64CharCodeToInt[compressed.charCodeAt(charIndex++)] << 6) | (base64CharCodeToInt[compressed.charCodeAt(charIndex++)]);
+                                            const usingSubFilterBitfield = (base64CharCodeToInt[compressed.charCodeAt(charIndex++)] << 6) | (base64CharCodeToInt[compressed.charCodeAt(charIndex++)]);
                                             for (let j = 0; j < Config.filterMorphCount - 1; j++) {
                                                 if (usingSubFilterBitfield & (1 << j)) {
                                                     const originalSubfilterControlPointCount = base64CharCodeToInt[compressed.charCodeAt(charIndex++)];
@@ -18875,7 +18875,7 @@ li.select2-results__option[role=group] > strong:hover {
                         break;
                     case 77:
                         {
-                            let instrument = this.channels[instrumentChannelIterator].instruments[instrumentIndexIterator];
+                            const instrument = this.channels[instrumentChannelIterator].instruments[instrumentIndexIterator];
                             for (let j = 0; j < 64; j++) {
                                 instrument.customChipWave[j]
                                     = clamp(-24, 25, base64CharCodeToInt[compressed.charCodeAt(charIndex++)] - 24);
@@ -18936,9 +18936,9 @@ li.select2-results__option[role=group] > strong:hover {
                                 instrument.algorithm6Op = clamp(0, Config.algorithms6Op.length, base64CharCodeToInt[compressed.charCodeAt(charIndex++)]);
                                 instrument.customAlgorithm.fromPreset(instrument.algorithm6Op);
                                 if (compressed.charCodeAt(charIndex) == 67) {
-                                    let carrierCountTemp = clamp(1, Config.operatorCount + 2 + 1, base64CharCodeToInt[compressed.charCodeAt(charIndex + 1)]);
+                                    const carrierCountTemp = clamp(1, Config.operatorCount + 2 + 1, base64CharCodeToInt[compressed.charCodeAt(charIndex + 1)]);
                                     charIndex++;
-                                    let tempModArray = [];
+                                    const tempModArray = [];
                                     if (compressed.charCodeAt(charIndex + 1) == 113) {
                                         charIndex++;
                                         let j = 0;
@@ -19009,7 +19009,7 @@ li.select2-results__option[role=group] > strong:hover {
                             else {
                                 instrument.feedbackType6Op = clamp(0, Config.feedbacks6Op.length, base64CharCodeToInt[compressed.charCodeAt(charIndex++)]);
                                 instrument.customFeedbackType.fromPreset(instrument.feedbackType6Op);
-                                let tempModArray = [];
+                                const tempModArray = [];
                                 if (compressed.charCodeAt(charIndex) == 113) {
                                     let j = 0;
                                     charIndex++;
@@ -19172,7 +19172,7 @@ li.select2-results__option[role=group] > strong:hover {
                                                 pitchEnvelopeEnd = clamp(0, Config.drumCount, base64CharCodeToInt[compressed.charCodeAt(charIndex++)]);
                                             }
                                         }
-                                        let checkboxValues = base64CharCodeToInt[compressed.charCodeAt(charIndex++)];
+                                        const checkboxValues = base64CharCodeToInt[compressed.charCodeAt(charIndex++)];
                                         if (fromJukeBox || (fromSlarmoosBox && !beforeFive)) {
                                             envelopeDiscrete = (checkboxValues >> 1) == 1 ? true : false;
                                         }
@@ -19359,9 +19359,9 @@ li.select2-results__option[role=group] > strong:hover {
                         {
                             let bitStringLength = 0;
                             let channelIndex;
-                            let largerChords = !((beforeFour && fromJummBox) || fromBeepBox);
-                            let recentPitchBitLength = (largerChords ? 4 : 3);
-                            let recentPitchLength = (largerChords ? 16 : 8);
+                            const largerChords = !((beforeFour && fromJummBox) || fromBeepBox);
+                            const recentPitchBitLength = (largerChords ? 4 : 3);
+                            const recentPitchLength = (largerChords ? 16 : 8);
                             if (beforeThree && fromBeepBox) {
                                 channelIndex = base64CharCodeToInt[compressed.charCodeAt(charIndex++)];
                                 charIndex++;
@@ -19394,12 +19394,12 @@ li.select2-results__option[role=group] > strong:hover {
                                 const neededInstrumentCountBits = Song.getNeededBits(maxInstrumentsPerPattern - Config.instrumentCountMin);
                                 const neededInstrumentIndexBits = Song.getNeededBits(channel.instruments.length - 1);
                                 if (isModChannel) {
-                                    let jumfive = (beforeFive && fromJummBox) || (beforeFour && fromGoldBox);
+                                    const jumfive = (beforeFive && fromJummBox) || (beforeFour && fromGoldBox);
                                     const neededModInstrumentIndexBits = (jumfive) ? neededInstrumentIndexBits : Song.getNeededBits(this.getMaxInstrumentsPerChannel() + 2);
                                     for (let instrumentIndex = 0; instrumentIndex < channel.instruments.length; instrumentIndex++) {
-                                        let instrument = channel.instruments[instrumentIndex];
+                                        const instrument = channel.instruments[instrumentIndex];
                                         for (let mod = 0; mod < Config.modCount; mod++) {
-                                            let status = bits.read(2);
+                                            const status = bits.read(2);
                                             switch (status) {
                                                 case 0:
                                                     instrument.modChannels[mod] = clamp(0, this.pitchChannelCount + this.noiseChannelCount + 1, bits.read(8));
@@ -19429,7 +19429,7 @@ li.select2-results__option[role=group] > strong:hover {
                                                 instrument.modEnvelopeNumbers[mod] = bits.read(6);
                                             }
                                             if (jumfive && instrument.modChannels[mod] >= 0) {
-                                                let forNoteFilter = effectsIncludeNoteFilter(this.channels[instrument.modChannels[mod]].instruments[instrument.modInstruments[mod]].effects);
+                                                const forNoteFilter = effectsIncludeNoteFilter(this.channels[instrument.modChannels[mod]].instruments[instrument.modInstruments[mod]].effects);
                                                 if (instrument.modulators[mod] == 7) {
                                                     if (forNoteFilter) {
                                                         instrument.modulators[mod] = Config.modulators.dictionary["note filt cut"].index;
@@ -19568,7 +19568,7 @@ li.select2-results__option[role=group] > strong:hover {
                                                 shape.length = 0;
                                                 shape.bendCount = 0;
                                                 for (let j = 0; j < shape.pinCount; j++) {
-                                                    let pinObj = {};
+                                                    const pinObj = {};
                                                     pinObj.pitchBend = bits.read(1) == 1;
                                                     if (pinObj.pitchBend)
                                                         shape.bendCount++;
@@ -19799,7 +19799,7 @@ li.select2-results__option[role=group] > strong:hover {
             let presetChipWaveLoopMode = null;
             let presetChipWavePlayBackwards = false;
             let parsedSampleOptions = false;
-            let optionsStartIndex = url.indexOf("!");
+            const optionsStartIndex = url.indexOf("!");
             let optionsEndIndex = -1;
             if (optionsStartIndex === 0) {
                 optionsEndIndex = url.indexOf("!", optionsStartIndex + 1);
@@ -20422,7 +20422,7 @@ li.select2-results__option[role=group] > strong:hover {
                     this.scale = scale;
                 if (this.scale == Config.scales["dictionary"]["Custom"].index) {
                     if (jsonObject["customScale"] != undefined) {
-                        for (var i of jsonObject["customScale"].keys()) {
+                        for (const i of jsonObject["customScale"].keys()) {
                             this.scaleCustom[i] = jsonObject["customScale"][i];
                         }
                     }
@@ -20583,7 +20583,7 @@ li.select2-results__option[role=group] > strong:hover {
             const newModChannels = [];
             if (jsonObject["channels"] != undefined) {
                 for (let channelIndex = 0; channelIndex < jsonObject["channels"].length; channelIndex++) {
-                    let channelObject = jsonObject["channels"][channelIndex];
+                    const channelObject = jsonObject["channels"][channelIndex];
                     const channel = new Channel();
                     let isNoiseChannel = false;
                     let isModChannel = false;
@@ -21281,7 +21281,7 @@ li.select2-results__option[role=group] > strong:hover {
             const beatTimeEnd = [];
             let noteSizeStart = this._noteSizeFinal;
             let noteSizeEnd = this._noteSizeFinal;
-            let prevNoteSize = this._prevNoteSizeFinal;
+            const prevNoteSize = this._prevNoteSizeFinal;
             let nextNoteSize = 0;
             let prevSlideStart = false;
             let prevSlideEnd = false;
@@ -21357,8 +21357,8 @@ li.select2-results__option[role=group] > strong:hover {
                 let steps = 2;
                 let seed = 2;
                 let waveform = 0;
-                let startPinTickAbsolute = this.startPinTickAbsolute || 0.0;
-                let defaultPitch = this.startPinTickDefaultPitch || 0.0;
+                const startPinTickAbsolute = this.startPinTickAbsolute || 0.0;
+                const defaultPitch = this.startPinTickDefaultPitch || 0.0;
                 if (envelopeIndex == instrument.envelopeCount) {
                     if (usedNoteSize)
                         break;
@@ -21367,7 +21367,7 @@ li.select2-results__option[role=group] > strong:hover {
                     envelope = Config.newEnvelopes.dictionary["note size"];
                 }
                 else {
-                    let envelopeSettings = instrument.envelopes[envelopeIndex];
+                    const envelopeSettings = instrument.envelopes[envelopeIndex];
                     automationTarget = Config.instrumentAutomationTargets[envelopeSettings.target];
                     targetIndex = envelopeSettings.index;
                     envelope = Config.newEnvelopes[envelopeSettings.envelope];
@@ -21595,7 +21595,7 @@ li.select2-results__option[role=group] > strong:hover {
                         case 5:
                             if (steps <= 1)
                                 return 1;
-                            let saw = (beats * envelopeSpeed) % 1;
+                            const saw = (beats * envelopeSpeed) % 1;
                             if (inverse) {
                                 return perEnvelopeUpperBound - Math.floor(saw * steps) * boundAdjust / (steps - 1);
                             }
@@ -21605,7 +21605,7 @@ li.select2-results__option[role=group] > strong:hover {
                         case 6:
                             if (steps <= 1)
                                 return 1;
-                            let tri = 0.5 + (inverse ? -1 : 1) * (1 / Math.PI) * Math.asin(Math.sin((Math.PI / 2) + beats * Math.PI * 2.0 * envelopeSpeed));
+                            const tri = 0.5 + (inverse ? -1 : 1) * (1 / Math.PI) * Math.asin(Math.sin((Math.PI / 2) + beats * Math.PI * 2.0 * envelopeSpeed));
                             return Math.round(tri * (steps - 1)) * boundAdjust / (steps - 1) + perEnvelopeLowerBound;
                         default: throw new Error("Unrecognized operator envelope waveform type: " + waveform);
                     }
@@ -22386,7 +22386,7 @@ li.select2-results__option[role=group] > strong:hover {
                     eqFilterSettingsStart.convertLegacySettingsForSynth(startSimpleFreq, startSimpleGain);
                     eqFilterSettingsEnd.convertLegacySettingsForSynth(endSimpleFreq, endSimpleGain);
                     startPoint = eqFilterSettingsStart.controlPoints[0];
-                    let endPoint = eqFilterSettingsEnd.controlPoints[0];
+                    const endPoint = eqFilterSettingsEnd.controlPoints[0];
                     startPoint.toCoefficients(Synth.tempFilterStartCoefficients, samplesPerSecond, 1.0, 1.0);
                     endPoint.toCoefficients(Synth.tempFilterEndCoefficients, samplesPerSecond, 1.0, 1.0);
                     if (this.eqFilters.length < 1)
@@ -22409,7 +22409,7 @@ li.select2-results__option[role=group] > strong:hover {
                 const eqFilterSettings = (instrument.tmpEqFilterStart != null) ? instrument.tmpEqFilterStart : instrument.eqFilter;
                 for (let i = 0; i < eqFilterSettings.controlPointCount; i++) {
                     let startPoint = eqFilterSettings.controlPoints[i];
-                    let endPoint = (instrument.tmpEqFilterEnd != null && instrument.tmpEqFilterEnd.controlPoints[i] != null) ? instrument.tmpEqFilterEnd.controlPoints[i] : eqFilterSettings.controlPoints[i];
+                    const endPoint = (instrument.tmpEqFilterEnd != null && instrument.tmpEqFilterEnd.controlPoints[i] != null) ? instrument.tmpEqFilterEnd.controlPoints[i] : eqFilterSettings.controlPoints[i];
                     if (startPoint.type != endPoint.type) {
                         startPoint = endPoint;
                     }
@@ -22450,8 +22450,8 @@ li.select2-results__option[role=group] > strong:hover {
                     usePanStart = synth.getModValue(Config.modulators.dictionary["pan"].index, channelIndex, instrumentIndex, false);
                     usePanEnd = synth.getModValue(Config.modulators.dictionary["pan"].index, channelIndex, instrumentIndex, true);
                 }
-                let panStart = Math.max(-1.0, Math.min(1.0, (usePanStart - Config.panCenter) / Config.panCenter * panEnvelopeStart));
-                let panEnd = Math.max(-1.0, Math.min(1.0, (usePanEnd - Config.panCenter) / Config.panCenter * panEnvelopeEnd));
+                const panStart = Math.max(-1.0, Math.min(1.0, (usePanStart - Config.panCenter) / Config.panCenter * panEnvelopeStart));
+                const panEnd = Math.max(-1.0, Math.min(1.0, (usePanEnd - Config.panCenter) / Config.panCenter * panEnvelopeEnd));
                 const volumeStartL = Math.cos((1 + panStart) * Math.PI * 0.25) * 1.414;
                 const volumeStartR = Math.cos((1 - panStart) * Math.PI * 0.25) * 1.414;
                 const volumeEndL = Math.cos((1 + panEnd) * Math.PI * 0.25) * 1.414;
@@ -22501,12 +22501,12 @@ li.select2-results__option[role=group] > strong:hover {
             if (usesRingModulation) {
                 let useRingModStart = instrument.ringModulation;
                 let useRingModEnd = instrument.ringModulation;
-                let useRingModEnvelopeStart = envelopeStarts[49];
-                let useRingModEnvelopeEnd = envelopeEnds[49];
+                const useRingModEnvelopeStart = envelopeStarts[49];
+                const useRingModEnvelopeEnd = envelopeEnds[49];
                 let useRingModHzStart = Math.min(1.0, instrument.ringModulationHz / (Config.ringModHzRange - 1));
                 let useRingModHzEnd = Math.min(1.0, instrument.ringModulationHz / (Config.ringModHzRange - 1));
-                let useRingModHzEnvelopeStart = envelopeStarts[50];
-                let useRingModHzEnvelopeEnd = envelopeEnds[50];
+                const useRingModHzEnvelopeStart = envelopeStarts[50];
+                const useRingModHzEnvelopeEnd = envelopeEnds[50];
                 if (synth.isModActive(Config.modulators.dictionary["ring modulation"].index, channelIndex, instrumentIndex)) {
                     useRingModStart = (synth.getModValue(Config.modulators.dictionary["ring modulation"].index, channelIndex, instrumentIndex, false));
                     useRingModEnd = (synth.getModValue(Config.modulators.dictionary["ring modulation"].index, channelIndex, instrumentIndex, true));
@@ -22517,8 +22517,8 @@ li.select2-results__option[role=group] > strong:hover {
                 }
                 useRingModHzStart *= useRingModHzEnvelopeStart;
                 useRingModHzEnd *= useRingModHzEnvelopeEnd;
-                let ringModStart = Math.min(1.0, (useRingModStart * useRingModEnvelopeStart) / (Config.ringModRange - 1));
-                let ringModEnd = Math.min(1.0, (useRingModEnd * useRingModEnvelopeEnd) / (Config.ringModRange - 1));
+                const ringModStart = Math.min(1.0, (useRingModStart * useRingModEnvelopeStart) / (Config.ringModRange - 1));
+                const ringModEnd = Math.min(1.0, (useRingModEnd * useRingModEnvelopeEnd) / (Config.ringModRange - 1));
                 this.ringModMix = ringModStart;
                 this.ringModMixDelta = (ringModEnd - ringModStart) / roundedSamplesPerTick;
                 this.ringModHzOffset = instrument.ringModHzOffset;
@@ -22613,8 +22613,8 @@ li.select2-results__option[role=group] > strong:hover {
                 this.phaserMix = phaserMixStart;
                 this.phaserMixDelta = (phaserMixEnd - phaserMixStart) / roundedSamplesPerTick;
                 const phaserBreakFreqSlider = instrument.phaserFreq / (Config.phaserFreqRange - 1);
-                let phaserBreakFreqEnvelopeStart = envelopeStarts[56];
-                let phaserBreakFreqEnvelopeEnd = envelopeEnds[56];
+                const phaserBreakFreqEnvelopeStart = envelopeStarts[56];
+                const phaserBreakFreqEnvelopeEnd = envelopeEnds[56];
                 let phaserBreakFreqRawStart = phaserBreakFreqSlider * phaserBreakFreqEnvelopeStart;
                 let phaserBreakFreqRawEnd = phaserBreakFreqSlider * phaserBreakFreqEnvelopeEnd;
                 if (synth.isModActive(Config.modulators.dictionary["phaser frequency"].index, channelIndex, instrumentIndex)) {
@@ -22905,15 +22905,15 @@ li.select2-results__option[role=group] > strong:hover {
                     }
                 }
             }
-            var dummyArray = new Float32Array(1);
+            const dummyArray = new Float32Array(1);
             this.isPlayingSong = true;
             this.synthesize(dummyArray, dummyArray, 1, true);
             this.isPlayingSong = false;
         }
         computeLatestModValues() {
             if (this.song != null && this.song.modChannelCount > 0) {
-                let latestModTimes = [];
-                let latestModInsTimes = [];
+                const latestModTimes = [];
+                const latestModInsTimes = [];
                 this.modValues = [];
                 this.nextModValues = [];
                 this.modInsValues = [];
@@ -22929,18 +22929,18 @@ li.select2-results__option[role=group] > strong:hover {
                         latestModInsTimes[channel][instrument] = [];
                     }
                 }
-                let currentPart = this.beat * Config.partsPerBeat + this.part;
+                const currentPart = this.beat * Config.partsPerBeat + this.part;
                 for (let channelIndex = this.song.pitchChannelCount + this.song.noiseChannelCount; channelIndex < this.song.getChannelCount(); channelIndex++) {
                     if (!(this.song.channels[channelIndex].muted)) {
                         let pattern;
                         for (let currentBar = this.bar; currentBar >= 0; currentBar--) {
                             pattern = this.song.getPattern(channelIndex, currentBar);
                             if (pattern != null) {
-                                let instrumentIdx = pattern.instruments[0];
-                                let instrument = this.song.channels[channelIndex].instruments[instrumentIdx];
-                                let latestPinParts = [];
-                                let latestPinValues = [];
-                                let partsInBar = (currentBar == this.bar)
+                                const instrumentIdx = pattern.instruments[0];
+                                const instrument = this.song.channels[channelIndex].instruments[instrumentIdx];
+                                const latestPinParts = [];
+                                const latestPinValues = [];
+                                const partsInBar = (currentBar == this.bar)
                                     ? currentPart
                                     : this.findPartsInBar(currentBar);
                                 for (const note of pattern.notes) {
@@ -22973,7 +22973,7 @@ li.select2-results__option[role=group] > strong:hover {
                                             const songFilterParam = instrument.modulators[mod] == Config.modulators.dictionary["song eq"].index;
                                             if (latestModTimes[instrument.modulators[mod]] == null || currentBar * Config.partsPerBeat * this.song.beatsPerBar + latestPinParts[mod] > latestModTimes[instrument.modulators[mod]]) {
                                                 if (songFilterParam) {
-                                                    let tgtSong = this.song;
+                                                    const tgtSong = this.song;
                                                     if (instrument.modFilterTypes[mod] == 0) {
                                                         tgtSong.tmpEqFilterStart = tgtSong.eqSubFilters[latestPinValues[mod]];
                                                     }
@@ -23026,7 +23026,7 @@ li.select2-results__option[role=group] > strong:hover {
                                                 if (latestModInsTimes[instrument.modChannels[mod]][usedInstruments[instrumentIndex]][modulatorAdjust] == null
                                                     || currentBar * Config.partsPerBeat * this.song.beatsPerBar + latestPinParts[mod] > latestModInsTimes[instrument.modChannels[mod]][usedInstruments[instrumentIndex]][modulatorAdjust]) {
                                                     if (eqFilterParam) {
-                                                        let tgtInstrument = this.song.channels[instrument.modChannels[mod]].instruments[usedInstruments[instrumentIndex]];
+                                                        const tgtInstrument = this.song.channels[instrument.modChannels[mod]].instruments[usedInstruments[instrumentIndex]];
                                                         if (instrument.modFilterTypes[mod] == 0) {
                                                             tgtInstrument.tmpEqFilterStart = tgtInstrument.eqSubFilters[latestPinValues[mod]];
                                                         }
@@ -23048,7 +23048,7 @@ li.select2-results__option[role=group] > strong:hover {
                                                         tgtInstrument.tmpEqFilterEnd = tgtInstrument.tmpEqFilterStart;
                                                     }
                                                     else if (noteFilterParam) {
-                                                        let tgtInstrument = this.song.channels[instrument.modChannels[mod]].instruments[usedInstruments[instrumentIndex]];
+                                                        const tgtInstrument = this.song.channels[instrument.modChannels[mod]].instruments[usedInstruments[instrumentIndex]];
                                                         if (instrument.modFilterTypes[mod] == 0) {
                                                             tgtInstrument.tmpNoteFilterStart = tgtInstrument.noteSubFilters[latestPinValues[mod]];
                                                         }
@@ -23170,9 +23170,9 @@ li.select2-results__option[role=group] > strong:hover {
                 return 0;
             let partsInBar = Config.partsPerBeat * this.song.beatsPerBar;
             for (let channel = this.song.pitchChannelCount + this.song.noiseChannelCount; channel < this.song.getChannelCount(); channel++) {
-                let pattern = this.song.getPattern(channel, bar);
+                const pattern = this.song.getPattern(channel, bar);
                 if (pattern != null) {
-                    let instrument = this.song.channels[channel].instruments[pattern.instruments[0]];
+                    const instrument = this.song.channels[channel].instruments[pattern.instruments[0]];
                     for (let mod = 0; mod < Config.modCount; mod++) {
                         if (instrument.modulators[mod] == Config.modulators.dictionary["next bar"].index) {
                             for (const note of pattern.notes) {
@@ -23190,16 +23190,16 @@ li.select2-results__option[role=group] > strong:hover {
         getTotalSamples(enableIntro, enableOutro, loop) {
             if (this.song == null)
                 return -1;
-            let startBar = enableIntro ? 0 : this.song.loopStart;
-            let endBar = enableOutro ? this.song.barCount : (this.song.loopStart + this.song.loopLength);
+            const startBar = enableIntro ? 0 : this.song.loopStart;
+            const endBar = enableOutro ? this.song.barCount : (this.song.loopStart + this.song.loopLength);
             let hasTempoMods = false;
             let hasNextBarMods = false;
             let prevTempo = this.song.tempo;
             for (let channel = this.song.getChannelCount() - 1; channel >= this.song.pitchChannelCount + this.song.noiseChannelCount; channel--) {
                 for (let bar = startBar; bar < endBar; bar++) {
-                    let pattern = this.song.getPattern(channel, bar);
+                    const pattern = this.song.getPattern(channel, bar);
                     if (pattern != null) {
-                        let instrument = this.song.channels[channel].instruments[pattern.instruments[0]];
+                        const instrument = this.song.channels[channel].instruments[pattern.instruments[0]];
                         for (let mod = 0; mod < Config.modCount; mod++) {
                             if (instrument.modulators[mod] == Config.modulators.dictionary["tempo"].index) {
                                 hasTempoMods = true;
@@ -23216,11 +23216,11 @@ li.select2-results__option[role=group] > strong:hover {
                 let latestTempoValue = 0;
                 for (let bar = startBar - 1; bar >= 0; bar--) {
                     for (let channel = this.song.getChannelCount() - 1; channel >= this.song.pitchChannelCount + this.song.noiseChannelCount; channel--) {
-                        let pattern = this.song.getPattern(channel, bar);
+                        const pattern = this.song.getPattern(channel, bar);
                         if (pattern != null) {
-                            let instrumentIdx = pattern.instruments[0];
-                            let instrument = this.song.channels[channel].instruments[instrumentIdx];
-                            let partsInBar = this.findPartsInBar(bar);
+                            const instrumentIdx = pattern.instruments[0];
+                            const instrument = this.song.channels[channel].instruments[instrumentIdx];
+                            const partsInBar = this.findPartsInBar(bar);
                             for (const note of pattern.notes) {
                                 if (instrument.modulators[Config.modCount - 1 - note.pitches[0]] == Config.modulators.dictionary["tempo"].index) {
                                     if (note.start < partsInBar && (latestTempoPin == null || note.end > latestTempoPin)) {
@@ -23265,9 +23265,9 @@ li.select2-results__option[role=group] > strong:hover {
                         let foundMod = false;
                         for (let channel = this.song.getChannelCount() - 1; channel >= this.song.pitchChannelCount + this.song.noiseChannelCount; channel--) {
                             if (foundMod == false) {
-                                let pattern = this.song.getPattern(channel, bar);
+                                const pattern = this.song.getPattern(channel, bar);
                                 if (pattern != null) {
-                                    let instrument = this.song.channels[channel].instruments[pattern.instruments[0]];
+                                    const instrument = this.song.channels[channel].instruments[pattern.instruments[0]];
                                     for (let mod = 0; mod < Config.modCount; mod++) {
                                         if (foundMod == false && instrument.modulators[mod] == Config.modulators.dictionary["tempo"].index
                                             && pattern.notes.find(n => n.pitches[0] == (Config.modCount - 1 - mod))) {
@@ -23285,7 +23285,7 @@ li.select2-results__option[role=group] > strong:hover {
                                                                 if (note.pins[pinIdx].time + note.start > partsInBar) {
                                                                     currPinTempo = note.pins[pinIdx - 1].size + (note.pins[pinIdx].size - note.pins[pinIdx - 1].size) * (partsInBar - (note.start + note.pins[pinIdx - 1].time)) / (note.pins[pinIdx].time - note.pins[pinIdx - 1].time) + Config.modulators.dictionary["tempo"].convertRealFactor;
                                                                 }
-                                                                let bpmScalar = Config.partsPerBeat * Config.ticksPerPart / 60;
+                                                                const bpmScalar = Config.partsPerBeat * Config.ticksPerPart / 60;
                                                                 if (currPinTempo != prevPinTempo) {
                                                                     totalSamples += -this.samplesPerSecond * tickLength * (Math.log(bpmScalar * currPinTempo * tickLength) - Math.log(bpmScalar * prevPinTempo * tickLength)) / (bpmScalar * (prevPinTempo - currPinTempo));
                                                                 }
@@ -23526,8 +23526,8 @@ li.select2-results__option[role=group] > strong:hover {
             }
         }
         setModValue(volumeStart, volumeEnd, channelIndex, instrumentIndex, setting) {
-            let val = volumeStart + Config.modulators[setting].convertRealFactor;
-            let nextVal = volumeEnd + Config.modulators[setting].convertRealFactor;
+            const val = volumeStart + Config.modulators[setting].convertRealFactor;
+            const nextVal = volumeEnd + Config.modulators[setting].convertRealFactor;
             if (Config.modulators[setting].forSong) {
                 if (this.modValues[setting] == null || this.modValues[setting] != val || this.nextModValues[setting] != nextVal) {
                     this.modValues[setting] = val;
@@ -23735,8 +23735,8 @@ li.select2-results__option[role=group] > strong:hover {
                 if (this.song.eqSubFilters[1] == null)
                     this.song.eqSubFilters[1] = new FilterSettings();
                 this.song.eqSubFilters[1];
-                let startSimpleFreq = this.song.eqFilterSimpleCut;
-                let startSimpleGain = this.song.eqFilterSimplePeak;
+                const startSimpleFreq = this.song.eqFilterSimpleCut;
+                const startSimpleGain = this.song.eqFilterSimplePeak;
                 this.song.eqFilterSimpleCut;
                 this.song.eqFilterSimplePeak;
                 let startPoint;
@@ -23759,7 +23759,7 @@ li.select2-results__option[role=group] > strong:hover {
                 const eqFilterSettings = (this.song.tmpEqFilterStart != null) ? this.song.tmpEqFilterStart : this.song.eqFilter;
                 for (let i = 0; i < eqFilterSettings.controlPointCount; i++) {
                     let startPoint = eqFilterSettings.controlPoints[i];
-                    let endPoint = (this.song.tmpEqFilterEnd != null && this.song.tmpEqFilterEnd.controlPoints[i] != null) ? this.song.tmpEqFilterEnd.controlPoints[i] : eqFilterSettings.controlPoints[i];
+                    const endPoint = (this.song.tmpEqFilterEnd != null && this.song.tmpEqFilterEnd.controlPoints[i] != null) ? this.song.tmpEqFilterEnd.controlPoints[i] : eqFilterSettings.controlPoints[i];
                     if (startPoint.type != endPoint.type) {
                         startPoint = endPoint;
                     }
@@ -23776,8 +23776,8 @@ li.select2-results__option[role=group] > strong:hover {
                 this.songEqFilterCount = eqFilterSettings.controlPointCount;
                 eqFilterVolume = Math.min(3.0, eqFilterVolume);
             }
-            let eqFilterVolumeStart = eqFilterVolume;
-            let eqFilterVolumeEnd = eqFilterVolume;
+            const eqFilterVolumeStart = eqFilterVolume;
+            const eqFilterVolumeEnd = eqFilterVolume;
             this.songEqFilterVolume = eqFilterVolumeStart;
             this.songEqFilterVolumeDelta = (eqFilterVolumeEnd - eqFilterVolumeStart) / roundedSamplesPerTick;
         }
@@ -23833,7 +23833,7 @@ li.select2-results__option[role=group] > strong:hover {
             const limitDecay = 1.0 - Math.pow(0.5, this.song.limitDecay / this.samplesPerSecond);
             const limitRise = 1.0 - Math.pow(0.5, this.song.limitRise / this.samplesPerSecond);
             let limit = +this.limit;
-            let skippedBars = [];
+            const skippedBars = [];
             let firstSkippedBufferIndex = -1;
             let bufferIndex = 0;
             while (bufferIndex < outputBufferLength && !ended) {
@@ -23855,7 +23855,7 @@ li.select2-results__option[role=group] > strong:hover {
                                 const tone = instrumentState.activeModTones.get(i);
                                 const channel = song.channels[channelIndex];
                                 const instrument = channel.instruments[tone.instrumentIndex];
-                                let mod = Config.modCount - 1 - tone.pitches[0];
+                                const mod = Config.modCount - 1 - tone.pitches[0];
                                 if ((instrument.modulators[mod] == Config.modulators.dictionary["note filter"].index
                                     || instrument.modulators[mod] == Config.modulators.dictionary["eq filter"].index
                                     || instrument.modulators[mod] == Config.modulators.dictionary["song eq"].index)
@@ -23875,7 +23875,7 @@ li.select2-results__option[role=group] > strong:hover {
                                 const tone = instrumentState.activeModTones.get(i);
                                 const channel = song.channels[channelIndex];
                                 const instrument = channel.instruments[tone.instrumentIndex];
-                                let mod = Config.modCount - 1 - tone.pitches[0];
+                                const mod = Config.modCount - 1 - tone.pitches[0];
                                 if ((instrument.modulators[mod] == Config.modulators.dictionary["note filter"].index
                                     || instrument.modulators[mod] == Config.modulators.dictionary["eq filter"].index
                                     || instrument.modulators[mod] == Config.modulators.dictionary["song eq"].index)
@@ -23887,7 +23887,7 @@ li.select2-results__option[role=group] > strong:hover {
                     }
                 }
                 if (this.wantToSkip) {
-                    let barVisited = skippedBars.includes(this.bar);
+                    const barVisited = skippedBars.includes(this.bar);
                     if (barVisited && bufferIndex == firstSkippedBufferIndex) {
                         this.pause();
                         return;
@@ -24006,8 +24006,8 @@ li.select2-results__option[role=group] > strong:hover {
                 }
                 for (let i = bufferIndex; i < runEnd; i++) {
                     {
-                        let filtersL = this.songEqFiltersL;
-                        let filtersR = this.songEqFiltersR;
+                        const filtersL = this.songEqFiltersL;
+                        const filtersR = this.songEqFiltersR;
                         const filterCount = this.songEqFilterCount | 0;
                         let initialFilterInput1L = +this.initialSongEqFilterInput1L;
                         let initialFilterInput2L = +this.initialSongEqFilterInput2L;
@@ -24099,8 +24099,8 @@ li.select2-results__option[role=group] > strong:hover {
                     const currentPart = this.getCurrentPart();
                     for (let channel = 0; channel < this.song.pitchChannelCount + this.song.noiseChannelCount; channel++) {
                         for (let instrumentIdx = 0; instrumentIdx < this.song.channels[channel].instruments.length; instrumentIdx++) {
-                            let instrument = this.song.channels[channel].instruments[instrumentIdx];
-                            let instrumentState = this.channels[channel].instruments[instrumentIdx];
+                            const instrument = this.song.channels[channel].instruments[instrumentIdx];
+                            const instrumentState = this.channels[channel].instruments[instrumentIdx];
                             const envelopeComputer = instrumentState.envelopeComputer;
                             const envelopeSpeeds = [];
                             for (let i = 0; i < Config.maxEnvelopeCount; i++) {
@@ -24155,7 +24155,7 @@ li.select2-results__option[role=group] > strong:hover {
                     }
                     for (let channel = 0; channel < this.song.pitchChannelCount + this.song.noiseChannelCount; channel++) {
                         for (let instrumentIdx = 0; instrumentIdx < this.song.channels[channel].instruments.length; instrumentIdx++) {
-                            let instrument = this.song.channels[channel].instruments[instrumentIdx];
+                            const instrument = this.song.channels[channel].instruments[instrumentIdx];
                             if (instrument.tmpEqFilterEnd != null) {
                                 instrument.tmpEqFilterStart = instrument.tmpEqFilterEnd;
                             }
@@ -24491,9 +24491,9 @@ li.select2-results__option[role=group] > strong:hover {
             const currentPart = this.getCurrentPart();
             const currentTick = this.tick + Config.ticksPerPart * currentPart;
             if (playSong && song.getChannelIsMod(channelIndex)) {
-                let notes = [];
-                let prevNotes = [];
-                let nextNotes = [];
+                const notes = [];
+                const prevNotes = [];
+                const nextNotes = [];
                 let fillCount = Config.modCount;
                 while (fillCount--) {
                     notes.push(null);
@@ -24537,10 +24537,10 @@ li.select2-results__option[role=group] > strong:hover {
                     }
                     channelState.singleSeamlessInstrument = newInstrumentIndex;
                     if (notes[mod] != null) {
-                        let prevNoteForThisInstrument = prevNotes[mod];
-                        let nextNoteForThisInstrument = nextNotes[mod];
-                        let forceContinueAtStart = false;
-                        let forceContinueAtEnd = false;
+                        const prevNoteForThisInstrument = prevNotes[mod];
+                        const nextNoteForThisInstrument = nextNotes[mod];
+                        const forceContinueAtStart = false;
+                        const forceContinueAtEnd = false;
                         const atNoteStart = (Config.ticksPerPart * notes[mod].start == currentTick) && this.isAtStartOfTick;
                         let tone;
                         if (toneList.count() <= modToneCount) {
@@ -24647,7 +24647,7 @@ li.select2-results__option[role=group] > strong:hover {
                         let tonesInPrevNote = 0;
                         let tonesInNextNote = 0;
                         if (note.start == 0) {
-                            let prevPattern = (this.prevBar == null) ? null : song.getPattern(channelIndex, this.prevBar);
+                            const prevPattern = (this.prevBar == null) ? null : song.getPattern(channelIndex, this.prevBar);
                             if (prevPattern != null) {
                                 const lastNote = (prevPattern.notes.length <= 0) ? null : prevPattern.notes[prevPattern.notes.length - 1];
                                 if (lastNote != null && lastNote.end == partsPerBar) {
@@ -24655,7 +24655,7 @@ li.select2-results__option[role=group] > strong:hover {
                                     const chordOfCompatibleInstrument = this.adjacentPatternHasCompatibleInstrumentTransition(song, channel, pattern, prevPattern, instrumentIndex, transition, chord, note, lastNote, patternForcesContinueAtStart);
                                     if (chordOfCompatibleInstrument != null) {
                                         prevNoteForThisInstrument = lastNote;
-                                        let prevPitchesForThisInstrument = prevNoteForThisInstrument.pitches;
+                                        const prevPitchesForThisInstrument = prevNoteForThisInstrument.pitches;
                                         tonesInPrevNote = chordOfCompatibleInstrument.singleTone ? 1 : prevPitchesForThisInstrument.length;
                                         forceContinueAtStart = patternForcesContinueAtStart;
                                     }
@@ -24663,11 +24663,11 @@ li.select2-results__option[role=group] > strong:hover {
                             }
                         }
                         else if (prevNoteForThisInstrument != null) {
-                            let prevPitchesForThisInstrument = prevNoteForThisInstrument.pitches;
+                            const prevPitchesForThisInstrument = prevNoteForThisInstrument.pitches;
                             tonesInPrevNote = chord.singleTone ? 1 : prevPitchesForThisInstrument.length;
                         }
                         if (note.end == partsPerBar) {
-                            let nextPattern = (this.nextBar == null) ? null : song.getPattern(channelIndex, this.nextBar);
+                            const nextPattern = (this.nextBar == null) ? null : song.getPattern(channelIndex, this.nextBar);
                             if (nextPattern != null) {
                                 const firstNote = (nextPattern.notes.length <= 0) ? null : nextPattern.notes[0];
                                 if (firstNote != null && firstNote.start == 0) {
@@ -25061,7 +25061,7 @@ li.select2-results__option[role=group] > strong:hover {
                 }
             }
             tone.isOnLastTick = toneIsOnLastTick;
-            let tmpNoteFilter = instrument.noteFilter;
+            const tmpNoteFilter = instrument.noteFilter;
             let startPoint;
             let endPoint;
             if (instrument.noteFilterType) {
@@ -25212,7 +25212,7 @@ li.select2-results__option[role=group] > strong:hover {
                     vibratoStart = tone.prevVibrato;
                 }
                 else {
-                    let vibratoLfoStart = Synth.getLFOAmplitude(instrument, secondsPerPart * instrumentState.vibratoTime);
+                    const vibratoLfoStart = Synth.getLFOAmplitude(instrument, secondsPerPart * instrumentState.vibratoTime);
                     const vibratoDepthEnvelopeStart = envelopeStarts[20];
                     vibratoStart = vibratoAmplitudeStart * vibratoLfoStart * vibratoDepthEnvelopeStart;
                     if (delayTicks > 0.0) {
@@ -25220,7 +25220,7 @@ li.select2-results__option[role=group] > strong:hover {
                         vibratoStart *= Math.max(0.0, Math.min(1.0, 1.0 - ticksUntilVibratoStart / 2.0));
                     }
                 }
-                let vibratoLfoEnd = Synth.getLFOAmplitude(instrument, secondsPerPart * instrumentState.nextVibratoTime);
+                const vibratoLfoEnd = Synth.getLFOAmplitude(instrument, secondsPerPart * instrumentState.nextVibratoTime);
                 const vibratoDepthEnvelopeEnd = envelopeEnds[20];
                 if (instrument.type != 10) {
                     let vibratoEnd = vibratoAmplitudeEnd * vibratoLfoEnd * vibratoDepthEnvelopeEnd;
@@ -25411,10 +25411,10 @@ li.select2-results__option[role=group] > strong:hover {
                     useFeedbackAmplitudeStart *= this.getModValue(Config.modulators.dictionary["fm feedback"].index, channelIndex, tone.instrumentIndex, false) / 15.0;
                     useFeedbackAmplitudeEnd *= this.getModValue(Config.modulators.dictionary["fm feedback"].index, channelIndex, tone.instrumentIndex, true) / 15.0;
                 }
-                let feedbackAmplitudeStart = Config.sineWaveLength * 0.3 * useFeedbackAmplitudeStart / 15.0;
+                const feedbackAmplitudeStart = Config.sineWaveLength * 0.3 * useFeedbackAmplitudeStart / 15.0;
                 const feedbackAmplitudeEnd = Config.sineWaveLength * 0.3 * useFeedbackAmplitudeEnd / 15.0;
-                let feedbackStart = feedbackAmplitudeStart * envelopeStarts[17];
-                let feedbackEnd = feedbackAmplitudeEnd * envelopeEnds[17];
+                const feedbackStart = feedbackAmplitudeStart * envelopeStarts[17];
+                const feedbackEnd = feedbackAmplitudeEnd * envelopeEnds[17];
                 tone.feedbackMult = feedbackStart;
                 tone.feedbackDelta = (feedbackEnd - feedbackStart) / roundedSamplesPerTick;
             }
@@ -25705,7 +25705,7 @@ li.select2-results__option[role=group] > strong:hover {
                         stringDecayStart = 1.0 - Math.min(1.0, sustainEnvelopeStart * tone.stringSustainStart / (Config.stringSustainRange - 1));
                     }
                     const sustainEnvelopeEnd = tone.envelopeComputer.envelopeEnds[3];
-                    let stringDecayEnd = 1.0 - Math.min(1.0, sustainEnvelopeEnd * tone.stringSustainEnd / (Config.stringSustainRange - 1));
+                    const stringDecayEnd = 1.0 - Math.min(1.0, sustainEnvelopeEnd * tone.stringSustainEnd / (Config.stringSustainRange - 1));
                     tone.prevStringDecay = stringDecayEnd;
                     const unisonVoices = instrument.unisonVoices;
                     for (let i = tone.pickedStrings.length; i < unisonVoices; i++) {
@@ -27872,10 +27872,10 @@ li.select2-results__option[role=group] > strong:hover {
         static modSynth(synth, stereoBufferIndex, roundedSamplesPerTick, tone, instrument) {
             if (!synth.song)
                 return;
-            let mod = Config.modCount - 1 - tone.pitches[0];
+            const mod = Config.modCount - 1 - tone.pitches[0];
             if (instrument.invalidModulators[mod])
                 return;
-            let setting = instrument.modulators[mod];
+            const setting = instrument.modulators[mod];
             let usedInstruments = [];
             if (Config.modulators[instrument.modulators[mod]].forSong) {
                 usedInstruments.push(0);
@@ -27909,7 +27909,7 @@ li.select2-results__option[role=group] > strong:hover {
                     synth.channels[instrument.modChannels[mod]].instruments[usedInstruments[instrumentIndex]].arpTime = 0;
                 }
                 else if (setting == Config.modulators.dictionary["reset envelope"].index && synth.tick == 0 && tone.noteStartPart == synth.beat * Config.partsPerBeat + synth.part) {
-                    let envelopeTarget = instrument.modEnvelopeNumbers[mod];
+                    const envelopeTarget = instrument.modEnvelopeNumbers[mod];
                     const tgtInstrumentState = synth.channels[instrument.modChannels[mod]].instruments[usedInstruments[instrumentIndex]];
                     const tgtInstrument = synth.song.channels[instrument.modChannels[mod]].instruments[usedInstruments[instrumentIndex]];
                     if (tgtInstrument.envelopeCount > envelopeTarget) {
@@ -27921,13 +27921,13 @@ li.select2-results__option[role=group] > strong:hover {
                 }
                 else if (setting == Config.modulators.dictionary["song eq"].index) {
                     const tgtSong = synth.song;
-                    let dotTarget = instrument.modFilterTypes[mod] | 0;
+                    const dotTarget = instrument.modFilterTypes[mod] | 0;
                     if (dotTarget == 0) {
                         let pinIdx = 0;
                         const currentPart = synth.getTicksIntoBar() / Config.ticksPerPart;
                         while (tone.note.start + tone.note.pins[pinIdx].time <= currentPart)
                             pinIdx++;
-                        let lerpEndRatio = ((currentPart - tone.note.start + (roundedSamplesPerTick / (synth.getSamplesPerTick() * Config.ticksPerPart)) * Config.ticksPerPart) - tone.note.pins[pinIdx - 1].time) / (tone.note.pins[pinIdx].time - tone.note.pins[pinIdx - 1].time);
+                        const lerpEndRatio = ((currentPart - tone.note.start + (roundedSamplesPerTick / (synth.getSamplesPerTick() * Config.ticksPerPart)) * Config.ticksPerPart) - tone.note.pins[pinIdx - 1].time) / (tone.note.pins[pinIdx].time - tone.note.pins[pinIdx - 1].time);
                         if (tgtSong.eqSubFilters[tone.note.pins[pinIdx - 1].size] != null || tgtSong.eqSubFilters[tone.note.pins[pinIdx].size] != null) {
                             tgtSong.tmpEqFilterEnd = FilterSettings.lerpFilters(tgtSong.eqSubFilters[tone.note.pins[pinIdx - 1].size], tgtSong.eqSubFilters[tone.note.pins[pinIdx].size], lerpEndRatio);
                         }
@@ -27959,13 +27959,13 @@ li.select2-results__option[role=group] > strong:hover {
                 else if (setting == Config.modulators.dictionary["eq filter"].index) {
                     const tgtInstrument = synth.song.channels[instrument.modChannels[mod]].instruments[usedInstruments[instrumentIndex]];
                     if (!tgtInstrument.eqFilterType) {
-                        let dotTarget = instrument.modFilterTypes[mod] | 0;
+                        const dotTarget = instrument.modFilterTypes[mod] | 0;
                         if (dotTarget == 0) {
                             let pinIdx = 0;
                             const currentPart = synth.getTicksIntoBar() / Config.ticksPerPart;
                             while (tone.note.start + tone.note.pins[pinIdx].time <= currentPart)
                                 pinIdx++;
-                            let lerpEndRatio = ((currentPart - tone.note.start + (roundedSamplesPerTick / (synth.getSamplesPerTick() * Config.ticksPerPart)) * Config.ticksPerPart) - tone.note.pins[pinIdx - 1].time) / (tone.note.pins[pinIdx].time - tone.note.pins[pinIdx - 1].time);
+                            const lerpEndRatio = ((currentPart - tone.note.start + (roundedSamplesPerTick / (synth.getSamplesPerTick() * Config.ticksPerPart)) * Config.ticksPerPart) - tone.note.pins[pinIdx - 1].time) / (tone.note.pins[pinIdx].time - tone.note.pins[pinIdx - 1].time);
                             if (tgtInstrument.eqSubFilters[tone.note.pins[pinIdx - 1].size] != null || tgtInstrument.eqSubFilters[tone.note.pins[pinIdx].size] != null) {
                                 tgtInstrument.tmpEqFilterEnd = FilterSettings.lerpFilters(tgtInstrument.eqSubFilters[tone.note.pins[pinIdx - 1].size], tgtInstrument.eqSubFilters[tone.note.pins[pinIdx].size], lerpEndRatio);
                             }
@@ -27998,13 +27998,13 @@ li.select2-results__option[role=group] > strong:hover {
                 else if (setting == Config.modulators.dictionary["note filter"].index) {
                     const tgtInstrument = synth.song.channels[instrument.modChannels[mod]].instruments[usedInstruments[instrumentIndex]];
                     if (!tgtInstrument.noteFilterType) {
-                        let dotTarget = instrument.modFilterTypes[mod] | 0;
+                        const dotTarget = instrument.modFilterTypes[mod] | 0;
                         if (dotTarget == 0) {
                             let pinIdx = 0;
                             const currentPart = synth.getTicksIntoBar() / Config.ticksPerPart;
                             while (tone.note.start + tone.note.pins[pinIdx].time <= currentPart)
                                 pinIdx++;
-                            let lerpEndRatio = ((currentPart - tone.note.start + (roundedSamplesPerTick / (synth.getSamplesPerTick() * Config.ticksPerPart)) * Config.ticksPerPart) - tone.note.pins[pinIdx - 1].time) / (tone.note.pins[pinIdx].time - tone.note.pins[pinIdx - 1].time);
+                            const lerpEndRatio = ((currentPart - tone.note.start + (roundedSamplesPerTick / (synth.getSamplesPerTick() * Config.ticksPerPart)) * Config.ticksPerPart) - tone.note.pins[pinIdx - 1].time) / (tone.note.pins[pinIdx].time - tone.note.pins[pinIdx - 1].time);
                             if (tgtInstrument.noteSubFilters[tone.note.pins[pinIdx - 1].size] != null || tgtInstrument.noteSubFilters[tone.note.pins[pinIdx].size] != null) {
                                 tgtInstrument.tmpNoteFilterEnd = FilterSettings.lerpFilters(tgtInstrument.noteSubFilters[tone.note.pins[pinIdx - 1].size], tgtInstrument.noteSubFilters[tone.note.pins[pinIdx].size], lerpEndRatio);
                             }
@@ -28036,7 +28036,7 @@ li.select2-results__option[role=group] > strong:hover {
                 }
                 else if (setting == Config.modulators.dictionary["individual envelope speed"].index) {
                     const tgtInstrument = synth.song.channels[instrument.modChannels[mod]].instruments[usedInstruments[instrumentIndex]];
-                    let envelopeTarget = instrument.modEnvelopeNumbers[mod];
+                    const envelopeTarget = instrument.modEnvelopeNumbers[mod];
                     let speed = tone.expression + tone.expressionDelta;
                     if (tgtInstrument.envelopeCount > envelopeTarget) {
                         if (Number.isInteger(speed)) {
@@ -28050,16 +28050,16 @@ li.select2-results__option[role=group] > strong:hover {
                 }
                 else if (setting == Config.modulators.dictionary["individual envelope lower bound"].index) {
                     const tgtInstrument = synth.song.channels[instrument.modChannels[mod]].instruments[usedInstruments[instrumentIndex]];
-                    let envelopeTarget = instrument.modEnvelopeNumbers[mod];
-                    let bound = tone.expression + tone.expressionDelta;
+                    const envelopeTarget = instrument.modEnvelopeNumbers[mod];
+                    const bound = tone.expression + tone.expressionDelta;
                     if (tgtInstrument.envelopeCount > envelopeTarget) {
                         tgtInstrument.envelopes[envelopeTarget].tempEnvelopeLowerBound = bound / 10;
                     }
                 }
                 else if (setting == Config.modulators.dictionary["individual envelope upper bound"].index) {
                     const tgtInstrument = synth.song.channels[instrument.modChannels[mod]].instruments[usedInstruments[instrumentIndex]];
-                    let envelopeTarget = instrument.modEnvelopeNumbers[mod];
-                    let bound = tone.expression + tone.expressionDelta;
+                    const envelopeTarget = instrument.modEnvelopeNumbers[mod];
+                    const bound = tone.expression + tone.expressionDelta;
                     if (tgtInstrument.envelopeCount > envelopeTarget) {
                         tgtInstrument.envelopes[envelopeTarget].tempEnvelopeUpperBound = bound / 10;
                     }
@@ -28354,7 +28354,7 @@ li.select2-results__option[role=group] > strong:hover {
                     currentSong = { versions: [] };
                     songs.unshift(currentSong);
                 }
-                let versions = currentSong.versions;
+                const versions = currentSong.versions;
                 let newWork = 1000;
                 if (versions.length > 0) {
                     const mostRecentTime = versions[0].time;
@@ -28367,7 +28367,7 @@ li.select2-results__option[role=group] > strong:hover {
                 localStorage.setItem(newKey, songData);
                 let minSpan = minimumWorkPerSpan;
                 const spanMult = Math.pow(2, 1 / 2);
-                for (var i = 1; i < versions.length; i++) {
+                for (let i = 1; i < versions.length; i++) {
                     const currentWork = versions[i].work;
                     const olderWork = (i == versions.length - 1) ? 0.0 : versions[i + 1].work;
                     if (currentWork - olderWork < minSpan) {
@@ -34521,7 +34521,7 @@ li.select2-results__option[role=group] > strong:hover {
                         const pitchNameIndex = (j + Config.keys[this._doc.song.key].basePitch) % Config.pitchesPerOctave;
                         const isWhiteKey = Config.keys[pitchNameIndex].isWhiteKey;
                         this._pianoKeys[j].style.background = isWhiteKey ? ColorConfig.whitePianoKey : ColorConfig.blackPianoKey;
-                        let scale = this._doc.song.scale == Config.scales.dictionary["Custom"].index ? this._doc.song.scaleCustom : Config.scales[this._doc.song.scale].flags;
+                        const scale = this._doc.song.scale == Config.scales.dictionary["Custom"].index ? this._doc.song.scaleCustom : Config.scales[this._doc.song.scale].flags;
                         if (!scale[j % Config.pitchesPerOctave]) {
                             this._pianoKeys[j].classList.add("disabled");
                             this._pianoLabels[j].style.display = "none";
@@ -34544,20 +34544,20 @@ li.select2-results__option[role=group] > strong:hover {
                 else if (isMod) {
                     let firstRow = "";
                     let secondRow = "";
-                    let useFirstColor = ColorConfig.modLabelPrimaryText;
+                    const useFirstColor = ColorConfig.modLabelPrimaryText;
                     let useSecondColor = ColorConfig.modLabelSecondaryText;
                     for (let j = 0; j < Config.modCount; j++) {
                         let usingSecondRow = true;
                         let usingMod = true;
-                        let instrumentVal = instrument.modInstruments[Config.modCount - j - 1] + 1;
-                        let channelVal = instrument.modChannels[Config.modCount - j - 1] + 1;
-                        let modulator = instrument.modulators[Config.modCount - j - 1];
+                        const instrumentVal = instrument.modInstruments[Config.modCount - j - 1] + 1;
+                        const channelVal = instrument.modChannels[Config.modCount - j - 1] + 1;
+                        const modulator = instrument.modulators[Config.modCount - j - 1];
                         let status = 1 + +(channelVal - 1 >= this._doc.song.pitchChannelCount);
                         if (instrument.modChannels[Config.modCount - j - 1] == -2)
                             status = 0;
                         else if (instrument.modChannels[Config.modCount - j - 1] == -1)
                             status = 3;
-                        let instrumentsLength = this._doc.song.channels[Math.max(0, channelVal - 1)].instruments.length;
+                        const instrumentsLength = this._doc.song.channels[Math.max(0, channelVal - 1)].instruments.length;
                         switch (status) {
                             case 0:
                                 firstRow = "Mod";
@@ -34680,8 +34680,8 @@ li.select2-results__option[role=group] > strong:hover {
                                 usingMod = false;
                             }
                             else if (modulator == Config.modulators.dictionary["eq filter"].index || modulator == Config.modulators.dictionary["note filter"].index || modulator == Config.modulators.dictionary["song eq"].index) {
-                                var text = " Morph";
-                                var filterVal = instrument.modFilterTypes[Config.modCount - j - 1];
+                                let text = " Morph";
+                                const filterVal = instrument.modFilterTypes[Config.modCount - j - 1];
                                 if (filterVal > 0 && (filterVal % 2)) {
                                     text = " Dot" + Math.ceil(filterVal / 2) + "X";
                                 }
@@ -34703,8 +34703,8 @@ li.select2-results__option[role=group] > strong:hover {
                         modCountRect.style.fill = usingMod ? ColorConfig.indicatorPrimary : ColorConfig.modLabelSecondaryText;
                         if (this._doc.song.channels[Math.max(0, instrument.modChannels[Config.modCount - j - 1])].name != "") {
                             let scaleFactor = "1";
-                            let height = firstLabel.parentElement.parentElement.getBoundingClientRect().height;
-                            let length = firstLabel.getComputedTextLength();
+                            const height = firstLabel.parentElement.parentElement.getBoundingClientRect().height;
+                            const length = firstLabel.getComputedTextLength();
                             let squeeze = 0;
                             if (length > height - 8) {
                                 scaleFactor = "0.65";
@@ -34716,12 +34716,12 @@ li.select2-results__option[role=group] > strong:hover {
                             }
                             firstLabel.style.transform = "rotate(-90deg) translate(" + (-20 - squeeze - Math.round(Math.max(0, (height - 80) / 2))) + "px, 39px) scale(" + scaleFactor + ", 1)";
                             while (scaleFactor == "0.65" && firstLabel.getComputedTextLength() > height + 8) {
-                                var offset = 4 + (instrumentVal >= 10 ? 1 : 0);
+                                const offset = 4 + (instrumentVal >= 10 ? 1 : 0);
                                 firstLabel.textContent = firstLabel.textContent.substr(0, firstLabel.textContent.length - offset) + firstLabel.textContent.substr(firstLabel.textContent.length - offset + 1);
                             }
                         }
                         else {
-                            let height = firstLabel.parentElement.parentElement.getBoundingClientRect().height;
+                            const height = firstLabel.parentElement.parentElement.getBoundingClientRect().height;
                             firstLabel.style.transform = "rotate(-90deg) translate(" + (-20 - Math.round(Math.max(0, (height - 80) / 2))) + "px, 39px) scale(1, 1)";
                         }
                     }
@@ -35442,7 +35442,7 @@ li.select2-results__option[role=group] > strong:hover {
                 if (digit == "0")
                     digit = "10";
                 this.instrumentDigits += digit;
-                var parsed = parseInt(this.instrumentDigits);
+                let parsed = parseInt(this.instrumentDigits);
                 if (parsed != 0 && parsed <= this._doc.song.channels[this._doc.channel].instruments.length) {
                     this.selectInstrument(parsed - 1);
                     return;
@@ -35619,7 +35619,7 @@ li.select2-results__option[role=group] > strong:hover {
             new ChangePatternSelection(this._doc, 0, 0);
         }
         _remapToNoisePitches(oldPitches) {
-            let newPitches = oldPitches.slice();
+            const newPitches = oldPitches.slice();
             newPitches.sort(function (a, b) { return a - b; });
             let lowestPitch = newPitches[0] % Config.drumCount;
             const numberOfPitches = newPitches.length;
@@ -35634,12 +35634,12 @@ li.select2-results__option[role=group] > strong:hover {
             return newPitches;
         }
         _convertCopiedPitchNotesToNoiseNotes(oldNotes) {
-            let newNotes = [];
+            const newNotes = [];
             for (let noteIndex = 0; noteIndex < oldNotes.length; noteIndex++) {
                 const oldNote = oldNotes[noteIndex];
                 const newNotePitches = this._remapToNoisePitches(oldNote["pitches"].slice());
                 const oldNotePins = oldNote.pins;
-                let newNotePins = [];
+                const newNotePins = [];
                 for (let notePinIndex = 0; notePinIndex < oldNotePins.length; notePinIndex++) {
                     const oldPin = oldNotePins[notePinIndex];
                     newNotePins.push({
@@ -36414,7 +36414,7 @@ li.select2-results__option[role=group] > strong:hover {
                 else {
                     this._recovery.saveVersion(this._recoveryUid, this.song.title, hash);
                 }
-                let state = { canUndo: true, sequenceNumber: this._sequenceNumber, bar: this.bar, channel: this.channel, instrument: this.viewedInstrument[this.channel], recoveryUid: this._recoveryUid, prompt: this.prompt, selection: this.selection.toJSON() };
+                const state = { canUndo: true, sequenceNumber: this._sequenceNumber, bar: this.bar, channel: this.channel, instrument: this.viewedInstrument[this.channel], recoveryUid: this._recoveryUid, prompt: this.prompt, selection: this.selection.toJSON() };
                 if (this._stateShouldBePushed) {
                     this._pushState(state, hash);
                 }
@@ -36539,7 +36539,7 @@ li.select2-results__option[role=group] > strong:hover {
             }
             else {
                 let currentIndex = Number(window.sessionStorage.getItem("currentUndoIndex"));
-                let newestIndex = Number(window.sessionStorage.getItem("newestUndoIndex"));
+                const newestIndex = Number(window.sessionStorage.getItem("newestUndoIndex"));
                 if (currentIndex != newestIndex) {
                     currentIndex = (currentIndex + 1) % SongDocument._maximumUndoHistory;
                     window.sessionStorage.setItem("currentUndoIndex", String(currentIndex));
@@ -36553,7 +36553,7 @@ li.select2-results__option[role=group] > strong:hover {
             }
             else {
                 let currentIndex = Number(window.sessionStorage.getItem("currentUndoIndex"));
-                let oldestIndex = Number(window.sessionStorage.getItem("oldestUndoIndex"));
+                const oldestIndex = Number(window.sessionStorage.getItem("oldestUndoIndex"));
                 if (currentIndex != oldestIndex) {
                     currentIndex = (currentIndex + SongDocument._maximumUndoHistory - 1) % SongDocument._maximumUndoHistory;
                     window.sessionStorage.setItem("currentUndoIndex", String(currentIndex));
@@ -37161,8 +37161,8 @@ li.select2-results__option[role=group] > strong:hover {
             {
                 const range = (1 << (bitsPerSample - 1)) - 1;
                 for (let i = 0; i < sampleFrames; i++) {
-                    let valL = Math.floor(Math.max(-1, Math.min(1, this.recordedSamplesL[i])) * range);
-                    let valR = Math.floor(Math.max(-1, Math.min(1, this.recordedSamplesR[i])) * range);
+                    const valL = Math.floor(Math.max(-1, Math.min(1, this.recordedSamplesL[i])) * range);
+                    const valR = Math.floor(Math.max(-1, Math.min(1, this.recordedSamplesR[i])) * range);
                     {
                         data.setInt16(index, valL, true);
                         index += 2;
@@ -37208,7 +37208,7 @@ li.select2-results__option[role=group] > strong:hover {
                 whenEncoderIsAvailable();
             }
             else {
-                var script = document.createElement("script");
+                const script = document.createElement("script");
                 script.src = "https://cdn.jsdelivr.net/npm/lamejs@1.2.0/lame.min.js";
                 script.onload = whenEncoderIsAvailable;
                 document.head.appendChild(script);
@@ -37454,7 +37454,7 @@ li.select2-results__option[role=group] > strong:hover {
                     writer.writeUint8(2);
                     writer.writeUint8(24);
                     writer.writeUint8(8);
-                    let tempScale = song.scale == Config.scales.dictionary["Custom"].index ? song.scaleCustom : Config.scales[song.scale].flags;
+                    const tempScale = song.scale == Config.scales.dictionary["Custom"].index ? song.scaleCustom : Config.scales[song.scale].flags;
                     const isMinor = tempScale[3] && !tempScale[4];
                     const key = song.key;
                     let numSharps = key;
@@ -37489,7 +37489,7 @@ li.select2-results__option[role=group] > strong:hover {
                         throw new Error("Miscalculated number of bars.");
                 }
                 else {
-                    let channelName = isNoise
+                    const channelName = isNoise
                         ? "noise channel " + channel
                         : "pitch channel " + channel;
                     writeEventTime(0);
@@ -37558,10 +37558,10 @@ li.select2-results__option[role=group] > strong:hover {
                                 writer.writeMidi7Bits(instrumentProgram);
                             }
                             writeEventTime(barStartTime);
-                            let instrumentVolume = volumeMultToMidiVolume(Synth.instrumentVolumeToVolumeMult(instrument.volume));
+                            const instrumentVolume = volumeMultToMidiVolume(Synth.instrumentVolumeToVolumeMult(instrument.volume));
                             writeControlEvent(7, Math.min(0x7f, Math.round(instrumentVolume)));
                             writeEventTime(barStartTime);
-                            let instrumentPan = (instrument.pan / Config.panCenter - 1) * 0x3f + 0x40;
+                            const instrumentPan = (instrument.pan / Config.panCenter - 1) * 0x3f + 0x40;
                             writeControlEvent(10, Math.min(0x7f, Math.round(instrumentPan)));
                         }
                     }
@@ -37604,7 +37604,7 @@ li.select2-results__option[role=group] > strong:hover {
                                 const nextPitches = [-1, -1, -1, -1];
                                 const toneCount = Math.min(polyphony, note.pitches.length);
                                 const velocity = isDrumset ? Math.max(1, Math.round(defaultNoteVelocity * note.pins[0].size / Config.noteSizeMax)) : defaultNoteVelocity;
-                                let mainInterval = note.pickMainInterval();
+                                const mainInterval = note.pickMainInterval();
                                 let pitchOffset = mainInterval * intervalScale;
                                 if (!isDrumset) {
                                     let maxPitchOffset = pitchBendRange;
@@ -37745,7 +37745,7 @@ li.select2-results__option[role=group] > strong:hover {
         }
         _exportToJson() {
             const jsonObject = this._doc.song.toJsonObject(this._enableIntro.checked, Number(this._loopDropDown.value), this._enableOutro.checked);
-            let whiteSpaceParam = this._removeWhitespace.checked ? undefined : '\t';
+            const whiteSpaceParam = this._removeWhitespace.checked ? undefined : '\t';
             const jsonString = JSON.stringify(jsonObject, null, whiteSpaceParam);
             const blob = new Blob([jsonString], { type: "application/json" });
             save(blob, this._fileName.value.trim() + ".json");
@@ -37975,9 +37975,9 @@ You should be redirected to the song at:<br /><br />
             this._svg = SVG.svg({ style: `background-color: ${ColorConfig.editorBackground}; touch-action: none; overflow: visible;`, width: "100%", height: "100%", viewBox: "0 0 " + this._editorWidth + " " + this._editorHeight, preserveAspectRatio: "none" }, this._fill, this._ticks, this._subticks, this._blocks);
             this.container = HTML.div({ class: "", style: "height: 294px; width: 768px; padding-bottom: 1.5em;" }, this._svg);
             this._storeChange = () => {
-                var sameCheck = true;
+                let sameCheck = true;
                 if (this._changeQueue.length > 0) {
-                    for (var i = 0; i < 64; i++) {
+                    for (let i = 0; i < 64; i++) {
                         if (this._changeQueue[this._undoHistoryState][i] != this.chipData[i]) {
                             sameCheck = false;
                             i = 64;
@@ -38088,9 +38088,9 @@ You should be redirected to the song at:<br /><br />
                 this._subticks.appendChild(SVG.rect({ fill: ColorConfig.fifthNote, x: 0, y: i * 8 * (this._editorHeight / 49), width: this._editorWidth, height: 1 }));
                 this._subticks.appendChild(SVG.rect({ fill: ColorConfig.fifthNote, x: 0, y: this._editorHeight - 1 - i * 8 * (this._editorHeight / 49), width: this._editorWidth, height: 1 }));
             }
-            let col = ColorConfig.getChannelColor(this._doc.song, this._doc.channel).primaryNote;
+            const col = ColorConfig.getChannelColor(this._doc.song, this._doc.channel).primaryNote;
             for (let i = 0; i <= 64; i++) {
-                let val = this._doc.song.channels[this._doc.channel].instruments[this._doc.getCurrentInstrument()].customChipWave[i];
+                const val = this._doc.song.channels[this._doc.channel].instruments[this._doc.getCurrentInstrument()].customChipWave[i];
                 this.chipData[i] = val;
                 this.startingChipData[i] = val;
                 this._blocks.appendChild(SVG.rect({ fill: col, x: (i * this._editorWidth / 64), y: (val + 24) * (this._editorHeight / 49), width: this._editorWidth / 64, height: this._editorHeight / 49 }));
@@ -38111,17 +38111,17 @@ You should be redirected to the song at:<br /><br />
                 const index = Math.min(63, Math.max(0, Math.floor(this._mouseX * 64 / this._editorWidth)));
                 const amp = Math.min(48, Math.max(0, Math.floor(this._mouseY * 49 / this._editorHeight)));
                 if (this._lastIndex != -1 && this._lastIndex != index) {
-                    var lowest = index;
-                    var highest = this._lastIndex;
-                    var startingAmp = amp;
-                    var endingAmp = this._lastAmp;
+                    let lowest = index;
+                    let highest = this._lastIndex;
+                    let startingAmp = amp;
+                    let endingAmp = this._lastAmp;
                     if (this._lastIndex < index) {
                         lowest = this._lastIndex;
                         highest = index;
                         startingAmp = this._lastAmp;
                         endingAmp = amp;
                     }
-                    for (var i = lowest; i <= highest; i++) {
+                    for (let i = lowest; i <= highest; i++) {
                         const medAmp = Math.round(startingAmp + (endingAmp - startingAmp) * ((i - lowest) / (highest - lowest)));
                         this.chipData[i] = medAmp - 24;
                         this._blocks.children[i].setAttribute("y", "" + (medAmp * (this._editorHeight / 49)));
@@ -38137,7 +38137,7 @@ You should be redirected to the song at:<br /><br />
             }
         }
         render() {
-            for (var i = 0; i < 64; i++) {
+            for (let i = 0; i < 64; i++) {
                 this._blocks.children[i].setAttribute("y", "" + ((this.chipData[i] + 24) * (this._editorHeight / 49)));
             }
         }
@@ -38379,13 +38379,13 @@ You should be redirected to the song at:<br /><br />
                         if (this._selectedIndex < this._useFilterSettings.controlPointCount && this._selectedIndex != -1) {
                             const point = this._useFilterSettings.controlPoints[this._selectedIndex];
                             if (this._forSong) {
-                                let change = new ChangeSongFilterAddPoint(this._doc, this._useFilterSettings, point, this._selectedIndex, true);
+                                const change = new ChangeSongFilterAddPoint(this._doc, this._useFilterSettings, point, this._selectedIndex, true);
                                 if (!this._larger) {
                                     this._doc.record(change);
                                 }
                             }
                             else {
-                                let change = new ChangeFilterAddPoint(this._doc, this._useFilterSettings, point, this._selectedIndex, this._useNoteFilter, true);
+                                const change = new ChangeFilterAddPoint(this._doc, this._useFilterSettings, point, this._selectedIndex, this._useNoteFilter, true);
                                 if (!this._larger) {
                                     this._doc.record(change);
                                 }
@@ -38459,7 +38459,7 @@ You should be redirected to the song at:<br /><br />
                     if (this._forSong) {
                         const subFilter = this._doc.song.eqSubFilters[i];
                         if (subFilter != null) {
-                            let parsedFilter = new FilterSettings();
+                            const parsedFilter = new FilterSettings();
                             parsedFilter.fromJsonObject(subFilter.toJsonObject());
                             this._subFilters[i] = parsedFilter;
                         }
@@ -38467,7 +38467,7 @@ You should be redirected to the song at:<br /><br />
                     else {
                         const subFilter = this._useNoteFilter ? instrument.noteSubFilters[i] : instrument.eqSubFilters[i];
                         if (subFilter != null) {
-                            let parsedFilter = new FilterSettings();
+                            const parsedFilter = new FilterSettings();
                             parsedFilter.fromJsonObject(subFilter.toJsonObject());
                             this._subFilters[i] = parsedFilter;
                         }
@@ -38584,8 +38584,8 @@ You should be redirected to the song at:<br /><br />
             this._dragChange = null;
             this._deletingPoint = false;
             if (this.coordText != null && !this._mouseDown) {
-                let gain = Math.round(this._yToGain(this._mouseY));
-                let freq = Math.round(this._xToFreq(this._mouseX));
+                const gain = Math.round(this._yToGain(this._mouseY));
+                const freq = Math.round(this._xToFreq(this._mouseX));
                 if (freq >= 0 && freq < Config.filterFreqRange && gain >= 0 && gain < Config.filterGainRange)
                     this.coordText.innerText = "(" + freq + ", " + gain + ")";
                 else
@@ -38624,7 +38624,7 @@ You should be redirected to the song at:<br /><br />
                 else {
                     const freqDelta = this._xToFreq(this._mouseX) - this._freqStart;
                     const gainDelta = this._yToGain(this._mouseY) - this._gainStart;
-                    let point = this._useFilterSettings.controlPoints[this._selectedIndex];
+                    const point = this._useFilterSettings.controlPoints[this._selectedIndex];
                     const gain = Math.max(0, Math.min(Config.filterGainRange - 1, Math.round(point.gain + gainDelta)));
                     const freq = this._findNearestFreqSlot(this._useFilterSettings, point.freq + freqDelta, this._selectedIndex);
                     if (Math.round(freqDelta) != 0.0 || Math.round(gainDelta) != 0.0 || freq != point.freq || gain != point.gain) {
@@ -38789,7 +38789,7 @@ You should be redirected to the song at:<br /><br />
             this._updatePath();
         }
         saveSettings() {
-            let firstFilter = new FilterSettings;
+            const firstFilter = new FilterSettings;
             const instrument = this._doc.song.channels[this._doc.channel].instruments[this._doc.getCurrentInstrument()];
             firstFilter.fromJsonObject(JSON.parse(String(this.selfUndoSettings[0])));
             if (this._forSong) {
@@ -38803,19 +38803,19 @@ You should be redirected to the song at:<br /><br />
             if (this.selfUndoHistoryPos > 0) {
                 this.selfUndoHistoryPos--;
                 if (this.selfUndoSettings[this.selfUndoHistoryPos + 1] != null && this.selfUndoSettings[this.selfUndoHistoryPos + 1].startsWith("jmp")) {
-                    let str = this.selfUndoSettings[this.selfUndoHistoryPos + 1];
-                    let jumpIndex = +str.substring(3, str.indexOf("|"));
+                    const str = this.selfUndoSettings[this.selfUndoHistoryPos + 1];
+                    const jumpIndex = +str.substring(3, str.indexOf("|"));
                     this.swapToSubfilter(this._subfilterIndex, jumpIndex);
                     return jumpIndex;
                 }
                 else if (this.selfUndoSettings[this.selfUndoHistoryPos].startsWith("jmp")) {
-                    let savedFilter = new FilterSettings();
-                    let str = this.selfUndoSettings[this.selfUndoHistoryPos];
+                    const savedFilter = new FilterSettings();
+                    const str = this.selfUndoSettings[this.selfUndoHistoryPos];
                     savedFilter.fromJsonObject(JSON.parse(str.substring(str.indexOf(":") + 1)));
                     this.swapToSettings(savedFilter, false);
                 }
                 else {
-                    let savedFilter = new FilterSettings();
+                    const savedFilter = new FilterSettings();
                     savedFilter.fromJsonObject(JSON.parse(String(this.selfUndoSettings[this.selfUndoHistoryPos])));
                     this.swapToSettings(savedFilter, false);
                 }
@@ -38826,13 +38826,13 @@ You should be redirected to the song at:<br /><br />
             if (this.selfUndoHistoryPos < this.selfUndoSettings.length - 1) {
                 this.selfUndoHistoryPos++;
                 if (this.selfUndoSettings[this.selfUndoHistoryPos].startsWith("jmp")) {
-                    let str = this.selfUndoSettings[this.selfUndoHistoryPos];
-                    let jumpIndex = +str.substring(str.indexOf("|") + 1, str.indexOf(":"));
+                    const str = this.selfUndoSettings[this.selfUndoHistoryPos];
+                    const jumpIndex = +str.substring(str.indexOf("|") + 1, str.indexOf(":"));
                     this.swapToSubfilter(this._subfilterIndex, jumpIndex, false);
                     return jumpIndex;
                 }
                 else {
-                    let savedFilter = new FilterSettings();
+                    const savedFilter = new FilterSettings();
                     savedFilter.fromJsonObject(JSON.parse(String(this.selfUndoSettings[this.selfUndoHistoryPos])));
                     this.swapToSettings(savedFilter, false);
                 }
@@ -38848,18 +38848,18 @@ You should be redirected to the song at:<br /><br />
                 return;
             if (newIndex >= this._useFilterSettings.controlPointCount)
                 return;
-            let tmp = this._useFilterSettings.controlPoints[this._selectedIndex];
+            const tmp = this._useFilterSettings.controlPoints[this._selectedIndex];
             this._useFilterSettings.controlPoints[this._selectedIndex] = this._useFilterSettings.controlPoints[newIndex];
             this._useFilterSettings.controlPoints[newIndex] = tmp;
             this.render();
         }
         swapToSubfilter(oldIndex, newIndex, useHistory = false) {
             if (oldIndex != newIndex) {
-                let currFilter = new FilterSettings();
+                const currFilter = new FilterSettings();
                 currFilter.fromJsonObject(this._filterSettings.toJsonObject());
                 this._subFilters[oldIndex] = currFilter;
                 if (this._subFilters[newIndex] == undefined) {
-                    let parsedFilter = new FilterSettings();
+                    const parsedFilter = new FilterSettings();
                     parsedFilter.fromJsonObject(this._subFilters[0].toJsonObject());
                     this._subFilters[newIndex] = parsedFilter;
                 }
@@ -38888,7 +38888,7 @@ You should be redirected to the song at:<br /><br />
             this._writingMods = forceModRender && this._mouseDown;
             const instrument = this._doc.song.channels[this._doc.channel].instruments[this._doc.getCurrentInstrument()];
             const filterSettings = this._forSong ? this._doc.song.eqFilter : (this._useNoteFilter ? instrument.noteFilter : instrument.eqFilter);
-            let displayMods = (activeMods && !this._larger && (forceModRender || (!this._mouseOver && !this._mouseDragging && !this._mouseDown)) && this._doc.synth.playing);
+            const displayMods = (activeMods && !this._larger && (forceModRender || (!this._mouseOver && !this._mouseDragging && !this._mouseDown)) && this._doc.synth.playing);
             if (displayMods)
                 this._controlPointPath.style.setProperty("fill", `${ColorConfig.overwritingModSlider}`);
             else if (!this._larger)
@@ -38981,7 +38981,7 @@ You should be redirected to the song at:<br /><br />
                 window.localStorage.setItem("filterCopy", JSON.stringify(filterCopy));
             };
             this._pasteFilterSettings = () => {
-                let filterCopy = new FilterSettings();
+                const filterCopy = new FilterSettings();
                 filterCopy.fromJsonObject(JSON.parse(String(window.localStorage.getItem("filterCopy"))));
                 if (filterCopy != null) {
                     this.filterEditor.swapToSettings(filterCopy, true);
@@ -38989,14 +38989,14 @@ You should be redirected to the song at:<br /><br />
             };
             this._whenKeyPressed = (event) => {
                 if (event.keyCode == 90) {
-                    let newIdx = this.filterEditor.undo();
+                    const newIdx = this.filterEditor.undo();
                     if (newIdx >= 0) {
                         this._setSubfilter(newIdx, false, false);
                     }
                     event.stopPropagation();
                 }
                 if (event.keyCode == 89) {
-                    let newIdx = this.filterEditor.redo();
+                    const newIdx = this.filterEditor.redo();
                     if (newIdx >= 0) {
                         this._setSubfilter(newIdx, false, false);
                     }
@@ -39062,18 +39062,18 @@ You should be redirected to the song at:<br /><br />
             this._filterCopyButton.addEventListener("click", this._copyFilterSettings);
             this._filterPasteButton.addEventListener("click", this._pasteFilterSettings);
             this.updatePlayButton();
-            let colors = ColorConfig.getChannelColor(this._doc.song, this._doc.channel);
+            const colors = ColorConfig.getChannelColor(this._doc.song, this._doc.channel);
             this.filterEditor = new FilterEditor(_doc, _useNoteFilter, true, this.forSong);
             this._filterContainer.appendChild(this.filterEditor.container);
             this.filterEditor.container.insertBefore(this._filterCoordinateText, this.filterEditor.container.firstChild);
             this.filterEditor.coordText = this._filterCoordinateText;
             this._editorTitle.children[0].innerHTML = forSong ? "Edit Song EQ Filter" : (_useNoteFilter) ? "Edit Note Filter" : "Edit EQ Filter";
-            let newButton = button$k({ class: "no-underline", style: "max-width: 5em;" }, "Main");
+            const newButton = button$k({ class: "no-underline", style: "max-width: 5em;" }, "Main");
             this._filterButtonContainer.appendChild(newButton);
             this._filterButtons.push(newButton);
             newButton.addEventListener("click", () => { this._setSubfilter(0); });
             for (let i = 1; i < Config.filterMorphCount; i++) {
-                let newSubButton = button$k({ class: "no-underline", style: "max-width: 2em;" }, "" + i);
+                const newSubButton = button$k({ class: "no-underline", style: "max-width: 2em;" }, "" + i);
                 this._filterButtons.push(newSubButton);
                 this._filterButtonContainer.appendChild(newSubButton);
                 newSubButton.addEventListener("click", () => { this._setSubfilter(i); });
@@ -39249,7 +39249,7 @@ You should be redirected to the song at:<br /><br />
                     case "all":
                         window.localStorage.setItem("instrumentImportStrategy", this._importStrategySelect.value);
                         channel.instruments.length = 0;
-                        for (let insturm of file) {
+                        for (const insturm of file) {
                             if (!this._validate_instrument_limit(channel)) {
                                 alert("Max instruments reached! Some instruments were not imported.");
                                 break;
@@ -39262,7 +39262,7 @@ You should be redirected to the song at:<br /><br />
                         return;
                     default:
                         window.localStorage.setItem("instrumentImportStrategy", this._importStrategySelect.value);
-                        for (let insturm of file) {
+                        for (const insturm of file) {
                             if (!this._validate_instrument_limit(channel)) {
                                 alert("Max instruments reached! Some instruments were not imported.");
                                 break;
@@ -39377,7 +39377,7 @@ You should be redirected to the song at:<br /><br />
     function generateEuclideanRhythm(steps, pulses, offset) {
         steps = Math.max(0, steps);
         pulses = Math.max(0, Math.min(steps, pulses));
-        let columns = [];
+        const columns = [];
         for (let step = 0; step < steps; step++)
             columns.push([step >= pulses ? 0 : 1]);
         let a = steps;
@@ -39500,8 +39500,8 @@ You should be redirected to the song at:<br /><br />
                     const remaining = this._barAmount - existing;
                     group.append(new ChangeInsertBars(this._doc, this._doc.song.barCount, remaining));
                 }
-                let allNewNotesByChannel = new Map();
-                let pitchesToBeGenerated = new Map();
+                const allNewNotesByChannel = new Map();
+                const pitchesToBeGenerated = new Map();
                 for (let bar = firstBar; bar < lastBar; bar++) {
                     const relativeBar = bar - firstBar;
                     const partOffset = relativeBar * partsPerBar;
@@ -39538,7 +39538,7 @@ You should be redirected to the song at:<br /><br />
                             allNewNotesByChannel.set(channelIndex, resultingChannel);
                         }
                         const resultingBar = resultingChannel[relativeBar];
-                        let resultingSequence = resultingBar[sequenceIndex];
+                        const resultingSequence = resultingBar[sequenceIndex];
                         const firstStep = Math.floor((beatsPerBar * relativeBar) / stepSize);
                         const lastStep = Math.ceil((beatsPerBar * (relativeBar + 1)) / stepSize);
                         for (let step = firstStep; step < lastStep; step++) {
@@ -39587,10 +39587,10 @@ You should be redirected to the song at:<br /><br />
                         if (pattern == null) {
                             throw new Error("Couldn't create new pattern");
                         }
-                        let merged = [];
+                        const merged = [];
                         for (let oldNoteIndex = oldNotes.length - 1; oldNoteIndex >= 0; oldNoteIndex--) {
                             const oldNote = oldNotes[oldNoteIndex];
-                            let newPitches = [];
+                            const newPitches = [];
                             for (const oldPitch of oldNote.pitches) {
                                 if (!pitchesToBeGenerated.has(oldPitch)) {
                                     newPitches.push(oldPitch);
@@ -39601,7 +39601,7 @@ You should be redirected to the song at:<br /><br />
                                 oldNotes.splice(oldNoteIndex, 1);
                             }
                         }
-                        let timeline = [];
+                        const timeline = [];
                         for (const note of oldNotes) {
                             timeline.push({ noteType: "old", eventType: "start", part: note.start, note: note });
                             timeline.push({ noteType: "old", eventType: "end", part: note.end, note: note });
@@ -39613,9 +39613,9 @@ You should be redirected to the song at:<br /><br />
                             }
                         }
                         timeline.sort((a, b) => { return a.part - b.part; });
-                        let eventGroups = [];
+                        const eventGroups = [];
                         let currentEventGroup = null;
-                        for (let event of timeline) {
+                        for (const event of timeline) {
                             if (currentEventGroup == null) {
                                 currentEventGroup = { part: event.part, events: [event] };
                             }
@@ -39631,12 +39631,12 @@ You should be redirected to the song at:<br /><br />
                         }
                         if (currentEventGroup != null)
                             eventGroups.push(currentEventGroup);
-                        let heldNotes = [];
+                        const heldNotes = [];
                         let mergedStartPart = 0;
                         let mergedEndPart = 0;
-                        let notesToDrop = new Set();
-                        let notesToAdd = [];
-                        let setOfPitchesToCommit = new Set();
+                        const notesToDrop = new Set();
+                        const notesToAdd = [];
+                        const setOfPitchesToCommit = new Set();
                         for (const eventGroup of eventGroups) {
                             if (heldNotes.length === 0) {
                                 for (const event of eventGroup.events) {
@@ -39708,7 +39708,7 @@ You should be redirected to the song at:<br /><br />
                                     const mergedNoteLength = mergedEndPart - mergedStartPart;
                                     const mergedStartRelativeToOldStart = mergedStartPart - theOldNote.start;
                                     const mergedEndRelativeToOldStart = mergedEndPart - theOldNote.start;
-                                    let newPins = [];
+                                    const newPins = [];
                                     let firstVisibleOldPinIndex = -1;
                                     let lastVisibleOldPinIndex = -1;
                                     let leftAdjacentOldPinIndex = 0;
@@ -39776,15 +39776,15 @@ You should be redirected to the song at:<br /><br />
                                     throw new Error("Ended up generating note with no pitches");
                                 }
                                 merged.push(mergedNote);
-                                for (let note of notesToDrop) {
+                                for (const note of notesToDrop) {
                                     for (let heldNoteIndex = heldNotes.length - 1; heldNoteIndex >= 0; heldNoteIndex--) {
-                                        let heldNote = heldNotes[heldNoteIndex].note;
+                                        const heldNote = heldNotes[heldNoteIndex].note;
                                         if (note === heldNote) {
                                             heldNotes.splice(heldNoteIndex, 1);
                                         }
                                     }
                                 }
-                                for (let note of notesToAdd)
+                                for (const note of notesToAdd)
                                     heldNotes.push(note);
                                 setOfPitchesToCommit.clear();
                                 notesToDrop.clear();
@@ -40173,7 +40173,7 @@ You should be redirected to the song at:<br /><br />
                 while (container.firstChild !== null) {
                     container.removeChild(container.firstChild);
                 }
-                let toPushAtTheEnd = [];
+                const toPushAtTheEnd = [];
                 const beatWidth = this._barPreviewWidth / beatsPerBar;
                 const partWidth = beatWidth / partsPerBeat;
                 const beatHeight = this._barPreviewHeight;
@@ -40245,7 +40245,7 @@ You should be redirected to the song at:<br /><br />
                             container.appendChild(stepElement);
                         }
                         if (continuesLastPattern) {
-                            let indicatorOffset = 2 + padding;
+                            const indicatorOffset = 2 + padding;
                             const arrowHeight = Math.min(h, 20);
                             const arrowY = y + h / 2;
                             let arrowPath;
@@ -40263,7 +40263,7 @@ You should be redirected to the song at:<br /><br />
                         }
                     }
                 }
-                for (let element of toPushAtTheEnd) {
+                for (const element of toPushAtTheEnd) {
                     container.appendChild(element);
                 }
             };
@@ -40310,8 +40310,8 @@ You should be redirected to the song at:<br /><br />
                 if (savedData != null) {
                     const rawSequences = savedData["sequences"];
                     if (rawSequences != null && Array.isArray(rawSequences)) {
-                        let parsedSequences = [];
-                        for (let rawSequence of rawSequences) {
+                        const parsedSequences = [];
+                        for (const rawSequence of rawSequences) {
                             parsedSequences.push({
                                 steps: Math.max(this._minSteps, Math.min(this._maxSteps, (_a = rawSequence["steps"]) !== null && _a !== void 0 ? _a : this._doc.song.beatsPerBar)),
                                 pulses: Math.max(0, Math.min(this._maxSteps, (_b = rawSequence["pulses"]) !== null && _b !== void 0 ? _b : 5)),
@@ -40385,9 +40385,9 @@ You should be redirected to the song at:<br /><br />
             this._undoHistoryState = 0;
             this._changeQueue = [];
             this.storeChange = () => {
-                var sameCheck = true;
+                let sameCheck = true;
                 if (this._changeQueue.length > 0) {
-                    for (var i = 0; i < Config.harmonicsControlPoints; i++) {
+                    for (let i = 0; i < Config.harmonicsControlPoints; i++) {
                         if (this._changeQueue[this._undoHistoryState][i] != this.instrument.harmonicsWave.harmonics[i]) {
                             sameCheck = false;
                             i = Config.harmonicsControlPoints;
@@ -40563,12 +40563,12 @@ You should be redirected to the song at:<br /><br />
             const controlPointToHeight = (point) => {
                 return (1 - (point / Config.harmonicsMax)) * this._editorHeight;
             };
-            let bottom = prettyNumber(this._editorHeight);
+            const bottom = prettyNumber(this._editorHeight);
             let path = "";
             for (let i = 0; i < Config.harmonicsControlPoints - 1; i++) {
                 if (harmonicsWave.harmonics[i] == 0)
                     continue;
-                let xPos = prettyNumber((i + 0.5) * (this._editorWidth - 8) / (Config.harmonicsControlPoints - 1));
+                const xPos = prettyNumber((i + 0.5) * (this._editorWidth - 8) / (Config.harmonicsControlPoints - 1));
                 path += "M " + xPos + " " + bottom + " ";
                 path += "L " + xPos + " " + prettyNumber(controlPointToHeight(harmonicsWave.harmonics[i])) + " ";
             }
@@ -40942,7 +40942,7 @@ You should be redirected to the song at:<br /><br />
             const noteEvents = [[], [], [], [], [], [], [], [], [], [], [], [], [], [], [], []];
             const pitchBendEvents = [[], [], [], [], [], [], [], [], [], [], [], [], [], [], [], []];
             const noteSizeEvents = [[], [], [], [], [], [], [], [], [], [], [], [], [], [], [], []];
-            let tempoChanges = [];
+            const tempoChanges = [];
             let microsecondsPerBeat = 500000;
             let beatsPerBar = 8;
             let numSharps = 0;
@@ -41302,7 +41302,7 @@ You should be redirected to the song at:<br /><br />
                     let prevEventPart = 0;
                     let pitchSum = 0;
                     let pitchCount = 0;
-                    for (let noteEvent of noteEvents[midiChannel]) {
+                    for (const noteEvent of noteEvents[midiChannel]) {
                         const nextEventMidiTick = noteEvent.midiTick;
                         const nextEventPart = quantizeMidiTickToPart(nextEventMidiTick);
                         if (heldPitches.length > 0 && nextEventPart > prevEventPart) {
@@ -41361,7 +41361,7 @@ You should be redirected to the song at:<br /><br />
                                     const shiftedHeldPitch = heldPitches[0] * midiIntervalScale - channelBasePitch;
                                     const initialBeepBoxPitch = Math.round((shiftedHeldPitch + currentMidiInterval) / intervalScale);
                                     const heldPitchOffset = Math.round(currentMidiInterval - channelBasePitch);
-                                    let firstPin = makeNotePin(0, 0, Math.round(currentVelocity * currentMidiNoteSize));
+                                    const firstPin = makeNotePin(0, 0, Math.round(currentVelocity * currentMidiNoteSize));
                                     note.pins.push(firstPin);
                                     const potentialPins = [
                                         { part: 0, pitch: initialBeepBoxPitch, size: firstPin.size, keyPitch: false, keySize: false }
@@ -41495,9 +41495,9 @@ You should be redirected to the song at:<br /><br />
                 }
             }
             if (tempoChanges.length > 1) {
-                let tempoModChannel = new Channel();
+                const tempoModChannel = new Channel();
                 modChannels.push(tempoModChannel);
-                let tempoModInstrument = new Instrument(false, true);
+                const tempoModInstrument = new Instrument(false, true);
                 tempoModInstrument.setTypeAndReset(9, false, true);
                 tempoModInstrument.modulators[0] = Config.modulators.dictionary["tempo"].index;
                 tempoModInstrument.modChannels[0] = -1;
@@ -41521,12 +41521,12 @@ You should be redirected to the song at:<br /><br />
                         changeEndMidiTick = nextChange.midiTick;
                         changeEndPart = quantizeMidiTickToPart(changeEndMidiTick);
                     }
-                    let startBar = Math.floor(changeStartPart / partsPerBar);
-                    let endBar = Math.ceil(changeEndPart / partsPerBar);
+                    const startBar = Math.floor(changeStartPart / partsPerBar);
+                    const endBar = Math.ceil(changeEndPart / partsPerBar);
                     for (let bar = startBar; bar < endBar; bar++) {
                         const barStartPart = bar * partsPerBar;
                         const noteStartPart = Math.max(0, prevChangeEndPart - barStartPart);
-                        let noteEndPart = Math.min(partsPerBar, changeEndPart - barStartPart);
+                        const noteEndPart = Math.min(partsPerBar, changeEndPart - barStartPart);
                         if (noteStartPart < noteEndPart) {
                             if (currentBar != bar || pattern == null) {
                                 currentBar++;
@@ -41660,7 +41660,7 @@ You should be redirected to the song at:<br /><br />
                 this._renderedIndex = index;
                 this._text.data = String(index);
             }
-            let useColor = selected ? ColorConfig.c_invertedText : color;
+            const useColor = selected ? ColorConfig.c_invertedText : color;
             if (this._renderedLabelColor != useColor) {
                 this._label.style.color = useColor;
                 this._renderedLabelColor = useColor;
@@ -42616,15 +42616,15 @@ You should be redirected to the song at:<br /><br />
             let currentSubpathIdx = 0;
             let lastSubpathIdx = -1;
             let path = "";
-            let subPaths = ["", "", ""];
+            const subPaths = ["", "", ""];
             for (let i = 0; i < 64; i++) {
                 let limiterRatio = +this._limiterPrompt.limitRatioSlider.value;
                 limiterRatio = (limiterRatio < 10 ? limiterRatio / 10 : (limiterRatio - 9));
                 let compressorRatio = +this._limiterPrompt.compressionRatioSlider.value;
                 compressorRatio = (compressorRatio < 10 ? compressorRatio / 10 : (1 + (compressorRatio - 10) / 60));
-                let limiterThreshold = +this._limiterPrompt.limitThresholdSlider.value;
-                let compressorThreshold = +this._limiterPrompt.compressionThresholdSlider.value;
-                let useVol = i * 2.0 / 64.0;
+                const limiterThreshold = +this._limiterPrompt.limitThresholdSlider.value;
+                const compressorThreshold = +this._limiterPrompt.compressionThresholdSlider.value;
+                const useVol = i * 2.0 / 64.0;
                 let nextValue = 1 / 1.05;
                 if (useVol >= limiterThreshold) {
                     nextValue = 1 / (1.05 * (useVol + 1 - limiterThreshold) * limiterRatio + (1 - limiterRatio));
@@ -42865,15 +42865,15 @@ You should be redirected to the song at:<br /><br />
                 }
             };
             this._saveChanges = () => {
-                for (var i = 1; i < this._scaleFlags.length; i++) {
+                for (let i = 1; i < this._scaleFlags.length; i++) {
                     this._flags[i] = this._scaleFlags[i].checked;
                 }
                 this._doc.prompt = null;
                 this._doc.record(new ChangeCustomScale(this._doc, this._flags));
             };
             this._flags = _doc.song.scaleCustom.slice();
-            let scaleHolder = div$d({});
-            for (var i = Config.pitchesPerOctave - 1; i > 0; i--) {
+            const scaleHolder = div$d({});
+            for (let i = Config.pitchesPerOctave - 1; i > 0; i--) {
                 this._scaleFlags[i] = input$8({ type: "checkbox", style: "width: 1em; padding: 0; margin-right: 4em;", "checked": this._flags[i], "value": i });
                 this._scaleRows[i] = div$d({ style: "text-align: right; height: 2em;" }, "Note " + i + ":", this._scaleFlags[i]);
                 scaleHolder.appendChild(this._scaleRows[i]);
@@ -43263,7 +43263,7 @@ You should be redirected to the song at:<br /><br />
             this._channelDropDownOpen = false;
             this._channelDropDownLastState = false;
             this._channelNameInputWhenInput = () => {
-                let newValue = this._channelNameInput.input.value;
+                const newValue = this._channelNameInput.input.value;
                 if (newValue.length > 15) {
                     this._channelNameInput.input.value = newValue.substring(0, 15);
                 }
@@ -43382,7 +43382,7 @@ You should be redirected to the song at:<br /><br />
                 const index = this._buttons.indexOf(event.target);
                 if (index == -1)
                     return;
-                let xPos = event.clientX - this._buttons[0].getBoundingClientRect().left;
+                const xPos = event.clientX - this._buttons[0].getBoundingClientRect().left;
                 if (xPos < 21.0) {
                     this._doc.song.channels[index].muted = !this._doc.song.channels[index].muted;
                 }
@@ -43401,11 +43401,11 @@ You should be redirected to the song at:<br /><br />
                 if (this._channelDropDownOpen && this._channelNameDisplay.style.getPropertyValue("display") == "none" && this._channelNameInput.input.style.getPropertyValue("display") == "none") {
                     this._channelDropDownOpen = false;
                 }
-                let xPos = event.clientX - this._buttons[0].getBoundingClientRect().left;
+                const xPos = event.clientX - this._buttons[0].getBoundingClientRect().left;
                 if (xPos >= 21.0) {
                     if (!this._channelDropDownOpen) {
                         this._channelDropDown.style.setProperty("display", "");
-                        var height = ChannelRow.patternHeight;
+                        const height = ChannelRow.patternHeight;
                         this._channelNameDisplay.style.setProperty("transform", "translate(20px, " + (height / 4 + height * index) + "px)");
                         if (this._doc.song.channels[index].name != "") {
                             this._channelNameDisplay.textContent = this._doc.song.channels[index].name;
@@ -43466,7 +43466,7 @@ You should be redirected to the song at:<br /><br />
         render() {
             if (!this._doc.prefs.enableChannelMuting)
                 return;
-            let startingChannelCount = this._buttons.length;
+            const startingChannelCount = this._buttons.length;
             if (this._buttons.length != this._doc.song.getChannelCount()) {
                 for (let y = this._buttons.length; y < this._doc.song.getChannelCount(); y++) {
                     const channelCountText = HTML.div({ class: "noSelection muteButtonText", style: "display: table-cell; -webkit-text-stroke: 1.5px; vertical-align: middle; text-align: center; -webkit-user-select: none; -webkit-touch-callout: none; -moz-user-select: none; -ms-user-select: none; user-select: none; pointer-events: none; width: 12px; height: 20px; transform: translate(0px, 1px);" });
@@ -43524,17 +43524,17 @@ You should be redirected to the song at:<br /><br />
             if (this._renderedModChannels != this._doc.song.modChannelCount || this._renderedPitchChannels != this._doc.song.pitchChannelCount || this._renderedNoiseChannels != this._doc.song.noiseChannelCount) {
                 for (let y = 0; y < this._doc.song.getChannelCount(); y++) {
                     if (y < this._doc.song.pitchChannelCount) {
-                        let val = (y + 1);
+                        const val = (y + 1);
                         this._channelCounts[y].textContent = val + "";
                         this._channelCounts[y].style.fontSize = (val >= 10) ? "xx-small" : "inherit";
                     }
                     else if (y < this._doc.song.pitchChannelCount + this._doc.song.noiseChannelCount) {
-                        let val = (y - this._doc.song.pitchChannelCount + 1);
+                        const val = (y - this._doc.song.pitchChannelCount + 1);
                         this._channelCounts[y].textContent = val + "";
                         this._channelCounts[y].style.fontSize = (val >= 10) ? "xx-small" : "inherit";
                     }
                     else {
-                        let val = (y - this._doc.song.pitchChannelCount - this._doc.song.noiseChannelCount + 1);
+                        const val = (y - this._doc.song.pitchChannelCount - this._doc.song.noiseChannelCount + 1);
                         this._channelCounts[y].textContent = val + "";
                         this._channelCounts[y].style.fontSize = (val >= 10) ? "xx-small" : "inherit";
                     }
@@ -44262,10 +44262,10 @@ You should be redirected to the song at:<br /><br />
                         converted = this._modDragLowerBound;
                         label.innerText = "" + this._modDragLowerBound;
                     }
-                    let presValue = Math.floor(Math.max(Number(this._modDragLowerBound), Math.min(Number(this._modDragUpperBound), converted)));
+                    const presValue = Math.floor(Math.max(Number(this._modDragLowerBound), Math.min(Number(this._modDragUpperBound), converted)));
                     if (label.innerText != presValue + "")
                         label.innerText = presValue + "";
-                    let xOffset = (+(presValue >= 10.0)) + (+(presValue >= 100.0)) + (+(presValue < 0.0)) + (+(presValue <= -10.0));
+                    const xOffset = (+(presValue >= 10.0)) + (+(presValue >= 100.0)) + (+(presValue < 0.0)) + (+(presValue <= -10.0));
                     this._modDragValueLabelLeft = +prettyNumber(Math.max(Math.min(this._editorWidth - 10 - xOffset * 8, this._partWidth * (this._modDragNote.start + this._modDragPin.time) - 4 - xOffset * 4), 2));
                     this.modDragValueLabel.style.setProperty("left", "" + this._modDragValueLabelLeft + "px");
                     const sequence = new ChangeSequence();
@@ -44276,7 +44276,7 @@ You should be redirected to the song at:<br /><br />
             };
             this.resetCopiedPins = () => {
                 const maxDivision = this._getMaxDivision();
-                let cap = this._doc.song.getVolumeCap(false);
+                const cap = this._doc.song.getVolumeCap(false);
                 this._copiedPinChannels.length = this._doc.song.getChannelCount();
                 this._stashCursorPinVols.length = this._doc.song.getChannelCount();
                 for (let i = 0; i < this._doc.song.pitchChannelCount; i++) {
@@ -44608,9 +44608,9 @@ You should be redirected to the song at:<br /><br />
                         this.modDragValueLabel.style.setProperty("color", "#666688");
                         this.modDragValueLabel.style.setProperty("display", "");
                         const mod = Math.max(0, Config.modCount - 1 - this._cursor.curNote.pitches[0]);
-                        let setting = this._doc.song.channels[this._doc.channel].instruments[this._doc.getCurrentInstrument(this._barOffset)].modulators[mod];
-                        let presValue = this._cursor.curNote.pins[pinIdx].size + Config.modulators[setting].convertRealFactor;
-                        let xOffset = (+(presValue >= 10.0)) + (+(presValue >= 100.0)) + (+(presValue < 0.0)) + (+(presValue <= -10.0));
+                        const setting = this._doc.song.channels[this._doc.channel].instruments[this._doc.getCurrentInstrument(this._barOffset)].modulators[mod];
+                        const presValue = this._cursor.curNote.pins[pinIdx].size + Config.modulators[setting].convertRealFactor;
+                        const xOffset = (+(presValue >= 10.0)) + (+(presValue >= 100.0)) + (+(presValue < 0.0)) + (+(presValue <= -10.0));
                         this._modDragValueLabelWidth = 8 + xOffset * 8;
                         this._modDragValueLabelLeft = +prettyNumber(Math.max(Math.min(this._editorWidth - 10 - xOffset * 8, this._partWidth * (this._cursor.curNote.start + this._cursor.curNote.pins[pinIdx].time) - 4 - xOffset * 4), 2));
                         this._modDragValueLabelTop = +prettyNumber(this._pitchToPixelHeight(this._cursor.curNote.pitches[0] - this._octaveOffset) - 17 - (this._pitchHeight - this._pitchBorder) / 2);
@@ -44779,7 +44779,7 @@ You should be redirected to the song at:<br /><br />
                             this._cursor.pins[pin].size = this._stashCursorPinVols[this._doc.channel][pin];
                         }
                     }
-                    let maxHeight = this._doc.song.getVolumeCap(this._doc.song.getChannelIsMod(this._doc.channel), this._doc.channel, this._doc.getCurrentInstrument(this._barOffset), this._cursor.pitch);
+                    const maxHeight = this._doc.song.getVolumeCap(this._doc.song.getChannelIsMod(this._doc.channel), this._doc.channel, this._doc.getCurrentInstrument(this._barOffset), this._cursor.pitch);
                     let maxFoundHeight = 0;
                     for (const pin of this._cursor.pins) {
                         if (pin.size > maxFoundHeight) {
@@ -44882,10 +44882,10 @@ You should be redirected to the song at:<br /><br />
             let changedPatterns = false;
             const currentPart = (realPart < timeQuantum / 2) ? 0 : Math.ceil(realPart / timeQuantum) * timeQuantum;
             function getMatchingInstrumentAndMod(applyToMod, modChannel, modInsIndex, modFilterIndex, modEnvIndex) {
-                let startIndex = (modInsIndex == undefined) ? 0 : modInsIndex;
-                let endIndex = (modInsIndex == undefined) ? modChannel.instruments.length - 1 : modInsIndex;
+                const startIndex = (modInsIndex == undefined) ? 0 : modInsIndex;
+                const endIndex = (modInsIndex == undefined) ? modChannel.instruments.length - 1 : modInsIndex;
                 for (let instrumentIndex = startIndex; instrumentIndex <= endIndex; instrumentIndex++) {
-                    let instrument = modChannel.instruments[instrumentIndex];
+                    const instrument = modChannel.instruments[instrumentIndex];
                     for (let mod = 0; mod < Config.modCount; mod++) {
                         if (instrument.modulators[mod] == applyToMod && !Config.modulators[instrument.modulators[mod]].forSong && (instrument.modChannels[mod] == thisRef._doc.channel)) {
                             if (thisRef._doc.getCurrentInstrument() == instrument.modInstruments[mod]
@@ -44986,9 +44986,9 @@ You should be redirected to the song at:<br /><br />
             }
             const sequence = new ChangeSequence();
             const instrument = this._doc.song.channels[this._doc.channel].instruments[this._doc.getCurrentInstrument()];
-            let applyToMods = [];
-            let applyToFilterTargets = [];
-            let applyToEnvelopeTargets = [];
+            const applyToMods = [];
+            const applyToFilterTargets = [];
+            const applyToEnvelopeTargets = [];
             let applyValues = [];
             let toApply = true;
             let slider = null;
@@ -45019,8 +45019,8 @@ You should be redirected to the song at:<br /><br />
                 const preMoveData = useChange.getMoveData(true);
                 const postMoveData = useChange.getMoveData(false);
                 const song = this._doc.song;
-                let useFilter = song.eqFilter;
-                var modulatorIndex = Config.modulators.dictionary["song eq"].index;
+                const useFilter = song.eqFilter;
+                const modulatorIndex = Config.modulators.dictionary["song eq"].index;
                 if (song.tmpEqFilterEnd == null) {
                     song.tmpEqFilterStart = new FilterSettings();
                     song.tmpEqFilterStart.fromJsonObject(song.eqFilter.toJsonObject());
@@ -45489,10 +45489,10 @@ You should be redirected to the song at:<br /><br />
             if (slider != null)
                 slider.updateValue(slider.getValueBeforeProspectiveChange());
             for (let applyIndex = 0; applyIndex < applyToMods.length; applyIndex++) {
-                let usedPatterns = [];
-                let usedInstruments = [];
-                let usedInstrumentIndices = [];
-                let usedModIndices = [];
+                const usedPatterns = [];
+                const usedInstruments = [];
+                const usedInstrumentIndices = [];
+                const usedModIndices = [];
                 for (let channelIndex = this._doc.song.pitchChannelCount + this._doc.song.noiseChannelCount; channelIndex < this._doc.song.getChannelCount(); channelIndex++) {
                     const channel = this._doc.song.channels[channelIndex];
                     let pattern = this._doc.song.getPattern(channelIndex, currentBar);
@@ -45564,7 +45564,7 @@ You should be redirected to the song at:<br /><br />
                             }
                         }
                         if (useInstrument != -1) {
-                            let instrument = channel.instruments[useInstrument];
+                            const instrument = channel.instruments[useInstrument];
                             for (let mod = 0; mod < Config.modCount; mod++) {
                                 if (instrument.modulators[mod] == Config.modulators.dictionary["none"].index) {
                                     instrument.modulators[mod] = applyToMods[applyIndex];
@@ -45654,9 +45654,9 @@ You should be redirected to the song at:<br /><br />
                             prevNote = note;
                         }
                     }
-                    let prevPart = Math.max(0, currentPart - timeQuantum);
-                    let endPart = Math.min(currentPart + timeQuantum + addLength, Config.partsPerBeat * this._doc.song.beatsPerBar);
-                    let continuous = (toApply == false);
+                    const prevPart = Math.max(0, currentPart - timeQuantum);
+                    const endPart = Math.min(currentPart + timeQuantum + addLength, Config.partsPerBeat * this._doc.song.beatsPerBar);
+                    const continuous = (toApply == false);
                     if (latestNote == null || currentPart - latestNote.end >= newNoteDist) {
                         if (currentPart == endPart)
                             continue;
@@ -45730,7 +45730,7 @@ You should be redirected to the song at:<br /><br />
                             }
                         }
                     }
-                    let lastNoteEnds = [-1, -1, -1, -1, -1, -1];
+                    const lastNoteEnds = [-1, -1, -1, -1, -1, -1];
                     usedPatterns[i].notes.sort(function (a, b) { return (a.start == b.start) ? a.pitches[0] - b.pitches[0] : a.start - b.start; });
                     for (let checkIndex = 0; checkIndex < usedPatterns[i].notes.length; checkIndex++) {
                         const note = usedPatterns[i].notes[checkIndex];
@@ -45764,14 +45764,14 @@ You should be redirected to the song at:<br /><br />
                 this.editingModLabel = false;
                 this.modDragValueLabel.style.setProperty("pointer-events", "none");
                 if (window.getSelection) {
-                    let sel = window.getSelection();
+                    const sel = window.getSelection();
                     if (sel != null)
                         sel.removeAllRanges();
                 }
                 if (discardChanges) {
                     this._modDragPin.size = this._modDragStartValue;
-                    let presValue = this._modDragStartValue + Config.modulators[this._modDragSetting].convertRealFactor;
-                    let xOffset = (+(presValue >= 10.0)) + (+(presValue >= 100.0)) + (+(presValue < 0.0)) + (+(presValue <= -10.0));
+                    const presValue = this._modDragStartValue + Config.modulators[this._modDragSetting].convertRealFactor;
+                    const xOffset = (+(presValue >= 10.0)) + (+(presValue >= 100.0)) + (+(presValue < 0.0)) + (+(presValue <= -10.0));
                     this._modDragValueLabelLeft = +prettyNumber(Math.max(Math.min(this._editorWidth - 10 - xOffset * 8, this._partWidth * (this._modDragNote.start + this._modDragPin.time) - 4 - xOffset * 4), 2));
                     this.modDragValueLabel.style.setProperty("left", "" + this._modDragValueLabelLeft + "px");
                     const sequence = new ChangeSequence();
@@ -45798,7 +45798,7 @@ You should be redirected to the song at:<br /><br />
                 this.modDragValueLabel.style.setProperty("pointer-events", "fill");
                 this.modDragValueLabel.setAttribute("contenteditable", "true");
                 if (window.getSelection) {
-                    let sel = window.getSelection();
+                    const sel = window.getSelection();
                     if (sel != null)
                         sel.selectAllChildren(this.modDragValueLabel);
                 }
@@ -45899,7 +45899,7 @@ You should be redirected to the song at:<br /><br />
                         const sequence = new ChangeSequence();
                         this._dragChange = sequence;
                         this._doc.setProspectiveChange(this._dragChange);
-                        let scale = this._doc.song.scale == Config.scales.dictionary["Custom"].index ? this._doc.song.scaleCustom : Config.scales[this._doc.song.scale].flags;
+                        const scale = this._doc.song.scale == Config.scales.dictionary["Custom"].index ? this._doc.song.scaleCustom : Config.scales[this._doc.song.scale].flags;
                         const notesInScale = scale.filter(x => x).length;
                         const pitchRatio = this._doc.song.getChannelIsNoise(this._doc.channel) ? 1 : 12 / notesInScale;
                         const draggedParts = Math.round((this._mouseX - this._mouseXStart) / (this._partWidth * minDivision)) * minDivision;
@@ -46051,7 +46051,7 @@ You should be redirected to the song at:<br /><br />
                             this._dragSize = theNote.pins[backwards ? 0 : 1].size;
                             this._dragVisible = true;
                         }
-                        let prevPattern = this._pattern;
+                        const prevPattern = this._pattern;
                         this._pattern = this._doc.getCurrentPattern(this._barOffset);
                         if (this._pattern != null && this._doc.song.getChannelIsMod(this._doc.channel) && this._interactive && prevPattern != this._pattern) {
                             this._pattern.notes.sort(function (a, b) { return (a.start == b.start) ? a.pitches[0] - b.pitches[0] : a.start - b.start; });
@@ -46094,11 +46094,11 @@ You should be redirected to the song at:<br /><br />
                         let nextPin = this._cursor.curNote.pins[0];
                         let bendSize = 0;
                         let bendInterval = 0;
-                        let cap = this._doc.song.getVolumeCap(this._doc.song.getChannelIsMod(this._doc.channel), this._doc.channel, this._doc.getCurrentInstrument(this._barOffset), this._cursor.pitch);
-                        let dragFactorSlow = 25.0 / Math.pow(cap, 0.4);
-                        let dragFactorFast = 22.0 / Math.pow(cap, 0.5);
-                        let dragSign = (this._mouseYStart > this._mouseY ? 1 : -1);
-                        let dragCounts = Math.min(Math.abs(this._mouseYStart - this._mouseY) / dragFactorSlow, 8) + Math.max(0, Math.abs(this._mouseYStart - this._mouseY) / dragFactorFast - 8);
+                        const cap = this._doc.song.getVolumeCap(this._doc.song.getChannelIsMod(this._doc.channel), this._doc.channel, this._doc.getCurrentInstrument(this._barOffset), this._cursor.pitch);
+                        const dragFactorSlow = 25.0 / Math.pow(cap, 0.4);
+                        const dragFactorFast = 22.0 / Math.pow(cap, 0.5);
+                        const dragSign = (this._mouseYStart > this._mouseY ? 1 : -1);
+                        const dragCounts = Math.min(Math.abs(this._mouseYStart - this._mouseY) / dragFactorSlow, 8) + Math.max(0, Math.abs(this._mouseYStart - this._mouseY) / dragFactorFast - 8);
                         if (dragCounts > 0) {
                             this._shiftHeld = false;
                         }
@@ -46508,8 +46508,8 @@ You should be redirected to the song at:<br /><br />
                 this._pitchCount = Config.modCount;
                 if (this._pattern != null) {
                     for (const note of this._pattern.notes) {
-                        let pitch = note.pitches[0];
-                        let maxHeight = this._doc.song.getVolumeCap(true, this._doc.channel, this._doc.getCurrentInstrument(this._barOffset), pitch);
+                        const pitch = note.pitches[0];
+                        const maxHeight = this._doc.song.getVolumeCap(true, this._doc.channel, this._doc.getCurrentInstrument(this._barOffset), pitch);
                         let maxFoundHeight = 0;
                         for (const pin of note.pins) {
                             if (pin.size > maxFoundHeight) {
@@ -46589,7 +46589,7 @@ You should be redirected to the song at:<br /><br />
                 this._backgroundPitchRows[7].setAttribute("fill", this._doc.prefs.showFifth ? ColorConfig.fifthNote : ColorConfig.pitchBackground);
             }
             for (let j = 0; j < Config.pitchesPerOctave; j++) {
-                let scale = this._doc.song.scale == Config.scales.dictionary["Custom"].index ? this._doc.song.scaleCustom : Config.scales[this._doc.song.scale].flags;
+                const scale = this._doc.song.scale == Config.scales.dictionary["Custom"].index ? this._doc.song.scaleCustom : Config.scales[this._doc.song.scale].flags;
                 this._backgroundPitchRows[j].style.visibility = scale[j] ? "visible" : "hidden";
             }
             if (this._doc.song.getChannelIsNoise(this._doc.channel)) {
@@ -46674,8 +46674,8 @@ You should be redirected to the song at:<br /><br />
                     for (let i = 0; i < note.pitches.length; i++) {
                         const pitch = note.pitches[i];
                         let notePath = SVG.path();
-                        let colorPrimary = (disabled ? ColorConfig.disabledNotePrimary : ColorConfig.getChannelColor(this._doc.song, this._doc.channel).primaryNote);
-                        let colorSecondary = (disabled ? ColorConfig.disabledNoteSecondary : ColorConfig.getChannelColor(this._doc.song, this._doc.channel).secondaryNote);
+                        const colorPrimary = (disabled ? ColorConfig.disabledNotePrimary : ColorConfig.getChannelColor(this._doc.song, this._doc.channel).primaryNote);
+                        const colorSecondary = (disabled ? ColorConfig.disabledNoteSecondary : ColorConfig.getChannelColor(this._doc.song, this._doc.channel).secondaryNote);
                         notePath.setAttribute("fill", colorSecondary);
                         notePath.setAttribute("pointer-events", "none");
                         this._drawNote(notePath, pitch, note.start, note.pins, (this._pitchHeight - this._pitchBorder) / 2 + 1, false, this._octaveOffset);
@@ -46733,9 +46733,9 @@ You should be redirected to the song at:<br /><br />
                         this.modDragValueLabel.style.setProperty("pointer-events", "none");
                         this.modDragValueLabel.setAttribute("contenteditable", "false");
                         this.modDragValueLabel.style.setProperty("color", "#FFFFFF");
-                        let setting = this._doc.song.channels[this._doc.channel].instruments[this._doc.getCurrentInstrument(this._barOffset)].modulators[Config.modCount - 1 - note.pitches[0]];
-                        let presValue = this._dragSize + Config.modulators[setting].convertRealFactor;
-                        let xOffset = (+(presValue >= 10.0)) + (+(presValue >= 100.0)) + (+(presValue < 0.0)) + (+(presValue <= -10.0));
+                        const setting = this._doc.song.channels[this._doc.channel].instruments[this._doc.getCurrentInstrument(this._barOffset)].modulators[Config.modCount - 1 - note.pitches[0]];
+                        const presValue = this._dragSize + Config.modulators[setting].convertRealFactor;
+                        const xOffset = (+(presValue >= 10.0)) + (+(presValue >= 100.0)) + (+(presValue < 0.0)) + (+(presValue <= -10.0));
                         this._modDragValueLabelWidth = 8 + xOffset * 8;
                         this._modDragValueLabelLeft = +prettyNumber(Math.max(Math.min(this._editorWidth - 10 - xOffset * 8, this._partWidth * this._dragTime - 4 - xOffset * 4), 2));
                         this._modDragValueLabelTop = +prettyNumber(this._pitchToPixelHeight(note.pitches[0] - this._octaveOffset) - 17 - (this._pitchHeight - this._pitchBorder) / 2);
@@ -46754,14 +46754,14 @@ You should be redirected to the song at:<br /><br />
             const cap = this._doc.song.getVolumeCap(this._doc.song.getChannelIsMod(this._doc.channel), this._doc.channel, this._doc.getCurrentInstrument(this._barOffset), pitch);
             let pathString = "M " + prettyNumber(this._partWidth * (start + nextPin.time) + endOffset) + " " + prettyNumber(this._pitchToPixelHeight(pitch - offset) + radius * (showSize ? nextPin.size / cap : 1.0)) + " ";
             for (let i = 1; i < pins.length; i++) {
-                let prevPin = nextPin;
+                const prevPin = nextPin;
                 nextPin = pins[i];
-                let prevSide = this._partWidth * (start + prevPin.time) + (i == 1 ? endOffset : 0);
-                let nextSide = this._partWidth * (start + nextPin.time) - (i == pins.length - 1 ? endOffset : 0);
-                let prevHeight = this._pitchToPixelHeight(pitch + prevPin.interval - offset);
-                let nextHeight = this._pitchToPixelHeight(pitch + nextPin.interval - offset);
-                let prevSize = showSize ? prevPin.size / cap : 1.0;
-                let nextSize = showSize ? nextPin.size / cap : 1.0;
+                const prevSide = this._partWidth * (start + prevPin.time) + (i == 1 ? endOffset : 0);
+                const nextSide = this._partWidth * (start + nextPin.time) - (i == pins.length - 1 ? endOffset : 0);
+                const prevHeight = this._pitchToPixelHeight(pitch + prevPin.interval - offset);
+                const nextHeight = this._pitchToPixelHeight(pitch + nextPin.interval - offset);
+                const prevSize = showSize ? prevPin.size / cap : 1.0;
+                const nextSize = showSize ? nextPin.size / cap : 1.0;
                 pathString += "L " + prettyNumber(prevSide) + " " + prettyNumber(prevHeight - radius * prevSize) + " ";
                 if (prevPin.interval > nextPin.interval)
                     pathString += "L " + prettyNumber(prevSide + 1) + " " + prettyNumber(prevHeight - radius * prevSize) + " ";
@@ -46770,14 +46770,14 @@ You should be redirected to the song at:<br /><br />
                 pathString += "L " + prettyNumber(nextSide) + " " + prettyNumber(nextHeight - radius * nextSize) + " ";
             }
             for (let i = pins.length - 2; i >= 0; i--) {
-                let prevPin = nextPin;
+                const prevPin = nextPin;
                 nextPin = pins[i];
-                let prevSide = this._partWidth * (start + prevPin.time) - (i == pins.length - 2 ? endOffset : 0);
-                let nextSide = this._partWidth * (start + nextPin.time) + (i == 0 ? endOffset : 0);
-                let prevHeight = this._pitchToPixelHeight(pitch + prevPin.interval - offset);
-                let nextHeight = this._pitchToPixelHeight(pitch + nextPin.interval - offset);
-                let prevSize = showSize ? prevPin.size / cap : 1.0;
-                let nextSize = showSize ? nextPin.size / cap : 1.0;
+                const prevSide = this._partWidth * (start + prevPin.time) - (i == pins.length - 2 ? endOffset : 0);
+                const nextSide = this._partWidth * (start + nextPin.time) + (i == 0 ? endOffset : 0);
+                const prevHeight = this._pitchToPixelHeight(pitch + prevPin.interval - offset);
+                const nextHeight = this._pitchToPixelHeight(pitch + nextPin.interval - offset);
+                const prevSize = showSize ? prevPin.size / cap : 1.0;
+                const nextSize = showSize ? nextPin.size / cap : 1.0;
                 pathString += "L " + prettyNumber(prevSide) + " " + prettyNumber(prevHeight + radius * prevSize) + " ";
                 if (prevPin.interval < nextPin.interval)
                     pathString += "L " + prettyNumber(prevSide - 1) + " " + prettyNumber(prevHeight + radius * prevSize) + " ";
@@ -47073,9 +47073,9 @@ You should be redirected to the song at:<br /><br />
             this._undoHistoryState = 0;
             this._changeQueue = [];
             this.storeChange = () => {
-                var sameCheck = true;
+                let sameCheck = true;
                 if (this._changeQueue.length > 0) {
-                    for (var i = 0; i < Config.spectrumControlPoints; i++) {
+                    for (let i = 0; i < Config.spectrumControlPoints; i++) {
                         if (this._changeQueue[this._undoHistoryState][i] != this.instrument.spectrumWave.spectrum[i]) {
                             sameCheck = false;
                             i = Config.spectrumControlPoints;
@@ -47271,7 +47271,7 @@ You should be redirected to the song at:<br /><br />
             let lastValue = 0;
             let path = "M 0 " + prettyNumber(this._editorHeight) + " ";
             for (let i = 0; i < Config.spectrumControlPoints; i++) {
-                let nextValue = spectrumWave.spectrum[i];
+                const nextValue = spectrumWave.spectrum[i];
                 if (lastValue != 0 || nextValue != 0) {
                     path += "L ";
                 }
@@ -47430,9 +47430,9 @@ You should be redirected to the song at:<br /><br />
                     this.spectrumEditors[i] = new SpectrumEditor(this._doc, Config.drumCount - 1 - i, true);
                     this.spectrumEditors[i].setSpectrumWave(this._songEditor._drumsetSpectrumEditors[Config.drumCount - 1 - i].getSpectrumWave().spectrum);
                 }
-                let colors = ColorConfig.getChannelColor(this._doc.song, this._doc.channel);
+                const colors = ColorConfig.getChannelColor(this._doc.song, this._doc.channel);
                 for (let i = 0; i < Config.drumCount; i++) {
-                    let newSpectrumButton = HTML.button({ class: "no-underline", style: "max-width: 2em;" }, "" + (i + 1));
+                    const newSpectrumButton = HTML.button({ class: "no-underline", style: "max-width: 2em;" }, "" + (i + 1));
                     this._drumsetButtons.push(newSpectrumButton);
                     this._drumsetButtonContainer.appendChild(newSpectrumButton);
                     newSpectrumButton.addEventListener("click", () => { this._setDrumSpectrum(i); });
@@ -47641,7 +47641,7 @@ You should be redirected to the song at:<br /><br />
                     return;
                 const reader = new FileReader();
                 reader.addEventListener("load", (event) => {
-                    let base64 = reader.result;
+                    const base64 = reader.result;
                     window.localStorage.setItem("customTheme", base64);
                     const value = `url("${window.localStorage.getItem('customTheme')}")`;
                     console.log('setting', value);
@@ -47656,7 +47656,7 @@ You should be redirected to the song at:<br /><br />
                     return;
                 const reader = new FileReader();
                 reader.addEventListener("load", (event) => {
-                    let base64 = reader.result;
+                    const base64 = reader.result;
                     window.localStorage.setItem("customTheme2", base64);
                     const value = `url("${window.localStorage.getItem('customTheme2')}")`;
                     document.body.style.backgroundImage = `url(${base64})`;
@@ -48256,9 +48256,9 @@ You should be redirected to the song at:<br /><br />
                     break;
                 default:
                     if (type.indexOf("modSetInfo") >= 0) {
-                        let modNum = +type[type.length - 1];
-                        let modulator = _doc.song.channels[_doc.channel].instruments[_doc.getCurrentInstrument()].modulators[modNum];
-                        let pList = [];
+                        const modNum = +type[type.length - 1];
+                        const modulator = _doc.song.channels[_doc.channel].instruments[_doc.getCurrentInstrument()].modulators[modNum];
+                        const pList = [];
                         for (let s = 0; s < Config.modulators[modulator].promptDesc.length; s++) {
                             pList.push(p(Config.modulators[modulator].promptDesc[s]
                                 .replace("$LO", "" + Config.modulators[modulator].convertRealFactor)
@@ -48319,7 +48319,7 @@ You should be redirected to the song at:<br /><br />
                 this._barDropDownBar = Math.floor(Math.min(this._doc.song.barCount - 1, Math.max(0, this._mouseX / this._barWidth)));
             };
             this._barDropDownHandler = (event) => {
-                var moveBarOffset = (this._barDropDown.value == "barBefore") ? 0 : 1;
+                const moveBarOffset = (this._barDropDown.value == "barBefore") ? 0 : 1;
                 if (this._barDropDown.value == "barBefore" || this._barDropDown.value == "barAfter") {
                     this._doc.bar = this._barDropDownBar - 1 + moveBarOffset;
                     this._doc.selection.resetBoxSelection();
@@ -48495,7 +48495,7 @@ You should be redirected to the song at:<br /><br />
             const selected = (bar == this._doc.bar && channel == this._doc.channel);
             const overTrackEditor = (this._mouseY >= Config.barEditorHeight);
             if (this._mouseDragging && this._mouseStartBar != this._mouseBar) {
-                var timestamp = Date.now();
+                const timestamp = Date.now();
                 if (timestamp - this._lastScrollTime >= 50) {
                     if (bar > this._doc.barScrollPos + this._doc.trackVisibleBars - 1 && this._doc.barScrollPos < this._doc.song.barCount - this._doc.trackVisibleBars) {
                         this._songEditor.changeBarScrollPos(1);
@@ -48583,12 +48583,12 @@ You should be redirected to the song at:<br /><br />
                 this.container.style.width = editorWidth + "px";
                 this._svg.setAttribute("width", editorWidth + "");
                 this._mousePressed = false;
-                var pathString = "";
+                let pathString = "";
                 for (let x = 0; x < this._doc.song.barCount; x++) {
-                    var pathLeft = x * this._barWidth + 2;
-                    var pathTop = 1;
-                    var pathRight = x * this._barWidth + this._barWidth - 2;
-                    var pathBottom = Config.barEditorHeight - 3;
+                    const pathLeft = x * this._barWidth + 2;
+                    const pathTop = 1;
+                    const pathRight = x * this._barWidth + this._barWidth - 2;
+                    const pathBottom = Config.barEditorHeight - 3;
                     pathString += `M ${pathLeft} ${pathTop} H ${pathRight} V ${pathBottom} H ${pathLeft} V ${pathTop} Z `;
                 }
                 this._barEditorPath.setAttribute("d", pathString);
@@ -48647,21 +48647,21 @@ You should be redirected to the song at:<br /><br />
             this.scale = scale;
             this._EventUpdateCanvas = function (directlinkL, directlinkR) {
                 if (directlinkR) {
-                    var ctx = canvas.getContext("2d");
+                    const ctx = canvas.getContext("2d");
                     ctx.fillStyle = ColorConfig.getComputed("--editor-background");
                     ctx.fillRect(0, 0, canvas.width, canvas.height);
                     ctx.fillStyle = ColorConfig.getComputed("--oscilloscope-line-L");
                     for (let i = directlinkL.length - 1; i >= directlinkL.length - 1 - (canvas.width / scale); i--) {
-                        let x = i - (directlinkL.length - 1) + (canvas.width / scale);
-                        let yl = (directlinkL[i] * (canvas.height / scale / 2) + (canvas.height / scale / 2));
+                        const x = i - (directlinkL.length - 1) + (canvas.width / scale);
+                        const yl = (directlinkL[i] * (canvas.height / scale / 2) + (canvas.height / scale / 2));
                         ctx.fillRect((x - 1) * scale, (yl - 1) * scale, 1 * scale, 1.5 * scale);
                         if (x == 0)
                             break;
                     }
                     ctx.fillStyle = ColorConfig.getComputed("--oscilloscope-line-R");
                     for (let i = directlinkR.length - 1; i >= directlinkR.length - 1 - (canvas.width / scale); i--) {
-                        let x = i - (directlinkR.length - 1) + (canvas.width / scale);
-                        let yr = (directlinkR[i] * (canvas.height / scale / 2) + (canvas.height / scale / 2));
+                        const x = i - (directlinkR.length - 1) + (canvas.width / scale);
+                        const yr = (directlinkR[i] * (canvas.height / scale / 2) + (canvas.height / scale / 2));
                         ctx.fillRect((x - 1) * scale, (yr - 1) * scale, 1 * scale, 1.5 * scale);
                         if (x == 0)
                             break;
@@ -49833,7 +49833,7 @@ You should be redirected to the song at:<br /><br />
                         let chipWaveStartOffset = null;
                         let chipWaveLoopMode = null;
                         let chipWavePlayBackwards = false;
-                        let optionsStartIndex = url.indexOf("!");
+                        const optionsStartIndex = url.indexOf("!");
                         let optionsEndIndex = -1;
                         let parsedSampleOptions = false;
                         if (optionsStartIndex === 0) {
@@ -50206,16 +50206,16 @@ You should be redirected to the song at:<br /><br />
                 customSampleCategoryGroup = group;
             }
             if (category.name == "String Presets" && foundAny) {
-                let moveViolin2 = group.removeChild(group.children[11]);
+                const moveViolin2 = group.removeChild(group.children[11]);
                 group.insertBefore(moveViolin2, group.children[1]);
             }
             if (category.name == "Flute Presets" && foundAny) {
-                let moveFlute2 = group.removeChild(group.children[11]);
+                const moveFlute2 = group.removeChild(group.children[11]);
                 group.insertBefore(moveFlute2, group.children[1]);
             }
             if (category.name == "Keyboard Presets" && foundAny) {
-                let moveGrandPiano2 = group.removeChild(group.children[9]);
-                let moveGrandPiano3 = group.removeChild(group.children[9]);
+                const moveGrandPiano2 = group.removeChild(group.children[9]);
+                const moveGrandPiano3 = group.removeChild(group.children[9]);
                 group.insertBefore(moveGrandPiano3, group.children[1]);
                 group.insertBefore(moveGrandPiano2, group.children[1]);
             }
@@ -50246,21 +50246,21 @@ You should be redirected to the song at:<br /><br />
             this._change = null;
             this._onMouseMove = (event) => {
                 if (this.mouseDown) {
-                    var x = (event.clientX || event.pageX) - this.canvas.getBoundingClientRect().left;
-                    var y = Math.floor((event.clientY || event.pageY) - this.canvas.getBoundingClientRect().top);
+                    const x = (event.clientX || event.pageX) - this.canvas.getBoundingClientRect().left;
+                    let y = Math.floor((event.clientY || event.pageY) - this.canvas.getBoundingClientRect().top);
                     if (y < 2)
                         y = 2;
                     if (y > 50)
                         y = 50;
-                    var ctx = this.canvas.getContext("2d");
+                    const ctx = this.canvas.getContext("2d");
                     if (this.continuousEdit == true && Math.abs(this.lastX - x) < 40) {
-                        var lowerBound = (x < this.lastX) ? x : this.lastX;
-                        var upperBound = (x < this.lastX) ? this.lastX : x;
+                        const lowerBound = (x < this.lastX) ? x : this.lastX;
+                        const upperBound = (x < this.lastX) ? this.lastX : x;
                         for (let i = lowerBound; i <= upperBound; i += 2) {
-                            var progress = (Math.abs(x - this.lastX) > 2.0) ? ((x > this.lastX) ?
+                            const progress = (Math.abs(x - this.lastX) > 2.0) ? ((x > this.lastX) ?
                                 1.0 - ((i - lowerBound) / (upperBound - lowerBound))
                                 : ((i - lowerBound) / (upperBound - lowerBound))) : 0.0;
-                            var j = Math.round(y + (this.lastY - y) * progress);
+                            const j = Math.round(y + (this.lastY - y) * progress);
                             ctx.fillStyle = ColorConfig.getComputed("--editor-background");
                             ctx.fillRect(Math.floor(i / 2) * 2, 0, 2, 53);
                             ctx.fillStyle = ColorConfig.getComputed("--ui-widget-background");
@@ -50288,7 +50288,7 @@ You should be redirected to the song at:<br /><br />
                     this.continuousEdit = true;
                     this.lastX = x;
                     this.lastY = y;
-                    let instrument = this._doc.song.channels[this._doc.channel].instruments[this._doc.getCurrentInstrument()];
+                    const instrument = this._doc.song.channels[this._doc.channel].instruments[this._doc.getCurrentInstrument()];
                     let sum = 0.0;
                     for (let i = 0; i < this.newArray.length; i++) {
                         sum += this.newArray[i];
@@ -50349,7 +50349,7 @@ You should be redirected to the song at:<br /><br />
                 return;
             }
             this.renderedArray.set(chipData);
-            var ctx = this.canvas.getContext("2d");
+            const ctx = this.canvas.getContext("2d");
             ctx.fillStyle = ColorConfig.getComputed("--editor-background");
             ctx.fillRect(0, 0, 128, 52);
             ctx.fillStyle = ColorConfig.getComputed("--ui-widget-background");
@@ -50359,7 +50359,7 @@ You should be redirected to the song at:<br /><br />
             ctx.fillRect(0, 39, 128, 1);
             ctx.fillStyle = renderColor;
             for (let x = 0; x < 64; x++) {
-                var y = chipData[x] + 26;
+                const y = chipData[x] + 26;
                 ctx.fillRect(x * 2, y - 2, 2, 4);
                 this.newArray[x] = y - 26;
             }
@@ -50374,12 +50374,12 @@ You should be redirected to the song at:<br /><br />
             this._onMouseMove = (event) => {
                 var _a, _b, _c, _d;
                 if (this.mouseDown) {
-                    var x = (event.clientX || event.pageX) - this.canvas.getBoundingClientRect().left;
-                    var y = Math.floor((event.clientY || event.pageY) - this.canvas.getBoundingClientRect().top);
-                    var ctx = this.canvas.getContext("2d");
+                    const x = (event.clientX || event.pageX) - this.canvas.getBoundingClientRect().left;
+                    const y = Math.floor((event.clientY || event.pageY) - this.canvas.getBoundingClientRect().top);
+                    const ctx = this.canvas.getContext("2d");
                     ctx.fillStyle = ColorConfig.getComputedChannelColor(this._doc.song, this._doc.channel).primaryNote;
-                    var yindex = Math.ceil(y / 12);
-                    var xindex = Math.ceil(x / 12);
+                    let yindex = Math.ceil(y / 12);
+                    let xindex = Math.ceil(x / 12);
                     yindex = (yindex / 2) - Math.floor(yindex / 2) >= 0.5 ? Math.floor(yindex / 2) : -1;
                     xindex = (xindex / 2) + 0.5 - Math.floor(xindex / 2) <= 0.5 ? Math.floor(xindex / 2) - 1 : -1;
                     yindex = yindex >= 0 && yindex <= 5 ? yindex : -1;
@@ -50398,7 +50398,7 @@ You should be redirected to the song at:<br /><br />
                         if (((_d = (_c = this.drawArray) === null || _c === void 0 ? void 0 : _c[yindex]) === null || _d === void 0 ? void 0 : _d[xindex]) != undefined) {
                             if (this.mode == "feedback") {
                                 const newmod = this.drawArray[yindex][xindex];
-                                let check = this.feedback[newmod - 1].indexOf(this.selected);
+                                const check = this.feedback[newmod - 1].indexOf(this.selected);
                                 if (check != -1) {
                                     this.feedback[newmod - 1].splice(check, 1);
                                 }
@@ -50420,7 +50420,7 @@ You should be redirected to the song at:<br /><br />
                                 else {
                                     const newmod = this.drawArray[yindex][xindex];
                                     if (this.selected > newmod) {
-                                        let check = this.newMods[newmod - 1].indexOf(this.selected);
+                                        const check = this.newMods[newmod - 1].indexOf(this.selected);
                                         if (check != -1) {
                                             this.newMods[newmod - 1].splice(check, 1);
                                         }
@@ -50429,7 +50429,7 @@ You should be redirected to the song at:<br /><br />
                                         }
                                     }
                                     else {
-                                        let check = this.newMods[this.selected - 1].indexOf(newmod);
+                                        const check = this.newMods[this.selected - 1].indexOf(newmod);
                                         if (check != -1) {
                                             this.newMods[this.selected - 1].splice(check, 1);
                                         }
@@ -50511,7 +50511,7 @@ You should be redirected to the song at:<br /><br />
                 this.newMods = [[], [], [], [], [], []];
                 this.inverseModulation = [[], [], [], [], [], []];
                 this.lookUpArray = [[], [], [], [], [], []];
-                var oldMods = this._doc.song.channels[this._doc.channel].instruments[this._doc.getCurrentInstrument()].customAlgorithm;
+                const oldMods = this._doc.song.channels[this._doc.channel].instruments[this._doc.getCurrentInstrument()].customAlgorithm;
                 this.carriers = oldMods.carrierCount;
                 for (let i = 0; i < oldMods.modulatedBy.length; i++) {
                     for (let o = 0; o < oldMods.modulatedBy[i].length; o++) {
@@ -50522,7 +50522,7 @@ You should be redirected to the song at:<br /><br />
                 if (this.mode == "feedback") {
                     this.feedback = [[], [], [], [], [], []];
                     this.inverseFeedback = [[], [], [], [], [], []];
-                    var oldfeed = this._doc.song.channels[this._doc.channel].instruments[this._doc.getCurrentInstrument()].customFeedbackType.indices;
+                    const oldfeed = this._doc.song.channels[this._doc.channel].instruments[this._doc.getCurrentInstrument()].customFeedbackType.indices;
                     for (let i = 0; i < oldfeed.length; i++) {
                         for (let o = 0; o < oldfeed[i].length; o++) {
                             this.inverseFeedback[oldfeed[i][o] - 1].push(i + 1);
@@ -50538,7 +50538,7 @@ You should be redirected to the song at:<br /><br />
                 }
                 else {
                     if (this.inverseModulation[i][0] != undefined) {
-                        let testPos = [this.drawArray.length - (this.lookUpArray[this.inverseModulation[i][this.inverseModulation[i].length - 1] - 1][0] + 2), this.lookUpArray[this.inverseModulation[i][this.inverseModulation[i].length - 1] - 1][1]];
+                        const testPos = [this.drawArray.length - (this.lookUpArray[this.inverseModulation[i][this.inverseModulation[i].length - 1] - 1][0] + 2), this.lookUpArray[this.inverseModulation[i][this.inverseModulation[i].length - 1] - 1][1]];
                         if (this.drawArray[testPos[0]][testPos[1]] != undefined) {
                             while (this.drawArray[testPos[0]][testPos[1]] != undefined && testPos[1] < 6) {
                                 testPos[1]++;
@@ -50555,7 +50555,7 @@ You should be redirected to the song at:<br /><br />
                         }
                     }
                     else {
-                        let testPos = [5, 0];
+                        const testPos = [5, 0];
                         while (this.drawArray[testPos[0]][testPos[1]] != undefined && testPos[1] < 6) {
                             testPos[1]++;
                             if (this.drawArray[testPos[0]][testPos[1]] == undefined) {
@@ -50574,9 +50574,9 @@ You should be redirected to the song at:<br /><br />
                     ctx.strokeStyle = ColorConfig.getArbitaryChannelColor("pitch", off).primaryChannel;
                     const set = off * 2 + 0.5;
                     for (let i = 0; i < this.inverseFeedback[off].length; i++) {
-                        let tar = this.inverseFeedback[off][i] - 1;
-                        let srtpos = this.lookUpArray[off];
-                        let tarpos = this.lookUpArray[tar];
+                        const tar = this.inverseFeedback[off][i] - 1;
+                        const srtpos = this.lookUpArray[off];
+                        const tarpos = this.lookUpArray[tar];
                         ctx.beginPath();
                         ctx.moveTo(srtpos[1] * 24 + 12 + set, (6 - srtpos[0] - 1) * 24 + 12);
                         ctx.lineTo(srtpos[1] * 24 + 12 + set, (6 - srtpos[0] - 1) * 24 + 12 + set);
@@ -50630,9 +50630,9 @@ You should be redirected to the song at:<br /><br />
                 ctx.strokeStyle = ColorConfig.getArbitaryChannelColor("pitch", off).primaryChannel;
                 const set = off * 2 - 1 + 0.5;
                 for (let i = 0; i < this.inverseModulation[off].length; i++) {
-                    let tar = this.inverseModulation[off][i] - 1;
-                    let srtpos = this.lookUpArray[off];
-                    let tarpos = this.lookUpArray[tar];
+                    const tar = this.inverseModulation[off][i] - 1;
+                    const srtpos = this.lookUpArray[off];
+                    const tarpos = this.lookUpArray[tar];
                     ctx.beginPath();
                     ctx.moveTo(srtpos[1] * 24 + 12 + set, (6 - srtpos[0] - 1) * 24 + 12);
                     ctx.lineTo(srtpos[1] * 24 + 12 + set, (6 - srtpos[0] - 1) * 24 + 12 + set);
@@ -50665,7 +50665,7 @@ You should be redirected to the song at:<br /><br />
         }
         redrawCanvas(noReset = false) {
             this.fillDrawArray(noReset);
-            var ctx = this.canvas.getContext("2d");
+            const ctx = this.canvas.getContext("2d");
             ctx.fillStyle = ColorConfig.getComputed("--editor-background");
             ctx.fillRect(0, 0, 144, 144);
             for (let x = 0; x < 6; x++) {
@@ -51202,7 +51202,7 @@ You should be redirected to the song at:<br /><br />
                 }
                 this._effectsSelect.selectedIndex = -1;
                 for (let i = 0; i < Config.effectOrder.length; i++) {
-                    let effectFlag = Config.effectOrder[i];
+                    const effectFlag = Config.effectOrder[i];
                     const selected = ((instrument.effects & (1 << effectFlag)) != 0);
                     const label = (selected ? textOnIcon : textOffIcon) + Config.effectNames[effectFlag];
                     const option = this._effectsSelect.children[i + 1];
@@ -51730,7 +51730,7 @@ You should be redirected to the song at:<br /><br />
                     this.envelopeEditor.render();
                     this.envelopeEditor.rerenderExtraSettings();
                     for (let chordIndex = 0; chordIndex < Config.chords.length; chordIndex++) {
-                        let hidden = (!Config.instrumentTypeHasSpecialInterval[instrument.type] && Config.chords[chordIndex].customInterval);
+                        const hidden = (!Config.instrumentTypeHasSpecialInterval[instrument.type] && Config.chords[chordIndex].customInterval);
                         const option = this._chordSelect.children[chordIndex];
                         if (hidden) {
                             if (!option.hasAttribute("hidden")) {
@@ -51842,8 +51842,8 @@ You should be redirected to the song at:<br /><br />
                     this._modulatorGroup.style.display = "";
                     this._modulatorGroup.style.color = ColorConfig.getChannelColor(this.doc.song, this.doc.channel).primaryNote;
                     for (let mod = 0; mod < Config.modCount; mod++) {
-                        let instrument = this.doc.song.channels[this.doc.channel].instruments[this.doc.getCurrentInstrument()];
-                        let modChannel = Math.max(0, instrument.modChannels[mod]);
+                        const instrument = this.doc.song.channels[this.doc.channel].instruments[this.doc.getCurrentInstrument()];
+                        const modChannel = Math.max(0, instrument.modChannels[mod]);
                         let modInstrument = instrument.modInstruments[mod];
                         if (modInstrument >= this.doc.song.channels[modChannel].instruments.length + 2 || (modInstrument > 0 && this.doc.song.channels[modChannel].instruments.length <= 1)) {
                             modInstrument = 0;
@@ -51878,7 +51878,7 @@ You should be redirected to the song at:<br /><br />
                             buildOptions(this._modChannelBoxes[mod], channelList);
                         }
                         this._modChannelBoxes[mod].selectedIndex = instrument.modChannels[mod] + 2;
-                        let channel = this.doc.song.channels[modChannel];
+                        const channel = this.doc.song.channels[modChannel];
                         if (this._modInstrumentBoxes[mod].children.length != channel.instruments.length + 2) {
                             while (this._modInstrumentBoxes[mod].firstChild)
                                 this._modInstrumentBoxes[mod].remove(0);
@@ -51891,7 +51891,7 @@ You should be redirected to the song at:<br /><br />
                             buildOptions(this._modInstrumentBoxes[mod], instrumentList);
                         }
                         if (channel.bars[this.doc.bar] > 0) {
-                            let usedInstruments = channel.patterns[channel.bars[this.doc.bar] - 1].instruments;
+                            const usedInstruments = channel.patterns[channel.bars[this.doc.bar] - 1].instruments;
                             for (let i = 0; i < channel.instruments.length; i++) {
                                 if (usedInstruments.includes(i)) {
                                     this._modInstrumentBoxes[mod].options[i].label = "🢒" + (i + 1);
@@ -51924,10 +51924,10 @@ You should be redirected to the song at:<br /><br />
                             else {
                                 settingList.push("note volume");
                                 settingList.push("mix volume");
-                                let tgtInstrumentTypes = [];
+                                const tgtInstrumentTypes = [];
                                 let anyInstrumentAdvancedEQ = false, anyInstrumentSimpleEQ = false, anyInstrumentAdvancedNote = false, anyInstrumentSimpleNote = false, anyInstrumentArps = false, anyInstrumentPitchShifts = false, anyInstrumentDetunes = false, anyInstrumentVibratos = false, anyInstrumentNoteFilters = false, anyInstrumentDistorts = false, anyInstrumentBitcrushes = false, anyInstrumentPans = false, anyInstrumentChorus = false, anyInstrumentEchoes = false, anyInstrumentReverbs = false, anyInstrumentRingMods = false, anyInstrumentGranulars = false, anyInstrumentPhasers = false, anyInstrumentHasEnvelopes = false;
                                 let allInstrumentPitchShifts = true, allInstrumentNoteFilters = true, allInstrumentDetunes = true, allInstrumentVibratos = true, allInstrumentDistorts = true, allInstrumentBitcrushes = true, allInstrumentPans = true, allInstrumentChorus = true, allInstrumentEchoes = true, allInstrumentReverbs = true, allInstrumentRingMods = true, anyInstrumentInvertWave = true, allInstrumentGranulars = true;
-                                let instrumentCandidates = [];
+                                const instrumentCandidates = [];
                                 if (modInstrument >= channel.instruments.length) {
                                     for (let i = 0; i < channel.instruments.length; i++) {
                                         instrumentCandidates.push(i);
@@ -51937,7 +51937,7 @@ You should be redirected to the song at:<br /><br />
                                     instrumentCandidates.push(modInstrument);
                                 }
                                 for (let i = 0; i < instrumentCandidates.length; i++) {
-                                    let instrumentIndex = instrumentCandidates[i];
+                                    const instrumentIndex = instrumentCandidates[i];
                                     if (!tgtInstrumentTypes.includes(channel.instruments[instrumentIndex].type))
                                         tgtInstrumentTypes.push(channel.instruments[instrumentIndex].type);
                                     if (channel.instruments[instrumentIndex].eqFilterType)
@@ -52196,7 +52196,7 @@ You should be redirected to the song at:<br /><br />
                                 this._modSetBoxes[mod].appendChild(option({ selected: false, disabled: true, value: "Add Effect" }, "Add Effect"));
                                 buildOptions(this._modSetBoxes[mod], unusedSettingList);
                             }
-                            let setIndex = settingList.indexOf(Config.modulators[instrument.modulators[mod]].name);
+                            const setIndex = settingList.indexOf(Config.modulators[instrument.modulators[mod]].name);
                             if (setIndex == -1) {
                                 this._modSetBoxes[mod].insertBefore(option({ value: Config.modulators[instrument.modulators[mod]].name, style: "color: red;" }, Config.modulators[instrument.modulators[mod]].name), this._modSetBoxes[mod].children[0]);
                                 this._modSetBoxes[mod].selectedIndex = 0;
@@ -52237,7 +52237,7 @@ You should be redirected to the song at:<br /><br />
                             this._modTargetIndicators[mod].classList.add("modTarget");
                         }
                         let filterType = Config.modulators[instrument.modulators[mod]].name;
-                        let useSongEq = filterType == "song eq";
+                        const useSongEq = filterType == "song eq";
                         if (useSongEq)
                             filterType = "eq filter";
                         if (filterType == "eq filter" || filterType == "note filter") {
@@ -52245,7 +52245,7 @@ You should be redirected to the song at:<br /><br />
                             $("#modEnvelopeText" + mod).get(0).style.display = "none";
                             $("#modSettingText" + mod).get(0).style.setProperty("margin-bottom", "2px");
                             let useInstrument = instrument.modInstruments[mod];
-                            let modChannel = this.doc.song.channels[Math.max(0, instrument.modChannels[mod])];
+                            const modChannel = this.doc.song.channels[Math.max(0, instrument.modChannels[mod])];
                             let tmpCount = -1;
                             if (useInstrument >= modChannel.instruments.length) {
                                 for (let i = 0; i < modChannel.instruments.length; i++) {
@@ -52316,12 +52316,12 @@ You should be redirected to the song at:<br /><br />
                             $("#modFilterText" + mod).get(0).style.display = "none";
                             $("#modSettingText" + mod).get(0).style.setProperty("margin-bottom", "0.9em");
                         }
-                        let envelopes = Config.modulators[instrument.modulators[mod]].name;
+                        const envelopes = Config.modulators[instrument.modulators[mod]].name;
                         if (envelopes == "individual envelope speed" || envelopes == "reset envelope" || envelopes == "individual envelope lower bound" || envelopes == "individual envelope upper bound") {
                             $("#modEnvelopeText" + mod).get(0).style.display = "";
                             $("#modFilterText" + mod).get(0).style.display = "none";
                             $("#modSettingText" + mod).get(0).style.setProperty("margin-bottom", "2px");
-                            let modChannel = this.doc.song.channels[Math.max(0, instrument.modChannels[mod])];
+                            const modChannel = this.doc.song.channels[Math.max(0, instrument.modChannels[mod])];
                             let envCount = -1;
                             for (let i = 0; i < modChannel.instruments.length; i++) {
                                 if (modChannel.instruments[i].envelopeCount > envCount) {
@@ -52338,7 +52338,7 @@ You should be redirected to the song at:<br /><br />
                             if (instrument.modEnvelopeNumbers[mod] >= this._modEnvelopeBoxes[mod].length) {
                                 this._modEnvelopeBoxes[mod].classList.add("invalidSetting");
                                 instrument.invalidModulators[mod] = true;
-                                let useName = "envelope " + (instrument.modEnvelopeNumbers[mod]);
+                                const useName = "envelope " + (instrument.modEnvelopeNumbers[mod]);
                                 this._modEnvelopeBoxes[mod].insertBefore(option({ value: useName, style: "color: red;" }, useName), this._modEnvelopeBoxes[mod].children[0]);
                                 this._modEnvelopeBoxes[mod].selectedIndex = 0;
                             }
@@ -53530,7 +53530,7 @@ You should be redirected to the song at:<br /><br />
                 }
             };
             this._refocus = () => {
-                var selfRef = this;
+                const selfRef = this;
                 setTimeout(function () { selfRef.mainLayer.focus(); }, 20);
             };
             this._whenSetPitchedPreset = () => {
@@ -53573,8 +53573,8 @@ You should be redirected to the song at:<br /><br />
                 this.refocusStage();
             };
             this._whenSetModChannel = (mod) => {
-                let instrument = this.doc.song.channels[this.doc.channel].instruments[this.doc.getCurrentInstrument()];
-                let previouslyUnset = (instrument.modulators[mod] == 0 || Config.modulators[instrument.modulators[mod]].forSong);
+                const instrument = this.doc.song.channels[this.doc.channel].instruments[this.doc.getCurrentInstrument()];
+                const previouslyUnset = (instrument.modulators[mod] == 0 || Config.modulators[instrument.modulators[mod]].forSong);
                 this.doc.selection.setModChannel(mod, this._modChannelBoxes[mod].selectedIndex);
                 const modChannel = Math.max(0, instrument.modChannels[mod]);
                 if (this.doc.song.channels[modChannel].instruments.length > 1 && previouslyUnset && this._modChannelBoxes[mod].selectedIndex >= 2) {
@@ -53928,12 +53928,12 @@ You should be redirected to the song at:<br /><br />
                 this.doc.prefs.save();
             };
             this._customWavePresetHandler = (event) => {
-                let customWaveArray = new Float32Array(64);
-                let index = this._customWavePresetDrop.selectedIndex - 1;
+                const customWaveArray = new Float32Array(64);
+                const index = this._customWavePresetDrop.selectedIndex - 1;
                 let maxValue = Number.MIN_VALUE;
                 let minValue = Number.MAX_VALUE;
                 let arrayPoint = 0;
-                let arrayStep = (Config.chipWaves[index].samples.length - 1) / 64.0;
+                const arrayStep = (Config.chipWaves[index].samples.length - 1) / 64.0;
                 for (let i = 0; i < 64; i++) {
                     customWaveArray[i] = (Config.chipWaves[index].samples[Math.floor(arrayPoint)] - Config.chipWaves[index].samples[(Math.floor(arrayPoint) + 1)]) / arrayStep;
                     if (customWaveArray[i] < minValue)
@@ -54036,16 +54036,16 @@ You should be redirected to the song at:<br /><br />
             this._modEnvelopeBoxes = [];
             this._modTargetIndicators = [];
             for (let mod = 0; mod < Config.modCount; mod++) {
-                let modChannelBox = select({ style: "width: 100%; color: currentColor; text-overflow:ellipsis;" });
-                let modInstrumentBox = select({ style: "width: 100%; color: currentColor;" });
-                let modNameRow = div({ class: "operatorRow", style: "height: 1em; margin-bottom: 0.65em;" }, div({ class: "tip", style: "width: 10%; max-width: 5.4em;", id: "modChannelText" + mod, onclick: () => this._openPrompt("modChannel") }, "Ch:"), div({ class: "selectContainer", style: 'width: 35%;' }, modChannelBox), div({ class: "tip", style: "width: 1.2em; margin-left: 0.8em;", id: "modInstrumentText" + mod, onclick: () => this._openPrompt("modInstrument") }, "Ins:"), div({ class: "selectContainer", style: "width: 10%;" }, modInstrumentBox));
-                let modSetBox = select();
-                let modFilterBox = select();
-                let modEnvelopeBox = select();
-                let modSetRow = div({ class: "selectRow", id: "modSettingText" + mod, style: "margin-bottom: 0.9em; color: currentColor;" }, span({ class: "tip", onclick: () => this._openPrompt("modSet") }, "Setting: "), span({ class: "tip", style: "font-size:x-small;", onclick: () => this._openPrompt("modSetInfo" + mod) }, "?"), div({ class: "selectContainer" }, modSetBox));
-                let modFilterRow = div({ class: "selectRow", id: "modFilterText" + mod, style: "margin-bottom: 0.9em; color: currentColor;" }, span({ class: "tip", onclick: () => this._openPrompt("modFilter" + mod) }, "Target: "), div({ class: "selectContainer" }, modFilterBox));
-                let modEnvelopeRow = div({ class: "selectRow", id: "modEnvelopeText" + mod, style: "margin-bottom: 0.9em; color: currentColor;" }, span({ class: "tip", onclick: () => this._openPrompt("modEnvelope") }, "Envelope: "), div({ class: "selectContainer" }, modEnvelopeBox));
-                let modTarget = SVG.svg({ style: "transform: translate(0px, 1px);", width: "1.5em", height: "1em", viewBox: "0 0 200 200" }, [
+                const modChannelBox = select({ style: "width: 100%; color: currentColor; text-overflow:ellipsis;" });
+                const modInstrumentBox = select({ style: "width: 100%; color: currentColor;" });
+                const modNameRow = div({ class: "operatorRow", style: "height: 1em; margin-bottom: 0.65em;" }, div({ class: "tip", style: "width: 10%; max-width: 5.4em;", id: "modChannelText" + mod, onclick: () => this._openPrompt("modChannel") }, "Ch:"), div({ class: "selectContainer", style: 'width: 35%;' }, modChannelBox), div({ class: "tip", style: "width: 1.2em; margin-left: 0.8em;", id: "modInstrumentText" + mod, onclick: () => this._openPrompt("modInstrument") }, "Ins:"), div({ class: "selectContainer", style: "width: 10%;" }, modInstrumentBox));
+                const modSetBox = select();
+                const modFilterBox = select();
+                const modEnvelopeBox = select();
+                const modSetRow = div({ class: "selectRow", id: "modSettingText" + mod, style: "margin-bottom: 0.9em; color: currentColor;" }, span({ class: "tip", onclick: () => this._openPrompt("modSet") }, "Setting: "), span({ class: "tip", style: "font-size:x-small;", onclick: () => this._openPrompt("modSetInfo" + mod) }, "?"), div({ class: "selectContainer" }, modSetBox));
+                const modFilterRow = div({ class: "selectRow", id: "modFilterText" + mod, style: "margin-bottom: 0.9em; color: currentColor;" }, span({ class: "tip", onclick: () => this._openPrompt("modFilter" + mod) }, "Target: "), div({ class: "selectContainer" }, modFilterBox));
+                const modEnvelopeRow = div({ class: "selectRow", id: "modEnvelopeText" + mod, style: "margin-bottom: 0.9em; color: currentColor;" }, span({ class: "tip", onclick: () => this._openPrompt("modEnvelope") }, "Envelope: "), div({ class: "selectContainer" }, modEnvelopeBox));
+                const modTarget = SVG.svg({ style: "transform: translate(0px, 1px);", width: "1.5em", height: "1em", viewBox: "0 0 200 200" }, [
                     SVG.path({ d: "M90 155 l0 -45 -45 0 c-25 0 -45 -4 -45 -10 0 -5 20 -10 45 -10 l45 0 0 -45 c0 -25 5 -45 10 -45 6 0 10 20 10 45 l0 45 45 0 c25 0 45 5 45 10 0 6 -20 10 -45 10 l -45 0 0 45 c0 25 -4 45 -10 45 -5 0 -10 -20 -10 -45z" }),
                     SVG.path({ d: "M42 158 c-15 -15 -16 -38 -2 -38 6 0 10 7 10 15 0 8 7 15 15 15 8 0 15 5 15 10 0 14 -23 13 -38 -2z" }),
                     SVG.path({ d: "M120 160 c0 -5 7 -10 15 -10 8 0 15 -7 15 -15 0 -8 5 -15 10 -15 14 0 13 23 -2 38 -15 15 -38 16 -38 2z" }),
@@ -54139,7 +54139,7 @@ You should be redirected to the song at:<br /><br />
                 this._operatorAmplitudeSliders[i].container.style.setProperty("--mod-color", ColorConfig.multiplicativeModSlider);
                 this._operatorAmplitudeSliders[i].container.style.setProperty("--mod-border-radius", "50%");
             }
-            let thisRef = this;
+            const thisRef = this;
             for (let mod = 0; mod < Config.modCount; mod++) {
                 this._modChannelBoxes[mod].addEventListener("change", function () { thisRef._whenSetModChannel(mod); });
                 this._modInstrumentBoxes[mod].addEventListener("change", function () { thisRef._whenSetModInstrument(mod); });
@@ -54275,7 +54275,7 @@ You should be redirected to the song at:<br /><br />
                     break;
             }
             if (target.textContent == "▼") {
-                let instrument = this.doc.song.channels[this.doc.channel].instruments[this.doc.getCurrentInstrument()];
+                const instrument = this.doc.song.channels[this.doc.channel].instruments[this.doc.getCurrentInstrument()];
                 target.textContent = "▲";
                 if (dropdown == 8) {
                     group.style.display = "flex";
@@ -54318,7 +54318,7 @@ You should be redirected to the song at:<br /><br />
                         if (this._showModSliders[setting][index] == true) {
                             this._showModSliders[setting][index] = false;
                             this._newShowModSliders[setting][index] = false;
-                            let slider = this.getSliderForModSetting(setting, index);
+                            const slider = this.getSliderForModSetting(setting, index);
                             if (slider != null) {
                                 slider.container.classList.remove("modSlider");
                             }
@@ -54327,10 +54327,10 @@ You should be redirected to the song at:<br /><br />
                 }
             }
             else {
-                let instrument = this.doc.getCurrentInstrument();
+                const instrument = this.doc.getCurrentInstrument();
                 const anyModActive = this.doc.synth.isAnyModActive(this.doc.channel, instrument);
                 if (anyModActive) {
-                    let instrument = this.doc.getCurrentInstrument();
+                    const instrument = this.doc.getCurrentInstrument();
                     function updateModSlider(editor, slider, setting, channel, instrument, index) {
                         if (editor.doc.synth.isModActive(setting, channel, instrument)) {
                             if (Config.modulators[setting].maxIndex > 0) {
@@ -54371,7 +54371,7 @@ You should be redirected to the song at:<br /><br />
                     for (let setting = 0; setting < Config.modulators.length; setting++) {
                         for (let index = 0; index <= Config.modulators[setting].maxIndex; index++) {
                             this._newShowModSliders[setting][index] = Boolean(this._showModSliders[setting][index]);
-                            let slider = this.getSliderForModSetting(setting, index);
+                            const slider = this.getSliderForModSetting(setting, index);
                             if (slider != null) {
                                 this._newShowModSliders[setting][index] = updateModSlider(this, slider, setting, this.doc.channel, instrument, index);
                             }
@@ -54391,7 +54391,7 @@ You should be redirected to the song at:<br /><br />
                         for (let index = 0; index <= Config.modulators[setting].maxIndex; index++) {
                             if (this._newShowModSliders[setting][index] != this._showModSliders[setting][index]) {
                                 this._showModSliders[setting][index] = this._newShowModSliders[setting][index];
-                                let slider = this.getSliderForModSetting(setting, index);
+                                const slider = this.getSliderForModSetting(setting, index);
                                 if (slider != null) {
                                     if (this._showModSliders[setting][index] == true) {
                                         slider.container.classList.add("modSlider");
@@ -54751,9 +54751,9 @@ You should be redirected to the song at:<br /><br />
             }
         }
         _usageCheck(channelIndex, instrumentIndex) {
-            var instrumentUsed = false;
-            var patternUsed = false;
-            var modUsed = false;
+            let instrumentUsed = false;
+            let patternUsed = false;
+            let modUsed = false;
             const channel = this.doc.song.channels[channelIndex];
             if (channelIndex < this.doc.song.pitchChannelCount + this.doc.song.noiseChannelCount) {
                 for (let modChannelIdx = this.doc.song.pitchChannelCount + this.doc.song.noiseChannelCount; modChannelIdx < this.doc.song.channels.length; modChannelIdx++) {
@@ -54770,10 +54770,10 @@ You should be redirected to the song at:<br /><br />
                     }
                 }
             }
-            let lowestSelX = Math.min(this.doc.selection.boxSelectionX0, this.doc.selection.boxSelectionX1);
-            let highestSelX = Math.max(this.doc.selection.boxSelectionX0, this.doc.selection.boxSelectionX1);
-            let lowestSelY = Math.min(this.doc.selection.boxSelectionY0, this.doc.selection.boxSelectionY1);
-            let highestSelY = Math.max(this.doc.selection.boxSelectionY0, this.doc.selection.boxSelectionY1);
+            const lowestSelX = Math.min(this.doc.selection.boxSelectionX0, this.doc.selection.boxSelectionX1);
+            const highestSelX = Math.max(this.doc.selection.boxSelectionX0, this.doc.selection.boxSelectionX1);
+            const lowestSelY = Math.min(this.doc.selection.boxSelectionY0, this.doc.selection.boxSelectionY1);
+            const highestSelY = Math.max(this.doc.selection.boxSelectionY0, this.doc.selection.boxSelectionY1);
             if (channel.bars[this.doc.bar] != 0) {
                 for (let i = 0; i < this.doc.song.barCount; i++) {
                     if (channel.bars[i] == channel.bars[this.doc.bar] && i != this.doc.bar &&
@@ -54877,7 +54877,7 @@ You should be redirected to the song at:<br /><br />
         }
         _randomPreset() {
             const isNoise = this.doc.song.getChannelIsNoise(this.doc.channel);
-            let presetValue = pickRandomPresetValue(isNoise, this.doc.prefs.rollNoveltyPresets);
+            const presetValue = pickRandomPresetValue(isNoise, this.doc.prefs.rollNoveltyPresets);
             if (presetValue > 0) {
                 this.doc.record(new ChangePreset(this.doc, presetValue));
             }
@@ -54890,7 +54890,7 @@ You should be redirected to the song at:<br /><br />
         }
         _nextPreset() {
             const isNoise = this.doc.song.getChannelIsNoise(this.doc.channel);
-            let presetValue = pickNextPresetValue(isNoise, this.doc.prefs.rollNoveltyPresets);
+            const presetValue = pickNextPresetValue(isNoise, this.doc.prefs.rollNoveltyPresets);
             if (presetValue > 0) {
                 this.doc.record(new ChangePreset(this.doc, presetValue));
             }
@@ -54949,8 +54949,8 @@ You should be redirected to the song at:<br /><br />
         $('.select2-dropdown').css('opacity', 1);
         $('#pitchPresetSelect');
         setTimeout(() => {
-            let groups = $('.select2-container--open .select2-results__group');
-            let options = $('.select2-container--open .select2-results__option');
+            const groups = $('.select2-container--open .select2-results__group');
+            const options = $('.select2-container--open .select2-results__option');
             $.each(groups, (index, v) => {
                 $(v).siblings().hide();
                 $(v)[0].setAttribute("style", "color: " + ColorConfig.getChannelColor(editor.doc.song, editor.doc.channel).primaryNote + ";");
@@ -54966,8 +54966,8 @@ You should be redirected to the song at:<br /><br />
         $('.select2-dropdown').css('opacity', 1);
         $('#drumPresetSelect');
         setTimeout(() => {
-            let groups = $('.select2-container--open .select2-results__group');
-            let options = $('.select2-container--open .select2-results__option');
+            const groups = $('.select2-container--open .select2-results__group');
+            const options = $('.select2-container--open .select2-results__option');
             $.each(groups, (index, v) => {
                 $(v).siblings().hide();
                 $(v)[0].setAttribute("style", "color: " + ColorConfig.getChannelColor(editor.doc.song, editor.doc.channel).primaryNote + ";");

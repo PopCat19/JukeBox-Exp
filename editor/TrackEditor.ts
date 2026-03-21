@@ -107,7 +107,7 @@ export class TrackEditor {
 
     private _barDropDownHandler = (event: Event): void => {
 
-        var moveBarOffset = (this._barDropDown.value == "barBefore") ? 0 : 1;
+        const moveBarOffset = (this._barDropDown.value == "barBefore") ? 0 : 1;
 
         if (this._barDropDown.value == "barBefore" || this._barDropDown.value == "barAfter") {
 
@@ -293,7 +293,7 @@ export class TrackEditor {
         if (this._mouseDragging && this._mouseStartBar != this._mouseBar) {
 
             // Handle auto-scroll in selection. Only @50ms or slower.
-            var timestamp: number = Date.now();
+            const timestamp: number = Date.now();
 
             if (timestamp - this._lastScrollTime >= 50) {
 
@@ -409,13 +409,13 @@ export class TrackEditor {
             // this._upHighlight.setAttribute("d", `M ${center} ${middle - tip} L ${center + width} ${middle - base} L ${center - width} ${middle - base} z`);
             //this._downHighlight.setAttribute("d", `M ${center} ${middle + tip} L ${center + width} ${middle + base} L ${center - width} ${middle + base} z`);
 
-            var pathString = "";
+            let pathString = "";
 
             for (let x: number = 0; x < this._doc.song.barCount; x++) {
-                var pathLeft = x * this._barWidth + 2;
-                var pathTop = 1;
-                var pathRight = x * this._barWidth + this._barWidth - 2;
-                var pathBottom = Config.barEditorHeight - 3;
+                const pathLeft = x * this._barWidth + 2;
+                const pathTop = 1;
+                const pathRight = x * this._barWidth + this._barWidth - 2;
+                const pathBottom = Config.barEditorHeight - 3;
 
                 pathString += `M ${pathLeft} ${pathTop} H ${pathRight} V ${pathBottom} H ${pathLeft} V ${pathTop} Z `;
             }

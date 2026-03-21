@@ -59,7 +59,7 @@ export class MuteEditor {
     }
 
     private _channelNameInputWhenInput = (): void => {
-        let newValue = this._channelNameInput.input.value;
+        const newValue = this._channelNameInput.input.value;
         if (newValue.length > 15) {
             this._channelNameInput.input.value = newValue.substring(0, 15);
         }
@@ -198,7 +198,7 @@ export class MuteEditor {
 
         const index = this._buttons.indexOf(<HTMLDivElement>event.target);
         if (index == -1) return;
-        let xPos: number = event.clientX - this._buttons[0].getBoundingClientRect().left;
+        const xPos: number = event.clientX - this._buttons[0].getBoundingClientRect().left;
         if (xPos < 21.0) {
             this._doc.song.channels[index].muted = !this._doc.song.channels[index].muted;
         }
@@ -218,12 +218,12 @@ export class MuteEditor {
         if (this._channelDropDownOpen && this._channelNameDisplay.style.getPropertyValue("display") == "none" && this._channelNameInput.input.style.getPropertyValue("display") == "none") {
             this._channelDropDownOpen = false;
         }
-        let xPos: number = event.clientX - this._buttons[0].getBoundingClientRect().left;
+        const xPos: number = event.clientX - this._buttons[0].getBoundingClientRect().left;
         if (xPos >= 21.0) {
             if (!this._channelDropDownOpen) {
                 // Mouse over chn. number
                 this._channelDropDown.style.setProperty("display", "");
-                var height = ChannelRow.patternHeight;
+                const height = ChannelRow.patternHeight;
                 this._channelNameDisplay.style.setProperty("transform", "translate(20px, " + (height / 4 + height * index) + "px)");
 
                 if (this._doc.song.channels[index].name != "") {
@@ -277,7 +277,7 @@ export class MuteEditor {
 
     public render(): void {
         if (!this._doc.prefs.enableChannelMuting) return;
-        let startingChannelCount: number = this._buttons.length;
+        const startingChannelCount: number = this._buttons.length;
 
         if (this._buttons.length != this._doc.song.getChannelCount()) {
             for (let y: number = this._buttons.length; y < this._doc.song.getChannelCount(); y++) {
@@ -347,17 +347,17 @@ export class MuteEditor {
         if (this._renderedModChannels != this._doc.song.modChannelCount || this._renderedPitchChannels != this._doc.song.pitchChannelCount || this._renderedNoiseChannels != this._doc.song.noiseChannelCount) {
             for (let y: number = 0; y < this._doc.song.getChannelCount(); y++) {
                 if (y < this._doc.song.pitchChannelCount) {
-                    let val: number = (y + 1);
+                    const val: number = (y + 1);
                     this._channelCounts[y].textContent = val + "";
                     this._channelCounts[y].style.fontSize = (val >= 10) ? "xx-small" : "inherit";
                 }
                 else if (y < this._doc.song.pitchChannelCount + this._doc.song.noiseChannelCount) {
-                    let val: number = (y - this._doc.song.pitchChannelCount + 1);
+                    const val: number = (y - this._doc.song.pitchChannelCount + 1);
                     this._channelCounts[y].textContent = val + "";
                     this._channelCounts[y].style.fontSize = (val >= 10) ? "xx-small" : "inherit";
                 }
                 else {
-                    let val: number = (y - this._doc.song.pitchChannelCount - this._doc.song.noiseChannelCount + 1);
+                    const val: number = (y - this._doc.song.pitchChannelCount - this._doc.song.noiseChannelCount + 1);
                     this._channelCounts[y].textContent = val + "";
                     this._channelCounts[y].style.fontSize = (val >= 10) ? "xx-small" : "inherit";
                 }

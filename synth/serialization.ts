@@ -38,21 +38,21 @@ export function encodeUnisonSettings(buffer: number[], v: number, s: number, o: 
 
     // TODO: make these use bitshifts instead for consistency
     buffer.push(base64IntToCharCode[Number((s > 0))]);
-    let cleanS = Math.round(Math.abs(s) * 1000);
-    let cleanSDivided = Math.floor(cleanS / 63);
+    const cleanS = Math.round(Math.abs(s) * 1000);
+    const cleanSDivided = Math.floor(cleanS / 63);
     buffer.push(base64IntToCharCode[cleanS % 63], base64IntToCharCode[cleanSDivided % 63], base64IntToCharCode[Math.floor(cleanSDivided / 63)]);
 
     buffer.push(base64IntToCharCode[Number((o > 0))]);
-    let cleanO = Math.round(Math.abs(o) * 1000);
-    let cleanODivided = Math.floor(cleanO / 63);
+    const cleanO = Math.round(Math.abs(o) * 1000);
+    const cleanODivided = Math.floor(cleanO / 63);
     buffer.push(base64IntToCharCode[cleanO % 63], base64IntToCharCode[cleanODivided % 63], base64IntToCharCode[Math.floor(cleanODivided / 63)]);
 
     buffer.push(base64IntToCharCode[Number((e > 0))]);
-    let cleanE = Math.round(Math.abs(e) * 1000);
+    const cleanE = Math.round(Math.abs(e) * 1000);
     buffer.push(base64IntToCharCode[cleanE % 63], base64IntToCharCode[Math.floor(cleanE / 63)]);
 
     buffer.push(base64IntToCharCode[Number((i > 0))]);
-    let cleanI = Math.round(Math.abs(i) * 1000);
+    const cleanI = Math.round(Math.abs(i) * 1000);
     buffer.push(base64IntToCharCode[cleanI % 63], base64IntToCharCode[Math.floor(cleanI / 63)]);
 }
 

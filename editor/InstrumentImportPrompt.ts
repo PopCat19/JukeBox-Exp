@@ -124,7 +124,7 @@ export class InstrumentImportPrompt implements Prompt {
                 window.localStorage.setItem("instrumentImportStrategy", this._importStrategySelect.value);
                 //Delete all instruments then add these ones
                 channel.instruments.length = 0;
-                for (let insturm of file) {
+                for (const insturm of file) {
                     if (!this._validate_instrument_limit(channel)) {
                         alert("Max instruments reached! Some instruments were not imported.");
                         break;
@@ -139,7 +139,7 @@ export class InstrumentImportPrompt implements Prompt {
                 // console.log("multi append");
                 window.localStorage.setItem("instrumentImportStrategy", this._importStrategySelect.value);
                 //Add these instruments
-                for (let insturm of file) {
+                for (const insturm of file) {
                     if (!this._validate_instrument_limit(channel)) {
                         alert("Max instruments reached! Some instruments were not imported.");
                         break;

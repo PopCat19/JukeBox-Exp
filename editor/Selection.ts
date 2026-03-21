@@ -141,7 +141,7 @@ export class Selection {
             // Treat "0" as meaning instrument 10
             if (digit == "0") digit = "10";
             this.instrumentDigits += digit;
-            var parsed = parseInt(this.instrumentDigits);
+            let parsed = parseInt(this.instrumentDigits);
             //var pattern: Pattern | null = this._doc.getCurrentPattern();
             if (parsed != 0 && parsed <= this._doc.song.channels[this._doc.channel].instruments.length) {
                 this.selectInstrument(parsed - 1);
@@ -342,7 +342,7 @@ export class Selection {
     }
 
     private _remapToNoisePitches(oldPitches: number[]): number[] {
-        let newPitches: number[] = oldPitches.slice();
+        const newPitches: number[] = oldPitches.slice();
         // There may be some very "pleasing" way to place these,
         // but I'm not sure it's worth the effort.
         newPitches.sort(function (a: number, b: number): number { return a - b; });
@@ -361,12 +361,12 @@ export class Selection {
     private _convertCopiedPitchNotesToNoiseNotes(oldNotes: Note[]): Note[] {
         // When pasting from a pitch channel to a noise channel,
         // we may have pitches beyond what a noise channel supports.
-        let newNotes: Note[] = [];
+        const newNotes: Note[] = [];
         for (let noteIndex: number = 0; noteIndex < oldNotes.length; noteIndex++) {
             const oldNote: Note = oldNotes[noteIndex];
             const newNotePitches: number[] = this._remapToNoisePitches(oldNote["pitches"].slice());
             const oldNotePins: NotePin[] = oldNote.pins;
-            let newNotePins: NotePin[] = [];
+            const newNotePins: NotePin[] = [];
             for (let notePinIndex: number = 0; notePinIndex < oldNotePins.length; notePinIndex++) {
                 const oldPin: NotePin = oldNotePins[notePinIndex];
                 newNotePins.push({

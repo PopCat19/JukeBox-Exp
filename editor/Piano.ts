@@ -320,7 +320,7 @@ export class Piano {
                 const pitchNameIndex: number = (j + Config.keys[this._doc.song.key].basePitch) % Config.pitchesPerOctave;
                 const isWhiteKey: boolean = Config.keys[pitchNameIndex].isWhiteKey;
                 this._pianoKeys[j].style.background = isWhiteKey ? ColorConfig.whitePianoKey : ColorConfig.blackPianoKey;
-                let scale = this._doc.song.scale == Config.scales.dictionary["Custom"].index ? this._doc.song.scaleCustom : Config.scales[this._doc.song.scale].flags;
+                const scale = this._doc.song.scale == Config.scales.dictionary["Custom"].index ? this._doc.song.scaleCustom : Config.scales[this._doc.song.scale].flags;
                 if (!scale[j % Config.pitchesPerOctave]) {
                     this._pianoKeys[j].classList.add("disabled");
                     this._pianoLabels[j].style.display = "none";
@@ -356,21 +356,21 @@ export class Piano {
         else if (isMod) {
             let firstRow: string = "";
             let secondRow: string = "";
-            let useFirstColor: string = ColorConfig.modLabelPrimaryText;
+            const useFirstColor: string = ColorConfig.modLabelPrimaryText;
             let useSecondColor: string = ColorConfig.modLabelSecondaryText;
             for (let j: number = 0; j < Config.modCount; j++) {
 
                 let usingSecondRow: boolean = true;
                 let usingMod: boolean = true;
-                let instrumentVal: number = instrument.modInstruments[Config.modCount - j - 1] + 1;
-                let channelVal: number = instrument.modChannels[Config.modCount - j - 1] + 1;
-                let modulator: number = instrument.modulators[Config.modCount - j - 1];
+                const instrumentVal: number = instrument.modInstruments[Config.modCount - j - 1] + 1;
+                const channelVal: number = instrument.modChannels[Config.modCount - j - 1] + 1;
+                const modulator: number = instrument.modulators[Config.modCount - j - 1];
                 let status: number = 1 + +(channelVal - 1 >= this._doc.song.pitchChannelCount);
                 if (instrument.modChannels[Config.modCount - j - 1] == -2)
                     status = 0;
                 else if (instrument.modChannels[Config.modCount - j - 1] == -1)
                     status = 3;
-                let instrumentsLength: number = this._doc.song.channels[Math.max(0, channelVal - 1)].instruments.length;
+                const instrumentsLength: number = this._doc.song.channels[Math.max(0, channelVal - 1)].instruments.length;
                 // 0 - none
                 // 1 - pitch
                 // 2 - noise
@@ -504,8 +504,8 @@ export class Piano {
                         usingMod = false;
                     }
                     else if (modulator == Config.modulators.dictionary["eq filter"].index || modulator == Config.modulators.dictionary["note filter"].index || modulator == Config.modulators.dictionary["song eq"].index) {
-                        var text = " Morph";
-                        var filterVal = instrument.modFilterTypes[Config.modCount - j - 1];
+                        let text = " Morph";
+                        const filterVal = instrument.modFilterTypes[Config.modCount - j - 1];
                         if (filterVal > 0 && (filterVal % 2)) {
                             text = " Dot" + Math.ceil(filterVal / 2) + "X";
                         }
@@ -531,8 +531,8 @@ export class Piano {
                 // Check if text is too long, if name is set
                 if (this._doc.song.channels[Math.max(0, instrument.modChannels[Config.modCount - j - 1])].name != "") {
                     let scaleFactor: string = "1";
-                    let height: number = firstLabel.parentElement!.parentElement!.getBoundingClientRect().height;
-                    let length: number = firstLabel.getComputedTextLength();
+                    const height: number = firstLabel.parentElement!.parentElement!.getBoundingClientRect().height;
+                    const length: number = firstLabel.getComputedTextLength();
                     let squeeze: number = 0;
                     if (length > height - 8) {
                         scaleFactor = "0.65";
@@ -545,12 +545,12 @@ export class Piano {
                     firstLabel.style.transform = "rotate(-90deg) translate(" + (-20 - squeeze - Math.round(Math.max(0, (height - 80) / 2))) + "px, 39px) scale(" + scaleFactor + ", 1)";
                     // Truncate end of string if it's too long, but keep instrument num
                     while (scaleFactor == "0.65" && firstLabel.getComputedTextLength() > height + 8) {
-                        var offset = 4 + (instrumentVal >= 10 ? 1 : 0);
+                        const offset = 4 + (instrumentVal >= 10 ? 1 : 0);
                         firstLabel.textContent = firstLabel.textContent.substr(0, firstLabel.textContent.length - offset) + firstLabel.textContent.substr(firstLabel.textContent.length - offset + 1);
                     }
                 }
                 else {
-                    let height: number = firstLabel.parentElement!.parentElement!.getBoundingClientRect().height;
+                    const height: number = firstLabel.parentElement!.parentElement!.getBoundingClientRect().height;
                     firstLabel.style.transform = "rotate(-90deg) translate(" + (-20 - Math.round(Math.max(0, (height - 80) / 2))) + "px, 39px) scale(1, 1)";
                 }
             }

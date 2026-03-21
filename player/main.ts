@@ -153,7 +153,7 @@ const colorTheme: string | null = getLocalStorage("colorTheme");
 ColorConfig.setTheme(colorTheme === null ? ColorConfig.defaultTheme : colorTheme);
 
 let prevHash: string | null = null;
-let id: string = ((Math.random() * 0xffffffff) >>> 0).toString(16);
+const id: string = ((Math.random() * 0xffffffff) >>> 0).toString(16);
 let pauseButtonDisplayed: boolean = false;
 let animationRequest: number | null;
 let zoomEnabled: boolean = true; //slarmoo's: false
@@ -168,11 +168,11 @@ if (!showOscilloscope) {
 	oscilloscope.canvas.style.display = "none";
 	synth.oscEnabled = false;
 }
-let titleText: HTMLHeadingElement = h1({ style: "flex-grow: 1; margin: 0 1px; margin-left: 10px; overflow: hidden;" }, "");
-	let editLink: HTMLAnchorElement = a({target: "_top", style: "margin: 0 4px;"}, "✎ Edit");
-	let copyLink: HTMLAnchorElement = a({href: "javascript:void(0)", style: "margin: 0 4px;"}, "⎘ Copy URL");
-	let shareLink: HTMLAnchorElement = a({href: "javascript:void(0)", style: "margin: 0 4px;"}, "⤳ Share");
-	let fullscreenLink: HTMLAnchorElement = a({target: "_top", style: "margin: 0 4px;"}, "⇱ Fullscreen");
+const titleText: HTMLHeadingElement = h1({ style: "flex-grow: 1; margin: 0 1px; margin-left: 10px; overflow: hidden;" }, "");
+	const editLink: HTMLAnchorElement = a({target: "_top", style: "margin: 0 4px;"}, "✎ Edit");
+	const copyLink: HTMLAnchorElement = a({href: "javascript:void(0)", style: "margin: 0 4px;"}, "⎘ Copy URL");
+	const shareLink: HTMLAnchorElement = a({href: "javascript:void(0)", style: "margin: 0 4px;"}, "⤳ Share");
+	const fullscreenLink: HTMLAnchorElement = a({target: "_top", style: "margin: 0 4px;"}, "⇱ Fullscreen");
 
 let draggingPlayhead: boolean = false;
 	const playButton: HTMLButtonElement = button({style: "width: 100%; height: 100%; max-height: 50px;"});
@@ -202,7 +202,7 @@ const volumeSlider: HTMLInputElement = input({ title: "volume", type: "range", v
 	const timelineContainer: HTMLDivElement = div({style: "display: flex; flex-grow: 1; flex-shrink: 1; position: relative;"}, timeline, playhead);
 	const visualizationContainer: HTMLDivElement = div({style: "display: flex; flex-grow: 1; flex-shrink: 1; height: 0; position: relative; align-items: center; overflow: hidden;"}, timelineContainer);
 	let noteFlashElementsPerBar: (SVGPathElement[])[];
-	let currentNoteFlashElements: SVGPathElement[] = [];
+	const currentNoteFlashElements: SVGPathElement[] = [];
 	let currentNoteFlashBar: number = -1;
 	const notesFlashWhenPlayed: boolean = getLocalStorage("notesFlashWhenPlayed") == "true";
 
@@ -315,10 +315,10 @@ function hashUpdatedExternally(): void {
 	// are reworked so that the URLs don't clash with the overall URL syntax
 	// that's assumed to be respected here (and probably elsewhere...)
 	for (const parameter of myHash.split(/&(?=[a-z]+=)/g)) {
-		let equalsIndex: number = parameter.indexOf("=");
+		const equalsIndex: number = parameter.indexOf("=");
 		if (equalsIndex != -1) {
-			let paramName: string = parameter.substring(0, equalsIndex);
-			let value: string = parameter.substring(equalsIndex + 1);
+			const paramName: string = parameter.substring(0, equalsIndex);
+			const value: string = parameter.substring(equalsIndex + 1);
 			switch (paramName) {
 				case "song":
 					loadSong(value, true);
@@ -480,7 +480,7 @@ function setSynthVolume(): void {
 
 function renderPlayhead(): void {
 	if (synth.song != null) {
-		let pos: number = synth.playhead / synth.song.barCount;
+		const pos: number = synth.playhead / synth.song.barCount;
 		playhead.style.left = (timelineWidth * pos) + "px";
 			
 		const boundingRect: ClientRect = visualizationContainer.getBoundingClientRect();

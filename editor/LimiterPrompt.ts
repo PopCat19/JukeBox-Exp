@@ -97,16 +97,16 @@ export class LimiterCanvas {
         let currentSubpathIdx: number = 0;
         let lastSubpathIdx: number = -1;
         let path: string = "";
-        let subPaths: string[] = ["", "", ""];
+        const subPaths: string[] = ["", "", ""];
         for (let i: number = 0; i < 64; i++) {
             // Calculate next value based on limiter settings
             let limiterRatio: number = +this._limiterPrompt.limitRatioSlider.value;
             limiterRatio = (limiterRatio < 10 ? limiterRatio / 10 : (limiterRatio - 9));
             let compressorRatio: number = +this._limiterPrompt.compressionRatioSlider.value;
             compressorRatio = (compressorRatio < 10 ? compressorRatio / 10 : (1 + (compressorRatio - 10) / 60));
-            let limiterThreshold: number = +this._limiterPrompt.limitThresholdSlider.value;
-            let compressorThreshold: number = +this._limiterPrompt.compressionThresholdSlider.value;
-            let useVol: number = i * 2.0 / 64.0; // Scale from 0~2
+            const limiterThreshold: number = +this._limiterPrompt.limitThresholdSlider.value;
+            const compressorThreshold: number = +this._limiterPrompt.compressionThresholdSlider.value;
+            const useVol: number = i * 2.0 / 64.0; // Scale from 0~2
             let nextValue: number = 1 / 1.05;
             if (useVol >= limiterThreshold) {
                 // Limiter falloff

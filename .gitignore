@@ -1,3 +1,9 @@
+#compiled binaries
+a.out
+*.o
+*.so
+*.dylib
+*.exe
 #big unnessecary folders
 .dropbox
 .DS_Store

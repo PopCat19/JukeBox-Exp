@@ -104,7 +104,7 @@ export class SongRecovery {
                 currentSong = { versions: [] };
                 songs.unshift(currentSong);
             }
-            let versions: RecoveredVersion[] = currentSong.versions;
+            const versions: RecoveredVersion[] = currentSong.versions;
 
             let newWork: number = 1000; // default to 1 second of work for the first change.
             if (versions.length > 0) {
@@ -121,7 +121,7 @@ export class SongRecovery {
             // Consider deleting an old version to free up space.
             let minSpan: number = minimumWorkPerSpan; // start out with a gap between versions.
             const spanMult: number = Math.pow(2, 1 / 2); // Double the span every 2 versions back.
-            for (var i: number = 1; i < versions.length; i++) {
+            for (let i: number = 1; i < versions.length; i++) {
                 const currentWork: number = versions[i].work;
                 const olderWork: number = (i == versions.length - 1) ? 0.0 : versions[i + 1].work;
                 // If not enough work happened between two versions, discard one of them.

@@ -457,7 +457,7 @@ export class ChangePatternRhythm extends ChangeSequence {
         const minDivision: number = Config.partsPerBeat / Config.rhythms[doc.song.rhythm].stepsPerBeat;
 
         const changeRhythm: (oldTime: number) => number = function (oldTime: number): number {
-            let thresholds: number[] | null = Config.rhythms[doc.song.rhythm].roundUpThresholds;
+            const thresholds: number[] | null = Config.rhythms[doc.song.rhythm].roundUpThresholds;
             if (thresholds != null) {
                 const beatStart: number = Math.floor(oldTime / Config.partsPerBeat) * Config.partsPerBeat;
                 const remainder: number = oldTime - beatStart;
@@ -536,7 +536,7 @@ export class ChangeMoveNotesSideways extends ChangeGroup {
             case "overflow": {
                 let originalBarCount: number = doc.song.barCount;
                 let originalLoopStart: number = doc.song.loopStart;
-                let originalLoopLength: number = doc.song.loopLength;
+                const originalLoopLength: number = doc.song.loopLength;
 
                 this.append(new ChangeMoveAndOverflowNotes(doc, doc.song.beatsPerBar, partsToMove));
 
@@ -986,7 +986,7 @@ class ChangeTransposeNote extends UndoableChange {
                     pitch = Math.max(0, pitch - 12);
                 }
             } else {
-                let scale = doc.song.scale == Config.scales.dictionary["Custom"].index ? doc.song.scaleCustom : Config.scales[doc.song.scale].flags;
+                const scale = doc.song.scale == Config.scales.dictionary["Custom"].index ? doc.song.scaleCustom : Config.scales[doc.song.scale].flags;
                 if (upward) {
                     for (let j: number = pitch + 1; j <= maxPitch; j++) {
                         if (isNoise || ignoreScale || scale[j % 12]) {
@@ -1035,7 +1035,7 @@ class ChangeTransposeNote extends UndoableChange {
                     interval = Math.max(min, interval - 12);
                 }
             } else {
-                let scale = doc.song.scale == Config.scales.dictionary["Custom"].index ? doc.song.scaleCustom : Config.scales[doc.song.scale].flags;
+                const scale = doc.song.scale == Config.scales.dictionary["Custom"].index ? doc.song.scaleCustom : Config.scales[doc.song.scale].flags;
                 if (upward) {
                     for (let i: number = interval + 1; i <= max; i++) {
                         if (isNoise || ignoreScale || scale[i % 12]) {
@@ -1459,7 +1459,7 @@ export class ChangePasteInstrument extends ChangeGroup {
 export class ChangeAppendInstrument extends ChangeGroup {
     constructor(doc: SongDocument, channel: Channel, instrument: any) {
         super();
-        let newInstrument: Instrument = new Instrument(instrument["isDrum"], instrument["isMod"])
+        const newInstrument: Instrument = new Instrument(instrument["isDrum"], instrument["isMod"])
         newInstrument.fromJsonObject(instrument, instrument["isDrum"], instrument["isMod"], false, false);
         channel.instruments.push(newInstrument);
         this._didSomething();

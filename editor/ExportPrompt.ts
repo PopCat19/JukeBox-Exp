@@ -429,8 +429,8 @@ export class ExportPrompt implements Prompt {
             // usually samples are signed. 
             const range: number = (1 << (bitsPerSample - 1)) - 1;
             for (let i: number = 0; i < sampleFrames; i++) {
-                let valL: number = Math.floor(Math.max(-1, Math.min(1, this.recordedSamplesL[i])) * range);
-                let valR: number = Math.floor(Math.max(-1, Math.min(1, this.recordedSamplesR[i])) * range);
+                const valL: number = Math.floor(Math.max(-1, Math.min(1, this.recordedSamplesL[i])) * range);
+                const valR: number = Math.floor(Math.max(-1, Math.min(1, this.recordedSamplesR[i])) * range);
                 if (bytesPerSample == 2) {
                     data.setInt16(index, valL, true); index += 2;
                     data.setInt16(index, valR, true); index += 2;
@@ -444,8 +444,8 @@ export class ExportPrompt implements Prompt {
         } else {
             // 8 bit samples are a special case: they are unsigned.
             for (let i: number = 0; i < sampleFrames; i++) {
-                let valL: number = Math.floor(Math.max(-1, Math.min(1, this.recordedSamplesL[i])) * 127 + 128);
-                let valR: number = Math.floor(Math.max(-1, Math.min(1, this.recordedSamplesR[i])) * 127 + 128);
+                const valL: number = Math.floor(Math.max(-1, Math.min(1, this.recordedSamplesL[i])) * 127 + 128);
+                const valR: number = Math.floor(Math.max(-1, Math.min(1, this.recordedSamplesR[i])) * 127 + 128);
                 data.setUint8(index, valL > 255 ? 255 : (valL < 0 ? 0 : valL)); index++;
                 data.setUint8(index, valR > 255 ? 255 : (valR < 0 ? 0 : valR)); index++;
             }
@@ -493,7 +493,7 @@ export class ExportPrompt implements Prompt {
         if ("lamejs" in window) {
             whenEncoderIsAvailable();
         } else {
-            var script = document.createElement("script");
+            const script = document.createElement("script");
             script.src = "https://cdn.jsdelivr.net/npm/lamejs@1.2.0/lame.min.js";
             script.onload = whenEncoderIsAvailable;
             document.head.appendChild(script);
@@ -750,7 +750,7 @@ export class ExportPrompt implements Prompt {
                 writer.writeUint8(2); // denominator exponent in 2^E. 2^2 = 4, and we will always use "quarter" notes.
                 writer.writeUint8(24); // MIDI Clocks per metronome tick (should match beats), standard is 24
                 writer.writeUint8(8); // number of 1/32 notes per 24 MIDI Clocks, standard is 8, meaning 24 clocks per "quarter" note.
-                let tempScale = song.scale == Config.scales.dictionary["Custom"].index ? song.scaleCustom : Config.scales[song.scale].flags;
+                const tempScale = song.scale == Config.scales.dictionary["Custom"].index ? song.scaleCustom : Config.scales[song.scale].flags;
                 const isMinor: boolean = tempScale[3] && !tempScale[4];
                 const key: number = song.key; // C=0, C#=1, counting up to B=11
                 let numSharps: number = key; // For even key values in major scale, number of sharps/flats is same...
@@ -785,7 +785,7 @@ export class ExportPrompt implements Prompt {
             } else {
                 // For remaining tracks, set up the instruments and write the notes:
 
-                let channelName: string = isNoise
+                const channelName: string = isNoise
                     ? "noise channel " + channel
                     : "pitch channel " + channel;
                 writeEventTime(0);
@@ -851,12 +851,12 @@ export class ExportPrompt implements Prompt {
 
                         // Instrument volume:
                         writeEventTime(barStartTime);
-                        let instrumentVolume: number = volumeMultToMidiVolume(Synth.instrumentVolumeToVolumeMult(instrument.volume));
+                        const instrumentVolume: number = volumeMultToMidiVolume(Synth.instrumentVolumeToVolumeMult(instrument.volume));
                         writeControlEvent(MidiControlEventMessage.volumeMSB, Math.min(0x7f, Math.round(instrumentVolume)));
 
                         // Instrument pan:
                         writeEventTime(barStartTime);
-                        let instrumentPan: number = (instrument.pan / Config.panCenter - 1) * 0x3f + 0x40;
+                        const instrumentPan: number = (instrument.pan / Config.panCenter - 1) * 0x3f + 0x40;
                         writeControlEvent(MidiControlEventMessage.panMSB, Math.min(0x7f, Math.round(instrumentPan)));
                     }
                 }
@@ -911,7 +911,7 @@ export class ExportPrompt implements Prompt {
                             // The maximum midi pitch bend range is +/- 24 semitones from the base pitch. 
                             // To make the most of this, choose a base pitch that is within 24 semitones from as much of the note as possible.
                             // This may involve offsetting this base pitch from BeepBox's note pitch.
-                            let mainInterval: number = note.pickMainInterval();
+                            const mainInterval: number = note.pickMainInterval();
                             let pitchOffset: number = mainInterval * intervalScale;
                             if (!isDrumset) {
                                 let maxPitchOffset: number = pitchBendRange;
@@ -1090,8 +1090,8 @@ export class ExportPrompt implements Prompt {
     }
 
     private _exportToJson(): void {
-        const jsonObject: Object = this._doc.song.toJsonObject(this._enableIntro.checked, Number(this._loopDropDown.value), this._enableOutro.checked);
-        let whiteSpaceParam: string | undefined = this._removeWhitespace.checked ? undefined : '\t';
+        const jsonObject: object = this._doc.song.toJsonObject(this._enableIntro.checked, Number(this._loopDropDown.value), this._enableOutro.checked);
+        const whiteSpaceParam: string | undefined = this._removeWhitespace.checked ? undefined : '\t';
         const jsonString: string = JSON.stringify(jsonObject, null, whiteSpaceParam);
         const blob: Blob = new Blob([jsonString], { type: "application/json" });
         save(blob, this._fileName.value.trim() + ".json");

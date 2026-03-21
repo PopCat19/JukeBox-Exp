@@ -75,7 +75,7 @@ export class CustomFilterPrompt implements Prompt {
         this._filterCopyButton.addEventListener("click", this._copyFilterSettings);
         this._filterPasteButton.addEventListener("click", this._pasteFilterSettings);
         this.updatePlayButton();
-        let colors = ColorConfig.getChannelColor(this._doc.song, this._doc.channel);
+        const colors = ColorConfig.getChannelColor(this._doc.song, this._doc.channel);
 
         this.filterEditor = new FilterEditor(_doc, _useNoteFilter, true, this.forSong);
         this._filterContainer.appendChild(this.filterEditor.container);
@@ -86,12 +86,12 @@ export class CustomFilterPrompt implements Prompt {
 
         this._editorTitle.children[0].innerHTML = forSong ? "Edit Song EQ Filter" : (_useNoteFilter) ? "Edit Note Filter" : "Edit EQ Filter";
 
-        let newButton: HTMLButtonElement = button({ class: "no-underline", style: "max-width: 5em;" }, "Main");
+        const newButton: HTMLButtonElement = button({ class: "no-underline", style: "max-width: 5em;" }, "Main");
         this._filterButtonContainer.appendChild(newButton);
         this._filterButtons.push(newButton);
         newButton.addEventListener("click", () => { this._setSubfilter(0); });
         for (let i: number = 1; i < Config.filterMorphCount; i++) {
-            let newSubButton: HTMLButtonElement = button({ class: "no-underline", style: "max-width: 2em;" }, "" + i);
+            const newSubButton: HTMLButtonElement = button({ class: "no-underline", style: "max-width: 2em;" }, "" + i);
             this._filterButtons.push(newSubButton);
             this._filterButtonContainer.appendChild(newSubButton);
             newSubButton.addEventListener("click", () => { this._setSubfilter(i); });
@@ -131,7 +131,7 @@ export class CustomFilterPrompt implements Prompt {
 
     private _pasteFilterSettings = (): void => {
 
-        let filterCopy: FilterSettings = new FilterSettings();
+        const filterCopy: FilterSettings = new FilterSettings();
         filterCopy.fromJsonObject(JSON.parse(String(window.localStorage.getItem("filterCopy"))));
         if (filterCopy != null) {
             this.filterEditor.swapToSettings(filterCopy, true);
@@ -140,14 +140,14 @@ export class CustomFilterPrompt implements Prompt {
 
     private _whenKeyPressed = (event: KeyboardEvent): void => {
         if (event.keyCode == 90) { // z
-            let newIdx = this.filterEditor.undo();
+            const newIdx = this.filterEditor.undo();
             if (newIdx >= 0) {
                 this._setSubfilter(newIdx, false, false);
             }
             event.stopPropagation();
         }
         if (event.keyCode == 89) { // y
-            let newIdx = this.filterEditor.redo();
+            const newIdx = this.filterEditor.redo();
             if (newIdx >= 0) {
                 this._setSubfilter(newIdx, false, false);
             }

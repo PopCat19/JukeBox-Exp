@@ -85,7 +85,7 @@ export function ticksToFadeOutSetting(ticks: number): number {
     let lower: number = Config.fadeOutTicks[0];
     if (ticks <= lower) return 0;
     for (let i: number = 1; i < Config.fadeOutTicks.length; i++) {
-        let upper: number = Config.fadeOutTicks[i];
+        const upper: number = Config.fadeOutTicks[i];
         if (ticks <= upper) return (ticks < (lower + upper) / 2) ? i - 1 : i;
         lower = upper;
     }
