@@ -304,15 +304,15 @@ export class Song {
         this.octaveCount = 8;
         this.octave = 0;
         this.loopStart = 0;
-        this.loopLength = 4;
+        this.loopLength = 8;
         this.tempo = 160;
         this.reverb = 0;
         this.beatsPerBar = 8;
-        this.barCount = 16;
-        this.patternsPerChannel = 8;
+        this.barCount = 8;
+        this.patternsPerChannel = 32;
         this.rhythm = 1;
         this.layeredInstruments = false;
-        this.patternInstruments = false;
+        this.patternInstruments = true;
         this.eqFilter.reset();
         for (let i: number = 0; i < Config.filterMorphCount - 1; i++) {
             this.eqSubFilters[i] = null;
@@ -323,7 +323,7 @@ export class Song {
         this.title = `${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, "0")}${String(now.getDate()).padStart(2, "0")}`;
         document.title = this.title + " - " + EditorConfig.versionDisplayName;
         if (andResetChannels) {
-            this.pitchChannelCount = 5; //Slarmoo's Box: 3
+            this.pitchChannelCount = 2;
             this.noiseChannelCount = 1;
             this.modChannelCount = 1;
             for (let channelIndex: number = 0; channelIndex < this.getChannelCount(); channelIndex++) {
@@ -353,7 +353,7 @@ export class Song {
                 channel.instruments.length = Config.instrumentCountMin;
 
                 for (let bar: number = 0; bar < this.barCount; bar++) {
-                    channel.bars[bar] = bar < 4 ? 1 : 0;
+                    channel.bars[bar] = bar < 1 ? 1 : 0;
                 }
                 channel.bars.length = this.barCount;
             }
