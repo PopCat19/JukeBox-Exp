@@ -854,9 +854,9 @@ export class ChangeBeatsPerBar extends ChangeGroup {
 
 export function pickRandomPresetValue(isNoise: boolean,rollNoveltyPresets: boolean): number {
     const eligiblePresetValues: number[] = [];
-    const _presetTagsInputBox = document.getElementById("presetTagsInputBox") as HTMLInputElement;
+    const _presetTagsInputBox = document.getElementById("presetTagsInputBox") as HTMLInputElement | null;
     
-    const tagList: any = _presetTagsInputBox.value.toLowerCase().split(/\s+/);
+    const tagList: any = _presetTagsInputBox ? _presetTagsInputBox.value.toLowerCase().split(/\s+/) : "";
 
     //checking for valid tags
     if (!(tagList == "") && !(tagList.every((tag: any) => (fullTagList.includes(tag)) || (tag.startsWith("!") && fullTagList.includes(tag.slice(1)))))) {
@@ -889,17 +889,17 @@ export function pickRandomPresetValue(isNoise: boolean,rollNoveltyPresets: boole
 
 export function pickNextPresetValue(isNoise: boolean,rollNoveltyPresets: boolean): number {
     const eligiblePresetValues: number[] = [];
-    const _presetTagsInputBox = document.getElementById("presetTagsInputBox") as HTMLInputElement;
-    const _pitchedPresetSelect = document.getElementById("pitchPresetSelect") as HTMLInputElement;
-    const _drumPresetSelect = document.getElementById("drumPresetSelect") as HTMLInputElement;
+    const _presetTagsInputBox = document.getElementById("presetTagsInputBox") as HTMLInputElement | null;
+    const _pitchedPresetSelect = document.getElementById("pitchPresetSelect") as HTMLInputElement | null;
+    const _drumPresetSelect = document.getElementById("drumPresetSelect") as HTMLInputElement | null;
     
     let currentPresetValue: any = 0;
     let nextPresetIndex: any = 0;
 
-    if (isNoise) { currentPresetValue = _drumPresetSelect.value; } 
-    else { currentPresetValue = _pitchedPresetSelect.value; }  
+    if (isNoise) { currentPresetValue = _drumPresetSelect?.value ?? 0; } 
+    else { currentPresetValue = _pitchedPresetSelect?.value ?? 0; }  
 
-    const tagList: any = _presetTagsInputBox.value.toLowerCase().split(/\s+/);
+    const tagList: any = _presetTagsInputBox ? _presetTagsInputBox.value.toLowerCase().split(/\s+/) : "";
 
     //checking for valid tags
     if (!(tagList == "") && !(tagList.every((tag: any) => (fullTagList.includes(tag)) || (tag.startsWith("!") && fullTagList.includes(tag.slice(1)))))) {
