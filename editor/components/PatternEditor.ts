@@ -951,7 +951,7 @@ export class PatternEditor {
             applyToMods.push(modulator.index);
             if (toApply) applyValues.push(this._doc.song.tempo - modulator.convertRealFactor);
             // Move the actual value back, since we just want to update the modulated value and not the base slider.
-            slider = songEditor.getSliderForModSetting(modulator.index);
+            slider = songEditor.modSliders.getSliderForModSetting(modulator.index);
             if (slider != null) {
                 this._doc.song.tempo = slider.getValueBeforeProspectiveChange();
             }
@@ -1014,7 +1014,7 @@ export class PatternEditor {
             applyToMods.push(modulator.index);
             if (toApply) applyValues.push(instrument.volume - modulator.convertRealFactor);
             // Move the actual value back, since we just want to update the modulated value and not the base slider.
-            slider = songEditor.getSliderForModSetting(modulator.index);
+            slider = songEditor.modSliders.getSliderForModSetting(modulator.index);
             if (slider != null)
                 instrument.volume = slider.getValueBeforeProspectiveChange();
         }
@@ -1023,7 +1023,7 @@ export class PatternEditor {
             applyToMods.push(modulator.index);
             if (toApply) applyValues.push(instrument.pan - modulator.convertRealFactor);
             // Move the actual value back, since we just want to update the modulated value and not the base slider.
-            slider = songEditor.getSliderForModSetting(modulator.index);
+            slider = songEditor.modSliders.getSliderForModSetting(modulator.index);
             if (slider != null) {
                 instrument.pan = slider.getValueBeforeProspectiveChange();
             }
@@ -1033,7 +1033,7 @@ export class PatternEditor {
             applyToMods.push(modulator.index);
             if (toApply) applyValues.push(instrument.reverb - modulator.convertRealFactor);
             // Move the actual value back, since we just want to update the modulated value and not the base slider.
-            slider = songEditor.getSliderForModSetting(modulator.index);
+            slider = songEditor.modSliders.getSliderForModSetting(modulator.index);
             if (slider != null) {
                 instrument.reverb = slider.getValueBeforeProspectiveChange();
             }
@@ -1043,7 +1043,7 @@ export class PatternEditor {
             applyToMods.push(modulator.index);
             if (toApply) applyValues.push(instrument.distortion - modulator.convertRealFactor);
             // Move the actual value back, since we just want to update the modulated value and not the base slider.
-            slider = songEditor.getSliderForModSetting(modulator.index);
+            slider = songEditor.modSliders.getSliderForModSetting(modulator.index);
             if (slider != null) {
                 instrument.distortion = slider.getValueBeforeProspectiveChange();
             }
@@ -1053,7 +1053,7 @@ export class PatternEditor {
             applyToMods.push(modulator.index);
             if (toApply) applyValues.push(instrument.ringModulation - modulator.convertRealFactor);
             // Move the actual value back, since we just want to update the modulated value and not the base slider.
-            slider = songEditor.getSliderForModSetting(modulator.index);
+            slider = songEditor.modSliders.getSliderForModSetting(modulator.index);
             if (slider != null) {
                 instrument.ringModulation = slider.getValueBeforeProspectiveChange();
             }
@@ -1063,7 +1063,7 @@ export class PatternEditor {
             applyToMods.push(modulator.index);
             if (toApply) applyValues.push(instrument.ringModulationHz - modulator.convertRealFactor);
             // Move the actual value back, since we just want to update the modulated value and not the base slider.
-            slider = songEditor.getSliderForModSetting(modulator.index);
+            slider = songEditor.modSliders.getSliderForModSetting(modulator.index);
             if (slider != null) {
                 instrument.ringModulationHz = slider.getValueBeforeProspectiveChange();
                 songEditor.ringModHzNum.innerHTML = "(" + instrument.ringModulationHz + ")";
@@ -1074,7 +1074,7 @@ export class PatternEditor {
             applyToMods.push(modulator.index);
             if (toApply) applyValues.push(instrument.granular - modulator.convertRealFactor);
             // Move the actual value back, since we just want to update the modulated value and not the base slider.
-            slider = songEditor.getSliderForModSetting(modulator.index);
+            slider = songEditor.modSliders.getSliderForModSetting(modulator.index);
             if (slider != null) {
                 instrument.granular = slider.getValueBeforeProspectiveChange();
             }
@@ -1084,7 +1084,7 @@ export class PatternEditor {
             applyToMods.push(modulator.index);
             if (toApply) applyValues.push(instrument.grainAmounts - modulator.convertRealFactor);
             // Move the actual value back, since we just want to update the modulated value and not the base slider.
-            slider = songEditor.getSliderForModSetting(modulator.index);
+            slider = songEditor.modSliders.getSliderForModSetting(modulator.index);
             if (slider != null) {
                 instrument.grainAmounts = slider.getValueBeforeProspectiveChange();                
             }
@@ -1094,7 +1094,7 @@ export class PatternEditor {
             applyToMods.push(modulator.index);
             if (toApply) applyValues.push(instrument.grainSize - modulator.convertRealFactor);
             // Move the actual value back, since we just want to update the modulated value and not the base slider.
-            slider = songEditor.getSliderForModSetting(modulator.index);
+            slider = songEditor.modSliders.getSliderForModSetting(modulator.index);
             if (slider != null) {
                 instrument.grainSize = slider.getValueBeforeProspectiveChange();
                 songEditor.grainSizeNum.innerHTML = "(" + (instrument.grainSize * Config.grainSizeStep) + ")";
@@ -1105,7 +1105,7 @@ export class PatternEditor {
             applyToMods.push(modulator.index);
             if (toApply) applyValues.push(instrument.grainRange - modulator.convertRealFactor);
             // Move the actual value back, since we just want to update the modulated value and not the base slider.
-            slider = songEditor.getSliderForModSetting(modulator.index);
+            slider = songEditor.modSliders.getSliderForModSetting(modulator.index);
             if (slider != null) {
                 instrument.grainRange = slider.getValueBeforeProspectiveChange();
                 songEditor.grainRangeNum.innerHTML = "(" + (instrument.grainRange * Config.grainSizeStep) + ")";
@@ -1116,7 +1116,7 @@ export class PatternEditor {
             applyToMods.push(modulator.index);
             if (toApply) applyValues.push(instrument.operators[change.operatorIndex].amplitude - modulator.convertRealFactor);
             // Move the actual value back, since we just want to update the modulated value and not the base slider.
-            slider = songEditor.getSliderForModSetting(modulator.index);
+            slider = songEditor.modSliders.getSliderForModSetting(modulator.index);
             if (slider != null) {
                 instrument.operators[change.operatorIndex].amplitude = slider.getValueBeforeProspectiveChange();
             }
@@ -1126,7 +1126,7 @@ export class PatternEditor {
             applyToMods.push(modulator.index);
             if (toApply) applyValues.push(instrument.feedbackAmplitude - modulator.convertRealFactor);
             // Move the actual value back, since we just want to update the modulated value and not the base slider.
-            slider = songEditor.getSliderForModSetting(modulator.index);
+            slider = songEditor.modSliders.getSliderForModSetting(modulator.index);
             if (slider != null) {
                 instrument.feedbackAmplitude = slider.getValueBeforeProspectiveChange();
             }
@@ -1136,7 +1136,7 @@ export class PatternEditor {
             applyToMods.push(modulator.index);
             if (toApply) applyValues.push(instrument.pulseWidth - modulator.convertRealFactor);
             // Move the actual value back, since we just want to update the modulated value and not the base slider.
-            slider = songEditor.getSliderForModSetting(modulator.index);
+            slider = songEditor.modSliders.getSliderForModSetting(modulator.index);
             if (slider != null) {
                 instrument.pulseWidth = slider.getValueBeforeProspectiveChange();
             }
@@ -1147,7 +1147,7 @@ export class PatternEditor {
             applyToMods.push(modulator.index);
             if (toApply) applyValues.push(instrument.decimalOffset - modulator.convertRealFactor);
             // Move the actual value back, since we just want to update the modulated value and not the base slider.
-            slider = songEditor.getSliderForModSetting(modulator.index);
+            slider = songEditor.modSliders.getSliderForModSetting(modulator.index);
             if (slider != null) {
                 instrument.decimalOffset = slider.getValueBeforeProspectiveChange();
             }
@@ -1157,7 +1157,7 @@ export class PatternEditor {
             applyToMods.push(modulator.index);
             if (toApply) applyValues.push(instrument.detune - modulator.convertRealFactor - Config.detuneCenter);
             // Move the actual value back, since we just want to update the modulated value and not the base slider.
-            slider = songEditor.getSliderForModSetting(modulator.index);
+            slider = songEditor.modSliders.getSliderForModSetting(modulator.index);
             if (slider != null) {
                 instrument.detune = slider.getValueBeforeProspectiveChange() + Config.detuneCenter;
             }
@@ -1167,7 +1167,7 @@ export class PatternEditor {
             applyToMods.push(modulator.index);
             if (toApply) applyValues.push(instrument.vibratoDepth * 25 - modulator.convertRealFactor);
             // Move the actual value back, since we just want to update the modulated value and not the base slider.
-            slider = songEditor.getSliderForModSetting(modulator.index);
+            slider = songEditor.modSliders.getSliderForModSetting(modulator.index);
             if (slider != null) {
                 instrument.vibratoDepth = slider.getValueBeforeProspectiveChange() / 25;
             }
@@ -1177,7 +1177,7 @@ export class PatternEditor {
             applyToMods.push(modulator.index);
             if (toApply) applyValues.push(instrument.vibratoSpeed - modulator.convertRealFactor);
             // Move the actual value back, since we just want to update the modulated value and not the base slider.
-            slider = songEditor.getSliderForModSetting(modulator.index);
+            slider = songEditor.modSliders.getSliderForModSetting(modulator.index);
             if (slider != null) {
                 instrument.vibratoSpeed = slider.getValueBeforeProspectiveChange();
             }
@@ -1187,7 +1187,7 @@ export class PatternEditor {
             applyToMods.push(modulator.index);
             if (toApply) applyValues.push(instrument.vibratoDelay - modulator.convertRealFactor);
             // Move the actual value back, since we just want to update the modulated value and not the base slider.
-            slider = songEditor.getSliderForModSetting(modulator.index);
+            slider = songEditor.modSliders.getSliderForModSetting(modulator.index);
             if (slider != null) {
                 instrument.vibratoDelay = slider.getValueBeforeProspectiveChange();
             }
@@ -1197,7 +1197,7 @@ export class PatternEditor {
             applyToMods.push(modulator.index);
             if (toApply) applyValues.push(instrument.arpeggioSpeed - modulator.convertRealFactor);
             // Move the actual value back, since we just want to update the modulated value and not the base slider.
-            slider = songEditor.getSliderForModSetting(modulator.index);
+            slider = songEditor.modSliders.getSliderForModSetting(modulator.index);
             if (slider != null) {
                 instrument.arpeggioSpeed = slider.getValueBeforeProspectiveChange();
             }
@@ -1207,7 +1207,7 @@ export class PatternEditor {
             applyToMods.push(modulator.index);
             if (toApply) applyValues.push(instrument.panDelay - modulator.convertRealFactor);
             // Move the actual value back, since we just want to update the modulated value and not the base slider.
-            slider = songEditor.getSliderForModSetting(modulator.index);
+            slider = songEditor.modSliders.getSliderForModSetting(modulator.index);
             if (slider != null) {
                 instrument.panDelay = slider.getValueBeforeProspectiveChange();
             }
@@ -1287,7 +1287,7 @@ export class PatternEditor {
             applyToMods.push(modulator.index);
             if (toApply) applyValues.push(instrument.bitcrusherQuantization - modulator.convertRealFactor);
             // Move the actual value back, since we just want to update the modulated value and not the base slider.
-            slider = songEditor.getSliderForModSetting(modulator.index);
+            slider = songEditor.modSliders.getSliderForModSetting(modulator.index);
             if (slider != null) {
                 instrument.bitcrusherQuantization = slider.getValueBeforeProspectiveChange();
             }
@@ -1297,7 +1297,7 @@ export class PatternEditor {
             applyToMods.push(modulator.index);
             if (toApply) applyValues.push(instrument.bitcrusherFreq - modulator.convertRealFactor);
             // Move the actual value back, since we just want to update the modulated value and not the base slider.
-            slider = songEditor.getSliderForModSetting(modulator.index);
+            slider = songEditor.modSliders.getSliderForModSetting(modulator.index);
             if (slider != null) {
                 instrument.bitcrusherFreq = slider.getValueBeforeProspectiveChange();
             }
@@ -1307,7 +1307,7 @@ export class PatternEditor {
             applyToMods.push(modulator.index);
             if (toApply) applyValues.push(instrument.echoSustain - modulator.convertRealFactor);
             // Move the actual value back, since we just want to update the modulated value and not the base slider.
-            slider = songEditor.getSliderForModSetting(modulator.index);
+            slider = songEditor.modSliders.getSliderForModSetting(modulator.index);
             if (slider != null) {
                 instrument.echoSustain = slider.getValueBeforeProspectiveChange();
             }
@@ -1317,7 +1317,7 @@ export class PatternEditor {
             applyToMods.push(modulator.index);
             if (toApply) applyValues.push(instrument.chorus - modulator.convertRealFactor);
             // Move the actual value back, since we just want to update the modulated value and not the base slider.
-            slider = songEditor.getSliderForModSetting(modulator.index);
+            slider = songEditor.modSliders.getSliderForModSetting(modulator.index);
             if (slider != null) {
                 instrument.chorus = slider.getValueBeforeProspectiveChange();
             }
@@ -1327,7 +1327,7 @@ export class PatternEditor {
             applyToMods.push(modulator.index);
             if (toApply) applyValues.push(instrument.eqFilterSimpleCut - modulator.convertRealFactor);
             // Move the actual value back, since we just want to update the modulated value and not the base slider.
-            slider = songEditor.getSliderForModSetting(modulator.index);
+            slider = songEditor.modSliders.getSliderForModSetting(modulator.index);
             if (slider != null) {
                 instrument.eqFilterSimpleCut = slider.getValueBeforeProspectiveChange();
             }
@@ -1337,7 +1337,7 @@ export class PatternEditor {
             applyToMods.push(modulator.index);
             if (toApply) applyValues.push(instrument.eqFilterSimplePeak - modulator.convertRealFactor);
             // Move the actual value back, since we just want to update the modulated value and not the base slider.
-            slider = songEditor.getSliderForModSetting(modulator.index);
+            slider = songEditor.modSliders.getSliderForModSetting(modulator.index);
             if (slider != null) {
                 instrument.eqFilterSimplePeak = slider.getValueBeforeProspectiveChange();
             }
@@ -1347,7 +1347,7 @@ export class PatternEditor {
             applyToMods.push(modulator.index);
             if (toApply) applyValues.push(instrument.noteFilterSimpleCut - modulator.convertRealFactor);
             // Move the actual value back, since we just want to update the modulated value and not the base slider.
-            slider = songEditor.getSliderForModSetting(modulator.index);
+            slider = songEditor.modSliders.getSliderForModSetting(modulator.index);
             if (slider != null) {
                 instrument.noteFilterSimpleCut = slider.getValueBeforeProspectiveChange();
             }
@@ -1357,7 +1357,7 @@ export class PatternEditor {
             applyToMods.push(modulator.index);
             if (toApply) applyValues.push(instrument.noteFilterSimplePeak - modulator.convertRealFactor);
             // Move the actual value back, since we just want to update the modulated value and not the base slider.
-            slider = songEditor.getSliderForModSetting(modulator.index);
+            slider = songEditor.modSliders.getSliderForModSetting(modulator.index);
             if (slider != null) {
                 instrument.noteFilterSimplePeak = slider.getValueBeforeProspectiveChange();
             }
@@ -1367,7 +1367,7 @@ export class PatternEditor {
             applyToMods.push(modulator.index);
             if (toApply) applyValues.push(instrument.pitchShift - Config.pitchShiftCenter - modulator.convertRealFactor);
             // Move the actual value back, since we just want to update the modulated value and not the base slider.
-            slider = songEditor.getSliderForModSetting(modulator.index);
+            slider = songEditor.modSliders.getSliderForModSetting(modulator.index);
             if (slider != null) {
                 instrument.pitchShift = slider.getValueBeforeProspectiveChange();
             }
@@ -1377,7 +1377,7 @@ export class PatternEditor {
             applyToMods.push(modulator.index);
             if (toApply) applyValues.push(instrument.stringSustain - modulator.convertRealFactor);
             // Move the actual value back, since we just want to update the modulated value and not the base slider.
-            slider = songEditor.getSliderForModSetting(modulator.index);
+            slider = songEditor.modSliders.getSliderForModSetting(modulator.index);
             if (slider != null) {
                 instrument.stringSustain = slider.getValueBeforeProspectiveChange();
             }
@@ -1387,7 +1387,7 @@ export class PatternEditor {
             applyToMods.push(modulator.index);
             if (toApply) applyValues.push(instrument.envelopeSpeed - modulator.convertRealFactor);
             // Move the actual value back, since we just want to update the modulated value and not the base slider.
-            slider = songEditor.getSliderForModSetting(modulator.index);
+            slider = songEditor.modSliders.getSliderForModSetting(modulator.index);
             if (slider != null) {
                 instrument.envelopeSpeed = slider.getValueBeforeProspectiveChange();
             }
@@ -1397,7 +1397,7 @@ export class PatternEditor {
             applyToMods.push(modulator.index);
             if (toApply) applyValues.push(instrument.supersawDynamism - modulator.convertRealFactor);
             // Move the actual value back, since we just want to update the modulated value and not the base slider.
-            slider = songEditor.getSliderForModSetting(modulator.index);
+            slider = songEditor.modSliders.getSliderForModSetting(modulator.index);
             if (slider != null) {
                 instrument.supersawDynamism = slider.getValueBeforeProspectiveChange();
             }
@@ -1407,7 +1407,7 @@ export class PatternEditor {
             applyToMods.push(modulator.index);
             if (toApply) applyValues.push(instrument.supersawSpread - modulator.convertRealFactor);
             // Move the actual value back, since we just want to update the modulated value and not the base slider.
-            slider = songEditor.getSliderForModSetting(modulator.index);
+            slider = songEditor.modSliders.getSliderForModSetting(modulator.index);
             if (slider != null) {
                 instrument.supersawSpread = slider.getValueBeforeProspectiveChange();
             }
@@ -1417,7 +1417,7 @@ export class PatternEditor {
             applyToMods.push(modulator.index);
             if (toApply) applyValues.push(instrument.supersawShape - modulator.convertRealFactor);
             // Move the actual value back, since we just want to update the modulated value and not the base slider.
-            slider = songEditor.getSliderForModSetting(modulator.index);
+            slider = songEditor.modSliders.getSliderForModSetting(modulator.index);
             if (slider != null) {
                 instrument.supersawShape = slider.getValueBeforeProspectiveChange();
             }
@@ -1427,7 +1427,7 @@ export class PatternEditor {
             const envelopeIndex: number = change.getIndex();
             if (toApply) applyValues.push(EnvelopeEditor.convertIndexSpeed(instrument.envelopes[envelopeIndex].perEnvelopeSpeed, "index") - modulator.convertRealFactor);
             // Move the actual value back, since we just want to update the modulated value and not the base slider.
-            slider = songEditor.getSliderForModSetting(modulator.index, envelopeIndex);
+            slider = songEditor.modSliders.getSliderForModSetting(modulator.index, envelopeIndex);
             if (slider != null) {
                 instrument.envelopes[envelopeIndex].perEnvelopeSpeed = EnvelopeEditor.convertIndexSpeed(slider.getValueBeforeProspectiveChange(), "speed");
             }
@@ -1439,7 +1439,7 @@ export class PatternEditor {
             const envelopeIndex: number = change.getIndex();
             if (toApply) applyValues.push(instrument.envelopes[envelopeIndex].perEnvelopeLowerBound*10 - modulator.convertRealFactor);
             // Move the actual value back, since we just want to update the modulated value and not the base slider.
-            slider = songEditor.getSliderForModSetting(modulator.index, envelopeIndex);
+            slider = songEditor.modSliders.getSliderForModSetting(modulator.index, envelopeIndex);
             if (slider != null) {
                 instrument.envelopes[envelopeIndex].perEnvelopeLowerBound = slider.getValueBeforeProspectiveChange();
             }
@@ -1451,7 +1451,7 @@ export class PatternEditor {
             const envelopeIndex: number = change.getIndex();
             if (toApply) applyValues.push(instrument.envelopes[envelopeIndex].perEnvelopeUpperBound*10 - modulator.convertRealFactor);
             // Move the actual value back, since we just want to update the modulated value and not the base slider.
-            slider = songEditor.getSliderForModSetting(modulator.index, envelopeIndex);
+            slider = songEditor.modSliders.getSliderForModSetting(modulator.index, envelopeIndex);
             if (slider != null) {
                 instrument.envelopes[envelopeIndex].perEnvelopeUpperBound = slider.getValueBeforeProspectiveChange();
             }

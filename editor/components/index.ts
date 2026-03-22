@@ -10,6 +10,7 @@ export { ChannelRow } from "./ChannelRow";
 export { EnvelopeEditor } from "./EnvelopeEditor";
 export { FadeInOutEditor } from "./FadeInOutEditor";
 export { FilterEditor } from "./FilterEditor";
+export { renderInstrumentBar } from "./instrument-bar";
 export { HarmonicsEditor } from "./HarmonicsEditor";
 export { LoopEditor } from "./LoopEditor";
 export { MuteEditor } from "./MuteEditor";
