@@ -69,6 +69,7 @@ import { KeyboardHandler } from "./core/keyboard-handler";
 import { ChangeDispatcher } from "./core/change-dispatcher";
 import { renderOptionsMenu } from "./renderers/render-options-menu";
 import { renderEffectsSelect } from "./renderers/render-effects";
+import { PlayerAnimator } from "./core/player-animator";
 import { renderLayout, LayoutRefs } from "./renderers/render-layout";
 import { renderSongSettings, SongSettingsRefs } from "./renderers/render-song-settings";
 import { applyInstrumentVisibility, InstrumentVisibilityRefs } from "./renderers/instrument-visibility";
@@ -1206,9 +1207,7 @@ export class SongEditor implements ModSliderProvider {
     private _openPulseWidthDropdown: boolean = false;
     private _openUnisonDropdown: boolean = false;
 
-    private outVolumeHistoricTimer: number = 0;
-    private outVolumeHistoricCap: number = 0;
-    private lastOutVolumeCap: number = 0;
+    private readonly _animator: PlayerAnimator;
     public patternUsed: boolean = false;
     private _modRecTimeout: number = -1;
 
@@ -1216,6 +1215,17 @@ export class SongEditor implements ModSliderProvider {
 
         this._keyboardHandler = new KeyboardHandler(this);
         this._dispatch = new ChangeDispatcher(this);
+        this._animator = new PlayerAnimator(this.doc, {
+            modSliderUpdate: () => this._modSliderUpdate(),
+            getCtrlHeld: () => this._ctrlHeld,
+            getShiftHeld: () => this._shiftHeld,
+            eqFilterEditor: this._eqFilterEditor,
+            noteFilterEditor: this._noteFilterEditor,
+            songEqFilterEditor: this._songEqFilterEditor,
+            barScrollBar: this._barScrollBar,
+            outVolumeBar: this._outVolumeBar,
+            outVolumeCap: this._outVolumeCap,
+        });
 
         this.doc.notifier.watch(this.whenUpdated);
         this.doc.modRecordingHandler = () => { this.handleModRecording() };
@@ -2550,7 +2560,7 @@ export class SongEditor implements ModSliderProvider {
     public togglePlay = (): void => {
         if (this.doc.synth.playing) {
             this.doc.performance.pause();
-            this.outVolumeHistoricCap = 0;
+            this._animator.outVolumeHistoricCap = 0;
         } else {
             this.doc.synth.snapToBar();
             this.doc.performance.play();
@@ -2565,50 +2575,7 @@ export class SongEditor implements ModSliderProvider {
         }
     }
 
-    public _animate = (): void => {
-        // Need to update mods once more to clear the slider display
-        this._modSliderUpdate();
-        // Same for volume display
-        if (this.doc.prefs.displayVolumeBar) {
-            this._volumeUpdate();
-        }
-        // ...and barscrollbar playhead
-        this._barScrollBar.animatePlayhead();
-        // ...and filters
-        if (this.doc.synth.isFilterModActive(false, this.doc.channel, this.doc.getCurrentInstrument())) {
-            this._eqFilterEditor.render(true, this._ctrlHeld || this._shiftHeld);
-        }
-        if (this.doc.synth.isFilterModActive(true, this.doc.channel, this.doc.getCurrentInstrument())) {
-            this._noteFilterEditor.render(true, this._ctrlHeld || this._shiftHeld);
-        }
-        if (this.doc.synth.isFilterModActive(false, 0, 0, true)) {
-            this._songEqFilterEditor.render(true, this._ctrlHeld || this._shiftHeld);
-        }
-
-
-        window.requestAnimationFrame(this._animate);
-    }
-
-    public _volumeUpdate = (): void => {
-        this.outVolumeHistoricTimer--;
-        if (this.outVolumeHistoricTimer <= 0) {
-            this.outVolumeHistoricCap -= 0.03;
-        }
-        if (this.doc.song.outVolumeCap > this.outVolumeHistoricCap) {
-            this.outVolumeHistoricCap = this.doc.song.outVolumeCap;
-            this.outVolumeHistoricTimer = 50;
-        }
-
-        if (this.doc.song.outVolumeCap != this.lastOutVolumeCap) {
-            this.lastOutVolumeCap = this.doc.song.outVolumeCap;
-            this._animateVolume(this.doc.song.outVolumeCap, this.outVolumeHistoricCap);
-        }
-    }
-
-    private _animateVolume(outVolumeCap: number, historicOutCap: number): void {
-        this._outVolumeBar.setAttribute("width", "" + Math.min(144, outVolumeCap * 144));
-        this._outVolumeCap.setAttribute("x", "" + (8 + Math.min(144, historicOutCap * 144)));
-    }
+    public get _animate(): () => void { return this._animator.animate; }
 
     private _setVolumeSlider = (): void => {
         // Song volume slider doesn't use a change, but it can still be modulated.

@@ -14,3 +14,4 @@ export { KeyboardHandler } from "./keyboard-handler";
 export { ChangeDispatcher } from "./change-dispatcher";
 export { PromptManager } from "./prompt-manager";
 export { ModSliderRegistry } from "./mod-slider-registry";
+export { PlayerAnimator } from "./player-animator";
