@@ -11,8 +11,8 @@
 
 import { Algorithm, FilterType, SustainType, InstrumentType, EffectType, Config, effectsIncludeDistortion, LFOEnvelopeTypes, RandomEnvelopeTypes } from "../../synth/SynthConfig";
 import { FilterSettings, FilterControlPoint, SpectrumWave, HarmonicsWave, Instrument } from "../../synth";
-import { Preset, EditorConfig } from "../EditorConfig";
-import { Change, UndoableChange } from "../Change";
+import { Preset, EditorConfig } from "../config/EditorConfig";
+import { Change, UndoableChange } from "../core/Change";
 import { SongDocument } from "../SongDocument";
 import { randomSineWave, randomPulses, randomChipWave, biasedFullyRandom, fullyRandom } from "./util";
 

@@ -10,16 +10,16 @@
 // Copyright (c) 2012-2022 John Nesky and contributing authors, distributed under the MIT license, see accompanying the LICENSE.md file.
 
 import { Config } from "../synth/SynthConfig";
-import { isMobile } from "./EditorConfig";
+import { isMobile } from "./config/EditorConfig";
 import { Pattern, Channel, Song, Synth } from "../synth";
-import { SongRecovery, generateUid, errorAlert } from "./SongRecovery";
-import { ColorConfig } from "./ColorConfig";
-import { Layout } from "./Layout";
-import { SongPerformance } from "./SongPerformance";
-import { Selection } from "./Selection";
-import { Preferences } from "./Preferences";
-import { Change } from "./Change";
-import { ChangeNotifier } from "./ChangeNotifier";
+import { SongRecovery, generateUid, errorAlert } from "./io/SongRecovery";
+import { ColorConfig } from "./rendering/ColorConfig";
+import { Layout } from "./ui/Layout";
+import { SongPerformance } from "./core/SongPerformance";
+import { Selection } from "./core/Selection";
+import { Preferences } from "./core/Preferences";
+import { Change } from "./core/Change";
+import { ChangeNotifier } from "./core/ChangeNotifier";
 import { ChangeSong, setDefaultInstruments, discardInvalidPatternInstruments, ChangeHoldingModRecording } from "./changes";
 
 interface HistoryState {

@@ -11,59 +11,59 @@
 
 //import {Layout} from "./Layout";
 import { sampleLoadEvents, SampleLoadedEvent, InstrumentType, EffectType, Config, effectsIncludeTransition, effectsIncludeChord, effectsIncludePitchShift, effectsIncludeDetune, effectsIncludeVibrato, effectsIncludeNoteFilter, effectsIncludeDistortion, effectsIncludeBitcrusher, effectsIncludePanning, effectsIncludeChorus, effectsIncludeEcho, effectsIncludeReverb, effectsIncludeRingModulation, effectsIncludeGranular, DropdownID, calculateRingModHertz, effectsIncludePhaser, effectsIncludeInvertWave, effectsIncludeNoteRange } from "../synth/SynthConfig";
-import { BarScrollBar } from "./BarScrollBar";
-import { BeatsPerBarPrompt } from "./BeatsPerBarPrompt";
-import { OctaveCountPrompt } from "./OctaveCountPrompt";
-import { Change, ChangeGroup } from "./Change";
-import { ChannelSettingsPrompt } from "./ChannelSettingsPrompt";
-import { ColorConfig, ChannelColors } from "./ColorConfig";
-import { CustomChipPrompt } from "./CustomChipPrompt";
-import { CustomFilterPrompt } from "./CustomFilterPrompt";
-import { InstrumentExportPrompt } from "./InstrumentExportPrompt";
-import { InstrumentImportPrompt } from "./InstrumentImportPrompt";
-import { EditorConfig, isMobile, prettyNumber, Preset, PresetCategory } from "./EditorConfig";
-import { EuclideanRhythmPrompt } from "./EuclidgenRhythmPrompt";
-import { ExportPrompt } from "./ExportPrompt";
-import "./Layout"; // Imported here for the sake of ensuring this code is transpiled early.
+import { BarScrollBar } from "./components/BarScrollBar";
+import { BeatsPerBarPrompt } from "./prompts/BeatsPerBarPrompt";
+import { OctaveCountPrompt } from "./prompts/OctaveCountPrompt";
+import { Change, ChangeGroup } from "./core/Change";
+import { ChannelSettingsPrompt } from "./prompts/ChannelSettingsPrompt";
+import { ColorConfig, ChannelColors } from "./rendering/ColorConfig";
+import { CustomChipPrompt } from "./prompts/CustomChipPrompt";
+import { CustomFilterPrompt } from "./prompts/CustomFilterPrompt";
+import { InstrumentExportPrompt } from "./prompts/InstrumentExportPrompt";
+import { InstrumentImportPrompt } from "./prompts/InstrumentImportPrompt";
+import { EditorConfig, isMobile, prettyNumber, Preset, PresetCategory } from "./config/EditorConfig";
+import { EuclideanRhythmPrompt } from "./prompts/EuclidgenRhythmPrompt";
+import { ExportPrompt } from "./prompts/ExportPrompt";
+import "./ui/Layout"; // Imported here for the sake of ensuring this code is transpiled early.
 import { Instrument, Channel, detuneToCents } from "../synth";
 import { HTML, SVG } from "imperative-html/dist/esm/elements-strict";
-import { Preferences } from "./Preferences";
-import { HarmonicsEditor, HarmonicsEditorPrompt } from "./HarmonicsEditor";
-import { InputBox, Slider } from "./HTMLWrapper";
-import { ImportPrompt } from "./ImportPrompt";
-import { ChannelRow } from "./ChannelRow";
-import { LayoutPrompt } from "./LayoutPrompt";
-import { EnvelopeEditor } from "./EnvelopeEditor";
-import { FadeInOutEditor } from "./FadeInOutEditor";
-import { FilterEditor } from "./FilterEditor";
-import { LimiterPrompt } from "./LimiterPrompt";
-import { CustomScalePrompt } from "./CustomScalePrompt";
-import { LoopEditor } from "./LoopEditor";
-import { MoveNotesSidewaysPrompt } from "./MoveNotesSidewaysPrompt";
-import { MuteEditor } from "./MuteEditor";
-import { OctaveScrollBar } from "./OctaveScrollBar";
-import { MidiInputHandler } from "./MidiInput";
-import { KeyboardLayout } from "./KeyboardLayout";
-import { PatternEditor } from "./PatternEditor";
-import { Piano } from "./Piano";
-import { Prompt } from "./Prompt";
+import { Preferences } from "./core/Preferences";
+import { HarmonicsEditor, HarmonicsEditorPrompt } from "./components/HarmonicsEditor";
+import { InputBox, Slider } from "./ui/HTMLWrapper";
+import { ImportPrompt } from "./prompts/ImportPrompt";
+import { ChannelRow } from "./components/ChannelRow";
+import { LayoutPrompt } from "./prompts/LayoutPrompt";
+import { EnvelopeEditor } from "./components/EnvelopeEditor";
+import { FadeInOutEditor } from "./components/FadeInOutEditor";
+import { FilterEditor } from "./components/FilterEditor";
+import { LimiterPrompt } from "./prompts/LimiterPrompt";
+import { CustomScalePrompt } from "./prompts/CustomScalePrompt";
+import { LoopEditor } from "./components/LoopEditor";
+import { MoveNotesSidewaysPrompt } from "./prompts/MoveNotesSidewaysPrompt";
+import { MuteEditor } from "./components/MuteEditor";
+import { OctaveScrollBar } from "./components/OctaveScrollBar";
+import { MidiInputHandler } from "./io/MidiInput";
+import { KeyboardLayout } from "./config/KeyboardLayout";
+import { PatternEditor } from "./components/PatternEditor";
+import { Piano } from "./components/Piano";
+import { Prompt } from "./prompts/Prompt";
 import { SongDocument } from "./SongDocument";
-import { SongDurationPrompt } from "./SongDurationPrompt";
-import { SustainPrompt } from "./SustainPrompt";
-import { SongRecoveryPrompt } from "./SongRecoveryPrompt";
-import { RecordingSetupPrompt } from "./RecordingSetupPrompt";
-import { SpectrumEditor, SpectrumEditorPrompt } from "./SpectrumEditor";
-import { CustomThemePrompt } from "./CustomThemePrompt";
-import { ThemePrompt } from "./ThemePrompt";
-import { TipPrompt } from "./TipPrompt";
+import { SongDurationPrompt } from "./prompts/SongDurationPrompt";
+import { SustainPrompt } from "./prompts/SustainPrompt";
+import { SongRecoveryPrompt } from "./prompts/SongRecoveryPrompt";
+import { RecordingSetupPrompt } from "./prompts/RecordingSetupPrompt";
+import { SpectrumEditor, SpectrumEditorPrompt } from "./components/SpectrumEditor";
+import { CustomThemePrompt } from "./prompts/CustomThemePrompt";
+import { ThemePrompt } from "./prompts/ThemePrompt";
+import { TipPrompt } from "./prompts/TipPrompt";
 import { ChangeTempo, ChangeKeyOctave, ChangeChorus, ChangeEchoDelay, ChangeEchoSustain, ChangeReverb, ChangeVolume, ChangePan, ChangePatternSelection, ChangePatternsPerChannel, ChangePatternNumbers, ChangeSupersawDynamism, ChangeSupersawSpread, ChangeSupersawShape, ChangePulseWidth, ChangeFeedbackAmplitude, ChangeOperatorAmplitude, ChangeOperatorFrequency, ChangeDrumsetEnvelope, ChangePasteInstrument, ChangePreset, pickRandomPresetValue, ChangeRandomGeneratedInstrument, ChangeEQFilterType, ChangeNoteFilterType, ChangeEQFilterSimpleCut, ChangeEQFilterSimplePeak, ChangeNoteFilterSimpleCut, ChangeNoteFilterSimplePeak, ChangeScale, ChangeDetectKey, ChangeKey, ChangeRhythm, ChangeFeedbackType, ChangeAlgorithm, ChangeChipWave, ChangeNoiseWave, ChangeTransition, ChangeToggleEffects, ChangeVibrato, ChangeUnison, ChangeChord, ChangeSong, ChangePitchShift, ChangeDetune, ChangeDistortion, ChangeStringSustain, ChangeBitcrusherFreq, ChangeBitcrusherQuantization, ChangeAddEnvelope, ChangeEnvelopeSpeed, ChangeAddChannelInstrument, ChangeRemoveChannelInstrument, ChangeCustomWave, ChangeOperatorWaveform, ChangeOperatorPulseWidth, ChangeSongTitle, ChangeVibratoDepth, ChangeVibratoSpeed, ChangeVibratoDelay, ChangeVibratoType, ChangePanDelay, ChangeArpeggioSpeed, ChangeFastTwoNoteArp, ChangeClicklessTransition, ChangeAliasing, ChangeSetPatternInstruments, ChangeHoldingModRecording, ChangeChipWavePlayBackwards, ChangeChipWaveStartOffset, ChangeChipWaveLoopEnd, ChangeChipWaveLoopStart, ChangeChipWaveLoopMode, ChangeChipWaveUseAdvancedLoopControls, ChangeDecimalOffset, ChangeUnisonVoices, ChangeUnisonSpread, ChangeUnisonOffset, ChangeUnisonExpression, ChangeUnisonSign, Change6OpFeedbackType, Change6OpAlgorithm, ChangeCustomAlgorythmorFeedback, ChangeRingMod, ChangeRingModHz, ChangeRingModChipWave, ChangeRingModPulseWidth, ChangeGranular, ChangeGrainSize, ChangeGrainAmounts, ChangeGrainRange, ChangeMonophonicTone, ChangePhaserMix, ChangePhaserFreq, ChangePhaserFeedback, ChangePhaserStages, ChangeInvertWave, ChangeUpperLimit, ChangeLowerLimit, pickNextPresetValue } from "./changes";
 
-import { TrackEditor } from "./TrackEditor";
-import { oscilloscopeCanvas } from "../global/Oscilloscope";
-import { VisualLoopControlsPrompt } from "./VisualLoopControlsPrompt";
-import { SampleLoadingStatusPrompt } from "./SampleLoadingStatusPrompt";
-import { AddSamplesPrompt } from "./AddSamplesPrompt";
-import { ShortenerConfigPrompt } from "./ShortenerConfigPrompt";
+import { TrackEditor } from "./components/TrackEditor";
+import { oscilloscopeCanvas } from "../shared/Oscilloscope";
+import { VisualLoopControlsPrompt } from "./prompts/VisualLoopControlsPrompt";
+import { SampleLoadingStatusPrompt } from "./prompts/SampleLoadingStatusPrompt";
+import { AddSamplesPrompt } from "./prompts/AddSamplesPrompt";
+import { ShortenerConfigPrompt } from "./prompts/ShortenerConfigPrompt";
 
 const { button, div, input, select, span, optgroup, option, canvas } = HTML;
 
@@ -186,8 +186,8 @@ function setSelectedValue(menu: HTMLSelectElement, value: number, isSelect2: boo
         }
     }
 }
-import { CustomChipCanvas } from "./custom-chip-canvas";
-import { CustomAlgorythmCanvas } from "./custom-algorythm-canvas";
+import { CustomChipCanvas } from "./rendering/custom-chip-canvas";
+import { CustomAlgorythmCanvas } from "./rendering/custom-algorythm-canvas";
 
 export class SongEditor {
     public prompt: Prompt | null = null;

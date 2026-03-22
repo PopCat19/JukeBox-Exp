@@ -12,7 +12,7 @@
 
 import { Dictionary, DictionaryArray, FilterType, EnvelopeType, InstrumentType, EffectType, EnvelopeComputeIndex, Transition, Chord, Envelope, Config, getArpeggioPitchIndex, getPulseWidthRatio, effectsIncludePitchShift, effectsIncludeDetune, effectsIncludeVibrato, effectsIncludeNoteFilter, effectsIncludeDistortion, effectsIncludeBitcrusher, effectsIncludePanning, effectsIncludeChorus, effectsIncludeEcho, effectsIncludeReverb, effectsIncludeNoteRange, effectsIncludeRingModulation, effectsIncludeGranular, GranularEnvelopeType, effectsIncludePhaser, effectsIncludeInvertWave } from "./SynthConfig";
 import { Deque } from "./Deque";
-import { events } from "../global/Events";
+import { events } from "../shared/Events";
 import { FilterCoefficients, FrequencyResponse, DynamicBiquadFilter } from "./filtering";
 import { clamp, epsilon, fittingPowerOfTwo, detuneToCents, getOperatorWave } from "./util";
 import { NotePin, Note, Pattern } from "./notes";

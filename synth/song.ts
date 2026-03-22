@@ -14,7 +14,7 @@ import { BitFieldReader, BitFieldWriter, encode32BitNumber, decode32BitNumber, e
 import { NotePin, Note, makeNotePin, Pattern } from "./notes";
 import { FilterControlPoint, FilterSettings, Instrument, LegacySettings } from "./instruments";
 import { Channel } from "./channels";
-import { Preset, EditorConfig } from "../editor/EditorConfig";
+import { Preset, EditorConfig } from "../editor/config/EditorConfig";
 export class Song {
     private static readonly _format: string = Config.jsonFormat;
     private static readonly _oldestBeepboxVersion: number = 2;

@@ -10,9 +10,9 @@
 // Copyright (c) 2012-2022 John Nesky and contributing authors, distributed under the MIT license, see accompanying the LICENSE.md file.
 
 import { Dictionary, DictionaryArray, EnvelopeType, InstrumentType, Transition, Chord, Envelope, Config, sampleLoadEvents, SampleLoadedEvent } from "../synth/SynthConfig";
-import { ColorConfig } from "../editor/ColorConfig";
+import { ColorConfig } from "../editor/rendering/ColorConfig";
 import { NotePin, Note, Pattern, Instrument, Channel, Synth } from "../synth";
-import { oscilloscopeCanvas } from "../global/Oscilloscope";
+import { oscilloscopeCanvas } from "../shared/Oscilloscope";
 import { HTML, SVG } from "imperative-html/dist/esm/elements-strict";
 
 	const {a, button, div, h1, input, canvas} = HTML;

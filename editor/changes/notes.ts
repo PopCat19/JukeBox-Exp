@@ -11,11 +11,11 @@
 
 import { Config, Dictionary } from "../../synth/SynthConfig";
 import { NotePin, Note, makeNotePin, Pattern, Channel, Song, Instrument } from "../../synth";
-import { Change, ChangeGroup, ChangeSequence, UndoableChange } from "../Change";
+import { Change, ChangeGroup, ChangeSequence, UndoableChange } from "../core/Change";
 import { SongDocument } from "../SongDocument";
-import { Slider } from "../HTMLWrapper";
+import { Slider } from "../ui/HTMLWrapper";
 import { removeRedundantPins, projectNoteIntoBar, patternsContainSameInstruments, discardInvalidPatternInstruments } from "./util";
-import { ColorConfig } from "../ColorConfig";
+import { ColorConfig } from "../rendering/ColorConfig";
 
 export class ChangeMoveAndOverflowNotes extends ChangeGroup {
     constructor(doc: SongDocument, newBeatsPerBar: number, partsToMove: number) {

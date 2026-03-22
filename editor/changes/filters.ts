@@ -10,7 +10,7 @@
 
 import { FilterType, EffectType, AutomationTarget, Config } from "../../synth/SynthConfig";
 import { FilterSettings, FilterControlPoint, Instrument } from "../../synth";
-import { Change, UndoableChange } from "../Change";
+import { Change, UndoableChange } from "../core/Change";
 import { SongDocument } from "../SongDocument";
 
 export class ChangeEQFilterType extends Change {

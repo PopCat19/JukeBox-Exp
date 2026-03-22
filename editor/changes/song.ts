@@ -11,10 +11,10 @@
 
 import { Config, EffectType, InstrumentType } from "../../synth/SynthConfig";
 import { NotePin, Note, Pattern, Channel, Song, Instrument } from "../../synth";
-import { Preset, PresetCategory, EditorConfig, fullTagList } from "../EditorConfig";
-import { Change, ChangeGroup, ChangeSequence } from "../Change";
+import { Preset, PresetCategory, EditorConfig, fullTagList } from "../config/EditorConfig";
+import { Change, ChangeGroup, ChangeSequence } from "../core/Change";
 import { SongDocument } from "../SongDocument";
-import { ColorConfig } from "../ColorConfig";
+import { ColorConfig } from "../rendering/ColorConfig";
 import { discardInvalidPatternInstruments } from "./util";
 import { ChangeNoteAdded, ChangeNoteTruncate, ChangeRhythmNote, ChangeMoveAndOverflowNotes, ChangePatternSelection, ChangeValidateTrackSelection } from "./notes";
 import { ChangeToggleEffects } from "./instruments";

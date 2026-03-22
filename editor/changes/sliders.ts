@@ -11,7 +11,7 @@
 import { Config } from "../../synth/SynthConfig";
 import { SongDocument } from "../SongDocument";
 import { Instrument } from "../../synth";
-import { Change } from "../Change";
+import { Change } from "../core/Change";
 
 export class ChangeInstrumentSlider extends Change {
     protected _instrument: Instrument;

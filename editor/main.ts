@@ -9,13 +9,13 @@
 // Copyright (c) 2012-2022 John Nesky and contributing authors, distributed under the MIT license, see accompanying the LICENSE.md file.
 
 import { Dictionary, DictionaryArray, EnvelopeType, InstrumentType, Transition, Chord, Envelope, Config } from "../synth/SynthConfig";
-import { isMobile, EditorConfig } from "./EditorConfig";
-import { ColorConfig } from "./ColorConfig";
-import "./style"; // Import for the side effects, there's no exports.
+import { isMobile, EditorConfig } from "./config/EditorConfig";
+import { ColorConfig } from "./rendering/ColorConfig";
+import "./rendering/style"; // Import for the side effects, there's no exports.
 import { SongEditor } from "./SongEditor";
 import { NotePin, Note, Pattern, Instrument, Channel, Song, Synth } from "../synth";
 import { SongDocument } from "./SongDocument";
-import { ExportPrompt } from "./ExportPrompt";
+import { ExportPrompt } from "./prompts/ExportPrompt";
 import { ChangePreset } from "./changes";
 
 
