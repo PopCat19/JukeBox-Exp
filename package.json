@@ -16,8 +16,12 @@
 	"homepage": "https://popcat19.github.io/JukeBox-Exp/",
 	"type": "module",
 	"scripts": {
-		"build": "bash ./scripts/build.sh",
-		"build:offline": "bash ./scripts/build.sh --offline",
+		"build": "bun scripts/build.ts",
+		"build:offline": "bun scripts/build.ts --offline",
+		"typecheck": "tsc --noEmit -p tsconfig_editor.json",
+		"typecheck:synth": "tsc --noEmit -p tsconfig_synth.json",
+		"typecheck:player": "tsc --noEmit -p tsconfig_player.json",
+		"typecheck:all": "bun run typecheck && bun run typecheck:synth && bun run typecheck:player",
 		"dev": "bash ./scripts/live-editor.sh",
 		"lint": "bash ./scripts/lint.sh",
 		"lint:fix": "bunx eslint editor/ synth/ player/ global/ --fix",
@@ -30,6 +34,7 @@
 	},
 	"devDependencies": {
 		"@eslint/js": "^10.0.1",
+		"bun-types": "^1.3.11",
 		"esbuild": "^0.25.5",
 		"eslint": "^10.1.0",
 		"typescript": "^5.4.5",

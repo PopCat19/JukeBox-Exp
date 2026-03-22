@@ -25,8 +25,12 @@ Builds synth, player, editor, and EditorConfig bundles via [esbuild](https://esb
 ## Development
 
 ```
-bun run dev        # watch + auto-reload
-bun run lint       # type-check + ESLint
+bun run dev              # watch + auto-reload
+bun run lint             # type-check + ESLint
+bun run typecheck        # tsc --noEmit (editor)
+bun run typecheck:synth  # tsc --noEmit (synth)
+bun run typecheck:player # tsc --noEmit (player)
+bun run typecheck:all    # all three targets
 ```
 
 ## Deployment

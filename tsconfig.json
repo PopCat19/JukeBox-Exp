@@ -1,4 +1,6 @@
 {
-	"extends": "./tsconfig_synth_only.json",
-	"files": [ "./editor/main.ts" ],
+	"extends": "./tsconfig_editor.json",
+	"compilerOptions": {
+		"noEmit": true
+	}
 }
