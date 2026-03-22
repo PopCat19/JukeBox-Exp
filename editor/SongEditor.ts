@@ -10,7 +10,7 @@
 // Copyright (c) 2012-2022 John Nesky and contributing authors, distributed under the MIT license, see accompanying the LICENSE.md file.
 
 //import {Layout} from "./Layout";
-import { sampleLoadEvents, SampleLoadedEvent, InstrumentType, Config, DropdownID, calculateRingModHertz } from "../synth/SynthConfig";
+import { sampleLoadEvents, SampleLoadedEvent, InstrumentType, Config, DropdownID } from "../synth/SynthConfig";
 import { BarScrollBar } from "./components/BarScrollBar";
 import { BeatsPerBarPrompt } from "./prompts/BeatsPerBarPrompt";
 import { OctaveCountPrompt } from "./prompts/OctaveCountPrompt";
@@ -21,7 +21,7 @@ import { CustomChipPrompt } from "./prompts/CustomChipPrompt";
 import { CustomFilterPrompt } from "./prompts/CustomFilterPrompt";
 import { InstrumentExportPrompt } from "./prompts/InstrumentExportPrompt";
 import { InstrumentImportPrompt } from "./prompts/InstrumentImportPrompt";
-import { EditorConfig, isMobile, prettyNumber, Preset, PresetCategory } from "./config/EditorConfig";
+import { EditorConfig, isMobile, Preset, PresetCategory } from "./config/EditorConfig";
 import { EuclideanRhythmPrompt } from "./prompts/EuclidgenRhythmPrompt";
 import { ExportPrompt } from "./prompts/ExportPrompt";
 import "./ui/Layout"; // Imported here for the sake of ensuring this code is transpiled early.
@@ -73,6 +73,9 @@ import { renderLayout, LayoutRefs } from "./renderers/render-layout";
 import { renderSongSettings, SongSettingsRefs } from "./renderers/render-song-settings";
 import { applyInstrumentVisibility, InstrumentVisibilityRefs } from "./renderers/instrument-visibility";
 import { renderModSettings, ModSettingsRefs, ModSettingsCallbacks } from "./renderers/render-mod-settings";
+import { renderPresetSetup, PresetSetupRefs } from "./renderers/render-preset-setup";
+import { renderInstrumentValues, InstrumentValueRefs } from "./renderers/render-instrument-values";
+import { renderPostBranchSync, PostSyncRefs } from "./renderers/render-post-sync";
 
 const { button, div, input, select, span, optgroup, option, canvas } = HTML;
 
@@ -184,17 +187,6 @@ function buildPresetOptions(isNoise: boolean, idSet: string): HTMLSelectElement 
     return menu;
 }
 
-function setSelectedValue(menu: HTMLSelectElement, value: number, isSelect2: boolean = false): void {
-    const stringValue = value.toString();
-    if (menu.value != stringValue) {
-        menu.value = stringValue;
-
-        // Change select2 value, if this select is a member of that class.
-        if (isSelect2) {
-            $(menu).val(value).trigger('change.select2');
-        }
-    }
-}
 import { CustomChipCanvas } from "./rendering/custom-chip-canvas";
 import { CustomAlgorythmCanvas } from "./rendering/custom-algorythm-canvas";
 
@@ -1075,6 +1067,76 @@ export class SongEditor implements ModSliderProvider {
             rhythmSelect: this._rhythmSelect,
         };
     }
+    private get _presetSetupRefs(): PresetSetupRefs {
+        return {
+            customInstrumentSettingsGroup: this._customInstrumentSettingsGroup,
+            panSliderRow: this._panSliderRow,
+            panDropdownGroup: this._panDropdownGroup,
+            detuneSliderRow: this._detuneSliderRow,
+            instrumentTagRow: this._instrumentTagRow,
+            instrumentVolumeSliderRow: this._instrumentVolumeSliderRow,
+            instrumentTypeSelectRow: this._instrumentTypeSelectRow,
+            instrumentSettingsGroup: this._instrumentSettingsGroup,
+            instrumentExportGroup: this._instrumentExportGroup,
+            instrumentCopyGroup: this._instrumentCopyGroup,
+            instrumentsButtonRow: this._instrumentsButtonRow,
+            instrumentSettingsTextRow: this._instrumentSettingsTextRow,
+            modulatorGroup: this._modulatorGroup,
+            pitchedPresetSelect: this._pitchedPresetSelect,
+            drumPresetSelect: this._drumPresetSelect,
+        };
+    }
+    private get _instrumentValueRefs(): InstrumentValueRefs {
+        return {
+            transitionSelect: this._transitionSelect,
+            vibratoSelect: this._vibratoSelect,
+            vibratoTypeSelect: this._vibratoTypeSelect,
+            chordSelect: this._chordSelect,
+            panSliderInputBox: this._panSliderInputBox,
+            pwmSliderInputBox: this._pwmSliderInputBox,
+            detuneSliderInputBox: this._detuneSliderInputBox,
+            ringModHzNum: this.ringModHzNum,
+            grainSizeNum: this.grainSizeNum,
+            grainRangeNum: this.grainRangeNum,
+            instrumentVolumeSlider: this._instrumentVolumeSlider,
+            instrumentVolumeSliderInputBox: this._instrumentVolumeSliderInputBox,
+            vibratoDepthSlider: this._vibratoDepthSlider,
+            vibratoDelaySlider: this._vibratoDelaySlider,
+            vibratoSpeedSlider: this._vibratoSpeedSlider,
+            vibratoSpeedDisplay: this._vibratoSpeedDisplay,
+            panDelaySlider: this._panDelaySlider,
+            arpeggioSpeedSlider: this._arpeggioSpeedSlider,
+            arpeggioSpeedDisplay: this._arpeggioSpeedDisplay,
+            eqFilterSimpleCutSlider: this._eqFilterSimpleCutSlider,
+            eqFilterSimplePeakSlider: this._eqFilterSimplePeakSlider,
+            noteFilterSimpleCutSlider: this._noteFilterSimpleCutSlider,
+            noteFilterSimplePeakSlider: this._noteFilterSimplePeakSlider,
+            envelopeSpeedSlider: this._envelopeSpeedSlider,
+            envelopeSpeedDisplay: this._envelopeSpeedDisplay,
+            upperNoteLimitRow: this._upperNoteLimitRow,
+            lowerNoteLimitRow: this._lowerNoteLimitRow,
+        };
+    }
+    private get _postSyncRefs(): PostSyncRefs {
+        return {
+            instrumentSettingsGroup: this._instrumentSettingsGroup,
+            eqFilterEditor: this._eqFilterEditor,
+            songEqFilterEditor: this._songEqFilterEditor,
+            instrumentVolumeSlider: this._instrumentVolumeSlider,
+            detuneSlider: this._detuneSlider,
+            twoNoteArpBox: this._twoNoteArpBox,
+            clicklessTransitionBox: this._clicklessTransitionBox,
+            aliasingBox: this._aliasingBox,
+            invertWaveBox: this._invertWaveBox,
+            addEnvelopeButton: this._addEnvelopeButton,
+            volumeSlider: this._volumeSlider,
+            ringModWaveSelect: this._ringModWaveSelect,
+            ringModPulsewidthSlider: this._ringModPulsewidthSlider,
+            ringModWaveText: this._ringModWaveText,
+            instrumentSettingsArea: this._instrumentSettingsArea,
+            settingsArea: this._settingsArea,
+        };
+    }
     public get piano(): Piano { return this._piano; }
     public get customAlgorithmCanvas(): CustomAlgorythmCanvas { return this._customAlgorithmCanvas; }
     public get tempoStepper(): HTMLInputElement { return this._tempoStepper; }
@@ -1133,6 +1195,9 @@ export class SongEditor implements ModSliderProvider {
 
 
     private _openPanDropdown: boolean = false;
+    private _visRefs!: InstrumentVisibilityRefs;
+    private _modSettingsRefs!: ModSettingsRefs;
+    private _modSettingsCallbacks!: ModSettingsCallbacks;
     private _openVibratoDropdown: boolean = false;
     private _openEnvelopeDropdown: boolean = false;
     private _openChordDropdown: boolean = false;
@@ -1482,6 +1547,203 @@ export class SongEditor implements ModSliderProvider {
             layoutOption.disabled = true;
             layoutOption.setAttribute("hidden", "");
         }
+
+        this._visRefs = {
+            chipWaveSelectRow: this._chipWaveSelectRow,
+            chipWaveSelect: this._chipWaveSelect,
+            chipNoiseSelectRow: this._chipNoiseSelectRow,
+            chipNoiseSelect: this._chipNoiseSelect,
+            useChipWaveAdvancedLoopControlsRow: this._useChipWaveAdvancedLoopControlsRow,
+            useChipWaveAdvancedLoopControlsBox: this._useChipWaveAdvancedLoopControlsBox,
+            chipWaveLoopModeSelectRow: this._chipWaveLoopModeSelectRow,
+            chipWaveLoopModeSelect: this._chipWaveLoopModeSelect,
+            chipWaveLoopStartRow: this._chipWaveLoopStartRow,
+            chipWaveLoopStartStepper: this._chipWaveLoopStartStepper,
+            chipWaveLoopEndRow: this._chipWaveLoopEndRow,
+            chipWaveLoopEndStepper: this._chipWaveLoopEndStepper,
+            chipWaveStartOffsetRow: this._chipWaveStartOffsetRow,
+            chipWaveStartOffsetStepper: this._chipWaveStartOffsetStepper,
+            chipWavePlayBackwardsRow: this._chipWavePlayBackwardsRow,
+            chipWavePlayBackwardsBox: this._chipWavePlayBackwardsBox,
+            spectrumRow: this._spectrumRow,
+            spectrumEditor: this._spectrumEditor,
+            harmonicsRow: this._harmonicsRow,
+            harmonicsEditor: this._harmonicsEditor,
+            stringSustainRow: this._stringSustainRow,
+            stringSustainSlider: this._stringSustainSlider,
+            stringSustainLabel: this._stringSustainLabel,
+            drumsetGroup: this._drumsetGroup,
+            drumsetEnvelopeSelects: this._drumsetEnvelopeSelects,
+            drumsetSpectrumEditors: this._drumsetSpectrumEditors,
+            fadeInOutRow: this._fadeInOutRow,
+            fadeInOutEditor: this._fadeInOutEditor,
+            customWaveDraw: this._customWaveDraw,
+            supersawDynamismRow: this._supersawDynamismRow,
+            supersawDynamismSlider: this._supersawDynamismSlider,
+            supersawSpreadRow: this._supersawSpreadRow,
+            supersawSpreadSlider: this._supersawSpreadSlider,
+            supersawShapeRow: this._supersawShapeRow,
+            supersawShapeSlider: this._supersawShapeSlider,
+            pulseWidthRow: this._pulseWidthRow,
+            pulseWidthSlider: this._pulseWidthSlider,
+            decimalOffsetSlider: this._decimalOffsetSlider,
+            pulseWidthDropdownGroup: this._pulseWidthDropdownGroup,
+            phaseModGroup: this._phaseModGroup,
+            algorithmSelect: this._algorithmSelect,
+            feedbackTypeSelect: this._feedbackTypeSelect,
+            feedbackAmplitudeSlider: this._feedbackAmplitudeSlider,
+            operatorRows: this._operatorRows,
+            operatorFrequencySelects: this._operatorFrequencySelects,
+            operatorAmplitudeSliders: this._operatorAmplitudeSliders,
+            operatorWaveformSelects: this._operatorWaveformSelects,
+            operatorWaveformPulsewidthSliders: this._operatorWaveformPulsewidthSliders,
+            operatorDropdownGroups: this._operatorDropdownGroups,
+            operatorWaveformHints: this._operatorWaveformHints,
+            algorithm6OpSelect: this._algorithm6OpSelect,
+            feedback6OpTypeSelect: this._feedback6OpTypeSelect,
+            customAlgorithmCanvas: this._customAlgorithmCanvas,
+            algorithm6OpSelectRow: this._algorithm6OpSelectRow,
+            feedback6OpRow1: this._feedback6OpRow1,
+            algorithmSelectRow: this._algorithmSelectRow,
+            feedbackRow1: this._feedbackRow1,
+            feedbackRow2: this._feedbackRow2,
+            transitionRow: this._transitionRow,
+            transitionSelect: this._transitionSelect,
+            transitionDropdownGroup: this._transitionDropdownGroup,
+            chordSelectRow: this._chordSelectRow,
+            chordSelect: this._chordSelect,
+            chordDropdown: this._chordDropdown,
+            chordDropdownGroup: this._chordDropdownGroup,
+            monophonicNoteInputBox: this._monophonicNoteInputBox,
+            chordSelectContainer: this._chordSelectContainer,
+            pitchShiftRow: this._pitchShiftRow,
+            pitchShiftSlider: this._pitchShiftSlider,
+            pitchShiftFifthMarkers: this._pitchShiftFifthMarkers,
+            detuneSliderRow: this._detuneSliderRow,
+            detuneSlider: this._detuneSlider,
+            vibratoSelectRow: this._vibratoSelectRow,
+            vibratoSelect: this._vibratoSelect,
+            vibratoDropdownGroup: this._vibratoDropdownGroup,
+            noteFilterTypeRow: this._noteFilterTypeRow,
+            noteFilterEditor: this._noteFilterEditor,
+            noteFilterSimpleButton: this._noteFilterSimpleButton,
+            noteFilterAdvancedButton: this._noteFilterAdvancedButton,
+            noteFilterRow: this._noteFilterRow,
+            noteFilterSimpleCutRow: this._noteFilterSimpleCutRow,
+            noteFilterSimplePeakRow: this._noteFilterSimplePeakRow,
+            distortionRow: this._distortionRow,
+            aliasingRow: this._aliasingRow,
+            distortionSlider: this._distortionSlider,
+            bitcrusherQuantizationRow: this._bitcrusherQuantizationRow,
+            bitcrusherQuantizationSlider: this._bitcrusherQuantizationSlider,
+            bitcrusherFreqRow: this._bitcrusherFreqRow,
+            bitcrusherFreqSlider: this._bitcrusherFreqSlider,
+            panSliderRow: this._panSliderRow,
+            panDropdownGroup: this._panDropdownGroup,
+            panSlider: this._panSlider,
+            chorusRow: this._chorusRow,
+            chorusSlider: this._chorusSlider,
+            echoSustainRow: this._echoSustainRow,
+            echoSustainSlider: this._echoSustainSlider,
+            echoDelayRow: this._echoDelayRow,
+            echoDelaySlider: this._echoDelaySlider,
+            reverbRow: this._reverbRow,
+            reverbSlider: this._reverbSlider,
+            ringModContainerRow: this._ringModContainerRow,
+            ringModSlider: this._ringModSlider,
+            ringModHzSlider: this._ringModHzSlider,
+            ringModWaveSelect: this._ringModWaveSelect,
+            ringModPulsewidthSlider: this._ringModPulsewidthSlider,
+            granularContainerRow: this._granularContainerRow,
+            granularSlider: this._granularSlider,
+            grainSizeSlider: this._grainSizeSlider,
+            grainAmountsSlider: this._grainAmountsSlider,
+            grainRangeSlider: this._grainRangeSlider,
+            phaserMixRow: this._phaserMixRow,
+            phaserMixSlider: this._phaserMixSlider,
+            phaserFreqRow: this._phaserFreqRow,
+            phaserFreqSlider: this._phaserFreqSlider,
+            phaserFeedbackRow: this._phaserFeedbackRow,
+            phaserFeedbackSlider: this._phaserFeedbackSlider,
+            phaserStagesRow: this._phaserStagesRow,
+            phaserStagesSlider: this._phaserStagesSlider,
+            invertWaveRow: this._invertWaveRow,
+            upperNoteLimitRow: this._upperNoteLimitRow,
+            upperNoteLimitInputBox: this._upperNoteLimitInputBox,
+            lowerNoteLimitRow: this._lowerNoteLimitRow,
+            lowerNoteLimitInputBox: this._lowerNoteLimitInputBox,
+            unisonSelectRow: this._unisonSelectRow,
+            unisonSelect: this._unisonSelect,
+            unisonVoicesInputBox: this._unisonVoicesInputBox,
+            unisonSpreadInputBox: this._unisonSpreadInputBox,
+            unisonOffsetInputBox: this._unisonOffsetInputBox,
+            unisonExpressionInputBox: this._unisonExpressionInputBox,
+            unisonSignInputBox: this._unisonSignInputBox,
+            unisonDropdownGroup: this._unisonDropdownGroup,
+            envelopeDropdownGroup: this._envelopeDropdownGroup,
+            envelopeEditor: this.envelopeEditor,
+            instrumentSettingsGroup: this._instrumentSettingsGroup,
+        };
+
+        this._modSettingsRefs = {
+            modulatorGroup: this._modulatorGroup,
+            instrumentSettingsTextRow: this._instrumentSettingsTextRow,
+            instrumentCopyGroup: this._instrumentCopyGroup,
+            instrumentExportGroup: this._instrumentExportGroup,
+            instrumentsButtonRow: this._instrumentsButtonRow,
+            chipNoiseSelectRow: this._chipNoiseSelectRow,
+            chipWaveSelectRow: this._chipWaveSelectRow,
+            useChipWaveAdvancedLoopControlsRow: this._useChipWaveAdvancedLoopControlsRow,
+            chipWaveLoopModeSelectRow: this._chipWaveLoopModeSelectRow,
+            chipWaveLoopStartRow: this._chipWaveLoopStartRow,
+            chipWaveLoopEndRow: this._chipWaveLoopEndRow,
+            chipWaveStartOffsetRow: this._chipWaveStartOffsetRow,
+            chipWavePlayBackwardsRow: this._chipWavePlayBackwardsRow,
+            spectrumRow: this._spectrumRow,
+            harmonicsRow: this._harmonicsRow,
+            drumsetGroup: this._drumsetGroup,
+            customWaveDraw: this._customWaveDraw,
+            supersawDynamismRow: this._supersawDynamismRow,
+            supersawSpreadRow: this._supersawSpreadRow,
+            supersawShapeRow: this._supersawShapeRow,
+            algorithmSelectRow: this._algorithmSelectRow,
+            phaseModGroup: this._phaseModGroup,
+            feedbackRow1: this._feedbackRow1,
+            feedbackRow2: this._feedbackRow2,
+            pulseWidthRow: this._pulseWidthRow,
+            vibratoSelectRow: this._vibratoSelectRow,
+            vibratoDropdownGroup: this._vibratoDropdownGroup,
+            envelopeDropdownGroup: this._envelopeDropdownGroup,
+            detuneSliderRow: this._detuneSliderRow,
+            panSliderRow: this._panSliderRow,
+            panDropdownGroup: this._panDropdownGroup,
+            pulseWidthDropdownGroup: this._pulseWidthDropdownGroup,
+            unisonDropdownGroup: this._unisonDropdownGroup,
+            chordSelectRow: this._chordSelectRow,
+            chordDropdownGroup: this._chordDropdownGroup,
+            transitionRow: this._transitionRow,
+            customInstrumentSettingsGroup: this._customInstrumentSettingsGroup,
+            instrumentTagRow: this._instrumentTagRow,
+            instrumentVolumeSliderRow: this._instrumentVolumeSliderRow,
+            instrumentTypeSelectRow: this._instrumentTypeSelectRow,
+            instrumentSettingsGroup: this._instrumentSettingsGroup,
+            pitchedPresetSelect: this._pitchedPresetSelect,
+            drumPresetSelect: this._drumPresetSelect,
+            modChannelBoxes: this._modChannelBoxes,
+            modInstrumentBoxes: this._modInstrumentBoxes,
+            modSetBoxes: this._modSetBoxes,
+            modFilterBoxes: this._modFilterBoxes,
+            modEnvelopeBoxes: this._modEnvelopeBoxes,
+            modTargetIndicators: this._modTargetIndicators,
+            piano: this._piano,
+            chordSelect: this._chordSelect,
+        };
+
+        this._modSettingsCallbacks = {
+            usageCheck: (channelIndex: number, instrumentIndex: number) => this._usageCheck(channelIndex, instrumentIndex),
+            renderInstrumentBar: (channel: Channel, instrumentIndex: number, colors: ChannelColors) => this._renderInstrumentBar(channel, instrumentIndex, colors),
+            whenSetModSetting: (mod: number, invalid?: boolean) => this._dispatch.whenSetModSetting(mod, invalid),
+        };
     }
 
     private _whenSampleLoadingStatusClicked = (): void => {
@@ -1926,193 +2188,9 @@ export class SongEditor implements ModSliderProvider {
 
         if (!this.doc.song.getChannelIsMod(this.doc.channel)) {
 
-            this._customInstrumentSettingsGroup.style.display = "";
-            this._panSliderRow.style.display = "";
-            this._panDropdownGroup.style.display = (this._openPanDropdown ? "" : "none");
-            this._detuneSliderRow.style.display = "";
-            if (prefs.enableTagSearch) { this._instrumentTagRow.style.display = ""; }
-            this._instrumentVolumeSliderRow.style.display = "";
-            this._instrumentTypeSelectRow.style.setProperty("display", "");
-            if (prefs.instrumentButtonsAtTop) {
-                this._instrumentSettingsGroup.insertBefore(this._instrumentExportGroup, this._instrumentSettingsGroup.firstChild);
-                this._instrumentSettingsGroup.insertBefore(this._instrumentCopyGroup, this._instrumentSettingsGroup.firstChild);
-            } else {
-                this._instrumentSettingsGroup.appendChild(this._instrumentCopyGroup);
-                this._instrumentSettingsGroup.appendChild(this._instrumentExportGroup);
-            }
-            this._instrumentSettingsGroup.insertBefore(this._instrumentsButtonRow, this._instrumentSettingsGroup.firstChild);
-            this._instrumentSettingsGroup.insertBefore(this._instrumentSettingsTextRow, this._instrumentSettingsGroup.firstChild);
+            renderPresetSetup(this._presetSetupRefs, this.doc, instrument, prefs, this._openPanDropdown, this._usageCheck.bind(this));
 
-            if (this.doc.song.channels[this.doc.channel].name == "") {
-                this._instrumentSettingsTextRow.textContent = "Instrument Settings";
-            }
-            else {
-                this._instrumentSettingsTextRow.textContent = this.doc.song.channels[this.doc.channel].name;
-            }
-
-            this._modulatorGroup.style.display = "none";
-
-            // Check if current viewed pattern on channel is used anywhere
-            // + Check if current instrument on channel is used anywhere
-            // + Check if a mod targets this
-            this._usageCheck(this.doc.channel, instrumentIndex);
-
-            if (this.doc.song.getChannelIsNoise(this.doc.channel)) {
-                this._pitchedPresetSelect.style.display = "none";
-                this._drumPresetSelect.style.display = "";
-                // Also hide select2
-                $("#pitchPresetSelect").parent().hide();
-                $("#drumPresetSelect").parent().show();
-
-                setSelectedValue(this._drumPresetSelect, instrument.preset, true);
-            } else {
-                this._pitchedPresetSelect.style.display = "";
-                this._drumPresetSelect.style.display = "none";
-
-                // Also hide select2
-                $("#pitchPresetSelect").parent().show();
-                $("#drumPresetSelect").parent().hide();
-
-                setSelectedValue(this._pitchedPresetSelect, instrument.preset, true);
-            }
-
-            const visRefs: InstrumentVisibilityRefs = {
-                chipWaveSelectRow: this._chipWaveSelectRow,
-                chipWaveSelect: this._chipWaveSelect,
-                chipNoiseSelectRow: this._chipNoiseSelectRow,
-                chipNoiseSelect: this._chipNoiseSelect,
-                useChipWaveAdvancedLoopControlsRow: this._useChipWaveAdvancedLoopControlsRow,
-                useChipWaveAdvancedLoopControlsBox: this._useChipWaveAdvancedLoopControlsBox,
-                chipWaveLoopModeSelectRow: this._chipWaveLoopModeSelectRow,
-                chipWaveLoopModeSelect: this._chipWaveLoopModeSelect,
-                chipWaveLoopStartRow: this._chipWaveLoopStartRow,
-                chipWaveLoopStartStepper: this._chipWaveLoopStartStepper,
-                chipWaveLoopEndRow: this._chipWaveLoopEndRow,
-                chipWaveLoopEndStepper: this._chipWaveLoopEndStepper,
-                chipWaveStartOffsetRow: this._chipWaveStartOffsetRow,
-                chipWaveStartOffsetStepper: this._chipWaveStartOffsetStepper,
-                chipWavePlayBackwardsRow: this._chipWavePlayBackwardsRow,
-                chipWavePlayBackwardsBox: this._chipWavePlayBackwardsBox,
-                spectrumRow: this._spectrumRow,
-                spectrumEditor: this._spectrumEditor,
-                harmonicsRow: this._harmonicsRow,
-                harmonicsEditor: this._harmonicsEditor,
-                stringSustainRow: this._stringSustainRow,
-                stringSustainSlider: this._stringSustainSlider,
-                stringSustainLabel: this._stringSustainLabel,
-                drumsetGroup: this._drumsetGroup,
-                drumsetEnvelopeSelects: this._drumsetEnvelopeSelects,
-                drumsetSpectrumEditors: this._drumsetSpectrumEditors,
-                fadeInOutRow: this._fadeInOutRow,
-                fadeInOutEditor: this._fadeInOutEditor,
-                customWaveDraw: this._customWaveDraw,
-                supersawDynamismRow: this._supersawDynamismRow,
-                supersawDynamismSlider: this._supersawDynamismSlider,
-                supersawSpreadRow: this._supersawSpreadRow,
-                supersawSpreadSlider: this._supersawSpreadSlider,
-                supersawShapeRow: this._supersawShapeRow,
-                supersawShapeSlider: this._supersawShapeSlider,
-                pulseWidthRow: this._pulseWidthRow,
-                pulseWidthSlider: this._pulseWidthSlider,
-                decimalOffsetSlider: this._decimalOffsetSlider,
-                pulseWidthDropdownGroup: this._pulseWidthDropdownGroup,
-                phaseModGroup: this._phaseModGroup,
-                algorithmSelect: this._algorithmSelect,
-                feedbackTypeSelect: this._feedbackTypeSelect,
-                feedbackAmplitudeSlider: this._feedbackAmplitudeSlider,
-                operatorRows: this._operatorRows,
-                operatorFrequencySelects: this._operatorFrequencySelects,
-                operatorAmplitudeSliders: this._operatorAmplitudeSliders,
-                operatorWaveformSelects: this._operatorWaveformSelects,
-                operatorWaveformPulsewidthSliders: this._operatorWaveformPulsewidthSliders,
-                operatorDropdownGroups: this._operatorDropdownGroups,
-                operatorWaveformHints: this._operatorWaveformHints,
-                algorithm6OpSelect: this._algorithm6OpSelect,
-                feedback6OpTypeSelect: this._feedback6OpTypeSelect,
-                customAlgorithmCanvas: this._customAlgorithmCanvas,
-                algorithm6OpSelectRow: this._algorithm6OpSelectRow,
-                feedback6OpRow1: this._feedback6OpRow1,
-                algorithmSelectRow: this._algorithmSelectRow,
-                feedbackRow1: this._feedbackRow1,
-                feedbackRow2: this._feedbackRow2,
-                transitionRow: this._transitionRow,
-                transitionSelect: this._transitionSelect,
-                transitionDropdownGroup: this._transitionDropdownGroup,
-                chordSelectRow: this._chordSelectRow,
-                chordSelect: this._chordSelect,
-                chordDropdown: this._chordDropdown,
-                chordDropdownGroup: this._chordDropdownGroup,
-                monophonicNoteInputBox: this._monophonicNoteInputBox,
-                chordSelectContainer: this._chordSelectContainer,
-                pitchShiftRow: this._pitchShiftRow,
-                pitchShiftSlider: this._pitchShiftSlider,
-                pitchShiftFifthMarkers: this._pitchShiftFifthMarkers,
-                detuneSliderRow: this._detuneSliderRow,
-                detuneSlider: this._detuneSlider,
-                vibratoSelectRow: this._vibratoSelectRow,
-                vibratoSelect: this._vibratoSelect,
-                vibratoDropdownGroup: this._vibratoDropdownGroup,
-                noteFilterTypeRow: this._noteFilterTypeRow,
-                noteFilterEditor: this._noteFilterEditor,
-                noteFilterSimpleButton: this._noteFilterSimpleButton,
-                noteFilterAdvancedButton: this._noteFilterAdvancedButton,
-                noteFilterRow: this._noteFilterRow,
-                noteFilterSimpleCutRow: this._noteFilterSimpleCutRow,
-                noteFilterSimplePeakRow: this._noteFilterSimplePeakRow,
-                distortionRow: this._distortionRow,
-                aliasingRow: this._aliasingRow,
-                distortionSlider: this._distortionSlider,
-                bitcrusherQuantizationRow: this._bitcrusherQuantizationRow,
-                bitcrusherQuantizationSlider: this._bitcrusherQuantizationSlider,
-                bitcrusherFreqRow: this._bitcrusherFreqRow,
-                bitcrusherFreqSlider: this._bitcrusherFreqSlider,
-                panSliderRow: this._panSliderRow,
-                panDropdownGroup: this._panDropdownGroup,
-                panSlider: this._panSlider,
-                chorusRow: this._chorusRow,
-                chorusSlider: this._chorusSlider,
-                echoSustainRow: this._echoSustainRow,
-                echoSustainSlider: this._echoSustainSlider,
-                echoDelayRow: this._echoDelayRow,
-                echoDelaySlider: this._echoDelaySlider,
-                reverbRow: this._reverbRow,
-                reverbSlider: this._reverbSlider,
-                ringModContainerRow: this._ringModContainerRow,
-                ringModSlider: this._ringModSlider,
-                ringModHzSlider: this._ringModHzSlider,
-                ringModWaveSelect: this._ringModWaveSelect,
-                ringModPulsewidthSlider: this._ringModPulsewidthSlider,
-                granularContainerRow: this._granularContainerRow,
-                granularSlider: this._granularSlider,
-                grainSizeSlider: this._grainSizeSlider,
-                grainAmountsSlider: this._grainAmountsSlider,
-                grainRangeSlider: this._grainRangeSlider,
-                phaserMixRow: this._phaserMixRow,
-                phaserMixSlider: this._phaserMixSlider,
-                phaserFreqRow: this._phaserFreqRow,
-                phaserFreqSlider: this._phaserFreqSlider,
-                phaserFeedbackRow: this._phaserFeedbackRow,
-                phaserFeedbackSlider: this._phaserFeedbackSlider,
-                phaserStagesRow: this._phaserStagesRow,
-                phaserStagesSlider: this._phaserStagesSlider,
-                invertWaveRow: this._invertWaveRow,
-                upperNoteLimitRow: this._upperNoteLimitRow,
-                upperNoteLimitInputBox: this._upperNoteLimitInputBox,
-                lowerNoteLimitRow: this._lowerNoteLimitRow,
-                lowerNoteLimitInputBox: this._lowerNoteLimitInputBox,
-                unisonSelectRow: this._unisonSelectRow,
-                unisonSelect: this._unisonSelect,
-                unisonVoicesInputBox: this._unisonVoicesInputBox,
-                unisonSpreadInputBox: this._unisonSpreadInputBox,
-                unisonOffsetInputBox: this._unisonOffsetInputBox,
-                unisonExpressionInputBox: this._unisonExpressionInputBox,
-                unisonSignInputBox: this._unisonSignInputBox,
-                unisonDropdownGroup: this._unisonDropdownGroup,
-                envelopeDropdownGroup: this._envelopeDropdownGroup,
-                envelopeEditor: this.envelopeEditor,
-                instrumentSettingsGroup: this._instrumentSettingsGroup,
-            };
-            applyInstrumentVisibility(this.doc, instrument, colors, prefs, visRefs, {
+            applyInstrumentVisibility(this.doc, instrument, colors, prefs, this._visRefs, {
                 openPanDropdown: this._openPanDropdown,
                 openPulseWidthDropdown: this._openPulseWidthDropdown,
                 openOperatorDropdowns: this._openOperatorDropdowns,
@@ -2123,49 +2201,7 @@ export class SongEditor implements ModSliderProvider {
                 openEnvelopeDropdown: this._openEnvelopeDropdown,
             }, this._ctrlHeld, this._shiftHeld);
 
-            setSelectedValue(this._transitionSelect, instrument.transition);
-            setSelectedValue(this._vibratoSelect, instrument.vibrato);
-            setSelectedValue(this._vibratoTypeSelect, instrument.vibratoType);
-            setSelectedValue(this._chordSelect, instrument.chord);
-            this._panSliderInputBox.value = instrument.pan + "";
-            this._pwmSliderInputBox.value = instrument.pulseWidth + "";
-            this._detuneSliderInputBox.value = (instrument.detune - Config.detuneCenter) + "";
-            this.ringModHzNum.innerHTML = " (" + calculateRingModHertz(instrument.ringModulationHz / (Config.ringModHzRange - 1)) + ")";
-            this.grainSizeNum.innerHTML = " (" + instrument.grainSize * Config.grainSizeStep + ")";
-            this.grainRangeNum.innerHTML = " (" + instrument.grainRange * Config.grainSizeStep + ")";
-            this._instrumentVolumeSlider.updateValue(instrument.volume);
-            this._instrumentVolumeSliderInputBox.value = "" + (instrument.volume);
-            this._vibratoDepthSlider.updateValue(Math.round(instrument.vibratoDepth * 25));
-            this._vibratoDelaySlider.updateValue(Math.round(instrument.vibratoDelay));
-            this._vibratoSpeedSlider.updateValue(instrument.vibratoSpeed);
-            setSelectedValue(this._vibratoTypeSelect, instrument.vibratoType);
-            this._arpeggioSpeedSlider.updateValue(instrument.arpeggioSpeed);
-            this._panDelaySlider.updateValue(instrument.panDelay);
-            this._vibratoDelaySlider.input.title = "" + Math.round(instrument.vibratoDelay);
-            this._vibratoDepthSlider.input.title = "" + instrument.vibratoDepth;
-            this._vibratoSpeedSlider.input.title = "x" + instrument.vibratoSpeed / 10;
-            this._vibratoSpeedDisplay.textContent = "x" + instrument.vibratoSpeed / 10;
-            this._panDelaySlider.input.title = "" + instrument.panDelay;
-            this._arpeggioSpeedSlider.input.title = "x" + prettyNumber(Config.arpSpeedScale[instrument.arpeggioSpeed]);
-            this._arpeggioSpeedDisplay.textContent = "x" + prettyNumber(Config.arpSpeedScale[instrument.arpeggioSpeed]);
-            this._eqFilterSimpleCutSlider.updateValue(instrument.eqFilterSimpleCut);
-            this._eqFilterSimplePeakSlider.updateValue(instrument.eqFilterSimplePeak);
-            this._noteFilterSimpleCutSlider.updateValue(instrument.noteFilterSimpleCut);
-            this._noteFilterSimplePeakSlider.updateValue(instrument.noteFilterSimplePeak);
-            this._envelopeSpeedSlider.updateValue(instrument.envelopeSpeed);
-            this._envelopeSpeedSlider.input.title = "x" + prettyNumber(Config.arpSpeedScale[instrument.envelopeSpeed]);
-            this._envelopeSpeedDisplay.textContent = "x" + prettyNumber(Config.arpSpeedScale[instrument.envelopeSpeed]);
-
-            this._upperNoteLimitRow.firstChild!.textContent = "Upper Note Limit [" + Piano.getPitchNameAlwaysOctave(
-                (instrument.upperNoteLimit + Config.keys[this.doc.song.key].basePitch) % Config.pitchesPerOctave,
-                instrument.upperNoteLimit,
-                this.doc.song.octave)
-                + "]:"
-            this._lowerNoteLimitRow.firstChild!.textContent = "Lower Note Limit [" + Piano.getPitchNameAlwaysOctave(
-                (instrument.lowerNoteLimit + Config.keys[this.doc.song.key].basePitch) % Config.pitchesPerOctave,
-                instrument.lowerNoteLimit,
-                this.doc.song.octave)
-                 + "]:"
+            renderInstrumentValues(this._instrumentValueRefs, this.doc, instrument);
 
             if (instrument.type == InstrumentType.customChipWave) {
                 this._customWaveDrawCanvas.redrawCanvas();
@@ -2177,127 +2213,12 @@ export class SongEditor implements ModSliderProvider {
             this._renderInstrumentBar(channel, instrumentIndex, colors);
         } // Options for mod channel
         else {
-            const modSettingsRefs: ModSettingsRefs = {
-                modulatorGroup: this._modulatorGroup,
-                instrumentSettingsTextRow: this._instrumentSettingsTextRow,
-                instrumentCopyGroup: this._instrumentCopyGroup,
-                instrumentExportGroup: this._instrumentExportGroup,
-                instrumentsButtonRow: this._instrumentsButtonRow,
-                chipNoiseSelectRow: this._chipNoiseSelectRow,
-                chipWaveSelectRow: this._chipWaveSelectRow,
-                useChipWaveAdvancedLoopControlsRow: this._useChipWaveAdvancedLoopControlsRow,
-                chipWaveLoopModeSelectRow: this._chipWaveLoopModeSelectRow,
-                chipWaveLoopStartRow: this._chipWaveLoopStartRow,
-                chipWaveLoopEndRow: this._chipWaveLoopEndRow,
-                chipWaveStartOffsetRow: this._chipWaveStartOffsetRow,
-                chipWavePlayBackwardsRow: this._chipWavePlayBackwardsRow,
-                spectrumRow: this._spectrumRow,
-                harmonicsRow: this._harmonicsRow,
-                drumsetGroup: this._drumsetGroup,
-                customWaveDraw: this._customWaveDraw,
-                supersawDynamismRow: this._supersawDynamismRow,
-                supersawSpreadRow: this._supersawSpreadRow,
-                supersawShapeRow: this._supersawShapeRow,
-                algorithmSelectRow: this._algorithmSelectRow,
-                phaseModGroup: this._phaseModGroup,
-                feedbackRow1: this._feedbackRow1,
-                feedbackRow2: this._feedbackRow2,
-                pulseWidthRow: this._pulseWidthRow,
-                vibratoSelectRow: this._vibratoSelectRow,
-                vibratoDropdownGroup: this._vibratoDropdownGroup,
-                envelopeDropdownGroup: this._envelopeDropdownGroup,
-                detuneSliderRow: this._detuneSliderRow,
-                panSliderRow: this._panSliderRow,
-                panDropdownGroup: this._panDropdownGroup,
-                pulseWidthDropdownGroup: this._pulseWidthDropdownGroup,
-                unisonDropdownGroup: this._unisonDropdownGroup,
-                chordSelectRow: this._chordSelectRow,
-                chordDropdownGroup: this._chordDropdownGroup,
-                transitionRow: this._transitionRow,
-                customInstrumentSettingsGroup: this._customInstrumentSettingsGroup,
-                instrumentTagRow: this._instrumentTagRow,
-                instrumentVolumeSliderRow: this._instrumentVolumeSliderRow,
-                instrumentTypeSelectRow: this._instrumentTypeSelectRow,
-                instrumentSettingsGroup: this._instrumentSettingsGroup,
-                pitchedPresetSelect: this._pitchedPresetSelect,
-                drumPresetSelect: this._drumPresetSelect,
-                modChannelBoxes: this._modChannelBoxes,
-                modInstrumentBoxes: this._modInstrumentBoxes,
-                modSetBoxes: this._modSetBoxes,
-                modFilterBoxes: this._modFilterBoxes,
-                modEnvelopeBoxes: this._modEnvelopeBoxes,
-                modTargetIndicators: this._modTargetIndicators,
-                piano: this._piano,
-                chordSelect: this._chordSelect,
-            };
-            const modSettingsCallbacks: ModSettingsCallbacks = {
-                usageCheck: (channelIndex: number, instrumentIndex: number) => this._usageCheck(channelIndex, instrumentIndex),
-                renderInstrumentBar: (channel: Channel, instrumentIndex: number, colors: ChannelColors) => this._renderInstrumentBar(channel, instrumentIndex, colors),
-                whenSetModSetting: (mod: number, invalid?: boolean) => this._dispatch.whenSetModSetting(mod, invalid),
-            };
-            renderModSettings(this.doc, colors, prefs, modSettingsRefs, modSettingsCallbacks);
-        }
-
-        this._instrumentSettingsGroup.style.color = colors.primaryNote;
-
-        if (this.doc.synth.isFilterModActive(false, this.doc.channel, this.doc.getCurrentInstrument())) {
-            this._eqFilterEditor.render(true, this._ctrlHeld || this._shiftHeld);
-        } else {
-            this._eqFilterEditor.render();
-        }
-        if (this.doc.synth.isFilterModActive(false, 0, 0, true)) {
-            this._songEqFilterEditor.render(true, this._ctrlHeld || this._shiftHeld);
-        } else {
-            this._songEqFilterEditor.render();
-        }
-        this._instrumentVolumeSlider.updateValue(instrument.volume);
-        this._detuneSlider.updateValue(instrument.detune - Config.detuneCenter);
-        this._twoNoteArpBox.checked = instrument.fastTwoNoteArp ? true : false;
-        this._clicklessTransitionBox.checked = instrument.clicklessTransition ? true : false;
-        this._aliasingBox.checked = instrument.aliases ? true : false;
-        this._invertWaveBox.checked = instrument.invertWave ? true : false;
-        this._addEnvelopeButton.disabled = (instrument.envelopeCount >= Config.maxEnvelopeCount);
-
-        this._volumeSlider.updateValue(prefs.volume);
-
-        // If an interface element was selected, but becomes invisible (e.g. an instrument
-        // select menu) just select the editor container so keyboard commands still work.
-        if (wasActive && activeElement != null && activeElement.clientWidth == 0) {
-            this.refocusStage();
+            renderModSettings(this.doc, colors, prefs, this._modSettingsRefs, this._modSettingsCallbacks);
         }
 
         this._setPrompt(this.doc.prompt);
 
-        if (prefs.autoFollow && !this.doc.synth.playing) {
-            this.doc.synth.goToBar(this.doc.bar);
-        }
-
-        // When adding effects or envelopes to an instrument in fullscreen modes,
-        // auto-scroll the settings areas to ensure the new settings are visible.
-        if (this.doc.addedEffect) {
-            const envButtonRect: DOMRect = this._addEnvelopeButton.getBoundingClientRect();
-            const instSettingsRect: DOMRect = this._instrumentSettingsArea.getBoundingClientRect();
-            const settingsRect: DOMRect = this._settingsArea.getBoundingClientRect();
-            this._instrumentSettingsArea.scrollTop += Math.max(0, envButtonRect.top - (instSettingsRect.top + instSettingsRect.height));
-            this._settingsArea.scrollTop += Math.max(0, envButtonRect.top - (settingsRect.top + settingsRect.height));
-            this.doc.addedEffect = false;
-        }
-        if (this.doc.addedEnvelope) {
-            this._instrumentSettingsArea.scrollTop = this._instrumentSettingsArea.scrollHeight;
-            this._settingsArea.scrollTop = this._settingsArea.scrollHeight;
-            this.doc.addedEnvelope = false;
-        }
-
-        if (this._ringModWaveSelect.selectedIndex == Config.operatorWaves.dictionary['pulse width'].index) {
-            this._ringModPulsewidthSlider.container.style.display = "";
-            this._ringModWaveText.style.display = "none";
-        } else {
-            this._ringModPulsewidthSlider.container.style.display = "none";
-            this._ringModWaveText.style.display = "";
-        }
-
-        // Writeback to mods if control key is held while moving a slider.
-        this.handleModRecording();
+        renderPostBranchSync(this._postSyncRefs, this.doc, instrument, colors, this._ctrlHeld, this._shiftHeld, prefs, wasActive, activeElement, this.refocusStage, this.handleModRecording);
 
     }
 
