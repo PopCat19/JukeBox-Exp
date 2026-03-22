@@ -16,6 +16,15 @@ Upstream has a single `editor/changes.ts`. This fork splits it into modules unde
 | Utilities (`generateScaleMap`, `discardInvalidPatternInstruments`) | `editor/changes/util.ts` |
 | Exports | `editor/changes/index.ts` (barrel) |
 
+## `editor/` (other extractions)
+
+| Fork file | Extracted from | Content |
+|---|---|---|
+| `editor/themes.ts` | `editor/ColorConfig.ts` | Theme CSS definitions (~6,400 lines of CSS strings) |
+| `editor/preset-categories.ts` | `editor/EditorConfig.ts` | Preset instrument categories and `Preset`/`PresetCategory` interfaces |
+| `editor/custom-chip-canvas.ts` | `editor/SongEditor.ts` | `CustomChipCanvas` class for waveform editing |
+| `editor/custom-algorythm-canvas.ts` | `editor/SongEditor.ts` | `CustomAlgorythmCanvas` class for FM algorithm editing |
+
 ## `synth/`
 
 Upstream has a single `synth/synth.ts`. This fork splits it into modules:
@@ -31,13 +40,19 @@ Upstream has a single `synth/synth.ts`. This fork splits it into modules:
 | Re-exports | `synth/index.ts` |
 | `Config`, `InstrumentType`, enums, chip wave/noise presets | `synth/SynthConfig.ts` (unchanged) |
 | Synthesis engine (remaining after extraction) | `synth/synth.ts` (reduced from upstream) |
+| `PickedString` class (extracted from synth.ts) | `synth/picked-string.ts` |
+| `EnvelopeComputer` class (extracted from synth.ts) | `synth/envelope-computer.ts` |
+| `Tone` class (extracted from synth.ts) | `synth/tone.ts` |
+| `InstrumentState` class (extracted from synth.ts) | `synth/instrument-state.ts` |
+| `ChannelState` class (extracted from synth.ts) | `synth/channel-state.ts` |
+| Shared filter coefficients and volume utilities (extracted from `Synth` statics) | `synth/synth-shared.ts` |
 | Shared with upstream (unchanged) | `synth/Deque.ts`, `synth/FFT.ts`, `synth/filtering.ts` |
 
 ## 1:1 mapping (no structural change)
 
 These directories map directly — upstream file paths match fork paths:
 
-- `editor/*.ts` (except `changes.ts` → `changes/` dir, and fork-only `OctaveCountPrompt.ts`)
+- `editor/*.ts` (except `changes.ts` → `changes/` dir, and fork-only files: `OctaveCountPrompt.ts`, `themes.ts`, `preset-categories.ts`, `custom-chip-canvas.ts`, `custom-algorythm-canvas.ts`)
 - `player/*.ts`
 - `global/*.ts`
 

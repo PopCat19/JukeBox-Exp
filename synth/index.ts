@@ -29,8 +29,15 @@ export { Channel } from "./channels";
 // Layer 6: Song
 export { Song } from "./song";
 
-// Layer 7: Synth (includes internal classes: PickedString, EnvelopeComputer, Tone, InstrumentState, ChannelState)
+// Layer 7: Synth
 export { Synth } from "./synth";
+
+// Layer 7b: Synth internal classes
+export { PickedString } from "./picked-string";
+export { EnvelopeComputer } from "./envelope-computer";
+export { Tone } from "./tone";
+export { InstrumentState } from "./instrument-state";
+export { ChannelState } from "./channel-state";
 
 // Re-export types from SynthConfig that consumers expect from synth module
 export { Dictionary, DictionaryArray, FilterType, EnvelopeType, InstrumentType, Transition, Chord, Envelope, Config } from "./SynthConfig";
