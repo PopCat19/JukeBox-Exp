@@ -2218,7 +2218,7 @@ export class SongEditor implements ModSliderProvider {
 
         this._setPrompt(this.doc.prompt);
 
-        renderPostBranchSync(this._postSyncRefs, this.doc, instrument, colors, this._ctrlHeld, this._shiftHeld, prefs, wasActive, activeElement, this.refocusStage, this.handleModRecording);
+        renderPostBranchSync(this._postSyncRefs, this.doc, instrument, colors, this._ctrlHeld, this._shiftHeld, prefs, wasActive, activeElement, () => this.refocusStage(), () => this.handleModRecording());
 
     }
 
