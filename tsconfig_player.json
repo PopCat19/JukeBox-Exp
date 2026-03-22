@@ -1,4 +1,4 @@
 {
 	"extends": "./tsconfig.base.json",
-	"files": [ "player/main.ts" ]
+	"files": [ "player/main.ts", "player/player-ui.ts", "player/player-timeline.ts", "player/player-controls.ts", "player/player-keyboard.ts" ]
 }
