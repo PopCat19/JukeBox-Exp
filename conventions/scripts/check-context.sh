@@ -104,8 +104,8 @@ if [[ -f ".dev-conventions/context.sh" ]]; then
             exit 1
         fi
     fi
-elif [[ -f "conventions/src/check-context.sh" ]]; then
-    source conventions/src/check-context.sh
+elif [[ -f "conventions/scripts/check-context.sh" ]]; then
+    source conventions/scripts/check-context.sh
     if ! check_context_drift .; then
         echo "context.md drift detected. Fix before committing." >&2
         exit 1

@@ -20,7 +20,7 @@ DEFAULT_REMOTE="https://github.com/PopCat19/dev-conventions"
 DEFAULT_BRANCH="main"
 
 # Build default files list dynamically
-# Discovers all .md files in conventions/ plus shell scripts in conventions/src/
+# Discovers all .md files in conventions/ plus shell scripts in conventions/scripts/
 build_default_files() {
 	local files=()
 
@@ -32,12 +32,12 @@ build_default_files() {
 	# Add shell scripts (fixed set - these are the CLI components)
 	files+=(
 		"conventions/dev-conventions.sh"
-		"conventions/src/lib.sh"
-		"conventions/src/merge.sh"
-		"conventions/src/changelog.sh"
-		"conventions/src/sync.sh"
-		"conventions/src/lint.sh"
-		"conventions/src/check-context.sh"
+		"conventions/scripts/lib.sh"
+		"conventions/scripts/merge.sh"
+		"conventions/scripts/changelog.sh"
+		"conventions/scripts/sync.sh"
+		"conventions/scripts/lint.sh"
+		"conventions/scripts/check-context.sh"
 	)
 
 	echo "${files[@]}"
