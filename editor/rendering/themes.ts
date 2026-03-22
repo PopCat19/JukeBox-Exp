@@ -4300,7 +4300,7 @@ export const themes: { [name: string]: string } = {
 				}
 
 				* {
-					cursor: url("theme_resources/wackybox_cursor.png"), auto !important;
+					cursor: url("assets/images/wackybox_cursor.png"), auto !important;
 				}
 
 			`,
@@ -4873,37 +4873,37 @@ export const themes: { [name: string]: string } = {
 				--text-spacing-icon: > ;
 				--scrollbar-color: #bf2c5d;
 				
-				--file-page-symbol: url("theme_resources/icon-file.png");
-				--edit-pencil-symbol: url("theme_resources/icon-edit.png");
-				--preferences-gear-symbol: url("theme_resources/icon-preferences.png");
-				--instrument-copy-symbol: url("theme_resources/icon-copy.png");
-				--instrument-paste-symbol: url("theme_resources/icon-paste.png");
-				--play-symbol: url("theme_resources/icon-play.png");
-				--pause-symbol: url("theme_resources/icon-pause.png");
-				--record-symbol: url("theme_resources/icon-record.png");
-				--stop-symbol: url("theme_resources/icon-stop.png");
-				--prev-bar-symbol: url("theme_resources/icon-prev.png");
-				--next-bar-symbol: url("theme_resources/icon-next.png");
-				--muted-symbol: url("theme_resources/icon-speakerMuted.png");
-				--unmuted-symbol: url("theme_resources/icon-speaker.png");
-				--volume-symbol: url("theme_resources/icon-speaker.png");
-				--zoom-in-symbol: url("theme_resources/icon-zoomIn.png");
-				--zoom-out-symbol: url("theme_resources/icon-zoomOut.png");
-				--export-symbol: url("theme_resources/icon-export.png");
+				--file-page-symbol: url("assets/images/icon-file.png");
+				--edit-pencil-symbol: url("assets/images/icon-edit.png");
+				--preferences-gear-symbol: url("assets/images/icon-preferences.png");
+				--instrument-copy-symbol: url("assets/images/icon-copy.png");
+				--instrument-paste-symbol: url("assets/images/icon-paste.png");
+				--play-symbol: url("assets/images/icon-play.png");
+				--pause-symbol: url("assets/images/icon-pause.png");
+				--record-symbol: url("assets/images/icon-record.png");
+				--stop-symbol: url("assets/images/icon-stop.png");
+				--prev-bar-symbol: url("assets/images/icon-prev.png");
+				--next-bar-symbol: url("assets/images/icon-next.png");
+				--muted-symbol: url("assets/images/icon-speakerMuted.png");
+				--unmuted-symbol: url("assets/images/icon-speaker.png");
+				--volume-symbol: url("assets/images/icon-speaker.png");
+				--zoom-in-symbol: url("assets/images/icon-zoomIn.png");
+				--zoom-out-symbol: url("assets/images/icon-zoomOut.png");
+				--export-symbol: url("assets/images/icon-export.png");
 					}
 			* {
-			cursor: url("theme_resources/abyssbox_cursor.png"), auto;
+			cursor: url("assets/images/abyssbox_cursor.png"), auto;
 			}
 			
 				@font-face {
 			   font-family: "AbyssType";
 			   src:
-				url("theme_resources/abysstype.otf") format("opentype") tech(color-COLRv1),
+				url("assets/fonts/abysstype.otf") format("opentype") tech(color-COLRv1),
 				}
 	
 				/* sets background image */
 				body {
-				background-image: url("theme_resources/stripesbg.gif") !important;
+				background-image: url("assets/images/stripesbg.gif") !important;
 				background-position: center;
 				background-repeat: repeat;
 	
@@ -4915,7 +4915,7 @@ export const themes: { [name: string]: string } = {
 					}
 	
 				#text-content {
-						border-image-source: url("theme_resources/abyssbox_border.png");
+						border-image-source: url("assets/images/abyssbox_border.png");
 						border-image-slice: 4 fill; 
 					   border-image-width: 8px; 
 					border-image-repeat: stretch; 
@@ -4928,7 +4928,7 @@ export const themes: { [name: string]: string } = {
 						image-rendering: optimizeSpeed !important;             /* IE */
 					}
 				#beepboxEditorContainer {
-						border-image-source: url("theme_resources/abyssbox_border.png");
+						border-image-source: url("assets/images/abyssbox_border.png");
 						border-image-slice: 4 fill; 
 					   	border-image-width: 8px; 
 						border-image-repeat: stretch;
@@ -4953,7 +4953,7 @@ export const themes: { [name: string]: string } = {
 				button.importInstrumentButton, 
 				.beepboxEditor select, 
 				.beepboxEditor .select2-selection__rendered {
-						border-image-source: url("theme_resources/abyssbox_border.png") !important;
+						border-image-source: url("assets/images/abyssbox_border.png") !important;
 						border-image-slice: 4 fill !important; 
 					   border-image-width: 4px !important; 
 					border-image-repeat: stretch !important;
@@ -4965,7 +4965,7 @@ export const themes: { [name: string]: string } = {
 						image-rendering: pixelated !important;                 /* Future browsers */
 						image-rendering: optimizeSpeed !important;             /* IE */
 	
-						cursor: url("theme_resources/abyssbox_cursor_hand.png"), pointer !important;
+						cursor: url("assets/images/abyssbox_cursor_hand.png"), pointer !important;
 					}
 	
 				div.selectRow button:not(.copyButton,.pasteButton,.exportInstrumentButton,.importInstrumentButton) {
@@ -4980,7 +4980,7 @@ export const themes: { [name: string]: string } = {
 				@font-face {
 			   font-family: "AbyssType_small";
 			   src:
-				url("theme_resources/abysstype_small.otf") format("opentype") tech(color-COLRv1),
+				url("assets/fonts/abysstype_small.otf") format("opentype") tech(color-COLRv1),
 				}
 	
 				html {
@@ -4993,72 +4993,72 @@ export const themes: { [name: string]: string } = {
 	
 				.beepboxEditor input[type="range"]::-webkit-slider-thumb
 				{
-					cursor: url("theme_resources/abyssbox_cursor_hand.png"), pointer !important;
+					cursor: url("assets/images/abyssbox_cursor_hand.png"), pointer !important;
 				}
 				 
 				.beepboxEditor input[type="range"]::-webkit-slider-runnable-track
 				{
-					cursor: url("theme_resources/abyssbox_cursor_hand.png"), pointer !important;
+					cursor: url("assets/images/abyssbox_cursor_hand.png"), pointer !important;
 				}
 				 
 				.beepboxEditor input[type="range"]:focus::-webkit-slider-runnable-track
 				{
-					cursor: url("theme_resources/abyssbox_cursor_hand.png"), pointer !important;
+					cursor: url("assets/images/abyssbox_cursor_hand.png"), pointer !important;
 				}
 				 
 				.beepboxEditor input[type="range"]::-ms-thumb
 				{
-					cursor: url("theme_resources/abyssbox_cursor_hand.png"), pointer !important;
+					cursor: url("assets/images/abyssbox_cursor_hand.png"), pointer !important;
 				}
 				 
 				.beepboxEditor input[type="range"]::-ms-track
 				{
-					cursor: url("theme_resources/abyssbox_cursor_hand.png"), pointer !important;
+					cursor: url("assets/images/abyssbox_cursor_hand.png"), pointer !important;
 				}
 				 
 				.beepboxEditor input[type="range"]:focus::-ms-track
 				{
-					cursor: url("theme_resources/abyssbox_cursor_hand.png"), pointer !important;
+					cursor: url("assets/images/abyssbox_cursor_hand.png"), pointer !important;
 				}
 				 
 				.beepboxEditor input[type="range"]::-moz-range-thumb
 				{
-					cursor: url("theme_resources/abyssbox_cursor_hand.png"), pointer !important;
+					cursor: url("assets/images/abyssbox_cursor_hand.png"), pointer !important;
 				}
 				 
 				.beepboxEditor input[type="range"]::-moz-range-track
 				{
-					cursor: url("theme_resources/abyssbox_cursor_hand.png"), pointer !important;
+					cursor: url("assets/images/abyssbox_cursor_hand.png"), pointer !important;
 				}
 				 
 				.beepboxEditor input[type="range"]:focus::-moz-range-track
 				{
-					cursor: url("theme_resources/abyssbox_cursor_hand.png"), pointer !important;
+					cursor: url("assets/images/abyssbox_cursor_hand.png"), pointer !important;
 				}
 				 
 				.beepboxEditor input[type="text"],
 				.beepboxEditor input[type="number"]
 				{
-					cursor: url("theme_resources/abyssbox_cursor_hand.png"), pointer !important;
+					cursor: url("assets/images/abyssbox_cursor_hand.png"), pointer !important;
 				}
 				 
 				.beepboxEditor input[type="checkbox"]
 				{
-					cursor: url("theme_resources/abyssbox_cursor_hand.png"), pointer !important;
+					cursor: url("assets/images/abyssbox_cursor_hand.png"), pointer !important;
 				}
 				 
 				.beepboxEditor input[type="checkbox"]:checked
 				{
-					cursor: url("theme_resources/abyssbox_cursor_hand.png"), pointer !important;
+					cursor: url("assets/images/abyssbox_cursor_hand.png"), pointer !important;
 				}
 				 
 				.beepboxEditor input[type="checkbox"]:checked:after
 				{
-					cursor: url("theme_resources/abyssbox_cursor_hand.png"), pointer !important;
+					cursor: url("assets/images/abyssbox_cursor_hand.png"), pointer !important;
 				}
 	
 				div.selectRow span {
-					cursor: url("theme_resources/abyssbox_cursor_hand.png"), pointer !important;
+					cursor: url("assets/images/abyssbox_cursor_hand.png"), pointer !important;
 				}
 	
 				`,
@@ -5192,27 +5192,27 @@ export const themes: { [name: string]: string } = {
 				--text-spacing-icon: > ;
 				--scrollbar-color: #bf2c5d;
 
-				--file-page-symbol: url("theme_resources/icon-file.png");
-				--edit-pencil-symbol: url("theme_resources/icon-edit.png");
-				--preferences-gear-symbol: url("theme_resources/icon-preferences.png");
-				--instrument-copy-symbol: url("theme_resources/icon-copy.png");
-				--instrument-paste-symbol: url("theme_resources/icon-paste.png");
-				--play-symbol: url("theme_resources/icon-play.png");
-				--pause-symbol: url("theme_resources/icon-pause.png");
-				--record-symbol: url("theme_resources/icon-record.png");
-				--stop-symbol: url("theme_resources/icon-stop.png");
-				--prev-bar-symbol: url("theme_resources/icon-prev.png");
-				--next-bar-symbol: url("theme_resources/icon-next.png");
-				--muted-symbol: url("theme_resources/icon-speakerMuted.png");
-				--unmuted-symbol: url("theme_resources/icon-speaker.png");
-				--volume-symbol: url("theme_resources/icon-speaker.png");
-				--zoom-in-symbol: url("theme_resources/icon-zoomIn.png");
-				--zoom-out-symbol: url("theme_resources/icon-zoomOut.png");
-				--export-symbol: url("theme_resources/icon-export.png");
+				--file-page-symbol: url("assets/images/icon-file.png");
+				--edit-pencil-symbol: url("assets/images/icon-edit.png");
+				--preferences-gear-symbol: url("assets/images/icon-preferences.png");
+				--instrument-copy-symbol: url("assets/images/icon-copy.png");
+				--instrument-paste-symbol: url("assets/images/icon-paste.png");
+				--play-symbol: url("assets/images/icon-play.png");
+				--pause-symbol: url("assets/images/icon-pause.png");
+				--record-symbol: url("assets/images/icon-record.png");
+				--stop-symbol: url("assets/images/icon-stop.png");
+				--prev-bar-symbol: url("assets/images/icon-prev.png");
+				--next-bar-symbol: url("assets/images/icon-next.png");
+				--muted-symbol: url("assets/images/icon-speakerMuted.png");
+				--unmuted-symbol: url("assets/images/icon-speaker.png");
+				--volume-symbol: url("assets/images/icon-speaker.png");
+				--zoom-in-symbol: url("assets/images/icon-zoomIn.png");
+				--zoom-out-symbol: url("assets/images/icon-zoomOut.png");
+				--export-symbol: url("assets/images/icon-export.png");
 			}
 					/* sets background image */
 					body {
-					background-image: url("theme_resources/stripesbg_light.gif") !important;
+					background-image: url("assets/images/stripesbg_light.gif") !important;
 					background-position: center;
 					background-repeat: repeat;
 		
@@ -5223,7 +5223,7 @@ export const themes: { [name: string]: string } = {
 					image-rendering: optimizeSpeed !important;             /* IE */
 						}		
 				#text-content {
-						border-image-source: url("theme_resources/abyssbox_border_light.png");
+						border-image-source: url("assets/images/abyssbox_border_light.png");
 						border-image-slice: 4 fill; 
 					   border-image-width: 8px; 
 					border-image-repeat: stretch; 
@@ -5236,7 +5236,7 @@ export const themes: { [name: string]: string } = {
 						image-rendering: optimizeSpeed !important;             /* IE */
 					}
 				#beepboxEditorContainer {
-						border-image-source: url("theme_resources/abyssbox_border_light.png");
+						border-image-source: url("assets/images/abyssbox_border_light.png");
 						border-image-slice: 4 fill; 
 					   border-image-width: 8px; 
 					border-image-repeat: stretch;
@@ -5261,7 +5261,7 @@ export const themes: { [name: string]: string } = {
 					button.importInstrumentButton, 
 					.beepboxEditor select, 
 					.beepboxEditor .select2-selection__rendered {
-							border-image-source: url("theme_resources/abyssbox_border_light.png") !important;
+							border-image-source: url("assets/images/abyssbox_border_light.png") !important;
 							border-image-slice: 4 fill !important; 
 						   border-image-width: 4px !important; 
 						border-image-repeat: stretch !important;
@@ -5273,7 +5273,7 @@ export const themes: { [name: string]: string } = {
 							image-rendering: pixelated !important;                 /* Future browsers */
 							image-rendering: optimizeSpeed !important;             /* IE */
 		
-							cursor: url("theme_resources/abyssbox_cursor_hand.png"), pointer !important;
+							cursor: url("assets/images/abyssbox_cursor_hand.png"), pointer !important;
 						}
 		
 					div.selectRow button:not(.copyButton,.pasteButton,.exportInstrumentButton,.importInstrumentButton) {
@@ -5287,18 +5287,18 @@ export const themes: { [name: string]: string } = {
 	
 			/* sets cursor */ 
 			* {
-			cursor: url("theme_resources/abyssbox_cursor.png"), auto !important;
+			cursor: url("assets/images/abyssbox_cursor.png"), auto !important;
 			}
 				@font-face {
 			   font-family: "AbyssType";
 			   src:
-				url("theme_resources/abysstype.otf") format("opentype") tech(color-COLRv1),
+				url("assets/fonts/abysstype.otf") format("opentype") tech(color-COLRv1),
 				}
 	
 				@font-face {
 			   font-family: "AbyssType_small";
 			   src:
-				url("theme_resources/abysstype_small.otf") format("opentype") tech(color-COLRv1),
+				url("assets/fonts/abysstype_small.otf") format("opentype") tech(color-COLRv1),
 				}
 	
 				html {
@@ -5310,72 +5310,72 @@ export const themes: { [name: string]: string } = {
 	
 				.beepboxEditor input[type="range"]::-webkit-slider-thumb
 				{
-					cursor: url("theme_resources/abyssbox_cursor_hand.png"), pointer !important;
+					cursor: url("assets/images/abyssbox_cursor_hand.png"), pointer !important;
 				}
 				 
 				.beepboxEditor input[type="range"]::-webkit-slider-runnable-track
 				{
-					cursor: url("theme_resources/abyssbox_cursor_hand.png"), pointer !important;
+					cursor: url("assets/images/abyssbox_cursor_hand.png"), pointer !important;
 				}
 				 
 				.beepboxEditor input[type="range"]:focus::-webkit-slider-runnable-track
 				{
-					cursor: url("theme_resources/abyssbox_cursor_hand.png"), pointer !important;
+					cursor: url("assets/images/abyssbox_cursor_hand.png"), pointer !important;
 				}
 				 
 				.beepboxEditor input[type="range"]::-ms-thumb
 				{
-					cursor: url("theme_resources/abyssbox_cursor_hand.png"), pointer !important;
+					cursor: url("assets/images/abyssbox_cursor_hand.png"), pointer !important;
 				}
 				 
 				.beepboxEditor input[type="range"]::-ms-track
 				{
-					cursor: url("theme_resources/abyssbox_cursor_hand.png"), pointer !important;
+					cursor: url("assets/images/abyssbox_cursor_hand.png"), pointer !important;
 				}
 				 
 				.beepboxEditor input[type="range"]:focus::-ms-track
 				{
-					cursor: url("theme_resources/abyssbox_cursor_hand.png"), pointer !important;
+					cursor: url("assets/images/abyssbox_cursor_hand.png"), pointer !important;
 				}
 				 
 				.beepboxEditor input[type="range"]::-moz-range-thumb
 				{
-					cursor: url("theme_resources/abyssbox_cursor_hand.png"), pointer !important;
+					cursor: url("assets/images/abyssbox_cursor_hand.png"), pointer !important;
 				}
 				 
 				.beepboxEditor input[type="range"]::-moz-range-track
 				{
-					cursor: url("theme_resources/abyssbox_cursor_hand.png"), pointer !important;
+					cursor: url("assets/images/abyssbox_cursor_hand.png"), pointer !important;
 				}
 				 
 				.beepboxEditor input[type="range"]:focus::-moz-range-track
 				{
-					cursor: url("theme_resources/abyssbox_cursor_hand.png"), pointer !important;
+					cursor: url("assets/images/abyssbox_cursor_hand.png"), pointer !important;
 				}
 				 
 				.beepboxEditor input[type="text"],
 				.beepboxEditor input[type="number"]
 				{
-					cursor: url("theme_resources/abyssbox_cursor_hand.png"), pointer !important;
+					cursor: url("assets/images/abyssbox_cursor_hand.png"), pointer !important;
 				}
 				 
 				.beepboxEditor input[type="checkbox"]
 				{
-					cursor: url("theme_resources/abyssbox_cursor_hand.png"), pointer !important;
+					cursor: url("assets/images/abyssbox_cursor_hand.png"), pointer !important;
 				}
 				 
 				.beepboxEditor input[type="checkbox"]:checked
 				{
-					cursor: url("theme_resources/abyssbox_cursor_hand.png"), pointer !important;
+					cursor: url("assets/images/abyssbox_cursor_hand.png"), pointer !important;
 				}
 				 
 				.beepboxEditor input[type="checkbox"]:checked:after
 				{
-					cursor: url("theme_resources/abyssbox_cursor_hand.png"), pointer !important;
+					cursor: url("assets/images/abyssbox_cursor_hand.png"), pointer !important;
 				}
 	
 				div.selectRow span {
-					cursor: url("theme_resources/abyssbox_cursor_hand.png"), pointer !important;
+					cursor: url("assets/images/abyssbox_cursor_hand.png"), pointer !important;
 				}
 	
 				`,
@@ -6372,7 +6372,7 @@ export const themes: { [name: string]: string } = {
 		/* replaces hotdog with an image of the girls using the same scratch sprites from the 404 page*/
 		#Hotdog {
 			display: inline !important;
-			content: url("theme_resources/AzurLaneThemeStarterSquad.png") !important;
+			content: url("assets/images/AzurLaneThemeStarterSquad.png") !important;
 			width: 75%;
 			height: 75%;
 			text-align: center;
@@ -6380,11 +6380,11 @@ export const themes: { [name: string]: string } = {
 		}
 		/* sets cursor */
 		* {
-		cursor: url("theme_resources/AzurLaneThemeMouse.png"), auto !important;
+		cursor: url("assets/images/AzurLaneThemeMouse.png"), auto !important;
 		}
 		/* sets background image */
 		body {
-		background-image: url("theme_resources/AzurLaneThemeMemoryTaskBackground.png") !important;
+		background-image: url("assets/images/AzurLaneThemeMemoryTaskBackground.png") !important;
 		background-size: cover;
 		background-position: center;
 		background-repeat: no-repeat;
@@ -6398,7 +6398,7 @@ export const themes: { [name: string]: string } = {
 		}
 		#text-content > section > h1 {
 		margin: auto;
-		content: url("theme_resources/AzurLaneThemeLogo.png");
+		content: url("assets/images/AzurLaneThemeLogo.png");
 		}
 		.promptContainerBG::before {
 			box-shadow: inset 0 0 2000px rgba(255, 255, 255, .5);
