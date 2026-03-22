@@ -57,7 +57,7 @@ import { SpectrumEditor, SpectrumEditorPrompt } from "./components/SpectrumEdito
 import { CustomThemePrompt } from "./prompts/CustomThemePrompt";
 import { ThemePrompt } from "./prompts/ThemePrompt";
 import { TipPrompt } from "./prompts/TipPrompt";
-import { ChangeTempo, ChangeKeyOctave, ChangeChorus, ChangeEchoDelay, ChangeEchoSustain, ChangeReverb, ChangeVolume, ChangePan, ChangeSupersawDynamism, ChangeSupersawSpread, ChangeSupersawShape, ChangePulseWidth, ChangeFeedbackAmplitude, ChangeOperatorAmplitude, ChangeOperatorFrequency, ChangeDrumsetEnvelope, ChangePasteInstrument, ChangePreset, pickRandomPresetValue, ChangeRandomGeneratedInstrument, ChangeEQFilterType, ChangeNoteFilterType, ChangeEQFilterSimpleCut, ChangeEQFilterSimplePeak, ChangeNoteFilterSimpleCut, ChangeNoteFilterSimplePeak, ChangeScale, ChangeDetectKey, ChangeKey, ChangeRhythm, ChangeFeedbackType, ChangeAlgorithm, ChangeChipWave, ChangeNoiseWave, ChangeTransition, ChangeToggleEffects, ChangeVibrato, ChangeUnison, ChangeChord, ChangeSong, ChangePitchShift, ChangeDetune, ChangeDistortion, ChangeStringSustain, ChangeBitcrusherFreq, ChangeBitcrusherQuantization, ChangeAddEnvelope, ChangeEnvelopeSpeed, ChangeAddChannelInstrument, ChangeRemoveChannelInstrument, ChangeCustomWave, ChangeOperatorWaveform, ChangeOperatorPulseWidth, ChangeSongTitle, ChangeVibratoDepth, ChangeVibratoSpeed, ChangeVibratoDelay, ChangeVibratoType, ChangePanDelay, ChangeArpeggioSpeed, ChangeFastTwoNoteArp, ChangeClicklessTransition, ChangeAliasing, ChangeHoldingModRecording, ChangeChipWavePlayBackwards, ChangeChipWaveStartOffset, ChangeChipWaveLoopEnd, ChangeChipWaveLoopStart, ChangeChipWaveLoopMode, ChangeChipWaveUseAdvancedLoopControls, ChangeDecimalOffset, ChangeUnisonVoices, ChangeUnisonSpread, ChangeUnisonOffset, ChangeUnisonExpression, ChangeUnisonSign, Change6OpFeedbackType, Change6OpAlgorithm, ChangeCustomAlgorythmorFeedback, ChangeRingMod, ChangeRingModHz, ChangeRingModChipWave, ChangeRingModPulseWidth, ChangeGranular, ChangeGrainSize, ChangeGrainAmounts, ChangeGrainRange, ChangeMonophonicTone, ChangePhaserMix, ChangePhaserFreq, ChangePhaserFeedback, ChangePhaserStages, ChangeInvertWave, ChangeUpperLimit, ChangeLowerLimit, pickNextPresetValue } from "./changes";
+import { ChangeTempo, ChangeChorus, ChangeEchoDelay, ChangeEchoSustain, ChangeReverb, ChangeVolume, ChangePan, ChangeSupersawDynamism, ChangeSupersawSpread, ChangeSupersawShape, ChangePulseWidth, ChangeFeedbackAmplitude, ChangeOperatorAmplitude, ChangeOperatorFrequency, ChangeDrumsetEnvelope, ChangeEQFilterSimpleCut, ChangeEQFilterSimplePeak, ChangeNoteFilterSimpleCut, ChangeNoteFilterSimplePeak, ChangeSong, ChangePitchShift, ChangeDetune, ChangeDistortion, ChangeStringSustain, ChangeBitcrusherFreq, ChangeBitcrusherQuantization, ChangeEnvelopeSpeed, ChangeCustomWave, ChangeOperatorWaveform, ChangeOperatorPulseWidth, ChangeSongTitle, ChangeVibratoDepth, ChangeVibratoSpeed, ChangeVibratoDelay, ChangePanDelay, ChangeArpeggioSpeed, ChangeFastTwoNoteArp, ChangeClicklessTransition, ChangeAliasing, ChangeHoldingModRecording, ChangeDecimalOffset, ChangeUnisonVoices, ChangeUnisonSpread, ChangeUnisonOffset, ChangeUnisonExpression, ChangeUnisonSign, ChangeCustomAlgorythmorFeedback, ChangeRingMod, ChangeRingModHz, ChangeRingModPulseWidth, ChangeGranular, ChangeGrainSize, ChangeGrainAmounts, ChangeGrainRange, ChangePhaserMix, ChangePhaserFreq, ChangePhaserFeedback, ChangePhaserStages, ChangeInvertWave, ChangeUpperLimit, ChangeLowerLimit } from "./changes";
 
 import { TrackEditor } from "./components/TrackEditor";
 import { oscilloscopeCanvas } from "../shared/Oscilloscope";
@@ -66,6 +66,9 @@ import { SampleLoadingStatusPrompt } from "./prompts/SampleLoadingStatusPrompt";
 import { AddSamplesPrompt } from "./prompts/AddSamplesPrompt";
 import { ShortenerConfigPrompt } from "./prompts/ShortenerConfigPrompt";
 import { KeyboardHandler } from "./core/keyboard-handler";
+import { ChangeDispatcher } from "./core/change-dispatcher";
+import { renderOptionsMenu } from "./renderers/render-options-menu";
+import { renderEffectsSelect } from "./renderers/render-effects";
 
 const { button, div, input, select, span, optgroup, option, canvas } = HTML;
 
@@ -198,6 +201,7 @@ export class SongEditor implements ModSliderProvider {
 
     private readonly _keyboardLayout: KeyboardLayout = new KeyboardLayout(this.doc);
     private readonly _keyboardHandler: KeyboardHandler;
+    private readonly _dispatch: ChangeDispatcher;
     private readonly _patternEditorPrev: PatternEditor = new PatternEditor(this.doc, false, -1);
     private readonly _patternEditor: PatternEditor = new PatternEditor(this.doc, true, 0);
     private readonly _patternEditorNext: PatternEditor = new PatternEditor(this.doc, false, 1);
@@ -1025,6 +1029,40 @@ export class SongEditor implements ModSliderProvider {
     public get unisonExpressionInputBox(): HTMLInputElement { return this._unisonExpressionInputBox; }
     public get unisonSignInputBox(): HTMLInputElement { return this._unisonSignInputBox; }
     public get monophonicNoteInputBox(): HTMLInputElement { return this._monophonicNoteInputBox; }
+    public get piano(): Piano { return this._piano; }
+    public get customAlgorithmCanvas(): CustomAlgorythmCanvas { return this._customAlgorithmCanvas; }
+    public get tempoStepper(): HTMLInputElement { return this._tempoStepper; }
+    public get scaleSelect(): HTMLSelectElement { return this._scaleSelect; }
+    public get keySelect(): HTMLSelectElement { return this._keySelect; }
+    public get rhythmSelect(): HTMLSelectElement { return this._rhythmSelect; }
+    public get feedbackTypeSelect(): HTMLSelectElement { return this._feedbackTypeSelect; }
+    public get algorithmSelect(): HTMLSelectElement { return this._algorithmSelect; }
+    public get feedback6OpTypeSelect(): HTMLSelectElement { return this._feedback6OpTypeSelect; }
+    public get algorithm6OpSelect(): HTMLSelectElement { return this._algorithm6OpSelect; }
+    public get instrumentButtons(): HTMLButtonElement[] { return this._instrumentButtons; }
+    public get instrumentAddButton(): HTMLButtonElement { return this._instrumentAddButton; }
+    public get instrumentRemoveButton(): HTMLButtonElement { return this._instrumentRemoveButton; }
+    public get modChannelBoxes(): HTMLSelectElement[] { return this._modChannelBoxes; }
+    public get modInstrumentBoxes(): HTMLSelectElement[] { return this._modInstrumentBoxes; }
+    public get modSetBoxes(): HTMLSelectElement[] { return this._modSetBoxes; }
+    public get modFilterBoxes(): HTMLSelectElement[] { return this._modFilterBoxes; }
+    public get modEnvelopeBoxes(): HTMLSelectElement[] { return this._modEnvelopeBoxes; }
+    public get chipWaveSelect(): HTMLSelectElement { return this._chipWaveSelect; }
+    public get ringModWaveSelect(): HTMLSelectElement { return this._ringModWaveSelect; }
+    public get useChipWaveAdvancedLoopControlsBox(): HTMLInputElement { return this._useChipWaveAdvancedLoopControlsBox; }
+    public get chipWaveLoopModeSelect(): HTMLSelectElement { return this._chipWaveLoopModeSelect; }
+    public get chipWavePlayBackwardsBox(): HTMLInputElement { return this._chipWavePlayBackwardsBox; }
+    public get chipNoiseSelect(): HTMLSelectElement { return this._chipNoiseSelect; }
+    public get transitionSelect(): HTMLSelectElement { return this._transitionSelect; }
+    public get effectsSelect(): HTMLSelectElement { return this._effectsSelect; }
+    public get vibratoSelect(): HTMLSelectElement { return this._vibratoSelect; }
+    public get vibratoTypeSelect(): HTMLSelectElement { return this._vibratoTypeSelect; }
+    public get unisonSelect(): HTMLSelectElement { return this._unisonSelect; }
+    public get chordSelect(): HTMLSelectElement { return this._chordSelect; }
+    public get pitchedPresetSelect(): HTMLSelectElement { return this._pitchedPresetSelect; }
+    public get drumPresetSelect(): HTMLSelectElement { return this._drumPresetSelect; }
+    public get setChipWaveLoopEndToEndButton(): HTMLButtonElement { return this._setChipWaveLoopEndToEndButton; }
+    public get addEnvelopeButton(): HTMLButtonElement { return this._addEnvelopeButton; }
 
     public toggleRecord(): void {
         if (this.doc.synth.playing) {
@@ -1034,11 +1072,11 @@ export class SongEditor implements ModSliderProvider {
         }
     }
     public openPrompt(name: string): void { this._openPrompt(name); }
-    public copyInstrument(): void { this._copyInstrument(); }
-    public pasteInstrument(): void { this._pasteInstrument(); }
-    public randomPreset(): void { this._randomPreset(); }
-    public randomGenerated(alt: boolean): void { this._randomGenerated(alt); }
-    public nextPreset(): void { this._nextPreset(); }
+    public copyInstrument(): void { this._dispatch.copyInstrument(); }
+    public pasteInstrument(): void { this._dispatch.pasteInstrument(); }
+    public randomPreset(): void { this._dispatch.randomPreset(); }
+    public randomGenerated(alt: boolean): void { this._dispatch.randomGenerated(alt); }
+    public nextPreset(): void { this._dispatch.nextPreset(); }
     public copyTextToClipboard(text: string): void { this._copyTextToClipboard(text); }
     public toggleDropdownMenu(id: number, index?: number): void { this._toggleDropdownMenu(id, index); }
     public renderInstrumentBar(channel: Channel, instrumentIndex: number, colors: ChannelColors): void { this._renderInstrumentBar(channel, instrumentIndex, colors); }
@@ -1066,6 +1104,7 @@ export class SongEditor implements ModSliderProvider {
     constructor(/*private _doc: SongDocument*/) {
 
         this._keyboardHandler = new KeyboardHandler(this);
+        this._dispatch = new ChangeDispatcher(this);
 
         this.doc.notifier.watch(this.whenUpdated);
         this.doc.modRecordingHandler = () => { this.handleModRecording() };
@@ -1240,39 +1279,39 @@ export class SongEditor implements ModSliderProvider {
         this._editMenu.addEventListener("change", this._editMenuHandler);
         this._optionsMenu.addEventListener("change", this._optionsMenuHandler);
         this._customWavePresetDrop.addEventListener("change", this._customWavePresetHandler);
-        this._tempoStepper.addEventListener("change", this._whenSetTempo);
-        this._scaleSelect.addEventListener("change", this._whenSetScale);
-        this._keySelect.addEventListener("change", this._whenSetKey);
-        this._octaveStepper.addEventListener("change", this._whenSetOctave);
-        this._rhythmSelect.addEventListener("change", this._whenSetRhythm);
-        //this._pitchedPresetSelect.addEventListener("change", this._whenSetPitchedPreset);
-        //this._drumPresetSelect.addEventListener("change", this._whenSetDrumPreset);
-        this._algorithmSelect.addEventListener("change", this._whenSetAlgorithm);
-        this._instrumentsButtonBar.addEventListener("click", this._whenSelectInstrument);
+        this._tempoStepper.addEventListener("change", this._dispatch.whenSetTempo);
+        this._scaleSelect.addEventListener("change", this._dispatch.whenSetScale);
+        this._keySelect.addEventListener("change", this._dispatch.whenSetKey);
+        this._octaveStepper.addEventListener("change", this._dispatch.whenSetOctave);
+        this._rhythmSelect.addEventListener("change", this._dispatch.whenSetRhythm);
+        //this._pitchedPresetSelect.addEventListener("change", this._dispatch.whenSetPitchedPreset);
+        //this._drumPresetSelect.addEventListener("change", this._dispatch.whenSetDrumPreset);
+        this._algorithmSelect.addEventListener("change", this._dispatch.whenSetAlgorithm);
+        this._instrumentsButtonBar.addEventListener("click", this._dispatch.whenSelectInstrument);
         //this._customizeInstrumentButton.addEventListener("click", this._whenCustomizePressed);
-        this._feedbackTypeSelect.addEventListener("change", this._whenSetFeedbackType);
-        this._algorithm6OpSelect.addEventListener("change", this._whenSet6OpAlgorithm);
-        this._feedback6OpTypeSelect.addEventListener("change", this._whenSet6OpFeedbackType);
-        this._chipWaveSelect.addEventListener("change", this._whenSetChipWave);
-        this._ringModWaveSelect.addEventListener("change", this._whenSetRingModChipWave);
+        this._feedbackTypeSelect.addEventListener("change", this._dispatch.whenSetFeedbackType);
+        this._algorithm6OpSelect.addEventListener("change", this._dispatch.whenSet6OpAlgorithm);
+        this._feedback6OpTypeSelect.addEventListener("change", this._dispatch.whenSet6OpFeedbackType);
+        this._chipWaveSelect.addEventListener("change", this._dispatch.whenSetChipWave);
+        this._ringModWaveSelect.addEventListener("change", this._dispatch.whenSetRingModChipWave);
         // advloop addition
-        this._useChipWaveAdvancedLoopControlsBox.addEventListener("input", this._whenSetUseChipWaveAdvancedLoopControls);
-        this._chipWaveLoopModeSelect.addEventListener("change", this._whenSetChipWaveLoopMode);
-        this._chipWaveLoopStartStepper.addEventListener("change", this._whenSetChipWaveLoopStart);
-        this._chipWaveLoopEndStepper.addEventListener("change", this._whenSetChipWaveLoopEnd);
-        this._setChipWaveLoopEndToEndButton.addEventListener("click", this._whenSetChipWaveLoopEndToEnd);
-        this._chipWaveStartOffsetStepper.addEventListener("change", this._whenSetChipWaveStartOffset);
-        this._chipWavePlayBackwardsBox.addEventListener("input", this._whenSetChipWavePlayBackwards);
+        this._useChipWaveAdvancedLoopControlsBox.addEventListener("input", this._dispatch.whenSetUseChipWaveAdvancedLoopControls);
+        this._chipWaveLoopModeSelect.addEventListener("change", this._dispatch.whenSetChipWaveLoopMode);
+        this._chipWaveLoopStartStepper.addEventListener("change", this._dispatch.whenSetChipWaveLoopStart);
+        this._chipWaveLoopEndStepper.addEventListener("change", this._dispatch.whenSetChipWaveLoopEnd);
+        this._setChipWaveLoopEndToEndButton.addEventListener("click", this._dispatch.whenSetChipWaveLoopEndToEnd);
+        this._chipWaveStartOffsetStepper.addEventListener("change", this._dispatch.whenSetChipWaveStartOffset);
+        this._chipWavePlayBackwardsBox.addEventListener("input", this._dispatch.whenSetChipWavePlayBackwards);
         // advloop addition
         this._sampleLoadingStatusContainer.addEventListener("click", this._whenSampleLoadingStatusClicked);
-        this._chipNoiseSelect.addEventListener("change", this._whenSetNoiseWave);
-        this._transitionSelect.addEventListener("change", this._whenSetTransition);
-        this._effectsSelect.addEventListener("change", this._whenSetEffects);
-        this._unisonSelect.addEventListener("change", this._whenSetUnison);
-        this._chordSelect.addEventListener("change", this._whenSetChord);
-        this._monophonicNoteInputBox.addEventListener("input", this._whenSetMonophonicNote)
-        this._vibratoSelect.addEventListener("change", this._whenSetVibrato);
-        this._vibratoTypeSelect.addEventListener("change", this._whenSetVibratoType);
+        this._chipNoiseSelect.addEventListener("change", this._dispatch.whenSetNoiseWave);
+        this._transitionSelect.addEventListener("change", this._dispatch.whenSetTransition);
+        this._effectsSelect.addEventListener("change", this._dispatch.whenSetEffects);
+        this._unisonSelect.addEventListener("change", this._dispatch.whenSetUnison);
+        this._chordSelect.addEventListener("change", this._dispatch.whenSetChord);
+        this._monophonicNoteInputBox.addEventListener("input", this._dispatch.whenSetMonophonicNote)
+        this._vibratoSelect.addEventListener("change", this._dispatch.whenSetVibrato);
+        this._vibratoTypeSelect.addEventListener("change", this._dispatch.whenSetVibratoType);
         this._playButton.addEventListener("click", this.togglePlay);
         this._pauseButton.addEventListener("click", this.togglePlay);
         this._recordButton.addEventListener("click", this._toggleRecord);
@@ -1319,15 +1358,15 @@ export class SongEditor implements ModSliderProvider {
 
         const thisRef: SongEditor = this;
         for (let mod: number = 0; mod < Config.modCount; mod++) {
-            this._modChannelBoxes[mod].addEventListener("change", function () { thisRef._whenSetModChannel(mod); });
-            this._modInstrumentBoxes[mod].addEventListener("change", function () { thisRef._whenSetModInstrument(mod); });
-            this._modSetBoxes[mod].addEventListener("change", function () { thisRef._whenSetModSetting(mod); });
-            this._modFilterBoxes[mod].addEventListener("change", function () { thisRef._whenSetModFilter(mod); });
-            this._modEnvelopeBoxes[mod].addEventListener("change", function () { thisRef._whenSetModEnvelope(mod); })
-            this._modTargetIndicators[mod].addEventListener("click", function () { thisRef._whenClickModTarget(mod); });
+            this._modChannelBoxes[mod].addEventListener("change", function () { thisRef._dispatch.whenSetModChannel(mod); });
+            this._modInstrumentBoxes[mod].addEventListener("change", function () { thisRef._dispatch.whenSetModInstrument(mod); });
+            this._modSetBoxes[mod].addEventListener("change", function () { thisRef._dispatch.whenSetModSetting(mod); });
+            this._modFilterBoxes[mod].addEventListener("change", function () { thisRef._dispatch.whenSetModFilter(mod); });
+            this._modEnvelopeBoxes[mod].addEventListener("change", function () { thisRef._dispatch.whenSetModEnvelope(mod); })
+            this._modTargetIndicators[mod].addEventListener("click", function () { thisRef._dispatch.whenClickModTarget(mod); });
         }
 
-        this._jumpToModIndicator.addEventListener("click", function () { thisRef._whenClickJumpToModTarget() });
+        this._jumpToModIndicator.addEventListener("click", function () { thisRef._dispatch.whenClickJumpToModTarget() });
 
         this._patternArea.addEventListener("mousedown", this.refocusStage);
         this._fadeInOutEditor.container.addEventListener("mousedown", this.refocusStage);
@@ -1337,16 +1376,16 @@ export class SongEditor implements ModSliderProvider {
         this._songEqFilterEditor.container.addEventListener("mousedown", this.refocusStage);
         this._harmonicsEditor.container.addEventListener("mousedown", this.refocusStage);
         this._tempoStepper.addEventListener("keydown", this._tempoStepperCaptureNumberKeys, false);
-        this._addEnvelopeButton.addEventListener("click", this._addNewEnvelope);
+        this._addEnvelopeButton.addEventListener("click", this._dispatch.addNewEnvelope);
         this._patternArea.addEventListener("contextmenu", this._disableCtrlContextMenu);
         this._trackArea.addEventListener("contextmenu", this._disableCtrlContextMenu);
         this.mainLayer.addEventListener("keydown", this._keyboardHandler.handleKeyDown);
         this.mainLayer.addEventListener("keyup", this._keyboardHandler.handleKeyUp);
         this.mainLayer.addEventListener("focusin", this._onFocusIn);
-        this._instrumentCopyButton.addEventListener("click", this._copyInstrument.bind(this));
-        this._instrumentPasteButton.addEventListener("click", this._pasteInstrument.bind(this));
-        this._instrumentExportButton.addEventListener("click", this._exportInstruments.bind(this));
-        this._instrumentImportButton.addEventListener("click", this._importInstruments.bind(this));
+        this._instrumentCopyButton.addEventListener("click", this._dispatch.copyInstrument);
+        this._instrumentPasteButton.addEventListener("click", this._dispatch.pasteInstrument);
+        this._instrumentExportButton.addEventListener("click", this._dispatch.exportInstruments);
+        this._instrumentImportButton.addEventListener("click", this._dispatch.importInstruments);
 
         sampleLoadEvents.addEventListener("sampleloaded", this._updateSampleLoadingBar.bind(this));
 
@@ -1899,60 +1938,9 @@ export class SongEditor implements ModSliderProvider {
         }
         this._patternEditor.render();
 
-        // make the names of these two variables as short as possible for readability
-        // also, these two variables are used for the effects tab as well, should they be renamed?
-        // the theme variables are named "icon" to prevent people getting confused and thinking they're svg
+        renderOptionsMenu(this._optionsMenu, prefs, this.doc.song.scale);
         const textOnIcon: string = ColorConfig.getComputed("--text-enabled-icon");
         const textOffIcon: string = ColorConfig.getComputed("--text-disabled-icon");
-        const textSpacingIcon: string = ColorConfig.getComputed("--text-spacing-icon");
-        const optionCommands: ReadonlyArray<string> = [
-            "Technical",
-            (prefs.autoPlay ? textOnIcon : textOffIcon) + "Auto Play on Load",
-            (prefs.autoFollow ? textOnIcon : textOffIcon) + "Auto Follow Playhead",
-            (prefs.enableNotePreview ? textOnIcon : textOffIcon) + "Hear Added Notes",
-            (prefs.notesOutsideScale ? textOnIcon : textOffIcon) + "Place Notes Out of Scale",
-            (prefs.defaultScale == this.doc.song.scale ? textOnIcon : textOffIcon) + "Set Current Scale as Default",
-            (prefs.alwaysFineNoteVol ? textOnIcon : textOffIcon) + "Always Fine Note Volume",
-            (prefs.enableChannelMuting ? textOnIcon : textOffIcon) + "Enable Channel Muting",
-            (prefs.instrumentCopyPaste ? textOnIcon : textOffIcon) + "Enable Copy/Paste Buttons",
-            (prefs.enableTagSearch ? textOnIcon : textOffIcon) + "Enable Tag Search",
-            (prefs.instrumentImportExport ? textOnIcon : textOffIcon) + "Enable Import/Export Buttons",
-            (prefs.displayBrowserUrl ? textOnIcon : textOffIcon) + "Enable Song Data in URL",
-            (prefs.closePromptByClickoff ? textOnIcon : textOffIcon) + "Close Prompts on Click Off",
-            (prefs.rollNoveltyPresets ? textOnIcon : textOffIcon) + "Can Randomly Select Novelty Presets",
-            textSpacingIcon + "Note Recording...",
-            textSpacingIcon + "Appearance",
-            (prefs.showFifth ? textOnIcon : textOffIcon) + 'Highlight "Fifth" Note',
-            (prefs.notesFlashWhenPlayed ? textOnIcon : textOffIcon) + "Notes Flash When Played (Dogebox2)",
-            (prefs.instrumentButtonsAtTop ? textOnIcon : textOffIcon) + "Instrument Buttons at Top",
-            (prefs.frostedGlassBackground ? textOnIcon : textOffIcon) + "Frosted Glass Prompt Backdrop",
-            (prefs.showChannels ? textOnIcon : textOffIcon) + "Show All Channels",
-            (prefs.showScrollBar ? textOnIcon : textOffIcon) + "Show Octave Scroll Bar",
-            (prefs.showInstrumentScrollbars ? textOnIcon : textOffIcon) + "Show Instrument Scrollbars",
-            (prefs.showLetters ? textOnIcon : textOffIcon) + "Show Piano Keys",
-            (prefs.displayVolumeBar ? textOnIcon : textOffIcon) + "Show Playback Volume",
-            (prefs.showOscilloscope ? textOnIcon : textOffIcon) + "Show Oscilloscope",
-            (prefs.showSampleLoadingStatus ? textOnIcon : textOffIcon) + "Show Sample Loading Status",
-            (prefs.showDescription ? textOnIcon : textOffIcon) + "Show Description",
-            textSpacingIcon + "Set Layout...",
-            textSpacingIcon + "Set Theme...",
-	        textSpacingIcon + "Custom Theme...",
-        ];
-        // Technical dropdown
-        const technicalOptionGroup: HTMLOptGroupElement = <HTMLOptGroupElement>this._optionsMenu.children[1];
-
-        for (let i: number = 0; i < technicalOptionGroup.children.length; i++) {
-            const option: HTMLOptionElement = <HTMLOptionElement>technicalOptionGroup.children[i];
-            if (option.textContent != optionCommands[i + 1]) option.textContent = optionCommands[i + 1];
-        }
-
-        // Appearance dropdown
-        const appearanceOptionGroup: HTMLOptGroupElement = <HTMLOptGroupElement>this._optionsMenu.children[2];
-
-        for (let i: number = 0; i < appearanceOptionGroup.children.length; i++) {
-            const option: HTMLOptionElement = <HTMLOptionElement>appearanceOptionGroup.children[i];
-            if (option.textContent != optionCommands[i + technicalOptionGroup.children.length + 2]) option.textContent = optionCommands[i + technicalOptionGroup.children.length + 2];
-        }
 
         const channel: Channel = this.doc.song.channels[this.doc.channel];
         const instrumentIndex: number = this.doc.getCurrentInstrument();
@@ -1961,17 +1949,7 @@ export class SongEditor implements ModSliderProvider {
         const activeElement: Element | null = document.activeElement;
         const colors: ChannelColors = ColorConfig.getChannelColor(this.doc.song, this.doc.channel);
 
-        for (let i: number = this._effectsSelect.childElementCount - 1; i < Config.effectOrder.length; i++) {
-            this._effectsSelect.appendChild(option({ value: i }));
-        }
-        this._effectsSelect.selectedIndex = -1;
-        for (let i: number = 0; i < Config.effectOrder.length; i++) {
-            const effectFlag: number = Config.effectOrder[i];
-            const selected: boolean = ((instrument.effects & (1 << effectFlag)) != 0);
-            const label: string = (selected ? textOnIcon : textOffIcon) + Config.effectNames[effectFlag];
-            const option: HTMLOptionElement = <HTMLOptionElement>this._effectsSelect.children[i + 1];
-            if (option.textContent != label) option.textContent = label;
-        }
+        renderEffectsSelect(this._effectsSelect, instrument, textOnIcon, textOffIcon);
 
         setSelectedValue(this._scaleSelect, this.doc.song.scale);
         this._scaleSelect.title = Config.scales[this.doc.song.scale].realName;
@@ -3092,7 +3070,7 @@ export class SongEditor implements ModSliderProvider {
                     if (setIndex == -1) {
                         this._modSetBoxes[mod].insertBefore(option({ value: Config.modulators[instrument.modulators[mod]].name, style: "color: red;" }, Config.modulators[instrument.modulators[mod]].name), this._modSetBoxes[mod].children[0]);
                         this._modSetBoxes[mod].selectedIndex = 0;
-                        this._whenSetModSetting(mod, true);
+                        this._dispatch.whenSetModSetting(mod, true);
                     }
                     else {
                         this._modSetBoxes[mod].selectedIndex = setIndex;
@@ -3102,7 +3080,7 @@ export class SongEditor implements ModSliderProvider {
 
                 } else if (this._modSetBoxes[mod].selectedIndex > 0) {
                     this._modSetBoxes[mod].selectedIndex = 0;
-                    this._whenSetModSetting(mod);
+                    this._dispatch.whenSetModSetting(mod);
                 }
 
                 //Hide instrument select if channel is "none" or "song"
@@ -3803,377 +3781,14 @@ export class SongEditor implements ModSliderProvider {
         }
     }
 
-    private _copyInstrument = (): void => {
-        const channel: Channel = this.doc.song.channels[this.doc.channel];
-        const instrument: Instrument = channel.instruments[this.doc.getCurrentInstrument()];
-        const instrumentCopy: any = instrument.toJsonObject();
-        instrumentCopy["isDrum"] = this.doc.song.getChannelIsNoise(this.doc.channel);
-        instrumentCopy["isMod"] = this.doc.song.getChannelIsMod(this.doc.channel);
-        window.localStorage.setItem("instrumentCopy", JSON.stringify(instrumentCopy));
-        this.refocusStage();
-    }
+    private _switchEQFilterType(toSimple: boolean): void { this._dispatch.switchEQFilterType(toSimple); }
+    private _switchNoteFilterType(toSimple: boolean): void { this._dispatch.switchNoteFilterType(toSimple); }
 
-    private _pasteInstrument = (): void => {
-        const channel: Channel = this.doc.song.channels[this.doc.channel];
-        const instrument: Instrument = channel.instruments[this.doc.getCurrentInstrument()];
-        const instrumentCopy: any = JSON.parse(String(window.localStorage.getItem("instrumentCopy")));
-        if (instrumentCopy != null && instrumentCopy["isDrum"] == this.doc.song.getChannelIsNoise(this.doc.channel) && instrumentCopy["isMod"] == this.doc.song.getChannelIsMod(this.doc.channel)) {
-            this.doc.record(new ChangePasteInstrument(this.doc, instrument, instrumentCopy));
-        }
-        this.refocusStage();
-    }
-
-    private _exportInstruments = (): void => {
-        this._openPrompt("exportInstrument");
-    }
-
-    private _importInstruments = (): void => {
-        this._openPrompt("importInstrument");
-    };
-
-    private _switchEQFilterType(toSimple: boolean) {
-        const channel: Channel = this.doc.song.channels[this.doc.channel];
-        const instrument: Instrument = channel.instruments[this.doc.getCurrentInstrument()];
-        if (instrument.eqFilterType != toSimple) {
-            this.doc.record(new ChangeEQFilterType(this.doc, instrument, toSimple));
-        }
-    }
-
-    private _switchNoteFilterType(toSimple: boolean) {
-        const channel: Channel = this.doc.song.channels[this.doc.channel];
-        const instrument: Instrument = channel.instruments[this.doc.getCurrentInstrument()];
-        if (instrument.noteFilterType != toSimple) {
-            this.doc.record(new ChangeNoteFilterType(this.doc, instrument, toSimple));
-        }
-    }
-
-    private _randomPreset(): void {
-        const isNoise: boolean = this.doc.song.getChannelIsNoise(this.doc.channel);
-        const presetValue: number = pickRandomPresetValue(isNoise,this.doc.prefs.rollNoveltyPresets)
-
-        if (presetValue > 0) {
-            this.doc.record(new ChangePreset(this.doc, presetValue));
-        } else if (presetValue == -1) { //no results
-            alert("Either you are using incompatible tags, or you are using a tag combination that no preset has. \n\nPlease double check your tag combination.")
-        } else if (presetValue == -2) { //incorrect tag
-            alert("One or more of the tags you entered doesn't exist. \n\nPlease double check your spelling.")
-        }
-        
-    }
-
-    private _nextPreset(): void {
-        const isNoise: boolean = this.doc.song.getChannelIsNoise(this.doc.channel);
-        const presetValue: number = pickNextPresetValue(isNoise,this.doc.prefs.rollNoveltyPresets)
-
-        if (presetValue > 0) {
-            this.doc.record(new ChangePreset(this.doc, presetValue));
-        } else if (presetValue == -1) { //no results
-            alert("Either you are using incompatible tags, or you are using a tag combination that no preset has. \n\nPlease double check your tag combination.")
-        } else if (presetValue == -2) { //incorrect tag
-            alert("One or more of the tags you entered doesn't exist. \n\nPlease double check your spelling.")
-        }
-    }
-
-    private _randomGenerated(usesCurrentInstrumentType: boolean): void {
-        this.doc.record(new ChangeRandomGeneratedInstrument(this.doc, usesCurrentInstrumentType));
-    }
-
-
-    private _whenSetTempo = (): void => {
-        this.doc.record(new ChangeTempo(this.doc, -1, parseInt(this._tempoStepper.value) | 0));
-    }
-
-    private _whenSetOctave = (): void => {
-        this.doc.record(new ChangeKeyOctave(this.doc, this.doc.song.octave, parseInt(this._octaveStepper.value) | 0));
-        this._piano.forceRender();
-    }
-
-    private _whenSetScale = (): void => {
-        if (isNaN(<number><unknown>this._scaleSelect.value)) {
-            switch (this._scaleSelect.value) {
-                case "forceScale":
-                    this.doc.selection.forceScale();
-                    break;
-                case "customize":
-                    this._openPrompt("customScale")
-                    break;
-            }
-            this.doc.notifier.changed();
-        } else {
-            this.doc.record(new ChangeScale(this.doc, this._scaleSelect.selectedIndex));
-        }
-    }
-
-    private _whenSetKey = (): void => {
-        if (isNaN(<number><unknown>this._keySelect.value)) {
-            switch (this._keySelect.value) {
-                case "detectKey":
-                    this.doc.record(new ChangeDetectKey(this.doc));
-                    break;
-            }
-            this.doc.notifier.changed();
-        } else {
-            this.doc.record(new ChangeKey(this.doc, Config.keys.length - 1 - this._keySelect.selectedIndex));
-        }
-    }
-
-    private _whenSetRhythm = (): void => {
-        if (isNaN(<number><unknown>this._rhythmSelect.value)) {
-            switch (this._rhythmSelect.value) {
-                case "forceRhythm":
-                    this.doc.selection.forceRhythm();
-                    break;
-            }
-            this.doc.notifier.changed();
-        } else {
-            this.doc.record(new ChangeRhythm(this.doc, this._rhythmSelect.selectedIndex));
-        }
-    }
-
+    public _whenSetPitchedPreset = (): void => { this._dispatch.whenSetPitchedPreset(); }
+    public _whenSetDrumPreset = (): void => { this._dispatch.whenSetDrumPreset(); }
     public _refocus = (): void => {
-        // Waits a bit because select2 "steals" back focus even after the close event fires.
         const selfRef = this;
         setTimeout(function () { selfRef.mainLayer.focus(); }, 20);
-    }
-
-    public _whenSetPitchedPreset = (): void => {
-        this._setPreset($('#pitchPresetSelect').val() + "");
-    }
-
-    public _whenSetDrumPreset = (): void => {
-        this._setPreset($('#drumPresetSelect').val() + "");
-    }
-
-    private _setPreset(preset: string): void {
-        if (isNaN(<number><unknown>preset)) {
-            switch (preset) {
-                case "copyInstrument":
-                    this._copyInstrument();
-                    break;
-                case "pasteInstrument":
-                    this._pasteInstrument();
-                    break;
-                case "randomPreset":
-                    this._randomPreset();
-                    break;
-                case "randomGenerated":
-                    this._randomGenerated(false);
-                    break;
-            }
-            this.doc.notifier.changed();
-        } else {
-            this.doc.record(new ChangePreset(this.doc, parseInt(preset)));
-        }
-    }
-
-    private _whenSetFeedbackType = (): void => {
-        this.doc.record(new ChangeFeedbackType(this.doc, this._feedbackTypeSelect.selectedIndex));
-    }
-
-
-    private _whenSetAlgorithm = (): void => {
-        this.doc.record(new ChangeAlgorithm(this.doc, this._algorithmSelect.selectedIndex));
-    }
-
-    private _whenSet6OpFeedbackType = (): void => {
-        this.doc.record(new Change6OpFeedbackType(this.doc, this._feedback6OpTypeSelect.selectedIndex));
-        this._customAlgorithmCanvas.reset()
-    }
-    private _whenSet6OpAlgorithm = (): void => {
-        this.doc.record(new Change6OpAlgorithm(this.doc, this._algorithm6OpSelect.selectedIndex));
-        this._customAlgorithmCanvas.reset()
-    }
-
-    private _whenSelectInstrument = (event: MouseEvent): void => {
-        if (event.target == this._instrumentAddButton) {
-            this.doc.record(new ChangeAddChannelInstrument(this.doc));
-        } else if (event.target == this._instrumentRemoveButton) {
-            this.doc.record(new ChangeRemoveChannelInstrument(this.doc));
-        } else {
-            const index: number = this._instrumentButtons.indexOf(<any>event.target);
-            if (index != -1) {
-                this.doc.selection.selectInstrument(index);
-            }
-            // Force piano to re-show, if channel is modulator
-            if (this.doc.channel >= this.doc.song.pitchChannelCount + this.doc.song.noiseChannelCount) {
-                this._piano.forceRender();
-            }
-            this._renderInstrumentBar(this.doc.song.channels[this.doc.channel], index, ColorConfig.getChannelColor(this.doc.song, this.doc.channel));
-        }
-
-        this.refocusStage();
-    }
-
-    private _whenSetModChannel = (mod: number): void => {
-
-        const instrument: Instrument = this.doc.song.channels[this.doc.channel].instruments[this.doc.getCurrentInstrument()];
-        const previouslyUnset: boolean = (instrument.modulators[mod] == 0 || Config.modulators[instrument.modulators[mod]].forSong);
-
-        this.doc.selection.setModChannel(mod, this._modChannelBoxes[mod].selectedIndex);
-
-        const modChannel: number = Math.max(0, instrument.modChannels[mod]);
-
-        // Check if setting was 'song' or 'none' and is changing to a channel number, in which case suggested instrument to mod will auto-set to the current one.
-        if (this.doc.song.channels[modChannel].instruments.length > 1 && previouslyUnset && this._modChannelBoxes[mod].selectedIndex >= 2) {
-            if (this.doc.song.channels[modChannel].bars[this.doc.bar] > 0) {
-                this.doc.selection.setModInstrument(mod, this.doc.song.channels[modChannel].patterns[this.doc.song.channels[modChannel].bars[this.doc.bar] - 1].instruments[0]);
-            }
-        }
-
-        // Force piano to re-show
-        this._piano.forceRender();
-    }
-
-    private _whenSetModInstrument = (mod: number): void => {
-        this.doc.selection.setModInstrument(mod, this._modInstrumentBoxes[mod].selectedIndex);
-
-        // Force piano to re-show
-        this._piano.forceRender();
-    }
-
-    private _whenSetModSetting = (mod: number, invalidIndex: boolean = false): void => {
-        let text: string = "none";
-        if (this._modSetBoxes[mod].selectedIndex != -1) {
-            text = this._modSetBoxes[mod].children[this._modSetBoxes[mod].selectedIndex].textContent as string;
-
-            if (invalidIndex) {
-                // A setting is invalid (not in instrument's effects). It will be the first index. Allow it, but mark it as red.
-                this._modSetBoxes[mod].selectedOptions.item(0)!.style.setProperty("color", "red");
-                this._modSetBoxes[mod].classList.add("invalidSetting");
-                this.doc.song.channels[this.doc.channel].instruments[this.doc.getCurrentInstrument()].invalidModulators[mod] = true;
-            } else {
-                this._modSetBoxes[mod].classList.remove("invalidSetting");
-                this.doc.song.channels[this.doc.channel].instruments[this.doc.getCurrentInstrument()].invalidModulators[mod] = false;
-            }
-        }
-        if (!invalidIndex) // Invalid index means a set is actually not occurring, just the same index and a warning.
-            this.doc.selection.setModSetting(mod, text);
-
-        // Force piano to re-show if channel is modulator, as text shown on it needs to update
-        this._piano.forceRender();
-
-    }
-
-    private _whenClickModTarget = (mod: number): void => {
-        if (this._modChannelBoxes[mod].selectedIndex >= 2) {
-            this.doc.selection.setChannelBar(this._modChannelBoxes[mod].selectedIndex - 2, this.doc.bar);
-        }
-    }
-
-    private _whenClickJumpToModTarget = (): void => {
-        const channelIndex: number = this.doc.channel;
-        const instrumentIndex: number = this.doc.getCurrentInstrument();
-        if (channelIndex < this.doc.song.pitchChannelCount + this.doc.song.noiseChannelCount) {
-            for (let modChannelIdx: number = this.doc.song.pitchChannelCount + this.doc.song.noiseChannelCount; modChannelIdx < this.doc.song.channels.length; modChannelIdx++) {
-                const modChannel: Channel = this.doc.song.channels[modChannelIdx];
-                const patternIdx = modChannel.bars[this.doc.bar];
-                if (patternIdx > 0) {
-                    const modInstrumentIdx: number = modChannel.patterns[patternIdx - 1].instruments[0];
-                    const modInstrument: Instrument = modChannel.instruments[modInstrumentIdx];
-                    for (let mod: number = 0; mod < Config.modCount; mod++) {
-                        if (modInstrument.modChannels[mod] == channelIndex && (modInstrument.modInstruments[mod] == instrumentIndex || modInstrument.modInstruments[mod] >= this.doc.song.channels[channelIndex].instruments.length)) {
-                            this.doc.selection.setChannelBar(modChannelIdx, this.doc.bar);
-                            return;
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    private _whenSetModFilter = (mod: number): void => {
-        this.doc.selection.setModFilter(mod, this._modFilterBoxes[mod].selectedIndex);
-    }
-
-    private _whenSetModEnvelope = (mod: number): void => {
-        this.doc.selection.setModEnvelope(mod, this._modEnvelopeBoxes[mod].selectedIndex);
-    }
-
-    private _whenSetChipWave = (): void => {
-        this.doc.record(new ChangeChipWave(this.doc, this._chipWaveSelect.selectedIndex));
-    }
-
-    private _whenSetRingModChipWave = (): void => {
-        this.doc.record(new ChangeRingModChipWave(this.doc, this._ringModWaveSelect.selectedIndex));
-    }
-
-    // advloop addition
-    private _whenSetUseChipWaveAdvancedLoopControls = (): void => {
-        this.doc.record(new ChangeChipWaveUseAdvancedLoopControls(this.doc, this._useChipWaveAdvancedLoopControlsBox.checked ? true : false));
-    }
-    private _whenSetChipWaveLoopMode = (): void => {
-        this.doc.record(new ChangeChipWaveLoopMode(this.doc, this._chipWaveLoopModeSelect.selectedIndex));
-    }
-    private _whenSetChipWaveLoopStart = (): void => {
-        // this._doc.record(new ChangeChipWaveLoopStart(this._doc, Math.max(0, Math.min(chipWaveLoopEnd - 1, parseInt(this._chipWaveLoopStartStepper.value)))));
-        this.doc.record(new ChangeChipWaveLoopStart(this.doc, parseInt(this._chipWaveLoopStartStepper.value) | 0));
-    }
-    private _whenSetChipWaveLoopEnd = (): void => {
-        // this._doc.record(new ChangeChipWaveLoopEnd(this._doc, Math.max(0, Math.min(chipWaveLength - 1, parseInt(this._chipWaveLoopEndStepper.value)))));
-        this.doc.record(new ChangeChipWaveLoopEnd(this.doc, parseInt(this._chipWaveLoopEndStepper.value) | 0));
-    }
-    private _whenSetChipWaveLoopEndToEnd = (): void => {
-        const channel = this.doc.song.channels[this.doc.channel];
-        const instrument = channel.instruments[this.doc.getCurrentInstrument()];
-        const chipWave = Config.rawRawChipWaves[instrument.chipWave];
-        const chipWaveLength = chipWave.samples.length;
-        this.doc.record(new ChangeChipWaveLoopEnd(this.doc, chipWaveLength - 1));
-    }
-    private _whenSetChipWaveStartOffset = (): void => {
-        // this._doc.record(new ChangeChipWaveStartOffset(this._doc, Math.max(0, Math.min(chipWaveLength - 1, parseInt(this._chipWaveStartOffsetStepper.value)))));
-        this.doc.record(new ChangeChipWaveStartOffset(this.doc, parseInt(this._chipWaveStartOffsetStepper.value) | 0));
-    }
-    private _whenSetChipWavePlayBackwards = (): void => {
-        this.doc.record(new ChangeChipWavePlayBackwards(this.doc, this._chipWavePlayBackwardsBox.checked));
-    }
-    // advloop addition
-
-    private _whenSetNoiseWave = (): void => {
-        this.doc.record(new ChangeNoiseWave(this.doc, this._chipNoiseSelect.selectedIndex));
-    }
-
-
-
-    private _whenSetTransition = (): void => {
-        this.doc.record(new ChangeTransition(this.doc, this._transitionSelect.selectedIndex));
-    }
-
-    private _whenSetEffects = (): void => {
-        const instrument: Instrument = this.doc.song.channels[this.doc.channel].instruments[this.doc.getCurrentInstrument()];
-        const oldValue: number = instrument.effects;
-        const toggleFlag: number = Config.effectOrder[this._effectsSelect.selectedIndex - 1];
-        this.doc.record(new ChangeToggleEffects(this.doc, toggleFlag, null));
-        this._effectsSelect.selectedIndex = 0;
-        if (instrument.effects > oldValue) {
-            this.doc.addedEffect = true;
-        }
-        this.doc.notifier.changed();
-    }
-
-    private _whenSetVibrato = (): void => {
-        this.doc.record(new ChangeVibrato(this.doc, this._vibratoSelect.selectedIndex));
-    }
-
-    private _whenSetVibratoType = (): void => {
-        this.doc.record(new ChangeVibratoType(this.doc, this._vibratoTypeSelect.selectedIndex));
-    }
-
-    private _whenSetUnison = (): void => {
-        this.doc.record(new ChangeUnison(this.doc, this._unisonSelect.selectedIndex));
-    }
-
-    private _whenSetChord = (): void => {
-        this.doc.record(new ChangeChord(this.doc, this._chordSelect.selectedIndex));
-    }
-
-    private _whenSetMonophonicNote = (): void => {
-        this.doc.record(new ChangeMonophonicTone(this.doc, parseInt(this._monophonicNoteInputBox.value)-1))
-    }
-
-    private _addNewEnvelope = (): void => {
-        this.doc.record(new ChangeAddEnvelope(this.doc));
-        this.refocusStage();
-        this.doc.addedEnvelope = true;
     }
 
     private _zoomIn = (): void => {
