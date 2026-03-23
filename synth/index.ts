@@ -27,7 +27,7 @@ export { Operator, CustomAlgorithm, CustomFeedBack, FilterControlPoint, FilterSe
 export { Channel } from "./channels";
 
 // Layer 6: Song
-export { Song } from "./song";
+export { Song, CustomSampleHandler } from "./song";
 
 // Layer 7: Synth
 export { Synth } from "./synth";

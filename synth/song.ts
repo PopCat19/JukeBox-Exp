@@ -14,7 +14,22 @@ import { BitFieldReader, BitFieldWriter, encode32BitNumber, decode32BitNumber, e
 import { NotePin, Note, makeNotePin, Pattern } from "./notes";
 import { FilterControlPoint, FilterSettings, Instrument, LegacySettings } from "./instruments";
 import { Channel } from "./channels";
-import { Preset, EditorConfig } from "../editor/config/EditorConfig";
+import type { Preset } from "../editor/config/EditorConfig";
+
+// Custom sample handler interface — decouples Song from editor state.
+// Editor registers handlers at startup; Song calls them instead of
+// directly importing/mutating EditorConfig.
+export interface CustomSampleHandler {
+    getCustomSamples(): string[] | null;
+    setCustomSamples(urls: string[]): void;
+    getPresetCategories(): any[];
+    addPresetCategory(category: any): void;
+    nameToPresetValue(name: string): number | null;
+    getVersionDisplayName(): string;
+    setDocumentTitle(title: string): void;
+    clearSamples(): void;
+}
+
 export class Song {
     private static readonly _format: string = Config.jsonFormat;
     private static readonly _oldestBeepboxVersion: number = 2;
@@ -33,6 +48,8 @@ export class Song {
     //also "u" is ultrabox lol
     // private static readonly _variant = 0x73; //"S" - Slarmoo's Box
     private static readonly _variant = 0x4a; //"J" is for JukeBox
+
+    public static customSampleHandler: CustomSampleHandler | null = null;
 
     public title: string;
     public scale: number;
@@ -321,7 +338,7 @@ export class Song {
         //This is the tab's display name
         const now: Date = new Date();
         this.title = `Untitled-${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, "0")}${String(now.getDate()).padStart(2, "0")}`;
-        document.title = this.title + " - " + EditorConfig.versionDisplayName;
+        Song.customSampleHandler?.setDocumentTitle(this.title);
         if (andResetChannels) {
             this.pitchChannelCount = 2;
             this.noiseChannelCount = 1;
@@ -1100,8 +1117,9 @@ export class Song {
 
         const maxApplyArgs: number = 64000;
         let customSamplesStr = "";
-        if (EditorConfig.customSamples != undefined && EditorConfig.customSamples.length > 0) {
-            customSamplesStr = "|" + EditorConfig.customSamples.join("|")
+        const customSamples = Song.customSampleHandler?.getCustomSamples();
+        if (customSamples != undefined && customSamples.length > 0) {
+            customSamplesStr = "|" + customSamples.join("|")
 
         }
         //samplemark
@@ -1204,7 +1222,8 @@ export class Song {
             compressed = compressed.replaceAll("%7C", "|")
             const compressed_array = compressed.split("|");
             compressed = compressed_array.shift()!;
-            if (EditorConfig.customSamples == null || EditorConfig.customSamples.join(", ") != compressed_array.join(", ")) {
+            const currentSamples = Song.customSampleHandler?.getCustomSamples();
+            if (currentSamples == null || currentSamples.join(", ") != compressed_array.join(", ")) {
 
                 Song._restoreChipWaveListToDefault();
 
@@ -1255,15 +1274,14 @@ export class Song {
                     }
                 }
                 if (customSampleUrls.length > 0) {
-                    EditorConfig.customSamples = customSampleUrls;
+                    Song.customSampleHandler?.setCustomSamples(customSampleUrls);
                 }
                 if (customSamplePresets.length > 0) {
                     const customSamplePresetsMap: DictionaryArray<Preset> = toNameMap(customSamplePresets);
-                    EditorConfig.presetCategories[EditorConfig.presetCategories.length] = {
+                    Song.customSampleHandler?.addPresetCategory({
                         name: "Custom Sample Presets",
                         presets: customSamplePresetsMap,
-                        index: EditorConfig.presetCategories.length,
-                    };
+                    });
                     // EditorConfig.presetCategories.splice(1, 0, {
                     // name: "Custom Sample Presets",
                     // presets: customSamplePresets,
@@ -1312,7 +1330,7 @@ export class Song {
                 // Length of song name string
                 const songNameLength = (base64CharCodeToInt[compressed.charCodeAt(charIndex++)] << 6) + base64CharCodeToInt[compressed.charCodeAt(charIndex++)];
                 this.title = decodeURIComponent(compressed.substring(charIndex, charIndex + songNameLength));
-                document.title = this.title + " - " + EditorConfig.versionDisplayName;
+                Song.customSampleHandler?.setDocumentTitle(this.title);
 
                 charIndex += songNameLength;
             } break;
@@ -1604,8 +1622,8 @@ export class Song {
                     }
                 }
                 // BeepBox directly tweaked "grand piano", but JB kept it the same. The most up to date version is now "grand piano 3"
-                if (fromBeepBox && presetValue == EditorConfig.nameToPresetValue("grand piano 1")) {
-                    this.channels[instrumentChannelIterator].instruments[instrumentIndexIterator].preset = EditorConfig.nameToPresetValue("grand piano 3")!;
+                if (fromBeepBox && presetValue == Song.customSampleHandler?.nameToPresetValue("grand piano 1")) {
+                    this.channels[instrumentChannelIterator].instruments[instrumentIndexIterator].preset = Song.customSampleHandler?.nameToPresetValue("grand piano 3")!;
                 }
             } break;
             case SongTagCode.wave: {
@@ -1833,7 +1851,7 @@ export class Song {
                         if (!willLoadLegacySamplesForOldSongs) {
                             willLoadLegacySamplesForOldSongs = true;
                             Config.willReloadForCustomSamples = true;
-                            EditorConfig.customSamples = ["legacySamples"];
+                            Song.customSampleHandler?.setCustomSamples(["legacySamples"]);
                             loadBuiltInSamples(0);
                         }
                     }
@@ -2601,7 +2619,7 @@ export class Song {
                             if (!willLoadLegacySamplesForOldSongs) {
                                 willLoadLegacySamplesForOldSongs = true;
                                 Config.willReloadForCustomSamples = true;
-                                EditorConfig.customSamples = ["legacySamples"];
+                                Song.customSampleHandler?.setCustomSamples(["legacySamples"]);
                                 loadBuiltInSamples(0);
                             }
                         }
@@ -3686,7 +3704,7 @@ export class Song {
     }
 
     private static _clearSamples(): void {
-        EditorConfig.customSamples = null;
+        Song.customSampleHandler?.clearSamples();
 
         Song._restoreChipWaveListToDefault();
 
@@ -3775,8 +3793,9 @@ export class Song {
             result["songEq" + i] = this.eqSubFilters[i];
         }
 
-        if (EditorConfig.customSamples != null && EditorConfig.customSamples.length > 0) {
-            result["customSamples"] = EditorConfig.customSamples;
+        const customSamples = Song.customSampleHandler?.getCustomSamples();
+        if (customSamples != null && customSamples.length > 0) {
+            result["customSamples"] = customSamples;
         }
 
         return result;
@@ -3813,7 +3832,8 @@ export class Song {
 
         if (jsonObject["customSamples"] != undefined) {
             const customSamples: string[] = jsonObject["customSamples"];
-            if (EditorConfig.customSamples == null || EditorConfig.customSamples.join(", ") != customSamples.join(", ")) {
+            const currentSamples = Song.customSampleHandler?.getCustomSamples();
+            if (currentSamples == null || currentSamples.join(", ") != customSamples.join(", ")) {
                 // Have to duplicate the work done in Song.fromBase64String
                 // early here, because Instrument.fromJsonObject depends on the
                 // chip wave list having the correct items already in memory.
@@ -3860,15 +3880,14 @@ export class Song {
                     }
                 }
                 if (customSampleUrls.length > 0) {
-                    EditorConfig.customSamples = customSampleUrls;
+                    Song.customSampleHandler?.setCustomSamples(customSampleUrls);
                 }
                 if (customSamplePresets.length > 0) {
                     const customSamplePresetsMap: DictionaryArray<Preset> = toNameMap(customSamplePresets);
-                    EditorConfig.presetCategories[EditorConfig.presetCategories.length] = {
+                    Song.customSampleHandler?.addPresetCategory({
                         name: "Custom Sample Presets",
                         presets: customSamplePresetsMap,
-                        index: EditorConfig.presetCategories.length,
-                    };
+                    });
                 }
             }
         } else {
@@ -4109,11 +4128,12 @@ export class Song {
                 Song._restoreChipWaveListToDefault();
 
                 loadBuiltInSamples(0);
-                EditorConfig.customSamples = ["legacySamples"];
+                Song.customSampleHandler?.setCustomSamples(["legacySamples"]);
             } else {
                 // We don't need to load the legacy samples, but we may have
                 // leftover samples in memory. If we do, clear them.
-                if (EditorConfig.customSamples != null && EditorConfig.customSamples.length > 0) {
+                const currentSamples = Song.customSampleHandler?.getCustomSamples();
+                if (currentSamples != null && currentSamples.length > 0) {
                     // We need to reload anyway in this case, because (for now)
                     // the chip wave lists won't be correctly updated.
                     Config.willReloadForCustomSamples = true;

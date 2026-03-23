@@ -11,6 +11,7 @@
 
 import { Config } from "../synth/SynthConfig";
 import { isMobile } from "./config/EditorConfig";
+import { registerCustomSampleHandler } from "./song-custom-samples";
 import { Pattern, Channel, Song, Synth } from "../synth";
 import { SongRecovery, generateUid, errorAlert } from "./io/SongRecovery";
 import { ColorConfig } from "./rendering/ColorConfig";
@@ -88,6 +89,7 @@ export class SongDocument {
             songString = this._getHash();
         }
         try {
+            registerCustomSampleHandler();
             this.song = new Song(songString);
             if (songString == "" || songString == undefined) {
                 setDefaultInstruments(this.song);
