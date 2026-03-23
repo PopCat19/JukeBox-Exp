@@ -1,0 +1,87 @@
+// editor/rendering/themes/sandbox-classic.ts
+//
+// Purpose: CSS variable definitions for the "sandbox classic" theme
+
+export const sandboxClassic: string = `
+		:root {
+			--loop-accent: #198195;
+				--pitch-channel-limit: 6;
+				--noise-channel-limit: 4;
+			--pitch1-secondary-channel: #539999;
+			--pitch1-primary-channel:   #5EB1B1;
+			--pitch1-secondary-note:    #539999;
+			--pitch1-primary-note:      #5EB1B1;
+			--pitch2-secondary-channel: #95933C;
+			--pitch2-primary-channel:   #B0AD44;
+			--pitch2-secondary-note:    #95933C;
+			--pitch2-primary-note:      #B0AD44;
+			--pitch3-secondary-channel: #E75566;
+			--pitch3-primary-channel:   #FF9AA6;
+			--pitch3-secondary-note:    #E75566;
+			--pitch3-primary-note:      #FF9AA6;
+			--pitch4-secondary-channel: #8B4343;
+			--pitch4-primary-channel:   #FF8844;
+			--pitch4-secondary-note:    #8B4343;
+			--pitch4-primary-note:      #FF8844;
+			--pitch5-secondary-channel: #888888;
+			--pitch5-primary-channel:   #BBBBBB;
+			--pitch5-secondary-note:    #888888;
+			--pitch5-primary-note:      #BBBBBB;
+			--pitch6-secondary-channel: #BB6906;
+			--pitch6-primary-channel:   #FE8D00;
+			--pitch6-secondary-note:    #BB6906;
+			--pitch6-primary-note:      #FE8D00;
+			--pitch7-secondary-channel: #539999;
+			--pitch7-primary-channel:   #5EB1B1;
+			--pitch7-secondary-note:    #539999;
+			--pitch7-primary-note:      #5EB1B1;
+			--pitch8-secondary-channel: #95933C;
+			--pitch8-primary-channel:   #B0AD44;
+			--pitch8-secondary-note:    #95933C;
+			--pitch8-primary-note:      #B0AD44;
+			--pitch9-secondary-channel: #E75566;
+			--pitch9-primary-channel:   #FF9AA6;
+			--pitch9-secondary-note:    #E75566;
+			--pitch9-primary-note:      #FF9AA6;
+			--pitch10-secondary-channel: #8B4343;
+			--pitch10-primary-channel:   #FF8844;
+			--pitch10-secondary-note:    #8B4343;
+			--pitch10-primary-note:      #FF8844;
+			--noise1-secondary-channel: #ABABAB;
+			--noise1-primary-channel:   #D6D6D6;
+			--noise1-secondary-note:    #ABABAB;
+			--noise1-primary-note:      #D6D6D6;
+			--noise2-secondary-channel: #A18F51;
+			--noise2-primary-channel:   #F6BB6A;
+			--noise2-secondary-note:    #A18F51;
+			--noise2-primary-note:      #F6BB6A;
+			--noise3-secondary-channel: #5869BD;
+			--noise3-primary-channel:   #768DFC;
+			--noise3-secondary-note:    #5869BD;
+			--noise3-primary-note:      #768DFC;
+			--noise4-secondary-channel: #8888D0;
+			--noise4-primary-channel:   #D0D0FF;
+			--noise4-secondary-note:    #8888D0;
+			--noise4-primary-note:      #D0D0FF;
+			--noise5-secondary-channel: #A18F51;
+			--noise5-primary-channel:   #F6BB6A;
+			--noise5-secondary-note:    #A18F51;
+			--noise5-primary-note:      #F6BB6A;
+         	--mod1-secondary-channel: #539999;
+			--mod1-primary-channel:   #5EB1B1;
+			--mod1-secondary-note:    #539999;
+			--mod1-primary-note:      #5EB1B1;
+			--mod2-secondary-channel: #95933C;
+			--mod2-primary-channel:   #B0AD44;
+			--mod2-secondary-note:    #95933C;
+			--mod2-primary-note:      #B0AD44;
+			--mod3-secondary-channel: #E75566;
+			--mod3-primary-channel:   #FF9AA6;
+			--mod3-secondary-note:    #E75566;
+			--mod3-primary-note:      #FF9AA6;
+			--mod4-secondary-channel: #8B4343;
+			--mod4-primary-channel:   #FF8844;
+			--mod4-secondary-note:    #8B4343;
+			--mod4-primary-note:      #FF8844;
+			}
+		`;

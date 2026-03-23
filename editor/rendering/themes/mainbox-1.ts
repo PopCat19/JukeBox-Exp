@@ -1,0 +1,84 @@
+// editor/rendering/themes/mainbox-1.ts
+//
+// Purpose: CSS variable definitions for the "mainbox 1.0" theme
+
+export const mainbox1: string = `
+		:root {
+			--loop-accent: #2F1C40;
+			--link-accent: #543873;
+			--ui-widget-background: #2F1C40;
+			--ui-widget-focus: #543873;
+			--pitch-background: #2F1C40;
+			--tonic: #42286D;
+			--fifth-note: #37416B;
+			--white-piano-key: #156CB6;
+			--black-piano-key: #130D14;
+				--pitch-channel-limit: 6;
+				--noise-channel-limit: 3;
+				--pitch1-secondary-channel: #156C99;
+				--pitch1-primary-channel:   #00CFDF;
+				--pitch1-secondary-note:    #0080A8;
+				--pitch1-primary-note:      #009FC6;
+				--pitch2-secondary-channel: #AD923A;
+				--pitch2-primary-channel:   #FFD552;
+				--pitch2-secondary-note:    #C49736;
+				--pitch2-primary-note:      #EFC742;
+				--pitch3-secondary-channel: #7A401E;
+				--pitch3-primary-channel:   #C14E30;
+				--pitch3-secondary-note:    #89381B;
+				--pitch3-primary-note:      #E15427;
+				--pitch4-secondary-channel: #0B6030;
+				--pitch4-primary-channel:   #00915C;
+				--pitch4-secondary-note:    #004337;
+				--pitch4-primary-note:      #00915E;
+				--pitch5-secondary-channel: #543873;
+				--pitch5-primary-channel:   #695B95;
+				--pitch5-secondary-note:    #8188BE;
+				--pitch5-primary-note:      #848ED8;
+				--pitch6-secondary-channel: #585882;
+				--pitch6-primary-channel:   #5A72DD;
+				--pitch7-secondary-channel: #7D7C2E;
+				--pitch7-primary-channel:   #B0C952;
+				--pitch7-secondary-note:    #7D7C2E;
+				--pitch7-primary-note:      #B0C952;
+				--pitch8-secondary-channel: #7F426A;
+				--pitch8-primary-channel:   #B75297;
+				--pitch8-secondary-note:    #7F426A;
+				--pitch8-primary-note:      #B75297;
+				--pitch9-secondary-channel: #2A6B65;
+				--pitch9-primary-channel:   #3BA590;
+				--pitch9-secondary-note:    #2A6B65;
+				--pitch9-primary-note:      #3BA590;
+				--pitch10-secondary-channel: #713EA0;
+				--pitch10-primary-channel:   #925EC9;
+				--pitch10-secondary-note:    #713EA0;
+				--pitch10-primary-note:      #925EC9;
+				--noise1-secondary-channel: #6C6C8E;
+				--noise1-primary-channel:   #8A7F96;
+				--noise1-secondary-note:    #A1A3B7;
+				--noise1-primary-note:      #DDBADD;
+				--noise2-secondary-channel: #865E40;
+				--noise2-secondary-note:    #C7B47A;
+				--noise2-primary-note:      #CFC587;
+				--noise3-secondary-channel: #7E7068;
+				--noise3-primary-channel:   #B19998;
+				--noise3-secondary-note:    #BAA6BC;
+				--noise3-primary-note:      #EDDCEC;
+          --mod1-secondary-channel: #156C99;
+				--mod1-primary-channel:   #00CFDF;
+				--mod1-secondary-note:    #0080A8;
+				--mod1-primary-note:      #009FC6;
+				--mod2-secondary-channel: #AD923A;
+				--mod2-primary-channel:   #FFD552;
+				--mod2-secondary-note:    #C49736;
+				--mod2-primary-note:      #EFC742;
+				--mod3-secondary-channel: #7A401E;
+				--mod3-primary-channel:   #C14E30;
+				--mod3-secondary-note:    #89381B;
+				--mod3-primary-note:      #E15427;
+				--mod4-secondary-channel: #0B6030;
+				--mod4-primary-channel:   #00915C;
+				--mod4-secondary-note:    #004337;
+				--mod4-primary-note:      #00915E;
+			}
+		`;

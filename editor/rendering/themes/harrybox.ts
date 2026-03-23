@@ -1,0 +1,86 @@
+// editor/rendering/themes/harrybox.ts
+//
+// Purpose: CSS variable definitions for the "harrybox" theme
+
+export const harrybox: string = `
+		:root {
+			--loop-accent: #9900cc;
+				--noise-channel-limit: 2;
+			--pitch1-secondary-channel: #00ffff;
+			--pitch1-primary-channel:   #00ffff;
+			--pitch1-secondary-note:    #00ffff;
+			--pitch1-primary-note:      #00ffff;
+			--pitch2-secondary-channel: #00d8d8;
+			--pitch2-primary-channel:   #00d8d8;
+			--pitch2-secondary-note:    #00d8d8;
+			--pitch2-primary-note:      #00d8d8;
+			--pitch3-secondary-channel: #00adad;
+			--pitch3-primary-channel:   #00adad;
+			--pitch3-secondary-note:    #00adad;
+			--pitch3-primary-note:      #00adad;
+			-pitch4-secondary-channel: #008c8c;
+			--pitch4-primary-channel:   #008c8c;
+			--pitch4-secondary-note:    #008c8c;
+			--pitch4-primary-note:      #008c8c;
+			--pitch5-secondary-channel: #005b5b;
+			--pitch5-primary-channel:   #005b5b;
+			--pitch5-secondary-note:    #005b5b;
+			--pitch5-primary-note:      #005b5b;
+			--pitch6-secondary-channel: #003333;
+			--pitch6-primary-channel:   #003333;
+			--pitch6-secondary-note:    #003333;
+			--pitch6-primary-note:      #003333;
+			--pitch7-secondary-channel: #00ffff;
+			--pitch7-primary-channel:   #00ffff;
+			--pitch7-secondary-note:    #00ffff;
+			--pitch7-primary-note:      #00ffff;
+			--pitch8-secondary-channel: #00ffff;
+			--pitch8-primary-channel:   #00ffff;
+			--pitch8-secondary-note:    #00ffff;
+			--pitch8-primary-note:      #00ffff;
+			--pitch9-secondary-channel: #00ffff;
+			--pitch9-primary-channel:   #00ffff;
+			--pitch9-secondary-note:    #00ffff;
+			--pitch9-primary-note:      #00ffff;
+			--pitch10-secondary-channel:#00ffff;
+			--pitch10-primary-channel:  #00ffff;
+			--pitch10-secondary-note:   #00ffff;
+			--pitch10-primary-note:     #00ffff;
+			--noise1-secondary-channel: #991010;
+			--noise1-primary-channel:   #ff1616;
+			--noise1-secondary-note:    #991010;
+			--noise1-primary-note:      #ff1616;
+			--noise2-secondary-channel: #aaaaaa;
+			--noise2-primary-channel:   #ffffff;
+			--noise2-secondary-note:    #aaaaaa;
+			--noise2-primary-note:      #ffffff;
+			--noise3-secondary-channel: #991010;
+			--noise3-primary-channel:   #ff1616;
+			--noise3-secondary-note:    #991010;
+			--noise3-primary-note:      #ff1616;
+			--noise4-secondary-channel: #aaaaaa;
+			--noise4-primary-channel:   #ffffff;
+			--noise4-secondary-note:    #aaaaaa;
+			--noise4-primary-note:      #ffffff;
+			--noise5-secondary-channel: #991010;
+			--noise5-primary-channel:   #ff1616;
+			--noise5-secondary-note:    #991010;
+			--noise5-primary-note:      #ff1616;
+         	--mod1-secondary-channel: #00ffff;
+			--mod1-primary-channel:   #00ffff;
+			--mod1-secondary-note:    #00ffff;
+			--mod1-primary-note:      #00ffff;
+			--mod2-secondary-channel: #00d8d8;
+			--mod2-primary-channel:   #00d8d8;
+			--mod2-secondary-note:    #00d8d8;
+			--mod2-primary-note:      #00d8d8;
+			--mod3-secondary-channel: #00adad;
+			--mod3-primary-channel:   #00adad;
+			--mod3-secondary-note:    #00adad;
+			--mod3-primary-note:      #00adad;
+			-mod4-secondary-channel: #008c8c;
+			--mod4-primary-channel:   #008c8c;
+			--mod4-secondary-note:    #008c8c;
+			--mod4-primary-note:      #008c8c;
+			}
+		`;

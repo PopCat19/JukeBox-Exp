@@ -1,0 +1,105 @@
+// editor/rendering/themes/todbox-dark-mode.ts
+//
+// Purpose: CSS variable definitions for the "todbox dark mode" theme
+
+export const todboxDarkMode: string = `
+		:root {
+			-webkit-text-stroke-width: 0.5px;
+				--hover-preview: #999999;
+				--playhead: #999999;
+				--primary-text: #999999;
+				--secondary-text: #444444;
+			--text-selection: #999999;
+				--box-selection-fill: #999999;
+				--loop-accent: #999999;
+				--link-accent: #999999;
+				--ui-widget-background: #222222;
+				--ui-widget-focus: #444444;
+			--pitch-background: #101010;
+				--tonic: #404040;
+				--fifth-note: #202020;
+				--white-piano-key: #999999;
+				--black-piano-key: #101010;
+				--pitch-channel-limit: 6;
+				--noise-channel-limit: 3;
+				--pitch1-secondary-channel: #004444;
+				--pitch1-primary-channel:   #009999;
+				--pitch1-secondary-note:    #004444;
+				--pitch1-primary-note:      #009999;
+				--pitch2-secondary-channel: #444400;
+				--pitch2-primary-channel:   #999900;
+				--pitch2-secondary-note:    #444400;
+				--pitch2-primary-note:      #999900;
+				--pitch3-secondary-channel: #443300;
+				--pitch3-primary-channel:   #996600;
+				--pitch3-secondary-note:    #443300;
+				--pitch3-primary-note:      #996600;
+				--pitch4-secondary-channel: #004400;
+				--pitch4-primary-channel:   #009900;
+				--pitch4-secondary-note:    #004400;
+				--pitch4-primary-note:      #009900;
+				--pitch5-secondary-channel: #440044;
+				--pitch5-primary-channel:   #990099;
+				--pitch5-secondary-note:    #440044;
+				--pitch5-primary-note:      #990099;
+				--pitch6-secondary-channel: #333344;
+				--pitch6-primary-channel:   #666699;
+				--pitch6-secondary-note:    #333344;
+				--pitch6-primary-note:      #666699;
+				--pitch7-secondary-channel: #444400;
+				--pitch7-primary-channel:   #999900;
+				--pitch7-secondary-note:    #444400;
+				--pitch7-primary-note:      #999900;
+				--pitch8-secondary-channel: #824E54;
+				--pitch8-primary-channel:   #C4757E;
+				--pitch8-secondary-note:    #824E54;
+				--pitch8-primary-note:      #C4757E;
+				--pitch9-secondary-channel: #006342;
+				--pitch9-primary-channel:   #008E5F;
+				--pitch9-secondary-note:    #006342;
+				--pitch9-primary-note:      #008E5F;
+				--pitch10-secondary-channel: #561291;
+				--pitch10-primary-channel:   #7819C1;
+				--pitch10-secondary-note:    #561291;
+				--pitch10-primary-note:      #7819C1;
+				--noise1-secondary-channel: #444444;
+				--noise1-primary-channel:   #999999;
+				--noise1-secondary-note:    #444444;
+				--noise1-primary-note:      #999999;
+				--noise2-secondary-channel: #443311;
+				--noise2-primary-channel:   #996633;
+				--noise2-secondary-note:    #443311;
+				--noise2-primary-note:      #996633;
+				--noise3-secondary-channel: #113344;
+				--noise3-primary-channel:   #336699;
+				--noise3-secondary-note:    #113344;
+				--noise3-primary-note:      #336699;
+				--noise4-secondary-channel: #444444;
+				--noise4-primary-channel:   #999999;
+				--noise4-secondary-note:    #444444;
+				--noise4-primary-note:      #999999;
+				--noise5-secondary-channel: #443311;
+				--noise5-primary-channel:   #996633;
+				--noise5-secondary-note:    #443311;
+				--noise5-primary-note:      #996633;
+          --mod1-secondary-channel: #004444;
+				--mod1-primary-channel:   #009999;
+				--mod1-secondary-note:    #004444;
+				--mod1-primary-note:      #009999;
+				--mod2-secondary-channel: #444400;
+				--mod2-primary-channel:   #999900;
+				--mod2-secondary-note:    #444400;
+				--mod2-primary-note:      #999900;
+				--mod3-secondary-channel: #443300;
+				--mod3-primary-channel:   #996600;
+				--mod3-secondary-note:    #443300;
+				--mod3-primary-note:      #996600;
+				--mod4-secondary-channel: #004400;
+				--mod4-primary-channel:   #009900;
+				--mod4-secondary-note:    #004400;
+				--mod4-primary-note:      #009900;
+			}
+			.beepboxEditor button, .beepboxEditor select {
+				box-shadow: inset 0 0 0 1px var(--secondary-text);
+			}
+		`;
