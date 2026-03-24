@@ -25,7 +25,8 @@ import { Tone } from "./tone";
 import { InstrumentState } from "./instrument-state";
 import { ChannelState } from "./channel-state";
 import { tempFilterStartCoefficients, tempFilterEndCoefficients, instrumentVolumeToVolumeMult, noteSizeToVolumeMult } from "./synth-shared";
-import { buildFmSource, buildFm6Source, buildChipSource, buildLoopableChipSource, buildHarmonicsSource, buildPickedStringSource, buildEffectsSource, buildPulseWidthSource, buildSupersawSource, buildNoiseSource, buildSpectrumSource, buildDrumSource } from "./synthesis";
+import { buildChipSource, buildLoopableChipSource, buildHarmonicsSource, buildPickedStringSource, buildPulseWidthSource, buildSupersawSource, buildNoiseSource, buildSpectrumSource, buildDrumSource } from "./synthesis";
+import { getPlugin, getEffectsSynthFunction } from "./plugins";
 
 declare global {
     interface Window {
@@ -408,9 +409,6 @@ export class Synth {
     public loopBarStart: number = -1;
     public loopBarEnd: number = -1;
 
-    private static readonly fmSynthFunctionCache: Dictionary<Function> = {};
-    private static readonly fm6SynthFunctionCache: Dictionary<Function> = {};
-    private static readonly effectsFunctionCache: Function[] = Array(1 << 7).fill(undefined); // keep in sync with the number of post-process effects.
     private static readonly pickedStringFunctionCache: Function[] = Array(3).fill(undefined); // keep in sync with the number of unison voices.
     private static readonly spectrumFunctionCache: Function[] = [];
     private static readonly noiseFunctionCache: Function[] = [];
@@ -3453,48 +3451,28 @@ export class Synth {
 
 
     public static getInstrumentSynthFunction(instrument: Instrument): Function {
-        if (instrument.type == InstrumentType.fm) {
-            const fingerprint: string = instrument.algorithm + "_" + instrument.feedbackType;
-            if (Synth.fmSynthFunctionCache[fingerprint] == undefined) {
-                const wrappedFmSynth: string = buildFmSource(instrument);
-                Synth.fmSynthFunctionCache[fingerprint] = new Function("Config", "Synth", wrappedFmSynth)(Config, Synth);
+        const plugin = getPlugin(instrument.type);
+        if (plugin) {
+            return plugin.getSynthFunction(instrument, Synth);
+        }
+        throw new Error("Unrecognized instrument type: " + instrument.type);
+    }
 
-            }
-            return Synth.fmSynthFunctionCache[fingerprint];
-        } else if (instrument.type == InstrumentType.chip) {
-            // advloop addition
-            if (instrument.isUsingAdvancedLoopControls) {
-                return Synth.loopableChipSynth;
-            }
-            // advloop addition
-            return Synth.chipSynth;
-        } else if (instrument.type == InstrumentType.customChipWave) {
-            return Synth.chipSynth;
-        } else if (instrument.type == InstrumentType.harmonics) {
-            return Synth.harmonicsSynth;
-        } else if (instrument.type == InstrumentType.pwm) {
-            return Synth.pulseWidthSynth;
-        } else if (instrument.type == InstrumentType.supersaw) {
-            return Synth.supersawSynth;
-        } else if (instrument.type == InstrumentType.pickedString) {
-            return Synth.pickedStringSynth;
-        } else if (instrument.type == InstrumentType.noise) {
-            return Synth.noiseSynth;
-        } else if (instrument.type == InstrumentType.spectrum) {
-            return Synth.spectrumSynth;
-        } else if (instrument.type == InstrumentType.drumset) {
-            return Synth.drumsetSynth;
-        } else if (instrument.type == InstrumentType.mod) {
-            return Synth.modSynth;
-        } else if (instrument.type == InstrumentType.fm6op) {
-            const fingerprint: string = instrument.customAlgorithm.name + "_" + instrument.customFeedbackType.name;
-            if (Synth.fm6SynthFunctionCache[fingerprint] == undefined) {
-                const wrappedFm6Synth: string = buildFm6Source(instrument);
-                Synth.fm6SynthFunctionCache[fingerprint] = new Function("Config", "Synth", wrappedFm6Synth)(Config, Synth);
-            }
-            return Synth.fm6SynthFunctionCache[fingerprint];
-        } else {
-            throw new Error("Unrecognized instrument type: " + instrument.type);
+    // Bridge to private static synth methods — used by plugins that cannot
+    // reference private statics from outside the class.
+    public static getStaticSynthFunction(type: InstrumentType): Function | null {
+        switch (type) {
+            case InstrumentType.chip:           return Synth.chipSynth;
+            case InstrumentType.customChipWave: return Synth.chipSynth;
+            case InstrumentType.harmonics:      return Synth.harmonicsSynth;
+            case InstrumentType.pickedString:   return Synth.pickedStringSynth;
+            case InstrumentType.pwm:            return Synth.pulseWidthSynth;
+            case InstrumentType.supersaw:       return Synth.supersawSynth;
+            case InstrumentType.noise:          return Synth.noiseSynth;
+            case InstrumentType.spectrum:       return Synth.spectrumSynth;
+            case InstrumentType.drumset:        return Synth.drumsetSynth;
+            case InstrumentType.mod:            return Synth.modSynth;
+            default:                            return null;
         }
     }
     // advloop addition
@@ -3586,25 +3564,22 @@ export class Synth {
         signature = signature << 1; if (usesRingModulation) signature = signature | 1;
         signature = signature << 1; if (usesPhaser) signature = signature | 1;
         signature = signature << 1; if (usesInvertWave) signature = signature | 1;
-        
-        let effectsFunction: Function = Synth.effectsFunctionCache[signature];
-        if (effectsFunction == undefined) {
-            const effectsSource: string = buildEffectsSource(
-                usesDistortion,
-                usesBitcrusher,
-                usesEqFilter,
-                usesPanning,
-                usesChorus,
-                usesEcho,
-                usesReverb,
-                usesGranular,
-                usesRingModulation,
-                usesPhaser,
-                usesInvertWave,
-            );
-            effectsFunction = new Function("Config", "Synth", effectsSource)(Config, Synth);
-            Synth.effectsFunctionCache[signature] = effectsFunction;
-        }
+
+        const effectsFunction: Function = getEffectsSynthFunction(
+            usesDistortion,
+            usesBitcrusher,
+            usesEqFilter,
+            usesPanning,
+            usesChorus,
+            usesEcho,
+            usesReverb,
+            usesGranular,
+            usesRingModulation,
+            usesPhaser,
+            usesInvertWave,
+            signature,
+            Synth,
+        );
 
         effectsFunction(synth, outputDataL, outputDataR, bufferIndex, runLength, instrumentState);
     }

@@ -43,3 +43,7 @@ export { ChannelState } from "./channel-state";
 
 // Re-export types from SynthConfig that consumers expect from synth module
 export { Dictionary, DictionaryArray, FilterType, EnvelopeType, InstrumentType, Transition, Chord, Envelope, Config } from "./SynthConfig";
+
+// Plugin registry
+export type { SynthPlugin } from "./plugins/interfaces";
+export { registerPlugin, getPlugin, getAllPlugins } from "./plugins/registry";

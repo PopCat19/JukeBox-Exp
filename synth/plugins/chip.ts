@@ -1,0 +1,33 @@
+// synth/plugins/chip.ts
+//
+// Purpose: Chip wave synthesis plugin (handles normal, loopable, and custom chip wave)
+//
+// This module:
+// - Branches on isUsingAdvancedLoopControls for loopable variant
+// - Registers for both InstrumentType.chip and InstrumentType.customChipWave
+// - loopableChipSynth is public static, chipSynth is private → uses bridge
+
+import { InstrumentType } from "../SynthConfig";
+import type { Instrument } from "../instruments";
+import type { Synth } from "../synth";
+import { buildChipSource, buildLoopableChipSource } from "../synthesis/chip";
+import { registerPlugin } from "./registry";
+
+function getSynthFunction(instrument: Instrument, synth: typeof Synth): Function {
+    if (instrument.isUsingAdvancedLoopControls) {
+        return synth.loopableChipSynth;
+    }
+    return synth.getStaticSynthFunction(InstrumentType.chip)!;
+}
+
+const plugin = {
+    name: "Chip",
+    getSynthFunction,
+    buildSource: (instrument: Instrument, voiceCount?: number) =>
+        instrument.isUsingAdvancedLoopControls
+            ? buildLoopableChipSource(voiceCount ?? 0)
+            : buildChipSource(voiceCount ?? 0),
+};
+
+registerPlugin({ ...plugin, type: InstrumentType.chip });
+registerPlugin({ ...plugin, type: InstrumentType.customChipWave });

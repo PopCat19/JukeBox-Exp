@@ -1,0 +1,20 @@
+// synth/plugins/noise.ts
+//
+// Purpose: Noise synthesis plugin
+
+import { InstrumentType } from "../SynthConfig";
+import type { Instrument } from "../instruments";
+import type { Synth } from "../synth";
+import { buildNoiseSource } from "../synthesis/noise";
+import { registerPlugin } from "./registry";
+
+function getSynthFunction(_instrument: Instrument, synth: typeof Synth): Function {
+    return synth.getStaticSynthFunction(InstrumentType.noise)!;
+}
+
+registerPlugin({
+    type: InstrumentType.noise,
+    name: "Noise",
+    getSynthFunction,
+    buildSource: (_instrument: Instrument, voiceCount?: number) => buildNoiseSource(voiceCount ?? 0),
+});

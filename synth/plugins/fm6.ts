@@ -1,0 +1,27 @@
+// synth/plugins/fm6.ts
+//
+// Purpose: 6-operator FM synthesis plugin
+
+import { Config, InstrumentType } from "../SynthConfig";
+import type { Instrument } from "../instruments";
+import type { Synth } from "../synth";
+import { buildFm6Source } from "../synthesis/fm6";
+import { registerPlugin } from "./registry";
+
+const cache: Map<string, Function> = new Map();
+
+function getSynthFunction(instrument: Instrument, synth: typeof Synth): Function {
+    const fingerprint: string = instrument.customAlgorithm.name + "_" + instrument.customFeedbackType.name;
+    if (!cache.has(fingerprint)) {
+        const source: string = buildFm6Source(instrument);
+        cache.set(fingerprint, new Function("Config", "Synth", source)(Config, synth));
+    }
+    return cache.get(fingerprint)!;
+}
+
+registerPlugin({
+    type: InstrumentType.fm6op,
+    name: "FM6",
+    getSynthFunction,
+    buildSource: (instrument: Instrument) => buildFm6Source(instrument),
+});
