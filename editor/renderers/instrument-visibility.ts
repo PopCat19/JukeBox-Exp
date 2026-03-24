@@ -10,7 +10,7 @@
 
 import { SongDocument } from "../SongDocument";
 import { Config, InstrumentType, effectsIncludeTransition, effectsIncludeChord, effectsIncludePitchShift, effectsIncludeDetune, effectsIncludeVibrato, effectsIncludeNoteFilter, effectsIncludeDistortion, effectsIncludeBitcrusher, effectsIncludePanning, effectsIncludeChorus, effectsIncludeEcho, effectsIncludeReverb, effectsIncludeRingModulation, effectsIncludeGranular, effectsIncludePhaser, effectsIncludeInvertWave, effectsIncludeNoteRange } from "../../synth/SynthConfig";
-import { Instrument, detuneToCents } from "../../synth";
+import { Instrument, detuneToCents, getCapabilities } from "../../synth";
 import { ColorConfig, ChannelColors } from "../rendering/ColorConfig";
 import { Slider } from "../ui/HTMLWrapper";
 import { SpectrumEditor } from "../components/SpectrumEditor";
@@ -659,7 +659,7 @@ export function applyInstrumentVisibility(
 		refs.lowerNoteLimitRow.style.display = "none";
 	}
 
-	if (instrument.type == InstrumentType.chip || instrument.type == InstrumentType.customChipWave || instrument.type == InstrumentType.harmonics || instrument.type == InstrumentType.pickedString || instrument.type == InstrumentType.spectrum || instrument.type == InstrumentType.pwm || instrument.type == InstrumentType.noise || instrument.type == InstrumentType.drumset /*|| instrument.type == InstrumentType.supersaw*/) {
+	if (getCapabilities(instrument.type).hasUnison) {
 		refs.unisonSelectRow.style.display = "";
 		setSelectedValue(refs.unisonSelect, instrument.unison);
 		refs.unisonVoicesInputBox.value = instrument.unisonVoices + "";

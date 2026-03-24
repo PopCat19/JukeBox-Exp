@@ -17,7 +17,10 @@ import "./noise";
 import "./spectrum";
 import "./drumset";
 import "./mod";
+import "./capabilities";
 
 export type { SynthPlugin } from "./interfaces";
 export { registerPlugin, getPlugin, getAllPlugins } from "./registry";
 export { getEffectsSynthFunction } from "./effects";
+export { registerCapabilities, getCapabilities } from "./capabilities";
+export type { InstrumentCapabilities } from "./capabilities";

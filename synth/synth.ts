@@ -26,7 +26,7 @@ import { InstrumentState } from "./instrument-state";
 import { ChannelState } from "./channel-state";
 import { tempFilterStartCoefficients, tempFilterEndCoefficients, instrumentVolumeToVolumeMult, noteSizeToVolumeMult } from "./synth-shared";
 import { buildChipSource, buildLoopableChipSource, buildHarmonicsSource, buildPickedStringSource, buildPulseWidthSource, buildSupersawSource, buildNoiseSource, buildSpectrumSource, buildDrumSource } from "./synthesis";
-import { getPlugin, getEffectsSynthFunction } from "./plugins";
+import { getPlugin, getEffectsSynthFunction, getCapabilities } from "./plugins";
 
 declare global {
     interface Window {
@@ -2802,7 +2802,7 @@ export class Synth {
 
             const vibratoLfoEnd: number = Synth.getLFOAmplitude(instrument, secondsPerPart * instrumentState.nextVibratoTime);
             const vibratoDepthEnvelopeEnd: number = envelopeEnds[EnvelopeComputeIndex.vibratoDepth];
-            if (instrument.type != InstrumentType.mod) {
+            if (!getCapabilities(instrument.type).isMod) {
                 let vibratoEnd: number = vibratoAmplitudeEnd * vibratoLfoEnd * vibratoDepthEnvelopeEnd;
                 if (delayTicks > 0.0) {
                     const ticksUntilVibratoEnd: number = delayTicks - envelopeComputer.noteTicksEnd;
@@ -3136,7 +3136,7 @@ export class Synth {
             }
 
             const startFreq: number = Instrument.frequencyFromPitch(startPitch);
-            if (instrument.type == InstrumentType.chip || instrument.type == InstrumentType.customChipWave || instrument.type == InstrumentType.harmonics || instrument.type == InstrumentType.pickedString || instrument.type == InstrumentType.spectrum || instrument.type == InstrumentType.pwm || instrument.type == InstrumentType.noise || instrument.type == InstrumentType.drumset) {
+            if (getCapabilities(instrument.type).hasUnison) {
                 const unisonVoices: number = instrument.unisonVoices;
                 const unisonSpread: number = instrument.unisonSpread;
                 const unisonOffset: number = instrument.unisonOffset;
@@ -3460,20 +3460,27 @@ export class Synth {
 
     // Bridge to private static synth methods — used by plugins that cannot
     // reference private statics from outside the class.
+    private static readonly _synthFunctionRegistry: Map<number, Function> = new Map();
+
+    public static registerSynthFunction(type: number, fn: Function): void {
+        Synth._synthFunctionRegistry.set(type, fn);
+    }
+
     public static getStaticSynthFunction(type: InstrumentType): Function | null {
-        switch (type) {
-            case InstrumentType.chip:           return Synth.chipSynth;
-            case InstrumentType.customChipWave: return Synth.chipSynth;
-            case InstrumentType.harmonics:      return Synth.harmonicsSynth;
-            case InstrumentType.pickedString:   return Synth.pickedStringSynth;
-            case InstrumentType.pwm:            return Synth.pulseWidthSynth;
-            case InstrumentType.supersaw:       return Synth.supersawSynth;
-            case InstrumentType.noise:          return Synth.noiseSynth;
-            case InstrumentType.spectrum:       return Synth.spectrumSynth;
-            case InstrumentType.drumset:        return Synth.drumsetSynth;
-            case InstrumentType.mod:            return Synth.modSynth;
-            default:                            return null;
-        }
+        return Synth._synthFunctionRegistry.get(type) ?? null;
+    }
+
+    static {
+        Synth._synthFunctionRegistry.set(InstrumentType.chip, Synth.chipSynth);
+        Synth._synthFunctionRegistry.set(InstrumentType.customChipWave, Synth.chipSynth);
+        Synth._synthFunctionRegistry.set(InstrumentType.harmonics, Synth.harmonicsSynth);
+        Synth._synthFunctionRegistry.set(InstrumentType.pickedString, Synth.pickedStringSynth);
+        Synth._synthFunctionRegistry.set(InstrumentType.pwm, Synth.pulseWidthSynth);
+        Synth._synthFunctionRegistry.set(InstrumentType.supersaw, Synth.supersawSynth);
+        Synth._synthFunctionRegistry.set(InstrumentType.noise, Synth.noiseSynth);
+        Synth._synthFunctionRegistry.set(InstrumentType.spectrum, Synth.spectrumSynth);
+        Synth._synthFunctionRegistry.set(InstrumentType.drumset, Synth.drumsetSynth);
+        Synth._synthFunctionRegistry.set(InstrumentType.mod, Synth.modSynth);
     }
     // advloop addition
     static wrap(x: number, b: number): number {
