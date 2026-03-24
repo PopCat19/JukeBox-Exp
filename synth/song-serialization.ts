@@ -6,7 +6,7 @@
 // - Encodes and decodes songs to and from URL hash format
 // - Extracted from song.ts to reduce module size and improve separation of concerns
 
-import { Config, FilterType, SustainType, EnvelopeType, InstrumentType, EffectType, Dictionary, DictionaryArray, toNameMap, effectsIncludeTransition, effectsIncludeChord, effectsIncludePitchShift, effectsIncludeDetune, effectsIncludeVibrato, effectsIncludeNoteFilter, effectsIncludeDistortion, effectsIncludeBitcrusher, effectsIncludePanning, effectsIncludeChorus, effectsIncludeEcho, effectsIncludeReverb, effectsIncludeNoteRange, effectsIncludeRingModulation, effectsIncludeGranular, effectsIncludePhaser, effectsIncludeInvertWave, LFOEnvelopeTypes, RandomEnvelopeTypes, sampleLoadingState, sampleLoadEvents, SampleLoadedEvent, loadBuiltInSamples } from "./SynthConfig";
+import { Config, FilterType, SustainType, EnvelopeType, InstrumentType, InstrumentTypeLength, EffectType, Dictionary, DictionaryArray, toNameMap, effectsIncludeTransition, effectsIncludeChord, effectsIncludePitchShift, effectsIncludeDetune, effectsIncludeVibrato, effectsIncludeNoteFilter, effectsIncludeDistortion, effectsIncludeBitcrusher, effectsIncludePanning, effectsIncludeChorus, effectsIncludeEcho, effectsIncludeReverb, effectsIncludeNoteRange, effectsIncludeRingModulation, effectsIncludeGranular, effectsIncludePhaser, effectsIncludeInvertWave, LFOEnvelopeTypes, RandomEnvelopeTypes, sampleLoadingState, sampleLoadEvents, SampleLoadedEvent, loadBuiltInSamples } from "./SynthConfig";
 import { clamp, validateRange, convertLegacyKeyToKeyAndOctave, secondsToFadeInSetting, ticksToFadeOutSetting } from "./util";
 import { BitFieldReader, BitFieldWriter, encode32BitNumber, decode32BitNumber, encodeUnisonSettings, base64IntToCharCode, base64CharCodeToInt, CharCode, SongTagCode } from "./serialization";
 import { NotePin, Note, makeNotePin, Pattern } from "./notes";
@@ -1252,7 +1252,7 @@ export function toBase64StringImpl(song: SongLike): string {
                 validateRange(0, song.channels.length - 1, instrumentChannelIterator);
                 const instrument: Instrument = song.channels[instrumentChannelIterator].instruments[instrumentIndexIterator];
                 // JB before v5 had custom chip and mod before pickedString and supersaw were added. Index +2.
-                let instrumentType: number = validateRange(0, InstrumentType.length - 1, base64CharCodeToInt[compressed.charCodeAt(charIndex++)]);
+                let instrumentType: number = validateRange(0, InstrumentTypeLength - 1, base64CharCodeToInt[compressed.charCodeAt(charIndex++)]);
                 if ((fromJummBox && beforeFive) || (beforeFour && fromGoldBox)) {
                     if (instrumentType == InstrumentType.pickedString || instrumentType == InstrumentType.supersaw) {
                         instrumentType += 2;

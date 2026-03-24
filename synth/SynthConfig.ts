@@ -79,20 +79,66 @@ export const enum EnvelopeType {
     //add new envelope types here
 }
 
-export const enum InstrumentType {
-    chip,
-    fm,
-    noise,
-    spectrum,
-    drumset,
-    harmonics,
-    pwm,
-    pickedString,
-    supersaw,
-    customChipWave,
-    mod,
-    fm6op,
-    length,
+// InstrumentType registry — replaces the old const enum.
+// Built-in types keep their original numeric values for backward compat.
+// External plugins call registerInstrumentType("granular") to get a new ID.
+
+const _instrumentTypeMap: Map<string, number> = new Map();
+const _instrumentTypeNames: string[] = [];
+let _nextInstrumentTypeId = 0;
+
+function _registerBuiltInType(name: string): number {
+    const id = _nextInstrumentTypeId++;
+    _instrumentTypeMap.set(name, id);
+    _instrumentTypeNames[id] = name;
+    return id;
+}
+
+// Order MUST match the old enum numeric values
+export const InstrumentType = {
+    chip:             _registerBuiltInType("chip"),             // 0
+    fm:               _registerBuiltInType("fm"),               // 1
+    noise:            _registerBuiltInType("noise"),            // 2
+    spectrum:         _registerBuiltInType("spectrum"),         // 3
+    drumset:          _registerBuiltInType("drumset"),          // 4
+    harmonics:        _registerBuiltInType("harmonics"),        // 5
+    pwm:              _registerBuiltInType("pwm"),              // 6
+    pickedString:     _registerBuiltInType("pickedString"),     // 7
+    supersaw:         _registerBuiltInType("supersaw"),         // 8
+    customChipWave:   _registerBuiltInType("customChipWave"),   // 9
+    mod:              _registerBuiltInType("mod"),              // 10
+    fm6op:            _registerBuiltInType("fm6op"),            // 11
+} as const;
+
+export type InstrumentType = (typeof InstrumentType)[keyof typeof InstrumentType];
+
+export const InstrumentTypeLength: number = _nextInstrumentTypeId;
+
+export function registerInstrumentType(name: string): number {
+    if (_instrumentTypeMap.has(name)) {
+        return _instrumentTypeMap.get(name)!;
+    }
+    const id = _nextInstrumentTypeId++;
+    _instrumentTypeMap.set(name, id);
+    _instrumentTypeNames[id] = name;
+    return id;
+}
+
+export function getInstrumentTypeName(id: number): string {
+    return _instrumentTypeNames[id] ?? "unknown";
+}
+
+export function getInstrumentTypeId(name: string): number | undefined {
+    return _instrumentTypeMap.get(name);
+}
+
+export function getRegisteredInstrumentTypeCount(): number {
+    return _nextInstrumentTypeId;
+}
+
+// Helper to rebuild type names array from the registry
+export function getRegisteredInstrumentTypeNames(): string[] {
+    return _instrumentTypeNames.slice();
 }
 
 export const TypePresets: ReadonlyArray<string> = ["chip", "FM", "noise", "spectrum", "drumset", "harmonics", "pulse width", "picked string", "supersaw", "chip (custom)", "mod", "FM (6-op)"];
