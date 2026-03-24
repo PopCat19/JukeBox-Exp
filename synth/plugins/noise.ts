@@ -2,7 +2,7 @@
 //
 // Purpose: Noise synthesis plugin
 
-import { InstrumentType } from "../SynthConfig";
+import { Config, InstrumentType } from "../SynthConfig";
 import type { Instrument } from "../instruments";
 import type { Synth } from "../synth";
 import { buildNoiseSource } from "../synthesis/noise";
@@ -16,6 +16,10 @@ registerPlugin({
     type: InstrumentType.noise,
     name: "Noise",
     editorRows: ["noiseSelect"],
+    initialize: (instrument: Instrument) => {
+        instrument.chipNoise = 1;
+        instrument.chord = Config.chords.dictionary["arpeggio"].index;
+    },
     getSynthFunction,
     buildSource: (_instrument: Instrument, voiceCount?: number) => buildNoiseSource(voiceCount ?? 0),
 });

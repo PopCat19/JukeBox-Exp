@@ -27,6 +27,15 @@ registerPlugin({
     type: InstrumentType.fm,
     name: "FM",
     editorRows: ["fm"],
+    initialize: (instrument: Instrument) => {
+        instrument.chord = 3;
+        instrument.algorithm = 0;
+        instrument.feedbackType = 0;
+        instrument.feedbackAmplitude = 0;
+        for (let i = 0; i < instrument.operators.length; i++) {
+            instrument.operators[i].reset(i);
+        }
+    },
     getSynthFunction,
     buildSource: (instrument: Instrument) => buildFmSource(instrument),
 });

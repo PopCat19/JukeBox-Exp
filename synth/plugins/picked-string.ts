@@ -2,7 +2,7 @@
 //
 // Purpose: Picked string synthesis plugin
 
-import { InstrumentType } from "../SynthConfig";
+import { Config, InstrumentType } from "../SynthConfig";
 import type { Instrument } from "../instruments";
 import type { Synth } from "../synth";
 import { buildPickedStringSource } from "../synthesis/picked-string";
@@ -16,6 +16,10 @@ registerPlugin({
     type: InstrumentType.pickedString,
     name: "Picked String",
     editorRows: ["harmonics", "stringSustain"],
+    initialize: (instrument: Instrument) => {
+        instrument.chord = Config.chords.dictionary["strum"].index;
+        instrument.harmonicsWave.reset();
+    },
     getSynthFunction,
     buildSource: (_instrument: Instrument, voiceCount?: number) => buildPickedStringSource(voiceCount ?? 0),
 });

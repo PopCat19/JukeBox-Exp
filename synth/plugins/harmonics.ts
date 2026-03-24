@@ -2,7 +2,7 @@
 //
 // Purpose: Harmonics synthesis plugin — wraps private static via bridge
 
-import { InstrumentType } from "../SynthConfig";
+import { Config, InstrumentType } from "../SynthConfig";
 import type { Instrument } from "../instruments";
 import type { Synth } from "../synth";
 import { buildHarmonicsSource } from "../synthesis/harmonics";
@@ -16,6 +16,10 @@ registerPlugin({
     type: InstrumentType.harmonics,
     name: "Harmonics",
     editorRows: ["harmonics"],
+    initialize: (instrument: Instrument) => {
+        instrument.chord = Config.chords.dictionary["simultaneous"].index;
+        instrument.harmonicsWave.reset();
+    },
     getSynthFunction,
     buildSource: (_instrument: Instrument, voiceCount?: number) => buildHarmonicsSource(voiceCount ?? 0),
 });

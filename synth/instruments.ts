@@ -12,6 +12,7 @@ import { Config, FilterType, SustainType, EnvelopeType, InstrumentType, EffectTy
 import { FilterCoefficients, FrequencyResponse } from "./filtering";
 import { clamp, detuneToCents, centsToDetune, fadeInSettingToSeconds, secondsToFadeInSetting, fadeOutSettingToTicks, ticksToFadeOutSetting } from "./util";
 import { SpectrumWave, HarmonicsWave } from "./waves";
+import { getPlugin } from "./plugins";
 export class Operator {
     public frequency: number = 4;
     public amplitude: number = 0;
@@ -936,133 +937,16 @@ export class Instrument {
         this.upperNoteLimit = Config.maxPitch;
         this.lowerNoteLimit = 0;
         this.isNoiseInstrument = isNoiseChannel;
-        switch (type) {
-            case InstrumentType.chip:
-                this.chipWave = 2;
-                // TODO: enable the chord effect? //slarmoo - My decision is no, others can if they would like though
-                this.chord = Config.chords.dictionary["arpeggio"].index;
-                // advloop addition
-                this.isUsingAdvancedLoopControls = false;
-                this.chipWaveLoopStart = 0;
-                this.chipWaveLoopEnd = Config.rawRawChipWaves[this.chipWave].samples.length - 1;
-                this.chipWaveLoopMode = 0;
-                this.chipWavePlayBackwards = false;
-                this.chipWaveStartOffset = 0;
-                // advloop addition
-                break;
-            case InstrumentType.customChipWave:
-                this.chipWave = 2;
-                this.chord = Config.chords.dictionary["arpeggio"].index;
-                for (let i: number = 0; i < 64; i++) {
-                    this.customChipWave[i] = 24 - (Math.floor(i * (48 / 64)));
-                }
 
-                let sum: number = 0.0;
-                for (let i: number = 0; i < this.customChipWave.length; i++) {
-                    sum += this.customChipWave[i];
-                }
-                const average: number = sum / this.customChipWave.length;
-
-                // Perform the integral on the wave. The chipSynth will perform the derivative to get the original wave back but with antialiasing.
-                let cumulative: number = 0;
-                let wavePrev: number = 0;
-                for (let i: number = 0; i < this.customChipWave.length; i++) {
-                    cumulative += wavePrev;
-                    wavePrev = this.customChipWave[i] - average;
-                    this.customChipWaveIntegral[i] = cumulative;
-                }
-
-                this.customChipWaveIntegral[64] = 0.0;
-                break;
-            case InstrumentType.fm:
-                this.chord = Config.chords.dictionary["custom interval"].index;
-                this.algorithm = 0;
-                this.feedbackType = 0;
-                this.feedbackAmplitude = 0;
-                for (let i: number = 0; i < this.operators.length; i++) {
-                    this.operators[i].reset(i);
-                }
-                break;
-            case InstrumentType.fm6op:
-                this.transition = 1;
-                this.vibrato = 0;
-                this.effects = 1;
-                this.chord = 3;
-                this.algorithm = 0;
-                this.feedbackType = 0;
-                this.algorithm6Op = 1;
-                this.feedbackType6Op = 1;
-                this.customAlgorithm.fromPreset(1);
-                this.feedbackAmplitude = 0;
-                for (let i: number = 0; i < this.operators.length; i++) {
-                    this.operators[i].reset(i);
-                }
-                break;
-            case InstrumentType.noise:
-                this.chipNoise = 1;
-                this.chord = Config.chords.dictionary["arpeggio"].index;
-                break;
-            case InstrumentType.spectrum:
-                this.chord = Config.chords.dictionary["simultaneous"].index;
-                this.spectrumWave.reset(isNoiseChannel);
-                break;
-            case InstrumentType.drumset:
-                this.chord = Config.chords.dictionary["simultaneous"].index;
-                for (let i: number = 0; i < Config.drumCount; i++) {
-                    this.drumsetEnvelopes[i] = Config.envelopes.dictionary["twang 2"].index;
-                    if (this.drumsetSpectrumWaves[i] == undefined) {
-                        this.drumsetSpectrumWaves[i] = new SpectrumWave(true);
-                    }
-                    this.drumsetSpectrumWaves[i].reset(isNoiseChannel);
-                }
-                break;
-            case InstrumentType.harmonics:
-                this.chord = Config.chords.dictionary["simultaneous"].index;
-                this.harmonicsWave.reset();
-                break;
-            case InstrumentType.pwm:
-                this.chord = Config.chords.dictionary["arpeggio"].index;
-                this.pulseWidth = Config.pulseWidthRange;
-                this.decimalOffset = 0;
-                break;
-            case InstrumentType.pickedString:
-                this.chord = Config.chords.dictionary["strum"].index;
-                this.harmonicsWave.reset();
-                break;
-            case InstrumentType.mod:
-                this.transition = 0;
-                this.vibrato = 0;
-                this.interval = 0;
-                this.effects = 0;
-                this.chord = 0;
-                this.modChannels = [];
-                this.modInstruments = [];
-                this.modulators = [];
-                for (let mod: number = 0; mod < Config.modCount; mod++) {
-                    this.modChannels.push(-2);
-                    this.modInstruments.push(0);
-                    this.modulators.push(Config.modulators.dictionary["none"].index);
-                    this.invalidModulators[mod] = false;
-                    this.modFilterTypes[mod] = 0;
-                    this.modEnvelopeNumbers[mod] = 0;
-                }
-                break;
-            case InstrumentType.supersaw:
-                this.chord = Config.chords.dictionary["arpeggio"].index;
-                this.supersawDynamism = Config.supersawDynamismMax;
-                this.supersawSpread = Math.ceil(Config.supersawSpreadMax / 2.0);
-                this.supersawShape = 0;
-                this.pulseWidth = Config.pulseWidthRange - 1;
-                this.decimalOffset = 0;
-                break;
-            default:
-                throw new Error("Unrecognized instrument type: " + type);
+        const plugin = getPlugin(type);
+        if (plugin?.initialize) {
+            plugin.initialize(this);
+        } else {
+            this.chord = Config.chords.dictionary["simultaneous"].index;
         }
-        // Chip/noise instruments had arpeggio and FM had custom interval but neither
-        // explicitly saved the chorus setting beforeSeven so enable it here. The effects
-        // will otherwise get overridden when reading SongTagCode.startInstrument.
+
+        // Enable chord if the chord type is not "simultaneous"
         if (this.chord != Config.chords.dictionary["simultaneous"].index) {
-            // Enable chord if it was used.
             this.effects = (this.effects | (1 << EffectType.chord));
         }
     }

@@ -23,6 +23,16 @@ registerPlugin({
     type: InstrumentType.fm6op,
     name: "FM6",
     editorRows: ["fm", "fm6"],
+    initialize: (instrument: Instrument) => {
+        instrument.chord = 3;
+        instrument.algorithm6Op = 1;
+        instrument.feedbackType6Op = 1;
+        instrument.customAlgorithm.fromPreset(1);
+        instrument.feedbackAmplitude = 0;
+        for (let i = 0; i < instrument.operators.length; i++) {
+            instrument.operators[i].reset(i);
+        }
+    },
     getSynthFunction,
     buildSource: (instrument: Instrument) => buildFm6Source(instrument),
 });

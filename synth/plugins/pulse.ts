@@ -2,7 +2,7 @@
 //
 // Purpose: Pulse width modulation synthesis plugin
 
-import { InstrumentType } from "../SynthConfig";
+import { Config, InstrumentType } from "../SynthConfig";
 import type { Instrument } from "../instruments";
 import type { Synth } from "../synth";
 import { buildPulseWidthSource } from "../synthesis/pulse";
@@ -16,6 +16,11 @@ registerPlugin({
     type: InstrumentType.pwm,
     name: "Pulse Width",
     editorRows: ["pulseWidth"],
+    initialize: (instrument: Instrument) => {
+        instrument.chord = Config.chords.dictionary["arpeggio"].index;
+        instrument.pulseWidth = Config.pulseWidthRange;
+        instrument.decimalOffset = 0;
+    },
     getSynthFunction,
     buildSource: (_instrument: Instrument, voiceCount?: number) => buildPulseWidthSource(voiceCount ?? 0),
 });
