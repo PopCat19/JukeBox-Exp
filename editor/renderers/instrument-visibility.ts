@@ -10,7 +10,7 @@
 
 import { SongDocument } from "../SongDocument";
 import { Config, InstrumentType, effectsIncludeTransition, effectsIncludeChord, effectsIncludePitchShift, effectsIncludeDetune, effectsIncludeVibrato, effectsIncludeNoteFilter, effectsIncludeDistortion, effectsIncludeBitcrusher, effectsIncludePanning, effectsIncludeChorus, effectsIncludeEcho, effectsIncludeReverb, effectsIncludeRingModulation, effectsIncludeGranular, effectsIncludePhaser, effectsIncludeInvertWave, effectsIncludeNoteRange } from "../../synth/SynthConfig";
-import { Instrument, detuneToCents, getCapabilities } from "../../synth";
+import { Instrument, detuneToCents, getCapabilities, getPlugin } from "../../synth";
 import { ColorConfig, ChannelColors } from "../rendering/ColorConfig";
 import { Slider } from "../ui/HTMLWrapper";
 import { SpectrumEditor } from "../components/SpectrumEditor";
@@ -237,165 +237,159 @@ export function applyInstrumentVisibility(
 	ctrlHeld: boolean,
 	shiftHeld: boolean,
 ): void {
-	if (instrument.type == InstrumentType.noise) {
-		refs.chipWaveSelectRow.style.display = "none";
-		refs.useChipWaveAdvancedLoopControlsRow.style.display = "none";
-		refs.chipWaveLoopModeSelectRow.style.display = "none";
-		refs.chipWaveLoopStartRow.style.display = "none";
-		refs.chipWaveLoopEndRow.style.display = "none";
-		refs.chipWaveStartOffsetRow.style.display = "none";
-		refs.chipWavePlayBackwardsRow.style.display = "none";
-		refs.chipNoiseSelectRow.style.display = "";
+	// --- Data-driven type-specific row visibility ---
+	const plugin = getPlugin(instrument.type);
+	const rows = new Set<string>(plugin?.editorRows ?? []);
+
+	function showRow(element: HTMLElement, show: boolean): void {
+		element.style.display = show ? "" : "none";
+	}
+
+	function showRowFlex(element: HTMLElement, show: boolean): void {
+		element.style.display = show ? "flex" : "none";
+	}
+
+	// Hide all type-specific rows
+	showRow(refs.chipWaveSelectRow, false);
+	showRow(refs.useChipWaveAdvancedLoopControlsRow, false);
+	showRow(refs.chipWaveLoopModeSelectRow, false);
+	showRow(refs.chipWaveLoopStartRow, false);
+	showRow(refs.chipWaveLoopEndRow, false);
+	showRow(refs.chipWaveStartOffsetRow, false);
+	showRow(refs.chipWavePlayBackwardsRow, false);
+	showRow(refs.chipNoiseSelectRow, false);
+	showRow(refs.spectrumRow, false);
+	showRowFlex(refs.harmonicsRow, false);
+	showRow(refs.stringSustainRow, false);
+	showRow(refs.drumsetGroup, false);
+	showRow(refs.customWaveDraw, false);
+	showRow(refs.supersawDynamismRow, false);
+	showRow(refs.supersawSpreadRow, false);
+	showRow(refs.supersawShapeRow, false);
+	showRow(refs.pulseWidthRow, false);
+	showRow(refs.pulseWidthDropdownGroup, false);
+	showRow(refs.phaseModGroup, false);
+	showRow(refs.algorithm6OpSelectRow, false);
+	showRow(refs.feedback6OpRow1, false);
+	showRow(refs.algorithmSelectRow, false);
+	showRow(refs.feedbackRow1, false);
+	showRow(refs.feedbackRow2, false);
+	for (let i = 0; i < refs.operatorRows.length; i++) {
+		showRow(refs.operatorRows[i], false);
+		showRow(refs.operatorDropdownGroups[i], false);
+	}
+
+	// --- Show rows based on plugin declaration ---
+
+	// Wave select
+	if (rows.has("waveSelect")) {
+		showRow(refs.chipWaveSelectRow, true);
+		setSelectedValue(refs.chipWaveSelect, instrument.chipWave);
+	}
+
+	// Loop controls (chip only)
+	if (rows.has("loopControls")) {
+		showRow(refs.useChipWaveAdvancedLoopControlsRow, true);
+		if (instrument.isUsingAdvancedLoopControls) {
+			showRow(refs.chipWaveLoopModeSelectRow, true);
+			showRow(refs.chipWaveLoopStartRow, true);
+			showRow(refs.chipWaveLoopEndRow, true);
+			showRow(refs.chipWaveStartOffsetRow, true);
+			showRow(refs.chipWavePlayBackwardsRow, true);
+			refs.useChipWaveAdvancedLoopControlsBox.checked = true;
+			setSelectedValue(refs.chipWaveLoopModeSelect, instrument.chipWaveLoopMode);
+			refs.chipWaveLoopStartStepper.value = instrument.chipWaveLoopStart + "";
+			refs.chipWaveLoopEndStepper.value = instrument.chipWaveLoopEnd + "";
+			refs.chipWaveStartOffsetStepper.value = instrument.chipWaveStartOffset + "";
+			refs.chipWavePlayBackwardsBox.checked = instrument.chipWavePlayBackwards;
+		} else {
+			refs.useChipWaveAdvancedLoopControlsBox.checked = false;
+		}
+	}
+
+	// Noise select
+	if (rows.has("noiseSelect")) {
+		showRow(refs.chipNoiseSelectRow, true);
 		setSelectedValue(refs.chipNoiseSelect, instrument.chipNoise, true);
-	} else {
-		refs.chipNoiseSelectRow.style.display = "none";
 	}
-	if (instrument.type == InstrumentType.spectrum) {
-		refs.chipWaveSelectRow.style.display = "none";
-		refs.useChipWaveAdvancedLoopControlsRow.style.display = "none";
-		refs.chipWaveLoopModeSelectRow.style.display = "none";
-		refs.chipWaveLoopStartRow.style.display = "none";
-		refs.chipWaveLoopEndRow.style.display = "none";
-		refs.chipWaveStartOffsetRow.style.display = "none";
-		refs.chipWavePlayBackwardsRow.style.display = "none";
-		refs.spectrumRow.style.display = "";
+
+	// Spectrum
+	if (rows.has("spectrum")) {
+		showRow(refs.spectrumRow, true);
 		refs.spectrumEditor.render();
-	} else {
-		refs.spectrumRow.style.display = "none";
 	}
-	if (instrument.type == InstrumentType.harmonics || instrument.type == InstrumentType.pickedString) {
-		refs.chipWaveSelectRow.style.display = "none";
-		refs.useChipWaveAdvancedLoopControlsRow.style.display = "none";
-		refs.chipWaveLoopModeSelectRow.style.display = "none";
-		refs.chipWaveLoopStartRow.style.display = "none";
-		refs.chipWaveLoopEndRow.style.display = "none";
-		refs.chipWaveStartOffsetRow.style.display = "none";
-		refs.chipWavePlayBackwardsRow.style.display = "none";
-		refs.harmonicsRow.style.display = "flex";
+
+	// Harmonics
+	if (rows.has("harmonics")) {
+		showRowFlex(refs.harmonicsRow, true);
 		refs.harmonicsEditor.render();
-	} else {
-		refs.harmonicsRow.style.display = "none";
 	}
-	if (instrument.type == InstrumentType.pickedString) {
-		refs.chipWaveSelectRow.style.display = "none";
-		refs.useChipWaveAdvancedLoopControlsRow.style.display = "none";
-		refs.chipWaveLoopModeSelectRow.style.display = "none";
-		refs.chipWaveLoopStartRow.style.display = "none";
-		refs.chipWaveLoopEndRow.style.display = "none";
-		refs.chipWaveStartOffsetRow.style.display = "none";
-		refs.chipWavePlayBackwardsRow.style.display = "none";
-		refs.stringSustainRow.style.display = "";
+
+	// String sustain
+	if (rows.has("stringSustain")) {
+		showRow(refs.stringSustainRow, true);
 		refs.stringSustainSlider.updateValue(instrument.stringSustain);
-		refs.stringSustainLabel.textContent = Config.enableAcousticSustain ? "Sustain (" + Config.sustainTypeNames[instrument.stringSustainType].substring(0, 1).toUpperCase() + "):" : "Sustain:";
-	} else {
-		refs.stringSustainRow.style.display = "none";
+		refs.stringSustainLabel.textContent = Config.enableAcousticSustain
+			? "Sustain (" + Config.sustainTypeNames[instrument.stringSustainType].substring(0, 1).toUpperCase() + "):"
+			: "Sustain:";
 	}
-	if (instrument.type == InstrumentType.drumset) {
-		refs.drumsetGroup.style.display = "";
-		refs.chipWaveSelectRow.style.display = "none";
-		refs.useChipWaveAdvancedLoopControlsRow.style.display = "none";
-		refs.chipWaveLoopModeSelectRow.style.display = "none";
-		refs.chipWaveLoopStartRow.style.display = "none";
-		refs.chipWaveLoopEndRow.style.display = "none";
-		refs.chipWaveStartOffsetRow.style.display = "none";
-		refs.chipWavePlayBackwardsRow.style.display = "none";
-		refs.fadeInOutRow.style.display = "none";
+
+	// Drumset
+	if (rows.has("drumset")) {
+		showRow(refs.drumsetGroup, true);
 		for (let i: number = 0; i < Config.drumCount; i++) {
 			setSelectedValue(refs.drumsetEnvelopeSelects[i], instrument.drumsetEnvelopes[i]);
 			refs.drumsetSpectrumEditors[i].render();
 		}
-	} else {
-		refs.drumsetGroup.style.display = "none";
+	}
+
+	// Fade in/out — shows for everything except drumset
+	if (!rows.has("drumset")) {
 		refs.fadeInOutRow.style.display = "";
 		refs.fadeInOutEditor.render();
+	} else {
+		refs.fadeInOutRow.style.display = "none";
 	}
 
-	if (instrument.type == InstrumentType.chip) {
-		refs.chipWaveSelectRow.style.display = "";
-		refs.useChipWaveAdvancedLoopControlsRow.style.display = "";
-		if (instrument.isUsingAdvancedLoopControls) {
-			refs.chipWaveLoopModeSelectRow.style.display = "";
-			refs.chipWaveLoopStartRow.style.display = "";
-			refs.chipWaveLoopEndRow.style.display = "";
-			refs.chipWaveStartOffsetRow.style.display = "";
-			refs.chipWavePlayBackwardsRow.style.display = "";
-		} else {
-			refs.chipWaveLoopModeSelectRow.style.display = "none";
-			refs.chipWaveLoopStartRow.style.display = "none";
-			refs.chipWaveLoopEndRow.style.display = "none";
-			refs.chipWaveStartOffsetRow.style.display = "none";
-			refs.chipWavePlayBackwardsRow.style.display = "none";
-		}
-		setSelectedValue(refs.chipWaveSelect, instrument.chipWave);
-		refs.useChipWaveAdvancedLoopControlsBox.checked = instrument.isUsingAdvancedLoopControls ? true : false;
-		setSelectedValue(refs.chipWaveLoopModeSelect, instrument.chipWaveLoopMode);
-		refs.chipWaveLoopStartStepper.value = instrument.chipWaveLoopStart + "";
-		refs.chipWaveLoopEndStepper.value = instrument.chipWaveLoopEnd + "";
-		refs.chipWaveStartOffsetStepper.value = instrument.chipWaveStartOffset + "";
-		refs.chipWavePlayBackwardsBox.checked = instrument.chipWavePlayBackwards ? true : false;
+	// Custom wave
+	if (rows.has("customWave")) {
+		showRow(refs.customWaveDraw, true);
 	}
 
-	if (instrument.type == InstrumentType.customChipWave) {
-		refs.customWaveDraw.style.display = "";
-		refs.chipWaveSelectRow.style.display = "none";
-		refs.useChipWaveAdvancedLoopControlsRow.style.display = "none";
-		refs.chipWaveLoopModeSelectRow.style.display = "none";
-		refs.chipWaveLoopStartRow.style.display = "none";
-		refs.chipWaveLoopEndRow.style.display = "none";
-		refs.chipWaveStartOffsetRow.style.display = "none";
-		refs.chipWavePlayBackwardsRow.style.display = "none";
-	}
-	else {
-		refs.customWaveDraw.style.display = "none";
-	}
-
-	if (instrument.type == InstrumentType.supersaw) {
-		refs.supersawDynamismRow.style.display = "";
-		refs.supersawSpreadRow.style.display = "";
-		refs.supersawShapeRow.style.display = "";
+	// Supersaw
+	if (rows.has("supersaw")) {
+		showRow(refs.supersawDynamismRow, true);
+		showRow(refs.supersawSpreadRow, true);
+		showRow(refs.supersawShapeRow, true);
 		refs.supersawDynamismSlider.updateValue(instrument.supersawDynamism);
 		refs.supersawSpreadSlider.updateValue(instrument.supersawSpread);
 		refs.supersawShapeSlider.updateValue(instrument.supersawShape);
-	} else {
-		refs.supersawDynamismRow.style.display = "none";
-		refs.supersawSpreadRow.style.display = "none";
-		refs.supersawShapeRow.style.display = "none";
 	}
-	if (instrument.type == InstrumentType.pwm || instrument.type == InstrumentType.supersaw) {
-		refs.chipWaveSelectRow.style.display = "none";
-		refs.useChipWaveAdvancedLoopControlsRow.style.display = "none";
-		refs.chipWaveLoopModeSelectRow.style.display = "none";
-		refs.chipWaveLoopStartRow.style.display = "none";
-		refs.chipWaveLoopEndRow.style.display = "none";
-		refs.chipWaveStartOffsetRow.style.display = "none";
-		refs.chipWavePlayBackwardsRow.style.display = "none";
-		refs.pulseWidthRow.style.display = "";
+
+	// Pulse width
+	if (rows.has("pulseWidth")) {
+		showRow(refs.pulseWidthRow, true);
 		refs.pulseWidthSlider.input.title = prettyNumber(instrument.pulseWidth) + "%";
 		refs.pulseWidthSlider.updateValue(instrument.pulseWidth);
-		refs.decimalOffsetSlider.input.title = instrument.decimalOffset / 100 <= 0 ? "none" : "-" + prettyNumber(instrument.decimalOffset / 100) + "%";
+		refs.decimalOffsetSlider.input.title = instrument.decimalOffset / 100 <= 0
+			? "none"
+			: "-" + prettyNumber(instrument.decimalOffset / 100) + "%";
 		refs.decimalOffsetSlider.updateValue(99 - instrument.decimalOffset);
-		refs.pulseWidthDropdownGroup.style.display = (dropdownState.openPulseWidthDropdown ? "" : "none");
-	} else {
-		refs.pulseWidthRow.style.display = "none";
-		refs.pulseWidthDropdownGroup.style.display = "none";
+		showRow(refs.pulseWidthDropdownGroup, dropdownState.openPulseWidthDropdown);
 	}
 
-
-	if (instrument.type == InstrumentType.fm || instrument.type == InstrumentType.fm6op) {
-		refs.phaseModGroup.style.display = "";
-		refs.feedbackRow2.style.display = "";
-		refs.chipWaveSelectRow.style.display = "none";
-		refs.useChipWaveAdvancedLoopControlsRow.style.display = "none";
-		refs.chipWaveLoopModeSelectRow.style.display = "none";
-		refs.chipWaveLoopStartRow.style.display = "none";
-		refs.chipWaveLoopEndRow.style.display = "none";
-		refs.chipWaveStartOffsetRow.style.display = "none";
-		refs.chipWavePlayBackwardsRow.style.display = "none";
+	// FM
+	if (rows.has("fm")) {
+		showRow(refs.phaseModGroup, true);
+		showRow(refs.feedbackRow2, true);
 		setSelectedValue(refs.algorithmSelect, instrument.algorithm);
 		setSelectedValue(refs.feedbackTypeSelect, instrument.feedbackType);
 		refs.feedbackAmplitudeSlider.updateValue(instrument.feedbackAmplitude);
-		for (let i: number = 0; i < Config.operatorCount + (instrument.type == InstrumentType.fm6op ? 2 : 0); i++) {
-			const isCarrier: boolean = instrument.type == InstrumentType.fm ? (i < Config.algorithms[instrument.algorithm].carrierCount) : (i < instrument.customAlgorithm.carrierCount);
+		const opCount = rows.has("fm6") ? Config.operatorCount + 2 : Config.operatorCount;
+		for (let i: number = 0; i < opCount; i++) {
+			const isCarrier: boolean = rows.has("fm6")
+				? (i < instrument.customAlgorithm.carrierCount)
+				: (i < Config.algorithms[instrument.algorithm].carrierCount);
 			refs.operatorRows[i].style.color = isCarrier ? ColorConfig.primaryText : "";
 			setSelectedValue(refs.operatorFrequencySelects[i], instrument.operators[i].frequency);
 			refs.operatorAmplitudeSliders[i].updateValue(instrument.operators[i].amplitude);
@@ -415,37 +409,24 @@ export function applyInstrumentVisibility(
 				refs.operatorWaveformHints[i].style.display = "";
 			}
 		}
-		if (instrument.type == InstrumentType.fm6op) {
+
+		// FM6 sub-branch
+		if (rows.has("fm6")) {
 			setSelectedValue(refs.algorithm6OpSelect, instrument.algorithm6Op);
 			setSelectedValue(refs.feedback6OpTypeSelect, instrument.feedbackType6Op);
 			refs.customAlgorithmCanvas.redrawCanvas();
-			refs.algorithm6OpSelectRow.style.display = "";
-			refs.feedback6OpRow1.style.display = "";
-			refs.operatorRows[4].style.display = "";
-			refs.operatorRows[5].style.display = "";
+			showRow(refs.algorithm6OpSelectRow, true);
+			showRow(refs.feedback6OpRow1, true);
+			showRow(refs.operatorRows[4], true);
+			showRow(refs.operatorRows[5], true);
 			refs.operatorDropdownGroups[4].style.display = (dropdownState.openOperatorDropdowns[4] ? "" : "none");
 			refs.operatorDropdownGroups[5].style.display = (dropdownState.openOperatorDropdowns[5] ? "" : "none");
-			refs.algorithmSelectRow.style.display = "none";
-			refs.feedbackRow1.style.display = "none";
 		} else {
-			refs.algorithm6OpSelectRow.style.display = "none";
-			refs.feedback6OpRow1.style.display = "none";
-			refs.operatorRows[4].style.display = "none";
-			refs.operatorRows[5].style.display = "none";
-			refs.operatorDropdownGroups[4].style.display = "none";
-			refs.operatorDropdownGroups[5].style.display = "none";
-			refs.feedbackRow1.style.display = "";
-			refs.algorithmSelectRow.style.display = "";
+			showRow(refs.algorithmSelectRow, true);
+			showRow(refs.feedbackRow1, true);
 		}
 	}
-	else {
-		refs.algorithm6OpSelectRow.style.display = "none";
-		refs.feedback6OpRow1.style.display = "none";
-		refs.algorithmSelectRow.style.display = "none";
-		refs.phaseModGroup.style.display = "none";
-		refs.feedbackRow1.style.display = "none";
-		refs.feedbackRow2.style.display = "none";
-	}
+
 	refs.pulseWidthSlider.input.title = prettyNumber(instrument.pulseWidth) + "%";
 
 

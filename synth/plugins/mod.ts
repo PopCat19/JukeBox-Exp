@@ -14,6 +14,7 @@ function getSynthFunction(_instrument: Instrument, synth: typeof Synth): Functio
 registerPlugin({
     type: InstrumentType.mod,
     name: "Mod",
+    editorRows: [],
     getSynthFunction,
     buildSource: () => { throw new Error("Mod instruments do not support code generation"); },
 });

@@ -15,6 +15,7 @@ function getSynthFunction(_instrument: Instrument, synth: typeof Synth): Functio
 registerPlugin({
     type: InstrumentType.drumset,
     name: "Drumset",
+    editorRows: ["drumset"],
     getSynthFunction,
     buildSource: (_instrument: Instrument, voiceCount?: number) => buildDrumSource(voiceCount ?? 0),
 });

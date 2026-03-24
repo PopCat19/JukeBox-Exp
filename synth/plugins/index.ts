@@ -19,7 +19,7 @@ import "./drumset";
 import "./mod";
 import "./capabilities";
 
-export type { SynthPlugin } from "./interfaces";
+export type { SynthPlugin, EditorRowName } from "./interfaces";
 export { registerPlugin, getPlugin, getAllPlugins } from "./registry";
 export { getEffectsSynthFunction } from "./effects";
 export { registerCapabilities, getCapabilities } from "./capabilities";

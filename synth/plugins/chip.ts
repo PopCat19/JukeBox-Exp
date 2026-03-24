@@ -29,5 +29,5 @@ const plugin = {
             : buildChipSource(voiceCount ?? 0),
 };
 
-registerPlugin({ ...plugin, type: InstrumentType.chip });
-registerPlugin({ ...plugin, type: InstrumentType.customChipWave });
+registerPlugin({ ...plugin, type: InstrumentType.chip, editorRows: ["waveSelect", "loopControls"] as const });
+registerPlugin({ ...plugin, type: InstrumentType.customChipWave, editorRows: ["customWave"] as const });

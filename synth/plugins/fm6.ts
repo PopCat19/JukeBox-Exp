@@ -22,6 +22,7 @@ function getSynthFunction(instrument: Instrument, synth: typeof Synth): Function
 registerPlugin({
     type: InstrumentType.fm6op,
     name: "FM6",
+    editorRows: ["fm", "fm6"],
     getSynthFunction,
     buildSource: (instrument: Instrument) => buildFm6Source(instrument),
 });

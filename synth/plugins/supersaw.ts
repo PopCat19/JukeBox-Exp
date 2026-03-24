@@ -15,6 +15,7 @@ function getSynthFunction(_instrument: Instrument, synth: typeof Synth): Functio
 registerPlugin({
     type: InstrumentType.supersaw,
     name: "Supersaw",
+    editorRows: ["supersaw", "pulseWidth"],
     getSynthFunction,
     buildSource: (_instrument: Instrument, voiceCount?: number) => buildSupersawSource(voiceCount ?? 0),
 });

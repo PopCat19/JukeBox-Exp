@@ -45,7 +45,7 @@ export { ChannelState } from "./channel-state";
 export { Dictionary, DictionaryArray, FilterType, EnvelopeType, InstrumentType, Transition, Chord, Envelope, Config } from "./SynthConfig";
 
 // Plugin registry
-export type { SynthPlugin } from "./plugins/interfaces";
+export type { SynthPlugin, EditorRowName } from "./plugins/interfaces";
 export { registerPlugin, getPlugin, getAllPlugins } from "./plugins/registry";
 export { registerCapabilities, getCapabilities } from "./plugins/capabilities";
 export type { InstrumentCapabilities } from "./plugins/capabilities";

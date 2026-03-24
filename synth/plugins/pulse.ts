@@ -15,6 +15,7 @@ function getSynthFunction(_instrument: Instrument, synth: typeof Synth): Functio
 registerPlugin({
     type: InstrumentType.pwm,
     name: "Pulse Width",
+    editorRows: ["pulseWidth"],
     getSynthFunction,
     buildSource: (_instrument: Instrument, voiceCount?: number) => buildPulseWidthSource(voiceCount ?? 0),
 });

@@ -15,6 +15,7 @@ function getSynthFunction(_instrument: Instrument, synth: typeof Synth): Functio
 registerPlugin({
     type: InstrumentType.pickedString,
     name: "Picked String",
+    editorRows: ["harmonics", "stringSustain"],
     getSynthFunction,
     buildSource: (_instrument: Instrument, voiceCount?: number) => buildPickedStringSource(voiceCount ?? 0),
 });

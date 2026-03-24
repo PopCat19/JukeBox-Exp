@@ -15,6 +15,7 @@ function getSynthFunction(_instrument: Instrument, synth: typeof Synth): Functio
 registerPlugin({
     type: InstrumentType.spectrum,
     name: "Spectrum",
+    editorRows: ["spectrum"],
     getSynthFunction,
     buildSource: (_instrument: Instrument, voiceCount?: number) => buildSpectrumSource(voiceCount ?? 0),
 });

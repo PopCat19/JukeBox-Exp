@@ -4,15 +4,31 @@
 //
 // This module:
 // - Defines SynthPlugin interface for per-instrument synthesis dispatch
+// - Defines EditorRowName for data-driven editor row visibility
 // - Allows future plugins to self-register without modifying synth.ts
 
 import type { InstrumentType } from "../SynthConfig";
 import type { Instrument } from "../instruments";
 import type { Synth } from "../synth";
 
+export type EditorRowName =
+    | "waveSelect"
+    | "loopControls"
+    | "noiseSelect"
+    | "spectrum"
+    | "harmonics"
+    | "stringSustain"
+    | "drumset"
+    | "customWave"
+    | "supersaw"
+    | "pulseWidth"
+    | "fm"
+    | "fm6";
+
 export interface SynthPlugin {
     readonly type: InstrumentType;
     readonly name: string;
+    readonly editorRows: readonly EditorRowName[];
     getSynthFunction(instrument: Instrument, synth: typeof Synth): Function;
     buildSource(instrument: Instrument, voiceCount?: number): string;
 }

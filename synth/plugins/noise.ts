@@ -15,6 +15,7 @@ function getSynthFunction(_instrument: Instrument, synth: typeof Synth): Functio
 registerPlugin({
     type: InstrumentType.noise,
     name: "Noise",
+    editorRows: ["noiseSelect"],
     getSynthFunction,
     buildSource: (_instrument: Instrument, voiceCount?: number) => buildNoiseSource(voiceCount ?? 0),
 });
