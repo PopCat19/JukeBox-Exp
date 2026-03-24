@@ -1349,7 +1349,12 @@ export class Instrument {
                 instrumentObject["modEnvelopeNumbers"][mod] = this.modEnvelopeNumbers[mod];
             }
         } else {
-            throw new Error("Unrecognized instrument type");
+            // Plugin types — serialize via plugin hook
+        }
+
+        const plugin = getPlugin(this.type);
+        if (plugin?.serialize) {
+            plugin.serialize(this, instrumentObject);
         }
 
         const envelopes: any[] = [];
@@ -1456,20 +1461,9 @@ export class Instrument {
             const chord: Chord | undefined = Config.chords.dictionary[legacyChordNames[chordProperty]] || Config.chords.dictionary[chordProperty];
             if (chord != undefined) {
                 this.chord = chord.index;
-            } else {
-                // Different instruments have different default chord types based on historical behaviour.
-                if (this.type == InstrumentType.noise) {
-                    this.chord = Config.chords.dictionary["arpeggio"].index;
-                } else if (this.type == InstrumentType.pickedString) {
-                    this.chord = Config.chords.dictionary["strum"].index;
-                } else if (this.type == InstrumentType.chip) {
-                    this.chord = Config.chords.dictionary["arpeggio"].index;
-                } else if (this.type == InstrumentType.fm || this.type == InstrumentType.fm6op) {
-                    this.chord = Config.chords.dictionary["custom interval"].index;
-                } else {
-                    this.chord = Config.chords.dictionary["simultaneous"].index;
-                }
             }
+            // Chord already set by plugin initialize in setTypeAndReset.
+            // Only override if JSON explicitly specifies a chord value.
         }
 
         this.unison = Config.unisons.dictionary["none"].index; // default value.
@@ -2123,6 +2117,11 @@ export class Instrument {
                 this.chipWavePlayBackwards = false;
                 this.chipWaveStartOffset = 0;
             }
+        }
+
+        const plugin = getPlugin(this.type);
+        if (plugin?.deserialize) {
+            plugin.deserialize(this, instrumentObject);
         }
     }
     // advloop addition

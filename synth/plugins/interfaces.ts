@@ -31,6 +31,8 @@ export interface SynthPlugin {
     readonly displayName?: string;
     readonly editorRows: readonly EditorRowName[];
     initialize?: (instrument: Instrument) => void;
+    serialize?(instrument: Instrument, json: Record<string, any>): void;
+    deserialize?(instrument: Instrument, json: Record<string, any>): void;
     getSynthFunction(instrument: Instrument, synth: typeof Synth): Function;
     buildSource(instrument: Instrument, voiceCount?: number): string;
 }

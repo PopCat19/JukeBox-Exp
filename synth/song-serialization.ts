@@ -6,13 +6,14 @@
 // - Encodes and decodes songs to and from URL hash format
 // - Extracted from song.ts to reduce module size and improve separation of concerns
 
-import { Config, FilterType, SustainType, EnvelopeType, InstrumentType, InstrumentTypeLength, EffectType, Dictionary, DictionaryArray, toNameMap, effectsIncludeTransition, effectsIncludeChord, effectsIncludePitchShift, effectsIncludeDetune, effectsIncludeVibrato, effectsIncludeNoteFilter, effectsIncludeDistortion, effectsIncludeBitcrusher, effectsIncludePanning, effectsIncludeChorus, effectsIncludeEcho, effectsIncludeReverb, effectsIncludeNoteRange, effectsIncludeRingModulation, effectsIncludeGranular, effectsIncludePhaser, effectsIncludeInvertWave, LFOEnvelopeTypes, RandomEnvelopeTypes, sampleLoadingState, sampleLoadEvents, SampleLoadedEvent, loadBuiltInSamples } from "./SynthConfig";
+import { Config, FilterType, SustainType, EnvelopeType, InstrumentType, getRegisteredInstrumentTypeCount, EffectType, Dictionary, DictionaryArray, toNameMap, effectsIncludeTransition, effectsIncludeChord, effectsIncludePitchShift, effectsIncludeDetune, effectsIncludeVibrato, effectsIncludeNoteFilter, effectsIncludeDistortion, effectsIncludeBitcrusher, effectsIncludePanning, effectsIncludeChorus, effectsIncludeEcho, effectsIncludeReverb, effectsIncludeNoteRange, effectsIncludeRingModulation, effectsIncludeGranular, effectsIncludePhaser, effectsIncludeInvertWave, LFOEnvelopeTypes, RandomEnvelopeTypes, sampleLoadingState, sampleLoadEvents, SampleLoadedEvent, loadBuiltInSamples } from "./SynthConfig";
 import { clamp, validateRange, convertLegacyKeyToKeyAndOctave, secondsToFadeInSetting, ticksToFadeOutSetting } from "./util";
 import { BitFieldReader, BitFieldWriter, encode32BitNumber, decode32BitNumber, encodeUnisonSettings, base64IntToCharCode, base64CharCodeToInt, CharCode, SongTagCode } from "./serialization";
 import { NotePin, Note, makeNotePin, Pattern } from "./notes";
 import { FilterControlPoint, FilterSettings, Instrument, LegacySettings } from "./instruments";
 import { Channel } from "./channels";
 import { envelopeFromLegacyIndex, restoreChipWaveListToDefault, clearSamples, parseAndConfigureCustomSample, type CustomSampleHandler } from "./song-utilities";
+import { getPlugin } from "./plugins";
 
 const FORMAT: string = Config.jsonFormat;
 const OLDEST_BEEPBOX_VERSION: number = 2;
@@ -539,7 +540,21 @@ export function toBase64StringImpl(song: SongLike): string {
             } else if (instrument.type == InstrumentType.mod) {
                 // Handled down below. Could be moved, but meh.
             } else {
-                throw new Error("Unknown instrument type.");
+                // Plugin types — serialize via plugin hook
+            }
+
+            const plugin = getPlugin(instrument.type);
+            if (plugin?.serialize) {
+                const pluginJson: Record<string, any> = {};
+                plugin.serialize(instrument, pluginJson);
+                if (Object.keys(pluginJson).length > 0) {
+                    buffer.push(SongTagCode.pluginData);
+                    const blob = btoa(JSON.stringify(pluginJson));
+                    encode32BitNumber(buffer, blob.length);
+                    for (let i = 0; i < blob.length; i++) {
+                        buffer.push(blob.charCodeAt(i));
+                    }
+                }
             }
 
             buffer.push(SongTagCode.envelopes, base64IntToCharCode[instrument.envelopeCount]);
@@ -1017,10 +1032,9 @@ export function toBase64StringImpl(song: SongLike): string {
 
         let instrumentChannelIterator: number = 0;
         let instrumentIndexIterator: number = -1;
-        let command: number;
         let useSlowerArpSpeed: boolean = false;
         let useFastTwoNoteArp: boolean = false;
-        while (charIndex < compressed.length) switch (command = compressed.charCodeAt(charIndex++)) {
+        while (charIndex < compressed.length) switch (compressed.charCodeAt(charIndex++)) {
             case SongTagCode.songTitle: {
                 // Length of song name string
                 const songNameLength = (base64CharCodeToInt[compressed.charCodeAt(charIndex++)] << 6) + base64CharCodeToInt[compressed.charCodeAt(charIndex++)];
@@ -1252,7 +1266,7 @@ export function toBase64StringImpl(song: SongLike): string {
                 validateRange(0, song.channels.length - 1, instrumentChannelIterator);
                 const instrument: Instrument = song.channels[instrumentChannelIterator].instruments[instrumentIndexIterator];
                 // JB before v5 had custom chip and mod before pickedString and supersaw were added. Index +2.
-                let instrumentType: number = validateRange(0, InstrumentTypeLength - 1, base64CharCodeToInt[compressed.charCodeAt(charIndex++)]);
+                let instrumentType: number = validateRange(0, getRegisteredInstrumentTypeCount() - 1, base64CharCodeToInt[compressed.charCodeAt(charIndex++)]);
                 if ((fromJummBox && beforeFive) || (beforeFour && fromGoldBox)) {
                     if (instrumentType == InstrumentType.pickedString || instrumentType == InstrumentType.supersaw) {
                         instrumentType += 2;
@@ -3111,8 +3125,25 @@ export function toBase64StringImpl(song: SongLike): string {
                     }
                 }
             } break;
+            case SongTagCode.pluginData: {
+                const blobLength: number = decode32BitNumber(compressed, charIndex);
+                charIndex += 6;
+                const blob: string = compressed.substring(charIndex, charIndex + blobLength);
+                charIndex += blobLength;
+                try {
+                    const pluginJson: any = JSON.parse(atob(blob));
+                    const instrument: Instrument = song.channels[instrumentChannelIterator].instruments[instrumentIndexIterator];
+                    const plugin = getPlugin(instrument.type);
+                    if (plugin?.deserialize) {
+                        plugin.deserialize(instrument, pluginJson);
+                    }
+                } catch (e) {
+                    // Invalid plugin data — skip gracefully
+                }
+            } break;
             default: {
-                throw new Error("Unrecognized song tag code " + String.fromCharCode(command) + " at index " + (charIndex - 1) + " " + compressed.substring(/*charIndex - 2*/0, charIndex));
+                // Unknown tag code (command=<CharCode>) — skip, could be plugin data or future extension
+                charIndex++;
             } break;
         }
 
