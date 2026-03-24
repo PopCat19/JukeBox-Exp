@@ -28,6 +28,7 @@ export type EditorRowName =
 export interface SynthPlugin {
     readonly type: InstrumentType;
     readonly name: string;
+    readonly displayName?: string;
     readonly editorRows: readonly EditorRowName[];
     initialize?: (instrument: Instrument) => void;
     getSynthFunction(instrument: Instrument, synth: typeof Synth): Function;

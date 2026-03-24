@@ -46,6 +46,6 @@ export { Dictionary, DictionaryArray, FilterType, EnvelopeType, InstrumentType, 
 
 // Plugin registry
 export type { SynthPlugin, EditorRowName } from "./plugins/interfaces";
-export { registerPlugin, getPlugin, getAllPlugins } from "./plugins/registry";
+export { registerPlugin, getPlugin, getAllPlugins, getRegisteredPlugins } from "./plugins/registry";
 export { registerCapabilities, getCapabilities } from "./plugins/capabilities";
 export type { InstrumentCapabilities } from "./plugins/capabilities";

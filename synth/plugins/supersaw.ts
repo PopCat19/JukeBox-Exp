@@ -15,6 +15,7 @@ function getSynthFunction(_instrument: Instrument, synth: typeof Synth): Functio
 registerPlugin({
     type: InstrumentType.supersaw,
     name: "Supersaw",
+    displayName: "supersaw",
     editorRows: ["supersaw", "pulseWidth"],
     initialize: (instrument: Instrument) => {
         instrument.chord = Config.chords.dictionary["arpeggio"].index;

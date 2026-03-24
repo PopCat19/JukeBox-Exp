@@ -15,6 +15,7 @@ function getSynthFunction(_instrument: Instrument, synth: typeof Synth): Functio
 registerPlugin({
     type: InstrumentType.noise,
     name: "Noise",
+    displayName: "noise",
     editorRows: ["noiseSelect"],
     initialize: (instrument: Instrument) => {
         instrument.chipNoise = 1;

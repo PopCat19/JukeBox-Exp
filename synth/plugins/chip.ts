@@ -32,6 +32,7 @@ const plugin = {
 registerPlugin({
     ...plugin,
     type: InstrumentType.chip,
+    displayName: "chip",
     editorRows: ["waveSelect", "loopControls"] as const,
     initialize: (instrument: Instrument) => {
         instrument.chord = Config.chords.dictionary["arpeggio"].index;
@@ -40,6 +41,7 @@ registerPlugin({
 registerPlugin({
     ...plugin,
     type: InstrumentType.customChipWave,
+    displayName: "chip (custom)",
     editorRows: ["customWave"] as const,
     initialize: (instrument: Instrument) => {
         instrument.chord = Config.chords.dictionary["arpeggio"].index;

@@ -20,7 +20,7 @@ import "./mod";
 import "./capabilities";
 
 export type { SynthPlugin, EditorRowName } from "./interfaces";
-export { registerPlugin, getPlugin, getAllPlugins } from "./registry";
+export { registerPlugin, getPlugin, getAllPlugins, getRegisteredPlugins } from "./registry";
 export { getEffectsSynthFunction } from "./effects";
 export { registerCapabilities, getCapabilities } from "./capabilities";
 export type { InstrumentCapabilities } from "./capabilities";

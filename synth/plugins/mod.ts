@@ -14,6 +14,7 @@ function getSynthFunction(_instrument: Instrument, synth: typeof Synth): Functio
 registerPlugin({
     type: InstrumentType.mod,
     name: "Mod",
+    displayName: "mod",
     editorRows: [],
     initialize: (instrument: Instrument) => {
         instrument.transition = 0;

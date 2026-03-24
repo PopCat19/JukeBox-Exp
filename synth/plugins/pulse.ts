@@ -15,6 +15,7 @@ function getSynthFunction(_instrument: Instrument, synth: typeof Synth): Functio
 registerPlugin({
     type: InstrumentType.pwm,
     name: "Pulse Width",
+    displayName: "pulse width",
     editorRows: ["pulseWidth"],
     initialize: (instrument: Instrument) => {
         instrument.chord = Config.chords.dictionary["arpeggio"].index;

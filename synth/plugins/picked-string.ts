@@ -15,6 +15,7 @@ function getSynthFunction(_instrument: Instrument, synth: typeof Synth): Functio
 registerPlugin({
     type: InstrumentType.pickedString,
     name: "Picked String",
+    displayName: "picked string",
     editorRows: ["harmonics", "stringSustain"],
     initialize: (instrument: Instrument) => {
         instrument.chord = Config.chords.dictionary["strum"].index;

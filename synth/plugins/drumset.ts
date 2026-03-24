@@ -16,6 +16,7 @@ function getSynthFunction(_instrument: Instrument, synth: typeof Synth): Functio
 registerPlugin({
     type: InstrumentType.drumset,
     name: "Drumset",
+    displayName: "drumset",
     editorRows: ["drumset"],
     initialize: (instrument: Instrument) => {
         instrument.chord = Config.chords.dictionary["simultaneous"].index;

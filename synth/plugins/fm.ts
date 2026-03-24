@@ -26,6 +26,7 @@ function getSynthFunction(instrument: Instrument, synth: typeof Synth): Function
 registerPlugin({
     type: InstrumentType.fm,
     name: "FM",
+    displayName: "FM",
     editorRows: ["fm"],
     initialize: (instrument: Instrument) => {
         instrument.chord = 3;

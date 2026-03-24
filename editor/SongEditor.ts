@@ -25,7 +25,7 @@ import { EditorConfig, isMobile, Preset, PresetCategory } from "./config/EditorC
 import { EuclideanRhythmPrompt } from "./prompts/EuclidgenRhythmPrompt";
 import { ExportPrompt } from "./prompts/ExportPrompt";
 import "./ui/Layout"; // Imported here for the sake of ensuring this code is transpiled early.
-import { Instrument, Channel } from "../synth";
+import { Instrument, Channel, getCapabilities, getRegisteredPlugins } from "../synth";
 import { HTML, SVG } from "imperative-html/dist/esm/elements-strict";
 import { Preferences } from "./core/Preferences";
 import { HarmonicsEditor, HarmonicsEditorPrompt } from "./components/HarmonicsEditor";
@@ -106,20 +106,17 @@ function buildPresetOptions(isNoise: boolean, idSet: string): HTMLSelectElement 
     // Show the "spectrum" custom type in both pitched and noise channels.
     //const customTypeGroup: HTMLElement = optgroup({label: EditorConfig.presetCategories[0].name});
     if (isNoise) {
-        menu.appendChild(option({ value: InstrumentType.noise }, EditorConfig.valueToPreset(InstrumentType.noise)!.name));
-        menu.appendChild(option({ value: InstrumentType.spectrum }, EditorConfig.valueToPreset(InstrumentType.spectrum)!.name));
-        menu.appendChild(option({ value: InstrumentType.drumset }, EditorConfig.valueToPreset(InstrumentType.drumset)!.name));
+        for (const plugin of getRegisteredPlugins()) {
+            if (plugin.type == InstrumentType.noise || plugin.type == InstrumentType.spectrum || plugin.type == InstrumentType.drumset) {
+                const preset = EditorConfig.valueToPreset(plugin.type);
+                menu.appendChild(option({ value: plugin.type }, preset?.name ?? plugin.displayName ?? plugin.name));
+            }
+        }
     } else {
-        menu.appendChild(option({ value: InstrumentType.chip }, EditorConfig.valueToPreset(InstrumentType.chip)!.name));
-        menu.appendChild(option({ value: InstrumentType.customChipWave }, EditorConfig.valueToPreset(InstrumentType.customChipWave)!.name));
-        menu.appendChild(option({ value: InstrumentType.pwm }, EditorConfig.valueToPreset(InstrumentType.pwm)!.name));
-        menu.appendChild(option({ value: InstrumentType.supersaw }, EditorConfig.valueToPreset(InstrumentType.supersaw)!.name));
-        menu.appendChild(option({ value: InstrumentType.fm }, EditorConfig.valueToPreset(InstrumentType.fm)!.name));
-        menu.appendChild(option({ value: InstrumentType.fm6op }, EditorConfig.instrumentToPreset(InstrumentType.fm6op)!.name));
-        menu.appendChild(option({ value: InstrumentType.harmonics }, EditorConfig.valueToPreset(InstrumentType.harmonics)!.name));
-        menu.appendChild(option({ value: InstrumentType.pickedString }, EditorConfig.valueToPreset(InstrumentType.pickedString)!.name));
-        menu.appendChild(option({ value: InstrumentType.spectrum }, EditorConfig.valueToPreset(InstrumentType.spectrum)!.name));
-        menu.appendChild(option({ value: InstrumentType.noise }, EditorConfig.valueToPreset(InstrumentType.noise)!.name));
+        for (const plugin of getRegisteredPlugins()) {
+            const preset = EditorConfig.valueToPreset(plugin.type) ?? EditorConfig.instrumentToPreset(plugin.type);
+            menu.appendChild(option({ value: plugin.type }, preset?.name ?? plugin.displayName ?? plugin.name));
+        }
     }
 
     // TODO - When you port over the Dogebox2 import/export buttons be sure to uncomment these
@@ -2213,7 +2210,7 @@ export class SongEditor implements ModSliderProvider {
 
             renderInstrumentValues(this._instrumentValueRefs, this.doc, instrument);
 
-            if (instrument.type == InstrumentType.customChipWave) {
+            if (getCapabilities(instrument.type).hasCustomWaveEditor) {
                 this._customWaveDrawCanvas.redrawCanvas();
                 if (this.prompt instanceof CustomChipPrompt) {
                     this.prompt.customChipCanvas.render();

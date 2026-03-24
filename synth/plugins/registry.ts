@@ -26,3 +26,7 @@ export function getPlugin(type: InstrumentType): SynthPlugin | undefined {
 export function getAllPlugins(): IterableIterator<[InstrumentType, SynthPlugin]> {
     return plugins.entries();
 }
+
+export function getRegisteredPlugins(): SynthPlugin[] {
+    return Array.from(plugins.values());
+}

@@ -28,6 +28,7 @@ export interface InstrumentCapabilities {
     hasEffects: boolean;
     hasChord: boolean;
     hasAliasableWaveform: boolean;
+    hasCustomWaveEditor: boolean;
 }
 
 const defaultCapabilities: InstrumentCapabilities = {
@@ -36,7 +37,7 @@ const defaultCapabilities: InstrumentCapabilities = {
     hasLoopControls: false, hasStringSustain: false, hasSupersaw: false,
     hasPulseWidth: false, hasEnvelopes: true, hasUnison: true,
     hasNoteFilter: true, hasEffects: true, hasChord: true,
-    hasAliasableWaveform: false,
+    hasAliasableWaveform: false, hasCustomWaveEditor: false,
 };
 
 const _caps = new Map<number, InstrumentCapabilities>();
@@ -52,7 +53,7 @@ export function getCapabilities(type: number): InstrumentCapabilities {
 registerCapabilities(InstrumentType.fm, { isFm: true });
 registerCapabilities(InstrumentType.fm6op, { isFm: true, isFm6: true });
 registerCapabilities(InstrumentType.chip, { hasWaveSelect: true, hasLoopControls: true, hasAliasableWaveform: true });
-registerCapabilities(InstrumentType.customChipWave, { hasWaveSelect: true, hasAliasableWaveform: true });
+registerCapabilities(InstrumentType.customChipWave, { hasWaveSelect: true, hasAliasableWaveform: true, hasCustomWaveEditor: true });
 registerCapabilities(InstrumentType.harmonics, { hasHarmonics: true });
 registerCapabilities(InstrumentType.spectrum, { hasSpectrum: true });
 registerCapabilities(InstrumentType.noise, { isNoise: true });
