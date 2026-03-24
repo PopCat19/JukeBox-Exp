@@ -10,7 +10,6 @@
 // Copyright (c) 2012-2022 John Nesky and contributing authors, distributed under the MIT license, see accompanying the LICENSE.md file.
 
 import { Dictionary } from "../../synth/SynthConfig";
-import { Song } from "../../synth";
 
 
 export interface RecoveredVersion {
@@ -63,8 +62,6 @@ function compareVersions(a: RecoveredVersion, b: RecoveredVersion): number {
 export class SongRecovery {
     private _saveVersionTimeoutHandle: ReturnType<typeof setTimeout>;
 
-    private _song: Song = new Song();
-
     public static getAllRecoveredSongs(): RecoveredSong[] {
         const songs: RecoveredSong[] = [];
         const songsByUid: Dictionary<RecoveredSong> = {};
@@ -94,14 +91,6 @@ export class SongRecovery {
 
         clearTimeout(this._saveVersionTimeoutHandle);
         this._saveVersionTimeoutHandle = setTimeout((): void => {
-            try {
-                // Ensure that the song is not corrupted.
-                this._song.fromBase64String(songData);
-            } catch (error) {
-                errorAlert(error);
-                return;
-            }
-
             const songs: RecoveredSong[] = SongRecovery.getAllRecoveredSongs();
             let currentSong: RecoveredSong | null = null;
             for (const song of songs) {
