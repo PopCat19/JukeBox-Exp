@@ -3,14 +3,14 @@
 // Purpose: Bridges Song's custom sample callbacks to EditorConfig state
 //
 // This module:
-// - Implements CustomSampleHandler using EditorConfig
-// - Provides registerCustomSampleHandler to wire Song to editor state
+// - Creates a CustomSampleHandler using EditorConfig
+// - Provides createCustomSampleHandler to pass to Song constructor
 
 import { EditorConfig } from "./config/EditorConfig";
-import { Song } from "../synth";
+import type { CustomSampleHandler } from "../synth";
 
-export function registerCustomSampleHandler(): void {
-    Song.customSampleHandler = {
+export function createCustomSampleHandler(): CustomSampleHandler {
+    return {
         getCustomSamples(): string[] | null {
             return EditorConfig.customSamples;
         },
