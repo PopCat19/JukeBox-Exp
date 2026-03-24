@@ -9,7 +9,7 @@
 // - Handles chip wave advanced loop controls
 
 import { SongDocument } from "../SongDocument";
-import { Config, InstrumentType, effectsIncludeTransition, effectsIncludeChord, effectsIncludePitchShift, effectsIncludeDetune, effectsIncludeVibrato, effectsIncludeNoteFilter, effectsIncludeDistortion, effectsIncludeBitcrusher, effectsIncludePanning, effectsIncludeChorus, effectsIncludeEcho, effectsIncludeReverb, effectsIncludeRingModulation, effectsIncludeGranular, effectsIncludePhaser, effectsIncludeInvertWave, effectsIncludeNoteRange } from "../../synth/SynthConfig";
+import { Config, effectsIncludeTransition, effectsIncludeChord, effectsIncludePitchShift, effectsIncludeDetune, effectsIncludeVibrato, effectsIncludeNoteFilter, effectsIncludeDistortion, effectsIncludeBitcrusher, effectsIncludePanning, effectsIncludeChorus, effectsIncludeEcho, effectsIncludeReverb, effectsIncludeRingModulation, effectsIncludeGranular, effectsIncludePhaser, effectsIncludeInvertWave, effectsIncludeNoteRange } from "../../synth/SynthConfig";
 import { Instrument, detuneToCents, getCapabilities, getPlugin } from "../../synth";
 import { ColorConfig, ChannelColors } from "../rendering/ColorConfig";
 import { Slider } from "../ui/HTMLWrapper";
@@ -238,6 +238,7 @@ export function applyInstrumentVisibility(
 	shiftHeld: boolean,
 ): void {
 	// --- Data-driven type-specific row visibility ---
+	const caps = getCapabilities(instrument.type);
 	const plugin = getPlugin(instrument.type);
 	const rows = new Set<string>(plugin?.editorRows ?? []);
 
@@ -533,10 +534,7 @@ export function applyInstrumentVisibility(
 
 	if (effectsIncludeDistortion(instrument.effects)) {
 		refs.distortionRow.style.display = "";
-		if (instrument.type == InstrumentType.chip || instrument.type == InstrumentType.customChipWave || instrument.type == InstrumentType.pwm || instrument.type == InstrumentType.supersaw)
-			refs.aliasingRow.style.display = "";
-		else
-			refs.aliasingRow.style.display = "none";
+		refs.aliasingRow.style.display = caps.hasAliasableWaveform ? "" : "none";
 		refs.distortionSlider.updateValue(instrument.distortion);
 	} else {
 		refs.distortionRow.style.display = "none";
