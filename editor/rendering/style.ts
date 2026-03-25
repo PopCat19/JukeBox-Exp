@@ -796,6 +796,24 @@ html {
 	border-color: ${ColorConfig.secondaryText};
 }
 
+@keyframes shiggy-bounce {
+	0%, 100% { transform: translateY(0); }
+	50% { transform: translateY(-6px); }
+}
+@keyframes shiggy-spin {
+	0% { transform: rotate(0deg); }
+	100% { transform: rotate(360deg); }
+}
+@keyframes shiggy-enter {
+	0% { transform: scale(0) rotate(-30deg); opacity: 0; }
+	60% { transform: scale(1.2) rotate(5deg); opacity: 1; }
+	100% { transform: scale(1) rotate(0deg); opacity: 1; }
+}
+@keyframes shiggy-exit {
+	0% { transform: scale(1); opacity: 1; }
+	100% { transform: scale(0) rotate(30deg); opacity: 0; }
+}
+
 .beepboxEditor .layout-option {
 	display: flex;
 	flex-direction: column;

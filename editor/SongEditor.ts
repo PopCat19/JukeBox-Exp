@@ -847,59 +847,187 @@ export class SongEditor implements ModSliderProvider {
     private _headpatComboMax: number = 1;
     private _headpatLastTime: number = 0;
     private _headpatDrainActive: boolean = false;
+    private _shiggyCursorActive: boolean = false;
+    private _shiggyBgActive: boolean = false;
     private readonly _headpatComboMessages: [number, string][] = [
-        [3,   "purring~"],
-        [7,   "happy kitty!"],
-        [12,  "kneading intensifies"],
-        [18,  "vibrating with joy"],
-        [25,  "maximum fluff achieved"],
-        [33,  "this is my life now"],
-        [42,  "i will never let go"],
-        [50,  "overclock x1 - critical petting"],
-        [75,  "overclock x2 - the prophecy foretold this"],
-        [100, "overclock x3 - transcending species"],
-        [150, "overclock x4 - you absolute legend"],
-        [200, "overclock x5 - hands blessed by the gods"],
-        [300, "overclock x6 - we are one now"],
-        [400, "overclock x7 - this is canon now"],
-        [500, "overclock MAX - kneel"],
+        [3,   "shiggy approves"],
+        [7,   "shiggy purrs"],
+        [12,  "shiggy is pleased"],
+        [18,  "shiggy demands more"],
+        [25,  "all hail shiggy"],
+        [33,  "shiggy grants you favor"],
+        [42,  "the shiggy awakens"],
+        [50,  "shiggy blesses you"],
+        [75,  "shiggy has chosen you"],
+        [100, "shiggy cursor unlocked"],
+        [150, "shiggy is eternal"],
+        [200, "you are shiggy now"],
+        [300, "shiggy background unlocked"],
+        [400, "shiggy is everything"],
+        [500, "ALL IS SHIGGY"],
     ];
     private readonly _headpatShiggyMilestones: [number, number][] = [
-        [10, 1], [25, 2], [50, 3], [75, 4], [100, 5],
-        [150, 6], [200, 7], [300, 8], [400, 9], [500, 10],
+        [3, 1], [12, 2], [25, 3], [42, 4], [75, 5],
+        [100, 6], [150, 7], [200, 8], [300, 9], [500, 10],
     ];
-    private readonly _headpatComboBar: HTMLDivElement = div({
-        style: `width: 0%; height: 4px; background-color: ${ColorConfig.indicatorPrimary}; border-radius: 2px;`,
+    private static readonly _comboLayerCount: number = 5;
+    private static readonly _comboLayerThresholds: number[] = [0, 5, 15, 30, 60];
+    private static readonly _comboLayerColors: string[] = [
+        "#4a9eff", "#6bcb77", "#ffd93d", "#ff9f43", "#ff6b6b",
+    ];
+    private _comboLayers: HTMLDivElement[] = [];
+    private _buildComboBar(): HTMLDivElement {
+        const layers: HTMLDivElement[] = [];
+        for (let i = 0; i < SongEditor._comboLayerCount; i++) {
+            const layer = div({
+                style: `position: absolute; left: 0; top: 0; height: 100%; width: 0%; background-color: ${SongEditor._comboLayerColors[i]}; border-radius: 2px; transition: width 0.08s linear, opacity 0.15s; opacity: 0;`,
+            });
+            layers.push(layer);
+        }
+        this._comboLayers = layers;
+        return div({
+            style: `width: 80%; height: 6px; margin: 2px auto; position: relative; background-color: ${ColorConfig.indicatorSecondary}; border-radius: 2px; overflow: hidden;`,
+        }, ...layers);
+    }
+    private _flashComboBar(): void {
+        const flash = div({
+            style: `position: absolute; left: 0; top: 0; width: 100%; height: 100%; background: white; opacity: 0.6; border-radius: 2px; pointer-events: none;`,
+        });
+        this._headpatComboBarBg.appendChild(flash);
+        requestAnimationFrame(() => {
+            flash.style.transition = "opacity 0.15s ease-out";
+            flash.style.opacity = "0";
+            setTimeout(() => { if (flash.parentElement) flash.parentElement.removeChild(flash); }, 200);
+        });
+    }
+    private _updateComboBar(): void {
+        const combo = this._headpatCombo;
+        for (let i = 0; i < SongEditor._comboLayerCount; i++) {
+            const threshold = SongEditor._comboLayerThresholds[i];
+            const nextThreshold = i < SongEditor._comboLayerCount - 1
+                ? SongEditor._comboLayerThresholds[i + 1]
+                : Math.max(this._headpatComboMax, threshold + 30);
+            if (combo >= threshold) {
+                const layerPct = Math.min(100, ((combo - threshold) / (nextThreshold - threshold)) * 100);
+                this._comboLayers[i].style.width = layerPct + "%";
+                this._comboLayers[i].style.opacity = "1";
+            } else {
+                this._comboLayers[i].style.width = "0%";
+                this._comboLayers[i].style.opacity = "0";
+            }
+        }
+    }
+    private readonly _headpatComboBarBg: HTMLDivElement = (() => { return this._buildComboBar(); })();
+    private readonly _headpatShiggyOverlay: HTMLDivElement = div({
+        style: "position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; pointer-events: none; z-index: 9999; display: flex; flex-wrap: wrap; align-content: flex-start; justify-content: center; gap: 8px; padding: 8px; box-sizing: border-box; opacity: 0; transition: opacity 2s ease-out; overflow-y: auto;",
     });
-    private readonly _headpatComboBarBg: HTMLDivElement = div({
-        style: `width: 80%; height: 4px; margin: 2px auto; background-color: ${ColorConfig.indicatorSecondary}; border-radius: 2px; overflow: hidden;`,
-    }, this._headpatComboBar);
     private readonly _headpatShiggyWrap: HTMLDivElement = div({
         style: "display: flex; flex-wrap: wrap; justify-content: center; gap: 4px; overflow: hidden; transition: height 0.2s ease-out, opacity 0.2s ease-out; opacity: 0; height: 0;",
     });
+    private readonly _headpatShiggyCursor: HTMLImageElement = (() => {
+        const img = document.createElement("img");
+        img.src = "assets/images/shiggy.gif";
+        img.style.cssText = "position: fixed; width: 32px; height: auto; pointer-events: none; z-index: 10000; opacity: 0; transition: opacity 0.2s; transform: translate(-50%, -50%);";
+        return img;
+    })();
+    private _shiggyCursorHandler: ((e: MouseEvent) => void) | null = null;
     private _shiggyCount: number = 0;
+    private _makeShiggyImg(index: number, extraStyle: string = ""): HTMLImageElement {
+        const img = document.createElement("img");
+        img.src = "assets/images/shiggy.gif?t=" + Date.now() + "-" + index;
+        img.style.cssText = `width: 60px; height: auto; pointer-events: none; animation: shiggy-enter 0.3s ease-out both; ${extraStyle}`;
+        return img;
+    }
     private _updateShiggy(): void {
         const combo = Math.floor(this._headpatCombo);
         let target = 0;
         for (const [threshold, count] of this._headpatShiggyMilestones) {
             if (combo >= threshold) target = count;
         }
-        if (target === this._shiggyCount) return;
-        this._shiggyCount = target;
+        // Update inline shiggy wrap
+        if (target !== this._shiggyCount) {
+            this._shiggyCount = target;
+            this._headpatShiggyWrap.textContent = "";
+            if (target === 0) {
+                this._headpatShiggyWrap.style.opacity = "0";
+                this._headpatShiggyWrap.style.height = "0";
+            } else {
+                const speed = 1 + target * 0.2;
+                const duration = Math.max(0.2, 1.5 / speed);
+                for (let i = 0; i < target; i++) {
+                    const delay = (i * 0.05).toFixed(2);
+                    const effect = target >= 7
+                        ? `animation: shiggy-enter 0.3s ease-out both, shiggy-spin ${duration}s linear ${delay}s infinite; animation-delay: ${delay}, ${delay};`
+                        : target >= 4
+                            ? `animation: shiggy-enter 0.3s ease-out both, shiggy-bounce ${duration}s ease-in-out ${delay}s infinite;`
+                            : `animation: shiggy-enter 0.3s ease-out both; animation-delay: ${delay}s;`;
+                    const img = this._makeShiggyImg(i, effect);
+                    this._headpatShiggyWrap.appendChild(img);
+                }
+                this._headpatShiggyWrap.style.height = "auto";
+                this._headpatShiggyWrap.style.opacity = "1";
+            }
+        }
+        // Shiggy cursor at 100
+        if (combo >= 100 && !this._shiggyCursorActive) {
+            this._shiggyCursorActive = true;
+            this._headpatShiggyCursor.style.opacity = "1";
+            this._shiggyCursorHandler = (e: MouseEvent) => {
+                this._headpatShiggyCursor.style.left = e.clientX + "px";
+                this._headpatShiggyCursor.style.top = e.clientY + "px";
+            };
+            document.addEventListener("mousemove", this._shiggyCursorHandler);
+            document.body.appendChild(this._headpatShiggyCursor);
+        } else if (combo < 100 && this._shiggyCursorActive) {
+            this._shiggyCursorActive = false;
+            this._headpatShiggyCursor.style.opacity = "0";
+            if (this._shiggyCursorHandler) {
+                document.removeEventListener("mousemove", this._shiggyCursorHandler);
+                this._shiggyCursorHandler = null;
+            }
+        }
+        // Shiggy background at 300
+        if (combo >= 300 && !this._shiggyBgActive) {
+            this._shiggyBgActive = true;
+            this._headpatShiggyOverlay.textContent = "";
+            for (let i = 0; i < 40; i++) {
+                const img = this._makeShiggyImg(i, `width: 40px; opacity: 0.15; animation-delay: ${(i * 0.02).toFixed(2)}s;`);
+                this._headpatShiggyOverlay.appendChild(img);
+            }
+            this._headpatShiggyOverlay.style.opacity = "1";
+            document.body.appendChild(this._headpatShiggyOverlay);
+        } else if (combo < 300 && this._shiggyBgActive) {
+            this._shiggyBgActive = false;
+            this._headpatShiggyOverlay.style.opacity = "0";
+            setTimeout(() => {
+                if (this._headpatShiggyOverlay.parentElement) {
+                    document.body.removeChild(this._headpatShiggyOverlay);
+                }
+            }, 2100);
+        }
+    }
+    private _resetShiggy(): void {
+        this._shiggyCount = -1;
         this._headpatShiggyWrap.textContent = "";
-        if (target === 0) {
-            this._headpatShiggyWrap.style.opacity = "0";
-            this._headpatShiggyWrap.style.height = "0";
-            return;
+        this._headpatShiggyWrap.style.opacity = "0";
+        this._headpatShiggyWrap.style.height = "0";
+        if (this._shiggyCursorActive) {
+            this._shiggyCursorActive = false;
+            this._headpatShiggyCursor.style.opacity = "0";
+            if (this._shiggyCursorHandler) {
+                document.removeEventListener("mousemove", this._shiggyCursorHandler);
+                this._shiggyCursorHandler = null;
+            }
         }
-        for (let i = 0; i < target; i++) {
-            const img = document.createElement("img");
-            img.src = "assets/images/shiggy.gif?t=" + Date.now() + "-" + i;
-            img.style.cssText = "width: 60px; height: auto; pointer-events: none;";
-            this._headpatShiggyWrap.appendChild(img);
+        if (this._shiggyBgActive) {
+            this._shiggyBgActive = false;
+            this._headpatShiggyOverlay.style.opacity = "0";
+            setTimeout(() => {
+                if (this._headpatShiggyOverlay.parentElement) {
+                    document.body.removeChild(this._headpatShiggyOverlay);
+                }
+            }, 2100);
         }
-        this._headpatShiggyWrap.style.height = "auto";
-        this._headpatShiggyWrap.style.opacity = "1";
     }
     private readonly _headpatDisplay: HTMLDivElement = div({
         style: `text-align: center; font-size: 12px; color: ${ColorConfig.secondaryText}; cursor: pointer; user-select: none; margin-top: 2px; line-height: 1.4; min-height: 1.4em;`,
@@ -913,14 +1041,13 @@ export class SongEditor implements ModSliderProvider {
             this._headpatCombo = 0;
             this._headpatComboMax = 1;
             this._headpatDrainActive = false;
-            this._headpatComboBar.style.width = "0%";
-            this._headpatComboBar.style.backgroundColor = ColorConfig.indicatorPrimary;
+            this._updateComboBar();
             this._headpatDisplay.textContent = "";
-            this._updateShiggy();
+            this._resetShiggy();
             return;
         }
-        const barPct = Math.min(100, (this._headpatCombo / this._headpatComboMax) * 100);
-        this._headpatComboBar.style.width = barPct + "%";
+        this._updateComboBar();
+        this._updateShiggy();
         requestAnimationFrame(this._headpatDrain);
     };
     private readonly _headpatButton: HTMLDivElement = div({
@@ -938,35 +1065,25 @@ export class SongEditor implements ModSliderProvider {
                     requestAnimationFrame(this._headpatDrain);
                 }
                 // Bar
-                const barPct = Math.min(100, (this._headpatCombo / this._headpatComboMax) * 100);
-                this._headpatComboBar.style.width = barPct + "%";
-                if (this._headpatCombo >= 50) {
-                    this._headpatComboBar.style.backgroundColor = "#ff6b6b";
-                } else if (this._headpatCombo >= 20) {
-                    this._headpatComboBar.style.backgroundColor = "#ffd93d";
-                } else if (this._headpatCombo >= 10) {
-                    this._headpatComboBar.style.backgroundColor = "#6bcb77";
-                } else {
-                    this._headpatComboBar.style.backgroundColor = ColorConfig.indicatorPrimary;
-                }
+                this._updateComboBar();
+                this._flashComboBar();
                 // Message
                 let msg = "";
                 for (const [threshold, text] of this._headpatComboMessages) {
                     if (this._headpatCombo >= threshold) msg = text;
                 }
-                const combo = Math.floor(this._headpatCombo);
                 if (msg) {
                     this._headpatDisplay.textContent = msg;
                 } else {
-                    this._headpatDisplay.textContent = `charge ${combo}`;
+                    this._headpatDisplay.textContent = `charge ${Math.floor(this._headpatCombo)}`;
                 }
                 // Shiggy
                 this._updateShiggy();
             },
         }, "headpat"),
         this._headpatComboBarBg,
-        this._headpatShiggyWrap,
         this._headpatDisplay,
+        this._headpatShiggyWrap,
     );
 
     private readonly _songSettingsArea: HTMLDivElement = div({ class: "song-settings-area" },
