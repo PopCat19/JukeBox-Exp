@@ -847,15 +847,15 @@ export class SongEditor implements ModSliderProvider {
     private _headpatComboMax: number = 1;
     private _headpatLastTime: number = 0;
     private _headpatDrainActive: boolean = false;
-    private _shiggyShown: boolean = false;
+    private _shiggyVisible: boolean = false;
     private readonly _headpatKaomoji: string[] = [
-        "(=^・ω・^=)", "(=^‥^=)", "ヽ(=^・ω・^=)و", "(≧◡≦)", "(=^-ω-^=)",
-        "ヽ(>∀<☆)ノ", "(=´ω`=)", "(*≧ω≦)", "(=^▽^=)", "ᐠ( ᐛ )ᐟ",
-        "(=^-蒈-^=)", "♪(´▽`)", "(=⌒‿‿⌒=)", "ヽ(>∀<)ノ", "(=^・ェ・^=)",
+        ":3", "owo", "uwu", "^w^", "owo/", "=^.^=", ">w<", ":D",
+        "(*^.^*)", "owo?", "hehe", "nya~", "rawr", "nwn", "c:",
+        "owo!", "UwU", ":3c", "hehe~", "purrr",
     ];
     private readonly _headpatComboMessages: [number, string][] = [
-        [5,  "Nice!"], [10, "Great!"], [15, "Amazing!"], [20, "Wonderful!"],
-        [25, "Fantastic!"], [30, "Excellent!"], [40, "INCREDIBLE!"],
+        [5,  "nice"], [10, "great!"], [15, "amazing!"], [20, "wonderful!"],
+        [25, "fantastic!"], [30, "excellent!"], [40, "INCREDIBLE!"],
         [50, "LEGENDARY!"], [75, "GODLIKE!"], [100, "TRANSCENDENT!"],
     ];
     private readonly _headpatComboBar: HTMLDivElement = div({
@@ -864,12 +864,27 @@ export class SongEditor implements ModSliderProvider {
     private readonly _headpatComboBarBg: HTMLDivElement = div({
         style: `width: 80%; height: 4px; margin: 2px auto; background-color: ${ColorConfig.indicatorSecondary}; border-radius: 2px; overflow: hidden;`,
     }, this._headpatComboBar);
-    private readonly _headpatShiggy: HTMLImageElement = (() => {
+    private readonly _headpatShiggyWrap: HTMLDivElement = div({
+        style: "height: 0; overflow: hidden; transition: height 0.2s ease-out, opacity 0.2s ease-out; opacity: 0;",
+    });
+    private _showShiggy(): void {
+        if (this._shiggyVisible) return;
+        this._shiggyVisible = true;
+        // Force gif restart by replacing with a fresh img
         const img = document.createElement("img");
-        img.src = "assets/images/shiggy.gif";
-        img.style.cssText = "width: 80px; height: auto; display: block; margin: 4px auto; opacity: 0; transition: opacity 0.2s ease-out; pointer-events: none;";
-        return img;
-    })();
+        img.src = "assets/images/shiggy.gif?t=" + Date.now();
+        img.style.cssText = "width: 80px; height: auto; display: block; margin: 4px auto; pointer-events: none;";
+        this._headpatShiggyWrap.textContent = "";
+        this._headpatShiggyWrap.appendChild(img);
+        this._headpatShiggyWrap.style.height = "auto";
+        this._headpatShiggyWrap.style.opacity = "1";
+    }
+    private _hideShiggy(): void {
+        if (!this._shiggyVisible) return;
+        this._shiggyVisible = false;
+        this._headpatShiggyWrap.style.opacity = "0";
+        this._headpatShiggyWrap.style.height = "0";
+    }
     private readonly _headpatDisplay: HTMLDivElement = div({
         style: `text-align: center; font-size: 12px; color: ${ColorConfig.secondaryText}; cursor: pointer; user-select: none; margin-top: 2px; line-height: 1.4; min-height: 1.4em;`,
     });
@@ -885,6 +900,7 @@ export class SongEditor implements ModSliderProvider {
             this._headpatComboBar.style.width = "0%";
             this._headpatComboBar.style.backgroundColor = ColorConfig.indicatorPrimary;
             this._headpatDisplay.textContent = "";
+            this._hideShiggy();
             return;
         }
         const barPct = Math.min(100, (this._headpatCombo / this._headpatComboMax) * 100);
@@ -923,24 +939,20 @@ export class SongEditor implements ModSliderProvider {
                     if (this._headpatCombo >= threshold) msg = text;
                 }
                 const kaomoji = this._headpatKaomoji[Math.floor(Math.random() * this._headpatKaomoji.length)];
+                const combo = Math.floor(this._headpatCombo);
                 if (msg) {
-                    this._headpatDisplay.textContent = `${kaomoji} x${Math.floor(this._headpatCombo)} ${msg}`;
+                    this._headpatDisplay.textContent = `${kaomoji} combo ${combo} - ${msg}`;
                 } else {
-                    this._headpatDisplay.textContent = `${kaomoji} (${this._headpatCount})`;
+                    this._headpatDisplay.textContent = `${kaomoji} pat #${this._headpatCount}`;
                 }
                 // Shiggy at legendary
-                if (this._headpatCombo >= 50 && !this._shiggyShown) {
-                    this._shiggyShown = true;
-                    this._headpatShiggy.style.opacity = "1";
-                    setTimeout(() => {
-                        this._headpatShiggy.style.opacity = "0";
-                        setTimeout(() => { this._shiggyShown = false; }, 250);
-                    }, 15000);
+                if (this._headpatCombo >= 50) {
+                    this._showShiggy();
                 }
             },
         }, "headpat"),
         this._headpatComboBarBg,
-        this._headpatShiggy,
+        this._headpatShiggyWrap,
         this._headpatDisplay,
     );
 
