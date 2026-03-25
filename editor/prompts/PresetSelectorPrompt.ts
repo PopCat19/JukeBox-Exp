@@ -164,6 +164,11 @@ export class PresetSelectorPrompt implements Prompt {
         setTimeout(() => this.container.focus());
     }
 
+    public closeWithoutUndo = (): void => {
+        this._doc.prompt = null;
+        this._doc.notifier.changed();
+    }
+
     private _handleItemClick(target: "cat" | "preset", index: number): void {
         if (this._clickTimer && this._clickTarget === `${target}-${index}`) {
             clearTimeout(this._clickTimer);

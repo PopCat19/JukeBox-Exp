@@ -762,7 +762,7 @@ export class SongEditor implements ModSliderProvider {
     );
     
     private readonly _instrumentTypeSelectRow: HTMLDivElement = div({ class: "selectRow", id: "typeSelectRow" },
-        span({ class: "tip", onclick: () => this._openPrompt("presetSelector") }, "Type:"),
+        span({ class: "tip", onclick: () => this.openPresetSelector() }, "Type:"),
         div( 
             div({ class: "pitchSelect" }, this._pitchedPresetSelect),
             div({ class: "drumSelect" }, this._drumPresetSelect)
@@ -2016,6 +2016,11 @@ export class SongEditor implements ModSliderProvider {
     private _openPrompt(promptName: string): void {
         this.doc.openPrompt(promptName);
         this._setPrompt(promptName);
+    }
+
+    public openPresetSelector(): void {
+        this.doc.prompt = "presetSelector";
+        this._setPrompt("presetSelector");
     }
 
     private _setPrompt(promptName: string | null): void {

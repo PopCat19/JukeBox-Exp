@@ -57,6 +57,7 @@ export interface KeyboardHandlerHost {
     refocusStage(): void;
     toggleRecord(): void;
     openPrompt(name: string): void;
+    openPresetSelector(): void;
     copyInstrument(): void;
     pasteInstrument(): void;
     randomPreset(): void;
@@ -88,7 +89,11 @@ export class KeyboardHandler {
                 host.prompt.whenKeyPressed(event);
             }
             if (event.keyCode == 27) { // ESC key
-                doc.undo();
+                if ((host.prompt as any).closeWithoutUndo) {
+                    (host.prompt as any).closeWithoutUndo();
+                } else {
+                    doc.undo();
+                }
             }
             return;
         }
@@ -701,7 +706,7 @@ export class KeyboardHandler {
                     event.preventDefault();
                     location.reload();
                 } else if (event.shiftKey) {
-                    host.openPrompt("presetSelector");
+                    host.openPresetSelector();
                     event.preventDefault();
                 } else {
                     host.nextPreset();
