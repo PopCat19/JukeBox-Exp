@@ -842,6 +842,108 @@ export class SongEditor implements ModSliderProvider {
         ),
     );
 
+    private _headpatCount: number = 0;
+    private _headpatCombo: number = 0;
+    private _headpatComboMax: number = 1;
+    private _headpatLastTime: number = 0;
+    private _headpatDrainActive: boolean = false;
+    private _shiggyShown: boolean = false;
+    private readonly _headpatKaomoji: string[] = [
+        "(=^・ω・^=)", "(=^‥^=)", "ヽ(=^・ω・^=)و", "(≧◡≦)", "(=^-ω-^=)",
+        "ヽ(>∀<☆)ノ", "(=´ω`=)", "(*≧ω≦)", "(=^▽^=)", "ᐠ( ᐛ )ᐟ",
+        "(=^-蒈-^=)", "♪(´▽`)", "(=⌒‿‿⌒=)", "ヽ(>∀<)ノ", "(=^・ェ・^=)",
+    ];
+    private readonly _headpatComboMessages: [number, string][] = [
+        [5,  "Nice!"], [10, "Great!"], [15, "Amazing!"], [20, "Wonderful!"],
+        [25, "Fantastic!"], [30, "Excellent!"], [40, "INCREDIBLE!"],
+        [50, "LEGENDARY!"], [75, "GODLIKE!"], [100, "TRANSCENDENT!"],
+    ];
+    private readonly _headpatComboBar: HTMLDivElement = div({
+        style: `width: 0%; height: 4px; background-color: ${ColorConfig.indicatorPrimary}; border-radius: 2px;`,
+    });
+    private readonly _headpatComboBarBg: HTMLDivElement = div({
+        style: `width: 80%; height: 4px; margin: 2px auto; background-color: ${ColorConfig.indicatorSecondary}; border-radius: 2px; overflow: hidden;`,
+    }, this._headpatComboBar);
+    private readonly _headpatShiggy: HTMLImageElement = (() => {
+        const img = document.createElement("img");
+        img.src = "assets/images/shiggy.gif";
+        img.style.cssText = "width: 80px; height: auto; display: block; margin: 4px auto; opacity: 0; transition: opacity 0.2s ease-out; pointer-events: none;";
+        return img;
+    })();
+    private readonly _headpatDisplay: HTMLDivElement = div({
+        style: `text-align: center; font-size: 12px; color: ${ColorConfig.secondaryText}; cursor: pointer; user-select: none; margin-top: 2px; line-height: 1.4; min-height: 1.4em;`,
+    });
+    private _headpatDrain = (now: number): void => {
+        if (!this._headpatDrainActive) return;
+        const elapsed = (now - this._headpatLastTime) / 1000;
+        this._headpatCombo = Math.max(0, this._headpatCombo - elapsed * 2);
+        this._headpatLastTime = now;
+        if (this._headpatCombo <= 0) {
+            this._headpatCombo = 0;
+            this._headpatComboMax = 1;
+            this._headpatDrainActive = false;
+            this._headpatComboBar.style.width = "0%";
+            this._headpatComboBar.style.backgroundColor = ColorConfig.indicatorPrimary;
+            this._headpatDisplay.textContent = "";
+            return;
+        }
+        const barPct = Math.min(100, (this._headpatCombo / this._headpatComboMax) * 100);
+        this._headpatComboBar.style.width = barPct + "%";
+        requestAnimationFrame(this._headpatDrain);
+    };
+    private readonly _headpatButton: HTMLDivElement = div({
+            style: `text-align: center; cursor: pointer; user-select: none; margin-top: 2px;`,
+        },
+        div({
+            style: `font-size: 11px; color: ${ColorConfig.secondaryText};`,
+            onmousedown: () => {
+                this._headpatCount++;
+                this._headpatCombo++;
+                this._headpatComboMax = Math.max(this._headpatComboMax, this._headpatCombo);
+                this._headpatLastTime = performance.now();
+                if (!this._headpatDrainActive) {
+                    this._headpatDrainActive = true;
+                    requestAnimationFrame(this._headpatDrain);
+                }
+                // Bar
+                const barPct = Math.min(100, (this._headpatCombo / this._headpatComboMax) * 100);
+                this._headpatComboBar.style.width = barPct + "%";
+                if (this._headpatCombo >= 50) {
+                    this._headpatComboBar.style.backgroundColor = "#ff6b6b";
+                } else if (this._headpatCombo >= 20) {
+                    this._headpatComboBar.style.backgroundColor = "#ffd93d";
+                } else if (this._headpatCombo >= 10) {
+                    this._headpatComboBar.style.backgroundColor = "#6bcb77";
+                } else {
+                    this._headpatComboBar.style.backgroundColor = ColorConfig.indicatorPrimary;
+                }
+                // Message
+                let msg = "";
+                for (const [threshold, text] of this._headpatComboMessages) {
+                    if (this._headpatCombo >= threshold) msg = text;
+                }
+                const kaomoji = this._headpatKaomoji[Math.floor(Math.random() * this._headpatKaomoji.length)];
+                if (msg) {
+                    this._headpatDisplay.textContent = `${kaomoji} x${Math.floor(this._headpatCombo)} ${msg}`;
+                } else {
+                    this._headpatDisplay.textContent = `${kaomoji} (${this._headpatCount})`;
+                }
+                // Shiggy at legendary
+                if (this._headpatCombo >= 50 && !this._shiggyShown) {
+                    this._shiggyShown = true;
+                    this._headpatShiggy.style.opacity = "1";
+                    setTimeout(() => {
+                        this._headpatShiggy.style.opacity = "0";
+                        setTimeout(() => { this._shiggyShown = false; }, 250);
+                    }, 15000);
+                }
+            },
+        }, "headpat"),
+        this._headpatComboBarBg,
+        this._headpatShiggy,
+        this._headpatDisplay,
+    );
+
     private readonly _songSettingsArea: HTMLDivElement = div({ class: "song-settings-area" },
         div({ class: "editor-controls" },
             div({ class: "editor-song-settings" },
@@ -889,6 +991,7 @@ export class SongEditor implements ModSliderProvider {
                 this._songEqFilterEditor.container,
             ),
             this._sampleLoadingStatusContainer,
+            this._headpatButton,
         ),
     );
     private readonly _instrumentSettingsArea: HTMLDivElement = div({ class: "instrument-settings-area" },
