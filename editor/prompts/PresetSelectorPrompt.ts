@@ -331,15 +331,13 @@ export class PresetSelectorPrompt implements Prompt {
         const item = items[index];
         if (!item) return;
 
-        const itemTop = item.offsetTop;
-        const itemBottom = itemTop + item.offsetHeight;
-        const viewTop = container.scrollTop;
-        const viewBottom = viewTop + container.clientHeight;
+        const itemRect = item.getBoundingClientRect();
+        const containerRect = container.getBoundingClientRect();
 
-        if (itemTop < viewTop) {
-            container.scrollTop = itemTop;
-        } else if (itemBottom > viewBottom) {
-            container.scrollTop = itemBottom - container.clientHeight;
+        if (itemRect.top < containerRect.top) {
+            container.scrollTop -= containerRect.top - itemRect.top;
+        } else if (itemRect.bottom > containerRect.bottom) {
+            container.scrollTop += itemRect.bottom - containerRect.bottom;
         }
     }
 
@@ -411,8 +409,21 @@ export class PresetSelectorPrompt implements Prompt {
             }
             event.preventDefault();
         } else if (event.keyCode === 9) {
+            this.container.focus();
             this._activePane = this._activePane === "categories" ? "presets" : "categories";
             this._updateHighlight();
+            event.preventDefault();
+        } else if (event.keyCode === 37 && this._searchInput.selectionStart === 0) {
+            this.container.focus();
+            this._activePane = "categories";
+            this._updateHighlight();
+            this._scrollItemIntoView(this._categoryItems, this._selectedCategoryIndex, this._categoryList);
+            event.preventDefault();
+        } else if (event.keyCode === 39 && this._searchInput.selectionStart === this._searchInput.value.length) {
+            this.container.focus();
+            this._activePane = "presets";
+            this._updateHighlight();
+            this._scrollItemIntoView(this._presetItems, this._selectedPresetIndex, this._presetList);
             event.preventDefault();
         }
     };
