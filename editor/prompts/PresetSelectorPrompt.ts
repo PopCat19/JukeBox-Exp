@@ -33,9 +33,10 @@ export class PresetSelectorPrompt implements Prompt {
     private _activePane: "categories" | "presets" = "categories";
     private _filteredPresets: { name: string; value: number; categoryName: string }[] = [];
     private _isSearchMode: boolean = false;
-    private _searchCategoryHighlightIndex: number = -1;
     private _categoryItems: HTMLDivElement[] = [];
     private _presetItems: HTMLDivElement[] = [];
+    private _clickTimer: ReturnType<typeof setTimeout> | null = null;
+    private _clickTarget: string | null = null;
 
     constructor(private _doc: SongDocument) {
         const isNoise: boolean = this._doc.song.getChannelIsNoise(this._doc.channel);
@@ -128,14 +129,14 @@ export class PresetSelectorPrompt implements Prompt {
             }
         }
         if (this._categories.length > 0) {
-            this._selectCategory(initCatIndex);
+            this._selectedCategoryIndex = initCatIndex;
+            this._renderPresets();
             if (initPresetIndex > 0) {
                 this._selectedPresetIndex = initPresetIndex;
-                this._updatePresetHighlight();
+                this._updateHighlight();
             }
-            if (this._presetItems[this._selectedPresetIndex]) {
-                this._presetItems[this._selectedPresetIndex].scrollIntoView({ block: "center" });
-            }
+            this._scrollItemIntoView(this._categoryItems, initCatIndex, this._categoryList);
+            this._scrollItemIntoView(this._presetItems, initPresetIndex, this._presetList);
         }
 
         this._searchInput.addEventListener("input", this._onSearchInput);
@@ -147,6 +148,40 @@ export class PresetSelectorPrompt implements Prompt {
         };
 
         setTimeout(() => this._searchInput.focus());
+    }
+
+    private _handleItemClick(target: "cat" | "preset", index: number): void {
+        if (this._clickTimer && this._clickTarget === `${target}-${index}`) {
+            clearTimeout(this._clickTimer);
+            this._clickTimer = null;
+            this._clickTarget = null;
+            if (target === "cat") {
+                this._selectedCategoryIndex = index;
+                this._selectedPresetIndex = 0;
+            } else {
+                this._selectedPresetIndex = index;
+            }
+            this._applySelection();
+        } else {
+            if (this._clickTimer) clearTimeout(this._clickTimer);
+            this._clickTarget = `${target}-${index}`;
+            this._clickTimer = setTimeout(() => {
+                this._clickTimer = null;
+                this._clickTarget = null;
+            }, 300);
+            if (target === "cat") {
+                this._activePane = "categories";
+                this._selectedCategoryIndex = index;
+                this._selectedPresetIndex = 0;
+                this._renderPresets();
+                this._updateHighlight();
+            } else {
+                this._activePane = "presets";
+                this._selectedPresetIndex = index;
+                this._syncCategoryToPreset();
+                this._updateHighlight();
+            }
+        }
     }
 
     private _buildCategories(isNoise: boolean): void {
@@ -191,33 +226,15 @@ export class PresetSelectorPrompt implements Prompt {
                 `${cat.name} (${cat.presets.length})`,
             );
 
-            item.addEventListener("click", () => {
-                this._activePane = "categories";
-                this._selectCategory(i);
-            });
-
-            item.addEventListener("dblclick", () => {
-                this._activePane = "categories";
-                this._selectCategory(i);
-                this._selectPreset(0);
-                this._applySelection();
+            const idx = i;
+            item.addEventListener("mousedown", (event: MouseEvent) => {
+                event.preventDefault();
+                this._handleItemClick("cat", idx);
             });
 
             this._categoryList.appendChild(item);
             this._categoryItems.push(item);
         }
-
-        this._updateCategoryHighlight();
-    }
-
-    private _selectCategory(index: number): void {
-        this._selectedCategoryIndex = index;
-        this._selectedPresetIndex = 0;
-        this._isSearchMode = false;
-        this._searchCategoryHighlightIndex = -1;
-        this._activePane = "categories";
-        this._renderPresets();
-        this._updateCategoryHighlight();
     }
 
     private _renderPresets(): void {
@@ -258,52 +275,48 @@ export class PresetSelectorPrompt implements Prompt {
                 `,
             }, label);
 
-            item.addEventListener("click", () => {
-                this._activePane = "presets";
-                this._selectPreset(i);
-            });
-
-            item.addEventListener("dblclick", () => {
-                this._activePane = "presets";
-                this._selectPreset(i);
-                this._applySelection();
+            const idx = i;
+            item.addEventListener("mousedown", (event: MouseEvent) => {
+                event.preventDefault();
+                this._handleItemClick("preset", idx);
             });
 
             this._presetList.appendChild(item);
             this._presetItems.push(item);
         }
 
-        this._updatePresetHighlight();
+        this._updateHighlight();
     }
 
-    private _selectPreset(index: number): void {
-        this._selectedPresetIndex = index;
-        this._activePane = "presets";
-        this._updateCategoryHighlight();
-        this._updatePresetHighlight();
-    }
+    private _syncCategoryToPreset(): void {
+        const presets = this._isSearchMode
+            ? this._filteredPresets
+            : this._categories[this._selectedCategoryIndex]?.presets ?? [];
 
-    private _updateCategoryHighlight(): void {
-        for (let i = 0; i < this._categoryItems.length; i++) {
-            const isActive = (i === this._selectedCategoryIndex);
-            const isFocused = isActive && this._activePane === "categories";
-            const isSearchHighlighted = this._isSearchMode && i === this._searchCategoryHighlightIndex;
-            this._categoryItems[i].style.background = isFocused
-                ? "rgba(255,255,255,0.22)"
-                : isSearchHighlighted
-                    ? "rgba(255,255,255,0.12)"
-                    : isActive
-                        ? "rgba(255,255,255,0.06)"
-                        : "transparent";
-            this._categoryItems[i].style.color = isFocused
-                ? "var(--primary-text)"
-                : isActive
-                    ? "var(--primary-text)"
-                    : "var(--primary-text)";
+        const preset = presets[this._selectedPresetIndex];
+        if (!preset) return;
+
+        for (let ci = 0; ci < this._categories.length; ci++) {
+            if (this._categories[ci].presets.some(p => p.value === preset.value)) {
+                this._selectedCategoryIndex = ci;
+                return;
+            }
         }
     }
 
-    private _updatePresetHighlight(): void {
+    private _updateHighlight(): void {
+        this._syncCategoryToPreset();
+
+        for (let i = 0; i < this._categoryItems.length; i++) {
+            const isActive = (i === this._selectedCategoryIndex);
+            const isFocused = isActive && this._activePane === "categories";
+            this._categoryItems[i].style.background = isFocused
+                ? "rgba(255,255,255,0.22)"
+                : isActive
+                    ? "rgba(255,255,255,0.12)"
+                    : "transparent";
+        }
+
         for (let i = 0; i < this._presetItems.length; i++) {
             const isActive = (i === this._selectedPresetIndex);
             const isFocused = isActive && this._activePane === "presets";
@@ -312,22 +325,21 @@ export class PresetSelectorPrompt implements Prompt {
                 : "transparent";
             this._presetItems[i].style.color = "var(--primary-text)";
         }
+    }
 
-        if (this._presetItems[this._selectedPresetIndex]) {
-            this._presetItems[this._selectedPresetIndex].scrollIntoView({ block: "nearest" });
-        }
+    private _scrollItemIntoView(items: HTMLDivElement[], index: number, container: HTMLDivElement): void {
+        const item = items[index];
+        if (!item) return;
 
-        if (this._isSearchMode) {
-            const presets = this._filteredPresets;
-            const preset = presets[this._selectedPresetIndex];
-            if (preset) {
-                this._searchCategoryHighlightIndex = this._categories.findIndex(
-                    c => c.presets.some(p => p.value === preset.value)
-                );
-            } else {
-                this._searchCategoryHighlightIndex = -1;
-            }
-            this._updateCategoryHighlight();
+        const itemTop = item.offsetTop;
+        const itemBottom = itemTop + item.offsetHeight;
+        const viewTop = container.scrollTop;
+        const viewBottom = viewTop + container.clientHeight;
+
+        if (itemTop < viewTop) {
+            container.scrollTop = itemTop;
+        } else if (itemBottom > viewBottom) {
+            container.scrollTop = itemBottom - container.clientHeight;
         }
     }
 
@@ -348,10 +360,9 @@ export class PresetSelectorPrompt implements Prompt {
 
         if (query === "") {
             this._isSearchMode = false;
-            this._renderCategories();
-            if (this._categories.length > 0) {
-                this._selectCategory(this._selectedCategoryIndex);
-            }
+            this._selectedPresetIndex = 0;
+            this._renderPresets();
+            this._updateHighlight();
             return;
         }
 
@@ -373,7 +384,7 @@ export class PresetSelectorPrompt implements Prompt {
         this._selectedPresetIndex = 0;
         this._activePane = "presets";
         this._renderPresets();
-        this._updateCategoryHighlight();
+        this._updateHighlight();
     };
 
     private _onSearchKeyDown = (event: KeyboardEvent): void => {
@@ -385,22 +396,23 @@ export class PresetSelectorPrompt implements Prompt {
             const maxIdx = this._getActivePresetCount() - 1;
             if (this._selectedPresetIndex < maxIdx) {
                 this._selectedPresetIndex++;
+                this._updateHighlight();
+                this._scrollItemIntoView(this._presetItems, this._selectedPresetIndex, this._presetList);
+                this._scrollItemIntoView(this._categoryItems, this._selectedCategoryIndex, this._categoryList);
             }
-            this._updatePresetHighlight();
-            this._updateCategoryHighlight();
             event.preventDefault();
         } else if (event.keyCode === 38) {
             this._activePane = "presets";
             if (this._selectedPresetIndex > 0) {
                 this._selectedPresetIndex--;
+                this._updateHighlight();
+                this._scrollItemIntoView(this._presetItems, this._selectedPresetIndex, this._presetList);
+                this._scrollItemIntoView(this._categoryItems, this._selectedCategoryIndex, this._categoryList);
             }
-            this._updatePresetHighlight();
-            this._updateCategoryHighlight();
             event.preventDefault();
         } else if (event.keyCode === 9) {
             this._activePane = this._activePane === "categories" ? "presets" : "categories";
-            this._updateCategoryHighlight();
-            this._updatePresetHighlight();
+            this._updateHighlight();
             event.preventDefault();
         }
     };
@@ -415,12 +427,18 @@ export class PresetSelectorPrompt implements Prompt {
             case 38:
                 if (this._activePane === "categories") {
                     if (this._selectedCategoryIndex > 0) {
-                        this._selectCategory(this._selectedCategoryIndex - 1);
+                        this._selectedCategoryIndex--;
+                        this._selectedPresetIndex = 0;
+                        this._renderPresets();
+                        this._updateHighlight();
+                        this._scrollItemIntoView(this._categoryItems, this._selectedCategoryIndex, this._categoryList);
                     }
                 } else {
                     if (this._selectedPresetIndex > 0) {
                         this._selectedPresetIndex--;
-                        this._updatePresetHighlight();
+                        this._updateHighlight();
+                        this._scrollItemIntoView(this._presetItems, this._selectedPresetIndex, this._presetList);
+                        this._scrollItemIntoView(this._categoryItems, this._selectedCategoryIndex, this._categoryList);
                     }
                 }
                 event.preventDefault();
@@ -428,12 +446,18 @@ export class PresetSelectorPrompt implements Prompt {
             case 40:
                 if (this._activePane === "categories") {
                     if (this._selectedCategoryIndex < categoryCount - 1) {
-                        this._selectCategory(this._selectedCategoryIndex + 1);
+                        this._selectedCategoryIndex++;
+                        this._selectedPresetIndex = 0;
+                        this._renderPresets();
+                        this._updateHighlight();
+                        this._scrollItemIntoView(this._categoryItems, this._selectedCategoryIndex, this._categoryList);
                     }
                 } else {
                     if (this._selectedPresetIndex < presetCount - 1) {
                         this._selectedPresetIndex++;
-                        this._updatePresetHighlight();
+                        this._updateHighlight();
+                        this._scrollItemIntoView(this._presetItems, this._selectedPresetIndex, this._presetList);
+                        this._scrollItemIntoView(this._categoryItems, this._selectedCategoryIndex, this._categoryList);
                     }
                 }
                 event.preventDefault();
@@ -441,31 +465,32 @@ export class PresetSelectorPrompt implements Prompt {
             case 39:
                 if (this._activePane === "categories") {
                     this._activePane = "presets";
-                    this._updateCategoryHighlight();
-                    this._updatePresetHighlight();
+                    this._selectedPresetIndex = 0;
+                    this._updateHighlight();
+                    this._scrollItemIntoView(this._presetItems, this._selectedPresetIndex, this._presetList);
+                    this._scrollItemIntoView(this._categoryItems, this._selectedCategoryIndex, this._categoryList);
                 }
                 event.preventDefault();
                 break;
             case 37:
                 if (this._activePane === "presets") {
                     this._activePane = "categories";
-                    this._updateCategoryHighlight();
-                    this._updatePresetHighlight();
+                    this._updateHighlight();
+                    this._scrollItemIntoView(this._categoryItems, this._selectedCategoryIndex, this._categoryList);
                 }
                 event.preventDefault();
                 break;
             case 9:
                 this._activePane = this._activePane === "categories" ? "presets" : "categories";
-                this._updateCategoryHighlight();
-                this._updatePresetHighlight();
+                this._updateHighlight();
                 event.preventDefault();
                 break;
             case 13:
                 if (this._activePane === "categories") {
                     this._activePane = "presets";
                     this._selectedPresetIndex = 0;
-                    this._updateCategoryHighlight();
-                    this._updatePresetHighlight();
+                    this._updateHighlight();
+                    this._scrollItemIntoView(this._presetItems, this._selectedPresetIndex, this._presetList);
                 } else {
                     this._applySelection();
                 }
@@ -489,6 +514,7 @@ export class PresetSelectorPrompt implements Prompt {
     }
 
     public cleanUp = (): void => {
+        if (this._clickTimer) clearTimeout(this._clickTimer);
         this._searchInput.removeEventListener("input", this._onSearchInput);
         this._searchInput.removeEventListener("keydown", this._onSearchKeyDown);
         this.container.removeEventListener("keydown", this._onContainerKeyDown);
