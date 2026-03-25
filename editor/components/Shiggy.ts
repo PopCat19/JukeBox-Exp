@@ -71,7 +71,7 @@ export class Shiggy {
 
     constructor() {
         this._img = document.createElement("img");
-        this._img.src = "assets/images/shiggy.gif";
+        this._img.src = `assets/images/shiggy.gif?v=${Date.now()}`;
         this._img.style.cssText = "width: 60px; height: auto; pointer-events: auto; opacity: 0; transition: opacity 0.2s; cursor: pointer;";
 
         // Touch support for mobile
@@ -181,7 +181,7 @@ export class Shiggy {
 
     private summonAnotherShiggy(): void {
         const newShiggy = document.createElement("img");
-        newShiggy.src = "assets/images/shiggy.gif";
+        newShiggy.src = `assets/images/shiggy.gif?v=${Date.now()}`;
         newShiggy.style.cssText = "width: 60px; height: auto; pointer-events: none; opacity: 0; position: fixed; z-index: 9999;";
 
         // Random position on screen
