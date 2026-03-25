@@ -4,6 +4,7 @@
 //
 // This module:
 // - Displays categories in a left pane and presets in a right pane
+// - Info panel on the right shows selection details
 // - Supports text filtering across all presets
 // - Handles keyboard navigation (arrows, Enter, ESC)
 
@@ -26,6 +27,7 @@ export class PresetSelectorPrompt implements Prompt {
 
     private _categoryList: HTMLDivElement;
     private _presetList: HTMLDivElement;
+    private _infoPanel: HTMLDivElement;
     private _searchInput: HTMLInputElement;
     private _categories: CategoryEntry[] = [];
     private _selectedCategoryIndex: number = 0;
@@ -62,9 +64,7 @@ export class PresetSelectorPrompt implements Prompt {
 
         this._categoryList = div({
             style: `
-                flex: 1;
-                min-width: 160px;
-                max-width: 220px;
+                flex: 0 0 180px;
                 overflow-y: auto;
                 border-right: 2px solid var(--ui-widget-background);
                 padding: 4px 0;
@@ -73,9 +73,21 @@ export class PresetSelectorPrompt implements Prompt {
 
         this._presetList = div({
             style: `
-                flex: 2;
+                flex: 1;
                 overflow-y: auto;
                 padding: 4px 0;
+                border-right: 2px solid var(--ui-widget-background);
+            `,
+        });
+
+        this._infoPanel = div({
+            style: `
+                flex: 0 0 180px;
+                overflow-y: auto;
+                padding: 8px 10px;
+                font-size: 12px;
+                color: var(--secondary-text);
+                line-height: 1.5;
             `,
         });
 
@@ -92,6 +104,7 @@ export class PresetSelectorPrompt implements Prompt {
         },
             this._categoryList,
             this._presetList,
+            this._infoPanel,
         );
 
         const instructionsDiv = div({
@@ -102,12 +115,12 @@ export class PresetSelectorPrompt implements Prompt {
                 text-align: center;
             `,
         },
-            "Arrow keys: navigate | Enter: select | Tab: switch pane | ESC: close",
+            "Arrow keys: navigate | Enter / Right: select | Tab: switch pane | ESC: close",
         );
 
         this.container = div({
             class: "prompt noSelection presetSelectorPrompt",
-            style: "width: 560px; text-align: left; max-height: 90%;",
+            style: "width: 800px; text-align: left; max-height: 90%; outline: none;",
             tabindex: "0",
         },
             h2({ style: "text-align: center; margin: 0 0 4px 0;" }, "Select Instrument"),
@@ -213,18 +226,16 @@ export class PresetSelectorPrompt implements Prompt {
 
         for (let i = 0; i < this._categories.length; i++) {
             const cat = this._categories[i];
+            const label = `${cat.name} (${cat.presets.length})`;
             const item = div({
+                title: label,
                 style: `
                     padding: 6px 12px;
                     cursor: pointer;
-                    white-space: nowrap;
-                    overflow: hidden;
-                    text-overflow: ellipsis;
                     font-size: 13px;
+                    line-height: 1.3;
                 `,
-            },
-                `${cat.name} (${cat.presets.length})`,
-            );
+            }, label);
 
             const idx = i;
             item.addEventListener("mousedown", (event: MouseEvent) => {
@@ -265,13 +276,12 @@ export class PresetSelectorPrompt implements Prompt {
                 : preset.name;
 
             const item = div({
+                title: label,
                 style: `
                     padding: 5px 12px;
                     cursor: pointer;
-                    white-space: nowrap;
-                    overflow: hidden;
-                    text-overflow: ellipsis;
                     font-size: 13px;
+                    line-height: 1.3;
                 `,
             }, label);
 
@@ -324,6 +334,53 @@ export class PresetSelectorPrompt implements Prompt {
                 ? "rgba(255,255,255,0.22)"
                 : "transparent";
             this._presetItems[i].style.color = "var(--primary-text)";
+        }
+
+        this._updateInfoPanel();
+    }
+
+    private _updateInfoPanel(): void {
+        const cat = this._categories[this._selectedCategoryIndex];
+        const presets = this._isSearchMode
+            ? this._filteredPresets
+            : cat?.presets ?? [];
+        const preset = presets[this._selectedPresetIndex];
+
+        if (!cat || !preset) {
+            this._infoPanel.textContent = "";
+            return;
+        }
+
+        const catName = this._isSearchMode
+            ? (preset as any).categoryName as string
+            : cat.name;
+
+        const total = presets.length;
+        const pos = this._selectedPresetIndex + 1;
+
+        this._infoPanel.textContent = "";
+        this._infoPanel.appendChild(div(
+            { style: "margin-bottom: 10px;" },
+            div({ style: "color: var(--secondary-text); font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 2px;" }, "Category"),
+            div({ style: "color: var(--primary-text); font-size: 13px; word-break: break-word;" }, catName),
+        ));
+        this._infoPanel.appendChild(div(
+            { style: "margin-bottom: 10px;" },
+            div({ style: "color: var(--secondary-text); font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 2px;" }, "Preset"),
+            div({ style: "color: var(--primary-text); font-size: 13px; word-break: break-word;" }, preset.name),
+        ));
+        this._infoPanel.appendChild(div(
+            {},
+            div({ style: "color: var(--secondary-text); font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 2px;" }, "Position"),
+            div({ style: "color: var(--primary-text); font-size: 13px;" }, `${pos} / ${total}`),
+        ));
+
+        if (this._isSearchMode) {
+            this._infoPanel.appendChild(div(
+                { style: "margin-top: 10px;" },
+                div({ style: "color: var(--secondary-text); font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 2px;" }, "Results"),
+                div({ style: "color: var(--primary-text); font-size: 13px;" }, `${total} matching`),
+            ));
         }
     }
 
@@ -480,6 +537,8 @@ export class PresetSelectorPrompt implements Prompt {
                     this._updateHighlight();
                     this._scrollItemIntoView(this._presetItems, this._selectedPresetIndex, this._presetList);
                     this._scrollItemIntoView(this._categoryItems, this._selectedCategoryIndex, this._categoryList);
+                } else {
+                    this._applySelection();
                 }
                 event.preventDefault();
                 break;
