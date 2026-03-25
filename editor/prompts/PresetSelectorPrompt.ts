@@ -33,11 +33,13 @@ export class PresetSelectorPrompt implements Prompt {
     private _activePane: "categories" | "presets" = "categories";
     private _filteredPresets: { name: string; value: number; categoryName: string }[] = [];
     private _isSearchMode: boolean = false;
+    private _searchCategoryHighlightIndex: number = -1;
     private _categoryItems: HTMLDivElement[] = [];
     private _presetItems: HTMLDivElement[] = [];
 
     constructor(private _doc: SongDocument) {
         const isNoise: boolean = this._doc.song.getChannelIsNoise(this._doc.channel);
+        const currentPreset: number = this._doc.song.channels[this._doc.channel].instruments[this._doc.getCurrentInstrument()].preset;
 
         this._buildCategories(isNoise);
 
@@ -114,8 +116,26 @@ export class PresetSelectorPrompt implements Prompt {
         );
 
         this._renderCategories();
+
+        let initCatIndex = 0;
+        let initPresetIndex = 0;
+        for (let ci = 0; ci < this._categories.length; ci++) {
+            const pi = this._categories[ci].presets.findIndex(p => p.value === currentPreset);
+            if (pi !== -1) {
+                initCatIndex = ci;
+                initPresetIndex = pi;
+                break;
+            }
+        }
         if (this._categories.length > 0) {
-            this._selectCategory(0);
+            this._selectCategory(initCatIndex);
+            if (initPresetIndex > 0) {
+                this._selectedPresetIndex = initPresetIndex;
+                this._updatePresetHighlight();
+            }
+            if (this._presetItems[this._selectedPresetIndex]) {
+                this._presetItems[this._selectedPresetIndex].scrollIntoView({ block: "center" });
+            }
         }
 
         this._searchInput.addEventListener("input", this._onSearchInput);
@@ -194,6 +214,7 @@ export class PresetSelectorPrompt implements Prompt {
         this._selectedCategoryIndex = index;
         this._selectedPresetIndex = 0;
         this._isSearchMode = false;
+        this._searchCategoryHighlightIndex = -1;
         this._activePane = "categories";
         this._renderPresets();
         this._updateCategoryHighlight();
@@ -266,13 +287,16 @@ export class PresetSelectorPrompt implements Prompt {
         for (let i = 0; i < this._categoryItems.length; i++) {
             const isActive = (i === this._selectedCategoryIndex);
             const isFocused = isActive && this._activePane === "categories";
+            const isSearchHighlighted = this._isSearchMode && i === this._searchCategoryHighlightIndex;
             this._categoryItems[i].style.background = isFocused
-                ? "var(--secondary-text)"
-                : isActive
-                    ? "var(--ui-widget-background)"
-                    : "transparent";
+                ? "rgba(255,255,255,0.22)"
+                : isSearchHighlighted
+                    ? "rgba(255,255,255,0.12)"
+                    : isActive
+                        ? "rgba(255,255,255,0.06)"
+                        : "transparent";
             this._categoryItems[i].style.color = isFocused
-                ? "var(--editor-background)"
+                ? "var(--primary-text)"
                 : isActive
                     ? "var(--primary-text)"
                     : "var(--primary-text)";
@@ -284,15 +308,26 @@ export class PresetSelectorPrompt implements Prompt {
             const isActive = (i === this._selectedPresetIndex);
             const isFocused = isActive && this._activePane === "presets";
             this._presetItems[i].style.background = isFocused
-                ? "var(--secondary-text)"
+                ? "rgba(255,255,255,0.22)"
                 : "transparent";
-            this._presetItems[i].style.color = isFocused
-                ? "var(--editor-background)"
-                : "var(--primary-text)";
+            this._presetItems[i].style.color = "var(--primary-text)";
         }
 
         if (this._presetItems[this._selectedPresetIndex]) {
             this._presetItems[this._selectedPresetIndex].scrollIntoView({ block: "nearest" });
+        }
+
+        if (this._isSearchMode) {
+            const presets = this._filteredPresets;
+            const preset = presets[this._selectedPresetIndex];
+            if (preset) {
+                this._searchCategoryHighlightIndex = this._categories.findIndex(
+                    c => c.presets.some(p => p.value === preset.value)
+                );
+            } else {
+                this._searchCategoryHighlightIndex = -1;
+            }
+            this._updateCategoryHighlight();
         }
     }
 
@@ -303,8 +338,8 @@ export class PresetSelectorPrompt implements Prompt {
 
         const preset = presets[this._selectedPresetIndex];
         if (preset) {
-            this._doc.record(new ChangePreset(this._doc, preset.value));
             this._doc.prompt = null;
+            this._doc.record(new ChangePreset(this._doc, preset.value));
         }
     }
 
