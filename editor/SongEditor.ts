@@ -847,16 +847,26 @@ export class SongEditor implements ModSliderProvider {
     private _headpatComboMax: number = 1;
     private _headpatLastTime: number = 0;
     private _headpatDrainActive: boolean = false;
-    private _shiggyVisible: boolean = false;
-    private readonly _headpatKaomoji: string[] = [
-        ":3", "owo", "uwu", "^w^", "owo/", "=^.^=", ">w<", ":D",
-        "(*^.^*)", "owo?", "hehe", "nya~", "rawr", "nwn", "c:",
-        "owo!", "UwU", ":3c", "hehe~", "purrr",
-    ];
     private readonly _headpatComboMessages: [number, string][] = [
-        [5,  "nice"], [10, "great!"], [15, "amazing!"], [20, "wonderful!"],
-        [25, "fantastic!"], [30, "excellent!"], [40, "INCREDIBLE!"],
-        [50, "LEGENDARY!"], [75, "GODLIKE!"], [100, "TRANSCENDENT!"],
+        [3,   "purring~"],
+        [7,   "happy kitty!"],
+        [12,  "kneading intensifies"],
+        [18,  "vibrating with joy"],
+        [25,  "maximum fluff achieved"],
+        [33,  "this is my life now"],
+        [42,  "i will never let go"],
+        [50,  "overclock x1 - critical petting"],
+        [75,  "overclock x2 - the prophecy foretold this"],
+        [100, "overclock x3 - transcending species"],
+        [150, "overclock x4 - you absolute legend"],
+        [200, "overclock x5 - hands blessed by the gods"],
+        [300, "overclock x6 - we are one now"],
+        [400, "overclock x7 - this is canon now"],
+        [500, "overclock MAX - kneel"],
+    ];
+    private readonly _headpatShiggyMilestones: [number, number][] = [
+        [10, 1], [25, 2], [50, 3], [75, 4], [100, 5],
+        [150, 6], [200, 7], [300, 8], [400, 9], [500, 10],
     ];
     private readonly _headpatComboBar: HTMLDivElement = div({
         style: `width: 0%; height: 4px; background-color: ${ColorConfig.indicatorPrimary}; border-radius: 2px;`,
@@ -865,25 +875,31 @@ export class SongEditor implements ModSliderProvider {
         style: `width: 80%; height: 4px; margin: 2px auto; background-color: ${ColorConfig.indicatorSecondary}; border-radius: 2px; overflow: hidden;`,
     }, this._headpatComboBar);
     private readonly _headpatShiggyWrap: HTMLDivElement = div({
-        style: "height: 0; overflow: hidden; transition: height 0.2s ease-out, opacity 0.2s ease-out; opacity: 0;",
+        style: "display: flex; flex-wrap: wrap; justify-content: center; gap: 4px; overflow: hidden; transition: height 0.2s ease-out, opacity 0.2s ease-out; opacity: 0; height: 0;",
     });
-    private _showShiggy(): void {
-        if (this._shiggyVisible) return;
-        this._shiggyVisible = true;
-        // Force gif restart by replacing with a fresh img
-        const img = document.createElement("img");
-        img.src = "assets/images/shiggy.gif?t=" + Date.now();
-        img.style.cssText = "width: 80px; height: auto; display: block; margin: 4px auto; pointer-events: none;";
+    private _shiggyCount: number = 0;
+    private _updateShiggy(): void {
+        const combo = Math.floor(this._headpatCombo);
+        let target = 0;
+        for (const [threshold, count] of this._headpatShiggyMilestones) {
+            if (combo >= threshold) target = count;
+        }
+        if (target === this._shiggyCount) return;
+        this._shiggyCount = target;
         this._headpatShiggyWrap.textContent = "";
-        this._headpatShiggyWrap.appendChild(img);
+        if (target === 0) {
+            this._headpatShiggyWrap.style.opacity = "0";
+            this._headpatShiggyWrap.style.height = "0";
+            return;
+        }
+        for (let i = 0; i < target; i++) {
+            const img = document.createElement("img");
+            img.src = "assets/images/shiggy.gif?t=" + Date.now() + "-" + i;
+            img.style.cssText = "width: 60px; height: auto; pointer-events: none;";
+            this._headpatShiggyWrap.appendChild(img);
+        }
         this._headpatShiggyWrap.style.height = "auto";
         this._headpatShiggyWrap.style.opacity = "1";
-    }
-    private _hideShiggy(): void {
-        if (!this._shiggyVisible) return;
-        this._shiggyVisible = false;
-        this._headpatShiggyWrap.style.opacity = "0";
-        this._headpatShiggyWrap.style.height = "0";
     }
     private readonly _headpatDisplay: HTMLDivElement = div({
         style: `text-align: center; font-size: 12px; color: ${ColorConfig.secondaryText}; cursor: pointer; user-select: none; margin-top: 2px; line-height: 1.4; min-height: 1.4em;`,
@@ -900,7 +916,7 @@ export class SongEditor implements ModSliderProvider {
             this._headpatComboBar.style.width = "0%";
             this._headpatComboBar.style.backgroundColor = ColorConfig.indicatorPrimary;
             this._headpatDisplay.textContent = "";
-            this._hideShiggy();
+            this._updateShiggy();
             return;
         }
         const barPct = Math.min(100, (this._headpatCombo / this._headpatComboMax) * 100);
@@ -938,17 +954,14 @@ export class SongEditor implements ModSliderProvider {
                 for (const [threshold, text] of this._headpatComboMessages) {
                     if (this._headpatCombo >= threshold) msg = text;
                 }
-                const kaomoji = this._headpatKaomoji[Math.floor(Math.random() * this._headpatKaomoji.length)];
                 const combo = Math.floor(this._headpatCombo);
                 if (msg) {
-                    this._headpatDisplay.textContent = `${kaomoji} combo ${combo} - ${msg}`;
+                    this._headpatDisplay.textContent = msg;
                 } else {
-                    this._headpatDisplay.textContent = `${kaomoji} pat #${this._headpatCount}`;
+                    this._headpatDisplay.textContent = `charge ${combo}`;
                 }
-                // Shiggy at legendary
-                if (this._headpatCombo >= 50) {
-                    this._showShiggy();
-                }
+                // Shiggy
+                this._updateShiggy();
             },
         }, "headpat"),
         this._headpatComboBarBg,
