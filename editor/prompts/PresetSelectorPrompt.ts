@@ -449,7 +449,12 @@ export class PresetSelectorPrompt implements Prompt {
     };
 
     private _onSearchKeyDown = (event: KeyboardEvent): void => {
-        if (event.keyCode === 13) {
+        if (event.keyCode === 27) { // ESC key
+            this._searchInput.blur();
+            this.container.focus();
+            event.preventDefault();
+            event.stopPropagation();
+        } else if (event.keyCode === 13) {
             this._applySelection();
             event.preventDefault();
         } else if (event.keyCode === 40) {
