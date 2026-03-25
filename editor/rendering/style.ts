@@ -796,20 +796,6 @@ html {
 	border-color: ${ColorConfig.secondaryText};
 }
 
-@keyframes shiggy-bounce {
-	0%, 100% { transform: translateY(0); }
-	50% { transform: translateY(-6px); }
-}
-@keyframes shiggy-rock {
-	0%, 100% { transform: rotate(-3deg); }
-	50% { transform: rotate(3deg); }
-}
-@keyframes shiggy-enter {
-	0% { transform: scale(0); opacity: 0; }
-	60% { transform: scale(1.15); opacity: 1; }
-	100% { transform: scale(1); opacity: 1; }
-}
-
 .beepboxEditor .layout-option {
 	display: flex;
 	flex-direction: column;
@@ -1400,7 +1386,7 @@ html {
 	-webkit-transition:opacity 0.17s linear;
     -moz-transition:opacity 0.17s linear;
     -o-transition:opacity 0.17s linear;
-    -ms-transition:opacity 0.17s linear; 
+    -ms-transition:opacity 0.17s linear;
     transition:opacity 0.17s linear;
 }
 
@@ -1702,7 +1688,7 @@ li.select2-results__option[role=group] > strong:hover {
 		align-items: center;
 		flex-grow: 1;
 	}
-	
+
 	.beepboxEditor .soundIcon {
 	  background: ${ColorConfig.editorBackground};
 	  display: inline-block;

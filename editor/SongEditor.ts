@@ -12,6 +12,7 @@
 //import {Layout} from "./Layout";
 import { sampleLoadEvents, SampleLoadedEvent, InstrumentType, Config, DropdownID } from "../synth/SynthConfig";
 import { BarScrollBar } from "./components/BarScrollBar";
+import { Shiggy } from "./components/Shiggy";
 import { BeatsPerBarPrompt } from "./prompts/BeatsPerBarPrompt";
 import { OctaveCountPrompt } from "./prompts/OctaveCountPrompt";
 import { Change } from "./core/Change";
@@ -284,7 +285,7 @@ export class SongEditor implements ModSliderProvider {
             option({ value: "closePromptByClickoff" }, "Close Prompts on Click Off"),
             option({ value: "rollNoveltyPresets" }, "Can Randomly Select Novelty Presets"),
             option({ value: "recordingSetup" }, "Note Recording..."),
-        ), 
+        ),
         optgroup({ label: "Appearance" },
             option({ value: "showFifth" }, 'Highlight "Fifth" Note'),
             option({ value: "notesFlashWhenPlayed" }, "Notes Flash When Played (DogeBox2)"),
@@ -519,7 +520,7 @@ export class SongEditor implements ModSliderProvider {
         div({ style: "color: " + ColorConfig.secondaryText + "; margin-top: -3px;" }, this._unisonSignInputBox),
     ));
     private readonly _unisonDropdownGroup: HTMLElement = div({ class: "editor-controls", style: "display: none; gap: 3px; margin-bottom: 0.5em;" }, this._unisonVoicesRow, this._unisonSpreadRow, this._unisonOffsetRow, this._unisonExpressionRow, this._unisonSignRow);
-   
+
     private readonly _chordSelect: HTMLSelectElement = buildOptions(select({ style: "flex-shrink: 100"}), Config.chords.map(chord => chord.name));
     private readonly _chordDropdown: HTMLButtonElement = button({ style: "margin-left:0em; height:1.5em; width: 10px; padding: 0px; font-size: 8px;", onclick: () => this._toggleDropdownMenu(DropdownID.Chord) }, "▼");
     private readonly _monophonicNoteInputBox: HTMLInputElement = input({ style: "width: 2.35em; height: 1.5em; font-size: 80%; margin: 0.5em; vertical-align: middle;", id: "unisonSignInputBox", type: "number", step: "1", min: 1, max: Config.maxChordSize, value: 1.0 });
@@ -537,7 +538,7 @@ export class SongEditor implements ModSliderProvider {
     private readonly _invertWaveBox: HTMLInputElement = input({ type: "checkbox", style: "width: 1em; padding: 0; margin-right: 4em;" });
     private readonly _invertWaveRow: HTMLElement = div({ class: "selectRow" }, span({ class: "tip", style: "margin-left:10px;", onclick: () => this._openPrompt("invertWave") }, "Invert Wave:"), this._invertWaveBox);
 
-    
+
 
     private readonly _vibratoSelect: HTMLSelectElement = buildOptions(select(), Config.vibratos.map(vibrato => vibrato.name));
     private readonly _vibratoDropdown: HTMLButtonElement = button({ style: "margin-left:0em; height:1.5em; width: 10px; padding: 0px; font-size: 8px;", onclick: () => this._toggleDropdownMenu(DropdownID.Vibrato) }, "▼");
@@ -647,14 +648,14 @@ export class SongEditor implements ModSliderProvider {
     private readonly _songTitleInputBox: InputBox = new InputBox(input({ style: "font-weight:bold; border:none; width: 98%; background-color:${ColorConfig.editorBackground}; color:${ColorConfig.primaryText}; text-align:center", maxlength: "30", type: "text", value: EditorConfig.versionDisplayName }), this.doc, (oldValue: string, newValue: string) => new ChangeSongTitle(this.doc, oldValue, newValue));
 
     private readonly _presetTagsInputBox: HTMLInputElement = input({ style: "width: 60%; height: 1.5em; font-size: 80%; margin-left: 0.0em; vertical-align: middle;", id: "presetTagsInputBox", type: "text", value: "" });
-    
-    
+
+
 
     private readonly _feedbackAmplitudeSlider: Slider = new Slider(input({ type: "range", min: "0", max: Config.operatorAmplitudeMax, value: "0", step: "1", title: "Feedback Amplitude" }), this.doc, (oldValue: number, newValue: number) => new ChangeFeedbackAmplitude(this.doc, oldValue, newValue), false);
     private readonly _feedbackRow2: HTMLDivElement = div({ class: "selectRow" }, span({ class: "tip", onclick: () => this._openPrompt("feedbackVolume") }, "Fdback Vol:"), this._feedbackAmplitudeSlider.container);
     /*
      * @jummbus - my very real, valid reason for cutting this button: I don't like it.
-     * 
+     *
     private readonly _customizeInstrumentButton: HTMLButtonElement = button({type: "button", style: "margin: 2px 0"},
 
         "Customize Instrument",
@@ -756,14 +757,14 @@ export class SongEditor implements ModSliderProvider {
     );
 
 
-    private readonly _instrumentTagRow: HTMLDivElement = div({ class: "selectRow" }, 
-        span({ class: "tip", onclick: () => this._openPrompt("instrumentTags") }, "Tags:"), 
+    private readonly _instrumentTagRow: HTMLDivElement = div({ class: "selectRow" },
+        span({ class: "tip", onclick: () => this._openPrompt("instrumentTags") }, "Tags:"),
         this._presetTagsInputBox
     );
-    
+
     private readonly _instrumentTypeSelectRow: HTMLDivElement = div({ class: "selectRow", id: "typeSelectRow" },
         span({ class: "tip", onclick: () => this.openPresetSelector() }, "Type:"),
-        div( 
+        div(
             div({ class: "pitchSelect" }, this._pitchedPresetSelect),
             div({ class: "drumSelect" }, this._drumPresetSelect)
         ),
@@ -842,290 +843,8 @@ export class SongEditor implements ModSliderProvider {
         ),
     );
 
-    private _headpatCount: number = 0;
-    private _headpatCombo: number = 0;
-    private _headpatComboMax: number = 1;
-    private _headpatLastTime: number = 0;
-    private _headpatDrainActive: boolean = false;
-    private _shiggyCursorActive: boolean = false;
-    private _shiggyBgActive: boolean = false;
-    private readonly _headpatComboMessages: [number, string][] = [
-        [3,   "shiggy approves"],
-        [7,   "shiggy purrs"],
-        [12,  "shiggy is pleased"],
-        [18,  "shiggy demands more"],
-        [25,  "all hail shiggy"],
-        [33,  "shiggy grants you favor"],
-        [42,  "the shiggy awakens"],
-        [50,  "shiggy blesses you"],
-        [75,  "shiggy has chosen you"],
-        [100, "shiggy cursor unlocked"],
-        [150, "shiggy is eternal"],
-        [200, "you are shiggy now"],
-        [300, "shiggy background unlocked"],
-        [400, "shiggy is everything"],
-        [500, "ALL IS SHIGGY"],
-    ];
-    private readonly _headpatShiggyMilestones: [number, number][] = [
-        [3, 1], [12, 2], [25, 3], [42, 4], [75, 5],
-        [100, 6], [150, 7], [200, 8], [300, 9], [500, 10],
-    ];
-    private static readonly _comboLayerCount: number = 8;
-    private static readonly _comboLayerThresholds: number[] = [0, 5, 12, 22, 35, 50, 75, 100];
-    private static readonly _comboLayerMixes: string[] = [
-        "color-mix(in srgb, white 60%, var(--loop-accent, #74f))",
-        "color-mix(in srgb, white 40%, var(--loop-accent, #74f))",
-        "color-mix(in srgb, white 20%, var(--loop-accent, #74f))",
-        "var(--loop-accent, #74f)",
-        "color-mix(in srgb, black 10%, var(--loop-accent, #74f))",
-        "color-mix(in srgb, black 25%, var(--loop-accent, #74f))",
-        "color-mix(in srgb, black 40%, var(--loop-accent, #74f))",
-        "color-mix(in srgb, black 55%, var(--loop-accent, #74f))",
-    ];
-    private _comboLayers: HTMLDivElement[] = [];
-    private _buildComboBar(): HTMLDivElement {
-        const layers: HTMLDivElement[] = [];
-        for (let i = 0; i < SongEditor._comboLayerCount; i++) {
-            const layer = div({
-                style: `position: absolute; left: 0; top: 0; height: 100%; width: 0%; background-color: ${SongEditor._comboLayerMixes[i]}; border-radius: 2px; transition: width 0.08s linear, opacity 0.15s; opacity: 0;`,
-            });
-            layers.push(layer);
-        }
-        this._comboLayers = layers;
-        return div({
-            style: `width: 80%; height: 6px; margin: 2px auto; position: relative; background-color: ${ColorConfig.indicatorSecondary}; border-radius: 2px; overflow: hidden;`,
-        }, ...layers);
-    }
-    private _flashComboBar(): void {
-        const flash = div({
-            style: `position: absolute; left: 0; top: 0; width: 100%; height: 100%; background: white; opacity: 0.6; border-radius: 2px; pointer-events: none;`,
-        });
-        this._headpatComboBarBg.appendChild(flash);
-        requestAnimationFrame(() => {
-            flash.style.transition = "opacity 0.15s ease-out";
-            flash.style.opacity = "0";
-            setTimeout(() => { if (flash.parentElement) flash.parentElement.removeChild(flash); }, 200);
-        });
-    }
-    private _updateComboBar(): void {
-        const combo = this._headpatCombo;
-        for (let i = 0; i < SongEditor._comboLayerCount; i++) {
-            const threshold = SongEditor._comboLayerThresholds[i];
-            const nextThreshold = i < SongEditor._comboLayerCount - 1
-                ? SongEditor._comboLayerThresholds[i + 1]
-                : Math.max(this._headpatComboMax, threshold + 30);
-            if (combo >= threshold) {
-                const layerPct = Math.min(100, ((combo - threshold) / (nextThreshold - threshold)) * 100);
-                this._comboLayers[i].style.width = layerPct + "%";
-                this._comboLayers[i].style.opacity = "1";
-            } else {
-                this._comboLayers[i].style.width = "0%";
-                this._comboLayers[i].style.opacity = "0";
-            }
-        }
-    }
-    private readonly _headpatComboBarBg: HTMLDivElement = (() => { return this._buildComboBar(); })();
-    private readonly _headpatShiggyOverlay: HTMLDivElement = div({
-        style: "position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; pointer-events: none; z-index: 9999; display: flex; flex-wrap: wrap; align-content: flex-start; justify-content: center; gap: 8px; padding: 8px; box-sizing: border-box; opacity: 0; transition: opacity 2s ease-out;",
-    });
-    private readonly _headpatShiggyWrap: HTMLDivElement = div({
-        style: "display: flex; flex-wrap: wrap; justify-content: center; gap: 4px; overflow: hidden; transition: height 0.2s ease-out, opacity 0.2s ease-out; opacity: 0; height: 0;",
-    });
-    private readonly _headpatShiggyCursor: HTMLImageElement = (() => {
-        const img = document.createElement("img");
-        img.src = "assets/images/shiggy.gif";
-        img.style.cssText = "position: fixed; width: 32px; height: auto; pointer-events: none; z-index: 10000; opacity: 0; transition: opacity 0.2s; transform: translate(-50%, -50%);";
-        return img;
-    })();
-    private _shiggyCursorHandler: ((e: MouseEvent) => void) | null = null;
-    private _shiggyCount: number = 0;
-    private _makeShiggyImg(index: number, extraStyle: string = ""): HTMLImageElement {
-        const img = document.createElement("img");
-        img.src = "assets/images/shiggy.gif?t=" + Date.now() + "-" + index;
-        img.style.cssText = `width: 60px; height: auto; pointer-events: none; animation: shiggy-enter 0.3s ease-out both; ${extraStyle}`;
-        return img;
-    }
-    private _updateShiggy(): void {
-        const combo = Math.floor(this._headpatCombo);
-        let target = 0;
-        for (const [threshold, count] of this._headpatShiggyMilestones) {
-            if (combo >= threshold) target = count;
-        }
-        // Only add shiggies, never remove until full reset
-        if (target <= this._shiggyCount) {
-            // Still update cursor/bg based on combo
-        } else {
-            this._shiggyCount = target;
-            this._headpatShiggyWrap.textContent = "";
-            if (target === 0) {
-                this._headpatShiggyWrap.style.opacity = "0";
-                this._headpatShiggyWrap.style.height = "0";
-            } else {
-                const speed = 1 + target * 0.2;
-                const duration = Math.max(0.2, 1.5 / speed);
-                for (let i = 0; i < target; i++) {
-                    const delay = (i * 0.05).toFixed(2);
-                    const effect = `animation: shiggy-enter 0.3s ease-out both, shiggy-rock ${duration}s ease-in-out ${delay}s infinite, shiggy-bounce ${duration * 1.5}s ease-in-out ${(parseFloat(delay) + 0.1).toFixed(2)}s infinite;`;
-                    const img = this._makeShiggyImg(i, effect);
-                    this._headpatShiggyWrap.appendChild(img);
-                }
-                this._headpatShiggyWrap.style.height = "auto";
-                this._headpatShiggyWrap.style.opacity = "1";
-            }
-        }
-        // Shiggy cursor at 100
-        if (combo >= 100 && !this._shiggyCursorActive) {
-            this._shiggyCursorActive = true;
-            this._headpatShiggyCursor.style.opacity = "1";
-            this._shiggyCursorHandler = (e: MouseEvent) => {
-                this._headpatShiggyCursor.style.left = e.clientX + "px";
-                this._headpatShiggyCursor.style.top = e.clientY + "px";
-            };
-            document.addEventListener("mousemove", this._shiggyCursorHandler);
-            document.body.appendChild(this._headpatShiggyCursor);
-        } else if (combo < 100 && this._shiggyCursorActive) {
-            this._shiggyCursorActive = false;
-            this._headpatShiggyCursor.style.opacity = "0";
-            if (this._shiggyCursorHandler) {
-                document.removeEventListener("mousemove", this._shiggyCursorHandler);
-                this._shiggyCursorHandler = null;
-            }
-        }
-        // Shiggy background at 300
-        if (combo >= 300 && !this._shiggyBgActive) {
-            this._shiggyBgActive = true;
-            this._headpatShiggyOverlay.textContent = "";
-            for (let i = 0; i < 40; i++) {
-                const delay = (i * 0.03).toFixed(2);
-                const speed = 0.8 + (i % 5) * 0.15;
-                const img = this._makeShiggyImg(i, `width: 40px; opacity: 0.15; animation: shiggy-enter 0.3s ease-out both, shiggy-rock ${speed}s ease-in-out ${delay}s infinite;`);
-                this._headpatShiggyOverlay.appendChild(img);
-            }
-            this._headpatShiggyOverlay.style.opacity = "1";
-            document.body.appendChild(this._headpatShiggyOverlay);
-        } else if (combo < 300 && this._shiggyBgActive) {
-            this._shiggyBgActive = false;
-            this._headpatShiggyOverlay.style.opacity = "0";
-            setTimeout(() => {
-                if (this._headpatShiggyOverlay.parentElement) {
-                    document.body.removeChild(this._headpatShiggyOverlay);
-                }
-            }, 2100);
-        }
-    }
-    private _resetShiggy(): void {
-        this._shiggyCount = -1;
-        this._headpatShiggyWrap.textContent = "";
-        this._headpatShiggyWrap.style.opacity = "0";
-        this._headpatShiggyWrap.style.height = "0";
-        if (this._shiggyCursorActive) {
-            this._shiggyCursorActive = false;
-            this._headpatShiggyCursor.style.opacity = "0";
-            if (this._shiggyCursorHandler) {
-                document.removeEventListener("mousemove", this._shiggyCursorHandler);
-                this._shiggyCursorHandler = null;
-            }
-        }
-        if (this._shiggyBgActive) {
-            this._shiggyBgActive = false;
-            this._headpatShiggyOverlay.style.opacity = "0";
-            setTimeout(() => {
-                if (this._headpatShiggyOverlay.parentElement) {
-                    document.body.removeChild(this._headpatShiggyOverlay);
-                }
-            }, 2100);
-        }
-    }
-    private readonly _headpatDisplay: HTMLDivElement = div({
-        style: `text-align: center; font-size: 12px; color: ${ColorConfig.secondaryText}; cursor: pointer; user-select: none; margin-top: 2px; line-height: 1.4; min-height: 1.4em;`,
-    });
-    private _headpatDrain = (now: number): void => {
-        if (!this._headpatDrainActive) return;
-        const elapsed = (now - this._headpatLastTime) / 1000;
-        this._headpatCombo = Math.max(0, this._headpatCombo - elapsed * 2);
-        this._headpatLastTime = now;
-        if (this._headpatCombo <= 0) {
-            this._headpatCombo = 0;
-            this._headpatComboMax = 1;
-            this._headpatDrainActive = false;
-            this._updateComboBar();
-            this._headpatDisplay.textContent = "";
-            this._resetShiggy();
-            return;
-        }
-        this._updateComboBar();
-        this._updateShiggy();
-        requestAnimationFrame(this._headpatDrain);
-    };
-    private _headpatHoldTimer: ReturnType<typeof setTimeout> | null = null;
-    private _headpatHeld: boolean = false;
-    private readonly _headpatButton: HTMLDivElement = div({
-            style: `text-align: center; cursor: pointer; user-select: none; margin-top: 2px;`,
-        },
-        div({
-            style: `font-size: 11px; color: ${ColorConfig.secondaryText};`,
-            onmousedown: () => {
-                this._headpatHeld = false;
-                this._headpatHoldTimer = setTimeout(() => {
-                    this._headpatHeld = true;
-                    this._headpatCombo = 0;
-                    this._headpatComboMax = 1;
-                    this._headpatDrainActive = false;
-                    this._updateComboBar();
-                    this._headpatDisplay.textContent = "reset!";
-                    this._resetShiggy();
-                    setTimeout(() => {
-                        if (this._headpatDisplay.textContent === "reset!") {
-                            this._headpatDisplay.textContent = "";
-                        }
-                    }, 1000);
-                }, 500);
-            },
-            onmouseup: () => {
-                if (this._headpatHoldTimer) {
-                    clearTimeout(this._headpatHoldTimer);
-                    this._headpatHoldTimer = null;
-                }
-                if (this._headpatHeld) {
-                    this._headpatHeld = false;
-                    return;
-                }
-                this._headpatCount++;
-                this._headpatCombo++;
-                this._headpatComboMax = Math.max(this._headpatComboMax, this._headpatCombo);
-                this._headpatLastTime = performance.now();
-                if (!this._headpatDrainActive) {
-                    this._headpatDrainActive = true;
-                    requestAnimationFrame(this._headpatDrain);
-                }
-                // Bar
-                this._updateComboBar();
-                this._flashComboBar();
-                // Message
-                let msg = "";
-                for (const [threshold, text] of this._headpatComboMessages) {
-                    if (this._headpatCombo >= threshold) msg = text;
-                }
-                if (msg) {
-                    this._headpatDisplay.textContent = msg;
-                } else {
-                    this._headpatDisplay.textContent = `charge ${Math.floor(this._headpatCombo)}`;
-                }
-                // Shiggy
-                this._updateShiggy();
-            },
-            onmouseleave: () => {
-                if (this._headpatHoldTimer) {
-                    clearTimeout(this._headpatHoldTimer);
-                    this._headpatHoldTimer = null;
-                }
-                this._headpatHeld = false;
-            },
-        }, "headpat"),
-        this._headpatComboBarBg,
-        this._headpatDisplay,
-        this._headpatShiggyWrap,
-    );
+    private readonly _shiggy: Shiggy = new Shiggy();
+    private readonly _shiggyToggle: HTMLDivElement = this._shiggy.container;
 
     private readonly _songSettingsArea: HTMLDivElement = div({ class: "song-settings-area" },
         div({ class: "editor-controls" },
@@ -1174,7 +893,7 @@ export class SongEditor implements ModSliderProvider {
                 this._songEqFilterEditor.container,
             ),
             this._sampleLoadingStatusContainer,
-            this._headpatButton,
+            this._shiggyToggle,
         ),
     );
     private readonly _instrumentSettingsArea: HTMLDivElement = div({ class: "instrument-settings-area" },
@@ -1814,7 +1533,7 @@ export class SongEditor implements ModSliderProvider {
         this._lowerNoteLimitInputBox.addEventListener("input", () => { this.doc.record(new ChangeLowerLimit(this.doc, this.doc.song.channels[this.doc.channel].instruments[this.doc.getCurrentInstrument()].lowerNoteLimit, (Math.min(Config.maxPitch, Math.max(0.0, Math.round(+this._lowerNoteLimitInputBox.value)))))) });
 
         this._invertWaveBox.addEventListener("input", () => { this.doc.record(new ChangeInvertWave(this.doc, this._invertWaveBox.checked)) });
-        
+
 
         this._promptContainer.addEventListener("click", (event) => {
             if (this.doc.prefs.closePromptByClickoff === true) {
@@ -2123,7 +1842,7 @@ export class SongEditor implements ModSliderProvider {
             target.textContent = "▲";
             if (dropdown == DropdownID.EnvelopeSettings) {
                 group.style.display = "flex";
-                // if (subtype == "pitch") { 
+                // if (subtype == "pitch") {
                 //     this.envelopeEditor.extraPitchSettingsGroups[submenu].style.display = "flex";
                 //     this.envelopeEditor.perEnvelopeSpeedGroups[submenu].style.display = "none";
                 // } else {
@@ -2179,7 +1898,7 @@ export class SongEditor implements ModSliderProvider {
                         this._showModSliders[setting][index] = false;
                         this._newShowModSliders[setting][index] = false;
                         const slider: Slider | null = this.modSliders.getSliderForModSetting(setting, index);
-                        
+
                         if (slider != null) {
                             slider.container.classList.remove("modSlider");
 
@@ -3156,7 +2875,7 @@ export class SongEditor implements ModSliderProvider {
                 this.doc.prefs.enableTagSearch = !this.doc.prefs.enableTagSearch;
                 this._presetTagsInputBox.value = "";
                 break;
-            
+
         }
         this._optionsMenu.selectedIndex = 0;
         this.doc.notifier.changed();
@@ -3209,10 +2928,9 @@ export class SongEditor implements ModSliderProvider {
         if (+this._instrumentVolumeSlider.input.value != -Config.volumeRange/2) {
             this.doc.record(new ChangeVolume(this.doc, +this._instrumentVolumeSlider.input.value, Math.min(Math.max(-Config.volumeRange / 2 + Math.round(Math.sqrt(Config.chipWaves[index].expression) * Config.volumeRange / 2 + parseInt(this._instrumentVolumeSlider.input.value)), -Config.volumeRange / 2) >> 1, Config.volumeRange / 2)));
         }
-            
+
         this._customWavePresetDrop.selectedIndex = 0;
         this.doc.notifier.changed();
         this.doc.prefs.save();
     }
 }
-
