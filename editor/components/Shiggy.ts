@@ -4,6 +4,26 @@
 //
 // This module provides a toggle button to summon/hide shiggy.
 
+// Add CSS keyframes for text animations
+const style = document.createElement("style");
+style.textContent = `
+    @keyframes shiggy-text-fade {
+        0% { opacity: 0; transform: translateY(5px); }
+        100% { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes shiggy-text-pulse {
+        0% { opacity: 0; transform: scale(0.8); }
+        50% { opacity: 1; transform: scale(1.1); }
+        100% { opacity: 1; transform: scale(1); }
+    }
+    @keyframes shiggy-text-glow {
+        0% { opacity: 0; text-shadow: 0 0 5px var(--secondary-text); }
+        50% { opacity: 1; text-shadow: 0 0 15px var(--secondary-text), 0 0 25px var(--secondary-text); }
+        100% { opacity: 1; text-shadow: 0 0 5px var(--secondary-text); }
+    }
+`;
+document.head.appendChild(style);
+
 export class Shiggy {
     private _active: boolean = false;
     private readonly _img: HTMLImageElement;
@@ -30,15 +50,29 @@ export class Shiggy {
         "You are one with the shiggy.",
         "The shiggy is the beginning and the end.",
         "ALL IS SHIGGY. ALL IS DIVINE.",
+        "The shiggy multiplies its presence.",
+        "Another shiggy emerges from the void.",
+        "The shiggy's power grows exponentially.",
+        "A new shiggy joins the divine circle.",
+        "The shiggy's influence spreads.",
+        "More shiggy appear to bless you.",
+        "The shiggy's realm expands.",
+        "You have awakened the shiggy legion.",
+        "The shiggy's numbers increase.",
+        "A shiggy army assembles.",
+        "The shiggy's dominion grows.",
+        "You are surrounded by shiggy's grace.",
+        "The shiggy's presence is overwhelming.",
+        "Shiggy's multiply in your honor.",
+        "The shiggy's blessing intensifies.",
+        "You have triggered the shiggy cascade.",
+        "The shiggy's abundance knows no bounds.",
     ];
 
     constructor() {
         this._img = document.createElement("img");
         this._img.src = "assets/images/shiggy.gif";
         this._img.style.cssText = "width: 60px; height: auto; pointer-events: auto; opacity: 0; transition: opacity 0.2s; cursor: pointer;";
-
-        // Click/tap support
-        this._img.onclick = () => this.pet();
 
         // Touch support for mobile
         this._img.ontouchstart = (e: TouchEvent) => {
@@ -101,7 +135,7 @@ export class Shiggy {
         this._active = !this._active;
         if (this._active) {
             this._img.style.opacity = "1";
-            this._img.style.animation = "shiggy-enter 0.3s ease-out both, shiggy-bounce 1.5s ease-in-out 0.1s infinite, shiggy-rock 1s ease-in-out 0s infinite";
+            this._img.style.animation = "shiggy-enter 0.3s ease-out both, shiggy-bounce 1.5s ease-in-out 0.1s infinite, shiggy-rock 2s ease-in-out 0s infinite";
         } else {
             this._img.style.opacity = "0";
             this._img.style.animation = "none";
@@ -114,14 +148,63 @@ export class Shiggy {
         if (!this._active) return;
 
         this._petCount++;
-        const messageIndex = Math.min(this._petCount - 1, this._petMessages.length - 1);
-        this._petDisplay.textContent = this._petMessages[messageIndex];
+        const messageIndex = (this._petCount - 1) % this._petMessages.length;
+        const message = this._petMessages[messageIndex];
+        this._petDisplay.textContent = message;
+
+        // Apply text animation based on context
+        this._petDisplay.style.animation = "none";
+        this._petDisplay.offsetHeight; // Trigger reflow
+
+        if (this._petCount % 10 === 0) {
+            // Threshold summon - dramatic glow animation
+            this._petDisplay.style.animation = "shiggy-text-glow 0.6s ease-out";
+        } else if (message.includes("ALL IS SHIGGY") || message.includes("shiggy legion") || message.includes("shiggy cascade")) {
+            // Special messages - pulse animation
+            this._petDisplay.style.animation = "shiggy-text-pulse 0.5s ease-out";
+        } else {
+            // Normal messages - fade animation
+            this._petDisplay.style.animation = "shiggy-text-fade 0.3s ease-out";
+        }
 
         // Brief visual feedback
         this._img.style.transform = "scale(1.1)";
         setTimeout(() => {
             this._img.style.transform = "scale(1)";
         }, 100);
+
+        // Summon another shiggy at thresholds
+        if (this._petCount % 10 === 0) {
+            this.summonAnotherShiggy();
+        }
+    }
+
+    private summonAnotherShiggy(): void {
+        const newShiggy = document.createElement("img");
+        newShiggy.src = "assets/images/shiggy.gif";
+        newShiggy.style.cssText = "width: 60px; height: auto; pointer-events: none; opacity: 0; position: fixed; z-index: 9999;";
+
+        // Random position on screen
+        const x = Math.random() * (window.innerWidth - 60);
+        const y = Math.random() * (window.innerHeight - 60);
+        newShiggy.style.left = `${x}px`;
+        newShiggy.style.top = `${y}px`;
+
+        document.body.appendChild(newShiggy);
+
+        // Fade in
+        setTimeout(() => {
+            newShiggy.style.transition = "opacity 0.3s";
+            newShiggy.style.opacity = "1";
+        }, 10);
+
+        // Fade out and remove after 3 seconds
+        setTimeout(() => {
+            newShiggy.style.opacity = "0";
+            setTimeout(() => {
+                newShiggy.remove();
+            }, 300);
+        }, 3000);
     }
 
     public get active(): boolean {
