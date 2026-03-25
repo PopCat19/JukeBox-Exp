@@ -30,4 +30,5 @@ export { SustainPrompt } from "./SustainPrompt";
 export { ThemePrompt } from "./ThemePrompt";
 export { TipPrompt } from "./TipPrompt";
 export { VisualLoopControlsPrompt } from "./VisualLoopControlsPrompt";
+export { PresetSelectorPrompt } from "./PresetSelectorPrompt";
 export { Prompt } from "./Prompt";

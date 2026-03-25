@@ -48,6 +48,7 @@ import { KeyboardLayout } from "./config/KeyboardLayout";
 import { PatternEditor } from "./components/PatternEditor";
 import { Piano } from "./components/Piano";
 import { Prompt } from "./prompts/Prompt";
+import { PresetSelectorPrompt } from "./prompts/PresetSelectorPrompt";
 import { SongDocument } from "./SongDocument";
 import { SongDurationPrompt } from "./prompts/SongDurationPrompt";
 import { SustainPrompt } from "./prompts/SustainPrompt";
@@ -761,7 +762,7 @@ export class SongEditor implements ModSliderProvider {
     );
     
     private readonly _instrumentTypeSelectRow: HTMLDivElement = div({ class: "selectRow", id: "typeSelectRow" },
-        span({ class: "tip", onclick: () => this._openPrompt("instrumentType") }, "Type:"),
+        span({ class: "tip", onclick: () => this._openPrompt("presetSelector") }, "Type:"),
         div( 
             div({ class: "pitchSelect" }, this._pitchedPresetSelect),
             div({ class: "drumSelect" }, this._drumPresetSelect)
@@ -2022,7 +2023,7 @@ export class SongEditor implements ModSliderProvider {
         this._currentPromptName = promptName;
 
         if (this.prompt) {
-            if (this._wasPlaying && !(this.prompt instanceof TipPrompt || this.prompt instanceof LimiterPrompt || this.prompt instanceof CustomScalePrompt || this.prompt instanceof CustomChipPrompt || this.prompt instanceof CustomFilterPrompt || this.prompt instanceof VisualLoopControlsPrompt || this.prompt instanceof SustainPrompt || this.prompt instanceof HarmonicsEditorPrompt || this.prompt instanceof SpectrumEditorPrompt)) {
+            if (this._wasPlaying && !(this.prompt instanceof TipPrompt || this.prompt instanceof LimiterPrompt || this.prompt instanceof CustomScalePrompt || this.prompt instanceof CustomChipPrompt || this.prompt instanceof CustomFilterPrompt || this.prompt instanceof VisualLoopControlsPrompt || this.prompt instanceof SustainPrompt || this.prompt instanceof HarmonicsEditorPrompt || this.prompt instanceof SpectrumEditorPrompt || this.prompt instanceof PresetSelectorPrompt)) {
                 this.doc.performance.play();
             }
             this._wasPlaying = false;
@@ -2123,13 +2124,16 @@ export class SongEditor implements ModSliderProvider {
                 case "drumsetSettings":
                     this.prompt = new SpectrumEditorPrompt(this.doc, this, true);
                     break;
+                case "presetSelector":
+                    this.prompt = new PresetSelectorPrompt(this.doc);
+                    break;
                 default:
                     this.prompt = new TipPrompt(this.doc, promptName);
                     break;
             }
 
             if (this.prompt) {
-                if (!(this.prompt instanceof TipPrompt || this.prompt instanceof LimiterPrompt || this.prompt instanceof CustomChipPrompt || this.prompt instanceof CustomFilterPrompt || this.prompt instanceof VisualLoopControlsPrompt || this.prompt instanceof SustainPrompt || this.prompt instanceof HarmonicsEditorPrompt || this.prompt instanceof SpectrumEditorPrompt)) {
+                if (!(this.prompt instanceof TipPrompt || this.prompt instanceof LimiterPrompt || this.prompt instanceof CustomChipPrompt || this.prompt instanceof CustomFilterPrompt || this.prompt instanceof VisualLoopControlsPrompt || this.prompt instanceof SustainPrompt || this.prompt instanceof HarmonicsEditorPrompt || this.prompt instanceof SpectrumEditorPrompt || this.prompt instanceof PresetSelectorPrompt)) {
                     this._wasPlaying = this.doc.synth.playing;
                     this.doc.performance.pause();
                 }

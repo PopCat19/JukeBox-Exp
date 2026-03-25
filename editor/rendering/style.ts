@@ -784,6 +784,18 @@ html {
 	margin: 2px 0;
 }
 
+.beepboxEditor .prompt.presetSelectorPrompt > *:not(:first-child):not(.cancelButton) {
+	margin-top: 0;
+}
+
+.beepboxEditor .prompt.presetSelectorPrompt h2 {
+	margin-bottom: 0;
+}
+
+.beepboxEditor .prompt.presetSelectorPrompt input:focus {
+	border-color: ${ColorConfig.secondaryText};
+}
+
 .beepboxEditor .layout-option {
 	display: flex;
 	flex-direction: column;

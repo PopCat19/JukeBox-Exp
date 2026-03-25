@@ -700,6 +700,9 @@ export class KeyboardHandler {
                     doc.prefs.save();
                     event.preventDefault();
                     location.reload();
+                } else if (event.shiftKey) {
+                    host.openPrompt("presetSelector");
+                    event.preventDefault();
                 } else {
                     host.nextPreset();
                     event.preventDefault();
