@@ -1347,6 +1347,20 @@ html {
   }
 }
 
+@keyframes shiggy-bounce {
+	0%, 100% { transform: translateY(0); }
+	50% { transform: translateY(-6px); }
+}
+@keyframes shiggy-rock {
+	0%, 100% { transform: rotate(-3deg); }
+	50% { transform: rotate(3deg); }
+}
+@keyframes shiggy-enter {
+	0% { transform: scale(0); opacity: 0; }
+	60% { transform: scale(1.15); opacity: 1; }
+	100% { transform: scale(1); opacity: 1; }
+}
+
 .beepboxEditor .dash-move {
   animation: dash-animation 20s infinite linear;
 }
