@@ -870,10 +870,10 @@ export class SongEditor implements ModSliderProvider {
         [3, 1], [12, 2], [25, 3], [42, 4], [75, 5],
         [100, 6], [150, 7], [200, 8], [300, 9], [500, 10],
     ];
-    private static readonly _comboLayerCount: number = 5;
-    private static readonly _comboLayerThresholds: number[] = [0, 5, 15, 30, 60];
+    private static readonly _comboLayerCount: number = 8;
+    private static readonly _comboLayerThresholds: number[] = [0, 5, 12, 22, 35, 50, 75, 100];
     private static readonly _comboLayerColors: string[] = [
-        "#4a9eff", "#6bcb77", "#ffd93d", "#ff9f43", "#ff6b6b",
+        "#4a9eff", "#6bcb77", "#a8e063", "#ffd93d", "#ff9f43", "#ff6b6b", "#ee5a9d", "#c44dff",
     ];
     private _comboLayers: HTMLDivElement[] = [];
     private _buildComboBar(): HTMLDivElement {
@@ -919,7 +919,7 @@ export class SongEditor implements ModSliderProvider {
     }
     private readonly _headpatComboBarBg: HTMLDivElement = (() => { return this._buildComboBar(); })();
     private readonly _headpatShiggyOverlay: HTMLDivElement = div({
-        style: "position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; pointer-events: none; z-index: 9999; display: flex; flex-wrap: wrap; align-content: flex-start; justify-content: center; gap: 8px; padding: 8px; box-sizing: border-box; opacity: 0; transition: opacity 2s ease-out; overflow-y: auto;",
+        style: "position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; pointer-events: none; z-index: 9999; display: flex; flex-wrap: wrap; align-content: flex-start; justify-content: center; gap: 8px; padding: 8px; box-sizing: border-box; opacity: 0; transition: opacity 2s ease-out;",
     });
     private readonly _headpatShiggyWrap: HTMLDivElement = div({
         style: "display: flex; flex-wrap: wrap; justify-content: center; gap: 4px; overflow: hidden; transition: height 0.2s ease-out, opacity 0.2s ease-out; opacity: 0; height: 0;",
@@ -944,8 +944,10 @@ export class SongEditor implements ModSliderProvider {
         for (const [threshold, count] of this._headpatShiggyMilestones) {
             if (combo >= threshold) target = count;
         }
-        // Update inline shiggy wrap
-        if (target !== this._shiggyCount) {
+        // Only add shiggies, never remove until full reset
+        if (target <= this._shiggyCount) {
+            // Still update cursor/bg based on combo
+        } else {
             this._shiggyCount = target;
             this._headpatShiggyWrap.textContent = "";
             if (target === 0) {
@@ -956,11 +958,7 @@ export class SongEditor implements ModSliderProvider {
                 const duration = Math.max(0.2, 1.5 / speed);
                 for (let i = 0; i < target; i++) {
                     const delay = (i * 0.05).toFixed(2);
-                    const effect = target >= 7
-                        ? `animation: shiggy-enter 0.3s ease-out both, shiggy-spin ${duration}s linear ${delay}s infinite; animation-delay: ${delay}, ${delay};`
-                        : target >= 4
-                            ? `animation: shiggy-enter 0.3s ease-out both, shiggy-bounce ${duration}s ease-in-out ${delay}s infinite;`
-                            : `animation: shiggy-enter 0.3s ease-out both; animation-delay: ${delay}s;`;
+                    const effect = `animation: shiggy-enter 0.3s ease-out both, shiggy-rock ${duration}s ease-in-out ${delay}s infinite, shiggy-bounce ${duration * 1.5}s ease-in-out ${(parseFloat(delay) + 0.1).toFixed(2)}s infinite;`;
                     const img = this._makeShiggyImg(i, effect);
                     this._headpatShiggyWrap.appendChild(img);
                 }
@@ -991,7 +989,9 @@ export class SongEditor implements ModSliderProvider {
             this._shiggyBgActive = true;
             this._headpatShiggyOverlay.textContent = "";
             for (let i = 0; i < 40; i++) {
-                const img = this._makeShiggyImg(i, `width: 40px; opacity: 0.15; animation-delay: ${(i * 0.02).toFixed(2)}s;`);
+                const delay = (i * 0.03).toFixed(2);
+                const speed = 0.8 + (i % 5) * 0.15;
+                const img = this._makeShiggyImg(i, `width: 40px; opacity: 0.15; animation: shiggy-enter 0.3s ease-out both, shiggy-rock ${speed}s ease-in-out ${delay}s infinite;`);
                 this._headpatShiggyOverlay.appendChild(img);
             }
             this._headpatShiggyOverlay.style.opacity = "1";
