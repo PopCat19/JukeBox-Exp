@@ -872,15 +872,22 @@ export class SongEditor implements ModSliderProvider {
     ];
     private static readonly _comboLayerCount: number = 8;
     private static readonly _comboLayerThresholds: number[] = [0, 5, 12, 22, 35, 50, 75, 100];
-    private static readonly _comboLayerColors: string[] = [
-        "#4a9eff", "#6bcb77", "#a8e063", "#ffd93d", "#ff9f43", "#ff6b6b", "#ee5a9d", "#c44dff",
+    private static readonly _comboLayerMixes: string[] = [
+        "color-mix(in srgb, white 60%, var(--loop-accent, #74f))",
+        "color-mix(in srgb, white 40%, var(--loop-accent, #74f))",
+        "color-mix(in srgb, white 20%, var(--loop-accent, #74f))",
+        "var(--loop-accent, #74f)",
+        "color-mix(in srgb, black 10%, var(--loop-accent, #74f))",
+        "color-mix(in srgb, black 25%, var(--loop-accent, #74f))",
+        "color-mix(in srgb, black 40%, var(--loop-accent, #74f))",
+        "color-mix(in srgb, black 55%, var(--loop-accent, #74f))",
     ];
     private _comboLayers: HTMLDivElement[] = [];
     private _buildComboBar(): HTMLDivElement {
         const layers: HTMLDivElement[] = [];
         for (let i = 0; i < SongEditor._comboLayerCount; i++) {
             const layer = div({
-                style: `position: absolute; left: 0; top: 0; height: 100%; width: 0%; background-color: ${SongEditor._comboLayerColors[i]}; border-radius: 2px; transition: width 0.08s linear, opacity 0.15s; opacity: 0;`,
+                style: `position: absolute; left: 0; top: 0; height: 100%; width: 0%; background-color: ${SongEditor._comboLayerMixes[i]}; border-radius: 2px; transition: width 0.08s linear, opacity 0.15s; opacity: 0;`,
             });
             layers.push(layer);
         }
@@ -1050,12 +1057,39 @@ export class SongEditor implements ModSliderProvider {
         this._updateShiggy();
         requestAnimationFrame(this._headpatDrain);
     };
+    private _headpatHoldTimer: ReturnType<typeof setTimeout> | null = null;
+    private _headpatHeld: boolean = false;
     private readonly _headpatButton: HTMLDivElement = div({
             style: `text-align: center; cursor: pointer; user-select: none; margin-top: 2px;`,
         },
         div({
             style: `font-size: 11px; color: ${ColorConfig.secondaryText};`,
             onmousedown: () => {
+                this._headpatHeld = false;
+                this._headpatHoldTimer = setTimeout(() => {
+                    this._headpatHeld = true;
+                    this._headpatCombo = 0;
+                    this._headpatComboMax = 1;
+                    this._headpatDrainActive = false;
+                    this._updateComboBar();
+                    this._headpatDisplay.textContent = "reset!";
+                    this._resetShiggy();
+                    setTimeout(() => {
+                        if (this._headpatDisplay.textContent === "reset!") {
+                            this._headpatDisplay.textContent = "";
+                        }
+                    }, 1000);
+                }, 500);
+            },
+            onmouseup: () => {
+                if (this._headpatHoldTimer) {
+                    clearTimeout(this._headpatHoldTimer);
+                    this._headpatHoldTimer = null;
+                }
+                if (this._headpatHeld) {
+                    this._headpatHeld = false;
+                    return;
+                }
                 this._headpatCount++;
                 this._headpatCombo++;
                 this._headpatComboMax = Math.max(this._headpatComboMax, this._headpatCombo);
@@ -1079,6 +1113,13 @@ export class SongEditor implements ModSliderProvider {
                 }
                 // Shiggy
                 this._updateShiggy();
+            },
+            onmouseleave: () => {
+                if (this._headpatHoldTimer) {
+                    clearTimeout(this._headpatHoldTimer);
+                    this._headpatHoldTimer = null;
+                }
+                this._headpatHeld = false;
             },
         }, "headpat"),
         this._headpatComboBarBg,
