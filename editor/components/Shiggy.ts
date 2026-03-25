@@ -10,35 +10,75 @@ export class Shiggy {
     private readonly _toggle: HTMLDivElement;
     private readonly _petDisplay: HTMLDivElement;
     private _petCount: number = 0;
+    private _isPetting: boolean = false;
     private _petMessages: string[] = [
-        "shiggy purrs softly",
-        "shiggy wags tail",
-        "shiggy nuzzles you",
-        "shiggy is delighted",
-        "shiggy does a little dance",
-        "shiggy winks at you",
-        "shiggy feels appreciated",
-        "shiggy is grateful",
-        "shiggy sends good vibes",
-        "shiggy believes in you",
-        "shiggy is proud of you",
-        "shiggy gives you energy",
-        "shiggy shares wisdom",
-        "shiggy radiates joy",
-        "shiggy is eternal",
-        "shiggy transcends",
-        "shiggy is everything",
-        "ALL IS SHIGGY",
+        "The shiggy acknowledges your devotion.",
+        "A gentle warmth emanates from the shiggy.",
+        "The shiggy's presence brings comfort.",
+        "You are blessed by the shiggy's grace.",
+        "The shiggy whispers ancient wisdom.",
+        "Your touch pleases the shiggy.",
+        "The shiggy bestows upon you serenity.",
+        "A divine energy flows through the shiggy.",
+        "The shiggy recognizes your sincerity.",
+        "You are chosen by the shiggy.",
+        "The shiggy's light shines upon you.",
+        "The shiggy grants you inner peace.",
+        "You have earned the shiggy's favor.",
+        "The shiggy's love is eternal.",
+        "The shiggy transcends all understanding.",
+        "You are one with the shiggy.",
+        "The shiggy is the beginning and the end.",
+        "ALL IS SHIGGY. ALL IS DIVINE.",
     ];
 
     constructor() {
         this._img = document.createElement("img");
         this._img.src = "assets/images/shiggy.gif";
         this._img.style.cssText = "width: 60px; height: auto; pointer-events: auto; opacity: 0; transition: opacity 0.2s; cursor: pointer;";
+
+        // Click/tap support
         this._img.onclick = () => this.pet();
 
+        // Touch support for mobile
+        this._img.ontouchstart = (e: TouchEvent) => {
+            e.preventDefault();
+            this._isPetting = true;
+            this.pet();
+        };
+        this._img.ontouchmove = (e: TouchEvent) => {
+            e.preventDefault();
+            if (this._isPetting) {
+                this.pet();
+            }
+        };
+        this._img.ontouchend = () => {
+            this._isPetting = false;
+        };
+        this._img.ontouchcancel = () => {
+            this._isPetting = false;
+        };
+
+        // Mouse drag support
+        this._img.onmousedown = (e: MouseEvent) => {
+            e.preventDefault();
+            this._isPetting = true;
+            this.pet();
+        };
+        this._img.onmousemove = (e: MouseEvent) => {
+            if (this._isPetting) {
+                this.pet();
+            }
+        };
+        this._img.onmouseup = () => {
+            this._isPetting = false;
+        };
+        this._img.onmouseleave = () => {
+            this._isPetting = false;
+        };
+
         this._petDisplay = document.createElement("div");
-        this._petDisplay.style.cssText = "font-size: 10px; color: var(--secondary-text); min-height: 1.2em; text-align: center; margin-top: 2px;";
+        this._petDisplay.style.cssText = "font-size: 10px; color: var(--secondary-text); min-height: 1.2em; text-align: center; margin-top: 2px; word-wrap: break-word; overflow-wrap: break-word; white-space: normal;";
 
         this._toggle = document.createElement("div");
         this._toggle.style.cssText = "text-align: center; cursor: pointer; user-select: none; margin-top: 2px;";
