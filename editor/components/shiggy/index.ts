@@ -9,8 +9,9 @@ import {
     SummonedShiggy,
     PET_SUMMON_THRESHOLD, AUTO_SPAWN_MILESTONE,
     FOLLOW_UNLOCK_PETS, AUTO_SPAWN_MS,
-    PET_MESSAGES, injectShiggyCss,
+    injectShiggyCss,
 } from "./types";
+import { PET_MESSAGES } from "./bubbles";
 import { ShiggyAudio } from "./audio";
 import { CursorTracker } from "./tracking";
 import { spawnShiggy, clearAllSummoned, startGifRestart } from "./summoning";

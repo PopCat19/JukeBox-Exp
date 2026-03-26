@@ -49,8 +49,6 @@ export const EXPLORE_MIN_FOLLOW_MS = 12000;
 // Conversation
 export const CONVO_PROXIMITY = 100;
 export const CONVO_CHANCE = 0.002;
-export const CONVO_LINE_INTERVAL = 2200;
-export const CONVO_LINES = 4;
 
 export interface SummonedShiggy {
     img: HTMLImageElement;
@@ -123,84 +121,3 @@ export function injectShiggyCss(): void {
     `;
     document.head.appendChild(style);
 }
-
-export const PET_MESSAGES: string[] = [
-    "The shiggy acknowledges your devotion.",
-    "A gentle warmth emanates from the shiggy.",
-    "The shiggy's presence brings comfort.",
-    "You are blessed by the shiggy's grace.",
-    "The shiggy whispers ancient wisdom.",
-    "Your touch pleases the shiggy.",
-    "The shiggy bestows upon you serenity.",
-    "A divine energy flows through the shiggy.",
-    "The shiggy recognizes your sincerity.",
-    "You are chosen by the shiggy.",
-    "The shiggy's light shines upon you.",
-    "The shiggy grants you inner peace.",
-    "You have earned the shiggy's favor.",
-    "The shiggy's love is eternal.",
-    "The shiggy transcends all understanding.",
-    "You are one with the shiggy.",
-    "The shiggy is the beginning and the end.",
-    "ALL IS SHIGGY. ALL IS DIVINE.",
-    "The shiggy multiplies its presence.",
-    "Another shiggy emerges from the void.",
-    "The shiggy's power grows exponentially.",
-    "A new shiggy joins the divine circle.",
-    "The shiggy's influence spreads.",
-    "More shiggy appear to bless you.",
-    "The shiggy's realm expands.",
-    "You have awakened the shiggy legion.",
-    "The shiggy's numbers increase.",
-    "A shiggy army assembles.",
-    "The shiggy's dominion grows.",
-    "You are surrounded by shiggy's grace.",
-    "The shiggy's presence is overwhelming.",
-    "Shiggy's multiply in your honor.",
-    "The shiggy's blessing intensifies.",
-    "You have triggered the shiggy cascade.",
-    "The shiggy's abundance knows no bounds.",
-];
-
-export const NPC_LINES: string[] = [
-    "boing boing", "shiggy shiggy!", "*wiggles*", "*squeak*",
-    "bounnnnce", "wheeee~", "*happy shiggy noises*",
-    "shiggy??", "more shiggy!", "*spins*",
-    "boing!", "*pats the ground*", "shiggy here!",
-    "slidy slide", "*hops*", "shiggy go brrr",
-    "*wiggles ears*", "bounce bounce bounce",
-    "shiggy shiggy boing!", "*vibrates happily*",
-    "where cursor go?", "shiggy see shiggy do",
-    "*taps*", "shiggy life best life",
-];
-
-export const CONVO_EXCHANGES: [string, string][] = [
-    ["boing?", "boing boing!"],
-    ["shiggy!", "shiggy shiggy!!"],
-    ["*wiggles at you*", "*wiggles back*"],
-    ["you bounce good", "no YOU bounce good"],
-    ["shiggy count go up", "more boing for everyone"],
-    ["*bonk*", "*bonk bonk*"],
-    ["where cursor", "cursor everywhere and nowhere"],
-    ["feel the boing", "i AM the boing"],
-    ["shiggy", "shiggy."],
-    ["*happy wiggle*", "*happier wiggle*"],
-    ["we are legion", "we are shiggy"],
-    ["*squeak squeak*", "*squeak*"],
-    ["*slides into you*", "*slides away*"],
-    ["boing theory", "boing practice"],
-    ["shiggy friend?", "shiggy forever"],
-    ["*nuzzle*", "*nuzzle nuzzle*"],
-    ["bounce with me", "always and forever"],
-    ["*looks at cursor*", "*also looks at cursor*"],
-    ["shiggy power grows", "shiggy power infinite"],
-];
-
-export const CONVO_RESPONSES: [string, string][] = [
-    ["boing!", "BOING!"],
-    ["*wiggles more*", "*wiggles even more*"],
-    ["shiggy shiggy", "shiggy shiggy shiggy"],
-    ["*happy squeak*", "*happier squeak*"],
-    ["yes yes", "more more"],
-    ["*bounces*", "*bounces harder*"],
-];

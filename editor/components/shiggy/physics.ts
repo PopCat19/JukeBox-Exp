@@ -269,8 +269,10 @@ export class PhysicsEngine {
 
         const cx = s.x + SHIGGY_SIZE / 2;
         const cy = s.y + SHIGGY_SIZE / 2;
-        const dx = this._cursorX - cx;
-        const dy = this._cursorY - cy;
+        const targetX = this._cursorX + FOLLOW_OFFSET_X;
+        const targetY = this._cursorY + FOLLOW_OFFSET_Y;
+        const dx = targetX - cx;
+        const dy = targetY - cy;
         const dist = Math.sqrt(dx * dx + dy * dy);
 
         if (dist <= ROPE_SLACK) {

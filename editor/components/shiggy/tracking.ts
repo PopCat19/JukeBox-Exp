@@ -7,6 +7,7 @@
 
 import { SummonedShiggy, SHIGGY_SIZE } from "./types";
 import { positionDialogue, clearDialogue, forceEndConversation, showNpcDialogue, startConversation } from "./dialogue";
+import { tickGroupDialogue } from "./bubbles";
 import { PhysicsEngine, FrameResult, PhysEvent } from "./physics";
 
 export class CursorTracker {
@@ -70,6 +71,7 @@ export class CursorTracker {
             const results = this._physics.tick(now);
             this._applyResults(results);
             this._handleEvents(this._physics.getEvents());
+            tickGroupDialogue(this._summoned, now);
         };
         this._animFrame = requestAnimationFrame(loop);
     }
