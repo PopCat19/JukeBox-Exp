@@ -51,6 +51,7 @@ export function spawnShiggy(onPop: () => void): SummonedShiggy {
         waypointTimer: 0,
         inConversation: false, convoPartner: null,
         convoTurn: 0, convoTimer: null,
+        battleTarget: null,
     };
 }
 

@@ -22,6 +22,7 @@ import {
     CONVO_PROXIMITY, CONVO_CHANCE,
 } from "./types";
 import { showNpcDialogue, positionDialogue, clearDialogue, forceEndConversation, startConversation } from "./dialogue";
+import { EventSystem } from "./events";
 
 export class CursorTracker {
     private _mouseBuffer: MouseSample[] = [];
@@ -40,6 +41,7 @@ export class CursorTracker {
     private _lineOverlay: SVGSVGElement;
     private _animFrame: number = 0;
     private _active: boolean = false;
+    private _events: EventSystem = new EventSystem();
 
     constructor() {
         this._lineOverlay = document.createElementNS("http://www.w3.org/2000/svg", "svg");
@@ -55,6 +57,7 @@ export class CursorTracker {
         this._mouseBuffer = [];
         this._prevCursorX = this._lastMouseX;
         this._prevCursorY = this._lastMouseY;
+        this._events.start(() => summoned);
         const loop = (): void => {
             if (!this._active) return;
             this._animFrame = requestAnimationFrame(loop);
@@ -65,6 +68,7 @@ export class CursorTracker {
 
     public stop(summoned: SummonedShiggy[]): void {
         this._active = false;
+        this._events.stop();
         cancelAnimationFrame(this._animFrame);
         for (const s of summoned) {
             s.following = false;
@@ -401,6 +405,9 @@ export class CursorTracker {
         const followerTensions = new Map<SummonedShiggy, number>();
 
         for (const s of summoned) {
+            // Events get first pass — they nudge but don't fully own the tick
+            this._events.tickEvent(s, summoned, now);
+
             if (s.inConversation) {
                 s.vx *= NPC_FRICTION;
                 s.vy *= NPC_FRICTION;
