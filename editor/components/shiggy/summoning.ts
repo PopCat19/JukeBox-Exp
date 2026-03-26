@@ -38,6 +38,7 @@ export function spawnShiggy(onPop: () => void): SummonedShiggy {
     return {
         img, gifTimer,
         following: false, followingSince: 0, exploring: false, exploreUntil: 0,
+        approaching: false,
         unfollowAt: 0, targetX: x, targetY: y,
         x, y, vx: 0, vy: 0,
         rotation: 0,

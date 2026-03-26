@@ -108,14 +108,16 @@ export class CursorTracker {
             const s = summoned[i];
             const wasExploring = s.exploring;
             const wasFollowing = s.following;
+            const wasApproaching = s.approaching ?? false;
 
             s.x = r.x;
             s.y = r.y;
             s.exploring = r.exploring;
             s.following = r.following;
+            s.approaching = r.approaching;
 
             // Handle state transitions
-            if (r.following && !wasFollowing) {
+            if ((r.following && !wasFollowing) || (r.approaching && !wasApproaching)) {
                 s.img.style.animation = "";
             } else if (!r.following && !r.exploring && (wasFollowing || wasExploring)) {
                 const fDur = 3 + Math.random() * 4;

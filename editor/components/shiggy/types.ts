@@ -11,6 +11,7 @@ export const SHIGGY_RADIUS = 28;
 export const FOLLOW_UNLOCK_PETS = 5;
 export const MAX_FOLLOWERS = 10;
 export const PROXIMITY_PX = 200;
+export const FOLLOW_PROXIMITY_PX = 80;
 export const DWELL_TIME_MS = 2000;
 export const MAX_FOLLOW_SPEED = 800;
 export const UNFOLLOW_YANK_PX_S = 1800;
@@ -55,6 +56,7 @@ export interface SummonedShiggy {
     followingSince: number;
     exploring: boolean;
     exploreUntil: number;
+    approaching: boolean;
     unfollowAt: number;
     targetX: number;
     targetY: number;

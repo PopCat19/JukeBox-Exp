@@ -14,7 +14,7 @@ import {
     CURSOR_RADIUS, CURSOR_MASS_TRANSFER,
     EXPLORE_CHANCE, EXPLORE_DURATION_MS, EXPLORE_MIN_FOLLOW_MS,
     UNFOLLOW_BUFFER_MS, MAX_FOLLOW_SPEED, UNFOLLOW_YANK_PX_S, MAX_FOLLOWERS,
-    PROXIMITY_PX, DWELL_TIME_MS, CONVO_PROXIMITY, CONVO_CHANCE,
+    PROXIMITY_PX, DWELL_TIME_MS, CONVO_PROXIMITY, CONVO_CHANCE, FOLLOW_PROXIMITY_PX,
 } from "./types";
 
 export interface PhysState {
@@ -34,6 +34,7 @@ export interface PhysState {
     facingRight: boolean;
     inConversation: boolean;
     tension: number;
+    approaching: boolean;
 }
 
 export interface PhysEvent {
@@ -51,6 +52,7 @@ export interface FrameResult {
     following: boolean;
     exploring: boolean;
     stressed: boolean;
+    approaching: boolean;
 }
 
 export class PhysicsEngine {
@@ -92,6 +94,7 @@ export class PhysicsEngine {
             facingRight: true,
             inConversation: false,
             tension: 0,
+            approaching: false,
         });
     }
 
@@ -169,6 +172,7 @@ export class PhysicsEngine {
                 following: s.following,
                 exploring: s.exploring,
                 stressed: s.unfollowAt > 0,
+                approaching: s.approaching,
             });
         }
         return results;
@@ -251,13 +255,49 @@ export class PhysicsEngine {
         const tooFast = this._mouseSpeed > MAX_FOLLOW_SPEED;
         let followerCount = 0;
         for (const st of this._states) { if (st.following) followerCount++; }
-        if (dwelling && !tooFast && followerCount < MAX_FOLLOWERS && fdist < PROXIMITY_PX) {
+        if (dwelling && !tooFast && followerCount < MAX_FOLLOWERS && fdist < FOLLOW_PROXIMITY_PX) {
+            s.approaching = true;
+        }
+    }
+
+    private _tickApproach(s: PhysState, now: number): void {
+        if (this._mouseSpeed > MAX_FOLLOW_SPEED) {
+            s.approaching = false;
+            return;
+        }
+
+        const cx = s.x + SHIGGY_SIZE / 2;
+        const cy = s.y + SHIGGY_SIZE / 2;
+        const dx = this._cursorX - cx;
+        const dy = this._cursorY - cy;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+
+        if (dist <= ROPE_SLACK) {
+            s.approaching = false;
             s.following = true;
             s.followingSince = now;
             s.unfollowAt = 0;
-            s.vx = 0;
-            s.vy = 0;
+            return;
         }
+
+        const nx = dx / dist;
+        const ny = dy / dist;
+        const targetSpeed = Math.min(dist * 0.06, 6);
+        s.vx += (nx * targetSpeed - s.vx) * 0.12;
+        s.vy += (ny * targetSpeed - s.vy) * 0.12;
+        this._clampVel(s);
+
+        s.x += s.vx;
+        s.y += s.vy;
+
+        const alpha = 0.08;
+        s.smoothVx += alpha * (s.vx - s.smoothVx);
+        s.smoothVy += alpha * (s.vy - s.smoothVy);
+        if (Math.abs(s.smoothVx) > 0.04) {
+            s.facingRight = s.smoothVx > 0;
+        }
+        s.rotation = this._lerpAngle(s.rotation, 0, 0.05);
+        this._collideViewport(s);
     }
 
     private _tickFollower(s: PhysState, idx: number, now: number): void {
@@ -377,6 +417,11 @@ export class PhysicsEngine {
 
         if (s.following) {
             this._tickFollower(s, idx, now);
+            return;
+        }
+
+        if (s.approaching) {
+            this._tickApproach(s, now);
             return;
         }
 
