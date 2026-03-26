@@ -8,7 +8,7 @@
 import {
     SHIGGY_SIZE, SHIGGY_HITBOX_RADIUS, ROPE_SLACK, ROPE_K, ROPE_DAMPING,
     ROPE_AXIAL_DAMPING, MAX_VEL, NPC_FRICTION, NPC_BOUNCE_ENERGY,
-    NPC_IDLE_SPEED, NPC_WAYPOINT_DIST_MIN, NPC_WAYPOINT_DIST_MAX,
+    NPC_IDLE_SPEED, NPC_WAYPOINT_DIST_MIN,
     NPC_WAYPOINT_MIN_MS, NPC_WAYPOINT_RAND_MS,
     NPC_IDLE_PAUSE_MIN_MS, NPC_IDLE_PAUSE_RAND_MS,
     CURSOR_RADIUS, CURSOR_MASS_TRANSFER,
@@ -203,13 +203,10 @@ export class PhysicsEngine {
 
     private _pickWaypoint(s: PhysState, now: number): void {
         const margin = SHIGGY_SIZE * 3;
-        const dist = NPC_WAYPOINT_DIST_MIN +
-            Math.random() * (NPC_WAYPOINT_DIST_MAX - NPC_WAYPOINT_DIST_MIN);
-        const angle = Math.random() * Math.PI * 2;
-        let wx = s.x + Math.cos(angle) * dist;
-        let wy = s.y + Math.sin(angle) * dist;
-        wx = Math.max(margin, Math.min(this._viewW - margin, wx));
-        wy = Math.max(margin, Math.min(this._viewH - margin, wy));
+        const safeW = this._viewW - margin * 2;
+        const safeH = this._viewH - margin * 2;
+        const wx = margin + Math.random() * safeW;
+        const wy = margin + Math.random() * safeH;
         s.waypointX = wx;
         s.waypointY = wy;
         s.waypointTimer = now + NPC_WAYPOINT_MIN_MS + Math.random() * NPC_WAYPOINT_RAND_MS;

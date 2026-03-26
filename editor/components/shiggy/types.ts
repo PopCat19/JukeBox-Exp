@@ -37,7 +37,6 @@ export const NPC_FRICTION = 0.99;
 export const NPC_BOUNCE_ENERGY = 0.75;
 export const NPC_IDLE_SPEED = 0.45;
 export const NPC_WAYPOINT_DIST_MIN = 60;
-export const NPC_WAYPOINT_DIST_MAX = 220;
 export const NPC_WAYPOINT_MIN_MS = 3000;
 export const NPC_WAYPOINT_RAND_MS = 3000;
 export const NPC_IDLE_PAUSE_MIN_MS = 500;
