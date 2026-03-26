@@ -130,6 +130,7 @@ export class CursorTracker {
 
             s.img.style.left = `${r.x}px`;
             s.img.style.top = `${r.y}px`;
+            s.img.style.zIndex = String(9999 + Math.round(r.y));
             s.img.style.scale = r.facingRight ? "-1 1" : "1 1";
             s.img.style.rotate = `${r.rotation.toFixed(1)}deg`;
             positionDialogue(s);
