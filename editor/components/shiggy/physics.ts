@@ -6,7 +6,7 @@
 // - Returns flat array of results for DOM applier
 
 import {
-    SHIGGY_SIZE, SHIGGY_RADIUS, ROPE_SLACK, ROPE_K, ROPE_DAMPING,
+    SHIGGY_SIZE, SHIGGY_HITBOX_RADIUS, ROPE_SLACK, ROPE_K, ROPE_DAMPING,
     ROPE_AXIAL_DAMPING, MAX_VEL, NPC_FRICTION, NPC_BOUNCE_ENERGY,
     NPC_IDLE_SPEED, NPC_WAYPOINT_DIST_MIN, NPC_WAYPOINT_DIST_MAX,
     NPC_WAYPOINT_MIN_MS, NPC_WAYPOINT_RAND_MS,
@@ -15,6 +15,7 @@ import {
     EXPLORE_CHANCE, EXPLORE_DURATION_MS, EXPLORE_MIN_FOLLOW_MS,
     UNFOLLOW_BUFFER_MS, MAX_FOLLOW_SPEED, UNFOLLOW_YANK_PX_S, MAX_FOLLOWERS,
     PROXIMITY_PX, DWELL_TIME_MS, CONVO_PROXIMITY, CONVO_CHANCE, FOLLOW_PROXIMITY_PX,
+    FOLLOW_OFFSET_X, FOLLOW_OFFSET_Y,
 } from "./types";
 
 export interface PhysState {
@@ -340,8 +341,10 @@ export class PhysicsEngine {
 
         const cx = s.x + SHIGGY_SIZE / 2;
         const cy = s.y + SHIGGY_SIZE / 2;
-        const dx = this._cursorX - cx;
-        const dy = this._cursorY - cy;
+        const targetX = this._cursorX + FOLLOW_OFFSET_X;
+        const targetY = this._cursorY + FOLLOW_OFFSET_Y;
+        const dx = targetX - cx;
+        const dy = targetY - cy;
         const dist = Math.sqrt(dx * dx + dy * dy);
 
         if (dist > ROPE_SLACK) {
@@ -436,7 +439,7 @@ export class PhysicsEngine {
                 const bx = b.x + SHIGGY_SIZE / 2, by = b.y + SHIGGY_SIZE / 2;
                 const dx = bx - ax, dy = by - ay;
                 const dist = Math.sqrt(dx * dx + dy * dy);
-                const minDist = SHIGGY_RADIUS * 2;
+                const minDist = SHIGGY_HITBOX_RADIUS * 2;
                 if (dist < minDist && dist > 0.01) {
                     const overlap = (minDist - dist) / 2;
                     const nx = dx / dist, ny = dy / dist;
@@ -462,7 +465,7 @@ export class PhysicsEngine {
             const sx = s.x + SHIGGY_SIZE / 2, sy = s.y + SHIGGY_SIZE / 2;
             const dx = sx - this._cursorX, dy = sy - this._cursorY;
             const dist = Math.sqrt(dx * dx + dy * dy);
-            const minDist = SHIGGY_RADIUS + CURSOR_RADIUS;
+            const minDist = SHIGGY_HITBOX_RADIUS + CURSOR_RADIUS;
             if (dist < minDist && dist > 0.01) {
                 const overlap = minDist - dist;
                 const nx = dx / dist, ny = dy / dist;

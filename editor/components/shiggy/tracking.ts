@@ -137,7 +137,8 @@ export class CursorTracker {
             if (r.following) {
                 this._drawLine(
                     r.x + SHIGGY_SIZE / 2, r.y + SHIGGY_SIZE / 2,
-                    this._lastMouseX, this._lastMouseY,
+                    this._lastMouseX,
+                    this._lastMouseY,
                     r.tension, r.stressed,
                 );
             }
