@@ -8,10 +8,12 @@
 import {
     SHIGGY_SIZE, SHIGGY_RADIUS, ROPE_SLACK, ROPE_K, ROPE_DAMPING,
     ROPE_AXIAL_DAMPING, MAX_VEL, NPC_FRICTION, NPC_BOUNCE_ENERGY,
-    NPC_IDLE_SPEED, NPC_WAYPOINT_DIST, NPC_WAYPOINT_MIN_MS, NPC_WAYPOINT_RAND_MS,
+    NPC_IDLE_SPEED, NPC_WAYPOINT_DIST_MIN, NPC_WAYPOINT_DIST_MAX,
+    NPC_WAYPOINT_MIN_MS, NPC_WAYPOINT_RAND_MS,
+    NPC_IDLE_PAUSE_MIN_MS, NPC_IDLE_PAUSE_RAND_MS,
     CURSOR_RADIUS, CURSOR_MASS_TRANSFER,
     EXPLORE_CHANCE, EXPLORE_DURATION_MS, EXPLORE_MIN_FOLLOW_MS,
-    UNFOLLOW_BUFFER_MS, MAX_FOLLOW_SPEED, MAX_FOLLOWERS,
+    UNFOLLOW_BUFFER_MS, MAX_FOLLOW_SPEED, UNFOLLOW_YANK_PX_S, MAX_FOLLOWERS,
     PROXIMITY_PX, DWELL_TIME_MS, OFFSET_RADIUS,
 } from "./types";
 
@@ -27,9 +29,11 @@ export interface PhysState {
     exploreUntil: number;
     waypointX: number; waypointY: number;
     waypointTimer: number;
+    pauseUntil: number;
     offsetAngle: number;
     offsetDist: number;
     cursorBias: number;
+    facingRight: boolean;
     inConversation: boolean;
 }
 
@@ -43,6 +47,7 @@ export interface FrameResult {
     x: number;
     y: number;
     rotation: number;
+    facingRight: boolean;
     tension: number;
     following: boolean;
     exploring: boolean;
@@ -83,9 +88,11 @@ export class PhysicsEngine {
             waypointX: Math.random() * this._viewW,
             waypointY: Math.random() * this._viewH,
             waypointTimer: 0,
+            pauseUntil: 0,
             offsetAngle: Math.random() * Math.PI * 2,
             offsetDist: OFFSET_RADIUS * (0.4 + Math.random() * 0.6),
             cursorBias: (Math.random() - 0.5) * 2,
+            facingRight: true,
             inConversation: false,
         });
     }
@@ -159,6 +166,7 @@ export class PhysicsEngine {
             results.push({
                 x: s.x, y: s.y,
                 rotation: s.rotation,
+                facingRight: s.facingRight,
                 tension: 0,
                 following: s.following,
                 exploring: s.exploring,
@@ -191,33 +199,55 @@ export class PhysicsEngine {
     }
 
     private _pickWaypoint(s: PhysState, now: number): void {
-        const margin = SHIGGY_SIZE;
-        s.waypointX = margin + Math.random() * (this._viewW - margin * 2);
-        s.waypointY = margin + Math.random() * (this._viewH - margin * 2);
+        const margin = SHIGGY_SIZE * 3;
+        const dist = NPC_WAYPOINT_DIST_MIN +
+            Math.random() * (NPC_WAYPOINT_DIST_MAX - NPC_WAYPOINT_DIST_MIN);
+        const angle = Math.random() * Math.PI * 2;
+        let wx = s.x + Math.cos(angle) * dist;
+        let wy = s.y + Math.sin(angle) * dist;
+        wx = Math.max(margin, Math.min(this._viewW - margin, wx));
+        wy = Math.max(margin, Math.min(this._viewH - margin, wy));
+        s.waypointX = wx;
+        s.waypointY = wy;
         s.waypointTimer = now + NPC_WAYPOINT_MIN_MS + Math.random() * NPC_WAYPOINT_RAND_MS;
+        s.pauseUntil = now + NPC_IDLE_PAUSE_MIN_MS + Math.random() * NPC_IDLE_PAUSE_RAND_MS;
     }
 
     private _tickIdle(s: PhysState, now: number): void {
         s.vx *= NPC_FRICTION;
         s.vy *= NPC_FRICTION;
-        const cx = s.x + SHIGGY_SIZE / 2;
-        const cy = s.y + SHIGGY_SIZE / 2;
-        const dx = s.waypointX - cx;
-        const dy = s.waypointY - cy;
-        const dist = Math.sqrt(dx * dx + dy * dy);
-        if (dist > NPC_WAYPOINT_DIST) {
-            s.vx += (dx / dist) * NPC_IDLE_SPEED * 0.02;
-            s.vy += (dy / dist) * NPC_IDLE_SPEED * 0.02;
-        } else if (now > s.waypointTimer) {
-            this._pickWaypoint(s, now);
+        if (now < s.pauseUntil) {
+            s.rotation = this._lerpAngle(s.rotation, 0, 0.06);
+            s.x += s.vx;
+            s.y += s.vy;
+            this._collideViewport(s);
+        } else {
+            const cx = s.x + SHIGGY_SIZE / 2;
+            const cy = s.y + SHIGGY_SIZE / 2;
+            const dx = s.waypointX - cx;
+            const dy = s.waypointY - cy;
+            const dist = Math.sqrt(dx * dx + dy * dy);
+            if (dist > NPC_WAYPOINT_DIST_MIN) {
+                s.vx += (dx / dist) * NPC_IDLE_SPEED * 0.02;
+                s.vy += (dy / dist) * NPC_IDLE_SPEED * 0.02;
+            } else if (now > s.waypointTimer) {
+                this._pickWaypoint(s, now);
+            }
+            s.rotation = this._lerpAngle(s.rotation, 0, 0.06);
+            s.x += s.vx;
+            s.y += s.vy;
+            this._collideViewport(s);
         }
-        s.rotation = this._lerpAngle(s.rotation, 0, 0.06);
-        s.x += s.vx;
-        s.y += s.vy;
-        this._collideViewport(s);
 
-        const fdx = this._cursorX - cx;
-        const fdy = this._cursorY - cy;
+        const alpha = 0.08;
+        s.smoothVx += alpha * (s.vx - s.smoothVx);
+        s.smoothVy += alpha * (s.vy - s.smoothVy);
+        if (Math.abs(s.smoothVx) > 0.15) {
+            s.facingRight = s.smoothVx > 0;
+        }
+
+        const fdx = this._cursorX - (s.x + SHIGGY_SIZE / 2);
+        const fdy = this._cursorY - (s.y + SHIGGY_SIZE / 2);
         const fdist = Math.sqrt(fdx * fdx + fdy * fdy);
         const dwelling = (now - this._dwellStart) > DWELL_TIME_MS;
         const tooFast = this._mouseSpeed > MAX_FOLLOW_SPEED;
@@ -227,8 +257,8 @@ export class PhysicsEngine {
             s.following = true;
             s.followingSince = now;
             s.unfollowAt = 0;
-            s.vx *= 0.5;
-            s.vy *= 0.5;
+            s.vx = 0;
+            s.vy = 0;
             s.offsetAngle = Math.random() * Math.PI * 2;
             s.offsetDist = OFFSET_RADIUS * (0.4 + Math.random() * 0.6);
         }
@@ -244,6 +274,16 @@ export class PhysicsEngine {
             s.vx += (Math.random() - 0.5) * 4;
             s.vy += (Math.random() - 0.5) * 4;
             this._events.push({ type: "explore", index: idx });
+            return 0;
+        }
+
+        const yanked = this._mouseSpeed > UNFOLLOW_YANK_PX_S;
+        if (yanked) {
+            s.following = false;
+            s.followingSince = 0;
+            s.unfollowAt = 0;
+            s.vx += (this._cursorVx * 0.4);
+            s.vy += (this._cursorVy * 0.4);
             return 0;
         }
 
@@ -273,8 +313,10 @@ export class PhysicsEngine {
             tension = Math.min(stretch / 160, 1);
             const nx = dx / dist;
             const ny = dy / dist;
-            s.vx += nx * stretch * ROPE_K;
-            s.vy += ny * stretch * ROPE_K;
+            const approachVel = s.vx * nx + s.vy * ny;
+            const springScale = Math.max(0, 1 - approachVel / MAX_VEL);
+            s.vx += nx * stretch * ROPE_K * springScale;
+            s.vy += ny * stretch * ROPE_K * springScale;
             const vel = s.vx * nx + s.vy * ny;
             s.vx -= nx * vel * ROPE_AXIAL_DAMPING;
             s.vy -= ny * vel * ROPE_AXIAL_DAMPING;
@@ -297,13 +339,10 @@ export class PhysicsEngine {
         const alpha = 0.08;
         s.smoothVx += alpha * (s.vx - s.smoothVx);
         s.smoothVy += alpha * (s.vy - s.smoothVy);
-        const smoothSpd = Math.sqrt(s.smoothVx ** 2 + s.smoothVy ** 2);
-        if (smoothSpd > 0.15) {
-            const angle = Math.atan2(s.smoothVy, s.smoothVx) * (180 / Math.PI) + 90;
-            s.rotation = this._lerpAngle(s.rotation, angle, 0.08 + tension * 0.08);
-        } else {
-            s.rotation = this._lerpAngle(s.rotation, 0, 0.04);
+        if (Math.abs(s.smoothVx) > 0.15) {
+            s.facingRight = s.smoothVx > 0;
         }
+        s.rotation = this._lerpAngle(s.rotation, 0, 0.05);
 
         return tension;
     }

@@ -13,6 +13,7 @@ export const MAX_FOLLOWERS = 10;
 export const PROXIMITY_PX = 200;
 export const DWELL_TIME_MS = 2000;
 export const MAX_FOLLOW_SPEED = 800;
+export const UNFOLLOW_YANK_PX_S = 1800;
 export const UNFOLLOW_BUFFER_MS = 800;
 export const TRACK_DELAY_MS = 25;
 export const OFFSET_RADIUS = 80;
@@ -20,8 +21,8 @@ export const OFFSET_RADIUS = 80;
 // Elastic rope physics
 export const ROPE_SLACK = 60;
 export const ROPE_K = 0.045;
-export const ROPE_DAMPING = 0.986;
-export const ROPE_AXIAL_DAMPING = 0.18;
+export const ROPE_DAMPING = 0.978;
+export const ROPE_AXIAL_DAMPING = 0.10;
 export const MAX_VEL = 18;
 
 // Collision
@@ -29,12 +30,16 @@ export const CURSOR_RADIUS = 16;
 export const CURSOR_MASS_TRANSFER = 0.6;
 
 // NPC movement (slow hockey puck)
-export const NPC_FRICTION = 0.992;
+export const NPC_FRICTION = 0.99;
 export const NPC_BOUNCE_ENERGY = 0.75;
-export const NPC_IDLE_SPEED = 0.4;
+export const NPC_IDLE_SPEED = 0.45;
 export const NPC_WAYPOINT_DIST = 40;
-export const NPC_WAYPOINT_MIN_MS = 6000;
-export const NPC_WAYPOINT_RAND_MS = 5000;
+export const NPC_WAYPOINT_DIST_MIN = 60;
+export const NPC_WAYPOINT_DIST_MAX = 220;
+export const NPC_WAYPOINT_MIN_MS = 3000;
+export const NPC_WAYPOINT_RAND_MS = 3000;
+export const NPC_IDLE_PAUSE_MIN_MS = 500;
+export const NPC_IDLE_PAUSE_RAND_MS = 1500;
 export const EXPLORE_CHANCE = 0.00015;
 export const EXPLORE_DURATION_MS = 8000;
 export const EXPLORE_MIN_FOLLOW_MS = 12000;
