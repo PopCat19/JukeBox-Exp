@@ -6,8 +6,8 @@
 // - Applies results to DOM (style.left, style.transform, SVG lines)
 
 import { SummonedShiggy, SHIGGY_SIZE } from "./types";
-import { positionDialogue, clearDialogue, forceEndConversation } from "./dialogue";
-import { PhysicsEngine, FrameResult } from "./physics";
+import { positionDialogue, clearDialogue, forceEndConversation, showNpcDialogue, startConversation } from "./dialogue";
+import { PhysicsEngine, FrameResult, PhysEvent } from "./physics";
 
 export class CursorTracker {
     private _physics: PhysicsEngine = new PhysicsEngine();
@@ -61,8 +61,15 @@ export class CursorTracker {
             if (!this._active) return;
             this._animFrame = requestAnimationFrame(loop);
             const now = performance.now();
+
+            // Sync conversation state from DOM back to physics
+            for (let i = 0; i < this._summoned.length; i++) {
+                this._physics.setConversation(i, this._summoned[i].inConversation);
+            }
+
             const results = this._physics.tick(now);
             this._applyResults(results);
+            this._handleEvents(this._physics.getEvents());
         };
         this._animFrame = requestAnimationFrame(loop);
     }
@@ -99,9 +106,25 @@ export class CursorTracker {
         for (let i = 0; i < results.length && i < summoned.length; i++) {
             const r = results[i];
             const s = summoned[i];
+            const wasExploring = s.exploring;
+            const wasFollowing = s.following;
 
             s.x = r.x;
             s.y = r.y;
+            s.exploring = r.exploring;
+            s.following = r.following;
+
+            // Handle state transitions
+            if (r.following && !wasFollowing) {
+                s.img.style.animation = "";
+            } else if (!r.following && !r.exploring && (wasFollowing || wasExploring)) {
+                const fDur = 3 + Math.random() * 4;
+                const wDur = 4 + Math.random() * 3;
+                s.img.style.animation = `shiggy-float ${fDur}s ease-in-out infinite, shiggy-wobble ${wDur}s ease-in-out infinite`;
+            }
+            if (r.exploring && !wasExploring) {
+                s.img.style.animation = "";
+            }
 
             s.img.style.left = `${r.x}px`;
             s.img.style.top = `${r.y}px`;
@@ -144,6 +167,30 @@ export class CursorTracker {
             line.setAttribute("opacity", "0.3");
         }
         this._lineOverlay.appendChild(line);
+    }
+
+    private _handleEvents(events: PhysEvent[]): void {
+        const summoned = this._summoned;
+        for (const ev of events) {
+            switch (ev.type) {
+                case "explore": {
+                    const s = summoned[ev.index];
+                    if (s) showNpcDialogue(s);
+                    break;
+                }
+                case "collision": {
+                    const s = summoned[ev.index];
+                    if (s) showNpcDialogue(s);
+                    break;
+                }
+                case "conversation": {
+                    const a = summoned[ev.index];
+                    const b = ev.partner !== undefined ? summoned[ev.partner] : undefined;
+                    if (a && b) startConversation(a, b);
+                    break;
+                }
+            }
+        }
     }
 
     private _clearLines(): void {

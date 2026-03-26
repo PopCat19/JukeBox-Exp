@@ -33,6 +33,12 @@ export interface PhysState {
     inConversation: boolean;
 }
 
+export interface PhysEvent {
+    type: "explore" | "collision" | "conversation";
+    index: number;
+    partner?: number;
+}
+
 export interface FrameResult {
     x: number;
     y: number;
@@ -57,6 +63,11 @@ export class PhysicsEngine {
     private _dwellStart = 0;
     private _viewW = 800;
     private _viewH = 600;
+    private _events: PhysEvent[] = [];
+
+    public getEvents(): PhysEvent[] {
+        return this._events.splice(0);
+    }
 
     public resize(w: number, h: number): void {
         this._viewW = w;
@@ -109,14 +120,40 @@ export class PhysicsEngine {
     }
 
     public tick(now: number): FrameResult[] {
+        this._events.length = 0;
         for (let i = 0; i < this._states.length; i++) {
-            this._tickOne(this._states[i], now);
+            this._tickOne(this._states[i], i, now);
         }
         this._collideAll();
         this._collideCursor();
         for (const s of this._states) {
             this._collideViewport(s);
         }
+
+        // NPC-to-NPC conversations
+        for (let i = 0; i < this._states.length; i++) {
+            const a = this._states[i];
+            if (a.inConversation || a.following || a.exploring) continue;
+            if (Math.random() > 0.002) continue;
+            for (let j = i + 1; j < this._states.length; j++) {
+                const b = this._states[j];
+                if (b.inConversation || b.following || b.exploring) continue;
+                const dx = a.x - b.x;
+                const dy = a.y - b.y;
+                const dist = Math.sqrt(dx * dx + dy * dy);
+                if (dist < 100) {
+                    a.vx += dx > 0 ? -0.15 : 0.15;
+                    a.vy += dy > 0 ? -0.15 : 0.15;
+                    b.vx += dx > 0 ? 0.15 : -0.15;
+                    b.vy += dy > 0 ? 0.15 : -0.15;
+                    a.inConversation = true;
+                    b.inConversation = true;
+                    this._events.push({ type: "conversation", index: i, partner: j });
+                    break;
+                }
+            }
+        }
+
         const results: FrameResult[] = [];
         for (const s of this._states) {
             results.push({
@@ -197,7 +234,7 @@ export class PhysicsEngine {
         }
     }
 
-    private _tickFollower(s: PhysState, now: number): number {
+    private _tickFollower(s: PhysState, idx: number, now: number): number {
         const followDuration = now - s.followingSince;
         if (followDuration > EXPLORE_MIN_FOLLOW_MS && Math.random() < EXPLORE_CHANCE) {
             s.following = false;
@@ -206,6 +243,7 @@ export class PhysicsEngine {
             s.exploreUntil = now + EXPLORE_DURATION_MS * (0.5 + Math.random());
             s.vx += (Math.random() - 0.5) * 4;
             s.vy += (Math.random() - 0.5) * 4;
+            this._events.push({ type: "explore", index: idx });
             return 0;
         }
 
@@ -270,7 +308,7 @@ export class PhysicsEngine {
         return tension;
     }
 
-    private _tickOne(s: PhysState, now: number): void {
+    private _tickOne(s: PhysState, idx: number, now: number): void {
         if (s.inConversation) {
             s.vx *= NPC_FRICTION;
             s.vy *= NPC_FRICTION;
@@ -299,7 +337,7 @@ export class PhysicsEngine {
         }
 
         if (s.following) {
-            this._tickFollower(s, now);
+            this._tickFollower(s, idx, now);
             return;
         }
 
@@ -325,6 +363,9 @@ export class PhysicsEngine {
                     if (dot > 0) {
                         a.vx -= dot * nx * 0.5; a.vy -= dot * ny * 0.5;
                         b.vx += dot * nx * 0.5; b.vy += dot * ny * 0.5;
+                        if (dot > 1.5 && Math.random() < 0.4) {
+                            this._events.push({ type: "collision", index: Math.random() < 0.5 ? i : j });
+                        }
                     }
                 }
             }
