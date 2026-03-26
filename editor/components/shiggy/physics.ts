@@ -418,13 +418,13 @@ export class PhysicsEngine {
             return;
         }
 
-        if (s.following) {
-            this._tickFollower(s, idx, now);
+        if (s.approaching) {
+            this._tickApproach(s, now);
             return;
         }
 
-        if (s.approaching) {
-            this._tickApproach(s, now);
+        if (s.following) {
+            this._tickFollower(s, idx, now);
             return;
         }
 
@@ -461,7 +461,7 @@ export class PhysicsEngine {
 
     private _collideCursor(): void {
         for (const s of this._states) {
-            if (s.following) continue;
+            if (s.following || s.approaching) continue;
             const sx = s.x + SHIGGY_SIZE / 2, sy = s.y + SHIGGY_SIZE / 2;
             const dx = sx - this._cursorX, dy = sy - this._cursorY;
             const dist = Math.sqrt(dx * dx + dy * dy);
