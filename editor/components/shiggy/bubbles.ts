@@ -10,17 +10,14 @@ import { SummonedShiggy, SHIGGY_SIZE } from "./types";
 // ─── Line pools ───────────────────────────────────────────────────────────────
 
 export const NPC_LINES: string[] = [
-    "boing~",
     "shiggy...",
     "*wiggles*",
     "ぴょん！",
     "wheee~",
     "*squeak*",
-    "bouncy bouncy",
     "ふわふわ〜",
     "shiggy go?",
     "*spins*",
-    "boing boing boing",
     "*happy noise*",
     "しぎぃ",
     "soft...",
@@ -32,60 +29,48 @@ export const NPC_LINES: string[] = [
     "here here!",
     "ねむい…",
     "*taps*",
-    "boing?",
     "ぴよ〜",
 ];
 
 export const CONVO_EXCHANGES: [string, string][] = [
-    ["boing?", "boing!!"],
     ["shiggy~", "shiggy shiggy~"],
     ["*wiggles at you*", "*wiggles back*"],
-    ["you bounce good", "no YOU bounce good"],
     ["ねえねえ", "なに？"],
     ["*bonk*", "*bonk bonk*"],
     ["where cursor go", "cursor is everywhere"],
-    ["feel the boing", "i AM the boing"],
     ["しぎぃ？", "しぎぃ！！"],
     ["*happy wiggle*", "*happier wiggle*"],
     ["ふわ〜", "ふわふわ〜"],
     ["*squeak squeak*", "*squeak*"],
     ["soft friend?", "soft forever"],
     ["*nuzzle*", "*nuzzle nuzzle*"],
-    ["bounce with me", "always~"],
     ["ぷに", "ぷにぷに！"],
     ["*looks at cursor*", "*also looks at cursor*"],
     ["shiggy power grows", "shiggy infinite"],
 ];
 
 export const CONVO_RESPONSES: [string, string][] = [
-    ["boing!", "BOING!"],
     ["*wiggles more*", "*wiggles even more*"],
     ["しぎぃ", "しぎぃしぎぃ"],
     ["*happy squeak*", "*happier squeak*"],
     ["yes yes~", "more more~"],
-    ["*bounces*", "*bounces harder*"],
     ["ふわ！", "ふわふわ！！"],
 ];
 
 export const GROUP_LINES: string[] = [
-    "BOING BOING BOING",
     "shiggy convergence!!",
     "ぴょんぴょんぴょん！！！",
     "we are many~",
     "*mass wiggling*",
     "shiggy festival!!",
     "しぎぃしぎぃしぎぃ！！！",
-    "*synchronized bouncing*",
-    "the boing multiplies",
     "ふわふわふわ〜〜〜〜〜",
     "shiggy swarm activated",
     "*everyone wiggles*",
-    "ALL SHIGGY. ALL BOING.",
     "ぷにぷにぷにぷに！！",
     "*group squeak*",
     "shiggy union!!",
     "convergence complete~",
-    "we bounce as one",
 ];
 
 export const PET_MESSAGES: string[] = [
@@ -93,8 +78,6 @@ export const PET_MESSAGES: string[] = [
     "a gentle warmth emanates from the shiggy",
     "ふわふわ... the shiggy is pleased",
     "you are blessed by the shiggy's grace",
-    "the shiggy whispers ancient boing wisdom",
-    "しぎぃ your touch pleases the shiggy",
     "the shiggy bestows upon you serenity",
     "a soft energy flows through the shiggy",
     "the shiggy recognizes your sincerity",
