@@ -2,7 +2,7 @@
 //
 // Purpose: Main Shiggy class - orchestrates shiggy system
 // - Sidebar toggle with pettable shiggy image
-// - Pet counter and message display
+// - Pet counter, message display, and release button
 // - Delegates tracking, summoning, dialogue, and audio to submodules
 
 import {
@@ -21,6 +21,7 @@ export class Shiggy {
     private readonly _toggle: HTMLDivElement;
     private readonly _petDisplay: HTMLDivElement;
     private readonly _counter: HTMLDivElement;
+    private readonly _releaseBtn: HTMLDivElement;
     private _petCount: number = 0;
     private _autoSpawnUnlocked: boolean = false;
     private _isPetting: boolean = false;
@@ -79,10 +80,16 @@ export class Shiggy {
         this._counter = document.createElement("div");
         this._counter.style.cssText = "font-size: 10px; color: var(--secondary-text); opacity: 0; transition: opacity 0.3s; min-height: 1.2em;";
 
+        this._releaseBtn = document.createElement("div");
+        this._releaseBtn.textContent = "release one";
+        this._releaseBtn.style.cssText = "font-size: 10px; color: var(--secondary-text); cursor: pointer; opacity: 0; transition: opacity 0.3s; margin-top: 2px; user-select: none;";
+        this._releaseBtn.onclick = () => this._releaseOne();
+
         this._toggle.appendChild(label);
         this._toggle.appendChild(this._img);
         this._toggle.appendChild(this._petDisplay);
         this._toggle.appendChild(this._counter);
+        this._toggle.appendChild(this._releaseBtn);
     }
 
     public get container(): HTMLDivElement {
@@ -95,6 +102,7 @@ export class Shiggy {
             this._img.style.opacity = "1";
             this._img.style.animation = "shiggy-enter 0.3s ease-out both, shiggy-bounce 1.5s ease-in-out 0.1s infinite, shiggy-rock 2s ease-in-out 0s infinite";
             this._counter.style.opacity = "1";
+            this._releaseBtn.style.opacity = "1";
             this._updateCounter();
             this._gifTimer = startGifRestart(this._img, this._summoned);
             this._audio.playSfx("shiggy-summon");
@@ -106,6 +114,7 @@ export class Shiggy {
             this._autoSpawnUnlocked = false;
             this._counter.style.opacity = "0";
             this._counter.textContent = "";
+            this._releaseBtn.style.opacity = "0";
             this._petDisplay.textContent = "";
             this._tracker.stop(this._summoned);
             this._stopGifRestart();
@@ -137,7 +146,7 @@ export class Shiggy {
 
         if (this._petCount % PET_SUMMON_THRESHOLD === 0) {
             this._audio.playSfx("shiggy-blessing");
-            this._summoned.push(spawnShiggy(() => this._audio.playSfx("shiggy-pop")));
+            this._spawnOne();
         }
 
         if (!this._autoSpawnUnlocked && this._petCount >= AUTO_SPAWN_MILESTONE) {
@@ -152,6 +161,20 @@ export class Shiggy {
 
     public get active(): boolean {
         return this._active;
+    }
+
+    private _spawnOne(): void {
+        const s = spawnShiggy(() => this._audio.playSfx("shiggy-pop"));
+        this._summoned.push(s);
+        this._tracker.addShiggy(s);
+        this._releaseBtn.style.opacity = this._summoned.length > 0 ? "1" : "0";
+    }
+
+    private _releaseOne(): void {
+        if (!this._active || this._summoned.length === 0) return;
+        this._tracker.releaseOne(this._summoned, this._summoned.length - 1);
+        this._updateCounter();
+        this._releaseBtn.style.opacity = this._summoned.length > 0 ? "1" : "0";
     }
 
     private _updateCounter(): void {
@@ -169,7 +192,7 @@ export class Shiggy {
         this._stopAutoSpawn();
         this._autoSpawnTimer = setInterval(() => {
             if (!this._active) return;
-            this._summoned.push(spawnShiggy(() => this._audio.playSfx("shiggy-pop")));
+            this._spawnOne();
         }, AUTO_SPAWN_MS);
     }
 

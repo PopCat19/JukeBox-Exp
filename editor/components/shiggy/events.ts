@@ -25,8 +25,11 @@ export class EventSystem {
     private _current: ShiggyEvent | null = null;
     private _checkTimer: ReturnType<typeof setInterval> | null = null;
 
-    public start(getSummoned: () => SummonedShiggy[]): void {
+    private _onFire: ((event: string | null, endsAt: number, congaChain?: number[]) => void) | null = null;
+
+    public start(getSummoned: () => SummonedShiggy[], onFire?: (event: string | null, endsAt: number, congaChain?: number[]) => void): void {
         this.stop();
+        this._onFire = onFire ?? null;
         this._checkTimer = setInterval(() => {
             const summoned = getSummoned();
             if (this._current) return;
@@ -105,6 +108,14 @@ export class EventSystem {
 
         this._current = event;
 
+        // Notify worker
+        if (this._onFire) {
+            const congaIndices = event.congaChain
+                ? event.congaChain.map(s => summoned.indexOf(s)).filter(i => i >= 0)
+                : [];
+            this._onFire(type, event.endsAt, congaIndices);
+        }
+
         setTimeout(() => {
             this._end(summoned);
         }, EVENT_DURATION_MS);
@@ -116,6 +127,9 @@ export class EventSystem {
             s.battleTarget = null;
         }
         this._current = null;
+        if (this._onFire) {
+            this._onFire(null, 0, []);
+        }
     }
 
     public tickEvent(

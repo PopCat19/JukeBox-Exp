@@ -94,6 +94,7 @@ export interface SummonedShiggy {
     convoTurn: number;
     convoTimer: ReturnType<typeof setTimeout> | null;
     battleTarget: SummonedShiggy | null;
+    isNapping: boolean;
 }
 
 export interface MouseSample {

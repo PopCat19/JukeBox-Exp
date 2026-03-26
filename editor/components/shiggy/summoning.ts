@@ -52,6 +52,7 @@ export function spawnShiggy(onPop: () => void): SummonedShiggy {
         inConversation: false, convoPartner: null,
         convoTurn: 0, convoTimer: null,
         battleTarget: null,
+        isNapping: false,
     };
 }
 
