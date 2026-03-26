@@ -99,7 +99,7 @@ function makeBubble(text: string, duration: number): HTMLDivElement {
     const bubble = document.createElement("div");
     bubble.textContent = text;
     bubble.style.cssText = `
-        position: fixed; z-index: 10001; pointer-events: none;
+        position: fixed; pointer-events: none;
         font-family: 'Varela', 'Trebuchet MS', sans-serif;
         font-size: 10px; color: var(--primary-text, white);
         background: var(--ui-widget-background, #444);
@@ -119,6 +119,9 @@ function positionBubble(bubble: HTMLDivElement, x: number, y: number): void {
 export function positionDialogue(s: SummonedShiggy): void {
     if (!s.dialogue) return;
     positionBubble(s.dialogue, s.x, s.y);
+    s.dialogue.style.zIndex = String(
+        parseInt(s.img.style.zIndex || "9999", 10) + 1,
+    );
 }
 
 export function clearDialogue(s: SummonedShiggy): void {
