@@ -45,26 +45,6 @@ export const CONVO_CHANCE = 0.002;
 export const CONVO_LINE_INTERVAL = 2200;
 export const CONVO_LINES = 4;
 
-// Events
-export const EVENT_MIN_SHIGGYS = 3;
-export const EVENT_CHECK_INTERVAL_MS = 15000;
-export const EVENT_CHANCE = 0.4;
-export const EVENT_DURATION_MS = 8000;
-
-export type ShiggyEventType =
-    | "zoomies"
-    | "gravitywell"
-    | "conga"
-    | "battleroyale"
-    | "nap";
-
-export interface ShiggyEvent {
-    type: ShiggyEventType;
-    startedAt: number;
-    endsAt: number;
-    congaChain?: SummonedShiggy[];
-}
-
 export interface SummonedShiggy {
     img: HTMLImageElement;
     gifTimer: ReturnType<typeof setInterval>;
@@ -93,8 +73,6 @@ export interface SummonedShiggy {
     convoPartner: SummonedShiggy | null;
     convoTurn: number;
     convoTimer: ReturnType<typeof setTimeout> | null;
-    battleTarget: SummonedShiggy | null;
-    isNapping: boolean;
 }
 
 export interface MouseSample {

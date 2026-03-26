@@ -3,7 +3,6 @@
 		"rootDir": "./",
 		"outDir": "build",
 		"target": "es6",
-		"module": "es2020",
 		"moduleResolution": "node",
 		"sourceMap": true,
 		"skipLibCheck": true,
