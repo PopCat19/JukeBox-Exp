@@ -128,8 +128,8 @@ export class CursorTracker {
 
             s.img.style.left = `${r.x}px`;
             s.img.style.top = `${r.y}px`;
-            const mirror = r.facingRight ? "scaleX(-1)" : "";
-            s.img.style.transform = `${mirror} rotate(${r.rotation.toFixed(1)}deg)`;
+            s.img.style.scale = r.facingRight ? "-1 1" : "1 1";
+            s.img.style.rotate = `${r.rotation.toFixed(1)}deg`;
             positionDialogue(s);
 
             if (r.following) {

@@ -15,7 +15,6 @@ export const DWELL_TIME_MS = 2000;
 export const MAX_FOLLOW_SPEED = 800;
 export const UNFOLLOW_YANK_PX_S = 1800;
 export const UNFOLLOW_BUFFER_MS = 800;
-export const TRACK_DELAY_MS = 25;
 export const OFFSET_RADIUS = 80;
 
 // Elastic rope physics
@@ -33,7 +32,6 @@ export const CURSOR_MASS_TRANSFER = 0.6;
 export const NPC_FRICTION = 0.99;
 export const NPC_BOUNCE_ENERGY = 0.75;
 export const NPC_IDLE_SPEED = 0.45;
-export const NPC_WAYPOINT_DIST = 40;
 export const NPC_WAYPOINT_DIST_MIN = 60;
 export const NPC_WAYPOINT_DIST_MAX = 220;
 export const NPC_WAYPOINT_MIN_MS = 3000;

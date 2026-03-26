@@ -14,7 +14,7 @@ import {
     CURSOR_RADIUS, CURSOR_MASS_TRANSFER,
     EXPLORE_CHANCE, EXPLORE_DURATION_MS, EXPLORE_MIN_FOLLOW_MS,
     UNFOLLOW_BUFFER_MS, MAX_FOLLOW_SPEED, UNFOLLOW_YANK_PX_S, MAX_FOLLOWERS,
-    PROXIMITY_PX, DWELL_TIME_MS, OFFSET_RADIUS,
+    PROXIMITY_PX, DWELL_TIME_MS, CONVO_PROXIMITY, CONVO_CHANCE,
 } from "./types";
 
 export interface PhysState {
@@ -30,11 +30,10 @@ export interface PhysState {
     waypointX: number; waypointY: number;
     waypointTimer: number;
     pauseUntil: number;
-    offsetAngle: number;
-    offsetDist: number;
     cursorBias: number;
     facingRight: boolean;
     inConversation: boolean;
+    tension: number;
 }
 
 export interface PhysEvent {
@@ -89,11 +88,10 @@ export class PhysicsEngine {
             waypointY: Math.random() * this._viewH,
             waypointTimer: 0,
             pauseUntil: 0,
-            offsetAngle: Math.random() * Math.PI * 2,
-            offsetDist: OFFSET_RADIUS * (0.4 + Math.random() * 0.6),
             cursorBias: (Math.random() - 0.5) * 2,
             facingRight: true,
             inConversation: false,
+            tension: 0,
         });
     }
 
@@ -141,14 +139,14 @@ export class PhysicsEngine {
         for (let i = 0; i < this._states.length; i++) {
             const a = this._states[i];
             if (a.inConversation || a.following || a.exploring) continue;
-            if (Math.random() > 0.002) continue;
+            if (Math.random() > CONVO_CHANCE) continue;
             for (let j = i + 1; j < this._states.length; j++) {
                 const b = this._states[j];
                 if (b.inConversation || b.following || b.exploring) continue;
                 const dx = a.x - b.x;
                 const dy = a.y - b.y;
                 const dist = Math.sqrt(dx * dx + dy * dy);
-                if (dist < 100) {
+                if (dist < CONVO_PROXIMITY) {
                     a.vx += dx > 0 ? -0.15 : 0.15;
                     a.vy += dy > 0 ? -0.15 : 0.15;
                     b.vx += dx > 0 ? 0.15 : -0.15;
@@ -167,7 +165,7 @@ export class PhysicsEngine {
                 x: s.x, y: s.y,
                 rotation: s.rotation,
                 facingRight: s.facingRight,
-                tension: 0,
+                tension: s.tension,
                 following: s.following,
                 exploring: s.exploring,
                 stressed: s.unfollowAt > 0,
@@ -242,7 +240,7 @@ export class PhysicsEngine {
         const alpha = 0.08;
         s.smoothVx += alpha * (s.vx - s.smoothVx);
         s.smoothVy += alpha * (s.vy - s.smoothVy);
-        if (Math.abs(s.smoothVx) > 0.15) {
+        if (Math.abs(s.smoothVx) > 0.04) {
             s.facingRight = s.smoothVx > 0;
         }
 
@@ -259,12 +257,11 @@ export class PhysicsEngine {
             s.unfollowAt = 0;
             s.vx = 0;
             s.vy = 0;
-            s.offsetAngle = Math.random() * Math.PI * 2;
-            s.offsetDist = OFFSET_RADIUS * (0.4 + Math.random() * 0.6);
         }
     }
 
-    private _tickFollower(s: PhysState, idx: number, now: number): number {
+    private _tickFollower(s: PhysState, idx: number, now: number): void {
+        s.tension = 0;
         const followDuration = now - s.followingSince;
         if (followDuration > EXPLORE_MIN_FOLLOW_MS && Math.random() < EXPLORE_CHANCE) {
             s.following = false;
@@ -274,7 +271,7 @@ export class PhysicsEngine {
             s.vx += (Math.random() - 0.5) * 4;
             s.vy += (Math.random() - 0.5) * 4;
             this._events.push({ type: "explore", index: idx });
-            return 0;
+            return;
         }
 
         const yanked = this._mouseSpeed > UNFOLLOW_YANK_PX_S;
@@ -284,7 +281,7 @@ export class PhysicsEngine {
             s.unfollowAt = 0;
             s.vx += (this._cursorVx * 0.4);
             s.vy += (this._cursorVy * 0.4);
-            return 0;
+            return;
         }
 
         const tooFast = this._mouseSpeed > MAX_FOLLOW_SPEED;
@@ -295,7 +292,7 @@ export class PhysicsEngine {
                 s.following = false;
                 s.followingSince = 0;
                 s.unfollowAt = 0;
-                return 0;
+                return;
             }
         } else {
             s.unfollowAt = 0;
@@ -306,11 +303,10 @@ export class PhysicsEngine {
         const dx = this._cursorX - cx;
         const dy = this._cursorY - cy;
         const dist = Math.sqrt(dx * dx + dy * dy);
-        let tension = 0;
 
         if (dist > ROPE_SLACK) {
             const stretch = dist - ROPE_SLACK;
-            tension = Math.min(stretch / 160, 1);
+            s.tension = Math.min(stretch / 160, 1);
             const nx = dx / dist;
             const ny = dy / dist;
             const approachVel = s.vx * nx + s.vy * ny;
@@ -339,12 +335,10 @@ export class PhysicsEngine {
         const alpha = 0.08;
         s.smoothVx += alpha * (s.vx - s.smoothVx);
         s.smoothVy += alpha * (s.vy - s.smoothVy);
-        if (Math.abs(s.smoothVx) > 0.15) {
+        if (Math.abs(s.smoothVx) > 0.04) {
             s.facingRight = s.smoothVx > 0;
         }
         s.rotation = this._lerpAngle(s.rotation, 0, 0.05);
-
-        return tension;
     }
 
     private _tickOne(s: PhysState, idx: number, now: number): void {
@@ -371,6 +365,12 @@ export class PhysicsEngine {
             }
             s.x += s.vx;
             s.y += s.vy;
+            const alpha = 0.08;
+            s.smoothVx += alpha * (s.vx - s.smoothVx);
+            s.smoothVy += alpha * (s.vy - s.smoothVy);
+            if (Math.abs(s.smoothVx) > 0.04) {
+                s.facingRight = s.smoothVx > 0;
+            }
             this._collideViewport(s);
             return;
         }
@@ -422,10 +422,12 @@ export class PhysicsEngine {
                 const overlap = minDist - dist;
                 const nx = dx / dist, ny = dy / dist;
                 s.x += nx * overlap; s.y += ny * overlap;
-                s.vx += this._cursorVx * CURSOR_MASS_TRANSFER;
-                s.vy += this._cursorVy * CURSOR_MASS_TRANSFER;
-                const dot = s.vx * nx + s.vy * ny;
-                if (dot < 0) { s.vx -= dot * nx * 1.5; s.vy -= dot * ny * 1.5; }
+                const cursorNormal =
+                    this._cursorVx * nx + this._cursorVy * ny;
+                if (cursorNormal > 0) {
+                    s.vx += nx * cursorNormal * CURSOR_MASS_TRANSFER;
+                    s.vy += ny * cursorNormal * CURSOR_MASS_TRANSFER;
+                }
             }
         }
     }
