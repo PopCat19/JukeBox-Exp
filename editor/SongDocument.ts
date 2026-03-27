@@ -129,9 +129,9 @@ export class SongDocument {
         for (const eventName of ["change", "click", "keyup", "mousedown", "mouseup", "touchstart", "touchmove", "touchend", "touchcancel"]) {
             window.addEventListener(eventName, this._cleanDocument);
         }
-        for (const eventName of ["keydown", "input", "mousemove"]) {
-            window.addEventListener(eventName, this._cleanDocumentIfNotRecordingMods);
-        }
+        window.addEventListener("keydown", this._cleanDocumentIfNotRecordingMods);
+        window.addEventListener("input", this._cleanDocumentIfNotRecordingMods);
+        window.addEventListener("mousemove", this._cleanDocumentDeferred);
 
         this._validateDocState();
         this.performance = new SongPerformance(this);
@@ -288,7 +288,19 @@ export class SongDocument {
         else {
             this.modRecordingHandler();
         }
+    }
 
+    private _cleanDocumentPending = false;
+    private _cleanDocumentDeferred = (): void => {
+        if (this._cleanDocumentPending) return;
+        this._cleanDocumentPending = true;
+        requestAnimationFrame(() => {
+            this._cleanDocumentPending = false;
+            if (!this.recordingModulators)
+                this.notifier.notifyWatchers();
+            else
+                this.modRecordingHandler();
+        });
     }
 
     private _validateDocState = (): void => {
