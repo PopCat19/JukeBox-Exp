@@ -11,7 +11,7 @@ import { HTML } from "imperative-html/dist/esm/elements-strict";
 import { SongDocument } from "../SongDocument";
 import { Prompt } from "./Prompt";
 
-const { div, input, button, h2, table, tr, td } = HTML;
+const { div, input, button, span, h2 } = HTML;
 
 interface ShortcutEntry {
     key: string;
@@ -174,7 +174,7 @@ export class KeyboardShortcutsPrompt implements Prompt {
 
         this.container = div({
             class: "prompt",
-            style: "width: 480px; text-align: left; max-height: 90%;",
+            style: "max-width: 480px; width: 90vw; text-align: left; max-height: 90%;",
         },
             h2("Keyboard Shortcuts"),
             this._searchInput,
@@ -213,21 +213,26 @@ export class KeyboardShortcutsPrompt implements Prompt {
 
             if (filtered.length == 0) continue;
 
+            const group = div({ style: "margin-bottom: 8px;" });
             const categoryHeader = div({
-                style: "font-weight: bold; margin-top: 10px; margin-bottom: 4px; font-size: 13px; color: var(--primary-text);",
+                style: "font-weight: bold; margin-bottom: 2px; font-size: 13px; color: var(--primary-text);",
             }, category.name);
-            this._listContainer.appendChild(categoryHeader);
+            group.appendChild(categoryHeader);
 
-            const tbl = table({ style: "width: 100%; border-collapse: collapse;" });
+            let rowIdx: number = 0;
             for (const entry of filtered) {
                 const keyCombo = entry.mods ? entry.mods + " + " + entry.key : entry.key;
-                const row = tr(
-                    td({ style: "padding: 2px 12px 2px 0; white-space: nowrap; font-family: monospace; font-size: 12px; color: var(--secondary-text);" }, keyCombo),
-                    td({ style: "padding: 2px 0; font-size: 12px;" }, entry.desc),
+                const bgColor: string = (rowIdx % 2 == 0) ? "transparent" : "rgba(128,128,128,0.1)";
+                const row = div({
+                    style: `display: flex; align-items: baseline; gap: 12px; padding: 3px 8px; background: ${bgColor};`,
+                },
+                    span({ style: "font-family: monospace; font-size: 12px; color: var(--secondary-text); white-space: nowrap; min-width: 120px; text-align: right;" }, keyCombo),
+                    span({ style: "font-size: 12px;" }, entry.desc),
                 );
-                tbl.appendChild(row);
+                group.appendChild(row);
+                rowIdx++;
             }
-            this._listContainer.appendChild(tbl);
+            this._listContainer.appendChild(group);
         }
 
         if (this._listContainer.childNodes.length == 0 && filter) {
@@ -238,7 +243,8 @@ export class KeyboardShortcutsPrompt implements Prompt {
     }
 
     private _close = (): void => {
-        this._doc.undo();
+        this._doc.prompt = null;
+        this._doc.notifier.changed();
     };
 
     public cleanUp = (): void => {
