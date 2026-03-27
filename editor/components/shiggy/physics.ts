@@ -15,7 +15,7 @@ import {
     EXPLORE_CHANCE, EXPLORE_DURATION_MS, EXPLORE_MIN_FOLLOW_MS,
     UNFOLLOW_BUFFER_MS, MAX_FOLLOW_SPEED, UNFOLLOW_YANK_PX_S, MAX_FOLLOWERS,
     PROXIMITY_PX, DWELL_TIME_MS, CONVO_PROXIMITY, CONVO_CHANCE, FOLLOW_PROXIMITY_PX,
-    OFFSET_RADIUS,
+    OFFSET_RADIUS, CURSOR_HOTSPOT_RADIUS,
 } from "./types";
 
 export interface PhysState {
@@ -283,6 +283,10 @@ export class PhysicsEngine {
         const targetSpeed = Math.min(dist * 0.06, 6);
         s.vx += (nx * targetSpeed - s.vx) * 0.12;
         s.vy += (ny * targetSpeed - s.vy) * 0.12;
+
+        // Avoid cursor hotspot
+        this._avoidCursorHotspot(s);
+
         this._clampVel(s);
 
         s.x += s.vx;
@@ -363,6 +367,9 @@ export class PhysicsEngine {
             s.vx += nx * (s.cursorBias * 0.012);
             s.vy += ny * (s.cursorBias * 0.012);
         }
+
+        // Avoid cursor hotspot
+        this._avoidCursorHotspot(s);
 
         s.vx *= ROPE_DAMPING;
         s.vy *= ROPE_DAMPING;
@@ -561,6 +568,24 @@ export class PhysicsEngine {
                     }
                 }
             }
+        }
+    }
+
+    private _avoidCursorHotspot(s: PhysState): void {
+        const cx = s.x + SHIGGY_SIZE / 2;
+        const cy = s.y + SHIGGY_SIZE / 2;
+        const dx = cx - this._cursorX;
+        const dy = cy - this._cursorY;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+
+        // Avoid cursor hotspot circle (radius 24)
+        if (dist < CURSOR_HOTSPOT_RADIUS && dist > 0.01) {
+            const overlap = CURSOR_HOTSPOT_RADIUS - dist;
+            const nx = dx / dist;
+            const ny = dy / dist;
+            // Smooth avoidance force (not bouncing)
+            s.vx += nx * overlap * 0.15;
+            s.vy += ny * overlap * 0.15;
         }
     }
 }

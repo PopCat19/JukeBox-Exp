@@ -29,6 +29,7 @@ export const MAX_VEL = 18;
 // Collision
 export const CURSOR_RADIUS = 16;
 export const CURSOR_MASS_TRANSFER = 0.6;
+export const CURSOR_HOTSPOT_RADIUS = 24;
 
 // NPC movement (slow hockey puck)
 export const NPC_FRICTION = 0.99;
