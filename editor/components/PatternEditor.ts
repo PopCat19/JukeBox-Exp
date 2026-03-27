@@ -2991,17 +2991,23 @@ export class PatternEditor {
             if (this._doc.prefs.notesFlashWhenPlayed) noteFlashColor = ColorConfig.getComputed("--note-flash");
             for (const note of this._pattern.notes) {
                 let disabled: boolean = false;
+                let noteColors = ColorConfig.getChannelColor(this._doc.song, this._doc.channel);
                 if (this._doc.song.getChannelIsMod(this._doc.channel)) {
-                    const modIndex: number = instrument.modulators[Config.modCount - 1 - note.pitches[0]];
+                    const modSlot: number = Config.modCount - 1 - note.pitches[0];
+                    const modIndex: number = instrument.modulators[modSlot];
                     if ((modIndex == Config.modulators.dictionary["none"].index)
-                        || instrument.invalidModulators[Config.modCount - 1 - note.pitches[0]])
+                        || instrument.invalidModulators[modSlot])
                         disabled = true;
+                    const targetChannel: number = instrument.modChannels[modSlot];
+                    if (targetChannel >= 0) {
+                        noteColors = ColorConfig.getChannelColor(this._doc.song, targetChannel);
+                    }
                 }
                 for (let i: number = 0; i < note.pitches.length; i++) {
                     const pitch: number = note.pitches[i];
                     let notePath: SVGPathElement = SVG.path();
-                    const colorPrimary: string = (disabled ? ColorConfig.disabledNotePrimary : ColorConfig.getChannelColor(this._doc.song, this._doc.channel).primaryNote);
-                    const colorSecondary: string = (disabled ? ColorConfig.disabledNoteSecondary : ColorConfig.getChannelColor(this._doc.song, this._doc.channel).secondaryNote);
+                    const colorPrimary: string = (disabled ? ColorConfig.disabledNotePrimary : noteColors.primaryNote);
+                    const colorSecondary: string = (disabled ? ColorConfig.disabledNoteSecondary : noteColors.secondaryNote);
                     notePath.setAttribute("fill", colorSecondary);
                     notePath.setAttribute("pointer-events", "none");
                     this._drawNote(notePath, pitch, note.start, note.pins, (this._pitchHeight - this._pitchBorder) / 2 + 1, false, this._octaveOffset);
