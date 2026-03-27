@@ -312,25 +312,40 @@ export class MuteEditor {
         }
 
         for (let y: number = 0; y < this._doc.song.getChannelCount(); y++) {
+            const active: boolean = (y == this._doc.channel);
+            if (active) {
+                const colors = ColorConfig.getChannelColor(this._doc.song, y);
+                this._channelCounts[y].style.color = ColorConfig.invertedText;
+                this._channelCounts[y].style.background = colors.primaryChannel;
+                this._channelCounts[y].style.borderRadius = "3px";
+            } else {
+                this._channelCounts[y].style.background = "transparent";
+                this._channelCounts[y].style.borderRadius = "0px";
+            }
+
             if (this._doc.song.channels[y].muted) {
                 this._buttons[y].children[0].classList.add("muted");
 
-                if (y < this._doc.song.pitchChannelCount)
-                    this._channelCounts[y].style.color = ColorConfig.trackEditorBgPitchDim;
-                else if (y < this._doc.song.pitchChannelCount + this._doc.song.noiseChannelCount)
-                    this._channelCounts[y].style.color = ColorConfig.trackEditorBgNoiseDim;
-                else
-                    this._channelCounts[y].style.color = ColorConfig.trackEditorBgModDim;
+                if (!active) {
+                    if (y < this._doc.song.pitchChannelCount)
+                        this._channelCounts[y].style.color = ColorConfig.trackEditorBgPitchDim;
+                    else if (y < this._doc.song.pitchChannelCount + this._doc.song.noiseChannelCount)
+                        this._channelCounts[y].style.color = ColorConfig.trackEditorBgNoiseDim;
+                    else
+                        this._channelCounts[y].style.color = ColorConfig.trackEditorBgModDim;
+                }
 
             } else {
                 this._buttons[y].children[0].classList.remove("muted");
 
-                if (y < this._doc.song.pitchChannelCount)
-                    this._channelCounts[y].style.color = ColorConfig.trackEditorBgPitch;
-                else if (y < this._doc.song.pitchChannelCount + this._doc.song.noiseChannelCount)
-                    this._channelCounts[y].style.color = ColorConfig.trackEditorBgNoise;
-                else
-                    this._channelCounts[y].style.color = ColorConfig.trackEditorBgMod;
+                if (!active) {
+                    if (y < this._doc.song.pitchChannelCount)
+                        this._channelCounts[y].style.color = ColorConfig.trackEditorBgPitch;
+                    else if (y < this._doc.song.pitchChannelCount + this._doc.song.noiseChannelCount)
+                        this._channelCounts[y].style.color = ColorConfig.trackEditorBgNoise;
+                    else
+                        this._channelCounts[y].style.color = ColorConfig.trackEditorBgMod;
+                }
             }
         }
 
