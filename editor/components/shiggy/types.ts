@@ -24,7 +24,7 @@ export const ROPE_SLACK = 60;
 export const ROPE_K = 0.045;
 export const ROPE_DAMPING = 0.978;
 export const ROPE_AXIAL_DAMPING = 0.10;
-export const MAX_VEL = 18;
+export const MAX_VEL = Infinity;
 
 // Collision
 export const CURSOR_RADIUS = 16;
@@ -33,7 +33,7 @@ export const CURSOR_HOTSPOT_RADIUS = 24;
 
 // NPC movement (slow hockey puck)
 export const NPC_FRICTION = 0.99;
-export const NPC_BOUNCE_ENERGY = 0.75;
+export const NPC_BOUNCE_ENERGY = 1.0;
 export const NPC_IDLE_SPEED = 0.45;
 export const NPC_WAYPOINT_DIST_MIN = 60;
 export const NPC_WAYPOINT_MIN_MS = 3000;
