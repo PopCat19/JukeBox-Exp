@@ -37,6 +37,7 @@ export class BarScrollBar {
 
     private _mouseX: number = 0;
     private _mouseDown: boolean = false;
+    private _svgRect: DOMRect | null = null;
     private _mouseOver: boolean = false;
     private _dragging: boolean = false;
     private _dragStart: number;
@@ -55,6 +56,7 @@ export class BarScrollBar {
         this.container.addEventListener("mousedown", this._whenMousePressed);
         document.addEventListener("mousemove", this._whenMouseMoved);
         document.addEventListener("mouseup", this._whenCursorReleased);
+        window.addEventListener("resize", () => this._svgRect = null);
         this.container.addEventListener("mouseover", this._whenMouseOver);
         this.container.addEventListener("mouseout", this._whenMouseOut);
 
@@ -111,7 +113,8 @@ export class BarScrollBar {
     }
 
     private _whenMouseMoved = (event: MouseEvent): void => {
-        const boundingRect: ClientRect = this._svg.getBoundingClientRect();
+        if (!this._svgRect) this._svgRect = this._svg.getBoundingClientRect();
+        const boundingRect = this._svgRect;
         this._mouseX = (event.clientX || event.pageX) - boundingRect.left;
         //this._mouseY = (event.clientY || event.pageY) - boundingRect.top;
         this._whenCursorMoved();

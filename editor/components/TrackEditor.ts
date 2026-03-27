@@ -72,12 +72,14 @@ export class TrackEditor {
     private _touchMode: boolean = isMobile;
     private _barDropDownBar: number = 0;
     private _lastScrollTime: number = 0;
+    private _svgRect: DOMRect | null = null;
 
     constructor(private _doc: SongDocument, private _songEditor: SongEditor) {
         window.requestAnimationFrame(this._animatePlayhead);
         this._svg.addEventListener("mousedown", this._whenMousePressed);
         document.addEventListener("mousemove", this._whenMouseMoved);
         document.addEventListener("mouseup", this._whenMouseReleased);
+        window.addEventListener("resize", () => this._svgRect = null);
         this._svg.addEventListener("mouseover", this._whenMouseOver);
         this._svg.addEventListener("mouseout", this._whenMouseOut);
 
@@ -231,7 +233,8 @@ export class TrackEditor {
     }
 
     private _updateMousePos(event: MouseEvent): void {
-        const boundingRect: ClientRect = this._svg.getBoundingClientRect();
+        if (!this._svgRect) this._svgRect = this._svg.getBoundingClientRect();
+        const boundingRect = this._svgRect;
         this._mouseX = (event.clientX || event.pageX) - boundingRect.left;
         this._mouseY = (event.clientY || event.pageY) - boundingRect.top;
         this._mouseBar = Math.floor(Math.min(this._doc.song.barCount - 1, Math.max(0, this._mouseX / this._barWidth)));

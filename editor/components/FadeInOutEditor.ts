@@ -37,6 +37,7 @@ export class FadeInOutEditor {
     private _dragChange: UndoableChange | null = null;
     private _renderedFadeIn: number = -1;
     private _renderedFadeOut: number = -1;
+    private _svgRect: DOMRect | null = null;
 
     constructor(private _doc: SongDocument) {
         const dottedLineX: number = this._fadeOutToX(Config.fadeOutNeutral);
@@ -45,6 +46,7 @@ export class FadeInOutEditor {
         this.container.addEventListener("mousedown", this._whenMousePressed);
         document.addEventListener("mousemove", this._whenMouseMoved);
         document.addEventListener("mouseup", this._whenCursorReleased);
+        window.addEventListener("resize", () => this._svgRect = null);
         this.container.addEventListener("touchstart", this._whenTouchPressed);
         this.container.addEventListener("touchmove", this._whenTouchMoved);
         this.container.addEventListener("touchend", this._whenCursorReleased);
@@ -93,7 +95,8 @@ export class FadeInOutEditor {
 
     private _whenMouseMoved = (event: MouseEvent): void => {
         if (this.container.offsetParent == null) return;
-        const boundingRect: ClientRect = this._svg.getBoundingClientRect();
+        if (!this._svgRect) this._svgRect = this._svg.getBoundingClientRect();
+        const boundingRect = this._svgRect;
         this._mouseX = ((event.clientX || event.pageX) - boundingRect.left);
         if (isNaN(this._mouseX)) this._mouseX = 0;
         this._whenCursorMoved();

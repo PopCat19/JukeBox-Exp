@@ -131,6 +131,7 @@ export class PatternEditor {
     private _mouseDragging: boolean = false;
     private _mouseHorizontal: boolean = false;
     private _usingTouch: boolean = false;
+    private _svgRect: DOMRect | null = null;
     private _copiedPinChannels: NotePin[][] = [];
     private _copiedPins: NotePin[];
     private _mouseXStart: number = 0;
@@ -230,6 +231,7 @@ export class PatternEditor {
             this._svg.addEventListener("mousedown", this._whenMousePressed);
             document.addEventListener("mousemove", this._whenMouseMoved);
             document.addEventListener("mouseup", this._whenCursorReleased);
+            window.addEventListener("resize", () => this._svgRect = null);
             this._svg.addEventListener("mouseover", this._whenMouseOver);
             this._svg.addEventListener("mouseout", this._whenMouseOut);
 
@@ -1948,7 +1950,8 @@ export class PatternEditor {
         this.controlMode = event.ctrlKey;
         this.shiftMode = event.shiftKey;
 
-        const boundingRect: ClientRect = this._svg.getBoundingClientRect();
+        if (!this._svgRect) this._svgRect = this._svg.getBoundingClientRect();
+        const boundingRect = this._svgRect;
         this._mouseX = ((event.clientX || event.pageX) - boundingRect.left) * this._editorWidth / (boundingRect.right - boundingRect.left);
         this._mouseY = ((event.clientY || event.pageY) - boundingRect.top) * this._editorHeight / (boundingRect.bottom - boundingRect.top);
         if (isNaN(this._mouseX)) this._mouseX = 0;

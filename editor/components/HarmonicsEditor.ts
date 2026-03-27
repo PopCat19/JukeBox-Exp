@@ -44,6 +44,7 @@ export class HarmonicsEditor {
     private _renderedPath: string = "";
     private _renderedFifths: boolean = true;
     private instrument: Instrument;
+    private _svgRect: DOMRect | null = null;
 
     private _undoHistoryState: number = 0;
     private _changeQueue: number[][] = [];
@@ -68,6 +69,7 @@ export class HarmonicsEditor {
         this.container.addEventListener("mousedown", this._whenMousePressed);
         document.addEventListener("mousemove", this._whenMouseMoved);
         document.addEventListener("mouseup", this._whenCursorReleased);
+        window.addEventListener("resize", () => this._svgRect = null);
 
         this.container.addEventListener("touchstart", this._whenTouchPressed);
         this.container.addEventListener("touchmove", this._whenTouchMoved);
@@ -163,7 +165,8 @@ export class HarmonicsEditor {
 
     private _whenMouseMoved = (event: MouseEvent): void => {
         if (this.container.offsetParent == null) return;
-        const boundingRect: ClientRect = this._svg.getBoundingClientRect();
+        if (!this._svgRect) this._svgRect = this._svg.getBoundingClientRect();
+        const boundingRect = this._svgRect;
         this._mouseX = ((event.clientX || event.pageX) - boundingRect.left) * this._editorWidth / (boundingRect.right - boundingRect.left);
         this._mouseY = ((event.clientY || event.pageY) - boundingRect.top) * this._editorHeight / (boundingRect.bottom - boundingRect.top);
         if (isNaN(this._mouseX)) this._mouseX = 0;

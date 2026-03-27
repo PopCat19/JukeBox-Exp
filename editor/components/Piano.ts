@@ -39,6 +39,7 @@ export class Piano {
     private _mouseY: number = 0;
     private _mouseDown: boolean = false;
     private _mouseOver: boolean = false;
+    private _containerRect: DOMRect | null = null;
     private _cursorPitch: number;
     private _playedPitch: number = -1;
     private _renderedScale: number = -1;
@@ -109,6 +110,7 @@ export class Piano {
         this.container.addEventListener("mousedown", this._whenMousePressed);
         document.addEventListener("mousemove", this._whenMouseMoved);
         document.addEventListener("mouseup", this._whenMouseReleased);
+        window.addEventListener("resize", () => this._containerRect = null);
         this.container.addEventListener("mouseover", this._whenMouseOver);
         this.container.addEventListener("mouseout", this._whenMouseOut);
 
@@ -190,7 +192,8 @@ export class Piano {
 
     private _whenMouseMoved = (event: MouseEvent): void => {
         if (this._mouseDown || this._mouseOver) this._doc.synth.maintainLiveInput();
-        const boundingRect: ClientRect = this.container.getBoundingClientRect();
+        if (!this._containerRect) this._containerRect = this.container.getBoundingClientRect();
+        const boundingRect = this._containerRect;
         //this._mouseX = (event.clientX || event.pageX) - boundingRect.left;
         this._mouseY = ((event.clientY || event.pageY) - boundingRect.top) * this._editorHeight / (boundingRect.bottom - boundingRect.top);
         if (isNaN(this._mouseY)) this._mouseY = 0;

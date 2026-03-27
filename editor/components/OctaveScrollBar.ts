@@ -37,6 +37,7 @@ export class OctaveScrollBar {
     private _dragStart: number;
     private _barBottom: number;
     private _barHeight: number;
+    private _svgRect: DOMRect | null = null;
     private _renderedBarBottom: number = -1;
     private _renderedVisibleOctaveCount: number = -1;
     private _change: ChangeOctave | null = null;
@@ -66,6 +67,7 @@ export class OctaveScrollBar {
         this.container.addEventListener("mousedown", this._whenMousePressed);
         document.addEventListener("mousemove", this._whenMouseMoved);
         document.addEventListener("mouseup", this._whenCursorReleased);
+        window.addEventListener("resize", () => this._svgRect = null);
         this.container.addEventListener("mouseover", this._whenMouseOver);
         this.container.addEventListener("mouseout", this._whenMouseOut);
 
@@ -122,7 +124,8 @@ export class OctaveScrollBar {
     }
 
     private _whenMouseMoved = (event: MouseEvent): void => {
-        const boundingRect: ClientRect = this._svg.getBoundingClientRect();
+        if (!this._svgRect) this._svgRect = this._svg.getBoundingClientRect();
+        const boundingRect = this._svgRect;
         //this._mouseX = (event.clientX || event.pageX) - boundingRect.left;
         this._mouseY = ((event.clientY || event.pageY) - boundingRect.top) * this._editorHeight / (boundingRect.bottom - boundingRect.top);
         if (isNaN(this._mouseY)) this._mouseY = 0;
