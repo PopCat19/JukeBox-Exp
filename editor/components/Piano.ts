@@ -534,7 +534,11 @@ export class Piano {
                 secondLabel.style.fill = useSecondColor;
                 secondLabel.textContent = usingSecondRow ? secondRow : "Not set";
                 modCountLabel.textContent = "" + (Config.modCount - j);
-                modCountRect.style.fill = usingMod ? ColorConfig.indicatorPrimary : ColorConfig.modLabelSecondaryText;
+                if (usingMod && status != 0 && status != 3) {
+                    modCountRect.style.fill = ColorConfig.getChannelColor(this._doc.song, instrument.modChannels[Config.modCount - j - 1]).primaryChannel;
+                } else {
+                    modCountRect.style.fill = usingMod ? ColorConfig.indicatorPrimary : ColorConfig.modLabelSecondaryText;
+                }
 
                 // Check if text is too long, if name is set
                 if (this._doc.song.channels[Math.max(0, instrument.modChannels[Config.modCount - j - 1])].name != "") {
