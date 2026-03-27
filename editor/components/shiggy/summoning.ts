@@ -26,7 +26,7 @@ export function spawnShiggy(onPop: () => void): SummonedShiggy {
 
     requestAnimationFrame(() => {
         img.style.opacity = "1";
-        img.style.animation = `shiggy-summon-enter 0.4s ease-out both, shiggy-float ${floatDuration}s ease-in-out 0.4s infinite, shiggy-wobble ${wobbleDuration}s ease-in-out 0.4s infinite`;
+        img.style.animation = `shiggy-summon-enter 0.4s ease-out both, shiggy-float ${floatDuration}s ease-in-out 0.4s infinite`;
     });
 
     onPop();

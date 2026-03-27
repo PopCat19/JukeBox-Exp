@@ -22,12 +22,23 @@ export class CursorTracker {
     private _lastMouseY = 0;
     private _lastMoveTime = 0;
     private _mouseSpeed = 0;
+    private _cursorCircle: SVGCircleElement;
 
     constructor() {
         this._lineOverlay = document.createElementNS("http://www.w3.org/2000/svg", "svg");
         this._lineOverlay.style.cssText =
             "position:fixed;top:0;left:0;width:100vw;height:100vh;pointer-events:none;z-index:9998;";
         document.body.appendChild(this._lineOverlay);
+
+        // Create cursor hotspot circle
+        this._cursorCircle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+        this._cursorCircle.setAttribute("r", "24");
+        this._cursorCircle.setAttribute("fill", "none");
+        this._cursorCircle.setAttribute("stroke", "var(--secondary-text, #999)");
+        this._cursorCircle.setAttribute("stroke-width", "1.5");
+        this._cursorCircle.setAttribute("opacity", "0.4");
+        this._cursorCircle.style.display = "none";
+        this._lineOverlay.appendChild(this._cursorCircle);
 
         document.addEventListener("mousemove", this._onMouseMove);
         window.addEventListener("resize", this._onResize);
@@ -101,11 +112,25 @@ export class CursorTracker {
         this._lastMouseY = e.clientY;
         this._lastMoveTime = now;
         this._physics.setCursor(e.clientX, e.clientY, this._mouseSpeed, now);
+
+        // Update cursor circle position
+        this._cursorCircle.setAttribute("cx", String(e.clientX));
+        this._cursorCircle.setAttribute("cy", String(e.clientY));
     };
 
     private _applyResults(results: FrameResult[]): void {
         const summoned = this._summoned;
         this._clearLines();
+
+        // Show cursor circle if any shiggy is following or approaching
+        let anyFollowing = false;
+        for (const r of results) {
+            if (r.following || r.approaching) {
+                anyFollowing = true;
+                break;
+            }
+        }
+        this._cursorCircle.style.display = anyFollowing ? "" : "none";
 
         for (let i = 0; i < results.length && i < summoned.length; i++) {
             const r = results[i];
@@ -125,12 +150,14 @@ export class CursorTracker {
                 s.img.style.animation = "";
             } else if (!r.following && !r.exploring && (wasFollowing || wasExploring)) {
                 const fDur = 3 + Math.random() * 4;
-                const wDur = 4 + Math.random() * 3;
-                s.img.style.animation = `shiggy-float ${fDur}s ease-in-out infinite, shiggy-wobble ${wDur}s ease-in-out infinite`;
+                s.img.style.animation = `shiggy-float ${fDur}s ease-in-out infinite`;
             }
             if (r.exploring && !wasExploring) {
                 s.img.style.animation = "";
             }
+
+            // Set opacity based on following/approaching state
+            s.img.style.opacity = (r.following || r.approaching) ? "0.48" : "1";
 
             s.img.style.left = `${r.x}px`;
             s.img.style.top = `${r.y}px`;

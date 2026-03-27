@@ -94,12 +94,6 @@ export function injectShiggyCss(): void {
             25% { transform: translateY(-8px); }
             75% { transform: translateY(-4px); }
         }
-        @keyframes shiggy-wobble {
-            0%, 100% { transform: scale(1); }
-            25% { transform: scale(1.05); }
-            50% { transform: scale(1); }
-            75% { transform: scale(1.05); }
-        }
         @keyframes shiggy-summon-enter {
             0% { transform: scale(0) rotate(-20deg); opacity: 0; }
             60% { transform: scale(1.2) rotate(5deg); opacity: 1; }
