@@ -92,9 +92,9 @@ export function injectShiggyCss(): void {
     style.id = "shiggy-css";
     style.textContent = `
         @keyframes shiggy-float {
-            0%, 100% { transform: translateY(0) rotate(0deg); }
-            25% { transform: translateY(-8px) rotate(3deg); }
-            75% { transform: translateY(-4px) rotate(-3deg); }
+            0%, 100% { transform: translateY(0); }
+            25% { transform: translateY(-8px); }
+            75% { transform: translateY(-4px); }
         }
         @keyframes shiggy-wobble {
             0%, 100% { transform: rotate(0deg) scale(1); }
