@@ -130,11 +130,15 @@ export class PhysicsEngine {
 
     public tick(now: number): FrameResult[] {
         this._events.length = 0;
+        // Store cursor position at start of tick for continuous collision detection
+        const tickStartCursorX = this._cursorX;
+        const tickStartCursorY = this._cursorY;
+
         for (let i = 0; i < this._states.length; i++) {
             this._tickOne(this._states[i], i, now);
         }
         this._collideAll();
-        this._collideCursor();
+        this._collideCursor(tickStartCursorX, tickStartCursorY);
         for (const s of this._states) {
             this._collideViewport(s);
         }
@@ -439,6 +443,7 @@ export class PhysicsEngine {
                 const dx = bx - ax, dy = by - ay;
                 const dist = Math.sqrt(dx * dx + dy * dy);
                 const minDist = SHIGGY_HITBOX_RADIUS * 2;
+
                 if (dist < minDist && dist > 0.01) {
                     const overlap = (minDist - dist) / 2;
                     const nx = dx / dist, ny = dy / dist;
@@ -453,18 +458,65 @@ export class PhysicsEngine {
                             this._events.push({ type: "collision", index: Math.random() < 0.5 ? i : j });
                         }
                     }
+                } else if (dist >= minDist) {
+                    // Continuous collision detection for high-speed collisions
+                    // Check if the relative motion path intersects
+                    const relVx = a.vx - b.vx, relVy = a.vy - b.vy;
+                    const relSpeedSq = relVx * relVx + relVy * relVy;
+
+                    if (relSpeedSq > 0.01) {
+                        // Vector from a to b
+                        const toBx = bx - ax, toBy = by - ay;
+
+                        // Project b onto relative velocity path
+                        const t = Math.max(0, Math.min(1,
+                            (toBx * relVx + toBy * relVy) / relSpeedSq
+                        ));
+
+                        // Closest point on relative path to b
+                        const closestX = ax + relVx * t;
+                        const closestY = ay + relVy * t;
+
+                        // Distance from closest point to b
+                        const closestDx = bx - closestX;
+                        const closestDy = by - closestY;
+                        const closestDist = Math.sqrt(closestDx * closestDx + closestDy * closestDy);
+
+                        if (closestDist < minDist && closestDist > 0.01) {
+                            // Collision detected along the path
+                            const overlap = (minDist - closestDist) / 2;
+                            const nx = closestDx / closestDist;
+                            const ny = closestDy / closestDist;
+                            a.x -= nx * overlap; a.y -= ny * overlap;
+                            b.x += nx * overlap; b.y += ny * overlap;
+
+                            const dot = relVx * nx + relVy * ny;
+                            if (dot > 0) {
+                                a.vx -= dot * nx * 0.5; a.vy -= dot * ny * 0.5;
+                                b.vx += dot * nx * 0.5; b.vy += dot * ny * 0.5;
+                                if (dot > 1.5 && Math.random() < 0.4) {
+                                    this._events.push({ type: "collision", index: Math.random() < 0.5 ? i : j });
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }
     }
 
-    private _collideCursor(): void {
+    private _collideCursor(tickStartCursorX: number, tickStartCursorY: number): void {
         for (const s of this._states) {
             if (s.following || s.approaching) continue;
             const sx = s.x + SHIGGY_SIZE / 2, sy = s.y + SHIGGY_SIZE / 2;
+
+            // Continuous collision detection: check if cursor path intersects shiggy hitbox
+            // Use the cursor position at the start of the tick and the current position
             const dx = sx - this._cursorX, dy = sy - this._cursorY;
             const dist = Math.sqrt(dx * dx + dy * dy);
             const minDist = SHIGGY_HITBOX_RADIUS + CURSOR_RADIUS;
+
+            // Check if current position is already colliding
             if (dist < minDist && dist > 0.01) {
                 const overlap = minDist - dist;
                 const nx = dx / dist, ny = dy / dist;
@@ -474,6 +526,48 @@ export class PhysicsEngine {
                 if (cursorNormal > 0) {
                     s.vx += nx * cursorNormal * CURSOR_MASS_TRANSFER;
                     s.vy += ny * cursorNormal * CURSOR_MASS_TRANSFER;
+                }
+            } else {
+                // Check if cursor path between ticks intersects shiggy hitbox
+                // This prevents tunneling at low FPS
+                const pathDx = this._cursorX - tickStartCursorX;
+                const pathDy = this._cursorY - tickStartCursorY;
+                const pathLenSq = pathDx * pathDx + pathDy * pathDy;
+
+                if (pathLenSq > 0.01) {
+                    // Vector from tick start cursor to shiggy center
+                    const toShiggyX = sx - tickStartCursorX;
+                    const toShiggyY = sy - tickStartCursorY;
+
+                    // Project shiggy center onto cursor path
+                    const t = Math.max(0, Math.min(1,
+                        (toShiggyX * pathDx + toShiggyY * pathDy) / pathLenSq
+                    ));
+
+                    // Closest point on cursor path to shiggy center
+                    const closestX = tickStartCursorX + pathDx * t;
+                    const closestY = tickStartCursorY + pathDy * t;
+
+                    // Distance from closest point to shiggy center
+                    const closestDx = sx - closestX;
+                    const closestDy = sy - closestY;
+                    const closestDist = Math.sqrt(closestDx * closestDx + closestDy * closestDy);
+
+                    if (closestDist < minDist && closestDist > 0.01) {
+                        // Collision detected along the path
+                        const overlap = minDist - closestDist;
+                        const nx = closestDx / closestDist;
+                        const ny = closestDy / closestDist;
+                        s.x += nx * overlap; s.y += ny * overlap;
+
+                        // Use cursor velocity for momentum transfer
+                        const cursorNormal =
+                            this._cursorVx * nx + this._cursorVy * ny;
+                        if (cursorNormal > 0) {
+                            s.vx += nx * cursorNormal * CURSOR_MASS_TRANSFER;
+                            s.vy += ny * cursorNormal * CURSOR_MASS_TRANSFER;
+                        }
+                    }
                 }
             }
         }
