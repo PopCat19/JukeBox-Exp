@@ -58,6 +58,7 @@ export interface KeyboardHandlerHost {
     toggleRecord(): void;
     openPrompt(name: string): void;
     openPresetSelector(): void;
+    openShortcuts(): void;
     copyInstrument(): void;
     pasteInstrument(): void;
     randomPreset(): void;
@@ -880,6 +881,13 @@ export class KeyboardHandler {
                 doc.selection.nextDigit("9", needControlForShortcuts != (event.shiftKey || event.ctrlKey || event.metaKey), event.altKey);
                 host.renderInstrumentBar(doc.song.channels[doc.channel], doc.getCurrentInstrument(), ColorConfig.getChannelColor(doc.song, doc.channel));
                 event.preventDefault();
+                break;
+            case 191: // /?
+                if (canPlayNotes) break;
+                if (event.shiftKey) {
+                    host.openShortcuts();
+                    event.preventDefault();
+                }
                 break;
             default:
                 doc.selection.digits = "";

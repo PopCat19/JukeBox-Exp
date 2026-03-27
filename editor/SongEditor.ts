@@ -50,6 +50,7 @@ import { PatternEditor } from "./components/PatternEditor";
 import { Piano } from "./components/Piano";
 import { Prompt } from "./prompts/Prompt";
 import { PresetSelectorPrompt } from "./prompts/PresetSelectorPrompt";
+import { KeyboardShortcutsPrompt } from "./prompts/KeyboardShortcutsPrompt";
 import { SongDocument } from "./SongDocument";
 import { SongDurationPrompt } from "./prompts/SongDurationPrompt";
 import { SustainPrompt } from "./prompts/SustainPrompt";
@@ -2028,6 +2029,11 @@ export class SongEditor implements ModSliderProvider {
         this._setPrompt("presetSelector");
     }
 
+    public openShortcuts(): void {
+        this.doc.prompt = "keyboardShortcuts";
+        this._setPrompt("keyboardShortcuts");
+    }
+
     private _setPrompt(promptName: string | null): void {
         if (this._currentPromptName == promptName) return;
         this._currentPromptName = promptName;
@@ -2137,13 +2143,16 @@ export class SongEditor implements ModSliderProvider {
                 case "presetSelector":
                     this.prompt = new PresetSelectorPrompt(this.doc);
                     break;
+                case "keyboardShortcuts":
+                    this.prompt = new KeyboardShortcutsPrompt(this.doc);
+                    break;
                 default:
                     this.prompt = new TipPrompt(this.doc, promptName);
                     break;
             }
 
             if (this.prompt) {
-                if (!(this.prompt instanceof TipPrompt || this.prompt instanceof LimiterPrompt || this.prompt instanceof CustomChipPrompt || this.prompt instanceof CustomFilterPrompt || this.prompt instanceof VisualLoopControlsPrompt || this.prompt instanceof SustainPrompt || this.prompt instanceof HarmonicsEditorPrompt || this.prompt instanceof SpectrumEditorPrompt || this.prompt instanceof PresetSelectorPrompt)) {
+                if (!(this.prompt instanceof TipPrompt || this.prompt instanceof LimiterPrompt || this.prompt instanceof CustomChipPrompt || this.prompt instanceof CustomFilterPrompt || this.prompt instanceof VisualLoopControlsPrompt || this.prompt instanceof SustainPrompt || this.prompt instanceof HarmonicsEditorPrompt || this.prompt instanceof SpectrumEditorPrompt || this.prompt instanceof PresetSelectorPrompt || this.prompt instanceof KeyboardShortcutsPrompt)) {
                     this._wasPlaying = this.doc.synth.playing;
                     this.doc.performance.pause();
                 }

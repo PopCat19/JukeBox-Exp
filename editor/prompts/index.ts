@@ -16,7 +16,7 @@ export { EuclidgenRhythmPrompt } from "./EuclidgenRhythmPrompt";
 export { ExportPrompt } from "./ExportPrompt";
 export { ImportPrompt } from "./ImportPrompt";
 export { InstrumentExportPrompt } from "./InstrumentExportPrompt";
-export { InstrumentImportPrompt } from "./InstrumentImportPrompt";
+export { KeyboardShortcutsPrompt } from "./KeyboardShortcutsPrompt";
 export { LayoutPrompt } from "./LayoutPrompt";
 export { LimiterPrompt } from "./LimiterPrompt";
 export { MoveNotesSidewaysPrompt } from "./MoveNotesSidewaysPrompt";
