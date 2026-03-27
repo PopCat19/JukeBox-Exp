@@ -17,6 +17,7 @@ interface ShortcutEntry {
     key: string;
     mods?: string;
     desc: string;
+    detail?: string;
 }
 
 interface ShortcutCategory {
@@ -31,7 +32,7 @@ const shortcutCategories: ShortcutCategory[] = [
             { key: "Space", desc: "Toggle play/pause" },
             { key: "Space", mods: "Ctrl", desc: "Toggle record mode" },
             { key: "Space", mods: "Shift", desc: "Play from cursor" },
-            { key: "B", desc: "Toggle loop / play from selection" },
+            { key: "B", desc: "Toggle loop / play from selection", detail: "Toggles looping. Hold Shift while pressing B to play from the current selection instead." },
             { key: "F", desc: "Go to start of song" },
             { key: "F", mods: "Shift", desc: "Go to loop start" },
             { key: "H", desc: "Go to current bar" },
@@ -40,43 +41,40 @@ const shortcutCategories: ShortcutCategory[] = [
     {
         name: "Navigation",
         entries: [
-            { key: "\u2190", desc: "Previous bar" },
-            { key: "\u2192", desc: "Next bar" },
+            { key: "\u2190 or [", desc: "Previous bar" },
+            { key: "\u2192 or ]", desc: "Next bar" },
             { key: "\u2191", desc: "Previous channel" },
             { key: "\u2193", desc: "Next channel" },
-            { key: "[", desc: "Previous bar" },
-            { key: "]", desc: "Next bar" },
         ],
     },
     {
         name: "Editing",
         entries: [
             { key: "Z", desc: "Undo" },
-            { key: "Z", mods: "Shift", desc: "Redo" },
-            { key: "Y", desc: "Redo" },
+            { key: "Shift + Z or Y", desc: "Redo" },
             { key: "X", desc: "Cut" },
             { key: "C", desc: "Copy" },
-            { key: "C", mods: "Shift", desc: "Copy instrument" },
+            { key: "C", mods: "Shift", desc: "Copy instrument", detail: "Copies the current instrument settings to clipboard, separate from pattern copy." },
             { key: "V", desc: "Paste" },
-            { key: "V", mods: "Shift", desc: "Paste instrument" },
-            { key: "V", mods: "Ctrl+Shift", desc: "Paste numbers only" },
+            { key: "V", mods: "Shift", desc: "Paste instrument", detail: "Pastes instrument settings from clipboard without changing patterns." },
+            { key: "V", mods: "Ctrl+Shift", desc: "Paste numbers only", detail: "Pastes only the note digits from clipboard, preserving existing pattern structure." },
             { key: "A", desc: "Select all" },
             { key: "A", mods: "Shift", desc: "Select channel" },
-            { key: "D", desc: "Duplicate patterns" },
-            { key: "N", desc: "New pattern (first unused)" },
-            { key: "N", mods: "Ctrl", desc: "New pattern (next empty)" },
-            { key: "0\u20139", desc: "Enter digit for selection" },
-            { key: "Delete", desc: "Clear selection digits" },
+            { key: "D", desc: "Duplicate patterns", detail: "Duplicates the patterns in the selected area into an empty pattern slot." },
+            { key: "N", desc: "New pattern (first unused)", detail: "Assigns the first available unused pattern to the current bar." },
+            { key: "N", mods: "Ctrl", desc: "New pattern (next empty)", detail: "Creates the next empty pattern and assigns it to the current bar." },
+            { key: "0\u20139", desc: "Enter digit for selection", detail: "Appends a digit to the current selection for fast note/pattern number entry." },
+            { key: "Delete", desc: "Clear selection digits", detail: "Clears the entered digits without deleting the note itself." },
         ],
     },
     {
         name: "Song Structure",
         entries: [
-            { key: "Enter", desc: "Insert bar" },
-            { key: "Enter", mods: "Shift", desc: "Insert bar (shift left)" },
+            { key: "Enter", desc: "Insert bar", detail: "Inserts a bar after the current one. Hold Shift to insert before (shifting current bar right)." },
+            { key: "Enter", mods: "Shift", desc: "Insert bar (shift left)", detail: "Inserts a bar and shifts the current bar to the right." },
             { key: "Enter", mods: "Ctrl", desc: "Insert channel" },
             { key: "Enter", mods: "Alt", desc: "Add instrument" },
-            { key: "Backspace", desc: "Delete bars" },
+            { key: "Backspace", desc: "Delete bars", detail: "Deletes the current bar. Hold Ctrl to delete the current channel instead." },
             { key: "Backspace", mods: "Ctrl", desc: "Delete channel" },
             { key: "Backspace", mods: "Alt", desc: "Remove instrument" },
         ],
@@ -94,8 +92,8 @@ const shortcutCategories: ShortcutCategory[] = [
         name: "Muting",
         entries: [
             { key: "M", desc: "Mute channel" },
-            { key: "S", desc: "Solo channel" },
-            { key: "S", mods: "Shift", desc: "Exclude channel" },
+            { key: "S", desc: "Solo channel", detail: "Solos the current channel, muting all others. Press again to unmute." },
+            { key: "S", mods: "Shift", desc: "Exclude channel", detail: "Excludes the current channel from playback without affecting other channels' mute state." },
         ],
     },
     {
@@ -115,7 +113,7 @@ const shortcutCategories: ShortcutCategory[] = [
             { key: "T", mods: "Shift", desc: "Instrument preset selector" },
             { key: "T", desc: "Next instrument preset" },
             { key: "R", desc: "Random instrument preset" },
-            { key: "R", mods: "Ctrl+Shift", desc: "Random generated instrument" },
+            { key: "R", mods: "Ctrl+Shift", desc: "Random generated instrument", detail: "Generates a completely random instrument from scratch, not from presets." },
             { key: "Q", desc: "Channel settings" },
             { key: "Q", mods: "Ctrl+Shift", desc: "Add external samples" },
             { key: "L", desc: "Song duration" },
@@ -124,7 +122,7 @@ const shortcutCategories: ShortcutCategory[] = [
             { key: "E", mods: "Shift", desc: "Custom EQ filter" },
             { key: "E", mods: "Ctrl", desc: "Euclidean rhythm generator" },
             { key: "N", mods: "Shift", desc: "Custom note filter" },
-            { key: "W", desc: "Move notes sideways" },
+            { key: "W", desc: "Move notes sideways", detail: "Shifts all notes in the selection left or right by a specified number of columns." },
             { key: "B", mods: "Shift", desc: "Beats per bar" },
             { key: "F", mods: "Alt", desc: "Toggle FM operator dropdowns" },
             { key: "E", mods: "Alt", desc: "Toggle envelope dropdowns" },
@@ -138,7 +136,7 @@ const shortcutCategories: ShortcutCategory[] = [
             { key: "O", mods: "Alt", desc: "Import instrument" },
             { key: "S", mods: "Alt", desc: "Export instrument" },
             { key: "`", mods: "Shift", desc: "New song" },
-            { key: "`", desc: "Song recovery" },
+            { key: "`", desc: "Song recovery", detail: "Opens the song recovery dialog to restore auto-saved or previously edited songs." },
             { key: "U", mods: "Shift", desc: "Shorten URL" },
         ],
     },
@@ -223,11 +221,13 @@ export class KeyboardShortcutsPrompt implements Prompt {
             for (const entry of filtered) {
                 const keyCombo = entry.mods ? entry.mods + " + " + entry.key : entry.key;
                 const bgColor: string = (rowIdx % 2 == 0) ? "transparent" : "rgba(128,128,128,0.1)";
+                const rowStyle = `display: flex; align-items: baseline; gap: 12px; padding: 3px 8px; background: ${bgColor};${entry.detail ? " cursor: help;" : ""}`;
                 const row = div({
-                    style: `display: flex; align-items: baseline; gap: 12px; padding: 3px 8px; background: ${bgColor};`,
+                    style: rowStyle,
+                    ...(entry.detail ? { title: entry.detail } : {}),
                 },
                     span({ style: "font-family: monospace; font-size: 12px; color: var(--secondary-text); white-space: nowrap; min-width: 120px; text-align: right;" }, keyCombo),
-                    span({ style: "font-size: 12px;" }, entry.desc),
+                    span({ style: "font-size: 12px;" }, entry.desc, entry.detail ? span({ style: "color: var(--secondary-text); font-size: 10px; margin-left: 4px;" }, "?") : ""),
                 );
                 group.appendChild(row);
                 rowIdx++;

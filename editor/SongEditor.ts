@@ -268,6 +268,7 @@ export class SongEditor implements ModSliderProvider {
         option({ value: "channelSettings" }, "Channel Settings... (Q)"),
         option({ value: "limiterSettings" }, "Limiter Settings... (⇧L)"),
         option({ value: "addExternal" }, "Add Custom Samples... (⇧Q)"),
+        option({ value: "keyboardShortcuts" }, "Keyboard Shortcuts (? / ⇧/)"),
     );
     private readonly _optionsMenu: HTMLSelectElement = select({ style: "width: 100%;" },
         option({ selected: true, disabled: true, hidden: false }, "Preferences"), // todo: "hidden" should be true but looks wrong on mac chrome, adds checkmark next to first visible option even though it's not selected. :(
@@ -2789,6 +2790,9 @@ export class SongEditor implements ModSliderProvider {
                 break;
             case "addExternal":
                 this._openPrompt("addExternal");
+                break;
+            case "keyboardShortcuts":
+                this.openShortcuts();
                 break;
         }
         this._editMenu.selectedIndex = 0;
