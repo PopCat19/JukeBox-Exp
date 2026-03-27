@@ -90,11 +90,8 @@ export class KeyboardHandler {
                 host.prompt.whenKeyPressed(event);
             }
             if (event.keyCode == 27) { // ESC key
-                if ((host.prompt as any).closeWithoutUndo) {
-                    (host.prompt as any).closeWithoutUndo();
-                } else {
-                    doc.undo();
-                }
+                doc.prompt = null;
+                doc.notifier.changed();
             }
             return;
         }

@@ -11,5 +11,6 @@
 export interface Prompt {
     container: HTMLElement;
     cleanUp: () => void;
-    gotMouseUp?: boolean; // Use to avoid closing the prompt too soon.
+    gotMouseUp?: boolean;
+    closeWithoutUndo?: () => void;
 }

@@ -1540,7 +1540,8 @@ export class SongEditor implements ModSliderProvider {
             if (this.doc.prefs.closePromptByClickoff === true) {
                 if (this.prompt != null && this.prompt.gotMouseUp === true) return;
                 if (event.target == this._promptContainer) {
-                    this.doc.undo();
+                    this.doc.prompt = null;
+                    this.doc.notifier.changed();
                 }
             }
         });
