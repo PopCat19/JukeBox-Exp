@@ -15,6 +15,8 @@ export class CursorTracker {
     private _animFrame: number = 0;
     private _active: boolean = false;
     private _lineOverlay: SVGSVGElement;
+    private _linePool: SVGLineElement[] = [];
+    private _linesInUse: number = 0;
     private _summoned: SummonedShiggy[] = [];
     private _lastMouseX = 0;
     private _lastMouseY = 0;
@@ -132,7 +134,8 @@ export class CursorTracker {
 
             s.img.style.left = `${r.x}px`;
             s.img.style.top = `${r.y}px`;
-            s.img.style.zIndex = String(9999 + Math.round(r.y));
+            const newZ = String(9999 + Math.round(r.y));
+            if (s.img.style.zIndex !== newZ) s.img.style.zIndex = newZ;
             s.img.style.scale = r.facingRight ? "-1 1" : "1 1";
             s.img.style.rotate = `${r.rotation.toFixed(1)}deg`;
             positionDialogue(s);
@@ -153,27 +156,39 @@ export class CursorTracker {
         x2: number, y2: number,
         tension: number, stressed: boolean,
     ): void {
-        const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+        let line: SVGLineElement;
+        if (this._linesInUse < this._linePool.length) {
+            line = this._linePool[this._linesInUse];
+            line.style.display = "";
+        } else {
+            line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+            line.setAttribute("stroke-width", "1.5");
+            this._lineOverlay.appendChild(line);
+            this._linePool.push(line);
+        }
+        this._linesInUse++;
+
         line.setAttribute("x1", String(x1));
         line.setAttribute("y1", String(y1));
         line.setAttribute("x2", String(x2));
         line.setAttribute("y2", String(y2));
-        line.setAttribute("stroke-width", "1.5");
         if (stressed) {
             line.setAttribute("stroke", "#ff6644");
             line.setAttribute("stroke-dasharray", "6 4");
             line.setAttribute("opacity", "0.5");
         } else if (tension > 0.7) {
             line.setAttribute("stroke", "#ff4444");
+            line.removeAttribute("stroke-dasharray");
             line.setAttribute("opacity", "0.6");
         } else if (tension > 0.3) {
             line.setAttribute("stroke", "#ccaa44");
+            line.removeAttribute("stroke-dasharray");
             line.setAttribute("opacity", "0.5");
         } else {
             line.setAttribute("stroke", "var(--secondary-text, #999)");
+            line.removeAttribute("stroke-dasharray");
             line.setAttribute("opacity", "0.3");
         }
-        this._lineOverlay.appendChild(line);
     }
 
     private _handleEvents(events: PhysEvent[]): void {
@@ -201,8 +216,9 @@ export class CursorTracker {
     }
 
     private _clearLines(): void {
-        while (this._lineOverlay.firstChild) {
-            this._lineOverlay.removeChild(this._lineOverlay.firstChild);
+        for (let i = this._linesInUse; i < this._linePool.length; i++) {
+            this._linePool[i].style.display = "none";
         }
+        this._linesInUse = 0;
     }
 }

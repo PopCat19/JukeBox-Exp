@@ -26,6 +26,7 @@ export class Shiggy {
     private _petCount: number = 0;
     private _autoSpawnUnlocked: boolean = false;
     private _isPetting: boolean = false;
+    private _petScaleTimer: ReturnType<typeof setTimeout> | null = null;
     private _gifTimer: ReturnType<typeof setInterval> | null = null;
     private _autoSpawnTimer: ReturnType<typeof setInterval> | null = null;
     private _summoned: SummonedShiggy[] = [];
@@ -141,9 +142,11 @@ export class Shiggy {
         this._audio.playSfx("shiggy-pet");
 
         this._img.style.transform = "scale(1.1)";
-        setTimeout(() => {
+        if (this._petScaleTimer !== null) clearTimeout(this._petScaleTimer);
+        this._petScaleTimer = setTimeout(() => {
             this._img.style.transform = "scale(1)";
-        }, 100);
+            this._petScaleTimer = null;
+        }, 150);
 
         if (this._petCount % PET_SUMMON_THRESHOLD === 0) {
             this._audio.playSfx("shiggy-blessing");

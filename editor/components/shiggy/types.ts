@@ -87,7 +87,9 @@ export interface MouseSample {
 }
 
 export function injectShiggyCss(): void {
+    if (document.getElementById("shiggy-css")) return;
     const style = document.createElement("style");
+    style.id = "shiggy-css";
     style.textContent = `
         @keyframes shiggy-float {
             0%, 100% { transform: translateY(0) rotate(0deg); }
