@@ -41,7 +41,6 @@ export function spawnShiggy(onPop: () => void): SummonedShiggy {
         approaching: false,
         unfollowAt: 0, targetX: x, targetY: y,
         x, y, vx: 0, vy: 0,
-        rotation: 0,
         smoothVx: 0, smoothVy: 0,
         offsetAngle: Math.random() * Math.PI * 2,
         offsetDist: OFFSET_RADIUS * (0.4 + Math.random() * 0.6),

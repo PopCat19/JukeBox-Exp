@@ -64,7 +64,6 @@ export interface SummonedShiggy {
     y: number;
     vx: number;
     vy: number;
-    rotation: number;
     smoothVx: number;
     smoothVy: number;
     offsetAngle: number;

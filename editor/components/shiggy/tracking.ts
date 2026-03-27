@@ -137,7 +137,6 @@ export class CursorTracker {
             const newZ = String(9999 + Math.round(r.y));
             if (s.img.style.zIndex !== newZ) s.img.style.zIndex = newZ;
             s.img.style.scale = r.facingRight ? "-1 1" : "1 1";
-            s.img.style.rotate = `${r.rotation.toFixed(1)}deg`;
             positionDialogue(s);
 
             if (r.following) {

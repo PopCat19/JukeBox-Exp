@@ -1,7 +1,7 @@
 // physics.ts
 //
 // Purpose: Physics engine for shiggy system
-// - Owns all mutable physics state (positions, velocities, rotation)
+// - Owns all mutable physics state (positions, velocities)
 // - Computes rope, collision, idle nav each frame
 // - Returns flat array of results for DOM applier
 
@@ -21,7 +21,6 @@ import {
 export interface PhysState {
     x: number; y: number;
     vx: number; vy: number;
-    rotation: number;
     smoothVx: number; smoothVy: number;
     following: boolean;
     followingSince: number;
@@ -47,7 +46,6 @@ export interface PhysEvent {
 export interface FrameResult {
     x: number;
     y: number;
-    rotation: number;
     facingRight: boolean;
     tension: number;
     following: boolean;
@@ -84,7 +82,7 @@ export class PhysicsEngine {
     public addShiggy(x: number, y: number): void {
         this._states.push({
             x, y, vx: 0, vy: 0,
-            rotation: 0, smoothVx: 0, smoothVy: 0,
+            smoothVx: 0, smoothVy: 0,
             following: false, followingSince: 0, unfollowAt: 0,
             exploring: false, exploreUntil: 0,
             waypointX: Math.random() * this._viewW,
@@ -171,7 +169,6 @@ export class PhysicsEngine {
         for (const s of this._states) {
             results.push({
                 x: s.x, y: s.y,
-                rotation: s.rotation,
                 facingRight: s.facingRight,
                 tension: s.tension,
                 following: s.following,
@@ -181,11 +178,6 @@ export class PhysicsEngine {
             });
         }
         return results;
-    }
-
-    private _lerpAngle(current: number, target: number, rate: number): number {
-        const delta = ((target - current + 540) % 360) - 180;
-        return current + delta * rate;
     }
 
     private _clampVel(s: PhysState): void {
@@ -221,7 +213,6 @@ export class PhysicsEngine {
         s.vx *= NPC_FRICTION;
         s.vy *= NPC_FRICTION;
         if (now < s.pauseUntil) {
-            s.rotation = this._lerpAngle(s.rotation, 0, 0.06);
             s.x += s.vx;
             s.y += s.vy;
             this._collideViewport(s);
@@ -237,7 +228,6 @@ export class PhysicsEngine {
             } else if (now > s.waypointTimer) {
                 this._pickWaypoint(s, now);
             }
-            s.rotation = this._lerpAngle(s.rotation, 0, 0.06);
             s.x += s.vx;
             s.y += s.vy;
             this._collideViewport(s);
@@ -300,7 +290,6 @@ export class PhysicsEngine {
         if (Math.abs(s.smoothVx) > 0.04) {
             s.facingRight = s.smoothVx > 0;
         }
-        s.rotation = this._lerpAngle(s.rotation, 0, 0.05);
         this._collideViewport(s);
     }
 
@@ -384,7 +373,6 @@ export class PhysicsEngine {
         if (Math.abs(s.smoothVx) > 0.04) {
             s.facingRight = s.smoothVx > 0;
         }
-        s.rotation = this._lerpAngle(s.rotation, 0, 0.05);
     }
 
     private _tickOne(s: PhysState, idx: number, now: number): void {
@@ -407,7 +395,6 @@ export class PhysicsEngine {
                 s.vy *= NPC_FRICTION;
                 s.vx += (Math.random() - 0.5) * 0.15;
                 s.vy += (Math.random() - 0.5) * 0.15;
-                s.rotation = this._lerpAngle(s.rotation, 0, 0.04);
             }
             s.x += s.vx;
             s.y += s.vy;
