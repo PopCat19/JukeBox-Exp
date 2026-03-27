@@ -364,6 +364,11 @@ export class MuteEditor {
             }
         }
 
+        if (this._hoveredChannel >= 0 && this._hoveredChannel != this._doc.channel) {
+            const colors = ColorConfig.getChannelColor(this._doc.song, this._hoveredChannel);
+            this._channelCounts[this._hoveredChannel].style.color = colors.primaryChannel;
+        }
+
         if (this._renderedChannelHeight != ChannelRow.patternHeight || startingChannelCount != this._buttons.length) {
             for (let y: number = 0; y < this._doc.song.getChannelCount(); y++) {
                 this._buttons[y].style.marginTop = ((ChannelRow.patternHeight - 20) / 2) + "px";
