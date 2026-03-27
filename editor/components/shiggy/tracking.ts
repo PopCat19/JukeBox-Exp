@@ -23,6 +23,9 @@ export class CursorTracker {
     private _lastMoveTime = 0;
     private _mouseSpeed = 0;
     private _cursorCircle: SVGCircleElement;
+    private _pendingMouseX = 0;
+    private _pendingMouseY = 0;
+    private _hasPendingMouse = false;
 
     constructor() {
         this._lineOverlay = document.createElementNS("http://www.w3.org/2000/svg", "svg");
@@ -76,6 +79,23 @@ export class CursorTracker {
             this._animFrame = requestAnimationFrame(loop);
             const now = performance.now();
 
+            // Consume pending mouse input once per frame
+            if (this._hasPendingMouse) {
+                this._hasPendingMouse = false;
+                const dt = now - this._lastMoveTime;
+                if (dt > 0) {
+                    const dx = this._pendingMouseX - this._lastMouseX;
+                    const dy = this._pendingMouseY - this._lastMouseY;
+                    this._mouseSpeed = Math.sqrt(dx * dx + dy * dy) / (dt / 1000);
+                }
+                this._lastMouseX = this._pendingMouseX;
+                this._lastMouseY = this._pendingMouseY;
+                this._lastMoveTime = now;
+                this._physics.setCursor(this._pendingMouseX, this._pendingMouseY, this._mouseSpeed, now);
+                this._cursorCircle.setAttribute("cx", String(this._pendingMouseX));
+                this._cursorCircle.setAttribute("cy", String(this._pendingMouseY));
+            }
+
             // Sync conversation state from DOM back to physics
             for (let i = 0; i < this._summoned.length; i++) {
                 this._physics.setConversation(i, this._summoned[i].inConversation);
@@ -101,21 +121,9 @@ export class CursorTracker {
     }
 
     private _onMouseMove = (e: MouseEvent): void => {
-        const now = performance.now();
-        const dt = now - this._lastMoveTime;
-        if (dt > 0) {
-            const dx = e.clientX - this._lastMouseX;
-            const dy = e.clientY - this._lastMouseY;
-            this._mouseSpeed = Math.sqrt(dx * dx + dy * dy) / (dt / 1000);
-        }
-        this._lastMouseX = e.clientX;
-        this._lastMouseY = e.clientY;
-        this._lastMoveTime = now;
-        this._physics.setCursor(e.clientX, e.clientY, this._mouseSpeed, now);
-
-        // Update cursor circle position
-        this._cursorCircle.setAttribute("cx", String(e.clientX));
-        this._cursorCircle.setAttribute("cy", String(e.clientY));
+        this._pendingMouseX = e.clientX;
+        this._pendingMouseY = e.clientY;
+        this._hasPendingMouse = true;
     };
 
     private _applyResults(results: FrameResult[]): void {
