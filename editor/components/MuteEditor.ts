@@ -48,6 +48,8 @@ export class MuteEditor {
     private _channelDropDownChannel: number = 0;
     private _channelDropDownOpen: boolean = false;
     private _channelDropDownLastState: boolean = false;
+    private _hoveredChannel: number = -1;
+    private _hoveredChannelPrevColor: string = "";
 
     constructor(private _doc: SongDocument, private _editor: SongEditor) {
         this.container.addEventListener("click", this._onClick);
@@ -216,12 +218,23 @@ export class MuteEditor {
     private _onMouseMove = (event: MouseEvent): void => {
         const index = this._buttons.indexOf(<HTMLDivElement>event.target);
         if (index == -1) {
+            if (this._hoveredChannel != -1) {
+                this._channelCounts[this._hoveredChannel].style.removeProperty("box-shadow");
+                this._hoveredChannel = -1;
+            }
             if (!this._channelDropDownOpen && event.target != this._channelNameDisplay && event.target != this._channelDropDown) {
                 this._channelNameDisplay.style.setProperty("display", "none");
                 this._channelDropDown.style.setProperty("display", "none");
                 this._channelDropDown.style.setProperty("width", "0px");
             }
             return;
+        }
+        if (this._hoveredChannel != index) {
+            if (this._hoveredChannel != -1) {
+                this._channelCounts[this._hoveredChannel].style.removeProperty("box-shadow");
+            }
+            this._hoveredChannel = index;
+            this._channelCounts[index].style.setProperty("box-shadow", "0 0 4px 1px rgba(255,255,255,0.3)");
         }
         if (this._channelDropDownOpen && this._channelNameDisplay.style.getPropertyValue("display") == "none" && this._channelNameInput.input.style.getPropertyValue("display") == "none") {
             this._channelDropDownOpen = false;
@@ -280,6 +293,19 @@ export class MuteEditor {
                 break;
             default:
                 break;
+        }
+    }
+
+    public setHoveredChannel(channel: number): void {
+        if (this._hoveredChannel == channel) return;
+        if (this._hoveredChannel >= 0 && this._hoveredChannel < this._channelCounts.length) {
+            this._channelCounts[this._hoveredChannel].style.color = this._hoveredChannelPrevColor;
+        }
+        this._hoveredChannel = channel;
+        if (channel >= 0 && channel < this._channelCounts.length) {
+            const colors = ColorConfig.getChannelColor(this._doc.song, channel);
+            this._hoveredChannelPrevColor = this._channelCounts[channel].style.color;
+            this._channelCounts[channel].style.color = colors.primaryChannel;
         }
     }
 

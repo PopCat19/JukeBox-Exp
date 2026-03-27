@@ -227,6 +227,7 @@ export class TrackEditor {
     private _whenMouseOut = (event: MouseEvent): void => {
         if (!this._mouseOver) return;
         this._mouseOver = false;
+        this._songEditor.muteEditor.setHoveredChannel(-1);
     }
 
     private _updateMousePos(event: MouseEvent): void {
@@ -297,6 +298,12 @@ export class TrackEditor {
 
         const selected: boolean = (bar == this._doc.bar && channel == this._doc.channel);
         const overTrackEditor: boolean = (this._mouseY >= Config.barEditorHeight);
+
+        if (this._mouseOver && overTrackEditor && !this._touchMode) {
+            this._songEditor.muteEditor.setHoveredChannel(channel);
+        } else {
+            this._songEditor.muteEditor.setHoveredChannel(-1);
+        }
 
         if (this._mouseDragging && this._mouseStartBar != this._mouseBar) {
 
