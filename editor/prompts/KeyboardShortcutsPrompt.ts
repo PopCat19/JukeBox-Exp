@@ -112,9 +112,9 @@ const shortcutCategories: ShortcutCategory[] = [
     {
         name: "Prompts & Dialogs",
         entries: [
-            { key: "T", mods: "Shift", desc: "Preset selector" },
-            { key: "T", desc: "Next preset" },
-            { key: "R", desc: "Random preset" },
+            { key: "T", mods: "Shift", desc: "Instrument preset selector" },
+            { key: "T", desc: "Next instrument preset" },
+            { key: "R", desc: "Random instrument preset" },
             { key: "R", mods: "Ctrl+Shift", desc: "Random generated instrument" },
             { key: "Q", desc: "Channel settings" },
             { key: "Q", mods: "Ctrl+Shift", desc: "Add external samples" },
