@@ -15,7 +15,7 @@ import {
     EXPLORE_CHANCE, EXPLORE_DURATION_MS, EXPLORE_MIN_FOLLOW_MS,
     UNFOLLOW_BUFFER_MS, MAX_FOLLOW_SPEED, UNFOLLOW_YANK_PX_S, MAX_FOLLOWERS,
     PROXIMITY_PX, DWELL_TIME_MS, CONVO_PROXIMITY, CONVO_CHANCE, FOLLOW_PROXIMITY_PX,
-    FOLLOW_OFFSET_X, FOLLOW_OFFSET_Y,
+    OFFSET_RADIUS,
 } from "./types";
 
 export interface PhysState {
@@ -35,6 +35,8 @@ export interface PhysState {
     inConversation: boolean;
     tension: number;
     approaching: boolean;
+    offsetAngle: number;
+    offsetDist: number;
 }
 
 export interface PhysEvent {
@@ -94,6 +96,8 @@ export class PhysicsEngine {
             inConversation: false,
             tension: 0,
             approaching: false,
+            offsetAngle: Math.random() * Math.PI * 2,
+            offsetDist: OFFSET_RADIUS * (0.4 + Math.random() * 0.6),
         });
     }
 
@@ -260,8 +264,8 @@ export class PhysicsEngine {
 
         const cx = s.x + SHIGGY_SIZE / 2;
         const cy = s.y + SHIGGY_SIZE / 2;
-        const targetX = this._cursorX + FOLLOW_OFFSET_X;
-        const targetY = this._cursorY + FOLLOW_OFFSET_Y;
+        const targetX = this._cursorX + Math.cos(s.offsetAngle) * s.offsetDist;
+        const targetY = this._cursorY + Math.sin(s.offsetAngle) * s.offsetDist;
         const dx = targetX - cx;
         const dy = targetY - cy;
         const dist = Math.sqrt(dx * dx + dy * dy);
@@ -333,8 +337,8 @@ export class PhysicsEngine {
 
         const cx = s.x + SHIGGY_SIZE / 2;
         const cy = s.y + SHIGGY_SIZE / 2;
-        const targetX = this._cursorX + FOLLOW_OFFSET_X;
-        const targetY = this._cursorY + FOLLOW_OFFSET_Y;
+        const targetX = this._cursorX + Math.cos(s.offsetAngle) * s.offsetDist;
+        const targetY = this._cursorY + Math.sin(s.offsetAngle) * s.offsetDist;
         const dx = targetX - cx;
         const dy = targetY - cy;
         const dist = Math.sqrt(dx * dx + dy * dy);
