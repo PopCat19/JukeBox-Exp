@@ -136,11 +136,13 @@ export class PhysicsEngine {
         const tickStartCursorX = this._cursorX;
         const tickStartCursorY = this._cursorY;
 
+        const startPositions: { x: number; y: number }[] = [];
         for (let i = 0; i < this._states.length; i++) {
+            startPositions.push({ x: this._states[i].x, y: this._states[i].y });
             this._tickOne(this._states[i], i, now);
         }
         this._collideAll();
-        this._collideCursor(tickStartCursorX, tickStartCursorY);
+        this._collideCursor(tickStartCursorX, tickStartCursorY, startPositions);
         for (const s of this._states) {
             this._collideViewport(s);
         }
@@ -503,18 +505,19 @@ export class PhysicsEngine {
         }
     }
 
-    private _collideCursor(tickStartCursorX: number, tickStartCursorY: number): void {
-        for (const s of this._states) {
+    private _collideCursor(tickStartCursorX: number, tickStartCursorY: number, startPositions: { x: number; y: number }[]): void {
+        for (let i = 0; i < this._states.length; i++) {
+            const s = this._states[i];
             if (s.following || s.approaching) continue;
-            const sx = s.x + SHIGGY_SIZE / 2, sy = s.y + SHIGGY_SIZE / 2;
 
-            // Continuous collision detection: check if cursor path intersects shiggy hitbox
-            // Use the cursor position at the start of the tick and the current position
-            const dx = sx - this._cursorX, dy = sy - this._cursorY;
-            const dist = Math.sqrt(dx * dx + dy * dy);
+            const sx = s.x + SHIGGY_SIZE / 2, sy = s.y + SHIGGY_SIZE / 2;
+            const s0x = startPositions[i].x + SHIGGY_SIZE / 2;
+            const s0y = startPositions[i].y + SHIGGY_SIZE / 2;
             const minDist = SHIGGY_HITBOX_RADIUS + CURSOR_RADIUS;
 
-            // Check if current position is already colliding
+            const dx = sx - this._cursorX, dy = sy - this._cursorY;
+            const dist = Math.sqrt(dx * dx + dy * dy);
+
             if (dist < minDist && dist > 0.01) {
                 const overlap = minDist - dist;
                 const nx = dx / dist, ny = dy / dist;
@@ -526,39 +529,52 @@ export class PhysicsEngine {
                     s.vy += ny * cursorNormal * CURSOR_MASS_TRANSFER;
                 }
             } else {
-                // Check if cursor path between ticks intersects shiggy hitbox
-                // This prevents tunneling at low FPS
-                const pathDx = this._cursorX - tickStartCursorX;
-                const pathDy = this._cursorY - tickStartCursorY;
-                const pathLenSq = pathDx * pathDx + pathDy * pathDy;
+                // Relative motion CCD: sweep cursor path against shiggy start pos
+                const relPathDx = this._cursorX - tickStartCursorX - (s0x - sx);
+                const relPathDy = this._cursorY - tickStartCursorY - (s0y - sy);
+                const relPathLenSq = relPathDx * relPathDx + relPathDy * relPathDy;
 
-                if (pathLenSq > 0.01) {
-                    // Vector from tick start cursor to shiggy center
-                    const toShiggyX = sx - tickStartCursorX;
-                    const toShiggyY = sy - tickStartCursorY;
+                // Also check combined displacement for safety margin
+                const shiggyDisp = Math.sqrt((sx - s0x) ** 2 + (sy - s0y) ** 2);
+                const cursorDisp = Math.sqrt((this._cursorX - tickStartCursorX) ** 2 + (this._cursorY - tickStartCursorY) ** 2);
+                const speedMargin = Math.max(shiggyDisp, cursorDisp) * 0.5;
+                const expandedMinDist = minDist + speedMargin;
 
-                    // Project shiggy center onto cursor path
+                if (relPathLenSq > 0.01) {
+                    const toS0x = s0x - tickStartCursorX;
+                    const toS0y = s0y - tickStartCursorY;
                     const t = Math.max(0, Math.min(1,
-                        (toShiggyX * pathDx + toShiggyY * pathDy) / pathLenSq
+                        (toS0x * relPathDx + toS0y * relPathDy) / relPathLenSq
                     ));
+                    const closestX = tickStartCursorX + relPathDx * t;
+                    const closestY = tickStartCursorY + relPathDy * t;
+                    const cdx = s0x - closestX;
+                    const cdy = s0y - closestY;
+                    const closestDist = Math.sqrt(cdx * cdx + cdy * cdy);
 
-                    // Closest point on cursor path to shiggy center
-                    const closestX = tickStartCursorX + pathDx * t;
-                    const closestY = tickStartCursorY + pathDy * t;
-
-                    // Distance from closest point to shiggy center
-                    const closestDx = sx - closestX;
-                    const closestDy = sy - closestY;
-                    const closestDist = Math.sqrt(closestDx * closestDx + closestDy * closestDy);
-
-                    if (closestDist < minDist && closestDist > 0.01) {
-                        // Collision detected along the path
-                        const overlap = minDist - closestDist;
-                        const nx = closestDx / closestDist;
-                        const ny = closestDy / closestDist;
-                        s.x += nx * overlap; s.y += ny * overlap;
-
-                        // Use cursor velocity for momentum transfer
+                    if (closestDist < expandedMinDist && closestDist > 0.01) {
+                        const nx = cdx / closestDist;
+                        const ny = cdy / closestDist;
+                        s.x += nx * (expandedMinDist - closestDist);
+                        s.y += ny * (expandedMinDist - closestDist);
+                        const cursorNormal =
+                            this._cursorVx * nx + this._cursorVy * ny;
+                        if (cursorNormal > 0) {
+                            s.vx += nx * cursorNormal * CURSOR_MASS_TRANSFER;
+                            s.vy += ny * cursorNormal * CURSOR_MASS_TRANSFER;
+                        }
+                    }
+                } else if (speedMargin > 0) {
+                    // No relative motion path but objects displaced significantly —
+                    // check expanded radius against shiggy start position
+                    const sdx = s0x - this._cursorX;
+                    const sdy = s0y - this._cursorY;
+                    const sdist = Math.sqrt(sdx * sdx + sdy * sdy);
+                    if (sdist < expandedMinDist && sdist > 0.01) {
+                        const nx = sdx / sdist;
+                        const ny = sdy / sdist;
+                        s.x += nx * (expandedMinDist - sdist);
+                        s.y += ny * (expandedMinDist - sdist);
                         const cursorNormal =
                             this._cursorVx * nx + this._cursorVy * ny;
                         if (cursorNormal > 0) {
