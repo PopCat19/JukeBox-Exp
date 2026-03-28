@@ -232,7 +232,7 @@ export class ChannelGainPrompt implements Prompt {
     // Update master volume bar
     this._historicTimer--;
     if (this._historicTimer <= 0) {
-      this._historicVolumeCap -= 0.06;
+      this._historicVolumeCap -= 0.03;
     }
     if (this._doc.song.outVolumeCap > this._historicVolumeCap) {
       this._historicVolumeCap = this._doc.song.outVolumeCap;
@@ -290,7 +290,7 @@ export class ChannelGainPrompt implements Prompt {
 
       historic.timer--;
       if (historic.timer <= 0) {
-        historic.cap -= 0.06;
+        historic.cap -= 0.03;
       }
       if (channelState.volumeCap > historic.cap) {
         historic.cap = channelState.volumeCap;
