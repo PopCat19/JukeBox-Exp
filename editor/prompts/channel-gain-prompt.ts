@@ -410,12 +410,14 @@ export class ChannelGainPrompt implements Prompt {
         });
         
         for (let j = 0; j < channel.instruments.length; j++) {
-          const isActiveInstr = isCurrentChannel && j === currentInstrument;
+          const isSelectedInstr = isCurrentChannel && j === currentInstrument;
+          const instrState = channelState.instruments[j];
+          const isPlaying = instrState.activeTones.count() > 0 || instrState.releasedTones.count() > 0 || instrState.liveInputTones.count() > 0;
           instrDiv.appendChild(span({
             style: `font-size: 9px; padding: 1px 3px; border-radius: 2px; background: ${
-              isActiveInstr ? channelColors.primaryChannel : "var(--ui-widget-background)"
+              isPlaying ? channelColors.primaryNote : isSelectedInstr ? channelColors.primaryChannel : "var(--ui-widget-background)"
             }; color: ${
-              isActiveInstr ? "var(--editor-background)" : channelColors.secondaryChannel
+              isPlaying || isSelectedInstr ? "var(--editor-background)" : channelColors.secondaryChannel
             };`,
           }, `I${j + 1}`));
         }
