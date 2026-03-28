@@ -1,3 +1,10 @@
+// player-animator.ts
+//
+// Purpose: Drives animation-frame loop for playback UI updates
+//
+// This module:
+// - Runs requestAnimationFrame loop for mod sliders, filters, playhead, and volume bar
+
 import { BarScrollBar } from "../components/bar-scroll-bar";
 import { FilterEditor } from "../components/filter-editor";
 import { SongDocument } from "../song-document";

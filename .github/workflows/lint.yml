@@ -22,3 +22,6 @@ jobs:
 
       - name: Lint
         run: bun run lint
+
+      - name: Typecheck (all projects)
+        run: bun run typecheck:all

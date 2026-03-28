@@ -5,7 +5,7 @@
 - `change-notifier.ts` — Implements observer pattern for notifying editor components of state changes
 - `change-dispatcher.ts` — Dispatches UI change events for instrument and song settings
 - `keyboard-handler.ts` — Extracts keyboard shortcut handling from SongEditor
-- `mod-slider-registry.ts` — Maps mod setting indices to slider refs via a provider interface
+- `mod-slider-registry.ts` — Maps mod setting indices to Slider refs via a provider interface
 - `player-animator.ts` — Drives animation-frame loop for playback UI updates
 - `preferences.ts` — Manages user preference settings with localStorage persistence
 - `prompt-manager.ts` — Manages the lifecycle of editor prompt dialogs

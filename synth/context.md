@@ -1,7 +1,7 @@
 # synth/ context
 
 - `index.ts` — Barrel re-export organizing synth modules by dependency layer
-- `synth.ts` — Core synthesis engine: audio playback, rendering, and modulation
+- `synth.ts` — Core synthesis engine — audio playback, rendering, and modulation
 - `song.ts` — Manages song data model, fields, and initialization
 - `song-serialization.ts` — URL hash serialization for songs (toBase64String, fromBase64String)
 - `song-utilities.ts` — Helper functions for song serialization and sample management

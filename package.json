@@ -24,7 +24,7 @@
 		"typecheck:all": "bun run typecheck && bun run typecheck:synth && bun run typecheck:player",
 		"dev": "bash ./scripts/live-editor.sh",
 		"lint": "bash ./scripts/lint.sh",
-		"lint:fix": "bunx eslint editor/ synth/ player/ global/ --fix",
+		"lint:fix": "bunx eslint editor/ synth/ player/ shared/ --fix",
 		"deploy": "bash ./scripts/deploy.sh",
 		"deploy-files": "bash ./scripts/deploy_files.sh"
 	},
