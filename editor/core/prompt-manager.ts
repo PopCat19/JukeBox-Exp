@@ -12,6 +12,7 @@ import { PatternEditor } from "../components/pattern-editor";
 import { SpectrumEditorPrompt } from "../components/spectrum-editor";
 import { AddSamplesPrompt } from "../prompts/add-samples-prompt";
 import { BeatsPerBarPrompt } from "../prompts/beats-per-bar-prompt";
+import { ChannelGainPrompt } from "../prompts/channel-gain-prompt";
 import { ChannelSettingsPrompt } from "../prompts/channel-settings-prompt";
 import { CustomChipPrompt } from "../prompts/custom-chip-prompt";
 import { CustomFilterPrompt } from "../prompts/custom-filter-prompt";
@@ -85,7 +86,7 @@ export class PromptManager {
           || this.prompt instanceof CustomScalePrompt || this.prompt instanceof CustomChipPrompt
           || this.prompt instanceof CustomFilterPrompt || this.prompt instanceof VisualLoopControlsPrompt
           || this.prompt instanceof SustainPrompt || this.prompt instanceof HarmonicsEditorPrompt
-          || this.prompt instanceof SpectrumEditorPrompt)
+          || this.prompt instanceof SpectrumEditorPrompt || this.prompt instanceof ChannelGainPrompt)
       ) {
         doc.performance.play();
       }
@@ -123,6 +124,9 @@ export class PromptManager {
           break;
         case "channelSettings":
           this.prompt = new ChannelSettingsPrompt(doc);
+          break;
+        case "channelGains":
+          this.prompt = new ChannelGainPrompt(doc);
           break;
         case "limiterSettings":
           this.prompt = new LimiterPrompt(doc, this._host as any);
@@ -202,7 +206,8 @@ export class PromptManager {
           !(this.prompt instanceof TipPrompt || this.prompt instanceof LimiterPrompt
             || this.prompt instanceof CustomChipPrompt || this.prompt instanceof CustomFilterPrompt
             || this.prompt instanceof VisualLoopControlsPrompt || this.prompt instanceof SustainPrompt
-            || this.prompt instanceof HarmonicsEditorPrompt || this.prompt instanceof SpectrumEditorPrompt)
+            || this.prompt instanceof HarmonicsEditorPrompt || this.prompt instanceof SpectrumEditorPrompt
+            || this.prompt instanceof ChannelGainPrompt)
         ) {
           this._wasPlaying = doc.synth.playing;
           doc.performance.pause();

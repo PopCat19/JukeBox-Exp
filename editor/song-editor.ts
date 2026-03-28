@@ -16,6 +16,7 @@ import { Shiggy } from "./components/shiggy-component";
 import { EditorConfig, isMobile, Preset, PresetCategory } from "./config/editor-config";
 import { Change } from "./core/change";
 import { BeatsPerBarPrompt } from "./prompts/beats-per-bar-prompt";
+import { ChannelGainPrompt } from "./prompts/channel-gain-prompt";
 import { ChannelSettingsPrompt } from "./prompts/channel-settings-prompt";
 import { CustomChipPrompt } from "./prompts/custom-chip-prompt";
 import { CustomFilterPrompt } from "./prompts/custom-filter-prompt";
@@ -3203,6 +3204,7 @@ export class SongEditor implements ModSliderProvider {
 
     this._volumeBarContainer.style.setProperty("flex-grow", "1");
     this._volumeBarContainer.style.setProperty("display", "flex");
+    this._volumeBarContainer.addEventListener("click", this._whenVolumeBarClicked);
 
     // Also, any slider with a multiplicative effect instead of a replacement effect gets a different mod color, and a round slider.
     this._volumeSlider.container.style.setProperty("--mod-color", ColorConfig.multiplicativeModSlider);
@@ -3624,6 +3626,10 @@ export class SongEditor implements ModSliderProvider {
     this._openPrompt("sampleLoadingStatus");
   };
 
+  private _whenVolumeBarClicked = (): void => {
+    this._openPrompt("channelGains");
+  };
+
   private _updateSampleLoadingBar(_e: Event): void {
     // @TODO: Avoid this cast and type EventTarget/Event properly.
     const e: SampleLoadedEvent = <SampleLoadedEvent> _e;
@@ -3905,7 +3911,8 @@ export class SongEditor implements ModSliderProvider {
           || this.prompt instanceof CustomScalePrompt || this.prompt instanceof CustomChipPrompt
           || this.prompt instanceof CustomFilterPrompt || this.prompt instanceof VisualLoopControlsPrompt
           || this.prompt instanceof SustainPrompt || this.prompt instanceof HarmonicsEditorPrompt
-          || this.prompt instanceof SpectrumEditorPrompt || this.prompt instanceof PresetSelectorPrompt)
+          || this.prompt instanceof SpectrumEditorPrompt || this.prompt instanceof PresetSelectorPrompt
+          || this.prompt instanceof ChannelGainPrompt)
       ) {
         this.doc.performance.play();
       }
@@ -3943,6 +3950,9 @@ export class SongEditor implements ModSliderProvider {
           break;
         case "channelSettings":
           this.prompt = new ChannelSettingsPrompt(this.doc);
+          break;
+        case "channelGains":
+          this.prompt = new ChannelGainPrompt(this.doc);
           break;
         case "limiterSettings":
           this.prompt = new LimiterPrompt(this.doc, this);
@@ -4029,7 +4039,8 @@ export class SongEditor implements ModSliderProvider {
             || this.prompt instanceof CustomChipPrompt || this.prompt instanceof CustomFilterPrompt
             || this.prompt instanceof VisualLoopControlsPrompt || this.prompt instanceof SustainPrompt
             || this.prompt instanceof HarmonicsEditorPrompt || this.prompt instanceof SpectrumEditorPrompt
-            || this.prompt instanceof PresetSelectorPrompt || this.prompt instanceof KeyboardShortcutsPrompt)
+            || this.prompt instanceof PresetSelectorPrompt || this.prompt instanceof KeyboardShortcutsPrompt
+            || this.prompt instanceof ChannelGainPrompt)
         ) {
           this._wasPlaying = this.doc.synth.playing;
           this.doc.performance.pause();

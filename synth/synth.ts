@@ -1472,6 +1472,10 @@ export class Synth {
     const song: Song = this.song;
     this.song.inVolumeCap = 0.0; // Reset volume cap for this run
     this.song.outVolumeCap = 0.0;
+    // Reset per-channel volume caps
+    for (let i = 0; i < this.channels.length; i++) {
+      this.channels[i].volumeCap = 0.0;
+    }
 
     let samplesPerTick: number = this.getSamplesPerTick();
     let ended: boolean = false;
@@ -1629,6 +1633,15 @@ export class Synth {
         const channel: Channel = song.channels[channelIndex];
         const channelState: ChannelState = this.channels[channelIndex];
 
+        // Track per-channel volume by measuring before/after this channel's contribution
+        let channelPeakBefore: number = 0;
+        for (let i = bufferIndex; i < runEnd; i++) {
+          const absL = Math.abs(outputDataL[i] + (this.outputDataLUnfiltered?.[i] ?? 0));
+          const absR = Math.abs(outputDataR[i] + (this.outputDataRUnfiltered?.[i] ?? 0));
+          if (absL > channelPeakBefore) channelPeakBefore = absL;
+          if (absR > channelPeakBefore) channelPeakBefore = absR;
+        }
+
         if (this.isAtStartOfTick) {
           this.determineCurrentActiveTones(song, channelIndex, samplesPerTick, playSong && !this.countInMetronome);
           this.determineLiveInputTones(song, channelIndex, samplesPerTick);
@@ -1719,6 +1732,18 @@ export class Synth {
             instrumentState.nextVibratoTime = 0;
           } else {
             instrumentState.nextVibratoTime += useVibratoSpeed * 0.1 * (partTimeEnd - partTimeStart);
+          }
+        }
+
+        // Track per-channel volume by measuring after this channel's contribution
+        for (let i = bufferIndex; i < runEnd; i++) {
+          const absL = Math.abs(outputDataL[i] + (this.outputDataLUnfiltered?.[i] ?? 0));
+          const absR = Math.abs(outputDataR[i] + (this.outputDataRUnfiltered?.[i] ?? 0));
+          const diffL = Math.max(0, absL - channelPeakBefore);
+          const diffR = Math.max(0, absR - channelPeakBefore);
+          const peak = Math.max(diffL, diffR);
+          if (peak > channelState.volumeCap) {
+            channelState.volumeCap = peak;
           }
         }
       }

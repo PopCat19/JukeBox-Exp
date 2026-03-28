@@ -56,6 +56,7 @@ export class Song {
   public masterGain: number = 1.0;
   public inVolumeCap: number = 0.0;
   public outVolumeCap: number = 0.0;
+  public channelVolumeCaps: number[] = [];
   public eqFilter: FilterSettings = new FilterSettings();
   public eqFilterType: boolean = false;
   public eqFilterSimpleCut: number = Config.filterSimpleCutRange - 1;
