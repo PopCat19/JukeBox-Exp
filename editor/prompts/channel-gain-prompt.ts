@@ -345,8 +345,8 @@ export class ChannelGainPrompt implements Prompt {
             if (instrState && instrSpan) {
               const isPlaying = instrState.activeTones.count() > 0 || instrState.releasedTones.count() > 0 || instrState.liveInputTones.count() > 0;
               const inPattern = patternInstrumentsAnim.includes(j);
-              instrSpan.style.background = isPlaying ? channelColors.primaryNote : inPattern ? channelColors.primaryChannel : "var(--ui-widget-background)";
-              instrSpan.style.color = isPlaying || inPattern ? "var(--editor-background)" : channelColors.primaryChannel;
+              instrSpan.style.background = isPlaying ? "white" : inPattern ? channelColors.primaryChannel : "var(--ui-widget-background)";
+              instrSpan.style.color = isPlaying ? "black" : inPattern ? "var(--editor-background)" : channelColors.primaryChannel;
               instrSpan.style.opacity = inPattern || isPlaying ? "1" : "0.5";
             }
           }
@@ -489,9 +489,9 @@ export class ChannelGainPrompt implements Prompt {
           const isPlaying = instrState.activeTones.count() > 0 || instrState.releasedTones.count() > 0 || instrState.liveInputTones.count() > 0;
           const instrSpan = span({
             style: `font-size: 9px; font-weight: 600; padding: 1px 3px; border-radius: 2px; background: ${
-              isPlaying ? channelColors.primaryNote : inPattern ? channelColors.primaryChannel : "var(--ui-widget-background)"
+              isPlaying ? "white" : inPattern ? channelColors.primaryChannel : "var(--ui-widget-background)"
             }; color: ${
-              isPlaying || inPattern ? "var(--editor-background)" : channelColors.primaryChannel
+              isPlaying ? "black" : inPattern ? "var(--editor-background)" : channelColors.primaryChannel
             }; opacity: ${
               inPattern || isPlaying ? "1" : "0.5"
             };`,
