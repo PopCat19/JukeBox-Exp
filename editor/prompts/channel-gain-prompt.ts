@@ -9,6 +9,7 @@
 
 import { HTML, SVG } from "imperative-html/dist/esm/elements-strict";
 import { SongDocument } from "../song-document";
+import { ColorConfig } from "../rendering/color-config";
 import { Prompt } from "./prompt";
 
 const { div, h2, span, button } = HTML;
@@ -345,6 +346,7 @@ export class ChannelGainPrompt implements Prompt {
 
       const channelName = channel.name || `${i + 1}`;
       const channelType = isModChannel ? "Mod" : (isDrumChannel ? "Drum" : "Pitch");
+      const channelColors = ColorConfig.getChannelColor(song, i);
 
       // Volume bar for this channel
       const volBar = rect({
@@ -353,7 +355,7 @@ export class ChannelGainPrompt implements Prompt {
         width: "0%",
         x: "5%",
         y: "30%",
-        fill: "url('#channelGainVolumeGrad')",
+        fill: channelColors.primaryChannel,
       });
       const volCap = rect({
         "pointer-events": "none",
@@ -361,14 +363,14 @@ export class ChannelGainPrompt implements Prompt {
         height: "40%",
         x: "5%",
         y: "30%",
-        fill: "var(--ui-widget-focus, #777)",
+        fill: channelColors.primaryNote,
       });
 
       this._channelVolumeBars.set(i, volBar);
       this._channelVolumeCaps.set(i, volCap);
 
       const dbLabel = span({
-        style: "color: var(--secondary-text); font-size: 9px; font-family: monospace; text-align: center; display: block;",
+        style: `color: ${channelColors.secondaryNote}; font-size: 9px; font-family: monospace; text-align: center; display: block;`,
       }, "Peak: -inf dB");
       this._channelDbLabels.set(i, dbLabel);
 
@@ -393,9 +395,9 @@ export class ChannelGainPrompt implements Prompt {
       );
 
       const channelDiv = div({
-        style: `display: flex; flex-direction: column; padding: 4px 6px; border: 1px solid ${
-          isMuted ? "var(--mute-button-normal)" : "var(--ui-widget-background)"
-        }; border-radius: 4px; ${isMuted ? "opacity: 0.5;" : ""} ${isActive ? "background: rgba(100,200,100,0.1);" : ""}`,
+        style: `display: flex; flex-direction: column; padding: 4px 6px; border: 2px solid ${
+          isMuted ? "var(--mute-button-normal)" : channelColors.primaryChannel
+        }; border-radius: 4px; ${isMuted ? "opacity: 0.5;" : ""} ${isActive ? `background: ${channelColors.secondaryChannel}22;` : ""}`,
       });
 
       const headerDiv = div({
@@ -403,11 +405,11 @@ export class ChannelGainPrompt implements Prompt {
       });
 
       headerDiv.appendChild(span({
-        style: "font-weight: bold; color: var(--primary-text); font-size: 11px;",
+        style: `font-weight: bold; color: ${channelColors.primaryNote}; font-size: 11px;`,
       }, channelName));
 
       headerDiv.appendChild(span({
-        style: "font-size: 9px; color: var(--secondary-text);",
+        style: `font-size: 9px; color: ${channelColors.secondaryNote};`,
       }, channelType));
 
       channelDiv.appendChild(headerDiv);
