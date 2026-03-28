@@ -154,6 +154,7 @@ export class ChannelGainPrompt implements Prompt {
     this._cancelButton.addEventListener("click", this._close);
     this._playPauseButton.addEventListener("click", this._togglePlayPause);
     this.container.addEventListener("keydown", this._onKeyDown);
+    setTimeout(() => this.container.focus());
   }
 
   private _togglePlayPause = (): void => {
