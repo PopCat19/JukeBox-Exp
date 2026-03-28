@@ -333,13 +333,15 @@ export class ChannelGainPrompt implements Prompt {
       const channel = this._doc.song.channels[channelIndex];
       if (channel) {
         const channelColors = ColorConfig.getChannelColor(this._doc.song, channelIndex);
-        for (let j = 0; j < channel.instruments.length; j++) {
-          const instrSpan = this._instrumentSpans.get(`${channelIndex}-${j}`);
-          if (instrSpan) {
+        for (const [key, instrSpan] of this._instrumentSpans) {
+          if (key.startsWith(`${channelIndex}-`)) {
+            const j = parseInt(key.split("-")[1]);
             const instrState = channelState.instruments[j];
-            const isPlaying = instrState.activeTones.count() > 0 || instrState.releasedTones.count() > 0 || instrState.liveInputTones.count() > 0;
-            instrSpan.style.background = isPlaying ? channelColors.primaryNote : "var(--ui-widget-background)";
-            instrSpan.style.color = isPlaying ? "var(--editor-background)" : channelColors.primaryChannel;
+            if (instrState && instrSpan) {
+              const isPlaying = instrState.activeTones.count() > 0 || instrState.releasedTones.count() > 0 || instrState.liveInputTones.count() > 0;
+              instrSpan.style.background = isPlaying ? channelColors.primaryNote : "var(--ui-widget-background)";
+              instrSpan.style.color = isPlaying ? "var(--editor-background)" : channelColors.primaryChannel;
+            }
           }
         }
       }
@@ -465,7 +467,10 @@ export class ChannelGainPrompt implements Prompt {
       channelDiv.appendChild(volBarContainer);
       channelDiv.appendChild(dbLabel);
 
-      // Show instruments
+      // Show instruments used in the current pattern
+      const pattern = hasPattern ? song.getPattern(i, currentBar) : null;
+      const patternInstruments = pattern ? pattern.instruments : [];
+      
       if (channel.instruments.length > 0) {
         const isCurrentChannel = i === this._doc.channel;
         const currentInstrument = this._doc.getCurrentInstrument();
@@ -473,7 +478,13 @@ export class ChannelGainPrompt implements Prompt {
           style: "display: flex; flex-wrap: wrap; gap: 2px; margin-top: 4px;",
         });
         
-        for (let j = 0; j < channel.instruments.length; j++) {
+        // Show only instruments in the current pattern, or all if no pattern
+        const instrToShow = patternInstruments.length > 0
+          ? patternInstruments
+          : channel.instruments.map((_, idx) => idx);
+        
+        for (const j of instrToShow) {
+          if (j < 0 || j >= channel.instruments.length) continue;
           const isSelectedInstr = isCurrentChannel && j === currentInstrument;
           const instrState = channelState.instruments[j];
           const isPlaying = instrState.activeTones.count() > 0 || instrState.releasedTones.count() > 0 || instrState.liveInputTones.count() > 0;
