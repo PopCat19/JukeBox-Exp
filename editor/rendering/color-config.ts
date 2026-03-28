@@ -13,6 +13,7 @@ import { HTML } from "imperative-html/dist/esm/elements-strict";
 import { Song } from "../../synth";
 import { BeepBoxOption, Config, DictionaryArray, toNameMap } from "../../synth/synth-config";
 import { themes } from "./themes";
+import { events } from "../../shared/events";
 
 export interface ChannelColors extends BeepBoxOption {
   readonly secondaryChannel: string;
@@ -1079,6 +1080,9 @@ export class ColorConfig {
     }
 
     this.resetColors();
+
+    // Dispatch theme change event for oscilloscope and other listeners
+    events.raise("themeChange", name);
 
     this.usesColorFormula =
       getComputedStyle(this._styleElement).getPropertyValue("--use-color-formula").trim() == "true";

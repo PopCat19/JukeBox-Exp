@@ -526,6 +526,8 @@ export class Synth {
   public volume: number = 1.0;
   public oscRefreshEventTimer: number = 0;
   public oscEnabled: boolean = true;
+  private _lastOscUpdateTime: number = 0;
+  private static readonly OSC_UPDATE_INTERVAL_MS: number = 1000 / 30; // 30fps
   public enableMetronome: boolean = false;
   public countInMetronome: boolean = false;
   public renderingSong: boolean = false;
@@ -1289,11 +1291,10 @@ export class Synth {
       this.synthesize(outputDataL, outputDataR, outputBuffer.length, this.isPlayingSong);
 
       if (this.oscEnabled) {
-        if (this.oscRefreshEventTimer <= 0) {
+        const now = performance.now();
+        if (now - this._lastOscUpdateTime >= Synth.OSC_UPDATE_INTERVAL_MS) {
           events.raise("oscilloscopeUpdate", outputDataL, outputDataR);
-          this.oscRefreshEventTimer = 2;
-        } else {
-          this.oscRefreshEventTimer--;
+          this._lastOscUpdateTime = now;
         }
       }
     }

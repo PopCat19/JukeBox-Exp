@@ -12,33 +12,55 @@ import { events } from "./events";
 
 export class oscilloscopeCanvas {
   public _EventUpdateCanvas: Function;
+  private _cachedBgColor: string = "";
+  private _cachedLColor: string = "";
+  private _cachedRColor: string = "";
 
   constructor(public readonly canvas: HTMLCanvasElement, readonly scale: number = 1) {
-    this._EventUpdateCanvas = function(directlinkL: Float32Array, directlinkR?: Float32Array): void {
+    // Pre-cache colors on creation
+    this._updateCachedColors();
+
+    this._EventUpdateCanvas = (directlinkL: Float32Array, directlinkR?: Float32Array): void => {
       if (directlinkR) {
         const ctx = canvas.getContext("2d") as CanvasRenderingContext2D;
+        const w = canvas.width;
+        const h = canvas.height;
 
-        ctx.fillStyle = ColorConfig.getComputed("--editor-background");
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        // Clear with cached background color
+        ctx.fillStyle = this._cachedBgColor;
+        ctx.fillRect(0, 0, w, h);
 
-        ctx.fillStyle = ColorConfig.getComputed("--oscilloscope-line-L");
-        for (let i: number = directlinkL.length - 1; i >= directlinkL.length - 1 - (canvas.width / scale); i--) {
-          const x = i - (directlinkL.length - 1) + (canvas.width / scale);
-          const yl = directlinkL[i] * (canvas.height / scale / 2) + (canvas.height / scale / 2);
+        const halfH = h / scale / 2;
+        const sampleCount = Math.min(directlinkL.length, Math.floor(w / scale));
+        const startIdx = directlinkL.length - sampleCount;
 
-          ctx.fillRect((x - 1) * scale, (yl - 1) * scale, 1 * scale, 1.5 * scale);
-          if (x == 0) break;
+        // Draw left channel
+        ctx.fillStyle = this._cachedLColor;
+        for (let i = startIdx; i < directlinkL.length; i++) {
+          const x = (i - startIdx) * scale;
+          const y = directlinkL[i] * halfH + halfH;
+          ctx.fillRect(x, (y - 1) * scale, scale, scale * 1.5);
         }
-        ctx.fillStyle = ColorConfig.getComputed("--oscilloscope-line-R"); // less ctx style calls = less expensive??? also avoiding uncached colors
-        for (let i: number = directlinkR.length - 1; i >= directlinkR.length - 1 - (canvas.width / scale); i--) {
-          const x = i - (directlinkR.length - 1) + (canvas.width / scale);
-          const yr = directlinkR[i] * (canvas.height / scale / 2) + (canvas.height / scale / 2);
 
-          ctx.fillRect((x - 1) * scale, (yr - 1) * scale, 1 * scale, 1.5 * scale);
-          if (x == 0) break;
+        // Draw right channel
+        ctx.fillStyle = this._cachedRColor;
+        for (let i = startIdx; i < directlinkR.length; i++) {
+          const x = (i - startIdx) * scale;
+          const y = directlinkR[i] * halfH + halfH;
+          ctx.fillRect(x, (y - 1) * scale, scale, scale * 1.5);
         }
       }
     };
+
     events.listen("oscilloscopeUpdate", this._EventUpdateCanvas);
+
+    // Listen for theme changes to update cached colors
+    events.listen("themeChange", () => this._updateCachedColors());
+  }
+
+  private _updateCachedColors(): void {
+    this._cachedBgColor = ColorConfig.getComputed("--editor-background") || "black";
+    this._cachedLColor = ColorConfig.getComputed("--oscilloscope-line-L") || "white";
+    this._cachedRColor = ColorConfig.getComputed("--oscilloscope-line-R") || "rgba(119,68,255,0.99)";
   }
 }
