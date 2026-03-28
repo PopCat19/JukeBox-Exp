@@ -76,10 +76,6 @@ export class ChannelGainPrompt implements Prompt {
   private readonly _channelHistoricCaps: Map<number, { cap: number; timer: number }> = new Map();
   private readonly _channelDbLabels: Map<number, HTMLSpanElement> = new Map();
 
-  private _showActiveOnly: boolean = false;
-  private readonly _toggleButton: HTMLButtonElement = button({
-    style: "font-size: 11px; padding: 4px 8px;",
-  }, "Active Only");
   private readonly _playPauseButton: HTMLButtonElement = button({
     style: "font-size: 11px; padding: 4px 8px;",
   }, "▶ Play");
@@ -118,7 +114,7 @@ export class ChannelGainPrompt implements Prompt {
         this._masterDbPeakLabel,
         this._masterDbAvgLabel,
         this._masterDbRangeLabel,
-        div({ style: "display: flex; gap: 8px; margin-top: auto;" }, this._playPauseButton, this._toggleButton),
+        div({ style: "margin-top: auto;" }, this._playPauseButton),
       ),
       // Right pane: Channels
       div(
@@ -138,16 +134,9 @@ export class ChannelGainPrompt implements Prompt {
     this._renderChannelList();
     this._animationId = window.requestAnimationFrame(this._animate);
     this._cancelButton.addEventListener("click", this._close);
-    this._toggleButton.addEventListener("click", this._toggleFilter);
     this._playPauseButton.addEventListener("click", this._togglePlayPause);
     this.container.addEventListener("keydown", this._onKeyDown);
   }
-
-  private _toggleFilter = (): void => {
-    this._showActiveOnly = !this._showActiveOnly;
-    this._toggleButton.textContent = this._showActiveOnly ? "Show All" : "Active Only";
-    this._renderChannelList();
-  };
 
   private _togglePlayPause = (): void => {
     if (this._doc.synth.playing) {
@@ -190,7 +179,6 @@ export class ChannelGainPrompt implements Prompt {
     this._channelHistoricCaps.clear();
     this._channelDbLabels.clear();
     this._cancelButton.removeEventListener("click", this._close);
-    this._toggleButton.removeEventListener("click", this._toggleFilter);
     this._playPauseButton.removeEventListener("click", this._togglePlayPause);
     this.container.removeEventListener("keydown", this._onKeyDown);
   };
@@ -340,10 +328,7 @@ export class ChannelGainPrompt implements Prompt {
       const isModChannel = i >= song.pitchChannelCount + song.noiseChannelCount;
       const isDrumChannel = i >= song.pitchChannelCount && !isModChannel;
 
-      // Check if channel is producing sound
       const isActive = channelState.volumeCap > 0.01;
-      if (this._showActiveOnly && !isActive) continue;
-
       const channelName = channel.name || `${i + 1}`;
       const channelType = isModChannel ? "Mod" : (isDrumChannel ? "Drum" : "Pitch");
       const channelColors = ColorConfig.getChannelColor(song, i);
@@ -370,7 +355,7 @@ export class ChannelGainPrompt implements Prompt {
       this._channelVolumeCaps.set(i, volCap);
 
       const dbLabel = span({
-        style: `color: ${channelColors.secondaryNote}; font-size: 9px; font-family: monospace; text-align: center; display: block;`,
+        style: `color: ${channelColors.secondaryChannel}; font-size: 9px; font-family: monospace; text-align: center; display: block;`,
       }, "Peak: -inf dB");
       this._channelDbLabels.set(i, dbLabel);
 
@@ -405,16 +390,36 @@ export class ChannelGainPrompt implements Prompt {
       });
 
       headerDiv.appendChild(span({
-        style: `font-weight: bold; color: ${channelColors.primaryNote}; font-size: 11px;`,
+        style: `font-weight: bold; color: ${channelColors.primaryChannel}; font-size: 11px;`,
       }, channelName));
 
       headerDiv.appendChild(span({
-        style: `font-size: 9px; color: ${channelColors.secondaryNote};`,
+        style: `font-size: 9px; color: ${channelColors.secondaryChannel};`,
       }, channelType));
 
       channelDiv.appendChild(headerDiv);
       channelDiv.appendChild(volBarContainer);
       channelDiv.appendChild(dbLabel);
+
+      // Show instruments
+      if (channel.instruments.length > 0) {
+        const currentInstrument = this._doc.getCurrentInstrument();
+        const instrDiv = div({
+          style: "display: flex; flex-wrap: wrap; gap: 2px; margin-top: 4px;",
+        });
+        
+        for (let j = 0; j < channel.instruments.length; j++) {
+          const isActiveInstr = i === this._doc.channel && j === currentInstrument;
+          instrDiv.appendChild(span({
+            style: `font-size: 9px; padding: 1px 3px; border-radius: 2px; background: ${
+              isActiveInstr ? channelColors.primaryChannel : "var(--ui-widget-background)"
+            }; color: ${
+              isActiveInstr ? "var(--editor-background)" : channelColors.secondaryChannel
+            };`,
+          }, `I${j + 1}`));
+        }
+        channelDiv.appendChild(instrDiv);
+      }
 
       this._contentContainer.appendChild(channelDiv);
     }
