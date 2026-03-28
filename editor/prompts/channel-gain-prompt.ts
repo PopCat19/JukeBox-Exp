@@ -8,7 +8,6 @@
 // - Updates in real-time during playback
 
 import { HTML, SVG } from "imperative-html/dist/esm/elements-strict";
-import { instrumentVolumeToVolumeMult } from "../../synth/synth-shared";
 import { SongDocument } from "../song-document";
 import { Prompt } from "./prompt";
 
@@ -264,10 +263,6 @@ export class ChannelGainPrompt implements Prompt {
       if (channel.instruments.length > 0) {
         for (let j = 0; j < channel.instruments.length; j++) {
           const instrument = channel.instruments[j];
-          const volumeMult = instrumentVolumeToVolumeMult(instrument.volume);
-          const dbGain = volumeMult > 0 ? 20 * Math.log10(volumeMult) : -Infinity;
-          const dbDisplay = isFinite(dbGain) ? `${dbGain.toFixed(1)} dB` : "-inf dB";
-          const percentDisplay = `${(volumeMult * 100).toFixed(1)}%`;
 
           const instRow = div({
             style: "display: flex; justify-content: space-between; font-size: 11px; margin-top: 4px;",
@@ -279,7 +274,7 @@ export class ChannelGainPrompt implements Prompt {
 
           instRow.appendChild(span({
             style: "color: var(--primary-text); font-family: monospace;",
-          }, `${percentDisplay} (${dbDisplay})`));
+          }, `Vol: ${instrument.volume}`));
 
           channelDiv.appendChild(instRow);
         }
