@@ -357,6 +357,13 @@ export class ChannelGainPrompt implements Prompt {
       const channelType = isModChannel ? "Mod" : (isDrumChannel ? "Drum" : "Pitch");
       const channelColors = ColorConfig.getChannelColor(song, i);
 
+      // Check if channel has pattern or sound
+      const currentBar = Math.floor(this._doc.synth.playhead);
+      const patternIndex = channel.bars[currentBar];
+      const hasPattern = patternIndex > 0;
+      const hasSound = channelState.volumeCap > 0.01;
+      const isDimmed = !hasPattern && !hasSound;
+
       // Volume bar for this channel
       const volBar = rect({
         "pointer-events": "none",
@@ -406,7 +413,7 @@ export class ChannelGainPrompt implements Prompt {
       const channelDiv = div({
         style: `display: flex; flex-direction: column; padding: 4px 6px; border: 2px solid ${
           isMuted ? "var(--mute-button-normal)" : channelColors.primaryChannel
-        }; border-radius: 4px; background: var(--editor-background); ${isMuted ? "opacity: 0.5;" : ""}`,
+        }; border-radius: 4px; background: var(--editor-background); ${isMuted ? "opacity: 0.5;" : ""} ${isDimmed ? "opacity: 0.5;" : ""}`,
       });
 
       const headerDiv = div({
@@ -422,8 +429,6 @@ export class ChannelGainPrompt implements Prompt {
       }, channelType));
 
       // Show active pattern if playing
-      const currentBar = Math.floor(this._doc.synth.playhead);
-      const patternIndex = channel.bars[currentBar];
       if (patternIndex > 0) {
         headerDiv.appendChild(span({
           style: `font-size: 9px; font-weight: 600; color: ${channelColors.primaryNote}; margin-left: 4px;`,
