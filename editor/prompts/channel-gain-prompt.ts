@@ -74,6 +74,8 @@ export class ChannelGainPrompt implements Prompt {
   private readonly _channelVolumeBars: Map<number, SVGRectElement> = new Map();
   private readonly _channelVolumeCaps: Map<number, SVGRectElement> = new Map();
   private readonly _channelHistoricCaps: Map<number, { cap: number; timer: number }> = new Map();
+  private readonly _channelLastWidths: Map<number, number> = new Map();
+  private readonly _channelLastCaps: Map<number, number> = new Map();
   private readonly _channelDbLabels: Map<number, HTMLSpanElement> = new Map();
   // Store instrument spans for live updates: key is "channelIndex-instrumentIndex"
   private readonly _instrumentSpans: Map<string, HTMLSpanElement> = new Map();
@@ -84,6 +86,8 @@ export class ChannelGainPrompt implements Prompt {
 
   private _historicVolumeCap: number = 0;
   private _historicTimer: number = 0;
+  private _lastVolumeWidth: number = -1;
+  private _lastCapX: number = -1;
 
   // Running averages for dB
   private _masterVolumeSum: number = 0;
@@ -198,6 +202,8 @@ export class ChannelGainPrompt implements Prompt {
     this._channelVolumeBars.clear();
     this._channelVolumeCaps.clear();
     this._channelHistoricCaps.clear();
+    this._channelLastWidths.clear();
+    this._channelLastCaps.clear();
     this._channelDbLabels.clear();
     this._instrumentSpans.clear();
     this._cancelButton.removeEventListener("click", this._close);
@@ -235,8 +241,14 @@ export class ChannelGainPrompt implements Prompt {
 
     const volumeWidth = Math.min(144, this._doc.song.outVolumeCap * 144);
     const capX = 8 + Math.min(144, this._historicVolumeCap * 144);
-    this._outVolumeBar.setAttribute("width", "" + volumeWidth);
-    this._outVolumeCap.setAttribute("x", "" + capX);
+    if (volumeWidth !== this._lastVolumeWidth) {
+      this._lastVolumeWidth = volumeWidth;
+      this._outVolumeBar.setAttribute("width", "" + volumeWidth);
+    }
+    if (capX !== this._lastCapX) {
+      this._lastCapX = capX;
+      this._outVolumeCap.setAttribute("x", "" + capX);
+    }
 
     // Update master dB labels
     const masterPeakDb = this._historicVolumeCap > 0 ? 20 * Math.log10(this._historicVolumeCap) : -Infinity;
@@ -287,10 +299,15 @@ export class ChannelGainPrompt implements Prompt {
 
       const chWidth = Math.min(144, channelState.volumeCap * 144);
       const chCapX = 8 + Math.min(144, historic.cap * 144);
-      bar.setAttribute("width", "" + chWidth);
-
+      const lastWidth = this._channelLastWidths.get(channelIndex) ?? -1;
+      const lastCap = this._channelLastCaps.get(channelIndex) ?? -1;
+      if (chWidth !== lastWidth) {
+        this._channelLastWidths.set(channelIndex, chWidth);
+        bar.setAttribute("width", "" + chWidth);
+      }
       const capEl = this._channelVolumeCaps.get(channelIndex);
-      if (capEl) {
+      if (capEl && chCapX !== lastCap) {
+        this._channelLastCaps.set(channelIndex, chCapX);
         capEl.setAttribute("x", "" + chCapX);
       }
 
@@ -363,6 +380,8 @@ export class ChannelGainPrompt implements Prompt {
     }
     this._channelVolumeBars.clear();
     this._channelVolumeCaps.clear();
+    this._channelLastWidths.clear();
+    this._channelLastCaps.clear();
     this._channelDbLabels.clear();
 
     const song = this._doc.song;
