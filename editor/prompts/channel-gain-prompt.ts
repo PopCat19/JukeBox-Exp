@@ -98,9 +98,12 @@ export class ChannelGainPrompt implements Prompt {
   private readonly _masterDbAvgLabel: HTMLSpanElement = span({
     style: "color: var(--secondary-text); font-size: 11px; font-family: monospace;",
   }, "Avg: -inf dB");
-  private readonly _masterDbRangeLabel: HTMLSpanElement = span({
+  private readonly _masterDbMinLabel: HTMLSpanElement = span({
     style: "color: var(--secondary-text); font-size: 11px; font-family: monospace;",
-  }, "Range: -inf to -inf dB");
+  }, "Min: -inf dB");
+  private readonly _masterDbMaxLabel: HTMLSpanElement = span({
+    style: "color: var(--secondary-text); font-size: 11px; font-family: monospace;",
+  }, "Max: -inf dB");
   private readonly _currentBarLabel: HTMLSpanElement = span({
     style: "color: var(--primary-text); font-size: 11px; font-family: monospace; margin-top: 12px;",
   }, "Bar: 1");
@@ -117,16 +120,18 @@ export class ChannelGainPrompt implements Prompt {
         div({ style: "display: flex; flex-direction: column; align-items: center; margin-bottom: 8px; margin-top: 8px;" }, this._volumeBarContainer),
         this._masterDbPeakLabel,
         this._masterDbAvgLabel,
-        this._masterDbRangeLabel,
+        this._masterDbMinLabel,
+        this._masterDbMaxLabel,
         div({ style: "margin-top: 8px;" }, this._playPauseButton),
         div(
-          { style: "margin-top: auto; font-size: 9px; color: var(--secondary-text); border-top: 1px solid var(--ui-widget-background); padding-top: 8px;" },
+          { style: "margin-top: auto; font-size: 9px; color: var(--secondary-text); border-top: 1px solid var(--ui-widget-background); padding-top: 8px; white-space: nowrap;" },
           div({ title: "Pattern number" }, span({ style: "font-weight: bold;" }, "P#"), " = Pattern"),
           div({ title: "Instrument number" }, span({ style: "font-weight: bold;" }, "I#"), " = Instrument"),
           div({ title: "Decibel - volume measurement" }, span({ style: "font-weight: bold;" }, "dB"), " = Decibel"),
-          div({ title: "Highest volume level" }, span({ style: "font-weight: bold;" }, "Peak"), " = Maximum"),
+          div({ title: "Highest volume level" }, span({ style: "font-weight: bold;" }, "Pk"), " = Peak"),
           div({ title: "Average volume level" }, span({ style: "font-weight: bold;" }, "Avg"), " = Average"),
-          div({ title: "Minimum to maximum range" }, span({ style: "font-weight: bold;" }, "Range"), " = Min-Max"),
+          div({ title: "Minimum dB level recorded" }, span({ style: "font-weight: bold;" }, "Min"), " = Minimum"),
+          div({ title: "Maximum dB level recorded" }, span({ style: "font-weight: bold;" }, "Max"), " = Maximum"),
         ),
       ),
       // Right pane: Channels
@@ -247,7 +252,8 @@ export class ChannelGainPrompt implements Prompt {
 
       const minDb = isFinite(this._masterMinDb) ? this._masterMinDb.toFixed(1) : "-inf";
       const maxDb = isFinite(this._masterMaxDb) ? this._masterMaxDb.toFixed(1) : "-inf";
-      this._masterDbRangeLabel.textContent = `Range: ${minDb} to ${maxDb} dB`;
+      this._masterDbMinLabel.textContent = `Min: ${minDb} dB`;
+      this._masterDbMaxLabel.textContent = `Max: ${maxDb} dB`;
     }
 
     // Update per-channel volume bars
@@ -310,9 +316,9 @@ export class ChannelGainPrompt implements Prompt {
           const avgText = isFinite(avgDb) ? avgDb.toFixed(1) : "-inf";
           const minText = isFinite(minDb) ? minDb.toFixed(1) : "-inf";
           const maxText = isFinite(maxDb) ? maxDb.toFixed(1) : "-inf";
-          statsText = ` | Avg: ${avgText} | ${minText} to ${maxText}`;
+          statsText = ` | A:${avgText} | ${minText}/${maxText}`;
         }
-        dbLabel.textContent = isFinite(peakDb) ? `Peak: ${peakDb.toFixed(1)} dB${statsText}` : `Peak: -inf dB${statsText}`;
+        dbLabel.textContent = isFinite(peakDb) ? `Pk:${peakDb.toFixed(1)}${statsText}` : `Pk:-inf${statsText}`;
       }
     }
 
@@ -374,7 +380,7 @@ export class ChannelGainPrompt implements Prompt {
 
       const dbLabel = span({
         style: `color: ${channelColors.secondaryChannel}; font-size: 9px; font-family: monospace; text-align: center; display: block;`,
-      }, "Peak: -inf dB");
+      }, "Pk:-inf");
       this._channelDbLabels.set(i, dbLabel);
 
       const volBarContainer = svg(
