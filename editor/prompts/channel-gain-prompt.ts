@@ -73,16 +73,25 @@ export class ChannelGainPrompt implements Prompt {
   private readonly _channelVolumeBars: Map<number, SVGRectElement> = new Map();
   private readonly _channelVolumeCaps: Map<number, SVGRectElement> = new Map();
   private readonly _channelHistoricCaps: Map<number, { cap: number; timer: number }> = new Map();
+  private readonly _channelDbLabels: Map<number, HTMLSpanElement> = new Map();
+
+  private _showActiveOnly: boolean = false;
+  private readonly _toggleButton: HTMLButtonElement = button({
+    style: "font-size: 11px; margin-bottom: 8px; padding: 4px 8px;",
+  }, "Show Active Only");
 
   private _historicVolumeCap: number = 0;
   private _historicTimer: number = 0;
+  private readonly _masterDbLabel: HTMLSpanElement = span({
+    style: "color: var(--secondary-text); font-size: 11px; font-family: monospace;",
+  }, "-inf dB");
 
   public container: HTMLDivElement = div(
     { class: "prompt noSelection", style: "width: 350px;" },
     h2("Channel Gains"),
     p({ style: "margin-bottom: 4px; font-size: 12px;" }, "Master Output Volume:"),
-    div({ style: "display: flex; justify-content: center; margin-bottom: 12px;" }, this._volumeBarContainer),
-    p({ style: "margin-bottom: 8px; font-size: 12px;" }, "Per-Channel Output Volume:"),
+    div({ style: "display: flex; flex-direction: column; align-items: center; margin-bottom: 12px;" }, this._volumeBarContainer, this._masterDbLabel),
+    this._toggleButton,
     this._contentContainer,
     this._cancelButton,
   );
@@ -95,7 +104,14 @@ export class ChannelGainPrompt implements Prompt {
     this._renderChannelList();
     this._animationId = window.requestAnimationFrame(this._animate);
     this._cancelButton.addEventListener("click", this._close);
+    this._toggleButton.addEventListener("click", this._toggleFilter);
   }
+
+  private _toggleFilter = (): void => {
+    this._showActiveOnly = !this._showActiveOnly;
+    this._toggleButton.textContent = this._showActiveOnly ? "Show All Channels" : "Show Active Only";
+    this._renderChannelList();
+  };
 
   private _close = (): void => {
     this._doc.prompt = null;
@@ -114,7 +130,9 @@ export class ChannelGainPrompt implements Prompt {
     this._channelVolumeBars.clear();
     this._channelVolumeCaps.clear();
     this._channelHistoricCaps.clear();
+    this._channelDbLabels.clear();
     this._cancelButton.removeEventListener("click", this._close);
+    this._toggleButton.removeEventListener("click", this._toggleFilter);
   };
 
   private _onDocChange = (): void => {
@@ -136,6 +154,10 @@ export class ChannelGainPrompt implements Prompt {
     const capX = 8 + Math.min(144, this._historicVolumeCap * 144);
     this._outVolumeBar.setAttribute("width", "" + volumeWidth);
     this._outVolumeCap.setAttribute("x", "" + capX);
+
+    // Update master dB label
+    const masterDb = this._historicVolumeCap > 0 ? 20 * Math.log10(this._historicVolumeCap) : -Infinity;
+    this._masterDbLabel.textContent = isFinite(masterDb) ? `${masterDb.toFixed(1)} dB` : "-inf dB";
 
     // Update per-channel volume bars
     const synth = this._doc.synth;
@@ -166,6 +188,13 @@ export class ChannelGainPrompt implements Prompt {
       if (capEl) {
         capEl.setAttribute("x", "" + chCapX);
       }
+
+      // Update channel dB label
+      const dbLabel = this._channelDbLabels.get(channelIndex);
+      if (dbLabel) {
+        const chDb = historic.cap > 0 ? 20 * Math.log10(historic.cap) : -Infinity;
+        dbLabel.textContent = isFinite(chDb) ? `${chDb.toFixed(1)} dB` : "-inf dB";
+      }
     }
 
     this._animationId = window.requestAnimationFrame(this._animate);
@@ -177,6 +206,7 @@ export class ChannelGainPrompt implements Prompt {
     }
     this._channelVolumeBars.clear();
     this._channelVolumeCaps.clear();
+    this._channelDbLabels.clear();
 
     const song = this._doc.song;
     const channelCount = song.getChannelCount();
@@ -190,9 +220,14 @@ export class ChannelGainPrompt implements Prompt {
 
     for (let i = 0; i < channelCount; i++) {
       const channel = song.channels[i];
+      const channelState = this._doc.synth.channels[i];
       const isMuted = channel.muted;
       const isModChannel = i >= song.pitchChannelCount + song.noiseChannelCount;
       const isDrumChannel = i >= song.pitchChannelCount && !isModChannel;
+
+      // Check if channel is producing sound
+      const isActive = channelState.volumeCap > 0.001 || !isMuted;
+      if (this._showActiveOnly && !isActive) continue;
 
       const channelName = channel.name || `Channel ${i + 1}`;
       const channelType = isModChannel ? "Mod" : (isDrumChannel ? "Drum" : "Pitch");
@@ -217,6 +252,11 @@ export class ChannelGainPrompt implements Prompt {
 
       this._channelVolumeBars.set(i, volBar);
       this._channelVolumeCaps.set(i, volCap);
+
+      const dbLabel = span({
+        style: "color: var(--secondary-text); font-size: 11px; font-family: monospace;",
+      }, "-inf dB");
+      this._channelDbLabels.set(i, dbLabel);
 
       const volBarContainer = svg(
         {
@@ -258,6 +298,7 @@ export class ChannelGainPrompt implements Prompt {
 
       channelDiv.appendChild(headerDiv);
       channelDiv.appendChild(volBarContainer);
+      channelDiv.appendChild(dbLabel);
 
       // Show instrument volume settings
       if (channel.instruments.length > 0) {
