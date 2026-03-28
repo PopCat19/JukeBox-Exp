@@ -333,14 +333,21 @@ export class ChannelGainPrompt implements Prompt {
       const channel = this._doc.song.channels[channelIndex];
       if (channel) {
         const channelColors = ColorConfig.getChannelColor(this._doc.song, channelIndex);
+        const currentBarAnim = Math.floor(this._doc.synth.playhead);
+        const patternIndexAnim = channel.bars[currentBarAnim];
+        const patternAnim = patternIndexAnim > 0 ? this._doc.song.getPattern(channelIndex, currentBarAnim) : null;
+        const patternInstrumentsAnim = patternAnim ? patternAnim.instruments : [];
+        
         for (const [key, instrSpan] of this._instrumentSpans) {
           if (key.startsWith(`${channelIndex}-`)) {
             const j = parseInt(key.split("-")[1]);
             const instrState = channelState.instruments[j];
             if (instrState && instrSpan) {
               const isPlaying = instrState.activeTones.count() > 0 || instrState.releasedTones.count() > 0 || instrState.liveInputTones.count() > 0;
-              instrSpan.style.background = isPlaying ? channelColors.primaryNote : "var(--ui-widget-background)";
-              instrSpan.style.color = isPlaying ? "var(--editor-background)" : channelColors.primaryChannel;
+              const inPattern = patternInstrumentsAnim.includes(j);
+              instrSpan.style.background = isPlaying ? channelColors.primaryNote : inPattern ? channelColors.primaryChannel : "var(--ui-widget-background)";
+              instrSpan.style.color = isPlaying || inPattern ? "var(--editor-background)" : channelColors.primaryChannel;
+              instrSpan.style.opacity = inPattern || isPlaying ? "1" : "0.5";
             }
           }
         }
@@ -467,32 +474,27 @@ export class ChannelGainPrompt implements Prompt {
       channelDiv.appendChild(volBarContainer);
       channelDiv.appendChild(dbLabel);
 
-      // Show instruments used in the current pattern
-      const pattern = hasPattern ? song.getPattern(i, currentBar) : null;
-      const patternInstruments = pattern ? pattern.instruments : [];
-      
+      // Show instruments
       if (channel.instruments.length > 0) {
-        const isCurrentChannel = i === this._doc.channel;
-        const currentInstrument = this._doc.getCurrentInstrument();
         const instrDiv = div({
           style: "display: flex; flex-wrap: wrap; gap: 2px; margin-top: 4px;",
         });
         
-        // Show only instruments in the current pattern, or all if no pattern
-        const instrToShow = patternInstruments.length > 0
-          ? patternInstruments
-          : channel.instruments.map((_, idx) => idx);
+        // Get instruments in current pattern for highlighting
+        const pattern = hasPattern ? song.getPattern(i, currentBar) : null;
+        const patternInstruments = pattern ? pattern.instruments : [];
         
-        for (const j of instrToShow) {
-          if (j < 0 || j >= channel.instruments.length) continue;
-          const isSelectedInstr = isCurrentChannel && j === currentInstrument;
+        for (let j = 0; j < channel.instruments.length; j++) {
+          const inPattern = patternInstruments.includes(j);
           const instrState = channelState.instruments[j];
           const isPlaying = instrState.activeTones.count() > 0 || instrState.releasedTones.count() > 0 || instrState.liveInputTones.count() > 0;
           const instrSpan = span({
             style: `font-size: 9px; font-weight: 600; padding: 1px 3px; border-radius: 2px; background: ${
-              isPlaying ? channelColors.primaryNote : isSelectedInstr ? channelColors.primaryChannel : "var(--ui-widget-background)"
+              isPlaying ? channelColors.primaryNote : inPattern ? channelColors.primaryChannel : "var(--ui-widget-background)"
             }; color: ${
-              isPlaying || isSelectedInstr ? "var(--editor-background)" : channelColors.primaryChannel
+              isPlaying || inPattern ? "var(--editor-background)" : channelColors.primaryChannel
+            }; opacity: ${
+              inPattern || isPlaying ? "1" : "0.5"
             };`,
           }, `I${j + 1}`);
           this._instrumentSpans.set(`${i}-${j}`, instrSpan);
