@@ -363,7 +363,7 @@ export class ChannelGainPrompt implements Prompt {
         {
           style: "touch-action: none; overflow: visible;",
           width: "100%",
-          height: "8px",
+          height: "12px",
           preserveAspectRatio: "none",
           viewBox: "0 0 160 12",
         },
