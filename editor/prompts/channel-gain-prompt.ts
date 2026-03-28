@@ -200,7 +200,11 @@ export class ChannelGainPrompt implements Prompt {
     this._playPauseButton.removeEventListener("click", this._togglePlayPause);
     this.container.removeEventListener("keydown", this._onKeyDown);
     // Invalidate cached bounding rects in other components
-    window.dispatchEvent(new Event("resize"));
+    // Use setTimeout to ensure DOM has settled after prompt removal
+    setTimeout(() => {
+      window.dispatchEvent(new Event("resize"));
+      window.dispatchEvent(new Event("scroll"));
+    }, 0);
   };
 
   private _onDocChange = (): void => {
