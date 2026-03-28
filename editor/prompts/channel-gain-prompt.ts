@@ -124,7 +124,7 @@ export class ChannelGainPrompt implements Prompt {
         this._masterDbMaxLabel,
         div({ style: "margin-top: 8px;" }, this._playPauseButton),
         div(
-          { style: "margin-top: auto; font-size: 9px; color: var(--secondary-text); border-top: 1px solid var(--ui-widget-background); padding-top: 8px; white-space: nowrap;" },
+          { style: "margin-top: 16px; font-size: 9px; color: var(--secondary-text); border-top: 1px solid var(--ui-widget-background); padding-top: 8px; white-space: nowrap;" },
           div({ title: "Pattern number" }, span({ style: "font-weight: bold;" }, "P#"), " = Pattern"),
           div({ title: "Instrument number" }, span({ style: "font-weight: bold;" }, "I#"), " = Instrument"),
           div({ title: "Decibel - volume measurement" }, span({ style: "font-weight: bold;" }, "dB"), " = Decibel"),
@@ -364,12 +364,13 @@ export class ChannelGainPrompt implements Prompt {
       const channelType = isDrumChannel ? "Drum" : "Pitch";
       const channelColors = ColorConfig.getChannelColor(song, i);
 
-      // Check if channel has pattern or sound
+      // Check if channel has pattern or sound (only dim during playback)
       const currentBar = Math.floor(this._doc.synth.playhead);
       const patternIndex = channel.bars[currentBar];
       const hasPattern = patternIndex > 0;
       const hasSound = channelState.volumeCap > 0.01;
-      const isDimmed = !hasPattern && !hasSound;
+      const isPlaying = this._doc.synth.playing;
+      const isDimmed = isPlaying && !hasPattern && !hasSound;
 
       // Volume bar for this channel
       const volBar = rect({
