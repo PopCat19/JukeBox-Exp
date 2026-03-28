@@ -101,6 +101,9 @@ export class ChannelGainPrompt implements Prompt {
   private readonly _masterDbRangeLabel: HTMLSpanElement = span({
     style: "color: var(--secondary-text); font-size: 11px; font-family: monospace;",
   }, "Range: -inf to -inf dB");
+  private readonly _currentBarLabel: HTMLSpanElement = span({
+    style: "color: var(--primary-text); font-size: 11px; font-family: monospace; margin-top: 12px;",
+  }, "Bar: 1");
 
   public container: HTMLDivElement = div(
     { class: "prompt noSelection", style: "width: 600px; height: auto; max-height: 80vh; display: flex; flex-direction: column;", tabindex: "0" },
@@ -110,7 +113,8 @@ export class ChannelGainPrompt implements Prompt {
       div(
         { style: "flex: 0 0 180px; display: flex; flex-direction: column; padding: 12px; border-right: 1px solid var(--ui-widget-background);" },
         h2({ style: "margin-bottom: 12px;" }, "Master"),
-        div({ style: "display: flex; flex-direction: column; align-items: center; margin-bottom: 8px;" }, this._volumeBarContainer),
+        this._currentBarLabel,
+        div({ style: "display: flex; flex-direction: column; align-items: center; margin-bottom: 8px; margin-top: 8px;" }, this._volumeBarContainer),
         this._masterDbPeakLabel,
         this._masterDbAvgLabel,
         this._masterDbRangeLabel,
@@ -181,6 +185,8 @@ export class ChannelGainPrompt implements Prompt {
     this._cancelButton.removeEventListener("click", this._close);
     this._playPauseButton.removeEventListener("click", this._togglePlayPause);
     this.container.removeEventListener("keydown", this._onKeyDown);
+    // Invalidate cached bounding rects in other components
+    window.dispatchEvent(new Event("resize"));
   };
 
   private _onDocChange = (): void => {
@@ -190,6 +196,10 @@ export class ChannelGainPrompt implements Prompt {
   private _animate = (): void => {
     // Update play/pause button state
     this._updatePlayPauseButton();
+
+    // Update current bar
+    const currentBar = Math.floor(this._doc.synth.playhead);
+    this._currentBarLabel.textContent = `Bar: ${currentBar + 1}`;
 
     // Update master volume bar
     this._historicTimer--;
@@ -396,6 +406,15 @@ export class ChannelGainPrompt implements Prompt {
       headerDiv.appendChild(span({
         style: `font-size: 9px; color: ${channelColors.secondaryChannel};`,
       }, channelType));
+
+      // Show active pattern if playing
+      const currentBar = Math.floor(this._doc.synth.playhead);
+      const patternIndex = channel.bars[currentBar];
+      if (patternIndex > 0) {
+        headerDiv.appendChild(span({
+          style: `font-size: 9px; color: ${channelColors.primaryNote}; margin-left: 4px;`,
+        }, `P${patternIndex}`));
+      }
 
       channelDiv.appendChild(headerDiv);
       channelDiv.appendChild(volBarContainer);
