@@ -397,7 +397,7 @@ export class ChannelGainPrompt implements Prompt {
       const channelDiv = div({
         style: `display: flex; flex-direction: column; padding: 4px 6px; border: 2px solid ${
           isMuted ? "var(--mute-button-normal)" : channelColors.primaryChannel
-        }; border-radius: 4px; ${isMuted ? "opacity: 0.5;" : ""} ${isActive ? `background: ${channelColors.secondaryChannel}22;` : ""}`,
+        }; border-radius: 4px; background: var(--editor-background); ${isMuted ? "opacity: 0.5;" : ""} ${isActive ? `border-width: 3px;` : ""}`,
       });
 
       const headerDiv = div({
