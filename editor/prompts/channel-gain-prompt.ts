@@ -114,7 +114,7 @@ export class ChannelGainPrompt implements Prompt {
         this._masterDbPeakLabel,
         this._masterDbAvgLabel,
         this._masterDbRangeLabel,
-        div({ style: "margin-top: auto;" }, this._playPauseButton),
+        div({ style: "margin-top: 8px;" }, this._playPauseButton),
       ),
       // Right pane: Channels
       div(
@@ -403,13 +403,14 @@ export class ChannelGainPrompt implements Prompt {
 
       // Show instruments
       if (channel.instruments.length > 0) {
+        const isCurrentChannel = i === this._doc.channel;
         const currentInstrument = this._doc.getCurrentInstrument();
         const instrDiv = div({
           style: "display: flex; flex-wrap: wrap; gap: 2px; margin-top: 4px;",
         });
         
         for (let j = 0; j < channel.instruments.length; j++) {
-          const isActiveInstr = i === this._doc.channel && j === currentInstrument;
+          const isActiveInstr = isCurrentChannel && j === currentInstrument;
           instrDiv.appendChild(span({
             style: `font-size: 9px; padding: 1px 3px; border-radius: 2px; background: ${
               isActiveInstr ? channelColors.primaryChannel : "var(--ui-widget-background)"
