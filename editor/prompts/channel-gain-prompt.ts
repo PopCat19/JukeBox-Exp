@@ -379,7 +379,7 @@ export class ChannelGainPrompt implements Prompt {
       this._channelVolumeCaps.set(i, volCap);
 
       const dbLabel = span({
-        style: `color: ${channelColors.secondaryChannel}; font-size: 9px; font-family: monospace; text-align: center; display: block;`,
+        style: `color: ${channelColors.primaryChannel}; opacity: 0.8; font-size: 9px; font-family: monospace; text-align: center; display: block;`,
       }, "Pk:-inf");
       this._channelDbLabels.set(i, dbLabel);
 
@@ -418,7 +418,7 @@ export class ChannelGainPrompt implements Prompt {
       }, channelName));
 
       headerDiv.appendChild(span({
-        style: `font-size: 9px; color: ${channelColors.secondaryChannel};`,
+        style: `font-size: 9px; color: ${channelColors.primaryChannel}; opacity: 0.7;`,
       }, channelType));
 
       // Show active pattern if playing
@@ -450,7 +450,7 @@ export class ChannelGainPrompt implements Prompt {
             style: `font-size: 9px; padding: 1px 3px; border-radius: 2px; background: ${
               isPlaying ? channelColors.primaryNote : isSelectedInstr ? channelColors.primaryChannel : "var(--ui-widget-background)"
             }; color: ${
-              isPlaying || isSelectedInstr ? "var(--editor-background)" : channelColors.secondaryChannel
+              isPlaying || isSelectedInstr ? "var(--editor-background)" : channelColors.primaryChannel
             };`,
           }, `I${j + 1}`));
         }
