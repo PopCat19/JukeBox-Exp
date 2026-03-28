@@ -379,7 +379,7 @@ export class ChannelGainPrompt implements Prompt {
       this._channelVolumeCaps.set(i, volCap);
 
       const dbLabel = span({
-        style: `color: ${channelColors.primaryChannel}; opacity: 0.8; font-size: 9px; font-family: monospace; text-align: center; display: block;`,
+        style: `color: ${channelColors.primaryChannel}; opacity: 0.8; font-size: 9px; font-weight: 600; font-family: monospace; text-align: center; display: block;`,
       }, "Pk:-inf");
       this._channelDbLabels.set(i, dbLabel);
 
@@ -418,7 +418,7 @@ export class ChannelGainPrompt implements Prompt {
       }, channelName));
 
       headerDiv.appendChild(span({
-        style: `font-size: 9px; color: ${channelColors.primaryChannel}; opacity: 0.7;`,
+        style: `font-size: 9px; font-weight: 600; color: ${channelColors.primaryChannel}; opacity: 0.7;`,
       }, channelType));
 
       // Show active pattern if playing
@@ -426,7 +426,7 @@ export class ChannelGainPrompt implements Prompt {
       const patternIndex = channel.bars[currentBar];
       if (patternIndex > 0) {
         headerDiv.appendChild(span({
-          style: `font-size: 9px; color: ${channelColors.primaryNote}; margin-left: 4px;`,
+          style: `font-size: 9px; font-weight: 600; color: ${channelColors.primaryNote}; margin-left: 4px;`,
         }, `P${patternIndex}`));
       }
 
@@ -447,7 +447,7 @@ export class ChannelGainPrompt implements Prompt {
           const instrState = channelState.instruments[j];
           const isPlaying = instrState.activeTones.count() > 0 || instrState.releasedTones.count() > 0 || instrState.liveInputTones.count() > 0;
           instrDiv.appendChild(span({
-            style: `font-size: 9px; padding: 1px 3px; border-radius: 2px; background: ${
+            style: `font-size: 9px; font-weight: 600; padding: 1px 3px; border-radius: 2px; background: ${
               isPlaying ? channelColors.primaryNote : isSelectedInstr ? channelColors.primaryChannel : "var(--ui-widget-background)"
             }; color: ${
               isPlaying || isSelectedInstr ? "var(--editor-background)" : channelColors.primaryChannel
