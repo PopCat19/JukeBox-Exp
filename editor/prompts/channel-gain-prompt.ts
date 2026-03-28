@@ -75,6 +75,8 @@ export class ChannelGainPrompt implements Prompt {
   private readonly _channelVolumeCaps: Map<number, SVGRectElement> = new Map();
   private readonly _channelHistoricCaps: Map<number, { cap: number; timer: number }> = new Map();
   private readonly _channelDbLabels: Map<number, HTMLSpanElement> = new Map();
+  // Store instrument spans for live updates: key is "channelIndex-instrumentIndex"
+  private readonly _instrumentSpans: Map<string, HTMLSpanElement> = new Map();
 
   private readonly _playPauseButton: HTMLButtonElement = button({
     style: "font-size: 11px; padding: 4px 8px;",
@@ -197,6 +199,7 @@ export class ChannelGainPrompt implements Prompt {
     this._channelVolumeCaps.clear();
     this._channelHistoricCaps.clear();
     this._channelDbLabels.clear();
+    this._instrumentSpans.clear();
     this._cancelButton.removeEventListener("click", this._close);
     this._playPauseButton.removeEventListener("click", this._togglePlayPause);
     this.container.removeEventListener("keydown", this._onKeyDown);
@@ -324,6 +327,21 @@ export class ChannelGainPrompt implements Prompt {
           statsText = ` | A:${avgText} | ${minText}/${maxText}`;
         }
         dbLabel.textContent = isFinite(peakDb) ? `Pk:${peakDb.toFixed(1)}${statsText}` : `Pk:-inf${statsText}`;
+      }
+
+      // Update instrument highlights
+      const channel = this._doc.song.channels[channelIndex];
+      if (channel) {
+        const channelColors = ColorConfig.getChannelColor(this._doc.song, channelIndex);
+        for (let j = 0; j < channel.instruments.length; j++) {
+          const instrSpan = this._instrumentSpans.get(`${channelIndex}-${j}`);
+          if (instrSpan) {
+            const instrState = channelState.instruments[j];
+            const isPlaying = instrState.activeTones.count() > 0 || instrState.releasedTones.count() > 0 || instrState.liveInputTones.count() > 0;
+            instrSpan.style.background = isPlaying ? channelColors.primaryNote : "var(--ui-widget-background)";
+            instrSpan.style.color = isPlaying ? "var(--editor-background)" : channelColors.primaryChannel;
+          }
+        }
       }
     }
 
@@ -459,13 +477,15 @@ export class ChannelGainPrompt implements Prompt {
           const isSelectedInstr = isCurrentChannel && j === currentInstrument;
           const instrState = channelState.instruments[j];
           const isPlaying = instrState.activeTones.count() > 0 || instrState.releasedTones.count() > 0 || instrState.liveInputTones.count() > 0;
-          instrDiv.appendChild(span({
+          const instrSpan = span({
             style: `font-size: 9px; font-weight: 600; padding: 1px 3px; border-radius: 2px; background: ${
               isPlaying ? channelColors.primaryNote : isSelectedInstr ? channelColors.primaryChannel : "var(--ui-widget-background)"
             }; color: ${
               isPlaying || isSelectedInstr ? "var(--editor-background)" : channelColors.primaryChannel
             };`,
-          }, `I${j + 1}`));
+          }, `I${j + 1}`);
+          this._instrumentSpans.set(`${i}-${j}`, instrSpan);
+          instrDiv.appendChild(instrSpan);
         }
         channelDiv.appendChild(instrDiv);
       }
