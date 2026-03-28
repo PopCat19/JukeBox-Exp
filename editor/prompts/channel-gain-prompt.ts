@@ -119,6 +119,15 @@ export class ChannelGainPrompt implements Prompt {
         this._masterDbAvgLabel,
         this._masterDbRangeLabel,
         div({ style: "margin-top: 8px;" }, this._playPauseButton),
+        div(
+          { style: "margin-top: auto; font-size: 9px; color: var(--secondary-text); border-top: 1px solid var(--ui-widget-background); padding-top: 8px;" },
+          div({ title: "Pattern number" }, span({ style: "font-weight: bold;" }, "P#"), " = Pattern"),
+          div({ title: "Instrument number" }, span({ style: "font-weight: bold;" }, "I#"), " = Instrument"),
+          div({ title: "Decibel - volume measurement" }, span({ style: "font-weight: bold;" }, "dB"), " = Decibel"),
+          div({ title: "Highest volume level" }, span({ style: "font-weight: bold;" }, "Peak"), " = Maximum"),
+          div({ title: "Average volume level" }, span({ style: "font-weight: bold;" }, "Avg"), " = Average"),
+          div({ title: "Minimum to maximum range" }, span({ style: "font-weight: bold;" }, "Range"), " = Min-Max"),
+        ),
       ),
       // Right pane: Channels
       div(
@@ -338,7 +347,6 @@ export class ChannelGainPrompt implements Prompt {
       const isModChannel = i >= song.pitchChannelCount + song.noiseChannelCount;
       const isDrumChannel = i >= song.pitchChannelCount && !isModChannel;
 
-      const isActive = channelState.volumeCap > 0.01;
       const channelName = channel.name || `${i + 1}`;
       const channelType = isModChannel ? "Mod" : (isDrumChannel ? "Drum" : "Pitch");
       const channelColors = ColorConfig.getChannelColor(song, i);
@@ -392,7 +400,7 @@ export class ChannelGainPrompt implements Prompt {
       const channelDiv = div({
         style: `display: flex; flex-direction: column; padding: 4px 6px; border: 2px solid ${
           isMuted ? "var(--mute-button-normal)" : channelColors.primaryChannel
-        }; border-radius: 4px; background: var(--editor-background); ${isMuted ? "opacity: 0.5;" : ""} ${isActive ? `border-width: 3px;` : ""}`,
+        }; border-radius: 4px; background: var(--editor-background); ${isMuted ? "opacity: 0.5;" : ""}`,
       });
 
       const headerDiv = div({
