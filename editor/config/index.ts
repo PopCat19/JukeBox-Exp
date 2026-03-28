@@ -5,6 +5,6 @@
 // This module:
 // - Re-exports editor config, keyboard layout, and preset categories
 
-export { EditorConfig, isMobile, prettyNumber, Preset, PresetCategory } from "./editor-config";
+export { EditorConfig, isMobile, Preset, PresetCategory, prettyNumber } from "./editor-config";
 export { KeyboardLayout } from "./keyboard-layout";
 export { presetCategories } from "./preset-categories";

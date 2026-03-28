@@ -6,7 +6,7 @@
 // - Re-exports color config, themes, styles, and custom canvas renderers
 
 export { ColorConfig } from "../rendering/color-config";
-export { themes } from "../rendering/themes/index";
-export { CustomChipCanvas } from "../rendering/custom-chip-canvas";
 export { CustomAlgorythmCanvas } from "../rendering/custom-algorythm-canvas";
+export { CustomChipCanvas } from "../rendering/custom-chip-canvas";
+export { themes } from "../rendering/themes/index";
 // Note: style.ts is imported for side effects only (CSS injection), no exports.

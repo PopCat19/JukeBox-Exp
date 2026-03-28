@@ -6,25 +6,24 @@
 // - Builds supersaw synthesis source strings with PolyBLEP anti-aliasing and comb filtering
 
 export function buildSupersawSource(voiceCount: number): string {
-    let supersawSource: string = "return (synth, bufferIndex, runLength, tone, instrumentState) => {";
+  let supersawSource: string = "return (synth, bufferIndex, runLength, tone, instrumentState) => {";
 
-
-    supersawSource += `
+  supersawSource += `
         const data = synth.tempMonoInstrumentSampleBuffer;
 
         let phaseDelta = tone.phaseDeltas[0];
         const phaseDeltaScale = +tone.phaseDeltaScales[0];
         let expression = +tone.expression;
         const expressionDelta = +tone.expressionDelta;
-        `
-    for (let i: number = 0; i < voiceCount; i++) {
-        supersawSource += `
+        `;
+  for (let i: number = 0; i < voiceCount; i++) {
+    supersawSource += `
                 let phase# = tone.phases[#];
                 const unisonDetune# = tone.supersawUnisonDetunes[#];
                 `.replaceAll("#", i + "");
-    }
+  }
 
-    supersawSource += `
+  supersawSource += `
         let dynamism = +tone.supersawDynamism;
         const dynamismDelta = +tone.supersawDynamismDelta;
         let shape = +tone.supersawShape;
@@ -60,10 +59,10 @@ export function buildSupersawSource(voiceCount: number): string {
             }
 
             if (!instrumentState.aliases) {
-            `
+            `;
 
-    for (let i: number = 1; i < voiceCount; i++) {
-        supersawSource += `
+  for (let i: number = 1; i < voiceCount; i++) {
+    supersawSource += `
                 const detunedPhaseDelta# = phaseDelta * unisonDetune#;
                 // The phase initially starts at a zero crossing so apply
                 // the delta before first sample to get a nonzero value.
@@ -80,21 +79,21 @@ export function buildSupersawSource(voiceCount: number): string {
                 }
                 phase# = aphase#;
                 `.replaceAll("#", i + "");
-    }
+  }
 
-    supersawSource += `
+  supersawSource += `
             } else {
-             `
-    for (let i: number = 1; i < voiceCount; i++) {
-        supersawSource += `
+             `;
+  for (let i: number = 1; i < voiceCount; i++) {
+    supersawSource += `
                 const detunedPhaseDelta# = phaseDelta * unisonDetune#;
                 // The phase initially starts at a zero crossing so apply
                 // the delta before first sample to get a nonzero value.
                 phase# = (phase# + detunedPhaseDelta#) - ((phase# + detunedPhaseDelta#) | 0);
                 supersawSample += phase# * dynamism;
                 `.replaceAll("#", i + "");
-    }
-    supersawSource += `
+  }
+  supersawSource += `
             }
             delayLine[delayIndex & delayBufferMask] = supersawSample;
             const delaySampleTime = delayIndex - delayLength;
@@ -120,13 +119,13 @@ export function buildSupersawSource(voiceCount: number): string {
             expression += expressionDelta;
 
             data[sampleIndex] += output;
-        }`
-    for (let i: number = 0; i < voiceCount; i++) {
-        supersawSource += `
+        }`;
+  for (let i: number = 0; i < voiceCount; i++) {
+    supersawSource += `
             tone.phases[#] = phase#;
             `.replaceAll("#", i + "");
-    }
-    supersawSource += `
+  }
+  supersawSource += `
         tone.phaseDeltas[0] = phaseDelta;
         tone.expression = expression;
         tone.supersawDynamism = dynamism;
@@ -137,6 +136,6 @@ export function buildSupersawSource(voiceCount: number): string {
         synth.sanitizeFilters(filters);
         tone.initialNoteFilterInput1 = initialFilterInput1;
         tone.initialNoteFilterInput2 = initialFilterInput2;
-        }`
-    return supersawSource;
+        }`;
+  return supersawSource;
 }

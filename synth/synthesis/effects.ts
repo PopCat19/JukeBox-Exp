@@ -9,38 +9,38 @@
 import { Config, GranularEnvelopeType } from "../synth-config";
 
 export function buildEffectsSource(
-    usesDistortion: boolean,
-    usesBitcrusher: boolean,
-    usesEqFilter: boolean,
-    usesPanning: boolean,
-    usesChorus: boolean,
-    usesEcho: boolean,
-    usesReverb: boolean,
-    usesGranular: boolean,
-    usesRingModulation: boolean,
-    usesPhaser: boolean,
-    usesInvertWave: boolean,
+  usesDistortion: boolean,
+  usesBitcrusher: boolean,
+  usesEqFilter: boolean,
+  usesPanning: boolean,
+  usesChorus: boolean,
+  usesEcho: boolean,
+  usesReverb: boolean,
+  usesGranular: boolean,
+  usesRingModulation: boolean,
+  usesPhaser: boolean,
+  usesInvertWave: boolean,
 ): string {
-    let effectsSource: string = "return (synth, outputDataL, outputDataR, bufferIndex, runLength, instrumentState) => {";
+  let effectsSource: string = "return (synth, outputDataL, outputDataR, bufferIndex, runLength, instrumentState) => {";
 
-    const usesDelays: boolean = usesChorus || usesReverb || usesEcho || usesGranular;
+  const usesDelays: boolean = usesChorus || usesReverb || usesEcho || usesGranular;
 
-    effectsSource += `
+  effectsSource += `
 				const tempMonoInstrumentSampleBuffer = synth.tempMonoInstrumentSampleBuffer;
 				
 				let mixVolume = +instrumentState.mixVolume;
 				const mixVolumeDelta = +instrumentState.mixVolumeDelta;
-                `
+                `;
 
-    if (usesDelays) {
-        effectsSource += `
+  if (usesDelays) {
+    effectsSource += `
 				
 				let delayInputMult = +instrumentState.delayInputMult;
-				const delayInputMultDelta = +instrumentState.delayInputMultDelta;`
-    }
+				const delayInputMultDelta = +instrumentState.delayInputMultDelta;`;
+  }
 
-    if (usesGranular) {
-        effectsSource += `
+  if (usesGranular) {
+    effectsSource += `
                 let granularWet = instrumentState.granularMix;
                 const granularMixDelta = instrumentState.granularMixDelta;
                 let granularDry = 1.0 - granularWet; 
@@ -53,11 +53,11 @@ export function buildEffectsSource(
                 const usesRandomGrainLocation = instrumentState.usesRandomGrainLocation;
                 const computeGrains = instrumentState.computeGrains;
                 instrumentState.granularDelayLineDirty = true;
-                `
-    }
+                `;
+  }
 
-    if (usesDistortion) {
-        effectsSource += `
+  if (usesDistortion) {
+    effectsSource += `
 				
 				const distortionBaseVolume = +Config.distortionBaseVolume;
 				let distortion = instrumentState.distortion;
@@ -83,11 +83,11 @@ export function buildEffectsSource(
 				let distortionFractionalInput2 = +instrumentState.distortionFractionalInput2;
 				let distortionFractionalInput3 = +instrumentState.distortionFractionalInput3;
 				let distortionPrevInput = +instrumentState.distortionPrevInput;
-				let distortionNextOutput = +instrumentState.distortionNextOutput;`
-    }
+				let distortionNextOutput = +instrumentState.distortionNextOutput;`;
+  }
 
-    if (usesBitcrusher) {
-        effectsSource += `
+  if (usesBitcrusher) {
+    effectsSource += `
 				
 				let bitcrusherPrevInput = +instrumentState.bitcrusherPrevInput;
 				let bitcrusherCurrentOutput = +instrumentState.bitcrusherCurrentOutput;
@@ -97,11 +97,11 @@ export function buildEffectsSource(
 				let bitcrusherScale = +instrumentState.bitcrusherScale;
 				const bitcrusherScaleScale = +instrumentState.bitcrusherScaleScale;
 				let bitcrusherFoldLevel = +instrumentState.bitcrusherFoldLevel;
-				const bitcrusherFoldLevelScale = +instrumentState.bitcrusherFoldLevelScale;`
-    }
+				const bitcrusherFoldLevelScale = +instrumentState.bitcrusherFoldLevelScale;`;
+  }
 
-    if (usesRingModulation) {
-        effectsSource += `
+  if (usesRingModulation) {
+    effectsSource += `
 				
                 let ringModMix = +instrumentState.ringModMix;
                 let ringModMixDelta = +instrumentState.ringModMixDelta;
@@ -119,11 +119,11 @@ export function buildEffectsSource(
                     waveform = getOperatorWave(ringModWaveformIndex, ringModPulseWidth).samples;
                 }
                 const waveformLength = waveform.length - 1;
-                `
-    }
+                `;
+  }
 
-    if (usesPhaser) {
-        effectsSource += `
+  if (usesPhaser) {
+    effectsSource += `
                 
                 const phaserSamples = instrumentState.phaserSamples;
                 const phaserPrevInputs = instrumentState.phaserPrevInputs;
@@ -136,33 +136,33 @@ export function buildEffectsSource(
                 let phaserMix = +instrumentState.phaserMix;
                 const phaserBreakCoefDelta = +instrumentState.phaserBreakCoefDelta;
                 let phaserBreakCoef = +instrumentState.phaserBreakCoef;
-                `
-    }
+                `;
+  }
 
-    if(usesInvertWave) {
-        effectsSource += `
+  if (usesInvertWave) {
+    effectsSource += `
                 let isInverted = +instrumentState.invertWave;
-                `
-    }
+                `;
+  }
 
-    if (usesEqFilter) {
-        effectsSource += `
+  if (usesEqFilter) {
+    effectsSource += `
 				
 				let filters = instrumentState.eqFilters;
 				const filterCount = instrumentState.eqFilterCount|0;
 				let initialFilterInput1 = +instrumentState.initialEqFilterInput1;
 				let initialFilterInput2 = +instrumentState.initialEqFilterInput2;
-				const applyFilters = Synth.applyFilters;`
-    }
+				const applyFilters = Synth.applyFilters;`;
+  }
 
-    // The eq filter volume is also used to fade out the instrument state, so always include it.
-    effectsSource += `
+  // The eq filter volume is also used to fade out the instrument state, so always include it.
+  effectsSource += `
 				
 				let eqFilterVolume = +instrumentState.eqFilterVolume;
-				const eqFilterVolumeDelta = +instrumentState.eqFilterVolumeDelta;`
+				const eqFilterVolumeDelta = +instrumentState.eqFilterVolumeDelta;`;
 
-    if (usesPanning) {
-        effectsSource += `
+  if (usesPanning) {
+    effectsSource += `
 				
 				const panningMask = synth.panningDelayBufferMask >>> 0;
 				const panningDelayLine = instrumentState.panningDelayLine;
@@ -174,11 +174,11 @@ export function buildEffectsSource(
 				let   panningOffsetL      = +instrumentState.panningOffsetL;
 				let   panningOffsetR      = +instrumentState.panningOffsetR;
 				const panningOffsetDeltaL = 1.0 - instrumentState.panningOffsetDeltaL;
-				const panningOffsetDeltaR = 1.0 - instrumentState.panningOffsetDeltaR;`
-    }
+				const panningOffsetDeltaR = 1.0 - instrumentState.panningOffsetDeltaR;`;
+  }
 
-    if (usesChorus) {
-        effectsSource += `
+  if (usesChorus) {
+    effectsSource += `
 				
 				const chorusMask = synth.chorusDelayBufferMask >>> 0;
 				const chorusDelayLineL = instrumentState.chorusDelayLineL;
@@ -219,11 +219,11 @@ export function buildEffectsSource(
 				const chorusTap2Delta = (chorusTap2End - chorusTap2Index) / runLength;
 				const chorusTap3Delta = (chorusTap3End - chorusTap3Index) / runLength;
 				const chorusTap4Delta = (chorusTap4End - chorusTap4Index) / runLength;
-				const chorusTap5Delta = (chorusTap5End - chorusTap5Index) / runLength;`
-    }
+				const chorusTap5Delta = (chorusTap5End - chorusTap5Index) / runLength;`;
+  }
 
-    if (usesEcho) {
-        effectsSource += `
+  if (usesEcho) {
+    effectsSource += `
 				let echoMult = +instrumentState.echoMult;
 				const echoMultDelta = +instrumentState.echoMultDelta;
 				
@@ -244,11 +244,11 @@ export function buildEffectsSource(
 				let echoShelfSampleL = +instrumentState.echoShelfSampleL;
 				let echoShelfSampleR = +instrumentState.echoShelfSampleR;
 				let echoShelfPrevInputL = +instrumentState.echoShelfPrevInputL;
-				let echoShelfPrevInputR = +instrumentState.echoShelfPrevInputR;`
-    }
+				let echoShelfPrevInputR = +instrumentState.echoShelfPrevInputR;`;
+  }
 
-    if (usesReverb) { //TODO: reverb wet/dry?
-        effectsSource += `
+  if (usesReverb) { // TODO: reverb wet/dry?
+    effectsSource += `
 				
 				const reverbMask = Config.reverbDelayBufferMask >>> 0; //TODO: Dynamic reverb buffer size.
 				const reverbDelayLine = instrumentState.reverbDelayLine;
@@ -268,21 +268,17 @@ export function buildEffectsSource(
 				let reverbShelfPrevInput0 = +instrumentState.reverbShelfPrevInput0;
 				let reverbShelfPrevInput1 = +instrumentState.reverbShelfPrevInput1;
 				let reverbShelfPrevInput2 = +instrumentState.reverbShelfPrevInput2;
-				let reverbShelfPrevInput3 = +instrumentState.reverbShelfPrevInput3;`
-    }
+				let reverbShelfPrevInput3 = +instrumentState.reverbShelfPrevInput3;`;
+  }
 
-    
-
-    effectsSource += `
+  effectsSource += `
 				
 				const stopIndex = bufferIndex + runLength;
             for (let sampleIndex = bufferIndex; sampleIndex < stopIndex; sampleIndex++) {
-                    `
+                    `;
 
-    
-
-    if (usesGranular) {
-        effectsSource += `
+  if (usesGranular) {
+    effectsSource += `
                 let sample = tempMonoInstrumentSampleBuffer[sampleIndex];
                 let granularOutput = 0;
                 for (let grainIndex = 0; grainIndex < granularGrainCount; grainIndex++) {
@@ -300,17 +296,17 @@ export function buildEffectsSource(
                             // const grainSample1 = granularDelayLine[((granularDelayLineIndex + (granularDelayLineLength - grainDelayLinePositionInt)) + 1) & granularDelayLineMask];
                             // let grainSample = grainSample0 + (grainSample1 - grainSample0) * grainDelayLinePositionT; // Linear interpolation (@TODO: sounds quite bad?)
                             let grainSample = granularDelayLine[((granularDelayLineIndex + (granularDelayLineLength - grainDelayLinePositionInt))    ) & granularDelayLineMask]; // No interpolation
-                            `
-        if (Config.granularEnvelopeType == GranularEnvelopeType.parabolic) {
-            effectsSource += `
+                            `;
+    if (Config.granularEnvelopeType == GranularEnvelopeType.parabolic) {
+      effectsSource += `
                                 const grainEnvelope = grain.parabolicEnvelopeAmplitude;
-                                `
-        } else if (Config.granularEnvelopeType == GranularEnvelopeType.raisedCosineBell) {
-            effectsSource += `
+                                `;
+    } else if (Config.granularEnvelopeType == GranularEnvelopeType.raisedCosineBell) {
+      effectsSource += `
                                 const grainEnvelope = grain.rcbEnvelopeAmplitude;
-                                `
-        }
-        effectsSource += `
+                                `;
+    }
+    effectsSource += `
                             grainSample *= grainEnvelope;
                             granularOutput += grainSample;
                             if (grainAgeInSamples > grainMaxAgeInSamples) {
@@ -327,20 +323,20 @@ export function buildEffectsSource(
                                 }
                             } else {
                                 grainAgeInSamples++;
-                            `
-        if (Config.granularEnvelopeType == GranularEnvelopeType.parabolic) {
-            // grain.updateParabolicEnvelope();
-            // Inlined:
-            effectsSource += `
+                            `;
+    if (Config.granularEnvelopeType == GranularEnvelopeType.parabolic) {
+      // grain.updateParabolicEnvelope();
+      // Inlined:
+      effectsSource += `
                                     grain.parabolicEnvelopeAmplitude += grain.parabolicEnvelopeSlope;
                                     grain.parabolicEnvelopeSlope += grain.parabolicEnvelopeCurve;
-                                    `
-        } else if (Config.granularEnvelopeType == GranularEnvelopeType.raisedCosineBell) {
-            effectsSource += `
+                                    `;
+    } else if (Config.granularEnvelopeType == GranularEnvelopeType.raisedCosineBell) {
+      effectsSource += `
                                     grain.updateRCBEnvelope();
-                                    `
-        }
-        effectsSource += `
+                                    `;
+    }
+    effectsSource += `
                                 grain.ageInSamples = grainAgeInSamples;
                                 // if(usesRandomGrainLocation) {
                                 //     grain.delayLine -= grainPitchShift;
@@ -356,20 +352,20 @@ export function buildEffectsSource(
                 granularDelayLineIndex = (granularDelayLineIndex + 1) & granularDelayLineMask;
                 sample = sample * granularDry + granularOutput * granularWet;
                 tempMonoInstrumentSampleBuffer[sampleIndex] = 0.0;
-                `
-    } else {
-        effectsSource += `let sample = tempMonoInstrumentSampleBuffer[sampleIndex];
-                tempMonoInstrumentSampleBuffer[sampleIndex] = 0.0;`
-    }
+                `;
+  } else {
+    effectsSource += `let sample = tempMonoInstrumentSampleBuffer[sampleIndex];
+                tempMonoInstrumentSampleBuffer[sampleIndex] = 0.0;`;
+  }
 
-    if(usesInvertWave) {
-        effectsSource += `
+  if (usesInvertWave) {
+    effectsSource += `
                     sample = sample*-1;
-                `
-    }
+                `;
+  }
 
-    if (usesDistortion) {
-        effectsSource += `
+  if (usesDistortion) {
+    effectsSource += `
 					
 					const distortionReverse = 1.0 - distortion;
 					const distortionNextInput = sample * distortionDrive;
@@ -386,11 +382,11 @@ export function buildEffectsSource(
 					sample *= distortionOversampleCompensation;
 					distortionPrevInput = distortionNextInput;
 					distortion += distortionDelta;
-					distortionDrive += distortionDriveDelta;`
-    }
+					distortionDrive += distortionDriveDelta;`;
+  }
 
-    if (usesBitcrusher) {
-        effectsSource += `
+  if (usesBitcrusher) {
+    effectsSource += `
 					
 					bitcrusherPhase += bitcrusherPhaseDelta;
 					if (bitcrusherPhase < 1.0) {
@@ -415,11 +411,11 @@ export function buildEffectsSource(
 					}
 					bitcrusherPhaseDelta *= bitcrusherPhaseDeltaScale;
 					bitcrusherScale *= bitcrusherScaleScale;
-					bitcrusherFoldLevel *= bitcrusherFoldLevelScale;`
-    }
+					bitcrusherFoldLevel *= bitcrusherFoldLevelScale;`;
+  }
 
-    if (usesRingModulation) {
-        effectsSource += ` 
+  if (usesRingModulation) {
+    effectsSource += ` 
                 
                 const ringModOutput = sample * waveform[(ringModPhase*waveformLength)|0];
                 const ringModMixF = Math.max(0, ringModMix * ringModMixFade);
@@ -430,11 +426,11 @@ export function buildEffectsSource(
                 ringModPhase -= ringModPhase | 0;
                 ringModPhaseDelta *= ringModPhaseDeltaScale;
                 ringModMixFade += ringModMixFadeDelta;
-                `
-    }
+                `;
+  }
 
-    if (usesPhaser) {
-        effectsSource += `
+  if (usesPhaser) {
+    effectsSource += `
                         const phaserFeedback = phaserSamples[Math.max(0,phaserStagesInt - 1)] * phaserFeedbackMult;
                         for (let stage = 0; stage < phaserStagesInt; stage++) {
                             const phaserInput = stage === 0 ? sample + phaserFeedback : phaserSamples[stage - 1];
@@ -451,26 +447,26 @@ export function buildEffectsSource(
                         phaserMix += phaserMixDelta;
                         phaserStages += phaserStagesDelta;
                         /*phaserStagesInt = Math.floor(phaserStages);*/
-                    `
-    }
+                    `;
+  }
 
-    if (usesEqFilter) {
-        effectsSource += `
+  if (usesEqFilter) {
+    effectsSource += `
 					
 					const inputSample = sample;
 					sample = applyFilters(inputSample, initialFilterInput1, initialFilterInput2, filterCount, filters);
 					initialFilterInput2 = initialFilterInput1;
-					initialFilterInput1 = inputSample;`
-    }
+					initialFilterInput1 = inputSample;`;
+  }
 
-    // The eq filter volume is also used to fade out the instrument state, so always include it.
-    effectsSource += `
+  // The eq filter volume is also used to fade out the instrument state, so always include it.
+  effectsSource += `
 					
 					sample *= eqFilterVolume;
-					eqFilterVolume += eqFilterVolumeDelta;`
+					eqFilterVolume += eqFilterVolumeDelta;`;
 
-    if (usesPanning) {
-        effectsSource += `
+  if (usesPanning) {
+    effectsSource += `
 					
 					panningDelayLine[panningDelayPos] = sample;
 					const panningRatioL  = panningOffsetL - (panningOffsetL | 0);
@@ -487,16 +483,16 @@ export function buildEffectsSource(
 					panningVolumeL += panningVolumeDeltaL;
 					panningVolumeR += panningVolumeDeltaR;
 					panningOffsetL += panningOffsetDeltaL;
-					panningOffsetR += panningOffsetDeltaR;`
-    } else {
-        effectsSource += `
+					panningOffsetR += panningOffsetDeltaR;`;
+  } else {
+    effectsSource += `
 					
 					let sampleL = sample;
-					let sampleR = sample;`
-    }
+					let sampleR = sample;`;
+  }
 
-    if (usesChorus) {
-        effectsSource += `
+  if (usesChorus) {
+    effectsSource += `
 					
 					const chorusTap0Ratio = chorusTap0Index - (chorusTap0Index | 0);
 					const chorusTap1Ratio = chorusTap1Index - (chorusTap1Index | 0);
@@ -534,11 +530,11 @@ export function buildEffectsSource(
 					chorusTap4Index += chorusTap4Delta;
 					chorusTap5Index += chorusTap5Delta;
 					chorusVoiceMult += chorusVoiceMultDelta;
-					chorusCombinedMult += chorusCombinedMultDelta;`
-    }
+					chorusCombinedMult += chorusCombinedMultDelta;`;
+  }
 
-    if (usesEcho) {
-        effectsSource += `
+  if (usesEcho) {
+    effectsSource += `
 					
 					const echoTapStartIndex = (echoDelayPos + echoDelayOffsetStart) & echoMask;
 					const echoTapEndIndex   = (echoDelayPos + echoDelayOffsetEnd  ) & echoMask;
@@ -561,11 +557,11 @@ export function buildEffectsSource(
 					echoDelayPos = (echoDelayPos + 1) & echoMask;
 					echoDelayOffsetRatio += echoDelayOffsetRatioDelta;
 					echoMult += echoMultDelta;
-                    `
-    }
+                    `;
+  }
 
-    if (usesReverb) {
-        effectsSource += `
+  if (usesReverb) {
+    effectsSource += `
 					
 					// Reverb, implemented using a feedback delay network with a Hadamard matrix and lowpass filters.
 					// good ratios:    0.555235 + 0.618033 + 0.818 +   1.0 = 2.991268
@@ -601,46 +597,46 @@ export function buildEffectsSource(
 					reverbDelayPos = (reverbDelayPos + 1) & reverbMask;
 					sampleL += reverbSample1 + reverbSample2 + reverbSample3;
 					sampleR += reverbSample0 + reverbSample2 - reverbSample3;
-					reverb += reverbDelta;`
-    }
+					reverb += reverbDelta;`;
+  }
 
-    effectsSource += `
+  effectsSource += `
 					
 					outputDataL[sampleIndex] += sampleL * mixVolume;
 					outputDataR[sampleIndex] += sampleR * mixVolume;
-					mixVolume += mixVolumeDelta;`
+					mixVolume += mixVolumeDelta;`;
 
-    if (usesDelays) {
-        effectsSource += `
-					
-					delayInputMult += delayInputMultDelta;`
-    }
-
+  if (usesDelays) {
     effectsSource += `
+					
+					delayInputMult += delayInputMultDelta;`;
+  }
+
+  effectsSource += `
 				}
 				
 				instrumentState.mixVolume = mixVolume;
 				instrumentState.eqFilterVolume = eqFilterVolume;
 				
 				// Avoid persistent denormal or NaN values in the delay buffers and filter history.
-				const epsilon = (1.0e-24);`
+				const epsilon = (1.0e-24);`;
 
-    if (usesDelays) {
-        effectsSource += `
+  if (usesDelays) {
+    effectsSource += `
 				
-				instrumentState.delayInputMult = delayInputMult;`
-    }
+				instrumentState.delayInputMult = delayInputMult;`;
+  }
 
-    if (usesGranular) {
-        effectsSource += `
+  if (usesGranular) {
+    effectsSource += `
                     instrumentState.granularMix = granularWet;
                     instrumentState.granularGrainsLength = granularGrainCount;
                     instrumentState.granularDelayLineIndex = granularDelayLineIndex;
-                `
-    }
+                `;
+  }
 
-    if (usesDistortion) {
-        effectsSource += `
+  if (usesDistortion) {
+    effectsSource += `
 				
 				instrumentState.distortion = distortion;
 				instrumentState.distortionDrive = distortionDrive;
@@ -655,11 +651,11 @@ export function buildEffectsSource(
 				instrumentState.distortionFractionalInput2 = distortionFractionalInput2;
 				instrumentState.distortionFractionalInput3 = distortionFractionalInput3;
 				instrumentState.distortionPrevInput = distortionPrevInput;
-				instrumentState.distortionNextOutput = distortionNextOutput;`
-    }
+				instrumentState.distortionNextOutput = distortionNextOutput;`;
+  }
 
-    if (usesBitcrusher) {
-        effectsSource += `
+  if (usesBitcrusher) {
+    effectsSource += `
 					
 				if (Math.abs(bitcrusherPrevInput) < epsilon) bitcrusherPrevInput = 0.0;
 				if (Math.abs(bitcrusherCurrentOutput) < epsilon) bitcrusherCurrentOutput = 0.0;
@@ -668,11 +664,11 @@ export function buildEffectsSource(
 				instrumentState.bitcrusherPhase = bitcrusherPhase;
 				instrumentState.bitcrusherPhaseDelta = bitcrusherPhaseDelta;
 				instrumentState.bitcrusherScale = bitcrusherScale;
-				instrumentState.bitcrusherFoldLevel = bitcrusherFoldLevel;`
-    }
+				instrumentState.bitcrusherFoldLevel = bitcrusherFoldLevel;`;
+  }
 
-    if (usesRingModulation) {
-        effectsSource += ` 
+  if (usesRingModulation) {
+    effectsSource += ` 
                 instrumentState.ringModMix = ringModMix;
                 instrumentState.ringModMixDelta = ringModMixDelta;
                 instrumentState.ringModPhase = ringModPhase;
@@ -681,10 +677,10 @@ export function buildEffectsSource(
                 instrumentState.ringModWaveformIndex = ringModWaveformIndex;
                 instrumentState.ringModPulseWidth = ringModPulseWidth;
                 instrumentState.ringModMixFade = ringModMixFade;
-                 `
-    }
-    if (usesPhaser) {
-        effectsSource += `
+                 `;
+  }
+  if (usesPhaser) {
+    effectsSource += `
                 
                 for (let stage = 0; stage < phaserStages; stage++) {
                     if (!Number.isFinite(phaserPrevInputs[stage]) || Math.abs(phaserPrevInputs[stage]) < epsilon) phaserPrevInputs[stage] = 0.0;
@@ -694,11 +690,11 @@ export function buildEffectsSource(
                 instrumentState.phaserMix = phaserMix;
                 instrumentState.phaserFeedbackMult = phaserFeedbackMult;
                 instrumentState.phaserBreakCoef = phaserBreakCoef;
-                `
-    }
+                `;
+  }
 
-    if (usesEqFilter) {
-        effectsSource += `
+  if (usesEqFilter) {
+    effectsSource += `
 					
 				synth.sanitizeFilters(filters);
 				// The filter input here is downstream from another filter so we
@@ -710,33 +706,33 @@ export function buildEffectsSource(
 				if (Math.abs(initialFilterInput1) < epsilon) initialFilterInput1 = 0.0;
 				if (Math.abs(initialFilterInput2) < epsilon) initialFilterInput2 = 0.0;
 				instrumentState.initialEqFilterInput1 = initialFilterInput1;
-				instrumentState.initialEqFilterInput2 = initialFilterInput2;`
-    }
+				instrumentState.initialEqFilterInput2 = initialFilterInput2;`;
+  }
 
-    if (usesPanning) {
-        effectsSource += `
+  if (usesPanning) {
+    effectsSource += `
 				
 				Synth.sanitizeDelayLine(panningDelayLine, panningDelayPos, panningMask);
 				instrumentState.panningDelayPos = panningDelayPos;
 				instrumentState.panningVolumeL = panningVolumeL;
 				instrumentState.panningVolumeR = panningVolumeR;
 				instrumentState.panningOffsetL = panningOffsetL;
-				instrumentState.panningOffsetR = panningOffsetR;`
-    }
+				instrumentState.panningOffsetR = panningOffsetR;`;
+  }
 
-    if (usesChorus) {
-        effectsSource += `
+  if (usesChorus) {
+    effectsSource += `
 				
 				Synth.sanitizeDelayLine(chorusDelayLineL, chorusDelayPos, chorusMask);
 				Synth.sanitizeDelayLine(chorusDelayLineR, chorusDelayPos, chorusMask);
 				instrumentState.chorusPhase = chorusPhase;
 				instrumentState.chorusDelayPos = chorusDelayPos;
 				instrumentState.chorusVoiceMult = chorusVoiceMult;
-				instrumentState.chorusCombinedMult = chorusCombinedMult;`
-    }
+				instrumentState.chorusCombinedMult = chorusCombinedMult;`;
+  }
 
-    if (usesEcho) {
-        effectsSource += `
+  if (usesEcho) {
+    effectsSource += `
 				
 				Synth.sanitizeDelayLine(echoDelayLineL, echoDelayPos, echoMask);
 				Synth.sanitizeDelayLine(echoDelayLineR, echoDelayPos, echoMask);
@@ -751,11 +747,11 @@ export function buildEffectsSource(
 				instrumentState.echoShelfSampleL = echoShelfSampleL;
 				instrumentState.echoShelfSampleR = echoShelfSampleR;
 				instrumentState.echoShelfPrevInputL = echoShelfPrevInputL;
-				instrumentState.echoShelfPrevInputR = echoShelfPrevInputR;`
-    }
+				instrumentState.echoShelfPrevInputR = echoShelfPrevInputR;`;
+  }
 
-    if (usesReverb) {
-        effectsSource += `
+  if (usesReverb) {
+    effectsSource += `
 				
 				Synth.sanitizeDelayLine(reverbDelayLine, reverbDelayPos        , reverbMask);
 				Synth.sanitizeDelayLine(reverbDelayLine, reverbDelayPos +  3041, reverbMask);
@@ -779,9 +775,9 @@ export function buildEffectsSource(
 				instrumentState.reverbShelfPrevInput0 = reverbShelfPrevInput0;
 				instrumentState.reverbShelfPrevInput1 = reverbShelfPrevInput1;
 				instrumentState.reverbShelfPrevInput2 = reverbShelfPrevInput2;
-				instrumentState.reverbShelfPrevInput3 = reverbShelfPrevInput3;`
-    }
+				instrumentState.reverbShelfPrevInput3 = reverbShelfPrevInput3;`;
+  }
 
-    effectsSource += "}";
-    return effectsSource;
+  effectsSource += "}";
+  return effectsSource;
 }

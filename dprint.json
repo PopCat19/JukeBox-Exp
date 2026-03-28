@@ -1,0 +1,14 @@
+{
+	"incremental": true,
+	"typescript": {},
+	"excludes": [
+		"**/node_modules",
+		"**/*-lock.json",
+		"build/**",
+		"website/**",
+		"archive/**",
+		"conventions/**",
+		".kilocode/**"
+	],
+	"plugins": ["https://plugins.dprint.dev/typescript-0.95.15.wasm"]
+}

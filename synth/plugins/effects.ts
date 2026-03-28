@@ -7,44 +7,44 @@
 // - Exported directly for use in synth.ts channel-level loop
 // - Different calling convention than per-instrument plugins
 
-import { Config } from "../synth-config";
 import type { Synth } from "../synth";
+import { Config } from "../synth-config";
 import { buildEffectsSource } from "../synthesis/effects";
 
 const cache: Function[] = Array(1 << 7).fill(undefined);
 
 export function getEffectsSynthFunction(
-    usesDistortion: boolean,
-    usesBitcrusher: boolean,
-    usesEqFilter: boolean,
-    usesPanning: boolean,
-    usesChorus: boolean,
-    usesEcho: boolean,
-    usesReverb: boolean,
-    usesGranular: boolean,
-    usesRingModulation: boolean,
-    usesPhaser: boolean,
-    usesInvertWave: boolean,
-    signature: number,
-    synth: typeof Synth,
+  usesDistortion: boolean,
+  usesBitcrusher: boolean,
+  usesEqFilter: boolean,
+  usesPanning: boolean,
+  usesChorus: boolean,
+  usesEcho: boolean,
+  usesReverb: boolean,
+  usesGranular: boolean,
+  usesRingModulation: boolean,
+  usesPhaser: boolean,
+  usesInvertWave: boolean,
+  signature: number,
+  synth: typeof Synth,
 ): Function {
-    let fn: Function = cache[signature];
-    if (fn === undefined) {
-        const source: string = buildEffectsSource(
-            usesDistortion,
-            usesBitcrusher,
-            usesEqFilter,
-            usesPanning,
-            usesChorus,
-            usesEcho,
-            usesReverb,
-            usesGranular,
-            usesRingModulation,
-            usesPhaser,
-            usesInvertWave,
-        );
-        fn = new Function("Config", "Synth", source)(Config, synth);
-        cache[signature] = fn;
-    }
-    return fn;
+  let fn: Function = cache[signature];
+  if (fn === undefined) {
+    const source: string = buildEffectsSource(
+      usesDistortion,
+      usesBitcrusher,
+      usesEqFilter,
+      usesPanning,
+      usesChorus,
+      usesEcho,
+      usesReverb,
+      usesGranular,
+      usesRingModulation,
+      usesPhaser,
+      usesInvertWave,
+    );
+    fn = new Function("Config", "Synth", source)(Config, synth);
+    cache[signature] = fn;
+  }
+  return fn;
 }

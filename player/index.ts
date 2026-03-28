@@ -5,7 +5,7 @@
 // This module:
 // - Re-exports player UI, controls, timeline, and keyboard modules
 
-export { buildPlayerUI, injectPlayerStyles } from "./player-ui";
 export { PlayerControls } from "./player-controls";
 export { bindPlayerKeys } from "./player-keyboard";
-export { renderTimeline, renderPlayhead, drawNote } from "./player-timeline";
+export { drawNote, renderPlayhead, renderTimeline } from "./player-timeline";
+export { buildPlayerUI, injectPlayerStyles } from "./player-ui";

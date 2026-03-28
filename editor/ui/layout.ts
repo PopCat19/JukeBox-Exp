@@ -12,9 +12,9 @@ import { HTML } from "imperative-html/dist/esm/elements-strict";
 import { ColorConfig } from "../rendering/color-config";
 
 export class Layout {
-	private static readonly _layoutMap: {[K: string]: string} = {
-		"small": "",
-		"long": `\
+  private static readonly _layoutMap: { [K: string]: string } = {
+    "small": "",
+    "long": `\
 
 			/* long layout */
 			@media (min-width: 711px) {
@@ -104,7 +104,7 @@ export class Layout {
 				}
 			}
 		`,
-		"tall": `\
+    "tall": `\
 			/* tall layout */
 			@media (min-width: 711px) {
 				#beepboxEditorContainer {
@@ -201,7 +201,7 @@ export class Layout {
 				}
 			}
 		`,
-		"wide": `\
+    "wide": `\
 			/* wide (JB) layout */
 			@media (min-width: 1001px) {
 				#beepboxEditorContainer {
@@ -283,7 +283,7 @@ export class Layout {
 				}
 			}
 		`,
-		"AbyssBox Special": `\
+    "AbyssBox Special": `\
 
             	/* AB Special layout */
 			@media (min-width: 711px) {
@@ -374,7 +374,7 @@ export class Layout {
 				}
 			}
 		`,
-		"long (AB)": `\
+    "long (AB)": `\
 
 			/* focus layout */
 			@media (min-width: 711px) {
@@ -463,7 +463,7 @@ export class Layout {
 				}
 			}
 		`,
-		"focus": `\
+    "focus": `\
 
 			/* focus layout */
 			@media (min-width: 711px) {
@@ -556,7 +556,7 @@ export class Layout {
 				}
 			}
 		`,
-		"theatre": `\
+    "theatre": `\
 
 		/* Theatre layout */
 		@media (min-width: 711px) {
@@ -649,7 +649,7 @@ export class Layout {
 			}
 		}
 	`,
-				"Upside Down": `\
+    "Upside Down": `\
 
 				/* Upside Down */
 			@media (min-width: 711px) {
@@ -743,11 +743,11 @@ export class Layout {
 				}
 			}
 			`,
-	}
-		
-		private static readonly _styleElement: HTMLStyleElement = document.head.appendChild(HTML.style({type: "text/css"}));
-		
-	public static setLayout(layout: string): void {
-		this._styleElement.textContent = this._layoutMap[layout];
-	}
+  };
+
+  private static readonly _styleElement: HTMLStyleElement = document.head.appendChild(HTML.style({ type: "text/css" }));
+
+  public static setLayout(layout: string): void {
+    this._styleElement.textContent = this._layoutMap[layout];
+  }
 }

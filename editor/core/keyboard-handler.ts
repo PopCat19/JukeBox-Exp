@@ -7,911 +7,1040 @@
 // - Delegates to editor components through a host interface
 // - Manages modifier key state tracking
 
-import { SongDocument } from "../song-document";
-import { PatternEditor } from "../components/pattern-editor";
-import { MuteEditor } from "../components/mute-editor";
-import { LoopEditor } from "../components/loop-editor";
+import { Channel, Instrument } from "../../synth";
+import { Config, DropdownID, effectsIncludeNoteFilter, EffectType, InstrumentType } from "../../synth/synth-config";
+import {
+  ChangeAddChannelInstrument,
+  ChangePatternNumbers,
+  ChangePatternSelection,
+  ChangePatternsPerChannel,
+  ChangeRemoveChannelInstrument,
+  ChangeSetPatternInstruments,
+  ChangeSong,
+} from "../changes";
 import { BarScrollBar } from "../components/bar-scroll-bar";
-import { KeyboardLayout } from "../config/keyboard-layout";
 import { EnvelopeEditor } from "../components/envelope-editor";
+import { LoopEditor } from "../components/loop-editor";
+import { MuteEditor } from "../components/mute-editor";
+import { PatternEditor } from "../components/pattern-editor";
+import { KeyboardLayout } from "../config/keyboard-layout";
 import { ColorConfig } from "../rendering/color-config";
-import { Instrument, Channel } from "../../synth";
-import { InstrumentType, EffectType, Config, DropdownID, effectsIncludeNoteFilter } from "../../synth/synth-config";
+import { SongDocument } from "../song-document";
 import { ChangeGroup } from "./change";
-import { ChangePatternSelection, ChangePatternsPerChannel, ChangePatternNumbers, ChangeSetPatternInstruments, ChangeSong, ChangeAddChannelInstrument, ChangeRemoveChannelInstrument } from "../changes";
 
 declare const OFFLINE: boolean;
 
 export interface KeyboardHandlerHost {
-    doc: SongDocument;
-    patternEditor: PatternEditor;
-    muteEditor: MuteEditor;
-    loopEditor: LoopEditor;
-    barScrollBar: BarScrollBar;
-    keyboardLayout: KeyboardLayout;
-    envelopeEditor: EnvelopeEditor;
-    mainLayer: HTMLDivElement;
-    prompt: any;
-    openOperatorDropdowns: boolean[];
+  doc: SongDocument;
+  patternEditor: PatternEditor;
+  muteEditor: MuteEditor;
+  loopEditor: LoopEditor;
+  barScrollBar: BarScrollBar;
+  keyboardLayout: KeyboardLayout;
+  envelopeEditor: EnvelopeEditor;
+  mainLayer: HTMLDivElement;
+  prompt: any;
+  openOperatorDropdowns: boolean[];
 
-    songTitleInputBox: HTMLInputElement;
-    upperNoteLimitInputBox: HTMLInputElement;
-    lowerNoteLimitInputBox: HTMLInputElement;
-    panSliderInputBox: HTMLInputElement;
-    pwmSliderInputBox: HTMLInputElement;
-    detuneSliderInputBox: HTMLInputElement;
-    instrumentVolumeSliderInputBox: HTMLInputElement;
-    presetTagsInputBox: HTMLInputElement;
-    chipWaveLoopStartStepper: HTMLInputElement;
-    chipWaveLoopEndStepper: HTMLInputElement;
-    chipWaveStartOffsetStepper: HTMLInputElement;
-    octaveStepper: HTMLInputElement;
-    unisonVoicesInputBox: HTMLInputElement;
-    unisonSpreadInputBox: HTMLInputElement;
-    unisonOffsetInputBox: HTMLInputElement;
-    unisonExpressionInputBox: HTMLInputElement;
-    unisonSignInputBox: HTMLInputElement;
-    monophonicNoteInputBox: HTMLInputElement;
+  songTitleInputBox: HTMLInputElement;
+  upperNoteLimitInputBox: HTMLInputElement;
+  lowerNoteLimitInputBox: HTMLInputElement;
+  panSliderInputBox: HTMLInputElement;
+  pwmSliderInputBox: HTMLInputElement;
+  detuneSliderInputBox: HTMLInputElement;
+  instrumentVolumeSliderInputBox: HTMLInputElement;
+  presetTagsInputBox: HTMLInputElement;
+  chipWaveLoopStartStepper: HTMLInputElement;
+  chipWaveLoopEndStepper: HTMLInputElement;
+  chipWaveStartOffsetStepper: HTMLInputElement;
+  octaveStepper: HTMLInputElement;
+  unisonVoicesInputBox: HTMLInputElement;
+  unisonSpreadInputBox: HTMLInputElement;
+  unisonOffsetInputBox: HTMLInputElement;
+  unisonExpressionInputBox: HTMLInputElement;
+  unisonSignInputBox: HTMLInputElement;
+  monophonicNoteInputBox: HTMLInputElement;
 
-    togglePlay(): void;
-    refocusStage(): void;
-    toggleRecord(): void;
-    openPrompt(name: string): void;
-    openPresetSelector(): void;
-    openShortcuts(): void;
-    copyInstrument(): void;
-    pasteInstrument(): void;
-    randomPreset(): void;
-    randomGenerated(alt: boolean): void;
-    nextPreset(): void;
-    copyTextToClipboard(text: string): void;
-    toggleDropdownMenu(id: number, index?: number): void;
-    renderInstrumentBar(channel: Channel, instrumentIndex: number, colors: any): void;
+  togglePlay(): void;
+  refocusStage(): void;
+  toggleRecord(): void;
+  openPrompt(name: string): void;
+  openPresetSelector(): void;
+  openShortcuts(): void;
+  copyInstrument(): void;
+  pasteInstrument(): void;
+  randomPreset(): void;
+  randomGenerated(alt: boolean): void;
+  nextPreset(): void;
+  copyTextToClipboard(text: string): void;
+  toggleDropdownMenu(id: number, index?: number): void;
+  renderInstrumentBar(channel: Channel, instrumentIndex: number, colors: any): void;
 
-    movePlayheadToMouseTrack(): boolean;
-    movePlayheadToMousePattern(): boolean;
+  movePlayheadToMouseTrack(): boolean;
+  movePlayheadToMousePattern(): boolean;
 
-    setCtrlHeld(value: boolean): void;
-    setShiftHeld(value: boolean): void;
+  setCtrlHeld(value: boolean): void;
+  setShiftHeld(value: boolean): void;
 }
 
 export class KeyboardHandler {
-    constructor(private _host: KeyboardHandlerHost) {}
+  constructor(private _host: KeyboardHandlerHost) {}
 
-    public handleKeyDown = (event: KeyboardEvent): void => {
-        const host = this._host;
-        const doc = host.doc;
+  public handleKeyDown = (event: KeyboardEvent): void => {
+    const host = this._host;
+    const doc = host.doc;
 
-        host.setCtrlHeld(event.ctrlKey);
-        host.setShiftHeld(event.shiftKey);
+    host.setCtrlHeld(event.ctrlKey);
+    host.setShiftHeld(event.shiftKey);
 
-        if (host.prompt) {
-            if (host.prompt.whenKeyPressed) {
-                host.prompt.whenKeyPressed(event);
-            }
-            if (event.keyCode == 27) { // ESC key
-                doc.prompt = null;
-                doc.notifier.changed();
-            }
-            return;
-        }
-
-        // Defer to actively editing song title, channel name, or mod label
-        if (document.activeElement == host.songTitleInputBox || host.patternEditor.editingModLabel || document.activeElement == (host.muteEditor as any)._channelNameInput?.input) {
-            if (event.keyCode == 13 || event.keyCode == 27) {
-                host.mainLayer.focus();
-                host.patternEditor.stopEditingModLabel(event.keyCode == 27);
-            }
-            return;
-        }
-
-        // Defer to actively editing volume/pan rows
-        if (
-            document.activeElement == host.panSliderInputBox
-            || document.activeElement == host.pwmSliderInputBox
-            || document.activeElement == host.detuneSliderInputBox
-            || document.activeElement == host.instrumentVolumeSliderInputBox
-            || document.activeElement == host.presetTagsInputBox
-            || document.activeElement == host.chipWaveLoopStartStepper
-            || document.activeElement == host.chipWaveLoopEndStepper
-            || document.activeElement == host.chipWaveStartOffsetStepper
-            || document.activeElement == host.octaveStepper
-            || document.activeElement == host.unisonVoicesInputBox
-            || document.activeElement == host.unisonSpreadInputBox
-            || document.activeElement == host.unisonOffsetInputBox
-            || document.activeElement == host.unisonExpressionInputBox
-            || document.activeElement == host.unisonSignInputBox
-            || document.activeElement == host.monophonicNoteInputBox
-            || host.envelopeEditor.pitchStartBoxes.find((element: any) => element == document.activeElement)
-            || host.envelopeEditor.pitchEndBoxes.find((element: any) => element == document.activeElement)
-            || host.envelopeEditor.perEnvelopeLowerBoundBoxes.find((element: any) => element == document.activeElement)
-            || host.envelopeEditor.perEnvelopeUpperBoundBoxes.find((element: any) => element == document.activeElement)
-            || host.envelopeEditor.randomStepsBoxes.find((element: any) => element == document.activeElement)
-            || host.envelopeEditor.randomStepsBoxes.find((element: any) => element == document.activeElement)
-            || host.envelopeEditor.LFOStepsBoxes.find((element: any) => element == document.activeElement)
-        ) {
-            if (event.keyCode == 13 || event.keyCode == 27) {
-                host.mainLayer.focus();
-            }
-            return;
-        }
-
-        // Defer to actively editing upper note limit
-        if (document.activeElement == host.upperNoteLimitInputBox || document.activeElement == host.lowerNoteLimitInputBox) {
-            if (event.keyCode == 13 || event.keyCode == 27) {
-                host.mainLayer.focus();
-            }
-            return;
-        }
-
-        if (doc.synth.recording) {
-            if (!event.ctrlKey && !event.metaKey) {
-                host.keyboardLayout.handleKeyEvent(event, true);
-            }
-            if (event.keyCode == 32) { // space
-                host.toggleRecord();
-                event.preventDefault();
-                host.refocusStage();
-            } else if (event.keyCode == 80 && (event.ctrlKey || event.metaKey)) { // p
-                host.toggleRecord();
-                event.preventDefault();
-                host.refocusStage();
-            }
-            return;
-        }
-
-        const needControlForShortcuts: boolean = (doc.prefs.pressControlForShortcuts != event.getModifierState("CapsLock"));
-        const canPlayNotes: boolean = (!event.ctrlKey && !event.metaKey && needControlForShortcuts);
-        if (canPlayNotes) host.keyboardLayout.handleKeyEvent(event, true);
-
-        switch (event.keyCode) {
-            case 27: // ESC key
-                if (!event.ctrlKey && !event.metaKey) {
-                    new ChangePatternSelection(doc, 0, 0);
-                    doc.selection.resetBoxSelection();
-                }
-                break;
-            case 16: // Shift
-                host.patternEditor.shiftMode = true;
-                break;
-            case 17: // Ctrl
-                host.patternEditor.controlMode = true;
-                break;
-            case 32: // space
-                if (event.ctrlKey) {
-                    host.toggleRecord();
-                } else if (event.shiftKey) {
-                    if (host.movePlayheadToMouseTrack() || host.movePlayheadToMousePattern()) {
-                        if (!doc.synth.playing) doc.performance.play();
-                    }
-                    if (Math.floor(doc.synth.playhead) < doc.synth.loopBarStart || Math.floor(doc.synth.playhead) > doc.synth.loopBarEnd) {
-                        doc.synth.loopBarStart = -1;
-                        doc.synth.loopBarEnd = -1;
-                        host.loopEditor.setLoopAt(doc.synth.loopBarStart, doc.synth.loopBarEnd);
-                    }
-                } else {
-                    host.togglePlay();
-                }
-                event.preventDefault();
-                host.refocusStage();
-                break;
-            case 80: // p
-                if (canPlayNotes) break;
-                if (event.ctrlKey || event.metaKey) {
-                    host.toggleRecord();
-                    doc.synth.loopBarStart = -1;
-                    doc.synth.loopBarEnd = -1;
-                    host.loopEditor.setLoopAt(doc.synth.loopBarStart, doc.synth.loopBarEnd);
-
-                    event.preventDefault();
-                    host.refocusStage();
-                } else if (canPlayNotes) break;
-                if (needControlForShortcuts == (event.ctrlKey || event.metaKey) && event.shiftKey) {
-                    location.href = "player/" + (OFFLINE ? "index.html" : "") + "#song=" + doc.song.toBase64String();
-                    event.preventDefault();
-                }
-                break;
-            case 85: // u
-                if (event.shiftKey) {
-                    let shortenerStrategy: string = "https://tinyurl.com/api-create.php?url=";
-                    const localShortenerStrategy: string | null = window.localStorage.getItem("shortenerStrategySelect");
-
-                    if (localShortenerStrategy == "isgd") shortenerStrategy = "https://is.gd/create.php?format=simple&url=";
-
-                    window.open(shortenerStrategy + encodeURIComponent(new URL("#" + doc.song.toBase64String(), location.href).href));
-                }
-                break;
-            case 192: // `/~
-                if (canPlayNotes) break;
-                if (event.shiftKey) {
-                    doc.goBackToStart();
-                    doc.song.restoreLimiterDefaults();
-                    for (const channel of doc.song.channels) {
-                        channel.muted = false;
-                        channel.name = "";
-                    }
-                    doc.record(new ChangeSong(doc, ""), false, true);
-                } else {
-                    if (needControlForShortcuts == (event.ctrlKey || event.metaKey)) {
-                        host.openPrompt("songRecovery");
-                    }
-                }
-                event.preventDefault();
-                break;
-            case 90: // z
-                if (canPlayNotes) break;
-                if (event.shiftKey) {
-                    doc.redo();
-                } else {
-                    doc.undo();
-                }
-                event.preventDefault();
-                break;
-            case 88: // x
-                if (canPlayNotes) break;
-                doc.selection.cutNotes();
-                event.preventDefault();
-                break;
-            case 89: // y
-                if (canPlayNotes) break;
-                doc.redo();
-                event.preventDefault();
-                break;
-            case 66: // b
-                if (canPlayNotes) break;
-
-                if (needControlForShortcuts == (event.ctrlKey || event.metaKey)) {
-                    if (event.shiftKey) {
-                        host.openPrompt("beatsPerBar");
-                    } else {
-                        const leftSel = Math.min(doc.selection.boxSelectionX0, doc.selection.boxSelectionX1);
-                        const rightSel = Math.max(doc.selection.boxSelectionX0, doc.selection.boxSelectionX1);
-                        if ((leftSel < doc.synth.loopBarStart || doc.synth.loopBarStart == -1)
-                            || (rightSel > doc.synth.loopBarEnd || doc.synth.loopBarEnd == -1)
-                        ) {
-                            doc.synth.loopBarStart = leftSel;
-                            doc.synth.loopBarEnd = rightSel;
-
-                            if (!doc.synth.playing) {
-                                doc.synth.snapToBar();
-                                doc.performance.play();
-                            }
-                        }
-                        else {
-                            doc.synth.loopBarStart = -1;
-                            doc.synth.loopBarEnd = -1;
-                        }
-
-                        if (doc.bar != Math.floor(doc.synth.playhead) && doc.synth.loopBarStart != -1) {
-                            doc.synth.goToBar(doc.bar);
-                            doc.synth.snapToBar();
-                            doc.synth.initModFilters(doc.song);
-                            doc.synth.computeLatestModValues();
-                            if (doc.prefs.autoFollow) {
-                                doc.selection.setChannelBar(doc.channel, Math.floor(doc.synth.playhead));
-                            }
-                        }
-
-                        host.loopEditor.setLoopAt(doc.synth.loopBarStart, doc.synth.loopBarEnd);
-                    }
-                }
-                event.preventDefault();
-                break;
-            case 67: // c
-                if (canPlayNotes) break;
-
-                if (event.shiftKey) {
-                    host.copyInstrument();
-                } else {
-                    doc.selection.copy();
-                    doc.selection.resetBoxSelection();
-                    doc.selection.selectionUpdated();
-                }
-                event.preventDefault();
-                break;
-            case 13: // enter/return
-                doc.synth.loopBarStart = -1;
-                doc.synth.loopBarEnd = -1;
-                host.loopEditor.setLoopAt(doc.synth.loopBarStart, doc.synth.loopBarEnd);
-
-                if ((event.ctrlKey || event.metaKey) && !event.shiftKey) {
-                    doc.selection.insertChannel();
-                } else if (event.shiftKey) {
-                    const width = doc.selection.boxSelectionWidth;
-                    doc.selection.boxSelectionX0 -= width;
-                    doc.selection.boxSelectionX1 -= width;
-                    doc.selection.insertBars();
-                } else if (event.altKey) {
-                    doc.record(new ChangeAddChannelInstrument(doc));
-                } else {
-                    doc.selection.insertBars();
-                }
-                event.preventDefault();
-                break;
-
-            case 8: // backspace/delete
-                doc.synth.loopBarStart = -1;
-                doc.synth.loopBarEnd = -1;
-                host.loopEditor.setLoopAt(doc.synth.loopBarStart, doc.synth.loopBarEnd);
-
-                if (event.ctrlKey || event.metaKey) {
-                    doc.selection.deleteChannel();
-                } else if (event.altKey) {
-                    doc.record(new ChangeRemoveChannelInstrument(doc));
-                } else {
-                    doc.selection.deleteBars();
-                }
-                host.barScrollBar.animatePlayhead();
-                event.preventDefault();
-                break;
-            case 65: // a
-                if (canPlayNotes) break;
-                if (event.shiftKey) {
-                    doc.selection.selectChannel();
-                } else {
-                    doc.selection.selectAll();
-                }
-                event.preventDefault();
-                break;
-            case 68: // d
-                if (event.shiftKey) {
-
-                } else {
-                    if (canPlayNotes) break;
-                    if (needControlForShortcuts == (event.ctrlKey || event.metaKey)) {
-                       doc.selection.duplicatePatterns(event.shiftKey ? false : true);
-                       event.preventDefault();
-                    }
-                }
-                break;
-            case 69: // e (+shift: eq filter settings)
-                if (canPlayNotes) break;
-                if (event.shiftKey) {
-                    const instrument: Instrument = doc.song.channels[doc.channel].instruments[doc.getCurrentInstrument()];
-                    if (!instrument.eqFilterType && doc.channel < doc.song.pitchChannelCount + doc.song.noiseChannelCount)
-                        host.openPrompt("customEQFilterSettings");
-                } else if (event.altKey) {
-                    const instrument: Instrument = doc.song.channels[doc.channel].instruments[doc.getCurrentInstrument()];
-                    const isAllOpen: boolean = host.envelopeEditor.openExtraSettingsDropdowns.every((x: boolean) => { return x == true });
-                    for (let i = 0; i < instrument.envelopeCount; i++) {
-                        if (isAllOpen) host.envelopeEditor.openExtraSettingsDropdowns[i] = false;
-                        else host.envelopeEditor.openExtraSettingsDropdowns[i] = true;
-                    }
-                    host.envelopeEditor.rerenderExtraSettings();
-                    event.preventDefault();
-                } else if (event.ctrlKey) {
-                    host.openPrompt("generateEuclideanRhythm");
-                    event.preventDefault();
-                    break;
-                } else if (needControlForShortcuts == (event.ctrlKey || event.metaKey)) {
-                    host.openPrompt("customSongEQFilterSettings");
-                }
-                break;
-            case 70: // f
-                if (canPlayNotes) break;
-                if (event.shiftKey) {
-                    doc.synth.loopBarStart = -1;
-                    doc.synth.loopBarEnd = -1;
-                    host.loopEditor.setLoopAt(doc.synth.loopBarStart, doc.synth.loopBarEnd);
-
-                    doc.synth.goToBar(doc.song.loopStart);
-                    doc.synth.snapToBar();
-                    doc.synth.initModFilters(doc.song);
-                    doc.synth.computeLatestModValues();
-                    if (doc.prefs.autoFollow) {
-                        doc.selection.setChannelBar(doc.channel, Math.floor(doc.synth.playhead));
-                    }
-                    event.preventDefault();
-                } else if (event.altKey) {
-                    const instrument: Instrument = doc.song.channels[doc.channel].instruments[doc.getCurrentInstrument()];
-                    const operatorCount: number = instrument.type == InstrumentType.fm ? 4 : 6;
-                    let isAllOpen: boolean = true;
-                    for (let i = 0; i < operatorCount; i++) {
-                        if (!host.openOperatorDropdowns[i]) isAllOpen = false;
-                    }
-                    for (let i = 0; i < operatorCount; i++) {
-                        if (host.openOperatorDropdowns[i] == false && !isAllOpen || isAllOpen)
-                            host.toggleDropdownMenu(DropdownID.FM, i);
-                    }
-                    event.preventDefault();
-                } else if (needControlForShortcuts == (event.ctrlKey || event.metaKey)) {
-
-                    doc.synth.loopBarStart = -1;
-                    doc.synth.loopBarEnd = -1;
-                    host.loopEditor.setLoopAt(doc.synth.loopBarStart, doc.synth.loopBarEnd);
-
-                    doc.synth.snapToStart();
-                    doc.synth.initModFilters(doc.song);
-                    doc.synth.computeLatestModValues();
-                    if (doc.prefs.autoFollow) {
-                        doc.selection.setChannelBar(doc.channel, Math.floor(doc.synth.playhead));
-                    }
-                    event.preventDefault();
-                }
-                break;
-            case 72: // h
-                if (canPlayNotes) break;
-
-                if (needControlForShortcuts == (event.ctrlKey || event.metaKey)) {
-
-                    doc.synth.goToBar(doc.bar);
-                    doc.synth.snapToBar();
-                    doc.synth.initModFilters(doc.song);
-                    doc.synth.computeLatestModValues();
-
-                    if (Math.floor(doc.synth.playhead) < doc.synth.loopBarStart || Math.floor(doc.synth.playhead) > doc.synth.loopBarEnd) {
-                        doc.synth.loopBarStart = -1;
-                        doc.synth.loopBarEnd = -1;
-                        host.loopEditor.setLoopAt(doc.synth.loopBarStart, doc.synth.loopBarEnd);
-                    }
-
-                    if (doc.prefs.autoFollow) {
-                        doc.selection.setChannelBar(doc.channel, Math.floor(doc.synth.playhead));
-                    }
-                    event.preventDefault();
-                }
-                break;
-            case 74: // j
-                if (canPlayNotes) break;
-                if (event.shiftKey && event.ctrlKey && event.altKey) {
-                    doc.prefs.autoPlay = false;
-                    doc.prefs.autoFollow = false;
-                    doc.prefs.enableNotePreview = true;
-                    doc.prefs.showFifth = true;
-                    doc.prefs.notesOutsideScale = false;
-                    doc.prefs.defaultScale = 0;
-                    doc.prefs.showLetters = true;
-                    doc.prefs.showChannels = true;
-                    doc.prefs.showScrollBar = true;
-                    doc.prefs.alwaysFineNoteVol = false;
-                    doc.prefs.enableChannelMuting = true;
-                    doc.prefs.displayBrowserUrl = true;
-                    doc.prefs.displayVolumeBar = true;
-                    doc.prefs.layout = "wide";
-                    doc.prefs.visibleOctaves = 5;
-                    doc.prefs.colorTheme = "jummbox classic";
-                    doc.prefs.rollNoveltyPresets = false;
-                    doc.prefs.enableTagSearch = false;
-                    doc.prefs.save();
-                    event.preventDefault();
-                    location.reload();
-                }
-                break;
-            case 76: // l
-                if (canPlayNotes) break;
-                if (event.shiftKey) {
-                    host.openPrompt("limiterSettings");
-                }
-                else {
-                    host.openPrompt("barCount");
-                }
-                break;
-            case 77: // m
-                if (canPlayNotes) break;
-                if (needControlForShortcuts == (event.ctrlKey || event.metaKey)) {
-                    if (doc.prefs.enableChannelMuting) {
-                        doc.selection.muteChannels(event.shiftKey);
-                        event.preventDefault();
-                    }
-                }
-                break;
-            case 78: // n
-                if (canPlayNotes) break;
-
-                const group: ChangeGroup = new ChangeGroup();
-
-                if (event.shiftKey) {
-                    const instrument: Instrument = doc.song.channels[doc.channel].instruments[doc.getCurrentInstrument()];
-                    if (effectsIncludeNoteFilter(instrument.effects) && !instrument.noteFilterType && doc.channel < doc.song.pitchChannelCount + doc.song.noiseChannelCount)
-                        host.openPrompt("customNoteFilterSettings");
-                    break;
-                }
-                else if (event.ctrlKey) {
-                    let nextEmpty: number = 0;
-                    while (nextEmpty < doc.song.patternsPerChannel && doc.song.channels[doc.channel].patterns[nextEmpty].notes.length > 0)
-                        nextEmpty++;
-
-                    nextEmpty++;
-
-                    if (nextEmpty <= Config.barCountMax) {
-
-                        if (nextEmpty > doc.song.patternsPerChannel) {
-                            group.append(new ChangePatternsPerChannel(doc, nextEmpty));
-                        }
-
-                        group.append(new ChangePatternNumbers(doc, nextEmpty, doc.bar, doc.channel, 1, 1));
-
-                        if (doc.channel >= doc.song.pitchChannelCount + doc.song.noiseChannelCount) {
-                            doc.viewedInstrument[doc.channel] = doc.recentPatternInstruments[doc.channel][0];
-                        }
-                        group.append(new ChangeSetPatternInstruments(doc, doc.channel, doc.recentPatternInstruments[doc.channel], doc.song.channels[doc.channel].patterns[nextEmpty - 1]));
-
-                    }
-                }
-                else {
-                    let nextUnused: number = 1;
-                    while (doc.song.channels[doc.channel].bars.indexOf(nextUnused) != -1
-                        && nextUnused <= doc.song.patternsPerChannel)
-                        nextUnused++;
-
-                    if (nextUnused <= Config.barCountMax) {
-
-                        if (nextUnused > doc.song.patternsPerChannel) {
-                            group.append(new ChangePatternsPerChannel(doc, nextUnused));
-                        }
-
-                        group.append(new ChangePatternNumbers(doc, nextUnused, doc.bar, doc.channel, 1, 1));
-
-                        if (doc.channel >= doc.song.pitchChannelCount + doc.song.noiseChannelCount) {
-                            doc.viewedInstrument[doc.channel] = doc.recentPatternInstruments[doc.channel][0];
-                        }
-                        group.append(new ChangeSetPatternInstruments(doc, doc.channel, doc.recentPatternInstruments[doc.channel], doc.song.channels[doc.channel].patterns[nextUnused - 1]));
-
-                    }
-                }
-
-                doc.record(group);
-
-                event.preventDefault();
-                break;
-            case 81: // q
-                if (canPlayNotes) break;
-                if (needControlForShortcuts == (event.ctrlKey || event.metaKey)) {
-                    if (event.shiftKey) {
-                        host.openPrompt("addExternal");
-                        event.preventDefault();
-                        break;
-                    }
-                    else {
-                        host.openPrompt("channelSettings");
-                        event.preventDefault();
-                        break;
-                    }
-                }
-                break;
-            case 83: // s
-                if (canPlayNotes) break;
-                if (event.shiftKey && event.ctrlKey && event.altKey) {
-                    doc.prefs.autoPlay = false;
-                    doc.prefs.autoFollow = true;
-                    doc.prefs.enableNotePreview = true;
-                    doc.prefs.showFifth = true;
-                    doc.prefs.notesOutsideScale = false;
-                    doc.prefs.defaultScale = 0;
-                    doc.prefs.showLetters = true;
-                    doc.prefs.showChannels = true;
-                    doc.prefs.showScrollBar = true;
-                    doc.prefs.alwaysFineNoteVol = false;
-                    doc.prefs.enableChannelMuting = true;
-                    doc.prefs.displayBrowserUrl = true;
-                    doc.prefs.displayVolumeBar = true;
-                    doc.prefs.layout = "tall";
-                    doc.prefs.visibleOctaves = 5;
-                    doc.prefs.closePromptByClickoff = false;
-                    doc.prefs.colorTheme = "slarmoosbox";
-                    doc.prefs.frostedGlassBackground = false;
-                    doc.prefs.instrumentButtonsAtTop = true;
-                    doc.prefs.instrumentCopyPaste = true;
-                    doc.prefs.instrumentImportExport = true;
-                    doc.prefs.notesFlashWhenPlayed = true;
-                    doc.prefs.showOscilloscope = true;
-                    doc.prefs.rollNoveltyPresets = false;
-                    doc.prefs.enableTagSearch = false;
-                    doc.prefs.save();
-                    event.preventDefault();
-                    location.reload();
-                } else if (event.ctrlKey || event.metaKey) {
-                    host.openPrompt("export");
-                    event.preventDefault();
-                } else if (event.altKey) {
-                    host.openPrompt("exportInstrument");
-                } else if (doc.prefs.enableChannelMuting) {
-                    if (event.shiftKey) {
-                        doc.selection.muteChannels(false);
-                    } else {
-                        doc.selection.soloChannels(false);
-                    }
-                    event.preventDefault();
-                }
-                break;
-            case 79: // o
-                if (canPlayNotes) break;
-                if (event.ctrlKey || event.metaKey) {
-                    host.openPrompt("import");
-                    event.preventDefault();
-                } else if (event.altKey) {
-                    host.openPrompt("importInstrument");
-                }
-                break;
-            case 86: // v
-                if (canPlayNotes) break;
-                if ((event.ctrlKey || event.metaKey) && event.shiftKey && !needControlForShortcuts) {
-                    doc.selection.pasteNumbers();
-                } else if (event.shiftKey) {
-                    host.pasteInstrument();
-                } else {
-                    doc.selection.pasteNotes();
-                }
-                event.preventDefault();
-                break;
-            case 87: // w
-                if (canPlayNotes) break;
-                host.openPrompt("moveNotesSideways");
-                break;
-            case 73: // i
-                if (canPlayNotes) break;
-                if (needControlForShortcuts == (event.ctrlKey || event.metaKey) && event.shiftKey) {
-                    const instrument: Instrument = doc.song.channels[doc.channel].instruments[doc.getCurrentInstrument()];
-                    const instrumentObject: any = instrument.toJsonObject();
-                    delete instrumentObject["preset"];
-                    delete instrumentObject["volume"];
-                    delete instrumentObject["pan"];
-                    const panningEffectIndex: number = instrumentObject["effects"].indexOf(Config.effectNames[EffectType.panning]);
-                    if (panningEffectIndex != -1) instrumentObject["effects"].splice(panningEffectIndex, 1);
-                    for (let i: number = 0; i < instrumentObject["envelopes"].length; i++) {
-                        const envelope: any = instrumentObject["envelopes"][i];
-                        if (envelope["target"] == "panning" || envelope["target"] == "none" || envelope["envelope"] == "none") {
-                            instrumentObject["envelopes"].splice(i, 1);
-                            i--;
-                        }
-                    }
-                    host.copyTextToClipboard(JSON.stringify(instrumentObject));
-                    event.preventDefault();
-                }
-                break;
-            case 82: // r
-                if (canPlayNotes) break;
-                if (needControlForShortcuts == (event.ctrlKey || event.metaKey)) {
-                    if (event.shiftKey) {
-                        host.randomGenerated(false);
-                    } else if (event.altKey) {
-                        host.randomGenerated(true);
-                    } else {
-                        host.randomPreset();
-                    }
-                    event.preventDefault();
-                }
-                break;
-            case 84: // t
-                if (canPlayNotes) break;
-                if (event.shiftKey && event.ctrlKey && event.altKey) {
-                    doc.prefs.autoPlay = false;
-                    doc.prefs.autoFollow = true;
-                    doc.prefs.enableNotePreview = true;
-                    doc.prefs.showFifth = true;
-                    doc.prefs.notesOutsideScale = true;
-                    doc.prefs.defaultScale = 0;
-                    doc.prefs.showLetters = true;
-                    doc.prefs.showChannels = true;
-                    doc.prefs.showScrollBar = true;
-                    doc.prefs.alwaysFineNoteVol = true;
-                    doc.prefs.enableChannelMuting = true;
-                    doc.prefs.displayBrowserUrl = true;
-                    doc.prefs.displayVolumeBar = true;
-                    doc.prefs.layout = "long";
-                    doc.prefs.visibleOctaves = 4;
-                    doc.prefs.closePromptByClickoff = true;
-                    doc.prefs.colorTheme = "violet verdant";
-                    doc.prefs.frostedGlassBackground = false;
-                    doc.prefs.instrumentButtonsAtTop = true;
-                    doc.prefs.instrumentCopyPaste = true;
-                    doc.prefs.instrumentImportExport = true;
-                    doc.prefs.notesFlashWhenPlayed = true;
-                    doc.prefs.showOscilloscope = true;
-                    doc.prefs.rollNoveltyPresets = true;
-                    doc.prefs.enableTagSearch = true;
-                    doc.prefs.save();
-                    event.preventDefault();
-                    location.reload();
-                } else if (event.shiftKey) {
-                    host.openPresetSelector();
-                    event.preventDefault();
-                } else {
-                    host.nextPreset();
-                    event.preventDefault();
-                }
-                break;
-            case 219: // left brace
-                if (canPlayNotes) break;
-                if (needControlForShortcuts == (event.ctrlKey || event.metaKey)) {
-                    doc.synth.goToPrevBar();
-                    doc.synth.initModFilters(doc.song);
-                    doc.synth.computeLatestModValues();
-                    if (Math.floor(doc.synth.playhead) < doc.synth.loopBarStart || Math.floor(doc.synth.playhead) > doc.synth.loopBarEnd) {
-                        doc.synth.loopBarStart = -1;
-                        doc.synth.loopBarEnd = -1;
-                        host.loopEditor.setLoopAt(doc.synth.loopBarStart, doc.synth.loopBarEnd);
-                    }
-
-                    if (doc.prefs.autoFollow) {
-                        doc.selection.setChannelBar(doc.channel, Math.floor(doc.synth.playhead));
-                    }
-                    event.preventDefault();
-                }
-                break;
-            case 221: // right brace
-                if (canPlayNotes) break;
-                if (needControlForShortcuts == (event.ctrlKey || event.metaKey)) {
-                    doc.synth.goToNextBar();
-                    doc.synth.initModFilters(doc.song);
-                    doc.synth.computeLatestModValues();
-                    if (Math.floor(doc.synth.playhead) < doc.synth.loopBarStart || Math.floor(doc.synth.playhead) > doc.synth.loopBarEnd) {
-                        doc.synth.loopBarStart = -1;
-                        doc.synth.loopBarEnd = -1;
-                        host.loopEditor.setLoopAt(doc.synth.loopBarStart, doc.synth.loopBarEnd);
-                    }
-
-                    if (doc.prefs.autoFollow) {
-                        doc.selection.setChannelBar(doc.channel, Math.floor(doc.synth.playhead));
-                    }
-                    event.preventDefault();
-                }
-                break;
-            case 189: // -
-            case 173: // Firefox -
-                if (canPlayNotes) break;
-                if (needControlForShortcuts == (event.ctrlKey || event.metaKey)) {
-                    doc.selection.transpose(false, event.shiftKey);
-                    event.preventDefault();
-                }
-                break;
-            case 187: // +
-            case 61: // Firefox +
-            case 171: // Some users have this as +? Hmm.
-                if (canPlayNotes) break;
-                if (needControlForShortcuts == (event.ctrlKey || event.metaKey)) {
-                    doc.selection.transpose(true, event.shiftKey);
-                    event.preventDefault();
-                }
-                break;
-            case 38: // up
-                if (event.ctrlKey || event.metaKey) {
-                    doc.selection.swapChannels(-1);
-                } else if (event.shiftKey) {
-                    doc.selection.boxSelectionY1 = Math.max(0, doc.selection.boxSelectionY1 - 1);
-                    doc.selection.scrollToEndOfSelection();
-                    doc.selection.selectionUpdated();
-                } else {
-                    doc.selection.setChannelBar((doc.channel - 1 + doc.song.getChannelCount()) % doc.song.getChannelCount(), doc.bar);
-                    doc.selection.resetBoxSelection();
-                    host.envelopeEditor.rerenderExtraSettings();
-
-                }
-                event.preventDefault();
-                break;
-            case 40: // down
-                if (event.ctrlKey || event.metaKey) {
-                    doc.selection.swapChannels(1);
-                } else if (event.shiftKey) {
-                    doc.selection.boxSelectionY1 = Math.min(doc.song.getChannelCount() - 1, doc.selection.boxSelectionY1 + 1);
-                    doc.selection.scrollToEndOfSelection();
-                    doc.selection.selectionUpdated();
-                } else {
-                    doc.selection.setChannelBar((doc.channel + 1) % doc.song.getChannelCount(), doc.bar);
-                    doc.selection.resetBoxSelection();
-                    host.envelopeEditor.rerenderExtraSettings();
-                }
-                event.preventDefault();
-                break;
-            case 37: // left
-                if (event.shiftKey) {
-                    doc.selection.boxSelectionX1 = Math.max(0, doc.selection.boxSelectionX1 - 1);
-                    doc.selection.scrollToEndOfSelection();
-                    doc.selection.selectionUpdated();
-                } else {
-                    doc.selection.setChannelBar(doc.channel, (doc.bar + doc.song.barCount - 1) % doc.song.barCount);
-                    doc.selection.resetBoxSelection();
-                }
-                event.preventDefault();
-                break;
-            case 39: // right
-                if (event.shiftKey) {
-                    doc.selection.boxSelectionX1 = Math.min(doc.song.barCount - 1, doc.selection.boxSelectionX1 + 1);
-                    doc.selection.scrollToEndOfSelection();
-                    doc.selection.selectionUpdated();
-                } else {
-                    doc.selection.setChannelBar(doc.channel, (doc.bar + 1) % doc.song.barCount);
-                    doc.selection.resetBoxSelection();
-                }
-                event.preventDefault();
-                break;
-            case 46: // Delete
-                doc.selection.digits = "";
-                doc.selection.nextDigit("0", false, false);
-                break;
-            case 48: // 0
-                if (canPlayNotes) break;
-                doc.selection.nextDigit("0", needControlForShortcuts != (event.shiftKey || event.ctrlKey || event.metaKey), event.altKey);
-                host.renderInstrumentBar(doc.song.channels[doc.channel], doc.getCurrentInstrument(), ColorConfig.getChannelColor(doc.song, doc.channel));
-                event.preventDefault();
-                break;
-            case 49: // 1
-                if (canPlayNotes) break;
-                doc.selection.nextDigit("1", needControlForShortcuts != (event.shiftKey || event.ctrlKey || event.metaKey), event.altKey);
-                host.renderInstrumentBar(doc.song.channels[doc.channel], doc.getCurrentInstrument(), ColorConfig.getChannelColor(doc.song, doc.channel));
-                event.preventDefault();
-                break;
-            case 50: // 2
-                if (canPlayNotes) break;
-                doc.selection.nextDigit("2", needControlForShortcuts != (event.shiftKey || event.ctrlKey || event.metaKey), event.altKey);
-                host.renderInstrumentBar(doc.song.channels[doc.channel], doc.getCurrentInstrument(), ColorConfig.getChannelColor(doc.song, doc.channel));
-                event.preventDefault();
-                break;
-            case 51: // 3
-                if (canPlayNotes) break;
-                doc.selection.nextDigit("3", needControlForShortcuts != (event.shiftKey || event.ctrlKey || event.metaKey), event.altKey);
-                host.renderInstrumentBar(doc.song.channels[doc.channel], doc.getCurrentInstrument(), ColorConfig.getChannelColor(doc.song, doc.channel));
-                event.preventDefault();
-                break;
-            case 52: // 4
-                if (canPlayNotes) break;
-                doc.selection.nextDigit("4", needControlForShortcuts != (event.shiftKey || event.ctrlKey || event.metaKey), event.altKey);
-                host.renderInstrumentBar(doc.song.channels[doc.channel], doc.getCurrentInstrument(), ColorConfig.getChannelColor(doc.song, doc.channel));
-                event.preventDefault();
-                break;
-            case 53: // 5
-                if (canPlayNotes) break;
-                doc.selection.nextDigit("5", needControlForShortcuts != (event.shiftKey || event.ctrlKey || event.metaKey), event.altKey);
-                host.renderInstrumentBar(doc.song.channels[doc.channel], doc.getCurrentInstrument(), ColorConfig.getChannelColor(doc.song, doc.channel));
-                event.preventDefault();
-                break;
-            case 54: // 6
-                if (canPlayNotes) break;
-                doc.selection.nextDigit("6", needControlForShortcuts != (event.shiftKey || event.ctrlKey || event.metaKey), event.altKey);
-                host.renderInstrumentBar(doc.song.channels[doc.channel], doc.getCurrentInstrument(), ColorConfig.getChannelColor(doc.song, doc.channel));
-                event.preventDefault();
-                break;
-            case 55: // 7
-                if (canPlayNotes) break;
-                doc.selection.nextDigit("7", needControlForShortcuts != (event.shiftKey || event.ctrlKey || event.metaKey), event.altKey);
-                host.renderInstrumentBar(doc.song.channels[doc.channel], doc.getCurrentInstrument(), ColorConfig.getChannelColor(doc.song, doc.channel));
-                event.preventDefault();
-                break;
-            case 56: // 8
-                if (canPlayNotes) break;
-                doc.selection.nextDigit("8", needControlForShortcuts != (event.shiftKey || event.ctrlKey || event.metaKey), event.altKey);
-                host.renderInstrumentBar(doc.song.channels[doc.channel], doc.getCurrentInstrument(), ColorConfig.getChannelColor(doc.song, doc.channel));
-                event.preventDefault();
-                break;
-            case 57: // 9
-                if (canPlayNotes) break;
-                doc.selection.nextDigit("9", needControlForShortcuts != (event.shiftKey || event.ctrlKey || event.metaKey), event.altKey);
-                host.renderInstrumentBar(doc.song.channels[doc.channel], doc.getCurrentInstrument(), ColorConfig.getChannelColor(doc.song, doc.channel));
-                event.preventDefault();
-                break;
-            case 191: // /?
-                if (canPlayNotes) break;
-                if (event.shiftKey) {
-                    host.openShortcuts();
-                    event.preventDefault();
-                }
-                break;
-            default:
-                doc.selection.digits = "";
-                doc.selection.instrumentDigits = "";
-                break;
-        }
-
-        if (canPlayNotes) {
-            doc.selection.digits = "";
-            doc.selection.instrumentDigits = "";
-        }
+    if (host.prompt) {
+      if (host.prompt.whenKeyPressed) {
+        host.prompt.whenKeyPressed(event);
+      }
+      if (event.keyCode == 27) { // ESC key
+        doc.prompt = null;
+        doc.notifier.changed();
+      }
+      return;
     }
 
-    public handleKeyUp = (event: KeyboardEvent): void => {
-        const host = this._host;
-        host.muteEditor.onKeyUp(event);
-        if (!event.ctrlKey) {
-            host.patternEditor.controlMode = false;
-        }
-        if (!event.shiftKey) {
-            host.patternEditor.shiftMode = false;
-        }
-
-        host.setCtrlHeld(event.ctrlKey);
-        host.setShiftHeld(event.shiftKey);
-
-        // Release live pitches regardless of control or caps lock
-        host.keyboardLayout.handleKeyEvent(event, false);
+    // Defer to actively editing song title, channel name, or mod label
+    if (
+      document.activeElement == host.songTitleInputBox || host.patternEditor.editingModLabel
+      || document.activeElement == (host.muteEditor as any)._channelNameInput?.input
+    ) {
+      if (event.keyCode == 13 || event.keyCode == 27) {
+        host.mainLayer.focus();
+        host.patternEditor.stopEditingModLabel(event.keyCode == 27);
+      }
+      return;
     }
+
+    // Defer to actively editing volume/pan rows
+    if (
+      document.activeElement == host.panSliderInputBox
+      || document.activeElement == host.pwmSliderInputBox
+      || document.activeElement == host.detuneSliderInputBox
+      || document.activeElement == host.instrumentVolumeSliderInputBox
+      || document.activeElement == host.presetTagsInputBox
+      || document.activeElement == host.chipWaveLoopStartStepper
+      || document.activeElement == host.chipWaveLoopEndStepper
+      || document.activeElement == host.chipWaveStartOffsetStepper
+      || document.activeElement == host.octaveStepper
+      || document.activeElement == host.unisonVoicesInputBox
+      || document.activeElement == host.unisonSpreadInputBox
+      || document.activeElement == host.unisonOffsetInputBox
+      || document.activeElement == host.unisonExpressionInputBox
+      || document.activeElement == host.unisonSignInputBox
+      || document.activeElement == host.monophonicNoteInputBox
+      || host.envelopeEditor.pitchStartBoxes.find((element: any) => element == document.activeElement)
+      || host.envelopeEditor.pitchEndBoxes.find((element: any) => element == document.activeElement)
+      || host.envelopeEditor.perEnvelopeLowerBoundBoxes.find((element: any) => element == document.activeElement)
+      || host.envelopeEditor.perEnvelopeUpperBoundBoxes.find((element: any) => element == document.activeElement)
+      || host.envelopeEditor.randomStepsBoxes.find((element: any) => element == document.activeElement)
+      || host.envelopeEditor.randomStepsBoxes.find((element: any) => element == document.activeElement)
+      || host.envelopeEditor.LFOStepsBoxes.find((element: any) => element == document.activeElement)
+    ) {
+      if (event.keyCode == 13 || event.keyCode == 27) {
+        host.mainLayer.focus();
+      }
+      return;
+    }
+
+    // Defer to actively editing upper note limit
+    if (
+      document.activeElement == host.upperNoteLimitInputBox || document.activeElement == host.lowerNoteLimitInputBox
+    ) {
+      if (event.keyCode == 13 || event.keyCode == 27) {
+        host.mainLayer.focus();
+      }
+      return;
+    }
+
+    if (doc.synth.recording) {
+      if (!event.ctrlKey && !event.metaKey) {
+        host.keyboardLayout.handleKeyEvent(event, true);
+      }
+      if (event.keyCode == 32) { // space
+        host.toggleRecord();
+        event.preventDefault();
+        host.refocusStage();
+      } else if (event.keyCode == 80 && (event.ctrlKey || event.metaKey)) { // p
+        host.toggleRecord();
+        event.preventDefault();
+        host.refocusStage();
+      }
+      return;
+    }
+
+    const needControlForShortcuts: boolean = doc.prefs.pressControlForShortcuts != event.getModifierState("CapsLock");
+    const canPlayNotes: boolean = !event.ctrlKey && !event.metaKey && needControlForShortcuts;
+    if (canPlayNotes) host.keyboardLayout.handleKeyEvent(event, true);
+
+    switch (event.keyCode) {
+      case 27: // ESC key
+        if (!event.ctrlKey && !event.metaKey) {
+          new ChangePatternSelection(doc, 0, 0);
+          doc.selection.resetBoxSelection();
+        }
+        break;
+      case 16: // Shift
+        host.patternEditor.shiftMode = true;
+        break;
+      case 17: // Ctrl
+        host.patternEditor.controlMode = true;
+        break;
+      case 32: // space
+        if (event.ctrlKey) {
+          host.toggleRecord();
+        } else if (event.shiftKey) {
+          if (host.movePlayheadToMouseTrack() || host.movePlayheadToMousePattern()) {
+            if (!doc.synth.playing) doc.performance.play();
+          }
+          if (
+            Math.floor(doc.synth.playhead) < doc.synth.loopBarStart
+            || Math.floor(doc.synth.playhead) > doc.synth.loopBarEnd
+          ) {
+            doc.synth.loopBarStart = -1;
+            doc.synth.loopBarEnd = -1;
+            host.loopEditor.setLoopAt(doc.synth.loopBarStart, doc.synth.loopBarEnd);
+          }
+        } else {
+          host.togglePlay();
+        }
+        event.preventDefault();
+        host.refocusStage();
+        break;
+      case 80: // p
+        if (canPlayNotes) break;
+        if (event.ctrlKey || event.metaKey) {
+          host.toggleRecord();
+          doc.synth.loopBarStart = -1;
+          doc.synth.loopBarEnd = -1;
+          host.loopEditor.setLoopAt(doc.synth.loopBarStart, doc.synth.loopBarEnd);
+
+          event.preventDefault();
+          host.refocusStage();
+        } else if (canPlayNotes) break;
+        if (needControlForShortcuts == (event.ctrlKey || event.metaKey) && event.shiftKey) {
+          location.href = "player/" + (OFFLINE ? "index.html" : "") + "#song=" + doc.song.toBase64String();
+          event.preventDefault();
+        }
+        break;
+      case 85: // u
+        if (event.shiftKey) {
+          let shortenerStrategy: string = "https://tinyurl.com/api-create.php?url=";
+          const localShortenerStrategy: string | null = window.localStorage.getItem("shortenerStrategySelect");
+
+          if (localShortenerStrategy == "isgd") shortenerStrategy = "https://is.gd/create.php?format=simple&url=";
+
+          window.open(
+            shortenerStrategy + encodeURIComponent(new URL("#" + doc.song.toBase64String(), location.href).href),
+          );
+        }
+        break;
+      case 192: // `/~
+        if (canPlayNotes) break;
+        if (event.shiftKey) {
+          doc.goBackToStart();
+          doc.song.restoreLimiterDefaults();
+          for (const channel of doc.song.channels) {
+            channel.muted = false;
+            channel.name = "";
+          }
+          doc.record(new ChangeSong(doc, ""), false, true);
+        } else {
+          if (needControlForShortcuts == (event.ctrlKey || event.metaKey)) {
+            host.openPrompt("songRecovery");
+          }
+        }
+        event.preventDefault();
+        break;
+      case 90: // z
+        if (canPlayNotes) break;
+        if (event.shiftKey) {
+          doc.redo();
+        } else {
+          doc.undo();
+        }
+        event.preventDefault();
+        break;
+      case 88: // x
+        if (canPlayNotes) break;
+        doc.selection.cutNotes();
+        event.preventDefault();
+        break;
+      case 89: // y
+        if (canPlayNotes) break;
+        doc.redo();
+        event.preventDefault();
+        break;
+      case 66: // b
+        if (canPlayNotes) break;
+
+        if (needControlForShortcuts == (event.ctrlKey || event.metaKey)) {
+          if (event.shiftKey) {
+            host.openPrompt("beatsPerBar");
+          } else {
+            const leftSel = Math.min(doc.selection.boxSelectionX0, doc.selection.boxSelectionX1);
+            const rightSel = Math.max(doc.selection.boxSelectionX0, doc.selection.boxSelectionX1);
+            if (
+              (leftSel < doc.synth.loopBarStart || doc.synth.loopBarStart == -1)
+              || (rightSel > doc.synth.loopBarEnd || doc.synth.loopBarEnd == -1)
+            ) {
+              doc.synth.loopBarStart = leftSel;
+              doc.synth.loopBarEnd = rightSel;
+
+              if (!doc.synth.playing) {
+                doc.synth.snapToBar();
+                doc.performance.play();
+              }
+            } else {
+              doc.synth.loopBarStart = -1;
+              doc.synth.loopBarEnd = -1;
+            }
+
+            if (doc.bar != Math.floor(doc.synth.playhead) && doc.synth.loopBarStart != -1) {
+              doc.synth.goToBar(doc.bar);
+              doc.synth.snapToBar();
+              doc.synth.initModFilters(doc.song);
+              doc.synth.computeLatestModValues();
+              if (doc.prefs.autoFollow) {
+                doc.selection.setChannelBar(doc.channel, Math.floor(doc.synth.playhead));
+              }
+            }
+
+            host.loopEditor.setLoopAt(doc.synth.loopBarStart, doc.synth.loopBarEnd);
+          }
+        }
+        event.preventDefault();
+        break;
+      case 67: // c
+        if (canPlayNotes) break;
+
+        if (event.shiftKey) {
+          host.copyInstrument();
+        } else {
+          doc.selection.copy();
+          doc.selection.resetBoxSelection();
+          doc.selection.selectionUpdated();
+        }
+        event.preventDefault();
+        break;
+      case 13: // enter/return
+        doc.synth.loopBarStart = -1;
+        doc.synth.loopBarEnd = -1;
+        host.loopEditor.setLoopAt(doc.synth.loopBarStart, doc.synth.loopBarEnd);
+
+        if ((event.ctrlKey || event.metaKey) && !event.shiftKey) {
+          doc.selection.insertChannel();
+        } else if (event.shiftKey) {
+          const width = doc.selection.boxSelectionWidth;
+          doc.selection.boxSelectionX0 -= width;
+          doc.selection.boxSelectionX1 -= width;
+          doc.selection.insertBars();
+        } else if (event.altKey) {
+          doc.record(new ChangeAddChannelInstrument(doc));
+        } else {
+          doc.selection.insertBars();
+        }
+        event.preventDefault();
+        break;
+
+      case 8: // backspace/delete
+        doc.synth.loopBarStart = -1;
+        doc.synth.loopBarEnd = -1;
+        host.loopEditor.setLoopAt(doc.synth.loopBarStart, doc.synth.loopBarEnd);
+
+        if (event.ctrlKey || event.metaKey) {
+          doc.selection.deleteChannel();
+        } else if (event.altKey) {
+          doc.record(new ChangeRemoveChannelInstrument(doc));
+        } else {
+          doc.selection.deleteBars();
+        }
+        host.barScrollBar.animatePlayhead();
+        event.preventDefault();
+        break;
+      case 65: // a
+        if (canPlayNotes) break;
+        if (event.shiftKey) {
+          doc.selection.selectChannel();
+        } else {
+          doc.selection.selectAll();
+        }
+        event.preventDefault();
+        break;
+      case 68: // d
+        if (event.shiftKey) {
+        } else {
+          if (canPlayNotes) break;
+          if (needControlForShortcuts == (event.ctrlKey || event.metaKey)) {
+            doc.selection.duplicatePatterns(event.shiftKey ? false : true);
+            event.preventDefault();
+          }
+        }
+        break;
+      case 69: // e (+shift: eq filter settings)
+        if (canPlayNotes) break;
+        if (event.shiftKey) {
+          const instrument: Instrument = doc.song.channels[doc.channel].instruments[doc.getCurrentInstrument()];
+          if (!instrument.eqFilterType && doc.channel < doc.song.pitchChannelCount + doc.song.noiseChannelCount) {
+            host.openPrompt("customEQFilterSettings");
+          }
+        } else if (event.altKey) {
+          const instrument: Instrument = doc.song.channels[doc.channel].instruments[doc.getCurrentInstrument()];
+          const isAllOpen: boolean = host.envelopeEditor.openExtraSettingsDropdowns.every((x: boolean) => {
+            return x == true;
+          });
+          for (let i = 0; i < instrument.envelopeCount; i++) {
+            if (isAllOpen) host.envelopeEditor.openExtraSettingsDropdowns[i] = false;
+            else host.envelopeEditor.openExtraSettingsDropdowns[i] = true;
+          }
+          host.envelopeEditor.rerenderExtraSettings();
+          event.preventDefault();
+        } else if (event.ctrlKey) {
+          host.openPrompt("generateEuclideanRhythm");
+          event.preventDefault();
+          break;
+        } else if (needControlForShortcuts == (event.ctrlKey || event.metaKey)) {
+          host.openPrompt("customSongEQFilterSettings");
+        }
+        break;
+      case 70: // f
+        if (canPlayNotes) break;
+        if (event.shiftKey) {
+          doc.synth.loopBarStart = -1;
+          doc.synth.loopBarEnd = -1;
+          host.loopEditor.setLoopAt(doc.synth.loopBarStart, doc.synth.loopBarEnd);
+
+          doc.synth.goToBar(doc.song.loopStart);
+          doc.synth.snapToBar();
+          doc.synth.initModFilters(doc.song);
+          doc.synth.computeLatestModValues();
+          if (doc.prefs.autoFollow) {
+            doc.selection.setChannelBar(doc.channel, Math.floor(doc.synth.playhead));
+          }
+          event.preventDefault();
+        } else if (event.altKey) {
+          const instrument: Instrument = doc.song.channels[doc.channel].instruments[doc.getCurrentInstrument()];
+          const operatorCount: number = instrument.type == InstrumentType.fm ? 4 : 6;
+          let isAllOpen: boolean = true;
+          for (let i = 0; i < operatorCount; i++) {
+            if (!host.openOperatorDropdowns[i]) isAllOpen = false;
+          }
+          for (let i = 0; i < operatorCount; i++) {
+            if (host.openOperatorDropdowns[i] == false && !isAllOpen || isAllOpen) {
+              host.toggleDropdownMenu(DropdownID.FM, i);
+            }
+          }
+          event.preventDefault();
+        } else if (needControlForShortcuts == (event.ctrlKey || event.metaKey)) {
+          doc.synth.loopBarStart = -1;
+          doc.synth.loopBarEnd = -1;
+          host.loopEditor.setLoopAt(doc.synth.loopBarStart, doc.synth.loopBarEnd);
+
+          doc.synth.snapToStart();
+          doc.synth.initModFilters(doc.song);
+          doc.synth.computeLatestModValues();
+          if (doc.prefs.autoFollow) {
+            doc.selection.setChannelBar(doc.channel, Math.floor(doc.synth.playhead));
+          }
+          event.preventDefault();
+        }
+        break;
+      case 72: // h
+        if (canPlayNotes) break;
+
+        if (needControlForShortcuts == (event.ctrlKey || event.metaKey)) {
+          doc.synth.goToBar(doc.bar);
+          doc.synth.snapToBar();
+          doc.synth.initModFilters(doc.song);
+          doc.synth.computeLatestModValues();
+
+          if (
+            Math.floor(doc.synth.playhead) < doc.synth.loopBarStart
+            || Math.floor(doc.synth.playhead) > doc.synth.loopBarEnd
+          ) {
+            doc.synth.loopBarStart = -1;
+            doc.synth.loopBarEnd = -1;
+            host.loopEditor.setLoopAt(doc.synth.loopBarStart, doc.synth.loopBarEnd);
+          }
+
+          if (doc.prefs.autoFollow) {
+            doc.selection.setChannelBar(doc.channel, Math.floor(doc.synth.playhead));
+          }
+          event.preventDefault();
+        }
+        break;
+      case 74: // j
+        if (canPlayNotes) break;
+        if (event.shiftKey && event.ctrlKey && event.altKey) {
+          doc.prefs.autoPlay = false;
+          doc.prefs.autoFollow = false;
+          doc.prefs.enableNotePreview = true;
+          doc.prefs.showFifth = true;
+          doc.prefs.notesOutsideScale = false;
+          doc.prefs.defaultScale = 0;
+          doc.prefs.showLetters = true;
+          doc.prefs.showChannels = true;
+          doc.prefs.showScrollBar = true;
+          doc.prefs.alwaysFineNoteVol = false;
+          doc.prefs.enableChannelMuting = true;
+          doc.prefs.displayBrowserUrl = true;
+          doc.prefs.displayVolumeBar = true;
+          doc.prefs.layout = "wide";
+          doc.prefs.visibleOctaves = 5;
+          doc.prefs.colorTheme = "jummbox classic";
+          doc.prefs.rollNoveltyPresets = false;
+          doc.prefs.enableTagSearch = false;
+          doc.prefs.save();
+          event.preventDefault();
+          location.reload();
+        }
+        break;
+      case 76: // l
+        if (canPlayNotes) break;
+        if (event.shiftKey) {
+          host.openPrompt("limiterSettings");
+        } else {
+          host.openPrompt("barCount");
+        }
+        break;
+      case 77: // m
+        if (canPlayNotes) break;
+        if (needControlForShortcuts == (event.ctrlKey || event.metaKey)) {
+          if (doc.prefs.enableChannelMuting) {
+            doc.selection.muteChannels(event.shiftKey);
+            event.preventDefault();
+          }
+        }
+        break;
+      case 78: // n
+        if (canPlayNotes) break;
+
+        const group: ChangeGroup = new ChangeGroup();
+
+        if (event.shiftKey) {
+          const instrument: Instrument = doc.song.channels[doc.channel].instruments[doc.getCurrentInstrument()];
+          if (
+            effectsIncludeNoteFilter(instrument.effects) && !instrument.noteFilterType
+            && doc.channel < doc.song.pitchChannelCount + doc.song.noiseChannelCount
+          ) {
+            host.openPrompt("customNoteFilterSettings");
+          }
+          break;
+        } else if (event.ctrlKey) {
+          let nextEmpty: number = 0;
+          while (
+            nextEmpty < doc.song.patternsPerChannel
+            && doc.song.channels[doc.channel].patterns[nextEmpty].notes.length > 0
+          ) {
+            nextEmpty++;
+          }
+
+          nextEmpty++;
+
+          if (nextEmpty <= Config.barCountMax) {
+            if (nextEmpty > doc.song.patternsPerChannel) {
+              group.append(new ChangePatternsPerChannel(doc, nextEmpty));
+            }
+
+            group.append(new ChangePatternNumbers(doc, nextEmpty, doc.bar, doc.channel, 1, 1));
+
+            if (doc.channel >= doc.song.pitchChannelCount + doc.song.noiseChannelCount) {
+              doc.viewedInstrument[doc.channel] = doc.recentPatternInstruments[doc.channel][0];
+            }
+            group.append(
+              new ChangeSetPatternInstruments(
+                doc,
+                doc.channel,
+                doc.recentPatternInstruments[doc.channel],
+                doc.song.channels[doc.channel].patterns[nextEmpty - 1],
+              ),
+            );
+          }
+        } else {
+          let nextUnused: number = 1;
+          while (
+            doc.song.channels[doc.channel].bars.indexOf(nextUnused) != -1
+            && nextUnused <= doc.song.patternsPerChannel
+          ) {
+            nextUnused++;
+          }
+
+          if (nextUnused <= Config.barCountMax) {
+            if (nextUnused > doc.song.patternsPerChannel) {
+              group.append(new ChangePatternsPerChannel(doc, nextUnused));
+            }
+
+            group.append(new ChangePatternNumbers(doc, nextUnused, doc.bar, doc.channel, 1, 1));
+
+            if (doc.channel >= doc.song.pitchChannelCount + doc.song.noiseChannelCount) {
+              doc.viewedInstrument[doc.channel] = doc.recentPatternInstruments[doc.channel][0];
+            }
+            group.append(
+              new ChangeSetPatternInstruments(
+                doc,
+                doc.channel,
+                doc.recentPatternInstruments[doc.channel],
+                doc.song.channels[doc.channel].patterns[nextUnused - 1],
+              ),
+            );
+          }
+        }
+
+        doc.record(group);
+
+        event.preventDefault();
+        break;
+      case 81: // q
+        if (canPlayNotes) break;
+        if (needControlForShortcuts == (event.ctrlKey || event.metaKey)) {
+          if (event.shiftKey) {
+            host.openPrompt("addExternal");
+            event.preventDefault();
+            break;
+          } else {
+            host.openPrompt("channelSettings");
+            event.preventDefault();
+            break;
+          }
+        }
+        break;
+      case 83: // s
+        if (canPlayNotes) break;
+        if (event.shiftKey && event.ctrlKey && event.altKey) {
+          doc.prefs.autoPlay = false;
+          doc.prefs.autoFollow = true;
+          doc.prefs.enableNotePreview = true;
+          doc.prefs.showFifth = true;
+          doc.prefs.notesOutsideScale = false;
+          doc.prefs.defaultScale = 0;
+          doc.prefs.showLetters = true;
+          doc.prefs.showChannels = true;
+          doc.prefs.showScrollBar = true;
+          doc.prefs.alwaysFineNoteVol = false;
+          doc.prefs.enableChannelMuting = true;
+          doc.prefs.displayBrowserUrl = true;
+          doc.prefs.displayVolumeBar = true;
+          doc.prefs.layout = "tall";
+          doc.prefs.visibleOctaves = 5;
+          doc.prefs.closePromptByClickoff = false;
+          doc.prefs.colorTheme = "slarmoosbox";
+          doc.prefs.frostedGlassBackground = false;
+          doc.prefs.instrumentButtonsAtTop = true;
+          doc.prefs.instrumentCopyPaste = true;
+          doc.prefs.instrumentImportExport = true;
+          doc.prefs.notesFlashWhenPlayed = true;
+          doc.prefs.showOscilloscope = true;
+          doc.prefs.rollNoveltyPresets = false;
+          doc.prefs.enableTagSearch = false;
+          doc.prefs.save();
+          event.preventDefault();
+          location.reload();
+        } else if (event.ctrlKey || event.metaKey) {
+          host.openPrompt("export");
+          event.preventDefault();
+        } else if (event.altKey) {
+          host.openPrompt("exportInstrument");
+        } else if (doc.prefs.enableChannelMuting) {
+          if (event.shiftKey) {
+            doc.selection.muteChannels(false);
+          } else {
+            doc.selection.soloChannels(false);
+          }
+          event.preventDefault();
+        }
+        break;
+      case 79: // o
+        if (canPlayNotes) break;
+        if (event.ctrlKey || event.metaKey) {
+          host.openPrompt("import");
+          event.preventDefault();
+        } else if (event.altKey) {
+          host.openPrompt("importInstrument");
+        }
+        break;
+      case 86: // v
+        if (canPlayNotes) break;
+        if ((event.ctrlKey || event.metaKey) && event.shiftKey && !needControlForShortcuts) {
+          doc.selection.pasteNumbers();
+        } else if (event.shiftKey) {
+          host.pasteInstrument();
+        } else {
+          doc.selection.pasteNotes();
+        }
+        event.preventDefault();
+        break;
+      case 87: // w
+        if (canPlayNotes) break;
+        host.openPrompt("moveNotesSideways");
+        break;
+      case 73: // i
+        if (canPlayNotes) break;
+        if (needControlForShortcuts == (event.ctrlKey || event.metaKey) && event.shiftKey) {
+          const instrument: Instrument = doc.song.channels[doc.channel].instruments[doc.getCurrentInstrument()];
+          const instrumentObject: any = instrument.toJsonObject();
+          delete instrumentObject["preset"];
+          delete instrumentObject["volume"];
+          delete instrumentObject["pan"];
+          const panningEffectIndex: number = instrumentObject["effects"].indexOf(
+            Config.effectNames[EffectType.panning],
+          );
+          if (panningEffectIndex != -1) instrumentObject["effects"].splice(panningEffectIndex, 1);
+          for (let i: number = 0; i < instrumentObject["envelopes"].length; i++) {
+            const envelope: any = instrumentObject["envelopes"][i];
+            if (envelope["target"] == "panning" || envelope["target"] == "none" || envelope["envelope"] == "none") {
+              instrumentObject["envelopes"].splice(i, 1);
+              i--;
+            }
+          }
+          host.copyTextToClipboard(JSON.stringify(instrumentObject));
+          event.preventDefault();
+        }
+        break;
+      case 82: // r
+        if (canPlayNotes) break;
+        if (needControlForShortcuts == (event.ctrlKey || event.metaKey)) {
+          if (event.shiftKey) {
+            host.randomGenerated(false);
+          } else if (event.altKey) {
+            host.randomGenerated(true);
+          } else {
+            host.randomPreset();
+          }
+          event.preventDefault();
+        }
+        break;
+      case 84: // t
+        if (canPlayNotes) break;
+        if (event.shiftKey && event.ctrlKey && event.altKey) {
+          doc.prefs.autoPlay = false;
+          doc.prefs.autoFollow = true;
+          doc.prefs.enableNotePreview = true;
+          doc.prefs.showFifth = true;
+          doc.prefs.notesOutsideScale = true;
+          doc.prefs.defaultScale = 0;
+          doc.prefs.showLetters = true;
+          doc.prefs.showChannels = true;
+          doc.prefs.showScrollBar = true;
+          doc.prefs.alwaysFineNoteVol = true;
+          doc.prefs.enableChannelMuting = true;
+          doc.prefs.displayBrowserUrl = true;
+          doc.prefs.displayVolumeBar = true;
+          doc.prefs.layout = "long";
+          doc.prefs.visibleOctaves = 4;
+          doc.prefs.closePromptByClickoff = true;
+          doc.prefs.colorTheme = "violet verdant";
+          doc.prefs.frostedGlassBackground = false;
+          doc.prefs.instrumentButtonsAtTop = true;
+          doc.prefs.instrumentCopyPaste = true;
+          doc.prefs.instrumentImportExport = true;
+          doc.prefs.notesFlashWhenPlayed = true;
+          doc.prefs.showOscilloscope = true;
+          doc.prefs.rollNoveltyPresets = true;
+          doc.prefs.enableTagSearch = true;
+          doc.prefs.save();
+          event.preventDefault();
+          location.reload();
+        } else if (event.shiftKey) {
+          host.openPresetSelector();
+          event.preventDefault();
+        } else {
+          host.nextPreset();
+          event.preventDefault();
+        }
+        break;
+      case 219: // left brace
+        if (canPlayNotes) break;
+        if (needControlForShortcuts == (event.ctrlKey || event.metaKey)) {
+          doc.synth.goToPrevBar();
+          doc.synth.initModFilters(doc.song);
+          doc.synth.computeLatestModValues();
+          if (
+            Math.floor(doc.synth.playhead) < doc.synth.loopBarStart
+            || Math.floor(doc.synth.playhead) > doc.synth.loopBarEnd
+          ) {
+            doc.synth.loopBarStart = -1;
+            doc.synth.loopBarEnd = -1;
+            host.loopEditor.setLoopAt(doc.synth.loopBarStart, doc.synth.loopBarEnd);
+          }
+
+          if (doc.prefs.autoFollow) {
+            doc.selection.setChannelBar(doc.channel, Math.floor(doc.synth.playhead));
+          }
+          event.preventDefault();
+        }
+        break;
+      case 221: // right brace
+        if (canPlayNotes) break;
+        if (needControlForShortcuts == (event.ctrlKey || event.metaKey)) {
+          doc.synth.goToNextBar();
+          doc.synth.initModFilters(doc.song);
+          doc.synth.computeLatestModValues();
+          if (
+            Math.floor(doc.synth.playhead) < doc.synth.loopBarStart
+            || Math.floor(doc.synth.playhead) > doc.synth.loopBarEnd
+          ) {
+            doc.synth.loopBarStart = -1;
+            doc.synth.loopBarEnd = -1;
+            host.loopEditor.setLoopAt(doc.synth.loopBarStart, doc.synth.loopBarEnd);
+          }
+
+          if (doc.prefs.autoFollow) {
+            doc.selection.setChannelBar(doc.channel, Math.floor(doc.synth.playhead));
+          }
+          event.preventDefault();
+        }
+        break;
+      case 189: // -
+      case 173: // Firefox -
+        if (canPlayNotes) break;
+        if (needControlForShortcuts == (event.ctrlKey || event.metaKey)) {
+          doc.selection.transpose(false, event.shiftKey);
+          event.preventDefault();
+        }
+        break;
+      case 187: // +
+      case 61: // Firefox +
+      case 171: // Some users have this as +? Hmm.
+        if (canPlayNotes) break;
+        if (needControlForShortcuts == (event.ctrlKey || event.metaKey)) {
+          doc.selection.transpose(true, event.shiftKey);
+          event.preventDefault();
+        }
+        break;
+      case 38: // up
+        if (event.ctrlKey || event.metaKey) {
+          doc.selection.swapChannels(-1);
+        } else if (event.shiftKey) {
+          doc.selection.boxSelectionY1 = Math.max(0, doc.selection.boxSelectionY1 - 1);
+          doc.selection.scrollToEndOfSelection();
+          doc.selection.selectionUpdated();
+        } else {
+          doc.selection.setChannelBar(
+            (doc.channel - 1 + doc.song.getChannelCount()) % doc.song.getChannelCount(),
+            doc.bar,
+          );
+          doc.selection.resetBoxSelection();
+          host.envelopeEditor.rerenderExtraSettings();
+        }
+        event.preventDefault();
+        break;
+      case 40: // down
+        if (event.ctrlKey || event.metaKey) {
+          doc.selection.swapChannels(1);
+        } else if (event.shiftKey) {
+          doc.selection.boxSelectionY1 = Math.min(doc.song.getChannelCount() - 1, doc.selection.boxSelectionY1 + 1);
+          doc.selection.scrollToEndOfSelection();
+          doc.selection.selectionUpdated();
+        } else {
+          doc.selection.setChannelBar((doc.channel + 1) % doc.song.getChannelCount(), doc.bar);
+          doc.selection.resetBoxSelection();
+          host.envelopeEditor.rerenderExtraSettings();
+        }
+        event.preventDefault();
+        break;
+      case 37: // left
+        if (event.shiftKey) {
+          doc.selection.boxSelectionX1 = Math.max(0, doc.selection.boxSelectionX1 - 1);
+          doc.selection.scrollToEndOfSelection();
+          doc.selection.selectionUpdated();
+        } else {
+          doc.selection.setChannelBar(doc.channel, (doc.bar + doc.song.barCount - 1) % doc.song.barCount);
+          doc.selection.resetBoxSelection();
+        }
+        event.preventDefault();
+        break;
+      case 39: // right
+        if (event.shiftKey) {
+          doc.selection.boxSelectionX1 = Math.min(doc.song.barCount - 1, doc.selection.boxSelectionX1 + 1);
+          doc.selection.scrollToEndOfSelection();
+          doc.selection.selectionUpdated();
+        } else {
+          doc.selection.setChannelBar(doc.channel, (doc.bar + 1) % doc.song.barCount);
+          doc.selection.resetBoxSelection();
+        }
+        event.preventDefault();
+        break;
+      case 46: // Delete
+        doc.selection.digits = "";
+        doc.selection.nextDigit("0", false, false);
+        break;
+      case 48: // 0
+        if (canPlayNotes) break;
+        doc.selection.nextDigit(
+          "0",
+          needControlForShortcuts != (event.shiftKey || event.ctrlKey || event.metaKey),
+          event.altKey,
+        );
+        host.renderInstrumentBar(
+          doc.song.channels[doc.channel],
+          doc.getCurrentInstrument(),
+          ColorConfig.getChannelColor(doc.song, doc.channel),
+        );
+        event.preventDefault();
+        break;
+      case 49: // 1
+        if (canPlayNotes) break;
+        doc.selection.nextDigit(
+          "1",
+          needControlForShortcuts != (event.shiftKey || event.ctrlKey || event.metaKey),
+          event.altKey,
+        );
+        host.renderInstrumentBar(
+          doc.song.channels[doc.channel],
+          doc.getCurrentInstrument(),
+          ColorConfig.getChannelColor(doc.song, doc.channel),
+        );
+        event.preventDefault();
+        break;
+      case 50: // 2
+        if (canPlayNotes) break;
+        doc.selection.nextDigit(
+          "2",
+          needControlForShortcuts != (event.shiftKey || event.ctrlKey || event.metaKey),
+          event.altKey,
+        );
+        host.renderInstrumentBar(
+          doc.song.channels[doc.channel],
+          doc.getCurrentInstrument(),
+          ColorConfig.getChannelColor(doc.song, doc.channel),
+        );
+        event.preventDefault();
+        break;
+      case 51: // 3
+        if (canPlayNotes) break;
+        doc.selection.nextDigit(
+          "3",
+          needControlForShortcuts != (event.shiftKey || event.ctrlKey || event.metaKey),
+          event.altKey,
+        );
+        host.renderInstrumentBar(
+          doc.song.channels[doc.channel],
+          doc.getCurrentInstrument(),
+          ColorConfig.getChannelColor(doc.song, doc.channel),
+        );
+        event.preventDefault();
+        break;
+      case 52: // 4
+        if (canPlayNotes) break;
+        doc.selection.nextDigit(
+          "4",
+          needControlForShortcuts != (event.shiftKey || event.ctrlKey || event.metaKey),
+          event.altKey,
+        );
+        host.renderInstrumentBar(
+          doc.song.channels[doc.channel],
+          doc.getCurrentInstrument(),
+          ColorConfig.getChannelColor(doc.song, doc.channel),
+        );
+        event.preventDefault();
+        break;
+      case 53: // 5
+        if (canPlayNotes) break;
+        doc.selection.nextDigit(
+          "5",
+          needControlForShortcuts != (event.shiftKey || event.ctrlKey || event.metaKey),
+          event.altKey,
+        );
+        host.renderInstrumentBar(
+          doc.song.channels[doc.channel],
+          doc.getCurrentInstrument(),
+          ColorConfig.getChannelColor(doc.song, doc.channel),
+        );
+        event.preventDefault();
+        break;
+      case 54: // 6
+        if (canPlayNotes) break;
+        doc.selection.nextDigit(
+          "6",
+          needControlForShortcuts != (event.shiftKey || event.ctrlKey || event.metaKey),
+          event.altKey,
+        );
+        host.renderInstrumentBar(
+          doc.song.channels[doc.channel],
+          doc.getCurrentInstrument(),
+          ColorConfig.getChannelColor(doc.song, doc.channel),
+        );
+        event.preventDefault();
+        break;
+      case 55: // 7
+        if (canPlayNotes) break;
+        doc.selection.nextDigit(
+          "7",
+          needControlForShortcuts != (event.shiftKey || event.ctrlKey || event.metaKey),
+          event.altKey,
+        );
+        host.renderInstrumentBar(
+          doc.song.channels[doc.channel],
+          doc.getCurrentInstrument(),
+          ColorConfig.getChannelColor(doc.song, doc.channel),
+        );
+        event.preventDefault();
+        break;
+      case 56: // 8
+        if (canPlayNotes) break;
+        doc.selection.nextDigit(
+          "8",
+          needControlForShortcuts != (event.shiftKey || event.ctrlKey || event.metaKey),
+          event.altKey,
+        );
+        host.renderInstrumentBar(
+          doc.song.channels[doc.channel],
+          doc.getCurrentInstrument(),
+          ColorConfig.getChannelColor(doc.song, doc.channel),
+        );
+        event.preventDefault();
+        break;
+      case 57: // 9
+        if (canPlayNotes) break;
+        doc.selection.nextDigit(
+          "9",
+          needControlForShortcuts != (event.shiftKey || event.ctrlKey || event.metaKey),
+          event.altKey,
+        );
+        host.renderInstrumentBar(
+          doc.song.channels[doc.channel],
+          doc.getCurrentInstrument(),
+          ColorConfig.getChannelColor(doc.song, doc.channel),
+        );
+        event.preventDefault();
+        break;
+      case 191: // /?
+        if (canPlayNotes) break;
+        if (event.shiftKey) {
+          host.openShortcuts();
+          event.preventDefault();
+        }
+        break;
+      default:
+        doc.selection.digits = "";
+        doc.selection.instrumentDigits = "";
+        break;
+    }
+
+    if (canPlayNotes) {
+      doc.selection.digits = "";
+      doc.selection.instrumentDigits = "";
+    }
+  };
+
+  public handleKeyUp = (event: KeyboardEvent): void => {
+    const host = this._host;
+    host.muteEditor.onKeyUp(event);
+    if (!event.ctrlKey) {
+      host.patternEditor.controlMode = false;
+    }
+    if (!event.shiftKey) {
+      host.patternEditor.shiftMode = false;
+    }
+
+    host.setCtrlHeld(event.ctrlKey);
+    host.setShiftHeld(event.shiftKey);
+
+    // Release live pitches regardless of control or caps lock
+    host.keyboardLayout.handleKeyEvent(event, false);
+  };
 }
