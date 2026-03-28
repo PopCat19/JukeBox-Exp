@@ -395,9 +395,8 @@ export class ChannelGainPrompt implements Prompt {
       const currentBar = Math.floor(this._doc.synth.playhead);
       const patternIndex = channel.bars[currentBar];
       const hasPattern = patternIndex > 0;
-      const hasSound = channelState.volumeCap > 0.01;
       const isPlaying = this._doc.synth.playing;
-      const isDimmed = isPlaying && !hasPattern && !hasSound;
+      const isDimmed = isPlaying && !hasPattern;
 
       // Volume bar for this channel
       const volBar = rect({
