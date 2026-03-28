@@ -83,4 +83,4 @@ When reading an upstream diff:
 4. `global/*.ts` → `shared/*.ts`
 5. Everything else → same path (with kebab-case name)
 
-For direct local comparison: `git diff upstream/main...HEAD` or `diff -rq ~/JukeBox_TypeScript/editor ./editor`.
+For direct local comparison: `diff -rq ~/JukeBox_TypeScript/editor ./editor`.
