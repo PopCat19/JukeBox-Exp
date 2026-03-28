@@ -112,6 +112,7 @@ export class OctaveScrollBar {
     document.addEventListener("mousemove", this._whenMouseMoved);
     document.addEventListener("mouseup", this._whenCursorReleased);
     window.addEventListener("resize", () => this._svgRect = null);
+    window.addEventListener("scroll", () => this._svgRect = null, { passive: true });
     this.container.addEventListener("mouseover", this._whenMouseOver);
     this.container.addEventListener("mouseout", this._whenMouseOut);
 

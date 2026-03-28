@@ -199,6 +199,7 @@ export class FilterEditor {
     document.addEventListener("mousemove", this._whenMouseMoved);
     document.addEventListener("mouseup", this._whenCursorReleased);
     window.addEventListener("resize", () => this._svgRect = null);
+    window.addEventListener("scroll", () => this._svgRect = null, { passive: true });
 
     this.container.addEventListener("touchstart", this._whenTouchPressed);
     this.container.addEventListener("touchmove", this._whenTouchMoved);

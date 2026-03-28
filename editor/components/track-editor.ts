@@ -134,6 +134,7 @@ export class TrackEditor {
     document.addEventListener("mousemove", this._whenMouseMoved);
     document.addEventListener("mouseup", this._whenMouseReleased);
     window.addEventListener("resize", () => this._svgRect = null);
+    window.addEventListener("scroll", () => this._svgRect = null, { passive: true });
     this._svg.addEventListener("mouseover", this._whenMouseOver);
     this._svg.addEventListener("mouseout", this._whenMouseOut);
 
