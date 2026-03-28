@@ -5,7 +5,7 @@
 // This module:
 // - Re-exports color config, themes, styles, and custom canvas renderers
 
-export { ColorConfig } from "../rendering/ColorConfig";
+export { ColorConfig } from "../rendering/color-config";
 export { themes } from "../rendering/themes/index";
 export { CustomChipCanvas } from "../rendering/custom-chip-canvas";
 export { CustomAlgorythmCanvas } from "../rendering/custom-algorythm-canvas";

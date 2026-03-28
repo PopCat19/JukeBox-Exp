@@ -7,7 +7,7 @@
 // - Updates each effect option label with enabled/disabled icon prefix
 
 import { Instrument } from "../../synth";
-import { Config } from "../../synth/SynthConfig";
+import { Config } from "../../synth/synth-config";
 import { HTML } from "imperative-html/dist/esm/elements-strict";
 
 const { option } = HTML;

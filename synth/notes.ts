@@ -7,7 +7,7 @@
 // - Handles pattern serialization to and from JSON
 // - Provides note cloning and interval detection
 
-import { Config } from "./SynthConfig";
+import { Config } from "./synth-config";
 import { clamp } from "./util";
 import type { Song } from "./song";
 import type { Channel } from "./channels";

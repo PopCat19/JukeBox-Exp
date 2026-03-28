@@ -5,7 +5,7 @@
 // This module:
 // - Implements delay-line-based string simulation
 
-import { Config, SustainType } from "./SynthConfig";
+import { Config, SustainType } from "./synth-config";
 import { warpInfinityToNyquist } from "./filtering";
 import { fittingPowerOfTwo } from "./util";
 import { Instrument } from "./instruments";

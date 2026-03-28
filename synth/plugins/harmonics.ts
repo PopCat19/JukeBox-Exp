@@ -2,7 +2,7 @@
 //
 // Purpose: Harmonics synthesis plugin — wraps private static via bridge
 
-import { Config, InstrumentType } from "../SynthConfig";
+import { Config, InstrumentType } from "../synth-config";
 import type { Instrument } from "../instruments";
 import type { Synth } from "../synth";
 import { buildHarmonicsSource } from "../synthesis/harmonics";

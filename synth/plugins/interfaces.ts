@@ -7,7 +7,7 @@
 // - Defines EditorRowName for data-driven editor row visibility
 // - Allows future plugins to self-register without modifying synth.ts
 
-import type { InstrumentType } from "../SynthConfig";
+import type { InstrumentType } from "../synth-config";
 import type { Instrument } from "../instruments";
 import type { Synth } from "../synth";
 

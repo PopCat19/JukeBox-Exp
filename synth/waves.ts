@@ -7,8 +7,8 @@
 // - Manages wave hash caching for dirty-check optimization
 // - Implements grain envelope and delay logic for granular synthesis
 
-import { Config, drawNoiseSpectrum, getDrumWave, performIntegralOld, InstrumentType } from "./SynthConfig";
-import { scaleElementsByFactor, inverseRealFourierTransform } from "./FFT";
+import { Config, drawNoiseSpectrum, getDrumWave, performIntegralOld, InstrumentType } from "./synth-config";
+import { scaleElementsByFactor, inverseRealFourierTransform } from "./fft";
 import { fittingPowerOfTwo } from "./util";
 
 export class SpectrumWave {

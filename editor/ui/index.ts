@@ -5,7 +5,7 @@
 // This module:
 // - Re-exports layout, HTML wrapper, and array buffer utilities
 
-export { Layout } from "./Layout";
-export { HTMLWrapper } from "./HTMLWrapper";
-export { ArrayBufferReader } from "./ArrayBufferReader";
-export { ArrayBufferWriter } from "./ArrayBufferWriter";
+export { Layout } from "./layout";
+export { HTMLWrapper } from "./html-wrapper";
+export { ArrayBufferReader } from "./array-buffer-reader";
+export { ArrayBufferWriter } from "./array-buffer-writer";

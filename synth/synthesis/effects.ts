@@ -6,7 +6,7 @@
 // - Builds effects synthesis source strings including distortion, bitcrusher,
 //   panning, chorus, echo, reverb, granular, ring modulation, phaser, and EQ
 
-import { Config, GranularEnvelopeType } from "../SynthConfig";
+import { Config, GranularEnvelopeType } from "../synth-config";
 
 export function buildEffectsSource(
     usesDistortion: boolean,

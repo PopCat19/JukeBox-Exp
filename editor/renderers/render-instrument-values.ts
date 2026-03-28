@@ -8,12 +8,12 @@
 // - Updates note limit labels with current pitch names
 // - Syncs filter, envelope, and arpeggio speed displays
 
-import { SongDocument } from "../SongDocument";
-import { Config, calculateRingModHertz } from "../../synth/SynthConfig";
+import { SongDocument } from "../song-document";
+import { Config, calculateRingModHertz } from "../../synth/synth-config";
 import { Instrument } from "../../synth";
-import { Slider } from "../ui/HTMLWrapper";
-import { Piano } from "../components/Piano";
-import { prettyNumber } from "../config/EditorConfig";
+import { Slider } from "../ui/html-wrapper";
+import { Piano } from "../components/piano";
+import { prettyNumber } from "../config/editor-config";
 
 function setSelectedValue(menu: HTMLSelectElement, value: number): void {
 	const stringValue = value.toString();

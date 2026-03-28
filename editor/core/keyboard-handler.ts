@@ -7,17 +7,17 @@
 // - Delegates to editor components through a host interface
 // - Manages modifier key state tracking
 
-import { SongDocument } from "../SongDocument";
-import { PatternEditor } from "../components/PatternEditor";
-import { MuteEditor } from "../components/MuteEditor";
-import { LoopEditor } from "../components/LoopEditor";
-import { BarScrollBar } from "../components/BarScrollBar";
-import { KeyboardLayout } from "../config/KeyboardLayout";
-import { EnvelopeEditor } from "../components/EnvelopeEditor";
-import { ColorConfig } from "../rendering/ColorConfig";
+import { SongDocument } from "../song-document";
+import { PatternEditor } from "../components/pattern-editor";
+import { MuteEditor } from "../components/mute-editor";
+import { LoopEditor } from "../components/loop-editor";
+import { BarScrollBar } from "../components/bar-scroll-bar";
+import { KeyboardLayout } from "../config/keyboard-layout";
+import { EnvelopeEditor } from "../components/envelope-editor";
+import { ColorConfig } from "../rendering/color-config";
 import { Instrument, Channel } from "../../synth";
-import { InstrumentType, EffectType, Config, DropdownID, effectsIncludeNoteFilter } from "../../synth/SynthConfig";
-import { ChangeGroup } from "./Change";
+import { InstrumentType, EffectType, Config, DropdownID, effectsIncludeNoteFilter } from "../../synth/synth-config";
+import { ChangeGroup } from "./change";
 import { ChangePatternSelection, ChangePatternsPerChannel, ChangePatternNumbers, ChangeSetPatternInstruments, ChangeSong, ChangeAddChannelInstrument, ChangeRemoveChannelInstrument } from "../changes";
 
 declare const OFFLINE: boolean;

@@ -9,7 +9,7 @@
 
 // Copyright (c) 2012-2022 John Nesky and contributing authors, distributed under the MIT license, see accompanying the LICENSE.md file.
 
-import { Config } from "../../synth/SynthConfig";
+import { Config } from "../../synth/synth-config";
 import { NotePin, Note, makeNotePin, Pattern, Song, Synth, clamp } from "../../synth";
 
 export function patternsContainSameInstruments(pattern1Instruments: number[], pattern2Instruments: number[]): boolean {

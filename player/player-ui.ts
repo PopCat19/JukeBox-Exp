@@ -7,9 +7,9 @@
 // - Creates and assembles all DOM elements (buttons, sliders, timeline, volume bar)
 // - Provides localStorage helpers with cross-origin iframe safety
 
-import { ColorConfig } from "../editor/rendering/ColorConfig";
+import { ColorConfig } from "../editor/rendering/color-config";
 import { Synth } from "../synth";
-import { oscilloscopeCanvas } from "../shared/Oscilloscope";
+import { oscilloscopeCanvas } from "../shared/oscilloscope";
 import { HTML, SVG } from "imperative-html/dist/esm/elements-strict";
 
 const {a, button, div, h1, input, canvas} = HTML;

@@ -1,0 +1,23 @@
+# synth/ context
+
+- `index.ts` — Barrel re-export organizing synth modules by dependency layer
+- `synth.ts` — Core synthesis engine: audio playback, rendering, and modulation
+- `song.ts` — Manages song data model, fields, and initialization
+- `song-serialization.ts` — URL hash serialization for songs (toBase64String, fromBase64String)
+- `song-utilities.ts` — Helper functions for song serialization and sample management
+- `serialization.ts` — Provides base64 encoding/decoding and bitfield read/write utilities for song data
+- `instruments.ts` — Defines instrument settings, filter configuration, and modulation parameters
+- `channels.ts` — Defines the Channel class for grouping instruments, patterns, and bars
+- `notes.ts` — Defines Note, NotePin, and Pattern data structures for song composition
+- `tone.ts` — Tone data structure for active synthesis voices
+- `channel-state.ts` — Per-channel synthesis state container
+- `instrument-state.ts` — Per-instrument DSP state and audio buffer management
+- `envelope-computer.ts` — Envelope computation for tone lifecycle and modulation
+- `synth-config.ts` — Defines core configuration constants, enums, and shared data for the synth engine
+- `synth-shared.ts` — Shared filter coefficients and volume utilities for the synth engine
+- `filtering.ts` — Computes digital IIR filter coefficients and analyzes frequency response
+- `fft.ts` — Implements real-valued Fourier transform and frequency analysis utilities
+- `waves.ts` — Generates custom waveform data for spectrum, harmonics, and granular synthesis
+- `picked-string.ts` — Physical string modeling for picked string synthesis
+- `deque.ts` — Implements a double-ended queue with dynamic circular buffer
+- `util.ts` — Provides shared math and conversion utilities for the synth engine

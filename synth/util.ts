@@ -8,7 +8,7 @@
 
 // Copyright (c) 2012-2022 John Nesky and contributing authors, distributed under the MIT license, see accompanying the LICENSE.md file.
 
-import { Config } from "./SynthConfig";
+import { Config } from "./synth-config";
 
 export const epsilon: number = (1.0e-24); // For detecting and avoiding float denormals, which have poor performance.
 

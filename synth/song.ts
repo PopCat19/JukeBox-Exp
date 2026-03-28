@@ -7,7 +7,7 @@
 // - Manages per-channel instrument and pattern configuration
 // - Delegates serialization to song-serialization.ts via arrow properties
 
-import { Config, InstrumentType } from "./SynthConfig";
+import { Config, InstrumentType } from "./synth-config";
 import { FilterSettings, Instrument } from "./instruments";
 import { Channel } from "./channels";
 import { Pattern } from "./notes";

@@ -1,192 +1,12 @@
-/*
-This file contains code to compute digital audio filter coefficients based on
-the desired type, cutoff frequency, and other parameters. You can use these
-coefficients to apply the filter to audio samples. It also contains code to
-analyze these filters, which is useful for graphically displaying their effects.
-
-All of the filters in this file are known as "Infinite Impulse Response" or IIR
-filters, because older output samples contribute feedback to newer output
-samples and thus contribute to all future samples, although typically filters
-are design to reduce the contribution of older samples over time.
-
-Low-pass filters aka high-cut filters preserve audio signals below the cutoff
-frequency, and attenuate audio signals above the cutoff frequency. High-pass
-filters aka low-cut filters are the reverse. All-pass filters do not affect the
-volume of the signal at all but induce phase changes above the cutoff frequency.
-Peak/Notch filters maintain the volume on either side of the cutoff frequency,
-but raise or lower the volume at that frequency. 
-
-The number of old samples used in the filter determines the "order" of the
-filter. First-order filters generally have shallower slopes, and second-order
-filters generally have steeper slopes and can be configured to "resonate",
-meaning they have a louder peak at the cutoff frequency. This file contains
-first-order filters and second-order filters, meaning one or two older samples
-are involved, as well as the current input sample.
-
-The class FilterCoefficients is defined lower in this file. You can use it to
-set up a first order filter like this:
-
-	const cutoffRadiansPerSample: number = 2 * Math.PI * cutoffHz / sampleRate;
-	const filter: FilterCoefficients = new FilterCoefficients();
-	filter.lowPass1stOrderButterworth(cutoffRadiansPerSample);
-	// output sample coefficients are conventionally called a0, a1, etc. Note
-	// that a[0] is typically normalized to 1.0 and need not be used directly.
-	const a: number[] = filter.a;
-	// input sample coefficients are conventionally called b0, b1, etc
-	const b: number[] = filter.b;
-	// filter input samples, x[0] is the most recent, x[1] is the previous one, etc.
-	const x: number[] = [0, 0, 0];
-	// filter output samples, y[0] will be computed by the filter based on input
-	// samples and older output samples.
-	const y: number[] = [0, 0, 0];
-
-Then to apply the first-order filter to samples inside a loop, using the current
-input sample (x[0]) as well as previous input and output samples, do this:
-
-	// Compute the next output sample y[0]:
-	y[0] = b[0] * x[0] + b[1] * x[1] - a[1] * y[1];
-	// Remember the input and output samples for next time:
-	x[1] = x[0];
-	y[1] = y[0];
-
-2nd order filters are similar, but have more parameters and require more old
-samples:
-
-	// Compute the next output sample y[0]:
-	y[0] = b[0] * x[0] + b[1] * x[1] + b[2] * x[2] - a[1] * y[1] - a[2] * y[2];
-	// Remember the input and output samples for next time:
-	x[2] = x[1];
-	x[1] = x[0];
-	y[2] = y[1];
-	y[1] = y[0];
-
-You can compose multiple filters into a higher order filter, although doing so
-reduces the numerical stability of the filter:
-
-	filter3.combination(filter1, filter2);
-	// filter3.order will equal: filter1.order + filter2.order
-	// The number of coefficients in filter3.a and filter3.b will be: order + 1
-
-This file also contains a class called FrequencyResponse. You can use it to
-determine how much gain or attenuation a filter would apply to sounds at a
-specific input frequency, as well as the phase offset:
-
-	const inputRadians: number = 2 * Math.PI * cutoffHz / sampleRate;
-	const response: FrequencyResponse = new FrequencyResponse();
-	response.analyze(filter, inputRadians);
-	const gainResponse = response.magnitude();
-	const phaseResponse = response.angle();
-
-That's basically all you need to know to use this code, but I'll also explain
-how the analysis works.
-
-A first-order digital IIR filter is ordinarily implemented in a form like this:
-
-	output = inputCoeff * input + prevInputCoeff * prevInput - prevOutputCoeff * prevOutput;
-
-If we adopt standard naming conventions for audio filters, this same code would
-instead look like:
-
-	// x0 = current input, x1 = prevInput, y0 = current output, y1 = prevOutput
-	y0 = b0*x0 + b1*x1 - a1*y1;
-
-Leaving behind the world of code for a moment and entering the world of algebra,
-we can rewrite this equation by moving all the output terms to the left side,
-and we can add a coefficient to the y0 term called a0 (which is typically
-normalized to 1.0, which is why I didn't bother including it until now):
-
-	a0*y0 + a1*y1 = b0*x0 + b1*x1
-
-This is known as the symmetrical form of the filter, and it will help us analyze
-the impact of the filter on an input audio signal. Here's a lesson that helped
-me understand the symmetrical form:
-https://web.archive.org/web/20200626183458/http://123.physics.ucdavis.edu/week_5_files/filters/digital_filter.pdf
-
-The end of that lesson introduces a concept called the "delay operator" which
-looks like "z^-1", which (magically) turns a sample into the previous sample
-when you multiply them. For example:
-
-	x0 * z^-1 = x1
-
-The lesson doesn't explain how it actually works. Audio signals aren't always
-predictable, which means that you generally can't do math on a single sample to
-compute what the previous sample was. However, some audio signals ARE
-predictable, such as pure sine waves. Fortunately, all audio signals can be
-broken down into a sum of independent sine waves. We can pick one sine wave at a
-time, and use it to analyze the filter's impact on waves at that frequency. In
-practice, this tells us what the filter will do to unpredictable input samples
-that contain a partial sine wave at that frequency.
-
-Technically, you can't just use a single sine wave sample to determine the
-previous sine wave sample, because each possible value is passed going upwards
-and downwards once per period and the direction is ambigous. This is where we
-need to move into the complex number domain, where the real and imaginary
-components can provide enough information to compute the previous position on
-the input signal. So now instead of talking about sine waves, we're talking
-about waves where the imaginary component is a sine wave and the real component
-is a cosine wave at the same frequency. Together, they trace around a unit
-circle in the complex domain, and each sample is just a consistent rotation
-applied to the previous sample. The "delay operator" described above, z^-1, is
-this same rotation applied in reverse, and it can be computed as:
-
-	z^-1 = cos(radiansPerSample) - i * sin(radiansPerSample)
-
-Math nerds may be interested to know that "Euler's formula" was used here, but
-explaining what that means is probably beyond the scope of this documentation
-aside from noting that a complex number on the unit circle represents a 2D
-rotation that you can apply via multiplication.
-
-Now we can rewrite the symmetrical form using the delay operator and algebra:
-
-	a0*y0 + a1*y0*z^-1 = b0*x0 + b1*x0*z^-1
-	y0 * (a0 + a1*z^-1) = x0 * (b0 + b1*z^-1)
-	y0 = x0 * (b0 + b1*z^-1) / (a0 + a1*z^-1)
-	y0 / x0 = (b0 + b1*z^-1) / (a0 + a1*z^-1)
-
-That last equation expresses the relationship between the input and output
-signals (y0/x0) in terms of the filter coefficients and delay operator. At this
-point, the specific values of the input and output samples don't even matter!
-This is called the "transfer function", and it's conventionally named "H(z)":
-
-	H(z) = (b0 + b1*z^-1) / (a0 + a1*z^-1)
-
-If you plug in actual filter coefficients and express the delay operators as
-complex numbers with the appropriate trigonometry functions, the transfer
-function can be computed and produces a complex number that represents the
-relationship between the input and output signals, whose magnitude represents
-the volume gain (or attenuation) of signals at that frequency, and whose angle
-represents how much phase shift is applied by the filter to signals at that
-frequency.
-
-(Note that in order to compute the transfer function, you'll need to do
-something about the complex number in the denominator. It turns out you can turn
-the denominator into a real number by multiplying both the numerator and
-denominator by the complex conjugate of the denominator, which is just the
-denominator with the imaginary component negated.)
-
-Finally, I'll list some of the links that helped me understand filters and
-provided some of the algorithms I that use here.
-
-Here's where I found accurate 2nd order low-pass, high-pass, and high-shelf
-digital filters:
-https://web.archive.org/web/20120531011328/http://www.musicdsp.org/files/Audio-EQ-Cookbook.txt
-
-This page is how I found a link to the cookbook article above. It claims these
-filters are Butterworth filters:
-http://web.archive.org/web/20191213120120/https://crypto.stanford.edu/~blynn/sound/analog.html
-
-I found the first-order digital Butterworth filter coefficients at:
-https://www.researchgate.net/publication/338022014_Digital_Implementation_of_Butterworth_First-Order_Filter_Type_IIR
-
-This meta-paper helped me understand how to make 2nd order peak/notch filters:
-https://web.archive.org/web/20170706085655/https://www.thesounddesign.com/MIO/EQ-Coefficients.pdf
-
-BeepBox originally used simpler low-pass filters that I adapted from SFXR:
-https://www.drpetter.se/project_sfxr.html
-For low cutoff frequencies, the simpler filters and the Butterworth filters are
-nearly identical, but when closer to the nyquist frequency the simpler filters
-create extra resonance.
-*/
+// filtering.ts
+//
+// Purpose: Computes digital IIR filter coefficients and analyzes frequency response
+//
+// This module:
+// - Provides FilterCoefficients for first/second-order Butterworth, biquad, and custom filters
+// - Provides FrequencyResponse for analyzing filter gain and phase at a given frequency
+// - Provides DynamicBiquadFilter for real-time coefficient interpolation
+// - Exports warpNyquistToInfinity for pre-warping filter cutoff frequencies
 
 export class FilterCoefficients {
 	public readonly a: number[] = [1.0]; // output coefficients (negated, keep a[0]=1)
@@ -217,7 +37,7 @@ export class FilterCoefficients {
 		// then the output is the same as the input, and if the cutoff is higher
 		// than that, then the output actually resonates at high frequencies
 		// instead of attenuating.
-		// I'm guessing this filter was converted from analog to digital using
+		// This filter was likely converted from analog to digital using
 		// the "matched z-transform" method instead of the "bilinear transform"
 		// method. The difference is that the bilinear transform warps
 		// frequencies so that the lowpass response of zero at analogue ∞hz maps
@@ -228,23 +48,12 @@ export class FilterCoefficients {
 		this.a[1] = g - 1.0;
 		this.b[0] = g;
 		this.b[1] = 0.0;
-// Filtering
-//
-// Purpose: Computes digital audio filter coefficients and frequency response analysis
-//
-// This module:
-// - Implements IIR filter coefficient computation (low-pass, high-pass, peak)
-// - Provides frequency response analysis for filter visualization
-// - Supports 1st and 2nd order Butterworth and simplified filter designs
-
-/*
-		// Alternatively:
-		const g: number = 1.0 / (2.0 * Math.sin(cornerRadiansPerSample / 2));
-		const a0: number = g;
-		this.a[1] = (1.0 - g) / a0;
-		this.b[0] = 1.0 / a0;
-		this.b[1] = 0.0 / a0;
-		*/
+		// Alternatively (commented out — redundant with above):
+		// const g: number = 1.0 / (2.0 * Math.sin(cornerRadiansPerSample / 2));
+		// const a0: number = g;
+		// this.a[1] = (1.0 - g) / a0;
+		// this.b[0] = 1.0 / a0;
+		// this.b[1] = 0.0 / a0;
 		this.order = 1;
 	}
 	
@@ -271,13 +80,13 @@ export class FilterCoefficients {
 	}
 	*/
 	public highShelf1stOrder(cornerRadiansPerSample: number, shelfLinearGain: number): void {
-		// I had trouble figuring this one out because I couldn't find any
-		// online algorithms that I understood. There are 3 degrees of freedom
-		// and I could narrow down a couple of them based on the desired gain at
-		// DC and nyquist, but getting the cutoff frequency correct took a
-		// little bit of trial and error in my attempts to interpret page 53 of
+		// Deriving this filter was non-trivial because no online algorithms
+		// were clear enough to use directly. There are 3 degrees of freedom,
+		// a couple of which can be constrained based on the desired gain at
+		// DC and nyquist, but getting the cutoff frequency correct took
+		// trial and error when interpreting page 53 of
 		// this chapter: http://www.music.mcgill.ca/~ich/classes/FiltersChap2.pdf
-		// Obviously I don't fully understand the bilinear transform yet!
+		// The bilinear transform behavior here is subtle.
 		const tan: number = Math.tan(cornerRadiansPerSample * 0.5);
 		const sqrtGain: number = Math.sqrt(shelfLinearGain);
 		const g: number = (tan * sqrtGain - 1) / (tan * sqrtGain + 1.0);
@@ -297,7 +106,7 @@ export class FilterCoefficients {
 	}
 	
 	/*
-	// I haven't found a practical use for this version of the all pass filter.
+	// No practical use found for this version of the all pass filter.
 	// It seems to create a weird subharmonic when used in a delay feedback loop.
 	public allPass1stOrderInvertPhaseBelow(cornerRadiansPerSample: number): void {
 		const g: number = (Math.sin(cornerRadiansPerSample) - 1.0) / Math.cos(cornerRadiansPerSample);

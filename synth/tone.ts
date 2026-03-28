@@ -5,7 +5,7 @@
 // This module:
 // - Holds per-voice state including filters, picked strings, and envelope computers
 
-import { Config, OperatorWave } from "./SynthConfig";
+import { Config, OperatorWave } from "./synth-config";
 import { Note } from "./notes";
 import { DynamicBiquadFilter } from "./filtering";
 import { PickedString } from "./picked-string";

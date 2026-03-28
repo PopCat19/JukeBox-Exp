@@ -6,7 +6,7 @@
 // - Computes envelope values for transitions, filters, and effects
 // - Handles drumset and per-instrument envelope logic
 
-import { Config, Envelope, EnvelopeType, EnvelopeComputeIndex, FilterType, Transition, AutomationTarget, LFOEnvelopeTypes, RandomEnvelopeTypes, getArpeggioPitchIndex } from "./SynthConfig";
+import { Config, Envelope, EnvelopeType, EnvelopeComputeIndex, FilterType, Transition, AutomationTarget, LFOEnvelopeTypes, RandomEnvelopeTypes, getArpeggioPitchIndex } from "./synth-config";
 import { xxHash32 } from "js-xxhash";
 import { NotePin } from "./notes";
 import { Instrument, FilterSettings, EnvelopeSettings } from "./instruments";
@@ -354,11 +354,11 @@ export class EnvelopeComputer {
                     return perEnvelopeUpperBound - noteSizeToVolumeMult(noteSize) * (boundAdjust);
                 }
             case EnvelopeType.pitch:
-                //inversion and bounds are handled in the pitch calculation that we did prior
+                //inversion and bounds are handled in the pitch calculation done prior
                 return pitch;
             case EnvelopeType.pseudorandom:
                 //randomization is essentially just a complex hashing function which appears random to us, but is repeatable every time
-                //we can use either the time passed from the beginning of our song or the pitch of the note for what we hash
+                //either the time passed from the beginning of the song or the pitch of the note can be used for hashing
                 const hashMax: number = 0xffffffff;
                 const step: number = steps;
                 switch (waveform) {
@@ -404,7 +404,7 @@ export class EnvelopeComputer {
                 }
             case EnvelopeType.swell:
                 if (inverse) {
-                    return boundAdjust / (1.0 + time * envelopeSpeed) + perEnvelopeLowerBound; //swell is twang's inverse... I wonder if it would be worth it to just merge the two :/
+                    return boundAdjust / (1.0 + time * envelopeSpeed) + perEnvelopeLowerBound; //swell is twang's inverse; it may be worth considering whether to merge the two
                 } else {
                     return perEnvelopeUpperBound - boundAdjust / (1.0 + time * envelopeSpeed);
                 }
@@ -459,7 +459,7 @@ export class EnvelopeComputer {
                 }
             case EnvelopeType.tremolo2: //kept only for drumsets right now
                 if (inverse) {
-                    return (perEnvelopeUpperBound / 4) + boundAdjust * Math.cos(beats * 2.0 * Math.PI * envelopeSpeed) * 0.25 + (perEnvelopeLowerBound / 4); //inverse works strangely with tremolo2. If I ever update this I'll need to turn all current versions into tremolo with bounds
+                    return (perEnvelopeUpperBound / 4) + boundAdjust * Math.cos(beats * 2.0 * Math.PI * envelopeSpeed) * 0.25 + (perEnvelopeLowerBound / 4); //inverse works strangely with tremolo2. If this is ever updated, all current versions will need to be turned into tremolo with bounds
                 } else {
                     return 0.5 + (perEnvelopeUpperBound / 4) - boundAdjust * Math.cos(beats * 2.0 * Math.PI * envelopeSpeed) * 0.25 - (perEnvelopeLowerBound / 4);
                 }
@@ -470,7 +470,7 @@ export class EnvelopeComputer {
                     return Math.max(1.0 + perEnvelopeLowerBound, 1.0 + perEnvelopeUpperBound - unspedTime * globalEnvelopeSpeed * 10.0); //punch only uses global envelope speed
                 }
             case EnvelopeType.flare:
-                const attack: number = 0.25 / Math.sqrt(envelopeSpeed * perEnvelopeSpeed); //flare and blip need to be handled a little differently with envelope speeds. I have to use the old system
+                const attack: number = 0.25 / Math.sqrt(envelopeSpeed * perEnvelopeSpeed); //flare and blip need to be handled a little differently with envelope speeds. The old system must be used here
                 if (inverse) {
                     return perEnvelopeUpperBound - boundAdjust * (unspedTime < attack ? unspedTime / attack : 1.0 / (1.0 + (unspedTime - attack) * envelopeSpeed * perEnvelopeSpeed));
                 } else {
@@ -500,7 +500,7 @@ export class EnvelopeComputer {
             case EnvelopeType.linear: {
                 let lin = (1.0 - (time / (16 / envelopeSpeed)));
                 lin = lin > 0.0 ? lin : 0.0;
-                if (inverse) { //another case where linear's inverse is rise. Do I merge them?
+                if (inverse) { //another case where linear's inverse is rise. Should these be merged?
                     return perEnvelopeUpperBound - boundAdjust * lin;
                 } else {
                     return boundAdjust * lin + perEnvelopeLowerBound;
@@ -588,7 +588,7 @@ export class EnvelopeComputer {
     }
 
     public static getLowpassCutoffDecayVolumeCompensation(envelope: Envelope, perEnvelopeSpeed: number = 1): number {
-        // This is a little hokey in the details, but I designed it a while ago and keep it 
+        // This is a little hokey in the details, but it was designed a while ago and is kept as-is
         // around for compatibility. This decides how much to increase the volume (or
         // expression) to compensate for a decaying lowpass cutoff to maintain perceived
         // volume overall.
@@ -621,7 +621,7 @@ export class EnvelopeComputer {
         let drumsetFilterEnvelopeEnd: number = drumsetFilterEnvelopeStart;
 
 
-        //hmm, I guess making discrete per envelope leaves out drumsets....
+        //Note: making discrete per envelope leaves out drumsets
         drumsetFilterEnvelopeEnd = computeDrumsetEnvelope(this.noteSecondsEndUnscaled, this.noteSecondsEndUnscaled, beatsPerPart * partTimeEnd, this.noteSizeEnd);
 
         if (this.prevSlideEnd) {

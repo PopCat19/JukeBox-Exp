@@ -8,19 +8,19 @@
 // - Handles FM 4op/6op sub-branches
 // - Handles chip wave advanced loop controls
 
-import { SongDocument } from "../SongDocument";
-import { Config, effectsIncludeTransition, effectsIncludeChord, effectsIncludePitchShift, effectsIncludeDetune, effectsIncludeVibrato, effectsIncludeNoteFilter, effectsIncludeDistortion, effectsIncludeBitcrusher, effectsIncludePanning, effectsIncludeChorus, effectsIncludeEcho, effectsIncludeReverb, effectsIncludeRingModulation, effectsIncludeGranular, effectsIncludePhaser, effectsIncludeInvertWave, effectsIncludeNoteRange } from "../../synth/SynthConfig";
+import { SongDocument } from "../song-document";
+import { Config, effectsIncludeTransition, effectsIncludeChord, effectsIncludePitchShift, effectsIncludeDetune, effectsIncludeVibrato, effectsIncludeNoteFilter, effectsIncludeDistortion, effectsIncludeBitcrusher, effectsIncludePanning, effectsIncludeChorus, effectsIncludeEcho, effectsIncludeReverb, effectsIncludeRingModulation, effectsIncludeGranular, effectsIncludePhaser, effectsIncludeInvertWave, effectsIncludeNoteRange } from "../../synth/synth-config";
 import { Instrument, detuneToCents, getCapabilities, getPlugin } from "../../synth";
-import { ColorConfig, ChannelColors } from "../rendering/ColorConfig";
-import { Slider } from "../ui/HTMLWrapper";
-import { SpectrumEditor } from "../components/SpectrumEditor";
-import { HarmonicsEditor } from "../components/HarmonicsEditor";
-import { FadeInOutEditor } from "../components/FadeInOutEditor";
-import { FilterEditor } from "../components/FilterEditor";
-import { EnvelopeEditor } from "../components/EnvelopeEditor";
+import { ColorConfig, ChannelColors } from "../rendering/color-config";
+import { Slider } from "../ui/html-wrapper";
+import { SpectrumEditor } from "../components/spectrum-editor";
+import { HarmonicsEditor } from "../components/harmonics-editor";
+import { FadeInOutEditor } from "../components/fade-in-out-editor";
+import { FilterEditor } from "../components/filter-editor";
+import { EnvelopeEditor } from "../components/envelope-editor";
 import { CustomAlgorythmCanvas } from "../rendering/custom-algorythm-canvas";
-import { Preferences } from "../core/Preferences";
-import { prettyNumber } from "../config/EditorConfig";
+import { Preferences } from "../core/preferences";
+import { prettyNumber } from "../config/editor-config";
 
 function setSelectedValue(menu: HTMLSelectElement, value: number, isSelect2: boolean = false): void {
 	const stringValue = value.toString();

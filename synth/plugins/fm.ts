@@ -6,7 +6,7 @@
 // - Caches compiled FM synth functions by algorithm + feedbackType fingerprint
 // - Registers via registry on module load
 
-import { Config, InstrumentType } from "../SynthConfig";
+import { Config, InstrumentType } from "../synth-config";
 import type { Instrument } from "../instruments";
 import type { Synth } from "../synth";
 import { buildFmSource } from "../synthesis/fm";

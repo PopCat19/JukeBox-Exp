@@ -6,7 +6,7 @@
 // - Builds chip wave synthesis source strings with advanced loop controls
 // - Builds loopable chip synthesis source strings with declicking
 
-import { effectsIncludeDistortion } from "../SynthConfig";
+import { effectsIncludeDistortion } from "../synth-config";
 void effectsIncludeDistortion; // Used in generated source string at runtime
 
 export function buildLoopableChipSource(voiceCount: number): string {

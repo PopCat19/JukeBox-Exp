@@ -6,7 +6,7 @@
 // - Encodes and decodes songs to and from URL hash format
 // - Extracted from song.ts to reduce module size and improve separation of concerns
 
-import { Config, FilterType, SustainType, EnvelopeType, InstrumentType, getRegisteredInstrumentTypeCount, EffectType, Dictionary, DictionaryArray, toNameMap, effectsIncludeTransition, effectsIncludeChord, effectsIncludePitchShift, effectsIncludeDetune, effectsIncludeVibrato, effectsIncludeNoteFilter, effectsIncludeDistortion, effectsIncludeBitcrusher, effectsIncludePanning, effectsIncludeChorus, effectsIncludeEcho, effectsIncludeReverb, effectsIncludeNoteRange, effectsIncludeRingModulation, effectsIncludeGranular, effectsIncludePhaser, effectsIncludeInvertWave, LFOEnvelopeTypes, RandomEnvelopeTypes, sampleLoadingState, sampleLoadEvents, SampleLoadedEvent, loadBuiltInSamples } from "./SynthConfig";
+import { Config, FilterType, SustainType, EnvelopeType, InstrumentType, getRegisteredInstrumentTypeCount, EffectType, Dictionary, DictionaryArray, toNameMap, effectsIncludeTransition, effectsIncludeChord, effectsIncludePitchShift, effectsIncludeDetune, effectsIncludeVibrato, effectsIncludeNoteFilter, effectsIncludeDistortion, effectsIncludeBitcrusher, effectsIncludePanning, effectsIncludeChorus, effectsIncludeEcho, effectsIncludeReverb, effectsIncludeNoteRange, effectsIncludeRingModulation, effectsIncludeGranular, effectsIncludePhaser, effectsIncludeInvertWave, LFOEnvelopeTypes, RandomEnvelopeTypes, sampleLoadingState, sampleLoadEvents, SampleLoadedEvent, loadBuiltInSamples } from "./synth-config";
 import { clamp, validateRange, convertLegacyKeyToKeyAndOctave, secondsToFadeInSetting, ticksToFadeOutSetting } from "./util";
 import { BitFieldReader, BitFieldWriter, encode32BitNumber, decode32BitNumber, encodeUnisonSettings, base64IntToCharCode, base64CharCodeToInt, CharCode, SongTagCode } from "./serialization";
 import { NotePin, Note, makeNotePin, Pattern } from "./notes";
@@ -104,7 +104,7 @@ export function toBase64StringImpl(song: SongLike): string {
     buffer.push(SongTagCode.scale, base64IntToCharCode[song.scale]);
     if (song.scale == Config.scales["dictionary"]["Custom"].index) {
         for (let i = 1; i < Config.pitchesPerOctave; i++) {
-            buffer.push(base64IntToCharCode[song.scaleCustom[i] ? 1 : 0]) // ineffiecent? yes, all we're going to do for now? hell yes
+            buffer.push(base64IntToCharCode[song.scaleCustom[i] ? 1 : 0]) // ineffiecent? yes, but this is all that's needed for now
         }
     }
     buffer.push(SongTagCode.key, base64IntToCharCode[song.key], base64IntToCharCode[song.octave - Config.octaveMin]);
@@ -871,7 +871,7 @@ export function toBase64StringImpl(song: SongLike): string {
             return;
         }
         const variantTest: number = compressed.charCodeAt(charIndex);
-        //I cleaned up these boolean setters with an initial value. Idk why this wasn't done earlier...
+        //Boolean setters were cleaned up with an initial value. It's unclear why this wasn't done earlier.
         let fromBeepBox: boolean = false;
         let fromJummBox: boolean = false;
         let fromGoldBox: boolean = false;
@@ -974,7 +974,7 @@ export function toBase64StringImpl(song: SongLike): string {
                     }
 
                     else {
-                        // UB version 2 URLs and below will be using the old syntax, so we do need to parse it in that case.
+                        // UB version 2 URLs and below use the old syntax, so parsing is still required in that case.
                         // UB version 3 URLs should only have the new syntax, though, unless the user has edited the URL manually.
                         const parseOldSyntax: boolean = beforeThree;
                         const ok: boolean = parseAndConfigureCustomSample(url, customSampleUrls, customSamplePresets, sampleLoadingState, parseOldSyntax);
@@ -1019,7 +1019,7 @@ export function toBase64StringImpl(song: SongLike): string {
             // filter-and-envelope-related parameters in the URL, and none of them directly
             // correspond to the new way of saving these parameters. We can approximate the old
             // settings by collecting all the old settings for an instrument and passing them to
-            // convertLegacySettings(), so I use this data structure to collect the settings
+            // convertLegacySettings(), so this data structure is used to collect the settings
             // for each instrument if necessary.
             legacySettingsCache = [];
             for (let i: number = legacySettingsCache.length; i < song.getChannelCount(); i++) {
@@ -1075,7 +1075,7 @@ export function toBase64StringImpl(song: SongLike): string {
                 // All the scales were jumbled around by Jummbox. Just convert to free.
                 if (song.scale == Config.scales["dictionary"]["Custom"].index) {
                     for (let i = 1; i < Config.pitchesPerOctave; i++) {
-                        song.scaleCustom[i] = base64CharCodeToInt[compressed.charCodeAt(charIndex++)] == 1; // ineffiecent? yes, all we're going to do for now? hell yes
+                        song.scaleCustom[i] = base64CharCodeToInt[compressed.charCodeAt(charIndex++)] == 1; // ineffiecent? yes, but this is all that's needed for now
                     }
                 }
                 if (fromBeepBox) song.scale = 0;
@@ -1343,7 +1343,7 @@ export function toBase64StringImpl(song: SongLike): string {
                     instrument.chipWave = clamp(0, Config.chipWaves.length, legacyWaves[base64CharCodeToInt[compressed.charCodeAt(charIndex++)]] | 0);
 
                     // Version 2 didn't save any settings for settings for filters, or envelopes,
-                    // just waves, so initialize them here I guess.
+                    // just waves, so they are initialized here.
                     instrument.convertLegacySettings(legacySettingsCache![channelIndex][0], forceSimpleFilter);
 
                 } else if (beforeSix && fromBeepBox) {
@@ -1751,7 +1751,7 @@ export function toBase64StringImpl(song: SongLike): string {
                                         instrument.effects |= 1 << EffectType.vibrato;
                                     }
                                     if ((legacyGlobalReverb != 0 || ((fromJummBox && beforeFive) || (beforeFour && fromGoldBox))) && !song.getChannelIsNoise(channelIndex)) {
-                                        // Enable reverb if it was used globaly before. (Global reverb was added before the effects option so I need to pick somewhere else to initialize instrument reverb, and I picked the vibrato command.)
+// Enable reverb if it was used globaly before. (Global reverb was added before the effects option, so instrument reverb initialization was placed in the vibrato command.)
                                         instrument.effects |= 1 << EffectType.reverb;
                                         instrument.reverb = legacyGlobalReverb;
                                     }
@@ -1774,7 +1774,7 @@ export function toBase64StringImpl(song: SongLike): string {
                                 instrument.effects |= 1 << EffectType.vibrato;
                             }
                             if (legacyGlobalReverb != 0 || ((fromJummBox && beforeFive) || (beforeFour && fromGoldBox))) {
-                                // Enable reverb if it was used globaly before. (Global reverb was added before the effects option so I need to pick somewhere else to initialize instrument reverb, and I picked the vibrato command.)
+                                // Enable reverb if it was used globaly before. (Global reverb was added before the effects option, so instrument reverb initialization was placed in the vibrato command.)
                                 instrument.effects |= 1 << EffectType.reverb;
                                 instrument.reverb = legacyGlobalReverb;
                             }
@@ -1905,7 +1905,7 @@ export function toBase64StringImpl(song: SongLike): string {
                 } else {
                     const instrument = song.channels[instrumentChannelIterator].instruments[instrumentIndexIterator];
                     instrument.unison = clamp(0, Config.unisons.length + 1, base64CharCodeToInt[compressed.charCodeAt(charIndex++)]);
-                    const unisonLength = ((beforeFive || !fromSlarmoosBox) && !fromJukeBox) ? 27 : Config.unisons.length; //27 was the old length before I added >2 voice presets
+                    const unisonLength = ((beforeFive || !fromSlarmoosBox) && !fromJukeBox) ? 27 : Config.unisons.length; //27 was the old length before >2 voice presets were added
 
                     if (((fromUltraBox && !beforeFive) || fromSlarmoosBox || fromJukeBox) && (instrument.unison == unisonLength)) {
                         

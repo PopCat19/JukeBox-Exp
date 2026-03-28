@@ -7,7 +7,7 @@
 // - Registers for both InstrumentType.chip and InstrumentType.customChipWave
 // - loopableChipSynth is public static, chipSynth is private → uses bridge
 
-import { Config, InstrumentType } from "../SynthConfig";
+import { Config, InstrumentType } from "../synth-config";
 import type { Instrument } from "../instruments";
 import type { Synth } from "../synth";
 import { buildChipSource, buildLoopableChipSource } from "../synthesis/chip";

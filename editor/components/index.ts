@@ -5,17 +5,17 @@
 // This module:
 // - Re-exports editor components for timeline, channel, pattern, etc.
 
-export { BarScrollBar } from "./BarScrollBar";
-export { ChannelRow } from "./ChannelRow";
-export { EnvelopeEditor } from "./EnvelopeEditor";
-export { FadeInOutEditor } from "./FadeInOutEditor";
-export { FilterEditor } from "./FilterEditor";
+export { BarScrollBar } from "./bar-scroll-bar";
+export { ChannelRow } from "./channel-row";
+export { EnvelopeEditor } from "./envelope-editor";
+export { FadeInOutEditor } from "./fade-in-out-editor";
+export { FilterEditor } from "./filter-editor";
 export { renderInstrumentBar } from "./instrument-bar";
-export { HarmonicsEditor } from "./HarmonicsEditor";
-export { LoopEditor } from "./LoopEditor";
-export { MuteEditor } from "./MuteEditor";
-export { OctaveScrollBar } from "./OctaveScrollBar";
-export { PatternEditor } from "./PatternEditor";
-export { Piano } from "./Piano";
-export { SpectrumEditor } from "./SpectrumEditor";
-export { TrackEditor } from "./TrackEditor";
+export { HarmonicsEditor } from "./harmonics-editor";
+export { LoopEditor } from "./loop-editor";
+export { MuteEditor } from "./mute-editor";
+export { OctaveScrollBar } from "./octave-scroll-bar";
+export { PatternEditor } from "./pattern-editor";
+export { Piano } from "./piano";
+export { SpectrumEditor } from "./spectrum-editor";
+export { TrackEditor } from "./track-editor";

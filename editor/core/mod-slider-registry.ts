@@ -6,9 +6,9 @@
 // - Defines ModSliderProvider interface for slider field access
 // - Provides getSliderForModSetting lookup without depending on SongEditor
 
-import { Config } from "../../synth/SynthConfig";
-import { Slider } from "../ui/HTMLWrapper";
-import { EnvelopeEditor } from "../components/EnvelopeEditor";
+import { Config } from "../../synth/synth-config";
+import { Slider } from "../ui/html-wrapper";
+import { EnvelopeEditor } from "../components/envelope-editor";
 
 export interface ModSliderProvider {
     panSlider: Slider;

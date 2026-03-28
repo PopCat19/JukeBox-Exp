@@ -5,7 +5,7 @@
 // This module:
 // - Builds drumset synthesis source strings with per-drum wave lookup
 
-import { Config } from "../SynthConfig";
+import { Config } from "../synth-config";
 
 export function buildDrumSource(voiceCount: number): string {
     let drumSource: string = "return (synth, bufferIndex, runLength, tone, instrumentState) => {";

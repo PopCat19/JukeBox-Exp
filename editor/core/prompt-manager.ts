@@ -7,36 +7,36 @@
 // - Handles play/pause state around prompt display
 // - Manages prompt container DOM visibility
 
-import { SongDocument } from "../SongDocument";
-import { Prompt } from "../prompts/Prompt";
-import { ExportPrompt } from "../prompts/ExportPrompt";
-import { ImportPrompt } from "../prompts/ImportPrompt";
-import { SongRecoveryPrompt } from "../prompts/SongRecoveryPrompt";
-import { SongDurationPrompt } from "../prompts/SongDurationPrompt";
-import { BeatsPerBarPrompt } from "../prompts/BeatsPerBarPrompt";
-import { OctaveCountPrompt } from "../prompts/OctaveCountPrompt";
-import { MoveNotesSidewaysPrompt } from "../prompts/MoveNotesSidewaysPrompt";
-import { ChannelSettingsPrompt } from "../prompts/ChannelSettingsPrompt";
-import { LimiterPrompt } from "../prompts/LimiterPrompt";
-import { CustomScalePrompt } from "../prompts/CustomScalePrompt";
-import { CustomChipPrompt } from "../prompts/CustomChipPrompt";
-import { CustomFilterPrompt } from "../prompts/CustomFilterPrompt";
-import { ThemePrompt } from "../prompts/ThemePrompt";
-import { LayoutPrompt } from "../prompts/LayoutPrompt";
-import { RecordingSetupPrompt } from "../prompts/RecordingSetupPrompt";
-import { InstrumentExportPrompt } from "../prompts/InstrumentExportPrompt";
-import { InstrumentImportPrompt } from "../prompts/InstrumentImportPrompt";
-import { SustainPrompt } from "../prompts/SustainPrompt";
-import { AddSamplesPrompt } from "../prompts/AddSamplesPrompt";
-import { EuclideanRhythmPrompt } from "../prompts/EuclidgenRhythmPrompt";
-import { CustomThemePrompt } from "../prompts/CustomThemePrompt";
-import { VisualLoopControlsPrompt } from "../prompts/VisualLoopControlsPrompt";
-import { SampleLoadingStatusPrompt } from "../prompts/SampleLoadingStatusPrompt";
-import { ShortenerConfigPrompt } from "../prompts/ShortenerConfigPrompt";
-import { TipPrompt } from "../prompts/TipPrompt";
-import { HarmonicsEditorPrompt } from "../components/HarmonicsEditor";
-import { SpectrumEditorPrompt } from "../components/SpectrumEditor";
-import { PatternEditor } from "../components/PatternEditor";
+import { SongDocument } from "../song-document";
+import { Prompt } from "../prompts/prompt";
+import { ExportPrompt } from "../prompts/export-prompt";
+import { ImportPrompt } from "../prompts/import-prompt";
+import { SongRecoveryPrompt } from "../prompts/song-recovery-prompt";
+import { SongDurationPrompt } from "../prompts/song-duration-prompt";
+import { BeatsPerBarPrompt } from "../prompts/beats-per-bar-prompt";
+import { OctaveCountPrompt } from "../prompts/octave-count-prompt";
+import { MoveNotesSidewaysPrompt } from "../prompts/move-notes-sideways-prompt";
+import { ChannelSettingsPrompt } from "../prompts/channel-settings-prompt";
+import { LimiterPrompt } from "../prompts/limiter-prompt";
+import { CustomScalePrompt } from "../prompts/custom-scale-prompt";
+import { CustomChipPrompt } from "../prompts/custom-chip-prompt";
+import { CustomFilterPrompt } from "../prompts/custom-filter-prompt";
+import { ThemePrompt } from "../prompts/theme-prompt";
+import { LayoutPrompt } from "../prompts/layout-prompt";
+import { RecordingSetupPrompt } from "../prompts/recording-setup-prompt";
+import { InstrumentExportPrompt } from "../prompts/instrument-export-prompt";
+import { InstrumentImportPrompt } from "../prompts/instrument-import-prompt";
+import { SustainPrompt } from "../prompts/sustain-prompt";
+import { AddSamplesPrompt } from "../prompts/add-samples-prompt";
+import { EuclideanRhythmPrompt } from "../prompts/euclidgen-rhythm-prompt";
+import { CustomThemePrompt } from "../prompts/custom-theme-prompt";
+import { VisualLoopControlsPrompt } from "../prompts/visual-loop-controls-prompt";
+import { SampleLoadingStatusPrompt } from "../prompts/sample-loading-status-prompt";
+import { ShortenerConfigPrompt } from "../prompts/shortener-config-prompt";
+import { TipPrompt } from "../prompts/tip-prompt";
+import { HarmonicsEditorPrompt } from "../components/harmonics-editor";
+import { SpectrumEditorPrompt } from "../components/spectrum-editor";
+import { PatternEditor } from "../components/pattern-editor";
 
 export interface PromptHost {
     doc: SongDocument;

@@ -7,7 +7,7 @@
 // - Registers built-in type capabilities at module load
 // - External plugins call registerCapabilities() for their own types
 
-import { InstrumentType } from "../SynthConfig";
+import { InstrumentType } from "../synth-config";
 
 export interface InstrumentCapabilities {
     isFm: boolean;

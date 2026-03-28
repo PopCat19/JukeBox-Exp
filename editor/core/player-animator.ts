@@ -1,6 +1,6 @@
-import { SongDocument } from "../SongDocument";
-import { FilterEditor } from "../components/FilterEditor";
-import { BarScrollBar } from "../components/BarScrollBar";
+import { SongDocument } from "../song-document";
+import { FilterEditor } from "../components/filter-editor";
+import { BarScrollBar } from "../components/bar-scroll-bar";
 
 export class PlayerAnimator {
     public outVolumeHistoricTimer: number = 0;

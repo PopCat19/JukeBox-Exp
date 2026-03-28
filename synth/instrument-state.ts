@@ -7,9 +7,9 @@
 // - Computes instrument-level effects (EQ, filters, distortion, etc.)
 // - Handles operator synthesis and waveform generation
 
-import { Config, EnvelopeComputeIndex, GranularEnvelopeType, InstrumentType, Unison, Chord, FilterType, getDrumWave, calculateRingModHertz, effectsIncludeDistortion, effectsIncludeBitcrusher, effectsIncludeRingModulation, effectsIncludeGranular, effectsIncludeChorus, effectsIncludeEcho, effectsIncludeReverb, effectsIncludePhaser, effectsIncludePanning, effectsIncludeInvertWave } from "./SynthConfig";
-import { Deque } from "./Deque";
-import { scaleElementsByFactor, inverseRealFourierTransform } from "./FFT";
+import { Config, EnvelopeComputeIndex, GranularEnvelopeType, InstrumentType, Unison, Chord, FilterType, getDrumWave, calculateRingModHertz, effectsIncludeDistortion, effectsIncludeBitcrusher, effectsIncludeRingModulation, effectsIncludeGranular, effectsIncludeChorus, effectsIncludeEcho, effectsIncludeReverb, effectsIncludePhaser, effectsIncludePanning, effectsIncludeInvertWave } from "./synth-config";
+import { Deque } from "./deque";
+import { scaleElementsByFactor, inverseRealFourierTransform } from "./fft";
 import { DynamicBiquadFilter } from "./filtering";
 import { fittingPowerOfTwo } from "./util";
 import { SpectrumWaveState, HarmonicsWaveState, Grain } from "./waves";

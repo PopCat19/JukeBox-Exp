@@ -50,7 +50,7 @@ const results = await Promise.allSettled([
 	}),
 	esbuild.build({
 		...shared,
-		entryPoints: ["editor/config/EditorConfig.ts"],
+		entryPoints: ["editor/config/editor-config.ts"],
 		globalName: "EditorConfig",
 		outfile: "dist/manual/EditorConfig.min.js",
 		define: {},

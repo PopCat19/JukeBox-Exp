@@ -8,14 +8,14 @@
 // - Toggles visibility of piano, scrollbars, volume bar, oscilloscope, and settings rows
 // - Handles fullscreen pattern editor width, prev/next panes, and zoom button positioning
 
-import { SongDocument } from "../SongDocument";
-import { Preferences } from "../core/Preferences";
-import { BarScrollBar } from "../components/BarScrollBar";
-import { PatternEditor } from "../components/PatternEditor";
-import { MuteEditor } from "../components/MuteEditor";
-import { Piano } from "../components/Piano";
-import { OctaveScrollBar } from "../components/OctaveScrollBar";
-import { ChannelRow } from "../components/ChannelRow";
+import { SongDocument } from "../song-document";
+import { Preferences } from "../core/preferences";
+import { BarScrollBar } from "../components/bar-scroll-bar";
+import { PatternEditor } from "../components/pattern-editor";
+import { MuteEditor } from "../components/mute-editor";
+import { Piano } from "../components/piano";
+import { OctaveScrollBar } from "../components/octave-scroll-bar";
+import { ChannelRow } from "../components/channel-row";
 
 export interface LayoutRefs {
 	muteEditor: MuteEditor;

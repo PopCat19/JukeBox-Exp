@@ -6,7 +6,7 @@
 // submodules (picked-string.ts, envelope-computer.ts, instrument-state.ts)
 // by housing shared mutable state and pure utility functions here.
 
-import { Config } from "./SynthConfig";
+import { Config } from "./synth-config";
 import { FilterCoefficients } from "./filtering";
 
 export const tempFilterStartCoefficients: FilterCoefficients = new FilterCoefficients();

@@ -9,13 +9,13 @@
 
 // Copyright (c) 2012-2022 John Nesky and contributing authors, distributed under the MIT license, see accompanying the LICENSE.md file.
 
-import { Config, Dictionary } from "../../synth/SynthConfig";
+import { Config, Dictionary } from "../../synth/synth-config";
 import { NotePin, Note, makeNotePin, Pattern, Channel, Song, Instrument } from "../../synth";
-import { Change, ChangeGroup, ChangeSequence, UndoableChange } from "../core/Change";
-import { SongDocument } from "../SongDocument";
-import { Slider } from "../ui/HTMLWrapper";
+import { Change, ChangeGroup, ChangeSequence, UndoableChange } from "../core/change";
+import { SongDocument } from "../song-document";
+import { Slider } from "../ui/html-wrapper";
 import { removeRedundantPins, projectNoteIntoBar, patternsContainSameInstruments, discardInvalidPatternInstruments } from "./util";
-import { ColorConfig } from "../rendering/ColorConfig";
+import { ColorConfig } from "../rendering/color-config";
 
 export class ChangeMoveAndOverflowNotes extends ChangeGroup {
     constructor(doc: SongDocument, newBeatsPerBar: number, partsToMove: number) {
@@ -975,7 +975,7 @@ class ChangeTransposeNote extends UndoableChange {
         this._oldPitches = note.pitches;
         this._newPitches = [];
 
-        // I'm disabling pitch transposing for noise channels to avoid
+        // Pitch transposing is disabled for noise channels to avoid
         // accidentally messing up noise channels when pitch shifting all
         // channels at once.
         const isNoise: boolean = doc.song.getChannelIsNoise(channelIndex);

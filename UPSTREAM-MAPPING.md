@@ -1,6 +1,6 @@
 # Upstream Mapping
 
-Structural differences between [JukeeBox/JukeBox_TypeScript](https://github.com/JukeeBox/JukeBox_TypeScript) (upstream) and this fork. Use this to translate upstream diffs into fork paths.
+Structural differences between upstream (`~/JukeBox_TypeScript`, [JukeeBox/JukeBox_TypeScript](https://github.com/JukeeBox/JukeBox_TypeScript)) and this fork. Use this to translate upstream diffs into fork paths.
 
 ## `editor/changes/`
 
@@ -20,10 +20,10 @@ Upstream has a single `editor/changes.ts`. This fork splits it into modules unde
 
 | Fork file | Extracted from | Content |
 |---|---|---|
-| `editor/themes.ts` | `editor/ColorConfig.ts` | Theme CSS definitions (~6,400 lines of CSS strings) |
-| `editor/preset-categories.ts` | `editor/EditorConfig.ts` | Preset instrument categories and `Preset`/`PresetCategory` interfaces |
-| `editor/custom-chip-canvas.ts` | `editor/SongEditor.ts` | `CustomChipCanvas` class for waveform editing |
-| `editor/custom-algorythm-canvas.ts` | `editor/SongEditor.ts` | `CustomAlgorythmCanvas` class for FM algorithm editing |
+| `editor/rendering/themes/*.ts` | `editor/ColorConfig.ts` | Theme CSS definitions split into one file per theme |
+| `editor/config/preset-categories.ts` | `editor/EditorConfig.ts` | Preset instrument categories and `Preset`/`PresetCategory` interfaces |
+| `editor/rendering/custom-chip-canvas.ts` | `editor/SongEditor.ts` | `CustomChipCanvas` class for waveform editing |
+| `editor/rendering/custom-algorythm-canvas.ts` | `editor/SongEditor.ts` | `CustomAlgorythmCanvas` class for FM algorithm editing |
 
 ## `synth/`
 
@@ -38,7 +38,7 @@ Upstream has a single `synth/synth.ts`. This fork splits it into modules:
 | Spectrum, harmonics, granular waveform classes | `synth/waves.ts` |
 | Shared utilities (`clamp`, etc.) | `synth/util.ts` |
 | Re-exports | `synth/index.ts` |
-| `Config`, `InstrumentType`, enums, chip wave/noise presets | `synth/SynthConfig.ts` (unchanged) |
+| `Config`, `InstrumentType`, enums, chip wave/noise presets | `synth/synth-config.ts` |
 | Synthesis engine (remaining after extraction) | `synth/synth.ts` (reduced from upstream) |
 | `PickedString` class (extracted from synth.ts) | `synth/picked-string.ts` |
 | `EnvelopeComputer` class (extracted from synth.ts) | `synth/envelope-computer.ts` |
@@ -46,15 +46,32 @@ Upstream has a single `synth/synth.ts`. This fork splits it into modules:
 | `InstrumentState` class (extracted from synth.ts) | `synth/instrument-state.ts` |
 | `ChannelState` class (extracted from synth.ts) | `synth/channel-state.ts` |
 | Shared filter coefficients and volume utilities (extracted from `Synth` statics) | `synth/synth-shared.ts` |
-| Shared with upstream (unchanged) | `synth/Deque.ts`, `synth/FFT.ts`, `synth/filtering.ts` |
+| Shared with upstream (unchanged) | `synth/deque.ts`, `synth/fft.ts`, `synth/filtering.ts` |
 
 ## 1:1 mapping (no structural change)
 
 These directories map directly — upstream file paths match fork paths:
 
-- `editor/*.ts` (except `changes.ts` → `changes/` dir, and fork-only files: `OctaveCountPrompt.ts`, `themes.ts`, `preset-categories.ts`, `custom-chip-canvas.ts`, `custom-algorythm-canvas.ts`)
 - `player/*.ts`
-- `global/*.ts`
+- `shared/events.ts` (upstream: `global/Events.ts`)
+- `shared/oscilloscope.ts` (upstream: `global/Oscilloscope.ts`)
+
+## Renamed files (kebab-case)
+
+All fork files use kebab-case. Key upstream-to-fork name translations:
+
+| Upstream name | Fork name |
+|---|---|
+| `SynthConfig.ts` | `synth/synth-config.ts` |
+| `SongEditor.ts` | `editor/song-editor.ts` |
+| `SongDocument.ts` | `editor/song-document.ts` |
+| `ColorConfig.ts` | `editor/rendering/color-config.ts` |
+| `EditorConfig.ts` | `editor/config/editor-config.ts` |
+| `Change.ts` | `editor/core/change.ts` |
+| `Selection.ts` | `editor/core/selection.ts` |
+| `Preferences.ts` | `editor/core/preferences.ts` |
+| All `*Prompt.ts` files | `editor/prompts/*-prompt.ts` (kebab-case) |
+| All component files | `editor/components/*-*.ts` (kebab-case) |
 
 ## Quick reference
 
@@ -62,4 +79,8 @@ When reading an upstream diff:
 
 1. `editor/changes.ts` → determine concern (song/instrument/note/filter/slider) → corresponding `editor/changes/*.ts`
 2. `synth/synth.ts` → `Song` class → `synth/song.ts`, serialization → `synth/serialization.ts`, instruments → `synth/instruments.ts`
-3. Everything else → same path in both repos
+3. PascalCase filenames → convert to kebab-case (see table above)
+4. `global/*.ts` → `shared/*.ts`
+5. Everything else → same path (with kebab-case name)
+
+For direct local comparison: `git diff upstream/main...HEAD` or `diff -rq ~/JukeBox_TypeScript/editor ./editor`.

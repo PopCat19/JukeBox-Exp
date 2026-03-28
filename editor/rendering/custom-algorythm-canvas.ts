@@ -6,9 +6,9 @@
 // - Renders operator algorithm graphs with node/edge editing
 // - Manages undo/redo for algorithm changes
 
-import { ColorConfig } from "./ColorConfig";
-import { SongDocument } from "../SongDocument";
-import { Change } from "../core/Change";
+import { ColorConfig } from "./color-config";
+import { SongDocument } from "../song-document";
+import { Change } from "../core/change";
 
 export class CustomAlgorythmCanvas {
     private mouseDown: boolean;

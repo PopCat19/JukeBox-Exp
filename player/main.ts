@@ -20,5 +20,5 @@ bindPlayerKeys(controls);
 controls.init();
 
 // When compiling synth.ts as a standalone module named "beepbox", expose these classes as members to JavaScript:
-	export {Dictionary, DictionaryArray, EnvelopeType, InstrumentType, Transition, Chord, Envelope, Config} from "../synth/SynthConfig";
+	export {Dictionary, DictionaryArray, EnvelopeType, InstrumentType, Transition, Chord, Envelope, Config} from "../synth/synth-config";
 	export {NotePin, Note, Pattern, Instrument, Channel, Synth} from "../synth";

@@ -8,7 +8,7 @@
 // - Supports FM, chip, noise, spectrum, drumset, and mod channel types
 // - Provides JSON serialization for all instrument settings
 
-import { Config, FilterType, SustainType, EnvelopeType, InstrumentType, EffectType, Transition, Unison, Chord, Vibrato, Envelope, AutomationTarget, Dictionary, DictionaryArray, toNameMap, effectsIncludeTransition, effectsIncludeChord, effectsIncludePitchShift, effectsIncludeDetune, effectsIncludeVibrato, effectsIncludeNoteFilter, effectsIncludeDistortion, effectsIncludeBitcrusher, effectsIncludePanning, effectsIncludeChorus, effectsIncludeEcho, effectsIncludeReverb, effectsIncludeNoteRange, effectsIncludeRingModulation, effectsIncludeGranular, effectsIncludePhaser, effectsIncludeInvertWave, LFOEnvelopeTypes } from "./SynthConfig";
+import { Config, FilterType, SustainType, EnvelopeType, InstrumentType, EffectType, Transition, Unison, Chord, Vibrato, Envelope, AutomationTarget, Dictionary, DictionaryArray, toNameMap, effectsIncludeTransition, effectsIncludeChord, effectsIncludePitchShift, effectsIncludeDetune, effectsIncludeVibrato, effectsIncludeNoteFilter, effectsIncludeDistortion, effectsIncludeBitcrusher, effectsIncludePanning, effectsIncludeChorus, effectsIncludeEcho, effectsIncludeReverb, effectsIncludeNoteRange, effectsIncludeRingModulation, effectsIncludeGranular, effectsIncludePhaser, effectsIncludeInvertWave, LFOEnvelopeTypes } from "./synth-config";
 import { FilterCoefficients, FrequencyResponse } from "./filtering";
 import { clamp, detuneToCents, centsToDetune, fadeInSettingToSeconds, secondsToFadeInSetting, fadeOutSettingToTicks, ticksToFadeOutSetting } from "./util";
 import { SpectrumWave, HarmonicsWave } from "./waves";
@@ -318,7 +318,7 @@ export class FilterSettings {
             return lerpedFilter;
         }
         else {
-            // Not allowing morph of unmatching filters for now. It's a hornet's nest of problems, and I had it implemented and mostly working and it didn't sound very interesting since the shape becomes "mushy" in between
+            // Not allowing morph of unmatching filters for now. It's a hornet's nest of problems, and previous implementation was mostly working but didn't sound very interesting since the shape becomes "mushy" in between
             return (pos >= 1) ? filterB : filterA;
         }
     }
@@ -348,7 +348,7 @@ export class FilterSettings {
             // In general, a 1st order lowpass can be approximated by a 2nd order lowpass
             // with a cutoff ~4 octaves higher (*16) and a gain of 1/16.
             // However, BeepBox's original lowpass filters behaved oddly as they
-            // approach the nyquist frequency, so I've devised this curved conversion
+            // approach the nyquist frequency, so this curved conversion was devised
             // to guess at a perceptually appropriate new cutoff frequency and gain.
             const extraOctaves: number = 3.5;
             const targetRadians: number = legacyRadians * Math.pow(2.0, extraOctaves);
@@ -428,7 +428,7 @@ export class FilterSettings {
             // In general, a 1st order lowpass can be approximated by a 2nd order lowpass
             // with a cutoff ~4 octaves higher (*16) and a gain of 1/16.
             // However, BeepBox's original lowpass filters behaved oddly as they
-            // approach the nyquist frequency, so I've devised this curved conversion
+            // approach the nyquist frequency, so this curved conversion was devised
             // to guess at a perceptually appropriate new cutoff frequency and gain.
             const extraOctaves: number = 3.5;
             const targetRadians: number = legacyRadians * Math.pow(2.0, extraOctaves);

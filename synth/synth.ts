@@ -10,9 +10,9 @@
 
 // Copyright (c) 2012-2022 John Nesky and contributing authors, distributed under the MIT license, see accompanying the LICENSE.md file.
 
-import { Dictionary, DictionaryArray, FilterType, EnvelopeType, InstrumentType, EffectType, EnvelopeComputeIndex, Transition, Chord, Envelope, Config, getArpeggioPitchIndex, getPulseWidthRatio, effectsIncludePitchShift, effectsIncludeDetune, effectsIncludeVibrato, effectsIncludeNoteFilter, effectsIncludeDistortion, effectsIncludeBitcrusher, effectsIncludePanning, effectsIncludeChorus, effectsIncludeEcho, effectsIncludeReverb, effectsIncludeNoteRange, effectsIncludeRingModulation, effectsIncludeGranular, effectsIncludePhaser, effectsIncludeInvertWave } from "./SynthConfig";
-import { Deque } from "./Deque";
-import { events } from "../shared/Events";
+import { Dictionary, DictionaryArray, FilterType, EnvelopeType, InstrumentType, EffectType, EnvelopeComputeIndex, Transition, Chord, Envelope, Config, getArpeggioPitchIndex, getPulseWidthRatio, effectsIncludePitchShift, effectsIncludeDetune, effectsIncludeVibrato, effectsIncludeNoteFilter, effectsIncludeDistortion, effectsIncludeBitcrusher, effectsIncludePanning, effectsIncludeChorus, effectsIncludeEcho, effectsIncludeReverb, effectsIncludeNoteRange, effectsIncludeRingModulation, effectsIncludeGranular, effectsIncludePhaser, effectsIncludeInvertWave } from "./synth-config";
+import { Deque } from "./deque";
+import { events } from "../shared/events";
 import { FilterCoefficients, FrequencyResponse, DynamicBiquadFilter } from "./filtering";
 import { clamp, epsilon, fittingPowerOfTwo, detuneToCents, getOperatorWave } from "./util";
 import { NotePin, Note, Pattern } from "./notes";
@@ -1690,7 +1690,7 @@ export class Synth {
             }
 
             // Bound LFO times to be within their period (to keep values from getting large)
-            // I figured this modulo math probably doesn't have to happen every LFO tick.
+            // This modulo math probably doesn't have to happen every LFO tick.
             for (let channelIndex: number = 0; channelIndex < this.song.pitchChannelCount + this.song.noiseChannelCount; channelIndex++) {
                 for (let instrumentIndex = 0; instrumentIndex < this.channels[channelIndex].instruments.length; instrumentIndex++) {
                     const instrumentState: InstrumentState = this.channels[channelIndex].instruments[instrumentIndex];

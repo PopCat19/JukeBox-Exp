@@ -3,6 +3,7 @@
 .dropbox
 .vs
 /.vscode
+/core
 
 # Dependencies
 /node_modules

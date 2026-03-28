@@ -5,7 +5,7 @@
 // This module:
 // - Builds spectrum synthesis source strings with band-limited interpolation
 
-import { Config } from "../SynthConfig";
+import { Config } from "../synth-config";
 
 export function buildSpectrumSource(voiceCount: number): string {
     let spectrumSource: string = "return (synth, bufferIndex, runLength, tone, instrumentState) => {";

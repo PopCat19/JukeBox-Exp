@@ -1,0 +1,31 @@
+# editor/prompts context
+
+- `index.ts` — Barrel re-export of all editor prompt classes
+- `prompt.ts` — Defines the Prompt interface for modal dialog components
+- `add-samples-prompt.ts` — Dialog for importing and loading audio sample files
+- `beats-per-bar-prompt.ts` — Dialog for changing the number of beats per bar
+- `channel-settings-prompt.ts` — Dialog for configuring channel-specific settings
+- `custom-chip-prompt.ts` — Dialog for editing custom chip wave sample data
+- `custom-filter-prompt.ts` — Dialog for configuring custom EQ and note filter curves
+- `custom-scale-prompt.ts` — Dialog for defining custom musical scale intervals
+- `custom-theme-prompt.ts` — Dialog for editing and applying custom color themes
+- `euclidgen-rhythm-prompt.ts` — Dialog for generating Euclidean rhythm patterns
+- `export-prompt.ts` — Dialog for exporting songs as audio, MIDI, or URL formats
+- `import-prompt.ts` — Dialog for importing songs from URLs, files, or clipboard data
+- `instrument-export-prompt.ts` — Dialog for exporting instrument settings as shareable JSON
+- `instrument-import-prompt.ts` — Dialog for importing instrument settings from JSON or URL data
+- `keyboard-shortcuts-prompt.ts` — Modal popup listing all keyboard shortcuts with search
+- `layout-prompt.ts` — Dialog for selecting editor layout mode
+- `limiter-prompt.ts` — Dialog for configuring song limiter and compressor settings
+- `move-notes-sideways-prompt.ts` — Dialog for shifting selected notes horizontally in time
+- `octave-count-prompt.ts` — Dialog for changing the song octave count
+- `preset-selector-prompt.ts` — Dual-pane modal for browsing and selecting instrument presets
+- `recording-setup-prompt.ts` — Dialog for configuring live recording input settings
+- `sample-loading-status-prompt.ts` — Dialog showing progress of audio sample loading
+- `shortener-config-prompt.ts` — Dialog for configuring URL shortener settings
+- `song-duration-prompt.ts` — Dialog for adjusting song length and loop end bar
+- `song-recovery-prompt.ts` — Dialog for browsing and restoring song recovery snapshots
+- `sustain-prompt.ts` — Dialog for configuring string sustain type and level
+- `theme-prompt.ts` — Dialog for selecting editor color theme
+- `tip-prompt.ts` — Dialog displaying usage tips and keyboard shortcuts
+- `visual-loop-controls-prompt.ts` — Dialog for configuring visual loop display and chip wave loop settings

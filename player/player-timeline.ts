@@ -7,8 +7,8 @@
 // - Renders the full timeline with bars, pitch lines, and note elements
 // - Renders and animates the playhead position with note flash effects
 
-import { Config } from "../synth/SynthConfig";
-import { ColorConfig } from "../editor/rendering/ColorConfig";
+import { Config } from "../synth/synth-config";
+import { ColorConfig } from "../editor/rendering/color-config";
 import { NotePin, Note, Pattern } from "../synth";
 import { PlayerUI, getLocalStorage } from "./player-ui";
 import { SVG } from "imperative-html/dist/esm/elements-strict";

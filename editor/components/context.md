@@ -1,0 +1,18 @@
+# editor/components context
+
+- `index.ts` — Barrel re-export of all editor UI components
+- `bar-scroll-bar.ts` — Renders and manages the horizontal bar navigation scrollbar
+- `channel-row.ts` — Renders individual channel rows in the track editor view
+- `envelope-editor.ts` — Renders envelope editor UI for instrument automation envelopes
+- `fade-in-out-editor.ts` — Renders editor UI for configuring instrument fade-in and fade-out envelopes
+- `filter-editor.ts` — Renders interactive EQ and note filter control point editor
+- `harmonics-editor.ts` — Renders interactive harmonics control point editor for waveform design
+- `instrument-bar.ts` — Renders the instrument selection bar for the current channel
+- `loop-editor.ts` — Renders loop region start/end controls in the song editor
+- `mute-editor.ts` — Renders channel mute/solo controls in the track editor
+- `octave-scroll-bar.ts` — Renders vertical octave navigation scrollbar for the pattern editor
+- `pattern-editor.ts` — Renders the main note editing canvas and handles note interaction
+- `piano.ts` — Renders the piano keyboard display and handles live note preview playback
+- `shiggy-component.ts` — Re-export of the Shiggy easter egg component
+- `spectrum-editor.ts` — Renders interactive spectrum control point editor for noise channel waveforms
+- `track-editor.ts` — Renders the bar/track timeline view showing channel patterns across bars

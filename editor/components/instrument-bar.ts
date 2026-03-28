@@ -6,10 +6,10 @@
 // - Manages instrument button visibility and selection highlighting
 // - Handles layered/pattern instrument deactivation display
 
-import { Config } from "../../synth/SynthConfig";
+import { Config } from "../../synth/synth-config";
 import { Channel } from "../../synth";
-import { ChannelColors } from "../rendering/ColorConfig";
-import { SongDocument } from "../SongDocument";
+import { ChannelColors } from "../rendering/color-config";
+import { SongDocument } from "../song-document";
 import { HTML } from "imperative-html/dist/esm/elements-strict";
 
 const { button } = HTML;

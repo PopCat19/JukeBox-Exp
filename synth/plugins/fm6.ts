@@ -2,7 +2,7 @@
 //
 // Purpose: 6-operator FM synthesis plugin
 
-import { Config, InstrumentType } from "../SynthConfig";
+import { Config, InstrumentType } from "../synth-config";
 import type { Instrument } from "../instruments";
 import type { Synth } from "../synth";
 import { buildFm6Source } from "../synthesis/fm6";

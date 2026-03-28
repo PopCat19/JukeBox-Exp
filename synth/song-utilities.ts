@@ -7,7 +7,7 @@
 // - Handles custom sample configuration and loading
 // - Has no imports from song.ts or song-serialization.ts (leaf module)
 
-import { Config, toNameMap, Dictionary, sampleLoadingState, SampleLoadingState, sampleLoadEvents, SampleLoadedEvent, SampleLoadingStatus, startLoadingSample } from "./SynthConfig";
+import { Config, toNameMap, Dictionary, sampleLoadingState, SampleLoadingState, sampleLoadEvents, SampleLoadedEvent, SampleLoadingStatus, startLoadingSample } from "./synth-config";
 import { clamp, parseFloatWithDefault, parseIntWithDefault } from "./util";
 
 // Custom sample handler interface — decouples Song from editor state.
@@ -32,8 +32,8 @@ export interface PresetLike {
     settings: Dictionary<any>;
 }
 
-export function envelopeFromLegacyIndex(legacyIndex: number): import("./SynthConfig").Envelope {
-    // I swapped the order of "custom"/"steady", now "none"/"note size".
+export function envelopeFromLegacyIndex(legacyIndex: number): import("./synth-config").Envelope {
+    // The order of "custom"/"steady" was swapped, now "none"/"note size".
     if (legacyIndex == 0) legacyIndex = 1; else if (legacyIndex == 1) legacyIndex = 0;
     return Config.envelopes[clamp(0, Config.envelopes.length, legacyIndex)];
 }

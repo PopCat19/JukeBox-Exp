@@ -5,7 +5,7 @@
 // This module:
 // - Builds FM6 synthesis source strings using custom algorithm/feedback config
 
-import { Config } from "../SynthConfig";
+import { Config } from "../synth-config";
 import { Instrument } from "../instruments";
 import { fmSourceTemplate, operatorSourceTemplate } from "./fm";
 

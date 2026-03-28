@@ -7,12 +7,12 @@
 // - Handles instrument preset, wave, effects, and modulator selections
 // - Delegates complex operations back to the host editor
 
-import { Config } from "../../synth/SynthConfig";
+import { Config } from "../../synth/synth-config";
 import { Instrument, Channel } from "../../synth";
-import { SongDocument } from "../SongDocument";
-import { Piano } from "../components/Piano";
+import { SongDocument } from "../song-document";
+import { Piano } from "../components/piano";
 import { CustomAlgorythmCanvas } from "../rendering/custom-algorythm-canvas";
-import { ColorConfig, ChannelColors } from "../rendering/ColorConfig";
+import { ColorConfig, ChannelColors } from "../rendering/color-config";
 import { pickRandomPresetValue, pickNextPresetValue } from "../changes";
 import { ChangeTempo, ChangeKeyOctave, ChangeScale, ChangeDetectKey, ChangeKey, ChangeRhythm, ChangePreset, ChangeRandomGeneratedInstrument, ChangeFeedbackType, ChangeAlgorithm, Change6OpFeedbackType, Change6OpAlgorithm, ChangeAddChannelInstrument, ChangeRemoveChannelInstrument, ChangeChipWave, ChangeRingModChipWave, ChangeChipWaveUseAdvancedLoopControls, ChangeChipWaveLoopMode, ChangeChipWaveLoopStart, ChangeChipWaveLoopEnd, ChangeChipWaveStartOffset, ChangeChipWavePlayBackwards, ChangeNoiseWave, ChangeTransition, ChangeToggleEffects, ChangeVibrato, ChangeVibratoType, ChangeUnison, ChangeChord, ChangeMonophonicTone, ChangeAddEnvelope, ChangeEQFilterType, ChangeNoteFilterType, ChangePasteInstrument } from "../changes";
 

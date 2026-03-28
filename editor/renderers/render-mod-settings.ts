@@ -8,11 +8,11 @@
 // - Handles invalid setting highlighting and show/hide logic based on mod scope
 // - Hides chord options, custom settings group, and related rows
 
-import { SongDocument } from "../SongDocument";
-import { Config, InstrumentType, effectsIncludeChord, effectsIncludePitchShift, effectsIncludeDetune, effectsIncludeVibrato, effectsIncludeNoteFilter, effectsIncludeDistortion, effectsIncludeBitcrusher, effectsIncludePanning, effectsIncludeChorus, effectsIncludeEcho, effectsIncludeReverb, effectsIncludeRingModulation, effectsIncludeGranular, effectsIncludePhaser, effectsIncludeInvertWave } from "../../synth/SynthConfig";
+import { SongDocument } from "../song-document";
+import { Config, InstrumentType, effectsIncludeChord, effectsIncludePitchShift, effectsIncludeDetune, effectsIncludeVibrato, effectsIncludeNoteFilter, effectsIncludeDistortion, effectsIncludeBitcrusher, effectsIncludePanning, effectsIncludeChorus, effectsIncludeEcho, effectsIncludeReverb, effectsIncludeRingModulation, effectsIncludeGranular, effectsIncludePhaser, effectsIncludeInvertWave } from "../../synth/synth-config";
 import { Instrument, Channel } from "../../synth";
-import { ColorConfig, ChannelColors } from "../rendering/ColorConfig";
-import { Preferences } from "../core/Preferences";
+import { ColorConfig, ChannelColors } from "../rendering/color-config";
+import { Preferences } from "../core/preferences";
 
 import { HTML } from "imperative-html/dist/esm/elements-strict";
 const { option } = HTML;

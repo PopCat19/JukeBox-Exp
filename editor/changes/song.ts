@@ -9,12 +9,12 @@
 
 // Copyright (c) 2012-2022 John Nesky and contributing authors, distributed under the MIT license, see accompanying the LICENSE.md file.
 
-import { Config, EffectType, InstrumentType } from "../../synth/SynthConfig";
+import { Config, EffectType, InstrumentType } from "../../synth/synth-config";
 import { NotePin, Note, Pattern, Channel, Song, Instrument } from "../../synth";
-import { Preset, PresetCategory, EditorConfig, fullTagList } from "../config/EditorConfig";
-import { Change, ChangeGroup, ChangeSequence } from "../core/Change";
-import { SongDocument } from "../SongDocument";
-import { ColorConfig } from "../rendering/ColorConfig";
+import { Preset, PresetCategory, EditorConfig, fullTagList } from "../config/editor-config";
+import { Change, ChangeGroup, ChangeSequence } from "../core/change";
+import { SongDocument } from "../song-document";
+import { ColorConfig } from "../rendering/color-config";
 import { discardInvalidPatternInstruments } from "./util";
 import { ChangeNoteAdded, ChangeNoteTruncate, ChangeRhythmNote, ChangeMoveAndOverflowNotes, ChangePatternSelection, ChangeValidateTrackSelection } from "./notes";
 import { ChangeToggleEffects } from "./instruments";

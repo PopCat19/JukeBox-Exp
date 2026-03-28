@@ -7,7 +7,7 @@
 // - Exported directly for use in synth.ts channel-level loop
 // - Different calling convention than per-instrument plugins
 
-import { Config } from "../SynthConfig";
+import { Config } from "../synth-config";
 import type { Synth } from "../synth";
 import { buildEffectsSource } from "../synthesis/effects";
 

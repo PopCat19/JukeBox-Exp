@@ -9,11 +9,11 @@
 
 // Copyright (c) 2012-2022 John Nesky and contributing authors, distributed under the MIT license, see accompanying the LICENSE.md file.
 
-import { Algorithm, FilterType, SustainType, InstrumentType, EffectType, Config, effectsIncludeDistortion, LFOEnvelopeTypes, RandomEnvelopeTypes } from "../../synth/SynthConfig";
+import { Algorithm, FilterType, SustainType, InstrumentType, EffectType, Config, effectsIncludeDistortion, LFOEnvelopeTypes, RandomEnvelopeTypes } from "../../synth/synth-config";
 import { FilterSettings, FilterControlPoint, SpectrumWave, HarmonicsWave, Instrument } from "../../synth";
-import { Preset, EditorConfig } from "../config/EditorConfig";
-import { Change, UndoableChange } from "../core/Change";
-import { SongDocument } from "../SongDocument";
+import { Preset, EditorConfig } from "../config/editor-config";
+import { Change, UndoableChange } from "../core/change";
+import { SongDocument } from "../song-document";
 import { randomSineWave, randomPulses, randomChipWave, biasedFullyRandom, fullyRandom } from "./util";
 
 export class ChangeCustomizeInstrument extends Change {
@@ -215,7 +215,7 @@ export class ChangeRandomGeneratedInstrument extends Change {
                 point.type = potentialPoint.type;
                 point.freq = selectCurvedDistribution(potentialPoint.minFreq, potentialPoint.maxFreq, FilterControlPoint.getRoundedSettingValueFromHz(potentialPoint.centerHz), 1.0 / Config.filterFreqStep);
                 point.gain = selectCurvedDistribution(0, Config.filterGainRange - 1, Config.filterGainCenter + potentialPoint.centerGain, 2.0 / Config.filterGainStep);
-                if (point.type == FilterType.peak && point.gain == Config.filterGainCenter) continue; // skip pointless points. :P
+                if (point.type == FilterType.peak && point.gain == Config.filterGainCenter) continue; // skip pointless points.
                 if (usedFreqs.includes(point.freq)) continue;
                 usedFreqs.push(point.freq);
                 filter.controlPoints[filter.controlPointCount] = point;

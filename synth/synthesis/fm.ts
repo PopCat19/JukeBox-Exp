@@ -6,14 +6,14 @@
 // - Provides FM and operator source code templates
 // - Builds FM synthesis source strings for new Function() compilation
 
-import { Config } from "../SynthConfig";
+import { Config } from "../synth-config";
 import { Instrument } from "../instruments";
 
 export const fmSourceTemplate: string[] = (`
 		const data = synth.tempMonoInstrumentSampleBuffer;
 		const sineWave = Config.sineWave;
 			
-		// I'm adding 1000 to the phase to ensure that it's never negative even when modulated by other waves because negative numbers don't work with the modulus operator very well.
+		// 1000 is added to the phase to ensure that it's never negative even when modulated by other waves because negative numbers don't work with the modulus operator very well.
 		let operator#Phase       = +((tone.phases[#] - (tone.phases[#] | 0)) + 1000) * ` + Config.sineWaveLength + `;
 		let operator#PhaseDelta  = +tone.phaseDeltas[#] * ` + Config.sineWaveLength + `;
 		let operator#PhaseDeltaScale = +tone.phaseDeltaScales[#];

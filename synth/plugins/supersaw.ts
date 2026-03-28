@@ -2,7 +2,7 @@
 //
 // Purpose: Supersaw synthesis plugin
 
-import { Config, InstrumentType } from "../SynthConfig";
+import { Config, InstrumentType } from "../synth-config";
 import type { Instrument } from "../instruments";
 import type { Synth } from "../synth";
 import { buildSupersawSource } from "../synthesis/supersaw";

@@ -9,8 +9,8 @@
 
 // Copyright (c) 2012-2022 John Nesky and contributing authors, distributed under the MIT license, see accompanying the LICENSE.md file.
 
-import { getLocalStorageItem } from "../../synth/SynthConfig";
-import { ColorConfig } from "./ColorConfig";
+import { getLocalStorageItem } from "../../synth/synth-config";
+import { ColorConfig } from "./color-config";
 import { HTML } from "imperative-html/dist/esm/elements-strict";
 
 
@@ -1000,7 +1000,7 @@ html {
        width: 100%;
 }
 
-/* This makes it look better in firefox on my computer... What about others?
+/* This may render better in Firefox. Untested on other platforms.
 @-moz-document url-prefix() {
 	.beepboxEditor select { padding: 0 2px; }
 }

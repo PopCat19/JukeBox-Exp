@@ -7,7 +7,7 @@
 // - Provides getPlugin() for synth.ts dispatch lookup
 // - Plugins call registerPlugin() at module load time
 
-import type { InstrumentType } from "../SynthConfig";
+import type { InstrumentType } from "../synth-config";
 import type { SynthPlugin } from "./interfaces";
 
 const plugins = new Map<InstrumentType, SynthPlugin>();

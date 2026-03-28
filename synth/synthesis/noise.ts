@@ -5,7 +5,7 @@
 // This module:
 // - Builds noise synthesis source strings with pitch-relative filtering
 
-import { Config } from "../SynthConfig";
+import { Config } from "../synth-config";
 
 export function buildNoiseSource(voiceCount: number): string {
     let noiseSource: string = "return (synth, bufferIndex, runLength, tone, instrumentState) => {";

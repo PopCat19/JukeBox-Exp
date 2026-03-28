@@ -6,7 +6,7 @@
 // - Creates a CustomSampleHandler using EditorConfig
 // - Provides createCustomSampleHandler to pass to Song constructor
 
-import { EditorConfig } from "./config/EditorConfig";
+import { EditorConfig } from "./config/editor-config";
 import type { CustomSampleHandler } from "../synth";
 
 export function createCustomSampleHandler(): CustomSampleHandler {

@@ -12,7 +12,6 @@ export function spawnShiggy(onPop: () => void): SummonedShiggy {
     const img = document.createElement("img");
     img.src = `assets/images/shiggy.gif?v=${Date.now()}`;
     const floatDuration = 3 + Math.random() * 4;
-    const wobbleDuration = 4 + Math.random() * 3;
     img.style.cssText = `width: ${SHIGGY_SIZE}px; height: auto; pointer-events: none; opacity: 0; position: fixed; z-index: 9999; image-rendering: auto;`;
 
     const maxX = window.innerWidth - SHIGGY_SIZE;
