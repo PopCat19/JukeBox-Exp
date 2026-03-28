@@ -109,7 +109,7 @@ export class ChannelGainPrompt implements Prompt {
   }, "Bar: 1");
 
   public container: HTMLDivElement = div(
-    { class: "prompt noSelection", style: "width: 600px; height: auto; max-height: 80vh; display: flex; flex-direction: column;", tabindex: "0" },
+    { class: "prompt noSelection", style: "width: 600px; height: auto; max-height: 80vh; display: flex; flex-direction: column; outline: none;", tabindex: "0" },
     div(
       { style: "display: flex; flex: 1; min-height: 0; gap: 12px;" },
       // Left pane: Master controls
@@ -356,10 +356,12 @@ export class ChannelGainPrompt implements Prompt {
 
       const isMuted = channel.muted;
       const isModChannel = i >= song.pitchChannelCount + song.noiseChannelCount;
-      const isDrumChannel = i >= song.pitchChannelCount && !isModChannel;
+      if (isModChannel) continue; // Skip mod channels
+
+      const isDrumChannel = i >= song.pitchChannelCount;
 
       const channelName = channel.name || `${i + 1}`;
-      const channelType = isModChannel ? "Mod" : (isDrumChannel ? "Drum" : "Pitch");
+      const channelType = isDrumChannel ? "Drum" : "Pitch";
       const channelColors = ColorConfig.getChannelColor(song, i);
 
       // Check if channel has pattern or sound
