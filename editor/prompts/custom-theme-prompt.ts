@@ -197,7 +197,6 @@ export class CustomThemePrompt implements Prompt {
 
   private _close = (): void => {
     this._doc.prompt = null;
-    this._doc.undo();
     if (doReload) {
       // The prompt seems to get stuck if reloading is done too quickly.
       setTimeout(() => {

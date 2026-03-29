@@ -697,7 +697,6 @@ export class VisualLoopControlsPrompt {
 
   private _close = (): void => {
     this._doc.prompt = null;
-    this._doc.undo();
   };
 
   private _saveChanges = (): void => {
@@ -717,7 +716,6 @@ export class VisualLoopControlsPrompt {
       this._doc.record(group, true);
     } else {
       this._doc.prompt = null;
-      this._doc.undo();
     }
   };
 

@@ -45,7 +45,7 @@ export class ShortenerConfigPrompt implements Prompt {
   }
 
   private _close = (): void => {
-    this._doc.undo();
+    this._doc.prompt = null;
   };
 
   public cleanUp = (): void => {
@@ -63,6 +63,5 @@ export class ShortenerConfigPrompt implements Prompt {
   private _saveChanges = (): void => {
     window.localStorage.setItem("shortenerStrategySelect", this._shortenerStrategySelect.value);
     this._doc.prompt = null;
-    this._doc.undo();
   };
 }

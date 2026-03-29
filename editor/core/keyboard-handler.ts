@@ -65,6 +65,7 @@ export interface KeyboardHandlerHost {
   refocusStage(): void;
   toggleRecord(): void;
   openPrompt(name: string): void;
+  closePrompt(prompt: any): void;
   openPresetSelector(): void;
   openShortcuts(): void;
   copyInstrument(): void;
@@ -98,10 +99,12 @@ export class KeyboardHandler {
         host.prompt.whenKeyPressed(event);
       }
       if (event.keyCode == 27) { // ESC key
-        doc.prompt = null;
-        doc.notifier.changed();
+        host.closePrompt(null);
+        return;
       }
-      return;
+      if (event.target instanceof HTMLInputElement || event.target instanceof HTMLTextAreaElement || event.target instanceof HTMLSelectElement) {
+        return;
+      }
     }
 
     // Defer to actively editing song title, channel name, or mod label

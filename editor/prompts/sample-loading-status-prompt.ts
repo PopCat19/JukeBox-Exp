@@ -54,7 +54,6 @@ export class SampleLoadingStatusPrompt {
 
   private _close = (): void => {
     this._doc.prompt = null;
-    this._doc.undo();
   };
 
   public cleanUp = (): void => {

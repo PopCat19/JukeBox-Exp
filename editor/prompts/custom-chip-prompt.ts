@@ -405,7 +405,6 @@ export class CustomChipPrompt implements Prompt {
 
   private _close = (): void => {
     this._doc.prompt = null;
-    this._doc.undo();
   };
 
   public cleanUp = (): void => {

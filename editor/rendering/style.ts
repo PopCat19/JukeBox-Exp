@@ -736,10 +736,9 @@ html {
 	left: 0;
 	width: 100%;
 	height: 100%;
-	display: flex;
-	justify-content: center;
-	align-items: center;
+	display: block;
 	z-index: 100;
+  pointer-events: none;
 }
 
 .beepboxEditor .prompt {
@@ -752,8 +751,9 @@ html {
 	padding: 20px;
 	display: flex;
 	flex-direction: column;
-	position: relative;
+	position: absolute;
 	box-shadow: 5px 5px 20px 10px rgba(0,0,0,0.5);
+  pointer-events: auto;
 }
 
 .beepboxEditor .prompt > *:not(:first-child):not(.cancelButton) {

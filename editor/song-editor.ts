@@ -258,7 +258,9 @@ import { CustomAlgorythmCanvas } from "./rendering/custom-algorythm-canvas";
 import { CustomChipCanvas } from "./rendering/custom-chip-canvas";
 
 export class SongEditor implements ModSliderProvider {
-  public prompt: Prompt | null = null;
+  public get prompt(): Prompt | null {
+    return this._focusedPrompt || this._prompts[this._prompts.length - 1] || null;
+  }
 
   public doc: SongDocument = new SongDocument();
 
@@ -437,6 +439,7 @@ export class SongEditor implements ModSliderProvider {
       option({ value: "showFifth" }, "Highlight \"Fifth\" Note"),
       option({ value: "notesFlashWhenPlayed" }, "Notes Flash When Played (DogeBox2)"),
       option({ value: "instrumentButtonsAtTop" }, "Instrument Buttons at Top"),
+      option({ value: "showPromptBackdrop", id: "showPromptBackdrop" }, "Show Prompt Backdrop"),
       option({ value: "frostedGlassBackground" }, "Frosted Glass Prompt Backdrop"),
       option({ value: "showChannels" }, "Show All Channels"),
       option({ value: "showScrollBar" }, "Show Octave Scroll Bar"),
@@ -2335,8 +2338,18 @@ export class SongEditor implements ModSliderProvider {
   );
 
   private _wasPlaying: boolean = false;
-  private _currentPromptName: string | null = null;
+  private _prompts: Prompt[] = [];
+  private _focusedPrompt: Prompt | null = null;
   private _highlightedInstrumentIndex: number = -1;
+  private _lastPrompt: string | null = null;
+
+  private _onDocPromptChange = (): void => {
+    if (this.doc.prompt != this._lastPrompt) {
+      this._lastPrompt = this.doc.prompt;
+      this._setPrompt(this._lastPrompt);
+    }
+  };
+
   private _renderedInstrumentCount: number = 0;
   private _renderedIsPlaying: boolean = false;
   private _renderedIsRecording: boolean = false;
@@ -2856,6 +2869,7 @@ export class SongEditor implements ModSliderProvider {
     });
 
     this.doc.notifier.watch(this.whenUpdated);
+    this.doc.notifier.watch(this._onDocPromptChange);
     this.doc.modRecordingHandler = () => {
       this.handleModRecording();
     };
@@ -3900,166 +3914,300 @@ export class SongEditor implements ModSliderProvider {
     this._setPrompt("keyboardShortcuts");
   }
 
-  private _setPrompt(promptName: string | null): void {
-    if (this._currentPromptName == promptName) return;
-    this._currentPromptName = promptName;
+  private _promptPositions: Map<string, { x: number; y: number }> = new Map();
 
-    if (this.prompt) {
-      if (
-        this._wasPlaying
-        && !(this.prompt instanceof TipPrompt || this.prompt instanceof LimiterPrompt
-          || this.prompt instanceof CustomScalePrompt || this.prompt instanceof CustomChipPrompt
-          || this.prompt instanceof CustomFilterPrompt || this.prompt instanceof VisualLoopControlsPrompt
-          || this.prompt instanceof SustainPrompt || this.prompt instanceof HarmonicsEditorPrompt
-          || this.prompt instanceof SpectrumEditorPrompt || this.prompt instanceof PresetSelectorPrompt
-          || this.prompt instanceof ChannelGainPrompt)
-      ) {
+  public closePrompt(prompt: Prompt | null): void {
+    if (prompt == null) {
+      prompt = this._focusedPrompt || this._prompts[this._prompts.length - 1];
+    }
+    if (prompt) {
+      const index = this._prompts.indexOf(prompt);
+      if (index !== -1) {
+        this._prompts.splice(index, 1);
+        this._promptContainer.removeChild(prompt.container);
+        prompt.cleanUp();
+        if (this._focusedPrompt === prompt) {
+          this._focusedPrompt = this._prompts[this._prompts.length - 1] || null;
+          this._updatePromptFocus();
+        }
+        
+        // Sync doc.prompt to the new focus, but don't trigger _onDocPromptChange for this close
+        const nextPromptName = this._focusedPrompt ? this._focusedPrompt.name! : null;
+        this.doc.prompt = nextPromptName;
+        this._lastPrompt = nextPromptName;
+        this.doc.notifier.changed();
+      }
+    }
+    if (this._prompts.length == 0) {
+      this._promptContainerBG.style.display = "none";
+      this._promptContainer.style.display = "none";
+      if (this._wasPlaying) {
         this.doc.performance.play();
       }
       this._wasPlaying = false;
-      this._promptContainerBG.style.display = "none";
-      this._promptContainer.style.display = "none";
-      this._promptContainer.removeChild(this.prompt.container);
-      this.prompt.cleanUp();
-      this.prompt = null;
       this.refocusStage();
     }
+  }
 
-    if (promptName) {
-      switch (promptName) {
-        case "export":
-          this.prompt = new ExportPrompt(this.doc);
-          break;
-        case "import":
-          this.prompt = new ImportPrompt(this.doc);
-          break;
-        case "songRecovery":
-          this.prompt = new SongRecoveryPrompt(this.doc);
-          break;
-        case "barCount":
-          this.prompt = new SongDurationPrompt(this.doc);
-          break;
-        case "beatsPerBar":
-          this.prompt = new BeatsPerBarPrompt(this.doc);
-          break;
-        case "octaves":
-          this.prompt = new OctaveCountPrompt(this.doc);
-          break;
-        case "moveNotesSideways":
-          this.prompt = new MoveNotesSidewaysPrompt(this.doc);
-          break;
-        case "channelSettings":
-          this.prompt = new ChannelSettingsPrompt(this.doc);
-          break;
-        case "channelGains":
-          this.prompt = new ChannelGainPrompt(this.doc);
-          break;
-        case "limiterSettings":
-          this.prompt = new LimiterPrompt(this.doc, this);
-          break;
-        case "customScale":
-          this.prompt = new CustomScalePrompt(this.doc);
-          break;
-        case "customChipSettings":
-          this.prompt = new CustomChipPrompt(this.doc, this);
-          break;
-        case "customEQFilterSettings":
-          this.prompt = new CustomFilterPrompt(this.doc, this, false);
-          break;
-        case "customNoteFilterSettings":
-          this.prompt = new CustomFilterPrompt(this.doc, this, true);
-          break;
-        case "customSongEQFilterSettings":
-          this.prompt = new CustomFilterPrompt(this.doc, this, false, true);
-          break;
-        case "theme":
-          this.prompt = new ThemePrompt(this.doc);
-          break;
-        case "layout":
-          this.prompt = new LayoutPrompt(this.doc);
-          break;
-        case "recordingSetup":
-          this.prompt = new RecordingSetupPrompt(this.doc);
-          break;
-        case "exportInstrument":
-          this.prompt = new InstrumentExportPrompt(this.doc); // , this);
-          break;
-        case "importInstrument":
-          this.prompt = new InstrumentImportPrompt(this.doc); // , this);
-          break;
-        case "stringSustain":
-          this.prompt = new SustainPrompt(this.doc);
-          break;
-        case "addExternal":
-          this.prompt = new AddSamplesPrompt(this.doc);
-          break;
-        case "generateEuclideanRhythm":
-          this.prompt = new EuclideanRhythmPrompt(this.doc);
-          break;
-        case "customTheme":
-          this.prompt = new CustomThemePrompt(
-            this.doc,
-            this._patternEditor,
-            this._trackArea,
-            document.getElementById("beepboxEditorContainer")!,
-          );
-          break;
-        case "visualLoopControls":
-          this.prompt = new VisualLoopControlsPrompt(this.doc, this);
-          break;
-        case "sampleLoadingStatus":
-          this.prompt = new SampleLoadingStatusPrompt(this.doc);
-          break;
-        case "configureShortener":
-          this.prompt = new ShortenerConfigPrompt(this.doc);
-          break;
-        case "harmonicsSettings":
-          this.prompt = new HarmonicsEditorPrompt(this.doc, this);
-          break;
-        case "spectrumSettings":
-          this.prompt = new SpectrumEditorPrompt(this.doc, this, false);
-          break;
-        case "drumsetSettings":
-          this.prompt = new SpectrumEditorPrompt(this.doc, this, true);
-          break;
-        case "presetSelector":
-          this.prompt = new PresetSelectorPrompt(this.doc);
-          break;
-        case "keyboardShortcuts":
-          this.prompt = new KeyboardShortcutsPrompt(this.doc);
-          break;
-        default:
-          this.prompt = new TipPrompt(this.doc, promptName);
-          break;
+  private _updatePromptFocus(): void {
+    for (const p of this._prompts) {
+      if (p === this._focusedPrompt) {
+        p.container.style.outline = "2px solid var(--accent-color, #4444ff)";
+        p.container.style.boxShadow = "5px 5px 25px 12px rgba(0,0,0,0.6)";
+        this._promptContainer.appendChild(p.container); // Bring to front
+      } else {
+        p.container.style.outline = "none";
+        p.container.style.boxShadow = "5px 5px 20px 10px rgba(0,0,0,0.5)";
       }
+    }
+  }
 
-      if (this.prompt) {
+  private _setPrompt(promptName: string | null): void {
+    if (promptName == null) {
+      this.closePrompt(null);
+      return;
+    }
+
+    // Only one instance of a specific prompt at a time.
+    const existing = this._prompts.find(p => p.name === promptName);
+    if (existing) {
+      this._focusedPrompt = existing;
+      this._updatePromptFocus();
+      return;
+    }
+
+    let newPrompt: Prompt | null = null;
+    switch (promptName) {
+      case "export":
+        newPrompt = new ExportPrompt(this.doc);
+        break;
+      case "import":
+        newPrompt = new ImportPrompt(this.doc);
+        break;
+      case "songRecovery":
+        newPrompt = new SongRecoveryPrompt(this.doc);
+        break;
+      case "barCount":
+        newPrompt = new SongDurationPrompt(this.doc);
+        break;
+      case "beatsPerBar":
+        newPrompt = new BeatsPerBarPrompt(this.doc);
+        break;
+      case "octaves":
+        newPrompt = new OctaveCountPrompt(this.doc);
+        break;
+      case "moveNotesSideways":
+        newPrompt = new MoveNotesSidewaysPrompt(this.doc);
+        break;
+      case "channelSettings":
+        newPrompt = new ChannelSettingsPrompt(this.doc);
+        break;
+      case "channelGains":
+        newPrompt = new ChannelGainPrompt(this.doc);
+        break;
+      case "limiterSettings":
+        newPrompt = new LimiterPrompt(this.doc, this);
+        break;
+      case "customScale":
+        newPrompt = new CustomScalePrompt(this.doc);
+        break;
+      case "customChipSettings":
+        newPrompt = new CustomChipPrompt(this.doc, this);
+        break;
+      case "customEQFilterSettings":
+        newPrompt = new CustomFilterPrompt(this.doc, this, false);
+        break;
+      case "customNoteFilterSettings":
+        newPrompt = new CustomFilterPrompt(this.doc, this, true);
+        break;
+      case "customSongEQFilterSettings":
+        newPrompt = new CustomFilterPrompt(this.doc, this, false, true);
+        break;
+      case "theme":
+        newPrompt = new ThemePrompt(this.doc);
+        break;
+      case "layout":
+        newPrompt = new LayoutPrompt(this.doc);
+        break;
+      case "recordingSetup":
+        newPrompt = new RecordingSetupPrompt(this.doc);
+        break;
+      case "exportInstrument":
+        newPrompt = new InstrumentExportPrompt(this.doc);
+        break;
+      case "importInstrument":
+        newPrompt = new InstrumentImportPrompt(this.doc);
+        break;
+      case "stringSustain":
+        newPrompt = new SustainPrompt(this.doc);
+        break;
+      case "addExternal":
+        newPrompt = new AddSamplesPrompt(this.doc);
+        break;
+      case "generateEuclideanRhythm":
+        newPrompt = new EuclideanRhythmPrompt(this.doc);
+        break;
+      case "customTheme":
+        newPrompt = new CustomThemePrompt(
+          this.doc,
+          this._patternEditor,
+          this._trackArea,
+          document.getElementById("beepboxEditorContainer")!,
+        );
+        break;
+      case "visualLoopControls":
+        newPrompt = new VisualLoopControlsPrompt(this.doc, this);
+        break;
+      case "sampleLoadingStatus":
+        newPrompt = new SampleLoadingStatusPrompt(this.doc);
+        break;
+      case "configureShortener":
+        newPrompt = new ShortenerConfigPrompt(this.doc);
+        break;
+      case "harmonicsSettings":
+        newPrompt = new HarmonicsEditorPrompt(this.doc, this);
+        break;
+      case "spectrumSettings":
+        newPrompt = new SpectrumEditorPrompt(this.doc, this, false);
+        break;
+      case "drumsetSettings":
+        newPrompt = new SpectrumEditorPrompt(this.doc, this, true);
+        break;
+      case "presetSelector":
+        newPrompt = new PresetSelectorPrompt(this.doc);
+        break;
+      case "keyboardShortcuts":
+        newPrompt = new KeyboardShortcutsPrompt(this.doc);
+        break;
+      default:
+        newPrompt = new TipPrompt(this.doc, promptName);
+        break;
+    }
+
+    if (newPrompt) {
+      newPrompt.name = promptName;
+      this._prompts.push(newPrompt);
+      this._focusedPrompt = newPrompt;
+      this._updatePromptFocus();
+
+      if (this._prompts.length == 1) {
         if (
-          !(this.prompt instanceof TipPrompt || this.prompt instanceof LimiterPrompt
-            || this.prompt instanceof CustomChipPrompt || this.prompt instanceof CustomFilterPrompt
-            || this.prompt instanceof VisualLoopControlsPrompt || this.prompt instanceof SustainPrompt
-            || this.prompt instanceof HarmonicsEditorPrompt || this.prompt instanceof SpectrumEditorPrompt
-            || this.prompt instanceof PresetSelectorPrompt || this.prompt instanceof KeyboardShortcutsPrompt
-            || this.prompt instanceof ChannelGainPrompt)
+          !(newPrompt instanceof TipPrompt || newPrompt instanceof LimiterPrompt
+            || newPrompt instanceof CustomChipPrompt || newPrompt instanceof CustomFilterPrompt
+            || newPrompt instanceof VisualLoopControlsPrompt || newPrompt instanceof SustainPrompt
+            || newPrompt instanceof HarmonicsEditorPrompt || newPrompt instanceof SpectrumEditorPrompt
+            || newPrompt instanceof PresetSelectorPrompt || newPrompt instanceof KeyboardShortcutsPrompt
+            || newPrompt instanceof ChannelGainPrompt)
         ) {
           this._wasPlaying = this.doc.synth.playing;
           this.doc.performance.pause();
         }
-        this._promptContainer.style.display = "";
+      }
+
+      this._promptContainer.style.display = "";
+      if (this.doc.prefs.showPromptBackdrop) {
+        this._promptContainerBG.style.display = "";
         if (this.doc.prefs.frostedGlassBackground == true) {
-          this._promptContainerBG.style.display = "";
           this._promptContainerBG.style.backgroundColor = "rgba(0,0,0, 0)";
           this._promptContainerBG.style.backdropFilter = "brightness(0.9) blur(14px)";
           this._promptContainerBG.style.opacity = "1";
         } else {
-          this._promptContainerBG.style.display = "";
           this._promptContainerBG.style.backgroundColor = "var(--editor-background)";
           this._promptContainerBG.style.backdropFilter = "";
           this._promptContainerBG.style.opacity = "0.5";
         }
-        this._promptContainer.appendChild(this.prompt.container);
-        document.body.appendChild(this._promptContainerBG);
+      } else {
+        this._promptContainerBG.style.display = "none";
       }
+
+      this._promptContainer.appendChild(newPrompt.container);
+
+      const savedPos = this._promptPositions.get(promptName);
+      if (savedPos) {
+        newPrompt.container.style.left = savedPos.x + "px";
+        newPrompt.container.style.top = savedPos.y + "px";
+      } else {
+        const centerPrompt = () => {
+          if (!this._prompts.includes(newPrompt!)) return;
+          const rect = newPrompt!.container.getBoundingClientRect();
+          const x = (this.mainLayer.clientWidth - rect.width) / 2;
+          const y = (this.mainLayer.clientHeight - rect.height) / 2;
+          newPrompt!.container.style.left = x + "px";
+          newPrompt!.container.style.top = y + "px";
+          this._promptPositions.set(promptName, { x, y });
+        };
+        if (newPrompt.container.clientWidth > 0) {
+          centerPrompt();
+        } else {
+          requestAnimationFrame(centerPrompt);
+        }
+      }
+
+      // Click or hover to focus (Hyprland style hover focus optional, let's do click-to-focus but with hover outline)
+      newPrompt.container.addEventListener("mousedown", () => {
+        if (this._focusedPrompt !== newPrompt) {
+          this._focusedPrompt = newPrompt;
+          this._updatePromptFocus();
+        }
+      });
+
+      const cancelButton: HTMLElement | null = newPrompt.container.querySelector(".cancelButton");
+      if (cancelButton) {
+        cancelButton.addEventListener("click", () => {
+          this.closePrompt(newPrompt);
+        });
+      }
+
+      newPrompt.container.addEventListener("mouseenter", () => {
+        if (this._focusedPrompt !== newPrompt) {
+          newPrompt.container.style.outline = "2px solid var(--accent-color, #4444ff77)";
+        }
+      });
+      newPrompt.container.addEventListener("mouseleave", () => {
+        if (this._focusedPrompt !== newPrompt) {
+          newPrompt.container.style.outline = "none";
+        }
+      });
+
+      // Dragging logic
+      newPrompt.container.addEventListener("mousedown", (e: Event) => {
+        const mouseEvent = e as MouseEvent;
+        if (mouseEvent.target instanceof HTMLInputElement || mouseEvent.target instanceof HTMLButtonElement || mouseEvent.target instanceof HTMLSelectElement || mouseEvent.target instanceof HTMLTextAreaElement || (mouseEvent.target as HTMLElement).closest(".slider")) return;
+
+        const currentPos = this._promptPositions.get(promptName) || { x: 0, y: 0 };
+        const startX = mouseEvent.clientX - currentPos.x;
+        const startY = mouseEvent.clientY - currentPos.y;
+
+        const onMouseMove = (moveEvent: MouseEvent) => {
+          if (!this._prompts.includes(newPrompt!)) return;
+          const rect = newPrompt!.container.getBoundingClientRect();
+          let x = moveEvent.clientX - startX;
+          let y = moveEvent.clientY - startY;
+
+          x = Math.max(0, Math.min(x, this.mainLayer.clientWidth - rect.width));
+          y = Math.max(0, Math.min(y, this.mainLayer.clientHeight - rect.height));
+
+          newPrompt!.container.style.left = x + "px";
+          newPrompt!.container.style.top = y + "px";
+          this._promptPositions.set(promptName, { x, y });
+        };
+
+        const onMouseUp = () => {
+          document.removeEventListener("mousemove", onMouseMove);
+          document.removeEventListener("mouseup", onMouseUp);
+        };
+
+        document.addEventListener("mousemove", onMouseMove);
+        document.addEventListener("mouseup", onMouseUp);
+      });
+
+      document.body.appendChild(this._promptContainerBG);
+      this._promptContainerBG.addEventListener("mousedown", () => {
+        if (this.doc.prefs.closePromptByClickoff) {
+          this.closePrompt(null);
+          this.doc.prompt = null;
+        }
+      });
     }
   }
 
@@ -4844,8 +4992,10 @@ export class SongEditor implements ModSliderProvider {
       case "instrumentButtonsAtTop":
         this.doc.prefs.instrumentButtonsAtTop = !this.doc.prefs.instrumentButtonsAtTop;
         break;
-      case "frostedGlassBackground":
-        this.doc.prefs.frostedGlassBackground = !this.doc.prefs.frostedGlassBackground;
+      case "showPromptBackdrop":
+        this.doc.prefs.showPromptBackdrop = !this.doc.prefs.showPromptBackdrop;
+        break;
+      case "frostedGlassBackground":        this.doc.prefs.frostedGlassBackground = !this.doc.prefs.frostedGlassBackground;
         break;
       case "rollNoveltyPresets":
         this.doc.prefs.rollNoveltyPresets = !this.doc.prefs.rollNoveltyPresets;

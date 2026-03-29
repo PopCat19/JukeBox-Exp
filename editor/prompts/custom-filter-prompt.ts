@@ -240,7 +240,7 @@ export class CustomFilterPrompt implements Prompt {
     this._doc.prompt = null;
     // Restore filter settings to default
     this.filterEditor.resetToInitial();
-    this._doc.undo();
+    this._doc.prompt = null;
   };
 
   public cleanUp = (): void => {

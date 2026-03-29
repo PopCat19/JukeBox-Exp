@@ -14,7 +14,7 @@ import { EditorConfig, Preset, PresetCategory } from "../config/editor-config";
 import { SongDocument } from "../song-document";
 import { Prompt } from "./prompt";
 
-const { div, input, h2 } = HTML;
+const { div, input, h2, button } = HTML;
 
 interface CategoryEntry {
   name: string;
@@ -29,6 +29,7 @@ export class PresetSelectorPrompt implements Prompt {
   private _presetList: HTMLDivElement;
   private _infoPanel: HTMLDivElement;
   private _searchInput: HTMLInputElement;
+  private readonly _cancelButton: HTMLButtonElement = button({ class: "cancelButton" });
   private _categories: CategoryEntry[] = [];
   private _selectedCategoryIndex: number = 0;
   private _selectedPresetIndex: number = 0;
@@ -128,6 +129,7 @@ export class PresetSelectorPrompt implements Prompt {
       this._searchInput,
       paneContainer,
       instructionsDiv,
+      this._cancelButton,
     );
 
     this._renderCategories();
@@ -157,6 +159,7 @@ export class PresetSelectorPrompt implements Prompt {
     this._searchInput.addEventListener("input", this._onSearchInput);
     this._searchInput.addEventListener("keydown", this._onSearchKeyDown);
     this.container.addEventListener("keydown", this._onContainerKeyDown);
+    this._cancelButton.addEventListener("click", this._close);
 
     this.whenKeyPressed = (_event: KeyboardEvent): void => {
       // ESC is handled by keyboard handler via doc.undo()
@@ -164,6 +167,10 @@ export class PresetSelectorPrompt implements Prompt {
 
     setTimeout(() => this.container.focus());
   }
+
+  private _close = (): void => {
+    this._doc.prompt = null;
+  };
 
   public closeWithoutUndo = (): void => {
     this._doc.prompt = null;
@@ -612,5 +619,6 @@ export class PresetSelectorPrompt implements Prompt {
     this._searchInput.removeEventListener("input", this._onSearchInput);
     this._searchInput.removeEventListener("keydown", this._onSearchKeyDown);
     this.container.removeEventListener("keydown", this._onContainerKeyDown);
+    this._cancelButton.removeEventListener("click", this._close);
   };
 }

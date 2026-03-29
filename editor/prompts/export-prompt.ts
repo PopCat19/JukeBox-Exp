@@ -312,7 +312,7 @@ export class ExportPrompt implements Prompt {
       this.synth.renderingSong = false;
     }
     this.outputStarted = false;
-    this._doc.undo();
+    this._doc.prompt = null;
   };
 
   public changeFileName(newValue: string) {

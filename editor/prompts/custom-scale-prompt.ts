@@ -59,7 +59,7 @@ export class CustomScalePrompt implements Prompt {
   }
 
   private _close = (): void => {
-    this._doc.undo();
+    this._doc.prompt = null;
   };
 
   public cleanUp = (): void => {

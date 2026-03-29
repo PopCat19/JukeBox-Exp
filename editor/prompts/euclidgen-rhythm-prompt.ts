@@ -599,7 +599,7 @@ export class EuclideanRhythmPrompt implements Prompt {
   };
 
   private _close = (): void => {
-    this._doc.undo();
+    this._doc.prompt = null;
   };
 
   private _saveChanges = (): void => {

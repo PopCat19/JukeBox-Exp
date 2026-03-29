@@ -35,7 +35,6 @@ interface HistoryState {
   channel: number;
   instrument: number;
   recoveryUid: string;
-  prompt: string | null;
   selection: { x0: number; x1: number; y0: number; y1: number; start: number; end: number };
 }
 
@@ -60,7 +59,16 @@ export class SongDocument {
   public trackVisibleChannels: number = 4;
   public barScrollPos: number = 0;
   public channelScrollPos: number = 0;
-  public prompt: string | null = null;
+  private _prompt: string | null = null;
+  public get prompt(): string | null {
+    return this._prompt;
+  }
+  public set prompt(value: string | null) {
+    if (this._prompt !== value) {
+      this._prompt = value;
+      this.notifier.changed();
+    }
+  }
 
   public addedEffect: boolean = false;
   public addedEnvelope: boolean = false;
@@ -117,7 +125,6 @@ export class SongDocument {
         channel: 0,
         instrument: 0,
         recoveryUid: generateUid(),
-        prompt: null,
         selection: this.selection.toJSON(),
       };
     }
@@ -132,7 +139,6 @@ export class SongDocument {
     this.viewedInstrument[this.channel] = state.instrument | 0;
     this._recoveryUid = state.recoveryUid;
     // this.barScrollPos = Math.max(0, this.bar - (this.trackVisibleBars - 6));
-    this.prompt = state.prompt;
     this.selection.fromJSON(state.selection);
     this.selection.scrollToSelectedPattern();
 
@@ -268,7 +274,6 @@ export class SongDocument {
         channel: this.channel,
         instrument: this.viewedInstrument[this.channel],
         recoveryUid: this._recoveryUid,
-        prompt: null,
         selection: this.selection.toJSON(),
       };
       try {
@@ -276,7 +281,6 @@ export class SongDocument {
       } catch (error) {
         errorAlert(error);
       }
-      this.prompt = state.prompt;
       if (this.prefs.displayBrowserUrl) {
         this._replaceState(state, this.song.toBase64String());
       } else {
@@ -300,7 +304,6 @@ export class SongDocument {
     this.channel = state.channel;
     this.viewedInstrument[this.channel] = state.instrument;
     this._sequenceNumber = state.sequenceNumber;
-    this.prompt = state.prompt;
     try {
       new ChangeSong(this, this._getHash());
     } catch (error) {
@@ -432,7 +435,6 @@ export class SongDocument {
       channel: this.channel,
       instrument: this.viewedInstrument[this.channel],
       recoveryUid: this._recoveryUid,
-      prompt: this.prompt,
       selection: this.selection.toJSON(),
     };
     if (this._stateShouldBePushed) {
@@ -469,19 +471,6 @@ export class SongDocument {
 
   public openPrompt(prompt: string): void {
     this.prompt = prompt;
-    const hash: string = this.song.toBase64String();
-    this._sequenceNumber++;
-    const state = {
-      canUndo: true,
-      sequenceNumber: this._sequenceNumber,
-      bar: this.bar,
-      channel: this.channel,
-      instrument: this.viewedInstrument[this.channel],
-      recoveryUid: this._recoveryUid,
-      prompt: this.prompt,
-      selection: this.selection.toJSON(),
-    };
-    this._pushState(state, hash);
   }
 
   public undo(): void {

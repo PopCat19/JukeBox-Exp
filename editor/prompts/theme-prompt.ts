@@ -129,7 +129,7 @@ export class ThemePrompt implements Prompt {
     } else {
       ColorConfig.setTheme(ColorConfig.defaultTheme);
     }
-    this._doc.undo();
+    this._doc.prompt = null;
   };
 
   public cleanUp = (): void => {
@@ -148,7 +148,7 @@ export class ThemePrompt implements Prompt {
     window.localStorage.setItem("colorTheme", this._themeSelect.value);
     this._doc.prompt = null;
     this._doc.prefs.colorTheme = this._themeSelect.value;
-    this._doc.undo();
+    this._doc.prompt = null;
   };
 
   private _previewTheme = (): void => {
