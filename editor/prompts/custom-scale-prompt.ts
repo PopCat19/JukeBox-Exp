@@ -25,7 +25,6 @@ export class CustomScalePrompt extends BasePrompt {
 
   constructor(doc: SongDocument) {
     super(doc);
-    this.buildTitlebar();
     this._flags = doc.song.scaleCustom.slice();
     const scaleHolder: HTMLDivElement = div({});
     for (let i = Config.pitchesPerOctave - 1; i > 0; i--) {
@@ -50,6 +49,7 @@ export class CustomScalePrompt extends BasePrompt {
       this._getOkayRow(),
       this._cancelButton,
     );
+    this.buildTitlebar();
   }
 
   protected override _saveChanges(): void {

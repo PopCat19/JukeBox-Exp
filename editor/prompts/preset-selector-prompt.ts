@@ -41,7 +41,6 @@ export class PresetSelectorPrompt extends BasePrompt {
 
   constructor(doc: SongDocument) {
     super(doc);
-    this.buildTitlebar();
     const isNoise: boolean = this._doc.song.getChannelIsNoise(this._doc.channel);
     const currentPreset: number =
       this._doc.song.channels[this._doc.channel].instruments[this._doc.getCurrentInstrument()].preset;
@@ -92,6 +91,7 @@ export class PresetSelectorPrompt extends BasePrompt {
       this._cancelButton,
     );
 
+    this.buildTitlebar();
     this._renderCategories();
 
     let initCatIndex = 0;
