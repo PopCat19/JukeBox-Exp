@@ -18,7 +18,7 @@ import { CustomChipPrompt } from "../prompts/custom-chip-prompt";
 import { CustomFilterPrompt } from "../prompts/custom-filter-prompt";
 import { CustomScalePrompt } from "../prompts/custom-scale-prompt";
 import { CustomThemePrompt } from "../prompts/custom-theme-prompt";
-import { EuclideanRhythmPrompt } from "../prompts/euclidgen-rhythm-prompt";
+import { EuclidgenRhythmPrompt } from "../prompts/euclidgen-rhythm-prompt";
 import { ExportPrompt } from "../prompts/export-prompt";
 import { ImportPrompt } from "../prompts/import-prompt";
 import { InstrumentExportPrompt } from "../prompts/instrument-export-prompt";
@@ -126,7 +126,7 @@ export class PromptManager {
           this.prompt = new ChannelSettingsPrompt(doc);
           break;
         case "channelVolumeVisualizer":
-          this.prompt = new ChannelVolumeVisualizerPrompt(doc);
+          this.prompt = new ChannelVolumeVisualizerPrompt(doc, this._host as any);
           break;
         case "limiterSettings":
           this.prompt = new LimiterPrompt(doc, this._host as any);
@@ -168,7 +168,7 @@ export class PromptManager {
           this.prompt = new AddSamplesPrompt(doc);
           break;
         case "generateEuclideanRhythm":
-          this.prompt = new EuclideanRhythmPrompt(doc);
+          this.prompt = new EuclidgenRhythmPrompt(doc);
           break;
         case "customTheme":
           this.prompt = new CustomThemePrompt(

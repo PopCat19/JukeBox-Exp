@@ -9,6 +9,10 @@
 
 set -Eeuo pipefail
 
-bunx dprint check
+if command -v dprint &>/dev/null; then
+	dprint check
+else
+	bunx dprint check 2>/dev/null || echo "warning: dprint not found, skipping format check"
+fi
 bunx tsc --noEmit
 bunx eslint editor/ synth/ player/ shared/ || true

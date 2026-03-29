@@ -152,10 +152,12 @@ export class Synth {
     }
     // JummBox needs to run synth functions for at least one sample (for JIT purposes)
     // before starting audio callbacks to avoid skipping the initial output.
+    // NOTE: Do NOT toggle isPlayingSong here. It is set to true in play() after this returns.
+    // Setting it to true temporarily creates a race condition: audio callbacks on the audio
+    // thread can read isPlayingSong=true and call synthesize() with playSong=true, which
+    // advances beat/part before playback officially starts.
     const dummyArray = new Float32Array(1);
-    this.isPlayingSong = true;
     this.synthesize(dummyArray, dummyArray, 1, true);
-    this.isPlayingSong = false;
   }
 
   public computeLatestModValues(): void {

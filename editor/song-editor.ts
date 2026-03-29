@@ -3275,6 +3275,7 @@ export class SongEditor implements ModSliderProvider {
     this.mainLayer.addEventListener("keydown", this._keyboardHandler.handleKeyDown);
     this.mainLayer.addEventListener("keyup", this._keyboardHandler.handleKeyUp);
     this.mainLayer.addEventListener("focusin", this._onFocusIn);
+    document.addEventListener("keydown", this._handleGlobalKeyDown);
     this._instrumentCopyButton.addEventListener("click", this._dispatch.copyInstrument);
     this._instrumentPasteButton.addEventListener("click", this._dispatch.pasteInstrument);
     this._instrumentExportButton.addEventListener("click", this._dispatch.exportInstruments);
@@ -4158,7 +4159,19 @@ export class SongEditor implements ModSliderProvider {
         }
       }
 
-      // Click or hover to focus (Hyprland style hover focus optional, let's do click-to-focus but with hover outline)
+      // Hover-to-focus (Hyprland style): focus on hover, refocus song editor on hover-out
+      newPrompt.container.addEventListener("mouseenter", () => {
+        if (this._focusedPrompt !== newPrompt) {
+          this._focusedPrompt = newPrompt;
+          this._updatePromptFocus();
+        }
+      });
+
+      newPrompt.container.addEventListener("mouseleave", () => {
+        // Hover out returns focus to song editor, so keyboard shortcuts still work
+        this.mainLayer.focus({ preventScroll: true });
+      });
+
       newPrompt.container.addEventListener("mousedown", () => {
         if (this._focusedPrompt !== newPrompt) {
           this._focusedPrompt = newPrompt;
@@ -4228,6 +4241,22 @@ export class SongEditor implements ModSliderProvider {
       // since interacting with them while recording would mess up the recording.
       this.refocusStage();
     }
+  };
+
+  // Global keydown handler: routes shortcuts when focus is on prompts (outside mainLayer).
+  // Skips if focus is on an input, textarea, select, or button element.
+  private _handleGlobalKeyDown = (event: KeyboardEvent): void => {
+    // Only handle if mainLayer doesn't have focus and a prompt is open
+    if (this.mainLayer.contains(document.activeElement)) return;
+    if (!this.prompt) return;
+
+    const target = event.target as HTMLElement;
+    if (target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement
+      || target instanceof HTMLSelectElement || target instanceof HTMLButtonElement) {
+      return;
+    }
+
+    this._keyboardHandler.handleKeyDown(event);
   };
 
   // Refocus stage if a sub-element that needs focus isn't being edited.

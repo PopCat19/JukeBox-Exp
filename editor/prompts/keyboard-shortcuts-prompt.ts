@@ -14,8 +14,7 @@ import { BasePrompt } from "./base-prompt";
 const { div, input, span, h2 } = HTML;
 
 interface ShortcutEntry {
-  key: string;
-  mods?: string;
+  keys: Array<{ key: string; mods?: string }>;
   desc: string;
   detail?: string;
 }
@@ -25,53 +24,56 @@ interface ShortcutCategory {
   entries: ShortcutEntry[];
 }
 
+function formatKeys(entries: Array<{ key: string; mods?: string }>): string {
+  return entries.map(e => (e.mods ? e.mods + "+" : "") + e.key).join(" or ");
+}
+
 const shortcutCategories: ShortcutCategory[] = [
   {
     name: "Playback",
     entries: [
-      { key: "Space", desc: "Play/Pause" },
-      { key: "Space", mods: "Ctrl", desc: "Toggle Recording" },
-      { key: "Space", mods: "Shift", desc: "Play From Cursor" },
-      { key: "Enter", desc: "Insert Bars / Reset Loop" },
-      { key: "[", desc: "Previous Bar" },
-      { key: "]", desc: "Next Bar" },
+      { keys: [{ key: "Space" }], desc: "Play/Pause" },
+      { keys: [{ key: "Space", mods: "Ctrl" }], desc: "Toggle Recording" },
+      { keys: [{ key: "Space", mods: "Shift" }], desc: "Play From Cursor" },
+      { keys: [{ key: "Enter" }], desc: "Insert Bars / Reset Loop" },
+      { keys: [{ key: "[" }], desc: "Previous Bar" },
+      { keys: [{ key: "]" }], desc: "Next Bar" },
     ],
   },
   {
     name: "Selection & Navigation",
     entries: [
-      { key: "Arrows", desc: "Navigate patterns/channels" },
-      { key: "A", desc: "Select All" },
-      { key: "A", mods: "Shift", desc: "Select Channel" },
-      { key: "D", desc: "Duplicate Selection" },
-      { key: "W", desc: "Move Notes Sideways" },
-      { key: "H", desc: "Play From Current Bar" },
+      { keys: [{ key: "Arrows" }], desc: "Navigate patterns/channels" },
+      { keys: [{ key: "A" }], desc: "Select All" },
+      { keys: [{ key: "A", mods: "Shift" }], desc: "Select Channel" },
+      { keys: [{ key: "D" }], desc: "Duplicate Selection" },
+      { keys: [{ key: "W" }], desc: "Move Notes Sideways" },
+      { keys: [{ key: "H" }], desc: "Play From Current Bar" },
     ],
   },
   {
     name: "Editing",
     entries: [
-      { key: "Z", desc: "Undo" },
-      { key: "Z", mods: "Shift", desc: "Redo" },
-      { key: "Y", desc: "Redo" },
-      { key: "C", desc: "Copy" },
-      { key: "C", mods: "Shift", desc: "Copy Instrument" },
-      { key: "V", desc: "Paste" },
-      { key: "X", desc: "Cut" },
-      { key: "Backspace", desc: "Delete Bars" },
-      { key: "Delete", desc: "Delete Selection" },
+      { keys: [{ key: "Z" }], desc: "Undo" },
+      { keys: [{ key: "Z", mods: "Shift" }, { key: "Y" }], desc: "Redo" },
+      { keys: [{ key: "C" }], desc: "Copy" },
+      { keys: [{ key: "C", mods: "Shift" }], desc: "Copy Instrument" },
+      { keys: [{ key: "V" }], desc: "Paste" },
+      { keys: [{ key: "X" }], desc: "Cut" },
+      { keys: [{ key: "Backspace" }], desc: "Delete Bars" },
+      { keys: [{ key: "Delete" }], desc: "Delete Selection" },
     ],
   },
   {
     name: "Views & Tools",
     entries: [
-      { key: "G", desc: "Channel Volume Visualizer" },
-      { key: "L", mods: "Shift", desc: "Limiter Settings" },
-      { key: "L", desc: "Song Duration" },
-      { key: "B", mods: "Shift", desc: "Beats Per Bar" },
-      { key: "R", desc: "Random Preset" },
-      { key: "R", mods: "Shift", desc: "Randomly Generate" },
-      { key: "?", desc: "Keyboard Shortcuts" },
+      { keys: [{ key: "G" }], desc: "Channel Volume Visualizer" },
+      { keys: [{ key: "L", mods: "Shift" }], desc: "Limiter Settings" },
+      { keys: [{ key: "L" }], desc: "Song Duration" },
+      { keys: [{ key: "B", mods: "Shift" }], desc: "Beats Per Bar" },
+      { keys: [{ key: "R" }], desc: "Random Preset" },
+      { keys: [{ key: "R", mods: "Shift" }], desc: "Randomly Generate" },
+      { keys: [{ key: "?" }], desc: "Keyboard Shortcuts" },
     ],
   },
 ];
@@ -117,7 +119,7 @@ export class KeyboardShortcutsPrompt extends BasePrompt {
 
     for (const cat of shortcutCategories) {
       const filteredEntries = cat.entries.filter(e =>
-        e.key.toLowerCase().includes(filter) || e.desc.toLowerCase().includes(filter)
+        formatKeys(e.keys).toLowerCase().includes(filter) || e.desc.toLowerCase().includes(filter)
       );
 
       if (filteredEntries.length > 0) {
@@ -125,7 +127,7 @@ export class KeyboardShortcutsPrompt extends BasePrompt {
         for (const entry of filteredEntries) {
           this._shortcutsContainer.appendChild(div(
             { style: "display: flex; justify-content: space-between; margin-bottom: 0.2em; font-size: 0.9em;" },
-            span({ style: "color: var(--secondary-text);" }, (entry.mods ? entry.mods + "+" : "") + entry.key),
+            span({ style: "color: var(--secondary-text);" }, formatKeys(entry.keys)),
             span(entry.desc),
           ));
         }

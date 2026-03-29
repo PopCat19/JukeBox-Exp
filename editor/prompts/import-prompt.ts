@@ -38,7 +38,7 @@ declare const OFFLINE: boolean;
 export class ImportPrompt extends BasePrompt {
   private readonly _fileInput: HTMLInputElement = input({
     type: "file",
-    accept: ".json,.mid,.midi",
+    accept: ".json,application/json,.mid,.midi,audio/midi,audio/x-midi",
   });
   private readonly _modeImportSelect: HTMLSelectElement = select(
     { style: "width: 100%; margin-bottom: 0.5em;" },
@@ -72,7 +72,7 @@ export class ImportPrompt extends BasePrompt {
   constructor(doc: SongDocument) {
     super(doc);
     this._fileInput.select();
-    setTimeout(() => this._fileInput.focus());
+    setTimeout(() => this._fileInput.focus({ preventScroll: true }));
 
     this._fileInput.addEventListener("change", this._whenFileSelected);
   }
