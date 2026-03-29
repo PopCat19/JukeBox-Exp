@@ -58,6 +58,14 @@ const shortcutCategories: ShortcutCategory[] = [
       { key: "Back/Del", desc: "Delete" },
     ],
   },
+  {
+    name: "Views & Tools",
+    entries: [
+      { key: "G", desc: "Channel Volume Visualizer (CVV)" },
+      { key: "?", desc: "View Keyboard Shortcuts" },
+      { key: "\\", desc: "Limiter Prompt" },
+    ],
+  },
 ];
 
 export class KeyboardShortcutsPrompt extends BasePrompt {

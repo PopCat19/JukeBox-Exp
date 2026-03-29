@@ -453,6 +453,11 @@ export class KeyboardHandler {
           event.preventDefault();
         }
         break;
+      case 71: // g
+        if (canPlayNotes) break;
+        host.openPrompt("channelGains");
+        event.preventDefault();
+        break;
       case 72: // h
         if (canPlayNotes) break;
 
