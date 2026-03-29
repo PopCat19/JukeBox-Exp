@@ -42,8 +42,15 @@ export class ImportPrompt extends BasePrompt {
   });
   private readonly _modeImportSelect: HTMLSelectElement = select(
     { style: "width: 100%; margin-bottom: 0.5em;" },
-    option({ value: "replace" }, "Replace Entire Song"),
-    option({ value: "append" }, "Append To End Of Song"),
+    option({ value: "auto" }, "Auto-detect mode (for json)"),
+    option({ value: "BeepBox" }, "BeepBox"),
+    option({ value: "ModBox" }, "ModBox"),
+    option({ value: "JummBox" }, "JummBox"),
+    option({ value: "SynthBox" }, "SynthBox"),
+    option({ value: "GoldBox" }, "GoldBox"),
+    option({ value: "PaandorasBox" }, "PaandorasBox"),
+    option({ value: "UltraBox" }, "UltraBox"),
+    option({ value: "slarmoosbox" }, "Slarmoo's Box"),
   );
 
   public readonly container: HTMLDivElement = div(
@@ -76,7 +83,7 @@ export class ImportPrompt extends BasePrompt {
   }
 
   protected override _saveChanges(): void {
-    this._close();
+    this._fileInput.click();
   }
 
   private _whenFileSelected = (): void => {
