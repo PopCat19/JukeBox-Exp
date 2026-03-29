@@ -82,14 +82,14 @@ export class KeyboardShortcutsPrompt extends BasePrompt {
   private readonly _searchInput: HTMLInputElement = input({
     type: "text",
     placeholder: "Search shortcuts...",
-    style: "width: 100%; margin-bottom: 1em;",
+    style: `width: 100%; padding: 6px 10px; border: 2px solid var(--ui-widget-background); border-radius: 6px; background: var(--editor-background); color: var(--primary-text); font-size: 14px; outline: none; box-sizing: border-box; margin-top: 0.75em; margin-bottom: 1em;`,
   });
   private readonly _shortcutsContainer: HTMLDivElement = div({
     style: "max-height: 400px; overflow-y: auto; text-align: left;",
   });
 
   public readonly container: HTMLDivElement = div(
-    { class: "prompt", style: "width: 400px;" },
+    { class: "prompt keyboardShortcutsPrompt", style: "width: 400px;" },
     h2("Keyboard Shortcuts"),
     this._searchInput,
     this._shortcutsContainer,
@@ -98,6 +98,7 @@ export class KeyboardShortcutsPrompt extends BasePrompt {
 
   constructor(doc: SongDocument) {
     super(doc);
+    this.buildTitlebar();
     this._searchInput.addEventListener("input", this._onSearch);
     this._renderShortcuts("");
     setTimeout(() => this._searchInput.focus());
@@ -126,7 +127,7 @@ export class KeyboardShortcutsPrompt extends BasePrompt {
         this._shortcutsContainer.appendChild(h2({ style: "font-size: 1.1em; margin: 0.5em 0;" }, cat.name));
         for (const entry of filteredEntries) {
           this._shortcutsContainer.appendChild(div(
-            { style: "display: flex; justify-content: space-between; margin-bottom: 0.2em; font-size: 0.9em;" },
+            { class: "shortcutRow" },
             span({ style: "color: var(--secondary-text);" }, formatKeys(entry.keys)),
             span(entry.desc),
           ));

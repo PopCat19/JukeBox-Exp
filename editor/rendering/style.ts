@@ -755,7 +755,8 @@ html {
 	display: flex;
 	flex-direction: column;
 	position: absolute;
-  pointer-events: auto;
+	z-index: 1;
+	pointer-events: auto;
 }
 
 .beepboxEditor .prompt:hover {
@@ -781,11 +782,8 @@ html {
 	margin: 0;
 }
 
-.beepboxEditor .prompt > div:not(.prompt-titlebar),
-.beepboxEditor .prompt > p {
-	display: flex;
-	flex-direction: column;
-	gap: 0.5em;
+.beepboxEditor .prompt p + p {
+	margin-top: 1.0em;
 }
 
 .beepboxEditor .prompt label {
@@ -811,6 +809,30 @@ html {
 
 .beepboxEditor .prompt.presetSelectorPrompt input:focus {
 	border-color: ${ColorConfig.secondaryText};
+}
+
+.beepboxEditor .prompt.keyboardShortcutsPrompt > *:not(:first-child):not(.cancelButton) {
+	margin-top: 0;
+}
+
+.beepboxEditor .prompt.keyboardShortcutsPrompt h2 {
+	margin-bottom: 0;
+}
+
+.beepboxEditor .prompt.keyboardShortcutsPrompt input:focus {
+	border-color: ${ColorConfig.secondaryText};
+}
+
+.beepboxEditor .prompt.keyboardShortcutsPrompt .shortcutRow {
+	display: flex;
+	justify-content: space-between;
+	padding: 0.25em 0.4em;
+	font-size: 0.9em;
+	border-radius: 4px;
+}
+
+.beepboxEditor .prompt.keyboardShortcutsPrompt .shortcutRow:nth-child(even) {
+	background: rgba(255, 255, 255, 0.04);
 }
 
 .beepboxEditor .layout-option {

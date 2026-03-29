@@ -3904,6 +3904,10 @@ export class SongEditor implements ModSliderProvider {
   }
 
   private _openPrompt(promptName: string): void {
+    if (this.doc.prompt === promptName) {
+      this.closePrompt(null);
+      return;
+    }
     this.doc.openPrompt(promptName);
     this._setPrompt(promptName);
   }
@@ -3959,11 +3963,12 @@ export class SongEditor implements ModSliderProvider {
       if (this.doc.prefs.showPromptBackdrop) {
         if (this.doc.prefs.frostedGlassBackground) {
           p.container.style.setProperty("--prompt-backdrop-filter", "blur(14px) brightness(0.9)");
-          p.container.style.setProperty("--prompt-bg-color", "color-mix(in srgb, var(--editor-background), transparent 60%)");
-        } else {
-          p.container.style.removeProperty("--prompt-backdrop-filter");
-          p.container.style.removeProperty("--prompt-bg-color");
-        }
+          p.container.style.background = "rgba(0, 0, 0, 0.4)";
+      } else {
+        p.container.style.removeProperty("--prompt-backdrop-filter");
+        p.container.style.removeProperty("--prompt-bg-color");
+        p.container.style.background = "";
+      }
       } else {
         p.container.style.removeProperty("--prompt-backdrop-filter");
         p.container.style.removeProperty("--prompt-bg-color");
