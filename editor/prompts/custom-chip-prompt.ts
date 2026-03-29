@@ -418,6 +418,6 @@ export class CustomChipPrompt extends BasePrompt {
   protected override _saveChanges(): void {
     this._doc.prompt = null;
     new ChangeCustomWave(this._doc, this.customChipCanvas.startingChipData);
-    this._doc.record(new ChangeCustomWave(this._doc, this.customChipCanvas.chipData), true);
+    this._doc.record(new ChangeCustomWave(this._doc, this.customChipCanvas.chipData));
   }
 }

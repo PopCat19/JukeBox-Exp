@@ -134,6 +134,6 @@ export class SongDurationPrompt extends BasePrompt {
       ),
     );
     this._doc.prompt = null;
-    this._doc.record(group, true);
+    this._doc.record(group);
   }
 }

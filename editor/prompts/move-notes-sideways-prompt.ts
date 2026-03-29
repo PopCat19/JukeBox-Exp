@@ -87,8 +87,7 @@ export class MoveNotesSidewaysPrompt extends BasePrompt {
     window.localStorage.setItem("moveNotesSidewaysStrategy", this._conversionStrategySelect.value);
     this._doc.prompt = null;
     this._doc.record(
-      new ChangeMoveNotesSideways(this._doc, +this._beatsStepper.value, this._conversionStrategySelect.value),
-      true,
+      new ChangeMoveNotesSideways(this._doc, +this._beatsStepper.value, this._conversionStrategySelect.value)
     );
   }
 }

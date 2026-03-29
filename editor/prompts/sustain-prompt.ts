@@ -59,7 +59,7 @@ export class SustainPrompt extends BasePrompt {
         new ChangeStringSustainType(this._doc, <any> Config.sustainTypeNames.indexOf(this._typeSelect.value)),
       );
       this._doc.prompt = null;
-      this._doc.record(group, true);
+      this._doc.record(group);
     } else {
       this._close();
     }

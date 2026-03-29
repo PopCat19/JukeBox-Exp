@@ -89,7 +89,7 @@ export class ImportPrompt extends BasePrompt {
       reader.addEventListener("load", (event: Event): void => {
         this._doc.prompt = null;
         this._doc.goBackToStart();
-        this._doc.record(new ChangeSong(this._doc, <string> reader.result, this._modeImportSelect.value), true, true);
+        this._doc.record(new ChangeSong(this._doc, <string> reader.result, this._modeImportSelect.value), false, true);
       });
       reader.readAsText(file);
     } else if (extension == "midi" || extension == "mid") {
@@ -782,6 +782,6 @@ export class ImportPrompt extends BasePrompt {
     this._doc.goBackToStart();
     for (const channel of this._doc.song.channels) channel.muted = false;
     this._doc.prompt = null;
-    this._doc.record(new ChangeImportMidi(this._doc), true, true);
+    this._doc.record(new ChangeImportMidi(this._doc), false, true);
   }
 }

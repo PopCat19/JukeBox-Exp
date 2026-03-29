@@ -768,7 +768,7 @@ export class EuclidgenRhythmPrompt extends BasePrompt {
         for (let noteIndex = 0; noteIndex < merged.length; noteIndex++) group.append(new ChangeNoteAdded(this._doc, pattern, merged[noteIndex], noteIndex));
       }
     }
-    this._doc.record(group, true);
+    this._doc.record(group);
     window.localStorage.setItem(this._localStorageKey, JSON.stringify({ "sequences": this._sequences, "barAmount": this._barAmount }));
   }
 

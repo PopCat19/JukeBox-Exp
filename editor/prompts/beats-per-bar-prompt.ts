@@ -133,8 +133,7 @@ export class BeatsPerBarPrompt extends BasePrompt {
         this._doc,
         BeatsPerBarPrompt._validate(this._beatsStepper),
         this._conversionStrategySelect.value,
-      ),
-      true,
+      )
     );
   };
 }

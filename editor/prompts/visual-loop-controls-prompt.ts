@@ -668,7 +668,7 @@ export class VisualLoopControlsPrompt extends BasePrompt {
       group.append(new ChangeChipWaveLoopStart(this._doc, this._chipWaveLoopStart));
       group.append(new ChangeChipWaveLoopEnd(this._doc, this._chipWaveLoopEnd));
       group.append(new ChangeChipWavePlayBackwards(this._doc, this._chipWavePlayBackwards));
-      this._doc.record(group, true);
+      this._doc.record(group);
     } else {
       this._doc.prompt = null;
     }

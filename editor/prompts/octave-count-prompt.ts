@@ -75,7 +75,7 @@ export class OctaveCountPrompt extends BasePrompt {
 
   protected override _saveChanges(): void {
     this._doc.prompt = null;
-    this._doc.record(new ChangeOctaveCount(this._doc, OctaveCountPrompt._validate(this._octaves)), true);
+    this._doc.record(new ChangeOctaveCount(this._doc, OctaveCountPrompt._validate(this._octaves)));
     let numChannels: number = this._doc.song.channels.length;
     let numPatterns: number;
     for (let i = 0; i < numChannels; i++) {
