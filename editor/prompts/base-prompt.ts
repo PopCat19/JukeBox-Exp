@@ -21,16 +21,20 @@ export abstract class BasePrompt implements Prompt {
   protected readonly _okayButton: HTMLButtonElement = button({ class: "okayButton", style: "width:45%;" }, "Okay");
 
   constructor(protected _doc: SongDocument) {
-    this._okayButton.addEventListener("click", this._saveChanges);
+    this._okayButton.addEventListener("click", this._onOkayClick);
     this._cancelButton.addEventListener("click", this._close);
   }
+
+  private _onOkayClick = (): void => {
+    this._saveChanges();
+  };
 
   protected _close = (): void => {
     this._doc.prompt = null;
   };
 
   public cleanUp(): void {
-    this._okayButton.removeEventListener("click", this._saveChanges);
+    this._okayButton.removeEventListener("click", this._onOkayClick);
     this._cancelButton.removeEventListener("click", this._close);
   }
 
@@ -40,5 +44,5 @@ export abstract class BasePrompt implements Prompt {
     }
   };
 
-  protected abstract _saveChanges: () => void;
+  protected abstract _saveChanges(): void;
 }

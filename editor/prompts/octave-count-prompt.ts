@@ -9,6 +9,8 @@
 // Copyright (c) 2012-2022 John Nesky and contributing authors, distributed under the MIT license, see accompanying the LICENSE.md file.
 
 import { HTML } from "imperative-html/dist/esm/elements-strict";
+import { ChangeOctaveCount } from "../changes";
+import { SongDocument } from "../song-document";
 import { BasePrompt } from "./base-prompt";
 
 const { div, h2, p, input } = HTML;
@@ -47,11 +49,11 @@ export class OctaveCountPrompt extends BasePrompt {
     this._octaves.addEventListener("blur", OctaveCountPrompt._validateNumber);
   }
 
-  public override cleanUp = (): void => {
+  public override cleanUp(): void {
     super.cleanUp();
     this._octaves.removeEventListener("keypress", OctaveCountPrompt._validateKey);
     this._octaves.removeEventListener("blur", OctaveCountPrompt._validateNumber);
-  };
+  }
 
   private static _validateKey(event: KeyboardEvent): boolean {
     const charCode: number = (event.which) ? event.which : event.keyCode;
@@ -71,7 +73,7 @@ export class OctaveCountPrompt extends BasePrompt {
     return Math.floor(Math.max(Number(input.min), Math.min(Number(input.max), Number(input.value))));
   }
 
-  private _saveChanges = (): void => {
+  protected override _saveChanges(): void {
     this._doc.prompt = null;
     this._doc.record(new ChangeOctaveCount(this._doc, OctaveCountPrompt._validate(this._octaves)), true);
     let numChannels: number = this._doc.song.channels.length;
@@ -85,5 +87,5 @@ export class OctaveCountPrompt extends BasePrompt {
     setTimeout(() => {
       location.reload();
     }, 50);
-  };
+  }
 }

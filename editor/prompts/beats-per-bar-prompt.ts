@@ -12,6 +12,7 @@ import { HTML } from "imperative-html/dist/esm/elements-strict";
 import { Config } from "../../synth/synth-config";
 import { ChangeBeatsPerBar } from "../changes";
 import { SongDocument } from "../song-document";
+import { ExportPrompt } from "./export-prompt";
 import { BasePrompt } from "./base-prompt";
 
 const { div, span, h2, input, br, select, option } = HTML;
@@ -87,11 +88,11 @@ export class BeatsPerBarPrompt extends BasePrompt {
     );
   }
 
-  public override cleanUp = (): void => {
+  public override cleanUp(): void {
     super.cleanUp();
     this._beatsStepper.removeEventListener("keypress", BeatsPerBarPrompt._validateKey);
     this._beatsStepper.removeEventListener("blur", BeatsPerBarPrompt._validateNumber);
-  };
+  }
 
   private static _validateKey(event: KeyboardEvent): boolean {
     const charCode = (event.which) ? event.which : event.keyCode;
@@ -124,7 +125,7 @@ export class BeatsPerBarPrompt extends BasePrompt {
     return ExportPrompt.samplesToTime(futureDoc, futureDoc.synth.getTotalSamples(true, true, 0));
   }
 
-  private _saveChanges = (): void => {
+  protected override _saveChanges = (): void => {
     window.localStorage.setItem("beatCountStrategy", this._conversionStrategySelect.value);
     this._doc.prompt = null;
     this._doc.record(
