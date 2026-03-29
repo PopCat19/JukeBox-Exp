@@ -64,6 +64,7 @@ document.head.appendChild(HTML.style(
 	--internal-instrument-paste-symbol: var(--instrument-paste-symbol, url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 26 26"><path d="M 8 18 L 6 18 L 6 5 L 17 5 L 17 7 M 9 8 L 16 8 L 20 12 L 20 22 L 9 22 z" stroke="currentColor" fill="none"></path><path d="M 9 3 L 14 3 L 14 6 L 9 6 L 9 3 z M 16 8 L 20 12 L 16 12 L 16 8 z" fill="currentColor"></path></svg>'));
 	--internal-export-symbol: var(--export-symbol, url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="-13 -13 26 26"><path fill="gray" d="M -8 3 L -8 8 L 8 8 L 8 3 L 6 3 L 6 6 L -6 6 L -6 3 z M 0 2 L -4 -2 L -1 -2 L -1 -8 L 1 -8 L 1 -2 L 4 -2 z"/></svg>'));
 	--internal-close-symbol: var(--close-symbol, url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="-13 -13 26 26"><path fill="gray" d="M -7.07 -5.66 L -5.66 -7.07 L 0 -1.4 L 5.66 -7.07 L 7.07 -5.66 L 1.4 0 L 7.07 5.66 L 5.66 7.07 L 0 1.4 L -5.66 7.07 L -7.07 5.66 L -1.4 0 z"/></svg>'));
+	--internal-minimize-symbol: var(--minimize-symbol, url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="-13 -13 26 26"><rect fill="gray" x="-7" y="-1.5" width="14" height="3"/></svg>'));
 	--internal-add-symbol: var(--add-symbol, url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="-13 -13 26 26"><path fill="gray" d="M -8 -1 L -1 -1 L -1 -8  L 1 -8 L 1 -1 L 8 -1 L 8 1 L 1 1 L 1 8 L -1 8 L -1 1 L -8 1 z"/></svg>'));
 	--internal-zoom-in-symbol: var(--zoom-in-symbol, url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="-10 -10 20 20"><circle cx="-1" cy="-1" r="6" stroke-width="2" stroke="gray" fill="none"></circle><path stroke="gray" stroke-width="2" d="M 3 3 L 7 7 M -1 -4 L -1 2 M -4 -1 L 2 -1" fill="none"></path></svg>'));
 	--internal-zoom-out-symbol: var(--zoom-out-symbol, url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="-10 -10 20 20"><circle cx="-1" cy="-1" r="6" stroke-width="2" stroke="gray" fill="none"></circle><path stroke="gray" stroke-width="2" d="M 3 3 L 7 7 M -4 -1 L 2 -1" fill="none"></path></svg>'));
@@ -1033,11 +1034,72 @@ html {
 }
 
 .beepboxEditor button.cancelButton {
-	float: right;
 	width: var(--button-size);
+}
+
+.beepboxEditor button.shadeButton {
+	width: var(--button-size);
+}
+
+.beepboxEditor button.shadeButton::before {
+	content: "";
 	position: absolute;
-	top: 8px;
-	right: 8px;
+	width: var(--button-size);
+	height: var(--button-size);
+	left: 0;
+	top: 0;
+	pointer-events: none;
+	background: currentColor;
+	mask-image: var(--internal-minimize-symbol);
+	mask-repeat: no-repeat;
+	mask-position: center;
+	-webkit-mask-image: var(--internal-minimize-symbol);
+	-webkit-mask-repeat: no-repeat;
+	-webkit-mask-position: center;
+}
+
+.beepboxEditor .prompt-titlebar {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	margin-bottom: 1em;
+}
+
+.beepboxEditor .prompt-titlebar > h2 {
+	flex: 1;
+	text-align: center !important;
+	margin: 0 !important;
+	line-height: 1;
+	font-size: 2em !important;
+	font-weight: normal;
+	padding: 0 !important;
+}
+
+.beepboxEditor .prompt.shaded {
+	padding: 6px 14px;
+	min-width: 0;
+	max-width: max-content;
+	overflow: hidden;
+	display: flex;
+	align-items: center;
+	border-radius: 20px;
+}
+
+.beepboxEditor .prompt.shaded > *:not(.prompt-titlebar) {
+	display: none !important;
+}
+
+.beepboxEditor .prompt.shaded .prompt-titlebar {
+	margin-bottom: 0;
+	padding: 0;
+}
+
+.beepboxEditor .prompt.shaded .prompt-titlebar h2 {
+	margin: 0 !important;
+	font-size: 1.2em !important;
+	cursor: pointer;
+	white-space: nowrap;
+	line-height: 1;
 }
 
 .beepboxEditor .playback-bar-controls {
