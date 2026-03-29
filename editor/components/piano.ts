@@ -161,7 +161,7 @@ export class Piano {
     document.addEventListener("mousemove", this._whenMouseMoved);
     document.addEventListener("mouseup", this._whenMouseReleased);
     window.addEventListener("resize", () => this._containerRect = null);
-    window.addEventListener("scroll", () => this._containerRect = null, { passive: true });
+    window.addEventListener("scroll", () => this._containerRect = null, { capture: true, passive: true });
     this.container.addEventListener("mouseover", this._whenMouseOver);
     this.container.addEventListener("mouseout", this._whenMouseOut);
 
