@@ -98,6 +98,7 @@ export class KeyboardHandler {
       if (host.prompt.whenKeyPressed) {
         host.prompt.whenKeyPressed(event);
       }
+      if (event.defaultPrevented) return;
       if (event.keyCode == 27) { // ESC key
         host.closePrompt(null);
         return;

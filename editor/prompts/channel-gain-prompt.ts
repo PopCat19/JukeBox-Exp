@@ -12,7 +12,7 @@ import { SongDocument } from "../song-document";
 import { ColorConfig } from "../rendering/color-config";
 import { BasePrompt } from "./base-prompt";
 
-const { div, h2, span, button } = HTML;
+const { div, h2, h3, span, button } = HTML;
 const { svg, defs, linearGradient, stop, rect } = SVG;
 
 export class ChannelGainPrompt extends BasePrompt {
@@ -114,12 +114,13 @@ export class ChannelGainPrompt extends BasePrompt {
 
   public container: HTMLDivElement = div(
     { class: "prompt noSelection", style: "width: 600px; height: auto; max-height: 80vh; display: flex; flex-direction: column; outline: none;", tabindex: "0" },
+    h2({ style: "margin: 12px 12px 0px 12px; text-align: center;" }, "Channel Volume Visualizer"),
     div(
       { style: "display: flex; flex: 1; min-height: 0; gap: 12px;" },
       // Left pane: Master controls
       div(
-        { style: "flex: 0 0 180px; display: flex; flex-direction: column; padding: 12px; border-right: 1px solid var(--ui-widget-background);" },
-        h2({ style: "margin-bottom: 12px;" }, "Master"),
+        { style: "flex: 0 0 180px; display: flex; flex-direction: column; padding: 4px 12px 12px 12px; border-right: 1px solid var(--ui-widget-background);" },
+        h3({ style: "margin-top: 0px; margin-bottom: 12px;" }, "Master"),
         this._currentBarLabel,
         div({ style: "display: flex; flex-direction: column; align-items: center; margin-bottom: 8px; margin-top: 8px;" }, this._volumeBarContainer),
         this._masterDbPeakLabel,
@@ -140,8 +141,8 @@ export class ChannelGainPrompt extends BasePrompt {
       ),
       // Right pane: Channels
       div(
-        { style: "flex: 1; display: flex; flex-direction: column; min-height: 0; padding: 12px;" },
-        h2({ style: "margin-bottom: 8px;" }, "Channels"),
+        { style: "flex: 1; display: flex; flex-direction: column; min-height: 0; padding: 4px 12px 12px 12px;" },
+        h3({ style: "margin-top: 0px; margin-bottom: 8px;" }, "Channels"),
         this._contentContainer,
       ),
     ),
@@ -390,7 +391,7 @@ export class ChannelGainPrompt extends BasePrompt {
     for (let i = 0; i < channelCount; i++) {
       const channel = song.channels[i];
       const channelState = synth.channels[i];
-      if (!channel || !channelState) continue;
+      if (!channel) continue;
 
       const isMuted = channel.muted;
       const isModChannel = i >= song.pitchChannelCount + song.noiseChannelCount;
@@ -496,8 +497,8 @@ export class ChannelGainPrompt extends BasePrompt {
         
         for (let j = 0; j < channel.instruments.length; j++) {
           const inPattern = patternInstruments.includes(j);
-          const instrState = channelState.instruments[j];
-          const isPlaying = instrState.activeTones.count() > 0 || instrState.releasedTones.count() > 0 || instrState.liveInputTones.count() > 0;
+          const instrState = channelState ? channelState.instruments[j] : null;
+          const isPlaying = instrState ? (instrState.activeTones.count() > 0 || instrState.releasedTones.count() > 0 || instrState.liveInputTones.count() > 0) : false;
           const instrSpan = span({
             style: `font-size: 9px; font-weight: 600; padding: 1px 3px; border-radius: 2px; background: ${
               isPlaying ? "white" : inPattern ? channelColors.primaryChannel : "var(--ui-widget-background)"
