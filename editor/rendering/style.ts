@@ -802,6 +802,9 @@ html {
 .beepboxEditor .prompt.presetSelectorPrompt > *:not(:first-child):not(.cancelButton) {
 	margin-top: 0;
 }
+.beepboxEditor .prompt.presetSelectorPrompt > input {
+	margin-top: 1.25em;
+}
 
 .beepboxEditor .prompt.presetSelectorPrompt h2 {
 	margin-bottom: 0;
@@ -813,6 +816,9 @@ html {
 
 .beepboxEditor .prompt.keyboardShortcutsPrompt > *:not(:first-child):not(.cancelButton) {
 	margin-top: 0;
+}
+.beepboxEditor .prompt.keyboardShortcutsPrompt > input {
+	margin-top: 1.25em;
 }
 
 .beepboxEditor .prompt.keyboardShortcutsPrompt h2 {
