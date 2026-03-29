@@ -31,7 +31,7 @@ import { SongDocument } from "../song-document";
 import { ArrayBufferReader } from "../ui/array-buffer-reader";
 import { BasePrompt } from "./base-prompt";
 
-const { div, h2, p, input, select, option } = HTML;
+const { div, h2, p, input, select, option, button } = HTML;
 
 declare const OFFLINE: boolean;
 
@@ -39,7 +39,12 @@ export class ImportPrompt extends BasePrompt {
   private readonly _fileInput: HTMLInputElement = input({
     type: "file",
     accept: ".json,application/json,.mid,.midi,audio/midi,audio/x-midi",
+    style: "display: none;",
   });
+  private readonly _browseButton: HTMLButtonElement = button(
+    { style: "width: 100%; margin-bottom: 0.5em;" },
+    "Browse\u2026",
+  );
   private readonly _modeImportSelect: HTMLSelectElement = select(
     { style: "width: 100%; margin-bottom: 0.5em;" },
     option({ value: "auto" }, "Auto-detect mode (for json)"),
@@ -65,15 +70,14 @@ export class ImportPrompt extends BasePrompt {
       "BeepBox can also (crudely) import .mid files. There are many tools available for creating .mid files. Shorter and simpler songs are more likely to work well.",
     ),
     this._modeImportSelect,
+    this._browseButton,
     this._fileInput,
     this._cancelButton,
   );
 
   constructor(doc: SongDocument) {
     super(doc);
-    this._fileInput.select();
-    setTimeout(() => this._fileInput.focus({ preventScroll: true }));
-
+    this._browseButton.addEventListener("click", () => this._fileInput.click());
     this._fileInput.addEventListener("change", this._whenFileSelected);
   }
 
@@ -212,7 +216,21 @@ export class ImportPrompt extends BasePrompt {
         const track: Track = tracks[trackIndex];
         while (!track.ended && track.nextEventMidiTick == currentMidiTick) {
           const peakStatus: number = track.reader.peakUint8();
-          const eventStatus: number = (peakStatus & 0x80) ? track.reader.readUint8() : track.runningStatus;
+          let eventStatus: number;
+          if (peakStatus & 0x80) {
+            eventStatus = track.reader.readUint8();
+          } else if (track.runningStatus == -1) {
+            // Data byte before any status byte - skip this track event
+            track.reader.readUint8();
+            if (!track.reader.hasMore()) {
+              track.ended = true;
+            } else {
+              track.nextEventMidiTick = currentMidiTick + track.reader.readMidiVariableLength();
+            }
+            continue;
+          } else {
+            eventStatus = track.runningStatus;
+          }
           const eventType: number = eventStatus & 0xF0;
           const eventChannel: number = eventStatus & 0x0F;
           if (eventType != MidiEventType.metaAndSysex) {

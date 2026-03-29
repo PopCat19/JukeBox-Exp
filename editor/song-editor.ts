@@ -4159,16 +4159,27 @@ export class SongEditor implements ModSliderProvider {
         }
       }
 
-      // Hover-to-focus (Hyprland style): focus on hover, refocus song editor on hover-out
+      // Hover-to-focus (Hyprland style): focus on hover, refocus song editor on hover-out.
+      // Uses elementFromPoint to ensure only the prompt the cursor is actually over gets focused,
+      // preventing race conditions when prompts overlap.
       newPrompt.container.addEventListener("mouseenter", () => {
         if (this._focusedPrompt !== newPrompt) {
-          this._focusedPrompt = newPrompt;
-          this._updatePromptFocus();
+          // Verify this prompt is actually topmost at cursor position
+          const rect = newPrompt.container.getBoundingClientRect();
+          const cx = rect.left + rect.width / 2;
+          const cy = rect.top + rect.height / 2;
+          const topmost = document.elementFromPoint(cx, cy);
+          if (topmost && newPrompt.container.contains(topmost)) {
+            this._focusedPrompt = newPrompt;
+            this._updatePromptFocus();
+          }
         }
       });
 
-      newPrompt.container.addEventListener("mouseleave", () => {
-        // Hover out returns focus to song editor, so keyboard shortcuts still work
+      newPrompt.container.addEventListener("mouseleave", (e: Event) => {
+        // Only refocus song editor if mouse isn't moving to another prompt
+        const related = (e as MouseEvent).relatedTarget as HTMLElement;
+        if (related && this._promptContainer.contains(related)) return;
         this.mainLayer.focus({ preventScroll: true });
       });
 
@@ -4244,8 +4255,9 @@ export class SongEditor implements ModSliderProvider {
   };
 
   // Global keydown handler: routes shortcuts when focus is on prompts (outside mainLayer).
-  // Skips if focus is on an input, textarea, select, or button element.
+  // Skips if focus is on an input, textarea, select, button, or contenteditable element.
   private _handleGlobalKeyDown = (event: KeyboardEvent): void => {
+    if (event.isComposing) return; // Skip during IME composition
     // Only handle if mainLayer doesn't have focus and a prompt is open
     if (this.mainLayer.contains(document.activeElement)) return;
     if (!this.prompt) return;
@@ -4255,6 +4267,7 @@ export class SongEditor implements ModSliderProvider {
       || target instanceof HTMLSelectElement || target instanceof HTMLButtonElement) {
       return;
     }
+    if ((target as HTMLElement).isContentEditable) return;
 
     this._keyboardHandler.handleKeyDown(event);
   };

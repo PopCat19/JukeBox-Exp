@@ -103,9 +103,12 @@ export class KeyboardHandler {
         host.closePrompt(null);
         return;
       }
-      if (event.target instanceof HTMLInputElement || event.target instanceof HTMLTextAreaElement || event.target instanceof HTMLSelectElement) {
-        return;
-      }
+    }
+
+    // Always skip shortcuts when focus is on interactive form elements
+    if (event.target instanceof HTMLInputElement || event.target instanceof HTMLTextAreaElement
+      || event.target instanceof HTMLSelectElement || event.target instanceof HTMLButtonElement) {
+      return;
     }
 
     // Defer to actively editing song title, channel name, or mod label
