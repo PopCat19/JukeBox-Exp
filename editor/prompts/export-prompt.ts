@@ -441,7 +441,7 @@ export class ExportPrompt extends BasePrompt {
         const view = new DataView(this.segmentData.buffer);
         view.setUint32(0, 1937076303, true); view.setUint32(4, 1684104520, true);
         view.setUint8(8, 1); view.setUint8(9, this.config.numberOfChannels);
-        view.setUint16(10, lookahead, true); view.setUint32(12, this.config.originalSampleRate, true);
+        view.setUint16(10, lookahead, true); view.setUint32(12, this.config.originalSampleRateOverride || this.config.originalSampleRate, true);
         view.setUint16(16, 0, true); view.setUint8(18, 0);
         this.segmentTableIndex = 1; this.segmentDataIndex = this.segmentTable[0] = 19; this.headerType = 2;
         return this.generatePage();
@@ -455,6 +455,12 @@ export class ExportPrompt extends BasePrompt {
       let i = 0;
       for (; i < this.recordedSamplesL.length; i += blockSize) {
         encoder.encode([this.recordedSamplesL.subarray(i, i + blockSize), this.recordedSamplesR.subarray(i, i + blockSize)]).forEach((p: any) => parts.push(p.page));
+      }
+      {
+        const paddingSize = i - this.recordedSamplesL.length;
+        const leftPad = new Float32Array(paddingSize);
+        const rightPad = new Float32Array(paddingSize);
+        encoder.encode([leftPad, rightPad]).forEach((p: any) => parts.push(p.page));
       }
       encoder.encodeFinalFrame().forEach((p: any) => parts.push(p.page));
       encoder.destroy();
@@ -524,6 +530,8 @@ export class ExportPrompt extends BasePrompt {
             else if (instr.type == InstrumentType.drumset) prog = 116;
             else if (instr.type == InstrumentType.noise || instr.type == InstrumentType.spectrum) prog = track.isNoise ? 116 : 75;
             else if (instr.type == InstrumentType.chip && ExportPrompt.midiChipInstruments.length > instr.chipWave) prog = ExportPrompt.midiChipInstruments[instr.chipWave];
+            else if (instr.type == InstrumentType.pickedString) prog = 0x19; // steel guitar
+            else if (instr.type == InstrumentType.pwm || instr.type == InstrumentType.fm || instr.type == InstrumentType.fm6op || instr.type == InstrumentType.harmonics || instr.type == InstrumentType.supersaw || instr.type == InstrumentType.customChipWave) prog = 81; // sawtooth
             writeTime(barStartTime); writer.writeUint8(MidiEventType.programChange | track.midiChannel); writer.writeMidi7Bits(prog);
           }
           writeTime(barStartTime); writeControl(MidiControlEventMessage.volumeMSB, Math.min(0x7f, Math.round(volumeMultToMidiVolume(Synth.instrumentVolumeToVolumeMult(instr.volume)))));
@@ -567,7 +575,12 @@ export class ExportPrompt extends BasePrompt {
                   if (exp != prevExp && !track.isDrumset) { writeTime(time); writeControl(MidiControlEventMessage.expressionMSB, exp); prevExp = exp; }
                   for (let t = 0; t < toneCount; t++) {
                     let p = note.pitches[t];
-                    if (track.isDrumset) { p = [36, 41, 45, 48, 40, 39, 59, 49, 46, 55, 69, 54][p + mainInt] || 36; }
+                    if (track.isDrumset) {
+                      const drumsetMap = [36, 41, 45, 48, 40, 39, 59, 49, 46, 55, 69, 54];
+                      const drumIdx = p + mainInt;
+                      if (drumIdx < 0 || drumIdx >= drumsetMap.length) throw new Error("Could not find corresponding drumset pitch. " + drumIdx);
+                      p = drumsetMap[drumIdx];
+                    }
                     else {
                       if (usesArp && note.pitches.length > t + 1 && t == toneCount - 1) {
                         const arp = Math.floor(((time - barStartTime) % (ticksPerPart * Config.partsPerBeat)) / (Config.ticksPerArpeggio * 2));

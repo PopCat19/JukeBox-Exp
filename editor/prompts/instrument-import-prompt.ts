@@ -126,8 +126,9 @@ export class InstrumentImportPrompt extends BasePrompt {
         }
         break;
     }
-    this._doc.record(new ChangeViewInstrument(this._doc, this._doc.getCurrentInstrument()));
+    this._doc.record(new ChangeViewInstrument(this._doc, this._importStrategySelect.value === "all" ? channel.instruments.length - 1 : this._doc.getCurrentInstrument()));
     this._doc.prompt = null;
+    this._doc.notifier.changed();
   };
 
   private _validate_instrument_limit = (channel: Channel): boolean => {
@@ -158,6 +159,7 @@ export class InstrumentImportPrompt extends BasePrompt {
         break;
     }
     this._doc.prompt = null;
+    this._doc.notifier.changed();
   };
 
   protected override _saveChanges(): void {

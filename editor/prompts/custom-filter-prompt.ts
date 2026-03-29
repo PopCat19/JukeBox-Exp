@@ -227,10 +227,11 @@ export class CustomFilterPrompt extends BasePrompt {
       this._doc.synth.goToPrevBar();
     } else if (event.keyCode == 221) { // ]
       this._doc.synth.goToNextBar();
-    } else if (event.keyCode >= 48 && event.keyCode <= 57) { // 0-9
-      if (event.shiftKey) {
-        this._setSubfilter(event.keyCode - 48);
-      }
+    } else if (event.keyCode >= 48 && event.keyCode <= 57 && event.shiftKey) { // shift+0-9
+      this._setSubfilter(event.keyCode - 48);
+    } else if (event.keyCode >= 49 && event.keyCode <= 57 && !event.shiftKey) { // 1-9 unshifted
+      this.filterEditor.swapSubfilterIndices(event.keyCode - 49);
+      event.stopPropagation();
     }
   };
 
