@@ -15,6 +15,7 @@ import { FilterEditor } from "../components/filter-editor";
 import { ColorConfig } from "../rendering/color-config";
 import { SongDocument } from "../song-document";
 import { SongEditor } from "../song-editor";
+import { updatePlayButton } from "./input-helpers";
 import { BasePrompt } from "./base-prompt";
 
 const { button, div, h2, p } = HTML;
@@ -87,11 +88,7 @@ export class CustomFilterPrompt extends BasePrompt {
     }, this._playButton),
     this._filterButtonContainer,
     this._filterContainer,
-    div(
-      { style: "display: flex; flex-direction: row-reverse; justify-content: space-between;" },
-      this._okayButton,
-      this._filterCopyPasteContainer,
-    ),
+    this._getOkayRow(this._filterCopyPasteContainer),
     this._cancelButton,
   );
 
@@ -105,7 +102,7 @@ export class CustomFilterPrompt extends BasePrompt {
     this._playButton.addEventListener("click", this._togglePlay);
     this._filterCopyButton.addEventListener("click", this._copyFilterSettings);
     this._filterPasteButton.addEventListener("click", this._pasteFilterSettings);
-    this.updatePlayButton();
+    updatePlayButton(this._playButton, this._doc.synth.playing);
     const colors = ColorConfig.getChannelColor(this._doc.song, this._doc.channel);
 
     this.filterEditor = new FilterEditor(doc, _useNoteFilter, true, this.forSong);
@@ -176,22 +173,8 @@ export class CustomFilterPrompt extends BasePrompt {
 
   private _togglePlay = (): void => {
     this._songEditor.togglePlay();
-    this.updatePlayButton();
+    updatePlayButton(this._playButton, this._doc.synth.playing);
   };
-
-  public updatePlayButton(): void {
-    if (this._doc.synth.playing) {
-      this._playButton.classList.remove("playButton");
-      this._playButton.classList.add("pauseButton");
-      this._playButton.title = "Pause (Space)";
-      this._playButton.innerText = "Pause";
-    } else {
-      this._playButton.classList.remove("pauseButton");
-      this._playButton.classList.add("playButton");
-      this._playButton.title = "Play (Space)";
-      this._playButton.innerText = "Play";
-    }
-  }
 
   protected override _close = (): void => {
     this.filterEditor.resetToInitial();

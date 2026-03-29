@@ -146,7 +146,7 @@ export class LayoutPrompt extends BasePrompt {
     { class: "prompt noSelection", style: "width: 300px;" },
     h2("Layout"),
     this._form,
-    div({ style: "display: flex; flex-direction: row-reverse; justify-content: space-between;" }, this._okayButton),
+    this._getOkayRow(),
     this._cancelButton,
   );
 

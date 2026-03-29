@@ -403,7 +403,7 @@ export class EuclidgenRhythmPrompt extends BasePrompt {
       this._barAmountStepper,
       this._extendUntilLoopButton,
     ),
-    div({ style: "display: flex; flex-direction: row-reverse; justify-content: space-between;" }, this._okayButton),
+    this._getOkayRow(),
     this._cancelButton,
   );
 

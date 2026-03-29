@@ -16,6 +16,7 @@ import { ColorConfig } from "../rendering/color-config";
 import { SongDocument } from "../song-document";
 import { ExportPrompt } from "./export-prompt";
 import { BasePrompt } from "./base-prompt";
+import { validateKey, validateNumber, validate } from "./input-helpers";
 
 const { div, span, h2, input, br, select, option } = HTML;
 
@@ -54,7 +55,7 @@ export class SongDurationPrompt extends BasePrompt {
       { style: "display: flex; flex-direction: row; align-items: center; height: 2em; justify-content: flex-end;" },
       div({ class: "selectContainer", style: "width: 100%;" }, this._positionSelect),
     ),
-    div({ style: "display: flex; flex-direction: row-reverse; justify-content: space-between;" }, this._okayButton),
+    this._getOkayRow(),
     this._cancelButton,
   );
 
@@ -72,8 +73,8 @@ export class SongDurationPrompt extends BasePrompt {
     this._barsStepper.select();
     setTimeout(() => this._barsStepper.focus());
 
-    this._barsStepper.addEventListener("keypress", SongDurationPrompt._validateKey);
-    this._barsStepper.addEventListener("blur", SongDurationPrompt._validateNumber);
+    this._barsStepper.addEventListener("keypress", validateKey);
+    this._barsStepper.addEventListener("blur", validateNumber);
     this._barsStepper.addEventListener("input", () => {
       (this._computedSamplesLabel.firstChild as Text).textContent = this._predictFutureLength();
     });
@@ -88,26 +89,8 @@ export class SongDurationPrompt extends BasePrompt {
 
   public override cleanUp(): void {
     super.cleanUp();
-    this._barsStepper.removeEventListener("keypress", SongDurationPrompt._validateKey);
-    this._barsStepper.removeEventListener("blur", SongDurationPrompt._validateNumber);
-  }
-
-  private static _validateKey(event: KeyboardEvent): boolean {
-    const charCode = (event.which) ? event.which : event.keyCode;
-    if (charCode != 46 && charCode > 31 && (charCode < 48 || charCode > 57)) {
-      event.preventDefault();
-      return true;
-    }
-    return false;
-  }
-
-  private static _validateNumber(event: Event): void {
-    const input: HTMLInputElement = <HTMLInputElement> event.target;
-    input.value = String(SongDurationPrompt._validate(input));
-  }
-
-  private static _validate(input: HTMLInputElement): number {
-    return Math.floor(Math.max(Number(input.min), Math.min(Number(input.max), Number(input.value))));
+    this._barsStepper.removeEventListener("keypress", validateKey);
+    this._barsStepper.removeEventListener("blur", validateNumber);
   }
 
   private _predictFutureLength(): string {
@@ -117,7 +100,7 @@ export class SongDurationPrompt extends BasePrompt {
     );
     new ChangeBarCount(
       futureDoc,
-      SongDurationPrompt._validate(this._barsStepper),
+      validate(this._barsStepper),
       this._positionSelect.value == "beginning",
     );
     return ExportPrompt.samplesToTime(futureDoc, futureDoc.synth.getTotalSamples(true, true, 0));
@@ -129,7 +112,7 @@ export class SongDurationPrompt extends BasePrompt {
     group.append(
       new ChangeBarCount(
         this._doc,
-        SongDurationPrompt._validate(this._barsStepper),
+        validate(this._barsStepper),
         this._positionSelect.value == "beginning",
       ),
     );

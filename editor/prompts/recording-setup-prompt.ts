@@ -149,7 +149,7 @@ export class RecordingSetupPrompt extends BasePrompt {
           `width: 100%; height: 80px; background: linear-gradient(rgba(0,0,0,0), ${ColorConfig.editorBackground}); position: sticky; bottom: 0; pointer-events: none;`,
       }),
     ),
-    div({ style: "display: flex; flex-direction: row-reverse; justify-content: space-between;" }, this._okayButton),
+    this._getOkayRow(),
     this._cancelButton,
   );
 

@@ -15,6 +15,7 @@ import { SongDocument } from "../song-document";
 import { ExportPrompt } from "./export-prompt";
 import { BasePrompt } from "./base-prompt";
 import { ColorConfig } from "../rendering/color-config";
+import { validateKey, validateNumber, validate } from "./input-helpers";
 
 const { div, span, h2, input, br, select, option } = HTML;
 
@@ -57,7 +58,7 @@ export class BeatsPerBarPrompt extends BasePrompt {
       { style: "display: flex; flex-direction: row; align-items: center; height: 2em; justify-content: flex-end;" },
       div({ class: "selectContainer", style: "width: 100%;" }, this._conversionStrategySelect),
     ),
-    div({ style: "display: flex; flex-direction: row-reverse; justify-content: space-between;" }, this._okayButton),
+    this._getOkayRow(),
     this._cancelButton,
   );
 
@@ -75,8 +76,8 @@ export class BeatsPerBarPrompt extends BasePrompt {
     this._beatsStepper.select();
     setTimeout(() => this._beatsStepper.focus());
 
-    this._beatsStepper.addEventListener("keypress", BeatsPerBarPrompt._validateKey);
-    this._beatsStepper.addEventListener("blur", BeatsPerBarPrompt._validateNumber);
+    this._beatsStepper.addEventListener("keypress", validateKey);
+    this._beatsStepper.addEventListener("blur", validateNumber);
     this._beatsStepper.addEventListener("input", () => {
       (this._computedSamplesLabel.firstChild as Text).textContent = this._predictFutureLength();
     });
@@ -91,26 +92,8 @@ export class BeatsPerBarPrompt extends BasePrompt {
 
   public override cleanUp(): void {
     super.cleanUp();
-    this._beatsStepper.removeEventListener("keypress", BeatsPerBarPrompt._validateKey);
-    this._beatsStepper.removeEventListener("blur", BeatsPerBarPrompt._validateNumber);
-  }
-
-  private static _validateKey(event: KeyboardEvent): boolean {
-    const charCode = (event.which) ? event.which : event.keyCode;
-    if (charCode != 46 && charCode > 31 && (charCode < 48 || charCode > 57)) {
-      event.preventDefault();
-      return true;
-    }
-    return false;
-  }
-
-  private static _validateNumber(event: Event): void {
-    const input: HTMLInputElement = <HTMLInputElement> event.target;
-    input.value = String(BeatsPerBarPrompt._validate(input));
-  }
-
-  private static _validate(input: HTMLInputElement): number {
-    return Math.floor(Math.max(Number(input.min), Math.min(Number(input.max), Number(input.value))));
+    this._beatsStepper.removeEventListener("keypress", validateKey);
+    this._beatsStepper.removeEventListener("blur", validateNumber);
   }
 
   private _predictFutureLength(): string {
@@ -120,7 +103,7 @@ export class BeatsPerBarPrompt extends BasePrompt {
     );
     new ChangeBeatsPerBar(
       futureDoc,
-      BeatsPerBarPrompt._validate(this._beatsStepper),
+      validate(this._beatsStepper),
       this._conversionStrategySelect.value,
     );
     return ExportPrompt.samplesToTime(futureDoc, futureDoc.synth.getTotalSamples(true, true, 0));
@@ -132,7 +115,7 @@ export class BeatsPerBarPrompt extends BasePrompt {
     this._doc.record(
       new ChangeBeatsPerBar(
         this._doc,
-        BeatsPerBarPrompt._validate(this._beatsStepper),
+        validate(this._beatsStepper),
         this._conversionStrategySelect.value,
       )
     );

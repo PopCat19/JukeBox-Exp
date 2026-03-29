@@ -46,7 +46,7 @@ export class CustomScalePrompt extends BasePrompt {
         { style: "display: flex; flex-direction: row; align-items: center; justify-content: flex-end;" },
         scaleHolder,
       ),
-      div({ style: "display: flex; flex-direction: row-reverse; justify-content: space-between;" }, this._okayButton),
+      this._getOkayRow(),
       this._cancelButton,
     );
   }

@@ -17,13 +17,15 @@ const { div, h2, h3, p, a } = HTML;
 
 export class TipPrompt extends BasePrompt {
   public readonly container: HTMLDivElement = div(
-    { class: "prompt", style: "width: 300px;" },
+    { class: "prompt noSelection", style: "width: 300px;" },
+    h2(this._tipName),
     div({ style: "text-align: left;" }, this._renderTip()),
     this._cancelButton,
   );
 
   constructor(doc: SongDocument, private _tipName: string) {
     super(doc);
+    this.buildTitlebar();
     setTimeout(() => this._cancelButton.focus());
   }
 

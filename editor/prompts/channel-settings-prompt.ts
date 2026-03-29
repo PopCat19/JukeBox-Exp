@@ -14,6 +14,7 @@ import { ChangeChannelCount, ChangeInstrumentsFlags, ChangePatternsPerChannel } 
 import { ChangeGroup } from "../core/change";
 import { SongDocument } from "../song-document";
 import { BasePrompt } from "./base-prompt";
+import { validateKey, validateNumber, validate } from "./input-helpers";
 
 const { div, label, br, h2, input } = HTML;
 
@@ -84,7 +85,7 @@ export class ChannelSettingsPrompt extends BasePrompt {
       "per pattern:",
       this._patternInstrumentsBox,
     ),
-    div({ style: "display: flex; flex-direction: row-reverse; justify-content: space-between;" }, this._okayButton),
+    this._getOkayRow(),
     this._cancelButton,
   );
 
@@ -111,44 +112,26 @@ export class ChannelSettingsPrompt extends BasePrompt {
     this._pitchChannelStepper.select();
     setTimeout(() => this._pitchChannelStepper.focus());
 
-    this._patternsStepper.addEventListener("keypress", ChannelSettingsPrompt._validateKey);
-    this._pitchChannelStepper.addEventListener("keypress", ChannelSettingsPrompt._validateKey);
-    this._drumChannelStepper.addEventListener("keypress", ChannelSettingsPrompt._validateKey);
-    this._modChannelStepper.addEventListener("keypress", ChannelSettingsPrompt._validateKey);
-    this._patternsStepper.addEventListener("blur", this._validateNumber);
-    this._pitchChannelStepper.addEventListener("blur", this._validateNumber);
-    this._drumChannelStepper.addEventListener("blur", this._validateNumber);
-    this._modChannelStepper.addEventListener("blur", this._validateNumber);
+    this._patternsStepper.addEventListener("keypress", validateKey);
+    this._pitchChannelStepper.addEventListener("keypress", validateKey);
+    this._drumChannelStepper.addEventListener("keypress", validateKey);
+    this._modChannelStepper.addEventListener("keypress", validateKey);
+    this._patternsStepper.addEventListener("blur", validateNumber);
+    this._pitchChannelStepper.addEventListener("blur", validateNumber);
+    this._drumChannelStepper.addEventListener("blur", validateNumber);
+    this._modChannelStepper.addEventListener("blur", validateNumber);
   }
 
   public override cleanUp(): void {
     super.cleanUp();
-    this._patternsStepper.removeEventListener("keypress", ChannelSettingsPrompt._validateKey);
-    this._pitchChannelStepper.removeEventListener("keypress", ChannelSettingsPrompt._validateKey);
-    this._drumChannelStepper.removeEventListener("keypress", ChannelSettingsPrompt._validateKey);
-    this._modChannelStepper.removeEventListener("keypress", ChannelSettingsPrompt._validateKey);
-    this._patternsStepper.removeEventListener("blur", this._validateNumber);
-    this._pitchChannelStepper.removeEventListener("blur", this._validateNumber);
-    this._drumChannelStepper.removeEventListener("blur", this._validateNumber);
-    this._modChannelStepper.removeEventListener("blur", this._validateNumber);
-  }
-
-  private static _validateKey(event: KeyboardEvent): boolean {
-    const charCode = (event.which) ? event.which : event.keyCode;
-    if (charCode != 46 && charCode > 31 && (charCode < 48 || charCode > 57)) {
-      event.preventDefault();
-      return true;
-    }
-    return false;
-  }
-
-  private _validateNumber = (event: Event): void => {
-    const input: HTMLInputElement = <HTMLInputElement> event.target;
-    input.value = String(ChannelSettingsPrompt._validate(input));
-  };
-
-  private static _validate(input: HTMLInputElement): number {
-    return Math.floor(Math.max(Number(input.min), Math.min(Number(input.max), Number(input.value))));
+    this._patternsStepper.removeEventListener("keypress", validateKey);
+    this._pitchChannelStepper.removeEventListener("keypress", validateKey);
+    this._drumChannelStepper.removeEventListener("keypress", validateKey);
+    this._modChannelStepper.removeEventListener("keypress", validateKey);
+    this._patternsStepper.removeEventListener("blur", validateNumber);
+    this._pitchChannelStepper.removeEventListener("blur", validateNumber);
+    this._drumChannelStepper.removeEventListener("blur", validateNumber);
+    this._modChannelStepper.removeEventListener("blur", validateNumber);
   }
 
   protected override _saveChanges(): void {
@@ -156,13 +139,13 @@ export class ChannelSettingsPrompt extends BasePrompt {
     group.append(
       new ChangeInstrumentsFlags(this._doc, this._layeredInstrumentsBox.checked, this._patternInstrumentsBox.checked),
     );
-    group.append(new ChangePatternsPerChannel(this._doc, ChannelSettingsPrompt._validate(this._patternsStepper)));
+    group.append(new ChangePatternsPerChannel(this._doc, validate(this._patternsStepper)));
     group.append(
       new ChangeChannelCount(
         this._doc,
-        ChannelSettingsPrompt._validate(this._pitchChannelStepper),
-        ChannelSettingsPrompt._validate(this._drumChannelStepper),
-        ChannelSettingsPrompt._validate(this._modChannelStepper),
+        validate(this._pitchChannelStepper),
+        validate(this._drumChannelStepper),
+        validate(this._modChannelStepper),
       ),
     );
     this._doc.prompt = null;

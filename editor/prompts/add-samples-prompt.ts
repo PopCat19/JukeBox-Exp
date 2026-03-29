@@ -148,7 +148,7 @@ export class AddSamplesPrompt extends BasePrompt {
       div({ style: "width: 100%; max-height: 450px; overflow-y: scroll;" }, this._entryContainer),
       this._addSamplesAreaBottom,
     ),
-    div({ style: "display: flex; flex-direction: row-reverse; justify-content: space-between;" }, this._okayButton),
+    this._getOkayRow(),
   );
   private readonly _bulkAddTextarea: HTMLTextAreaElement = textarea({
     style: "width: 100%; height: 100%; resize: none; box-sizing: border-box;",

@@ -50,7 +50,7 @@ export class MoveNotesSidewaysPrompt extends BasePrompt {
       { style: "display: flex; flex-direction: row; align-items: center; height: 2em; justify-content: flex-end;" },
       div({ class: "selectContainer", style: "width: 100%;" }, this._conversionStrategySelect),
     ),
-    div({ style: "display: flex; flex-direction: row-reverse; justify-content: space-between;" }, this._okayButton),
+    this._getOkayRow(),
     this._cancelButton,
   );
 

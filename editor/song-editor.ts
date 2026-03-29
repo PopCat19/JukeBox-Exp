@@ -3960,13 +3960,16 @@ export class SongEditor implements ModSliderProvider {
         if (this.doc.prefs.frostedGlassBackground) {
           p.container.style.setProperty("--prompt-backdrop-filter", "blur(14px) brightness(0.9)");
           p.container.style.setProperty("--prompt-bg-color", "color-mix(in srgb, var(--editor-background), transparent 60%)");
+          p.container.style.opacity = "0.4";
         } else {
           p.container.style.removeProperty("--prompt-backdrop-filter");
           p.container.style.removeProperty("--prompt-bg-color");
+          p.container.style.opacity = "";
         }
       } else {
         p.container.style.removeProperty("--prompt-backdrop-filter");
         p.container.style.removeProperty("--prompt-bg-color");
+        p.container.style.opacity = "";
       }
 
       if (p === this._focusedPrompt) {
@@ -4190,51 +4193,9 @@ export class SongEditor implements ModSliderProvider {
         }
       });
 
-      // Build title bar: [shade] [h2 flex] [close]
-      const h2El: HTMLElement | null = newPrompt.container.querySelector("h2");
+      if ((<Prompt> newPrompt).buildTitlebar) (<Prompt> newPrompt).buildTitlebar!();
+
       const cancelButton: HTMLElement | null = newPrompt.container.querySelector(".cancelButton");
-
-      if (h2El) {
-        const titlebar = div({ class: "prompt-titlebar" });
-        const shadeBtn: HTMLButtonElement = button({ class: "shadeButton", type: "button" });
-
-        // Move cancel button out before wrapping
-        if (cancelButton) cancelButton.remove();
-
-        h2El.parentNode!.insertBefore(titlebar, h2El);
-        titlebar.appendChild(shadeBtn);
-        titlebar.appendChild(h2El);
-        if (cancelButton) titlebar.appendChild(cancelButton);
-
-        let dragMoved = false;
-        const toggleShade = (): void => {
-          if (!dragMoved) newPrompt.container.classList.toggle("shaded");
-          dragMoved = false;
-        };
-        shadeBtn.addEventListener("click", (e: Event) => {
-          e.stopPropagation();
-          toggleShade();
-        });
-        h2El.addEventListener("click", () => {
-          if (newPrompt.container.classList.contains("shaded")) {
-            toggleShade();
-          }
-        });
-        // Track drag so clicking shade/h2 after drag doesn't toggle
-        newPrompt.container.addEventListener("mousedown", () => { dragMoved = false; });
-        newPrompt.container.addEventListener("mousemove", (e: Event) => {
-          if ((e as MouseEvent).buttons) dragMoved = true;
-        });
-      } else {
-        // No h2: just append shade button, position cancel normally
-        const shadeBtn: HTMLButtonElement = button({ class: "shadeButton", type: "button" });
-        newPrompt.container.appendChild(shadeBtn);
-        shadeBtn.addEventListener("click", (e: Event) => {
-          e.stopPropagation();
-          newPrompt.container.classList.toggle("shaded");
-        });
-      }
-
       if (cancelButton) {
         cancelButton.addEventListener("click", () => {
           this.closePrompt(newPrompt);

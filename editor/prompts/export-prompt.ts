@@ -166,7 +166,7 @@ export class ExportPrompt extends BasePrompt {
       "Exporting can be slow. Reloading the page or clicking the X will cancel it. Please be patient.",
     ),
     this._outputProgressContainer,
-    div({ style: "display: flex; flex-direction: row-reverse; justify-content: space-between;" }, this._okayButton),
+    this._getOkayRow(),
     this._cancelButton,
   );
 

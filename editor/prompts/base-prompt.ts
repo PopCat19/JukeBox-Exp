@@ -5,7 +5,8 @@
 // This module:
 // - Implements shared boilerplate for okay/cancel buttons
 // - Handles standard keyboard events (Enter to save)
-// - Provides basic cleanup logic
+// - Builds prompt titlebar with shade/close buttons
+// - Provides helper methods for common prompt layouts
 
 // Copyright (c) 2012-2022 John Nesky and contributing authors, distributed under the MIT license, see accompanying the LICENSE.md file.
 
@@ -13,37 +14,88 @@ import { HTML } from "imperative-html/dist/esm/elements-strict";
 import { SongDocument } from "../song-document";
 import { Prompt } from "./prompt";
 
-const { button } = HTML;
+const { button, div } = HTML;
 
 export abstract class BasePrompt implements Prompt {
-  public abstract readonly container: HTMLElement;
-  protected readonly _cancelButton: HTMLButtonElement = button({ class: "cancelButton" });
-  protected readonly _okayButton: HTMLButtonElement = button({ class: "okayButton", style: "width:45%;" }, "Okay");
+	public abstract readonly container: HTMLElement;
+	protected readonly _cancelButton: HTMLButtonElement = button({ class: "cancelButton" });
+	protected readonly _okayButton: HTMLButtonElement = button({ class: "okayButton", style: "width:45%;" }, "Okay");
 
-  constructor(protected _doc: SongDocument) {
-    this._okayButton.addEventListener("click", this._onOkayClick);
-    this._cancelButton.addEventListener("click", this._close);
-  }
+	constructor(protected _doc: SongDocument) {
+		this._okayButton.addEventListener("click", this._onOkayClick);
+		this._cancelButton.addEventListener("click", this._close);
+	}
 
-  private _onOkayClick = (): void => {
-    this._saveChanges();
-  };
+	private _onOkayClick = (): void => {
+		this._saveChanges();
+	};
 
-  protected _close = (): void => {
-    this._doc.prompt = null;
-  };
+	protected _close = (): void => {
+		this._doc.prompt = null;
+	};
 
-  public cleanUp(): void {
-    this._okayButton.removeEventListener("click", this._onOkayClick);
-    this._cancelButton.removeEventListener("click", this._close);
-  }
+	public cleanUp(): void {
+		this._okayButton.removeEventListener("click", this._onOkayClick);
+		this._cancelButton.removeEventListener("click", this._close);
+	}
 
-  public whenKeyPressed = (event: KeyboardEvent): void => {
-    if ((<Element> event.target).tagName != "BUTTON" && event.keyCode == 13) { // Enter key
-      event.preventDefault();
-      this._saveChanges();
-    }
-  };
+	public whenKeyPressed = (event: KeyboardEvent): void => {
+		if ((<Element> event.target).tagName != "BUTTON" && event.keyCode == 13) {
+			event.preventDefault();
+			this._saveChanges();
+		}
+	};
 
-  protected abstract _saveChanges(): void;
+	protected _getOkayRow(...extra: HTMLElement[]): HTMLDivElement {
+		return div(
+			{ style: "display: flex; flex-direction: row-reverse; justify-content: space-between;" },
+			this._okayButton,
+			...extra,
+		);
+	}
+
+	public buildTitlebar(): void {
+		const h2El: HTMLElement | null = this.container.querySelector("h2");
+
+		if (h2El) {
+			const titlebar = div({ class: "prompt-titlebar" });
+			const shadeBtn: HTMLButtonElement = button({ class: "shadeButton", type: "button" });
+
+			const cancelButton = this.container.querySelector(".cancelButton");
+			if (cancelButton) cancelButton.remove();
+
+			h2El.parentNode!.insertBefore(titlebar, h2El);
+			titlebar.appendChild(shadeBtn);
+			titlebar.appendChild(h2El);
+			if (cancelButton) titlebar.appendChild(cancelButton);
+
+			let dragMoved = false;
+			const toggleShade = (): void => {
+				if (!dragMoved) this.container.classList.toggle("shaded");
+				dragMoved = false;
+			};
+			shadeBtn.addEventListener("click", (e: Event) => {
+				e.stopPropagation();
+				toggleShade();
+			});
+			h2El.addEventListener("click", () => {
+				if (this.container.classList.contains("shaded")) {
+					toggleShade();
+				}
+			});
+			this.container.addEventListener("mousedown", () => { dragMoved = false; });
+			this.container.addEventListener("mousemove", (e: Event) => {
+				if ((e as MouseEvent).buttons) dragMoved = true;
+			});
+		} else {
+			const shadeBtn: HTMLButtonElement = button({ class: "shadeButton", type: "button" });
+			this.container.appendChild(shadeBtn);
+			shadeBtn.addEventListener("click", (e: Event) => {
+				e.stopPropagation();
+				this.container.classList.toggle("shaded");
+			});
+		}
+	}
+
+	protected abstract _saveChanges(): void;
 }

@@ -171,7 +171,7 @@ export class CustomThemePrompt extends BasePrompt {
     p({ style: "text-align: left; margin: 0;" }, "Replace the text below with your custom theme data to load it:"),
     this._colorInput,
     div({ style: "display: flex; flex-direction: row-reverse; justify-content: space-between;" }, this._resetButton),
-    div({ style: "display: flex; flex-direction: row-reverse; justify-content: space-between;" }, this._okayButton),
+    this._getOkayRow(),
     this._cancelButton,
   );
 

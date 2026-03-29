@@ -12,6 +12,7 @@ import { HTML } from "imperative-html/dist/esm/elements-strict";
 import { ChangeOctaveCount } from "../changes";
 import { SongDocument } from "../song-document";
 import { BasePrompt } from "./base-prompt";
+import { validateKey, validateNumber, validate } from "./input-helpers";
 
 const { div, h2, p, input } = HTML;
 
@@ -32,7 +33,7 @@ export class OctaveCountPrompt extends BasePrompt {
       this._octaves,
     ),
     div({ style: "display: flex; flex-direction: row; align-items: center; height: 2em; justify-content: flex-end;" }),
-    div({ style: "display: flex; flex-direction: row-reverse; justify-content: space-between;" }, this._okayButton),
+    this._getOkayRow(),
     this._cancelButton,
   );
 
@@ -45,37 +46,19 @@ export class OctaveCountPrompt extends BasePrompt {
     this._octaves.select();
     setTimeout(() => this._octaves.focus());
 
-    this._octaves.addEventListener("keypress", OctaveCountPrompt._validateKey);
-    this._octaves.addEventListener("blur", OctaveCountPrompt._validateNumber);
+    this._octaves.addEventListener("keypress", validateKey);
+    this._octaves.addEventListener("blur", validateNumber);
   }
 
   public override cleanUp(): void {
     super.cleanUp();
-    this._octaves.removeEventListener("keypress", OctaveCountPrompt._validateKey);
-    this._octaves.removeEventListener("blur", OctaveCountPrompt._validateNumber);
-  }
-
-  private static _validateKey(event: KeyboardEvent): boolean {
-    const charCode: number = (event.which) ? event.which : event.keyCode;
-    if (charCode != 46 && charCode > 31 && (charCode < 48 || charCode > 57)) {
-      event.preventDefault();
-      return true;
-    }
-    return false;
-  }
-
-  private static _validateNumber(event: Event): void {
-    const input: HTMLInputElement = <HTMLInputElement> event.target;
-    input.value = String(OctaveCountPrompt._validate(input));
-  }
-
-  private static _validate(input: HTMLInputElement): number {
-    return Math.floor(Math.max(Number(input.min), Math.min(Number(input.max), Number(input.value))));
+    this._octaves.removeEventListener("keypress", validateKey);
+    this._octaves.removeEventListener("blur", validateNumber);
   }
 
   protected override _saveChanges(): void {
     this._doc.prompt = null;
-    this._doc.record(new ChangeOctaveCount(this._doc, OctaveCountPrompt._validate(this._octaves)));
+    this._doc.record(new ChangeOctaveCount(this._doc, validate(this._octaves)));
     let numChannels: number = this._doc.song.channels.length;
     let numPatterns: number;
     for (let i = 0; i < numChannels; i++) {

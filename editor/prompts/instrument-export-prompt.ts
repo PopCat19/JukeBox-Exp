@@ -47,7 +47,7 @@ export class InstrumentExportPrompt extends BasePrompt {
       "in channel:",
       this._exportMultipleBox,
     ),
-    div({ style: "display: flex; flex-direction: row-reverse; justify-content: space-between;" }, this._okayButton),
+    this._getOkayRow(),
     this._cancelButton,
   );
 
