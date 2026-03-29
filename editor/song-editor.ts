@@ -20,7 +20,7 @@ import { ChannelGainPrompt } from "./prompts/channel-gain-prompt";
 import { ChannelSettingsPrompt } from "./prompts/channel-settings-prompt";
 import { CustomChipPrompt } from "./prompts/custom-chip-prompt";
 import { CustomFilterPrompt } from "./prompts/custom-filter-prompt";
-import { EuclideanRhythmPrompt } from "./prompts/euclidgen-rhythm-prompt";
+import { EuclidgenRhythmPrompt } from "./prompts/euclidgen-rhythm-prompt";
 import { ExportPrompt } from "./prompts/export-prompt";
 import { InstrumentExportPrompt } from "./prompts/instrument-export-prompt";
 import { InstrumentImportPrompt } from "./prompts/instrument-import-prompt";
@@ -4057,7 +4057,7 @@ export class SongEditor implements ModSliderProvider {
         newPrompt = new AddSamplesPrompt(this.doc);
         break;
       case "generateEuclideanRhythm":
-        newPrompt = new EuclideanRhythmPrompt(this.doc);
+        newPrompt = new EuclidgenRhythmPrompt(this.doc);
         break;
       case "customTheme":
         newPrompt = new CustomThemePrompt(
