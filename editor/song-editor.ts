@@ -4182,6 +4182,15 @@ export class SongEditor implements ModSliderProvider {
         }
       });
 
+      // Focus-to-focus: sync _focusedPrompt when DOM focus enters this prompt
+      // (e.g. clicking an input after mouseleave cleared _focusedPrompt).
+      newPrompt.container.addEventListener("focusin", () => {
+        if (this._focusedPrompt !== newPrompt) {
+          this._focusedPrompt = newPrompt;
+          this._updatePromptFocus();
+        }
+      });
+
       newPrompt.container.addEventListener("mouseleave", (e: Event) => {
         // Only refocus song editor if mouse isn't moving to another prompt
         const related = (e as MouseEvent).relatedTarget as HTMLElement;
