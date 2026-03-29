@@ -55,6 +55,8 @@ export abstract class BasePrompt implements Prompt {
 	}
 
 	public buildTitlebar(): void {
+		if (this.container.querySelector(".prompt-titlebar")) return;
+
 		const h2El: HTMLElement | null = this.container.querySelector("h2");
 
 		if (h2El) {
@@ -64,7 +66,8 @@ export abstract class BasePrompt implements Prompt {
 			const cancelButton = this.container.querySelector(".cancelButton");
 			if (cancelButton) cancelButton.remove();
 
-			h2El.parentNode!.insertBefore(titlebar, h2El);
+			h2El.remove();
+			this.container.insertBefore(titlebar, this.container.firstChild);
 			titlebar.appendChild(shadeBtn);
 			titlebar.appendChild(h2El);
 			if (cancelButton) titlebar.appendChild(cancelButton);

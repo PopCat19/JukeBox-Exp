@@ -767,7 +767,7 @@ html {
 }
 
 .beepboxEditor .prompt > *:not(:first-child):not(.cancelButton) {
-	margin-top: 1.5em;
+	margin-top: 1.25em;
 }
 
 .beepboxEditor .prompt h2 {
@@ -778,7 +778,14 @@ html {
 
 .beepboxEditor .prompt p {
 	text-align: left;
-	margin: 1em 0;
+	margin: 0;
+}
+
+.beepboxEditor .prompt > div:not(.prompt-titlebar),
+.beepboxEditor .prompt > p {
+	display: flex;
+	flex-direction: column;
+	gap: 0.5em;
 }
 
 .beepboxEditor .prompt label {
@@ -1062,7 +1069,7 @@ html {
 	display: flex;
 	align-items: center;
 	gap: 6px;
-	margin-bottom: 1em;
+	width: 100%;
 }
 
 .beepboxEditor .prompt-titlebar > h2 {

@@ -3960,11 +3960,9 @@ export class SongEditor implements ModSliderProvider {
         if (this.doc.prefs.frostedGlassBackground) {
           p.container.style.setProperty("--prompt-backdrop-filter", "blur(14px) brightness(0.9)");
           p.container.style.setProperty("--prompt-bg-color", "color-mix(in srgb, var(--editor-background), transparent 60%)");
-          p.container.style.opacity = "0.4";
         } else {
           p.container.style.removeProperty("--prompt-backdrop-filter");
           p.container.style.removeProperty("--prompt-bg-color");
-          p.container.style.opacity = "";
         }
       } else {
         p.container.style.removeProperty("--prompt-backdrop-filter");
