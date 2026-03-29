@@ -2509,6 +2509,9 @@ export class SongEditor implements ModSliderProvider {
   public get muteEditor(): MuteEditor {
     return this._muteEditor;
   }
+  public get trackEditor(): TrackEditor {
+    return this._trackEditor;
+  }
   public get loopEditor(): LoopEditor {
     return this._loopEditor;
   }

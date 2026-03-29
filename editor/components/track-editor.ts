@@ -121,6 +121,7 @@ export class TrackEditor {
   private _renderedBarCount: number = -1;
   private _renderedEditorWidth: number = -1;
   private _renderedEditorHeight: number = -1;
+  private _externalHoverChannel: number = -1;
   private _renderedPatternCount: number = 0;
   private _renderedPlayhead: number = -1;
   private _touchMode: boolean = isMobile;
@@ -363,6 +364,11 @@ export class TrackEditor {
     this._updatePreview();
   };
 
+  public setHoveredChannel(channel: number): void {
+    this._externalHoverChannel = channel;
+    this._updatePreview();
+  }
+
   private _updatePreview(): void {
     let channel: number = this._mouseChannel;
     let bar: number = this._mouseBar;
@@ -372,12 +378,17 @@ export class TrackEditor {
       channel = this._doc.channel;
     }
 
+    if (!this._mouseOver && this._externalHoverChannel != -1) {
+      bar = this._doc.bar;
+      channel = this._externalHoverChannel;
+    }
+
     const selected: boolean = bar == this._doc.bar && channel == this._doc.channel;
-    const overTrackEditor: boolean = this._mouseY >= Config.barEditorHeight;
+    const overTrackEditor: boolean = this._mouseY >= Config.barEditorHeight || (!this._mouseOver && this._externalHoverChannel != -1);
 
     if (this._mouseOver && overTrackEditor && !this._touchMode) {
       this._songEditor.muteEditor.setHoveredChannel(channel);
-    } else {
+    } else if (this._externalHoverChannel == -1) {
       this._songEditor.muteEditor.setHoveredChannel(-1);
     }
 
@@ -400,7 +411,7 @@ export class TrackEditor {
       }
     }
 
-    if (this._mouseOver && !this._mousePressed && !selected && overTrackEditor) {
+    if ((this._mouseOver || (!this._mouseOver && this._externalHoverChannel != -1)) && !this._mousePressed && !selected && overTrackEditor) {
       this._boxHighlight.setAttribute("x", "" + (1 + this._barWidth * bar));
       this._boxHighlight.setAttribute("y", "" + (1 + Config.barEditorHeight + ChannelRow.patternHeight * channel));
       this._boxHighlight.setAttribute("height", "" + (ChannelRow.patternHeight - 2));

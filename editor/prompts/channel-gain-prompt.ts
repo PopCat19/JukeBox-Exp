@@ -204,6 +204,7 @@ export class ChannelGainPrompt extends BasePrompt {
     this._instrumentSpans.clear();
     this._playPauseButton.removeEventListener("click", this._togglePlayPause);
     this._songEditor.muteEditor.setHoveredChannel(-1);
+    this._songEditor.trackEditor.setHoveredChannel(-1);
     // Invalidate cached bounding rects in other components
     // Use setTimeout to ensure DOM has settled after prompt removal
     setTimeout(() => {
@@ -466,9 +467,11 @@ export class ChannelGainPrompt extends BasePrompt {
 
       channelDiv.addEventListener("mouseenter", () => {
         this._songEditor.muteEditor.setHoveredChannel(i);
+        this._songEditor.trackEditor.setHoveredChannel(i);
       });
       channelDiv.addEventListener("mouseleave", () => {
         this._songEditor.muteEditor.setHoveredChannel(-1);
+        this._songEditor.trackEditor.setHoveredChannel(-1);
       });
       channelDiv.addEventListener("click", () => {
         this._doc.channel = i;
