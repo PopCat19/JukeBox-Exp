@@ -60,8 +60,9 @@ export class SongDurationPrompt extends BasePrompt {
   );
 
   constructor(doc: SongDocument) {
-    super(doc);
-    this._barsStepper.value = this._doc.song.barCount + "";
+		super(doc);
+		this.buildTitlebar();
+		this._barsStepper.value = this._doc.song.barCount + "";
     this._barsStepper.min = Config.barCountMin + "";
     this._barsStepper.max = Config.barCountMax + "";
 

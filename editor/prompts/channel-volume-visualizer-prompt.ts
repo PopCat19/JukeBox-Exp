@@ -152,6 +152,7 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 
   constructor(doc: SongDocument, private _songEditor: SongEditor) {
     super(doc);
+    this.buildTitlebar();
     this._animate = this._animate.bind(this);
     this._onDocChange = this._renderChannelList.bind(this);
     this._doc.notifier.watch(this._onDocChange);

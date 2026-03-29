@@ -172,6 +172,7 @@ export class ExportPrompt extends BasePrompt {
 
   constructor(doc: SongDocument) {
     super(doc);
+    this.buildTitlebar();
     this._okayButton.classList.add("exportButton");
     this._okayButton.textContent = "Export";
 

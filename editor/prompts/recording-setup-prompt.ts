@@ -155,6 +155,7 @@ export class RecordingSetupPrompt extends BasePrompt {
 
   constructor(doc: SongDocument) {
     super(doc);
+    this.buildTitlebar();
     this._keyboardMode.value = this._doc.prefs.pressControlForShortcuts
       ? "pressControlForShortcuts"
       : "useCapsLockForNotes";

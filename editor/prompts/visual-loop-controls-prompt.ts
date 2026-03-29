@@ -541,6 +541,7 @@ export class VisualLoopControlsPrompt extends BasePrompt {
 
   constructor(doc: SongDocument, songEditor: SongEditor) {
     super(doc);
+    this.buildTitlebar();
     this._songEditor = songEditor;
     this._waveformContext = this._waveformCanvas.getContext("2d");
     this._overlayContext = this._overlayCanvas.getContext("2d");

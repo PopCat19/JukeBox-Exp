@@ -182,6 +182,7 @@ export class CustomThemePrompt extends BasePrompt {
     private _pattern3: HTMLElement,
   ) {
     super(doc);
+    this.buildTitlebar();
     this._fileInput.addEventListener("change", this._whenFileSelected);
     this._fileInput2.addEventListener("change", this._whenFileSelected2);
     this._colorInput.addEventListener("change", this._whenColorsChanged);

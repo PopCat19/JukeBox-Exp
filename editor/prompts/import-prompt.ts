@@ -77,6 +77,7 @@ export class ImportPrompt extends BasePrompt {
 
   constructor(doc: SongDocument) {
     super(doc);
+    this.buildTitlebar();
     this._browseButton.addEventListener("click", () => this._fileInput.click());
     this._fileInput.addEventListener("change", this._whenFileSelected);
   }

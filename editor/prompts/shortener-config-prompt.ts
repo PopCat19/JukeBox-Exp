@@ -32,6 +32,7 @@ export class ShortenerConfigPrompt extends BasePrompt {
 
   constructor(doc: SongDocument) {
     super(doc);
+    this.buildTitlebar();
     const lastStrategy: string | null = window.localStorage.getItem("shortenerStrategySelect");
     if (lastStrategy != null) {
       this._shortenerStrategySelect.value = lastStrategy;

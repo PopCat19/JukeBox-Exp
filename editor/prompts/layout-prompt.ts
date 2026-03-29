@@ -152,6 +152,7 @@ export class LayoutPrompt extends BasePrompt {
 
   constructor(doc: SongDocument) {
     super(doc);
+    this.buildTitlebar();
     (<any> this._form.elements)["layout"].value = this._doc.prefs.layout;
     this.container.addEventListener("keydown", this.whenKeyPressed);
   }

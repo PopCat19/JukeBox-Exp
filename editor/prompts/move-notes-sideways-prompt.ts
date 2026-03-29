@@ -56,6 +56,7 @@ export class MoveNotesSidewaysPrompt extends BasePrompt {
 
   constructor(doc: SongDocument) {
     super(doc);
+    this.buildTitlebar();
     this._beatsStepper.min = (-this._doc.song.beatsPerBar) + "";
     this._beatsStepper.max = this._doc.song.beatsPerBar + "";
 

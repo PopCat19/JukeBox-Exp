@@ -98,8 +98,9 @@ export class CustomFilterPrompt extends BasePrompt {
     private _useNoteFilter: boolean,
     private forSong: boolean = false,
   ) {
-    super(doc);
-    this._playButton.addEventListener("click", this._togglePlay);
+		super(doc);
+		this.buildTitlebar();
+		this._playButton.addEventListener("click", this._togglePlay);
     this._filterCopyButton.addEventListener("click", this._copyFilterSettings);
     this._filterPasteButton.addEventListener("click", this._pasteFilterSettings);
     updatePlayButton(this._playButton, this._doc.synth.playing);

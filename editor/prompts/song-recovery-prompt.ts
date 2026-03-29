@@ -34,6 +34,7 @@ export class SongRecoveryPrompt extends BasePrompt {
 
   constructor(doc: SongDocument) {
     super(doc);
+    this.buildTitlebar();
     const songs: RecoveredSong[] = SongRecovery.getAllRecoveredSongs();
 
     if (songs.length == 0) {

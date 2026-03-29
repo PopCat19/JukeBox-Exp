@@ -275,6 +275,7 @@ export class LimiterPrompt extends BasePrompt {
 
   constructor(doc: SongDocument, private _songEditor: SongEditor) {
     super(doc);
+    this.buildTitlebar();
 
     this._resetButton.addEventListener("click", this._resetDefaults);
     this.container.addEventListener("keydown", this.whenKeyPressed);

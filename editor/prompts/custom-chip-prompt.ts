@@ -341,8 +341,9 @@ export class CustomChipPrompt extends BasePrompt {
   );
 
   constructor(doc: SongDocument, private _songEditor: SongEditor) {
-    super(doc);
-    this.copyButton.addEventListener("click", this._copySettings);
+		super(doc);
+		this.buildTitlebar();
+		this.copyButton.addEventListener("click", this._copySettings);
     this.pasteButton.addEventListener("click", this._pasteSettings);
     this._playButton.addEventListener("click", this._togglePlay);
     updatePlayButton(this._playButton, this._doc.synth.playing);

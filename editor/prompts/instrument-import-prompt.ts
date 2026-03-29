@@ -48,6 +48,7 @@ export class InstrumentImportPrompt extends BasePrompt {
 
   constructor(doc: SongDocument) {
     super(doc);
+    this.buildTitlebar();
     if ((doc.song.patternInstruments || doc.song.layeredInstruments) == false) {
       this._importStrategySelect.disabled = true;
       this._importStrategySelect.value = "replace";

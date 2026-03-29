@@ -409,6 +409,7 @@ export class EuclidgenRhythmPrompt extends BasePrompt {
 
   constructor(doc: SongDocument) {
     super(doc);
+    this.buildTitlebar();
     this._startBar = this._doc.bar;
     this._barPreviewBarIndex = this._startBar;
 

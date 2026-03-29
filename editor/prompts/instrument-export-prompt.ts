@@ -53,6 +53,7 @@ export class InstrumentExportPrompt extends BasePrompt {
 
   constructor(doc: SongDocument) {
     super(doc);
+    this.buildTitlebar();
     this._okayButton.classList.add("exportButton");
     this._okayButton.textContent = "Export";
     this._fileName.addEventListener("input", InstrumentExportPrompt._validateFileName);

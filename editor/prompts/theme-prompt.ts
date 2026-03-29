@@ -110,6 +110,7 @@ export class ThemePrompt extends BasePrompt {
 
   constructor(doc: SongDocument) {
     super(doc);
+    this.buildTitlebar();
     if (this.lastTheme != null) {
       this._themeSelect.value = this.lastTheme;
     }
