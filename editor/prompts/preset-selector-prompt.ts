@@ -12,24 +12,20 @@ import { HTML } from "imperative-html/dist/esm/elements-strict";
 import { ChangePreset } from "../changes";
 import { EditorConfig, Preset, PresetCategory } from "../config/editor-config";
 import { SongDocument } from "../song-document";
-import { Prompt } from "./prompt";
+import { BasePrompt } from "./base-prompt";
 
-const { div, input, h2, button } = HTML;
+const { div, input, h2 } = HTML;
 
 interface CategoryEntry {
   name: string;
   presets: { name: string; value: number }[];
 }
 
-export class PresetSelectorPrompt implements Prompt {
-  public container: HTMLDivElement;
-  public whenKeyPressed: (event: KeyboardEvent) => void;
-
+export class PresetSelectorPrompt extends BasePrompt {
   private _categoryList: HTMLDivElement;
   private _presetList: HTMLDivElement;
   private _infoPanel: HTMLDivElement;
   private _searchInput: HTMLInputElement;
-  private readonly _cancelButton: HTMLButtonElement = button({ class: "cancelButton" });
   private _categories: CategoryEntry[] = [];
   private _selectedCategoryIndex: number = 0;
   private _selectedPresetIndex: number = 0;
@@ -41,7 +37,10 @@ export class PresetSelectorPrompt implements Prompt {
   private _clickTimer: ReturnType<typeof setTimeout> | null = null;
   private _clickTarget: string | null = null;
 
-  constructor(private _doc: SongDocument) {
+  public readonly container: HTMLDivElement;
+
+  constructor(doc: SongDocument) {
+    super(doc);
     const isNoise: boolean = this._doc.song.getChannelIsNoise(this._doc.channel);
     const currentPreset: number =
       this._doc.song.channels[this._doc.channel].instruments[this._doc.getCurrentInstrument()].preset;
@@ -51,59 +50,24 @@ export class PresetSelectorPrompt implements Prompt {
     this._searchInput = input({
       type: "text",
       placeholder: "Search presets...",
-      style: `
-                width: 100%;
-                padding: 6px 10px;
-                border: 2px solid var(--ui-widget-background);
-                border-radius: 6px;
-                background: var(--editor-background);
-                color: var(--primary-text);
-                font-size: 14px;
-                outline: none;
-                box-sizing: border-box;
-            `,
+      style: `width: 100%; padding: 6px 10px; border: 2px solid var(--ui-widget-background); border-radius: 6px; background: var(--editor-background); color: var(--primary-text); font-size: 14px; outline: none; box-sizing: border-box;`,
     });
 
     this._categoryList = div({
-      style: `
-                flex: 0 0 180px;
-                overflow-y: auto;
-                border-right: 2px solid var(--ui-widget-background);
-                padding: 4px 0;
-            `,
+      style: `flex: 0 0 180px; overflow-y: auto; border-right: 2px solid var(--ui-widget-background); padding: 4px 0;`,
     });
 
     this._presetList = div({
-      style: `
-                flex: 1;
-                overflow-y: auto;
-                padding: 4px 0;
-                border-right: 2px solid var(--ui-widget-background);
-            `,
+      style: `flex: 1; overflow-y: auto; padding: 4px 0; border-right: 2px solid var(--ui-widget-background);`,
     });
 
     this._infoPanel = div({
-      style: `
-                flex: 0 0 180px;
-                overflow-y: auto;
-                padding: 8px 10px;
-                font-size: 12px;
-                color: var(--secondary-text);
-                line-height: 1.5;
-            `,
+      style: `flex: 0 0 180px; overflow-y: auto; padding: 8px 10px; font-size: 12px; color: var(--secondary-text); line-height: 1.5;`,
     });
 
     const paneContainer = div(
       {
-        style: `
-                display: flex;
-                flex-direction: row;
-                height: 400px;
-                margin-top: 12px;
-                border: 2px solid var(--ui-widget-background);
-                border-radius: 6px;
-                overflow: hidden;
-            `,
+        style: `display: flex; flex-direction: row; height: 400px; margin-top: 12px; border: 2px solid var(--ui-widget-background); border-radius: 6px; overflow: hidden;`,
       },
       this._categoryList,
       this._presetList,
@@ -111,12 +75,7 @@ export class PresetSelectorPrompt implements Prompt {
     );
 
     const instructionsDiv = div({
-      style: `
-                font-size: 11px;
-                color: var(--secondary-text);
-                margin-top: 8px;
-                text-align: center;
-            `,
+      style: `font-size: 11px; color: var(--secondary-text); margin-top: 8px; text-align: center;`,
     }, "Arrow keys: navigate | Enter / Right: select | Tab: switch pane | ESC: close");
 
     this.container = div(
@@ -159,18 +118,9 @@ export class PresetSelectorPrompt implements Prompt {
     this._searchInput.addEventListener("input", this._onSearchInput);
     this._searchInput.addEventListener("keydown", this._onSearchKeyDown);
     this.container.addEventListener("keydown", this._onContainerKeyDown);
-    this._cancelButton.addEventListener("click", this._close);
-
-    this.whenKeyPressed = (_event: KeyboardEvent): void => {
-      // ESC is handled by keyboard handler via doc.undo()
-    };
 
     setTimeout(() => this.container.focus());
   }
-
-  private _close = (): void => {
-    this._doc.prompt = null;
-  };
 
   public closeWithoutUndo = (): void => {
     this._doc.prompt = null;
@@ -213,11 +163,9 @@ export class PresetSelectorPrompt implements Prompt {
 
   private _buildCategories(isNoise: boolean): void {
     this._categories = [];
-
     for (let catIdx = 0; catIdx < EditorConfig.presetCategories.length; catIdx++) {
       const category: PresetCategory = EditorConfig.presetCategories[catIdx];
       const presets: { name: string; value: number }[] = [];
-
       for (let presetIdx = 0; presetIdx < category.presets.length; presetIdx++) {
         const preset: Preset = category.presets[presetIdx];
         if ((preset.isNoise === true) === isNoise) {
@@ -227,7 +175,6 @@ export class PresetSelectorPrompt implements Prompt {
           });
         }
       }
-
       if (presets.length > 0) {
         this._categories.push({ name: category.name, presets });
       }
@@ -237,26 +184,18 @@ export class PresetSelectorPrompt implements Prompt {
   private _renderCategories(): void {
     this._categoryList.innerHTML = "";
     this._categoryItems = [];
-
     for (let i = 0; i < this._categories.length; i++) {
       const cat = this._categories[i];
       const label = `${cat.name} (${cat.presets.length})`;
       const item = div({
         title: label,
-        style: `
-                    padding: 6px 12px;
-                    cursor: pointer;
-                    font-size: 13px;
-                    line-height: 1.3;
-                `,
+        style: `padding: 6px 12px; cursor: pointer; font-size: 13px; line-height: 1.3;`,
       }, label);
-
       const idx = i;
       item.addEventListener("mousedown", (event: MouseEvent) => {
         event.preventDefault();
         this._handleItemClick("cat", idx);
       });
-
       this._categoryList.appendChild(item);
       this._categoryItems.push(item);
     }
@@ -265,19 +204,13 @@ export class PresetSelectorPrompt implements Prompt {
   private _renderPresets(): void {
     this._presetList.innerHTML = "";
     this._presetItems = [];
-
     const presets = this._isSearchMode
       ? this._filteredPresets
       : this._categories[this._selectedCategoryIndex]?.presets ?? [];
 
     if (presets.length === 0) {
       const emptyMsg = div({
-        style: `
-                    padding: 12px;
-                    color: var(--secondary-text);
-                    font-size: 13px;
-                    text-align: center;
-                `,
+        style: `padding: 12px; color: var(--secondary-text); font-size: 13px; text-align: center;`,
       }, this._isSearchMode ? "No matching presets" : "No presets");
       this._presetList.appendChild(emptyMsg);
       return;
@@ -288,27 +221,18 @@ export class PresetSelectorPrompt implements Prompt {
       const label = this._isSearchMode
         ? `${preset.name} [${(preset as any).categoryName}]`
         : preset.name;
-
       const item = div({
         title: label,
-        style: `
-                    padding: 5px 12px;
-                    cursor: pointer;
-                    font-size: 13px;
-                    line-height: 1.3;
-                `,
+        style: `padding: 5px 12px; cursor: pointer; font-size: 13px; line-height: 1.3;`,
       }, label);
-
       const idx = i;
       item.addEventListener("mousedown", (event: MouseEvent) => {
         event.preventDefault();
         this._handleItemClick("preset", idx);
       });
-
       this._presetList.appendChild(item);
       this._presetItems.push(item);
     }
-
     this._updateHighlight();
   }
 
@@ -316,10 +240,8 @@ export class PresetSelectorPrompt implements Prompt {
     const presets = this._isSearchMode
       ? this._filteredPresets
       : this._categories[this._selectedCategoryIndex]?.presets ?? [];
-
     const preset = presets[this._selectedPresetIndex];
     if (!preset) return;
-
     for (let ci = 0; ci < this._categories.length; ci++) {
       if (this._categories[ci].presets.some(p => p.value === preset.value)) {
         this._selectedCategoryIndex = ci;
@@ -330,7 +252,6 @@ export class PresetSelectorPrompt implements Prompt {
 
   private _updateHighlight(): void {
     this._syncCategoryToPreset();
-
     for (let i = 0; i < this._categoryItems.length; i++) {
       const isActive = i === this._selectedCategoryIndex;
       const isFocused = isActive && this._activePane === "categories";
@@ -340,7 +261,6 @@ export class PresetSelectorPrompt implements Prompt {
         ? "rgba(255,255,255,0.12)"
         : "transparent";
     }
-
     for (let i = 0; i < this._presetItems.length; i++) {
       const isActive = i === this._selectedPresetIndex;
       const isFocused = isActive && this._activePane === "presets";
@@ -349,7 +269,6 @@ export class PresetSelectorPrompt implements Prompt {
         : "transparent";
       this._presetItems[i].style.color = "var(--primary-text)";
     }
-
     this._updateInfoPanel();
   }
 
@@ -359,76 +278,47 @@ export class PresetSelectorPrompt implements Prompt {
       ? this._filteredPresets
       : cat?.presets ?? [];
     const preset = presets[this._selectedPresetIndex];
-
     if (!cat || !preset) {
       this._infoPanel.textContent = "";
       return;
     }
-
-    const catName = this._isSearchMode
-      ? (preset as any).categoryName as string
-      : cat.name;
-
+    const catName = this._isSearchMode ? (preset as any).categoryName : cat.name;
     const total = presets.length;
     const pos = this._selectedPresetIndex + 1;
-
     this._infoPanel.textContent = "";
     this._infoPanel.appendChild(div(
       { style: "margin-bottom: 10px;" },
-      div({
-        style:
-          "color: var(--secondary-text); font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 2px;",
-      }, "Category"),
+      div({ style: "color: var(--secondary-text); font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 2px;" }, "Category"),
       div({ style: "color: var(--primary-text); font-size: 13px; word-break: break-word;" }, catName),
     ));
     this._infoPanel.appendChild(div(
       { style: "margin-bottom: 10px;" },
-      div({
-        style:
-          "color: var(--secondary-text); font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 2px;",
-      }, "Preset"),
+      div({ style: "color: var(--secondary-text); font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 2px;" }, "Preset"),
       div({ style: "color: var(--primary-text); font-size: 13px; word-break: break-word;" }, preset.name),
     ));
     this._infoPanel.appendChild(div(
       {},
-      div({
-        style:
-          "color: var(--secondary-text); font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 2px;",
-      }, "Position"),
+      div({ style: "color: var(--secondary-text); font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 2px;" }, "Position"),
       div({ style: "color: var(--primary-text); font-size: 13px;" }, `${pos} / ${total}`),
     ));
-
     if (this._isSearchMode) {
-      this._infoPanel.appendChild(div(
-        { style: "margin-top: 10px;" },
-        div({
-          style:
-            "color: var(--secondary-text); font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 2px;",
-        }, "Results"),
-        div({ style: "color: var(--primary-text); font-size: 13px;" }, `${total} matching`),
-      ));
+      this._infoPanel.appendChild(div({ style: "margin-top: 10px;" }, div({ style: "color: var(--secondary-text); font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 2px;" }, "Results"), div({ style: "color: var(--primary-text); font-size: 13px;" }, `${total} matching`)));
     }
   }
 
   private _scrollItemIntoView(items: HTMLDivElement[], index: number, container: HTMLDivElement): void {
     const item = items[index];
     if (!item) return;
-
     const itemRect = item.getBoundingClientRect();
     const containerRect = container.getBoundingClientRect();
-
-    if (itemRect.top < containerRect.top) {
-      container.scrollTop -= containerRect.top - itemRect.top;
-    } else if (itemRect.bottom > containerRect.bottom) {
-      container.scrollTop += itemRect.bottom - containerRect.bottom;
-    }
+    if (itemRect.top < containerRect.top) container.scrollTop -= containerRect.top - itemRect.top;
+    else if (itemRect.bottom > containerRect.bottom) container.scrollTop += itemRect.bottom - containerRect.bottom;
   }
 
   private _applySelection(): void {
     const presets = this._isSearchMode
       ? this._filteredPresets
       : this._categories[this._selectedCategoryIndex]?.presets ?? [];
-
     const preset = presets[this._selectedPresetIndex];
     if (preset) {
       this._doc.prompt = null;
@@ -438,7 +328,6 @@ export class PresetSelectorPrompt implements Prompt {
 
   private _onSearchInput = (): void => {
     const query = this._searchInput.value.trim().toLowerCase();
-
     if (query === "") {
       this._isSearchMode = false;
       this._selectedPresetIndex = 0;
@@ -446,10 +335,8 @@ export class PresetSelectorPrompt implements Prompt {
       this._updateHighlight();
       return;
     }
-
     this._isSearchMode = true;
     this._filteredPresets = [];
-
     for (const cat of this._categories) {
       for (const preset of cat.presets) {
         if (preset.name.toLowerCase().includes(query)) {
@@ -461,7 +348,6 @@ export class PresetSelectorPrompt implements Prompt {
         }
       }
     }
-
     this._selectedPresetIndex = 0;
     this._activePane = "presets";
     this._renderPresets();
@@ -469,7 +355,7 @@ export class PresetSelectorPrompt implements Prompt {
   };
 
   private _onSearchKeyDown = (event: KeyboardEvent): void => {
-    if (event.keyCode === 27) { // ESC key
+    if (event.keyCode === 27) {
       this._searchInput.blur();
       this.container.focus();
       event.preventDefault();
@@ -518,10 +404,8 @@ export class PresetSelectorPrompt implements Prompt {
 
   private _onContainerKeyDown = (event: KeyboardEvent): void => {
     if (event.target === this._searchInput) return;
-
     const presetCount = this._getActivePresetCount();
     const categoryCount = this._categories.length;
-
     switch (event.keyCode) {
       case 38:
         if (this._activePane === "categories") {
@@ -614,11 +498,15 @@ export class PresetSelectorPrompt implements Prompt {
     return this._categories[this._selectedCategoryIndex]?.presets.length ?? 0;
   }
 
-  public cleanUp = (): void => {
+  public override cleanUp = (): void => {
+    super.cleanUp();
     if (this._clickTimer) clearTimeout(this._clickTimer);
     this._searchInput.removeEventListener("input", this._onSearchInput);
     this._searchInput.removeEventListener("keydown", this._onSearchKeyDown);
     this.container.removeEventListener("keydown", this._onContainerKeyDown);
-    this._cancelButton.removeEventListener("click", this._close);
   };
+
+  protected override _saveChanges(): void {
+    this._applySelection();
+  }
 }

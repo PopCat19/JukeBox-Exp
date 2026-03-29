@@ -15,43 +15,30 @@ import { FilterEditor } from "../components/filter-editor";
 import { ColorConfig } from "../rendering/color-config";
 import { SongDocument } from "../song-document";
 import { SongEditor } from "../song-editor";
-import { Prompt } from "./prompt";
+import { BasePrompt } from "./base-prompt";
 
-// namespace beepbox {
 const { button, div, h2, p } = HTML;
 
-export class CustomFilterPrompt implements Prompt {
+export class CustomFilterPrompt extends BasePrompt {
   public filterEditor: FilterEditor;
-
   public filterData: FilterSettings = new FilterSettings();
   public startingFilterData: FilterSettings = new FilterSettings();
-
   private _subfilterIndex = 0;
-
   public readonly _playButton: HTMLButtonElement = button({ style: "width: 55%;", type: "button" });
-
   public readonly _filterButtons: HTMLButtonElement[] = [];
-
   public readonly _filterButtonContainer: HTMLDivElement = div({
     class: "instrument-bar",
     style: "justify-content: center;",
   });
-
-  private readonly _cancelButton: HTMLButtonElement = button({ class: "cancelButton" });
-  private readonly _okayButton: HTMLButtonElement = button({ class: "okayButton", style: "width:45%;" }, "Okay");
-
   private readonly _filterContainer: HTMLDivElement = div({
     style: "width: 100%; display: flex; flex-direction: row; align-items: center; justify-content: center;",
   });
-
   private readonly _editorTitle: HTMLDivElement = div({}, h2("Edit Filter"));
-
   private readonly _filterCopyButton: HTMLButtonElement = button({
     style: "width:86px; margin-right: 5px;",
     class: "copyButton",
   }, [
     "Copy",
-    // Copy icon:
     SVG.svg({
       style: "flex-shrink: 0; position: absolute; left: 0; top: 50%; margin-top: -1em; pointer-events: none;",
       width: "2em",
@@ -66,7 +53,6 @@ export class CustomFilterPrompt implements Prompt {
   ]);
   private readonly _filterPasteButton: HTMLButtonElement = button({ style: "width:86px;", class: "pasteButton" }, [
     "Paste",
-    // Paste icon:
     SVG.svg({
       style: "flex-shrink: 0; position: absolute; left: 0; top: 50%; margin-top: -1em; pointer-events: none;",
       width: "2em",
@@ -110,23 +96,21 @@ export class CustomFilterPrompt implements Prompt {
   );
 
   constructor(
-    private _doc: SongDocument,
+    doc: SongDocument,
     private _songEditor: SongEditor,
     private _useNoteFilter: boolean,
     private forSong: boolean = false,
   ) {
-    this._okayButton.addEventListener("click", this._saveChanges);
-    this._cancelButton.addEventListener("click", this._close);
+    super(doc);
     this._playButton.addEventListener("click", this._togglePlay);
     this._filterCopyButton.addEventListener("click", this._copyFilterSettings);
     this._filterPasteButton.addEventListener("click", this._pasteFilterSettings);
     this.updatePlayButton();
     const colors = ColorConfig.getChannelColor(this._doc.song, this._doc.channel);
 
-    this.filterEditor = new FilterEditor(_doc, _useNoteFilter, true, this.forSong);
+    this.filterEditor = new FilterEditor(doc, _useNoteFilter, true, this.forSong);
     this._filterContainer.appendChild(this.filterEditor.container);
 
-    // Add coordinates to editor
     this.filterEditor.container.insertBefore(this._filterCoordinateText, this.filterEditor.container.firstChild);
     this.filterEditor.coordText = this._filterCoordinateText;
 
@@ -158,10 +142,6 @@ export class CustomFilterPrompt implements Prompt {
     this._filterButtonContainer.style.setProperty("--background-color-lit", colors.primaryChannel);
     this._filterButtonContainer.style.setProperty("--background-color-dim", colors.secondaryChannel);
 
-    this._filterContainer.addEventListener("keydown", this._whenKeyPressed);
-    this.filterEditor.container.addEventListener("keydown", this._whenKeyPressed);
-    this.container.addEventListener("keydown", this._whenKeyPressed);
-
     setTimeout(() => this._playButton.focus());
 
     this.filterEditor.render();
@@ -187,33 +167,10 @@ export class CustomFilterPrompt implements Prompt {
 
   private _pasteFilterSettings = (): void => {
     const filterCopy: FilterSettings = new FilterSettings();
-    filterCopy.fromJsonObject(JSON.parse(String(window.localStorage.getItem("filterCopy"))));
-    if (filterCopy != null) {
+    const stored = window.localStorage.getItem("filterCopy");
+    if (stored) {
+      filterCopy.fromJsonObject(JSON.parse(stored));
       this.filterEditor.swapToSettings(filterCopy, true);
-    }
-  };
-
-  private _whenKeyPressed = (event: KeyboardEvent): void => {
-    if (event.keyCode == 90) { // z
-      const newIdx = this.filterEditor.undo();
-      if (newIdx >= 0) {
-        this._setSubfilter(newIdx, false, false);
-      }
-      event.stopPropagation();
-    }
-    if (event.keyCode == 89) { // y
-      const newIdx = this.filterEditor.redo();
-      if (newIdx >= 0) {
-        this._setSubfilter(newIdx, false, false);
-      }
-      event.stopPropagation();
-    }
-    // Number 1-9
-    if (event.keyCode >= 49 && event.keyCode <= 57) {
-      if (!event.shiftKey) {
-        this.filterEditor.swapSubfilterIndices(event.keyCode - 49);
-        event.stopPropagation();
-      }
     }
   };
 
@@ -236,32 +193,35 @@ export class CustomFilterPrompt implements Prompt {
     }
   }
 
-  private _close = (): void => {
-    this._doc.prompt = null;
-    // Restore filter settings to default
+  protected override _close = (): void => {
     this.filterEditor.resetToInitial();
     this._doc.prompt = null;
   };
 
-  public cleanUp = (): void => {
-    this._okayButton.removeEventListener("click", this._saveChanges);
-    this._cancelButton.removeEventListener("click", this._close);
-    this.container.removeEventListener("keydown", this.whenKeyPressed);
-
+  public override cleanUp(): void {
+    super.cleanUp();
     this._playButton.removeEventListener("click", this._togglePlay);
-  };
+    this._filterCopyButton.removeEventListener("click", this._copyFilterSettings);
+    this._filterPasteButton.removeEventListener("click", this._pasteFilterSettings);
+  }
 
-  public whenKeyPressed = (event: KeyboardEvent): void => {
+  public override whenKeyPressed = (event: KeyboardEvent): void => {
     if ((<Element> event.target).tagName != "BUTTON" && event.keyCode == 13) { // Enter key
       this._saveChanges();
     } else if (event.keyCode == 32) { // space
       this._togglePlay();
       event.preventDefault();
     } else if (event.keyCode == 90) { // z
-      this.filterEditor.undo();
+      const newIdx = this.filterEditor.undo();
+      if (newIdx >= 0) {
+        this._setSubfilter(newIdx, false, false);
+      }
       event.stopPropagation();
     } else if (event.keyCode == 89) { // y
-      this.filterEditor.redo();
+      const newIdx = this.filterEditor.redo();
+      if (newIdx >= 0) {
+        this._setSubfilter(newIdx, false, false);
+      }
       event.stopPropagation();
     } else if (event.keyCode == 219) { // [
       this._doc.synth.goToPrevBar();
@@ -274,9 +234,8 @@ export class CustomFilterPrompt implements Prompt {
     }
   };
 
-  private _saveChanges = (): void => {
+  protected override _saveChanges(): void {
     this._doc.prompt = null;
     this.filterEditor.saveSettings();
-  };
+  }
 }
-// }

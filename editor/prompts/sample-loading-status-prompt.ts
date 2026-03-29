@@ -17,16 +17,14 @@ import {
 import { EditorConfig } from "../config/editor-config";
 import { ColorConfig } from "../rendering/color-config";
 import { SongDocument } from "../song-document";
+import { BasePrompt } from "./base-prompt";
 
-const { div, h2, span, input, button } = HTML;
+const { div, h2, span, input } = HTML;
 
-export class SampleLoadingStatusPrompt {
+export class SampleLoadingStatusPrompt extends BasePrompt {
   private readonly _intervalDuration: number = 2000;
-
-  private readonly _doc: SongDocument;
   private _interval: ReturnType<typeof setInterval> | null = null;
   private _renderedWhenAllHaveStoppedChanging: boolean = false;
-  private readonly _cancelButton: HTMLButtonElement = button({ class: "cancelButton" });
   private _statusesContainer: HTMLDivElement = div();
   private _noSamplesMessage: HTMLDivElement = div(
     { style: "margin-top: 0.5em; display: none;" },
@@ -45,25 +43,23 @@ export class SampleLoadingStatusPrompt {
     this._cancelButton,
   );
 
-  constructor(_doc: SongDocument) {
-    this._doc = _doc;
+  constructor(doc: SongDocument) {
+    super(doc);
     this._interval = setInterval(() => this._render(), this._intervalDuration);
     this._render();
-    this._cancelButton.addEventListener("click", this._close);
   }
 
-  private _close = (): void => {
-    this._doc.prompt = null;
-  };
-
-  public cleanUp = (): void => {
+  public override cleanUp(): void {
+    super.cleanUp();
     while (this._statusesContainer.firstChild !== null) {
       this._statusesContainer.removeChild(this._statusesContainer.firstChild);
     }
-
-    this._cancelButton.removeEventListener("click", this._close);
     clearInterval(this._interval!);
-  };
+  }
+
+  protected override _saveChanges(): void {
+    this._close();
+  }
 
   private _render = (): void => {
     const hasNoCustomSamples: boolean = EditorConfig.customSamples == null;
@@ -87,9 +83,6 @@ export class SampleLoadingStatusPrompt {
         break;
       }
     }
-
-    // @TODO: This is very much not efficient. The slowness here
-    // isn't harmless if more samples are to be allowed.
 
     while (this._statusesContainer.firstChild !== null) {
       this._statusesContainer.removeChild(this._statusesContainer.firstChild);

@@ -11,13 +11,14 @@
 import { HTML } from "imperative-html/dist/esm/elements-strict";
 import { RecoveredSong, RecoveredVersion, SongRecovery, versionToKey } from "../io/song-recovery";
 import { SongDocument } from "../song-document";
-import { Prompt } from "./prompt";
+import { BasePrompt } from "./base-prompt";
 
-const { button, div, h2, p, select, option, iframe } = HTML;
+const { div, h2, p, select, option, iframe } = HTML;
 
-export class SongRecoveryPrompt implements Prompt {
+declare const OFFLINE: boolean;
+
+export class SongRecoveryPrompt extends BasePrompt {
   private readonly _songContainer: HTMLDivElement = div();
-  private readonly _cancelButton: HTMLButtonElement = button({ class: "cancelButton" });
 
   public readonly container: HTMLDivElement = div(
     { class: "prompt", style: "width: 300px;" },
@@ -31,9 +32,8 @@ export class SongRecoveryPrompt implements Prompt {
     this._cancelButton,
   );
 
-  constructor(private _doc: SongDocument) {
-    this._cancelButton.addEventListener("click", this._close);
-
+  constructor(doc: SongDocument) {
+    super(doc);
     const songs: RecoveredSong[] = SongRecovery.getAllRecoveredSongs();
 
     if (songs.length == 0) {
@@ -69,11 +69,7 @@ export class SongRecoveryPrompt implements Prompt {
     }
   }
 
-  private _close = (): void => {
-    this._doc.prompt = null;
-  };
-
-  public cleanUp = (): void => {
-    this._cancelButton.removeEventListener("click", this._close);
-  };
+  protected override _saveChanges(): void {
+    // No changes to save
+  }
 }

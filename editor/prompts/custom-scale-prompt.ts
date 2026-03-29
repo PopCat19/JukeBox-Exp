@@ -12,22 +12,20 @@ import { HTML } from "imperative-html/dist/esm/elements-strict";
 import { Config } from "../../synth/synth-config";
 import { ChangeCustomScale } from "../changes";
 import { SongDocument } from "../song-document";
-import { Prompt } from "./prompt";
+import { BasePrompt } from "./base-prompt";
 
-// namespace beepbox {
-const { button, div, h2, input, p } = HTML;
+const { div, h2, input, p } = HTML;
 
-export class CustomScalePrompt implements Prompt {
+export class CustomScalePrompt extends BasePrompt {
   private readonly _flags: boolean[] = [];
   private readonly _scaleFlags: HTMLInputElement[] = [];
   private readonly _scaleRows: HTMLDivElement[] = [];
-  private readonly _cancelButton: HTMLButtonElement = button({ class: "cancelButton" });
-  private readonly _okayButton: HTMLButtonElement = button({ class: "okayButton", style: "width:45%;" }, "Okay");
 
   public readonly container: HTMLDivElement;
 
-  constructor(private _doc: SongDocument) {
-    this._flags = _doc.song.scaleCustom.slice();
+  constructor(doc: SongDocument) {
+    super(doc);
+    this._flags = doc.song.scaleCustom.slice();
     const scaleHolder: HTMLDivElement = div({});
     for (let i = Config.pitchesPerOctave - 1; i > 0; i--) {
       this._scaleFlags[i] = input({
@@ -38,11 +36,7 @@ export class CustomScalePrompt implements Prompt {
       });
       this._scaleRows[i] = div({ style: "text-align: right; height: 2em;" }, "Note " + i + ":", this._scaleFlags[i]);
       scaleHolder.appendChild(this._scaleRows[i]);
-      console.log("new!");
     }
-
-    this._okayButton.addEventListener("click", this._saveChanges);
-    this._cancelButton.addEventListener("click", this._close);
 
     this.container = div(
       { class: "prompt noSelection", style: "width: 250px;" },
@@ -55,31 +49,13 @@ export class CustomScalePrompt implements Prompt {
       div({ style: "display: flex; flex-direction: row-reverse; justify-content: space-between;" }, this._okayButton),
       this._cancelButton,
     );
-    this.container.addEventListener("keydown", this.whenKeyPressed);
   }
 
-  private _close = (): void => {
-    this._doc.prompt = null;
-  };
-
-  public cleanUp = (): void => {
-    this._okayButton.removeEventListener("click", this._saveChanges);
-    this._cancelButton.removeEventListener("click", this._close);
-    this.container.removeEventListener("keydown", this.whenKeyPressed);
-  };
-
-  public whenKeyPressed = (event: KeyboardEvent): void => {
-    if ((<Element> event.target).tagName != "BUTTON" && event.keyCode == 13) { // Enter key
-      this._saveChanges();
-    }
-  };
-
-  private _saveChanges = (): void => {
+  protected override _saveChanges(): void {
     for (let i = 1; i < this._scaleFlags.length; i++) {
       this._flags[i] = this._scaleFlags[i].checked;
     }
     this._doc.prompt = null;
     this._doc.record(new ChangeCustomScale(this._doc, this._flags));
-  };
+  }
 }
-// }

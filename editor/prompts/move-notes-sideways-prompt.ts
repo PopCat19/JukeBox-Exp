@@ -13,11 +13,11 @@ import { Config } from "../../synth/synth-config";
 import { ChangeMoveNotesSideways } from "../changes";
 import { ColorConfig } from "../rendering/color-config";
 import { SongDocument } from "../song-document";
-import { Prompt } from "./prompt";
+import { BasePrompt } from "./base-prompt";
 
-const { button, div, span, h2, input, br, select, option } = HTML;
+const { div, span, h2, input, br, select, option } = HTML;
 
-export class MoveNotesSidewaysPrompt implements Prompt {
+export class MoveNotesSidewaysPrompt extends BasePrompt {
   private readonly _beatsStepper: HTMLInputElement = input({
     style: "width: 3em; margin-left: 1em;",
     type: "number",
@@ -29,8 +29,6 @@ export class MoveNotesSidewaysPrompt implements Prompt {
     option({ value: "overflow" }, "Overflow notes across bars."),
     option({ value: "wrapAround" }, "Wrap notes around within bars."),
   );
-  private readonly _cancelButton: HTMLButtonElement = button({ class: "cancelButton" });
-  private readonly _okayButton: HTMLButtonElement = button({ class: "okayButton", style: "width:45%;" }, "Okay");
 
   public readonly container: HTMLDivElement = div(
     { class: "prompt noSelection", style: "width: 250px;" },
@@ -56,7 +54,8 @@ export class MoveNotesSidewaysPrompt implements Prompt {
     this._cancelButton,
   );
 
-  constructor(private _doc: SongDocument) {
+  constructor(doc: SongDocument) {
+    super(doc);
     this._beatsStepper.min = (-this._doc.song.beatsPerBar) + "";
     this._beatsStepper.max = this._doc.song.beatsPerBar + "";
 
@@ -68,28 +67,13 @@ export class MoveNotesSidewaysPrompt implements Prompt {
     this._beatsStepper.select();
     setTimeout(() => this._beatsStepper.focus(), 100); // Add 100ms because the key macro (W) gets captured by the stepper...
 
-    this._okayButton.addEventListener("click", this._saveChanges);
-    this._cancelButton.addEventListener("click", this._close);
     this._beatsStepper.addEventListener("blur", MoveNotesSidewaysPrompt._validateNumber);
-    this.container.addEventListener("keydown", this._whenKeyPressed);
   }
 
-  private _close = (): void => {
-    this._doc.prompt = null;
-  };
-
-  public cleanUp = (): void => {
-    this._okayButton.removeEventListener("click", this._saveChanges);
-    this._cancelButton.removeEventListener("click", this._close);
+  public override cleanUp(): void {
+    super.cleanUp();
     this._beatsStepper.removeEventListener("blur", MoveNotesSidewaysPrompt._validateNumber);
-    this.container.removeEventListener("keydown", this._whenKeyPressed);
-  };
-
-  private _whenKeyPressed = (event: KeyboardEvent): void => {
-    if ((<Element> event.target).tagName != "BUTTON" && event.keyCode == 13) { // Enter key
-      this._saveChanges();
-    }
-  };
+  }
 
   private static _validateNumber(event: Event): void {
     const input: HTMLInputElement = <HTMLInputElement> event.target;
@@ -99,12 +83,12 @@ export class MoveNotesSidewaysPrompt implements Prompt {
     input.value = Math.max(+input.min, Math.min(+input.max, value)) + "";
   }
 
-  private _saveChanges = (): void => {
+  protected override _saveChanges(): void {
     window.localStorage.setItem("moveNotesSidewaysStrategy", this._conversionStrategySelect.value);
     this._doc.prompt = null;
     this._doc.record(
       new ChangeMoveNotesSideways(this._doc, +this._beatsStepper.value, this._conversionStrategySelect.value),
       true,
     );
-  };
+  }
 }

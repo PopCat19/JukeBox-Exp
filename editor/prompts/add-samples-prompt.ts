@@ -12,8 +12,11 @@ import { Config, Dictionary } from "../../synth/synth-config";
 import { EditorConfig } from "../config/editor-config";
 import { ColorConfig } from "../rendering/color-config";
 import { SongDocument } from "../song-document";
+import { BasePrompt } from "./base-prompt";
 
 const { div, input, button, a, code, textarea, details, summary, span, ul, li, select, option, h2 } = HTML;
+
+declare const OFFLINE: boolean;
 
 interface SampleEntry {
   url: string;
@@ -31,21 +34,10 @@ interface ParsedEntries {
   entries: SampleEntry[];
 }
 
-// @TODO:
-// - Check for duplicate sample URLs and names.
-// - Maybe the Backwards checkbox should be a select as well? Right now though,
-//   assuming that false is the same as if it wasn't actually set should work
-//   fine.
-// - Use constants or an enum for the key-value pairs.
-
-export class AddSamplesPrompt {
+export class AddSamplesPrompt extends BasePrompt {
   private readonly _maxSamples: number = 64;
-
-  private _doc: SongDocument;
   private readonly _entries: SampleEntry[] = [];
   private readonly _entryOptionsDisplayStates: Dictionary<boolean> = {};
-  private readonly _cancelButton: HTMLButtonElement = button({ class: "cancelButton" });
-  private readonly _okayButton: HTMLButtonElement = button({ class: "okayButton", style: "width: 45%;" }, "Okay");
   private readonly _addSampleButton: HTMLButtonElement = button({
     style: "height: auto; min-height: var(--button-size);",
   }, "Add sample");
@@ -127,8 +119,6 @@ export class AddSamplesPrompt {
           code("https://dl.dropboxusercontent.com"),
           ")",
         ),
-        // discord is not a file storage site. files expire after a month if shared outside of discord
-        // li(a({ href: "https://discord.com" }, "Discord"), " (domain needs to be ", code("https://media.discordapp.net"), ")")
       ),
     ),
     div(
@@ -191,50 +181,43 @@ export class AddSamplesPrompt {
     this._cancelButton,
   );
 
-  constructor(_doc: SongDocument) {
-    this._doc = _doc;
+  constructor(doc: SongDocument) {
+    super(doc);
     if (EditorConfig.customSamples != null) {
-      // In this case, `EditorConfig.customSamples` should have the URLs
-      // with the new syntax, as we only use that when saving, and we
-      // also force the new syntax on load, in `Song._parseAndConfigureCustomSample`.
       const parsed = this._parseURLs(EditorConfig.customSamples, false);
       this._entries = parsed.entries;
     }
     this._addSampleButton.addEventListener("click", this._whenAddSampleClicked);
     this._addMultipleSamplesButton.addEventListener("click", this._whenAddMultipleSamplesClicked);
     this._bulkAddConfirmButton.addEventListener("click", this._whenBulkAddConfirmClicked);
-    this._okayButton.addEventListener("click", this._saveChanges);
-    this._cancelButton.addEventListener("click", this._close);
     this._instructionsLink.addEventListener("click", this._whenInstructionsLinkClicked);
     this._closeInstructionsButton.addEventListener("click", this._whenCloseInstructionsButtonClicked);
     this._reconfigureAddSampleButton();
     this._render(false);
   }
 
-  public cleanUp = (): void => {
+  public override cleanUp(): void {
+    super.cleanUp();
     while (this._entryContainer.firstChild !== null) {
       this._entryContainer.removeChild(this._entryContainer.firstChild);
     }
     this._addSampleButton.removeEventListener("click", this._whenAddSampleClicked);
     this._addMultipleSamplesButton.removeEventListener("click", this._whenAddMultipleSamplesClicked);
     this._bulkAddConfirmButton.removeEventListener("click", this._whenBulkAddConfirmClicked);
-    this._okayButton.removeEventListener("click", this._saveChanges);
-    this._cancelButton.removeEventListener("click", this._close);
     this._instructionsLink.removeEventListener("click", this._whenInstructionsLinkClicked);
     this._closeInstructionsButton.removeEventListener("click", this._whenCloseInstructionsButtonClicked);
-  };
+  }
 
-  private _close = (): void => {
+  protected override _close = (): void => {
     this._doc.prompt = null;
     this._saveChanges();
   };
 
-  private _saveChanges = (): void => {
+  protected override _saveChanges = (): void => {
     const urlData: string = this._generateURLData();
     EditorConfig.customSamples = urlData.split("|").filter(x => x !== "");
     Config.willReloadForCustomSamples = true;
     window.location.hash = this._doc.song.toBase64String();
-    // The prompt seems to get stuck if reloading is done too quickly.
     setTimeout(() => {
       location.reload();
     }, 50);
@@ -278,13 +261,10 @@ export class AddSamplesPrompt {
   private _whenBulkAddConfirmClicked = (event: Event): void => {
     this._addSamplesArea.style.display = "";
     this._bulkAddArea.style.display = "none";
-    // In this case, we shouldn't really bother supporting the old syntax,
-    // as people are only really sharing URLs with the new one.
     const parsed: ParsedEntries = this._parseURLs(
       this._bulkAddTextarea.value
         .replace(/\n/g, "|")
         .split("|")
-        // .map((x: string) => decodeURIComponent(x.trim()))
         .filter((x: string) => x !== ""),
       false,
     );
@@ -396,10 +376,7 @@ export class AddSamplesPrompt {
     this._entries[entryIndex].chipWavePlayBackwards = newValue;
   };
 
-  // @TODO: This is copy pasted from SongEditor, should probably be moved to
-  //        somewhere else that can be imported from both places.
   private _copyTextToClipboard(text: string): void {
-    // Set as any to allow compilation without clipboard types (the proper types library is not included) -jummbus
     let nav: any;
     nav = navigator;
 
@@ -477,7 +454,6 @@ export class AddSamplesPrompt {
   };
 
   private _parseURLs = (urls: string[], parseOldSyntax: boolean): ParsedEntries => {
-    // @TODO: Duplicated code like this isn't great (in this case coming from Song.fromBase64String).
     function sliceForSampleRate(url: string): [string, number] {
       const newUrl = url.slice(0, url.indexOf(","));
       const sampleRate = clamp(8000, 96000 + 1, parseFloatWithDefault(url.slice(url.indexOf(",") + 1), 44100));
@@ -574,9 +550,6 @@ export class AddSamplesPrompt {
               } else if (optionCode === "d") {
                 chipWaveLoopMode = parseIntWithDefault(optionData, null);
                 if (chipWaveLoopMode != null) {
-                  // @TODO: Error-prone. This should be
-                  // automatically derived from the list of
-                  // available loop modes.
                   chipWaveLoopMode = clamp(0, 3 + 1, chipWaveLoopMode);
                 }
               } else if (optionCode === "e") {
@@ -699,8 +672,6 @@ export class AddSamplesPrompt {
   };
 
   private _render = (scrollToBottom: boolean): void => {
-    // @TODO: This is very much not efficient. The slowness here
-    // isn't harmless if more samples are to be allowed.
     while (this._entryContainer.firstChild !== null) {
       this._entryContainer.removeChild(this._entryContainer.firstChild);
     }
@@ -810,7 +781,7 @@ export class AddSamplesPrompt {
               "display: flex; flex-direction: row; align-items: center; justify-content: flex-end; margin-bottom: 0.5em;",
           },
           div(
-            { style: `flex-shrink: 0; :text-align: right; color: ${ColorConfig.primaryText};` },
+            { style: `flex-shrink: 0; text-align: right; color: ${ColorConfig.primaryText};` },
             span({ title: "What rate to resample to" }, "Sample rate"),
           ),
           sampleRateStepper,

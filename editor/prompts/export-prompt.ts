@@ -9,9 +9,9 @@
 // Copyright (c) 2012-2022 John Nesky and contributing authors, distributed under the MIT license, see accompanying the LICENSE.md file.
 
 import { HTML } from "imperative-html/dist/esm/elements-strict";
-import { Instrument, Note, Pattern, Song, Synth } from "../../synth";
-import { /*EnvelopeType,*/ Config, getArpeggioPitchIndex, InstrumentType } from "../../synth/synth-config";
-import { EditorConfig, Preset } from "../config/editor-config";
+import { Synth } from "../../synth";
+import { Config, getArpeggioPitchIndex, InstrumentType } from "../../synth/synth-config";
+import { EditorConfig } from "../config/editor-config";
 import {
   defaultMidiExpression,
   defaultMidiPitchBend,
@@ -28,9 +28,11 @@ import {
 import { ColorConfig } from "../rendering/color-config";
 import { SongDocument } from "../song-document";
 import { ArrayBufferWriter } from "../ui/array-buffer-writer";
-import { Prompt } from "./prompt";
+import { BasePrompt } from "./base-prompt";
 
-const { button, div, h2, input, select, option } = HTML;
+const { div, h2, input, select, option } = HTML;
+
+declare const OFFLINE: boolean;
 
 function lerp(low: number, high: number, t: number): number {
   return low + t * (high - low);
@@ -50,9 +52,6 @@ function save(blob: Blob, name: string): void {
     }, 60000);
     anchor.href = url;
     anchor.download = name;
-    // Chrome bug regression: We need to delay dispatching the click
-    // event. Seems to be related to going back in the browser history.
-    // https://bugs.chromium.org/p/chromium/issues/detail?id=825100
     setTimeout(function() {
       anchor.dispatchEvent(new MouseEvent("click"));
     }, 0);
@@ -65,7 +64,7 @@ function save(blob: Blob, name: string): void {
   }
 }
 
-export class ExportPrompt implements Prompt {
+export class ExportPrompt extends BasePrompt {
   private synth: Synth;
   private thenExportTo: string;
   private recordedSamplesL: Float32Array;
@@ -112,12 +111,6 @@ export class ExportPrompt implements Prompt {
     { style: "vertical-align: middle; align-items: center; justify-content: space-between; margin-bottom: 14px;" },
     "Warning: .ogg files aren't supported on as many devices as mp3 or wav. So Playback might not be possible on specific devices.",
   );
-  private readonly _opusWarning: HTMLDivElement = div(
-    { style: "vertical-align: middle; align-items: center; justify-content: space-between; margin-bottom: 14px;" },
-    "Warning: .opus files aren't supported on as many devices as mp3 or wav. So Playback might not be possible on specific devices.",
-  );
-  private readonly _cancelButton: HTMLButtonElement = button({ class: "cancelButton" });
-  private readonly _exportButton: HTMLButtonElement = button({ class: "exportButton", style: "width:45%;" }, "Export");
   private readonly _outputProgressBar: HTMLDivElement = div({
     style: `width: 0%; background: ${ColorConfig.loopAccent}; height: 100%; position: absolute; z-index: 2;`,
   });
@@ -134,15 +127,7 @@ export class ExportPrompt implements Prompt {
     this._outputProgressLabel,
   );
   private static readonly midiChipInstruments: number[] = [
-    0x4A, // rounded -> recorder
-    0x47, // triangle -> clarinet
-    0x50, // square -> square wave
-    0x46, // ¹/₄ pulse -> bassoon
-    0x44, // ¹/₈ pulse -> oboe
-    0x51, // sawtooth -> sawtooth wave
-    0x51, // double saw -> sawtooth wave
-    0x51, // double pulse -> sawtooth wave
-    0x51, // spiky -> sawtooth wave
+    0x4A, 0x47, 0x50, 0x46, 0x44, 0x51, 0x51, 0x51, 0x51,
   ];
 
   public readonly container: HTMLDivElement = div(
@@ -181,11 +166,15 @@ export class ExportPrompt implements Prompt {
       "Exporting can be slow. Reloading the page or clicking the X will cancel it. Please be patient.",
     ),
     this._outputProgressContainer,
-    div({ style: "display: flex; flex-direction: row-reverse; justify-content: space-between;" }, this._exportButton),
+    div({ style: "display: flex; flex-direction: row-reverse; justify-content: space-between;" }, this._okayButton),
     this._cancelButton,
   );
 
-  constructor(private _doc: SongDocument) {
+  constructor(doc: SongDocument) {
+    super(doc);
+    this._okayButton.classList.add("exportButton");
+    this._okayButton.textContent = "Export";
+
     this._loopDropDown.value = "1";
 
     if (this._doc.song.loopStart == 0) {
@@ -213,82 +202,24 @@ export class ExportPrompt implements Prompt {
       this._removeWhitespace.checked = lastExportWhitespace;
     }
 
-    if (this._formatSelect.value == "json") {
-      this._removeWhitespaceDiv.style.display = "block";
-    } else {
-      this._removeWhitespaceDiv.style.display = "none";
-    }
-
-    if (this._formatSelect.value == "ogg") {
-      this._oggWarning.style.display = "block";
-    } else {
-      this._oggWarning.style.display = "none";
-    }
-
-    if (this._formatSelect.value == "opus") {
-      this._oggWarning.style.display = "block";
-    } else {
-      this._oggWarning.style.display = "none";
-    }
+    this._updateWarnings();
 
     this._fileName.select();
     setTimeout(() => this._fileName.focus());
 
     this._fileName.addEventListener("input", ExportPrompt._validateFileName);
     this._loopDropDown.addEventListener("blur", ExportPrompt._validateNumber);
-    this._exportButton.addEventListener("click", this._export);
-    this._cancelButton.addEventListener("click", this._close);
-    this._enableOutro.addEventListener("click", () => {
-      (this._computedSamplesLabel.firstChild as Text).textContent = ExportPrompt.samplesToTime(
-        this._doc,
-        this._doc.synth.getTotalSamples(
-          this._enableIntro.checked,
-          this._enableOutro.checked,
-          +this._loopDropDown.value - 1,
-        ),
-      );
-    });
-    this._enableIntro.addEventListener("click", () => {
-      (this._computedSamplesLabel.firstChild as Text).textContent = ExportPrompt.samplesToTime(
-        this._doc,
-        this._doc.synth.getTotalSamples(
-          this._enableIntro.checked,
-          this._enableOutro.checked,
-          +this._loopDropDown.value - 1,
-        ),
-      );
-    });
-    this._loopDropDown.addEventListener("change", () => {
-      (this._computedSamplesLabel.firstChild as Text).textContent = ExportPrompt.samplesToTime(
-        this._doc,
-        this._doc.synth.getTotalSamples(
-          this._enableIntro.checked,
-          this._enableOutro.checked,
-          +this._loopDropDown.value - 1,
-        ),
-      );
-    });
-    this._formatSelect.addEventListener("change", () => {
-      if (this._formatSelect.value == "json") this._removeWhitespaceDiv.style.display = "block";
-      else this._removeWhitespaceDiv.style.display = "none";
-    });
-    this.container.addEventListener("keydown", this._whenKeyPressed);
+    this._enableOutro.addEventListener("click", this._updateSamplesLabel);
+    this._enableIntro.addEventListener("click", this._updateSamplesLabel);
+    this._loopDropDown.addEventListener("change", this._updateSamplesLabel);
+    this._formatSelect.addEventListener("change", this._updateWarnings);
 
-    if (this._formatSelect.value == "ogg") {
-      this._oggWarning.style.display = "block";
-    } else {
-      this._oggWarning.style.display = "none";
-    }
-
-    if (this._formatSelect.value == "opus") {
-      this._opusWarning.style.display = "block";
-    } else {
-      this._opusWarning.style.display = "none";
-    }
-
-    this._fileName.value = _doc.song.title;
+    this._fileName.value = this._doc.song.title;
     ExportPrompt._validateFileName(null, this._fileName);
+    this._updateSamplesLabel();
+  }
 
+  private _updateSamplesLabel = (): void => {
     (this._computedSamplesLabel.firstChild as Text).textContent = ExportPrompt.samplesToTime(
       this._doc,
       this._doc.synth.getTotalSamples(
@@ -297,9 +228,14 @@ export class ExportPrompt implements Prompt {
         +this._loopDropDown.value - 1,
       ),
     );
-  }
+  };
 
-  // Could probably be moved to doc or synth. Fine here for now until needed by something else.
+  private _updateWarnings = (): void => {
+    this._removeWhitespaceDiv.style.display = this._formatSelect.value == "json" ? "block" : "none";
+    const showOgg = this._formatSelect.value == "ogg" || this._formatSelect.value == "opus";
+    this._oggWarning.style.display = showOgg ? "block" : "none";
+  };
+
   public static samplesToTime(_doc: SongDocument, samples: number): string {
     const rawSeconds: number = Math.round(samples / _doc.synth.samplesPerSecond);
     const seconds: number = rawSeconds % 60;
@@ -307,7 +243,7 @@ export class ExportPrompt implements Prompt {
     return minutes + ":" + (seconds < 10 ? "0" : "") + seconds;
   }
 
-  private _close = (): void => {
+  protected override _close = (): void => {
     if (this.synth != null) {
       this.synth.renderingSong = false;
     }
@@ -315,69 +251,27 @@ export class ExportPrompt implements Prompt {
     this._doc.prompt = null;
   };
 
-  public changeFileName(newValue: string) {
-    this._fileName.value = newValue;
-  }
-
-  public cleanUp = (): void => {
+  public override cleanUp(): void {
+    super.cleanUp();
     this._fileName.removeEventListener("input", ExportPrompt._validateFileName);
     this._loopDropDown.removeEventListener("blur", ExportPrompt._validateNumber);
-    this._exportButton.removeEventListener("click", this._export);
-    this._cancelButton.removeEventListener("click", this._close);
-    this.container.removeEventListener("keydown", this._whenKeyPressed);
-  };
-
-  private _whenKeyPressed = (event: KeyboardEvent): void => {
-    if ((<Element> event.target).tagName != "BUTTON" && event.keyCode == 13) { // Enter key
-      this._export();
-    }
-  };
-
-  private static _validateFileName(event: Event | null, use?: HTMLInputElement): void {
-    let input: HTMLInputElement;
-    if (event != null) {
-      input = <HTMLInputElement> event.target;
-    } else if (use != undefined) {
-      input = use;
-    } else {
-      return;
-    }
-    const deleteChars = /[\+\*\$\?\|\{\}\\\/<>#%!`&'"=:@]/gi;
-    if (deleteChars.test(input.value)) {
-      let cursorPos: number = <number> input.selectionStart;
-      input.value = input.value.replace(deleteChars, "");
-      cursorPos--;
-      input.setSelectionRange(cursorPos, cursorPos);
-    }
   }
 
-  private static _validateNumber(event: Event): void {
-    const input: HTMLInputElement = <HTMLInputElement> event.target;
-    input.value = Math.floor(Math.max(Number(input.min), Math.min(Number(input.max), Number(input.value)))) + "";
+  protected override _saveChanges(): void {
+    this._export();
   }
 
   private _export = (): void => {
-    if (this.outputStarted == true) {
-      return;
-    }
+    if (this.outputStarted == true) return;
     window.localStorage.setItem("exportFormat", this._formatSelect.value);
-    window.localStorage.setItem("exportWhitespace", this._removeWhitespace.value);
+    window.localStorage.setItem("exportWhitespace", String(this._removeWhitespace.checked));
     switch (this._formatSelect.value) {
       case "wav":
-        this.outputStarted = true;
-        this._exportTo("wav");
-        break;
       case "mp3":
-        this.outputStarted = true;
-        this._exportTo("mp3");
-        break;
       case "ogg":
-        this.outputStarted = true;
-        this._exportTo("ogg");
-        break;
       case "opus":
         this.outputStarted = true;
-        this._exportTo("opus");
+        this._exportTo(this._formatSelect.value);
         break;
       case "midi":
         this.outputStarted = true;
@@ -396,198 +290,90 @@ export class ExportPrompt implements Prompt {
   };
 
   private _synthesize(): void {
-    // const timer: number = performance.now();
-
-    // If output was stopped e.g. user clicked the close button, abort.
-    if (this.outputStarted == false) {
-      return;
-    }
-
-    // Update progress bar UI once per 5 sec of exported data
-    const samplesPerChunk: number = this.synth.samplesPerSecond * 5; // e.g. 44100 * 5
+    if (this.outputStarted == false) return;
+    const samplesPerChunk: number = this.synth.samplesPerSecond * 5;
     const currentFrame: number = this.currentChunk * samplesPerChunk;
-
     const samplesInChunk: number = Math.min(samplesPerChunk, this.sampleFrames - currentFrame);
     const tempSamplesL = new Float32Array(samplesInChunk);
     const tempSamplesR = new Float32Array(samplesInChunk);
-
     this.synth.renderingSong = true;
     this.synth.synthesize(tempSamplesL, tempSamplesR, samplesInChunk);
-
-    // Concatenate chunk data into final array
     this.recordedSamplesL.set(tempSamplesL, currentFrame);
     this.recordedSamplesR.set(tempSamplesR, currentFrame);
-
-    // Update UI
-    this._outputProgressBar.style.setProperty(
-      "width",
-      Math.round((this.currentChunk + 1) / this.totalChunks * 100.0) + "%",
-    );
+    this._outputProgressBar.style.setProperty("width", Math.round((this.currentChunk + 1) / this.totalChunks * 100.0) + "%");
     this._outputProgressLabel.innerText = Math.round((this.currentChunk + 1) / this.totalChunks * 100.0) + "%";
-
-    // Next call, synthesize the next chunk.
     this.currentChunk++;
-
     if (this.currentChunk >= this.totalChunks) {
-      // Done, call final function
       this.synth.renderingSong = false;
       this._outputProgressLabel.innerText = "Encoding...";
-      if (this.thenExportTo == "wav") {
-        this._exportToWavFinish();
-      } else if (this.thenExportTo == "mp3") {
-        this._exportToMp3Finish();
-      } else if (this.thenExportTo == "ogg") {
-        this._exportToOggFinish();
-      } else if (this.thenExportTo == "opus") {
-        this._exportToOpusFinish();
-      } else {
-        throw new Error("Unrecognized file export type chosen!");
-      }
+      if (this.thenExportTo == "wav") this._exportToWavFinish();
+      else if (this.thenExportTo == "mp3") this._exportToMp3Finish();
+      else if (this.thenExportTo == "ogg") this._exportToOggFinish();
+      else if (this.thenExportTo == "opus") this._exportToOpusFinish();
     } else {
-      // Continue batch export
-      setTimeout(() => {
-        this._synthesize();
-      });
+      setTimeout(() => this._synthesize());
     }
-
-    // console.log("export timer", (performance.now() - timer) / 1000.0);
   }
 
   private _exportTo(type: string): void {
-    // Batch the export operation
     this.thenExportTo = type;
     this.currentChunk = 0;
     this.synth = new Synth(this._doc.song);
-    if (type == "wav") {
-      this.synth.samplesPerSecond = 48000; // Use professional video editing standard sample rate for .wav file export.
-    } else if (type == "mp3") {
-      this.synth.samplesPerSecond = 44100; // Use consumer CD standard sample rate for .mp3 export.
-    } else if (type == "ogg") {
-      this.synth.samplesPerSecond = 48000; // Wikipedia says ogg typically uses 44.1 kHz.
-    } else if (type == "opus") {
-      this.synth.samplesPerSecond = 48000;
-    } else {
-      throw new Error("Unrecognized file export type chosen!");
-    }
-
+    if (type == "wav" || type == "ogg" || type == "opus") this.synth.samplesPerSecond = 48000;
+    else if (type == "mp3") this.synth.samplesPerSecond = 44100;
     this._outputProgressBar.style.setProperty("width", "0%");
     this._outputProgressLabel.innerText = "0%";
-
     this.synth.loopRepeatCount = Number(this._loopDropDown.value) - 1;
     if (!this._enableIntro.checked) {
-      for (let introIter: number = 0; introIter < this._doc.song.loopStart; introIter++) {
-        this.synth.goToNextBar();
-      }
+      for (let i = 0; i < this._doc.song.loopStart; i++) this.synth.goToNextBar();
     }
-
     this.synth.initModFilters(this._doc.song);
     this.synth.computeLatestModValues();
     this.synth.warmUpSynthesizer(this._doc.song);
-
-    this.sampleFrames = this.synth.getTotalSamples(
-      this._enableIntro.checked,
-      this._enableOutro.checked,
-      this.synth.loopRepeatCount,
-    );
-    // Compute how many UI updates will need to run to determine how many
+    this.sampleFrames = this.synth.getTotalSamples(this._enableIntro.checked, this._enableOutro.checked, this.synth.loopRepeatCount);
     this.totalChunks = Math.ceil(this.sampleFrames / (this.synth.samplesPerSecond * 5));
     this.recordedSamplesL = new Float32Array(this.sampleFrames);
     this.recordedSamplesR = new Float32Array(this.sampleFrames);
-
-    // Batch the actual export
-    setTimeout(() => {
-      this._synthesize();
-    });
+    setTimeout(() => this._synthesize());
   }
 
   private _exportToWavFinish(): void {
     const sampleFrames: number = this.recordedSamplesL.length;
     const sampleRate: number = this.synth.samplesPerSecond;
-
-    const wavChannelCount: number = 2;
     const bytesPerSample: number = 2;
-    const bitsPerSample: number = 8 * bytesPerSample;
-    const sampleCount: number = wavChannelCount * sampleFrames;
-
+    const bitsPerSample: number = 16;
+    const sampleCount: number = 2 * sampleFrames;
     const totalFileSize: number = 44 + sampleCount * bytesPerSample;
-
-    let index: number = 0;
     const arrayBuffer: ArrayBuffer = new ArrayBuffer(totalFileSize);
     const data: DataView = new DataView(arrayBuffer);
-    data.setUint32(index, 0x52494646, false);
-    index += 4;
-    data.setUint32(index, 36 + sampleCount * bytesPerSample, true);
-    index += 4; // size of remaining file
-    data.setUint32(index, 0x57415645, false);
-    index += 4;
-    data.setUint32(index, 0x666D7420, false);
-    index += 4;
-    data.setUint32(index, 0x00000010, true);
-    index += 4; // size of following header
-    data.setUint16(index, 0x0001, true);
-    index += 2; // not compressed
-    data.setUint16(index, wavChannelCount, true);
-    index += 2; // channel count
-    data.setUint32(index, sampleRate, true);
-    index += 4; // sample rate
-    data.setUint32(index, sampleRate * bytesPerSample * wavChannelCount, true);
-    index += 4; // bytes per second
-    data.setUint16(index, bytesPerSample * wavChannelCount, true);
-    index += 2; // block align
-    data.setUint16(index, bitsPerSample, true);
-    index += 2; // bits per sample
-    data.setUint32(index, 0x64617461, false);
-    index += 4;
-    data.setUint32(index, sampleCount * bytesPerSample, true);
-    index += 4;
-
-    if (bytesPerSample > 1) {
-      // usually samples are signed.
-      const range: number = (1 << (bitsPerSample - 1)) - 1;
-      for (let i: number = 0; i < sampleFrames; i++) {
-        const valL: number = Math.floor(Math.max(-1, Math.min(1, this.recordedSamplesL[i])) * range);
-        const valR: number = Math.floor(Math.max(-1, Math.min(1, this.recordedSamplesR[i])) * range);
-        if (bytesPerSample == 2) {
-          data.setInt16(index, valL, true);
-          index += 2;
-          data.setInt16(index, valR, true);
-          index += 2;
-        } else if (bytesPerSample == 4) {
-          data.setInt32(index, valL, true);
-          index += 4;
-          data.setInt32(index, valR, true);
-          index += 4;
-        } else {
-          throw new Error("unsupported sample size");
-        }
-      }
-    } else {
-      // 8 bit samples are a special case: they are unsigned.
-      for (let i: number = 0; i < sampleFrames; i++) {
-        const valL: number = Math.floor(Math.max(-1, Math.min(1, this.recordedSamplesL[i])) * 127 + 128);
-        const valR: number = Math.floor(Math.max(-1, Math.min(1, this.recordedSamplesR[i])) * 127 + 128);
-        data.setUint8(index, valL > 255 ? 255 : (valL < 0 ? 0 : valL));
-        index++;
-        data.setUint8(index, valR > 255 ? 255 : (valR < 0 ? 0 : valR));
-        index++;
-      }
+    let index: number = 0;
+    data.setUint32(index, 0x52494646, false); index += 4;
+    data.setUint32(index, 36 + sampleCount * bytesPerSample, true); index += 4;
+    data.setUint32(index, 0x57415645, false); index += 4;
+    data.setUint32(index, 0x666D7420, false); index += 4;
+    data.setUint32(index, 16, true); index += 4;
+    data.setUint16(index, 1, true); index += 2;
+    data.setUint16(index, 2, true); index += 2;
+    data.setUint32(index, sampleRate, true); index += 4;
+    data.setUint32(index, sampleRate * bytesPerSample * 2, true); index += 4;
+    data.setUint16(index, bytesPerSample * 2, true); index += 2;
+    data.setUint16(index, bitsPerSample, true); index += 2;
+    data.setUint32(index, 0x64617461, false); index += 4;
+    data.setUint32(index, sampleCount * bytesPerSample, true); index += 4;
+    const range: number = (1 << (bitsPerSample - 1)) - 1;
+    for (let i: number = 0; i < sampleFrames; i++) {
+      data.setInt16(index, Math.floor(Math.max(-1, Math.min(1, this.recordedSamplesL[i])) * range), true); index += 2;
+      data.setInt16(index, Math.floor(Math.max(-1, Math.min(1, this.recordedSamplesR[i])) * range), true); index += 2;
     }
-
-    const blob: Blob = new Blob([arrayBuffer], { type: "audio/wav" });
-    save(blob, this._fileName.value.trim() + ".wav");
-
+    save(new Blob([arrayBuffer], { type: "audio/wav" }), this._fileName.value.trim() + ".wav");
     this._close();
   }
 
   private _exportToMp3Finish(): void {
     const whenEncoderIsAvailable = (): void => {
       const lamejs: any = (<any> window)["lamejs"];
-      const channelCount: number = 2;
-      const kbps: number = 192;
-      const sampleBlockSize: number = 1152;
-      const mp3encoder: any = new lamejs.Mp3Encoder(channelCount, this.synth.samplesPerSecond, kbps);
+      const mp3encoder: any = new lamejs.Mp3Encoder(2, this.synth.samplesPerSecond, 192);
       const mp3Data: any[] = [];
-
       const left: Int16Array = new Int16Array(this.recordedSamplesL.length);
       const right: Int16Array = new Int16Array(this.recordedSamplesR.length);
       const range: number = (1 << 15) - 1;
@@ -595,715 +381,258 @@ export class ExportPrompt implements Prompt {
         left[i] = Math.floor(Math.max(-1, Math.min(1, this.recordedSamplesL[i])) * range);
         right[i] = Math.floor(Math.max(-1, Math.min(1, this.recordedSamplesR[i])) * range);
       }
-
-      for (let i: number = 0; i < left.length; i += sampleBlockSize) {
-        const leftChunk: Int16Array = left.subarray(i, i + sampleBlockSize);
-        const rightChunk: Int16Array = right.subarray(i, i + sampleBlockSize);
-        const mp3buf: any = mp3encoder.encodeBuffer(leftChunk, rightChunk);
+      for (let i: number = 0; i < left.length; i += 1152) {
+        const mp3buf: any = mp3encoder.encodeBuffer(left.subarray(i, i + 1152), right.subarray(i, i + 1152));
         if (mp3buf.length > 0) mp3Data.push(mp3buf);
       }
-
-      const mp3buf: any = mp3encoder.flush();
-      if (mp3buf.length > 0) mp3Data.push(mp3buf);
-
-      const blob: Blob = new Blob(mp3Data, { type: "audio/mp3" });
-      save(blob, this._fileName.value.trim() + ".mp3");
+      const flush: any = mp3encoder.flush();
+      if (flush.length > 0) mp3Data.push(flush);
+      save(new Blob(mp3Data, { type: "audio/mp3" }), this._fileName.value.trim() + ".mp3");
       this._close();
     };
-
-    if ("lamejs" in window) {
-      whenEncoderIsAvailable();
-    } else {
+    if ("lamejs" in window) whenEncoderIsAvailable();
+    else {
       const script = document.createElement("script");
       script.src = "https://cdn.jsdelivr.net/npm/lamejs@1.2.0/lame.min.js";
-      script.integrity = "sha384-2rzUf3HDgNCBY8eyfofLg9zB+RqSUf3+WMtg5pT41cPnJiljByo3xttywbnon6Bp";
-      script.crossOrigin = "anonymous";
       script.onload = whenEncoderIsAvailable;
       document.head.appendChild(script);
     }
   }
+
   private _exportToOggFinish(): void {
-    const scripts: string[] = [
-      "https://unpkg.com/wasm-media-encoders/dist/umd/WasmMediaEncoder.min.js",
-    ];
-    let scriptsLoaded: number = 0;
-    const scriptsToLoad: number = scripts.length;
     const whenEncoderIsAvailable = (): void => {
-      scriptsLoaded++;
-      if (scriptsLoaded < scriptsToLoad) return;
       const WasmMediaEncoder: any = (<any> window)["WasmMediaEncoder"];
-      const channelCount: number = 2;
-      const quality: number = 10;
-      const sampleBlockSize: number = 4096;
       WasmMediaEncoder.createOggEncoder().then((oggEncoder: any) => {
-        oggEncoder.configure({
-          channels: channelCount,
-          sampleRate: this.synth.samplesPerSecond,
-          vbrQuality: quality,
-        });
-        const left: Float32Array = this.recordedSamplesL;
-        const right: Float32Array = this.recordedSamplesR;
+        oggEncoder.configure({ channels: 2, sampleRate: this.synth.samplesPerSecond, vbrQuality: 10 });
         const parts: Uint8Array[] = [];
-        let sampleIndex: number = 0;
-        for (; sampleIndex < left.length; sampleIndex += sampleBlockSize) {
-          const leftChunk: Float32Array = left.subarray(sampleIndex, sampleIndex + sampleBlockSize);
-          const rightChunk: Float32Array = right.subarray(sampleIndex, sampleIndex + sampleBlockSize);
-          const frame: Float32Array[] = channelCount === 2 ? [leftChunk, rightChunk] : [leftChunk];
-          parts.push(oggEncoder.encode(frame).slice());
+        for (let i: number = 0; i < this.recordedSamplesL.length; i += 4096) {
+          parts.push(oggEncoder.encode([this.recordedSamplesL.subarray(i, i + 4096), this.recordedSamplesR.subarray(i, i + 4096)]).slice());
         }
         parts.push(oggEncoder.finalize().slice());
-        const blob: Blob = new Blob(parts, { type: "audio/ogg" });
-        save(blob, this._fileName.value.trim() + ".ogg");
+        save(new Blob(parts, { type: "audio/ogg" }), this._fileName.value.trim() + ".ogg");
         this._close();
       });
     };
-    if ("WasmMediaEncoder" in window) {
-      scriptsLoaded = scripts.length;
-      whenEncoderIsAvailable();
-    } else {
-      scriptsLoaded = 0;
-      for (const src of scripts) {
-        const script = document.createElement("script");
-        script.src = src;
-        script.onload = whenEncoderIsAvailable;
-        document.head.appendChild(script);
-      }
+    if ("WasmMediaEncoder" in window) whenEncoderIsAvailable();
+    else {
+      const script = document.createElement("script");
+      script.src = "https://unpkg.com/wasm-media-encoders/dist/umd/WasmMediaEncoder.min.js";
+      script.onload = whenEncoderIsAvailable;
+      document.head.appendChild(script);
     }
   }
+
   private _exportToOpusFinish(): void {
-    const scripts: string[] = [
-      "https://cdn.jsdelivr.net/gh/mmig/opus-encdec@e33ca40b92ddff8c168c7f5aca34b626c9acc08a/dist/libopus-encoder.js",
-      "https://cdn.jsdelivr.net/gh/mmig/opus-encdec@e33ca40b92ddff8c168c7f5aca34b626c9acc08a/src/oggOpusEncoder.js",
-    ];
-    let scriptsLoaded: number = 0;
-    const scriptsToLoad: number = scripts.length;
     const whenEncoderIsAvailable = (): void => {
-      scriptsLoaded++;
-      if (scriptsLoaded < scriptsToLoad) return;
       const OggOpusEncoder: any = (<any> window)["OggOpusEncoder"];
       const OpusEncoderLib: any = (<any> window)["OpusEncoderLib"];
-      // @TODO: Very non-ideal.
       OggOpusEncoder.prototype.getOpusControl = function(control: number): number | null {
-        let result: number | null = null;
-        // Hack to defeat Terser's mangling. Alternatively, the
-        // compilation scripts could be changed.
-        const doNotMangle: string = Math.random() > 2 ? "" : "";
-        const location: number = this["_" + doNotMangle + "malloc"](4);
-        const outputLocation: number = this["_" + doNotMangle + "malloc"](4);
+        const location: number = this["_malloc"](4);
+        const outputLocation: number = this["_malloc"](4);
         this.HEAP32[location >> 2] = outputLocation;
-        const returnCode: number = this["_" + doNotMangle + "opus_encoder_ctl"](this.encoder, control, location);
-        if (returnCode === 0) {
-          result = this.HEAP32[outputLocation >> 2];
-        }
-        this["_" + doNotMangle + "free"](outputLocation);
-        this["_" + doNotMangle + "free"](location);
+        const returnCode: number = this["_opus_encoder_ctl"](this.encoder, control, location);
+        const result = returnCode === 0 ? this.HEAP32[outputLocation >> 2] : null;
+        this["_free"](outputLocation); this["_free"](location);
         return result;
       };
-      OggOpusEncoder.prototype.getLookahead = function(): number {
-        return this.getOpusControl(4027) ?? 0;
-      };
-      OggOpusEncoder.prototype.setBitrate = function(value: number): void {
-        this.setOpusControl(4002, value);
-      };
+      OggOpusEncoder.prototype.getLookahead = function(): number { return this.getOpusControl(4027) ?? 0; };
+      OggOpusEncoder.prototype.setBitrate = function(value: number): void { this.setOpusControl(4002, value); };
       OggOpusEncoder.prototype.generateIdPage2 = function(lookahead: number): any {
-        const segmentDataView: DataView = new DataView(this.segmentData.buffer);
-        segmentDataView.setUint32(0, 1937076303, true); // Magic Signature 'Opus'
-        segmentDataView.setUint32(4, 1684104520, true); // Magic Signature 'Head'
-        segmentDataView.setUint8(8, 1); // Version
-        segmentDataView.setUint8(9, this.config.numberOfChannels); // Channel count
-        segmentDataView.setUint16(10, lookahead, true); // pre-skip (0ms)
-        segmentDataView.setUint32(12, this.config.originalSampleRateOverride || this.config.originalSampleRate, true); // original sample rate
-        segmentDataView.setUint16(16, 0, true); // output gain
-        segmentDataView.setUint8(18, 0); // channel map 0 = mono or stereo
-        this.segmentTableIndex = 1;
-        this.segmentDataIndex = this.segmentTable[0] = 19;
-        this.headerType = 2;
+        const view = new DataView(this.segmentData.buffer);
+        view.setUint32(0, 1937076303, true); view.setUint32(4, 1684104520, true);
+        view.setUint8(8, 1); view.setUint8(9, this.config.numberOfChannels);
+        view.setUint16(10, lookahead, true); view.setUint32(12, this.config.originalSampleRate, true);
+        view.setUint16(16, 0, true); view.setUint8(18, 0);
+        this.segmentTableIndex = 1; this.segmentDataIndex = this.segmentTable[0] = 19; this.headerType = 2;
         return this.generatePage();
       };
-      const channelCount: number = 2;
-      const frameSizeInMilliseconds: number = 20;
-      const frameSizeInSeconds: number = frameSizeInMilliseconds / 1000;
-      const sampleBlockSize: number = Math.floor(this.synth.samplesPerSecond * frameSizeInSeconds);
-      const oggEncoder: any = new OggOpusEncoder({
-        numberOfChannels: channelCount,
-        originalSampleRate: this.synth.samplesPerSecond,
-        encoderSampleRate: this.synth.samplesPerSecond,
-        bufferLength: sampleBlockSize,
-        encoderApplication: 2049,
-        encoderComplexity: 10,
-        resampleQuality: 3, // [0, 10], but we're not using this.
-      }, OpusEncoderLib);
+      const blockSize = Math.floor(this.synth.samplesPerSecond * 0.02);
+      const encoder = new OggOpusEncoder({ numberOfChannels: 2, originalSampleRate: this.synth.samplesPerSecond, encoderSampleRate: this.synth.samplesPerSecond, bufferLength: blockSize, encoderApplication: 2049, encoderComplexity: 10, resampleQuality: 3 }, OpusEncoderLib);
       const parts: Uint8Array[] = [];
-      const left: Float32Array = this.recordedSamplesL;
-      const right: Float32Array = this.recordedSamplesR;
-      oggEncoder.setBitrate(256_000); // bits per second
-      parts.push(oggEncoder.generateIdPage2(oggEncoder.getLookahead()).page);
-      parts.push(oggEncoder.generateCommentPage().page);
-      let sampleIndex: number = 0;
-      for (; sampleIndex < left.length; sampleIndex += sampleBlockSize) {
-        const leftChunk: Float32Array = left.subarray(sampleIndex, sampleIndex + sampleBlockSize);
-        const rightChunk: Float32Array = right.subarray(sampleIndex, sampleIndex + sampleBlockSize);
-        const frame: Float32Array[] = channelCount === 2 ? [leftChunk, rightChunk] : [leftChunk];
-        oggEncoder.encode(frame).forEach((page: any) => parts.push(page.page));
+      encoder.setBitrate(256000);
+      parts.push(encoder.generateIdPage2(encoder.getLookahead()).page);
+      parts.push(encoder.generateCommentPage().page);
+      let i = 0;
+      for (; i < this.recordedSamplesL.length; i += blockSize) {
+        encoder.encode([this.recordedSamplesL.subarray(i, i + blockSize), this.recordedSamplesR.subarray(i, i + blockSize)]).forEach((p: any) => parts.push(p.page));
       }
-      // @TODO: This padding matches FFmpeg... but is it correct?
-      {
-        const paddingSize: number = sampleIndex - left.length;
-        const leftChunk: Float32Array = new Float32Array(paddingSize);
-        const rightChunk: Float32Array = new Float32Array(paddingSize);
-        const frame: Float32Array[] = channelCount === 2 ? [leftChunk, rightChunk] : [leftChunk];
-        oggEncoder.encode(frame).forEach((page: any) => parts.push(page.page));
-      }
-      // const remaining: any = oggEncoder.flush();
-      // if (remaining) parts.push(remaining.page);
-      oggEncoder.encodeFinalFrame().forEach((page: any) => parts.push(page.page));
-      oggEncoder.destroy();
-      const blob: Blob = new Blob(parts, { type: "audio/opus" });
-      save(blob, this._fileName.value.trim() + ".opus");
+      encoder.encodeFinalFrame().forEach((p: any) => parts.push(p.page));
+      encoder.destroy();
+      save(new Blob(parts, { type: "audio/opus" }), this._fileName.value.trim() + ".opus");
       this._close();
     };
-    if (("OggOpusEncoder" in window) && ("OpusEncoderLib" in window)) {
-      scriptsLoaded = scripts.length;
-      whenEncoderIsAvailable();
-    } else {
-      scriptsLoaded = 0;
+    if ("OggOpusEncoder" in window) whenEncoderIsAvailable();
+    else {
+      const scripts = ["https://cdn.jsdelivr.net/gh/mmig/opus-encdec@e33ca40b92ddff8c168c7f5aca34b626c9acc08a/dist/libopus-encoder.js", "https://cdn.jsdelivr.net/gh/mmig/opus-encdec@e33ca40b92ddff8c168c7f5aca34b626c9acc08a/src/oggOpusEncoder.js"];
+      let loaded = 0;
       for (const src of scripts) {
-        const script = document.createElement("script");
-        script.src = src;
-        script.onload = whenEncoderIsAvailable;
-        document.head.appendChild(script);
+        const s = document.createElement("script"); s.src = src; s.onload = () => { if (++loaded == 2) whenEncoderIsAvailable(); }; document.head.appendChild(s);
       }
     }
   }
+
   private _exportToMidi(): void {
-    const song: Song = this._doc.song;
-    const midiTicksPerBeepBoxTick: number = 2;
-    const midiTicksPerBeat: number = midiTicksPerBeepBoxTick * Config.ticksPerPart * Config.partsPerBeat;
-    const midiTicksPerPart: number = midiTicksPerBeepBoxTick * Config.ticksPerPart;
-    const secondsPerMinute: number = 60;
-    const microsecondsPerMinute: number = secondsPerMinute * 1000000;
-    const beatsPerMinute: number = song.getBeatsPerMinute();
-    const microsecondsPerBeat: number = Math.round(microsecondsPerMinute / beatsPerMinute);
-    // const secondsPerMidiTick: number = secondsPerMinute / (midiTicksPerBeat * beatsPerMinute);
-    const midiTicksPerBar: number = midiTicksPerBeat * song.beatsPerBar;
-    const pitchBendRange: number = 24;
-    const defaultNoteVelocity: number = 90;
-
+    const song = this._doc.song;
+    const midiTicksPerBeat = 2 * Config.ticksPerPart * Config.partsPerBeat;
+    const microsecondsPerBeat = Math.round(60000000 / song.getBeatsPerMinute());
     const unrolledBars: number[] = [];
-    if (this._enableIntro.checked) {
-      for (let bar: number = 0; bar < song.loopStart; bar++) {
-        unrolledBars.push(bar);
-      }
-    }
-    for (let loopIndex: number = 0; loopIndex < Number(this._loopDropDown.value); loopIndex++) {
-      for (let bar: number = song.loopStart; bar < song.loopStart + song.loopLength; bar++) {
-        unrolledBars.push(bar);
-      }
-    }
-    if (this._enableOutro.checked) {
-      for (let bar: number = song.loopStart + song.loopLength; bar < song.barCount; bar++) {
-        unrolledBars.push(bar);
-      }
-    }
-
+    if (this._enableIntro.checked) for (let i = 0; i < song.loopStart; i++) unrolledBars.push(i);
+    for (let i = 0; i < Number(this._loopDropDown.value); i++) for (let j = song.loopStart; j < song.loopStart + song.loopLength; j++) unrolledBars.push(j);
+    if (this._enableOutro.checked) for (let i = song.loopStart + song.loopLength; i < song.barCount; i++) unrolledBars.push(i);
     const tracks = [{ isMeta: true, channel: -1, midiChannel: -1, isNoise: false, isDrumset: false }];
-    let midiChannelCounter: number = 0;
-    let foundADrumset: boolean = false;
-    for (
-      let channel: number = 0;
-      channel < this._doc.song.pitchChannelCount + this._doc.song.noiseChannelCount;
-      channel++
-    ) {
-      if (!foundADrumset && this._doc.song.channels[channel].instruments[0].type == InstrumentType.drumset) {
-        tracks.push({ isMeta: false, channel: channel, midiChannel: 9, isNoise: true, isDrumset: true });
-        foundADrumset = true; // There can only be one drumset channel, and it's always channel 9 (seen as 10 in most UIs). :/
-      } else {
-        if (midiChannelCounter >= 16) continue; // The MIDI standard only supports 16 channels.
-        tracks.push({
-          isMeta: false,
-          channel: channel,
-          midiChannel: midiChannelCounter++,
-          isNoise: this._doc.song.getChannelIsNoise(channel),
-          isDrumset: false,
-        });
-        if (midiChannelCounter == 9) midiChannelCounter++; // skip midi drum channel.
-      }
+    let midiChan = 0; let foundDrum = false;
+    for (let i = 0; i < song.pitchChannelCount + song.noiseChannelCount; i++) {
+      if (!foundDrum && song.channels[i].instruments[0].type == InstrumentType.drumset) { tracks.push({ isMeta: false, channel: i, midiChannel: 9, isNoise: true, isDrumset: true }); foundDrum = true; }
+      else { if (midiChan >= 16) continue; tracks.push({ isMeta: false, channel: i, midiChannel: midiChan++, isNoise: song.getChannelIsNoise(i), isDrumset: false }); if (midiChan == 9) midiChan++; }
     }
-
-    const writer: ArrayBufferWriter = new ArrayBufferWriter(1024);
-    writer.writeUint32(MidiChunkType.header);
-    writer.writeUint32(6); // length of headers is 6 bytes
-    writer.writeUint16(MidiFileFormat.simultaneousTracks);
-    writer.writeUint16(tracks.length);
-    writer.writeUint16(midiTicksPerBeat); // number of "ticks" per beat, independent of tempo
-
+    const writer = new ArrayBufferWriter(1024);
+    writer.writeUint32(MidiChunkType.header); writer.writeUint32(6); writer.writeUint16(MidiFileFormat.simultaneousTracks); writer.writeUint16(tracks.length); writer.writeUint16(midiTicksPerBeat);
     for (const track of tracks) {
       writer.writeUint32(MidiChunkType.track);
-
-      const { isMeta, channel, midiChannel, isNoise, isDrumset } = track;
-
-      // We're gonna come back here and overwrite this placeholder once we know how many bytes this track is.
-      const trackStartIndex: number = writer.getWriteIndex();
-      writer.writeUint32(0); // placeholder for track size
-
-      let prevTime: number = 0;
-      let barStartTime: number = 0;
-      const writeEventTime = function(time: number): void {
-        if (time < prevTime) throw new Error("Midi event time cannot go backwards.");
-        writer.writeMidiVariableLength(time - prevTime);
-        prevTime = time;
-      };
-
-      const writeControlEvent = function(message: MidiControlEventMessage, value: number): void {
-        if (!(value >= 0 && value <= 0x7F)) throw new Error("Midi control event value out of range: " + value);
-        writer.writeUint8(MidiEventType.controlChange | midiChannel);
-        writer.writeMidi7Bits(message);
-        writer.writeMidi7Bits(value | 0);
-      };
-
-      if (isMeta) {
-        // for first midi track, include tempo, time signature, and key signature information.
-
-        writeEventTime(0);
-        writer.writeUint8(MidiEventType.meta);
-        writer.writeMidi7Bits(MidiMetaEventMessage.text);
-        writer.writeMidiAscii("Composed with jummbus.bitbucket.io");
-
-        writeEventTime(0);
-        writer.writeUint8(MidiEventType.meta);
-        writer.writeMidi7Bits(MidiMetaEventMessage.tempo);
-        writer.writeMidiVariableLength(3); // Tempo message length is 3 bytes.
-        writer.writeUint24(microsecondsPerBeat); // Tempo in microseconds per "quarter" note, commonly known as a "beat"
-
-        writeEventTime(0);
-        writer.writeUint8(MidiEventType.meta);
-        writer.writeMidi7Bits(MidiMetaEventMessage.timeSignature);
-        writer.writeMidiVariableLength(4); // Time signature message length is 4 bytes.
-        writer.writeUint8(song.beatsPerBar); // numerator.
-        writer.writeUint8(2); // denominator exponent in 2^E. 2^2 = 4, and we will always use "quarter" notes.
-        writer.writeUint8(24); // MIDI Clocks per metronome tick (should match beats), standard is 24
-        writer.writeUint8(8); // number of 1/32 notes per 24 MIDI Clocks, standard is 8, meaning 24 clocks per "quarter" note.
-        const tempScale = song.scale == Config.scales.dictionary["Custom"].index
-          ? song.scaleCustom
-          : Config.scales[song.scale].flags;
-        const isMinor: boolean = tempScale[3] && !tempScale[4];
-        const key: number = song.key; // C=0, C#=1, counting up to B=11
-        let numSharps: number = key; // For even key values in major scale, number of sharps/flats is same...
-        if ((key & 1) == 1) numSharps += 6; // For odd key values (consider circle of fifths) rotate around the circle... kinda... Look conventional key signatures are just weird, okay?
-        if (isMinor) numSharps += 9; // A minor A scale has zero sharps, shift it appropriately
-        while (numSharps > 6) numSharps -= 12; // Range is (modulo 12) - 5. Midi supports -7 to +7, but I only have 12 options.
-
-        writeEventTime(0);
-        writer.writeUint8(MidiEventType.meta);
-        writer.writeMidi7Bits(MidiMetaEventMessage.keySignature);
-        writer.writeMidiVariableLength(2); // Key signature message length is 2 bytes.
-        writer.writeInt8(numSharps); // See above calculation. Assumes scale is diatonic. :/
-        writer.writeUint8(isMinor ? 1 : 0); // 0: major, 1: minor
-
-        if (this._enableIntro.checked) barStartTime += midiTicksPerBar * song.loopStart;
-        writeEventTime(barStartTime);
-        writer.writeUint8(MidiEventType.meta);
-        writer.writeMidi7Bits(MidiMetaEventMessage.marker);
-        writer.writeMidiAscii("Loop Start");
-
-        for (let loopIndex: number = 0; loopIndex < parseInt(this._loopDropDown.value); loopIndex++) {
-          barStartTime += midiTicksPerBar * song.loopLength;
-          writeEventTime(barStartTime);
-          writer.writeUint8(MidiEventType.meta);
-          writer.writeMidi7Bits(MidiMetaEventMessage.marker);
-          writer.writeMidiAscii(loopIndex < Number(this._loopDropDown.value) - 1 ? "Loop Repeat" : "Loop End");
-        }
-
-        if (this._enableOutro.checked) {
-          barStartTime += midiTicksPerBar * (song.barCount - song.loopStart - song.loopLength);
-        }
-        if (barStartTime != midiTicksPerBar * unrolledBars.length) throw new Error("Miscalculated number of bars.");
+      const trackStartIndex = writer.getWriteIndex(); writer.writeUint32(0);
+      let prevTime = 0; let barStartTime = 0;
+      const writeTime = (t: number) => { writer.writeMidiVariableLength(t - prevTime); prevTime = t; };
+      const writeControl = (m: number, v: number) => { writer.writeUint8(MidiEventType.controlChange | track.midiChannel); writer.writeMidi7Bits(m); writer.writeMidi7Bits(v | 0); };
+      if (track.isMeta) {
+        writeTime(0); writer.writeUint8(MidiEventType.meta); writer.writeMidi7Bits(MidiMetaEventMessage.text); writer.writeMidiAscii("Composed with jummbus.bitbucket.io");
+        writeTime(0); writer.writeUint8(MidiEventType.meta); writer.writeMidi7Bits(MidiMetaEventMessage.tempo); writer.writeMidiVariableLength(3); writer.writeUint24(microsecondsPerBeat);
+        writeTime(0); writer.writeUint8(MidiEventType.meta); writer.writeMidi7Bits(MidiMetaEventMessage.timeSignature); writer.writeMidiVariableLength(4); writer.writeUint8(song.beatsPerBar); writer.writeUint8(2); writer.writeUint8(24); writer.writeUint8(8);
+        const tempScale = song.scale == Config.scales.dictionary["Custom"].index ? song.scaleCustom : Config.scales[song.scale].flags;
+        const isMinor = tempScale[3] && !tempScale[4];
+        let numSharps = song.key; if ((song.key & 1) == 1) numSharps += 6; if (isMinor) numSharps += 9; while (numSharps > 6) numSharps -= 12;
+        writeTime(0); writer.writeUint8(MidiEventType.meta); writer.writeMidi7Bits(MidiMetaEventMessage.keySignature); writer.writeMidiVariableLength(2); writer.writeInt8(numSharps); writer.writeUint8(isMinor ? 1 : 0);
+        let loopTime = 0; if (this._enableIntro.checked) loopTime += midiTicksPerBeat * song.beatsPerBar * song.loopStart;
+        writeTime(loopTime); writer.writeUint8(MidiEventType.meta); writer.writeMidi7Bits(MidiMetaEventMessage.marker); writer.writeMidiAscii("Loop Start");
+        for (let i = 0; i < parseInt(this._loopDropDown.value); i++) { loopTime += midiTicksPerBeat * song.beatsPerBar * song.loopLength; writeTime(loopTime); writer.writeUint8(MidiEventType.meta); writer.writeMidi7Bits(MidiMetaEventMessage.marker); writer.writeMidiAscii(i < Number(this._loopDropDown.value) - 1 ? "Loop Repeat" : "Loop End"); }
+        barStartTime = loopTime; if (this._enableOutro.checked) barStartTime += midiTicksPerBeat * song.beatsPerBar * (song.barCount - song.loopStart - song.loopLength);
       } else {
-        // For remaining tracks, set up the instruments and write the notes:
-
-        const channelName: string = isNoise
-          ? "noise channel " + channel
-          : "pitch channel " + channel;
-        writeEventTime(0);
-        writer.writeUint8(MidiEventType.meta);
-        writer.writeMidi7Bits(MidiMetaEventMessage.trackName);
-        writer.writeMidiAscii(channelName);
-
-        // This sets up pitch bend range. First we choose the pitch bend RPN (which has MSB and LSB components), then we set the value for that RPN (which also has MSB and LSB components) and finally reset the current RPN to null, which is considered best practice.
-        writeEventTime(0);
-        writeControlEvent(
-          MidiControlEventMessage.registeredParameterNumberMSB,
-          MidiRegisteredParameterNumberMSB.pitchBendRange,
-        );
-        writeEventTime(0);
-        writeControlEvent(
-          MidiControlEventMessage.registeredParameterNumberLSB,
-          MidiRegisteredParameterNumberLSB.pitchBendRange,
-        );
-        writeEventTime(0);
-        writeControlEvent(MidiControlEventMessage.setParameterMSB, pitchBendRange); // pitch bend semitone range
-        writeEventTime(0);
-        writeControlEvent(MidiControlEventMessage.setParameterLSB, 0); // pitch bend cent range
-        writeEventTime(0);
-        writeControlEvent(MidiControlEventMessage.registeredParameterNumberMSB, MidiRegisteredParameterNumberMSB.reset);
-        writeEventTime(0);
-        writeControlEvent(MidiControlEventMessage.registeredParameterNumberLSB, MidiRegisteredParameterNumberLSB.reset);
-
-        let prevInstrumentIndex: number = -1;
-        function writeInstrumentSettings(instrumentIndex: number): void {
-          const instrument: Instrument = song.channels[channel].instruments[instrumentIndex];
-          const preset: Preset | null = EditorConfig.valueToPreset(instrument.preset);
-
-          if (prevInstrumentIndex != instrumentIndex) {
-            prevInstrumentIndex = instrumentIndex;
-            writeEventTime(barStartTime);
-            writer.writeUint8(MidiEventType.meta);
-            writer.writeMidi7Bits(MidiMetaEventMessage.instrumentName);
-            writer.writeMidiAscii("Instrument " + (instrumentIndex + 1));
-
-            if (!isDrumset) {
-              let instrumentProgram: number = 81; // default to sawtooth wave.
-
-              if (preset != null && preset.midiProgram != undefined) {
-                instrumentProgram = preset.midiProgram;
-              } else if (instrument.type == InstrumentType.drumset) {
-                // The first BeepBox drumset channel is handled as a Midi drumset channel and doesn't need a program, but any subsequent drumsets will just be set to taiko.
-                instrumentProgram = 116; // taiko
-              } else {
-                if (instrument.type == InstrumentType.noise || instrument.type == InstrumentType.spectrum) {
-                  if (isNoise) {
-                    instrumentProgram = 116; // taiko
-                  } else {
-                    instrumentProgram = 75; // pan flute
-                  }
-                } else if (instrument.type == InstrumentType.chip) {
-                  if (ExportPrompt.midiChipInstruments.length > instrument.chipWave) {
-                    instrumentProgram = ExportPrompt.midiChipInstruments[instrument.chipWave];
-                  }
-                } else if (
-                  instrument.type == InstrumentType.pwm || instrument.type == InstrumentType.fm
-                  || instrument.type == InstrumentType.fm6op || instrument.type == InstrumentType.harmonics
-                  || instrument.type == InstrumentType.supersaw
-                ) {
-                  instrumentProgram = 81; // sawtooth
-                } else if (instrument.type == InstrumentType.pickedString) {
-                  instrumentProgram = 0x19; // steel guitar
-                } else if (instrument.type == InstrumentType.customChipWave) {
-                  instrumentProgram = 81; // sawtooth
-                } else {
-                  throw new Error("Unrecognized instrument type.");
-                }
-              }
-
-              // Program (instrument) change event:
-              writeEventTime(barStartTime);
-              writer.writeUint8(MidiEventType.programChange | midiChannel);
-              writer.writeMidi7Bits(instrumentProgram);
-            }
-
-            // Instrument volume:
-            writeEventTime(barStartTime);
-            const instrumentVolume: number = volumeMultToMidiVolume(
-              Synth.instrumentVolumeToVolumeMult(instrument.volume),
-            );
-            writeControlEvent(MidiControlEventMessage.volumeMSB, Math.min(0x7f, Math.round(instrumentVolume)));
-
-            // Instrument pan:
-            writeEventTime(barStartTime);
-            const instrumentPan: number = (instrument.pan / Config.panCenter - 1) * 0x3f + 0x40;
-            writeControlEvent(MidiControlEventMessage.panMSB, Math.min(0x7f, Math.round(instrumentPan)));
+        writeTime(0); writer.writeUint8(MidiEventType.meta); writer.writeMidi7Bits(MidiMetaEventMessage.trackName); writer.writeMidiAscii(track.isNoise ? "noise channel " + track.channel : "pitch channel " + track.channel);
+        writeTime(0); writeControl(MidiControlEventMessage.registeredParameterNumberMSB, MidiRegisteredParameterNumberMSB.pitchBendRange);
+        writeTime(0); writeControl(MidiControlEventMessage.registeredParameterNumberLSB, MidiRegisteredParameterNumberLSB.pitchBendRange);
+        writeTime(0); writeControl(MidiControlEventMessage.setParameterMSB, 24);
+        writeTime(0); writeControl(MidiControlEventMessage.setParameterLSB, 0);
+        writeTime(0); writeControl(MidiControlEventMessage.registeredParameterNumberMSB, MidiRegisteredParameterNumberMSB.reset);
+        writeTime(0); writeControl(MidiControlEventMessage.registeredParameterNumberLSB, MidiRegisteredParameterNumberLSB.reset);
+        let prevInstr = -1;
+        const writeInstr = (idx: number) => {
+          if (prevInstr == idx) return; prevInstr = idx;
+          const instr = song.channels[track.channel].instruments[idx];
+          writeTime(barStartTime); writer.writeUint8(MidiEventType.meta); writer.writeMidi7Bits(MidiMetaEventMessage.instrumentName); writer.writeMidiAscii("Instrument " + (idx + 1));
+          if (!track.isDrumset) {
+            let prog = 81; const preset = EditorConfig.valueToPreset(instr.preset);
+            if (preset?.midiProgram != undefined) prog = preset.midiProgram;
+            else if (instr.type == InstrumentType.drumset) prog = 116;
+            else if (instr.type == InstrumentType.noise || instr.type == InstrumentType.spectrum) prog = track.isNoise ? 116 : 75;
+            else if (instr.type == InstrumentType.chip && ExportPrompt.midiChipInstruments.length > instr.chipWave) prog = ExportPrompt.midiChipInstruments[instr.chipWave];
+            writeTime(barStartTime); writer.writeUint8(MidiEventType.programChange | track.midiChannel); writer.writeMidi7Bits(prog);
           }
-        }
-        if (song.getPattern(channel, 0) == null) {
-          // Go ahead and apply the instrument settings at the beginning of the channel
-          // even if a bar doesn't kick in until later.
-          writeInstrumentSettings(0);
-        }
-
-        let prevPitchBend: number = defaultMidiPitchBend;
-        let prevExpression: number = defaultMidiExpression;
-        let shouldResetExpressionAndPitchBend: boolean = false;
-        // let prevTremolo: number = -1;
-        const channelRoot: number = isNoise ? Config.spectrumBasePitch : Config.keys[song.key].basePitch;
-        const intervalScale: number = isNoise ? Config.noiseInterval : 1;
-
+          writeTime(barStartTime); writeControl(MidiControlEventMessage.volumeMSB, Math.min(0x7f, Math.round(volumeMultToMidiVolume(Synth.instrumentVolumeToVolumeMult(instr.volume)))));
+          writeTime(barStartTime); writeControl(MidiControlEventMessage.panMSB, Math.min(0x7f, Math.round((instr.pan / Config.panCenter - 1) * 0x3f + 0x40)));
+        };
+        if (song.getPattern(track.channel, 0) == null) writeInstr(0);
+        let prevPB = defaultMidiPitchBend, prevExp = defaultMidiExpression;
+        let resetNeeded = false;
+        const root = track.isNoise ? Config.spectrumBasePitch : Config.keys[song.key].basePitch;
+        const scale = track.isNoise ? Config.noiseInterval : 1;
+        const ticksPerPart = 2 * Config.ticksPerPart;
         for (const bar of unrolledBars) {
-          const pattern: Pattern | null = song.getPattern(channel, bar);
-
+          const pattern = song.getPattern(track.channel, bar);
           if (pattern != null) {
-            const instrumentIndex: number = pattern.instruments[0]; // Don't bother trying to export multiple instruments per pattern to midi, just pick the first one.
-            const instrument: Instrument = song.channels[channel].instruments[instrumentIndex];
-            const preset: Preset | null = EditorConfig.valueToPreset(instrument.preset);
-            writeInstrumentSettings(instrumentIndex);
-
-            let usesArpeggio: boolean = instrument.getChord().arpeggiates;
-            let polyphony: number = usesArpeggio ? 1 : Config.maxChordSize;
-            if (instrument.getChord().customInterval) {
-              if (instrument.type == InstrumentType.chip || instrument.type == InstrumentType.harmonics) {
-                polyphony = 2;
-                usesArpeggio = true;
-              } else if (instrument.type == InstrumentType.fm) {
-                polyphony = Config.operatorCount;
-              } else {
-                console.error("Unrecognized instrument type for harmonizing arpeggio: " + instrument.type);
+            const instrIdx = pattern.instruments[0]; writeInstr(instrIdx);
+            const instr = song.channels[track.channel].instruments[instrIdx];
+            const usesArp = instr.getChord().arpeggiates; let poly = usesArp ? 1 : Config.maxChordSize;
+            if (instr.getChord().customInterval) { if (instr.type == InstrumentType.chip || instr.type == InstrumentType.harmonics) { poly = 2; } else if (instr.type == InstrumentType.fm) poly = Config.operatorCount; }
+            for (const note of pattern.notes) {
+              const start = barStartTime + note.start * ticksPerPart;
+              const toneCount = Math.min(poly, note.pitches.length);
+              const vel = track.isDrumset ? Math.max(1, Math.round(90 * note.pins[0].size / Config.noteSizeMax)) : 90;
+              const mainInt = note.pickMainInterval(); let offset = mainInt * scale;
+              if (!track.isDrumset) {
+                let maxOff = 24, minOff = -24;
+                for (let i = 1; i < note.pins.length; i++) { const int = note.pins[i].interval * scale; maxOff = Math.min(maxOff, int + 24); minOff = Math.max(minOff, int - 24); }
+                offset = Math.min(maxOff, Math.max(minOff, offset));
               }
-            }
-
-            for (let noteIndex: number = 0; noteIndex < pattern.notes.length; noteIndex++) {
-              const note: Note = pattern.notes[noteIndex];
-
-              const noteStartTime: number = barStartTime + note.start * midiTicksPerPart;
-              let pinTime: number = noteStartTime;
-              let pinSize: number = note.pins[0].size;
-              let pinInterval: number = note.pins[0].interval;
-              const prevPitches: number[] = [-1, -1, -1, -1];
-              const nextPitches: number[] = [-1, -1, -1, -1];
-              const toneCount: number = Math.min(polyphony, note.pitches.length);
-              const velocity: number = isDrumset
-                ? Math.max(1, Math.round(defaultNoteVelocity * note.pins[0].size / Config.noteSizeMax))
-                : defaultNoteVelocity;
-
-              // The maximum midi pitch bend range is +/- 24 semitones from the base pitch.
-              // To make the most of this, choose a base pitch that is within 24 semitones from as much of the note as possible.
-              // This may involve offsetting this base pitch from BeepBox's note pitch.
-              const mainInterval: number = note.pickMainInterval();
-              let pitchOffset: number = mainInterval * intervalScale;
-              if (!isDrumset) {
-                let maxPitchOffset: number = pitchBendRange;
-                let minPitchOffset: number = -pitchBendRange;
-                for (let pinIndex: number = 1; pinIndex < note.pins.length; pinIndex++) {
-                  const interval = note.pins[pinIndex].interval * intervalScale;
-                  maxPitchOffset = Math.min(maxPitchOffset, interval + pitchBendRange);
-                  minPitchOffset = Math.max(minPitchOffset, interval - pitchBendRange);
+              let pinT = start, pinS = note.pins[0].size, pinI = note.pins[0].interval;
+              const prevP = [-1,-1,-1,-1], nextP = [-1,-1,-1,-1];
+              for (let i = 1; i < note.pins.length; i++) {
+                const nPinT = start + note.pins[i].time * ticksPerPart;
+                const len = nPinT - pinT;
+                for (let tick = 0; tick < len; tick++) {
+                  const time = pinT + tick;
+                  const lSize = lerp(pinS, note.pins[i].size, tick / len);
+                  const lInt = lerp(pinI, note.pins[i].interval, tick / len);
+                  const pb = Math.max(0, Math.min(0x3fff, Math.round(0x2000 * (1 + (lInt * scale - offset) / 24))));
+                  const exp = Math.min(0x7f, Math.round(volumeMultToMidiExpression(Synth.noteSizeToVolumeMult(lSize))));
+                  if (pb != prevPB) { writeTime(time); writer.writeUint8(MidiEventType.pitchBend | track.midiChannel); writer.writeMidi7Bits(pb & 0x7f); writer.writeMidi7Bits((pb >> 7) & 0x7f); prevPB = pb; }
+                  if (exp != prevExp && !track.isDrumset) { writeTime(time); writeControl(MidiControlEventMessage.expressionMSB, exp); prevExp = exp; }
+                  for (let t = 0; t < toneCount; t++) {
+                    let p = note.pitches[t];
+                    if (track.isDrumset) { p = [36, 41, 45, 48, 40, 39, 59, 49, 46, 55, 69, 54][p + mainInt] || 36; }
+                    else {
+                      if (usesArp && note.pitches.length > t + 1 && t == toneCount - 1) {
+                        const arp = Math.floor(((time - barStartTime) % (ticksPerPart * Config.partsPerBeat)) / (Config.ticksPerArpeggio * 2));
+                        p = note.pitches[t + getArpeggioPitchIndex(note.pitches.length - t, instr.fastTwoNoteArp, arp)];
+                      }
+                      p = root + p * scale + offset;
+                      const preset = EditorConfig.valueToPreset(instr.preset);
+                      if (preset?.midiSubharmonicOctaves != undefined) p += 12 * preset.midiSubharmonicOctaves;
+                      else if (track.isNoise) p += 12 * (+EditorConfig.presetCategories.dictionary["Drum Presets"].presets.dictionary["taiko drum"].midiSubharmonicOctaves!);
+                      if (track.isNoise) p *= 2;
+                    }
+                    p = Math.max(0, Math.min(127, p)); nextP[t] = p;
+                    if (time != start && prevP[t] != nextP[t]) { writeTime(time); writer.writeUint8(MidiEventType.noteOff | track.midiChannel); writer.writeMidi7Bits(prevP[t]); writer.writeMidi7Bits(vel); }
+                  }
+                  for (let t = 0; t < toneCount; t++) { if (time == start || prevP[t] != nextP[t]) { writeTime(time); writer.writeUint8(MidiEventType.noteOn | track.midiChannel); writer.writeMidi7Bits(nextP[t]); writer.writeMidi7Bits(vel); prevP[t] = nextP[t]; } }
                 }
-                /*
-                                // Pitch bend could theoretically implement arpeggio, but the "custom interval" setting in chip instruments combines arpeggio in one tone with another flat tone, and midi can't selectively apply arpeggio to one out of two simultaneous tones. It would also be hard to reimport.
-                                if (usesArpeggio && note.pitches.length > polyphony) {
-                                    let lowestArpeggioOffset: number = 0;
-                                    let highestArpeggioOffset: number = 0;
-                                    const basePitch: number = note.pitches[toneCount - 1];
-                                    for (let pitchIndex: number = toneCount; pitchIndex < note.pitches.length; pitchIndex++) {
-                                        lowestArpeggioOffset = Math.min(note.pitches[pitchIndex] - basePitch);
-                                        highestArpeggioOffset = Math.max(note.pitches[pitchIndex] - basePitch);
-                                    }
-                                    maxPitchOffset -= lowestArpeggioOffset;
-                                    minPitchOffset += lowestArpeggioOffset;
-                                }
-                                */
-                pitchOffset = Math.min(maxPitchOffset, Math.max(minPitchOffset, pitchOffset));
+                pinT = nPinT; pinS = note.pins[i].size; pinI = note.pins[i].interval;
               }
-
-              for (let pinIndex: number = 1; pinIndex < note.pins.length; pinIndex++) {
-                const nextPinTime: number = noteStartTime + note.pins[pinIndex].time * midiTicksPerPart;
-                const nextPinSize: number = note.pins[pinIndex].size;
-                const nextPinInterval: number = note.pins[pinIndex].interval;
-
-                const length: number = nextPinTime - pinTime;
-                for (let midiTick: number = 0; midiTick < length; midiTick++) {
-                  const midiTickTime: number = pinTime + midiTick;
-                  const linearSize: number = lerp(pinSize, nextPinSize, midiTick / length);
-                  const linearInterval: number = lerp(pinInterval, nextPinInterval, midiTick / length);
-
-                  const interval: number = linearInterval * intervalScale - pitchOffset;
-
-                  const pitchBend: number = Math.max(
-                    0,
-                    Math.min(0x3fff, Math.round(0x2000 * (1.0 + interval / pitchBendRange))),
-                  );
-
-                  const expression: number = Math.min(
-                    0x7f,
-                    Math.round(volumeMultToMidiExpression(Synth.noteSizeToVolumeMult(linearSize))),
-                  );
-
-                  if (pitchBend != prevPitchBend) {
-                    writeEventTime(midiTickTime);
-                    writer.writeUint8(MidiEventType.pitchBend | midiChannel);
-                    writer.writeMidi7Bits(pitchBend & 0x7f); // least significant bits
-                    writer.writeMidi7Bits((pitchBend >> 7) & 0x7f); // most significant bits
-                    prevPitchBend = pitchBend;
-                  }
-
-                  if (expression != prevExpression && !isDrumset) {
-                    writeEventTime(midiTickTime);
-                    writeControlEvent(MidiControlEventMessage.expressionMSB, expression);
-                    prevExpression = expression;
-                  }
-
-                  const noteStarting: boolean = midiTickTime == noteStartTime;
-                  for (let toneIndex: number = 0; toneIndex < toneCount; toneIndex++) {
-                    let nextPitch: number = note.pitches[toneIndex];
-                    if (isDrumset) {
-                      nextPitch += mainInterval;
-                      const drumsetMap: number[] = [
-                        36, // Bass Drum 1
-                        41, // Low Floor Tom
-                        45, // Low Tom
-                        48, // Hi-Mid Tom
-                        40, // Electric Snare
-                        39, // Hand Clap
-                        59, // Ride Cymbal 2
-                        49, // Crash Cymbal 1
-                        46, // Open Hi-Hat
-                        55, // Splash Cymbal
-                        69, // Cabasa
-                        54, // Tambourine
-                      ];
-                      if (nextPitch < 0 || nextPitch >= drumsetMap.length) {
-                        throw new Error("Could not find corresponding drumset pitch. " + nextPitch);
-                      }
-                      nextPitch = drumsetMap[nextPitch];
-                    } else {
-                      if (usesArpeggio && note.pitches.length > toneIndex + 1 && toneIndex == toneCount - 1) {
-                        const midiTicksSinceBeat = (midiTickTime - barStartTime) % midiTicksPerBeat;
-                        const midiTicksPerArpeggio = Config.ticksPerArpeggio * midiTicksPerPart / Config.ticksPerPart;
-                        const arpeggio: number = Math.floor(midiTicksSinceBeat / midiTicksPerArpeggio);
-                        nextPitch = note
-                          .pitches[
-                            toneIndex
-                            + getArpeggioPitchIndex(
-                              note.pitches.length - toneIndex,
-                              instrument.fastTwoNoteArp,
-                              arpeggio,
-                            )
-                          ];
-                      }
-                      nextPitch = channelRoot + nextPitch * intervalScale + pitchOffset;
-                      if (preset != null && preset.midiSubharmonicOctaves != undefined) {
-                        nextPitch += 12 * preset.midiSubharmonicOctaves;
-                      } else if (isNoise) {
-                        nextPitch += 12
-                          * (+EditorConfig.presetCategories.dictionary["Drum Presets"].presets.dictionary["taiko drum"]
-                            .midiSubharmonicOctaves!);
-                      }
-
-                      if (isNoise) nextPitch *= 2;
-                    }
-                    nextPitch = Math.max(0, Math.min(127, nextPitch));
-                    nextPitches[toneIndex] = nextPitch;
-
-                    if (!noteStarting && prevPitches[toneIndex] != nextPitches[toneIndex]) {
-                      writeEventTime(midiTickTime);
-                      writer.writeUint8(MidiEventType.noteOff | midiChannel);
-                      writer.writeMidi7Bits(prevPitches[toneIndex]); // old pitch
-                      writer.writeMidi7Bits(velocity); // velocity
-                    }
-                  }
-
-                  for (let toneIndex: number = 0; toneIndex < toneCount; toneIndex++) {
-                    if (noteStarting || prevPitches[toneIndex] != nextPitches[toneIndex]) {
-                      writeEventTime(midiTickTime);
-                      writer.writeUint8(MidiEventType.noteOn | midiChannel);
-                      writer.writeMidi7Bits(nextPitches[toneIndex]); // new pitch
-                      writer.writeMidi7Bits(velocity); // velocity
-                      prevPitches[toneIndex] = nextPitches[toneIndex];
-                    }
-                  }
-                }
-
-                pinTime = nextPinTime;
-                pinSize = nextPinSize;
-                pinInterval = nextPinInterval;
-              }
-
-              const noteEndTime: number = barStartTime + note.end * midiTicksPerPart;
-
-              // End all tones.
-              for (let toneIndex: number = 0; toneIndex < toneCount; toneIndex++) {
-                // TODO: If the note at the start of the next pattern has
-                // continuesLastPattern and has the same chord, it ought to extend
-                // this previous note.
-                writeEventTime(noteEndTime);
-                writer.writeUint8(MidiEventType.noteOff | midiChannel);
-                writer.writeMidi7Bits(prevPitches[toneIndex]); // pitch
-                writer.writeMidi7Bits(velocity); // velocity
-              }
-
-              shouldResetExpressionAndPitchBend = true;
+              const end = barStartTime + note.end * ticksPerPart;
+              for (let t = 0; t < toneCount; t++) { writeTime(end); writer.writeUint8(MidiEventType.noteOff | track.midiChannel); writer.writeMidi7Bits(prevP[t]); writer.writeMidi7Bits(vel); }
+              resetNeeded = true;
             }
-          } else {
-            if (shouldResetExpressionAndPitchBend) {
-              shouldResetExpressionAndPitchBend = false;
-
-              if (prevExpression != defaultMidiExpression) {
-                prevExpression = defaultMidiExpression;
-                // Reset expression
-                writeEventTime(barStartTime);
-                writeControlEvent(MidiControlEventMessage.expressionMSB, prevExpression);
-              }
-
-              if (prevPitchBend != defaultMidiPitchBend) {
-                // Reset pitch bend
-                prevPitchBend = defaultMidiPitchBend;
-                writeEventTime(barStartTime);
-                writer.writeUint8(MidiEventType.pitchBend | midiChannel);
-                writer.writeMidi7Bits(prevPitchBend & 0x7f); // least significant bits
-                writer.writeMidi7Bits((prevPitchBend >> 7) & 0x7f); // most significant bits
-              }
-            }
+          } else if (resetNeeded) {
+            resetNeeded = false;
+            if (prevExp != defaultMidiExpression) { prevExp = defaultMidiExpression; writeTime(barStartTime); writeControl(MidiControlEventMessage.expressionMSB, prevExp); }
+            if (prevPB != defaultMidiPitchBend) { prevPB = defaultMidiPitchBend; writeTime(barStartTime); writer.writeUint8(MidiEventType.pitchBend | track.midiChannel); writer.writeMidi7Bits(prevPB & 0x7f); writer.writeMidi7Bits((prevPB >> 7) & 0x7f); }
           }
-
-          barStartTime += midiTicksPerBar;
+          barStartTime += midiTicksPerBeat * song.beatsPerBar;
         }
       }
-
-      writeEventTime(barStartTime);
-      writer.writeUint8(MidiEventType.meta);
-      writer.writeMidi7Bits(MidiMetaEventMessage.endOfTrack);
-      writer.writeMidiVariableLength(0x00);
-
-      // Finally, write the length of the track in bytes at the front of the track.
+      writeTime(barStartTime); writer.writeUint8(MidiEventType.meta); writer.writeMidi7Bits(MidiMetaEventMessage.endOfTrack); writer.writeMidiVariableLength(0);
       writer.rewriteUint32(trackStartIndex, writer.getWriteIndex() - trackStartIndex - 4);
     }
-
-    const blob: Blob = new Blob([writer.toCompactArrayBuffer()], { type: "audio/midi" });
-    save(blob, this._fileName.value.trim() + ".mid");
-
+    save(new Blob([writer.toCompactArrayBuffer()], { type: "audio/midi" }), this._fileName.value.trim() + ".mid");
     this._close();
   }
 
   private _exportToJson(): void {
-    const jsonObject: object = this._doc.song.toJsonObject(
-      this._enableIntro.checked,
-      Number(this._loopDropDown.value),
-      this._enableOutro.checked,
-    );
-    const whiteSpaceParam: string | undefined = this._removeWhitespace.checked ? undefined : "\t";
-    const jsonString: string = JSON.stringify(jsonObject, null, whiteSpaceParam);
-    const blob: Blob = new Blob([jsonString], { type: "application/json" });
-    save(blob, this._fileName.value.trim() + ".json");
+    const json = JSON.stringify(this._doc.song.toJsonObject(this._enableIntro.checked, Number(this._loopDropDown.value), this._enableOutro.checked), null, this._removeWhitespace.checked ? undefined : "\t");
+    save(new Blob([json], { type: "application/json" }), this._fileName.value.trim() + ".json");
     this._close();
   }
 
   private _exportToHtml(): void {
-    const fileContents = `\
-<!DOCTYPE html><meta charset="utf-8">
-
-You should be redirected to the song at:<br /><br />
-
-<a id="destination" href="${new URL("#" + this._doc.song.toBase64String(), location.href).href}"></a>
-
-<style>
-	:root {
-		color: white;
-		background: black;
-		font-family:
-		sans-serif;
-	}
-	a {
-		color: #98f;
-	}
-	a[href]::before {
-		content: attr(href);
-	}
-</style>
-
-<script>
-	location.assign(document.querySelector("a#destination").href);
-</script>
-`;
-    const blob: Blob = new Blob([fileContents], { type: "text/html" });
-    save(blob, this._fileName.value.trim() + ".html");
+    const html = `<!DOCTYPE html><meta charset="utf-8">Redirecting to <a href="${new URL("#" + this._doc.song.toBase64String(), location.href).href}">song</a>...<script>location.assign(location.hash);</script>`;
+    save(new Blob([html], { type: "text/html" }), this._fileName.value.trim() + ".html");
     this._close();
+  }
+
+  private static _validateFileName(event: Event | null, use?: HTMLInputElement): void {
+    let input: HTMLInputElement;
+    if (event != null) input = <HTMLInputElement> event.target;
+    else if (use != undefined) input = use;
+    else return;
+    const deleteChars = /[\+\*\$\?\|\{\}\\\/<>#%!`&'"=:@]/gi;
+    if (deleteChars.test(input.value)) {
+      let cursorPos: number = <number> input.selectionStart;
+      input.value = input.value.replace(deleteChars, "");
+      cursorPos--;
+      input.setSelectionRange(cursorPos, cursorPos);
+    }
+  }
+
+  private static _validateNumber(event: Event): void {
+    const input: HTMLInputElement = <HTMLInputElement> event.target;
+    input.value = Math.floor(Math.max(Number(input.min), Math.min(Number(input.max), Number(input.value)))) + "";
   }
 }

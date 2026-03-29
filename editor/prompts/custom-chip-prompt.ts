@@ -13,10 +13,9 @@ import { ChangeCustomWave } from "../changes";
 import { ColorConfig } from "../rendering/color-config";
 import { SongDocument } from "../song-document";
 import { SongEditor } from "../song-editor";
-import { Prompt } from "./prompt";
+import { BasePrompt } from "./base-prompt";
 
-// namespace beepbox {
-const { button, div, h2 } = HTML;
+const { div, h2, button } = HTML;
 
 export class CustomChipPromptCanvas {
   private readonly _doc: SongDocument;
@@ -29,8 +28,8 @@ export class CustomChipPromptCanvas {
   public startingChipData: Float32Array = new Float32Array(64);
   private _undoHistoryState: number = 0;
   private _changeQueue: Float32Array[] = [];
-  private readonly _editorWidth: number = 768; // 64*12
-  private readonly _editorHeight: number = 294; // 49*6
+  private readonly _editorWidth: number = 768;
+  private readonly _editorHeight: number = 294;
   private readonly _fill: SVGPathElement = SVG.path({ fill: ColorConfig.uiWidgetBackground, "pointer-events": "none" });
   private readonly _ticks: SVGSVGElement = SVG.svg({ "pointer-events": "none" });
   private readonly _subticks: SVGSVGElement = SVG.svg({ "pointer-events": "none" });
@@ -80,7 +79,6 @@ export class CustomChipPromptCanvas {
       );
     }
 
-    // Horiz. ticks
     this._ticks.appendChild(
       SVG.rect({ fill: ColorConfig.tonic, x: 0, y: (this._editorHeight / 2) - 1, width: this._editorWidth, height: 2 }),
     );
@@ -123,7 +121,6 @@ export class CustomChipPromptCanvas {
       );
     }
 
-    // Record initial state of the chip data queue
     this._storeChange();
 
     this.container.addEventListener("mousedown", this._whenMousePressed);
@@ -134,13 +131,9 @@ export class CustomChipPromptCanvas {
     this.container.addEventListener("touchmove", this._whenTouchMoved);
     this.container.addEventListener("touchend", this._whenCursorReleased);
     this.container.addEventListener("touchcancel", this._whenCursorReleased);
-
-    this._svg.addEventListener("keydown", this._whenKeyPressed);
-    this.container.addEventListener("keydown", this._whenKeyPressed);
   }
 
   public _storeChange = (): void => {
-    // Check if change is unique compared to the current history state
     let sameCheck = true;
     if (this._changeQueue.length > 0) {
       for (let i = 0; i < 64; i++) {
@@ -152,14 +145,9 @@ export class CustomChipPromptCanvas {
     }
 
     if (sameCheck == false || this._changeQueue.length == 0) {
-      // Create new branch in history, removing all after this in time
       this._changeQueue.splice(0, this._undoHistoryState);
-
       this._undoHistoryState = 0;
-
       this._changeQueue.unshift(this.chipData.slice());
-
-      // 32 undo max
       if (this._changeQueue.length > 32) {
         this._changeQueue.pop();
       }
@@ -167,7 +155,6 @@ export class CustomChipPromptCanvas {
   };
 
   public undo = (): void => {
-    // Go backward, if there is a change to go back to
     if (this._undoHistoryState < this._changeQueue.length - 1) {
       this._undoHistoryState++;
       this.chipData = this._changeQueue[this._undoHistoryState].slice();
@@ -177,22 +164,11 @@ export class CustomChipPromptCanvas {
   };
 
   public redo = (): void => {
-    // Go forward, if there is a change to go to
     if (this._undoHistoryState > 0) {
       this._undoHistoryState--;
       this.chipData = this._changeQueue[this._undoHistoryState].slice();
       new ChangeCustomWave(this._doc, this.chipData);
       this.render();
-    }
-  };
-
-  private _whenKeyPressed = (event: KeyboardEvent): void => {
-    if (event.keyCode == 90) { // z
-      this.undo();
-      event.stopPropagation();
-    } else if (event.keyCode == 89) { // y
-      this.redo();
-      event.stopPropagation();
     }
   };
 
@@ -257,7 +233,6 @@ export class CustomChipPromptCanvas {
       const index: number = Math.min(63, Math.max(0, Math.floor(this._mouseX * 64 / this._editorWidth)));
       const amp: number = Math.min(48, Math.max(0, Math.floor(this._mouseY * 49 / this._editorHeight)));
 
-      // Paint between mouse drag indices unless a click just happened.
       if (this._lastIndex != -1 && this._lastIndex != index) {
         let lowest = index;
         let highest = this._lastIndex;
@@ -281,7 +256,6 @@ export class CustomChipPromptCanvas {
         this._blocks.children[index].setAttribute("y", "" + (amp * (this._editorHeight / 49)));
       }
 
-      // Make a change to the data but don't record it, since this prompt uses its own undo/redo queue
       new ChangeCustomWave(this._doc, this.chipData);
 
       this._lastIndex = index;
@@ -290,7 +264,6 @@ export class CustomChipPromptCanvas {
   }
 
   private _whenCursorReleased = (event: Event): void => {
-    // Add current data into queue, if it is unique from last data
     this._storeChange();
     this._mouseDown = false;
   };
@@ -300,22 +273,23 @@ export class CustomChipPromptCanvas {
       this._blocks.children[i].setAttribute("y", "" + ((this.chipData[i] + 24) * (this._editorHeight / 49)));
     }
   }
+
+  public cleanUp(): void {
+    document.removeEventListener("mousemove", this._whenMouseMoved);
+    document.removeEventListener("mouseup", this._whenCursorReleased);
+  }
 }
 
-export class CustomChipPrompt implements Prompt {
+export class CustomChipPrompt extends BasePrompt {
   public customChipCanvas: CustomChipPromptCanvas = new CustomChipPromptCanvas(this._doc);
 
   public readonly _playButton: HTMLButtonElement = button({ style: "width: 55%;", type: "button" });
-
-  private readonly _cancelButton: HTMLButtonElement = button({ class: "cancelButton" });
-  private readonly _okayButton: HTMLButtonElement = button({ class: "okayButton", style: "width:45%;" }, "Okay");
 
   private readonly copyButton: HTMLButtonElement = button({
     style: "width:86px; margin-right: 5px;",
     class: "copyButton",
   }, [
     "Copy",
-    // Copy icon:
     SVG.svg({
       style: "flex-shrink: 0; position: absolute; left: 0; top: 50%; margin-top: -1em; pointer-events: none;",
       width: "2em",
@@ -330,7 +304,6 @@ export class CustomChipPrompt implements Prompt {
   ]);
   private readonly pasteButton: HTMLButtonElement = button({ style: "width:86px;", class: "pasteButton" }, [
     "Paste",
-    // Paste icon:
     SVG.svg({
       style: "flex-shrink: 0; position: absolute; left: 0; top: 50%; margin-top: -1em; pointer-events: none;",
       width: "2em",
@@ -370,10 +343,8 @@ export class CustomChipPrompt implements Prompt {
     this._cancelButton,
   );
 
-  constructor(private _doc: SongDocument, private _songEditor: SongEditor) {
-    this._okayButton.addEventListener("click", this._saveChanges);
-    this._cancelButton.addEventListener("click", this._close);
-    this.container.addEventListener("keydown", this.whenKeyPressed);
+  constructor(doc: SongDocument, private _songEditor: SongEditor) {
+    super(doc);
     this.copyButton.addEventListener("click", this._copySettings);
     this.pasteButton.addEventListener("click", this._pasteSettings);
     this._playButton.addEventListener("click", this._togglePlay);
@@ -403,17 +374,13 @@ export class CustomChipPrompt implements Prompt {
     }
   }
 
-  private _close = (): void => {
-    this._doc.prompt = null;
-  };
-
-  public cleanUp = (): void => {
-    this._okayButton.removeEventListener("click", this._saveChanges);
-    this._cancelButton.removeEventListener("click", this._close);
-    this.container.removeEventListener("keydown", this.whenKeyPressed);
-
+  public override cleanUp(): void {
+    super.cleanUp();
+    this.customChipCanvas.cleanUp();
     this._playButton.removeEventListener("click", this._togglePlay);
-  };
+    this.copyButton.removeEventListener("click", this._copySettings);
+    this.pasteButton.removeEventListener("click", this._pasteSettings);
+  }
 
   private _copySettings = (): void => {
     const chipCopy: Float32Array = this.customChipCanvas.chipData;
@@ -429,7 +396,7 @@ export class CustomChipPrompt implements Prompt {
     new ChangeCustomWave(this._doc, this.customChipCanvas.chipData);
   };
 
-  public whenKeyPressed = (event: KeyboardEvent): void => {
+  public override whenKeyPressed = (event: KeyboardEvent): void => {
     if ((<Element> event.target).tagName != "BUTTON" && event.keyCode == 13) { // Enter key
       this._saveChanges();
     } else if (event.keyCode == 32) {
@@ -448,11 +415,9 @@ export class CustomChipPrompt implements Prompt {
     }
   };
 
-  private _saveChanges = (): void => {
+  protected override _saveChanges(): void {
     this._doc.prompt = null;
-    // Restore custom chip to starting values
     new ChangeCustomWave(this._doc, this.customChipCanvas.startingChipData);
     this._doc.record(new ChangeCustomWave(this._doc, this.customChipCanvas.chipData), true);
-  };
+  }
 }
-// }

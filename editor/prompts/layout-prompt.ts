@@ -11,17 +11,11 @@
 import { HTML, SVG } from "imperative-html/dist/esm/elements-strict";
 import { SongDocument } from "../song-document";
 import { Layout } from "../ui/layout";
-import { Prompt } from "./prompt";
+import { BasePrompt } from "./base-prompt";
 
-const { button, label, div, form, h2, input } = HTML;
+const { label, div, form, h2, input } = HTML;
 
-export class LayoutPrompt implements Prompt {
-  private readonly _fileInput: HTMLInputElement = input({
-    type: "file",
-    accept: ".json,application/json,.mid,.midi,audio/midi,audio/x-midi",
-  });
-  private readonly _okayButton: HTMLButtonElement = button({ class: "okayButton", style: "width:45%;" }, "Okay");
-  private readonly _cancelButton: HTMLButtonElement = button({ class: "cancelButton" });
+export class LayoutPrompt extends BasePrompt {
   private readonly _form: HTMLFormElement = form(
     { style: "display: flex; gap: 10px; flex-wrap: wrap; justify-content: center;" },
     label(
@@ -156,37 +150,15 @@ export class LayoutPrompt implements Prompt {
     this._cancelButton,
   );
 
-  constructor(private _doc: SongDocument) {
-    this._fileInput.select();
-    setTimeout(() => this._fileInput.focus());
-
-    this._okayButton.addEventListener("click", this._confirm);
-    this._cancelButton.addEventListener("click", this._close);
-    this.container.addEventListener("keydown", this._whenKeyPressed);
-
+  constructor(doc: SongDocument) {
+    super(doc);
     (<any> this._form.elements)["layout"].value = this._doc.prefs.layout;
   }
 
-  private _close = (): void => {
-    this._doc.prompt = null;
-  };
-
-  public cleanUp = (): void => {
-    this._okayButton.removeEventListener("click", this._confirm);
-    this._cancelButton.removeEventListener("click", this._close);
-    this.container.removeEventListener("keydown", this._whenKeyPressed);
-  };
-
-  private _whenKeyPressed = (event: KeyboardEvent): void => {
-    if ((<Element> event.target).tagName != "BUTTON" && event.keyCode == 13) { // Enter key
-      this._confirm();
-    }
-  };
-
-  private _confirm = (): void => {
+  protected override _saveChanges(): void {
     this._doc.prefs.layout = (<any> this._form.elements)["layout"].value;
     this._doc.prefs.save();
     Layout.setLayout(this._doc.prefs.layout);
     this._close();
-  };
+  }
 }

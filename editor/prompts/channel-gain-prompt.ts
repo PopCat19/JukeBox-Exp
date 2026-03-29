@@ -10,15 +10,13 @@
 import { HTML, SVG } from "imperative-html/dist/esm/elements-strict";
 import { SongDocument } from "../song-document";
 import { ColorConfig } from "../rendering/color-config";
-import { Prompt } from "./prompt";
+import { BasePrompt } from "./base-prompt";
 
 const { div, h2, span, button } = HTML;
 const { svg, defs, linearGradient, stop, rect } = SVG;
 
-export class ChannelGainPrompt implements Prompt {
-  private readonly _doc: SongDocument;
+export class ChannelGainPrompt extends BasePrompt {
   private _animationId: number = 0;
-  private readonly _cancelButton: HTMLButtonElement = button({ class: "cancelButton" });
 
   // Volume bar elements
   private readonly _outVolumeBar: SVGRectElement = rect({
@@ -150,16 +148,14 @@ export class ChannelGainPrompt implements Prompt {
     this._cancelButton,
   );
 
-  constructor(_doc: SongDocument) {
-    this._doc = _doc;
+  constructor(doc: SongDocument) {
+    super(doc);
     this._animate = this._animate.bind(this);
     this._onDocChange = this._renderChannelList.bind(this);
     this._doc.notifier.watch(this._onDocChange);
     this._renderChannelList();
     this._animationId = window.requestAnimationFrame(this._animate);
-    this._cancelButton.addEventListener("click", this._close);
     this._playPauseButton.addEventListener("click", this._togglePlayPause);
-    this.container.addEventListener("keydown", this._onKeyDown);
     setTimeout(() => this.container.focus());
   }
 
@@ -176,21 +172,19 @@ export class ChannelGainPrompt implements Prompt {
     this._playPauseButton.textContent = this._doc.synth.playing ? "⏸ Pause" : "▶ Play";
   };
 
-  private _onKeyDown = (event: KeyboardEvent): void => {
+  public override whenKeyPressed = (event: KeyboardEvent): void => {
     if (event.key === " ") {
       event.preventDefault();
       this._togglePlayPause();
-    } else if (event.key === "Escape") {
-      this._close();
     }
   };
 
-  private _close = (): void => {
-    this._doc.prompt = null;
-    this._doc.notifier.changed();
-  };
+  protected override _saveChanges(): void {
+    // No changes to save
+  }
 
-  public cleanUp = (): void => {
+  public override cleanUp = (): void => {
+    super.cleanUp();
     this._doc.notifier.unwatch(this._onDocChange);
     if (this._animationId !== 0) {
       window.cancelAnimationFrame(this._animationId);
@@ -206,9 +200,7 @@ export class ChannelGainPrompt implements Prompt {
     this._channelLastCaps.clear();
     this._channelDbLabels.clear();
     this._instrumentSpans.clear();
-    this._cancelButton.removeEventListener("click", this._close);
     this._playPauseButton.removeEventListener("click", this._togglePlayPause);
-    this.container.removeEventListener("keydown", this._onKeyDown);
     // Invalidate cached bounding rects in other components
     // Use setTimeout to ensure DOM has settled after prompt removal
     setTimeout(() => {

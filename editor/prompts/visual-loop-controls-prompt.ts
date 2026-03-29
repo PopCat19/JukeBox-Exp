@@ -20,12 +20,9 @@ import { ChangeGroup } from "../core/change";
 import { ColorConfig } from "../rendering/color-config";
 import { SongDocument } from "../song-document";
 import { SongEditor } from "../song-editor";
+import { BasePrompt } from "./base-prompt";
 
 const { div, input, button, h2, select, option, canvas } = HTML;
-
-// Some of the code here was adapted from this library:
-// https://github.com/chdh/function-curve-viewer
-// which is MIT licensed (https://github.com/chdh/function-curve-viewer/blob/master/LICENSE.md).
 
 type HandleValueValidator = (value: number) => number;
 type HandleValueChangeHandler = (value: number) => void;
@@ -105,11 +102,9 @@ class VisualLoopControlsHandle {
     const h: number = cnv.height;
     const vx0: number = this._viewportX0;
     const vx1: number = this._viewportX1;
-
     const v: number = this._value;
 
     ctx.clearRect(0, 0, w, h);
-
     ctx.fillStyle = ColorConfig.getComputed("--loop-accent");
     const bw: number = this._handleWidth;
     const bh: number = h;
@@ -125,18 +120,13 @@ class VisualLoopControlsHandle {
 
   private _whenMouseMoves = (event: MouseEvent): void => {
     if (!this._mouseDown) return;
-
     const w: number = this._canvasWidth;
     const vx0: number = this._viewportX0;
     const vx1: number = this._viewportX1;
-
     const bounds: DOMRect = this.canvas!.getBoundingClientRect();
     const canvasXScale: number = w / bounds.width;
-
     const mx: number = ((event.clientX || event.pageX) - bounds.left) * canvasXScale;
-
     const wmx: number = vx0 + mx * (vx1 - vx0) / w;
-
     this._value = this._validator(wmx - (this._handleDragOffset != null ? this._handleDragOffset : 0));
     this.render();
     if (this._whenValueChanges) this._whenValueChanges(this._value);
@@ -144,33 +134,25 @@ class VisualLoopControlsHandle {
 
   private _whenMouseIsDown = (event: MouseEvent): void => {
     this._mouseDown = true;
-
     const w: number = this._canvasWidth;
     const vx0: number = this._viewportX0;
     const vx1: number = this._viewportX1;
-
     const bounds: DOMRect = this.canvas!.getBoundingClientRect();
     const canvasXScale: number = w / bounds.width;
-
     const mx: number = ((event.clientX || event.pageX) - bounds.left) * canvasXScale;
-
     const bw: number = this._handleWidth;
     const bx0: number = ((this._value - vx0) * w / (vx1 - vx0)) - bw / 2;
     const bx1: number = bx0 + bw;
     if (mx >= bx0 && mx <= bx1) {
       this._handleDragOffset = (mx - (bx0 + bw / 2)) * (vx1 - vx0) / w;
     }
-
     const wmx: number = vx0 + mx * (vx1 - vx0) / w;
-
     this._value = this._validator(wmx - (this._handleDragOffset != null ? this._handleDragOffset : 0));
     this.render();
     if (this._whenValueChanges) this._whenValueChanges(this._value);
   };
 
   private _whenMouseIsUp = (event: MouseEvent): void => {
-    // event.preventDefault();
-    // event.stopPropagation();
     if (!this._mouseDown) return;
     this._mouseDown = false;
     this._handleDragOffset = null;
@@ -179,20 +161,14 @@ class VisualLoopControlsHandle {
 
   private _whenTouchMoves = (event: TouchEvent): void => {
     if (!this._mouseDown) return;
-
     event.preventDefault();
-
     const w: number = this._canvasWidth;
     const vx0: number = this._viewportX0;
     const vx1: number = this._viewportX1;
-
     const bounds: DOMRect = this.canvas!.getBoundingClientRect();
     const canvasXScale: number = w / bounds.width;
-
     const mx: number = (event.touches[0].clientX - bounds.left) * canvasXScale;
-
     const wmx: number = vx0 + mx * (vx1 - vx0) / w;
-
     this._value = this._validator(wmx - (this._handleDragOffset != null ? this._handleDragOffset : 0));
     this.render();
     if (this._whenValueChanges) this._whenValueChanges(this._value);
@@ -200,27 +176,20 @@ class VisualLoopControlsHandle {
 
   private _whenTouchIsDown = (event: TouchEvent): void => {
     event.preventDefault();
-
     this._mouseDown = true;
-
     const w: number = this._canvasWidth;
     const vx0: number = this._viewportX0;
     const vx1: number = this._viewportX1;
-
     const bounds: DOMRect = this.canvas!.getBoundingClientRect();
     const canvasXScale: number = w / bounds.width;
-
     const mx: number = (event.touches[0].clientX - bounds.left) * canvasXScale;
-
     const bw: number = this._handleWidth;
     const bx0: number = ((this._value - vx0) * w / (vx1 - vx0)) - bw / 2;
     const bx1: number = bx0 + bw;
     if (mx >= bx0 && mx <= bx1) {
       this._handleDragOffset = (mx - (bx0 + bw / 2)) * (vx1 - vx0) / w;
     }
-
     const wmx: number = vx0 + mx * (vx1 - vx0) / w;
-
     this._value = this._validator(wmx - (this._handleDragOffset != null ? this._handleDragOffset : 0));
     this.render();
     if (this._whenValueChanges) this._whenValueChanges(this._value);
@@ -228,8 +197,6 @@ class VisualLoopControlsHandle {
 
   private _whenTouchIsUp = (event: TouchEvent): void => {
     event.preventDefault();
-    // event.stopPropagation();
-
     this._mouseDown = false;
     this._handleDragOffset = null;
     this._whenMouseUpHappens();
@@ -246,12 +213,11 @@ class VisualLoopControlsHandle {
   };
 }
 
-export class VisualLoopControlsPrompt {
+export class VisualLoopControlsPrompt extends BasePrompt {
   private readonly _waveformCanvasWidth: number = 500;
   private readonly _waveformCanvasHeight: number = 200;
   private readonly _handleCanvasHeight: number = 20;
 
-  private readonly _doc: SongDocument;
   private readonly _songEditor: SongEditor;
   private _instrument: Instrument | null = null;
   private _waveformData: Float32Array | null = null;
@@ -276,6 +242,8 @@ export class VisualLoopControlsPrompt {
   private _overlayIsMouseDown: boolean = false;
   private _overlaySelectionX0: number | null = null;
   private _overlaySelectionX1: number | null = null;
+
+  public gotMouseUp: boolean = false;
 
   private _startOffsetValidator = (v: number): number => {
     return Math.max(0, Math.min(this._waveformDataLength!, Math.floor(v)));
@@ -480,8 +448,6 @@ export class VisualLoopControlsPrompt {
     style: "width: 1em; padding: 0; margin-left: auto; margin-right: auto;",
   });
   private _playSongButton: HTMLButtonElement = button({ style: "width: 55%;", type: "button" });
-  private _cancelButton: HTMLButtonElement = button({ class: "cancelButton" });
-  private _okayButton: HTMLButtonElement = button({ class: "okayButton", style: "width: 25%;" }, "Okay");
   private _sampleIsLoadingMessage: HTMLDivElement = div(
     { style: "margin-bottom: 0.5em; display: none;" },
     "Sample is loading",
@@ -562,7 +528,7 @@ export class VisualLoopControlsPrompt {
       ),
     ),
   );
-  public container: HTMLDivElement = div(
+  public readonly container: HTMLDivElement = div(
     { class: "prompt noSelection", style: "width: 500px;" },
     div(
       h2({ style: "margin-bottom: 0.5em;" }, "Loop Controls"),
@@ -573,11 +539,9 @@ export class VisualLoopControlsPrompt {
     this._cancelButton,
   );
 
-  public gotMouseUp: boolean = false;
-
-  constructor(_doc: SongDocument, _songEditor: SongEditor) {
-    this._doc = _doc;
-    this._songEditor = _songEditor;
+  constructor(doc: SongDocument, songEditor: SongEditor) {
+    super(doc);
+    this._songEditor = songEditor;
     this._waveformContext = this._waveformCanvas.getContext("2d");
     this._overlayContext = this._overlayCanvas.getContext("2d");
     this._instrument = this._doc.song.channels[this._doc.channel].instruments[this._doc.getCurrentInstrument()];
@@ -623,9 +587,6 @@ export class VisualLoopControlsPrompt {
     this._updatePlaySongButton();
     this._render();
     this._reconfigureLoopControls();
-    this.container.addEventListener("keydown", this._whenKeyPressed);
-    this._okayButton.addEventListener("click", this._saveChanges);
-    this._cancelButton.addEventListener("click", this._close);
     this._viewportOffsetSlider.addEventListener("input", this._whenViewportOffsetSliderChanges);
     this._zoomInButton.addEventListener("click", this._whenZoomInClicked);
     this._zoomOutButton.addEventListener("click", this._whenZoomOutClicked);
@@ -669,13 +630,11 @@ export class VisualLoopControlsPrompt {
     return [y0, y1];
   };
 
-  public cleanUp = (): void => {
+  public override cleanUp(): void {
+    super.cleanUp();
     this._startOffsetHandle.cleanUp();
     this._loopStartHandle.cleanUp();
     this._loopEndHandle.cleanUp();
-    this.container.removeEventListener("keydown", this._whenKeyPressed);
-    this._okayButton.removeEventListener("click", this._saveChanges);
-    this._cancelButton.removeEventListener("click", this._close);
     this._viewportOffsetSlider.removeEventListener("input", this._whenViewportOffsetSliderChanges);
     this._zoomInButton.removeEventListener("click", this._whenZoomInClicked);
     this._zoomOutButton.removeEventListener("click", this._whenZoomOutClicked);
@@ -693,13 +652,9 @@ export class VisualLoopControlsPrompt {
     this._overlayCanvas.removeEventListener("touchmove", this._whenOverlayTouchMoves);
     this._overlayCanvas.removeEventListener("touchend", this._whenOverlayTouchIsUp);
     this._overlayCanvas.removeEventListener("touchcancel", this._whenOverlayTouchIsUp);
-  };
+  }
 
-  private _close = (): void => {
-    this._doc.prompt = null;
-  };
-
-  private _saveChanges = (): void => {
+  protected override _saveChanges(): void {
     if (!this._chipWaveIsUnavailable) {
       this._doc.prompt = null;
       this._instrument!.chipWaveLoopMode = this._initialChipWaveLoopMode!;
@@ -717,7 +672,7 @@ export class VisualLoopControlsPrompt {
     } else {
       this._doc.prompt = null;
     }
-  };
+  }
 
   private _togglePlaySong = (): void => {
     this._songEditor.togglePlay();
@@ -726,7 +681,6 @@ export class VisualLoopControlsPrompt {
 
   private _renderWaveform = (): void => {
     if (this._chipWaveIsUnavailable) return;
-
     const cnv: HTMLCanvasElement = this._waveformCanvas;
     const ctx: CanvasRenderingContext2D = this._waveformContext!;
     const w: number = cnv.width;
@@ -735,18 +689,12 @@ export class VisualLoopControlsPrompt {
     const vx1: number = this._waveformViewportX1;
     const vy0: number = this._waveformViewportY0;
     const vy1: number = this._waveformViewportY1;
-
     const sampleWidth: number = (vx1 - vx0) / w;
-
     ctx.clearRect(0, 0, w, h);
-
-    // Line going through 0.
     ctx.fillStyle = ColorConfig.getComputed("--ui-widget-background");
     ctx.fillRect(0, h / 2, w, 1);
-
     const waveformColor: string = ColorConfig.getComputed("--primary-text");
     if (sampleWidth < 1) {
-      // Very zoomed in.
       ctx.strokeStyle = waveformColor;
       ctx.lineWidth = 1;
       let firstMove: boolean = true;
@@ -755,25 +703,17 @@ export class VisualLoopControlsPrompt {
         const wx: number = vx0 + cx * sampleWidth;
         const wy: number = this._waveformSampleLookup(wx);
         const cy: number = h - (wy - vy0) * h / (vy1 - vy0);
-        if (firstMove) {
-          ctx.moveTo(cx, cy);
-          firstMove = false;
-        } else {
-          ctx.lineTo(cx, cy);
-        }
+        if (firstMove) { ctx.moveTo(cx, cy); firstMove = false; }
+        else ctx.lineTo(cx, cy);
       }
       ctx.stroke();
     } else {
-      // Zoomed out.
       ctx.fillStyle = waveformColor;
       let pcy0: number | null = null;
       let pcy1: number | null = null;
       for (let cx: number = 0; cx < w; cx++) {
         const wx: number = vx0 + cx * sampleWidth;
-        const [wy0, wy1]: [number, number] = this._waveformSamplesLookup(
-          wx - sampleWidth / 2,
-          wx + sampleWidth / 2,
-        );
+        const [wy0, wy1]: [number, number] = this._waveformSamplesLookup(wx - sampleWidth / 2, wx + sampleWidth / 2);
         const cy0: number = Math.max(-1, Math.min(h, h - (wy1 - vy0) * h / (vy1 - vy0)));
         const cy1: number = Math.max(-1, Math.min(h, h - (wy0 - vy0) * h / (vy1 - vy0)));
         const cy0i: number = Math.floor(cy0);
@@ -782,8 +722,7 @@ export class VisualLoopControlsPrompt {
         const ocy1: number = pcy0 == null ? cy1i : Math.max(cy1i, pcy0);
         const bh: number = Math.max(1, ocy1 - ocy0);
         ctx.fillRect(cx, ocy0, 1, bh);
-        pcy0 = ocy0;
-        pcy1 = ocy1;
+        pcy0 = ocy0; pcy1 = ocy1;
       }
     }
   };
@@ -795,31 +734,18 @@ export class VisualLoopControlsPrompt {
     const h: number = cnv.height;
     const vx0: number = this._waveformViewportX0;
     const vx1: number = this._waveformViewportX1;
-
     const so: number = this._chipWaveStartOffset;
     const ls: number = this._chipWaveLoopStart;
     const le: number = this._chipWaveLoopEnd;
-
     ctx.clearRect(0, 0, w, h);
-
     ctx.fillStyle = ColorConfig.getComputed("--loop-accent");
     const obx: number = Math.floor((so - vx0) * w / (vx1 - vx0));
-    const oby: number = 0;
-    const obw: number = 1;
-    const obh: number = h;
-    ctx.fillRect(obx, oby, obw, obh);
-
-    ctx.fillStyle = ColorConfig.getComputed("--loop-accent");
+    ctx.fillRect(obx, 0, 1, h);
     ctx.globalAlpha = 0.5;
     const lbx0: number = Math.floor((ls - vx0) * w / (vx1 - vx0));
     const lbx1: number = Math.floor((le - vx0) * w / (vx1 - vx0));
-    const lbx: number = lbx0;
-    const lby: number = 0;
-    const lbw: number = lbx1 - lbx0;
-    const lbh: number = h;
-    ctx.fillRect(lbx, lby, lbw, lbh);
+    ctx.fillRect(lbx0, 0, lbx1 - lbx0, h);
     ctx.globalAlpha = 1;
-
     if (this._overlaySelectionX0 != null && this._overlaySelectionX1 != null) {
       ctx.fillStyle = ColorConfig.getComputed("--box-selection-fill");
       ctx.globalAlpha = 0.5;
@@ -838,10 +764,7 @@ export class VisualLoopControlsPrompt {
 
   private _whenViewportOffsetSliderChanges = (event: Event): void => {
     const rawOffset: number = Math.max(0, Math.min(1, +(<HTMLInputElement> event.target).value));
-    const newViewportOffset: number = Math.max(
-      0,
-      Math.min(this._waveformViewportMaxOffset, rawOffset * this._waveformViewportMaxOffset),
-    );
+    const newViewportOffset: number = Math.max(0, Math.min(this._waveformViewportMaxOffset, rawOffset * this._waveformViewportMaxOffset));
     this._waveformViewportOffset = Math.min(this._waveformViewportMaxOffset, newViewportOffset);
     this._viewportOffsetSlider.value = "" + (this._waveformViewportOffset / this._waveformViewportMaxOffset);
     this._waveformViewportX0 = 0 + this._waveformViewportOffset;
@@ -854,16 +777,8 @@ export class VisualLoopControlsPrompt {
     const newViewportWidth: number = Math.max(1, Math.min(this._waveformDataLength!, this._waveformViewportWidth / 2));
     this._waveformViewportWidth = newViewportWidth;
     this._waveformViewportMaxOffset = this._waveformDataLength! - this._waveformViewportWidth;
-    const centerX: number = this._waveformViewportX0
-      + (this._waveformCanvasWidth / 2) * (this._waveformViewportX1 - this._waveformViewportX0)
-        / this._waveformCanvasWidth;
-    this._waveformViewportOffset = Math.max(
-      0,
-      Math.min(
-        this._waveformViewportMaxOffset,
-        centerX - (this._waveformCanvasWidth / 2) * this._waveformViewportWidth / this._waveformCanvasWidth,
-      ),
-    );
+    const centerX: number = this._waveformViewportX0 + (this._waveformCanvasWidth / 2) * (this._waveformViewportX1 - this._waveformViewportX0) / this._waveformCanvasWidth;
+    this._waveformViewportOffset = Math.max(0, Math.min(this._waveformViewportMaxOffset, centerX - (this._waveformCanvasWidth / 2) * this._waveformViewportWidth / this._waveformCanvasWidth));
     this._waveformViewportX0 = 0 + this._waveformViewportOffset;
     this._waveformViewportX1 = this._waveformViewportWidth + this._waveformViewportOffset;
     this._viewportOffsetSlider.value = "" + (this._waveformViewportOffset / this._waveformViewportMaxOffset);
@@ -875,276 +790,176 @@ export class VisualLoopControlsPrompt {
     const newViewportWidth: number = Math.max(1, Math.min(this._waveformDataLength!, this._waveformViewportWidth * 2));
     this._waveformViewportWidth = newViewportWidth;
     this._waveformViewportMaxOffset = this._waveformDataLength! - this._waveformViewportWidth;
-    const centerX: number = this._waveformViewportX0
-      + (this._waveformCanvasWidth / 2) * (this._waveformViewportX1 - this._waveformViewportX0)
-        / this._waveformCanvasWidth;
-    this._waveformViewportOffset = Math.max(
-      0,
-      Math.min(
-        this._waveformViewportMaxOffset,
-        centerX - (this._waveformCanvas.width / 2) * this._waveformViewportWidth / this._waveformCanvasWidth,
-      ),
-    );
+    const centerX: number = this._waveformViewportX0 + (this._waveformCanvasWidth / 2) * (this._waveformViewportX1 - this._waveformViewportX0) / this._waveformCanvasWidth;
+    this._waveformViewportOffset = Math.max(0, Math.min(this._waveformViewportMaxOffset, centerX - (this._waveformCanvasWidth / 2) * this._waveformViewportWidth / this._waveformCanvasWidth));
     this._waveformViewportX0 = 0 + this._waveformViewportOffset;
     this._waveformViewportX1 = this._waveformViewportWidth + this._waveformViewportOffset;
-    if (this._waveformViewportWidth === this._waveformDataLength!) {
-      this._viewportOffsetSlider.value = "0";
-    } else {
-      this._viewportOffsetSlider.value = "" + (this._waveformViewportOffset / this._waveformViewportMaxOffset);
-    }
+    this._viewportOffsetSlider.value = this._waveformViewportWidth === this._waveformDataLength! ? "0" : "" + (this._waveformViewportOffset / this._waveformViewportMaxOffset);
     this._propagateViewportUpdate();
     this._render();
   };
 
   private _whenZoom100Clicked = (event: Event): void => {
-    const newViewportWidth: number = this._waveformDataLength!;
-    this._waveformViewportWidth = newViewportWidth;
-    this._waveformViewportMaxOffset = this._waveformDataLength! - this._waveformViewportWidth;
-    this._waveformViewportOffset = Math.max(0, Math.min(this._waveformViewportMaxOffset, 0));
-    this._waveformViewportX0 = 0 + this._waveformViewportOffset;
-    this._waveformViewportX1 = this._waveformViewportWidth + this._waveformViewportOffset;
-    if (this._waveformViewportWidth === this._waveformDataLength!) {
-      this._viewportOffsetSlider.value = "0";
-    } else {
-      this._viewportOffsetSlider.value = "" + (this._waveformViewportOffset / this._waveformViewportMaxOffset);
-    }
+    this._waveformViewportWidth = this._waveformDataLength!;
+    this._waveformViewportMaxOffset = 0;
+    this._waveformViewportOffset = 0;
+    this._waveformViewportX0 = 0;
+    this._waveformViewportX1 = this._waveformViewportWidth;
+    this._viewportOffsetSlider.value = "0";
     this._propagateViewportUpdate();
     this._render();
   };
 
   private _whenLoopModeSelectChanges = (event: Event): void => {
-    const element: HTMLSelectElement = <HTMLSelectElement> event.target;
-    const newValue: number = +element.value;
-    this._chipWaveLoopMode = newValue;
+    this._chipWaveLoopMode = +(<HTMLSelectElement> event.target).value;
     this._instrument!.chipWaveLoopMode = this._chipWaveLoopMode;
   };
 
   private _whenStartOffsetStepperChanges = (event: Event): void => {
-    const element: HTMLInputElement = <HTMLInputElement> event.target;
-    const newValue: number = this._startOffsetValidator(+element.value);
+    const newValue: number = this._startOffsetValidator(+(<HTMLInputElement> event.target).value);
     this._chipWaveStartOffset = newValue;
     this._instrument!.chipWaveStartOffset = this._chipWaveStartOffset;
-    element.value = "" + newValue;
+    (<HTMLInputElement> event.target).value = "" + newValue;
     this._startOffsetHandle.update(newValue);
     this._startOffsetHandle.render();
     this._renderOverlay();
   };
 
   private _whenLoopStartStepperChanges = (event: Event): void => {
-    const element: HTMLInputElement = <HTMLInputElement> event.target;
-    const newValue: number = this._loopStartValidator(+element.value);
+    const newValue: number = this._loopStartValidator(+(<HTMLInputElement> event.target).value);
     this._chipWaveLoopStart = newValue;
     this._instrument!.chipWaveLoopStart = this._chipWaveLoopStart;
-    element.value = "" + newValue;
+    (<HTMLInputElement> event.target).value = "" + newValue;
     this._loopStartHandle.update(newValue);
     this._loopStartHandle.render();
     this._renderOverlay();
   };
 
   private _whenLoopEndStepperChanges = (event: Event): void => {
-    const element: HTMLInputElement = <HTMLInputElement> event.target;
-    const newValue: number = this._loopEndValidator(+element.value);
+    const newValue: number = this._loopEndValidator(+(<HTMLInputElement> event.target).value);
     this._chipWaveLoopEnd = newValue;
     this._instrument!.chipWaveLoopEnd = this._chipWaveLoopEnd;
-    element.value = "" + newValue;
+    (<HTMLInputElement> event.target).value = "" + newValue;
     this._loopEndHandle.update(newValue);
     this._loopEndHandle.render();
     this._renderOverlay();
   };
 
   private _whenPlayBackwardsBoxChanges = (event: Event): void => {
-    const element: HTMLInputElement = <HTMLInputElement> event.target;
-    const newValue: boolean = element.checked;
-    this._chipWavePlayBackwards = newValue;
+    this._chipWavePlayBackwards = (<HTMLInputElement> event.target).checked;
     this._instrument!.chipWavePlayBackwards = this._chipWavePlayBackwards;
   };
 
   private _whenOverlayMouseMoves = (event: MouseEvent): void => {
     if (!this._overlayIsMouseDown) return;
-
     const w: number = this._overlayCanvas.width;
-
     const bounds: DOMRect = this._overlayCanvas.getBoundingClientRect();
     const canvasXScale: number = w / bounds.width;
-
     const mx: number = ((event.clientX || event.pageX) - bounds.left) * canvasXScale;
-
     this._overlaySelectionX1 = mx;
-
     this._renderOverlay();
   };
 
   private _whenOverlayMouseIsDown = (event: MouseEvent): void => {
     this._overlayIsMouseDown = true;
-
     const w: number = this._overlayCanvas.width;
-
     const bounds: DOMRect = this._overlayCanvas.getBoundingClientRect();
     const canvasXScale: number = w / bounds.width;
-
     const mx: number = ((event.clientX || event.pageX) - bounds.left) * canvasXScale;
-
     this._overlaySelectionX0 = mx;
     this._overlaySelectionX1 = mx;
-
     this._renderOverlay();
   };
 
   private _whenOverlayMouseIsUp = (event: MouseEvent): void => {
-    // event.preventDefault();
-    // event.stopPropagation();
     if (!this._overlayIsMouseDown) return;
     this.gotMouseUp = true;
-    setTimeout(() => {
-      this.gotMouseUp = false;
-    }, 10);
+    setTimeout(() => this.gotMouseUp = false, 10);
     this._overlayIsMouseDown = false;
-
     const w: number = this._overlayCanvas.width;
     const vx0: number = this._waveformViewportX0;
     const vx1: number = this._waveformViewportX1;
-
     const bounds: DOMRect = this._overlayCanvas.getBoundingClientRect();
     const canvasXScale: number = w / bounds.width;
-
     const mx: number = ((event.clientX || event.pageX) - bounds.left) * canvasXScale;
-
     this._overlaySelectionX1 = mx;
-
-    this._overlaySelectionX0 = Math.max(0, Math.min(w, this._overlaySelectionX0!));
-    this._overlaySelectionX1 = Math.max(0, Math.min(w, this._overlaySelectionX1!));
-
-    if (this._overlaySelectionX0 > this._overlaySelectionX1) {
-      const t: number = this._overlaySelectionX0;
-      this._overlaySelectionX0 = this._overlaySelectionX1;
-      this._overlaySelectionX1 = t;
-    }
-
-    let zoomAreaIsTooSmall: boolean = false;
-    if (this._overlaySelectionX1 - this._overlaySelectionX0 > 2) {
-      const wosx0: number = vx0 + this._overlaySelectionX0 * (vx1 - vx0) / w;
-      const wosx1: number = vx0 + this._overlaySelectionX1 * (vx1 - vx0) / w;
+    let x0 = Math.max(0, Math.min(w, this._overlaySelectionX0!));
+    let x1 = Math.max(0, Math.min(w, this._overlaySelectionX1!));
+    if (x0 > x1) { const t = x0; x0 = x1; x1 = t; }
+    if (x1 - x0 > 2) {
+      const wosx0: number = vx0 + x0 * (vx1 - vx0) / w;
+      const wosx1: number = vx0 + x1 * (vx1 - vx0) / w;
       const newViewportWidth: number = Math.max(1, Math.min(this._waveformDataLength!, wosx1 - wosx0));
       this._waveformViewportWidth = newViewportWidth;
       this._waveformViewportMaxOffset = this._waveformDataLength! - this._waveformViewportWidth;
-      const centerX: number = vx0
-        + (this._overlaySelectionX0) * (this._waveformViewportX1 - this._waveformViewportX0)
-          / this._waveformCanvasWidth;
+      const centerX: number = vx0 + x0 * (vx1 - vx0) / this._waveformCanvasWidth;
       this._waveformViewportOffset = Math.max(0, Math.min(this._waveformViewportMaxOffset, centerX));
       this._waveformViewportX0 = 0 + this._waveformViewportOffset;
       this._waveformViewportX1 = this._waveformViewportWidth + this._waveformViewportOffset;
-      if (this._waveformViewportWidth === this._waveformDataLength!) {
-        this._viewportOffsetSlider.value = "0";
-      } else {
-        this._viewportOffsetSlider.value = "" + (this._waveformViewportOffset / this._waveformViewportMaxOffset);
-      }
-    } else {
-      zoomAreaIsTooSmall = true;
-    }
-
-    this._overlaySelectionX0 = null;
-    this._overlaySelectionX1 = null;
-
-    if (!zoomAreaIsTooSmall) {
+      this._viewportOffsetSlider.value = this._waveformViewportWidth === this._waveformDataLength! ? "0" : "" + (this._waveformViewportOffset / this._waveformViewportMaxOffset);
       this._propagateViewportUpdate();
       this._render();
     }
+    this._overlaySelectionX0 = null;
+    this._overlaySelectionX1 = null;
     this._renderOverlay();
   };
 
   private _whenOverlayTouchIsDown = (event: TouchEvent): void => {
     event.preventDefault();
-
     this._overlayIsMouseDown = true;
-
     const w: number = this._overlayCanvas.width;
-
     const bounds: DOMRect = this._overlayCanvas.getBoundingClientRect();
     const canvasXScale: number = w / bounds.width;
-
     const mx: number = (event.touches[0].clientX - bounds.left) * canvasXScale;
-
     this._overlaySelectionX0 = mx;
     this._overlaySelectionX1 = mx;
-
     this._renderOverlay();
   };
 
   private _whenOverlayTouchMoves = (event: TouchEvent): void => {
     if (!this._overlayIsMouseDown) return;
-
     event.preventDefault();
-
     const w: number = this._overlayCanvas.width;
-
     const bounds: DOMRect = this._overlayCanvas.getBoundingClientRect();
     const canvasXScale: number = w / bounds.width;
-
     const mx: number = (event.touches[0].clientX - bounds.left) * canvasXScale;
-
     this._overlaySelectionX1 = mx;
-
     this._renderOverlay();
   };
 
   private _whenOverlayTouchIsUp = (event: TouchEvent): void => {
     event.preventDefault();
-    // event.stopPropagation();
-
     if (!this._overlayIsMouseDown) return;
     this.gotMouseUp = true;
-    setTimeout(() => {
-      this.gotMouseUp = false;
-    }, 10);
-
+    setTimeout(() => this.gotMouseUp = false, 10);
     this._overlayIsMouseDown = false;
-
     const w: number = this._overlayCanvas.width;
     const vx0: number = this._waveformViewportX0;
     const vx1: number = this._waveformViewportX1;
-
-    this._overlaySelectionX0 = Math.max(0, Math.min(w, this._overlaySelectionX0!));
-    this._overlaySelectionX1 = Math.max(0, Math.min(w, this._overlaySelectionX1!));
-
-    if (this._overlaySelectionX0 > this._overlaySelectionX1) {
-      const t: number = this._overlaySelectionX0;
-      this._overlaySelectionX0 = this._overlaySelectionX1;
-      this._overlaySelectionX1 = t;
-    }
-
-    let zoomAreaIsTooSmall: boolean = false;
-    if (this._overlaySelectionX1 - this._overlaySelectionX0 > 2) {
-      const wosx0: number = vx0 + this._overlaySelectionX0 * (vx1 - vx0) / w;
-      const wosx1: number = vx0 + this._overlaySelectionX1 * (vx1 - vx0) / w;
+    let x0 = Math.max(0, Math.min(w, this._overlaySelectionX0!));
+    let x1 = Math.max(0, Math.min(w, this._overlaySelectionX1!));
+    if (x0 > x1) { const t = x0; x0 = x1; x1 = t; }
+    if (x1 - x0 > 2) {
+      const wosx0: number = vx0 + x0 * (vx1 - vx0) / w;
+      const wosx1: number = vx0 + x1 * (vx1 - vx0) / w;
       const newViewportWidth: number = Math.max(1, Math.min(this._waveformDataLength!, wosx1 - wosx0));
       this._waveformViewportWidth = newViewportWidth;
       this._waveformViewportMaxOffset = this._waveformDataLength! - this._waveformViewportWidth;
-      const centerX: number = vx0
-        + (this._overlaySelectionX0) * (this._waveformViewportX1 - this._waveformViewportX0)
-          / this._waveformCanvasWidth;
+      const centerX: number = vx0 + x0 * (vx1 - vx0) / this._waveformCanvasWidth;
       this._waveformViewportOffset = Math.max(0, Math.min(this._waveformViewportMaxOffset, centerX));
       this._waveformViewportX0 = 0 + this._waveformViewportOffset;
       this._waveformViewportX1 = this._waveformViewportWidth + this._waveformViewportOffset;
-      if (this._waveformViewportWidth === this._waveformDataLength!) {
-        this._viewportOffsetSlider.value = "0";
-      } else {
-        this._viewportOffsetSlider.value = "" + (this._waveformViewportOffset / this._waveformViewportMaxOffset);
-      }
-    } else {
-      zoomAreaIsTooSmall = true;
-    }
-
-    this._overlaySelectionX0 = null;
-    this._overlaySelectionX1 = null;
-
-    if (!zoomAreaIsTooSmall) {
+      this._viewportOffsetSlider.value = this._waveformViewportWidth === this._waveformDataLength! ? "0" : "" + (this._waveformViewportOffset / this._waveformViewportMaxOffset);
       this._propagateViewportUpdate();
       this._render();
     }
+    this._overlaySelectionX0 = null;
+    this._overlaySelectionX1 = null;
     this._renderOverlay();
   };
 
-  private _whenKeyPressed = (event: KeyboardEvent): void => {
+  public override whenKeyPressed = (event: KeyboardEvent): void => {
     if ((<Element> event.target).tagName != "BUTTON" && event.keyCode == 13) {
       this._saveChanges();
     }
@@ -1176,7 +991,6 @@ export class VisualLoopControlsPrompt {
 
   private _render = (): void => {
     if (this._chipWaveIsUnavailable) return;
-
     this._renderWaveform();
     this._startOffsetHandle.render();
     this._loopStartHandle.render();

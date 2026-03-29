@@ -13,11 +13,11 @@ import { Config } from "../../synth/synth-config";
 import { ChangeChannelCount, ChangeInstrumentsFlags, ChangePatternsPerChannel } from "../changes";
 import { ChangeGroup } from "../core/change";
 import { SongDocument } from "../song-document";
-import { Prompt } from "./prompt";
+import { BasePrompt } from "./base-prompt";
 
-const { button, div, label, br, h2, input } = HTML;
+const { div, label, br, h2, input } = HTML;
 
-export class ChannelSettingsPrompt implements Prompt {
+export class ChannelSettingsPrompt extends BasePrompt {
   private readonly _patternsStepper: HTMLInputElement = input({
     style: "width: 3em; margin-left: 1em;",
     type: "number",
@@ -46,9 +46,6 @@ export class ChannelSettingsPrompt implements Prompt {
     style: "width: 3em; margin-left: 1em;",
     type: "checkbox",
   });
-
-  private readonly _cancelButton: HTMLButtonElement = button({ class: "cancelButton" });
-  private readonly _okayButton: HTMLButtonElement = button({ class: "okayButton", style: "width:45%;" }, "Okay");
 
   public readonly container: HTMLDivElement = div(
     { class: "prompt noSelection", style: "width: 250px; text-align: right;" },
@@ -91,7 +88,8 @@ export class ChannelSettingsPrompt implements Prompt {
     this._cancelButton,
   );
 
-  constructor(private _doc: SongDocument) {
+  constructor(doc: SongDocument) {
+    super(doc);
     this._patternsStepper.value = this._doc.song.patternsPerChannel + "";
     this._patternsStepper.min = "1";
     this._patternsStepper.max = Config.barCountMax + "";
@@ -113,8 +111,6 @@ export class ChannelSettingsPrompt implements Prompt {
     this._pitchChannelStepper.select();
     setTimeout(() => this._pitchChannelStepper.focus());
 
-    this._okayButton.addEventListener("click", this._saveChanges);
-    this._cancelButton.addEventListener("click", this._close);
     this._patternsStepper.addEventListener("keypress", ChannelSettingsPrompt._validateKey);
     this._pitchChannelStepper.addEventListener("keypress", ChannelSettingsPrompt._validateKey);
     this._drumChannelStepper.addEventListener("keypress", ChannelSettingsPrompt._validateKey);
@@ -123,16 +119,10 @@ export class ChannelSettingsPrompt implements Prompt {
     this._pitchChannelStepper.addEventListener("blur", this._validateNumber);
     this._drumChannelStepper.addEventListener("blur", this._validateNumber);
     this._modChannelStepper.addEventListener("blur", this._validateNumber);
-    this.container.addEventListener("keydown", this._whenKeyPressed);
   }
 
-  private _close = (): void => {
-    this._doc.prompt = null;
-  };
-
-  public cleanUp = (): void => {
-    this._okayButton.removeEventListener("click", this._saveChanges);
-    this._cancelButton.removeEventListener("click", this._close);
+  public override cleanUp(): void {
+    super.cleanUp();
     this._patternsStepper.removeEventListener("keypress", ChannelSettingsPrompt._validateKey);
     this._pitchChannelStepper.removeEventListener("keypress", ChannelSettingsPrompt._validateKey);
     this._drumChannelStepper.removeEventListener("keypress", ChannelSettingsPrompt._validateKey);
@@ -141,14 +131,7 @@ export class ChannelSettingsPrompt implements Prompt {
     this._pitchChannelStepper.removeEventListener("blur", this._validateNumber);
     this._drumChannelStepper.removeEventListener("blur", this._validateNumber);
     this._modChannelStepper.removeEventListener("blur", this._validateNumber);
-    this.container.removeEventListener("keydown", this._whenKeyPressed);
-  };
-
-  private _whenKeyPressed = (event: KeyboardEvent): void => {
-    if ((<Element> event.target).tagName != "BUTTON" && event.keyCode == 13) { // Enter key
-      this._saveChanges();
-    }
-  };
+  }
 
   private static _validateKey(event: KeyboardEvent): boolean {
     const charCode = (event.which) ? event.which : event.keyCode;
@@ -168,7 +151,7 @@ export class ChannelSettingsPrompt implements Prompt {
     return Math.floor(Math.max(Number(input.min), Math.min(Number(input.max), Number(input.value))));
   }
 
-  private _saveChanges = (): void => {
+  protected override _saveChanges(): void {
     const group: ChangeGroup = new ChangeGroup();
     group.append(
       new ChangeInstrumentsFlags(this._doc, this._layeredInstrumentsBox.checked, this._patternInstrumentsBox.checked),
@@ -184,5 +167,5 @@ export class ChannelSettingsPrompt implements Prompt {
     );
     this._doc.prompt = null;
     this._doc.record(group, true);
-  };
+  }
 }

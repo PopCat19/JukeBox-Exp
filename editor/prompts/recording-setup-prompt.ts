@@ -15,11 +15,11 @@ import { EditorConfig } from "../config/editor-config";
 import { KeyboardLayout } from "../config/keyboard-layout";
 import { ColorConfig } from "../rendering/color-config";
 import { SongDocument } from "../song-document";
-import { Prompt } from "./prompt";
+import { BasePrompt } from "./base-prompt";
 
-const { button, label, div, p, a, h2, input, select, option } = HTML;
+const { label, div, p, a, h2, input, select, option } = HTML;
 
-export class RecordingSetupPrompt implements Prompt {
+export class RecordingSetupPrompt extends BasePrompt {
   private readonly _keyboardMode: HTMLSelectElement = select(
     { style: "width: 100%;" },
     option({ value: "useCapsLockForNotes" }, "simple shortcuts, use caps lock to play notes"),
@@ -65,8 +65,6 @@ export class RecordingSetupPrompt implements Prompt {
     type: "checkbox",
   });
 
-  private readonly _okayButton: HTMLButtonElement = button({ class: "okayButton", style: "width:45%;" }, "Okay");
-  private readonly _cancelButton: HTMLButtonElement = button({ class: "cancelButton" });
   public readonly container: HTMLDivElement = div(
     { class: "prompt noSelection recordingSetupPrompt", style: "width: 600px; text-align: right; max-height: 90%;" },
     h2({ style: "align-self: center;" }, "Note Recording Setup"),
@@ -142,7 +140,7 @@ export class RecordingSetupPrompt implements Prompt {
             "display: flex; flex-direction: row; align-items: center; margin-top: 0.5em; margin-bottom: 0.5em; height: 2em; justify-content: center;",
         },
         "Bass Offset:",
-        div({ class: "selectContainer", style: "width: 50%; margin-left: 1em;" }, this._bassOffset),
+        div({ class: "selectContainer", style: "width: 50%; margin-left: 1em;" }, this._keyboardLayout),
       ),
       p("Once you enable the setting, the keyboard layout above will darken to denote the new bass notes. The notes will be recorded with independent timing and this works with MIDI devices, too. Be aware that the octave offset of both used channels will impact how high/low the bass/lead are relative to one another."),
       p("Recorded notes often overlap such that one note ends after the next note already started. In JukeBox, these notes get split into multiple notes which may sound different when re-played than they did when you were recording. To fix the sound, you can either manually clean up the notes in the pattern editor, or you could try enabling the \"transition type\" effect on the instrument and setting it to \"continue\"."),
@@ -155,7 +153,8 @@ export class RecordingSetupPrompt implements Prompt {
     this._cancelButton,
   );
 
-  constructor(private _doc: SongDocument) {
+  constructor(doc: SongDocument) {
+    super(doc);
     this._keyboardMode.value = this._doc.prefs.pressControlForShortcuts
       ? "pressControlForShortcuts"
       : "useCapsLockForNotes";
@@ -170,32 +169,18 @@ export class RecordingSetupPrompt implements Prompt {
 
     setTimeout(() => this._showRecordButton.focus());
 
-    this._okayButton.addEventListener("click", this._confirm);
-    this._cancelButton.addEventListener("click", this._close);
-    this.container.addEventListener("keydown", this._whenKeyPressed);
-
     this._renderKeyboardLayoutPreview();
     this._keyboardLayout.addEventListener("change", this._renderKeyboardLayoutPreview);
     this._bassOffset.addEventListener("change", this._renderKeyboardLayoutPreview);
   }
 
-  private _close = (): void => {
-    this._doc.prompt = null;
-  };
+  public override cleanUp(): void {
+    super.cleanUp();
+    this._keyboardLayout.removeEventListener("change", this._renderKeyboardLayoutPreview);
+    this._bassOffset.removeEventListener("change", this._renderKeyboardLayoutPreview);
+  }
 
-  public cleanUp = (): void => {
-    this._okayButton.removeEventListener("click", this._confirm);
-    this._cancelButton.removeEventListener("click", this._close);
-    this.container.removeEventListener("keydown", this._whenKeyPressed);
-  };
-
-  private _whenKeyPressed = (event: KeyboardEvent): void => {
-    if ((<Element> event.target).tagName != "BUTTON" && event.keyCode == 13) { // Enter key
-      this._confirm();
-    }
-  };
-
-  private _confirm = (): void => {
+  protected override _saveChanges(): void {
     this._doc.prefs.pressControlForShortcuts = this._keyboardMode.value == "pressControlForShortcuts";
     this._doc.prefs.keyboardLayout = this._keyboardLayout.value;
     this._doc.prefs.bassOffset = Number(this._bassOffset.value);
@@ -207,7 +192,7 @@ export class RecordingSetupPrompt implements Prompt {
     this._doc.prefs.metronomeWhileRecording = this._metronomeWhileRecording.checked;
     this._doc.prefs.save();
     this._close();
-  };
+  }
 
   private _renderKeyboardLayoutPreview = (): void => {
     while (this._keyboardLayoutPreview.firstChild) {
