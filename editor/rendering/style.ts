@@ -748,7 +748,7 @@ html {
 	backdrop-filter: var(--prompt-backdrop-filter, none);
 	-webkit-backdrop-filter: var(--prompt-backdrop-filter, none);
 	border-radius: 15px;
-	border: 4px solid ${ColorConfig.uiWidgetBackground};
+	border: 2px solid ${ColorConfig.uiWidgetBackground};
 	color: ${ColorConfig.primaryText};
 	padding: 20px;
 	display: flex;
@@ -758,11 +758,11 @@ html {
 }
 
 .beepboxEditor .prompt:hover {
-	outline: 2px solid color-mix(in srgb, var(--indicator-primary, #4444ff), transparent 50%);
+	border-color: color-mix(in srgb, var(--indicator-primary, #4444ff), transparent 50%);
 }
 
 .beepboxEditor .prompt.focused {
-	outline: 2px solid var(--indicator-primary, #4444ff) !important;
+	border-color: var(--indicator-primary, #4444ff) !important;
 }
 
 .beepboxEditor .prompt > *:not(:first-child):not(.cancelButton) {
