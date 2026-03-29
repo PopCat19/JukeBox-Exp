@@ -68,7 +68,6 @@ export class MuteEditor {
   private _channelDropDownOpen: boolean = false;
   private _channelDropDownLastState: boolean = false;
   private _hoveredChannel: number = -1;
-  private _hoveredChannelPrevColor: string = "";
 
   constructor(private _doc: SongDocument, private _editor: SongEditor) {
     this.container.addEventListener("click", this._onClick);
@@ -345,18 +344,8 @@ export class MuteEditor {
 
   public setHoveredChannel(channel: number): void {
     if (this._hoveredChannel == channel) return;
-    if (
-      this._hoveredChannel >= 0 && this._hoveredChannel < this._channelCounts.length
-      && this._hoveredChannel != this._doc.channel
-    ) {
-      this._channelCounts[this._hoveredChannel].style.color = this._hoveredChannelPrevColor;
-    }
     this._hoveredChannel = channel;
-    if (channel >= 0 && channel < this._channelCounts.length && channel != this._doc.channel) {
-      const colors = ColorConfig.getChannelColor(this._doc.song, channel);
-      this._hoveredChannelPrevColor = this._channelCounts[channel].style.color;
-      this._channelCounts[channel].style.color = colors.primaryChannel;
-    }
+    this.render();
   }
 
   public render(): void {
@@ -399,6 +388,7 @@ export class MuteEditor {
 
     for (let y: number = 0; y < this._doc.song.getChannelCount(); y++) {
       const active: boolean = y == this._doc.channel;
+      this._channelCounts[y].style.opacity = "1";
       if (active) {
         const colors = ColorConfig.getChannelColor(this._doc.song, y);
         this._channelCounts[y].style.color = ColorConfig.invertedText;
@@ -436,9 +426,12 @@ export class MuteEditor {
       }
     }
 
-    if (this._hoveredChannel >= 0 && this._hoveredChannel != this._doc.channel) {
+    if (this._hoveredChannel >= 0 && this._hoveredChannel != this._doc.channel && this._hoveredChannel < this._channelCounts.length) {
       const colors = ColorConfig.getChannelColor(this._doc.song, this._hoveredChannel);
-      this._channelCounts[this._hoveredChannel].style.color = colors.primaryChannel;
+      this._channelCounts[this._hoveredChannel].style.color = ColorConfig.invertedText;
+      this._channelCounts[this._hoveredChannel].style.background = colors.primaryChannel;
+      this._channelCounts[this._hoveredChannel].style.opacity = "0.5";
+      this._channelCounts[this._hoveredChannel].style.borderRadius = "3px";
     }
 
     if (this._renderedChannelHeight != ChannelRow.patternHeight || startingChannelCount != this._buttons.length) {

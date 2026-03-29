@@ -4015,7 +4015,7 @@ export class SongEditor implements ModSliderProvider {
         newPrompt = new ChannelSettingsPrompt(this.doc);
         break;
       case "channelGains":
-        newPrompt = new ChannelGainPrompt(this.doc);
+        newPrompt = new ChannelGainPrompt(this.doc, this);
         break;
       case "limiterSettings":
         newPrompt = new LimiterPrompt(this.doc, this);

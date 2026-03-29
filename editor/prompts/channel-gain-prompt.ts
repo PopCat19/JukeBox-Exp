@@ -9,6 +9,7 @@
 
 import { HTML, SVG } from "imperative-html/dist/esm/elements-strict";
 import { SongDocument } from "../song-document";
+import { SongEditor } from "../song-editor";
 import { ColorConfig } from "../rendering/color-config";
 import { BasePrompt } from "./base-prompt";
 
@@ -149,7 +150,7 @@ export class ChannelGainPrompt extends BasePrompt {
     this._cancelButton,
   );
 
-  constructor(doc: SongDocument) {
+  constructor(doc: SongDocument, private _songEditor: SongEditor) {
     super(doc);
     this._animate = this._animate.bind(this);
     this._onDocChange = this._renderChannelList.bind(this);
@@ -202,6 +203,7 @@ export class ChannelGainPrompt extends BasePrompt {
     this._channelDbLabels.clear();
     this._instrumentSpans.clear();
     this._playPauseButton.removeEventListener("click", this._togglePlayPause);
+    this._songEditor.muteEditor.setHoveredChannel(-1);
     // Invalidate cached bounding rects in other components
     // Use setTimeout to ensure DOM has settled after prompt removal
     setTimeout(() => {
@@ -459,7 +461,18 @@ export class ChannelGainPrompt extends BasePrompt {
       const channelDiv = div({
         style: `display: flex; flex-direction: column; padding: 4px 6px; border: 2px solid ${
           isMuted ? "var(--mute-button-normal)" : channelColors.primaryChannel
-        }; border-radius: 4px; background: var(--editor-background); ${isMuted ? "opacity: 0.5;" : ""} ${isDimmed ? "opacity: 0.5;" : ""}`,
+        }; border-radius: 4px; background: var(--editor-background); cursor: pointer; ${isMuted ? "opacity: 0.5;" : ""} ${isDimmed ? "opacity: 0.5;" : ""}`,
+      });
+
+      channelDiv.addEventListener("mouseenter", () => {
+        this._songEditor.muteEditor.setHoveredChannel(i);
+      });
+      channelDiv.addEventListener("mouseleave", () => {
+        this._songEditor.muteEditor.setHoveredChannel(-1);
+      });
+      channelDiv.addEventListener("click", () => {
+        this._doc.channel = i;
+        this._doc.notifier.changed();
       });
 
       const headerDiv = div({
