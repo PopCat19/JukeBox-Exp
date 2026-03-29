@@ -455,7 +455,7 @@ export class KeyboardHandler {
         break;
       case 71: // g
         if (canPlayNotes) break;
-        host.openPrompt("channelGains");
+        host.openPrompt("channelVolumeVisualizer");
         event.preventDefault();
         break;
       case 72: // h

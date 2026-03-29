@@ -1,4 +1,4 @@
-// ChannelGainPrompt
+// ChannelVolumeVisualizerPrompt
 //
 // Purpose: Modal popup displaying per-channel gain information with live updates
 //
@@ -16,7 +16,7 @@ import { BasePrompt } from "./base-prompt";
 const { div, h2, h3, span, button } = HTML;
 const { svg, defs, linearGradient, stop, rect } = SVG;
 
-export class ChannelGainPrompt extends BasePrompt {
+export class ChannelVolumeVisualizerPrompt extends BasePrompt {
   private _animationId: number = 0;
 
   // Volume bar elements
@@ -26,7 +26,7 @@ export class ChannelGainPrompt extends BasePrompt {
     width: "0%",
     x: "5%",
     y: "25%",
-    fill: "url('#channelGainVolumeGrad')",
+    fill: "url('#channelVolumeVisualizerGrad')",
   });
   private readonly _outVolumeCap: SVGRectElement = rect({
     "pointer-events": "none",
@@ -47,7 +47,7 @@ export class ChannelGainPrompt extends BasePrompt {
     defs(
       {},
       linearGradient(
-        { id: "channelGainVolumeGrad", gradientUnits: "userSpaceOnUse" },
+        { id: "channelVolumeVisualizerGrad", gradientUnits: "userSpaceOnUse" },
         stop({ "stop-color": "lime", offset: "60%" }),
         stop({ "stop-color": "orange", offset: "90%" }),
         stop({ "stop-color": "red", offset: "100%" }),
@@ -214,9 +214,7 @@ export class ChannelGainPrompt extends BasePrompt {
     }, 0);
   };
 
-  private _onDocChange = (): void => {
-    this._renderChannelList();
-  };
+  private _onDocChange!: () => void;
 
   private _animate = (): void => {
     // Update play/pause button state

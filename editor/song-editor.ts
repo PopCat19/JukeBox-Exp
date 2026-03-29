@@ -16,7 +16,7 @@ import { Shiggy } from "./components/shiggy-component";
 import { EditorConfig, isMobile, Preset, PresetCategory } from "./config/editor-config";
 import { Change } from "./core/change";
 import { BeatsPerBarPrompt } from "./prompts/beats-per-bar-prompt";
-import { ChannelGainPrompt } from "./prompts/channel-gain-prompt";
+import { ChannelVolumeVisualizerPrompt } from "./prompts/channel-volume-visualizer-prompt";
 import { ChannelSettingsPrompt } from "./prompts/channel-settings-prompt";
 import { CustomChipPrompt } from "./prompts/custom-chip-prompt";
 import { CustomFilterPrompt } from "./prompts/custom-filter-prompt";
@@ -3644,7 +3644,7 @@ export class SongEditor implements ModSliderProvider {
   };
 
   private _whenVolumeBarClicked = (): void => {
-    this._openPrompt("channelGains");
+    this._openPrompt("channelVolumeVisualizer");
   };
 
   private _updateSampleLoadingBar(_e: Event): void {
@@ -4017,8 +4017,8 @@ export class SongEditor implements ModSliderProvider {
       case "channelSettings":
         newPrompt = new ChannelSettingsPrompt(this.doc);
         break;
-      case "channelGains":
-        newPrompt = new ChannelGainPrompt(this.doc, this);
+      case "channelVolumeVisualizer":
+        newPrompt = new ChannelVolumeVisualizerPrompt(this.doc, this);
         break;
       case "limiterSettings":
         newPrompt = new LimiterPrompt(this.doc, this);
@@ -4112,7 +4112,7 @@ export class SongEditor implements ModSliderProvider {
             || newPrompt instanceof VisualLoopControlsPrompt || newPrompt instanceof SustainPrompt
             || newPrompt instanceof HarmonicsEditorPrompt || newPrompt instanceof SpectrumEditorPrompt
             || newPrompt instanceof PresetSelectorPrompt || newPrompt instanceof KeyboardShortcutsPrompt
-            || newPrompt instanceof ChannelGainPrompt)
+            || newPrompt instanceof ChannelVolumeVisualizerPrompt)
         ) {
           this._wasPlaying = this.doc.synth.playing;
           this.doc.performance.pause();

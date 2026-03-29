@@ -8,7 +8,7 @@
 export { AddSamplesPrompt } from "./add-samples-prompt";
 export { BasePrompt } from "./base-prompt";
 export { BeatsPerBarPrompt } from "./beats-per-bar-prompt";
-export { ChannelGainPrompt } from "./channel-gain-prompt";
+export { ChannelVolumeVisualizerPrompt } from "./channel-volume-visualizer-prompt";
 export { ChannelSettingsPrompt } from "./channel-settings-prompt";
 export { CustomChipPrompt } from "./custom-chip-prompt";
 export { CustomFilterPrompt } from "./custom-filter-prompt";
