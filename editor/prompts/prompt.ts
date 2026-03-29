@@ -12,6 +12,7 @@ export interface Prompt {
   name?: string;
   container: HTMLElement;
   cleanUp: () => void;
+  whenKeyPressed?: (event: KeyboardEvent) => void;
   gotMouseUp?: boolean;
   closeWithoutUndo?: () => void;
 }

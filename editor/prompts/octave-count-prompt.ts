@@ -9,20 +9,16 @@
 // Copyright (c) 2012-2022 John Nesky and contributing authors, distributed under the MIT license, see accompanying the LICENSE.md file.
 
 import { HTML } from "imperative-html/dist/esm/elements-strict";
-import { ChangeOctaveCount } from "../changes";
-import { SongDocument } from "../song-document";
-import { Prompt } from "./prompt";
+import { BasePrompt } from "./base-prompt";
 
-const { button, div, h2, p, input } = HTML;
+const { div, h2, p, input } = HTML;
 
-export class OctaveCountPrompt implements Prompt {
+export class OctaveCountPrompt extends BasePrompt {
   private readonly _octaves: HTMLInputElement = input({
     style: "width: 3em; margin-left: 1em;",
     type: "number",
     step: "1",
   });
-  private readonly _cancelButton: HTMLButtonElement = button({ class: "cancelButton" });
-  private readonly _okayButton: HTMLButtonElement = button({ class: "okayButton", style: "width:45%;" }, "Okay");
 
   public readonly container: HTMLDivElement = div(
     { class: "prompt noSelection", style: "width: 250px;" },
@@ -38,7 +34,8 @@ export class OctaveCountPrompt implements Prompt {
     this._cancelButton,
   );
 
-  constructor(private _doc: SongDocument) {
+  constructor(doc: SongDocument) {
+    super(doc);
     this._octaves.value = this._doc.song.octaveCount + "";
     this._octaves.min = "1";
     this._octaves.max = "16";
@@ -46,29 +43,14 @@ export class OctaveCountPrompt implements Prompt {
     this._octaves.select();
     setTimeout(() => this._octaves.focus());
 
-    this._okayButton.addEventListener("click", this._saveChanges);
-    this._cancelButton.addEventListener("click", this._close);
     this._octaves.addEventListener("keypress", OctaveCountPrompt._validateKey);
     this._octaves.addEventListener("blur", OctaveCountPrompt._validateNumber);
-    this.container.addEventListener("keydown", this._whenKeyPressed);
   }
 
-  private _close = (): void => {
-    this._doc.prompt = null;
-  };
-
-  public cleanUp = (): void => {
-    this._okayButton.removeEventListener("click", this._saveChanges);
-    this._cancelButton.removeEventListener("click", this._close);
+  public override cleanUp = (): void => {
+    super.cleanUp();
     this._octaves.removeEventListener("keypress", OctaveCountPrompt._validateKey);
     this._octaves.removeEventListener("blur", OctaveCountPrompt._validateNumber);
-    this.container.removeEventListener("keydown", this._whenKeyPressed);
-  };
-
-  private _whenKeyPressed = (event: KeyboardEvent): void => {
-    if ((<Element> event.target).tagName != "BUTTON" && event.keyCode == 13) {
-      this._saveChanges();
-    }
   };
 
   private static _validateKey(event: KeyboardEvent): boolean {

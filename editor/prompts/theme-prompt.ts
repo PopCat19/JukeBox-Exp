@@ -9,14 +9,13 @@
 // Copyright (C) 2020 John Nesky, distributed under the MIT license.
 
 import { HTML } from "imperative-html/dist/esm/elements-strict";
+import { BasePrompt } from "./base-prompt";
 import { ColorConfig } from "../rendering/color-config";
 import { SongDocument } from "../song-document";
-import { Prompt } from "./prompt";
 
-// namespace beepbox {
-const { button, div, h2, select, option, optgroup } = HTML;
+const { div, h2, select, option, optgroup } = HTML;
 
-export class ThemePrompt implements Prompt {
+export class ThemePrompt extends BasePrompt {
   private readonly _themeSelect: HTMLSelectElement = select(
     { style: "width: 100%;" },
     optgroup(
@@ -63,8 +62,6 @@ export class ThemePrompt implements Prompt {
       option({ value: "light classic" }, "BeepBox Light"),
       option({ value: "dark competition" }, "BeepBox Competition Dark"),
       option({ value: "jummbox classic" }, "JummBox Dark"),
-      // let's retire this again.
-      // option({ value: "jummbox light" }, "JummBox Light"),
       option({ value: "modbox classic" }, "Modbox"),
       option({ value: "sandbox classic" }, "Sandbox"),
       option({ value: "harrybox" }, "Haileybox"),
@@ -98,8 +95,6 @@ export class ThemePrompt implements Prompt {
     ),
     optgroup({ label: "Misc" }, option({ value: "azur lane" }, "Azur Lane"), option({ value: "custom" }, "Custom")),
   );
-  private readonly _cancelButton: HTMLButtonElement = button({ class: "cancelButton" });
-  private readonly _okayButton: HTMLButtonElement = button({ class: "okayButton", style: "width:45%;" }, "Okay");
 
   public readonly container: HTMLDivElement = div(
     { class: "prompt noSelection", style: "width: 220px;" },
@@ -113,17 +108,15 @@ export class ThemePrompt implements Prompt {
   );
   private readonly lastTheme: string | null = window.localStorage.getItem("colorTheme");
 
-  constructor(private _doc: SongDocument) {
+  constructor(doc: SongDocument) {
+    super(doc);
     if (this.lastTheme != null) {
       this._themeSelect.value = this.lastTheme;
     }
-    this._okayButton.addEventListener("click", this._saveChanges);
-    this._cancelButton.addEventListener("click", this._close);
-    this.container.addEventListener("keydown", this._whenKeyPressed);
     this._themeSelect.addEventListener("change", this._previewTheme);
   }
 
-  private _close = (): void => {
+  protected override _close = (): void => {
     if (this.lastTheme != null) {
       ColorConfig.setTheme(this.lastTheme);
     } else {
@@ -132,23 +125,10 @@ export class ThemePrompt implements Prompt {
     this._doc.prompt = null;
   };
 
-  public cleanUp = (): void => {
-    this._okayButton.removeEventListener("click", this._saveChanges);
-    this._cancelButton.removeEventListener("click", this._close);
-    this.container.removeEventListener("keydown", this._whenKeyPressed);
-  };
-
-  private _whenKeyPressed = (event: KeyboardEvent): void => {
-    if ((<Element> event.target).tagName != "BUTTON" && event.keyCode == 13) { // Enter key
-      this._saveChanges();
-    }
-  };
-
-  private _saveChanges = (): void => {
+  protected override _saveChanges = (): void => {
     window.localStorage.setItem("colorTheme", this._themeSelect.value);
     this._doc.prompt = null;
     this._doc.prefs.colorTheme = this._themeSelect.value;
-    this._doc.prompt = null;
   };
 
   private _previewTheme = (): void => {
@@ -156,4 +136,3 @@ export class ThemePrompt implements Prompt {
     this._doc.notifier.changed();
   };
 }
-// }

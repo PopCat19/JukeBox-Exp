@@ -6,6 +6,7 @@
 // - Re-exports all prompt dialogs used in the song editor
 
 export { AddSamplesPrompt } from "./add-samples-prompt";
+export { BasePrompt } from "./base-prompt";
 export { BeatsPerBarPrompt } from "./beats-per-bar-prompt";
 export { ChannelSettingsPrompt } from "./channel-settings-prompt";
 export { CustomChipPrompt } from "./custom-chip-prompt";
