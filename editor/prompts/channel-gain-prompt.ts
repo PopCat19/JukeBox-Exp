@@ -76,6 +76,7 @@ export class ChannelGainPrompt extends BasePrompt {
   private readonly _channelLastWidths: Map<number, number> = new Map();
   private readonly _channelLastCaps: Map<number, number> = new Map();
   private readonly _channelDbLabels: Map<number, HTMLSpanElement> = new Map();
+  private readonly _channelDivs: Map<number, HTMLDivElement> = new Map();
   // Store instrument spans for live updates: key is "channelIndex-instrumentIndex"
   private readonly _instrumentSpans: Map<string, HTMLSpanElement> = new Map();
 
@@ -135,9 +136,8 @@ export class ChannelGainPrompt extends BasePrompt {
           div({ title: "Instrument number" }, span({ style: "font-weight: bold;" }, "I#"), " = Instrument"),
           div({ title: "Decibel - volume measurement" }, span({ style: "font-weight: bold;" }, "dB"), " = Decibel"),
           div({ title: "Highest volume level" }, span({ style: "font-weight: bold;" }, "Pk"), " = Peak"),
-          div({ title: "Average volume level" }, span({ style: "font-weight: bold;" }, "Avg"), " = Average"),
-          div({ title: "Minimum dB level recorded" }, span({ style: "font-weight: bold;" }, "Min"), " = Minimum"),
-          div({ title: "Maximum dB level recorded" }, span({ style: "font-weight: bold;" }, "Max"), " = Maximum"),
+          div({ title: "Average volume level" }, span({ style: "font-weight: bold;" }, "A"), " = Average"),
+          div({ title: "Volume range" }, span({ style: "font-weight: bold;" }, "min/max"), " = Range"),
         ),
       ),
       // Right pane: Channels
@@ -201,6 +201,7 @@ export class ChannelGainPrompt extends BasePrompt {
     this._channelLastWidths.clear();
     this._channelLastCaps.clear();
     this._channelDbLabels.clear();
+    this._channelDivs.clear();
     this._instrumentSpans.clear();
     this._playPauseButton.removeEventListener("click", this._togglePlayPause);
     this._songEditor.muteEditor.setHoveredChannel(-1);
@@ -342,6 +343,17 @@ export class ChannelGainPrompt extends BasePrompt {
         dbLabel.textContent = isFinite(peakDb) ? `Pk:${peakDb.toFixed(1)}${statsText}` : `Pk:-inf${statsText}`;
       }
 
+      // Update dim state: dim if P0
+      const channelDiv = this._channelDivs.get(channelIndex);
+      if (channelDiv) {
+        const songChannel = this._doc.song.channels[channelIndex];
+        if (songChannel) {
+          const currentBarAnim = Math.floor(this._doc.synth.playhead);
+          const hasPat = songChannel.bars[currentBarAnim] > 0;
+          channelDiv.style.opacity = hasPat ? "1" : "0.5";
+        }
+      }
+
       // Update instrument highlights
       const channel = this._doc.song.channels[channelIndex];
       if (channel) {
@@ -379,6 +391,7 @@ export class ChannelGainPrompt extends BasePrompt {
     this._channelLastWidths.clear();
     this._channelLastCaps.clear();
     this._channelDbLabels.clear();
+    this._channelDivs.clear();
 
     const song = this._doc.song;
     const synth = this._doc.synth;
@@ -464,6 +477,7 @@ export class ChannelGainPrompt extends BasePrompt {
           isMuted ? "var(--mute-button-normal)" : channelColors.primaryChannel
         }; border-radius: 4px; background: var(--editor-background); cursor: pointer; ${isMuted ? "opacity: 0.5;" : ""} ${isDimmed ? "opacity: 0.5;" : ""}`,
       });
+      this._channelDivs.set(i, channelDiv);
 
       channelDiv.addEventListener("mouseenter", () => {
         this._songEditor.muteEditor.setHoveredChannel(i);
