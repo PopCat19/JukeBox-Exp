@@ -8,6 +8,7 @@
 export { AddSamplesPrompt } from "./add-samples-prompt";
 export { BasePrompt } from "./base-prompt";
 export { BeatsPerBarPrompt } from "./beats-per-bar-prompt";
+export { ChannelGainPrompt } from "./channel-gain-prompt";
 export { ChannelSettingsPrompt } from "./channel-settings-prompt";
 export { CustomChipPrompt } from "./custom-chip-prompt";
 export { CustomFilterPrompt } from "./custom-filter-prompt";
@@ -17,6 +18,7 @@ export { EuclidgenRhythmPrompt } from "./euclidgen-rhythm-prompt";
 export { ExportPrompt } from "./export-prompt";
 export { ImportPrompt } from "./import-prompt";
 export { InstrumentExportPrompt } from "./instrument-export-prompt";
+export { InstrumentImportPrompt } from "./instrument-import-prompt";
 export { KeyboardShortcutsPrompt } from "./keyboard-shortcuts-prompt";
 export { LayoutPrompt } from "./layout-prompt";
 export { LimiterPrompt } from "./limiter-prompt";
