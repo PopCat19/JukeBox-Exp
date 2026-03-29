@@ -14,6 +14,7 @@ import { ChangeBeatsPerBar } from "../changes";
 import { SongDocument } from "../song-document";
 import { ExportPrompt } from "./export-prompt";
 import { BasePrompt } from "./base-prompt";
+import { ColorConfig } from "../rendering/color-config";
 
 const { div, span, h2, input, br, select, option } = HTML;
 
@@ -46,7 +47,7 @@ export class BeatsPerBarPrompt extends BasePrompt {
         "Beats per bar:",
         br(),
         span(
-          { style: "font-size: smaller; color: ${ColorConfig.secondaryText};" },
+          { style: `font-size: smaller; color: ${ColorConfig.secondaryText};` },
           "(Multiples of 3 or 4 are normal and boring)",
         ),
       ),

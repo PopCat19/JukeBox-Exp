@@ -1942,7 +1942,7 @@ export class SongEditor implements ModSliderProvider {
   private readonly _songTitleInputBox: InputBox = new InputBox(
     input({
       style:
-        "font-weight:bold; border:none; width: 98%; background-color:${ColorConfig.editorBackground}; color:${ColorConfig.primaryText}; text-align:center",
+        `font-weight: bold; border: none; width: 98%; background-color: ${ColorConfig.editorBackground}; color: ${ColorConfig.primaryText}; text-align: center;`,
       maxlength: "30",
       type: "text",
       value: EditorConfig.versionDisplayName,
@@ -2224,7 +2224,7 @@ export class SongEditor implements ModSliderProvider {
       div(
         { class: "editor-song-settings" },
         div(
-          { style: "margin: 3px 0; position: relative; text-align: center; color: ${ColorConfig.secondaryText};" },
+          { style: `margin: 3px 0; position: relative; text-align: center; color: ${ColorConfig.secondaryText};` },
           div(
             {
               class: "tip",

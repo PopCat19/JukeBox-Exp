@@ -33,7 +33,7 @@ export class HarmonicsEditor {
   private readonly _lastControlPointContainer: SVGSVGElement = SVG.svg({ "pointer-events": "none" });
   private readonly _svg: SVGSVGElement = SVG.svg(
     {
-      style: "background-color: ${ColorConfig.editorBackground}; touch-action: none; cursor: crosshair;",
+      style: `background-color: ${ColorConfig.editorBackground}; touch-action: none; cursor: crosshair;`,
       width: "100%",
       height: "100%",
       viewBox: "0 0 " + this._editorWidth + " " + this._editorHeight,

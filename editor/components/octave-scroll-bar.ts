@@ -46,7 +46,7 @@ export class OctaveScrollBar {
   });
 
   private readonly _svg: SVGSVGElement = SVG.svg({
-    style: "background-color: ${ColorConfig.editorBackground}; touch-action: pan-x; position: absolute;",
+    style: `background-color: ${ColorConfig.editorBackground}; touch-action: pan-x; position: absolute;`,
     width: this._editorWidth,
     height: "100%",
     viewBox: "0 0 20 " + this._editorHeight,

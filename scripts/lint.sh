@@ -1,18 +1,14 @@
 #!/usr/bin/env bash
 #
-# Purpose: Runs dprint, TypeScript type-checking, and eslint
+# Purpose: Runs biome, TypeScript type-checking, and eslint
 #
 # This script:
-# - Checks formatting with dprint (typescript plugin)
+# - Checks formatting and linting with biome
 # - Type-checks all source files with tsc (no emit)
 # - Runs eslint on editor, synth, player, and shared directories
 
 set -Eeuo pipefail
 
-if command -v dprint &>/dev/null; then
-	dprint check
-else
-	bunx dprint check 2>/dev/null || echo "warning: dprint not found, skipping format check"
-fi
-bunx tsc --noEmit
-bunx eslint editor/ synth/ player/ shared/ || true
+bun biome check .
+bun tsc --noEmit
+bun eslint editor/ synth/ player/ shared/
