@@ -543,6 +543,7 @@ export class Synth {
   public isAtStartOfTick: boolean = true;
   public isAtEndOfTick: boolean = true;
   public tickSampleCountdown: number = 0;
+  private _playheadNeedsReset: boolean = false;
   private modValues: (number | null)[] = [];
   public modInsValues: (number | null)[][][] = [];
   private nextModValues: (number | null)[] = [];
@@ -1175,6 +1176,7 @@ export class Synth {
     this.part = 0;
     this.tick = 0;
     this.tickSampleCountdown = 0;
+    this._playheadNeedsReset = true;
   }
 
   public jumpIntoLoop(): void {
@@ -1485,6 +1487,10 @@ export class Synth {
     if (this.tickSampleCountdown <= 0 || this.tickSampleCountdown > samplesPerTick) {
       this.tickSampleCountdown = samplesPerTick;
       this.isAtStartOfTick = true;
+    }
+    if (this._playheadNeedsReset && playSong) {
+      this.playheadInternal = this.bar;
+      this._playheadNeedsReset = false;
     }
     if (playSong) {
       if (this.beat >= song.beatsPerBar) {
