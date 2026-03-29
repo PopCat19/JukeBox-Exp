@@ -3951,13 +3951,25 @@ export class SongEditor implements ModSliderProvider {
 
   private _updatePromptFocus(): void {
     for (const p of this._prompts) {
+      p.container.style.boxShadow = "none";
+      if (this.doc.prefs.showPromptBackdrop) {
+        if (this.doc.prefs.frostedGlassBackground) {
+          p.container.style.setProperty("--prompt-backdrop-filter", "blur(14px) brightness(0.9)");
+          p.container.style.setProperty("--prompt-bg-color", "color-mix(in srgb, var(--editor-background), transparent 60%)");
+        } else {
+          p.container.style.removeProperty("--prompt-backdrop-filter");
+          p.container.style.removeProperty("--prompt-bg-color");
+        }
+      } else {
+        p.container.style.removeProperty("--prompt-backdrop-filter");
+        p.container.style.removeProperty("--prompt-bg-color");
+      }
+
       if (p === this._focusedPrompt) {
-        p.container.style.outline = "2px solid var(--accent-color, #4444ff)";
-        p.container.style.boxShadow = "5px 5px 25px 12px rgba(0,0,0,0.6)";
+        p.container.style.outline = "2px solid var(--indicator-primary, #4444ff)";
         this._promptContainer.appendChild(p.container); // Bring to front
       } else {
         p.container.style.outline = "none";
-        p.container.style.boxShadow = "5px 5px 20px 10px rgba(0,0,0,0.5)";
       }
     }
   }
@@ -4109,11 +4121,11 @@ export class SongEditor implements ModSliderProvider {
         this._promptContainerBG.style.display = "";
         if (this.doc.prefs.frostedGlassBackground == true) {
           this._promptContainerBG.style.backgroundColor = "rgba(0,0,0, 0)";
-          this._promptContainerBG.style.backdropFilter = "brightness(0.9) blur(14px)";
+          this._promptContainerBG.style.backdropFilter = "none";
           this._promptContainerBG.style.opacity = "1";
         } else {
           this._promptContainerBG.style.backgroundColor = "var(--editor-background)";
-          this._promptContainerBG.style.backdropFilter = "";
+          this._promptContainerBG.style.backdropFilter = "none";
           this._promptContainerBG.style.opacity = "0.5";
         }
       } else {
@@ -4160,7 +4172,7 @@ export class SongEditor implements ModSliderProvider {
 
       newPrompt.container.addEventListener("mouseenter", () => {
         if (this._focusedPrompt !== newPrompt) {
-          newPrompt.container.style.outline = "2px solid var(--accent-color, #4444ff77)";
+          newPrompt.container.style.outline = "2px solid var(--indicator-primary, #4444ff77)";
         }
       });
       newPrompt.container.addEventListener("mouseleave", () => {

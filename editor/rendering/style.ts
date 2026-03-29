@@ -744,7 +744,9 @@ html {
 .beepboxEditor .prompt {
 	margin: auto;
 	text-align: center;
-	background: ${ColorConfig.editorBackground};
+	background: var(--prompt-bg-color, ${ColorConfig.editorBackground});
+	backdrop-filter: var(--prompt-backdrop-filter, none);
+	-webkit-backdrop-filter: var(--prompt-backdrop-filter, none);
 	border-radius: 15px;
 	border: 4px solid ${ColorConfig.uiWidgetBackground};
 	color: ${ColorConfig.primaryText};
@@ -752,7 +754,6 @@ html {
 	display: flex;
 	flex-direction: column;
 	position: absolute;
-	box-shadow: 5px 5px 20px 10px rgba(0,0,0,0.5);
   pointer-events: auto;
 }
 
