@@ -3966,10 +3966,10 @@ export class SongEditor implements ModSliderProvider {
       }
 
       if (p === this._focusedPrompt) {
-        p.container.style.outline = "2px solid var(--indicator-primary, #4444ff)";
+        p.container.classList.add("focused");
         this._promptContainer.appendChild(p.container); // Bring to front
       } else {
-        p.container.style.outline = "none";
+        p.container.classList.remove("focused");
       }
     }
   }
@@ -4169,17 +4169,6 @@ export class SongEditor implements ModSliderProvider {
           this.closePrompt(newPrompt);
         });
       }
-
-      newPrompt.container.addEventListener("mouseenter", () => {
-        if (this._focusedPrompt !== newPrompt) {
-          newPrompt.container.style.outline = "2px solid var(--indicator-primary, #4444ff77)";
-        }
-      });
-      newPrompt.container.addEventListener("mouseleave", () => {
-        if (this._focusedPrompt !== newPrompt) {
-          newPrompt.container.style.outline = "none";
-        }
-      });
 
       // Dragging logic
       newPrompt.container.addEventListener("mousedown", (e: Event) => {

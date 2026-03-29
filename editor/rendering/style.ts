@@ -757,6 +757,14 @@ html {
   pointer-events: auto;
 }
 
+.beepboxEditor .prompt:hover {
+	outline: 2px solid color-mix(in srgb, var(--indicator-primary, #4444ff), transparent 50%);
+}
+
+.beepboxEditor .prompt.focused {
+	outline: 2px solid var(--indicator-primary, #4444ff) !important;
+}
+
 .beepboxEditor .prompt > *:not(:first-child):not(.cancelButton) {
 	margin-top: 1.5em;
 }
