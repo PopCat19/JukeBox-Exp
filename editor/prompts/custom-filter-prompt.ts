@@ -34,7 +34,6 @@ export class CustomFilterPrompt extends BasePrompt {
   private readonly _filterContainer: HTMLDivElement = div({
     style: "width: 100%; display: flex; flex-direction: row; align-items: center; justify-content: center;",
   });
-  private readonly _editorTitle: HTMLDivElement = div({}, h2("Edit Filter"));
   private readonly _filterCopyButton: HTMLButtonElement = button({
     style: "width:86px; margin-right: 5px;",
     class: "copyButton",
@@ -81,7 +80,7 @@ export class CustomFilterPrompt extends BasePrompt {
 
   public readonly container: HTMLDivElement = div(
     { class: "prompt noSelection", style: "width: 600px;" },
-    this._editorTitle,
+    h2("Edit Filter"),
     div({
       style:
         "display: flex; width: 55%; align-self: center; flex-direction: row; align-items: center; justify-content: center;",

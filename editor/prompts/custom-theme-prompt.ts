@@ -155,7 +155,7 @@ export class CustomThemePrompt extends BasePrompt {
     { class: "prompt noSelection", style: "width: 300px;" },
     h2("Import"),
     p(
-      { style: "text-align: left; margin: 0.5em 0;" },
+      { style: "text-align: left; margin-bottom: 0.5em;" },
       "You can upload images to create a custom theme. The first image will become the editor background, and the second image will be tiled across the webpage.",
     ),
     div(

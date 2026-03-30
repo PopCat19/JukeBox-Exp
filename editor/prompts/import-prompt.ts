@@ -62,7 +62,7 @@ export class ImportPrompt extends BasePrompt {
     { class: "prompt noSelection", style: "width: 300px;" },
     h2("Import"),
     p(
-      { style: "text-align: left; margin: 0.5em 0;" },
+      { style: "text-align: left; margin-bottom: 0.5em;" },
       "BeepBox songs can be exported as .json files. You can also use this to import .json files from other BeepBox mods.",
     ),
     p(
