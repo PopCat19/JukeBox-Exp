@@ -14,6 +14,7 @@ Purpose: Non-obvious conventions only. Assumes standard SWE practices.
 - Every module must be imported somewhere (wire in on create, remove refs before delete)
 - Add `context.md` to folders with 5+ non-obvious files: one bullet per file, present-tense, no subdirectory entries (those get their own). Update in the same commit as any file addition, removal, or rename — treat drift as broken.
 - **Single source of truth:** context.md entries derive from file header `Purpose:` lines. Files in context.md must have headers. The drift check validates both structure and content.
+- Files approaching 800–1000 lines: consider splitting by role (domain subdirs like `auth/login.nix`, `auth/tokens.nix`) or layer (layer subdirs like `api/types.ts`, `api/handlers.ts`). Existing structure rules (depth, wiring, context.md, headers) still apply. Scope: project source code only, not convention docs.
 
 ## Comments & Docs
 
@@ -77,18 +78,3 @@ One-shot commands: wrap output for `wl-copy` so it can be sent in one shot.
 
 - Ask before running `nix flake check` (resource-intensive, CI typically handles it)
 - Never commit failing checks without `[skip-check]` flag and documented reason
-
-## Prompts
-
-Reference designs: `preset-selector-prompt.ts`, `channel-volume-visualizer-prompt.ts`.
-
-All new prompts must follow these patterns:
-
-- Extend `BasePrompt`; use `_getOkayRow()` for button layouts, `buildTitlebar()` for titlebar
-- `buildTitlebar()` called in own constructor (not song-editor.ts fallback)
-- Search/filter inputs use preset-selector style: `padding: 6px 10px; border: 2px solid var(--ui-widget-background); border-radius: 6px; background: var(--editor-background); color: var(--primary-text); font-size: 14px; outline: none; box-sizing: border-box;`
-- Frosted glass: `rgba(0,0,0,0.4)` background + `blur(14px) brightness(0.9)` backdrop-filter + `z-index: 1` (background only, not entire prompt)
-- Compact layout: CSS overrides `margin-top: 0` on non-first children via `.promptClassName > *:not(:first-child)`
-- If search input follows titlebar, add `.promptClassName > input { margin-top: 1.25em }` override
-- Prompt toggle: clicking trigger that opened a prompt closes it without committing
-- Keyboard navigation prompts get `tabindex: "0"` on container, `focusin` syncs `_focusedPrompt`
