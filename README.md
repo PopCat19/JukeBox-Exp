@@ -48,7 +48,7 @@ GitHub Pages serves from the `gh-pages` branch.
 | `synth/`  | Audio engine. Standalone — usable in other projects. |
 | `editor/` | Song editor UI. |
 | `player/` | Embeddable miniature player. |
-| `global/` | Shared event system and oscilloscope. |
+| `shared/` | Shared event system and oscilloscope (upstream: `global/`). |
 | `website/` | Static assets (HTML, images, samples, favicons). Source only — not build output. |
 | `dist/`   | Build output (gitignored). |
 

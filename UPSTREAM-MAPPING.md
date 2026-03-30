@@ -23,7 +23,8 @@ Upstream has a monolithic `editor/SongEditor.ts`. The fork extracts UI component
 | Fork directory | Extracted from | Content |
 |---|---|---|
 | `editor/components/` | `editor/SongEditor.ts` | UI components (PatternEditor, Piano, TrackEditor, etc.) |
-| `editor/renderers/` | `editor/SongEditor.ts` | State-to-DOM sync functions (renderLayout, renderEffects, etc.) |
+| `editor/renderers/` | `editor/SongEditor.ts` | State-to-DOM sync functions (renderLayout, renderEffects, renderInstrumentValues, etc.) |
+| `editor/renderers/instrument-visibility.ts` | `editor/SongEditor.ts` | Instrument show/hide toggling |
 | `editor/core/` | `editor/SongEditor.ts` + `editor/changes.ts` | ChangeDispatcher, KeyboardHandler, PromptManager, ModSliderRegistry |
 | `editor/io/` | `editor/Midi.ts`, `editor/MidiInput.ts`, `editor/SongRecovery.ts` | MIDI I/O and song recovery (moved from editor root) |
 | `editor/rendering/custom-chip-canvas.ts` | `editor/SongEditor.ts` | `CustomChipCanvas` class for waveform editing |
@@ -38,6 +39,20 @@ Upstream has a monolithic `editor/SongEditor.ts`. The fork extracts UI component
 | `editor/core/preferences.ts` | `editor/Preferences.ts` | User preference settings |
 | `editor/core/selection.ts` | `editor/Selection.ts` | Note and bar selection state (upstream: `SongEditor.ts` inline) |
 | `editor/core/change.ts` | `editor/changes.ts` (top) | Base `Change` and `ChangeGroup` classes |
+| `editor/core/change-notifier.ts` | `editor/ChangeNotifier.ts` | Change notification/pub-sub |
+| `editor/core/song-performance.ts` | `editor/SongPerformance.ts` | Song playback performance state |
+| `editor/core/player-animator.ts` | `editor/SongEditor.ts` | Player animation frame scheduling |
+
+## `editor/ui/`
+
+Upstream has `ArrayBufferReader.ts`, `ArrayBufferWriter.ts`, `HTMLWrapper.ts`, `Layout.ts` at `editor/` root. The fork moves them to `editor/ui/`:
+
+| Upstream | Fork |
+|---|---|
+| `editor/ArrayBufferReader.ts` | `editor/ui/array-buffer-reader.ts` |
+| `editor/ArrayBufferWriter.ts` | `editor/ui/array-buffer-writer.ts` |
+| `editor/HTMLWrapper.ts` | `editor/ui/html-wrapper.ts` |
+| `editor/Layout.ts` | `editor/ui/layout.ts` |
 
 ## `editor/prompts/`
 
@@ -49,7 +64,7 @@ Upstream has 25 `*Prompt.ts` files directly in `editor/`. The fork moves them to
 | `editor/TipPrompt.ts` | `editor/prompts/tip-prompt.ts` |
 | `editor/*Prompt.ts` (all) | `editor/prompts/*-prompt.ts` |
 
-Fork-only prompts (not in upstream): `PresetSelectorPrompt.ts`, `EuclidgenRhythmPrompt.ts`, `RecordingSetupPrompt.ts`, `SampleLoadingStatusPrompt.ts`, `VisualLoopControlsPrompt.ts`.
+Fork-only prompts (not in upstream): `base-prompt.ts`, `channel-volume-visualizer-prompt.ts`, `euclidgen-rhythm-prompt.ts`, `input-helpers.ts`, `keyboard-shortcuts-prompt.ts`, `octave-count-prompt.ts`, `preset-selector-prompt.ts`, `recording-setup-prompt.ts`, `sample-loading-status-prompt.ts`, `visual-loop-controls-prompt.ts`.
 
 ## `synth/`
 
@@ -80,14 +95,36 @@ These modules don't exist in upstream — they replace switch-case logic in `syn
 
 | Fork path | Content |
 |---|---|
-| `synth/plugins/` | Plugin registry: one file per instrument type (fm, chip, pulse, noise, etc.) |
-| `synth/synthesis/` | Synthesis source string builders extracted from plugin `compute()` callbacks |
+| `synth/plugins/` | Plugin registry: one file per instrument type (`fm.ts`, `chip.ts`, `pulse.ts`, `noise.ts`, `harmonics.ts`, `spectrum.ts`, `drumset.ts`, `picked-string.ts`, `supersaw.ts`, `mod.ts`) |
+| `synth/plugins/registry.ts` | Plugin registration and lookup |
+| `synth/plugins/interfaces.ts` | Plugin interface definitions |
+| `synth/plugins/capabilities.ts` | Instrument capability flags |
+| `synth/plugins/effects.ts` | Shared effects computation |
+| `synth/synthesis/` | Synthesis source string builders per instrument type (mirrors plugin names) |
+| `synth/song-serialization.ts` | Song string serialization helpers (extracted from `synth/song.ts`) |
+| `synth/song-utilities.ts` | Song utility functions (extracted from `synth/song.ts`) |
+
+## `player/`
+
+Upstream has `player/main.ts` (monolithic). The fork extracts UI components:
+
+| Upstream content | Fork path |
+|---|---|
+| Player controls (play, pause, volume) | `player/player-controls.ts` |
+| Keyboard input handling | `player/player-keyboard.ts` |
+| Timeline/position bar | `player/player-timeline.ts` |
+| Core UI wiring | `player/player-ui.ts` |
+| Entry point (remaining) | `player/main.ts` |
+| Re-exports | `player/index.ts` |
 
 ## 1:1 mapping (no structural change)
 
-- `player/*.ts`
 - `shared/events.ts` (upstream: `global/Events.ts`)
 - `shared/oscilloscope.ts` (upstream: `global/Oscilloscope.ts`)
+
+## Fork-only additions
+
+- `editor/song-custom-samples.ts` — custom sample management (extracted from `SongEditor.ts`)
 
 ## Renamed files (kebab-case)
 
@@ -101,8 +138,24 @@ All fork files use kebab-case. Key upstream-to-fork name translations:
 | `ColorConfig.ts` | `editor/rendering/color-config.ts` |
 | `EditorConfig.ts` | `editor/config/editor-config.ts` |
 | `Change.ts` | `editor/core/change.ts` |
+| `ChangeNotifier.ts` | `editor/core/change-notifier.ts` |
 | `Selection.ts` | `editor/core/selection.ts` |
 | `Preferences.ts` | `editor/core/preferences.ts` |
+| `SongPerformance.ts` | `editor/core/song-performance.ts` |
+| `KeyboardLayout.ts` | `editor/config/keyboard-layout.ts` |
+| `Midi.ts` | `editor/io/midi.ts` |
+| `MidiInput.ts` | `editor/io/midi-input.ts` |
+| `SongRecovery.ts` | `editor/io/song-recovery.ts` |
+| `ArrayBufferReader.ts` | `editor/ui/array-buffer-reader.ts` |
+| `ArrayBufferWriter.ts` | `editor/ui/array-buffer-writer.ts` |
+| `HTMLWrapper.ts` | `editor/ui/html-wrapper.ts` |
+| `Layout.ts` | `editor/ui/layout.ts` |
+| `style.ts` | `editor/rendering/style.ts` |
+| `Deque.ts` | `synth/deque.ts` |
+| `FFT.ts` | `synth/fft.ts` |
+| `filtering.ts` | `synth/filtering.ts` |
+| `global/Events.ts` | `shared/events.ts` |
+| `global/Oscilloscope.ts` | `shared/oscilloscope.ts` |
 | All `*Prompt.ts` files | `editor/prompts/*-prompt.ts` (kebab-case) |
 | All component files | `editor/components/*-*.ts` (kebab-case) |
 
@@ -115,6 +168,8 @@ When reading an upstream diff:
 3. `synth/synth.ts` → `Song` class → `synth/song.ts`, serialization → `synth/serialization.ts`, instruments → `synth/instruments.ts`
 4. PascalCase filenames → convert to kebab-case (see table above)
 5. `global/*.ts` → `shared/*.ts`
-6. Everything else → same path (with kebab-case name)
+6. `player/main.ts` → determine concern (controls/keyboard/timeline/UI) → corresponding `player/*.ts`
+7. Top-level `editor/*.ts` (excluding `SongEditor.ts`, `SongDocument.ts`, `main.ts`) → likely `editor/ui/`, `editor/io/`, or `editor/core/`
+8. Everything else → same path (with kebab-case name)
 
 For direct local comparison: `diff -rq ~/JukeBox_TypeScript/editor ./editor`.
