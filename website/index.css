@@ -1,0 +1,33 @@
+#beepboxEditorContainer {
+    min-height: 645px;
+    overflow: auto;
+    background: var(--editor-background, black);
+    width: 100%;
+    max-width: 710px;
+    padding-left: 30px;
+    padding-right: 30px;
+}
+
+#text-content {
+    overflow: auto;
+    background: var(--editor-background, black);
+    width: 100%;
+    max-width: 710px;
+    padding-left: 30px;
+    padding-right: 30px;
+}
+
+#Hotdog { display: none; }
+
+h1 {
+    color: var(--mod-title, #8C5D49);
+}
+
+a {
+    text-decoration: underline;
+}
+
+.bsky-column {
+    width: 300px;
+    flex-shrink: 0;
+}
