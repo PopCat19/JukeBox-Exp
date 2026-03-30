@@ -2,12 +2,12 @@
 
 - `index.ts` — Barrel re-export of all editor prompt classes
 - `prompt.ts` — Defines the Prompt interface for modal dialog components
-- `base-prompt.ts` — Abstract base class with shared prompt boilerplate and titlebar builder
-- `input-helpers.ts` — Shared validation, play button, and layout helpers for prompts
+- `base-prompt.ts` — Abstract base class for all editor prompt dialogs
+- `input-helpers.ts` — Shared validation and layout helpers for prompt dialogs
 - `add-samples-prompt.ts` — Provides dialog for importing and loading audio sample files
 - `beats-per-bar-prompt.ts` — Provides dialog for changing the number of beats per bar
 - `channel-settings-prompt.ts` — Provides dialog for configuring channel-specific settings
-- `channel-volume-visualizer-prompt.ts` — Provides dialog showing per-channel volume analysis
+- `channel-volume-visualizer-prompt.ts` — Modal popup displaying per-channel gain information with live updates
 - `custom-chip-prompt.ts` — Provides dialog for editing custom chip wave sample data
 - `custom-filter-prompt.ts` — Provides dialog for configuring custom EQ and note filter curves
 - `custom-scale-prompt.ts` — Provides dialog for defining custom musical scale intervals
