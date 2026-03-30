@@ -228,15 +228,9 @@ export class PromptManager {
 				this._promptContainer.style.display = "";
 				if (doc.prefs.showPromptBackdrop) {
 					this._promptContainerBG.style.display = "";
-					if (doc.prefs.frostedGlassBackground == true) {
-						this._promptContainerBG.style.backgroundColor = "rgba(0,0,0, 0)";
-						this._promptContainerBG.style.backdropFilter = "brightness(0.9) blur(14px)";
-						this._promptContainerBG.style.opacity = "1";
-					} else {
-						this._promptContainerBG.style.backgroundColor = "var(--editor-background)";
-						this._promptContainerBG.style.backdropFilter = "";
-						this._promptContainerBG.style.opacity = "0.5";
-					}
+					this._promptContainerBG.style.backgroundColor = "rgba(0,0,0, 0)";
+					this._promptContainerBG.style.backdropFilter = "brightness(0.9) blur(14px)";
+					this._promptContainerBG.style.opacity = "1";
 				} else {
 					this._promptContainerBG.style.display = "none";
 				}

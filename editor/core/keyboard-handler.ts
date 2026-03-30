@@ -630,11 +630,11 @@ export class KeyboardHandler {
 					doc.prefs.visibleOctaves = 5;
 					doc.prefs.closePromptByClickoff = false;
 					doc.prefs.colorTheme = "slarmoosbox";
-					doc.prefs.frostedGlassBackground = false;
 					doc.prefs.instrumentButtonsAtTop = true;
 					doc.prefs.instrumentCopyPaste = true;
 					doc.prefs.instrumentImportExport = true;
 					doc.prefs.notesFlashWhenPlayed = true;
+
 					doc.prefs.showOscilloscope = true;
 					doc.prefs.rollNoveltyPresets = false;
 					doc.prefs.enableTagSearch = false;
@@ -733,11 +733,11 @@ export class KeyboardHandler {
 					doc.prefs.visibleOctaves = 4;
 					doc.prefs.closePromptByClickoff = true;
 					doc.prefs.colorTheme = "violet verdant";
-					doc.prefs.frostedGlassBackground = false;
 					doc.prefs.instrumentButtonsAtTop = true;
 					doc.prefs.instrumentCopyPaste = true;
 					doc.prefs.instrumentImportExport = true;
 					doc.prefs.notesFlashWhenPlayed = true;
+
 					doc.prefs.showOscilloscope = true;
 					doc.prefs.rollNoveltyPresets = true;
 					doc.prefs.enableTagSearch = true;

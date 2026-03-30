@@ -34,7 +34,6 @@ export function renderOptionsMenu(optionsMenu: HTMLSelectElement, prefs: Prefere
 		(prefs.notesFlashWhenPlayed ? textOnIcon : textOffIcon) + "Notes Flash When Played (DogeBox2)",
 		(prefs.instrumentButtonsAtTop ? textOnIcon : textOffIcon) + "Instrument Buttons at Top",
 		(prefs.showPromptBackdrop ? textOnIcon : textOffIcon) + "Show Prompt Backdrop",
-		(prefs.frostedGlassBackground ? textOnIcon : textOffIcon) + "Frosted Glass Prompt Backdrop",
 		(prefs.showChannels ? textOnIcon : textOffIcon) + "Show All Channels",
 		(prefs.showScrollBar ? textOnIcon : textOffIcon) + "Show Octave Scroll Bar",
 		(prefs.showInstrumentScrollbars ? textOnIcon : textOffIcon) + "Show Instrument Scrollbars",

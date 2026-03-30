@@ -82,7 +82,6 @@ export class AddSamplesPrompt extends BasePrompt {
 		{
 			style: "display: none; margin-top: 0; -webkit-user-select: text; -moz-user-select: text; -ms-user-select: text; user-select: text; cursor: text; overflow-y: auto;",
 		},
-		h2("Add Samples"),
 		div({ style: "margin-top: 0.5em; margin-bottom: 0.5em;" }, "In JukeBox, custom samples are loaded from arbitrary URLs."),
 		div(
 			{ style: `margin-top: 0.5em; margin-bottom: 0.5em; color: ${ColorConfig.secondaryText};` },

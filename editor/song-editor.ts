@@ -447,7 +447,6 @@ export class SongEditor implements ModSliderProvider {
 			option({ value: "notesFlashWhenPlayed" }, "Notes Flash When Played (DogeBox2)"),
 			option({ value: "instrumentButtonsAtTop" }, "Instrument Buttons at Top"),
 			option({ value: "showPromptBackdrop", id: "showPromptBackdrop" }, "Show Prompt Backdrop"),
-			option({ value: "frostedGlassBackground" }, "Frosted Glass Prompt Backdrop"),
 			option({ value: "showChannels" }, "Show All Channels"),
 			option({ value: "showScrollBar" }, "Show Octave Scroll Bar"),
 			option({ value: "showInstrumentScrollbars" }, "Show Intsrument Scrollbars"),
@@ -4051,17 +4050,12 @@ export class SongEditor implements ModSliderProvider {
 		for (const p of this._prompts) {
 			p.container.style.boxShadow = "none";
 			if (this.doc.prefs.showPromptBackdrop) {
-				if (this.doc.prefs.frostedGlassBackground) {
-					p.container.style.setProperty("--prompt-backdrop-filter", "blur(14px) brightness(0.9)");
-					p.container.style.background = "rgba(0, 0, 0, 0.4)";
-				} else {
-					p.container.style.removeProperty("--prompt-backdrop-filter");
-					p.container.style.removeProperty("--prompt-bg-color");
-					p.container.style.background = "";
-				}
+				p.container.style.setProperty("--prompt-backdrop-filter", "blur(14px) brightness(0.9)");
+				p.container.style.background = "rgba(0, 0, 0, 0.4)";
 			} else {
 				p.container.style.removeProperty("--prompt-backdrop-filter");
 				p.container.style.removeProperty("--prompt-bg-color");
+				p.container.style.background = "";
 				p.container.style.opacity = "";
 			}
 
@@ -4222,15 +4216,9 @@ export class SongEditor implements ModSliderProvider {
 			this._promptContainer.style.display = "";
 			if (this.doc.prefs.showPromptBackdrop) {
 				this._promptContainerBG.style.display = "";
-				if (this.doc.prefs.frostedGlassBackground == true) {
-					this._promptContainerBG.style.backgroundColor = "rgba(0,0,0, 0)";
-					this._promptContainerBG.style.backdropFilter = "brightness(0.9) blur(14px)";
-					this._promptContainerBG.style.opacity = "1";
-				} else {
-					this._promptContainerBG.style.backgroundColor = "var(--editor-background)";
-					this._promptContainerBG.style.backdropFilter = "none";
-					this._promptContainerBG.style.opacity = "0.5";
-				}
+				this._promptContainerBG.style.backgroundColor = "rgba(0,0,0, 0)";
+				this._promptContainerBG.style.backdropFilter = "brightness(0.9) blur(14px)";
+				this._promptContainerBG.style.opacity = "1";
 			} else {
 				this._promptContainerBG.style.display = "none";
 			}
@@ -5151,9 +5139,6 @@ export class SongEditor implements ModSliderProvider {
 				break;
 			case "showPromptBackdrop":
 				this.doc.prefs.showPromptBackdrop = !this.doc.prefs.showPromptBackdrop;
-				break;
-			case "frostedGlassBackground":
-				this.doc.prefs.frostedGlassBackground = !this.doc.prefs.frostedGlassBackground;
 				break;
 			case "rollNoveltyPresets":
 				this.doc.prefs.rollNoveltyPresets = !this.doc.prefs.rollNoveltyPresets;
