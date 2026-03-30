@@ -17,7 +17,10 @@ import { Prompt } from "./prompt";
 const { button, div } = HTML;
 
 export abstract class BasePrompt implements Prompt {
+	private static _nextId: number = 0;
+	public readonly id: number = BasePrompt._nextId++;
 	public abstract readonly container: HTMLElement;
+	public closeCallback: ((prompt: Prompt) => void) | undefined = undefined;
 	protected readonly _cancelButton: HTMLButtonElement = button({ class: "cancelButton" });
 	protected readonly _okayButton: HTMLButtonElement = button({ class: "okayButton", style: "width:45%;" }, "Okay");
 
@@ -31,7 +34,11 @@ export abstract class BasePrompt implements Prompt {
 	};
 
 	protected _close = (): void => {
-		this._doc.prompt = null;
+		if (this.closeCallback) {
+			this.closeCallback(<Prompt><unknown> this);
+		} else {
+			this._doc.prompt = null;
+		}
 	};
 
 	public cleanUp(): void {

@@ -124,8 +124,11 @@ export class PresetSelectorPrompt extends BasePrompt {
   }
 
   public closeWithoutUndo = (): void => {
-    this._doc.prompt = null;
-    this._doc.notifier.changed();
+    if (this.closeCallback) {
+      this.closeCallback(this);
+    } else {
+      this._doc.prompt = null;
+    }
   };
 
   private _handleItemClick(target: "cat" | "preset", index: number): void {

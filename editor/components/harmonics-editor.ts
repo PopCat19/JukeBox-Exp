@@ -338,6 +338,9 @@ export class HarmonicsEditor {
 }
 
 export class HarmonicsEditorPrompt implements Prompt {
+  private static _nextId: number = 0;
+  public readonly id: number = HarmonicsEditorPrompt._nextId++;
+  public closeCallback: ((prompt: Prompt) => void) | undefined = undefined;
   public readonly harmonicsEditor: HarmonicsEditor = new HarmonicsEditor(this._doc, true);
 
   public readonly _playButton: HTMLButtonElement = HTML.button({ style: "width: 55%;", type: "button" });
@@ -442,7 +445,11 @@ export class HarmonicsEditorPrompt implements Prompt {
   }
 
   private _close = (): void => {
-    this._doc.prompt = null;
+    if (this.closeCallback) {
+      this.closeCallback(this);
+    } else {
+      this._doc.prompt = null;
+    }
   };
 
   public cleanUp = (): void => {

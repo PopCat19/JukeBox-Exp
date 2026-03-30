@@ -10,10 +10,12 @@
 
 export interface Prompt {
   name?: string;
+  id: number;
   container: HTMLElement;
   cleanUp: () => void;
   buildTitlebar?: () => void;
   whenKeyPressed?: (event: KeyboardEvent) => void;
   gotMouseUp?: boolean;
   closeWithoutUndo?: () => void;
+  closeCallback?: (prompt: Prompt) => void;
 }

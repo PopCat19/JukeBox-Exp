@@ -375,6 +375,9 @@ export class SpectrumEditor {
 }
 
 export class SpectrumEditorPrompt implements Prompt {
+  private static _nextId: number = 0;
+  public readonly id: number = SpectrumEditorPrompt._nextId++;
+  public closeCallback: ((prompt: Prompt) => void) | undefined = undefined;
   public spectrumEditor: SpectrumEditor = new SpectrumEditor(this._doc, null, true);
 
   private readonly spectrumEditors: SpectrumEditor[] = [];
@@ -540,7 +543,11 @@ export class SpectrumEditorPrompt implements Prompt {
   }
 
   private _close = (): void => {
-    this._doc.prompt = null;
+    if (this.closeCallback) {
+      this.closeCallback(this);
+    } else {
+      this._doc.prompt = null;
+    }
   };
 
   public cleanUp = (): void => {
