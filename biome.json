@@ -6,13 +6,14 @@
 			"recommended": false,
 			"correctness": {
 				"noUnusedImports": "warn",
-				"noUnusedVariables": "off",
-				"noConstAssign": "error"
+				"noUnusedVariables": "warn",
+				"noConstAssign": "error",
+				"noConstantCondition": "off"
 			},
 			"suspicious": {
 				"noExplicitAny": "off",
-				"noDoubleEquals": "off",
-				"noVar": "warn"
+				"noDoubleEquals": "warn",
+				"noVar": "error"
 			}
 		}
 	},
