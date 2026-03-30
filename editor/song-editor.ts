@@ -2245,10 +2245,6 @@ export class SongEditor implements ModSliderProvider {
 	);
 
 	private readonly _promptContainer: HTMLDivElement = div({ class: "promptContainer", style: "display: none;" });
-	private readonly _promptContainerBG: HTMLDivElement = div({
-		class: "promptContainerBG",
-		style: "display: none; height: 100%; width: 100%; position: fixed; z-index: 99; overflow-x: hidden; pointer-events: none;",
-	});
 	private readonly _zoomInButton: HTMLButtonElement = button({
 		class: "zoomInButton",
 		type: "button",
@@ -4036,7 +4032,6 @@ export class SongEditor implements ModSliderProvider {
 			}
 		}
 		if (this._prompts.length == 0) {
-			this._promptContainerBG.style.display = "none";
 			this._promptContainer.style.display = "none";
 			if (this._wasPlaying) {
 				this.doc.performance.play();
@@ -4214,14 +4209,6 @@ export class SongEditor implements ModSliderProvider {
 			}
 
 			this._promptContainer.style.display = "";
-			if (this.doc.prefs.showPromptBackdrop) {
-				this._promptContainerBG.style.display = "";
-				this._promptContainerBG.style.backgroundColor = "rgba(0,0,0, 0)";
-				this._promptContainerBG.style.backdropFilter = "brightness(0.9) blur(14px)";
-				this._promptContainerBG.style.opacity = "1";
-			} else {
-				this._promptContainerBG.style.display = "none";
-			}
 
 			this._promptContainer.appendChild(newPrompt.container);
 
@@ -4336,14 +4323,6 @@ export class SongEditor implements ModSliderProvider {
 
 				document.addEventListener("mousemove", onMouseMove);
 				document.addEventListener("mouseup", onMouseUp);
-			});
-
-			document.body.appendChild(this._promptContainerBG);
-			this._promptContainerBG.addEventListener("mousedown", () => {
-				if (this.doc.prefs.closePromptByClickoff) {
-					this.closePrompt(null);
-					this.doc.prompt = null;
-				}
 			});
 		}
 	}

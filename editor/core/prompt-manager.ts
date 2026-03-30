@@ -54,7 +54,6 @@ export class PromptManager {
 	constructor(
 		private _host: PromptHost,
 		private _promptContainer: HTMLDivElement,
-		private _promptContainerBG: HTMLDivElement,
 	) {}
 
 	public open(promptName: string): void {
@@ -98,7 +97,6 @@ export class PromptManager {
 				doc.performance.play();
 			}
 			this._wasPlaying = false;
-			this._promptContainerBG.style.display = "none";
 			this._promptContainer.style.display = "none";
 			this._promptContainer.removeChild(this.prompt.container);
 			this.prompt.cleanUp();
@@ -226,16 +224,7 @@ export class PromptManager {
 					doc.performance.pause();
 				}
 				this._promptContainer.style.display = "";
-				if (doc.prefs.showPromptBackdrop) {
-					this._promptContainerBG.style.display = "";
-					this._promptContainerBG.style.backgroundColor = "rgba(0,0,0, 0)";
-					this._promptContainerBG.style.backdropFilter = "brightness(0.9) blur(14px)";
-					this._promptContainerBG.style.opacity = "1";
-				} else {
-					this._promptContainerBG.style.display = "none";
-				}
 				this._promptContainer.appendChild(this.prompt.container);
-				document.body.appendChild(this._promptContainerBG);
 			}
 		}
 	}
