@@ -17,5 +17,6 @@ export { MuteEditor } from "./mute-editor";
 export { OctaveScrollBar } from "./octave-scroll-bar";
 export { PatternEditor } from "./pattern-editor";
 export { Piano } from "./piano";
+export { Shiggy } from "./shiggy-component";
 export { SpectrumEditor } from "./spectrum-editor";
 export { TrackEditor } from "./track-editor";
