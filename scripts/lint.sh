@@ -9,6 +9,8 @@
 
 set -Eeuo pipefail
 
-bun biome check .
-bun tsc --noEmit
-bun eslint editor/ synth/ player/ shared/
+source "$(dirname "$0")/run.sh"
+
+$RUNNER ./node_modules/.bin/biome check .
+$RUNNER ./node_modules/.bin/tsc --noEmit
+$RUNNER ./node_modules/.bin/eslint editor/ synth/ player/ shared/

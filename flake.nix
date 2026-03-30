@@ -27,7 +27,11 @@
 
           shellHook = ''
             if [ ! -d node_modules ]; then
-              bun install
+              if command -v bun &>/dev/null; then
+                bun install
+              else
+                npm install
+              fi
             fi
           '';
         };

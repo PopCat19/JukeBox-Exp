@@ -11,13 +11,13 @@ Song data is encoded in the URL hash. Copy the URL to save and share.
 
 ## Compiling
 
-Requires [Bun](https://bun.sh). Licensed under MIT.
+Requires [Bun](https://bun.sh) or [Node.js](https://nodejs.org) (v18+). Licensed under MIT.
 
 ```
 git clone https://github.com/PopCat19/JukeBox-Exp.git
 cd JukeBox-Exp
-bun install
-bun run build
+bun install   # or: npm install
+bun run build # or: npm run build
 ```
 
 Builds synth, player, editor, and EditorConfig bundles via [esbuild](https://esbuild.github.io/) into `dist/`.
@@ -25,12 +25,12 @@ Builds synth, player, editor, and EditorConfig bundles via [esbuild](https://esb
 ## Development
 
 ```
-bun run dev              # watch + auto-reload
-bun run lint             # type-check + ESLint
-bun run typecheck        # tsc --noEmit (editor)
-bun run typecheck:synth  # tsc --noEmit (synth)
-bun run typecheck:player # tsc --noEmit (player)
-bun run typecheck:all    # all three targets
+bun run dev              # or: npm run dev              # watch + auto-reload
+bun run lint             # or: npm run lint             # type-check + ESLint
+bun run typecheck        # or: npm run typecheck        # tsc --noEmit (editor)
+bun run typecheck:synth  # or: npm run typecheck:synth  # tsc --noEmit (synth)
+bun run typecheck:player # or: npm run typecheck:player # tsc --noEmit (player)
+bun run typecheck:all    # or: npm run typecheck:all    # all three targets
 ```
 
 ## Deployment

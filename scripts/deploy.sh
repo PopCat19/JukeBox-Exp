@@ -9,6 +9,8 @@
 
 set -Eeuo pipefail
 
+source "$(dirname "$0")/run.sh"
+
 if ! git remote get-url origin &>/dev/null; then
 	echo "Error: no remote 'origin' configured" >&2
 	exit 1
@@ -21,7 +23,7 @@ if ! git diff --quiet || ! git diff --cached --quiet; then
 	echo "Commit or stash changes before deploying to keep source and site in sync." >&2
 fi
 
-bun run build
+$RUNNER scripts/build.ts
 
 # Merge website/ source assets into dist/ (does not overwrite build outputs)
 rsync -a --exclude='*.min.js' --exclude='*.js.map' website/ dist/

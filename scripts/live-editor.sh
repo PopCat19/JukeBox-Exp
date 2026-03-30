@@ -8,6 +8,8 @@
 
 set -Eeuo pipefail
 
+source "$(dirname "$0")/run.sh"
+
 open_browser_path=/index_debug.html
 for arg in "$@"; do
 	case "$arg" in
@@ -15,8 +17,8 @@ for arg in "$@"; do
 	esac
 done
 
-bunx concurrently --kill-others \
-	"bunx esbuild --format=iife --keep-names --global-name=beepbox --bundle ./synth/synth.ts --outfile=website/beepbox_synth.js --sourcemap --watch" \
-	"bunx esbuild --format=iife --keep-names --global-name=beepbox --bundle ./player/main.ts --outfile=website/player/beepbox_player.js --sourcemap --watch --define:OFFLINE=false" \
-	"bunx esbuild --format=iife --keep-names --global-name=beepbox --bundle ./editor/main.ts --outfile=website/beepbox_editor.js --sourcemap --watch" \
-	"bunx five-server --wait=200 --watch=website --port=4000 --open=$open_browser_path website/"
+$RUNX concurrently --kill-others \
+	"$RUNX esbuild --format=iife --keep-names --global-name=beepbox --bundle ./synth/synth.ts --outfile=website/beepbox_synth.js --sourcemap --watch" \
+	"$RUNX esbuild --format=iife --keep-names --global-name=beepbox --bundle ./player/main.ts --outfile=website/player/beepbox_player.js --sourcemap --watch --define:OFFLINE=false" \
+	"$RUNX esbuild --format=iife --keep-names --global-name=beepbox --bundle ./editor/main.ts --outfile=website/beepbox_editor.js --sourcemap --watch" \
+	"$RUNX five-server --wait=200 --watch=website --port=4000 --open=$open_browser_path website/"
