@@ -2427,6 +2427,7 @@ export class SongEditor implements ModSliderProvider {
 	private _wasPlaying: boolean = false;
 	private _prompts: Prompt[] = [];
 	private _focusedPrompt: Prompt | null = null;
+	private _draggingPrompt: boolean = false;
 	private _highlightedInstrumentIndex: number = -1;
 	private _lastPrompt: string | null = null;
 
@@ -4261,6 +4262,7 @@ export class SongEditor implements ModSliderProvider {
 			// Uses elementFromPoint to ensure only the prompt the cursor is actually over gets focused,
 			// preventing race conditions when prompts overlap.
 			newPrompt.container.addEventListener("mouseenter", () => {
+				if (this._draggingPrompt) return;
 				if (this._focusedPrompt !== newPrompt) {
 					// Verify this prompt is actually topmost at cursor position
 					const rect = newPrompt.container.getBoundingClientRect();
@@ -4284,6 +4286,7 @@ export class SongEditor implements ModSliderProvider {
 			});
 
 			newPrompt.container.addEventListener("mouseleave", (e: Event) => {
+				if (this._draggingPrompt) return;
 				// Only refocus song editor if mouse isn't moving to another prompt
 				const related = (e as MouseEvent).relatedTarget as HTMLElement;
 				if (related && this._promptContainer.contains(related)) return;
@@ -4318,6 +4321,7 @@ export class SongEditor implements ModSliderProvider {
 				)
 					return;
 
+				this._draggingPrompt = true;
 				const currentPos = this._promptPositions.get(promptName) || { x: 0, y: 0 };
 				const startX = mouseEvent.clientX - currentPos.x;
 				const startY = mouseEvent.clientY - currentPos.y;
@@ -4337,6 +4341,7 @@ export class SongEditor implements ModSliderProvider {
 				};
 
 				const onMouseUp = () => {
+					this._draggingPrompt = false;
 					document.removeEventListener("mousemove", onMouseMove);
 					document.removeEventListener("mouseup", onMouseUp);
 				};
