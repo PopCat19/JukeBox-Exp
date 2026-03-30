@@ -13,7 +13,7 @@
     <title>JukeBox</title>
     <meta name="application-name" content="JukeBox" />
     <meta name="apple-mobile-web-app-title" content="JukeBox">
-    <meta name="description" content="JukeBox is a mod of Slarmoo's Box that aims to add a crap ton of presets." />
+    <meta name="description" content="JukeBox-Exp is a fork of JukeBox, which is a mod of Slarmoo's Box that aims to add a crap ton of presets." />
     <meta name="keywords" content="chiptune, instrumental, music, song, melody, composition, tool, free, online, square wave, NES, NSF, jukebox, ultrabox, beepbox, jummbox, pandorasbox, modbox, sandbox, goldbox, wackybox, todbox, slarmoo's box" />
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -174,13 +174,13 @@
         <section>
 
             <h1>
-                <font>JukeBox</font>
+                <font>JukeBox-Exp</font>
                 <span id="goldboxPlant" style="display: inline; color:#62a13b"></span>
                 <!-- <span id="goldboxPlant" style="display: inline; color: var(--plant-color, var(--link-accent, #62a13b));"></span> -->
             </h1>
             
             <p id="introduction">
-                JukeBox is a mod of Slarmoo's Box that aims to add a crap ton of presets. <br>
+                JukeBox-exp is a fork of JukeBox, which is a mod of Slarmoo's Box that aims to add a crap ton of presets. <br>
                 (see <a onclick="window.open('./manual/credits.html')">credits</a>).
             </p>
             <!-- <p>
@@ -207,16 +207,16 @@
                         About
                     </h2>
                     <p>
-                        JukeBox, developed by CoolTasDude, is a mod of Slarmoo's Box which is a mod of UltraBox which ported features from Pandora's Box into GoldBox which are both mods of JummBox which is a mod of BeepBox.
+                        JukeBox-Exp is an unofficial conceptual fork of JukeBox, originally developed by CoolTasDude, is a mod of Slarmoo's Box which is a mod of UltraBox which ported features from Pandora's Box into GoldBox which are both mods of JummBox which is a mod of BeepBox.
                     </p>
                     <p>
-                        JukeBox does not claim ownership over songs created with it, so original songs belong to their authors.
+                        JukeBox-Exp does not claim ownership over songs created with it, so original songs belong to their authors.
                     </p>
                     <p>
-                        Neither JukeBox nor its creators assume responsibility for any copyrighted material played on JukeBox. No songs are ever received, recorded, or distributed by JukeBox's servers. All song data is contained in the URL after the hash (#) mark, and JukeBox running inside your browser converts that data into sound waves.
+                        Neither JukeBox-Exp nor its creators assume responsibility for any copyrighted material played on JukeBox-Exp. No songs are ever received, recorded, or distributed by JukeBox-Exp's servers. All song data is contained in the URL after the hash (#) mark, and JukeBox-Exp running inside your browser converts that data into sound waves.
                     </p>
                     <p>
-                        JukeBox does not collect, track, or share any user data.
+                        JukeBox-Exp does not collect, track, or share any user data. Its full source is available in the GitHub repository.
                     </p>
                 </section>
     </div>
@@ -352,11 +352,11 @@
         } 
 
         if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini|android|ipad|playbook|silk/i.test(navigator.userAgent)) {
-            document.getElementById("introduction").innerHTML = "JukeBox is an online tool for sketching and sharing chiptune melodies. Make sure that your volume is turned up, then press the play button!";
+            document.getElementById("introduction").innerHTML = "JukeBox-Exp is an online tool for sketching and sharing chiptune melodies. Make sure that your volume is turned up, then press the play button!";
             //document.getElementById("keyboard-instructions").style.display = "none";
             //document.getElementById("mobile-instructions").style.display = "";
             //document.getElementById("bar-editing").innerHTML = "Tap the boxes to move to a different part of the song, or tap on the currently selected box to swap which pattern is played during that part of the song.";
-			//document.getElementById("offline-instructions").innerHTML = 'You can use UltraBox when your device is offline if you put a shortcut to UltraBox on your home screen. <ul><li>Chrome: find the "Add to Home Screen" option in the ⋮ menu.</li><li>Firefox: find the "Add Page Shortcut" option in the ⋮ menu.</li><li>Safari: find the "Add to Home Screen" option in the bookmark menu.</li></ul>';
+			//document.getElementById("offline-instructions").innerHTML = 'You can use JukeBox-Exp when your device is offline if you put a shortcut to JukeBox-Exp on your home screen. <ul><li>Chrome: find the "Add to Home Screen" option in the ⋮ menu.</li><li>Firefox: find the "Add Page Shortcut" option in the ⋮ menu.</li><li>Safari: find the "Add to Home Screen" option in the bookmark menu.</li></ul>';
         }
 
         function browserHasRequiredFeatures() {
@@ -387,7 +387,7 @@
             }
             document.head.appendChild(fileref);
         } else {
-            document.getElementById("beepboxEditorContainer").innerHTML = "Sorry, JukeBox doesn't support your browser. Try a recent version of Chrome, Firefox, Edge, Safari, or Opera.";
+            document.getElementById("beepboxEditorContainer").innerHTML = "Sorry, JukeBox-Exp doesn't support your browser. Try a recent version of Chrome, Firefox, Edge, Safari, or Opera.";
         }
 
 		// If the page was loaded with an old song version that old versions of BeepBox support,
