@@ -50,7 +50,7 @@ export class PresetSelectorPrompt extends BasePrompt {
     this._searchInput = input({
       type: "text",
       placeholder: "Search presets...",
-      style: `width: 100%; padding: 6px 10px; border: 2px solid var(--ui-widget-background); border-radius: 6px; background: var(--editor-background); color: var(--primary-text); font-size: 14px; outline: none; box-sizing: border-box;`,
+      style: `width: 100%; padding: 6px 10px; border: 2px solid var(--ui-widget-background); border-radius: 6px; background: var(--editor-background); color: var(--primary-text); font-size: 14px; outline: none; box-sizing: border-box; margin-top: 0.75em;`,
     });
 
     this._categoryList = div({
