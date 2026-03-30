@@ -80,7 +80,7 @@ export class PresetSelectorPrompt extends BasePrompt {
 
     this.container = div(
       {
-        class: "prompt noSelection presetSelectorPrompt",
+        class: "prompt noSelection presetSelectorPrompt compactSearchPrompt",
         style: "width: 800px; text-align: left; max-height: 90%; outline: none;",
         tabindex: "0",
       },
@@ -325,7 +325,7 @@ export class PresetSelectorPrompt extends BasePrompt {
       : this._categories[this._selectedCategoryIndex]?.presets ?? [];
     const preset = presets[this._selectedPresetIndex];
     if (preset) {
-      this._doc.prompt = null;
+      this._close();
       this._doc.record(new ChangePreset(this._doc, preset.value));
     }
   }
@@ -513,4 +513,11 @@ export class PresetSelectorPrompt extends BasePrompt {
   protected override _saveChanges(): void {
     this._applySelection();
   }
+
+  public override whenKeyPressed = (event: KeyboardEvent): void => {
+    if (event.keyCode == 27) {
+      this._close();
+      event.preventDefault();
+    }
+  };
 }

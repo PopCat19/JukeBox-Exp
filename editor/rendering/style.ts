@@ -799,33 +799,16 @@ html {
 	margin: 2px 0;
 }
 
-.beepboxEditor .prompt.presetSelectorPrompt > *:not(:first-child):not(.cancelButton) {
+.beepboxEditor .prompt.compactSearchPrompt > *:not(:first-child):not(.cancelButton) {
 	margin-top: 0;
 }
-.beepboxEditor .prompt.presetSelectorPrompt > input {
+.beepboxEditor .prompt.compactSearchPrompt > input {
 	margin-top: 1.25em;
 }
-
-.beepboxEditor .prompt.presetSelectorPrompt h2 {
+.beepboxEditor .prompt.compactSearchPrompt h2 {
 	margin-bottom: 0;
 }
-
-.beepboxEditor .prompt.presetSelectorPrompt input:focus {
-	border-color: ${ColorConfig.secondaryText};
-}
-
-.beepboxEditor .prompt.keyboardShortcutsPrompt > *:not(:first-child):not(.cancelButton) {
-	margin-top: 0;
-}
-.beepboxEditor .prompt.keyboardShortcutsPrompt > input {
-	margin-top: 1.25em;
-}
-
-.beepboxEditor .prompt.keyboardShortcutsPrompt h2 {
-	margin-bottom: 0;
-}
-
-.beepboxEditor .prompt.keyboardShortcutsPrompt input:focus {
+.beepboxEditor .prompt.compactSearchPrompt input:focus {
 	border-color: ${ColorConfig.secondaryText};
 }
 

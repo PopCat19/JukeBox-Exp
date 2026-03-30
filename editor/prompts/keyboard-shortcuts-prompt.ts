@@ -89,7 +89,7 @@ export class KeyboardShortcutsPrompt extends BasePrompt {
   });
 
   public readonly container: HTMLDivElement = div(
-    { class: "prompt keyboardShortcutsPrompt", style: "width: 400px;" },
+    { class: "prompt keyboardShortcutsPrompt compactSearchPrompt", style: "width: 400px;" },
     h2("Keyboard Shortcuts"),
     this._searchInput,
     this._shortcutsContainer,
@@ -139,4 +139,11 @@ export class KeyboardShortcutsPrompt extends BasePrompt {
   protected override _saveChanges(): void {
     this._close();
   }
+
+  public override whenKeyPressed = (event: KeyboardEvent): void => {
+    if (event.keyCode == 27) {
+      this._close();
+      event.preventDefault();
+    }
+  };
 }
