@@ -16,12 +16,12 @@ import { BasePrompt } from "./base-prompt";
 const { label, div, form, h2, input } = HTML;
 
 export class LayoutPrompt extends BasePrompt {
-  private readonly _form: HTMLFormElement = form(
-    { style: "display: flex; gap: 10px; flex-wrap: wrap; justify-content: center;" },
-    label(
-      { class: "layout-option" },
-      input({ type: "radio", name: "layout", value: "small" }),
-      SVG(`\
+	private readonly _form: HTMLFormElement = form(
+		{ style: "display: flex; gap: 10px; flex-wrap: wrap; justify-content: center;" },
+		label(
+			{ class: "layout-option" },
+			input({ type: "radio", name: "layout", value: "small" }),
+			SVG(`\
 					<svg viewBox="-4 -1 28 22">
 						<rect x="0" y="0" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1"/>
 						<rect x="2" y="2" width="11" height="10" fill="currentColor"/>
@@ -29,12 +29,12 @@ export class LayoutPrompt extends BasePrompt {
 						<rect x="2" y="13" width="11" height="5" fill="currentColor"/>
 					</svg>
 				`),
-      div("Small"),
-    ),
-    label(
-      { class: "layout-option" },
-      input({ type: "radio", name: "layout", value: "long" }),
-      SVG(`\
+			div("Small"),
+		),
+		label(
+			{ class: "layout-option" },
+			input({ type: "radio", name: "layout", value: "long" }),
+			SVG(`\
 					<svg viewBox="-1 -1 28 22">
 						<rect x="0" y="0" width="26" height="20" fill="none" stroke="currentColor" stroke-width="1"/>
 						<rect x="2" y="2" width="12" height="10" fill="currentColor"/>
@@ -43,12 +43,12 @@ export class LayoutPrompt extends BasePrompt {
 						<rect x="2" y="13" width="22" height="5" fill="currentColor"/>
 					</svg>
 				`),
-      div("Long"),
-    ),
-    label(
-      { class: "layout-option" },
-      input({ type: "radio", name: "layout", value: "tall" }),
-      SVG(`\
+			div("Long"),
+		),
+		label(
+			{ class: "layout-option" },
+			input({ type: "radio", name: "layout", value: "tall" }),
+			SVG(`\
 					<svg viewBox="-1 -1 28 22">
 						<rect x="0" y="0" width="26" height="20" fill="none" stroke="currentColor" stroke-width="1"/>
 						<rect x="11" y="2" width="8" height="16" fill="currentColor"/>
@@ -56,12 +56,12 @@ export class LayoutPrompt extends BasePrompt {
 						<rect x="2" y="2" width="8" height="16" fill="currentColor"/>
 					</svg>
 				`),
-      div("Tall"),
-    ),
-    label(
-      { class: "layout-option" },
-      input({ type: "radio", name: "layout", value: "wide" }),
-      SVG(`\
+			div("Tall"),
+		),
+		label(
+			{ class: "layout-option" },
+			input({ type: "radio", name: "layout", value: "wide" }),
+			SVG(`\
 					<svg viewBox="-1 -1 28 22">
 						<rect x="0" y="0" width="26" height="20" fill="none" stroke="currentColor" stroke-width="1"/>
 						<rect x="2" y="2" width="4" height="16" fill="currentColor"/>
@@ -70,12 +70,12 @@ export class LayoutPrompt extends BasePrompt {
 						<rect x="7" y="2" width="10" height="16" fill="currentColor"/>
 					</svg>
 				`),
-      div("Wide (JB)"),
-    ),
-    label(
-      { class: "layout-option" },
-      input({ type: "radio", name: "layout", value: "AbyssBox Special" }),
-      SVG(`\
+			div("Wide (JB)"),
+		),
+		label(
+			{ class: "layout-option" },
+			input({ type: "radio", name: "layout", value: "AbyssBox Special" }),
+			SVG(`\
 					<svg viewBox="-1 -1 28 22">
 						<rect x="0" y="0" width="26" height="20" fill="none" stroke="currentColor" stroke-width="1"/>
 						<rect x="7" y="2" width="4" height="11" fill="currentColor"/>
@@ -84,12 +84,12 @@ export class LayoutPrompt extends BasePrompt {
 						<rect x="2" y="14" width="22" height="4" fill="currentColor"/>
 					</svg>
 				`),
-      div("Flipped (AB)"),
-    ),
-    label(
-      { class: "layout-option" },
-      input({ type: "radio", name: "layout", value: "focus" }),
-      SVG(`\
+			div("Flipped (AB)"),
+		),
+		label(
+			{ class: "layout-option" },
+			input({ type: "radio", name: "layout", value: "focus" }),
+			SVG(`\
 					<svg viewBox="-1 -1 28 22">
 						<rect x="0" y="0" width="26" height="20" fill="none" stroke="currentColor" stroke-width="1"/>
 						<rect x="2" y="2" width="17" height="10" fill="currentColor"/>
@@ -97,12 +97,12 @@ export class LayoutPrompt extends BasePrompt {
 						<rect x="2" y="13" width="17" height="5" fill="currentColor"/>
 					</svg>
 				`),
-      div("Focus (AB)"),
-    ),
-    label(
-      { class: "layout-option" },
-      input({ type: "radio", name: "layout", value: "long (AB)" }),
-      SVG(`\
+			div("Focus (AB)"),
+		),
+		label(
+			{ class: "layout-option" },
+			input({ type: "radio", name: "layout", value: "long (AB)" }),
+			SVG(`\
 					<svg viewBox="-1 -1 28 22">
 						<rect x="0" y="0" width="26" height="20" fill="none" stroke="currentColor" stroke-width="1"/>
 						<rect x="2" y="2" width="12" height="10" fill="currentColor"/>
@@ -111,12 +111,12 @@ export class LayoutPrompt extends BasePrompt {
 						<rect x="2" y="13" width="12" height="5" fill="currentColor"/>
 					</svg>
 				`),
-      div("Long (AB)"),
-    ),
-    label(
-      { class: "layout-option" },
-      input({ type: "radio", name: "layout", value: "theatre" }),
-      SVG(`\
+			div("Long (AB)"),
+		),
+		label(
+			{ class: "layout-option" },
+			input({ type: "radio", name: "layout", value: "theatre" }),
+			SVG(`\
 					<svg viewBox="-1 -1 28 22">
 						<rect x="0" y="0" width="26" height="20" fill="none" stroke="currentColor" stroke-width="1"/>
 						<rect x="2" y="2" width="22" height="10" fill="currentColor"></rect>
@@ -125,12 +125,12 @@ export class LayoutPrompt extends BasePrompt {
 						<rect x="22" y="13" width="2" height="5" fill="currentColor"></rect>
 					</svg>
 				`),
-      div("Theatre (AB)"),
-    ),
-    label(
-      { class: "layout-option" },
-      input({ type: "radio", name: "layout", value: "Upside Down" }),
-      SVG(`\
+			div("Theatre (AB)"),
+		),
+		label(
+			{ class: "layout-option" },
+			input({ type: "radio", name: "layout", value: "Upside Down" }),
+			SVG(`\
 					<svg viewBox="-1 -1 28 22">
 						<rect x="0" y="0" width="26" height="20" fill="none" stroke="currentColor" stroke-width="1"/>
 						<rect x="7" y="8" width="17" height="10" fill="currentColor"/> /* pattern area */
@@ -138,29 +138,29 @@ export class LayoutPrompt extends BasePrompt {
 						<rect x="7" y="2" width="17" height="5" fill="currentColor"/> /* track area */
 					</svg>
 				`),
-      div("Upturn (AB)"),
-    ),
-  );
+			div("Upturn (AB)"),
+		),
+	);
 
-  public readonly container: HTMLDivElement = div(
-    { class: "prompt noSelection", style: "width: 300px;" },
-    h2("Layout"),
-    this._form,
-    this._getOkayRow(),
-    this._cancelButton,
-  );
+	public readonly container: HTMLDivElement = div(
+		{ class: "prompt noSelection", style: "width: 300px;" },
+		h2("Layout"),
+		this._form,
+		this._getOkayRow(),
+		this._cancelButton,
+	);
 
-  constructor(doc: SongDocument) {
-    super(doc);
-    this.buildTitlebar();
-    (<any> this._form.elements)["layout"].value = this._doc.prefs.layout;
-    this.container.addEventListener("keydown", this.whenKeyPressed);
-  }
+	constructor(doc: SongDocument) {
+		super(doc);
+		this.buildTitlebar();
+		(<any>this._form.elements)["layout"].value = this._doc.prefs.layout;
+		this.container.addEventListener("keydown", this.whenKeyPressed);
+	}
 
-  protected override _saveChanges(): void {
-    this._doc.prefs.layout = (<any> this._form.elements)["layout"].value;
-    this._doc.prefs.save();
-    Layout.setLayout(this._doc.prefs.layout);
-    this._close();
-  }
+	protected override _saveChanges(): void {
+		this._doc.prefs.layout = (<any>this._form.elements)["layout"].value;
+		this._doc.prefs.save();
+		Layout.setLayout(this._doc.prefs.layout);
+		this._close();
+	}
 }

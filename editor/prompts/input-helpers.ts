@@ -11,7 +11,7 @@ import { HTML } from "imperative-html/dist/esm/elements-strict";
 const { div } = HTML;
 
 export function validateKey(event: KeyboardEvent): boolean {
-	const charCode = (event.which) ? event.which : event.keyCode;
+	const charCode = event.which ? event.which : event.keyCode;
 	if (charCode != 46 && charCode > 31 && (charCode < 48 || charCode > 57)) {
 		event.preventDefault();
 		return true;
@@ -20,7 +20,7 @@ export function validateKey(event: KeyboardEvent): boolean {
 }
 
 export function validateNumber(event: Event): void {
-	const el: HTMLInputElement = <HTMLInputElement> event.target;
+	const el: HTMLInputElement = <HTMLInputElement>event.target;
 	el.value = String(validate(el));
 }
 
@@ -29,10 +29,7 @@ export function validate(input: HTMLInputElement): number {
 }
 
 export function labelRow(...children: (HTMLElement | string)[]): HTMLDivElement {
-	return div(
-		{ style: "display: flex; flex-direction: row; align-items: center; height: 2em; justify-content: flex-end;" },
-		...children,
-	);
+	return div({ style: "display: flex; flex-direction: row; align-items: center; height: 2em; justify-content: flex-end;" }, ...children);
 }
 
 export function updatePlayButton(btn: HTMLButtonElement, playing: boolean): void {

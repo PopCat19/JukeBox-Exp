@@ -22,12 +22,12 @@ controls.init();
 // When compiling synth.ts as a standalone module named "beepbox", expose these classes as members to JavaScript:
 export { Channel, Instrument, Note, NotePin, Pattern, Synth } from "../synth";
 export {
-  Chord,
-  Config,
-  Dictionary,
-  DictionaryArray,
-  Envelope,
-  EnvelopeType,
-  InstrumentType,
-  Transition,
+	Chord,
+	Config,
+	Dictionary,
+	DictionaryArray,
+	Envelope,
+	EnvelopeType,
+	InstrumentType,
+	Transition,
 } from "../synth/synth-config";

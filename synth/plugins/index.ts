@@ -19,8 +19,8 @@ import "./drumset";
 import "./mod";
 import "./capabilities";
 
-export { getCapabilities, registerCapabilities } from "./capabilities";
 export type { InstrumentCapabilities } from "./capabilities";
+export { getCapabilities, registerCapabilities } from "./capabilities";
 export { getEffectsSynthFunction } from "./effects";
 export type { EditorRowName, SynthPlugin } from "./interfaces";
 export { getAllPlugins, getPlugin, getRegisteredPlugins, registerPlugin } from "./registry";

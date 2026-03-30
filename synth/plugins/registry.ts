@@ -13,20 +13,20 @@ import type { SynthPlugin } from "./interfaces";
 const plugins = new Map<InstrumentType, SynthPlugin>();
 
 export function registerPlugin(plugin: SynthPlugin): void {
-  if (plugins.has(plugin.type)) {
-    console.warn(`SynthPlugin already registered for type ${plugin.type}: ${plugin.name}`);
-  }
-  plugins.set(plugin.type, plugin);
+	if (plugins.has(plugin.type)) {
+		console.warn(`SynthPlugin already registered for type ${plugin.type}: ${plugin.name}`);
+	}
+	plugins.set(plugin.type, plugin);
 }
 
 export function getPlugin(type: InstrumentType): SynthPlugin | undefined {
-  return plugins.get(type);
+	return plugins.get(type);
 }
 
 export function getAllPlugins(): IterableIterator<[InstrumentType, SynthPlugin]> {
-  return plugins.entries();
+	return plugins.entries();
 }
 
 export function getRegisteredPlugins(): SynthPlugin[] {
-  return Array.from(plugins.values());
+	return Array.from(plugins.values());
 }

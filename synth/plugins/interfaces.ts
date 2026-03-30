@@ -12,27 +12,27 @@ import type { Synth } from "../synth";
 import type { InstrumentType } from "../synth-config";
 
 export type EditorRowName =
-  | "waveSelect"
-  | "loopControls"
-  | "noiseSelect"
-  | "spectrum"
-  | "harmonics"
-  | "stringSustain"
-  | "drumset"
-  | "customWave"
-  | "supersaw"
-  | "pulseWidth"
-  | "fm"
-  | "fm6";
+	| "waveSelect"
+	| "loopControls"
+	| "noiseSelect"
+	| "spectrum"
+	| "harmonics"
+	| "stringSustain"
+	| "drumset"
+	| "customWave"
+	| "supersaw"
+	| "pulseWidth"
+	| "fm"
+	| "fm6";
 
 export interface SynthPlugin {
-  readonly type: InstrumentType;
-  readonly name: string;
-  readonly displayName?: string;
-  readonly editorRows: readonly EditorRowName[];
-  initialize?: (instrument: Instrument) => void;
-  serialize?(instrument: Instrument, json: Record<string, any>): void;
-  deserialize?(instrument: Instrument, json: Record<string, any>): void;
-  getSynthFunction(instrument: Instrument, synth: typeof Synth): Function;
-  buildSource(instrument: Instrument, voiceCount?: number): string;
+	readonly type: InstrumentType;
+	readonly name: string;
+	readonly displayName?: string;
+	readonly editorRows: readonly EditorRowName[];
+	initialize?: (instrument: Instrument) => void;
+	serialize?(instrument: Instrument, json: Record<string, any>): void;
+	deserialize?(instrument: Instrument, json: Record<string, any>): void;
+	getSynthFunction(instrument: Instrument, synth: typeof Synth): Function;
+	buildSource(instrument: Instrument, voiceCount?: number): string;
 }

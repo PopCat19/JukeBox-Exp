@@ -7,28 +7,30 @@
 // - Applies custom theme settings to the editor
 
 import { HTML } from "imperative-html/dist/esm/elements-strict";
+import { PatternEditor } from "../components/pattern-editor";
 import { SongDocument } from "../song-document";
 import { BasePrompt } from "./base-prompt";
-import { PatternEditor } from "../components/pattern-editor";
 
 const { div, h2, input, p, a, button } = HTML;
 
 let doReload = false;
 
 export class CustomThemePrompt extends BasePrompt {
-  private readonly _fileInput: HTMLInputElement = input({
-    type: "file",
-    accept: "image/*",
-    text: "choose editor background image",
-  });
-  private readonly _fileInput2: HTMLInputElement = input({
-    type: "file",
-    accept: "image/*",
-    text: "choose website background image",
-  });
-  private readonly _colorInput: HTMLInputElement = input({
-    type: "text",
-    value: localStorage.getItem("customColors") || `:root {
+	private readonly _fileInput: HTMLInputElement = input({
+		type: "file",
+		accept: "image/*",
+		text: "choose editor background image",
+	});
+	private readonly _fileInput2: HTMLInputElement = input({
+		type: "file",
+		accept: "image/*",
+		text: "choose website background image",
+	});
+	private readonly _colorInput: HTMLInputElement = input({
+		type: "text",
+		value:
+			localStorage.getItem("customColors") ||
+			`:root {
 	--page-margin: black;
 	--editor-background: black;
 	--hover-preview: white;
@@ -145,124 +147,124 @@ export class CustomThemePrompt extends BasePrompt {
 	--mod-label-primary-text:   black;
 	--disabled-note-primary:    #999;
 	--disabled-note-secondary:  #666; }`,
-  });
-  private readonly _resetButton: HTMLButtonElement = button(
-    { style: "height: auto; min-height: var(--button-size);" },
-    "Reset to defaults",
-  );
+	});
+	private readonly _resetButton: HTMLButtonElement = button({ style: "height: auto; min-height: var(--button-size);" }, "Reset to defaults");
 
-  public readonly container: HTMLDivElement = div(
-    { class: "prompt noSelection", style: "width: 300px;" },
-    h2("Import"),
-    p(
-      { style: "text-align: left; margin-bottom: 0.5em;" },
-      "You can upload images to create a custom theme. The first image will become the editor background, and the second image will be tiled across the webpage.",
-    ),
-    div(
-      { style: "text-align: left; margin-top: 0.5em; margin-bottom: 0.5em;" },
-      "You can find a list of custom themes made by other users on the ",
-      a({
-        target: "_blank",
-        href: "https://docs.google.com/spreadsheets/d/1dGjEcLgJrPwzBExPmwA9pbE_KVQ3jNrnTBrd46d2IKo/edit",
-      }, "custom theme sheet."),
-    ),
-    p({ style: "text-align: left; margin: 0;" }, "Editor Background Image:", this._fileInput),
-    p({ style: "text-align: left; margin: 0.5em 0;" }, "Website Background Image:", this._fileInput2),
-    p({ style: "text-align: left; margin: 0;" }, "Replace the text below with your custom theme data to load it:"),
-    this._colorInput,
-    div({ style: "display: flex; flex-direction: row-reverse; justify-content: space-between;" }, this._resetButton),
-    this._getOkayRow(),
-    this._cancelButton,
-  );
+	public readonly container: HTMLDivElement = div(
+		{ class: "prompt noSelection", style: "width: 300px;" },
+		h2("Import"),
+		p(
+			{ style: "text-align: left; margin-bottom: 0.5em;" },
+			"You can upload images to create a custom theme. The first image will become the editor background, and the second image will be tiled across the webpage.",
+		),
+		div(
+			{ style: "text-align: left; margin-top: 0.5em; margin-bottom: 0.5em;" },
+			"You can find a list of custom themes made by other users on the ",
+			a(
+				{
+					target: "_blank",
+					href: "https://docs.google.com/spreadsheets/d/1dGjEcLgJrPwzBExPmwA9pbE_KVQ3jNrnTBrd46d2IKo/edit",
+				},
+				"custom theme sheet.",
+			),
+		),
+		p({ style: "text-align: left; margin: 0;" }, "Editor Background Image:", this._fileInput),
+		p({ style: "text-align: left; margin: 0.5em 0;" }, "Website Background Image:", this._fileInput2),
+		p({ style: "text-align: left; margin: 0;" }, "Replace the text below with your custom theme data to load it:"),
+		this._colorInput,
+		div({ style: "display: flex; flex-direction: row-reverse; justify-content: space-between;" }, this._resetButton),
+		this._getOkayRow(),
+		this._cancelButton,
+	);
 
-  constructor(
-    doc: SongDocument,
-    private _pattern: PatternEditor,
-    private _pattern2: HTMLDivElement,
-    private _pattern3: HTMLElement,
-  ) {
-    super(doc);
-    this.buildTitlebar();
-    this._fileInput.addEventListener("change", this._whenFileSelected);
-    this._fileInput2.addEventListener("change", this._whenFileSelected2);
-    this._colorInput.addEventListener("change", this._whenColorsChanged);
-    this._resetButton.addEventListener("click", this._reset);
-  }
+	constructor(
+		doc: SongDocument,
+		private _pattern: PatternEditor,
+		private _pattern2: HTMLDivElement,
+		private _pattern3: HTMLElement,
+	) {
+		super(doc);
+		this.buildTitlebar();
+		this._fileInput.addEventListener("change", this._whenFileSelected);
+		this._fileInput2.addEventListener("change", this._whenFileSelected2);
+		this._colorInput.addEventListener("change", this._whenColorsChanged);
+		this._resetButton.addEventListener("click", this._reset);
+	}
 
-  protected override _close = (): void => {
-    this._doc.prompt = null;
-    if (doReload) {
-      setTimeout(() => {
-        window.location.reload();
-      }, 50);
-    }
-  };
+	protected override _close = (): void => {
+		this._doc.prompt = null;
+		if (doReload) {
+			setTimeout(() => {
+				window.location.reload();
+			}, 50);
+		}
+	};
 
-  public override cleanUp(): void {
-    super.cleanUp();
-    this._resetButton.removeEventListener("click", this._reset);
-    this._fileInput.removeEventListener("change", this._whenFileSelected);
-    this._fileInput2.removeEventListener("change", this._whenFileSelected2);
-    this._colorInput.removeEventListener("change", this._whenColorsChanged);
-  }
+	public override cleanUp(): void {
+		super.cleanUp();
+		this._resetButton.removeEventListener("click", this._reset);
+		this._fileInput.removeEventListener("change", this._whenFileSelected);
+		this._fileInput2.removeEventListener("change", this._whenFileSelected2);
+		this._colorInput.removeEventListener("change", this._whenColorsChanged);
+	}
 
-  private _reset = (): void => {
-    window.localStorage.removeItem("colorTheme");
-    window.localStorage.removeItem("customTheme");
-    window.localStorage.removeItem("customTheme2");
-    window.localStorage.removeItem("customColors");
-    this._pattern._svg.style.backgroundImage = "";
-    document.body.style.backgroundImage = "";
-    this._pattern2.style.backgroundImage = "";
-    this._pattern3.style.backgroundImage = "";
-    const secondImage: HTMLElement | null = document.getElementById("secondImage");
-    if (secondImage != null) {
-      secondImage.style.backgroundImage = "";
-    }
-    doReload = true;
-    this._close();
-  };
+	private _reset = (): void => {
+		window.localStorage.removeItem("colorTheme");
+		window.localStorage.removeItem("customTheme");
+		window.localStorage.removeItem("customTheme2");
+		window.localStorage.removeItem("customColors");
+		this._pattern._svg.style.backgroundImage = "";
+		document.body.style.backgroundImage = "";
+		this._pattern2.style.backgroundImage = "";
+		this._pattern3.style.backgroundImage = "";
+		const secondImage: HTMLElement | null = document.getElementById("secondImage");
+		if (secondImage != null) {
+			secondImage.style.backgroundImage = "";
+		}
+		doReload = true;
+		this._close();
+	};
 
-  private _whenColorsChanged = (): void => {
-    localStorage.setItem("customColors", this._colorInput.value);
-    window.localStorage.setItem("colorTheme", "custom");
-    this._doc.colorTheme = "custom";
-    doReload = true;
-  };
+	private _whenColorsChanged = (): void => {
+		localStorage.setItem("customColors", this._colorInput.value);
+		window.localStorage.setItem("colorTheme", "custom");
+		this._doc.colorTheme = "custom";
+		doReload = true;
+	};
 
-  private _whenFileSelected = (): void => {
-    const file: File = this._fileInput.files![0];
-    if (!file) return;
-    const reader: FileReader = new FileReader();
-    reader.addEventListener("load", (event: Event): void => {
-      const base64 = <string> reader.result;
-      window.localStorage.setItem("customTheme", base64);
-      const value = `url("${window.localStorage.getItem("customTheme")}")`;
-      this._pattern._svg.style.backgroundImage = value;
-    });
-    reader.readAsDataURL(file);
-  };
+	private _whenFileSelected = (): void => {
+		const file: File = this._fileInput.files![0];
+		if (!file) return;
+		const reader: FileReader = new FileReader();
+		reader.addEventListener("load", (event: Event): void => {
+			const base64 = <string>reader.result;
+			window.localStorage.setItem("customTheme", base64);
+			const value = `url("${window.localStorage.getItem("customTheme")}")`;
+			this._pattern._svg.style.backgroundImage = value;
+		});
+		reader.readAsDataURL(file);
+	};
 
-  private _whenFileSelected2 = (): void => {
-    const file: File = this._fileInput2.files![0];
-    if (!file) return;
-    const reader: FileReader = new FileReader();
-    reader.addEventListener("load", (event: Event): void => {
-      const base64 = <string> reader.result;
-      window.localStorage.setItem("customTheme2", base64);
-      const value = `url("${window.localStorage.getItem("customTheme2")}")`;
-      document.body.style.backgroundImage = `url(${base64})`;
-      this._pattern2.style.backgroundImage = value;
-      this._pattern3.style.backgroundImage = value;
-      const secondImage: HTMLElement | null = document.getElementById("secondImage");
-      if (secondImage != null) {
-        secondImage.style.backgroundImage = `url(${base64})`;
-      }
-    });
-    reader.readAsDataURL(file);
-  };
+	private _whenFileSelected2 = (): void => {
+		const file: File = this._fileInput2.files![0];
+		if (!file) return;
+		const reader: FileReader = new FileReader();
+		reader.addEventListener("load", (event: Event): void => {
+			const base64 = <string>reader.result;
+			window.localStorage.setItem("customTheme2", base64);
+			const value = `url("${window.localStorage.getItem("customTheme2")}")`;
+			document.body.style.backgroundImage = `url(${base64})`;
+			this._pattern2.style.backgroundImage = value;
+			this._pattern3.style.backgroundImage = value;
+			const secondImage: HTMLElement | null = document.getElementById("secondImage");
+			if (secondImage != null) {
+				secondImage.style.backgroundImage = `url(${base64})`;
+			}
+		});
+		reader.readAsDataURL(file);
+	};
 
-  protected override _saveChanges(): void {
-    this._close();
-  }
+	protected override _saveChanges(): void {
+		this._close();
+	}
 }

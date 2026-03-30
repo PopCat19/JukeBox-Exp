@@ -14,110 +14,91 @@ import { ChangeBarCount } from "../changes";
 import { ChangeGroup } from "../core/change";
 import { ColorConfig } from "../rendering/color-config";
 import { SongDocument } from "../song-document";
-import { ExportPrompt } from "./export-prompt";
 import { BasePrompt } from "./base-prompt";
-import { validateKey, validateNumber, validate } from "./input-helpers";
+import { ExportPrompt } from "./export-prompt";
+import { validate, validateKey, validateNumber } from "./input-helpers";
 
 const { div, span, h2, input, br, select, option } = HTML;
 
 export class SongDurationPrompt extends BasePrompt {
-  private readonly _computedSamplesLabel: HTMLDivElement = div({ style: "width: 10em;" }, new Text("0:00"));
-  private readonly _barsStepper: HTMLInputElement = input({
-    style: "width: 3em; margin-left: 1em;",
-    type: "number",
-    step: "1",
-  });
-  private readonly _positionSelect: HTMLSelectElement = select(
-    { style: "width: 100%;" },
-    option({ value: "end" }, "Apply change at end of song."),
-    option({ value: "beginning" }, "Apply change at beginning of song."),
-  );
+	private readonly _computedSamplesLabel: HTMLDivElement = div({ style: "width: 10em;" }, new Text("0:00"));
+	private readonly _barsStepper: HTMLInputElement = input({
+		style: "width: 3em; margin-left: 1em;",
+		type: "number",
+		step: "1",
+	});
+	private readonly _positionSelect: HTMLSelectElement = select(
+		{ style: "width: 100%;" },
+		option({ value: "end" }, "Apply change at end of song."),
+		option({ value: "beginning" }, "Apply change at beginning of song."),
+	);
 
-  public readonly container: HTMLDivElement = div(
-    { class: "prompt noSelection", style: "width: 250px;" },
-    h2("Song Length"),
-    div(
-      { style: "display: flex; flex-direction: row; align-items: center; justify-content: space-between;" },
-      "Length:",
-      this._computedSamplesLabel,
-    ),
-    div(
-      { style: "display: flex; flex-direction: row; align-items: center; height: 2em; justify-content: flex-end;" },
-      div(
-        { style: "display: inline-block; text-align: right;" },
-        "Bars per song:",
-        br(),
-        span({ style: `font-size: smaller; color: ${ColorConfig.secondaryText};` }, "(Multiples of 4 are recommended)"),
-      ),
-      this._barsStepper,
-    ),
-    div(
-      { style: "display: flex; flex-direction: row; align-items: center; height: 2em; justify-content: flex-end;" },
-      div({ class: "selectContainer", style: "width: 100%;" }, this._positionSelect),
-    ),
-    this._getOkayRow(),
-    this._cancelButton,
-  );
+	public readonly container: HTMLDivElement = div(
+		{ class: "prompt noSelection", style: "width: 250px;" },
+		h2("Song Length"),
+		div({ style: "display: flex; flex-direction: row; align-items: center; justify-content: space-between;" }, "Length:", this._computedSamplesLabel),
+		div(
+			{ style: "display: flex; flex-direction: row; align-items: center; height: 2em; justify-content: flex-end;" },
+			div(
+				{ style: "display: inline-block; text-align: right;" },
+				"Bars per song:",
+				br(),
+				span({ style: `font-size: smaller; color: ${ColorConfig.secondaryText};` }, "(Multiples of 4 are recommended)"),
+			),
+			this._barsStepper,
+		),
+		div(
+			{ style: "display: flex; flex-direction: row; align-items: center; height: 2em; justify-content: flex-end;" },
+			div({ class: "selectContainer", style: "width: 100%;" }, this._positionSelect),
+		),
+		this._getOkayRow(),
+		this._cancelButton,
+	);
 
-  constructor(doc: SongDocument) {
+	constructor(doc: SongDocument) {
 		super(doc);
 		this.buildTitlebar();
 		this._barsStepper.value = this._doc.song.barCount + "";
-    this._barsStepper.min = Config.barCountMin + "";
-    this._barsStepper.max = Config.barCountMax + "";
+		this._barsStepper.min = Config.barCountMin + "";
+		this._barsStepper.max = Config.barCountMax + "";
 
-    const lastPosition: string | null = window.localStorage.getItem("barCountPosition");
-    if (lastPosition != null) {
-      this._positionSelect.value = lastPosition;
-    }
+		const lastPosition: string | null = window.localStorage.getItem("barCountPosition");
+		if (lastPosition != null) {
+			this._positionSelect.value = lastPosition;
+		}
 
-    this._barsStepper.select();
-    setTimeout(() => this._barsStepper.focus());
+		this._barsStepper.select();
+		setTimeout(() => this._barsStepper.focus());
 
-    this._barsStepper.addEventListener("keypress", validateKey);
-    this._barsStepper.addEventListener("blur", validateNumber);
-    this._barsStepper.addEventListener("input", () => {
-      (this._computedSamplesLabel.firstChild as Text).textContent = this._predictFutureLength();
-    });
-    this._positionSelect.addEventListener("change", () => {
-      (this._computedSamplesLabel.firstChild as Text).textContent = this._predictFutureLength();
-    });
-    (this._computedSamplesLabel.firstChild as Text).textContent = ExportPrompt.samplesToTime(
-      this._doc,
-      this._doc.synth.getTotalSamples(true, true, 0),
-    );
-  }
+		this._barsStepper.addEventListener("keypress", validateKey);
+		this._barsStepper.addEventListener("blur", validateNumber);
+		this._barsStepper.addEventListener("input", () => {
+			(this._computedSamplesLabel.firstChild as Text).textContent = this._predictFutureLength();
+		});
+		this._positionSelect.addEventListener("change", () => {
+			(this._computedSamplesLabel.firstChild as Text).textContent = this._predictFutureLength();
+		});
+		(this._computedSamplesLabel.firstChild as Text).textContent = ExportPrompt.samplesToTime(this._doc, this._doc.synth.getTotalSamples(true, true, 0));
+	}
 
-  public override cleanUp(): void {
-    super.cleanUp();
-    this._barsStepper.removeEventListener("keypress", validateKey);
-    this._barsStepper.removeEventListener("blur", validateNumber);
-  }
+	public override cleanUp(): void {
+		super.cleanUp();
+		this._barsStepper.removeEventListener("keypress", validateKey);
+		this._barsStepper.removeEventListener("blur", validateNumber);
+	}
 
-  private _predictFutureLength(): string {
-    const futureDoc: SongDocument = new SongDocument();
-    futureDoc.synth.song?.fromBase64String(
-      this._doc.synth.song?.toBase64String() ? this._doc.synth.song?.toBase64String() : "",
-    );
-    new ChangeBarCount(
-      futureDoc,
-      validate(this._barsStepper),
-      this._positionSelect.value == "beginning",
-    );
-    return ExportPrompt.samplesToTime(futureDoc, futureDoc.synth.getTotalSamples(true, true, 0));
-  }
+	private _predictFutureLength(): string {
+		const futureDoc: SongDocument = new SongDocument();
+		futureDoc.synth.song?.fromBase64String(this._doc.synth.song?.toBase64String() ? this._doc.synth.song?.toBase64String() : "");
+		new ChangeBarCount(futureDoc, validate(this._barsStepper), this._positionSelect.value == "beginning");
+		return ExportPrompt.samplesToTime(futureDoc, futureDoc.synth.getTotalSamples(true, true, 0));
+	}
 
-  protected override _saveChanges(): void {
-    window.localStorage.setItem("barCountPosition", this._positionSelect.value);
-    const group: ChangeGroup = new ChangeGroup();
-    group.append(
-      new ChangeBarCount(
-        this._doc,
-        validate(this._barsStepper),
-        this._positionSelect.value == "beginning",
-      ),
-    );
-    this._doc.prompt = null;
-    this._doc.record(group);
-  }
+	protected override _saveChanges(): void {
+		window.localStorage.setItem("barCountPosition", this._positionSelect.value);
+		const group: ChangeGroup = new ChangeGroup();
+		group.append(new ChangeBarCount(this._doc, validate(this._barsStepper), this._positionSelect.value == "beginning"));
+		this._doc.prompt = null;
+		this._doc.record(group);
+	}
 }

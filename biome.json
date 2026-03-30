@@ -1,8 +1,5 @@
 {
-	"$schema": "https://biomejs.dev/schemas/2.0.0/schema.json",
-	"organizeImports": {
-		"enabled": false
-	},
+	"$schema": "https://biomejs.dev/schemas/2.4.9/schema.json",
 	"linter": {
 		"enabled": true,
 		"rules": {
@@ -14,9 +11,7 @@
 			},
 			"suspicious": {
 				"noExplicitAny": "off",
-				"noDoubleEquals": "off"
-			},
-			"style": {
+				"noDoubleEquals": "off",
 				"noVar": "warn"
 			}
 		}
@@ -28,7 +23,17 @@
 		"lineWidth": 160
 	},
 	"files": {
-		"include": ["editor/**/*.ts", "synth/**/*.ts", "player/**/*.ts", "shared/**/*.ts"],
-		"ignore": ["node_modules", "build", "website", "archive", "conventions", ".kilocode", "**/*-lock.json"]
+		"includes": [
+			"editor/**/*.ts",
+			"synth/**/*.ts",
+			"player/**/*.ts",
+			"shared/**/*.ts",
+			"!**/*-lock.json",
+			"!!build",
+			"!!website",
+			"!!archive",
+			"!!conventions",
+			"!!.kilocode"
+		]
 	}
 }

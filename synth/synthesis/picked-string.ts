@@ -6,9 +6,9 @@
 // - Builds picked-string synthesis source strings with all-pass dispersion and sustain filters
 
 export function buildPickedStringSource(voiceCount: number): string {
-  let pickedStringSource: string = "return (synth, bufferIndex, runLength, tone, instrumentState) => {";
+	let pickedStringSource: string = "return (synth, bufferIndex, runLength, tone, instrumentState) => {";
 
-  pickedStringSource += `
+	pickedStringSource += `
 				const Config = beepbox.Config;
 				const Synth = beepbox.Synth;
 				const data = synth.tempMonoInstrumentSampleBuffer;
@@ -79,14 +79,14 @@ export function buildPickedStringSource(voiceCount: number): string {
 					
 					const inputSample = (`;
 
-  const sampleList: string[] = [];
-  for (let voice: number = 0; voice < voiceCount; voice++) {
-    sampleList.push("fractionalDelaySample" + voice + (voice != 0 ? " * unisonSign" : ""));
-  }
+	const sampleList: string[] = [];
+	for (let voice: number = 0; voice < voiceCount; voice++) {
+		sampleList.push("fractionalDelaySample" + voice + (voice != 0 ? " * unisonSign" : ""));
+	}
 
-  pickedStringSource += sampleList.join(" + ");
+	pickedStringSource += sampleList.join(" + ");
 
-  pickedStringSource += `) * expression;
+	pickedStringSource += `) * expression;
 					const sample = applyFilters(inputSample, initialFilterInput1, initialFilterInput2, filterCount, filters);
 					initialFilterInput2 = initialFilterInput1;
 					initialFilterInput1 = inputSample;
@@ -134,14 +134,14 @@ export function buildPickedStringSource(voiceCount: number): string {
 				tone.initialNoteFilterInput2 = initialFilterInput2;
 			}`;
 
-  // Duplicate lines containing "#" for each voice and replace the "#" with the voice index.
-  pickedStringSource = pickedStringSource.replace(/^.*\#.*$/mg, line => {
-    const lines: string[] = [];
-    for (let voice: number = 0; voice < voiceCount; voice++) {
-      lines.push(line.replace(/\#/g, String(voice)));
-    }
-    return lines.join("\n");
-  });
+	// Duplicate lines containing "#" for each voice and replace the "#" with the voice index.
+	pickedStringSource = pickedStringSource.replace(/^.*\#.*$/gm, (line) => {
+		const lines: string[] = [];
+		for (let voice: number = 0; voice < voiceCount; voice++) {
+			lines.push(line.replace(/\#/g, String(voice)));
+		}
+		return lines.join("\n");
+	});
 
-  return pickedStringSource;
+	return pickedStringSource;
 }

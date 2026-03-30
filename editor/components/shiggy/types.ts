@@ -23,7 +23,7 @@ export const OFFSET_RADIUS = 80;
 export const ROPE_SLACK = 60;
 export const ROPE_K = 0.045;
 export const ROPE_DAMPING = 0.978;
-export const ROPE_AXIAL_DAMPING = 0.10;
+export const ROPE_AXIAL_DAMPING = 0.1;
 export const MAX_VEL = Infinity;
 
 // Collision
@@ -49,46 +49,46 @@ export const CONVO_PROXIMITY = 100;
 export const CONVO_CHANCE = 0.002;
 
 export interface SummonedShiggy {
-  img: HTMLImageElement;
-  gifTimer: ReturnType<typeof setInterval>;
-  following: boolean;
-  followingSince: number;
-  exploring: boolean;
-  exploreUntil: number;
-  approaching: boolean;
-  unfollowAt: number;
-  targetX: number;
-  targetY: number;
-  x: number;
-  y: number;
-  vx: number;
-  vy: number;
-  smoothVx: number;
-  smoothVy: number;
-  offsetAngle: number;
-  offsetDist: number;
-  cursorBias: number;
-  dialogue: HTMLDivElement | null;
-  waypointX: number;
-  waypointY: number;
-  waypointTimer: number;
-  inConversation: boolean;
-  convoPartner: SummonedShiggy | null;
-  convoTurn: number;
-  convoTimer: ReturnType<typeof setTimeout> | null;
+	img: HTMLImageElement;
+	gifTimer: ReturnType<typeof setInterval>;
+	following: boolean;
+	followingSince: number;
+	exploring: boolean;
+	exploreUntil: number;
+	approaching: boolean;
+	unfollowAt: number;
+	targetX: number;
+	targetY: number;
+	x: number;
+	y: number;
+	vx: number;
+	vy: number;
+	smoothVx: number;
+	smoothVy: number;
+	offsetAngle: number;
+	offsetDist: number;
+	cursorBias: number;
+	dialogue: HTMLDivElement | null;
+	waypointX: number;
+	waypointY: number;
+	waypointTimer: number;
+	inConversation: boolean;
+	convoPartner: SummonedShiggy | null;
+	convoTurn: number;
+	convoTimer: ReturnType<typeof setTimeout> | null;
 }
 
 export interface MouseSample {
-  x: number;
-  y: number;
-  t: number;
+	x: number;
+	y: number;
+	t: number;
 }
 
 export function injectShiggyCss(): void {
-  if (document.getElementById("shiggy-css")) return;
-  const style = document.createElement("style");
-  style.id = "shiggy-css";
-  style.textContent = `
+	if (document.getElementById("shiggy-css")) return;
+	const style = document.createElement("style");
+	style.id = "shiggy-css";
+	style.textContent = `
         @keyframes shiggy-float {
             0%, 100% { transform: translateY(0); }
             25% { transform: translateY(-8px); }
@@ -112,5 +112,5 @@ export function injectShiggyCss(): void {
             100% { opacity: 0; transform: translateX(-50%) translateY(-6px); }
         }
     `;
-  document.head.appendChild(style);
+	document.head.appendChild(style);
 }

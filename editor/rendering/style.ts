@@ -16,16 +16,17 @@ import { ColorConfig } from "./color-config";
 // Determine if the user's browser/OS adds scrollbars that occupy space.
 // See: https://www.filamentgroup.com/lab/scrollbars/
 const scrollBarTest: HTMLDivElement = document.body.appendChild(
-  HTML.div({ style: "width:30px; height:30px; overflow: auto;" }, HTML.div({ style: "width:100%;height:40px" })),
+	HTML.div({ style: "width:30px; height:30px; overflow: auto;" }, HTML.div({ style: "width:100%;height:40px" })),
 );
-if ((<any> scrollBarTest).firstChild.clientWidth < 30) {
-  document.documentElement.classList.add("obtrusive-scrollbars");
+if ((<any>scrollBarTest).firstChild.clientWidth < 30) {
+	document.documentElement.classList.add("obtrusive-scrollbars");
 }
 document.body.removeChild(scrollBarTest);
 
-document.head.appendChild(HTML.style(
-  { type: "text/css" },
-  `
+document.head.appendChild(
+	HTML.style(
+		{ type: "text/css" },
+		`
 
 /* Note: "#" symbols need to be encoded as "%23" in SVG data urls, otherwise they are interpreted as fragment identifiers! */
 :root {
@@ -1815,4 +1816,5 @@ li.select2-results__option[role=group] > strong:hover {
 }
 
 `,
-));
+	),
+);

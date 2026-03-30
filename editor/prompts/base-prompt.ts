@@ -35,7 +35,7 @@ export abstract class BasePrompt implements Prompt {
 
 	protected _close = (): void => {
 		if (this.closeCallback) {
-			this.closeCallback(<Prompt><unknown> this);
+			this.closeCallback(<Prompt>(<unknown>this));
 		} else {
 			this._doc.prompt = null;
 		}
@@ -47,18 +47,14 @@ export abstract class BasePrompt implements Prompt {
 	}
 
 	public whenKeyPressed = (event: KeyboardEvent): void => {
-		if ((<Element> event.target).tagName != "BUTTON" && event.keyCode == 13) {
+		if ((<Element>event.target).tagName != "BUTTON" && event.keyCode == 13) {
 			event.preventDefault();
 			this._saveChanges();
 		}
 	};
 
 	protected _getOkayRow(...extra: HTMLElement[]): HTMLDivElement {
-		return div(
-			{ style: "display: flex; flex-direction: row-reverse; justify-content: space-between;" },
-			this._okayButton,
-			...extra,
-		);
+		return div({ style: "display: flex; flex-direction: row-reverse; justify-content: space-between;" }, this._okayButton, ...extra);
 	}
 
 	public buildTitlebar(): void {
@@ -93,7 +89,9 @@ export abstract class BasePrompt implements Prompt {
 					toggleShade();
 				}
 			});
-			this.container.addEventListener("mousedown", () => { dragMoved = false; });
+			this.container.addEventListener("mousedown", () => {
+				dragMoved = false;
+			});
 			this.container.addEventListener("mousemove", (e: Event) => {
 				if ((e as MouseEvent).buttons) dragMoved = true;
 			});
