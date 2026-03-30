@@ -112,11 +112,14 @@ export class CustomFilterPrompt extends BasePrompt {
     this.filterEditor.container.insertBefore(this._filterCoordinateText, this.filterEditor.container.firstChild);
     this.filterEditor.coordText = this._filterCoordinateText;
 
-    this._editorTitle.children[0].innerHTML = forSong
-      ? "Edit Song EQ Filter"
-      : _useNoteFilter
-      ? "Edit Note Filter"
-      : "Edit EQ Filter";
+    const titleH2 = this.container.querySelector("h2");
+    if (titleH2) {
+      titleH2.innerHTML = forSong
+        ? "Edit Song EQ Filter"
+        : _useNoteFilter
+        ? "Edit Note Filter"
+        : "Edit EQ Filter";
+    }
 
     const newButton: HTMLButtonElement = button({ class: "no-underline", style: "max-width: 5em;" }, "Main");
     this._filterButtonContainer.appendChild(newButton);
