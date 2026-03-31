@@ -7,6 +7,7 @@
 // - Extracted from song.ts to reduce module size and improve separation of concerns
 
 import { Channel } from "./channels";
+import { Deque } from "./deque";
 import { FilterControlPoint, FilterSettings, Instrument, LegacySettings } from "./instruments";
 import { makeNotePin, Note, NotePin, Pattern } from "./notes";
 import { getPlugin } from "./plugins";
@@ -1802,8 +1803,8 @@ export function fromBase64StringImpl(song: SongLike, compressed: string, jsonFor
 					if (fromJukeBox || fromSlarmoosBox || fromUltraBox) {
 						if (beforeThree && fromUltraBox) {
 							// Still have to support the old and bad loop control data format written as a test, sigh.
-							const sampleLoopInfoEncodedLength = decode32BitNumber(compressed, charIndex);
-							charIndex += 6;
+							const [sampleLoopInfoEncodedLength, afterLengthIndex] = decode32BitNumber(compressed, charIndex);
+							charIndex = afterLengthIndex;
 							const sampleLoopInfoEncoded = compressed.slice(charIndex, charIndex + sampleLoopInfoEncodedLength);
 							charIndex += sampleLoopInfoEncodedLength;
 							interface SampleLoopInfo {
@@ -1842,12 +1843,10 @@ export function fromBase64StringImpl(song: SongLike, compressed: string, jsonFor
 							const encodedReleaseMode: number = base64CharCodeToInt[compressed.charCodeAt(charIndex++)];
 							const chipWavePlayBackwards: boolean = Boolean(encodedReleaseMode & 1);
 							// const chipWaveReleaseMode: number = encodedReleaseMode >> 1;
-							const chipWaveLoopStart: number = decode32BitNumber(compressed, charIndex);
-							charIndex += 6;
-							const chipWaveLoopEnd: number = decode32BitNumber(compressed, charIndex);
-							charIndex += 6;
-							const chipWaveStartOffset: number = decode32BitNumber(compressed, charIndex);
-							charIndex += 6;
+							const [chipWaveLoopStart, loopStartIndex] = decode32BitNumber(compressed, charIndex);
+							const [chipWaveLoopEnd, loopEndIndex] = decode32BitNumber(compressed, loopStartIndex);
+							const [chipWaveStartOffset, offsetIndex] = decode32BitNumber(compressed, loopEndIndex);
+							charIndex = offsetIndex;
 							const instrument: Instrument = song.channels[instrumentChannelIterator].instruments[instrumentIndexIterator];
 							instrument.isUsingAdvancedLoopControls = isUsingAdvancedLoopControls;
 							instrument.chipWaveLoopStart = chipWaveLoopStart;
@@ -2261,21 +2260,22 @@ export function fromBase64StringImpl(song: SongLike, compressed: string, jsonFor
 							// if (instrument.unison == Config.unisons.length) {
 							instrument.unison = Config.unisons.length;
 							instrument.unisonVoices = base64CharCodeToInt[compressed.charCodeAt(charIndex++)];
-							const unisonSpreadNegative = base64CharCodeToInt[compressed.charCodeAt(charIndex++)];
+							const bundledSigns = base64CharCodeToInt[compressed.charCodeAt(charIndex++)];
+							const unisonSpreadNegative = (bundledSigns >> 3) & 1;
+							const unisonOffsetNegative = (bundledSigns >> 2) & 1;
+							const unisonExpressionNegative = (bundledSigns >> 1) & 1;
+							const unisonSignNegative = bundledSigns & 1;
 							const unisonSpread: number =
 								base64CharCodeToInt[compressed.charCodeAt(charIndex++)] +
 								(base64CharCodeToInt[compressed.charCodeAt(charIndex++)] + base64CharCodeToInt[compressed.charCodeAt(charIndex++)] * 63) * 63;
 
-							const unisonOffsetNegative = base64CharCodeToInt[compressed.charCodeAt(charIndex++)];
 							const unisonOffset: number =
 								base64CharCodeToInt[compressed.charCodeAt(charIndex++)] +
 								(base64CharCodeToInt[compressed.charCodeAt(charIndex++)] + base64CharCodeToInt[compressed.charCodeAt(charIndex++)] * 63) * 63;
 
-							const unisonExpressionNegative = base64CharCodeToInt[compressed.charCodeAt(charIndex++)];
 							const unisonExpression: number =
 								base64CharCodeToInt[compressed.charCodeAt(charIndex++)] + base64CharCodeToInt[compressed.charCodeAt(charIndex++)] * 63;
 
-							const unisonSignNegative = base64CharCodeToInt[compressed.charCodeAt(charIndex++)];
 							const unisonSign: number =
 								base64CharCodeToInt[compressed.charCodeAt(charIndex++)] + base64CharCodeToInt[compressed.charCodeAt(charIndex++)] * 63;
 
@@ -3410,7 +3410,7 @@ export function fromBase64StringImpl(song: SongLike, compressed: string, jsonFor
 							: isNoiseChannel
 								? [4, 6, 7, 2, 3, 8, 0, 10]
 								: [0, 7, 12, 19, 24, -5, -12];
-						const recentShapes: any[] = [];
+						const recentShapes: Deque<any> = new Deque<any>();
 						for (let i: number = 0; i < recentPitches.length; i++) {
 							recentPitches[i] += octaveOffset;
 						}
@@ -3455,7 +3455,7 @@ export function fromBase64StringImpl(song: SongLike, compressed: string, jsonFor
 								let newNote: boolean = false;
 								let shapeIndex: number = 0;
 								if (useOldShape) {
-									shapeIndex = validateRange(0, recentShapes.length - 1, bits.readLongTail(0, 0));
+									shapeIndex = validateRange(0, recentShapes.count() - 1, bits.readLongTail(0, 0));
 								} else {
 									newNote = bits.read(1) === 1;
 								}
@@ -3480,8 +3480,8 @@ export function fromBase64StringImpl(song: SongLike, compressed: string, jsonFor
 								} else {
 									let shape: any;
 									if (useOldShape) {
-										shape = recentShapes[shapeIndex];
-										recentShapes.splice(shapeIndex, 1);
+										shape = recentShapes.get(shapeIndex);
+										recentShapes.remove(shapeIndex);
 									} else {
 										shape = {};
 
@@ -3535,8 +3535,8 @@ export function fromBase64StringImpl(song: SongLike, compressed: string, jsonFor
 											shape.pins.push(pinObj);
 										}
 									}
-									recentShapes.unshift(shape);
-									if (recentShapes.length > 10) recentShapes.pop(); // TODO: Use Deque?
+									recentShapes.pushFront(shape);
+									if (recentShapes.count() > 10) recentShapes.popBack();
 
 									let note: Note;
 									if (newNotes.length <= noteCount) {
@@ -3551,7 +3551,7 @@ export function fromBase64StringImpl(song: SongLike, compressed: string, jsonFor
 
 									let pitch: number;
 									let pitchCount: number = 0;
-									const pitchBends: number[] = []; // TODO: allocate this array only once! keep separate length and iterator index. Use Deque?
+									const pitchBends: Deque<number> = new Deque<number>();
 									for (let j: number = 0; j < shape.pitchCount + shape.bendCount; j++) {
 										const useOldPitch: boolean = bits.read(1) === 1;
 										if (!useOldPitch) {
@@ -3580,7 +3580,7 @@ export function fromBase64StringImpl(song: SongLike, compressed: string, jsonFor
 										if (j < shape.pitchCount) {
 											note.pitches[pitchCount++] = pitch;
 										} else {
-											pitchBends.push(pitch);
+											pitchBends.pushBack(pitch);
 										}
 
 										if (j === shape.pitchCount - 1) {
@@ -3590,7 +3590,7 @@ export function fromBase64StringImpl(song: SongLike, compressed: string, jsonFor
 										}
 									}
 									note.pitches.length = pitchCount;
-									pitchBends.unshift(note.pitches[0]); // TODO: Use Deque?
+									pitchBends.pushFront(note.pitches[0]);
 									const noteIsForTempoMod: boolean =
 										isModChannel &&
 										channel.instruments[newPattern.instruments[0]].modulators[Config.modCount - 1 - note.pitches[0]] ===
@@ -3605,9 +3605,9 @@ export function fromBase64StringImpl(song: SongLike, compressed: string, jsonFor
 									}
 									let pinCount: number = 1;
 									for (const pinObj of shape.pins) {
-										if (pinObj.pitchBend) pitchBends.shift();
+										if (pinObj.pitchBend) pitchBends.popFront();
 
-										const interval: number = pitchBends[0] - note.pitches[0];
+										const interval: number = pitchBends.peakFront() - note.pitches[0];
 										if (note.pins.length <= pinCount) {
 											if (isModChannel) {
 												note.pins[pinCount++] = makeNotePin(
@@ -3710,8 +3710,8 @@ export function fromBase64StringImpl(song: SongLike, compressed: string, jsonFor
 				break;
 			case SongTagCode.pluginData:
 				{
-					const blobLength: number = decode32BitNumber(compressed, charIndex);
-					charIndex += 6;
+					const [blobLength, afterBlobIndex] = decode32BitNumber(compressed, charIndex);
+					charIndex = afterBlobIndex;
 					const blob: string = compressed.substring(charIndex, charIndex + blobLength);
 					charIndex += blobLength;
 					try {

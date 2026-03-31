@@ -295,9 +295,7 @@ export class PlayerControls {
 		(<any>navigator).share({ url: location.href });
 	}
 
-	private updateSampleLoadingBar(_e: Event): void {
-		// @TODO: Avoid this cast and type EventTarget/Event properly.
-		const e: SampleLoadedEvent = <SampleLoadedEvent>_e;
+	private updateSampleLoadingBar(e: SampleLoadedEvent): void {
 		const percent: number = e.totalSamples === 0 ? 0 : Math.floor((e.samplesLoaded / e.totalSamples) * 100);
 		this.ui.sampleLoadingBarContainer.title = "Total Samples: " + String(e.totalSamples) + "; Loaded Samples: " + String(e.samplesLoaded) + "; ";
 		this.ui.sampleLoadingBar.style.width = `${percent}%`;
@@ -347,7 +345,7 @@ export class PlayerControls {
 			this.onShareClicked();
 		});
 		window.addEventListener("hashchange", () => this.hashUpdatedExternally());
-		sampleLoadEvents.addEventListener("sampleloaded", (e) => this.updateSampleLoadingBar(e));
+		sampleLoadEvents.addEventListener("sampleloaded", (e) => this.updateSampleLoadingBar(e as SampleLoadedEvent));
 
 		this.hashUpdatedExternally();
 		this.renderLoopIcon();

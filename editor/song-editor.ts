@@ -3414,7 +3414,7 @@ export class SongEditor implements ModSliderProvider {
 		this._instrumentExportButton.addEventListener("click", this._dispatch.exportInstruments);
 		this._instrumentImportButton.addEventListener("click", this._dispatch.importInstruments);
 
-		sampleLoadEvents.addEventListener("sampleloaded", this._updateSampleLoadingBar.bind(this));
+		sampleLoadEvents.addEventListener("sampleloaded", (e) => this._updateSampleLoadingBar(e as SampleLoadedEvent));
 
 		this._instrumentVolumeSliderInputBox.addEventListener("input", () => {
 			this.doc.record(
@@ -3977,9 +3977,7 @@ export class SongEditor implements ModSliderProvider {
 		}
 	}
 
-	private _updateSampleLoadingBar(_e: Event): void {
-		// @TODO: Avoid this cast and type EventTarget/Event properly.
-		const e: SampleLoadedEvent = <SampleLoadedEvent>_e;
+	private _updateSampleLoadingBar(e: SampleLoadedEvent): void {
 		const percent: number = e.totalSamples === 0 ? 0 : Math.floor((e.samplesLoaded / e.totalSamples) * 100);
 		this._sampleLoadingBar.style.width = `${percent}%`;
 	}

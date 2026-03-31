@@ -1436,8 +1436,8 @@ export class Config {
 			realName: "hexatonic",
 			flags: [true, false, false, true, true, false, false, true, true, false, false, true],
 		}, // Hexatonic
-		// TODO: remove these with 2.3
-		// modbox
+		// Legacy scale entries: kept for backward compat with old URL-encoded songs.
+		// Removing would break songs whose URL encodes these scale indices.
 		{
 			name: "No Dabbing (MB)",
 			realName: "no dabbing",
@@ -1505,8 +1505,16 @@ export class Config {
 	public static readonly reverbShelfHz: number = 8000.0; // The cutoff freq of the shelf filter that is used to decay reverb.
 	public static readonly reverbShelfGain: number = Math.pow(2.0, -1.5);
 	public static readonly reverbRange: number = 32;
-	public static readonly reverbDelayBufferSize: number = 16384; // TODO: Compute a buffer size based on sample rate.
-	public static readonly reverbDelayBufferMask: number = Config.reverbDelayBufferSize - 1; // TODO: Compute a buffer size based on sample rate.
+	public static sampleRate: number = 44100;
+	public static get reverbDelayBufferSize(): number {
+		const scaled = Math.round((16384 * Config.sampleRate) / 44100);
+		let power = 1;
+		while (power < scaled) power <<= 1;
+		return power;
+	}
+	public static get reverbDelayBufferMask(): number {
+		return Config.reverbDelayBufferSize - 1;
+	}
 	public static readonly phaserMixRange: number = 32;
 	public static readonly phaserFeedbackRange: number = 32;
 	public static readonly phaserFreqRange: number = 32;
@@ -3366,7 +3374,7 @@ export class Config {
 	public static readonly modChannelCountMin: number = 0;
 	public static readonly modChannelCountMax: number = 60; // slarmoo: 60
 	public static readonly noiseInterval: number = 6;
-	public static readonly pitchesPerOctave: number = 12; // TODO: Use this for converting pitch to frequency.
+	public static readonly pitchesPerOctave: number = 12;
 	public static readonly drumCount: number = 12;
 	public static readonly pitchOctaves: number = 8;
 	public static readonly modCount: number = 6;

@@ -251,7 +251,7 @@ export function buildEffectsSource(
 		// TODO: reverb wet/dry?
 		effectsSource += `
 				
-				const reverbMask = Config.reverbDelayBufferMask >>> 0; //TODO: Dynamic reverb buffer size.
+				const reverbMask = Config.reverbDelayBufferMask >>> 0;
 				const reverbDelayLine = instrumentState.reverbDelayLine;
 				instrumentState.reverbDelayLineDirty = true;
 				let reverbDelayPos = instrumentState.reverbDelayPos & reverbMask;

@@ -22,9 +22,7 @@ export function encode32BitNumber(buffer: number[], x: number): void {
 	buffer.push(base64IntToCharCode[(x >>> (6 * 0)) & 0x3f]);
 }
 
-// @TODO: This is error-prone, because the caller has to remember to increment
-// charIndex by 6 afterwards.
-export function decode32BitNumber(compressed: string, charIndex: number): number {
+export function decode32BitNumber(compressed: string, charIndex: number): [number, number] {
 	let x: number = 0;
 	// 0b11_
 	x |= base64CharCodeToInt[compressed.charCodeAt(charIndex++)] << (6 * 5);
@@ -38,29 +36,29 @@ export function decode32BitNumber(compressed: string, charIndex: number): number
 	x |= base64CharCodeToInt[compressed.charCodeAt(charIndex++)] << (6 * 1);
 	//                                  111111
 	x |= base64CharCodeToInt[compressed.charCodeAt(charIndex++)] << (6 * 0);
-	return x;
+	return [x, charIndex];
 }
 
 export function encodeUnisonSettings(buffer: number[], v: number, s: number, o: number, e: number, i: number): void {
-	// TODO: make these sign bits more efficient (bundle them together)
 	buffer.push(base64IntToCharCode[v]);
 
-	// TODO: make these use bitshifts instead for consistency
-	buffer.push(base64IntToCharCode[Number(s > 0)]);
+	const sSign: number = s > 0 ? 1 : 0;
+	const oSign: number = o > 0 ? 1 : 0;
+	const eSign: number = e > 0 ? 1 : 0;
+	const iSign: number = i > 0 ? 1 : 0;
+	buffer.push(base64IntToCharCode[(sSign << 3) | (oSign << 2) | (eSign << 1) | iSign]);
+
 	const cleanS = Math.round(Math.abs(s) * 1000);
 	const cleanSDivided = Math.floor(cleanS / 63);
 	buffer.push(base64IntToCharCode[cleanS % 63], base64IntToCharCode[cleanSDivided % 63], base64IntToCharCode[Math.floor(cleanSDivided / 63)]);
 
-	buffer.push(base64IntToCharCode[Number(o > 0)]);
 	const cleanO = Math.round(Math.abs(o) * 1000);
 	const cleanODivided = Math.floor(cleanO / 63);
 	buffer.push(base64IntToCharCode[cleanO % 63], base64IntToCharCode[cleanODivided % 63], base64IntToCharCode[Math.floor(cleanODivided / 63)]);
 
-	buffer.push(base64IntToCharCode[Number(e > 0)]);
 	const cleanE = Math.round(Math.abs(e) * 1000);
 	buffer.push(base64IntToCharCode[cleanE % 63], base64IntToCharCode[Math.floor(cleanE / 63)]);
 
-	buffer.push(base64IntToCharCode[Number(i > 0)]);
 	const cleanI = Math.round(Math.abs(i) * 1000);
 	buffer.push(base64IntToCharCode[cleanI % 63], base64IntToCharCode[Math.floor(cleanI / 63)]);
 }

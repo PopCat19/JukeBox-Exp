@@ -243,7 +243,6 @@ export class InstrumentState {
 			this.allocateEchoBuffers(samplesPerTick, instrument.echoDelay);
 		}
 		if (effectsIncludeReverb(instrument.effects)) {
-			// TODO: Make reverb delay line sample rate agnostic. Maybe just double buffer size for 96KHz? Adjust attenuation and shelf cutoff appropriately?
 			if (this.reverbDelayLine == null) {
 				this.reverbDelayLine = new Float32Array(Config.reverbDelayBufferSize);
 			}
