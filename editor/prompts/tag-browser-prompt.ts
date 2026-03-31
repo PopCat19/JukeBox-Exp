@@ -43,7 +43,7 @@ export class TagBrowserPrompt extends BasePrompt {
 		this.container = div(
 			{
 				class: "prompt noSelection",
-				style: "width: 480px; text-align: left; max-height: 90%; outline: none;",
+				style: "width: fit-content; text-align: left; max-height: 90%; outline: none;",
 				tabindex: "0",
 			},
 			h2({ style: "text-align: center; margin: 0 0 4px 0;" }, "Instrument Tags"),
@@ -60,7 +60,6 @@ export class TagBrowserPrompt extends BasePrompt {
 		this.buildTitlebar();
 		this._renderTags();
 
-		this.container.addEventListener("keydown", this._onKeyDown);
 		setTimeout(() => this.container.focus());
 	}
 
@@ -163,7 +162,11 @@ export class TagBrowserPrompt extends BasePrompt {
 		else if (itemRect.bottom > containerRect.bottom) container.scrollTop += itemRect.bottom - containerRect.bottom;
 	}
 
-	private _onKeyDown = (event: KeyboardEvent): void => {
+	protected override _saveChanges(): void {
+		this._close();
+	}
+
+	public override whenKeyPressed = (event: KeyboardEvent): void => {
 		const count = this._tagData.length;
 		switch (event.keyCode) {
 			case 37: // left
@@ -207,22 +210,6 @@ export class TagBrowserPrompt extends BasePrompt {
 				this._close();
 				event.preventDefault();
 				break;
-		}
-	};
-
-	public override cleanUp = (): void => {
-		super.cleanUp();
-		this.container.removeEventListener("keydown", this._onKeyDown);
-	};
-
-	protected override _saveChanges(): void {
-		this._close();
-	}
-
-	public override whenKeyPressed = (event: KeyboardEvent): void => {
-		if (event.keyCode === 27) {
-			this._close();
-			event.preventDefault();
 		}
 	};
 }

@@ -40,6 +40,7 @@ export interface KeyboardHandlerHost {
 	envelopeEditor: EnvelopeEditor;
 	mainLayer: HTMLDivElement;
 	prompt: any;
+	promptShouldReceiveKeys(): boolean;
 	openOperatorDropdowns: boolean[];
 
 	songTitleInputBox: HTMLInputElement;
@@ -95,7 +96,7 @@ export class KeyboardHandler {
 		host.setShiftHeld(event.shiftKey);
 
 		if (host.prompt) {
-			if (host.prompt.whenKeyPressed) {
+			if (host.prompt.whenKeyPressed && host.promptShouldReceiveKeys()) {
 				host.prompt.whenKeyPressed(event);
 			}
 			if (event.defaultPrevented) return;

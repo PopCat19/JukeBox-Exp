@@ -252,7 +252,7 @@ import { CustomChipCanvas } from "./rendering/custom-chip-canvas";
 
 export class SongEditor implements ModSliderProvider {
 	public get prompt(): Prompt | null {
-		return this._focusedPrompt || this._prompts[this._prompts.length - 1] || null;
+		return this._focusedPrompt;
 	}
 
 	public doc: SongDocument = new SongDocument();
@@ -3554,7 +3554,7 @@ export class SongEditor implements ModSliderProvider {
 
 		this._promptContainer.addEventListener("click", (event) => {
 			if (this.doc.prefs.closePromptByClickoff === true) {
-				if (this.prompt != null && this.prompt.gotMouseUp === true) return;
+				if (this._prompts.some((p) => p.gotMouseUp === true)) return;
 				if (event.target === this._promptContainer) {
 					this.doc.prompt = null;
 					this.doc.notifier.changed();
@@ -4377,11 +4377,17 @@ export class SongEditor implements ModSliderProvider {
 				}
 			}
 
+			// Track whether the mouse is actually inside this prompt to prevent
+			// spurious focus re-acquisition from DOM rebuilds firing synthetic events.
+			let mouseInside = true; // true on spawn: prompt has keyboard priority until mouse leaves
+
 			// Hover-to-focus (Hyprland style): focus on hover, refocus song editor on hover-out.
 			// Uses elementFromPoint to ensure only the prompt the cursor is actually over gets focused,
 			// preventing race conditions when prompts overlap.
 			newPrompt.container.addEventListener("mouseenter", () => {
 				if (this._draggingPrompt) return;
+				if (mouseInside) return; // already tracked as inside (e.g. spurious from DOM rebuild)
+				mouseInside = true;
 				if (this._focusedPrompt !== newPrompt) {
 					// Verify this prompt is actually topmost at cursor position
 					const rect = newPrompt.container.getBoundingClientRect();
@@ -4397,7 +4403,9 @@ export class SongEditor implements ModSliderProvider {
 
 			// Focus-to-focus: sync _focusedPrompt when DOM focus enters this prompt
 			// (e.g. clicking an input after mouseleave cleared _focusedPrompt).
+			// Only applies when mouse is actually inside the prompt.
 			newPrompt.container.addEventListener("focusin", () => {
+				if (!mouseInside) return;
 				if (this._focusedPrompt !== newPrompt) {
 					this._focusedPrompt = newPrompt;
 					this._updatePromptFocus();
@@ -4406,9 +4414,11 @@ export class SongEditor implements ModSliderProvider {
 
 			newPrompt.container.addEventListener("mouseleave", (e: Event) => {
 				if (this._draggingPrompt) return;
+				mouseInside = false;
 				// Only refocus song editor if mouse isn't moving to another prompt
 				const related = (e as MouseEvent).relatedTarget as HTMLElement;
 				if (related && this._promptContainer.contains(related)) return;
+				this._focusedPrompt = null;
 				this.mainLayer.focus({ preventScroll: true });
 			});
 
@@ -4470,6 +4480,18 @@ export class SongEditor implements ModSliderProvider {
 			});
 		}
 	}
+
+	public promptShouldReceiveKeys = (): boolean => {
+		// Only send key events to the prompt if the mouse is hovering over it.
+		// This prevents prompts from stealing keyboard shortcuts when the user
+		// isn't interacting with them.
+		if (!this._focusedPrompt) return false;
+		try {
+			return this._focusedPrompt.container.matches(":hover");
+		} catch {
+			return false;
+		}
+	};
 
 	public refocusStage = (): void => {
 		this.mainLayer.focus({ preventScroll: true });
@@ -4562,8 +4584,9 @@ export class SongEditor implements ModSliderProvider {
 
 			if (getCapabilities(instrument.type).hasCustomWaveEditor) {
 				this._customWaveDrawCanvas.redrawCanvas();
-				if (this.prompt instanceof CustomChipPrompt) {
-					this.prompt.customChipCanvas.render();
+				const chipPrompt = this._prompts.find((p) => p instanceof CustomChipPrompt);
+				if (chipPrompt) {
+					(chipPrompt as CustomChipPrompt).customChipCanvas.render();
 				}
 			}
 
