@@ -813,9 +813,18 @@ html {
 .beepboxEditor .prompt.compactSearchPrompt input:focus {
 	border-color: ${ColorConfig.secondaryText};
 }
+.beepboxEditor .prompt.compactSearchPrompt .tagBrowserButton {
+	height: auto;
+	min-height: 34px;
+	background: var(--ui-widget-background);
+	border: 2px solid var(--ui-widget-background);
+	border-radius: 6px;
+	color: var(--primary-text);
+	font-size: 14px;
+}
 .beepboxEditor .prompt.compactSearchPrompt .tagBrowserButton:hover {
 	border-color: ${ColorConfig.secondaryText};
-	background: var(--ui-widget-background);
+	background: var(--ui-widget-focus);
 }
 
 .beepboxEditor .prompt.keyboardShortcutsPrompt .shortcutRow {
