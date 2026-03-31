@@ -10,6 +10,7 @@
 import { HTML } from "imperative-html/dist/esm/elements-strict";
 import { SongDocument } from "../song-document";
 import { BasePrompt } from "./base-prompt";
+import { searchInput } from "../ui/components";
 
 const { div, input, span, h2 } = HTML;
 
@@ -135,11 +136,7 @@ const shortcutCategories: ShortcutCategory[] = [
 ];
 
 export class KeyboardShortcutsPrompt extends BasePrompt {
-	private readonly _searchInput: HTMLInputElement = input({
-		type: "text",
-		placeholder: "Search shortcuts...",
-		style: `width: 100%; padding: 6px 10px; border: 2px solid var(--ui-widget-background); border-radius: 6px; background: var(--editor-background); color: var(--primary-text); font-size: 14px; outline: none; box-sizing: border-box; margin-top: 0.75em; margin-bottom: 1em;`,
-	});
+	private readonly _searchInput: HTMLInputElement = searchInput("Search shortcuts...", "margin-top: 0.75em; margin-bottom: 1em;");
 	private readonly _shortcutsContainer: HTMLDivElement = div({
 		style: "max-height: 400px; overflow-y: auto; text-align: left;",
 	});

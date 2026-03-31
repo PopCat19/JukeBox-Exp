@@ -7,6 +7,7 @@
 // - Builds label+input flex rows and okay button rows
 
 import { HTML } from "imperative-html/dist/esm/elements-strict";
+import { labelRow as _labelRow } from "../ui/components";
 
 const { div } = HTML;
 
@@ -29,7 +30,7 @@ export function validate(input: HTMLInputElement): number {
 }
 
 export function labelRow(...children: (HTMLElement | string)[]): HTMLDivElement {
-	return div({ style: "display: flex; flex-direction: row; align-items: center; height: 2em; justify-content: flex-end;" }, ...children);
+	return _labelRow(...children);
 }
 
 export function updatePlayButton(btn: HTMLButtonElement, playing: boolean): void {

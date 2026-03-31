@@ -1830,6 +1830,61 @@ li.select2-results__option[role=group] > strong:hover {
 	}
 }
 
+/* Shared UI Components */
+.beepboxEditor .labelRow {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	height: 2em;
+	justify-content: flex-end;
+}
+
+.beepboxEditor .searchInput {
+	flex: 1;
+	min-width: 0;
+	padding: 6px 10px;
+	border: 2px solid var(--ui-widget-background);
+	border-radius: 6px;
+	background: var(--editor-background);
+	color: var(--primary-text);
+	font-size: 14px;
+	outline: none;
+	box-sizing: border-box;
+}
+
+.beepboxEditor .searchInput:focus {
+	border-color: ${ColorConfig.secondaryText};
+}
+
+.beepboxEditor .tagChip {
+	display: inline-block;
+	padding: 1px 6px;
+	margin: 0 2px;
+	border-radius: 3px;
+	background: var(--ui-widget-background);
+	color: var(--primary-text);
+	font-size: 11px;
+	cursor: pointer;
+}
+
+.beepboxEditor .tagChip.active {
+	background: rgba(255,255,255,0.2);
+	color: var(--primary-text);
+}
+
+.beepboxEditor .tagChip.inactive {
+	background: var(--ui-widget-background);
+	color: var(--secondary-text);
+}
+
+.beepboxEditor .sectionLabel {
+	color: var(--secondary-text);
+	font-size: 10px;
+	text-transform: uppercase;
+	letter-spacing: 0.5px;
+	margin-bottom: 2px;
+}
+
 `,
 	),
 );

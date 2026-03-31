@@ -13,6 +13,7 @@ import { Channel, Instrument } from "../../synth";
 import { Config } from "../../synth/synth-config";
 import { SongDocument } from "../song-document";
 import { BasePrompt } from "./base-prompt";
+import { labelRow } from "../ui/components";
 
 const { div, h2, input, label, br } = HTML;
 
@@ -35,8 +36,7 @@ export class InstrumentExportPrompt extends BasePrompt {
 		{ class: "prompt noSelection", style: "width: 200px;" },
 		h2("Export Instruments Options"),
 		div({ style: "display: flex; flex-direction: row; align-items: center; justify-content: space-between;" }, "File name:", this._fileName),
-		label(
-			{ style: "display: flex; flex-direction: row; align-items: center; height: 2em; justify-content: flex-end;" },
+		labelRow(
 			"Export all instruments",
 			br(),
 			"in channel:",

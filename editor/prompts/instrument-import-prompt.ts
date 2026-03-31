@@ -13,6 +13,7 @@ import { Channel, Instrument } from "../../synth";
 import { ChangeAppendInstrument, ChangePasteInstrument, ChangeViewInstrument } from "../changes";
 import { SongDocument } from "../song-document";
 import { BasePrompt } from "./base-prompt";
+import { labelRow } from "../ui/components";
 
 const { div, h2, input, select, option, code } = HTML;
 
@@ -38,8 +39,7 @@ export class InstrumentImportPrompt extends BasePrompt {
 		{ class: "prompt noSelection", style: "width: 300px;" },
 		h2("Import Instrument(s)"),
 		this._strategyInfoText,
-		div(
-			{ style: "display: flex; flex-direction: row; align-items: center; height: 2em; justify-content: flex-end;" },
+		labelRow(
 			div({ class: "selectContainer", style: "width: 100%;" }, this._importStrategySelect),
 		),
 		this._fileInput,

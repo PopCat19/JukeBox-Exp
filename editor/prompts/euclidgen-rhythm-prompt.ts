@@ -17,6 +17,7 @@ import { ChangeGroup } from "../core/change";
 import { ChannelColors, ColorConfig } from "../rendering/color-config";
 import { SongDocument } from "../song-document";
 import { BasePrompt } from "./base-prompt";
+import { stepperInput } from "../ui/components";
 
 const { button, div, h2, input } = HTML;
 
@@ -213,70 +214,14 @@ export class EuclidgenRhythmPrompt extends BasePrompt {
 		fill: "none",
 	});
 	private readonly _clockPoints: SVGSVGElement = SVG.svg({ "pointer-events": "none" });
-	private readonly _stepsStepper: HTMLInputElement = input({
-		style: "width: 3em; margin-left: 1em;",
-		type: "number",
-		min: this._minSteps,
-		max: this._maxSteps,
-		value: "8",
-		step: "1",
-	});
-	private readonly _pulsesStepper: HTMLInputElement = input({
-		style: "width: 3em; margin-left: 1em;",
-		type: "number",
-		min: "0",
-		max: "8",
-		value: "5",
-		step: "1",
-	});
-	private readonly _rotationStepper: HTMLInputElement = input({
-		style: "width: 3em; margin-left: 1em;",
-		type: "number",
-		min: "0",
-		max: this._maxSteps,
-		value: "0",
-		step: "1",
-	});
-	private readonly _stepSizeNumeratorStepper: HTMLInputElement = input({
-		style: "width: 3em; margin-left: 1em;",
-		type: "number",
-		min: "1",
-		max: Config.partsPerBeat,
-		value: "1",
-		step: "1",
-	});
-	private readonly _stepSizeDenominatorStepper: HTMLInputElement = input({
-		style: "width: 3em; margin-left: 1em;",
-		type: "number",
-		min: "1",
-		max: Config.partsPerBeat,
-		value: "4",
-		step: "1",
-	});
-	private readonly _channelStepper: HTMLInputElement = input({
-		style: "width: 3em; margin-left: 1em;",
-		type: "number",
-		min: "1",
-		max: this._maxChannel + 1,
-		value: "1",
-		step: "1",
-	});
-	private readonly _pitchStepper: HTMLInputElement = input({
-		style: "width: 3em; margin-left: 1em;",
-		type: "number",
-		min: "0",
-		max: Config.maxPitch,
-		value: "0",
-		step: "1",
-	});
-	private readonly _barAmountStepper: HTMLInputElement = input({
-		style: "width: 3em; margin-left: 1em;",
-		type: "number",
-		min: "1",
-		max: Config.barCountMax,
-		value: "1",
-		step: "1",
-	});
+	private readonly _stepsStepper: HTMLInputElement = stepperInput(this._minSteps, this._maxSteps, "8");
+	private readonly _pulsesStepper: HTMLInputElement = stepperInput("0", "8", "5");
+	private readonly _rotationStepper: HTMLInputElement = stepperInput("0", this._maxSteps, "0");
+	private readonly _stepSizeNumeratorStepper: HTMLInputElement = stepperInput("1", Config.partsPerBeat, "1");
+	private readonly _stepSizeDenominatorStepper: HTMLInputElement = stepperInput("1", Config.partsPerBeat, "4");
+	private readonly _channelStepper: HTMLInputElement = stepperInput("1", this._maxChannel + 1, "1");
+	private readonly _pitchStepper: HTMLInputElement = stepperInput("0", Config.maxPitch, "0");
+	private readonly _barAmountStepper: HTMLInputElement = stepperInput("1", Config.barCountMax, "1");
 	private readonly _extendUntilLoopButton: HTMLButtonElement = button(
 		{
 			style: "height: auto; min-height: var(--button-size); margin-left: 1em;",

@@ -14,6 +14,7 @@ import { ChangePreset } from "../changes";
 import { EditorConfig, Preset, PresetCategory } from "../config/editor-config";
 import { SongDocument } from "../song-document";
 import { BasePrompt } from "./base-prompt";
+import { searchInput, tagChip, sectionLabel } from "../ui/components";
 
 const { button, div, input, h2, span } = HTML;
 
@@ -50,13 +51,7 @@ export class PresetSelectorPrompt extends BasePrompt {
 
 		this._buildCategories(isNoise);
 
-		const inputStyle = `flex: 1; min-width: 0; padding: 6px 10px; border: 2px solid var(--ui-widget-background); border-radius: 6px; background: var(--editor-background); color: var(--primary-text); font-size: 14px; outline: none; box-sizing: border-box;`;
-
-		this._searchInput = input({
-			type: "text",
-			placeholder: "Search presets...",
-			style: inputStyle,
-		});
+		this._searchInput = searchInput("Search presets...");
 
 		const tagButton = button(
 			{
@@ -247,12 +242,7 @@ export class PresetSelectorPrompt extends BasePrompt {
 		this._tagBanner.appendChild(span({}, "Tags: "));
 		for (let i = 0; i < this._activeTags.length; i++) {
 			const tag = this._activeTags[i];
-			const tagEl = span(
-				{
-					style: `display: inline-block; padding: 1px 6px; margin: 0 2px; border-radius: 3px; background: var(--ui-widget-background); color: var(--primary-text); font-size: 11px; cursor: pointer;`,
-				},
-				tag,
-			);
+			const tagEl = tagChip(tag, false);
 			tagEl.addEventListener("mousedown", (e: MouseEvent) => {
 				e.preventDefault();
 				this._openTagBrowser();
@@ -451,30 +441,21 @@ export class PresetSelectorPrompt extends BasePrompt {
 		this._infoPanel.appendChild(
 			div(
 				{ style: "margin-bottom: 10px;" },
-				div(
-					{ style: "color: var(--secondary-text); font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 2px;" },
-					"Category",
-				),
+				sectionLabel("Category"),
 				div({ style: "color: var(--primary-text); font-size: 13px; word-break: break-word;" }, catName),
 			),
 		);
 		this._infoPanel.appendChild(
 			div(
 				{ style: "margin-bottom: 10px;" },
-				div(
-					{ style: "color: var(--secondary-text); font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 2px;" },
-					"Preset",
-				),
+				sectionLabel("Preset"),
 				div({ style: "color: var(--primary-text); font-size: 13px; word-break: break-word;" }, preset.name),
 			),
 		);
 		this._infoPanel.appendChild(
 			div(
 				{},
-				div(
-					{ style: "color: var(--secondary-text); font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 2px;" },
-					"Position",
-				),
+				sectionLabel("Position"),
 				div({ style: "color: var(--primary-text); font-size: 13px;" }, `${pos} / ${total}`),
 			),
 		);
@@ -482,10 +463,7 @@ export class PresetSelectorPrompt extends BasePrompt {
 			this._infoPanel.appendChild(
 				div(
 					{ style: "margin-top: 10px;" },
-					div(
-						{ style: "color: var(--secondary-text); font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 2px;" },
-						"Results",
-					),
+					sectionLabel("Results"),
 					div({ style: "color: var(--primary-text); font-size: 13px;" }, `${total} matching`),
 				),
 			);
@@ -494,16 +472,11 @@ export class PresetSelectorPrompt extends BasePrompt {
 		if (fullPreset && fullPreset.tags && fullPreset.tags.length > 0) {
 			const tagsDiv = div(
 				{ style: "margin-top: 10px;" },
-				div({ style: "color: var(--secondary-text); font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;" }, "Tags"),
+				sectionLabel("Tags"),
 			);
 			for (const tag of fullPreset.tags) {
 				const isActive = this._activeTags.includes(tag);
-				const tagEl = span(
-					{
-						style: `display: inline-block; padding: 1px 6px; margin: 2px; border-radius: 3px; font-size: 11px; cursor: pointer; background: ${isActive ? "rgba(255,255,255,0.2)" : "var(--ui-widget-background)"}; color: ${isActive ? "var(--primary-text)" : "var(--secondary-text)"};`,
-					},
-					tag,
-				);
+				const tagEl = tagChip(tag, isActive);
 				tagEl.addEventListener("mousedown", (e: MouseEvent) => {
 					e.preventDefault();
 					const tags = this._getExternalTagValue()

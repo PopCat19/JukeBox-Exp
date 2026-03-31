@@ -15,6 +15,7 @@ import { ChangeGroup } from "../core/change";
 import { SongDocument } from "../song-document";
 import { BasePrompt } from "./base-prompt";
 import { validate, validateKey, validateNumber } from "./input-helpers";
+import { labelRow } from "../ui/components";
 
 const { div, label, br, h2, input } = HTML;
 
@@ -51,35 +52,29 @@ export class ChannelSettingsPrompt extends BasePrompt {
 	public readonly container: HTMLDivElement = div(
 		{ class: "prompt noSelection", style: "width: 250px; text-align: right;" },
 		h2("Channel Settings"),
-		label(
-			{ style: "display: flex; flex-direction: row; align-items: center; height: 2em; justify-content: flex-end;" },
+		labelRow(
 			"Pitch channels:",
 			this._pitchChannelStepper,
 		),
-		label(
-			{ style: "display: flex; flex-direction: row; align-items: center; height: 2em; justify-content: flex-end;" },
+		labelRow(
 			"Drum channels:",
 			this._drumChannelStepper,
 		),
-		div(
-			{ style: "display: flex; flex-direction: row; align-items: center; height: 2em; justify-content: flex-end;" },
+		labelRow(
 			"Mod channels:",
 			this._modChannelStepper,
 		),
-		label(
-			{ style: "display: flex; flex-direction: row; align-items: center; height: 2em; justify-content: flex-end;" },
+		labelRow(
 			"Available patterns per channel:",
 			this._patternsStepper,
 		),
-		label(
-			{ style: "display: flex; flex-direction: row; align-items: center; height: 2em; justify-content: flex-end;" },
+		labelRow(
 			"Simultaneous instruments",
 			br(),
 			"per channel:",
 			this._layeredInstrumentsBox,
 		),
-		label(
-			{ style: "display: flex; flex-direction: row; align-items: center; height: 2em; justify-content: flex-end;" },
+		labelRow(
 			"Different instruments",
 			br(),
 			"per pattern:",

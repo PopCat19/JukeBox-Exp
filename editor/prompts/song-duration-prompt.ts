@@ -17,6 +17,7 @@ import { SongDocument } from "../song-document";
 import { BasePrompt } from "./base-prompt";
 import { ExportPrompt } from "./export-prompt";
 import { validate, validateKey, validateNumber } from "./input-helpers";
+import { labelRow } from "../ui/components";
 
 const { div, span, h2, input, br, select, option } = HTML;
 
@@ -37,8 +38,7 @@ export class SongDurationPrompt extends BasePrompt {
 		{ class: "prompt noSelection", style: "width: 250px;" },
 		h2("Song Length"),
 		div({ style: "display: flex; flex-direction: row; align-items: center; justify-content: space-between;" }, "Length:", this._computedSamplesLabel),
-		div(
-			{ style: "display: flex; flex-direction: row; align-items: center; height: 2em; justify-content: flex-end;" },
+		labelRow(
 			div(
 				{ style: "display: inline-block; text-align: right;" },
 				"Bars per song:",
@@ -47,8 +47,7 @@ export class SongDurationPrompt extends BasePrompt {
 			),
 			this._barsStepper,
 		),
-		div(
-			{ style: "display: flex; flex-direction: row; align-items: center; height: 2em; justify-content: flex-end;" },
+		labelRow(
 			div({ class: "selectContainer", style: "width: 100%;" }, this._positionSelect),
 		),
 		this._getOkayRow(),

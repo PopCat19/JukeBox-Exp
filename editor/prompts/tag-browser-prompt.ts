@@ -12,6 +12,7 @@ import { HTML } from "imperative-html/dist/esm/elements-strict";
 import { EditorConfig, fullTagList } from "../config/editor-config";
 import { SongDocument } from "../song-document";
 import { BasePrompt } from "./base-prompt";
+import { tagListItem } from "../ui/components";
 
 const { div, h2, span } = HTML;
 
@@ -107,13 +108,7 @@ export class TagBrowserPrompt extends BasePrompt {
 		for (let i = 0; i < this._tagData.length; i++) {
 			const { tag, presetCount } = this._tagData[i];
 			const isActive = this._activeTags.includes(tag);
-			const item = div(
-				{
-					style: `padding: 4px 8px; cursor: pointer; font-size: 12px; border-radius: 4px; border: 1px solid ${isActive ? "var(--ui-widget-focus)" : "var(--ui-widget-background)"}; background: ${isActive ? "rgba(255,255,255,0.12)" : "transparent"}; color: ${isActive ? "var(--primary-text)" : "var(--secondary-text)"}; display: flex; justify-content: space-between; align-items: center;`,
-				},
-				span({}, tag),
-				span({ style: "font-size: 10px; opacity: 0.6;" }, String(presetCount)),
-			);
+			const item = tagListItem(tag, presetCount, isActive, false);
 			const idx = i;
 			item.addEventListener("mousedown", (e: MouseEvent) => {
 				e.preventDefault();

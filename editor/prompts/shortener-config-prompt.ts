@@ -9,6 +9,7 @@
 import { HTML } from "imperative-html/dist/esm/elements-strict";
 import { SongDocument } from "../song-document";
 import { BasePrompt } from "./base-prompt";
+import { labelRow } from "../ui/components";
 
 const { div, h2, select, option } = HTML;
 
@@ -22,8 +23,7 @@ export class ShortenerConfigPrompt extends BasePrompt {
 	public readonly container: HTMLDivElement = div(
 		{ class: "prompt noSelection", style: "width: 250px;" },
 		h2("Configure Shortener"),
-		div(
-			{ style: "display: flex; flex-direction: row; align-items: center; height: 2em; justify-content: flex-end;" },
+		labelRow(
 			div({ class: "selectContainer", style: "width: 100%;" }, this._shortenerStrategySelect),
 		),
 		this._getOkayRow(),

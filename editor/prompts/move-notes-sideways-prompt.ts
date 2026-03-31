@@ -14,6 +14,7 @@ import { ChangeMoveNotesSideways } from "../changes";
 import { ColorConfig } from "../rendering/color-config";
 import { SongDocument } from "../song-document";
 import { BasePrompt } from "./base-prompt";
+import { labelRow } from "../ui/components";
 
 const { div, span, h2, input, br, select, option } = HTML;
 
@@ -33,8 +34,7 @@ export class MoveNotesSidewaysPrompt extends BasePrompt {
 	public readonly container: HTMLDivElement = div(
 		{ class: "prompt noSelection", style: "width: 250px;" },
 		h2("Move Notes Sideways"),
-		div(
-			{ style: "display: flex; flex-direction: row; align-items: center; height: 2em; justify-content: flex-end;" },
+		labelRow(
 			div(
 				{ style: "text-align: right;" },
 				"Beats to move:",
@@ -43,8 +43,7 @@ export class MoveNotesSidewaysPrompt extends BasePrompt {
 			),
 			this._beatsStepper,
 		),
-		div(
-			{ style: "display: flex; flex-direction: row; align-items: center; height: 2em; justify-content: flex-end;" },
+		labelRow(
 			div({ class: "selectContainer", style: "width: 100%;" }, this._conversionStrategySelect),
 		),
 		this._getOkayRow(),

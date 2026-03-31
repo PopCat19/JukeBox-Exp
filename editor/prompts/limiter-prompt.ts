@@ -16,6 +16,7 @@ import { SongDocument } from "../song-document";
 import { SongEditor } from "../song-editor";
 import { BasePrompt } from "./base-prompt";
 import { updatePlayButton } from "./input-helpers";
+import { labelRow } from "../ui/components";
 
 const { button, div, h2, input } = HTML;
 
@@ -337,36 +338,32 @@ export class LimiterPrompt extends BasePrompt {
 		h2("Limiter Options"),
 		div({ style: "display: flex; width: 55%; align-self: center; flex-direction: row; align-items: center; justify-content: center;" }, this._playButton),
 		div({ style: "display: flex; flex-direction: row; align-items: center; justify-content: center;" }, this.limiterCanvas.container),
-		div(
-			{ style: "display: flex; flex-direction: row; align-items: center; height: 2em; margin-top: 1.5em; justify-content: flex-end;" },
+		labelRow(
+			{ marginTop: "1.5em" },
 			div({ style: `text-align: right; width: 25%; margin-right: 4.5%; color: ${ColorConfig.primaryText};` }, ""),
 			div({ style: `text-align: center; width: 33%; margin-right: 4.5%; color: ${ColorConfig.textSelection};` }, "Boost"),
 			div({ style: `text-align: center; width: 33%; margin-right: 0%; color: ${ColorConfig.linkAccent};` }, "Cutoff"),
 		),
-		div(
-			{ style: "display: flex; flex-direction: row; align-items: center; height: 2em; margin-top: 0.5em; justify-content: flex-end;" },
+		labelRow(
+			{ marginTop: "0.5em" },
 			div({ style: `text-align: right; width: 25%; margin-right: 4.5%; color: ${ColorConfig.primaryText};` }, "Threshold:"),
 			div({ style: `width: 33%; margin-right: 4.5%;` }, this.compressionThresholdSlider),
 			div({ style: `width: 33%; margin-right: 0%;` }, this.limitThresholdSlider),
 		),
-		div(
-			{ style: "display: flex; flex-direction: row; align-items: center; height: 2em; justify-content: flex-end;" },
+		labelRow(
 			div({ style: `text-align: right; width: 25%; margin-right: 4.5%; color: ${ColorConfig.primaryText};` }, "Ratio:"),
 			div({ style: `width: 33%; margin-right: 4.5%;` }, this.compressionRatioSlider),
 			div({ style: `width: 33%; margin-right: 0%;` }, this.limitRatioSlider),
 		),
-		div(
-			{ style: "display: flex; flex-direction: row; align-items: center; height: 2em; justify-content: flex-end;" },
+		labelRow(
 			div({ style: `text-align: right; width: 8.5em; margin-right: 1em; color: ${ColorConfig.primaryText};` }, "Limit Decay:"),
 			this.limitDecaySlider,
 		),
-		div(
-			{ style: "display: flex; flex-direction: row; align-items: center; height: 2em; justify-content: flex-end;" },
+		labelRow(
 			div({ style: `text-align: right; width: 8.5em; margin-right: 1em; color: ${ColorConfig.primaryText};` }, "Limit Rise:"),
 			this.limitRiseSlider,
 		),
-		div(
-			{ style: "display: flex; flex-direction: row; align-items: center; height: 2em; justify-content: flex-end;" },
+		labelRow(
 			div({ style: `text-align: right; width: 8.5em; margin-right: 1em; color: ${ColorConfig.primaryText};` }, "Master Gain:"),
 			this.masterGainSlider,
 		),
