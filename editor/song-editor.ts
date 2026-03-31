@@ -3790,6 +3790,10 @@ export class SongEditor implements ModSliderProvider {
 	};
 
 	private _updateTagAutocomplete(): void {
+		if (document.activeElement !== this._presetTagsInputBox) {
+			this._hideTagAutocomplete();
+			return;
+		}
 		const value = this._presetTagsInputBox.value;
 		const tags = value
 			.toLowerCase()
