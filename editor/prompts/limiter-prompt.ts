@@ -180,7 +180,7 @@ export class LimiterCanvas {
 				nextValue = 1 / (((useVol + 1 - compressorThreshold) * 0.8 + 0.25) * compressorRatio + 1.05 * (1 - compressorRatio));
 			}
 
-			if (i == 0) {
+			if (i === 0) {
 				path += "M 0 " + prettyNumber(controlPointToHeight(nextValue)) + " ";
 			}
 
@@ -190,11 +190,11 @@ export class LimiterCanvas {
 				}
 				subPaths[currentSubpathIdx] += "M " + prettyNumber((i * this._editorWidth) / 64) + " " + prettyNumber(controlPointToHeight(nextValue)) + " ";
 
-				if (currentSubpathIdx == 1 || (lastSubpathIdx == 0 && currentSubpathIdx == 2)) {
+				if (currentSubpathIdx === 1 || (lastSubpathIdx === 0 && currentSubpathIdx === 2)) {
 					this._boostDot.setAttribute("cx", prettyNumber((i * this._editorWidth) / 64));
 					this._boostDot.setAttribute("cy", prettyNumber(controlPointToHeight(nextValue)));
 				}
-				if (currentSubpathIdx == 2) {
+				if (currentSubpathIdx === 2) {
 					this._limitDot.setAttribute("cx", prettyNumber((i * this._editorWidth) / 64));
 					this._limitDot.setAttribute("cy", prettyNumber(controlPointToHeight(nextValue)));
 				}
@@ -202,7 +202,7 @@ export class LimiterCanvas {
 				lastSubpathIdx = currentSubpathIdx;
 			}
 
-			if (lastValue != 0 || nextValue != 0) {
+			if (lastValue !== 0 || nextValue !== 0) {
 				path += "L ";
 				subPaths[currentSubpathIdx] += "L ";
 			} else {
@@ -213,10 +213,10 @@ export class LimiterCanvas {
 			subPaths[currentSubpathIdx] += prettyNumber((i * this._editorWidth) / 64) + " " + prettyNumber(controlPointToHeight(nextValue)) + " ";
 			lastValue = nextValue;
 
-			if (currentSubpathIdx == 0 && i >= compressorThreshold * 32 - 2) {
+			if (currentSubpathIdx === 0 && i >= compressorThreshold * 32 - 2) {
 				currentSubpathIdx++;
 			}
-			if (currentSubpathIdx == 1 && i >= limiterThreshold * 32 - 2) {
+			if (currentSubpathIdx === 1 && i >= limiterThreshold * 32 - 2) {
 				currentSubpathIdx++;
 			}
 		}
@@ -497,10 +497,10 @@ export class LimiterPrompt extends BasePrompt {
 	}
 
 	public override whenKeyPressed = (event: KeyboardEvent): void => {
-		if ((<Element>event.target).tagName != "BUTTON" && event.keyCode == 13) {
+		if ((<Element>event.target).tagName !== "BUTTON" && event.keyCode === 13) {
 			this._saveChanges();
 		}
-		if (event.keyCode == 32) {
+		if (event.keyCode === 32) {
 			this._togglePlay();
 			event.preventDefault();
 		}
@@ -508,13 +508,13 @@ export class LimiterPrompt extends BasePrompt {
 
 	private _resetDefaults = (): void => {
 		if (
-			this.limitRatioSlider.value != "10" ||
-			this.limitRiseSlider.value != "4000" ||
-			this.limitDecaySlider.value != "4" ||
-			this.limitThresholdSlider.value != "1" ||
-			this.compressionRatioSlider.value != "10" ||
-			this.compressionThresholdSlider.value != "1" ||
-			this.masterGainSlider.value != "1"
+			this.limitRatioSlider.value !== "10" ||
+			this.limitRiseSlider.value !== "4000" ||
+			this.limitDecaySlider.value !== "4" ||
+			this.limitThresholdSlider.value !== "1" ||
+			this.compressionRatioSlider.value !== "10" ||
+			this.compressionThresholdSlider.value !== "1" ||
+			this.masterGainSlider.value !== "1"
 		) {
 			this.limitRatioSlider.value = "10";
 			this.limitRiseSlider.value = "4000";

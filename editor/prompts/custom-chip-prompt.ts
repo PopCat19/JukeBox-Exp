@@ -138,14 +138,14 @@ export class CustomChipPromptCanvas {
 		let sameCheck = true;
 		if (this._changeQueue.length > 0) {
 			for (let i = 0; i < 64; i++) {
-				if (this._changeQueue[this._undoHistoryState][i] != this.chipData[i]) {
+				if (this._changeQueue[this._undoHistoryState][i] !== this.chipData[i]) {
 					sameCheck = false;
 					i = 64;
 				}
 			}
 		}
 
-		if (sameCheck == false || this._changeQueue.length == 0) {
+		if (sameCheck === false || this._changeQueue.length === 0) {
 			this._changeQueue.splice(0, this._undoHistoryState);
 			this._undoHistoryState = 0;
 			this._changeQueue.unshift(this.chipData.slice());
@@ -226,7 +226,7 @@ export class CustomChipPromptCanvas {
 			const index: number = Math.min(63, Math.max(0, Math.floor((this._mouseX * 64) / this._editorWidth)));
 			const amp: number = Math.min(48, Math.max(0, Math.floor((this._mouseY * 49) / this._editorHeight)));
 
-			if (this._lastIndex != -1 && this._lastIndex != index) {
+			if (this._lastIndex !== -1 && this._lastIndex !== index) {
 				let lowest = index;
 				let highest = this._lastIndex;
 				let startingAmp = amp;
@@ -378,24 +378,24 @@ export class CustomChipPrompt extends BasePrompt {
 	};
 
 	public override whenKeyPressed = (event: KeyboardEvent): void => {
-		if ((<Element>event.target).tagName != "BUTTON" && event.keyCode == 13) {
+		if ((<Element>event.target).tagName !== "BUTTON" && event.keyCode === 13) {
 			// Enter key
 			this._saveChanges();
-		} else if (event.keyCode == 32) {
+		} else if (event.keyCode === 32) {
 			this._togglePlay();
 			event.preventDefault();
-		} else if (event.keyCode == 90) {
+		} else if (event.keyCode === 90) {
 			// z
 			this.customChipCanvas.undo();
 			event.stopPropagation();
-		} else if (event.keyCode == 89) {
+		} else if (event.keyCode === 89) {
 			// y
 			this.customChipCanvas.redo();
 			event.stopPropagation();
-		} else if (event.keyCode == 219) {
+		} else if (event.keyCode === 219) {
 			// [
 			this._doc.synth.goToPrevBar();
-		} else if (event.keyCode == 221) {
+		} else if (event.keyCode === 221) {
 			// ]
 			this._doc.synth.goToNextBar();
 		}

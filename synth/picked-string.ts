@@ -95,7 +95,7 @@ export class PickedString {
 		const shelfRadians: number = (2.0 * Math.PI * Config.pickedStringShelfHz) / synth.samplesPerSecond;
 		const decayCurveStart: number = (Math.pow(100.0, stringDecayStart) - 1.0) / 99.0;
 		const decayCurveEnd: number = (Math.pow(100.0, stringDecayEnd) - 1.0) / 99.0;
-		const register: number = sustainType == SustainType.acoustic ? 0.25 : 0.0;
+		const register: number = sustainType === SustainType.acoustic ? 0.25 : 0.0;
 		const registerShelfCenter: number = 15.6;
 		const registerLowpassCenter: number = (3.0 * synth.samplesPerSecond) / 48000;
 		// const decayRateStart: number = Math.pow(0.5, decayCurveStart * shelfRadians / radiansPerSampleStart);
@@ -131,14 +131,14 @@ export class PickedString {
 			resonant, // 3rd order lowpass, harder corner
 		}
 		const brightnessType: PickedStringBrightnessType =
-			<any>sustainType == SustainType.bright ? PickedStringBrightnessType.bright : PickedStringBrightnessType.normal;
-		if (brightnessType == PickedStringBrightnessType.bright) {
+			<any>sustainType === SustainType.bright ? PickedStringBrightnessType.bright : PickedStringBrightnessType.normal;
+		if (brightnessType === PickedStringBrightnessType.bright) {
 			const shelfGainStart: number = Math.pow(decayRateStart, Config.stringDecayRate);
 			const shelfGainEnd: number = Math.pow(decayRateEnd, Config.stringDecayRate);
 			tempFilterStartCoefficients.highShelf2ndOrder(shelfRadians, shelfGainStart, 0.5);
 			tempFilterEndCoefficients.highShelf2ndOrder(shelfRadians, shelfGainEnd, 0.5);
 		} else {
-			const cornerHardness: number = Math.pow(brightnessType == PickedStringBrightnessType.normal ? 0.0 : 1.0, 0.25);
+			const cornerHardness: number = Math.pow(brightnessType === PickedStringBrightnessType.normal ? 0.0 : 1.0, 0.25);
 			const lowpass1stOrderCutoffRadiansStart: number =
 				Math.pow((registerLowpassCenter * registerLowpassCenter * radiansPerSampleStart * 3.3 * 48000) / synth.samplesPerSecond, 0.5 + register) /
 				registerLowpassCenter /
@@ -196,7 +196,7 @@ export class PickedString {
 
 		const pitchChanged: boolean = Math.abs(Math.log2(delayLength / prevDelayLength)) > 0.01;
 
-		const reinitializeImpulse: boolean = this.delayIndex == -1 || pitchChanged;
+		const reinitializeImpulse: boolean = this.delayIndex === -1 || pitchChanged;
 		if (this.delayLine == null || this.delayLine.length <= minBufferLength) {
 			// The delay line buffer will get reused for other tones so might as well
 			// start off with a buffer size that is big enough for most notes.

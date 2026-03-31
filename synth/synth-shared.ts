@@ -13,7 +13,7 @@ export const tempFilterStartCoefficients: FilterCoefficients = new FilterCoeffic
 export const tempFilterEndCoefficients: FilterCoefficients = new FilterCoefficients();
 
 export function instrumentVolumeToVolumeMult(instrumentVolume: number): number {
-	return instrumentVolume == -Config.volumeRange / 2.0 ? 0.0 : Math.pow(2, Config.volumeLogScale * instrumentVolume);
+	return instrumentVolume === -Config.volumeRange / 2.0 ? 0.0 : Math.pow(2, Config.volumeLogScale * instrumentVolume);
 }
 
 export function noteSizeToVolumeMult(size: number): number {

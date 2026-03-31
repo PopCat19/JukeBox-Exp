@@ -171,7 +171,7 @@ function buildPresetOptions(isNoise: boolean, idSet: string): HTMLSelectElement 
 	// const customTypeGroup: HTMLElement = optgroup({label: EditorConfig.presetCategories[0].name});
 	if (isNoise) {
 		for (const plugin of getRegisteredPlugins()) {
-			if (plugin.type == InstrumentType.noise || plugin.type == InstrumentType.spectrum || plugin.type == InstrumentType.drumset) {
+			if (plugin.type === InstrumentType.noise || plugin.type === InstrumentType.spectrum || plugin.type === InstrumentType.drumset) {
 				const preset = EditorConfig.valueToPreset(plugin.type);
 				menu.appendChild(option({ value: plugin.type }, preset?.name ?? plugin.displayName ?? plugin.name));
 			}
@@ -200,7 +200,7 @@ function buildPresetOptions(isNoise: boolean, idSet: string): HTMLSelectElement 
 		let foundAny: boolean = false;
 		for (let presetIndex: number = 0; presetIndex < category.presets.length; presetIndex++) {
 			const preset: Preset = category.presets[presetIndex];
-			if ((preset.isNoise == true) == isNoise) {
+			if ((preset.isNoise === true) === isNoise) {
 				group.appendChild(option({ value: (categoryIndex << 12) + presetIndex }, preset.name));
 				foundAny = true;
 			}
@@ -213,19 +213,19 @@ function buildPresetOptions(isNoise: boolean, idSet: string): HTMLSelectElement 
 		}
 
 		// Need to re-sort some elements for readability. Can't just do this in the menu, because indices are saved in URLs and would get broken if the ordering actually changed.
-		if (category.name == "String Presets" && foundAny) {
+		if (category.name === "String Presets" && foundAny) {
 			// Put violin 2 after violin 1
 			const moveViolin2 = group.removeChild(group.children[11]);
 			group.insertBefore(moveViolin2, group.children[1]);
 		}
 
-		if (category.name == "Flute Presets" && foundAny) {
+		if (category.name === "Flute Presets" && foundAny) {
 			// Put flute 2 after flute 1
 			const moveFlute2 = group.removeChild(group.children[11]);
 			group.insertBefore(moveFlute2, group.children[1]);
 		}
 
-		if (category.name == "Keyboard Presets" && foundAny) {
+		if (category.name === "Keyboard Presets" && foundAny) {
 			// Put grand piano 2 and 3 after grand piano 1
 			const moveGrandPiano2 = group.removeChild(group.children[9]);
 			const moveGrandPiano3 = group.removeChild(group.children[9]);
@@ -2427,7 +2427,7 @@ export class SongEditor implements ModSliderProvider {
 	private _lastPrompt: string | null = null;
 
 	private _onDocPromptChange = (): void => {
-		if (this.doc.prompt != this._lastPrompt) {
+		if (this.doc.prompt !== this._lastPrompt) {
 			this._lastPrompt = this.doc.prompt;
 			this._setPrompt(this._lastPrompt);
 		}
@@ -3516,7 +3516,7 @@ export class SongEditor implements ModSliderProvider {
 		this._promptContainer.addEventListener("click", (event) => {
 			if (this.doc.prefs.closePromptByClickoff === true) {
 				if (this.prompt != null && this.prompt.gotMouseUp === true) return;
-				if (event.target == this._promptContainer) {
+				if (event.target === this._promptContainer) {
 					this.doc.prompt = null;
 					this.doc.notifier.changed();
 				}
@@ -3758,7 +3758,7 @@ export class SongEditor implements ModSliderProvider {
 	}
 
 	private _toggleAlgorithmCanvas(e: Event): void {
-		if (this._customAlgorithmCanvas.mode != "feedback") {
+		if (this._customAlgorithmCanvas.mode !== "feedback") {
 			this._customAlgorithmCanvas.mode = "feedback";
 			(e.target as Element).textContent = "F";
 			this._algorithmCanvasSwitch.value = "feedback";
@@ -3820,10 +3820,10 @@ export class SongEditor implements ModSliderProvider {
 				break;
 		}
 
-		if (target.textContent == "▼") {
+		if (target.textContent === "▼") {
 			const instrument: Instrument = this.doc.song.channels[this.doc.channel].instruments[this.doc.getCurrentInstrument()];
 			target.textContent = "▲";
-			if (dropdown == DropdownID.EnvelopeSettings) {
+			if (dropdown === DropdownID.EnvelopeSettings) {
 				group.style.display = "flex";
 				// if (subtype == "pitch") {
 				//     this.envelopeEditor.extraPitchSettingsGroups[submenu].style.display = "flex";
@@ -3837,12 +3837,12 @@ export class SongEditor implements ModSliderProvider {
 				//     }
 				// }
 				this.envelopeEditor.rerenderExtraSettings();
-			} else if (group != this._chordDropdownGroup) {
+			} else if (group !== this._chordDropdownGroup) {
 				group.style.display = "";
 			} // Only show arpeggio dropdown if chord arpeggiates
-			else if (instrument.chord == Config.chords.dictionary["arpeggio"].index) {
+			else if (instrument.chord === Config.chords.dictionary["arpeggio"].index) {
 				group.style.display = "";
-				if (instrument.chord == Config.chords.dictionary["arpeggio"].index) {
+				if (instrument.chord === Config.chords.dictionary["arpeggio"].index) {
 					this._chordDropdownGroup.style.display = "";
 				} else {
 					this._chordDropdownGroup.style.display = "none";
@@ -3873,7 +3873,7 @@ export class SongEditor implements ModSliderProvider {
 
 			for (let setting: number = 0; setting < Config.modulators.length; setting++) {
 				for (let index: number = 0; index <= Config.modulators[setting].maxIndex; index++) {
-					if (this._showModSliders[setting][index] == true) {
+					if (this._showModSliders[setting][index] === true) {
 						this._showModSliders[setting][index] = false;
 						this._newShowModSliders[setting][index] = false;
 						const slider: Slider | null = this.modSliders.getSliderForModSetting(setting, index);
@@ -3922,11 +3922,11 @@ export class SongEditor implements ModSliderProvider {
 							(editor.doc.synth.getModValue(setting, channel, instrument, false) - Config.modulators[setting].convertRealFactor) /
 							Config.modulators[setting].maxRawVol;
 
-						if (Config.modulators[setting].invertSliderIndicator == true) {
+						if (Config.modulators[setting].invertSliderIndicator === true) {
 							currentVal = 1 - currentVal;
 						}
 
-						if (currentVal != editor._modSliderValues[setting][index]) {
+						if (currentVal !== editor._modSliderValues[setting][index]) {
 							editor._modSliderValues[setting][index] = currentVal;
 							slider.container.style.setProperty("--mod-position", currentVal * 96.0 + 2.0 + "%");
 						}
@@ -3964,12 +3964,12 @@ export class SongEditor implements ModSliderProvider {
 
 				for (let setting: number = 0; setting < Config.modulators.length; setting++) {
 					for (let index: number = 0; index <= Config.modulators[setting].maxIndex; index++) {
-						if (this._newShowModSliders[setting][index] != this._showModSliders[setting][index]) {
+						if (this._newShowModSliders[setting][index] !== this._showModSliders[setting][index]) {
 							this._showModSliders[setting][index] = this._newShowModSliders[setting][index];
 							const slider: Slider | null = this.modSliders.getSliderForModSetting(setting, index);
 
 							if (slider != null) {
-								if (this._showModSliders[setting][index] == true) {
+								if (this._showModSliders[setting][index] === true) {
 									slider.container.classList.add("modSlider");
 								} else {
 									slider.container.classList.remove("modSlider");
@@ -3977,7 +3977,7 @@ export class SongEditor implements ModSliderProvider {
 							}
 						}
 
-						if (this._newShowModSliders[setting][index] == true) {
+						if (this._newShowModSliders[setting][index] === true) {
 							anySliderActive = true;
 						}
 					}
@@ -4031,7 +4031,7 @@ export class SongEditor implements ModSliderProvider {
 				this.doc.notifier.changed();
 			}
 		}
-		if (this._prompts.length == 0) {
+		if (this._prompts.length === 0) {
 			this._promptContainer.style.display = "none";
 			if (this._wasPlaying) {
 				this.doc.performance.play();
@@ -4187,7 +4187,7 @@ export class SongEditor implements ModSliderProvider {
 			this._focusedPrompt = newPrompt;
 			this._updatePromptFocus();
 
-			if (this._prompts.length == 1) {
+			if (this._prompts.length === 1) {
 				if (
 					!(
 						newPrompt instanceof TipPrompt ||
@@ -4332,7 +4332,7 @@ export class SongEditor implements ModSliderProvider {
 	};
 
 	private _onFocusIn = (event: Event): void => {
-		if (this.doc.synth.recording && event.target != this.mainLayer && event.target != this._stopButton && event.target != this._volumeSlider.input) {
+		if (this.doc.synth.recording && event.target !== this.mainLayer && event.target !== this._stopButton && event.target !== this._volumeSlider.input) {
 			// Don't allow using tab to focus on the song settings while recording,
 			// since interacting with them while recording would mess up the recording.
 			this.refocusStage();
@@ -4501,7 +4501,7 @@ export class SongEditor implements ModSliderProvider {
 				this._instrumentRemoveButton.classList.add("last-button");
 			}
 			if (channel.instruments.length > 1) {
-				if (this._highlightedInstrumentIndex != instrumentIndex) {
+				if (this._highlightedInstrumentIndex !== instrumentIndex) {
 					const oldButton: HTMLButtonElement = this._instrumentButtons[this._highlightedInstrumentIndex];
 					if (oldButton != null) oldButton.classList.remove("selected-instrument");
 					const newButton: HTMLButtonElement = this._instrumentButtons[instrumentIndex];
@@ -4521,7 +4521,7 @@ export class SongEditor implements ModSliderProvider {
 			) {
 				// const pattern: Pattern | null = this._doc.getCurrentPattern();
 				for (let i: number = 0; i < channel.instruments.length; i++) {
-					if (this.doc.recentPatternInstruments[this.doc.channel].indexOf(i) != -1) {
+					if (this.doc.recentPatternInstruments[this.doc.channel].indexOf(i) !== -1) {
 						this._instrumentButtons[i].classList.remove("deactivated");
 					} else {
 						this._instrumentButtons[i].classList.add("deactivated");
@@ -4556,10 +4556,10 @@ export class SongEditor implements ModSliderProvider {
 
 	public updatePlayButton = (): void => {
 		if (
-			this._renderedIsPlaying != this.doc.synth.playing ||
-			this._renderedIsRecording != this.doc.synth.recording ||
-			this._renderedShowRecordButton != this.doc.prefs.showRecordButton ||
-			this._renderedCtrlHeld != this._ctrlHeld
+			this._renderedIsPlaying !== this.doc.synth.playing ||
+			this._renderedIsRecording !== this.doc.synth.recording ||
+			this._renderedShowRecordButton !== this.doc.prefs.showRecordButton ||
+			this._renderedCtrlHeld !== this._ctrlHeld
 		) {
 			this._renderedIsPlaying = this.doc.synth.playing;
 			this._renderedIsRecording = this.doc.synth.recording;
@@ -4567,10 +4567,10 @@ export class SongEditor implements ModSliderProvider {
 			this._renderedCtrlHeld = this._ctrlHeld;
 
 			if (
-				document.activeElement == this._playButton ||
-				document.activeElement == this._pauseButton ||
-				document.activeElement == this._recordButton ||
-				document.activeElement == this._stopButton
+				document.activeElement === this._playButton ||
+				document.activeElement === this._pauseButton ||
+				document.activeElement === this._recordButton ||
+				document.activeElement === this._stopButton
 			) {
 				// When a focused element is hidden, focus is transferred to the document, so let's refocus the editor instead to make sure we can still capture keyboard input.
 				this.refocusStage();
@@ -4663,8 +4663,8 @@ export class SongEditor implements ModSliderProvider {
 					const modInstrument: Instrument = modChannel.instruments[modInstrumentIdx];
 					for (let mod: number = 0; mod < Config.modCount; mod++) {
 						if (
-							modInstrument.modChannels[mod] == channelIndex &&
-							(modInstrument.modInstruments[mod] == instrumentIndex || modInstrument.modInstruments[mod] >= channel.instruments.length)
+							modInstrument.modChannels[mod] === channelIndex &&
+							(modInstrument.modInstruments[mod] === instrumentIndex || modInstrument.modInstruments[mod] >= channel.instruments.length)
 						) {
 							modUsed = true;
 						}
@@ -4678,12 +4678,12 @@ export class SongEditor implements ModSliderProvider {
 		const lowestSelY: number = Math.min(this.doc.selection.boxSelectionY0, this.doc.selection.boxSelectionY1);
 		const highestSelY: number = Math.max(this.doc.selection.boxSelectionY0, this.doc.selection.boxSelectionY1);
 
-		if (channel.bars[this.doc.bar] != 0) {
+		if (channel.bars[this.doc.bar] !== 0) {
 			for (let i: number = 0; i < this.doc.song.barCount; i++) {
 				// Check for this exact bar in another place, but only count it if it's not within the selection
 				if (
-					channel.bars[i] == channel.bars[this.doc.bar] &&
-					i != this.doc.bar &&
+					channel.bars[i] === channel.bars[this.doc.bar] &&
+					i !== this.doc.bar &&
 					(i < lowestSelX || i > highestSelX || this.doc.channel < lowestSelY || this.doc.channel > highestSelY)
 				) {
 					patternUsed = true;
@@ -4695,10 +4695,10 @@ export class SongEditor implements ModSliderProvider {
 		for (let i: number = 0; i < this.doc.song.barCount; i++) {
 			// Check for this exact instrument in another place, but only count it if it's not within the selection
 			if (
-				channel.bars[i] != 0 &&
-				channel.bars[i] != channel.bars[this.doc.bar] &&
+				channel.bars[i] !== 0 &&
+				channel.bars[i] !== channel.bars[this.doc.bar] &&
 				channel.patterns[channel.bars[i] - 1].instruments.includes(instrumentIndex) &&
-				i != this.doc.bar &&
+				i !== this.doc.bar &&
 				(i < lowestSelX || i > highestSelX || this.doc.channel < lowestSelY || this.doc.channel > highestSelY)
 			) {
 				instrumentUsed = true;
@@ -4936,7 +4936,7 @@ export class SongEditor implements ModSliderProvider {
 				const localShortenerStrategy: string | null = window.localStorage.getItem("shortenerStrategySelect");
 
 				// if (localShortenerStrategy == "beepboxnet") shortenerStrategy = "https://www.beepbox.net/api-create.php?url=";
-				if (localShortenerStrategy == "isgd") shortenerStrategy = "https://is.gd/create.php?format=simple&url=";
+				if (localShortenerStrategy === "isgd") shortenerStrategy = "https://is.gd/create.php?format=simple&url=";
 
 				window.open(shortenerStrategy + encodeURIComponent(new URL("#" + this.doc.song.toBase64String(), location.href).href));
 				break;
@@ -5177,7 +5177,7 @@ export class SongEditor implements ModSliderProvider {
 		// this._instrumentVolumeSlider.input.value = "" + Math.round(Config.waveVolumes[index] * 50.0 - 50.0);
 
 		this.doc.record(new ChangeCustomWave(this.doc, customWaveArray));
-		if (+this._instrumentVolumeSlider.input.value != -Config.volumeRange / 2) {
+		if (+this._instrumentVolumeSlider.input.value !== -Config.volumeRange / 2) {
 			this.doc.record(
 				new ChangeVolume(
 					this.doc,

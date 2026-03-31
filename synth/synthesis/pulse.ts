@@ -67,7 +67,7 @@ export function buildPulseWidthSource(voiceCount: number): string {
 	}
 	const sampleList: string[] = [];
 	for (let voice: number = 0; voice < voiceCount; voice++) {
-		sampleList.push("pulseWave" + voice + (voice != 0 ? " * unisonSign" : ""));
+		sampleList.push("pulseWave" + voice + (voice !== 0 ? " * unisonSign" : ""));
 	}
 
 	pulseSource += "let inputSample = " + sampleList.join(" + ") + ";";

@@ -59,7 +59,7 @@ export function renderLayout(refs: LayoutRefs, doc: SongDocument): void {
 	refs.trackAndMuteContainer.scrollLeft = doc.barScrollPos * doc.getBarWidth();
 	refs.trackAndMuteContainer.scrollTop = doc.channelScrollPos * ChannelRow.patternHeight;
 
-	if (document.activeElement != refs.patternEditor.modDragValueLabel && refs.patternEditor.editingModLabel) {
+	if (document.activeElement !== refs.patternEditor.modDragValueLabel && refs.patternEditor.editingModLabel) {
 		refs.patternEditor.stopEditingModLabel(false);
 	}
 
@@ -88,7 +88,7 @@ export function renderLayout(refs: LayoutRefs, doc: SongDocument): void {
 
 		const beepboxEditorContainer: HTMLElement = document.getElementById("beepboxEditorContainer")!;
 
-		if (doc.prefs.showDescription == false) {
+		if (doc.prefs.showDescription === false) {
 			beepboxEditorContainer.style.paddingBottom = "0";
 			beepboxEditorContainer.style.borderStyle = "none";
 		} else {

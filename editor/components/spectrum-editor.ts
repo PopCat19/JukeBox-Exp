@@ -116,14 +116,14 @@ export class SpectrumEditor {
 		let sameCheck = true;
 		if (this._changeQueue.length > 0) {
 			for (let i = 0; i < Config.spectrumControlPoints; i++) {
-				if (this._changeQueue[this._undoHistoryState][i] != this.instrument.spectrumWave.spectrum[i]) {
+				if (this._changeQueue[this._undoHistoryState][i] !== this.instrument.spectrumWave.spectrum[i]) {
 					sameCheck = false;
 					i = Config.spectrumControlPoints;
 				}
 			}
 		}
 
-		if (sameCheck == false || this._changeQueue.length == 0) {
+		if (sameCheck === false || this._changeQueue.length === 0) {
 			// Create new branch in history, removing all after this in time
 			this._changeQueue.splice(0, this._undoHistoryState);
 
@@ -224,7 +224,7 @@ export class SpectrumEditor {
 			const instrument: Instrument = this._doc.song.channels[this._doc.channel].instruments[this._doc.getCurrentInstrument()];
 			const spectrumWave: SpectrumWave = this._spectrumIndex == null ? instrument.spectrumWave : instrument.drumsetSpectrumWaves[this._spectrumIndex];
 
-			if (freq != this._freqPrev) {
+			if (freq !== this._freqPrev) {
 				const slope: number = (amp - this._ampPrev) / (freq - this._freqPrev);
 				const offset: number = this._ampPrev - this._freqPrev * slope;
 				const lowerFreq: number = Math.ceil(Math.min(this._freqPrev, freq));
@@ -292,7 +292,7 @@ export class SpectrumEditor {
 
 	public saveSettings(): ChangeSpectrum {
 		const instrument: Instrument = this._doc.song.channels[this._doc.channel].instruments[this._doc.getCurrentInstrument()];
-		if (this._spectrumIndex == null || this._spectrumIndex == undefined) {
+		if (this._spectrumIndex == null || this._spectrumIndex === undefined) {
 			return new ChangeSpectrum(this._doc, instrument, instrument.spectrumWave);
 		} else {
 			return new ChangeSpectrum(this._doc, instrument, instrument.drumsetSpectrumWaves[this._spectrumIndex]);
@@ -315,7 +315,7 @@ export class SpectrumEditor {
 		let path: string = "M 0 " + prettyNumber(this._editorHeight) + " ";
 		for (let i: number = 0; i < Config.spectrumControlPoints; i++) {
 			const nextValue: number = spectrumWave.spectrum[i];
-			if (lastValue != 0 || nextValue != 0) {
+			if (lastValue !== 0 || nextValue !== 0) {
 				path += "L ";
 			} else {
 				path += "M ";
@@ -330,7 +330,7 @@ export class SpectrumEditor {
 			path += "L " + (this._editorWidth - 1) + " " + prettyNumber(lastHeight) + " ";
 		}
 
-		if (this._renderedPath != path) {
+		if (this._renderedPath !== path) {
 			this._renderedPath = path;
 			this._curve.setAttribute("d", path);
 			this._fill.setAttribute(
@@ -367,7 +367,7 @@ export class SpectrumEditor {
 			);
 			this._arrow.style.display = lastValue > 0 ? "" : "none";
 		}
-		if (this._renderedFifths != this._doc.prefs.showFifth) {
+		if (this._renderedFifths !== this._doc.prefs.showFifth) {
 			this._renderedFifths = this._doc.prefs.showFifth;
 			this._fifths.style.display = this._doc.prefs.showFifth ? "" : "none";
 		}
@@ -572,24 +572,24 @@ export class SpectrumEditorPrompt implements Prompt {
 	};
 
 	public whenKeyPressed = (event: KeyboardEvent): void => {
-		if ((<Element>event.target).tagName != "BUTTON" && event.keyCode == 13) {
+		if ((<Element>event.target).tagName !== "BUTTON" && event.keyCode === 13) {
 			// Enter key
 			this._saveChanges();
-		} else if (event.keyCode == 32) {
+		} else if (event.keyCode === 32) {
 			this._togglePlay();
 			event.preventDefault();
-		} else if (event.keyCode == 90) {
+		} else if (event.keyCode === 90) {
 			// z
 			this.spectrumEditor.undo();
 			event.stopPropagation();
-		} else if (event.keyCode == 89) {
+		} else if (event.keyCode === 89) {
 			// y
 			this.spectrumEditor.redo();
 			event.stopPropagation();
-		} else if (event.keyCode == 219) {
+		} else if (event.keyCode === 219) {
 			// [
 			this._doc.synth.goToPrevBar();
-		} else if (event.keyCode == 221) {
+		} else if (event.keyCode === 221) {
 			// ]
 			this._doc.synth.goToNextBar();
 		} else if (event.keyCode >= 49 && event.keyCode <= 57) {
@@ -597,17 +597,17 @@ export class SpectrumEditorPrompt implements Prompt {
 			if (event.shiftKey && this._isDrumset) {
 				this._setDrumSpectrum(event.keyCode - 49);
 			}
-		} else if (event.keyCode == 48) {
+		} else if (event.keyCode === 48) {
 			// 0
 			if (event.shiftKey && this._isDrumset) {
 				this._setDrumSpectrum(9);
 			}
-		} else if (event.keyCode == 189 || event.keyCode == 173) {
+		} else if (event.keyCode === 189 || event.keyCode === 173) {
 			// -
 			if (event.shiftKey && this._isDrumset) {
 				this._setDrumSpectrum(10);
 			}
-		} else if (event.keyCode == 187 || event.keyCode == 61 || event.keyCode == 171) {
+		} else if (event.keyCode === 187 || event.keyCode === 61 || event.keyCode === 171) {
 			// +
 			if (event.shiftKey && this._isDrumset) {
 				this._setDrumSpectrum(11);

@@ -44,8 +44,8 @@ export interface PresetLike {
 
 export function envelopeFromLegacyIndex(legacyIndex: number): import("./synth-config").Envelope {
 	// The order of "custom"/"steady" was swapped, now "none"/"note size".
-	if (legacyIndex == 0) legacyIndex = 1;
-	else if (legacyIndex == 1) legacyIndex = 0;
+	if (legacyIndex === 0) legacyIndex = 1;
+	else if (legacyIndex === 1) legacyIndex = 0;
 	return Config.envelopes[clamp(0, Config.envelopes.length, legacyIndex)];
 }
 
@@ -56,7 +56,7 @@ export function isProperUrl(string: string): boolean {
 		} else {
 			return Boolean(new URL(string));
 		}
-	} catch (x) {
+	} catch (_x) {
 		return false;
 	}
 }
@@ -172,7 +172,7 @@ export function parseAndConfigureCustomSample(
 
 	if (parseOldSyntax) {
 		if (!parsedSampleOptions && parsedUrl != null) {
-			if (url.indexOf("@") != -1) {
+			if (url.indexOf("@") !== -1) {
 				// urlSliced = url.slice(url.indexOf("@"), url.indexOf("@"));
 				urlSliced = url.replaceAll("@", "");
 				if (OFFLINE) {
@@ -205,7 +205,7 @@ export function parseAndConfigureCustomSample(
 				customRootKey = parseFloatWithDefault(url.slice(url.indexOf("!") + 1), 60);
 			}
 
-			if (url.indexOf(",") != -1 && url.indexOf("!") != -1) {
+			if (url.indexOf(",") !== -1 && url.indexOf("!") !== -1) {
 				if (url.indexOf(",") < url.indexOf("!")) {
 					sliceForRootKey();
 					sliceForSampleRate();
@@ -214,10 +214,10 @@ export function parseAndConfigureCustomSample(
 					sliceForRootKey();
 				}
 			} else {
-				if (url.indexOf(",") != -1) {
+				if (url.indexOf(",") !== -1) {
 					sliceForSampleRate();
 				}
-				if (url.indexOf("!") != -1) {
+				if (url.indexOf("!") !== -1) {
 					sliceForRootKey();
 				}
 			}

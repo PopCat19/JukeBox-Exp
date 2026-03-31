@@ -568,7 +568,7 @@ export class EuclidgenRhythmPrompt extends BasePrompt {
 				const generateFadingNotes: boolean = sequence.generateFadingNotes;
 				pitchesToBeGenerated.set(pitch, true);
 				let resultingChannel: ResultingChannel | undefined = allNewNotesByChannel.get(channelIndex);
-				if (resultingChannel == undefined) {
+				if (resultingChannel === undefined) {
 					resultingChannel = [];
 					for (let i: number = 0; i < this._barAmount; i++) {
 						const newResultingBar: ResultingBar = [];
@@ -833,7 +833,7 @@ export class EuclidgenRhythmPrompt extends BasePrompt {
 	};
 
 	private _whenSelectSequence = (event: MouseEvent): void => {
-		if (event.target == this._sequenceAddButton) {
+		if (event.target === this._sequenceAddButton) {
 			const currentSequence: Sequence = this._sequences[this._sequenceIndex];
 			this._sequences.push({
 				steps: currentSequence.steps,
@@ -852,7 +852,7 @@ export class EuclidgenRhythmPrompt extends BasePrompt {
 			this._reconfigurePulsesStepper();
 			this._reconfigurePitchStepper();
 			this._render();
-		} else if (event.target == this._sequenceRemoveButton) {
+		} else if (event.target === this._sequenceRemoveButton) {
 			this._sequences.splice(this._sequenceIndex, 1);
 			this._generatedSequences.splice(this._sequenceIndex, 1);
 			this._sequenceIndex = Math.max(0, Math.min(this._sequences.length - 1, this._sequenceIndex));
@@ -862,7 +862,7 @@ export class EuclidgenRhythmPrompt extends BasePrompt {
 			this._render();
 		} else {
 			const index: number = this._sequenceButtons.indexOf(<any>event.target);
-			if (index != -1) {
+			if (index !== -1) {
 				this._sequenceIndex = index;
 				this._refreshSequenceWidgets();
 				this._reconfigurePulsesStepper();
@@ -1070,7 +1070,7 @@ export class EuclidgenRhythmPrompt extends BasePrompt {
 		this._sequenceRemoveButton.style.display = this._sequences.length > 1 ? "" : "none";
 		this._sequenceAddButton.style.display = this._sequences.length < this._maxSequences ? "" : "none";
 		this._sequenceRemoveButton.classList.toggle("last-button", this._sequences.length >= this._maxSequences);
-		if (this._highlightedSequenceIndex != this._sequenceIndex) {
+		if (this._highlightedSequenceIndex !== this._sequenceIndex) {
 			if (this._sequenceButtons[this._highlightedSequenceIndex])
 				this._sequenceButtons[this._highlightedSequenceIndex].classList.remove("selected-instrument");
 			this._sequenceButtons[this._sequenceIndex].classList.add("selected-instrument");
@@ -1093,7 +1093,7 @@ export class EuclidgenRhythmPrompt extends BasePrompt {
 			pitch = Config.keys[pitchNameIndex].name;
 		} else {
 			const shiftDir: number = Config.blackKeyNameParents[sequence.pitch % Config.pitchesPerOctave];
-			pitch = Config.keys[(pitchNameIndex + Config.pitchesPerOctave + shiftDir) % Config.pitchesPerOctave].name + (shiftDir == 1 ? "♭" : "♯");
+			pitch = Config.keys[(pitchNameIndex + Config.pitchesPerOctave + shiftDir) % Config.pitchesPerOctave].name + (shiftDir === 1 ? "♭" : "♯");
 		}
 		this._barPreviewLabel.innerText = `Bar ${this._barPreviewBarIndex + 1}, ${pitch}${Math.floor(sequence.pitch / Config.pitchesPerOctave)}`;
 	};

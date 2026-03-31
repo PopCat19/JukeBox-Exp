@@ -120,12 +120,12 @@ export class EnvelopeEditor {
 		const randomTypeSelectIndex: number = this._randomEnvelopeTypeSelects.indexOf(<any>event.target);
 		const LFOStepsBoxIndex: number = this.LFOStepsBoxes.indexOf(<any>event.target);
 		const LFOStepsSliderIndex: number = this._LFOStepsSliders.indexOf(<any>event.target);
-		if (targetSelectIndex != -1) {
+		if (targetSelectIndex !== -1) {
 			const combinedValue: number = parseInt(this._targetSelects[targetSelectIndex].value);
 			const target: number = combinedValue % Config.instrumentAutomationTargets.length;
 			const index: number = (combinedValue / Config.instrumentAutomationTargets.length) >>> 0;
 			this._doc.record(new ChangeSetEnvelopeTarget(this._doc, targetSelectIndex, target, index));
-		} else if (envelopeSelectIndex != -1) {
+		} else if (envelopeSelectIndex !== -1) {
 			const envelopeIndex: number = this._envelopeSelects.indexOf(<any>event.target);
 
 			this._doc.record(new ChangeSetEnvelopeType(this._doc, envelopeIndex, this._envelopeSelects[envelopeIndex].selectedIndex));
@@ -133,27 +133,27 @@ export class EnvelopeEditor {
 			// hide different envelope groups based on envelope type
 			this.rerenderExtraSettings(envelopeSelectIndex);
 			this.render();
-		} else if (waveformSelectIndex != -1) {
+		} else if (waveformSelectIndex !== -1) {
 			this._doc.record(new ChangeSetEnvelopeWaveform(this._doc, this._waveformSelects[waveformSelectIndex].value, waveformSelectIndex));
-		} else if (randomTypeSelectIndex != -1) {
+		} else if (randomTypeSelectIndex !== -1) {
 			this._doc.record(new ChangeSetEnvelopeWaveform(this._doc, this._randomEnvelopeTypeSelects[randomTypeSelectIndex].value, randomTypeSelectIndex));
-		} else if (inverterIndex != -1) {
+		} else if (inverterIndex !== -1) {
 			this._doc.record(new ChangeEnvelopeInverse(this._doc, this._inverters[inverterIndex].checked, inverterIndex));
-		} else if (discreterIndex != -1) {
+		} else if (discreterIndex !== -1) {
 			this._doc.record(new ChangeDiscreteEnvelope(this._doc, this._discreters[discreterIndex].checked, discreterIndex));
 		} else if (
-			startBoxIndex != -1 ||
-			endBoxIndex != -1 ||
-			startSliderIndex != -1 ||
-			endSliderIndex != -1 ||
-			lowerBoundBoxIndex != -1 ||
-			upperBoundBoxIndex != -1 ||
-			randomStepsBoxIndex != -1 ||
-			randomSeedBoxIndex != -1 ||
-			randomStepsSliderIndex != -1 ||
-			randomSeedSliderIndex != -1 ||
-			LFOStepsBoxIndex != -1 ||
-			LFOStepsSliderIndex != -1
+			startBoxIndex !== -1 ||
+			endBoxIndex !== -1 ||
+			startSliderIndex !== -1 ||
+			endSliderIndex !== -1 ||
+			lowerBoundBoxIndex !== -1 ||
+			upperBoundBoxIndex !== -1 ||
+			randomStepsBoxIndex !== -1 ||
+			randomSeedBoxIndex !== -1 ||
+			randomStepsSliderIndex !== -1 ||
+			randomSeedSliderIndex !== -1 ||
+			LFOStepsBoxIndex !== -1 ||
+			LFOStepsSliderIndex !== -1
 		) {
 			if (this._lastChange != null) {
 				this._doc.record(this._lastChange);
@@ -166,13 +166,13 @@ export class EnvelopeEditor {
 		const deleteButtonIndex: number = this._deleteButtons.indexOf(<any>event.target);
 		const envelopeCopyButtonIndex: number = this._envelopeCopyButtons.indexOf(<any>event.target);
 		const envelopePasteButtonIndex: number = this._envelopePasteButtons.indexOf(<any>event.target);
-		if (deleteButtonIndex != -1) {
+		if (deleteButtonIndex !== -1) {
 			this._doc.record(new ChangeRemoveEnvelope(this._doc, deleteButtonIndex));
 			this.extraSettingsDropdownGroups[deleteButtonIndex].style.display = "none";
-		} else if (envelopeCopyButtonIndex != -1) {
+		} else if (envelopeCopyButtonIndex !== -1) {
 			const instrument: Instrument = this._doc.song.channels[this._doc.channel].instruments[this._doc.getCurrentInstrument()];
 			window.localStorage.setItem("envelopeCopy", JSON.stringify(instrument.envelopes[envelopeCopyButtonIndex].toJsonObject()));
-		} else if (envelopePasteButtonIndex != -1) {
+		} else if (envelopePasteButtonIndex !== -1) {
 			const envelopeCopy: any = window.localStorage.getItem("envelopeCopy");
 			this._doc.record(new PasteEnvelope(this._doc, JSON.parse(String(envelopeCopy)), envelopePasteButtonIndex));
 		}
@@ -192,43 +192,43 @@ export class EnvelopeEditor {
 		const LFOStepsBoxIndex: number = this.LFOStepsBoxes.indexOf(<any>event.target);
 		const LFOStepsSliderIndex: number = this._LFOStepsSliders.indexOf(<any>event.target);
 		const instrument: Instrument = this._doc.song.channels[this._doc.channel].instruments[this._doc.getCurrentInstrument()];
-		if (startBoxIndex != -1) {
+		if (startBoxIndex !== -1) {
 			this._lastChange = new ChangeEnvelopePitchStart(this._doc, parseInt(this.pitchStartBoxes[startBoxIndex].value), startBoxIndex);
-		} else if (endBoxIndex != -1) {
+		} else if (endBoxIndex !== -1) {
 			this._lastChange = new ChangeEnvelopePitchEnd(this._doc, parseInt(this.pitchEndBoxes[endBoxIndex].value), endBoxIndex);
-		} else if (startSliderIndex != -1) {
+		} else if (startSliderIndex !== -1) {
 			this._lastChange = new ChangeEnvelopePitchStart(this._doc, parseInt(this._pitchStartSliders[startSliderIndex].value), startSliderIndex);
-		} else if (endSliderIndex != -1) {
+		} else if (endSliderIndex !== -1) {
 			this._lastChange = new ChangeEnvelopePitchEnd(this._doc, parseInt(this._pitchEndSliders[endSliderIndex].value), endSliderIndex);
-		} else if (lowerBoundBoxIndex != -1) {
+		} else if (lowerBoundBoxIndex !== -1) {
 			this._lastChange = new ChangeEnvelopeLowerBound(
 				this._doc,
 				instrument.envelopes[lowerBoundBoxIndex].perEnvelopeLowerBound,
 				parseFloat(this.perEnvelopeLowerBoundBoxes[lowerBoundBoxIndex].value),
 				lowerBoundBoxIndex,
 			);
-		} else if (upperBoundBoxIndex != -1) {
+		} else if (upperBoundBoxIndex !== -1) {
 			this._lastChange = new ChangeEnvelopeUpperBound(
 				this._doc,
 				instrument.envelopes[upperBoundBoxIndex].perEnvelopeUpperBound,
 				parseFloat(this.perEnvelopeUpperBoundBoxes[upperBoundBoxIndex].value),
 				upperBoundBoxIndex,
 			);
-		} else if (randomStepsBoxIndex != -1) {
+		} else if (randomStepsBoxIndex !== -1) {
 			this._lastChange = new ChangeRandomEnvelopeSteps(this._doc, parseFloat(this.randomStepsBoxes[randomStepsBoxIndex].value), randomStepsBoxIndex);
-		} else if (randomSeedBoxIndex != -1) {
+		} else if (randomSeedBoxIndex !== -1) {
 			this._lastChange = new ChangeRandomEnvelopeSeed(this._doc, parseFloat(this.randomSeedBoxes[randomSeedBoxIndex].value), randomSeedBoxIndex);
-		} else if (randomStepsSliderIndex != -1) {
+		} else if (randomStepsSliderIndex !== -1) {
 			this._lastChange = new ChangeRandomEnvelopeSteps(
 				this._doc,
 				parseFloat(this._randomStepsSliders[randomStepsSliderIndex].value),
 				randomStepsSliderIndex,
 			);
-		} else if (randomSeedSliderIndex != -1) {
+		} else if (randomSeedSliderIndex !== -1) {
 			this._lastChange = new ChangeRandomEnvelopeSeed(this._doc, parseFloat(this._randomSeedSliders[randomSeedSliderIndex].value), randomSeedSliderIndex);
-		} else if (LFOStepsBoxIndex != -1) {
+		} else if (LFOStepsBoxIndex !== -1) {
 			this._lastChange = new ChangeRandomEnvelopeSteps(this._doc, parseFloat(this.LFOStepsBoxes[LFOStepsBoxIndex].value), LFOStepsBoxIndex);
-		} else if (LFOStepsSliderIndex != -1) {
+		} else if (LFOStepsSliderIndex !== -1) {
 			this._lastChange = new ChangeRandomEnvelopeSteps(this._doc, parseFloat(this._LFOStepsSliders[LFOStepsSliderIndex].value), LFOStepsSliderIndex);
 		}
 	};
@@ -236,7 +236,7 @@ export class EnvelopeEditor {
 	private _makeOption(target: number, index: number): HTMLOptionElement {
 		let displayName = Config.instrumentAutomationTargets[target].displayName;
 		if (Config.instrumentAutomationTargets[target].maxCount > 1) {
-			if (displayName.indexOf("#") != -1) {
+			if (displayName.indexOf("#") !== -1) {
 				displayName = displayName.replace("#", String(index + 1));
 			} else {
 				displayName += " " + (index + 1);
@@ -267,9 +267,9 @@ export class EnvelopeEditor {
 		} else {
 			const shiftDir: number = Config.blackKeyNameParents[value % Config.pitchesPerOctave];
 			text = Config.keys[(keyValue + Config.pitchesPerOctave + shiftDir) % Config.pitchesPerOctave].name;
-			if (shiftDir == 1) {
+			if (shiftDir === 1) {
 				text += "♭";
-			} else if (shiftDir == -1) {
+			} else if (shiftDir === -1) {
 				text += "♯";
 			}
 		}
@@ -302,7 +302,7 @@ export class EnvelopeEditor {
 				this.extraSettingsDropdowns[i].style.display = "inline";
 				this.updateSpeedDisplay(i);
 
-				if (Config.newEnvelopes[instrument.envelopes[i].envelope].name == "pitch") {
+				if (Config.newEnvelopes[instrument.envelopes[i].envelope].name === "pitch") {
 					// update values
 					this.pitchStartBoxes[i].value = instrument.envelopes[i].pitchEnvelopeStart.toString();
 					this.pitchEndBoxes[i].value = instrument.envelopes[i].pitchEnvelopeEnd.toString();
@@ -327,10 +327,10 @@ export class EnvelopeEditor {
 					this.perEnvelopeSpeedGroups[i].style.display = "none";
 					this.extraRandomSettingsGroups[i].style.display = "none";
 					this.extraLFODropdownGroups[i].style.display = "none";
-				} else if (Config.newEnvelopes[instrument.envelopes[i].envelope].name == "random") {
+				} else if (Config.newEnvelopes[instrument.envelopes[i].envelope].name === "random") {
 					// update values
 					const isRandomTime: boolean =
-						instrument.envelopes[i].waveform == RandomEnvelopeTypes.time || instrument.envelopes[i].waveform == RandomEnvelopeTypes.timeSmooth;
+						instrument.envelopes[i].waveform === RandomEnvelopeTypes.time || instrument.envelopes[i].waveform === RandomEnvelopeTypes.timeSmooth;
 					this.randomStepsBoxes[i].value = instrument.envelopes[i].steps.toString();
 					this.randomSeedBoxes[i].value = instrument.envelopes[i].seed.toString();
 					this._randomStepsSliders[i].value = instrument.envelopes[i].steps.toString();
@@ -338,7 +338,7 @@ export class EnvelopeEditor {
 					this.perEnvelopeSpeedSliders[i].updateValue(EnvelopeEditor.convertIndexSpeed(instrument.envelopes[i].perEnvelopeSpeed, "index"));
 					if (instrument.envelopes[i].waveform > RandomEnvelopeTypes.length) instrument.envelopes[i].waveform = 0;
 					this._randomStepsWrappers[i].style.display =
-						instrument.envelopes[i].waveform == RandomEnvelopeTypes.time || instrument.envelopes[i].waveform == RandomEnvelopeTypes.note
+						instrument.envelopes[i].waveform === RandomEnvelopeTypes.time || instrument.envelopes[i].waveform === RandomEnvelopeTypes.note
 							? "flex"
 							: "none";
 					this._randomEnvelopeTypeSelects[i].selectedIndex = instrument.envelopes[i].waveform;
@@ -350,13 +350,13 @@ export class EnvelopeEditor {
 					this.extraPitchSettingsGroups[i].style.display = "none";
 					this.extraRandomSettingsGroups[i].style.display = "";
 					this.extraLFODropdownGroups[i].style.display = "none";
-				} else if (Config.newEnvelopes[instrument.envelopes[i].envelope].name == "lfo") {
+				} else if (Config.newEnvelopes[instrument.envelopes[i].envelope].name === "lfo") {
 					// update values
 					this._waveformSelects[i].value = instrument.envelopes[i].waveform.toString();
 					this.perEnvelopeSpeedSliders[i].updateValue(EnvelopeEditor.convertIndexSpeed(instrument.envelopes[i].perEnvelopeSpeed, "index"));
 
 					// show / hide steps based on waveform
-					if (instrument.envelopes[i].waveform == LFOEnvelopeTypes.steppedSaw || instrument.envelopes[i].waveform == LFOEnvelopeTypes.steppedTri) {
+					if (instrument.envelopes[i].waveform === LFOEnvelopeTypes.steppedSaw || instrument.envelopes[i].waveform === LFOEnvelopeTypes.steppedTri) {
 						this._LFOStepsWrappers[i].style.display = "flex";
 					} else {
 						this._LFOStepsWrappers[i].style.display = "none";
@@ -374,9 +374,9 @@ export class EnvelopeEditor {
 					this.extraRandomSettingsGroups[i].style.display = "none";
 					this.extraLFODropdownGroups[i].style.display = "none";
 					if (
-						Config.newEnvelopes[instrument.envelopes[i].envelope].name == "punch" ||
-						Config.newEnvelopes[instrument.envelopes[i].envelope].name == "none" ||
-						Config.newEnvelopes[instrument.envelopes[i].envelope].name == "note size"
+						Config.newEnvelopes[instrument.envelopes[i].envelope].name === "punch" ||
+						Config.newEnvelopes[instrument.envelopes[i].envelope].name === "none" ||
+						Config.newEnvelopes[instrument.envelopes[i].envelope].name === "note size"
 					) {
 						this.perEnvelopeSpeedGroups[i].style.display = "none";
 					} else {
@@ -392,7 +392,7 @@ export class EnvelopeEditor {
 				this.perEnvelopeUpperBoundBoxes[i].value = instrument.envelopes[i].perEnvelopeUpperBound.toString();
 				this.perEnvelopeLowerBoundSliders[i].updateValue(instrument.envelopes[i].perEnvelopeLowerBound);
 				this.perEnvelopeUpperBoundSliders[i].updateValue(instrument.envelopes[i].perEnvelopeUpperBound);
-			} else if (this.openExtraSettingsDropdowns[i] == false) {
+			} else if (this.openExtraSettingsDropdowns[i] === false) {
 				this.extraSettingsDropdownGroups[i].style.display = "none";
 				this.extraPitchSettingsGroups[i].style.display = "none";
 				this.extraSettingsDropdowns[i].style.display = "inline";
@@ -1059,10 +1059,10 @@ export class EnvelopeEditor {
 		}
 
 		if (
-			this._renderedEqFilterCount != instrument.eqFilter.controlPointCount ||
-			this._renderedNoteFilterCount != useControlPointCount ||
-			this._renderedInstrumentType != instrument.type ||
-			this._renderedEffects != instrument.effects
+			this._renderedEqFilterCount !== instrument.eqFilter.controlPointCount ||
+			this._renderedNoteFilterCount !== useControlPointCount ||
+			this._renderedInstrumentType !== instrument.type ||
+			this._renderedEffects !== instrument.effects
 		) {
 			// Update target option visibility for previously visible rows.
 			for (let envelopeIndex: number = 0; envelopeIndex < this._renderedEnvelopeCount; envelopeIndex++) {

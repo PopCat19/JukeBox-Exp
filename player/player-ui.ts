@@ -20,7 +20,7 @@ export const isMobile: boolean = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMo
 export function getLocalStorage(key: string): string | null {
 	try {
 		return localStorage.getItem(key);
-	} catch (error) {
+	} catch (_error) {
 		// Ignore the error since we can't fix it.
 		return null;
 	}
@@ -29,7 +29,7 @@ export function getLocalStorage(key: string): string | null {
 export function setLocalStorage(key: string, value: string): void {
 	try {
 		localStorage.setItem(key, value);
-	} catch (error) {
+	} catch (_error) {
 		// Ignore the error since we can't fix it.
 	}
 }
@@ -218,7 +218,7 @@ export function buildPlayerUI(): PlayerUI {
 		}),
 		isMobile ? 1 : 2,
 	);
-	const showOscilloscope: boolean = getLocalStorage("showOscilloscope") != "false";
+	const showOscilloscope: boolean = getLocalStorage("showOscilloscope") !== "false";
 	if (!showOscilloscope) {
 		oscilloscope.canvas.style.display = "none";
 		synth.oscEnabled = false;

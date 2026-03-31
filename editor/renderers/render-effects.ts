@@ -19,9 +19,9 @@ export function renderEffectsSelect(effectsSelect: HTMLSelectElement, instrument
 	effectsSelect.selectedIndex = -1;
 	for (let i: number = 0; i < Config.effectOrder.length; i++) {
 		const effectFlag: number = Config.effectOrder[i];
-		const selected: boolean = (instrument.effects & (1 << effectFlag)) != 0;
+		const selected: boolean = (instrument.effects & (1 << effectFlag)) !== 0;
 		const label: string = (selected ? textOnIcon : textOffIcon) + Config.effectNames[effectFlag];
 		const opt: HTMLOptionElement = <HTMLOptionElement>effectsSelect.children[i + 1];
-		if (opt.textContent != label) opt.textContent = label;
+		if (opt.textContent !== label) opt.textContent = label;
 	}
 }

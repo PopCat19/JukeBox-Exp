@@ -17,7 +17,7 @@ export class ChangeEQFilterType extends Change {
 	constructor(doc: SongDocument, instrument: Instrument, newValue: boolean) {
 		super();
 		instrument.eqFilterType = newValue;
-		if (newValue == true) {
+		if (newValue === true) {
 			// To Simple - clear eq filter
 			instrument.eqFilter.reset();
 			instrument.tmpEqFilterStart = instrument.eqFilter;
@@ -39,7 +39,7 @@ export class ChangeNoteFilterType extends Change {
 	constructor(doc: SongDocument, instrument: Instrument, newValue: boolean) {
 		super();
 		instrument.noteFilterType = newValue;
-		if (newValue == true) {
+		if (newValue === true) {
 			// To Simple - clear note filter, kill modulators
 			instrument.noteFilter.reset();
 			instrument.tmpNoteFilterStart = instrument.noteFilter;
@@ -121,9 +121,9 @@ export class ChangeFilterAddPoint extends UndoableChange {
 			this._envelopeIndicesAdd.push(targetIndex);
 			if (deletion) {
 				const automationTarget: AutomationTarget = Config.instrumentAutomationTargets[target];
-				if (automationTarget.isFilter && (automationTarget.effect == EffectType.noteFilter) == isNoteFilter) {
-					if (automationTarget.maxCount == Config.filterMaxPoints) {
-						if (targetIndex == index) {
+				if (automationTarget.isFilter && (automationTarget.effect === EffectType.noteFilter) === isNoteFilter) {
+					if (automationTarget.maxCount === Config.filterMaxPoints) {
+						if (targetIndex === index) {
 							target = Config.instrumentAutomationTargets.dictionary["none"].index;
 							targetIndex = 0;
 						} else if (targetIndex > index) {

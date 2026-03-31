@@ -237,7 +237,7 @@ export class EnvelopeComputer {
 			let waveform: number = LFOEnvelopeTypes.sine;
 			const startPinTickAbsolute: number = this.startPinTickAbsolute || 0.0;
 			const defaultPitch: number = this.startPinTickDefaultPitch || 0.0;
-			if (envelopeIndex == instrument.envelopeCount) {
+			if (envelopeIndex === instrument.envelopeCount) {
 				if (usedNoteSize /*|| !this._perNote*/) break;
 				// Special case: if no other envelopes used note size, default to applying it to note volume.
 				automationTarget = Config.instrumentAutomationTargets.dictionary["noteVolume"];
@@ -279,7 +279,7 @@ export class EnvelopeComputer {
 				timeSinceStart = synth.computeTicksSinceStart();
 				steps = instrument.envelopes[envelopeIndex].steps;
 				seed = instrument.envelopes[envelopeIndex].seed;
-				if (instrument.envelopes[envelopeIndex].waveform >= (envelope.name == "lfo" ? LFOEnvelopeTypes.length : RandomEnvelopeTypes.length)) {
+				if (instrument.envelopes[envelopeIndex].waveform >= (envelope.name === "lfo" ? LFOEnvelopeTypes.length : RandomEnvelopeTypes.length)) {
 					instrument.envelopes[envelopeIndex].waveform = 0; // make sure that waveform is a proper index
 				}
 				waveform = instrument.envelopes[envelopeIndex].waveform;
@@ -298,11 +298,11 @@ export class EnvelopeComputer {
 				beatTimeStart[envelopeIndex] = tickTimeStart[envelopeIndex] ? beatsPerTick * tickTimeStart[envelopeIndex] : beatsPerTick;
 				beatTimeEnd[envelopeIndex] = tickTimeEnd[envelopeIndex] ? beatsPerTick * tickTimeEnd[envelopeIndex] : beatsPerTick;
 
-				if (envelope.type == EnvelopeType.noteSize) usedNoteSize = true;
+				if (envelope.type === EnvelopeType.noteSize) usedNoteSize = true;
 			}
 			// only calculate pitch if needed
 			const pitch: number =
-				envelope.type == EnvelopeType.pitch
+				envelope.type === EnvelopeType.pitch
 					? this.computePitchEnvelope(
 							instrument,
 							envelopeIndex,
@@ -311,7 +311,7 @@ export class EnvelopeComputer {
 					: 0;
 
 			// calculate envelope values if target isn't null or part of the other envelope computer's job
-			if (automationTarget.computeIndex != null && automationTarget.perNote == perNote) {
+			if (automationTarget.computeIndex != null && automationTarget.perNote === perNote) {
 				const computeIndex: number = automationTarget.computeIndex + targetIndex;
 				let envelopeStart: number = EnvelopeComputer.computeEnvelope(
 					envelope,
@@ -380,7 +380,7 @@ export class EnvelopeComputer {
 					envelopeStart += (other - envelopeStart) * nextSlideRatioStart;
 				}
 				let envelopeEnd: number = envelopeStart;
-				if (isDiscrete == false) {
+				if (isDiscrete === false) {
 					envelopeEnd = EnvelopeComputer.computeEnvelope(
 						envelope,
 						envelopeSpeed,
@@ -458,7 +458,7 @@ export class EnvelopeComputer {
 						/*this._perNote ?*/ instrument.tmpNoteFilterStart != null
 							? instrument.tmpNoteFilterStart
 							: instrument.noteFilter /*: instrument.eqFilter*/;
-					if (filterSettings.controlPointCount > targetIndex && filterSettings.controlPoints[targetIndex].type == FilterType.lowPass) {
+					if (filterSettings.controlPointCount > targetIndex && filterSettings.controlPoints[targetIndex].type === FilterType.lowPass) {
 						lowpassCutoffDecayVolumeCompensation = Math.max(
 							lowpassCutoffDecayVolumeCompensation,
 							EnvelopeComputer.getLowpassCutoffDecayVolumeCompensation(envelope, perEnvelopeSpeed),
@@ -548,7 +548,7 @@ export class EnvelopeComputer {
 				switch (waveform) {
 					case RandomEnvelopeTypes.time:
 						if (step <= 1) return 1;
-						const timeHash: number = xxHash32((perEnvelopeSpeed == 0 ? 0 : Math.floor((timeSinceStart * perEnvelopeSpeed) / 256)) + "", seed);
+						const timeHash: number = xxHash32((perEnvelopeSpeed === 0 ? 0 : Math.floor((timeSinceStart * perEnvelopeSpeed) / 256)) + "", seed);
 						if (inverse) {
 							return perEnvelopeUpperBound - (boundAdjust * (step / (step - 1)) * Math.floor((timeHash * step) / (hashMax + 1))) / step;
 						} else {
@@ -570,9 +570,9 @@ export class EnvelopeComputer {
 							return (boundAdjust * (step / (step - 1)) * Math.floor((noteHash * step) / (hashMax + 1))) / step + perEnvelopeLowerBound;
 						}
 					case RandomEnvelopeTypes.timeSmooth:
-						const timeHashA: number = xxHash32((perEnvelopeSpeed == 0 ? 0 : Math.floor((timeSinceStart * perEnvelopeSpeed) / 256)) + "", seed);
+						const timeHashA: number = xxHash32((perEnvelopeSpeed === 0 ? 0 : Math.floor((timeSinceStart * perEnvelopeSpeed) / 256)) + "", seed);
 						const timeHashB: number = xxHash32(
-							(perEnvelopeSpeed == 0 ? 0 : Math.floor((timeSinceStart * perEnvelopeSpeed + 256) / 256)) + "",
+							(perEnvelopeSpeed === 0 ? 0 : Math.floor((timeSinceStart * perEnvelopeSpeed + 256) / 256)) + "",
 							seed,
 						);
 						const weightedAverage: number =
@@ -750,14 +750,14 @@ export class EnvelopeComputer {
 		if (tone && tone.pitchCount >= 1) {
 			const chord = instrument.getChord();
 			const arpeggiates = chord.arpeggiates;
-			const monophonic = chord.name == "monophonic";
+			const monophonic = chord.name === "monophonic";
 			const arpeggio: number = Math.floor(instrumentState.arpTime / Config.ticksPerArpeggio); // calculate arpeggiation
 			const tonePitch =
 				tone.pitches[
 					arpeggiates ? getArpeggioPitchIndex(tone.pitchCount, instrument.fastTwoNoteArp, arpeggio) : monophonic ? instrument.monoChordTone : 0
 				];
 			if (calculateBends) {
-				return tone.lastInterval != tonePitch ? tonePitch + tone.lastInterval : tonePitch; // account for pitch bends
+				return tone.lastInterval !== tonePitch ? tonePitch + tone.lastInterval : tonePitch; // account for pitch bends
 			} else {
 				return tonePitch;
 			}
@@ -814,8 +814,8 @@ export class EnvelopeComputer {
 		// around for compatibility. This decides how much to increase the volume (or
 		// expression) to compensate for a decaying lowpass cutoff to maintain perceived
 		// volume overall.
-		if (envelope.type == EnvelopeType.decay) return 1.25 + 0.025 * /*envelope.speed */ perEnvelopeSpeed;
-		if (envelope.type == EnvelopeType.twang) return 1.0 + 0.02 * /*envelope.speed */ perEnvelopeSpeed;
+		if (envelope.type === EnvelopeType.decay) return 1.25 + 0.025 * /*envelope.speed */ perEnvelopeSpeed;
+		if (envelope.type === EnvelopeType.twang) return 1.0 + 0.02 * /*envelope.speed */ perEnvelopeSpeed;
 		return 1.0;
 	}
 

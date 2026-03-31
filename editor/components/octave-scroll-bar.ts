@@ -285,7 +285,7 @@ export class OctaveScrollBar {
 		this._svg.style.visibility =
 			this._doc.song.getChannelIsNoise(this._doc.channel) || this._doc.song.getChannelIsMod(this._doc.channel) ? "hidden" : "visible";
 		const visibleOctaveCount: number = this._doc.getVisibleOctaveCount();
-		if (this._renderedBarBottom != this._barBottom || this._renderedVisibleOctaveCount != visibleOctaveCount) {
+		if (this._renderedBarBottom !== this._barBottom || this._renderedVisibleOctaveCount !== visibleOctaveCount) {
 			this._renderedBarBottom = this._barBottom;
 			this._renderedVisibleOctaveCount = visibleOctaveCount;
 			this._barHeight = this._octaveHeight * visibleOctaveCount + this._notchHeight;

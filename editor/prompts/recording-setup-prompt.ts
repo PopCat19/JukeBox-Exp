@@ -183,7 +183,7 @@ export class RecordingSetupPrompt extends BasePrompt {
 	}
 
 	protected override _saveChanges(): void {
-		this._doc.prefs.pressControlForShortcuts = this._keyboardMode.value == "pressControlForShortcuts";
+		this._doc.prefs.pressControlForShortcuts = this._keyboardMode.value === "pressControlForShortcuts";
 		this._doc.prefs.keyboardLayout = this._keyboardLayout.value;
 		this._doc.prefs.bassOffset = Number(this._bassOffset.value);
 		this._doc.prefs.enableMidi = this._enableMidi.checked;
@@ -202,7 +202,7 @@ export class RecordingSetupPrompt extends BasePrompt {
 		}
 		const rowLengths: number[] = [12, 12, 11, 10];
 		const scale: ReadonlyArray<boolean> =
-			this._doc.song.scale == Config.scales.dictionary["Custom"].index ? this._doc.song.scaleCustom : Config.scales[this._doc.song.scale].flags;
+			this._doc.song.scale === Config.scales.dictionary["Custom"].index ? this._doc.song.scaleCustom : Config.scales[this._doc.song.scale].flags;
 		for (let rowIndex: number = 0; rowIndex < 4; rowIndex++) {
 			const row: HTMLDivElement = div({ style: "display: flex;" });
 			this._keyboardLayoutPreview.appendChild(row);
@@ -217,9 +217,9 @@ export class RecordingSetupPrompt extends BasePrompt {
 				if (pitch != null) {
 					const scalePitch: number = pitch % 12;
 					if (scale[scalePitch]) {
-						if (scalePitch == 0) {
+						if (scalePitch === 0) {
 							key.style.background = ColorConfig.tonic;
-						} else if (scalePitch == 7 && this._doc.prefs.showFifth) {
+						} else if (scalePitch === 7 && this._doc.prefs.showFifth) {
 							key.style.background = ColorConfig.fifthNote;
 						} else {
 							key.style.background = ColorConfig.pitchBackground;
@@ -228,7 +228,7 @@ export class RecordingSetupPrompt extends BasePrompt {
 						key.style.border = "2px solid " + ColorConfig.pitchBackground;
 					}
 
-					if (this._bassOffset.selectedIndex != 0 && pitch <= Piano.getBassCutoffPitch(this._doc)) {
+					if (this._bassOffset.selectedIndex !== 0 && pitch <= Piano.getBassCutoffPitch(this._doc)) {
 						key.style.setProperty("filter", "hue-rotate(60deg) brightness(0.5)");
 					} else {
 						key.style.setProperty("filter", "");

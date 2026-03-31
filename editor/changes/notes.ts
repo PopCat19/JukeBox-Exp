@@ -149,10 +149,10 @@ class ChangePins extends UndoableChange {
 		this._newStart = this._oldStart + firstTime;
 		this._newEnd = this._newStart + this._newPins[this._newPins.length - 1].time;
 
-		if (continuesLastPattern != undefined) {
+		if (continuesLastPattern !== undefined) {
 			this._newContinuesLastPattern = continuesLastPattern;
 		}
-		if (this._newStart != 0) {
+		if (this._newStart !== 0) {
 			this._newContinuesLastPattern = false;
 		}
 
@@ -212,7 +212,7 @@ export class ChangePatternNumbers extends Change {
 
 		for (let bar: number = startBar; bar < startBar + width; bar++) {
 			for (let channelIndex: number = startChannel; channelIndex < startChannel + height; channelIndex++) {
-				if (doc.song.channels[channelIndex].bars[bar] != value) {
+				if (doc.song.channels[channelIndex].bars[bar] !== value) {
 					doc.song.channels[channelIndex].bars[bar] = value;
 					this._didSomething();
 				}
@@ -236,7 +236,7 @@ export class ChangePatternNumbers extends Change {
 export class ChangePatternsPerChannel extends Change {
 	constructor(doc: SongDocument, newValue: number) {
 		super();
-		if (doc.song.patternsPerChannel != newValue) {
+		if (doc.song.patternsPerChannel !== newValue) {
 			for (let i: number = 0; i < doc.song.getChannelCount(); i++) {
 				const channelBars: number[] = doc.song.channels[i].bars;
 				const channelPatterns: Pattern[] = doc.song.channels[i].patterns;
@@ -269,7 +269,7 @@ export class ChangeEnsurePatternExists extends UndoableChange {
 	constructor(doc: SongDocument, channelIndex: number, bar: number) {
 		super(false);
 		const song: Song = doc.song;
-		if (song.channels[channelIndex].bars[bar] != 0) return;
+		if (song.channels[channelIndex].bars[bar] !== 0) return;
 
 		this._doc = doc;
 		this._bar = bar;
@@ -287,7 +287,7 @@ export class ChangeEnsurePatternExists extends UndoableChange {
 		for (let patternIndex: number = 1; patternIndex <= song.patternsPerChannel; patternIndex++) {
 			let used = false;
 			for (let barIndex: number = 0; barIndex < song.barCount; barIndex++) {
-				if (song.channels[channelIndex].bars[barIndex] == patternIndex) {
+				if (song.channels[channelIndex].bars[barIndex] === patternIndex) {
 					used = true;
 					break;
 				}
@@ -297,7 +297,7 @@ export class ChangeEnsurePatternExists extends UndoableChange {
 				firstUnusedIndex = patternIndex;
 			}
 			const pattern: Pattern = song.channels[channelIndex].patterns[patternIndex - 1];
-			if (pattern.notes.length == 0) {
+			if (pattern.notes.length === 0) {
 				firstEmptyUnusedIndex = patternIndex;
 				break;
 			}
@@ -418,7 +418,7 @@ export class ChangePitchBend extends ChangePins {
 				this._newPins.unshift(item);
 			};
 		}
-		for (; i != stop; i += direction) {
+		for (; i !== stop; i += direction) {
 			const oldPin: NotePin = note.pins[i];
 			const time: number = oldPin.time;
 			for (;;) {
@@ -446,10 +446,10 @@ export class ChangePitchBend extends ChangePins {
 						setEnd = true;
 					}
 				} else {
-					if (time * direction == bendEnd * direction) {
+					if (time * direction === bendEnd * direction) {
 						break;
 					} else {
-						if (oldPin.interval != prevInterval) persist = false;
+						if (oldPin.interval !== prevInterval) persist = false;
 						push(makeNotePin(persist ? bendTo : oldPin.interval, time, oldPin.size));
 						break;
 					}
@@ -518,7 +518,7 @@ export class ChangeMoveNotesSideways extends ChangeGroup {
 		super();
 		let partsToMove: number = Math.round((beatsToMove % doc.song.beatsPerBar) * Config.partsPerBeat);
 		if (partsToMove < 0) partsToMove += doc.song.beatsPerBar * Config.partsPerBeat;
-		if (partsToMove == 0.0) return;
+		if (partsToMove === 0.0) return;
 
 		switch (strategy) {
 			case "wrapAround":
@@ -559,7 +559,7 @@ export class ChangeMoveNotesSideways extends ChangeGroup {
 					if (beatsToMove < 0) {
 						let firstBarIsEmpty: boolean = true;
 						for (const channel of doc.song.channels) {
-							if (channel.bars[0] != 0) firstBarIsEmpty = false;
+							if (channel.bars[0] !== 0) firstBarIsEmpty = false;
 						}
 						if (firstBarIsEmpty) {
 							for (const channel of doc.song.channels) {
@@ -594,7 +594,7 @@ export class ChangeMoveNotesSideways extends ChangeGroup {
 export class ChangeScale extends ChangeGroup {
 	constructor(doc: SongDocument, newValue: number) {
 		super();
-		if (doc.song.scale != newValue) {
+		if (doc.song.scale !== newValue) {
 			doc.song.scale = newValue;
 			doc.notifier.changed();
 			this._didSomething();
@@ -616,7 +616,7 @@ export class ChangeDetectKey extends ChangeGroup {
 						const prevPin: NotePin = note.pins[0];
 						for (let pinIndex: number = 1; pinIndex < note.pins.length; pinIndex++) {
 							const nextPin: NotePin = note.pins[pinIndex];
-							if (prevPin.interval == nextPin.interval) {
+							if (prevPin.interval === nextPin.interval) {
 								let weight: number = nextPin.time - prevPin.time;
 								weight += Math.max(0, Math.min(Config.partsPerBeat, nextPin.time + note.start) - (prevPin.time + note.start));
 								weight *= nextPin.size + prevPin.size;
@@ -642,7 +642,7 @@ export class ChangeDetectKey extends ChangeGroup {
 			}
 		}
 
-		if (bestKey != song.key) {
+		if (bestKey !== song.key) {
 			const diff: number = song.key - bestKey;
 			const absoluteDiff: number = Math.abs(diff);
 
@@ -666,7 +666,7 @@ export class ChangeValidateTrackSelection extends Change {
 		super();
 		const channelIndex: number = Math.min(doc.channel, doc.song.getChannelCount() - 1);
 		const bar: number = Math.max(0, Math.min(doc.song.barCount - 1, doc.bar));
-		if (doc.channel != channelIndex || doc.bar != bar) {
+		if (doc.channel !== channelIndex || doc.bar !== bar) {
 			doc.bar = bar;
 			doc.channel = channelIndex;
 			this._didSomething();
@@ -689,7 +689,7 @@ export class ChangeReplacePatterns extends ChangeGroup {
 				for (let channelIndex: number = 0; channelIndex < channels.length - 1; channelIndex++) {
 					let zeroes: number = 0;
 					for (const bar of channels[channelIndex].bars) {
-						if (bar == 0) zeroes++;
+						if (bar === 0) zeroes++;
 					}
 					if (zeroes >= mostZeroes) {
 						sparsestIndex = channelIndex;
@@ -764,31 +764,31 @@ export class ChangeReplacePatterns extends ChangeGroup {
 }
 
 export function comparePatternNotes(a: Note[], b: Note[]): boolean {
-	if (a.length != b.length) return false;
+	if (a.length !== b.length) return false;
 
 	for (let noteIndex: number = 0; noteIndex < a.length; noteIndex++) {
 		const oldNote: Note = a[noteIndex];
 		const newNote: Note = b[noteIndex];
 		if (
-			newNote.start != oldNote.start ||
-			newNote.end != oldNote.end ||
-			newNote.pitches.length != oldNote.pitches.length ||
-			newNote.pins.length != oldNote.pins.length
+			newNote.start !== oldNote.start ||
+			newNote.end !== oldNote.end ||
+			newNote.pitches.length !== oldNote.pitches.length ||
+			newNote.pins.length !== oldNote.pins.length
 		) {
 			return false;
 		}
 
 		for (let pitchIndex: number = 0; pitchIndex < oldNote.pitches.length; pitchIndex++) {
-			if (newNote.pitches[pitchIndex] != oldNote.pitches[pitchIndex]) {
+			if (newNote.pitches[pitchIndex] !== oldNote.pitches[pitchIndex]) {
 				return false;
 			}
 		}
 
 		for (let pinIndex: number = 0; pinIndex < oldNote.pins.length; pinIndex++) {
 			if (
-				newNote.pins[pinIndex].interval != oldNote.pins[pinIndex].interval ||
-				newNote.pins[pinIndex].time != oldNote.pins[pinIndex].time ||
-				newNote.pins[pinIndex].size != oldNote.pins[pinIndex].size
+				newNote.pins[pinIndex].interval !== oldNote.pins[pinIndex].interval ||
+				newNote.pins[pinIndex].time !== oldNote.pins[pinIndex].time ||
+				newNote.pins[pinIndex].size !== oldNote.pins[pinIndex].size
 			) {
 				return false;
 			}
@@ -802,7 +802,7 @@ export function removeDuplicatePatterns(channels: Channel[]): void {
 	for (const channel of channels) {
 		const newPatterns: Pattern[] = [];
 		for (let bar: number = 0; bar < channel.bars.length; bar++) {
-			if (channel.bars[bar] == 0) continue;
+			if (channel.bars[bar] === 0) continue;
 
 			const oldPattern: Pattern = channel.patterns[channel.bars[bar] - 1];
 
@@ -810,7 +810,7 @@ export function removeDuplicatePatterns(channels: Channel[]): void {
 			for (let newPatternIndex: number = 0; newPatternIndex < newPatterns.length; newPatternIndex++) {
 				const newPattern: Pattern = newPatterns[newPatternIndex];
 
-				if (!patternsContainSameInstruments(oldPattern.instruments, newPattern.instruments) || newPattern.notes.length != oldPattern.notes.length) {
+				if (!patternsContainSameInstruments(oldPattern.instruments, newPattern.instruments) || newPattern.notes.length !== oldPattern.notes.length) {
 					continue;
 				}
 
@@ -863,7 +863,7 @@ export class ChangeNoteAdded extends UndoableChange {
 export class ChangeNoteLength extends ChangePins {
 	constructor(doc: SongDocument | null, note: Note, truncStart: number, truncEnd: number) {
 		super(doc, note);
-		const continuesLastPattern: boolean = (this._oldStart < 0 || note.continuesLastPattern) && truncStart == 0;
+		const continuesLastPattern: boolean = (this._oldStart < 0 || note.continuesLastPattern) && truncStart === 0;
 
 		truncStart -= this._oldStart;
 		truncEnd -= this._oldStart;
@@ -884,7 +884,7 @@ export class ChangeNoteLength extends ChangePins {
 				}
 				if (oldPin.time <= truncEnd) {
 					this._newPins.push(makeNotePin(oldPin.interval, oldPin.time, oldPin.size));
-					if (oldPin.time == truncEnd) {
+					if (oldPin.time === truncEnd) {
 						pushLastPin = false;
 						break;
 					}
@@ -906,7 +906,7 @@ export class ChangeNoteTruncate extends ChangeSequence {
 		let i: number = 0;
 		while (i < pattern.notes.length) {
 			const note: Note = pattern.notes[i];
-			if (note == skipNote && skipNote != null) {
+			if (note === skipNote && skipNote != null) {
 				i++;
 			} else if (note.end <= start) {
 				i++;
@@ -918,7 +918,7 @@ export class ChangeNoteTruncate extends ChangeSequence {
 					i++;
 				}
 			} else if (note.start < start && note.end > end) {
-				if (!doc.song.getChannelIsMod(doc.channel) || force || (skipNote != null && note.pitches[0] == skipNote.pitches[0])) {
+				if (!doc.song.getChannelIsMod(doc.channel) || force || (skipNote != null && note.pitches[0] === skipNote.pitches[0])) {
 					const copy: Note = note.clone();
 					this.append(new ChangeNoteLength(doc, note, note.start, start));
 					i++;
@@ -927,17 +927,17 @@ export class ChangeNoteTruncate extends ChangeSequence {
 				}
 				i++;
 			} else if (note.start < start) {
-				if (!doc.song.getChannelIsMod(doc.channel) || force || (skipNote != null && note.pitches[0] == skipNote.pitches[0])) {
+				if (!doc.song.getChannelIsMod(doc.channel) || force || (skipNote != null && note.pitches[0] === skipNote.pitches[0])) {
 					this.append(new ChangeNoteLength(doc, note, note.start, start));
 				}
 				i++;
 			} else if (note.end > end) {
-				if (!doc.song.getChannelIsMod(doc.channel) || force || (skipNote != null && note.pitches[0] == skipNote.pitches[0])) {
+				if (!doc.song.getChannelIsMod(doc.channel) || force || (skipNote != null && note.pitches[0] === skipNote.pitches[0])) {
 					this.append(new ChangeNoteLength(doc, note, end, note.end));
 				}
 				i++;
 			} else {
-				if (!doc.song.getChannelIsMod(doc.channel) || force || (skipNote != null && note.pitches[0] == skipNote.pitches[0])) {
+				if (!doc.song.getChannelIsMod(doc.channel) || force || (skipNote != null && note.pitches[0] === skipNote.pitches[0])) {
 					this.append(new ChangeNoteAdded(doc, pattern, note, i, true));
 				} else {
 					i++;
@@ -998,7 +998,7 @@ class ChangeTransposeNote extends UndoableChange {
 		// accidentally messing up noise channels when pitch shifting all
 		// channels at once.
 		const isNoise: boolean = doc.song.getChannelIsNoise(channelIndex);
-		if (isNoise != doc.song.getChannelIsNoise(doc.channel)) return;
+		if (isNoise !== doc.song.getChannelIsNoise(doc.channel)) return;
 
 		// Can't transpose mods
 		if (doc.song.getChannelIsMod(doc.channel)) return;
@@ -1014,7 +1014,7 @@ class ChangeTransposeNote extends UndoableChange {
 					pitch = Math.max(0, pitch - 12);
 				}
 			} else {
-				const scale = doc.song.scale == Config.scales.dictionary["Custom"].index ? doc.song.scaleCustom : Config.scales[doc.song.scale].flags;
+				const scale = doc.song.scale === Config.scales.dictionary["Custom"].index ? doc.song.scaleCustom : Config.scales[doc.song.scale].flags;
 				if (upward) {
 					for (let j: number = pitch + 1; j <= maxPitch; j++) {
 						if (isNoise || ignoreScale || scale[j % 12]) {
@@ -1034,7 +1034,7 @@ class ChangeTransposeNote extends UndoableChange {
 
 			let foundMatch: boolean = false;
 			for (let j: number = 0; j < this._newPitches.length; j++) {
-				if (this._newPitches[j] == pitch) {
+				if (this._newPitches[j] === pitch) {
 					foundMatch = true;
 					break;
 				}
@@ -1063,7 +1063,7 @@ class ChangeTransposeNote extends UndoableChange {
 					interval = Math.max(min, interval - 12);
 				}
 			} else {
-				const scale = doc.song.scale == Config.scales.dictionary["Custom"].index ? doc.song.scaleCustom : Config.scales[doc.song.scale].flags;
+				const scale = doc.song.scale === Config.scales.dictionary["Custom"].index ? doc.song.scaleCustom : Config.scales[doc.song.scale].flags;
 				if (upward) {
 					for (let i: number = interval + 1; i <= max; i++) {
 						if (isNoise || ignoreScale || scale[i % 12]) {
@@ -1084,14 +1084,14 @@ class ChangeTransposeNote extends UndoableChange {
 			this._newPins.push(makeNotePin(interval, oldPin.time, oldPin.size));
 		}
 
-		if (this._newPins[0].interval != 0) throw new Error("wrong pin start interval");
+		if (this._newPins[0].interval !== 0) throw new Error("wrong pin start interval");
 
 		for (let i: number = 1; i < this._newPins.length - 1; ) {
 			if (
-				this._newPins[i - 1].interval == this._newPins[i].interval &&
-				this._newPins[i].interval == this._newPins[i + 1].interval &&
-				this._newPins[i - 1].size == this._newPins[i].size &&
-				this._newPins[i].size == this._newPins[i + 1].size
+				this._newPins[i - 1].interval === this._newPins[i].interval &&
+				this._newPins[i].interval === this._newPins[i + 1].interval &&
+				this._newPins[i - 1].size === this._newPins[i].size &&
+				this._newPins[i].size === this._newPins[i + 1].size
 			) {
 				this._newPins.splice(i, 1);
 			} else {
@@ -1184,7 +1184,7 @@ export class ChangeDragSelectedNotes extends ChangeSequence {
 	constructor(doc: SongDocument, channelIndex: number, pattern: Pattern, parts: number, transpose: number) {
 		super();
 
-		if (parts == 0 && transpose == 0) return;
+		if (parts === 0 && transpose === 0) return;
 
 		if (doc.selection.patternSelectionActive) {
 			this.append(new ChangeSplitNotesAtSelection(doc, pattern));
@@ -1194,7 +1194,7 @@ export class ChangeDragSelectedNotes extends ChangeSequence {
 		const oldEnd: number = doc.selection.patternSelectionEnd;
 		const newStart: number = Math.max(0, Math.min(doc.song.beatsPerBar * Config.partsPerBeat, oldStart + parts));
 		const newEnd: number = Math.max(0, Math.min(doc.song.beatsPerBar * Config.partsPerBeat, oldEnd + parts));
-		if (newStart == newEnd) {
+		if (newStart === newEnd) {
 			// Just erase the current contents of the selection:
 			this.append(new ChangeNoteTruncate(doc, pattern, oldStart, oldEnd, null, true));
 		} else if (parts < 0) {
@@ -1258,8 +1258,8 @@ export class ChangeDuplicateSelectedReusedPatterns extends ChangeGroup {
 
 			for (let bar: number = barStart; bar < barStart + barWidth; bar++) {
 				const currentPatternIndex: number = doc.song.channels[channelIndex].bars[bar];
-				if (currentPatternIndex == 0) continue;
-				if (reusablePatterns[String(currentPatternIndex)] == undefined) {
+				if (currentPatternIndex === 0) continue;
+				if (reusablePatterns[String(currentPatternIndex)] === undefined) {
 					let isUsedElsewhere = false;
 					// if (replaceUnused) {
 					//     for (let bar2: number = 0; bar2 < doc.song.barCount; bar2++) {
@@ -1273,7 +1273,7 @@ export class ChangeDuplicateSelectedReusedPatterns extends ChangeGroup {
 					// } else {
 					for (let bar2: number = 0; bar2 < doc.song.barCount; bar2++) {
 						if (bar2 < barStart || bar2 >= barStart + barWidth) {
-							if (doc.song.channels[channelIndex].bars[bar2] == currentPatternIndex) {
+							if (doc.song.channels[channelIndex].bars[bar2] === currentPatternIndex) {
 								isUsedElsewhere = true;
 								break;
 							}
@@ -1331,7 +1331,7 @@ export class ChangePatternScale extends Change {
 			for (let i: number = 0; i < note.pitches.length; i++) {
 				const pitch: number = note.pitches[i];
 				const transformedPitch: number = scaleMap[pitch % 12] + (pitch - (pitch % 12));
-				if (newPitches.indexOf(transformedPitch) == -1) {
+				if (newPitches.indexOf(transformedPitch) === -1) {
 					newPitches.push(transformedPitch);
 				}
 			}
@@ -1353,14 +1353,14 @@ export class ChangePatternScale extends Change {
 				newPins.push(makeNotePin(transformedInterval - newPitches[0], oldPin.time, oldPin.size));
 			}
 
-			if (newPins[0].interval != 0) throw new Error("wrong pin start interval");
+			if (newPins[0].interval !== 0) throw new Error("wrong pin start interval");
 
 			for (let i: number = 1; i < newPins.length - 1; ) {
 				if (
-					newPins[i - 1].interval == newPins[i].interval &&
-					newPins[i].interval == newPins[i + 1].interval &&
-					newPins[i - 1].size == newPins[i].size &&
-					newPins[i].size == newPins[i + 1].size
+					newPins[i - 1].interval === newPins[i].interval &&
+					newPins[i].interval === newPins[i + 1].interval &&
+					newPins[i - 1].size === newPins[i].size &&
+					newPins[i].size === newPins[i + 1].size
 				) {
 					newPins.splice(i, 1);
 				} else {
@@ -1397,7 +1397,7 @@ export class ChangeSizeBend extends UndoableChange {
 				} else {
 					this._newPins.push(pin);
 				}
-			} else if (pin.time == bendPart) {
+			} else if (pin.time === bendPart) {
 				this._newPins.push(makeNotePin(bendInterval, bendPart, bendSize));
 				inserted = true;
 			} else {
@@ -1467,7 +1467,7 @@ export class ChangePaste extends ChangeGroup {
 				for (const pin of noteObject["pins"]) {
 					note.pins.push(makeNotePin(pin.interval, pin.time, pin.size));
 				}
-				note.continuesLastPattern = noteObject["continuesLastPattern"] === true && note.start == 0;
+				note.continuesLastPattern = noteObject["continuesLastPattern"] === true && note.start === 0;
 				pattern.notes.splice(noteInsertionIndex++, 0, note);
 				if (note.end > selectionEnd) {
 					this.append(new ChangeNoteLength(doc, note, note.start, selectionEnd));
@@ -1480,7 +1480,7 @@ export class ChangePaste extends ChangeGroup {
 		// Need to re-sort the notes by start time as they might change order because of paste.
 		if (pattern != null && doc.song.getChannelIsMod(doc.channel)) {
 			pattern.notes.sort(function (a, b) {
-				return a.start == b.start ? a.pitches[0] - b.pitches[0] : a.start - b.start;
+				return a.start === b.start ? a.pitches[0] - b.pitches[0] : a.start - b.start;
 			});
 		}
 

@@ -13,14 +13,14 @@ export class ChangeNotifier {
 	private _dirty: boolean = false;
 
 	public watch(watcher: () => void): void {
-		if (this._watchers.indexOf(watcher) == -1) {
+		if (this._watchers.indexOf(watcher) === -1) {
 			this._watchers.push(watcher);
 		}
 	}
 
 	public unwatch(watcher: () => void): void {
 		const index: number = this._watchers.indexOf(watcher);
-		if (index != -1) {
+		if (index !== -1) {
 			this._watchers.splice(index, 1);
 		}
 	}

@@ -120,14 +120,14 @@ export class HarmonicsEditor {
 		let sameCheck = true;
 		if (this._changeQueue.length > 0) {
 			for (let i = 0; i < Config.harmonicsControlPoints; i++) {
-				if (this._changeQueue[this._undoHistoryState][i] != this.instrument.harmonicsWave.harmonics[i]) {
+				if (this._changeQueue[this._undoHistoryState][i] !== this.instrument.harmonicsWave.harmonics[i]) {
 					sameCheck = false;
 					i = Config.harmonicsControlPoints;
 				}
 			}
 		}
 
-		if (sameCheck == false || this._changeQueue.length == 0) {
+		if (sameCheck === false || this._changeQueue.length === 0) {
 			// Create new branch in history, removing all after this in time
 			this._changeQueue.splice(0, this._undoHistoryState);
 
@@ -228,7 +228,7 @@ export class HarmonicsEditor {
 			const instrument: Instrument = this._doc.song.channels[this._doc.channel].instruments[this._doc.getCurrentInstrument()];
 			const harmonicsWave: HarmonicsWave = instrument.harmonicsWave; // (this._harmonicsIndex == null) ? instrument.harmonicsWave : instrument.drumsetSpectrumWaves[this._harmonicsIndex];
 
-			if (freq != this._freqPrev) {
+			if (freq !== this._freqPrev) {
 				const slope: number = (amp - this._ampPrev) / (freq - this._freqPrev);
 				const offset: number = this._ampPrev - this._freqPrev * slope;
 				const lowerFreq: number = Math.ceil(Math.min(this._freqPrev, freq));
@@ -303,7 +303,7 @@ export class HarmonicsEditor {
 		const bottom: string = prettyNumber(this._editorHeight);
 		let path: string = "";
 		for (let i: number = 0; i < Config.harmonicsControlPoints - 1; i++) {
-			if (harmonicsWave.harmonics[i] == 0) continue;
+			if (harmonicsWave.harmonics[i] === 0) continue;
 			const xPos: string = prettyNumber(((i + 0.5) * (this._editorWidth - 8)) / (Config.harmonicsControlPoints - 1));
 			path += "M " + xPos + " " + bottom + " ";
 			path += "L " + xPos + " " + prettyNumber(controlPointToHeight(harmonicsWave.harmonics[i])) + " ";
@@ -316,11 +316,11 @@ export class HarmonicsEditor {
 			rect.setAttribute("height", prettyNumber(this._editorHeight - lastHeight));
 		}
 
-		if (this._renderedPath != path) {
+		if (this._renderedPath !== path) {
 			this._renderedPath = path;
 			this._curve.setAttribute("d", path);
 		}
-		if (this._renderedFifths != this._doc.prefs.showFifth) {
+		if (this._renderedFifths !== this._doc.prefs.showFifth) {
 			this._renderedFifths = this._doc.prefs.showFifth;
 			this._fifths.style.display = this._doc.prefs.showFifth ? "" : "none";
 		}
@@ -465,24 +465,24 @@ export class HarmonicsEditorPrompt implements Prompt {
 	};
 
 	public whenKeyPressed = (event: KeyboardEvent): void => {
-		if ((<Element>event.target).tagName != "BUTTON" && event.keyCode == 13) {
+		if ((<Element>event.target).tagName !== "BUTTON" && event.keyCode === 13) {
 			// Enter key
 			this._saveChanges();
-		} else if (event.keyCode == 32) {
+		} else if (event.keyCode === 32) {
 			this._togglePlay();
 			event.preventDefault();
-		} else if (event.keyCode == 90) {
+		} else if (event.keyCode === 90) {
 			// z
 			this.harmonicsEditor.undo();
 			event.stopPropagation();
-		} else if (event.keyCode == 89) {
+		} else if (event.keyCode === 89) {
 			// y
 			this.harmonicsEditor.redo();
 			event.stopPropagation();
-		} else if (event.keyCode == 219) {
+		} else if (event.keyCode === 219) {
 			// [
 			this._doc.synth.goToPrevBar();
-		} else if (event.keyCode == 221) {
+		} else if (event.keyCode === 221) {
 			// ]
 			this._doc.synth.goToNextBar();
 		}

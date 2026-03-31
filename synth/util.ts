@@ -101,7 +101,7 @@ export function ticksToFadeOutSetting(ticks: number): number {
 }
 
 export function getOperatorWave(waveform: number, pulseWidth: number) {
-	if (waveform != 2) {
+	if (waveform !== 2) {
 		return Config.operatorWaves[waveform];
 	} else {
 		return Config.pwmOperatorWaves[pulseWidth];

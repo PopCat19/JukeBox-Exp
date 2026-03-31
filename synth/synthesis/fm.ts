@@ -92,16 +92,16 @@ export function buildFmSource(instrument: Instrument): string {
 	const synthSource: string[] = [];
 
 	for (const line of fmSourceTemplate) {
-		if (line.indexOf("// CARRIER OUTPUTS") != -1) {
+		if (line.indexOf("// CARRIER OUTPUTS") !== -1) {
 			const outputs: string[] = [];
 			for (let j: number = 0; j < Config.algorithms[instrument.algorithm].carrierCount; j++) {
 				outputs.push("operator" + j + "Scaled");
 			}
 			synthSource.push(line.replace("/*operator#Scaled*/", outputs.join(" + ")));
-		} else if (line.indexOf("// INSERT OPERATOR COMPUTATION HERE") != -1) {
+		} else if (line.indexOf("// INSERT OPERATOR COMPUTATION HERE") !== -1) {
 			for (let j: number = Config.operatorCount - 1; j >= 0; j--) {
 				for (const operatorLine of operatorSourceTemplate) {
-					if (operatorLine.indexOf("/* + operator@Scaled*/") != -1) {
+					if (operatorLine.indexOf("/* + operator@Scaled*/") !== -1) {
 						let modulators = "";
 						for (const modulatorNumber of Config.algorithms[instrument.algorithm].modulatedBy[j]) {
 							modulators += " + operator" + (modulatorNumber - 1) + "Scaled";
@@ -122,7 +122,7 @@ export function buildFmSource(instrument: Instrument): string {
 					}
 				}
 			}
-		} else if (line.indexOf("#") != -1) {
+		} else if (line.indexOf("#") !== -1) {
 			for (let j: number = 0; j < Config.operatorCount; j++) {
 				synthSource.push(line.replace(/\#/g, j + ""));
 			}

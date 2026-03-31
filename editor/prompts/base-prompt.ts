@@ -47,7 +47,7 @@ export abstract class BasePrompt implements Prompt {
 	}
 
 	public whenKeyPressed = (event: KeyboardEvent): void => {
-		if ((<Element>event.target).tagName != "BUTTON" && event.keyCode == 13) {
+		if ((<Element>event.target).tagName !== "BUTTON" && event.keyCode === 13) {
 			event.preventDefault();
 			this._saveChanges();
 		}

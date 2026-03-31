@@ -133,8 +133,8 @@ export class ArrayBufferWriter {
 		for (let i: number = 0; i < 4; i++) {
 			const shift: number = 21 - i * 7;
 			const bits: number = (value >>> shift) & 0x7f;
-			if (bits != 0 || i == 3) startWriting = true; // skip leading zero bytes, but always write the last byte even if it's zero.
-			if (startWriting) this.writeUint8((i == 3 ? 0x00 : 0x80) | bits);
+			if (bits !== 0 || i === 3) startWriting = true; // skip leading zero bytes, but always write the last byte even if it's zero.
+			if (startWriting) this.writeUint8((i === 3 ? 0x00 : 0x80) | bits);
 		}
 	}
 

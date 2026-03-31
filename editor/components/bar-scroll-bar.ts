@@ -111,7 +111,7 @@ export class BarScrollBar {
 
 	public animatePlayhead = (): void => {
 		const playhead = Math.min(512, Math.max(0, this._notchSpace * this._doc.synth.playhead - 2));
-		if (this._renderedPlayhead != playhead) {
+		if (this._renderedPlayhead !== playhead) {
 			this._renderedPlayhead = playhead;
 			this._playhead.setAttribute("x", "" + playhead);
 		}
@@ -261,14 +261,14 @@ export class BarScrollBar {
 	public render(): void {
 		this._notchSpace = (this._editorWidth - 1) / Math.max(this._doc.trackVisibleBars, this._doc.song.barCount);
 
-		const resized: boolean = this._renderedNotchCount != this._doc.song.barCount;
+		const resized: boolean = this._renderedNotchCount !== this._doc.song.barCount;
 		if (resized) {
 			this._renderedNotchCount = this._doc.song.barCount;
 
 			while (this._notches.firstChild) this._notches.removeChild(this._notches.firstChild);
 
 			for (let i: number = 0; i <= this._doc.song.barCount; i++) {
-				const lineHeight: number = i % 16 == 0 ? 0 : i % 4 == 0 ? this._editorHeight / 8 : this._editorHeight / 3;
+				const lineHeight: number = i % 16 === 0 ? 0 : i % 4 === 0 ? this._editorHeight / 8 : this._editorHeight / 3;
 				this._notches.appendChild(
 					SVG.rect({
 						fill: ColorConfig.uiWidgetBackground,
@@ -281,7 +281,7 @@ export class BarScrollBar {
 			}
 		}
 
-		if (resized || this._renderedScrollBarPos != this._doc.barScrollPos) {
+		if (resized || this._renderedScrollBarPos !== this._doc.barScrollPos) {
 			this._renderedScrollBarPos = this._doc.barScrollPos;
 			this._handle.setAttribute("x", String(this._notchSpace * this._doc.barScrollPos));
 			this._handle.setAttribute("width", String(this._notchSpace * this._doc.trackVisibleBars));

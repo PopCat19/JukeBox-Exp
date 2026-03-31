@@ -81,7 +81,7 @@ export function buildPickedStringSource(voiceCount: number): string {
 
 	const sampleList: string[] = [];
 	for (let voice: number = 0; voice < voiceCount; voice++) {
-		sampleList.push("fractionalDelaySample" + voice + (voice != 0 ? " * unisonSign" : ""));
+		sampleList.push("fractionalDelaySample" + voice + (voice !== 0 ? " * unisonSign" : ""));
 	}
 
 	pickedStringSource += sampleList.join(" + ");

@@ -19,7 +19,7 @@ let timelineWidth: number = 1;
 let noteFlashElementsPerBar: SVGPathElement[][];
 const currentNoteFlashElements: SVGPathElement[] = [];
 let currentNoteFlashBar: number = -1;
-const notesFlashWhenPlayed: boolean = getLocalStorage("notesFlashWhenPlayed") == "true";
+const notesFlashWhenPlayed: boolean = getLocalStorage("notesFlashWhenPlayed") === "true";
 
 export function drawNote(
 	pitch: number,
@@ -91,7 +91,7 @@ export function renderTimeline(ui: PlayerUI, zoomEnabled: boolean, removeFromUno
 
 	for (let bar: number = 0; bar < ui.synth.song.barCount + 1; bar++) {
 		const color: string =
-			bar == ui.synth.song.loopStart || bar == ui.synth.song.loopStart + ui.synth.song.loopLength
+			bar === ui.synth.song.loopStart || bar === ui.synth.song.loopStart + ui.synth.song.loopLength
 				? ColorConfig.loopAccent
 				: ColorConfig.uiWidgetBackground;
 		ui.timeline.appendChild(rect({ x: bar * barWidth - 1, y: 0, width: 2, height: timelineHeight, fill: color }));
@@ -214,7 +214,7 @@ export function renderPlayhead(ui: PlayerUI, removeFromUnorderedArray: <T>(array
 					const noteStart: number = Number(element.getAttribute("note-start")) / partsPerBar;
 					const noteEnd: number = Number(element.getAttribute("note-end")) / partsPerBar;
 					const noteBar: number = Number(element.getAttribute("note-bar"));
-					if (modPlayhead >= noteStart && noteBar == playheadBar) {
+					if (modPlayhead >= noteStart && noteBar === playheadBar) {
 						const dist: number = noteEnd - noteStart;
 						element.style.opacity = String(1 - (modPlayhead - noteStart - dist / 2) / (dist / 2));
 					} else {

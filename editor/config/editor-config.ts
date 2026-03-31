@@ -109,7 +109,7 @@ export class EditorConfig {
 			const category: PresetCategory = EditorConfig.presetCategories[categoryIndex];
 			for (let presetIndex: number = 0; presetIndex < category.presets.length; presetIndex++) {
 				const preset: Preset = category.presets[presetIndex];
-				if (preset.generalMidi && preset.midiProgram == program) return (categoryIndex << 12) + presetIndex;
+				if (preset.generalMidi && preset.midiProgram === program) return (categoryIndex << 12) + presetIndex;
 			}
 		}
 		return null;
@@ -120,7 +120,7 @@ export class EditorConfig {
 			const category: PresetCategory = EditorConfig.presetCategories[categoryIndex];
 			for (let presetIndex: number = 0; presetIndex < category.presets.length; presetIndex++) {
 				const preset: Preset = category.presets[presetIndex];
-				if (preset.name == presetName) return (categoryIndex << 12) + presetIndex;
+				if (preset.name === presetName) return (categoryIndex << 12) + presetIndex;
 			}
 		}
 		return null;

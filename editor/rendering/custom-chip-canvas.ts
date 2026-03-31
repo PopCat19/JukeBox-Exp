@@ -51,11 +51,11 @@ export class CustomChipCanvas {
 
 		// Check if the data has changed from the last render.
 		let needsRedraw: boolean = false;
-		if (renderColor != this.renderedColor) {
+		if (renderColor !== this.renderedColor) {
 			needsRedraw = true;
 		} else {
 			for (let i: number = 0; i < 64; i++) {
-				if (chipData[i] != this.renderedArray[i]) {
+				if (chipData[i] !== this.renderedArray[i]) {
 					needsRedraw = true;
 					i = 64;
 				}
@@ -103,7 +103,7 @@ export class CustomChipCanvas {
 
 			const ctx = this.canvas.getContext("2d") as CanvasRenderingContext2D;
 
-			if (this.continuousEdit == true && Math.abs(this.lastX - x) < 40) {
+			if (this.continuousEdit === true && Math.abs(this.lastX - x) < 40) {
 				const lowerBound = x < this.lastX ? x : this.lastX;
 				const upperBound = x < this.lastX ? this.lastX : x;
 

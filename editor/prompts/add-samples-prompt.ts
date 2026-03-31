@@ -543,11 +543,11 @@ export class AddSamplesPrompt extends BasePrompt {
 				}
 				if (parseOldSyntax) {
 					if (!parsedSampleOptions) {
-						if (url.indexOf("@") != -1) {
+						if (url.indexOf("@") !== -1) {
 							urlSliced = url.replaceAll("@", "");
 							percussion = true;
 						}
-						if (url.indexOf(",") != -1 && url.indexOf("!") != -1) {
+						if (url.indexOf(",") !== -1 && url.indexOf("!") !== -1) {
 							if (url.indexOf(",") < url.indexOf("!")) {
 								[urlSliced, rootKey] = sliceForRootKey(urlSliced);
 								[urlSliced, sampleRate] = sliceForSampleRate(urlSliced);
@@ -556,10 +556,10 @@ export class AddSamplesPrompt extends BasePrompt {
 								[urlSliced, rootKey] = sliceForRootKey(urlSliced);
 							}
 						} else {
-							if (url.indexOf(",") != -1) {
+							if (url.indexOf(",") !== -1) {
 								[urlSliced, sampleRate] = sliceForSampleRate(urlSliced);
 							}
-							if (url.indexOf("!") != -1) {
+							if (url.indexOf("!") !== -1) {
 								[urlSliced, rootKey] = sliceForRootKey(urlSliced);
 							}
 						}
@@ -624,7 +624,7 @@ export class AddSamplesPrompt extends BasePrompt {
 		try {
 			const parsedUrl: URL = new URL(entry.url);
 			return decodeURIComponent(parsedUrl.pathname.replace(/^([^\/]*\/)+/, ""));
-		} catch (error) {
+		} catch (_error) {
 			return entry.url;
 		}
 	};
@@ -641,9 +641,9 @@ export class AddSamplesPrompt extends BasePrompt {
 		} else {
 			const shiftDir: number = Config.blackKeyNameParents[wrap(n, Config.pitchesPerOctave)];
 			pitch = Config.keys[wrap(pitchNameIndex + Config.pitchesPerOctave + shiftDir, Config.pitchesPerOctave)].name;
-			if (shiftDir == 1) {
+			if (shiftDir === 1) {
 				pitch += "♭";
-			} else if (shiftDir == -1) {
+			} else if (shiftDir === -1) {
 				pitch += "♯";
 			}
 		}

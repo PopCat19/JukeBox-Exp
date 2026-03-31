@@ -74,7 +74,7 @@ export class PromptManager {
 	}
 
 	private _setPrompt(promptName: string | null): void {
-		if (this._currentPromptName == promptName) return;
+		if (this._currentPromptName === promptName) return;
 		this._currentPromptName = promptName;
 		const doc = this._host.doc;
 

@@ -196,12 +196,12 @@ export class FilterEditor {
 	}
 
 	private _whenKeyPressed = (event: KeyboardEvent): void => {
-		if (event.keyCode == 90) {
+		if (event.keyCode === 90) {
 			// z
 			this.undo();
 			event.stopPropagation();
 		}
-		if (event.keyCode == 89) {
+		if (event.keyCode === 89) {
 			// y
 			this.redo();
 			event.stopPropagation();
@@ -335,7 +335,7 @@ export class FilterEditor {
 					const data: FilterMoveData = ((this._dragChange as ChangeSequence).checkFirst() as ChangeFilterMovePoint).getMoveData(true);
 					const newPoint: FilterControlPoint | null = this._useFilterSettings.controlPoints[this._selectedIndex];
 
-					if (newPoint == null || newPoint.type != data.point.type) {
+					if (newPoint == null || newPoint.type !== data.point.type) {
 						this._dragChange = null;
 						this._writingMods = false;
 						this._mouseDown = false;
@@ -347,7 +347,7 @@ export class FilterEditor {
 					const data: FilterMoveData = ((this._dragChange as ChangeSequence).checkFirst() as ChangeSongFilterMovePoint).getMoveData(true);
 					const newPoint: FilterControlPoint | null = this._useFilterSettings.controlPoints[this._selectedIndex];
 
-					if (newPoint == null || newPoint.type != data.point.type) {
+					if (newPoint == null || newPoint.type !== data.point.type) {
 						this._dragChange = null;
 						this._writingMods = false;
 						this._mouseDown = false;
@@ -409,7 +409,7 @@ export class FilterEditor {
 				} else {
 					this._deletingPoint = true;
 				}
-			} else if (this._selectedIndex >= this._useFilterSettings.controlPointCount || this._selectedIndex == -1) {
+			} else if (this._selectedIndex >= this._useFilterSettings.controlPointCount || this._selectedIndex === -1) {
 				this._dragChange = null;
 				this._mouseDown = false;
 			} else {
@@ -419,7 +419,7 @@ export class FilterEditor {
 				const gain: number = Math.max(0, Math.min(Config.filterGainRange - 1, Math.round(point.gain + gainDelta)));
 				const freq: number = this._findNearestFreqSlot(this._useFilterSettings, point.freq + freqDelta, this._selectedIndex);
 
-				if (Math.round(freqDelta) != 0.0 || Math.round(gainDelta) != 0.0 || freq != point.freq || gain != point.gain) {
+				if (Math.round(freqDelta) !== 0.0 || Math.round(gainDelta) !== 0.0 || freq !== point.freq || gain !== point.gain) {
 					this._mouseDragging = true;
 				}
 
@@ -474,7 +474,7 @@ export class FilterEditor {
 		if (this.container.offsetParent == null) return;
 		if (this._mouseDown && (this._doc.lastChangeWas(this._dragChange) || this._writingMods) && this._dragChange != null) {
 			if (!this._addingPoint && !this._mouseDragging && !this._touchMode) {
-				if (this._selectedIndex < this._useFilterSettings.controlPointCount && this._selectedIndex != -1) {
+				if (this._selectedIndex < this._useFilterSettings.controlPointCount && this._selectedIndex !== -1) {
 					const point: FilterControlPoint = this._useFilterSettings.controlPoints[this._selectedIndex];
 					if (this._forSong) {
 						const change: ChangeSongFilterAddPoint = new ChangeSongFilterAddPoint(
@@ -528,8 +528,8 @@ export class FilterEditor {
 			let foundConflict: boolean = false;
 			const currentFreq: number = tryingLower ? lowerFreq : upperFreq;
 			for (let i: number = 0; i < filterSettings.controlPointCount; i++) {
-				if (i == ignoreIndex) continue;
-				if (filterSettings.controlPoints[i].freq == currentFreq) {
+				if (i === ignoreIndex) continue;
+				if (filterSettings.controlPoints[i].freq === currentFreq) {
 					foundConflict = true;
 					break;
 				}
@@ -562,13 +562,13 @@ export class FilterEditor {
 
 			controlPointPath += FilterEditor._circlePath(pointX, pointY, this._pointRadius);
 
-			if (point.type == FilterType.highPass) {
+			if (point.type === FilterType.highPass) {
 				dottedLinePath += "M " + 0 + " " + pointY + " L " + pointX + " " + pointY + " ";
-			} else if (point.type == FilterType.lowPass) {
+			} else if (point.type === FilterType.lowPass) {
 				dottedLinePath += "M " + this._editorWidth + " " + pointY + " L " + pointX + " " + pointY + " ";
 			}
 
-			if (this._selectedIndex == i && this._mouseOver && !this._mouseDown) {
+			if (this._selectedIndex === i && this._mouseOver && !this._mouseDown) {
 				this._highlight.setAttribute("cx", String(pointX));
 				this._highlight.setAttribute("cy", String(pointY));
 				this._highlight.style.display = "";
@@ -578,7 +578,7 @@ export class FilterEditor {
 				}
 			}
 			if (
-				(this._selectedIndex == i || (this._addingPoint && this._mouseDown && i == this._useFilterSettings.controlPointCount - 1)) &&
+				(this._selectedIndex === i || (this._addingPoint && this._mouseDown && i === this._useFilterSettings.controlPointCount - 1)) &&
 				(this._mouseOver || this._mouseDown) &&
 				!this._deletingPoint
 			) {
@@ -738,7 +738,7 @@ export class FilterEditor {
 	}
 
 	public swapSubfilterIndices(newIndex: number) {
-		if (this._selectedIndex == -1) {
+		if (this._selectedIndex === -1) {
 			return;
 		}
 
@@ -754,14 +754,14 @@ export class FilterEditor {
 	}
 
 	public swapToSubfilter(oldIndex: number, newIndex: number, useHistory: boolean = false) {
-		if (oldIndex != newIndex) {
+		if (oldIndex !== newIndex) {
 			// Save current subfilter
 			const currFilter: FilterSettings = new FilterSettings();
 			currFilter.fromJsonObject(this._filterSettings.toJsonObject());
 			this._subFilters[oldIndex] = currFilter;
 
 			// Copy main filter at this time
-			if (this._subFilters[newIndex] == undefined) {
+			if (this._subFilters[newIndex] === undefined) {
 				const parsedFilter: FilterSettings = new FilterSettings();
 				parsedFilter.fromJsonObject(this._subFilters[0].toJsonObject());
 				this._subFilters[newIndex] = parsedFilter;
@@ -809,7 +809,7 @@ export class FilterEditor {
 			this._controlPointPath.style.setProperty("fill", "currentColor");
 		}
 
-		if (this._useFilterSettings != filterSettings && !this._writingMods) {
+		if (this._useFilterSettings !== filterSettings && !this._writingMods) {
 			this._dragChange = null;
 			this._mouseDown = false;
 		}
@@ -840,11 +840,11 @@ export class FilterEditor {
 			pointGains = pointGains * Config.filterGainRange + point.gain;
 		}
 		if (
-			this._renderedSelectedIndex != this._selectedIndex ||
-			this._renderedPointCount != this._useFilterSettings.controlPointCount ||
-			this._renderedPointTypes != pointTypes ||
-			this._renderedPointFreqs != pointFreqs ||
-			this._renderedPointGains != pointGains
+			this._renderedSelectedIndex !== this._selectedIndex ||
+			this._renderedPointCount !== this._useFilterSettings.controlPointCount ||
+			this._renderedPointTypes !== pointTypes ||
+			this._renderedPointFreqs !== pointFreqs ||
+			this._renderedPointGains !== pointGains
 		) {
 			this._renderedSelectedIndex = this._selectedIndex;
 			this._renderedPointCount = this._useFilterSettings.controlPointCount;

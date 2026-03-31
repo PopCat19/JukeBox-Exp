@@ -133,7 +133,7 @@ export function renderModSettings(doc: SongDocument, colors: ChannelColors, pref
 
 	refs.modulatorGroup.insertBefore(refs.instrumentsButtonRow, refs.modulatorGroup.firstChild);
 	refs.modulatorGroup.insertBefore(refs.instrumentSettingsTextRow, refs.modulatorGroup.firstChild);
-	if (doc.song.channels[doc.channel].name == "") {
+	if (doc.song.channels[doc.channel].name === "") {
 		refs.instrumentSettingsTextRow.textContent = "Modulator Settings";
 	} else {
 		refs.instrumentSettingsTextRow.textContent = doc.song.channels[doc.channel].name;
@@ -200,20 +200,20 @@ export function renderModSettings(doc: SongDocument, colors: ChannelColors, pref
 		}
 
 		// Build options for modulator channels (make sure it has the right number).
-		if (doc.recalcChannelNames || refs.modChannelBoxes[mod].children.length != 2 + doc.song.pitchChannelCount + doc.song.noiseChannelCount) {
+		if (doc.recalcChannelNames || refs.modChannelBoxes[mod].children.length !== 2 + doc.song.pitchChannelCount + doc.song.noiseChannelCount) {
 			while (refs.modChannelBoxes[mod].firstChild) refs.modChannelBoxes[mod].remove(0);
 			const channelList: string[] = [];
 			channelList.push("none");
 			channelList.push("song");
 			for (let i: number = 0; i < doc.song.pitchChannelCount; i++) {
-				if (doc.song.channels[i].name == "") {
+				if (doc.song.channels[i].name === "") {
 					channelList.push("pitch " + (i + 1));
 				} else {
 					channelList.push(doc.song.channels[i].name);
 				}
 			}
 			for (let i: number = 0; i < doc.song.noiseChannelCount; i++) {
-				if (doc.song.channels[i + doc.song.pitchChannelCount].name == "") {
+				if (doc.song.channels[i + doc.song.pitchChannelCount].name === "") {
 					channelList.push("noise " + (i + 1));
 				} else {
 					channelList.push(doc.song.channels[i + doc.song.pitchChannelCount].name);
@@ -229,7 +229,7 @@ export function renderModSettings(doc: SongDocument, colors: ChannelColors, pref
 		const channel: Channel = doc.song.channels[modChannel];
 
 		// Build options for modulator instruments (make sure it has the right number).
-		if (refs.modInstrumentBoxes[mod].children.length != channel.instruments.length + 2) {
+		if (refs.modInstrumentBoxes[mod].children.length !== channel.instruments.length + 2) {
 			while (refs.modInstrumentBoxes[mod].firstChild) refs.modInstrumentBoxes[mod].remove(0);
 			const instrumentList: string[] = [];
 			for (let i: number = 0; i < channel.instruments.length; i++) {
@@ -262,7 +262,7 @@ export function renderModSettings(doc: SongDocument, colors: ChannelColors, pref
 
 		// Build options for modulator settings (based on channel settings)
 
-		if (instrument.modChannels[mod] != -2) {
+		if (instrument.modChannels[mod] !== -2) {
 			while (refs.modSetBoxes[mod].firstChild) refs.modSetBoxes[mod].remove(0);
 			const settingList: string[] = [];
 			const unusedSettingList: string[] = [];
@@ -272,7 +272,7 @@ export function renderModSettings(doc: SongDocument, colors: ChannelColors, pref
 			settingList.push("none");
 
 			// Populate mod setting options for the song scope.
-			if (instrument.modChannels[mod] == -1) {
+			if (instrument.modChannels[mod] === -1) {
 				settingList.push("song volume");
 				settingList.push("tempo");
 				settingList.push("song reverb");
@@ -587,7 +587,7 @@ export function renderModSettings(doc: SongDocument, colors: ChannelColors, pref
 			const setIndex: number = settingList.indexOf(Config.modulators[instrument.modulators[mod]].name);
 
 			// Catch instances where invalid set forced setting to "none"
-			if (setIndex == -1) {
+			if (setIndex === -1) {
 				refs.modSetBoxes[mod].insertBefore(
 					option(
 						{ value: Config.modulators[instrument.modulators[mod]].name, style: "color: red;" },
@@ -615,7 +615,7 @@ export function renderModSettings(doc: SongDocument, colors: ChannelColors, pref
 			$("#modChannelText" + mod).get(0)!.innerText = "Channel:";
 
 			// Hide setting select if channel is "none"
-			if (instrument.modChannels[mod] == -2) {
+			if (instrument.modChannels[mod] === -2) {
 				$("#modSettingText" + mod).get(0)!.style.display = "none";
 				(refs.modSetBoxes[mod].parentElement as HTMLDivElement).style.display = "none";
 			} else {
@@ -637,9 +637,9 @@ export function renderModSettings(doc: SongDocument, colors: ChannelColors, pref
 		}
 
 		let filterType: string = Config.modulators[instrument.modulators[mod]].name;
-		const useSongEq: boolean = filterType == "song eq";
+		const useSongEq: boolean = filterType === "song eq";
 		if (useSongEq) filterType = "eq filter";
-		if (filterType == "eq filter" || filterType == "note filter") {
+		if (filterType === "eq filter" || filterType === "note filter") {
 			$("#modFilterText" + mod).get(0)!.style.display = "";
 			$("#modEnvelopeText" + mod).get(0)!.style.display = "none";
 			$("#modSettingText" + mod)
@@ -652,7 +652,7 @@ export function renderModSettings(doc: SongDocument, colors: ChannelColors, pref
 			if (useInstrument >= modChannel.instruments.length) {
 				// Use greatest number of dots among all instruments if setting is 'all' or 'active'. If it won't have an effect on one, no worry.
 				for (let i: number = 0; i < modChannel.instruments.length; i++) {
-					if (filterType == "eq filter") {
+					if (filterType === "eq filter") {
 						if (modChannel.instruments[i].eqFilter.controlPointCount > tmpCount) {
 							tmpCount = modChannel.instruments[i].eqFilter.controlPointCount;
 							useInstrument = i;
@@ -668,13 +668,13 @@ export function renderModSettings(doc: SongDocument, colors: ChannelColors, pref
 
 			// Build options for modulator filters (make sure it has the right number of filter dots).
 			let dotCount: number =
-				filterType == "eq filter"
+				filterType === "eq filter"
 					? channel.instruments[useInstrument].getLargestControlPointCount(false)
 					: channel.instruments[useInstrument].getLargestControlPointCount(true);
 
 			const isSimple: boolean = useSongEq
 				? false
-				: filterType == "eq filter"
+				: filterType === "eq filter"
 					? channel.instruments[useInstrument].eqFilterType
 					: channel.instruments[useInstrument].noteFilterType;
 			if (isSimple) {
@@ -682,7 +682,7 @@ export function renderModSettings(doc: SongDocument, colors: ChannelColors, pref
 			}
 			if (useSongEq) {
 				dotCount = doc.song.eqFilter.controlPointCount;
-				if (refs.modFilterBoxes[mod].children.length != 1 + dotCount * 2) {
+				if (refs.modFilterBoxes[mod].children.length !== 1 + dotCount * 2) {
 					while (refs.modFilterBoxes[mod].firstChild) refs.modFilterBoxes[mod].remove(0);
 					const dotList: string[] = [];
 					dotList.push("morph");
@@ -692,7 +692,7 @@ export function renderModSettings(doc: SongDocument, colors: ChannelColors, pref
 					}
 					buildOptions(refs.modFilterBoxes[mod], dotList);
 				}
-			} else if (isSimple || refs.modFilterBoxes[mod].children.length != 1 + dotCount * 2) {
+			} else if (isSimple || refs.modFilterBoxes[mod].children.length !== 1 + dotCount * 2) {
 				while (refs.modFilterBoxes[mod].firstChild) refs.modFilterBoxes[mod].remove(0);
 				const dotList: string[] = [];
 				if (!isSimple) {
@@ -709,10 +709,10 @@ export function renderModSettings(doc: SongDocument, colors: ChannelColors, pref
 				refs.modFilterBoxes[mod].classList.add("invalidSetting");
 				instrument.invalidModulators[mod] = true;
 				let useName: string =
-					(instrument.modFilterTypes[mod] - 1) % 2 == 1
+					(instrument.modFilterTypes[mod] - 1) % 2 === 1
 						? "dot " + (Math.floor((instrument.modFilterTypes[mod] - 1) / 2) + 1) + " y"
 						: "dot " + (Math.floor((instrument.modFilterTypes[mod] - 1) / 2) + 1) + " x";
-				if (instrument.modFilterTypes[mod] == 0) {
+				if (instrument.modFilterTypes[mod] === 0) {
 					useName = "morph";
 				}
 				refs.modFilterBoxes[mod].insertBefore(option({ value: useName, style: "color: red;" }, useName), refs.modFilterBoxes[mod].children[0]);
@@ -731,10 +731,10 @@ export function renderModSettings(doc: SongDocument, colors: ChannelColors, pref
 
 		const envelopes: string = Config.modulators[instrument.modulators[mod]].name;
 		if (
-			envelopes == "individual envelope speed" ||
-			envelopes == "reset envelope" ||
-			envelopes == "individual envelope lower bound" ||
-			envelopes == "individual envelope upper bound"
+			envelopes === "individual envelope speed" ||
+			envelopes === "reset envelope" ||
+			envelopes === "individual envelope lower bound" ||
+			envelopes === "individual envelope upper bound"
 		) {
 			$("#modEnvelopeText" + mod).get(0)!.style.display = "";
 			$("#modFilterText" + mod).get(0)!.style.display = "none";
@@ -772,7 +772,7 @@ export function renderModSettings(doc: SongDocument, colors: ChannelColors, pref
 			}
 		} else {
 			$("#modEnvelopeText" + mod).get(0)!.style.display = "none";
-			if (!(filterType == "eq filter" || filterType == "note filter")) {
+			if (!(filterType === "eq filter" || filterType === "note filter")) {
 				$("#modSettingText" + mod)
 					.get(0)!
 					.style.setProperty("margin-bottom", "0.9em");

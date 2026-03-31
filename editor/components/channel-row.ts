@@ -43,7 +43,7 @@ export class Box {
 	}
 
 	public setIndex(index: number, selected: boolean, dim: boolean, color: string, isNoise: boolean, isMod: boolean): void {
-		if (this._renderedIndex != index) {
+		if (this._renderedIndex !== index) {
 			if (index >= 100) {
 				this._label.setAttribute("font-size", "16");
 				this._label.style.setProperty("transform", "translate(0px, -1.5px)");
@@ -56,7 +56,7 @@ export class Box {
 			this._text.data = String(index);
 		}
 		const useColor: string = selected ? ColorConfig.c_invertedText : color;
-		if (this._renderedLabelColor != useColor) {
+		if (this._renderedLabelColor !== useColor) {
 			this._label.style.color = useColor;
 			this._renderedLabelColor = useColor;
 		}
@@ -69,8 +69,8 @@ export class Box {
 				color = dim ? ColorConfig.c_trackEditorBgPitchDim : ColorConfig.c_trackEditorBgPitch;
 			}
 		}
-		color = selected ? color : index == 0 ? "none" : color;
-		if (this._renderedBackgroundColor != color) {
+		color = selected ? color : index === 0 ? "none" : color;
+		if (this._renderedBackgroundColor !== color) {
 			this.container.style.background = color;
 			this._renderedBackgroundColor = color;
 		}
@@ -78,19 +78,19 @@ export class Box {
 	// These cache the value given to them, since they're apparently quite
 	// expensive to set.
 	public setVisibility(visibility: string): void {
-		if (this._renderedVisibility != visibility) {
+		if (this._renderedVisibility !== visibility) {
 			this.container.style.visibility = visibility;
 			this._renderedVisibility = visibility;
 		}
 	}
 	public setBorderLeft(borderLeft: string): void {
-		if (this._renderedBorderLeft != borderLeft) {
+		if (this._renderedBorderLeft !== borderLeft) {
 			this.container.style.setProperty("border-left", borderLeft);
 			this._renderedBorderLeft = borderLeft;
 		}
 	}
 	public setBorderRight(borderRight: string): void {
-		if (this._renderedBorderRight != borderRight) {
+		if (this._renderedBorderRight !== borderRight) {
 			this.container.style.setProperty("border-right", borderRight);
 			this._renderedBorderRight = borderRight;
 		}
@@ -115,7 +115,7 @@ export class ChannelRow {
 		ChannelRow.patternHeight = this._doc.getChannelHeight();
 
 		const barWidth: number = this._doc.getBarWidth();
-		if (this._boxes.length != this._doc.song.barCount) {
+		if (this._boxes.length !== this._doc.song.barCount) {
 			for (let x: number = this._boxes.length; x < this._doc.song.barCount; x++) {
 				const box: Box = new Box(this.index, ColorConfig.getChannelColor(this._doc.song, this.index).secondaryChannel);
 				box.setWidth(barWidth);
@@ -128,14 +128,14 @@ export class ChannelRow {
 			this._boxes.length = this._doc.song.barCount;
 		}
 
-		if (this._renderedBarWidth != barWidth) {
+		if (this._renderedBarWidth !== barWidth) {
 			this._renderedBarWidth = barWidth;
 			for (let x: number = 0; x < this._boxes.length; x++) {
 				this._boxes[x].setWidth(barWidth);
 			}
 		}
 
-		if (this._renderedBarHeight != ChannelRow.patternHeight) {
+		if (this._renderedBarHeight !== ChannelRow.patternHeight) {
 			this._renderedBarHeight = ChannelRow.patternHeight;
 			for (let x: number = 0; x < this._boxes.length; x++) {
 				this._boxes[x].setHeight(ChannelRow.patternHeight);
@@ -144,8 +144,8 @@ export class ChannelRow {
 
 		for (let i: number = 0; i < this._boxes.length; i++) {
 			const pattern: Pattern | null = this._doc.song.getPattern(this.index, i);
-			const selected: boolean = i == this._doc.bar && this.index == this._doc.channel;
-			const dim: boolean = pattern == null || pattern.notes.length == 0;
+			const selected: boolean = i === this._doc.bar && this.index === this._doc.channel;
+			const dim: boolean = pattern == null || pattern.notes.length === 0;
 
 			const box: Box = this._boxes[i];
 			if (i < this._doc.song.barCount) {
@@ -162,12 +162,12 @@ export class ChannelRow {
 			} else {
 				box.setVisibility("hidden");
 			}
-			if (i == this._doc.synth.loopBarStart) {
+			if (i === this._doc.synth.loopBarStart) {
 				box.setBorderLeft(`1px dashed ${ColorConfig.uiWidgetFocus}`);
 			} else {
 				box.setBorderLeft("none");
 			}
-			if (i == this._doc.synth.loopBarEnd) {
+			if (i === this._doc.synth.loopBarEnd) {
 				box.setBorderRight(`1px dashed ${ColorConfig.uiWidgetFocus}`);
 			} else {
 				box.setBorderRight("none");

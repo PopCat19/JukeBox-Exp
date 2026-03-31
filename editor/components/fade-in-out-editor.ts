@@ -196,7 +196,7 @@ export class FadeInOutEditor {
 	public render(): void {
 		const instrument: Instrument = this._doc.song.channels[this._doc.channel].instruments[this._doc.getCurrentInstrument()];
 
-		if (this._renderedFadeIn == instrument.fadeIn && this._renderedFadeOut == instrument.fadeOut) {
+		if (this._renderedFadeIn === instrument.fadeIn && this._renderedFadeOut === instrument.fadeOut) {
 			return;
 		}
 

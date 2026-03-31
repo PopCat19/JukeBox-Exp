@@ -75,7 +75,7 @@ export function buildDrumSource(voiceCount: number): string {
 
 	const sampleList: string[] = [];
 	for (let voice: number = 0; voice < voiceCount; voice++) {
-		sampleList.push("noiseSample" + voice + (voice != 0 ? " * unisonSign" : ""));
+		sampleList.push("noiseSample" + voice + (voice !== 0 ? " * unisonSign" : ""));
 	}
 
 	drumSource += "let inputSample = " + sampleList.join(" + ") + ";";

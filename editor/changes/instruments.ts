@@ -30,7 +30,7 @@ export class ChangeCustomizeInstrument extends Change {
 	constructor(doc: SongDocument) {
 		super();
 		const instrument: Instrument = doc.song.channels[doc.channel].instruments[doc.getCurrentInstrument()];
-		if (instrument.preset != instrument.type) {
+		if (instrument.preset !== instrument.type) {
 			instrument.preset = instrument.type;
 			doc.notifier.changed();
 			this._didSomething();
@@ -44,12 +44,12 @@ export class ChangeCustomWave extends Change {
 		const oldArray: Float32Array = doc.song.channels[doc.channel].instruments[doc.getCurrentInstrument()].customChipWave;
 		let comparisonResult: boolean = true;
 		for (let i: number = 0; i < oldArray.length; i++) {
-			if (oldArray[i] != newArray[i]) {
+			if (oldArray[i] !== newArray[i]) {
 				comparisonResult = false;
 				i = oldArray.length;
 			}
 		}
-		if (comparisonResult == false) {
+		if (comparisonResult === false) {
 			const instrument: Instrument = doc.song.channels[doc.channel].instruments[doc.getCurrentInstrument()];
 			for (let i: number = 0; i < newArray.length; i++) {
 				instrument.customChipWave[i] = newArray[i];
@@ -81,20 +81,20 @@ export class ChangeCustomWave extends Change {
 export class ChangeCustomAlgorythmorFeedback extends Change {
 	constructor(doc: SongDocument, newArray: number[][], carry: number, mode: string) {
 		super();
-		if (mode == "algorithm") {
+		if (mode === "algorithm") {
 			const oldArray: number[][] = doc.song.channels[doc.channel].instruments[doc.getCurrentInstrument()].customAlgorithm.modulatedBy;
 			const oldCarriercount: number = doc.song.channels[doc.channel].instruments[doc.getCurrentInstrument()].customAlgorithm.carrierCount;
 			let comparisonResult: boolean = true;
-			if (carry != oldCarriercount) {
+			if (carry !== oldCarriercount) {
 				comparisonResult = false;
 			} else {
 				for (let i: number = 0; i < oldArray.length; i++) {
-					if (oldArray[i].length != newArray[i].length) {
+					if (oldArray[i].length !== newArray[i].length) {
 						comparisonResult = false;
 						break;
 					} else {
 						for (let j: number = 0; j < oldArray[i].length; j++) {
-							if (oldArray[i][j] != newArray[i][j]) {
+							if (oldArray[i][j] !== newArray[i][j]) {
 								comparisonResult = false;
 								break;
 							}
@@ -102,7 +102,7 @@ export class ChangeCustomAlgorythmorFeedback extends Change {
 					}
 				}
 			}
-			if (comparisonResult == false) {
+			if (comparisonResult === false) {
 				const instrument: Instrument = doc.song.channels[doc.channel].instruments[doc.getCurrentInstrument()];
 
 				instrument.customAlgorithm.set(carry, newArray);
@@ -111,16 +111,16 @@ export class ChangeCustomAlgorythmorFeedback extends Change {
 				doc.notifier.changed();
 				this._didSomething();
 			}
-		} else if (mode == "feedback") {
+		} else if (mode === "feedback") {
 			const oldArray: number[][] = doc.song.channels[doc.channel].instruments[doc.getCurrentInstrument()].customFeedbackType.indices;
 			let comparisonResult: boolean = true;
 			for (let i: number = 0; i < oldArray.length; i++) {
-				if (oldArray[i].length != newArray[i].length) {
+				if (oldArray[i].length !== newArray[i].length) {
 					comparisonResult = false;
 					break;
 				} else {
 					for (let j: number = 0; j < oldArray[i].length; j++) {
-						if (oldArray[i][j] != newArray[i][j]) {
+						if (oldArray[i][j] !== newArray[i][j]) {
 							comparisonResult = false;
 							break;
 						}
@@ -146,17 +146,17 @@ export class ChangePreset extends Change {
 		super();
 		const instrument: Instrument = doc.song.channels[doc.channel].instruments[doc.getCurrentInstrument()];
 		const oldValue: number = instrument.preset;
-		if (oldValue != newValue) {
+		if (oldValue !== newValue) {
 			const preset1: Preset | null = EditorConfig.instrumentToPreset(newValue);
 			const preset: Preset | null = preset1 ?? EditorConfig.valueToPreset(newValue);
 			if (preset != null) {
-				if (preset.customType != undefined) {
+				if (preset.customType !== undefined) {
 					instrument.type = preset.customType;
 					if (!Config.instrumentTypeHasSpecialInterval[instrument.type] && Config.chords[instrument.chord].customInterval) {
 						instrument.chord = 0;
 					}
 					instrument.clearInvalidEnvelopeTargets();
-				} else if (preset.settings != undefined) {
+				} else if (preset.settings !== undefined) {
 					const tempVolume: number = instrument.volume;
 					const tempPan: number = instrument.pan;
 					const tempPanDelay = instrument.panDelay;
@@ -165,7 +165,7 @@ export class ChangePreset extends Change {
 						preset.settings,
 						doc.song.getChannelIsNoise(doc.channel),
 						doc.song.getChannelIsMod(doc.channel),
-						doc.song.rhythm == 0 || doc.song.rhythm == 2,
+						doc.song.rhythm === 0 || doc.song.rhythm === 2,
 						doc.song.rhythm >= 2,
 					);
 					instrument.volume = tempVolume;
@@ -241,7 +241,7 @@ export class ChangeRandomGeneratedInstrument extends Change {
 					Config.filterGainCenter + potentialPoint.centerGain,
 					2.0 / Config.filterGainStep,
 				);
-				if (point.type == FilterType.peak && point.gain == Config.filterGainCenter) continue; // skip pointless points.
+				if (point.type === FilterType.peak && point.gain === Config.filterGainCenter) continue; // skip pointless points.
 				if (usedFreqs.includes(point.freq)) continue;
 				usedFreqs.push(point.freq);
 				filter.controlPoints[filter.controlPointCount] = point;
@@ -276,7 +276,7 @@ export class ChangeRandomGeneratedInstrument extends Change {
 					]);
 			instrument.preset = instrument.type = type;
 
-			if (type != InstrumentType.drumset) {
+			if (type !== InstrumentType.drumset) {
 				// Drumset doesn't use fade.
 				instrument.fadeIn = Math.random() < 0.8 ? 0 : selectCurvedDistribution(0, Config.fadeInRange - 1, 0, 2);
 				instrument.fadeOut = selectCurvedDistribution(0, Config.fadeOutTicks.length - 1, Config.fadeOutNeutral, 2);
@@ -305,7 +305,7 @@ export class ChangeRandomGeneratedInstrument extends Change {
 			}
 			if (Math.random() < 0.1) {
 				instrument.pitchShift = selectCurvedDistribution(0, Config.pitchShiftRange - 1, Config.pitchShiftCenter, 2);
-				if (instrument.pitchShift != Config.pitchShiftCenter) {
+				if (instrument.pitchShift !== Config.pitchShiftCenter) {
 					instrument.effects |= 1 << EffectType.pitchShift;
 					instrument.addEnvelope(
 						Config.instrumentAutomationTargets.dictionary["pitchShift"].index,
@@ -399,7 +399,7 @@ export class ChangeRandomGeneratedInstrument extends Change {
 			if (Math.random() < 0.1) {
 				instrument.echoSustain = selectCurvedDistribution(0, Config.echoSustainRange - 1, Config.echoSustainRange >> 1, 2);
 				instrument.echoDelay = selectCurvedDistribution(0, Config.echoDelayRange - 1, Config.echoDelayRange >> 1, 2);
-				if (instrument.echoSustain != 0 || instrument.echoDelay != 0) {
+				if (instrument.echoSustain !== 0 || instrument.echoDelay !== 0) {
 					instrument.effects |= 1 << EffectType.echo;
 				}
 			}
@@ -409,7 +409,7 @@ export class ChangeRandomGeneratedInstrument extends Change {
 			}
 
 			// Configure this to whatever you'd like.
-			if (type == InstrumentType.noise || type == InstrumentType.spectrum) {
+			if (type === InstrumentType.noise || type === InstrumentType.spectrum) {
 				instrument.unison =
 					Config.unisons.dictionary[
 						selectWeightedRandom([
@@ -441,7 +441,7 @@ export class ChangeRandomGeneratedInstrument extends Change {
 						])
 					].index;
 
-				if (instrument.unison != Config.unisons.dictionary["none"].index && Math.random() > 0.4) {
+				if (instrument.unison !== Config.unisons.dictionary["none"].index && Math.random() > 0.4) {
 					instrument.addEnvelope(
 						Config.instrumentAutomationTargets.dictionary["unison"].index,
 						0,
@@ -531,9 +531,9 @@ export class ChangeRandomGeneratedInstrument extends Change {
 							const spectrum: number[] = [];
 							const randomFactor: number = Math.floor(Math.random() * 3);
 							for (let j = 0; j < Config.spectrumControlPoints; j++) {
-								if (randomFactor == 0 || randomFactor == 3) spectrum[j] = Math.pow(Math.random(), 3) * 0.25;
-								else if (randomFactor == 1) spectrum[j] = Math.pow(Math.random(), i / 8 + 1);
-								else if (randomFactor == 2) spectrum[j] = Math.pow(Math.random(), 2) * (i / 3 + 1);
+								if (randomFactor === 0 || randomFactor === 3) spectrum[j] = Math.pow(Math.random(), 3) * 0.25;
+								else if (randomFactor === 1) spectrum[j] = Math.pow(Math.random(), i / 8 + 1);
+								else if (randomFactor === 2) spectrum[j] = Math.pow(Math.random(), 2) * (i / 3 + 1);
 								else spectrum[j] = Math.pow(Math.random(), 3) * 0.25;
 							}
 							normalize(spectrum);
@@ -567,12 +567,12 @@ export class ChangeRandomGeneratedInstrument extends Change {
 			instrument.fadeIn = Math.random() < 0.5 ? 0 : selectCurvedDistribution(0, Config.fadeInRange - 1, 0, 2);
 			instrument.fadeOut = selectCurvedDistribution(0, Config.fadeOutTicks.length - 1, Config.fadeOutNeutral, 2);
 			if (
-				type == InstrumentType.chip ||
-				type == InstrumentType.harmonics ||
-				type == InstrumentType.pickedString ||
-				type == InstrumentType.customChipWave ||
-				type == InstrumentType.pwm ||
-				type == InstrumentType.spectrum
+				type === InstrumentType.chip ||
+				type === InstrumentType.harmonics ||
+				type === InstrumentType.pickedString ||
+				type === InstrumentType.customChipWave ||
+				type === InstrumentType.pwm ||
+				type === InstrumentType.spectrum
 			) {
 				// TODO: add noise
 				instrument.unison =
@@ -645,7 +645,7 @@ export class ChangeRandomGeneratedInstrument extends Change {
 			}
 			if (Math.random() < 0.05) {
 				instrument.pitchShift = selectCurvedDistribution(0, Config.pitchShiftRange - 1, Config.pitchShiftCenter, 1);
-				if (instrument.pitchShift != Config.pitchShiftCenter) {
+				if (instrument.pitchShift !== Config.pitchShiftCenter) {
 					instrument.effects |= 1 << EffectType.pitchShift;
 					instrument.addEnvelope(
 						Config.instrumentAutomationTargets.dictionary["pitchShift"].index,
@@ -892,7 +892,7 @@ export class ChangeRandomGeneratedInstrument extends Change {
 							},
 						]),
 					);
-				} else if (type == InstrumentType.spectrum) {
+				} else if (type === InstrumentType.spectrum) {
 					instrument.addEnvelope(
 						Config.instrumentAutomationTargets.dictionary["noteVolume"].index,
 						0,
@@ -962,7 +962,7 @@ export class ChangeRandomGeneratedInstrument extends Change {
 			if (Math.random() < 0.1) {
 				instrument.echoSustain = selectCurvedDistribution(0, Config.echoSustainRange - 1, Config.echoSustainRange >> 1, 2);
 				instrument.echoDelay = selectCurvedDistribution(0, Config.echoDelayRange - 1, Config.echoDelayRange >> 1, 2);
-				if (instrument.echoSustain != 0 || instrument.echoDelay != 0) {
+				if (instrument.echoSustain !== 0 || instrument.echoDelay !== 0) {
 					instrument.effects |= 1 << EffectType.echo;
 					if (Math.random() < 0.04) {
 						let envelopeLowerBound = selectCurvedDistribution(0, 20, 8, 5) / 10;
@@ -1015,7 +1015,7 @@ export class ChangeRandomGeneratedInstrument extends Change {
 			if (Math.random() < 0.07) {
 				instrument.ringModulation = selectCurvedDistribution(1, Config.ringModRange - 1, Config.ringModRange / 2, Config.ringModRange / 2);
 				instrument.ringModulationHz = selectCurvedDistribution(1, Config.ringModHzRange - 1, Config.ringModHzRange / 2, Config.ringModHzRange / 2);
-				if (instrument.ringModulation != 0 || instrument.ringModulationHz != 0) {
+				if (instrument.ringModulation !== 0 || instrument.ringModulationHz !== 0) {
 					instrument.effects |= 1 << EffectType.ringModulation;
 					instrument.ringModWaveformIndex = 0;
 
@@ -1458,7 +1458,7 @@ export class ChangeRandomGeneratedInstrument extends Change {
 				case InstrumentType.pwm:
 				case InstrumentType.supersaw:
 					{
-						if (type == InstrumentType.supersaw) {
+						if (type === InstrumentType.supersaw) {
 							instrument.supersawDynamism = selectCurvedDistribution(0, Config.supersawDynamismMax, Config.supersawDynamismMax, 2);
 							instrument.supersawSpread = selectCurvedDistribution(0, Config.supersawSpreadMax, Math.ceil(Config.supersawSpreadMax / 3), 4);
 							instrument.supersawShape = selectCurvedDistribution(0, Config.supersawShapeMax, 0, 4);
@@ -1527,7 +1527,7 @@ export class ChangeRandomGeneratedInstrument extends Change {
 				case InstrumentType.pickedString:
 				case InstrumentType.harmonics:
 					{
-						if (type == InstrumentType.pickedString) {
+						if (type === InstrumentType.pickedString) {
 							instrument.stringSustain = (Math.random() * Config.stringSustainRange) | 0;
 						}
 
@@ -1572,7 +1572,7 @@ export class ChangeRandomGeneratedInstrument extends Change {
 					{
 						const spectrum: number[] = [];
 						for (let i: number = 0; i < Config.spectrumControlPoints; i++) {
-							const isHarmonic: boolean = i == 0 || i == 7 || i == 11 || i == 14 || i == 16 || i == 18 || i == 21;
+							const isHarmonic: boolean = i === 0 || i === 7 || i === 11 || i === 14 || i === 16 || i === 18 || i === 21;
 							if (isHarmonic) {
 								spectrum[i] = Math.pow(Math.random(), 0.25);
 							} else {
@@ -1589,7 +1589,7 @@ export class ChangeRandomGeneratedInstrument extends Change {
 				case InstrumentType.fm6op:
 				case InstrumentType.fm:
 					{
-						if (type == InstrumentType.fm) {
+						if (type === InstrumentType.fm) {
 							instrument.algorithm = (Math.random() * Config.algorithms.length) | 0;
 							instrument.feedbackType = (Math.random() * Config.feedbacks.length) | 0;
 						} else {
@@ -1599,7 +1599,7 @@ export class ChangeRandomGeneratedInstrument extends Change {
 							instrument.customFeedbackType.fromPreset(instrument.feedbackType6Op);
 						}
 						const algorithm: Algorithm =
-							type == InstrumentType.fm ? Config.algorithms[instrument.algorithm] : Config.algorithms6Op[instrument.algorithm6Op];
+							type === InstrumentType.fm ? Config.algorithms[instrument.algorithm] : Config.algorithms6Op[instrument.algorithm6Op];
 						for (let i: number = 0; i < algorithm.carrierCount; i++) {
 							instrument.operators[i].frequency = selectCurvedDistribution(0, Config.operatorFrequencies.length - 1, 0, 3);
 							instrument.operators[i].amplitude = selectCurvedDistribution(0, Config.operatorAmplitudeMax, Config.operatorAmplitudeMax - 1, 2);
@@ -1621,7 +1621,7 @@ export class ChangeRandomGeneratedInstrument extends Change {
 										{ item: "camelsine", weight: 5 },
 									])
 								].index;
-							if (instrument.operators[i].waveform == 2 /*"pulse width"*/) {
+							if (instrument.operators[i].waveform === 2 /*"pulse width"*/) {
 								instrument.operators[i].pulseWidth = selectWeightedRandom([
 									{ item: 0, weight: 3 },
 									{ item: 1, weight: 5 },
@@ -1637,7 +1637,7 @@ export class ChangeRandomGeneratedInstrument extends Change {
 								]);
 							}
 						}
-						for (let i: number = algorithm.carrierCount; i < Config.operatorCount + (type == InstrumentType.fm6op ? 2 : 0); i++) {
+						for (let i: number = algorithm.carrierCount; i < Config.operatorCount + (type === InstrumentType.fm6op ? 2 : 0); i++) {
 							instrument.operators[i].frequency = selectCurvedDistribution(3, Config.operatorFrequencies.length - 1, 0, 3);
 							instrument.operators[i].amplitude = (Math.pow(Math.random(), 2) * Config.operatorAmplitudeMax) | 0;
 							if (instrument.envelopeCount < Config.maxEnvelopeCount && Math.random() < 0.4) {
@@ -1742,7 +1742,7 @@ export class ChangeRandomGeneratedInstrument extends Change {
 										{ item: "quasi-sine", weight: 2 },
 									])
 								].index;
-							if (instrument.operators[i].waveform == 2) {
+							if (instrument.operators[i].waveform === 2) {
 								instrument.operators[i].pulseWidth = selectWeightedRandom([
 									{ item: 0, weight: 3 },
 									{ item: 1, weight: 5 },
@@ -1868,7 +1868,7 @@ export class ChangeTransition extends Change {
 		super();
 		const instrument: Instrument = doc.song.channels[doc.channel].instruments[doc.getCurrentInstrument()];
 		const oldValue: number = instrument.transition;
-		if (oldValue != newValue) {
+		if (oldValue !== newValue) {
 			this._didSomething();
 			instrument.transition = newValue;
 			instrument.preset = instrument.type;
@@ -1885,13 +1885,13 @@ export class ChangeToggleEffects extends Change {
 			instrument = useInstrument;
 		}
 		const oldValue: number = instrument.effects;
-		const wasSelected: boolean = (oldValue & (1 << toggleFlag)) != 0;
+		const wasSelected: boolean = (oldValue & (1 << toggleFlag)) !== 0;
 		const newValue: number = wasSelected ? oldValue & ~(1 << toggleFlag) : oldValue | (1 << toggleFlag);
 		instrument.effects = newValue;
 		// As a special case, toggling the panning effect doesn't remove the preset.
-		if (toggleFlag != EffectType.panning) instrument.preset = instrument.type;
+		if (toggleFlag !== EffectType.panning) instrument.preset = instrument.type;
 		// Remove AA when distortion is turned off.
-		if (toggleFlag == EffectType.distortion && wasSelected) {
+		if (toggleFlag === EffectType.distortion && wasSelected) {
 			instrument.aliases = false;
 		}
 		if (wasSelected) instrument.clearInvalidEnvelopeTargets();
@@ -1905,7 +1905,7 @@ export class ChangeUnison extends Change {
 		super();
 		const instrument: Instrument = doc.song.channels[doc.channel].instruments[doc.getCurrentInstrument()];
 		const oldValue: number = instrument.unison;
-		if (oldValue != newValue) {
+		if (oldValue !== newValue) {
 			instrument.unison = newValue;
 			instrument.unisonVoices = Config.unisons[instrument.unison].voices;
 			instrument.unisonSpread = Config.unisons[instrument.unison].spread;
@@ -1925,7 +1925,7 @@ export class ChangeUnisonVoices extends Change {
 		super();
 		const instrument: Instrument = doc.song.channels[doc.channel].instruments[doc.getCurrentInstrument()];
 		const prevUnison: number = instrument.unison;
-		if (oldValue != newValue || prevUnison != Config.unisons.length) {
+		if (oldValue !== newValue || prevUnison !== Config.unisons.length) {
 			instrument.unisonVoices = newValue;
 			instrument.unison = Config.unisons.length; // Custom
 			instrument.preset = instrument.type;
@@ -1940,7 +1940,7 @@ export class ChangeUnisonSpread extends Change {
 		super();
 		const instrument: Instrument = doc.song.channels[doc.channel].instruments[doc.getCurrentInstrument()];
 		const prevUnison: number = instrument.unison;
-		if (oldValue != newValue || prevUnison != Config.unisons.length) {
+		if (oldValue !== newValue || prevUnison !== Config.unisons.length) {
 			instrument.unisonSpread = newValue;
 			instrument.unison = Config.unisons.length; // Custom
 			instrument.preset = instrument.type;
@@ -1955,7 +1955,7 @@ export class ChangeUnisonOffset extends Change {
 		super();
 		const instrument: Instrument = doc.song.channels[doc.channel].instruments[doc.getCurrentInstrument()];
 		const prevUnison: number = instrument.unison;
-		if (oldValue != newValue || prevUnison != Config.unisons.length) {
+		if (oldValue !== newValue || prevUnison !== Config.unisons.length) {
 			instrument.unisonOffset = newValue;
 			instrument.unison = Config.unisons.length; // Custom
 			instrument.preset = instrument.type;
@@ -1970,7 +1970,7 @@ export class ChangeUnisonExpression extends Change {
 		super();
 		const instrument: Instrument = doc.song.channels[doc.channel].instruments[doc.getCurrentInstrument()];
 		const prevUnison: number = instrument.unison;
-		if (oldValue != newValue || prevUnison != Config.unisons.length) {
+		if (oldValue !== newValue || prevUnison !== Config.unisons.length) {
 			instrument.unisonExpression = newValue;
 			instrument.unison = Config.unisons.length; // Custom
 			instrument.preset = instrument.type;
@@ -1985,7 +1985,7 @@ export class ChangeUnisonSign extends Change {
 		super();
 		const instrument: Instrument = doc.song.channels[doc.channel].instruments[doc.getCurrentInstrument()];
 		const prevUnison: number = instrument.unison;
-		if (oldValue != newValue || prevUnison != Config.unisons.length) {
+		if (oldValue !== newValue || prevUnison !== Config.unisons.length) {
 			instrument.unisonSign = newValue;
 			instrument.unison = Config.unisons.length; // Custom
 			instrument.preset = instrument.type;
@@ -2000,7 +2000,7 @@ export class ChangeChord extends Change {
 		super();
 		const instrument: Instrument = doc.song.channels[doc.channel].instruments[doc.getCurrentInstrument()];
 		const oldValue: number = instrument.chord;
-		if (oldValue != newValue) {
+		if (oldValue !== newValue) {
 			this._didSomething();
 			instrument.chord = newValue;
 			instrument.preset = instrument.type;
@@ -2014,7 +2014,7 @@ export class ChangeVibrato extends Change {
 		super();
 		const instrument: Instrument = doc.song.channels[doc.channel].instruments[doc.getCurrentInstrument()];
 		const oldValue: number = instrument.vibrato;
-		if (oldValue != newValue) {
+		if (oldValue !== newValue) {
 			instrument.vibrato = newValue;
 			instrument.vibratoDepth = Config.vibratos[instrument.vibrato].amplitude;
 			instrument.vibratoDelay = Config.vibratos[instrument.vibrato].delayTicks / 2;
@@ -2035,7 +2035,7 @@ export class ChangeVibratoDepth extends Change {
 		doc.synth.unsetMod(Config.modulators.dictionary["vibrato depth"].index, doc.channel, doc.getCurrentInstrument());
 
 		doc.notifier.changed();
-		if (oldValue != newValue || prevVibrato != Config.vibratos.length) {
+		if (oldValue !== newValue || prevVibrato !== Config.vibratos.length) {
 			instrument.vibratoDepth = newValue / 25;
 			instrument.vibrato = Config.vibratos.length; // Custom
 			instrument.preset = instrument.type;
@@ -2052,7 +2052,7 @@ export class ChangeEnvelopeSpeed extends Change {
 		doc.synth.unsetMod(Config.modulators.dictionary["envelope speed"].index, doc.channel, doc.getCurrentInstrument());
 
 		doc.notifier.changed();
-		if (oldValue != newValue) {
+		if (oldValue !== newValue) {
 			instrument.envelopeSpeed = newValue;
 			instrument.preset = instrument.type;
 			doc.notifier.changed();
@@ -2069,7 +2069,7 @@ export class ChangeVibratoSpeed extends Change {
 		doc.synth.unsetMod(Config.modulators.dictionary["vibrato speed"].index, doc.channel, doc.getCurrentInstrument());
 
 		doc.notifier.changed();
-		if (oldValue != newValue || prevVibrato != Config.vibratos.length) {
+		if (oldValue !== newValue || prevVibrato !== Config.vibratos.length) {
 			instrument.vibratoSpeed = newValue;
 			instrument.vibrato = Config.vibratos.length; // Custom
 			instrument.preset = instrument.type;
@@ -2087,7 +2087,7 @@ export class ChangeVibratoDelay extends Change {
 		doc.synth.unsetMod(Config.modulators.dictionary["vibrato delay"].index, doc.channel, doc.getCurrentInstrument());
 
 		doc.notifier.changed();
-		if (oldValue != newValue || prevVibrato != Config.vibratos.length) {
+		if (oldValue !== newValue || prevVibrato !== Config.vibratos.length) {
 			instrument.vibratoDelay = newValue;
 			instrument.vibrato = Config.vibratos.length; // Custom
 			instrument.preset = instrument.type;
@@ -2105,7 +2105,7 @@ export class ChangeVibratoType extends Change {
 		const prevVibrato: number = instrument.vibrato;
 
 		doc.notifier.changed();
-		if (oldValue != newValue || prevVibrato != Config.vibratos.length) {
+		if (oldValue !== newValue || prevVibrato !== Config.vibratos.length) {
 			instrument.vibratoType = newValue;
 			instrument.vibrato = Config.vibratos.length; // Custom
 			instrument.preset = instrument.type;
@@ -2123,7 +2123,7 @@ export class ChangeArpeggioSpeed extends Change {
 		doc.synth.unsetMod(Config.modulators.dictionary["arp speed"].index, doc.channel, doc.getCurrentInstrument());
 
 		doc.notifier.changed();
-		if (oldValue != newValue) {
+		if (oldValue !== newValue) {
 			instrument.preset = instrument.type;
 			this._didSomething();
 		}
@@ -2137,7 +2137,7 @@ export class ChangeFastTwoNoteArp extends Change {
 		const oldValue = instrument.fastTwoNoteArp;
 
 		doc.notifier.changed();
-		if (oldValue != newValue) {
+		if (oldValue !== newValue) {
 			instrument.fastTwoNoteArp = newValue;
 			instrument.preset = instrument.type;
 			this._didSomething();
@@ -2152,7 +2152,7 @@ export class ChangeMonophonicTone extends Change {
 		const oldValue = instrument.monoChordTone;
 
 		doc.notifier.changed();
-		if (oldValue != newValue) {
+		if (oldValue !== newValue) {
 			instrument.monoChordTone = newValue;
 			this._didSomething();
 		}
@@ -2166,7 +2166,7 @@ export class ChangeClicklessTransition extends Change {
 		const oldValue = instrument.clicklessTransition;
 
 		doc.notifier.changed();
-		if (oldValue != newValue) {
+		if (oldValue !== newValue) {
 			instrument.clicklessTransition = newValue;
 			instrument.preset = instrument.type;
 			this._didSomething();
@@ -2181,7 +2181,7 @@ export class ChangeAliasing extends Change {
 		const oldValue = instrument.aliases;
 
 		doc.notifier.changed();
-		if (oldValue != newValue) {
+		if (oldValue !== newValue) {
 			instrument.aliases = newValue;
 			instrument.preset = instrument.type;
 			this._didSomething();
@@ -2196,7 +2196,7 @@ export class ChangeInvertWave extends Change {
 		const oldValue = instrument.invertWave;
 
 		doc.notifier.changed();
-		if (oldValue != newValue) {
+		if (oldValue !== newValue) {
 			instrument.invertWave = newValue;
 			instrument.preset = instrument.type;
 			this._didSomething();
@@ -2229,7 +2229,7 @@ export class ChangeDrumsetEnvelope extends Change {
 		super();
 		const instrument: Instrument = doc.song.channels[doc.channel].instruments[doc.getCurrentInstrument()];
 		const oldValue: number = instrument.drumsetEnvelopes[drumIndex];
-		if (oldValue != newValue) {
+		if (oldValue !== newValue) {
 			instrument.drumsetEnvelopes[drumIndex] = newValue;
 			instrument.preset = instrument.type;
 			doc.notifier.changed();
@@ -2243,7 +2243,7 @@ export class ChangeStringSustainType extends Change {
 		super();
 		const instrument: Instrument = doc.song.channels[doc.channel].instruments[doc.getCurrentInstrument()];
 		const oldValue: SustainType = instrument.stringSustainType;
-		if (oldValue != newValue) {
+		if (oldValue !== newValue) {
 			instrument.stringSustainType = newValue;
 			instrument.preset = instrument.type;
 			doc.notifier.changed();
@@ -2295,7 +2295,7 @@ export class ChangeAlgorithm extends Change {
 		super();
 		const instrument: Instrument = doc.song.channels[doc.channel].instruments[doc.getCurrentInstrument()];
 		const oldValue: number = instrument.algorithm;
-		if (oldValue != newValue) {
+		if (oldValue !== newValue) {
 			instrument.algorithm = newValue;
 			instrument.preset = instrument.type;
 			doc.notifier.changed();
@@ -2309,7 +2309,7 @@ export class ChangeFeedbackType extends Change {
 		super();
 		const instrument: Instrument = doc.song.channels[doc.channel].instruments[doc.getCurrentInstrument()];
 		const oldValue: number = instrument.feedbackType;
-		if (oldValue != newValue) {
+		if (oldValue !== newValue) {
 			instrument.feedbackType = newValue;
 			instrument.preset = instrument.type;
 			doc.notifier.changed();
@@ -2323,9 +2323,9 @@ export class Change6OpAlgorithm extends Change {
 		super();
 		const instrument: Instrument = doc.song.channels[doc.channel].instruments[doc.getCurrentInstrument()];
 		const oldValue: number = instrument.algorithm6Op;
-		if (oldValue != newValue) {
+		if (oldValue !== newValue) {
 			instrument.algorithm6Op = newValue;
-			if (newValue != 0) {
+			if (newValue !== 0) {
 				instrument.customAlgorithm.fromPreset(newValue);
 			}
 			instrument.preset = instrument.type;
@@ -2340,9 +2340,9 @@ export class Change6OpFeedbackType extends Change {
 		super();
 		const instrument: Instrument = doc.song.channels[doc.channel].instruments[doc.getCurrentInstrument()];
 		const oldValue: number = instrument.feedbackType6Op;
-		if (oldValue != newValue) {
+		if (oldValue !== newValue) {
 			instrument.feedbackType6Op = newValue;
-			if (newValue != 0) {
+			if (newValue !== 0) {
 				instrument.customFeedbackType.fromPreset(newValue);
 			}
 			instrument.preset = instrument.type;
@@ -2357,7 +2357,7 @@ export class ChangeOperatorWaveform extends Change {
 		super();
 		const instrument: Instrument = doc.song.channels[doc.channel].instruments[doc.getCurrentInstrument()];
 		const oldValue: number = instrument.operators[operatorIndex].waveform;
-		if (oldValue != newValue) {
+		if (oldValue !== newValue) {
 			instrument.operators[operatorIndex].waveform = newValue;
 			instrument.preset = instrument.type;
 			doc.notifier.changed();
@@ -2372,7 +2372,7 @@ export class ChangeOperatorPulseWidth extends Change {
 		const instrument: Instrument = doc.song.channels[doc.channel].instruments[doc.getCurrentInstrument()];
 		instrument.operators[operatorIndex].pulseWidth = newValue;
 		doc.notifier.changed();
-		if (oldValue != newValue) {
+		if (oldValue !== newValue) {
 			instrument.preset = instrument.type;
 			this._didSomething();
 		}
@@ -2384,7 +2384,7 @@ export class ChangeOperatorFrequency extends Change {
 		super();
 		const instrument: Instrument = doc.song.channels[doc.channel].instruments[doc.getCurrentInstrument()];
 		const oldValue: number = instrument.operators[operatorIndex].frequency;
-		if (oldValue != newValue) {
+		if (oldValue !== newValue) {
 			instrument.operators[operatorIndex].frequency = newValue;
 			instrument.preset = instrument.type;
 			doc.notifier.changed();
@@ -2397,7 +2397,7 @@ export class ChangeChipWave extends Change {
 	constructor(doc: SongDocument, newValue: number) {
 		super();
 		const instrument: Instrument = doc.song.channels[doc.channel].instruments[doc.getCurrentInstrument()];
-		if (instrument.chipWave != newValue) {
+		if (instrument.chipWave !== newValue) {
 			instrument.chipWave = newValue;
 			// advloop addition
 			instrument.isUsingAdvancedLoopControls = false;
@@ -2418,7 +2418,7 @@ export class ChangeChipWaveUseAdvancedLoopControls extends Change {
 	constructor(doc: SongDocument, newValue: boolean) {
 		super();
 		const instrument = doc.song.channels[doc.channel].instruments[doc.getCurrentInstrument()];
-		if (instrument.isUsingAdvancedLoopControls != newValue) {
+		if (instrument.isUsingAdvancedLoopControls !== newValue) {
 			instrument.isUsingAdvancedLoopControls = newValue;
 			instrument.chipWaveLoopStart = 0;
 			instrument.chipWaveLoopEnd = Config.rawRawChipWaves[instrument.chipWave].samples.length - 1;
@@ -2436,7 +2436,7 @@ export class ChangeChipWaveLoopMode extends Change {
 	constructor(doc: SongDocument, newValue: number) {
 		super();
 		const instrument = doc.song.channels[doc.channel].instruments[doc.getCurrentInstrument()];
-		if (instrument.chipWaveLoopMode != newValue) {
+		if (instrument.chipWaveLoopMode !== newValue) {
 			instrument.isUsingAdvancedLoopControls = true;
 			instrument.chipWaveLoopMode = newValue;
 			instrument.preset = instrument.type;
@@ -2450,7 +2450,7 @@ export class ChangeChipWaveLoopStart extends Change {
 	constructor(doc: SongDocument, newValue: number) {
 		super();
 		const instrument = doc.song.channels[doc.channel].instruments[doc.getCurrentInstrument()];
-		if (instrument.chipWaveLoopStart != newValue) {
+		if (instrument.chipWaveLoopStart !== newValue) {
 			instrument.isUsingAdvancedLoopControls = true;
 			instrument.chipWaveLoopStart = newValue;
 			instrument.preset = instrument.type;
@@ -2464,7 +2464,7 @@ export class ChangeChipWaveLoopEnd extends Change {
 	constructor(doc: SongDocument, newValue: number) {
 		super();
 		const instrument = doc.song.channels[doc.channel].instruments[doc.getCurrentInstrument()];
-		if (instrument.chipWaveLoopEnd != newValue) {
+		if (instrument.chipWaveLoopEnd !== newValue) {
 			instrument.isUsingAdvancedLoopControls = true;
 			instrument.chipWaveLoopEnd = newValue;
 			instrument.chipWaveLoopStart = Math.max(0, Math.min(newValue - 1, instrument.chipWaveLoopStart));
@@ -2479,7 +2479,7 @@ export class ChangeChipWaveStartOffset extends Change {
 	constructor(doc: SongDocument, newValue: number) {
 		super();
 		const instrument = doc.song.channels[doc.channel].instruments[doc.getCurrentInstrument()];
-		if (instrument.chipWaveStartOffset != newValue) {
+		if (instrument.chipWaveStartOffset !== newValue) {
 			instrument.isUsingAdvancedLoopControls = true;
 			instrument.chipWaveStartOffset = newValue;
 			instrument.preset = instrument.type;
@@ -2493,7 +2493,7 @@ export class ChangeChipWavePlayBackwards extends Change {
 	constructor(doc: SongDocument, newValue: boolean) {
 		super();
 		const instrument = doc.song.channels[doc.channel].instruments[doc.getCurrentInstrument()];
-		if (instrument.chipWavePlayBackwards != newValue) {
+		if (instrument.chipWavePlayBackwards !== newValue) {
 			instrument.isUsingAdvancedLoopControls = true;
 			instrument.chipWavePlayBackwards = newValue;
 			instrument.preset = instrument.type;
@@ -2508,7 +2508,7 @@ export class ChangeNoiseWave extends Change {
 	constructor(doc: SongDocument, newValue: number) {
 		super();
 		const instrument: Instrument = doc.song.channels[doc.channel].instruments[doc.getCurrentInstrument()];
-		if (instrument.chipNoise != newValue) {
+		if (instrument.chipNoise !== newValue) {
 			instrument.chipNoise = newValue;
 			instrument.preset = instrument.type;
 			doc.notifier.changed();
@@ -2561,7 +2561,7 @@ export class ChangeSetEnvelopeTarget extends Change {
 		const instrument: Instrument = doc.song.channels[doc.channel].instruments[doc.getCurrentInstrument()];
 		const oldTarget: number = instrument.envelopes[envelopeIndex].target;
 		const oldIndex: number = instrument.envelopes[envelopeIndex].index;
-		if (oldTarget != target || oldIndex != targetIndex) {
+		if (oldTarget !== target || oldIndex !== targetIndex) {
 			instrument.envelopes[envelopeIndex].target = target;
 			instrument.envelopes[envelopeIndex].index = targetIndex;
 			instrument.preset = instrument.type;
@@ -2576,10 +2576,10 @@ export class ChangeSetEnvelopeType extends Change {
 		super();
 		const instrument: Instrument = doc.song.channels[doc.channel].instruments[doc.getCurrentInstrument()];
 		const oldValue: number = instrument.envelopes[envelopeIndex].envelope;
-		if (oldValue != newValue) {
+		if (oldValue !== newValue) {
 			instrument.envelopes[envelopeIndex].envelope = newValue;
 			instrument.preset = instrument.type;
-			if (oldValue == Config.newEnvelopes.dictionary["none"].index) {
+			if (oldValue === Config.newEnvelopes.dictionary["none"].index) {
 				instrument.envelopes[envelopeIndex].perEnvelopeSpeed = Config.newEnvelopes[newValue].speed;
 			}
 			doc.notifier.changed();
@@ -2594,7 +2594,7 @@ export class ChangeEnvelopePitchStart extends Change {
 		const instrument: Instrument = doc.song.channels[doc.channel].instruments[doc.getCurrentInstrument()];
 		const oldStartNote: number = instrument.envelopes[index].pitchEnvelopeStart;
 		instrument.envelopes[index].pitchEnvelopeStart = startNote;
-		if (oldStartNote != startNote) {
+		if (oldStartNote !== startNote) {
 			instrument.preset = instrument.type;
 			doc.notifier.changed();
 			this._didSomething();
@@ -2608,7 +2608,7 @@ export class ChangeEnvelopePitchEnd extends Change {
 		const instrument: Instrument = doc.song.channels[doc.channel].instruments[doc.getCurrentInstrument()];
 		const oldEndNote: number = instrument.envelopes[index].pitchEnvelopeEnd;
 		instrument.envelopes[index].pitchEnvelopeEnd = endNote;
-		if (oldEndNote != endNote) {
+		if (oldEndNote !== endNote) {
 			instrument.preset = instrument.type;
 			doc.notifier.changed();
 			this._didSomething();
@@ -2622,7 +2622,7 @@ export class ChangeEnvelopeInverse extends Change {
 		const instrument: Instrument = doc.song.channels[doc.channel].instruments[doc.getCurrentInstrument()];
 		const oldValue: boolean = instrument.envelopes[index].inverse;
 		instrument.envelopes[index].inverse = value;
-		if (oldValue != value) {
+		if (oldValue !== value) {
 			instrument.preset = instrument.type;
 			doc.notifier.changed();
 			this._didSomething();
@@ -2637,7 +2637,7 @@ export class ChangeDiscreteEnvelope extends Change {
 		const oldValue = instrument.envelopes[index].discrete;
 
 		doc.notifier.changed();
-		if (oldValue != newValue) {
+		if (oldValue !== newValue) {
 			instrument.envelopes[index].discrete = newValue;
 			instrument.preset = instrument.type;
 			this._didSomething();
@@ -2652,7 +2652,7 @@ export class ChangeRandomEnvelopeSteps extends Change {
 		const oldSteps: number = instrument.envelopes[index].steps;
 		steps = steps > Config.randomEnvelopeStepsMax ? Config.randomEnvelopeStepsMax : steps < 1 ? 2 : Math.floor(steps);
 		instrument.envelopes[index].steps = steps;
-		if (oldSteps != steps) {
+		if (oldSteps !== steps) {
 			instrument.preset = instrument.type;
 			doc.notifier.changed();
 			this._didSomething();
@@ -2667,7 +2667,7 @@ export class ChangeRandomEnvelopeSeed extends Change {
 		const oldSeed: number = instrument.envelopes[index].seed;
 		seed = seed > Config.randomEnvelopeSeedMax ? Config.randomEnvelopeSeedMax : seed < 1 ? 2 : Math.floor(seed);
 		instrument.envelopes[index].seed = seed;
-		if (oldSeed != seed) {
+		if (oldSeed !== seed) {
 			// changing the seed does not change the preset
 			doc.notifier.changed();
 			this._didSomething();
@@ -2694,7 +2694,7 @@ export class ChangeSetEnvelopeWaveform extends Change {
 		const oldWaveform: number = instrument.envelopes[index].waveform;
 		waveform = parseInt(waveform + ""); // make sure waveform isn't a string
 		instrument.envelopes[index].waveform = waveform;
-		if (oldWaveform != waveform) {
+		if (oldWaveform !== waveform) {
 			instrument.preset = instrument.type;
 			doc.notifier.changed();
 			this._didSomething();
@@ -2705,7 +2705,7 @@ export class ChangeRingModChipWave extends Change {
 	constructor(doc: SongDocument, newValue: number) {
 		super();
 		const instrument: Instrument = doc.song.channels[doc.channel].instruments[doc.getCurrentInstrument()];
-		if (instrument.ringModWaveformIndex != newValue) {
+		if (instrument.ringModWaveformIndex !== newValue) {
 			instrument.ringModWaveformIndex = newValue;
 			doc.notifier.changed();
 			this._didSomething();

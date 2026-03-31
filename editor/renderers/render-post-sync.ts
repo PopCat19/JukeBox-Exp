@@ -69,7 +69,7 @@ export function renderPostBranchSync(
 	refs.addEnvelopeButton.disabled = instrument.envelopeCount >= Config.maxEnvelopeCount;
 	refs.volumeSlider.updateValue(prefs.volume);
 
-	if (wasActive && activeElement != null && activeElement.clientWidth == 0) {
+	if (wasActive && activeElement != null && activeElement.clientWidth === 0) {
 		refocusStage();
 	}
 
@@ -91,7 +91,7 @@ export function renderPostBranchSync(
 		doc.addedEnvelope = false;
 	}
 
-	if (refs.ringModWaveSelect.selectedIndex == Config.operatorWaves.dictionary["pulse width"].index) {
+	if (refs.ringModWaveSelect.selectedIndex === Config.operatorWaves.dictionary["pulse width"].index) {
 		refs.ringModPulsewidthSlider.container.style.display = "";
 		refs.ringModWaveText.style.display = "none";
 	} else {

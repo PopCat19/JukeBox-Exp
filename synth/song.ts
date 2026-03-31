@@ -66,7 +66,7 @@ export class Song {
 
 	constructor(string?: string, customSampleHandler?: CustomSampleHandler) {
 		this.customSampleHandler = customSampleHandler ?? null;
-		if (string != undefined) {
+		if (string !== undefined) {
 			this.fromBase64String(string);
 		} else {
 			this.initToDefault(true);
@@ -75,7 +75,7 @@ export class Song {
 
 	// Returns the ideal new note volume when dragging (max volume for a normal note, a "neutral" value for mod notes based on how they work)
 	public getNewNoteVolume = (isMod: boolean, modChannel?: number, modInstrument?: number, modCount?: number): number => {
-		if (!isMod || modChannel == undefined || modInstrument == undefined || modCount == undefined) {
+		if (!isMod || modChannel === undefined || modInstrument === undefined || modCount === undefined) {
 			return Config.noteSizeMax;
 		} else {
 			// Sigh, the way pitches count up and the visual ordering in the UI are flipped.
@@ -87,7 +87,7 @@ export class Song {
 			const currentIndex: number = instrument.modulators[modCount];
 			// For tempo, actually use user defined tempo
 			const tempoIndex: number = Config.modulators.dictionary["tempo"].index;
-			if (currentIndex == tempoIndex) vol = this.tempo - Config.modulators[tempoIndex].convertRealFactor;
+			if (currentIndex === tempoIndex) vol = this.tempo - Config.modulators[tempoIndex].convertRealFactor;
 			// for effects and envelopes, use the user defined value of the selected instrument (or the default value if all or active is selected)
 			if (
 				!Config.modulators[currentIndex].forSong &&
@@ -252,7 +252,7 @@ export class Song {
 				}
 			}
 
-			if (vol != undefined) {
+			if (vol !== undefined) {
 				return vol;
 			} else {
 				return Config.noteSizeMax;
@@ -261,7 +261,7 @@ export class Song {
 	};
 
 	public getVolumeCap = (isMod: boolean, modChannel?: number, modInstrument?: number, modCount?: number): number => {
-		if (!isMod || modChannel == undefined || modInstrument == undefined || modCount == undefined) {
+		if (!isMod || modChannel === undefined || modInstrument === undefined || modCount === undefined) {
 			return Config.noteSizeMax;
 		} else {
 			// Sigh, the way pitches count up and the visual ordering in the UI are flipped.
@@ -271,9 +271,9 @@ export class Song {
 			const modulator = Config.modulators[instrument.modulators[modCount]];
 			let cap: number | undefined = modulator.maxRawVol;
 
-			if (cap != undefined) {
+			if (cap !== undefined) {
 				// For filters, cap is dependent on which filter setting is targeted
-				if (modulator.name == "eq filter" || modulator.name == "note filter" || modulator.name == "song eq") {
+				if (modulator.name === "eq filter" || modulator.name === "note filter" || modulator.name === "song eq") {
 					// type 0: number of filter morphs
 					// type 1/odd: number of filter x positions
 					// type 2/even: number of filter y positions
@@ -296,13 +296,13 @@ export class Song {
 			return Config.noteSizeMax;
 		} else {
 			let cap: number | undefined = Config.modulators[modSetting].maxRawVol;
-			if (cap != undefined) {
+			if (cap !== undefined) {
 				// For filters, cap is dependent on which filter setting is targeted
 				if (
-					filterType != undefined &&
-					(Config.modulators[modSetting].name == "eq filter" ||
-						Config.modulators[modSetting].name == "note filter" ||
-						Config.modulators[modSetting].name == "song eq")
+					filterType !== undefined &&
+					(Config.modulators[modSetting].name === "eq filter" ||
+						Config.modulators[modSetting].name === "note filter" ||
+						Config.modulators[modSetting].name === "song eq")
 				) {
 					// type 0: number of filter morphs
 					// type 1/odd: number of filter x positions
@@ -420,7 +420,7 @@ export class Song {
 	public getPattern(channelIndex: number, bar: number): Pattern | null {
 		if (bar < 0 || bar >= this.barCount) return null;
 		const patternIndex: number = this.channels[channelIndex].bars[bar];
-		if (patternIndex == 0) return null;
+		if (patternIndex === 0) return null;
 		return this.channels[channelIndex].patterns[patternIndex - 1];
 	}
 

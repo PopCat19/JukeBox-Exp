@@ -43,7 +43,7 @@ import { Slider } from "../ui/html-wrapper";
 
 function setSelectedValue(menu: HTMLSelectElement, value: number, isSelect2: boolean = false): void {
 	const stringValue = value.toString();
-	if (menu.value != stringValue) {
+	if (menu.value !== stringValue) {
 		menu.value = stringValue;
 		if (isSelect2) {
 			$(menu).val(value).trigger("change.select2");
@@ -417,7 +417,7 @@ export function applyInstrumentVisibility(
 			refs.operatorFrequencySelects[i].title = operatorName + " Frequency";
 			refs.operatorAmplitudeSliders[i].input.title = operatorName + (isCarrier ? " Volume" : " Amplitude");
 			refs.operatorDropdownGroups[i].style.display = dropdownState.openOperatorDropdowns[i] ? "" : "none";
-			if (instrument.operators[i].waveform == 2) {
+			if (instrument.operators[i].waveform === 2) {
 				refs.operatorWaveformPulsewidthSliders[i].container.style.display = "";
 				refs.operatorWaveformHints[i].style.display = "none";
 			} else {
@@ -458,18 +458,18 @@ export function applyInstrumentVisibility(
 
 	if (effectsIncludeChord(instrument.effects)) {
 		refs.chordSelectRow.style.display = "flex";
-		refs.chordDropdown.style.display = instrument.chord == Config.chords.dictionary["arpeggio"].index ? "" : "none";
+		refs.chordDropdown.style.display = instrument.chord === Config.chords.dictionary["arpeggio"].index ? "" : "none";
 		if (dropdownState.openChordDropdown) {
-			if (instrument.chord == Config.chords.dictionary["arpeggio"].index) {
+			if (instrument.chord === Config.chords.dictionary["arpeggio"].index) {
 				refs.chordDropdownGroup.style.display = "";
-			} else if (instrument.chord == Config.chords.dictionary["monophonic"].index) {
+			} else if (instrument.chord === Config.chords.dictionary["monophonic"].index) {
 				refs.chordDropdownGroup.style.display = "";
 				setSelectedValue(refs.chordSelect, instrument.chord);
 			} else {
 				refs.chordDropdownGroup.style.display = "none";
 			}
 		}
-		if (instrument.chord == Config.chords.dictionary["monophonic"].index) {
+		if (instrument.chord === Config.chords.dictionary["monophonic"].index) {
 			refs.monophonicNoteInputBox.value = instrument.monoChordTone + 1 + "";
 			refs.monophonicNoteInputBox.style.display = "";
 			refs.chordSelectContainer.style.width = "52.5%";

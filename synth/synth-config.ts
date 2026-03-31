@@ -654,7 +654,7 @@ export function loadBuiltInSamples(set: number): void {
 	const defaultIntegratedSamples: Float32Array = Config.chipWaves[defaultIndex].samples;
 	const defaultSamples: Float32Array = Config.rawRawChipWaves[defaultIndex].samples;
 
-	if (set == 0) {
+	if (set === 0) {
 		// Create chip waves with the wrong sound.
 		const chipWaves = [
 			{ name: "paandorasbox kick", expression: 4.0, isSampled: true, isPercussion: true, extraSampleDetune: 0 },
@@ -1149,7 +1149,7 @@ export function loadBuiltInSamples(set: number): void {
 				}
 			});
 		// EditorConfig.presetCategories[EditorConfig.presetCategories.length] = {name: "Legacy Sample Presets", presets:  { name: "Earthbound O. Guitar", midiProgram: 80, settings: { "type": "chip", "eqFilter": [], "effects": [], "transition": "normal", "fadeInSeconds": 0, "fadeOutTicks": -1, "chord": "arpeggio", "wave": "paandorasbox overdrive", "unison": "none", "envelopes": [] } }, index: EditorConfig.presetCategories.length,};
-	} else if (set == 1) {
+	} else if (set === 1) {
 		// Create chip waves with the wrong sound.
 		const chipWaves = [
 			{ name: "chronoperc1final", expression: 4.0, isSampled: true, isPercussion: true, extraSampleDetune: 0 },
@@ -1223,7 +1223,7 @@ export function loadBuiltInSamples(set: number): void {
 				chipWaveIndexOffset++;
 			}
 		});
-	} else if (set == 2) {
+	} else if (set === 2) {
 		// Create chip waves with the wrong sound.
 		const chipWaves = [
 			{ name: "cat", expression: 1, isSampled: true, isPercussion: false, extraSampleDetune: -3 },
@@ -3512,7 +3512,7 @@ export class Config {
 		for (let i: number = 0; i < Config.sineWaveLength + 1; i++) {
 			const q = Math.floor((i * 4) / Config.sineWaveLength);
 
-			if (q == 0 || q == 2) {
+			if (q === 0 || q === 2) {
 				wave[i] = Math.abs(Math.sin((i * Math.PI * 2.0) / Config.sineWaveLength));
 			} else {
 				wave[i] = 0;
@@ -5156,120 +5156,120 @@ export function getDrumWave(index: number, inverseRealFourierTransform: Function
 		wave = new Float32Array(Config.chipNoiseLength + 1);
 		Config.chipNoises[index].samples = wave;
 
-		if (index == 0) {
+		if (index === 0) {
 			// The "retro" drum uses a "Linear Feedback Shift Register" similar to the NES noise channel.
 			let drumBuffer: number = 1;
 			for (let i: number = 0; i < Config.chipNoiseLength; i++) {
 				wave[i] = (drumBuffer & 1) * 2.0 - 1.0;
 				let newBuffer: number = drumBuffer >> 1;
-				if (((drumBuffer + newBuffer) & 1) == 1) {
+				if (((drumBuffer + newBuffer) & 1) === 1) {
 					newBuffer += 1 << 14;
 				}
 				drumBuffer = newBuffer;
 			}
-		} else if (index == 1) {
+		} else if (index === 1) {
 			// White noise is just random values for each sample.
 			for (let i: number = 0; i < Config.chipNoiseLength; i++) {
 				wave[i] = Math.random() * 2.0 - 1.0;
 			}
-		} else if (index == 2) {
+		} else if (index === 2) {
 			// The "clang" noise wave is based on a similar noise wave in the modded beepbox made by DAzombieRE.
 			let drumBuffer: number = 1;
 			for (let i: number = 0; i < Config.chipNoiseLength; i++) {
 				wave[i] = (drumBuffer & 1) * 2.0 - 1.0;
 				let newBuffer: number = drumBuffer >> 1;
-				if (((drumBuffer + newBuffer) & 1) == 1) {
+				if (((drumBuffer + newBuffer) & 1) === 1) {
 					newBuffer += 2 << 14;
 				}
 				drumBuffer = newBuffer;
 			}
-		} else if (index == 3) {
+		} else if (index === 3) {
 			// The "buzz" noise wave is based on a similar noise wave in the modded beepbox made by DAzombieRE.
 			let drumBuffer: number = 1;
 			for (let i: number = 0; i < Config.chipNoiseLength; i++) {
 				wave[i] = (drumBuffer & 1) * 2.0 - 1.0;
 				let newBuffer: number = drumBuffer >> 1;
-				if (((drumBuffer + newBuffer) & 1) == 1) {
+				if (((drumBuffer + newBuffer) & 1) === 1) {
 					newBuffer += 10 << 2;
 				}
 				drumBuffer = newBuffer;
 			}
-		} else if (index == 4) {
+		} else if (index === 4) {
 			// "hollow" drums, designed in frequency space and then converted via FFT:
 			drawNoiseSpectrum(wave, Config.chipNoiseLength, 10, 11, 1, 1, 0);
 			drawNoiseSpectrum(wave, Config.chipNoiseLength, 11, 14, 0.6578, 0.6578, 0);
 			inverseRealFourierTransform!(wave, Config.chipNoiseLength);
 			scaleElementsByFactor!(wave, 1.0 / Math.sqrt(Config.chipNoiseLength));
-		} else if (index == 5) {
+		} else if (index === 5) {
 			// "Shine" drums from modbox!
 			let drumBuffer = 1;
 			for (let i = 0; i < Config.chipNoiseLength; i++) {
 				wave[i] = (drumBuffer & 1) * 2.0 - 1.0;
 				let newBuffer = drumBuffer >> 1;
-				if (((drumBuffer + newBuffer) & 1) == 1) {
+				if (((drumBuffer + newBuffer) & 1) === 1) {
 					newBuffer += 10 << 2;
 				}
 				drumBuffer = newBuffer;
 			}
-		} else if (index == 6) {
+		} else if (index === 6) {
 			// "Deep" drums from modbox!
 			drawNoiseSpectrum(wave, Config.chipNoiseLength, 1, 10, 1, 1, 0);
 			drawNoiseSpectrum(wave, Config.chipNoiseLength, 20, 14, -2, -2, 0);
 			inverseRealFourierTransform!(wave, Config.chipNoiseLength);
 			scaleElementsByFactor!(wave, 1.0 / Math.sqrt(Config.chipNoiseLength));
-		} else if (index == 7) {
+		} else if (index === 7) {
 			// "Cutter" drums from modbox!
 			let drumBuffer = 1;
 			for (let i = 0; i < Config.chipNoiseLength; i++) {
 				wave[i] = (drumBuffer & 1) * 4.0 * (Math.random() * 14 + 1) - 8.0;
 				let newBuffer = drumBuffer >> 1;
-				if (((drumBuffer + newBuffer) & 1) == 1) {
+				if (((drumBuffer + newBuffer) & 1) === 1) {
 					newBuffer += 15 << 2;
 				}
 				drumBuffer = newBuffer;
 			}
-		} else if (index == 8) {
+		} else if (index === 8) {
 			// "Metallic" drums from modbox!
 			let drumBuffer = 1;
 			for (let i = 0; i < Config.chipNoiseLength; i++) {
 				wave[i] = (drumBuffer & 1) / 2.0 - 0.5;
 				let newBuffer = drumBuffer >> 1;
-				if (((drumBuffer + newBuffer) & 1) == 1) {
+				if (((drumBuffer + newBuffer) & 1) === 1) {
 					newBuffer -= 10 << 2;
 				}
 				drumBuffer = newBuffer;
 			}
-		} else if (index == 9) {
+		} else if (index === 9) {
 			// a noise more like old static than white noise
 			let drumBuffer: number = 1;
 			for (let i: number = 0; i < Config.chipNoiseLength; i++) {
 				wave[i] = (drumBuffer & 1) * 2.0 - 1.1;
 				let newBuffer: number = drumBuffer >> 1;
-				if (((drumBuffer + newBuffer) & 1) == 1) {
+				if (((drumBuffer + newBuffer) & 1) === 1) {
 					newBuffer += 8 ^ (2 << 16);
 				}
 				drumBuffer = newBuffer;
 			}
-		} else if (index == 10) {
+		} else if (index === 10) {
 			for (let i = 0; i < Config.chipNoiseLength; i++) {
 				wave[i] = Math.round(Math.random());
 			}
-		} else if (index == 11) {
+		} else if (index === 11) {
 			let drumBuffer = 1;
 			for (let i = 0; i < Config.chipNoiseLength; i++) {
 				wave[i] = Math.round(drumBuffer & 1);
 				let newBuffer = drumBuffer >> 1;
-				if (((drumBuffer + newBuffer) & 1) == 1) {
+				if (((drumBuffer + newBuffer) & 1) === 1) {
 					newBuffer -= 10 << 2;
 				}
 				drumBuffer = newBuffer;
 			}
-		} else if (index == 12) {
+		} else if (index === 12) {
 			for (let i = 0; i < Config.chipNoiseLength; i++) {
 				const ultraboxnewchipnoiserand = Math.random();
 				wave[i] = Math.pow(ultraboxnewchipnoiserand, Math.clz32(ultraboxnewchipnoiserand));
 			}
-		} else if (index == 13) {
+		} else if (index === 13) {
 			// https://noisehack.com/generate-noise-web-audio-api/
 			let b0 = 0,
 				b1 = 0,
@@ -5292,7 +5292,7 @@ export function getDrumWave(index: number, inverseRealFourierTransform: Function
 				wave[i] *= 0.44;
 				b6 = white * 0.115926;
 			}
-		} else if (index == 14) {
+		} else if (index === 14) {
 			let lastOut = 0.0;
 
 			for (let i = 0; i < Config.chipNoiseLength; i++) {
@@ -5353,7 +5353,7 @@ export function drawNoiseSpectrum(
 export function getArpeggioPitchIndex(pitchCount: number, useFastTwoNoteArp: boolean, arpeggio: number): number {
 	let arpeggioPattern: ReadonlyArray<number> = Config.arpeggioPatterns[pitchCount - 1];
 	if (arpeggioPattern != null) {
-		if (pitchCount == 2 && useFastTwoNoteArp == false) {
+		if (pitchCount === 2 && useFastTwoNoteArp === false) {
 			arpeggioPattern = [0, 0, 1, 1];
 		}
 		return arpeggioPattern[arpeggio % arpeggioPattern.length];
@@ -5376,53 +5376,53 @@ export function toNameMap<T extends BeepBoxOption>(array: Array<Pick<T, Exclude<
 }
 
 export function effectsIncludeTransition(effects: number): boolean {
-	return (effects & (1 << EffectType.transition)) != 0;
+	return (effects & (1 << EffectType.transition)) !== 0;
 }
 export function effectsIncludeChord(effects: number): boolean {
-	return (effects & (1 << EffectType.chord)) != 0;
+	return (effects & (1 << EffectType.chord)) !== 0;
 }
 export function effectsIncludePitchShift(effects: number): boolean {
-	return (effects & (1 << EffectType.pitchShift)) != 0;
+	return (effects & (1 << EffectType.pitchShift)) !== 0;
 }
 export function effectsIncludeDetune(effects: number): boolean {
-	return (effects & (1 << EffectType.detune)) != 0;
+	return (effects & (1 << EffectType.detune)) !== 0;
 }
 export function effectsIncludeVibrato(effects: number): boolean {
-	return (effects & (1 << EffectType.vibrato)) != 0;
+	return (effects & (1 << EffectType.vibrato)) !== 0;
 }
 export function effectsIncludeNoteFilter(effects: number): boolean {
-	return (effects & (1 << EffectType.noteFilter)) != 0;
+	return (effects & (1 << EffectType.noteFilter)) !== 0;
 }
 export function effectsIncludeDistortion(effects: number): boolean {
-	return (effects & (1 << EffectType.distortion)) != 0;
+	return (effects & (1 << EffectType.distortion)) !== 0;
 }
 export function effectsIncludeBitcrusher(effects: number): boolean {
-	return (effects & (1 << EffectType.bitcrusher)) != 0;
+	return (effects & (1 << EffectType.bitcrusher)) !== 0;
 }
 export function effectsIncludePanning(effects: number): boolean {
-	return (effects & (1 << EffectType.panning)) != 0;
+	return (effects & (1 << EffectType.panning)) !== 0;
 }
 export function effectsIncludeChorus(effects: number): boolean {
-	return (effects & (1 << EffectType.chorus)) != 0;
+	return (effects & (1 << EffectType.chorus)) !== 0;
 }
 export function effectsIncludeEcho(effects: number): boolean {
-	return (effects & (1 << EffectType.echo)) != 0;
+	return (effects & (1 << EffectType.echo)) !== 0;
 }
 export function effectsIncludeReverb(effects: number): boolean {
-	return (effects & (1 << EffectType.reverb)) != 0;
+	return (effects & (1 << EffectType.reverb)) !== 0;
 }
 export function effectsIncludeRingModulation(effects: number): boolean {
-	return (effects & (1 << EffectType.ringModulation)) != 0;
+	return (effects & (1 << EffectType.ringModulation)) !== 0;
 }
 export function effectsIncludeGranular(effects: number): boolean {
-	return (effects & (1 << EffectType.granular)) != 0;
+	return (effects & (1 << EffectType.granular)) !== 0;
 }
 export function effectsIncludeNoteRange(effects: number): boolean {
-	return (effects & (1 << EffectType.noteRange)) != 0;
+	return (effects & (1 << EffectType.noteRange)) !== 0;
 }
 export function calculateRingModHertz(sliderHz: number, sliderHzOffset: number = 0): number {
 	// replaces the value 21 with 0
-	if (sliderHz == 0) return 0;
+	if (sliderHz === 0) return 0;
 	if (sliderHz > 0) sliderHz -= 1 / Config.ringModHzRange;
 	if (sliderHz > 1 / Config.ringModHzRange) sliderHz += 1 / Config.ringModHzRange;
 	// calculate ring mod
@@ -5446,11 +5446,11 @@ export function rawChipToIntegrated(raw: DictionaryArray<ChipWave>): DictionaryA
 	return result;
 }
 export function effectsIncludeOctaveShift(effects: number): boolean {
-	return (effects & (1 << EffectType.octaveShift)) != 0;
+	return (effects & (1 << EffectType.octaveShift)) !== 0;
 }
 export function effectsIncludePhaser(effects: number): boolean {
-	return (effects & (1 << EffectType.phaser)) != 0;
+	return (effects & (1 << EffectType.phaser)) !== 0;
 }
 export function effectsIncludeInvertWave(effects: number): boolean {
-	return (effects & (1 << EffectType.invertWave)) != 0;
+	return (effects & (1 << EffectType.invertWave)) !== 0;
 }

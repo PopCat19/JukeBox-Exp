@@ -84,7 +84,7 @@ export class ChangeSequence extends UndoableChange {
 	private _committed: boolean;
 	constructor(changes?: UndoableChange[]) {
 		super(false);
-		if (changes == undefined) {
+		if (changes === undefined) {
 			this._changes = [];
 		} else {
 			this._changes = changes.concat();

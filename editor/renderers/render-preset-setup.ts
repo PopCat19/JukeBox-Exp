@@ -15,7 +15,7 @@ import { SongDocument } from "../song-document";
 
 function setSelectedValue(menu: HTMLSelectElement, value: number, isSelect2: boolean = false): void {
 	const stringValue = value.toString();
-	if (menu.value != stringValue) {
+	if (menu.value !== stringValue) {
 		menu.value = stringValue;
 		if (isSelect2) {
 			$(menu).val(value).trigger("change.select2");
@@ -66,7 +66,7 @@ export function renderPresetSetup(
 	refs.instrumentSettingsGroup.insertBefore(refs.instrumentsButtonRow, refs.instrumentSettingsGroup.firstChild);
 	refs.instrumentSettingsGroup.insertBefore(refs.instrumentSettingsTextRow, refs.instrumentSettingsGroup.firstChild);
 
-	if (doc.song.channels[doc.channel].name == "") {
+	if (doc.song.channels[doc.channel].name === "") {
 		refs.instrumentSettingsTextRow.textContent = "Instrument Settings";
 	} else {
 		refs.instrumentSettingsTextRow.textContent = doc.song.channels[doc.channel].name;

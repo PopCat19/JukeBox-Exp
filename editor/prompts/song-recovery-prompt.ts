@@ -41,7 +41,7 @@ export class SongRecoveryPrompt extends BasePrompt {
 		this.buildTitlebar();
 		const songs: RecoveredSong[] = SongRecovery.getAllRecoveredSongs();
 
-		if (songs.length == 0) {
+		if (songs.length === 0) {
 			this._songContainer.appendChild(p("There are no recovered songs available yet. Try making a song!"));
 		}
 

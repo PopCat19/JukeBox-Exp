@@ -61,35 +61,35 @@ export class Preferences {
 	}
 
 	public reload(): void {
-		this.autoPlay = window.localStorage.getItem("autoPlay") == "true";
-		this.autoFollow = window.localStorage.getItem("autoFollow") != "false";
-		this.enableNotePreview = window.localStorage.getItem("enableNotePreview") != "false";
-		this.showFifth = window.localStorage.getItem("showFifth") != "false";
-		this.notesOutsideScale = window.localStorage.getItem("notesOutsideScale") != "false";
-		this.showLetters = window.localStorage.getItem("showLetters") != "false";
-		this.showChannels = window.localStorage.getItem("showChannels") != "false";
-		this.showScrollBar = window.localStorage.getItem("showScrollBar") != "false";
-		this.alwaysFineNoteVol = window.localStorage.getItem("alwaysFineNoteVol") == "true";
-		this.displayVolumeBar = window.localStorage.getItem("displayVolumeBar") != "false";
-		this.instrumentCopyPaste = window.localStorage.getItem("instrumentCopyPaste") != "false";
-		this.instrumentImportExport = window.localStorage.getItem("instrumentImportExport") != "false";
-		this.instrumentButtonsAtTop = window.localStorage.getItem("instrumentButtonsAtTop") != "false";
-		this.enableChannelMuting = window.localStorage.getItem("enableChannelMuting") != "false";
-		this.displayBrowserUrl = window.localStorage.getItem("displayBrowserUrl") != "false";
-		this.pressControlForShortcuts = window.localStorage.getItem("pressControlForShortcuts") == "true";
-		this.enableMidi = window.localStorage.getItem("enableMidi") != "false";
-		this.showRecordButton = window.localStorage.getItem("showRecordButton") == "true";
-		this.snapRecordedNotesToRhythm = window.localStorage.getItem("snapRecordedNotesToRhythm") == "true";
-		this.ignorePerformedNotesNotInScale = window.localStorage.getItem("ignorePerformedNotesNotInScale") == "true";
-		this.metronomeCountIn = window.localStorage.getItem("metronomeCountIn") != "false";
-		this.metronomeWhileRecording = window.localStorage.getItem("metronomeWhileRecording") != "false";
-		this.notesFlashWhenPlayed = window.localStorage.getItem("notesFlashWhenPlayed") != "flase";
-		this.showOscilloscope = window.localStorage.getItem("showOscilloscope") == "true";
-		this.showSampleLoadingStatus = window.localStorage.getItem("showSampleLoadingStatus") != "false";
-		this.showDescription = window.localStorage.getItem("showDescription") != "false";
-		this.showInstrumentScrollbars = window.localStorage.getItem("showInstrumentScrollbars") != "false";
-		this.closePromptByClickoff = window.localStorage.getItem("closePromptByClickoff") != "false";
-		this.showPromptBackdrop = window.localStorage.getItem("showPromptBackdrop") != "false";
+		this.autoPlay = window.localStorage.getItem("autoPlay") === "true";
+		this.autoFollow = window.localStorage.getItem("autoFollow") !== "false";
+		this.enableNotePreview = window.localStorage.getItem("enableNotePreview") !== "false";
+		this.showFifth = window.localStorage.getItem("showFifth") !== "false";
+		this.notesOutsideScale = window.localStorage.getItem("notesOutsideScale") !== "false";
+		this.showLetters = window.localStorage.getItem("showLetters") !== "false";
+		this.showChannels = window.localStorage.getItem("showChannels") !== "false";
+		this.showScrollBar = window.localStorage.getItem("showScrollBar") !== "false";
+		this.alwaysFineNoteVol = window.localStorage.getItem("alwaysFineNoteVol") === "true";
+		this.displayVolumeBar = window.localStorage.getItem("displayVolumeBar") !== "false";
+		this.instrumentCopyPaste = window.localStorage.getItem("instrumentCopyPaste") !== "false";
+		this.instrumentImportExport = window.localStorage.getItem("instrumentImportExport") !== "false";
+		this.instrumentButtonsAtTop = window.localStorage.getItem("instrumentButtonsAtTop") !== "false";
+		this.enableChannelMuting = window.localStorage.getItem("enableChannelMuting") !== "false";
+		this.displayBrowserUrl = window.localStorage.getItem("displayBrowserUrl") !== "false";
+		this.pressControlForShortcuts = window.localStorage.getItem("pressControlForShortcuts") === "true";
+		this.enableMidi = window.localStorage.getItem("enableMidi") !== "false";
+		this.showRecordButton = window.localStorage.getItem("showRecordButton") === "true";
+		this.snapRecordedNotesToRhythm = window.localStorage.getItem("snapRecordedNotesToRhythm") === "true";
+		this.ignorePerformedNotesNotInScale = window.localStorage.getItem("ignorePerformedNotesNotInScale") === "true";
+		this.metronomeCountIn = window.localStorage.getItem("metronomeCountIn") !== "false";
+		this.metronomeWhileRecording = window.localStorage.getItem("metronomeWhileRecording") !== "false";
+		this.notesFlashWhenPlayed = window.localStorage.getItem("notesFlashWhenPlayed") !== "flase";
+		this.showOscilloscope = window.localStorage.getItem("showOscilloscope") === "true";
+		this.showSampleLoadingStatus = window.localStorage.getItem("showSampleLoadingStatus") !== "false";
+		this.showDescription = window.localStorage.getItem("showDescription") !== "false";
+		this.showInstrumentScrollbars = window.localStorage.getItem("showInstrumentScrollbars") !== "false";
+		this.closePromptByClickoff = window.localStorage.getItem("closePromptByClickoff") !== "false";
+		this.showPromptBackdrop = window.localStorage.getItem("showPromptBackdrop") !== "false";
 		this.keyboardLayout = window.localStorage.getItem("keyboardLayout") || "pianoTransposingC";
 		this.bassOffset = +(<any>window.localStorage.getItem("bassOffset")) || 0;
 		this.layout = window.localStorage.getItem("layout") || "long";
@@ -98,18 +98,18 @@ export class Preferences {
 		this.customTheme2 = window.localStorage.getItem("customTheme2");
 		this.visibleOctaves = <any>window.localStorage.getItem("visibleOctaves") >>> 0 || Preferences.defaultVisibleOctaves;
 		// jukebox
-		this.rollNoveltyPresets = window.localStorage.getItem("rollNoveltyPresets") == "true";
-		this.enableTagSearch = window.localStorage.getItem("enableTagSearch") != "false";
+		this.rollNoveltyPresets = window.localStorage.getItem("rollNoveltyPresets") === "true";
+		this.enableTagSearch = window.localStorage.getItem("enableTagSearch") !== "false";
 
 		const defaultScale: Scale | undefined = Config.scales.dictionary[window.localStorage.getItem("defaultScale")!];
-		this.defaultScale = defaultScale != undefined ? defaultScale.index : 0;
+		this.defaultScale = defaultScale !== undefined ? defaultScale.index : 0;
 
 		if (window.localStorage.getItem("volume") != null) {
 			this.volume = Math.min(<any>window.localStorage.getItem("volume") >>> 0, 75);
 		}
 
 		if (window.localStorage.getItem("fullScreen") != null) {
-			if (window.localStorage.getItem("fullScreen") == "true") this.layout = "long";
+			if (window.localStorage.getItem("fullScreen") === "true") this.layout = "long";
 			window.localStorage.removeItem("fullScreen");
 		}
 	}

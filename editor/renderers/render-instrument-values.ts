@@ -17,7 +17,7 @@ import { Slider } from "../ui/html-wrapper";
 
 function setSelectedValue(menu: HTMLSelectElement, value: number): void {
 	const stringValue = value.toString();
-	if (menu.value != stringValue) menu.value = stringValue;
+	if (menu.value !== stringValue) menu.value = stringValue;
 }
 
 export interface InstrumentValueRefs {

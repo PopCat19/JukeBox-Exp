@@ -428,7 +428,7 @@ export function buildChipSource(voiceCount: number): string {
 	}
 	const sampleListA: string[] = [];
 	for (let voice: number = 0; voice < voiceCount; voice++) {
-		sampleListA.push("inputSample" + voice + (voice != 0 ? " * unisonSign" : ""));
+		sampleListA.push("inputSample" + voice + (voice !== 0 ? " * unisonSign" : ""));
 	}
 
 	chipSource += "inputSample = " + sampleListA.join(" + ") + ";";
@@ -450,7 +450,7 @@ export function buildChipSource(voiceCount: number): string {
 	}
 	const sampleListB: string[] = [];
 	for (let voice: number = 0; voice < voiceCount; voice++) {
-		sampleListB.push("inputSample" + voice + (voice != 0 ? " * unisonSign" : ""));
+		sampleListB.push("inputSample" + voice + (voice !== 0 ? " * unisonSign" : ""));
 	}
 
 	chipSource += "inputSample = " + sampleListB.join(" + ") + ";";

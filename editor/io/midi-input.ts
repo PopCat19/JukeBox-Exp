@@ -87,7 +87,7 @@ export class MidiInputHandler {
 
 	private _onMidiMessage = (event: MIDIMessageEvent) => {
 		// Ignore midi events if disabled or a different tab is handling them.
-		if (!this._doc.prefs.enableMidi || localStorage.getItem("midiHandlerId") != id) return;
+		if (!this._doc.prefs.enableMidi || localStorage.getItem("midiHandlerId") !== id) return;
 
 		const isDrum: boolean = this._doc.song.getChannelIsNoise(this._doc.channel);
 		let [eventType, key, velocity] = event.data;
@@ -95,7 +95,7 @@ export class MidiInputHandler {
 
 		if (isDrum) {
 			const drum: AnalogousDrum | undefined = analogousDrumMap[key];
-			if (drum != undefined) {
+			if (drum !== undefined) {
 				key = drum.frequency;
 			} else {
 				return;
@@ -105,7 +105,7 @@ export class MidiInputHandler {
 			if (key < 0 || key > Config.maxPitch) return;
 		}
 
-		if (eventType == MidiEventType.noteOn && velocity == 0) {
+		if (eventType === MidiEventType.noteOn && velocity === 0) {
 			eventType = MidiEventType.noteOff;
 		}
 

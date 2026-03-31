@@ -93,12 +93,12 @@ export class SongDocument {
 		}
 
 		let songString: string = window.location.hash;
-		if (songString == "") {
+		if (songString === "") {
 			songString = this._getHash();
 		}
 		try {
 			this.song = new Song(songString, createCustomSampleHandler());
-			if (songString == "" || songString == undefined) {
+			if (songString === "" || songString === undefined) {
 				setDefaultInstruments(this.song);
 				this.song.scale = this.prefs.defaultScale;
 			}
@@ -123,7 +123,7 @@ export class SongDocument {
 				selection: this.selection.toJSON(),
 			};
 		}
-		if (state.recoveryUid == undefined) state.recoveryUid = generateUid();
+		if (state.recoveryUid === undefined) state.recoveryUid = generateUid();
 		this._replaceState(state, songString);
 		window.addEventListener("hashchange", this._whenHistoryStateChanged);
 		window.addEventListener("popstate", this._whenHistoryStateChanged);
@@ -195,7 +195,7 @@ export class SongDocument {
 			currentIndex = (currentIndex + 1) % SongDocument._maximumUndoHistory;
 			window.sessionStorage.setItem("currentUndoIndex", String(currentIndex));
 			window.sessionStorage.setItem("newestUndoIndex", String(currentIndex));
-			if (currentIndex == oldestIndex) {
+			if (currentIndex === oldestIndex) {
 				oldestIndex = (oldestIndex + 1) % SongDocument._maximumUndoHistory;
 				window.sessionStorage.setItem("oldestUndoIndex", String(oldestIndex));
 			}
@@ -215,7 +215,7 @@ export class SongDocument {
 		} else {
 			let currentIndex: number = Number(window.sessionStorage.getItem("currentUndoIndex"));
 			const newestIndex: number = Number(window.sessionStorage.getItem("newestUndoIndex"));
-			if (currentIndex != newestIndex) {
+			if (currentIndex !== newestIndex) {
 				currentIndex = (currentIndex + 1) % SongDocument._maximumUndoHistory;
 				window.sessionStorage.setItem("currentUndoIndex", String(currentIndex));
 				setTimeout(this._whenHistoryStateChanged);
@@ -229,7 +229,7 @@ export class SongDocument {
 		} else {
 			let currentIndex: number = Number(window.sessionStorage.getItem("currentUndoIndex"));
 			const oldestIndex: number = Number(window.sessionStorage.getItem("oldestUndoIndex"));
-			if (currentIndex != oldestIndex) {
+			if (currentIndex !== oldestIndex) {
 				currentIndex = (currentIndex + SongDocument._maximumUndoHistory - 1) % SongDocument._maximumUndoHistory;
 				window.sessionStorage.setItem("currentUndoIndex", String(currentIndex));
 				setTimeout(this._whenHistoryStateChanged);
@@ -243,7 +243,7 @@ export class SongDocument {
 			this.performance.abortRecording();
 		}
 
-		if (window.history.state == null && window.location.hash != "") {
+		if (window.history.state == null && window.location.hash !== "") {
 			// The user changed the hash directly.
 			this._sequenceNumber++;
 			this._resetSongRecoveryUid();
@@ -278,7 +278,7 @@ export class SongDocument {
 		if (state == null) throw new Error("History state is null.");
 
 		// Abort if we've already handled the current state.
-		if (state.sequenceNumber == this._sequenceNumber) return;
+		if (state.sequenceNumber === this._sequenceNumber) return;
 
 		this.bar = state.bar;
 		this.channel = state.channel;
@@ -332,7 +332,7 @@ export class SongDocument {
 		}
 		this.recentPatternInstruments.length = channelCount;
 		for (let i: number = 0; i < channelCount; i++) {
-			if (i == this.channel) {
+			if (i === this.channel) {
 				if (this.song.patternInstruments) {
 					const pattern: Pattern | null = this.song.getPattern(this.channel, this.bar);
 					if (pattern != null) {
@@ -354,7 +354,7 @@ export class SongDocument {
 		}
 		this.viewedInstrument.length = channelCount;
 		for (let i: number = 0; i < channelCount; i++) {
-			if (this.song.patternInstruments && !this.song.layeredInstruments && i == this.channel) {
+			if (this.song.patternInstruments && !this.song.layeredInstruments && i === this.channel) {
 				const pattern: Pattern | null = this.song.getPattern(this.channel, this.bar);
 				if (pattern != null) {
 					this.viewedInstrument[i] = pattern.instruments[0];
@@ -379,7 +379,7 @@ export class SongDocument {
 			this.selection.boxSelectionChannel + this.selection.boxSelectionHeight <= this.channel ||
 			this.song.barCount < this.selection.boxSelectionBar + this.selection.boxSelectionWidth ||
 			channelCount < this.selection.boxSelectionChannel + this.selection.boxSelectionHeight ||
-			(this.selection.boxSelectionWidth == 1 && this.selection.boxSelectionHeight == 1)
+			(this.selection.boxSelectionWidth === 1 && this.selection.boxSelectionHeight === 1)
 		) {
 			this.selection.resetBoxSelection();
 		}
@@ -471,7 +471,7 @@ export class SongDocument {
 	}
 
 	public lastChangeWas(change: Change | null): boolean {
-		return change != null && change == this._recentChange;
+		return change != null && change === this._recentChange;
 	}
 
 	public goBackToStart(): void {
@@ -498,7 +498,7 @@ export class SongDocument {
 	}
 
 	public getCurrentInstrument(barOffset: number = 0): number {
-		if (barOffset == 0) {
+		if (barOffset === 0) {
 			return this.viewedInstrument[this.channel];
 		} else {
 			const pattern: Pattern | null = this.getCurrentPattern(barOffset);
@@ -507,12 +507,12 @@ export class SongDocument {
 	}
 
 	public getMobileLayout(): boolean {
-		return this.prefs.layout == "wide" ? window.innerWidth <= 1000 : window.innerWidth <= 710;
+		return this.prefs.layout === "wide" ? window.innerWidth <= 1000 : window.innerWidth <= 710;
 	}
 
 	public getBarWidth(): number {
 		// Bugfix: In wide fullscreen, the 32 pixel display doesn't work as the trackEditor is still horizontally constrained
-		return !this.getMobileLayout() && this.prefs.enableChannelMuting && (!this.getFullScreen() || this.prefs.layout == "wide") ? 30 : 32;
+		return !this.getMobileLayout() && this.prefs.enableChannelMuting && (!this.getFullScreen() || this.prefs.layout === "wide") ? 30 : 32;
 	}
 
 	public getChannelHeight(): number {
@@ -520,12 +520,12 @@ export class SongDocument {
 			this.getMobileLayout() || this.song.getChannelCount() > 4 || (this.song.barCount > this.trackVisibleBars && this.song.getChannelCount() > 3);
 		// TODO: Jummbox widescreen should allow more channels before squashing or megasquashing
 		const megaSquashed: boolean =
-			!this.getMobileLayout() && ((this.prefs.layout != "wide" && this.song.getChannelCount() > 11) || this.song.getChannelCount() > 22);
+			!this.getMobileLayout() && ((this.prefs.layout !== "wide" && this.song.getChannelCount() > 11) || this.song.getChannelCount() > 22);
 		return megaSquashed ? 23 : squashed ? 27 : 32;
 	}
 
 	public getFullScreen(): boolean {
-		return !this.getMobileLayout() && this.prefs.layout != "small";
+		return !this.getMobileLayout() && this.prefs.layout !== "small";
 	}
 
 	public getVisibleOctaveCount(): number {

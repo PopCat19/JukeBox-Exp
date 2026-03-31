@@ -93,7 +93,7 @@ export class ImportPrompt extends BasePrompt {
 		if (!file) return;
 
 		const extension: string = file.name.slice(((file.name.lastIndexOf(".") - 1) >>> 0) + 2).toLowerCase();
-		if (extension == "json") {
+		if (extension === "json") {
 			const reader: FileReader = new FileReader();
 			reader.addEventListener("load", (event: Event): void => {
 				this._doc.prompt = null;
@@ -101,7 +101,7 @@ export class ImportPrompt extends BasePrompt {
 				this._doc.record(new ChangeSong(this._doc, <string>reader.result, this._modeImportSelect.value), false, true);
 			});
 			reader.readAsText(file);
-		} else if (extension == "midi" || extension == "mid") {
+		} else if (extension === "midi" || extension === "mid") {
 			const reader: FileReader = new FileReader();
 			reader.addEventListener("load", (event: Event): void => {
 				this._doc.prompt = null;
@@ -128,13 +128,13 @@ export class ImportPrompt extends BasePrompt {
 		while (reader.hasMore()) {
 			const chunkType: number = reader.readUint32();
 			const chunkLength: number = reader.readUint32();
-			if (chunkType == MidiChunkType.header) {
+			if (chunkType === MidiChunkType.header) {
 				if (headerReader == null) {
 					headerReader = reader.getReaderForNextBytes(chunkLength);
 				} else {
 					console.error("This MIDI file has more than one header chunk.");
 				}
-			} else if (chunkType == MidiChunkType.track) {
+			} else if (chunkType === MidiChunkType.track) {
 				const trackReader: ArrayBufferReader = reader.getReaderForNextBytes(chunkLength);
 				if (trackReader.hasMore()) {
 					tracks.push({
@@ -160,7 +160,7 @@ export class ImportPrompt extends BasePrompt {
 
 		let currentIndependentTrackIndex: number = 0;
 		const currentTrackIndices: number[] = [];
-		const independentTracks: boolean = fileFormat == MidiFileFormat.independentTracks;
+		const independentTracks: boolean = fileFormat === MidiFileFormat.independentTracks;
 		if (independentTracks) {
 			currentTrackIndices.push(currentIndependentTrackIndex);
 		} else {
@@ -212,12 +212,12 @@ export class ImportPrompt extends BasePrompt {
 			let anyTrackHasMore: boolean = false;
 			for (const trackIndex of currentTrackIndices) {
 				const track: Track = tracks[trackIndex];
-				while (!track.ended && track.nextEventMidiTick == currentMidiTick) {
+				while (!track.ended && track.nextEventMidiTick === currentMidiTick) {
 					const peakStatus: number = track.reader.peakUint8();
 					let eventStatus: number;
 					if (peakStatus & 0x80) {
 						eventStatus = track.reader.readUint8();
-					} else if (track.runningStatus == -1) {
+					} else if (track.runningStatus === -1) {
 						// Data byte before any status byte - skip this track event
 						track.reader.readUint8();
 						if (!track.reader.hasMore()) {
@@ -231,7 +231,7 @@ export class ImportPrompt extends BasePrompt {
 					}
 					const eventType: number = eventStatus & 0xf0;
 					const eventChannel: number = eventStatus & 0x0f;
-					if (eventType != MidiEventType.metaAndSysex) {
+					if (eventType !== MidiEventType.metaAndSysex) {
 						track.runningStatus = eventStatus;
 					}
 
@@ -257,7 +257,7 @@ export class ImportPrompt extends BasePrompt {
 							{
 								const pitch: number = track.reader.readMidi7Bits();
 								const velocity: number = track.reader.readMidi7Bits();
-								if (velocity == 0) {
+								if (velocity === 0) {
 									noteEvents[eventChannel].push({
 										midiTick: currentMidiTick,
 										pitch: pitch,
@@ -304,8 +304,8 @@ export class ImportPrompt extends BasePrompt {
 								switch (message) {
 									case MidiControlEventMessage.setParameterMSB:
 										if (
-											channelRPNMSB[eventChannel] == MidiRegisteredParameterNumberMSB.pitchBendRange &&
-											channelRPNLSB[eventChannel] == MidiRegisteredParameterNumberLSB.pitchBendRange
+											channelRPNMSB[eventChannel] === MidiRegisteredParameterNumberMSB.pitchBendRange &&
+											channelRPNLSB[eventChannel] === MidiRegisteredParameterNumberLSB.pitchBendRange
 										) {
 											pitchBendRangeMSB[eventChannel] = value;
 										}
@@ -324,8 +324,8 @@ export class ImportPrompt extends BasePrompt {
 										break;
 									case MidiControlEventMessage.setParameterLSB:
 										if (
-											channelRPNMSB[eventChannel] == MidiRegisteredParameterNumberMSB.pitchBendRange &&
-											channelRPNLSB[eventChannel] == MidiRegisteredParameterNumberLSB.pitchBendRange
+											channelRPNMSB[eventChannel] === MidiRegisteredParameterNumberMSB.pitchBendRange &&
+											channelRPNLSB[eventChannel] === MidiRegisteredParameterNumberLSB.pitchBendRange
 										) {
 											pitchBendRangeLSB[eventChannel] = value;
 										}
@@ -362,23 +362,23 @@ export class ImportPrompt extends BasePrompt {
 							break;
 						case MidiEventType.metaAndSysex:
 							{
-								if (eventStatus == MidiEventType.meta) {
+								if (eventStatus === MidiEventType.meta) {
 									const message: number = track.reader.readMidi7Bits();
 									const length: number = track.reader.readMidiVariableLength();
-									if (message == MidiMetaEventMessage.endOfTrack) {
+									if (message === MidiMetaEventMessage.endOfTrack) {
 										foundTrackEndEvent = true;
 										track.reader.skipBytes(length);
-									} else if (message == MidiMetaEventMessage.tempo) {
+									} else if (message === MidiMetaEventMessage.tempo) {
 										const uspb = track.reader.readUint24();
 										tempoChanges.push({ midiTick: currentMidiTick, microsecondsPerBeat: uspb });
 										track.reader.skipBytes(length - 3);
-									} else if (message == MidiMetaEventMessage.timeSignature) {
+									} else if (message === MidiMetaEventMessage.timeSignature) {
 										const numerator: number = track.reader.readUint8();
 										let denominatorExponent: number = track.reader.readUint8();
 										track.reader.skipBytes(length - 4);
 										beatsPerBar = numerator * 4;
 										while (
-											(beatsPerBar & 1) == 0 &&
+											(beatsPerBar & 1) === 0 &&
 											(denominatorExponent > 0 || beatsPerBar > Config.beatsPerBarMax) &&
 											beatsPerBar >= Config.beatsPerBarMin * 2
 										) {
@@ -386,14 +386,14 @@ export class ImportPrompt extends BasePrompt {
 											denominatorExponent = denominatorExponent - 1;
 										}
 										beatsPerBar = Math.max(Config.beatsPerBarMin, Math.min(Config.beatsPerBarMax, beatsPerBar));
-									} else if (message == MidiMetaEventMessage.keySignature) {
+									} else if (message === MidiMetaEventMessage.keySignature) {
 										numSharps = track.reader.readInt8();
-										isMinor = track.reader.readUint8() == 1;
+										isMinor = track.reader.readUint8() === 1;
 										track.reader.skipBytes(length - 2);
 									} else {
 										track.reader.skipBytes(length);
 									}
-								} else if (eventStatus == 0xf0 || eventStatus == 0xf7) {
+								} else if (eventStatus === 0xf0 || eventStatus === 0xf7) {
 									const length: number = track.reader.readMidiVariableLength();
 									track.reader.skipBytes(length);
 								} else {
@@ -452,7 +452,7 @@ export class ImportPrompt extends BasePrompt {
 
 		let key: number = numSharps;
 		if (isMinor) key += 3;
-		if ((key & 1) == 1) key += 6;
+		if ((key & 1) === 1) key += 6;
 		while (key < 0) key += 12;
 		key = key % 12;
 
@@ -460,13 +460,13 @@ export class ImportPrompt extends BasePrompt {
 		const noiseChannels: Channel[] = [];
 		const modChannels: Channel[] = [];
 		for (let midiChannel: number = 0; midiChannel < 16; midiChannel++) {
-			if (noteEvents[midiChannel].length == 0) continue;
+			if (noteEvents[midiChannel].length === 0) continue;
 			const channel: Channel = new Channel();
 			const channelPresetValue: number | null = EditorConfig.midiProgramToPresetValue(noteEvents[midiChannel][0].program);
 			const channelPreset: Preset | null = channelPresetValue == null ? null : EditorConfig.valueToPreset(channelPresetValue);
-			const isDrumsetChannel: boolean = midiChannel == 9;
-			const isNoiseChannel: boolean = isDrumsetChannel || (channelPreset != null && channelPreset.isNoise == true);
-			const isModChannel: boolean = channelPreset != null && channelPreset.isMod == true;
+			const isDrumsetChannel: boolean = midiChannel === 9;
+			const isNoiseChannel: boolean = isDrumsetChannel || (channelPreset != null && channelPreset.isNoise === true);
+			const isModChannel: boolean = channelPreset != null && channelPreset.isMod === true;
 			const channelBasePitch: number = isNoiseChannel ? Config.spectrumBasePitch : Config.keys[key].basePitch;
 			const intervalScale: number = isNoiseChannel ? Config.noiseInterval : 1;
 			const midiIntervalScale: number = isNoiseChannel ? 0.5 : 1;
@@ -500,13 +500,13 @@ export class ImportPrompt extends BasePrompt {
 				channel.instruments.push(instrument);
 
 				for (let noteEventIndex: number = 0; noteEventIndex <= noteEvents[midiChannel].length; noteEventIndex++) {
-					const noMoreNotes: boolean = noteEventIndex == noteEvents[midiChannel].length;
+					const noMoreNotes: boolean = noteEventIndex === noteEvents[midiChannel].length;
 					const noteEvent: NoteEvent | null = noMoreNotes ? null : noteEvents[midiChannel][noteEventIndex];
 					const nextEventPart: number = noteEvent == null ? Number.MAX_SAFE_INTEGER : quantizeMidiTickToPart(noteEvent.midiTick);
 					if (heldPitches.length > 0 && nextEventPart > prevEventPart && (noteEvent == null || noteEvent.on)) {
 						const bar: number = Math.floor(prevEventPart / partsPerBar);
 						const barStartPart: number = bar * partsPerBar;
-						if (currentBar != bar || pattern == null) {
+						if (currentBar !== bar || pattern == null) {
 							currentBar++;
 							while (currentBar < bar) {
 								channel.bars[currentBar] = 0;
@@ -530,7 +530,7 @@ export class ImportPrompt extends BasePrompt {
 						let noteSize: number = 1;
 						for (const pitch of heldPitches) {
 							const drum: AnalogousDrum | undefined = analogousDrumMap[pitch];
-							if (drumFreqs.indexOf(drum.frequency) == -1) drumFreqs.push(drum.frequency);
+							if (drumFreqs.indexOf(drum.frequency) === -1) drumFreqs.push(drum.frequency);
 							noteSize = Math.max(noteSize, Math.round(drum.volume * currentVelocity));
 							minDuration = Math.min(minDuration, drum.duration);
 							maxDuration = Math.max(maxDuration, drum.duration);
@@ -542,12 +542,12 @@ export class ImportPrompt extends BasePrompt {
 						note.pitches.length = 0;
 						for (let pitchIndex: number = 0; pitchIndex < Math.min(Config.maxChordSize, drumFreqs.length); pitchIndex++) {
 							const heldPitch: number = drumFreqs[pitchIndex + Math.max(0, drumFreqs.length - Config.maxChordSize)];
-							if (note.pitches.indexOf(heldPitch) == -1) note.pitches.push(heldPitch);
+							if (note.pitches.indexOf(heldPitch) === -1) note.pitches.push(heldPitch);
 						}
 						pattern.notes.push(note);
 						heldPitches.length = 0;
 					}
-					if (noteEvent != null && noteEvent.on && analogousDrumMap[noteEvent.pitch] != undefined) {
+					if (noteEvent != null && noteEvent.on && analogousDrumMap[noteEvent.pitch] !== undefined) {
 						heldPitches.push(noteEvent.pitch);
 						prevEventPart = nextEventPart;
 						currentVelocity = noteEvent.velocity;
@@ -601,7 +601,7 @@ export class ImportPrompt extends BasePrompt {
 							if (noteStartPart < noteEndPart) {
 								const presetValue: number | null = EditorConfig.midiProgramToPresetValue(currentProgram);
 								const preset: Preset | null = presetValue == null ? null : EditorConfig.valueToPreset(presetValue);
-								if (currentBar != bar || pattern == null) {
+								if (currentBar !== bar || pattern == null) {
 									currentBar++;
 									while (currentBar < bar) {
 										channel.bars[currentBar] = 0;
@@ -610,10 +610,10 @@ export class ImportPrompt extends BasePrompt {
 									pattern = new Pattern();
 									channel.patterns.push(pattern);
 									channel.bars[currentBar] = channel.patterns.length;
-									if (instrumentByProgram[currentProgram] == undefined) {
+									if (instrumentByProgram[currentProgram] === undefined) {
 										const instrument: Instrument = new Instrument(isNoiseChannel, isModChannel);
 										instrumentByProgram[currentProgram] = instrument;
-										if (presetValue != null && preset != null && (preset.isNoise == true) == isNoiseChannel) {
+										if (presetValue != null && preset != null && (preset.isNoise === true) === isNoiseChannel) {
 											instrument.fromJsonObject(preset.settings, isNoiseChannel, isModChannel, false, false, 1);
 											instrument.preset = presetValue;
 										} else {
@@ -632,13 +632,13 @@ export class ImportPrompt extends BasePrompt {
 									pattern.instruments[0] = channel.instruments.indexOf(instrumentByProgram[currentProgram]);
 									pattern.instruments.length = 1;
 								}
-								if (instrumentByProgram[currentProgram] != undefined) {
+								if (instrumentByProgram[currentProgram] !== undefined) {
 									instrumentByProgram[currentProgram].volume = Math.min(instrumentByProgram[currentProgram].volume, currentInstrumentVolume);
 									instrumentByProgram[currentProgram].pan = Math.min(instrumentByProgram[currentProgram].pan, currentInstrumentPan);
 								}
 								const note: Note = new Note(-1, noteStartPart, noteEndPart, Config.noteSizeMax, false);
 								note.pins.length = 0;
-								note.continuesLastPattern = createdNote && noteStartPart == 0;
+								note.continuesLastPattern = createdNote && noteStartPart === 0;
 								createdNote = true;
 								updateCurrentMidiInterval(noteStartMidiTick);
 								updateCurrentMidiNoteSize(noteStartMidiTick);
@@ -666,7 +666,7 @@ export class ImportPrompt extends BasePrompt {
 										Math.min(noteEndMidiTick - 1, Math.round(midiTicksPerPart * (part + barStartPart))),
 									);
 									const noteRelativePart: number = part - noteStartPart;
-									const lastPart: boolean = part == noteEndPart;
+									const lastPart: boolean = part === noteEndPart;
 									updateCurrentMidiInterval(midiTick);
 									updateCurrentMidiNoteSize(midiTick);
 									const partPitch: number = (currentMidiInterval + shiftedHeldPitch) / intervalScale;
@@ -676,13 +676,13 @@ export class ImportPrompt extends BasePrompt {
 									const pitchCrossedInteger: boolean =
 										Math.abs(prevPartPitch - Math.round(prevPartPitch)) < 0.01
 											? Math.abs(partPitch - prevPartPitch) >= 1.0
-											: Math.floor(partPitch) != Math.floor(prevPartPitch);
+											: Math.floor(partPitch) !== Math.floor(prevPartPitch);
 									const keyPitch: boolean = pitchIsNearInteger || pitchCrossedInteger;
 									const nearestSize: number = Math.round(partSize);
 									const sizeIsNearInteger: boolean = Math.abs(partSize - nearestSize) < 0.01;
 									const sizeCrossedInteger: boolean = Math.abs(prevPartSize - Math.round(prevPartSize))
 										? Math.abs(partSize - prevPartSize) >= 1.0
-										: Math.floor(partSize) != Math.floor(prevPartSize);
+										: Math.floor(partSize) !== Math.floor(prevPartSize);
 									const keySize: boolean = sizeIsNearInteger || sizeCrossedInteger;
 									prevPartPitch = partPitch;
 									prevPartSize = partSize;
@@ -760,12 +760,12 @@ export class ImportPrompt extends BasePrompt {
 								note.pitches.length = 0;
 								for (let pitchIndex: number = 0; pitchIndex < Math.min(Config.maxChordSize, heldPitches.length); pitchIndex++) {
 									let heldPitch: number = heldPitches[pitchIndex + Math.max(0, heldPitches.length - Config.maxChordSize)] * midiIntervalScale;
-									if (preset != null && preset.midiSubharmonicOctaves != undefined) heldPitch -= 12 * preset.midiSubharmonicOctaves;
+									if (preset != null && preset.midiSubharmonicOctaves !== undefined) heldPitch -= 12 * preset.midiSubharmonicOctaves;
 									const shiftedPitch: number = Math.max(
 										minPitch,
 										Math.min(maxPitch, Math.round((heldPitch + heldPitchOffset) / intervalScale)),
 									);
-									if (note.pitches.indexOf(shiftedPitch) == -1) {
+									if (note.pitches.indexOf(shiftedPitch) === -1) {
 										note.pitches.push(shiftedPitch);
 										const weight: number = note.end - note.start;
 										pitchSum += shiftedPitch * weight;
@@ -776,7 +776,7 @@ export class ImportPrompt extends BasePrompt {
 							}
 						}
 					}
-					if (heldPitches.indexOf(noteEvent.pitch) != -1) heldPitches.splice(heldPitches.indexOf(noteEvent.pitch), 1);
+					if (heldPitches.indexOf(noteEvent.pitch) !== -1) heldPitches.splice(heldPitches.indexOf(noteEvent.pitch), 1);
 					if (noteEvent.on) {
 						heldPitches.push(noteEvent.pitch);
 						currentVelocity = noteEvent.velocity;
@@ -821,7 +821,7 @@ export class ImportPrompt extends BasePrompt {
 					const noteStartPart = Math.max(0, prevChangeEndPart - barStartPart);
 					const noteEndPart = Math.min(partsPerBar, changeEndPart - barStartPart);
 					if (noteStartPart < noteEndPart) {
-						if (currentBar != bar || pattern == null) {
+						if (currentBar !== bar || pattern == null) {
 							currentBar++;
 							while (currentBar < bar) {
 								tempoModChannel.bars[currentBar] = 0;
@@ -860,8 +860,8 @@ export class ImportPrompt extends BasePrompt {
 						let conflicts: number = 0;
 						let gaps: number = 0;
 						for (let barIndex: number = 0; barIndex < channelA.bars.length && barIndex < channelB.bars.length; barIndex++) {
-							if (channelA.bars[barIndex] != 0 && channelB.bars[barIndex] != 0) conflicts++;
-							if (channelA.bars[barIndex] == 0 && channelB.bars[barIndex] == 0) gaps++;
+							if (channelA.bars[barIndex] !== 0 && channelB.bars[barIndex] !== 0) conflicts++;
+							if (channelA.bars[barIndex] === 0 && channelB.bars[barIndex] === 0) gaps++;
 						}
 						if (conflicts <= fewestConflicts) {
 							if (conflicts < fewestConflicts || gaps < fewestGaps) {
@@ -883,7 +883,8 @@ export class ImportPrompt extends BasePrompt {
 					channelA.patterns.push(pattern);
 				}
 				for (let barIndex: number = 0; barIndex < channelA.bars.length && barIndex < channelB.bars.length; barIndex++) {
-					if (channelA.bars[barIndex] == 0 && channelB.bars[barIndex] != 0) channelA.bars[barIndex] = channelB.bars[barIndex] + channelAPatternCount;
+					if (channelA.bars[barIndex] === 0 && channelB.bars[barIndex] !== 0)
+						channelA.bars[barIndex] = channelB.bars[barIndex] + channelAPatternCount;
 				}
 				channels.splice(bestChannelIndexB, 1);
 			}

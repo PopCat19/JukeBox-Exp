@@ -323,7 +323,7 @@ export class DynamicBiquadFilter {
 		deltaRate: number,
 		useMultiplicativeInputCoefficients: boolean,
 	): void {
-		if (start.order != 2 || end.order != 2) throw new Error();
+		if (start.order !== 2 || end.order !== 2) throw new Error();
 		this.a1 = start.a[1];
 		this.a2 = start.a[2];
 		this.b0 = start.b[0];

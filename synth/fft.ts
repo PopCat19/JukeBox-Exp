@@ -62,7 +62,7 @@ function reverseIndexBits(array: NumberArray, fullArrayLength: number): void {
 // contain the complex result of the transform.
 export function discreteFourierTransform(realArray: NumberArray, imagArray: NumberArray): number[][] {
 	const fullArrayLength: number = realArray.length;
-	if (fullArrayLength != imagArray.length) throw new Error("FFT arrays must be the same length.");
+	if (fullArrayLength !== imagArray.length) throw new Error("FFT arrays must be the same length.");
 	const realOut: number[] = [];
 	const imagOut: number[] = [];
 	for (let i: number = 0; i < fullArrayLength; i++) {
@@ -86,7 +86,7 @@ export function fastFourierTransform(realArray: NumberArray, imagArray: NumberAr
 	const fullArrayLength: number = realArray.length;
 	if (!isPowerOf2(fullArrayLength)) throw new Error("FFT array length must be a power of 2.");
 	if (fullArrayLength < 4) throw new Error("FFT array length must be at least 4.");
-	if (fullArrayLength != imagArray.length) throw new Error("FFT arrays must be the same length.");
+	if (fullArrayLength !== imagArray.length) throw new Error("FFT arrays must be the same length.");
 
 	reverseIndexBits(realArray, fullArrayLength);
 	reverseIndexBits(imagArray, fullArrayLength);

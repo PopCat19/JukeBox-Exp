@@ -99,7 +99,7 @@ export class KeyboardHandler {
 				host.prompt.whenKeyPressed(event);
 			}
 			if (event.defaultPrevented) return;
-			if (event.keyCode == 27) {
+			if (event.keyCode === 27) {
 				// ESC key
 				host.closePrompt(null);
 				return;
@@ -118,51 +118,51 @@ export class KeyboardHandler {
 
 		// Defer to actively editing song title, channel name, or mod label
 		if (
-			document.activeElement == host.songTitleInputBox ||
+			document.activeElement === host.songTitleInputBox ||
 			host.patternEditor.editingModLabel ||
-			document.activeElement == (host.muteEditor as any)._channelNameInput?.input
+			document.activeElement === (host.muteEditor as any)._channelNameInput?.input
 		) {
-			if (event.keyCode == 13 || event.keyCode == 27) {
+			if (event.keyCode === 13 || event.keyCode === 27) {
 				host.mainLayer.focus();
-				host.patternEditor.stopEditingModLabel(event.keyCode == 27);
+				host.patternEditor.stopEditingModLabel(event.keyCode === 27);
 			}
 			return;
 		}
 
 		// Defer to actively editing volume/pan rows
 		if (
-			document.activeElement == host.panSliderInputBox ||
-			document.activeElement == host.pwmSliderInputBox ||
-			document.activeElement == host.detuneSliderInputBox ||
-			document.activeElement == host.instrumentVolumeSliderInputBox ||
-			document.activeElement == host.presetTagsInputBox ||
-			document.activeElement == host.chipWaveLoopStartStepper ||
-			document.activeElement == host.chipWaveLoopEndStepper ||
-			document.activeElement == host.chipWaveStartOffsetStepper ||
-			document.activeElement == host.octaveStepper ||
-			document.activeElement == host.unisonVoicesInputBox ||
-			document.activeElement == host.unisonSpreadInputBox ||
-			document.activeElement == host.unisonOffsetInputBox ||
-			document.activeElement == host.unisonExpressionInputBox ||
-			document.activeElement == host.unisonSignInputBox ||
-			document.activeElement == host.monophonicNoteInputBox ||
-			host.envelopeEditor.pitchStartBoxes.find((element: any) => element == document.activeElement) ||
-			host.envelopeEditor.pitchEndBoxes.find((element: any) => element == document.activeElement) ||
-			host.envelopeEditor.perEnvelopeLowerBoundBoxes.find((element: any) => element == document.activeElement) ||
-			host.envelopeEditor.perEnvelopeUpperBoundBoxes.find((element: any) => element == document.activeElement) ||
-			host.envelopeEditor.randomStepsBoxes.find((element: any) => element == document.activeElement) ||
-			host.envelopeEditor.randomStepsBoxes.find((element: any) => element == document.activeElement) ||
-			host.envelopeEditor.LFOStepsBoxes.find((element: any) => element == document.activeElement)
+			document.activeElement === host.panSliderInputBox ||
+			document.activeElement === host.pwmSliderInputBox ||
+			document.activeElement === host.detuneSliderInputBox ||
+			document.activeElement === host.instrumentVolumeSliderInputBox ||
+			document.activeElement === host.presetTagsInputBox ||
+			document.activeElement === host.chipWaveLoopStartStepper ||
+			document.activeElement === host.chipWaveLoopEndStepper ||
+			document.activeElement === host.chipWaveStartOffsetStepper ||
+			document.activeElement === host.octaveStepper ||
+			document.activeElement === host.unisonVoicesInputBox ||
+			document.activeElement === host.unisonSpreadInputBox ||
+			document.activeElement === host.unisonOffsetInputBox ||
+			document.activeElement === host.unisonExpressionInputBox ||
+			document.activeElement === host.unisonSignInputBox ||
+			document.activeElement === host.monophonicNoteInputBox ||
+			host.envelopeEditor.pitchStartBoxes.find((element: any) => element === document.activeElement) ||
+			host.envelopeEditor.pitchEndBoxes.find((element: any) => element === document.activeElement) ||
+			host.envelopeEditor.perEnvelopeLowerBoundBoxes.find((element: any) => element === document.activeElement) ||
+			host.envelopeEditor.perEnvelopeUpperBoundBoxes.find((element: any) => element === document.activeElement) ||
+			host.envelopeEditor.randomStepsBoxes.find((element: any) => element === document.activeElement) ||
+			host.envelopeEditor.randomStepsBoxes.find((element: any) => element === document.activeElement) ||
+			host.envelopeEditor.LFOStepsBoxes.find((element: any) => element === document.activeElement)
 		) {
-			if (event.keyCode == 13 || event.keyCode == 27) {
+			if (event.keyCode === 13 || event.keyCode === 27) {
 				host.mainLayer.focus();
 			}
 			return;
 		}
 
 		// Defer to actively editing upper note limit
-		if (document.activeElement == host.upperNoteLimitInputBox || document.activeElement == host.lowerNoteLimitInputBox) {
-			if (event.keyCode == 13 || event.keyCode == 27) {
+		if (document.activeElement === host.upperNoteLimitInputBox || document.activeElement === host.lowerNoteLimitInputBox) {
+			if (event.keyCode === 13 || event.keyCode === 27) {
 				host.mainLayer.focus();
 			}
 			return;
@@ -172,12 +172,12 @@ export class KeyboardHandler {
 			if (!event.ctrlKey && !event.metaKey) {
 				host.keyboardLayout.handleKeyEvent(event, true);
 			}
-			if (event.keyCode == 32) {
+			if (event.keyCode === 32) {
 				// space
 				host.toggleRecord();
 				event.preventDefault();
 				host.refocusStage();
-			} else if (event.keyCode == 80 && (event.ctrlKey || event.metaKey)) {
+			} else if (event.keyCode === 80 && (event.ctrlKey || event.metaKey)) {
 				// p
 				host.toggleRecord();
 				event.preventDefault();
@@ -186,7 +186,7 @@ export class KeyboardHandler {
 			return;
 		}
 
-		const needControlForShortcuts: boolean = doc.prefs.pressControlForShortcuts != event.getModifierState("CapsLock");
+		const needControlForShortcuts: boolean = doc.prefs.pressControlForShortcuts !== event.getModifierState("CapsLock");
 		const canPlayNotes: boolean = !event.ctrlKey && !event.metaKey && needControlForShortcuts;
 		if (canPlayNotes) host.keyboardLayout.handleKeyEvent(event, true);
 
@@ -232,7 +232,7 @@ export class KeyboardHandler {
 					event.preventDefault();
 					host.refocusStage();
 				} else if (canPlayNotes) break;
-				if (needControlForShortcuts == (event.ctrlKey || event.metaKey) && event.shiftKey) {
+				if (needControlForShortcuts === (event.ctrlKey || event.metaKey) && event.shiftKey) {
 					location.href = "player/" + (OFFLINE ? "index.html" : "") + "#song=" + doc.song.toBase64String();
 					event.preventDefault();
 				}
@@ -242,7 +242,7 @@ export class KeyboardHandler {
 					let shortenerStrategy: string = "https://tinyurl.com/api-create.php?url=";
 					const localShortenerStrategy: string | null = window.localStorage.getItem("shortenerStrategySelect");
 
-					if (localShortenerStrategy == "isgd") shortenerStrategy = "https://is.gd/create.php?format=simple&url=";
+					if (localShortenerStrategy === "isgd") shortenerStrategy = "https://is.gd/create.php?format=simple&url=";
 
 					window.open(shortenerStrategy + encodeURIComponent(new URL("#" + doc.song.toBase64String(), location.href).href));
 				}
@@ -258,7 +258,7 @@ export class KeyboardHandler {
 					}
 					doc.record(new ChangeSong(doc, ""), false, true);
 				} else {
-					if (needControlForShortcuts == (event.ctrlKey || event.metaKey)) {
+					if (needControlForShortcuts === (event.ctrlKey || event.metaKey)) {
 						host.openPrompt("songRecovery");
 					}
 				}
@@ -286,13 +286,18 @@ export class KeyboardHandler {
 			case 66: // b
 				if (canPlayNotes) break;
 
-				if (needControlForShortcuts == (event.ctrlKey || event.metaKey)) {
+				if (needControlForShortcuts === (event.ctrlKey || event.metaKey)) {
 					if (event.shiftKey) {
 						host.openPrompt("beatsPerBar");
 					} else {
 						const leftSel = Math.min(doc.selection.boxSelectionX0, doc.selection.boxSelectionX1);
 						const rightSel = Math.max(doc.selection.boxSelectionX0, doc.selection.boxSelectionX1);
-						if (leftSel < doc.synth.loopBarStart || doc.synth.loopBarStart == -1 || rightSel > doc.synth.loopBarEnd || doc.synth.loopBarEnd == -1) {
+						if (
+							leftSel < doc.synth.loopBarStart ||
+							doc.synth.loopBarStart === -1 ||
+							rightSel > doc.synth.loopBarEnd ||
+							doc.synth.loopBarEnd === -1
+						) {
 							doc.synth.loopBarStart = leftSel;
 							doc.synth.loopBarEnd = rightSel;
 
@@ -305,7 +310,7 @@ export class KeyboardHandler {
 							doc.synth.loopBarEnd = -1;
 						}
 
-						if (doc.bar != Math.floor(doc.synth.playhead) && doc.synth.loopBarStart != -1) {
+						if (doc.bar !== Math.floor(doc.synth.playhead) && doc.synth.loopBarStart !== -1) {
 							doc.synth.goToBar(doc.bar);
 							doc.synth.snapToBar();
 							doc.synth.initModFilters(doc.song);
@@ -380,7 +385,7 @@ export class KeyboardHandler {
 				if (event.shiftKey) {
 				} else {
 					if (canPlayNotes) break;
-					if (needControlForShortcuts == (event.ctrlKey || event.metaKey)) {
+					if (needControlForShortcuts === (event.ctrlKey || event.metaKey)) {
 						doc.selection.duplicatePatterns(event.shiftKey ? false : true);
 						event.preventDefault();
 					}
@@ -396,7 +401,7 @@ export class KeyboardHandler {
 				} else if (event.altKey) {
 					const instrument: Instrument = doc.song.channels[doc.channel].instruments[doc.getCurrentInstrument()];
 					const isAllOpen: boolean = host.envelopeEditor.openExtraSettingsDropdowns.every((x: boolean) => {
-						return x == true;
+						return x === true;
 					});
 					for (let i = 0; i < instrument.envelopeCount; i++) {
 						if (isAllOpen) host.envelopeEditor.openExtraSettingsDropdowns[i] = false;
@@ -408,7 +413,7 @@ export class KeyboardHandler {
 					host.openPrompt("generateEuclideanRhythm");
 					event.preventDefault();
 					break;
-				} else if (needControlForShortcuts == (event.ctrlKey || event.metaKey)) {
+				} else if (needControlForShortcuts === (event.ctrlKey || event.metaKey)) {
 					host.openPrompt("customSongEQFilterSettings");
 				}
 				break;
@@ -429,18 +434,18 @@ export class KeyboardHandler {
 					event.preventDefault();
 				} else if (event.altKey) {
 					const instrument: Instrument = doc.song.channels[doc.channel].instruments[doc.getCurrentInstrument()];
-					const operatorCount: number = instrument.type == InstrumentType.fm ? 4 : 6;
+					const operatorCount: number = instrument.type === InstrumentType.fm ? 4 : 6;
 					let isAllOpen: boolean = true;
 					for (let i = 0; i < operatorCount; i++) {
 						if (!host.openOperatorDropdowns[i]) isAllOpen = false;
 					}
 					for (let i = 0; i < operatorCount; i++) {
-						if ((host.openOperatorDropdowns[i] == false && !isAllOpen) || isAllOpen) {
+						if ((host.openOperatorDropdowns[i] === false && !isAllOpen) || isAllOpen) {
 							host.toggleDropdownMenu(DropdownID.FM, i);
 						}
 					}
 					event.preventDefault();
-				} else if (needControlForShortcuts == (event.ctrlKey || event.metaKey)) {
+				} else if (needControlForShortcuts === (event.ctrlKey || event.metaKey)) {
 					doc.synth.loopBarStart = -1;
 					doc.synth.loopBarEnd = -1;
 					host.loopEditor.setLoopAt(doc.synth.loopBarStart, doc.synth.loopBarEnd);
@@ -462,7 +467,7 @@ export class KeyboardHandler {
 			case 72: // h
 				if (canPlayNotes) break;
 
-				if (needControlForShortcuts == (event.ctrlKey || event.metaKey)) {
+				if (needControlForShortcuts === (event.ctrlKey || event.metaKey)) {
 					doc.synth.goToBar(doc.bar);
 					doc.synth.snapToBar();
 					doc.synth.initModFilters(doc.song);
@@ -516,7 +521,7 @@ export class KeyboardHandler {
 				break;
 			case 77: // m
 				if (canPlayNotes) break;
-				if (needControlForShortcuts == (event.ctrlKey || event.metaKey)) {
+				if (needControlForShortcuts === (event.ctrlKey || event.metaKey)) {
 					if (doc.prefs.enableChannelMuting) {
 						doc.selection.muteChannels(event.shiftKey);
 						event.preventDefault();
@@ -567,7 +572,7 @@ export class KeyboardHandler {
 					}
 				} else {
 					let nextUnused: number = 1;
-					while (doc.song.channels[doc.channel].bars.indexOf(nextUnused) != -1 && nextUnused <= doc.song.patternsPerChannel) {
+					while (doc.song.channels[doc.channel].bars.indexOf(nextUnused) !== -1 && nextUnused <= doc.song.patternsPerChannel) {
 						nextUnused++;
 					}
 
@@ -598,7 +603,7 @@ export class KeyboardHandler {
 				break;
 			case 81: // q
 				if (canPlayNotes) break;
-				if (needControlForShortcuts == (event.ctrlKey || event.metaKey)) {
+				if (needControlForShortcuts === (event.ctrlKey || event.metaKey)) {
 					if (event.shiftKey) {
 						host.openPrompt("addExternal");
 						event.preventDefault();
@@ -681,17 +686,17 @@ export class KeyboardHandler {
 				break;
 			case 73: // i
 				if (canPlayNotes) break;
-				if (needControlForShortcuts == (event.ctrlKey || event.metaKey) && event.shiftKey) {
+				if (needControlForShortcuts === (event.ctrlKey || event.metaKey) && event.shiftKey) {
 					const instrument: Instrument = doc.song.channels[doc.channel].instruments[doc.getCurrentInstrument()];
 					const instrumentObject: any = instrument.toJsonObject();
 					delete instrumentObject["preset"];
 					delete instrumentObject["volume"];
 					delete instrumentObject["pan"];
 					const panningEffectIndex: number = instrumentObject["effects"].indexOf(Config.effectNames[EffectType.panning]);
-					if (panningEffectIndex != -1) instrumentObject["effects"].splice(panningEffectIndex, 1);
+					if (panningEffectIndex !== -1) instrumentObject["effects"].splice(panningEffectIndex, 1);
 					for (let i: number = 0; i < instrumentObject["envelopes"].length; i++) {
 						const envelope: any = instrumentObject["envelopes"][i];
-						if (envelope["target"] == "panning" || envelope["target"] == "none" || envelope["envelope"] == "none") {
+						if (envelope["target"] === "panning" || envelope["target"] === "none" || envelope["envelope"] === "none") {
 							instrumentObject["envelopes"].splice(i, 1);
 							i--;
 						}
@@ -702,7 +707,7 @@ export class KeyboardHandler {
 				break;
 			case 82: // r
 				if (canPlayNotes) break;
-				if (needControlForShortcuts == (event.ctrlKey || event.metaKey)) {
+				if (needControlForShortcuts === (event.ctrlKey || event.metaKey)) {
 					if (event.shiftKey) {
 						host.randomGenerated(false);
 					} else if (event.altKey) {
@@ -754,7 +759,7 @@ export class KeyboardHandler {
 				break;
 			case 219: // left brace
 				if (canPlayNotes) break;
-				if (needControlForShortcuts == (event.ctrlKey || event.metaKey)) {
+				if (needControlForShortcuts === (event.ctrlKey || event.metaKey)) {
 					doc.synth.goToPrevBar();
 					doc.synth.initModFilters(doc.song);
 					doc.synth.computeLatestModValues();
@@ -772,7 +777,7 @@ export class KeyboardHandler {
 				break;
 			case 221: // right brace
 				if (canPlayNotes) break;
-				if (needControlForShortcuts == (event.ctrlKey || event.metaKey)) {
+				if (needControlForShortcuts === (event.ctrlKey || event.metaKey)) {
 					doc.synth.goToNextBar();
 					doc.synth.initModFilters(doc.song);
 					doc.synth.computeLatestModValues();
@@ -791,7 +796,7 @@ export class KeyboardHandler {
 			case 189: // -
 			case 173: // Firefox -
 				if (canPlayNotes) break;
-				if (needControlForShortcuts == (event.ctrlKey || event.metaKey)) {
+				if (needControlForShortcuts === (event.ctrlKey || event.metaKey)) {
 					doc.selection.transpose(false, event.shiftKey);
 					event.preventDefault();
 				}
@@ -800,7 +805,7 @@ export class KeyboardHandler {
 			case 61: // Firefox +
 			case 171: // Some users have this as +? Hmm.
 				if (canPlayNotes) break;
-				if (needControlForShortcuts == (event.ctrlKey || event.metaKey)) {
+				if (needControlForShortcuts === (event.ctrlKey || event.metaKey)) {
 					doc.selection.transpose(true, event.shiftKey);
 					event.preventDefault();
 				}
@@ -861,61 +866,61 @@ export class KeyboardHandler {
 				break;
 			case 48: // 0
 				if (canPlayNotes) break;
-				doc.selection.nextDigit("0", needControlForShortcuts != (event.shiftKey || event.ctrlKey || event.metaKey), event.altKey);
+				doc.selection.nextDigit("0", needControlForShortcuts !== (event.shiftKey || event.ctrlKey || event.metaKey), event.altKey);
 				host.renderInstrumentBar(doc.song.channels[doc.channel], doc.getCurrentInstrument(), ColorConfig.getChannelColor(doc.song, doc.channel));
 				event.preventDefault();
 				break;
 			case 49: // 1
 				if (canPlayNotes) break;
-				doc.selection.nextDigit("1", needControlForShortcuts != (event.shiftKey || event.ctrlKey || event.metaKey), event.altKey);
+				doc.selection.nextDigit("1", needControlForShortcuts !== (event.shiftKey || event.ctrlKey || event.metaKey), event.altKey);
 				host.renderInstrumentBar(doc.song.channels[doc.channel], doc.getCurrentInstrument(), ColorConfig.getChannelColor(doc.song, doc.channel));
 				event.preventDefault();
 				break;
 			case 50: // 2
 				if (canPlayNotes) break;
-				doc.selection.nextDigit("2", needControlForShortcuts != (event.shiftKey || event.ctrlKey || event.metaKey), event.altKey);
+				doc.selection.nextDigit("2", needControlForShortcuts !== (event.shiftKey || event.ctrlKey || event.metaKey), event.altKey);
 				host.renderInstrumentBar(doc.song.channels[doc.channel], doc.getCurrentInstrument(), ColorConfig.getChannelColor(doc.song, doc.channel));
 				event.preventDefault();
 				break;
 			case 51: // 3
 				if (canPlayNotes) break;
-				doc.selection.nextDigit("3", needControlForShortcuts != (event.shiftKey || event.ctrlKey || event.metaKey), event.altKey);
+				doc.selection.nextDigit("3", needControlForShortcuts !== (event.shiftKey || event.ctrlKey || event.metaKey), event.altKey);
 				host.renderInstrumentBar(doc.song.channels[doc.channel], doc.getCurrentInstrument(), ColorConfig.getChannelColor(doc.song, doc.channel));
 				event.preventDefault();
 				break;
 			case 52: // 4
 				if (canPlayNotes) break;
-				doc.selection.nextDigit("4", needControlForShortcuts != (event.shiftKey || event.ctrlKey || event.metaKey), event.altKey);
+				doc.selection.nextDigit("4", needControlForShortcuts !== (event.shiftKey || event.ctrlKey || event.metaKey), event.altKey);
 				host.renderInstrumentBar(doc.song.channels[doc.channel], doc.getCurrentInstrument(), ColorConfig.getChannelColor(doc.song, doc.channel));
 				event.preventDefault();
 				break;
 			case 53: // 5
 				if (canPlayNotes) break;
-				doc.selection.nextDigit("5", needControlForShortcuts != (event.shiftKey || event.ctrlKey || event.metaKey), event.altKey);
+				doc.selection.nextDigit("5", needControlForShortcuts !== (event.shiftKey || event.ctrlKey || event.metaKey), event.altKey);
 				host.renderInstrumentBar(doc.song.channels[doc.channel], doc.getCurrentInstrument(), ColorConfig.getChannelColor(doc.song, doc.channel));
 				event.preventDefault();
 				break;
 			case 54: // 6
 				if (canPlayNotes) break;
-				doc.selection.nextDigit("6", needControlForShortcuts != (event.shiftKey || event.ctrlKey || event.metaKey), event.altKey);
+				doc.selection.nextDigit("6", needControlForShortcuts !== (event.shiftKey || event.ctrlKey || event.metaKey), event.altKey);
 				host.renderInstrumentBar(doc.song.channels[doc.channel], doc.getCurrentInstrument(), ColorConfig.getChannelColor(doc.song, doc.channel));
 				event.preventDefault();
 				break;
 			case 55: // 7
 				if (canPlayNotes) break;
-				doc.selection.nextDigit("7", needControlForShortcuts != (event.shiftKey || event.ctrlKey || event.metaKey), event.altKey);
+				doc.selection.nextDigit("7", needControlForShortcuts !== (event.shiftKey || event.ctrlKey || event.metaKey), event.altKey);
 				host.renderInstrumentBar(doc.song.channels[doc.channel], doc.getCurrentInstrument(), ColorConfig.getChannelColor(doc.song, doc.channel));
 				event.preventDefault();
 				break;
 			case 56: // 8
 				if (canPlayNotes) break;
-				doc.selection.nextDigit("8", needControlForShortcuts != (event.shiftKey || event.ctrlKey || event.metaKey), event.altKey);
+				doc.selection.nextDigit("8", needControlForShortcuts !== (event.shiftKey || event.ctrlKey || event.metaKey), event.altKey);
 				host.renderInstrumentBar(doc.song.channels[doc.channel], doc.getCurrentInstrument(), ColorConfig.getChannelColor(doc.song, doc.channel));
 				event.preventDefault();
 				break;
 			case 57: // 9
 				if (canPlayNotes) break;
-				doc.selection.nextDigit("9", needControlForShortcuts != (event.shiftKey || event.ctrlKey || event.metaKey), event.altKey);
+				doc.selection.nextDigit("9", needControlForShortcuts !== (event.shiftKey || event.ctrlKey || event.metaKey), event.altKey);
 				host.renderInstrumentBar(doc.song.channels[doc.channel], doc.getCurrentInstrument(), ColorConfig.getChannelColor(doc.song, doc.channel));
 				event.preventDefault();
 				break;

@@ -45,7 +45,7 @@ function save(blob: Blob, name: string): void {
 	}
 
 	const anchor: HTMLAnchorElement = document.createElement("a");
-	if (anchor.download != undefined) {
+	if (anchor.download !== undefined) {
 		const url: string = URL.createObjectURL(blob);
 		setTimeout(function () {
 			URL.revokeObjectURL(url);
@@ -161,14 +161,14 @@ export class ExportPrompt extends BasePrompt {
 
 		this._loopDropDown.value = "1";
 
-		if (this._doc.song.loopStart == 0) {
+		if (this._doc.song.loopStart === 0) {
 			this._enableIntro.checked = false;
 			this._enableIntro.disabled = true;
 		} else {
 			this._enableIntro.checked = true;
 			this._enableIntro.disabled = false;
 		}
-		if (this._doc.song.loopStart + this._doc.song.loopLength == this._doc.song.barCount) {
+		if (this._doc.song.loopStart + this._doc.song.loopLength === this._doc.song.barCount) {
 			this._enableOutro.checked = false;
 			this._enableOutro.disabled = true;
 		} else {
@@ -181,7 +181,7 @@ export class ExportPrompt extends BasePrompt {
 			this._formatSelect.value = lastExportFormat;
 		}
 
-		const lastExportWhitespace: boolean = window.localStorage.getItem("exportWhitespace") != "false";
+		const lastExportWhitespace: boolean = window.localStorage.getItem("exportWhitespace") !== "false";
 		if (lastExportWhitespace != null) {
 			this._removeWhitespace.checked = lastExportWhitespace;
 		}
@@ -211,8 +211,8 @@ export class ExportPrompt extends BasePrompt {
 	};
 
 	private _updateWarnings = (): void => {
-		this._removeWhitespaceDiv.style.display = this._formatSelect.value == "json" ? "block" : "none";
-		const showOgg = this._formatSelect.value == "ogg" || this._formatSelect.value == "opus";
+		this._removeWhitespaceDiv.style.display = this._formatSelect.value === "json" ? "block" : "none";
+		const showOgg = this._formatSelect.value === "ogg" || this._formatSelect.value === "opus";
 		this._oggWarning.style.display = showOgg ? "block" : "none";
 	};
 
@@ -242,7 +242,7 @@ export class ExportPrompt extends BasePrompt {
 	}
 
 	private _export = (): void => {
-		if (this.outputStarted == true) return;
+		if (this.outputStarted === true) return;
 		window.localStorage.setItem("exportFormat", this._formatSelect.value);
 		window.localStorage.setItem("exportWhitespace", String(this._removeWhitespace.checked));
 		switch (this._formatSelect.value) {
@@ -270,7 +270,7 @@ export class ExportPrompt extends BasePrompt {
 	};
 
 	private _synthesize(): void {
-		if (this.outputStarted == false) return;
+		if (this.outputStarted === false) return;
 		const samplesPerChunk: number = this.synth.samplesPerSecond * 5;
 		const currentFrame: number = this.currentChunk * samplesPerChunk;
 		const samplesInChunk: number = Math.min(samplesPerChunk, this.sampleFrames - currentFrame);
@@ -286,10 +286,10 @@ export class ExportPrompt extends BasePrompt {
 		if (this.currentChunk >= this.totalChunks) {
 			this.synth.renderingSong = false;
 			this._outputProgressLabel.innerText = "Encoding...";
-			if (this.thenExportTo == "wav") this._exportToWavFinish();
-			else if (this.thenExportTo == "mp3") this._exportToMp3Finish();
-			else if (this.thenExportTo == "ogg") this._exportToOggFinish();
-			else if (this.thenExportTo == "opus") this._exportToOpusFinish();
+			if (this.thenExportTo === "wav") this._exportToWavFinish();
+			else if (this.thenExportTo === "mp3") this._exportToMp3Finish();
+			else if (this.thenExportTo === "ogg") this._exportToOggFinish();
+			else if (this.thenExportTo === "opus") this._exportToOpusFinish();
 		} else {
 			setTimeout(() => this._synthesize());
 		}
@@ -299,8 +299,8 @@ export class ExportPrompt extends BasePrompt {
 		this.thenExportTo = type;
 		this.currentChunk = 0;
 		this.synth = new Synth(this._doc.song);
-		if (type == "wav" || type == "ogg" || type == "opus") this.synth.samplesPerSecond = 48000;
-		else if (type == "mp3") this.synth.samplesPerSecond = 44100;
+		if (type === "wav" || type === "ogg" || type === "opus") this.synth.samplesPerSecond = 48000;
+		else if (type === "mp3") this.synth.samplesPerSecond = 44100;
 		this._outputProgressBar.style.setProperty("width", "0%");
 		this._outputProgressLabel.innerText = "0%";
 		this.synth.loopRepeatCount = Number(this._loopDropDown.value) - 1;
@@ -497,7 +497,7 @@ export class ExportPrompt extends BasePrompt {
 				const s = document.createElement("script");
 				s.src = src;
 				s.onload = () => {
-					if (++loaded == 2) whenEncoderIsAvailable();
+					if (++loaded === 2) whenEncoderIsAvailable();
 				};
 				document.head.appendChild(s);
 			}
@@ -516,13 +516,13 @@ export class ExportPrompt extends BasePrompt {
 		let midiChan = 0;
 		let foundDrum = false;
 		for (let i = 0; i < song.pitchChannelCount + song.noiseChannelCount; i++) {
-			if (!foundDrum && song.channels[i].instruments[0].type == InstrumentType.drumset) {
+			if (!foundDrum && song.channels[i].instruments[0].type === InstrumentType.drumset) {
 				tracks.push({ isMeta: false, channel: i, midiChannel: 9, isNoise: true, isDrumset: true });
 				foundDrum = true;
 			} else {
 				if (midiChan >= 16) continue;
 				tracks.push({ isMeta: false, channel: i, midiChannel: midiChan++, isNoise: song.getChannelIsNoise(i), isDrumset: false });
-				if (midiChan == 9) midiChan++;
+				if (midiChan === 9) midiChan++;
 			}
 		}
 		const writer = new ArrayBufferWriter(1024);
@@ -564,10 +564,10 @@ export class ExportPrompt extends BasePrompt {
 				writer.writeUint8(2);
 				writer.writeUint8(24);
 				writer.writeUint8(8);
-				const tempScale = song.scale == Config.scales.dictionary["Custom"].index ? song.scaleCustom : Config.scales[song.scale].flags;
+				const tempScale = song.scale === Config.scales.dictionary["Custom"].index ? song.scaleCustom : Config.scales[song.scale].flags;
 				const isMinor = tempScale[3] && !tempScale[4];
 				let numSharps = song.key;
-				if ((song.key & 1) == 1) numSharps += 6;
+				if ((song.key & 1) === 1) numSharps += 6;
 				if (isMinor) numSharps += 9;
 				while (numSharps > 6) numSharps -= 12;
 				writeTime(0);
@@ -610,7 +610,7 @@ export class ExportPrompt extends BasePrompt {
 				writeControl(MidiControlEventMessage.registeredParameterNumberLSB, MidiRegisteredParameterNumberLSB.reset);
 				let prevInstr = -1;
 				const writeInstr = (idx: number) => {
-					if (prevInstr == idx) return;
+					if (prevInstr === idx) return;
 					prevInstr = idx;
 					const instr = song.channels[track.channel].instruments[idx];
 					writeTime(barStartTime);
@@ -620,20 +620,20 @@ export class ExportPrompt extends BasePrompt {
 					if (!track.isDrumset) {
 						let prog = 81;
 						const preset = EditorConfig.valueToPreset(instr.preset);
-						if (preset?.midiProgram != undefined) prog = preset.midiProgram;
-						else if (instr.type == InstrumentType.drumset) prog = 116;
-						else if (instr.type == InstrumentType.noise || instr.type == InstrumentType.spectrum) prog = track.isNoise ? 116 : 75;
-						else if (instr.type == InstrumentType.chip && ExportPrompt.midiChipInstruments.length > instr.chipWave)
+						if (preset?.midiProgram !== undefined) prog = preset.midiProgram;
+						else if (instr.type === InstrumentType.drumset) prog = 116;
+						else if (instr.type === InstrumentType.noise || instr.type === InstrumentType.spectrum) prog = track.isNoise ? 116 : 75;
+						else if (instr.type === InstrumentType.chip && ExportPrompt.midiChipInstruments.length > instr.chipWave)
 							prog = ExportPrompt.midiChipInstruments[instr.chipWave];
-						else if (instr.type == InstrumentType.pickedString)
+						else if (instr.type === InstrumentType.pickedString)
 							prog = 0x19; // steel guitar
 						else if (
-							instr.type == InstrumentType.pwm ||
-							instr.type == InstrumentType.fm ||
-							instr.type == InstrumentType.fm6op ||
-							instr.type == InstrumentType.harmonics ||
-							instr.type == InstrumentType.supersaw ||
-							instr.type == InstrumentType.customChipWave
+							instr.type === InstrumentType.pwm ||
+							instr.type === InstrumentType.fm ||
+							instr.type === InstrumentType.fm6op ||
+							instr.type === InstrumentType.harmonics ||
+							instr.type === InstrumentType.supersaw ||
+							instr.type === InstrumentType.customChipWave
 						)
 							prog = 81; // sawtooth
 						writeTime(barStartTime);
@@ -664,9 +664,9 @@ export class ExportPrompt extends BasePrompt {
 						const usesArp = instr.getChord().arpeggiates;
 						let poly = usesArp ? 1 : Config.maxChordSize;
 						if (instr.getChord().customInterval) {
-							if (instr.type == InstrumentType.chip || instr.type == InstrumentType.harmonics) {
+							if (instr.type === InstrumentType.chip || instr.type === InstrumentType.harmonics) {
 								poly = 2;
-							} else if (instr.type == InstrumentType.fm) poly = Config.operatorCount;
+							} else if (instr.type === InstrumentType.fm) poly = Config.operatorCount;
 						}
 						for (const note of pattern.notes) {
 							const start = barStartTime + note.start * ticksPerPart;
@@ -698,14 +698,14 @@ export class ExportPrompt extends BasePrompt {
 									const lInt = lerp(pinI, note.pins[i].interval, tick / len);
 									const pb = Math.max(0, Math.min(0x3fff, Math.round(0x2000 * (1 + (lInt * scale - offset) / 24))));
 									const exp = Math.min(0x7f, Math.round(volumeMultToMidiExpression(Synth.noteSizeToVolumeMult(lSize))));
-									if (pb != prevPB) {
+									if (pb !== prevPB) {
 										writeTime(time);
 										writer.writeUint8(MidiEventType.pitchBend | track.midiChannel);
 										writer.writeMidi7Bits(pb & 0x7f);
 										writer.writeMidi7Bits((pb >> 7) & 0x7f);
 										prevPB = pb;
 									}
-									if (exp != prevExp && !track.isDrumset) {
+									if (exp !== prevExp && !track.isDrumset) {
 										writeTime(time);
 										writeControl(MidiControlEventMessage.expressionMSB, exp);
 										prevExp = exp;
@@ -719,7 +719,7 @@ export class ExportPrompt extends BasePrompt {
 												throw new Error("Could not find corresponding drumset pitch. " + drumIdx);
 											p = drumsetMap[drumIdx];
 										} else {
-											if (usesArp && note.pitches.length > t + 1 && t == toneCount - 1) {
+											if (usesArp && note.pitches.length > t + 1 && t === toneCount - 1) {
 												const arp = Math.floor(
 													((time - barStartTime) % (ticksPerPart * Config.partsPerBeat)) / (Config.ticksPerArpeggio * 2),
 												);
@@ -727,7 +727,7 @@ export class ExportPrompt extends BasePrompt {
 											}
 											p = root + p * scale + offset;
 											const preset = EditorConfig.valueToPreset(instr.preset);
-											if (preset?.midiSubharmonicOctaves != undefined) p += 12 * preset.midiSubharmonicOctaves;
+											if (preset?.midiSubharmonicOctaves !== undefined) p += 12 * preset.midiSubharmonicOctaves;
 											else if (track.isNoise)
 												p +=
 													12 *
@@ -737,7 +737,7 @@ export class ExportPrompt extends BasePrompt {
 										}
 										p = Math.max(0, Math.min(127, p));
 										nextP[t] = p;
-										if (time != start && prevP[t] != nextP[t]) {
+										if (time !== start && prevP[t] !== nextP[t]) {
 											writeTime(time);
 											writer.writeUint8(MidiEventType.noteOff | track.midiChannel);
 											writer.writeMidi7Bits(prevP[t]);
@@ -745,7 +745,7 @@ export class ExportPrompt extends BasePrompt {
 										}
 									}
 									for (let t = 0; t < toneCount; t++) {
-										if (time == start || prevP[t] != nextP[t]) {
+										if (time === start || prevP[t] !== nextP[t]) {
 											writeTime(time);
 											writer.writeUint8(MidiEventType.noteOn | track.midiChannel);
 											writer.writeMidi7Bits(nextP[t]);
@@ -769,12 +769,12 @@ export class ExportPrompt extends BasePrompt {
 						}
 					} else if (resetNeeded) {
 						resetNeeded = false;
-						if (prevExp != defaultMidiExpression) {
+						if (prevExp !== defaultMidiExpression) {
 							prevExp = defaultMidiExpression;
 							writeTime(barStartTime);
 							writeControl(MidiControlEventMessage.expressionMSB, prevExp);
 						}
-						if (prevPB != defaultMidiPitchBend) {
+						if (prevPB !== defaultMidiPitchBend) {
 							prevPB = defaultMidiPitchBend;
 							writeTime(barStartTime);
 							writer.writeUint8(MidiEventType.pitchBend | track.midiChannel);
@@ -814,7 +814,7 @@ export class ExportPrompt extends BasePrompt {
 	private static _validateFileName(event: Event | null, use?: HTMLInputElement): void {
 		let input: HTMLInputElement;
 		if (event != null) input = <HTMLInputElement>event.target;
-		else if (use != undefined) input = use;
+		else if (use !== undefined) input = use;
 		else return;
 		const deleteChars = /[\+\*\$\?\|\{\}\\\/<>#%!`&'"=:@]/gi;
 		if (deleteChars.test(input.value)) {

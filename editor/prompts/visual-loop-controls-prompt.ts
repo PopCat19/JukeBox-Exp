@@ -507,7 +507,7 @@ export class VisualLoopControlsPrompt extends BasePrompt {
 		this._instrument = this._doc.song.channels[this._doc.channel].instruments[this._doc.getCurrentInstrument()];
 		const rawChipWave: ChipWave = Config.rawRawChipWaves[this._instrument.chipWave];
 		const customSampleIsLoading: boolean =
-			(rawChipWave.isCustomSampled === true || rawChipWave.isSampled == true) &&
+			(rawChipWave.isCustomSampled === true || rawChipWave.isSampled === true) &&
 			sampleLoadingState.statusTable[this._instrument.chipWave] !== SampleLoadingStatus.loaded;
 		if (customSampleIsLoading) {
 			this._sampleIsLoadingMessage.style.display = "";
@@ -943,10 +943,10 @@ export class VisualLoopControlsPrompt extends BasePrompt {
 	};
 
 	public override whenKeyPressed = (event: KeyboardEvent): void => {
-		if ((<Element>event.target).tagName != "BUTTON" && event.keyCode == 13) {
+		if ((<Element>event.target).tagName !== "BUTTON" && event.keyCode === 13) {
 			this._saveChanges();
 		}
-		if (event.keyCode == 32) {
+		if (event.keyCode === 32) {
 			this._togglePlaySong();
 			event.preventDefault();
 		}

@@ -57,11 +57,11 @@ export class PlayerControls {
 
 	public hashUpdatedExternally(): void {
 		let myHash: string = location.hash;
-		if (this.prevHash == myHash || myHash == "") return;
+		if (this.prevHash === myHash || myHash === "") return;
 
 		this.prevHash = myHash;
 
-		if (myHash.charAt(0) == "#") {
+		if (myHash.charAt(0) === "#") {
 			myHash = myHash.substring(1);
 		}
 
@@ -72,7 +72,7 @@ export class PlayerControls {
 		// that's assumed to be respected here (and probably elsewhere...)
 		for (const parameter of myHash.split(/&(?=[a-z]+=)/g)) {
 			const equalsIndex: number = parameter.indexOf("=");
-			if (equalsIndex != -1) {
+			if (equalsIndex !== -1) {
 				const paramName: string = parameter.substring(0, equalsIndex);
 				const value: string = parameter.substring(equalsIndex + 1);
 				switch (paramName) {
@@ -83,7 +83,7 @@ export class PlayerControls {
 						}
 						break;
 					case "loop":
-						this.ui.synth.loopRepeatCount = value != "1" ? 0 : -1;
+						this.ui.synth.loopRepeatCount = value !== "1" ? 0 : -1;
 						this.renderLoopIcon();
 						break;
 				}
@@ -106,7 +106,7 @@ export class PlayerControls {
 		}
 
 		const storedPlayerId: string | null = getLocalStorage("playerId");
-		if (storedPlayerId != null && storedPlayerId != this.id) {
+		if (storedPlayerId != null && storedPlayerId !== this.id) {
 			this.onTogglePlay();
 			this.renderPlayhead();
 			clearInterval(this.pauseIfAnotherPlayerStartsHandle!);
@@ -120,7 +120,7 @@ export class PlayerControls {
 
 			this.volumeUpdate();
 		}
-		if (this.pauseButtonDisplayed != this.ui.synth.playing) {
+		if (this.pauseButtonDisplayed !== this.ui.synth.playing) {
 			this.renderPlayButton();
 		}
 	}
@@ -172,7 +172,7 @@ export class PlayerControls {
 	}
 
 	public onToggleLoop(): void {
-		if (this.ui.synth.loopRepeatCount == -1) {
+		if (this.ui.synth.loopRepeatCount === -1) {
 			this.ui.synth.loopRepeatCount = 0;
 		} else {
 			this.ui.synth.loopRepeatCount = -1;
@@ -253,7 +253,7 @@ export class PlayerControls {
 	}
 
 	private renderLoopIcon(): void {
-		this.ui.loopIcon.setAttribute("fill", this.ui.synth.loopRepeatCount == -1 ? ColorConfig.linkAccent : ColorConfig.uiWidgetBackground);
+		this.ui.loopIcon.setAttribute("fill", this.ui.synth.loopRepeatCount === -1 ? ColorConfig.linkAccent : ColorConfig.uiWidgetBackground);
 	}
 
 	private renderZoomIcon(): void {
@@ -266,7 +266,7 @@ export class PlayerControls {
 		const localShortenerStrategy: string | null = window.localStorage.getItem("shortenerStrategySelect");
 
 		// if (localShortenerStrategy == "beepboxnet") shortenerStrategy = "https://www.beepbox.net/api-create.php?url=";
-		if (localShortenerStrategy == "isgd") shortenerStrategy = "https://is.gd/create.php?format=simple&url=";
+		if (localShortenerStrategy === "isgd") shortenerStrategy = "https://is.gd/create.php?format=simple&url=";
 
 		window.open(shortenerStrategy + encodeURIComponent(new URL("#" + this.ui.synth.song!.toBase64String(), location.href).href));
 	}
@@ -301,7 +301,7 @@ export class PlayerControls {
 		const percent: number = e.totalSamples === 0 ? 0 : Math.floor((e.samplesLoaded / e.totalSamples) * 100);
 		this.ui.sampleLoadingBarContainer.title = "Total Samples: " + String(e.totalSamples) + "; Loaded Samples: " + String(e.samplesLoaded) + "; ";
 		this.ui.sampleLoadingBar.style.width = `${percent}%`;
-		if (e.totalSamples != 0) {
+		if (e.totalSamples !== 0) {
 			this.ui.sampleLoadingBarContainer.style.backgroundColor = "var(--indicator-secondary)";
 		} else {
 			this.ui.sampleLoadingBarContainer.style.backgroundColor = "var(--empty-sample-bar, var(--indicator-secondary))";

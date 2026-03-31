@@ -534,7 +534,7 @@ export class PresetSelectorPrompt extends BasePrompt {
 	}
 
 	public override whenKeyPressed = (event: KeyboardEvent): void => {
-		if (event.keyCode == 27) {
+		if (event.keyCode === 27) {
 			this._close();
 			event.preventDefault();
 		}

@@ -181,9 +181,9 @@ export class TrackEditor {
 	};
 
 	private _barDropDownHandler = (event: Event): void => {
-		const moveBarOffset = this._barDropDown.value == "barBefore" ? 0 : 1;
+		const moveBarOffset = this._barDropDown.value === "barBefore" ? 0 : 1;
 
-		if (this._barDropDown.value == "barBefore" || this._barDropDown.value == "barAfter") {
+		if (this._barDropDown.value === "barBefore" || this._barDropDown.value === "barAfter") {
 			// let prevBar = this._doc.bar;
 
 			this._doc.bar = this._barDropDownBar - 1 + moveBarOffset;
@@ -199,7 +199,7 @@ export class TrackEditor {
 				this._doc.synth.playhead++;
 				this._songEditor._barScrollBar.animatePlayhead();
 			}
-		} else if (this._barDropDown.value == "deleteBar") {
+		} else if (this._barDropDown.value === "deleteBar") {
 			// let prevBar = this._doc.bar;
 
 			this._doc.bar = this._barDropDownBar;
@@ -226,7 +226,7 @@ export class TrackEditor {
 
 	private _animatePlayhead = (timestamp: number): void => {
 		const playhead = this._barWidth * this._doc.synth.playhead - 2;
-		if (this._renderedPlayhead != playhead) {
+		if (this._renderedPlayhead !== playhead) {
 			this._renderedPlayhead = playhead;
 			this._playhead.setAttribute("x", "" + playhead);
 		}
@@ -268,7 +268,7 @@ export class TrackEditor {
 
 	private _whenSelectMoved = (event: TouchEvent): void => {
 		this._updateSelectPos(event);
-		if (this._mouseStartBar != this._mouseBar || this._mouseStartChannel != this._mouseChannel) {
+		if (this._mouseStartBar !== this._mouseBar || this._mouseStartChannel !== this._mouseChannel) {
 			// if the touch has started dragging, cancel opening the select menu.
 			event.preventDefault();
 		}
@@ -324,7 +324,7 @@ export class TrackEditor {
 				this._doc.selection.selectionUpdated();
 			} else {
 				this._mouseDragging = false;
-				if (this._doc.channel != this._mouseChannel || this._doc.bar != this._mouseBar) {
+				if (this._doc.channel !== this._mouseChannel || this._doc.bar !== this._mouseBar) {
 					this._doc.selection.setChannelBar(this._mouseChannel, this._mouseBar);
 					this._mouseDragging = true;
 				}
@@ -336,7 +336,7 @@ export class TrackEditor {
 	private _whenMouseMoved = (event: MouseEvent): void => {
 		this._updateMousePos(event);
 		if (this._mousePressed) {
-			if (this._mouseStartBar != this._mouseBar || this._mouseStartChannel != this._mouseChannel) {
+			if (this._mouseStartBar !== this._mouseBar || this._mouseStartChannel !== this._mouseChannel) {
 				this._mouseDragging = true;
 			}
 			this._dragBoxSelection();
@@ -346,7 +346,7 @@ export class TrackEditor {
 
 	private _whenMouseReleased = (event: MouseEvent): void => {
 		if (this._mousePressed && !this._mouseDragging) {
-			if (this._doc.channel == this._mouseChannel && this._doc.bar == this._mouseBar) {
+			if (this._doc.channel === this._mouseChannel && this._doc.bar === this._mouseBar) {
 				const up: boolean = (this._mouseY - Config.barEditorHeight) % ChannelRow.patternHeight < ChannelRow.patternHeight / 2;
 				const patternCount: number = this._doc.song.patternsPerChannel;
 				this._doc.selection.setPattern(
@@ -373,21 +373,21 @@ export class TrackEditor {
 			channel = this._doc.channel;
 		}
 
-		if (!this._mouseOver && this._externalHoverChannel != -1) {
+		if (!this._mouseOver && this._externalHoverChannel !== -1) {
 			bar = this._doc.bar;
 			channel = this._externalHoverChannel;
 		}
 
-		const selected: boolean = bar == this._doc.bar && channel == this._doc.channel;
-		const overTrackEditor: boolean = this._mouseY >= Config.barEditorHeight || (!this._mouseOver && this._externalHoverChannel != -1);
+		const selected: boolean = bar === this._doc.bar && channel === this._doc.channel;
+		const overTrackEditor: boolean = this._mouseY >= Config.barEditorHeight || (!this._mouseOver && this._externalHoverChannel !== -1);
 
 		if (this._mouseOver && overTrackEditor && !this._touchMode) {
 			this._songEditor.muteEditor.setHoveredChannel(channel);
-		} else if (this._externalHoverChannel == -1) {
+		} else if (this._externalHoverChannel === -1) {
 			this._songEditor.muteEditor.setHoveredChannel(-1);
 		}
 
-		if (this._mouseDragging && this._mouseStartBar != this._mouseBar) {
+		if (this._mouseDragging && this._mouseStartBar !== this._mouseBar) {
 			// Handle auto-scroll in selection. Only @50ms or slower.
 			const timestamp: number = Date.now();
 
@@ -406,7 +406,7 @@ export class TrackEditor {
 			}
 		}
 
-		if ((this._mouseOver || (!this._mouseOver && this._externalHoverChannel != -1)) && !this._mousePressed && !selected && overTrackEditor) {
+		if ((this._mouseOver || (!this._mouseOver && this._externalHoverChannel !== -1)) && !this._mousePressed && !selected && overTrackEditor) {
 			this._boxHighlight.setAttribute("x", "" + (1 + this._barWidth * bar));
 			this._boxHighlight.setAttribute("y", "" + (1 + Config.barEditorHeight + ChannelRow.patternHeight * channel));
 			this._boxHighlight.setAttribute("height", "" + (ChannelRow.patternHeight - 2));
@@ -465,13 +465,13 @@ export class TrackEditor {
 		}
 		this._renderedPatternCount = patternCount;
 		const selectedPattern: number = this._doc.song.channels[this._doc.channel].bars[this._doc.bar];
-		if (this._select.selectedIndex != selectedPattern) this._select.selectedIndex = selectedPattern;
+		if (this._select.selectedIndex !== selectedPattern) this._select.selectedIndex = selectedPattern;
 	}
 
 	public render(): void {
 		this._barWidth = this._doc.getBarWidth();
 
-		if (this._channels.length != this._doc.song.getChannelCount()) {
+		if (this._channels.length !== this._doc.song.getChannelCount()) {
 			// Add new channel boxes if needed
 			for (let y: number = this._channels.length; y < this._doc.song.getChannelCount(); y++) {
 				const channelRow: ChannelRow = new ChannelRow(this._doc, y);
@@ -493,7 +493,7 @@ export class TrackEditor {
 		}
 
 		const editorWidth: number = this._barWidth * this._doc.song.barCount;
-		if (this._renderedEditorWidth != editorWidth) {
+		if (this._renderedEditorWidth !== editorWidth) {
 			this._renderedEditorWidth = editorWidth;
 			this._channelRowContainer.style.width = editorWidth + "px";
 			this.container.style.width = editorWidth + "px";
@@ -532,7 +532,7 @@ export class TrackEditor {
 						},
 						"" + (pos + 1),
 					);
-					if (pos % 4 == 0) {
+					if (pos % 4 === 0) {
 						// Highlighting every 4 bars
 						this._barNumbers[pos].setAttribute("fill", ColorConfig.primaryText);
 					}
@@ -560,7 +560,7 @@ export class TrackEditor {
 		}
 
 		const editorHeight: number = this._doc.song.getChannelCount() * ChannelRow.patternHeight;
-		if (this._renderedEditorHeight != editorHeight) {
+		if (this._renderedEditorHeight !== editorHeight) {
 			this._renderedEditorHeight = editorHeight;
 			this._svg.setAttribute("height", "" + (editorHeight + Config.barEditorHeight));
 			this._playhead.setAttribute("height", "" + (editorHeight + Config.barEditorHeight));

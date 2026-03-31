@@ -34,7 +34,7 @@ export class KeyboardLayout {
 				break;
 			case "songScale":
 				const scaleFlags: ReadonlyArray<boolean> =
-					doc.song.scale == Config.scales.dictionary["Custom"].index ? doc.song.scaleCustom : Config.scales[doc.song.scale].flags;
+					doc.song.scale === Config.scales.dictionary["Custom"].index ? doc.song.scaleCustom : Config.scales[doc.song.scale].flags;
 				const scaleIndices: number[] = <number[]>scaleFlags.map((flag, index) => (flag ? index : null)).filter((index) => index != null);
 				pitchOffset =
 					(y - 1 + Math.floor(x / scaleIndices.length)) * Config.pitchesPerOctave + scaleIndices[(x + scaleIndices.length) % scaleIndices.length];
@@ -169,7 +169,7 @@ export class KeyboardLayout {
 				break;
 			case "Backslash":
 				// Present on US keyboards... but on non-US keyboards it's also used at a different location, see "IntlHash" below. :/
-				if (event.key == "\\" || event.key == "|") {
+				if (event.key === "\\" || event.key === "|") {
 					this.handleKey(12, 2, pressed);
 				} else {
 					this.handleKey(11, 1, pressed);

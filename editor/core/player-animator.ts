@@ -60,7 +60,7 @@ export class PlayerAnimator {
 			this.outVolumeHistoricTimer = 50;
 		}
 
-		if (this._doc.song.outVolumeCap != this.lastOutVolumeCap) {
+		if (this._doc.song.outVolumeCap !== this.lastOutVolumeCap) {
 			this.lastOutVolumeCap = this._doc.song.outVolumeCap;
 			this._callbacks.outVolumeBar.setAttribute("width", "" + Math.min(144, this._doc.song.outVolumeCap * 144));
 			this._callbacks.outVolumeCap.setAttribute("x", "" + (8 + Math.min(144, this.outVolumeHistoricCap * 144)));

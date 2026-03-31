@@ -60,7 +60,7 @@ export class ModSliderRegistry {
 	constructor(private _provider: ModSliderProvider) {}
 
 	public getSliderForModSetting(setting: number, index?: number): Slider | null {
-		index = index == undefined ? 0 : index;
+		index = index === undefined ? 0 : index;
 		const p = this._provider;
 		switch (setting) {
 			case Config.modulators.dictionary["pan"].index:

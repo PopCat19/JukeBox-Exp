@@ -210,13 +210,13 @@ export class ChangeDispatcher {
 	};
 
 	public whenSelectInstrument = (event: MouseEvent): void => {
-		if (event.target == this._host.instrumentAddButton) {
+		if (event.target === this._host.instrumentAddButton) {
 			this.doc.record(new ChangeAddChannelInstrument(this.doc));
-		} else if (event.target == this._host.instrumentRemoveButton) {
+		} else if (event.target === this._host.instrumentRemoveButton) {
 			this.doc.record(new ChangeRemoveChannelInstrument(this.doc));
 		} else {
 			const index: number = this._host.instrumentButtons.indexOf(<any>event.target);
-			if (index != -1) {
+			if (index !== -1) {
 				this.doc.selection.selectInstrument(index);
 			}
 			if (this.doc.channel >= this.doc.song.pitchChannelCount + this.doc.song.noiseChannelCount) {
@@ -230,7 +230,7 @@ export class ChangeDispatcher {
 
 	public whenSetModChannel = (mod: number): void => {
 		const instrument: Instrument = this.doc.song.channels[this.doc.channel].instruments[this.doc.getCurrentInstrument()];
-		const previouslyUnset: boolean = instrument.modulators[mod] == 0 || Config.modulators[instrument.modulators[mod]].forSong;
+		const previouslyUnset: boolean = instrument.modulators[mod] === 0 || Config.modulators[instrument.modulators[mod]].forSong;
 
 		this.doc.selection.setModChannel(mod, this._host.modChannelBoxes[mod].selectedIndex);
 
@@ -256,7 +256,7 @@ export class ChangeDispatcher {
 
 	public whenSetModSetting = (mod: number, invalidIndex: boolean = false): void => {
 		let text: string = "none";
-		if (this._host.modSetBoxes[mod].selectedIndex != -1) {
+		if (this._host.modSetBoxes[mod].selectedIndex !== -1) {
 			text = this._host.modSetBoxes[mod].children[this._host.modSetBoxes[mod].selectedIndex].textContent as string;
 
 			if (invalidIndex) {
@@ -297,8 +297,8 @@ export class ChangeDispatcher {
 					const modInstrument: Instrument = modChannel.instruments[modInstrumentIdx];
 					for (let mod: number = 0; mod < Config.modCount; mod++) {
 						if (
-							modInstrument.modChannels[mod] == channelIndex &&
-							(modInstrument.modInstruments[mod] == instrumentIndex ||
+							modInstrument.modChannels[mod] === channelIndex &&
+							(modInstrument.modInstruments[mod] === instrumentIndex ||
 								modInstrument.modInstruments[mod] >= this.doc.song.channels[channelIndex].instruments.length)
 						) {
 							this.doc.selection.setChannelBar(modChannelIdx, this.doc.bar);
@@ -420,8 +420,8 @@ export class ChangeDispatcher {
 		const instrumentCopy: any = JSON.parse(String(window.localStorage.getItem("instrumentCopy")));
 		if (
 			instrumentCopy != null &&
-			instrumentCopy["isDrum"] == this.doc.song.getChannelIsNoise(this.doc.channel) &&
-			instrumentCopy["isMod"] == this.doc.song.getChannelIsMod(this.doc.channel)
+			instrumentCopy["isDrum"] === this.doc.song.getChannelIsNoise(this.doc.channel) &&
+			instrumentCopy["isMod"] === this.doc.song.getChannelIsMod(this.doc.channel)
 		) {
 			this.doc.record(new ChangePasteInstrument(this.doc, instrument, instrumentCopy));
 		}
@@ -439,7 +439,7 @@ export class ChangeDispatcher {
 	public switchEQFilterType(toSimple: boolean): void {
 		const channel: Channel = this.doc.song.channels[this.doc.channel];
 		const instrument: Instrument = channel.instruments[this.doc.getCurrentInstrument()];
-		if (instrument.eqFilterType != toSimple) {
+		if (instrument.eqFilterType !== toSimple) {
 			this.doc.record(new ChangeEQFilterType(this.doc, instrument, toSimple));
 		}
 	}
@@ -447,7 +447,7 @@ export class ChangeDispatcher {
 	public switchNoteFilterType(toSimple: boolean): void {
 		const channel: Channel = this.doc.song.channels[this.doc.channel];
 		const instrument: Instrument = channel.instruments[this.doc.getCurrentInstrument()];
-		if (instrument.noteFilterType != toSimple) {
+		if (instrument.noteFilterType !== toSimple) {
 			this.doc.record(new ChangeNoteFilterType(this.doc, instrument, toSimple));
 		}
 	}
@@ -458,11 +458,11 @@ export class ChangeDispatcher {
 
 		if (presetValue > 0) {
 			this.doc.record(new ChangePreset(this.doc, presetValue));
-		} else if (presetValue == -1) {
+		} else if (presetValue === -1) {
 			alert(
 				"Either you are using incompatible tags, or you are using a tag combination that no preset has. \n\nPlease double check your tag combination.",
 			);
-		} else if (presetValue == -2) {
+		} else if (presetValue === -2) {
 			alert("One or more of the tags you entered doesn't exist. \n\nPlease double check your spelling.");
 		}
 	}
@@ -473,11 +473,11 @@ export class ChangeDispatcher {
 
 		if (presetValue > 0) {
 			this.doc.record(new ChangePreset(this.doc, presetValue));
-		} else if (presetValue == -1) {
+		} else if (presetValue === -1) {
 			alert(
 				"Either you are using incompatible tags, or you are using a tag combination that no preset has. \n\nPlease double check your tag combination.",
 			);
-		} else if (presetValue == -2) {
+		} else if (presetValue === -2) {
 			alert("One or more of the tags you entered doesn't exist. \n\nPlease double check your spelling.");
 		}
 	}

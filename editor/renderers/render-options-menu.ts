@@ -19,7 +19,7 @@ export function renderOptionsMenu(optionsMenu: HTMLSelectElement, prefs: Prefere
 		(prefs.autoFollow ? textOnIcon : textOffIcon) + "Auto Follow Playhead",
 		(prefs.enableNotePreview ? textOnIcon : textOffIcon) + "Hear Added Notes",
 		(prefs.notesOutsideScale ? textOnIcon : textOffIcon) + "Place Notes Out of Scale",
-		(prefs.defaultScale == currentScale ? textOnIcon : textOffIcon) + "Set Current Scale as Default",
+		(prefs.defaultScale === currentScale ? textOnIcon : textOffIcon) + "Set Current Scale as Default",
 		(prefs.alwaysFineNoteVol ? textOnIcon : textOffIcon) + "Always Fine Note Volume",
 		(prefs.enableChannelMuting ? textOnIcon : textOffIcon) + "Enable Channel Muting",
 		(prefs.instrumentCopyPaste ? textOnIcon : textOffIcon) + "Enable Copy/Paste Buttons",
@@ -52,7 +52,7 @@ export function renderOptionsMenu(optionsMenu: HTMLSelectElement, prefs: Prefere
 
 	for (let i: number = 0; i < technicalOptionGroup.children.length; i++) {
 		const opt: HTMLOptionElement = <HTMLOptionElement>technicalOptionGroup.children[i];
-		if (opt.textContent != optionCommands[i + 1]) opt.textContent = optionCommands[i + 1];
+		if (opt.textContent !== optionCommands[i + 1]) opt.textContent = optionCommands[i + 1];
 	}
 
 	// Appearance dropdown
@@ -60,7 +60,7 @@ export function renderOptionsMenu(optionsMenu: HTMLSelectElement, prefs: Prefere
 
 	for (let i: number = 0; i < appearanceOptionGroup.children.length; i++) {
 		const opt: HTMLOptionElement = <HTMLOptionElement>appearanceOptionGroup.children[i];
-		if (opt.textContent != optionCommands[i + technicalOptionGroup.children.length + 2]) {
+		if (opt.textContent !== optionCommands[i + technicalOptionGroup.children.length + 2]) {
 			opt.textContent = optionCommands[i + technicalOptionGroup.children.length + 2];
 		}
 	}

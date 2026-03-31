@@ -195,31 +195,31 @@ export class CustomFilterPrompt extends BasePrompt {
 	}
 
 	public override whenKeyPressed = (event: KeyboardEvent): void => {
-		if ((<Element>event.target).tagName != "BUTTON" && event.keyCode == 13) {
+		if ((<Element>event.target).tagName !== "BUTTON" && event.keyCode === 13) {
 			// Enter key
 			this._saveChanges();
-		} else if (event.keyCode == 32) {
+		} else if (event.keyCode === 32) {
 			// space
 			this._togglePlay();
 			event.preventDefault();
-		} else if (event.keyCode == 90) {
+		} else if (event.keyCode === 90) {
 			// z
 			const newIdx = this.filterEditor.undo();
 			if (newIdx >= 0) {
 				this._setSubfilter(newIdx, false, false);
 			}
 			event.stopPropagation();
-		} else if (event.keyCode == 89) {
+		} else if (event.keyCode === 89) {
 			// y
 			const newIdx = this.filterEditor.redo();
 			if (newIdx >= 0) {
 				this._setSubfilter(newIdx, false, false);
 			}
 			event.stopPropagation();
-		} else if (event.keyCode == 219) {
+		} else if (event.keyCode === 219) {
 			// [
 			this._doc.synth.goToPrevBar();
-		} else if (event.keyCode == 221) {
+		} else if (event.keyCode === 221) {
 			// ]
 			this._doc.synth.goToNextBar();
 		} else if (event.keyCode >= 48 && event.keyCode <= 57 && event.shiftKey) {

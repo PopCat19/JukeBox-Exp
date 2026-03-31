@@ -298,11 +298,11 @@ export function buildEffectsSource(
                             // let grainSample = grainSample0 + (grainSample1 - grainSample0) * grainDelayLinePositionT; // Linear interpolation (@TODO: sounds quite bad?)
                             let grainSample = granularDelayLine[((granularDelayLineIndex + (granularDelayLineLength - grainDelayLinePositionInt))    ) & granularDelayLineMask]; // No interpolation
                             `;
-		if (Config.granularEnvelopeType == GranularEnvelopeType.parabolic) {
+		if (Config.granularEnvelopeType === GranularEnvelopeType.parabolic) {
 			effectsSource += `
                                 const grainEnvelope = grain.parabolicEnvelopeAmplitude;
                                 `;
-		} else if (Config.granularEnvelopeType == GranularEnvelopeType.raisedCosineBell) {
+		} else if (Config.granularEnvelopeType === GranularEnvelopeType.raisedCosineBell) {
 			effectsSource += `
                                 const grainEnvelope = grain.rcbEnvelopeAmplitude;
                                 `;
@@ -325,14 +325,14 @@ export function buildEffectsSource(
                             } else {
                                 grainAgeInSamples++;
                             `;
-		if (Config.granularEnvelopeType == GranularEnvelopeType.parabolic) {
+		if (Config.granularEnvelopeType === GranularEnvelopeType.parabolic) {
 			// grain.updateParabolicEnvelope();
 			// Inlined:
 			effectsSource += `
                                     grain.parabolicEnvelopeAmplitude += grain.parabolicEnvelopeSlope;
                                     grain.parabolicEnvelopeSlope += grain.parabolicEnvelopeCurve;
                                     `;
-		} else if (Config.granularEnvelopeType == GranularEnvelopeType.raisedCosineBell) {
+		} else if (Config.granularEnvelopeType === GranularEnvelopeType.raisedCosineBell) {
 			effectsSource += `
                                     grain.updateRCBEnvelope();
                                     `;

@@ -64,7 +64,7 @@ export function buildHarmonicsSource(voiceCount: number): string {
 	}
 	const sampleList: string[] = [];
 	for (let voice: number = 0; voice < voiceCount; voice++) {
-		sampleList.push("inputSample" + voice + (voice != 0 ? " * unisonSign" : ""));
+		sampleList.push("inputSample" + voice + (voice !== 0 ? " * unisonSign" : ""));
 	}
 
 	harmonicsSource += "inputSample = " + sampleList.join(" + ") + ";";

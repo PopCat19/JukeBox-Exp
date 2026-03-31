@@ -60,7 +60,7 @@ const shortcutCategories: ShortcutCategory[] = [
 			{ keys: [{ key: "0" }, { key: "1" }, { key: "..." }, { key: "9" }], desc: "Enter pattern digits" },
 		],
 	},
-		{
+	{
 		name: "Editing",
 		entries: [
 			{ keys: [{ key: "Z" }], desc: "Undo" },
@@ -193,7 +193,7 @@ export class KeyboardShortcutsPrompt extends BasePrompt {
 	}
 
 	public override whenKeyPressed = (event: KeyboardEvent): void => {
-		if (event.keyCode == 27) {
+		if (event.keyCode === 27) {
 			this._close();
 			event.preventDefault();
 		}

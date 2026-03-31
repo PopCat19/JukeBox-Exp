@@ -60,7 +60,7 @@ export function renderInstrumentBar(
 			instrumentRemoveButton.classList.add("last-button");
 		}
 		if (channel.instruments.length > 1) {
-			if (highlightedInstrumentIndex.value != instrumentIndex) {
+			if (highlightedInstrumentIndex.value !== instrumentIndex) {
 				const oldButton: HTMLButtonElement = instrumentButtons[highlightedInstrumentIndex.value];
 				if (oldButton != null) oldButton.classList.remove("selected-instrument");
 				const newButton: HTMLButtonElement = instrumentButtons[instrumentIndex];
@@ -75,7 +75,7 @@ export function renderInstrumentBar(
 
 		if (doc.song.layeredInstruments && doc.song.patternInstruments && doc.channel < doc.song.pitchChannelCount + doc.song.noiseChannelCount) {
 			for (let i: number = 0; i < channel.instruments.length; i++) {
-				if (doc.recentPatternInstruments[doc.channel].indexOf(i) != -1) {
+				if (doc.recentPatternInstruments[doc.channel].indexOf(i) !== -1) {
 					instrumentButtons[i].classList.remove("deactivated");
 				} else {
 					instrumentButtons[i].classList.add("deactivated");

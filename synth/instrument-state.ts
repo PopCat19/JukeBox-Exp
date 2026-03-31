@@ -259,7 +259,7 @@ export class InstrumentState {
 			const granularDelayLineSizeInSeconds: number = granularDelayLineSizeInMilliseconds / 1000; // Maximum possible delay time
 			this.granularMaximumDelayTimeInSeconds = granularDelayLineSizeInSeconds;
 			const granularDelayLineSizeInSamples: number = fittingPowerOfTwo(Math.floor(granularDelayLineSizeInSeconds * synth.samplesPerSecond));
-			if (this.granularDelayLine == null || this.granularDelayLine.length != granularDelayLineSizeInSamples) {
+			if (this.granularDelayLine == null || this.granularDelayLine.length !== granularDelayLineSizeInSamples) {
 				this.granularDelayLine = new Float32Array(granularDelayLineSizeInSamples);
 				this.granularDelayLineIndex = 0;
 			}
@@ -565,9 +565,9 @@ export class InstrumentState {
 						? (minDelayTimeInSeconds + (maxDelayTimeInSeconds - minDelayTimeInSeconds) * Math.random() * Math.random() * samplesPerSecond) %
 							(granularDelayLineLength - 1)
 						: minDelayTimeInSeconds; // dirty weighting toward lower numbers ; The clamp was clumping everything at the end, so I decided to use a modulo instead
-					if (Config.granularEnvelopeType == GranularEnvelopeType.parabolic) {
+					if (Config.granularEnvelopeType === GranularEnvelopeType.parabolic) {
 						grain.initializeParabolicEnvelope(grain.maxAgeInSamples, 1.0);
-					} else if (Config.granularEnvelopeType == GranularEnvelopeType.raisedCosineBell) {
+					} else if (Config.granularEnvelopeType === GranularEnvelopeType.raisedCosineBell) {
 						grain.initializeRCBEnvelope(grain.maxAgeInSamples, 1.0);
 					}
 					// if (this.usesRandomGrainLocation) {
@@ -697,7 +697,7 @@ export class InstrumentState {
 					tempFilterStartCoefficients,
 					tempFilterEndCoefficients,
 					1.0 / roundedSamplesPerTick,
-					startPoint.type == FilterType.lowPass,
+					startPoint.type === FilterType.lowPass,
 				);
 			} else {
 				eqFilterSettingsStart.convertLegacySettingsForSynth(startSimpleFreq, startSimpleGain, true);
@@ -711,7 +711,7 @@ export class InstrumentState {
 					tempFilterStartCoefficients,
 					tempFilterStartCoefficients,
 					1.0 / roundedSamplesPerTick,
-					startPoint.type == FilterType.lowPass,
+					startPoint.type === FilterType.lowPass,
 				);
 			}
 
@@ -735,7 +735,7 @@ export class InstrumentState {
 						: eqFilterSettings.controlPoints[i];
 
 				// If switching dot type, do it all at once and do not try to interpolate since no valid interpolation exists.
-				if (startPoint.type != endPoint.type) {
+				if (startPoint.type !== endPoint.type) {
 					startPoint = endPoint;
 				}
 
@@ -756,7 +756,7 @@ export class InstrumentState {
 					tempFilterStartCoefficients,
 					tempFilterEndCoefficients,
 					1.0 / roundedSamplesPerTick,
-					startPoint.type == FilterType.lowPass,
+					startPoint.type === FilterType.lowPass,
 				);
 				eqFilterVolume *= startPoint.getVolumeCompensationMult();
 			}
@@ -913,7 +913,7 @@ export class InstrumentState {
 
 			this.ringModMixFadeDelta = 0;
 			if (this.ringModMixFade < 0) this.ringModMixFade = 0;
-			if (ringModPhaseDeltaStart <= 0 && ringModPhaseDeltaEnd <= 0 && this.ringModMixFade != 0) {
+			if (ringModPhaseDeltaStart <= 0 && ringModPhaseDeltaEnd <= 0 && this.ringModMixFade !== 0) {
 				this.ringModMixFadeDelta = this.ringModMixFade / -40;
 			} else if (ringModPhaseDeltaStart > 0 && ringModPhaseDeltaEnd > 0) {
 				this.ringModMixFade = 1.0;
@@ -921,7 +921,7 @@ export class InstrumentState {
 
 			this.ringModPhaseDelta = ringModPhaseDeltaStart;
 			this.ringModPhaseDeltaScale =
-				ringModPhaseDeltaStart == 0 ? 1 : Math.pow(ringModPhaseDeltaEnd / ringModPhaseDeltaStart, 1.0 / roundedSamplesPerTick);
+				ringModPhaseDeltaStart === 0 ? 1 : Math.pow(ringModPhaseDeltaEnd / ringModPhaseDeltaStart, 1.0 / roundedSamplesPerTick);
 
 			this.ringModWaveformIndex = instrument.ringModWaveformIndex;
 			this.ringModPulseWidth = instrument.ringModPulseWidth;
@@ -1120,7 +1120,7 @@ export class InstrumentState {
 			// end of the first tick. It's possible for filters and the panning delay line to
 			// continue past the end of the tone but they should have mostly dissipated by the
 			// end of the tick anyway.
-			if (this.attentuationProgress == 0.0) {
+			if (this.attentuationProgress === 0.0) {
 				eqFilterVolumeEnd = 0.0;
 			} else {
 				eqFilterVolumeStart = 0.0;
@@ -1195,7 +1195,7 @@ export class InstrumentState {
 
 	public updateWaves(instrument: Instrument, samplesPerSecond: number): void {
 		this.volumeScale = 1.0;
-		if (instrument.type == InstrumentType.chip) {
+		if (instrument.type === InstrumentType.chip) {
 			this.wave = this.aliases ? Config.rawChipWaves[instrument.chipWave].samples : Config.chipWaves[instrument.chipWave].samples;
 			// advloop addition
 			this.isUsingAdvancedLoopControls = instrument.isUsingAdvancedLoopControls;
@@ -1211,13 +1211,13 @@ export class InstrumentState {
 			this.unisonOffset = instrument.unisonOffset;
 			this.unisonExpression = instrument.unisonExpression;
 			this.unisonSign = instrument.unisonSign;
-		} else if (instrument.type == InstrumentType.pwm) {
+		} else if (instrument.type === InstrumentType.pwm) {
 			this.unisonVoices = instrument.unisonVoices;
 			this.unisonSpread = instrument.unisonSpread;
 			this.unisonOffset = instrument.unisonOffset;
 			this.unisonExpression = instrument.unisonExpression;
 			this.unisonSign = instrument.unisonSign;
-		} else if (instrument.type == InstrumentType.customChipWave) {
+		} else if (instrument.type === InstrumentType.customChipWave) {
 			this.wave = this.aliases ? instrument.customChipWave! : instrument.customChipWaveIntegral!;
 			this.volumeScale = 0.05;
 			this.unisonVoices = instrument.unisonVoices;
@@ -1225,35 +1225,35 @@ export class InstrumentState {
 			this.unisonOffset = instrument.unisonOffset;
 			this.unisonExpression = instrument.unisonExpression;
 			this.unisonSign = instrument.unisonSign;
-		} else if (instrument.type == InstrumentType.noise) {
+		} else if (instrument.type === InstrumentType.noise) {
 			this.wave = getDrumWave(instrument.chipNoise, inverseRealFourierTransform, scaleElementsByFactor);
 			this.unisonVoices = instrument.unisonVoices;
 			this.unisonSpread = instrument.unisonSpread;
 			this.unisonOffset = instrument.unisonOffset;
 			this.unisonExpression = instrument.unisonExpression;
 			this.unisonSign = instrument.unisonSign;
-		} else if (instrument.type == InstrumentType.harmonics) {
+		} else if (instrument.type === InstrumentType.harmonics) {
 			this.wave = this.harmonicsWave.getCustomWave(instrument.harmonicsWave, instrument.type);
 			this.unisonVoices = instrument.unisonVoices;
 			this.unisonSpread = instrument.unisonSpread;
 			this.unisonOffset = instrument.unisonOffset;
 			this.unisonExpression = instrument.unisonExpression;
 			this.unisonSign = instrument.unisonSign;
-		} else if (instrument.type == InstrumentType.pickedString) {
+		} else if (instrument.type === InstrumentType.pickedString) {
 			this.wave = this.harmonicsWave.getCustomWave(instrument.harmonicsWave, instrument.type);
 			this.unisonVoices = instrument.unisonVoices;
 			this.unisonSpread = instrument.unisonSpread;
 			this.unisonOffset = instrument.unisonOffset;
 			this.unisonExpression = instrument.unisonExpression;
 			this.unisonSign = instrument.unisonSign;
-		} else if (instrument.type == InstrumentType.spectrum) {
+		} else if (instrument.type === InstrumentType.spectrum) {
 			this.wave = this.spectrumWave.getCustomWave(instrument.spectrumWave, 8);
 			this.unisonVoices = instrument.unisonVoices;
 			this.unisonSpread = instrument.unisonSpread;
 			this.unisonOffset = instrument.unisonOffset;
 			this.unisonExpression = instrument.unisonExpression;
 			this.unisonSign = instrument.unisonSign;
-		} else if (instrument.type == InstrumentType.drumset) {
+		} else if (instrument.type === InstrumentType.drumset) {
 			for (let i: number = 0; i < Config.drumCount; i++) {
 				this.drumsetSpectrumWaves[i].getCustomWave(instrument.drumsetSpectrumWaves[i], InstrumentState._drumsetIndexToSpectrumOctave(i));
 			}
@@ -1263,7 +1263,7 @@ export class InstrumentState {
 			this.unisonOffset = instrument.unisonOffset;
 			this.unisonExpression = instrument.unisonExpression;
 			this.unisonSign = instrument.unisonSign;
-		} else if (instrument.type == InstrumentType.supersaw) {
+		} else if (instrument.type === InstrumentType.supersaw) {
 			this.unisonVoices = instrument.unisonVoices;
 			this.unisonSpread = instrument.unisonSpread;
 			this.unisonOffset = instrument.unisonOffset;
@@ -1275,7 +1275,7 @@ export class InstrumentState {
 	}
 
 	public getDrumsetWave(pitch: number): Float32Array {
-		if (this.type == InstrumentType.drumset) {
+		if (this.type === InstrumentType.drumset) {
 			return this.drumsetSpectrumWaves[pitch].wave!;
 		} else {
 			throw new Error("Unhandled instrument type in getDrumsetWave");

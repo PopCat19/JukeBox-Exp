@@ -205,12 +205,12 @@ export class LoopEditor {
 			let start: number;
 			let end: number;
 			let temp: number;
-			if (this._cursor.mode == this._startMode) {
+			if (this._cursor.mode === this._startMode) {
 				start = oldStart + Math.round(bar - this._cursor.startBar);
 				end = oldEnd;
 				if (start < 0) start = 0;
 				if (start >= this._doc.song.barCount) start = this._doc.song.barCount;
-				if (start == end) {
+				if (start === end) {
 					start = end - 1;
 				} else if (start > end) {
 					temp = start;
@@ -218,12 +218,12 @@ export class LoopEditor {
 					end = temp;
 				}
 				this._change = new ChangeLoop(this._doc, oldStart, oldEnd - oldStart, start, end - start);
-			} else if (this._cursor.mode == this._endMode) {
+			} else if (this._cursor.mode === this._endMode) {
 				start = oldStart;
 				end = oldEnd + Math.round(bar - this._cursor.startBar);
 				if (end < 0) end = 0;
 				if (end >= this._doc.song.barCount) end = this._doc.song.barCount;
-				if (end == start) {
+				if (end === start) {
 					end = start + 1;
 				} else if (end < start) {
 					temp = start;
@@ -231,10 +231,10 @@ export class LoopEditor {
 					end = temp;
 				}
 				this._change = new ChangeLoop(this._doc, oldStart, oldEnd - oldStart, start, end - start);
-			} else if (this._cursor.mode == this._bothMode) {
+			} else if (this._cursor.mode === this._bothMode) {
 				const endPoints: Endpoints = this._findEndPoints(bar);
 				this._change = new ChangeLoop(this._doc, oldStart, oldEnd - oldStart, endPoints.start, endPoints.length);
-			} else if (this._cursor.mode == this._loopMode) {
+			} else if (this._cursor.mode === this._loopMode) {
 				this._doc.synth.loopBarStart = -1;
 				this._doc.synth.loopBarEnd = -1;
 				this.setLoopAt(this._doc.synth.loopBarStart, this._doc.synth.loopBarEnd);
@@ -279,17 +279,17 @@ export class LoopEditor {
 
 			let highlightStart: number = this._doc.song.loopStart * this._barWidth;
 			let highlightStop: number = (this._doc.song.loopStart + this._doc.song.loopLength) * this._barWidth;
-			if (this._cursor.mode == this._startMode) {
+			if (this._cursor.mode === this._startMode) {
 				highlightStop = this._doc.song.loopStart * this._barWidth + radius * 2;
-			} else if (this._cursor.mode == this._endMode) {
+			} else if (this._cursor.mode === this._endMode) {
 				highlightStart = (this._doc.song.loopStart + this._doc.song.loopLength) * this._barWidth - radius * 2;
-			} else if (this._cursor.mode == this._bothMode) {
+			} else if (this._cursor.mode === this._bothMode) {
 				const endPoints: Endpoints = this._findEndPoints(this._cursor.startBar);
 				highlightStart = endPoints.start * this._barWidth;
 				highlightStop = (endPoints.start + endPoints.length) * this._barWidth;
 			}
 
-			if (this._cursor.mode == this._loopMode) {
+			if (this._cursor.mode === this._loopMode) {
 				const barLoopStart = (this._loopAtPointStart + 0.5) * this._barWidth;
 				const barLoopEnd = (this._loopAtPointEnd + 0.5) * this._barWidth;
 				this._highlight.setAttribute(
@@ -334,7 +334,7 @@ export class LoopEditor {
 		const loopStart: number = this._doc.song.loopStart * this._barWidth;
 		const loopStop: number = (this._doc.song.loopStart + this._doc.song.loopLength) * this._barWidth;
 
-		if (this._renderedBarCount != this._doc.song.barCount || this._renderedBarWidth != this._barWidth) {
+		if (this._renderedBarCount !== this._doc.song.barCount || this._renderedBarWidth !== this._barWidth) {
 			this._renderedBarCount = this._doc.song.barCount;
 			this._renderedBarWidth = this._barWidth;
 			const editorWidth = this._barWidth * this._doc.song.barCount;
@@ -342,7 +342,7 @@ export class LoopEditor {
 			this._svg.setAttribute("width", editorWidth + "");
 		}
 
-		if (this._renderedLoopStart != loopStart || this._renderedLoopStop != loopStop) {
+		if (this._renderedLoopStart !== loopStart || this._renderedLoopStop !== loopStop) {
 			this._renderedLoopStart = loopStart;
 			this._renderedLoopStop = loopStop;
 			this._loop.setAttribute(
@@ -358,7 +358,7 @@ export class LoopEditor {
 
 		const barLoopStart = (this._loopAtPointStart + 0.5) * this._barWidth;
 		const barLoopEnd = (this._loopAtPointEnd + 0.5) * this._barWidth;
-		if (this._renderedBarLoopStart != barLoopStart || this._renderedBarLoopEnd != barLoopEnd) {
+		if (this._renderedBarLoopStart !== barLoopStart || this._renderedBarLoopEnd !== barLoopEnd) {
 			if (barLoopStart < 0 || barLoopEnd < 0) {
 				this._barLoop.setAttribute("d", "");
 			} else {

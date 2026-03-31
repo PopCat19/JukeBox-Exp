@@ -90,14 +90,14 @@ export class SongDurationPrompt extends BasePrompt {
 	private _predictFutureLength(): string {
 		const futureDoc: SongDocument = new SongDocument();
 		futureDoc.synth.song?.fromBase64String(this._doc.synth.song?.toBase64String() ? this._doc.synth.song?.toBase64String() : "");
-		new ChangeBarCount(futureDoc, validate(this._barsStepper), this._positionSelect.value == "beginning");
+		new ChangeBarCount(futureDoc, validate(this._barsStepper), this._positionSelect.value === "beginning");
 		return ExportPrompt.samplesToTime(futureDoc, futureDoc.synth.getTotalSamples(true, true, 0));
 	}
 
 	protected override _saveChanges(): void {
 		window.localStorage.setItem("barCountPosition", this._positionSelect.value);
 		const group: ChangeGroup = new ChangeGroup();
-		group.append(new ChangeBarCount(this._doc, validate(this._barsStepper), this._positionSelect.value == "beginning"));
+		group.append(new ChangeBarCount(this._doc, validate(this._barsStepper), this._positionSelect.value === "beginning"));
 		this._doc.prompt = null;
 		this._doc.record(group);
 	}

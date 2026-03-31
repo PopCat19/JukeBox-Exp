@@ -28,7 +28,7 @@ const maximumWorkPerVersion = 3 * 60 * 1000; // 3 minutes
 const minimumWorkPerSpan = 1 * 60 * 1000; // 1 minute
 
 function keyIsVersion(key: string): boolean {
-	return key.indexOf(versionPrefix) == 0;
+	return key.indexOf(versionPrefix) === 0;
 }
 
 function keyToVersion(key: string): RecoveredVersion {
@@ -70,7 +70,7 @@ export class SongRecovery {
 			if (keyIsVersion(itemKey)) {
 				const version: RecoveredVersion = keyToVersion(itemKey);
 				let song: RecoveredSong | undefined = songsByUid[version.uid];
-				if (song == undefined) {
+				if (song === undefined) {
 					song = { versions: [] };
 					songsByUid[version.uid] = song;
 					songs.push(song);
@@ -94,7 +94,7 @@ export class SongRecovery {
 			const songs: RecoveredSong[] = SongRecovery.getAllRecoveredSongs();
 			let currentSong: RecoveredSong | null = null;
 			for (const song of songs) {
-				if (song.versions[0].uid == uid) {
+				if (song.versions[0].uid === uid) {
 					currentSong = song;
 				}
 			}
@@ -121,7 +121,7 @@ export class SongRecovery {
 			const spanMult: number = Math.pow(2, 1 / 2); // Double the span every 2 versions back.
 			for (let i: number = 1; i < versions.length; i++) {
 				const currentWork: number = versions[i].work;
-				const olderWork: number = i == versions.length - 1 ? 0.0 : versions[i + 1].work;
+				const olderWork: number = i === versions.length - 1 ? 0.0 : versions[i + 1].work;
 				// If not enough work happened between two versions, discard one of them.
 				if (currentWork - olderWork < minSpan) {
 					let indexToDiscard: number = i;

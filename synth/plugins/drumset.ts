@@ -22,7 +22,7 @@ registerPlugin({
 		instrument.chord = Config.chords.dictionary["simultaneous"].index;
 		for (let i = 0; i < Config.drumCount; i++) {
 			instrument.drumsetEnvelopes[i] = Config.envelopes.dictionary["twang 2"].index;
-			if (instrument.drumsetSpectrumWaves[i] == undefined) {
+			if (instrument.drumsetSpectrumWaves[i] === undefined) {
 				instrument.drumsetSpectrumWaves[i] = new SpectrumWave(true);
 			}
 			instrument.drumsetSpectrumWaves[i].reset(true);

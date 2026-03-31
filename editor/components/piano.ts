@@ -173,7 +173,7 @@ export class Piano {
 
 	private _updateCursorPitch(): void {
 		const scale: ReadonlyArray<boolean> =
-			this._doc.song.scale == Config.scales.dictionary["Custom"].index ? this._doc.song.scaleCustom : Config.scales[this._doc.song.scale].flags;
+			this._doc.song.scale === Config.scales.dictionary["Custom"].index ? this._doc.song.scaleCustom : Config.scales[this._doc.song.scale].flags;
 		const mousePitch: number = Math.max(0, Math.min(this._pitchCount - 1, this._pitchCount - this._mouseY / this._pitchHeight));
 		if (scale[Math.floor(mousePitch) % Config.pitchesPerOctave] || this._doc.song.getChannelIsNoise(this._doc.channel)) {
 			this._cursorPitch = Math.floor(mousePitch);
@@ -188,10 +188,10 @@ export class Piano {
 			}
 			let topRange: number = topPitch;
 			let bottomRange: number = bottomPitch + 1;
-			if (topPitch % Config.pitchesPerOctave == 0 || topPitch % Config.pitchesPerOctave == 7) {
+			if (topPitch % Config.pitchesPerOctave === 0 || topPitch % Config.pitchesPerOctave === 7) {
 				topRange -= 0.5;
 			}
-			if (bottomPitch % Config.pitchesPerOctave == 0 || bottomPitch % Config.pitchesPerOctave == 7) {
+			if (bottomPitch % Config.pitchesPerOctave === 0 || bottomPitch % Config.pitchesPerOctave === 7) {
 				bottomRange += 0.5;
 			}
 			this._cursorPitch = mousePitch - bottomRange > topRange - mousePitch ? topPitch : bottomPitch;
@@ -201,7 +201,7 @@ export class Piano {
 	private _playLiveInput(): void {
 		const octaveOffset: number = this._doc.getBaseVisibleOctave(this._doc.channel) * Config.pitchesPerOctave;
 		const currentPitch: number = this._cursorPitch + octaveOffset;
-		if (this._playedPitch == currentPitch) return;
+		if (this._playedPitch === currentPitch) return;
 		this._doc.performance.removePerformedPitch(this._playedPitch);
 		this._playedPitch = currentPitch;
 		this._doc.performance.addPerformedPitch(currentPitch);
@@ -290,17 +290,17 @@ export class Piano {
 		let liveInputChanged: boolean = false;
 		let liveInputPitchCount: number = !this._doc.performance.pitchesAreTemporary() ? this._doc.synth.liveInputPitches.length : 0;
 		liveInputPitchCount += !this._doc.performance.bassPitchesAreTemporary() ? this._doc.synth.liveBassInputPitches.length : 0;
-		if (this._renderedLiveInputPitches.length != liveInputPitchCount) {
+		if (this._renderedLiveInputPitches.length !== liveInputPitchCount) {
 			liveInputChanged = true;
 		}
 		for (let i: number = 0; i < this._doc.synth.liveInputPitches.length; i++) {
-			if (this._renderedLiveInputPitches[i] != this._doc.synth.liveInputPitches[i]) {
+			if (this._renderedLiveInputPitches[i] !== this._doc.synth.liveInputPitches[i]) {
 				this._renderedLiveInputPitches[i] = this._doc.synth.liveInputPitches[i];
 				liveInputChanged = true;
 			}
 		}
 		for (let i: number = this._doc.synth.liveInputPitches.length; i < liveInputPitchCount; i++) {
-			if (this._renderedLiveInputPitches[i] != this._doc.synth.liveBassInputPitches[i - this._doc.synth.liveInputPitches.length]) {
+			if (this._renderedLiveInputPitches[i] !== this._doc.synth.liveBassInputPitches[i - this._doc.synth.liveInputPitches.length]) {
 				this._renderedLiveInputPitches[i] = this._doc.synth.liveBassInputPitches[i - this._doc.synth.liveInputPitches.length];
 				liveInputChanged = true;
 			}
@@ -329,7 +329,7 @@ export class Piano {
 		const children: HTMLCollection = container.children;
 		for (let i: number = 0; i < children.length; i++) {
 			const child: Element = children[i];
-			if (this._renderedLiveInputPitches.indexOf(i + octaveOffset) == -1) {
+			if (this._renderedLiveInputPitches.indexOf(i + octaveOffset) === -1) {
 				child.classList.remove("pressed");
 			} else {
 				child.classList.add("pressed");
@@ -348,12 +348,12 @@ export class Piano {
 
 		if (!this._doc.prefs.showLetters) return;
 		if (
-			this._renderedScale == this._doc.song.scale &&
-			this._doc.song.scale != Config.scales.dictionary["Custom"].index &&
-			this._renderedKey == this._doc.song.key &&
-			this._renderedDrums == isDrum &&
-			this._renderedMod == isMod &&
-			this._renderedPitchCount == this._pitchCount
+			this._renderedScale === this._doc.song.scale &&
+			this._doc.song.scale !== Config.scales.dictionary["Custom"].index &&
+			this._renderedKey === this._doc.song.key &&
+			this._renderedDrums === isDrum &&
+			this._renderedMod === isMod &&
+			this._renderedPitchCount === this._pitchCount
 		)
 			return;
 
@@ -368,7 +368,7 @@ export class Piano {
 		this._modContainer.style.display = isMod ? "flex" : "none";
 
 		if (!isDrum && !isMod) {
-			if (this._renderedPitchCount != this._pitchCount) {
+			if (this._renderedPitchCount !== this._pitchCount) {
 				this._pianoContainer.innerHTML = "";
 				for (let i: number = 0; i < this._pitchCount; i++) {
 					const pianoLabel: HTMLDivElement = HTML.div({
@@ -390,7 +390,7 @@ export class Piano {
 				const isWhiteKey: boolean = Config.keys[pitchNameIndex].isWhiteKey;
 				this._pianoKeys[j].style.background = isWhiteKey ? ColorConfig.whitePianoKey : ColorConfig.blackPianoKey;
 				const scale =
-					this._doc.song.scale == Config.scales.dictionary["Custom"].index ? this._doc.song.scaleCustom : Config.scales[this._doc.song.scale].flags;
+					this._doc.song.scale === Config.scales.dictionary["Custom"].index ? this._doc.song.scaleCustom : Config.scales[this._doc.song.scale].flags;
 				if (!scale[j % Config.pitchesPerOctave]) {
 					this._pianoKeys[j].classList.add("disabled");
 					this._pianoLabels[j].style.display = "none";
@@ -400,7 +400,7 @@ export class Piano {
 
 					const label: HTMLDivElement = this._pianoLabels[j];
 
-					if (j % 12 == 0) {
+					if (j % 12 === 0) {
 						label.style.transform = "translate(-5px, 0px)";
 					} else {
 						label.style.transform = "translate(0px, 0px)";
@@ -432,9 +432,9 @@ export class Piano {
 				const channelVal: number = instrument.modChannels[Config.modCount - j - 1] + 1;
 				const modulator: number = instrument.modulators[Config.modCount - j - 1];
 				let status: number = 1 + +(channelVal - 1 >= this._doc.song.pitchChannelCount);
-				if (instrument.modChannels[Config.modCount - j - 1] == -2) {
+				if (instrument.modChannels[Config.modCount - j - 1] === -2) {
 					status = 0;
-				} else if (instrument.modChannels[Config.modCount - j - 1] == -1) {
+				} else if (instrument.modChannels[Config.modCount - j - 1] === -1) {
 					status = 3;
 				}
 				const instrumentsLength: number = this._doc.song.channels[Math.max(0, channelVal - 1)].instruments.length;
@@ -451,11 +451,11 @@ export class Piano {
 						usingMod = false;
 						break;
 					case 1:
-						if (this._doc.song.channels[channelVal - 1].name == "") {
+						if (this._doc.song.channels[channelVal - 1].name === "") {
 							if (instrumentsLength > 1) {
 								if (channelVal >= 10 || instrumentVal >= 10) {
 									firstRow = "P" + channelVal;
-									if (instrumentVal - 1 == instrumentsLength) {
+									if (instrumentVal - 1 === instrumentsLength) {
 										firstRow += " All";
 									} else if (instrumentVal - 1 > instrumentsLength) {
 										firstRow += " Act";
@@ -464,7 +464,7 @@ export class Piano {
 									}
 								} else {
 									firstRow = "Pitch" + channelVal;
-									if (instrumentVal - 1 == instrumentsLength) {
+									if (instrumentVal - 1 === instrumentsLength) {
 										firstRow += " All";
 									} else if (instrumentVal - 1 > instrumentsLength) {
 										firstRow += " Act";
@@ -478,7 +478,7 @@ export class Piano {
 						} else {
 							// Channel name display
 							let insText: string;
-							if (instrumentVal - 1 == instrumentsLength) {
+							if (instrumentVal - 1 === instrumentsLength) {
 								insText = " All";
 							} else if (instrumentVal - 1 > instrumentsLength) {
 								insText = " Act";
@@ -496,11 +496,11 @@ export class Piano {
 						const absoluteChannelVal: number = instrument.modChannels[Config.modCount - j - 1];
 						const relativeChannelVal: number = absoluteChannelVal - this._doc.song.pitchChannelCount;
 
-						if (this._doc.song.channels[absoluteChannelVal].name == "") {
+						if (this._doc.song.channels[absoluteChannelVal].name === "") {
 							if (instrumentsLength > 1) {
 								if (relativeChannelVal + 1 >= 10 || instrumentVal >= 10) {
 									firstRow = "N" + (relativeChannelVal + 1);
-									if (instrumentVal - 1 == instrumentsLength) {
+									if (instrumentVal - 1 === instrumentsLength) {
 										firstRow += " All";
 									} else if (instrumentVal - 1 > instrumentsLength) {
 										firstRow += " Act";
@@ -509,7 +509,7 @@ export class Piano {
 									}
 								} else {
 									firstRow = "Noise" + (relativeChannelVal + 1);
-									if (instrumentVal - 1 == instrumentsLength) {
+									if (instrumentVal - 1 === instrumentsLength) {
 										firstRow += " All";
 									} else if (instrumentVal - 1 > instrumentsLength) {
 										firstRow += " Act";
@@ -524,7 +524,7 @@ export class Piano {
 							// Channel name display
 							if (instrumentsLength > 1) {
 								let insText: string;
-								if (instrumentVal - 1 == instrumentsLength) {
+								if (instrumentVal - 1 === instrumentsLength) {
 									insText = " All";
 								} else if (instrumentVal - 1 > instrumentsLength) {
 									insText = " Act";
@@ -545,13 +545,13 @@ export class Piano {
 				// When unused, show name of mod on second row
 				if (usingSecondRow) {
 					secondRow = Config.modulators[modulator].pianoName;
-					if (modulator == Config.modulators.dictionary["none"].index) {
+					if (modulator === Config.modulators.dictionary["none"].index) {
 						useSecondColor = ColorConfig.modLabelSecondaryText;
 						usingMod = false;
 					} else if (
-						modulator == Config.modulators.dictionary["eq filter"].index ||
-						modulator == Config.modulators.dictionary["note filter"].index ||
-						modulator == Config.modulators.dictionary["song eq"].index
+						modulator === Config.modulators.dictionary["eq filter"].index ||
+						modulator === Config.modulators.dictionary["note filter"].index ||
+						modulator === Config.modulators.dictionary["song eq"].index
 					) {
 						let text = " Morph";
 						const filterVal = instrument.modFilterTypes[Config.modCount - j - 1];
@@ -574,14 +574,14 @@ export class Piano {
 				secondLabel.style.fill = useSecondColor;
 				secondLabel.textContent = usingSecondRow ? secondRow : "Not set";
 				modCountLabel.textContent = "" + (Config.modCount - j);
-				if (usingMod && status != 0 && status != 3) {
+				if (usingMod && status !== 0 && status !== 3) {
 					modCountRect.style.fill = ColorConfig.getChannelColor(this._doc.song, instrument.modChannels[Config.modCount - j - 1]).primaryChannel;
 				} else {
 					modCountRect.style.fill = usingMod ? ColorConfig.indicatorPrimary : ColorConfig.modLabelSecondaryText;
 				}
 
 				// Check if text is too long, if name is set
-				if (this._doc.song.channels[Math.max(0, instrument.modChannels[Config.modCount - j - 1])].name != "") {
+				if (this._doc.song.channels[Math.max(0, instrument.modChannels[Config.modCount - j - 1])].name !== "") {
 					let scaleFactor: string = "1";
 					const height: number = firstLabel.parentElement!.parentElement!.getBoundingClientRect().height;
 					const length: number = firstLabel.getComputedTextLength();
@@ -596,7 +596,7 @@ export class Piano {
 					firstLabel.style.transform =
 						"rotate(-90deg) translate(" + (-20 - squeeze - Math.round(Math.max(0, (height - 80) / 2))) + "px, 39px) scale(" + scaleFactor + ", 1)";
 					// Truncate end of string if it's too long, but keep instrument num
-					while (scaleFactor == "0.65" && firstLabel.getComputedTextLength() > height + 8) {
+					while (scaleFactor === "0.65" && firstLabel.getComputedTextLength() > height + 8) {
 						const offset = 4 + (instrumentVal >= 10 ? 1 : 0);
 						firstLabel.textContent =
 							firstLabel.textContent.substr(0, firstLabel.textContent.length - offset) +
@@ -623,14 +623,14 @@ export class Piano {
 		} else {
 			const shiftDir: number = Config.blackKeyNameParents[scaleIndex % Config.pitchesPerOctave];
 			text = Config.keys[(pitchNameIndex + Config.pitchesPerOctave + shiftDir) % Config.pitchesPerOctave].name;
-			if (shiftDir == 1) {
+			if (shiftDir === 1) {
 				text += "♭";
-			} else if (shiftDir == -1) {
+			} else if (shiftDir === -1) {
 				text += "♯";
 			}
 		}
 
-		if (scaleIndex % 12 == 0) {
+		if (scaleIndex % 12 === 0) {
 			text += Math.floor(scaleIndex / 12) + baseVisibleOctave;
 		}
 
@@ -645,9 +645,9 @@ export class Piano {
 		} else {
 			const shiftDir: number = Config.blackKeyNameParents[scaleIndex % Config.pitchesPerOctave];
 			text = Config.keys[(pitchNameIndex + Config.pitchesPerOctave + shiftDir) % Config.pitchesPerOctave].name;
-			if (shiftDir == 1) {
+			if (shiftDir === 1) {
 				text += "♭";
-			} else if (shiftDir == -1) {
+			} else if (shiftDir === -1) {
 				text += "♯";
 			}
 		}
