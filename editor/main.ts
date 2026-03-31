@@ -46,6 +46,7 @@ $("body").on("click", ".select2-container--open .select2-results__group", functi
 
 // Open event to collapse all optgroups by default
 $("#pitchPresetSelect").on("select2:open", function () {
+	editor.filterPresetSelectByTags();
 	$(".select2-dropdown--below").css("opacity", 0);
 	$(".select2-dropdown").css("opacity", 1);
 	$("#pitchPresetSelect");
@@ -67,6 +68,7 @@ $("#pitchPresetSelect").on("select2:open", function () {
 
 // Open event to collapse all optgroups by default
 $("#drumPresetSelect").on("select2:open", function () {
+	editor.filterPresetSelectByTags();
 	$(".select2-dropdown--below").css("opacity", 0);
 	$(".select2-dropdown").css("opacity", 1);
 	$("#drumPresetSelect");

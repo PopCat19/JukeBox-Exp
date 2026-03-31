@@ -937,10 +937,15 @@ export function pickRandomPresetValue(isNoise: boolean, rollNoveltyPresets: bool
 	const eligiblePresetValues: number[] = [];
 	const _presetTagsInputBox = document.getElementById("presetTagsInputBox") as HTMLInputElement | null;
 
-	const tagList: any = _presetTagsInputBox ? _presetTagsInputBox.value.toLowerCase().split(/\s+/) : "";
+	const tagList: string[] = _presetTagsInputBox
+		? _presetTagsInputBox.value
+				.toLowerCase()
+				.split(/\s+/)
+				.filter((t) => t !== "")
+		: [];
 
 	// checking for valid tags
-	if (!(tagList === "") && !tagList.every((tag: any) => fullTagList.includes(tag) || (tag.startsWith("!") && fullTagList.includes(tag.slice(1))))) {
+	if (tagList.length > 0 && !tagList.every((tag) => fullTagList.includes(tag) || (tag.startsWith("!") && fullTagList.includes(tag.slice(1))))) {
 		return -2;
 	}
 
@@ -952,10 +957,11 @@ export function pickRandomPresetValue(isNoise: boolean, rollNoveltyPresets: bool
 			if (
 				preset.settings !== undefined &&
 				(preset.isNoise === true) === isNoise &&
-				(tagList === "" ||
-					tagList.every(
-						(tag: any) => (tag.startsWith("!") && !preset.tags.includes(tag.slice(1))) || (!tag.startsWith("!") && preset.tags.includes(tag)),
-					))
+				(tagList.length === 0 ||
+					(preset.tags &&
+						tagList.every(
+							(tag) => (tag.startsWith("!") && !preset.tags.includes(tag.slice(1))) || (!tag.startsWith("!") && preset.tags.includes(tag)),
+						)))
 			) {
 				eligiblePresetValues.push((categoryIndex << 12) + presetIndex);
 			}
@@ -980,10 +986,15 @@ export function pickNextPresetValue(isNoise: boolean, rollNoveltyPresets: boolea
 	if (isNoise) currentPresetValue = _drumPresetSelect?.value ?? 0;
 	else currentPresetValue = _pitchedPresetSelect?.value ?? 0;
 
-	const tagList: any = _presetTagsInputBox ? _presetTagsInputBox.value.toLowerCase().split(/\s+/) : "";
+	const tagList: string[] = _presetTagsInputBox
+		? _presetTagsInputBox.value
+				.toLowerCase()
+				.split(/\s+/)
+				.filter((t) => t !== "")
+		: [];
 
 	// checking for valid tags
-	if (!(tagList === "") && !tagList.every((tag: any) => fullTagList.includes(tag) || (tag.startsWith("!") && fullTagList.includes(tag.slice(1))))) {
+	if (tagList.length > 0 && !tagList.every((tag) => fullTagList.includes(tag) || (tag.startsWith("!") && fullTagList.includes(tag.slice(1))))) {
 		return -2;
 	}
 
@@ -996,10 +1007,11 @@ export function pickNextPresetValue(isNoise: boolean, rollNoveltyPresets: boolea
 			if (
 				preset.settings !== undefined &&
 				(preset.isNoise === true) === isNoise &&
-				(tagList === "" ||
-					tagList.every(
-						(tag: any) => (tag.startsWith("!") && !preset.tags.includes(tag.slice(1))) || (!tag.startsWith("!") && preset.tags.includes(tag)),
-					))
+				(tagList.length === 0 ||
+					(preset.tags &&
+						tagList.every(
+							(tag) => (tag.startsWith("!") && !preset.tags.includes(tag.slice(1))) || (!tag.startsWith("!") && preset.tags.includes(tag)),
+						)))
 			) {
 				eligiblePresetValues.push((categoryIndex << 12) + presetIndex);
 				if ((categoryIndex << 12) + presetIndex === currentPresetValue) {

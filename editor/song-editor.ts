@@ -3523,6 +3523,7 @@ export class SongEditor implements ModSliderProvider {
 
 		this._presetTagsInputBox.addEventListener("input", () => {
 			this._updateTagAutocomplete();
+			this.filterPresetSelectByTags();
 		});
 
 		this._presetTagsInputBox.addEventListener("keydown", (event: KeyboardEvent) => {
@@ -3888,6 +3889,79 @@ export class SongEditor implements ModSliderProvider {
 			el.style.background = i === this._tagAutocompleteIndex ? "var(--ui-widget-focus, #777)" : "";
 			el.style.color = i === this._tagAutocompleteIndex ? "var(--editor-background, #fff)" : "";
 		});
+	}
+
+	public filterPresetSelectByTags(): void {
+		const input = document.getElementById("presetTagsInputBox") as HTMLInputElement | null;
+		const rawTags: string[] = input
+			? input.value
+					.toLowerCase()
+					.split(/\s+/)
+					.filter((t) => t !== "")
+			: [];
+
+		const currentPitch = this._pitchedPresetSelect.value;
+		const currentDrum = this._drumPresetSelect.value;
+
+		// Save full option set on first call so filtering is always against the complete list
+		if (!this._pitchedPresetSelect.dataset.fullOptions) {
+			this._pitchedPresetSelect.dataset.fullOptions = this._pitchedPresetSelect.innerHTML;
+		}
+		if (!this._drumPresetSelect.dataset.fullOptions) {
+			this._drumPresetSelect.dataset.fullOptions = this._drumPresetSelect.innerHTML;
+		}
+
+		// No tags active — restore full list
+		if (rawTags.length === 0) {
+			this._pitchedPresetSelect.innerHTML = this._pitchedPresetSelect.dataset.fullOptions;
+			this._drumPresetSelect.innerHTML = this._drumPresetSelect.dataset.fullOptions;
+			if (typeof $ !== "undefined") {
+				$("#pitchPresetSelect").val(currentPitch).trigger("change.select2");
+				$("#drumPresetSelect").val(currentDrum).trigger("change.select2");
+			}
+			return;
+		}
+
+		const matchesTags = (presetValue: number): boolean => {
+			const preset = EditorConfig.valueToPreset(presetValue);
+			if (!preset || !preset.tags) return false;
+			return rawTags.every((tag) => (tag.startsWith("!") ? !preset.tags.includes(tag.slice(1)) : preset.tags.includes(tag)));
+		};
+
+		const filterSelect = (src: HTMLSelectElement): void => {
+			const temp = document.createElement("select");
+			temp.innerHTML = src.dataset.fullOptions!;
+			const srcOptions = Array.from(temp.options);
+			src.innerHTML = "";
+			let currentOptgroup: HTMLOptGroupElement | null = null;
+
+			for (const opt of srcOptions) {
+				const val = Number(opt.value);
+				if (isNaN(val) || matchesTags(val)) {
+					const clone = opt.cloneNode(true) as HTMLOptionElement;
+					if (opt.parentElement?.tagName === "OPTGROUP") {
+						const label = (opt.parentElement as HTMLOptGroupElement).label;
+						if (!currentOptgroup || currentOptgroup.label !== label) {
+							currentOptgroup = document.createElement("optgroup");
+							currentOptgroup.label = label;
+							src.appendChild(currentOptgroup);
+						}
+						currentOptgroup.appendChild(clone);
+					} else {
+						currentOptgroup = null;
+						src.appendChild(clone);
+					}
+				}
+			}
+		};
+
+		filterSelect(this._pitchedPresetSelect);
+		filterSelect(this._drumPresetSelect);
+
+		if (typeof $ !== "undefined") {
+			$("#pitchPresetSelect").val(currentPitch).trigger("change.select2");
+			$("#drumPresetSelect").val(currentDrum).trigger("change.select2");
+		}
 	}
 
 	private _updateSampleLoadingBar(_e: Event): void {
