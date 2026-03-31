@@ -10,9 +10,9 @@
 // Copyright (c) 2012-2022 John Nesky and contributing authors, distributed under the MIT license, see accompanying the LICENSE.md file.
 
 import { InstrumentType, TypePresets } from "../../synth/synth-config";
-import { Preset, PresetCategory, presetCategoriesData } from "./preset-categories";
+import { Preset, PresetCategory, presetCategoriesData } from "./preset-category";
 
-export { Preset, PresetCategory } from "./preset-categories";
+export { Preset, PresetCategory } from "./preset-category";
 
 export const fullTagList: string[] = [
 	"chip",

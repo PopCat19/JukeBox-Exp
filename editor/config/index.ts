@@ -7,4 +7,4 @@
 
 export { EditorConfig, isMobile, Preset, PresetCategory, prettyNumber } from "./editor-config";
 export { KeyboardLayout } from "./keyboard-layout";
-export { presetCategories } from "./preset-categories";
+export { presetCategoriesData } from "./preset-category";

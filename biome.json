@@ -31,7 +31,6 @@
 			"player/**/*.ts",
 			"shared/**/*.ts",
 			"!**/*-lock.json",
-			"!editor/config/preset-categories.ts",
 			"!!build",
 			"!!website",
 			"!!archive",

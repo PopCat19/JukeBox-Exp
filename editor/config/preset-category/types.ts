@@ -1,0 +1,18 @@
+import { BeepBoxOption, DictionaryArray, InstrumentType } from "../../../synth/synth-config";
+
+export interface PresetCategory extends BeepBoxOption {
+	readonly presets: DictionaryArray<Preset>;
+}
+
+export interface Preset extends BeepBoxOption {
+	readonly isNoise?: boolean;
+	readonly isMod?: boolean;
+	readonly generalMidi?: boolean;
+	readonly midiProgram?: number;
+	readonly midiSubharmonicOctaves?: number;
+	readonly customType?: InstrumentType;
+	readonly settings?: any;
+	readonly tags?: any;
+}
+
+export type InputPresetCategory = Omit<PresetCategory, "index">;
