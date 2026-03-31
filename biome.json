@@ -24,6 +24,7 @@
 		"lineWidth": 160
 	},
 	"files": {
+		"maxSize": 5242880,
 		"includes": [
 			"editor/**/*.ts",
 			"synth/**/*.ts",
