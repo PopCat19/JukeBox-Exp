@@ -4326,6 +4326,7 @@ export class SongEditor implements ModSliderProvider {
 		if (newPrompt) {
 			newPrompt.name = promptName;
 			newPrompt.closeCallback = (p) => this.closePrompt(p);
+			newPrompt.openAlongsideCallback = (name) => this._setPrompt(name);
 			this._prompts.push(newPrompt);
 			this._focusedPrompt = newPrompt;
 			this._updatePromptFocus();

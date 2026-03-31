@@ -18,4 +18,5 @@ export interface Prompt {
 	gotMouseUp?: boolean;
 	closeWithoutUndo?: () => void;
 	closeCallback?: (prompt: Prompt) => void;
+	openAlongsideCallback?: (promptName: string) => void;
 }

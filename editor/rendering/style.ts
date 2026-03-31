@@ -803,7 +803,8 @@ html {
 .beepboxEditor .prompt.compactSearchPrompt > *:not(:first-child):not(.cancelButton) {
 	margin-top: 0;
 }
-.beepboxEditor .prompt.compactSearchPrompt > input {
+.beepboxEditor .prompt.compactSearchPrompt > input,
+.beepboxEditor .prompt.compactSearchPrompt > .inputRow {
 	margin-top: 1.25em;
 }
 .beepboxEditor .prompt.compactSearchPrompt h2 {
@@ -811,6 +812,10 @@ html {
 }
 .beepboxEditor .prompt.compactSearchPrompt input:focus {
 	border-color: ${ColorConfig.secondaryText};
+}
+.beepboxEditor .prompt.compactSearchPrompt .tagBrowserButton:hover {
+	border-color: ${ColorConfig.secondaryText};
+	background: var(--ui-widget-background);
 }
 
 .beepboxEditor .prompt.keyboardShortcutsPrompt .shortcutRow {
@@ -1080,7 +1085,8 @@ html {
 .beepboxEditor .prompt-titlebar {
 	display: flex;
 	align-items: center;
-	gap: 6px;
+	gap: 8px;
+	margin-bottom: 8px;
 	width: 100%;
 }
 

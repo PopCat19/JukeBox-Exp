@@ -21,6 +21,7 @@ export abstract class BasePrompt implements Prompt {
 	public readonly id: number = BasePrompt._nextId++;
 	public abstract readonly container: HTMLElement;
 	public closeCallback: ((prompt: Prompt) => void) | undefined = undefined;
+	public openAlongsideCallback: ((promptName: string) => void) | undefined = undefined;
 	protected readonly _cancelButton: HTMLButtonElement = button({ class: "cancelButton" });
 	protected readonly _okayButton: HTMLButtonElement = button({ class: "okayButton", style: "width:45%;" }, "Okay");
 

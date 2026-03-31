@@ -15,7 +15,7 @@ import { EditorConfig, Preset, PresetCategory } from "../config/editor-config";
 import { SongDocument } from "../song-document";
 import { BasePrompt } from "./base-prompt";
 
-const { div, input, h2, span } = HTML;
+const { button, div, input, h2, span } = HTML;
 
 interface CategoryEntry {
 	name: string;
@@ -27,7 +27,6 @@ export class PresetSelectorPrompt extends BasePrompt {
 	private _presetList: HTMLDivElement;
 	private _infoPanel: HTMLDivElement;
 	private _searchInput: HTMLInputElement;
-	private _tagInput: HTMLInputElement;
 	private _categories: CategoryEntry[] = [];
 	private _selectedCategoryIndex: number = 0;
 	private _selectedPresetIndex: number = 0;
@@ -41,7 +40,6 @@ export class PresetSelectorPrompt extends BasePrompt {
 	private _activeTags: string[] = [];
 	private _tagBanner: HTMLDivElement;
 	private _externalTagHandler: () => void;
-	private _tagInputHandler: () => void;
 
 	public readonly container: HTMLDivElement;
 
@@ -52,17 +50,26 @@ export class PresetSelectorPrompt extends BasePrompt {
 
 		this._buildCategories(isNoise);
 
+		const inputStyle = `flex: 1; min-width: 0; padding: 6px 10px; border: 2px solid var(--ui-widget-background); border-radius: 6px; background: var(--editor-background); color: var(--primary-text); font-size: 14px; outline: none; box-sizing: border-box;`;
+
 		this._searchInput = input({
 			type: "text",
 			placeholder: "Search presets...",
-			style: `width: 100%; padding: 6px 10px; border: 2px solid var(--ui-widget-background); border-radius: 6px; background: var(--editor-background); color: var(--primary-text); font-size: 14px; outline: none; box-sizing: border-box;`,
+			style: inputStyle,
 		});
 
-		this._tagInput = input({
-			type: "text",
-			placeholder: "Tags: chip featured !fm ...",
-			style: `width: 100%; padding: 4px 10px; border: 1px solid var(--ui-widget-background); border-radius: 4px; background: var(--editor-background); color: var(--primary-text); font-size: 12px; outline: none; box-sizing: border-box;`,
-		});
+		const tagButton = button(
+			{
+				class: "tagBrowserButton",
+				style: `flex: 0 0 auto; align-self: stretch; padding: 6px 12px; border: 2px solid var(--ui-widget-background); border-radius: 6px; background: var(--editor-background); color: var(--primary-text); font-size: 14px; cursor: pointer; white-space: nowrap;`,
+			},
+			"Tags",
+		);
+		tagButton.addEventListener("click", () => this._openTagBrowser());
+
+		const rowGap = "8px";
+
+		const inputRow = div({ class: "inputRow", style: `display: flex; gap: ${rowGap};` }, this._searchInput, tagButton);
 
 		this._tagBanner = div({
 			style: "display: none; padding: 4px 8px; font-size: 11px; color: var(--secondary-text); border-bottom: 1px solid var(--ui-widget-background); cursor: pointer;",
@@ -102,9 +109,8 @@ export class PresetSelectorPrompt extends BasePrompt {
 				style: "width: 800px; text-align: left; max-height: 90%; outline: none;",
 				tabindex: "0",
 			},
-			h2({ style: "text-align: center; margin: 0 0 4px 0;" }, "Select Instrument"),
-			this._searchInput,
-			this._tagInput,
+			h2({ style: `text-align: center; margin: 0 0 ${rowGap} 0;` }, "Select Instrument"),
+			inputRow,
 			paneContainer,
 			instructionsDiv,
 			this._cancelButton,
@@ -112,8 +118,7 @@ export class PresetSelectorPrompt extends BasePrompt {
 
 		this.buildTitlebar();
 
-		// Sync tag input from external and apply initial filter
-		this._syncTagInputFromExternal();
+		// Apply initial tag filter from external input
 		this._applyTagFilter();
 
 		this._renderCategories();
@@ -143,42 +148,8 @@ export class PresetSelectorPrompt extends BasePrompt {
 		this._searchInput.addEventListener("input", this._onSearchInput);
 		this._searchInput.addEventListener("keydown", this._onSearchKeyDown);
 
-		this._tagInputHandler = () => {
-			this._syncTagInputToExternal();
-			this._applyTagFilter();
-		};
-		this._tagInput.addEventListener("input", this._tagInputHandler);
-
-		this._tagInput.addEventListener("keydown", (event: KeyboardEvent) => {
-			if (event.keyCode === 27) {
-				this._tagInput.blur();
-				this.container.focus();
-				event.preventDefault();
-				event.stopPropagation();
-			} else if (event.keyCode === 13) {
-				this._applySelection();
-				event.preventDefault();
-			} else if (event.keyCode === 40) {
-				this.container.focus();
-				this._activePane = "presets";
-				this._updateHighlight();
-				event.preventDefault();
-			} else if (event.keyCode === 38) {
-				this.container.focus();
-				this._activePane = "categories";
-				this._updateHighlight();
-				event.preventDefault();
-			} else if (event.keyCode === 9) {
-				this.container.focus();
-				this._activePane = this._activePane === "categories" ? "presets" : "categories";
-				this._updateHighlight();
-				event.preventDefault();
-			}
-		});
-
-		// React to external tag input changes (e.g. from instrument settings)
+		// React to external tag input changes (e.g. from tag browser or instrument settings)
 		this._externalTagHandler = () => {
-			this._syncTagInputFromExternal();
 			this._applyTagFilter();
 		};
 		const externalInput = document.getElementById("presetTagsInputBox") as HTMLInputElement | null;
@@ -199,28 +170,26 @@ export class PresetSelectorPrompt extends BasePrompt {
 		}
 	};
 
-	private _syncTagInputFromExternal(): void {
+	private _getExternalTagValue(): string {
 		const ext = document.getElementById("presetTagsInputBox") as HTMLInputElement | null;
-		if (ext) {
-			this._tagInput.value = ext.value;
-		}
+		return ext ? ext.value : "";
 	}
 
-	private _syncTagInputToExternal(): void {
+	private _setExternalTagValue(value: string): void {
 		const ext = document.getElementById("presetTagsInputBox") as HTMLInputElement | null;
 		if (ext) {
-			ext.value = this._tagInput.value;
+			ext.value = value;
 			ext.dispatchEvent(new Event("input"));
 		}
 	}
 
 	private _readActiveTags(): void {
-		const value = this._tagInput.value.trim();
+		const value = this._getExternalTagValue().trim();
 		if (value) {
 			this._activeTags = value
 				.toLowerCase()
 				.split(/\s+/)
-				.filter((t) => t !== "");
+				.filter((t: string) => t !== "");
 		} else {
 			this._activeTags = [];
 		}
@@ -305,17 +274,14 @@ export class PresetSelectorPrompt extends BasePrompt {
 	}
 
 	private _clearTagFilters(): void {
-		this._tagInput.value = "";
-		this._syncTagInputToExternal();
+		this._setExternalTagValue("");
 		this._applyTagFilter();
 	}
 
 	private _openTagBrowser(): void {
-		this._close();
-		setTimeout(() => {
-			this._doc.prompt = "instrumentTags";
-			this._doc.notifier.changed();
-		}, 50);
+		if (this.openAlongsideCallback) {
+			this.openAlongsideCallback("instrumentTags");
+		}
 	}
 
 	private _presetMatchesActiveTags(presetValue: number): boolean {
@@ -540,18 +506,17 @@ export class PresetSelectorPrompt extends BasePrompt {
 				);
 				tagEl.addEventListener("mousedown", (e: MouseEvent) => {
 					e.preventDefault();
-					const tags = this._tagInput.value
+					const tags = this._getExternalTagValue()
 						.toLowerCase()
 						.split(/\s+/)
-						.filter((t) => t !== "");
+						.filter((t: string) => t !== "");
 					const idx = tags.indexOf(tag);
 					if (idx >= 0) {
 						tags.splice(idx, 1);
 					} else {
 						tags.push(tag);
 					}
-					this._tagInput.value = tags.join(" ");
-					this._syncTagInputToExternal();
+					this._setExternalTagValue(tags.join(" "));
 					this._applyTagFilter();
 				});
 				tagsDiv.appendChild(tagEl);
@@ -659,7 +624,7 @@ export class PresetSelectorPrompt extends BasePrompt {
 	};
 
 	private _onContainerKeyDown = (event: KeyboardEvent): void => {
-		if (event.target === this._searchInput || event.target === this._tagInput) return;
+		if (event.target === this._searchInput) return;
 		const presetCount = this._getActivePresetCount();
 		const categoryCount = this._categories.length;
 		switch (event.keyCode) {
@@ -762,7 +727,6 @@ export class PresetSelectorPrompt extends BasePrompt {
 		if (this._clickTimer) clearTimeout(this._clickTimer);
 		this._searchInput.removeEventListener("input", this._onSearchInput);
 		this._searchInput.removeEventListener("keydown", this._onSearchKeyDown);
-		this._tagInput.removeEventListener("input", this._tagInputHandler);
 		this.container.removeEventListener("keydown", this._onContainerKeyDown);
 		const externalInput = document.getElementById("presetTagsInputBox") as HTMLInputElement | null;
 		if (externalInput) {
