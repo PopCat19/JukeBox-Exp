@@ -1010,7 +1010,7 @@ export function toBase64StringImpl(song: SongLike): string {
 	const maxApplyArgs: number = 64000;
 	let customSamplesStr = "";
 	const customSamples = song.customSampleHandler?.getCustomSamples();
-	if (customSamples !== undefined && customSamples.length > 0) {
+	if (customSamples != null && customSamples.length > 0) {
 		customSamplesStr = "|" + customSamples.join("|");
 	}
 	// samplemark

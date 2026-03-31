@@ -981,7 +981,7 @@ export class Synth {
 			if (this.modValues[setting] != null && this.nextModValues[setting] != null) {
 				return nextVal ? this.nextModValues[setting]! : this.modValues[setting]!;
 			}
-		} else if (channel !== undefined && instrument !== undefined) {
+		} else if (channel != null && instrument != null) {
 			if (this.modInsValues[channel][instrument][setting] != null && this.nextModInsValues[channel][instrument][setting] != null) {
 				return nextVal ? this.nextModInsValues[channel][instrument][setting]! : this.modInsValues[channel][instrument][setting]!;
 			}
