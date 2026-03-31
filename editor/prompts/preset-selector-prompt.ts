@@ -13,10 +13,10 @@ import { HTML } from "imperative-html/dist/esm/elements-strict";
 import { ChangePreset } from "../changes";
 import { EditorConfig, Preset, PresetCategory } from "../config/editor-config";
 import { SongDocument } from "../song-document";
+import { searchInput, sectionLabel, tagChip } from "../ui/components";
 import { BasePrompt } from "./base-prompt";
-import { searchInput, tagChip, sectionLabel } from "../ui/components";
 
-const { button, div, input, h2, span } = HTML;
+const { button, div, h2, span } = HTML;
 
 interface CategoryEntry {
 	name: string;
@@ -452,13 +452,7 @@ export class PresetSelectorPrompt extends BasePrompt {
 				div({ style: "color: var(--primary-text); font-size: 13px; word-break: break-word;" }, preset.name),
 			),
 		);
-		this._infoPanel.appendChild(
-			div(
-				{},
-				sectionLabel("Position"),
-				div({ style: "color: var(--primary-text); font-size: 13px;" }, `${pos} / ${total}`),
-			),
-		);
+		this._infoPanel.appendChild(div({}, sectionLabel("Position"), div({ style: "color: var(--primary-text); font-size: 13px;" }, `${pos} / ${total}`)));
 		if (this._isSearchMode) {
 			this._infoPanel.appendChild(
 				div(
@@ -470,10 +464,7 @@ export class PresetSelectorPrompt extends BasePrompt {
 		}
 		const fullPreset = EditorConfig.valueToPreset(preset.value);
 		if (fullPreset && fullPreset.tags && fullPreset.tags.length > 0) {
-			const tagsDiv = div(
-				{ style: "margin-top: 10px;" },
-				sectionLabel("Tags"),
-			);
+			const tagsDiv = div({ style: "margin-top: 10px;" }, sectionLabel("Tags"));
 			for (const tag of fullPreset.tags) {
 				const isActive = this._activeTags.includes(tag);
 				const tagEl = tagChip(tag, isActive);

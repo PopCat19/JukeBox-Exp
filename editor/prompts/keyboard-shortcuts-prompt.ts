@@ -9,10 +9,10 @@
 
 import { HTML } from "imperative-html/dist/esm/elements-strict";
 import { SongDocument } from "../song-document";
-import { BasePrompt } from "./base-prompt";
 import { searchInput } from "../ui/components";
+import { BasePrompt } from "./base-prompt";
 
-const { div, input, span, h2 } = HTML;
+const { div, span, h2 } = HTML;
 
 interface ShortcutEntry {
 	keys: Array<{ key: string; mods?: string }>;

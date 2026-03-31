@@ -13,8 +13,8 @@ import { Config } from "../../synth/synth-config";
 import { ChangeMoveNotesSideways } from "../changes";
 import { ColorConfig } from "../rendering/color-config";
 import { SongDocument } from "../song-document";
-import { BasePrompt } from "./base-prompt";
 import { labelRow } from "../ui/components";
+import { BasePrompt } from "./base-prompt";
 
 const { div, span, h2, input, br, select, option } = HTML;
 
@@ -43,9 +43,7 @@ export class MoveNotesSidewaysPrompt extends BasePrompt {
 			),
 			this._beatsStepper,
 		),
-		labelRow(
-			div({ class: "selectContainer", style: "width: 100%;" }, this._conversionStrategySelect),
-		),
+		labelRow(div({ class: "selectContainer", style: "width: 100%;" }, this._conversionStrategySelect)),
 		this._getOkayRow(),
 		this._cancelButton,
 	);

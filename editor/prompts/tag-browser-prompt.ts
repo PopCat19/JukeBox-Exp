@@ -11,10 +11,10 @@
 import { HTML } from "imperative-html/dist/esm/elements-strict";
 import { EditorConfig, fullTagList } from "../config/editor-config";
 import { SongDocument } from "../song-document";
-import { BasePrompt } from "./base-prompt";
 import { tagListItem } from "../ui/components";
+import { BasePrompt } from "./base-prompt";
 
-const { div, h2, span } = HTML;
+const { div, h2 } = HTML;
 
 interface TagData {
 	tag: string;

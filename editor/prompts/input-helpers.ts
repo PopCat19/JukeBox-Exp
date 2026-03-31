@@ -6,10 +6,7 @@
 // - Provides number input validation (key filtering, blur clamping)
 // - Builds label+input flex rows and okay button rows
 
-import { HTML } from "imperative-html/dist/esm/elements-strict";
 import { labelRow as _labelRow } from "../ui/components";
-
-const { div } = HTML;
 
 export function validateKey(event: KeyboardEvent): boolean {
 	const charCode = event.which ? event.which : event.keyCode;

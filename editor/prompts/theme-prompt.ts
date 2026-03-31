@@ -11,8 +11,8 @@
 import { HTML } from "imperative-html/dist/esm/elements-strict";
 import { ColorConfig } from "../rendering/color-config";
 import { SongDocument } from "../song-document";
-import { BasePrompt } from "./base-prompt";
 import { labelRow } from "../ui/components";
+import { BasePrompt } from "./base-prompt";
 
 const { div, h2, select, option, optgroup } = HTML;
 
@@ -100,9 +100,7 @@ export class ThemePrompt extends BasePrompt {
 	public readonly container: HTMLDivElement = div(
 		{ class: "prompt noSelection", style: "width: 220px;" },
 		h2("Set Theme"),
-		labelRow(
-			div({ class: "selectContainer", style: "width: 100%;" }, this._themeSelect),
-		),
+		labelRow(div({ class: "selectContainer", style: "width: 100%;" }, this._themeSelect)),
 		this._getOkayRow(),
 		this._cancelButton,
 	);

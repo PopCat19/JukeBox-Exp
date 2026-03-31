@@ -7,6 +7,6 @@
 
 export { ArrayBufferReader } from "./array-buffer-reader";
 export { ArrayBufferWriter } from "./array-buffer-writer";
+export { labelRow, okayRow, searchInput, sectionLabel, stepperInput, tagChip, tagListItem } from "./components";
 export { HTMLWrapper } from "./html-wrapper";
 export { Layout } from "./layout";
-export { labelRow, searchInput, tagChip, tagListItem, stepperInput, sectionLabel, okayRow } from "./components";

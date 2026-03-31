@@ -14,10 +14,10 @@ import { ChangeBarCount } from "../changes";
 import { ChangeGroup } from "../core/change";
 import { ColorConfig } from "../rendering/color-config";
 import { SongDocument } from "../song-document";
+import { labelRow } from "../ui/components";
 import { BasePrompt } from "./base-prompt";
 import { ExportPrompt } from "./export-prompt";
 import { validate, validateKey, validateNumber } from "./input-helpers";
-import { labelRow } from "../ui/components";
 
 const { div, span, h2, input, br, select, option } = HTML;
 
@@ -47,9 +47,7 @@ export class SongDurationPrompt extends BasePrompt {
 			),
 			this._barsStepper,
 		),
-		labelRow(
-			div({ class: "selectContainer", style: "width: 100%;" }, this._positionSelect),
-		),
+		labelRow(div({ class: "selectContainer", style: "width: 100%;" }, this._positionSelect)),
 		this._getOkayRow(),
 		this._cancelButton,
 	);

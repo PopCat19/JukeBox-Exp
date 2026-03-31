@@ -16,8 +16,8 @@ import { prettyNumber } from "../config/editor-config";
 import { ChangeGroup } from "../core/change";
 import { ChannelColors, ColorConfig } from "../rendering/color-config";
 import { SongDocument } from "../song-document";
-import { BasePrompt } from "./base-prompt";
 import { stepperInput } from "../ui/components";
+import { BasePrompt } from "./base-prompt";
 
 const { button, div, h2, input } = HTML;
 

@@ -14,9 +14,9 @@ import { prettyNumber } from "../config/editor-config";
 import { ColorConfig } from "../rendering/color-config";
 import { SongDocument } from "../song-document";
 import { SongEditor } from "../song-editor";
+import { labelRow } from "../ui/components";
 import { BasePrompt } from "./base-prompt";
 import { updatePlayButton } from "./input-helpers";
-import { labelRow } from "../ui/components";
 
 const { button, div, h2, input } = HTML;
 
@@ -359,10 +359,7 @@ export class LimiterPrompt extends BasePrompt {
 			div({ style: `text-align: right; width: 8.5em; margin-right: 1em; color: ${ColorConfig.primaryText};` }, "Limit Decay:"),
 			this.limitDecaySlider,
 		),
-		labelRow(
-			div({ style: `text-align: right; width: 8.5em; margin-right: 1em; color: ${ColorConfig.primaryText};` }, "Limit Rise:"),
-			this.limitRiseSlider,
-		),
+		labelRow(div({ style: `text-align: right; width: 8.5em; margin-right: 1em; color: ${ColorConfig.primaryText};` }, "Limit Rise:"), this.limitRiseSlider),
 		labelRow(
 			div({ style: `text-align: right; width: 8.5em; margin-right: 1em; color: ${ColorConfig.primaryText};` }, "Master Gain:"),
 			this.masterGainSlider,

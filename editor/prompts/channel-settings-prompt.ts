@@ -13,11 +13,11 @@ import { Config } from "../../synth/synth-config";
 import { ChangeChannelCount, ChangeInstrumentsFlags, ChangePatternsPerChannel } from "../changes";
 import { ChangeGroup } from "../core/change";
 import { SongDocument } from "../song-document";
+import { labelRow } from "../ui/components";
 import { BasePrompt } from "./base-prompt";
 import { validate, validateKey, validateNumber } from "./input-helpers";
-import { labelRow } from "../ui/components";
 
-const { div, label, br, h2, input } = HTML;
+const { div, br, h2, input } = HTML;
 
 export class ChannelSettingsPrompt extends BasePrompt {
 	private readonly _patternsStepper: HTMLInputElement = input({
@@ -52,34 +52,12 @@ export class ChannelSettingsPrompt extends BasePrompt {
 	public readonly container: HTMLDivElement = div(
 		{ class: "prompt noSelection", style: "width: 250px; text-align: right;" },
 		h2("Channel Settings"),
-		labelRow(
-			"Pitch channels:",
-			this._pitchChannelStepper,
-		),
-		labelRow(
-			"Drum channels:",
-			this._drumChannelStepper,
-		),
-		labelRow(
-			"Mod channels:",
-			this._modChannelStepper,
-		),
-		labelRow(
-			"Available patterns per channel:",
-			this._patternsStepper,
-		),
-		labelRow(
-			"Simultaneous instruments",
-			br(),
-			"per channel:",
-			this._layeredInstrumentsBox,
-		),
-		labelRow(
-			"Different instruments",
-			br(),
-			"per pattern:",
-			this._patternInstrumentsBox,
-		),
+		labelRow("Pitch channels:", this._pitchChannelStepper),
+		labelRow("Drum channels:", this._drumChannelStepper),
+		labelRow("Mod channels:", this._modChannelStepper),
+		labelRow("Available patterns per channel:", this._patternsStepper),
+		labelRow("Simultaneous instruments", br(), "per channel:", this._layeredInstrumentsBox),
+		labelRow("Different instruments", br(), "per pattern:", this._patternInstrumentsBox),
 		this._getOkayRow(),
 		this._cancelButton,
 	);

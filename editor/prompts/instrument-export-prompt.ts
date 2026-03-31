@@ -12,10 +12,10 @@ import { HTML } from "imperative-html/dist/esm/elements-strict";
 import { Channel, Instrument } from "../../synth";
 import { Config } from "../../synth/synth-config";
 import { SongDocument } from "../song-document";
-import { BasePrompt } from "./base-prompt";
 import { labelRow } from "../ui/components";
+import { BasePrompt } from "./base-prompt";
 
-const { div, h2, input, label, br } = HTML;
+const { div, h2, input, br } = HTML;
 
 export class InstrumentExportPrompt extends BasePrompt {
 	private readonly _exportMultipleBox: HTMLInputElement = input({
@@ -36,12 +36,7 @@ export class InstrumentExportPrompt extends BasePrompt {
 		{ class: "prompt noSelection", style: "width: 200px;" },
 		h2("Export Instruments Options"),
 		div({ style: "display: flex; flex-direction: row; align-items: center; justify-content: space-between;" }, "File name:", this._fileName),
-		labelRow(
-			"Export all instruments",
-			br(),
-			"in channel:",
-			this._exportMultipleBox,
-		),
+		labelRow("Export all instruments", br(), "in channel:", this._exportMultipleBox),
 		this._getOkayRow(),
 		this._cancelButton,
 	);

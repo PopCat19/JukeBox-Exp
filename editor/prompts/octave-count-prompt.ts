@@ -11,9 +11,9 @@
 import { HTML } from "imperative-html/dist/esm/elements-strict";
 import { ChangeOctaveCount } from "../changes";
 import { SongDocument } from "../song-document";
+import { labelRow } from "../ui/components";
 import { BasePrompt } from "./base-prompt";
 import { validate, validateKey, validateNumber } from "./input-helpers";
-import { labelRow } from "../ui/components";
 
 const { div, h2, p, input } = HTML;
 
@@ -28,10 +28,7 @@ export class OctaveCountPrompt extends BasePrompt {
 		{ class: "prompt noSelection", style: "width: 250px;" },
 		h2("Change Octave Count"),
 		p("WARNING! This will clear all the contents of the song!"),
-		labelRow(
-			div({ style: "display: inline-block; text-align: left;" }, "Octaves:"),
-			this._octaves,
-		),
+		labelRow(div({ style: "display: inline-block; text-align: left;" }, "Octaves:"), this._octaves),
 		labelRow(),
 		this._getOkayRow(),
 		this._cancelButton,

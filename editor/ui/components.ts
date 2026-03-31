@@ -17,7 +17,10 @@ const { div, span, input } = HTML;
  */
 export function labelRow(...children: (HTMLElement | string)[]): HTMLDivElement;
 export function labelRow(opts: { height?: string; marginTop?: string }, ...children: (HTMLElement | string)[]): HTMLDivElement;
-export function labelRow(optsOrChild?: { height?: string; marginTop?: string } | HTMLElement | string, ...restChildren: (HTMLElement | string)[]): HTMLDivElement {
+export function labelRow(
+	optsOrChild?: { height?: string; marginTop?: string } | HTMLElement | string,
+	...restChildren: (HTMLElement | string)[]
+): HTMLDivElement {
 	let opts: { height?: string; marginTop?: string } = {};
 	let children: (HTMLElement | string)[];
 
@@ -25,7 +28,8 @@ export function labelRow(optsOrChild?: { height?: string; marginTop?: string } |
 		opts = optsOrChild;
 		children = restChildren;
 	} else {
-		children = optsOrChild !== undefined ? [optsOrChild, ...restChildren] : restChildren;
+		const first = optsOrChild as HTMLElement | string | undefined;
+		children = first !== undefined ? [first, ...restChildren] : restChildren;
 	}
 
 	const height = opts.height ?? "2em";
