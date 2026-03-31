@@ -2061,7 +2061,7 @@ export class SongEditor implements ModSliderProvider {
 	);
 
 	private readonly _presetTagsInputBox: HTMLInputElement = input({
-		style: "width: 100%; height: 1.5em; font-size: 80%; margin-left: 0.0em; vertical-align: middle; padding-right: 1.6em;",
+		style: "width: 100%; height: 100%; font-size: 80%; margin: 0; vertical-align: middle; padding: 0 1.6em 0 4px; box-sizing: border-box;",
 		id: "presetTagsInputBox",
 		type: "text",
 		value: "",
@@ -2076,14 +2076,14 @@ export class SongEditor implements ModSliderProvider {
 	private _tagAutocompleteIndex: number = -1;
 
 	private readonly _tagInputWrapper: HTMLDivElement = div(
-		{ style: "position: relative; width: 60%; display: inline-block;" },
+		{ style: "position: relative; width: 60%; display: inline-block; height: 100%;" },
 		this._presetTagsInputBox,
 		(() => {
 			this._clearTagsButton.style.position = "absolute";
-			this._clearTagsButton.style.right = "2px";
+			this._clearTagsButton.style.right = "0";
 			this._clearTagsButton.style.top = "50%";
 			this._clearTagsButton.style.transform = "translateY(-50%)";
-			this._clearTagsButton.style.background = "var(--editor-background)";
+			this._clearTagsButton.style.background = "none";
 			this._clearTagsButton.style.borderRadius = "3px";
 			return this._clearTagsButton;
 		})(),
