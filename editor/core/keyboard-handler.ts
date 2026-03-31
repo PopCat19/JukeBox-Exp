@@ -7,6 +7,7 @@
 // - Delegates to editor components through a host interface
 // - Manages modifier key state tracking
 
+import { ColorConfig } from "../../shared/color-config";
 import { Channel, Instrument } from "../../synth";
 import { Config, DropdownID, EffectType, effectsIncludeNoteFilter, InstrumentType } from "../../synth/synth-config";
 import {
@@ -24,7 +25,6 @@ import { LoopEditor } from "../components/loop-editor";
 import { MuteEditor } from "../components/mute-editor";
 import { PatternEditor } from "../components/pattern-editor";
 import { KeyboardLayout } from "../config/keyboard-layout";
-import { ColorConfig } from "../rendering/color-config";
 import { SongDocument } from "../song-document";
 import { ChangeGroup } from "./change";
 

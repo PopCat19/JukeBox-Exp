@@ -8,7 +8,7 @@
 // - Renders and animates the playhead position with note flash effects
 
 import { SVG } from "imperative-html/dist/esm/elements-strict";
-import { ColorConfig } from "../editor/rendering/color-config";
+import { ColorConfig } from "../shared/color-config";
 import { Note, NotePin, Pattern } from "../synth";
 import { Config } from "../synth/synth-config";
 import { getLocalStorage, PlayerUI } from "./player-ui";

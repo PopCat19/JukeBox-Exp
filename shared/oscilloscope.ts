@@ -7,7 +7,7 @@
 // - Listens for oscilloscope update events from the synth engine
 // - Supports configurable canvas scaling
 
-import { ColorConfig } from "../editor/rendering/color-config";
+import { ColorConfig } from "./color-config";
 import { events } from "./events";
 
 export class oscilloscopeCanvas {

@@ -9,11 +9,11 @@
 
 // Copyright (c) 2012-2022 John Nesky and contributing authors, distributed under the MIT license, see accompanying the LICENSE.md file.
 
+import { ColorConfig } from "../../shared/color-config";
 import { Channel, Instrument, Note, NotePin, Pattern, Song } from "../../synth";
 import { Config, EffectType, InstrumentType } from "../../synth/synth-config";
 import { EditorConfig, fullTagList, Preset, PresetCategory } from "../config/editor-config";
 import { Change, ChangeGroup, ChangeSequence } from "../core/change";
-import { ColorConfig } from "../rendering/color-config";
 import { SongDocument } from "../song-document";
 import { ChangeToggleEffects } from "./instruments";
 import {

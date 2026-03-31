@@ -7,6 +7,7 @@
 // - Handles instrument preset, wave, effects, and modulator selections
 // - Delegates complex operations back to the host editor
 
+import { ChannelColors, ColorConfig } from "../../shared/color-config";
 import { Channel, Instrument } from "../../synth";
 import { Config } from "../../synth/synth-config";
 import {
@@ -48,7 +49,6 @@ import {
 	pickRandomPresetValue,
 } from "../changes";
 import { Piano } from "../components/piano";
-import { ChannelColors, ColorConfig } from "../rendering/color-config";
 import { CustomAlgorythmCanvas } from "../rendering/custom-algorythm-canvas";
 import { SongDocument } from "../song-document";
 

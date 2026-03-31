@@ -9,7 +9,7 @@
 // Copyright (C) 2020 John Nesky, distributed under the MIT license.
 
 import { HTML } from "imperative-html/dist/esm/elements-strict";
-import { ColorConfig } from "../rendering/color-config";
+import { ColorConfig } from "../../shared/color-config";
 import { SongDocument } from "../song-document";
 import { labelRow } from "../ui/components";
 import { BasePrompt } from "./base-prompt";

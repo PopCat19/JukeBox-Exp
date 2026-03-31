@@ -9,6 +9,7 @@
 
 // Copyright (c) 2012-2022 John Nesky and contributing authors, distributed under the MIT license, see accompanying the LICENSE.md file.
 
+import { ColorConfig } from "../../shared/color-config";
 import { Note, NotePin, Pattern } from "../../synth";
 import { Config, Dictionary } from "../../synth/synth-config";
 import {
@@ -45,7 +46,6 @@ import {
 	patternsContainSameInstruments,
 	unionOfUsedNotes,
 } from "../changes";
-import { ColorConfig } from "../rendering/color-config";
 import { SongDocument } from "../song-document";
 import { ChangeGroup } from "./change";
 

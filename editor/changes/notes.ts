@@ -9,10 +9,10 @@
 
 // Copyright (c) 2012-2022 John Nesky and contributing authors, distributed under the MIT license, see accompanying the LICENSE.md file.
 
+import { ColorConfig } from "../../shared/color-config";
 import { Channel, Instrument, makeNotePin, Note, NotePin, Pattern, Song } from "../../synth";
 import { Config, Dictionary } from "../../synth/synth-config";
 import { Change, ChangeGroup, ChangeSequence, UndoableChange } from "../core/change";
-import { ColorConfig } from "../rendering/color-config";
 import { SongDocument } from "../song-document";
 import { Slider } from "../ui/html-wrapper";
 import { discardInvalidPatternInstruments, patternsContainSameInstruments, projectNoteIntoBar, removeRedundantPins } from "./util";

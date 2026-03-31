@@ -7,9 +7,9 @@
 // - Handles layered/pattern instrument deactivation display
 
 import { HTML } from "imperative-html/dist/esm/elements-strict";
+import { ChannelColors } from "../../shared/color-config";
 import { Channel } from "../../synth";
 import { Config } from "../../synth/synth-config";
-import { ChannelColors } from "../rendering/color-config";
 import { SongDocument } from "../song-document";
 
 const { button } = HTML;

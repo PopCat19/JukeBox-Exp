@@ -6,10 +6,10 @@
 // - Renders custom chip wave editor with click-drag editing
 // - Manages undo/redo for waveform changes
 
+import { ColorConfig } from "../../shared/color-config";
 import { Instrument } from "../../synth/instruments";
 import { Change } from "../core/change";
 import { SongDocument } from "../song-document";
-import { ColorConfig } from "./color-config";
 
 export class CustomChipCanvas {
 	private mouseDown: boolean;

@@ -7,10 +7,10 @@
 // - Manages sample loading state and user feedback
 
 import { HTML, SVG } from "imperative-html/dist/esm/elements-strict";
+import { ColorConfig } from "../../shared/color-config";
 import { clamp, parseFloatWithDefault, parseIntWithDefault } from "../../synth";
 import { Config, Dictionary } from "../../synth/synth-config";
 import { EditorConfig } from "../config/editor-config";
-import { ColorConfig } from "../rendering/color-config";
 import { SongDocument } from "../song-document";
 import { BasePrompt } from "./base-prompt";
 

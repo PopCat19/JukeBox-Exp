@@ -8,9 +8,9 @@
 
 // Copyright (c) 2012-2022 John Nesky and contributing authors, distributed under the MIT license, see accompanying the LICENSE.md file.
 
+import { ColorConfig } from "../shared/color-config";
 import { Chord, Config, Dictionary, DictionaryArray, Envelope, EnvelopeType, InstrumentType, Transition } from "../synth/synth-config";
 import { EditorConfig, isMobile } from "./config/editor-config";
-import { ColorConfig } from "./rendering/color-config";
 import "./rendering/style"; // Import for the side effects, there's no exports.
 import { Channel, Instrument, Note, NotePin, Pattern, Song, Synth } from "../synth";
 import { ChangePreset } from "./changes";

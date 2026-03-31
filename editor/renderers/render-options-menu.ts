@@ -6,8 +6,8 @@
 // - Builds option command labels with on/off icons from preferences
 // - Syncs Technical and Appearance optgroup children text content
 
+import { ColorConfig } from "../../shared/color-config";
 import { Preferences } from "../core/preferences";
-import { ColorConfig } from "../rendering/color-config";
 
 export function renderOptionsMenu(optionsMenu: HTMLSelectElement, prefs: Preferences, currentScale: number): void {
 	const textOnIcon: string = ColorConfig.getComputed("--text-enabled-icon");

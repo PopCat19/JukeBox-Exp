@@ -9,6 +9,7 @@
 // - Hides chord options, custom settings group, and related rows
 
 import { HTML } from "imperative-html/dist/esm/elements-strict";
+import { ChannelColors, ColorConfig } from "../../shared/color-config";
 import { Channel, Instrument } from "../../synth";
 import {
 	Config,
@@ -30,7 +31,6 @@ import {
 	InstrumentType,
 } from "../../synth/synth-config";
 import { Preferences } from "../core/preferences";
-import { ChannelColors, ColorConfig } from "../rendering/color-config";
 import { SongDocument } from "../song-document";
 
 const { option } = HTML;

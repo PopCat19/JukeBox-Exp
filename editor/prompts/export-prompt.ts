@@ -9,6 +9,7 @@
 // Copyright (c) 2012-2022 John Nesky and contributing authors, distributed under the MIT license, see accompanying the LICENSE.md file.
 
 import { HTML } from "imperative-html/dist/esm/elements-strict";
+import { ColorConfig } from "../../shared/color-config";
 import { Synth } from "../../synth";
 import { Config, getArpeggioPitchIndex, InstrumentType } from "../../synth/synth-config";
 import { EditorConfig } from "../config/editor-config";
@@ -25,7 +26,6 @@ import {
 	volumeMultToMidiExpression,
 	volumeMultToMidiVolume,
 } from "../io/midi";
-import { ColorConfig } from "../rendering/color-config";
 import { SongDocument } from "../song-document";
 import { ArrayBufferWriter } from "../ui/array-buffer-writer";
 import { BasePrompt } from "./base-prompt";

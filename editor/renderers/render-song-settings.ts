@@ -7,10 +7,10 @@
 // - Syncs song title input box
 // - Renders song EQ filter editor and manages filter type UI
 
+import { ChannelColors } from "../../shared/color-config";
 import { Instrument } from "../../synth";
 import { Config } from "../../synth/synth-config";
 import { FilterEditor } from "../components/filter-editor";
-import { ChannelColors } from "../rendering/color-config";
 import { SongDocument } from "../song-document";
 import { InputBox, Slider } from "../ui/html-wrapper";
 

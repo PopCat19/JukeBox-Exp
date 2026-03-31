@@ -8,7 +8,7 @@
 // - Provides localStorage helpers with cross-origin iframe safety
 
 import { HTML, SVG } from "imperative-html/dist/esm/elements-strict";
-import { ColorConfig } from "../editor/rendering/color-config";
+import { ColorConfig } from "../shared/color-config";
 import { oscilloscopeCanvas } from "../shared/oscilloscope";
 import { Synth } from "../synth";
 

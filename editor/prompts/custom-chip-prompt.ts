@@ -9,8 +9,8 @@
 // Copyright (C) 2020 John Nesky, distributed under the MIT license.
 
 import { HTML, SVG } from "imperative-html/dist/esm/elements-strict";
+import { ColorConfig } from "../../shared/color-config";
 import { ChangeCustomWave } from "../changes";
-import { ColorConfig } from "../rendering/color-config";
 import { SongDocument } from "../song-document";
 import { SongEditor } from "../song-editor";
 import { BasePrompt } from "./base-prompt";

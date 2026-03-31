@@ -9,9 +9,9 @@
 // Copyright (C) 2020 John Nesky, distributed under the MIT license.
 
 import { HTML, SVG } from "imperative-html/dist/esm/elements-strict";
+import { ColorConfig } from "../../shared/color-config";
 import { ChangeLimiterSettings } from "../changes";
 import { prettyNumber } from "../config/editor-config";
-import { ColorConfig } from "../rendering/color-config";
 import { SongDocument } from "../song-document";
 import { SongEditor } from "../song-editor";
 import { labelRow } from "../ui/components";

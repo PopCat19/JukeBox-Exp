@@ -9,6 +9,7 @@
 
 // Copyright (c) 2012-2022 John Nesky and contributing authors, distributed under the MIT license, see accompanying the LICENSE.md file.
 
+import { ColorConfig } from "../shared/color-config";
 import { Channel, Pattern, Song, Synth } from "../synth";
 import { Config } from "../synth/synth-config";
 import { ChangeHoldingModRecording, ChangeSong, discardInvalidPatternInstruments, setDefaultInstruments } from "./changes";
@@ -19,7 +20,6 @@ import { Preferences } from "./core/preferences";
 import { Selection } from "./core/selection";
 import { SongPerformance } from "./core/song-performance";
 import { errorAlert, generateUid, SongRecovery } from "./io/song-recovery";
-import { ColorConfig } from "./rendering/color-config";
 import { createCustomSampleHandler } from "./song-custom-samples";
 import { Layout } from "./ui/layout";
 

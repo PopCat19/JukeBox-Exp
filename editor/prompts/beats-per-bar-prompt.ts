@@ -9,9 +9,9 @@
 // Copyright (c) 2012-2022 John Nesky and contributing authors, distributed under the MIT license, see accompanying the LICENSE.md file.
 
 import { HTML } from "imperative-html/dist/esm/elements-strict";
+import { ColorConfig } from "../../shared/color-config";
 import { Config } from "../../synth/synth-config";
 import { ChangeBeatsPerBar } from "../changes";
-import { ColorConfig } from "../rendering/color-config";
 import { SongDocument } from "../song-document";
 import { labelRow } from "../ui/components";
 import { BasePrompt } from "./base-prompt";

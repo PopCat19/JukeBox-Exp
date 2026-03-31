@@ -8,6 +8,7 @@
 // - Handles FM 4op/6op sub-branches
 // - Handles chip wave advanced loop controls
 
+import { ChannelColors, ColorConfig } from "../../shared/color-config";
 import { detuneToCents, getCapabilities, getPlugin, Instrument } from "../../synth";
 import {
 	Config,
@@ -36,7 +37,6 @@ import { HarmonicsEditor } from "../components/harmonics-editor";
 import { SpectrumEditor } from "../components/spectrum-editor";
 import { prettyNumber } from "../config/editor-config";
 import { Preferences } from "../core/preferences";
-import { ChannelColors, ColorConfig } from "../rendering/color-config";
 import { CustomAlgorythmCanvas } from "../rendering/custom-algorythm-canvas";
 import { SongDocument } from "../song-document";
 import { Slider } from "../ui/html-wrapper";

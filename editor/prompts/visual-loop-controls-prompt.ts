@@ -7,11 +7,11 @@
 // - Handles loop mode selection (loop, ping-pong, once)
 
 import { HTML, SVG } from "imperative-html/dist/esm/elements-strict";
+import { ColorConfig } from "../../shared/color-config";
 import { Instrument } from "../../synth";
 import { ChipWave, Config, SampleLoadingStatus, sampleLoadingState } from "../../synth/synth-config";
 import { ChangeChipWaveLoopEnd, ChangeChipWaveLoopMode, ChangeChipWaveLoopStart, ChangeChipWavePlayBackwards, ChangeChipWaveStartOffset } from "../changes";
 import { ChangeGroup } from "../core/change";
-import { ColorConfig } from "../rendering/color-config";
 import { SongDocument } from "../song-document";
 import { SongEditor } from "../song-editor";
 import { BasePrompt } from "./base-prompt";

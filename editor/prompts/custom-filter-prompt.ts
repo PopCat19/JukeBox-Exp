@@ -9,10 +9,10 @@
 // Copyright (C) 2020 John Nesky, distributed under the MIT license.
 
 import { HTML, SVG } from "imperative-html/dist/esm/elements-strict";
+import { ColorConfig } from "../../shared/color-config";
 import { FilterSettings } from "../../synth";
 import { Config } from "../../synth/synth-config";
 import { FilterEditor } from "../components/filter-editor";
-import { ColorConfig } from "../rendering/color-config";
 import { SongDocument } from "../song-document";
 import { SongEditor } from "../song-editor";
 import { BasePrompt } from "./base-prompt";

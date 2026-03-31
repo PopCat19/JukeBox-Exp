@@ -10,6 +10,7 @@
 // Copyright (c) 2012-2022 John Nesky and contributing authors, distributed under the MIT license, see accompanying the LICENSE.md file.
 
 import { HTML, SVG } from "imperative-html/dist/esm/elements-strict";
+import { ColorConfig } from "../../shared/color-config";
 import { Channel, FilterControlPoint, FilterSettings, Instrument, makeNotePin, Note, NotePin, Pattern } from "../../synth";
 import { Chord, Config, effectsIncludeNoteRange, getLocalStorageItem, Transition } from "../../synth/synth-config";
 import {
@@ -69,7 +70,6 @@ import {
 } from "../changes";
 import { prettyNumber } from "../config/editor-config";
 import { ChangeSequence, UndoableChange } from "../core/change";
-import { ColorConfig } from "../rendering/color-config";
 import { SongDocument } from "../song-document";
 import { SongEditor } from "../song-editor";
 import { Slider } from "../ui/html-wrapper";

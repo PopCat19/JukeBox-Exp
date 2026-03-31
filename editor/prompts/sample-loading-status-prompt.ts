@@ -7,9 +7,9 @@
 // - Shows loading progress indicators
 
 import { HTML } from "imperative-html/dist/esm/elements-strict";
+import { ColorConfig } from "../../shared/color-config";
 import { ChipWave, Config, getSampleLoadingStatusName, SampleLoadingStatus, sampleLoadingState } from "../../synth/synth-config";
 import { EditorConfig } from "../config/editor-config";
-import { ColorConfig } from "../rendering/color-config";
 import { SongDocument } from "../song-document";
 import { BasePrompt } from "./base-prompt";
 

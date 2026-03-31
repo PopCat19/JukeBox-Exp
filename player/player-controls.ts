@@ -8,7 +8,7 @@
 // - Manages timeline mouse/touch interaction for seeking
 // - Processes URL hash for song loading and sharing
 
-import { ColorConfig } from "../editor/rendering/color-config";
+import { ColorConfig } from "../shared/color-config";
 import { SampleLoadedEvent, sampleLoadEvents } from "../synth/synth-config";
 import { renderPlayhead, renderTimeline } from "./player-timeline";
 import { getLocalStorage, PlayerUI, setLocalStorage } from "./player-ui";

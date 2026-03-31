@@ -9,12 +9,12 @@
 // Copyright (C) 2012-2023 John Nesky and contributing authors, distributed under the MIT license, see the accompanying LICENSE.md file.
 
 import { HTML, SVG } from "imperative-html/dist/esm/elements-strict";
+import { ChannelColors, ColorConfig } from "../../shared/color-config";
 import { makeNotePin, Note, NotePin, Pattern } from "../../synth";
 import { Config } from "../../synth/synth-config";
 import { ChangeEnsurePatternExists, ChangeInsertBars, ChangeNoteAdded, ChangePatternNumbers } from "../changes";
 import { prettyNumber } from "../config/editor-config";
 import { ChangeGroup } from "../core/change";
-import { ChannelColors, ColorConfig } from "../rendering/color-config";
 import { SongDocument } from "../song-document";
 import { stepperInput } from "../ui/components";
 import { BasePrompt } from "./base-prompt";

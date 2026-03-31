@@ -9,6 +9,7 @@
 
 // Copyright (c) 2012-2022 John Nesky and contributing authors, distributed under the MIT license, see accompanying the LICENSE.md file.
 
+import { ChannelColors, ColorConfig } from "../shared/color-config";
 // import {Layout} from "./layout";
 import { Config, DropdownID, InstrumentType, SampleLoadedEvent, sampleLoadEvents } from "../synth/synth-config";
 import { BarScrollBar } from "./components/bar-scroll-bar";
@@ -25,7 +26,6 @@ import { ExportPrompt } from "./prompts/export-prompt";
 import { InstrumentExportPrompt } from "./prompts/instrument-export-prompt";
 import { InstrumentImportPrompt } from "./prompts/instrument-import-prompt";
 import { OctaveCountPrompt } from "./prompts/octave-count-prompt";
-import { ChannelColors, ColorConfig } from "./rendering/color-config";
 import "./ui/layout"; // Imported here for the sake of ensuring this code is transpiled early.
 import { HTML, SVG } from "imperative-html/dist/esm/elements-strict";
 import { oscilloscopeCanvas } from "../shared/oscilloscope";

@@ -9,13 +9,13 @@
 // Copyright (c) 2012-2022 John Nesky and contributing authors, distributed under the MIT license, see accompanying the LICENSE.md file.
 
 import { HTML, SVG } from "imperative-html/dist/esm/elements-strict";
+import { ColorConfig } from "../../shared/color-config";
 import { Instrument, SpectrumWave } from "../../synth";
 import { Config } from "../../synth/synth-config";
 import { ChangeSpectrum } from "../changes";
 import { prettyNumber } from "../config/editor-config";
 import { ChangeGroup } from "../core/change";
 import { Prompt } from "../prompts/prompt";
-import { ColorConfig } from "../rendering/color-config";
 import { SongDocument } from "../song-document";
 import { SongEditor } from "../song-editor";
 

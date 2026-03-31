@@ -10,9 +10,9 @@
 // Copyright (c) 2012-2022 John Nesky and contributing authors, distributed under the MIT license, see accompanying the LICENSE.md file.
 
 import { HTML } from "imperative-html/dist/esm/elements-strict";
-import { events } from "../../shared/events";
-import { Song } from "../../synth";
-import { BeepBoxOption, Config, DictionaryArray, toNameMap } from "../../synth/synth-config";
+import { Song } from "../synth";
+import { BeepBoxOption, Config, DictionaryArray, toNameMap } from "../synth/synth-config";
+import { events } from "./events";
 import { themes } from "./themes";
 
 export interface ChannelColors extends BeepBoxOption {

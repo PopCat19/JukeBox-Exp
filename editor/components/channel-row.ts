@@ -9,8 +9,8 @@
 // Copyright (C) 2021 John Nesky, distributed under the MIT license.
 
 import { HTML } from "imperative-html/dist/esm/elements-strict";
+import { ChannelColors, ColorConfig } from "../../shared/color-config";
 import { Pattern } from "../../synth";
-import { ChannelColors, ColorConfig } from "../rendering/color-config";
 import { SongDocument } from "../song-document";
 
 export class Box {

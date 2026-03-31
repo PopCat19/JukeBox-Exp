@@ -4,9 +4,7 @@
 //
 // This module:
 // - Provides number input validation (key filtering, blur clamping)
-// - Builds label+input flex rows and okay button rows
-
-import { labelRow as _labelRow } from "../ui/components";
+// - Manages play/pause button state toggling
 
 export function validateKey(event: KeyboardEvent): boolean {
 	const charCode = event.which ? event.which : event.keyCode;
@@ -24,10 +22,6 @@ export function validateNumber(event: Event): void {
 
 export function validate(input: HTMLInputElement): number {
 	return Math.floor(Math.max(Number(input.min), Math.min(Number(input.max), Number(input.value))));
-}
-
-export function labelRow(...children: (HTMLElement | string)[]): HTMLDivElement {
-	return _labelRow(...children);
 }
 
 export function updatePlayButton(btn: HTMLButtonElement, playing: boolean): void {
