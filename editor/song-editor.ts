@@ -2063,7 +2063,13 @@ export class SongEditor implements ModSliderProvider {
 		id: "presetTagsInputBox",
 		type: "text",
 		value: "",
+		autocomplete: "off",
 	});
+
+	private readonly _tagAutocompleteBox: HTMLDivElement = div({
+		style: "display:none; position:absolute; z-index:1000; background:var(--editor-background, #222); border:1px solid var(--ui-widget-background, #444); max-height:12em; overflow-y:auto; font-size:80%; min-width:60%;",
+	});
+	private _tagAutocompleteIndex: number = -1;
 
 	private readonly _feedbackAmplitudeSlider: Slider = new Slider(
 		input({
@@ -2190,9 +2196,10 @@ export class SongEditor implements ModSliderProvider {
 	);
 
 	private readonly _instrumentTagRow: HTMLDivElement = div(
-		{ class: "selectRow" },
+		{ class: "selectRow", style: "position:relative;" },
 		span({ class: "tip", onclick: () => this._openPrompt("instrumentTags") }, "Tags:"),
 		this._presetTagsInputBox,
+		this._tagAutocompleteBox,
 	);
 
 	private readonly _instrumentTypeSelectRow: HTMLDivElement = div(
@@ -3514,13 +3521,34 @@ export class SongEditor implements ModSliderProvider {
 		});
 
 		this._presetTagsInputBox.addEventListener("input", () => {
-			const tags = this._presetTagsInputBox.value
-				.toLowerCase()
-				.split(/\s+/)
-				.filter((t) => t !== "");
-			const invalid = tags.filter((tag) => !(tag.startsWith("!") ? fullTagList.includes(tag.slice(1)) : fullTagList.includes(tag)));
-			this._presetTagsInputBox.title = invalid.length > 0 ? `Unknown tags: ${invalid.join(", ")}` : "";
-			this._presetTagsInputBox.style.outline = invalid.length > 0 ? "1px solid orange" : "";
+			this._updateTagAutocomplete();
+		});
+
+		this._presetTagsInputBox.addEventListener("keydown", (event: KeyboardEvent) => {
+			const items = this._tagAutocompleteBox.querySelectorAll<HTMLElement>(".tagSuggestion");
+			if (this._tagAutocompleteBox.style.display === "none" || items.length === 0) return;
+
+			if (event.key === "ArrowDown") {
+				event.preventDefault();
+				this._tagAutocompleteIndex = (this._tagAutocompleteIndex + 1) % items.length;
+				this._highlightTagSuggestion(items);
+			} else if (event.key === "ArrowUp") {
+				event.preventDefault();
+				this._tagAutocompleteIndex = (this._tagAutocompleteIndex - 1 + items.length) % items.length;
+				this._highlightTagSuggestion(items);
+			} else if (event.key === "Enter" || event.key === "Tab") {
+				if (this._tagAutocompleteIndex >= 0 && this._tagAutocompleteIndex < items.length) {
+					event.preventDefault();
+					this._applyTagSuggestion(items[this._tagAutocompleteIndex].dataset.tag!);
+				}
+			} else if (event.key === "Escape") {
+				this._hideTagAutocomplete();
+			}
+		});
+
+		this._presetTagsInputBox.addEventListener("blur", () => {
+			// Delay hiding so click on suggestion registers first
+			setTimeout(() => this._hideTagAutocomplete(), 150);
 		});
 
 		this._promptContainer.addEventListener("click", (event) => {
@@ -3759,6 +3787,103 @@ export class SongEditor implements ModSliderProvider {
 	private _whenVolumeBarClicked = (): void => {
 		this._openPrompt("channelVolumeVisualizer");
 	};
+
+	private _updateTagAutocomplete(): void {
+		const value = this._presetTagsInputBox.value;
+		const tags = value
+			.toLowerCase()
+			.split(/\s+/)
+			.filter((t) => t !== "");
+		const invalid = tags.filter((tag) => !(tag.startsWith("!") ? fullTagList.includes(tag.slice(1)) : fullTagList.includes(tag)));
+		this._presetTagsInputBox.title = invalid.length > 0 ? `Unknown tags: ${invalid.join(", ")}` : "";
+		this._presetTagsInputBox.style.outline = invalid.length > 0 ? "1px solid orange" : "";
+
+		// Find the current word being typed (last space-separated token)
+		const cursorPos = this._presetTagsInputBox.selectionStart ?? value.length;
+		const textBeforeCursor = value.slice(0, cursorPos);
+		const lastSpaceIdx = textBeforeCursor.lastIndexOf(" ");
+		const currentWord = textBeforeCursor.slice(lastSpaceIdx + 1).toLowerCase();
+
+		if (currentWord.length < 1) {
+			this._hideTagAutocomplete();
+			return;
+		}
+
+		const isNegation = currentWord.startsWith("!");
+		const prefix = isNegation ? "!" : "";
+		const searchTerm = isNegation ? currentWord.slice(1) : currentWord;
+
+		// Already-completed tags for deduplication
+		const completedTags = new Set(tags.filter((_, i) => i < tags.length - 1));
+
+		const matches = fullTagList.filter((tag) => tag.startsWith(searchTerm) && !completedTags.has(tag) && !completedTags.has("!" + tag));
+
+		if (matches.length === 0 || (matches.length === 1 && matches[0] === searchTerm)) {
+			this._hideTagAutocomplete();
+			return;
+		}
+
+		this._tagAutocompleteBox.innerHTML = "";
+		this._tagAutocompleteIndex = -1;
+
+		for (const tag of matches) {
+			const item = div(
+				{
+					class: "tagSuggestion",
+					style: "padding:2px 6px; cursor:pointer;",
+					"data-tag": prefix + tag,
+				},
+				prefix + tag,
+			);
+			item.addEventListener("mousedown", (e: MouseEvent) => {
+				e.preventDefault();
+				this._applyTagSuggestion(prefix + tag);
+			});
+			item.addEventListener("mouseenter", () => {
+				const items = this._tagAutocompleteBox.querySelectorAll<HTMLElement>(".tagSuggestion");
+				const idx = Array.from(items).indexOf(item);
+				if (idx >= 0) {
+					this._tagAutocompleteIndex = idx;
+					this._highlightTagSuggestion(items);
+				}
+			});
+			this._tagAutocompleteBox.appendChild(item);
+		}
+
+		this._tagAutocompleteBox.style.display = "block";
+		this._tagAutocompleteBox.style.left = this._presetTagsInputBox.offsetLeft + "px";
+		this._tagAutocompleteBox.style.top = this._presetTagsInputBox.offsetTop + this._presetTagsInputBox.offsetHeight + "px";
+	}
+
+	private _applyTagSuggestion(tag: string): void {
+		const value = this._presetTagsInputBox.value;
+		const cursorPos = this._presetTagsInputBox.selectionStart ?? value.length;
+		const textBeforeCursor = value.slice(0, cursorPos);
+		const lastSpaceIdx = textBeforeCursor.lastIndexOf(" ");
+		const before = value.slice(0, lastSpaceIdx + 1);
+		const after = value.slice(cursorPos);
+		const needsSpace = after.length === 0 || !after.startsWith(" ");
+		this._presetTagsInputBox.value = before + tag + (needsSpace ? " " : "") + after;
+		this._hideTagAutocomplete();
+		this._presetTagsInputBox.focus();
+		// Move cursor after inserted tag
+		const newPos = before.length + tag.length + (needsSpace ? 1 : 0);
+		this._presetTagsInputBox.setSelectionRange(newPos, newPos);
+		// Re-validate
+		this._updateTagAutocomplete();
+	}
+
+	private _hideTagAutocomplete(): void {
+		this._tagAutocompleteBox.style.display = "none";
+		this._tagAutocompleteIndex = -1;
+	}
+
+	private _highlightTagSuggestion(items: NodeListOf<HTMLElement>): void {
+		items.forEach((el, i) => {
+			el.style.background = i === this._tagAutocompleteIndex ? "var(--ui-widget-focus, #777)" : "";
+			el.style.color = i === this._tagAutocompleteIndex ? "var(--editor-background, #fff)" : "";
+		});
+	}
 
 	private _updateSampleLoadingBar(_e: Event): void {
 		// @TODO: Avoid this cast and type EventTarget/Event properly.
