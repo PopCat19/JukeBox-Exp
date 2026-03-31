@@ -13,7 +13,7 @@
 import { Config, DropdownID, InstrumentType, SampleLoadedEvent, sampleLoadEvents } from "../synth/synth-config";
 import { BarScrollBar } from "./components/bar-scroll-bar";
 import { Shiggy } from "./components/shiggy-component";
-import { EditorConfig, isMobile, Preset, PresetCategory } from "./config/editor-config";
+import { EditorConfig, fullTagList, isMobile, Preset, PresetCategory } from "./config/editor-config";
 import { Change } from "./core/change";
 import { BeatsPerBarPrompt } from "./prompts/beats-per-bar-prompt";
 import { ChannelSettingsPrompt } from "./prompts/channel-settings-prompt";
@@ -3511,6 +3511,16 @@ export class SongEditor implements ModSliderProvider {
 
 		this._invertWaveBox.addEventListener("input", () => {
 			this.doc.record(new ChangeInvertWave(this.doc, this._invertWaveBox.checked));
+		});
+
+		this._presetTagsInputBox.addEventListener("input", () => {
+			const tags = this._presetTagsInputBox.value
+				.toLowerCase()
+				.split(/\s+/)
+				.filter((t) => t !== "");
+			const invalid = tags.filter((tag) => !(tag.startsWith("!") ? fullTagList.includes(tag.slice(1)) : fullTagList.includes(tag)));
+			this._presetTagsInputBox.title = invalid.length > 0 ? `Unknown tags: ${invalid.join(", ")}` : "";
+			this._presetTagsInputBox.style.outline = invalid.length > 0 ? "1px solid orange" : "";
 		});
 
 		this._promptContainer.addEventListener("click", (event) => {
