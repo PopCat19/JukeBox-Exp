@@ -1,3 +1,10 @@
+// core
+//
+// Purpose: Built-in instrument preset categories
+//
+// This module:
+// - Exports preset categories: Custom Instruments through Novelty
+
 import { getRegisteredPlugins } from "../../../synth/plugins/registry";
 import { DictionaryArray, toNameMap } from "../../../synth/synth-config";
 import { InputPresetCategory, Preset } from "./types";
@@ -440,7 +447,7 @@ export const coreCategories: InputPresetCategory[] = [
 			{
 				name: "square wave",
 				midiProgram: 80,
-				tags: ["chip", "chipwave", "beepbox", "chiptune"],
+				tags: ["chip", "chipwave", "beepbox", "chiptune", "retro"],
 				settings: {
 					type: "chip",
 					eqFilter: [],
@@ -457,7 +464,7 @@ export const coreCategories: InputPresetCategory[] = [
 			{
 				name: "triangle wave",
 				midiProgram: 71,
-				tags: ["chip", "chipwave", "beepbox", "chiptune"],
+				tags: ["chip", "chipwave", "beepbox", "chiptune", "retro"],
 				settings: {
 					type: "chip",
 					eqFilter: [],
@@ -475,7 +482,7 @@ export const coreCategories: InputPresetCategory[] = [
 				name: "square lead",
 				midiProgram: 80,
 				generalMidi: true,
-				tags: ["chip", "chipwave", "beepbox", "chiptune"],
+				tags: ["chip", "chipwave", "beepbox", "chiptune", "retro"],
 				settings: {
 					type: "chip",
 					eqFilter: [{ type: "low-pass", cutoffHz: 8000, linearGain: 0.3536 }],
@@ -493,7 +500,7 @@ export const coreCategories: InputPresetCategory[] = [
 				name: "sawtooth lead 1",
 				midiProgram: 81,
 				generalMidi: true,
-				tags: ["chip", "chipwave", "beepbox", "chiptune"],
+				tags: ["chip", "chipwave", "beepbox", "chiptune", "retro"],
 				settings: {
 					type: "chip",
 					eqFilter: [{ type: "low-pass", cutoffHz: 4000, linearGain: 0.5 }],
@@ -510,7 +517,7 @@ export const coreCategories: InputPresetCategory[] = [
 			{
 				name: "sawtooth lead 2",
 				midiProgram: 81,
-				tags: ["chip", "chipwave", "beepbox", "chiptune"],
+				tags: ["chip", "chipwave", "beepbox", "chiptune", "retro"],
 				settings: {
 					type: "chip",
 					eqFilter: [{ type: "low-pass", cutoffHz: 6727.17, linearGain: 1 }],
@@ -529,7 +536,7 @@ export const coreCategories: InputPresetCategory[] = [
 				name: "chip noise",
 				midiProgram: 116,
 				isNoise: true,
-				tags: ["noise", "beepbox", "chiptune"],
+				tags: ["noise", "beepbox", "chiptune", "retro"],
 				settings: {
 					type: "noise",
 					transition: "hard",
@@ -544,7 +551,7 @@ export const coreCategories: InputPresetCategory[] = [
 			{
 				name: "supersaw lead",
 				midiProgram: 81,
-				tags: ["supersaw", "beepbox"],
+				tags: ["supersaw", "beepbox", "retro", "lead"],
 				settings: {
 					type: "supersaw",
 					eqFilter: [{ type: "low-pass", cutoffHz: 6727.17, linearGain: 2 }],
@@ -562,7 +569,7 @@ export const coreCategories: InputPresetCategory[] = [
 			{
 				name: "FM twang",
 				midiProgram: 32,
-				tags: ["fm", "fm4op", "beepbox"],
+				tags: ["fm", "fm4op", "beepbox", "retro"],
 				settings: {
 					type: "FM",
 					eqFilter: [],
@@ -589,7 +596,7 @@ export const coreCategories: InputPresetCategory[] = [
 			{
 				name: "FM bass",
 				midiProgram: 36,
-				tags: ["fm", "fm4op", "beepbox"],
+				tags: ["fm", "fm4op", "beepbox", "retro", "bass"],
 				settings: {
 					type: "FM",
 					eqFilter: [],
@@ -624,7 +631,7 @@ export const coreCategories: InputPresetCategory[] = [
 			{
 				name: "FM flute",
 				midiProgram: 73,
-				tags: ["fm", "fm4op", "beepbox"],
+				tags: ["fm", "fm4op", "beepbox", "retro", "flute"],
 				settings: {
 					type: "FM",
 					eqFilter: [],
@@ -651,7 +658,7 @@ export const coreCategories: InputPresetCategory[] = [
 			{
 				name: "FM organ",
 				midiProgram: 16,
-				tags: ["fm", "fm4op", "beepbox"],
+				tags: ["fm", "fm4op", "beepbox", "retro", "bellows"],
 				settings: {
 					type: "FM",
 					eqFilter: [],
@@ -679,7 +686,7 @@ export const coreCategories: InputPresetCategory[] = [
 			{
 				name: "FM sine",
 				midiProgram: 55,
-				tags: ["fm", "fm4op", "beepbox"],
+				tags: ["fm", "fm4op", "beepbox", "retro"],
 				settings: {
 					type: "FM",
 					eqFilter: [],
@@ -709,7 +716,7 @@ export const coreCategories: InputPresetCategory[] = [
 			{
 				name: "NES Pulse",
 				midiProgram: 80,
-				tags: ["chip", "customchip", "beepbox", "chiptune"],
+				tags: ["chip", "customchip", "beepbox", "chiptune", "retro"],
 				settings: {
 					type: "custom chip",
 					effects: ["aliasing"],
@@ -731,7 +738,7 @@ export const coreCategories: InputPresetCategory[] = [
 			{
 				name: "Gameboy Pulse",
 				midiProgram: 80,
-				tags: ["chip", "customchip", "jummbox", "chiptune"],
+				tags: ["chip", "customchip", "jummbox", "chiptune", "retro"],
 				settings: {
 					type: "custom chip",
 					effects: ["aliasing"],
@@ -751,7 +758,7 @@ export const coreCategories: InputPresetCategory[] = [
 			{
 				name: "VRC6 Sawtooth",
 				midiProgram: 81,
-				tags: ["chip", "customchip", "jummbox", "chiptune"],
+				tags: ["chip", "customchip", "jummbox", "chiptune", "retro"],
 				settings: {
 					type: "custom chip",
 					effects: ["aliasing"],
@@ -771,7 +778,7 @@ export const coreCategories: InputPresetCategory[] = [
 			{
 				name: "Atari Square",
 				midiProgram: 80,
-				tags: ["chip", "customchip", "jummbox", "chiptune"],
+				tags: ["chip", "customchip", "jummbox", "chiptune", "retro"],
 				settings: {
 					type: "custom chip",
 					effects: ["aliasing"],
@@ -792,7 +799,7 @@ export const coreCategories: InputPresetCategory[] = [
 			{
 				name: "Atari Bass",
 				midiProgram: 36,
-				tags: ["chip", "customchip", "jummbox", "chiptune"],
+				tags: ["chip", "customchip", "jummbox", "chiptune", "retro", "bass"],
 				settings: {
 					type: "custom chip",
 					effects: ["aliasing"],
@@ -813,7 +820,7 @@ export const coreCategories: InputPresetCategory[] = [
 			{
 				name: "Sunsoft Bass",
 				midiProgram: 36,
-				tags: ["chip", "customchip", "jummbox", "chiptune"],
+				tags: ["chip", "customchip", "jummbox", "chiptune", "retro", "bass"],
 				settings: {
 					type: "custom chip",
 					effects: ["aliasing"],
@@ -839,7 +846,7 @@ export const coreCategories: InputPresetCategory[] = [
 				name: "grand piano 1",
 				midiProgram: 0,
 				generalMidi: true,
-				tags: ["pickedstring", "beepbox"],
+				tags: ["pickedstring", "beepbox", "keys"],
 				settings: {
 					type: "Picked String",
 					eqFilter: [
@@ -867,7 +874,7 @@ export const coreCategories: InputPresetCategory[] = [
 				name: "bright piano",
 				midiProgram: 1,
 				generalMidi: true,
-				tags: ["pickedstring", "beepbox"],
+				tags: ["pickedstring", "beepbox", "keys"],
 				settings: {
 					type: "Picked String",
 					eqFilter: [
@@ -895,7 +902,7 @@ export const coreCategories: InputPresetCategory[] = [
 				name: "electric grand",
 				midiProgram: 2,
 				generalMidi: true,
-				tags: ["chip", "chipwave", "beepbox"],
+				tags: ["chip", "chipwave", "beepbox", "keys"],
 				settings: {
 					type: "chip",
 					eqFilter: [],
@@ -914,7 +921,7 @@ export const coreCategories: InputPresetCategory[] = [
 				name: "honky-tonk piano",
 				midiProgram: 3,
 				generalMidi: true,
-				tags: ["pickedstring", "beepbox"],
+				tags: ["pickedstring", "beepbox", "keys"],
 				settings: {
 					type: "Picked String",
 					eqFilter: [{ type: "low-pass", cutoffHz: 5656.85, linearGain: 0.3536 }],
@@ -934,7 +941,7 @@ export const coreCategories: InputPresetCategory[] = [
 				name: "electric piano 1",
 				midiProgram: 4,
 				generalMidi: true,
-				tags: ["harmonics", "beepbox"],
+				tags: ["harmonics", "beepbox", "keys"],
 				settings: {
 					type: "harmonics",
 					eqFilter: [],
@@ -953,7 +960,7 @@ export const coreCategories: InputPresetCategory[] = [
 				name: "electric piano 2",
 				midiProgram: 5,
 				generalMidi: true,
-				tags: ["fm", "fm4op", "beepbox"],
+				tags: ["fm", "fm4op", "beepbox", "keys"],
 				settings: {
 					type: "FM",
 					eqFilter: [],
@@ -989,7 +996,7 @@ export const coreCategories: InputPresetCategory[] = [
 				name: "harpsichord",
 				midiProgram: 6,
 				generalMidi: true,
-				tags: ["pickedstring", "beepbox"],
+				tags: ["pickedstring", "beepbox", "keys"],
 				settings: {
 					type: "Picked String",
 					eqFilter: [
@@ -1016,7 +1023,7 @@ export const coreCategories: InputPresetCategory[] = [
 				name: "clavinet",
 				midiProgram: 7,
 				generalMidi: true,
-				tags: ["fm", "fm4op", "beepbox"],
+				tags: ["fm", "fm4op", "beepbox", "keys"],
 				settings: {
 					type: "FM",
 					eqFilter: [],
@@ -1051,7 +1058,7 @@ export const coreCategories: InputPresetCategory[] = [
 				name: "dulcimer",
 				midiProgram: 15,
 				generalMidi: true,
-				tags: ["pickedstring", "beepbox"],
+				tags: ["pickedstring", "beepbox", "keys"],
 				settings: {
 					type: "Picked String",
 					eqFilter: [{ type: "low-pass", cutoffHz: 8000, linearGain: 0.3536 }],
@@ -1071,7 +1078,7 @@ export const coreCategories: InputPresetCategory[] = [
 				name: "grand piano 2",
 				midiProgram: 0,
 				generalMidi: true,
-				tags: ["harmonics", "jummbox"],
+				tags: ["harmonics", "jummbox", "keys"],
 				settings: {
 					type: "harmonics",
 					eqFilter: [
@@ -1099,7 +1106,7 @@ export const coreCategories: InputPresetCategory[] = [
 				name: "grand piano 3",
 				midiProgram: 0,
 				generalMidi: true,
-				tags: ["pickedstring", "jummbox"],
+				tags: ["pickedstring", "jummbox", "keys"],
 				settings: {
 					type: "Picked String",
 					eqFilter: [
@@ -1145,7 +1152,7 @@ export const coreCategories: InputPresetCategory[] = [
 				name: "celesta",
 				midiProgram: 8,
 				generalMidi: true,
-				tags: ["fm", "fm4op", "beepbox"],
+				tags: ["fm", "fm4op", "beepbox", "idiophone"],
 				settings: {
 					type: "FM",
 					effects: "reverb",
@@ -1171,7 +1178,7 @@ export const coreCategories: InputPresetCategory[] = [
 				name: "glockenspiel",
 				midiProgram: 9,
 				generalMidi: true,
-				tags: ["fm", "fm4op", "beepbox"],
+				tags: ["fm", "fm4op", "beepbox", "idiophone"],
 				settings: {
 					type: "FM",
 					volume: 0,
@@ -1244,7 +1251,7 @@ export const coreCategories: InputPresetCategory[] = [
 				name: "music box 1",
 				midiProgram: 10,
 				generalMidi: true,
-				tags: ["pickedstring", "beepbox"],
+				tags: ["pickedstring", "beepbox", "idiophone"],
 				settings: {
 					type: "Picked String",
 					eqFilter: [{ type: "low-pass", cutoffHz: 4756.83, linearGain: 0.5 }],
@@ -1263,7 +1270,7 @@ export const coreCategories: InputPresetCategory[] = [
 			{
 				name: "music box 2",
 				midiProgram: 10,
-				tags: ["pickedstring", "beepbox"],
+				tags: ["pickedstring", "beepbox", "idiophone"],
 				settings: {
 					type: "Picked String",
 					eqFilter: [{ type: "low-pass", cutoffHz: 2828.43, linearGain: 0.7071 }],
@@ -1283,7 +1290,7 @@ export const coreCategories: InputPresetCategory[] = [
 				name: "vibraphone",
 				midiProgram: 11,
 				generalMidi: true,
-				tags: ["fm", "fm4op", "beepbox"],
+				tags: ["fm", "fm4op", "beepbox", "idiophone"],
 				settings: {
 					type: "FM",
 					effects: "reverb",
@@ -1309,7 +1316,7 @@ export const coreCategories: InputPresetCategory[] = [
 				name: "marimba",
 				midiProgram: 12,
 				generalMidi: true,
-				tags: ["fm", "fm4op", "beepbox"],
+				tags: ["fm", "fm4op", "beepbox", "idiophone"],
 				settings: {
 					type: "FM",
 					volume: 0,
@@ -1372,7 +1379,7 @@ export const coreCategories: InputPresetCategory[] = [
 				name: "kalimba",
 				midiProgram: 108,
 				generalMidi: true,
-				tags: ["fm", "fm4op", "beepbox"],
+				tags: ["fm", "fm4op", "beepbox", "idiophone"],
 				settings: {
 					type: "FM",
 					volume: 0,
@@ -1446,7 +1453,7 @@ export const coreCategories: InputPresetCategory[] = [
 				name: "xylophone",
 				midiProgram: 13,
 				generalMidi: true,
-				tags: ["fm", "fm4op", "beepbox"],
+				tags: ["fm", "fm4op", "beepbox", "idiophone"],
 				settings: {
 					type: "FM",
 					effects: "reverb",
@@ -1473,7 +1480,7 @@ export const coreCategories: InputPresetCategory[] = [
 				midiProgram: 14,
 				generalMidi: true,
 				midiSubharmonicOctaves: 1,
-				tags: ["pickedstring", "beepbox"],
+				tags: ["pickedstring", "beepbox", "idiophone"],
 				settings: {
 					type: "Picked String",
 					eqFilter: [
@@ -1499,7 +1506,7 @@ export const coreCategories: InputPresetCategory[] = [
 			{
 				name: "bell synth",
 				midiProgram: 14,
-				tags: ["fm", "fm4op", "beepbox"],
+				tags: ["fm", "fm4op", "beepbox", "idiophone"],
 				settings: {
 					type: "FM",
 					effects: "reverb",
@@ -1525,7 +1532,7 @@ export const coreCategories: InputPresetCategory[] = [
 				name: "rain drop",
 				midiProgram: 96,
 				generalMidi: true,
-				tags: ["fm", "fm4op", "beepbox"],
+				tags: ["fm", "fm4op", "beepbox", "idiophone"],
 				settings: {
 					type: "FM",
 					effects: "reverb",
@@ -1551,7 +1558,7 @@ export const coreCategories: InputPresetCategory[] = [
 				name: "crystal",
 				midiProgram: 98,
 				generalMidi: true,
-				tags: ["fm", "fm4op", "beepbox"],
+				tags: ["fm", "fm4op", "beepbox", "idiophone"],
 				settings: {
 					type: "FM",
 					effects: "reverb",
@@ -1577,7 +1584,7 @@ export const coreCategories: InputPresetCategory[] = [
 				name: "tinkle bell",
 				midiProgram: 112,
 				generalMidi: true,
-				tags: ["fm", "fm4op", "beepbox"],
+				tags: ["fm", "fm4op", "beepbox", "idiophone"],
 				settings: {
 					type: "FM",
 					effects: "reverb",
@@ -1603,7 +1610,7 @@ export const coreCategories: InputPresetCategory[] = [
 				name: "agogo",
 				midiProgram: 113,
 				generalMidi: true,
-				tags: ["fm", "fm4op", "beepbox"],
+				tags: ["fm", "fm4op", "beepbox", "idiophone"],
 				settings: {
 					type: "FM",
 					volume: 0,
@@ -1670,7 +1677,7 @@ export const coreCategories: InputPresetCategory[] = [
 				name: "nylon guitar",
 				midiProgram: 24,
 				generalMidi: true,
-				tags: ["fm", "fm4op", "beepbox"],
+				tags: ["fm", "fm4op", "beepbox", "guitar"],
 				settings: {
 					type: "FM",
 					effects: "reverb",
@@ -1696,7 +1703,7 @@ export const coreCategories: InputPresetCategory[] = [
 				name: "steel guitar",
 				midiProgram: 25,
 				generalMidi: true,
-				tags: ["pickedstring", "beepbox"],
+				tags: ["pickedstring", "beepbox", "guitar"],
 				settings: {
 					type: "Picked String",
 					eqFilter: [],
@@ -1716,7 +1723,7 @@ export const coreCategories: InputPresetCategory[] = [
 				name: "jazz guitar",
 				midiProgram: 26,
 				generalMidi: true,
-				tags: ["harmonics", "beepbox"],
+				tags: ["harmonics", "beepbox", "guitar"],
 				settings: {
 					type: "harmonics",
 					effects: "reverb",
@@ -1734,7 +1741,7 @@ export const coreCategories: InputPresetCategory[] = [
 				name: "clean guitar",
 				midiProgram: 27,
 				generalMidi: true,
-				tags: ["harmonics", "beepbox"],
+				tags: ["harmonics", "beepbox", "guitar"],
 				settings: {
 					type: "harmonics",
 					effects: "reverb",
@@ -1752,7 +1759,7 @@ export const coreCategories: InputPresetCategory[] = [
 				name: "muted guitar",
 				midiProgram: 28,
 				generalMidi: true,
-				tags: ["fm", "fm4op", "beepbox"],
+				tags: ["fm", "fm4op", "beepbox", "guitar"],
 				settings: {
 					type: "FM",
 					effects: "reverb",
@@ -1783,7 +1790,7 @@ export const coreCategories: InputPresetCategory[] = [
 				name: "acoustic bass",
 				midiProgram: 32,
 				generalMidi: true,
-				tags: ["harmonics", "beepbox"],
+				tags: ["harmonics", "beepbox", "picked", "bass"],
 				settings: {
 					type: "harmonics",
 					effects: "reverb",
@@ -1801,7 +1808,7 @@ export const coreCategories: InputPresetCategory[] = [
 				name: "fingered bass",
 				midiProgram: 33,
 				generalMidi: true,
-				tags: ["harmonics", "beepbox"],
+				tags: ["harmonics", "beepbox", "picked", "bass"],
 				settings: {
 					type: "harmonics",
 					effects: "reverb",
@@ -1819,7 +1826,7 @@ export const coreCategories: InputPresetCategory[] = [
 				name: "picked bass",
 				midiProgram: 34,
 				generalMidi: true,
-				tags: ["fm", "fm4op", "beepbox"],
+				tags: ["fm", "fm4op", "beepbox", "picked", "bass"],
 				settings: {
 					type: "FM",
 					effects: "reverb",
@@ -1845,7 +1852,7 @@ export const coreCategories: InputPresetCategory[] = [
 				name: "fretless bass",
 				midiProgram: 35,
 				generalMidi: true,
-				tags: ["harmonics", "beepbox"],
+				tags: ["harmonics", "beepbox", "picked", "bass"],
 				settings: {
 					type: "harmonics",
 					effects: "reverb",
@@ -1863,7 +1870,7 @@ export const coreCategories: InputPresetCategory[] = [
 				name: "slap bass 1",
 				midiProgram: 36,
 				generalMidi: true,
-				tags: ["harmonics", "beepbox"],
+				tags: ["harmonics", "beepbox", "picked", "bass"],
 				settings: {
 					type: "harmonics",
 					effects: "reverb",
@@ -1881,7 +1888,7 @@ export const coreCategories: InputPresetCategory[] = [
 				name: "slap bass 2",
 				midiProgram: 37,
 				generalMidi: true,
-				tags: ["fm", "fm4op", "beepbox"],
+				tags: ["fm", "fm4op", "beepbox", "picked", "bass"],
 				settings: {
 					type: "FM",
 					effects: "reverb",
@@ -1907,7 +1914,7 @@ export const coreCategories: InputPresetCategory[] = [
 				name: "bass synth 1",
 				midiProgram: 38,
 				generalMidi: true,
-				tags: ["fm", "fm4op", "beepbox"],
+				tags: ["fm", "fm4op", "beepbox", "picked", "bass"],
 				settings: {
 					type: "FM",
 					effects: "reverb",
@@ -1933,7 +1940,7 @@ export const coreCategories: InputPresetCategory[] = [
 				name: "bass synth 2",
 				midiProgram: 39,
 				generalMidi: true,
-				tags: ["fm", "fm4op", "beepbox"],
+				tags: ["fm", "fm4op", "beepbox", "picked", "bass"],
 				settings: {
 					type: "FM",
 					effects: "reverb",
@@ -1959,7 +1966,7 @@ export const coreCategories: InputPresetCategory[] = [
 				name: "bass & lead",
 				midiProgram: 87,
 				generalMidi: true,
-				tags: ["chip", "chipwave", "beepbox"],
+				tags: ["chip", "chipwave", "beepbox", "picked", "bass", "lead"],
 				settings: {
 					type: "chip",
 					transition: "hard",
@@ -1976,7 +1983,7 @@ export const coreCategories: InputPresetCategory[] = [
 			{
 				name: "dubstep yoi yoi",
 				midiProgram: 87,
-				tags: ["chip", "chipwave", "beepbox"],
+				tags: ["chip", "chipwave", "beepbox", "dubstep", "bass"],
 				settings: {
 					type: "chip",
 					eqFilter: [{ type: "low-pass", cutoffHz: 6727.17, linearGain: 0.7071 }],
@@ -2002,7 +2009,7 @@ export const coreCategories: InputPresetCategory[] = [
 				name: "pizzicato strings",
 				midiProgram: 45,
 				generalMidi: true,
-				tags: ["fm", "fm4op", "beepbox"],
+				tags: ["fm", "fm4op", "beepbox", "picked"],
 				settings: {
 					type: "FM",
 					effects: "reverb",
@@ -2028,7 +2035,7 @@ export const coreCategories: InputPresetCategory[] = [
 				name: "harp",
 				midiProgram: 46,
 				generalMidi: true,
-				tags: ["fm", "fm4op", "beepbox"],
+				tags: ["fm", "fm4op", "beepbox", "picked"],
 				settings: {
 					type: "FM",
 					transition: "hard fade",
@@ -2054,7 +2061,7 @@ export const coreCategories: InputPresetCategory[] = [
 				name: "sitar",
 				midiProgram: 104,
 				generalMidi: true,
-				tags: ["fm", "fm4op", "beepbox"],
+				tags: ["fm", "fm4op", "beepbox", "picked"],
 				settings: {
 					type: "FM",
 					transition: "hard fade",
@@ -2080,7 +2087,7 @@ export const coreCategories: InputPresetCategory[] = [
 				name: "banjo",
 				midiProgram: 105,
 				generalMidi: true,
-				tags: ["fm", "fm4op", "beepbox"],
+				tags: ["fm", "fm4op", "beepbox", "picked"],
 				settings: {
 					type: "FM",
 					effects: "reverb",
@@ -2105,7 +2112,7 @@ export const coreCategories: InputPresetCategory[] = [
 			{
 				name: "ukulele",
 				midiProgram: 105,
-				tags: ["fm", "fm4op", "beepbox"],
+				tags: ["fm", "fm4op", "beepbox", "picked"],
 				settings: {
 					type: "FM",
 					effects: "reverb",
@@ -2131,7 +2138,7 @@ export const coreCategories: InputPresetCategory[] = [
 				name: "shamisen",
 				midiProgram: 106,
 				generalMidi: true,
-				tags: ["fm", "fm4op", "beepbox"],
+				tags: ["fm", "fm4op", "beepbox", "picked"],
 				settings: {
 					type: "FM",
 					effects: "reverb",
@@ -2157,7 +2164,7 @@ export const coreCategories: InputPresetCategory[] = [
 				name: "koto",
 				midiProgram: 107,
 				generalMidi: true,
-				tags: ["fm", "fm4op", "beepbox"],
+				tags: ["fm", "fm4op", "beepbox", "picked"],
 				settings: {
 					type: "FM",
 					effects: "reverb",
@@ -2188,7 +2195,7 @@ export const coreCategories: InputPresetCategory[] = [
 				name: "overdrive guitar",
 				midiProgram: 29,
 				generalMidi: true,
-				tags: ["pickedstring", "beepbox"],
+				tags: ["pickedstring", "beepbox", "distortion", "guitar"],
 				settings: {
 					type: "Picked String",
 					eqFilter: [
@@ -2221,7 +2228,7 @@ export const coreCategories: InputPresetCategory[] = [
 				name: "distortion guitar",
 				midiProgram: 30,
 				generalMidi: true,
-				tags: ["pickedstring", "beepbox"],
+				tags: ["pickedstring", "beepbox", "distortion", "guitar"],
 				settings: {
 					type: "Picked String",
 					eqFilter: [
@@ -2256,7 +2263,7 @@ export const coreCategories: InputPresetCategory[] = [
 				name: "charango synth",
 				midiProgram: 84,
 				generalMidi: true,
-				tags: ["fm", "fm4op", "beepbox"],
+				tags: ["fm", "fm4op", "beepbox", "distortion"],
 				settings: {
 					type: "FM",
 					eqFilter: [{ type: "low-pass", cutoffHz: 11313.71, linearGain: 1 }],
@@ -2284,7 +2291,7 @@ export const coreCategories: InputPresetCategory[] = [
 				name: "guitar harmonics",
 				midiProgram: 31,
 				generalMidi: true,
-				tags: ["fm", "fm4op", "beepbox"],
+				tags: ["fm", "fm4op", "beepbox", "distortion", "guitar"],
 				settings: {
 					type: "FM",
 					eqFilter: [{ type: "low-pass", cutoffHz: 4000, linearGain: 2 }],
@@ -2320,7 +2327,7 @@ export const coreCategories: InputPresetCategory[] = [
 			{
 				name: "PWM overdrive",
 				midiProgram: 29,
-				tags: ["pwm", "beepbox"],
+				tags: ["pwm", "beepbox", "distortion"],
 				settings: {
 					type: "PWM",
 					eqFilter: [{ type: "low-pass", cutoffHz: 5656.85, linearGain: 1.4142 }],
@@ -2336,7 +2343,7 @@ export const coreCategories: InputPresetCategory[] = [
 			{
 				name: "PWM distortion",
 				midiProgram: 30,
-				tags: ["pwm", "beepbox"],
+				tags: ["pwm", "beepbox", "distortion"],
 				settings: {
 					type: "PWM",
 					eqFilter: [{ type: "low-pass", cutoffHz: 3363.59, linearGain: 2 }],
@@ -2353,7 +2360,7 @@ export const coreCategories: InputPresetCategory[] = [
 			{
 				name: "FM overdrive",
 				midiProgram: 29,
-				tags: ["fm", "fm4op", "beepbox"],
+				tags: ["fm", "fm4op", "beepbox", "distortion"],
 				settings: {
 					type: "FM",
 					eqFilter: [{ type: "low-pass", cutoffHz: 4756.83, linearGain: 1 }],
@@ -2389,7 +2396,7 @@ export const coreCategories: InputPresetCategory[] = [
 			{
 				name: "FM distortion",
 				midiProgram: 30,
-				tags: ["fm", "fm4op", "beepbox"],
+				tags: ["fm", "fm4op", "beepbox", "distortion"],
 				settings: {
 					type: "FM",
 					eqFilter: [{ type: "low-pass", cutoffHz: 4000, linearGain: 2 }],
@@ -2431,7 +2438,7 @@ export const coreCategories: InputPresetCategory[] = [
 				midiProgram: 16,
 				generalMidi: true,
 				midiSubharmonicOctaves: 1,
-				tags: ["harmonics", "beepbox"],
+				tags: ["harmonics", "beepbox", "bellows"],
 				settings: {
 					type: "harmonics",
 					effects: "reverb",
@@ -2449,7 +2456,7 @@ export const coreCategories: InputPresetCategory[] = [
 				name: "drawbar organ 2",
 				midiProgram: 16,
 				midiSubharmonicOctaves: 1,
-				tags: ["harmonics", "beepbox"],
+				tags: ["harmonics", "beepbox", "bellows"],
 				settings: {
 					type: "harmonics",
 					effects: "reverb",
@@ -2468,7 +2475,7 @@ export const coreCategories: InputPresetCategory[] = [
 				midiProgram: 17,
 				generalMidi: true,
 				midiSubharmonicOctaves: 1,
-				tags: ["fm", "fm4op", "beepbox"],
+				tags: ["fm", "fm4op", "beepbox", "bellows"],
 				settings: {
 					type: "FM",
 					volume: 0,
@@ -2534,7 +2541,7 @@ export const coreCategories: InputPresetCategory[] = [
 				midiProgram: 18,
 				generalMidi: true,
 				midiSubharmonicOctaves: 1,
-				tags: ["fm", "fm4op", "beepbox"],
+				tags: ["fm", "fm4op", "beepbox", "bellows"],
 				settings: {
 					type: "FM",
 					effects: "chorus & reverb",
@@ -2561,7 +2568,7 @@ export const coreCategories: InputPresetCategory[] = [
 				midiProgram: 19,
 				generalMidi: true,
 				midiSubharmonicOctaves: 1,
-				tags: ["fm", "fm4op", "beepbox"],
+				tags: ["fm", "fm4op", "beepbox", "bellows"],
 				settings: {
 					type: "FM",
 					transition: "cross fade",
@@ -2587,7 +2594,7 @@ export const coreCategories: InputPresetCategory[] = [
 				name: "reed organ",
 				midiProgram: 20,
 				generalMidi: true,
-				tags: ["harmonics", "beepbox"],
+				tags: ["harmonics", "beepbox", "bellows"],
 				settings: {
 					type: "harmonics",
 					effects: "reverb",
@@ -2605,7 +2612,7 @@ export const coreCategories: InputPresetCategory[] = [
 				name: "accordion",
 				midiProgram: 21,
 				generalMidi: true,
-				tags: ["chip", "chipwave", "beepbox"],
+				tags: ["chip", "chipwave", "beepbox", "bellows"],
 				settings: {
 					type: "chip",
 					effects: "reverb",
@@ -2623,7 +2630,7 @@ export const coreCategories: InputPresetCategory[] = [
 				name: "bandoneon",
 				midiProgram: 23,
 				generalMidi: true,
-				tags: ["harmonics", "beepbox"],
+				tags: ["harmonics", "beepbox", "bellows"],
 				settings: {
 					type: "harmonics",
 					effects: "reverb",
@@ -2641,7 +2648,7 @@ export const coreCategories: InputPresetCategory[] = [
 				name: "bagpipe",
 				midiProgram: 109,
 				generalMidi: true,
-				tags: ["harmonics", "beepbox"],
+				tags: ["harmonics", "beepbox", "bellows"],
 				settings: {
 					type: "harmonics",
 					effects: "reverb",
@@ -2664,7 +2671,7 @@ export const coreCategories: InputPresetCategory[] = [
 				name: "violin 1",
 				midiProgram: 40,
 				generalMidi: true,
-				tags: ["fm", "fm4op", "beepbox"],
+				tags: ["fm", "fm4op", "beepbox", "string"],
 				settings: {
 					type: "FM",
 					eqFilter: [
@@ -2707,7 +2714,7 @@ export const coreCategories: InputPresetCategory[] = [
 				name: "viola",
 				midiProgram: 41,
 				generalMidi: true,
-				tags: ["fm", "fm4op", "beepbox"],
+				tags: ["fm", "fm4op", "beepbox", "string"],
 				settings: {
 					type: "FM",
 					effects: "reverb",
@@ -2733,7 +2740,7 @@ export const coreCategories: InputPresetCategory[] = [
 				name: "cello",
 				midiProgram: 42,
 				generalMidi: true,
-				tags: ["fm", "fm4op", "beepbox"],
+				tags: ["fm", "fm4op", "beepbox", "string", "bass"],
 				settings: {
 					type: "FM",
 					eqFilter: [
@@ -2778,7 +2785,7 @@ export const coreCategories: InputPresetCategory[] = [
 				name: "contrabass",
 				midiProgram: 43,
 				generalMidi: true,
-				tags: ["fm", "fm4op", "beepbox"],
+				tags: ["fm", "fm4op", "beepbox", "string", "bass"],
 				settings: {
 					type: "FM",
 					effects: "reverb",
@@ -2804,7 +2811,7 @@ export const coreCategories: InputPresetCategory[] = [
 				name: "fiddle",
 				midiProgram: 110,
 				generalMidi: true,
-				tags: ["fm", "fm4op", "beepbox"],
+				tags: ["fm", "fm4op", "beepbox", "string"],
 				settings: {
 					type: "FM",
 					effects: "reverb",
@@ -2830,7 +2837,7 @@ export const coreCategories: InputPresetCategory[] = [
 				name: "tremolo strings",
 				midiProgram: 44,
 				generalMidi: true,
-				tags: ["fm", "fm4op", "beepbox"],
+				tags: ["fm", "fm4op", "beepbox", "string"],
 				settings: {
 					type: "FM",
 					volume: 0,
@@ -2879,7 +2886,7 @@ export const coreCategories: InputPresetCategory[] = [
 				name: "strings",
 				midiProgram: 48,
 				generalMidi: true,
-				tags: ["fm", "fm4op", "beepbox"],
+				tags: ["fm", "fm4op", "beepbox", "string"],
 				settings: {
 					type: "FM",
 					effects: "chorus & reverb",
@@ -2905,7 +2912,7 @@ export const coreCategories: InputPresetCategory[] = [
 				name: "slow strings",
 				midiProgram: 49,
 				generalMidi: true,
-				tags: ["fm", "fm4op", "beepbox"],
+				tags: ["fm", "fm4op", "beepbox", "string"],
 				settings: {
 					type: "FM",
 					effects: "chorus & reverb",
@@ -2931,7 +2938,7 @@ export const coreCategories: InputPresetCategory[] = [
 				name: "strings synth 1",
 				midiProgram: 50,
 				generalMidi: true,
-				tags: ["chip", "chipwave", "beepbox"],
+				tags: ["chip", "chipwave", "beepbox", "string"],
 				settings: {
 					type: "chip",
 					transition: "soft fade",
@@ -2949,7 +2956,7 @@ export const coreCategories: InputPresetCategory[] = [
 				name: "strings synth 2",
 				midiProgram: 51,
 				generalMidi: true,
-				tags: ["fm", "fm4op", "beepbox"],
+				tags: ["fm", "fm4op", "beepbox", "string"],
 				settings: {
 					type: "FM",
 					effects: "chorus & reverb",
@@ -2976,7 +2983,7 @@ export const coreCategories: InputPresetCategory[] = [
 				midiProgram: 55,
 				generalMidi: true,
 				midiSubharmonicOctaves: 1,
-				tags: ["fm", "fm4op", "beepbox"],
+				tags: ["fm", "fm4op", "beepbox", "string"],
 				settings: {
 					type: "FM",
 					effects: "chorus & reverb",
@@ -3002,7 +3009,7 @@ export const coreCategories: InputPresetCategory[] = [
 				name: "violin 2",
 				midiProgram: 40,
 				generalMidi: true,
-				tags: ["fm", "fm4op", "jummbox"],
+				tags: ["fm", "fm4op", "jummbox", "string"],
 				settings: {
 					type: "FM",
 					eqFilter: [
@@ -3036,7 +3043,7 @@ export const coreCategories: InputPresetCategory[] = [
 				name: "orchestra hit 2",
 				midiProgram: 55,
 				midiSubharmonicOctaves: 1,
-				tags: ["fm", "fm4op", "beepbox"],
+				tags: ["fm", "fm4op", "beepbox", "string"],
 				settings: {
 					type: "FM",
 					volume: 0,
@@ -3090,7 +3097,7 @@ export const coreCategories: InputPresetCategory[] = [
 			{
 				name: "supersaw string",
 				midiProgram: 41,
-				tags: ["supersaw", "beepbox"],
+				tags: ["supersaw", "beepbox", "string"],
 				settings: {
 					type: "supersaw",
 					eqFilter: [
@@ -3116,7 +3123,7 @@ export const coreCategories: InputPresetCategory[] = [
 			{
 				name: "supersaw string 2",
 				midiProgram: 41,
-				tags: ["supersaw", "jummbox"],
+				tags: ["supersaw", "jummbox", "string"],
 				settings: {
 					type: "supersaw",
 					eqFilter: [
@@ -3168,7 +3175,7 @@ export const coreCategories: InputPresetCategory[] = [
 				name: "choir soprano",
 				midiProgram: 94,
 				generalMidi: true,
-				tags: ["harmonics", "beepbox"],
+				tags: ["harmonics", "beepbox", "vocal"],
 				settings: {
 					type: "harmonics",
 					eqFilter: [
@@ -3194,7 +3201,7 @@ export const coreCategories: InputPresetCategory[] = [
 				name: "choir tenor",
 				midiProgram: 52,
 				generalMidi: true,
-				tags: ["harmonics", "beepbox"],
+				tags: ["harmonics", "beepbox", "vocal"],
 				settings: {
 					type: "harmonics",
 					eqFilter: [
@@ -3221,7 +3228,7 @@ export const coreCategories: InputPresetCategory[] = [
 			{
 				name: "choir bass",
 				midiProgram: 52,
-				tags: ["harmonics", "beepbox"],
+				tags: ["harmonics", "beepbox", "vocal", "bass"],
 				settings: {
 					type: "harmonics",
 					eqFilter: [
@@ -3247,7 +3254,7 @@ export const coreCategories: InputPresetCategory[] = [
 			{
 				name: "solo soprano",
 				midiProgram: 85,
-				tags: ["harmonics", "beepbox"],
+				tags: ["harmonics", "beepbox", "vocal"],
 				settings: {
 					type: "harmonics",
 					eqFilter: [
@@ -3270,7 +3277,7 @@ export const coreCategories: InputPresetCategory[] = [
 			{
 				name: "solo tenor",
 				midiProgram: 85,
-				tags: ["harmonics", "beepbox"],
+				tags: ["harmonics", "beepbox", "vocal"],
 				settings: {
 					type: "harmonics",
 					eqFilter: [
@@ -3294,7 +3301,7 @@ export const coreCategories: InputPresetCategory[] = [
 			{
 				name: "solo bass",
 				midiProgram: 85,
-				tags: ["harmonics", "beepbox"],
+				tags: ["harmonics", "beepbox", "vocal", "bass"],
 				settings: {
 					type: "harmonics",
 					eqFilter: [
@@ -3321,7 +3328,7 @@ export const coreCategories: InputPresetCategory[] = [
 				name: "voice ooh",
 				midiProgram: 53,
 				generalMidi: true,
-				tags: ["harmonics", "beepbox"],
+				tags: ["harmonics", "beepbox", "vocal"],
 				settings: {
 					type: "harmonics",
 					effects: "reverb",
@@ -3339,7 +3346,7 @@ export const coreCategories: InputPresetCategory[] = [
 				name: "voice synth",
 				midiProgram: 54,
 				generalMidi: true,
-				tags: ["chip", "chipwave", "beepbox"],
+				tags: ["chip", "chipwave", "beepbox", "vocal"],
 				settings: {
 					type: "chip",
 					transition: "medium fade",
@@ -3357,7 +3364,7 @@ export const coreCategories: InputPresetCategory[] = [
 				name: "vox synth lead",
 				midiProgram: 85,
 				generalMidi: true,
-				tags: ["fm", "fm4op", "beepbox"],
+				tags: ["fm", "fm4op", "beepbox", "vocal", "lead"],
 				settings: {
 					type: "FM",
 					effects: "chorus & reverb",
@@ -3382,7 +3389,7 @@ export const coreCategories: InputPresetCategory[] = [
 			{
 				name: "tiny robot",
 				midiProgram: 85,
-				tags: ["fm", "fm4op", "beepbox"],
+				tags: ["fm", "fm4op", "beepbox", "vocal"],
 				settings: {
 					type: "FM",
 					eqFilter: [],
@@ -3417,7 +3424,7 @@ export const coreCategories: InputPresetCategory[] = [
 			{
 				name: "yowie",
 				midiProgram: 85,
-				tags: ["fm", "fm4op", "beepbox"],
+				tags: ["fm", "fm4op", "beepbox", "vocal"],
 				settings: {
 					type: "FM",
 					volume: 0,
@@ -3474,7 +3481,7 @@ export const coreCategories: InputPresetCategory[] = [
 			{
 				name: "mouse",
 				midiProgram: 85,
-				tags: ["fm", "fm4op", "beepbox"],
+				tags: ["fm", "fm4op", "beepbox", "vocal"],
 				settings: {
 					type: "FM",
 					eqFilter: [],
@@ -3509,7 +3516,7 @@ export const coreCategories: InputPresetCategory[] = [
 			{
 				name: "gumdrop",
 				midiProgram: 85,
-				tags: ["fm", "fm4op", "beepbox"],
+				tags: ["fm", "fm4op", "beepbox", "vocal"],
 				settings: {
 					type: "FM",
 					effects: "reverb",
@@ -3535,7 +3542,7 @@ export const coreCategories: InputPresetCategory[] = [
 				name: "echo drop",
 				midiProgram: 102,
 				generalMidi: true,
-				tags: ["fm", "fm4op", "beepbox"],
+				tags: ["fm", "fm4op", "beepbox", "vocal"],
 				settings: {
 					type: "FM",
 					effects: "chorus & reverb",
@@ -3560,7 +3567,7 @@ export const coreCategories: InputPresetCategory[] = [
 			{
 				name: "dark choir",
 				midiProgram: 85,
-				tags: ["spectrum", "beepbox"],
+				tags: ["spectrum", "beepbox", "vocal"],
 				settings: {
 					type: "spectrum",
 					effects: "reverb",
@@ -3581,7 +3588,7 @@ export const coreCategories: InputPresetCategory[] = [
 				name: "trumpet",
 				midiProgram: 56,
 				generalMidi: true,
-				tags: ["fm", "fm4op", "beepbox"],
+				tags: ["fm", "fm4op", "beepbox", "brass"],
 				settings: {
 					type: "FM",
 					effects: "reverb",
@@ -3607,7 +3614,7 @@ export const coreCategories: InputPresetCategory[] = [
 				name: "trombone",
 				midiProgram: 57,
 				generalMidi: true,
-				tags: ["fm", "fm4op", "beepbox"],
+				tags: ["fm", "fm4op", "beepbox", "brass"],
 				settings: {
 					type: "FM",
 					effects: "reverb",
@@ -3633,7 +3640,7 @@ export const coreCategories: InputPresetCategory[] = [
 				name: "tuba",
 				midiProgram: 58,
 				generalMidi: true,
-				tags: ["fm", "fm4op", "beepbox"],
+				tags: ["fm", "fm4op", "beepbox", "brass"],
 				settings: {
 					type: "FM",
 					effects: "reverb",
@@ -3659,7 +3666,7 @@ export const coreCategories: InputPresetCategory[] = [
 				name: "muted trumpet",
 				midiProgram: 59,
 				generalMidi: true,
-				tags: ["fm", "fm4op", "beepbox"],
+				tags: ["fm", "fm4op", "beepbox", "brass"],
 				settings: {
 					type: "FM",
 					eqFilter: [
@@ -3702,7 +3709,7 @@ export const coreCategories: InputPresetCategory[] = [
 				name: "french horn",
 				midiProgram: 60,
 				generalMidi: true,
-				tags: ["fm", "fm4op", "beepbox"],
+				tags: ["fm", "fm4op", "beepbox", "brass"],
 				settings: {
 					type: "FM",
 					eqFilter: [
@@ -3744,7 +3751,7 @@ export const coreCategories: InputPresetCategory[] = [
 				name: "brass section",
 				midiProgram: 61,
 				generalMidi: true,
-				tags: ["fm", "fm4op", "beepbox"],
+				tags: ["fm", "fm4op", "beepbox", "brass"],
 				settings: {
 					type: "FM",
 					effects: "reverb",
@@ -3770,7 +3777,7 @@ export const coreCategories: InputPresetCategory[] = [
 				name: "brass synth 1",
 				midiProgram: 62,
 				generalMidi: true,
-				tags: ["fm", "fm4op", "beepbox"],
+				tags: ["fm", "fm4op", "beepbox", "brass"],
 				settings: {
 					type: "FM",
 					effects: "reverb",
@@ -3796,7 +3803,7 @@ export const coreCategories: InputPresetCategory[] = [
 				name: "brass synth 2",
 				midiProgram: 63,
 				generalMidi: true,
-				tags: ["fm", "fm4op", "beepbox"],
+				tags: ["fm", "fm4op", "beepbox", "brass"],
 				settings: {
 					type: "FM",
 					transition: "soft",
@@ -3821,7 +3828,7 @@ export const coreCategories: InputPresetCategory[] = [
 			{
 				name: "pulse brass",
 				midiProgram: 62,
-				tags: ["pwm", "beepbox"],
+				tags: ["pwm", "beepbox", "brass"],
 				settings: {
 					type: "PWM",
 					effects: "reverb",
@@ -3844,7 +3851,7 @@ export const coreCategories: InputPresetCategory[] = [
 				name: "soprano sax",
 				midiProgram: 64,
 				generalMidi: true,
-				tags: ["fm", "fm4op", "beepbox"],
+				tags: ["fm", "fm4op", "beepbox", "reed"],
 				settings: {
 					type: "FM",
 					effects: "reverb",
@@ -3870,7 +3877,7 @@ export const coreCategories: InputPresetCategory[] = [
 				name: "alto sax",
 				midiProgram: 65,
 				generalMidi: true,
-				tags: ["fm", "fm4op", "beepbox"],
+				tags: ["fm", "fm4op", "beepbox", "reed"],
 				settings: {
 					type: "FM",
 					effects: "reverb",
@@ -3896,7 +3903,7 @@ export const coreCategories: InputPresetCategory[] = [
 				name: "tenor sax",
 				midiProgram: 66,
 				generalMidi: true,
-				tags: ["fm", "fm4op", "beepbox"],
+				tags: ["fm", "fm4op", "beepbox", "reed"],
 				settings: {
 					type: "FM",
 					effects: "reverb",
@@ -3922,7 +3929,7 @@ export const coreCategories: InputPresetCategory[] = [
 				name: "baritone sax",
 				midiProgram: 67,
 				generalMidi: true,
-				tags: ["fm", "fm4op", "beepbox"],
+				tags: ["fm", "fm4op", "beepbox", "reed"],
 				settings: {
 					type: "FM",
 					effects: "reverb",
@@ -3947,7 +3954,7 @@ export const coreCategories: InputPresetCategory[] = [
 			{
 				name: "sax synth",
 				midiProgram: 64,
-				tags: ["fm", "fm4op", "beepbox"],
+				tags: ["fm", "fm4op", "beepbox", "reed"],
 				settings: {
 					type: "FM",
 					effects: "reverb",
@@ -3973,7 +3980,7 @@ export const coreCategories: InputPresetCategory[] = [
 				name: "shehnai",
 				midiProgram: 111,
 				generalMidi: true,
-				tags: ["fm", "fm4op", "beepbox"],
+				tags: ["fm", "fm4op", "beepbox", "reed"],
 				settings: {
 					type: "FM",
 					effects: "reverb",
@@ -3999,7 +4006,7 @@ export const coreCategories: InputPresetCategory[] = [
 				name: "oboe",
 				midiProgram: 68,
 				generalMidi: true,
-				tags: ["fm", "fm4op", "beepbox"],
+				tags: ["fm", "fm4op", "beepbox", "reed"],
 				settings: {
 					type: "FM",
 					effects: "reverb",
@@ -4025,7 +4032,7 @@ export const coreCategories: InputPresetCategory[] = [
 				name: "english horn",
 				midiProgram: 69,
 				generalMidi: true,
-				tags: ["fm", "fm4op", "beepbox"],
+				tags: ["fm", "fm4op", "beepbox", "reed"],
 				settings: {
 					type: "FM",
 					effects: "reverb",
@@ -4051,7 +4058,7 @@ export const coreCategories: InputPresetCategory[] = [
 				name: "bassoon",
 				midiProgram: 70,
 				generalMidi: true,
-				tags: ["fm", "fm4op", "beepbox"],
+				tags: ["fm", "fm4op", "beepbox", "reed"],
 				settings: {
 					type: "FM",
 					effects: "reverb",
@@ -4077,7 +4084,7 @@ export const coreCategories: InputPresetCategory[] = [
 				name: "clarinet",
 				midiProgram: 71,
 				generalMidi: true,
-				tags: ["harmonics", "beepbox"],
+				tags: ["harmonics", "beepbox", "reed"],
 				settings: {
 					type: "harmonics",
 					effects: "reverb",
@@ -4095,7 +4102,7 @@ export const coreCategories: InputPresetCategory[] = [
 				name: "harmonica",
 				midiProgram: 22,
 				generalMidi: true,
-				tags: ["fm", "fm4op", "beepbox"],
+				tags: ["fm", "fm4op", "beepbox", "reed"],
 				settings: {
 					type: "FM",
 					volume: 0,
@@ -4171,7 +4178,7 @@ export const coreCategories: InputPresetCategory[] = [
 				name: "flute 1",
 				midiProgram: 73,
 				generalMidi: true,
-				tags: ["fm", "fm4op", "beepbox"],
+				tags: ["fm", "fm4op", "beepbox", "flute"],
 				settings: {
 					type: "FM",
 					volume: 0,
@@ -4228,7 +4235,7 @@ export const coreCategories: InputPresetCategory[] = [
 				name: "recorder",
 				midiProgram: 74,
 				generalMidi: true,
-				tags: ["harmonics", "beepbox"],
+				tags: ["harmonics", "beepbox", "flute"],
 				settings: {
 					type: "harmonics",
 					effects: "reverb",
@@ -4246,7 +4253,7 @@ export const coreCategories: InputPresetCategory[] = [
 				name: "whistle",
 				midiProgram: 78,
 				generalMidi: true,
-				tags: ["harmonics", "beepbox"],
+				tags: ["harmonics", "beepbox", "flute"],
 				settings: {
 					type: "harmonics",
 					effects: "chorus & reverb",
@@ -4264,7 +4271,7 @@ export const coreCategories: InputPresetCategory[] = [
 				name: "ocarina",
 				midiProgram: 79,
 				generalMidi: true,
-				tags: ["harmonics", "beepbox"],
+				tags: ["harmonics", "beepbox", "flute"],
 				settings: {
 					type: "harmonics",
 					effects: "reverb",
@@ -4282,7 +4289,7 @@ export const coreCategories: InputPresetCategory[] = [
 				name: "piccolo",
 				midiProgram: 72,
 				generalMidi: true,
-				tags: ["fm", "fm4op", "beepbox"],
+				tags: ["fm", "fm4op", "beepbox", "flute"],
 				settings: {
 					type: "FM",
 					effects: "reverb",
@@ -4308,7 +4315,7 @@ export const coreCategories: InputPresetCategory[] = [
 				name: "shakuhachi",
 				midiProgram: 77,
 				generalMidi: true,
-				tags: ["fm", "fm4op", "beepbox"],
+				tags: ["fm", "fm4op", "beepbox", "flute"],
 				settings: {
 					type: "FM",
 					effects: "chorus & reverb",
@@ -4334,7 +4341,7 @@ export const coreCategories: InputPresetCategory[] = [
 				name: "pan flute",
 				midiProgram: 75,
 				generalMidi: true,
-				tags: ["spectrum", "beepbox"],
+				tags: ["spectrum", "beepbox", "flute"],
 				settings: {
 					type: "spectrum",
 					eqFilter: [{ type: "low-pass", cutoffHz: 9513.66, linearGain: 5.6569 }],
@@ -4357,7 +4364,7 @@ export const coreCategories: InputPresetCategory[] = [
 				name: "blown bottle",
 				midiProgram: 76,
 				generalMidi: true,
-				tags: ["fm", "fm4op", "beepbox"],
+				tags: ["fm", "fm4op", "beepbox", "flute"],
 				settings: {
 					type: "FM",
 					effects: "chorus & reverb",
@@ -4383,7 +4390,7 @@ export const coreCategories: InputPresetCategory[] = [
 				name: "calliope",
 				midiProgram: 82,
 				generalMidi: true,
-				tags: ["spectrum", "beepbox"],
+				tags: ["spectrum", "beepbox", "flute"],
 				settings: {
 					type: "spectrum",
 					transition: "cross fade",
@@ -4399,7 +4406,7 @@ export const coreCategories: InputPresetCategory[] = [
 				name: "chiffer",
 				midiProgram: 83,
 				generalMidi: true,
-				tags: ["spectrum", "beepbox"],
+				tags: ["spectrum", "beepbox", "flute"],
 				settings: {
 					type: "spectrum",
 					effects: "reverb",
@@ -4415,7 +4422,7 @@ export const coreCategories: InputPresetCategory[] = [
 				name: "breath noise",
 				midiProgram: 121,
 				generalMidi: true,
-				tags: ["spectrum", "beepbox"],
+				tags: ["spectrum", "beepbox", "flute"],
 				settings: {
 					type: "spectrum",
 					eqFilter: [],
@@ -4440,7 +4447,7 @@ export const coreCategories: InputPresetCategory[] = [
 				name: "flute 2",
 				midiProgram: 73,
 				generalMidi: true,
-				tags: ["harmonics", "jummbox"],
+				tags: ["harmonics", "jummbox", "flute"],
 				settings: {
 					type: "harmonics",
 					effects: "reverb",
@@ -4463,7 +4470,7 @@ export const coreCategories: InputPresetCategory[] = [
 				name: "new age pad",
 				midiProgram: 88,
 				generalMidi: true,
-				tags: ["fm", "fm4op", "beepbox"],
+				tags: ["fm", "fm4op", "beepbox", "pad"],
 				settings: {
 					type: "FM",
 					eqFilter: [],
@@ -4500,7 +4507,7 @@ export const coreCategories: InputPresetCategory[] = [
 				name: "warm pad",
 				midiProgram: 89,
 				generalMidi: true,
-				tags: ["fm", "fm4op", "beepbox"],
+				tags: ["fm", "fm4op", "beepbox", "pad"],
 				settings: {
 					type: "FM",
 					eqFilter: [],
@@ -4537,7 +4544,7 @@ export const coreCategories: InputPresetCategory[] = [
 				name: "polysynth pad",
 				midiProgram: 90,
 				generalMidi: true,
-				tags: ["chip", "chipwave", "beepbox"],
+				tags: ["chip", "chipwave", "beepbox", "pad"],
 				settings: {
 					type: "chip",
 					eqFilter: [],
@@ -4558,7 +4565,7 @@ export const coreCategories: InputPresetCategory[] = [
 				name: "space voice pad",
 				midiProgram: 91,
 				generalMidi: true,
-				tags: ["fm", "fm4op", "beepbox"],
+				tags: ["fm", "fm4op", "beepbox", "pad"],
 				settings: {
 					type: "FM",
 					eqFilter: [
@@ -4601,7 +4608,7 @@ export const coreCategories: InputPresetCategory[] = [
 				name: "bowed glass pad",
 				midiProgram: 92,
 				generalMidi: true,
-				tags: ["fm", "fm4op", "beepbox"],
+				tags: ["fm", "fm4op", "beepbox", "pad"],
 				settings: {
 					type: "FM",
 					eqFilter: [],
@@ -4638,7 +4645,7 @@ export const coreCategories: InputPresetCategory[] = [
 				name: "metallic pad",
 				midiProgram: 93,
 				generalMidi: true,
-				tags: ["fm", "fm4op", "beepbox"],
+				tags: ["fm", "fm4op", "beepbox", "pad"],
 				settings: {
 					type: "FM",
 					eqFilter: [],
@@ -4675,7 +4682,7 @@ export const coreCategories: InputPresetCategory[] = [
 				name: "sweep pad",
 				midiProgram: 95,
 				generalMidi: true,
-				tags: ["chip", "chipwave", "beepbox"],
+				tags: ["chip", "chipwave", "beepbox", "pad"],
 				settings: {
 					type: "chip",
 					eqFilter: [],
@@ -4695,7 +4702,7 @@ export const coreCategories: InputPresetCategory[] = [
 				name: "atmosphere",
 				midiProgram: 99,
 				generalMidi: true,
-				tags: ["fm", "fm4op", "beepbox"],
+				tags: ["fm", "fm4op", "beepbox", "pad"],
 				settings: {
 					type: "FM",
 					eqFilter: [{ type: "low-pass", cutoffHz: 4756.83, linearGain: 1 }],
@@ -4733,7 +4740,7 @@ export const coreCategories: InputPresetCategory[] = [
 				name: "brightness",
 				midiProgram: 100,
 				generalMidi: true,
-				tags: ["pickedstring", "beepbox"],
+				tags: ["pickedstring", "beepbox", "pad"],
 				settings: {
 					type: "Picked String",
 					eqFilter: [{ type: "low-pass", cutoffHz: 4756.83, linearGain: 2 }],
@@ -4753,7 +4760,7 @@ export const coreCategories: InputPresetCategory[] = [
 				name: "goblins",
 				midiProgram: 101,
 				generalMidi: true,
-				tags: ["fm", "fm4op", "beepbox"],
+				tags: ["fm", "fm4op", "beepbox", "pad"],
 				settings: {
 					type: "FM",
 					eqFilter: [{ type: "peak", cutoffHz: 2828.43, linearGain: 11.3137 }],
@@ -4788,7 +4795,7 @@ export const coreCategories: InputPresetCategory[] = [
 				name: "sci-fi",
 				midiProgram: 103,
 				generalMidi: true,
-				tags: ["fm", "fm4op", "beepbox"],
+				tags: ["fm", "fm4op", "beepbox", "pad"],
 				settings: {
 					type: "FM",
 					eqFilter: [{ type: "peak", cutoffHz: 9513.66, linearGain: 2.8284 }],
@@ -4822,7 +4829,7 @@ export const coreCategories: InputPresetCategory[] = [
 			{
 				name: "flutter pad",
 				midiProgram: 90,
-				tags: ["fm", "fm4op", "beepbox"],
+				tags: ["fm", "fm4op", "beepbox", "pad"],
 				settings: {
 					type: "FM",
 					eqFilter: [],
@@ -4860,7 +4867,7 @@ export const coreCategories: InputPresetCategory[] = [
 			{
 				name: "feedback pad",
 				midiProgram: 89,
-				tags: ["fm", "fm4op", "beepbox"],
+				tags: ["fm", "fm4op", "beepbox", "pad"],
 				settings: {
 					type: "FM",
 					eqFilter: [{ type: "peak", cutoffHz: 2378.41, linearGain: 8 }],
@@ -4887,7 +4894,7 @@ export const coreCategories: InputPresetCategory[] = [
 			{
 				name: "supersaw pad",
 				midiProgram: 93,
-				tags: ["supersaw", "beepbox"],
+				tags: ["supersaw", "beepbox", "pad"],
 				settings: {
 					type: "supersaw",
 					eqFilter: [{ type: "low-pass", cutoffHz: 8000, linearGain: 0.1768 }],
@@ -4911,7 +4918,7 @@ export const coreCategories: InputPresetCategory[] = [
 				name: "standard drumset",
 				midiProgram: 116,
 				isNoise: true,
-				tags: ["drumset", "beepbox"],
+				tags: ["drumset", "beepbox", "drum"],
 				settings: {
 					type: "drumset",
 					effects: "reverb",
@@ -4973,7 +4980,7 @@ export const coreCategories: InputPresetCategory[] = [
 				name: "steel pan",
 				midiProgram: 114,
 				generalMidi: true,
-				tags: ["fm", "fm4op", "beepbox"],
+				tags: ["fm", "fm4op", "beepbox", "idiophone"],
 				settings: {
 					type: "FM",
 					eqFilter: [{ type: "high-pass", cutoffHz: 62.5, linearGain: 0.1768 }],
@@ -5008,7 +5015,7 @@ export const coreCategories: InputPresetCategory[] = [
 			{
 				name: "steel pan synth",
 				midiProgram: 114,
-				tags: ["fm", "fm4op", "beepbox"],
+				tags: ["fm", "fm4op", "beepbox", "idiophone"],
 				settings: {
 					type: "FM",
 					eqFilter: [],
@@ -5044,7 +5051,7 @@ export const coreCategories: InputPresetCategory[] = [
 				name: "timpani",
 				midiProgram: 47,
 				generalMidi: true,
-				tags: ["spectrum", "beepbox"],
+				tags: ["spectrum", "beepbox", "drum"],
 				settings: {
 					type: "spectrum",
 					eqFilter: [{ type: "peak", cutoffHz: 6727.17, linearGain: 5.6569 }],
@@ -5069,7 +5076,7 @@ export const coreCategories: InputPresetCategory[] = [
 			{
 				name: "dark strike",
 				midiProgram: 47,
-				tags: ["spectrum", "beepbox"],
+				tags: ["spectrum", "beepbox", "drum"],
 				settings: {
 					type: "spectrum",
 					eqFilter: [],
@@ -5090,7 +5097,7 @@ export const coreCategories: InputPresetCategory[] = [
 				generalMidi: true,
 				isNoise: true,
 				midiSubharmonicOctaves: -2.5,
-				tags: ["spectrum", "beepbox"],
+				tags: ["spectrum", "beepbox", "drum"],
 				settings: {
 					type: "spectrum",
 					effects: "reverb",
@@ -5108,7 +5115,7 @@ export const coreCategories: InputPresetCategory[] = [
 				generalMidi: true,
 				isNoise: true,
 				midiSubharmonicOctaves: -0.5,
-				tags: ["spectrum", "beepbox"],
+				tags: ["spectrum", "beepbox", "drum"],
 				settings: {
 					type: "spectrum",
 					effects: "reverb",
@@ -5126,7 +5133,7 @@ export const coreCategories: InputPresetCategory[] = [
 				generalMidi: true,
 				isNoise: true,
 				midiSubharmonicOctaves: -1.5,
-				tags: ["spectrum", "beepbox"],
+				tags: ["spectrum", "beepbox", "drum"],
 				settings: {
 					type: "spectrum",
 					effects: "reverb",
@@ -5144,7 +5151,7 @@ export const coreCategories: InputPresetCategory[] = [
 				generalMidi: true,
 				isNoise: true,
 				midiSubharmonicOctaves: -2,
-				tags: ["spectrum", "beepbox"],
+				tags: ["spectrum", "beepbox", "drum"],
 				settings: {
 					type: "spectrum",
 					effects: "reverb",
@@ -5161,7 +5168,7 @@ export const coreCategories: InputPresetCategory[] = [
 				midiProgram: 116,
 				isNoise: true,
 				midiSubharmonicOctaves: -1,
-				tags: ["spectrum", "beepbox"],
+				tags: ["spectrum", "beepbox", "drum"],
 				settings: {
 					type: "spectrum",
 					effects: "reverb",
@@ -5178,7 +5185,7 @@ export const coreCategories: InputPresetCategory[] = [
 				midiProgram: 117,
 				isNoise: true,
 				midiSubharmonicOctaves: -1.5,
-				tags: ["spectrum", "beepbox"],
+				tags: ["spectrum", "beepbox", "idiophone"],
 				settings: {
 					type: "spectrum",
 					effects: "reverb",

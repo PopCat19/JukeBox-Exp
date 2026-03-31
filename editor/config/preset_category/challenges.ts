@@ -1,3 +1,10 @@
+// challenges
+//
+// Purpose: Challenge and event preset categories
+//
+// This module:
+// - Exports preset categories: UnBox Drums, Weekly Challenges, CoolTasDude
+
 import { DictionaryArray, toNameMap } from "../../../synth/synth-config";
 import { InputPresetCategory, Preset } from "./types";
 
@@ -12,7 +19,7 @@ export const challengeCategories: InputPresetCategory[] = [
 			{
 				name: "Chocolate Pulse",
 				generalMidi: false,
-				tags: ["pwm"],
+				tags: ["pwm", "retro"],
 				settings: {
 					type: "PWM",
 					eqFilter: [{ type: "high-pass", cutoffHz: 176.78, linearGain: 0.7071 }],
@@ -44,7 +51,7 @@ export const challengeCategories: InputPresetCategory[] = [
 			{
 				name: "Chocolate Wubby",
 				generalMidi: false,
-				tags: ["fm", "fm4op"],
+				tags: ["fm", "fm4op", "dubstep", "bass"],
 				settings: {
 					type: "FM",
 					eqFilter: [{ type: "high-pass", cutoffHz: 125, linearGain: 0.7071 }],
@@ -77,7 +84,7 @@ export const challengeCategories: InputPresetCategory[] = [
 			{
 				name: "Chocolate Harsh",
 				generalMidi: false,
-				tags: ["fm", "fm4op"],
+				tags: ["fm", "fm4op", "distortion"],
 				settings: {
 					type: "FM",
 					eqFilter: [{ type: "high-pass", cutoffHz: 125, linearGain: 0.7071 }],
@@ -467,7 +474,7 @@ export const challengeCategories: InputPresetCategory[] = [
 			{
 				name: "Chocolate Roar",
 				generalMidi: false,
-				tags: ["supersaw"],
+				tags: ["supersaw", "distortion"],
 				settings: {
 					type: "supersaw",
 					eqFilter: [
@@ -603,7 +610,7 @@ export const challengeCategories: InputPresetCategory[] = [
 			{
 				name: "Chocolate Slice (LS)",
 				generalMidi: false,
-				tags: ["chip", "chipwave"],
+				tags: ["chip", "chipwave", "lead"],
 				settings: {
 					type: "chip",
 					eqFilter: [
@@ -658,7 +665,7 @@ export const challengeCategories: InputPresetCategory[] = [
 			{
 				name: "Evil Drawbar",
 				generalMidi: false,
-				tags: ["fm", "fm6op"],
+				tags: ["fm", "fm6op", "bellows"],
 				settings: {
 					type: "FM6op",
 					eqFilter: [],
@@ -695,7 +702,7 @@ export const challengeCategories: InputPresetCategory[] = [
 			{
 				name: "Bullet Punch Bass",
 				generalMidi: false,
-				tags: ["fm", "fm4op"],
+				tags: ["fm", "fm4op", "bass"],
 				settings: {
 					type: "FM",
 					eqFilter: [
@@ -759,7 +766,7 @@ export const challengeCategories: InputPresetCategory[] = [
 			{
 				name: "Strawberry Soup",
 				generalMidi: false,
-				tags: ["fm", "fm6op"],
+				tags: ["fm", "fm6op", "distortion", "bass"],
 				settings: {
 					type: "FM6op",
 					eqFilter: [
@@ -809,7 +816,7 @@ export const challengeCategories: InputPresetCategory[] = [
 			{
 				name: "Good Drawbar",
 				generalMidi: false,
-				tags: ["fm", "fm6op"],
+				tags: ["fm", "fm6op", "bellows"],
 				settings: {
 					type: "FM6op",
 					eqFilter: [
@@ -866,7 +873,7 @@ export const challengeCategories: InputPresetCategory[] = [
 			{
 				name: "Yow Pad",
 				generalMidi: false,
-				tags: ["fm", "fm4op"],
+				tags: ["fm", "fm4op", "bass"],
 				settings: {
 					type: "FM",
 					eqFilter: [],
@@ -914,7 +921,7 @@ export const challengeCategories: InputPresetCategory[] = [
 			{
 				name: "Coconut Pluck68",
 				generalMidi: false,
-				tags: ["pickedstring"],
+				tags: ["pickedstring", "picked"],
 				settings: {
 					type: "Picked String",
 					eqFilter: [],
@@ -954,7 +961,7 @@ export const challengeCategories: InputPresetCategory[] = [
 			{
 				name: "Coconut Saw68",
 				midiProgram: 96,
-				tags: ["supersaw"],
+				tags: ["supersaw", "bass"],
 				settings: {
 					type: "supersaw",
 					eqFilter: [{ type: "high-pass", cutoffHz: 148.65, linearGain: 0.7071 }],
@@ -1006,7 +1013,7 @@ export const challengeCategories: InputPresetCategory[] = [
 			{
 				name: "Coconut Harp68",
 				generalMidi: false,
-				tags: ["chip", "chipwave"],
+				tags: ["chip", "chipwave", "string"],
 				settings: {
 					type: "chip",
 					eqFilter: [
@@ -1068,7 +1075,7 @@ export const challengeCategories: InputPresetCategory[] = [
 			{
 				name: "Coconut Cowbell68",
 				generalMidi: false,
-				tags: ["harmonics"],
+				tags: ["harmonics", "drum"],
 				settings: {
 					type: "harmonics",
 					eqFilter: [
@@ -1103,7 +1110,7 @@ export const challengeCategories: InputPresetCategory[] = [
 			{
 				name: "Coconut Bass68",
 				midiProgram: 34,
-				tags: ["fm", "fm4op"],
+				tags: ["fm", "fm4op", "bass"],
 				settings: {
 					type: "FM",
 					eqFilter: [{ type: "peak", cutoffHz: 297.3, linearGain: 0.3536 }],
@@ -1203,7 +1210,7 @@ export const challengeCategories: InputPresetCategory[] = [
 			{
 				name: "Coconut Kick Hit68",
 				generalMidi: false,
-				tags: ["fm", "fm4op", "drums"],
+				tags: ["fm", "fm4op", "drums", "kick"],
 				settings: {
 					type: "FM",
 					eqFilter: [{ type: "low-pass", cutoffHz: 19027.31, linearGain: 0.25 }],
@@ -1314,7 +1321,7 @@ export const challengeCategories: InputPresetCategory[] = [
 			{
 				name: "Coconut Hi-Hat68",
 				generalMidi: false,
-				tags: ["spectrum"],
+				tags: ["spectrum", "drum"],
 				settings: {
 					type: "spectrum",
 					eqFilter: [
@@ -1364,7 +1371,7 @@ export const challengeCategories: InputPresetCategory[] = [
 			{
 				name: "ufo pad",
 				generalMidi: false,
-				tags: ["fm", "fm4op"],
+				tags: ["fm", "fm4op", "pad"],
 				settings: {
 					type: "FM",
 					eqFilter: [],
@@ -1391,7 +1398,7 @@ export const challengeCategories: InputPresetCategory[] = [
 			{
 				name: "pulse string",
 				generalMidi: false,
-				tags: ["fm", "fm4op"],
+				tags: ["fm", "fm4op", "string"],
 				settings: {
 					type: "FM",
 					eqFilter: [
@@ -1451,7 +1458,7 @@ export const challengeCategories: InputPresetCategory[] = [
 			{
 				name: "guitar bass",
 				generalMidi: false,
-				tags: ["fm", "fm4op"],
+				tags: ["fm", "fm4op", "distortion", "guitar", "bass"],
 				settings: {
 					type: "FM",
 					eqFilter: [{ type: "low-pass", cutoffHz: 2000, linearGain: 0.5 }],
@@ -1534,7 +1541,7 @@ export const challengeCategories: InputPresetCategory[] = [
 				name: "wigglecore drtumset - Gelli",
 				generalMidi: false,
 				isNoise: true,
-				tags: ["drumset"],
+				tags: ["drumset", "novelty", "drum"],
 				settings: {
 					type: "drumset",
 					eqFilter: [
@@ -1646,7 +1653,7 @@ export const challengeCategories: InputPresetCategory[] = [
 			{
 				name: "T6 Cactus",
 				generalMidi: false,
-				tags: ["fm", "fm4op"],
+				tags: ["fm", "fm4op", "novelty"],
 				settings: {
 					type: "FM",
 					eqFilter: [
@@ -1688,7 +1695,7 @@ export const challengeCategories: InputPresetCategory[] = [
 			{
 				name: "T6 Betheor",
 				generalMidi: false,
-				tags: ["fm", "fm4op"],
+				tags: ["fm", "fm4op", "novelty"],
 				settings: {
 					type: "FM",
 					eqFilter: [{ type: "low-pass", cutoffHz: 11313.71, linearGain: 0.0884 }],
@@ -1717,7 +1724,7 @@ export const challengeCategories: InputPresetCategory[] = [
 			{
 				name: "T6 Gongoozler",
 				generalMidi: false,
-				tags: ["pickedstring"],
+				tags: ["pickedstring", "picked"],
 				settings: {
 					type: "Picked String",
 					eqFilter: [
@@ -1753,7 +1760,7 @@ export const challengeCategories: InputPresetCategory[] = [
 			{
 				name: "T6 Twingly",
 				generalMidi: false,
-				tags: ["pickedstring"],
+				tags: ["pickedstring", "picked"],
 				settings: {
 					type: "Picked String",
 					eqFilter: [
@@ -1786,7 +1793,7 @@ export const challengeCategories: InputPresetCategory[] = [
 				name: "T6 Whooshy Wiosh",
 				generalMidi: false,
 				isNoise: true,
-				tags: ["spectrum"],
+				tags: ["spectrum", "ambience"],
 				settings: {
 					type: "spectrum",
 					eqFilter: [],
@@ -1806,7 +1813,7 @@ export const challengeCategories: InputPresetCategory[] = [
 			{
 				name: "T6 Dying Mouse",
 				generalMidi: false,
-				tags: ["pickedstring"],
+				tags: ["pickedstring", "picked"],
 				settings: {
 					type: "Picked String",
 					eqFilter: [],
@@ -1828,7 +1835,7 @@ export const challengeCategories: InputPresetCategory[] = [
 			{
 				name: "T6 Eyeless Lizard",
 				generalMidi: false,
-				tags: ["supersaw"],
+				tags: ["supersaw", "distortion"],
 				settings: {
 					type: "supersaw",
 					eqFilter: [
@@ -1861,7 +1868,7 @@ export const challengeCategories: InputPresetCategory[] = [
 			{
 				name: "T6 stylus",
 				generalMidi: false,
-				tags: ["fm", "fm4op"],
+				tags: ["fm", "fm4op", "novelty"],
 				settings: {
 					type: "FM",
 					eqFilter: [
@@ -1909,7 +1916,7 @@ export const challengeCategories: InputPresetCategory[] = [
 			{
 				name: "electrodonk",
 				generalMidi: false,
-				tags: ["pwm", "cooltasdude"],
+				tags: ["pwm", "cooltasdude", "novelty"],
 				settings: {
 					type: "PWM",
 					volume: 0,
@@ -1997,7 +2004,7 @@ export const challengeCategories: InputPresetCategory[] = [
 			{
 				name: "epic space chip",
 				generalMidi: false,
-				tags: ["chip", "customchip", "cooltasdude"],
+				tags: ["chip", "customchip", "cooltasdude", "lead"],
 				settings: {
 					type: "custom chip",
 					volume: 0,
@@ -2180,7 +2187,7 @@ export const challengeCategories: InputPresetCategory[] = [
 			{
 				name: "deep bwah",
 				generalMidi: false,
-				tags: ["fm", "fm4op", "cooltasdude"],
+				tags: ["fm", "fm4op", "cooltasdude", "dubstep", "bass"],
 				settings: {
 					type: "FM",
 					volume: 0,
@@ -2576,7 +2583,7 @@ export const challengeCategories: InputPresetCategory[] = [
 			{
 				name: "FM hard bass",
 				generalMidi: false,
-				tags: ["fm", "fm4op", "cooltasdude"],
+				tags: ["fm", "fm4op", "cooltasdude", "bass"],
 				settings: {
 					type: "FM",
 					volume: 0,
@@ -2664,7 +2671,7 @@ export const challengeCategories: InputPresetCategory[] = [
 			{
 				name: "alien choir",
 				generalMidi: false,
-				tags: ["supersaw", "cooltasdude"],
+				tags: ["supersaw", "cooltasdude", "vocal"],
 				settings: {
 					type: "supersaw",
 					volume: 0,
@@ -3007,7 +3014,7 @@ export const challengeCategories: InputPresetCategory[] = [
 			{
 				name: "hypersonic pluck",
 				generalMidi: false,
-				tags: ["fm", "fm6op", "cooltasdude"],
+				tags: ["fm", "fm6op", "cooltasdude", "picked"],
 				settings: {
 					type: "FM6op",
 					volume: 0,
@@ -3126,7 +3133,7 @@ export const challengeCategories: InputPresetCategory[] = [
 			{
 				name: "otherworldly wub",
 				generalMidi: false,
-				tags: ["chip", "chipwave", "cooltasdude"],
+				tags: ["chip", "chipwave", "cooltasdude", "pad"],
 				settings: {
 					type: "chip",
 					volume: 0,
@@ -3197,7 +3204,7 @@ export const challengeCategories: InputPresetCategory[] = [
 			{
 				name: "John Waveform",
 				generalMidi: false,
-				tags: ["fm", "fm6op", "cooltasdude"],
+				tags: ["fm", "fm6op", "cooltasdude", "bass"],
 				settings: {
 					type: "FM6op",
 					volume: 0,
@@ -3351,7 +3358,7 @@ export const challengeCategories: InputPresetCategory[] = [
 			{
 				name: "star strings",
 				generalMidi: false,
-				tags: ["fm", "fm4op", "cooltasdude"],
+				tags: ["fm", "fm4op", "cooltasdude", "string"],
 				settings: {
 					type: "FM",
 					volume: 0,
@@ -3781,7 +3788,7 @@ export const challengeCategories: InputPresetCategory[] = [
 			{
 				name: "mechanical guitar",
 				generalMidi: false,
-				tags: ["fm", "fm6op", "cooltasdude"],
+				tags: ["fm", "fm6op", "cooltasdude", "distortion", "guitar"],
 				settings: {
 					type: "FM6op",
 					volume: 0,
@@ -5080,7 +5087,7 @@ export const challengeCategories: InputPresetCategory[] = [
 			{
 				name: "uncertainty pad",
 				generalMidi: false,
-				tags: ["fm", "fm6op", "cooltasdude"],
+				tags: ["fm", "fm6op", "cooltasdude", "pad"],
 				settings: {
 					type: "FM6op",
 					volume: 0,
@@ -6025,7 +6032,7 @@ export const challengeCategories: InputPresetCategory[] = [
 			{
 				name: "Rounded Spike Pad",
 				generalMidi: false,
-				tags: ["chip", "chipwave", "cooltasdude"],
+				tags: ["chip", "chipwave", "cooltasdude", "pad"],
 				settings: {
 					type: "chip",
 					eqFilter: [{ type: "low-pass", cutoffHz: 19027.31, linearGain: 0.7071 }],
@@ -6106,7 +6113,7 @@ export const challengeCategories: InputPresetCategory[] = [
 			{
 				name: "Surreal String Pad",
 				generalMidi: false,
-				tags: ["fm", "fm6op", "cooltasdude"],
+				tags: ["fm", "fm6op", "cooltasdude", "string", "pad"],
 				settings: {
 					type: "FM6op",
 					eqFilter: [
@@ -6482,7 +6489,7 @@ export const challengeCategories: InputPresetCategory[] = [
 			{
 				name: "Supersaw Kick",
 				generalMidi: false,
-				tags: ["supersaw", "cooltasdude"],
+				tags: ["supersaw", "cooltasdude", "kick"],
 				settings: {
 					type: "supersaw",
 					eqFilter: [],

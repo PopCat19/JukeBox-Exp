@@ -10,11 +10,12 @@
 // Copyright (c) 2012-2022 John Nesky and contributing authors, distributed under the MIT license, see accompanying the LICENSE.md file.
 
 import { InstrumentType, TypePresets } from "../../synth/synth-config";
-import { Preset, PresetCategory, presetCategoriesData } from "./preset-category";
+import { Preset, PresetCategory, presetCategoriesData } from "./preset_category";
 
-export { Preset, PresetCategory } from "./preset-category";
+export { Preset, PresetCategory } from "./preset_category";
 
 export const fullTagList: string[] = [
+	// synth type
 	"chip",
 	"chipwave",
 	"customchip",
@@ -28,12 +29,50 @@ export const fullTagList: string[] = [
 	"spectrum",
 	"noise",
 	"drumset",
-	"featured",
-	"novelty",
-	"drums",
+	// instrument category
+	"retro",
+	"keys",
+	"idiophone",
+	"guitar",
+	"picked",
+	"distortion",
+	"bellows",
+	"string",
+	"vocal",
+	"brass",
+	"reed",
+	"flute",
+	"pad",
+	// drum
 	"kick",
 	"snare",
 	"hihat",
+	"drum",
+	"drums",
+	// misc
+	"ambience",
+	"chiptune",
+	"dubstep",
+	"bass",
+	"lead",
+	"sfx",
+	"arp",
+	"chimes",
+	"novelty",
+	"featured",
+	// fork
+	"beepbox",
+	"jummbox",
+	"ultrabox",
+	"sandbox",
+	"midbox",
+	"abyssbox",
+	"awesomebox",
+	"lemmbox",
+	"bulbbox",
+	"slarmoo'sbox",
+	"unbox",
+	// contributor
 	"cooltasdude",
 	"dx7fm",
 	"honeykitkd",
@@ -62,17 +101,7 @@ export const fullTagList: string[] = [
 	"jacobar475",
 	"formskooooo",
 	"dragoncoder047",
-	"beepbox",
-	"jummbox",
-	"ultrabox",
-	"sandbox",
-	"midbox",
-	"abyssbox",
-	"awesomebox",
-	"lemmbox",
-	"bulbbox",
-	"slarmoo’sbox",
-	"unbox",
+	"literally_luigi_irl",
 ];
 
 export const isMobile: boolean = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini|android|ipad|playbook|silk/i.test(navigator.userAgent);

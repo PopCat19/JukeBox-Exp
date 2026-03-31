@@ -1,3 +1,10 @@
+// contributors-b
+//
+// Purpose: Community contributor preset categories (B)
+//
+// This module:
+// - Exports preset categories: Treethletress through Jayden256
+
 import { DictionaryArray, toNameMap } from "../../../synth/synth-config";
 import { InputPresetCategory, Preset } from "./types";
 
@@ -1614,7 +1621,7 @@ export const contributorCategoriesB: InputPresetCategory[] = [
 			{
 				name: "Expresso Bass",
 				generalMidi: false,
-				tags: ["harmonics", "literally_luigi_irl"],
+				tags: ["harmonics", "literally_luigi_irl", "picked"],
 				settings: {
 					type: "harmonics",
 					eqFilter: [{ type: "low-pass", cutoffHz: 2378.41, linearGain: 0.5 }],
@@ -1652,7 +1659,7 @@ export const contributorCategoriesB: InputPresetCategory[] = [
 			{
 				name: "Expresso Slap",
 				generalMidi: false,
-				tags: ["pickedstring", "literally_luigi_irl"],
+				tags: ["pickedstring", "literally_luigi_irl", "picked"],
 				settings: {
 					type: "Picked String",
 					eqFilter: [{ type: "low-pass", cutoffHz: 2378.41, linearGain: 1 }],
@@ -1686,7 +1693,7 @@ export const contributorCategoriesB: InputPresetCategory[] = [
 			{
 				name: "Wave Of Light",
 				generalMidi: false,
-				tags: ["pwm", "literally_luigi_irl"],
+				tags: ["pwm", "literally_luigi_irl", "retro", "distortion"],
 				settings: {
 					type: "PWM",
 					eqFilter: [
@@ -1733,7 +1740,7 @@ export const contributorCategoriesB: InputPresetCategory[] = [
 			{
 				name: "Spacey Harmonics",
 				generalMidi: false,
-				tags: ["harmonics", "literally_luigi_irl"],
+				tags: ["harmonics", "literally_luigi_irl", "novelty", "distortion"],
 				settings: {
 					type: "harmonics",
 					eqFilter: [],
@@ -1776,7 +1783,7 @@ export const contributorCategoriesB: InputPresetCategory[] = [
 			{
 				name: "Grainy Saw",
 				generalMidi: false,
-				tags: ["supersaw", "literally_luigi_irl"],
+				tags: ["supersaw", "literally_luigi_irl", "retro", "distortion", "novelty"],
 				settings: {
 					type: "supersaw",
 					eqFilter: [{ type: "low-pass", cutoffHz: 8000, linearGain: 0.1768 }],
@@ -1816,7 +1823,7 @@ export const contributorCategoriesB: InputPresetCategory[] = [
 			{
 				name: "Granular Space FM",
 				generalMidi: false,
-				tags: ["fm", "fm4op", "literally_luigi_irl"],
+				tags: ["fm", "fm4op", "literally_luigi_irl", "retro", "guitar"],
 				settings: {
 					type: "FM",
 					eqFilter: [{ type: "low-pass", cutoffHz: 19027.31, linearGain: 0.7071 }],
@@ -1857,7 +1864,7 @@ export const contributorCategoriesB: InputPresetCategory[] = [
 			{
 				name: "Creepy Pasta",
 				generalMidi: false,
-				tags: ["chip", "chipwave", "literally_luigi_irl"],
+				tags: ["chip", "chipwave", "literally_luigi_irl", "retro", "novelty"],
 				settings: {
 					type: "chip",
 					eqFilter: [],
@@ -1895,7 +1902,7 @@ export const contributorCategoriesB: InputPresetCategory[] = [
 			{
 				name: "Crisp FM",
 				generalMidi: false,
-				tags: ["fm", "fm6op", "literally_luigi_irl"],
+				tags: ["fm", "fm6op", "literally_luigi_irl", "retro", "novelty"],
 				settings: {
 					type: "FM6op",
 					eqFilter: [{ type: "low-pass", cutoffHz: 19027.31, linearGain: 0.7071 }],
@@ -1925,7 +1932,7 @@ export const contributorCategoriesB: InputPresetCategory[] = [
 			{
 				name: "String'nt",
 				generalMidi: false,
-				tags: ["harmonics", "literally_luigi_irl"],
+				tags: ["harmonics", "literally_luigi_irl", "string", "picked"],
 				settings: {
 					type: "harmonics",
 					eqFilter: [],
@@ -1946,7 +1953,7 @@ export const contributorCategoriesB: InputPresetCategory[] = [
 			{
 				name: "A Bit of This and That",
 				generalMidi: false,
-				tags: ["pwm", "literally_luigi_irl"],
+				tags: ["pwm", "literally_luigi_irl", "novelty", "distortion"],
 				settings: {
 					type: "PWM",
 					eqFilter: [],
@@ -2024,7 +2031,7 @@ export const contributorCategoriesB: InputPresetCategory[] = [
 			{
 				name: "The DGWF",
 				generalMidi: false,
-				tags: ["pickedstring", "sup3r"],
+				tags: ["pickedstring", "sup3r", "guitar", "distortion"],
 				settings: {
 					type: "Picked String",
 					eqFilter: [
@@ -2148,7 +2155,7 @@ export const contributorCategoriesB: InputPresetCategory[] = [
 			{
 				name: "Faker Pulse",
 				generalMidi: false,
-				tags: ["harmonics", "sup3r"],
+				tags: ["harmonics", "sup3r", "retro", "chiptune"],
 				settings: {
 					type: "harmonics",
 					eqFilter: [],
@@ -2324,7 +2331,7 @@ export const contributorCategoriesB: InputPresetCategory[] = [
 			{
 				name: "Metallic Guitar",
 				generalMidi: false,
-				tags: ["noise", "sup3r"],
+				tags: ["noise", "sup3r", "distortion", "novelty", "guitar"],
 				settings: {
 					type: "noise",
 					eqFilter: [{ type: "low-pass", cutoffHz: 16000, linearGain: 0.0884 }],
@@ -2514,7 +2521,7 @@ export const contributorCategoriesB: InputPresetCategory[] = [
 			{
 				name: "Hallway Bell",
 				generalMidi: false,
-				tags: ["fm", "fm4op", "sup3r"],
+				tags: ["fm", "fm4op", "sup3r", "novelty"],
 				settings: {
 					type: "FM",
 					eqFilter: [],
@@ -2553,7 +2560,7 @@ export const contributorCategoriesB: InputPresetCategory[] = [
 			{
 				name: "Yah Yah Square",
 				generalMidi: false,
-				tags: ["chip", "chipwave", "sup3r"],
+				tags: ["chip", "chipwave", "sup3r", "retro", "distortion"],
 				settings: {
 					type: "chip",
 					eqFilter: [],
@@ -2613,7 +2620,7 @@ export const contributorCategoriesB: InputPresetCategory[] = [
 			{
 				name: "Waaffllee's Distortion Guitar",
 				generalMidi: false,
-				tags: ["pickedstring", "sup3r"],
+				tags: ["pickedstring", "sup3r", "guitar", "distortion", "novelty"],
 				settings: {
 					type: "Picked String",
 					eqFilter: [],
@@ -2652,7 +2659,7 @@ export const contributorCategoriesB: InputPresetCategory[] = [
 			{
 				name: "Happy Lead",
 				generalMidi: false,
-				tags: ["fm", "fm4op", "sup3r"],
+				tags: ["fm", "fm4op", "sup3r", "distortion", "novelty"],
 				settings: {
 					type: "FM",
 					eqFilter: [
@@ -2716,7 +2723,7 @@ export const contributorCategoriesB: InputPresetCategory[] = [
 			{
 				name: "Fingered Guitar",
 				generalMidi: false,
-				tags: ["harmonics", "sup3r"],
+				tags: ["harmonics", "sup3r", "novelty"],
 				settings: {
 					type: "harmonics",
 					eqFilter: [
@@ -2758,7 +2765,7 @@ export const contributorCategoriesB: InputPresetCategory[] = [
 			{
 				name: "SuP3rSaw",
 				generalMidi: false,
-				tags: ["supersaw", "sup3r"],
+				tags: ["supersaw", "sup3r", "retro", "distortion", "novelty"],
 				settings: {
 					type: "supersaw",
 					eqFilter: [
@@ -2822,7 +2829,7 @@ export const contributorCategoriesB: InputPresetCategory[] = [
 			{
 				name: "Shaky Guitar",
 				generalMidi: false,
-				tags: ["pickedstring", "sup3r"],
+				tags: ["pickedstring", "sup3r", "distortion", "guitar"],
 				settings: {
 					type: "Picked String",
 					eqFilter: [
@@ -2879,7 +2886,7 @@ export const contributorCategoriesB: InputPresetCategory[] = [
 			{
 				name: "Cat Purr",
 				generalMidi: false,
-				tags: ["fm", "fm4op", "sup3r"],
+				tags: ["fm", "fm4op", "sup3r", "novelty"],
 				settings: {
 					type: "FM",
 					eqFilter: [{ type: "low-pass", cutoffHz: 3222.02, linearGain: 1 }],
@@ -2918,7 +2925,7 @@ export const contributorCategoriesB: InputPresetCategory[] = [
 			{
 				name: "Dammed Souls",
 				generalMidi: false,
-				tags: ["fm", "fm4op", "sup3r"],
+				tags: ["fm", "fm4op", "sup3r", "retro", "novelty"],
 				settings: {
 					type: "FM",
 					eqFilter: [],
@@ -2964,7 +2971,7 @@ export const contributorCategoriesB: InputPresetCategory[] = [
 			{
 				name: "Static Bells",
 				generalMidi: false,
-				tags: ["chip", "chipwave", "sup3r"],
+				tags: ["chip", "chipwave", "sup3r", "retro", "distortion", "idiophone"],
 				settings: {
 					type: "chip",
 					eqFilter: [],
@@ -3036,7 +3043,7 @@ export const contributorCategoriesB: InputPresetCategory[] = [
 			{
 				name: "Depressed piano",
 				generalMidi: false,
-				tags: ["chip", "customchip", "sup3r"],
+				tags: ["chip", "customchip", "sup3r", "novelty"],
 				settings: {
 					type: "custom chip",
 					eqFilter: [{ type: "low-pass", cutoffHz: 1664.21, linearGain: 0.5 }],
@@ -3196,7 +3203,7 @@ export const contributorCategoriesB: InputPresetCategory[] = [
 			{
 				name: "Odd bell",
 				generalMidi: false,
-				tags: ["harmonics", "sup3r"],
+				tags: ["harmonics", "sup3r", "idiophone"],
 				settings: {
 					type: "harmonics",
 					eqFilter: [{ type: "low-pass", cutoffHz: 3828.43, linearGain: 0.5 }],
@@ -3218,7 +3225,7 @@ export const contributorCategoriesB: InputPresetCategory[] = [
 			{
 				name: "picked pluck",
 				generalMidi: false,
-				tags: ["pickedstring", "sup3r"],
+				tags: ["pickedstring", "sup3r", "novelty"],
 				settings: {
 					type: "Picked String",
 					eqFilter: [{ type: "peak", cutoffHz: 4756.83, linearGain: 0.1768 }],
@@ -3243,7 +3250,7 @@ export const contributorCategoriesB: InputPresetCategory[] = [
 			{
 				name: "Supersaw Accordion",
 				generalMidi: false,
-				tags: ["supersaw", "sup3r"],
+				tags: ["supersaw", "sup3r", "retro", "bellows"],
 				settings: {
 					type: "supersaw",
 					eqFilter: [
@@ -3286,7 +3293,7 @@ export const contributorCategoriesB: InputPresetCategory[] = [
 			{
 				name: "purple water",
 				generalMidi: false,
-				tags: ["harmonics", "sup3r"],
+				tags: ["harmonics", "sup3r", "novelty"],
 				settings: {
 					type: "harmonics",
 					eqFilter: [{ type: "peak", cutoffHz: 4000, linearGain: 0.3536 }],
@@ -3316,7 +3323,7 @@ export const contributorCategoriesB: InputPresetCategory[] = [
 			{
 				name: "harmonic choir",
 				generalMidi: false,
-				tags: ["harmonics", "sup3r"],
+				tags: ["harmonics", "sup3r", "keys"],
 				settings: {
 					type: "harmonics",
 					eqFilter: [
@@ -3355,7 +3362,7 @@ export const contributorCategoriesB: InputPresetCategory[] = [
 			{
 				name: "smolsuitar",
 				generalMidi: false,
-				tags: ["pickedstring", "sup3r"],
+				tags: ["pickedstring", "sup3r", "picked", "novelty"],
 				settings: {
 					type: "Picked String",
 					eqFilter: [{ type: "low-pass", cutoffHz: 714.63, linearGain: 1.4142 }],
@@ -3387,7 +3394,7 @@ export const contributorCategoriesB: InputPresetCategory[] = [
 			{
 				name: "Pulse Width Keys",
 				generalMidi: false,
-				tags: ["pwm", "sup3r"],
+				tags: ["pwm", "sup3r", "pad"],
 				settings: {
 					type: "PWM",
 					eqFilter: [
@@ -3707,7 +3714,7 @@ export const contributorCategoriesB: InputPresetCategory[] = [
 			{
 				name: "Standard OHi-Hat",
 				generalMidi: false,
-				tags: ["noise", "rblx_inst"],
+				tags: ["noise", "rblx_inst", "hihat"],
 				settings: {
 					type: "noise",
 					eqFilter: [
@@ -3789,7 +3796,7 @@ export const contributorCategoriesB: InputPresetCategory[] = [
 			{
 				name: "Standard FHi-Hat",
 				generalMidi: false,
-				tags: ["noise", "rblx_inst"],
+				tags: ["noise", "rblx_inst", "hihat"],
 				settings: {
 					type: "noise",
 					eqFilter: [
@@ -3881,7 +3888,7 @@ export const contributorCategoriesB: InputPresetCategory[] = [
 			{
 				name: "Standard Cymbal1",
 				generalMidi: false,
-				tags: ["spectrum", "rblx_inst", "featured"],
+				tags: ["spectrum", "rblx_inst", "featured", "drum"],
 				settings: {
 					type: "spectrum",
 					eqFilter: [
@@ -4017,7 +4024,7 @@ export const contributorCategoriesB: InputPresetCategory[] = [
 			{
 				name: "Chiptune_Punchy",
 				generalMidi: false,
-				tags: ["chip", "chipwave", "rblx_inst"],
+				tags: ["chip", "chipwave", "rblx_inst", "retro", "pad"],
 				settings: {
 					type: "chip",
 					eqFilter: [],
@@ -4466,7 +4473,7 @@ export const contributorCategoriesB: InputPresetCategory[] = [
 			{
 				name: "Chiptune_Bells",
 				generalMidi: false,
-				tags: ["harmonics", "rblx_inst"],
+				tags: ["harmonics", "rblx_inst", "retro", "idiophone"],
 				settings: {
 					type: "harmonics",
 					eqFilter: [],
@@ -4496,7 +4503,7 @@ export const contributorCategoriesB: InputPresetCategory[] = [
 			{
 				name: "Sine_Piano",
 				generalMidi: false,
-				tags: ["chip", "chipwave", "rblx_inst"],
+				tags: ["chip", "chipwave", "rblx_inst", "idiophone", "novelty"],
 				settings: {
 					type: "chip",
 					eqFilter: [
@@ -4557,7 +4564,7 @@ export const contributorCategoriesB: InputPresetCategory[] = [
 			{
 				name: "N163 FM Bass",
 				generalMidi: false,
-				tags: ["fm", "fm4op", "jayden256"],
+				tags: ["fm", "fm4op", "jayden256", "retro", "chiptune"],
 				settings: {
 					type: "FM",
 					eqFilter: [{ type: "low-pass", cutoffHz: 8000, linearGain: 1.4142 }],
@@ -4598,7 +4605,7 @@ export const contributorCategoriesB: InputPresetCategory[] = [
 			{
 				name: "Trumpet 3",
 				generalMidi: false,
-				tags: ["fm", "fm4op", "jayden256"],
+				tags: ["fm", "fm4op", "jayden256", "retro"],
 				settings: {
 					type: "FM",
 					eqFilter: [{ type: "low-pass", cutoffHz: 16000, linearGain: 1.4142 }],
@@ -4665,7 +4672,7 @@ export const contributorCategoriesB: InputPresetCategory[] = [
 			{
 				name: "EClarinet",
 				generalMidi: false,
-				tags: ["fm", "fm4op", "jayden256"],
+				tags: ["fm", "fm4op", "jayden256", "retro", "flute", "reed"],
 				settings: {
 					type: "FM",
 					eqFilter: [
@@ -4712,7 +4719,7 @@ export const contributorCategoriesB: InputPresetCategory[] = [
 			{
 				name: "2a03 Pulse",
 				generalMidi: false,
-				tags: ["pwm", "jayden256"],
+				tags: ["pwm", "jayden256", "retro", "chiptune"],
 				settings: {
 					type: "PWM",
 					eqFilter: [{ type: "peak", cutoffHz: 210.22, linearGain: 0.5 }],
@@ -4749,7 +4756,7 @@ export const contributorCategoriesB: InputPresetCategory[] = [
 			{
 				name: "Blip Square",
 				generalMidi: false,
-				tags: ["chip", "chipwave", "jayden256"],
+				tags: ["chip", "chipwave", "jayden256", "retro", "novelty"],
 				settings: {
 					type: "chip",
 					eqFilter: [
@@ -4809,7 +4816,7 @@ export const contributorCategoriesB: InputPresetCategory[] = [
 			{
 				name: "VRC6 Flute",
 				generalMidi: false,
-				tags: ["pwm", "jayden256"],
+				tags: ["pwm", "jayden256", "flute", "retro"],
 				settings: {
 					type: "PWM",
 					eqFilter: [
@@ -5102,7 +5109,7 @@ export const contributorCategoriesB: InputPresetCategory[] = [
 			{
 				name: "eChorused Piano",
 				generalMidi: false,
-				tags: ["fm", "fm6op", "jayden256"],
+				tags: ["fm", "fm6op", "jayden256", "retro", "keys"],
 				settings: {
 					type: "FM6op",
 					eqFilter: [{ type: "low-pass", cutoffHz: 13454.34, linearGain: 4 }],
@@ -5167,7 +5174,7 @@ export const contributorCategoriesB: InputPresetCategory[] = [
 			{
 				name: "eRhodes Piano",
 				generalMidi: false,
-				tags: ["fm", "fm6op", "jayden256", "featured"],
+				tags: ["fm", "fm6op", "jayden256", "featured", "keys", "pad"],
 				settings: {
 					type: "FM6op",
 					eqFilter: [
@@ -5289,7 +5296,7 @@ export const contributorCategoriesB: InputPresetCategory[] = [
 			{
 				name: "Simple FM Piano",
 				generalMidi: false,
-				tags: ["fm", "fm4op", "jayden256"],
+				tags: ["fm", "fm4op", "jayden256", "keys"],
 				settings: {
 					type: "FM",
 					eqFilter: [{ type: "low-pass", cutoffHz: 16000, linearGain: 0.7071 }],
@@ -5490,7 +5497,7 @@ export const contributorCategoriesB: InputPresetCategory[] = [
 			{
 				name: "Supersaw Violin",
 				generalMidi: false,
-				tags: ["supersaw", "jayden256"],
+				tags: ["supersaw", "jayden256", "reed", "bellows"],
 				settings: {
 					type: "supersaw",
 					eqFilter: [
@@ -5535,7 +5542,7 @@ export const contributorCategoriesB: InputPresetCategory[] = [
 			{
 				name: "Slap Square",
 				generalMidi: false,
-				tags: ["fm", "fm4op", "jayden256"],
+				tags: ["fm", "fm4op", "jayden256", "retro", "picked"],
 				settings: {
 					type: "FM",
 					eqFilter: [{ type: "low-pass", cutoffHz: 8000, linearGain: 1.4142 }],
@@ -5596,7 +5603,7 @@ export const contributorCategoriesB: InputPresetCategory[] = [
 			{
 				name: "FM Chorus Square",
 				generalMidi: false,
-				tags: ["fm", "fm4op", "jayden256"],
+				tags: ["fm", "fm4op", "jayden256", "idiophone"],
 				settings: {
 					type: "FM",
 					eqFilter: [],
@@ -5626,7 +5633,7 @@ export const contributorCategoriesB: InputPresetCategory[] = [
 			{
 				name: "VRC7 Vibraphone",
 				generalMidi: false,
-				tags: ["fm", "fm4op", "jayden256"],
+				tags: ["fm", "fm4op", "jayden256", "idiophone", "bellows"],
 				settings: {
 					type: "FM",
 					eqFilter: [{ type: "low-pass", cutoffHz: 19027.31, linearGain: 1.4142 }],
@@ -5713,7 +5720,7 @@ export const contributorCategoriesB: InputPresetCategory[] = [
 			{
 				name: "Grandiose Chip",
 				generalMidi: false,
-				tags: ["chip", "chipwave", "jayden256"],
+				tags: ["chip", "chipwave", "jayden256", "bellows"],
 				settings: {
 					type: "chip",
 					eqFilter: [{ type: "low-pass", cutoffHz: 3363.59, linearGain: 0.5 }],
@@ -5765,7 +5772,7 @@ export const contributorCategoriesB: InputPresetCategory[] = [
 			{
 				name: "FM EPiano",
 				generalMidi: false,
-				tags: ["fm", "fm4op", "jayden256"],
+				tags: ["fm", "fm4op", "jayden256", "keys", "picked"],
 				settings: {
 					type: "FM",
 					eqFilter: [],
@@ -5920,7 +5927,7 @@ export const contributorCategoriesB: InputPresetCategory[] = [
 			{
 				name: "Advance Supersaw",
 				generalMidi: false,
-				tags: ["fm", "fm4op", "jayden256"],
+				tags: ["fm", "fm4op", "jayden256", "retro", "distortion"],
 				settings: {
 					type: "FM",
 					eqFilter: [],
@@ -6152,7 +6159,7 @@ export const contributorCategoriesB: InputPresetCategory[] = [
 			{
 				name: "Simple FM Bass",
 				generalMidi: false,
-				tags: ["fm", "fm4op", "jayden256"],
+				tags: ["fm", "fm4op", "jayden256", "retro", "picked"],
 				settings: {
 					type: "FM",
 					eqFilter: [],
@@ -6192,7 +6199,7 @@ export const contributorCategoriesB: InputPresetCategory[] = [
 			{
 				name: "DX7 Bass",
 				generalMidi: false,
-				tags: ["fm", "fm4op", "jayden256"],
+				tags: ["fm", "fm4op", "jayden256", "retro", "picked"],
 				settings: {
 					type: "FM",
 					eqFilter: [{ type: "low-pass", cutoffHz: 19027.31, linearGain: 1 }],
@@ -6263,7 +6270,7 @@ export const contributorCategoriesB: InputPresetCategory[] = [
 			{
 				name: "FM Hihat",
 				generalMidi: false,
-				tags: ["fm", "fm4op", "jayden256"],
+				tags: ["fm", "fm4op", "jayden256", "hihat", "retro"],
 				settings: {
 					type: "FM",
 					eqFilter: [],
@@ -6303,7 +6310,7 @@ export const contributorCategoriesB: InputPresetCategory[] = [
 			{
 				name: "808 Tom",
 				generalMidi: false,
-				tags: ["fm", "fm4op", "jayden256"],
+				tags: ["fm", "fm4op", "jayden256", "drum"],
 				settings: {
 					type: "FM",
 					eqFilter: [{ type: "low-pass", cutoffHz: 19027.31, linearGain: 0.7071 }],
@@ -6354,7 +6361,7 @@ export const contributorCategoriesB: InputPresetCategory[] = [
 			{
 				name: "808 HiTom",
 				generalMidi: false,
-				tags: ["fm", "fm4op", "jayden256"],
+				tags: ["fm", "fm4op", "jayden256", "drum"],
 				settings: {
 					type: "FM",
 					eqFilter: [{ type: "low-pass", cutoffHz: 19027.31, linearGain: 0.7071 }],
@@ -6446,7 +6453,7 @@ export const contributorCategoriesB: InputPresetCategory[] = [
 			{
 				name: "Synth Tom",
 				generalMidi: false,
-				tags: ["fm", "fm4op", "jayden256"],
+				tags: ["fm", "fm4op", "jayden256", "kick"],
 				settings: {
 					type: "FM",
 					eqFilter: [],
@@ -6535,7 +6542,7 @@ export const contributorCategoriesB: InputPresetCategory[] = [
 			{
 				name: "Holy Organ",
 				generalMidi: false,
-				tags: ["fm", "fm4op", "jayden256"],
+				tags: ["fm", "fm4op", "jayden256", "bellows"],
 				settings: {
 					type: "FM",
 					eqFilter: [],
@@ -6624,7 +6631,7 @@ export const contributorCategoriesB: InputPresetCategory[] = [
 			{
 				name: "EQ Saw",
 				generalMidi: false,
-				tags: ["chip", "chipwave", "jayden256"],
+				tags: ["chip", "chipwave", "jayden256", "retro", "pad"],
 				settings: {
 					type: "chip",
 					eqFilter: [
@@ -6675,7 +6682,7 @@ export const contributorCategoriesB: InputPresetCategory[] = [
 			{
 				name: "Crystal Chimes",
 				generalMidi: false,
-				tags: ["fm", "fm4op", "jayden256"],
+				tags: ["fm", "fm4op", "jayden256", "idiophone", "pad"],
 				settings: {
 					type: "FM",
 					eqFilter: [{ type: "low-pass", cutoffHz: 19027.31, linearGain: 0.0884 }],
@@ -6739,7 +6746,7 @@ export const contributorCategoriesB: InputPresetCategory[] = [
 			{
 				name: "Crushed Voice",
 				generalMidi: false,
-				tags: ["chip", "chipwave", "jayden256"],
+				tags: ["chip", "chipwave", "jayden256", "flute", "pad"],
 				settings: {
 					type: "chip",
 					eqFilter: [],
@@ -6774,7 +6781,7 @@ export const contributorCategoriesB: InputPresetCategory[] = [
 			{
 				name: "FM Metal Bass",
 				generalMidi: false,
-				tags: ["fm", "fm6op", "jayden256"],
+				tags: ["fm", "fm6op", "jayden256", "guitar", "distortion", "picked"],
 				settings: {
 					type: "FM6op",
 					eqFilter: [],
@@ -6804,7 +6811,7 @@ export const contributorCategoriesB: InputPresetCategory[] = [
 			{
 				name: "Distortion Guitar V2",
 				generalMidi: false,
-				tags: ["harmonics", "jayden256"],
+				tags: ["harmonics", "jayden256", "distortion", "guitar"],
 				settings: {
 					type: "harmonics",
 					eqFilter: [
@@ -6859,7 +6866,7 @@ export const contributorCategoriesB: InputPresetCategory[] = [
 			{
 				name: "Overdrive Guitar V2",
 				generalMidi: false,
-				tags: ["harmonics", "jayden256"],
+				tags: ["harmonics", "jayden256", "guitar", "distortion"],
 				settings: {
 					type: "harmonics",
 					eqFilter: [
@@ -6894,7 +6901,7 @@ export const contributorCategoriesB: InputPresetCategory[] = [
 			{
 				name: "Nylon Guitar V2",
 				generalMidi: false,
-				tags: ["pickedstring", "jayden256"],
+				tags: ["pickedstring", "jayden256", "guitar", "picked"],
 				settings: {
 					type: "Picked String",
 					eqFilter: [],
@@ -6925,7 +6932,7 @@ export const contributorCategoriesB: InputPresetCategory[] = [
 			{
 				name: "Crazy Sine",
 				generalMidi: false,
-				tags: ["fm", "fm6op", "jayden256"],
+				tags: ["fm", "fm6op", "jayden256", "retro", "chiptune", "distortion"],
 				settings: {
 					type: "FM6op",
 					eqFilter: [],
@@ -7017,7 +7024,7 @@ export const contributorCategoriesB: InputPresetCategory[] = [
 			{
 				name: "Metallic Synth",
 				generalMidi: false,
-				tags: ["noise", "jayden256"],
+				tags: ["noise", "jayden256", "distortion"],
 				settings: {
 					type: "noise",
 					eqFilter: [{ type: "low-pass", cutoffHz: 8000, linearGain: 0.0884 }],
@@ -7045,7 +7052,7 @@ export const contributorCategoriesB: InputPresetCategory[] = [
 			{
 				name: "FM death bass",
 				generalMidi: false,
-				tags: ["fm", "fm6op", "jayden256"],
+				tags: ["fm", "fm6op", "jayden256", "distortion", "guitar", "picked"],
 				settings: {
 					type: "FM6op",
 					eqFilter: [
@@ -7094,7 +7101,7 @@ export const contributorCategoriesB: InputPresetCategory[] = [
 			{
 				name: "FM metal bass 2",
 				generalMidi: false,
-				tags: ["fm", "fm6op", "jayden256"],
+				tags: ["fm", "fm6op", "jayden256", "distortion", "picked"],
 				settings: {
 					type: "FM6op",
 					eqFilter: [{ type: "low-pass", cutoffHz: 9513.66, linearGain: 1.4142 }],
@@ -7602,7 +7609,7 @@ export const contributorCategoriesB: InputPresetCategory[] = [
 			{
 				name: "UltraSaw",
 				generalMidi: false,
-				tags: ["fm", "fm6op", "jayden256"],
+				tags: ["fm", "fm6op", "jayden256", "retro", "pad"],
 				settings: {
 					type: "FM6op",
 					eqFilter: [],
@@ -7799,7 +7806,7 @@ export const contributorCategoriesB: InputPresetCategory[] = [
 			{
 				name: "Cracked piano",
 				generalMidi: false,
-				tags: ["fm", "fm6op", "jayden256"],
+				tags: ["fm", "fm6op", "jayden256", "keys", "distortion", "retro"],
 				settings: {
 					type: "FM6op",
 					eqFilter: [
@@ -7907,7 +7914,7 @@ export const contributorCategoriesB: InputPresetCategory[] = [
 			{
 				name: "FM EPiano 2",
 				generalMidi: false,
-				tags: ["fm", "fm4op", "jayden256"],
+				tags: ["fm", "fm4op", "jayden256", "keys"],
 				settings: {
 					type: "FM",
 					eqFilter: [],
@@ -7959,7 +7966,7 @@ export const contributorCategoriesB: InputPresetCategory[] = [
 			{
 				name: "contrabass 2",
 				generalMidi: false,
-				tags: ["fm", "fm6op", "jayden256"],
+				tags: ["fm", "fm6op", "jayden256", "bellows", "distortion"],
 				settings: {
 					type: "FM6op",
 					eqFilter: [{ type: "low-pass", cutoffHz: 8000, linearGain: 0.1768 }],
@@ -7990,7 +7997,7 @@ export const contributorCategoriesB: InputPresetCategory[] = [
 			{
 				name: "303 Acid",
 				generalMidi: false,
-				tags: ["chip", "customchip", "jayden256"],
+				tags: ["chip", "customchip", "jayden256", "picked", "bellows"],
 				settings: {
 					type: "custom chip",
 					eqFilter: [{ type: "low-pass", cutoffHz: 3363.59, linearGain: 0.0884 }],
@@ -8171,7 +8178,7 @@ export const contributorCategoriesB: InputPresetCategory[] = [
 			{
 				name: "Synth Clavinet",
 				generalMidi: false,
-				tags: ["supersaw", "jayden256", "featured"],
+				tags: ["supersaw", "jayden256", "featured", "picked", "string", "distortion"],
 				settings: {
 					type: "supersaw",
 					eqFilter: [{ type: "low-pass", cutoffHz: 9513.66, linearGain: 1 }],
@@ -8207,7 +8214,7 @@ export const contributorCategoriesB: InputPresetCategory[] = [
 			{
 				name: "S-Pulse",
 				generalMidi: false,
-				tags: ["chip", "customchip", "jayden256"],
+				tags: ["chip", "customchip", "jayden256", "bellows", "string", "pad"],
 				settings: {
 					type: "custom chip",
 					eqFilter: [{ type: "low-pass", cutoffHz: 5656.85, linearGain: 0.3536 }],
@@ -8718,7 +8725,7 @@ export const contributorCategoriesB: InputPresetCategory[] = [
 			{
 				name: "Buzzy Square",
 				generalMidi: false,
-				tags: ["chip", "customchip", "jayden256"],
+				tags: ["chip", "customchip", "jayden256", "bellows", "retro"],
 				settings: {
 					type: "custom chip",
 					eqFilter: [{ type: "low-pass", cutoffHz: 4000, linearGain: 0.25 }],
@@ -9234,7 +9241,7 @@ export const contributorCategoriesB: InputPresetCategory[] = [
 			{
 				name: "Night Vision",
 				generalMidi: false,
-				tags: ["fm", "fm6op", "jayden256"],
+				tags: ["fm", "fm6op", "jayden256", "picked", "string"],
 				settings: {
 					type: "FM6op",
 					eqFilter: [{ type: "low-pass", cutoffHz: 19027.31, linearGain: 1 }],
@@ -10498,7 +10505,7 @@ export const contributorCategoriesB: InputPresetCategory[] = [
 			{
 				name: "Spooky PWM",
 				generalMidi: false,
-				tags: ["pwm", "jayden256"],
+				tags: ["pwm", "jayden256", "picked"],
 				settings: {
 					type: "PWM",
 					eqFilter: [],
@@ -10567,7 +10574,7 @@ export const contributorCategoriesB: InputPresetCategory[] = [
 			{
 				name: "Nostalgic Box",
 				generalMidi: false,
-				tags: ["pickedstring", "jayden256"],
+				tags: ["pickedstring", "jayden256", "idiophone"],
 				settings: {
 					type: "Picked String",
 					eqFilter: [{ type: "low-pass", cutoffHz: 2828.43, linearGain: 0.7071 }],
@@ -10598,7 +10605,7 @@ export const contributorCategoriesB: InputPresetCategory[] = [
 			{
 				name: "303 Acid 2",
 				generalMidi: false,
-				tags: ["chip", "customchip", "jayden256"],
+				tags: ["chip", "customchip", "jayden256", "picked", "bellows", "novelty"],
 				settings: {
 					type: "custom chip",
 					eqFilter: [
@@ -10806,7 +10813,7 @@ export const contributorCategoriesB: InputPresetCategory[] = [
 			{
 				name: "Brass Synth 4",
 				generalMidi: false,
-				tags: ["fm", "fm4op", "jayden256"],
+				tags: ["fm", "fm4op", "jayden256", "distortion", "string"],
 				settings: {
 					type: "FM",
 					eqFilter: [{ type: "low-pass", cutoffHz: 11313.71, linearGain: 0.1768 }],
@@ -10882,7 +10889,7 @@ export const contributorCategoriesB: InputPresetCategory[] = [
 			{
 				name: "Boopy",
 				generalMidi: false,
-				tags: ["fm", "fm6op", "jayden256"],
+				tags: ["fm", "fm6op", "jayden256", "picked"],
 				settings: {
 					type: "FM6op",
 					eqFilter: [{ type: "low-pass", cutoffHz: 11313.71, linearGain: 0.1768 }],
@@ -11095,7 +11102,7 @@ export const contributorCategoriesB: InputPresetCategory[] = [
 			{
 				name: "Synth Bass 101",
 				generalMidi: false,
-				tags: ["chip", "customchip", "jayden256"],
+				tags: ["chip", "customchip", "jayden256", "picked"],
 				settings: {
 					type: "custom chip",
 					eqFilter: [],
@@ -11279,7 +11286,7 @@ export const contributorCategoriesB: InputPresetCategory[] = [
 			{
 				name: "Chip Voice Pad",
 				generalMidi: false,
-				tags: ["chip", "customchip", "jayden256"],
+				tags: ["chip", "customchip", "jayden256", "bellows", "retro"],
 				settings: {
 					type: "custom chip",
 					eqFilter: [{ type: "low-pass", cutoffHz: 19027.31, linearGain: 0.7071 }],
@@ -11956,7 +11963,7 @@ export const contributorCategoriesB: InputPresetCategory[] = [
 			{
 				name: "Chip Flute",
 				generalMidi: false,
-				tags: ["chip", "customchip", "jayden256", "featured"],
+				tags: ["chip", "customchip", "jayden256", "featured", "retro", "flute"],
 				settings: {
 					type: "custom chip",
 					eqFilter: [{ type: "high-pass", cutoffHz: 176.78, linearGain: 2.8284 }],
@@ -12277,7 +12284,7 @@ export const contributorCategoriesB: InputPresetCategory[] = [
 			{
 				name: "Fire Lead",
 				generalMidi: false,
-				tags: ["chip", "customchip", "jayden256"],
+				tags: ["chip", "customchip", "jayden256", "distortion", "retro"],
 				settings: {
 					type: "custom chip",
 					eqFilter: [
@@ -12455,7 +12462,7 @@ export const contributorCategoriesB: InputPresetCategory[] = [
 			{
 				name: "Ice Lead",
 				generalMidi: false,
-				tags: ["chip", "customchip", "jayden256"],
+				tags: ["chip", "customchip", "jayden256", "novelty", "idiophone"],
 				settings: {
 					type: "custom chip",
 					eqFilter: [],
@@ -13267,7 +13274,7 @@ export const contributorCategoriesB: InputPresetCategory[] = [
 			{
 				name: "BassGuitar Wave",
 				generalMidi: false,
-				tags: ["chip", "customchip", "jayden256"],
+				tags: ["chip", "customchip", "jayden256", "picked", "guitar"],
 				settings: {
 					type: "custom chip",
 					eqFilter: [],
@@ -13437,7 +13444,7 @@ export const contributorCategoriesB: InputPresetCategory[] = [
 			{
 				name: "Octave SawTri",
 				generalMidi: false,
-				tags: ["chip", "customchip", "jayden256"],
+				tags: ["chip", "customchip", "jayden256", "distortion", "picked"],
 				settings: {
 					type: "custom chip",
 					eqFilter: [],
@@ -13594,7 +13601,7 @@ export const contributorCategoriesB: InputPresetCategory[] = [
 			{
 				name: "Lead Pad",
 				generalMidi: false,
-				tags: ["chip", "customchip", "jayden256"],
+				tags: ["chip", "customchip", "jayden256", "picked", "pad"],
 				settings: {
 					type: "custom chip",
 					eqFilter: [],
@@ -13779,7 +13786,7 @@ export const contributorCategoriesB: InputPresetCategory[] = [
 			{
 				name: "Chippy Piano",
 				generalMidi: false,
-				tags: ["chip", "customchip", "jayden256"],
+				tags: ["chip", "customchip", "jayden256", "retro", "keys"],
 				settings: {
 					type: "custom chip",
 					eqFilter: [
@@ -13963,7 +13970,7 @@ export const contributorCategoriesB: InputPresetCategory[] = [
 			{
 				name: "Piano Chimes",
 				generalMidi: false,
-				tags: ["fm", "fm4op", "jayden256"],
+				tags: ["fm", "fm4op", "jayden256", "keys", "chimes"],
 				settings: {
 					type: "FM",
 					eqFilter: [{ type: "low-pass", cutoffHz: 16000, linearGain: 0.5 }],
@@ -14062,7 +14069,7 @@ export const contributorCategoriesB: InputPresetCategory[] = [
 			{
 				name: "T-Pulse",
 				generalMidi: false,
-				tags: ["chip", "customchip", "jayden256"],
+				tags: ["chip", "customchip", "jayden256", "picked", "bellows", "retro"],
 				settings: {
 					type: "custom chip",
 					eqFilter: [{ type: "low-pass", cutoffHz: 13454.34, linearGain: 4 }],
@@ -14244,7 +14251,7 @@ export const contributorCategoriesB: InputPresetCategory[] = [
 			{
 				name: "I-Pulse",
 				generalMidi: false,
-				tags: ["chip", "customchip", "jayden256"],
+				tags: ["chip", "customchip", "jayden256", "retro"],
 				settings: {
 					type: "custom chip",
 					eqFilter: [{ type: "low-pass", cutoffHz: 13454.34, linearGain: 0.3536 }],
@@ -14410,7 +14417,7 @@ export const contributorCategoriesB: InputPresetCategory[] = [
 			{
 				name: "F-Sine",
 				generalMidi: false,
-				tags: ["chip", "customchip", "jayden256"],
+				tags: ["chip", "customchip", "jayden256", "keys", "retro", "picked"],
 				settings: {
 					type: "custom chip",
 					eqFilter: [{ type: "low-pass", cutoffHz: 9513.66, linearGain: 0.3536 }],
@@ -14567,7 +14574,7 @@ export const contributorCategoriesB: InputPresetCategory[] = [
 			{
 				name: "Solar Pad",
 				generalMidi: false,
-				tags: ["fm", "fm4op", "jayden256"],
+				tags: ["fm", "fm4op", "jayden256", "pad"],
 				settings: {
 					type: "FM",
 					eqFilter: [{ type: "low-pass", cutoffHz: 16000, linearGain: 0.5 }],
@@ -14619,7 +14626,7 @@ export const contributorCategoriesB: InputPresetCategory[] = [
 			{
 				name: "Lunar Pad",
 				generalMidi: false,
-				tags: ["fm", "fm4op", "jayden256"],
+				tags: ["fm", "fm4op", "jayden256", "picked", "pad"],
 				settings: {
 					type: "FM",
 					eqFilter: [{ type: "low-pass", cutoffHz: 19027.31, linearGain: 1.4142 }],

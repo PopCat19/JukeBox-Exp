@@ -1,3 +1,10 @@
+// modded
+//
+// Purpose: Modded and BulbBox preset categories
+//
+// This module:
+// - Exports preset categories: BulbBox, Misc Modded, UnBox Synth Lead
+
 import { DictionaryArray, toNameMap } from "../../../synth/synth-config";
 import { InputPresetCategory, Preset } from "./types";
 
@@ -97,7 +104,7 @@ export const moddedCategories: InputPresetCategory[] = [
 			{
 				name: "BulbBox C2 Snare Kick (Part 1)",
 				midiProgram: 80,
-				tags: ["fm", "fm4op", "bulbbox", "kick"],
+				tags: ["fm", "fm4op", "bulbbox", "kick", "snare"],
 				settings: {
 					type: "FM",
 					volume: 0,
@@ -220,7 +227,7 @@ export const moddedCategories: InputPresetCategory[] = [
 			{
 				name: "BulbBox A4 Hi-Hat",
 				midiProgram: 80,
-				tags: ["fm", "fm4op", "bulbbox"],
+				tags: ["fm", "fm4op", "bulbbox", "hihat"],
 				settings: {
 					type: "FM",
 					volume: 0,
@@ -779,7 +786,7 @@ export const moddedCategories: InputPresetCategory[] = [
 			{
 				name: "Sawtooth Bass",
 				midiProgram: 80,
-				tags: ["chip", "chipwave", "bulbbox"],
+				tags: ["chip", "chipwave", "bulbbox", "bass"],
 				settings: {
 					type: "chip",
 					volume: 0,
@@ -850,7 +857,7 @@ export const moddedCategories: InputPresetCategory[] = [
 			{
 				name: "BulbBox C64 Bass",
 				midiProgram: 80,
-				tags: ["pwm", "bulbbox"],
+				tags: ["pwm", "bulbbox", "bass"],
 				settings: {
 					type: "PWM",
 					volume: 0,
@@ -898,7 +905,7 @@ export const moddedCategories: InputPresetCategory[] = [
 			{
 				name: "BulbBox SuperSaw Bass",
 				midiProgram: 80,
-				tags: ["supersaw", "bulbbox"],
+				tags: ["supersaw", "bulbbox", "bass"],
 				settings: {
 					type: "supersaw",
 					volume: 0,
@@ -966,7 +973,7 @@ export const moddedCategories: InputPresetCategory[] = [
 			{
 				name: "BulbBox Evil Bass",
 				midiProgram: 80,
-				tags: ["pickedstring", "bulbbox"],
+				tags: ["pickedstring", "bulbbox", "bass"],
 				settings: {
 					type: "Picked String",
 					volume: 0,
@@ -992,7 +999,7 @@ export const moddedCategories: InputPresetCategory[] = [
 			{
 				name: "BulbBox Pulse Bass",
 				midiProgram: 80,
-				tags: ["pwm", "bulbbox"],
+				tags: ["pwm", "bulbbox", "bass"],
 				settings: {
 					type: "PWM",
 					volume: 0,
@@ -1066,7 +1073,7 @@ export const moddedCategories: InputPresetCategory[] = [
 			{
 				name: "BulbBox Synth Slap Bass",
 				midiProgram: 80,
-				tags: ["fm", "fm4op", "bulbbox"],
+				tags: ["fm", "fm4op", "bulbbox", "bass"],
 				settings: {
 					type: "FM",
 					volume: 0,
@@ -1125,7 +1132,7 @@ export const moddedCategories: InputPresetCategory[] = [
 			{
 				name: "BulbBox Saw Lead",
 				midiProgram: 80,
-				tags: ["chip", "chipwave", "bulbbox"],
+				tags: ["chip", "chipwave", "bulbbox", "lead"],
 				settings: {
 					type: "chip",
 					volume: 0,
@@ -1220,7 +1227,7 @@ export const moddedCategories: InputPresetCategory[] = [
 			{
 				name: "BulbBox Distortion Guitar 1",
 				midiProgram: 80,
-				tags: ["fm", "fm4op", "bulbbox"],
+				tags: ["fm", "fm4op", "bulbbox", "distortion"],
 				settings: {
 					type: "FM",
 					volume: 0,
@@ -1310,7 +1317,7 @@ export const moddedCategories: InputPresetCategory[] = [
 			{
 				name: "BulbBox Distortion Guitar 2",
 				midiProgram: 80,
-				tags: ["pickedstring", "bulbbox"],
+				tags: ["pickedstring", "bulbbox", "distortion"],
 				settings: {
 					type: "Picked String",
 					volume: 0,
@@ -1380,7 +1387,7 @@ export const moddedCategories: InputPresetCategory[] = [
 			{
 				name: "BulbBox Electric Piano",
 				midiProgram: 80,
-				tags: ["fm", "fm4op", "bulbbox"],
+				tags: ["fm", "fm4op", "bulbbox", "keys"],
 				settings: {
 					type: "FM",
 					volume: 0,
@@ -1450,7 +1457,7 @@ export const moddedCategories: InputPresetCategory[] = [
 			{
 				name: "BulbBox Synth Piano",
 				midiProgram: 80,
-				tags: ["pwm", "bulbbox"],
+				tags: ["pwm", "bulbbox", "keys"],
 				settings: {
 					type: "PWM",
 					volume: 0,
@@ -1497,7 +1504,7 @@ export const moddedCategories: InputPresetCategory[] = [
 			{
 				name: "BulbBox Synth Keys",
 				midiProgram: 80,
-				tags: ["supersaw", "bulbbox"],
+				tags: ["supersaw", "bulbbox", "keys"],
 				settings: {
 					type: "supersaw",
 					volume: 0,
@@ -1556,7 +1563,7 @@ export const moddedCategories: InputPresetCategory[] = [
 			{
 				name: "BulbBox OPLL Piano",
 				midiProgram: 80,
-				tags: ["fm", "fm4op", "bulbbox"],
+				tags: ["fm", "fm4op", "bulbbox", "keys"],
 				settings: {
 					type: "FM",
 					volume: 0,
@@ -1633,7 +1640,7 @@ export const moddedCategories: InputPresetCategory[] = [
 			{
 				name: "BulbBox Trumpet",
 				midiProgram: 80,
-				tags: ["fm", "fm4op", "bulbbox"],
+				tags: ["fm", "fm4op", "bulbbox", "brass"],
 				settings: {
 					type: "FM",
 					volume: 0,
@@ -1686,7 +1693,7 @@ export const moddedCategories: InputPresetCategory[] = [
 			{
 				name: "BulbBox Brass",
 				midiProgram: 80,
-				tags: ["fm", "fm4op", "bulbbox"],
+				tags: ["fm", "fm4op", "bulbbox", "brass"],
 				settings: {
 					type: "FM",
 					volume: 0,
@@ -1738,7 +1745,7 @@ export const moddedCategories: InputPresetCategory[] = [
 			{
 				name: "BulbBox Synth Sax",
 				midiProgram: 80,
-				tags: ["fm", "fm4op", "bulbbox"],
+				tags: ["fm", "fm4op", "bulbbox", "brass"],
 				settings: {
 					type: "FM",
 					volume: 0,
@@ -1804,7 +1811,7 @@ export const moddedCategories: InputPresetCategory[] = [
 			{
 				name: "BulbBox Flute",
 				midiProgram: 80,
-				tags: ["fm", "fm4op", "bulbbox"],
+				tags: ["fm", "fm4op", "bulbbox", "flute"],
 				settings: {
 					type: "FM",
 					volume: 0,
@@ -1901,7 +1908,7 @@ export const moddedCategories: InputPresetCategory[] = [
 				name: "blackbox deep key",
 				midiProgram: 9,
 				generalMidi: true,
-				tags: ["harmonics"],
+				tags: ["harmonics", "keys"],
 				settings: {
 					type: "harmonics",
 					effects: "reverb",
@@ -1963,7 +1970,7 @@ export const moddedCategories: InputPresetCategory[] = [
 			{
 				name: "todbox wind",
 				generalMidi: false,
-				tags: ["fm", "fm4op"],
+				tags: ["fm", "fm4op", "ambience"],
 				settings: {
 					type: "FM",
 					effects: "reverb",
@@ -2031,7 +2038,7 @@ export const moddedCategories: InputPresetCategory[] = [
 			{
 				name: "Nastortion Guitar (VoxBox)",
 				generalMidi: false,
-				tags: ["harmonics", "featured"],
+				tags: ["harmonics", "featured", "distortion", "guitar"],
 				settings: {
 					type: "harmonics",
 					volume: 0,
@@ -2076,7 +2083,7 @@ export const moddedCategories: InputPresetCategory[] = [
 			{
 				name: "Sawcoustic Bass (VoxBox)",
 				generalMidi: false,
-				tags: ["fm", "fm4op"],
+				tags: ["fm", "fm4op", "bass"],
 				settings: {
 					type: "FM",
 					volume: 0,
@@ -2156,7 +2163,7 @@ export const moddedCategories: InputPresetCategory[] = [
 			{
 				name: "Chip Guitar (BloxBox)",
 				generalMidi: false,
-				tags: ["chip", "chipwave"],
+				tags: ["chip", "chipwave", "retro"],
 				settings: {
 					type: "chip",
 					volume: 0,
@@ -2174,7 +2181,7 @@ export const moddedCategories: InputPresetCategory[] = [
 			{
 				name: "Bass Triangle Wave (BloxBox)",
 				generalMidi: false,
-				tags: ["chip", "chipwave"],
+				tags: ["chip", "chipwave", "retro", "bass"],
 				settings: {
 					type: "chip",
 					eqFilter: [
@@ -2217,7 +2224,7 @@ export const moddedCategories: InputPresetCategory[] = [
 			{
 				name: "Bon Wave (BonBox)",
 				generalMidi: false,
-				tags: ["chip", "chipwave"],
+				tags: ["chip", "chipwave", "retro"],
 				settings: {
 					type: "chip",
 					eqFilter: [{ type: "low-pass", cutoffHz: 8000, linearGain: 0.3536 }],
@@ -2250,7 +2257,7 @@ export const moddedCategories: InputPresetCategory[] = [
 			{
 				name: "Silly Wave (BonBox)",
 				generalMidi: false,
-				tags: ["chip", "chipwave"],
+				tags: ["chip", "chipwave", "retro"],
 				settings: {
 					type: "chip",
 					eqFilter: [{ type: "low-pass", cutoffHz: 6727.17, linearGain: 1 }],
@@ -2309,7 +2316,7 @@ export const moddedCategories: InputPresetCategory[] = [
 			{
 				name: "musical trollge (DinoBox)",
 				generalMidi: false,
-				tags: ["fm", "fm4op"],
+				tags: ["fm", "fm4op", "novelty"],
 				settings: {
 					type: "FM",
 					volume: 80,
@@ -2345,7 +2352,7 @@ export const moddedCategories: InputPresetCategory[] = [
 			{
 				name: "D's 1/8 Pulse (D's Quick Box Mod)",
 				generalMidi: false,
-				tags: ["chip", "chipwave"],
+				tags: ["chip", "chipwave", "retro"],
 				settings: {
 					type: "chip",
 					eqFilter: [],
@@ -2529,7 +2536,7 @@ export const moddedCategories: InputPresetCategory[] = [
 			{
 				name: "Rhodes Part A (VoxBox)",
 				generalMidi: false,
-				tags: ["fm", "fm4op"],
+				tags: ["fm", "fm4op", "keys"],
 				settings: {
 					type: "FM",
 					eqFilter: [
@@ -2600,7 +2607,7 @@ export const moddedCategories: InputPresetCategory[] = [
 			{
 				name: "Rhodes Part B (VoxBox)",
 				generalMidi: false,
-				tags: ["pickedstring"],
+				tags: ["pickedstring", "keys"],
 				settings: {
 					type: "Picked String",
 					eqFilter: [],
@@ -2635,7 +2642,7 @@ export const moddedCategories: InputPresetCategory[] = [
 			{
 				name: "Rhodes Part C (VoxBox)",
 				generalMidi: false,
-				tags: ["spectrum"],
+				tags: ["spectrum", "keys"],
 				settings: {
 					type: "spectrum",
 					eqFilter: [
@@ -2688,7 +2695,7 @@ export const moddedCategories: InputPresetCategory[] = [
 			{
 				name: "bitcrushed artifacts (Slarmoo's Box)",
 				generalMidi: false,
-				tags: ["pickedstring", "slarmoo'sbox", "novelty"],
+				tags: ["pickedstring", "slarmoo'sbox", "novelty", "ambience"],
 				settings: {
 					type: "Picked String",
 					eqFilter: [{ type: "low-pass", cutoffHz: 9656.85, linearGain: 0.5 }],
@@ -2717,7 +2724,7 @@ export const moddedCategories: InputPresetCategory[] = [
 			{
 				name: "whistle 2 (Slarmoo's Box)",
 				midiProgram: 78,
-				tags: ["harmonics", "slarmoo'sbox", "novelty"],
+				tags: ["harmonics", "slarmoo'sbox", "novelty", "flute"],
 				settings: {
 					type: "harmonics",
 					eqFilter: [{ type: "low-pass", cutoffHz: 2110.37, linearGain: 1.4142 }],
@@ -2818,7 +2825,7 @@ export const moddedCategories: InputPresetCategory[] = [
 			{
 				name: "stationary harmonics (Slarmoo's Box)",
 				generalMidi: false,
-				tags: ["harmonics", "slarmoo'sbox", "novelty"],
+				tags: ["harmonics", "slarmoo'sbox", "novelty", "pad"],
 				settings: {
 					type: "harmonics",
 					eqFilter: [
@@ -2866,7 +2873,7 @@ export const moddedCategories: InputPresetCategory[] = [
 			{
 				name: "dead souls (Slarmoo's Box)",
 				generalMidi: false,
-				tags: ["spectrum", "slarmoo'sbox", "novelty"],
+				tags: ["spectrum", "slarmoo'sbox", "novelty", "sfx"],
 				settings: {
 					type: "spectrum",
 					volume: 0,
@@ -2969,7 +2976,7 @@ export const moddedCategories: InputPresetCategory[] = [
 			{
 				name: "flutter (Slarmoo's Box)",
 				generalMidi: false,
-				tags: ["fm", "fm4op", "slarmoo'sbox", "novelty"],
+				tags: ["fm", "fm4op", "slarmoo'sbox", "novelty", "sfx"],
 				settings: {
 					type: "FM",
 					volume: 0,
@@ -3040,7 +3047,7 @@ export const moddedCategories: InputPresetCategory[] = [
 			{
 				name: "vinyl (Slarmoo's Box)",
 				generalMidi: false,
-				tags: ["noise", "slarmoo'sbox", "novelty"],
+				tags: ["noise", "slarmoo'sbox", "novelty", "sfx"],
 				settings: {
 					type: "noise",
 					volume: 0,
@@ -3107,7 +3114,7 @@ export const moddedCategories: InputPresetCategory[] = [
 				name: "liminal (Slarmoo's Box)",
 				generalMidi: false,
 				isNoise: false,
-				tags: ["supersaw", "slarmoo'sbox", "novelty"],
+				tags: ["supersaw", "slarmoo'sbox", "novelty", "arp"],
 				settings: {
 					type: "supersaw",
 					volume: 0,
@@ -3752,7 +3759,7 @@ export const moddedCategories: InputPresetCategory[] = [
 				midiProgram: 116,
 				generalMidi: true,
 				isNoise: true,
-				tags: ["noise"],
+				tags: ["noise", "retro"],
 				settings: {
 					type: "noise",
 					eqFilter: [],
@@ -3772,7 +3779,7 @@ export const moddedCategories: InputPresetCategory[] = [
 				midiProgram: 116,
 				generalMidi: true,
 				isNoise: true,
-				tags: ["noise"],
+				tags: ["noise", "retro"],
 				settings: {
 					type: "noise",
 					eqFilter: [],
@@ -3791,7 +3798,7 @@ export const moddedCategories: InputPresetCategory[] = [
 				name: "Hollow Retro Riser (MidBox)",
 				isNoise: true,
 				generalMidi: false,
-				tags: ["noise"],
+				tags: ["noise", "retro"],
 				settings: {
 					type: "noise",
 					eqFilter: [{ type: "low-pass", cutoffHz: 16000, linearGain: 0.3536 }],
@@ -3820,7 +3827,7 @@ export const moddedCategories: InputPresetCategory[] = [
 				name: "Heavy Knock (AbyssBox)",
 				generalMidi: false,
 				isNoise: true,
-				tags: ["noise"],
+				tags: ["noise", "drum"],
 				settings: {
 					type: "noise",
 					eqFilter: [],
@@ -3854,7 +3861,7 @@ export const moddedCategories: InputPresetCategory[] = [
 				name: "spectrum wind (Slarmoo's Box)",
 				generalMidi: false,
 				isNoise: true,
-				tags: ["spectrum"],
+				tags: ["spectrum", "ambience"],
 				settings: {
 					type: "spectrum",
 					volume: 0,
@@ -3884,7 +3891,7 @@ export const moddedCategories: InputPresetCategory[] = [
 				name: "hi-hat (Slarmoo's Box)",
 				generalMidi: false,
 				isNoise: true,
-				tags: ["noise"],
+				tags: ["noise", "hihat"],
 				settings: {
 					type: "noise",
 					volume: 0,
@@ -3946,7 +3953,7 @@ export const moddedCategories: InputPresetCategory[] = [
 				name: "air hiss (Slarmoo's Box)",
 				generalMidi: false,
 				isNoise: true,
-				tags: ["spectrum"],
+				tags: ["spectrum", "ambience", "sfx"],
 				settings: {
 					type: "spectrum",
 					volume: 0,
@@ -3992,7 +3999,7 @@ export const moddedCategories: InputPresetCategory[] = [
 				name: "shaker (Slarmoo's Box)",
 				generalMidi: false,
 				isNoise: true,
-				tags: ["noise"],
+				tags: ["noise", "drum"],
 				settings: {
 					type: "noise",
 					volume: 0,
@@ -4078,7 +4085,7 @@ export const moddedCategories: InputPresetCategory[] = [
 				name: "White Noise (VoxBox)",
 				generalMidi: false,
 				isNoise: true,
-				tags: ["noise"],
+				tags: ["noise", "retro"],
 				settings: {
 					type: "noise",
 					volume: 0,
@@ -4103,7 +4110,7 @@ export const moddedCategories: InputPresetCategory[] = [
 				name: "Chocolate Harsh (Unbox)",
 				generalMidi: false,
 				isNoise: true,
-				tags: ["drumset"],
+				tags: ["drumset", "distortion"],
 				settings: {
 					type: "drumset",
 					eqFilter: [
@@ -4309,7 +4316,7 @@ export const moddedCategories: InputPresetCategory[] = [
 			{
 				name: "Filtered Sawtooth Lead",
 				midiProgram: 82,
-				tags: ["chip", "chipwave", "unbox"],
+				tags: ["chip", "chipwave", "unbox", "lead"],
 				settings: {
 					type: "chip",
 					eqFilter: [],
@@ -4374,7 +4381,7 @@ export const moddedCategories: InputPresetCategory[] = [
 			{
 				name: "Plucky Lead",
 				midiProgram: 83,
-				tags: ["fm", "fm4op", "unbox"],
+				tags: ["fm", "fm4op", "unbox", "lead"],
 				settings: {
 					type: "FM",
 					eqFilter: [
@@ -4441,7 +4448,7 @@ export const moddedCategories: InputPresetCategory[] = [
 			{
 				name: "Shimmer Lead",
 				midiProgram: 84,
-				tags: ["fm", "fm4op", "unbox"],
+				tags: ["fm", "fm4op", "unbox", "lead"],
 				settings: {
 					type: "FM",
 					eqFilter: [
@@ -4508,7 +4515,7 @@ export const moddedCategories: InputPresetCategory[] = [
 			{
 				name: "Distorted Lead",
 				midiProgram: 81,
-				tags: ["fm", "fm4op", "unbox"],
+				tags: ["fm", "fm4op", "unbox", "lead"],
 				settings: {
 					type: "FM",
 					eqFilter: [{ type: "high-pass", cutoffHz: 148.65, linearGain: 1 }],
@@ -4553,7 +4560,7 @@ export const moddedCategories: InputPresetCategory[] = [
 			{
 				name: "Soft Lead",
 				midiProgram: 84,
-				tags: ["chip", "customchip", "unbox"],
+				tags: ["chip", "customchip", "unbox", "lead"],
 				settings: {
 					type: "custom chip",
 					eqFilter: [
@@ -4737,7 +4744,7 @@ export const moddedCategories: InputPresetCategory[] = [
 			{
 				name: "Pulse Lead",
 				generalMidi: false,
-				tags: ["pwm", "unbox"],
+				tags: ["pwm", "unbox", "lead"],
 				settings: {
 					type: "PWM",
 					eqFilter: [],
@@ -4772,7 +4779,7 @@ export const moddedCategories: InputPresetCategory[] = [
 			{
 				name: "PWM Lead*",
 				generalMidi: false,
-				tags: ["pwm", "unbox"],
+				tags: ["pwm", "unbox", "lead"],
 				settings: {
 					type: "PWM",
 					eqFilter: [{ type: "low-pass", cutoffHz: 19027.31, linearGain: 0.7071 }],
@@ -4823,7 +4830,7 @@ export const moddedCategories: InputPresetCategory[] = [
 			{
 				name: "Smooth Lead",
 				generalMidi: false,
-				tags: ["fm", "fm6op", "unbox"],
+				tags: ["fm", "fm6op", "unbox", "lead"],
 				settings: {
 					type: "FM6op",
 					eqFilter: [{ type: "high-pass", cutoffHz: 148.65, linearGain: 1 }],

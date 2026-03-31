@@ -1,3 +1,10 @@
+// contributors-a2
+//
+// Purpose: Community contributor preset categories (A2)
+//
+// This module:
+// - Exports preset categories: Krmailence through august
+
 import { DictionaryArray, toNameMap } from "../../../synth/synth-config";
 import { InputPresetCategory, Preset } from "./types";
 
@@ -2649,7 +2656,7 @@ export const contributorCategoriesA2: InputPresetCategory[] = [
 			{
 				name: "Magic Wind",
 				generalMidi: false,
-				tags: ["spectrum", "happylemonlime"],
+				tags: ["spectrum", "happylemonlime", "ambience"],
 				settings: {
 					type: "spectrum",
 					eqFilter: [
@@ -2773,7 +2780,7 @@ export const contributorCategoriesA2: InputPresetCategory[] = [
 			{
 				name: "Shredder Guitar",
 				generalMidi: false,
-				tags: ["pickedstring", "happylemonlime", "featured"],
+				tags: ["pickedstring", "happylemonlime", "featured", "distortion"],
 				settings: {
 					type: "Picked String",
 					eqFilter: [
@@ -2856,7 +2863,7 @@ export const contributorCategoriesA2: InputPresetCategory[] = [
 			{
 				name: "ethereal organ stab",
 				generalMidi: false,
-				tags: ["fm", "fm4op", "spendog"],
+				tags: ["fm", "fm4op", "spendog", "bellows"],
 				settings: {
 					type: "FM",
 					eqFilter: [],
@@ -2925,7 +2932,7 @@ export const contributorCategoriesA2: InputPresetCategory[] = [
 			{
 				name: "pulse bleep",
 				generalMidi: false,
-				tags: ["chip", "customchip", "spendog"],
+				tags: ["chip", "customchip", "spendog", "chiptune", "retro"],
 				settings: {
 					type: "custom chip",
 					eqFilter: [],
@@ -3091,7 +3098,7 @@ export const contributorCategoriesA2: InputPresetCategory[] = [
 			{
 				name: "mother 3- buzzy",
 				generalMidi: false,
-				tags: ["chip", "customchip", "spendog"],
+				tags: ["chip", "customchip", "spendog", "chiptune", "retro"],
 				settings: {
 					type: "custom chip",
 					eqFilter: [],
@@ -3298,7 +3305,7 @@ export const contributorCategoriesA2: InputPresetCategory[] = [
 			{
 				name: "muted overdrive guitar",
 				generalMidi: false,
-				tags: ["pickedstring", "spendog"],
+				tags: ["pickedstring", "spendog", "distortion", "picked"],
 				settings: {
 					type: "Picked String",
 					eqFilter: [
@@ -3344,7 +3351,7 @@ export const contributorCategoriesA2: InputPresetCategory[] = [
 			{
 				name: "mini chip banjo",
 				generalMidi: false,
-				tags: ["chip", "chipwave", "spendog"],
+				tags: ["chip", "chipwave", "spendog", "picked", "chiptune", "retro"],
 				settings: {
 					type: "chip",
 					eqFilter: [],
@@ -3376,7 +3383,7 @@ export const contributorCategoriesA2: InputPresetCategory[] = [
 			{
 				name: "crush-pluck",
 				generalMidi: false,
-				tags: ["chip", "chipwave", "spendog", "featured"],
+				tags: ["chip", "chipwave", "spendog", "featured", "picked", "chiptune", "retro"],
 				settings: {
 					type: "chip",
 					eqFilter: [],
@@ -3443,7 +3450,7 @@ export const contributorCategoriesA2: InputPresetCategory[] = [
 			{
 				name: "ethereal saw strings",
 				generalMidi: false,
-				tags: ["chip", "chipwave", "spendog"],
+				tags: ["chip", "chipwave", "spendog", "string", "chiptune", "retro"],
 				settings: {
 					type: "chip",
 					eqFilter: [],
@@ -3480,7 +3487,7 @@ export const contributorCategoriesA2: InputPresetCategory[] = [
 			{
 				name: "unstable neobass",
 				generalMidi: false,
-				tags: ["fm", "fm4op", "spendog"],
+				tags: ["fm", "fm4op", "spendog", "bass"],
 				settings: {
 					type: "FM",
 					eqFilter: [
@@ -3573,7 +3580,7 @@ export const contributorCategoriesA2: InputPresetCategory[] = [
 			{
 				name: "hard hitter metal guitar",
 				generalMidi: false,
-				tags: ["pickedstring", "spendog"],
+				tags: ["pickedstring", "spendog", "distortion", "picked"],
 				settings: {
 					type: "Picked String",
 					eqFilter: [
@@ -3617,7 +3624,7 @@ export const contributorCategoriesA2: InputPresetCategory[] = [
 			{
 				name: "ascending chip supersaw",
 				generalMidi: false,
-				tags: ["chip", "customchip", "spendog"],
+				tags: ["chip", "customchip", "spendog", "string", "chiptune", "retro"],
 				settings: {
 					type: "custom chip",
 					eqFilter: [],
@@ -3789,7 +3796,7 @@ export const contributorCategoriesA2: InputPresetCategory[] = [
 			{
 				name: "moonsoft bass",
 				generalMidi: false,
-				tags: ["chip", "customchip", "spendog"],
+				tags: ["chip", "customchip", "spendog", "bass", "chiptune", "retro"],
 				settings: {
 					type: "custom chip",
 					eqFilter: [{ type: "low-pass", cutoffHz: 4000, linearGain: 0.5 }],
@@ -3966,7 +3973,7 @@ export const contributorCategoriesA2: InputPresetCategory[] = [
 			{
 				name: "haunted chip harp",
 				generalMidi: false,
-				tags: ["chip", "customchip", "spendog"],
+				tags: ["chip", "customchip", "spendog", "string", "chiptune", "retro"],
 				settings: {
 					type: "custom chip",
 					eqFilter: [],

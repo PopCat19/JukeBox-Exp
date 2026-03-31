@@ -1,3 +1,11 @@
+// index
+//
+// Purpose: Barrel export and aggregation of all preset categories
+//
+// This module:
+// - Imports all category group modules
+// - Exports presetCategoriesData as a DictionaryArray via toNameMap
+
 import { DictionaryArray, toNameMap } from "../../../synth/synth-config";
 import { challengeCategories } from "./challenges";
 import { mixedCommunityCategories } from "./community-mixed";

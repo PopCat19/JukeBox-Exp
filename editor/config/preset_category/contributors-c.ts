@@ -1,3 +1,10 @@
+// contributors-c
+//
+// Purpose: Community contributor preset categories (C)
+//
+// This module:
+// - Exports preset categories: 3001ideaz through Jacobar475
+
 import { DictionaryArray, toNameMap } from "../../../synth/synth-config";
 import { InputPresetCategory, Preset } from "./types";
 
@@ -9,7 +16,7 @@ export const contributorCategoriesC: InputPresetCategory[] = [
 			{
 				name: "Fakebit Bass",
 				generalMidi: false,
-				tags: ["fm", "fm4op", "3001ideaz"],
+				tags: ["fm", "fm4op", "3001ideaz", "retro", "picked"],
 				settings: {
 					type: "FM",
 					eqFilter: [{ type: "low-pass", cutoffHz: 11313.71, linearGain: 1 }],
@@ -79,7 +86,7 @@ export const contributorCategoriesC: InputPresetCategory[] = [
 			{
 				name: "Melodic Knock",
 				generalMidi: false,
-				tags: ["pickedstring", "3001ideaz"],
+				tags: ["pickedstring", "3001ideaz", "picked", "novelty"],
 				settings: {
 					type: "Picked String",
 					eqFilter: [
@@ -122,7 +129,7 @@ export const contributorCategoriesC: InputPresetCategory[] = [
 			{
 				name: "Chip Oboe",
 				generalMidi: false,
-				tags: ["chip", "customchip", "3001ideaz"],
+				tags: ["chip", "customchip", "3001ideaz", "retro", "flute", "picked"],
 				settings: {
 					type: "custom chip",
 					eqFilter: [{ type: "low-pass", cutoffHz: 840.9, linearGain: 1.4142 }],
@@ -287,7 +294,7 @@ export const contributorCategoriesC: InputPresetCategory[] = [
 			{
 				name: "Cul",
 				generalMidi: false,
-				tags: ["fm", "fm4op", "3001ideaz"],
+				tags: ["fm", "fm4op", "3001ideaz", "retro", "distortion"],
 				settings: {
 					type: "FM",
 					eqFilter: [
@@ -397,7 +404,7 @@ export const contributorCategoriesC: InputPresetCategory[] = [
 			{
 				name: "Chip Sitar",
 				generalMidi: false,
-				tags: ["chip", "customchip", "3001ideaz"],
+				tags: ["chip", "customchip", "3001ideaz", "picked", "pad"],
 				settings: {
 					type: "custom chip",
 					eqFilter: [
@@ -583,7 +590,7 @@ export const contributorCategoriesC: InputPresetCategory[] = [
 			{
 				name: "FM 6-Op Hi-Hat",
 				generalMidi: false,
-				tags: ["fm", "fm6op", "3001ideaz"],
+				tags: ["fm", "fm6op", "3001ideaz", "hihat", "retro"],
 				settings: {
 					type: "FM6op",
 					eqFilter: [],
@@ -614,7 +621,7 @@ export const contributorCategoriesC: InputPresetCategory[] = [
 			{
 				name: "Better PWM Overdrive",
 				generalMidi: false,
-				tags: ["pwm", "3001ideaz"],
+				tags: ["pwm", "3001ideaz", "distortion", "guitar", "retro"],
 				settings: {
 					type: "PWM",
 					eqFilter: [
@@ -699,7 +706,7 @@ export const contributorCategoriesC: InputPresetCategory[] = [
 			{
 				name: "Rhythmic Stutter Lead",
 				generalMidi: false,
-				tags: ["fm", "fm6op", "3001ideaz"],
+				tags: ["fm", "fm6op", "3001ideaz", "pad", "bellows"],
 				settings: {
 					type: "FM6op",
 					eqFilter: [
@@ -795,7 +802,7 @@ export const contributorCategoriesC: InputPresetCategory[] = [
 			{
 				name: "Electric FM",
 				generalMidi: false,
-				tags: ["fm", "fm4op", "3001ideaz"],
+				tags: ["fm", "fm4op", "3001ideaz", "picked", "guitar", "retro"],
 				settings: {
 					type: "FM",
 					eqFilter: [
@@ -867,7 +874,7 @@ export const contributorCategoriesC: InputPresetCategory[] = [
 			{
 				name: "FM Overdriven Guitar",
 				generalMidi: false,
-				tags: ["fm", "fm4op", "3001ideaz"],
+				tags: ["fm", "fm4op", "3001ideaz", "retro", "distortion", "guitar"],
 				settings: {
 					type: "FM",
 					eqFilter: [{ type: "low-pass", cutoffHz: 2948.87, linearGain: 2 }],
@@ -907,7 +914,7 @@ export const contributorCategoriesC: InputPresetCategory[] = [
 			{
 				name: "Talking Chip",
 				generalMidi: false,
-				tags: ["chip", "customchip", "3001ideaz"],
+				tags: ["chip", "customchip", "3001ideaz", "retro", "vocal"],
 				settings: {
 					type: "custom chip",
 					eqFilter: [
@@ -1088,7 +1095,7 @@ export const contributorCategoriesC: InputPresetCategory[] = [
 			{
 				name: "Manual Strong Kick",
 				generalMidi: false,
-				tags: ["harmonics", "3001ideaz"],
+				tags: ["harmonics", "3001ideaz", "idiophone", "novelty"],
 				settings: {
 					type: "harmonics",
 					eqFilter: [{ type: "low-pass", cutoffHz: 1189.21, linearGain: 0.3536 }],
@@ -1114,7 +1121,7 @@ export const contributorCategoriesC: InputPresetCategory[] = [
 			{
 				name: "Bootleg Sax Synth",
 				generalMidi: false,
-				tags: ["fm", "fm6op", "3001ideaz"],
+				tags: ["fm", "fm6op", "3001ideaz", "retro", "novelty"],
 				settings: {
 					type: "FM6op",
 					eqFilter: [
@@ -1164,7 +1171,7 @@ export const contributorCategoriesC: InputPresetCategory[] = [
 			{
 				name: "Deep Harmonic Bass",
 				generalMidi: false,
-				tags: ["harmonics", "3001ideaz"],
+				tags: ["harmonics", "3001ideaz", "pad"],
 				settings: {
 					type: "harmonics",
 					eqFilter: [{ type: "low-pass", cutoffHz: 1414.21, linearGain: 0.25 }],
@@ -1194,7 +1201,7 @@ export const contributorCategoriesC: InputPresetCategory[] = [
 			{
 				name: "Bootleg PWM",
 				generalMidi: false,
-				tags: ["pwm", "3001ideaz"],
+				tags: ["pwm", "3001ideaz", "retro", "distortion"],
 				settings: {
 					type: "PWM",
 					eqFilter: [
@@ -1263,7 +1270,7 @@ export const contributorCategoriesC: InputPresetCategory[] = [
 			{
 				name: "Chip of Moderate Emotion",
 				generalMidi: false,
-				tags: ["chip", "chipwave", "3001ideaz"],
+				tags: ["chip", "chipwave", "3001ideaz", "chiptune"],
 				settings: {
 					type: "chip",
 					eqFilter: [{ type: "high-pass", cutoffHz: 297.3, linearGain: 2.8284 }],
@@ -1310,7 +1317,7 @@ export const contributorCategoriesC: InputPresetCategory[] = [
 			{
 				name: "Enraged Chip",
 				generalMidi: false,
-				tags: ["fm", "fm4op", "3001ideaz"],
+				tags: ["fm", "fm4op", "3001ideaz", "distortion", "retro"],
 				settings: {
 					type: "FM",
 					eqFilter: [{ type: "peak", cutoffHz: 2000, linearGain: 4 }],
@@ -1373,7 +1380,7 @@ export const contributorCategoriesC: InputPresetCategory[] = [
 			{
 				name: "Crunchy Crushed Bass",
 				generalMidi: false,
-				tags: ["fm", "fm4op", "ex1"],
+				tags: ["fm", "fm4op", "ex1", "distortion", "picked", "guitar"],
 				settings: {
 					type: "FM",
 					eqFilter: [{ type: "low-pass", cutoffHz: 4756.83, linearGain: 1 }],
@@ -1428,7 +1435,7 @@ export const contributorCategoriesC: InputPresetCategory[] = [
 			{
 				name: "Distant Voice Pad",
 				generalMidi: false,
-				tags: ["harmonics", "ex1", "featured"],
+				tags: ["harmonics", "ex1", "featured", "bellows", "vocal"],
 				settings: {
 					type: "harmonics",
 					eqFilter: [
@@ -1484,7 +1491,7 @@ export const contributorCategoriesC: InputPresetCategory[] = [
 			{
 				name: "Bubbly Blip",
 				generalMidi: false,
-				tags: ["chip", "chipwave", "ex1"],
+				tags: ["chip", "chipwave", "ex1", "retro", "pad"],
 				settings: {
 					type: "chip",
 					eqFilter: [{ type: "low-pass", cutoffHz: 1189.21, linearGain: 0.5 }],
@@ -1548,7 +1555,7 @@ export const contributorCategoriesC: InputPresetCategory[] = [
 			{
 				name: "Shining Pad",
 				generalMidi: false,
-				tags: ["fm", "fm4op", "ex1"],
+				tags: ["fm", "fm4op", "ex1", "bellows"],
 				settings: {
 					type: "FM",
 					eqFilter: [{ type: "high-pass", cutoffHz: 176.78, linearGain: 0.7071 }],
@@ -1612,7 +1619,7 @@ export const contributorCategoriesC: InputPresetCategory[] = [
 			{
 				name: "Deep Ambience Keys",
 				generalMidi: false,
-				tags: ["harmonics", "ex1"],
+				tags: ["harmonics", "ex1", "pad", "bellows"],
 				settings: {
 					type: "harmonics",
 					eqFilter: [
@@ -1669,7 +1676,7 @@ export const contributorCategoriesC: InputPresetCategory[] = [
 			{
 				name: "Oceanic Sparkles",
 				generalMidi: false,
-				tags: ["pickedstring", "ex1"],
+				tags: ["pickedstring", "ex1", "picked", "bellows", "pad"],
 				settings: {
 					type: "Picked String",
 					eqFilter: [
@@ -1712,7 +1719,7 @@ export const contributorCategoriesC: InputPresetCategory[] = [
 			{
 				name: "Light Crush Pulse",
 				generalMidi: false,
-				tags: ["chip", "customchip", "ex1"],
+				tags: ["chip", "customchip", "ex1", "distortion", "retro"],
 				settings: {
 					type: "custom chip",
 					eqFilter: [
@@ -1909,7 +1916,7 @@ export const contributorCategoriesC: InputPresetCategory[] = [
 			{
 				name: "Grainy Pulse",
 				generalMidi: false,
-				tags: ["pwm", "ex1"],
+				tags: ["pwm", "ex1", "novelty", "distortion"],
 				settings: {
 					type: "PWM",
 					eqFilter: [
@@ -1965,7 +1972,7 @@ export const contributorCategoriesC: InputPresetCategory[] = [
 			{
 				name: "Blippy Pulse",
 				generalMidi: false,
-				tags: ["pwm", "ex1"],
+				tags: ["pwm", "ex1", "retro", "picked"],
 				settings: {
 					type: "PWM",
 					eqFilter: [{ type: "low-pass", cutoffHz: 8000, linearGain: 0.5 }],
@@ -2008,7 +2015,7 @@ export const contributorCategoriesC: InputPresetCategory[] = [
 			{
 				name: "Crystal Sparkles",
 				generalMidi: false,
-				tags: ["fm", "fm4op", "ex1", "featured"],
+				tags: ["fm", "fm4op", "ex1", "featured", "idiophone", "pad"],
 				settings: {
 					type: "FM",
 					eqFilter: [
@@ -2083,7 +2090,7 @@ export const contributorCategoriesC: InputPresetCategory[] = [
 			{
 				name: "Muted Overdrive",
 				generalMidi: false,
-				tags: ["pickedstring", "ex1"],
+				tags: ["pickedstring", "ex1", "picked", "distortion"],
 				settings: {
 					type: "Picked String",
 					eqFilter: [
@@ -2200,7 +2207,7 @@ export const contributorCategoriesC: InputPresetCategory[] = [
 			{
 				name: "Sol Pad",
 				generalMidi: false,
-				tags: ["pwm", "ashiiware"],
+				tags: ["pwm", "ashiiware", "pad"],
 				settings: {
 					type: "PWM",
 					eqFilter: [
@@ -2253,7 +2260,7 @@ export const contributorCategoriesC: InputPresetCategory[] = [
 			{
 				name: "Infipad",
 				generalMidi: false,
-				tags: ["fm", "fm4op", "ashiiware"],
+				tags: ["fm", "fm4op", "ashiiware", "pad"],
 				settings: {
 					type: "FM",
 					eqFilter: [
@@ -2321,7 +2328,7 @@ export const contributorCategoriesC: InputPresetCategory[] = [
 			{
 				name: "Mercury Pulse",
 				generalMidi: false,
-				tags: ["pwm", "ashiiware"],
+				tags: ["pwm", "ashiiware", "retro"],
 				settings: {
 					type: "PWM",
 					eqFilter: [{ type: "low-pass", cutoffHz: 19027.31, linearGain: 0.7071 }],
@@ -2368,7 +2375,7 @@ export const contributorCategoriesC: InputPresetCategory[] = [
 			{
 				name: "Infipulse",
 				generalMidi: false,
-				tags: ["chip", "chipwave", "ashiiware"],
+				tags: ["chip", "chipwave", "ashiiware", "retro"],
 				settings: {
 					type: "chip",
 					eqFilter: [],
@@ -2419,7 +2426,7 @@ export const contributorCategoriesC: InputPresetCategory[] = [
 			{
 				name: "Depths Choir",
 				generalMidi: false,
-				tags: ["chip", "customchip", "ashiiware"],
+				tags: ["chip", "customchip", "ashiiware", "vocal"],
 				settings: {
 					type: "custom chip",
 					eqFilter: [],
@@ -2600,7 +2607,7 @@ export const contributorCategoriesC: InputPresetCategory[] = [
 			{
 				name: "Depths Bell",
 				generalMidi: false,
-				tags: ["harmonics", "ashiiware"],
+				tags: ["harmonics", "ashiiware", "idiophone"],
 				settings: {
 					type: "harmonics",
 					eqFilter: [],
@@ -2638,7 +2645,7 @@ export const contributorCategoriesC: InputPresetCategory[] = [
 			{
 				name: "Entropy Guitar",
 				generalMidi: false,
-				tags: ["supersaw", "ashiiware", "featured"],
+				tags: ["supersaw", "ashiiware", "featured", "distortion"],
 				settings: {
 					type: "supersaw",
 					eqFilter: [{ type: "low-pass", cutoffHz: 3049.17, linearGain: 1.4142 }],
@@ -2707,7 +2714,7 @@ export const contributorCategoriesC: InputPresetCategory[] = [
 			{
 				name: "Echo Wave",
 				generalMidi: false,
-				tags: ["chip", "chipwave", "ashiiware"],
+				tags: ["chip", "chipwave", "ashiiware", "chiptune", "picked"],
 				settings: {
 					type: "chip",
 					eqFilter: [],
@@ -2748,7 +2755,7 @@ export const contributorCategoriesC: InputPresetCategory[] = [
 			{
 				name: "Flow Lead",
 				generalMidi: false,
-				tags: ["chip", "chipwave", "ashiiware", "featured"],
+				tags: ["chip", "chipwave", "ashiiware", "featured", "retro"],
 				settings: {
 					type: "chip",
 					eqFilter: [],
@@ -2783,7 +2790,7 @@ export const contributorCategoriesC: InputPresetCategory[] = [
 			{
 				name: "Flow Pulse",
 				generalMidi: false,
-				tags: ["chip", "customchip", "ashiiware"],
+				tags: ["chip", "customchip", "ashiiware", "retro"],
 				settings: {
 					type: "custom chip",
 					eqFilter: [],
@@ -2956,7 +2963,7 @@ export const contributorCategoriesC: InputPresetCategory[] = [
 			{
 				name: "Flow Choir",
 				generalMidi: false,
-				tags: ["fm", "fm6op", "ashiiware", "featured"],
+				tags: ["fm", "fm6op", "ashiiware", "featured", "vocal"],
 				settings: {
 					type: "FM6op",
 					eqFilter: [
@@ -3023,7 +3030,7 @@ export const contributorCategoriesC: InputPresetCategory[] = [
 			{
 				name: "Flow Whistle",
 				generalMidi: false,
-				tags: ["chip", "chipwave", "ashiiware"],
+				tags: ["chip", "chipwave", "ashiiware", "flute"],
 				settings: {
 					type: "chip",
 					eqFilter: [{ type: "low-pass", cutoffHz: 19027.31, linearGain: 0.7071 }],
@@ -3064,7 +3071,7 @@ export const contributorCategoriesC: InputPresetCategory[] = [
 			{
 				name: "Muted Choir",
 				generalMidi: false,
-				tags: ["spectrum", "ashiiware"],
+				tags: ["spectrum", "ashiiware", "vocal"],
 				settings: {
 					type: "spectrum",
 					eqFilter: [
@@ -3117,7 +3124,7 @@ export const contributorCategoriesC: InputPresetCategory[] = [
 			{
 				name: "Decayed Choir",
 				generalMidi: false,
-				tags: ["harmonics", "ashiiware"],
+				tags: ["harmonics", "ashiiware", "vocal"],
 				settings: {
 					type: "harmonics",
 					eqFilter: [
@@ -3159,7 +3166,7 @@ export const contributorCategoriesC: InputPresetCategory[] = [
 			{
 				name: "Granular Pad",
 				generalMidi: false,
-				tags: ["chip", "chipwave", "ashiiware"],
+				tags: ["chip", "chipwave", "ashiiware", "pad"],
 				settings: {
 					type: "chip",
 					eqFilter: [
@@ -3204,7 +3211,7 @@ export const contributorCategoriesC: InputPresetCategory[] = [
 			{
 				name: "Ambient Chip",
 				generalMidi: false,
-				tags: ["chip", "customchip", "ashiiware"],
+				tags: ["chip", "customchip", "ashiiware", "novelty"],
 				settings: {
 					type: "custom chip",
 					eqFilter: [{ type: "low-pass", cutoffHz: 19027.31, linearGain: 2.8284 }],
@@ -3383,7 +3390,7 @@ export const contributorCategoriesC: InputPresetCategory[] = [
 			{
 				name: "Ascension Guitar",
 				generalMidi: false,
-				tags: ["chip", "customchip", "ashiiware"],
+				tags: ["chip", "customchip", "ashiiware", "distortion", "picked"],
 				settings: {
 					type: "custom chip",
 					eqFilter: [{ type: "low-pass", cutoffHz: 19027.31, linearGain: 0.7071 }],
@@ -3568,7 +3575,7 @@ export const contributorCategoriesC: InputPresetCategory[] = [
 			{
 				name: "Muted Pulse",
 				generalMidi: false,
-				tags: ["pwm", "ashiiware"],
+				tags: ["pwm", "ashiiware", "retro"],
 				settings: {
 					type: "PWM",
 					eqFilter: [
@@ -3630,7 +3637,7 @@ export const contributorCategoriesC: InputPresetCategory[] = [
 			{
 				name: "Saw Keys",
 				generalMidi: false,
-				tags: ["chip", "chipwave", "ashiiware"],
+				tags: ["chip", "chipwave", "ashiiware", "novelty"],
 				settings: {
 					type: "chip",
 					eqFilter: [
@@ -3678,7 +3685,7 @@ export const contributorCategoriesC: InputPresetCategory[] = [
 			{
 				name: "Distorted Vocalsynth",
 				generalMidi: false,
-				tags: ["fm", "fm6op", "ashiiware"],
+				tags: ["fm", "fm6op", "ashiiware", "novelty"],
 				settings: {
 					type: "FM6op",
 					eqFilter: [
@@ -3741,7 +3748,7 @@ export const contributorCategoriesC: InputPresetCategory[] = [
 			{
 				name: "Granusquare",
 				generalMidi: false,
-				tags: ["chip", "customchip", "ashiiware"],
+				tags: ["chip", "customchip", "ashiiware", "novelty"],
 				settings: {
 					type: "custom chip",
 					eqFilter: [
@@ -3936,7 +3943,7 @@ export const contributorCategoriesC: InputPresetCategory[] = [
 			{
 				name: "Granular Pluck",
 				generalMidi: false,
-				tags: ["pickedstring", "ashiiware"],
+				tags: ["pickedstring", "ashiiware", "novelty"],
 				settings: {
 					type: "Picked String",
 					eqFilter: [{ type: "low-pass", cutoffHz: 9656.85, linearGain: 0.5 }],
@@ -4111,7 +4118,7 @@ export const contributorCategoriesC: InputPresetCategory[] = [
 			{
 				name: "Crushed Bass Guitar",
 				generalMidi: false,
-				tags: ["harmonics", "ashiiware"],
+				tags: ["harmonics", "ashiiware", "picked"],
 				settings: {
 					type: "harmonics",
 					eqFilter: [],
@@ -4152,7 +4159,7 @@ export const contributorCategoriesC: InputPresetCategory[] = [
 			{
 				name: "Nightpluck",
 				generalMidi: false,
-				tags: ["pickedstring", "ashiiware"],
+				tags: ["pickedstring", "ashiiware", "picked"],
 				settings: {
 					type: "Picked String",
 					eqFilter: [{ type: "low-pass", cutoffHz: 4756.83, linearGain: 0.0884 }],
@@ -4181,7 +4188,7 @@ export const contributorCategoriesC: InputPresetCategory[] = [
 			{
 				name: "Ceres Pad",
 				generalMidi: false,
-				tags: ["chip", "chipwave", "ashiiware"],
+				tags: ["chip", "chipwave", "ashiiware", "pad"],
 				settings: {
 					type: "chip",
 					eqFilter: [
@@ -4239,7 +4246,7 @@ export const contributorCategoriesC: InputPresetCategory[] = [
 			{
 				name: "Ceres Bass",
 				generalMidi: false,
-				tags: ["chip", "chipwave", "ashiiware"],
+				tags: ["chip", "chipwave", "ashiiware", "retro"],
 				settings: {
 					type: "chip",
 					eqFilter: [],
@@ -4292,7 +4299,7 @@ export const contributorCategoriesC: InputPresetCategory[] = [
 			{
 				name: "Neptune Pluck",
 				generalMidi: false,
-				tags: ["pickedstring", "ashiiware"],
+				tags: ["pickedstring", "ashiiware", "picked"],
 				settings: {
 					type: "Picked String",
 					eqFilter: [
@@ -4364,7 +4371,7 @@ export const contributorCategoriesC: InputPresetCategory[] = [
 			{
 				name: "Neptune Guitar",
 				generalMidi: false,
-				tags: ["fm", "fm4op", "ashiiware"],
+				tags: ["fm", "fm4op", "ashiiware", "distortion"],
 				settings: {
 					type: "FM",
 					eqFilter: [
@@ -4455,7 +4462,7 @@ export const contributorCategoriesC: InputPresetCategory[] = [
 			{
 				name: "Neptune Lead",
 				generalMidi: false,
-				tags: ["pwm", "ashiiware"],
+				tags: ["pwm", "ashiiware", "retro", "distortion"],
 				settings: {
 					type: "PWM",
 					eqFilter: [{ type: "low-pass", cutoffHz: 13454.34, linearGain: 0.5 }],
@@ -4496,7 +4503,7 @@ export const contributorCategoriesC: InputPresetCategory[] = [
 			{
 				name: "Distortion Pad",
 				generalMidi: false,
-				tags: ["chip", "chipwave", "ashiiware"],
+				tags: ["chip", "chipwave", "ashiiware", "distortion"],
 				settings: {
 					type: "chip",
 					eqFilter: [
@@ -4618,7 +4625,7 @@ export const contributorCategoriesC: InputPresetCategory[] = [
 			{
 				name: "Ambisaw",
 				generalMidi: false,
-				tags: ["chip", "customchip", "ashiiware"],
+				tags: ["chip", "customchip", "ashiiware", "novelty"],
 				settings: {
 					type: "custom chip",
 					eqFilter: [{ type: "low-pass", cutoffHz: 1189.21, linearGain: 0.0884 }],
@@ -4783,7 +4790,7 @@ export const contributorCategoriesC: InputPresetCategory[] = [
 			{
 				name: "Trapezynth",
 				generalMidi: false,
-				tags: ["chip", "chipwave", "ashiiware"],
+				tags: ["chip", "chipwave", "ashiiware", "distortion"],
 				settings: {
 					type: "chip",
 					eqFilter: [
@@ -4836,7 +4843,7 @@ export const contributorCategoriesC: InputPresetCategory[] = [
 			{
 				name: "Crushed Choir",
 				generalMidi: false,
-				tags: ["spectrum", "ashiiware"],
+				tags: ["spectrum", "ashiiware", "vocal"],
 				settings: {
 					type: "spectrum",
 					eqFilter: [
@@ -4911,7 +4918,7 @@ export const contributorCategoriesC: InputPresetCategory[] = [
 			{
 				name: "Ambient Hyperbrass",
 				generalMidi: false,
-				tags: ["supersaw", "ashiiware"],
+				tags: ["supersaw", "ashiiware", "brass"],
 				settings: {
 					type: "supersaw",
 					eqFilter: [{ type: "low-pass", cutoffHz: 11313.71, linearGain: 0.125 }],
@@ -4973,7 +4980,7 @@ export const contributorCategoriesC: InputPresetCategory[] = [
 			{
 				name: "Starlit Bass",
 				generalMidi: false,
-				tags: ["fm", "fm4op", "ashiiware"],
+				tags: ["fm", "fm4op", "ashiiware", "picked"],
 				settings: {
 					type: "FM",
 					eqFilter: [{ type: "low-pass", cutoffHz: 9513.66, linearGain: 0.1768 }],
@@ -5024,7 +5031,7 @@ export const contributorCategoriesC: InputPresetCategory[] = [
 			{
 				name: "Recursive Organ",
 				generalMidi: false,
-				tags: ["fm", "fm4op", "ashiiware"],
+				tags: ["fm", "fm4op", "ashiiware", "bellows"],
 				settings: {
 					type: "FM",
 					eqFilter: [{ type: "low-pass", cutoffHz: 6727.17, linearGain: 0.3536 }],
@@ -5061,7 +5068,7 @@ export const contributorCategoriesC: InputPresetCategory[] = [
 			{
 				name: "Lofi Brass",
 				generalMidi: false,
-				tags: ["fm", "fm4op", "ashiiware"],
+				tags: ["fm", "fm4op", "ashiiware", "brass"],
 				settings: {
 					type: "FM",
 					eqFilter: [{ type: "low-pass", cutoffHz: 3049.17, linearGain: 1.4142 }],
@@ -5112,7 +5119,7 @@ export const contributorCategoriesC: InputPresetCategory[] = [
 			{
 				name: "Radio Pulse",
 				generalMidi: false,
-				tags: ["pwm", "ashiiware"],
+				tags: ["pwm", "ashiiware", "retro"],
 				settings: {
 					type: "PWM",
 					eqFilter: [
@@ -5201,7 +5208,7 @@ export const contributorCategoriesC: InputPresetCategory[] = [
 			{
 				name: "Stellar Pulse",
 				generalMidi: false,
-				tags: ["pwm", "ashiiware"],
+				tags: ["pwm", "ashiiware", "retro"],
 				settings: {
 					type: "PWM",
 					eqFilter: [],
@@ -5317,7 +5324,7 @@ export const contributorCategoriesC: InputPresetCategory[] = [
 			{
 				name: "VAM6 Pad",
 				generalMidi: false,
-				tags: ["supersaw", "ashiiware"],
+				tags: ["supersaw", "ashiiware", "pad"],
 				settings: {
 					type: "supersaw",
 					eqFilter: [{ type: "low-pass", cutoffHz: 8000, linearGain: 0.1768 }],
@@ -5344,7 +5351,7 @@ export const contributorCategoriesC: InputPresetCategory[] = [
 			{
 				name: "Pulse Bell",
 				generalMidi: false,
-				tags: ["pwm", "ashiiware"],
+				tags: ["pwm", "ashiiware", "novelty"],
 				settings: {
 					type: "PWM",
 					eqFilter: [
@@ -5541,7 +5548,7 @@ export const contributorCategoriesC: InputPresetCategory[] = [
 			{
 				name: "Pluto Pad",
 				generalMidi: false,
-				tags: ["supersaw", "ashiiware", "featured"],
+				tags: ["supersaw", "ashiiware", "featured", "pad"],
 				settings: {
 					type: "supersaw",
 					eqFilter: [{ type: "peak", cutoffHz: 420.45, linearGain: 2.8284 }],
@@ -5813,7 +5820,7 @@ export const contributorCategoriesC: InputPresetCategory[] = [
 			{
 				name: "Saturn Pluck",
 				generalMidi: false,
-				tags: ["fm", "fm4op", "ashiiware"],
+				tags: ["fm", "fm4op", "ashiiware", "picked"],
 				settings: {
 					type: "FM",
 					eqFilter: [],
@@ -5897,7 +5904,7 @@ export const contributorCategoriesC: InputPresetCategory[] = [
 			{
 				name: "Sunset Glitch",
 				generalMidi: false,
-				tags: ["fm", "fm6op", "ashiiware"],
+				tags: ["fm", "fm6op", "ashiiware", "novelty"],
 				settings: {
 					type: "FM6op",
 					eqFilter: [
@@ -5987,7 +5994,7 @@ export const contributorCategoriesC: InputPresetCategory[] = [
 			{
 				name: "Venus Pulse",
 				generalMidi: false,
-				tags: ["chip", "chipwave", "ashiiware"],
+				tags: ["chip", "chipwave", "ashiiware", "retro"],
 				settings: {
 					type: "chip",
 					eqFilter: [],
@@ -6102,7 +6109,7 @@ export const contributorCategoriesC: InputPresetCategory[] = [
 			{
 				name: "Sewer FM",
 				generalMidi: false,
-				tags: ["fm", "fm4op", "ashiiware"],
+				tags: ["fm", "fm4op", "ashiiware", "novelty"],
 				settings: {
 					type: "FM",
 					eqFilter: [],
@@ -6346,7 +6353,7 @@ export const contributorCategoriesC: InputPresetCategory[] = [
 			{
 				name: "Sewer Distortion",
 				generalMidi: false,
-				tags: ["pickedstring", "ashiiware"],
+				tags: ["pickedstring", "ashiiware", "distortion"],
 				settings: {
 					type: "Picked String",
 					eqFilter: [
@@ -6467,7 +6474,7 @@ export const contributorCategoriesC: InputPresetCategory[] = [
 			{
 				name: "Sewer Choir",
 				generalMidi: false,
-				tags: ["spectrum", "ashiiware"],
+				tags: ["spectrum", "ashiiware", "vocal"],
 				settings: {
 					type: "spectrum",
 					eqFilter: [],
@@ -6504,7 +6511,7 @@ export const contributorCategoriesC: InputPresetCategory[] = [
 			{
 				name: "Sewerpad",
 				generalMidi: false,
-				tags: ["fm", "fm4op", "ashiiware"],
+				tags: ["fm", "fm4op", "ashiiware", "pad"],
 				settings: {
 					type: "FM",
 					eqFilter: [{ type: "low-pass", cutoffHz: 2110.37, linearGain: 1.4142 }],
@@ -6548,7 +6555,7 @@ export const contributorCategoriesC: InputPresetCategory[] = [
 			{
 				name: "Cosmic FM",
 				generalMidi: false,
-				tags: ["fm", "fm4op", "ashiiware"],
+				tags: ["fm", "fm4op", "ashiiware", "novelty"],
 				settings: {
 					type: "FM",
 					eqFilter: [
@@ -6656,7 +6663,7 @@ export const contributorCategoriesC: InputPresetCategory[] = [
 			{
 				name: "Raspberry Choir",
 				generalMidi: false,
-				tags: ["harmonics", "ashiiware"],
+				tags: ["harmonics", "ashiiware", "vocal"],
 				settings: {
 					type: "harmonics",
 					eqFilter: [
@@ -7796,7 +7803,7 @@ export const contributorCategoriesC: InputPresetCategory[] = [
 			{
 				name: "Argovocals",
 				generalMidi: false,
-				tags: ["harmonics", "ashiiware"],
+				tags: ["harmonics", "ashiiware", "vocal"],
 				settings: {
 					type: "harmonics",
 					eqFilter: [
@@ -7877,7 +7884,7 @@ export const contributorCategoriesC: InputPresetCategory[] = [
 			{
 				name: "Holopad",
 				generalMidi: false,
-				tags: ["supersaw", "ashiiware"],
+				tags: ["supersaw", "ashiiware", "pad"],
 				settings: {
 					type: "supersaw",
 					eqFilter: [
@@ -7998,7 +8005,7 @@ export const contributorCategoriesC: InputPresetCategory[] = [
 			{
 				name: "Distorted Solo",
 				generalMidi: false,
-				tags: ["harmonics", "ashiiware"],
+				tags: ["harmonics", "ashiiware", "vocal"],
 				settings: {
 					type: "harmonics",
 					eqFilter: [
@@ -8995,7 +9002,7 @@ export const contributorCategoriesC: InputPresetCategory[] = [
 			{
 				name: "Oceanic Lead",
 				generalMidi: false,
-				tags: ["chip", "chipwave", "ashiiware"],
+				tags: ["chip", "chipwave", "ashiiware", "retro"],
 				settings: {
 					type: "chip",
 					eqFilter: [
@@ -9059,7 +9066,7 @@ export const contributorCategoriesC: InputPresetCategory[] = [
 			{
 				name: "Decayed Pulse",
 				generalMidi: false,
-				tags: ["fm", "fm4op", "ashiiware"],
+				tags: ["fm", "fm4op", "ashiiware", "retro"],
 				settings: {
 					type: "FM",
 					eqFilter: [],
@@ -9128,7 +9135,7 @@ export const contributorCategoriesC: InputPresetCategory[] = [
 			{
 				name: "Locator Pulse",
 				generalMidi: false,
-				tags: ["pwm", "ashiiware"],
+				tags: ["pwm", "ashiiware", "retro"],
 				settings: {
 					type: "PWM",
 					eqFilter: [
@@ -9293,7 +9300,7 @@ export const contributorCategoriesC: InputPresetCategory[] = [
 			{
 				name: "Stargazer Lead",
 				generalMidi: false,
-				tags: ["chip", "customchip", "ashiiware"],
+				tags: ["chip", "customchip", "ashiiware", "keys"],
 				settings: {
 					type: "custom chip",
 					eqFilter: [
@@ -9493,7 +9500,7 @@ export const contributorCategoriesC: InputPresetCategory[] = [
 			{
 				name: "Stargazer EP",
 				generalMidi: false,
-				tags: ["fm", "fm4op", "ashiiware", "featured"],
+				tags: ["fm", "fm4op", "ashiiware", "featured", "keys"],
 				settings: {
 					type: "FM",
 					eqFilter: [],
@@ -9561,7 +9568,7 @@ export const contributorCategoriesC: InputPresetCategory[] = [
 			{
 				name: "Supersaw Acid Bass",
 				generalMidi: false,
-				tags: ["supersaw", "ashiiware"],
+				tags: ["supersaw", "ashiiware", "picked"],
 				settings: {
 					type: "supersaw",
 					eqFilter: [
@@ -9680,7 +9687,7 @@ export const contributorCategoriesC: InputPresetCategory[] = [
 			{
 				name: "90's Synthsaw",
 				generalMidi: false,
-				tags: ["supersaw", "ashiiware"],
+				tags: ["supersaw", "ashiiware", "retro", "keys"],
 				settings: {
 					type: "supersaw",
 					eqFilter: [],
@@ -9704,7 +9711,7 @@ export const contributorCategoriesC: InputPresetCategory[] = [
 			{
 				name: "Gameboy Pad",
 				generalMidi: false,
-				tags: ["chip", "customchip", "ashiiware"],
+				tags: ["chip", "customchip", "ashiiware", "pad", "retro"],
 				settings: {
 					type: "custom chip",
 					eqFilter: [{ type: "low-pass", cutoffHz: 8000, linearGain: 0.1768 }],
@@ -9864,7 +9871,7 @@ export const contributorCategoriesC: InputPresetCategory[] = [
 			{
 				name: "Dreamsaw",
 				generalMidi: false,
-				tags: ["chip", "chipwave", "ashiiware"],
+				tags: ["chip", "chipwave", "ashiiware", "pad", "retro"],
 				settings: {
 					type: "chip",
 					eqFilter: [
@@ -9915,7 +9922,7 @@ export const contributorCategoriesC: InputPresetCategory[] = [
 			{
 				name: "Dreamwave",
 				generalMidi: false,
-				tags: ["chip", "chipwave", "ashiiware"],
+				tags: ["chip", "chipwave", "ashiiware", "pad", "retro"],
 				settings: {
 					type: "chip",
 					eqFilter: [
@@ -9967,7 +9974,7 @@ export const contributorCategoriesC: InputPresetCategory[] = [
 			{
 				name: "Dreamer Supersaw",
 				generalMidi: false,
-				tags: ["supersaw", "ashiiware"],
+				tags: ["supersaw", "ashiiware", "retro"],
 				settings: {
 					type: "supersaw",
 					eqFilter: [],
@@ -10058,7 +10065,7 @@ export const contributorCategoriesC: InputPresetCategory[] = [
 			{
 				name: "Dreamchimes",
 				generalMidi: false,
-				tags: ["fm", "fm4op", "ashiiware"],
+				tags: ["fm", "fm4op", "ashiiware", "idiophone"],
 				settings: {
 					type: "FM",
 					eqFilter: [],
@@ -10248,7 +10255,7 @@ export const contributorCategoriesC: InputPresetCategory[] = [
 			{
 				name: "Dreamer Pulse",
 				generalMidi: false,
-				tags: ["chip", "chipwave", "ashiiware"],
+				tags: ["chip", "chipwave", "ashiiware", "retro"],
 				settings: {
 					type: "chip",
 					eqFilter: [],
@@ -10306,7 +10313,7 @@ export const contributorCategoriesC: InputPresetCategory[] = [
 			{
 				name: "Carnival Keys",
 				generalMidi: false,
-				tags: ["fm", "fm4op", "ashiiware"],
+				tags: ["fm", "fm4op", "ashiiware", "idiophone", "keys"],
 				settings: {
 					type: "FM",
 					eqFilter: [],
@@ -10387,7 +10394,7 @@ export const contributorCategoriesC: InputPresetCategory[] = [
 			{
 				name: "Spirit Vocalsynth",
 				generalMidi: false,
-				tags: ["fm", "fm4op", "ashiiware"],
+				tags: ["fm", "fm4op", "ashiiware", "vocal"],
 				settings: {
 					type: "FM",
 					eqFilter: [],
@@ -10452,7 +10459,7 @@ export const contributorCategoriesC: InputPresetCategory[] = [
 			{
 				name: "Spirit Xylo",
 				generalMidi: false,
-				tags: ["fm", "fm4op", "ashiiware"],
+				tags: ["fm", "fm4op", "ashiiware", "idiophone", "keys"],
 				settings: {
 					type: "FM",
 					eqFilter: [],
@@ -10513,7 +10520,7 @@ export const contributorCategoriesC: InputPresetCategory[] = [
 			{
 				name: "Liquid Sonar",
 				generalMidi: false,
-				tags: ["fm", "fm4op", "ashiiware"],
+				tags: ["fm", "fm4op", "ashiiware", "novelty"],
 				settings: {
 					type: "FM",
 					eqFilter: [
@@ -10611,7 +10618,7 @@ export const contributorCategoriesC: InputPresetCategory[] = [
 			{
 				name: "Jafo wave",
 				generalMidi: false,
-				tags: ["chip", "customchip", "jacobar475"],
+				tags: ["chip", "customchip", "jacobar475", "retro", "keys"],
 				settings: {
 					type: "custom chip",
 					eqFilter: [],
@@ -10815,7 +10822,7 @@ export const contributorCategoriesC: InputPresetCategory[] = [
 			{
 				name: "Crisp Hi-Hat",
 				generalMidi: false,
-				tags: ["noise", "jacobar475"],
+				tags: ["noise", "jacobar475", "hihat", "retro"],
 				settings: {
 					type: "noise",
 					eqFilter: [
@@ -10863,7 +10870,7 @@ export const contributorCategoriesC: InputPresetCategory[] = [
 			{
 				name: "average 470",
 				generalMidi: false,
-				tags: ["harmonics", "jacobar475"],
+				tags: ["harmonics", "jacobar475", "picked"],
 				settings: {
 					type: "harmonics",
 					eqFilter: [{ type: "low-pass", cutoffHz: 2850, linearGain: 4 }],
@@ -10900,7 +10907,7 @@ export const contributorCategoriesC: InputPresetCategory[] = [
 			{
 				name: "chiptune style U!",
 				generalMidi: false,
-				tags: ["chip", "customchip", "jacobar475"],
+				tags: ["chip", "customchip", "jacobar475", "picked", "pad"],
 				settings: {
 					type: "custom chip",
 					eqFilter: [{ type: "low-pass", cutoffHz: 11313.71, linearGain: 0.1768 }],
@@ -11063,7 +11070,7 @@ export const contributorCategoriesC: InputPresetCategory[] = [
 			{
 				name: "hallucination harmonic",
 				generalMidi: false,
-				tags: ["harmonics", "jacobar475"],
+				tags: ["harmonics", "jacobar475", "bellows", "pad"],
 				settings: {
 					type: "harmonics",
 					eqFilter: [
@@ -11117,7 +11124,7 @@ export const contributorCategoriesC: InputPresetCategory[] = [
 			{
 				name: "dark lead",
 				generalMidi: false,
-				tags: ["harmonics", "jacobar475"],
+				tags: ["harmonics", "jacobar475", "string"],
 				settings: {
 					type: "harmonics",
 					eqFilter: [{ type: "high-pass", cutoffHz: 125, linearGain: 0.25 }],
@@ -11153,7 +11160,7 @@ export const contributorCategoriesC: InputPresetCategory[] = [
 			{
 				name: "tape slider",
 				generalMidi: false,
-				tags: ["fm", "fm4op", "jacobar475"],
+				tags: ["fm", "fm4op", "jacobar475", "pad", "picked"],
 				settings: {
 					type: "FM",
 					eqFilter: [
@@ -11263,7 +11270,7 @@ export const contributorCategoriesC: InputPresetCategory[] = [
 			{
 				name: "BASS BOOST!",
 				generalMidi: false,
-				tags: ["fm", "fm4op", "jacobar475"],
+				tags: ["fm", "fm4op", "jacobar475", "retro", "distortion"],
 				settings: {
 					type: "FM",
 					eqFilter: [
@@ -11311,7 +11318,7 @@ export const contributorCategoriesC: InputPresetCategory[] = [
 			{
 				name: "Bootleg Honky Tonk",
 				generalMidi: false,
-				tags: ["chip", "chipwave", "jacobar475"],
+				tags: ["chip", "chipwave", "jacobar475", "string"],
 				settings: {
 					type: "chip",
 					eqFilter: [],
@@ -11355,7 +11362,7 @@ export const contributorCategoriesC: InputPresetCategory[] = [
 			{
 				name: "Lightlylit lead",
 				generalMidi: false,
-				tags: ["fm", "fm6op", "jacobar475"],
+				tags: ["fm", "fm6op", "jacobar475", "picked", "pad"],
 				settings: {
 					type: "FM6op",
 					eqFilter: [],
@@ -11395,7 +11402,7 @@ export const contributorCategoriesC: InputPresetCategory[] = [
 			{
 				name: "PurpleTopped bass",
 				generalMidi: false,
-				tags: ["chip", "customchip", "jacobar475"],
+				tags: ["chip", "customchip", "jacobar475", "bellows"],
 				settings: {
 					type: "custom chip",
 					eqFilter: [{ type: "low-pass", cutoffHz: 13454.34, linearGain: 0.0884 }],
@@ -11565,7 +11572,7 @@ export const contributorCategoriesC: InputPresetCategory[] = [
 			{
 				name: "Granular Arp",
 				generalMidi: false,
-				tags: ["chip", "chipwave", "jacobar475"],
+				tags: ["chip", "chipwave", "jacobar475", "picked", "retro", "distortion"],
 				settings: {
 					type: "chip",
 					eqFilter: [],
@@ -11620,7 +11627,7 @@ export const contributorCategoriesC: InputPresetCategory[] = [
 			{
 				name: "Pulse-X",
 				generalMidi: false,
-				tags: ["chip", "customchip", "jacobar475"],
+				tags: ["chip", "customchip", "jacobar475", "picked", "retro"],
 				settings: {
 					type: "custom chip",
 					eqFilter: [],
@@ -11781,7 +11788,7 @@ export const contributorCategoriesC: InputPresetCategory[] = [
 			{
 				name: "Pulse-Y",
 				generalMidi: false,
-				tags: ["chip", "customchip", "jacobar475"],
+				tags: ["chip", "customchip", "jacobar475", "bellows", "retro", "keys", "pad"],
 				settings: {
 					type: "custom chip",
 					eqFilter: [],

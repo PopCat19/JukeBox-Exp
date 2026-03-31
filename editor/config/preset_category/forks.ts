@@ -1,3 +1,10 @@
+// forks
+//
+// Purpose: Community fork preset categories
+//
+// This module:
+// - Exports preset categories: UltraBox through Dogebox2
+
 import { DictionaryArray, toNameMap } from "../../../synth/synth-config";
 import { InputPresetCategory, Preset } from "./types";
 
@@ -9,7 +16,7 @@ export const forkCategories: InputPresetCategory[] = [
 			{
 				name: "distorted pulse vocal",
 				generalMidi: false,
-				tags: ["chip", "chipwave", "ultrabox"],
+				tags: ["chip", "chipwave", "ultrabox", "distortion"],
 				settings: {
 					type: "chip",
 					eqFilter: [{ type: "low-pass", cutoffHz: 19027.31, linearGain: 0.0884 }],
@@ -61,7 +68,7 @@ export const forkCategories: InputPresetCategory[] = [
 			{
 				name: "dubstep bwah (Lognes)",
 				generalMidi: false,
-				tags: ["fm", "fm4op", "ultrabox"],
+				tags: ["fm", "fm4op", "ultrabox", "distortion"],
 				settings: {
 					type: "FM",
 					eqFilter: [{ type: "low-pass", cutoffHz: 19027.31, linearGain: 0.7071 }],
@@ -100,7 +107,7 @@ export const forkCategories: InputPresetCategory[] = [
 			{
 				name: "FM cool bass",
 				generalMidi: false,
-				tags: ["fm", "fm4op", "ultrabox"],
+				tags: ["fm", "fm4op", "ultrabox", "bass"],
 				settings: {
 					type: "FM",
 					eqFilter: [
@@ -156,7 +163,7 @@ export const forkCategories: InputPresetCategory[] = [
 			{
 				name: "FM funky bass",
 				generalMidi: false,
-				tags: ["fm", "fm4op", "ultrabox"],
+				tags: ["fm", "fm4op", "ultrabox", "bass"],
 				settings: {
 					type: "FM",
 					eqFilter: [{ type: "low-pass", cutoffHz: 9513.66, linearGain: 0.1768 }],
@@ -192,7 +199,7 @@ export const forkCategories: InputPresetCategory[] = [
 			{
 				name: "talking bass",
 				generalMidi: false,
-				tags: ["fm", "fm4op", "ultrabox"],
+				tags: ["fm", "fm4op", "ultrabox", "bass"],
 				settings: {
 					type: "FM",
 					eqFilter: [],
@@ -227,7 +234,7 @@ export const forkCategories: InputPresetCategory[] = [
 			{
 				name: "synth marimba (Main)",
 				generalMidi: false,
-				tags: ["pickedstring", "ultrabox"],
+				tags: ["pickedstring", "ultrabox", "idiophone"],
 				settings: {
 					type: "Picked String",
 					eqFilter: [
@@ -254,7 +261,7 @@ export const forkCategories: InputPresetCategory[] = [
 			{
 				name: "italian accordian (Neputendo)",
 				generalMidi: false,
-				tags: ["chip", "customchip", "ultrabox"],
+				tags: ["chip", "customchip", "ultrabox", "bellows"],
 				settings: {
 					type: "custom chip",
 					eqFilter: [{ type: "low-pass", cutoffHz: 6000, linearGain: 0.5 }],
@@ -572,7 +579,7 @@ export const forkCategories: InputPresetCategory[] = [
 			{
 				name: "fm supersaw (Answering Machine)",
 				generalMidi: false,
-				tags: ["fm", "fm6op", "ultrabox"],
+				tags: ["fm", "fm6op", "ultrabox", "retro"],
 				settings: {
 					type: "FM6op",
 					eqFilter: [
@@ -626,7 +633,7 @@ export const forkCategories: InputPresetCategory[] = [
 			{
 				name: "wind",
 				generalMidi: false,
-				tags: ["fm", "fm4op", "ultrabox"],
+				tags: ["fm", "fm4op", "ultrabox", "ambience"],
 				settings: {
 					type: "FM",
 					eqFilter: [{ type: "low-pass", cutoffHz: 250.03, linearGain: 11.3137 }],
@@ -660,7 +667,7 @@ export const forkCategories: InputPresetCategory[] = [
 			{
 				name: "mrow (Nobo)",
 				generalMidi: false,
-				tags: ["fm", "fm4op", "ultrabox"],
+				tags: ["fm", "fm4op", "ultrabox", "novelty"],
 				settings: {
 					type: "FM",
 					eqFilter: [],
@@ -697,7 +704,7 @@ export const forkCategories: InputPresetCategory[] = [
 			{
 				name: "vocal why",
 				generalMidi: false,
-				tags: ["harmonics", "ultrabox"],
+				tags: ["harmonics", "ultrabox", "vocal"],
 				settings: {
 					type: "harmonics",
 					eqFilter: [],
@@ -721,7 +728,7 @@ export const forkCategories: InputPresetCategory[] = [
 			{
 				name: "radio fm",
 				generalMidi: false,
-				tags: ["fm", "fm4op", "slarmoo'sbox"],
+				tags: ["fm", "fm4op", "slarmoo'sbox", "bellows", "ambience", "pad"],
 				settings: {
 					type: "FM",
 					eqFilter: [
@@ -775,7 +782,7 @@ export const forkCategories: InputPresetCategory[] = [
 			{
 				name: "anguished underworld",
 				generalMidi: false,
-				tags: ["fm", "fm6op", "slarmoo'sbox"],
+				tags: ["fm", "fm6op", "slarmoo'sbox", "reed"],
 				settings: {
 					type: "FM6op",
 					eqFilter: [
@@ -855,7 +862,7 @@ export const forkCategories: InputPresetCategory[] = [
 			{
 				name: "faint sorrow",
 				generalMidi: false,
-				tags: ["fm", "fm4op", "slarmoo'sbox"],
+				tags: ["fm", "fm4op", "slarmoo'sbox", "ambience", "string"],
 				settings: {
 					type: "FM",
 					eqFilter: [{ type: "low-pass", cutoffHz: 4240.89, linearGain: 2 }],
@@ -895,7 +902,7 @@ export const forkCategories: InputPresetCategory[] = [
 			{
 				name: "bright sorrow fm",
 				generalMidi: false,
-				tags: ["fm", "fm4op", "slarmoo'sbox"],
+				tags: ["fm", "fm4op", "slarmoo'sbox", "arp"],
 				settings: {
 					type: "FM",
 					eqFilter: [],
@@ -938,7 +945,7 @@ export const forkCategories: InputPresetCategory[] = [
 			{
 				name: "wet sorrow fm",
 				generalMidi: false,
-				tags: ["fm", "fm4op", "slarmoo'sbox"],
+				tags: ["fm", "fm4op", "slarmoo'sbox", "lead"],
 				settings: {
 					type: "FM",
 					eqFilter: [{ type: "low-pass", cutoffHz: 19027.31, linearGain: 0.7071 }],
@@ -975,7 +982,7 @@ export const forkCategories: InputPresetCategory[] = [
 			{
 				name: "scream fm",
 				generalMidi: false,
-				tags: ["fm", "fm4op", "slarmoo'sbox"],
+				tags: ["fm", "fm4op", "slarmoo'sbox", "pad"],
 				settings: {
 					type: "FM",
 					eqFilter: [
@@ -1049,7 +1056,7 @@ export const forkCategories: InputPresetCategory[] = [
 			{
 				name: "anguished radio fm pad",
 				generalMidi: false,
-				tags: ["fm", "fm4op", "slarmoo'sbox"],
+				tags: ["fm", "fm4op", "slarmoo'sbox", "pad", "arp"],
 				settings: {
 					type: "FM",
 					eqFilter: [
@@ -1187,7 +1194,7 @@ export const forkCategories: InputPresetCategory[] = [
 			{
 				name: "good vibes supersaw",
 				generalMidi: false,
-				tags: ["supersaw", "slarmoo'sbox", "featured"],
+				tags: ["supersaw", "slarmoo'sbox", "featured", "pad"],
 				settings: {
 					type: "supersaw",
 					eqFilter: [],
@@ -1227,7 +1234,7 @@ export const forkCategories: InputPresetCategory[] = [
 				name: "ethereal",
 				generalMidi: false,
 				isNoise: false,
-				tags: ["spectrum", "slarmoo'sbox"],
+				tags: ["spectrum", "slarmoo'sbox", "pad"],
 				settings: {
 					type: "spectrum",
 					volume: 0,
@@ -1308,7 +1315,7 @@ export const forkCategories: InputPresetCategory[] = [
 			{
 				name: "walrus wuh",
 				generalMidi: false,
-				tags: ["supersaw", "slarmoo'sbox"],
+				tags: ["supersaw", "slarmoo'sbox", "pad"],
 				settings: {
 					type: "supersaw",
 					eqFilter: [
@@ -1363,7 +1370,7 @@ export const forkCategories: InputPresetCategory[] = [
 			{
 				name: "saturnic",
 				generalMidi: false,
-				tags: ["fm", "fm4op", "slarmoo'sbox"],
+				tags: ["fm", "fm4op", "slarmoo'sbox", "arp", "lead"],
 				settings: {
 					type: "FM",
 					volume: 0,
@@ -1404,7 +1411,7 @@ export const forkCategories: InputPresetCategory[] = [
 			{
 				name: "glassy harmonics",
 				generalMidi: false,
-				tags: ["harmonics", "slarmoo'sbox"],
+				tags: ["harmonics", "slarmoo'sbox", "keys", "idiophone"],
 				settings: {
 					type: "harmonics",
 					volume: 0,
@@ -1449,7 +1456,7 @@ export const forkCategories: InputPresetCategory[] = [
 			{
 				name: "plucked",
 				generalMidi: false,
-				tags: ["pickedstring", "slarmoo'sbox"],
+				tags: ["pickedstring", "slarmoo'sbox", "idiophone", "picked"],
 				settings: {
 					type: "Picked String",
 					volume: 0,
@@ -1481,7 +1488,7 @@ export const forkCategories: InputPresetCategory[] = [
 				name: "jungle bass",
 				generalMidi: false,
 				isNoise: false,
-				tags: ["fm", "fm4op", "slarmoo'sbox"],
+				tags: ["fm", "fm4op", "slarmoo'sbox", "bass"],
 				settings: {
 					type: "FM",
 					volume: 0,
@@ -1571,7 +1578,7 @@ export const forkCategories: InputPresetCategory[] = [
 				name: "beach tide",
 				generalMidi: false,
 				isNoise: false,
-				tags: ["harmonics", "slarmoo'sbox"],
+				tags: ["harmonics", "slarmoo'sbox", "pad"],
 				settings: {
 					type: "harmonics",
 					volume: 0,
@@ -1640,7 +1647,7 @@ export const forkCategories: InputPresetCategory[] = [
 				name: "starlight",
 				generalMidi: false,
 				isNoise: false,
-				tags: ["fm", "fm4op", "slarmoo'sbox"],
+				tags: ["fm", "fm4op", "slarmoo'sbox", "pad", "bass"],
 				settings: {
 					type: "FM",
 					volume: 0,
@@ -1685,7 +1692,7 @@ export const forkCategories: InputPresetCategory[] = [
 				name: "distant monument",
 				generalMidi: false,
 				isNoise: false,
-				tags: ["chip", "chipwave", "slarmoo'sbox", "featured"],
+				tags: ["chip", "chipwave", "slarmoo'sbox", "featured", "bass", "arp", "ambience"],
 				settings: {
 					type: "chip",
 					volume: 0,
@@ -1751,7 +1758,7 @@ export const forkCategories: InputPresetCategory[] = [
 				name: "mercurial",
 				generalMidi: false,
 				isNoise: false,
-				tags: ["fm", "fm6op", "slarmoo'sbox"],
+				tags: ["fm", "fm6op", "slarmoo'sbox", "bass"],
 				settings: {
 					type: "FM6op",
 					volume: 0,
@@ -1837,7 +1844,7 @@ export const forkCategories: InputPresetCategory[] = [
 			{
 				name: "spectral phaser",
 				generalMidi: false,
-				tags: ["spectrum", "slarmoo'sbox"],
+				tags: ["spectrum", "slarmoo'sbox", "pad"],
 				settings: {
 					type: "spectrum",
 					volume: 0,
@@ -1997,7 +2004,7 @@ export const forkCategories: InputPresetCategory[] = [
 			{
 				name: "distant sorrow",
 				generalMidi: false,
-				tags: ["harmonics", "slarmoo'sbox"],
+				tags: ["harmonics", "slarmoo'sbox", "picked"],
 				settings: {
 					type: "harmonics",
 					volume: 0,
@@ -2158,7 +2165,7 @@ export const forkCategories: InputPresetCategory[] = [
 			{
 				name: "chimes",
 				generalMidi: false,
-				tags: ["pickedstring", "slarmoo'sbox"],
+				tags: ["pickedstring", "slarmoo'sbox", "idiophone"],
 				settings: {
 					type: "Picked String",
 					volume: 0,
@@ -2269,7 +2276,7 @@ export const forkCategories: InputPresetCategory[] = [
 			{
 				name: "supersaw bass",
 				generalMidi: false,
-				tags: ["supersaw", "slarmoo'sbox"],
+				tags: ["supersaw", "slarmoo'sbox", "bass"],
 				settings: {
 					type: "supersaw",
 					volume: 0,
@@ -2314,7 +2321,7 @@ export const forkCategories: InputPresetCategory[] = [
 				name: "ascension",
 				generalMidi: false,
 				isNoise: false,
-				tags: ["spectrum", "slarmoo'sbox"],
+				tags: ["spectrum", "slarmoo'sbox", "pad"],
 				settings: {
 					type: "spectrum",
 					volume: 0,
@@ -2384,7 +2391,7 @@ export const forkCategories: InputPresetCategory[] = [
 			{
 				name: "Slarmoo's Pulse",
 				midiProgram: 80,
-				tags: ["pwm", "slarmoo'sbox"],
+				tags: ["pwm", "slarmoo'sbox", "retro", "chiptune"],
 				settings: {
 					type: "PWM",
 					volume: 0,
@@ -2417,7 +2424,7 @@ export const forkCategories: InputPresetCategory[] = [
 			{
 				name: "discovery square",
 				midiProgram: 80,
-				tags: ["chip", "chipwave", "slarmoo'sbox"],
+				tags: ["chip", "chipwave", "slarmoo'sbox", "retro", "pad"],
 				settings: {
 					type: "chip",
 					volume: 0,
@@ -2449,7 +2456,7 @@ export const forkCategories: InputPresetCategory[] = [
 			{
 				name: "VRC6 Sawtooth alt",
 				midiProgram: 81,
-				tags: ["chip", "customchip", "slarmoo'sbox", "chiptune"],
+				tags: ["chip", "customchip", "slarmoo'sbox", "chiptune", "retro"],
 				settings: {
 					type: "custom chip",
 					volume: 0,
@@ -2620,7 +2627,7 @@ export const forkCategories: InputPresetCategory[] = [
 			{
 				name: "pulse arps",
 				midiProgram: 80,
-				tags: ["pwm", "slarmoo'sbox", "featured"],
+				tags: ["pwm", "slarmoo'sbox", "featured", "arp", "retro"],
 				settings: {
 					type: "PWM",
 					volume: 0,
@@ -2720,7 +2727,7 @@ export const forkCategories: InputPresetCategory[] = [
 			{
 				name: "rusty flute",
 				midiProgram: 73,
-				tags: ["fm", "fm4op", "slarmoo'sbox"],
+				tags: ["fm", "fm4op", "slarmoo'sbox", "flute"],
 				settings: {
 					type: "FM",
 					eqFilter: [{ type: "peak", cutoffHz: 13454.34, linearGain: 2.8284 }],
@@ -2757,7 +2764,7 @@ export const forkCategories: InputPresetCategory[] = [
 			{
 				name: "bitcrushed piano",
 				midiProgram: 4,
-				tags: ["chip", "chipwave", "slarmoo'sbox"],
+				tags: ["chip", "chipwave", "slarmoo'sbox", "keys"],
 				settings: {
 					type: "chip",
 					volume: 0,
@@ -2829,7 +2836,7 @@ export const forkCategories: InputPresetCategory[] = [
 			{
 				name: "detuned piano",
 				midiProgram: 3,
-				tags: ["pickedstring", "slarmoo'sbox"],
+				tags: ["pickedstring", "slarmoo'sbox", "keys"],
 				settings: {
 					type: "Picked String",
 					volume: 0,
@@ -2941,7 +2948,7 @@ export const forkCategories: InputPresetCategory[] = [
 				name: "pan flute 2",
 				midiProgram: 75,
 				isNoise: false,
-				tags: ["spectrum", "slarmoo'sbox"],
+				tags: ["spectrum", "slarmoo'sbox", "flute", "lead"],
 				settings: {
 					type: "spectrum",
 					volume: 0,
@@ -3007,7 +3014,7 @@ export const forkCategories: InputPresetCategory[] = [
 			{
 				name: "trumpet 2",
 				midiProgram: 56,
-				tags: ["fm", "fm4op", "slarmoo'sbox"],
+				tags: ["fm", "fm4op", "slarmoo'sbox", "brass"],
 				settings: {
 					type: "FM",
 					volume: 0,
@@ -3134,7 +3141,7 @@ export const forkCategories: InputPresetCategory[] = [
 			{
 				name: "harp 2",
 				midiProgram: 46,
-				tags: ["fm", "fm6op", "slarmoo'sbox"],
+				tags: ["fm", "fm6op", "slarmoo'sbox", "picked"],
 				settings: {
 					type: "FM6op",
 					volume: 0,
@@ -3275,7 +3282,7 @@ export const forkCategories: InputPresetCategory[] = [
 			{
 				name: "electric guitar 1",
 				midiProgram: 30,
-				tags: ["fm", "fm4op", "slarmoo'sbox"],
+				tags: ["fm", "fm4op", "slarmoo'sbox", "distortion"],
 				settings: {
 					type: "FM",
 					volume: 0,
@@ -3385,7 +3392,7 @@ export const forkCategories: InputPresetCategory[] = [
 			{
 				name: "electric guitar 2",
 				midiProgram: 30,
-				tags: ["pwm", "slarmoo'sbox"],
+				tags: ["pwm", "slarmoo'sbox", "distortion"],
 				settings: {
 					type: "PWM",
 					volume: 0,
@@ -3611,7 +3618,7 @@ export const forkCategories: InputPresetCategory[] = [
 			{
 				name: "sandbox tori synth lead",
 				generalMidi: false,
-				tags: ["harmonics", "sandbox"],
+				tags: ["harmonics", "sandbox", "lead"],
 				settings: {
 					type: "harmonics",
 					effects: "chorus",
@@ -3628,7 +3635,7 @@ export const forkCategories: InputPresetCategory[] = [
 			{
 				name: "sandbox glorious piano 1",
 				generalMidi: false,
-				tags: ["chip", "customchip", "sandbox"],
+				tags: ["chip", "customchip", "sandbox", "keys"],
 				settings: {
 					type: "custom chip",
 					transition: "hard fade",
@@ -3649,7 +3656,7 @@ export const forkCategories: InputPresetCategory[] = [
 			{
 				name: "sandbox glorious piano 2",
 				generalMidi: false,
-				tags: ["chip", "customchip", "sandbox"],
+				tags: ["chip", "customchip", "sandbox", "keys"],
 				settings: {
 					type: "custom chip",
 					transition: "hard fade",
@@ -3709,7 +3716,7 @@ export const forkCategories: InputPresetCategory[] = [
 			{
 				name: "sandbox wurtz organ",
 				generalMidi: false,
-				tags: ["fm", "fm4op", "sandbox"],
+				tags: ["fm", "fm4op", "sandbox", "bellows"],
 				settings: {
 					type: "FM",
 					transition: "seamless",
@@ -3742,7 +3749,7 @@ export const forkCategories: InputPresetCategory[] = [
 				name: "Broken Music Box",
 				midiProgram: 21,
 				generalMidi: true,
-				tags: ["chip", "chipwave", "midbox"],
+				tags: ["chip", "chipwave", "midbox", "idiophone"],
 				settings: {
 					type: "chip",
 					eqFilter: [
@@ -3872,7 +3879,7 @@ export const forkCategories: InputPresetCategory[] = [
 			{
 				name: "Scratch String",
 				generalMidi: false,
-				tags: ["fm", "fm4op", "midbox"],
+				tags: ["fm", "fm4op", "midbox", "string"],
 				settings: {
 					type: "FM",
 					eqFilter: [
@@ -4124,7 +4131,7 @@ export const forkCategories: InputPresetCategory[] = [
 			{
 				name: "Bow Bass",
 				generalMidi: false,
-				tags: ["chip", "customchip", "midbox"],
+				tags: ["chip", "customchip", "midbox", "bass"],
 				settings: {
 					type: "custom chip",
 					eqFilter: [
@@ -4340,7 +4347,7 @@ export const forkCategories: InputPresetCategory[] = [
 			{
 				name: "Disco Vocal Lead",
 				generalMidi: false,
-				tags: ["pickedstring", "midbox"],
+				tags: ["pickedstring", "midbox", "lead"],
 				settings: {
 					type: "Picked String",
 					eqFilter: [],
@@ -4391,7 +4398,7 @@ export const forkCategories: InputPresetCategory[] = [
 			{
 				name: "Blessed Piano",
 				generalMidi: false,
-				tags: ["chip", "chipwave", "midbox"],
+				tags: ["chip", "chipwave", "midbox", "keys"],
 				settings: {
 					type: "chip",
 					eqFilter: [{ type: "peak", cutoffHz: 707.11, linearGain: 4 }],
@@ -4449,7 +4456,7 @@ export const forkCategories: InputPresetCategory[] = [
 			{
 				name: "Sawtooth Pluck",
 				generalMidi: false,
-				tags: ["chip", "chipwave", "midbox"],
+				tags: ["chip", "chipwave", "midbox", "picked"],
 				settings: {
 					type: "chip",
 					eqFilter: [{ type: "low-pass", cutoffHz: 16000, linearGain: 0.25 }],
@@ -4518,7 +4525,7 @@ export const forkCategories: InputPresetCategory[] = [
 			{
 				name: "Desolated Piano",
 				generalMidi: false,
-				tags: ["fm", "fm4op", "midbox"],
+				tags: ["fm", "fm4op", "midbox", "keys"],
 				settings: {
 					type: "FM",
 					eqFilter: [{ type: "low-pass", cutoffHz: 11313.71, linearGain: 0.5 }],
@@ -4565,7 +4572,7 @@ export const forkCategories: InputPresetCategory[] = [
 			{
 				name: "Distorted Guitar 1",
 				generalMidi: false,
-				tags: ["pickedstring", "midbox"],
+				tags: ["pickedstring", "midbox", "distortion", "guitar"],
 				settings: {
 					type: "Picked String",
 					eqFilter: [{ type: "low-pass", cutoffHz: 4000, linearGain: 0.5 }],
@@ -4609,7 +4616,7 @@ export const forkCategories: InputPresetCategory[] = [
 			{
 				name: "Distorted Guitar 2",
 				generalMidi: false,
-				tags: ["fm", "fm4op", "midbox"],
+				tags: ["fm", "fm4op", "midbox", "distortion", "guitar"],
 				settings: {
 					type: "FM",
 					eqFilter: [
@@ -4675,7 +4682,7 @@ export const forkCategories: InputPresetCategory[] = [
 			{
 				name: "Distorted Guitar 3",
 				generalMidi: false,
-				tags: ["pickedstring", "midbox"],
+				tags: ["pickedstring", "midbox", "distortion", "guitar"],
 				settings: {
 					type: "Picked String",
 					eqFilter: [
@@ -4730,7 +4737,7 @@ export const forkCategories: InputPresetCategory[] = [
 			{
 				name: "High Pad",
 				generalMidi: false,
-				tags: ["fm", "fm4op", "midbox"],
+				tags: ["fm", "fm4op", "midbox", "pad"],
 				settings: {
 					type: "FM",
 					eqFilter: [
@@ -4795,7 +4802,7 @@ export const forkCategories: InputPresetCategory[] = [
 			{
 				name: "Magical Pulse",
 				generalMidi: false,
-				tags: ["chip", "chipwave", "midbox"],
+				tags: ["chip", "chipwave", "midbox", "pad"],
 				settings: {
 					type: "chip",
 					eqFilter: [{ type: "low-pass", cutoffHz: 4000, linearGain: 0.0884 }],
@@ -4837,7 +4844,7 @@ export const forkCategories: InputPresetCategory[] = [
 			{
 				name: "Distorted Lead",
 				generalMidi: false,
-				tags: ["fm", "fm4op", "midbox"],
+				tags: ["fm", "fm4op", "midbox", "lead"],
 				settings: {
 					type: "FM",
 					eqFilter: [],
@@ -4875,7 +4882,7 @@ export const forkCategories: InputPresetCategory[] = [
 			{
 				name: "FM Punch Bass",
 				generalMidi: false,
-				tags: ["fm", "fm4op", "midbox"],
+				tags: ["fm", "fm4op", "midbox", "bass"],
 				settings: {
 					type: "FM",
 					eqFilter: [{ type: "low-pass", cutoffHz: 1414.21, linearGain: 2.8284 }],
@@ -4918,7 +4925,7 @@ export const forkCategories: InputPresetCategory[] = [
 			{
 				name: "Rough Glistening Piano",
 				generalMidi: false,
-				tags: ["harmonics", "midbox"],
+				tags: ["harmonics", "midbox", "keys"],
 				settings: {
 					type: "harmonics",
 					eqFilter: [
@@ -4966,7 +4973,7 @@ export const forkCategories: InputPresetCategory[] = [
 			{
 				name: "Soft Glistening Piano",
 				generalMidi: false,
-				tags: ["harmonics", "midbox"],
+				tags: ["harmonics", "midbox", "keys"],
 				settings: {
 					type: "harmonics",
 					eqFilter: [
@@ -5015,7 +5022,7 @@ export const forkCategories: InputPresetCategory[] = [
 			{
 				name: "Jingle Bells",
 				generalMidi: false,
-				tags: ["harmonics", "midbox", "featured"],
+				tags: ["harmonics", "midbox", "featured", "idiophone"],
 				settings: {
 					type: "harmonics",
 					eqFilter: [
@@ -5125,7 +5132,7 @@ export const forkCategories: InputPresetCategory[] = [
 			{
 				name: "Bitcrushed Piano",
 				generalMidi: false,
-				tags: ["chip", "chipwave", "midbox", "featured"],
+				tags: ["chip", "chipwave", "midbox", "featured", "keys"],
 				settings: {
 					type: "chip",
 					eqFilter: [
@@ -5196,7 +5203,7 @@ export const forkCategories: InputPresetCategory[] = [
 			{
 				name: "Boop Pad",
 				generalMidi: false,
-				tags: ["chip", "customchip", "midbox"],
+				tags: ["chip", "customchip", "midbox", "pad"],
 				settings: {
 					type: "custom chip",
 					eqFilter: [{ type: "low-pass", cutoffHz: 11313.71, linearGain: 0.1768 }],
@@ -5371,7 +5378,7 @@ export const forkCategories: InputPresetCategory[] = [
 			{
 				name: "Spectrum Pad",
 				generalMidi: false,
-				tags: ["spectrum", "midbox"],
+				tags: ["spectrum", "midbox", "pad"],
 				settings: {
 					type: "spectrum",
 					eqFilter: [{ type: "low-pass", cutoffHz: 2196.8, linearGain: 1 }],
@@ -5402,7 +5409,7 @@ export const forkCategories: InputPresetCategory[] = [
 			{
 				name: "Countdown Pulse",
 				generalMidi: false,
-				tags: ["pwm", "midbox"],
+				tags: ["pwm", "midbox", "retro"],
 				settings: {
 					type: "PWM",
 					eqFilter: [{ type: "peak", cutoffHz: 2828.43, linearGain: 2 }],
@@ -5439,7 +5446,7 @@ export const forkCategories: InputPresetCategory[] = [
 			{
 				name: "Ambient Pulse 1",
 				generalMidi: false,
-				tags: ["fm", "fm4op", "midbox"],
+				tags: ["fm", "fm4op", "midbox", "retro"],
 				settings: {
 					type: "FM",
 					eqFilter: [
@@ -5490,7 +5497,7 @@ export const forkCategories: InputPresetCategory[] = [
 			{
 				name: "Saturn Pad",
 				generalMidi: false,
-				tags: ["pickedstring", "midbox"],
+				tags: ["pickedstring", "midbox", "pad"],
 				settings: {
 					type: "Picked String",
 					eqFilter: [
@@ -5539,7 +5546,7 @@ export const forkCategories: InputPresetCategory[] = [
 			{
 				name: "Build-Up Pad",
 				generalMidi: false,
-				tags: ["fm", "fm4op", "midbox"],
+				tags: ["fm", "fm4op", "midbox", "pad"],
 				settings: {
 					type: "FM",
 					eqFilter: [
@@ -5586,7 +5593,7 @@ export const forkCategories: InputPresetCategory[] = [
 			{
 				name: "Ambient Pulse 2",
 				generalMidi: false,
-				tags: ["harmonics", "midbox"],
+				tags: ["harmonics", "midbox", "retro"],
 				settings: {
 					type: "harmonics",
 					eqFilter: [
@@ -5700,7 +5707,7 @@ export const forkCategories: InputPresetCategory[] = [
 			{
 				name: "Another Piano",
 				generalMidi: false,
-				tags: ["pwm", "midbox", "featured"],
+				tags: ["pwm", "midbox", "featured", "keys"],
 				settings: {
 					type: "PWM",
 					eqFilter: [
@@ -5756,7 +5763,7 @@ export const forkCategories: InputPresetCategory[] = [
 			{
 				name: "Dubstep Bwayyyy",
 				generalMidi: false,
-				tags: ["pwm", "midbox"],
+				tags: ["pwm", "midbox", "dubstep", "bass"],
 				settings: {
 					type: "PWM",
 					eqFilter: [
@@ -5812,7 +5819,7 @@ export const forkCategories: InputPresetCategory[] = [
 			{
 				name: "Dubstep Bass Hum",
 				generalMidi: false,
-				tags: ["pwm", "midbox"],
+				tags: ["pwm", "midbox", "dubstep", "bass"],
 				settings: {
 					type: "PWM",
 					eqFilter: [
@@ -5871,7 +5878,7 @@ export const forkCategories: InputPresetCategory[] = [
 			{
 				name: "Dubstep Yaa",
 				generalMidi: false,
-				tags: ["pwm", "midbox"],
+				tags: ["pwm", "midbox", "dubstep", "bass"],
 				settings: {
 					type: "PWM",
 					eqFilter: [
@@ -5923,7 +5930,7 @@ export const forkCategories: InputPresetCategory[] = [
 			{
 				name: "Dubstep Yeoww",
 				generalMidi: false,
-				tags: ["pwm", "midbox"],
+				tags: ["pwm", "midbox", "dubstep", "bass"],
 				settings: {
 					type: "PWM",
 					eqFilter: [
@@ -5985,7 +5992,7 @@ export const forkCategories: InputPresetCategory[] = [
 			{
 				name: "Dubstep Lead",
 				generalMidi: false,
-				tags: ["fm", "fm4op", "midbox"],
+				tags: ["fm", "fm4op", "midbox", "dubstep", "lead"],
 				settings: {
 					type: "FM",
 					eqFilter: [{ type: "peak", cutoffHz: 1189.21, linearGain: 0.0884 }],
@@ -6049,7 +6056,7 @@ export const forkCategories: InputPresetCategory[] = [
 			{
 				name: "Dubstep Dyaii",
 				generalMidi: false,
-				tags: ["pickedstring", "midbox"],
+				tags: ["pickedstring", "midbox", "dubstep", "bass"],
 				settings: {
 					type: "Picked String",
 					eqFilter: [
@@ -6120,7 +6127,7 @@ export const forkCategories: InputPresetCategory[] = [
 			{
 				name: "Dubstep Alarm",
 				generalMidi: false,
-				tags: ["fm", "fm4op", "midbox"],
+				tags: ["fm", "fm4op", "midbox", "dubstep"],
 				settings: {
 					type: "FM",
 					eqFilter: [
@@ -6182,7 +6189,7 @@ export const forkCategories: InputPresetCategory[] = [
 			{
 				name: "Demonic Bell",
 				generalMidi: false,
-				tags: ["pickedstring", "abyssbox"],
+				tags: ["pickedstring", "abyssbox", "idiophone"],
 				settings: {
 					type: "Picked String",
 					eqFilter: [
@@ -6282,7 +6289,7 @@ export const forkCategories: InputPresetCategory[] = [
 			{
 				name: "Harmonic Piano",
 				generalMidi: false,
-				tags: ["harmonics", "abyssbox"],
+				tags: ["harmonics", "abyssbox", "keys"],
 				settings: {
 					type: "harmonics",
 					eqFilter: [
@@ -6320,7 +6327,7 @@ export const forkCategories: InputPresetCategory[] = [
 			{
 				name: "Organic Synth",
 				generalMidi: false,
-				tags: ["fm", "fm4op", "abyssbox"],
+				tags: ["fm", "fm4op", "abyssbox", "bellows"],
 				settings: {
 					type: "FM",
 					eqFilter: [{ type: "low-pass", cutoffHz: 5656.85, linearGain: 0.1768 }],
@@ -6386,7 +6393,7 @@ export const forkCategories: InputPresetCategory[] = [
 			{
 				name: "Supersaw Pluck",
 				generalMidi: false,
-				tags: ["supersaw", "abyssbox"],
+				tags: ["supersaw", "abyssbox", "picked"],
 				settings: {
 					type: "supersaw",
 					eqFilter: [],
@@ -6424,7 +6431,7 @@ export const forkCategories: InputPresetCategory[] = [
 			{
 				name: "Credits Bass",
 				generalMidi: false,
-				tags: ["chip", "chipwave", "abyssbox"],
+				tags: ["chip", "chipwave", "abyssbox", "bass"],
 				settings: {
 					type: "chip",
 					eqFilter: [],
@@ -6461,7 +6468,7 @@ export const forkCategories: InputPresetCategory[] = [
 			{
 				name: "FM Violin",
 				generalMidi: false,
-				tags: ["fm", "fm6op", "abyssbox"],
+				tags: ["fm", "fm6op", "abyssbox", "string"],
 				settings: {
 					type: "FM6op",
 					eqFilter: [],
@@ -6512,7 +6519,7 @@ export const forkCategories: InputPresetCategory[] = [
 			{
 				name: "Shamisen 2",
 				generalMidi: false,
-				tags: ["fm", "fm6op", "abyssbox"],
+				tags: ["fm", "fm6op", "abyssbox", "picked"],
 				settings: {
 					type: "FM6op",
 					eqFilter: [],
@@ -6554,7 +6561,7 @@ export const forkCategories: InputPresetCategory[] = [
 			{
 				name: "Picked Dist Guitar",
 				generalMidi: false,
-				tags: ["pickedstring", "abyssbox"],
+				tags: ["pickedstring", "abyssbox", "distortion", "picked"],
 				settings: {
 					type: "Picked String",
 					eqFilter: [],
@@ -6611,7 +6618,7 @@ export const forkCategories: InputPresetCategory[] = [
 			{
 				name: "Future Keys",
 				generalMidi: false,
-				tags: ["harmonics", "abyssbox", "featured"],
+				tags: ["harmonics", "abyssbox", "featured", "keys"],
 				settings: {
 					type: "harmonics",
 					eqFilter: [{ type: "high-pass", cutoffHz: 125, linearGain: 0.25 }],
@@ -6647,7 +6654,7 @@ export const forkCategories: InputPresetCategory[] = [
 			{
 				name: "Light Bell",
 				generalMidi: false,
-				tags: ["pickedstring", "abyssbox"],
+				tags: ["pickedstring", "abyssbox", "idiophone"],
 				settings: {
 					type: "Picked String",
 					eqFilter: [
@@ -6681,7 +6688,7 @@ export const forkCategories: InputPresetCategory[] = [
 			{
 				name: "Distortion Bass",
 				generalMidi: false,
-				tags: ["pickedstring", "abyssbox"],
+				tags: ["pickedstring", "abyssbox", "distortion", "bass"],
 				settings: {
 					type: "Picked String",
 					eqFilter: [
@@ -6747,7 +6754,7 @@ export const forkCategories: InputPresetCategory[] = [
 			{
 				name: "Phased Overdrive Guitar",
 				generalMidi: false,
-				tags: ["pickedstring", "abyssbox"],
+				tags: ["pickedstring", "abyssbox", "distortion"],
 				settings: {
 					type: "Picked String",
 					eqFilter: [
@@ -6813,7 +6820,7 @@ export const forkCategories: InputPresetCategory[] = [
 			{
 				name: "Phased Picked Guitar",
 				generalMidi: false,
-				tags: ["pickedstring", "abyssbox"],
+				tags: ["pickedstring", "abyssbox", "distortion"],
 				settings: {
 					type: "Picked String",
 					eqFilter: [
@@ -7113,7 +7120,7 @@ export const forkCategories: InputPresetCategory[] = [
 			{
 				name: "Chipwave Spooky Pad",
 				generalMidi: false,
-				tags: ["chip", "customchip", "abyssbox"],
+				tags: ["chip", "customchip", "abyssbox", "pad"],
 				settings: {
 					type: "custom chip",
 					eqFilter: [
@@ -7302,7 +7309,7 @@ export const forkCategories: InputPresetCategory[] = [
 			{
 				name: "HD triangle wave",
 				midiProgram: 80,
-				tags: ["chip", "chipwave", "lemmbox"],
+				tags: ["chip", "chipwave", "lemmbox", "chiptune"],
 				settings: {
 					type: "chip",
 					eqFilter: [],
@@ -7319,7 +7326,7 @@ export const forkCategories: InputPresetCategory[] = [
 			{
 				name: "HD sawtooth wave",
 				midiProgram: 80,
-				tags: ["chip", "chipwave", "lemmbox"],
+				tags: ["chip", "chipwave", "lemmbox", "chiptune"],
 				settings: {
 					type: "chip",
 					eqFilter: [],
@@ -7336,7 +7343,7 @@ export const forkCategories: InputPresetCategory[] = [
 			{
 				name: "HD rounded wave",
 				midiProgram: 80,
-				tags: ["chip", "chipwave", "lemmbox"],
+				tags: ["chip", "chipwave", "lemmbox", "chiptune"],
 				settings: {
 					type: "chip",
 					eqFilter: [],
@@ -7353,7 +7360,7 @@ export const forkCategories: InputPresetCategory[] = [
 			{
 				name: "trapasquare",
 				midiProgram: 80,
-				tags: ["chip", "chipwave", "lemmbox"],
+				tags: ["chip", "chipwave", "lemmbox", "chiptune"],
 				settings: {
 					type: "chip",
 					eqFilter: [],
@@ -7371,7 +7378,7 @@ export const forkCategories: InputPresetCategory[] = [
 				name: "supersaw sax",
 				midiProgram: 65,
 				generalMidi: true,
-				tags: ["supersaw", "lemmbox"],
+				tags: ["supersaw", "lemmbox", "reed"],
 				settings: {
 					type: "supersaw",
 					volume: 0,
@@ -7457,7 +7464,7 @@ export const forkCategories: InputPresetCategory[] = [
 			{
 				name: "crystal bell",
 				generalMidi: false,
-				tags: ["pickedstring", "lemmbox"],
+				tags: ["pickedstring", "lemmbox", "idiophone"],
 				settings: {
 					type: "Picked String",
 					volume: 0,
@@ -7493,7 +7500,7 @@ export const forkCategories: InputPresetCategory[] = [
 			{
 				name: "bit wobble",
 				generalMidi: false,
-				tags: ["chip", "chipwave", "lemmbox"],
+				tags: ["chip", "chipwave", "lemmbox", "retro"],
 				settings: {
 					type: "chip",
 					volume: 0,
@@ -7770,7 +7777,7 @@ export const forkCategories: InputPresetCategory[] = [
 			{
 				name: "calm light",
 				generalMidi: false,
-				tags: ["fm", "fm4op", "lemmbox", "featured"],
+				tags: ["fm", "fm4op", "lemmbox", "featured", "pad"],
 				settings: {
 					type: "FM",
 					volume: 0,
@@ -7809,7 +7816,7 @@ export const forkCategories: InputPresetCategory[] = [
 			{
 				name: "mellow triangle",
 				generalMidi: false,
-				tags: ["chip", "customchip", "lemmbox"],
+				tags: ["chip", "customchip", "lemmbox", "retro"],
 				settings: {
 					type: "custom chip",
 					volume: 0,
@@ -7984,7 +7991,7 @@ export const forkCategories: InputPresetCategory[] = [
 			{
 				name: "1/4 pulse lead",
 				midiProgram: 80,
-				tags: ["chip", "chipwave", "awesomebox", "featured"],
+				tags: ["chip", "chipwave", "awesomebox", "featured", "retro", "lead"],
 				settings: {
 					type: "chip",
 					eqFilter: [
@@ -8034,7 +8041,7 @@ export const forkCategories: InputPresetCategory[] = [
 			{
 				name: "glitch pulse",
 				midiProgram: 80,
-				tags: ["pwm", "awesomebox"],
+				tags: ["pwm", "awesomebox", "retro"],
 				settings: {
 					type: "PWM",
 					eqFilter: [
@@ -8097,7 +8104,7 @@ export const forkCategories: InputPresetCategory[] = [
 			{
 				name: "glitch blip",
 				midiProgram: 80,
-				tags: ["chip", "chipwave", "awesomebox"],
+				tags: ["chip", "chipwave", "awesomebox", "retro"],
 				settings: {
 					type: "chip",
 					eqFilter: [
@@ -8221,7 +8228,7 @@ export const forkCategories: InputPresetCategory[] = [
 			{
 				name: "alien bass",
 				midiProgram: 80,
-				tags: ["chip", "chipwave", "awesomebox"],
+				tags: ["chip", "chipwave", "awesomebox", "bass"],
 				settings: {
 					type: "chip",
 					eqFilter: [
@@ -8288,7 +8295,7 @@ export const forkCategories: InputPresetCategory[] = [
 			{
 				name: "chip slap bass",
 				midiProgram: 80,
-				tags: ["chip", "customchip", "awesomebox"],
+				tags: ["chip", "customchip", "awesomebox", "bass", "picked"],
 				settings: {
 					type: "custom chip",
 					eqFilter: [{ type: "low-pass", cutoffHz: 8000, linearGain: 0.3536 }],
@@ -8701,7 +8708,7 @@ export const forkCategories: InputPresetCategory[] = [
 			{
 				name: "awesome distorted piano",
 				midiProgram: 80,
-				tags: ["harmonics", "awesomebox"],
+				tags: ["harmonics", "awesomebox", "keys"],
 				settings: {
 					type: "harmonics",
 					eqFilter: [
@@ -8764,7 +8771,7 @@ export const forkCategories: InputPresetCategory[] = [
 			{
 				name: "sandy distortion guitar",
 				midiProgram: 80,
-				tags: ["fm", "fm4op", "awesomebox"],
+				tags: ["fm", "fm4op", "awesomebox", "distortion"],
 				settings: {
 					type: "FM",
 					eqFilter: [
@@ -8834,7 +8841,7 @@ export const forkCategories: InputPresetCategory[] = [
 			{
 				name: "awesome distorted electric piano",
 				midiProgram: 80,
-				tags: ["fm", "fm4op", "awesomebox"],
+				tags: ["fm", "fm4op", "awesomebox", "keys"],
 				settings: {
 					type: "FM",
 					eqFilter: [{ type: "high-pass", cutoffHz: 250, linearGain: 1.4142 }],
@@ -8880,7 +8887,7 @@ export const forkCategories: InputPresetCategory[] = [
 			{
 				name: "Bluh",
 				generalMidi: false,
-				tags: ["harmonics"],
+				tags: ["harmonics", "novelty"],
 				settings: {
 					type: "harmonics",
 					eqFilter: [{ type: "low-pass", cutoffHz: 19027.31, linearGain: 0.7071 }],
@@ -8956,7 +8963,7 @@ export const forkCategories: InputPresetCategory[] = [
 			{
 				name: "climatic chip",
 				generalMidi: false,
-				tags: ["chip", "chipwave"],
+				tags: ["chip", "chipwave", "retro"],
 				settings: {
 					type: "chip",
 					eqFilter: [{ type: "low-pass", cutoffHz: 9656.85, linearGain: 0.5 }],
@@ -9047,7 +9054,7 @@ export const forkCategories: InputPresetCategory[] = [
 			{
 				name: "crazy custom chip",
 				generalMidi: false,
-				tags: ["chip", "customchip"],
+				tags: ["chip", "customchip", "retro"],
 				settings: {
 					type: "custom chip",
 					eqFilter: [
@@ -9237,7 +9244,7 @@ export const forkCategories: InputPresetCategory[] = [
 			{
 				name: "familiar organs",
 				generalMidi: false,
-				tags: ["fm", "fm4op"],
+				tags: ["fm", "fm4op", "bellows"],
 				settings: {
 					type: "FM",
 					eqFilter: [{ type: "low-pass", cutoffHz: 6727.17, linearGain: 1 }],
@@ -9285,7 +9292,7 @@ export const forkCategories: InputPresetCategory[] = [
 			{
 				name: "music box 3",
 				generalMidi: false,
-				tags: ["pickedstring"],
+				tags: ["pickedstring", "idiophone"],
 				settings: {
 					type: "Picked String",
 					eqFilter: [
@@ -9334,7 +9341,7 @@ export const forkCategories: InputPresetCategory[] = [
 			{
 				name: "Elevator Synth",
 				generalMidi: false,
-				tags: ["fm", "fm6op"],
+				tags: ["fm", "fm6op", "idiophone"],
 				settings: {
 					type: "FM6op",
 					eqFilter: [],
@@ -9383,7 +9390,7 @@ export const forkCategories: InputPresetCategory[] = [
 			{
 				name: "Peak Square",
 				generalMidi: false,
-				tags: ["chip", "chipwave"],
+				tags: ["chip", "chipwave", "retro"],
 				settings: {
 					type: "chip",
 					eqFilter: [
@@ -9532,7 +9539,7 @@ export const forkCategories: InputPresetCategory[] = [
 			{
 				name: "wibble bass",
 				midiProgram: 36,
-				tags: ["chip", "chipwave"],
+				tags: ["chip", "chipwave", "bass"],
 				settings: {
 					type: "chip",
 					volume: 0,
@@ -9567,7 +9574,7 @@ export const forkCategories: InputPresetCategory[] = [
 			{
 				name: "square bell",
 				midiProgram: 36,
-				tags: ["chip", "chipwave"],
+				tags: ["chip", "chipwave", "idiophone"],
 				settings: {
 					type: "chip",
 					volume: 0,
@@ -9713,7 +9720,7 @@ export const forkCategories: InputPresetCategory[] = [
 			{
 				name: "superchared electric guitar",
 				midiProgram: 29,
-				tags: ["noise"],
+				tags: ["noise", "distortion"],
 				settings: {
 					type: "noise",
 					volume: 0,

@@ -1,3 +1,10 @@
+// community-mixed
+//
+// Purpose: Community mixed and novelty preset categories
+//
+// This module:
+// - Exports preset categories: Other Community Novelty, Community Drums
+
 import { DictionaryArray, toNameMap } from "../../../synth/synth-config";
 import { InputPresetCategory, Preset } from "./types";
 
@@ -373,7 +380,7 @@ export const mixedCommunityCategories: InputPresetCategory[] = [
 			{
 				name: "decimated kick - CoolTasDude",
 				generalMidi: false,
-				tags: ["fm", "fm4op", "cooltasdude", "novelty"],
+				tags: ["fm", "fm4op", "cooltasdude", "novelty", "kick"],
 				settings: {
 					type: "FM",
 					volume: 0,
@@ -625,7 +632,7 @@ export const mixedCommunityCategories: InputPresetCategory[] = [
 			{
 				name: "jello kick - HappyLemonLime",
 				generalMidi: false,
-				tags: ["fm", "fm6op", "happylemonlime", "novelty"],
+				tags: ["fm", "fm6op", "happylemonlime", "novelty", "kick"],
 				settings: {
 					type: "FM6op",
 					volume: 0,
@@ -4287,7 +4294,7 @@ export const mixedCommunityCategories: InputPresetCategory[] = [
 			{
 				name: "FM Ambience - Ashiiware",
 				generalMidi: false,
-				tags: ["fm", "fm4op", "novelty"],
+				tags: ["fm", "fm4op", "novelty", "ambience"],
 				settings: {
 					type: "FM",
 					eqFilter: [
@@ -5158,7 +5165,7 @@ export const mixedCommunityCategories: InputPresetCategory[] = [
 			{
 				name: "Extremely Distorted Chip - jacobis12344",
 				generalMidi: false,
-				tags: ["chip", "customchip", "novelty"],
+				tags: ["chip", "customchip", "novelty", "retro"],
 				settings: {
 					type: "custom chip",
 					eqFilter: [
@@ -7390,7 +7397,7 @@ export const mixedCommunityCategories: InputPresetCategory[] = [
 				name: "Knock on wood - jacobis12344",
 				generalMidi: false,
 				isNoise: true,
-				tags: ["spectrum"],
+				tags: ["spectrum", "drum"],
 				settings: {
 					type: "spectrum",
 					eqFilter: [],
@@ -7451,7 +7458,7 @@ export const mixedCommunityCategories: InputPresetCategory[] = [
 				name: "Whooshing - Luxian",
 				generalMidi: false,
 				isNoise: true,
-				tags: ["spectrum"],
+				tags: ["spectrum", "drum"],
 				settings: {
 					type: "spectrum",
 					eqFilter: [{ type: "low-pass", cutoffHz: 16000, linearGain: 0.3536 }],

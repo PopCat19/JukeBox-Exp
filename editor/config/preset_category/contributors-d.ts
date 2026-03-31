@@ -1,3 +1,10 @@
+// contributors-d
+//
+// Purpose: Community contributor preset categories (D)
+//
+// This module:
+// - Exports preset categories: Formskooooo through DX7FM Novelty
+
 import { DictionaryArray, toNameMap } from "../../../synth/synth-config";
 import { InputPresetCategory, Preset } from "./types";
 
@@ -9,7 +16,7 @@ export const contributorCategoriesD: InputPresetCategory[] = [
 			{
 				name: "Bass Clarinet",
 				generalMidi: false,
-				tags: ["harmonics", "formskooooo"],
+				tags: ["harmonics", "formskooooo", "bellows", "reed"],
 				settings: {
 					type: "harmonics",
 					eqFilter: [{ type: "low-pass", cutoffHz: 1664.21, linearGain: 0.5 }],
@@ -56,7 +63,7 @@ export const contributorCategoriesD: InputPresetCategory[] = [
 			{
 				name: "Dubstep Gee",
 				generalMidi: false,
-				tags: ["harmonics", "formskooooo"],
+				tags: ["harmonics", "formskooooo", "dubstep", "novelty"],
 				settings: {
 					type: "harmonics",
 					eqFilter: [{ type: "low-pass", cutoffHz: 4000, linearGain: 2 }],
@@ -105,7 +112,7 @@ export const contributorCategoriesD: InputPresetCategory[] = [
 			{
 				name: "Glass Click",
 				generalMidi: false,
-				tags: ["harmonics", "formskooooo"],
+				tags: ["harmonics", "formskooooo", "retro", "novelty"],
 				settings: {
 					type: "harmonics",
 					eqFilter: [
@@ -159,7 +166,7 @@ export const contributorCategoriesD: InputPresetCategory[] = [
 			{
 				name: "Chordhating Lead",
 				generalMidi: false,
-				tags: ["harmonics", "formskooooo"],
+				tags: ["harmonics", "formskooooo", "pad"],
 				settings: {
 					type: "harmonics",
 					eqFilter: [{ type: "low-pass", cutoffHz: 1664.21, linearGain: 0.5 }],
@@ -194,7 +201,7 @@ export const contributorCategoriesD: InputPresetCategory[] = [
 			{
 				name: "Shruti Box",
 				generalMidi: false,
-				tags: ["harmonics", "formskooooo"],
+				tags: ["harmonics", "formskooooo", "picked", "retro"],
 				settings: {
 					type: "harmonics",
 					eqFilter: [
@@ -254,7 +261,7 @@ export const contributorCategoriesD: InputPresetCategory[] = [
 			{
 				name: "Ladder Banjo",
 				generalMidi: false,
-				tags: ["harmonics", "formskooooo"],
+				tags: ["harmonics", "formskooooo", "retro", "picked", "guitar"],
 				settings: {
 					type: "harmonics",
 					eqFilter: [],
@@ -285,7 +292,7 @@ export const contributorCategoriesD: InputPresetCategory[] = [
 			{
 				name: "Nyckelharpa",
 				generalMidi: false,
-				tags: ["fm", "fm4op", "formskooooo"],
+				tags: ["fm", "fm4op", "formskooooo", "picked", "string"],
 				settings: {
 					type: "FM",
 					eqFilter: [
@@ -352,7 +359,7 @@ export const contributorCategoriesD: InputPresetCategory[] = [
 			{
 				name: "Tubaphone",
 				generalMidi: false,
-				tags: ["fm", "fm4op", "formskooooo"],
+				tags: ["fm", "fm4op", "formskooooo", "bellows", "picked"],
 				settings: {
 					type: "FM",
 					eqFilter: [],
@@ -3834,7 +3841,7 @@ export const contributorCategoriesD: InputPresetCategory[] = [
 			{
 				name: "Sucker's Violin - Luxian",
 				generalMidi: false,
-				tags: ["fm", "fm6op", "featured"],
+				tags: ["fm", "fm6op", "featured", "string"],
 				settings: {
 					type: "FM6op",
 					eqFilter: [
@@ -5306,7 +5313,7 @@ export const contributorCategoriesD: InputPresetCategory[] = [
 			{
 				name: "Epic Double Saw - Xelerate_XD",
 				generalMidi: false,
-				tags: ["chip", "customchip"],
+				tags: ["chip", "customchip", "chiptune"],
 				settings: {
 					type: "custom chip",
 					eqFilter: [
@@ -13411,7 +13418,7 @@ export const contributorCategoriesD: InputPresetCategory[] = [
 			{
 				name: "Cute music box  - jacobis12344",
 				generalMidi: false,
-				tags: ["pickedstring"],
+				tags: ["pickedstring", "idiophone"],
 				settings: {
 					type: "Picked String",
 					eqFilter: [
@@ -13470,7 +13477,7 @@ export const contributorCategoriesD: InputPresetCategory[] = [
 			{
 				name: "Weird Tubathing - jacobis12344",
 				generalMidi: false,
-				tags: ["fm", "fm4op"],
+				tags: ["fm", "fm4op", "brass"],
 				settings: {
 					type: "FM",
 					eqFilter: [{ type: "low-pass", cutoffHz: 11313.71, linearGain: 0.3536 }],
@@ -13761,7 +13768,7 @@ export const contributorCategoriesD: InputPresetCategory[] = [
 			{
 				name: "Soul choir - Luxian",
 				generalMidi: false,
-				tags: ["spectrum"],
+				tags: ["spectrum", "vocal"],
 				settings: {
 					type: "spectrum",
 					eqFilter: [{ type: "low-pass", cutoffHz: 4000, linearGain: 0.1768 }],
@@ -13828,7 +13835,7 @@ export const contributorCategoriesD: InputPresetCategory[] = [
 			{
 				name: "Zilly lead - Luxian",
 				generalMidi: false,
-				tags: ["fm", "fm4op"],
+				tags: ["fm", "fm4op", "pad"],
 				settings: {
 					type: "FM",
 					eqFilter: [{ type: "peak", cutoffHz: 2378.41, linearGain: 8 }],
@@ -13858,7 +13865,7 @@ export const contributorCategoriesD: InputPresetCategory[] = [
 			{
 				name: "Bit Cruskles - Luxian",
 				generalMidi: false,
-				tags: ["harmonics"],
+				tags: ["harmonics", "keys"],
 				settings: {
 					type: "harmonics",
 					eqFilter: [{ type: "peak", cutoffHz: 2378.41, linearGain: 0.3536 }],
@@ -13886,7 +13893,7 @@ export const contributorCategoriesD: InputPresetCategory[] = [
 			{
 				name: "Whimper pad - Luxian",
 				generalMidi: false,
-				tags: ["harmonics"],
+				tags: ["harmonics", "pad"],
 				settings: {
 					type: "harmonics",
 					eqFilter: [
@@ -13928,7 +13935,7 @@ export const contributorCategoriesD: InputPresetCategory[] = [
 			{
 				name: "Clavinet chip - Luxian",
 				generalMidi: false,
-				tags: ["chip", "customchip"],
+				tags: ["chip", "customchip", "keys"],
 				settings: {
 					type: "custom chip",
 					eqFilter: [],

@@ -1,3 +1,10 @@
+// unbox
+//
+// Purpose: UnBox synth family preset categories
+//
+// This module:
+// - Exports preset categories: UnBox Synth Pads through Novelty
+
 import { DictionaryArray, toNameMap } from "../../../synth/synth-config";
 import { InputPresetCategory, Preset } from "./types";
 
@@ -8,7 +15,7 @@ export const unboxCategories: InputPresetCategory[] = [
 			{
 				name: "Filtered Pad",
 				midiProgram: 89,
-				tags: ["pwm", "unbox"],
+				tags: ["pwm", "unbox", "pad"],
 				settings: {
 					type: "PWM",
 					eqFilter: [
@@ -56,7 +63,7 @@ export const unboxCategories: InputPresetCategory[] = [
 			{
 				name: "Distorted Filter Pad",
 				generalMidi: false,
-				tags: ["pwm", "unbox"],
+				tags: ["pwm", "unbox", "pad"],
 				settings: {
 					type: "PWM",
 					eqFilter: [
@@ -106,7 +113,7 @@ export const unboxCategories: InputPresetCategory[] = [
 			{
 				name: "Smooth Pad",
 				midiProgram: 91,
-				tags: ["supersaw", "unbox"],
+				tags: ["supersaw", "unbox", "pad"],
 				settings: {
 					type: "supersaw",
 					eqFilter: [
@@ -150,7 +157,7 @@ export const unboxCategories: InputPresetCategory[] = [
 			{
 				name: "Filtered Smooth Pad",
 				midiProgram: 93,
-				tags: ["supersaw", "unbox"],
+				tags: ["supersaw", "unbox", "pad"],
 				settings: {
 					type: "supersaw",
 					eqFilter: [
@@ -203,7 +210,7 @@ export const unboxCategories: InputPresetCategory[] = [
 			{
 				name: "Shining Pad",
 				midiProgram: 95,
-				tags: ["fm", "fm4op", "unbox"],
+				tags: ["fm", "fm4op", "unbox", "bellows"],
 				settings: {
 					type: "FM",
 					eqFilter: [
@@ -265,7 +272,7 @@ export const unboxCategories: InputPresetCategory[] = [
 			{
 				name: "Soft Pad",
 				midiProgram: 90,
-				tags: ["fm", "fm4op", "unbox"],
+				tags: ["fm", "fm4op", "unbox", "pad"],
 				settings: {
 					type: "FM",
 					eqFilter: [
@@ -315,7 +322,7 @@ export const unboxCategories: InputPresetCategory[] = [
 			{
 				name: "Triangle Pad",
 				generalMidi: false,
-				tags: ["chip", "chipwave", "unbox"],
+				tags: ["chip", "chipwave", "unbox", "pad"],
 				settings: {
 					type: "chip",
 					eqFilter: [{ type: "high-pass", cutoffHz: 707.11, linearGain: 0.5 }],
@@ -353,7 +360,7 @@ export const unboxCategories: InputPresetCategory[] = [
 			{
 				name: "Zoid Pad",
 				generalMidi: false,
-				tags: ["chip", "chipwave", "unbox", "featured"],
+				tags: ["chip", "chipwave", "unbox", "featured", "pad"],
 				settings: {
 					type: "chip",
 					eqFilter: [],
@@ -387,7 +394,7 @@ export const unboxCategories: InputPresetCategory[] = [
 			{
 				name: "Pulse Pad",
 				generalMidi: false,
-				tags: ["pwm", "unbox"],
+				tags: ["pwm", "unbox", "pad"],
 				settings: {
 					type: "PWM",
 					eqFilter: [
@@ -447,7 +454,7 @@ export const unboxCategories: InputPresetCategory[] = [
 			{
 				name: "Ripped Pad",
 				generalMidi: false,
-				tags: ["chip", "chipwave", "unbox"],
+				tags: ["chip", "chipwave", "unbox", "pad"],
 				settings: {
 					type: "chip",
 					eqFilter: [{ type: "low-pass", cutoffHz: 1015.06, linearGain: 1.4142 }],
@@ -474,7 +481,7 @@ export const unboxCategories: InputPresetCategory[] = [
 			{
 				name: "Breath Pad",
 				generalMidi: false,
-				tags: ["supersaw", "unbox"],
+				tags: ["supersaw", "unbox", "pad"],
 				settings: {
 					type: "supersaw",
 					eqFilter: [
@@ -516,7 +523,7 @@ export const unboxCategories: InputPresetCategory[] = [
 			{
 				name: "Shiny",
 				generalMidi: false,
-				tags: ["chip", "chipwave", "unbox"],
+				tags: ["chip", "chipwave", "unbox", "pad"],
 				settings: {
 					type: "chip",
 					eqFilter: [],
@@ -554,7 +561,7 @@ export const unboxCategories: InputPresetCategory[] = [
 			{
 				name: "Pulsing Pad",
 				generalMidi: false,
-				tags: ["pwm", "unbox"],
+				tags: ["pwm", "unbox", "pad"],
 				settings: {
 					type: "PWM",
 					eqFilter: [
@@ -612,7 +619,7 @@ export const unboxCategories: InputPresetCategory[] = [
 			{
 				name: "Bass Tone",
 				midiProgram: 35,
-				tags: ["fm", "fm4op", "unbox"],
+				tags: ["fm", "fm4op", "unbox", "bass"],
 				settings: {
 					type: "FM",
 					eqFilter: [
@@ -669,7 +676,7 @@ export const unboxCategories: InputPresetCategory[] = [
 			{
 				name: "Bass Sub",
 				midiProgram: 34,
-				tags: ["fm", "fm4op", "unbox"],
+				tags: ["fm", "fm4op", "unbox", "bass"],
 				settings: {
 					type: "FM",
 					eqFilter: [],
@@ -706,7 +713,7 @@ export const unboxCategories: InputPresetCategory[] = [
 			{
 				name: "Bass Tone Scream",
 				midiProgram: 35,
-				tags: ["fm", "fm4op", "unbox"],
+				tags: ["fm", "fm4op", "unbox", "bass"],
 				settings: {
 					type: "FM",
 					eqFilter: [
@@ -763,7 +770,7 @@ export const unboxCategories: InputPresetCategory[] = [
 			{
 				name: "Smooth Bass Sub",
 				midiProgram: 34,
-				tags: ["fm", "fm4op", "unbox"],
+				tags: ["fm", "fm4op", "unbox", "bass"],
 				settings: {
 					type: "FM",
 					eqFilter: [],
@@ -800,7 +807,7 @@ export const unboxCategories: InputPresetCategory[] = [
 			{
 				name: "Triangle Bass Sub",
 				midiProgram: 34,
-				tags: ["fm", "fm4op", "unbox"],
+				tags: ["fm", "fm4op", "unbox", "bass"],
 				settings: {
 					type: "FM",
 					eqFilter: [{ type: "low-pass", cutoffHz: 19027.31, linearGain: 0.7071 }],
@@ -832,7 +839,7 @@ export const unboxCategories: InputPresetCategory[] = [
 			{
 				name: "Bass Tone Crunch",
 				midiProgram: 37,
-				tags: ["fm", "fm4op", "unbox"],
+				tags: ["fm", "fm4op", "unbox", "bass"],
 				settings: {
 					type: "FM",
 					eqFilter: [
@@ -889,7 +896,7 @@ export const unboxCategories: InputPresetCategory[] = [
 			{
 				name: "Bass Tone Distortion",
 				midiProgram: 33,
-				tags: ["fm", "fm4op", "unbox"],
+				tags: ["fm", "fm4op", "unbox", "bass"],
 				settings: {
 					type: "FM",
 					eqFilter: [],
@@ -936,7 +943,7 @@ export const unboxCategories: InputPresetCategory[] = [
 			{
 				name: "Thick Bass",
 				generalMidi: false,
-				tags: ["fm", "fm4op", "unbox"],
+				tags: ["fm", "fm4op", "unbox", "bass"],
 				settings: {
 					type: "FM",
 					eqFilter: [
@@ -1004,7 +1011,7 @@ export const unboxCategories: InputPresetCategory[] = [
 			{
 				name: "Thick Bass Sub",
 				generalMidi: false,
-				tags: ["fm", "fm4op", "unbox"],
+				tags: ["fm", "fm4op", "unbox", "bass"],
 				settings: {
 					type: "FM",
 					eqFilter: [{ type: "low-pass", cutoffHz: 500, linearGain: 1 }],
@@ -1035,7 +1042,7 @@ export const unboxCategories: InputPresetCategory[] = [
 			{
 				name: "Filtered Saw Bass",
 				midiProgram: 39,
-				tags: ["chip", "chipwave", "unbox"],
+				tags: ["chip", "chipwave", "unbox", "bass"],
 				settings: {
 					type: "chip",
 					eqFilter: [],
@@ -1096,7 +1103,7 @@ export const unboxCategories: InputPresetCategory[] = [
 			{
 				name: "Acid Saw Bass",
 				midiProgram: 39,
-				tags: ["fm", "fm4op", "unbox"],
+				tags: ["fm", "fm4op", "unbox", "bass"],
 				settings: {
 					type: "FM",
 					eqFilter: [{ type: "low-pass", cutoffHz: 4000, linearGain: 0.5 }],
@@ -1148,7 +1155,7 @@ export const unboxCategories: InputPresetCategory[] = [
 			{
 				name: "Acid Tri Bass",
 				midiProgram: 39,
-				tags: ["fm", "fm4op", "unbox"],
+				tags: ["fm", "fm4op", "unbox", "bass"],
 				settings: {
 					type: "FM",
 					eqFilter: [{ type: "low-pass", cutoffHz: 4000, linearGain: 0.5 }],
@@ -1200,7 +1207,7 @@ export const unboxCategories: InputPresetCategory[] = [
 			{
 				name: "Acid Square Bass",
 				midiProgram: 39,
-				tags: ["fm", "fm4op", "unbox"],
+				tags: ["fm", "fm4op", "unbox", "bass"],
 				settings: {
 					type: "FM",
 					eqFilter: [{ type: "low-pass", cutoffHz: 4000, linearGain: 0.5 }],
@@ -1252,7 +1259,7 @@ export const unboxCategories: InputPresetCategory[] = [
 			{
 				name: "Acid Pulse Bass",
 				midiProgram: 39,
-				tags: ["pwm", "unbox"],
+				tags: ["pwm", "unbox", "bass"],
 				settings: {
 					type: "PWM",
 					eqFilter: [{ type: "low-pass", cutoffHz: 4000, linearGain: 0.5 }],
@@ -1296,7 +1303,7 @@ export const unboxCategories: InputPresetCategory[] = [
 			{
 				name: "Acid SuperSaw Bass",
 				midiProgram: 39,
-				tags: ["supersaw", "unbox"],
+				tags: ["supersaw", "unbox", "bass"],
 				settings: {
 					type: "supersaw",
 					eqFilter: [{ type: "low-pass", cutoffHz: 4000, linearGain: 0.5 }],
@@ -1342,7 +1349,7 @@ export const unboxCategories: InputPresetCategory[] = [
 			{
 				name: "Squash Bass",
 				generalMidi: false,
-				tags: ["chip", "customchip", "unbox", "chiptune"],
+				tags: ["chip", "customchip", "unbox", "chiptune", "bass", "retro"],
 				settings: {
 					type: "custom chip",
 					eqFilter: [],
@@ -1510,7 +1517,7 @@ export const unboxCategories: InputPresetCategory[] = [
 			{
 				name: "Pulse-Del Bass 1",
 				generalMidi: false,
-				tags: ["fm", "fm4op", "unbox"],
+				tags: ["fm", "fm4op", "unbox", "bass", "retro"],
 				settings: {
 					type: "FM",
 					eqFilter: [
@@ -1608,7 +1615,7 @@ export const unboxCategories: InputPresetCategory[] = [
 			{
 				name: "Pulse-Del Bass 2",
 				generalMidi: false,
-				tags: ["fm", "fm4op", "unbox"],
+				tags: ["fm", "fm4op", "unbox", "bass", "retro"],
 				settings: {
 					type: "FM",
 					eqFilter: [
@@ -1706,7 +1713,7 @@ export const unboxCategories: InputPresetCategory[] = [
 			{
 				name: "Soft Pulse-Del Bass 1",
 				generalMidi: false,
-				tags: ["fm", "fm4op", "unbox"],
+				tags: ["fm", "fm4op", "unbox", "bass", "retro"],
 				settings: {
 					type: "FM",
 					eqFilter: [
@@ -1804,7 +1811,7 @@ export const unboxCategories: InputPresetCategory[] = [
 			{
 				name: "Soft Pulse-Del Bass 2",
 				generalMidi: false,
-				tags: ["fm", "fm4op", "unbox"],
+				tags: ["fm", "fm4op", "unbox", "bass", "retro"],
 				settings: {
 					type: "FM",
 					eqFilter: [
@@ -1907,7 +1914,7 @@ export const unboxCategories: InputPresetCategory[] = [
 			{
 				name: "Synth Brass 1",
 				midiProgram: 63,
-				tags: ["fm", "fm4op", "unbox"],
+				tags: ["fm", "fm4op", "unbox", "brass"],
 				settings: {
 					type: "FM",
 					eqFilter: [
@@ -1972,7 +1979,7 @@ export const unboxCategories: InputPresetCategory[] = [
 			{
 				name: "Synth Brass 2",
 				midiProgram: 64,
-				tags: ["fm", "fm4op", "unbox"],
+				tags: ["fm", "fm4op", "unbox", "brass"],
 				settings: {
 					type: "FM",
 					eqFilter: [
@@ -2037,7 +2044,7 @@ export const unboxCategories: InputPresetCategory[] = [
 			{
 				name: "Synth Muted Trumpet",
 				midiProgram: 57,
-				tags: ["fm", "fm4op", "unbox"],
+				tags: ["fm", "fm4op", "unbox", "brass"],
 				settings: {
 					type: "FM",
 					eqFilter: [
@@ -2099,7 +2106,7 @@ export const unboxCategories: InputPresetCategory[] = [
 			{
 				name: "Synth Trumpet",
 				midiProgram: 60,
-				tags: ["fm", "fm4op", "unbox"],
+				tags: ["fm", "fm4op", "unbox", "brass"],
 				settings: {
 					type: "FM",
 					eqFilter: [
@@ -2163,7 +2170,7 @@ export const unboxCategories: InputPresetCategory[] = [
 			{
 				name: "Synth Trombone 1",
 				midiProgram: 58,
-				tags: ["fm", "fm4op", "unbox"],
+				tags: ["fm", "fm4op", "unbox", "brass"],
 				settings: {
 					type: "FM",
 					eqFilter: [],
@@ -2196,7 +2203,7 @@ export const unboxCategories: InputPresetCategory[] = [
 			{
 				name: "Synth Trombone 2",
 				generalMidi: false,
-				tags: ["fm", "fm4op", "unbox"],
+				tags: ["fm", "fm4op", "unbox", "brass"],
 				settings: {
 					type: "FM",
 					eqFilter: [{ type: "high-pass", cutoffHz: 500, linearGain: 0.0884 }],
@@ -2229,7 +2236,7 @@ export const unboxCategories: InputPresetCategory[] = [
 			{
 				name: "Synth Horn",
 				midiProgram: 61,
-				tags: ["fm", "fm4op", "unbox"],
+				tags: ["fm", "fm4op", "unbox", "brass"],
 				settings: {
 					type: "FM",
 					eqFilter: [{ type: "low-pass", cutoffHz: 2378.41, linearGain: 2 }],
@@ -2284,7 +2291,7 @@ export const unboxCategories: InputPresetCategory[] = [
 			{
 				name: "Synth Brass Slide",
 				midiProgram: 63,
-				tags: ["fm", "fm4op", "unbox"],
+				tags: ["fm", "fm4op", "unbox", "brass"],
 				settings: {
 					type: "FM",
 					eqFilter: [
@@ -2351,7 +2358,7 @@ export const unboxCategories: InputPresetCategory[] = [
 			{
 				name: "Synth Soft Brass",
 				generalMidi: false,
-				tags: ["fm", "fm6op", "unbox"],
+				tags: ["fm", "fm6op", "unbox", "brass"],
 				settings: {
 					type: "FM6op",
 					eqFilter: [{ type: "high-pass", cutoffHz: 148.65, linearGain: 1 }],
@@ -2396,7 +2403,7 @@ export const unboxCategories: InputPresetCategory[] = [
 			{
 				name: "Triangle Keys",
 				generalMidi: false,
-				tags: ["fm", "fm4op", "unbox"],
+				tags: ["fm", "fm4op", "unbox", "keys"],
 				settings: {
 					type: "FM",
 					eqFilter: [
@@ -2460,7 +2467,7 @@ export const unboxCategories: InputPresetCategory[] = [
 			{
 				name: "Fuzzy Keys",
 				generalMidi: false,
-				tags: ["pickedstring", "unbox"],
+				tags: ["pickedstring", "unbox", "keys"],
 				settings: {
 					type: "Picked String",
 					eqFilter: [
@@ -2526,7 +2533,7 @@ export const unboxCategories: InputPresetCategory[] = [
 			{
 				name: "Soft Keys",
 				generalMidi: false,
-				tags: ["fm", "fm4op", "unbox"],
+				tags: ["fm", "fm4op", "unbox", "keys"],
 				settings: {
 					type: "FM",
 					eqFilter: [{ type: "low-pass", cutoffHz: 2378.41, linearGain: 2 }],
@@ -2565,7 +2572,7 @@ export const unboxCategories: InputPresetCategory[] = [
 			{
 				name: "Distressed Keys",
 				generalMidi: false,
-				tags: ["pickedstring", "unbox"],
+				tags: ["pickedstring", "unbox", "keys"],
 				settings: {
 					type: "Picked String",
 					eqFilter: [
@@ -2615,7 +2622,7 @@ export const unboxCategories: InputPresetCategory[] = [
 			{
 				name: "Thin Keys",
 				generalMidi: false,
-				tags: ["pickedstring", "unbox"],
+				tags: ["pickedstring", "unbox", "keys"],
 				settings: {
 					type: "Picked String",
 					eqFilter: [
@@ -2672,7 +2679,7 @@ export const unboxCategories: InputPresetCategory[] = [
 			{
 				name: "Garbled Keys",
 				generalMidi: false,
-				tags: ["pickedstring", "unbox"],
+				tags: ["pickedstring", "unbox", "keys"],
 				settings: {
 					type: "Picked String",
 					eqFilter: [
@@ -2729,7 +2736,7 @@ export const unboxCategories: InputPresetCategory[] = [
 			{
 				name: "Lone Keys Pulse",
 				midiProgram: 81,
-				tags: ["chip", "chipwave", "unbox"],
+				tags: ["chip", "chipwave", "unbox", "keys"],
 				settings: {
 					type: "chip",
 					eqFilter: [{ type: "low-pass", cutoffHz: 6727.17, linearGain: 0.7071 }],
@@ -2781,7 +2788,7 @@ export const unboxCategories: InputPresetCategory[] = [
 			{
 				name: "Lone Keys Saw",
 				midiProgram: 82,
-				tags: ["chip", "chipwave", "unbox"],
+				tags: ["chip", "chipwave", "unbox", "keys"],
 				settings: {
 					type: "chip",
 					eqFilter: [{ type: "low-pass", cutoffHz: 6727.17, linearGain: 0.7071 }],
@@ -2833,7 +2840,7 @@ export const unboxCategories: InputPresetCategory[] = [
 			{
 				name: "Lone Keys Triangle",
 				midiProgram: 71,
-				tags: ["chip", "chipwave", "unbox"],
+				tags: ["chip", "chipwave", "unbox", "keys"],
 				settings: {
 					type: "chip",
 					eqFilter: [{ type: "low-pass", cutoffHz: 6727.17, linearGain: 0.7071 }],
@@ -2885,7 +2892,7 @@ export const unboxCategories: InputPresetCategory[] = [
 			{
 				name: "Distant Key",
 				generalMidi: false,
-				tags: ["fm", "fm4op", "unbox"],
+				tags: ["fm", "fm4op", "unbox", "keys"],
 				settings: {
 					type: "FM",
 					eqFilter: [
@@ -2959,7 +2966,7 @@ export const unboxCategories: InputPresetCategory[] = [
 			{
 				name: "Lost Memories",
 				generalMidi: false,
-				tags: ["fm", "fm4op", "unbox"],
+				tags: ["fm", "fm4op", "unbox", "keys"],
 				settings: {
 					type: "FM",
 					eqFilter: [
@@ -3033,7 +3040,7 @@ export const unboxCategories: InputPresetCategory[] = [
 			{
 				name: "Tape Organ",
 				generalMidi: false,
-				tags: ["harmonics", "unbox"],
+				tags: ["harmonics", "unbox", "bellows"],
 				settings: {
 					type: "harmonics",
 					eqFilter: [
@@ -3093,7 +3100,7 @@ export const unboxCategories: InputPresetCategory[] = [
 			{
 				name: "Far Echo Pad",
 				midiProgram: 93,
-				tags: ["pwm", "unbox"],
+				tags: ["pwm", "unbox", "pad"],
 				settings: {
 					type: "PWM",
 					eqFilter: [
@@ -3158,7 +3165,7 @@ export const unboxCategories: InputPresetCategory[] = [
 			{
 				name: "Echo Pad",
 				midiProgram: 93,
-				tags: ["pwm", "unbox"],
+				tags: ["pwm", "unbox", "pad"],
 				settings: {
 					type: "PWM",
 					eqFilter: [
@@ -3221,7 +3228,7 @@ export const unboxCategories: InputPresetCategory[] = [
 			{
 				name: "Echo Pulse Pad",
 				midiProgram: 93,
-				tags: ["pwm", "unbox"],
+				tags: ["pwm", "unbox", "pad"],
 				settings: {
 					type: "PWM",
 					eqFilter: [
@@ -3410,7 +3417,7 @@ export const unboxCategories: InputPresetCategory[] = [
 			{
 				name: "Shimmer Keys",
 				midiProgram: 94,
-				tags: ["fm", "fm4op", "unbox"],
+				tags: ["fm", "fm4op", "unbox", "keys"],
 				settings: {
 					type: "FM",
 					eqFilter: [{ type: "high-pass", cutoffHz: 250, linearGain: 0.7071 }],
@@ -3447,7 +3454,7 @@ export const unboxCategories: InputPresetCategory[] = [
 			{
 				name: "Wispy Pad",
 				midiProgram: 94,
-				tags: ["fm", "fm4op", "unbox"],
+				tags: ["fm", "fm4op", "unbox", "pad"],
 				settings: {
 					type: "FM",
 					eqFilter: [
@@ -3508,7 +3515,7 @@ export const unboxCategories: InputPresetCategory[] = [
 			{
 				name: "Shimmer Pad",
 				midiProgram: 94,
-				tags: ["supersaw", "unbox"],
+				tags: ["supersaw", "unbox", "pad"],
 				settings: {
 					type: "supersaw",
 					eqFilter: [{ type: "low-pass", cutoffHz: 11313.71, linearGain: 0.3536 }],
@@ -3604,7 +3611,7 @@ export const unboxCategories: InputPresetCategory[] = [
 			{
 				name: "Saw String",
 				generalMidi: false,
-				tags: ["chip", "chipwave", "unbox"],
+				tags: ["chip", "chipwave", "unbox", "string"],
 				settings: {
 					type: "chip",
 					eqFilter: [{ type: "low-pass", cutoffHz: 16000, linearGain: 0.7071 }],
@@ -3645,7 +3652,7 @@ export const unboxCategories: InputPresetCategory[] = [
 			{
 				name: "String Buzzer",
 				generalMidi: false,
-				tags: ["chip", "chipwave", "unbox"],
+				tags: ["chip", "chipwave", "unbox", "string"],
 				settings: {
 					type: "chip",
 					eqFilter: [{ type: "low-pass", cutoffHz: 16000, linearGain: 0.7071 }],
@@ -3787,7 +3794,7 @@ export const unboxCategories: InputPresetCategory[] = [
 			{
 				name: "Tape Distortion",
 				midiProgram: 83,
-				tags: ["spectrum", "unbox"],
+				tags: ["spectrum", "unbox", "distortion"],
 				settings: {
 					type: "spectrum",
 					eqFilter: [],
@@ -3887,7 +3894,7 @@ export const unboxCategories: InputPresetCategory[] = [
 			{
 				name: "Soft Atmos",
 				midiProgram: 95,
-				tags: ["spectrum", "unbox"],
+				tags: ["spectrum", "unbox", "novelty"],
 				settings: {
 					type: "spectrum",
 					eqFilter: [],
@@ -3942,7 +3949,7 @@ export const unboxCategories: InputPresetCategory[] = [
 			{
 				name: "Hard Atmos",
 				midiProgram: 95,
-				tags: ["spectrum", "unbox"],
+				tags: ["spectrum", "unbox", "novelty"],
 				settings: {
 					type: "spectrum",
 					eqFilter: [
@@ -4013,7 +4020,7 @@ export const unboxCategories: InputPresetCategory[] = [
 			{
 				name: "Atmos Woosh",
 				midiProgram: 103,
-				tags: ["spectrum", "unbox"],
+				tags: ["spectrum", "unbox", "novelty"],
 				settings: {
 					type: "spectrum",
 					eqFilter: [{ type: "high-pass", cutoffHz: 707.11, linearGain: 0.7071 }],
@@ -4042,7 +4049,7 @@ export const unboxCategories: InputPresetCategory[] = [
 			{
 				name: "Distorted Woosh",
 				midiProgram: 103,
-				tags: ["spectrum", "unbox"],
+				tags: ["spectrum", "unbox", "novelty"],
 				settings: {
 					type: "spectrum",
 					eqFilter: [{ type: "high-pass", cutoffHz: 707.11, linearGain: 0.7071 }],
@@ -4071,7 +4078,7 @@ export const unboxCategories: InputPresetCategory[] = [
 			{
 				name: "Creak",
 				midiProgram: 100,
-				tags: ["spectrum", "unbox"],
+				tags: ["spectrum", "unbox", "novelty"],
 				settings: {
 					type: "spectrum",
 					eqFilter: [
@@ -4143,7 +4150,7 @@ export const unboxCategories: InputPresetCategory[] = [
 			{
 				name: "Creak Arp",
 				midiProgram: 100,
-				tags: ["spectrum", "unbox"],
+				tags: ["spectrum", "unbox", "novelty"],
 				settings: {
 					type: "spectrum",
 					eqFilter: [
@@ -4215,7 +4222,7 @@ export const unboxCategories: InputPresetCategory[] = [
 			{
 				name: "Deep Atmos",
 				midiProgram: 100,
-				tags: ["spectrum", "unbox"],
+				tags: ["spectrum", "unbox", "novelty"],
 				settings: {
 					type: "spectrum",
 					eqFilter: [
@@ -4287,7 +4294,7 @@ export const unboxCategories: InputPresetCategory[] = [
 			{
 				name: "Deep Arp",
 				midiProgram: 100,
-				tags: ["spectrum", "unbox"],
+				tags: ["spectrum", "unbox", "novelty"],
 				settings: {
 					type: "spectrum",
 					eqFilter: [
@@ -4359,7 +4366,7 @@ export const unboxCategories: InputPresetCategory[] = [
 			{
 				name: "Distant",
 				midiProgram: 103,
-				tags: ["spectrum", "unbox"],
+				tags: ["spectrum", "unbox", "novelty"],
 				settings: {
 					type: "spectrum",
 					eqFilter: [
@@ -4431,7 +4438,7 @@ export const unboxCategories: InputPresetCategory[] = [
 			{
 				name: "Dark Atmosphere",
 				midiProgram: 103,
-				tags: ["fm", "fm4op", "unbox"],
+				tags: ["fm", "fm4op", "unbox", "novelty"],
 				settings: {
 					type: "FM",
 					eqFilter: [],
@@ -4476,7 +4483,7 @@ export const unboxCategories: InputPresetCategory[] = [
 			{
 				name: "Bright Triangle",
 				generalMidi: false,
-				tags: ["fm", "fm4op", "unbox"],
+				tags: ["fm", "fm4op", "unbox", "novelty"],
 				settings: {
 					type: "FM",
 					eqFilter: [{ type: "low-pass", cutoffHz: 6727.17, linearGain: 0.7071 }],
@@ -4539,7 +4546,7 @@ export const unboxCategories: InputPresetCategory[] = [
 			{
 				name: "Whisper",
 				generalMidi: false,
-				tags: ["spectrum", "unbox"],
+				tags: ["spectrum", "unbox", "novelty"],
 				settings: {
 					type: "spectrum",
 					eqFilter: [
@@ -4581,7 +4588,7 @@ export const unboxCategories: InputPresetCategory[] = [
 			{
 				name: "Glowing",
 				generalMidi: false,
-				tags: ["harmonics", "unbox"],
+				tags: ["harmonics", "unbox", "novelty"],
 				settings: {
 					type: "harmonics",
 					eqFilter: [
@@ -4628,7 +4635,7 @@ export const unboxCategories: InputPresetCategory[] = [
 			{
 				name: "Bright Pluck",
 				generalMidi: false,
-				tags: ["spectrum", "unbox"],
+				tags: ["spectrum", "unbox", "picked"],
 				settings: {
 					type: "spectrum",
 					eqFilter: [],
@@ -4662,7 +4669,7 @@ export const unboxCategories: InputPresetCategory[] = [
 			{
 				name: "Trickle Pluck",
 				generalMidi: false,
-				tags: ["fm", "fm4op", "unbox"],
+				tags: ["fm", "fm4op", "unbox", "picked", "novelty"],
 				settings: {
 					type: "FM",
 					eqFilter: [
@@ -4732,7 +4739,7 @@ export const unboxCategories: InputPresetCategory[] = [
 			{
 				name: "Hard Pluck",
 				generalMidi: false,
-				tags: ["fm", "fm4op", "unbox"],
+				tags: ["fm", "fm4op", "unbox", "picked"],
 				settings: {
 					type: "FM",
 					eqFilter: [],
@@ -4779,7 +4786,7 @@ export const unboxCategories: InputPresetCategory[] = [
 			{
 				name: "Whimsical Pluck",
 				generalMidi: false,
-				tags: ["pickedstring", "unbox"],
+				tags: ["pickedstring", "unbox", "picked"],
 				settings: {
 					type: "Picked String",
 					eqFilter: [],
@@ -4806,7 +4813,7 @@ export const unboxCategories: InputPresetCategory[] = [
 			{
 				name: "Triangle Pluck",
 				generalMidi: false,
-				tags: ["chip", "chipwave", "unbox"],
+				tags: ["chip", "chipwave", "unbox", "novelty"],
 				settings: {
 					type: "chip",
 					eqFilter: [
@@ -4850,7 +4857,7 @@ export const unboxCategories: InputPresetCategory[] = [
 			{
 				name: "Soft Pluck",
 				generalMidi: false,
-				tags: ["fm", "fm4op", "unbox", "featured"],
+				tags: ["fm", "fm4op", "unbox", "featured", "picked"],
 				settings: {
 					type: "FM",
 					eqFilter: [{ type: "low-pass", cutoffHz: 2828.43, linearGain: 11.3137 }],
@@ -4898,7 +4905,7 @@ export const unboxCategories: InputPresetCategory[] = [
 			{
 				name: "Muted Pluck",
 				generalMidi: false,
-				tags: ["fm", "fm4op", "unbox"],
+				tags: ["fm", "fm4op", "unbox", "picked"],
 				settings: {
 					type: "FM",
 					eqFilter: [],
@@ -4931,7 +4938,7 @@ export const unboxCategories: InputPresetCategory[] = [
 			{
 				name: "Shimmer Pluck",
 				generalMidi: false,
-				tags: ["spectrum", "unbox"],
+				tags: ["spectrum", "unbox", "picked"],
 				settings: {
 					type: "spectrum",
 					eqFilter: [],
@@ -4968,7 +4975,7 @@ export const unboxCategories: InputPresetCategory[] = [
 			{
 				name: "EEP",
 				generalMidi: false,
-				tags: ["chip", "chipwave", "unbox"],
+				tags: ["chip", "chipwave", "unbox", "novelty"],
 				settings: {
 					type: "chip",
 					eqFilter: [
@@ -5038,7 +5045,7 @@ export const unboxCategories: InputPresetCategory[] = [
 			{
 				name: "Soft Triangle Pluck",
 				generalMidi: false,
-				tags: ["chip", "chipwave", "unbox"],
+				tags: ["chip", "chipwave", "unbox", "picked"],
 				settings: {
 					type: "chip",
 					eqFilter: [],
@@ -5075,7 +5082,7 @@ export const unboxCategories: InputPresetCategory[] = [
 			{
 				name: "Slap Pluck 1",
 				generalMidi: false,
-				tags: ["chip", "chipwave", "unbox"],
+				tags: ["chip", "chipwave", "unbox", "picked"],
 				settings: {
 					type: "chip",
 					eqFilter: [],
@@ -5112,7 +5119,7 @@ export const unboxCategories: InputPresetCategory[] = [
 			{
 				name: "Slap Pluck 2",
 				generalMidi: false,
-				tags: ["pickedstring", "unbox"],
+				tags: ["pickedstring", "unbox", "picked"],
 				settings: {
 					type: "Picked String",
 					eqFilter: [{ type: "low-pass", cutoffHz: 840.9, linearGain: 2 }],
@@ -5142,7 +5149,7 @@ export const unboxCategories: InputPresetCategory[] = [
 			{
 				name: "String Pluck",
 				generalMidi: false,
-				tags: ["pickedstring", "unbox"],
+				tags: ["pickedstring", "unbox", "picked"],
 				settings: {
 					type: "Picked String",
 					eqFilter: [
@@ -5202,7 +5209,7 @@ export const unboxCategories: InputPresetCategory[] = [
 			{
 				name: "Warbled Pluck",
 				generalMidi: false,
-				tags: ["pickedstring", "unbox"],
+				tags: ["pickedstring", "unbox", "novelty"],
 				settings: {
 					type: "Picked String",
 					eqFilter: [
@@ -5261,7 +5268,7 @@ export const unboxCategories: InputPresetCategory[] = [
 			{
 				name: "Watch Pluck",
 				generalMidi: false,
-				tags: ["pickedstring", "unbox"],
+				tags: ["pickedstring", "unbox", "picked"],
 				settings: {
 					type: "Picked String",
 					eqFilter: [{ type: "low-pass", cutoffHz: 2500, linearGain: 0.5 }],
@@ -5289,7 +5296,7 @@ export const unboxCategories: InputPresetCategory[] = [
 			{
 				name: "Squeak Pluck",
 				generalMidi: false,
-				tags: ["pickedstring", "unbox"],
+				tags: ["pickedstring", "unbox", "picked"],
 				settings: {
 					type: "Picked String",
 					eqFilter: [{ type: "peak", cutoffHz: 420.45, linearGain: 0.3536 }],
@@ -5341,7 +5348,7 @@ export const unboxCategories: InputPresetCategory[] = [
 			{
 				name: "Signal Interference",
 				generalMidi: false,
-				tags: ["spectrum", "unbox"],
+				tags: ["spectrum", "unbox", "distortion"],
 				settings: {
 					type: "spectrum",
 					eqFilter: [],
@@ -5370,7 +5377,7 @@ export const unboxCategories: InputPresetCategory[] = [
 			{
 				name: "Broken Tones",
 				generalMidi: false,
-				tags: ["fm", "fm4op", "unbox"],
+				tags: ["fm", "fm4op", "unbox", "distortion"],
 				settings: {
 					type: "FM",
 					eqFilter: [{ type: "low-pass", cutoffHz: 6727.17, linearGain: 0.7071 }],
@@ -5459,7 +5466,7 @@ export const unboxCategories: InputPresetCategory[] = [
 			{
 				name: "Resonant",
 				generalMidi: false,
-				tags: ["fm", "fm4op", "unbox"],
+				tags: ["fm", "fm4op", "unbox", "distortion"],
 				settings: {
 					type: "FM",
 					eqFilter: [{ type: "low-pass", cutoffHz: 6727.17, linearGain: 0.7071 }],
@@ -5521,7 +5528,7 @@ export const unboxCategories: InputPresetCategory[] = [
 			{
 				name: "Corrupted Pulse",
 				generalMidi: false,
-				tags: ["pwm", "unbox"],
+				tags: ["pwm", "unbox", "distortion", "retro"],
 				settings: {
 					type: "PWM",
 					eqFilter: [],
@@ -5556,7 +5563,7 @@ export const unboxCategories: InputPresetCategory[] = [
 			{
 				name: "Distorted Pulse",
 				generalMidi: false,
-				tags: ["pwm", "unbox"],
+				tags: ["pwm", "unbox", "distortion", "retro"],
 				settings: {
 					type: "PWM",
 					eqFilter: [],
@@ -5587,7 +5594,7 @@ export const unboxCategories: InputPresetCategory[] = [
 			{
 				name: "Fuzzy Distortion",
 				generalMidi: false,
-				tags: ["fm", "fm6op", "unbox"],
+				tags: ["fm", "fm6op", "unbox", "distortion"],
 				settings: {
 					type: "FM6op",
 					eqFilter: [{ type: "high-pass", cutoffHz: 148.65, linearGain: 1 }],
@@ -5628,7 +5635,7 @@ export const unboxCategories: InputPresetCategory[] = [
 			{
 				name: "Soft Distortion",
 				generalMidi: false,
-				tags: ["fm", "fm6op", "unbox", "featured"],
+				tags: ["fm", "fm6op", "unbox", "featured", "distortion"],
 				settings: {
 					type: "FM6op",
 					eqFilter: [{ type: "high-pass", cutoffHz: 148.65, linearGain: 1 }],
@@ -5665,7 +5672,7 @@ export const unboxCategories: InputPresetCategory[] = [
 			{
 				name: "Rusted Pulse",
 				generalMidi: false,
-				tags: ["fm", "fm6op", "unbox"],
+				tags: ["fm", "fm6op", "unbox", "distortion"],
 				settings: {
 					type: "FM6op",
 					eqFilter: [{ type: "high-pass", cutoffHz: 148.65, linearGain: 1 }],
@@ -5706,7 +5713,7 @@ export const unboxCategories: InputPresetCategory[] = [
 			{
 				name: "Distorted Pad",
 				generalMidi: false,
-				tags: ["pwm", "unbox"],
+				tags: ["pwm", "unbox", "distortion", "pad"],
 				settings: {
 					type: "PWM",
 					eqFilter: [{ type: "low-pass", cutoffHz: 2500, linearGain: 0.5 }],
@@ -5748,7 +5755,7 @@ export const unboxCategories: InputPresetCategory[] = [
 			{
 				name: "Electric Guitar",
 				generalMidi: false,
-				tags: ["fm", "fm4op", "unbox"],
+				tags: ["fm", "fm4op", "unbox", "distortion", "guitar"],
 				settings: {
 					type: "FM",
 					eqFilter: [{ type: "low-pass", cutoffHz: 2828.43, linearGain: 11.3137 }],
@@ -5795,7 +5802,7 @@ export const unboxCategories: InputPresetCategory[] = [
 			{
 				name: "Resonant Guitar",
 				generalMidi: false,
-				tags: ["fm", "fm4op", "unbox", "featured"],
+				tags: ["fm", "fm4op", "unbox", "featured", "distortion", "guitar"],
 				settings: {
 					type: "FM",
 					eqFilter: [{ type: "low-pass", cutoffHz: 2828.43, linearGain: 11.3137 }],
@@ -5842,7 +5849,7 @@ export const unboxCategories: InputPresetCategory[] = [
 			{
 				name: "Distorted Guitar",
 				generalMidi: false,
-				tags: ["pickedstring", "unbox"],
+				tags: ["pickedstring", "unbox", "distortion", "guitar"],
 				settings: {
 					type: "Picked String",
 					eqFilter: [{ type: "peak", cutoffHz: 353.55, linearGain: 11.3137 }],
@@ -5885,7 +5892,7 @@ export const unboxCategories: InputPresetCategory[] = [
 			{
 				name: "Guitar Thin",
 				generalMidi: false,
-				tags: ["pickedstring", "unbox"],
+				tags: ["pickedstring", "unbox", "distortion", "guitar"],
 				settings: {
 					type: "Picked String",
 					eqFilter: [
@@ -5945,7 +5952,7 @@ export const unboxCategories: InputPresetCategory[] = [
 			{
 				name: "Guitar Mid",
 				generalMidi: false,
-				tags: ["pickedstring", "unbox"],
+				tags: ["pickedstring", "unbox", "distortion", "guitar"],
 				settings: {
 					type: "Picked String",
 					eqFilter: [
@@ -6019,7 +6026,7 @@ export const unboxCategories: InputPresetCategory[] = [
 			{
 				name: "Guitar High",
 				generalMidi: false,
-				tags: ["pickedstring", "unbox"],
+				tags: ["pickedstring", "unbox", "distortion", "guitar"],
 				settings: {
 					type: "Picked String",
 					eqFilter: [
@@ -6083,7 +6090,7 @@ export const unboxCategories: InputPresetCategory[] = [
 			{
 				name: "Guitar Ring* Body",
 				generalMidi: false,
-				tags: ["chip", "chipwave", "unbox"],
+				tags: ["chip", "chipwave", "unbox", "distortion", "guitar"],
 				settings: {
 					type: "chip",
 					eqFilter: [
@@ -6151,7 +6158,7 @@ export const unboxCategories: InputPresetCategory[] = [
 			{
 				name: "Guitar Alt",
 				generalMidi: false,
-				tags: ["pickedstring", "unbox"],
+				tags: ["pickedstring", "unbox", "distortion", "guitar"],
 				settings: {
 					type: "Picked String",
 					eqFilter: [
@@ -6215,7 +6222,7 @@ export const unboxCategories: InputPresetCategory[] = [
 			{
 				name: "Guitar Body Alt",
 				generalMidi: false,
-				tags: ["chip", "chipwave", "unbox"],
+				tags: ["chip", "chipwave", "unbox", "distortion", "guitar"],
 				settings: {
 					type: "chip",
 					eqFilter: [
@@ -6261,7 +6268,7 @@ export const unboxCategories: InputPresetCategory[] = [
 			{
 				name: "Guitar Fuzz",
 				generalMidi: false,
-				tags: ["fm", "fm6op", "unbox"],
+				tags: ["fm", "fm6op", "unbox", "distortion", "guitar"],
 				settings: {
 					type: "FM6op",
 					eqFilter: [
@@ -6319,7 +6326,7 @@ export const unboxCategories: InputPresetCategory[] = [
 			{
 				name: "Guitar High Alt",
 				generalMidi: false,
-				tags: ["pickedstring", "unbox"],
+				tags: ["pickedstring", "unbox", "distortion", "guitar"],
 				settings: {
 					type: "Picked String",
 					eqFilter: [],
@@ -6357,7 +6364,7 @@ export const unboxCategories: InputPresetCategory[] = [
 			{
 				name: "Guitar Lead",
 				generalMidi: false,
-				tags: ["pickedstring", "unbox"],
+				tags: ["pickedstring", "unbox", "distortion", "guitar"],
 				settings: {
 					type: "Picked String",
 					eqFilter: [
@@ -6418,7 +6425,7 @@ export const unboxCategories: InputPresetCategory[] = [
 			{
 				name: "Guitar Lead Body",
 				generalMidi: false,
-				tags: ["chip", "chipwave", "unbox"],
+				tags: ["chip", "chipwave", "unbox", "distortion", "guitar"],
 				settings: {
 					type: "chip",
 					eqFilter: [{ type: "low-pass", cutoffHz: 2378.41, linearGain: 2.8284 }],
@@ -6452,7 +6459,7 @@ export const unboxCategories: InputPresetCategory[] = [
 			{
 				name: "Guitar X",
 				generalMidi: false,
-				tags: ["supersaw", "unbox"],
+				tags: ["supersaw", "unbox", "distortion", "guitar"],
 				settings: {
 					type: "supersaw",
 					eqFilter: [
@@ -6512,7 +6519,7 @@ export const unboxCategories: InputPresetCategory[] = [
 			{
 				name: "Mandolin Body",
 				generalMidi: false,
-				tags: ["pickedstring", "unbox"],
+				tags: ["pickedstring", "unbox", "picked"],
 				settings: {
 					type: "Picked String",
 					eqFilter: [],
@@ -6541,7 +6548,7 @@ export const unboxCategories: InputPresetCategory[] = [
 			{
 				name: "Mandolin Strum",
 				generalMidi: false,
-				tags: ["pickedstring", "unbox"],
+				tags: ["pickedstring", "unbox", "picked"],
 				settings: {
 					type: "Picked String",
 					eqFilter: [],
@@ -6574,7 +6581,7 @@ export const unboxCategories: InputPresetCategory[] = [
 			{
 				name: "Mandolin Pluck",
 				generalMidi: false,
-				tags: ["pickedstring", "unbox"],
+				tags: ["pickedstring", "unbox", "picked"],
 				settings: {
 					type: "Picked String",
 					eqFilter: [],
@@ -6615,7 +6622,7 @@ export const unboxCategories: InputPresetCategory[] = [
 			{
 				name: "Banjo Body",
 				generalMidi: false,
-				tags: ["fm", "fm4op", "unbox"],
+				tags: ["fm", "fm4op", "unbox", "picked"],
 				settings: {
 					type: "FM",
 					eqFilter: [],
@@ -6661,7 +6668,7 @@ export const unboxCategories: InputPresetCategory[] = [
 			{
 				name: "Banjo Pluck",
 				generalMidi: false,
-				tags: ["harmonics", "unbox"],
+				tags: ["harmonics", "unbox", "picked"],
 				settings: {
 					type: "harmonics",
 					eqFilter: [
@@ -6714,7 +6721,7 @@ export const unboxCategories: InputPresetCategory[] = [
 			{
 				name: "Resonator Body",
 				generalMidi: false,
-				tags: ["pickedstring", "unbox"],
+				tags: ["pickedstring", "unbox", "picked"],
 				settings: {
 					type: "Picked String",
 					eqFilter: [
@@ -6770,7 +6777,7 @@ export const unboxCategories: InputPresetCategory[] = [
 			{
 				name: "Resonator Pluck",
 				generalMidi: false,
-				tags: ["pickedstring", "unbox"],
+				tags: ["pickedstring", "unbox", "picked"],
 				settings: {
 					type: "Picked String",
 					eqFilter: [
@@ -6823,7 +6830,7 @@ export const unboxCategories: InputPresetCategory[] = [
 			{
 				name: "Resonator Low Body",
 				generalMidi: false,
-				tags: ["pickedstring", "unbox"],
+				tags: ["pickedstring", "unbox", "picked"],
 				settings: {
 					type: "Picked String",
 					eqFilter: [
@@ -6878,7 +6885,7 @@ export const unboxCategories: InputPresetCategory[] = [
 			{
 				name: "Resonator Low Pluck",
 				generalMidi: false,
-				tags: ["pickedstring", "unbox"],
+				tags: ["pickedstring", "unbox", "picked"],
 				settings: {
 					type: "Picked String",
 					eqFilter: [
@@ -6936,7 +6943,7 @@ export const unboxCategories: InputPresetCategory[] = [
 			{
 				name: "Dirty Organ 1",
 				generalMidi: false,
-				tags: ["harmonics", "unbox"],
+				tags: ["harmonics", "unbox", "bellows"],
 				settings: {
 					type: "harmonics",
 					eqFilter: [{ type: "low-pass", cutoffHz: 9513.66, linearGain: 0.7071 }],
@@ -6967,7 +6974,7 @@ export const unboxCategories: InputPresetCategory[] = [
 			{
 				name: "Dirty Organ 2",
 				generalMidi: false,
-				tags: ["harmonics", "unbox"],
+				tags: ["harmonics", "unbox", "bellows"],
 				settings: {
 					type: "harmonics",
 					eqFilter: [{ type: "low-pass", cutoffHz: 9513.66, linearGain: 0.7071 }],
@@ -6998,7 +7005,7 @@ export const unboxCategories: InputPresetCategory[] = [
 			{
 				name: "Clean Organ",
 				generalMidi: false,
-				tags: ["harmonics", "unbox"],
+				tags: ["harmonics", "unbox", "bellows"],
 				settings: {
 					type: "harmonics",
 					eqFilter: [{ type: "low-pass", cutoffHz: 9513.66, linearGain: 0.7071 }],
@@ -7029,7 +7036,7 @@ export const unboxCategories: InputPresetCategory[] = [
 			{
 				name: "Organ Pedal",
 				generalMidi: false,
-				tags: ["harmonics", "unbox"],
+				tags: ["harmonics", "unbox", "bellows"],
 				settings: {
 					type: "harmonics",
 					eqFilter: [{ type: "low-pass", cutoffHz: 9513.66, linearGain: 0.7071 }],
@@ -7063,7 +7070,7 @@ export const unboxCategories: InputPresetCategory[] = [
 			{
 				name: "Soft Chime",
 				generalMidi: false,
-				tags: ["fm", "fm4op", "unbox"],
+				tags: ["fm", "fm4op", "unbox", "idiophone"],
 				settings: {
 					type: "FM",
 					eqFilter: [{ type: "low-pass", cutoffHz: 6727.17, linearGain: 0.7071 }],
@@ -7124,7 +7131,7 @@ export const unboxCategories: InputPresetCategory[] = [
 			{
 				name: "Warm Chime",
 				generalMidi: false,
-				tags: ["pickedstring", "unbox"],
+				tags: ["pickedstring", "unbox", "idiophone"],
 				settings: {
 					type: "Picked String",
 					eqFilter: [
@@ -7178,7 +7185,7 @@ export const unboxCategories: InputPresetCategory[] = [
 			{
 				name: "Overdrive Chime",
 				generalMidi: false,
-				tags: ["fm", "fm4op", "unbox"],
+				tags: ["fm", "fm4op", "unbox", "idiophone", "distortion"],
 				settings: {
 					type: "FM",
 					eqFilter: [{ type: "low-pass", cutoffHz: 6727.17, linearGain: 0.7071 }],
@@ -7241,7 +7248,7 @@ export const unboxCategories: InputPresetCategory[] = [
 			{
 				name: "Distorted Chime",
 				generalMidi: false,
-				tags: ["fm", "fm4op", "unbox"],
+				tags: ["fm", "fm4op", "unbox", "idiophone", "distortion"],
 				settings: {
 					type: "FM",
 					eqFilter: [{ type: "low-pass", cutoffHz: 6727.17, linearGain: 0.7071 }],
@@ -7303,7 +7310,7 @@ export const unboxCategories: InputPresetCategory[] = [
 			{
 				name: "Dark Chime",
 				generalMidi: false,
-				tags: ["fm", "fm4op", "unbox"],
+				tags: ["fm", "fm4op", "unbox", "idiophone"],
 				settings: {
 					type: "FM",
 					eqFilter: [{ type: "low-pass", cutoffHz: 6727.17, linearGain: 0.7071 }],
@@ -7365,7 +7372,7 @@ export const unboxCategories: InputPresetCategory[] = [
 			{
 				name: "Euphonic Array",
 				generalMidi: false,
-				tags: ["fm", "fm4op", "unbox"],
+				tags: ["fm", "fm4op", "unbox", "idiophone"],
 				settings: {
 					type: "FM",
 					eqFilter: [{ type: "low-pass", cutoffHz: 6727.17, linearGain: 0.7071 }],
@@ -7428,7 +7435,7 @@ export const unboxCategories: InputPresetCategory[] = [
 			{
 				name: "Glass Armonica",
 				generalMidi: false,
-				tags: ["fm", "fm4op", "unbox"],
+				tags: ["fm", "fm4op", "unbox", "idiophone"],
 				settings: {
 					type: "FM",
 					eqFilter: [],
@@ -7472,7 +7479,7 @@ export const unboxCategories: InputPresetCategory[] = [
 			{
 				name: "Struck Music Box",
 				generalMidi: false,
-				tags: ["pickedstring", "unbox"],
+				tags: ["pickedstring", "unbox", "idiophone"],
 				settings: {
 					type: "Picked String",
 					eqFilter: [],
@@ -7500,7 +7507,7 @@ export const unboxCategories: InputPresetCategory[] = [
 			{
 				name: "Jawharp",
 				generalMidi: false,
-				tags: ["chip", "chipwave", "unbox"],
+				tags: ["chip", "chipwave", "unbox", "idiophone"],
 				settings: {
 					type: "chip",
 					eqFilter: [{ type: "low-pass", cutoffHz: 4000, linearGain: 1 }],
@@ -7560,7 +7567,7 @@ export const unboxCategories: InputPresetCategory[] = [
 			{
 				name: "Wooden Tube",
 				generalMidi: false,
-				tags: ["pickedstring", "unbox"],
+				tags: ["pickedstring", "unbox", "idiophone"],
 				settings: {
 					type: "Picked String",
 					eqFilter: [{ type: "low-pass", cutoffHz: 2500, linearGain: 0.5 }],
@@ -7599,7 +7606,7 @@ export const unboxCategories: InputPresetCategory[] = [
 			{
 				name: "Metallic Hiss",
 				generalMidi: false,
-				tags: ["fm", "fm4op", "unbox"],
+				tags: ["fm", "fm4op", "unbox", "sfx"],
 				settings: {
 					type: "FM",
 					eqFilter: [{ type: "low-pass", cutoffHz: 19027.31, linearGain: 0.7071 }],
@@ -7645,7 +7652,7 @@ export const unboxCategories: InputPresetCategory[] = [
 			{
 				name: "Noisy Horn",
 				generalMidi: false,
-				tags: ["fm", "fm4op", "unbox"],
+				tags: ["fm", "fm4op", "unbox", "sfx"],
 				settings: {
 					type: "FM",
 					eqFilter: [{ type: "low-pass", cutoffHz: 2378.41, linearGain: 0.0884 }],
@@ -7683,7 +7690,7 @@ export const unboxCategories: InputPresetCategory[] = [
 			{
 				name: "Distant Hiss",
 				generalMidi: false,
-				tags: ["spectrum", "unbox"],
+				tags: ["spectrum", "unbox", "ambience"],
 				settings: {
 					type: "spectrum",
 					eqFilter: [{ type: "high-pass", cutoffHz: 210.22, linearGain: 0.7071 }],
@@ -7716,7 +7723,7 @@ export const unboxCategories: InputPresetCategory[] = [
 			{
 				name: "Full Spectrum Hiss",
 				generalMidi: false,
-				tags: ["spectrum", "unbox"],
+				tags: ["spectrum", "unbox", "ambience"],
 				settings: {
 					type: "spectrum",
 					eqFilter: [
@@ -7767,7 +7774,7 @@ export const unboxCategories: InputPresetCategory[] = [
 			{
 				name: "Clicky",
 				generalMidi: false,
-				tags: ["noise", "unbox"],
+				tags: ["noise", "unbox", "drum"],
 				settings: {
 					type: "noise",
 					eqFilter: [
@@ -7820,7 +7827,7 @@ export const unboxCategories: InputPresetCategory[] = [
 			{
 				name: "Crackle",
 				generalMidi: false,
-				tags: ["noise", "unbox"],
+				tags: ["noise", "unbox", "ambience"],
 				settings: {
 					type: "noise",
 					eqFilter: [
@@ -7874,7 +7881,7 @@ export const unboxCategories: InputPresetCategory[] = [
 			{
 				name: "Damaged Calliope",
 				generalMidi: false,
-				tags: ["fm", "fm4op", "unbox"],
+				tags: ["fm", "fm4op", "unbox", "flute"],
 				settings: {
 					type: "FM",
 					eqFilter: [{ type: "low-pass", cutoffHz: 2948.87, linearGain: 2 }],
@@ -7911,7 +7918,7 @@ export const unboxCategories: InputPresetCategory[] = [
 			{
 				name: "Distorted Growl",
 				generalMidi: false,
-				tags: ["fm", "fm4op", "unbox"],
+				tags: ["fm", "fm4op", "unbox", "distortion"],
 				settings: {
 					type: "FM",
 					eqFilter: [{ type: "low-pass", cutoffHz: 2948.87, linearGain: 2 }],
@@ -7945,7 +7952,7 @@ export const unboxCategories: InputPresetCategory[] = [
 			{
 				name: "Dirty Noise",
 				generalMidi: false,
-				tags: ["fm", "fm4op", "unbox"],
+				tags: ["fm", "fm4op", "unbox", "distortion"],
 				settings: {
 					type: "FM",
 					eqFilter: [{ type: "low-pass", cutoffHz: 2948.87, linearGain: 2 }],
@@ -7979,7 +7986,7 @@ export const unboxCategories: InputPresetCategory[] = [
 			{
 				name: "Shrill Horn",
 				generalMidi: false,
-				tags: ["fm", "fm6op", "unbox"],
+				tags: ["fm", "fm6op", "unbox", "bass"],
 				settings: {
 					type: "FM6op",
 					eqFilter: [{ type: "low-pass", cutoffHz: 19027.31, linearGain: 0.7071 }],
@@ -8027,7 +8034,7 @@ export const unboxCategories: InputPresetCategory[] = [
 			{
 				name: "Shrill Bass",
 				generalMidi: false,
-				tags: ["fm", "fm6op", "unbox"],
+				tags: ["fm", "fm6op", "unbox", "bass"],
 				settings: {
 					type: "FM6op",
 					eqFilter: [
@@ -8093,7 +8100,7 @@ export const unboxCategories: InputPresetCategory[] = [
 			{
 				name: "Shrill Growl",
 				generalMidi: false,
-				tags: ["fm", "fm6op", "unbox"],
+				tags: ["fm", "fm6op", "unbox", "bass", "distortion"],
 				settings: {
 					type: "FM6op",
 					eqFilter: [{ type: "low-pass", cutoffHz: 19027.31, linearGain: 0.7071 }],
@@ -8143,7 +8150,7 @@ export const unboxCategories: InputPresetCategory[] = [
 			{
 				name: "Fuzzy Generator",
 				generalMidi: false,
-				tags: ["fm", "fm4op", "unbox"],
+				tags: ["fm", "fm4op", "unbox", "distortion"],
 				settings: {
 					type: "FM",
 					eqFilter: [
@@ -8202,7 +8209,7 @@ export const unboxCategories: InputPresetCategory[] = [
 			{
 				name: "Distorted Generator",
 				generalMidi: false,
-				tags: ["fm", "fm4op", "unbox"],
+				tags: ["fm", "fm4op", "unbox", "distortion"],
 				settings: {
 					type: "FM",
 					eqFilter: [
@@ -8263,7 +8270,7 @@ export const unboxCategories: InputPresetCategory[] = [
 			{
 				name: "Dirty Buzz",
 				generalMidi: false,
-				tags: ["fm", "fm4op", "unbox"],
+				tags: ["fm", "fm4op", "unbox", "distortion"],
 				settings: {
 					type: "FM",
 					eqFilter: [
@@ -8324,7 +8331,7 @@ export const unboxCategories: InputPresetCategory[] = [
 			{
 				name: "Drill",
 				generalMidi: false,
-				tags: ["fm", "fm6op", "unbox"],
+				tags: ["fm", "fm6op", "unbox", "distortion"],
 				settings: {
 					type: "FM6op",
 					eqFilter: [
@@ -8416,7 +8423,7 @@ export const unboxCategories: InputPresetCategory[] = [
 			{
 				name: "Electrical",
 				generalMidi: false,
-				tags: ["fm", "fm6op", "unbox"],
+				tags: ["fm", "fm6op", "unbox", "distortion", "bass"],
 				settings: {
 					type: "FM6op",
 					eqFilter: [
@@ -8495,7 +8502,7 @@ export const unboxCategories: InputPresetCategory[] = [
 			{
 				name: "Digi Scream",
 				generalMidi: false,
-				tags: ["fm", "fm6op", "unbox"],
+				tags: ["fm", "fm6op", "unbox", "distortion"],
 				settings: {
 					type: "FM6op",
 					eqFilter: [
@@ -8582,7 +8589,7 @@ export const unboxCategories: InputPresetCategory[] = [
 			{
 				name: "Alarm Drill",
 				generalMidi: false,
-				tags: ["fm", "fm6op", "unbox"],
+				tags: ["fm", "fm6op", "unbox", "sfx"],
 				settings: {
 					type: "FM6op",
 					eqFilter: [
@@ -8664,7 +8671,7 @@ export const unboxCategories: InputPresetCategory[] = [
 			{
 				name: "Run",
 				generalMidi: false,
-				tags: ["supersaw", "unbox"],
+				tags: ["supersaw", "unbox", "novelty"],
 				settings: {
 					type: "supersaw",
 					eqFilter: [{ type: "low-pass", cutoffHz: 2500, linearGain: 0.5 }],
@@ -8702,7 +8709,7 @@ export const unboxCategories: InputPresetCategory[] = [
 			{
 				name: "No Signal",
 				generalMidi: false,
-				tags: ["fm", "fm6op", "unbox"],
+				tags: ["fm", "fm6op", "unbox", "sfx", "novelty"],
 				settings: {
 					type: "FM6op",
 					eqFilter: [
@@ -8805,7 +8812,7 @@ export const unboxCategories: InputPresetCategory[] = [
 			{
 				name: "You shouldn't be here",
 				generalMidi: false,
-				tags: ["fm", "fm6op", "unbox"],
+				tags: ["fm", "fm6op", "unbox", "novelty"],
 				settings: {
 					type: "FM6op",
 					eqFilter: [{ type: "low-pass", cutoffHz: 2500, linearGain: 0.5 }],
@@ -8880,7 +8887,7 @@ export const unboxCategories: InputPresetCategory[] = [
 			{
 				name: "Spook",
 				generalMidi: false,
-				tags: ["pwm", "unbox"],
+				tags: ["pwm", "unbox", "distortion"],
 				settings: {
 					type: "PWM",
 					eqFilter: [
@@ -8953,7 +8960,7 @@ export const unboxCategories: InputPresetCategory[] = [
 			{
 				name: "Synth Calliope",
 				midiProgram: 76,
-				tags: ["spectrum", "unbox"],
+				tags: ["spectrum", "unbox", "flute"],
 				settings: {
 					type: "spectrum",
 					eqFilter: [
@@ -9018,7 +9025,7 @@ export const unboxCategories: InputPresetCategory[] = [
 			{
 				name: "Synth Flute",
 				generalMidi: false,
-				tags: ["chip", "chipwave", "unbox"],
+				tags: ["chip", "chipwave", "unbox", "flute"],
 				settings: {
 					type: "chip",
 					eqFilter: [{ type: "low-pass", cutoffHz: 16000, linearGain: 0.7071 }],
@@ -9059,7 +9066,7 @@ export const unboxCategories: InputPresetCategory[] = [
 			{
 				name: "Crunchy Pluck",
 				generalMidi: false,
-				tags: ["pickedstring", "unbox"],
+				tags: ["pickedstring", "unbox", "picked"],
 				settings: {
 					type: "Picked String",
 					eqFilter: [
@@ -9119,7 +9126,7 @@ export const unboxCategories: InputPresetCategory[] = [
 			{
 				name: "Crunchy Scream",
 				generalMidi: false,
-				tags: ["pickedstring", "unbox"],
+				tags: ["pickedstring", "unbox", "distortion", "novelty"],
 				settings: {
 					type: "Picked String",
 					eqFilter: [
@@ -9179,7 +9186,7 @@ export const unboxCategories: InputPresetCategory[] = [
 			{
 				name: "Picked Bass Body",
 				generalMidi: false,
-				tags: ["pickedstring", "unbox"],
+				tags: ["pickedstring", "unbox", "picked", "bass"],
 				settings: {
 					type: "Picked String",
 					eqFilter: [],
@@ -9213,7 +9220,7 @@ export const unboxCategories: InputPresetCategory[] = [
 			{
 				name: "Picked Bass Pluck",
 				generalMidi: false,
-				tags: ["pickedstring", "unbox"],
+				tags: ["pickedstring", "unbox", "picked", "bass"],
 				settings: {
 					type: "Picked String",
 					eqFilter: [
@@ -9506,7 +9513,7 @@ export const unboxCategories: InputPresetCategory[] = [
 			{
 				name: "🦆",
 				generalMidi: false,
-				tags: ["fm", "fm6op", "unbox", "novelty"],
+				tags: ["fm", "fm6op", "unbox", "novelty", "sfx"],
 				settings: {
 					type: "FM6op",
 					eqFilter: [
