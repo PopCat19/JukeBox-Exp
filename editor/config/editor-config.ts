@@ -14,6 +14,7 @@ import { Preset, PresetCategory, presetCategoriesData } from "./preset_category"
 
 export { Preset, PresetCategory } from "./preset_category";
 
+// Tags curated by the JukeBox community (https://github.com/JohnnesN/JukeBox)
 export const fullTagList: string[] = [
 	// synth type
 	"chip",

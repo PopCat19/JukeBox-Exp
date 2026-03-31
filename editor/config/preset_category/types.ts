@@ -19,6 +19,7 @@ export interface Preset extends BeepBoxOption {
 	readonly midiSubharmonicOctaves?: number;
 	readonly customType?: InstrumentType;
 	readonly settings?: any;
+	// Tags curated by the JukeBox community (https://github.com/JohnnesN/JukeBox)
 	readonly tags?: any;
 }
 
