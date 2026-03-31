@@ -32,6 +32,7 @@ export { ShortenerConfigPrompt } from "./shortener-config-prompt";
 export { SongDurationPrompt } from "./song-duration-prompt";
 export { SongRecoveryPrompt } from "./song-recovery-prompt";
 export { SustainPrompt } from "./sustain-prompt";
+export { TagBrowserPrompt } from "./tag-browser-prompt";
 export { ThemePrompt } from "./theme-prompt";
 export { TipPrompt } from "./tip-prompt";
 export { VisualLoopControlsPrompt } from "./visual-loop-controls-prompt";

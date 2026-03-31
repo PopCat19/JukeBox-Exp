@@ -128,6 +128,7 @@ import { ShortenerConfigPrompt } from "./prompts/shortener-config-prompt";
 import { SongDurationPrompt } from "./prompts/song-duration-prompt";
 import { SongRecoveryPrompt } from "./prompts/song-recovery-prompt";
 import { SustainPrompt } from "./prompts/sustain-prompt";
+import { TagBrowserPrompt } from "./prompts/tag-browser-prompt";
 import { ThemePrompt } from "./prompts/theme-prompt";
 import { TipPrompt } from "./prompts/tip-prompt";
 import { VisualLoopControlsPrompt } from "./prompts/visual-loop-controls-prompt";
@@ -4133,6 +4134,10 @@ export class SongEditor implements ModSliderProvider {
 	}
 
 	public openPresetSelector(): void {
+		if (this.doc.prompt === "presetSelector") {
+			this.closePrompt(null);
+			return;
+		}
 		this.doc.prompt = "presetSelector";
 		this._setPrompt("presetSelector");
 	}
@@ -4307,6 +4312,9 @@ export class SongEditor implements ModSliderProvider {
 			case "presetSelector":
 				newPrompt = new PresetSelectorPrompt(this.doc);
 				break;
+			case "instrumentTags":
+				newPrompt = new TagBrowserPrompt(this.doc);
+				break;
 			case "keyboardShortcuts":
 				newPrompt = new KeyboardShortcutsPrompt(this.doc);
 				break;
@@ -4334,6 +4342,7 @@ export class SongEditor implements ModSliderProvider {
 						newPrompt instanceof HarmonicsEditorPrompt ||
 						newPrompt instanceof SpectrumEditorPrompt ||
 						newPrompt instanceof PresetSelectorPrompt ||
+						newPrompt instanceof TagBrowserPrompt ||
 						newPrompt instanceof KeyboardShortcutsPrompt ||
 						newPrompt instanceof ChannelVolumeVisualizerPrompt
 					)

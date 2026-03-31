@@ -4,9 +4,10 @@
 //
 // This module:
 // - Displays categories in a left pane and presets in a right pane
-// - Info panel on the right shows selection details
-// - Supports text filtering across all presets
+// - Info panel on the right shows selection details and preset tags
+// - Supports text filtering and tag-based filtering across all presets
 // - Handles keyboard navigation (arrows, Enter, ESC)
+// - Includes inline tag input box with external sync
 
 import { HTML } from "imperative-html/dist/esm/elements-strict";
 import { ChangePreset } from "../changes";
@@ -14,7 +15,7 @@ import { EditorConfig, Preset, PresetCategory } from "../config/editor-config";
 import { SongDocument } from "../song-document";
 import { BasePrompt } from "./base-prompt";
 
-const { div, input, h2 } = HTML;
+const { div, input, h2, span } = HTML;
 
 interface CategoryEntry {
 	name: string;
@@ -26,6 +27,7 @@ export class PresetSelectorPrompt extends BasePrompt {
 	private _presetList: HTMLDivElement;
 	private _infoPanel: HTMLDivElement;
 	private _searchInput: HTMLInputElement;
+	private _tagInput: HTMLInputElement;
 	private _categories: CategoryEntry[] = [];
 	private _selectedCategoryIndex: number = 0;
 	private _selectedPresetIndex: number = 0;
@@ -36,6 +38,10 @@ export class PresetSelectorPrompt extends BasePrompt {
 	private _presetItems: HTMLDivElement[] = [];
 	private _clickTimer: ReturnType<typeof setTimeout> | null = null;
 	private _clickTarget: string | null = null;
+	private _activeTags: string[] = [];
+	private _tagBanner: HTMLDivElement;
+	private _externalTagHandler: () => void;
+	private _tagInputHandler: () => void;
 
 	public readonly container: HTMLDivElement;
 
@@ -49,15 +55,25 @@ export class PresetSelectorPrompt extends BasePrompt {
 		this._searchInput = input({
 			type: "text",
 			placeholder: "Search presets...",
-			style: `width: 100%; padding: 6px 10px; border: 2px solid var(--ui-widget-background); border-radius: 6px; background: var(--editor-background); color: var(--primary-text); font-size: 14px; outline: none; box-sizing: border-box; margin-top: 0.75em;`,
+			style: `width: 100%; padding: 6px 10px; border: 2px solid var(--ui-widget-background); border-radius: 6px; background: var(--editor-background); color: var(--primary-text); font-size: 14px; outline: none; box-sizing: border-box;`,
+		});
+
+		this._tagInput = input({
+			type: "text",
+			placeholder: "Tags: chip featured !fm ...",
+			style: `width: 100%; padding: 4px 10px; border: 1px solid var(--ui-widget-background); border-radius: 4px; background: var(--editor-background); color: var(--primary-text); font-size: 12px; outline: none; box-sizing: border-box;`,
+		});
+
+		this._tagBanner = div({
+			style: "display: none; padding: 4px 8px; font-size: 11px; color: var(--secondary-text); border-bottom: 1px solid var(--ui-widget-background); cursor: pointer;",
 		});
 
 		this._categoryList = div({
-			style: `flex: 0 0 180px; overflow-y: auto; border-right: 2px solid var(--ui-widget-background); padding: 4px 0;`,
+			style: `flex: 0 0 180px; overflow-y: auto; border-right: 2px solid var(--ui-widget-background); padding: 4px 0; transition: opacity 0.15s;`,
 		});
 
 		this._presetList = div({
-			style: `flex: 1; overflow-y: auto; padding: 4px 0; border-right: 2px solid var(--ui-widget-background);`,
+			style: `flex: 1; overflow-y: auto; padding: 0; border-right: 2px solid var(--ui-widget-background); display: flex; flex-direction: column;`,
 		});
 
 		this._infoPanel = div({
@@ -66,7 +82,7 @@ export class PresetSelectorPrompt extends BasePrompt {
 
 		const paneContainer = div(
 			{
-				style: `display: flex; flex-direction: row; height: 400px; margin-top: 12px; border: 2px solid var(--ui-widget-background); border-radius: 6px; overflow: hidden;`,
+				style: `display: flex; flex-direction: row; height: 400px; margin-top: 8px; border: 2px solid var(--ui-widget-background); border-radius: 6px; overflow: hidden;`,
 			},
 			this._categoryList,
 			this._presetList,
@@ -77,7 +93,7 @@ export class PresetSelectorPrompt extends BasePrompt {
 			{
 				style: `font-size: 11px; color: var(--secondary-text); margin-top: 8px; text-align: center;`,
 			},
-			"Arrow keys: navigate | Enter / Right: select | Tab: switch pane | ESC: close",
+			"Arrow keys: navigate | Enter / Right: select | Tab: switch pane | #: tags | ESC: close",
 		);
 
 		this.container = div(
@@ -88,12 +104,18 @@ export class PresetSelectorPrompt extends BasePrompt {
 			},
 			h2({ style: "text-align: center; margin: 0 0 4px 0;" }, "Select Instrument"),
 			this._searchInput,
+			this._tagInput,
 			paneContainer,
 			instructionsDiv,
 			this._cancelButton,
 		);
 
 		this.buildTitlebar();
+
+		// Sync tag input from external and apply initial filter
+		this._syncTagInputFromExternal();
+		this._applyTagFilter();
+
 		this._renderCategories();
 
 		let initCatIndex = 0;
@@ -120,6 +142,50 @@ export class PresetSelectorPrompt extends BasePrompt {
 
 		this._searchInput.addEventListener("input", this._onSearchInput);
 		this._searchInput.addEventListener("keydown", this._onSearchKeyDown);
+
+		this._tagInputHandler = () => {
+			this._syncTagInputToExternal();
+			this._applyTagFilter();
+		};
+		this._tagInput.addEventListener("input", this._tagInputHandler);
+
+		this._tagInput.addEventListener("keydown", (event: KeyboardEvent) => {
+			if (event.keyCode === 27) {
+				this._tagInput.blur();
+				this.container.focus();
+				event.preventDefault();
+				event.stopPropagation();
+			} else if (event.keyCode === 13) {
+				this._applySelection();
+				event.preventDefault();
+			} else if (event.keyCode === 40) {
+				this.container.focus();
+				this._activePane = "presets";
+				this._updateHighlight();
+				event.preventDefault();
+			} else if (event.keyCode === 38) {
+				this.container.focus();
+				this._activePane = "categories";
+				this._updateHighlight();
+				event.preventDefault();
+			} else if (event.keyCode === 9) {
+				this.container.focus();
+				this._activePane = this._activePane === "categories" ? "presets" : "categories";
+				this._updateHighlight();
+				event.preventDefault();
+			}
+		});
+
+		// React to external tag input changes (e.g. from instrument settings)
+		this._externalTagHandler = () => {
+			this._syncTagInputFromExternal();
+			this._applyTagFilter();
+		};
+		const externalInput = document.getElementById("presetTagsInputBox") as HTMLInputElement | null;
+		if (externalInput) {
+			externalInput.addEventListener("input", this._externalTagHandler);
+		}
+
 		this.container.addEventListener("keydown", this._onContainerKeyDown);
 
 		setTimeout(() => this.container.focus());
@@ -132,6 +198,129 @@ export class PresetSelectorPrompt extends BasePrompt {
 			this._doc.prompt = null;
 		}
 	};
+
+	private _syncTagInputFromExternal(): void {
+		const ext = document.getElementById("presetTagsInputBox") as HTMLInputElement | null;
+		if (ext) {
+			this._tagInput.value = ext.value;
+		}
+	}
+
+	private _syncTagInputToExternal(): void {
+		const ext = document.getElementById("presetTagsInputBox") as HTMLInputElement | null;
+		if (ext) {
+			ext.value = this._tagInput.value;
+			ext.dispatchEvent(new Event("input"));
+		}
+	}
+
+	private _readActiveTags(): void {
+		const value = this._tagInput.value.trim();
+		if (value) {
+			this._activeTags = value.toLowerCase().split(/\s+/).filter((t) => t !== "");
+		} else {
+			this._activeTags = [];
+		}
+	}
+
+	private _applyTagFilter(): void {
+		this._readActiveTags();
+
+		if (this._activeTags.length === 0) {
+			if (!this._searchInput.value.trim()) {
+				this._isSearchMode = false;
+			}
+			this._updateCategoryDim();
+			this._onSearchInput();
+			return;
+		}
+
+		this._isSearchMode = true;
+		this._filteredPresets = [];
+		const query = this._searchInput.value.trim().toLowerCase();
+		for (const cat of this._categories) {
+			for (const preset of cat.presets) {
+				const nameMatch = query === "" || preset.name.toLowerCase().includes(query);
+				const tagMatch = this._presetMatchesActiveTags(preset.value);
+				if (nameMatch && tagMatch) {
+					this._filteredPresets.push({
+						name: preset.name,
+						value: preset.value,
+						categoryName: cat.name,
+					});
+				}
+			}
+		}
+		this._selectedPresetIndex = 0;
+		this._activePane = "presets";
+		this._updateCategoryDim();
+		this._renderPresets();
+		this._updateHighlight();
+	}
+
+	private _updateCategoryDim(): void {
+		const hasTags = this._activeTags.length > 0;
+		this._categoryList.style.opacity = hasTags ? "0.35" : "1";
+		this._categoryList.style.pointerEvents = hasTags ? "none" : "";
+		this._categoryList.title = hasTags ? "Category navigation disabled while tag filter is active" : "";
+	}
+
+	private _refreshTagBanner(): void {
+		if (this._activeTags.length === 0) {
+			this._tagBanner.style.display = "none";
+			return;
+		}
+		this._tagBanner.style.display = "";
+		this._tagBanner.textContent = "";
+		this._tagBanner.appendChild(span({}, "Tags: "));
+		for (let i = 0; i < this._activeTags.length; i++) {
+			const tag = this._activeTags[i];
+			const tagEl = span(
+				{
+					style: `display: inline-block; padding: 1px 6px; margin: 0 2px; border-radius: 3px; background: var(--ui-widget-background); color: var(--primary-text); font-size: 11px; cursor: pointer;`,
+				},
+				tag,
+			);
+			tagEl.addEventListener("mousedown", (e: MouseEvent) => {
+				e.preventDefault();
+				this._openTagBrowser();
+			});
+			this._tagBanner.appendChild(tagEl);
+		}
+		const clearBtn = span(
+			{
+				style: "display: inline-block; margin-left: 8px; cursor: pointer; color: var(--primary-text); font-size: 11px;",
+			},
+			"[clear]",
+		);
+		clearBtn.addEventListener("mousedown", (e: MouseEvent) => {
+			e.preventDefault();
+			e.stopPropagation();
+			this._clearTagFilters();
+		});
+		this._tagBanner.appendChild(clearBtn);
+	}
+
+	private _clearTagFilters(): void {
+		this._tagInput.value = "";
+		this._syncTagInputToExternal();
+		this._applyTagFilter();
+	}
+
+	private _openTagBrowser(): void {
+		this._close();
+		setTimeout(() => {
+			this._doc.prompt = "instrumentTags";
+			this._doc.notifier.changed();
+		}, 50);
+	}
+
+	private _presetMatchesActiveTags(presetValue: number): boolean {
+		if (this._activeTags.length === 0) return true;
+		const preset = EditorConfig.valueToPreset(presetValue);
+		if (!preset || !preset.tags) return false;
+		return this._activeTags.every((tag) => (tag.startsWith("!") ? !preset.tags.includes(tag.slice(1)) : preset.tags.includes(tag)));
+	}
 
 	private _handleItemClick(target: "cat" | "preset", index: number): void {
 		if (this._clickTimer && this._clickTarget === `${target}-${index}`) {
@@ -213,7 +402,10 @@ export class PresetSelectorPrompt extends BasePrompt {
 	private _renderPresets(): void {
 		this._presetList.innerHTML = "";
 		this._presetItems = [];
-		const presets = this._isSearchMode ? this._filteredPresets : (this._categories[this._selectedCategoryIndex]?.presets ?? []);
+		this._presetList.appendChild(this._tagBanner);
+		this._refreshTagBanner();
+
+		const presets = this._isSearchMode ? this._filteredPresets : this._categories[this._selectedCategoryIndex]?.presets ?? [];
 
 		if (presets.length === 0) {
 			const emptyMsg = div(
@@ -248,7 +440,7 @@ export class PresetSelectorPrompt extends BasePrompt {
 	}
 
 	private _syncCategoryToPreset(): void {
-		const presets = this._isSearchMode ? this._filteredPresets : (this._categories[this._selectedCategoryIndex]?.presets ?? []);
+		const presets = this._isSearchMode ? this._filteredPresets : this._categories[this._selectedCategoryIndex]?.presets ?? [];
 		const preset = presets[this._selectedPresetIndex];
 		if (!preset) return;
 		for (let ci = 0; ci < this._categories.length; ci++) {
@@ -277,7 +469,7 @@ export class PresetSelectorPrompt extends BasePrompt {
 
 	private _updateInfoPanel(): void {
 		const cat = this._categories[this._selectedCategoryIndex];
-		const presets = this._isSearchMode ? this._filteredPresets : (cat?.presets ?? []);
+		const presets = this._isSearchMode ? this._filteredPresets : cat?.presets ?? [];
 		const preset = presets[this._selectedPresetIndex];
 		if (!cat || !preset) {
 			this._infoPanel.textContent = "";
@@ -329,6 +521,40 @@ export class PresetSelectorPrompt extends BasePrompt {
 				),
 			);
 		}
+		const fullPreset = EditorConfig.valueToPreset(preset.value);
+		if (fullPreset && fullPreset.tags && fullPreset.tags.length > 0) {
+			const tagsDiv = div(
+				{ style: "margin-top: 10px;" },
+				div({ style: "color: var(--secondary-text); font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;" }, "Tags"),
+			);
+			for (const tag of fullPreset.tags) {
+				const isActive = this._activeTags.includes(tag);
+				const tagEl = span(
+					{
+						style: `display: inline-block; padding: 1px 6px; margin: 2px; border-radius: 3px; font-size: 11px; cursor: pointer; background: ${isActive ? "rgba(255,255,255,0.2)" : "var(--ui-widget-background)"}; color: ${isActive ? "var(--primary-text)" : "var(--secondary-text)"};`,
+					},
+					tag,
+				);
+				tagEl.addEventListener("mousedown", (e: MouseEvent) => {
+					e.preventDefault();
+					const tags = this._tagInput.value
+						.toLowerCase()
+						.split(/\s+/)
+						.filter((t) => t !== "");
+					const idx = tags.indexOf(tag);
+					if (idx >= 0) {
+						tags.splice(idx, 1);
+					} else {
+						tags.push(tag);
+					}
+					this._tagInput.value = tags.join(" ");
+					this._syncTagInputToExternal();
+					this._applyTagFilter();
+				});
+				tagsDiv.appendChild(tagEl);
+			}
+			this._infoPanel.appendChild(tagsDiv);
+		}
 	}
 
 	private _scrollItemIntoView(items: HTMLDivElement[], index: number, container: HTMLDivElement): void {
@@ -341,7 +567,7 @@ export class PresetSelectorPrompt extends BasePrompt {
 	}
 
 	private _applySelection(): void {
-		const presets = this._isSearchMode ? this._filteredPresets : (this._categories[this._selectedCategoryIndex]?.presets ?? []);
+		const presets = this._isSearchMode ? this._filteredPresets : this._categories[this._selectedCategoryIndex]?.presets ?? [];
 		const preset = presets[this._selectedPresetIndex];
 		if (preset) {
 			this._close();
@@ -351,9 +577,10 @@ export class PresetSelectorPrompt extends BasePrompt {
 
 	private _onSearchInput = (): void => {
 		const query = this._searchInput.value.trim().toLowerCase();
-		if (query === "") {
+		if (query === "" && this._activeTags.length === 0) {
 			this._isSearchMode = false;
 			this._selectedPresetIndex = 0;
+			this._updateCategoryDim();
 			this._renderPresets();
 			this._updateHighlight();
 			return;
@@ -362,7 +589,9 @@ export class PresetSelectorPrompt extends BasePrompt {
 		this._filteredPresets = [];
 		for (const cat of this._categories) {
 			for (const preset of cat.presets) {
-				if (preset.name.toLowerCase().includes(query)) {
+				const nameMatch = query === "" || preset.name.toLowerCase().includes(query);
+				const tagMatch = this._presetMatchesActiveTags(preset.value);
+				if (nameMatch && tagMatch) {
 					this._filteredPresets.push({
 						name: preset.name,
 						value: preset.value,
@@ -373,6 +602,7 @@ export class PresetSelectorPrompt extends BasePrompt {
 		}
 		this._selectedPresetIndex = 0;
 		this._activePane = "presets";
+		this._updateCategoryDim();
 		this._renderPresets();
 		this._updateHighlight();
 	};
@@ -426,7 +656,7 @@ export class PresetSelectorPrompt extends BasePrompt {
 	};
 
 	private _onContainerKeyDown = (event: KeyboardEvent): void => {
-		if (event.target === this._searchInput) return;
+		if (event.target === this._searchInput || event.target === this._tagInput) return;
 		const presetCount = this._getActivePresetCount();
 		const categoryCount = this._categories.length;
 		switch (event.keyCode) {
@@ -509,7 +739,10 @@ export class PresetSelectorPrompt extends BasePrompt {
 				this._searchInput.focus();
 				break;
 			default:
-				if (event.key && event.key.length === 1 && !event.ctrlKey && !event.metaKey && !event.altKey) {
+				if (event.key === "#") {
+					this._openTagBrowser();
+					event.preventDefault();
+				} else if (event.key && event.key.length === 1 && !event.ctrlKey && !event.metaKey && !event.altKey) {
 					this._searchInput.focus();
 				}
 				break;
@@ -526,7 +759,12 @@ export class PresetSelectorPrompt extends BasePrompt {
 		if (this._clickTimer) clearTimeout(this._clickTimer);
 		this._searchInput.removeEventListener("input", this._onSearchInput);
 		this._searchInput.removeEventListener("keydown", this._onSearchKeyDown);
+		this._tagInput.removeEventListener("input", this._tagInputHandler);
 		this.container.removeEventListener("keydown", this._onContainerKeyDown);
+		const externalInput = document.getElementById("presetTagsInputBox") as HTMLInputElement | null;
+		if (externalInput) {
+			externalInput.removeEventListener("input", this._externalTagHandler);
+		}
 	};
 
 	protected override _saveChanges(): void {
