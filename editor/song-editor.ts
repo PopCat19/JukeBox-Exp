@@ -4399,6 +4399,11 @@ export class SongEditor implements ModSliderProvider {
 						this._updatePromptFocus();
 					}
 				}
+				// Restore DOM focus to the prompt container on hover so its
+				// keydown listeners fire without requiring a click first.
+				if (!newPrompt.container.contains(document.activeElement)) {
+					newPrompt.container.focus();
+				}
 			});
 
 			// Focus-to-focus: sync _focusedPrompt when DOM focus enters this prompt
@@ -4422,10 +4427,23 @@ export class SongEditor implements ModSliderProvider {
 				this.mainLayer.focus({ preventScroll: true });
 			});
 
-			newPrompt.container.addEventListener("mousedown", () => {
+			newPrompt.container.addEventListener("mousedown", (e: Event) => {
 				if (this._focusedPrompt !== newPrompt) {
 					this._focusedPrompt = newPrompt;
 					this._updatePromptFocus();
+				}
+				// Restore DOM focus to the prompt container so its keydown
+				// listeners (arrow keys, Tab, Enter) fire again after the
+				// user returns focus from outside the prompt. Skip when
+				// clicking interactive elements that should keep their own focus.
+				const target = e.target as HTMLElement;
+				if (
+					!(target instanceof HTMLInputElement) &&
+					!(target instanceof HTMLButtonElement) &&
+					!(target instanceof HTMLSelectElement) &&
+					!(target instanceof HTMLTextAreaElement)
+				) {
+					newPrompt.container.focus();
 				}
 			});
 

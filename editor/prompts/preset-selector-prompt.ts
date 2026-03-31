@@ -217,7 +217,10 @@ export class PresetSelectorPrompt extends BasePrompt {
 	private _readActiveTags(): void {
 		const value = this._tagInput.value.trim();
 		if (value) {
-			this._activeTags = value.toLowerCase().split(/\s+/).filter((t) => t !== "");
+			this._activeTags = value
+				.toLowerCase()
+				.split(/\s+/)
+				.filter((t) => t !== "");
 		} else {
 			this._activeTags = [];
 		}
@@ -405,7 +408,7 @@ export class PresetSelectorPrompt extends BasePrompt {
 		this._presetList.appendChild(this._tagBanner);
 		this._refreshTagBanner();
 
-		const presets = this._isSearchMode ? this._filteredPresets : this._categories[this._selectedCategoryIndex]?.presets ?? [];
+		const presets = this._isSearchMode ? this._filteredPresets : (this._categories[this._selectedCategoryIndex]?.presets ?? []);
 
 		if (presets.length === 0) {
 			const emptyMsg = div(
@@ -440,7 +443,7 @@ export class PresetSelectorPrompt extends BasePrompt {
 	}
 
 	private _syncCategoryToPreset(): void {
-		const presets = this._isSearchMode ? this._filteredPresets : this._categories[this._selectedCategoryIndex]?.presets ?? [];
+		const presets = this._isSearchMode ? this._filteredPresets : (this._categories[this._selectedCategoryIndex]?.presets ?? []);
 		const preset = presets[this._selectedPresetIndex];
 		if (!preset) return;
 		for (let ci = 0; ci < this._categories.length; ci++) {
@@ -469,7 +472,7 @@ export class PresetSelectorPrompt extends BasePrompt {
 
 	private _updateInfoPanel(): void {
 		const cat = this._categories[this._selectedCategoryIndex];
-		const presets = this._isSearchMode ? this._filteredPresets : cat?.presets ?? [];
+		const presets = this._isSearchMode ? this._filteredPresets : (cat?.presets ?? []);
 		const preset = presets[this._selectedPresetIndex];
 		if (!cat || !preset) {
 			this._infoPanel.textContent = "";
@@ -567,7 +570,7 @@ export class PresetSelectorPrompt extends BasePrompt {
 	}
 
 	private _applySelection(): void {
-		const presets = this._isSearchMode ? this._filteredPresets : this._categories[this._selectedCategoryIndex]?.presets ?? [];
+		const presets = this._isSearchMode ? this._filteredPresets : (this._categories[this._selectedCategoryIndex]?.presets ?? []);
 		const preset = presets[this._selectedPresetIndex];
 		if (preset) {
 			this._close();
