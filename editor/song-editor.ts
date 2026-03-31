@@ -142,6 +142,7 @@ import { PostSyncRefs, renderPostBranchSync } from "./renderers/render-post-sync
 import { PresetSetupRefs, renderPresetSetup } from "./renderers/render-preset-setup";
 import { renderSongSettings, SongSettingsRefs } from "./renderers/render-song-settings";
 import { SongDocument } from "./song-document";
+import { clearButton, tagSuggestionItem } from "./ui/components";
 import { InputBox, Slider } from "./ui/html-wrapper";
 
 const { button, div, input, select, span, optgroup, option, canvas } = HTML;
@@ -2060,17 +2061,34 @@ export class SongEditor implements ModSliderProvider {
 	);
 
 	private readonly _presetTagsInputBox: HTMLInputElement = input({
-		style: "width: 60%; height: 1.5em; font-size: 80%; margin-left: 0.0em; vertical-align: middle;",
+		style: "width: 100%; height: 1.5em; font-size: 80%; margin-left: 0.0em; vertical-align: middle; padding-right: 1.6em;",
 		id: "presetTagsInputBox",
 		type: "text",
 		value: "",
 		autocomplete: "off",
 	});
 
+	private readonly _clearTagsButton: HTMLButtonElement = clearButton("Clear tags");
+
 	private readonly _tagAutocompleteBox: HTMLDivElement = div({
-		style: "display:none; position:absolute; z-index:1000; background:var(--editor-background, #222); border:1px solid var(--ui-widget-background, #444); max-height:12em; overflow-y:auto; font-size:80%; min-width:60%;",
+		style: "display:none; position:absolute; z-index:1000; left:0; top:100%; background:var(--editor-background, #222); border:1px solid var(--ui-widget-background, #444); max-height:12em; overflow-y:auto; scrollbar-gutter:stable; scrollbar-width:thin; font-size:80%; width:100%; box-sizing:border-box;",
 	});
 	private _tagAutocompleteIndex: number = -1;
+
+	private readonly _tagInputWrapper: HTMLDivElement = div(
+		{ style: "position: relative; width: 60%; display: inline-block;" },
+		this._presetTagsInputBox,
+		(() => {
+			this._clearTagsButton.style.position = "absolute";
+			this._clearTagsButton.style.right = "2px";
+			this._clearTagsButton.style.top = "50%";
+			this._clearTagsButton.style.transform = "translateY(-50%)";
+			this._clearTagsButton.style.background = "var(--editor-background)";
+			this._clearTagsButton.style.borderRadius = "3px";
+			return this._clearTagsButton;
+		})(),
+		this._tagAutocompleteBox,
+	);
 
 	private readonly _feedbackAmplitudeSlider: Slider = new Slider(
 		input({
@@ -2199,8 +2217,7 @@ export class SongEditor implements ModSliderProvider {
 	private readonly _instrumentTagRow: HTMLDivElement = div(
 		{ class: "selectRow", style: "position:relative;" },
 		span({ class: "tip", onclick: () => this._openPrompt("instrumentTags") }, "Tags:"),
-		this._presetTagsInputBox,
-		this._tagAutocompleteBox,
+		this._tagInputWrapper,
 	);
 
 	private readonly _instrumentTypeSelectRow: HTMLDivElement = div(
@@ -3553,6 +3570,11 @@ export class SongEditor implements ModSliderProvider {
 			setTimeout(() => this._hideTagAutocomplete(), 150);
 		});
 
+		this._clearTagsButton.addEventListener("click", () => {
+			this._presetTagsInputBox.value = "";
+			this._presetTagsInputBox.dispatchEvent(new Event("input"));
+		});
+
 		this._promptContainer.addEventListener("click", (event) => {
 			if (this.doc.prefs.closePromptByClickoff === true) {
 				if (this._prompts.some((p) => p.gotMouseUp === true)) return;
@@ -3833,14 +3855,7 @@ export class SongEditor implements ModSliderProvider {
 		this._tagAutocompleteIndex = -1;
 
 		for (const tag of matches) {
-			const item = div(
-				{
-					class: "tagSuggestion",
-					style: "padding:2px 6px; cursor:pointer;",
-					"data-tag": prefix + tag,
-				},
-				prefix + tag,
-			);
+			const item = tagSuggestionItem(prefix + tag);
 			item.addEventListener("mousedown", (e: MouseEvent) => {
 				e.preventDefault();
 				this._applyTagSuggestion(prefix + tag);
@@ -3857,8 +3872,6 @@ export class SongEditor implements ModSliderProvider {
 		}
 
 		this._tagAutocompleteBox.style.display = "block";
-		this._tagAutocompleteBox.style.left = this._presetTagsInputBox.offsetLeft + "px";
-		this._tagAutocompleteBox.style.top = this._presetTagsInputBox.offsetTop + this._presetTagsInputBox.offsetHeight + "px";
 	}
 
 	private _applyTagSuggestion(tag: string): void {

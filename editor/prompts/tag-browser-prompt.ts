@@ -11,7 +11,7 @@
 import { HTML } from "imperative-html/dist/esm/elements-strict";
 import { EditorConfig, fullTagList } from "../config/editor-config";
 import { SongDocument } from "../song-document";
-import { tagListItem } from "../ui/components";
+import { scrollableContainer, tagListItem } from "../ui/components";
 import { BasePrompt } from "./base-prompt";
 
 const { div, h2 } = HTML;
@@ -30,6 +30,8 @@ export class TagBrowserPrompt extends BasePrompt {
 	private _columns: number = 4;
 	private _tagContainer: HTMLDivElement;
 	private _onTagsChanged?: (tags: string[]) => void;
+	private _tagInput: HTMLInputElement | null;
+	private _onExternalInput: () => void;
 
 	constructor(doc: SongDocument, onTagsChanged?: (tags: string[]) => void) {
 		super(doc);
@@ -37,9 +39,19 @@ export class TagBrowserPrompt extends BasePrompt {
 		this._initTagData();
 		this._readActiveTags();
 
-		this._tagContainer = div({
-			style: `display: grid; grid-template-columns: repeat(${this._columns}, 1fr); gap: 4px; max-height: 380px; overflow-y: auto; padding: 4px;`,
-		});
+		this._tagInput = document.getElementById("presetTagsInputBox") as HTMLInputElement | null;
+		this._onExternalInput = () => {
+			this._readActiveTags();
+			this._renderTags();
+			this._highlightSelected();
+		};
+		if (this._tagInput) {
+			this._tagInput.addEventListener("input", this._onExternalInput);
+		}
+
+		this._tagContainer = scrollableContainer(
+			`display: grid; grid-template-columns: repeat(${this._columns}, 1fr); gap: 4px; max-height: 380px; padding: 4px;`,
+		);
 
 		this.container = div(
 			{
@@ -160,6 +172,17 @@ export class TagBrowserPrompt extends BasePrompt {
 	protected override _saveChanges(): void {
 		this._close();
 	}
+
+	protected override _close = (): void => {
+		if (this._tagInput) {
+			this._tagInput.removeEventListener("input", this._onExternalInput);
+		}
+		if (this.closeCallback) {
+			this.closeCallback(<any>this);
+		} else {
+			this._doc.prompt = null;
+		}
+	};
 
 	public override whenKeyPressed = (event: KeyboardEvent): void => {
 		const count = this._tagData.length;

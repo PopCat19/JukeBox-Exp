@@ -72,6 +72,21 @@ export function tagChip(text: string, active?: boolean): HTMLSpanElement {
 }
 
 /**
+ * Tag suggestion item — for autocomplete dropdowns
+ * Creates a hoverable suggestion entry for inline tag input
+ */
+export function tagSuggestionItem(tag: string): HTMLDivElement {
+	return div(
+		{
+			class: "tagSuggestion",
+			style: "padding: 3px 8px; cursor: pointer; font-size: 12px;",
+			"data-tag": tag,
+		},
+		tag,
+	);
+}
+
+/**
  * Tag list item — replaces tag-browser inline style
  * Creates a list item with active/inactive state toggle
  */
@@ -116,6 +131,32 @@ export function sectionLabel(text: string): HTMLDivElement {
 		},
 		text,
 	);
+}
+
+/**
+ * Clear button — compact × button for clearing input fields
+ * Creates a small unobtrusive button to clear text inputs
+ */
+export function clearButton(title?: string): HTMLButtonElement {
+	const { button } = HTML;
+	return button(
+		{
+			style: "background: none; border: none; color: var(--primary-text); cursor: pointer; font-size: 14px; padding: 0 4px; line-height: 1; opacity: 0.6;",
+			title: title ?? "Clear",
+		},
+		"×",
+	);
+}
+
+/**
+ * Scrollable container — reserves space for scrollbar instead of overlaying
+ * Use for dropdowns, lists, and panels where overlay scrollbars would cover content
+ */
+export function scrollableContainer(extraStyle?: string, ...children: (HTMLElement | string)[]): HTMLDivElement {
+	const baseStyle =
+		"overflow-y: auto; scrollbar-gutter: stable; scrollbar-width: thin; scrollbar-color: var(--scrollbar-color, var(--ui-widget-background)) var(--scrollbar-background, var(--editor-background));";
+	const style = extraStyle ? `${baseStyle} ${extraStyle}` : baseStyle;
+	return div({ style }, ...children);
 }
 
 /**
