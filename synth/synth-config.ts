@@ -1505,16 +1505,8 @@ export class Config {
 	public static readonly reverbShelfHz: number = 8000.0; // The cutoff freq of the shelf filter that is used to decay reverb.
 	public static readonly reverbShelfGain: number = Math.pow(2.0, -1.5);
 	public static readonly reverbRange: number = 32;
-	public static sampleRate: number = 44100;
-	public static get reverbDelayBufferSize(): number {
-		const scaled = Math.round((16384 * Config.sampleRate) / 44100);
-		let power = 1;
-		while (power < scaled) power <<= 1;
-		return power;
-	}
-	public static get reverbDelayBufferMask(): number {
-		return Config.reverbDelayBufferSize - 1;
-	}
+	public static readonly reverbDelayBufferSize: number = 16384;
+	public static readonly reverbDelayBufferMask: number = Config.reverbDelayBufferSize - 1;
 	public static readonly phaserMixRange: number = 32;
 	public static readonly phaserFeedbackRange: number = 32;
 	public static readonly phaserFreqRange: number = 32;

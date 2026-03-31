@@ -879,7 +879,6 @@ export class Synth {
 					: "balanced";
 			this.audioCtx = this.audioCtx || new (window.AudioContext || window.webkitAudioContext)({ latencyHint: latencyHint });
 			this.samplesPerSecond = this.audioCtx.sampleRate;
-			Config.sampleRate = this.audioCtx.sampleRate;
 			this.scriptNode = this.audioCtx.createScriptProcessor
 				? this.audioCtx.createScriptProcessor(bufferSize, 0, 2)
 				: this.audioCtx.createJavaScriptNode(bufferSize, 0, 2); // bufferSize samples per callback buffer, 0 input channels, 2 output channels (left/right)
