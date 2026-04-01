@@ -4260,7 +4260,7 @@ export class SongEditor implements ModSliderProvider {
 				this.doc.notifier.changed();
 			}
 		}
-		if (this._prompts.length === 0) {
+		if (this._prompts.length === 0 && prompt != null) {
 			this._promptContainer.style.display = "none";
 			if (this._wasPlaying) {
 				this.doc.performance.play();
