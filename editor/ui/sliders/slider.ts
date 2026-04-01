@@ -10,7 +10,7 @@ import { HTML } from "imperative-html/dist/esm/elements-strict";
 import { Change } from "../../core/change";
 import { SongDocument } from "../../song-document";
 
-const { span } = HTML;
+const { input, span } = HTML;
 
 export class Slider {
 	private _change: Change | null = null;
@@ -55,12 +55,29 @@ export class Slider {
 	};
 }
 
-export function createSlider(
+export interface RangeSliderOptions {
+	style?: string;
+	title?: string;
+	midTick?: boolean;
+}
+
+export function rangeSlider(
 	doc: SongDocument,
 	getChange: ((oldValue: number, newValue: number) => Change) | null,
-	midTick?: boolean,
-): { slider: Slider; input: HTMLInputElement } {
-	const input = HTML.input({ type: "range" });
-	const slider = new Slider(input, doc, getChange, midTick ?? false);
-	return { slider, input };
+	min: number,
+	max: number,
+	value: number,
+	options?: RangeSliderOptions,
+): Slider {
+	const style = options?.style ?? "margin: 0;";
+	const attrs: Record<string, string> = {
+		style,
+		type: "range",
+		min: String(min),
+		max: String(max),
+		value: String(value),
+		step: "1",
+	};
+	if (options?.title) attrs.title = options.title;
+	return new Slider(input(attrs), doc, getChange, options?.midTick ?? false);
 }

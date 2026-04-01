@@ -2,4 +2,4 @@
 //
 // Purpose: Barrel re-export of slider variants
 
-export { createSlider, Slider } from "./slider";
+export { rangeSlider, Slider } from "./slider";

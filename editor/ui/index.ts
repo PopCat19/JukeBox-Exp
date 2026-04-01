@@ -10,9 +10,9 @@ export { ArrayBufferWriter } from "./array-buffer-writer";
 export type { ButtonOptions, ContainerOptions, InputOptions, LabelOptions } from "./base";
 // Base factories
 export { addWheelSupport, createButton, createContainer, createDiv, createInput, createLabel, createSpan } from "./base";
-export type { ActionButtonOptions, IconButtonOptions } from "./buttons";
+export type { ActionButtonOptions, DropdownButtonOptions, IconButtonOptions } from "./buttons";
 // Buttons
-export { actionButton, clearButton, iconButton, toggleButton } from "./buttons";
+export { actionButton, clearButton, dropdownButton, iconButton, toggleButton } from "./buttons";
 // Chips/Tags
 export { tagChip, tagListItem, tagSuggestionItem } from "./chips";
 export type {
@@ -36,6 +36,6 @@ export type { InfoBannerOptions, InputRowOptions, InstructionsOptions, PaneConta
 // Prompt layouts
 export { fixedPane, flexPane, infoBanner, inputRow, instructions, pane, paneContainer } from "./prompts";
 // Sliders
-export { createSlider, Slider } from "./sliders";
+export { rangeSlider, Slider } from "./sliders";
 // Style constants
 export { BorderRadius, Gap, Margin, Padding } from "./style-constants";

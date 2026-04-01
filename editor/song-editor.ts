@@ -143,7 +143,7 @@ import { PostSyncRefs, renderPostBranchSync } from "./renderers/render-post-sync
 import { PresetSetupRefs, renderPresetSetup } from "./renderers/render-preset-setup";
 import { renderSongSettings, SongSettingsRefs } from "./renderers/render-song-settings";
 import { SongDocument } from "./song-document";
-import { addWheelSupport, clearButton, InputBox, iconButton, Slider, tagSuggestionItem, toggleButton } from "./ui";
+import { addWheelSupport, clearButton, dropdownButton, InputBox, iconButton, rangeSlider, Slider, tagSuggestionItem, toggleButton } from "./ui";
 
 const { button, div, input, select, span, optgroup, option, canvas } = HTML;
 
@@ -318,20 +318,7 @@ export class SongEditor implements ModSliderProvider {
 	private readonly _nextBarButton: HTMLButtonElement = iconButton("nextBarButton", {
 		title: "Next Bar (right bracket)",
 	});
-	private readonly _volumeSlider: Slider = new Slider(
-		input({
-			title: "main volume",
-			style: "width: 5em; flex-grow: 1; margin: 0;",
-			type: "range",
-			min: "0",
-			max: "75",
-			value: "50",
-			step: "1",
-		}),
-		this.doc,
-		null,
-		false,
-	);
+	private readonly _volumeSlider: Slider = rangeSlider(this.doc, null, 0, 75, 50, { style: "width: 5em; flex-grow: 1; margin: 0;", title: "main volume" });
 	private readonly _outVolumeBarBg: SVGRectElement = SVG.rect({
 		"pointer-events": "none",
 		width: "90%",
@@ -478,18 +465,13 @@ export class SongEditor implements ModSliderProvider {
 		max: Config.octaveMax,
 		value: "0",
 	});
-	private readonly _tempoSlider: Slider = new Slider(
-		input({
-			style: "margin: 0; vertical-align: middle;",
-			type: "range",
-			min: "1",
-			max: "500",
-			value: "160",
-			step: "1",
-		}),
+	private readonly _tempoSlider: Slider = rangeSlider(
 		this.doc,
 		(oldValue: number, newValue: number) => new ChangeTempo(this.doc, oldValue, newValue),
-		false,
+		1,
+		500,
+		160,
+		{ style: "margin: 0; vertical-align: middle;" },
 	);
 	private readonly _tempoStepper: HTMLInputElement = numberInput({
 		style: "width: 4em; font-size: 80%; margin-left: 0.4em; vertical-align: middle;",
@@ -504,29 +486,24 @@ export class SongEditor implements ModSliderProvider {
 		},
 		"+",
 	);
-	private readonly _chorusSlider: Slider = new Slider(
-		input({ style: "margin: 0;", type: "range", min: "0", max: Config.chorusRange - 1, value: "0", step: "1" }),
+	private readonly _chorusSlider: Slider = rangeSlider(
 		this.doc,
 		(oldValue: number, newValue: number) => new ChangeChorus(this.doc, oldValue, newValue),
-		false,
+		0,
+		Config.chorusRange - 1,
+		0,
 	);
 	private readonly _chorusRow: HTMLDivElement = div(
 		{ class: "selectRow" },
 		span({ class: "tip", onclick: () => this._openPrompt("chorus") }, "Chorus:"),
 		this._chorusSlider.container,
 	);
-	private readonly _reverbSlider: Slider = new Slider(
-		input({
-			style: "margin: 0; position: sticky,",
-			type: "range",
-			min: "0",
-			max: Config.reverbRange - 1,
-			value: "0",
-			step: "1",
-		}),
+	private readonly _reverbSlider: Slider = rangeSlider(
 		this.doc,
 		(oldValue: number, newValue: number) => new ChangeReverb(this.doc, oldValue, newValue),
-		false,
+		0,
+		Config.reverbRange - 1,
+		0,
 	);
 	private readonly _reverbRow: HTMLDivElement = div(
 		{ class: "selectRow" },
@@ -537,43 +514,33 @@ export class SongEditor implements ModSliderProvider {
 		select({}),
 		Config.operatorWaves.map((wave) => wave.name),
 	);
-	private readonly _ringModPulsewidthSlider: Slider = new Slider(
-		input({
-			style: "margin-left: 10px; width: 85%;",
-			type: "range",
-			min: "0",
-			max: Config.pwmOperatorWaves.length - 1,
-			value: "0",
-			step: "1",
-			title: "Pulse Width",
-		}),
+	private readonly _ringModPulsewidthSlider: Slider = rangeSlider(
 		this.doc,
 		(oldValue: number, newValue: number) => new ChangeRingModPulseWidth(this.doc, oldValue, newValue),
-		true,
+		0,
+		Config.pwmOperatorWaves.length - 1,
+		0,
+		{ style: "margin-left: 10px; width: 85%;", title: "Pulse Width", midTick: true },
 	);
-	private readonly _ringModSlider: Slider = new Slider(
-		input({ style: "margin: 0;", type: "range", min: "0", max: Config.ringModRange - 1, value: "0", step: "1" }),
+	private readonly _ringModSlider: Slider = rangeSlider(
 		this.doc,
 		(oldValue: number, newValue: number) => new ChangeRingMod(this.doc, oldValue, newValue),
-		false,
+		0,
+		Config.ringModRange - 1,
+		0,
 	);
 	private readonly _ringModRow: HTMLDivElement = div(
 		{ class: "selectRow" },
 		span({ class: "tip", onclick: () => this._openPrompt("ringMod") }, "Ring Mod:"),
 		this._ringModSlider.container,
 	);
-	private readonly _ringModHzSlider: Slider = new Slider(
-		input({
-			style: "margin: 0;",
-			type: "range",
-			min: "0",
-			max: Config.ringModHzRange - 1,
-			value: Config.ringModHzRange - Config.ringModHzRange / 2,
-			step: "1",
-		}),
+	private readonly _ringModHzSlider: Slider = rangeSlider(
 		this.doc,
 		(oldValue: number, newValue: number) => new ChangeRingModHz(this.doc, oldValue, newValue),
-		true,
+		0,
+		Config.ringModHzRange - 1,
+		Config.ringModHzRange - Config.ringModHzRange / 2,
+		{ midTick: true },
 	);
 	public readonly ringModHzNum: HTMLParagraphElement = div({ style: "font-size: 80%; ", id: "ringModHzNum" });
 	private readonly _ringModHzSliderRow: HTMLDivElement = div(
@@ -605,29 +572,24 @@ export class SongEditor implements ModSliderProvider {
 		// this._rmOffsetHzSliderRow,
 		this._ringModWaveSelectRow,
 	);
-	private readonly _granularSlider: Slider = new Slider(
-		input({ style: "margin: 0;", type: "range", min: "0", max: Config.granularRange, value: "0", step: "1" }),
+	private readonly _granularSlider: Slider = rangeSlider(
 		this.doc,
 		(oldValue: number, newValue: number) => new ChangeGranular(this.doc, oldValue, newValue),
-		false,
+		0,
+		Config.granularRange,
+		0,
 	);
 	private readonly _granularRow: HTMLDivElement = div(
 		{ class: "selectRow" },
 		span({ class: "tip", onclick: () => this._openPrompt("granular") }, "Granular:"),
 		this._granularSlider.container,
 	);
-	private readonly _grainSizeSlider: Slider = new Slider(
-		input({
-			style: "margin: 0;",
-			type: "range",
-			min: Config.grainSizeMin / Config.grainSizeStep,
-			max: Config.grainSizeMax / Config.grainSizeStep,
-			value: Config.grainSizeMin / Config.grainSizeStep,
-			step: "1",
-		}),
+	private readonly _grainSizeSlider: Slider = rangeSlider(
 		this.doc,
 		(oldValue: number, newValue: number) => new ChangeGrainSize(this.doc, oldValue, newValue),
-		false,
+		Config.grainSizeMin / Config.grainSizeStep,
+		Config.grainSizeMax / Config.grainSizeStep,
+		Config.grainSizeMin / Config.grainSizeStep,
 	);
 	public readonly grainSizeNum: HTMLParagraphElement = div({ style: "font-size: 80%; ", id: "grainSizeNum" });
 	private readonly _grainSizeSliderRow: HTMLDivElement = div(
@@ -639,29 +601,24 @@ export class SongEditor implements ModSliderProvider {
 		),
 		this._grainSizeSlider.container,
 	);
-	private readonly _grainAmountsSlider: Slider = new Slider(
-		input({ style: "margin: 0;", type: "range", min: "0", max: Config.grainAmountsMax, value: 8, step: "1" }),
+	private readonly _grainAmountsSlider: Slider = rangeSlider(
 		this.doc,
 		(oldValue: number, newValue: number) => new ChangeGrainAmounts(this.doc, oldValue, newValue),
-		false,
+		0,
+		Config.grainAmountsMax,
+		8,
 	);
 	private readonly _grainAmountsRow: HTMLDivElement = div(
 		{ class: "selectRow" },
 		span({ class: "tip", onclick: () => this._openPrompt("grainAmount") }, "Grain Freq:"),
 		this._grainAmountsSlider.container,
 	);
-	private readonly _grainRangeSlider: Slider = new Slider(
-		input({
-			style: "margin: 0;",
-			type: "range",
-			min: "0",
-			max: Config.grainRangeMax / Config.grainSizeStep,
-			value: "0",
-			step: "1",
-		}),
+	private readonly _grainRangeSlider: Slider = rangeSlider(
 		this.doc,
 		(oldValue: number, newValue: number) => new ChangeGrainRange(this.doc, oldValue, newValue),
-		false,
+		0,
+		Config.grainRangeMax / Config.grainSizeStep,
+		0,
 	);
 	public readonly grainRangeNum: HTMLParagraphElement = div({ style: "font-size: 80%; ", id: "grainRangeNum" });
 	private readonly _grainRangeSliderRow: HTMLDivElement = div(
@@ -680,22 +637,24 @@ export class SongEditor implements ModSliderProvider {
 		this._grainSizeSliderRow,
 		this._grainRangeSliderRow,
 	);
-	private readonly _echoSustainSlider: Slider = new Slider(
-		input({ style: "margin: 0;", type: "range", min: "0", max: Config.echoSustainRange - 1, value: "0", step: "1" }),
+	private readonly _echoSustainSlider: Slider = rangeSlider(
 		this.doc,
 		(oldValue: number, newValue: number) => new ChangeEchoSustain(this.doc, oldValue, newValue),
-		false,
+		0,
+		Config.echoSustainRange - 1,
+		0,
 	);
 	private readonly _echoSustainRow: HTMLDivElement = div(
 		{ class: "selectRow" },
 		span({ class: "tip", onclick: () => this._openPrompt("echoSustain") }, "Echo:"),
 		this._echoSustainSlider.container,
 	);
-	private readonly _echoDelaySlider: Slider = new Slider(
-		input({ style: "margin: 0;", type: "range", min: "0", max: Config.echoDelayRange - 1, value: "0", step: "1" }),
+	private readonly _echoDelaySlider: Slider = rangeSlider(
 		this.doc,
 		(oldValue: number, newValue: number) => new ChangeEchoDelay(this.doc, oldValue, newValue),
-		false,
+		0,
+		Config.echoDelayRange - 1,
+		0,
 	);
 	private readonly _echoDelayRow: HTMLDivElement = div(
 		{ class: "selectRow" },
@@ -706,51 +665,48 @@ export class SongEditor implements ModSliderProvider {
 		select(),
 		Config.rhythms.map((rhythm) => rhythm.name),
 	);
-	private readonly _phaserMixSlider: Slider = new Slider(
-		input({ style: "margin: 0;", type: "range", min: "0", max: Config.phaserMixRange - 1, value: "0", step: "1" }),
+	private readonly _phaserMixSlider: Slider = rangeSlider(
 		this.doc,
 		(oldValue: number, newValue: number) => new ChangePhaserMix(this.doc, oldValue, newValue),
-		false,
+		0,
+		Config.phaserMixRange - 1,
+		0,
 	);
 	private readonly _phaserMixRow: HTMLDivElement = div(
 		{ class: "selectRow" },
 		span({ class: "tip", onclick: () => this._openPrompt("phaserMix") }, span("Phaser:")),
 		this._phaserMixSlider.container,
 	);
-	private readonly _phaserFreqSlider: Slider = new Slider(
-		input({ style: "margin: 0;", type: "range", min: "0", max: Config.phaserFreqRange - 1, value: "0", step: "1" }),
+	private readonly _phaserFreqSlider: Slider = rangeSlider(
 		this.doc,
 		(oldValue: number, newValue: number) => new ChangePhaserFreq(this.doc, oldValue, newValue),
-		false,
+		0,
+		Config.phaserFreqRange - 1,
+		0,
 	);
 	private readonly _phaserFreqRow: HTMLDivElement = div(
 		{ class: "selectRow" },
 		span({ class: "tip", onclick: () => this._openPrompt("phaserFreq") }, span(" Freq:")),
 		this._phaserFreqSlider.container,
 	);
-	private readonly _phaserFeedbackSlider: Slider = new Slider(
-		input({ style: "margin: 0;", type: "range", min: "0", max: Config.phaserFeedbackRange - 1, value: "0", step: "1" }),
+	private readonly _phaserFeedbackSlider: Slider = rangeSlider(
 		this.doc,
 		(oldValue: number, newValue: number) => new ChangePhaserFeedback(this.doc, oldValue, newValue),
-		false,
+		0,
+		Config.phaserFeedbackRange - 1,
+		0,
 	);
 	private readonly _phaserFeedbackRow: HTMLDivElement = div(
 		{ class: "selectRow" },
 		span({ class: "tip", onclick: () => this._openPrompt("phaserFeedback") }, span(" Feedback:")),
 		this._phaserFeedbackSlider.container,
 	);
-	private readonly _phaserStagesSlider: Slider = new Slider(
-		input({
-			style: "margin: 0;",
-			type: "range",
-			min: Config.phaserMinStages,
-			max: Config.phaserMaxStages,
-			value: "0",
-			step: "1",
-		}),
+	private readonly _phaserStagesSlider: Slider = rangeSlider(
 		this.doc,
 		(oldValue: number, newValue: number) => new ChangePhaserStages(this.doc, oldValue, newValue),
-		false,
+		Config.phaserMinStages,
+		Config.phaserMaxStages,
+		0,
 	);
 	private readonly _phaserStagesRow: HTMLDivElement = div(
 		{ class: "selectRow" },
@@ -780,18 +736,13 @@ export class SongEditor implements ModSliderProvider {
 		span({ class: "tip", onclick: () => this._openPrompt("instrumentIndex") }, "Instrument:"),
 		this._instrumentsButtonBar,
 	);
-	private readonly _instrumentVolumeSlider: Slider = new Slider(
-		input({
-			style: "margin: 0; position: sticky;",
-			type: "range",
-			min: Math.floor(-Config.volumeRange / 2),
-			max: Math.floor(Config.volumeRange / 2),
-			value: "0",
-			step: "1",
-		}),
+	private readonly _instrumentVolumeSlider: Slider = rangeSlider(
 		this.doc,
 		(oldValue: number, newValue: number) => new ChangeVolume(this.doc, oldValue, newValue),
-		true,
+		Math.floor(-Config.volumeRange / 2),
+		Math.floor(Config.volumeRange / 2),
+		0,
+		{ midTick: true },
 	);
 	private readonly _instrumentVolumeSliderInputBox: HTMLInputElement = numberInput({
 		style: "width: 4em; font-size: 80%",
@@ -815,26 +766,17 @@ export class SongEditor implements ModSliderProvider {
 		),
 		this._instrumentVolumeSlider.container,
 	);
-	private readonly _panSlider: Slider = new Slider(
-		input({
-			style: "margin: 0; position: sticky;",
-			type: "range",
-			min: "0",
-			max: Config.panMax,
-			value: Config.panCenter,
-			step: "1",
-		}),
+	private readonly _panSlider: Slider = rangeSlider(
 		this.doc,
 		(oldValue: number, newValue: number) => new ChangePan(this.doc, oldValue, newValue),
-		true,
+		0,
+		Config.panMax,
+		Config.panCenter,
+		{ midTick: true },
 	);
-	private readonly _panDropdown: HTMLButtonElement = button(
-		{
-			style: "margin-left:0em; height:1.5em; width: 10px; padding: 0px; font-size: 8px;",
-			onclick: () => this._toggleDropdownMenu(DropdownID.Pan),
-		},
-		"▼",
-	);
+	private readonly _panDropdown: HTMLButtonElement = dropdownButton({
+		onclick: () => this._toggleDropdownMenu(DropdownID.Pan),
+	});
 	private readonly _panSliderInputBox: HTMLInputElement = numberInput({
 		style: "width: 4em; font-size: 80%; ",
 		id: "panSliderInputBox",
@@ -862,18 +804,12 @@ export class SongEditor implements ModSliderProvider {
 		this._panDropdown,
 		this._panSlider.container,
 	);
-	private readonly _panDelaySlider: Slider = new Slider(
-		input({
-			style: "margin: 0;",
-			type: "range",
-			min: "0",
-			max: Config.modulators.dictionary["pan delay"].maxRawVol,
-			value: "0",
-			step: "1",
-		}),
+	private readonly _panDelaySlider: Slider = rangeSlider(
 		this.doc,
 		(oldValue: number, newValue: number) => new ChangePanDelay(this.doc, oldValue, newValue),
-		false,
+		0,
+		Config.modulators.dictionary["pan delay"].maxRawVol,
+		0,
 	);
 	private readonly _panDelayRow: HTMLElement = div(
 		{ class: "selectRow dropFader" },
@@ -994,13 +930,9 @@ export class SongEditor implements ModSliderProvider {
 		select(),
 		Config.transitions.map((transition) => transition.name),
 	);
-	private readonly _transitionDropdown: HTMLButtonElement = button(
-		{
-			style: "margin-left:0em; height:1.5em; width: 10px; padding: 0px; font-size: 8px;",
-			onclick: () => this._toggleDropdownMenu(DropdownID.Transition),
-		},
-		"▼",
-	);
+	private readonly _transitionDropdown: HTMLButtonElement = dropdownButton({
+		onclick: () => this._toggleDropdownMenu(DropdownID.Transition),
+	});
 	private readonly _transitionRow: HTMLDivElement = div(
 		{ class: "selectRow" },
 		span({ class: "tip", onclick: () => this._openPrompt("transition") }, "Transition:"),
@@ -1048,36 +980,24 @@ export class SongEditor implements ModSliderProvider {
 		this._eqFilterZoom,
 		this._eqFilterEditor.container,
 	);
-	private readonly _eqFilterSimpleCutSlider: Slider = new Slider(
-		input({
-			style: "margin: 0;",
-			type: "range",
-			min: "0",
-			max: Config.filterSimpleCutRange - 1,
-			value: "6",
-			step: "1",
-		}),
+	private readonly _eqFilterSimpleCutSlider: Slider = rangeSlider(
 		this.doc,
 		(oldValue: number, newValue: number) => new ChangeEQFilterSimpleCut(this.doc, oldValue, newValue),
-		false,
+		0,
+		Config.filterSimpleCutRange - 1,
+		6,
 	);
 	private _eqFilterSimpleCutRow: HTMLDivElement = div(
 		{ class: "selectRow", title: "Low-pass Filter Cutoff Frequency" },
 		span({ class: "tip", onclick: () => this._openPrompt("filterCutoff") }, "Filter Cut:"),
 		this._eqFilterSimpleCutSlider.container,
 	);
-	private readonly _eqFilterSimplePeakSlider: Slider = new Slider(
-		input({
-			style: "margin: 0;",
-			type: "range",
-			min: "0",
-			max: Config.filterSimplePeakRange - 1,
-			value: "6",
-			step: "1",
-		}),
+	private readonly _eqFilterSimplePeakSlider: Slider = rangeSlider(
 		this.doc,
 		(oldValue: number, newValue: number) => new ChangeEQFilterSimplePeak(this.doc, oldValue, newValue),
-		false,
+		0,
+		Config.filterSimplePeakRange - 1,
+		6,
 	);
 	private _eqFilterSimplePeakRow: HTMLDivElement = div(
 		{ class: "selectRow", title: "Low-pass Filter Peak Resonance" },
@@ -1114,18 +1034,12 @@ export class SongEditor implements ModSliderProvider {
 		this._noteFilterZoom,
 		this._noteFilterEditor.container,
 	);
-	private readonly _noteFilterSimpleCutSlider: Slider = new Slider(
-		input({
-			style: "margin: 0;",
-			type: "range",
-			min: "0",
-			max: Config.filterSimpleCutRange - 1,
-			value: "6",
-			step: "1",
-		}),
+	private readonly _noteFilterSimpleCutSlider: Slider = rangeSlider(
 		this.doc,
 		(oldValue: number, newValue: number) => new ChangeNoteFilterSimpleCut(this.doc, oldValue, newValue),
-		false,
+		0,
+		Config.filterSimpleCutRange - 1,
+		6,
 	);
 	private _noteFilterSimpleCutRow: HTMLDivElement = div(
 		{ class: "selectRow", title: "Low-pass Filter Cutoff Frequency" },
@@ -1138,18 +1052,12 @@ export class SongEditor implements ModSliderProvider {
 		),
 		this._noteFilterSimpleCutSlider.container,
 	);
-	private readonly _noteFilterSimplePeakSlider: Slider = new Slider(
-		input({
-			style: "margin: 0;",
-			type: "range",
-			min: "0",
-			max: Config.filterSimplePeakRange - 1,
-			value: "6",
-			step: "1",
-		}),
+	private readonly _noteFilterSimplePeakSlider: Slider = rangeSlider(
 		this.doc,
 		(oldValue: number, newValue: number) => new ChangeNoteFilterSimplePeak(this.doc, oldValue, newValue),
-		false,
+		0,
+		Config.filterSimplePeakRange - 1,
+		6,
 	);
 	private _noteFilterSimplePeakRow: HTMLDivElement = div(
 		{ class: "selectRow", title: "Low-pass Filter Peak Resonance" },
@@ -1163,33 +1071,36 @@ export class SongEditor implements ModSliderProvider {
 		this._noteFilterSimplePeakSlider.container,
 	);
 
-	private readonly _supersawDynamismSlider: Slider = new Slider(
-		input({ style: "margin: 0;", type: "range", min: "0", max: Config.supersawDynamismMax, value: "0", step: "1" }),
+	private readonly _supersawDynamismSlider: Slider = rangeSlider(
 		this.doc,
 		(oldValue: number, newValue: number) => new ChangeSupersawDynamism(this.doc, oldValue, newValue),
-		false,
+		0,
+		Config.supersawDynamismMax,
+		0,
 	);
 	private readonly _supersawDynamismRow: HTMLDivElement = div(
 		{ class: "selectRow" },
 		span({ class: "tip", onclick: () => this._openPrompt("supersawDynamism") }, "Dynamism:"),
 		this._supersawDynamismSlider.container,
 	);
-	private readonly _supersawSpreadSlider: Slider = new Slider(
-		input({ style: "margin: 0;", type: "range", min: "0", max: Config.supersawSpreadMax, value: "0", step: "1" }),
+	private readonly _supersawSpreadSlider: Slider = rangeSlider(
 		this.doc,
 		(oldValue: number, newValue: number) => new ChangeSupersawSpread(this.doc, oldValue, newValue),
-		false,
+		0,
+		Config.supersawSpreadMax,
+		0,
 	);
 	private readonly _supersawSpreadRow: HTMLDivElement = div(
 		{ class: "selectRow" },
 		span({ class: "tip", onclick: () => this._openPrompt("supersawSpread") }, "Spread:"),
 		this._supersawSpreadSlider.container,
 	);
-	private readonly _supersawShapeSlider: Slider = new Slider(
-		input({ style: "margin: 0;", type: "range", min: "0", max: Config.supersawShapeMax, value: "0", step: "1" }),
+	private readonly _supersawShapeSlider: Slider = rangeSlider(
 		this.doc,
 		(oldValue: number, newValue: number) => new ChangeSupersawShape(this.doc, oldValue, newValue),
-		false,
+		0,
+		Config.supersawShapeMax,
+		0,
 	);
 	private readonly _supersawShapeRow: HTMLDivElement = div(
 		{ class: "selectRow" },
@@ -1197,19 +1108,17 @@ export class SongEditor implements ModSliderProvider {
 		this._supersawShapeSlider.container,
 	);
 
-	private readonly _pulseWidthSlider: Slider = new Slider(
-		input({ style: "margin: 0;", type: "range", min: "1", max: Config.pulseWidthRange, value: "1", step: "1" }),
+	private readonly _pulseWidthSlider: Slider = rangeSlider(
 		this.doc,
 		(oldValue: number, newValue: number) => new ChangePulseWidth(this.doc, oldValue, newValue),
-		false,
+		1,
+		Config.pulseWidthRange,
+		1,
 	);
-	private readonly _pulseWidthDropdown: HTMLButtonElement = button(
-		{
-			style: "margin-left:53px; position: absolute; margin-top: 15px; height:1.5em; width: 10px; padding: 0px; font-size: 8px;",
-			onclick: () => this._toggleDropdownMenu(DropdownID.PulseWidth),
-		},
-		"▼",
-	);
+	private readonly _pulseWidthDropdown: HTMLButtonElement = dropdownButton({
+		style: "margin-left:53px; position: absolute; margin-top: 15px;",
+		onclick: () => this._toggleDropdownMenu(DropdownID.PulseWidth),
+	});
 	private readonly _pwmSliderInputBox: HTMLInputElement = numberInput({
 		style: "width: 4em; font-size: 70%;",
 		id: "pwmSliderInputBox",
@@ -1238,11 +1147,12 @@ export class SongEditor implements ModSliderProvider {
 		this._pulseWidthSlider.container,
 	);
 	// private readonly _pulseWidthRow: HTMLDivElement = div({ class: "selectRow" }, span({ class: "tip", onclick: () => this._openPrompt("pulseWidth") }, "Pulse Width:"), this._pulseWidthDropdown, this._pulseWidthSlider.container);
-	private readonly _decimalOffsetSlider: Slider = new Slider(
-		input({ style: "margin: 0;", type: "range", min: "0", max: "99", value: "0", step: "1" }),
+	private readonly _decimalOffsetSlider: Slider = rangeSlider(
 		this.doc,
 		(oldValue: number, newValue: number) => new ChangeDecimalOffset(this.doc, oldValue, 99 - newValue),
-		false,
+		0,
+		99,
+		0,
 	);
 	private readonly _decimalOffsetRow: HTMLDivElement = div(
 		{ class: "selectRow dropFader" },
@@ -1251,11 +1161,13 @@ export class SongEditor implements ModSliderProvider {
 	);
 	private readonly _pulseWidthDropdownGroup: HTMLElement = div({ class: "editor-controls", style: "display: none;" }, this._decimalOffsetRow);
 
-	private readonly _pitchShiftSlider: Slider = new Slider(
-		input({ style: "margin: 0;", type: "range", min: "0", max: Config.pitchShiftRange - 1, value: "0", step: "1" }),
+	private readonly _pitchShiftSlider: Slider = rangeSlider(
 		this.doc,
 		(oldValue: number, newValue: number) => new ChangePitchShift(this.doc, oldValue, newValue),
-		true,
+		0,
+		Config.pitchShiftRange - 1,
+		0,
+		{ midTick: true },
 	);
 	private readonly _pitchShiftTonicMarkers: HTMLDivElement[] = [
 		div({ class: "pitchShiftMarker", style: { color: ColorConfig.tonic } }),
@@ -1314,18 +1226,12 @@ export class SongEditor implements ModSliderProvider {
 		),
 		this._detuneSlider.container,
 	);
-	private readonly _distortionSlider: Slider = new Slider(
-		input({
-			style: "margin: 0; position: sticky;",
-			type: "range",
-			min: "0",
-			max: Config.distortionRange - 1,
-			value: "0",
-			step: "1",
-		}),
+	private readonly _distortionSlider: Slider = rangeSlider(
 		this.doc,
 		(oldValue: number, newValue: number) => new ChangeDistortion(this.doc, oldValue, newValue),
-		false,
+		0,
+		Config.distortionRange - 1,
+		0,
 	);
 	private readonly _distortionRow: HTMLDivElement = div(
 		{ class: "selectRow" },
@@ -1341,40 +1247,36 @@ export class SongEditor implements ModSliderProvider {
 		span({ class: "tip", style: "margin-left:10px;", onclick: () => this._openPrompt("aliases") }, "Aliasing:"),
 		this._aliasingBox,
 	);
-	private readonly _bitcrusherQuantizationSlider: Slider = new Slider(
-		input({
-			style: "margin: 0;",
-			type: "range",
-			min: "0",
-			max: Config.bitcrusherQuantizationRange - 1,
-			value: "0",
-			step: "1",
-		}),
+	private readonly _bitcrusherQuantizationSlider: Slider = rangeSlider(
 		this.doc,
 		(oldValue: number, newValue: number) => new ChangeBitcrusherQuantization(this.doc, oldValue, newValue),
-		false,
+		0,
+		Config.bitcrusherQuantizationRange - 1,
+		0,
 	);
 	private readonly _bitcrusherQuantizationRow: HTMLDivElement = div(
 		{ class: "selectRow" },
 		span({ class: "tip", onclick: () => this._openPrompt("bitcrusherQuantization") }, "Bit Crush:"),
 		this._bitcrusherQuantizationSlider.container,
 	);
-	private readonly _bitcrusherFreqSlider: Slider = new Slider(
-		input({ style: "margin: 0;", type: "range", min: "0", max: Config.bitcrusherFreqRange - 1, value: "0", step: "1" }),
+	private readonly _bitcrusherFreqSlider: Slider = rangeSlider(
 		this.doc,
 		(oldValue: number, newValue: number) => new ChangeBitcrusherFreq(this.doc, oldValue, newValue),
-		false,
+		0,
+		Config.bitcrusherFreqRange - 1,
+		0,
 	);
 	private readonly _bitcrusherFreqRow: HTMLDivElement = div(
 		{ class: "selectRow" },
 		span({ class: "tip", onclick: () => this._openPrompt("bitcrusherFreq") }, "Freq Crush:"),
 		this._bitcrusherFreqSlider.container,
 	);
-	private readonly _stringSustainSlider: Slider = new Slider(
-		input({ style: "margin: 0;", type: "range", min: "0", max: Config.stringSustainRange - 1, value: "0", step: "1" }),
+	private readonly _stringSustainSlider: Slider = rangeSlider(
 		this.doc,
 		(oldValue: number, newValue: number) => new ChangeStringSustain(this.doc, oldValue, newValue),
-		false,
+		0,
+		Config.stringSustainRange - 1,
+		0,
 	);
 	private readonly _stringSustainLabel: HTMLSpanElement = span(
 		{
@@ -1385,13 +1287,9 @@ export class SongEditor implements ModSliderProvider {
 	);
 	private readonly _stringSustainRow: HTMLDivElement = div({ class: "selectRow" }, this._stringSustainLabel, this._stringSustainSlider.container);
 
-	private readonly _unisonDropdown: HTMLButtonElement = button(
-		{
-			style: "margin-left:0em; height:1.5em; width: 10px; padding: 0px; font-size: 8px;",
-			onclick: () => this._toggleDropdownMenu(DropdownID.Unison),
-		},
-		"▼",
-	);
+	private readonly _unisonDropdown: HTMLButtonElement = dropdownButton({
+		onclick: () => this._toggleDropdownMenu(DropdownID.Unison),
+	});
 
 	private readonly _unisonSelect: HTMLSelectElement = buildOptions(
 		select(),
@@ -1538,13 +1436,9 @@ export class SongEditor implements ModSliderProvider {
 		select({ style: "flex-shrink: 100" }),
 		Config.chords.map((chord) => chord.name),
 	);
-	private readonly _chordDropdown: HTMLButtonElement = button(
-		{
-			style: "margin-left:0em; height:1.5em; width: 10px; padding: 0px; font-size: 8px;",
-			onclick: () => this._toggleDropdownMenu(DropdownID.Chord),
-		},
-		"▼",
-	);
+	private readonly _chordDropdown: HTMLButtonElement = dropdownButton({
+		onclick: () => this._toggleDropdownMenu(DropdownID.Chord),
+	});
 	private readonly _monophonicNoteInputBox: HTMLInputElement = numberInput({
 		style: "width: 2.35em; height: 1.5em; font-size: 80%; margin: 0.5em; vertical-align: middle;",
 		id: "unisonSignInputBox",
@@ -1575,18 +1469,12 @@ export class SongEditor implements ModSliderProvider {
 		},
 		"x1",
 	);
-	private readonly _arpeggioSpeedSlider: Slider = new Slider(
-		input({
-			style: "margin: 0;",
-			type: "range",
-			min: "0",
-			max: Config.modulators.dictionary["arp speed"].maxRawVol,
-			value: "0",
-			step: "1",
-		}),
+	private readonly _arpeggioSpeedSlider: Slider = rangeSlider(
 		this.doc,
 		(oldValue: number, newValue: number) => new ChangeArpeggioSpeed(this.doc, oldValue, newValue),
-		false,
+		0,
+		Config.modulators.dictionary["arp speed"].maxRawVol,
+		0,
 	);
 	private readonly _arpeggioSpeedRow: HTMLElement = div(
 		{ class: "selectRow dropFader" },
@@ -1620,31 +1508,21 @@ export class SongEditor implements ModSliderProvider {
 		select(),
 		Config.vibratos.map((vibrato) => vibrato.name),
 	);
-	private readonly _vibratoDropdown: HTMLButtonElement = button(
-		{
-			style: "margin-left:0em; height:1.5em; width: 10px; padding: 0px; font-size: 8px;",
-			onclick: () => this._toggleDropdownMenu(DropdownID.Vibrato),
-		},
-		"▼",
-	);
+	private readonly _vibratoDropdown: HTMLButtonElement = dropdownButton({
+		onclick: () => this._toggleDropdownMenu(DropdownID.Vibrato),
+	});
 	private readonly _vibratoSelectRow: HTMLElement = div(
 		{ class: "selectRow" },
 		span({ class: "tip", onclick: () => this._openPrompt("vibrato") }, "Vibrato:"),
 		this._vibratoDropdown,
 		div({ class: "selectContainer", style: "width: 61.5%;" }, this._vibratoSelect),
 	);
-	private readonly _vibratoDepthSlider: Slider = new Slider(
-		input({
-			style: "margin: 0;",
-			type: "range",
-			min: "0",
-			max: Config.modulators.dictionary["vibrato depth"].maxRawVol,
-			value: "0",
-			step: "1",
-		}),
+	private readonly _vibratoDepthSlider: Slider = rangeSlider(
 		this.doc,
 		(oldValue: number, newValue: number) => new ChangeVibratoDepth(this.doc, oldValue, newValue),
-		false,
+		0,
+		Config.modulators.dictionary["vibrato depth"].maxRawVol,
+		0,
 	);
 	private readonly _vibratoDepthRow: HTMLElement = div(
 		{ class: "selectRow dropFader" },
@@ -1657,18 +1535,12 @@ export class SongEditor implements ModSliderProvider {
 		},
 		"x1",
 	);
-	private readonly _vibratoSpeedSlider: Slider = new Slider(
-		input({
-			style: "margin: 0; text-overflow: clip;",
-			type: "range",
-			min: "0",
-			max: Config.modulators.dictionary["vibrato speed"].maxRawVol,
-			value: "0",
-			step: "1",
-		}),
+	private readonly _vibratoSpeedSlider: Slider = rangeSlider(
 		this.doc,
 		(oldValue: number, newValue: number) => new ChangeVibratoSpeed(this.doc, oldValue, newValue),
-		false,
+		0,
+		Config.modulators.dictionary["vibrato speed"].maxRawVol,
+		0,
 	);
 	private readonly _vibratoSpeedRow: HTMLElement = div(
 		{ class: "selectRow dropFader" },
@@ -1676,18 +1548,12 @@ export class SongEditor implements ModSliderProvider {
 		this._vibratoSpeedDisplay,
 		this._vibratoSpeedSlider.container,
 	);
-	private readonly _vibratoDelaySlider: Slider = new Slider(
-		input({
-			style: "margin: 0;",
-			type: "range",
-			min: "0",
-			max: Config.modulators.dictionary["vibrato delay"].maxRawVol,
-			value: "0",
-			step: "1",
-		}),
+	private readonly _vibratoDelaySlider: Slider = rangeSlider(
 		this.doc,
 		(oldValue: number, newValue: number) => new ChangeVibratoDelay(this.doc, oldValue, newValue),
-		false,
+		0,
+		Config.modulators.dictionary["vibrato delay"].maxRawVol,
+		0,
 	);
 	private readonly _vibratoDelayRow: HTMLElement = div(
 		{ class: "selectRow dropFader" },
@@ -1761,18 +1627,12 @@ export class SongEditor implements ModSliderProvider {
 		},
 		"x1",
 	);
-	private readonly _envelopeSpeedSlider: Slider = new Slider(
-		input({
-			style: "margin: 0;",
-			type: "range",
-			min: "0",
-			max: Config.modulators.dictionary["envelope speed"].maxRawVol,
-			value: "0",
-			step: "1",
-		}),
+	private readonly _envelopeSpeedSlider: Slider = rangeSlider(
 		this.doc,
 		(oldValue: number, newValue: number) => new ChangeEnvelopeSpeed(this.doc, oldValue, newValue),
-		false,
+		0,
+		Config.modulators.dictionary["envelope speed"].maxRawVol,
+		0,
 	);
 	private readonly _envelopeSpeedRow: HTMLElement = div(
 		{ class: "selectRow dropFader" },
@@ -1781,13 +1641,10 @@ export class SongEditor implements ModSliderProvider {
 		this._envelopeSpeedSlider.container,
 	);
 	private readonly _envelopeDropdownGroup: HTMLElement = div({ class: "editor-controls", style: "display: none;" }, this._envelopeSpeedRow);
-	private readonly _envelopeDropdown: HTMLButtonElement = button(
-		{
-			style: "margin-left:0em; margin-right: 1em; height:1.5em; width: 10px; padding: 0px; font-size: 8px;",
-			onclick: () => this._toggleDropdownMenu(DropdownID.Envelope),
-		},
-		"▼",
-	);
+	private readonly _envelopeDropdown: HTMLButtonElement = dropdownButton({
+		style: "margin-right: 1em;",
+		onclick: () => this._toggleDropdownMenu(DropdownID.Envelope),
+	});
 
 	private readonly _drumsetGroup: HTMLElement = div({ class: "editor-controls" });
 	private readonly _drumsetZoom: HTMLButtonElement = button(
@@ -2068,18 +1925,13 @@ export class SongEditor implements ModSliderProvider {
 		this._tagAutocompleteBox,
 	);
 
-	private readonly _feedbackAmplitudeSlider: Slider = new Slider(
-		input({
-			type: "range",
-			min: "0",
-			max: Config.operatorAmplitudeMax,
-			value: "0",
-			step: "1",
-			title: "Feedback Amplitude",
-		}),
+	private readonly _feedbackAmplitudeSlider: Slider = rangeSlider(
 		this.doc,
 		(oldValue: number, newValue: number) => new ChangeFeedbackAmplitude(this.doc, oldValue, newValue),
-		false,
+		0,
+		Config.operatorAmplitudeMax,
+		0,
+		{ title: "Feedback Amplitude" },
 	);
 	private readonly _feedbackRow2: HTMLDivElement = div(
 		{ class: "selectRow" },
@@ -3036,13 +2888,10 @@ export class SongEditor implements ModSliderProvider {
 				select({ style: "width: 100%;", title: "Waveform" }),
 				Config.operatorWaves.map((wave) => wave.name),
 			);
-			const waveformDropdown: HTMLButtonElement = button(
-				{
-					style: "margin-left:0em; margin-right: 2px; height:1.5em; width: 8px; max-width: 10px; padding: 0px; font-size: 8px;",
-					onclick: () => this._toggleDropdownMenu(DropdownID.FM, i),
-				},
-				"▼",
-			);
+			const waveformDropdown: HTMLButtonElement = dropdownButton({
+				style: "margin-right: 2px; width: 8px; max-width: 10px;",
+				onclick: () => this._toggleDropdownMenu(DropdownID.FM, i),
+			});
 			const waveformDropdownHint: HTMLSpanElement = span(
 				{
 					class: "tip",
