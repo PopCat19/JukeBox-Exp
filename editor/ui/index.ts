@@ -31,5 +31,8 @@ export { checkboxInput, createInputBox, InputBox, searchInput, stepperInput } fr
 export { fieldLabel, sectionLabel } from "./labels";
 // Layout
 export { Layout } from "./layout";
+export type { InfoBannerOptions, InputRowOptions, InstructionsOptions, PaneContainerOptions, PaneOptions } from "./prompts";
+// Prompt layouts
+export { fixedPane, flexPane, infoBanner, inputRow, instructions, pane, paneContainer } from "./prompts";
 // Sliders
 export { createSlider, Slider } from "./sliders";

@@ -13,7 +13,7 @@ import { HTML } from "imperative-html/dist/esm/elements-strict";
 import { ChangePreset } from "../changes";
 import { EditorConfig, Preset, PresetCategory } from "../config/editor-config";
 import { SongDocument } from "../song-document";
-import { searchInput, sectionLabel, tagChip } from "../ui";
+import { fixedPane, flexPane, infoBanner, inputRow, instructions, paneContainer, searchInput, sectionLabel, tagChip } from "../ui";
 import { BasePrompt } from "./base-prompt";
 
 const { button, div, h2, span } = HTML;
@@ -64,39 +64,25 @@ export class PresetSelectorPrompt extends BasePrompt {
 
 		const rowGap = "8px";
 
-		const inputRow = div({ class: "inputRow", style: `display: flex; gap: ${rowGap};` }, this._searchInput, tagButton);
+		const inputRowEl = inputRow({ gap: rowGap }, this._searchInput, tagButton);
 
-		this._tagBanner = div({
-			style: "display: none; padding: 4px 8px; font-size: 11px; color: var(--secondary-text); border-bottom: 1px solid var(--ui-widget-background); cursor: pointer;",
-		});
+		this._tagBanner = infoBanner({ fontSize: "11px" });
 
-		this._categoryList = div({
-			style: `flex: 0 0 180px; overflow-y: auto; border-right: 2px solid var(--ui-widget-background); padding: 4px 0; transition: opacity 0.15s;`,
-		});
+		this._categoryList = fixedPane("180px", { borderRight: true, padding: "4px 0" });
+		this._categoryList.style.transition = "opacity 0.15s";
 
-		this._presetList = div({
-			style: `flex: 1; overflow-y: auto; padding: 0; border-right: 2px solid var(--ui-widget-background); display: flex; flex-direction: column;`,
-		});
+		this._presetList = flexPane({ borderRight: true, padding: "0" });
+		this._presetList.style.display = "flex";
+		this._presetList.style.flexDirection = "column";
 
-		this._infoPanel = div({
-			style: `flex: 0 0 180px; overflow-y: auto; padding: 8px 10px; font-size: 12px; color: var(--secondary-text); line-height: 1.5;`,
-		});
+		this._infoPanel = fixedPane("180px", { padding: "8px 10px" });
+		this._infoPanel.style.fontSize = "12px";
+		this._infoPanel.style.color = "var(--secondary-text)";
+		this._infoPanel.style.lineHeight = "1.5";
 
-		const paneContainer = div(
-			{
-				style: `display: flex; flex-direction: row; height: 400px; margin-top: 8px; border: 2px solid var(--ui-widget-background); border-radius: 6px; overflow: hidden;`,
-			},
-			this._categoryList,
-			this._presetList,
-			this._infoPanel,
-		);
+		const paneContainerEl = paneContainer({ height: "400px" }, this._categoryList, this._presetList, this._infoPanel);
 
-		const instructionsDiv = div(
-			{
-				style: `font-size: 11px; color: var(--secondary-text); margin-top: 8px; text-align: center;`,
-			},
-			"Arrow keys: navigate | Enter / Right: select | Tab: switch pane | #: tags | ESC: close",
-		);
+		const instructionsDiv = instructions("Arrow keys: navigate | Enter / Right: select | Tab: switch pane | #: tags | ESC: close");
 
 		this.container = div(
 			{
@@ -105,8 +91,8 @@ export class PresetSelectorPrompt extends BasePrompt {
 				tabindex: "0",
 			},
 			h2({ style: `text-align: center; margin: 0 0 ${rowGap} 0;` }, "Select Instrument"),
-			inputRow,
-			paneContainer,
+			inputRowEl,
+			paneContainerEl,
 			instructionsDiv,
 			this._cancelButton,
 		);
