@@ -143,7 +143,7 @@ import { PostSyncRefs, renderPostBranchSync } from "./renderers/render-post-sync
 import { PresetSetupRefs, renderPresetSetup } from "./renderers/render-preset-setup";
 import { renderSongSettings, SongSettingsRefs } from "./renderers/render-song-settings";
 import { SongDocument } from "./song-document";
-import { addWheelSupport, clearButton, InputBox, Slider, tagSuggestionItem } from "./ui";
+import { addWheelSupport, clearButton, InputBox, iconButton, Slider, tagSuggestionItem, toggleButton } from "./ui";
 
 const { button, div, input, select, span, optgroup, option, canvas } = HTML;
 
@@ -312,14 +312,10 @@ export class SongEditor implements ModSliderProvider {
 		},
 		"Stop Recording",
 	);
-	private readonly _prevBarButton: HTMLButtonElement = button({
-		class: "prevBarButton",
-		type: "button",
+	private readonly _prevBarButton: HTMLButtonElement = iconButton("prevBarButton", {
 		title: "Previous Bar (left bracket)",
 	});
-	private readonly _nextBarButton: HTMLButtonElement = button({
-		class: "nextBarButton",
-		type: "button",
+	private readonly _nextBarButton: HTMLButtonElement = iconButton("nextBarButton", {
 		title: "Next Bar (right bracket)",
 	});
 	private readonly _volumeSlider: Slider = new Slider(
@@ -1023,22 +1019,9 @@ export class SongEditor implements ModSliderProvider {
 	private readonly _transitionDropdownGroup: HTMLElement = div({ class: "editor-controls", style: "display: none;" }, this._clicklessTransitionRow);
 
 	private readonly _effectsSelect: HTMLSelectElement = select(option({ selected: true, disabled: true, hidden: false })); // todo: "hidden" should be true but looks wrong on mac chrome, adds checkmark next to first visible option even though it's not selected.
-	private readonly _eqFilterSimpleButton: HTMLButtonElement = button(
-		{
-			style: "font-size: x-small; width: 50%; height: 40%",
-			class: "no-underline",
-			onclick: () => this._switchEQFilterType(true),
-		},
-		"simple",
-	);
-	private readonly _eqFilterAdvancedButton: HTMLButtonElement = button(
-		{
-			style: "font-size: x-small; width: 50%; height: 40%",
-			class: "last-button no-underline",
-			onclick: () => this._switchEQFilterType(false),
-		},
-		"advanced",
-	);
+	private readonly _eqFilterToggle = toggleButton(["simple", "advanced"], (index: 0 | 1) => this._switchEQFilterType(index === 0));
+	private readonly _eqFilterSimpleButton: HTMLButtonElement = this._eqFilterToggle.buttons[0];
+	private readonly _eqFilterAdvancedButton: HTMLButtonElement = this._eqFilterToggle.buttons[1];
 	private readonly _eqFilterTypeRow: HTMLElement = div(
 		{ class: "selectRow", style: "padding-top: 4px; margin-bottom: 0px;" },
 		span(
@@ -1049,7 +1032,7 @@ export class SongEditor implements ModSliderProvider {
 			},
 			"EQ Filt.Type:",
 		),
-		div({ class: "instrument-bar" }, this._eqFilterSimpleButton, this._eqFilterAdvancedButton),
+		this._eqFilterToggle.container,
 	);
 	private readonly _eqFilterEditor: FilterEditor = new FilterEditor(this.doc);
 	private readonly _eqFilterZoom: HTMLButtonElement = button(
@@ -1102,22 +1085,9 @@ export class SongEditor implements ModSliderProvider {
 		this._eqFilterSimplePeakSlider.container,
 	);
 
-	private readonly _noteFilterSimpleButton: HTMLButtonElement = button(
-		{
-			style: "font-size: x-small; width: 50%; height: 40%",
-			class: "no-underline",
-			onclick: () => this._switchNoteFilterType(true),
-		},
-		"simple",
-	);
-	private readonly _noteFilterAdvancedButton: HTMLButtonElement = button(
-		{
-			style: "font-size: x-small; width: 50%; height: 40%",
-			class: "last-button no-underline",
-			onclick: () => this._switchNoteFilterType(false),
-		},
-		"advanced",
-	);
+	private readonly _noteFilterToggle = toggleButton(["simple", "advanced"], (index: 0 | 1) => this._switchNoteFilterType(index === 0));
+	private readonly _noteFilterSimpleButton: HTMLButtonElement = this._noteFilterToggle.buttons[0];
+	private readonly _noteFilterAdvancedButton: HTMLButtonElement = this._noteFilterToggle.buttons[1];
 	private readonly _noteFilterTypeRow: HTMLElement = div(
 		{ class: "selectRow", style: "padding-top: 4px; margin-bottom: 0px;" },
 		span(
@@ -1128,7 +1098,7 @@ export class SongEditor implements ModSliderProvider {
 			},
 			"Note Filt.Type:",
 		),
-		div({ class: "instrument-bar" }, this._noteFilterSimpleButton, this._noteFilterAdvancedButton),
+		this._noteFilterToggle.container,
 	);
 	private readonly _noteFilterEditor: FilterEditor = new FilterEditor(this.doc, true);
 	private readonly _noteFilterZoom: HTMLButtonElement = button(
@@ -2278,14 +2248,10 @@ export class SongEditor implements ModSliderProvider {
 	);
 
 	private readonly _promptContainer: HTMLDivElement = div({ class: "promptContainer", style: "display: none;" });
-	private readonly _zoomInButton: HTMLButtonElement = button({
-		class: "zoomInButton",
-		type: "button",
+	private readonly _zoomInButton: HTMLButtonElement = iconButton("zoomInButton", {
 		title: "Zoom In",
 	});
-	private readonly _zoomOutButton: HTMLButtonElement = button({
-		class: "zoomOutButton",
-		type: "button",
+	private readonly _zoomOutButton: HTMLButtonElement = iconButton("zoomOutButton", {
 		title: "Zoom Out",
 	});
 	private readonly _patternEditorRow: HTMLDivElement = div(

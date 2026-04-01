@@ -10,8 +10,9 @@ export { ArrayBufferWriter } from "./array-buffer-writer";
 export type { ButtonOptions, ContainerOptions, InputOptions, LabelOptions } from "./base";
 // Base factories
 export { addWheelSupport, createButton, createContainer, createDiv, createInput, createLabel, createSpan } from "./base";
+export type { ActionButtonOptions, IconButtonOptions } from "./buttons";
 // Buttons
-export { clearButton } from "./buttons";
+export { actionButton, clearButton, iconButton, toggleButton } from "./buttons";
 // Chips/Tags
 export { tagChip, tagListItem, tagSuggestionItem } from "./chips";
 export type {
