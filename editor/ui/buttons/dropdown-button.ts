@@ -22,7 +22,11 @@ export function dropdownButton(options?: DropdownButtonOptions): HTMLButtonEleme
 	if (options?.onclick) {
 		btn.addEventListener("click", options.onclick);
 	}
-	btn.addEventListener("mouseenter", () => { btn.style.opacity = "1"; });
-	btn.addEventListener("mouseleave", () => { btn.style.opacity = "0.7"; });
+	btn.addEventListener("mouseenter", () => {
+		btn.style.opacity = "1";
+	});
+	btn.addEventListener("mouseleave", () => {
+		btn.style.opacity = "0.7";
+	});
 	return btn;
 }
