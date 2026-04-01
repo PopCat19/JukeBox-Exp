@@ -7,6 +7,24 @@
 
 export { ArrayBufferReader } from "./array-buffer-reader";
 export { ArrayBufferWriter } from "./array-buffer-writer";
-export { labelRow, okayRow, searchInput, sectionLabel, stepperInput, tagChip, tagListItem } from "./components";
-export { HTMLWrapper } from "./html-wrapper";
+export {
+	checkboxInput,
+	checkboxRow,
+	clearButton,
+	fieldLabel,
+	flexColumnCenter,
+	flexRowCenter,
+	formRow,
+	labelRow,
+	okayRow,
+	scrollableContainer,
+	searchInput,
+	sectionLabel,
+	selectContainer,
+	selectRow,
+	stepperInput,
+	tagChip,
+	tagListItem,
+} from "./components";
+export { InputBox, Slider } from "./html-wrapper";
 export { Layout } from "./layout";

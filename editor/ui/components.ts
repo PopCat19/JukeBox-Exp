@@ -9,7 +9,15 @@
 
 import { HTML } from "imperative-html/dist/esm/elements-strict";
 
-const { div, span, input } = HTML;
+const { div, span, input, label } = HTML;
+
+/**
+ * Field label — creates a label div for use in form rows
+ * Text is right-aligned and takes remaining flex space
+ */
+export function fieldLabel(text: string): HTMLDivElement {
+	return div({ style: "text-align: right; flex-grow: 1; color: var(--primary-text);" }, text);
+}
 
 /**
  * Label row — replaces 24+ inline copies
@@ -171,4 +179,83 @@ export function okayRow(okayButton: HTMLButtonElement, ...extra: HTMLElement[]):
 		...extra,
 		okayButton,
 	);
+}
+
+/**
+ * Checkbox row — for center-aligned checkbox with label
+ * Creates a label containing checkbox and text, centered horizontally
+ */
+export function checkboxRow(text: string, checkbox: HTMLInputElement, opts?: { marginTop?: string; marginBottom?: string; height?: string }): HTMLLabelElement {
+	const height = opts?.height ?? "2em";
+	const marginTop = opts?.marginTop ?? "";
+	const marginBottom = opts?.marginBottom ?? "";
+	const style = `display: flex; flex-direction: row; align-items: center; height: ${height}; justify-content: center;${marginTop ? ` margin-top: ${marginTop};` : ""}${marginBottom ? ` margin-bottom: ${marginBottom};` : ""}`;
+
+	return label({ style }, text, checkbox);
+}
+
+/**
+ * Checkbox input — styled checkbox for use in forms
+ */
+export function checkboxInput(opts?: { width?: string }): HTMLInputElement {
+	const width = opts?.width ?? "2em";
+	return input({
+		type: "checkbox",
+		style: `width: ${width}; margin-left: 1em;`,
+	});
+}
+
+/**
+ * Form row — label + input row with left-aligned label and flexible input
+ * Creates a row with label on left, input filling remaining space
+ */
+export function formRow(labelText: string, inputElement: HTMLElement, opts?: { marginBottom?: string }): HTMLDivElement {
+	const marginBottom = opts?.marginBottom ?? "0.5em";
+	return div(
+		{ style: `width: 100%; display: flex; flex-direction: row; margin-bottom: ${marginBottom};` },
+		div({ style: "flex-shrink: 0; text-align: right; color: var(--primary-text); align-self: center;" }, labelText),
+		inputElement,
+	);
+}
+
+/**
+ * Select container — wraps select element with full-width styling
+ */
+export function selectContainer(select: HTMLSelectElement, opts?: { width?: string }): HTMLDivElement {
+	const width = opts?.width ?? "50%";
+	return div({ class: "selectContainer", style: `width: ${width}; margin-left: 1em;` }, select);
+}
+
+/**
+ * Flex row center — center-aligned flex row container
+ */
+export function flexRowCenter(opts?: { marginBottom?: string }, ...children: (HTMLElement | string)[]): HTMLDivElement {
+	const marginBottom = opts?.marginBottom ?? "";
+	const style = `display: flex; flex-direction: row; align-items: center; justify-content: center;${marginBottom ? ` margin-bottom: ${marginBottom};` : ""}`;
+	return div({ style }, ...children);
+}
+
+/**
+ * Flex column center — center-aligned flex column container
+ */
+export function flexColumnCenter(opts?: { marginBottom?: string }, ...children: (HTMLElement | string)[]): HTMLDivElement {
+	const marginBottom = opts?.marginBottom ?? "";
+	const style = `display: flex; flex-direction: column; align-items: center; justify-content: center;${marginBottom ? ` margin-bottom: ${marginBottom};` : ""}`;
+	return div({ style }, ...children);
+}
+
+/**
+ * Select row — centered row with label and select dropdown
+ * For select inputs that need a label on the left
+ */
+export function selectRow(
+	labelText: string,
+	selectElement: HTMLSelectElement,
+	opts?: { marginTop?: string; marginBottom?: string; width?: string },
+): HTMLDivElement {
+	const marginTop = opts?.marginTop ?? "";
+	const marginBottom = opts?.marginBottom ?? "";
+	const width = opts?.width ?? "50%";
+	const style = `display: flex; flex-direction: row; align-items: center; justify-content: center; height: 2em;${marginTop ? ` margin-top: ${marginTop};` : ""}${marginBottom ? ` margin-bottom: ${marginBottom};` : ""}`;
+	return div({ style }, labelText, div({ class: "selectContainer", style: `width: ${width}; margin-left: 1em;` }, selectElement));
 }

@@ -15,9 +15,10 @@ import { Piano } from "../components/piano";
 import { EditorConfig } from "../config/editor-config";
 import { KeyboardLayout } from "../config/keyboard-layout";
 import { SongDocument } from "../song-document";
+import { checkboxRow, selectRow } from "../ui/components";
 import { BasePrompt } from "./base-prompt";
 
-const { label, div, p, a, h2, input, select, option } = HTML;
+const { div, p, a, h2, input, select, option } = HTML;
 
 export class RecordingSetupPrompt extends BasePrompt {
 	private readonly _keyboardMode: HTMLSelectElement = select(
@@ -71,50 +72,24 @@ export class RecordingSetupPrompt extends BasePrompt {
 		div(
 			{ style: "display: grid; overflow-y: auto; overflow-x: hidden; flex-shrink: 1;" },
 			p("JukeBox can record notes as you perform them. You can start recording by pressing Ctrl+Space (or " + EditorConfig.ctrlSymbol + "P)."),
-			label(
-				{ style: "display: flex; flex-direction: row; align-items: center; height: 2em; justify-content: center;" },
-				"Add ● record button next to ▶ play button:",
-				this._showRecordButton,
-			),
-			label(
-				{ style: "display: flex; flex-direction: row; align-items: center; height: 2em; justify-content: center;" },
-				"Snap recorded notes to the song's rhythm:",
-				this._snapRecordedNotesToRhythm,
-			),
-			label(
-				{ style: "display: flex; flex-direction: row; align-items: center; height: 2em; justify-content: center;" },
-				"Ignore notes not in the song's scale:",
-				this._ignorePerformedNotesNotInScale,
-			),
+			checkboxRow("Add ● record button next to ▶ play button:", this._showRecordButton),
+			checkboxRow("Snap recorded notes to the song's rhythm:", this._snapRecordedNotesToRhythm),
+			checkboxRow("Ignore notes not in the song's scale:", this._ignorePerformedNotesNotInScale),
 			p("While recording, you can perform notes on your keyboard!"),
-			label(
-				{
-					style: "display: flex; flex-direction: row; align-items: center; margin-top: 0.5em; margin-bottom: 0.5em; height: 2em; justify-content: center;",
-				},
-				"Keyboard layout:",
-				div({ class: "selectContainer", style: "width: 50%; margin-left: 1em;" }, this._keyboardLayout),
-			),
+			selectRow("Keyboard layout:", this._keyboardLayout, { marginTop: "0.5em", marginBottom: "0.5em" }),
 			this._keyboardLayoutPreview,
 			p(
 				"When not recording, you can use the computer keyboard either for shortcuts (like C and V for copy and paste) or for performing notes, depending on this mode:",
 			),
-			label(
+			div(
 				{
 					style: "display: flex; margin-top: 0.5em; margin-bottom: 0.5em; flex-direction: row; align-items: center; height: 2em; justify-content: center;",
 				},
 				div({ class: "selectContainer", style: "width: 50%;" }, this._keyboardMode),
 			),
 			p("Performing music takes practice! Try slowing the tempo and using this metronome to help you keep a rhythm."),
-			label(
-				{ style: "display: flex; flex-direction: row; align-items: center; height: 2em; justify-content: center;" },
-				"Hear metronome while recording:",
-				this._metronomeWhileRecording,
-			),
-			label(
-				{ style: "display: flex; flex-direction: row; align-items: center; height: 2em; justify-content: center;" },
-				"Count-in 1 bar of metronome before recording:",
-				this._metronomeCountIn,
-			),
+			checkboxRow("Hear metronome while recording:", this._metronomeWhileRecording),
+			checkboxRow("Count-in 1 bar of metronome before recording:", this._metronomeCountIn),
 			p(
 				"If you have a ",
 				a({ href: "https://caniuse.com/midi", target: "_blank" }, "compatible browser"),
@@ -124,24 +99,12 @@ export class RecordingSetupPrompt extends BasePrompt {
 				a({ href: "https://vochlea.com/", target: "_blank" }, "Dubler"),
 				" to hum notes into a microphone while wearing headphones!)",
 			),
-			label(
-				{
-					style: "display: flex; flex-direction: row; align-items: center; margin-top: 0.5em; height: 2em; justify-content: center;",
-				},
-				"Enable MIDI performance:",
-				this._enableMidi,
-			),
+			checkboxRow("Enable MIDI performance:", this._enableMidi, { marginTop: "0.5em" }),
 			p("The range of pitches available to play via your computer keyboard is affected by the octave scrollbar of the currently selected channel."),
 			p(
 				"If you set the channel offset below to 'before' or 'after', notes below the middle octave in the view will be 'bass' notes, and placed in the channel before or after the viewed one. Using this, you can play bass and lead at the same time!",
 			),
-			label(
-				{
-					style: "display: flex; flex-direction: row; align-items: center; margin-top: 0.5em; margin-bottom: 0.5em; height: 2em; justify-content: center;",
-				},
-				"Bass Offset:",
-				div({ class: "selectContainer", style: "width: 50%; margin-left: 1em;" }, this._bassOffset),
-			),
+			selectRow("Bass Offset:", this._bassOffset, { marginTop: "0.5em", marginBottom: "0.5em" }),
 			p(
 				"Once you enable the setting, the keyboard layout above will darken to denote the new bass notes. The notes will be recorded with independent timing and this works with MIDI devices, too. Be aware that the octave offset of both used channels will impact how high/low the bass/lead are relative to one another.",
 			),

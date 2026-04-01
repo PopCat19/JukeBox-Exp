@@ -12,6 +12,7 @@ import { HTML } from "imperative-html/dist/esm/elements-strict";
 import { Config } from "../../synth/synth-config";
 import { ChangeCustomScale } from "../changes";
 import { SongDocument } from "../song-document";
+import { labelRow } from "../ui/components";
 import { BasePrompt } from "./base-prompt";
 
 const { div, h2, input, p } = HTML;
@@ -34,7 +35,7 @@ export class CustomScalePrompt extends BasePrompt {
 				checked: this._flags[i],
 				value: i,
 			});
-			this._scaleRows[i] = div({ style: "text-align: right; height: 2em;" }, "Note " + i + ":", this._scaleFlags[i]);
+			this._scaleRows[i] = labelRow("Note " + i + ":", this._scaleFlags[i]);
 			scaleHolder.appendChild(this._scaleRows[i]);
 		}
 

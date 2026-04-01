@@ -13,41 +13,19 @@ import { Config } from "../../synth/synth-config";
 import { ChangeChannelCount, ChangeInstrumentsFlags, ChangePatternsPerChannel } from "../changes";
 import { ChangeGroup } from "../core/change";
 import { SongDocument } from "../song-document";
-import { labelRow } from "../ui/components";
+import { checkboxInput, labelRow, stepperInput } from "../ui/components";
 import { BasePrompt } from "./base-prompt";
 import { validate, validateKey, validateNumber } from "./input-helpers";
 
-const { div, br, h2, input } = HTML;
+const { div, br, h2 } = HTML;
 
 export class ChannelSettingsPrompt extends BasePrompt {
-	private readonly _patternsStepper: HTMLInputElement = input({
-		style: "width: 3em; margin-left: 1em;",
-		type: "number",
-		step: "1",
-	});
-	private readonly _pitchChannelStepper: HTMLInputElement = input({
-		style: "width: 3em; margin-left: 1em;",
-		type: "number",
-		step: "1",
-	});
-	private readonly _drumChannelStepper: HTMLInputElement = input({
-		style: "width: 3em; margin-left: 1em;",
-		type: "number",
-		step: "1",
-	});
-	private readonly _modChannelStepper: HTMLInputElement = input({
-		style: "width: 3em; margin-left: 1em;",
-		type: "number",
-		step: "1",
-	});
-	private readonly _layeredInstrumentsBox: HTMLInputElement = input({
-		style: "width: 3em; margin-left: 1em;",
-		type: "checkbox",
-	});
-	private readonly _patternInstrumentsBox: HTMLInputElement = input({
-		style: "width: 3em; margin-left: 1em;",
-		type: "checkbox",
-	});
+	private readonly _patternsStepper: HTMLInputElement = stepperInput("1", Config.barCountMax + "", "1");
+	private readonly _pitchChannelStepper: HTMLInputElement = stepperInput(Config.pitchChannelCountMin + "", Config.pitchChannelCountMax + "", "1");
+	private readonly _drumChannelStepper: HTMLInputElement = stepperInput(Config.noiseChannelCountMin + "", Config.noiseChannelCountMax + "", "1");
+	private readonly _modChannelStepper: HTMLInputElement = stepperInput(Config.modChannelCountMin + "", Config.modChannelCountMax + "", "1");
+	private readonly _layeredInstrumentsBox: HTMLInputElement = checkboxInput({ width: "3em" });
+	private readonly _patternInstrumentsBox: HTMLInputElement = checkboxInput({ width: "3em" });
 
 	public readonly container: HTMLDivElement = div(
 		{ class: "prompt noSelection", style: "width: 250px; text-align: right;" },

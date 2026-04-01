@@ -16,7 +16,7 @@ import { ChangeEnsurePatternExists, ChangeInsertBars, ChangeNoteAdded, ChangePat
 import { prettyNumber } from "../config/editor-config";
 import { ChangeGroup } from "../core/change";
 import { SongDocument } from "../song-document";
-import { stepperInput } from "../ui/components";
+import { fieldLabel, labelRow, stepperInput } from "../ui/components";
 import { BasePrompt } from "./base-prompt";
 
 const { button, div, h2, input } = HTML;
@@ -283,27 +283,9 @@ export class EuclidgenRhythmPrompt extends BasePrompt {
 				{ style: "display: flex; height: 100%;" },
 				div(
 					{ style: "flex-grow: 1; " },
-					div(
-						{
-							style: "display: flex; flex-direction: row; align-items: center; height: 3em; justify-content: flex-end;",
-						},
-						div({ style: `text-align: right; flex-grow: 1; color: ${ColorConfig.primaryText};` }, "Steps"),
-						this._stepsStepper,
-					),
-					div(
-						{
-							style: "display: flex; flex-direction: row; align-items: center; height: 3em; justify-content: flex-end; margin-top: 0.5em;",
-						},
-						div({ style: `text-align: right; flex-grow: 1; color: ${ColorConfig.primaryText};` }, "Pulses"),
-						this._pulsesStepper,
-					),
-					div(
-						{
-							style: "display: flex; flex-direction: row; align-items: center; height: 3em; justify-content: flex-end; margin-top: 0.5em;",
-						},
-						div({ style: `text-align: right; flex-grow: 1; color: ${ColorConfig.primaryText};` }, "Rotation"),
-						this._rotationStepper,
-					),
+					labelRow({ height: "3em" }, fieldLabel("Steps"), this._stepsStepper),
+					labelRow({ height: "3em", marginTop: "0.5em" }, fieldLabel("Pulses"), this._pulsesStepper),
+					labelRow({ height: "3em", marginTop: "0.5em" }, fieldLabel("Rotation"), this._rotationStepper),
 				),
 				div(
 					{ style: "flex-grow: 1; margin-left: 1em;" },
@@ -314,20 +296,8 @@ export class EuclidgenRhythmPrompt extends BasePrompt {
 						div({ style: `text-align: right; flex-grow: 1; color: ${ColorConfig.primaryText};` }, "Size"),
 						div({ style: "display: flex; flex-direction: column;" }, this._stepSizeNumeratorStepper, this._stepSizeDenominatorStepper),
 					),
-					div(
-						{
-							style: "display: flex; flex-direction: row; align-items: center; height: 3em; justify-content: flex-end; margin-top: 0.5em;",
-						},
-						div({ style: `text-align: right; flex-grow: 1; color: ${ColorConfig.primaryText};` }, "Channel"),
-						this._channelStepper,
-					),
-					div(
-						{
-							style: "display: flex; flex-direction: row; align-items: center; height: 3em; justify-content: flex-end; margin-top: 0.5em;",
-						},
-						div({ style: `text-align: right; flex-grow: 1; color: ${ColorConfig.primaryText};` }, "Pitch"),
-						this._pitchStepper,
-					),
+					labelRow({ height: "3em", marginTop: "0.5em" }, fieldLabel("Channel"), this._channelStepper),
+					labelRow({ height: "3em", marginTop: "0.5em" }, fieldLabel("Pitch"), this._pitchStepper),
 				),
 			),
 		),
