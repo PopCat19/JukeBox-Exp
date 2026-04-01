@@ -824,7 +824,7 @@ html {
 	font-size: 14px;
 }
 .beepboxEditor .prompt.compactSearchPrompt .tagBrowserButton:hover {
-	border-color: ${ColorConfig.secondaryText};
+	border-color: var(--indicator-primary, #4444ff);
 	background: var(--ui-widget-focus);
 }
 
@@ -1601,7 +1601,7 @@ html {
 	font-family: inherit;
 	background: transparent;
 	text-align: center;
-	border: 1px solid ${ColorConfig.inputBoxOutline};
+	border: 2px solid ${ColorConfig.inputBoxOutline};
 	color: ${ColorConfig.primaryText};
 }
 
