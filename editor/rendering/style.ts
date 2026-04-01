@@ -1606,6 +1606,10 @@ html {
 	color: ${ColorConfig.primaryText};
 }
 
+.beepboxEditor input[type=number]:hover {
+	border-color: color-mix(in srgb, var(--indicator-primary, #4444ff), transparent 50%);
+}
+
 .beepboxEditor input[type=number] {
 	-moz-appearance: textfield;
 }
