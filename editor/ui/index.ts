@@ -36,3 +36,5 @@ export type { InfoBannerOptions, InputRowOptions, InstructionsOptions, PaneConta
 export { fixedPane, flexPane, infoBanner, inputRow, instructions, pane, paneContainer } from "./prompts";
 // Sliders
 export { createSlider, Slider } from "./sliders";
+// Style constants
+export { BorderRadius, Gap, Margin, Padding } from "./style-constants";

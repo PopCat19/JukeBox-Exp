@@ -18,7 +18,7 @@ export interface PaneContainerOptions {
 export function paneContainer(options?: PaneContainerOptions, ...panes: (HTMLElement | string)[]): HTMLDivElement {
 	const height = options?.height ?? "400px";
 	const marginTop = options?.marginTop ?? "8px";
-	const borderRadius = options?.borderRadius ?? "6px";
+	const borderRadius = options?.borderRadius ?? "8px";
 	const borderWidth = options?.borderWidth ?? "2px";
 
 	const style = `display: flex; flex-direction: row; height: ${height}; margin-top: ${marginTop}; border: ${borderWidth} solid var(--ui-widget-background); border-radius: ${borderRadius}; overflow: hidden;`;

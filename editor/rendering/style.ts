@@ -749,7 +749,7 @@ html {
 	background: var(--prompt-bg-color, ${ColorConfig.editorBackground});
 	backdrop-filter: var(--prompt-backdrop-filter, none);
 	-webkit-backdrop-filter: var(--prompt-backdrop-filter, none);
-	border-radius: 15px;
+	border-radius: 16px;
 	border: 2px solid ${ColorConfig.uiWidgetBackground};
 	color: ${ColorConfig.primaryText};
 	padding: 20px;
@@ -819,7 +819,7 @@ html {
 	min-height: 34px;
 	background: var(--ui-widget-background);
 	border: 2px solid var(--ui-widget-background);
-	border-radius: 6px;
+	border-radius: 8px;
 	color: var(--primary-text);
 	font-size: 14px;
 }
@@ -1602,6 +1602,7 @@ html {
 	background: transparent;
 	text-align: center;
 	border: 2px solid ${ColorConfig.inputBoxOutline};
+	border-radius: 8px;
 	color: ${ColorConfig.primaryText};
 }
 
@@ -1850,7 +1851,7 @@ li.select2-results__option[role=group] > strong:hover {
 	min-width: 0;
 	padding: 6px 10px;
 	border: 2px solid var(--ui-widget-background);
-	border-radius: 6px;
+	border-radius: 8px;
 	background: var(--editor-background);
 	color: var(--primary-text);
 	font-size: 14px;
@@ -1866,7 +1867,7 @@ li.select2-results__option[role=group] > strong:hover {
 	display: inline-block;
 	padding: 1px 6px;
 	margin: 0 2px;
-	border-radius: 3px;
+	border-radius: 4px;
 	background: var(--ui-widget-background);
 	color: var(--primary-text);
 	font-size: 11px;

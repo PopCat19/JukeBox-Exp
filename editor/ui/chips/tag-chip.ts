@@ -13,7 +13,7 @@ export function tagChip(text: string, active?: boolean): HTMLSpanElement {
 	const color = active ? "var(--primary-text)" : "var(--secondary-text)";
 
 	return createSpan(
-		`display: inline-block; padding: 1px 6px; margin: 0 2px; border-radius: 3px; background: ${background}; color: ${color}; font-size: 11px; cursor: pointer;`,
+		`display: inline-block; padding: 1px 6px; margin: 0 2px; border-radius: 4px; background: ${background}; color: ${color}; font-size: 11px; cursor: pointer;`,
 		undefined,
 		text,
 	);
