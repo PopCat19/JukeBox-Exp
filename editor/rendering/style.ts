@@ -1062,7 +1062,8 @@ html {
 	font-weight: inherit;
 	cursor: pointer;
 }
-.beepboxEditor button:focus {
+.beepboxEditor button:focus,
+.beepboxEditor button:hover {
 	background: ${ColorConfig.uiWidgetFocus};
 	outline: none;
 }
