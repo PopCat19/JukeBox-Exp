@@ -14,7 +14,7 @@ import { Channel, Instrument, makeNotePin, Note, NotePin, Pattern, Song } from "
 import { Config, Dictionary } from "../../synth/synth-config";
 import { Change, ChangeGroup, ChangeSequence, UndoableChange } from "../core/change";
 import { SongDocument } from "../song-document";
-import { Slider } from "../ui/html-wrapper";
+import { Slider } from "../ui";
 import { discardInvalidPatternInstruments, patternsContainSameInstruments, projectNoteIntoBar, removeRedundantPins } from "./util";
 
 export class ChangeMoveAndOverflowNotes extends ChangeGroup {

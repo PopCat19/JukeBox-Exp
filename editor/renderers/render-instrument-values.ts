@@ -13,7 +13,7 @@ import { Config, calculateRingModHertz } from "../../synth/synth-config";
 import { Piano } from "../components/piano";
 import { prettyNumber } from "../config/editor-config";
 import { SongDocument } from "../song-document";
-import { Slider } from "../ui/html-wrapper";
+import { Slider } from "../ui";
 
 function setSelectedValue(menu: HTMLSelectElement, value: number): void {
 	const stringValue = value.toString();

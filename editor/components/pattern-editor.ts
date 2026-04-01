@@ -72,7 +72,7 @@ import { prettyNumber } from "../config/editor-config";
 import { ChangeSequence, UndoableChange } from "../core/change";
 import { SongDocument } from "../song-document";
 import { SongEditor } from "../song-editor";
-import { Slider } from "../ui/html-wrapper";
+import { Slider } from "../ui";
 import { EnvelopeEditor } from "./envelope-editor";
 
 function makeEmptyReplacementElement<T extends Node>(node: T): T {

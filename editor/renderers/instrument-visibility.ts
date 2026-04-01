@@ -39,7 +39,7 @@ import { prettyNumber } from "../config/editor-config";
 import { Preferences } from "../core/preferences";
 import { CustomAlgorythmCanvas } from "../rendering/custom-algorythm-canvas";
 import { SongDocument } from "../song-document";
-import { Slider } from "../ui/html-wrapper";
+import { Slider } from "../ui";
 
 function setSelectedValue(menu: HTMLSelectElement, value: number, isSelect2: boolean = false): void {
 	const stringValue = value.toString();

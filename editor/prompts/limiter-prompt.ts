@@ -14,7 +14,7 @@ import { ChangeLimiterSettings } from "../changes";
 import { prettyNumber } from "../config/editor-config";
 import { SongDocument } from "../song-document";
 import { SongEditor } from "../song-editor";
-import { labelRow } from "../ui/components";
+import { labelRow } from "../ui";
 import { BasePrompt } from "./base-prompt";
 import { updatePlayButton } from "./input-helpers";
 

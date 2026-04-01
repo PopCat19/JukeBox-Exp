@@ -8,7 +8,7 @@
 
 import { Config } from "../../synth/synth-config";
 import { EnvelopeEditor } from "../components/envelope-editor";
-import { Slider } from "../ui/html-wrapper";
+import { Slider } from "../ui";
 
 export interface ModSliderProvider {
 	panSlider: Slider;

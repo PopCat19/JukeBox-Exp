@@ -30,7 +30,7 @@ import {
 import { prettyNumber } from "../config/editor-config";
 import { Change } from "../core/change";
 import { SongDocument } from "../song-document";
-import { Slider } from "../ui/html-wrapper";
+import { Slider } from "../ui";
 
 export class EnvelopeEditor {
 	public readonly container: HTMLElement = HTML.div({ class: "envelopeEditor" });

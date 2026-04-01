@@ -15,7 +15,7 @@ import { Piano } from "../components/piano";
 import { EditorConfig } from "../config/editor-config";
 import { KeyboardLayout } from "../config/keyboard-layout";
 import { SongDocument } from "../song-document";
-import { checkboxRow, selectRow } from "../ui/components";
+import { checkboxRow, selectRow } from "../ui";
 import { BasePrompt } from "./base-prompt";
 
 const { div, p, a, h2, input, select, option } = HTML;

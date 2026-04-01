@@ -14,7 +14,7 @@ import { Config } from "../../synth/synth-config";
 import { ChangeChannelName, ChangeChannelOrder, ChangeRemoveChannel } from "../changes";
 import { SongDocument } from "../song-document";
 import { SongEditor } from "../song-editor";
-import { InputBox } from "../ui/html-wrapper";
+import { InputBox } from "../ui";
 import { ChannelRow } from "./channel-row";
 
 // namespace beepbox {

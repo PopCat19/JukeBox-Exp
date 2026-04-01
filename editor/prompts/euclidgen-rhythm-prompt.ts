@@ -16,7 +16,7 @@ import { ChangeEnsurePatternExists, ChangeInsertBars, ChangeNoteAdded, ChangePat
 import { prettyNumber } from "../config/editor-config";
 import { ChangeGroup } from "../core/change";
 import { SongDocument } from "../song-document";
-import { fieldLabel, labelRow, stepperInput } from "../ui/components";
+import { fieldLabel, labelRow, stepperInput } from "../ui";
 import { BasePrompt } from "./base-prompt";
 
 const { button, div, h2, input } = HTML;

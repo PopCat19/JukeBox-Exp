@@ -26,7 +26,7 @@ import { ExportPrompt } from "./prompts/export-prompt";
 import { InstrumentExportPrompt } from "./prompts/instrument-export-prompt";
 import { InstrumentImportPrompt } from "./prompts/instrument-import-prompt";
 import { OctaveCountPrompt } from "./prompts/octave-count-prompt";
-import "./ui/layout"; // Imported here for the sake of ensuring this code is transpiled early.
+import "./ui/layout/layout"; // Imported here for the sake of ensuring this code is transpiled early.
 import { HTML, SVG } from "imperative-html/dist/esm/elements-strict";
 import { oscilloscopeCanvas } from "../shared/oscilloscope";
 import { Channel, getCapabilities, getRegisteredPlugins, Instrument } from "../synth";
@@ -143,8 +143,7 @@ import { PostSyncRefs, renderPostBranchSync } from "./renderers/render-post-sync
 import { PresetSetupRefs, renderPresetSetup } from "./renderers/render-preset-setup";
 import { renderSongSettings, SongSettingsRefs } from "./renderers/render-song-settings";
 import { SongDocument } from "./song-document";
-import { clearButton, tagSuggestionItem } from "./ui/components";
-import { InputBox, Slider } from "./ui/html-wrapper";
+import { clearButton, InputBox, Slider, tagSuggestionItem } from "./ui";
 
 const { button, div, input, select, span, optgroup, option, canvas } = HTML;
 

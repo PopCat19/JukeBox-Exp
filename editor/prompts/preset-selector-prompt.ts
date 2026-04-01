@@ -13,7 +13,7 @@ import { HTML } from "imperative-html/dist/esm/elements-strict";
 import { ChangePreset } from "../changes";
 import { EditorConfig, Preset, PresetCategory } from "../config/editor-config";
 import { SongDocument } from "../song-document";
-import { searchInput, sectionLabel, tagChip } from "../ui/components";
+import { searchInput, sectionLabel, tagChip } from "../ui";
 import { BasePrompt } from "./base-prompt";
 
 const { button, div, h2, span } = HTML;

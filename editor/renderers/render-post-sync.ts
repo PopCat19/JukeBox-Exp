@@ -14,7 +14,7 @@ import { Config } from "../../synth/synth-config";
 import { FilterEditor } from "../components/filter-editor";
 import { Preferences } from "../core/preferences";
 import { SongDocument } from "../song-document";
-import { Slider } from "../ui/html-wrapper";
+import { Slider } from "../ui";
 
 export interface PostSyncRefs {
 	instrumentSettingsGroup: HTMLElement;

@@ -10,7 +10,7 @@
 
 import { HTML, SVG } from "imperative-html/dist/esm/elements-strict";
 import { SongDocument } from "../song-document";
-import { Layout } from "../ui/layout";
+import { Layout } from "../ui";
 import { BasePrompt } from "./base-prompt";
 
 const { label, div, form, h2, input } = HTML;

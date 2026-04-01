@@ -9,7 +9,7 @@
 
 import { HTML } from "imperative-html/dist/esm/elements-strict";
 import { SongDocument } from "../song-document";
-import { searchInput } from "../ui/components";
+import { searchInput } from "../ui";
 import { BasePrompt } from "./base-prompt";
 
 const { div, span, h2 } = HTML;

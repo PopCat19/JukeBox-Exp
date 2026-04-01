@@ -11,7 +11,7 @@
 import { HTML } from "imperative-html/dist/esm/elements-strict";
 import { EditorConfig, fullTagList } from "../config/editor-config";
 import { SongDocument } from "../song-document";
-import { scrollableContainer, tagListItem } from "../ui/components";
+import { scrollableContainer, tagListItem } from "../ui";
 import { BasePrompt } from "./base-prompt";
 
 const { div, h2 } = HTML;

@@ -8,7 +8,7 @@
 
 import { HTML } from "imperative-html/dist/esm/elements-strict";
 import { SongDocument } from "../song-document";
-import { labelRow } from "../ui/components";
+import { labelRow } from "../ui";
 import { BasePrompt } from "./base-prompt";
 
 const { div, h2, select, option } = HTML;

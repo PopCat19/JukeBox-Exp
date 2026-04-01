@@ -12,7 +12,7 @@ import { HTML } from "imperative-html/dist/esm/elements-strict";
 import { Channel, Instrument } from "../../synth";
 import { ChangeAppendInstrument, ChangePasteInstrument, ChangeViewInstrument } from "../changes";
 import { SongDocument } from "../song-document";
-import { labelRow } from "../ui/components";
+import { labelRow } from "../ui";
 import { BasePrompt } from "./base-prompt";
 
 const { div, h2, input, select, option, code } = HTML;

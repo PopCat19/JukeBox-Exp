@@ -12,7 +12,7 @@ import { Instrument } from "../../synth";
 import { Config } from "../../synth/synth-config";
 import { FilterEditor } from "../components/filter-editor";
 import { SongDocument } from "../song-document";
-import { InputBox, Slider } from "../ui/html-wrapper";
+import { InputBox, Slider } from "../ui";
 
 function setSelectedValue(menu: HTMLSelectElement, value: number): void {
 	const stringValue = value.toString();

@@ -21,7 +21,7 @@ import { Selection } from "./core/selection";
 import { SongPerformance } from "./core/song-performance";
 import { errorAlert, generateUid, SongRecovery } from "./io/song-recovery";
 import { createCustomSampleHandler } from "./song-custom-samples";
-import { Layout } from "./ui/layout";
+import { Layout } from "./ui";
 
 interface HistoryState {
 	canUndo: boolean;
