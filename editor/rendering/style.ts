@@ -812,7 +812,7 @@ html {
 	margin-bottom: 0;
 }
 .beepboxEditor .prompt.compactSearchPrompt input:focus {
-	border-color: ${ColorConfig.secondaryText};
+	border-color: var(--indicator-primary, #4444ff);
 }
 .beepboxEditor .prompt.compactSearchPrompt .tagBrowserButton {
 	height: auto;
@@ -1607,7 +1607,7 @@ html {
 
 .beepboxEditor input[type=text]:focus, .beepboxEditor input[type=number]:focus {
 	outline: none;
-	border-color: ${ColorConfig.secondaryText};
+	border-color: var(--indicator-primary, #4444ff);
 }
 
 .beepboxEditor input[type=text]::selection, .beepboxEditor input[type=number]::selection {
@@ -1859,7 +1859,7 @@ li.select2-results__option[role=group] > strong:hover {
 }
 
 .beepboxEditor .searchInput:focus {
-	border-color: ${ColorConfig.secondaryText};
+	border-color: var(--indicator-primary, #4444ff);
 }
 
 .beepboxEditor .tagChip {
