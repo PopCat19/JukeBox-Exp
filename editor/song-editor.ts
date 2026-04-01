@@ -58,10 +58,6 @@ import {
 	ChangeLowerLimit,
 	ChangeNoteFilterSimpleCut,
 	ChangeNoteFilterSimplePeak,
-	ChangeOperatorAmplitude,
-	ChangeOperatorFrequency,
-	ChangeOperatorPulseWidth,
-	ChangeOperatorWaveform,
 	ChangePan,
 	ChangePanDelay,
 	ChangePhaserFeedback,
@@ -106,6 +102,7 @@ import { TrackEditor } from "./components/track-editor";
 import { KeyboardLayout } from "./config/keyboard-layout";
 import { ChangeDispatcher } from "./core/change-dispatcher";
 import { DrumsetSetup, DrumsetSetupHost } from "./core/drumset-setup";
+import { FmOperatorSetup, FmOperatorSetupHost } from "./core/fm-operator-setup";
 import { KeyboardHandler } from "./core/keyboard-handler";
 import { MenuHandler, MenuHandlerHost } from "./core/menu-handler";
 import { ModSliderProvider, ModSliderRegistry } from "./core/mod-slider-registry";
@@ -259,7 +256,7 @@ function buildPresetOptions(isNoise: boolean, idSet: string): HTMLSelectElement 
 import { CustomAlgorythmCanvas } from "./rendering/custom-algorythm-canvas";
 import { CustomChipCanvas } from "./rendering/custom-chip-canvas";
 
-export class SongEditor implements ModSliderProvider, MenuHandlerHost, DrumsetSetupHost {
+export class SongEditor implements ModSliderProvider, MenuHandlerHost, DrumsetSetupHost, FmOperatorSetupHost {
 	public get prompt(): Prompt | null {
 		return this._focusedPrompt;
 	}
@@ -2525,6 +2522,33 @@ export class SongEditor implements ModSliderProvider, MenuHandlerHost, DrumsetSe
 	public get drumsetSpectrumEditors(): SpectrumEditor[] {
 		return this._drumsetSpectrumEditors;
 	}
+	public get phaseModGroup(): HTMLElement {
+		return this._phaseModGroup;
+	}
+	public get operatorRows(): HTMLDivElement[] {
+		return this._operatorRows;
+	}
+	public get operatorFrequencySelects(): HTMLSelectElement[] {
+		return this._operatorFrequencySelects;
+	}
+	public get operatorDropdowns(): HTMLButtonElement[] {
+		return this._operatorDropdowns;
+	}
+	public get operatorWaveformHints(): HTMLSpanElement[] {
+		return this._operatorWaveformHints;
+	}
+	public get operatorWaveformSelects(): HTMLSelectElement[] {
+		return this._operatorWaveformSelects;
+	}
+	public get operatorWaveformPulsewidthSliders(): Slider[] {
+		return this._operatorWaveformPulsewidthSliders;
+	}
+	public get operatorDropdownRows(): HTMLElement[] {
+		return this._operatorDropdownRows;
+	}
+	public get operatorDropdownGroups(): HTMLDivElement[] {
+		return this._operatorDropdownGroups;
+	}
 	private get _layoutRefs(): LayoutRefs {
 		return {
 			muteEditor: this._muteEditor,
@@ -2860,104 +2884,7 @@ export class SongEditor implements ModSliderProvider, MenuHandlerHost, DrumsetSe
 			this._modSliderValues[i] = [];
 		}
 
-		this._phaseModGroup.appendChild(
-			div(
-				{ class: "selectRow", style: `color: ${ColorConfig.secondaryText}; height: 1em; margin-top: 0.5em;` },
-				div({ style: "margin-right: .1em; visibility: hidden;" }, 1 + "."),
-				div(
-					{
-						style: "width: 3em; margin-right: .3em;",
-						class: "tip",
-						onclick: () => this._openPrompt("operatorFrequency"),
-					},
-					"Freq:",
-				),
-				div({ class: "tip", onclick: () => this._openPrompt("operatorVolume") }, "Volume:"),
-			),
-		);
-		for (let i: number = 0; i < Config.operatorCount + 2; i++) {
-			const operatorIndex: number = i;
-			const operatorNumber: HTMLDivElement = div(
-				{
-					style: "margin-right: 0px; color: " + ColorConfig.secondaryText + ";",
-				},
-				i + 1 + "",
-			);
-			const frequencySelect: HTMLSelectElement = buildOptions(
-				select({ style: "width: 100%;", title: "Frequency" }),
-				Config.operatorFrequencies.map((freq) => freq.name),
-			);
-			const amplitudeSlider: Slider = new Slider(
-				input({ type: "range", min: "0", max: Config.operatorAmplitudeMax, value: "0", step: "1", title: "Volume" }),
-				this.doc,
-				(oldValue: number, newValue: number) => new ChangeOperatorAmplitude(this.doc, operatorIndex, oldValue, newValue),
-				false,
-			);
-			const waveformSelect: HTMLSelectElement = buildOptions(
-				select({ style: "width: 100%;", title: "Waveform" }),
-				Config.operatorWaves.map((wave) => wave.name),
-			);
-			const waveformDropdown: HTMLButtonElement = dropdownButton({
-				style: "margin-right: 2px; width: 8px; max-width: 10px;",
-				onclick: () => this._toggleDropdownMenu(DropdownID.FM, i),
-			});
-			const waveformDropdownHint: HTMLSpanElement = span(
-				{
-					class: "tip",
-					style: "margin-left: 10px;",
-					onclick: () => this._openPrompt("operatorWaveform"),
-				},
-				"Wave:",
-			);
-			const waveformPulsewidthSlider: Slider = new Slider(
-				input({
-					style: "margin-left: 10px; width: 85%;",
-					type: "range",
-					min: "0",
-					max: Config.pwmOperatorWaves.length - 1,
-					value: "0",
-					step: "1",
-					title: "Pulse Width",
-				}),
-				this.doc,
-				(oldValue: number, newValue: number) => new ChangeOperatorPulseWidth(this.doc, operatorIndex, oldValue, newValue),
-				true,
-			);
-			const waveformDropdownRow: HTMLElement = div(
-				{ class: "selectRow" },
-				waveformDropdownHint,
-				waveformPulsewidthSlider.container,
-				div({ class: "selectContainer", style: "width: 6em; margin-left: .3em;" }, waveformSelect),
-			);
-			const waveformDropdownGroup: HTMLDivElement = div({ class: "operatorRow" }, waveformDropdownRow);
-			const row: HTMLDivElement = div(
-				{ class: "selectRow" },
-				operatorNumber,
-				waveformDropdown,
-				div({ class: "selectContainer", style: "width: 3em; margin-right: .3em;" }, frequencySelect),
-				amplitudeSlider.container,
-			);
-			this._phaseModGroup.appendChild(row);
-			this._operatorRows[i] = row;
-			this._operatorAmplitudeSliders[i] = amplitudeSlider;
-			this._operatorFrequencySelects[i] = frequencySelect;
-			this._operatorDropdowns[i] = waveformDropdown;
-			this._operatorWaveformHints[i] = waveformDropdownHint;
-			this._operatorWaveformSelects[i] = waveformSelect;
-			this._operatorWaveformPulsewidthSliders[i] = waveformPulsewidthSlider;
-			this._operatorDropdownRows[i] = waveformDropdownRow;
-			this._phaseModGroup.appendChild(waveformDropdownGroup);
-			this._operatorDropdownGroups[i] = waveformDropdownGroup;
-			this._openOperatorDropdowns[i] = false;
-
-			waveformSelect.addEventListener("change", () => {
-				this.doc.record(new ChangeOperatorWaveform(this.doc, operatorIndex, waveformSelect.selectedIndex));
-			});
-
-			frequencySelect.addEventListener("change", () => {
-				this.doc.record(new ChangeOperatorFrequency(this.doc, operatorIndex, frequencySelect.selectedIndex));
-			});
-		}
+		new FmOperatorSetup(this);
 
 		new DrumsetSetup(this);
 
