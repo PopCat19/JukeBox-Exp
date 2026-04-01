@@ -4448,14 +4448,46 @@ export class SongEditor implements ModSliderProvider {
 
 			const savedPos = this._promptPositions.get(promptName);
 			if (savedPos) {
-				newPrompt.container.style.left = savedPos.x + "px";
-				newPrompt.container.style.top = savedPos.y + "px";
+				const applyPosition = () => {
+					if (!this._prompts.includes(newPrompt!)) return;
+					const rect = newPrompt!.container.getBoundingClientRect();
+					const containerWidth = this.mainLayer.clientWidth;
+					const containerHeight = this.mainLayer.clientHeight;
+
+					let x = savedPos.x;
+					let y = savedPos.y;
+
+					if (x + rect.width > containerWidth) {
+						x = Math.max(0, containerWidth - rect.width);
+					}
+					if (y + rect.height > containerHeight) {
+						y = Math.max(0, containerHeight - rect.height);
+					}
+					if (x < 0) {
+						x = 0;
+					}
+					if (y < 0) {
+						y = 0;
+					}
+
+					newPrompt!.container.style.left = x + "px";
+					newPrompt!.container.style.top = y + "px";
+					this._promptPositions.set(promptName, { x, y });
+				};
+
+				if (newPrompt.container.clientWidth > 0) {
+					applyPosition();
+				} else {
+					requestAnimationFrame(applyPosition);
+				}
 			} else {
 				const centerPrompt = () => {
 					if (!this._prompts.includes(newPrompt!)) return;
 					const rect = newPrompt!.container.getBoundingClientRect();
-					const x = (this.mainLayer.clientWidth - rect.width) / 2;
-					const y = (this.mainLayer.clientHeight - rect.height) / 2;
+					const containerWidth = this.mainLayer.clientWidth;
+					const containerHeight = this.mainLayer.clientHeight;
+					const x = Math.max(0, Math.min((containerWidth - rect.width) / 2, containerWidth - rect.width));
+					const y = Math.max(0, Math.min((containerHeight - rect.height) / 2, containerHeight - rect.height));
 					newPrompt!.container.style.left = x + "px";
 					newPrompt!.container.style.top = y + "px";
 					this._promptPositions.set(promptName, { x, y });
@@ -4650,6 +4682,8 @@ export class SongEditor implements ModSliderProvider {
 		const prefs: Preferences = this.doc.prefs;
 		renderLayout(this._layoutRefs, this.doc);
 
+		this._repositionOutOfBoundsPrompts();
+
 		renderOptionsMenu(this._optionsMenu, prefs, this.doc.song.scale);
 		const textOnIcon: string = ColorConfig.getComputed("--text-enabled-icon");
 		const textOffIcon: string = ColorConfig.getComputed("--text-disabled-icon");
@@ -4720,6 +4754,45 @@ export class SongEditor implements ModSliderProvider {
 			() => this.handleModRecording(),
 		);
 	};
+
+	private _repositionOutOfBoundsPrompts(): void {
+		const containerWidth = this.mainLayer.clientWidth;
+		const containerHeight = this.mainLayer.clientHeight;
+
+		for (const prompt of this._prompts) {
+			const rect = prompt.container.getBoundingClientRect();
+			const savedPos = this._promptPositions.get(prompt.name!);
+
+			if (!savedPos) continue;
+
+			const promptWidth = rect.width;
+			const promptHeight = rect.height;
+
+			let x = savedPos.x;
+			let y = savedPos.y;
+
+			const isOutOfBounds = x < 0 || y < 0 || x + promptWidth > containerWidth || y + promptHeight > containerHeight;
+
+			if (isOutOfBounds) {
+				if (x + promptWidth > containerWidth) {
+					x = Math.max(0, containerWidth - promptWidth);
+				}
+				if (y + promptHeight > containerHeight) {
+					y = Math.max(0, containerHeight - promptHeight);
+				}
+				if (x < 0) {
+					x = 0;
+				}
+				if (y < 0) {
+					y = 0;
+				}
+
+				prompt.container.style.left = x + "px";
+				prompt.container.style.top = y + "px";
+				this._promptPositions.set(prompt.name!, { x, y });
+			}
+		}
+	}
 
 	public handleModRecording(): void {
 		window.clearTimeout(this._modRecTimeout);
