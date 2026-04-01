@@ -42,7 +42,6 @@ import {
 	ChangeDecimalOffset,
 	ChangeDetune,
 	ChangeDistortion,
-	ChangeDrumsetEnvelope,
 	ChangeEchoDelay,
 	ChangeEchoSustain,
 	ChangeEnvelopeSpeed,
@@ -106,6 +105,7 @@ import { SpectrumEditor, SpectrumEditorPrompt } from "./components/spectrum-edit
 import { TrackEditor } from "./components/track-editor";
 import { KeyboardLayout } from "./config/keyboard-layout";
 import { ChangeDispatcher } from "./core/change-dispatcher";
+import { DrumsetSetup, DrumsetSetupHost } from "./core/drumset-setup";
 import { KeyboardHandler } from "./core/keyboard-handler";
 import { MenuHandler, MenuHandlerHost } from "./core/menu-handler";
 import { ModSliderProvider, ModSliderRegistry } from "./core/mod-slider-registry";
@@ -259,7 +259,7 @@ function buildPresetOptions(isNoise: boolean, idSet: string): HTMLSelectElement 
 import { CustomAlgorythmCanvas } from "./rendering/custom-algorythm-canvas";
 import { CustomChipCanvas } from "./rendering/custom-chip-canvas";
 
-export class SongEditor implements ModSliderProvider, MenuHandlerHost {
+export class SongEditor implements ModSliderProvider, MenuHandlerHost, DrumsetSetupHost {
 	public get prompt(): Prompt | null {
 		return this._focusedPrompt;
 	}
@@ -2513,6 +2513,18 @@ export class SongEditor implements ModSliderProvider, MenuHandlerHost {
 	public get monophonicNoteInputBox(): HTMLInputElement {
 		return this._monophonicNoteInputBox;
 	}
+	public get drumsetGroup(): HTMLElement {
+		return this._drumsetGroup;
+	}
+	public get drumsetZoom(): HTMLButtonElement {
+		return this._drumsetZoom;
+	}
+	public get drumsetEnvelopeSelects(): HTMLSelectElement[] {
+		return this._drumsetEnvelopeSelects;
+	}
+	public get drumsetSpectrumEditors(): SpectrumEditor[] {
+		return this._drumsetSpectrumEditors;
+	}
 	private get _layoutRefs(): LayoutRefs {
 		return {
 			muteEditor: this._muteEditor,
@@ -2947,36 +2959,7 @@ export class SongEditor implements ModSliderProvider, MenuHandlerHost {
 			});
 		}
 
-		this._drumsetGroup.appendChild(
-			div(
-				{ class: "selectRow" },
-				span({ class: "tip", onclick: () => this._openPrompt("drumsetEnvelope") }, "Envelope:"),
-				span({ class: "tip", onclick: () => this._openPrompt("drumsetSpectrum") }, "Spectrum:"),
-				this._drumsetZoom,
-			),
-		);
-		for (let i: number = Config.drumCount - 1; i >= 0; i--) {
-			const drumIndex: number = i;
-			const spectrumEditor: SpectrumEditor = new SpectrumEditor(this.doc, drumIndex);
-			spectrumEditor.container.addEventListener("mousedown", this.refocusStage);
-			this._drumsetSpectrumEditors[i] = spectrumEditor;
-
-			const envelopeSelect: HTMLSelectElement = buildOptions(
-				select({ style: "width: 100%;", title: "Filter Envelope" }),
-				Config.envelopes.map((envelope) => envelope.name),
-			);
-			this._drumsetEnvelopeSelects[i] = envelopeSelect;
-			envelopeSelect.addEventListener("change", () => {
-				this.doc.record(new ChangeDrumsetEnvelope(this.doc, drumIndex, envelopeSelect.selectedIndex));
-			});
-
-			const row: HTMLDivElement = div(
-				{ class: "selectRow" },
-				div({ class: "selectContainer", style: "width: 5em; margin-right: .3em;" }, envelopeSelect),
-				this._drumsetSpectrumEditors[i].container,
-			);
-			this._drumsetGroup.appendChild(row);
-		}
+		new DrumsetSetup(this);
 
 		this._modNameRows = [];
 		this._modChannelBoxes = [];
