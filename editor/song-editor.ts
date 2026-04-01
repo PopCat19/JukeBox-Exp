@@ -11,7 +11,7 @@
 
 import { ChannelColors, ColorConfig } from "../shared/color-config";
 // import {Layout} from "./layout";
-import { Config, DropdownID, InstrumentType, SampleLoadedEvent, sampleLoadEvents } from "../synth/synth-config";
+import { Config, DropdownID, InstrumentType, SampleLoadedEvent } from "../synth/synth-config";
 import { BarScrollBar } from "./components/bar-scroll-bar";
 import { Shiggy } from "./components/shiggy-component";
 import { EditorConfig, fullTagList, isMobile, Preset, PresetCategory } from "./config/editor-config";
@@ -31,12 +31,10 @@ import { HTML, SVG } from "imperative-html/dist/esm/elements-strict";
 import { oscilloscopeCanvas } from "../shared/oscilloscope";
 import { Channel, getCapabilities, getRegisteredPlugins, Instrument } from "../synth";
 import {
-	ChangeAliasing,
 	ChangeArpeggioSpeed,
 	ChangeBitcrusherFreq,
 	ChangeBitcrusherQuantization,
 	ChangeChorus,
-	ChangeClicklessTransition,
 	ChangeCustomAlgorythmorFeedback,
 	ChangeCustomWave,
 	ChangeDecimalOffset,
@@ -47,15 +45,12 @@ import {
 	ChangeEnvelopeSpeed,
 	ChangeEQFilterSimpleCut,
 	ChangeEQFilterSimplePeak,
-	ChangeFastTwoNoteArp,
 	ChangeFeedbackAmplitude,
 	ChangeGrainAmounts,
 	ChangeGrainRange,
 	ChangeGrainSize,
 	ChangeGranular,
 	ChangeHoldingModRecording,
-	ChangeInvertWave,
-	ChangeLowerLimit,
 	ChangeNoteFilterSimpleCut,
 	ChangeNoteFilterSimplePeak,
 	ChangePan,
@@ -76,12 +71,6 @@ import {
 	ChangeSupersawShape,
 	ChangeSupersawSpread,
 	ChangeTempo,
-	ChangeUnisonExpression,
-	ChangeUnisonOffset,
-	ChangeUnisonSign,
-	ChangeUnisonSpread,
-	ChangeUnisonVoices,
-	ChangeUpperLimit,
 	ChangeVibratoDelay,
 	ChangeVibratoDepth,
 	ChangeVibratoSpeed,
@@ -102,6 +91,7 @@ import { TrackEditor } from "./components/track-editor";
 import { KeyboardLayout } from "./config/keyboard-layout";
 import { ChangeDispatcher } from "./core/change-dispatcher";
 import { DrumsetSetup, DrumsetSetupHost } from "./core/drumset-setup";
+import { EventListenerSetup, EventListenerSetupHost } from "./core/event-listener-setup";
 import { FmOperatorSetup, FmOperatorSetupHost } from "./core/fm-operator-setup";
 import { KeyboardHandler } from "./core/keyboard-handler";
 import { MenuHandler, MenuHandlerHost } from "./core/menu-handler";
@@ -257,7 +247,7 @@ function buildPresetOptions(isNoise: boolean, idSet: string): HTMLSelectElement 
 import { CustomAlgorythmCanvas } from "./rendering/custom-algorythm-canvas";
 import { CustomChipCanvas } from "./rendering/custom-chip-canvas";
 
-export class SongEditor implements ModSliderProvider, MenuHandlerHost, DrumsetSetupHost, FmOperatorSetupHost, ModulatorSetupHost {
+export class SongEditor implements ModSliderProvider, MenuHandlerHost, DrumsetSetupHost, FmOperatorSetupHost, ModulatorSetupHost, EventListenerSetupHost {
 	public get prompt(): Prompt | null {
 		return this._focusedPrompt;
 	}
@@ -2783,6 +2773,172 @@ export class SongEditor implements ModSliderProvider, MenuHandlerHost, DrumsetSe
 		return this._addEnvelopeButton;
 	}
 
+	// EventListenerSetupHost getters
+	public get dispatch(): ChangeDispatcher {
+		return this._dispatch;
+	}
+	public get keyboardHandler(): KeyboardHandler {
+		return this._keyboardHandler;
+	}
+	public get customWaveDrawCanvas(): CustomChipCanvas {
+		return this._customWaveDrawCanvas;
+	}
+	public get customWavePresetDrop(): HTMLSelectElement {
+		return this._customWavePresetDrop;
+	}
+	public get playButton(): HTMLButtonElement {
+		return this._playButton;
+	}
+	public get pauseButton(): HTMLButtonElement {
+		return this._pauseButton;
+	}
+	public get recordButton(): HTMLButtonElement {
+		return this._recordButton;
+	}
+	public get stopButton(): HTMLButtonElement {
+		return this._stopButton;
+	}
+	public get prevBarButton(): HTMLButtonElement {
+		return this._prevBarButton;
+	}
+	public get nextBarButton(): HTMLButtonElement {
+		return this._nextBarButton;
+	}
+	public get volumeBarContainer(): SVGSVGElement {
+		return this._volumeBarContainer;
+	}
+	public get patternArea(): HTMLDivElement {
+		return this._patternArea;
+	}
+	public get trackArea(): HTMLDivElement {
+		return this._trackArea;
+	}
+	public get fadeInOutEditor(): { container: HTMLElement } {
+		return this._fadeInOutEditor;
+	}
+	public get spectrumEditor(): { container: HTMLElement } {
+		return this._spectrumEditor;
+	}
+	public get eqFilterEditor(): { container: HTMLElement } {
+		return this._eqFilterEditor;
+	}
+	public get noteFilterEditor(): { container: HTMLElement } {
+		return this._noteFilterEditor;
+	}
+	public get songEqFilterEditor(): { container: HTMLElement } {
+		return this._songEqFilterEditor;
+	}
+	public get harmonicsEditor(): { container: HTMLElement } {
+		return this._harmonicsEditor;
+	}
+	public get instrumentCopyButton(): HTMLButtonElement {
+		return this._instrumentCopyButton;
+	}
+	public get instrumentPasteButton(): HTMLButtonElement {
+		return this._instrumentPasteButton;
+	}
+	public get instrumentExportButton(): HTMLButtonElement {
+		return this._instrumentExportButton;
+	}
+	public get instrumentImportButton(): HTMLButtonElement {
+		return this._instrumentImportButton;
+	}
+	public get jumpToModIndicator(): SVGElement {
+		return this._jumpToModIndicator;
+	}
+	public get customWaveDraw(): HTMLDivElement {
+		return this._customWaveDraw;
+	}
+	public get twoNoteArpBox(): HTMLInputElement {
+		return this._twoNoteArpBox;
+	}
+	public get clicklessTransitionBox(): HTMLInputElement {
+		return this._clicklessTransitionBox;
+	}
+	public get aliasingBox(): HTMLInputElement {
+		return this._aliasingBox;
+	}
+	public get invertWaveBox(): HTMLInputElement {
+		return this._invertWaveBox;
+	}
+	public get tagAutocompleteBox(): HTMLDivElement {
+		return this._tagAutocompleteBox;
+	}
+	public get clearTagsButton(): HTMLButtonElement {
+		return this._clearTagsButton;
+	}
+	public get promptContainer(): HTMLDivElement {
+		return this._promptContainer;
+	}
+	public get sampleLoadingStatusContainer(): HTMLDivElement {
+		return this._sampleLoadingStatusContainer;
+	}
+	public get instrumentsButtonBar(): HTMLDivElement {
+		return this._instrumentsButtonBar;
+	}
+	public get trackAndMuteContainer(): HTMLDivElement {
+		return this._trackAndMuteContainer;
+	}
+	public get tagAutocompleteIndex(): number {
+		return this._tagAutocompleteIndex;
+	}
+	public set tagAutocompleteIndex(value: number) {
+		this._tagAutocompleteIndex = value;
+	}
+
+	// EventListenerSetupHost methods
+	public whenPrevBarPressed(): void {
+		this._whenPrevBarPressed();
+	}
+	public whenNextBarPressed(): void {
+		this._whenNextBarPressed();
+	}
+	public setVolumeSlider(): void {
+		this._setVolumeSlider();
+	}
+	public zoomIn(): void {
+		this._zoomIn();
+	}
+	public zoomOut(): void {
+		this._zoomOut();
+	}
+	public refocusStageNotEditing(): void {
+		this._refocusStageNotEditing();
+	}
+	public tempoStepperCaptureNumberKeys(event: KeyboardEvent): void {
+		this._tempoStepperCaptureNumberKeys(event);
+	}
+	public disableCtrlContextMenu(event: MouseEvent): boolean {
+		return this._disableCtrlContextMenu(event);
+	}
+	public handleGlobalKeyDown(event: KeyboardEvent): void {
+		this._handleGlobalKeyDown(event);
+	}
+	public onFocusIn(event: FocusEvent): void {
+		this._onFocusIn(event);
+	}
+	public updateSampleLoadingBar(event: SampleLoadedEvent): void {
+		this._updateSampleLoadingBar(event);
+	}
+	public updateTagAutocomplete(): void {
+		this._updateTagAutocomplete();
+	}
+	public highlightTagSuggestion(items: NodeListOf<HTMLElement>): void {
+		this._highlightTagSuggestion(items);
+	}
+	public applyTagSuggestion(tag: string): void {
+		this._applyTagSuggestion(tag);
+	}
+	public hideTagAutocomplete(): void {
+		this._hideTagAutocomplete();
+	}
+	public onTrackAreaScroll(event: Event): void {
+		this._onTrackAreaScroll(event);
+	}
+	public customWavePresetHandler(event: Event): void {
+		this._customWavePresetHandler(event);
+	}
+
 	public toggleRecord(): void {
 		if (this.doc.synth.playing) {
 			this.doc.performance.pause();
@@ -2909,312 +3065,7 @@ export class SongEditor implements ModSliderProvider, MenuHandlerHost, DrumsetSe
 
 		new ModulatorSetup(this);
 
-		// @jummbus - Unsure why this hack is needed for alignment. CSS expertise welcome.
-		this._pitchShiftSlider.container.style.setProperty("transform", "translate(0px, 3px)");
-		this._pitchShiftSlider.container.style.setProperty("width", "100%");
-
-		this._customWavePresetDrop.addEventListener("change", this._customWavePresetHandler);
-		this._tempoStepper.addEventListener("change", this._dispatch.whenSetTempo);
-		this._scaleSelect.addEventListener("change", this._dispatch.whenSetScale);
-		this._keySelect.addEventListener("change", this._dispatch.whenSetKey);
-		this._octaveStepper.addEventListener("change", this._dispatch.whenSetOctave);
-		this._rhythmSelect.addEventListener("change", this._dispatch.whenSetRhythm);
-		// this._pitchedPresetSelect.addEventListener("change", this._dispatch.whenSetPitchedPreset);
-		// this._drumPresetSelect.addEventListener("change", this._dispatch.whenSetDrumPreset);
-		this._algorithmSelect.addEventListener("change", this._dispatch.whenSetAlgorithm);
-		this._instrumentsButtonBar.addEventListener("click", this._dispatch.whenSelectInstrument);
-		// this._customizeInstrumentButton.addEventListener("click", this._whenCustomizePressed);
-		this._feedbackTypeSelect.addEventListener("change", this._dispatch.whenSetFeedbackType);
-		this._algorithm6OpSelect.addEventListener("change", this._dispatch.whenSet6OpAlgorithm);
-		this._feedback6OpTypeSelect.addEventListener("change", this._dispatch.whenSet6OpFeedbackType);
-		this._chipWaveSelect.addEventListener("change", this._dispatch.whenSetChipWave);
-		this._ringModWaveSelect.addEventListener("change", this._dispatch.whenSetRingModChipWave);
-		// advloop addition
-		this._useChipWaveAdvancedLoopControlsBox.addEventListener("input", this._dispatch.whenSetUseChipWaveAdvancedLoopControls);
-		this._chipWaveLoopModeSelect.addEventListener("change", this._dispatch.whenSetChipWaveLoopMode);
-		this._chipWaveLoopStartStepper.addEventListener("change", this._dispatch.whenSetChipWaveLoopStart);
-		this._chipWaveLoopEndStepper.addEventListener("change", this._dispatch.whenSetChipWaveLoopEnd);
-		this._setChipWaveLoopEndToEndButton.addEventListener("click", this._dispatch.whenSetChipWaveLoopEndToEnd);
-		this._chipWaveStartOffsetStepper.addEventListener("change", this._dispatch.whenSetChipWaveStartOffset);
-		this._chipWavePlayBackwardsBox.addEventListener("input", this._dispatch.whenSetChipWavePlayBackwards);
-		// advloop addition
-		this._sampleLoadingStatusContainer.addEventListener("click", this._whenSampleLoadingStatusClicked);
-		this._chipNoiseSelect.addEventListener("change", this._dispatch.whenSetNoiseWave);
-		this._transitionSelect.addEventListener("change", this._dispatch.whenSetTransition);
-		this._effectsSelect.addEventListener("change", this._dispatch.whenSetEffects);
-		this._unisonSelect.addEventListener("change", this._dispatch.whenSetUnison);
-		this._chordSelect.addEventListener("change", this._dispatch.whenSetChord);
-		this._monophonicNoteInputBox.addEventListener("input", this._dispatch.whenSetMonophonicNote);
-		this._vibratoSelect.addEventListener("change", this._dispatch.whenSetVibrato);
-		this._vibratoTypeSelect.addEventListener("change", this._dispatch.whenSetVibratoType);
-		this._playButton.addEventListener("click", this.togglePlay);
-		this._pauseButton.addEventListener("click", this.togglePlay);
-		this._recordButton.addEventListener("click", this._toggleRecord);
-		this._stopButton.addEventListener("click", this._toggleRecord);
-		// Start recording instead of opening context menu when control-clicking the record button on a Mac.
-		this._recordButton.addEventListener("contextmenu", (event: MouseEvent) => {
-			if (event.ctrlKey) {
-				event.preventDefault();
-				this._toggleRecord();
-			}
-		});
-		this._stopButton.addEventListener("contextmenu", (event: MouseEvent) => {
-			if (event.ctrlKey) {
-				event.preventDefault();
-				this._toggleRecord();
-			}
-		});
-		this._prevBarButton.addEventListener("click", this._whenPrevBarPressed);
-		this._nextBarButton.addEventListener("click", this._whenNextBarPressed);
-		this._volumeSlider.input.addEventListener("input", this._setVolumeSlider);
-		this._zoomInButton.addEventListener("click", this._zoomIn);
-		this._zoomOutButton.addEventListener("click", this._zoomOut);
-		this._patternArea.addEventListener("mousedown", this._refocusStageNotEditing);
-		this._trackArea.addEventListener("mousedown", this.refocusStage);
-
-		// The song volume slider is styled slightly different than the class' default.
-		this._volumeSlider.container.style.setProperty("flex-grow", "1");
-		this._volumeSlider.container.style.setProperty("display", "flex");
-
-		this._volumeBarContainer.style.setProperty("flex-grow", "1");
-		this._volumeBarContainer.style.setProperty("display", "flex");
-		this._volumeBarContainer.addEventListener("click", this._whenVolumeBarClicked);
-
-		// Also, any slider with a multiplicative effect instead of a replacement effect gets a different mod color, and a round slider.
-		this._volumeSlider.container.style.setProperty("--mod-color", ColorConfig.multiplicativeModSlider);
-		this._volumeSlider.container.style.setProperty("--mod-border-radius", "50%");
-		this._instrumentVolumeSlider.container.style.setProperty("--mod-color", ColorConfig.multiplicativeModSlider);
-		this._instrumentVolumeSlider.container.style.setProperty("--mod-border-radius", "50%");
-		this._feedbackAmplitudeSlider.container.style.setProperty("--mod-color", ColorConfig.multiplicativeModSlider);
-		this._feedbackAmplitudeSlider.container.style.setProperty("--mod-border-radius", "50%");
-		for (let i: number = 0; i < Config.operatorCount + 2; i++) {
-			this._operatorAmplitudeSliders[i].container.style.setProperty("--mod-color", ColorConfig.multiplicativeModSlider);
-			this._operatorAmplitudeSliders[i].container.style.setProperty("--mod-border-radius", "50%");
-		}
-
-		const thisRef: SongEditor = this;
-		for (let mod: number = 0; mod < Config.modCount; mod++) {
-			this._modChannelBoxes[mod].addEventListener("change", function () {
-				thisRef._dispatch.whenSetModChannel(mod);
-			});
-			this._modInstrumentBoxes[mod].addEventListener("change", function () {
-				thisRef._dispatch.whenSetModInstrument(mod);
-			});
-			this._modSetBoxes[mod].addEventListener("change", function () {
-				thisRef._dispatch.whenSetModSetting(mod);
-			});
-			this._modFilterBoxes[mod].addEventListener("change", function () {
-				thisRef._dispatch.whenSetModFilter(mod);
-			});
-			this._modEnvelopeBoxes[mod].addEventListener("change", function () {
-				thisRef._dispatch.whenSetModEnvelope(mod);
-			});
-			this._modTargetIndicators[mod].addEventListener("click", function () {
-				thisRef._dispatch.whenClickModTarget(mod);
-			});
-		}
-
-		this._jumpToModIndicator.addEventListener("click", function () {
-			thisRef._dispatch.whenClickJumpToModTarget();
-		});
-
-		this._patternArea.addEventListener("mousedown", this.refocusStage);
-		this._fadeInOutEditor.container.addEventListener("mousedown", this.refocusStage);
-		this._spectrumEditor.container.addEventListener("mousedown", this.refocusStage);
-		this._eqFilterEditor.container.addEventListener("mousedown", this.refocusStage);
-		this._noteFilterEditor.container.addEventListener("mousedown", this.refocusStage);
-		this._songEqFilterEditor.container.addEventListener("mousedown", this.refocusStage);
-		this._harmonicsEditor.container.addEventListener("mousedown", this.refocusStage);
-		this._tempoStepper.addEventListener("keydown", this._tempoStepperCaptureNumberKeys, false);
-		this._addEnvelopeButton.addEventListener("click", this._dispatch.addNewEnvelope);
-		this._patternArea.addEventListener("contextmenu", this._disableCtrlContextMenu);
-		this._trackArea.addEventListener("contextmenu", this._disableCtrlContextMenu);
-		this.mainLayer.addEventListener("keydown", this._keyboardHandler.handleKeyDown);
-		this.mainLayer.addEventListener("keyup", this._keyboardHandler.handleKeyUp);
-		this.mainLayer.addEventListener("focusin", this._onFocusIn);
-		document.addEventListener("keydown", this._handleGlobalKeyDown);
-		this._instrumentCopyButton.addEventListener("click", this._dispatch.copyInstrument);
-		this._instrumentPasteButton.addEventListener("click", this._dispatch.pasteInstrument);
-		this._instrumentExportButton.addEventListener("click", this._dispatch.exportInstruments);
-		this._instrumentImportButton.addEventListener("click", this._dispatch.importInstruments);
-
-		sampleLoadEvents.addEventListener("sampleloaded", (e) => this._updateSampleLoadingBar(e as SampleLoadedEvent));
-
-		this._instrumentVolumeSliderInputBox.addEventListener("input", () => {
-			this.doc.record(
-				new ChangeVolume(
-					this.doc,
-					this.doc.song.channels[this.doc.channel].instruments[this.doc.getCurrentInstrument()].volume,
-					Math.min(25.0, Math.max(-25.0, Math.round(+this._instrumentVolumeSliderInputBox.value))),
-				),
-			);
-		});
-		this._panSliderInputBox.addEventListener("input", () => {
-			this.doc.record(
-				new ChangePan(
-					this.doc,
-					this.doc.song.channels[this.doc.channel].instruments[this.doc.getCurrentInstrument()].pan,
-					Math.min(100.0, Math.max(0.0, Math.round(+this._panSliderInputBox.value))),
-				),
-			);
-		});
-		this._pwmSliderInputBox.addEventListener("input", () => {
-			this.doc.record(
-				new ChangePulseWidth(
-					this.doc,
-					this.doc.song.channels[this.doc.channel].instruments[this.doc.getCurrentInstrument()].pulseWidth,
-					Math.min(Config.pulseWidthRange, Math.max(1.0, Math.round(+this._pwmSliderInputBox.value))),
-				),
-			);
-		});
-		this._detuneSliderInputBox.addEventListener("input", () => {
-			this.doc.record(
-				new ChangeDetune(
-					this.doc,
-					this.doc.song.channels[this.doc.channel].instruments[this.doc.getCurrentInstrument()].detune,
-					Math.min(
-						Config.detuneMax - Config.detuneCenter,
-						Math.max(Config.detuneMin - Config.detuneCenter, Math.round(+this._detuneSliderInputBox.value)),
-					),
-				),
-			);
-		});
-
-		this._unisonVoicesInputBox.addEventListener("input", () => {
-			this.doc.record(
-				new ChangeUnisonVoices(
-					this.doc,
-					this.doc.song.channels[this.doc.channel].instruments[this.doc.getCurrentInstrument()].unisonVoices,
-					Math.min(Config.unisonVoicesMax, Math.max(Config.unisonVoicesMin, Math.round(+this._unisonVoicesInputBox.value))),
-				),
-			);
-		});
-		this._unisonSpreadInputBox.addEventListener("input", () => {
-			this.doc.record(
-				new ChangeUnisonSpread(
-					this.doc,
-					this.doc.song.channels[this.doc.channel].instruments[this.doc.getCurrentInstrument()].unisonSpread,
-					Math.min(Config.unisonSpreadMax, Math.max(Config.unisonSpreadMin, +this._unisonSpreadInputBox.value)),
-				),
-			);
-		});
-		this._unisonOffsetInputBox.addEventListener("input", () => {
-			this.doc.record(
-				new ChangeUnisonOffset(
-					this.doc,
-					this.doc.song.channels[this.doc.channel].instruments[this.doc.getCurrentInstrument()].unisonOffset,
-					Math.min(Config.unisonOffsetMax, Math.max(Config.unisonOffsetMin, +this._unisonOffsetInputBox.value)),
-				),
-			);
-		});
-		this._unisonExpressionInputBox.addEventListener("input", () => {
-			this.doc.record(
-				new ChangeUnisonExpression(
-					this.doc,
-					this.doc.song.channels[this.doc.channel].instruments[this.doc.getCurrentInstrument()].unisonExpression,
-					Math.min(Config.unisonExpressionMax, Math.max(Config.unisonExpressionMin, +this._unisonExpressionInputBox.value)),
-				),
-			);
-		});
-		this._unisonSignInputBox.addEventListener("input", () => {
-			this.doc.record(
-				new ChangeUnisonSign(
-					this.doc,
-					this.doc.song.channels[this.doc.channel].instruments[this.doc.getCurrentInstrument()].unisonSign,
-					Math.min(Config.unisonSignMax, Math.max(Config.unisonSignMin, +this._unisonSignInputBox.value)),
-				),
-			);
-		});
-
-		this._customWaveDraw.addEventListener("input", () => {
-			this.doc.record(new ChangeCustomWave(this.doc, this._customWaveDrawCanvas.newArray));
-		});
-		this._twoNoteArpBox.addEventListener("input", () => {
-			this.doc.record(new ChangeFastTwoNoteArp(this.doc, this._twoNoteArpBox.checked));
-		});
-		this._clicklessTransitionBox.addEventListener("input", () => {
-			this.doc.record(new ChangeClicklessTransition(this.doc, this._clicklessTransitionBox.checked));
-		});
-		this._aliasingBox.addEventListener("input", () => {
-			this.doc.record(new ChangeAliasing(this.doc, this._aliasingBox.checked));
-		});
-
-		this._upperNoteLimitInputBox.addEventListener("input", () => {
-			this.doc.record(
-				new ChangeUpperLimit(
-					this.doc,
-					this.doc.song.channels[this.doc.channel].instruments[this.doc.getCurrentInstrument()].upperNoteLimit,
-					Math.min(Config.maxPitch, Math.max(0.0, Math.round(+this._upperNoteLimitInputBox.value))),
-				),
-			);
-		});
-		this._lowerNoteLimitInputBox.addEventListener("input", () => {
-			this.doc.record(
-				new ChangeLowerLimit(
-					this.doc,
-					this.doc.song.channels[this.doc.channel].instruments[this.doc.getCurrentInstrument()].lowerNoteLimit,
-					Math.min(Config.maxPitch, Math.max(0.0, Math.round(+this._lowerNoteLimitInputBox.value))),
-				),
-			);
-		});
-
-		this._invertWaveBox.addEventListener("input", () => {
-			this.doc.record(new ChangeInvertWave(this.doc, this._invertWaveBox.checked));
-		});
-
-		this._presetTagsInputBox.addEventListener("input", () => {
-			this._updateTagAutocomplete();
-			this.filterPresetSelectByTags();
-		});
-
-		this._presetTagsInputBox.addEventListener("keydown", (event: KeyboardEvent) => {
-			const items = this._tagAutocompleteBox.querySelectorAll<HTMLElement>(".tagSuggestion");
-			if (this._tagAutocompleteBox.style.display === "none" || items.length === 0) return;
-
-			if (event.key === "ArrowDown") {
-				event.preventDefault();
-				this._tagAutocompleteIndex = (this._tagAutocompleteIndex + 1) % items.length;
-				this._highlightTagSuggestion(items);
-			} else if (event.key === "ArrowUp") {
-				event.preventDefault();
-				this._tagAutocompleteIndex = (this._tagAutocompleteIndex - 1 + items.length) % items.length;
-				this._highlightTagSuggestion(items);
-			} else if (event.key === "Enter" || event.key === "Tab") {
-				if (this._tagAutocompleteIndex >= 0 && this._tagAutocompleteIndex < items.length) {
-					event.preventDefault();
-					this._applyTagSuggestion(items[this._tagAutocompleteIndex].dataset.tag!);
-				}
-			} else if (event.key === "Escape") {
-				this._hideTagAutocomplete();
-			}
-		});
-
-		this._presetTagsInputBox.addEventListener("blur", () => {
-			// Delay hiding so click on suggestion registers first
-			setTimeout(() => this._hideTagAutocomplete(), 150);
-		});
-
-		this._clearTagsButton.addEventListener("click", () => {
-			this._presetTagsInputBox.value = "";
-			this._presetTagsInputBox.dispatchEvent(new Event("input"));
-		});
-
-		this._promptContainer.addEventListener("click", (event) => {
-			if (this.doc.prefs.closePromptByClickoff === true) {
-				if (this._prompts.some((p) => p.gotMouseUp === true)) return;
-				if (event.target === this._promptContainer) {
-					this.doc.prompt = null;
-					this.doc.notifier.changed();
-				}
-			}
-		});
-
-		// Bypassing typescript type safety here to use the new "passive" option.
-		// this._trackAndMuteContainer.addEventListener("scroll", this._onTrackAreaScroll, {capture: false, passive: true});
-		(<Function>this._trackAndMuteContainer.addEventListener)("scroll", this._onTrackAreaScroll, {
-			capture: false,
-			passive: true,
-		});
+		new EventListenerSetup(this);
 
 		if (isMobile) {
 			const autoPlayOption: HTMLOptionElement = <HTMLOptionElement>this._optionsMenu.querySelector("[value=autoPlay]");
@@ -3427,14 +3278,6 @@ export class SongEditor implements ModSliderProvider, MenuHandlerHost, DrumsetSe
 			whenSetModSetting: (mod: number, invalid?: boolean) => this._dispatch.whenSetModSetting(mod, invalid),
 		};
 	}
-
-	private _whenSampleLoadingStatusClicked = (): void => {
-		this._openPrompt("sampleLoadingStatus");
-	};
-
-	private _whenVolumeBarClicked = (): void => {
-		this._openPrompt("channelVolumeVisualizer");
-	};
 
 	private _updateTagAutocomplete(): void {
 		if (document.activeElement !== this._presetTagsInputBox) {
@@ -4189,17 +4032,17 @@ export class SongEditor implements ModSliderProvider, MenuHandlerHost, DrumsetSe
 		this.mainLayer.focus({ preventScroll: true });
 	};
 
-	private _onFocusIn = (event: Event): void => {
+	private _onFocusIn(event: Event): void {
 		if (this.doc.synth.recording && event.target !== this.mainLayer && event.target !== this._stopButton && event.target !== this._volumeSlider.input) {
 			// Don't allow using tab to focus on the song settings while recording,
 			// since interacting with them while recording would mess up the recording.
 			this.refocusStage();
 		}
-	};
+	}
 
 	// Global keydown handler: routes shortcuts when focus is on prompts (outside mainLayer).
 	// Skips if focus is on an input, textarea, select, button, or contenteditable element.
-	private _handleGlobalKeyDown = (event: KeyboardEvent): void => {
+	private _handleGlobalKeyDown(event: KeyboardEvent): void {
 		if (event.isComposing) return; // Skip during IME composition
 		// Only handle if mainLayer doesn't have focus and a prompt is open
 		if (this.mainLayer.contains(document.activeElement)) return;
@@ -4217,14 +4060,14 @@ export class SongEditor implements ModSliderProvider, MenuHandlerHost, DrumsetSe
 		if ((target as HTMLElement).isContentEditable) return;
 
 		this._keyboardHandler.handleKeyDown(event);
-	};
+	}
 
 	// Refocus stage if a sub-element that needs focus isn't being edited.
-	private _refocusStageNotEditing = (): void => {
+	private _refocusStageNotEditing(): void {
 		if (!this._patternEditor.editingModLabel) {
 			this.mainLayer.focus({ preventScroll: true });
 		}
-	};
+	}
 
 	public changeBarScrollPos(offset: number) {
 		this._barScrollBar.changePos(offset);
@@ -4529,13 +4372,13 @@ export class SongEditor implements ModSliderProvider, MenuHandlerHost, DrumsetSe
 		window.requestAnimationFrame(this.updatePlayButton);
 	};
 
-	private _onTrackAreaScroll = (event: Event): void => {
+	private _onTrackAreaScroll(event: Event): void {
 		this.doc.barScrollPos = this._trackAndMuteContainer.scrollLeft / this.doc.getBarWidth();
 		this.doc.channelScrollPos = this._trackAndMuteContainer.scrollTop / ChannelRow.patternHeight;
 		// this._doc.notifier.changed();
-	};
+	}
 
-	private _disableCtrlContextMenu = (event: MouseEvent): boolean => {
+	private _disableCtrlContextMenu(event: MouseEvent): boolean {
 		// On a Mac, clicking while holding control opens the right-click context menu.
 		// But in the pattern and track editors it's better to prevent that and instead allow
 		// custom behaviors such as setting the volume of a note.
@@ -4544,7 +4387,7 @@ export class SongEditor implements ModSliderProvider, MenuHandlerHost, DrumsetSe
 			return false;
 		}
 		return true;
-	};
+	}
 
 	private _usageCheck(channelIndex: number, instrumentIndex: number): void {
 		let instrumentUsed = false;
@@ -4679,7 +4522,7 @@ export class SongEditor implements ModSliderProvider, MenuHandlerHost, DrumsetSe
 		if (!succeeded) window.prompt("Copy this:", text);
 	}
 
-	private _whenPrevBarPressed = (): void => {
+	private _whenPrevBarPressed(): void {
 		this.doc.synth.goToPrevBar();
 		if (Math.floor(this.doc.synth.playhead) < this.doc.synth.loopBarStart || Math.floor(this.doc.synth.playhead) > this.doc.synth.loopBarEnd) {
 			this.doc.synth.loopBarStart = -1;
@@ -4687,9 +4530,9 @@ export class SongEditor implements ModSliderProvider, MenuHandlerHost, DrumsetSe
 			this._loopEditor.setLoopAt(this.doc.synth.loopBarStart, this.doc.synth.loopBarEnd);
 		}
 		this._barScrollBar.animatePlayhead();
-	};
+	}
 
-	private _whenNextBarPressed = (): void => {
+	private _whenNextBarPressed(): void {
 		this.doc.synth.goToNextBar();
 		if (Math.floor(this.doc.synth.playhead) < this.doc.synth.loopBarStart || Math.floor(this.doc.synth.playhead) > this.doc.synth.loopBarEnd) {
 			this.doc.synth.loopBarStart = -1;
@@ -4697,9 +4540,9 @@ export class SongEditor implements ModSliderProvider, MenuHandlerHost, DrumsetSe
 			this._loopEditor.setLoopAt(this.doc.synth.loopBarStart, this.doc.synth.loopBarEnd);
 		}
 		this._barScrollBar.animatePlayhead();
-	};
+	}
 
-	public togglePlay = (): void => {
+	public togglePlay(): void {
 		if (this.doc.synth.playing) {
 			this.doc.performance.pause();
 			this._animator.outVolumeHistoricCap = 0;
@@ -4707,21 +4550,13 @@ export class SongEditor implements ModSliderProvider, MenuHandlerHost, DrumsetSe
 			this.doc.synth.snapToBar();
 			this.doc.performance.play();
 		}
-	};
-
-	private _toggleRecord = (): void => {
-		if (this.doc.synth.playing) {
-			this.doc.performance.pause();
-		} else {
-			this.doc.performance.record();
-		}
-	};
+	}
 
 	public get _animate(): () => void {
 		return this._animator.animate;
 	}
 
-	private _setVolumeSlider = (): void => {
+	private _setVolumeSlider(): void {
 		// Song volume slider doesn't use a change, but it can still be modulated.
 		if ((this._ctrlHeld || this._shiftHeld) && this.doc.synth.playing) {
 			const prevVol = this.doc.prefs.volume;
@@ -4749,7 +4584,7 @@ export class SongEditor implements ModSliderProvider, MenuHandlerHost, DrumsetSe
 				this.doc.record(new ChangeHoldingModRecording(this.doc, null, null, null));
 			}
 		}
-	};
+	}
 
 	private _recordVolumeSlider(useVol: number): void {
 		// Song volume slider doesn't use a change, but it can still be modulated.
@@ -4796,21 +4631,21 @@ export class SongEditor implements ModSliderProvider, MenuHandlerHost, DrumsetSe
 		}, 20);
 	};
 
-	private _zoomIn = (): void => {
+	private _zoomIn(): void {
 		this.doc.prefs.visibleOctaves = Math.max(1, this.doc.prefs.visibleOctaves - 1);
 		this.doc.prefs.save();
 		this.doc.notifier.changed();
 		this.refocusStage();
-	};
+	}
 
-	private _zoomOut = (): void => {
+	private _zoomOut(): void {
 		this.doc.prefs.visibleOctaves = Math.min(this.doc.song.octaveCount, this.doc.prefs.visibleOctaves + 1);
 		this.doc.prefs.save();
 		this.doc.notifier.changed();
 		this.refocusStage();
-	};
+	}
 
-	private _customWavePresetHandler = (event: Event): void => {
+	private _customWavePresetHandler(event: Event): void {
 		// Update custom wave value
 		const customWaveArray: Float32Array = new Float32Array(64);
 		const index: number = this._customWavePresetDrop.selectedIndex - 1;
@@ -4878,5 +4713,5 @@ export class SongEditor implements ModSliderProvider, MenuHandlerHost, DrumsetSe
 		this._customWavePresetDrop.selectedIndex = 0;
 		this.doc.notifier.changed();
 		this.doc.prefs.save();
-	};
+	}
 }
