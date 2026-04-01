@@ -1605,6 +1605,11 @@ html {
 	color: ${ColorConfig.primaryText};
 }
 
+.beepboxEditor input[type=text]:focus, .beepboxEditor input[type=number]:focus {
+	outline: none;
+	border-color: ${ColorConfig.secondaryText};
+}
+
 .beepboxEditor input[type=text]::selection, .beepboxEditor input[type=number]::selection {
 	background-color: ${ColorConfig.textSelection};
 	color: ${ColorConfig.primaryText};
