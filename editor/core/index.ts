@@ -12,6 +12,7 @@ export { KeyboardHandler } from "./keyboard-handler";
 export { ModSliderRegistry } from "./mod-slider-registry";
 export { PlayerAnimator } from "./player-animator";
 export { Preferences } from "./preferences";
+export { PromptFocusController } from "./prompt-focus-controller";
 export { PromptManager } from "./prompt-manager";
 export { Selection } from "./selection";
 export { SongPerformance } from "./song-performance";

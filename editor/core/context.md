@@ -8,6 +8,7 @@
 - `mod-slider-registry.ts` — Maps mod setting indices to Slider refs via a provider interface
 - `player-animator.ts` — Drives animation-frame loop for playback UI updates
 - `preferences.ts` — Manages user preference settings with localStorage persistence
+- `prompt-focus-controller.ts` — Manages Hyprland-style focus behavior for prompt dialogs
 - `prompt-manager.ts` — Manages the lifecycle of editor prompt dialogs
 - `selection.ts` — Manages note and bar selection state with clipboard copy/paste support
 - `song-performance.ts` — Manages live performance mode with real-time note input and recording

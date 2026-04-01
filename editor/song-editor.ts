@@ -111,6 +111,7 @@ import { KeyboardHandler } from "./core/keyboard-handler";
 import { ModSliderProvider, ModSliderRegistry } from "./core/mod-slider-registry";
 import { PlayerAnimator } from "./core/player-animator";
 import { Preferences } from "./core/preferences";
+import { PromptFocusController } from "./core/prompt-focus-controller";
 import { MidiInputHandler } from "./io/midi-input";
 import { AddSamplesPrompt } from "./prompts/add-samples-prompt";
 import { CustomScalePrompt } from "./prompts/custom-scale-prompt";
@@ -2447,7 +2448,7 @@ export class SongEditor implements ModSliderProvider {
 	private _wasPlaying: boolean = false;
 	private _prompts: Prompt[] = [];
 	private _focusedPrompt: Prompt | null = null;
-	private _promptHoldFocus: boolean = false; // Hyprland-style: prompt keeps focus until cursor moves
+	private _promptFocusController: PromptFocusController;
 	private _draggingPrompt: boolean = false;
 	private _highlightedInstrumentIndex: number = -1;
 	private _lastPrompt: string | null = null;
@@ -2968,6 +2969,16 @@ export class SongEditor implements ModSliderProvider {
 	constructor(/*private _doc: SongDocument*/) {
 		this._keyboardHandler = new KeyboardHandler(this);
 		this._dispatch = new ChangeDispatcher(this);
+		this._promptFocusController = new PromptFocusController({
+			isDraggingPrompt: () => this._draggingPrompt,
+			getFocusedPrompt: () => this._focusedPrompt,
+			setFocusedPrompt: (p) => {
+				this._focusedPrompt = p;
+			},
+			updatePromptFocus: () => this._updatePromptFocus(),
+			refocusSongEditor: () => this.refocusStage(),
+			isInPromptContainer: (el) => el !== null && this._promptContainer.contains(el),
+		});
 		this._animator = new PlayerAnimator(this.doc, {
 			modSliderUpdate: () => this._modSliderUpdate(),
 			getCtrlHeld: () => this._ctrlHeld,
@@ -4262,7 +4273,7 @@ export class SongEditor implements ModSliderProvider {
 			}
 		}
 		if (this._prompts.length === 0 && prompt != null) {
-			this._promptHoldFocus = false;
+			this._promptFocusController.detachAll();
 			this._promptContainer.style.display = "none";
 			if (this._wasPlaying) {
 				this.doc.performance.play();
@@ -4501,89 +4512,7 @@ export class SongEditor implements ModSliderProvider {
 				}
 			}
 
-			// Hyprland-style focus: prompt keeps focus on spawn until cursor moves,
-			// then focus follows cursor position (over prompt = focused, out = song editor).
-			let cursorHasMoved = false;
-			let mouseInPrompt = false;
-			this._promptHoldFocus = true;
-
-			const checkCursorOverPrompt = (e: MouseEvent): boolean => {
-				const topmost = document.elementFromPoint(e.clientX, e.clientY);
-				return topmost !== null && newPrompt.container.contains(topmost);
-			};
-
-			const refocusSongEditor = (): void => {
-				if (this._focusedPrompt === newPrompt) {
-					this._focusedPrompt = null;
-					this._updatePromptFocus();
-				}
-				if (!this.mainLayer.contains(document.activeElement)) {
-					this.mainLayer.focus({ preventScroll: true });
-				}
-			};
-
-			// On first cursor movement, check if over prompt and switch to hover-based focus
-			const onFirstMouseMove = (e: MouseEvent): void => {
-				if (cursorHasMoved) return;
-				cursorHasMoved = true;
-				this._promptHoldFocus = false;
-				mouseInPrompt = checkCursorOverPrompt(e);
-				if (!mouseInPrompt) {
-					refocusSongEditor();
-				}
-				document.removeEventListener("mousemove", onFirstMouseMove);
-			};
-			document.addEventListener("mousemove", onFirstMouseMove);
-
-			newPrompt.container.addEventListener("mouseenter", () => {
-				if (this._draggingPrompt) return;
-				mouseInPrompt = true;
-				if (!cursorHasMoved) return; // still in initial focus-hold state
-				if (this._focusedPrompt !== newPrompt) {
-					this._focusedPrompt = newPrompt;
-					this._updatePromptFocus();
-				}
-				if (!newPrompt.container.contains(document.activeElement)) {
-					newPrompt.container.focus();
-				}
-			});
-
-			newPrompt.container.addEventListener("focusin", () => {
-				if (!cursorHasMoved || !mouseInPrompt) return;
-				if (this._focusedPrompt !== newPrompt) {
-					this._focusedPrompt = newPrompt;
-					this._updatePromptFocus();
-				}
-			});
-
-			newPrompt.container.addEventListener("mouseleave", (e: Event) => {
-				if (this._draggingPrompt) return;
-				mouseInPrompt = false;
-				if (!cursorHasMoved) return; // still in initial focus-hold state
-				const related = (e as MouseEvent).relatedTarget as HTMLElement;
-				if (related && this._promptContainer.contains(related)) return;
-				refocusSongEditor();
-			});
-
-			newPrompt.container.addEventListener("mousedown", (e: Event) => {
-				if (this._focusedPrompt !== newPrompt) {
-					this._focusedPrompt = newPrompt;
-					this._updatePromptFocus();
-				}
-				// Restore DOM focus to the prompt container so its keydown
-				// listeners (arrow keys, Tab, Enter) fire again after the
-				// user returns focus from outside the prompt. Skip when
-				// clicking interactive elements that should keep their own focus.
-				const target = e.target as HTMLElement;
-				if (
-					!(target instanceof HTMLInputElement) &&
-					!(target instanceof HTMLButtonElement) &&
-					!(target instanceof HTMLSelectElement) &&
-					!(target instanceof HTMLTextAreaElement)
-				) {
-					newPrompt.container.focus();
-				}
-			});
+			this._promptFocusController.attachPrompt(newPrompt);
 
 			if ((<Prompt>newPrompt).buildTitlebar) (<Prompt>newPrompt).buildTitlebar!();
 
@@ -4641,16 +4570,7 @@ export class SongEditor implements ModSliderProvider {
 	}
 
 	public promptShouldReceiveKeys = (): boolean => {
-		// Hyprland-style: prompt receives keys if either:
-		// 1. Cursor hasn't moved yet (still in initial focus-hold state)
-		// 2. Cursor HASmoved and is hovering the prompt
-		if (!this._focusedPrompt) return false;
-		if (this._promptHoldFocus) return true;
-		try {
-			return this._focusedPrompt.container.matches(":hover");
-		} catch {
-			return false;
-		}
+		return this._promptFocusController.shouldPromptReceiveKeys(this._focusedPrompt);
 	};
 
 	public refocusStage = (): void => {
