@@ -1653,16 +1653,16 @@ export class SongEditor implements ModSliderProvider, MenuHandlerHost, DrumsetSe
 		"+",
 	);
 	private readonly _modulatorGroup: HTMLElement = div({ class: "editor-controls" });
-	private readonly _modNameRows: HTMLElement[];
-	private readonly _modChannelBoxes: HTMLSelectElement[];
-	private readonly _modInstrumentBoxes: HTMLSelectElement[];
-	private readonly _modSetRows: HTMLElement[];
-	private readonly _modSetBoxes: HTMLSelectElement[];
-	private readonly _modFilterRows: HTMLElement[];
-	private readonly _modFilterBoxes: HTMLSelectElement[];
-	private readonly _modEnvelopeRows: HTMLElement[];
-	private readonly _modEnvelopeBoxes: HTMLSelectElement[];
-	private readonly _modTargetIndicators: SVGElement[];
+	private readonly _modNameRows: HTMLElement[] = [];
+	private readonly _modChannelBoxes: HTMLSelectElement[] = [];
+	private readonly _modInstrumentBoxes: HTMLSelectElement[] = [];
+	private readonly _modSetRows: HTMLElement[] = [];
+	private readonly _modSetBoxes: HTMLSelectElement[] = [];
+	private readonly _modFilterRows: HTMLElement[] = [];
+	private readonly _modFilterBoxes: HTMLSelectElement[] = [];
+	private readonly _modEnvelopeRows: HTMLElement[] = [];
+	private readonly _modEnvelopeBoxes: HTMLSelectElement[] = [];
+	private readonly _modTargetIndicators: SVGElement[] = [];
 
 	private readonly _upperNoteLimitInputBox: HTMLInputElement = numberInput({
 		style: "width: 4em; font-size: 80%; ",
@@ -4254,25 +4254,27 @@ export class SongEditor implements ModSliderProvider, MenuHandlerHost, DrumsetSe
 		if (!this.doc.song.getChannelIsMod(this.doc.channel)) {
 			renderPresetSetup(this._presetSetupRefs, this.doc, instrument, prefs, this._openPanDropdown, this._usageCheck.bind(this));
 
-			applyInstrumentVisibility(
-				this.doc,
-				instrument,
-				colors,
-				prefs,
-				this._visRefs,
-				{
-					openPanDropdown: this._openPanDropdown,
-					openPulseWidthDropdown: this._openPulseWidthDropdown,
-					openOperatorDropdowns: this._openOperatorDropdowns,
-					openTransitionDropdown: this._openTransitionDropdown,
-					openChordDropdown: this._openChordDropdown,
-					openVibratoDropdown: this._openVibratoDropdown,
-					openUnisonDropdown: this._openUnisonDropdown,
-					openEnvelopeDropdown: this._openEnvelopeDropdown,
-				},
-				this._ctrlHeld,
-				this._shiftHeld,
-			);
+			if (this._visRefs != null) {
+				applyInstrumentVisibility(
+					this.doc,
+					instrument,
+					colors,
+					prefs,
+					this._visRefs,
+					{
+						openPanDropdown: this._openPanDropdown,
+						openPulseWidthDropdown: this._openPulseWidthDropdown,
+						openOperatorDropdowns: this._openOperatorDropdowns,
+						openTransitionDropdown: this._openTransitionDropdown,
+						openChordDropdown: this._openChordDropdown,
+						openVibratoDropdown: this._openVibratoDropdown,
+						openUnisonDropdown: this._openUnisonDropdown,
+						openEnvelopeDropdown: this._openEnvelopeDropdown,
+					},
+					this._ctrlHeld,
+					this._shiftHeld,
+				);
+			}
 
 			renderInstrumentValues(this._instrumentValueRefs, this.doc, instrument);
 

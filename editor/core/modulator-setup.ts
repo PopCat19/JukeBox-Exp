@@ -33,17 +33,6 @@ export interface ModulatorSetupHost {
 
 export class ModulatorSetup {
 	constructor(host: ModulatorSetupHost) {
-		host.modNameRows.length = 0;
-		host.modChannelBoxes.length = 0;
-		host.modInstrumentBoxes.length = 0;
-		host.modSetRows.length = 0;
-		host.modSetBoxes.length = 0;
-		host.modFilterRows.length = 0;
-		host.modFilterBoxes.length = 0;
-		host.modEnvelopeRows.length = 0;
-		host.modEnvelopeBoxes.length = 0;
-		host.modTargetIndicators.length = 0;
-
 		for (let mod: number = 0; mod < Config.modCount; mod++) {
 			const modChannelBox: HTMLSelectElement = select({
 				style: "width: 100%; color: currentColor; text-overflow:ellipsis;",
