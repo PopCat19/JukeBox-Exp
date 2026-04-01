@@ -758,6 +758,7 @@ html {
 	position: absolute;
 	z-index: 1;
 	pointer-events: auto;
+	outline: none;
 }
 
 .beepboxEditor .prompt:hover {

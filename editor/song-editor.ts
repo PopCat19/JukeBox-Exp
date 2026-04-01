@@ -2447,6 +2447,7 @@ export class SongEditor implements ModSliderProvider {
 	private _wasPlaying: boolean = false;
 	private _prompts: Prompt[] = [];
 	private _focusedPrompt: Prompt | null = null;
+	private _promptHoldFocus: boolean = false; // Hyprland-style: prompt keeps focus until cursor moves
 	private _draggingPrompt: boolean = false;
 	private _highlightedInstrumentIndex: number = -1;
 	private _lastPrompt: string | null = null;
@@ -4261,6 +4262,7 @@ export class SongEditor implements ModSliderProvider {
 			}
 		}
 		if (this._prompts.length === 0 && prompt != null) {
+			this._promptHoldFocus = false;
 			this._promptContainer.style.display = "none";
 			if (this._wasPlaying) {
 				this.doc.performance.play();
@@ -4499,40 +4501,55 @@ export class SongEditor implements ModSliderProvider {
 				}
 			}
 
-			// Track whether the mouse is actually inside this prompt to prevent
-			// spurious focus re-acquisition from DOM rebuilds firing synthetic events.
-			let mouseInside = true; // true on spawn: prompt has keyboard priority until mouse leaves
+			// Hyprland-style focus: prompt keeps focus on spawn until cursor moves,
+			// then focus follows cursor position (over prompt = focused, out = song editor).
+			let cursorHasMoved = false;
+			let mouseInPrompt = false;
+			this._promptHoldFocus = true;
 
-			// Hover-to-focus (Hyprland style): focus on hover, refocus song editor on hover-out.
-			// Uses elementFromPoint to ensure only the prompt the cursor is actually over gets focused,
-			// preventing race conditions when prompts overlap.
+			const checkCursorOverPrompt = (e: MouseEvent): boolean => {
+				const topmost = document.elementFromPoint(e.clientX, e.clientY);
+				return topmost !== null && newPrompt.container.contains(topmost);
+			};
+
+			const refocusSongEditor = (): void => {
+				if (this._focusedPrompt === newPrompt) {
+					this._focusedPrompt = null;
+					this._updatePromptFocus();
+				}
+				if (!this.mainLayer.contains(document.activeElement)) {
+					this.mainLayer.focus({ preventScroll: true });
+				}
+			};
+
+			// On first cursor movement, check if over prompt and switch to hover-based focus
+			const onFirstMouseMove = (e: MouseEvent): void => {
+				if (cursorHasMoved) return;
+				cursorHasMoved = true;
+				this._promptHoldFocus = false;
+				mouseInPrompt = checkCursorOverPrompt(e);
+				if (!mouseInPrompt) {
+					refocusSongEditor();
+				}
+				document.removeEventListener("mousemove", onFirstMouseMove);
+			};
+			document.addEventListener("mousemove", onFirstMouseMove);
+
 			newPrompt.container.addEventListener("mouseenter", () => {
 				if (this._draggingPrompt) return;
-				if (mouseInside) return; // already tracked as inside (e.g. spurious from DOM rebuild)
-				mouseInside = true;
+				mouseInPrompt = true;
+				if (!cursorHasMoved) return; // still in initial focus-hold state
 				if (this._focusedPrompt !== newPrompt) {
-					// Verify this prompt is actually topmost at cursor position
-					const rect = newPrompt.container.getBoundingClientRect();
-					const cx = rect.left + rect.width / 2;
-					const cy = rect.top + rect.height / 2;
-					const topmost = document.elementFromPoint(cx, cy);
-					if (topmost && newPrompt.container.contains(topmost)) {
-						this._focusedPrompt = newPrompt;
-						this._updatePromptFocus();
-					}
+					this._focusedPrompt = newPrompt;
+					this._updatePromptFocus();
 				}
-				// Restore DOM focus to the prompt container on hover so its
-				// keydown listeners fire without requiring a click first.
 				if (!newPrompt.container.contains(document.activeElement)) {
 					newPrompt.container.focus();
 				}
 			});
 
-			// Focus-to-focus: sync _focusedPrompt when DOM focus enters this prompt
-			// (e.g. clicking an input after mouseleave cleared _focusedPrompt).
-			// Only applies when mouse is actually inside the prompt.
 			newPrompt.container.addEventListener("focusin", () => {
-				if (!mouseInside) return;
+				if (!cursorHasMoved || !mouseInPrompt) return;
 				if (this._focusedPrompt !== newPrompt) {
 					this._focusedPrompt = newPrompt;
 					this._updatePromptFocus();
@@ -4541,12 +4558,11 @@ export class SongEditor implements ModSliderProvider {
 
 			newPrompt.container.addEventListener("mouseleave", (e: Event) => {
 				if (this._draggingPrompt) return;
-				mouseInside = false;
-				// Only refocus song editor if mouse isn't moving to another prompt
+				mouseInPrompt = false;
+				if (!cursorHasMoved) return; // still in initial focus-hold state
 				const related = (e as MouseEvent).relatedTarget as HTMLElement;
 				if (related && this._promptContainer.contains(related)) return;
-				this._focusedPrompt = null;
-				this.mainLayer.focus({ preventScroll: true });
+				refocusSongEditor();
 			});
 
 			newPrompt.container.addEventListener("mousedown", (e: Event) => {
@@ -4618,14 +4634,18 @@ export class SongEditor implements ModSliderProvider {
 				document.addEventListener("mousemove", onMouseMove);
 				document.addEventListener("mouseup", onMouseUp);
 			});
+
+			newPrompt.container.setAttribute("tabindex", "-1");
+			newPrompt.container.focus({ preventScroll: true });
 		}
 	}
 
 	public promptShouldReceiveKeys = (): boolean => {
-		// Only send key events to the prompt if the mouse is hovering over it.
-		// This prevents prompts from stealing keyboard shortcuts when the user
-		// isn't interacting with them.
+		// Hyprland-style: prompt receives keys if either:
+		// 1. Cursor hasn't moved yet (still in initial focus-hold state)
+		// 2. Cursor HASmoved and is hovering the prompt
 		if (!this._focusedPrompt) return false;
+		if (this._promptHoldFocus) return true;
 		try {
 			return this._focusedPrompt.container.matches(":hover");
 		} catch {
