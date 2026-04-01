@@ -75,7 +75,6 @@ import {
 	ChangeRingMod,
 	ChangeRingModHz,
 	ChangeRingModPulseWidth,
-	ChangeSong,
 	ChangeSongTitle,
 	ChangeStringSustain,
 	ChangeSupersawDynamism,
@@ -108,6 +107,7 @@ import { TrackEditor } from "./components/track-editor";
 import { KeyboardLayout } from "./config/keyboard-layout";
 import { ChangeDispatcher } from "./core/change-dispatcher";
 import { KeyboardHandler } from "./core/keyboard-handler";
+import { MenuHandler, MenuHandlerHost } from "./core/menu-handler";
 import { ModSliderProvider, ModSliderRegistry } from "./core/mod-slider-registry";
 import { PlayerAnimator } from "./core/player-animator";
 import { Preferences } from "./core/preferences";
@@ -259,7 +259,7 @@ function buildPresetOptions(isNoise: boolean, idSet: string): HTMLSelectElement 
 import { CustomAlgorythmCanvas } from "./rendering/custom-algorythm-canvas";
 import { CustomChipCanvas } from "./rendering/custom-chip-canvas";
 
-export class SongEditor implements ModSliderProvider {
+export class SongEditor implements ModSliderProvider, MenuHandlerHost {
 	public get prompt(): Prompt | null {
 		return this._focusedPrompt;
 	}
@@ -2815,6 +2815,7 @@ export class SongEditor implements ModSliderProvider {
 			outVolumeBar: this._outVolumeBar,
 			outVolumeCap: this._outVolumeCap,
 		});
+		new MenuHandler(this, this._fileMenu, this._editMenu, this._optionsMenu);
 
 		this.doc.notifier.watch(this.whenUpdated);
 		this.doc.notifier.watch(this._onDocPromptChange);
@@ -2825,10 +2826,6 @@ export class SongEditor implements ModSliderProvider {
 		window.addEventListener("resize", this.whenUpdated);
 		window.requestAnimationFrame(this.updatePlayButton);
 		window.requestAnimationFrame(this._animate);
-
-		if (!("share" in navigator)) {
-			this._fileMenu.removeChild(this._fileMenu.querySelector("[value='shareUrl']")!);
-		}
 
 		this._scaleSelect.appendChild(
 			optgroup({ label: "Edit" }, option({ value: "forceScale" }, "Snap Notes To Scale"), option({ value: "customize" }, "Edit Custom Scale")),
@@ -3120,9 +3117,6 @@ export class SongEditor implements ModSliderProvider {
 		this._pitchShiftSlider.container.style.setProperty("transform", "translate(0px, 3px)");
 		this._pitchShiftSlider.container.style.setProperty("width", "100%");
 
-		this._fileMenu.addEventListener("change", this._fileMenuHandler);
-		this._editMenu.addEventListener("change", this._editMenuHandler);
-		this._optionsMenu.addEventListener("change", this._optionsMenuHandler);
 		this._customWavePresetDrop.addEventListener("change", this._customWavePresetHandler);
 		this._tempoStepper.addEventListener("change", this._dispatch.whenSetTempo);
 		this._scaleSelect.addEventListener("change", this._dispatch.whenSetScale);
@@ -5016,230 +5010,6 @@ export class SongEditor implements ModSliderProvider {
 		this.doc.prefs.save();
 		this.doc.notifier.changed();
 		this.refocusStage();
-	};
-
-	private _fileMenuHandler = (event: Event): void => {
-		switch (this._fileMenu.value) {
-			case "new":
-				this.doc.goBackToStart();
-				this.doc.song.restoreLimiterDefaults();
-				for (const channel of this.doc.song.channels) {
-					channel.muted = false;
-					channel.name = "";
-				}
-				this.doc.record(new ChangeSong(this.doc, ""), false, true);
-				break;
-			case "export":
-				this._openPrompt("export");
-				break;
-			case "import":
-				this._openPrompt("import");
-				break;
-			case "copyUrl":
-				this._copyTextToClipboard(new URL("#" + this.doc.song.toBase64String(), location.href).href);
-				break;
-			case "shareUrl":
-				(<any>navigator).share({ url: new URL("#" + this.doc.song.toBase64String(), location.href).href });
-				break;
-			case "shortenUrl":
-				let shortenerStrategy: string = "https://tinyurl.com/api-create.php?url=";
-				const localShortenerStrategy: string | null = window.localStorage.getItem("shortenerStrategySelect");
-
-				// if (localShortenerStrategy == "beepboxnet") shortenerStrategy = "https://www.beepbox.net/api-create.php?url=";
-				if (localShortenerStrategy === "isgd") shortenerStrategy = "https://is.gd/create.php?format=simple&url=";
-
-				window.open(shortenerStrategy + encodeURIComponent(new URL("#" + this.doc.song.toBase64String(), location.href).href));
-				break;
-			case "configureShortener":
-				this._openPrompt("configureShortener");
-				break;
-			case "viewPlayer":
-				location.href = "player/" + (OFFLINE ? "index.html" : "") + "#song=" + this.doc.song.toBase64String();
-				break;
-			case "copyEmbed":
-				this._copyTextToClipboard(
-					`<iframe width="384" height="60" style="border: none;" src="${
-						new URL("player/#song=" + this.doc.song.toBase64String(), location.href).href
-					}"></iframe>`,
-				);
-				break;
-			case "songRecovery":
-				this._openPrompt("songRecovery");
-				break;
-		}
-		this._fileMenu.selectedIndex = 0;
-	};
-
-	private _editMenuHandler = (event: Event): void => {
-		switch (this._editMenu.value) {
-			case "undo":
-				this.doc.undo();
-				break;
-			case "redo":
-				this.doc.redo();
-				break;
-			case "copy":
-				this.doc.selection.copy();
-				break;
-			case "insertBars":
-				this.doc.selection.insertBars();
-				break;
-			case "deleteBars":
-				this.doc.selection.deleteBars();
-				break;
-			case "insertChannel":
-				this.doc.selection.insertChannel();
-				break;
-			case "deleteChannel":
-				this.doc.selection.deleteChannel();
-				break;
-			case "pasteNotes":
-				this.doc.selection.pasteNotes();
-				break;
-			case "pasteNumbers":
-				this.doc.selection.pasteNumbers();
-				break;
-			case "transposeUp":
-				this.doc.selection.transpose(true, false);
-				break;
-			case "transposeDown":
-				this.doc.selection.transpose(false, false);
-				break;
-			case "selectAll":
-				this.doc.selection.selectAll();
-				break;
-			case "selectChannel":
-				this.doc.selection.selectChannel();
-				break;
-			case "duplicatePatterns":
-				this.doc.selection.duplicatePatterns(false);
-				break;
-			case "barCount":
-				this._openPrompt("barCount");
-				break;
-			case "beatsPerBar":
-				this._openPrompt("beatsPerBar");
-				break;
-			case "octaves":
-				this._openPrompt("octaves");
-				break;
-			case "moveNotesSideways":
-				this._openPrompt("moveNotesSideways");
-				break;
-			case "channelSettings":
-				this._openPrompt("channelSettings");
-				break;
-			case "limiterSettings":
-				this._openPrompt("limiterSettings");
-				break;
-			case "generateEuclideanRhythm":
-				this._openPrompt("generateEuclideanRhythm");
-				break;
-			case "addExternal":
-				this._openPrompt("addExternal");
-				break;
-			case "keyboardShortcuts":
-				this.openShortcuts();
-				break;
-		}
-		this._editMenu.selectedIndex = 0;
-	};
-
-	private _optionsMenuHandler = (event: Event): void => {
-		switch (this._optionsMenu.value) {
-			case "autoPlay":
-				this.doc.prefs.autoPlay = !this.doc.prefs.autoPlay;
-				break;
-			case "autoFollow":
-				this.doc.prefs.autoFollow = !this.doc.prefs.autoFollow;
-				break;
-			case "enableNotePreview":
-				this.doc.prefs.enableNotePreview = !this.doc.prefs.enableNotePreview;
-				break;
-			case "showLetters":
-				this.doc.prefs.showLetters = !this.doc.prefs.showLetters;
-				break;
-			case "showFifth":
-				this.doc.prefs.showFifth = !this.doc.prefs.showFifth;
-				break;
-			case "notesOutsideScale":
-				this.doc.prefs.notesOutsideScale = !this.doc.prefs.notesOutsideScale;
-				break;
-			case "setDefaultScale":
-				this.doc.prefs.defaultScale = this.doc.song.scale;
-				break;
-			case "showChannels":
-				this.doc.prefs.showChannels = !this.doc.prefs.showChannels;
-				break;
-			case "showScrollBar":
-				this.doc.prefs.showScrollBar = !this.doc.prefs.showScrollBar;
-				break;
-			case "alwaysFineNoteVol":
-				this.doc.prefs.alwaysFineNoteVol = !this.doc.prefs.alwaysFineNoteVol;
-				break;
-			case "enableChannelMuting":
-				this.doc.prefs.enableChannelMuting = !this.doc.prefs.enableChannelMuting;
-				for (const channel of this.doc.song.channels) channel.muted = false;
-				break;
-			case "displayBrowserUrl":
-				this.doc.toggleDisplayBrowserUrl();
-				break;
-			case "displayVolumeBar":
-				this.doc.prefs.displayVolumeBar = !this.doc.prefs.displayVolumeBar;
-				break;
-			case "notesFlashWhenPlayed":
-				this.doc.prefs.notesFlashWhenPlayed = !this.doc.prefs.notesFlashWhenPlayed;
-				break;
-			case "layout":
-				this._openPrompt("layout");
-				break;
-			case "colorTheme":
-				this._openPrompt("theme");
-				break;
-			case "customTheme":
-				this._openPrompt("customTheme");
-				break;
-			case "recordingSetup":
-				this._openPrompt("recordingSetup");
-				break;
-			case "showOscilloscope":
-				this.doc.prefs.showOscilloscope = !this.doc.prefs.showOscilloscope;
-				break;
-			case "showDescription":
-				this.doc.prefs.showDescription = !this.doc.prefs.showDescription;
-				break;
-			case "showInstrumentScrollbars":
-				this.doc.prefs.showInstrumentScrollbars = !this.doc.prefs.showInstrumentScrollbars;
-				break;
-			case "showSampleLoadingStatus":
-				this.doc.prefs.showSampleLoadingStatus = !this.doc.prefs.showSampleLoadingStatus;
-				break;
-			case "closePromptByClickoff":
-				this.doc.prefs.closePromptByClickoff = !this.doc.prefs.closePromptByClickoff;
-				break;
-			case "instrumentCopyPaste":
-				this.doc.prefs.instrumentCopyPaste = !this.doc.prefs.instrumentCopyPaste;
-				break;
-			case "instrumentImportExport":
-				this.doc.prefs.instrumentImportExport = !this.doc.prefs.instrumentImportExport;
-				break;
-			case "instrumentButtonsAtTop":
-				this.doc.prefs.instrumentButtonsAtTop = !this.doc.prefs.instrumentButtonsAtTop;
-				break;
-			case "showPromptBackdrop":
-				this.doc.prefs.showPromptBackdrop = !this.doc.prefs.showPromptBackdrop;
-				break;
-			case "rollNoveltyPresets":
-				this.doc.prefs.rollNoveltyPresets = !this.doc.prefs.rollNoveltyPresets;
-				break;
-			case "enableTagSearch":
-				this.doc.prefs.enableTagSearch = !this.doc.prefs.enableTagSearch;
-				this._presetTagsInputBox.value = "";
-				break;
-		}
-		this._optionsMenu.selectedIndex = 0;
-		this.doc.notifier.changed();
-		this.doc.prefs.save();
 	};
 
 	private _customWavePresetHandler = (event: Event): void => {

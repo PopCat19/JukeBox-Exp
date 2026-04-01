@@ -9,6 +9,7 @@ export { Change, ChangeGroup, ChangeSequence, UndoableChange } from "./change";
 export { ChangeDispatcher } from "./change-dispatcher";
 export { ChangeNotifier } from "./change-notifier";
 export { KeyboardHandler } from "./keyboard-handler";
+export { MenuHandler, MenuHandlerHost } from "./menu-handler";
 export { ModSliderRegistry } from "./mod-slider-registry";
 export { PlayerAnimator } from "./player-animator";
 export { Preferences } from "./preferences";
