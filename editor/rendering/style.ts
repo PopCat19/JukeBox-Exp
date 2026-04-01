@@ -1606,6 +1606,16 @@ html {
 	color: ${ColorConfig.primaryText};
 }
 
+.beepboxEditor input[type=number] {
+	-moz-appearance: textfield;
+}
+
+.beepboxEditor input[type=number]::-webkit-inner-spin-button,
+.beepboxEditor input[type=number]::-webkit-outer-spin-button {
+	-webkit-appearance: none;
+	margin: 0;
+}
+
 .beepboxEditor input[type=text]:focus, .beepboxEditor input[type=number]:focus {
 	outline: none;
 	border-color: var(--indicator-primary, #4444ff);
