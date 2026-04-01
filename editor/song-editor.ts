@@ -106,6 +106,7 @@ import { FmOperatorSetup, FmOperatorSetupHost } from "./core/fm-operator-setup";
 import { KeyboardHandler } from "./core/keyboard-handler";
 import { MenuHandler, MenuHandlerHost } from "./core/menu-handler";
 import { ModSliderProvider, ModSliderRegistry } from "./core/mod-slider-registry";
+import { ModulatorSetup, ModulatorSetupHost } from "./core/modulator-setup";
 import { PlayerAnimator } from "./core/player-animator";
 import { Preferences } from "./core/preferences";
 import { PromptFocusController } from "./core/prompt-focus-controller";
@@ -256,7 +257,7 @@ function buildPresetOptions(isNoise: boolean, idSet: string): HTMLSelectElement 
 import { CustomAlgorythmCanvas } from "./rendering/custom-algorythm-canvas";
 import { CustomChipCanvas } from "./rendering/custom-chip-canvas";
 
-export class SongEditor implements ModSliderProvider, MenuHandlerHost, DrumsetSetupHost, FmOperatorSetupHost {
+export class SongEditor implements ModSliderProvider, MenuHandlerHost, DrumsetSetupHost, FmOperatorSetupHost, ModulatorSetupHost {
 	public get prompt(): Prompt | null {
 		return this._focusedPrompt;
 	}
@@ -2549,6 +2550,24 @@ export class SongEditor implements ModSliderProvider, MenuHandlerHost, DrumsetSe
 	public get operatorDropdownGroups(): HTMLDivElement[] {
 		return this._operatorDropdownGroups;
 	}
+	public get modulatorGroup(): HTMLElement {
+		return this._modulatorGroup;
+	}
+	public get modNameRows(): HTMLElement[] {
+		return this._modNameRows;
+	}
+	public get modSetRows(): HTMLElement[] {
+		return this._modSetRows;
+	}
+	public get modFilterRows(): HTMLElement[] {
+		return this._modFilterRows;
+	}
+	public get modEnvelopeRows(): HTMLElement[] {
+		return this._modEnvelopeRows;
+	}
+	public get modTargetIndicators(): SVGElement[] {
+		return this._modTargetIndicators;
+	}
 	private get _layoutRefs(): LayoutRefs {
 		return {
 			muteEditor: this._muteEditor,
@@ -2888,140 +2907,7 @@ export class SongEditor implements ModSliderProvider, MenuHandlerHost, DrumsetSe
 
 		new DrumsetSetup(this);
 
-		this._modNameRows = [];
-		this._modChannelBoxes = [];
-		this._modInstrumentBoxes = [];
-		this._modSetRows = [];
-		this._modSetBoxes = [];
-		this._modFilterRows = [];
-		this._modFilterBoxes = [];
-		this._modEnvelopeRows = [];
-		this._modEnvelopeBoxes = [];
-		this._modTargetIndicators = [];
-		for (let mod: number = 0; mod < Config.modCount; mod++) {
-			const modChannelBox: HTMLSelectElement = select({
-				style: "width: 100%; color: currentColor; text-overflow:ellipsis;",
-			});
-			const modInstrumentBox: HTMLSelectElement = select({ style: "width: 100%; color: currentColor;" });
-
-			const modNameRow: HTMLDivElement = div(
-				{ class: "operatorRow", style: "height: 1em; margin-bottom: 0.65em;" },
-				div(
-					{
-						class: "tip",
-						style: "width: 10%; max-width: 5.4em;",
-						id: "modChannelText" + mod,
-						onclick: () => this._openPrompt("modChannel"),
-					},
-					"Ch:",
-				),
-				div({ class: "selectContainer", style: "width: 35%;" }, modChannelBox),
-				div(
-					{
-						class: "tip",
-						style: "width: 1.2em; margin-left: 0.8em;",
-						id: "modInstrumentText" + mod,
-						onclick: () => this._openPrompt("modInstrument"),
-					},
-					"Ins:",
-				),
-				div({ class: "selectContainer", style: "width: 10%;" }, modInstrumentBox),
-			);
-
-			const modSetBox: HTMLSelectElement = select();
-			const modFilterBox: HTMLSelectElement = select();
-			const modEnvelopeBox: HTMLSelectElement = select();
-			const modSetRow: HTMLDivElement = div(
-				{ class: "selectRow", id: "modSettingText" + mod, style: "margin-bottom: 0.9em; color: currentColor;" },
-				span(
-					{
-						class: "tip",
-						onclick: () => this._openPrompt("modSet"),
-					},
-					"Setting: ",
-				),
-				span({ class: "tip", style: "font-size:x-small;", onclick: () => this._openPrompt("modSetInfo" + mod) }, "?"),
-				div({ class: "selectContainer" }, modSetBox),
-			);
-			const modFilterRow: HTMLDivElement = div(
-				{ class: "selectRow", id: "modFilterText" + mod, style: "margin-bottom: 0.9em; color: currentColor;" },
-				span(
-					{
-						class: "tip",
-						onclick: () => this._openPrompt("modFilter" + mod),
-					},
-					"Target: ",
-				),
-				div({ class: "selectContainer" }, modFilterBox),
-			);
-			const modEnvelopeRow: HTMLDivElement = div(
-				{ class: "selectRow", id: "modEnvelopeText" + mod, style: "margin-bottom: 0.9em; color: currentColor;" },
-				span(
-					{
-						class: "tip",
-						onclick: () => this._openPrompt("modEnvelope"),
-					},
-					"Envelope: ",
-				),
-				div({ class: "selectContainer" }, modEnvelopeBox),
-			);
-
-			// @jummbus: This could be templated above and simply created from the template, especially since it's reused in song settings. Unsure how to do that with imperative-html.
-			const modTarget: SVGElement = SVG.svg(
-				{
-					style: "transform: translate(0px, 1px);",
-					width: "1.5em",
-					height: "1em",
-					viewBox: "0 0 200 200",
-				},
-				[
-					SVG.path({
-						d: "M90 155 l0 -45 -45 0 c-25 0 -45 -4 -45 -10 0 -5 20 -10 45 -10 l45 0 0 -45 c0 -25 5 -45 10 -45 6 0 10 20 10 45 l0 45 45 0 c25 0 45 5 45 10 0 6 -20 10 -45 10 l -45 0 0 45 c0 25 -4 45 -10 45 -5 0 -10 -20 -10 -45z",
-					}),
-					SVG.path({
-						d: "M42 158 c-15 -15 -16 -38 -2 -38 6 0 10 7 10 15 0 8 7 15 15 15 8 0 15 5 15 10 0 14 -23 13 -38 -2z",
-					}),
-					SVG.path({
-						d: "M120 160 c0 -5 7 -10 15 -10 8 0 15 -7 15 -15 0 -8 5 -15 10 -15 14 0 13 23 -2 38 -15 15 -38 16 -38 2z",
-					}),
-					SVG.path({
-						d: "M32 58 c3 -23 48 -40 48 -19 0 6 -7 11 -15 11 -8 0 -15 7 -15 15 0 8 -5 15 -11 15 -6 0 -9 -10 -7 -22z",
-					}),
-					SVG.path({
-						d: "M150 65 c0 -8 -7 -15 -15 -15 -8 0 -15 -4 -15 -10 0 -14 23 -13 38 2 15 15 16 38 2 38 -5 0 -10 -7 -10 -15z",
-					}),
-				],
-			);
-
-			this._modNameRows.push(modNameRow);
-			this._modChannelBoxes.push(modChannelBox);
-			this._modInstrumentBoxes.push(modInstrumentBox);
-			this._modSetRows.push(modSetRow);
-			this._modSetBoxes.push(modSetBox);
-			this._modFilterRows.push(modFilterRow);
-			this._modFilterBoxes.push(modFilterBox);
-			this._modEnvelopeRows.push(modEnvelopeRow);
-			this._modEnvelopeBoxes.push(modEnvelopeBox);
-			this._modTargetIndicators.push(modTarget);
-
-			this._modulatorGroup.appendChild(
-				div(
-					{
-						style:
-							"margin: 3px 0; font-weight: bold; margin-bottom: 0.7em; text-align: center; color: " +
-							ColorConfig.secondaryText +
-							"; background: " +
-							ColorConfig.uiWidgetBackground +
-							";",
-					},
-					["Modulator " + (mod + 1), modTarget],
-				),
-			);
-			this._modulatorGroup.appendChild(modNameRow);
-			this._modulatorGroup.appendChild(modSetRow);
-			this._modulatorGroup.appendChild(modFilterRow);
-			this._modulatorGroup.appendChild(modEnvelopeRow);
-		}
+		new ModulatorSetup(this);
 
 		// @jummbus - Unsure why this hack is needed for alignment. CSS expertise welcome.
 		this._pitchShiftSlider.container.style.setProperty("transform", "translate(0px, 3px)");

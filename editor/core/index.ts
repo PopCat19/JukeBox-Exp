@@ -13,6 +13,7 @@ export { FmOperatorSetup, FmOperatorSetupHost } from "./fm-operator-setup";
 export { KeyboardHandler } from "./keyboard-handler";
 export { MenuHandler, MenuHandlerHost } from "./menu-handler";
 export { ModSliderRegistry } from "./mod-slider-registry";
+export { ModulatorSetup, ModulatorSetupHost } from "./modulator-setup";
 export { PlayerAnimator } from "./player-animator";
 export { Preferences } from "./preferences";
 export { PromptFocusController } from "./prompt-focus-controller";

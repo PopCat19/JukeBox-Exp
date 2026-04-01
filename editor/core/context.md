@@ -6,6 +6,7 @@
 - `change-dispatcher.ts` — Dispatches UI change events for instrument and song settings
 - `drumset-setup.ts` — Sets up drumset UI rows with envelope and spectrum controls
 - `fm-operator-setup.ts` — Sets up FM operator UI rows with frequency, amplitude, and waveform controls
+- `modulator-setup.ts` — Sets up modulator UI rows with channel, instrument, setting, filter, and envelope controls
 - `keyboard-handler.ts` — Extracts keyboard shortcut handling from SongEditor
 - `mod-slider-registry.ts` — Maps mod setting indices to Slider refs via a provider interface
 - `player-animator.ts` — Drives animation-frame loop for playback UI updates
