@@ -30,7 +30,7 @@ import {
 import { prettyNumber } from "../config/editor-config";
 import { Change } from "../core/change";
 import { SongDocument } from "../song-document";
-import { Slider } from "../ui";
+import { addWheelSupport, Slider } from "../ui";
 
 export class EnvelopeEditor {
 	public readonly container: HTMLElement = HTML.div({ class: "envelopeEditor" });
@@ -1038,6 +1038,14 @@ export class EnvelopeEditor {
 			this.LFOStepsBoxes[envelopeIndex] = LFOStepsBox;
 			this._LFOStepsSliders[envelopeIndex] = LFOStepsSlider;
 			this._LFOStepsWrappers[envelopeIndex] = LFOStepsWrapper;
+
+			addWheelSupport(pitchStartNoteBox);
+			addWheelSupport(pitchEndNoteBox);
+			addWheelSupport(randomStepsBox);
+			addWheelSupport(randomSeedBox);
+			addWheelSupport(LFOStepsBox);
+			addWheelSupport(lowerBoundBox);
+			addWheelSupport(upperBoundBox);
 
 			this._envelopeCopyButtons[envelopeIndex] = envelopeCopyButton;
 			this._envelopePasteButtons[envelopeIndex] = envelopePasteButton;

@@ -14,6 +14,7 @@ import { ChangeChipWaveLoopEnd, ChangeChipWaveLoopMode, ChangeChipWaveLoopStart,
 import { ChangeGroup } from "../core/change";
 import { SongDocument } from "../song-document";
 import { SongEditor } from "../song-editor";
+import { addWheelSupport } from "../ui";
 import { BasePrompt } from "./base-prompt";
 
 const { div, input, button, h2, select, option, canvas } = HTML;
@@ -556,6 +557,9 @@ export class VisualLoopControlsPrompt extends BasePrompt {
 		this._startOffsetStepper.addEventListener("change", this._whenStartOffsetStepperChanges);
 		this._loopStartStepper.addEventListener("change", this._whenLoopStartStepperChanges);
 		this._loopEndStepper.addEventListener("change", this._whenLoopEndStepperChanges);
+		addWheelSupport(this._startOffsetStepper);
+		addWheelSupport(this._loopStartStepper);
+		addWheelSupport(this._loopEndStepper);
 		this._playBackwardsBox.addEventListener("input", this._whenPlayBackwardsBoxChanges);
 		this._playSongButton.addEventListener("click", this._togglePlaySong);
 		window.addEventListener("mousemove", this._whenOverlayMouseMoves);

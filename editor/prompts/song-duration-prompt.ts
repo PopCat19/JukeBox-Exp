@@ -14,7 +14,7 @@ import { Config } from "../../synth/synth-config";
 import { ChangeBarCount } from "../changes";
 import { ChangeGroup } from "../core/change";
 import { SongDocument } from "../song-document";
-import { labelRow } from "../ui";
+import { addWheelSupport, labelRow } from "../ui";
 import { BasePrompt } from "./base-prompt";
 import { ExportPrompt } from "./export-prompt";
 import { validate, validateKey, validateNumber } from "./input-helpers";
@@ -76,6 +76,7 @@ export class SongDurationPrompt extends BasePrompt {
 			(this._computedSamplesLabel.firstChild as Text).textContent = this._predictFutureLength();
 		});
 		(this._computedSamplesLabel.firstChild as Text).textContent = ExportPrompt.samplesToTime(this._doc, this._doc.synth.getTotalSamples(true, true, 0));
+		addWheelSupport(this._barsStepper);
 	}
 
 	public override cleanUp(): void {

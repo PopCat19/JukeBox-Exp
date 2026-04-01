@@ -9,7 +9,7 @@ export { ArrayBufferReader } from "./array-buffer-reader";
 export { ArrayBufferWriter } from "./array-buffer-writer";
 export type { ButtonOptions, ContainerOptions, InputOptions, LabelOptions } from "./base";
 // Base factories
-export { createButton, createContainer, createDiv, createInput, createLabel, createSpan } from "./base";
+export { addWheelSupport, createButton, createContainer, createDiv, createInput, createLabel, createSpan } from "./base";
 // Buttons
 export { clearButton } from "./buttons";
 // Chips/Tags

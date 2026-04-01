@@ -18,6 +18,25 @@ export interface InputOptions {
 	"data-*"?: string;
 }
 
+export function addWheelSupport(input: HTMLInputElement): void {
+	input.addEventListener(
+		"wheel",
+		(e: WheelEvent) => {
+			e.preventDefault();
+			const step = parseFloat(input.step) || 1;
+			const delta = e.deltaY > 0 ? -step : step;
+			const current = parseFloat(input.value) || 0;
+			const min = input.min ? parseFloat(input.min) : -Infinity;
+			const max = input.max ? parseFloat(input.max) : Infinity;
+			const newValue = Math.min(max, Math.max(min, current + delta));
+			input.value = String(newValue);
+			input.dispatchEvent(new Event("input", { bubbles: true }));
+			input.dispatchEvent(new Event("change", { bubbles: true }));
+		},
+		{ passive: false },
+	);
+}
+
 export function createInput(type: string, baseStyle: string, options?: InputOptions): HTMLInputElement {
 	const attrs: Record<string, string> = {
 		type,
@@ -31,5 +50,11 @@ export function createInput(type: string, baseStyle: string, options?: InputOpti
 	if (options?.value) attrs.value = options.value;
 	if (options?.class) attrs.class = options.class;
 
-	return HTML.input(attrs);
+	const inputEl = HTML.input(attrs);
+
+	if (type === "number") {
+		addWheelSupport(inputEl);
+	}
+
+	return inputEl;
 }

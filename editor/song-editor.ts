@@ -143,9 +143,17 @@ import { PostSyncRefs, renderPostBranchSync } from "./renderers/render-post-sync
 import { PresetSetupRefs, renderPresetSetup } from "./renderers/render-preset-setup";
 import { renderSongSettings, SongSettingsRefs } from "./renderers/render-song-settings";
 import { SongDocument } from "./song-document";
-import { clearButton, InputBox, Slider, tagSuggestionItem } from "./ui";
+import { addWheelSupport, clearButton, InputBox, Slider, tagSuggestionItem } from "./ui";
 
 const { button, div, input, select, span, optgroup, option, canvas } = HTML;
+
+function numberInput(attrs: Record<string, any>): HTMLInputElement {
+	const el = input(attrs);
+	if (attrs.type === "number") {
+		addWheelSupport(el);
+	}
+	return el;
+}
 
 function buildOptions(menu: HTMLSelectElement, items: ReadonlyArray<string | number>): HTMLSelectElement {
 	for (let index: number = 0; index < items.length; index++) {
@@ -467,7 +475,7 @@ export class SongEditor implements ModSliderProvider {
 		Config.scales.map((scale) => scale.name),
 	);
 	private readonly _keySelect: HTMLSelectElement = buildOptions(select(), Config.keys.map((key) => key.name).reverse());
-	private readonly _octaveStepper: HTMLInputElement = input({
+	private readonly _octaveStepper: HTMLInputElement = numberInput({
 		style: "width: 59.5%;",
 		type: "number",
 		min: Config.octaveMin,
@@ -487,7 +495,7 @@ export class SongEditor implements ModSliderProvider {
 		(oldValue: number, newValue: number) => new ChangeTempo(this.doc, oldValue, newValue),
 		false,
 	);
-	private readonly _tempoStepper: HTMLInputElement = input({
+	private readonly _tempoStepper: HTMLInputElement = numberInput({
 		style: "width: 4em; font-size: 80%; margin-left: 0.4em; vertical-align: middle;",
 		type: "number",
 		step: "1",
@@ -789,7 +797,7 @@ export class SongEditor implements ModSliderProvider {
 		(oldValue: number, newValue: number) => new ChangeVolume(this.doc, oldValue, newValue),
 		true,
 	);
-	private readonly _instrumentVolumeSliderInputBox: HTMLInputElement = input({
+	private readonly _instrumentVolumeSliderInputBox: HTMLInputElement = numberInput({
 		style: "width: 4em; font-size: 80%",
 		id: "volumeSliderInputBox",
 		type: "number",
@@ -831,7 +839,7 @@ export class SongEditor implements ModSliderProvider {
 		},
 		"▼",
 	);
-	private readonly _panSliderInputBox: HTMLInputElement = input({
+	private readonly _panSliderInputBox: HTMLInputElement = numberInput({
 		style: "width: 4em; font-size: 80%; ",
 		id: "panSliderInputBox",
 		type: "number",
@@ -892,14 +900,14 @@ export class SongEditor implements ModSliderProvider {
 		style: "width: 1em; padding: 0; margin-left: 0.4em; margin-right: 4em;",
 	});
 	private readonly _chipWaveLoopModeSelect = buildOptions(select(), ["Loop", "Ping-Pong", "Play Once", "Play Loop Once"]);
-	private readonly _chipWaveLoopStartStepper = input({
+	private readonly _chipWaveLoopStartStepper = numberInput({
 		type: "number",
 		min: "0",
 		step: "1",
 		value: "0",
 		style: "width: 100%; height: 1.5em; font-size: 80%; margin-left: 0.4em; vertical-align: middle;",
 	});
-	private readonly _chipWaveLoopEndStepper = input({
+	private readonly _chipWaveLoopEndStepper = numberInput({
 		type: "number",
 		min: "0",
 		step: "1",
@@ -920,7 +928,7 @@ export class SongEditor implements ModSliderProvider {
 			SVG.path({ d: "M -6 -6 L -6 6 L 3 0 z", fill: ColorConfig.primaryText }),
 		),
 	);
-	private readonly _chipWaveStartOffsetStepper = input({
+	private readonly _chipWaveStartOffsetStepper = numberInput({
 		type: "number",
 		min: "0",
 		step: "1",
@@ -1232,7 +1240,7 @@ export class SongEditor implements ModSliderProvider {
 		},
 		"▼",
 	);
-	private readonly _pwmSliderInputBox: HTMLInputElement = input({
+	private readonly _pwmSliderInputBox: HTMLInputElement = numberInput({
 		style: "width: 4em; font-size: 70%;",
 		id: "pwmSliderInputBox",
 		type: "number",
@@ -1311,7 +1319,7 @@ export class SongEditor implements ModSliderProvider {
 		(oldValue: number, newValue: number) => new ChangeDetune(this.doc, oldValue, newValue),
 		true,
 	);
-	private readonly _detuneSliderInputBox: HTMLInputElement = input({
+	private readonly _detuneSliderInputBox: HTMLInputElement = numberInput({
 		style: "width: 4em; font-size: 80%; ",
 		id: "detuneSliderInputBox",
 		type: "number",
@@ -1426,7 +1434,7 @@ export class SongEditor implements ModSliderProvider {
 		div({ class: "selectContainer", style: "width: 61.5%;" }, this._unisonSelect),
 	);
 
-	private readonly _unisonVoicesInputBox: HTMLInputElement = input({
+	private readonly _unisonVoicesInputBox: HTMLInputElement = numberInput({
 		style: "width: 150%; height: 1.5em; font-size: 80%; margin-left: 0.4em; vertical-align: middle;",
 		id: "unisonVoicesInputBox",
 		type: "number",
@@ -1450,7 +1458,7 @@ export class SongEditor implements ModSliderProvider {
 			div({ style: "color: " + ColorConfig.secondaryText + "; margin-top: -3px;" }, this._unisonVoicesInputBox),
 		),
 	);
-	private readonly _unisonSpreadInputBox: HTMLInputElement = input({
+	private readonly _unisonSpreadInputBox: HTMLInputElement = numberInput({
 		style: "width: 150%; height: 1.5em; font-size: 80%; margin-left: 0.4em; vertical-align: middle;",
 		id: "unisonSpreadInputBox",
 		type: "number",
@@ -1475,7 +1483,7 @@ export class SongEditor implements ModSliderProvider {
 		),
 	);
 
-	private readonly _unisonOffsetInputBox: HTMLInputElement = input({
+	private readonly _unisonOffsetInputBox: HTMLInputElement = numberInput({
 		style: "width: 150%; height: 1.5em; font-size: 80%; margin-left: 0.4em; vertical-align: middle;",
 		id: "unisonOffsetInputBox",
 		type: "number",
@@ -1499,7 +1507,7 @@ export class SongEditor implements ModSliderProvider {
 			div({ style: "color: " + ColorConfig.secondaryText + "; margin-top: -3px;" }, this._unisonOffsetInputBox),
 		),
 	);
-	private readonly _unisonExpressionInputBox: HTMLInputElement = input({
+	private readonly _unisonExpressionInputBox: HTMLInputElement = numberInput({
 		style: "width: 150%; height: 1.5em; font-size: 80%; margin-left: 0.4em; vertical-align: middle;",
 		id: "unisonExpressionInputBox",
 		type: "number",
@@ -1567,7 +1575,7 @@ export class SongEditor implements ModSliderProvider {
 		},
 		"▼",
 	);
-	private readonly _monophonicNoteInputBox: HTMLInputElement = input({
+	private readonly _monophonicNoteInputBox: HTMLInputElement = numberInput({
 		style: "width: 2.35em; height: 1.5em; font-size: 80%; margin: 0.5em; vertical-align: middle;",
 		id: "unisonSignInputBox",
 		type: "number",
@@ -1831,7 +1839,7 @@ export class SongEditor implements ModSliderProvider {
 	private readonly _modEnvelopeBoxes: HTMLSelectElement[];
 	private readonly _modTargetIndicators: SVGElement[];
 
-	private readonly _upperNoteLimitInputBox: HTMLInputElement = input({
+	private readonly _upperNoteLimitInputBox: HTMLInputElement = numberInput({
 		style: "width: 4em; font-size: 80%; ",
 		id: "upperNoteLimitInputBox",
 		type: "number",
@@ -1845,7 +1853,7 @@ export class SongEditor implements ModSliderProvider {
 		span({ class: "tip", onclick: () => this._openPrompt("upperNoteLimit") }, "Upper Note Limit:"),
 		this._upperNoteLimitInputBox,
 	);
-	private readonly _lowerNoteLimitInputBox: HTMLInputElement = input({
+	private readonly _lowerNoteLimitInputBox: HTMLInputElement = numberInput({
 		style: "width: 4em; font-size: 80%; ",
 		id: "lowerNoteLimitInputBox",
 		type: "number",

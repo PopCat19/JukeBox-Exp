@@ -13,7 +13,7 @@ import { ColorConfig } from "../../shared/color-config";
 import { Config } from "../../synth/synth-config";
 import { ChangeMoveNotesSideways } from "../changes";
 import { SongDocument } from "../song-document";
-import { labelRow } from "../ui";
+import { addWheelSupport, labelRow } from "../ui";
 import { BasePrompt } from "./base-prompt";
 
 const { div, span, h2, input, br, select, option } = HTML;
@@ -63,6 +63,7 @@ export class MoveNotesSidewaysPrompt extends BasePrompt {
 		setTimeout(() => this._beatsStepper.focus(), 100); // Add 100ms because the key macro (W) gets captured by the stepper...
 
 		this._beatsStepper.addEventListener("blur", MoveNotesSidewaysPrompt._validateNumber);
+		addWheelSupport(this._beatsStepper);
 	}
 
 	public override cleanUp(): void {

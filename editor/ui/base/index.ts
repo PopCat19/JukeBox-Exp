@@ -4,5 +4,5 @@
 
 export { type ButtonOptions, createButton } from "./button";
 export { type ContainerOptions, createContainer, createDiv, createSpan } from "./container";
-export { createInput, type InputOptions } from "./input";
+export { addWheelSupport, createInput, type InputOptions } from "./input";
 export { createLabel, type LabelOptions } from "./label";

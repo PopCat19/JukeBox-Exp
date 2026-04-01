@@ -12,6 +12,7 @@ import { clamp, parseFloatWithDefault, parseIntWithDefault } from "../../synth";
 import { Config, Dictionary } from "../../synth/synth-config";
 import { EditorConfig } from "../config/editor-config";
 import { SongDocument } from "../song-document";
+import { addWheelSupport } from "../ui";
 import { BasePrompt } from "./base-prompt";
 
 const { div, input, button, a, code, textarea, details, summary, span, ul, li, select, option, h2 } = HTML;
@@ -905,6 +906,11 @@ export class AddSamplesPrompt extends BasePrompt {
 			chipWaveStartOffsetStepper.addEventListener("change", this._whenChipWaveStartOffsetChanges);
 			chipWaveLoopModeSelect.addEventListener("change", this._whenChipWaveLoopModeChanges);
 			chipWavePlayBackwardsBox.addEventListener("change", this._whenChipWavePlayBackwardsChanges);
+			addWheelSupport(sampleRateStepper);
+			addWheelSupport(rootKeyStepper);
+			addWheelSupport(chipWaveLoopStartStepper);
+			addWheelSupport(chipWaveLoopEndStepper);
+			addWheelSupport(chipWaveStartOffsetStepper);
 			copyLinkPresetButton.addEventListener("click", this._whenCopyLinkPresetClicked);
 			removeButton.addEventListener("click", this._whenRemoveSampleClicked);
 			if (canMoveUp) {

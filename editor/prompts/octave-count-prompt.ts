@@ -11,7 +11,7 @@
 import { HTML } from "imperative-html/dist/esm/elements-strict";
 import { ChangeOctaveCount } from "../changes";
 import { SongDocument } from "../song-document";
-import { labelRow } from "../ui";
+import { addWheelSupport, labelRow } from "../ui";
 import { BasePrompt } from "./base-prompt";
 import { validate, validateKey, validateNumber } from "./input-helpers";
 
@@ -46,6 +46,7 @@ export class OctaveCountPrompt extends BasePrompt {
 
 		this._octaves.addEventListener("keypress", validateKey);
 		this._octaves.addEventListener("blur", validateNumber);
+		addWheelSupport(this._octaves);
 	}
 
 	public override cleanUp(): void {
