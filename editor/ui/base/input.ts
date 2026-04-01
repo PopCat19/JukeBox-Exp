@@ -24,7 +24,8 @@ export function addWheelSupport(input: HTMLInputElement): void {
 		(e: WheelEvent) => {
 			e.preventDefault();
 			const step = parseFloat(input.step) || 1;
-			const delta = e.deltaY > 0 ? -step : step;
+			const multiplier = e.shiftKey ? 5 : 1;
+			const delta = e.deltaY > 0 ? -step * multiplier : step * multiplier;
 			const current = parseFloat(input.value) || 0;
 			const min = input.min ? parseFloat(input.min) : -Infinity;
 			const max = input.max ? parseFloat(input.max) : Infinity;
