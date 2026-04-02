@@ -21,7 +21,7 @@ import { validate, validateKey, validateNumber } from "./input-helpers";
 const { div, span, h2, input, br, select, option } = HTML;
 
 export class BeatsPerBarPrompt extends BasePrompt {
-	private readonly _computedSamplesLabel: HTMLDivElement = div({ style: "width: 10em;" }, new Text("0:00"));
+	private readonly _computedSamplesLabel: HTMLDivElement = div({ style: "flex: 1; text-align: right;" }, new Text("0:00"));
 	private readonly _beatsStepper: HTMLInputElement = input({
 		style: "width: 3em;",
 		type: "number",

@@ -811,7 +811,7 @@ html {
 .beepboxEditor .prompt-form-row-end {
 	display: flex;
 	flex-direction: row;
-	align-items: center;
+	align-items: flex-start;
 	justify-content: flex-end;
 	gap: var(--gap-md);
 	min-height: 2em;
@@ -830,7 +830,9 @@ html {
 
 .beepboxEditor .prompt-label {
 	text-align: right;
-	flex-shrink: 0;
+	flex-shrink: 1;
+	min-width: 0;
+	overflow-wrap: break-word;
 }
 
 .beepboxEditor .prompt h2 {
