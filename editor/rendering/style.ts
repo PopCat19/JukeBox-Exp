@@ -1139,6 +1139,9 @@ html {
 	flex: var(--flex-fit);
 	align-self: var(--flex-stretch);
 	height: 100%;
+	width: 32px;
+	min-width: 32px;
+	padding: 0;
 }
 
 .beepboxEditor .prompt.shaded {
