@@ -797,9 +797,6 @@ html {
 	align-items: center;
 	gap: var(--gap-md);
 	min-height: 2em;
-	background: rgba(255, 255, 255, 0.02);
-	border-radius: var(--border-radius-small);
-	padding: var(--padding-4) var(--padding-6);
 }
 
 .beepboxEditor .prompt-form-row-between {
@@ -809,9 +806,6 @@ html {
 	justify-content: space-between;
 	gap: var(--gap-md);
 	min-height: 2em;
-	background: rgba(255, 255, 255, 0.02);
-	border-radius: var(--border-radius-small);
-	padding: var(--padding-4) var(--padding-6);
 }
 
 .beepboxEditor .prompt-form-row-end {
@@ -821,9 +815,6 @@ html {
 	justify-content: flex-end;
 	gap: var(--gap-md);
 	min-height: 2em;
-	background: rgba(255, 255, 255, 0.02);
-	border-radius: var(--border-radius-small);
-	padding: var(--padding-4) var(--padding-6);
 }
 
 .beepboxEditor .prompt-button-row {
