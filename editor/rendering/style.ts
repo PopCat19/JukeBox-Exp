@@ -42,6 +42,9 @@ document.head.appendChild(
 	--padding-10: 10px;
 	--padding-12: 12px;
 	--padding-16: 16px;
+	--flex-fill: 1 1 auto;
+	--flex-fit: 0 0 auto;
+	--flex-stretch: stretch;
 	--internal-play-symbol: var(--play-symbol, url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="-13 -13 26 26"><path d="M -5 -8 L -5 8 L 8 0 z" fill="gray"/></svg>'));
 	--internal-pause-symbol: var(--pause-symbol, url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="-13 -13 26 26"><rect x="-5" y="-7" width="4" height="14" fill="gray"/><rect x="3" y="-7" width="4" height="14" fill="gray"/></svg>'));
 	--internal-record-symbol: var(--record-symbol, url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="-13 -13 26 26"><circle cx="0" cy="0" r="6" fill="gray"/></svg>'));
@@ -825,7 +828,8 @@ html {
 	border-color: var(--indicator-primary, #4444ff);
 }
 .beepboxEditor .prompt.compactSearchPrompt .tagBrowserButton {
-	align-self: stretch;
+	flex: var(--flex-fit);
+	align-self: var(--flex-stretch);
 	background: var(--ui-widget-background);
 	border: 2px solid transparent;
 	border-radius: var(--border-radius-medium);
