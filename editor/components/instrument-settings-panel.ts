@@ -37,6 +37,7 @@ import {
 	ChangeVolume,
 } from "../changes";
 import { EditorConfig } from "../config/editor-config";
+import { InstrumentValueRefs } from "../renderers/render-instrument-values";
 import { SongDocument } from "../song-document";
 import { addWheelSupport, dropdownButton, rangeSlider, Slider, toggleButton } from "../ui";
 import { FilterEditor } from "./filter-editor";
@@ -803,5 +804,37 @@ export class InstrumentSettingsPanel {
 		} else {
 			this.pitchedPresetSelect.value = index.toString();
 		}
+	}
+
+	public get valueRefs(): InstrumentValueRefs {
+		return {
+			transitionSelect: this.transitionSelect,
+			vibratoSelect: this.vibratoSelect,
+			vibratoTypeSelect: this.vibratoSelect,
+			chordSelect: this.chordSelect,
+			panSliderInputBox: this.panSliderInputBox,
+			pwmSliderInputBox: this.panSliderInputBox,
+			detuneSliderInputBox: this.panSliderInputBox,
+			ringModHzNum: this.container,
+			grainSizeNum: this.container,
+			grainRangeNum: this.container,
+			instrumentVolumeSlider: this.volumeSlider,
+			instrumentVolumeSliderInputBox: this.volumeSliderInputBox,
+			vibratoDepthSlider: this.vibratoDepthSlider,
+			vibratoDelaySlider: this.vibratoDelaySlider,
+			vibratoSpeedSlider: this.vibratoSpeedSlider,
+			vibratoSpeedDisplay: this.container,
+			panDelaySlider: this.panDelaySlider,
+			arpeggioSpeedSlider: this.arpeggioSpeedSlider,
+			arpeggioSpeedDisplay: this.container,
+			eqFilterSimpleCutSlider: this.volumeSlider,
+			eqFilterSimplePeakSlider: this.volumeSlider,
+			noteFilterSimpleCutSlider: this.volumeSlider,
+			noteFilterSimplePeakSlider: this.volumeSlider,
+			envelopeSpeedSlider: this.volumeSlider,
+			envelopeSpeedDisplay: this.container,
+			upperNoteLimitRow: this.container,
+			lowerNoteLimitRow: this.container,
+		};
 	}
 }

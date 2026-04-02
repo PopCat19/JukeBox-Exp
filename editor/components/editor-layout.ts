@@ -9,6 +9,7 @@
 
 import { HTML } from "imperative-html/dist/esm/elements-strict";
 import { ColorConfig } from "../../shared/color-config";
+import { LayoutRefs } from "../renderers/render-layout";
 import { SongDocument } from "../song-document";
 import { PatternArea } from "./pattern-area";
 import { SettingsArea } from "./settings-area";
@@ -23,6 +24,14 @@ export class EditorLayout {
 	public readonly trackArea: TrackArea;
 	public readonly settingsArea: SettingsArea;
 	public readonly shiggy: Shiggy;
+
+	// Internal elements for ref access
+	private readonly _trackVisibleArea: HTMLElement;
+	private readonly _sampleLoadingStatusContainer: HTMLElement;
+	private readonly _trackAndMuteContainer: HTMLElement;
+	private readonly _patternAreaContainer: HTMLElement;
+	private readonly _trackAreaContainer: HTMLElement;
+	private readonly _settingsAreaContainer: HTMLElement;
 
 	constructor(
 		doc: SongDocument,
@@ -51,20 +60,33 @@ export class EditorLayout {
 			sampleLoadingBar,
 		);
 
-		const sampleLoadingStatusContainer = div(
+		this._sampleLoadingStatusContainer = div(
 			{ style: "cursor: pointer;" },
 			div({ style: `margin-top: 0.5em; text-align: center; color: ${ColorConfig.secondaryText};` }, "Sample Loading Status"),
 			div({ class: "selectRow", style: "height: 6px; margin-bottom: 0.5em;" }, sampleLoadingBarContainer),
 		);
 
+		// Track visible area (placeholder for calculation)
+		this._trackVisibleArea = div({
+			style: "position: absolute; width: 100%; height: 100%; pointer-events: none;",
+		});
+
+		// Track and mute container (from TrackArea's structure)
+		this._trackAndMuteContainer = div({ class: "trackAndMuteContainer" });
+
+		// Layout containers
+		this._patternAreaContainer = div({ class: "pattern-area-container" }, this.patternArea.container);
+		this._trackAreaContainer = div({ class: "track-area-container" }, this.trackArea.container);
+		this._settingsAreaContainer = div({ class: "settings-area-container" }, this.settingsArea.container);
+
 		// Main Layout
 		this.container = div(
 			{ class: "beepboxEditor" },
-			div({ class: "pattern-area-container" }, this.patternArea.container),
-			div({ class: "track-area-container" }, this.trackArea.container),
-			div({ class: "settings-area-container" }, this.settingsArea.container),
+			this._patternAreaContainer,
+			this._trackAreaContainer,
+			this._settingsAreaContainer,
 			div({ class: "shiggy-container" }, this.shiggy.container),
-			div({ class: "sample-loading-container" }, sampleLoadingStatusContainer),
+			div({ class: "sample-loading-container" }, this._sampleLoadingStatusContainer),
 		);
 	}
 
@@ -78,5 +100,30 @@ export class EditorLayout {
 		if (mode && mode !== "small") {
 			this.container.classList.add(`layout-${mode}`);
 		}
+	}
+
+	public get layoutRefs(): LayoutRefs {
+		return {
+			muteEditor: this.trackArea.muteEditor,
+			trackVisibleArea: this._trackVisibleArea,
+			barScrollBar: this.trackArea.barScrollBar,
+			trackEditor: this.trackArea.trackEditor,
+			trackAndMuteContainer: this._trackAndMuteContainer,
+			patternEditor: this.patternArea.patternEditor,
+			piano: this.patternArea.piano,
+			octaveScrollBar: this.patternArea.octaveScrollBar,
+			volumeBarBox: this.settingsArea.playbackControls.volumeBarBox,
+			globalOscscopeContainer: this.container,
+			sampleLoadingStatusContainer: this._sampleLoadingStatusContainer,
+			instrumentCopyGroup: this.container,
+			instrumentTagRow: this.container,
+			instrumentExportGroup: this.container,
+			instrumentSettingsArea: this.settingsArea.instrumentSettings.container,
+			patternEditorRow: this._patternAreaContainer,
+			patternEditorPrev: this.patternArea.patternEditorPrev,
+			patternEditorNext: this.patternArea.patternEditorNext,
+			zoomInButton: this.patternArea.zoomInButton,
+			zoomOutButton: this.patternArea.zoomOutButton,
+		};
 	}
 }
