@@ -3,129 +3,28 @@
 // Purpose: Provides dialog for generating Euclidean rhythm patterns
 //
 // This module:
-// - Implements Euclidean rhythm algorithm for note placement
-// - Applies generated rhythms to pattern notes
-
-// Copyright (C) 2012-2023 John Nesky and contributing authors, distributed under the MIT license, see the accompanying LICENSE.md file.
+// - Orchestrates UI, event handling, and user interaction
+// - Delegates rhythm generation to euclidgen-algorithm.ts
+// - Delegates rendering to euclidgen-renderer.ts
+// - Delegates note application to euclidgen-note-generator.ts
 
 import { HTML, SVG } from "imperative-html/dist/esm/elements-strict";
-import { ChannelColors, ColorConfig } from "../../shared/color-config";
-import { makeNotePin, Note, NotePin, Pattern } from "../../synth";
+import { ColorConfig } from "../../shared/color-config";
 import { Config } from "../../synth/synth-config";
-import { ChangeEnsurePatternExists, ChangeInsertBars, ChangeNoteAdded, ChangePatternNumbers } from "../changes";
-import { prettyNumber } from "../config/editor-config";
-import { ChangeGroup } from "../core/change";
 import { SongDocument } from "../song-document";
 import { fieldLabel, labelRow, stepperInput } from "../ui";
 import { BasePrompt } from "./base-prompt";
+import { generateEuclideanRhythm, Sequence } from "./euclidgen-algorithm";
+import { generateAndApplyEuclideanNotes } from "./euclidgen-note-generator";
+import { EuclidgenRendererContext, renderInitialBackground, renderSequenceButtons } from "./euclidgen-renderer";
 
 const { button, div, h2, input } = HTML;
-
-interface Sequence {
-	steps: number;
-	pulses: number;
-	rotation: number;
-	stepSizeNumerator: number;
-	stepSizeDenominator: number;
-	channel: number;
-	pitch: number;
-	invert: boolean;
-	generateFadingNotes: boolean;
-}
-
-function gcd(x: number, y: number): number {
-	while (y !== 0) {
-		const z: number = x % y;
-		x = y;
-		y = z;
-	}
-	return x;
-}
-
-function lcm(a: number, b: number): number {
-	return Math.floor(Math.abs(a * b) / gcd(a, b));
-}
-
-// Not exactly a good fraction/rational datatype, but it will do for now.
-type Fraction = [number, number];
-
-function fraction(a: number, b: number): Fraction {
-	let n: number = a;
-	let d: number = b;
-	const g: number = gcd(n, d);
-	if (g > 1) {
-		n = Math.floor(n / g);
-		d = Math.floor(d / g);
-	}
-	return [n, d];
-}
-
-function fractionMul(a: Fraction, b: Fraction): Fraction {
-	const an: number = a[0];
-	const ad: number = a[1];
-	const bn: number = b[0];
-	const bd: number = b[1];
-	return fraction(an * bn, ad * bd);
-}
-
-function fractionDiv(a: Fraction, b: Fraction): Fraction {
-	const an: number = a[0];
-	const ad: number = a[1];
-	const bn: number = b[0];
-	const bd: number = b[1];
-	return fraction(an * bd, ad * bn);
-}
-
-// https://math.stackexchange.com/questions/44836/rational-numbers-lcm-and-hcf
-function fractionLCM(a: Fraction, b: Fraction): Fraction {
-	const an: number = a[0];
-	const ad: number = a[1];
-	const bn: number = b[0];
-	const bd: number = b[1];
-	return fraction(lcm(an, bn), gcd(ad, bd));
-}
-
-function generateEuclideanRhythm(steps: number, pulses: number, offset: number): number[] {
-	steps = Math.max(0, steps);
-	pulses = Math.max(0, Math.min(steps, pulses));
-	const columns: number[][] = [];
-	for (let step: number = 0; step < steps; step++) {
-		columns.push([step >= pulses ? 0 : 1]);
-	}
-	let a: number = steps;
-	let b: number = steps - pulses;
-	if (a > 0 && b > 0) {
-		while (a !== b) {
-			if (a > b) {
-				a = a - b;
-			} else {
-				b = b - a;
-			}
-			const amountToMove: number = Math.min(a, b);
-			if (amountToMove <= 1) continue;
-			for (let i: number = 0; i < amountToMove; i++) {
-				const moved: number[] | undefined = columns.pop();
-				if (moved != null) {
-					for (const v of moved) columns[i].push(v);
-				}
-			}
-		}
-	}
-	let pattern: number[] = [];
-	for (const c of columns) for (const v of c) pattern.push(v);
-	if (offset !== 0) {
-		offset = ((offset % pattern.length) + pattern.length) % pattern.length;
-		offset = pattern.length - offset;
-		pattern = pattern.slice(offset).concat(pattern.slice(0, offset));
-	}
-	return pattern;
-}
 
 export class EuclidgenRhythmPrompt extends BasePrompt {
 	private readonly _minSteps: number = 2;
 	private readonly _maxSteps: number = 64;
 	private readonly _maxSequences: number = 14;
-	private _maxChannel: number = Config.pitchChannelCountMax + Config.noiseChannelCountMax - 1; // Inclusive.
+	private _maxChannel: number = Config.pitchChannelCountMax + Config.noiseChannelCountMax - 1;
 	private readonly _localStorageKey: string = "euclidGenMemory";
 	private readonly _sequences: Sequence[];
 	private _generatedSequences: number[][];
@@ -318,6 +217,8 @@ export class EuclidgenRhythmPrompt extends BasePrompt {
 		this._cancelButton,
 	);
 
+	private readonly _rendererCtx: EuclidgenRendererContext;
+
 	constructor(doc: SongDocument) {
 		super(doc);
 		this.buildTitlebar();
@@ -399,7 +300,39 @@ export class EuclidgenRhythmPrompt extends BasePrompt {
 			}
 		}
 
-		this._generateAllSequences();
+		this._generatedSequences = [];
+		for (let i: number = 0; i < this._sequences.length; i++) {
+			this._generatedSequences.push([]);
+			this._generateSequence(i);
+		}
+
+		this._rendererCtx = {
+			song: this._doc.song,
+			sequences: this._sequences,
+			generatedSequences: this._generatedSequences,
+			sequenceIndex: this._sequenceIndex,
+			barPreviewBarIndex: this._barPreviewBarIndex,
+			startBar: this._startBar,
+			barAmount: this._barAmount,
+			renderedSequenceCount: this._renderedSequenceCount,
+			highlightedSequenceIndex: this._highlightedSequenceIndex,
+			clockWire: this._clockWire,
+			clockPoints: this._clockPoints,
+			barPreviewBackground: this._barPreviewBackground,
+			barPreviewSteps: this._barPreviewSteps,
+			barPreviewLabel: this._barPreviewLabel,
+			sequenceButtonContainer: this._sequenceButtonContainer,
+			clockWidth: this._clockWidth,
+			clockHeight: this._clockHeight,
+			clockPointMinRadius: this._clockPointMinRadius,
+			clockPointMaxRadius: this._clockPointMaxRadius,
+			barPreviewWidth: this._barPreviewWidth,
+			barPreviewHeight: this._barPreviewHeight,
+			maxSequences: this._maxSequences,
+			sequenceButtons: this._sequenceButtons,
+			sequenceRemoveButton: this._sequenceRemoveButton,
+			sequenceAddButton: this._sequenceAddButton,
+		};
 
 		this._sequenceButtonContainer.addEventListener("click", this._whenSelectSequence);
 		this._barPreviewGoToFirstButton.addEventListener("click", this._whenBarPreviewGoToFirstClicked);
@@ -444,299 +377,9 @@ export class EuclidgenRhythmPrompt extends BasePrompt {
 
 	protected override _saveChanges(): void {
 		this._doc.prompt = null;
-
-		const group: ChangeGroup = new ChangeGroup();
-		const beatsPerBar: number = this._doc.song.beatsPerBar;
-		const partsPerBeat: number = Config.partsPerBeat;
-		const partsPerBar: number = partsPerBeat * beatsPerBar;
-		const firstBar: number = this._startBar;
-		const lastBar: number = firstBar + this._barAmount; // Exclusive.
-
-		if (lastBar > this._doc.song.barCount) {
-			const existing: number = this._doc.song.barCount - firstBar;
-			const remaining: number = this._barAmount - existing;
-			group.append(new ChangeInsertBars(this._doc, this._doc.song.barCount, remaining));
-		}
-
-		type ResultingSequence = Note[];
-		type ResultingBar = ResultingSequence[];
-		type ResultingChannel = ResultingBar[];
-		const allNewNotesByChannel: Map<number, ResultingChannel> = new Map();
-		const pitchesToBeGenerated: Map<number, boolean> = new Map();
-
-		for (let bar: number = firstBar; bar < lastBar; bar++) {
-			const relativeBar: number = bar - firstBar;
-			const partOffset: number = relativeBar * partsPerBar;
-
-			for (let sequenceIndex: number = 0; sequenceIndex < this._sequences.length; sequenceIndex++) {
-				const sequence: Sequence = this._sequences[sequenceIndex];
-				const generatedSequence: number[] = this._generatedSequences[sequenceIndex];
-				const hasGeneratedSequence: boolean = generatedSequence.length > 0;
-				if (!hasGeneratedSequence) continue;
-				const steps: number = sequence.steps;
-				if (generatedSequence.length !== steps) continue;
-				const stepSize: number = sequence.stepSizeNumerator / sequence.stepSizeDenominator;
-				const pitch: number = sequence.pitch;
-				const channelIndex: number = sequence.channel;
-				const invert: boolean = sequence.invert;
-				const on: number = invert ? 0 : 1;
-				const generateFadingNotes: boolean = sequence.generateFadingNotes;
-				pitchesToBeGenerated.set(pitch, true);
-				let resultingChannel: ResultingChannel | undefined = allNewNotesByChannel.get(channelIndex);
-				if (resultingChannel === undefined) {
-					resultingChannel = [];
-					for (let i: number = 0; i < this._barAmount; i++) {
-						const newResultingBar: ResultingBar = [];
-						for (let j: number = 0; j < this._sequences.length; j++) {
-							newResultingBar.push([]);
-						}
-						resultingChannel.push(newResultingBar);
-					}
-					allNewNotesByChannel.set(channelIndex, resultingChannel);
-				}
-				const resultingBar: ResultingBar = resultingChannel[relativeBar];
-				const resultingSequence: ResultingSequence = resultingBar[sequenceIndex];
-				const firstStep: number = Math.floor((beatsPerBar * relativeBar) / stepSize);
-				const lastStep: number = Math.ceil((beatsPerBar * (relativeBar + 1)) / stepSize); // Exclusive.
-				for (let step: number = firstStep; step < lastStep; step++) {
-					let continuesLastPattern: boolean = false;
-					let needToAdjustPins: boolean = false;
-					const rawStepPartStart: number = Math.floor(step * partsPerBeat * stepSize) - partOffset;
-					const rawStepPartEnd: number = Math.floor((step + 1) * partsPerBeat * stepSize) - partOffset;
-					if (rawStepPartStart < 0) continuesLastPattern = true;
-					if (continuesLastPattern || rawStepPartEnd > partsPerBar) needToAdjustPins = true;
-					const stepPartStart: number = Math.max(0, Math.min(partsPerBar, rawStepPartStart));
-					const stepPartEnd: number = Math.max(0, Math.min(partsPerBar, rawStepPartEnd));
-					if (generatedSequence[step % steps] === on) {
-						const note: Note = new Note(pitch, stepPartStart, stepPartEnd, Config.noteSizeMax, generateFadingNotes);
-						if (continuesLastPattern) note.continuesLastPattern = true;
-						if (needToAdjustPins && generateFadingNotes) {
-							const startRatio: number = (stepPartStart - rawStepPartStart) / (rawStepPartEnd - rawStepPartStart);
-							const startPinSize: number = Math.round(Config.noteSizeMax + (0 - Config.noteSizeMax) * startRatio);
-							note.pins[0].size = startPinSize;
-							const endRatio: number = (stepPartEnd - rawStepPartStart) / (rawStepPartEnd - rawStepPartStart);
-							const endPinSize: number = Math.round(Config.noteSizeMax + (0 - Config.noteSizeMax) * endRatio);
-							note.pins[1].size = endPinSize;
-						}
-						resultingSequence.push(note);
-					}
-				}
-			}
-		}
-
-		for (const [channelIndex, resultingChannel] of allNewNotesByChannel.entries()) {
-			for (let resultingBarIndex: number = 0; resultingBarIndex < resultingChannel.length; resultingBarIndex++) {
-				const resultingBar: ResultingBar = resultingChannel[resultingBarIndex];
-				const bar: number = resultingBarIndex + firstBar;
-				let oldNotes: Note[] = [];
-				const oldPattern: Pattern | null = this._doc.song.getPattern(channelIndex, bar);
-				if (oldPattern != null) oldNotes = oldPattern.cloneNotes();
-				group.append(new ChangePatternNumbers(this._doc, 0, bar, channelIndex, 1, 1));
-				group.append(new ChangeEnsurePatternExists(this._doc, channelIndex, bar));
-				const pattern: Pattern | null = this._doc.song.getPattern(channelIndex, bar);
-				if (pattern == null) throw new Error("Couldn't create new pattern");
-				const merged: Note[] = [];
-				for (let oldNoteIndex: number = oldNotes.length - 1; oldNoteIndex >= 0; oldNoteIndex--) {
-					const oldNote: Note = oldNotes[oldNoteIndex];
-					const newPitches: number[] = [];
-					for (const oldPitch of oldNote.pitches) {
-						if (!pitchesToBeGenerated.has(oldPitch)) newPitches.push(oldPitch);
-					}
-					oldNote.pitches = newPitches;
-					if (oldNote.pitches.length < 1) oldNotes.splice(oldNoteIndex, 1);
-				}
-				interface MergeableEvent {
-					noteType: "old" | "new";
-					eventType: "start" | "end";
-					part: number;
-					note: Note;
-				}
-				const timeline: MergeableEvent[] = [];
-				for (const note of oldNotes) {
-					timeline.push({ noteType: "old", eventType: "start", part: note.start, note: note });
-					timeline.push({ noteType: "old", eventType: "end", part: note.end, note: note });
-				}
-				for (const resultingSequence of resultingBar) {
-					for (const note of resultingSequence) {
-						timeline.push({ noteType: "new", eventType: "start", part: note.start, note: note });
-						timeline.push({ noteType: "new", eventType: "end", part: note.end, note: note });
-					}
-				}
-				timeline.sort((a, b) => a.part - b.part);
-				interface MergeableEventGroup {
-					part: number;
-					events: MergeableEvent[];
-				}
-				const eventGroups: MergeableEventGroup[] = [];
-				let currentEventGroup: MergeableEventGroup | null = null;
-				for (const event of timeline) {
-					if (currentEventGroup == null) {
-						currentEventGroup = { part: event.part, events: [event] };
-					} else {
-						if (event.part !== currentEventGroup.part) {
-							eventGroups.push(currentEventGroup);
-							currentEventGroup = { part: event.part, events: [event] };
-						} else {
-							currentEventGroup.events.push(event);
-						}
-					}
-				}
-				if (currentEventGroup != null) eventGroups.push(currentEventGroup);
-				interface MergeableNote {
-					noteType: "old" | "new";
-					note: Note;
-				}
-				const heldNotes: MergeableNote[] = [];
-				let mergedStartPart: number = 0;
-				let mergedEndPart: number = 0;
-				const notesToDrop: Set<Note> = new Set();
-				const notesToAdd: MergeableNote[] = [];
-				const setOfPitchesToCommit: Set<number> = new Set();
-				for (const eventGroup of eventGroups) {
-					if (heldNotes.length === 0) {
-						for (const event of eventGroup.events) {
-							if (event.eventType === "start") heldNotes.push({ noteType: event.noteType, note: event.note });
-						}
-						mergedStartPart = eventGroup.part;
-					} else {
-						for (const event of eventGroup.events) {
-							if (event.eventType === "end") notesToDrop.add(event.note);
-							else if (event.eventType === "start") notesToAdd.push({ noteType: event.noteType, note: event.note });
-						}
-						mergedEndPart = eventGroup.part;
-						const mergedNote: Note = new Note(0, mergedStartPart, mergedEndPart, Config.noteSizeMax, false);
-						let continuesLastPattern: boolean = false;
-						let theNewNote: Note | null = null;
-						let theOldNote: Note | null = null;
-						for (const mergeableNote of heldNotes) {
-							const note: Note = mergeableNote.note;
-							for (const candidatePitch of note.pitches) setOfPitchesToCommit.add(candidatePitch);
-							if (note.continuesLastPattern) continuesLastPattern = true;
-							if (mergeableNote.noteType === "new") {
-								if (theNewNote == null || mergeableNote.note.start > theNewNote.start || mergeableNote.note.end < theNewNote.end)
-									theNewNote = mergeableNote.note;
-							} else if (mergeableNote.noteType === "old") {
-								theOldNote = mergeableNote.note;
-							}
-						}
-						mergedNote.pitches = Array.from(setOfPitchesToCommit).sort((a, b) => a - b);
-						mergedNote.continuesLastPattern = continuesLastPattern;
-						if (theNewNote != null) {
-							const startRatio: number = (mergedStartPart - theNewNote.start) / (theNewNote.end - theNewNote.start);
-							const startPinSize: number = Math.round(theNewNote.pins[0].size + (theNewNote.pins[1].size - theNewNote.pins[0].size) * startRatio);
-							mergedNote.pins[0].size = startPinSize;
-							const endRatio: number = (mergedEndPart - theNewNote.start) / (theNewNote.end - theNewNote.start);
-							const endPinSize: number = Math.round(theNewNote.pins[0].size + (theNewNote.pins[1].size - theNewNote.pins[0].size) * endRatio);
-							mergedNote.pins[1].size = endPinSize;
-						} else if (theOldNote != null) {
-							const mergedNoteLength: number = mergedEndPart - mergedStartPart;
-							const mergedStartRelativeToOldStart: number = mergedStartPart - theOldNote.start;
-							const mergedEndRelativeToOldStart: number = mergedEndPart - theOldNote.start;
-							const newPins: NotePin[] = [];
-							let firstVisibleOldPinIndex: number = -1;
-							let lastVisibleOldPinIndex: number = -1;
-							let leftAdjacentOldPinIndex: number = 0;
-							let rightAdjacentOldPinIndex: number = theOldNote.pins.length - 1;
-							for (let oldPinIndex = 0; oldPinIndex < theOldNote.pins.length; oldPinIndex++) {
-								const oldPin: NotePin = theOldNote.pins[oldPinIndex];
-								if (oldPin.time < mergedStartRelativeToOldStart) leftAdjacentOldPinIndex = oldPinIndex;
-								else if (oldPin.time >= mergedStartRelativeToOldStart && oldPin.time <= mergedEndRelativeToOldStart) {
-									if (firstVisibleOldPinIndex === -1) firstVisibleOldPinIndex = oldPinIndex;
-									lastVisibleOldPinIndex = oldPinIndex;
-								} else if (oldPin.time > mergedEndRelativeToOldStart) {
-									rightAdjacentOldPinIndex = oldPinIndex;
-									break;
-								}
-							}
-							if (firstVisibleOldPinIndex !== -1) {
-								for (
-									let visibleOldPinIndex: number = firstVisibleOldPinIndex;
-									visibleOldPinIndex <= lastVisibleOldPinIndex;
-									visibleOldPinIndex++
-								) {
-									const visibleOldPin: NotePin = theOldNote.pins[visibleOldPinIndex];
-									newPins.push(makeNotePin(0, visibleOldPin.time - mergedStartRelativeToOldStart, visibleOldPin.size));
-								}
-								const firstNewPin: NotePin = newPins[0];
-								const lastNewPin: NotePin = newPins[newPins.length - 1];
-								if (firstNewPin.time !== 0) {
-									const leftAdjacentOldPin: NotePin = theOldNote.pins[leftAdjacentOldPinIndex];
-									const ratio: number =
-										(mergedStartRelativeToOldStart - leftAdjacentOldPin.time) /
-										(firstNewPin.time + (mergedStartRelativeToOldStart - leftAdjacentOldPin.time));
-									newPins.unshift(
-										makeNotePin(0, 0, Math.round(leftAdjacentOldPin.size + (firstNewPin.size - leftAdjacentOldPin.size) * ratio)),
-									);
-								}
-								if (lastNewPin.time !== mergedNoteLength) {
-									const rightAdjacentOldPin: NotePin = theOldNote.pins[rightAdjacentOldPinIndex];
-									const ratio: number =
-										(mergedEndRelativeToOldStart - (lastNewPin.time + mergedStartRelativeToOldStart)) /
-										(rightAdjacentOldPin.time -
-											mergedEndRelativeToOldStart +
-											(mergedEndRelativeToOldStart - (lastNewPin.time + mergedStartRelativeToOldStart)));
-									newPins.push(
-										makeNotePin(0, mergedNoteLength, Math.round(lastNewPin.size + (rightAdjacentOldPin.size - lastNewPin.size) * ratio)),
-									);
-								}
-							} else {
-								const leftAdjacentOldPin: NotePin = theOldNote.pins[leftAdjacentOldPinIndex];
-								const rightAdjacentOldPin: NotePin = theOldNote.pins[rightAdjacentOldPinIndex];
-								const lineLength: number = rightAdjacentOldPin.time - leftAdjacentOldPin.time;
-								newPins.push(
-									makeNotePin(
-										0,
-										0,
-										Math.round(
-											leftAdjacentOldPin.size +
-												(rightAdjacentOldPin.size - leftAdjacentOldPin.size) *
-													((mergedStartRelativeToOldStart - leftAdjacentOldPin.time) / lineLength),
-										),
-									),
-								);
-								newPins.push(
-									makeNotePin(
-										0,
-										mergedNoteLength,
-										Math.round(
-											leftAdjacentOldPin.size +
-												(rightAdjacentOldPin.size - leftAdjacentOldPin.size) *
-													((mergedEndRelativeToOldStart - leftAdjacentOldPin.time) / lineLength),
-										),
-									),
-								);
-							}
-							mergedNote.pins = newPins;
-						}
-						merged.push(mergedNote);
-						for (const note of notesToDrop) {
-							for (let heldNoteIndex = heldNotes.length - 1; heldNoteIndex >= 0; heldNoteIndex--) {
-								if (note === heldNotes[heldNoteIndex].note) heldNotes.splice(heldNoteIndex, 1);
-							}
-						}
-						for (const note of notesToAdd) heldNotes.push(note);
-						setOfPitchesToCommit.clear();
-						notesToDrop.clear();
-						notesToAdd.length = 0;
-						mergedStartPart = mergedEndPart;
-					}
-				}
-				pattern.notes = [];
-				for (let noteIndex = 0; noteIndex < merged.length; noteIndex++)
-					group.append(new ChangeNoteAdded(this._doc, pattern, merged[noteIndex], noteIndex));
-			}
-		}
-		this._doc.record(group);
+		generateAndApplyEuclideanNotes(this._doc, this._sequences, this._generatedSequences, this._startBar, this._barAmount);
 		window.localStorage.setItem(this._localStorageKey, JSON.stringify({ sequences: this._sequences, barAmount: this._barAmount }));
 	}
-
-	private _generateAllSequences = (): void => {
-		this._generatedSequences = [];
-		for (let i: number = 0; i < this._sequences.length; i++) {
-			this._generatedSequences.push([]);
-			this._generateSequence(i);
-		}
-	};
 
 	private _generateSequence = (index: number): void => {
 		const sequence: Sequence = this._sequences[index];
@@ -829,23 +472,53 @@ export class EuclidgenRhythmPrompt extends BasePrompt {
 
 	private _whenExtendUntilLoopClicked = (): void => {
 		const beatsPerBar: number = this._doc.song.beatsPerBar;
-		const beatsPerBarFraction: Fraction = [beatsPerBar, 1];
-		const barAmountFraction: Fraction = fractionDiv(
-			this._sequences.reduce(
-				(acc: Fraction, seq: Sequence): Fraction => {
-					const total: Fraction = fractionMul([seq.steps, 1], fraction(seq.stepSizeNumerator, seq.stepSizeDenominator));
-					return fractionLCM(acc, fractionLCM(total, beatsPerBarFraction));
-				},
-				[1, 1],
-			),
-			beatsPerBarFraction,
-		);
+		const beatsPerBarFraction: [number, number] = [beatsPerBar, 1];
+		const barAmountFraction: [number, number] = this._computeLoopBars(beatsPerBarFraction);
 		this._barAmount = Math.max(1, Math.min(this._barsAvailable, barAmountFraction[0]));
 		this._barPreviewBarIndex = Math.max(this._startBar, Math.min(this._startBar + this._barAmount - 1, this._barPreviewBarIndex));
 		this._barAmountStepper.value = this._barAmount + "";
 		this._renderBarPreview();
 		this._renderLabel();
 	};
+
+	private _computeLoopBars(beatsPerBarFraction: [number, number]): [number, number] {
+		const fraction = (a: number, b: number): [number, number] => {
+			let n = a,
+				d = b;
+			const g = this._gcd(n, d);
+			if (g > 1) {
+				n = Math.floor(n / g);
+				d = Math.floor(d / g);
+			}
+			return [n, d];
+		};
+		const fractionMul = (a: [number, number], b: [number, number]): [number, number] => fraction(a[0] * b[0], a[1] * b[1]);
+		const fractionDiv = (a: [number, number], b: [number, number]): [number, number] => fraction(a[0] * b[1], a[1] * b[0]);
+		const fractionLCM = (a: [number, number], b: [number, number]): [number, number] => {
+			const lcm = (x: number, y: number) => Math.floor(Math.abs(x * y) / this._gcd(x, y));
+			return fraction(lcm(a[0], b[0]), this._gcd(a[1], b[1]));
+		};
+
+		return fractionDiv(
+			this._sequences.reduce(
+				(acc: [number, number], seq: Sequence): [number, number] => {
+					const total: [number, number] = fractionMul([seq.steps, 1], fraction(seq.stepSizeNumerator, seq.stepSizeDenominator));
+					return fractionLCM(acc, fractionLCM(total, beatsPerBarFraction));
+				},
+				[1, 1],
+			),
+			beatsPerBarFraction,
+		);
+	}
+
+	private _gcd(x: number, y: number): number {
+		while (y !== 0) {
+			const z = x % y;
+			x = y;
+			y = z;
+		}
+		return x;
+	}
 
 	private _whenStepsChanges = (): void => {
 		const steps: number = Math.max(this._minSteps, Math.min(this._maxSteps, +this._stepsStepper.value));
@@ -913,23 +586,7 @@ export class EuclidgenRhythmPrompt extends BasePrompt {
 	};
 
 	private _initialRender = (): void => {
-		const beatsPerBar: number = this._doc.song.beatsPerBar;
-		const color: string = ColorConfig.pitchBackground;
-		const container: SVGSVGElement = this._barPreviewBackground;
-		const padding: number = 1;
-		const beatWidth: number = this._barPreviewWidth / beatsPerBar;
-		const beatHeight: number = this._barPreviewHeight;
-		for (let beat: number = 0; beat < beatsPerBar; beat++) {
-			container.appendChild(
-				SVG.rect({
-					x: beat * beatWidth + padding,
-					y: padding,
-					width: beatWidth - padding * 2,
-					height: beatHeight - padding * 2,
-					style: `fill: ${color};`,
-				}),
-			);
-		}
+		renderInitialBackground(this._rendererCtx);
 		this._refreshSequenceWidgets();
 		this._reconfigurePitchStepper();
 		this._reconfigurePulsesStepper();
@@ -971,48 +628,6 @@ export class EuclidgenRhythmPrompt extends BasePrompt {
 		this._renderSequenceButtons();
 	};
 
-	private _renderSequenceButtons = (): void => {
-		const container: HTMLDivElement = this._sequenceButtonContainer;
-		while (this._sequenceButtons.length < this._sequences.length) {
-			const sequenceButton: HTMLButtonElement = button({ class: "no-underline" }, this._sequenceButtons.length + 1 + "");
-			this._sequenceButtons.push(sequenceButton);
-			container.insertBefore(sequenceButton, this._sequenceRemoveButton);
-		}
-		for (let i: number = this._renderedSequenceCount; i < this._sequences.length; i++) this._sequenceButtons[i].style.display = "";
-		for (let i: number = this._sequences.length; i < this._renderedSequenceCount; i++) this._sequenceButtons[i].style.display = "none";
-		this._renderedSequenceCount = this._sequences.length;
-		while (this._sequenceButtons.length > this._maxSequences) container.removeChild(this._sequenceButtons.pop()!);
-		this._sequenceRemoveButton.style.display = this._sequences.length > 1 ? "" : "none";
-		this._sequenceAddButton.style.display = this._sequences.length < this._maxSequences ? "" : "none";
-		this._sequenceRemoveButton.classList.toggle("last-button", this._sequences.length >= this._maxSequences);
-		if (this._highlightedSequenceIndex !== this._sequenceIndex) {
-			if (this._sequenceButtons[this._highlightedSequenceIndex])
-				this._sequenceButtons[this._highlightedSequenceIndex].classList.remove("selected-instrument");
-			this._sequenceButtons[this._sequenceIndex].classList.add("selected-instrument");
-			this._highlightedSequenceIndex = this._sequenceIndex;
-		}
-		for (let s: number = 0; s < this._sequences.length; s++)
-			this._sequenceButtons[s].style.color = s === this._highlightedSequenceIndex ? "" : ColorConfig.primaryText;
-		const colors: ChannelColors = ColorConfig.getChannelColor(this._doc.song, this._sequences[this._sequenceIndex].channel);
-		this._sequenceButtonContainer.style.setProperty("--text-color-lit", colors.primaryNote);
-		this._sequenceButtonContainer.style.setProperty("--text-color-dim", colors.secondaryNote);
-		this._sequenceButtonContainer.style.setProperty("--background-color-lit", colors.primaryChannel);
-		this._sequenceButtonContainer.style.setProperty("--background-color-dim", colors.secondaryChannel);
-	};
-
-	private _renderLabel = (): void => {
-		const sequence: Sequence = this._sequences[this._sequenceIndex];
-		const pitchNameIndex: number = (sequence.pitch + Config.keys[this._doc.song.key].basePitch) % Config.pitchesPerOctave;
-		let pitch: string = "";
-		if (Config.keys[pitchNameIndex].isWhiteKey) {
-			pitch = Config.keys[pitchNameIndex].name;
-		} else {
-			const shiftDir: number = Config.blackKeyNameParents[sequence.pitch % Config.pitchesPerOctave];
-			pitch = Config.keys[(pitchNameIndex + Config.pitchesPerOctave + shiftDir) % Config.pitchesPerOctave].name + (shiftDir === 1 ? "♭" : "♯");
-		}
-		this._barPreviewLabel.innerText = `Bar ${this._barPreviewBarIndex + 1}, ${pitch}${Math.floor(sequence.pitch / Config.pitchesPerOctave)}`;
-	};
-
 	private _renderClock = (): void => {
 		const sequence: Sequence = this._sequences[this._sequenceIndex];
 		const steps: number = sequence.steps;
@@ -1048,7 +663,7 @@ export class EuclidgenRhythmPrompt extends BasePrompt {
 			stepSize: number = sequence.stepSizeNumerator / sequence.stepSizeDenominator;
 		const generatedSequence: number[] = this._generatedSequences[this._sequenceIndex],
 			on: number = sequence.invert ? 0 : 1;
-		const channelColors: ChannelColors = ColorConfig.getChannelColor(this._doc.song, sequence.channel);
+		const channelColors = ColorConfig.getChannelColor(this._doc.song, sequence.channel);
 		const partOffset: number = (this._barPreviewBarIndex - this._startBar) * partsPerBar;
 		const container: SVGSVGElement = this._barPreviewSteps;
 		while (container.firstChild) container.removeChild(container.firstChild);
@@ -1085,7 +700,7 @@ export class EuclidgenRhythmPrompt extends BasePrompt {
 					const arrowY: number = y + h / 2,
 						arrowHeight: number = Math.min(h, 20);
 					const arrow: SVGPathElement = SVG.path({
-						d: `M ${prettyNumber(partWidth * stepStart + 2 + padding)} ${prettyNumber(arrowY - 0.1 * arrowHeight)} L ${prettyNumber(partWidth * stepStart + 2 + padding)} ${prettyNumber(arrowY + 0.1 * arrowHeight)} L ${prettyNumber(partWidth * stepStart + 6 + padding)} ${prettyNumber(arrowY + 0.1 * arrowHeight)} L ${prettyNumber(partWidth * stepStart + 6 + padding)} ${prettyNumber(arrowY + 0.3 * arrowHeight)} L ${prettyNumber(partWidth * stepStart + 14 + padding)} ${prettyNumber(arrowY)} L ${prettyNumber(partWidth * stepStart + 6 + padding)} ${prettyNumber(arrowY - 0.3 * arrowHeight)} L ${prettyNumber(partWidth * stepStart + 6 + padding)} ${prettyNumber(arrowY - 0.1 * arrowHeight)}`,
+						d: `M ${this._prettyNumber(partWidth * stepStart + 2 + padding)} ${this._prettyNumber(arrowY - 0.1 * arrowHeight)} L ${this._prettyNumber(partWidth * stepStart + 2 + padding)} ${this._prettyNumber(arrowY + 0.1 * arrowHeight)} L ${this._prettyNumber(partWidth * stepStart + 6 + padding)} ${this._prettyNumber(arrowY + 0.1 * arrowHeight)} L ${this._prettyNumber(partWidth * stepStart + 6 + padding)} ${this._prettyNumber(arrowY + 0.3 * arrowHeight)} L ${this._prettyNumber(partWidth * stepStart + 14 + padding)} ${this._prettyNumber(arrowY)} L ${this._prettyNumber(partWidth * stepStart + 6 + padding)} ${this._prettyNumber(arrowY - 0.3 * arrowHeight)} L ${this._prettyNumber(partWidth * stepStart + 6 + padding)} ${this._prettyNumber(arrowY - 0.1 * arrowHeight)}`,
 						fill: ColorConfig.invertedText,
 					});
 					toPushAtTheEnd.push(arrow);
@@ -1093,5 +708,26 @@ export class EuclidgenRhythmPrompt extends BasePrompt {
 			}
 		}
 		for (const element of toPushAtTheEnd) container.appendChild(element);
+	};
+
+	private _prettyNumber(n: number): string {
+		return Math.round(n * 1000) / 1000 + "";
+	}
+
+	private _renderLabel = (): void => {
+		const sequence: Sequence = this._sequences[this._sequenceIndex];
+		const pitchNameIndex: number = (sequence.pitch + this._doc.song.key) % Config.pitchesPerOctave;
+		let pitch: string = "";
+		if (Config.keys[pitchNameIndex].isWhiteKey) {
+			pitch = Config.keys[pitchNameIndex].name;
+		} else {
+			const shiftDir: number = Config.blackKeyNameParents[sequence.pitch % Config.pitchesPerOctave];
+			pitch = Config.keys[(pitchNameIndex + Config.pitchesPerOctave + shiftDir) % Config.pitchesPerOctave].name + (shiftDir === 1 ? "♭" : "♯");
+		}
+		this._barPreviewLabel.innerText = `Bar ${this._barPreviewBarIndex + 1}, ${pitch}${Math.floor(sequence.pitch / Config.pitchesPerOctave)}`;
+	};
+
+	private _renderSequenceButtons = (): void => {
+		renderSequenceButtons(this._rendererCtx);
 	};
 }
