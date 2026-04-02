@@ -7,6 +7,7 @@
 
 export { BarScrollBar } from "./bar-scroll-bar";
 export { ChannelRow } from "./channel-row";
+export { EditorLayout } from "./editor-layout";
 export { EnvelopeEditor } from "./envelope-editor";
 export { EffectsPanel } from "./effects-panel";
 export { FadeInOutEditor } from "./fade-in-out-editor";
@@ -19,10 +20,12 @@ export { MenuBar } from "./menu-bar";
 export { MuteEditor } from "./mute-editor";
 export { OctaveScrollBar } from "./octave-scroll-bar";
 export { PlaybackControls } from "./playback-controls";
+export { PatternArea } from "./pattern-area";
 export { PatternEditor } from "./pattern-editor";
 export { Piano } from "./piano";
 export { SettingsArea } from "./settings-area";
 export { Shiggy } from "./shiggy-component";
 export { SongSettingsPanel } from "./song-settings-panel";
 export { SpectrumEditor } from "./spectrum-editor";
+export { TrackArea } from "./track-area";
 export { TrackEditor } from "./track-editor";
