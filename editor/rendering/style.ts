@@ -829,11 +829,11 @@ html {
 }
 .beepboxEditor .prompt.compactSearchPrompt .tagBrowserButton {
 	flex: var(--flex-fit);
-	align-self: var(--flex-stretch);
+	align-self: stretch;
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	min-height: 100%;
+	height: 100%;
 	background: var(--ui-widget-background);
 	border: 2px solid transparent;
 	border-radius: var(--border-radius-medium);
@@ -1883,7 +1883,8 @@ li.select2-results__option[role=group] > strong:hover {
 .beepboxEditor .searchInput {
 	flex: 1;
 	min-width: 0;
-	padding: var(--padding-6) var(--padding-10);
+	height: 100%;
+	padding: 0 var(--padding-10);
 	border: 2px solid var(--ui-widget-background);
 	border-radius: var(--border-radius-medium);
 	background: var(--editor-background);
