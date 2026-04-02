@@ -16,7 +16,7 @@ export interface InputRowOptions {
 
 export function inputRow(options?: InputRowOptions, ...children: (HTMLElement | string)[]): HTMLDivElement {
 	const gap = options?.gap ?? "8px";
-	let style = `display: flex; gap: ${gap}; height: 38px;`;
+	let style = `display: flex; gap: ${gap}; height: 32px;`;
 
 	if (options?.marginTop) {
 		style += ` margin-top: ${options.marginTop};`;
