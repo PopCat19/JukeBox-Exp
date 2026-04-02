@@ -1122,6 +1122,7 @@ html {
 	align-items: center;
 	gap: var(--gap-md);
 	width: 100%;
+	height: 32px;
 }
 
 .beepboxEditor .prompt-titlebar > h2 {
