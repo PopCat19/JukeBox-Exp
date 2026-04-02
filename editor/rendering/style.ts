@@ -830,6 +830,9 @@ html {
 .beepboxEditor .prompt.compactSearchPrompt .tagBrowserButton {
 	flex: var(--flex-fit);
 	align-self: var(--flex-stretch);
+	display: flex;
+	align-items: center;
+	justify-content: center;
 	background: var(--ui-widget-background);
 	border: 2px solid transparent;
 	border-radius: var(--border-radius-medium);
