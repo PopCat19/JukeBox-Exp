@@ -815,16 +815,14 @@ html {
 	border-color: var(--indicator-primary, #4444ff);
 }
 .beepboxEditor .prompt.compactSearchPrompt .tagBrowserButton {
-	height: auto;
-	min-height: 34px;
+	height: 100%;
 	background: var(--ui-widget-background);
-	border: 2px solid var(--ui-widget-background);
-	border-radius: 8px;
+	border: none;
+	border-radius: 5px;
 	color: var(--primary-text);
 	font-size: 14px;
 }
 .beepboxEditor .prompt.compactSearchPrompt .tagBrowserButton:hover {
-	border-color: var(--indicator-primary, #4444ff);
 	background: var(--ui-widget-focus);
 }
 

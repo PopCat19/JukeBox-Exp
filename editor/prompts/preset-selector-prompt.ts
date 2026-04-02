@@ -140,7 +140,7 @@ export class PresetSelectorPrompt extends BasePrompt {
 
 		this.container.addEventListener("keydown", this._onContainerKeyDown);
 
-		setTimeout(() => this.container.focus());
+		setTimeout(() => this._searchInput.focus());
 	}
 
 	public closeWithoutUndo = (): void => {
