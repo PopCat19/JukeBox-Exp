@@ -8,12 +8,11 @@
 // - Manages playback controls at bottom of panel
 
 import { HTML } from "imperative-html/dist/esm/elements-strict";
-import { ColorConfig } from "../../shared/color-config";
 import { SongDocument } from "../song-document";
+import { InstrumentSettingsPanel } from "./instrument-settings-panel";
 import { MenuBar } from "./menu-bar";
 import { PlaybackControls } from "./playback-controls";
 import { SongSettingsPanel } from "./song-settings-panel";
-import { InstrumentSettingsPanel } from "./instrument-settings-panel";
 
 const { div } = HTML;
 
@@ -30,65 +29,31 @@ export class SettingsArea {
 	private readonly _songSettingsGroup: HTMLDivElement;
 	private readonly _instrumentSettingsGroup: HTMLDivElement;
 
-	private readonly _doc: SongDocument;
-	private readonly _onOpenPrompt: (prompt: string) => void;
-	private readonly _switchEQFilterType: (simple: boolean) => void;
-	private readonly _switchNoteFilterType: (simple: boolean) => void;
-
 	constructor(
 		doc: SongDocument,
 		onOpenPrompt: (prompt: string) => void,
 		switchEQFilterType: (simple: boolean) => void,
 		switchNoteFilterType: (simple: boolean) => void,
 	) {
-		this._doc = doc;
-		this._onOpenPrompt = onOpenPrompt;
-		this._switchEQFilterType = switchEQFilterType;
-		this._switchNoteFilterType = switchNoteFilterType;
-
 		// Create components
 		this.menuBar = new MenuBar();
 		this.playbackControls = new PlaybackControls(doc);
 
-		this.songSettings = new SongSettingsPanel(
-			doc,
-			onOpenPrompt,
-			switchEQFilterType,
-		);
+		this.songSettings = new SongSettingsPanel(doc, onOpenPrompt, switchEQFilterType);
 
-		this.instrumentSettings = new InstrumentSettingsPanel(
-			doc,
-			onOpenPrompt,
-			switchEQFilterType,
-			switchNoteFilterType,
-		);
+		this.instrumentSettings = new InstrumentSettingsPanel(doc, onOpenPrompt, switchEQFilterType, switchNoteFilterType);
 
 		// Song settings group (visible by default)
-		this._songSettingsGroup = div(
-			{ class: "editor-song-settings-group", style: "display: flex;" },
-			this.songSettings.container,
-		);
+		this._songSettingsGroup = div({ class: "editor-song-settings-group", style: "display: flex;" }, this.songSettings.container);
 
 		// Instrument settings group
-		this._instrumentSettingsGroup = div(
-			{ class: "editor-instrument-settings-group" },
-			this.instrumentSettings.container,
-		);
+		this._instrumentSettingsGroup = div({ class: "editor-instrument-settings-group" }, this.instrumentSettings.container);
 
 		// Main container
 		this.container = div(
 			{ class: "settings-area" },
-			div(
-				{ class: "settings-menu" },
-				this.menuBar.fileMenu,
-				this.menuBar.editMenu,
-				this.menuBar.optionsMenu,
-			),
-			div(
-				{ class: "settings-content" },
-				this._songSettingsGroup,
-				this._instrumentSettingsGroup,
-			),
+			div({ class: "settings-menu" }, this.menuBar.fileMenu, this.menuBar.editMenu, this.menuBar.optionsMenu),
+			div({ class: "settings-content" }, this._songSettingsGroup, this._instrumentSettingsGroup),
 			div(
 				{ class: "settings-playback" },
 				this.playbackControls.playButton,
@@ -98,11 +63,7 @@ export class SettingsArea {
 				this.playbackControls.prevBarButton,
 				this.playbackControls.nextBarButton,
 			),
-			div(
-				{ class: "settings-volume" },
-				this.playbackControls.volumeSlider.container,
-				this.playbackControls.volumeBarBox,
-			),
+			div({ class: "settings-volume" }, this.playbackControls.volumeSlider.container, this.playbackControls.volumeBarBox),
 		);
 	}
 

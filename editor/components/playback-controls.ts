@@ -9,9 +9,9 @@
 
 import { HTML, SVG } from "imperative-html/dist/esm/elements-strict";
 import { ColorConfig } from "../../shared/color-config";
+import { SongDocument } from "../song-document";
 import { iconButton } from "../ui/buttons";
 import { rangeSlider, Slider } from "../ui/sliders";
-import { SongDocument } from "../song-document";
 
 const { button, div, span } = HTML;
 
@@ -118,12 +118,7 @@ export class PlaybackControls {
 		const stop1 = SVG.stop({ "stop-color": "lime", offset: "60%" });
 		const stop2 = SVG.stop({ "stop-color": "orange", offset: "90%" });
 		const stop3 = SVG.stop({ "stop-color": "red", offset: "100%" });
-		const gradient = SVG.linearGradient(
-			{ id: "volumeGrad2", gradientUnits: "userSpaceOnUse" },
-			stop1,
-			stop2,
-			stop3,
-		);
+		const gradient = SVG.linearGradient({ id: "volumeGrad2", gradientUnits: "userSpaceOnUse" }, stop1, stop2, stop3);
 		const defs = SVG.defs({}, gradient);
 
 		this.volumeBarContainer = SVG.svg(

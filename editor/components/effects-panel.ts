@@ -10,8 +10,6 @@
 import { HTML } from "imperative-html/dist/esm/elements-strict";
 import { ColorConfig } from "../../shared/color-config";
 import { Config } from "../../synth/synth-config";
-import { SongDocument } from "../song-document";
-import { rangeSlider, Slider } from "../ui";
 import {
 	ChangeEchoDelay,
 	ChangeEchoSustain,
@@ -27,6 +25,8 @@ import {
 	ChangeRingModHz,
 	ChangeRingModPulseWidth,
 } from "../changes";
+import { SongDocument } from "../song-document";
+import { rangeSlider, Slider } from "../ui";
 
 const { div, option, select, span } = HTML;
 
@@ -93,11 +93,9 @@ export class EffectsPanel {
 	// Container
 	public readonly container: HTMLDivElement;
 
-	private readonly _doc: SongDocument;
 	private readonly _onOpenPrompt: (prompt: string) => void;
 
 	constructor(doc: SongDocument, onOpenPrompt: (prompt: string) => void) {
-		this._doc = doc;
 		this._onOpenPrompt = onOpenPrompt;
 
 		// Ring Mod
@@ -152,21 +150,10 @@ export class EffectsPanel {
 			div({ class: "selectContainer", style: "width:40%;" }, this.ringModWaveSelect),
 		);
 
-		this.ringModContainerRow = div(
-			{ style: "display:flex; flex-direction:column;" },
-			this.ringModRow,
-			this.ringModHzSliderRow,
-			this.ringModWaveSelectRow,
-		);
+		this.ringModContainerRow = div({ style: "display:flex; flex-direction:column;" }, this.ringModRow, this.ringModHzSliderRow, this.ringModWaveSelectRow);
 
 		// Granular
-		this.granularSlider = rangeSlider(
-			doc,
-			(oldValue: number, newValue: number) => new ChangeGranular(doc, oldValue, newValue),
-			0,
-			Config.granularRange,
-			0,
-		);
+		this.granularSlider = rangeSlider(doc, (oldValue: number, newValue: number) => new ChangeGranular(doc, oldValue, newValue), 0, Config.granularRange, 0);
 
 		this.granularRow = this._createEffectRow("Granular:", "granular", this.granularSlider);
 
@@ -303,11 +290,7 @@ export class EffectsPanel {
 	}
 
 	private _createEffectRow(label: string, prompt: string, slider: Slider): HTMLDivElement {
-		return div(
-			{ class: "selectRow" },
-			span({ class: "tip", onclick: () => this._onOpenPrompt(prompt) }, label),
-			slider.container,
-		);
+		return div({ class: "selectRow" }, span({ class: "tip", onclick: () => this._onOpenPrompt(prompt) }, label), slider.container);
 	}
 
 	public updateRingMod(value: number): void {

@@ -9,11 +9,11 @@
 
 import { HTML } from "imperative-html/dist/esm/elements-strict";
 import { ColorConfig } from "../../shared/color-config";
+import { SongDocument } from "../song-document";
 import { PatternArea } from "./pattern-area";
-import { TrackArea } from "./track-area";
 import { SettingsArea } from "./settings-area";
 import { Shiggy } from "./shiggy-component";
-import { SongDocument } from "../song-document";
+import { TrackArea } from "./track-area";
 
 const { div } = HTML;
 
@@ -24,12 +24,6 @@ export class EditorLayout {
 	public readonly settingsArea: SettingsArea;
 	public readonly shiggy: Shiggy;
 
-	private readonly _doc: SongDocument;
-	private readonly _onOpenPrompt: (prompt: string) => void;
-	private readonly _switchEQFilterType: (simple: boolean) => void;
-	private readonly _switchNoteFilterType: (simple: boolean) => void;
-	private readonly _songEditor: any;
-
 	constructor(
 		doc: SongDocument,
 		songEditor: any,
@@ -37,21 +31,10 @@ export class EditorLayout {
 		switchEQFilterType: (simple: boolean) => void,
 		switchNoteFilterType: (simple: boolean) => void,
 	) {
-		this._doc = doc;
-		this._songEditor = songEditor;
-		this._onOpenPrompt = onOpenPrompt;
-		this._switchEQFilterType = switchEQFilterType;
-		this._switchNoteFilterType = switchNoteFilterType;
-
 		// Create Areas
 		this.patternArea = new PatternArea(doc, onOpenPrompt);
 		this.trackArea = new TrackArea(doc, songEditor);
-		this.settingsArea = new SettingsArea(
-			doc,
-			onOpenPrompt,
-			switchEQFilterType,
-			switchNoteFilterType,
-		);
+		this.settingsArea = new SettingsArea(doc, onOpenPrompt, switchEQFilterType, switchNoteFilterType);
 
 		// Create Shiggy (easter egg)
 		this.shiggy = new Shiggy();
@@ -77,26 +60,11 @@ export class EditorLayout {
 		// Main Layout
 		this.container = div(
 			{ class: "beepboxEditor" },
-			div(
-				{ class: "pattern-area-container" },
-				this.patternArea.container,
-			),
-			div(
-				{ class: "track-area-container" },
-				this.trackArea.container,
-			),
-			div(
-				{ class: "settings-area-container" },
-				this.settingsArea.container,
-			),
-			div(
-				{ class: "shiggy-container" },
-				this.shiggy.container,
-			),
-			div(
-				{ class: "sample-loading-container" },
-				sampleLoadingStatusContainer,
-			),
+			div({ class: "pattern-area-container" }, this.patternArea.container),
+			div({ class: "track-area-container" }, this.trackArea.container),
+			div({ class: "settings-area-container" }, this.settingsArea.container),
+			div({ class: "shiggy-container" }, this.shiggy.container),
+			div({ class: "sample-loading-container" }, sampleLoadingStatusContainer),
 		);
 	}
 

@@ -8,12 +8,10 @@
 // - Handles zoom controls
 
 import { HTML } from "imperative-html/dist/esm/elements-strict";
+import { SongDocument } from "../song-document";
+import { OctaveScrollBar } from "./octave-scroll-bar";
 import { PatternEditor } from "./pattern-editor";
 import { Piano } from "./piano";
-import { OctaveScrollBar } from "./octave-scroll-bar";
-import { SongDocument } from "../song-document";
-import { iconButton } from "../ui/buttons";
-import { createButton } from "../ui/base";
 
 const { button, div } = HTML;
 
@@ -27,16 +25,7 @@ export class PatternArea {
 	public readonly zoomInButton: HTMLButtonElement;
 	public readonly zoomOutButton: HTMLButtonElement;
 
-	private readonly _doc: SongDocument;
-	private readonly _onOpenPrompt: (prompt: string) => void;
-
-	constructor(
-		doc: SongDocument,
-		onOpenPrompt: (prompt: string) => void,
-	) {
-		this._doc = doc;
-		this._onOpenPrompt = onOpenPrompt;
-
+	constructor(doc: SongDocument, _onOpenPrompt: (prompt: string) => void) {
 		// Create Piano
 		this.piano = new Piano(doc);
 
@@ -49,14 +38,8 @@ export class PatternArea {
 		this.octaveScrollBar = new OctaveScrollBar(doc, this.piano);
 
 		// Zoom Buttons
-		this.zoomInButton = button(
-			{ class: "zoomInButton", title: "Zoom In (+)", type: "button" },
-			"+",
-		);
-		this.zoomOutButton = button(
-			{ class: "zoomOutButton", title: "Zoom Out (-)", type: "button" },
-			"-",
-		);
+		this.zoomInButton = button({ class: "zoomInButton", title: "Zoom In (+)", type: "button" }, "+");
+		this.zoomOutButton = button({ class: "zoomOutButton", title: "Zoom Out (-)", type: "button" }, "-");
 
 		// Build Editor Row
 		const patternEditorRow = div(

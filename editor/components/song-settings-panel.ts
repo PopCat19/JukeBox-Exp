@@ -7,17 +7,15 @@
 // - Creates song EQ filter with simple/advanced toggle
 // - Integrates with Change system for undo/redo
 
-import { HTML, SVG } from "imperative-html/dist/esm/elements-strict";
-import { ChannelColors } from "../../shared/color-config";
-import { Instrument } from "../../synth";
+import { HTML } from "imperative-html/dist/esm/elements-strict";
 import { Config } from "../../synth/synth-config";
 import { FilterEditor } from "../components/filter-editor";
 import { Change } from "../core/change";
-import { SongDocument } from "../song-document";
-import { addWheelSupport, createInputBox, iconButton, InputBox, rangeSlider, Slider, toggleButton } from "../ui";
 import { SongSettingsRefs } from "../renderers/render-song-settings";
+import { SongDocument } from "../song-document";
+import { addWheelSupport, createInputBox, InputBox, rangeSlider, Slider, toggleButton } from "../ui";
 
-const { button, div, input, optgroup, option, select, span } = HTML;
+const { button, div, input, option, select, span } = HTML;
 
 function numberInput(attrs: Record<string, any>): HTMLInputElement {
 	const el = input(attrs);
@@ -35,14 +33,7 @@ function buildOptions(menu: HTMLSelectElement, items: ReadonlyArray<string | num
 }
 
 // Change classes imported from changes/index
-import {
-	ChangeChorus,
-	ChangeEQFilterSimpleCut,
-	ChangeEQFilterSimplePeak,
-	ChangeReverb,
-	ChangeRhythm,
-	ChangeTempo,
-} from "../changes";
+import { ChangeChorus, ChangeEQFilterSimpleCut, ChangeEQFilterSimplePeak, ChangeReverb, ChangeTempo } from "../changes";
 
 export class SongSettingsPanel {
 	// Scale and Key
@@ -80,18 +71,10 @@ export class SongSettingsPanel {
 	// Container
 	public readonly container: HTMLDivElement;
 
-	private readonly _doc: SongDocument;
 	private readonly _onOpenPrompt: (prompt: string) => void;
-	private readonly _switchEqFilterType: (simple: boolean) => void;
 
-	constructor(
-		doc: SongDocument,
-		onOpenPrompt: (prompt: string) => void,
-		switchEqFilterType: (simple: boolean) => void,
-	) {
-		this._doc = doc;
+	constructor(doc: SongDocument, onOpenPrompt: (prompt: string) => void, _switchEqFilterType: (simple: boolean) => void) {
 		this._onOpenPrompt = onOpenPrompt;
-		this._switchEqFilterType = switchEqFilterType;
 
 		// Scale Select
 		this.scaleSelect = buildOptions(
@@ -100,10 +83,7 @@ export class SongSettingsPanel {
 		);
 
 		// Key Select
-		this.keySelect = buildOptions(
-			select(),
-			Config.keys.map((key) => key.name).reverse(),
-		);
+		this.keySelect = buildOptions(select(), Config.keys.map((key) => key.name).reverse());
 
 		// Octave Stepper
 		this.octaveStepper = numberInput({
@@ -115,14 +95,9 @@ export class SongSettingsPanel {
 		});
 
 		// Tempo Controls
-		this.tempoSlider = rangeSlider(
-			doc,
-			(oldValue: number, newValue: number) => new ChangeTempo(doc, oldValue, newValue),
-			1,
-			500,
-			160,
-			{ style: "margin: 0; vertical-align: middle;" },
-		);
+		this.tempoSlider = rangeSlider(doc, (oldValue: number, newValue: number) => new ChangeTempo(doc, oldValue, newValue), 1, 500, 160, {
+			style: "margin: 0; vertical-align: middle;",
+		});
 
 		this.tempoStepper = numberInput({
 			style: "width: 4em; font-size: 80%; margin-left: 0.4em; vertical-align: middle;",
@@ -138,9 +113,14 @@ export class SongSettingsPanel {
 
 		// Song Title
 		class ChangeSongTitle extends Change {
-			constructor(private _doc: SongDocument, private _oldValue: string, private _newValue: string) {
+			constructor(
+				private _doc: SongDocument,
+				private _oldValue: string,
+				private _newValue: string,
+			) {
 				super();
-				if (_oldValue !== _newValue) {
+				// _oldValue is used for comparison
+				if (this._oldValue !== this._newValue) {
 					this._didSomething();
 				}
 			}
@@ -149,19 +129,13 @@ export class SongSettingsPanel {
 			}
 		}
 
-		const { inputBox: songTitleInputBox } = createInputBox(
-			doc,
-			(oldValue: string, newValue: string) => new ChangeSongTitle(doc, oldValue, newValue),
-		);
+		const { inputBox: songTitleInputBox } = createInputBox(doc, (oldValue: string, newValue: string) => new ChangeSongTitle(doc, oldValue, newValue));
 		this.songTitleInputBox = songTitleInputBox;
 
 		// Song EQ Filter
 		this.songEqFilterEditor = new FilterEditor(doc, false, false, true);
 
-		const eqFilterToggle = toggleButton(
-			["simple", "advanced"],
-			(index: 0 | 1) => switchEqFilterType(index === 0),
-		);
+		const eqFilterToggle = toggleButton(["simple", "advanced"], (index: 0 | 1) => _switchEqFilterType(index === 0));
 		this.eqFilterSimpleButton = eqFilterToggle.buttons[0];
 		this.eqFilterAdvancedButton = eqFilterToggle.buttons[1];
 
@@ -222,34 +196,14 @@ export class SongSettingsPanel {
 		);
 
 		// Chorus
-		this._chorusSlider = rangeSlider(
-			doc,
-			(oldValue: number, newValue: number) => new ChangeChorus(doc, oldValue, newValue),
-			0,
-			Config.chorusRange - 1,
-			0,
-		);
+		this._chorusSlider = rangeSlider(doc, (oldValue: number, newValue: number) => new ChangeChorus(doc, oldValue, newValue), 0, Config.chorusRange - 1, 0);
 
-		this.chorusRow = div(
-			{ class: "selectRow" },
-			span({ class: "tip", onclick: () => onOpenPrompt("chorus") }, "Chorus:"),
-			this._chorusSlider.container,
-		);
+		this.chorusRow = div({ class: "selectRow" }, span({ class: "tip", onclick: () => onOpenPrompt("chorus") }, "Chorus:"), this._chorusSlider.container);
 
 		// Reverb
-		this._reverbSlider = rangeSlider(
-			doc,
-			(oldValue: number, newValue: number) => new ChangeReverb(doc, oldValue, newValue),
-			0,
-			Config.reverbRange - 1,
-			0,
-		);
+		this._reverbSlider = rangeSlider(doc, (oldValue: number, newValue: number) => new ChangeReverb(doc, oldValue, newValue), 0, Config.reverbRange - 1, 0);
 
-		this.reverbRow = div(
-			{ class: "selectRow" },
-			span({ class: "tip", onclick: () => onOpenPrompt("reverb") }, "Reverb:"),
-			this._reverbSlider.container,
-		);
+		this.reverbRow = div({ class: "selectRow" }, span({ class: "tip", onclick: () => onOpenPrompt("reverb") }, "Reverb:"), this._reverbSlider.container);
 
 		// Build container
 		this.container = div(
@@ -269,27 +223,15 @@ export class SongSettingsPanel {
 	}
 
 	private _createTitleRow(): HTMLDivElement {
-		return div(
-			{ class: "selectRow" },
-			span({ class: "tip" }, "Title:"),
-			this.songTitleInputBox.input,
-		);
+		return div({ class: "selectRow" }, span({ class: "tip" }, "Title:"), this.songTitleInputBox.input);
 	}
 
 	private _createScaleRow(): HTMLDivElement {
-		return div(
-			{ class: "selectRow" },
-			span({ class: "tip", onclick: () => this._onOpenPrompt("scale") }, "Scale:"),
-			this.scaleSelect,
-		);
+		return div({ class: "selectRow" }, span({ class: "tip", onclick: () => this._onOpenPrompt("scale") }, "Scale:"), this.scaleSelect);
 	}
 
 	private _createKeyRow(): HTMLDivElement {
-		return div(
-			{ class: "selectRow" },
-			span({ class: "tip", onclick: () => this._onOpenPrompt("key") }, "Key:"),
-			this.keySelect,
-		);
+		return div({ class: "selectRow" }, span({ class: "tip", onclick: () => this._onOpenPrompt("key") }, "Key:"), this.keySelect);
 	}
 
 	private _createTempoRow(): HTMLDivElement {
@@ -302,11 +244,7 @@ export class SongSettingsPanel {
 	}
 
 	private _createRhythmRow(): HTMLDivElement {
-		return div(
-			{ class: "selectRow" },
-			span({ class: "tip", onclick: () => this._onOpenPrompt("rhythm") }, "Rhythm:"),
-			this.rhythmSelect,
-		);
+		return div({ class: "selectRow" }, span({ class: "tip", onclick: () => this._onOpenPrompt("rhythm") }, "Rhythm:"), this.rhythmSelect);
 	}
 
 	public updateTempo(value: number): void {

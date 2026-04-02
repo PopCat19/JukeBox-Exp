@@ -76,18 +76,14 @@ import {
 	ChangeVibratoSpeed,
 	ChangeVolume,
 } from "./changes";
+import { LoopEditor, MuteEditor, PatternEditor, Piano, SpectrumEditor, TrackEditor } from "./components";
 import { ChannelRow } from "./components/channel-row";
 import { EnvelopeEditor } from "./components/envelope-editor";
 import { FadeInOutEditor } from "./components/fade-in-out-editor";
 import { FilterEditor } from "./components/filter-editor";
 import { HarmonicsEditor, HarmonicsEditorPrompt } from "./components/harmonics-editor";
-import { LoopEditor } from "./components/loop-editor";
-import { MuteEditor } from "./components/mute-editor";
 import { OctaveScrollBar } from "./components/octave-scroll-bar";
-import { PatternEditor } from "./components/pattern-editor";
-import { Piano } from "./components/piano";
-import { SpectrumEditor, SpectrumEditorPrompt } from "./components/spectrum-editor";
-import { TrackEditor } from "./components/track-editor";
+import { SpectrumEditorPrompt } from "./components/spectrum-editor";
 import { KeyboardLayout } from "./config/keyboard-layout";
 import { ChangeDispatcher } from "./core/change-dispatcher";
 import { DrumsetSetup, DrumsetSetupHost } from "./core/drumset-setup";

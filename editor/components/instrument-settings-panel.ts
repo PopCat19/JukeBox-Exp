@@ -9,62 +9,37 @@
 
 import { HTML } from "imperative-html/dist/esm/elements-strict";
 import { ColorConfig } from "../../shared/color-config";
-import { Config, InstrumentType } from "../../synth/synth-config";
-import { FilterEditor } from "./filter-editor";
-import { SongDocument } from "../song-document";
-import { addWheelSupport, Slider, rangeSlider, toggleButton, dropdownButton } from "../ui";
-import { EditorConfig } from "../config/editor-config";
+import { Config } from "../../synth/synth-config";
 import {
 	ChangeArpeggioSpeed,
 	ChangeBitcrusherFreq,
 	ChangeBitcrusherQuantization,
 	ChangeChorus,
-	ChangeChipWaveLoopEnd,
-	ChangeChipWaveLoopStart,
-	ChangeChipWavePlayBackwards,
-	ChangeChipWaveStartOffset,
-	ChangeChipWaveUseAdvancedLoopControls,
-	ChangeChord,
-	ChangeCustomAlgorythmorFeedback,
-	ChangeDecimalOffset,
-	ChangeDetune,
 	ChangeDistortion,
 	ChangeEchoDelay,
 	ChangeEchoSustain,
 	ChangeEQFilterSimpleCut,
 	ChangeEQFilterSimplePeak,
 	ChangeFeedbackAmplitude,
-	ChangeGrainAmounts,
-	ChangeGrainRange,
-	ChangeGrainSize,
-	ChangeGranular,
-	ChangeInvertWave,
 	ChangeNoteFilterSimpleCut,
 	ChangeNoteFilterSimplePeak,
 	ChangePan,
 	ChangePanDelay,
-	ChangePhaserFeedback,
-	ChangePhaserFreq,
-	ChangePhaserMix,
-	ChangePhaserStages,
-	ChangePitchShift,
 	ChangePulseWidth,
 	ChangeReverb,
-	ChangeRingMod,
-	ChangeRingModHz,
-	ChangeRingModPulseWidth,
 	ChangeStringSustain,
 	ChangeSupersawDynamism,
 	ChangeSupersawShape,
 	ChangeSupersawSpread,
-	ChangeTransition,
-	ChangeUnison,
 	ChangeVibratoDelay,
 	ChangeVibratoDepth,
 	ChangeVibratoSpeed,
-	ChangeVibratoType,
 	ChangeVolume,
 } from "../changes";
+import { EditorConfig } from "../config/editor-config";
+import { SongDocument } from "../song-document";
+import { addWheelSupport, dropdownButton, rangeSlider, Slider, toggleButton } from "../ui";
+import { FilterEditor } from "./filter-editor";
 
 const { button, div, input, option, select, span } = HTML;
 
@@ -205,22 +180,12 @@ export class InstrumentSettingsPanel {
 	public readonly invertWaveBox: HTMLInputElement;
 	public readonly invertWaveRow: HTMLElement;
 
-	private readonly _doc: SongDocument;
-	private readonly _onOpenPrompt: (prompt: string) => void;
-	private readonly _switchEQFilterType: (simple: boolean) => void;
-	private readonly _switchNoteFilterType: (simple: boolean) => void;
-
 	constructor(
 		doc: SongDocument,
 		onOpenPrompt: (prompt: string) => void,
-		switchEQFilterType: (simple: boolean) => void,
-		switchNoteFilterType: (simple: boolean) => void,
+		_switchEQFilterType: (simple: boolean) => void,
+		_switchNoteFilterType: (simple: boolean) => void,
 	) {
-		this._doc = doc;
-		this._onOpenPrompt = onOpenPrompt;
-		this._switchEQFilterType = switchEQFilterType;
-		this._switchNoteFilterType = switchNoteFilterType;
-
 		// Volume
 		this.volumeSlider = rangeSlider(
 			doc,
@@ -257,14 +222,9 @@ export class InstrumentSettingsPanel {
 		);
 
 		// Pan
-		this.panSlider = rangeSlider(
-			doc,
-			(oldValue: number, newValue: number) => new ChangePan(doc, oldValue, newValue),
-			0,
-			Config.panMax,
-			Config.panCenter,
-			{ midTick: true },
-		);
+		this.panSlider = rangeSlider(doc, (oldValue: number, newValue: number) => new ChangePan(doc, oldValue, newValue), 0, Config.panMax, Config.panCenter, {
+			midTick: true,
+		});
 
 		this.panDropdown = dropdownButton({
 			onclick: () => {}, // Will be wired up by song-editor.ts
@@ -313,10 +273,7 @@ export class InstrumentSettingsPanel {
 			this.panDelaySlider.container,
 		);
 
-		this.panDropdownGroup = div(
-			{ class: "editor-controls", style: "display: none;" },
-			this.panDelayRow,
-		);
+		this.panDropdownGroup = div({ class: "editor-controls", style: "display: none;" }, this.panDelayRow);
 
 		// Type Selection
 		this.pitchedPresetSelect = buildPresetOptions(false, "pitchPresetSelect");
@@ -325,17 +282,14 @@ export class InstrumentSettingsPanel {
 		this.instrumentTypeSelectRow = div(
 			{ class: "selectRow", id: "typeSelectRow" },
 			span({ class: "tip" }, "Type:"),
-			div(
-				div({ class: "pitchSelect" }, this.pitchedPresetSelect),
-				div({ class: "drumSelect" }, this.drumPresetSelect),
-			),
+			div(div({ class: "pitchSelect" }, this.pitchedPresetSelect), div({ class: "drumSelect" }, this.drumPresetSelect)),
 		);
 
 		// Effects
 		this.effectsSelect = select(option({ selected: true, disabled: true, hidden: false }));
 
 		// EQ Filter
-		const eqFilterToggle = toggleButton(["simple", "advanced"], (index: 0 | 1) => switchEQFilterType(index === 0));
+		const eqFilterToggle = toggleButton(["simple", "advanced"], (index: 0 | 1) => _switchEQFilterType(index === 0));
 		this.eqFilterSimpleButton = eqFilterToggle.buttons[0];
 		this.eqFilterAdvancedButton = eqFilterToggle.buttons[1];
 
@@ -398,7 +352,7 @@ export class InstrumentSettingsPanel {
 		);
 
 		// Note Filter
-		const noteFilterToggle = toggleButton(["simple", "advanced"], (index: 0 | 1) => switchNoteFilterType(index === 0));
+		const noteFilterToggle = toggleButton(["simple", "advanced"], (index: 0 | 1) => _switchNoteFilterType(index === 0));
 		this.noteFilterSimpleButton = noteFilterToggle.buttons[0];
 		this.noteFilterAdvancedButton = noteFilterToggle.buttons[1];
 
@@ -483,10 +437,7 @@ export class InstrumentSettingsPanel {
 			this.clicklessTransitionBox,
 		);
 
-		this.transitionDropdownGroup = div(
-			{ class: "editor-controls", style: "display: none;" },
-			this.clicklessTransitionRow,
-		);
+		this.transitionDropdownGroup = div({ class: "editor-controls", style: "display: none;" }, this.clicklessTransitionRow);
 
 		// Chord
 		this.chordSelect = buildOptions(
@@ -525,11 +476,7 @@ export class InstrumentSettingsPanel {
 			this.twoNoteArpBox,
 		);
 
-		this.chordDropdownGroup = div(
-			{ class: "editor-controls", style: "display: none;" },
-			this.arpeggioSpeedRow,
-			this.twoNoteArpRow,
-		);
+		this.chordDropdownGroup = div({ class: "editor-controls", style: "display: none;" }, this.arpeggioSpeedRow, this.twoNoteArpRow);
 
 		// Vibrato
 		this.vibratoSelect = buildOptions(
@@ -593,34 +540,14 @@ export class InstrumentSettingsPanel {
 		);
 
 		// Chorus
-		this.chorusSlider = rangeSlider(
-			doc,
-			(oldValue: number, newValue: number) => new ChangeChorus(doc, oldValue, newValue),
-			0,
-			Config.chorusRange - 1,
-			0,
-		);
+		this.chorusSlider = rangeSlider(doc, (oldValue: number, newValue: number) => new ChangeChorus(doc, oldValue, newValue), 0, Config.chorusRange - 1, 0);
 
-		this.chorusRow = div(
-			{ class: "selectRow" },
-			span({ class: "tip", onclick: () => onOpenPrompt("chorus") }, "Chorus:"),
-			this.chorusSlider.container,
-		);
+		this.chorusRow = div({ class: "selectRow" }, span({ class: "tip", onclick: () => onOpenPrompt("chorus") }, "Chorus:"), this.chorusSlider.container);
 
 		// Reverb
-		this.reverbSlider = rangeSlider(
-			doc,
-			(oldValue: number, newValue: number) => new ChangeReverb(doc, oldValue, newValue),
-			0,
-			Config.reverbRange - 1,
-			0,
-		);
+		this.reverbSlider = rangeSlider(doc, (oldValue: number, newValue: number) => new ChangeReverb(doc, oldValue, newValue), 0, Config.reverbRange - 1, 0);
 
-		this.reverbRow = div(
-			{ class: "selectRow" },
-			span({ class: "tip", onclick: () => onOpenPrompt("reverb") }, "Reverb:"),
-			this.reverbSlider.container,
-		);
+		this.reverbRow = div({ class: "selectRow" }, span({ class: "tip", onclick: () => onOpenPrompt("reverb") }, "Reverb:"), this.reverbSlider.container);
 
 		// Echo
 		this.echoSustainSlider = rangeSlider(
@@ -795,9 +722,7 @@ export class InstrumentSettingsPanel {
 			div({ class: "selectContainer", style: "width: 61.5%;" }, this.unisonSelect),
 		);
 
-		this.unisonDropdownGroup = div(
-			{ class: "editor-controls", style: "display: none;" },
-		);
+		this.unisonDropdownGroup = div({ class: "editor-controls", style: "display: none;" });
 
 		// Invert Wave
 		this.invertWaveBox = input({

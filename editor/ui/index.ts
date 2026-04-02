@@ -35,9 +35,9 @@ export { Layout } from "./layout";
 export type { InfoBannerOptions, InputRowOptions, InstructionsOptions, PaneContainerOptions, PaneOptions } from "./prompts";
 // Prompt layouts
 export { fixedPane, flexPane, infoBanner, inputRow, instructions, pane, paneContainer } from "./prompts";
+export type { SliderRowOptions, SliderRowWithInputOptions } from "./rows/slider-row";
 // Rows
 export { simpleSliderRow, sliderRow, sliderRowWithInput } from "./rows/slider-row";
-export type { SliderRowOptions, SliderRowWithInputOptions } from "./rows/slider-row";
 // Sliders
 export { rangeSlider, Slider } from "./sliders";
 // Style constants
