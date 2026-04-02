@@ -1142,6 +1142,12 @@ html {
 	min-width: 28px;
 	padding: 0;
 }
+.beepboxEditor .prompt-titlebar > button::before {
+	width: 100%;
+	height: 100%;
+	left: 0;
+	top: 0;
+}
 
 .beepboxEditor .prompt.shaded {
 	padding: var(--padding-6) 14px;
