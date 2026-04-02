@@ -32,6 +32,9 @@ document.head.appendChild(
 :root {
 	--button-size: 26px;
 	--settings-area-width: 192px;
+	--border-radius-small: 4px;
+	--border-radius-medium: 8px;
+	--border-radius-large: 16px;
 	--internal-play-symbol: var(--play-symbol, url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="-13 -13 26 26"><path d="M -5 -8 L -5 8 L 8 0 z" fill="gray"/></svg>'));
 	--internal-pause-symbol: var(--pause-symbol, url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="-13 -13 26 26"><rect x="-5" y="-7" width="4" height="14" fill="gray"/><rect x="3" y="-7" width="4" height="14" fill="gray"/></svg>'));
 	--internal-record-symbol: var(--record-symbol, url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="-13 -13 26 26"><circle cx="0" cy="0" r="6" fill="gray"/></svg>'));
@@ -749,7 +752,7 @@ html {
 	background: var(--prompt-bg-color, ${ColorConfig.editorBackground});
 	backdrop-filter: var(--prompt-backdrop-filter, none);
 	-webkit-backdrop-filter: var(--prompt-backdrop-filter, none);
-	border-radius: 16px;
+	border-radius: var(--border-radius-large);
 	border: 2px solid ${ColorConfig.uiWidgetBackground};
 	color: ${ColorConfig.primaryText};
 	padding: 20px;
@@ -815,10 +818,10 @@ html {
 	border-color: var(--indicator-primary, #4444ff);
 }
 .beepboxEditor .prompt.compactSearchPrompt .tagBrowserButton {
-	height: 100%;
+	align-self: stretch;
 	background: var(--ui-widget-background);
 	border: none;
-	border-radius: 5px;
+	border-radius: var(--border-radius-small);
 	color: var(--primary-text);
 	font-size: 14px;
 }
@@ -901,7 +904,7 @@ html {
 	display: block;
 	height: var(--button-size);
 	border: none;
-	border-radius: 5px;
+	border-radius: var(--border-radius-small);
 	background: ${ColorConfig.uiWidgetBackground};
 	color: inherit;
 	font-size: inherit;
@@ -1052,7 +1055,7 @@ html {
 	position: relative;
 	height: var(--button-size);
 	border: none;
-	border-radius: 5px;
+	border-radius: var(--border-radius-small);
 	background: ${ColorConfig.uiWidgetBackground};
 	color: inherit;
 	font-size: inherit;
@@ -1601,7 +1604,7 @@ html {
 	background: transparent;
 	text-align: center;
 	border: 2px solid ${ColorConfig.inputBoxOutline};
-	border-radius: 8px;
+	border-radius: var(--border-radius-medium);
 	color: ${ColorConfig.primaryText};
 }
 
@@ -1864,7 +1867,7 @@ li.select2-results__option[role=group] > strong:hover {
 	min-width: 0;
 	padding: 6px 10px;
 	border: 2px solid var(--ui-widget-background);
-	border-radius: 8px;
+	border-radius: var(--border-radius-medium);
 	background: var(--editor-background);
 	color: var(--primary-text);
 	font-size: 14px;
