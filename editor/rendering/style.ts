@@ -35,6 +35,13 @@ document.head.appendChild(
 	--border-radius-small: 4px;
 	--border-radius-medium: 8px;
 	--border-radius-large: 16px;
+	--padding-2: 2px;
+	--padding-4: 4px;
+	--padding-6: 6px;
+	--padding-8: 8px;
+	--padding-10: 10px;
+	--padding-12: 12px;
+	--padding-16: 16px;
 	--internal-play-symbol: var(--play-symbol, url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="-13 -13 26 26"><path d="M -5 -8 L -5 8 L 8 0 z" fill="gray"/></svg>'));
 	--internal-pause-symbol: var(--pause-symbol, url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="-13 -13 26 26"><rect x="-5" y="-7" width="4" height="14" fill="gray"/><rect x="3" y="-7" width="4" height="14" fill="gray"/></svg>'));
 	--internal-record-symbol: var(--record-symbol, url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="-13 -13 26 26"><circle cx="0" cy="0" r="6" fill="gray"/></svg>'));
@@ -824,7 +831,7 @@ html {
 	border-radius: var(--border-radius-medium);
 	color: var(--primary-text);
 	font-size: 14px;
-	padding: 6px 12px;
+	padding: var(--padding-6) var(--padding-12);
 }
 .beepboxEditor .prompt.compactSearchPrompt .tagBrowserButton:hover {
 	background: var(--ui-widget-focus);
@@ -1016,7 +1023,7 @@ html {
     background: ${ColorConfig.select2OptGroup};
 }
 .select2-results__option {
-    padding: 2px;
+    padding: var(--padding-2);
     user-select: none;
     -webkit-user-select: none;
 }
@@ -1114,7 +1121,7 @@ html {
 }
 
 .beepboxEditor .prompt.shaded {
-	padding: 6px 14px;
+	padding: var(--padding-6) 14px;
 	min-width: 0;
 	max-width: max-content;
 	overflow: hidden;
@@ -1866,7 +1873,7 @@ li.select2-results__option[role=group] > strong:hover {
 .beepboxEditor .searchInput {
 	flex: 1;
 	min-width: 0;
-	padding: 6px 10px;
+	padding: var(--padding-6) var(--padding-10);
 	border: 2px solid var(--ui-widget-background);
 	border-radius: var(--border-radius-medium);
 	background: var(--editor-background);
