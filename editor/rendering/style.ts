@@ -42,6 +42,10 @@ document.head.appendChild(
 	--padding-10: 10px;
 	--padding-12: 12px;
 	--padding-16: 16px;
+	--gap-sm: 4px;
+	--gap-md: 8px;
+	--gap-lg: 12px;
+	--gap-xl: 16px;
 	--flex-fill: 1 1 auto;
 	--flex-fit: 0 0 auto;
 	--flex-stretch: stretch;
@@ -768,6 +772,7 @@ html {
 	padding: 20px;
 	display: flex;
 	flex-direction: column;
+	gap: var(--gap-md);
 	position: absolute;
 	z-index: 1;
 	pointer-events: auto;
@@ -782,8 +787,8 @@ html {
 	border-color: var(--indicator-primary, #4444ff) !important;
 }
 
-.beepboxEditor .prompt > *:not(:first-child):not(.cancelButton) {
-	margin-top: 1.25em;
+.beepboxEditor .prompt > .cancelButton {
+	margin-top: auto;
 }
 
 .beepboxEditor .prompt h2 {
@@ -1115,8 +1120,7 @@ html {
 .beepboxEditor .prompt-titlebar {
 	display: flex;
 	align-items: center;
-	gap: 8px;
-	margin-bottom: 8px;
+	gap: var(--gap-md);
 	width: 100%;
 }
 
@@ -1128,6 +1132,12 @@ html {
 	font-size: 2em !important;
 	font-weight: normal;
 	padding: 0 !important;
+}
+
+.beepboxEditor .prompt-titlebar > button {
+	flex: var(--flex-fit);
+	align-self: var(--flex-stretch);
+	height: 100%;
 }
 
 .beepboxEditor .prompt.shaded {
