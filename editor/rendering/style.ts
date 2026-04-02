@@ -838,6 +838,7 @@ html {
 	border-radius: var(--border-radius-medium);
 	color: var(--primary-text);
 	font-size: 14px;
+	line-height: 1.4;
 	padding: var(--padding-6) var(--padding-12);
 	box-sizing: border-box;
 }
