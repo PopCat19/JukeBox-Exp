@@ -1122,7 +1122,7 @@ html {
 	align-items: center;
 	gap: var(--gap-md);
 	width: 100%;
-	height: 32px;
+	height: 28px;
 }
 
 .beepboxEditor .prompt-titlebar > h2 {
@@ -1137,10 +1137,9 @@ html {
 
 .beepboxEditor .prompt-titlebar > button {
 	flex: var(--flex-fit);
-	align-self: var(--flex-stretch);
-	height: 100%;
-	width: 32px;
-	min-width: 32px;
+	height: 28px;
+	width: 28px;
+	min-width: 28px;
 	padding: 0;
 }
 
