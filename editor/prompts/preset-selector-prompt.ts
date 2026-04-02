@@ -56,7 +56,6 @@ export class PresetSelectorPrompt extends BasePrompt {
 		const tagButton = button(
 			{
 				class: "tagBrowserButton",
-				style: `flex: 0 0 auto; align-self: stretch; padding: 0 12px;`,
 			},
 			"Tags",
 		);
