@@ -34,43 +34,27 @@ import {
 	ChangeArpeggioSpeed,
 	ChangeBitcrusherFreq,
 	ChangeBitcrusherQuantization,
-	ChangeChorus,
 	ChangeCustomAlgorythmorFeedback,
 	ChangeCustomWave,
 	ChangeDecimalOffset,
 	ChangeDetune,
 	ChangeDistortion,
-	ChangeEchoDelay,
-	ChangeEchoSustain,
 	ChangeEnvelopeSpeed,
 	ChangeEQFilterSimpleCut,
 	ChangeEQFilterSimplePeak,
 	ChangeFeedbackAmplitude,
-	ChangeGrainAmounts,
-	ChangeGrainRange,
-	ChangeGrainSize,
-	ChangeGranular,
 	ChangeHoldingModRecording,
 	ChangeNoteFilterSimpleCut,
 	ChangeNoteFilterSimplePeak,
 	ChangePan,
 	ChangePanDelay,
-	ChangePhaserFeedback,
-	ChangePhaserFreq,
-	ChangePhaserMix,
-	ChangePhaserStages,
 	ChangePitchShift,
 	ChangePulseWidth,
-	ChangeReverb,
-	ChangeRingMod,
-	ChangeRingModHz,
-	ChangeRingModPulseWidth,
 	ChangeSongTitle,
 	ChangeStringSustain,
 	ChangeSupersawDynamism,
 	ChangeSupersawShape,
 	ChangeSupersawSpread,
-	ChangeTempo,
 	ChangeVibratoDelay,
 	ChangeVibratoDepth,
 	ChangeVibratoSpeed,
@@ -78,11 +62,15 @@ import {
 } from "./changes";
 import { LoopEditor, MuteEditor, PatternEditor, Piano, SpectrumEditor, TrackEditor } from "./components";
 import { ChannelRow } from "./components/channel-row";
+import { EffectsPanel } from "./components/effects-panel";
 import { EnvelopeEditor } from "./components/envelope-editor";
 import { FadeInOutEditor } from "./components/fade-in-out-editor";
 import { FilterEditor } from "./components/filter-editor";
 import { HarmonicsEditor, HarmonicsEditorPrompt } from "./components/harmonics-editor";
+import { MenuBar } from "./components/menu-bar";
 import { OctaveScrollBar } from "./components/octave-scroll-bar";
+import { PlaybackControls } from "./components/playback-controls";
+import { SongSettingsPanel } from "./components/song-settings-panel";
 import { SpectrumEditorPrompt } from "./components/spectrum-editor";
 import { KeyboardLayout } from "./config/keyboard-layout";
 import { ChangeDispatcher } from "./core/change-dispatcher";
@@ -261,208 +249,30 @@ export class SongEditor implements ModSliderProvider, MenuHandlerHost, DrumsetSe
 	private readonly _loopEditor: LoopEditor = new LoopEditor(this.doc, this._trackEditor);
 	private readonly _piano: Piano = new Piano(this.doc);
 	private readonly _octaveScrollBar: OctaveScrollBar = new OctaveScrollBar(this.doc, this._piano);
-	private readonly _playButton: HTMLButtonElement = button(
-		{
-			class: "playButton",
-			type: "button",
-			title: "Play (Space)",
-		},
-		span("Play"),
-	);
-	private readonly _pauseButton: HTMLButtonElement = button(
-		{
-			class: "pauseButton",
-			style: "display: none;",
-			type: "button",
-			title: "Pause (Space)",
-		},
-		"Pause",
-	);
-	private readonly _recordButton: HTMLButtonElement = button(
-		{
-			class: "recordButton",
-			style: "display: none;",
-			type: "button",
-			title: "Record (Ctrl+Space)",
-		},
-		span("Record"),
-	);
-	private readonly _stopButton: HTMLButtonElement = button(
-		{
-			class: "stopButton",
-			style: "display: none;",
-			type: "button",
-			title: "Stop Recording (Space)",
-		},
-		"Stop Recording",
-	);
-	private readonly _prevBarButton: HTMLButtonElement = iconButton("prevBarButton", {
-		title: "Previous Bar (left bracket)",
-	});
-	private readonly _nextBarButton: HTMLButtonElement = iconButton("nextBarButton", {
-		title: "Next Bar (right bracket)",
-	});
-	private readonly _volumeSlider: Slider = rangeSlider(this.doc, null, 0, 75, 50, { style: "width: 5em; flex-grow: 1; margin: 0;", title: "main volume" });
-	private readonly _outVolumeBarBg: SVGRectElement = SVG.rect({
-		"pointer-events": "none",
-		width: "90%",
-		height: "50%",
-		x: "5%",
-		y: "25%",
-		fill: ColorConfig.uiWidgetBackground,
-	});
-	private readonly _outVolumeBar: SVGRectElement = SVG.rect({
-		"pointer-events": "none",
-		height: "50%",
-		width: "0%",
-		x: "5%",
-		y: "25%",
-		fill: "url('#volumeGrad2')",
-	});
-	private readonly _outVolumeCap: SVGRectElement = SVG.rect({
-		"pointer-events": "none",
-		width: "2px",
-		height: "50%",
-		x: "5%",
-		y: "25%",
-		fill: ColorConfig.uiWidgetFocus,
-	});
-	private readonly _stop1: SVGStopElement = SVG.stop({ "stop-color": "lime", offset: "60%" });
-	private readonly _stop2: SVGStopElement = SVG.stop({ "stop-color": "orange", offset: "90%" });
-	private readonly _stop3: SVGStopElement = SVG.stop({ "stop-color": "red", offset: "100%" });
-	private readonly _gradient: SVGGradientElement = SVG.linearGradient(
-		{ id: "volumeGrad2", gradientUnits: "userSpaceOnUse" },
-		this._stop1,
-		this._stop2,
-		this._stop3,
-	);
-	private readonly _defs: SVGDefsElement = SVG.defs({}, this._gradient);
-	private readonly _volumeBarContainer: SVGSVGElement = SVG.svg(
-		{
-			style: `touch-action: none; overflow: visible; margin: auto; max-width: 20vw;`,
-			width: "160px",
-			height: "100%",
-			preserveAspectRatio: "none",
-			viewBox: "0 0 160 12",
-		},
-		this._defs,
-		this._outVolumeBarBg,
-		this._outVolumeBar,
-		this._outVolumeCap,
-	);
-	private readonly _volumeBarBox: HTMLDivElement = div(
-		{
-			class: "playback-volume-bar",
-			style: "height: 12px; align-self: center;",
-		},
-		this._volumeBarContainer,
-	);
-	private readonly _fileMenu: HTMLSelectElement = select(
-		{ style: "width: 100%;" },
-		option({ selected: true, disabled: true, hidden: false }, "File"), // todo: "hidden" should be true but looks wrong on mac chrome, adds checkmark next to first visible option even though it's not selected.
-		option({ value: "new" }, "+ New Blank Song (⇧`)"),
-		option({ value: "import" }, "↑ Import Song... (" + EditorConfig.ctrlSymbol + "O)"),
-		option({ value: "export" }, "↓ Export Song... (" + EditorConfig.ctrlSymbol + "S)"),
-		option({ value: "copyUrl" }, "⎘ Copy Song URL"),
-		option({ value: "shareUrl" }, "⤳ Share Song URL"),
-		option({ value: "configureShortener" }, "🛠 Customize Url Shortener..."),
-		option({ value: "shortenUrl" }, "… Shorten Song URL (⇧U)"),
-		option({ value: "viewPlayer" }, "▶ View in Song Player (⇧P)"),
-		option({ value: "copyEmbed" }, "⎘ Copy HTML Embed Code"),
-		option({ value: "songRecovery" }, "⚠ Recover Recent Song... (`)"),
-	);
-	private readonly _editMenu: HTMLSelectElement = select(
-		{ style: "width: 100%;" },
-		option({ selected: true, disabled: true, hidden: false }, "Edit"), // todo: "hidden" should be true but looks wrong on mac chrome, adds checkmark next to first visible option even though it's not selected.
-		option({ value: "undo" }, "Undo (Z)"),
-		option({ value: "redo" }, "Redo (Y)"),
-		option({ value: "copy" }, "Copy Pattern (C)"),
-		option({ value: "pasteNotes" }, "Paste Pattern Notes (V)"),
-		option({ value: "pasteNumbers" }, "Paste Pattern Numbers (" + EditorConfig.ctrlSymbol + "⇧V)"),
-		option({ value: "insertBars" }, "Insert Bar (⏎)"),
-		option({ value: "deleteBars" }, "Delete Selected Bars (⌫)"),
-		option({ value: "insertChannel" }, "Insert Channel (" + EditorConfig.ctrlSymbol + "⏎)"),
-		option({ value: "deleteChannel" }, "Delete Selected Channels (" + EditorConfig.ctrlSymbol + "⌫)"),
-		option({ value: "selectChannel" }, "Select Channel (⇧A)"),
-		option({ value: "selectAll" }, "Select All (A)"),
-		option({ value: "duplicatePatterns" }, "Duplicate Reused Patterns (D)"),
-		option({ value: "transposeUp" }, "Move Notes Up (+ or ⇧+)"),
-		option({ value: "transposeDown" }, "Move Notes Down (- or ⇧-)"),
-		option({ value: "moveNotesSideways" }, "Move All Notes Sideways... (W)"),
-		option({ value: "generateEuclideanRhythm" }, "Generate Euclidean Rhythm... (" + EditorConfig.ctrlSymbol + "E)"),
-		option({ value: "beatsPerBar" }, "Change Beats Per Bar... (⇧B)"),
-		option({ value: "barCount" }, "Change Song Length... (L)"),
-		option({ value: "octaves" }, "Change Octave Count..."),
-		option({ value: "channelSettings" }, "Channel Settings... (Q)"),
-		option({ value: "limiterSettings" }, "Limiter Settings... (⇧L)"),
-		option({ value: "addExternal" }, "Add Custom Samples... (⇧Q)"),
-		option({ value: "keyboardShortcuts" }, "Keyboard Shortcuts (? / ⇧/)"),
-	);
-	private readonly _optionsMenu: HTMLSelectElement = select(
-		{ style: "width: 100%;" },
-		option({ selected: true, disabled: true, hidden: false }, "Preferences"), // todo: "hidden" should be true but looks wrong on mac chrome, adds checkmark next to first visible option even though it's not selected.
-		optgroup(
-			{ label: "Technical" },
-			option({ value: "autoPlay" }, "Auto Play on Load"),
-			option({ value: "autoFollow" }, "Auto Follow Playhead"),
-			option({ value: "enableNotePreview" }, "Hear Added Notes"),
-			option({ value: "notesOutsideScale" }, "Place Notes Out of Scale"),
-			option({ value: "setDefaultScale" }, "Set Current Scale as Default"),
-			option({ value: "alwaysFineNoteVol" }, "Always Fine Note Volume"),
-			option({ value: "enableChannelMuting" }, "Enable Channel Muting"),
-			option({ value: "instrumentCopyPaste" }, "Enable Copy/Paste Buttons"),
-			option({ value: "enableTagSearch" }, "Enable Tag Search"),
-			option({ value: "instrumentImportExport" }, "Enable Import/Export Buttons"),
-			option({ value: "displayBrowserUrl" }, "Enable Song Data in URL"),
-			option({ value: "closePromptByClickoff" }, "Close Prompts on Click Off"),
-			option({ value: "rollNoveltyPresets" }, "Can Randomly Select Novelty Presets"),
-			option({ value: "recordingSetup" }, "Note Recording..."),
-		),
-		optgroup(
-			{ label: "Appearance" },
-			option({ value: "showFifth" }, 'Highlight "Fifth" Note'),
-			option({ value: "notesFlashWhenPlayed" }, "Notes Flash When Played (DogeBox2)"),
-			option({ value: "instrumentButtonsAtTop" }, "Instrument Buttons at Top"),
-			option({ value: "showPromptBackdrop", id: "showPromptBackdrop" }, "Show Prompt Backdrop"),
-			option({ value: "showChannels" }, "Show All Channels"),
-			option({ value: "showScrollBar" }, "Show Octave Scroll Bar"),
-			option({ value: "showInstrumentScrollbars" }, "Show Intsrument Scrollbars"),
-			option({ value: "showLetters" }, "Show Piano Keys"),
-			option({ value: "displayVolumeBar" }, "Show Playback Volume"),
-			option({ value: "showOscilloscope" }, "Show Oscilloscope"),
-			option({ value: "showSampleLoadingStatus" }, "Show Sample Loading Status"),
-			option({ value: "showDescription" }, "Show Description"),
-			option({ value: "layout" }, "Set Layout..."),
-			option({ value: "colorTheme" }, "Set Theme..."),
-			option({ value: "customTheme" }, "Custom Theme..."),
-		),
-	);
-	private readonly _scaleSelect: HTMLSelectElement = buildOptions(
-		select(),
-		Config.scales.map((scale) => scale.name),
-	);
-	private readonly _keySelect: HTMLSelectElement = buildOptions(select(), Config.keys.map((key) => key.name).reverse());
-	private readonly _octaveStepper: HTMLInputElement = numberInput({
-		style: "width: 59.5%;",
-		type: "number",
-		min: Config.octaveMin,
-		max: Config.octaveMax,
-		value: "0",
-	});
-	private readonly _tempoSlider: Slider = rangeSlider(
+	private readonly _playbackControls: PlaybackControls = new PlaybackControls(this.doc);
+	private readonly _playButton: HTMLButtonElement = this._playbackControls.playButton;
+	private readonly _pauseButton: HTMLButtonElement = this._playbackControls.pauseButton;
+	private readonly _recordButton: HTMLButtonElement = this._playbackControls.recordButton;
+	private readonly _stopButton: HTMLButtonElement = this._playbackControls.stopButton;
+	private readonly _prevBarButton: HTMLButtonElement = this._playbackControls.prevBarButton;
+	private readonly _nextBarButton: HTMLButtonElement = this._playbackControls.nextBarButton;
+	private readonly _volumeSlider: Slider = this._playbackControls.volumeSlider;
+	private readonly _volumeBarBox: HTMLDivElement = this._playbackControls.volumeBarBox;
+	private readonly _menuBar: MenuBar = new MenuBar();
+	private readonly _fileMenu: HTMLSelectElement = this._menuBar.fileMenu;
+	private readonly _editMenu: HTMLSelectElement = this._menuBar.editMenu;
+	private readonly _optionsMenu: HTMLSelectElement = this._menuBar.optionsMenu;
+	private readonly _songSettingsPanel: SongSettingsPanel = new SongSettingsPanel(
 		this.doc,
-		(oldValue: number, newValue: number) => new ChangeTempo(this.doc, oldValue, newValue),
-		1,
-		500,
-		160,
-		{ style: "margin: 0; vertical-align: middle;" },
+		(prompt: string) => this._openPrompt(prompt),
+		(simple: boolean) => this._switchEQFilterType(simple),
 	);
-	private readonly _tempoStepper: HTMLInputElement = numberInput({
-		style: "width: 4em; font-size: 80%; margin-left: 0.4em; vertical-align: middle;",
-		type: "number",
-		step: "1",
-	});
-	private readonly _songEqFilterEditor: FilterEditor = new FilterEditor(this.doc, false, false, true);
+	private readonly _scaleSelect: HTMLSelectElement = this._songSettingsPanel.scaleSelect;
+	private readonly _keySelect: HTMLSelectElement = this._songSettingsPanel.keySelect;
+	private readonly _octaveStepper: HTMLInputElement = this._songSettingsPanel.octaveStepper;
+	private readonly _tempoSlider: Slider = this._songSettingsPanel.tempoSlider;
+	private readonly _tempoStepper: HTMLInputElement = this._songSettingsPanel.tempoStepper;
+	private readonly _songEqFilterEditor: FilterEditor = this._songSettingsPanel.songEqFilterEditor;
 	private readonly _songEqFilterZoom: HTMLButtonElement = button(
 		{
 			style: "margin-left:0em; padding-left:0.2em; height:1.5em; max-width: 12px;",
@@ -470,72 +280,16 @@ export class SongEditor implements ModSliderProvider, MenuHandlerHost, DrumsetSe
 		},
 		"+",
 	);
-	private readonly _chorusSlider: Slider = rangeSlider(
-		this.doc,
-		(oldValue: number, newValue: number) => new ChangeChorus(this.doc, oldValue, newValue),
-		0,
-		Config.chorusRange - 1,
-		0,
-	);
-	private readonly _chorusRow: HTMLDivElement = div(
-		{ class: "selectRow" },
-		span({ class: "tip", onclick: () => this._openPrompt("chorus") }, "Chorus:"),
-		this._chorusSlider.container,
-	);
-	private readonly _reverbSlider: Slider = rangeSlider(
-		this.doc,
-		(oldValue: number, newValue: number) => new ChangeReverb(this.doc, oldValue, newValue),
-		0,
-		Config.reverbRange - 1,
-		0,
-	);
-	private readonly _reverbRow: HTMLDivElement = div(
-		{ class: "selectRow" },
-		span({ class: "tip", onclick: () => this._openPrompt("reverb") }, "Reverb:"),
-		this._reverbSlider.container,
-	);
-	private readonly _ringModWaveSelect: HTMLSelectElement = buildOptions(
-		select({}),
-		Config.operatorWaves.map((wave) => wave.name),
-	);
-	private readonly _ringModPulsewidthSlider: Slider = rangeSlider(
-		this.doc,
-		(oldValue: number, newValue: number) => new ChangeRingModPulseWidth(this.doc, oldValue, newValue),
-		0,
-		Config.pwmOperatorWaves.length - 1,
-		0,
-		{ style: "margin-left: 10px; width: 85%;", title: "Pulse Width", midTick: true },
-	);
-	private readonly _ringModSlider: Slider = rangeSlider(
-		this.doc,
-		(oldValue: number, newValue: number) => new ChangeRingMod(this.doc, oldValue, newValue),
-		0,
-		Config.ringModRange - 1,
-		0,
-	);
-	private readonly _ringModRow: HTMLDivElement = div(
-		{ class: "selectRow" },
-		span({ class: "tip", onclick: () => this._openPrompt("ringMod") }, "Ring Mod:"),
-		this._ringModSlider.container,
-	);
-	private readonly _ringModHzSlider: Slider = rangeSlider(
-		this.doc,
-		(oldValue: number, newValue: number) => new ChangeRingModHz(this.doc, oldValue, newValue),
-		0,
-		Config.ringModHzRange - 1,
-		Config.ringModHzRange - Config.ringModHzRange / 2,
-		{ midTick: true },
-	);
-	public readonly ringModHzNum: HTMLParagraphElement = div({ style: "font-size: 80%; ", id: "ringModHzNum" });
-	private readonly _ringModHzSliderRow: HTMLDivElement = div(
-		{ class: "selectRow", style: "width:100%;" },
-		div(
-			{ style: "display:flex; flex-direction:column; align-items:center;" },
-			span({ class: "tip", style: "font-size: smaller;", onclick: () => this._openPrompt("RingModHz") }, "Hertz: "),
-			div({ style: `color: ${ColorConfig.secondaryText}; ` }, this.ringModHzNum),
-		),
-		this._ringModHzSlider.container,
-	);
+	private readonly _chorusSlider: Slider = this._songSettingsPanel.chorusSlider;
+	private readonly _chorusRow: HTMLDivElement = this._songSettingsPanel.chorusRow;
+	private readonly _reverbSlider: Slider = this._songSettingsPanel.reverbSlider;
+	private readonly _reverbRow: HTMLDivElement = this._songSettingsPanel.reverbRow;
+	private readonly _effectsPanel: EffectsPanel = new EffectsPanel(this.doc, (prompt: string) => this._openPrompt(prompt));
+	private readonly _ringModWaveSelect: HTMLSelectElement = this._effectsPanel.ringModWaveSelect;
+	private readonly _ringModPulsewidthSlider: Slider = this._effectsPanel.ringModPulsewidthSlider;
+	private readonly _ringModSlider: Slider = this._effectsPanel.ringModSlider;
+	private readonly _ringModHzSlider: Slider = this._effectsPanel.ringModHzSlider;
+	public readonly ringModHzNum: HTMLParagraphElement = this._effectsPanel.ringModHzNum;
 	private readonly _ringModWaveText: HTMLSpanElement = span(
 		{
 			class: "tip",
@@ -543,160 +297,27 @@ export class SongEditor implements ModSliderProvider, MenuHandlerHost, DrumsetSe
 		},
 		"Wave: ",
 	);
-	private readonly _ringModWaveSelectRow: HTMLDivElement = div(
-		{ class: "selectRow", style: "width: 100%;" },
-		this._ringModWaveText,
-		this._ringModPulsewidthSlider.container,
-		div({ class: "selectContainer", style: "width:40%;" }, this._ringModWaveSelect),
-	);
-	private readonly _ringModContainerRow: HTMLDivElement = div(
-		{ class: "", style: "display:flex; flex-direction:column;" },
-		this._ringModRow,
-		this._ringModHzSliderRow,
-		// this._rmOffsetHzSliderRow,
-		this._ringModWaveSelectRow,
-	);
-	private readonly _granularSlider: Slider = rangeSlider(
-		this.doc,
-		(oldValue: number, newValue: number) => new ChangeGranular(this.doc, oldValue, newValue),
-		0,
-		Config.granularRange,
-		0,
-	);
-	private readonly _granularRow: HTMLDivElement = div(
-		{ class: "selectRow" },
-		span({ class: "tip", onclick: () => this._openPrompt("granular") }, "Granular:"),
-		this._granularSlider.container,
-	);
-	private readonly _grainSizeSlider: Slider = rangeSlider(
-		this.doc,
-		(oldValue: number, newValue: number) => new ChangeGrainSize(this.doc, oldValue, newValue),
-		Config.grainSizeMin / Config.grainSizeStep,
-		Config.grainSizeMax / Config.grainSizeStep,
-		Config.grainSizeMin / Config.grainSizeStep,
-	);
-	public readonly grainSizeNum: HTMLParagraphElement = div({ style: "font-size: 80%; ", id: "grainSizeNum" });
-	private readonly _grainSizeSliderRow: HTMLDivElement = div(
-		{ class: "selectRow", style: "width:100%;" },
-		div(
-			{ style: "display:flex; flex-direction:column; align-items:center;" },
-			span({ class: "tip", style: "font-size: smaller;", onclick: () => this._openPrompt("grainSize") }, "Grain: "),
-			div({ style: `color: ${ColorConfig.secondaryText}; ` }, this.grainSizeNum),
-		),
-		this._grainSizeSlider.container,
-	);
-	private readonly _grainAmountsSlider: Slider = rangeSlider(
-		this.doc,
-		(oldValue: number, newValue: number) => new ChangeGrainAmounts(this.doc, oldValue, newValue),
-		0,
-		Config.grainAmountsMax,
-		8,
-	);
-	private readonly _grainAmountsRow: HTMLDivElement = div(
-		{ class: "selectRow" },
-		span({ class: "tip", onclick: () => this._openPrompt("grainAmount") }, "Grain Freq:"),
-		this._grainAmountsSlider.container,
-	);
-	private readonly _grainRangeSlider: Slider = rangeSlider(
-		this.doc,
-		(oldValue: number, newValue: number) => new ChangeGrainRange(this.doc, oldValue, newValue),
-		0,
-		Config.grainRangeMax / Config.grainSizeStep,
-		0,
-	);
-	public readonly grainRangeNum: HTMLParagraphElement = div({ style: "font-size: 80%; ", id: "grainRangeNum" });
-	private readonly _grainRangeSliderRow: HTMLDivElement = div(
-		{ class: "selectRow", style: "width:100%;" },
-		div(
-			{ style: "display:flex; flex-direction:column; align-items:center;" },
-			span({ class: "tip", style: "font-size: smaller;", onclick: () => this._openPrompt("grainRange") }, "Range: "),
-			div({ style: `color: ${ColorConfig.secondaryText}; ` }, this.grainRangeNum),
-		),
-		this._grainRangeSlider.container,
-	);
-	private readonly _granularContainerRow: HTMLDivElement = div(
-		{ class: "", style: "display:flex; flex-direction:column;" },
-		this._granularRow,
-		this._grainAmountsRow,
-		this._grainSizeSliderRow,
-		this._grainRangeSliderRow,
-	);
-	private readonly _echoSustainSlider: Slider = rangeSlider(
-		this.doc,
-		(oldValue: number, newValue: number) => new ChangeEchoSustain(this.doc, oldValue, newValue),
-		0,
-		Config.echoSustainRange - 1,
-		0,
-	);
-	private readonly _echoSustainRow: HTMLDivElement = div(
-		{ class: "selectRow" },
-		span({ class: "tip", onclick: () => this._openPrompt("echoSustain") }, "Echo:"),
-		this._echoSustainSlider.container,
-	);
-	private readonly _echoDelaySlider: Slider = rangeSlider(
-		this.doc,
-		(oldValue: number, newValue: number) => new ChangeEchoDelay(this.doc, oldValue, newValue),
-		0,
-		Config.echoDelayRange - 1,
-		0,
-	);
-	private readonly _echoDelayRow: HTMLDivElement = div(
-		{ class: "selectRow" },
-		span({ class: "tip", onclick: () => this._openPrompt("echoDelay") }, "Echo Delay:"),
-		this._echoDelaySlider.container,
-	);
-	private readonly _rhythmSelect: HTMLSelectElement = buildOptions(
-		select(),
-		Config.rhythms.map((rhythm) => rhythm.name),
-	);
-	private readonly _phaserMixSlider: Slider = rangeSlider(
-		this.doc,
-		(oldValue: number, newValue: number) => new ChangePhaserMix(this.doc, oldValue, newValue),
-		0,
-		Config.phaserMixRange - 1,
-		0,
-	);
-	private readonly _phaserMixRow: HTMLDivElement = div(
-		{ class: "selectRow" },
-		span({ class: "tip", onclick: () => this._openPrompt("phaserMix") }, span("Phaser:")),
-		this._phaserMixSlider.container,
-	);
-	private readonly _phaserFreqSlider: Slider = rangeSlider(
-		this.doc,
-		(oldValue: number, newValue: number) => new ChangePhaserFreq(this.doc, oldValue, newValue),
-		0,
-		Config.phaserFreqRange - 1,
-		0,
-	);
-	private readonly _phaserFreqRow: HTMLDivElement = div(
-		{ class: "selectRow" },
-		span({ class: "tip", onclick: () => this._openPrompt("phaserFreq") }, span(" Freq:")),
-		this._phaserFreqSlider.container,
-	);
-	private readonly _phaserFeedbackSlider: Slider = rangeSlider(
-		this.doc,
-		(oldValue: number, newValue: number) => new ChangePhaserFeedback(this.doc, oldValue, newValue),
-		0,
-		Config.phaserFeedbackRange - 1,
-		0,
-	);
-	private readonly _phaserFeedbackRow: HTMLDivElement = div(
-		{ class: "selectRow" },
-		span({ class: "tip", onclick: () => this._openPrompt("phaserFeedback") }, span(" Feedback:")),
-		this._phaserFeedbackSlider.container,
-	);
-	private readonly _phaserStagesSlider: Slider = rangeSlider(
-		this.doc,
-		(oldValue: number, newValue: number) => new ChangePhaserStages(this.doc, oldValue, newValue),
-		Config.phaserMinStages,
-		Config.phaserMaxStages,
-		0,
-	);
-	private readonly _phaserStagesRow: HTMLDivElement = div(
-		{ class: "selectRow" },
-		span({ class: "tip", onclick: () => this._openPrompt("phaserStages") }, span(" Stages:")),
-		this._phaserStagesSlider.container,
-	);
+	private readonly _ringModContainerRow: HTMLDivElement = this._effectsPanel.ringModContainerRow;
+	private readonly _granularSlider: Slider = this._effectsPanel.granularSlider;
+	private readonly _grainSizeSlider: Slider = this._effectsPanel.grainSizeSlider;
+	public readonly grainSizeNum: HTMLParagraphElement = this._effectsPanel.grainSizeNum;
+	private readonly _grainAmountsSlider: Slider = this._effectsPanel.grainAmountsSlider;
+	private readonly _grainRangeSlider: Slider = this._effectsPanel.grainRangeSlider;
+	public readonly grainRangeNum: HTMLParagraphElement = this._effectsPanel.grainRangeNum;
+	private readonly _granularContainerRow: HTMLDivElement = this._effectsPanel.granularContainerRow;
+	private readonly _echoSustainSlider: Slider = this._effectsPanel.echoSustainSlider;
+	private readonly _echoSustainRow: HTMLDivElement = this._effectsPanel.echoSustainRow;
+	private readonly _echoDelaySlider: Slider = this._effectsPanel.echoDelaySlider;
+	private readonly _echoDelayRow: HTMLDivElement = this._effectsPanel.echoDelayRow;
+	private readonly _phaserMixSlider: Slider = this._effectsPanel.phaserMixSlider;
+	private readonly _phaserMixRow: HTMLDivElement = this._effectsPanel.phaserMixRow;
+	private readonly _phaserFreqSlider: Slider = this._effectsPanel.phaserFreqSlider;
+	private readonly _phaserFreqRow: HTMLDivElement = this._effectsPanel.phaserFreqRow;
+	private readonly _phaserFeedbackSlider: Slider = this._effectsPanel.phaserFeedbackSlider;
+	private readonly _phaserFeedbackRow: HTMLDivElement = this._effectsPanel.phaserFeedbackRow;
+	private readonly _phaserStagesSlider: Slider = this._effectsPanel.phaserStagesSlider;
+	private readonly _phaserStagesRow: HTMLDivElement = this._effectsPanel.phaserStagesRow;
+	private readonly _rhythmSelect: HTMLSelectElement = this._songSettingsPanel.rhythmSelect;
 	private readonly _pitchedPresetSelect: HTMLSelectElement = buildPresetOptions(false, "pitchPresetSelect");
 	private readonly _drumPresetSelect: HTMLSelectElement = buildPresetOptions(true, "drumPresetSelect");
 	private readonly _algorithmSelect: HTMLSelectElement = buildOptions(
@@ -2801,7 +2422,7 @@ export class SongEditor implements ModSliderProvider, MenuHandlerHost, DrumsetSe
 		return this._nextBarButton;
 	}
 	public get volumeBarContainer(): SVGSVGElement {
-		return this._volumeBarContainer;
+		return this._playbackControls.volumeBarContainer;
 	}
 	public get patternArea(): HTMLDivElement {
 		return this._patternArea;
@@ -3019,8 +2640,8 @@ export class SongEditor implements ModSliderProvider, MenuHandlerHost, DrumsetSe
 			noteFilterEditor: this._noteFilterEditor,
 			songEqFilterEditor: this._songEqFilterEditor,
 			barScrollBar: this._barScrollBar,
-			outVolumeBar: this._outVolumeBar,
-			outVolumeCap: this._outVolumeCap,
+			outVolumeBar: this._playbackControls.volumeBarContainer.querySelector("rect:nth-child(3)") as SVGRectElement,
+			outVolumeCap: this._playbackControls.volumeBarContainer.querySelector("rect:nth-child(4)") as SVGRectElement,
 		});
 		new MenuHandler(this, this._fileMenu, this._editMenu, this._optionsMenu);
 

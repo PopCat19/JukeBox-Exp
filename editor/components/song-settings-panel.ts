@@ -65,8 +65,8 @@ export class SongSettingsPanel {
 	// Effects (Song-level)
 	public readonly chorusRow: HTMLDivElement;
 	public readonly reverbRow: HTMLDivElement;
-	private readonly _chorusSlider: Slider;
-	private readonly _reverbSlider: Slider;
+	public readonly chorusSlider: Slider;
+	public readonly reverbSlider: Slider;
 
 	// Container
 	public readonly container: HTMLDivElement;
@@ -196,14 +196,14 @@ export class SongSettingsPanel {
 		);
 
 		// Chorus
-		this._chorusSlider = rangeSlider(doc, (oldValue: number, newValue: number) => new ChangeChorus(doc, oldValue, newValue), 0, Config.chorusRange - 1, 0);
+		this.chorusSlider = rangeSlider(doc, (oldValue: number, newValue: number) => new ChangeChorus(doc, oldValue, newValue), 0, Config.chorusRange - 1, 0);
 
-		this.chorusRow = div({ class: "selectRow" }, span({ class: "tip", onclick: () => onOpenPrompt("chorus") }, "Chorus:"), this._chorusSlider.container);
+		this.chorusRow = div({ class: "selectRow" }, span({ class: "tip", onclick: () => onOpenPrompt("chorus") }, "Chorus:"), this.chorusSlider.container);
 
 		// Reverb
-		this._reverbSlider = rangeSlider(doc, (oldValue: number, newValue: number) => new ChangeReverb(doc, oldValue, newValue), 0, Config.reverbRange - 1, 0);
+		this.reverbSlider = rangeSlider(doc, (oldValue: number, newValue: number) => new ChangeReverb(doc, oldValue, newValue), 0, Config.reverbRange - 1, 0);
 
-		this.reverbRow = div({ class: "selectRow" }, span({ class: "tip", onclick: () => onOpenPrompt("reverb") }, "Reverb:"), this._reverbSlider.container);
+		this.reverbRow = div({ class: "selectRow" }, span({ class: "tip", onclick: () => onOpenPrompt("reverb") }, "Reverb:"), this.reverbSlider.container);
 
 		// Build container
 		this.container = div(
