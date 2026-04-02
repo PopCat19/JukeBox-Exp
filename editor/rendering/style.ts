@@ -827,11 +827,12 @@ html {
 .beepboxEditor .prompt.compactSearchPrompt .tagBrowserButton {
 	align-self: stretch;
 	background: var(--ui-widget-background);
-	border: none;
+	border: 2px solid transparent;
 	border-radius: var(--border-radius-medium);
 	color: var(--primary-text);
 	font-size: 14px;
 	padding: var(--padding-6) var(--padding-12);
+	box-sizing: border-box;
 }
 .beepboxEditor .prompt.compactSearchPrompt .tagBrowserButton:hover {
 	background: var(--ui-widget-focus);
