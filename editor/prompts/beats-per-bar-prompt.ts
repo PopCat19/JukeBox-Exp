@@ -23,7 +23,7 @@ const { div, span, h2, input, br, select, option } = HTML;
 export class BeatsPerBarPrompt extends BasePrompt {
 	private readonly _computedSamplesLabel: HTMLDivElement = div({ style: "width: 10em;" }, new Text("0:00"));
 	private readonly _beatsStepper: HTMLInputElement = input({
-		style: "width: 3em; margin-left: 1em;",
+		style: "width: 3em;",
 		type: "number",
 		step: "1",
 	});
@@ -37,10 +37,10 @@ export class BeatsPerBarPrompt extends BasePrompt {
 	public readonly container: HTMLDivElement = div(
 		{ class: "prompt noSelection", style: "width: 250px;" },
 		h2("Beats Per Bar"),
-		div({ style: "display: flex; flex-direction: row; align-items: center; justify-content: space-between;" }, "Length:", this._computedSamplesLabel),
+		div({ class: "prompt-form-row-between" }, "Length:", this._computedSamplesLabel),
 		labelRow(
 			div(
-				{ style: "text-align: right;" },
+				{ class: "prompt-label" },
 				"Beats per bar:",
 				br(),
 				span({ style: `font-size: smaller; color: ${ColorConfig.secondaryText};` }, "(Multiples of 3 or 4 are normal and boring)"),

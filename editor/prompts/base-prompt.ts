@@ -23,7 +23,7 @@ export abstract class BasePrompt implements Prompt {
 	public closeCallback: ((prompt: Prompt) => void) | undefined = undefined;
 	public openAlongsideCallback: ((promptName: string) => void) | undefined = undefined;
 	protected readonly _cancelButton: HTMLButtonElement = button({ class: "cancelButton" });
-	protected readonly _okayButton: HTMLButtonElement = button({ class: "okayButton", style: "width:45%;" }, "Okay");
+	protected readonly _okayButton: HTMLButtonElement = button({ class: "okayButton" }, "Okay");
 
 	constructor(protected _doc: SongDocument) {
 		this._okayButton.addEventListener("click", this._onOkayClick);
@@ -55,7 +55,7 @@ export abstract class BasePrompt implements Prompt {
 	};
 
 	protected _getOkayRow(...extra: HTMLElement[]): HTMLDivElement {
-		return div({ style: "display: flex; flex-direction: row-reverse; justify-content: space-between;" }, this._okayButton, ...extra);
+		return div({ class: "prompt-button-row" }, this._okayButton, ...extra);
 	}
 
 	public buildTitlebar(): void {

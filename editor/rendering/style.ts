@@ -791,6 +791,48 @@ html {
 	margin-top: auto;
 }
 
+.beepboxEditor .prompt-form-row {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	gap: var(--gap-md);
+	min-height: 2em;
+}
+
+.beepboxEditor .prompt-form-row-between {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	justify-content: space-between;
+	gap: var(--gap-md);
+	min-height: 2em;
+}
+
+.beepboxEditor .prompt-form-row-end {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	justify-content: flex-end;
+	gap: var(--gap-md);
+	min-height: 2em;
+}
+
+.beepboxEditor .prompt-button-row {
+	display: flex;
+	flex-direction: row-reverse;
+	justify-content: space-between;
+	gap: var(--gap-md);
+}
+
+.beepboxEditor .prompt-button-row > button {
+	width: 45%;
+}
+
+.beepboxEditor .prompt-label {
+	text-align: right;
+	flex-shrink: 0;
+}
+
 .beepboxEditor .prompt h2 {
 	font-size: 2em;
 	margin: 0 16px;

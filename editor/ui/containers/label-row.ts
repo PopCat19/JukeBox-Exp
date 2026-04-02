@@ -27,10 +27,12 @@ export function labelRow(optsOrChild?: LabelRowOptions | HTMLElement | string, .
 		children = first !== undefined ? [first, ...restChildren] : restChildren;
 	}
 
-	const height = opts.height ?? "2em";
+	const height = opts.height ?? "";
 	const marginTop = opts.marginTop ?? "";
 
-	const style = `display: flex; flex-direction: row; align-items: center; height: ${height}; justify-content: flex-end;${marginTop ? ` margin-top: ${marginTop};` : ""}`;
+	let extraStyle = "";
+	if (height) extraStyle += `height: ${height};`;
+	if (marginTop) extraStyle += ` margin-top: ${marginTop};`;
 
-	return createDiv(style, undefined, ...children);
+	return createDiv(extraStyle, { class: "prompt-form-row-end" }, ...children);
 }
