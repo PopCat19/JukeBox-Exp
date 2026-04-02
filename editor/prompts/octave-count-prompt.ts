@@ -19,16 +19,16 @@ const { div, h2, p, input } = HTML;
 
 export class OctaveCountPrompt extends BasePrompt {
 	private readonly _octaves: HTMLInputElement = input({
-		style: "width: 3em; margin-left: 1em;",
+		style: "width: 3em;",
 		type: "number",
 		step: "1",
 	});
 
 	public readonly container: HTMLDivElement = div(
-		{ class: "prompt noSelection", style: "width: 250px;" },
+		{ class: "prompt noSelection", style: "width: var(--prompt-width-sm);" },
 		h2("Change Octave Count"),
 		p("WARNING! This will clear all the contents of the song!"),
-		labelRow(div({ style: "display: inline-block; text-align: left;" }, "Octaves:"), this._octaves),
+		labelRow(div({ class: "prompt-label" }, "Octaves:"), this._octaves),
 		labelRow(),
 		this._getOkayRow(),
 		this._cancelButton,

@@ -9,18 +9,17 @@
 // Copyright (c) 2012-2022 John Nesky and contributing authors, distributed under the MIT license, see accompanying the LICENSE.md file.
 
 import { HTML } from "imperative-html/dist/esm/elements-strict";
-import { ColorConfig } from "../../shared/color-config";
 import { Config } from "../../synth/synth-config";
 import { ChangeMoveNotesSideways } from "../changes";
 import { SongDocument } from "../song-document";
-import { addWheelSupport, labelRow } from "../ui";
+import { addWheelSupport, labelRow, promptHint } from "../ui";
 import { BasePrompt } from "./base-prompt";
 
-const { div, span, h2, input, br, select, option } = HTML;
+const { div, h2, input, br, select, option } = HTML;
 
 export class MoveNotesSidewaysPrompt extends BasePrompt {
 	private readonly _beatsStepper: HTMLInputElement = input({
-		style: "width: 3em; margin-left: 1em;",
+		style: "width: 3em;",
 		type: "number",
 		step: "0.01",
 		value: "0",
@@ -32,14 +31,14 @@ export class MoveNotesSidewaysPrompt extends BasePrompt {
 	);
 
 	public readonly container: HTMLDivElement = div(
-		{ class: "prompt noSelection", style: "width: 250px;" },
+		{ class: "prompt noSelection", style: "width: var(--prompt-width-sm);" },
 		h2("Move Notes Sideways"),
 		labelRow(
 			div(
-				{ style: "text-align: right;" },
+				{ class: "prompt-label" },
 				"Beats to move:",
 				br(),
-				span({ style: `font-size: smaller; color: ${ColorConfig.secondaryText};` }, "(Negative is left, positive is right)"),
+				promptHint("(Negative is left, positive is right)"),
 			),
 			this._beatsStepper,
 		),

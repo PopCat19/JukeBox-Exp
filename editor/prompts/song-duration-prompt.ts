@@ -9,22 +9,21 @@
 // Copyright (c) 2012-2022 John Nesky and contributing authors, distributed under the MIT license, see accompanying the LICENSE.md file.
 
 import { HTML } from "imperative-html/dist/esm/elements-strict";
-import { ColorConfig } from "../../shared/color-config";
 import { Config } from "../../synth/synth-config";
 import { ChangeBarCount } from "../changes";
 import { ChangeGroup } from "../core/change";
 import { SongDocument } from "../song-document";
-import { addWheelSupport, labelRow } from "../ui";
+import { addWheelSupport, labelRow, promptHint, promptRowBetween, promptValue } from "../ui";
 import { BasePrompt } from "./base-prompt";
 import { ExportPrompt } from "./export-prompt";
 import { validate, validateKey, validateNumber } from "./input-helpers";
 
-const { div, span, h2, input, br, select, option } = HTML;
+const { div, h2, input, br, select, option } = HTML;
 
 export class SongDurationPrompt extends BasePrompt {
-	private readonly _computedSamplesLabel: HTMLDivElement = div({ style: "width: 10em;" }, new Text("0:00"));
+	private readonly _computedSamplesLabel = promptValue("0:00");
 	private readonly _barsStepper: HTMLInputElement = input({
-		style: "width: 3em; margin-left: 1em;",
+		style: "width: 3em;",
 		type: "number",
 		step: "1",
 	});
@@ -35,15 +34,15 @@ export class SongDurationPrompt extends BasePrompt {
 	);
 
 	public readonly container: HTMLDivElement = div(
-		{ class: "prompt noSelection", style: "width: 250px;" },
+		{ class: "prompt noSelection", style: "width: var(--prompt-width-sm);" },
 		h2("Song Length"),
-		div({ style: "display: flex; flex-direction: row; align-items: center; justify-content: space-between;" }, "Length:", this._computedSamplesLabel),
+		promptRowBetween("Length:", this._computedSamplesLabel),
 		labelRow(
 			div(
-				{ style: "display: inline-block; text-align: right;" },
+				{ class: "prompt-label" },
 				"Bars per song:",
 				br(),
-				span({ style: `font-size: smaller; color: ${ColorConfig.secondaryText};` }, "(Multiples of 4 are recommended)"),
+				promptHint("(Multiples of 4 are recommended)"),
 			),
 			this._barsStepper,
 		),
