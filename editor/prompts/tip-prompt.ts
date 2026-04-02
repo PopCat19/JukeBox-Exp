@@ -18,7 +18,7 @@ const { div, h2, h3, p, a } = HTML;
 export class TipPrompt extends BasePrompt {
 	public readonly container: HTMLDivElement = div(
 		{ class: "prompt noSelection", style: "width: 300px;" },
-		div({ style: "text-align: left;" }, this._renderTip()),
+		div({ class: "prompt-tip-content" }, this._renderTip()),
 		this._cancelButton,
 	);
 

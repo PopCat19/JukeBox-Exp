@@ -844,6 +844,17 @@ html {
 	color: var(--secondary-text);
 }
 
+.beepboxEditor .prompt-tip-content {
+	display: flex;
+	flex-direction: column;
+	gap: var(--gap-md);
+	text-align: left;
+}
+
+.beepboxEditor .prompt-tip-content > * {
+	margin: 0;
+}
+
 .beepboxEditor .prompt h2 {
 	font-size: 2em;
 	margin: 0 16px;
@@ -1195,6 +1206,7 @@ html {
 	width: 28px;
 	min-width: 28px;
 	padding: 0;
+	border-radius: var(--border-radius-medium);
 }
 .beepboxEditor .prompt-titlebar > button::before,
 .beepboxEditor .prompt-titlebar > button.cancelButton::before {
