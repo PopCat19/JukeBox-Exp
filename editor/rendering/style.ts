@@ -1135,14 +1135,16 @@ html {
 	padding: 0 !important;
 }
 
-.beepboxEditor .prompt-titlebar > button {
+.beepboxEditor .prompt-titlebar > button,
+.beepboxEditor .prompt-titlebar > button.cancelButton {
 	flex: var(--flex-fit);
 	height: 28px;
 	width: 28px;
 	min-width: 28px;
 	padding: 0;
 }
-.beepboxEditor .prompt-titlebar > button::before {
+.beepboxEditor .prompt-titlebar > button::before,
+.beepboxEditor .prompt-titlebar > button.cancelButton::before {
 	width: 100%;
 	height: 100%;
 	left: 0;
