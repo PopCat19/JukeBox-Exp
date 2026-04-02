@@ -9,19 +9,18 @@
 // Copyright (c) 2012-2022 John Nesky and contributing authors, distributed under the MIT license, see accompanying the LICENSE.md file.
 
 import { HTML } from "imperative-html/dist/esm/elements-strict";
-import { ColorConfig } from "../../shared/color-config";
 import { Config } from "../../synth/synth-config";
 import { ChangeBeatsPerBar } from "../changes";
 import { SongDocument } from "../song-document";
-import { addWheelSupport, labelRow } from "../ui";
+import { addWheelSupport, labelRow, promptHint, promptRowBetween, promptValue } from "../ui";
 import { BasePrompt } from "./base-prompt";
 import { ExportPrompt } from "./export-prompt";
 import { validate, validateKey, validateNumber } from "./input-helpers";
 
-const { div, span, h2, input, br, select, option } = HTML;
+const { div, h2, input, br, select, option } = HTML;
 
 export class BeatsPerBarPrompt extends BasePrompt {
-	private readonly _computedSamplesLabel: HTMLDivElement = div({ style: "flex: 1; text-align: right;" }, new Text("0:00"));
+	private readonly _computedSamplesLabel = promptValue("0:00");
 	private readonly _beatsStepper: HTMLInputElement = input({
 		style: "width: 3em;",
 		type: "number",
@@ -35,15 +34,15 @@ export class BeatsPerBarPrompt extends BasePrompt {
 	);
 
 	public readonly container: HTMLDivElement = div(
-		{ class: "prompt noSelection", style: "width: 250px;" },
+		{ class: "prompt noSelection", style: "width: var(--prompt-width-sm);" },
 		h2("Beats Per Bar"),
-		div({ class: "prompt-form-row-between" }, "Length:", this._computedSamplesLabel),
+		promptRowBetween("Length:", this._computedSamplesLabel),
 		labelRow(
 			div(
 				{ class: "prompt-label" },
 				"Beats per bar:",
 				br(),
-				span({ style: `font-size: smaller; color: ${ColorConfig.secondaryText};` }, "(Multiples of 3 or 4 are normal and boring)"),
+				promptHint("(Multiples of 3 or 4 are normal and boring)"),
 			),
 			this._beatsStepper,
 		),

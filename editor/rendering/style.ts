@@ -46,6 +46,10 @@ document.head.appendChild(
 	--gap-md: 8px;
 	--gap-lg: 12px;
 	--gap-xl: 16px;
+	--prompt-width-sm: 250px;
+	--prompt-width-md: 350px;
+	--prompt-width-lg: 400px;
+	--prompt-row-height: 2em;
 	--flex-fill: 1 1 auto;
 	--flex-fit: 0 0 auto;
 	--flex-stretch: stretch;
@@ -833,6 +837,11 @@ html {
 	flex-shrink: 1;
 	min-width: 0;
 	overflow-wrap: break-word;
+}
+
+.beepboxEditor .prompt-hint {
+	font-size: smaller;
+	color: var(--secondary-text);
 }
 
 .beepboxEditor .prompt h2 {
