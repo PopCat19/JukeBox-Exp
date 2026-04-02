@@ -839,7 +839,7 @@ html {
 	color: var(--primary-text);
 	font-size: 14px;
 	line-height: 1.4;
-	padding: var(--padding-6) var(--padding-12);
+	padding: var(--padding-6) var(--padding-10);
 	box-sizing: border-box;
 }
 .beepboxEditor .prompt.compactSearchPrompt .tagBrowserButton:hover {
