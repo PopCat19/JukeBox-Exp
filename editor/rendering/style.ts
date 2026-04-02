@@ -821,9 +821,10 @@ html {
 	align-self: stretch;
 	background: var(--ui-widget-background);
 	border: none;
-	border-radius: var(--border-radius-small);
+	border-radius: var(--border-radius-medium);
 	color: var(--primary-text);
 	font-size: 14px;
+	padding: 6px 12px;
 }
 .beepboxEditor .prompt.compactSearchPrompt .tagBrowserButton:hover {
 	background: var(--ui-widget-focus);
