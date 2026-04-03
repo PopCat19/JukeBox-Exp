@@ -8,12 +8,13 @@
 // - Handles zoom controls
 
 import { HTML } from "imperative-html/dist/esm/elements-strict";
+import { iconButton } from "../ui";
 import { SongDocument } from "../song-document";
 import { OctaveScrollBar } from "./octave-scroll-bar";
 import { PatternEditor } from "./pattern-editor";
 import { Piano } from "./piano";
 
-const { button, div } = HTML;
+const { div } = HTML;
 
 export class PatternArea {
 	public readonly container: HTMLDivElement;
@@ -38,8 +39,8 @@ export class PatternArea {
 		this.octaveScrollBar = new OctaveScrollBar(doc, this.piano);
 
 		// Zoom Buttons
-		this.zoomInButton = button({ class: "zoomInButton", title: "Zoom In (+)", type: "button" }, "+");
-		this.zoomOutButton = button({ class: "zoomOutButton", title: "Zoom Out (-)", type: "button" }, "-");
+		this.zoomInButton = iconButton("zoomInButton", { title: "Zoom In (+)" });
+		this.zoomOutButton = iconButton("zoomOutButton", { title: "Zoom Out (-)" });
 		this.zoomInButton.addEventListener("click", onZoomIn);
 		this.zoomOutButton.addEventListener("click", onZoomOut);
 
