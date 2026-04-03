@@ -106,5 +106,10 @@ export abstract class BasePrompt implements Prompt {
 		}
 	}
 
+	public animateExit(callback: () => void): void {
+		this.container.classList.add("exiting");
+		this.container.addEventListener("animationend", callback, { once: true });
+	}
+
 	protected abstract _saveChanges(): void;
 }

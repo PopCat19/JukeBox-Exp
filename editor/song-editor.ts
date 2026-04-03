@@ -3334,8 +3334,16 @@ export class SongEditor implements ModSliderProvider, MenuHandlerHost, DrumsetSe
 			const index = this._prompts.indexOf(prompt);
 			if (index !== -1) {
 				this._prompts.splice(index, 1);
-				this._promptContainer.removeChild(prompt.container);
-				prompt.cleanUp();
+				const doRemove = () => {
+					this._promptContainer.removeChild(prompt.container);
+					prompt.cleanUp();
+				};
+				if (prompt.animateExit) {
+					prompt.animateExit(doRemove);
+				} else {
+					prompt.container.classList.add("exiting");
+					prompt.container.addEventListener("animationend", doRemove, { once: true });
+				}
 				if (this._focusedPrompt === prompt) {
 					this._focusedPrompt = this._prompts[this._prompts.length - 1] || null;
 					this._updatePromptFocus();
@@ -3350,7 +3358,9 @@ export class SongEditor implements ModSliderProvider, MenuHandlerHost, DrumsetSe
 		}
 		if (this._prompts.length === 0 && prompt != null) {
 			this._promptFocusController.detachAll();
-			this._promptContainer.style.display = "none";
+			setTimeout(() => {
+				this._promptContainer.style.display = "none";
+			}, 150);
 			if (this._wasPlaying) {
 				this.doc.performance.play();
 			}
@@ -3534,6 +3544,9 @@ export class SongEditor implements ModSliderProvider, MenuHandlerHost, DrumsetSe
 			this._promptContainer.style.display = "";
 
 			this._promptContainer.appendChild(newPrompt.container);
+
+			newPrompt.container.classList.add("entering");
+			newPrompt.container.addEventListener("animationend", () => newPrompt.container.classList.remove("entering"), { once: true });
 
 			const savedPos = this._promptPositions.get(promptName);
 			if (savedPos) {

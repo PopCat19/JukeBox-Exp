@@ -19,4 +19,5 @@ export interface Prompt {
 	closeWithoutUndo?: () => void;
 	closeCallback?: (prompt: Prompt) => void;
 	openAlongsideCallback?: (promptName: string) => void;
+	animateExit?: (callback: () => void) => void;
 }

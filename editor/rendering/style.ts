@@ -783,6 +783,40 @@ html {
 	outline: none;
 }
 
+.beepboxEditor .prompt.entering {
+	animation: prompt-enter 80ms ease-out;
+}
+
+@keyframes prompt-enter {
+	from { opacity: 0; transform: scale(0.92); }
+	to { opacity: 1; transform: scale(1); }
+}
+
+.beepboxEditor .prompt.exiting {
+	animation: prompt-exit 120ms ease-out forwards;
+	pointer-events: none;
+}
+
+@keyframes prompt-exit {
+	from { opacity: 1; transform: scale(1); }
+	to { opacity: 0; transform: scale(0.92); }
+}
+
+.beepboxEditor .prompt.shaded {
+	padding: var(--padding-6) 14px;
+	min-width: 0;
+	max-width: max-content;
+	overflow: hidden;
+	display: flex;
+	align-items: center;
+	border-radius: 20px;
+	transition: padding 200ms ease, border-radius 200ms ease;
+}
+
+.beepboxEditor .prompt.shaded > *:not(.prompt-titlebar) {
+	display: none !important;
+}
+
 .beepboxEditor .prompt:hover {
 	border-color: color-mix(in srgb, var(--indicator-primary, #4444ff), transparent 50%);
 }
