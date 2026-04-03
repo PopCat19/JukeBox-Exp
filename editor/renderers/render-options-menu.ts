@@ -28,7 +28,7 @@ export function renderOptionsMenu(optionsMenu: HTMLSelectElement, prefs: Prefere
 		(prefs.displayBrowserUrl ? textOnIcon : textOffIcon) + "Enable Song Data in URL",
 		(prefs.closePromptByClickoff ? textOnIcon : textOffIcon) + "Close Prompts on Click Off",
 		(prefs.rollNoveltyPresets ? textOnIcon : textOffIcon) + "Can Randomly Select Novelty Presets",
-		(prefs.fineScrollStep ? textOnIcon : textOffIcon) + "Fine Scroll Step on Inputs",
+		(prefs.enableScrollStep ? textOnIcon : textOffIcon) + "Enable Scroll Step on Inputs",
 		(prefs.doubleClickSliderReset ? textOnIcon : textOffIcon) + "Double-Click Slider to Reset",
 		textSpacingIcon + "Note Recording...",
 		textSpacingIcon + "Appearance",

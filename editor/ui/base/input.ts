@@ -22,16 +22,13 @@ export function addWheelSupport(input: HTMLInputElement): void {
 	input.addEventListener(
 		"wheel",
 		(e: WheelEvent) => {
+			if (window.localStorage.getItem("enableScrollStep") !== "true") return;
 			e.preventDefault();
 			const step = parseFloat(input.step) || 1;
-			const fineStep = window.localStorage.getItem("fineScrollStep") === "true";
-			const effectiveStep = fineStep ? Math.max(0.1, step / 10) : step;
-			const multiplier = e.shiftKey ? (fineStep ? step / effectiveStep : 5) : 1;
-			const delta = e.deltaY > 0 ? -effectiveStep * multiplier : effectiveStep * multiplier;
 			const current = parseFloat(input.value) || 0;
 			const min = input.min ? parseFloat(input.min) : -Infinity;
 			const max = input.max ? parseFloat(input.max) : Infinity;
-			const newValue = Math.min(max, Math.max(min, current + delta));
+			const newValue = Math.min(max, Math.max(min, current + (e.deltaY > 0 ? -step : step)));
 			input.value = String(newValue);
 			input.dispatchEvent(new Event("input", { bubbles: true }));
 			input.dispatchEvent(new Event("change", { bubbles: true }));

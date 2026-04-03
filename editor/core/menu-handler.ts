@@ -258,8 +258,8 @@ export class MenuHandler {
 				this._host.doc.prefs.enableTagSearch = !this._host.doc.prefs.enableTagSearch;
 				this._host.presetTagsInputBox.value = "";
 				break;
-			case "fineScrollStep":
-				this._host.doc.prefs.fineScrollStep = !this._host.doc.prefs.fineScrollStep;
+			case "enableScrollStep":
+				this._host.doc.prefs.enableScrollStep = !this._host.doc.prefs.enableScrollStep;
 				break;
 			case "doubleClickSliderReset":
 				this._host.doc.prefs.doubleClickSliderReset = !this._host.doc.prefs.doubleClickSliderReset;
