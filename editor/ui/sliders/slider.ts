@@ -12,7 +12,7 @@ import { SongDocument } from "../../song-document";
 
 const { input, span } = HTML;
 
-	export class Slider {
+export class Slider {
 	private _change: Change | null = null;
 	private _value: number = 0;
 	private _oldValue: number = 0;

@@ -41,7 +41,12 @@ export class EditorLayout {
 		switchNoteFilterType: (simple: boolean) => void,
 	) {
 		// Create Areas
-		this.patternArea = new PatternArea(doc, onOpenPrompt, () => songEditor.zoomIn(), () => songEditor.zoomOut());
+		this.patternArea = new PatternArea(
+			doc,
+			onOpenPrompt,
+			() => songEditor.zoomIn(),
+			() => songEditor.zoomOut(),
+		);
 		this.trackArea = new TrackArea(doc, songEditor);
 		this.settingsArea = new SettingsArea(doc, onOpenPrompt, switchEQFilterType, switchNoteFilterType);
 

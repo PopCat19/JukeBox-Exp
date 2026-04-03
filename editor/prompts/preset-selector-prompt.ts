@@ -428,28 +428,14 @@ export class PresetSelectorPrompt extends BasePrompt {
 		const pos = this._selectedPresetIndex + 1;
 		this._infoPanel.textContent = "";
 		this._infoPanel.appendChild(
-			div(
-				{},
-				sectionLabel("Category"),
-				div({ style: "color: var(--primary-text); font-size: 13px; word-break: break-word;" }, catName),
-			),
+			div({}, sectionLabel("Category"), div({ style: "color: var(--primary-text); font-size: 13px; word-break: break-word;" }, catName)),
 		);
 		this._infoPanel.appendChild(
-			div(
-				{},
-				sectionLabel("Preset"),
-				div({ style: "color: var(--primary-text); font-size: 13px; word-break: break-word;" }, preset.name),
-			),
+			div({}, sectionLabel("Preset"), div({ style: "color: var(--primary-text); font-size: 13px; word-break: break-word;" }, preset.name)),
 		);
 		this._infoPanel.appendChild(div({}, sectionLabel("Position"), div({ style: "color: var(--primary-text); font-size: 13px;" }, `${pos} / ${total}`)));
 		if (this._isSearchMode) {
-			this._infoPanel.appendChild(
-				div(
-					{},
-					sectionLabel("Results"),
-					div({ style: "color: var(--primary-text); font-size: 13px;" }, `${total} matching`),
-				),
-			);
+			this._infoPanel.appendChild(div({}, sectionLabel("Results"), div({ style: "color: var(--primary-text); font-size: 13px;" }, `${total} matching`)));
 		}
 		const fullPreset = EditorConfig.valueToPreset(preset.value);
 		if (fullPreset && fullPreset.tags && fullPreset.tags.length > 0) {
