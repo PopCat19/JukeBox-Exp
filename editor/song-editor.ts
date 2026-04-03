@@ -3373,6 +3373,8 @@ export class SongEditor implements ModSliderProvider, MenuHandlerHost, DrumsetSe
 	}
 
 	private _updatePromptFocus(): void {
+		const activeEl = document.activeElement;
+		const wasInPrompt = this._promptContainer.contains(activeEl);
 		for (const p of this._prompts) {
 			p.container.style.boxShadow = "none";
 			if (this.doc.prefs.showPromptBackdrop) {
@@ -3391,6 +3393,9 @@ export class SongEditor implements ModSliderProvider, MenuHandlerHost, DrumsetSe
 			} else {
 				p.container.classList.remove("focused");
 			}
+		}
+		if (wasInPrompt && activeEl instanceof HTMLElement && !this._promptContainer.contains(document.activeElement)) {
+			(activeEl as HTMLElement).focus({ preventScroll: true });
 		}
 	}
 

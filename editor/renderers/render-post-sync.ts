@@ -69,7 +69,7 @@ export function renderPostBranchSync(
 	refs.addEnvelopeButton.disabled = instrument.envelopeCount >= Config.maxEnvelopeCount;
 	refs.volumeSlider.updateValue(prefs.volume);
 
-	if (wasActive && activeElement != null && activeElement.clientWidth === 0) {
+	if (wasActive && activeElement != null && activeElement.clientWidth === 0 && !doc.prompt) {
 		refocusStage();
 	}
 
