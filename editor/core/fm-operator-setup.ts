@@ -12,7 +12,7 @@ import { ColorConfig } from "../../shared/color-config";
 import { Config, DropdownID } from "../../synth/synth-config";
 import { ChangeOperatorAmplitude, ChangeOperatorFrequency, ChangeOperatorPulseWidth, ChangeOperatorWaveform } from "../changes";
 import { SongDocument } from "../song-document";
-import { Slider } from "../ui";
+import { dropdownButton, Slider } from "../ui";
 
 const { div, select, span, input, option } = HTML;
 
@@ -79,11 +79,10 @@ export class FmOperatorSetup {
 				select({ style: "width: 100%;", title: "Waveform" }),
 				Config.operatorWaves.map((wave) => wave.name),
 			);
-			const waveformDropdown: HTMLButtonElement = document.createElement("button");
-			waveformDropdown.style.marginRight = "2px";
-			waveformDropdown.style.width = "8px";
-			waveformDropdown.style.maxWidth = "10px";
-			waveformDropdown.onclick = () => host.toggleDropdownMenu(DropdownID.FM, i);
+			const waveformDropdown: HTMLButtonElement = dropdownButton({
+				style: "margin-right: 2px;",
+				onclick: () => host.toggleDropdownMenu(DropdownID.FM, i),
+			});
 			const waveformDropdownHint: HTMLSpanElement = span(
 				{
 					class: "tip",

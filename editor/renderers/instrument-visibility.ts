@@ -297,6 +297,8 @@ export function applyInstrumentVisibility(
 	for (let i = 0; i < refs.operatorRows.length; i++) {
 		showRow(refs.operatorRows[i], false);
 		showRow(refs.operatorDropdownGroups[i], false);
+		refs.operatorWaveformHints[i].style.display = "none";
+		refs.operatorWaveformPulsewidthSliders[i].container.style.display = "none";
 	}
 
 	// --- Show rows based on plugin declaration ---
@@ -405,6 +407,7 @@ export function applyInstrumentVisibility(
 		refs.feedbackAmplitudeSlider.updateValue(instrument.feedbackAmplitude);
 		const opCount = rows.has("fm6") ? Config.operatorCount + 2 : Config.operatorCount;
 		for (let i: number = 0; i < opCount; i++) {
+			showRow(refs.operatorRows[i], true);
 			const isCarrier: boolean = rows.has("fm6") ? i < instrument.customAlgorithm.carrierCount : i < Config.algorithms[instrument.algorithm].carrierCount;
 			refs.operatorRows[i].style.color = isCarrier ? ColorConfig.primaryText : "";
 			setSelectedValue(refs.operatorFrequencySelects[i], instrument.operators[i].frequency);
