@@ -42,8 +42,8 @@ export class SongPerformance {
 		window.requestAnimationFrame(this._onAnimationFrame);
 	}
 
-	public play(): void {
-		this._doc.synth.play();
+	public async play(): Promise<void> {
+		await this._doc.synth.play();
 		this._doc.synth.enableMetronome = false;
 		this._doc.synth.countInMetronome = false;
 		this._doc.synth.maintainLiveInput();
@@ -74,7 +74,7 @@ export class SongPerformance {
 		this._doc.synth.snapToBar();
 	}
 
-	public record(): void {
+	public async record(): Promise<void> {
 		this._doc.synth.snapToBar();
 		const playheadBar: number = Math.floor(this._doc.synth.playhead);
 		if (playheadBar !== this._doc.bar) {
@@ -90,7 +90,7 @@ export class SongPerformance {
 		}
 		this._doc.synth.enableMetronome = this._doc.prefs.metronomeWhileRecording;
 		this._doc.synth.countInMetronome = this._doc.prefs.metronomeCountIn;
-		this._doc.synth.startRecording();
+		await this._doc.synth.startRecording();
 		this._doc.synth.maintainLiveInput();
 		this._songLengthWhenRecordingStarted = this._doc.song.barCount;
 		this._playheadPart = this._getCurrentPlayheadPart();

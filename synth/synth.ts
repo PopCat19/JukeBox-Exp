@@ -889,8 +889,11 @@ export class Synth {
 
 			this.computeDelayBufferSizes();
 		}
-		if (this.audioCtx.state === "suspended") {
-			this.audioCtx.resume();
+	}
+
+	private async resumeAudioContext(): Promise<void> {
+		if (this.audioCtx && this.audioCtx.state === "suspended") {
+			await this.audioCtx.resume();
 		}
 	}
 
@@ -908,11 +911,12 @@ export class Synth {
 		this.liveInputEndTime = performance.now() + 10000.0;
 	}
 
-	public play(): void {
+	public async play(): Promise<void> {
 		if (this.isPlayingSong) return;
 		this.initModFilters(this.song);
 		this.computeLatestModValues();
 		this.activateAudio();
+		await this.resumeAudioContext();
 		this.warmUpSynthesizer(this.song);
 		this.isPlayingSong = true;
 	}
@@ -937,10 +941,10 @@ export class Synth {
 		}
 	}
 
-	public startRecording(): void {
+	public async startRecording(): Promise<void> {
 		this.preferLowerLatency = true;
 		this.isRecording = true;
-		this.play();
+		await this.play();
 	}
 
 	public resetEffects(): void {

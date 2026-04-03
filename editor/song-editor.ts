@@ -2556,11 +2556,11 @@ export class SongEditor implements ModSliderProvider, MenuHandlerHost, DrumsetSe
 		this._customWavePresetHandler(event);
 	}
 
-	public toggleRecord(): void {
+	public async toggleRecord(): Promise<void> {
 		if (this.doc.synth.playing) {
 			this.doc.performance.pause();
 		} else {
-			this.doc.performance.record();
+			await this.doc.performance.record();
 		}
 	}
 	public openPrompt(name: string): void {
