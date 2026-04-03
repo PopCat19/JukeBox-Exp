@@ -12,10 +12,11 @@ import { SongDocument } from "../../song-document";
 
 const { input, span } = HTML;
 
-export class Slider {
+	export class Slider {
 	private _change: Change | null = null;
 	private _value: number = 0;
 	private _oldValue: number = 0;
+	private _defaultValue: number = 0;
 	public container: HTMLSpanElement;
 
 	constructor(
@@ -23,8 +24,10 @@ export class Slider {
 		private readonly _doc: SongDocument,
 		private readonly _getChange: ((oldValue: number, newValue: number) => Change) | null,
 		midTick: boolean,
-		private readonly _defaultValue: number,
+		defaultValue?: number,
 	) {
+		this._value = defaultValue ?? 0;
+		this._defaultValue = defaultValue ?? 0;
 		this.container = midTick ? span({ class: "midTick", style: "position: sticky; width: 61.5%;" }, input) : span({ style: "position: sticky;" }, input);
 		input.addEventListener("input", this._whenInput);
 		input.addEventListener("change", this._whenChange);

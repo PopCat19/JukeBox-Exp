@@ -25,7 +25,7 @@ export class PatternArea {
 	public readonly zoomInButton: HTMLButtonElement;
 	public readonly zoomOutButton: HTMLButtonElement;
 
-	constructor(doc: SongDocument, _onOpenPrompt: (prompt: string) => void) {
+	constructor(doc: SongDocument, _onOpenPrompt: (prompt: string) => void, onZoomIn: () => void, onZoomOut: () => void) {
 		// Create Piano
 		this.piano = new Piano(doc);
 
@@ -40,6 +40,8 @@ export class PatternArea {
 		// Zoom Buttons
 		this.zoomInButton = button({ class: "zoomInButton", title: "Zoom In (+)", type: "button" }, "+");
 		this.zoomOutButton = button({ class: "zoomOutButton", title: "Zoom Out (-)", type: "button" }, "-");
+		this.zoomInButton.addEventListener("click", onZoomIn);
+		this.zoomOutButton.addEventListener("click", onZoomOut);
 
 		// Build Editor Row
 		const patternEditorRow = div(
