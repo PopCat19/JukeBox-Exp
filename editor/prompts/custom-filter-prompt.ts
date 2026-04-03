@@ -15,6 +15,7 @@ import { Config } from "../../synth/synth-config";
 import { FilterEditor } from "../components/filter-editor";
 import { SongDocument } from "../song-document";
 import { SongEditor } from "../song-editor";
+import { selectorButton } from "../ui";
 import { BasePrompt } from "./base-prompt";
 import { updatePlayButton } from "./input-helpers";
 
@@ -125,14 +126,14 @@ export class CustomFilterPrompt extends BasePrompt {
 			titleH2.innerHTML = forSong ? "Edit Song EQ Filter" : _useNoteFilter ? "Edit Note Filter" : "Edit EQ Filter";
 		}
 
-		const newButton: HTMLButtonElement = button({ class: "no-underline", style: "max-width: 5em;" }, "Main");
+		const newButton: HTMLButtonElement = selectorButton("Main", { style: "max-width: 5em;" });
 		this._filterButtonContainer.appendChild(newButton);
 		this._filterButtons.push(newButton);
 		newButton.addEventListener("click", () => {
 			this._setSubfilter(0);
 		});
 		for (let i: number = 1; i < Config.filterMorphCount; i++) {
-			const newSubButton: HTMLButtonElement = button({ class: "no-underline", style: "max-width: 2em;" }, "" + i);
+			const newSubButton: HTMLButtonElement = selectorButton("" + i, { style: "max-width: 2em;" });
 			this._filterButtons.push(newSubButton);
 			this._filterButtonContainer.appendChild(newSubButton);
 			newSubButton.addEventListener("click", () => {

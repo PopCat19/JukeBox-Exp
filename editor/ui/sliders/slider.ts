@@ -78,6 +78,7 @@ export interface RangeSliderOptions {
 	style?: string;
 	title?: string;
 	midTick?: boolean;
+	undo?: boolean;
 }
 
 export function rangeSlider(
@@ -98,5 +99,6 @@ export function rangeSlider(
 		step: "1",
 	};
 	if (options?.title) attrs.title = options.title;
-	return new Slider(input(attrs), doc, getChange, options?.midTick ?? false, value);
+	const undo = options?.undo ?? true;
+	return new Slider(input(attrs), doc, undo ? getChange : null, options?.midTick ?? false, value);
 }

@@ -8,11 +8,12 @@
 // - Manages sequence selector buttons
 // - Renders pitch/bar labels
 
-import { HTML, SVG } from "imperative-html/dist/esm/elements-strict";
+import { SVG } from "imperative-html/dist/esm/elements-strict";
 import { ChannelColors, ColorConfig } from "../../shared/color-config";
 import { Song } from "../../synth";
 import { Config } from "../../synth/synth-config";
 import { prettyNumber } from "../config/editor-config";
+import { selectorButton } from "../ui";
 import { Sequence } from "./euclidgen-algorithm";
 
 export interface EuclidgenRendererContext {
@@ -141,7 +142,7 @@ export function renderLabel(ctx: EuclidgenRendererContext): void {
 export function renderSequenceButtons(ctx: EuclidgenRendererContext): void {
 	const container: HTMLDivElement = ctx.sequenceButtonContainer;
 	while (ctx.sequenceButtons.length < ctx.sequences.length) {
-		const sequenceButton: HTMLButtonElement = HTML.button({ class: "no-underline" }, ctx.sequenceButtons.length + 1 + "");
+		const sequenceButton: HTMLButtonElement = selectorButton(ctx.sequenceButtons.length + 1 + "");
 		ctx.sequenceButtons.push(sequenceButton);
 		container.insertBefore(sequenceButton, ctx.sequenceRemoveButton);
 	}

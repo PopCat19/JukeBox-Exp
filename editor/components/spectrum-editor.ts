@@ -18,6 +18,7 @@ import { ChangeGroup } from "../core/change";
 import { Prompt } from "../prompts/prompt";
 import { SongDocument } from "../song-document";
 import { SongEditor } from "../song-editor";
+import { selectorButton } from "../ui";
 
 export class SpectrumEditor {
 	private readonly _editorWidth: number = 120;
@@ -490,7 +491,7 @@ export class SpectrumEditorPrompt implements Prompt {
 			}
 			const colors = ColorConfig.getChannelColor(this._doc.song, this._doc.channel);
 			for (let i: number = 0; i < Config.drumCount; i++) {
-				const newSpectrumButton: HTMLButtonElement = HTML.button({ class: "no-underline", style: "max-width: 2em;" }, "" + (i + 1));
+				const newSpectrumButton: HTMLButtonElement = selectorButton("" + (i + 1), { style: "max-width: 2em;" });
 				this._drumsetButtons.push(newSpectrumButton);
 				this._drumsetButtonContainer.appendChild(newSpectrumButton);
 				newSpectrumButton.addEventListener("click", () => {

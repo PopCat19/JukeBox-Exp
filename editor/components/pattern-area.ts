@@ -8,8 +8,8 @@
 // - Handles zoom controls
 
 import { HTML } from "imperative-html/dist/esm/elements-strict";
-import { iconButton } from "../ui";
 import { SongDocument } from "../song-document";
+import { iconButton } from "../ui";
 import { OctaveScrollBar } from "./octave-scroll-bar";
 import { PatternEditor } from "./pattern-editor";
 import { Piano } from "./piano";

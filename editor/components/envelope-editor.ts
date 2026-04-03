@@ -30,7 +30,7 @@ import {
 import { prettyNumber } from "../config/editor-config";
 import { Change } from "../core/change";
 import { SongDocument } from "../song-document";
-import { addWheelSupport, dropdownButton, Slider } from "../ui";
+import { addWheelSupport, deleteButton, dropdownButton, Slider } from "../ui";
 
 export class EnvelopeEditor {
 	public readonly container: HTMLElement = HTML.div({ class: "envelopeEditor" });
@@ -474,8 +474,7 @@ export class EnvelopeEditor {
 			// }
 			// envelopeSelect.appendChild(envelopePresets);
 
-			const deleteButton: HTMLButtonElement = HTML.button({
-				type: "button",
+			const deleteBtn: HTMLButtonElement = deleteButton({
 				class: "delete-envelope",
 				style: "flex: 0.2",
 			});
@@ -989,7 +988,7 @@ export class EnvelopeEditor {
 				extraSettingsDropdown,
 				HTML.div({ class: "selectContainer", style: "width: 0; flex: 1;" }, targetSelect),
 				HTML.div({ class: "selectContainer", style: "width: 0; flex: 0.85" }, envelopeSelect),
-				deleteButton,
+				deleteBtn,
 			);
 
 			this.container.appendChild(row);
@@ -997,7 +996,7 @@ export class EnvelopeEditor {
 			this._rows[envelopeIndex] = row;
 			this._targetSelects[envelopeIndex] = targetSelect;
 			this._envelopeSelects[envelopeIndex] = envelopeSelect;
-			this._deleteButtons[envelopeIndex] = deleteButton;
+			this._deleteButtons[envelopeIndex] = deleteBtn;
 
 			this.extraSettingsDropdowns[envelopeIndex] = extraSettingsDropdown;
 			this.extraSettingsDropdownGroups[envelopeIndex] = extraSettingsDropdownGroup;
