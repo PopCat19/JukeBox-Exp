@@ -78,6 +78,9 @@ export class PresetSelectorPrompt extends BasePrompt {
 		this._infoPanel.style.fontSize = "12px";
 		this._infoPanel.style.color = "var(--secondary-text)";
 		this._infoPanel.style.lineHeight = "1.5";
+		this._infoPanel.style.display = "flex";
+		this._infoPanel.style.flexDirection = "column";
+		this._infoPanel.style.gap = "8px";
 
 		const paneContainerEl = paneContainer({ height: "400px" }, this._categoryList, this._presetList, this._infoPanel);
 
@@ -426,14 +429,14 @@ export class PresetSelectorPrompt extends BasePrompt {
 		this._infoPanel.textContent = "";
 		this._infoPanel.appendChild(
 			div(
-				{ style: "margin-bottom: 10px;" },
+				{},
 				sectionLabel("Category"),
 				div({ style: "color: var(--primary-text); font-size: 13px; word-break: break-word;" }, catName),
 			),
 		);
 		this._infoPanel.appendChild(
 			div(
-				{ style: "margin-bottom: 10px;" },
+				{},
 				sectionLabel("Preset"),
 				div({ style: "color: var(--primary-text); font-size: 13px; word-break: break-word;" }, preset.name),
 			),
@@ -442,7 +445,7 @@ export class PresetSelectorPrompt extends BasePrompt {
 		if (this._isSearchMode) {
 			this._infoPanel.appendChild(
 				div(
-					{ style: "margin-top: 10px;" },
+					{},
 					sectionLabel("Results"),
 					div({ style: "color: var(--primary-text); font-size: 13px;" }, `${total} matching`),
 				),
@@ -450,7 +453,7 @@ export class PresetSelectorPrompt extends BasePrompt {
 		}
 		const fullPreset = EditorConfig.valueToPreset(preset.value);
 		if (fullPreset && fullPreset.tags && fullPreset.tags.length > 0) {
-			const tagsDiv = div({ style: "margin-top: 10px;" }, sectionLabel("Tags"));
+			const tagsDiv = div({}, sectionLabel("Tags"));
 			for (const tag of fullPreset.tags) {
 				const isActive = this._activeTags.includes(tag);
 				const tagEl = tagChip(tag, isActive);

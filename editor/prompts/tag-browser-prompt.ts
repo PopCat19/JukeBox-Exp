@@ -11,10 +11,11 @@
 import { HTML } from "imperative-html/dist/esm/elements-strict";
 import { EditorConfig, fullTagList } from "../config/editor-config";
 import { SongDocument } from "../song-document";
-import { inputRow, scrollableContainer, searchInput, tagListItem } from "../ui";
+import { inputRow, scrollableContainer, searchInput } from "../ui";
+import { TagListItem } from "../ui/chips/tag-list-item";
 import { BasePrompt } from "./base-prompt";
 
-const { button, div, h2, span } = HTML;
+const { button, div, h2 } = HTML;
 
 interface TagData {
 	tag: string;
@@ -25,7 +26,7 @@ export class TagBrowserPrompt extends BasePrompt {
 	public readonly container: HTMLDivElement;
 	private _tagData: TagData[] = [];
 	private _activeTags: string[] = [];
-	private _tagItems: HTMLDivElement[] = [];
+	private _tagItems: TagListItem[] = [];
 	private _selectedIndex: number = 0;
 	private _columns: number = 4;
 	private _tagContainer: HTMLDivElement;
@@ -35,7 +36,6 @@ export class TagBrowserPrompt extends BasePrompt {
 	private _keyboardNavigated: boolean = false;
 	private _searchInput: HTMLInputElement;
 	private _clearButton: HTMLButtonElement;
-	private _countLabel: HTMLSpanElement;
 
 	constructor(doc: SongDocument, onTagsChanged?: (tags: string[]) => void) {
 		super(doc);
@@ -45,14 +45,13 @@ export class TagBrowserPrompt extends BasePrompt {
 
 		this._searchInput = searchInput("Filter tags...");
 		this._clearButton = button({ class: "tagClearButton" }, "Clear");
-		this._countLabel = span({ class: "tagCountLabel" });
 
 		this._tagInput = document.getElementById("presetTagsInputBox") as HTMLInputElement | null;
 		this._onExternalInput = () => {
 			this._readActiveTags();
 			this._renderTags();
 			this._highlightSelected();
-			this._updateCountLabel();
+			this._updateClearButton();
 		};
 		if (this._tagInput) {
 			this._tagInput.addEventListener("input", this._onExternalInput);
@@ -71,7 +70,6 @@ export class TagBrowserPrompt extends BasePrompt {
 			h2({ style: "text-align: center; margin: 0 0 4px 0;" }, "Instrument Tags"),
 			inputRow({}, this._searchInput, this._clearButton),
 			this._tagContainer,
-			this._countLabel,
 			div(
 				{
 					style: "font-size: 11px; color: var(--secondary-text); text-align: center;",
@@ -89,7 +87,7 @@ export class TagBrowserPrompt extends BasePrompt {
 		});
 		this._clearButton.addEventListener("click", this._clearSelection);
 		this._renderTags();
-		this._updateCountLabel();
+		this._updateClearButton();
 
 		setTimeout(() => this.container.focus());
 	}
@@ -107,7 +105,7 @@ export class TagBrowserPrompt extends BasePrompt {
 		this._writeActiveTags();
 		this._renderTags();
 		this._highlightSelected();
-		this._updateCountLabel();
+		this._updateClearButton();
 	};
 
 	private _initTagData(): void {
@@ -147,9 +145,9 @@ export class TagBrowserPrompt extends BasePrompt {
 		}
 	}
 
-	private _updateCountLabel(): void {
+	private _updateClearButton(): void {
 		const count = this._activeTags.length;
-		this._countLabel.textContent = count > 0 ? `${count} tag${count > 1 ? "s" : ""} selected` : "";
+		this._clearButton.textContent = count > 0 ? `Clear (${count})` : "Clear";
 	}
 
 	private _getFilteredTags(): TagData[] {
@@ -167,14 +165,16 @@ export class TagBrowserPrompt extends BasePrompt {
 		for (let i = 0; i < filtered.length; i++) {
 			const { tag, presetCount } = filtered[i];
 			const isActive = this._activeTags.includes(tag);
-			const item = tagListItem(tag, presetCount, isActive, i === this._selectedIndex && this._keyboardNavigated);
+			const item = new TagListItem(tag, presetCount);
+			item.active = isActive;
+			item.selected = i === this._selectedIndex && this._keyboardNavigated;
 			const idx = i;
-			item.addEventListener("mousedown", (e: MouseEvent) => {
+			item.element.addEventListener("mousedown", (e: MouseEvent) => {
 				e.preventDefault();
 				this._keyboardNavigated = false;
 				this._toggleTag(idx, filtered);
 			});
-			this._tagContainer.appendChild(item);
+			this._tagContainer.appendChild(item.element);
 			this._tagItems.push(item);
 		}
 	}
@@ -189,15 +189,15 @@ export class TagBrowserPrompt extends BasePrompt {
 		}
 		this._writeActiveTags();
 		this._highlightSelected();
-		this._updateCountLabel();
+		this._updateClearButton();
 	}
 
 	private _highlightSelected(): void {
 		for (let i = 0; i < this._tagItems.length; i++) {
 			const isActive = this._activeTags.includes(this._getFilteredTags()[i]?.tag);
-			const isSelected = i === this._selectedIndex;
-			this._tagItems[i].classList.toggle("active", isActive);
-			this._tagItems[i].classList.toggle("selected", isSelected);
+			const isSelected = this._keyboardNavigated && i === this._selectedIndex;
+			this._tagItems[i].active = isActive;
+			this._tagItems[i].selected = isSelected;
 		}
 	}
 
@@ -205,7 +205,7 @@ export class TagBrowserPrompt extends BasePrompt {
 		const item = this._tagItems[index];
 		if (!item) return;
 		const container = this._tagContainer;
-		const itemRect = item.getBoundingClientRect();
+		const itemRect = item.element.getBoundingClientRect();
 		const containerRect = container.getBoundingClientRect();
 		if (itemRect.top < containerRect.top) container.scrollTop -= containerRect.top - itemRect.top;
 		else if (itemRect.bottom > containerRect.bottom) container.scrollTop += itemRect.bottom - containerRect.bottom;

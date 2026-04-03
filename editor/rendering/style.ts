@@ -53,6 +53,7 @@ document.head.appendChild(
 	--flex-fill: 1 1 auto;
 	--flex-fit: 0 0 auto;
 	--flex-stretch: stretch;
+	--pane-gap: 8px;
 	--internal-play-symbol: var(--play-symbol, url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="-13 -13 26 26"><path d="M -5 -8 L -5 8 L 8 0 z" fill="gray"/></svg>'));
 	--internal-pause-symbol: var(--pause-symbol, url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="-13 -13 26 26"><rect x="-5" y="-7" width="4" height="14" fill="gray"/><rect x="3" y="-7" width="4" height="14" fill="gray"/></svg>'));
 	--internal-record-symbol: var(--record-symbol, url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="-13 -13 26 26"><circle cx="0" cy="0" r="6" fill="gray"/></svg>'));
@@ -960,6 +961,7 @@ html {
 	align-items: center;
 	justify-content: center;
 	height: 100%;
+	min-width: 80px;
 	background: var(--ui-widget-background);
 	border: 2px solid transparent;
 	border-radius: 8px;
@@ -971,6 +973,7 @@ html {
 	cursor: pointer;
 	outline: none;
 	transition: background 80ms ease;
+	white-space: nowrap;
 }
 
 .beepboxEditor .prompt.compactSearchPrompt .tagClearButton:hover {
@@ -2094,30 +2097,30 @@ li.select2-results__option[role=group] > strong:hover {
 	padding: 4px 8px;
 	cursor: pointer;
 	font-size: 12px;
-	border-radius: 4px;
-	border: 1px solid var(--ui-widget-background);
+	border-radius: var(--border-radius-medium);
+	border: 2px solid var(--ui-widget-background);
 	background: transparent;
 	color: var(--primary-text);
-	opacity: 0.7;
 	display: flex;
 	justify-content: space-between;
 	align-items: center;
-	transition: background 80ms ease, border-color 80ms ease, opacity 80ms ease;
+	transition: border-color 120ms ease, background 80ms ease, color 80ms ease;
+	outline: none;
 }
 
 .beepboxEditor .tagListItem:hover {
-	background: color-mix(in srgb, var(--ui-widget-focus) 40%, transparent);
-	opacity: 1;
+	border-color: color-mix(in srgb, var(--indicator-primary), transparent 50%);
 }
 
 .beepboxEditor .tagListItem.active {
 	background: var(--ui-widget-focus);
-	opacity: 1;
-	border-color: color-mix(in srgb, var(--indicator-primary), transparent 50%);
+	color: var(--primary-text);
+	border-color: var(--ui-widget-focus);
 }
 
 .beepboxEditor .tagListItem.selected {
 	outline: 1px solid var(--ui-widget-focus);
+	outline-offset: 1px;
 }
 
 .beepboxEditor .tagChip {

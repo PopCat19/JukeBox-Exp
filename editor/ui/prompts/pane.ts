@@ -27,11 +27,11 @@ export function pane(options?: PaneOptions, ...children: (HTMLElement | string)[
 	}
 
 	if (options?.borderRight) {
-		style += " border-right: 2px solid var(--ui-widget-background);";
+		style += " border-right: var(--pane-border-width, 2px) solid var(--ui-widget-background);";
 	}
 
 	if (options?.borderLeft) {
-		style += " border-left: 2px solid var(--ui-widget-background);";
+		style += " border-left: var(--pane-border-width, 2px) solid var(--ui-widget-background);";
 	}
 
 	if (options?.padding) {

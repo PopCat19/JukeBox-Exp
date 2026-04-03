@@ -1,15 +1,57 @@
 // Tag List Item
 //
-// Purpose: List item with active/inactive state toggle
+// Purpose: Interactive tag button with active/selected states
 //
 // This module:
 // - Creates tag entries for tag browser
-// - Shows preset count and selection state
+// - Manages active/selected state styling
+// - Shows preset count
 
 import { HTML } from "imperative-html/dist/esm/elements-strict";
 import { createDiv } from "../base/container";
 
 const { span } = HTML;
+
+export class TagListItem {
+	public readonly element: HTMLDivElement;
+	public readonly tag: string;
+	public readonly presetCount: number;
+
+	private _active: boolean = false;
+	private _selected: boolean = false;
+	private _nameSpan: HTMLSpanElement;
+	private _countSpan: HTMLSpanElement;
+
+	constructor(tag: string, presetCount: number) {
+		this.tag = tag;
+		this.presetCount = presetCount;
+
+		this._nameSpan = span({}, tag);
+		this._countSpan = span({ style: "font-size: 10px; opacity: 0.6;" }, String(presetCount));
+
+		this.element = createDiv("", { class: "tagListItem" }, this._nameSpan, this._countSpan);
+	}
+
+	public set active(value: boolean) {
+		if (this._active === value) return;
+		this._active = value;
+		this.element.classList.toggle("active", value);
+	}
+
+	public get active(): boolean {
+		return this._active;
+	}
+
+	public set selected(value: boolean) {
+		if (this._selected === value) return;
+		this._selected = value;
+		this.element.classList.toggle("selected", value);
+	}
+
+	public get selected(): boolean {
+		return this._selected;
+	}
+}
 
 export function tagListItem(tag: string, presetCount: number, active?: boolean, selected?: boolean): HTMLDivElement {
 	const classes = ["tagListItem"];
