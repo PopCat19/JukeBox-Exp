@@ -27,7 +27,7 @@ import { PatternEditor } from "../components/pattern-editor";
 import { KeyboardLayout } from "../config/keyboard-layout";
 import { SongDocument } from "../song-document";
 import { ChangeGroup } from "./change";
-import { activate as activateInspector, isActive as inspectorActive } from "./dev-inspector";
+import { isActive as inspectorActive } from "./dev-inspector";
 
 declare const OFFLINE: boolean;
 
@@ -93,12 +93,6 @@ export class KeyboardHandler {
 		if (inspectorActive()) {
 			event.preventDefault();
 			event.stopImmediatePropagation();
-			return;
-		}
-		if (event.shiftKey && event.key === "D" && !inspectorActive()) {
-			event.preventDefault();
-			event.stopImmediatePropagation();
-			activateInspector();
 			return;
 		}
 
