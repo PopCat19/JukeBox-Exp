@@ -27,6 +27,7 @@ import { PatternEditor } from "../components/pattern-editor";
 import { KeyboardLayout } from "../config/keyboard-layout";
 import { SongDocument } from "../song-document";
 import { ChangeGroup } from "./change";
+import { activate as activateInspector, isActive as inspectorActive } from "./dev-inspector";
 
 declare const OFFLINE: boolean;
 
@@ -89,6 +90,18 @@ export class KeyboardHandler {
 	constructor(private _host: KeyboardHandlerHost) {}
 
 	public handleKeyDown = (event: KeyboardEvent): void => {
+		if (inspectorActive()) {
+			event.preventDefault();
+			event.stopImmediatePropagation();
+			return;
+		}
+		if (event.shiftKey && event.key === "D" && !inspectorActive()) {
+			event.preventDefault();
+			event.stopImmediatePropagation();
+			activateInspector();
+			return;
+		}
+
 		const host = this._host;
 		const doc = host.doc;
 

@@ -4,6 +4,7 @@
 - `change.ts` — Defines base classes for undoable and grouped editor mutations
 - `change-notifier.ts` — Implements observer pattern for notifying editor components of state changes
 - `change-dispatcher.ts` — Dispatches UI change events for instrument and song settings
+- `dev-inspector.ts` — Injects a hover-based DOM inspector that copies computed styles to clipboard
 - `drumset-setup.ts` — Sets up drumset UI rows with envelope and spectrum controls
 - `event-listener-setup.ts` — Sets up all event listeners for UI controls and interactions
 - `fm-operator-setup.ts` — Sets up FM operator UI rows with frequency, amplitude, and waveform controls
