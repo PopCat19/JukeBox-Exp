@@ -1572,9 +1572,6 @@ html {
 	60% { transform: scale(1.15); opacity: 1; }
 	100% { transform: scale(1); opacity: 1; }
 }
-@keyframes spin {
-	to { transform: rotate(360deg); }
-}
 
 .beepboxEditor .dash-move {
   animation: dash-animation 20s infinite linear;

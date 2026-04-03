@@ -1705,9 +1705,6 @@ export class SongEditor implements ModSliderProvider, MenuHandlerHost, DrumsetSe
 	);
 
 	private readonly _promptContainer: HTMLDivElement = div({ class: "promptContainer", style: "display: none;" });
-	private readonly _loadingOverlayContainer: HTMLDivElement = div({
-		style: "position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 200; display: none;",
-	});
 	private readonly _zoomInButton: HTMLButtonElement = iconButton("zoomInButton", {
 		title: "Zoom In",
 	});
@@ -1876,7 +1873,6 @@ export class SongEditor implements ModSliderProvider, MenuHandlerHost, DrumsetSe
 		this._trackArea,
 		this._settingsArea,
 		this._promptContainer,
-		this._loadingOverlayContainer,
 	);
 
 	private _wasPlaying: boolean = false;
@@ -2651,7 +2647,6 @@ export class SongEditor implements ModSliderProvider, MenuHandlerHost, DrumsetSe
 
 		this.doc.notifier.watch(this.whenUpdated);
 		this.doc.notifier.watch(this._onDocPromptChange);
-		this.doc.editor = this;
 		this.doc.modRecordingHandler = () => {
 			this.handleModRecording();
 		};
@@ -4339,15 +4334,5 @@ export class SongEditor implements ModSliderProvider, MenuHandlerHost, DrumsetSe
 		this._customWavePresetDrop.selectedIndex = 0;
 		this.doc.notifier.changed();
 		this.doc.prefs.save();
-	}
-
-	public showLoadingOverlay(overlay: HTMLDivElement): void {
-		this._loadingOverlayContainer.style.display = "";
-		this._loadingOverlayContainer.appendChild(overlay);
-	}
-
-	public hideLoadingOverlay(overlay: HTMLDivElement): void {
-		this._loadingOverlayContainer.removeChild(overlay);
-		this._loadingOverlayContainer.style.display = "none";
 	}
 }

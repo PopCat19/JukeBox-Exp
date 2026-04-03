@@ -96,7 +96,11 @@ export class ImportPrompt extends BasePrompt {
 		if (extension === "json") {
 			const reader: FileReader = new FileReader();
 			reader.addEventListener("load", (event: Event): void => {
-				this._loadJsonSong(<string>reader.result);
+				this._showLoading();
+				this._doc.prompt = null;
+				requestAnimationFrame(() => {
+					this._doc.record(new ChangeSong(this._doc, <string>reader.result, this._modeImportSelect.value), false, true);
+				});
 			});
 			reader.readAsText(file);
 		} else if (extension === "midi" || extension === "mid") {
@@ -112,61 +116,11 @@ export class ImportPrompt extends BasePrompt {
 		}
 	};
 
-	private _loadJsonSong(jsonString: string): void {
-		this._doc.prompt = null;
-
-		let songInfo: string | null = null;
-		try {
-			const jsonObject = JSON.parse(jsonString);
-			const title = jsonObject["name"] || "Unknown";
-			const channels = jsonObject["channels"]?.length || 0;
-			const bars = jsonObject["channels"]?.reduce((max: number, ch: any) => Math.max(max, ch["sequence"]?.length || 0), 0) || 0;
-			const instruments = jsonObject["channels"]?.reduce((max: number, ch: any) => Math.max(max, ch["instruments"]?.length || 0), 0) || 0;
-			songInfo = `${title} — ${channels} channels, ${bars} bars, ${instruments} instruments`;
-		} catch {
-			songInfo = "Importing song…";
-		}
-
-		const overlay = this._createLoadingOverlay(songInfo);
-		this._doc.editor.showLoadingOverlay(overlay);
-
-		setTimeout(() => {
-			try {
-				this._doc.record(new ChangeSong(this._doc, jsonString, this._modeImportSelect.value), false, true);
-			} finally {
-				this._doc.editor.hideLoadingOverlay(overlay);
-			}
-		}, 0);
-	}
-
-	private _createLoadingOverlay(songInfo: string): HTMLDivElement {
-		const overlay = div({
-			style: `position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; background: rgba(0, 0, 0, 0.7); z-index: 200;`,
-		});
-
-		const spinner = div({
-			style: `width: 40px; height: 40px; border: 4px solid rgba(255, 255, 255, 0.3); border-top-color: #fff; border-radius: 50%; animation: spin 0.8s linear infinite;`,
-		});
-
-		const label = div(
-			{
-				style: `margin-top: 1em; color: #fff; font-size: 1.1em;`,
-			},
-			"Loading song…",
-		);
-
-		const info = div(
-			{
-				style: `margin-top: 0.5em; color: rgba(255, 255, 255, 0.7); font-size: 0.9em;`,
-			},
-			songInfo,
-		);
-
-		overlay.appendChild(spinner);
-		overlay.appendChild(label);
-		overlay.appendChild(info);
-
-		return overlay;
+	private _showLoading(): void {
+		this.container.innerHTML = "";
+		this.container.appendChild(h2("Importing\u2026"));
+		const loadingMsg = p({ style: "text-align: center; margin-top: 1em;" }, "Loading song, please wait\u2026");
+		this.container.appendChild(loadingMsg);
 	}
 
 	private _parseMidiFile(buffer: ArrayBuffer): void {
