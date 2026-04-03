@@ -486,6 +486,12 @@ export class TrackEditor {
 
 			this._channels.length = this._doc.song.getChannelCount();
 			this._mousePressed = false;
+
+			// Recompute mouse channel from mouseY when channel count changes
+			// to prevent cursor offset after channel insert/delete
+			this._mouseChannel = Math.floor(
+				Math.min(this._doc.song.getChannelCount() - 1, Math.max(0, (this._mouseY - Config.barEditorHeight) / ChannelRow.patternHeight)),
+			);
 		}
 
 		for (let j: number = 0; j < this._doc.song.getChannelCount(); j++) {
