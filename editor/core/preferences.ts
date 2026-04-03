@@ -52,6 +52,8 @@ export class Preferences {
 	public showInstrumentScrollbars: boolean;
 	public closePromptByClickoff: boolean;
 	public showPromptBackdrop: boolean;
+	public fineScrollStep: boolean;
+	public doubleClickSliderReset: boolean;
 	// jukebox
 	public rollNoveltyPresets: boolean;
 	public enableTagSearch: boolean;
@@ -90,6 +92,8 @@ export class Preferences {
 		this.showInstrumentScrollbars = window.localStorage.getItem("showInstrumentScrollbars") !== "false";
 		this.closePromptByClickoff = window.localStorage.getItem("closePromptByClickoff") !== "false";
 		this.showPromptBackdrop = window.localStorage.getItem("showPromptBackdrop") !== "false";
+		this.fineScrollStep = window.localStorage.getItem("fineScrollStep") === "true";
+		this.doubleClickSliderReset = window.localStorage.getItem("doubleClickSliderReset") !== "false";
 		this.keyboardLayout = window.localStorage.getItem("keyboardLayout") || "pianoTransposingC";
 		this.bassOffset = +(<any>window.localStorage.getItem("bassOffset")) || 0;
 		this.layout = window.localStorage.getItem("layout") || "long";
@@ -145,6 +149,8 @@ export class Preferences {
 		window.localStorage.setItem("showInstrumentScrollbars", this.showInstrumentScrollbars ? "true" : "false");
 		window.localStorage.setItem("closePromptByClickoff", this.closePromptByClickoff ? "true" : "false");
 		window.localStorage.setItem("showPromptBackdrop", this.showPromptBackdrop ? "true" : "false");
+		window.localStorage.setItem("fineScrollStep", this.fineScrollStep ? "true" : "false");
+		window.localStorage.setItem("doubleClickSliderReset", this.doubleClickSliderReset ? "true" : "false");
 		window.localStorage.setItem("keyboardLayout", this.keyboardLayout);
 		window.localStorage.setItem("bassOffset", String(this.bassOffset));
 		window.localStorage.setItem("layout", this.layout);

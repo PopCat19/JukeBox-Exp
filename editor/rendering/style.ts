@@ -1864,6 +1864,7 @@ html {
 	height: 6px;
 	cursor: pointer;
 	background: ${ColorConfig.uiWidgetBackground};
+	border-radius: var(--border-radius-medium);
 }
 
 .modTarget:hover {
@@ -1919,6 +1920,7 @@ html {
 	height: 6px;
 	cursor: pointer;
 	background: ${ColorConfig.uiWidgetBackground};
+	border-radius: var(--border-radius-medium);
 }
 .beepboxEditor input[type=range]:focus::-moz-range-track {
 	background: ${ColorConfig.uiWidgetFocus};

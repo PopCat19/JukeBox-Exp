@@ -23,11 +23,27 @@ export class Slider {
 		private readonly _doc: SongDocument,
 		private readonly _getChange: ((oldValue: number, newValue: number) => Change) | null,
 		midTick: boolean,
+		private readonly _defaultValue: number,
 	) {
 		this.container = midTick ? span({ class: "midTick", style: "position: sticky; width: 61.5%;" }, input) : span({ style: "position: sticky;" }, input);
 		input.addEventListener("input", this._whenInput);
 		input.addEventListener("change", this._whenChange);
+		input.addEventListener("dblclick", this._onDoubleClick);
 	}
+
+	private _onDoubleClick = (): void => {
+		if (!this._doc.prefs.doubleClickSliderReset) return;
+		if (this._getChange == null) return;
+		const oldValue = this._value;
+		const newValue = this._defaultValue;
+		if (oldValue === newValue) return;
+		this.input.value = String(newValue);
+		this._value = newValue;
+		this._oldValue = oldValue;
+		this._change = this._getChange(oldValue, newValue);
+		this._doc.record(this._change);
+		this._change = null;
+	};
 
 	public updateValue(value: number): void {
 		this._value = value;
@@ -79,5 +95,5 @@ export function rangeSlider(
 		step: "1",
 	};
 	if (options?.title) attrs.title = options.title;
-	return new Slider(input(attrs), doc, getChange, options?.midTick ?? false);
+	return new Slider(input(attrs), doc, getChange, options?.midTick ?? false, value);
 }

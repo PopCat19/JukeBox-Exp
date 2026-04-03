@@ -258,6 +258,12 @@ export class MenuHandler {
 				this._host.doc.prefs.enableTagSearch = !this._host.doc.prefs.enableTagSearch;
 				this._host.presetTagsInputBox.value = "";
 				break;
+			case "fineScrollStep":
+				this._host.doc.prefs.fineScrollStep = !this._host.doc.prefs.fineScrollStep;
+				break;
+			case "doubleClickSliderReset":
+				this._host.doc.prefs.doubleClickSliderReset = !this._host.doc.prefs.doubleClickSliderReset;
+				break;
 		}
 		this._optionsMenu.selectedIndex = 0;
 		this._host.doc.notifier.changed();

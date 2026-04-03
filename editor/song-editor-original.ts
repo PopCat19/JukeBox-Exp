@@ -416,6 +416,8 @@ export class SongEditor implements ModSliderProvider, MenuHandlerHost, DrumsetSe
 			option({ value: "displayBrowserUrl" }, "Enable Song Data in URL"),
 			option({ value: "closePromptByClickoff" }, "Close Prompts on Click Off"),
 			option({ value: "rollNoveltyPresets" }, "Can Randomly Select Novelty Presets"),
+			option({ value: "fineScrollStep" }, "Fine Scroll Step on Inputs"),
+			option({ value: "doubleClickSliderReset" }, "Double-Click Slider to Reset"),
 			option({ value: "recordingSetup" }, "Note Recording..."),
 		),
 		optgroup(
