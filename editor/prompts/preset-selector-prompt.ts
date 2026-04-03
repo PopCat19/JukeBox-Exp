@@ -328,8 +328,8 @@ export class PresetSelectorPrompt extends BasePrompt {
 			const label = `${cat.name} (${cat.presets.length})`;
 			const item = div(
 				{
+					class: "categoryItem",
 					title: label,
-					style: `padding: 6px 12px; cursor: pointer; font-size: 13px; line-height: 1.3;`,
 				},
 				label,
 			);
@@ -354,7 +354,7 @@ export class PresetSelectorPrompt extends BasePrompt {
 		if (presets.length === 0) {
 			const emptyMsg = div(
 				{
-					style: `padding: 12px; color: var(--secondary-text); font-size: 13px; text-align: center;`,
+					class: "presetListEmpty",
 				},
 				this._isSearchMode ? "No matching presets" : "No presets",
 			);
@@ -367,8 +367,8 @@ export class PresetSelectorPrompt extends BasePrompt {
 			const label = this._isSearchMode ? `${preset.name} [${(preset as any).categoryName}]` : preset.name;
 			const item = div(
 				{
+					class: "presetItem",
 					title: label,
-					style: `padding: 5px 12px; cursor: pointer; font-size: 13px; line-height: 1.3;`,
 				},
 				label,
 			);
@@ -400,13 +400,14 @@ export class PresetSelectorPrompt extends BasePrompt {
 		for (let i = 0; i < this._categoryItems.length; i++) {
 			const isActive = i === this._selectedCategoryIndex;
 			const isFocused = isActive && this._activePane === "categories";
-			this._categoryItems[i].style.background = isFocused ? "rgba(255,255,255,0.22)" : isActive ? "rgba(255,255,255,0.12)" : "transparent";
+			this._categoryItems[i].classList.toggle("active", isActive);
+			this._categoryItems[i].classList.toggle("focused", isFocused);
 		}
 		for (let i = 0; i < this._presetItems.length; i++) {
 			const isActive = i === this._selectedPresetIndex;
 			const isFocused = isActive && this._activePane === "presets";
-			this._presetItems[i].style.background = isFocused ? "rgba(255,255,255,0.22)" : "transparent";
-			this._presetItems[i].style.color = "var(--primary-text)";
+			this._presetItems[i].classList.toggle("active", isActive);
+			this._presetItems[i].classList.toggle("focused", isFocused);
 		}
 		this._updateInfoPanel();
 	}

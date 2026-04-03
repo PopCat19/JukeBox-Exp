@@ -9,7 +9,7 @@
 
 import { HTML } from "imperative-html/dist/esm/elements-strict";
 import { SongDocument } from "../song-document";
-import { searchInput } from "../ui";
+import { inputRow, searchInput } from "../ui";
 import { BasePrompt } from "./base-prompt";
 
 const { div, span, h2 } = HTML;
@@ -136,15 +136,15 @@ const shortcutCategories: ShortcutCategory[] = [
 ];
 
 export class KeyboardShortcutsPrompt extends BasePrompt {
-	private readonly _searchInput: HTMLInputElement = searchInput("Search shortcuts...", "margin-top: 0.75em; margin-bottom: 1em;");
+	private readonly _searchInput: HTMLInputElement = searchInput("Search shortcuts...");
 	private readonly _shortcutsContainer: HTMLDivElement = div({
 		style: "max-height: 400px; overflow-y: auto; text-align: left;",
 	});
 
 	public readonly container: HTMLDivElement = div(
-		{ class: "prompt keyboardShortcutsPrompt compactSearchPrompt", style: "width: 400px;" },
+		{ class: "prompt keyboardShortcutsPrompt compactSearchPrompt", style: "width: 600px;" },
 		h2("Keyboard Shortcuts"),
-		this._searchInput,
+		inputRow({}, this._searchInput),
 		this._shortcutsContainer,
 		this._cancelButton,
 	);

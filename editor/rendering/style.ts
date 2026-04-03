@@ -761,7 +761,11 @@ html {
 	height: 100%;
 	display: block;
 	z-index: 100;
-  pointer-events: none;
+	pointer-events: none;
+}
+
+.beepboxEditor .promptContainer > * {
+	pointer-events: auto;
 }
 
 .beepboxEditor .prompt {
@@ -947,6 +951,38 @@ html {
 }
 .beepboxEditor .prompt.compactSearchPrompt .tagBrowserButton:hover {
 	background: var(--ui-widget-focus);
+}
+
+.beepboxEditor .prompt.compactSearchPrompt .categoryItem,
+.beepboxEditor .prompt.compactSearchPrompt .presetItem {
+	padding: 6px 12px;
+	cursor: pointer;
+	font-size: 13px;
+	line-height: 1.3;
+	border-radius: 4px;
+	transition: background 80ms ease;
+}
+
+.beepboxEditor .prompt.compactSearchPrompt .categoryItem:hover,
+.beepboxEditor .prompt.compactSearchPrompt .presetItem:hover {
+	background: rgba(255,255,255,0.08);
+}
+
+.beepboxEditor .prompt.compactSearchPrompt .categoryItem.active,
+.beepboxEditor .prompt.compactSearchPrompt .presetItem.active {
+	background: rgba(255,255,255,0.12);
+}
+
+.beepboxEditor .prompt.compactSearchPrompt .categoryItem.focused,
+.beepboxEditor .prompt.compactSearchPrompt .presetItem.focused {
+	background: rgba(255,255,255,0.22);
+}
+
+.beepboxEditor .prompt.compactSearchPrompt .presetListEmpty {
+	padding: 12px;
+	color: var(--secondary-text);
+	font-size: 13px;
+	text-align: center;
 }
 
 .beepboxEditor .prompt.keyboardShortcutsPrompt .shortcutRow {
@@ -2011,10 +2047,44 @@ li.select2-results__option[role=group] > strong:hover {
 	font-size: 14px;
 	outline: none;
 	box-sizing: border-box;
+	transition: border-color 120ms ease, box-shadow 120ms ease;
+}
+
+.beepboxEditor .searchInput:hover {
+	border-color: color-mix(in srgb, var(--indicator-primary, #4444ff), transparent 50%);
 }
 
 .beepboxEditor .searchInput:focus {
 	border-color: var(--indicator-primary, #4444ff);
+}
+
+.beepboxEditor .tagListItem {
+	padding: 4px 8px;
+	cursor: pointer;
+	font-size: 12px;
+	border-radius: 4px;
+	border: 1px solid var(--ui-widget-background);
+	background: transparent;
+	color: var(--secondary-text);
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	transition: background 80ms ease, border-color 80ms ease;
+}
+
+.beepboxEditor .tagListItem:hover {
+	background: var(--ui-widget-focus);
+	border-color: color-mix(in srgb, var(--indicator-primary, #4444ff), transparent 50%);
+}
+
+.beepboxEditor .tagListItem.active {
+	background: rgba(255,255,255,0.12);
+	color: var(--primary-text);
+	border-color: var(--ui-widget-focus);
+}
+
+.beepboxEditor .tagListItem.selected {
+	outline: 1px solid var(--ui-widget-focus);
 }
 
 .beepboxEditor .tagChip {

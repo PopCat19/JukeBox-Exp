@@ -32,6 +32,7 @@ export class TagBrowserPrompt extends BasePrompt {
 	private _onTagsChanged?: (tags: string[]) => void;
 	private _tagInput: HTMLInputElement | null;
 	private _onExternalInput: () => void;
+	private _keyboardNavigated: boolean = false;
 
 	constructor(doc: SongDocument, onTagsChanged?: (tags: string[]) => void) {
 		super(doc);
@@ -120,18 +121,15 @@ export class TagBrowserPrompt extends BasePrompt {
 		for (let i = 0; i < this._tagData.length; i++) {
 			const { tag, presetCount } = this._tagData[i];
 			const isActive = this._activeTags.includes(tag);
-			const item = tagListItem(tag, presetCount, isActive, false);
+			const item = tagListItem(tag, presetCount, isActive, i === this._selectedIndex && this._keyboardNavigated);
 			const idx = i;
 			item.addEventListener("mousedown", (e: MouseEvent) => {
 				e.preventDefault();
+				this._keyboardNavigated = false;
 				this._toggleTag(idx);
 			});
 			this._tagContainer.appendChild(item);
 			this._tagItems.push(item);
-		}
-
-		if (this._tagItems.length > 0) {
-			this._tagItems[0].style.outline = "1px solid var(--ui-widget-focus)";
 		}
 	}
 
@@ -144,7 +142,6 @@ export class TagBrowserPrompt extends BasePrompt {
 			this._activeTags.push(tag);
 		}
 		this._writeActiveTags();
-		this._renderTags();
 		this._highlightSelected();
 	}
 
@@ -152,10 +149,8 @@ export class TagBrowserPrompt extends BasePrompt {
 		for (let i = 0; i < this._tagItems.length; i++) {
 			const isActive = this._activeTags.includes(this._tagData[i].tag);
 			const isSelected = i === this._selectedIndex;
-			this._tagItems[i].style.background = isActive ? "rgba(255,255,255,0.12)" : "transparent";
-			this._tagItems[i].style.border = `1px solid ${isSelected || isActive ? "var(--ui-widget-focus)" : "var(--ui-widget-background)"}`;
-			this._tagItems[i].style.color = isActive ? "var(--primary-text)" : "var(--secondary-text)";
-			this._tagItems[i].style.outline = isSelected ? "1px solid var(--ui-widget-focus)" : "";
+			this._tagItems[i].classList.toggle("active", isActive);
+			this._tagItems[i].classList.toggle("selected", isSelected);
 		}
 	}
 
@@ -190,6 +185,7 @@ export class TagBrowserPrompt extends BasePrompt {
 			case 37: // left
 				if (this._selectedIndex > 0) {
 					this._selectedIndex--;
+					this._keyboardNavigated = true;
 					this._highlightSelected();
 					this._scrollItemIntoView(this._selectedIndex);
 				}
@@ -198,6 +194,7 @@ export class TagBrowserPrompt extends BasePrompt {
 			case 38: // up
 				if (this._selectedIndex >= this._columns) {
 					this._selectedIndex -= this._columns;
+					this._keyboardNavigated = true;
 					this._highlightSelected();
 					this._scrollItemIntoView(this._selectedIndex);
 				}
@@ -206,6 +203,7 @@ export class TagBrowserPrompt extends BasePrompt {
 			case 39: // right
 				if (this._selectedIndex < count - 1) {
 					this._selectedIndex++;
+					this._keyboardNavigated = true;
 					this._highlightSelected();
 					this._scrollItemIntoView(this._selectedIndex);
 				}
@@ -214,6 +212,7 @@ export class TagBrowserPrompt extends BasePrompt {
 			case 40: // down
 				if (this._selectedIndex + this._columns < count) {
 					this._selectedIndex += this._columns;
+					this._keyboardNavigated = true;
 					this._highlightSelected();
 					this._scrollItemIntoView(this._selectedIndex);
 				}
