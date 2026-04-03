@@ -90,6 +90,7 @@ export class PromptFocusController {
 		this.cleanupFns.push(() => prompt.container.removeEventListener("mouseenter", onMouseEnter));
 
 		const onFocusIn = (): void => {
+			if (!this.cursorMoved || !this.mouseInPrompt) return;
 			if (this.host.getFocusedPrompt() !== prompt) {
 				this.host.setFocusedPrompt(prompt);
 				this.host.updatePromptFocus();

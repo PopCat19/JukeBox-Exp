@@ -522,9 +522,9 @@ export class PresetSelectorPrompt extends BasePrompt {
 			event.stopPropagation();
 		} else if (event.keyCode === 13) {
 			this._searchInput.blur();
-			this.container.focus({ preventScroll: true });
+			const editorEl = document.querySelector(".beepboxEditor") as HTMLElement;
+			if (editorEl) editorEl.focus({ preventScroll: true });
 			event.preventDefault();
-			event.stopPropagation();
 			event.stopPropagation();
 		} else if (event.keyCode === 40) {
 			this._activePane = "presets";
