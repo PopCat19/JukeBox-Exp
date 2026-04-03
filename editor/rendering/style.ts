@@ -1291,6 +1291,13 @@ html {
 	gap: var(--gap-md);
 	width: 100%;
 	height: 28px;
+	overflow: hidden;
+}
+
+.beepboxEditor .prompt.noSelection:not(.shaded) .prompt-titlebar {
+	height: auto;
+	min-height: 28px;
+	align-items: flex-start;
 }
 
 .beepboxEditor .prompt-titlebar > h2 {
@@ -1301,6 +1308,19 @@ html {
 	font-size: 2em !important;
 	font-weight: normal;
 	padding: 0 !important;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.beepboxEditor .prompt.noSelection:not(.shaded) .prompt-titlebar > h2 {
+	white-space: normal;
+	line-height: 1.2 !important;
+	overflow: visible;
+	text-overflow: unset;
+	overflow-wrap: break-word;
+	min-width: 0;
+	max-width: 100%;
 }
 
 .beepboxEditor .prompt-titlebar > button,
