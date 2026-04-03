@@ -30,7 +30,7 @@ import {
 import { prettyNumber } from "../config/editor-config";
 import { Change } from "../core/change";
 import { SongDocument } from "../song-document";
-import { addWheelSupport, Slider } from "../ui";
+import { addWheelSupport, dropdownButton, Slider } from "../ui";
 
 export class EnvelopeEditor {
 	public readonly container: HTMLElement = HTML.div({ class: "envelopeEditor" });
@@ -960,21 +960,16 @@ export class EnvelopeEditor {
 			);
 
 			// general structure
-			const extraSettingsDropdown: HTMLButtonElement = HTML.button(
-				{
-					style: "margin-left:0em; margin-right: 0.3em; height:1.5em; width: 10px; padding: 0px; font-size: 8px;",
-					onclick: () => {
-						const instrument: Instrument = this._doc.song.channels[this._doc.channel].instruments[this._doc.getCurrentInstrument()];
-						this._extraSettingsDropdown(
-							DropdownID.EnvelopeSettings,
-							envelopeIndex,
-							Config.newEnvelopes[instrument.envelopes[envelopeIndex].envelope].name,
-						);
-					},
+			const extraSettingsDropdown: HTMLButtonElement = dropdownButton({
+				onclick: () => {
+					const instrument: Instrument = this._doc.song.channels[this._doc.channel].instruments[this._doc.getCurrentInstrument()];
+					this._extraSettingsDropdown(
+						DropdownID.EnvelopeSettings,
+						envelopeIndex,
+						Config.newEnvelopes[instrument.envelopes[envelopeIndex].envelope].name,
+					);
 				},
-				"▼",
-			);
-			extraSettingsDropdown.style.display = "inline";
+			});
 
 			const extraSettingsDropdownGroup: HTMLDivElement = HTML.div(
 				{ class: "editor-controls", style: "flex-direction:column; align-items:center;" },

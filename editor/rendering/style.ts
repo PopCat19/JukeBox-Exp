@@ -508,6 +508,7 @@ html {
 
 .beepboxEditor .envelope-row {
 	display: flex;
+	align-items: center;
 	margin: 2px 0;
 	gap: 2px;
 }
