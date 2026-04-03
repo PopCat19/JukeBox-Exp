@@ -2684,6 +2684,9 @@ export class SongEditor implements ModSliderProvider, MenuHandlerHost, DrumsetSe
 
 		new EventListenerSetup(this);
 
+		this._zoomInButton.addEventListener("click", () => this._zoomIn());
+		this._zoomOutButton.addEventListener("click", () => this._zoomOut());
+
 		if (isMobile) {
 			const autoPlayOption: HTMLOptionElement = <HTMLOptionElement>this._optionsMenu.querySelector("[value=autoPlay]");
 			autoPlayOption.disabled = true;
