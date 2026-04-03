@@ -521,7 +521,8 @@ export class PresetSelectorPrompt extends BasePrompt {
 			event.preventDefault();
 			event.stopPropagation();
 		} else if (event.keyCode === 13) {
-			this._applySelection();
+			this._searchInput.blur();
+			this.container.focus();
 			event.preventDefault();
 		} else if (event.keyCode === 40) {
 			this._activePane = "presets";
