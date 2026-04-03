@@ -881,7 +881,7 @@ export class Synth {
 			this.samplesPerSecond = this.audioCtx.sampleRate;
 			this.scriptNode = this.audioCtx.createScriptProcessor
 				? this.audioCtx.createScriptProcessor(bufferSize, 0, 2)
-				: this.audioCtx.createJavaScriptNode(bufferSize, 0, 2); // bufferSize samples per callback buffer, 0 input channels, 2 output channels (left/right)
+				: this.audioCtx.createJavaScriptNode(bufferSize, 0, 2);
 			this.scriptNode.onaudioprocess = this.audioProcessCallback;
 			this.scriptNode.channelCountMode = "explicit";
 			this.scriptNode.channelInterpretation = "speakers";
@@ -889,7 +889,9 @@ export class Synth {
 
 			this.computeDelayBufferSizes();
 		}
-		this.audioCtx.resume();
+		if (this.audioCtx.state === "suspended") {
+			this.audioCtx.resume();
+		}
 	}
 
 	private deactivateAudio(): void {
