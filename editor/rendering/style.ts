@@ -803,14 +803,13 @@ html {
 }
 
 .beepboxEditor .prompt.shaded {
-	padding: var(--padding-6) 14px;
+	padding: 6px 14px;
 	min-width: 0;
 	max-width: max-content;
 	overflow: hidden;
 	display: flex;
 	align-items: center;
 	border-radius: 20px;
-	transition: padding 200ms ease, border-radius 200ms ease;
 }
 
 .beepboxEditor .prompt.shaded > *:not(.prompt-titlebar) {
