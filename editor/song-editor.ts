@@ -721,7 +721,7 @@ export class SongEditor implements ModSliderProvider, MenuHandlerHost, DrumsetSe
 		1,
 	);
 	private readonly _pulseWidthDropdown: HTMLButtonElement = dropdownButton({
-		style: "margin-left:53px; position: absolute; margin-top: 15px;",
+		style: "margin-left: auto; margin-right: 5px;",
 		onclick: () => this._toggleDropdownMenu(DropdownID.PulseWidth),
 	});
 	private readonly _pwmSliderInputBox: HTMLInputElement = numberInput({
@@ -3173,6 +3173,10 @@ export class SongEditor implements ModSliderProvider, MenuHandlerHost, DrumsetSe
 			target.textContent = "▼";
 			group.style.display = "none";
 		}
+		setTimeout(() => {
+			window.dispatchEvent(new Event("resize"));
+			window.dispatchEvent(new Event("scroll"));
+		});
 	}
 
 	private _modSliderUpdate(): void {

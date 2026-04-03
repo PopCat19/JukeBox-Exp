@@ -33,15 +33,7 @@ export class MoveNotesSidewaysPrompt extends BasePrompt {
 	public readonly container: HTMLDivElement = div(
 		{ class: "prompt noSelection", style: "width: var(--prompt-width-sm);" },
 		h2("Move Notes Sideways"),
-		labelRow(
-			div(
-				{ class: "prompt-label" },
-				"Beats to move:",
-				br(),
-				promptHint("(Negative is left, positive is right)"),
-			),
-			this._beatsStepper,
-		),
+		labelRow(div({ class: "prompt-label" }, "Beats to move:", br(), promptHint("(Negative is left, positive is right)")), this._beatsStepper),
 		labelRow(div({ class: "selectContainer", style: "width: 100%;" }, this._conversionStrategySelect)),
 		this._getOkayRow(),
 		this._cancelButton,

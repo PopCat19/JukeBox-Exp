@@ -34,9 +34,21 @@ export { fieldLabel, sectionLabel } from "./labels";
 export { Layout } from "./layout";
 export type { InfoBannerOptions, InputRowOptions, InstructionsOptions, PaneContainerOptions, PaneOptions } from "./prompts";
 // Prompt layouts
-export { fixedPane, flexPane, infoBanner, inputRow, instructions, pane, paneContainer } from "./prompts";
 // Prompt components
-export { promptHint, promptLabel, promptRowBetween, promptRowEnd, promptValue } from "./prompts";
+export {
+	fixedPane,
+	flexPane,
+	infoBanner,
+	inputRow,
+	instructions,
+	pane,
+	paneContainer,
+	promptHint,
+	promptLabel,
+	promptRowBetween,
+	promptRowEnd,
+	promptValue,
+} from "./prompts";
 export type { SliderRowOptions, SliderRowWithInputOptions } from "./rows/slider-row";
 // Rows
 export { simpleSliderRow, sliderRow, sliderRowWithInput } from "./rows/slider-row";

@@ -21,7 +21,7 @@ export function paneContainer(options?: PaneContainerOptions, ...panes: (HTMLEle
 	const borderWidth = options?.borderWidth ?? "2px";
 
 	let style = `display: flex; flex-direction: row; height: ${height}; border: ${borderWidth} solid var(--ui-widget-background); border-radius: ${borderRadius}; overflow: hidden;`;
-	
+
 	if (options?.marginTop) {
 		style += ` margin-top: ${options.marginTop};`;
 	}
