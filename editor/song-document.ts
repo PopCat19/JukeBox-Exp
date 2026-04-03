@@ -38,6 +38,7 @@ export class SongDocument {
 	public song: Song;
 	public synth: Synth;
 	public performance: SongPerformance;
+	public editor: { showLoadingOverlay: (overlay: HTMLDivElement) => void; hideLoadingOverlay: (overlay: HTMLDivElement) => void } | null = null;
 	public readonly notifier: ChangeNotifier = new ChangeNotifier();
 	public readonly selection: Selection = new Selection(this);
 	public readonly prefs: Preferences = new Preferences();
