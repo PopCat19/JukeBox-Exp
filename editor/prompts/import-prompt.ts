@@ -97,7 +97,6 @@ export class ImportPrompt extends BasePrompt {
 			const reader: FileReader = new FileReader();
 			reader.addEventListener("load", (event: Event): void => {
 				this._doc.prompt = null;
-				this._doc.goBackToStart();
 				this._doc.record(new ChangeSong(this._doc, <string>reader.result, this._modeImportSelect.value), false, true);
 			});
 			reader.readAsText(file);
@@ -105,7 +104,6 @@ export class ImportPrompt extends BasePrompt {
 			const reader: FileReader = new FileReader();
 			reader.addEventListener("load", (event: Event): void => {
 				this._doc.prompt = null;
-				this._doc.goBackToStart();
 				this._parseMidiFile(<ArrayBuffer>reader.result);
 			});
 			reader.readAsArrayBuffer(file);

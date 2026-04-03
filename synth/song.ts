@@ -348,11 +348,9 @@ export class Song {
 	public getChannelIsMod(channelIndex: number): boolean {
 		return channelIndex >= this.pitchChannelCount + this.noiseChannelCount;
 	}
-	public initToDefault(andResetChannels: boolean = true): void {
+	public initScalarsOnly(): void {
 		this.scale = 0;
 		this.scaleCustom = [true, false, false, false, false, false, false, false, false, false, false, false];
-		// this.scaleCustom = [true, false, true, true, false, false, false, true, true, false, true, true];
-		// this.scaleCustom = [true, false, false, false, false, false, false, false, false, false, false, false];
 		this.key = 0;
 		this.octaveCount = 8;
 		this.octave = 0;
@@ -370,11 +368,12 @@ export class Song {
 		for (let i: number = 0; i < Config.filterMorphCount - 1; i++) {
 			this.eqSubFilters[i] = null;
 		}
-
-		// This is the tab's display name
 		const now: Date = new Date();
 		this.title = `Untitled-${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, "0")}${String(now.getDate()).padStart(2, "0")}`;
 		this.customSampleHandler?.setDocumentTitle(this.title);
+	}
+	public initToDefault(andResetChannels: boolean = true): void {
+		this.initScalarsOnly();
 		if (andResetChannels) {
 			this.pitchChannelCount = 2;
 			this.noiseChannelCount = 1;
