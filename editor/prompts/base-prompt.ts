@@ -11,10 +11,11 @@
 // Copyright (c) 2012-2022 John Nesky and contributing authors, distributed under the MIT license, see accompanying the LICENSE.md file.
 
 import { HTML } from "imperative-html/dist/esm/elements-strict";
+import { actionButton, iconButton } from "../ui";
 import { SongDocument } from "../song-document";
 import { Prompt } from "./prompt";
 
-const { button, div } = HTML;
+const { div } = HTML;
 
 export abstract class BasePrompt implements Prompt {
 	private static _nextId: number = 0;
@@ -22,8 +23,8 @@ export abstract class BasePrompt implements Prompt {
 	public abstract readonly container: HTMLElement;
 	public closeCallback: ((prompt: Prompt) => void) | undefined = undefined;
 	public openAlongsideCallback: ((promptName: string) => void) | undefined = undefined;
-	protected readonly _cancelButton: HTMLButtonElement = button({ class: "cancelButton" });
-	protected readonly _okayButton: HTMLButtonElement = button({ class: "okayButton" }, "Okay");
+	protected readonly _cancelButton: HTMLButtonElement = iconButton("cancelButton");
+	protected readonly _okayButton: HTMLButtonElement = actionButton("Okay", { style: "width:45%;" });
 
 	constructor(protected _doc: SongDocument) {
 		this._okayButton.addEventListener("click", this._onOkayClick);
@@ -65,7 +66,7 @@ export abstract class BasePrompt implements Prompt {
 
 		if (h2El) {
 			const titlebar = div({ class: "prompt-titlebar" });
-			const shadeBtn: HTMLButtonElement = button({ class: "shadeButton", type: "button" });
+			const shadeBtn: HTMLButtonElement = iconButton("shadeButton", { type: "button" });
 
 			const cancelButton = this.container.querySelector(".cancelButton");
 			if (cancelButton) cancelButton.remove();
@@ -97,7 +98,7 @@ export abstract class BasePrompt implements Prompt {
 				if ((e as MouseEvent).buttons) dragMoved = true;
 			});
 		} else {
-			const shadeBtn: HTMLButtonElement = button({ class: "shadeButton", type: "button" });
+			const shadeBtn: HTMLButtonElement = iconButton("shadeButton", { type: "button" });
 			this.container.appendChild(shadeBtn);
 			shadeBtn.addEventListener("click", (e: Event) => {
 				e.stopPropagation();
