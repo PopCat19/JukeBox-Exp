@@ -38,7 +38,6 @@ export interface InputBinding {
 }
 
 export const inputBindings: InputBinding[] = [
-	// ── Playback ──────────────────────────────────────────────────────────
 	{
 		id: "playback_toggle",
 		kind: "key",
@@ -176,7 +175,6 @@ export const inputBindings: InputBinding[] = [
 		detail: "Open song in player view",
 	},
 
-	// ── Navigation ────────────────────────────────────────────────────────
 	{
 		id: "nav_channel_up",
 		kind: "key",
@@ -283,7 +281,6 @@ export const inputBindings: InputBinding[] = [
 		detail: "Touch drag to scroll octaves",
 	},
 
-	// ── Editing ───────────────────────────────────────────────────────────
 	{
 		id: "edit_undo",
 		kind: "key",
@@ -861,7 +858,6 @@ export const inputBindings: InputBinding[] = [
 		detail: "Close channel dropdown",
 	},
 
-	// ── Selection ─────────────────────────────────────────────────────────
 	{
 		id: "select_all",
 		kind: "key",
@@ -934,7 +930,6 @@ export const inputBindings: InputBinding[] = [
 		detail: "Extend box selection right",
 	},
 
-	// ── Channels ──────────────────────────────────────────────────────────
 	{
 		id: "channel_settings",
 		kind: "key",
@@ -968,7 +963,6 @@ export const inputBindings: InputBinding[] = [
 		detail: "Open channel volume visualizer",
 	},
 
-	// ── Presets ───────────────────────────────────────────────────────────
 	{
 		id: "preset_next",
 		kind: "key",
@@ -1035,7 +1029,6 @@ export const inputBindings: InputBinding[] = [
 		detail: "Copy instrument JSON to clipboard",
 	},
 
-	// ── Views ─────────────────────────────────────────────────────────────
 	{
 		id: "view_shortcuts",
 		kind: "key",
@@ -1366,7 +1359,6 @@ export const inputBindings: InputBinding[] = [
 		detail: "Start touch loop handle drag",
 	},
 
-	// ── File ──────────────────────────────────────────────────────────────
 	{
 		id: "file_export",
 		kind: "key",
@@ -1412,13 +1404,13 @@ export const inputBindings: InputBinding[] = [
 		detail: "Open import instrument prompt",
 	},
 
-	// ── Live Input ────────────────────────────────────────────────────────
 	{
 		id: "live_play_notes",
 		kind: "key",
 		concern: "live-input",
 		sourceFile: "editor/config/keyboard-layout.ts",
 		handler: "handleKeyEvent",
+		keys: "A-Z/0-9",
 		condition: "when canPlayNotes (no Ctrl/Meta, correct CapsLock)",
 		detail: "Play live note preview from keyboard",
 	},
@@ -1428,6 +1420,7 @@ export const inputBindings: InputBinding[] = [
 		concern: "live-input",
 		sourceFile: "editor/core/keyboard-handler.ts",
 		handler: "handleKeyUp",
+		keys: "Any",
 		detail: "Release live pitches on key up",
 	},
 	{
@@ -1484,13 +1477,6 @@ export const inputBindings: InputBinding[] = [
 		detail: "Transpose selection up one octave",
 	},
 
-	// ── Pattern Draw ──────────────────────────────────────────────────────
-	// (already covered under editing section with pattern-draw concern)
-
-	// ── Pattern Select ────────────────────────────────────────────────────
-	// (already covered under editing section with pattern-select concern)
-
-	// ── Loop Region ───────────────────────────────────────────────────────
 	{
 		id: "loop_set_to_selection",
 		kind: "key",
@@ -1503,10 +1489,6 @@ export const inputBindings: InputBinding[] = [
 		detail: "Set loop to selection (or clear if already set)",
 	},
 
-	// ── Track Scroll ──────────────────────────────────────────────────────
-	// (already covered under navigation section with track-scroll concern)
-
-	// ── Mod Recording ─────────────────────────────────────────────────────
 	{
 		id: "mod_recording_toggle",
 		kind: "key",
@@ -1534,11 +1516,11 @@ export const inputBindings: InputBinding[] = [
 		concern: "mod-recording",
 		sourceFile: "editor/core/keyboard-handler.ts",
 		handler: "handleKeyDown",
+		keys: "A-Z/0-9",
 		condition: "when recording mode active, no Ctrl/Meta",
 		detail: "Play notes via keyboard layout during recording",
 	},
 
-	// ── Theme presets (Ctrl+Shift+Alt combos) ─────────────────────────────
 	{
 		id: "theme_jummbox_classic",
 		kind: "key",
@@ -1570,7 +1552,6 @@ export const inputBindings: InputBinding[] = [
 		detail: "Apply violet verdant theme preset",
 	},
 
-	// ── Modifier tracking ─────────────────────────────────────────────────
 	{
 		id: "mod_shift_down",
 		kind: "key",
@@ -1608,7 +1589,6 @@ export const inputBindings: InputBinding[] = [
 		detail: "Set patternEditor.controlMode = false",
 	},
 
-	// ── Prompt close ──────────────────────────────────────────────────────
 	{
 		id: "prompt_close_esc",
 		kind: "key",

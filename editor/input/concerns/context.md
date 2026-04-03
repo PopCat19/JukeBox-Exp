@@ -1,17 +1,17 @@
 # editor/input/concerns context
 
-- `playback.ts` — re-exports playback-scoped bindings
-- `navigation.ts` — re-exports navigation-scoped bindings
-- `editing.ts` — re-exports editing-scoped bindings
-- `selection.ts` — re-exports selection-scoped bindings
-- `channels.ts` — re-exports channels-scoped bindings
-- `presets.ts` — re-exports presets-scoped bindings
-- `views.ts` — re-exports views-scoped bindings
-- `file.ts` — re-exports file-scoped bindings
-- `live-input.ts` — re-exports live-input-scoped bindings
-- `pattern-draw.ts` — re-exports pattern-draw-scoped bindings
-- `pattern-select.ts` — re-exports pattern-select-scoped bindings
-- `loop-region.ts` — re-exports loop-region-scoped bindings
-- `track-scroll.ts` — re-exports track-scroll-scoped bindings
-- `mod-recording.ts` — re-exports mod-recording-scoped bindings
+- `playback.ts` — input bindings for playback control concern
+- `navigation.ts` — input bindings for navigation concern
+- `editing.ts` — input bindings for editing concern
+- `selection.ts` — input bindings for selection concern
+- `channels.ts` — input bindings for channels concern
+- `presets.ts` — input bindings for presets concern
+- `views.ts` — input bindings for views concern
+- `file.ts` — input bindings for file concern
+- `live-input.ts` — input bindings for live input concern
+- `pattern-draw.ts` — input bindings for pattern draw concern
+- `pattern-select.ts` — input bindings for pattern select concern
+- `loop-region.ts` — input bindings for loop region concern
+- `track-scroll.ts` — input bindings for track scroll concern
+- `mod-recording.ts` — input bindings for mod recording concern
 - `index.ts` — aggregates all concern binding slices
