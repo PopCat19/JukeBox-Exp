@@ -11,10 +11,10 @@
 import { HTML } from "imperative-html/dist/esm/elements-strict";
 import { EditorConfig, fullTagList } from "../config/editor-config";
 import { SongDocument } from "../song-document";
-import { scrollableContainer, tagListItem } from "../ui";
+import { inputRow, scrollableContainer, searchInput, tagListItem } from "../ui";
 import { BasePrompt } from "./base-prompt";
 
-const { div, h2 } = HTML;
+const { button, div, h2, span } = HTML;
 
 interface TagData {
 	tag: string;
@@ -33,6 +33,9 @@ export class TagBrowserPrompt extends BasePrompt {
 	private _tagInput: HTMLInputElement | null;
 	private _onExternalInput: () => void;
 	private _keyboardNavigated: boolean = false;
+	private _searchInput: HTMLInputElement;
+	private _clearButton: HTMLButtonElement;
+	private _countLabel: HTMLSpanElement;
 
 	constructor(doc: SongDocument, onTagsChanged?: (tags: string[]) => void) {
 		super(doc);
@@ -40,11 +43,16 @@ export class TagBrowserPrompt extends BasePrompt {
 		this._initTagData();
 		this._readActiveTags();
 
+		this._searchInput = searchInput("Filter tags...");
+		this._clearButton = button({ class: "tagClearButton" }, "Clear");
+		this._countLabel = span({ class: "tagCountLabel" });
+
 		this._tagInput = document.getElementById("presetTagsInputBox") as HTMLInputElement | null;
 		this._onExternalInput = () => {
 			this._readActiveTags();
 			this._renderTags();
 			this._highlightSelected();
+			this._updateCountLabel();
 		};
 		if (this._tagInput) {
 			this._tagInput.addEventListener("input", this._onExternalInput);
@@ -56,26 +64,51 @@ export class TagBrowserPrompt extends BasePrompt {
 
 		this.container = div(
 			{
-				class: "prompt noSelection",
+				class: "prompt noSelection compactSearchPrompt",
 				style: "width: fit-content; text-align: left; max-height: 90%; outline: none;",
 				tabindex: "0",
 			},
 			h2({ style: "text-align: center; margin: 0 0 4px 0;" }, "Instrument Tags"),
+			inputRow({}, this._searchInput, this._clearButton),
+			this._tagContainer,
+			this._countLabel,
 			div(
 				{
-					style: "font-size: 11px; color: var(--secondary-text); margin-bottom: 8px; text-align: center;",
+					style: "font-size: 11px; color: var(--secondary-text); text-align: center;",
 				},
 				"Click or Enter to toggle | Arrow keys to navigate | ESC to close",
 			),
-			this._tagContainer,
 			this._cancelButton,
 		);
 
 		this.buildTitlebar();
+		this._searchInput.addEventListener("input", this._onSearch);
+		this._clearButton.addEventListener("mousedown", (e: MouseEvent) => {
+			e.stopPropagation();
+			e.preventDefault();
+		});
+		this._clearButton.addEventListener("click", this._clearSelection);
 		this._renderTags();
+		this._updateCountLabel();
 
 		setTimeout(() => this.container.focus());
 	}
+
+	private _onSearch = (): void => {
+		this._renderTags();
+		if (this._tagItems.length > 0) {
+			this._selectedIndex = 0;
+			this._highlightSelected();
+		}
+	};
+
+	private _clearSelection = (): void => {
+		this._activeTags = [];
+		this._writeActiveTags();
+		this._renderTags();
+		this._highlightSelected();
+		this._updateCountLabel();
+	};
 
 	private _initTagData(): void {
 		const tagCounts = new Map<string, number>();
@@ -114,27 +147,40 @@ export class TagBrowserPrompt extends BasePrompt {
 		}
 	}
 
+	private _updateCountLabel(): void {
+		const count = this._activeTags.length;
+		this._countLabel.textContent = count > 0 ? `${count} tag${count > 1 ? "s" : ""} selected` : "";
+	}
+
+	private _getFilteredTags(): TagData[] {
+		const query = this._searchInput.value.trim().toLowerCase();
+		if (!query) return this._tagData;
+		return this._tagData.filter((t) => t.tag.toLowerCase().includes(query));
+	}
+
 	private _renderTags(): void {
 		this._tagContainer.innerHTML = "";
 		this._tagItems = [];
 
-		for (let i = 0; i < this._tagData.length; i++) {
-			const { tag, presetCount } = this._tagData[i];
+		const filtered = this._getFilteredTags();
+
+		for (let i = 0; i < filtered.length; i++) {
+			const { tag, presetCount } = filtered[i];
 			const isActive = this._activeTags.includes(tag);
 			const item = tagListItem(tag, presetCount, isActive, i === this._selectedIndex && this._keyboardNavigated);
 			const idx = i;
 			item.addEventListener("mousedown", (e: MouseEvent) => {
 				e.preventDefault();
 				this._keyboardNavigated = false;
-				this._toggleTag(idx);
+				this._toggleTag(idx, filtered);
 			});
 			this._tagContainer.appendChild(item);
 			this._tagItems.push(item);
 		}
 	}
 
-	private _toggleTag(index: number): void {
-		const tag = this._tagData[index].tag;
+	private _toggleTag(index: number, filtered: TagData[]): void {
+		const tag = filtered[index].tag;
 		const pos = this._activeTags.indexOf(tag);
 		if (pos >= 0) {
 			this._activeTags.splice(pos, 1);
@@ -143,11 +189,12 @@ export class TagBrowserPrompt extends BasePrompt {
 		}
 		this._writeActiveTags();
 		this._highlightSelected();
+		this._updateCountLabel();
 	}
 
 	private _highlightSelected(): void {
 		for (let i = 0; i < this._tagItems.length; i++) {
-			const isActive = this._activeTags.includes(this._tagData[i].tag);
+			const isActive = this._activeTags.includes(this._getFilteredTags()[i]?.tag);
 			const isSelected = i === this._selectedIndex;
 			this._tagItems[i].classList.toggle("active", isActive);
 			this._tagItems[i].classList.toggle("selected", isSelected);
@@ -172,6 +219,8 @@ export class TagBrowserPrompt extends BasePrompt {
 		if (this._tagInput) {
 			this._tagInput.removeEventListener("input", this._onExternalInput);
 		}
+		this._searchInput.removeEventListener("input", this._onSearch);
+		this._clearButton.removeEventListener("click", this._clearSelection);
 		if (this.closeCallback) {
 			this.closeCallback(<any>this);
 		} else {
@@ -180,7 +229,16 @@ export class TagBrowserPrompt extends BasePrompt {
 	};
 
 	public override whenKeyPressed = (event: KeyboardEvent): void => {
-		const count = this._tagData.length;
+		if (event.target === this._searchInput) {
+			if (event.keyCode === 27) {
+				this._searchInput.blur();
+				this.container.focus();
+				event.preventDefault();
+			}
+			return;
+		}
+		const filtered = this._getFilteredTags();
+		const count = filtered.length;
 		switch (event.keyCode) {
 			case 37: // left
 				if (this._selectedIndex > 0) {
@@ -220,12 +278,21 @@ export class TagBrowserPrompt extends BasePrompt {
 				break;
 			case 13: // enter
 			case 32: // space
-				this._toggleTag(this._selectedIndex);
+				if (count > 0) this._toggleTag(this._selectedIndex, filtered);
 				event.preventDefault();
 				break;
 			case 27: // escape
 				this._close();
 				event.preventDefault();
+				break;
+			case 8: // backspace
+			case 46: // delete
+				this._searchInput.focus();
+				break;
+			default:
+				if (event.key && event.key.length === 1 && !event.ctrlKey && !event.metaKey && !event.altKey) {
+					this._searchInput.focus();
+				}
 				break;
 		}
 	};

@@ -953,6 +953,38 @@ html {
 	background: var(--ui-widget-focus);
 }
 
+.beepboxEditor .prompt.compactSearchPrompt .tagClearButton {
+	flex: var(--flex-fit);
+	align-self: stretch;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	height: 100%;
+	background: var(--ui-widget-background);
+	border: 2px solid transparent;
+	border-radius: 8px;
+	color: var(--primary-text);
+	font-size: 14px;
+	line-height: 1.4;
+	padding: 0 var(--padding-10);
+	box-sizing: border-box;
+	cursor: pointer;
+	outline: none;
+	transition: background 80ms ease;
+}
+
+.beepboxEditor .prompt.compactSearchPrompt .tagClearButton:hover {
+	background: var(--ui-widget-focus);
+}
+
+.beepboxEditor .prompt.compactSearchPrompt .tagCountLabel {
+	display: block;
+	text-align: center;
+	font-size: 11px;
+	color: var(--secondary-text);
+	margin: 4px 0;
+}
+
 .beepboxEditor .prompt.compactSearchPrompt .categoryItem,
 .beepboxEditor .prompt.compactSearchPrompt .presetItem {
 	padding: 6px 12px;
@@ -2065,22 +2097,23 @@ li.select2-results__option[role=group] > strong:hover {
 	border-radius: 4px;
 	border: 1px solid var(--ui-widget-background);
 	background: transparent;
-	color: var(--secondary-text);
+	color: var(--primary-text);
+	opacity: 0.7;
 	display: flex;
 	justify-content: space-between;
 	align-items: center;
-	transition: background 80ms ease, border-color 80ms ease;
+	transition: background 80ms ease, border-color 80ms ease, opacity 80ms ease;
 }
 
 .beepboxEditor .tagListItem:hover {
-	background: var(--ui-widget-focus);
-	border-color: color-mix(in srgb, var(--indicator-primary, #4444ff), transparent 50%);
+	background: color-mix(in srgb, var(--ui-widget-focus) 40%, transparent);
+	opacity: 1;
 }
 
 .beepboxEditor .tagListItem.active {
-	background: rgba(255,255,255,0.12);
-	color: var(--primary-text);
-	border-color: var(--ui-widget-focus);
+	background: var(--ui-widget-focus);
+	opacity: 1;
+	border-color: color-mix(in srgb, var(--indicator-primary), transparent 50%);
 }
 
 .beepboxEditor .tagListItem.selected {
