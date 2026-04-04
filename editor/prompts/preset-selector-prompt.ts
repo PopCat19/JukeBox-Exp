@@ -18,6 +18,13 @@ import { BasePrompt } from "./base-prompt";
 
 const { button, div, h2, span } = HTML;
 
+const STYLES = {
+	smallText: {
+		fontSize: "11px",
+		opacity: "0.7",
+	},
+} as const;
+
 interface CategoryEntry {
 	name: string;
 	presets: { name: string; value: number }[];
@@ -261,6 +268,21 @@ export class PresetSelectorPrompt extends BasePrompt {
 		this._applyTagFilter();
 	}
 
+	private _navigateToCategory(catIdx: number): void {
+		this._activeTags = [];
+		this._setExternalTagValue("");
+		this._searchInput.value = "";
+		this._isSearchMode = false;
+		this._selectedCategoryIndex = catIdx;
+		this._selectedPresetIndex = 0;
+		this._activePane = "categories";
+		this._updateCategoryDim();
+		this._renderCategories();
+		this._renderPresets();
+		this._updateHighlight();
+		this._scrollItemIntoView(this._categoryItems, catIdx, this._categoryList);
+	}
+
 	private _openTagBrowser(): void {
 		if (this.openAlongsideCallback) {
 			this.openAlongsideCallback("instrumentTags");
@@ -338,7 +360,7 @@ export class PresetSelectorPrompt extends BasePrompt {
 					class: "categoryItem",
 					title: `${cat.name} (${cat.presets.length})`,
 				},
-				div({}, cat.name, div({ style: "font-size: 11px; opacity: 0.7;" }, `${cat.presets.length}`)),
+				div({}, cat.name, div({ style: STYLES.smallText }, `Presets: ${cat.presets.length}`)),
 			);
 			const idx = i;
 			item.addEventListener("mousedown", (event: MouseEvent) => {
@@ -375,7 +397,14 @@ export class PresetSelectorPrompt extends BasePrompt {
 					class: "presetItem",
 					title: label,
 				},
-				this._isSearchMode ? div({}, preset.name, div({ style: "font-size: 11px; opacity: 0.7;" }, (preset as any).categoryName)) : label,
+				this._isSearchMode
+					? div(
+							{},
+							preset.name,
+							div({ style: STYLES.smallText }, (preset as any).categoryName),
+							div({ style: STYLES.smallText }, `Position: ${i + 1}`),
+						)
+					: div({}, preset.name, div({ style: STYLES.smallText }, `Position: ${i + 1}`)),
 			);
 			const idx = i;
 			item.addEventListener("mousedown", (event: MouseEvent) => {
@@ -418,11 +447,13 @@ export class PresetSelectorPrompt extends BasePrompt {
 		const dimPane = effectivePane === "categories" ? "presets" : "categories";
 		for (let i = 0; i < this._categoryItems.length; i++) {
 			const isFocused = i === this._selectedCategoryIndex && this._activePane === "categories";
+			const isActive = i === this._selectedCategoryIndex;
 			const isCommitted = this._categories[i].presets.some((p) => p.value === this._committedPreset);
 			this._categoryItems[i].classList.toggle("focused", isFocused);
+			this._categoryItems[i].classList.toggle("active", isActive);
 			this._categoryItems[i].classList.toggle("committed", isCommitted);
-			this._categoryItems[i].classList.toggle("dimmed", dimPane === "categories");
-			this._categoryItems[i].classList.toggle("dimmed-heavy", dimPane === "categories" && hasTags);
+			this._categoryItems[i].classList.toggle("dimmed", dimPane === "categories" && !isActive);
+			this._categoryItems[i].classList.toggle("dimmed-heavy", dimPane === "categories" && hasTags && !isActive);
 		}
 		for (let i = 0; i < this._presetItems.length; i++) {
 			const isFocused = i === this._selectedPresetIndex && this._activePane === "presets";
@@ -451,9 +482,26 @@ export class PresetSelectorPrompt extends BasePrompt {
 		const totalStr = String(total).padStart(2, "0");
 		const posStr = String(displayPresetIndex + 1).padStart(2, "0");
 		this._infoPanel.textContent = "";
-		this._infoPanel.appendChild(
-			div({}, sectionLabel("Category"), div({ style: "color: var(--primary-text); font-size: 13px; word-break: break-word;" }, catName)),
-		);
+		const catCol = div({}, div({ style: "color: var(--primary-text); font-size: 13px; word-break: break-word; margin-bottom: 4px;" }, catName));
+		if (this._isSearchMode) {
+			const goBtn = button(
+				{
+					class: "tagBrowserButton",
+					style: "font-size: 11px; height: 22px; padding: 0 8px;",
+				},
+				"Go to this category",
+			);
+			goBtn.addEventListener("mousedown", (e) => {
+				e.preventDefault();
+				e.stopPropagation();
+				const catIdx = this._categories.findIndex((c) => c.name === catName);
+				if (catIdx !== -1) {
+					this._navigateToCategory(catIdx);
+				}
+			});
+			catCol.appendChild(goBtn);
+		}
+		this._infoPanel.appendChild(div({}, sectionLabel("Category"), catCol));
 		this._infoPanel.appendChild(
 			div({}, sectionLabel("Preset"), div({ style: "color: var(--primary-text); font-size: 13px; word-break: break-word;" }, preset.name)),
 		);

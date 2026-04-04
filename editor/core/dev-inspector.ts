@@ -283,6 +283,7 @@ function showBoxModel(el: HTMLElement, cs: CSSStyleDeclaration): void {
 				width: `${cr.width}px`,
 				height: `${cr.height}px`,
 				outline: `1px dashed ${COLORS.flexChild}`,
+				background: `${COLORS.flexChild}18`,
 			});
 			boxOverlays.push(div);
 			document.body.appendChild(div);
