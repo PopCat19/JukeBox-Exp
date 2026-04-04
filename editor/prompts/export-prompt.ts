@@ -29,6 +29,7 @@ import {
 import { SongDocument } from "../song-document";
 import { ArrayBufferWriter } from "../ui/array-buffer-writer";
 import { BasePrompt } from "./base-prompt";
+import { Prompt } from "./prompt";
 
 const { div, h2, input, select, option } = HTML;
 
@@ -107,6 +108,12 @@ export class ExportPrompt extends BasePrompt {
 		"Remove Whitespace: ",
 		this._removeWhitespace,
 	);
+	private readonly _keepOpen: HTMLInputElement = input({ type: "checkbox" });
+	private readonly _keepOpenDiv: HTMLDivElement = div(
+		{ style: "vertical-align: middle; align-items: center; justify-content: space-between; margin-bottom: 14px;" },
+		"Keep Open: ",
+		this._keepOpen,
+	);
 	private readonly _oggWarning: HTMLDivElement = div(
 		{ style: "vertical-align: middle; align-items: center; justify-content: space-between; margin-bottom: 14px;" },
 		"Warning: .ogg files aren't supported on as many devices as mp3 or wav. So Playback might not be possible on specific devices.",
@@ -145,6 +152,7 @@ export class ExportPrompt extends BasePrompt {
 			),
 		),
 		this._removeWhitespaceDiv,
+		this._keepOpenDiv,
 		this._oggWarning,
 		div({ class: "selectContainer", style: "width: 100%; margin-bottom: 14px;" }, this._formatSelect),
 		div({ style: "text-align: left;" }, "Exporting can be slow. Reloading the page or clicking the X will cancel it. Please be patient."),
@@ -185,6 +193,9 @@ export class ExportPrompt extends BasePrompt {
 		if (lastExportWhitespace != null) {
 			this._removeWhitespace.checked = lastExportWhitespace;
 		}
+
+		const lastExportKeepOpen: boolean = window.localStorage.getItem("exportKeepOpen") === "true";
+		this._keepOpen.checked = lastExportKeepOpen;
 
 		this._updateWarnings();
 
@@ -228,7 +239,13 @@ export class ExportPrompt extends BasePrompt {
 			this.synth.renderingSong = false;
 		}
 		this.outputStarted = false;
-		this._doc.prompt = null;
+		if (!this._keepOpen.checked) {
+			if (this.closeCallback) {
+				this.closeCallback(<Prompt>(<unknown>this));
+			} else {
+				this._doc.prompt = null;
+			}
+		}
 	};
 
 	public override cleanUp(): void {
@@ -245,6 +262,7 @@ export class ExportPrompt extends BasePrompt {
 		if (this.outputStarted === true) return;
 		window.localStorage.setItem("exportFormat", this._formatSelect.value);
 		window.localStorage.setItem("exportWhitespace", String(this._removeWhitespace.checked));
+		window.localStorage.setItem("exportKeepOpen", String(this._keepOpen.checked));
 		switch (this._formatSelect.value) {
 			case "wav":
 			case "mp3":
