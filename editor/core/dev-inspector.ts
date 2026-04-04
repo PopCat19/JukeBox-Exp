@@ -55,6 +55,7 @@ let outlineEl: HTMLElement | null = null;
 let savedOutline = "";
 let overlay: HTMLDivElement | null = null;
 let depthLabel: HTMLDivElement | null = null;
+let boxOverlays: HTMLDivElement[] = [];
 let keyHandler: ((e: KeyboardEvent) => void) | null = null;
 let logSeq = 0;
 let logTimer: ReturnType<typeof setTimeout> | null = null;
@@ -100,7 +101,10 @@ function highlight(el: HTMLElement): void {
 		});
 		document.body.appendChild(depthLabel);
 	}
-	depthLabel.textContent = `depth ${currentDepth}`;
+	const tag = el.tagName.toLowerCase();
+	const id = el.id ? `#${el.id}` : "";
+	const cls = el.classList.length ? "." + Array.from(el.classList).join(".") : "";
+	depthLabel.textContent = `${tag}${id}${cls} (${currentDepth})`;
 	depthLabel.style.background = color;
 	const rect = el.getBoundingClientRect();
 	depthLabel.style.top = `${rect.bottom + 2}px`;
@@ -108,9 +112,154 @@ function highlight(el: HTMLElement): void {
 	if (logTimer) clearTimeout(logTimer);
 	logTimer = setTimeout(() => {
 		const cs = window.getComputedStyle(el);
-		console.log(`[inspector] #${++logSeq} depth:${currentDepth}\n${figmaSummary(el, cs)}`);
+		showBoxModel(el, cs);
+		const summary = figmaSummary(el, cs);
+		const legendParts: string[] = [];
+		const legendStyles: string[] = [];
+		const pad = `${px(cs.paddingTop)} ${px(cs.paddingRight)} ${px(cs.paddingBottom)} ${px(cs.paddingLeft)}`;
+		const marg = `${px(cs.marginTop)} ${px(cs.marginRight)} ${px(cs.marginBottom)} ${px(cs.marginLeft)}`;
+		if (marg !== "0 0 0 0") { legendParts.push("%c■ margin%c"); legendStyles.push("color: #ffa500", "color: inherit"); }
+		if (pad !== "0 0 0 0") { legendParts.push("%c■ padding%c"); legendStyles.push("color: #00c800", "color: inherit"); }
+		if (cs.display === "flex" || cs.display === "inline-flex") { legendParts.push("%c■ flex children%c"); legendStyles.push("color: #6495ed", "color: inherit"); }
+		const gapVal = parseFloat(cs.gap) || 0;
+		if (gapVal > 0) { legendParts.push("%c■ gap%c"); legendStyles.push("color: #c864ff", "color: inherit"); }
+		legendParts.push("%c() depth%c");
+		legendStyles.push("color: #888", "color: inherit");
+		const tag = el.tagName.toLowerCase();
+		const id = el.id ? `#${el.id}` : "";
+		const cls = el.classList.length ? "." + Array.from(el.classList).join(".") : "";
+		console.log(
+			`%c[inspector] #${++logSeq} ${tag}${id}${cls} %c(${currentDepth})%c\n${legendParts.join("  ")}\n%c${summary.text}`,
+			`color: ${depthColor(currentDepth)}`,
+			`color: ${depthColor(currentDepth)}`,
+			"color: inherit",
+			...legendStyles,
+			"color: inherit",
+		);
 		logTimer = null;
 	}, 400);
+}
+
+function clearBoxOverlays(): void {
+	for (const o of boxOverlays) o.remove();
+	boxOverlays = [];
+}
+
+function showBoxModel(el: HTMLElement, cs: CSSStyleDeclaration): void {
+	clearBoxOverlays();
+	const rect = el.getBoundingClientRect();
+	const mt = parseFloat(cs.marginTop) || 0;
+	const mr = parseFloat(cs.marginRight) || 0;
+	const mb = parseFloat(cs.marginBottom) || 0;
+	const ml = parseFloat(cs.marginLeft) || 0;
+	const pt = parseFloat(cs.paddingTop) || 0;
+	const pr = parseFloat(cs.paddingRight) || 0;
+	const pb = parseFloat(cs.paddingBottom) || 0;
+	const pl = parseFloat(cs.paddingLeft) || 0;
+
+	const marginDiv = document.createElement("div");
+	Object.assign(marginDiv.style, {
+		position: "fixed",
+		zIndex: "1000001",
+		pointerEvents: "none",
+		top: `${rect.top - mt}px`,
+		left: `${rect.left - ml}px`,
+		width: `${rect.width + ml + mr}px`,
+		height: `${rect.height + mt + mb}px`,
+		outline: "1px dashed rgba(255, 165, 0, 0.6)",
+		background: "rgba(255, 165, 0, 0.08)",
+	});
+	boxOverlays.push(marginDiv);
+	document.body.appendChild(marginDiv);
+
+	if (pt || pr || pb || pl) {
+		const isFlex = cs.display === "flex" || cs.display === "inline-flex";
+		const hasFlexChildren = isFlex && Array.from(el.children).some((c) => {
+			const r = c.getBoundingClientRect();
+			return r.width > 0 && r.height > 0;
+		});
+		if (!hasFlexChildren) {
+			const padDiv = document.createElement("div");
+			Object.assign(padDiv.style, {
+				position: "fixed",
+				zIndex: "1000001",
+				pointerEvents: "none",
+				top: `${rect.top}px`,
+				left: `${rect.left}px`,
+				width: `${rect.width}px`,
+				height: `${rect.height}px`,
+				outline: "1px dashed rgba(0, 200, 0, 0.6)",
+				background: "rgba(0, 200, 0, 0.08)",
+			});
+			boxOverlays.push(padDiv);
+			document.body.appendChild(padDiv);
+		}
+	}
+
+	if (cs.display === "flex" || cs.display === "inline-flex") {
+		const children = Array.from(el.children);
+		const childRects = children
+			.map((c) => c.getBoundingClientRect())
+			.filter((r) => r.width > 0 && r.height > 0);
+
+		for (const cr of childRects) {
+			const childDiv = document.createElement("div");
+			Object.assign(childDiv.style, {
+				position: "fixed",
+				zIndex: "1000001",
+				pointerEvents: "none",
+				top: `${cr.top}px`,
+				left: `${cr.left}px`,
+				width: `${cr.width}px`,
+				height: `${cr.height}px`,
+				outline: "1px dashed rgba(100, 149, 237, 0.8)",
+			});
+			boxOverlays.push(childDiv);
+			document.body.appendChild(childDiv);
+		}
+
+		const gapVal = parseFloat(cs.gap) || 0;
+		if (gapVal > 0 && childRects.length > 1) {
+			const isColumn = cs.flexDirection === "column" || cs.flexDirection === "column-reverse";
+			const sorted = [...childRects].sort((a, b) => (isColumn ? a.top - b.top : a.left - b.left));
+			for (let i = 0; i < sorted.length - 1; i++) {
+				const a = sorted[i];
+				const b = sorted[i + 1];
+				const gapDiv = document.createElement("div");
+				if (isColumn) {
+					const gapTop = a.bottom;
+					const gapHeight = b.top - a.bottom;
+					Object.assign(gapDiv.style, {
+						position: "fixed",
+						zIndex: "1000001",
+						pointerEvents: "none",
+						top: `${gapTop}px`,
+						left: `${rect.left + pl}px`,
+						width: `${rect.width - pl - pr}px`,
+						height: `${gapHeight}px`,
+						outline: "1px dashed rgba(200, 100, 255, 0.8)",
+						background: "rgba(200, 100, 255, 0.12)",
+					});
+				} else {
+					const gapLeft = a.right;
+					const gapWidth = b.left - a.right;
+					Object.assign(gapDiv.style, {
+						position: "fixed",
+						zIndex: "1000001",
+						pointerEvents: "none",
+						top: `${rect.top + pt}px`,
+						left: `${gapLeft}px`,
+						width: `${gapWidth}px`,
+						height: `${rect.height - pt - pb}px`,
+						outline: "1px dashed rgba(200, 100, 255, 0.8)",
+						background: "rgba(200, 100, 255, 0.12)",
+					});
+				}
+				boxOverlays.push(gapDiv);
+				document.body.appendChild(gapDiv);
+			}
+		}
+	}
 }
 
 function px(v: string): string {
@@ -127,43 +276,54 @@ function hexColor(rgb: string): string {
 	return `#${hex}`;
 }
 
-function figmaSummary(el: HTMLElement, cs: CSSStyleDeclaration): string {
-	const lines: string[] = [];
+function figmaSummary(el: HTMLElement, cs: CSSStyleDeclaration): { text: string; styles: string[] } {
+	const segments: string[] = [];
+	const styles: string[] = [];
 	const tag = el.tagName.toLowerCase();
 	const id = el.id ? `#${el.id}` : "";
 	const cls = el.classList.length ? "." + Array.from(el.classList).join(".") : "";
-	lines.push(`${tag}${id}${cls}`);
-	lines.push(`  W: ${px(cs.width)}  H: ${px(cs.height)}`);
+	segments.push(`${tag}${id}${cls}`);
+	segments.push(`  W: ${px(cs.width)}  H: ${px(cs.height)}`);
 	const bg = cs.backgroundColor;
-	if (bg && bg !== "transparent" && bg !== "rgba(0, 0, 0, 0)") lines.push(`  Fill: ${hexColor(bg)}`);
+	if (bg && bg !== "transparent" && bg !== "rgba(0, 0, 0, 0)") segments.push(`  Fill: ${hexColor(bg)}`);
 	const border = cs.border;
-	if (border && border !== "0px none rgb(0, 0, 0)") lines.push(`  Stroke: ${border.replace(/rgb\([^)]+\)/g, hexColor)}`);
+	if (border && border !== "0px none rgb(0, 0, 0)") segments.push(`  Stroke: ${border.replace(/rgb\([^)]+\)/g, hexColor)}`);
 	const br = cs.borderRadius;
-	if (br && br !== "0px") lines.push(`  Radius: ${px(br)}`);
+	if (br && br !== "0px") segments.push(`  Radius: ${px(br)}`);
 	const pad = `${px(cs.paddingTop)} ${px(cs.paddingRight)} ${px(cs.paddingBottom)} ${px(cs.paddingLeft)}`;
-	if (pad !== "0 0 0 0") lines.push(`  Padding: ${pad}`);
-	const marg = `${px(cs.marginTop)} ${px(cs.marginRight)} ${px(cs.marginBottom)} ${px(cs.marginLeft)}`;
-	if (marg !== "0 0 0 0") lines.push(`  Margin: ${marg}`);
-	const fs = cs.fontSize;
-	if (fs && fs !== "0px") lines.push(`  Font: ${cs.fontFamily.split(",")[0].replace(/"/g, "")}, ${px(fs)}, ${cs.fontWeight}`);
-	const lh = cs.lineHeight;
-	if (lh !== "normal") lines.push(`  Line height: ${px(lh)}`);
-	const ls = cs.letterSpacing;
-	if (ls !== "normal" && ls !== "0px") lines.push(`  Letter spacing: ${px(ls)}`);
-	const color = cs.color;
-	if (color && color !== "rgb(0, 0, 0)") lines.push(`  Text: ${hexColor(color)}`);
-	if (cs.display === "flex") {
-		lines.push(`  Auto: ${cs.flexDirection}, ${cs.alignItems}, ${cs.justifyContent}`);
-		if (cs.gap !== "normal") lines.push(`  Gap: ${px(cs.gap)}`);
+	if (pad !== "0 0 0 0") {
+		segments.push(`  %cPadding:%c ${pad}`);
+		styles.push("color: #00c800", "color: inherit");
 	}
-	if (cs.position !== "static") lines.push(`  Position: ${cs.position}`);
+	const marg = `${px(cs.marginTop)} ${px(cs.marginRight)} ${px(cs.marginBottom)} ${px(cs.marginLeft)}`;
+	if (marg !== "0 0 0 0") {
+		segments.push(`  %cMargin:%c ${marg}`);
+		styles.push("color: #ffa500", "color: inherit");
+	}
+	const fs = cs.fontSize;
+	if (fs && fs !== "0px") segments.push(`  Font: ${cs.fontFamily.split(",")[0].replace(/"/g, "")}, ${px(fs)}, ${cs.fontWeight}`);
+	const lh = cs.lineHeight;
+	if (lh !== "normal") segments.push(`  Line height: ${px(lh)}`);
+	const ls = cs.letterSpacing;
+	if (ls !== "normal" && ls !== "0px") segments.push(`  Letter spacing: ${px(ls)}`);
+	const color = cs.color;
+	if (color && color !== "rgb(0, 0, 0)") segments.push(`  Text: ${hexColor(color)}`);
+	if (cs.display === "flex") {
+		segments.push(`  %cAuto:%c ${cs.flexDirection}, ${cs.alignItems}, ${cs.justifyContent}`);
+		styles.push("color: #6495ed", "color: inherit");
+		if (cs.gap !== "normal") {
+			segments.push(`  %cGap:%c ${px(cs.gap)}`);
+			styles.push("color: #6495ed", "color: inherit");
+		}
+	}
+	if (cs.position !== "static") segments.push(`  Position: ${cs.position}`);
 	const op = cs.opacity;
-	if (op !== "1") lines.push(`  Opacity: ${op}`);
+	if (op !== "1") segments.push(`  Opacity: ${op}`);
 	const bs = cs.boxShadow;
-	if (bs !== "none") lines.push(`  Shadow: ${bs}`);
+	if (bs !== "none") segments.push(`  Shadow: ${bs}`);
 	const ov = cs.overflow;
-	if (ov !== "visible") lines.push(`  Overflow: ${ov}`);
-	return lines.join("\n");
+	if (ov !== "visible") segments.push(`  Overflow: ${ov}`);
+	return { text: segments.join("\n"), styles };
 }
 
 function captureStyles(): void {
@@ -189,6 +349,7 @@ function deactivate(): void {
 		depthLabel.remove();
 		depthLabel = null;
 	}
+	clearBoxOverlays();
 	if (logTimer) {
 		clearTimeout(logTimer);
 		logTimer = null;
@@ -201,18 +362,23 @@ function deactivate(): void {
 		document.removeEventListener("keydown", keyHandler, true);
 		keyHandler = null;
 	}
-	document.body.focus();
+	const editor = document.querySelector(".beepboxEditor") as HTMLElement | null;
+	if (editor) editor.focus({ preventScroll: true });
 	console.log("[inspector] deactivated");
 }
 
-document.addEventListener("keydown", (e: KeyboardEvent) => {
-	if (e.shiftKey && e.key === "D" && !isActive()) {
-		e.preventDefault();
-		e.stopPropagation();
-		e.stopImmediatePropagation();
-		activate();
-	}
-}, true);
+document.addEventListener(
+	"keydown",
+	(e: KeyboardEvent) => {
+		if (e.shiftKey && e.key === "D" && !isActive()) {
+			e.preventDefault();
+			e.stopPropagation();
+			e.stopImmediatePropagation();
+			activate();
+		}
+	},
+	true,
+);
 
 export function activate(): void {
 	if (overlay) return;
