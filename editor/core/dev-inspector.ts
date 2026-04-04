@@ -140,7 +140,17 @@ function selector(el: HTMLElement): string {
 	return `${tag}${id}${cls}`;
 }
 
-function addStrip(parent: Node, top: number, left: number, w: number, h: number, color: string, label?: string): void {
+function addStrip(
+	parent: Node,
+	top: number,
+	left: number,
+	w: number,
+	h: number,
+	color: string,
+	label?: string,
+	labelOffsetY = 0,
+	align: "center" | "left" = "center",
+): void {
 	if (w <= 0 || h <= 0) return;
 	const div = document.createElement("div");
 	Object.assign(div.style, {
@@ -171,8 +181,8 @@ function addStrip(parent: Node, top: number, left: number, w: number, h: number,
 			lineHeight: "1",
 		});
 		const lblW = label.length * LABEL_SIZE.charWidth;
-		lbl.style.top = `${top + Math.max(0, (h - LABEL_SIZE.height) / 2)}px`;
-		lbl.style.left = `${left + Math.max(0, (w - lblW) / 2)}px`;
+		lbl.style.top = `${top + Math.max(0, (h - LABEL_SIZE.height) / 2) + labelOffsetY}px`;
+		lbl.style.left = align === "left" ? `${left}px` : `${left + Math.max(0, (w - lblW) / 2)}px`;
 		lbl.textContent = label;
 		boxOverlays.push(lbl);
 		parent.appendChild(lbl);
@@ -191,34 +201,16 @@ function showBoxModel(el: HTMLElement, cs: CSSStyleDeclaration): void {
 	const pb = parseFloat(cs.paddingBottom) || 0;
 	const pl = parseFloat(cs.paddingLeft) || 0;
 
-	if (mt) addStrip(document.body, rect.top - mt, rect.left - ml, rect.width + ml + mr, mt, COLORS.margin, `${mt.toFixed(0)}`);
-	if (mb) addStrip(document.body, rect.bottom, rect.left - ml, rect.width + ml + mr, mb, COLORS.margin, `${mb.toFixed(0)}`);
-	if (ml) addStrip(document.body, rect.top - mt, rect.left - ml, ml, rect.height + mt + mb, COLORS.margin, `${ml.toFixed(0)}`);
-	if (mr) addStrip(document.body, rect.top - mt, rect.right, mr, rect.height + mt + mb, COLORS.margin, `${mr.toFixed(0)}`);
+	if (mt) addStrip(document.body, rect.top - mt, rect.left - ml, rect.width + ml + mr, mt, COLORS.margin, `↑ ${mt.toFixed(0)}`);
+	if (mb) addStrip(document.body, rect.bottom, rect.left - ml, rect.width + ml + mr, mb, COLORS.margin, `↓ ${mb.toFixed(0)}`);
+	if (ml) addStrip(document.body, rect.top - mt, rect.left - ml, ml, rect.height + mt + mb, COLORS.margin, `← ${ml.toFixed(0)}`);
+	if (mr) addStrip(document.body, rect.top - mt, rect.right, mr, rect.height + mt + mb, COLORS.margin, `→ ${mr.toFixed(0)}`);
 
 	if (pt || pr || pb || pl) {
-		if (pt) addStrip(document.body, rect.top, rect.left, rect.width, pt, COLORS.padding, `${pt.toFixed(0)}`);
-		if (pb) addStrip(document.body, rect.bottom - pb, rect.left, rect.width, pb, COLORS.padding, `${pb.toFixed(0)}`);
-		if (pl) addStrip(document.body, rect.top, rect.left, pl, rect.height, COLORS.padding, `${pl.toFixed(0)}`);
-		if (pr) addStrip(document.body, rect.top, rect.right - pr, pr, rect.height, COLORS.padding, `${pr.toFixed(0)}`);
-	}
-
-	const bt = parseFloat(cs.borderTopWidth) || 0;
-	const br = parseFloat(cs.borderRightWidth) || 0;
-	const bb = parseFloat(cs.borderBottomWidth) || 0;
-	const bl = parseFloat(cs.borderLeftWidth) || 0;
-	const borderVals = [bt, br, bb, bl].map((v) => Math.round(v));
-	const allSame = borderVals.every((v) => v === borderVals[0]);
-	if (allSame && bt) {
-		addStrip(document.body, rect.top, rect.left, rect.width, bt, COLORS.border, `b ${bt.toFixed(0)}`);
-	} else {
-		const counts = new Map<number, number>();
-		for (const v of borderVals) counts.set(v, (counts.get(v) || 0) + 1);
-		const common = borderVals.length > 0 ? [...counts.entries()].sort((a, b) => b[1] - a[1])[0][0] : 0;
-		if (bt !== common) addStrip(document.body, rect.top, rect.left, rect.width, bt, COLORS.border, `b-t ${bt.toFixed(0)}`);
-		if (bb !== common) addStrip(document.body, rect.bottom - bb, rect.left, rect.width, bb, COLORS.border, `b-b ${bb.toFixed(0)}`);
-		if (bl !== common) addStrip(document.body, rect.top, rect.left, bl, rect.height, COLORS.border, `b-l ${bl.toFixed(0)}`);
-		if (br !== common) addStrip(document.body, rect.top, rect.right - br, br, rect.height, COLORS.border, `b-r ${br.toFixed(0)}`);
+		if (pt) addStrip(document.body, rect.top, rect.left, rect.width, pt, COLORS.padding, `↑ ${pt.toFixed(0)}`);
+		if (pb) addStrip(document.body, rect.bottom - pb, rect.left, rect.width, pb, COLORS.padding, `↓ ${pb.toFixed(0)}`);
+		if (pl) addStrip(document.body, rect.top, rect.left, pl, rect.height, COLORS.padding, `← ${pl.toFixed(0)}`);
+		if (pr) addStrip(document.body, rect.top, rect.right - pr, pr, rect.height, COLORS.padding, `→ ${pr.toFixed(0)}`);
 	}
 
 	const brtl = parseFloat(cs.borderTopLeftRadius) || 0;
@@ -233,8 +225,9 @@ function showBoxModel(el: HTMLElement, cs: CSSStyleDeclaration): void {
 		const counts = new Map<number, number>();
 		for (const v of radiusVals) counts.set(v, (counts.get(v) || 0) + 1);
 		const common = radiusVals.length > 0 ? [...counts.entries()].sort((a, b) => b[1] - a[1])[0][0] : 0;
-		if (brtl !== common) addStrip(document.body, rect.top, rect.left, RADIUS_OVERLAY, RADIUS_OVERLAY, COLORS.radius, `↱${brtl.toFixed(0)}`);
-		if (brtr !== common) addStrip(document.body, rect.top, rect.right - RADIUS_OVERLAY, RADIUS_OVERLAY, RADIUS_OVERLAY, COLORS.radius, `↰${brtr.toFixed(0)}`);
+		if (brtl !== common) addStrip(document.body, rect.top, rect.left, RADIUS_OVERLAY, RADIUS_OVERLAY, COLORS.radius, `↱ ${brtl.toFixed(0)}`);
+		if (brtr !== common)
+			addStrip(document.body, rect.top, rect.right - RADIUS_OVERLAY, RADIUS_OVERLAY, RADIUS_OVERLAY, COLORS.radius, `↰ ${brtr.toFixed(0)}`);
 		if (brbr !== common)
 			addStrip(
 				document.body,
@@ -243,9 +236,34 @@ function showBoxModel(el: HTMLElement, cs: CSSStyleDeclaration): void {
 				RADIUS_OVERLAY,
 				RADIUS_OVERLAY,
 				COLORS.radius,
-				`↲${brbr.toFixed(0)}`,
+				`↲ ${brbr.toFixed(0)}`,
 			);
-		if (brbl !== common) addStrip(document.body, rect.bottom - RADIUS_OVERLAY, rect.left, RADIUS_OVERLAY, RADIUS_OVERLAY, COLORS.radius, `↳${brbl.toFixed(0)}`);
+		if (brbl !== common)
+			addStrip(document.body, rect.bottom - RADIUS_OVERLAY, rect.left, RADIUS_OVERLAY, RADIUS_OVERLAY, COLORS.radius, `↳ ${brbl.toFixed(0)}`);
+	}
+
+	const bt = parseFloat(cs.borderTopWidth) || 0;
+	const br = parseFloat(cs.borderRightWidth) || 0;
+	const bb = parseFloat(cs.borderBottomWidth) || 0;
+	const bl = parseFloat(cs.borderLeftWidth) || 0;
+	const borderVals = [bt, br, bb, bl].map((v) => Math.round(v));
+	const allSame = borderVals.every((v) => v === borderVals[0]);
+	if (allSame && bt) {
+		const topOffset = brtl > 0 ? LABEL_SIZE.height + 2 : 0;
+		const align = brtl > 0 ? "left" : "center";
+		addStrip(document.body, rect.top, rect.left, rect.width, bt, COLORS.border, `b ${bt.toFixed(0)}`, topOffset, align);
+	} else {
+		const counts = new Map<number, number>();
+		for (const v of borderVals) counts.set(v, (counts.get(v) || 0) + 1);
+		const common = borderVals.length > 0 ? [...counts.entries()].sort((a, b) => b[1] - a[1])[0][0] : 0;
+		if (bt !== common) {
+			const topOffset = brtl > 0 ? LABEL_SIZE.height + 2 : 0;
+			const align = brtl > 0 ? "left" : "center";
+			addStrip(document.body, rect.top, rect.left, rect.width, bt, COLORS.border, `↑ b ${bt.toFixed(0)}`, topOffset, align);
+		}
+		if (bb !== common) addStrip(document.body, rect.bottom - bb, rect.left, rect.width, bb, COLORS.border, `↓ b ${bb.toFixed(0)}`);
+		if (bl !== common) addStrip(document.body, rect.top, rect.left, bl, rect.height, COLORS.border, `← b ${bl.toFixed(0)}`);
+		if (br !== common) addStrip(document.body, rect.top, rect.right - br, br, rect.height, COLORS.border, `→ b ${br.toFixed(0)}`);
 	}
 
 	const isFlex = cs.display === "flex" || cs.display === "inline-flex";
@@ -276,11 +294,11 @@ function showBoxModel(el: HTMLElement, cs: CSSStyleDeclaration): void {
 			const sorted = [...childRects].sort((a, b) => (isColumn ? a.top - b.top : a.left - b.left));
 			for (let i = 0; i < sorted.length - 1; i++) {
 				const a = sorted[i];
-				const b = sorted[i + 1];
+				const gapLabel = isColumn ? `↕ ${gapVal.toFixed(0)}` : `←→ ${gapVal.toFixed(0)}`;
 				if (isColumn) {
-					addStrip(document.body, a.bottom, rect.left + pl, rect.width - pl - pr, b.top - a.bottom, COLORS.gap, `${gapVal.toFixed(0)}`);
+					addStrip(document.body, a.bottom, rect.left + pl, rect.width - pl - pr, gapVal, COLORS.gap, gapLabel);
 				} else {
-					addStrip(document.body, rect.top + pt, a.right, b.left - a.right, rect.height - pt - pb, COLORS.gap, `${gapVal.toFixed(0)}`);
+					addStrip(document.body, rect.top + pt, a.right, gapVal, rect.height - pt - pb, COLORS.gap, gapLabel);
 				}
 			}
 		}
@@ -307,12 +325,7 @@ function reconcileLabels(): void {
 				for (let j = i + 1; j < items.length; j++) {
 					const a = items[i];
 					const b = items[j];
-					const overlap = !(
-						a.rect.right <= b.rect.left ||
-						b.rect.right <= a.rect.left ||
-						a.rect.bottom <= b.rect.top ||
-						b.rect.bottom <= a.rect.top
-					);
+					const overlap = !(a.rect.right <= b.rect.left || b.rect.right <= a.rect.left || a.rect.bottom <= b.rect.top || b.rect.bottom <= a.rect.top);
 					if (overlap) {
 						const pushDown = a.rect.bottom - b.rect.top + 2;
 						const pushUp = b.rect.bottom - a.rect.top + 2;
@@ -411,7 +424,7 @@ function figmaSummary(el: HTMLElement, cs: CSSStyleDeclaration): SummaryResult {
 	if (color && color !== "rgb(0, 0, 0)") props.push({ label: `Text: ${hexColor(color)}` });
 	if (cs.display === "flex") {
 		props.push({ label: `Auto: ${cs.flexDirection}, ${cs.alignItems}, ${cs.justifyContent}`, color: "#6495ed" });
-		if (cs.gap !== "normal") props.push({ label: `Gap: ${px(cs.gap)}`, color: "#6495ed" });
+		if (cs.gap !== "normal") props.push({ label: `Gap: ${px(cs.gap)}`, color: "#c864ff" });
 	}
 	if (cs.position !== "static") props.push({ label: `Position: ${cs.position}` });
 	const op = cs.opacity;
@@ -502,6 +515,7 @@ function highlight(el: HTMLElement): void {
 			"color: inherit",
 			...legend.styles,
 			"color: inherit",
+			...summary.styles,
 		);
 		logTimer = null;
 	}, 400);
