@@ -43,6 +43,7 @@ export class PresetSelectorPrompt extends BasePrompt {
 	private _externalTagHandler: () => void;
 	private _committedPreset: number;
 	private _hoveredPane: "categories" | "presets" | null = null;
+	private _hoveredPresetIndex: number | null = null;
 	private _lastInteraction: "hover" | "keyboard" | null = null;
 
 	public readonly container: HTMLDivElement;
@@ -97,7 +98,7 @@ export class PresetSelectorPrompt extends BasePrompt {
 
 		const paneContainerEl = paneContainer({ height: "400px" }, this._categoryList, this._presetList, this._infoPanel);
 
-		const instructionsDiv = instructions("Arrow keys: navigate | Enter / Right: select | Tab: switch pane | #: tags | ESC: close");
+		const instructionsDiv = instructions("Arrow keys: navigate | Enter / Right / Double click: commit | Tab: switch pane | ESC: close");
 
 		this.container = div(
 			{
@@ -363,6 +364,17 @@ export class PresetSelectorPrompt extends BasePrompt {
 				event.preventDefault();
 				this._handleItemClick("preset", idx);
 			});
+			item.addEventListener("mouseenter", () => {
+				this._lastInteraction = "hover";
+				this._hoveredPane = "presets";
+				this._hoveredPresetIndex = idx;
+				this._updateHighlight();
+			});
+			item.addEventListener("mouseleave", () => {
+				this._hoveredPane = null;
+				this._hoveredPresetIndex = null;
+				this._updateHighlight();
+			});
 			this._presetList.appendChild(item);
 			this._presetItems.push(item);
 		}
@@ -407,16 +419,19 @@ export class PresetSelectorPrompt extends BasePrompt {
 	}
 
 	private _updateInfoPanel(): void {
+		const useHover = this._lastInteraction === "hover" && this._hoveredPane === "presets" && this._hoveredPresetIndex !== null;
+		const displayPresetIndex = useHover ? this._hoveredPresetIndex! : this._selectedPresetIndex;
 		const cat = this._categories[this._selectedCategoryIndex];
 		const presets = this._isSearchMode ? this._filteredPresets : (cat?.presets ?? []);
-		const preset = presets[this._selectedPresetIndex];
+		const preset = presets[displayPresetIndex];
 		if (!cat || !preset) {
 			this._infoPanel.textContent = "";
 			return;
 		}
 		const catName = this._isSearchMode ? (preset as any).categoryName : cat.name;
 		const total = presets.length;
-		const pos = this._selectedPresetIndex + 1;
+		const totalStr = String(total).padStart(2, "0");
+		const posStr = String(displayPresetIndex + 1).padStart(2, "0");
 		this._infoPanel.textContent = "";
 		this._infoPanel.appendChild(
 			div({}, sectionLabel("Category"), div({ style: "color: var(--primary-text); font-size: 13px; word-break: break-word;" }, catName)),
@@ -424,7 +439,7 @@ export class PresetSelectorPrompt extends BasePrompt {
 		this._infoPanel.appendChild(
 			div({}, sectionLabel("Preset"), div({ style: "color: var(--primary-text); font-size: 13px; word-break: break-word;" }, preset.name)),
 		);
-		this._infoPanel.appendChild(div({}, sectionLabel("Position"), div({ style: "color: var(--primary-text); font-size: 13px;" }, `${pos} / ${total}`)));
+		this._infoPanel.appendChild(div({}, sectionLabel("Position"), div({ style: "color: var(--primary-text); font-size: 13px;" }, `${posStr} / ${totalStr}`)));
 		if (this._isSearchMode) {
 			this._infoPanel.appendChild(div({}, sectionLabel("Results"), div({ style: "color: var(--primary-text); font-size: 13px;" }, `${total} matching`)));
 		}
