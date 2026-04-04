@@ -153,7 +153,7 @@ export class PlayerControls {
 		this.ui.outVolumeCap.setAttribute("x", "" + (8 + Math.min(144, historicOutCap * 144)));
 	}
 
-	public onTogglePlay(): void {
+	public async onTogglePlay(): Promise<void> {
 		if (this.ui.synth.song != null) {
 			if (this.animationRequest != null) cancelAnimationFrame(this.animationRequest);
 			this.animationRequest = null;
@@ -161,7 +161,7 @@ export class PlayerControls {
 				this.ui.synth.pause();
 				this.volumeUpdate();
 			} else {
-				this.ui.synth.play();
+				await this.ui.synth.play();
 				setLocalStorage("playerId", this.id);
 				this.animate();
 				clearInterval(this.pauseIfAnotherPlayerStartsHandle!);

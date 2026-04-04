@@ -1650,7 +1650,7 @@ export class SongEditor implements ModSliderProvider, MenuHandlerHost, DrumsetSe
 
 	private readonly _instrumentTagRow: HTMLDivElement = div(
 		{ class: "selectRow", style: "position:relative;" },
-		span({ class: "tip", onclick: () => this._openPrompt("instrumentBrowser") }, "Tags:"),
+		span({ class: "tip", onclick: () => this._openPrompt("instrumentTags") }, "Tags:"),
 		this._tagInputWrapper,
 	);
 
