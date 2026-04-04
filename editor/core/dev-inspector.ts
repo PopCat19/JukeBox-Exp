@@ -51,12 +51,12 @@ const RELEVANT = [
 ] as const;
 
 const COLORS = {
-	margin: "rgba(255, 165, 0, 0.6)",
-	padding: "rgba(0, 200, 0, 0.6)",
-	border: "rgba(0, 200, 255, 0.6)",
-	radius: "rgba(255, 255, 255, 0.6)",
-	flexChild: "rgba(100, 149, 237, 0.8)",
-	gap: "rgba(200, 100, 255, 0.6)",
+	margin: "#ffcc44",
+	padding: "#44dd44",
+	border: "#44ddff",
+	radius: "#ffffff",
+	flexChild: "#77bbff",
+	gap: "#dd88ff",
 } as const;
 
 const Z_INDEX = { label: 1000000, overlay: 1000001, labelStrip: 1000002 } as const;
@@ -143,19 +143,6 @@ function selector(el: HTMLElement): string {
 
 function addStrip(parent: Node, top: number, left: number, w: number, h: number, color: string, label?: string): void {
 	if (w <= 0 || h <= 0) return;
-	const div = document.createElement("div");
-	Object.assign(div.style, {
-		position: "fixed",
-		zIndex: Z_INDEX.overlay,
-		pointerEvents: "none",
-		top: `${top}px`,
-		left: `${left}px`,
-		width: `${w}px`,
-		height: `${h}px`,
-		outline: `1px dashed ${color}`,
-	});
-	boxOverlays.push(div);
-	parent.appendChild(div);
 
 	if (label) {
 		const lbl = document.createElement("div");
@@ -163,7 +150,7 @@ function addStrip(parent: Node, top: number, left: number, w: number, h: number,
 			position: "fixed",
 			zIndex: Z_INDEX.labelStrip,
 			pointerEvents: "none",
-			fontSize: "11px",
+			fontSize: "13px",
 			fontWeight: "700",
 			fontFamily: "monospace",
 			color: color,
