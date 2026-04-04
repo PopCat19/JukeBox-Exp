@@ -213,19 +213,28 @@ function showBoxModel(el: HTMLElement, cs: CSSStyleDeclaration): void {
 	const brtr = parseFloat(cs.borderTopRightRadius) || 0;
 	const brbr = parseFloat(cs.borderBottomRightRadius) || 0;
 	const brbl = parseFloat(cs.borderBottomLeftRadius) || 0;
-	if (brtl) addStrip(document.body, rect.top, rect.left, RADIUS_OVERLAY, RADIUS_OVERLAY, COLORS.radius, `↱${brtl.toFixed(0)}`);
-	if (brtr) addStrip(document.body, rect.top, rect.right - RADIUS_OVERLAY, RADIUS_OVERLAY, RADIUS_OVERLAY, COLORS.radius, `↰${brtr.toFixed(0)}`);
-	if (brbr)
-		addStrip(
-			document.body,
-			rect.bottom - RADIUS_OVERLAY,
-			rect.right - RADIUS_OVERLAY,
-			RADIUS_OVERLAY,
-			RADIUS_OVERLAY,
-			COLORS.radius,
-			`↲${brbr.toFixed(0)}`,
-		);
-	if (brbl) addStrip(document.body, rect.bottom - RADIUS_OVERLAY, rect.left, RADIUS_OVERLAY, RADIUS_OVERLAY, COLORS.radius, `↳${brbl.toFixed(0)}`);
+	const radiusVals = [brtl, brtr, brbr, brbl].map((v) => Math.round(v));
+	const allSameRadius = radiusVals.every((v) => v === radiusVals[0]);
+	if (allSameRadius && brtl) {
+		addStrip(document.body, rect.top, rect.left, RADIUS_OVERLAY, RADIUS_OVERLAY, COLORS.radius, `br ${brtl.toFixed(0)}`);
+	} else {
+		const counts = new Map<number, number>();
+		for (const v of radiusVals) counts.set(v, (counts.get(v) || 0) + 1);
+		const common = radiusVals.length > 0 ? [...counts.entries()].sort((a, b) => b[1] - a[1])[0][0] : 0;
+		if (brtl !== common) addStrip(document.body, rect.top, rect.left, RADIUS_OVERLAY, RADIUS_OVERLAY, COLORS.radius, `↱${brtl.toFixed(0)}`);
+		if (brtr !== common) addStrip(document.body, rect.top, rect.right - RADIUS_OVERLAY, RADIUS_OVERLAY, RADIUS_OVERLAY, COLORS.radius, `↰${brtr.toFixed(0)}`);
+		if (brbr !== common)
+			addStrip(
+				document.body,
+				rect.bottom - RADIUS_OVERLAY,
+				rect.right - RADIUS_OVERLAY,
+				RADIUS_OVERLAY,
+				RADIUS_OVERLAY,
+				COLORS.radius,
+				`↲${brbr.toFixed(0)}`,
+			);
+		if (brbl !== common) addStrip(document.body, rect.bottom - RADIUS_OVERLAY, rect.left, RADIUS_OVERLAY, RADIUS_OVERLAY, COLORS.radius, `↳${brbl.toFixed(0)}`);
+	}
 
 	const isFlex = cs.display === "flex" || cs.display === "inline-flex";
 	if (isFlex) {
