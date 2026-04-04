@@ -106,6 +106,7 @@ function highlight(el: HTMLElement): void {
 	const cls = el.classList.length ? "." + Array.from(el.classList).join(".") : "";
 	depthLabel.textContent = `${tag}${id}${cls} (${currentDepth})`;
 	depthLabel.style.background = color;
+	depthLabel.style.color = wcagTextColor(color);
 	const rect = el.getBoundingClientRect();
 	depthLabel.style.top = `${rect.bottom + 2}px`;
 	depthLabel.style.left = `${rect.right}px`;
@@ -120,6 +121,8 @@ function highlight(el: HTMLElement): void {
 		const marg = `${px(cs.marginTop)} ${px(cs.marginRight)} ${px(cs.marginBottom)} ${px(cs.marginLeft)}`;
 		if (marg !== "0 0 0 0") { legendParts.push("%c■ margin%c"); legendStyles.push("color: #ffa500", "color: inherit"); }
 		if (pad !== "0 0 0 0") { legendParts.push("%c■ padding%c"); legendStyles.push("color: #00c800", "color: inherit"); }
+		const bw = parseFloat(cs.borderTopWidth) || 0;
+		if (bw > 0) { legendParts.push("%c■ border%c"); legendStyles.push("color: #00c8ff", "color: inherit"); }
 		if (cs.display === "flex" || cs.display === "inline-flex") { legendParts.push("%c■ flex children%c"); legendStyles.push("color: #6495ed", "color: inherit"); }
 		const gapVal = parseFloat(cs.gap) || 0;
 		if (gapVal > 0) { legendParts.push("%c■ gap%c"); legendStyles.push("color: #c864ff", "color: inherit"); }
@@ -145,6 +148,56 @@ function clearBoxOverlays(): void {
 	boxOverlays = [];
 }
 
+function wcagTextColor(bgColor: string): string {
+	const m = bgColor.match(/[\d.]+/g);
+	if (!m || m.length < 3) return "#fff";
+	const [r, g, b] = m.slice(0, 3).map(Number);
+	const lum = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+	return lum > 0.5 ? "#000" : "#fff";
+}
+
+function addStrip(parent: Node, top: number, left: number, w: number, h: number, color: string, label?: string): void {
+	if (w <= 0 || h <= 0) return;
+	const div = document.createElement("div");
+	Object.assign(div.style, {
+		position: "fixed",
+		zIndex: "1000001",
+		pointerEvents: "none",
+		top: `${top}px`,
+		left: `${left}px`,
+		width: `${w}px`,
+		height: `${h}px`,
+		outline: `1px dashed ${color}`,
+		background: color.replace("0.6", "0.12"),
+	});
+	boxOverlays.push(div);
+	parent.appendChild(div);
+
+	if (label) {
+		const lbl = document.createElement("div");
+		const bg = color.replace("0.6", "0.85");
+		const textColor = wcagTextColor(bg);
+		Object.assign(lbl.style, {
+			position: "fixed",
+			zIndex: "1000002",
+			pointerEvents: "none",
+			fontSize: "10px",
+			fontFamily: "monospace",
+			color: textColor,
+			background: bg,
+			borderRadius: "2px",
+			padding: "1px 3px",
+			whiteSpace: "nowrap",
+			lineHeight: "1",
+		});
+		lbl.style.top = `${top + (h - 14) / 2}px`;
+		lbl.style.left = `${left + (w - label.length * 6) / 2}px`;
+		lbl.textContent = label;
+		boxOverlays.push(lbl);
+		parent.appendChild(lbl);
+	}
+}
+
 function showBoxModel(el: HTMLElement, cs: CSSStyleDeclaration): void {
 	clearBoxOverlays();
 	const rect = el.getBoundingClientRect();
@@ -157,44 +210,40 @@ function showBoxModel(el: HTMLElement, cs: CSSStyleDeclaration): void {
 	const pb = parseFloat(cs.paddingBottom) || 0;
 	const pl = parseFloat(cs.paddingLeft) || 0;
 
-	const marginDiv = document.createElement("div");
-	Object.assign(marginDiv.style, {
-		position: "fixed",
-		zIndex: "1000001",
-		pointerEvents: "none",
-		top: `${rect.top - mt}px`,
-		left: `${rect.left - ml}px`,
-		width: `${rect.width + ml + mr}px`,
-		height: `${rect.height + mt + mb}px`,
-		outline: "1px dashed rgba(255, 165, 0, 0.6)",
-		background: "rgba(255, 165, 0, 0.08)",
-	});
-	boxOverlays.push(marginDiv);
-	document.body.appendChild(marginDiv);
+	const marginColor = "rgba(255, 165, 0, 0.6)";
+	const padColor = "rgba(0, 200, 0, 0.6)";
+
+	if (mt) addStrip(document.body, rect.top - mt, rect.left - ml, rect.width + ml + mr, mt, marginColor, `${mt.toFixed(0)}`);
+	if (mb) addStrip(document.body, rect.bottom, rect.left - ml, rect.width + ml + mr, mb, marginColor, `${mb.toFixed(0)}`);
+	if (ml) addStrip(document.body, rect.top - mt, rect.left - ml, ml, rect.height + mt + mb, marginColor, `${ml.toFixed(0)}`);
+	if (mr) addStrip(document.body, rect.top - mt, rect.right, mr, rect.height + mt + mb, marginColor, `${mr.toFixed(0)}`);
 
 	if (pt || pr || pb || pl) {
-		const isFlex = cs.display === "flex" || cs.display === "inline-flex";
-		const hasFlexChildren = isFlex && Array.from(el.children).some((c) => {
-			const r = c.getBoundingClientRect();
-			return r.width > 0 && r.height > 0;
-		});
-		if (!hasFlexChildren) {
-			const padDiv = document.createElement("div");
-			Object.assign(padDiv.style, {
-				position: "fixed",
-				zIndex: "1000001",
-				pointerEvents: "none",
-				top: `${rect.top}px`,
-				left: `${rect.left}px`,
-				width: `${rect.width}px`,
-				height: `${rect.height}px`,
-				outline: "1px dashed rgba(0, 200, 0, 0.6)",
-				background: "rgba(0, 200, 0, 0.08)",
-			});
-			boxOverlays.push(padDiv);
-			document.body.appendChild(padDiv);
-		}
+		if (pt) addStrip(document.body, rect.top, rect.left + pl, rect.width - pl - pr, pt, padColor, `${pt.toFixed(0)}`);
+		if (pb) addStrip(document.body, rect.bottom - pb, rect.left + pl, rect.width - pl - pr, pb, padColor, `${pb.toFixed(0)}`);
+		if (pl) addStrip(document.body, rect.top, rect.left, pl, rect.height, padColor, `${pl.toFixed(0)}`);
+		if (pr) addStrip(document.body, rect.top, rect.right - pr, pr, rect.height, padColor, `${pr.toFixed(0)}`);
 	}
+
+	const bt = parseFloat(cs.borderTopWidth) || 0;
+	const br = parseFloat(cs.borderRightWidth) || 0;
+	const bb = parseFloat(cs.borderBottomWidth) || 0;
+	const bl = parseFloat(cs.borderLeftWidth) || 0;
+	const borderColor = "rgba(0, 200, 255, 0.6)";
+	if (bt) addStrip(document.body, rect.top, rect.left, rect.width, bt, borderColor, `border ${bt.toFixed(0)}`);
+	if (bb) addStrip(document.body, rect.bottom - bb, rect.left, rect.width, bb, borderColor, `border ${bb.toFixed(0)}`);
+	if (bl) addStrip(document.body, rect.top, rect.left, bl, rect.height, borderColor, `border ${bl.toFixed(0)}`);
+	if (br) addStrip(document.body, rect.top, rect.right - br, br, rect.height, borderColor, `border ${br.toFixed(0)}`);
+
+	const brtl = parseFloat(cs.borderTopLeftRadius) || 0;
+	const brtr = parseFloat(cs.borderTopRightRadius) || 0;
+	const brbr = parseFloat(cs.borderBottomRightRadius) || 0;
+	const brbl = parseFloat(cs.borderBottomLeftRadius) || 0;
+	const radiusColor = "rgba(255, 255, 255, 0.6)";
+	if (brtl) addStrip(document.body, rect.top, rect.left, 8, 8, radiusColor, `↱${brtl.toFixed(0)}`);
+	if (brtr) addStrip(document.body, rect.top, rect.right - 8, 8, 8, radiusColor, `↰${brtr.toFixed(0)}`);
+	if (brbr) addStrip(document.body, rect.bottom - 8, rect.right - 8, 8, 8, radiusColor, `↲${brbr.toFixed(0)}`);
+	if (brbl) addStrip(document.body, rect.bottom - 8, rect.left, 8, 8, radiusColor, `↳${brbl.toFixed(0)}`);
 
 	if (cs.display === "flex" || cs.display === "inline-flex") {
 		const children = Array.from(el.children);
@@ -219,44 +268,22 @@ function showBoxModel(el: HTMLElement, cs: CSSStyleDeclaration): void {
 		}
 
 		const gapVal = parseFloat(cs.gap) || 0;
+		const gapColor = "rgba(200, 100, 255, 0.6)";
 		if (gapVal > 0 && childRects.length > 1) {
 			const isColumn = cs.flexDirection === "column" || cs.flexDirection === "column-reverse";
 			const sorted = [...childRects].sort((a, b) => (isColumn ? a.top - b.top : a.left - b.left));
 			for (let i = 0; i < sorted.length - 1; i++) {
 				const a = sorted[i];
 				const b = sorted[i + 1];
-				const gapDiv = document.createElement("div");
 				if (isColumn) {
 					const gapTop = a.bottom;
 					const gapHeight = b.top - a.bottom;
-					Object.assign(gapDiv.style, {
-						position: "fixed",
-						zIndex: "1000001",
-						pointerEvents: "none",
-						top: `${gapTop}px`,
-						left: `${rect.left + pl}px`,
-						width: `${rect.width - pl - pr}px`,
-						height: `${gapHeight}px`,
-						outline: "1px dashed rgba(200, 100, 255, 0.8)",
-						background: "rgba(200, 100, 255, 0.12)",
-					});
+					addStrip(document.body, gapTop, rect.left + pl, rect.width - pl - pr, gapHeight, gapColor, `${gapHeight.toFixed(0)}`);
 				} else {
 					const gapLeft = a.right;
 					const gapWidth = b.left - a.right;
-					Object.assign(gapDiv.style, {
-						position: "fixed",
-						zIndex: "1000001",
-						pointerEvents: "none",
-						top: `${rect.top + pt}px`,
-						left: `${gapLeft}px`,
-						width: `${gapWidth}px`,
-						height: `${rect.height - pt - pb}px`,
-						outline: "1px dashed rgba(200, 100, 255, 0.8)",
-						background: "rgba(200, 100, 255, 0.12)",
-					});
+					addStrip(document.body, rect.top + pt, gapLeft, gapWidth, rect.height - pt - pb, gapColor, `${gapWidth.toFixed(0)}`);
 				}
-				boxOverlays.push(gapDiv);
-				document.body.appendChild(gapDiv);
 			}
 		}
 	}
