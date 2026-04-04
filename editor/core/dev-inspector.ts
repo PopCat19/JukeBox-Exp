@@ -61,6 +61,10 @@ const COLORS = {
 
 const Z_INDEX = { label: 1000000, overlay: 1000001, labelStrip: 1000002 } as const;
 
+const LABEL_OFFSET = { above: -16, below: 2 } as const;
+const LABEL_SIZE = { charWidth: 6, height: 14 } as const;
+const RADIUS_OVERLAY = 8;
+
 let current: HTMLElement | null = null;
 let outlineEl: HTMLElement | null = null;
 let savedOutline = "";
@@ -130,6 +134,17 @@ function hexColor(rgb: string): string {
 	return `#${hex}`;
 }
 
+function selector(el: HTMLElement): string {
+	const tag = el.tagName.toLowerCase();
+	const id = el.id ? `#${el.id}` : "";
+	const cls = el.classList.length ? "." + Array.from(el.classList).join(".") : "";
+	return `${tag}${id}${cls}`;
+}
+
+function withAlpha(color: string, alpha: number): string {
+	return color.replace(/[\d.]+\)$/, `${alpha})`);
+}
+
 function addStrip(parent: Node, top: number, left: number, w: number, h: number, color: string, label?: string): void {
 	if (w <= 0 || h <= 0) return;
 	const div = document.createElement("div");
@@ -142,13 +157,13 @@ function addStrip(parent: Node, top: number, left: number, w: number, h: number,
 		width: `${w}px`,
 		height: `${h}px`,
 		outline: `1px dashed ${color}`,
-		background: color.replace(/[\d.]+\)$/, "0.12)"),
+		background: withAlpha(color, 0.12),
 	});
 	boxOverlays.push(div);
 	parent.appendChild(div);
 
 	if (label) {
-		const bg = color.replace(/[\d.]+\)$/, "0.85)");
+		const bg = withAlpha(color, 0.85);
 		const textColor = wcagTextColor(bg);
 		const lbl = document.createElement("div");
 		Object.assign(lbl.style, {
@@ -164,9 +179,8 @@ function addStrip(parent: Node, top: number, left: number, w: number, h: number,
 			whiteSpace: "nowrap",
 			lineHeight: "1",
 		});
-		const lblW = label.length * 6;
-		const lblH = 14;
-		lbl.style.top = `${top + Math.max(0, (h - lblH) / 2)}px`;
+		const lblW = label.length * LABEL_SIZE.charWidth;
+		lbl.style.top = `${top + Math.max(0, (h - LABEL_SIZE.height) / 2)}px`;
 		lbl.style.left = `${left + Math.max(0, (w - lblW) / 2)}px`;
 		lbl.textContent = label;
 		boxOverlays.push(lbl);
@@ -211,11 +225,19 @@ function showBoxModel(el: HTMLElement, cs: CSSStyleDeclaration): void {
 	const brtr = parseFloat(cs.borderTopRightRadius) || 0;
 	const brbr = parseFloat(cs.borderBottomRightRadius) || 0;
 	const brbl = parseFloat(cs.borderBottomLeftRadius) || 0;
-	const R = 8;
-	if (brtl) addStrip(document.body, rect.top, rect.left, R, R, COLORS.radius, `↱${brtl.toFixed(0)}`);
-	if (brtr) addStrip(document.body, rect.top, rect.right - R, R, R, COLORS.radius, `↰${brtr.toFixed(0)}`);
-	if (brbr) addStrip(document.body, rect.bottom - R, rect.right - R, R, R, COLORS.radius, `↲${brbr.toFixed(0)}`);
-	if (brbl) addStrip(document.body, rect.bottom - R, rect.left, R, R, COLORS.radius, `↳${brbl.toFixed(0)}`);
+	if (brtl) addStrip(document.body, rect.top, rect.left, RADIUS_OVERLAY, RADIUS_OVERLAY, COLORS.radius, `↱${brtl.toFixed(0)}`);
+	if (brtr) addStrip(document.body, rect.top, rect.right - RADIUS_OVERLAY, RADIUS_OVERLAY, RADIUS_OVERLAY, COLORS.radius, `↰${brtr.toFixed(0)}`);
+	if (brbr)
+		addStrip(
+			document.body,
+			rect.bottom - RADIUS_OVERLAY,
+			rect.right - RADIUS_OVERLAY,
+			RADIUS_OVERLAY,
+			RADIUS_OVERLAY,
+			COLORS.radius,
+			`↲${brbr.toFixed(0)}`,
+		);
+	if (brbl) addStrip(document.body, rect.bottom - RADIUS_OVERLAY, rect.left, RADIUS_OVERLAY, RADIUS_OVERLAY, COLORS.radius, `↳${brbl.toFixed(0)}`);
 
 	const isFlex = cs.display === "flex" || cs.display === "inline-flex";
 	if (isFlex) {
@@ -287,10 +309,7 @@ interface SummaryResult {
 function figmaSummary(el: HTMLElement, cs: CSSStyleDeclaration): SummaryResult {
 	const segments: string[] = [];
 	const styles: string[] = [];
-	const tag = el.tagName.toLowerCase();
-	const id = el.id ? `#${el.id}` : "";
-	const cls = el.classList.length ? "." + Array.from(el.classList).join(".") : "";
-	segments.push(`${tag}${id}${cls}`);
+	segments.push(selector(el));
 	const props: { label: string; color?: string }[] = [];
 	props.push({ label: `W: ${px(cs.width)}  H: ${px(cs.height)}` });
 	const bg = cs.backgroundColor;
@@ -331,6 +350,24 @@ function figmaSummary(el: HTMLElement, cs: CSSStyleDeclaration): SummaryResult {
 	return { text: segments.join("\n"), styles };
 }
 
+function positionDepthLabel(el: HTMLElement): void {
+	const rect = el.getBoundingClientRect();
+	depthLabel!.style.top = `${rect.bottom + LABEL_OFFSET.below}px`;
+	depthLabel!.style.left = `${rect.left + rect.width / 2}px`;
+	depthLabel!.style.transform = "translateX(-50%)";
+	requestAnimationFrame(() => {
+		const lr = depthLabel!.getBoundingClientRect();
+		const vw = window.innerWidth;
+		const vh = window.innerHeight;
+		if (lr.bottom > vh) {
+			depthLabel!.style.top = `${rect.top + LABEL_OFFSET.above}px`;
+			depthLabel!.style.transform = "translateX(-50%)";
+		}
+		if (lr.left < 0) depthLabel!.style.left = `${lr.width / 2}px`;
+		if (lr.right > vw) depthLabel!.style.left = `${vw - lr.width / 2}px`;
+	});
+}
+
 function highlight(el: HTMLElement): void {
 	if (!el || el === overlay) return;
 	if (outlineEl) outlineEl.style.outline = savedOutline;
@@ -340,6 +377,7 @@ function highlight(el: HTMLElement): void {
 	const color = depthColor(currentDepth);
 	el.style.outline = `2px solid ${color}`;
 	el.style.outlineOffset = "-1px";
+	if (current && !el.contains(current)) navStack = [];
 	current = el;
 	if (!depthLabel) {
 		depthLabel = document.createElement("div");
@@ -357,32 +395,11 @@ function highlight(el: HTMLElement): void {
 		});
 		document.body.appendChild(depthLabel);
 	}
-	const tag = el.tagName.toLowerCase();
-	const id = el.id ? `#${el.id}` : "";
-	const cls = el.classList.length ? "." + Array.from(el.classList).join(".") : "";
 	const rect = el.getBoundingClientRect();
-	const w = rect.width.toFixed(0);
-	const h = rect.height.toFixed(0);
-	depthLabel.textContent = `${tag}${id}${cls} (${currentDepth}) ${w}×${h}`;
+	depthLabel.textContent = `${selector(el)} (${currentDepth}) ${rect.width.toFixed(0)}×${rect.height.toFixed(0)}`;
 	depthLabel.style.background = `hsl(${(currentDepth * 37) % 360}, 80%, 55%, 0.8)`;
 	depthLabel.style.color = wcagTextColor(depthLabel.style.background);
-	const cx = rect.left + rect.width / 2;
-	const above = rect.top - 16;
-	const below = rect.bottom + 2;
-	depthLabel.style.top = `${below}px`;
-	depthLabel.style.left = `${cx}px`;
-	depthLabel.style.transform = "translateX(-50%)";
-	requestAnimationFrame(() => {
-		const lr = depthLabel!.getBoundingClientRect();
-		const vw = window.innerWidth;
-		const vh = window.innerHeight;
-		if (lr.bottom > vh) {
-			depthLabel!.style.top = `${above}px`;
-			depthLabel!.style.transform = "translateX(-50%)";
-		}
-		if (lr.left < 0) depthLabel!.style.left = `${lr.width / 2}px`;
-		if (lr.right > vw) depthLabel!.style.left = `${vw - lr.width / 2}px`;
-	});
+	positionDepthLabel(el);
 	if (logTimer) clearTimeout(logTimer);
 	logTimer = setTimeout(() => {
 		const cs = window.getComputedStyle(el);
@@ -390,7 +407,7 @@ function highlight(el: HTMLElement): void {
 		const summary = figmaSummary(el, cs);
 		const legend = formatLegend(buildLegend(cs));
 		console.log(
-			`%c[inspector] #${++logSeq} ${tag}${id}${cls} %c(${currentDepth})%c\n${legend.text}\n%c${summary.text}`,
+			`%c[inspector] #${++logSeq} ${selector(el)} %c(${currentDepth})%c\n${legend.text}\n%c${summary.text}`,
 			`color: ${depthColor(currentDepth)}`,
 			`color: ${depthColor(currentDepth)}`,
 			"color: inherit",
@@ -420,6 +437,7 @@ function deactivate(): void {
 		outlineEl = null;
 	}
 	current = null;
+	navStack = [];
 	if (depthLabel) {
 		depthLabel.remove();
 		depthLabel = null;
@@ -494,8 +512,7 @@ export function activate(): void {
 		else if (e.key === "ArrowUp" && current?.parentElement && current.parentElement !== document.body) {
 			navStack.push(current);
 			highlight(current.parentElement);
-		}
-		else if (e.key === "ArrowDown") {
+		} else if (e.key === "ArrowDown") {
 			if (current?.tagName.toLowerCase() === "select") {
 				const sel = current as HTMLSelectElement;
 				const opts = Array.from(sel.options)
