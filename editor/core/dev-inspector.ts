@@ -61,7 +61,7 @@ const COLORS = {
 
 const Z_INDEX = { label: 1000000, overlay: 1000001, labelStrip: 1000002 } as const;
 
-const LABEL_OFFSET = { above: -16, below: 2 } as const;
+const LABEL_OFFSET = { above: -16, below: 8 } as const;
 const LABEL_SIZE = { charWidth: 6, height: 14 } as const;
 const RADIUS_OVERLAY = 8;
 
