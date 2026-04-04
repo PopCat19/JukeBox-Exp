@@ -91,35 +91,6 @@ function depthColor(d: number): string {
 	return `hsl(${(d * 37) % 360}, 80%, 55%)`;
 }
 
-function wcagTextColor(bgColor: string): string {
-	let r: number, g: number, b: number;
-	const hsl = bgColor.match(/hsl\(([\d.]+),\s*([\d.]+)%,\s*([\d.]+)%\)/);
-	if (hsl) {
-		const h = Number(hsl[1]) / 360;
-		const s = Number(hsl[2]) / 100;
-		const l = Number(hsl[3]) / 100;
-		const hue2rgb = (p: number, q: number, t: number) => {
-			if (t < 0) t += 1;
-			if (t > 1) t -= 1;
-			if (t < 1 / 6) return p + (q - p) * 6 * t;
-			if (t < 1 / 2) return q;
-			if (t < 2 / 3) return p + (q - p) * (2 / 3 - t) * 6;
-			return p;
-		};
-		const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
-		const p = 2 * l - q;
-		r = hue2rgb(p, q, h + 1 / 3) * 255;
-		g = hue2rgb(p, q, h) * 255;
-		b = hue2rgb(p, q, h - 1 / 3) * 255;
-	} else {
-		const m = bgColor.match(/[\d.]+/g);
-		if (!m || m.length < 3) return "#fff";
-		[r, g, b] = m.slice(0, 3).map(Number);
-	}
-	const lum = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
-	return lum > 0.5 ? "#000" : "#fff";
-}
-
 function px(v: string): string {
 	return v === "0px" ? "0" : v;
 }
@@ -163,19 +134,17 @@ function addStrip(parent: Node, top: number, left: number, w: number, h: number,
 	parent.appendChild(div);
 
 	if (label) {
-		const bg = withAlpha(color, 0.85);
-		const textColor = wcagTextColor(bg);
 		const lbl = document.createElement("div");
 		Object.assign(lbl.style, {
 			position: "fixed",
 			zIndex: Z_INDEX.labelStrip,
 			pointerEvents: "none",
-			fontSize: "10px",
+			fontSize: "11px",
+			fontWeight: "700",
 			fontFamily: "monospace",
-			color: textColor,
-			background: bg,
-			borderRadius: "2px",
-			padding: "1px 3px",
+			color: color,
+			WebkitTextStroke: "0.5px rgba(0,0,0,0.8)",
+			paintOrder: "stroke fill",
 			whiteSpace: "nowrap",
 			lineHeight: "1",
 		});
@@ -443,20 +412,18 @@ function highlight(el: HTMLElement): void {
 			position: "fixed",
 			zIndex: Z_INDEX.label,
 			pointerEvents: "none",
-			padding: "2px 6px",
 			fontSize: "11px",
 			fontWeight: "600",
 			fontFamily: "monospace",
-			background: "rgba(0,0,0,0.7)",
-			borderRadius: "3px",
 			whiteSpace: "nowrap",
+			WebkitTextStroke: "0.5px rgba(0,0,0,0.8)",
+			paintOrder: "stroke fill",
 		});
 		document.body.appendChild(depthLabel);
 	}
 	const rect = el.getBoundingClientRect();
 	depthLabel.textContent = `${selector(el)} (${currentDepth}) ${rect.width.toFixed(0)}×${rect.height.toFixed(0)}`;
-	depthLabel.style.background = `hsl(${(currentDepth * 37) % 360}, 80%, 55%, 0.8)`;
-	depthLabel.style.color = wcagTextColor(depthLabel.style.background);
+	depthLabel.style.color = depthColor(currentDepth);
 	positionDepthLabel(el);
 	if (logTimer) clearTimeout(logTimer);
 	logTimer = setTimeout(() => {
