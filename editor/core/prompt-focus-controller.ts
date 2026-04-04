@@ -44,7 +44,7 @@ export class PromptFocusController {
 	attachPrompt(prompt: Prompt): void {
 		this.holdFocus = true;
 		this.cursorMoved = false;
-		this.mouseInPrompt = false;
+		this.mouseInPrompt = true;
 
 		prompt.container.setAttribute("tabindex", "-1");
 		prompt.container.focus({ preventScroll: true });

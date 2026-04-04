@@ -10,14 +10,12 @@ import { createDiv } from "../base/container";
 
 export interface InfoBannerOptions {
 	fontSize?: string;
-	borderPosition?: "top" | "bottom";
 }
 
 export function infoBanner(options?: InfoBannerOptions, ...children: (HTMLElement | string)[]): HTMLDivElement {
 	const fontSize = options?.fontSize ?? "11px";
-	const borderPosition = options?.borderPosition ?? "bottom";
 
-	const style = `display: none; padding: 4px 8px; font-size: ${fontSize}; color: var(--secondary-text); border-${borderPosition}: 1px solid var(--ui-widget-background); cursor: pointer;`;
+	const style = `display: none; padding: 4px 8px; font-size: ${fontSize}; color: var(--secondary-text); border: 2px solid var(--ui-widget-background); border-radius: 8px; cursor: pointer;`;
 
 	return createDiv(style, undefined, ...children);
 }

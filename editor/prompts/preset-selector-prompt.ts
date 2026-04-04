@@ -13,7 +13,7 @@ import { HTML } from "imperative-html/dist/esm/elements-strict";
 import { ChangePreset } from "../changes";
 import { EditorConfig, Preset, PresetCategory } from "../config/editor-config";
 import { SongDocument } from "../song-document";
-import { fixedPane, flexPane, infoBanner, inputRow, instructions, paneContainer, searchInput, sectionLabel, tagChip } from "../ui";
+import { fixedPane, flexPane, inputRow, instructions, paneContainer, searchInput, sectionLabel, tagChip } from "../ui";
 import { BasePrompt } from "./base-prompt";
 
 const { button, div, h2, span } = HTML;
@@ -70,8 +70,7 @@ export class PresetSelectorPrompt extends BasePrompt {
 
 		const inputRowEl = inputRow({ gap: rowGap }, this._searchInput, tagButton);
 
-		this._tagBanner = infoBanner({ fontSize: "11px" });
-
+		this._tagBanner = div({ style: "display: none; flex-direction: column; gap: 4px; padding: 4px 8px; font-size: 11px; color: var(--secondary-text); border: 2px solid var(--ui-widget-background); border-radius: 8px; margin-top: 4px;" });
 		this._categoryList = fixedPane("180px", { padding: "8px" });
 		this._categoryList.style.transition = "opacity 0.15s";
 		this._categoryList.style.display = "flex";
@@ -236,37 +235,6 @@ export class PresetSelectorPrompt extends BasePrompt {
 		this._categoryList.title = hasTags ? "Category navigation disabled while tag filter is active" : "";
 	}
 
-	private _refreshTagBanner(): void {
-		if (this._activeTags.length === 0) {
-			this._tagBanner.style.display = "none";
-			return;
-		}
-		this._tagBanner.style.display = "";
-		this._tagBanner.textContent = "";
-		this._tagBanner.appendChild(span({}, "Tags: "));
-		for (let i = 0; i < this._activeTags.length; i++) {
-			const tag = this._activeTags[i];
-			const tagEl = tagChip(tag, false);
-			tagEl.addEventListener("mousedown", (e: MouseEvent) => {
-				e.preventDefault();
-				this._openTagBrowser();
-			});
-			this._tagBanner.appendChild(tagEl);
-		}
-		const clearBtn = span(
-			{
-				style: "display: inline-block; margin-left: 8px; cursor: pointer; color: var(--primary-text); font-size: 11px;",
-			},
-			"[clear]",
-		);
-		clearBtn.addEventListener("mousedown", (e: MouseEvent) => {
-			e.preventDefault();
-			e.stopPropagation();
-			this._clearTagFilters();
-		});
-		this._tagBanner.appendChild(clearBtn);
-	}
-
 	private _clearTagFilters(): void {
 		this._setExternalTagValue("");
 		this._applyTagFilter();
@@ -364,8 +332,6 @@ export class PresetSelectorPrompt extends BasePrompt {
 	private _renderPresets(): void {
 		this._presetList.innerHTML = "";
 		this._presetItems = [];
-		this._presetList.appendChild(this._tagBanner);
-		this._refreshTagBanner();
 
 		const presets = this._isSearchMode ? this._filteredPresets : (this._categories[this._selectedCategoryIndex]?.presets ?? []);
 
@@ -466,8 +432,7 @@ export class PresetSelectorPrompt extends BasePrompt {
 		if (fullPreset && fullPreset.tags && fullPreset.tags.length > 0) {
 			const tagsDiv = div({}, sectionLabel("Tags"));
 			for (const tag of fullPreset.tags) {
-				const isActive = this._activeTags.includes(tag);
-				const tagEl = tagChip(tag, isActive);
+				const tagEl = tagChip(tag, false);
 				tagEl.addEventListener("mousedown", (e: MouseEvent) => {
 					e.preventDefault();
 					const tags = this._getExternalTagValue()
@@ -486,6 +451,45 @@ export class PresetSelectorPrompt extends BasePrompt {
 				tagsDiv.appendChild(tagEl);
 			}
 			this._infoPanel.appendChild(tagsDiv);
+		}
+		if (this._activeTags.length > 0) {
+			this._tagBanner.style.display = "flex";
+			this._tagBanner.textContent = "";
+			const headerRow = div({ style: "display: flex; justify-content: space-between; align-items: center; gap: 4px;" });
+			headerRow.appendChild(span({}, "Active Tags"));
+			const clearBtn = span(
+				{
+					style: "padding: 2px 6px; cursor: pointer; color: var(--primary-text); font-size: 11px; background: rgba(255,255,255,0.06); border-radius: 4px;",
+				},
+				"Clear Tags",
+			);
+			clearBtn.addEventListener("mouseenter", () => {
+				clearBtn.style.background = "rgba(255,255,255,0.1)";
+			});
+			clearBtn.addEventListener("mouseleave", () => {
+				clearBtn.style.background = "rgba(255,255,255,0.06)";
+			});
+			clearBtn.addEventListener("mousedown", (e: MouseEvent) => {
+				e.preventDefault();
+				e.stopPropagation();
+				this._clearTagFilters();
+			});
+			headerRow.appendChild(clearBtn);
+			this._tagBanner.appendChild(headerRow);
+			const chipsRow = div({ style: "display: flex; flex-wrap: wrap; gap: 4px;" });
+			for (let i = 0; i < this._activeTags.length; i++) {
+				const tag = this._activeTags[i];
+				const tagEl = tagChip(tag, false);
+				tagEl.addEventListener("mousedown", (e: MouseEvent) => {
+					e.preventDefault();
+					this._openTagBrowser();
+				});
+				chipsRow.appendChild(tagEl);
+			}
+			this._tagBanner.appendChild(chipsRow);
+			this._infoPanel.appendChild(this._tagBanner);
+		} else {
+			this._tagBanner.style.display = "none";
 		}
 	}
 
