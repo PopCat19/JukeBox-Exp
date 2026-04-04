@@ -71,8 +71,10 @@ export class PresetSelectorPrompt extends BasePrompt {
 		this._categoryList.style.transition = "opacity 0.15s";
 
 		this._presetList = flexPane({ padding: "4px" });
-		this._presetList.style.display = "flex";
-		this._presetList.style.flexDirection = "column";
+		this._presetList.style.display = "grid";
+		this._presetList.style.gridTemplateColumns = "1fr 1fr";
+		this._presetList.style.gap = "4px";
+		this._presetList.style.alignContent = "start";
 
 		this._infoPanel = fixedPane("180px", { padding: "4px" });
 		this._infoPanel.style.fontSize = "12px";

@@ -3389,7 +3389,9 @@ export class SongEditor implements ModSliderProvider, MenuHandlerHost, DrumsetSe
 
 			if (p === this._focusedPrompt) {
 				p.container.classList.add("focused");
-				this._promptContainer.appendChild(p.container); // Bring to front
+				if (this._promptContainer.lastElementChild !== p.container) {
+					this._promptContainer.appendChild(p.container);
+				}
 			} else {
 				p.container.classList.remove("focused");
 			}

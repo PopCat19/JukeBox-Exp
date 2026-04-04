@@ -23,6 +23,7 @@ export class PromptFocusController {
 	private cursorMoved: boolean = false;
 	private mouseInPrompt: boolean = false;
 	private cleanupFns: Array<() => void> = [];
+	private lastFocusedElement: HTMLElement | null = null;
 
 	constructor(private host: PromptFocusHost) {}
 
@@ -83,7 +84,11 @@ export class PromptFocusController {
 				this.host.updatePromptFocus();
 			}
 			if (!prompt.container.contains(document.activeElement)) {
-				prompt.container.focus();
+				if (this.lastFocusedElement && prompt.container.contains(this.lastFocusedElement)) {
+					this.lastFocusedElement.focus({ preventScroll: true });
+				} else {
+					prompt.container.focus({ preventScroll: true });
+				}
 			}
 		};
 		prompt.container.addEventListener("mouseenter", onMouseEnter);
@@ -105,6 +110,9 @@ export class PromptFocusController {
 			if (!this.cursorMoved) return;
 			const related = (e as MouseEvent).relatedTarget as HTMLElement;
 			if (related && this.host.isInPromptContainer(related)) return;
+			if (document.activeElement && prompt.container.contains(document.activeElement)) {
+				this.lastFocusedElement = document.activeElement as HTMLElement;
+			}
 			refocusSongEditor();
 		};
 		prompt.container.addEventListener("mouseleave", onMouseLeave);
@@ -122,7 +130,7 @@ export class PromptFocusController {
 				!(target instanceof HTMLSelectElement) &&
 				!(target instanceof HTMLTextAreaElement)
 			) {
-				prompt.container.focus();
+				prompt.container.focus({ preventScroll: true });
 			}
 		};
 		prompt.container.addEventListener("mousedown", onMouseDown);

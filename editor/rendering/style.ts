@@ -995,7 +995,7 @@ html {
 	cursor: pointer;
 	font-size: 13px;
 	line-height: 1.3;
-	border-radius: 4px;
+	border-radius: 8px;
 	transition: background 80ms ease;
 }
 
