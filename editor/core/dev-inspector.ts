@@ -4,7 +4,7 @@
 //
 // This module:
 // - Activates on demand and freezes interaction via a transparent overlay
-// - Highlights hovered elements with a red outline
+// - Highlights hovered elements with a depth-colored outline
 // - Captures computed styles and markup on Enter, traverses DOM on ArrowUp/ArrowDown
 
 const RELEVANT = [
@@ -50,6 +50,17 @@ const RELEVANT = [
 	"overflow",
 ] as const;
 
+const COLORS = {
+	margin: "rgba(255, 165, 0, 0.6)",
+	padding: "rgba(0, 200, 0, 0.6)",
+	border: "rgba(0, 200, 255, 0.6)",
+	radius: "rgba(255, 255, 255, 0.6)",
+	flexChild: "rgba(100, 149, 237, 0.8)",
+	gap: "rgba(200, 100, 255, 0.6)",
+} as const;
+
+const Z_INDEX = { label: 1000000, overlay: 1000001, labelStrip: 1000002 } as const;
+
 let current: HTMLElement | null = null;
 let outlineEl: HTMLElement | null = null;
 let savedOutline = "";
@@ -73,112 +84,6 @@ function depth(el: HTMLElement): number {
 
 function depthColor(d: number): string {
 	return `hsl(${(d * 37) % 360}, 80%, 55%)`;
-}
-
-function highlight(el: HTMLElement): void {
-	if (!el || el === overlay) return;
-	if (outlineEl) outlineEl.style.outline = savedOutline;
-	outlineEl = el;
-	savedOutline = el.style.outline;
-	currentDepth = depth(el);
-	const color = depthColor(currentDepth);
-	el.style.outline = `2px solid ${color}`;
-	el.style.outlineOffset = "-1px";
-	current = el;
-	if (!depthLabel) {
-		depthLabel = document.createElement("div");
-		Object.assign(depthLabel.style, {
-			position: "fixed",
-			zIndex: "1000000",
-			pointerEvents: "none",
-			padding: "2px 6px",
-			fontSize: "11px",
-			fontWeight: "600",
-			fontFamily: "monospace",
-			color: "#fff",
-			background: "rgba(0,0,0,0.7)",
-			borderRadius: "3px",
-			whiteSpace: "nowrap",
-		});
-		document.body.appendChild(depthLabel);
-	}
-	const tag = el.tagName.toLowerCase();
-	const id = el.id ? `#${el.id}` : "";
-	const cls = el.classList.length ? "." + Array.from(el.classList).join(".") : "";
-	const rect = el.getBoundingClientRect();
-	const w = rect.width.toFixed(0);
-	const h = rect.height.toFixed(0);
-	depthLabel.textContent = `${tag}${id}${cls} (${currentDepth}) ${w}×${h}`;
-	depthLabel.style.background = `hsl(${(currentDepth * 37) % 360}, 80%, 55%, 0.8)`;
-	depthLabel.style.color = wcagTextColor(depthLabel.style.background);
-	const cx = rect.left + rect.width / 2;
-	const above = rect.top - 16;
-	const below = rect.bottom + 2;
-	depthLabel.style.top = `${below}px`;
-	depthLabel.style.left = `${cx}px`;
-	depthLabel.style.transform = "translateX(-50%)";
-	requestAnimationFrame(() => {
-		const lr = depthLabel!.getBoundingClientRect();
-		const vw = window.innerWidth;
-		const vh = window.innerHeight;
-		if (lr.bottom > vh) {
-			depthLabel!.style.top = `${above}px`;
-			depthLabel!.style.transform = "translateX(-50%)";
-		}
-		if (lr.left < 0) depthLabel!.style.left = `${lr.width / 2}px`;
-		if (lr.right > vw) depthLabel!.style.left = `${vw - lr.width / 2}px`;
-	});
-	if (logTimer) clearTimeout(logTimer);
-	logTimer = setTimeout(() => {
-		const cs = window.getComputedStyle(el);
-		showBoxModel(el, cs);
-		const summary = figmaSummary(el, cs);
-		const legendParts: string[] = [];
-		const legendStyles: string[] = [];
-		const pad = `${px(cs.paddingTop)} ${px(cs.paddingRight)} ${px(cs.paddingBottom)} ${px(cs.paddingLeft)}`;
-		const marg = `${px(cs.marginTop)} ${px(cs.marginRight)} ${px(cs.marginBottom)} ${px(cs.marginLeft)}`;
-		if (marg !== "0 0 0 0") {
-			legendParts.push("%c■ margin%c");
-			legendStyles.push("color: #ffa500", "color: inherit");
-		}
-		if (pad !== "0 0 0 0") {
-			legendParts.push("%c■ padding%c");
-			legendStyles.push("color: #00c800", "color: inherit");
-		}
-		const bw = parseFloat(cs.borderTopWidth) || 0;
-		if (bw > 0) {
-			legendParts.push("%c■ border%c");
-			legendStyles.push("color: #00c8ff", "color: inherit");
-		}
-		if (cs.display === "flex" || cs.display === "inline-flex") {
-			legendParts.push("%c■ flex children%c");
-			legendStyles.push("color: #6495ed", "color: inherit");
-		}
-		const gapVal = parseFloat(cs.gap) || 0;
-		if (gapVal > 0) {
-			legendParts.push("%c■ gap%c");
-			legendStyles.push("color: #c864ff", "color: inherit");
-		}
-		legendParts.push("%c() depth%c");
-		legendStyles.push("color: #888", "color: inherit");
-		const tag = el.tagName.toLowerCase();
-		const id = el.id ? `#${el.id}` : "";
-		const cls = el.classList.length ? "." + Array.from(el.classList).join(".") : "";
-		console.log(
-			`%c[inspector] #${++logSeq} ${tag}${id}${cls} %c(${currentDepth})%c\n${legendParts.join("  ")}\n%c${summary.text}`,
-			`color: ${depthColor(currentDepth)}`,
-			`color: ${depthColor(currentDepth)}`,
-			"color: inherit",
-			...legendStyles,
-			"color: inherit",
-		);
-		logTimer = null;
-	}, 400);
-}
-
-function clearBoxOverlays(): void {
-	for (const o of boxOverlays) o.remove();
-	boxOverlays = [];
 }
 
 function wcagTextColor(bgColor: string): string {
@@ -210,30 +115,44 @@ function wcagTextColor(bgColor: string): string {
 	return lum > 0.5 ? "#000" : "#fff";
 }
 
+function px(v: string): string {
+	return v === "0px" ? "0" : v;
+}
+
+function hexColor(rgb: string): string {
+	const m = rgb.match(/\d+/g);
+	if (!m || m.length < 3) return rgb;
+	const hex = m
+		.slice(0, 3)
+		.map((v) => parseInt(v).toString(16).padStart(2, "0"))
+		.join("");
+	return `#${hex}`;
+}
+
 function addStrip(parent: Node, top: number, left: number, w: number, h: number, color: string, label?: string): void {
 	if (w <= 0 || h <= 0) return;
 	const div = document.createElement("div");
 	Object.assign(div.style, {
 		position: "fixed",
-		zIndex: "1000001",
+		zIndex: Z_INDEX.overlay,
 		pointerEvents: "none",
 		top: `${top}px`,
 		left: `${left}px`,
 		width: `${w}px`,
 		height: `${h}px`,
 		outline: `1px dashed ${color}`,
-		background: color.replace("0.6", "0.12"),
+		background: color.replace(/[\d.]+\)$/, "0.12)"),
 	});
 	boxOverlays.push(div);
 	parent.appendChild(div);
 
 	if (label) {
-		const lbl = document.createElement("div");
-		const bg = color.replace("0.6", "0.85");
+		const bg = color.replace(/[\d.]+\)$/, "0.85)");
 		const textColor = wcagTextColor(bg);
+		const lbl = document.createElement("div");
 		Object.assign(lbl.style, {
 			position: "fixed",
-			zIndex: "1000002",
+			zIndex: Z_INDEX.labelStrip,
 			pointerEvents: "none",
 			fontSize: "10px",
 			fontFamily: "monospace",
@@ -244,8 +163,10 @@ function addStrip(parent: Node, top: number, left: number, w: number, h: number,
 			whiteSpace: "nowrap",
 			lineHeight: "1",
 		});
-		lbl.style.top = `${top + (h - 14) / 2}px`;
-		lbl.style.left = `${left + (w - label.length * 6) / 2}px`;
+		const lblW = label.length * 6;
+		const lblH = 14;
+		lbl.style.top = `${top + Math.max(0, (h - lblH) / 2)}px`;
+		lbl.style.left = `${left + Math.max(0, (w - lblW) / 2)}px`;
 		lbl.textContent = label;
 		boxOverlays.push(lbl);
 		parent.appendChild(lbl);
@@ -264,63 +185,48 @@ function showBoxModel(el: HTMLElement, cs: CSSStyleDeclaration): void {
 	const pb = parseFloat(cs.paddingBottom) || 0;
 	const pl = parseFloat(cs.paddingLeft) || 0;
 
-	const marginColor = "rgba(255, 165, 0, 0.6)";
-	const padColor = "rgba(0, 200, 0, 0.6)";
-
-	if (mt) addStrip(document.body, rect.top - mt, rect.left - ml, rect.width + ml + mr, mt, marginColor, `${mt.toFixed(0)}`);
-	if (mb) addStrip(document.body, rect.bottom, rect.left - ml, rect.width + ml + mr, mb, marginColor, `${mb.toFixed(0)}`);
-	if (ml) addStrip(document.body, rect.top - mt, rect.left - ml, ml, rect.height + mt + mb, marginColor, `${ml.toFixed(0)}`);
-	if (mr) addStrip(document.body, rect.top - mt, rect.right, mr, rect.height + mt + mb, marginColor, `${mr.toFixed(0)}`);
+	if (mt) addStrip(document.body, rect.top - mt, rect.left - ml, rect.width + ml + mr, mt, COLORS.margin, `${mt.toFixed(0)}`);
+	if (mb) addStrip(document.body, rect.bottom, rect.left - ml, rect.width + ml + mr, mb, COLORS.margin, `${mb.toFixed(0)}`);
+	if (ml) addStrip(document.body, rect.top - mt, rect.left - ml, ml, rect.height + mt + mb, COLORS.margin, `${ml.toFixed(0)}`);
+	if (mr) addStrip(document.body, rect.top - mt, rect.right, mr, rect.height + mt + mb, COLORS.margin, `${mr.toFixed(0)}`);
 
 	if (pt || pr || pb || pl) {
-		if (pt) addStrip(document.body, rect.top, rect.left + pl, rect.width - pl - pr, pt, padColor, `${pt.toFixed(0)}`);
-		if (pb) addStrip(document.body, rect.bottom - pb, rect.left + pl, rect.width - pl - pr, pb, padColor, `${pb.toFixed(0)}`);
-		if (pl) addStrip(document.body, rect.top, rect.left, pl, rect.height, padColor, `${pl.toFixed(0)}`);
-		if (pr) addStrip(document.body, rect.top, rect.right - pr, pr, rect.height, padColor, `${pr.toFixed(0)}`);
+		if (pt) addStrip(document.body, rect.top, rect.left + pl, rect.width - pl - pr, pt, COLORS.padding, `${pt.toFixed(0)}`);
+		if (pb) addStrip(document.body, rect.bottom - pb, rect.left + pl, rect.width - pl - pr, pb, COLORS.padding, `${pb.toFixed(0)}`);
+		if (pl) addStrip(document.body, rect.top, rect.left, pl, rect.height, COLORS.padding, `${pl.toFixed(0)}`);
+		if (pr) addStrip(document.body, rect.top, rect.right - pr, pr, rect.height, COLORS.padding, `${pr.toFixed(0)}`);
 	}
 
 	const bt = parseFloat(cs.borderTopWidth) || 0;
 	const br = parseFloat(cs.borderRightWidth) || 0;
 	const bb = parseFloat(cs.borderBottomWidth) || 0;
 	const bl = parseFloat(cs.borderLeftWidth) || 0;
-	const borderColor = "rgba(0, 200, 255, 0.6)";
-	if (bt) addStrip(document.body, rect.top, rect.left, rect.width, bt, borderColor, `border ${bt.toFixed(0)}`);
-	if (bb) addStrip(document.body, rect.bottom - bb, rect.left, rect.width, bb, borderColor, `border ${bb.toFixed(0)}`);
-	if (bl) addStrip(document.body, rect.top, rect.left, bl, rect.height, borderColor, `border ${bl.toFixed(0)}`);
-	if (br) addStrip(document.body, rect.top, rect.right - br, br, rect.height, borderColor, `border ${br.toFixed(0)}`);
+	if (bt) addStrip(document.body, rect.top, rect.left, rect.width, bt, COLORS.border, `border ${bt.toFixed(0)}`);
+	if (bb) addStrip(document.body, rect.bottom - bb, rect.left, rect.width, bb, COLORS.border, `border ${bb.toFixed(0)}`);
+	if (bl) addStrip(document.body, rect.top, rect.left, bl, rect.height, COLORS.border, `border ${bl.toFixed(0)}`);
+	if (br) addStrip(document.body, rect.top, rect.right - br, br, rect.height, COLORS.border, `border ${br.toFixed(0)}`);
 
 	const brtl = parseFloat(cs.borderTopLeftRadius) || 0;
 	const brtr = parseFloat(cs.borderTopRightRadius) || 0;
 	const brbr = parseFloat(cs.borderBottomRightRadius) || 0;
 	const brbl = parseFloat(cs.borderBottomLeftRadius) || 0;
-	const radiusColor = "rgba(255, 255, 255, 0.6)";
-	if (brtl) addStrip(document.body, rect.top, rect.left, 8, 8, radiusColor, `↱${brtl.toFixed(0)}`);
-	if (brtr) addStrip(document.body, rect.top, rect.right - 8, 8, 8, radiusColor, `↰${brtr.toFixed(0)}`);
-	if (brbr) addStrip(document.body, rect.bottom - 8, rect.right - 8, 8, 8, radiusColor, `↲${brbr.toFixed(0)}`);
-	if (brbl) addStrip(document.body, rect.bottom - 8, rect.left, 8, 8, radiusColor, `↳${brbl.toFixed(0)}`);
+	const R = 8;
+	if (brtl) addStrip(document.body, rect.top, rect.left, R, R, COLORS.radius, `↱${brtl.toFixed(0)}`);
+	if (brtr) addStrip(document.body, rect.top, rect.right - R, R, R, COLORS.radius, `↰${brtr.toFixed(0)}`);
+	if (brbr) addStrip(document.body, rect.bottom - R, rect.right - R, R, R, COLORS.radius, `↲${brbr.toFixed(0)}`);
+	if (brbl) addStrip(document.body, rect.bottom - R, rect.left, R, R, COLORS.radius, `↳${brbl.toFixed(0)}`);
 
-	if (cs.display === "flex" || cs.display === "inline-flex") {
-		const children = Array.from(el.children);
-		const childRects = children.map((c) => c.getBoundingClientRect()).filter((r) => r.width > 0 && r.height > 0);
+	const isFlex = cs.display === "flex" || cs.display === "inline-flex";
+	if (isFlex) {
+		const childRects = Array.from(el.children)
+			.map((c) => c.getBoundingClientRect())
+			.filter((r) => r.width > 0 && r.height > 0);
 
 		for (const cr of childRects) {
-			const childDiv = document.createElement("div");
-			Object.assign(childDiv.style, {
-				position: "fixed",
-				zIndex: "1000001",
-				pointerEvents: "none",
-				top: `${cr.top}px`,
-				left: `${cr.left}px`,
-				width: `${cr.width}px`,
-				height: `${cr.height}px`,
-				outline: "1px dashed rgba(100, 149, 237, 0.8)",
-			});
-			boxOverlays.push(childDiv);
-			document.body.appendChild(childDiv);
+			addStrip(document.body, cr.top, cr.left, cr.width, cr.height, COLORS.flexChild);
 		}
 
 		const gapVal = parseFloat(cs.gap) || 0;
-		const gapColor = "rgba(200, 100, 255, 0.6)";
 		if (gapVal > 0 && childRects.length > 1) {
 			const isColumn = cs.flexDirection === "column" || cs.flexDirection === "column-reverse";
 			const sorted = [...childRects].sort((a, b) => (isColumn ? a.top - b.top : a.left - b.left));
@@ -328,34 +234,56 @@ function showBoxModel(el: HTMLElement, cs: CSSStyleDeclaration): void {
 				const a = sorted[i];
 				const b = sorted[i + 1];
 				if (isColumn) {
-					const gapTop = a.bottom;
-					const gapHeight = b.top - a.bottom;
-					addStrip(document.body, gapTop, rect.left + pl, rect.width - pl - pr, gapHeight, gapColor, `${gapHeight.toFixed(0)}`);
+					addStrip(document.body, a.bottom, rect.left + pl, rect.width - pl - pr, b.top - a.bottom, COLORS.gap, `${(b.top - a.bottom).toFixed(0)}`);
 				} else {
-					const gapLeft = a.right;
-					const gapWidth = b.left - a.right;
-					addStrip(document.body, rect.top + pt, gapLeft, gapWidth, rect.height - pt - pb, gapColor, `${gapWidth.toFixed(0)}`);
+					addStrip(document.body, rect.top + pt, a.right, b.left - a.right, rect.height - pt - pb, COLORS.gap, `${(b.left - a.right).toFixed(0)}`);
 				}
 			}
 		}
 	}
 }
 
-function px(v: string): string {
-	return v === "0px" ? "0" : v;
+function clearBoxOverlays(): void {
+	for (const o of boxOverlays) o.remove();
+	boxOverlays = [];
 }
 
-function hexColor(rgb: string): string {
-	const m = rgb.match(/\d+/g);
-	if (!m || m.length < 3) return rgb;
-	const hex = m
-		.slice(0, 3)
-		.map((v) => parseInt(v).toString(16).padStart(2, "0"))
-		.join("");
-	return `#${hex}`;
+interface LegendEntry {
+	label: string;
+	color: string;
 }
 
-function figmaSummary(el: HTMLElement, cs: CSSStyleDeclaration): { text: string; styles: string[] } {
+function buildLegend(cs: CSSStyleDeclaration): LegendEntry[] {
+	const entries: LegendEntry[] = [];
+	const marg = `${px(cs.marginTop)} ${px(cs.marginRight)} ${px(cs.marginBottom)} ${px(cs.marginLeft)}`;
+	const pad = `${px(cs.paddingTop)} ${px(cs.paddingRight)} ${px(cs.paddingBottom)} ${px(cs.paddingLeft)}`;
+	const bw = parseFloat(cs.borderTopWidth) || 0;
+	const gapVal = parseFloat(cs.gap) || 0;
+	if (marg !== "0 0 0 0") entries.push({ label: "margin", color: "#ffa500" });
+	if (pad !== "0 0 0 0") entries.push({ label: "padding", color: "#00c800" });
+	if (bw > 0) entries.push({ label: "border", color: "#00c8ff" });
+	if (cs.display === "flex" || cs.display === "inline-flex") entries.push({ label: "flex children", color: "#6495ed" });
+	if (gapVal > 0) entries.push({ label: "gap", color: "#c864ff" });
+	entries.push({ label: "() depth", color: "#888" });
+	return entries;
+}
+
+function formatLegend(entries: LegendEntry[]): { text: string; styles: string[] } {
+	const parts: string[] = [];
+	const styles: string[] = [];
+	for (const e of entries) {
+		parts.push(`%c■ ${e.label}%c`);
+		styles.push(`color: ${e.color}`, "color: inherit");
+	}
+	return { text: parts.join("  "), styles };
+}
+
+interface SummaryResult {
+	text: string;
+	styles: string[];
+}
+
+function figmaSummary(el: HTMLElement, cs: CSSStyleDeclaration): SummaryResult {
 	const segments: string[] = [];
 	const styles: string[] = [];
 	const tag = el.tagName.toLowerCase();
@@ -403,6 +331,76 @@ function figmaSummary(el: HTMLElement, cs: CSSStyleDeclaration): { text: string;
 	const ov = cs.overflow;
 	if (ov !== "visible") segments.push(`  Overflow: ${ov}`);
 	return { text: segments.join("\n"), styles };
+}
+
+function highlight(el: HTMLElement): void {
+	if (!el || el === overlay) return;
+	if (outlineEl) outlineEl.style.outline = savedOutline;
+	outlineEl = el;
+	savedOutline = el.style.outline;
+	currentDepth = depth(el);
+	const color = depthColor(currentDepth);
+	el.style.outline = `2px solid ${color}`;
+	el.style.outlineOffset = "-1px";
+	current = el;
+	if (!depthLabel) {
+		depthLabel = document.createElement("div");
+		Object.assign(depthLabel.style, {
+			position: "fixed",
+			zIndex: Z_INDEX.label,
+			pointerEvents: "none",
+			padding: "2px 6px",
+			fontSize: "11px",
+			fontWeight: "600",
+			fontFamily: "monospace",
+			background: "rgba(0,0,0,0.7)",
+			borderRadius: "3px",
+			whiteSpace: "nowrap",
+		});
+		document.body.appendChild(depthLabel);
+	}
+	const tag = el.tagName.toLowerCase();
+	const id = el.id ? `#${el.id}` : "";
+	const cls = el.classList.length ? "." + Array.from(el.classList).join(".") : "";
+	const rect = el.getBoundingClientRect();
+	const w = rect.width.toFixed(0);
+	const h = rect.height.toFixed(0);
+	depthLabel.textContent = `${tag}${id}${cls} (${currentDepth}) ${w}×${h}`;
+	depthLabel.style.background = `hsl(${(currentDepth * 37) % 360}, 80%, 55%, 0.8)`;
+	depthLabel.style.color = wcagTextColor(depthLabel.style.background);
+	const cx = rect.left + rect.width / 2;
+	const above = rect.top - 16;
+	const below = rect.bottom + 2;
+	depthLabel.style.top = `${below}px`;
+	depthLabel.style.left = `${cx}px`;
+	depthLabel.style.transform = "translateX(-50%)";
+	requestAnimationFrame(() => {
+		const lr = depthLabel!.getBoundingClientRect();
+		const vw = window.innerWidth;
+		const vh = window.innerHeight;
+		if (lr.bottom > vh) {
+			depthLabel!.style.top = `${above}px`;
+			depthLabel!.style.transform = "translateX(-50%)";
+		}
+		if (lr.left < 0) depthLabel!.style.left = `${lr.width / 2}px`;
+		if (lr.right > vw) depthLabel!.style.left = `${vw - lr.width / 2}px`;
+	});
+	if (logTimer) clearTimeout(logTimer);
+	logTimer = setTimeout(() => {
+		const cs = window.getComputedStyle(el);
+		showBoxModel(el, cs);
+		const summary = figmaSummary(el, cs);
+		const legend = formatLegend(buildLegend(cs));
+		console.log(
+			`%c[inspector] #${++logSeq} ${tag}${id}${cls} %c(${currentDepth})%c\n${legend.text}\n%c${summary.text}`,
+			`color: ${depthColor(currentDepth)}`,
+			`color: ${depthColor(currentDepth)}`,
+			"color: inherit",
+			...legend.styles,
+			"color: inherit",
+		);
+		logTimer = null;
+	}, 400);
 }
 
 function captureStyles(): void {
