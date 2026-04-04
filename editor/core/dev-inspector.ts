@@ -195,10 +195,19 @@ function showBoxModel(el: HTMLElement, cs: CSSStyleDeclaration): void {
 	const br = parseFloat(cs.borderRightWidth) || 0;
 	const bb = parseFloat(cs.borderBottomWidth) || 0;
 	const bl = parseFloat(cs.borderLeftWidth) || 0;
-	if (bt) addStrip(document.body, rect.top, rect.left, rect.width, bt, COLORS.border, `border ${bt.toFixed(0)}`);
-	if (bb) addStrip(document.body, rect.bottom - bb, rect.left, rect.width, bb, COLORS.border, `border ${bb.toFixed(0)}`);
-	if (bl) addStrip(document.body, rect.top, rect.left, bl, rect.height, COLORS.border, `border ${bl.toFixed(0)}`);
-	if (br) addStrip(document.body, rect.top, rect.right - br, br, rect.height, COLORS.border, `border ${br.toFixed(0)}`);
+	const borderVals = [bt, br, bb, bl];
+	const allSame = borderVals.every((v) => v === borderVals[0]);
+	if (allSame && bt) {
+		addStrip(document.body, rect.top, rect.left, rect.width, bt, COLORS.border, `b ${bt.toFixed(0)}`);
+	} else {
+		const counts = new Map<number, number>();
+		for (const v of borderVals) counts.set(v, (counts.get(v) || 0) + 1);
+		const common = borderVals.length > 0 ? [...counts.entries()].sort((a, b) => b[1] - a[1])[0][0] : 0;
+		if (bt !== common) addStrip(document.body, rect.top, rect.left, rect.width, bt, COLORS.border, `b-t ${bt.toFixed(0)}`);
+		if (bb !== common) addStrip(document.body, rect.bottom - bb, rect.left, rect.width, bb, COLORS.border, `b-b ${bb.toFixed(0)}`);
+		if (bl !== common) addStrip(document.body, rect.top, rect.left, bl, rect.height, COLORS.border, `b-l ${bl.toFixed(0)}`);
+		if (br !== common) addStrip(document.body, rect.top, rect.right - br, br, rect.height, COLORS.border, `b-r ${br.toFixed(0)}`);
+	}
 
 	const brtl = parseFloat(cs.borderTopLeftRadius) || 0;
 	const brtr = parseFloat(cs.borderTopRightRadius) || 0;
