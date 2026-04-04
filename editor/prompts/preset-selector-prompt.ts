@@ -71,22 +71,38 @@ export class PresetSelectorPrompt extends BasePrompt {
 
 		const inputRowEl = inputRow({ gap: rowGap }, this._searchInput, tagButton);
 
-		this._tagBanner = div({ style: "display: none; flex-direction: column; gap: 4px; padding: 4px 8px; font-size: 11px; color: var(--secondary-text); border: 2px solid var(--ui-widget-background); border-radius: 8px; margin-top: 4px;" });
+		this._tagBanner = div({
+			style: "display: none; flex-direction: column; gap: 4px; padding: 4px 8px; font-size: 11px; color: var(--secondary-text); border: 2px solid var(--ui-widget-background); border-radius: 8px; margin-top: 4px;",
+		});
 		this._categoryList = fixedPane("180px", { padding: "8px" });
 		this._categoryList.style.transition = "opacity 0.15s";
 		this._categoryList.style.display = "flex";
 		this._categoryList.style.flexDirection = "column";
 		this._categoryList.style.gap = "8px";
-		this._categoryList.addEventListener("mouseenter", () => { this._lastInteraction = "hover"; this._hoveredPane = "categories"; this._updateHighlight(); });
-		this._categoryList.addEventListener("mouseleave", () => { this._hoveredPane = null; this._updateHighlight(); });
+		this._categoryList.addEventListener("mouseenter", () => {
+			this._lastInteraction = "hover";
+			this._hoveredPane = "categories";
+			this._updateHighlight();
+		});
+		this._categoryList.addEventListener("mouseleave", () => {
+			this._hoveredPane = null;
+			this._updateHighlight();
+		});
 
 		this._presetList = flexPane({ padding: "8px" });
 		this._presetList.style.display = "grid";
 		this._presetList.style.gridTemplateColumns = "1fr 1fr";
 		this._presetList.style.gap = "8px";
 		this._presetList.style.alignContent = "start";
-		this._presetList.addEventListener("mouseenter", () => { this._lastInteraction = "hover"; this._hoveredPane = "presets"; this._updateHighlight(); });
-		this._presetList.addEventListener("mouseleave", () => { this._hoveredPane = null; this._updateHighlight(); });
+		this._presetList.addEventListener("mouseenter", () => {
+			this._lastInteraction = "hover";
+			this._hoveredPane = "presets";
+			this._updateHighlight();
+		});
+		this._presetList.addEventListener("mouseleave", () => {
+			this._hoveredPane = null;
+			this._updateHighlight();
+		});
 
 		this._infoPanel = fixedPane("180px", { padding: "8px" });
 		this._infoPanel.style.fontSize = "12px";
@@ -156,7 +172,11 @@ export class PresetSelectorPrompt extends BasePrompt {
 		}
 
 		this.container.addEventListener("keydown", this._onContainerKeyDown);
-		this.container.addEventListener("mouseleave", () => { this._hoveredPane = null; this._lastInteraction = null; this._updateHighlight(); });
+		this.container.addEventListener("mouseleave", () => {
+			this._hoveredPane = null;
+			this._lastInteraction = null;
+			this._updateHighlight();
+		});
 
 		setTimeout(() => this._searchInput.focus());
 	}
@@ -355,9 +375,7 @@ export class PresetSelectorPrompt extends BasePrompt {
 					class: "presetItem",
 					title: label,
 				},
-				this._isSearchMode
-					? div({}, preset.name, div({ style: "font-size: 11px; opacity: 0.7;" }, (preset as any).categoryName))
-					: label,
+				this._isSearchMode ? div({}, preset.name, div({ style: "font-size: 11px; opacity: 0.7;" }, (preset as any).categoryName)) : label,
 			);
 			const idx = i;
 			item.addEventListener("mousedown", (event: MouseEvent) => {
@@ -439,7 +457,9 @@ export class PresetSelectorPrompt extends BasePrompt {
 		this._infoPanel.appendChild(
 			div({}, sectionLabel("Preset"), div({ style: "color: var(--primary-text); font-size: 13px; word-break: break-word;" }, preset.name)),
 		);
-		this._infoPanel.appendChild(div({}, sectionLabel("Position"), div({ style: "color: var(--primary-text); font-size: 13px;" }, `${posStr} / ${totalStr}`)));
+		this._infoPanel.appendChild(
+			div({}, sectionLabel("Position"), div({ style: "color: var(--primary-text); font-size: 13px;" }, `${posStr} / ${totalStr}`)),
+		);
 		if (this._isSearchMode) {
 			this._infoPanel.appendChild(div({}, sectionLabel("Results"), div({ style: "color: var(--primary-text); font-size: 13px;" }, `${total} matching`)));
 		}
