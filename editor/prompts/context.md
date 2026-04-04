@@ -22,14 +22,13 @@
 - `limiter-prompt.ts` — Provides dialog for configuring song limiter and compressor settings
 - `move-notes-sideways-prompt.ts` — Provides dialog for shifting selected notes horizontally in time
 - `octave-count-prompt.ts` — Provides dialog for changing the song octave count
-- `preset-selector-prompt.ts` — Dual-pane modal for browsing and selecting instrument presets with tag filtering
+- `instrument-browser-prompt.ts` — Tabbed modal for browsing instrument presets and tags with shared filter state
 - `recording-setup-prompt.ts` — Provides dialog for configuring live recording input settings
 - `sample-loading-status-prompt.ts` — Provides dialog showing progress of audio sample loading
 - `shortener-config-prompt.ts` — Provides dialog for configuring URL shortener settings
 - `song-duration-prompt.ts` — Provides dialog for adjusting song length and loop end bar
 - `song-recovery-prompt.ts` — Provides dialog for browsing and restoring song recovery snapshots
 - `sustain-prompt.ts` — Provides dialog for configuring string sustain type and level
-- `tag-browser-prompt.ts` — Grid-based modal for browsing and toggling instrument preset tags
 - `theme-prompt.ts` — Provides dialog for selecting editor color theme
 - `tip-prompt.ts` — Provides dialog displaying usage tips and keyboard shortcuts
 - `visual-loop-controls-prompt.ts` — Provides dialog for configuring visual loop display and chip wave loop settings

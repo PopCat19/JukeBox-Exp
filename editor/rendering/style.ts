@@ -1039,6 +1039,49 @@ html {
 	text-align: center;
 }
 
+.beepboxEditor .prompt.compactSearchPrompt .tabBar {
+	display: flex;
+	gap: 4px;
+}
+
+.beepboxEditor .prompt.compactSearchPrompt .tabButton {
+	flex: 1;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	height: 32px;
+	padding: 0 var(--padding-10);
+	background: transparent;
+	border: none;
+	border-radius: var(--border-radius-medium);
+	color: var(--secondary-text);
+	font-size: 14px;
+	line-height: 1.4;
+	cursor: pointer;
+	transition: background 80ms ease, color 80ms ease;
+}
+.beepboxEditor .prompt.compactSearchPrompt .tabButton:hover {
+	color: var(--primary-text);
+}
+.beepboxEditor .prompt.compactSearchPrompt .tabButton.active {
+	color: var(--primary-text);
+	background: var(--ui-widget-focus);
+}
+
+.beepboxEditor .prompt.compactSearchPrompt .presetsTabContent,
+.beepboxEditor .prompt.compactSearchPrompt .tagsTabContent {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+}
+
+.beepboxEditor .prompt.compactSearchPrompt .tagGridContainer {
+	border: 2px solid var(--ui-widget-background);
+	border-radius: var(--border-radius-medium);
+	overflow: hidden;
+	padding: 8px;
+}
+
 .beepboxEditor .prompt.keyboardShortcutsPrompt .shortcutRow {
 	display: flex;
 	justify-content: space-between;

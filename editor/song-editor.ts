@@ -89,11 +89,11 @@ import { AddSamplesPrompt } from "./prompts/add-samples-prompt";
 import { CustomScalePrompt } from "./prompts/custom-scale-prompt";
 import { CustomThemePrompt } from "./prompts/custom-theme-prompt";
 import { ImportPrompt } from "./prompts/import-prompt";
+import { InstrumentBrowserPrompt } from "./prompts/instrument-browser-prompt";
 import { KeyboardShortcutsPrompt } from "./prompts/keyboard-shortcuts-prompt";
 import { LayoutPrompt } from "./prompts/layout-prompt";
 import { LimiterPrompt } from "./prompts/limiter-prompt";
 import { MoveNotesSidewaysPrompt } from "./prompts/move-notes-sideways-prompt";
-import { PresetSelectorPrompt } from "./prompts/preset-selector-prompt";
 import { Prompt } from "./prompts/prompt";
 import { RecordingSetupPrompt } from "./prompts/recording-setup-prompt";
 import { SampleLoadingStatusPrompt } from "./prompts/sample-loading-status-prompt";
@@ -101,7 +101,6 @@ import { ShortenerConfigPrompt } from "./prompts/shortener-config-prompt";
 import { SongDurationPrompt } from "./prompts/song-duration-prompt";
 import { SongRecoveryPrompt } from "./prompts/song-recovery-prompt";
 import { SustainPrompt } from "./prompts/sustain-prompt";
-import { TagBrowserPrompt } from "./prompts/tag-browser-prompt";
 import { ThemePrompt } from "./prompts/theme-prompt";
 import { TipPrompt } from "./prompts/tip-prompt";
 import { VisualLoopControlsPrompt } from "./prompts/visual-loop-controls-prompt";
@@ -1651,7 +1650,7 @@ export class SongEditor implements ModSliderProvider, MenuHandlerHost, DrumsetSe
 
 	private readonly _instrumentTagRow: HTMLDivElement = div(
 		{ class: "selectRow", style: "position:relative;" },
-		span({ class: "tip", onclick: () => this._openPrompt("instrumentTags") }, "Tags:"),
+		span({ class: "tip", onclick: () => this._openPrompt("instrumentBrowser") }, "Tags:"),
 		this._tagInputWrapper,
 	);
 
@@ -3314,12 +3313,12 @@ export class SongEditor implements ModSliderProvider, MenuHandlerHost, DrumsetSe
 	}
 
 	public openPresetSelector(): void {
-		if (this.doc.prompt === "presetSelector") {
+		if (this.doc.prompt === "instrumentBrowser") {
 			this.closePrompt(null);
 			return;
 		}
-		this.doc.prompt = "presetSelector";
-		this._setPrompt("presetSelector");
+		this.doc.prompt = "instrumentBrowser";
+		this._setPrompt("instrumentBrowser");
 	}
 
 	public openShortcuts(): void {
@@ -3507,11 +3506,11 @@ export class SongEditor implements ModSliderProvider, MenuHandlerHost, DrumsetSe
 			case "drumsetSettings":
 				newPrompt = new SpectrumEditorPrompt(this.doc, this, true);
 				break;
-			case "presetSelector":
-				newPrompt = new PresetSelectorPrompt(this.doc);
+			case "instrumentBrowser":
+				newPrompt = new InstrumentBrowserPrompt(this.doc, "presets");
 				break;
 			case "instrumentTags":
-				newPrompt = new TagBrowserPrompt(this.doc);
+				newPrompt = new InstrumentBrowserPrompt(this.doc, "tags");
 				break;
 			case "keyboardShortcuts":
 				newPrompt = new KeyboardShortcutsPrompt(this.doc);
@@ -3540,8 +3539,7 @@ export class SongEditor implements ModSliderProvider, MenuHandlerHost, DrumsetSe
 						newPrompt instanceof SustainPrompt ||
 						newPrompt instanceof HarmonicsEditorPrompt ||
 						newPrompt instanceof SpectrumEditorPrompt ||
-						newPrompt instanceof PresetSelectorPrompt ||
-						newPrompt instanceof TagBrowserPrompt ||
+						newPrompt instanceof InstrumentBrowserPrompt ||
 						newPrompt instanceof KeyboardShortcutsPrompt ||
 						newPrompt instanceof ChannelVolumeVisualizerPrompt
 					)
