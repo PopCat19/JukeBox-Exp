@@ -1069,13 +1069,15 @@ export class InstrumentBrowserPrompt extends BasePrompt {
 		const instrument = this._doc.song.channels[this._doc.channel].instruments[this._doc.getCurrentInstrument()];
 		if (instrument.preset !== this._committedPreset) {
 			const isNoise = this._doc.song.getChannelIsNoise(this._doc.channel);
-			if (isNoise !== (this._categories[0]?.presets.some(p => EditorConfig.valueToPreset(p.value)?.isNoise) ?? false)) {
+			if (isNoise !== (this._categories[0]?.presets.some((p) => EditorConfig.valueToPreset(p.value)?.isNoise) ?? false)) {
 				this._buildCategories(isNoise);
 				this._renderCategories();
 			}
 			this._committedPreset = instrument.preset;
 			this._syncSelectionToCommittedPreset();
 			this._updateHighlight();
+			this._scrollItemIntoView(this._categoryItems, this._selectedCategoryIndex, this._categoryList);
+			this._scrollItemIntoView(this._presetItems, this._selectedPresetIndex, this._presetList);
 		}
 	};
 
@@ -1087,9 +1089,7 @@ export class InstrumentBrowserPrompt extends BasePrompt {
 				if (!this._isSearchMode) {
 					this._renderPresets();
 				}
-				this._selectedPresetIndex = this._isSearchMode
-					? this._filteredPresets.findIndex((p) => p.value === this._committedPreset)
-					: pi;
+				this._selectedPresetIndex = this._isSearchMode ? this._filteredPresets.findIndex((p) => p.value === this._committedPreset) : pi;
 				if (this._selectedPresetIndex < 0) this._selectedPresetIndex = 0;
 				return;
 			}
