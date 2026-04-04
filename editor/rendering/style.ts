@@ -996,22 +996,40 @@ html {
 	font-size: 13px;
 	line-height: 1.3;
 	border-radius: 8px;
-	transition: background 80ms ease;
+	background: rgba(255,255,255,0.03);
 }
 
 .beepboxEditor .prompt.compactSearchPrompt .categoryItem:hover,
 .beepboxEditor .prompt.compactSearchPrompt .presetItem:hover {
-	background: rgba(255,255,255,0.08);
+	background: rgba(255,255,255,0.06);
 }
 
-.beepboxEditor .prompt.compactSearchPrompt .categoryItem.active,
-.beepboxEditor .prompt.compactSearchPrompt .presetItem.active {
-	background: rgba(255,255,255,0.12);
+.beepboxEditor .prompt.compactSearchPrompt .categoryItem.committed,
+.beepboxEditor .prompt.compactSearchPrompt .presetItem.committed {
+	outline: 2px solid rgba(255,255,255,0.15);
+	outline-offset: -2px;
 }
 
 .beepboxEditor .prompt.compactSearchPrompt .categoryItem.focused,
 .beepboxEditor .prompt.compactSearchPrompt .presetItem.focused {
-	background: rgba(255,255,255,0.22);
+	background: rgba(255,255,255,0.03);
+	outline: 2px solid var(--indicator-primary, #4444ff);
+	outline-offset: -2px;
+}
+
+.beepboxEditor .prompt.compactSearchPrompt .categoryItem.dimmed,
+.beepboxEditor .prompt.compactSearchPrompt .presetItem.dimmed {
+	opacity: 0.6;
+}
+
+.beepboxEditor .prompt.compactSearchPrompt .categoryItem.dimmed-heavy,
+.beepboxEditor .prompt.compactSearchPrompt .presetItem.dimmed-heavy {
+	background: transparent;
+	color: rgba(255,255,255,0.8);
+	outline: 2px solid rgba(255,255,255,0.15);
+	outline-offset: -2px;
+	cursor: default;
+	opacity: 1;
 }
 
 .beepboxEditor .prompt.compactSearchPrompt .presetListEmpty {

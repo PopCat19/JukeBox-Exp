@@ -41,6 +41,9 @@ export class PresetSelectorPrompt extends BasePrompt {
 	private _activeTags: string[] = [];
 	private _tagBanner: HTMLDivElement;
 	private _externalTagHandler: () => void;
+	private _committedPreset: number;
+	private _hoveredPane: "categories" | "presets" | null = null;
+	private _lastInteraction: "hover" | "keyboard" | null = null;
 
 	public readonly container: HTMLDivElement;
 
@@ -48,6 +51,8 @@ export class PresetSelectorPrompt extends BasePrompt {
 		super(doc);
 		const isNoise: boolean = this._doc.song.getChannelIsNoise(this._doc.channel);
 		const currentPreset: number = this._doc.song.channels[this._doc.channel].instruments[this._doc.getCurrentInstrument()].preset;
+
+		this._committedPreset = currentPreset;
 
 		this._buildCategories(isNoise);
 
@@ -67,16 +72,23 @@ export class PresetSelectorPrompt extends BasePrompt {
 
 		this._tagBanner = infoBanner({ fontSize: "11px" });
 
-		this._categoryList = fixedPane("180px", { padding: "4px" });
+		this._categoryList = fixedPane("180px", { padding: "8px" });
 		this._categoryList.style.transition = "opacity 0.15s";
+		this._categoryList.style.display = "flex";
+		this._categoryList.style.flexDirection = "column";
+		this._categoryList.style.gap = "8px";
+		this._categoryList.addEventListener("mouseenter", () => { this._lastInteraction = "hover"; this._hoveredPane = "categories"; this._updateHighlight(); });
+		this._categoryList.addEventListener("mouseleave", () => { this._hoveredPane = null; this._updateHighlight(); });
 
-		this._presetList = flexPane({ padding: "4px" });
+		this._presetList = flexPane({ padding: "8px" });
 		this._presetList.style.display = "grid";
 		this._presetList.style.gridTemplateColumns = "1fr 1fr";
-		this._presetList.style.gap = "4px";
+		this._presetList.style.gap = "8px";
 		this._presetList.style.alignContent = "start";
+		this._presetList.addEventListener("mouseenter", () => { this._lastInteraction = "hover"; this._hoveredPane = "presets"; this._updateHighlight(); });
+		this._presetList.addEventListener("mouseleave", () => { this._hoveredPane = null; this._updateHighlight(); });
 
-		this._infoPanel = fixedPane("180px", { padding: "4px" });
+		this._infoPanel = fixedPane("180px", { padding: "8px" });
 		this._infoPanel.style.fontSize = "12px";
 		this._infoPanel.style.color = "var(--secondary-text)";
 		this._infoPanel.style.lineHeight = "1.5";
@@ -124,10 +136,11 @@ export class PresetSelectorPrompt extends BasePrompt {
 			this._selectedPresetIndex = initPresetIndex;
 			this._activePane = "presets";
 			this._updateHighlight();
-			requestAnimationFrame(() => {
-				this._scrollItemIntoView(this._presetItems, initPresetIndex, this._presetList);
+			setTimeout(() => {
+				console.log("[scroll] cat:", initCatIndex, "of", this._categoryItems.length, "preset:", initPresetIndex, "of", this._presetItems.length);
 				this._scrollItemIntoView(this._categoryItems, initCatIndex, this._categoryList);
-			});
+				this._scrollItemIntoView(this._presetItems, initPresetIndex, this._presetList);
+			}, 100);
 		}
 
 		this._searchInput.addEventListener("input", this._onSearchInput);
@@ -143,6 +156,7 @@ export class PresetSelectorPrompt extends BasePrompt {
 		}
 
 		this.container.addEventListener("keydown", this._onContainerKeyDown);
+		this.container.addEventListener("mouseleave", () => { this._hoveredPane = null; this._lastInteraction = null; this._updateHighlight(); });
 
 		setTimeout(() => this._searchInput.focus());
 	}
@@ -330,13 +344,12 @@ export class PresetSelectorPrompt extends BasePrompt {
 		this._categoryItems = [];
 		for (let i = 0; i < this._categories.length; i++) {
 			const cat = this._categories[i];
-			const label = `${cat.name} (${cat.presets.length})`;
 			const item = div(
 				{
 					class: "categoryItem",
-					title: label,
+					title: `${cat.name} (${cat.presets.length})`,
 				},
-				label,
+				div({}, cat.name, div({ style: "font-size: 11px; opacity: 0.7;" }, `${cat.presets.length}`)),
 			);
 			const idx = i;
 			item.addEventListener("mousedown", (event: MouseEvent) => {
@@ -375,7 +388,9 @@ export class PresetSelectorPrompt extends BasePrompt {
 					class: "presetItem",
 					title: label,
 				},
-				label,
+				this._isSearchMode
+					? div({}, preset.name, div({ style: "font-size: 11px; opacity: 0.7;" }, (preset as any).categoryName))
+					: label,
 			);
 			const idx = i;
 			item.addEventListener("mousedown", (event: MouseEvent) => {
@@ -402,17 +417,25 @@ export class PresetSelectorPrompt extends BasePrompt {
 
 	private _updateHighlight(): void {
 		this._syncCategoryToPreset();
+		const hasTags = this._activeTags.length > 0;
+		const effectivePane = this._lastInteraction === "hover" ? this._hoveredPane : this._activePane;
+		const dimPane = effectivePane === "categories" ? "presets" : "categories";
 		for (let i = 0; i < this._categoryItems.length; i++) {
-			const isActive = i === this._selectedCategoryIndex;
-			const isFocused = isActive && this._activePane === "categories";
-			this._categoryItems[i].classList.toggle("active", isActive);
+			const isFocused = i === this._selectedCategoryIndex && this._activePane === "categories";
+			const isCommitted = this._categories[i].presets.some((p) => p.value === this._committedPreset);
 			this._categoryItems[i].classList.toggle("focused", isFocused);
+			this._categoryItems[i].classList.toggle("committed", isCommitted);
+			this._categoryItems[i].classList.toggle("dimmed", dimPane === "categories");
+			this._categoryItems[i].classList.toggle("dimmed-heavy", dimPane === "categories" && hasTags);
 		}
 		for (let i = 0; i < this._presetItems.length; i++) {
-			const isActive = i === this._selectedPresetIndex;
-			const isFocused = isActive && this._activePane === "presets";
-			this._presetItems[i].classList.toggle("active", isActive);
+			const isFocused = i === this._selectedPresetIndex && this._activePane === "presets";
+			const preset = this._isSearchMode ? this._filteredPresets[i] : this._categories[this._selectedCategoryIndex]?.presets[i];
+			const isCommitted = preset && preset.value === this._committedPreset;
 			this._presetItems[i].classList.toggle("focused", isFocused);
+			this._presetItems[i].classList.toggle("committed", isCommitted);
+			this._presetItems[i].classList.toggle("dimmed", dimPane === "presets");
+			this._presetItems[i].classList.toggle("dimmed-heavy", dimPane === "presets" && hasTags);
 		}
 		this._updateInfoPanel();
 	}
@@ -471,8 +494,9 @@ export class PresetSelectorPrompt extends BasePrompt {
 		if (!item) return;
 		const itemRect = item.getBoundingClientRect();
 		const containerRect = container.getBoundingClientRect();
-		if (itemRect.top < containerRect.top) container.scrollTop -= containerRect.top - itemRect.top;
-		else if (itemRect.bottom > containerRect.bottom) container.scrollTop += itemRect.bottom - containerRect.bottom;
+		const margin = 4;
+		if (itemRect.top < containerRect.top + margin) container.scrollTop -= containerRect.top - itemRect.top + margin;
+		else if (itemRect.bottom > containerRect.bottom - margin) container.scrollTop += itemRect.bottom - containerRect.bottom + margin;
 	}
 
 	private _applySelection(): void {
@@ -531,8 +555,9 @@ export class PresetSelectorPrompt extends BasePrompt {
 		} else if (event.keyCode === 40) {
 			this._activePane = "presets";
 			const maxIdx = this._getActivePresetCount() - 1;
-			if (this._selectedPresetIndex < maxIdx) {
-				this._selectedPresetIndex++;
+			const next = this._selectedPresetIndex + 2;
+			if (next <= maxIdx) {
+				this._selectedPresetIndex = next;
 				this._updateHighlight();
 				this._scrollItemIntoView(this._presetItems, this._selectedPresetIndex, this._presetList);
 				this._scrollItemIntoView(this._categoryItems, this._selectedCategoryIndex, this._categoryList);
@@ -540,8 +565,9 @@ export class PresetSelectorPrompt extends BasePrompt {
 			event.preventDefault();
 		} else if (event.keyCode === 38) {
 			this._activePane = "presets";
-			if (this._selectedPresetIndex > 0) {
-				this._selectedPresetIndex--;
+			const prev = this._selectedPresetIndex - 2;
+			if (prev >= 0) {
+				this._selectedPresetIndex = prev;
 				this._updateHighlight();
 				this._scrollItemIntoView(this._presetItems, this._selectedPresetIndex, this._presetList);
 				this._scrollItemIntoView(this._categoryItems, this._selectedCategoryIndex, this._categoryList);
@@ -549,20 +575,13 @@ export class PresetSelectorPrompt extends BasePrompt {
 			event.preventDefault();
 		} else if (event.keyCode === 9) {
 			this.container.focus();
+			this._lastInteraction = "keyboard";
 			this._activePane = this._activePane === "categories" ? "presets" : "categories";
 			this._updateHighlight();
 			event.preventDefault();
 		} else if (event.keyCode === 37 && this._searchInput.selectionStart === 0) {
-			this.container.focus();
-			this._activePane = "categories";
-			this._updateHighlight();
-			this._scrollItemIntoView(this._categoryItems, this._selectedCategoryIndex, this._categoryList);
 			event.preventDefault();
 		} else if (event.keyCode === 39 && this._searchInput.selectionStart === this._searchInput.value.length) {
-			this.container.focus();
-			this._activePane = "presets";
-			this._updateHighlight();
-			this._scrollItemIntoView(this._presetItems, this._selectedPresetIndex, this._presetList);
 			event.preventDefault();
 		}
 	};
@@ -571,6 +590,7 @@ export class PresetSelectorPrompt extends BasePrompt {
 		if (event.target === this._searchInput) return;
 		const presetCount = this._getActivePresetCount();
 		const categoryCount = this._categories.length;
+		const cols = 2;
 		switch (event.keyCode) {
 			case 38:
 				if (this._activePane === "categories") {
@@ -582,8 +602,9 @@ export class PresetSelectorPrompt extends BasePrompt {
 						this._scrollItemIntoView(this._categoryItems, this._selectedCategoryIndex, this._categoryList);
 					}
 				} else {
-					if (this._selectedPresetIndex > 0) {
-						this._selectedPresetIndex--;
+					const prev = this._selectedPresetIndex - cols;
+					if (prev >= 0) {
+						this._selectedPresetIndex = prev;
 						this._updateHighlight();
 						this._scrollItemIntoView(this._presetItems, this._selectedPresetIndex, this._presetList);
 						this._scrollItemIntoView(this._categoryItems, this._selectedCategoryIndex, this._categoryList);
@@ -601,8 +622,9 @@ export class PresetSelectorPrompt extends BasePrompt {
 						this._scrollItemIntoView(this._categoryItems, this._selectedCategoryIndex, this._categoryList);
 					}
 				} else {
-					if (this._selectedPresetIndex < presetCount - 1) {
-						this._selectedPresetIndex++;
+					const next = this._selectedPresetIndex + cols;
+					if (next < presetCount) {
+						this._selectedPresetIndex = next;
 						this._updateHighlight();
 						this._scrollItemIntoView(this._presetItems, this._selectedPresetIndex, this._presetList);
 						this._scrollItemIntoView(this._categoryItems, this._selectedCategoryIndex, this._categoryList);
@@ -618,25 +640,37 @@ export class PresetSelectorPrompt extends BasePrompt {
 					this._scrollItemIntoView(this._presetItems, this._selectedPresetIndex, this._presetList);
 					this._scrollItemIntoView(this._categoryItems, this._selectedCategoryIndex, this._categoryList);
 				} else {
-					this._applySelection();
+					const right = this._selectedPresetIndex + 1;
+					if (right < presetCount && Math.floor(right / cols) === Math.floor(this._selectedPresetIndex / cols)) {
+						this._selectedPresetIndex = right;
+						this._updateHighlight();
+						this._scrollItemIntoView(this._presetItems, this._selectedPresetIndex, this._presetList);
+					} else {
+						this._applySelection();
+					}
 				}
 				event.preventDefault();
 				break;
 			case 37:
 				if (this._activePane === "presets") {
-					this._activePane = "categories";
-					this._updateHighlight();
-					this._scrollItemIntoView(this._categoryItems, this._selectedCategoryIndex, this._categoryList);
+					const left = this._selectedPresetIndex - 1;
+					if (left >= 0 && Math.floor(left / cols) === Math.floor(this._selectedPresetIndex / cols)) {
+						this._selectedPresetIndex = left;
+						this._updateHighlight();
+						this._scrollItemIntoView(this._presetItems, this._selectedPresetIndex, this._presetList);
+					}
 				}
 				event.preventDefault();
 				break;
 			case 9:
+				this._lastInteraction = "keyboard";
 				this._activePane = this._activePane === "categories" ? "presets" : "categories";
 				this._updateHighlight();
 				event.preventDefault();
 				break;
 			case 13:
 				if (this._activePane === "categories") {
+					this._lastInteraction = "keyboard";
 					this._activePane = "presets";
 					this._selectedPresetIndex = 0;
 					this._updateHighlight();
