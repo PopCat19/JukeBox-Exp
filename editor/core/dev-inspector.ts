@@ -66,8 +66,7 @@ const LABEL_SIZE = { charWidth: 6, height: 14 } as const;
 const RADIUS_OVERLAY = 8;
 
 let current: HTMLElement | null = null;
-let outlineEl: HTMLElement | null = null;
-let savedOutline = "";
+let outlineOverlay: HTMLDivElement | null = null;
 let overlay: HTMLDivElement | null = null;
 let depthLabel: HTMLDivElement | null = null;
 let boxOverlays: HTMLDivElement[] = [];
@@ -93,7 +92,7 @@ function depthColor(d: number): string {
 
 function wcagTextColor(bgColor: string): string {
 	let r: number, g: number, b: number;
-	const hsl = bgColor.match(/hsl\(([\d.]+),\s*([\d.]+)%,\s*([\d.]+)%\)/);
+	const hsl = bgColor.match(/hsla?\(([\d.]+),\s*([\d.]+)%,\s*([\d.]+)%/);
 	if (hsl) {
 		const h = Number(hsl[1]) / 360;
 		const s = Number(hsl[2]) / 100;
@@ -112,7 +111,7 @@ function wcagTextColor(bgColor: string): string {
 		g = hue2rgb(p, q, h) * 255;
 		b = hue2rgb(p, q, h - 1 / 3) * 255;
 	} else {
-		const m = bgColor.match(/[\d.]+/g);
+		const m = bgColor.match(/\d+/g);
 		if (!m || m.length < 3) return "#fff";
 		[r, g, b] = m.slice(0, 3).map(Number);
 	}
@@ -143,6 +142,19 @@ function selector(el: HTMLElement): string {
 
 function addStrip(parent: Node, top: number, left: number, w: number, h: number, color: string, label?: string): void {
 	if (w <= 0 || h <= 0) return;
+	const div = document.createElement("div");
+	Object.assign(div.style, {
+		position: "fixed",
+		zIndex: Z_INDEX.overlay,
+		pointerEvents: "none",
+		top: `${top}px`,
+		left: `${left}px`,
+		width: `${w}px`,
+		height: `${h}px`,
+		background: `${color}22`,
+	});
+	boxOverlays.push(div);
+	parent.appendChild(div);
 
 	if (label) {
 		const lbl = document.createElement("div");
@@ -185,8 +197,8 @@ function showBoxModel(el: HTMLElement, cs: CSSStyleDeclaration): void {
 	if (mr) addStrip(document.body, rect.top - mt, rect.right, mr, rect.height + mt + mb, COLORS.margin, `${mr.toFixed(0)}`);
 
 	if (pt || pr || pb || pl) {
-		if (pt) addStrip(document.body, rect.top, rect.left + pl, rect.width - pl - pr, pt, COLORS.padding, `${pt.toFixed(0)}`);
-		if (pb) addStrip(document.body, rect.bottom - pb, rect.left + pl, rect.width - pl - pr, pb, COLORS.padding, `${pb.toFixed(0)}`);
+		if (pt) addStrip(document.body, rect.top, rect.left, rect.width, pt, COLORS.padding, `${pt.toFixed(0)}`);
+		if (pb) addStrip(document.body, rect.bottom - pb, rect.left, rect.width, pb, COLORS.padding, `${pb.toFixed(0)}`);
 		if (pl) addStrip(document.body, rect.top, rect.left, pl, rect.height, COLORS.padding, `${pl.toFixed(0)}`);
 		if (pr) addStrip(document.body, rect.top, rect.right - pr, pr, rect.height, COLORS.padding, `${pr.toFixed(0)}`);
 	}
@@ -216,7 +228,7 @@ function showBoxModel(el: HTMLElement, cs: CSSStyleDeclaration): void {
 	const radiusVals = [brtl, brtr, brbr, brbl].map((v) => Math.round(v));
 	const allSameRadius = radiusVals.every((v) => v === radiusVals[0]);
 	if (allSameRadius && brtl) {
-		addStrip(document.body, rect.top, rect.left, RADIUS_OVERLAY, RADIUS_OVERLAY, COLORS.radius, `br ${brtl.toFixed(0)}`);
+		addStrip(document.body, rect.top, rect.left, RADIUS_OVERLAY, RADIUS_OVERLAY, COLORS.radius, `○ ${brtl.toFixed(0)}`);
 	} else {
 		const counts = new Map<number, number>();
 		for (const v of radiusVals) counts.set(v, (counts.get(v) || 0) + 1);
@@ -243,7 +255,19 @@ function showBoxModel(el: HTMLElement, cs: CSSStyleDeclaration): void {
 			.filter((r) => r.width > 0 && r.height > 0);
 
 		for (const cr of childRects) {
-			addStrip(document.body, cr.top, cr.left, cr.width, cr.height, COLORS.flexChild);
+			const div = document.createElement("div");
+			Object.assign(div.style, {
+				position: "fixed",
+				zIndex: Z_INDEX.overlay,
+				pointerEvents: "none",
+				top: `${cr.top}px`,
+				left: `${cr.left}px`,
+				width: `${cr.width}px`,
+				height: `${cr.height}px`,
+				outline: `1px dashed ${COLORS.flexChild}`,
+			});
+			boxOverlays.push(div);
+			document.body.appendChild(div);
 		}
 
 		const gapVal = parseFloat(cs.gap) || 0;
@@ -254,9 +278,9 @@ function showBoxModel(el: HTMLElement, cs: CSSStyleDeclaration): void {
 				const a = sorted[i];
 				const b = sorted[i + 1];
 				if (isColumn) {
-					addStrip(document.body, a.bottom, rect.left + pl, rect.width - pl - pr, b.top - a.bottom, COLORS.gap, `${(b.top - a.bottom).toFixed(0)}`);
+					addStrip(document.body, a.bottom, rect.left + pl, rect.width - pl - pr, b.top - a.bottom, COLORS.gap, `${gapVal.toFixed(0)}`);
 				} else {
-					addStrip(document.body, rect.top + pt, a.right, b.left - a.right, rect.height - pt - pb, COLORS.gap, `${(b.left - a.right).toFixed(0)}`);
+					addStrip(document.body, rect.top + pt, a.right, b.left - a.right, rect.height - pt - pb, COLORS.gap, `${gapVal.toFixed(0)}`);
 				}
 			}
 		}
@@ -425,13 +449,22 @@ function positionDepthLabel(el: HTMLElement): void {
 
 function highlight(el: HTMLElement): void {
 	if (!el || el === overlay) return;
-	if (outlineEl) outlineEl.style.outline = savedOutline;
-	outlineEl = el;
-	savedOutline = el.style.outline;
+	if (outlineOverlay) outlineOverlay.remove();
 	currentDepth = depth(el);
 	const color = depthColor(currentDepth);
-	el.style.outline = `2px solid ${color}`;
-	el.style.outlineOffset = "-1px";
+	const elRect = el.getBoundingClientRect();
+	outlineOverlay = document.createElement("div");
+	Object.assign(outlineOverlay.style, {
+		position: "fixed",
+		top: `${elRect.top - 1}px`,
+		left: `${elRect.left - 1}px`,
+		width: `${elRect.width + 2}px`,
+		height: `${elRect.height + 2}px`,
+		outline: `2px solid ${color}`,
+		pointerEvents: "none",
+		zIndex: Z_INDEX.overlay,
+	});
+	document.body.appendChild(outlineOverlay);
 	if (current && !el.contains(current)) navStack = [];
 	current = el;
 	if (!depthLabel) {
@@ -488,9 +521,9 @@ function captureStyles(): void {
 }
 
 function deactivate(): void {
-	if (outlineEl) {
-		outlineEl.style.outline = savedOutline;
-		outlineEl = null;
+	if (outlineOverlay) {
+		outlineOverlay.remove();
+		outlineOverlay = null;
 	}
 	current = null;
 	navStack = [];
