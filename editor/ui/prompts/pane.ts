@@ -4,7 +4,6 @@
 //
 // This module:
 // - Creates a scrollable pane with optional fixed width
-// - Supports border separators between panes
 // - Used by PresetSelectorPrompt, ChannelVolumeVisualizerPrompt
 
 import { createDiv } from "../base/container";
@@ -12,8 +11,6 @@ import { createDiv } from "../base/container";
 export interface PaneOptions {
 	width?: string;
 	flex?: string;
-	borderRight?: boolean;
-	borderLeft?: boolean;
 	padding?: string;
 	scrollable?: boolean;
 }
@@ -24,14 +21,6 @@ export function pane(options?: PaneOptions, ...children: (HTMLElement | string)[
 
 	if (options?.scrollable !== false) {
 		style += " overflow-y: auto;";
-	}
-
-	if (options?.borderRight) {
-		style += " border-right: var(--pane-border-width, 2px) solid var(--ui-widget-background);";
-	}
-
-	if (options?.borderLeft) {
-		style += " border-left: var(--pane-border-width, 2px) solid var(--ui-widget-background);";
 	}
 
 	if (options?.padding) {

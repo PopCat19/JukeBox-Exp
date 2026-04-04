@@ -67,14 +67,14 @@ export class PresetSelectorPrompt extends BasePrompt {
 
 		this._tagBanner = infoBanner({ fontSize: "11px" });
 
-		this._categoryList = fixedPane("180px", { borderRight: true, padding: "4px 0" });
+		this._categoryList = fixedPane("180px", { padding: "4px" });
 		this._categoryList.style.transition = "opacity 0.15s";
 
-		this._presetList = flexPane({ borderRight: true, padding: "0" });
+		this._presetList = flexPane({ padding: "4px" });
 		this._presetList.style.display = "flex";
 		this._presetList.style.flexDirection = "column";
 
-		this._infoPanel = fixedPane("180px", { padding: "8px 10px" });
+		this._infoPanel = fixedPane("180px", { padding: "4px" });
 		this._infoPanel.style.fontSize = "12px";
 		this._infoPanel.style.color = "var(--secondary-text)";
 		this._infoPanel.style.lineHeight = "1.5";
