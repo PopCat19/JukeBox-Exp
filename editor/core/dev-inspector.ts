@@ -137,13 +137,28 @@ function highlight(el: HTMLElement): void {
 		const legendStyles: string[] = [];
 		const pad = `${px(cs.paddingTop)} ${px(cs.paddingRight)} ${px(cs.paddingBottom)} ${px(cs.paddingLeft)}`;
 		const marg = `${px(cs.marginTop)} ${px(cs.marginRight)} ${px(cs.marginBottom)} ${px(cs.marginLeft)}`;
-		if (marg !== "0 0 0 0") { legendParts.push("%c■ margin%c"); legendStyles.push("color: #ffa500", "color: inherit"); }
-		if (pad !== "0 0 0 0") { legendParts.push("%c■ padding%c"); legendStyles.push("color: #00c800", "color: inherit"); }
+		if (marg !== "0 0 0 0") {
+			legendParts.push("%c■ margin%c");
+			legendStyles.push("color: #ffa500", "color: inherit");
+		}
+		if (pad !== "0 0 0 0") {
+			legendParts.push("%c■ padding%c");
+			legendStyles.push("color: #00c800", "color: inherit");
+		}
 		const bw = parseFloat(cs.borderTopWidth) || 0;
-		if (bw > 0) { legendParts.push("%c■ border%c"); legendStyles.push("color: #00c8ff", "color: inherit"); }
-		if (cs.display === "flex" || cs.display === "inline-flex") { legendParts.push("%c■ flex children%c"); legendStyles.push("color: #6495ed", "color: inherit"); }
+		if (bw > 0) {
+			legendParts.push("%c■ border%c");
+			legendStyles.push("color: #00c8ff", "color: inherit");
+		}
+		if (cs.display === "flex" || cs.display === "inline-flex") {
+			legendParts.push("%c■ flex children%c");
+			legendStyles.push("color: #6495ed", "color: inherit");
+		}
 		const gapVal = parseFloat(cs.gap) || 0;
-		if (gapVal > 0) { legendParts.push("%c■ gap%c"); legendStyles.push("color: #c864ff", "color: inherit"); }
+		if (gapVal > 0) {
+			legendParts.push("%c■ gap%c");
+			legendStyles.push("color: #c864ff", "color: inherit");
+		}
 		legendParts.push("%c() depth%c");
 		legendStyles.push("color: #888", "color: inherit");
 		const tag = el.tagName.toLowerCase();
@@ -286,9 +301,7 @@ function showBoxModel(el: HTMLElement, cs: CSSStyleDeclaration): void {
 
 	if (cs.display === "flex" || cs.display === "inline-flex") {
 		const children = Array.from(el.children);
-		const childRects = children
-			.map((c) => c.getBoundingClientRect())
-			.filter((r) => r.width > 0 && r.height > 0);
+		const childRects = children.map((c) => c.getBoundingClientRect()).filter((r) => r.width > 0 && r.height > 0);
 
 		for (const cr of childRects) {
 			const childDiv = document.createElement("div");
@@ -459,6 +472,7 @@ export function activate(): void {
 		cursor: "crosshair",
 		background: "transparent",
 	});
+	overlay.tabIndex = -1;
 	overlay.addEventListener("mousemove", (e) => {
 		overlay!.style.pointerEvents = "none";
 		const el = document.elementFromPoint(e.clientX, e.clientY) as HTMLElement | null;
