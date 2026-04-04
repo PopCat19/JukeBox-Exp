@@ -272,57 +272,61 @@ function clearBoxOverlays(): void {
 }
 
 function reconcileLabels(): void {
-	const allLabels: HTMLElement[] = [];
-	if (depthLabel) allLabels.push(depthLabel);
-	for (const el of boxOverlays) {
-		if (el.textContent && el.style.fontSize) allLabels.push(el);
-	}
+	requestAnimationFrame(() => {
+		const allLabels: HTMLElement[] = [];
+		if (depthLabel) allLabels.push(depthLabel);
+		for (const el of boxOverlays) {
+			if (el.textContent && el.style.fontSize) allLabels.push(el);
+		}
 
-	const items = allLabels.map((el) => ({ el, rect: el.getBoundingClientRect() }));
+		const items = allLabels.map((el) => ({ el, rect: el.getBoundingClientRect() }));
 
-	for (let i = 0; i < items.length; i++) {
-		for (let j = i + 1; j < items.length; j++) {
-			const a = items[i];
-			const b = items[j];
-			const overlap = !(
-				a.rect.right <= b.rect.left ||
-				b.rect.right <= a.rect.left ||
-				a.rect.bottom <= b.rect.top ||
-				b.rect.bottom <= a.rect.top
-			);
-			if (overlap) {
-				const pushDown = a.rect.bottom - b.rect.top + 2;
-				const pushUp = b.rect.bottom - a.rect.top + 2;
-				const pushRight = a.rect.right - b.rect.left + 2;
-				const pushLeft = b.rect.right - a.rect.left + 2;
+		for (let pass = 0; pass < 3; pass++) {
+			for (let i = 0; i < items.length; i++) {
+				for (let j = i + 1; j < items.length; j++) {
+					const a = items[i];
+					const b = items[j];
+					const overlap = !(
+						a.rect.right <= b.rect.left ||
+						b.rect.right <= a.rect.left ||
+						a.rect.bottom <= b.rect.top ||
+						b.rect.bottom <= a.rect.top
+					);
+					if (overlap) {
+						const pushDown = a.rect.bottom - b.rect.top + 2;
+						const pushUp = b.rect.bottom - a.rect.top + 2;
+						const pushRight = a.rect.right - b.rect.left + 2;
+						const pushLeft = b.rect.right - a.rect.left + 2;
 
-				const shifts = [
-					{ dx: 0, dy: pushDown },
-					{ dx: 0, dy: -pushUp },
-					{ dx: pushRight, dy: 0 },
-					{ dx: -pushLeft, dy: 0 },
-				];
+						const shifts = [
+							{ dx: 0, dy: pushDown },
+							{ dx: 0, dy: -pushUp },
+							{ dx: pushRight, dy: 0 },
+							{ dx: -pushLeft, dy: 0 },
+						];
 
-				let bestDx = 0;
-				let bestDy = 0;
-				let bestDist = Infinity;
-				for (const s of shifts) {
-					const dist = Math.sqrt(s.dx * s.dx + s.dy * s.dy);
-					if (dist < bestDist) {
-						bestDx = s.dx;
-						bestDy = s.dy;
-						bestDist = dist;
+						let bestDx = 0;
+						let bestDy = 0;
+						let bestDist = Infinity;
+						for (const s of shifts) {
+							const dist = Math.sqrt(s.dx * s.dx + s.dy * s.dy);
+							if (dist < bestDist) {
+								bestDx = s.dx;
+								bestDy = s.dy;
+								bestDist = dist;
+							}
+						}
+
+						const currentTop = parseFloat(b.el.style.top);
+						const currentLeft = parseFloat(b.el.style.left);
+						b.el.style.top = `${currentTop + bestDy}px`;
+						b.el.style.left = `${currentLeft + bestDx}px`;
+						b.rect = b.el.getBoundingClientRect();
 					}
 				}
-
-				const currentTop = parseFloat(b.el.style.top);
-				const currentLeft = parseFloat(b.el.style.left);
-				b.el.style.top = `${currentTop + bestDy}px`;
-				b.el.style.left = `${currentLeft + bestDx}px`;
-				b.rect = b.el.getBoundingClientRect();
 			}
 		}
-	}
+	});
 }
 
 interface LegendEntry {
