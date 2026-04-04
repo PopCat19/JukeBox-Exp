@@ -271,6 +271,33 @@ function clearBoxOverlays(): void {
 	boxOverlays = [];
 }
 
+function reconcileLabels(): void {
+	const allLabels: HTMLElement[] = [];
+	if (depthLabel) allLabels.push(depthLabel);
+	for (const el of boxOverlays) {
+		if (el.textContent && el.style.fontSize) allLabels.push(el);
+	}
+
+	const rects = allLabels.map((el) => ({ el, rect: el.getBoundingClientRect() }));
+
+	for (let i = 0; i < rects.length; i++) {
+		for (let j = i + 1; j < rects.length; j++) {
+			const a = rects[i];
+			const b = rects[j];
+			const overlap = !(
+				a.rect.right <= b.rect.left ||
+				b.rect.right <= a.rect.left ||
+				a.rect.bottom <= b.rect.top ||
+				b.rect.bottom <= a.rect.top
+			);
+			if (overlap) {
+				b.el.style.top = `${a.rect.bottom + 2}px`;
+				b.rect = b.el.getBoundingClientRect();
+			}
+		}
+	}
+}
+
 interface LegendEntry {
 	label: string;
 	color: string;
@@ -404,6 +431,7 @@ function highlight(el: HTMLElement): void {
 	logTimer = setTimeout(() => {
 		const cs = window.getComputedStyle(el);
 		showBoxModel(el, cs);
+		reconcileLabels();
 		const summary = figmaSummary(el, cs);
 		const legend = formatLegend(buildLegend(cs));
 		console.log(
