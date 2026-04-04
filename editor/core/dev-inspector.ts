@@ -278,12 +278,12 @@ function reconcileLabels(): void {
 		if (el.textContent && el.style.fontSize) allLabels.push(el);
 	}
 
-	const rects = allLabels.map((el) => ({ el, rect: el.getBoundingClientRect() }));
+	const items = allLabels.map((el) => ({ el, rect: el.getBoundingClientRect() }));
 
-	for (let i = 0; i < rects.length; i++) {
-		for (let j = i + 1; j < rects.length; j++) {
-			const a = rects[i];
-			const b = rects[j];
+	for (let i = 0; i < items.length; i++) {
+		for (let j = i + 1; j < items.length; j++) {
+			const a = items[i];
+			const b = items[j];
 			const overlap = !(
 				a.rect.right <= b.rect.left ||
 				b.rect.right <= a.rect.left ||
@@ -291,7 +291,34 @@ function reconcileLabels(): void {
 				b.rect.bottom <= a.rect.top
 			);
 			if (overlap) {
-				b.el.style.top = `${a.rect.bottom + 2}px`;
+				const pushDown = a.rect.bottom - b.rect.top + 2;
+				const pushUp = b.rect.bottom - a.rect.top + 2;
+				const pushRight = a.rect.right - b.rect.left + 2;
+				const pushLeft = b.rect.right - a.rect.left + 2;
+
+				const shifts = [
+					{ dx: 0, dy: pushDown },
+					{ dx: 0, dy: -pushUp },
+					{ dx: pushRight, dy: 0 },
+					{ dx: -pushLeft, dy: 0 },
+				];
+
+				let bestDx = 0;
+				let bestDy = 0;
+				let bestDist = Infinity;
+				for (const s of shifts) {
+					const dist = Math.sqrt(s.dx * s.dx + s.dy * s.dy);
+					if (dist < bestDist) {
+						bestDx = s.dx;
+						bestDy = s.dy;
+						bestDist = dist;
+					}
+				}
+
+				const currentTop = parseFloat(b.el.style.top);
+				const currentLeft = parseFloat(b.el.style.left);
+				b.el.style.top = `${currentTop + bestDy}px`;
+				b.el.style.left = `${currentLeft + bestDx}px`;
 				b.rect = b.el.getBoundingClientRect();
 			}
 		}
