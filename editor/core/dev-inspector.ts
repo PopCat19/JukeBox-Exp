@@ -195,7 +195,7 @@ function showBoxModel(el: HTMLElement, cs: CSSStyleDeclaration): void {
 	const br = parseFloat(cs.borderRightWidth) || 0;
 	const bb = parseFloat(cs.borderBottomWidth) || 0;
 	const bl = parseFloat(cs.borderLeftWidth) || 0;
-	const borderVals = [bt, br, bb, bl];
+	const borderVals = [bt, br, bb, bl].map((v) => Math.round(v));
 	const allSame = borderVals.every((v) => v === borderVals[0]);
 	if (allSame && bt) {
 		addStrip(document.body, rect.top, rect.left, rect.width, bt, COLORS.border, `b ${bt.toFixed(0)}`);
