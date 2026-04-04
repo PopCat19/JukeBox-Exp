@@ -93,6 +93,7 @@ function highlight(el: HTMLElement): void {
 			pointerEvents: "none",
 			padding: "2px 6px",
 			fontSize: "11px",
+			fontWeight: "600",
 			fontFamily: "monospace",
 			color: "#fff",
 			background: "rgba(0,0,0,0.7)",
@@ -104,12 +105,29 @@ function highlight(el: HTMLElement): void {
 	const tag = el.tagName.toLowerCase();
 	const id = el.id ? `#${el.id}` : "";
 	const cls = el.classList.length ? "." + Array.from(el.classList).join(".") : "";
-	depthLabel.textContent = `${tag}${id}${cls} (${currentDepth})`;
-	depthLabel.style.background = color;
-	depthLabel.style.color = wcagTextColor(color);
 	const rect = el.getBoundingClientRect();
-	depthLabel.style.top = `${rect.bottom + 2}px`;
-	depthLabel.style.left = `${rect.right}px`;
+	const w = rect.width.toFixed(0);
+	const h = rect.height.toFixed(0);
+	depthLabel.textContent = `${tag}${id}${cls} (${currentDepth}) ${w}×${h}`;
+	depthLabel.style.background = `hsl(${(currentDepth * 37) % 360}, 80%, 55%, 0.8)`;
+	depthLabel.style.color = wcagTextColor(depthLabel.style.background);
+	const cx = rect.left + rect.width / 2;
+	const above = rect.top - 16;
+	const below = rect.bottom + 2;
+	depthLabel.style.top = `${below}px`;
+	depthLabel.style.left = `${cx}px`;
+	depthLabel.style.transform = "translateX(-50%)";
+	requestAnimationFrame(() => {
+		const lr = depthLabel!.getBoundingClientRect();
+		const vw = window.innerWidth;
+		const vh = window.innerHeight;
+		if (lr.bottom > vh) {
+			depthLabel!.style.top = `${above}px`;
+			depthLabel!.style.transform = "translateX(-50%)";
+		}
+		if (lr.left < 0) depthLabel!.style.left = `${lr.width / 2}px`;
+		if (lr.right > vw) depthLabel!.style.left = `${vw - lr.width / 2}px`;
+	});
 	if (logTimer) clearTimeout(logTimer);
 	logTimer = setTimeout(() => {
 		const cs = window.getComputedStyle(el);
@@ -149,9 +167,30 @@ function clearBoxOverlays(): void {
 }
 
 function wcagTextColor(bgColor: string): string {
-	const m = bgColor.match(/[\d.]+/g);
-	if (!m || m.length < 3) return "#fff";
-	const [r, g, b] = m.slice(0, 3).map(Number);
+	let r: number, g: number, b: number;
+	const hsl = bgColor.match(/hsl\(([\d.]+),\s*([\d.]+)%,\s*([\d.]+)%\)/);
+	if (hsl) {
+		const h = Number(hsl[1]) / 360;
+		const s = Number(hsl[2]) / 100;
+		const l = Number(hsl[3]) / 100;
+		const hue2rgb = (p: number, q: number, t: number) => {
+			if (t < 0) t += 1;
+			if (t > 1) t -= 1;
+			if (t < 1 / 6) return p + (q - p) * 6 * t;
+			if (t < 1 / 2) return q;
+			if (t < 2 / 3) return p + (q - p) * (2 / 3 - t) * 6;
+			return p;
+		};
+		const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+		const p = 2 * l - q;
+		r = hue2rgb(p, q, h + 1 / 3) * 255;
+		g = hue2rgb(p, q, h) * 255;
+		b = hue2rgb(p, q, h - 1 / 3) * 255;
+	} else {
+		const m = bgColor.match(/[\d.]+/g);
+		if (!m || m.length < 3) return "#fff";
+		[r, g, b] = m.slice(0, 3).map(Number);
+	}
 	const lum = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
 	return lum > 0.5 ? "#000" : "#fff";
 }
