@@ -71,6 +71,7 @@ let keyHandler: ((e: KeyboardEvent) => void) | null = null;
 let logSeq = 0;
 let logTimer: ReturnType<typeof setTimeout> | null = null;
 let currentDepth = 0;
+let navStack: HTMLElement[] = [];
 
 function depth(el: HTMLElement): number {
 	let d = 0;
@@ -290,46 +291,43 @@ function figmaSummary(el: HTMLElement, cs: CSSStyleDeclaration): SummaryResult {
 	const id = el.id ? `#${el.id}` : "";
 	const cls = el.classList.length ? "." + Array.from(el.classList).join(".") : "";
 	segments.push(`${tag}${id}${cls}`);
-	segments.push(`  W: ${px(cs.width)}  H: ${px(cs.height)}`);
+	const props: { label: string; color?: string }[] = [];
+	props.push({ label: `W: ${px(cs.width)}  H: ${px(cs.height)}` });
 	const bg = cs.backgroundColor;
-	if (bg && bg !== "transparent" && bg !== "rgba(0, 0, 0, 0)") segments.push(`  Fill: ${hexColor(bg)}`);
+	if (bg && bg !== "transparent" && bg !== "rgba(0, 0, 0, 0)") props.push({ label: `Fill: ${hexColor(bg)}` });
 	const border = cs.border;
-	if (border && border !== "0px none rgb(0, 0, 0)") segments.push(`  Stroke: ${border.replace(/rgb\([^)]+\)/g, hexColor)}`);
+	if (border && border !== "0px none rgb(0, 0, 0)") props.push({ label: `Stroke: ${border.replace(/rgb\([^)]+\)/g, hexColor)}` });
 	const br = cs.borderRadius;
-	if (br && br !== "0px") segments.push(`  Radius: ${px(br)}`);
+	if (br && br !== "0px") props.push({ label: `Radius: ${px(br)}` });
 	const pad = `${px(cs.paddingTop)} ${px(cs.paddingRight)} ${px(cs.paddingBottom)} ${px(cs.paddingLeft)}`;
-	if (pad !== "0 0 0 0") {
-		segments.push(`  %cPadding:%c ${pad}`);
-		styles.push("color: #00c800", "color: inherit");
-	}
+	if (pad !== "0 0 0 0") props.push({ label: `Padding: ${pad}`, color: "#00c800" });
 	const marg = `${px(cs.marginTop)} ${px(cs.marginRight)} ${px(cs.marginBottom)} ${px(cs.marginLeft)}`;
-	if (marg !== "0 0 0 0") {
-		segments.push(`  %cMargin:%c ${marg}`);
-		styles.push("color: #ffa500", "color: inherit");
-	}
+	if (marg !== "0 0 0 0") props.push({ label: `Margin: ${marg}`, color: "#ffa500" });
 	const fs = cs.fontSize;
-	if (fs && fs !== "0px") segments.push(`  Font: ${cs.fontFamily.split(",")[0].replace(/"/g, "")}, ${px(fs)}, ${cs.fontWeight}`);
+	if (fs && fs !== "0px") props.push({ label: `Font: ${cs.fontFamily.split(",")[0].replace(/"/g, "")}, ${px(fs)}, ${cs.fontWeight}` });
 	const lh = cs.lineHeight;
-	if (lh !== "normal") segments.push(`  Line height: ${px(lh)}`);
+	if (lh !== "normal") props.push({ label: `Line height: ${px(lh)}` });
 	const ls = cs.letterSpacing;
-	if (ls !== "normal" && ls !== "0px") segments.push(`  Letter spacing: ${px(ls)}`);
+	if (ls !== "normal" && ls !== "0px") props.push({ label: `Letter spacing: ${px(ls)}` });
 	const color = cs.color;
-	if (color && color !== "rgb(0, 0, 0)") segments.push(`  Text: ${hexColor(color)}`);
+	if (color && color !== "rgb(0, 0, 0)") props.push({ label: `Text: ${hexColor(color)}` });
 	if (cs.display === "flex") {
-		segments.push(`  %cAuto:%c ${cs.flexDirection}, ${cs.alignItems}, ${cs.justifyContent}`);
-		styles.push("color: #6495ed", "color: inherit");
-		if (cs.gap !== "normal") {
-			segments.push(`  %cGap:%c ${px(cs.gap)}`);
-			styles.push("color: #6495ed", "color: inherit");
-		}
+		props.push({ label: `Auto: ${cs.flexDirection}, ${cs.alignItems}, ${cs.justifyContent}`, color: "#6495ed" });
+		if (cs.gap !== "normal") props.push({ label: `Gap: ${px(cs.gap)}`, color: "#6495ed" });
 	}
-	if (cs.position !== "static") segments.push(`  Position: ${cs.position}`);
+	if (cs.position !== "static") props.push({ label: `Position: ${cs.position}` });
 	const op = cs.opacity;
-	if (op !== "1") segments.push(`  Opacity: ${op}`);
+	if (op !== "1") props.push({ label: `Opacity: ${op}` });
 	const bs = cs.boxShadow;
-	if (bs !== "none") segments.push(`  Shadow: ${bs}`);
+	if (bs !== "none") props.push({ label: `Shadow: ${bs}` });
 	const ov = cs.overflow;
-	if (ov !== "visible") segments.push(`  Overflow: ${ov}`);
+	if (ov !== "visible") props.push({ label: `Overflow: ${ov}` });
+	for (let i = 0; i < props.length; i++) {
+		const isLast = i === props.length - 1;
+		const prefix = isLast ? "└─ " : "├─ ";
+		segments.push(`%c${prefix}${props[i].label}%c`);
+		styles.push(props[i].color ? `color: ${props[i].color}` : "color: inherit", "color: inherit");
+	}
 	return { text: segments.join("\n"), styles };
 }
 
@@ -493,15 +491,20 @@ export function activate(): void {
 		e.stopImmediatePropagation();
 		if (e.key === "Enter") captureStyles();
 		else if (e.key === "Escape") deactivate();
-		else if (e.key === "ArrowUp" && current?.parentElement && current.parentElement !== document.body) highlight(current.parentElement);
-		else if (e.key === "ArrowDown" && current?.children?.length) {
-			if (current.tagName.toLowerCase() === "select") {
+		else if (e.key === "ArrowUp" && current?.parentElement && current.parentElement !== document.body) {
+			navStack.push(current);
+			highlight(current.parentElement);
+		}
+		else if (e.key === "ArrowDown") {
+			if (current?.tagName.toLowerCase() === "select") {
 				const sel = current as HTMLSelectElement;
 				const opts = Array.from(sel.options)
 					.map((o, i) => `${i === sel.selectedIndex ? "▸" : " "} [${i}] ${o.value} (${o.textContent})`)
 					.join("\n");
 				console.log(`[inspector] #${++logSeq} <select> options (value="${sel.value}", selectedIndex=${sel.selectedIndex}):\n${opts}`);
-			} else {
+			} else if (navStack.length > 0) {
+				highlight(navStack.pop()!);
+			} else if (current?.children?.length) {
 				highlight(current.children[0] as HTMLElement);
 			}
 		} else if (current?.tagName.toLowerCase() === "select") {
