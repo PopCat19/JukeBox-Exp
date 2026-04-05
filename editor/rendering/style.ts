@@ -236,28 +236,9 @@ document.head.appendChild(
 	--sizing-widget-sm: 24px;
 	--sizing-widget-md: 28px;
 	--sizing-widget-lg: 32px;
-
-	/* Design Token System — icons */
-	--icon-sm: 16px;
-	--icon-md: 20px;
-	--icon-lg: 24px;
-
-	/* Design Token System — opacity scale */
-	--opacity-surface: 0.08;
-	--opacity-dim: 0.24;
-	--opacity-secondary: 0.48;
-	--opacity-muted: 0.8;
-	--opacity-full: 1;
-
-	/* Design Token System — asymmetric border radius */
-	--radius-left: 1rem 0.5rem 0.5rem 1rem;
-	--radius-right: 0.5rem 1rem 1rem 0.5rem;
-
-	/* Design Token System — sizing */
-	--sizing-button: 26px;
-	--sizing-widget-sm: 24px;
-	--sizing-widget-md: 28px;
-	--sizing-widget-lg: 32px;
+	--sizing-input-sm: 86px;
+	--sizing-input-md: 113px;
+	--sizing-input-lg: 115px;
 
 	/* Design Token System — icons */
 	--icon-sm: 16px;

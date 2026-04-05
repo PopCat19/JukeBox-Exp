@@ -134,6 +134,10 @@ export const Sizing = {
 	widgetSm: "24px",
 	widgetMd: "28px",
 	widgetLg: "32px",
+	// Form input widths (from envelope-editor, instrument-settings)
+	inputSm: "86px",
+	inputMd: "113px",
+	inputLg: "115px",
 } as const;
 
 export const Icon = {
