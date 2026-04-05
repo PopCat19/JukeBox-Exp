@@ -97,27 +97,32 @@
 
 **Potential Regressions:**
 - None — only additions, no modifications to existing tokens or component code
-- Backdrop blur updated from `blur(14px)` to match mockup's `blur(12px)` — should consider aligning
 
-### 2026-04-04: Mockup-Informed Token Additions
+### 2026-04-04: Slider-Row and Barrel Export Updates
 
-**Source:** PMD status bar mockup (Figma export)
-
-**New TypeScript tokens added to `style-constants.ts`:**
-
-| Category | Tokens | Source |
-|----------|--------|--------|
-| `Sizing` | `widgetSm: "24px"`, `widgetMd: "28px"`, `widgetLg: "32px"` | Widget heights from mockup |
-| `Icon` | `sm: "16px"`, `md: "20px"`, `lg: "24px"` | Icon sizes from mockup |
-| `Opacity` | `surface: "0.08"`, `dim: "0.24"`, `secondary: "0.48"`, `muted: "0.8"`, `full: "1"` | Opacity hierarchy from mockup |
-| `AsymmetricRadius` | `left: "1rem 0.5rem 0.5rem 1rem"`, `right: "0.5rem 1rem 1rem 0.5rem"` | Pill grouping pattern |
-
-**New CSS custom properties added to `style.ts` and `player-ui.ts`:**
-- `--sizing-widget-sm`, `--sizing-widget-md`, `--sizing-widget-lg`
-- `--icon-sm`, `--icon-md`, `--icon-lg`
-- `--opacity-surface`, `--opacity-dim`, `--opacity-secondary`, `--opacity-muted`, `--opacity-full`
-- `--radius-left`, `--radius-right`
+**Changes:**
+- `editor/ui/rows/slider-row.ts`: replaced hardcoded `margin-top: -3px` with `Margin.xs`
+- `editor/ui/index.ts`: expanded barrel export to include all 15 token categories
 
 **Potential Regressions:**
-- None — only additions, no modifications to existing tokens or component code
-- Backdrop blur updated from `blur(14px)` to match mockup's `blur(12px)` — should consider aligning
+- `slider-row.ts`: margin changed from `-3px` to `-${Margin.xs}` (-0.125rem = -2px) — 1px less negative margin
+
+### 2026-04-04: Diminishing Returns Assessment
+
+After evaluating the remaining ~300 files:
+
+**High-ROI targets (already done):**
+- UI component factories (prompts/, chips/, buttons/, labels/, inputs/, rows/)
+- These are the reusable building blocks — fixing them propagates consistency
+
+**Low-ROI targets (deferred):**
+- `editor/components/*.ts` — large files (200-800+ lines) with deeply coupled pixel values
+  - `piano.ts`: font-size tied to `translate()` transforms — replacing would break positioning
+  - `instrument-settings-panel.ts`: scattered `padding: 2px 0`, `padding: 3px 0` — marginal benefit
+  - Most component files use CSS classes for styling, not inline `style:` attributes
+- `editor/rendering/style.ts`: 2241-line CSS injection — existing CSS custom properties already cover spacing
+- `editor/ui/containers/`: all parameterized — no hardcoded values to replace
+- `editor/ui/base/`: pure factory functions — no hardcoded values to replace
+
+**Assessment:**
+The token library is built and proven. The remaining work is mechanical — replacing `8px` with `Gap.md` across hundreds of files. The foundation is solid; future work can wire tokens incrementally as components are touched.
