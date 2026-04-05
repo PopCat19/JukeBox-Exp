@@ -7,13 +7,14 @@
 // - Used in preset-selector-prompt
 
 import { createSpan } from "../base/container";
+import { BorderRadius, Margin, Padding, Typography } from "../style-constants";
 
 export function tagChip(text: string, active?: boolean): HTMLSpanElement {
 	const background = active ? "rgba(255,255,255,0.2)" : "var(--ui-widget-background)";
 	const color = active ? "var(--primary-text)" : "var(--primary-text)";
 
 	return createSpan(
-		`display: inline-block; padding: 1px 6px; margin: 0 4px 4px 0; border-radius: 4px; background: ${background}; color: ${color}; font-size: 11px; cursor: pointer;`,
+		`display: inline-block; padding: ${Padding.xs} ${Padding.md}; margin: 0 ${Margin.md} ${Margin.md} 0; border-radius: ${BorderRadius.sm}; background: ${background}; color: ${color}; font-size: ${Typography.sizeSm}; cursor: pointer;`,
 		undefined,
 		text,
 	);

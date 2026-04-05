@@ -7,6 +7,7 @@
 // - Used by PresetSelectorPrompt, ChannelVolumeVisualizerPrompt
 
 import { createDiv } from "../base/container";
+import { BorderRadius, Sizing } from "../style-constants";
 
 export interface PaneContainerOptions {
 	height?: string;
@@ -16,8 +17,8 @@ export interface PaneContainerOptions {
 }
 
 export function paneContainer(options?: PaneContainerOptions, ...panes: (HTMLElement | string)[]): HTMLDivElement {
-	const height = options?.height ?? "400px";
-	const borderRadius = options?.borderRadius ?? "8px";
+	const height = options?.height ?? Sizing.promptLg;
+	const borderRadius = options?.borderRadius ?? BorderRadius.md;
 	const borderWidth = options?.borderWidth ?? "2px";
 
 	let style = `display: flex; flex-direction: row; height: ${height}; border: ${borderWidth} solid var(--ui-widget-background); border-radius: ${borderRadius}; overflow: hidden;`;

@@ -7,15 +7,16 @@
 // - Used by PresetSelectorPrompt for tag filter banner
 
 import { createDiv } from "../base/container";
+import { BorderRadius, Padding, Typography } from "../style-constants";
 
 export interface InfoBannerOptions {
 	fontSize?: string;
 }
 
 export function infoBanner(options?: InfoBannerOptions, ...children: (HTMLElement | string)[]): HTMLDivElement {
-	const fontSize = options?.fontSize ?? "11px";
+	const fontSize = options?.fontSize ?? Typography.sizeSm;
 
-	const style = `display: none; padding: 4px 8px; font-size: ${fontSize}; color: var(--secondary-text); border: 2px solid var(--ui-widget-background); border-radius: 8px; cursor: pointer;`;
+	const style = `display: none; padding: ${Padding.xs} ${Padding.md}; font-size: ${fontSize}; color: var(--secondary-text); border: 2px solid var(--ui-widget-background); border-radius: ${BorderRadius.md}; cursor: pointer;`;
 
 	return createDiv(style, undefined, ...children);
 }

@@ -7,10 +7,11 @@
 /// - Used in song-editor.ts
 
 import { createButton } from "../base/button";
+import { Animation, Margin, Typography } from "../style-constants";
 
 export function clearButton(title?: string): HTMLButtonElement {
 	const btn = createButton(
-		"background: none; border: none; color: var(--primary-text); cursor: pointer; font-size: 14px; padding: 0 4px; line-height: 1; opacity: 0.6; transition: opacity 0.1s;",
+		`background: none; border: none; color: var(--primary-text); cursor: pointer; font-size: ${Typography.sizeLg}; padding: 0 ${Margin.md}; line-height: 1; opacity: 0.6; transition: opacity ${Animation.durationFast};`,
 		{ title: title ?? "Clear" },
 		"×",
 	);

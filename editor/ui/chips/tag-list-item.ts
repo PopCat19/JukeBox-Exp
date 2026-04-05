@@ -9,6 +9,7 @@
 
 import { HTML } from "imperative-html/dist/esm/elements-strict";
 import { createDiv } from "../base/container";
+import { Typography } from "../style-constants";
 
 const { span } = HTML;
 
@@ -27,7 +28,7 @@ export class TagListItem {
 		this.presetCount = presetCount;
 
 		this._nameSpan = span({}, tag);
-		this._countSpan = span({ style: "font-size: 10px; opacity: 0.6;" }, String(presetCount));
+		this._countSpan = span({ style: `font-size: ${Typography.sizeXs}; opacity: 0.6;` }, String(presetCount));
 
 		this.element = createDiv("", { class: "tagListItem" }, this._nameSpan, this._countSpan);
 	}
@@ -58,5 +59,5 @@ export function tagListItem(tag: string, presetCount: number, active?: boolean, 
 	if (active) classes.push("active");
 	if (selected) classes.push("selected");
 
-	return createDiv("", { class: classes.join(" ") }, span({}, tag), span({ style: "font-size: 10px; opacity: 0.6;" }, String(presetCount)));
+	return createDiv("", { class: classes.join(" ") }, span({}, tag), span({ style: `font-size: ${Typography.sizeXs}; opacity: 0.6;` }, String(presetCount)));
 }
