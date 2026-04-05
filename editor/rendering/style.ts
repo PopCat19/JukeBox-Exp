@@ -1952,11 +1952,15 @@ html {
 	flex-shrink: 0;
 	display: flex;
 	flex-direction: column;
+	min-width: 0;
+	overflow-x: hidden;
 }
 
 .beepboxEditor .instrument-settings-area {
 	display: flex;
 	flex-direction: column;
+	min-width: 0;
+	overflow-x: hidden;
 }
 
 .beepboxEditor .editor-right-side-top > *, .beepboxEditor .editor-right-side-bottom > * {
