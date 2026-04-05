@@ -130,6 +130,33 @@ export const Sizing = {
 	promptMd: "350px",
 	promptLg: "400px",
 	promptRowHeight: "2em",
+	// Widget heights (from PMD mockup)
+	widgetSm: "24px",
+	widgetMd: "28px",
+	widgetLg: "32px",
+} as const;
+
+export const Icon = {
+	sm: "16px",
+	md: "20px",
+	lg: "24px",
+} as const;
+
+export const Opacity = {
+	surface: "0.08",
+	dim: "0.24",
+	secondary: "0.48",
+	muted: "0.8",
+	full: "1",
+} as const;
+
+export const AsymmetricRadius = {
+	left: "1rem 0.5rem 0.5rem 1rem",
+	right: "0.5rem 1rem 1rem 0.5rem",
+	topLeft: "1rem 0.5rem 0.5rem 1rem",
+	topRight: "0.5rem 1rem 1rem 0.5rem",
+	bottomLeft: "0.5rem 1rem 1rem 0.5rem",
+	bottomRight: "1rem 0.5rem 0.5rem 1rem",
 } as const;
 
 export const Shadows = {

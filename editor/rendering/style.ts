@@ -231,6 +231,50 @@ document.head.appendChild(
 	--anim-easing-ease-out: ease-out;
 	--anim-easing-linear: linear;
 
+	/* Design Token System — sizing */
+	--sizing-button: 26px;
+	--sizing-widget-sm: 24px;
+	--sizing-widget-md: 28px;
+	--sizing-widget-lg: 32px;
+
+	/* Design Token System — icons */
+	--icon-sm: 16px;
+	--icon-md: 20px;
+	--icon-lg: 24px;
+
+	/* Design Token System — opacity scale */
+	--opacity-surface: 0.08;
+	--opacity-dim: 0.24;
+	--opacity-secondary: 0.48;
+	--opacity-muted: 0.8;
+	--opacity-full: 1;
+
+	/* Design Token System — asymmetric border radius */
+	--radius-left: 1rem 0.5rem 0.5rem 1rem;
+	--radius-right: 0.5rem 1rem 1rem 0.5rem;
+
+	/* Design Token System — sizing */
+	--sizing-button: 26px;
+	--sizing-widget-sm: 24px;
+	--sizing-widget-md: 28px;
+	--sizing-widget-lg: 32px;
+
+	/* Design Token System — icons */
+	--icon-sm: 16px;
+	--icon-md: 20px;
+	--icon-lg: 24px;
+
+	/* Design Token System — opacity scale */
+	--opacity-surface: 0.08;
+	--opacity-dim: 0.24;
+	--opacity-secondary: 0.48;
+	--opacity-muted: 0.8;
+	--opacity-full: 1;
+
+	/* Design Token System — asymmetric border radius */
+	--radius-left: 1rem 0.5rem 0.5rem 1rem;
+	--radius-right: 0.5rem 1rem 1rem 0.5rem;
+
 	/* Design Token System — shadows */
 	--shadow-none: none;
 	--shadow-subtle: 0 0 4px rgba(0,0,0,0.3);
