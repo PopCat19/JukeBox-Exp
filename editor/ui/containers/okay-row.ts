@@ -7,10 +7,11 @@
 // - Right-aligned with space for additional controls
 
 import { createDiv } from "../base/container";
+import { Margin } from "../style-constants";
 
 export function okayRow(okayButton: HTMLButtonElement, ...extra: HTMLElement[]): HTMLDivElement {
 	return createDiv(
-		"display: flex; flex-direction: row; align-items: center; justify-content: flex-end; margin-top: 1.25em;",
+		`display: flex; flex-direction: row; align-items: center; justify-content: flex-end; margin-top: ${Margin.xxl};`,
 		undefined,
 		...extra,
 		okayButton,

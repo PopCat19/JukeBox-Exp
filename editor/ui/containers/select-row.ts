@@ -8,6 +8,7 @@
 
 import { HTML } from "imperative-html/dist/esm/elements-strict";
 import { createDiv } from "../base/container";
+import { Margin } from "../style-constants";
 
 const { div } = HTML;
 
@@ -22,5 +23,5 @@ export function selectRow(labelText: string, selectElement: HTMLSelectElement, o
 	const marginBottom = opts?.marginBottom ?? "";
 	const width = opts?.width ?? "50%";
 	const style = `display: flex; flex-direction: row; align-items: center; justify-content: center; height: 2em;${marginTop ? ` margin-top: ${marginTop};` : ""}${marginBottom ? ` margin-bottom: ${marginBottom};` : ""}`;
-	return createDiv(style, undefined, labelText, div({ class: "selectContainer", style: `width: ${width}; margin-left: 1em;` }, selectElement));
+	return createDiv(style, undefined, labelText, div({ class: "selectContainer", style: `width: ${width}; margin-left: ${Margin.lg};` }, selectElement));
 }
