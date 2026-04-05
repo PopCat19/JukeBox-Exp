@@ -147,6 +147,13 @@ function elementId(el: HTMLElement): string {
 	const text = el.textContent?.trim().slice(0, 20) || "";
 	if (text && el.children.length === 0) return `${tag} "${text}"`;
 	if (text) return `${tag} "${text.slice(0, 12)}…"`;
+
+	const parent = el.parentElement;
+	if (parent) {
+		const siblings = Array.from(parent.children).filter((c) => c.tagName === el.tagName);
+		if (siblings.length > 1) return `${tag} #${siblings.indexOf(el)}`;
+	}
+
 	return tag;
 }
 
