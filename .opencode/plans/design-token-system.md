@@ -345,3 +345,43 @@ Add matching CSS custom properties to the existing `:root {}` block:
 - Converting inline styles to CSS classes (separate future effort)
 - Player component styling overhaul (only token alignment, not restructuring)
 - Website CSS files (`website/common.css`, `website/index.css`, `website/manual/subpages.css`)
+
+## Progress
+
+### Completed
+
+| Phase | Status | Commits |
+|-------|--------|---------|
+| Phase 1: Expand style-constants.ts | DONE | `e8bcace8` |
+| Phase 2: CSS custom properties in style.ts | DONE | `e8bcace8` |
+| Phase 2b: CSS custom properties in player-ui.ts | DONE | `e8bcace8` |
+| Phase 3a: Wire prompts/ | DONE | `e8bcace8` |
+| Phase 3b: Wire labels/, chips/, inputs/ | DONE | `e8bcace8` |
+| Phase 3c: Wire buttons/ | DONE | `e8bcace8` |
+| Phase 3d: Wire layout/ (z-index) | DEFERRED | Low value, high risk |
+| Phase 4: Validation | DONE | `e8bcace8` |
+| Mockup tokens (sizing, icon, opacity, asymmetric radius) | DONE | `c11a1b1a` |
+
+### Remaining Work
+
+**Phase 5: Wire remaining UI components** (~300+ files with hardcoded styles)
+
+| Directory | Estimated Files | Priority |
+|-----------|----------------|----------|
+| `editor/ui/base/` | ~5 | High — foundational, used everywhere |
+| `editor/ui/containers/` | ~5 | High |
+| `editor/ui/rows/` | ~5 | High |
+| `editor/ui/sliders/` | ~5 | Medium |
+| `editor/ui/layout/` | ~3 | Medium |
+| `editor/prompts/` | ~30 | High — many hardcoded values |
+| `editor/components/` | ~30 | Medium — complex, higher risk |
+| `editor/renderers/` | ~20 | Low — mostly dynamic `.style.` manipulation |
+| `editor/core/` | ~20 | Low — mostly logic, minimal styling |
+
+**Phase 6: Backdrop blur alignment**
+- Mockup uses `blur(12px)`, current token is `blur(14px)`
+- Decide: align to mockup or keep existing
+
+**Phase 7: Barrel export cleanup**
+- `editor/ui/index.ts` exports `BorderRadius, Gap, Margin, Padding` from style-constants
+- Add `Typography, Animation, Sizing, BorderWidth, Spacing, ZIndex, Shadows, Backdrop, Icon, Opacity, AsymmetricRadius` to barrel

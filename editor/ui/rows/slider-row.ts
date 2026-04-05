@@ -10,6 +10,7 @@
 import { HTML } from "imperative-html/dist/esm/elements-strict";
 import { ColorConfig } from "../../../shared/color-config";
 import { Slider } from "../sliders/slider";
+import { Margin } from "../style-constants";
 
 const { div, span } = HTML;
 
@@ -47,7 +48,7 @@ export function sliderRowWithInput(options: SliderRowWithInputOptions, slider: S
 		div(
 			{},
 			div({ style: `color: ${ColorConfig.secondaryText};` }, labelSpan),
-			div({ style: `color: ${ColorConfig.secondaryText}; margin-top: -3px;` }, options.inputBox),
+			div({ style: `color: ${ColorConfig.secondaryText}; margin-top: -${Margin.xs};` }, options.inputBox),
 		),
 		slider.container,
 	);
