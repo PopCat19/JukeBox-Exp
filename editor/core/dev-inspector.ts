@@ -133,80 +133,29 @@ function hexColor(rgb: string): string {
 	return `#${hex}`;
 }
 
-function siblingOrdinal(el: HTMLElement): number {
+function elementId(el: HTMLElement): string {
+	const classList = Array.from(el.classList);
+	const semanticClasses = classList.filter((c) => {
+		if (/^hsl\(|^\d+$/.test(c)) return false;
+		if (["no-underline", "active", "selected", "last-button", "midTick"].includes(c)) return false;
+		return c.length > 2;
+	});
+
+	if (semanticClasses.length > 0) return semanticClasses.join(".");
+
 	const tag = el.tagName.toLowerCase();
-	const parent = el.parentElement;
-	if (!parent) return 0;
-	let count = 0;
-	for (let i = 0; i < parent.children.length; i++) {
-		if (parent.children[i] === el) return count;
-		if (parent.children[i].tagName.toLowerCase() === tag) count++;
-	}
-	return 0;
+	const text = el.textContent?.trim().slice(0, 20) || "";
+	if (text && el.children.length === 0) return `${tag} "${text}"`;
+	if (text) return `${tag} "${text.slice(0, 12)}…"`;
+	return tag;
 }
 
-function textSnippet(el: HTMLElement, maxLen = 30): string {
-	let text = "";
-	for (let i = 0; i < el.childNodes.length; i++) {
-		const child = el.childNodes[i];
-		if (child.nodeType === Node.TEXT_NODE && child.textContent) {
-			text += child.textContent.trim();
-		}
-		if (text.length > 0) break;
-	}
-	if (!text && el.children.length === 0 && el.textContent) {
-		text = el.textContent.trim();
-	}
-	if (text.length > maxLen) text = text.slice(0, maxLen) + "…";
-	return text ? `"${text}"` : "";
-}
-
-function selector(el: HTMLElement): string {
-	const tag = el.tagName.toLowerCase();
-	const id = el.id ? `#${el.id}` : "";
-	const cls = el.classList.length ? "." + Array.from(el.classList).join(".") : "";
-	const siblingIndex = siblingOrdinal(el);
-	return `${tag}${id}${cls}[${siblingIndex}]`;
-}
-
-function styleHint(el: HTMLElement, maxLen = 50): string {
-	const raw = el.getAttribute("style") || "";
-	if (!raw) return "";
-	const trimmed = raw.trim();
-	return trimmed.length > maxLen ? trimmed.slice(0, maxLen) + "…" : trimmed;
-}
-
-interface CssOrigin {
-	selector: string;
-	href: string;
-	line?: number;
-}
-
-function findCssOrigins(el: HTMLElement): CssOrigin[] {
-	const origins: CssOrigin[] = [];
-	const sheets = document.styleSheets;
-	for (let si = 0; si < sheets.length; si++) {
-		let rules: CSSRuleList;
-		try {
-			rules = sheets[si].cssRules;
-		} catch {
-			continue;
-		}
-		const href = sheets[si].href || (sheets[si].ownerNode as Element)?.id || "inline";
-		for (let ri = 0; ri < rules.length; ri++) {
-			const rule = rules[ri];
-			if (rule instanceof CSSStyleRule) {
-				try {
-					if (el.matches(rule.selectorText)) {
-						origins.push({ selector: rule.selectorText, href, line: ri + 1 });
-					}
-				} catch {
-					continue;
-				}
-			}
-		}
-	}
-	return origins;
+function elementHtml(el: HTMLElement, maxLen = 120): string {
+	const clone = el.cloneNode(true) as HTMLElement;
+	const inline = clone.getAttribute("style");
+	if (inline) clone.setAttribute("style", inline.replace(/\s*outline:\s*[^;]+;?\s*/gi, ""));
+	const html = clone.outerHTML;
+	return html.length > maxLen ? html.slice(0, maxLen) + "…" : html;
 }
 
 function addStrip(
@@ -471,7 +420,7 @@ interface SummaryResult {
 function figmaSummary(el: HTMLElement, cs: CSSStyleDeclaration): SummaryResult {
 	const segments: string[] = [];
 	const styles: string[] = [];
-	segments.push(selector(el));
+	segments.push(elementId(el));
 	const props: { label: string; color?: string }[] = [];
 	props.push({ label: `W: ${px(cs.width)}  H: ${px(cs.height)}` });
 	const bg = cs.backgroundColor;
@@ -556,23 +505,19 @@ function highlight(el: HTMLElement): void {
 			position: "fixed",
 			zIndex: Z_INDEX.label,
 			pointerEvents: "none",
-			padding: "2px 6px",
+			padding: "3px 8px",
 			fontSize: "11px",
 			fontWeight: "600",
 			fontFamily: "monospace",
-			whiteSpace: "nowrap",
+			whiteSpace: "pre",
 			borderRadius: "3px",
+			lineHeight: "1.4",
 		});
 		document.body.appendChild(depthLabel);
 	}
 	const rect = el.getBoundingClientRect();
-	const snippet = textSnippet(el);
-	const cssOrigins = findCssOrigins(el);
-	const cssHint = cssOrigins.length > 0 ? cssOrigins[0].selector : "";
-	const parts = [`${selector(el)} (${currentDepth})`, `${rect.width.toFixed(0)}×${rect.height.toFixed(0)}`];
-	if (snippet) parts.push(snippet);
-	if (cssHint) parts.push(`[${cssHint}]`);
-	depthLabel.textContent = parts.join(" ");
+	const idPath = elementId(el);
+	depthLabel.textContent = `${idPath}  ${rect.width.toFixed(0)}×${rect.height.toFixed(0)}`;
 	const bg = `hsl(${(currentDepth * 37) % 360}, 80%, 55%, 0.8)`;
 	depthLabel.style.background = bg;
 	depthLabel.style.color = wcagTextColor(bg);
@@ -584,15 +529,14 @@ function highlight(el: HTMLElement): void {
 		reconcileLabels();
 		const summary = figmaSummary(el, cs);
 		const legend = formatLegend(buildLegend(cs));
-		const styleAttr = styleHint(el);
-		const styleLine = styleAttr ? `\nstyle="${styleAttr}"` : "";
-		const cssOrigins = findCssOrigins(el);
-		const cssLines = cssOrigins.length > 0 ? "\n" + cssOrigins.map((o) => `  ${o.selector} → ${o.href}`).join("\n") : "";
+		const idPath = elementId(el);
+		const html = elementHtml(el);
+		const treePrefix = `%c${idPath}%c\n%c${html}%c`;
+		const treeStyles = [`color: ${depthColor(currentDepth)}`, "color: inherit", "color: #888", "color: inherit"];
 		console.log(
-			`%c[inspector] #${++logSeq} ${selector(el)} %c(${currentDepth})%c${styleLine}${cssLines}\n${legend.text}\n%c${summary.text}`,
+			`%c[inspector] #${++logSeq}%c\n${treePrefix}\n%c${summary.text}`,
 			`color: ${depthColor(currentDepth)}`,
-			`color: ${depthColor(currentDepth)}`,
-			"color: inherit",
+			...treeStyles,
 			...legend.styles,
 			"color: inherit",
 			...summary.styles,
@@ -606,9 +550,27 @@ function captureStyles(): void {
 	const el = current;
 	const cs = window.getComputedStyle(el);
 	const styles = Object.fromEntries(RELEVANT.map((k) => [k, cs[k as keyof CSSStyleDeclaration]]));
-	const html = el.outerHTML.replace(/\s*outline:\s*[^;"]+;\s*/gi, "").slice(0, 500);
+	const html = el.outerHTML.replace(/\s*outline:\s*[^;"]+;?\s*/gi, "");
+
+	const parent = el.parentElement;
+	const parentInfo = parent ? { tag: parent.tagName.toLowerCase(), classes: Array.from(parent.classList) } : null;
+	const siblings = parent ? Array.from(parent.children).filter((c) => c.tagName === el.tagName) : [];
+	const siblingIndex = siblings.indexOf(el);
+
 	navigator.clipboard.writeText(
-		JSON.stringify({ tag: el.tagName.toLowerCase(), id: el.id || undefined, classes: Array.from(el.classList), html, styles }, null, 2),
+		JSON.stringify(
+			{
+				id: elementId(el),
+				tag: el.tagName.toLowerCase(),
+				classes: Array.from(el.classList),
+				siblingIndex: siblings.length > 1 ? siblingIndex : undefined,
+				parent: parentInfo,
+				html: html.length > 1000 ? html.slice(0, 1000) + "…" : html,
+				styles,
+			},
+			null,
+			2,
+		),
 	);
 	console.log("[inspector] copied", el);
 	deactivate();
