@@ -7,7 +7,6 @@
 - `song-editor.ts` - Main editor entry point and orchestration
 - `song-document.ts` - Represents the editable song state document
 - `song-custom-samples.ts` - Manages user uploaded custom audio samples
-- `song-editor-original.ts` - Legacy original editor implementation backup
 
 ## Subdirectories
 - `changes/` - Change tracking, undo/redo, and song modification handlers

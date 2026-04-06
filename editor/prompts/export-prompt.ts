@@ -318,7 +318,7 @@ export class ExportPrompt extends BasePrompt {
 		this.currentChunk = 0;
 		this.synth = new Synth(this._doc.song);
 		if (type === "wav" || type === "ogg" || type === "opus") this.synth.samplesPerSecond = 48000;
-		else if (type === "mp3") this.synth.samplesPerSecond = 44100;
+		else if (type === "mp3") this.synth.samplesPerSecond = Config.defaultSampleRate;
 		this._outputProgressBar.style.setProperty("width", "0%");
 		this._outputProgressLabel.innerText = "0%";
 		this.synth.loopRepeatCount = Number(this._loopDropDown.value) - 1;

@@ -7,5 +7,5 @@
 - `deploy_files.sh` — Assembles deployment directory with compiled assets and static files
 - `debugify.sh` — Renames compiled editor output to minified filename and plays alert beeps
 - `live-editor.sh` — Starts live development server with esbuild watch and auto-reload
-- `check-input-staleness.ts` — detects input binding inventory drift against source files
-- `generate-help-markdown.ts` — generates help guide markdown from the input binding inventory
+- `check-input-staleness.ts` — Detects input binding inventory drift against source files
+- `generate-help-markdown.ts` — Generates help guide markdown from the input binding inventory

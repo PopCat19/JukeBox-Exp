@@ -1,4 +1,4 @@
-// editor/custom-algorythm-canvas.ts
+// editor/custom-algorithm-canvas.ts
 //
 // Purpose: Canvas editor for custom FM algorithm and feedback routing
 //
@@ -10,7 +10,7 @@ import { ColorConfig } from "../../shared/color-config";
 import { Change } from "../core/change";
 import { SongDocument } from "../song-document";
 
-export class CustomAlgorythmCanvas {
+export class CustomAlgorithmCanvas {
 	private mouseDown: boolean;
 	// private continuousEdit: boolean;
 	// private lastX: number;

@@ -49,14 +49,14 @@ import {
 	pickRandomPresetValue,
 } from "../changes";
 import { Piano } from "../components/piano";
-import { CustomAlgorythmCanvas } from "../rendering/custom-algorythm-canvas";
+import { CustomAlgorithmCanvas } from "../rendering/custom-algorithm-canvas";
 import { SongDocument } from "../song-document";
 
 export interface ChangeDispatcherHost {
 	doc: SongDocument;
 	refocusStage(): void;
 	piano: Piano;
-	customAlgorithmCanvas: CustomAlgorythmCanvas;
+	customAlgorithmCanvas: CustomAlgorithmCanvas;
 	renderInstrumentBar(channel: Channel, instrumentIndex: number, colors: ChannelColors): void;
 	openPrompt(name: string): void;
 	copyInstrument(): void;

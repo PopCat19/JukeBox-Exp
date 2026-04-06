@@ -7,7 +7,7 @@
 // - Generates URL strings from sample entry data
 // - Handles legacy sample pack aliases
 
-import { clamp, parseFloatWithDefault, parseIntWithDefault } from "../../synth";
+import { Config, clamp, parseFloatWithDefault, parseIntWithDefault } from "../../synth";
 
 export interface SampleEntry {
 	url: string;
@@ -24,7 +24,7 @@ export interface SampleEntry {
 function createDefaultEntry(): SampleEntry {
 	return {
 		url: "",
-		sampleRate: 44100,
+		sampleRate: Config.defaultSampleRate,
 		rootKey: 60,
 		percussion: false,
 		chipWaveLoopStart: null,
@@ -38,7 +38,11 @@ function createDefaultEntry(): SampleEntry {
 export function parseSampleURLs(urls: string[], parseOldSyntax: boolean): SampleEntry[] {
 	function sliceForSampleRate(url: string): [string, number] {
 		const newUrl = url.slice(0, url.indexOf(","));
-		const sampleRate = clamp(8000, 96000 + 1, parseFloatWithDefault(url.slice(url.indexOf(",") + 1), 44100));
+		const sampleRate = clamp(
+			Config.minSampleRate,
+			Config.maxSampleRate + 1,
+			parseFloatWithDefault(url.slice(url.indexOf(",") + 1), Config.defaultSampleRate),
+		);
 		return [newUrl, sampleRate];
 	}
 	function sliceForRootKey(url: string): [string, number] {
@@ -69,7 +73,7 @@ export function parseSampleURLs(urls: string[], parseOldSyntax: boolean): Sample
 			useMarioPaintboxSamples = true;
 		} else {
 			let urlSliced: string = url;
-			let sampleRate: number = 44100;
+			let sampleRate: number = Config.defaultSampleRate;
 			let rootKey: number = 60;
 			let percussion: boolean = false;
 			let chipWaveLoopStart: number | null = null;
@@ -88,7 +92,7 @@ export function parseSampleURLs(urls: string[], parseOldSyntax: boolean): Sample
 						const optionCode: string = rawOption.charAt(0);
 						const optionData: string = rawOption.slice(1, rawOption.length);
 						if (optionCode === "s") {
-							sampleRate = clamp(8000, 96000 + 1, parseFloatWithDefault(optionData, 44100));
+							sampleRate = clamp(Config.minSampleRate, Config.maxSampleRate + 1, parseFloatWithDefault(optionData, Config.defaultSampleRate));
 						} else if (optionCode === "r") {
 							rootKey = parseFloatWithDefault(optionData, 60);
 						} else if (optionCode === "p") {
@@ -166,7 +170,7 @@ export function generateSampleURL(entry: SampleEntry): string {
 	const isBundledSamplePack: boolean =
 		urlInLowerCase === "legacysamples" || urlInLowerCase === "nintariboxsamples" || urlInLowerCase === "mariopaintboxsamples";
 	const options: string[] = [];
-	if (sampleRate !== 44100) options.push("s" + sampleRate);
+	if (sampleRate !== Config.defaultSampleRate) options.push("s" + sampleRate);
 	if (rootKey !== 60) options.push("r" + rootKey);
 	if (percussion) options.push("p");
 	if (chipWaveLoopStart != null) options.push("a" + chipWaveLoopStart);

@@ -5,6 +5,7 @@
 - `base-prompt.ts` — Abstract base class for all editor prompt dialogs
 - `input-helpers.ts` — Shared validation and layout helpers for prompt dialogs
 - `add-samples-prompt.ts` — Provides dialog for importing and loading audio sample files
+- `add-samples-url-parser.ts` — Parses and generates URL data for custom sample entries
 - `beats-per-bar-prompt.ts` — Provides dialog for changing the number of beats per bar
 - `channel-settings-prompt.ts` — Provides dialog for configuring channel-specific settings
 - `channel-volume-visualizer-prompt.ts` — Modal popup displaying per-channel gain information with live updates
@@ -12,6 +13,9 @@
 - `custom-filter-prompt.ts` — Provides dialog for configuring custom EQ and note filter curves
 - `custom-scale-prompt.ts` — Provides dialog for defining custom musical scale intervals
 - `custom-theme-prompt.ts` — Provides dialog for editing and applying custom color themes
+- `euclidgen-algorithm.ts` — Pure math functions for Euclidean rhythm generation and fraction arithmetic
+- `euclidgen-note-generator.ts` — Generates and applies Euclidean rhythm notes to song patterns
+- `euclidgen-renderer.ts` — Renders SVG visualizations for Euclidean rhythm preview
 - `euclidgen-rhythm-prompt.ts` — Provides dialog for generating Euclidean rhythm patterns
 - `export-prompt.ts` — Provides dialog for exporting songs as audio, MIDI, or URL formats
 - `import-prompt.ts` — Provides dialog for importing songs from URLs, files, or clipboard data
@@ -31,4 +35,5 @@
 - `sustain-prompt.ts` — Provides dialog for configuring string sustain type and level
 - `theme-prompt.ts` — Provides dialog for selecting editor color theme
 - `tip-prompt.ts` — Provides dialog displaying usage tips and keyboard shortcuts
+- `visual-loop-controls-handle.ts` — Draggable canvas handle for waveform loop point visualization
 - `visual-loop-controls-prompt.ts` — Provides dialog for configuring visual loop display and chip wave loop settings

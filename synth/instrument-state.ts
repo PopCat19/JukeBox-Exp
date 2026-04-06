@@ -1282,7 +1282,7 @@ export class InstrumentState {
 	}
 
 	public static drumsetIndexReferenceDelta(index: number): number {
-		return Instrument.frequencyFromPitch(Config.spectrumBasePitch + index * 6) / 44100;
+		return Instrument.frequencyFromPitch(Config.spectrumBasePitch + index * 6) / Config.defaultSampleRate;
 	}
 
 	private static _drumsetIndexToSpectrumOctave(index: number): number {

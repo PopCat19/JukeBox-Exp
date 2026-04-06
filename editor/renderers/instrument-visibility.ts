@@ -37,7 +37,7 @@ import { HarmonicsEditor } from "../components/harmonics-editor";
 import { SpectrumEditor } from "../components/spectrum-editor";
 import { prettyNumber } from "../config/editor-config";
 import { Preferences } from "../core/preferences";
-import { CustomAlgorythmCanvas } from "../rendering/custom-algorythm-canvas";
+import { CustomAlgorithmCanvas } from "../rendering/custom-algorithm-canvas";
 import { SongDocument } from "../song-document";
 import { Slider } from "../ui";
 
@@ -129,7 +129,7 @@ export interface InstrumentVisibilityRefs {
 	// FM 6op
 	algorithm6OpSelect: HTMLSelectElement;
 	feedback6OpTypeSelect: HTMLSelectElement;
-	customAlgorithmCanvas: CustomAlgorythmCanvas;
+	customAlgorithmCanvas: CustomAlgorithmCanvas;
 	algorithm6OpSelectRow: HTMLElement;
 	feedback6OpRow1: HTMLElement;
 	algorithmSelectRow: HTMLElement;

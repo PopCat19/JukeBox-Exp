@@ -466,7 +466,7 @@ export class Synth {
 		return (Math.pow(16.0, amplitude / 15.0) - 1.0) / 15.0;
 	}
 
-	public samplesPerSecond: number = 44100;
+	public samplesPerSecond: number = Config.defaultSampleRate;
 	public panningDelayBufferSize: number;
 	public panningDelayBufferMask: number;
 	public chorusDelayBufferSize: number;
@@ -2030,8 +2030,8 @@ export class Synth {
         samplesAccumulated += outputBufferLength;
         samplePerformance += synthDuration;
 
-        if (samplesAccumulated >= 44100 * 4) {
-            const secondsGenerated = samplesAccumulated / 44100;
+        if (samplesAccumulated >= Config.defaultSampleRate * 4) {
+            const secondsGenerated = samplesAccumulated / Config.defaultSampleRate;
             const secondsRequired = samplePerformance / 1000;
             const ratio = secondsRequired / secondsGenerated;
             console.log(ratio);

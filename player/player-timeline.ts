@@ -157,8 +157,6 @@ export function renderTimeline(ui: PlayerUI, zoomEnabled: boolean, removeFromUno
 
 					if (notesFlashWhenPlayed) {
 						const dflash: string = drawNote(pitch, note.start, note.pins, (pitchHeight + 1) / 2, offsetX, offsetY, partWidth, pitchHeight);
-						// const noteFlashColorSecondary = ColorConfig.getComputed("--note-flash-secondary") !== "" ? "var(--note-flash-secondary)" : "#ffffff77";
-						// const noteFlashColor = ColorConfig.getComputed("--note-flash") !== "" ? "var(--note-flash)" : "#ffffff77";
 						const noteFlashElement: SVGPathElement = path({
 							d: dflash,
 							fill: isNoise ? noteFlashColorSecondary : noteFlashColor,

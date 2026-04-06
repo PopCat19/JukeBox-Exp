@@ -197,7 +197,7 @@ export class AddSamplesPrompt extends BasePrompt {
 		const entryIndex: number = this._entries.length;
 		this._entries.push({
 			url: "",
-			sampleRate: 44100,
+			sampleRate: Config.defaultSampleRate,
 			rootKey: 60,
 			percussion: false,
 			chipWaveLoopStart: null,
@@ -279,7 +279,7 @@ export class AddSamplesPrompt extends BasePrompt {
 	private _whenSampleRateChanges = (event: Event): void => {
 		const element: HTMLInputElement = <HTMLInputElement>event.target;
 		const entryIndex: number = +element.dataset.index!;
-		const value: number = clamp(8000, 96000 + 1, parseFloatWithDefault(element.value, 44100));
+		const value: number = clamp(Config.minSampleRate, Config.maxSampleRate + 1, parseFloatWithDefault(element.value, Config.defaultSampleRate));
 		this._entries[entryIndex].sampleRate = value;
 	};
 

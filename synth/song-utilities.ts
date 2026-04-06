@@ -99,7 +99,7 @@ export function parseAndConfigureCustomSample(
 
 	let urlSliced: string = url;
 
-	let customSampleRate: number = 44100;
+	let customSampleRate: number = Config.defaultSampleRate;
 	let isCustomPercussive: boolean = false;
 	let customRootKey: number = 60;
 	let presetIsUsingAdvancedLoopControls: boolean = false;
@@ -120,7 +120,7 @@ export function parseAndConfigureCustomSample(
 				const optionCode: string = rawOption.charAt(0);
 				const optionData: string = rawOption.slice(1, rawOption.length);
 				if (optionCode === "s") {
-					customSampleRate = clamp(8000, 96000 + 1, parseFloatWithDefault(optionData, 44100));
+					customSampleRate = clamp(Config.minSampleRate, Config.maxSampleRate + 1, parseFloatWithDefault(optionData, Config.defaultSampleRate));
 				} else if (optionCode === "r") {
 					customRootKey = parseFloatWithDefault(optionData, 60);
 				} else if (optionCode === "p") {
@@ -190,7 +190,11 @@ export function parseAndConfigureCustomSample(
 				} else {
 					parsedUrl = new URL(urlSliced);
 				}
-				customSampleRate = clamp(8000, 96000 + 1, parseFloatWithDefault(url.slice(url.indexOf(",") + 1), 44100));
+				customSampleRate = clamp(
+					Config.minSampleRate,
+					Config.maxSampleRate + 1,
+					parseFloatWithDefault(url.slice(url.indexOf(",") + 1), Config.defaultSampleRate),
+				);
 				// should this be parseFloat or parseInt?
 				// ig floats let you do decimals and such, but idk where that would be useful
 			}
@@ -228,7 +232,7 @@ export function parseAndConfigureCustomSample(
 		// Store in the new format.
 		let urlWithNamedOptions = urlSliced;
 		const namedOptions: string[] = [];
-		if (customSampleRate !== 44100) namedOptions.push("s" + customSampleRate);
+		if (customSampleRate !== Config.defaultSampleRate) namedOptions.push("s" + customSampleRate);
 		if (customRootKey !== 60) namedOptions.push("r" + customRootKey);
 		if (isCustomPercussive) namedOptions.push("p");
 		if (presetIsUsingAdvancedLoopControls) {

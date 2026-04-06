@@ -28,7 +28,7 @@ Upstream has a monolithic `editor/SongEditor.ts`. The fork extracts UI component
 | `editor/core/` | `editor/SongEditor.ts` + `editor/changes.ts` | ChangeDispatcher, KeyboardHandler, PromptManager, ModSliderRegistry |
 | `editor/io/` | `editor/Midi.ts`, `editor/MidiInput.ts`, `editor/SongRecovery.ts` | MIDI I/O and song recovery (moved from editor root) |
 | `editor/rendering/custom-chip-canvas.ts` | `editor/SongEditor.ts` | `CustomChipCanvas` class for waveform editing |
-| `editor/rendering/custom-algorythm-canvas.ts` | `editor/SongEditor.ts` | `CustomAlgorythmCanvas` class for FM algorithm editing |
+| `editor/rendering/custom-algorithm-canvas.ts` | `editor/SongEditor.ts` | `CustomAlgorithmCanvas` class for FM algorithm editing |
 
 ## `editor/` extractions from other upstream files
 

@@ -1507,6 +1507,9 @@ export class Config {
 	public static readonly reverbRange: number = 32;
 	public static readonly reverbDelayBufferSize: number = 16384;
 	public static readonly reverbDelayBufferMask: number = Config.reverbDelayBufferSize - 1;
+	public static readonly defaultSampleRate: number = 44100;
+	public static readonly minSampleRate: number = 8000;
+	public static readonly maxSampleRate: number = 96000;
 	public static readonly phaserMixRange: number = 32;
 	public static readonly phaserFeedbackRange: number = 32;
 	public static readonly phaserFreqRange: number = 32;

@@ -10,7 +10,6 @@
 // Copyright (c) 2012-2022 John Nesky and contributing authors, distributed under the MIT license, see accompanying the LICENSE.md file.
 
 import { ChannelColors, ColorConfig } from "../shared/color-config";
-// import {Layout} from "./layout";
 import { Config, DropdownID, InstrumentType, SampleLoadedEvent } from "../synth/synth-config";
 import { BarScrollBar } from "./components/bar-scroll-bar";
 import { Shiggy } from "./components/shiggy-component";
@@ -227,7 +226,7 @@ function buildPresetOptions(isNoise: boolean, idSet: string): HTMLSelectElement 
 	return menu;
 }
 
-import { CustomAlgorythmCanvas } from "./rendering/custom-algorythm-canvas";
+import { CustomAlgorithmCanvas } from "./rendering/custom-algorithm-canvas";
 import { CustomChipCanvas } from "./rendering/custom-chip-canvas";
 
 export class SongEditor implements ModSliderProvider, MenuHandlerHost, DrumsetSetupHost, FmOperatorSetupHost, ModulatorSetupHost, EventListenerSetupHost {
@@ -1316,7 +1315,7 @@ export class SongEditor implements ModSliderProvider, MenuHandlerHost, DrumsetSe
 		},
 		"A",
 	);
-	private readonly _customAlgorithmCanvas: CustomAlgorythmCanvas = new CustomAlgorythmCanvas(
+	private readonly _customAlgorithmCanvas: CustomAlgorithmCanvas = new CustomAlgorithmCanvas(
 		canvas({
 			width: 144,
 			height: 144,
@@ -2289,7 +2288,7 @@ export class SongEditor implements ModSliderProvider, MenuHandlerHost, DrumsetSe
 	public get piano(): Piano {
 		return this._piano;
 	}
-	public get customAlgorithmCanvas(): CustomAlgorythmCanvas {
+	public get customAlgorithmCanvas(): CustomAlgorithmCanvas {
 		return this._customAlgorithmCanvas;
 	}
 	public get tempoStepper(): HTMLInputElement {

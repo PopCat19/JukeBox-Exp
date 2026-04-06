@@ -47,17 +47,7 @@ export class ColorConfig {
 	public static readonly blackPianoKey: string = "var(--black-piano-key, #444)";
 	public static readonly whitePianoKeyText: string = "var(--white-piano-key-text, #131200)";
 	public static readonly blackPianoKeyText: string = "var(--black-piano-key-text, #fff)";
-	// public static readonly oscilloscopeLineL: string = "var(--oscilloscope-line-L, var(--primary-text, white))";
-	// public static readonly oscilloscopeLineR: string = "var(--oscilloscope-line-R, var(--text-selection, rgba(119,68,255,0.99)))";
-	// modTitle can stay uncommented until it's used somwhere that's not index.html
-	// public static readonly modTitle: string = "var(--mod-title)";
 	public static readonly useColorFormula: string = "var(--use-color-formula, false)";
-	// public static readonly pitchLimit: string = "var(--pitch-channel-limit)";
-	// public static readonly noiseLimit: string = "var(--noise-channel-limit)";
-	// public static readonly modLimit: string = "var(--mod-channel-limit)";
-	// public static readonly colorFormulaPitchLimit: string = "var(--formula-pitch-channel-limit)";
-	// public static readonly colorFormulaNoiseLimit: string = "var(--formula-noise-channel-limit)";
-	// public static readonly colorFormulaModLimit: string = "var(--formula-mod-channel-limit)";
 	public static readonly pitchSecondaryChannelHue: string = "var(--pitch-secondary-channel-hue)";
 	public static readonly pitchSecondaryChannelHueScale: string = "var(--pitch-secondary-channel-hue-scale)";
 	public static readonly pitchSecondaryChannelSat: string = "var(--pitch-secondary-channel-sat)";
@@ -833,8 +823,6 @@ export class ColorConfig {
 		if (getComputedStyle(this._styleElement).getPropertyValue("--loop-accent") === "") {
 			valuesToAdd += "--loop-accent:#74f;";
 		}
-		// if (getComputedStyle(this._styleElement).getPropertyValue("--link-accent") == "") valuesToAdd += "--link-accent:#9c64f7;";
-		// if (getComputedStyle(this._styleElement).getPropertyValue("--mod-title") == "") valuesToAdd += "--mod-title:var(--link-accent);";
 		if (getComputedStyle(this._styleElement).getPropertyValue("--box-selection-fill") === "") {
 			valuesToAdd += "--box-selection-fill:rgba(255,255,255,0.2);";
 		}
