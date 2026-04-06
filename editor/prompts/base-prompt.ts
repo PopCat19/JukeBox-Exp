@@ -52,8 +52,50 @@ export abstract class BasePrompt implements Prompt {
 		if ((<Element>event.target).tagName !== "BUTTON" && event.keyCode === 13) {
 			event.preventDefault();
 			this._saveChanges();
+		} else if (event.keyCode === 27) {
+			event.preventDefault();
+			this._close();
 		}
 	};
+
+	protected _handleCommonKeys(
+		event: KeyboardEvent,
+		options?: {
+			togglePlay?: () => void;
+			undo?: () => void;
+			redo?: () => void;
+			extra?: (event: KeyboardEvent) => boolean;
+		},
+	): void {
+		if ((<Element>event.target).tagName !== "BUTTON" && event.keyCode === 13) {
+			this._saveChanges();
+			return;
+		}
+		if (event.keyCode === 32 && options?.togglePlay) {
+			options.togglePlay();
+			event.preventDefault();
+			return;
+		}
+		if (event.keyCode === 90 && options?.undo) {
+			options.undo();
+			event.stopPropagation();
+			return;
+		}
+		if (event.keyCode === 89 && options?.redo) {
+			options.redo();
+			event.stopPropagation();
+			return;
+		}
+		if (event.keyCode === 219) {
+			this._doc.synth.goToPrevBar();
+			return;
+		}
+		if (event.keyCode === 221) {
+			this._doc.synth.goToNextBar();
+			return;
+		}
+		options?.extra?.(event);
+	}
 
 	protected _getOkayRow(...extra: HTMLElement[]): HTMLDivElement {
 		return div({ class: "prompt-button-row" }, this._okayButton, ...extra);

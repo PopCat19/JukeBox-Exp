@@ -5,6 +5,10 @@
 // This module:
 // - Provides number input validation (key filtering, blur clamping)
 // - Manages play/pause button state toggling
+// - Provides close handler factory for prompt-like components
+
+import { SongDocument } from "../song-document";
+import { Prompt } from "./prompt";
 
 export function validateKey(event: KeyboardEvent): boolean {
 	const charCode = event.which ? event.which : event.keyCode;
@@ -35,5 +39,13 @@ export function updatePlayButton(btn: HTMLButtonElement, playing: boolean): void
 		btn.classList.add("playButton");
 		btn.title = "Play (Space)";
 		btn.innerText = "Play";
+	}
+}
+
+export function closePrompt(doc: SongDocument, closeCallback: ((prompt: Prompt) => void) | undefined | null, prompt: Prompt): void {
+	if (closeCallback) {
+		closeCallback(prompt);
+	} else {
+		doc.prompt = null;
 	}
 }

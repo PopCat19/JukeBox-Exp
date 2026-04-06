@@ -163,4 +163,9 @@ export class LayoutPrompt extends BasePrompt {
 		Layout.setLayout(this._doc.prefs.layout);
 		this._close();
 	}
+
+	public override cleanUp(): void {
+		super.cleanUp();
+		this.container.removeEventListener("keydown", this.whenKeyPressed);
+	}
 }

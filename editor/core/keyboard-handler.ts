@@ -115,57 +115,46 @@ export class KeyboardHandler {
 			}
 		}
 
-		// Defer to actively editing song title, channel name, or mod label
-		if (
-			document.activeElement === host.songTitleInputBox ||
-			host.patternEditor.editingModLabel ||
-			document.activeElement === (host.muteEditor as any)._channelNameInput?.input
-		) {
-			if (event.keyCode === 13 || event.keyCode === 27) {
-				host.mainLayer.focus();
-				host.patternEditor.stopEditingModLabel(event.keyCode === 27);
-			}
-			return;
-		}
+		// Defer to actively editing inputs - Enter/Escape commits and returns focus to main layer
+		if (event.keyCode === 13 || event.keyCode === 27) {
+			const isEditingModLabel = host.patternEditor.editingModLabel;
+			const isEditingTextInput =
+				document.activeElement === host.songTitleInputBox ||
+				isEditingModLabel ||
+				document.activeElement === (host.muteEditor as any)._channelNameInput?.input;
+			const isEditingNumberInput =
+				document.activeElement === host.panSliderInputBox ||
+				document.activeElement === host.pwmSliderInputBox ||
+				document.activeElement === host.detuneSliderInputBox ||
+				document.activeElement === host.instrumentVolumeSliderInputBox ||
+				document.activeElement === host.presetTagsInputBox ||
+				document.activeElement === host.chipWaveLoopStartStepper ||
+				document.activeElement === host.chipWaveLoopEndStepper ||
+				document.activeElement === host.chipWaveStartOffsetStepper ||
+				document.activeElement === host.octaveStepper ||
+				document.activeElement === host.tempoStepper ||
+				document.activeElement === host.unisonVoicesInputBox ||
+				document.activeElement === host.unisonSpreadInputBox ||
+				document.activeElement === host.unisonOffsetInputBox ||
+				document.activeElement === host.unisonExpressionInputBox ||
+				document.activeElement === host.unisonSignInputBox ||
+				document.activeElement === host.monophonicNoteInputBox ||
+				document.activeElement === host.upperNoteLimitInputBox ||
+				document.activeElement === host.lowerNoteLimitInputBox ||
+				host.envelopeEditor.pitchStartBoxes.find((el: any) => el === document.activeElement) ||
+				host.envelopeEditor.pitchEndBoxes.find((el: any) => el === document.activeElement) ||
+				host.envelopeEditor.perEnvelopeLowerBoundBoxes.find((el: any) => el === document.activeElement) ||
+				host.envelopeEditor.perEnvelopeUpperBoundBoxes.find((el: any) => el === document.activeElement) ||
+				host.envelopeEditor.randomStepsBoxes.find((el: any) => el === document.activeElement) ||
+				host.envelopeEditor.LFOStepsBoxes.find((el: any) => el === document.activeElement);
 
-		// Defer to actively editing volume/pan rows
-		if (
-			document.activeElement === host.panSliderInputBox ||
-			document.activeElement === host.pwmSliderInputBox ||
-			document.activeElement === host.detuneSliderInputBox ||
-			document.activeElement === host.instrumentVolumeSliderInputBox ||
-			document.activeElement === host.presetTagsInputBox ||
-			document.activeElement === host.chipWaveLoopStartStepper ||
-			document.activeElement === host.chipWaveLoopEndStepper ||
-			document.activeElement === host.chipWaveStartOffsetStepper ||
-			document.activeElement === host.octaveStepper ||
-			document.activeElement === host.tempoStepper ||
-			document.activeElement === host.unisonVoicesInputBox ||
-			document.activeElement === host.unisonSpreadInputBox ||
-			document.activeElement === host.unisonOffsetInputBox ||
-			document.activeElement === host.unisonExpressionInputBox ||
-			document.activeElement === host.unisonSignInputBox ||
-			document.activeElement === host.monophonicNoteInputBox ||
-			host.envelopeEditor.pitchStartBoxes.find((element: any) => element === document.activeElement) ||
-			host.envelopeEditor.pitchEndBoxes.find((element: any) => element === document.activeElement) ||
-			host.envelopeEditor.perEnvelopeLowerBoundBoxes.find((element: any) => element === document.activeElement) ||
-			host.envelopeEditor.perEnvelopeUpperBoundBoxes.find((element: any) => element === document.activeElement) ||
-			host.envelopeEditor.randomStepsBoxes.find((element: any) => element === document.activeElement) ||
-			host.envelopeEditor.randomStepsBoxes.find((element: any) => element === document.activeElement) ||
-			host.envelopeEditor.LFOStepsBoxes.find((element: any) => element === document.activeElement)
-		) {
-			if (event.keyCode === 13 || event.keyCode === 27) {
+			if (isEditingTextInput || isEditingNumberInput) {
 				host.mainLayer.focus();
+				if (isEditingModLabel) {
+					host.patternEditor.stopEditingModLabel(event.keyCode === 27);
+				}
+				return;
 			}
-			return;
-		}
-
-		// Defer to actively editing upper note limit
-		if (document.activeElement === host.upperNoteLimitInputBox || document.activeElement === host.lowerNoteLimitInputBox) {
-			if (event.keyCode === 13 || event.keyCode === 27) {
-				host.mainLayer.focus();
-			}
-			return;
 		}
 
 		// Always skip shortcuts when focus is on interactive form elements
@@ -874,63 +863,22 @@ export class KeyboardHandler {
 				doc.selection.digits = "";
 				doc.selection.nextDigit("0", false, false);
 				break;
-			case 48: // 0
+			case 48:
+			case 49:
+			case 50:
+			case 51:
+			case 52:
+			case 53:
+			case 54:
+			case 55:
+			case 56:
+			case 57:
 				if (canPlayNotes) break;
-				doc.selection.nextDigit("0", needControlForShortcuts !== (event.shiftKey || event.ctrlKey || event.metaKey), event.altKey);
-				host.renderInstrumentBar(doc.song.channels[doc.channel], doc.getCurrentInstrument(), ColorConfig.getChannelColor(doc.song, doc.channel));
-				event.preventDefault();
-				break;
-			case 49: // 1
-				if (canPlayNotes) break;
-				doc.selection.nextDigit("1", needControlForShortcuts !== (event.shiftKey || event.ctrlKey || event.metaKey), event.altKey);
-				host.renderInstrumentBar(doc.song.channels[doc.channel], doc.getCurrentInstrument(), ColorConfig.getChannelColor(doc.song, doc.channel));
-				event.preventDefault();
-				break;
-			case 50: // 2
-				if (canPlayNotes) break;
-				doc.selection.nextDigit("2", needControlForShortcuts !== (event.shiftKey || event.ctrlKey || event.metaKey), event.altKey);
-				host.renderInstrumentBar(doc.song.channels[doc.channel], doc.getCurrentInstrument(), ColorConfig.getChannelColor(doc.song, doc.channel));
-				event.preventDefault();
-				break;
-			case 51: // 3
-				if (canPlayNotes) break;
-				doc.selection.nextDigit("3", needControlForShortcuts !== (event.shiftKey || event.ctrlKey || event.metaKey), event.altKey);
-				host.renderInstrumentBar(doc.song.channels[doc.channel], doc.getCurrentInstrument(), ColorConfig.getChannelColor(doc.song, doc.channel));
-				event.preventDefault();
-				break;
-			case 52: // 4
-				if (canPlayNotes) break;
-				doc.selection.nextDigit("4", needControlForShortcuts !== (event.shiftKey || event.ctrlKey || event.metaKey), event.altKey);
-				host.renderInstrumentBar(doc.song.channels[doc.channel], doc.getCurrentInstrument(), ColorConfig.getChannelColor(doc.song, doc.channel));
-				event.preventDefault();
-				break;
-			case 53: // 5
-				if (canPlayNotes) break;
-				doc.selection.nextDigit("5", needControlForShortcuts !== (event.shiftKey || event.ctrlKey || event.metaKey), event.altKey);
-				host.renderInstrumentBar(doc.song.channels[doc.channel], doc.getCurrentInstrument(), ColorConfig.getChannelColor(doc.song, doc.channel));
-				event.preventDefault();
-				break;
-			case 54: // 6
-				if (canPlayNotes) break;
-				doc.selection.nextDigit("6", needControlForShortcuts !== (event.shiftKey || event.ctrlKey || event.metaKey), event.altKey);
-				host.renderInstrumentBar(doc.song.channels[doc.channel], doc.getCurrentInstrument(), ColorConfig.getChannelColor(doc.song, doc.channel));
-				event.preventDefault();
-				break;
-			case 55: // 7
-				if (canPlayNotes) break;
-				doc.selection.nextDigit("7", needControlForShortcuts !== (event.shiftKey || event.ctrlKey || event.metaKey), event.altKey);
-				host.renderInstrumentBar(doc.song.channels[doc.channel], doc.getCurrentInstrument(), ColorConfig.getChannelColor(doc.song, doc.channel));
-				event.preventDefault();
-				break;
-			case 56: // 8
-				if (canPlayNotes) break;
-				doc.selection.nextDigit("8", needControlForShortcuts !== (event.shiftKey || event.ctrlKey || event.metaKey), event.altKey);
-				host.renderInstrumentBar(doc.song.channels[doc.channel], doc.getCurrentInstrument(), ColorConfig.getChannelColor(doc.song, doc.channel));
-				event.preventDefault();
-				break;
-			case 57: // 9
-				if (canPlayNotes) break;
-				doc.selection.nextDigit("9", needControlForShortcuts !== (event.shiftKey || event.ctrlKey || event.metaKey), event.altKey);
+				doc.selection.nextDigit(
+					String(event.keyCode - 48),
+					needControlForShortcuts !== (event.shiftKey || event.ctrlKey || event.metaKey),
+					event.altKey,
+				);
 				host.renderInstrumentBar(doc.song.channels[doc.channel], doc.getCurrentInstrument(), ColorConfig.getChannelColor(doc.song, doc.channel));
 				event.preventDefault();
 				break;

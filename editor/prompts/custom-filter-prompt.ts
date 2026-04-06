@@ -196,41 +196,29 @@ export class CustomFilterPrompt extends BasePrompt {
 	}
 
 	public override whenKeyPressed = (event: KeyboardEvent): void => {
-		if ((<Element>event.target).tagName !== "BUTTON" && event.keyCode === 13) {
-			// Enter key
-			this._saveChanges();
-		} else if (event.keyCode === 32) {
-			// space
-			this._togglePlay();
-			event.preventDefault();
-		} else if (event.keyCode === 90) {
-			// z
-			const newIdx = this.filterEditor.undo();
-			if (newIdx >= 0) {
-				this._setSubfilter(newIdx, false, false);
-			}
-			event.stopPropagation();
-		} else if (event.keyCode === 89) {
-			// y
-			const newIdx = this.filterEditor.redo();
-			if (newIdx >= 0) {
-				this._setSubfilter(newIdx, false, false);
-			}
-			event.stopPropagation();
-		} else if (event.keyCode === 219) {
-			// [
-			this._doc.synth.goToPrevBar();
-		} else if (event.keyCode === 221) {
-			// ]
-			this._doc.synth.goToNextBar();
-		} else if (event.keyCode >= 48 && event.keyCode <= 57 && event.shiftKey) {
-			// shift+0-9
-			this._setSubfilter(event.keyCode - 48);
-		} else if (event.keyCode >= 49 && event.keyCode <= 57 && !event.shiftKey) {
-			// 1-9 unshifted
-			this.filterEditor.swapSubfilterIndices(event.keyCode - 49);
-			event.stopPropagation();
-		}
+		this._handleCommonKeys(event, {
+			togglePlay: () => this._togglePlay(),
+			undo: () => {
+				const newIdx = this.filterEditor.undo();
+				if (newIdx >= 0) this._setSubfilter(newIdx, false, false);
+			},
+			redo: () => {
+				const newIdx = this.filterEditor.redo();
+				if (newIdx >= 0) this._setSubfilter(newIdx, false, false);
+			},
+			extra: (e) => {
+				if (e.keyCode >= 48 && e.keyCode <= 57 && e.shiftKey) {
+					this._setSubfilter(e.keyCode - 48);
+					return true;
+				}
+				if (e.keyCode >= 49 && e.keyCode <= 57 && !e.shiftKey) {
+					this.filterEditor.swapSubfilterIndices(e.keyCode - 49);
+					e.stopPropagation();
+					return true;
+				}
+				return false;
+			},
+		});
 	};
 
 	protected override _saveChanges(): void {

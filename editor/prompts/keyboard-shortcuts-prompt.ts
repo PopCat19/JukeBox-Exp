@@ -188,11 +188,4 @@ export class KeyboardShortcutsPrompt extends BasePrompt {
 	protected override _saveChanges(): void {
 		this._close();
 	}
-
-	public override whenKeyPressed = (event: KeyboardEvent): void => {
-		if (event.keyCode === 27) {
-			this._close();
-			event.preventDefault();
-		}
-	};
 }

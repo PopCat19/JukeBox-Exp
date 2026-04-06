@@ -14,6 +14,7 @@ import { HarmonicsWave, Instrument } from "../../synth";
 import { Config } from "../../synth/synth-config";
 import { ChangeHarmonics } from "../changes";
 import { prettyNumber } from "../config/editor-config";
+import { closePrompt, updatePlayButton } from "../prompts/input-helpers";
 import { Prompt } from "../prompts/prompt";
 import { SongDocument } from "../song-document";
 import { SongEditor } from "../song-editor";
@@ -424,26 +425,54 @@ export class HarmonicsEditorPrompt implements Prompt {
 	};
 
 	public updatePlayButton(): void {
-		if (this._doc.synth.playing) {
-			this._playButton.classList.remove("playButton");
-			this._playButton.classList.add("pauseButton");
-			this._playButton.title = "Pause (Space)";
-			this._playButton.innerText = "Pause";
-		} else {
-			this._playButton.classList.remove("pauseButton");
-			this._playButton.classList.add("playButton");
-			this._playButton.title = "Play (Space)";
-			this._playButton.innerText = "Play";
-		}
+		updatePlayButton(this._playButton, this._doc.synth.playing);
 	}
 
 	private _close = (): void => {
-		if (this.closeCallback) {
-			this.closeCallback(this);
-		} else {
-			this._doc.prompt = null;
-		}
+		closePrompt(this._doc, this.closeCallback, this);
 	};
+
+	private _handleCommonKeys(
+		event: KeyboardEvent,
+		options?: {
+			togglePlay?: () => void;
+			undo?: () => void;
+			redo?: () => void;
+		},
+	): void {
+		if ((<Element>event.target).tagName !== "BUTTON" && event.keyCode === 13) {
+			this._saveChanges();
+			return;
+		}
+		if (event.keyCode === 27) {
+			event.preventDefault();
+			this._close();
+			return;
+		}
+		if (event.keyCode === 32 && options?.togglePlay) {
+			options.togglePlay();
+			event.preventDefault();
+			return;
+		}
+		if (event.keyCode === 90 && options?.undo) {
+			options.undo();
+			event.stopPropagation();
+			return;
+		}
+		if (event.keyCode === 89 && options?.redo) {
+			options.redo();
+			event.stopPropagation();
+			return;
+		}
+		if (event.keyCode === 219) {
+			this._doc.synth.goToPrevBar();
+			return;
+		}
+		if (event.keyCode === 221) {
+			this._doc.synth.goToNextBar();
+			return;
+		}
+	}
 
 	public cleanUp = (): void => {
 		this._okayButton.removeEventListener("click", this._saveChanges);
@@ -465,27 +494,11 @@ export class HarmonicsEditorPrompt implements Prompt {
 	};
 
 	public whenKeyPressed = (event: KeyboardEvent): void => {
-		if ((<Element>event.target).tagName !== "BUTTON" && event.keyCode === 13) {
-			// Enter key
-			this._saveChanges();
-		} else if (event.keyCode === 32) {
-			this._togglePlay();
-			event.preventDefault();
-		} else if (event.keyCode === 90) {
-			// z
-			this.harmonicsEditor.undo();
-			event.stopPropagation();
-		} else if (event.keyCode === 89) {
-			// y
-			this.harmonicsEditor.redo();
-			event.stopPropagation();
-		} else if (event.keyCode === 219) {
-			// [
-			this._doc.synth.goToPrevBar();
-		} else if (event.keyCode === 221) {
-			// ]
-			this._doc.synth.goToNextBar();
-		}
+		this._handleCommonKeys(event, {
+			togglePlay: this._togglePlay,
+			undo: () => this.harmonicsEditor.undo(),
+			redo: () => this.harmonicsEditor.redo(),
+		});
 	};
 
 	private _saveChanges = (): void => {

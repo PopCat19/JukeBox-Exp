@@ -378,27 +378,11 @@ export class CustomChipPrompt extends BasePrompt {
 	};
 
 	public override whenKeyPressed = (event: KeyboardEvent): void => {
-		if ((<Element>event.target).tagName !== "BUTTON" && event.keyCode === 13) {
-			// Enter key
-			this._saveChanges();
-		} else if (event.keyCode === 32) {
-			this._togglePlay();
-			event.preventDefault();
-		} else if (event.keyCode === 90) {
-			// z
-			this.customChipCanvas.undo();
-			event.stopPropagation();
-		} else if (event.keyCode === 89) {
-			// y
-			this.customChipCanvas.redo();
-			event.stopPropagation();
-		} else if (event.keyCode === 219) {
-			// [
-			this._doc.synth.goToPrevBar();
-		} else if (event.keyCode === 221) {
-			// ]
-			this._doc.synth.goToNextBar();
-		}
+		this._handleCommonKeys(event, {
+			togglePlay: () => this._togglePlay(),
+			undo: () => this.customChipCanvas.undo(),
+			redo: () => this.customChipCanvas.redo(),
+		});
 	};
 
 	protected override _saveChanges(): void {

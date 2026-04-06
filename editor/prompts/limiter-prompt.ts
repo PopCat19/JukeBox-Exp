@@ -491,13 +491,9 @@ export class LimiterPrompt extends BasePrompt {
 	}
 
 	public override whenKeyPressed = (event: KeyboardEvent): void => {
-		if ((<Element>event.target).tagName !== "BUTTON" && event.keyCode === 13) {
-			this._saveChanges();
-		}
-		if (event.keyCode === 32) {
-			this._togglePlay();
-			event.preventDefault();
-		}
+		this._handleCommonKeys(event, {
+			togglePlay: this._togglePlay,
+		});
 	};
 
 	private _resetDefaults = (): void => {

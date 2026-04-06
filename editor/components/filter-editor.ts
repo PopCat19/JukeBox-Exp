@@ -195,6 +195,22 @@ export class FilterEditor {
 		this.container.addEventListener("touchcancel", this._whenCursorReleased);
 	}
 
+	public cleanUp(): void {
+		if (this._larger) {
+			this.container.removeEventListener("keydown", this._whenKeyPressed);
+		}
+		this.container.removeEventListener("mousedown", this._whenMousePressed);
+		this.container.removeEventListener("mouseover", this._whenMouseOver);
+		this.container.removeEventListener("mouseout", this._whenMouseOut);
+		document.removeEventListener("mousemove", this._whenMouseMoved);
+		document.removeEventListener("mouseup", this._whenCursorReleased);
+
+		this.container.removeEventListener("touchstart", this._whenTouchPressed);
+		this.container.removeEventListener("touchmove", this._whenTouchMoved);
+		this.container.removeEventListener("touchend", this._whenCursorReleased);
+		this.container.removeEventListener("touchcancel", this._whenCursorReleased);
+	}
+
 	private _whenKeyPressed = (event: KeyboardEvent): void => {
 		if (event.keyCode === 90) {
 			// z

@@ -1103,11 +1103,4 @@ export class InstrumentBrowserPrompt extends BasePrompt {
 	protected override _saveChanges(): void {
 		this._applySelection();
 	}
-
-	public override whenKeyPressed = (event: KeyboardEvent): void => {
-		if (event.keyCode === 27) {
-			this._close();
-			event.preventDefault();
-		}
-	};
 }

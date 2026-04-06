@@ -767,13 +767,9 @@ export class VisualLoopControlsPrompt extends BasePrompt {
 	};
 
 	public override whenKeyPressed = (event: KeyboardEvent): void => {
-		if ((<Element>event.target).tagName !== "BUTTON" && event.keyCode === 13) {
-			this._saveChanges();
-		}
-		if (event.keyCode === 32) {
-			this._togglePlaySong();
-			event.preventDefault();
-		}
+		this._handleCommonKeys(event, {
+			togglePlay: this._togglePlaySong,
+		});
 	};
 
 	private _updatePlaySongButton = (): void => {
