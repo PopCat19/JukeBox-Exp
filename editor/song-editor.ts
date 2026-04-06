@@ -4123,7 +4123,6 @@ export class SongEditor implements ModSliderProvider, MenuHandlerHost, DrumsetSe
 		// edit the input without accidentally editing the song otherwise.
 		switch (event.keyCode) {
 			case 8: // backspace/delete
-			case 13: // enter/return
 			case 38: // up
 			case 40: // down
 			case 37: // left

@@ -724,8 +724,12 @@ export class InstrumentBrowserPrompt extends BasePrompt {
 			event.stopPropagation();
 		} else if (event.keyCode === 13) {
 			this._searchInput.blur();
-			const editorEl = document.querySelector(".beepboxEditor") as HTMLElement;
-			if (editorEl) editorEl.focus({ preventScroll: true });
+			this.container.focus();
+			this._activePane = "presets";
+			if (this._hoveredPresetIndex !== null && this._lastInteraction === "hover") {
+				this._selectedPresetIndex = this._hoveredPresetIndex;
+			}
+			this._applySelection();
 			event.preventDefault();
 			event.stopPropagation();
 		} else if (event.keyCode === 40) {

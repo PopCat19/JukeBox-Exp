@@ -45,6 +45,7 @@ export interface KeyboardHandlerHost {
 	openOperatorDropdowns: boolean[];
 
 	songTitleInputBox: HTMLInputElement;
+	tempoStepper: HTMLInputElement;
 	upperNoteLimitInputBox: HTMLInputElement;
 	lowerNoteLimitInputBox: HTMLInputElement;
 	panSliderInputBox: HTMLInputElement;
@@ -114,16 +115,6 @@ export class KeyboardHandler {
 			}
 		}
 
-		// Always skip shortcuts when focus is on interactive form elements
-		if (
-			event.target instanceof HTMLInputElement ||
-			event.target instanceof HTMLTextAreaElement ||
-			event.target instanceof HTMLSelectElement ||
-			event.target instanceof HTMLButtonElement
-		) {
-			return;
-		}
-
 		// Defer to actively editing song title, channel name, or mod label
 		if (
 			document.activeElement === host.songTitleInputBox ||
@@ -148,6 +139,7 @@ export class KeyboardHandler {
 			document.activeElement === host.chipWaveLoopEndStepper ||
 			document.activeElement === host.chipWaveStartOffsetStepper ||
 			document.activeElement === host.octaveStepper ||
+			document.activeElement === host.tempoStepper ||
 			document.activeElement === host.unisonVoicesInputBox ||
 			document.activeElement === host.unisonSpreadInputBox ||
 			document.activeElement === host.unisonOffsetInputBox ||
@@ -173,6 +165,16 @@ export class KeyboardHandler {
 			if (event.keyCode === 13 || event.keyCode === 27) {
 				host.mainLayer.focus();
 			}
+			return;
+		}
+
+		// Always skip shortcuts when focus is on interactive form elements
+		if (
+			event.target instanceof HTMLInputElement ||
+			event.target instanceof HTMLTextAreaElement ||
+			event.target instanceof HTMLSelectElement ||
+			event.target instanceof HTMLButtonElement
+		) {
 			return;
 		}
 
