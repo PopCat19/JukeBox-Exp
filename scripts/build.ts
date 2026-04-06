@@ -33,19 +33,19 @@ const results = await Promise.allSettled([
   esbuild.build({
     ...shared,
     entryPoints: ["synth/synth.ts"],
-    globalName: "beepbox",
+    globalName: "BeepBoxSynth",
     outfile: "dist/beepbox_synth.min.js",
   }),
   esbuild.build({
     ...shared,
     entryPoints: ["player/main.ts"],
-    globalName: "beepbox",
+    globalName: "BeepBoxPlayer",
     outfile: "dist/player/beepbox_player.min.js",
   }),
   esbuild.build({
     ...shared,
     entryPoints: ["editor/main.ts"],
-    globalName: "beepbox",
+    globalName: "BeepBoxEditor",
     outfile: "dist/beepbox_editor.min.js",
   }),
   esbuild.build({

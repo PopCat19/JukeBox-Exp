@@ -1,4 +1,4 @@
-// editor/rendering/themes/canyon.ts
+// shared/themes/canyon.ts
 //
 // Purpose: CSS variable definitions for the "canyon" theme
 

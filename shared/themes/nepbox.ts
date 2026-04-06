@@ -1,4 +1,4 @@
-// editor/rendering/themes/nepbox.ts
+// shared/themes/nepbox.ts
 //
 // Purpose: CSS variable definitions for the "nepbox" theme
 

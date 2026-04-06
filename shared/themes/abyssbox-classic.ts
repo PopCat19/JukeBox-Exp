@@ -1,4 +1,4 @@
-// editor/rendering/themes/abyssbox-classic.ts
+// shared/themes/abyssbox-classic.ts
 //
 // Purpose: CSS variable definitions for the "abyssbox classic" theme
 

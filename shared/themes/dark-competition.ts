@@ -1,4 +1,4 @@
-// editor/rendering/themes/dark-competition.ts
+// shared/themes/dark-competition.ts
 //
 // Purpose: CSS variable definitions for the "dark competition" theme
 

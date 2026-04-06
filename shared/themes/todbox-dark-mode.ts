@@ -1,4 +1,4 @@
-// editor/rendering/themes/todbox-dark-mode.ts
+// shared/themes/todbox-dark-mode.ts
 //
 // Purpose: CSS variable definitions for the "todbox dark mode" theme
 

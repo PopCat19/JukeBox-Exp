@@ -1,4 +1,4 @@
-# editor/rendering/themes context
+# shared/themes context
 
 - `index.ts` — Theme registry assembling all named theme CSS variable maps
 - `abyssbox-classic.ts` — CSS variable definitions for the "abyssbox classic" theme

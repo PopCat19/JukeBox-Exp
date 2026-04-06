@@ -1,4 +1,4 @@
-// editor/rendering/themes/paandorasbox.ts
+// shared/themes/paandorasbox.ts
 //
 // Purpose: CSS variable definitions for the "paandorasbox" theme
 

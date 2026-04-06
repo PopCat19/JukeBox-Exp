@@ -1,4 +1,4 @@
-// editor/rendering/themes/light-classic.ts
+// shared/themes/light-classic.ts
 //
 // Purpose: CSS variable definitions for the "light classic" theme
 

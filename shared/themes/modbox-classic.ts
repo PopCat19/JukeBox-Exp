@@ -1,4 +1,4 @@
-// editor/rendering/themes/modbox-classic.ts
+// shared/themes/modbox-classic.ts
 //
 // Purpose: CSS variable definitions for the "modbox classic" theme
 

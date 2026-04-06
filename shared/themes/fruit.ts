@@ -1,4 +1,4 @@
-// editor/rendering/themes/fruit.ts
+// shared/themes/fruit.ts
 //
 // Purpose: CSS variable definitions for the "fruit" theme
 

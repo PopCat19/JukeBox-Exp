@@ -1,4 +1,4 @@
-// editor/rendering/themes/fusion.ts
+// shared/themes/fusion.ts
 //
 // Purpose: CSS variable definitions for the "fusion" theme
 

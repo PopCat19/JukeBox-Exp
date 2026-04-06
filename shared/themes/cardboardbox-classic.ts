@@ -1,4 +1,4 @@
-// editor/rendering/themes/cardboardbox-classic.ts
+// shared/themes/cardboardbox-classic.ts
 //
 // Purpose: CSS variable definitions for the "cardboardbox classic" theme
 

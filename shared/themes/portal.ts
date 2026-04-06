@@ -1,4 +1,4 @@
-// editor/rendering/themes/portal.ts
+// shared/themes/portal.ts
 //
 // Purpose: CSS variable definitions for the "portal" theme
 

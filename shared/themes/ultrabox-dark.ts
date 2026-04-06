@@ -1,4 +1,4 @@
-// editor/rendering/themes/ultrabox-dark.ts
+// shared/themes/ultrabox-dark.ts
 //
 // Purpose: CSS variable definitions for the "ultrabox dark" theme
 

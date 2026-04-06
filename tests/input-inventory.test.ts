@@ -8,6 +8,7 @@
 // - Ensures no duplicate binding IDs
 
 import { describe, test, expect } from "bun:test";
+import { existsSync } from "node:fs";
 import { inputBindings, InputBinding } from "../editor/input/inventory";
 import {
   playbackBindings,
@@ -76,7 +77,6 @@ describe("inputBindings inventory", () => {
   });
 
   test("source files exist", () => {
-    const { existsSync } = require("fs");
     const files = new Set(inputBindings.map((b) => b.sourceFile));
     for (const f of files) {
       expect(existsSync(f)).toBe(true);

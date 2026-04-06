@@ -1,4 +1,4 @@
-// editor/rendering/themes/sandbox-classic.ts
+// shared/themes/sandbox-classic.ts
 //
 // Purpose: CSS variable definitions for the "sandbox classic" theme
 

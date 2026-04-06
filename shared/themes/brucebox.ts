@@ -1,4 +1,4 @@
-// editor/rendering/themes/brucebox.ts
+// shared/themes/brucebox.ts
 //
 // Purpose: CSS variable definitions for the "brucebox" theme
 

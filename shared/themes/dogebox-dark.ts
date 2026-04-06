@@ -1,4 +1,4 @@
-// editor/rendering/themes/dogebox-dark.ts
+// shared/themes/dogebox-dark.ts
 //
 // Purpose: CSS variable definitions for the "dogebox dark" theme
 

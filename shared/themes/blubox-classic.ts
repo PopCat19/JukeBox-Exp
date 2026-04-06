@@ -1,4 +1,4 @@
-// editor/rendering/themes/blubox-classic.ts
+// shared/themes/blubox-classic.ts
 //
 // Purpose: CSS variable definitions for the "blubox classic" theme
 

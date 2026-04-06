@@ -1,4 +1,4 @@
-// editor/rendering/themes/fmbox.ts
+// shared/themes/fmbox.ts
 //
 // Purpose: CSS variable definitions for the "fmbox" theme
 

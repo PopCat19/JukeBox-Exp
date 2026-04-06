@@ -1,4 +1,4 @@
-// editor/rendering/themes/jummbox-classic.ts
+// shared/themes/jummbox-classic.ts
 //
 // Purpose: CSS variable definitions for the "jummbox classic" theme
 

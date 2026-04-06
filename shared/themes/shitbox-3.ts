@@ -1,4 +1,4 @@
-// editor/rendering/themes/shitbox-3.ts
+// shared/themes/shitbox-3.ts
 //
 // Purpose: CSS variable definitions for the "shitbox 3.0" theme
 

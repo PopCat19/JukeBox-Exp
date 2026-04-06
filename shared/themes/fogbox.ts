@@ -1,4 +1,4 @@
-// editor/rendering/themes/fogbox.ts
+// shared/themes/fogbox.ts
 //
 // Purpose: CSS variable definitions for the "fogbox" theme
 

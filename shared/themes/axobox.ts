@@ -1,4 +1,4 @@
-// editor/rendering/themes/axobox.ts
+// shared/themes/axobox.ts
 //
 // Purpose: CSS variable definitions for the "axobox" theme
 

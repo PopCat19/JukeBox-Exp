@@ -1,4 +1,4 @@
-// editor/rendering/themes/roe-light.ts
+// shared/themes/roe-light.ts
 //
 // Purpose: CSS variable definitions for the "roe light" theme
 

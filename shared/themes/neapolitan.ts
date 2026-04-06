@@ -1,4 +1,4 @@
-// editor/rendering/themes/neapolitan.ts
+// shared/themes/neapolitan.ts
 //
 // Purpose: CSS variable definitions for the "neapolitan" theme
 

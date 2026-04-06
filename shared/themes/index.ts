@@ -1,4 +1,4 @@
-// editor/rendering/themes/index.ts
+// shared/themes/index.ts
 //
 // Purpose: Theme registry assembling all named theme CSS variable maps
 //

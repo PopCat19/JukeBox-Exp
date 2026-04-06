@@ -1,4 +1,4 @@
-// editor/rendering/themes/slushie.ts
+// shared/themes/slushie.ts
 //
 // Purpose: CSS variable definitions for the "slushie" theme
 

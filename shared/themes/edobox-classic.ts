@@ -1,4 +1,4 @@
-// editor/rendering/themes/edobox-classic.ts
+// shared/themes/edobox-classic.ts
 //
 // Purpose: CSS variable definitions for the "edobox classic" theme
 

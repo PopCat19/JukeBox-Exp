@@ -1,4 +1,4 @@
-// editor/rendering/themes/dogebox-classic.ts
+// shared/themes/dogebox-classic.ts
 //
 // Purpose: CSS variable definitions for the "dogebox classic" theme
 

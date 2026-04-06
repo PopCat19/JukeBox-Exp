@@ -1,4 +1,4 @@
-// editor/rendering/themes/roe.ts
+// shared/themes/roe.ts
 //
 // Purpose: CSS variable definitions for the "roe" theme
 

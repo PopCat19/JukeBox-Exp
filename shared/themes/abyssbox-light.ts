@@ -1,4 +1,4 @@
-// editor/rendering/themes/abyssbox-light.ts
+// shared/themes/abyssbox-light.ts
 //
 // Purpose: CSS variable definitions for the "abyssbox light" theme
 

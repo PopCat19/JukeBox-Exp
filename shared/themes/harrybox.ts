@@ -1,4 +1,4 @@
-// editor/rendering/themes/harrybox.ts
+// shared/themes/harrybox.ts
 //
 // Purpose: CSS variable definitions for the "harrybox" theme
 

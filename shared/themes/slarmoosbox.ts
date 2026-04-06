@@ -1,4 +1,4 @@
-// editor/rendering/themes/slarmoosbox.ts
+// shared/themes/slarmoosbox.ts
 //
 // Purpose: CSS variable definitions for the "slarmoosbox" theme
 

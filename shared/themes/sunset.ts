@@ -1,4 +1,4 @@
-// editor/rendering/themes/sunset.ts
+// shared/themes/sunset.ts
 //
 // Purpose: CSS variable definitions for the "sunset" theme
 
