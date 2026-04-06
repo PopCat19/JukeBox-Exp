@@ -13,7 +13,7 @@ import { ChannelColors, ColorConfig } from "../shared/color-config";
 import { Config, DropdownID, SampleLoadedEvent } from "../synth/synth-config";
 import { BarScrollBar } from "./components/bar-scroll-bar";
 import { Shiggy } from "./components/shiggy-component";
-import { EditorConfig, fullTagList, isMobile } from "./config/editor-config";
+import { EditorConfig, isMobile } from "./config/editor-config";
 import { Change } from "./core/change";
 import { BeatsPerBarPrompt } from "./prompts/beats-per-bar-prompt";
 import { ChannelSettingsPrompt } from "./prompts/channel-settings-prompt";
@@ -83,6 +83,7 @@ import { ModulatorSetup, ModulatorSetupHost } from "./core/modulator-setup";
 import { PlayerAnimator } from "./core/player-animator";
 import { Preferences } from "./core/preferences";
 import { PromptFocusController } from "./core/prompt-focus-controller";
+import { TagAutocomplete } from "./core/tag-autocomplete";
 import { MidiInputHandler } from "./io/midi-input";
 import { AddSamplesPrompt } from "./prompts/add-samples-prompt";
 import { CustomScalePrompt } from "./prompts/custom-scale-prompt";
@@ -124,7 +125,6 @@ import {
 	numberInput,
 	rangeSlider,
 	Slider,
-	tagSuggestionItem,
 	toggleButton,
 } from "./ui";
 
@@ -1412,10 +1412,11 @@ export class SongEditor implements ModSliderProvider, MenuHandlerHost, DrumsetSe
 
 	private readonly _clearTagsButton: HTMLButtonElement = clearButton("Clear tags");
 
-	private readonly _tagAutocompleteBox: HTMLDivElement = div({
-		style: "display:none; position:absolute; z-index:1000; left:0; top:100%; background:var(--editor-background, #222); border:1px solid var(--ui-widget-background, #444); max-height:12em; overflow-y:auto; scrollbar-gutter:stable; scrollbar-width:thin; font-size:80%; width:100%; box-sizing:border-box;",
+	private readonly _tagAutocomplete: TagAutocomplete = new TagAutocomplete({
+		presetTagsInputBox: this._presetTagsInputBox,
+		pitchedPresetSelect: this._pitchedPresetSelect,
+		drumPresetSelect: this._drumPresetSelect,
 	});
-	private _tagAutocompleteIndex: number = -1;
 
 	private readonly _tagInputWrapper: HTMLDivElement = div(
 		{ style: "position: relative; width: 60%; display: inline-block; height: 100%;" },
@@ -1429,7 +1430,7 @@ export class SongEditor implements ModSliderProvider, MenuHandlerHost, DrumsetSe
 			this._clearTagsButton.style.borderRadius = "3px";
 			return this._clearTagsButton;
 		})(),
-		this._tagAutocompleteBox,
+		this._tagAutocomplete.autocompleteBox,
 	);
 
 	private readonly _feedbackAmplitudeSlider: Slider = rangeSlider(
@@ -2374,7 +2375,7 @@ export class SongEditor implements ModSliderProvider, MenuHandlerHost, DrumsetSe
 		return this._invertWaveBox;
 	}
 	public get tagAutocompleteBox(): HTMLDivElement {
-		return this._tagAutocompleteBox;
+		return this._tagAutocomplete.autocompleteBox;
 	}
 	public get clearTagsButton(): HTMLButtonElement {
 		return this._clearTagsButton;
@@ -2392,10 +2393,10 @@ export class SongEditor implements ModSliderProvider, MenuHandlerHost, DrumsetSe
 		return this._trackAndMuteContainer;
 	}
 	public get tagAutocompleteIndex(): number {
-		return this._tagAutocompleteIndex;
+		return this._tagAutocomplete.index;
 	}
 	public set tagAutocompleteIndex(value: number) {
-		this._tagAutocompleteIndex = value;
+		this._tagAutocomplete.index = value;
 	}
 
 	// EventListenerSetupHost methods
@@ -2793,168 +2794,23 @@ export class SongEditor implements ModSliderProvider, MenuHandlerHost, DrumsetSe
 	}
 
 	private _updateTagAutocomplete(): void {
-		if (document.activeElement !== this._presetTagsInputBox) {
-			this._hideTagAutocomplete();
-			return;
-		}
-		const value = this._presetTagsInputBox.value;
-		const tags = value
-			.toLowerCase()
-			.split(/\s+/)
-			.filter((t) => t !== "");
-		const invalid = tags.filter((tag) => !(tag.startsWith("!") ? fullTagList.includes(tag.slice(1)) : fullTagList.includes(tag)));
-		this._presetTagsInputBox.title = invalid.length > 0 ? `Unknown tags: ${invalid.join(", ")}` : "";
-		this._presetTagsInputBox.style.outline = invalid.length > 0 ? "1px solid orange" : "";
-
-		// Find the current word being typed (last space-separated token)
-		const cursorPos = this._presetTagsInputBox.selectionStart ?? value.length;
-		const textBeforeCursor = value.slice(0, cursorPos);
-		const lastSpaceIdx = textBeforeCursor.lastIndexOf(" ");
-		const currentWord = textBeforeCursor.slice(lastSpaceIdx + 1).toLowerCase();
-
-		if (currentWord.length < 1) {
-			this._hideTagAutocomplete();
-			return;
-		}
-
-		const isNegation = currentWord.startsWith("!");
-		const prefix = isNegation ? "!" : "";
-		const searchTerm = isNegation ? currentWord.slice(1) : currentWord;
-
-		// Already-completed tags for deduplication
-		const completedTags = new Set(tags.filter((_, i) => i < tags.length - 1));
-
-		const matches = fullTagList.filter((tag) => tag.startsWith(searchTerm) && !completedTags.has(tag) && !completedTags.has("!" + tag));
-
-		if (matches.length === 0 || (matches.length === 1 && matches[0] === searchTerm)) {
-			this._hideTagAutocomplete();
-			return;
-		}
-
-		this._tagAutocompleteBox.innerHTML = "";
-		this._tagAutocompleteIndex = -1;
-
-		for (const tag of matches) {
-			const item = tagSuggestionItem(prefix + tag);
-			item.addEventListener("mousedown", (e: MouseEvent) => {
-				e.preventDefault();
-				this._applyTagSuggestion(prefix + tag);
-			});
-			item.addEventListener("mouseenter", () => {
-				const items = this._tagAutocompleteBox.querySelectorAll<HTMLElement>(".tagSuggestion");
-				const idx = Array.from(items).indexOf(item);
-				if (idx >= 0) {
-					this._tagAutocompleteIndex = idx;
-					this._highlightTagSuggestion(items);
-				}
-			});
-			this._tagAutocompleteBox.appendChild(item);
-		}
-
-		this._tagAutocompleteBox.style.display = "block";
+		this._tagAutocomplete.update();
 	}
 
 	private _applyTagSuggestion(tag: string): void {
-		const value = this._presetTagsInputBox.value;
-		const cursorPos = this._presetTagsInputBox.selectionStart ?? value.length;
-		const textBeforeCursor = value.slice(0, cursorPos);
-		const lastSpaceIdx = textBeforeCursor.lastIndexOf(" ");
-		const before = value.slice(0, lastSpaceIdx + 1);
-		const after = value.slice(cursorPos);
-		const needsSpace = after.length === 0 || !after.startsWith(" ");
-		this._presetTagsInputBox.value = before + tag + (needsSpace ? " " : "") + after;
-		this._hideTagAutocomplete();
-		this._presetTagsInputBox.focus();
-		// Move cursor after inserted tag
-		const newPos = before.length + tag.length + (needsSpace ? 1 : 0);
-		this._presetTagsInputBox.setSelectionRange(newPos, newPos);
-		// Re-validate
-		this._updateTagAutocomplete();
+		this._tagAutocomplete.applySuggestion(tag);
 	}
 
 	private _hideTagAutocomplete(): void {
-		this._tagAutocompleteBox.style.display = "none";
-		this._tagAutocompleteIndex = -1;
+		this._tagAutocomplete.hide();
 	}
 
 	private _highlightTagSuggestion(items: NodeListOf<HTMLElement>): void {
-		items.forEach((el, i) => {
-			el.style.background = i === this._tagAutocompleteIndex ? "var(--ui-widget-focus, #777)" : "";
-			el.style.color = i === this._tagAutocompleteIndex ? "var(--editor-background, #fff)" : "";
-		});
+		this._tagAutocomplete.highlight(items);
 	}
 
 	public filterPresetSelectByTags(): void {
-		const input = document.getElementById("presetTagsInputBox") as HTMLInputElement | null;
-		const rawTags: string[] = input
-			? input.value
-					.toLowerCase()
-					.split(/\s+/)
-					.filter((t) => t !== "")
-			: [];
-
-		const currentPitch = this._pitchedPresetSelect.value;
-		const currentDrum = this._drumPresetSelect.value;
-
-		// Save full option set on first call so filtering is always against the complete list
-		if (!this._pitchedPresetSelect.dataset.fullOptions) {
-			this._pitchedPresetSelect.dataset.fullOptions = this._pitchedPresetSelect.innerHTML;
-		}
-		if (!this._drumPresetSelect.dataset.fullOptions) {
-			this._drumPresetSelect.dataset.fullOptions = this._drumPresetSelect.innerHTML;
-		}
-
-		// No tags active — restore full list
-		if (rawTags.length === 0) {
-			this._pitchedPresetSelect.innerHTML = this._pitchedPresetSelect.dataset.fullOptions;
-			this._drumPresetSelect.innerHTML = this._drumPresetSelect.dataset.fullOptions;
-			if (typeof $ !== "undefined") {
-				$("#pitchPresetSelect").val(currentPitch).trigger("change.select2");
-				$("#drumPresetSelect").val(currentDrum).trigger("change.select2");
-			}
-			return;
-		}
-
-		const matchesTags = (presetValue: number): boolean => {
-			const preset = EditorConfig.valueToPreset(presetValue);
-			if (!preset || !preset.tags) return false;
-			return rawTags.every((tag) => (tag.startsWith("!") ? !preset.tags.includes(tag.slice(1)) : preset.tags.includes(tag)));
-		};
-
-		const filterSelect = (src: HTMLSelectElement): void => {
-			const temp = document.createElement("select");
-			temp.innerHTML = src.dataset.fullOptions!;
-			const srcOptions = Array.from(temp.options);
-			src.innerHTML = "";
-			let currentOptgroup: HTMLOptGroupElement | null = null;
-
-			for (const opt of srcOptions) {
-				const val = Number(opt.value);
-				if (isNaN(val) || matchesTags(val)) {
-					const clone = opt.cloneNode(true) as HTMLOptionElement;
-					if (opt.parentElement?.tagName === "OPTGROUP") {
-						const label = (opt.parentElement as HTMLOptGroupElement).label;
-						if (!currentOptgroup || currentOptgroup.label !== label) {
-							currentOptgroup = document.createElement("optgroup");
-							currentOptgroup.label = label;
-							src.appendChild(currentOptgroup);
-						}
-						currentOptgroup.appendChild(clone);
-					} else {
-						currentOptgroup = null;
-						src.appendChild(clone);
-					}
-				}
-			}
-		};
-
-		filterSelect(this._pitchedPresetSelect);
-		filterSelect(this._drumPresetSelect);
-
-		if (typeof $ !== "undefined") {
-			$("#pitchPresetSelect").val(currentPitch).trigger("change.select2");
-			$("#drumPresetSelect").val(currentDrum).trigger("change.select2");
-		}
+		this._tagAutocomplete.filterPresetSelectByTags();
 	}
 
 	private _updateSampleLoadingBar(e: SampleLoadedEvent): void {

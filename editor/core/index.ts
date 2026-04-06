@@ -22,3 +22,4 @@ export { PromptFocusController } from "./prompt-focus-controller";
 export { PromptManager } from "./prompt-manager";
 export { Selection } from "./selection";
 export { SongPerformance } from "./song-performance";
+export { TagAutocomplete, type TagAutocompleteHost } from "./tag-autocomplete";
