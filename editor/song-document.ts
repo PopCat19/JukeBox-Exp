@@ -10,6 +10,7 @@
 // Copyright (c) 2012-2022 John Nesky and contributing authors, distributed under the MIT license, see accompanying the LICENSE.md file.
 
 import { ColorConfig } from "../shared/color-config";
+import { events } from "../shared/events";
 import { Channel, Pattern, Song, Synth } from "../synth";
 import { Config } from "../synth/synth-config";
 import { ChangeHoldingModRecording, ChangeSong, discardInvalidPatternInstruments, setDefaultInstruments } from "./changes";
@@ -107,6 +108,7 @@ export class SongDocument {
 		}
 		songString = this.song.toBase64String();
 		this.synth = new Synth(this.song);
+		this.synth.onOscilloscopeUpdate = (l, r) => events.raise("oscilloscopeUpdate", l, r);
 		this.synth.volume = this._calcVolume();
 		this.synth.anticipatePoorPerformance = isMobile;
 

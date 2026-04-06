@@ -10,10 +10,39 @@
 // Copyright (c) 2012-2022 John Nesky and contributing authors, distributed under the MIT license, see accompanying the LICENSE.md file.
 
 import { HTML } from "imperative-html/dist/esm/elements-strict";
-import { Song } from "../synth";
-import { BeepBoxOption, Config, DictionaryArray, toNameMap } from "../synth/synth-config";
 import { events } from "./events";
 import { themes } from "./themes";
+
+interface SongChannelCounts {
+	readonly pitchChannelCount: number;
+	readonly noiseChannelCount: number;
+	readonly modChannelCount: number;
+}
+
+interface BeepBoxOption {
+	readonly index: number;
+	readonly name: string;
+}
+
+interface Dictionary<T> {
+	[K: string]: T;
+}
+
+interface DictionaryArray<T> extends Array<T> {
+	dictionary: Dictionary<T>;
+}
+
+function toNameMap<T extends BeepBoxOption>(array: Array<Pick<T, Exclude<keyof T, "index">>>): DictionaryArray<T> {
+	const dictionary: Dictionary<T> = {};
+	for (let i = 0; i < array.length; i++) {
+		const value: any = array[i];
+		value.index = i;
+		dictionary[value.name] = value;
+	}
+	const result: DictionaryArray<T> = array as DictionaryArray<T>;
+	result.dictionary = dictionary;
+	return result;
+}
 
 export interface ChannelColors extends BeepBoxOption {
 	readonly secondaryChannel: string;
@@ -561,7 +590,7 @@ export class ColorConfig {
 	}
 
 	// Same as below, but won't return var colors
-	public static getComputedChannelColor(song: Song, channel: number): ChannelColors {
+	public static getComputedChannelColor(song: SongChannelCounts, channel: number): ChannelColors {
 		if (!this.usesColorFormula) {
 			const base: ChannelColors = ColorConfig.getChannelColor(song, channel);
 			// Trim away "var(...)"
@@ -581,7 +610,7 @@ export class ColorConfig {
 		}
 	}
 
-	public static getChannelColor(song: Song, channel: number): ChannelColors {
+	public static getChannelColor(song: SongChannelCounts, channel: number): ChannelColors {
 		if (!this.usesColorFormula) {
 			// Set colors, not defined by formula
 			if (channel < song.pitchChannelCount) {
@@ -797,13 +826,13 @@ export class ColorConfig {
 			valuesToAdd += "--note-flash-secondary:#ffffff77;";
 		}
 		if (getComputedStyle(this._styleElement).getPropertyValue("--pitch-channel-limit") === "") {
-			valuesToAdd += "--pitch-channel-limit:" + Config.pitchChannelCountMax + ";";
+			valuesToAdd += "--pitch-channel-limit:60;";
 		}
 		if (getComputedStyle(this._styleElement).getPropertyValue("--noise-channel-limit") === "") {
-			valuesToAdd += "--noise-channel-limit:" + Config.noiseChannelCountMax + ";";
+			valuesToAdd += "--noise-channel-limit:60;";
 		}
 		if (getComputedStyle(this._styleElement).getPropertyValue("--mod-channel-limit") === "") {
-			valuesToAdd += "--mod-channel-limit:" + Config.modChannelCountMax + ";";
+			valuesToAdd += "--mod-channel-limit:60;";
 		}
 		if (getComputedStyle(this._styleElement).getPropertyValue("--formula-pitch-channel-limit") === "") {
 			valuesToAdd += "--formula-pitch-channel-limit:360;";

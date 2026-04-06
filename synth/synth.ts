@@ -10,7 +10,6 @@
 
 // Copyright (c) 2012-2022 John Nesky and contributing authors, distributed under the MIT license, see accompanying the LICENSE.md file.
 
-import { events } from "../shared/events";
 import { ChannelState } from "./channel-state";
 import { Channel } from "./channels";
 import { Deque } from "./deque";
@@ -490,6 +489,7 @@ export class Synth {
 	public volume: number = 1.0;
 	public oscRefreshEventTimer: number = 0;
 	public oscEnabled: boolean = true;
+	public onOscilloscopeUpdate?: (left: Float32Array, right: Float32Array) => void;
 	private _lastOscUpdateTime: number = 0;
 	private static readonly OSC_UPDATE_INTERVAL_MS: number = 1000 / 30; // 30fps
 	public enableMetronome: boolean = false;
@@ -1235,7 +1235,7 @@ export class Synth {
 			if (this.oscEnabled) {
 				const now = performance.now();
 				if (now - this._lastOscUpdateTime >= Synth.OSC_UPDATE_INTERVAL_MS) {
-					events.raise("oscilloscopeUpdate", outputDataL, outputDataR);
+					if (this.onOscilloscopeUpdate) this.onOscilloscopeUpdate(outputDataL, outputDataR);
 					this._lastOscUpdateTime = now;
 				}
 			}

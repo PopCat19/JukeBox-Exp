@@ -9,6 +9,7 @@
 
 import { HTML, SVG } from "imperative-html/dist/esm/elements-strict";
 import { ColorConfig } from "../shared/color-config";
+import { events } from "../shared/events";
 import { oscilloscopeCanvas } from "../shared/oscilloscope";
 import { Synth } from "../synth";
 
@@ -311,6 +312,7 @@ export function buildPlayerUI(): PlayerUI {
 	ColorConfig.setTheme(colorTheme === null ? ColorConfig.defaultTheme : colorTheme);
 
 	const synth: Synth = new Synth();
+	synth.onOscilloscopeUpdate = (l, r) => events.raise("oscilloscopeUpdate", l, r);
 	const oscilloscope: oscilloscopeCanvas = new oscilloscopeCanvas(
 		canvas({
 			width: isMobile ? 144 : 288,
