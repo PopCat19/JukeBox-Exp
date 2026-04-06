@@ -11,7 +11,7 @@ import { ColorConfig } from "./color-config";
 import { events } from "./events";
 
 export class oscilloscopeCanvas {
-	public _EventUpdateCanvas: Function;
+	public _EventUpdateCanvas: (left: Float32Array, right?: Float32Array) => void;
 	private _cachedBgColor: string = "";
 	private _cachedLColor: string = "";
 	private _cachedRColor: string = "";

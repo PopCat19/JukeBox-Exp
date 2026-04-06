@@ -3,47 +3,49 @@
 // Purpose: Provides a simple publish-subscribe event system for cross-module communication
 //
 // This module:
-// - Manages named event listeners with type-erased callbacks
+// - Manages named event listeners with typed callbacks
 // - Dispatches events to all registered listeners
 
-// A simple events system for effectively direct links without actualy linking files or references
+export interface EventMap {
+	oscilloscopeUpdate: (left: Float32Array, right: Float32Array) => void;
+	themeChange: (name: string) => void;
+}
+
+export type EventKey = keyof EventMap;
+
 class EventManager {
 	private activeEvents: string[] = [];
-	private listeners: any = {};
+	private listeners: { [K in EventKey]?: EventMap[K][] } = {};
 
-	constructor() {
-		this.activeEvents = [];
-		this.listeners = {};
-	}
-
-	public raise(eventType: string, eventData: any, extraEventData?: any): void {
+	public raise<K extends EventKey>(eventType: K, ...args: Parameters<EventMap[K]>): void {
 		if (this.listeners[eventType] === undefined) {
 			return;
 		}
 		this.activeEvents.push(eventType);
-		for (let i: number = 0; i < this.listeners[eventType].length; i++) {
-			this.listeners[eventType][i](eventData, extraEventData);
+		for (let i: number = 0; i < this.listeners[eventType]!.length; i++) {
+			(this.listeners[eventType]![i] as Function)(...args);
 		}
 		this.activeEvents.pop();
 	}
 
-	public listen(eventType: string, callback: Function): void {
+	public listen<K extends EventKey>(eventType: K, callback: EventMap[K]): void {
 		if (this.listeners[eventType] === undefined) {
 			this.listeners[eventType] = [];
 		}
-		this.listeners[eventType].push(callback);
+		this.listeners[eventType]!.push(callback);
 	}
 
-	public unlisten(eventType: string, callback: Function): void {
+	public unlisten<K extends EventKey>(eventType: K, callback: EventMap[K]): void {
 		if (this.listeners[eventType] === undefined) {
 			return;
 		}
-		const lisen = this.listeners[eventType].indexOf(callback);
-		if (lisen !== -1) {
-			this.listeners[eventType].splice(lisen, 1);
+		const idx = this.listeners[eventType]!.indexOf(callback);
+		if (idx !== -1) {
+			this.listeners[eventType]!.splice(idx, 1);
 		}
 	}
-	public unlistenAll(eventType: string): void {
+
+	public unlistenAll(eventType: EventKey): void {
 		if (this.listeners[eventType] === undefined) {
 			return;
 		}
