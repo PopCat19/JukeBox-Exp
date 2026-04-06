@@ -18,6 +18,7 @@ import {
 	ChangeDistortion,
 	ChangeEchoDelay,
 	ChangeEchoSustain,
+	ChangeEnvelopeSpeed,
 	ChangeEQFilterSimpleCut,
 	ChangeEQFilterSimplePeak,
 	ChangeFeedbackAmplitude,
@@ -108,7 +109,9 @@ export class InstrumentSettingsPanel {
 	public readonly eqFilterSimpleButton: HTMLElement;
 	public readonly eqFilterAdvancedButton: HTMLElement;
 	public readonly eqFilterRow: HTMLElement;
+	public readonly eqFilterSimpleCutSlider: Slider;
 	public readonly eqFilterSimpleCutRow: HTMLElement;
+	public readonly eqFilterSimplePeakSlider: Slider;
 	public readonly eqFilterSimplePeakRow: HTMLElement;
 	public readonly noteFilterEditor: FilterEditor;
 	public readonly noteFilterZoom: HTMLButtonElement;
@@ -116,7 +119,9 @@ export class InstrumentSettingsPanel {
 	public readonly noteFilterSimpleButton: HTMLElement;
 	public readonly noteFilterAdvancedButton: HTMLElement;
 	public readonly noteFilterRow: HTMLElement;
+	public readonly noteFilterSimpleCutSlider: Slider;
 	public readonly noteFilterSimpleCutRow: HTMLElement;
+	public readonly noteFilterSimplePeakSlider: Slider;
 	public readonly noteFilterSimplePeakRow: HTMLElement;
 
 	// Transition
@@ -180,6 +185,19 @@ export class InstrumentSettingsPanel {
 	public readonly unisonDropdownGroup: HTMLElement;
 	public readonly invertWaveBox: HTMLInputElement;
 	public readonly invertWaveRow: HTMLElement;
+
+	// Display-only elements for valueRefs
+	public readonly pwmSliderInputBox: HTMLInputElement;
+	public readonly detuneSliderInputBox: HTMLInputElement;
+	public readonly ringModHzNum: HTMLElement;
+	public readonly grainSizeNum: HTMLElement;
+	public readonly grainRangeNum: HTMLElement;
+	public readonly vibratoSpeedDisplay: HTMLElement;
+	public readonly arpeggioSpeedDisplay: HTMLElement;
+	public readonly envelopeSpeedSlider: Slider;
+	public readonly envelopeSpeedDisplay: HTMLElement;
+	public readonly upperNoteLimitRow: HTMLElement;
+	public readonly lowerNoteLimitRow: HTMLElement;
 
 	constructor(
 		doc: SongDocument,
@@ -324,7 +342,7 @@ export class InstrumentSettingsPanel {
 			this.eqFilterEditor.container,
 		);
 
-		const eqFilterSimpleCutSlider = rangeSlider(
+		this.eqFilterSimpleCutSlider = rangeSlider(
 			doc,
 			(oldValue: number, newValue: number) => new ChangeEQFilterSimpleCut(doc, oldValue, newValue),
 			0,
@@ -335,10 +353,10 @@ export class InstrumentSettingsPanel {
 		this.eqFilterSimpleCutRow = div(
 			{ class: "selectRow", title: "Low-pass Filter Cutoff Frequency" },
 			span({ class: "tip", onclick: () => onOpenPrompt("filterCutoff") }, "Filter Cut:"),
-			eqFilterSimpleCutSlider.container,
+			this.eqFilterSimpleCutSlider.container,
 		);
 
-		const eqFilterSimplePeakSlider = rangeSlider(
+		this.eqFilterSimplePeakSlider = rangeSlider(
 			doc,
 			(oldValue: number, newValue: number) => new ChangeEQFilterSimplePeak(doc, oldValue, newValue),
 			0,
@@ -349,7 +367,7 @@ export class InstrumentSettingsPanel {
 		this.eqFilterSimplePeakRow = div(
 			{ class: "selectRow", title: "Low-pass Filter Peak Resonance" },
 			span({ class: "tip", onclick: () => onOpenPrompt("filterResonance") }, "Filter Peak:"),
-			eqFilterSimplePeakSlider.container,
+			this.eqFilterSimplePeakSlider.container,
 		);
 
 		// Note Filter
@@ -387,7 +405,7 @@ export class InstrumentSettingsPanel {
 			this.noteFilterEditor.container,
 		);
 
-		const noteFilterSimpleCutSlider = rangeSlider(
+		this.noteFilterSimpleCutSlider = rangeSlider(
 			doc,
 			(oldValue: number, newValue: number) => new ChangeNoteFilterSimpleCut(doc, oldValue, newValue),
 			0,
@@ -398,10 +416,10 @@ export class InstrumentSettingsPanel {
 		this.noteFilterSimpleCutRow = div(
 			{ class: "selectRow", title: "Low-pass Filter Cutoff Frequency" },
 			span({ class: "tip", onclick: () => onOpenPrompt("filterCutoff") }, "Filter Cut:"),
-			noteFilterSimpleCutSlider.container,
+			this.noteFilterSimpleCutSlider.container,
 		);
 
-		const noteFilterSimplePeakSlider = rangeSlider(
+		this.noteFilterSimplePeakSlider = rangeSlider(
 			doc,
 			(oldValue: number, newValue: number) => new ChangeNoteFilterSimplePeak(doc, oldValue, newValue),
 			0,
@@ -412,7 +430,7 @@ export class InstrumentSettingsPanel {
 		this.noteFilterSimplePeakRow = div(
 			{ class: "selectRow", title: "Low-pass Filter Peak Resonance" },
 			span({ class: "tip", onclick: () => onOpenPrompt("filterResonance") }, "Filter Peak:"),
-			noteFilterSimplePeakSlider.container,
+			this.noteFilterSimplePeakSlider.container,
 		);
 
 		// Transition
@@ -737,6 +755,25 @@ export class InstrumentSettingsPanel {
 			this.invertWaveBox,
 		);
 
+		// Display-only elements for valueRefs (used by renderInstrumentValues)
+		this.pwmSliderInputBox = numberInput({ style: "width: 4em; font-size: 80%;", id: "pwmSliderInputBox", type: "number", step: "1", value: "0" });
+		this.detuneSliderInputBox = numberInput({ style: "width: 4em; font-size: 80%;", id: "detuneSliderInputBox", type: "number", step: "1", value: "0" });
+		this.ringModHzNum = span();
+		this.grainSizeNum = span();
+		this.grainRangeNum = span();
+		this.vibratoSpeedDisplay = span();
+		this.arpeggioSpeedDisplay = span();
+		this.envelopeSpeedSlider = rangeSlider(
+			doc,
+			(oldValue: number, newValue: number) => new ChangeEnvelopeSpeed(doc, oldValue, newValue),
+			0,
+			Config.modulators.dictionary["envelope speed"].maxRawVol,
+			0,
+		);
+		this.envelopeSpeedDisplay = span();
+		this.upperNoteLimitRow = div({ class: "selectRow" });
+		this.lowerNoteLimitRow = div({ class: "selectRow" });
+
 		// Build container
 		this.customSettingsGroup = div(
 			{ class: "editor-controls" },
@@ -813,28 +850,28 @@ export class InstrumentSettingsPanel {
 			vibratoTypeSelect: this.vibratoSelect,
 			chordSelect: this.chordSelect,
 			panSliderInputBox: this.panSliderInputBox,
-			pwmSliderInputBox: this.panSliderInputBox,
-			detuneSliderInputBox: this.panSliderInputBox,
-			ringModHzNum: this.container,
-			grainSizeNum: this.container,
-			grainRangeNum: this.container,
+			pwmSliderInputBox: this.pwmSliderInputBox,
+			detuneSliderInputBox: this.detuneSliderInputBox,
+			ringModHzNum: this.ringModHzNum,
+			grainSizeNum: this.grainSizeNum,
+			grainRangeNum: this.grainRangeNum,
 			instrumentVolumeSlider: this.volumeSlider,
 			instrumentVolumeSliderInputBox: this.volumeSliderInputBox,
 			vibratoDepthSlider: this.vibratoDepthSlider,
 			vibratoDelaySlider: this.vibratoDelaySlider,
 			vibratoSpeedSlider: this.vibratoSpeedSlider,
-			vibratoSpeedDisplay: this.container,
+			vibratoSpeedDisplay: this.vibratoSpeedDisplay,
 			panDelaySlider: this.panDelaySlider,
 			arpeggioSpeedSlider: this.arpeggioSpeedSlider,
-			arpeggioSpeedDisplay: this.container,
-			eqFilterSimpleCutSlider: this.volumeSlider,
-			eqFilterSimplePeakSlider: this.volumeSlider,
-			noteFilterSimpleCutSlider: this.volumeSlider,
-			noteFilterSimplePeakSlider: this.volumeSlider,
-			envelopeSpeedSlider: this.volumeSlider,
-			envelopeSpeedDisplay: this.container,
-			upperNoteLimitRow: this.container,
-			lowerNoteLimitRow: this.container,
+			arpeggioSpeedDisplay: this.arpeggioSpeedDisplay,
+			eqFilterSimpleCutSlider: this.eqFilterSimpleCutSlider,
+			eqFilterSimplePeakSlider: this.eqFilterSimplePeakSlider,
+			noteFilterSimpleCutSlider: this.noteFilterSimpleCutSlider,
+			noteFilterSimplePeakSlider: this.noteFilterSimplePeakSlider,
+			envelopeSpeedSlider: this.envelopeSpeedSlider,
+			envelopeSpeedDisplay: this.envelopeSpeedDisplay,
+			upperNoteLimitRow: this.upperNoteLimitRow,
+			lowerNoteLimitRow: this.lowerNoteLimitRow,
 		};
 	}
 }
