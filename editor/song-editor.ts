@@ -113,7 +113,20 @@ import { PostSyncRefs, renderPostBranchSync } from "./renderers/render-post-sync
 import { PresetSetupRefs, renderPresetSetup } from "./renderers/render-preset-setup";
 import { renderSongSettings, SongSettingsRefs } from "./renderers/render-song-settings";
 import { SongDocument } from "./song-document";
-import { buildHeaderedOptions, buildOptions, buildPresetOptions, clearButton, dropdownButton, InputBox, iconButton, numberInput, rangeSlider, Slider, tagSuggestionItem, toggleButton } from "./ui";
+import {
+	buildHeaderedOptions,
+	buildOptions,
+	buildPresetOptions,
+	clearButton,
+	dropdownButton,
+	InputBox,
+	iconButton,
+	numberInput,
+	rangeSlider,
+	Slider,
+	tagSuggestionItem,
+	toggleButton,
+} from "./ui";
 
 const { button, div, input, select, span, optgroup, option, canvas } = HTML;
 
@@ -1472,7 +1485,6 @@ export class SongEditor implements ModSliderProvider, MenuHandlerHost, DrumsetSe
 		this._supersawSpreadRow,
 		this._supersawShapeRow,
 		this._pulseWidthRow,
-		// this._decimalOffsetRow,
 		this._pulseWidthDropdownGroup,
 		this._stringSustainRow,
 		this._unisonSelectRow,
@@ -1494,8 +1506,6 @@ export class SongEditor implements ModSliderProvider, MenuHandlerHost, DrumsetSe
 		this._noteFilterRow,
 		this._noteFilterSimpleCutRow,
 		this._noteFilterSimplePeakRow,
-		// this._corruptionRow,
-		// this._corruptionTypeRow,
 		this._distortionRow,
 		this._aliasingRow,
 		this._bitcrusherQuantizationRow,
@@ -1554,12 +1564,8 @@ export class SongEditor implements ModSliderProvider, MenuHandlerHost, DrumsetSe
 		this._instrumentSettingsTextRow,
 		this._instrumentTagRow,
 		this._instrumentsButtonRow,
-		// these could've been put into _instrumentSettingsGroup as well but were intentionally kept separate
-		// this._instrumentCopyGroup,
-		// this._instrumentExportGroup,
 		this._instrumentTypeSelectRow,
 		this._instrumentVolumeSliderRow,
-		// this._customizeInstrumentButton,
 		this._customInstrumentSettingsGroup,
 	);
 	private readonly _usedPatternIndicator: SVGElement = SVG.path({
@@ -2552,8 +2558,6 @@ export class SongEditor implements ModSliderProvider, MenuHandlerHost, DrumsetSe
 
 		this._vibratoSelect.appendChild(option({ hidden: true, value: 5 }, "custom"));
 
-		// this._unisonSelect.appendChild(option({ hidden: true, value: 28 }, "custom"));
-
 		this._unisonSelect.appendChild(option({ hidden: true, value: Config.unisons.length }, "custom"));
 
 		this._showModSliders = new Array<boolean[]>(Config.modulators.length);
@@ -3026,17 +3030,6 @@ export class SongEditor implements ModSliderProvider, MenuHandlerHost, DrumsetSe
 			target.textContent = "▲";
 			if (dropdown === DropdownID.EnvelopeSettings) {
 				group.style.display = "flex";
-				// if (subtype == "pitch") {
-				//     this.envelopeEditor.extraPitchSettingsGroups[submenu].style.display = "flex";
-				//     this.envelopeEditor.perEnvelopeSpeedGroups[submenu].style.display = "none";
-				// } else {
-				//     this.envelopeEditor.extraPitchSettingsGroups[submenu].style.display = "none";
-				//     if (subtype == "notesize" || subtype == "none" || subtype == "punch") {
-				//         this.envelopeEditor.perEnvelopeSpeedGroups[submenu].style.display = "none";
-				//     } else {
-				//         this.envelopeEditor.perEnvelopeSpeedGroups[submenu].style.display = "flex";
-				//     }
-				// }
 				this.envelopeEditor.rerenderExtraSettings();
 			} else if (group !== this._chordDropdownGroup) {
 				group.style.display = "";
@@ -3796,7 +3789,6 @@ export class SongEditor implements ModSliderProvider, MenuHandlerHost, DrumsetSe
 				this.doc.song.patternInstruments &&
 				this.doc.channel < this.doc.song.pitchChannelCount + this.doc.song.noiseChannelCount
 			) {
-				// const pattern: Pattern | null = this._doc.getCurrentPattern();
 				for (let i: number = 0; i < channel.instruments.length; i++) {
 					if (this.doc.recentPatternInstruments[this.doc.channel].indexOf(i) !== -1) {
 						this._instrumentButtons[i].classList.remove("deactivated");
@@ -3907,7 +3899,6 @@ export class SongEditor implements ModSliderProvider, MenuHandlerHost, DrumsetSe
 	private _onTrackAreaScroll(event: Event): void {
 		this.doc.barScrollPos = this._trackAndMuteContainer.scrollLeft / this.doc.getBarWidth();
 		this.doc.channelScrollPos = this._trackAndMuteContainer.scrollTop / ChannelRow.patternHeight;
-		// this._doc.notifier.changed();
 	}
 
 	private _disableCtrlContextMenu(event: MouseEvent): boolean {
@@ -4217,8 +4208,6 @@ export class SongEditor implements ModSliderProvider, MenuHandlerHost, DrumsetSe
 			// Copy back data to canvas
 			this._customWaveDrawCanvas.newArray[i] = customWaveArray[i];
 		}
-
-		// this._instrumentVolumeSlider.input.value = "" + Math.round(Config.waveVolumes[index] * 50.0 - 50.0);
 
 		this.doc.record(new ChangeCustomWave(this.doc, customWaveArray));
 		if (+this._instrumentVolumeSlider.input.value !== -Config.volumeRange / 2) {

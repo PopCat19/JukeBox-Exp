@@ -9,8 +9,8 @@
 // - Provides buildPresetOptions for instrument preset dropdowns
 
 import { HTML } from "imperative-html/dist/esm/elements-strict";
-import { InstrumentType } from "../../synth/synth-config";
 import { getRegisteredPlugins } from "../../synth";
+import { InstrumentType } from "../../synth/synth-config";
 import { EditorConfig, type Preset, type PresetCategory } from "../config/editor-config";
 import { addWheelSupport } from "./base/input";
 

@@ -10,6 +10,8 @@ export { ArrayBufferWriter } from "./array-buffer-writer";
 export type { ButtonOptions, ContainerOptions, InputOptions, LabelOptions } from "./base";
 // Base factories
 export { addWheelSupport, createButton, createContainer, createDiv, createInput, createLabel, createSpan } from "./base";
+// Build helpers
+export { buildHeaderedOptions, buildOptions, buildPresetOptions, numberInput } from "./build-helpers";
 export type { ActionButtonOptions, DeleteButtonOptions, DropdownButtonOptions, IconButtonOptions, SelectorButtonOptions } from "./buttons";
 // Buttons
 export { actionButton, clearButton, deleteButton, dropdownButton, iconButton, selectorButton, toggleButton } from "./buttons";
@@ -72,5 +74,3 @@ export {
 	Typography,
 	ZIndex,
 } from "./style-constants";
-// Build helpers
-export { buildHeaderedOptions, buildOptions, buildPresetOptions, numberInput } from "./build-helpers";
