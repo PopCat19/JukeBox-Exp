@@ -24,7 +24,6 @@
 	},
 	"files": {
 		"maxSize": 5242880,
-		"include": ["editor/**/*.ts", "synth/**/*.ts", "player/**/*.ts", "shared/**/*.ts"],
-		"ignore": ["build", "website", "archive", "conventions", ".kilocode"]
+		"includes": ["editor/**/*.ts", "synth/**/*.ts", "player/**/*.ts", "shared/**/*.ts", "!build/**", "!website/**", "!archive/**", "!conventions/**", "!.kilocode/**"]
 	}
 }
