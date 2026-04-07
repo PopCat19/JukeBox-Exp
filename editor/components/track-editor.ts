@@ -571,6 +571,7 @@ export class TrackEditor {
 			this._svg.setAttribute("height", "" + (editorHeight + Config.barEditorHeight));
 			this._playhead.setAttribute("height", "" + (editorHeight + Config.barEditorHeight));
 			this.container.style.height = editorHeight + Config.barEditorHeight + "px";
+			this._svgRect = null;
 		}
 
 		this._select.style.display = this._touchMode ? "" : "none";
