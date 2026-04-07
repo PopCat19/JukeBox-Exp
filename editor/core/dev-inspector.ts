@@ -65,7 +65,7 @@ const LABEL_OFFSET = { above: -16, below: 8 } as const;
 const LABEL_SIZE = { charWidth: 6, height: 14 } as const;
 const RADIUS_OVERLAY = 8;
 
-let current: HTMLElement | null = null;
+let current: Element | null = null;
 let outlineOverlay: HTMLDivElement | null = null;
 let overlay: HTMLDivElement | null = null;
 let depthLabel: HTMLDivElement | null = null;
@@ -74,16 +74,77 @@ let keyHandler: ((e: KeyboardEvent) => void) | null = null;
 let logSeq = 0;
 let logTimer: ReturnType<typeof setTimeout> | null = null;
 let currentDepth = 0;
-let navStack: HTMLElement[] = [];
+let navStack: Element[] = [];
 
-function depth(el: HTMLElement): number {
+function depth(el: Element): number {
 	let d = 0;
-	let c: HTMLElement | null = el;
+	let c: Element | null = el;
 	while (c && c !== document.body) {
 		d++;
 		c = c.parentElement;
 	}
 	return d;
+}
+
+function findSvgChildAtPoint(x: number, y: number, svg: SVGSVGElement): Element | null {
+	const CONTAINER_TAGS = ["path", "rect", "circle", "ellipse", "line", "polyline", "polygon"];
+
+	let best: Element | null = null;
+	let bestArea = Infinity;
+	let bestIsContainer = false;
+
+	function isVisible(el: Element): boolean {
+		if (el.getAttribute("visibility") === "hidden") return false;
+		const style = el.getAttribute("style");
+		if (style && /visibility\s*:\s*hidden/.test(style)) return false;
+		if (el.getAttribute("display") === "none") return false;
+		return true;
+	}
+
+	function hitTest(el: Element): void {
+		if (el instanceof SVGGraphicsElement && el.tagName !== "svg" && isVisible(el)) {
+			const rect = el.getBoundingClientRect();
+			if (rect.width > 0 && rect.height > 0) {
+				if (x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom) {
+					const area = rect.width * rect.height;
+					const isContainer = CONTAINER_TAGS.includes(el.tagName.toLowerCase());
+					if (!best || (isContainer && !bestIsContainer) || (isContainer === bestIsContainer && area < bestArea)) {
+						best = el;
+						bestArea = area;
+						bestIsContainer = isContainer;
+					}
+				}
+			}
+		}
+		for (const child of Array.from(el.children)) {
+			hitTest(child);
+		}
+	}
+
+	hitTest(svg);
+	return best ?? svg;
+}
+
+function deepestElementAtPoint(x: number, y: number): Element | null {
+	const els = document.elementsFromPoint(x, y);
+	if (els.length === 0) return null;
+
+	for (let i = 0; i < els.length; i++) {
+		const el = els[i];
+		if (el instanceof SVGSVGElement) {
+			const child = findSvgChildAtPoint(x, y, el);
+			if (child && child !== el) return child;
+			// SVG has no child at point, check for HTML elements underneath
+			for (let j = i + 1; j < els.length; j++) {
+				if (!(els[j] instanceof SVGElement) && els[j] !== document.body && els[j] !== document.documentElement) {
+					return els[j];
+				}
+			}
+			return el;
+		}
+	}
+
+	return els[0];
 }
 
 function depthColor(d: number): string {
@@ -133,7 +194,7 @@ function hexColor(rgb: string): string {
 	return `#${hex}`;
 }
 
-function elementId(el: HTMLElement): string {
+function elementId(el: Element): string {
 	const classList = Array.from(el.classList);
 	const semanticClasses = classList.filter((c) => {
 		if (/^hsl\(|^\d+$/.test(c)) return false;
@@ -157,7 +218,7 @@ function elementId(el: HTMLElement): string {
 	return tag;
 }
 
-function elementHtml(el: HTMLElement, maxLen = 120): string {
+function elementHtml(el: Element, maxLen = 120): string {
 	const clone = el.cloneNode(true) as HTMLElement;
 	const inline = clone.getAttribute("style");
 	if (inline) clone.setAttribute("style", inline.replace(/\s*outline:\s*[^;]+;?\s*/gi, ""));
@@ -214,7 +275,7 @@ function addStrip(
 	}
 }
 
-function showBoxModel(el: HTMLElement, cs: CSSStyleDeclaration): void {
+function showBoxModel(el: Element, cs: CSSStyleDeclaration): void {
 	clearBoxOverlays();
 	const rect = el.getBoundingClientRect();
 	const mt = parseFloat(cs.marginTop) || 0;
@@ -424,7 +485,7 @@ interface SummaryResult {
 	styles: string[];
 }
 
-function figmaSummary(el: HTMLElement, cs: CSSStyleDeclaration): SummaryResult {
+function figmaSummary(el: Element, cs: CSSStyleDeclaration): SummaryResult {
 	const segments: string[] = [];
 	const styles: string[] = [];
 	segments.push(elementId(el));
@@ -468,7 +529,7 @@ function figmaSummary(el: HTMLElement, cs: CSSStyleDeclaration): SummaryResult {
 	return { text: segments.join("\n"), styles };
 }
 
-function positionDepthLabel(el: HTMLElement): void {
+function positionDepthLabel(el: Element): void {
 	const rect = el.getBoundingClientRect();
 	depthLabel!.style.top = `${rect.bottom + LABEL_OFFSET.below}px`;
 	depthLabel!.style.left = `${rect.left + rect.width / 2}px`;
@@ -486,7 +547,7 @@ function positionDepthLabel(el: HTMLElement): void {
 	});
 }
 
-function highlight(el: HTMLElement): void {
+function highlight(el: Element): void {
 	if (!el || el === overlay) return;
 	if (outlineOverlay) outlineOverlay.remove();
 	currentDepth = depth(el);
@@ -641,7 +702,7 @@ export function activate(): void {
 	overlay.tabIndex = -1;
 	overlay.addEventListener("mousemove", (e) => {
 		overlay!.style.pointerEvents = "none";
-		const el = document.elementFromPoint(e.clientX, e.clientY) as HTMLElement | null;
+		const el = deepestElementAtPoint(e.clientX, e.clientY);
 		overlay!.style.pointerEvents = "auto";
 		if (el) highlight(el);
 	});
@@ -674,7 +735,7 @@ export function activate(): void {
 			} else if (navStack.length > 0) {
 				highlight(navStack.pop()!);
 			} else if (current?.children?.length) {
-				highlight(current.children[0] as HTMLElement);
+				highlight(current.children[0]);
 			}
 		} else if (current?.tagName.toLowerCase() === "select") {
 			const sel = current as HTMLSelectElement;
