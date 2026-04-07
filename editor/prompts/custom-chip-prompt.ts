@@ -254,7 +254,7 @@ export class CustomChipPromptCanvas {
 		}
 	}
 
-	private _whenCursorReleased = (event: Event): void => {
+	private _whenCursorReleased = (_event: Event): void => {
 		this._storeChange();
 		this._mouseDown = false;
 	};

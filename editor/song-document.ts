@@ -20,7 +20,7 @@ import { ChangeNotifier } from "./core/change-notifier";
 import { Preferences } from "./core/preferences";
 import { Selection } from "./core/selection";
 import { SongPerformance } from "./core/song-performance";
-import { errorAlert, generateUid, SongRecovery } from "./io/song-recovery";
+import { SongRecovery, errorAlert, generateUid } from "./io/song-recovery";
 import { createCustomSampleHandler } from "./song-custom-samples";
 import { Layout } from "./ui";
 

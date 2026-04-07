@@ -77,7 +77,7 @@ export class KeyboardLayout {
 		window.addEventListener("blur", this._onWindowBlur);
 	}
 
-	private _onWindowBlur = (event: Event) => {
+	private _onWindowBlur = (_event: Event) => {
 		// Browsers don't explicitly release keys when the page isn't in focus so let's just assume they're all released.
 		if (this._possiblyPlayingPitchesFromKeyboard) {
 			this._doc.performance.clearAllPitches();

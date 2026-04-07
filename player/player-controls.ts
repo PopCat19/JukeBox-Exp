@@ -11,7 +11,7 @@
 import { ColorConfig } from "../shared/color-config";
 import { SampleLoadedEvent, sampleLoadEvents } from "../synth/synth-config";
 import { renderPlayhead, renderTimeline } from "./player-timeline";
-import { getLocalStorage, PlayerUI, setLocalStorage } from "./player-ui";
+import { PlayerUI, getLocalStorage, setLocalStorage } from "./player-ui";
 
 export class PlayerControls {
 	private animationRequest: number | null = null;
@@ -48,7 +48,7 @@ export class PlayerControls {
 		}
 	}
 
-	private loadSong(songString: string, reuseParams: boolean): void {
+	private loadSong(songString: string, _reuseParams: boolean): void {
 		this.ui.synth.setSong(songString);
 		this.ui.synth.snapToStart();
 		const updatedSongString: string = this.ui.synth.song!.toBase64String();

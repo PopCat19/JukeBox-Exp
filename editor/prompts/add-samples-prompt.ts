@@ -13,7 +13,7 @@ import { Config, Dictionary } from "../../synth/synth-config";
 import { EditorConfig } from "../config/editor-config";
 import { SongDocument } from "../song-document";
 import { addWheelSupport } from "../ui";
-import { generateAllSampleURLs, generateSampleURL, parseSampleURLs, SampleEntry } from "./add-samples-url-parser";
+import { SampleEntry, generateAllSampleURLs, generateSampleURL, parseSampleURLs } from "./add-samples-url-parser";
 import { BasePrompt } from "./base-prompt";
 
 const { div, input, button, a, code, textarea, details, summary, span, ul, li, select, option, h2 } = HTML;
@@ -193,7 +193,7 @@ export class AddSamplesPrompt extends BasePrompt {
 		}, 50);
 	};
 
-	private _whenAddSampleClicked = (event: Event): void => {
+	private _whenAddSampleClicked = (_event: Event): void => {
 		const entryIndex: number = this._entries.length;
 		this._entries.push({
 			url: "",
@@ -211,7 +211,7 @@ export class AddSamplesPrompt extends BasePrompt {
 		this._render(true);
 	};
 
-	private _whenAddMultipleSamplesClicked = (event: Event): void => {
+	private _whenAddMultipleSamplesClicked = (_event: Event): void => {
 		this._addSamplesArea.style.display = "none";
 		this._bulkAddArea.style.display = "";
 		this._bulkAddTextarea.value = "";
@@ -223,12 +223,12 @@ export class AddSamplesPrompt extends BasePrompt {
 		this._instructionsArea.style.display = "";
 	};
 
-	private _whenCloseInstructionsButtonClicked = (event: Event): void => {
+	private _whenCloseInstructionsButtonClicked = (_event: Event): void => {
 		this._addSamplesArea.style.display = "";
 		this._instructionsArea.style.display = "none";
 	};
 
-	private _whenBulkAddConfirmClicked = (event: Event): void => {
+	private _whenBulkAddConfirmClicked = (_event: Event): void => {
 		this._addSamplesArea.style.display = "";
 		this._bulkAddArea.style.display = "none";
 		const parsed: SampleEntry[] = parseSampleURLs(

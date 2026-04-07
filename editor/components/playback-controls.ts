@@ -11,7 +11,7 @@ import { HTML, SVG } from "imperative-html/dist/esm/elements-strict";
 import { ColorConfig } from "../../shared/color-config";
 import { SongDocument } from "../song-document";
 import { iconButton } from "../ui/buttons";
-import { rangeSlider, Slider } from "../ui/sliders";
+import { Slider, rangeSlider } from "../ui/sliders";
 
 const { button, div, span } = HTML;
 

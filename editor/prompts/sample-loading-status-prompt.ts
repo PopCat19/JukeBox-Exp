@@ -8,7 +8,7 @@
 
 import { HTML } from "imperative-html/dist/esm/elements-strict";
 import { ColorConfig } from "../../shared/color-config";
-import { ChipWave, Config, getSampleLoadingStatusName, SampleLoadingStatus, sampleLoadingState } from "../../synth/synth-config";
+import { ChipWave, Config, SampleLoadingStatus, getSampleLoadingStatusName, sampleLoadingState } from "../../synth/synth-config";
 import { EditorConfig } from "../config/editor-config";
 import { SongDocument } from "../song-document";
 import { BasePrompt } from "./base-prompt";

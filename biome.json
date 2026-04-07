@@ -12,8 +12,7 @@
 			},
 			"suspicious": {
 				"noExplicitAny": "off",
-				"noDoubleEquals": "warn",
-				"noVar": "error"
+				"noDoubleEquals": "warn"
 			}
 		}
 	},
@@ -25,17 +24,7 @@
 	},
 	"files": {
 		"maxSize": 5242880,
-		"includes": [
-			"editor/**/*.ts",
-			"synth/**/*.ts",
-			"player/**/*.ts",
-			"shared/**/*.ts",
-			"!**/*-lock.json",
-			"!!build",
-			"!!website",
-			"!!archive",
-			"!!conventions",
-			"!!.kilocode"
-		]
+		"include": ["editor/**/*.ts", "synth/**/*.ts", "player/**/*.ts", "shared/**/*.ts"],
+		"ignore": ["build", "website", "archive", "conventions", ".kilocode"]
 	}
 }

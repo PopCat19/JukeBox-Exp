@@ -118,7 +118,7 @@ export class MuteEditor {
 		this._channelNameDisplay.style.setProperty("display", "none");
 	};
 
-	private _channelDropDownGetOpenedPosition = (event: MouseEvent): void => {
+	private _channelDropDownGetOpenedPosition = (_event: MouseEvent): void => {
 		this._channelDropDownLastState = this._channelDropDownOpen;
 
 		this._channelDropDownChannel = Math.floor(
@@ -299,7 +299,7 @@ export class MuteEditor {
 		}
 	};
 
-	private _onMouseLeave = (event: MouseEvent): void => {
+	private _onMouseLeave = (_event: MouseEvent): void => {
 		if (!this._channelDropDownOpen) {
 			this._channelNameDisplay.style.setProperty("display", "none");
 			this._channelDropDown.style.setProperty("width", "0px");

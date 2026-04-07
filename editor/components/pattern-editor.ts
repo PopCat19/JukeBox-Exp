@@ -11,8 +11,8 @@
 
 import { HTML, SVG } from "imperative-html/dist/esm/elements-strict";
 import { ColorConfig } from "../../shared/color-config";
-import { Channel, FilterControlPoint, FilterSettings, Instrument, makeNotePin, Note, NotePin, Pattern } from "../../synth";
-import { Chord, Config, effectsIncludeNoteRange, getLocalStorageItem, Transition } from "../../synth/synth-config";
+import { Channel, FilterControlPoint, FilterSettings, Instrument, Note, NotePin, Pattern, makeNotePin } from "../../synth";
+import { Chord, Config, Transition, effectsIncludeNoteRange, getLocalStorageItem } from "../../synth/synth-config";
 import {
 	ChangeArpeggioSpeed,
 	ChangeBitcrusherFreq,
@@ -24,13 +24,13 @@ import {
 	ChangeDistortion,
 	ChangeDragSelectedNotes,
 	ChangeDuplicateSelectedReusedPatterns,
+	ChangeEQFilterSimpleCut,
+	ChangeEQFilterSimplePeak,
 	ChangeEchoSustain,
 	ChangeEnsurePatternExists,
 	ChangeEnvelopeLowerBound,
 	ChangeEnvelopeSpeed,
 	ChangeEnvelopeUpperBound,
-	ChangeEQFilterSimpleCut,
-	ChangeEQFilterSimplePeak,
 	ChangeFeedbackAmplitude,
 	ChangeFilterMovePoint,
 	ChangeGrainAmounts,
@@ -869,7 +869,7 @@ export class PatternEditor {
 		}
 	};
 
-	private _animatePlayhead = (timestamp: number): void => {
+	private _animatePlayhead = (_timestamp: number): void => {
 		if (
 			this._usingTouch &&
 			!this.shiftMode &&
@@ -943,13 +943,13 @@ export class PatternEditor {
 		window.requestAnimationFrame(this._animatePlayhead);
 	};
 
-	private _whenMouseOver = (event: MouseEvent): void => {
+	private _whenMouseOver = (_event: MouseEvent): void => {
 		if (this._mouseOver) return;
 		this._mouseOver = true;
 		this._usingTouch = false;
 	};
 
-	private _whenMouseOut = (event: MouseEvent): void => {
+	private _whenMouseOut = (_event: MouseEvent): void => {
 		if (!this._mouseOver) return;
 		this._mouseOver = false;
 	};
@@ -2695,7 +2695,7 @@ export class PatternEditor {
 		}
 	}
 
-	private _whenCursorReleased = (event: Event | null): void => {
+	private _whenCursorReleased = (_event: Event | null): void => {
 		if (!this._cursor.valid) return;
 
 		const continuousState: boolean = this._doc.lastChangeWas(this._dragChange);

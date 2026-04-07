@@ -9,7 +9,7 @@
 
 // Copyright (c) 2012-2022 John Nesky and contributing authors, distributed under the MIT license, see accompanying the LICENSE.md file.
 
-import { clamp, makeNotePin, Note, NotePin, Pattern, Song, Synth } from "../../synth";
+import { Note, NotePin, Pattern, Song, Synth, clamp, makeNotePin } from "../../synth";
 import { Config } from "../../synth/synth-config";
 
 export function patternsContainSameInstruments(pattern1Instruments: number[], pattern2Instruments: number[]): boolean {
@@ -310,8 +310,8 @@ export function randomPulses(wave: Float32Array): void {
 	const randomNumber3 = Math.round(Math.random() * 3 + 1);
 	const randomNumber4 = Math.round(Math.random() * 13 + 2);
 	for (let i = 0; i < waveLength; i++) {
-		const randomNumber1 = sigma(mod(i, randomNumber2), (i) => 1, randomNumber4);
-		randomPulse[i] = clamp(-24, 24 + 1, Math.round(mod(24 * sigma(i, (i) => randomNumber1, Math.round(randomNumber2 / randomNumber3)), 24.0000000000001)));
+		const randomNumber1 = sigma(mod(i, randomNumber2), (_i) => 1, randomNumber4);
+		randomPulse[i] = clamp(-24, 24 + 1, Math.round(mod(24 * sigma(i, (_i) => randomNumber1, Math.round(randomNumber2 / randomNumber3)), 24.0000000000001)));
 	}
 	for (let i = 0; i < waveLength; i++) {
 		wave[i] = randomPulse[i];
@@ -347,7 +347,7 @@ export function randomChipWave(wave: Float32Array): void {
 						randomNumber4 *
 							mod(
 								(randomNumber2 / randomNumber3) * randomNumber3 +
-									sigma(i / (randomNumber1 * randomNumber1), (i) => randomNumber3, randomNumber1 * -randomNumber2) * randomNumber4,
+									sigma(i / (randomNumber1 * randomNumber1), (_i) => randomNumber3, randomNumber1 * -randomNumber2) * randomNumber4,
 								24,
 							),
 					),
@@ -367,7 +367,7 @@ export function randomChipWave(wave: Float32Array): void {
 				mod(
 					Math.round(
 						mod(
-							sigma(i / randomNumber1, (i) => randomNumber1 * randomNumber3, 0),
+							sigma(i / randomNumber1, (_i) => randomNumber1 * randomNumber3, 0),
 							25 + randomNumber2,
 						) * 24,
 					),

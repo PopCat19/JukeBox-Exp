@@ -10,7 +10,7 @@
 // Copyright (c) 2012-2022 John Nesky and contributing authors, distributed under the MIT license, see accompanying the LICENSE.md file.
 
 import { ColorConfig } from "../../shared/color-config";
-import { Channel, Instrument, makeNotePin, Note, NotePin, Pattern, Song } from "../../synth";
+import { Channel, Instrument, Note, NotePin, Pattern, Song, makeNotePin } from "../../synth";
 import { Config, Dictionary } from "../../synth/synth-config";
 import { Change, ChangeGroup, ChangeSequence, UndoableChange } from "../core/change";
 import { SongDocument } from "../song-document";
@@ -1241,7 +1241,7 @@ export class ChangeHoldingModRecording extends Change {
 	public storedChange: Change | null;
 	public storedValues: number[] | null;
 	public storedSlider: Slider | null;
-	constructor(doc: SongDocument, storedChange: Change | null, storedValues: number[] | null, slider: Slider | null) {
+	constructor(_doc: SongDocument, storedChange: Change | null, storedValues: number[] | null, slider: Slider | null) {
 		super();
 		this.storedChange = storedChange;
 		this.storedValues = storedValues;
@@ -1251,7 +1251,7 @@ export class ChangeHoldingModRecording extends Change {
 }
 
 export class ChangeDuplicateSelectedReusedPatterns extends ChangeGroup {
-	constructor(doc: SongDocument, barStart: number, barWidth: number, channelStart: number, channelHeight: number, replaceUnused: boolean) {
+	constructor(doc: SongDocument, barStart: number, barWidth: number, channelStart: number, channelHeight: number, _replaceUnused: boolean) {
 		super();
 		for (let channelIndex: number = channelStart; channelIndex < channelStart + channelHeight; channelIndex++) {
 			const reusablePatterns: Dictionary<number> = {};

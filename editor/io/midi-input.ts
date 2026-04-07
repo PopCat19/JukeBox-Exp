@@ -10,7 +10,7 @@
 
 import { Config } from "../../synth/synth-config";
 import { SongDocument } from "../song-document";
-import { AnalogousDrum, analogousDrumMap, MidiEventType } from "./midi";
+import { AnalogousDrum, MidiEventType, analogousDrumMap } from "./midi";
 
 declare global {
 	interface Navigator {
@@ -57,7 +57,7 @@ export class MidiInputHandler {
 		}
 	}
 
-	private _takeMidiHandlerFocus = (event?: Event) => {
+	private _takeMidiHandlerFocus = (_event?: Event) => {
 		// Record that this browser tab is the one that should handle midi
 		// events and any other open tabs should ignore midi events for now.
 		localStorage.setItem("midiHandlerId", id);

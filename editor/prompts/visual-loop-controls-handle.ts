@@ -16,7 +16,7 @@ type HandleValueValidator = (value: number) => number;
 type HandleValueChangeHandler = (value: number) => void;
 type ShapeFunction = (canvas: HTMLCanvasElement, context: CanvasRenderingContext2D, x: number, y: number, w: number, h: number) => void;
 
-const defaultShapeFunction: ShapeFunction = (cnv, ctx, x, y, w, h) => {
+const defaultShapeFunction: ShapeFunction = (_cnv, ctx, x, y, w, h) => {
 	ctx.fillRect(x, y, w, h);
 };
 
@@ -132,7 +132,7 @@ export class VisualLoopControlsHandle {
 		if (this._whenValueChanges) this._whenValueChanges(this._value);
 	};
 
-	private _whenMouseIsUp = (event: MouseEvent): void => {
+	private _whenMouseIsUp = (_event: MouseEvent): void => {
 		if (!this._mouseDown) return;
 		this._mouseDown = false;
 		this._handleDragOffset = null;

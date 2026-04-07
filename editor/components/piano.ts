@@ -212,13 +212,13 @@ export class Piano {
 		this._playedPitch = -1;
 	}
 
-	private _whenMouseOver = (event: MouseEvent): void => {
+	private _whenMouseOver = (_event: MouseEvent): void => {
 		if (this._mouseOver) return;
 		this._mouseOver = true;
 		this._updatePreview();
 	};
 
-	private _whenMouseOut = (event: MouseEvent): void => {
+	private _whenMouseOut = (_event: MouseEvent): void => {
 		if (!this._mouseOver) return;
 		this._mouseOver = false;
 		this._updatePreview();
@@ -249,7 +249,7 @@ export class Piano {
 		this._updatePreview();
 	};
 
-	private _whenMouseReleased = (event: MouseEvent): void => {
+	private _whenMouseReleased = (_event: MouseEvent): void => {
 		if (this._mouseDown) this._releaseLiveInput();
 		this._mouseDown = false;
 		this._updatePreview();

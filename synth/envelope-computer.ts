@@ -18,10 +18,10 @@ import {
 	EnvelopeComputeIndex,
 	EnvelopeType,
 	FilterType,
-	getArpeggioPitchIndex,
 	LFOEnvelopeTypes,
 	RandomEnvelopeTypes,
 	Transition,
+	getArpeggioPitchIndex,
 } from "./synth-config";
 import { noteSizeToVolumeMult } from "./synth-shared";
 import type { Tone } from "./tone";
@@ -819,7 +819,7 @@ export class EnvelopeComputer {
 		return 1.0;
 	}
 
-	public computeDrumsetEnvelopes(instrument: Instrument, drumsetFilterEnvelope: Envelope, beatsPerPart: number, partTimeStart: number, partTimeEnd: number) {
+	public computeDrumsetEnvelopes(_instrument: Instrument, drumsetFilterEnvelope: Envelope, beatsPerPart: number, partTimeStart: number, partTimeEnd: number) {
 		const pitch = 1;
 
 		function computeDrumsetEnvelope(unspedTime: number, time: number, beats: number, noteSize: number): number {

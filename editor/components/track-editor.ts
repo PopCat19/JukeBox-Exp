@@ -176,11 +176,11 @@ export class TrackEditor {
 		this._barDropDown.addEventListener("mousedown", this._barDropDownGetOpenedPosition);
 	}
 
-	private _barDropDownGetOpenedPosition = (event: MouseEvent): void => {
+	private _barDropDownGetOpenedPosition = (_event: MouseEvent): void => {
 		this._barDropDownBar = Math.floor(Math.min(this._doc.song.barCount - 1, Math.max(0, this._mouseX / this._barWidth)));
 	};
 
-	private _barDropDownHandler = (event: Event): void => {
+	private _barDropDownHandler = (_event: Event): void => {
 		const moveBarOffset = this._barDropDown.value === "barBefore" ? 0 : 1;
 
 		if (this._barDropDown.value === "barBefore" || this._barDropDown.value === "barAfter") {
@@ -224,7 +224,7 @@ export class TrackEditor {
 		this._doc.selection.setPattern(this._select.selectedIndex);
 	};
 
-	private _animatePlayhead = (timestamp: number): void => {
+	private _animatePlayhead = (_timestamp: number): void => {
 		const playhead = this._barWidth * this._doc.synth.playhead - 2;
 		if (this._renderedPlayhead !== playhead) {
 			this._renderedPlayhead = playhead;
@@ -276,18 +276,18 @@ export class TrackEditor {
 		this._updatePreview();
 	};
 
-	private _whenSelectReleased = (event: TouchEvent): void => {
+	private _whenSelectReleased = (_event: TouchEvent): void => {
 		this._mousePressed = false;
 		this._mouseDragging = false;
 		this._updatePreview();
 	};
 
-	private _whenMouseOver = (event: MouseEvent): void => {
+	private _whenMouseOver = (_event: MouseEvent): void => {
 		if (this._mouseOver) return;
 		this._mouseOver = true;
 	};
 
-	private _whenMouseOut = (event: MouseEvent): void => {
+	private _whenMouseOut = (_event: MouseEvent): void => {
 		if (!this._mouseOver) return;
 		this._mouseOver = false;
 		this._songEditor.muteEditor.setHoveredChannel(-1);
@@ -344,7 +344,7 @@ export class TrackEditor {
 		this._updatePreview();
 	};
 
-	private _whenMouseReleased = (event: MouseEvent): void => {
+	private _whenMouseReleased = (_event: MouseEvent): void => {
 		if (this._mousePressed && !this._mouseDragging) {
 			if (this._doc.channel === this._mouseChannel && this._doc.bar === this._mouseBar) {
 				const up: boolean = (this._mouseY - Config.barEditorHeight) % ChannelRow.patternHeight < ChannelRow.patternHeight / 2;

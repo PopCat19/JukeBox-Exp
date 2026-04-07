@@ -41,7 +41,7 @@ export class MenuHandler {
 		}
 	}
 
-	private _fileMenuHandler = (event: Event): void => {
+	private _fileMenuHandler = (_event: Event): void => {
 		switch (this._fileMenu.value) {
 			case "new":
 				this._host.doc.goBackToStart();
@@ -92,7 +92,7 @@ export class MenuHandler {
 		this._fileMenu.selectedIndex = 0;
 	};
 
-	private _editMenuHandler = (event: Event): void => {
+	private _editMenuHandler = (_event: Event): void => {
 		switch (this._editMenu.value) {
 			case "undo":
 				this._host.doc.undo();
@@ -167,7 +167,7 @@ export class MenuHandler {
 		this._editMenu.selectedIndex = 0;
 	};
 
-	private _optionsMenuHandler = (event: Event): void => {
+	private _optionsMenuHandler = (_event: Event): void => {
 		switch (this._optionsMenu.value) {
 			case "autoPlay":
 				this._host.doc.prefs.autoPlay = !this._host.doc.prefs.autoPlay;

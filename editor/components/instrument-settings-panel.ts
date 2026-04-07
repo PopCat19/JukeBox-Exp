@@ -16,11 +16,11 @@ import {
 	ChangeBitcrusherQuantization,
 	ChangeChorus,
 	ChangeDistortion,
+	ChangeEQFilterSimpleCut,
+	ChangeEQFilterSimplePeak,
 	ChangeEchoDelay,
 	ChangeEchoSustain,
 	ChangeEnvelopeSpeed,
-	ChangeEQFilterSimpleCut,
-	ChangeEQFilterSimplePeak,
 	ChangeFeedbackAmplitude,
 	ChangeNoteFilterSimpleCut,
 	ChangeNoteFilterSimplePeak,
@@ -40,7 +40,7 @@ import {
 import { EditorConfig } from "../config/editor-config";
 import { InstrumentValueRefs } from "../renderers/render-instrument-values";
 import { SongDocument } from "../song-document";
-import { addWheelSupport, dropdownButton, rangeSlider, Slider, toggleButton } from "../ui";
+import { Slider, addWheelSupport, dropdownButton, rangeSlider, toggleButton } from "../ui";
 import { FilterEditor } from "./filter-editor";
 
 const { button, div, input, option, select, span } = HTML;
@@ -60,7 +60,7 @@ function buildOptions(menu: HTMLSelectElement, items: ReadonlyArray<string | num
 	return menu;
 }
 
-function buildPresetOptions(isDrum: boolean, id: string): HTMLSelectElement {
+function buildPresetOptions(_isDrum: boolean, id: string): HTMLSelectElement {
 	const menu = select({ id });
 	const presets = EditorConfig.presetCategories;
 	let value = 0;

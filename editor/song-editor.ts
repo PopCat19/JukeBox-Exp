@@ -28,7 +28,7 @@ import { OctaveCountPrompt } from "./prompts/octave-count-prompt";
 import "./ui/layout/layout"; // Imported here for the sake of ensuring this code is transpiled early.
 import { HTML, SVG } from "imperative-html/dist/esm/elements-strict";
 import { oscilloscopeCanvas } from "../shared/oscilloscope";
-import { Channel, getCapabilities, Instrument } from "../synth";
+import { Channel, Instrument, getCapabilities } from "../synth";
 import {
 	ChangeArpeggioSpeed,
 	ChangeBitcrusherFreq,
@@ -38,9 +38,9 @@ import {
 	ChangeDecimalOffset,
 	ChangeDetune,
 	ChangeDistortion,
-	ChangeEnvelopeSpeed,
 	ChangeEQFilterSimpleCut,
 	ChangeEQFilterSimplePeak,
+	ChangeEnvelopeSpeed,
 	ChangeFeedbackAmplitude,
 	ChangeHoldingModRecording,
 	ChangeNoteFilterSimpleCut,
@@ -104,7 +104,7 @@ import { SustainPrompt } from "./prompts/sustain-prompt";
 import { ThemePrompt } from "./prompts/theme-prompt";
 import { TipPrompt } from "./prompts/tip-prompt";
 import { VisualLoopControlsPrompt } from "./prompts/visual-loop-controls-prompt";
-import { applyInstrumentVisibility, InstrumentVisibilityRefs } from "./renderers/instrument-visibility";
+import { InstrumentVisibilityRefs, applyInstrumentVisibility } from "./renderers/instrument-visibility";
 import { renderEffectsSelect } from "./renderers/render-effects";
 import { InstrumentValueRefs, renderInstrumentValues } from "./renderers/render-instrument-values";
 import { LayoutRefs, renderLayout } from "./renderers/render-layout";
@@ -112,19 +112,19 @@ import { ModSettingsCallbacks, ModSettingsRefs, renderModSettings } from "./rend
 import { renderOptionsMenu } from "./renderers/render-options-menu";
 import { PostSyncRefs, renderPostBranchSync } from "./renderers/render-post-sync";
 import { PresetSetupRefs, renderPresetSetup } from "./renderers/render-preset-setup";
-import { renderSongSettings, SongSettingsRefs } from "./renderers/render-song-settings";
+import { SongSettingsRefs, renderSongSettings } from "./renderers/render-song-settings";
 import { SongDocument } from "./song-document";
 import {
+	InputBox,
+	Slider,
 	buildHeaderedOptions,
 	buildOptions,
 	buildPresetOptions,
 	clearButton,
 	dropdownButton,
-	InputBox,
 	iconButton,
 	numberInput,
 	rangeSlider,
-	Slider,
 	toggleButton,
 } from "./ui";
 
@@ -2830,7 +2830,7 @@ export class SongEditor implements ModSliderProvider, MenuHandlerHost, DrumsetSe
 		this._customAlgorithmCanvas.redrawCanvas();
 	}
 
-	private _toggleDropdownMenu(dropdown: DropdownID, submenu: number = 0, subtype: string | null = null): void {
+	private _toggleDropdownMenu(dropdown: DropdownID, submenu: number = 0, _subtype: string | null = null): void {
 		let target: HTMLButtonElement = this._vibratoDropdown;
 		let group: HTMLElement = this._vibratoDropdownGroup;
 		switch (dropdown) {
@@ -3752,7 +3752,7 @@ export class SongEditor implements ModSliderProvider, MenuHandlerHost, DrumsetSe
 		window.requestAnimationFrame(this.updatePlayButton);
 	};
 
-	private _onTrackAreaScroll(event: Event): void {
+	private _onTrackAreaScroll(_event: Event): void {
 		this.doc.barScrollPos = this._trackAndMuteContainer.scrollLeft / this.doc.getBarWidth();
 		this.doc.channelScrollPos = this._trackAndMuteContainer.scrollTop / ChannelRow.patternHeight;
 	}
@@ -4023,7 +4023,7 @@ export class SongEditor implements ModSliderProvider, MenuHandlerHost, DrumsetSe
 		this.refocusStage();
 	}
 
-	private _customWavePresetHandler(event: Event): void {
+	private _customWavePresetHandler(_event: Event): void {
 		// Update custom wave value
 		const customWaveArray: Float32Array = new Float32Array(64);
 		const index: number = this._customWavePresetDrop.selectedIndex - 1;

@@ -11,11 +11,9 @@
 import { HTML } from "imperative-html/dist/esm/elements-strict";
 import { ColorConfig } from "../../shared/color-config";
 import { Synth } from "../../synth";
-import { Config, getArpeggioPitchIndex, InstrumentType } from "../../synth/synth-config";
+import { Config, InstrumentType, getArpeggioPitchIndex } from "../../synth/synth-config";
 import { EditorConfig } from "../config/editor-config";
 import {
-	defaultMidiExpression,
-	defaultMidiPitchBend,
 	MidiChunkType,
 	MidiControlEventMessage,
 	MidiEventType,
@@ -23,6 +21,8 @@ import {
 	MidiMetaEventMessage,
 	MidiRegisteredParameterNumberLSB,
 	MidiRegisteredParameterNumberMSB,
+	defaultMidiExpression,
+	defaultMidiPitchBend,
 	volumeMultToMidiExpression,
 	volumeMultToMidiVolume,
 } from "../io/midi";

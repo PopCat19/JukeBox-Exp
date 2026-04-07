@@ -29,7 +29,7 @@ export class Box {
 	private _renderedBorderLeft: string = "?";
 	private _renderedBorderRight: string = "?";
 	private _renderedBackgroundColor: string = "?";
-	constructor(channel: number, color: string) {
+	constructor(_channel: number, color: string) {
 		this.container.style.background = ColorConfig.uiWidgetBackground;
 		this._label.style.color = color;
 	}

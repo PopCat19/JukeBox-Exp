@@ -16,8 +16,12 @@ import { Synth } from "./synth";
 import {
 	Chord,
 	Config,
-	calculateRingModHertz,
 	EnvelopeComputeIndex,
+	FilterType,
+	GranularEnvelopeType,
+	InstrumentType,
+	Unison,
+	calculateRingModHertz,
 	effectsIncludeBitcrusher,
 	effectsIncludeChorus,
 	effectsIncludeDistortion,
@@ -28,11 +32,7 @@ import {
 	effectsIncludePhaser,
 	effectsIncludeReverb,
 	effectsIncludeRingModulation,
-	FilterType,
-	GranularEnvelopeType,
 	getDrumWave,
-	InstrumentType,
-	Unison,
 } from "./synth-config";
 import { instrumentVolumeToVolumeMult, tempFilterEndCoefficients, tempFilterStartCoefficients } from "./synth-shared";
 import { Tone } from "./tone";
@@ -1192,7 +1192,7 @@ export class InstrumentState {
 		this.envelopeComputer.clearEnvelopes();
 	}
 
-	public updateWaves(instrument: Instrument, samplesPerSecond: number): void {
+	public updateWaves(instrument: Instrument, _samplesPerSecond: number): void {
 		this.volumeScale = 1.0;
 		if (instrument.type === InstrumentType.chip) {
 			this.wave = this.aliases ? Config.rawChipWaves[instrument.chipWave].samples : Config.chipWaves[instrument.chipWave].samples;

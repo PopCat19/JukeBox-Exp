@@ -237,7 +237,7 @@ export class FilterEditor {
 		return (this._editorHeight - 1) * (1 - gain / (Config.filterGainRange - 1)) + 0.5;
 	}
 
-	private _whenMouseOver = (event: MouseEvent): void => {
+	private _whenMouseOver = (_event: MouseEvent): void => {
 		this._mouseOver = true;
 
 		if (!this._larger) {
@@ -245,7 +245,7 @@ export class FilterEditor {
 		}
 	};
 
-	private _whenMouseOut = (event: MouseEvent): void => {
+	private _whenMouseOut = (_event: MouseEvent): void => {
 		this._mouseOver = false;
 		this._updatePath();
 
@@ -477,7 +477,7 @@ export class FilterEditor {
 		}
 	}
 
-	private _whenCursorReleased = (event: Event): void => {
+	private _whenCursorReleased = (_event: Event): void => {
 		if (this._writingMods) {
 			if (this._forSong) {
 				this._useFilterSettings = this._getTargetFilterSettingsForSong(this._doc.song);

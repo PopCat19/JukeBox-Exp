@@ -250,7 +250,7 @@ export class SpectrumEditor {
 		}
 	}
 
-	private _whenCursorReleased = (event: Event): void => {
+	private _whenCursorReleased = (_event: Event): void => {
 		if (this._mouseDown) {
 			if (!this._isPrompt) {
 				this._doc.record(this._change!);

@@ -54,11 +54,11 @@ $("#pitchPresetSelect").on("select2:open", function () {
 		const groups = $(".select2-container--open .select2-results__group");
 		const options = $(".select2-container--open .select2-results__option");
 
-		$.each(groups, (index, v) => {
+		$.each(groups, (_index, v) => {
 			$(v).siblings().hide();
 			$(v)[0].setAttribute("style", "color: " + ColorConfig.getChannelColor(editor.doc.song, editor.doc.channel).primaryNote + ";");
 		});
-		$.each(options, (index, v) => {
+		$.each(options, (_index, v) => {
 			$(v)[0].setAttribute("style", "color: " + ColorConfig.getChannelColor(editor.doc.song, editor.doc.channel).primaryNote + ";");
 		});
 
@@ -76,11 +76,11 @@ $("#drumPresetSelect").on("select2:open", function () {
 		const groups = $(".select2-container--open .select2-results__group");
 		const options = $(".select2-container--open .select2-results__option");
 
-		$.each(groups, (index, v) => {
+		$.each(groups, (_index, v) => {
 			$(v).siblings().hide();
 			$(v)[0].setAttribute("style", "color: " + ColorConfig.getChannelColor(editor.doc.song, editor.doc.channel).primaryNote + ";");
 		});
-		$.each(options, (index, v) => {
+		$.each(options, (_index, v) => {
 			$(v)[0].setAttribute("style", "color: " + ColorConfig.getChannelColor(editor.doc.song, editor.doc.channel).primaryNote + ";");
 		});
 

@@ -20,7 +20,10 @@ export interface TagAutocompleteHost {
 }
 
 export class TagAutocomplete {
-	public readonly autocompleteBox: HTMLDivElement = div({ class: "tagAutocomplete", style: "display: none; position:absolute; z-index:1000; left:0; top:100%; background:var(--editor-background, #222); border:1px solid var(--ui-widget-background, #444); max-height:12em; overflow-y:auto; scrollbar-gutter:stable; scrollbar-width:thin; font-size:80%; width:100%; box-sizing:border-box;" });
+	public readonly autocompleteBox: HTMLDivElement = div({
+		class: "tagAutocomplete",
+		style: "display: none; position:absolute; z-index:1000; left:0; top:100%; background:var(--editor-background, #222); border:1px solid var(--ui-widget-background, #444); max-height:12em; overflow-y:auto; scrollbar-gutter:stable; scrollbar-width:thin; font-size:80%; width:100%; box-sizing:border-box;",
+	});
 	private _autocompleteIndex: number = -1;
 
 	public get index(): number {

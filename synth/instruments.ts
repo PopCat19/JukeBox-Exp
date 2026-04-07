@@ -19,6 +19,13 @@ import {
 	EffectType,
 	Envelope,
 	EnvelopeType,
+	FilterType,
+	InstrumentType,
+	LFOEnvelopeTypes,
+	SustainType,
+	Transition,
+	Unison,
+	Vibrato,
 	effectsIncludeBitcrusher,
 	effectsIncludeChord,
 	effectsIncludeChorus,
@@ -36,14 +43,7 @@ import {
 	effectsIncludeRingModulation,
 	effectsIncludeTransition,
 	effectsIncludeVibrato,
-	FilterType,
-	InstrumentType,
-	LFOEnvelopeTypes,
-	SustainType,
-	Transition,
 	toNameMap,
-	Unison,
-	Vibrato,
 } from "./synth-config";
 import { centsToDetune, clamp, detuneToCents, fadeInSettingToSeconds, fadeOutSettingToTicks, secondsToFadeInSetting, ticksToFadeOutSetting } from "./util";
 import { HarmonicsWave, SpectrumWave } from "./waves";

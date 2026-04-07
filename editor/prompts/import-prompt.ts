@@ -9,14 +9,13 @@
 // Copyright (c) 2012-2022 John Nesky and contributing authors, distributed under the MIT license, see accompanying the LICENSE.md file.
 
 import { HTML } from "imperative-html/dist/esm/elements-strict";
-import { Channel, Instrument, makeNotePin, Note, NotePin, Pattern, Song, Synth } from "../../synth";
+import { Channel, Instrument, Note, NotePin, Pattern, Song, Synth, makeNotePin } from "../../synth";
 import { Config, InstrumentType } from "../../synth/synth-config";
 import { ChangeReplacePatterns, ChangeSong, removeDuplicatePatterns } from "../changes";
 import { EditorConfig, Preset } from "../config/editor-config";
 import { ChangeGroup } from "../core/change";
 import {
 	AnalogousDrum,
-	analogousDrumMap,
 	MidiChunkType,
 	MidiControlEventMessage,
 	MidiEventType,
@@ -24,6 +23,7 @@ import {
 	MidiMetaEventMessage,
 	MidiRegisteredParameterNumberLSB,
 	MidiRegisteredParameterNumberMSB,
+	analogousDrumMap,
 	midiExpressionToVolumeMult,
 	midiVolumeToVolumeMult,
 } from "../io/midi";
@@ -95,7 +95,7 @@ export class ImportPrompt extends BasePrompt {
 		const extension: string = file.name.slice(((file.name.lastIndexOf(".") - 1) >>> 0) + 2).toLowerCase();
 		if (extension === "json") {
 			const reader: FileReader = new FileReader();
-			reader.addEventListener("load", (event: Event): void => {
+			reader.addEventListener("load", (_event: Event): void => {
 				this._showLoading();
 				this._doc.prompt = null;
 				requestAnimationFrame(() => {
@@ -105,7 +105,7 @@ export class ImportPrompt extends BasePrompt {
 			reader.readAsText(file);
 		} else if (extension === "midi" || extension === "mid") {
 			const reader: FileReader = new FileReader();
-			reader.addEventListener("load", (event: Event): void => {
+			reader.addEventListener("load", (_event: Event): void => {
 				this._doc.prompt = null;
 				this._parseMidiFile(<ArrayBuffer>reader.result);
 			});

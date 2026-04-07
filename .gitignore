@@ -49,3 +49,6 @@ conventions/.dev-conventions-sync-cache/
 
 # Session files
 .session-*.md
+
+# Core dumps
+core.*

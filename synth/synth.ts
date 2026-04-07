@@ -30,6 +30,9 @@ import {
 	Envelope,
 	EnvelopeComputeIndex,
 	EnvelopeType,
+	FilterType,
+	InstrumentType,
+	Transition,
 	effectsIncludeBitcrusher,
 	effectsIncludeChorus,
 	effectsIncludeDetune,
@@ -45,11 +48,8 @@ import {
 	effectsIncludeReverb,
 	effectsIncludeRingModulation,
 	effectsIncludeVibrato,
-	FilterType,
 	getArpeggioPitchIndex,
 	getPulseWidthRatio,
-	InstrumentType,
-	Transition,
 } from "./synth-config";
 import { instrumentVolumeToVolumeMult, noteSizeToVolumeMult, tempFilterEndCoefficients, tempFilterStartCoefficients } from "./synth-shared";
 import {
@@ -2254,8 +2254,8 @@ export class Synth {
 		instrumentIndex: number,
 		transition: Transition,
 		chord: Chord,
-		note: Note,
-		otherNote: Note,
+		_note: Note,
+		_otherNote: Note,
 		forceContinue: boolean,
 	): Chord | null {
 		if (song.patternInstruments && otherPattern.instruments.indexOf(instrumentIndex) === -1) {
@@ -2766,8 +2766,8 @@ export class Synth {
 		bufferIndex: number,
 		roundedSamplesPerTick: number,
 		tone: Tone,
-		released: boolean,
-		shouldFadeOutFast: boolean,
+		_released: boolean,
+		_shouldFadeOutFast: boolean,
 	): void {
 		const channel: Channel = song.channels[channelIndex];
 		const instrument: Instrument = channel.instruments[tone.instrumentIndex];
@@ -4190,7 +4190,7 @@ export class Synth {
 		drumFunction(synth, bufferIndex, runLength, tone, instrumentState);
 	}
 
-	private static modSynth(synth: Synth, stereoBufferIndex: number, roundedSamplesPerTick: number, tone: Tone, instrument: Instrument): void {
+	private static modSynth(synth: Synth, _stereoBufferIndex: number, roundedSamplesPerTick: number, tone: Tone, instrument: Instrument): void {
 		// Note: present modulator value is tone.expressionStarts[0].
 
 		if (!synth.song) return;

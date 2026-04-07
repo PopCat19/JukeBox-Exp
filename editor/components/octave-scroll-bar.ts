@@ -125,13 +125,13 @@ export class OctaveScrollBar {
 		this.container.addEventListener("touchcancel", this._whenCursorReleased);
 	}
 
-	private _whenMouseOver = (event: MouseEvent): void => {
+	private _whenMouseOver = (_event: MouseEvent): void => {
 		if (this._mouseOver) return;
 		this._mouseOver = true;
 		this._updatePreview();
 	};
 
-	private _whenMouseOut = (event: MouseEvent): void => {
+	private _whenMouseOut = (_event: MouseEvent): void => {
 		if (!this._mouseOver) return;
 		this._mouseOver = false;
 		this._updatePreview();
@@ -230,7 +230,7 @@ export class OctaveScrollBar {
 		if (this._mouseOver) this._updatePreview();
 	}
 
-	private _whenCursorReleased = (event: Event): void => {
+	private _whenCursorReleased = (_event: Event): void => {
 		if (!this._doc.song.getChannelIsNoise(this._doc.channel) && !this._doc.song.getChannelIsMod(this._doc.channel) && this._mouseDown) {
 			if (this._dragging) {
 				if (this._change != null) this._doc.record(this._change);

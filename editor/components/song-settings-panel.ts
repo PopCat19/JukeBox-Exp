@@ -13,7 +13,7 @@ import { FilterEditor } from "../components/filter-editor";
 import { Change } from "../core/change";
 import { SongSettingsRefs } from "../renderers/render-song-settings";
 import { SongDocument } from "../song-document";
-import { addWheelSupport, createInputBox, InputBox, rangeSlider, Slider, toggleButton } from "../ui";
+import { InputBox, Slider, addWheelSupport, createInputBox, rangeSlider, toggleButton } from "../ui";
 
 const { button, div, input, option, select, span } = HTML;
 

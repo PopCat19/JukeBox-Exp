@@ -83,7 +83,7 @@ export class VisualLoopControlsPrompt extends BasePrompt {
 				this.gotMouseUp = false;
 			}, 10);
 		},
-		(cnv: HTMLCanvasElement, ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number): void => {
+		(_cnv: HTMLCanvasElement, ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number): void => {
 			const th: number = h / 4;
 			ctx.beginPath();
 			ctx.moveTo(x, y);
@@ -113,7 +113,7 @@ export class VisualLoopControlsPrompt extends BasePrompt {
 				this.gotMouseUp = false;
 			}, 10);
 		},
-		(cnv: HTMLCanvasElement, ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number): void => {
+		(_cnv: HTMLCanvasElement, ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number): void => {
 			const tw: number = w / 4;
 			ctx.beginPath();
 			ctx.moveTo(x, y);
@@ -143,7 +143,7 @@ export class VisualLoopControlsPrompt extends BasePrompt {
 				this.gotMouseUp = false;
 			}, 10);
 		},
-		(cnv: HTMLCanvasElement, ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number): void => {
+		(_cnv: HTMLCanvasElement, ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number): void => {
 			const tw: number = w / 4;
 			ctx.beginPath();
 			ctx.moveTo(x + w, y);
@@ -561,7 +561,7 @@ export class VisualLoopControlsPrompt extends BasePrompt {
 		this._render();
 	};
 
-	private _whenZoomInClicked = (event: Event): void => {
+	private _whenZoomInClicked = (_event: Event): void => {
 		const newViewportWidth: number = Math.max(1, Math.min(this._waveformDataLength!, this._waveformViewportWidth / 2));
 		this._waveformViewportWidth = newViewportWidth;
 		this._waveformViewportMaxOffset = this._waveformDataLength! - this._waveformViewportWidth;
@@ -578,7 +578,7 @@ export class VisualLoopControlsPrompt extends BasePrompt {
 		this._render();
 	};
 
-	private _whenZoomOutClicked = (event: Event): void => {
+	private _whenZoomOutClicked = (_event: Event): void => {
 		const newViewportWidth: number = Math.max(1, Math.min(this._waveformDataLength!, this._waveformViewportWidth * 2));
 		this._waveformViewportWidth = newViewportWidth;
 		this._waveformViewportMaxOffset = this._waveformDataLength! - this._waveformViewportWidth;
@@ -596,7 +596,7 @@ export class VisualLoopControlsPrompt extends BasePrompt {
 		this._render();
 	};
 
-	private _whenZoom100Clicked = (event: Event): void => {
+	private _whenZoom100Clicked = (_event: Event): void => {
 		this._waveformViewportWidth = this._waveformDataLength!;
 		this._waveformViewportMaxOffset = 0;
 		this._waveformViewportOffset = 0;

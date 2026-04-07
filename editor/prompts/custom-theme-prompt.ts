@@ -236,7 +236,7 @@ export class CustomThemePrompt extends BasePrompt {
 		const file: File = this._fileInput.files![0];
 		if (!file) return;
 		const reader: FileReader = new FileReader();
-		reader.addEventListener("load", (event: Event): void => {
+		reader.addEventListener("load", (_event: Event): void => {
 			const base64 = <string>reader.result;
 			window.localStorage.setItem("customTheme", base64);
 			const value = `url("${window.localStorage.getItem("customTheme")}")`;
@@ -249,7 +249,7 @@ export class CustomThemePrompt extends BasePrompt {
 		const file: File = this._fileInput2.files![0];
 		if (!file) return;
 		const reader: FileReader = new FileReader();
-		reader.addEventListener("load", (event: Event): void => {
+		reader.addEventListener("load", (_event: Event): void => {
 			const base64 = <string>reader.result;
 			window.localStorage.setItem("customTheme2", base64);
 			const value = `url("${window.localStorage.getItem("customTheme2")}")`;

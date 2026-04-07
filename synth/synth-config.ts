@@ -632,12 +632,12 @@ declare global {
 }
 
 function loadScript(url: string): Promise<void> {
-	const result: Promise<void> = new Promise((resolve, reject) => {
+	const result: Promise<void> = new Promise((resolve, _reject) => {
 		if (!Config.willReloadForCustomSamples) {
 			const script = document.createElement("script");
 			script.src = url;
 			document.head.appendChild(script);
-			script.addEventListener("load", (event) => {
+			script.addEventListener("load", (_event) => {
 				resolve();
 			});
 		} else {
@@ -5423,7 +5423,7 @@ export function effectsIncludeGranular(effects: number): boolean {
 export function effectsIncludeNoteRange(effects: number): boolean {
 	return (effects & (1 << EffectType.noteRange)) !== 0;
 }
-export function calculateRingModHertz(sliderHz: number, sliderHzOffset: number = 0): number {
+export function calculateRingModHertz(sliderHz: number, _sliderHzOffset: number = 0): number {
 	// replaces the value 21 with 0
 	if (sliderHz === 0) return 0;
 	if (sliderHz > 0) sliderHz -= 1 / Config.ringModHzRange;

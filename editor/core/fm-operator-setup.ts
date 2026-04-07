@@ -12,7 +12,7 @@ import { ColorConfig } from "../../shared/color-config";
 import { Config, DropdownID } from "../../synth/synth-config";
 import { ChangeOperatorAmplitude, ChangeOperatorFrequency, ChangeOperatorPulseWidth, ChangeOperatorWaveform } from "../changes";
 import { SongDocument } from "../song-document";
-import { dropdownButton, Slider } from "../ui";
+import { Slider, dropdownButton } from "../ui";
 
 const { div, select, span, input, option } = HTML;
 

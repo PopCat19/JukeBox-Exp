@@ -10,7 +10,7 @@
 
 import { HTML, SVG } from "imperative-html/dist/esm/elements-strict";
 import { ColorConfig } from "../../shared/color-config";
-import { clamp, fadeOutSettingToTicks, Instrument } from "../../synth";
+import { Instrument, clamp, fadeOutSettingToTicks } from "../../synth";
 import { Config } from "../../synth/synth-config";
 import { ChangeFadeInOut } from "../changes";
 import { ChangeSequence, UndoableChange } from "../core/change";
@@ -174,7 +174,7 @@ export class FadeInOutEditor {
 		}
 	}
 
-	private _whenCursorReleased = (event: Event): void => {
+	private _whenCursorReleased = (_event: Event): void => {
 		if (this.container.offsetParent == null) return;
 		if (this._mouseDown && this._doc.lastChangeWas(this._dragChange) && this._dragChange != null) {
 			if (!this._mouseDragging) {

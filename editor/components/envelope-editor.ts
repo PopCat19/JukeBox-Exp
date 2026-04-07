@@ -30,7 +30,7 @@ import {
 import { prettyNumber } from "../config/editor-config";
 import { Change } from "../core/change";
 import { SongDocument } from "../song-document";
-import { addWheelSupport, deleteButton, dropdownButton, Slider } from "../ui";
+import { Slider, addWheelSupport, deleteButton, dropdownButton } from "../ui";
 
 export class EnvelopeEditor {
 	public readonly container: HTMLElement = HTML.div({ class: "envelopeEditor" });

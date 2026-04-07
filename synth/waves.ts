@@ -8,7 +8,7 @@
 // - Implements grain envelope and delay logic for granular synthesis
 
 import { inverseRealFourierTransform, scaleElementsByFactor } from "./fft";
-import { Config, drawNoiseSpectrum, getDrumWave, InstrumentType, performIntegralOld } from "./synth-config";
+import { Config, InstrumentType, drawNoiseSpectrum, getDrumWave, performIntegralOld } from "./synth-config";
 import { fittingPowerOfTwo } from "./util";
 
 export class SpectrumWave {

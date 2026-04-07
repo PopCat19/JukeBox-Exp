@@ -8,7 +8,7 @@
 // - Merges new notes with existing pattern notes
 // - Applies changes via ChangeGroup
 
-import { makeNotePin, Note, NotePin, Pattern } from "../../synth";
+import { Note, NotePin, Pattern, makeNotePin } from "../../synth";
 import { Config } from "../../synth/synth-config";
 import { ChangeEnsurePatternExists, ChangeInsertBars, ChangeNoteAdded, ChangePatternNumbers } from "../changes";
 import { ChangeGroup } from "../core/change";
