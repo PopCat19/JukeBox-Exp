@@ -38,3 +38,14 @@ offline/node_modules
 # Deployment
 deployFiles.sh
 pm2handler.cjs
+
+# Cache directories
+.dev-conventions-sync-cache/
+conventions/.dev-conventions-sync-cache/
+
+# Local settings
+*.local.json
+.letta/settings.local.json
+
+# Session files
+.session-*.md
