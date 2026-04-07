@@ -287,16 +287,16 @@ function showBoxModel(el: Element, cs: CSSStyleDeclaration): void {
 	const pb = parseFloat(cs.paddingBottom) || 0;
 	const pl = parseFloat(cs.paddingLeft) || 0;
 
-	if (mt) addStrip(document.body, rect.top - mt, rect.left - ml, rect.width + ml + mr, mt, COLORS.margin, `↑ ${mt.toFixed(0)}`);
-	if (mb) addStrip(document.body, rect.bottom, rect.left - ml, rect.width + ml + mr, mb, COLORS.margin, `↓ ${mb.toFixed(0)}`);
-	if (ml) addStrip(document.body, rect.top - mt, rect.left - ml, ml, rect.height + mt + mb, COLORS.margin, `← ${ml.toFixed(0)}`);
-	if (mr) addStrip(document.body, rect.top - mt, rect.right, mr, rect.height + mt + mb, COLORS.margin, `→ ${mr.toFixed(0)}`);
+	if (mt) addStrip(document.body, rect.top - mt, rect.left - ml, rect.width + ml + mr, mt, COLORS.margin, `↑${mt.toFixed(0)}`);
+	if (mb) addStrip(document.body, rect.bottom, rect.left - ml, rect.width + ml + mr, mb, COLORS.margin, `↓${mb.toFixed(0)}`);
+	if (ml) addStrip(document.body, rect.top - mt, rect.left - ml, ml, rect.height + mt + mb, COLORS.margin, `←${ml.toFixed(0)}`);
+	if (mr) addStrip(document.body, rect.top - mt, rect.right, mr, rect.height + mt + mb, COLORS.margin, `→${mr.toFixed(0)}`);
 
 	if (pt || pr || pb || pl) {
-		if (pt) addStrip(document.body, rect.top, rect.left, rect.width, pt, COLORS.padding, `↑ ${pt.toFixed(0)}`);
-		if (pb) addStrip(document.body, rect.bottom - pb, rect.left, rect.width, pb, COLORS.padding, `↓ ${pb.toFixed(0)}`);
-		if (pl) addStrip(document.body, rect.top, rect.left, pl, rect.height, COLORS.padding, `← ${pl.toFixed(0)}`);
-		if (pr) addStrip(document.body, rect.top, rect.right - pr, pr, rect.height, COLORS.padding, `→ ${pr.toFixed(0)}`);
+		if (pt) addStrip(document.body, rect.top, rect.left, rect.width, pt, COLORS.padding, `↑${pt.toFixed(0)}`);
+		if (pb) addStrip(document.body, rect.bottom - pb, rect.left, rect.width, pb, COLORS.padding, `↓${pb.toFixed(0)}`);
+		if (pl) addStrip(document.body, rect.top, rect.left, pl, rect.height, COLORS.padding, `←${pl.toFixed(0)}`);
+		if (pr) addStrip(document.body, rect.top, rect.right - pr, pr, rect.height, COLORS.padding, `→${pr.toFixed(0)}`);
 	}
 
 	const brtl = parseFloat(cs.borderTopLeftRadius) || 0;
@@ -306,14 +306,14 @@ function showBoxModel(el: Element, cs: CSSStyleDeclaration): void {
 	const radiusVals = [brtl, brtr, brbr, brbl].map((v) => Math.round(v));
 	const allSameRadius = radiusVals.every((v) => v === radiusVals[0]);
 	if (allSameRadius && brtl) {
-		addStrip(document.body, rect.top, rect.left, RADIUS_OVERLAY, RADIUS_OVERLAY, COLORS.radius, `○ ${brtl.toFixed(0)}`);
+		addStrip(document.body, rect.top, rect.left, RADIUS_OVERLAY, RADIUS_OVERLAY, COLORS.radius, `○${brtl.toFixed(0)}`);
 	} else {
 		const counts = new Map<number, number>();
 		for (const v of radiusVals) counts.set(v, (counts.get(v) || 0) + 1);
 		const common = radiusVals.length > 0 ? [...counts.entries()].sort((a, b) => b[1] - a[1])[0][0] : 0;
-		if (brtl !== common) addStrip(document.body, rect.top, rect.left, RADIUS_OVERLAY, RADIUS_OVERLAY, COLORS.radius, `↱ ${brtl.toFixed(0)}`);
+		if (brtl !== common) addStrip(document.body, rect.top, rect.left, RADIUS_OVERLAY, RADIUS_OVERLAY, COLORS.radius, `↱${brtl.toFixed(0)}`);
 		if (brtr !== common)
-			addStrip(document.body, rect.top, rect.right - RADIUS_OVERLAY, RADIUS_OVERLAY, RADIUS_OVERLAY, COLORS.radius, `↰ ${brtr.toFixed(0)}`);
+			addStrip(document.body, rect.top, rect.right - RADIUS_OVERLAY, RADIUS_OVERLAY, RADIUS_OVERLAY, COLORS.radius, `↰${brtr.toFixed(0)}`);
 		if (brbr !== common)
 			addStrip(
 				document.body,
@@ -322,10 +322,10 @@ function showBoxModel(el: Element, cs: CSSStyleDeclaration): void {
 				RADIUS_OVERLAY,
 				RADIUS_OVERLAY,
 				COLORS.radius,
-				`↲ ${brbr.toFixed(0)}`,
+				`↲${brbr.toFixed(0)}`,
 			);
 		if (brbl !== common)
-			addStrip(document.body, rect.bottom - RADIUS_OVERLAY, rect.left, RADIUS_OVERLAY, RADIUS_OVERLAY, COLORS.radius, `↳ ${brbl.toFixed(0)}`);
+			addStrip(document.body, rect.bottom - RADIUS_OVERLAY, rect.left, RADIUS_OVERLAY, RADIUS_OVERLAY, COLORS.radius, `↳${brbl.toFixed(0)}`);
 	}
 
 	const bt = parseFloat(cs.borderTopWidth) || 0;
@@ -337,7 +337,7 @@ function showBoxModel(el: Element, cs: CSSStyleDeclaration): void {
 	if (allSame && bt) {
 		const topOffset = brtl > 0 ? LABEL_SIZE.height + 2 : 0;
 		const align = brtl > 0 ? "left" : "center";
-		addStrip(document.body, rect.top, rect.left, rect.width, bt, COLORS.border, `b ${bt.toFixed(0)}`, topOffset, align);
+		addStrip(document.body, rect.top, rect.left, rect.width, bt, COLORS.border, `b${bt.toFixed(0)}`, topOffset, align);
 	} else {
 		const counts = new Map<number, number>();
 		for (const v of borderVals) counts.set(v, (counts.get(v) || 0) + 1);
@@ -345,11 +345,11 @@ function showBoxModel(el: Element, cs: CSSStyleDeclaration): void {
 		if (bt !== common) {
 			const topOffset = brtl > 0 ? LABEL_SIZE.height + 2 : 0;
 			const align = brtl > 0 ? "left" : "center";
-			addStrip(document.body, rect.top, rect.left, rect.width, bt, COLORS.border, `↑ b ${bt.toFixed(0)}`, topOffset, align);
+			addStrip(document.body, rect.top, rect.left, rect.width, bt, COLORS.border, `↑b${bt.toFixed(0)}`, topOffset, align);
 		}
-		if (bb !== common) addStrip(document.body, rect.bottom - bb, rect.left, rect.width, bb, COLORS.border, `↓ b ${bb.toFixed(0)}`);
-		if (bl !== common) addStrip(document.body, rect.top, rect.left, bl, rect.height, COLORS.border, `← b ${bl.toFixed(0)}`);
-		if (br !== common) addStrip(document.body, rect.top, rect.right - br, br, rect.height, COLORS.border, `→ b ${br.toFixed(0)}`);
+		if (bb !== common) addStrip(document.body, rect.bottom - bb, rect.left, rect.width, bb, COLORS.border, `↓b${bb.toFixed(0)}`);
+		if (bl !== common) addStrip(document.body, rect.top, rect.left, bl, rect.height, COLORS.border, `←b${bl.toFixed(0)}`);
+		if (br !== common) addStrip(document.body, rect.top, rect.right - br, br, rect.height, COLORS.border, `→b${br.toFixed(0)}`);
 	}
 
 	const isFlex = cs.display === "flex" || cs.display === "inline-flex";
@@ -381,7 +381,7 @@ function showBoxModel(el: Element, cs: CSSStyleDeclaration): void {
 			const sorted = [...childRects].sort((a, b) => (isColumn ? a.top - b.top : a.left - b.left));
 			for (let i = 0; i < sorted.length - 1; i++) {
 				const a = sorted[i];
-				const gapLabel = isColumn ? `↕ ${gapVal.toFixed(0)}` : `←→ ${gapVal.toFixed(0)}`;
+				const gapLabel = isColumn ? `↕${gapVal.toFixed(0)}` : `←→${gapVal.toFixed(0)}`;
 				if (isColumn) {
 					addStrip(document.body, a.bottom, rect.left + pl, rect.width - pl - pr, gapVal, COLORS.gap, gapLabel);
 				} else {
@@ -520,6 +520,22 @@ function figmaSummary(el: Element, cs: CSSStyleDeclaration): SummaryResult {
 	if (bs !== "none") props.push({ label: `Shadow: ${bs}` });
 	const ov = cs.overflow;
 	if (ov !== "visible") props.push({ label: `Overflow: ${ov}` });
+	if (el instanceof HTMLInputElement) {
+		props.push({ label: `Input: type=${el.type} value=${el.value}`, color: "#ff88cc" });
+		if (el.type === "range" || el.type === "number") {
+			props.push({ label: `Range: ${el.min}..${el.max} step=${el.step}` });
+		}
+		if (el.type === "checkbox" || el.type === "radio") {
+			props.push({ label: `Checked: ${el.checked}` });
+		}
+		if (el.placeholder) props.push({ label: `Placeholder: "${el.placeholder}"` });
+		if (el.disabled) props.push({ label: `Disabled`, color: "#888" });
+		if (el.name) props.push({ label: `Name: ${el.name}` });
+	} else if (el instanceof HTMLSelectElement) {
+		props.push({ label: `Select: value=${el.value} [${el.selectedIndex}]`, color: "#ff88cc" });
+	} else if (el instanceof HTMLTextAreaElement) {
+		props.push({ label: `Textarea: "${el.value.slice(0, 30)}"`, color: "#ff88cc" });
+	}
 	for (let i = 0; i < props.length; i++) {
 		const isLast = i === props.length - 1;
 		const prefix = isLast ? "└─ " : "├─ ";
@@ -625,6 +641,23 @@ function captureStyles(): void {
 	const siblings = parent ? Array.from(parent.children).filter((c) => c.tagName === el.tagName) : [];
 	const siblingIndex = siblings.indexOf(el);
 
+	let inputInfo: Record<string, unknown> | undefined;
+	if (el instanceof HTMLInputElement) {
+		inputInfo = { type: el.type, value: el.value, disabled: el.disabled };
+		if (el.type === "range" || el.type === "number") {
+			inputInfo.min = el.min;
+			inputInfo.max = el.max;
+			inputInfo.step = el.step;
+		}
+		if (el.type === "checkbox" || el.type === "radio") inputInfo.checked = el.checked;
+		if (el.placeholder) inputInfo.placeholder = el.placeholder;
+		if (el.name) inputInfo.name = el.name;
+	} else if (el instanceof HTMLSelectElement) {
+		inputInfo = { type: "select", value: el.value, selectedIndex: el.selectedIndex };
+	} else if (el instanceof HTMLTextAreaElement) {
+		inputInfo = { type: "textarea", value: el.value };
+	}
+
 	navigator.clipboard.writeText(
 		JSON.stringify(
 			{
@@ -634,6 +667,7 @@ function captureStyles(): void {
 				siblingIndex: siblings.length > 1 ? siblingIndex : undefined,
 				parent: parentInfo,
 				html: html.length > 1000 ? html.slice(0, 1000) + "…" : html,
+				...(inputInfo ? { input: inputInfo } : {}),
 				styles,
 			},
 			null,
