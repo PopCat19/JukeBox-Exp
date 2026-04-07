@@ -28,7 +28,7 @@ import { OctaveCountPrompt } from "./prompts/octave-count-prompt";
 import "./ui/layout/layout"; // Imported here for the sake of ensuring this code is transpiled early.
 import { HTML, SVG } from "imperative-html/dist/esm/elements-strict";
 import { oscilloscopeCanvas } from "../shared/oscilloscope";
-import { Channel, Instrument, getCapabilities } from "../synth";
+import { Channel, getCapabilities, Instrument } from "../synth";
 import {
 	ChangeArpeggioSpeed,
 	ChangeBitcrusherFreq,
@@ -38,9 +38,9 @@ import {
 	ChangeDecimalOffset,
 	ChangeDetune,
 	ChangeDistortion,
+	ChangeEnvelopeSpeed,
 	ChangeEQFilterSimpleCut,
 	ChangeEQFilterSimplePeak,
-	ChangeEnvelopeSpeed,
 	ChangeFeedbackAmplitude,
 	ChangeHoldingModRecording,
 	ChangeNoteFilterSimpleCut,
@@ -104,7 +104,7 @@ import { SustainPrompt } from "./prompts/sustain-prompt";
 import { ThemePrompt } from "./prompts/theme-prompt";
 import { TipPrompt } from "./prompts/tip-prompt";
 import { VisualLoopControlsPrompt } from "./prompts/visual-loop-controls-prompt";
-import { InstrumentVisibilityRefs, applyInstrumentVisibility } from "./renderers/instrument-visibility";
+import { applyInstrumentVisibility, InstrumentVisibilityRefs } from "./renderers/instrument-visibility";
 import { renderEffectsSelect } from "./renderers/render-effects";
 import { InstrumentValueRefs, renderInstrumentValues } from "./renderers/render-instrument-values";
 import { LayoutRefs, renderLayout } from "./renderers/render-layout";
@@ -112,19 +112,19 @@ import { ModSettingsCallbacks, ModSettingsRefs, renderModSettings } from "./rend
 import { renderOptionsMenu } from "./renderers/render-options-menu";
 import { PostSyncRefs, renderPostBranchSync } from "./renderers/render-post-sync";
 import { PresetSetupRefs, renderPresetSetup } from "./renderers/render-preset-setup";
-import { SongSettingsRefs, renderSongSettings } from "./renderers/render-song-settings";
+import { renderSongSettings, SongSettingsRefs } from "./renderers/render-song-settings";
 import { SongDocument } from "./song-document";
 import {
-	InputBox,
-	Slider,
 	buildHeaderedOptions,
 	buildOptions,
 	buildPresetOptions,
 	clearButton,
 	dropdownButton,
+	InputBox,
 	iconButton,
 	numberInput,
 	rangeSlider,
+	Slider,
 	toggleButton,
 } from "./ui";
 

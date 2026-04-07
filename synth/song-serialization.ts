@@ -9,18 +9,18 @@
 import { Channel } from "./channels";
 import { Deque } from "./deque";
 import { FilterControlPoint, FilterSettings, Instrument, LegacySettings } from "./instruments";
-import { Note, NotePin, Pattern, makeNotePin } from "./notes";
+import { makeNotePin, Note, NotePin, Pattern } from "./notes";
 import { getPlugin } from "./plugins";
 import {
 	BitFieldReader,
 	BitFieldWriter,
-	CharCode,
-	SongTagCode,
 	base64CharCodeToInt,
 	base64IntToCharCode,
+	CharCode,
 	decode32BitNumber,
 	encode32BitNumber,
 	encodeUnisonSettings,
+	SongTagCode,
 } from "./serialization";
 import { type CustomSampleHandler, clearSamples, envelopeFromLegacyIndex, parseAndConfigureCustomSample, restoreChipWaveListToDefault } from "./song-utilities";
 import {
@@ -29,12 +29,6 @@ import {
 	DictionaryArray,
 	EffectType,
 	EnvelopeType,
-	FilterType,
-	InstrumentType,
-	LFOEnvelopeTypes,
-	RandomEnvelopeTypes,
-	SampleLoadedEvent,
-	SustainType,
 	effectsIncludeBitcrusher,
 	effectsIncludeChord,
 	effectsIncludeChorus,
@@ -52,8 +46,14 @@ import {
 	effectsIncludeRingModulation,
 	effectsIncludeTransition,
 	effectsIncludeVibrato,
+	FilterType,
 	getRegisteredInstrumentTypeCount,
+	InstrumentType,
+	LFOEnvelopeTypes,
 	loadBuiltInSamples,
+	RandomEnvelopeTypes,
+	SampleLoadedEvent,
+	SustainType,
 	sampleLoadEvents,
 	sampleLoadingState,
 	toNameMap,

@@ -13,7 +13,6 @@ import { ChannelColors, ColorConfig } from "../../shared/color-config";
 import { Channel, Instrument } from "../../synth";
 import {
 	Config,
-	InstrumentType,
 	effectsIncludeBitcrusher,
 	effectsIncludeChord,
 	effectsIncludeChorus,
@@ -29,6 +28,7 @@ import {
 	effectsIncludeReverb,
 	effectsIncludeRingModulation,
 	effectsIncludeVibrato,
+	InstrumentType,
 } from "../../synth/synth-config";
 import { Preferences } from "../core/preferences";
 import { SongDocument } from "../song-document";

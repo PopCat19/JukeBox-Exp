@@ -11,7 +11,7 @@ import { SVG } from "imperative-html/dist/esm/elements-strict";
 import { ColorConfig } from "../shared/color-config";
 import { Note, NotePin, Pattern } from "../synth";
 import { Config } from "../synth/synth-config";
-import { PlayerUI, getLocalStorage } from "./player-ui";
+import { getLocalStorage, PlayerUI } from "./player-ui";
 
 const { rect, path } = SVG;
 

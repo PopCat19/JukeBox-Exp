@@ -9,7 +9,7 @@
 
 import { ColorConfig } from "../../shared/color-config";
 import { Channel, Instrument } from "../../synth";
-import { Config, DropdownID, EffectType, InstrumentType, effectsIncludeNoteFilter } from "../../synth/synth-config";
+import { Config, DropdownID, EffectType, effectsIncludeNoteFilter, InstrumentType } from "../../synth/synth-config";
 import {
 	ChangeAddChannelInstrument,
 	ChangePatternNumbers,

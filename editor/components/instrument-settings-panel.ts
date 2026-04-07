@@ -16,11 +16,11 @@ import {
 	ChangeBitcrusherQuantization,
 	ChangeChorus,
 	ChangeDistortion,
-	ChangeEQFilterSimpleCut,
-	ChangeEQFilterSimplePeak,
 	ChangeEchoDelay,
 	ChangeEchoSustain,
 	ChangeEnvelopeSpeed,
+	ChangeEQFilterSimpleCut,
+	ChangeEQFilterSimplePeak,
 	ChangeFeedbackAmplitude,
 	ChangeNoteFilterSimpleCut,
 	ChangeNoteFilterSimplePeak,
@@ -40,7 +40,7 @@ import {
 import { EditorConfig } from "../config/editor-config";
 import { InstrumentValueRefs } from "../renderers/render-instrument-values";
 import { SongDocument } from "../song-document";
-import { Slider, addWheelSupport, dropdownButton, rangeSlider, toggleButton } from "../ui";
+import { addWheelSupport, dropdownButton, rangeSlider, Slider, toggleButton } from "../ui";
 import { FilterEditor } from "./filter-editor";
 
 const { button, div, input, option, select, span } = HTML;

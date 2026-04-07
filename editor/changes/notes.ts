@@ -10,7 +10,7 @@
 // Copyright (c) 2012-2022 John Nesky and contributing authors, distributed under the MIT license, see accompanying the LICENSE.md file.
 
 import { ColorConfig } from "../../shared/color-config";
-import { Channel, Instrument, Note, NotePin, Pattern, Song, makeNotePin } from "../../synth";
+import { Channel, Instrument, makeNotePin, Note, NotePin, Pattern, Song } from "../../synth";
 import { Config, Dictionary } from "../../synth/synth-config";
 import { Change, ChangeGroup, ChangeSequence, UndoableChange } from "../core/change";
 import { SongDocument } from "../song-document";

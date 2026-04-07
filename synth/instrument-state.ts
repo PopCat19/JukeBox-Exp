@@ -16,12 +16,8 @@ import { Synth } from "./synth";
 import {
 	Chord,
 	Config,
-	EnvelopeComputeIndex,
-	FilterType,
-	GranularEnvelopeType,
-	InstrumentType,
-	Unison,
 	calculateRingModHertz,
+	EnvelopeComputeIndex,
 	effectsIncludeBitcrusher,
 	effectsIncludeChorus,
 	effectsIncludeDistortion,
@@ -32,7 +28,11 @@ import {
 	effectsIncludePhaser,
 	effectsIncludeReverb,
 	effectsIncludeRingModulation,
+	FilterType,
+	GranularEnvelopeType,
 	getDrumWave,
+	InstrumentType,
+	Unison,
 } from "./synth-config";
 import { instrumentVolumeToVolumeMult, tempFilterEndCoefficients, tempFilterStartCoefficients } from "./synth-shared";
 import { Tone } from "./tone";

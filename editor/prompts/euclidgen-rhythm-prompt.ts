@@ -14,7 +14,7 @@ import { Config } from "../../synth/synth-config";
 import { SongDocument } from "../song-document";
 import { fieldLabel, labelRow, stepperInput } from "../ui";
 import { BasePrompt } from "./base-prompt";
-import { Sequence, generateEuclideanRhythm } from "./euclidgen-algorithm";
+import { generateEuclideanRhythm, Sequence } from "./euclidgen-algorithm";
 import { generateAndApplyEuclideanNotes } from "./euclidgen-note-generator";
 import { EuclidgenRendererContext, renderInitialBackground, renderSequenceButtons } from "./euclidgen-renderer";
 

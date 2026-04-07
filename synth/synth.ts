@@ -30,9 +30,6 @@ import {
 	Envelope,
 	EnvelopeComputeIndex,
 	EnvelopeType,
-	FilterType,
-	InstrumentType,
-	Transition,
 	effectsIncludeBitcrusher,
 	effectsIncludeChorus,
 	effectsIncludeDetune,
@@ -48,8 +45,11 @@ import {
 	effectsIncludeReverb,
 	effectsIncludeRingModulation,
 	effectsIncludeVibrato,
+	FilterType,
 	getArpeggioPitchIndex,
 	getPulseWidthRatio,
+	InstrumentType,
+	Transition,
 } from "./synth-config";
 import { instrumentVolumeToVolumeMult, noteSizeToVolumeMult, tempFilterEndCoefficients, tempFilterStartCoefficients } from "./synth-shared";
 import {

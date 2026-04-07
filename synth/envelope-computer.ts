@@ -18,10 +18,10 @@ import {
 	EnvelopeComputeIndex,
 	EnvelopeType,
 	FilterType,
+	getArpeggioPitchIndex,
 	LFOEnvelopeTypes,
 	RandomEnvelopeTypes,
 	Transition,
-	getArpeggioPitchIndex,
 } from "./synth-config";
 import { noteSizeToVolumeMult } from "./synth-shared";
 import type { Tone } from "./tone";

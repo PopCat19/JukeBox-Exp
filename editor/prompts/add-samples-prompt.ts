@@ -13,7 +13,7 @@ import { Config, Dictionary } from "../../synth/synth-config";
 import { EditorConfig } from "../config/editor-config";
 import { SongDocument } from "../song-document";
 import { addWheelSupport } from "../ui";
-import { SampleEntry, generateAllSampleURLs, generateSampleURL, parseSampleURLs } from "./add-samples-url-parser";
+import { generateAllSampleURLs, generateSampleURL, parseSampleURLs, SampleEntry } from "./add-samples-url-parser";
 import { BasePrompt } from "./base-prompt";
 
 const { div, input, button, a, code, textarea, details, summary, span, ul, li, select, option, h2 } = HTML;

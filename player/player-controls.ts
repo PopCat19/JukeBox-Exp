@@ -11,7 +11,7 @@
 import { ColorConfig } from "../shared/color-config";
 import { SampleLoadedEvent, sampleLoadEvents } from "../synth/synth-config";
 import { renderPlayhead, renderTimeline } from "./player-timeline";
-import { PlayerUI, getLocalStorage, setLocalStorage } from "./player-ui";
+import { getLocalStorage, PlayerUI, setLocalStorage } from "./player-ui";
 
 export class PlayerControls {
 	private animationRequest: number | null = null;

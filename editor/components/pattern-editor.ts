@@ -11,8 +11,8 @@
 
 import { HTML, SVG } from "imperative-html/dist/esm/elements-strict";
 import { ColorConfig } from "../../shared/color-config";
-import { Channel, FilterControlPoint, FilterSettings, Instrument, Note, NotePin, Pattern, makeNotePin } from "../../synth";
-import { Chord, Config, Transition, effectsIncludeNoteRange, getLocalStorageItem } from "../../synth/synth-config";
+import { Channel, FilterControlPoint, FilterSettings, Instrument, makeNotePin, Note, NotePin, Pattern } from "../../synth";
+import { Chord, Config, effectsIncludeNoteRange, getLocalStorageItem, Transition } from "../../synth/synth-config";
 import {
 	ChangeArpeggioSpeed,
 	ChangeBitcrusherFreq,
@@ -24,13 +24,13 @@ import {
 	ChangeDistortion,
 	ChangeDragSelectedNotes,
 	ChangeDuplicateSelectedReusedPatterns,
-	ChangeEQFilterSimpleCut,
-	ChangeEQFilterSimplePeak,
 	ChangeEchoSustain,
 	ChangeEnsurePatternExists,
 	ChangeEnvelopeLowerBound,
 	ChangeEnvelopeSpeed,
 	ChangeEnvelopeUpperBound,
+	ChangeEQFilterSimpleCut,
+	ChangeEQFilterSimplePeak,
 	ChangeFeedbackAmplitude,
 	ChangeFilterMovePoint,
 	ChangeGrainAmounts,

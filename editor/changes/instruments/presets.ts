@@ -11,11 +11,11 @@ import {
 	Algorithm,
 	Config,
 	EffectType,
+	effectsIncludeDistortion,
 	FilterType,
 	InstrumentType,
 	LFOEnvelopeTypes,
 	RandomEnvelopeTypes,
-	effectsIncludeDistortion,
 } from "../../../synth/synth-config";
 import { EditorConfig, Preset } from "../../config/editor-config";
 import { Change } from "../../core/change";

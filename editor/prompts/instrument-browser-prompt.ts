@@ -10,7 +10,7 @@
 
 import { HTML } from "imperative-html/dist/esm/elements-strict";
 import { ChangePreset } from "../changes";
-import { EditorConfig, Preset, PresetCategory, fullTagList } from "../config/editor-config";
+import { EditorConfig, fullTagList, Preset, PresetCategory } from "../config/editor-config";
 import { SongDocument } from "../song-document";
 import { fixedPane, flexPane, inputRow, instructions, paneContainer, searchInput, sectionLabel, tagChip } from "../ui";
 import { tabButton } from "../ui/buttons/tab-button";

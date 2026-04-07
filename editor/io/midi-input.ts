@@ -10,7 +10,7 @@
 
 import { Config } from "../../synth/synth-config";
 import { SongDocument } from "../song-document";
-import { AnalogousDrum, MidiEventType, analogousDrumMap } from "./midi";
+import { AnalogousDrum, analogousDrumMap, MidiEventType } from "./midi";
 
 declare global {
 	interface Navigator {

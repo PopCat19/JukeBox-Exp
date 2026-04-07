@@ -9,13 +9,14 @@
 // Copyright (c) 2012-2022 John Nesky and contributing authors, distributed under the MIT license, see accompanying the LICENSE.md file.
 
 import { HTML } from "imperative-html/dist/esm/elements-strict";
-import { Channel, Instrument, Note, NotePin, Pattern, Song, Synth, makeNotePin } from "../../synth";
+import { Channel, Instrument, makeNotePin, Note, NotePin, Pattern, Song, Synth } from "../../synth";
 import { Config, InstrumentType } from "../../synth/synth-config";
 import { ChangeReplacePatterns, ChangeSong, removeDuplicatePatterns } from "../changes";
 import { EditorConfig, Preset } from "../config/editor-config";
 import { ChangeGroup } from "../core/change";
 import {
 	AnalogousDrum,
+	analogousDrumMap,
 	MidiChunkType,
 	MidiControlEventMessage,
 	MidiEventType,
@@ -23,7 +24,6 @@ import {
 	MidiMetaEventMessage,
 	MidiRegisteredParameterNumberLSB,
 	MidiRegisteredParameterNumberMSB,
-	analogousDrumMap,
 	midiExpressionToVolumeMult,
 	midiVolumeToVolumeMult,
 } from "../io/midi";

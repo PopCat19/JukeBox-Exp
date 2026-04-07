@@ -12,7 +12,7 @@
 import { ColorConfig } from "../../shared/color-config";
 import { Channel, Instrument, Note, NotePin, Pattern, Song } from "../../synth";
 import { Config, EffectType, InstrumentType } from "../../synth/synth-config";
-import { EditorConfig, Preset, PresetCategory, fullTagList } from "../config/editor-config";
+import { EditorConfig, fullTagList, Preset, PresetCategory } from "../config/editor-config";
 import { Change, ChangeGroup, ChangeSequence } from "../core/change";
 import { SongDocument } from "../song-document";
 import { ChangeToggleEffects } from "./instruments";

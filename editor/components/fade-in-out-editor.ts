@@ -10,7 +10,7 @@
 
 import { HTML, SVG } from "imperative-html/dist/esm/elements-strict";
 import { ColorConfig } from "../../shared/color-config";
-import { Instrument, clamp, fadeOutSettingToTicks } from "../../synth";
+import { clamp, fadeOutSettingToTicks, Instrument } from "../../synth";
 import { Config } from "../../synth/synth-config";
 import { ChangeFadeInOut } from "../changes";
 import { ChangeSequence, UndoableChange } from "../core/change";

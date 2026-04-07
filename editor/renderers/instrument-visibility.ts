@@ -9,7 +9,7 @@
 // - Handles chip wave advanced loop controls
 
 import { ChannelColors, ColorConfig } from "../../shared/color-config";
-import { Instrument, detuneToCents, getCapabilities, getPlugin } from "../../synth";
+import { detuneToCents, getCapabilities, getPlugin, Instrument } from "../../synth";
 import {
 	Config,
 	effectsIncludeBitcrusher,
