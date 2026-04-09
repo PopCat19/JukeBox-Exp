@@ -927,6 +927,7 @@ export class Synth {
 		this.isPlayingSong = false;
 		this.isRecording = false;
 		this.preferLowerLatency = false;
+		this.freeAllTones();
 		this.modValues = [];
 		this.nextModValues = [];
 		this.heldMods = [];
@@ -2946,8 +2947,6 @@ export class Synth {
 			throw new Error("Unknown instrument type in computeTone.");
 		}
 
-		const wasFreshlyAllocated = tone.freshlyAllocated;
-
 		if ((tone.atNoteStart && !transition.isSeamless && !tone.forceContinueAtStart) || tone.freshlyAllocated) {
 			tone.reset();
 			instrumentState.envelopeComputer.reset();
@@ -2972,7 +2971,7 @@ export class Synth {
 
 			// Phase offset for custom sampled chips resuming mid-note (INSIDE reset block so it takes effect immediately)
 			const isCustomChip = instrument.type === InstrumentType.chip && Config.chipWaves[instrument.chipWave]?.isCustomSampled;
-			if (wasFreshlyAllocated && isCustomChip && tone.note != null) {
+			if (isCustomChip && tone.note != null) {
 				const partsPerBar = Config.partsPerBeat * song.beatsPerBar;
 				const currentPartInBar = this.beat * Config.partsPerBeat + this.part;
 

@@ -206,8 +206,12 @@ export class KeyboardHandler {
 				if (event.ctrlKey) {
 					host.toggleRecord();
 				} else if (event.shiftKey) {
-					if (host.movePlayheadToMouseTrack() || host.movePlayheadToMousePattern()) {
-						if (!doc.synth.playing) doc.performance.play();
+					const moved = host.movePlayheadToMouseTrack() || host.movePlayheadToMousePattern();
+					if (moved || doc.synth.playing) {
+						if (doc.synth.playing) {
+							doc.synth.pause();
+						}
+						doc.performance.play();
 					}
 					if (Math.floor(doc.synth.playhead) < doc.synth.loopBarStart || Math.floor(doc.synth.playhead) > doc.synth.loopBarEnd) {
 						doc.synth.loopBarStart = -1;
