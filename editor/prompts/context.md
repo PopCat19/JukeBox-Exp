@@ -17,6 +17,7 @@
 - `euclidgen-note-generator.ts` — Generates and applies Euclidean rhythm notes to song patterns
 - `euclidgen-renderer.ts` — Renders SVG visualizations for Euclidean rhythm preview
 - `euclidgen-rhythm-prompt.ts` — Provides dialog for generating Euclidean rhythm patterns
+- `export-midi.ts` — Exports a song to MIDI format
 - `export-prompt.ts` — Provides dialog for exporting songs as audio, MIDI, or URL formats
 - `import-prompt.ts` — Provides dialog for importing songs from URLs, files, or clipboard data
 - `instrument-export-prompt.ts` — Provides dialog for exporting instrument settings as shareable JSON
@@ -33,6 +34,7 @@
 - `song-duration-prompt.ts` — Provides dialog for adjusting song length and loop end bar
 - `song-recovery-prompt.ts` — Provides dialog for browsing and restoring song recovery snapshots
 - `sustain-prompt.ts` — Provides dialog for configuring string sustain type and level
+- `save.ts` — Triggers a browser file download from a Blob
 - `theme-prompt.ts` — Provides dialog for selecting editor color theme
 - `tip-prompt.ts` — Provides dialog displaying usage tips and keyboard shortcuts
 - `visual-loop-controls-handle.ts` — Draggable canvas handle for waveform loop point visualization
