@@ -2947,6 +2947,9 @@ export class Synth {
 			throw new Error("Unknown instrument type in computeTone.");
 		}
 
+		let customSampleNeedsPhaseRestore: boolean = false;
+		let customSamplePartsPassed: number = 0;
+		let customSampleFirstOffset: number = 0;
 		if ((tone.atNoteStart && !transition.isSeamless && !tone.forceContinueAtStart) || tone.freshlyAllocated) {
 			tone.reset();
 			instrumentState.envelopeComputer.reset();
@@ -2974,53 +2977,17 @@ export class Synth {
 			if (isCustomChip && tone.note != null) {
 				const partsPerBar = Config.partsPerBeat * song.beatsPerBar;
 				const currentPartInBar = this.beat * Config.partsPerBeat + this.part;
-
-				let noteStartAbsolutePart: number;
-
-				const shouldApplyOffset =
-					(tone.forceContinueAtStart && tone.noteStartBar !== this.bar) || (currentPartInBar > tone.noteStartPart && tone.noteStartBar === this.bar);
-
-				if (shouldApplyOffset) {
-					if (tone.forceContinueAtStart && tone.noteStartBar !== this.bar) {
-						noteStartAbsolutePart = tone.noteStartBar * partsPerBar + tone.noteStartPart;
-					} else {
-						noteStartAbsolutePart = this.bar * partsPerBar + tone.noteStartPart;
-					}
-				} else {
-					noteStartAbsolutePart = this.bar * partsPerBar + tone.noteStartPart;
-				}
-
 				const currentAbsolutePart = this.bar * partsPerBar + currentPartInBar;
+				const noteStartAbsolutePart =
+					tone.forceContinueAtStart && tone.noteStartBar !== this.bar
+						? tone.noteStartBar * partsPerBar + tone.noteStartPart
+						: this.bar * partsPerBar + tone.noteStartPart;
 				const partsPassed = currentAbsolutePart - noteStartAbsolutePart;
-
 				if (partsPassed > 0) {
-					let noteDurationParts = tone.noteEndPart - tone.noteStartPart;
-					if (tone.note.continuesLastPattern) {
-						let checkBar = this.bar;
-						let checkNote: Note | null = tone.note;
-						while (checkNote != null && checkNote.continuesLastPattern) {
-							const nextPattern = song.getPattern(channelIndex, checkBar + 1);
-							if (nextPattern != null && nextPattern.notes.length > 0) {
-								const firstNote = nextPattern.notes[0];
-								if (firstNote != null && Synth.adjacentNotesHaveMatchingPitches(checkNote, firstNote)) {
-									noteDurationParts += partsPerBar;
-									checkBar++;
-									checkNote = firstNote;
-								} else {
-									break;
-								}
-							} else {
-								break;
-							}
-						}
-					}
-
-					if (noteDurationParts > 0) {
-						const phaseOffset = (partsPassed % noteDurationParts) / noteDurationParts;
-						for (let i = 0; i < Config.maxPitchOrOperatorCount; i++) {
-							tone.phases[i] = (tone.phases[i] + phaseOffset) % 1.0;
-						}
-					}
+					const chipWaveLength = Config.rawRawChipWaves[instrument.chipWave].samples.length - 1;
+					customSampleNeedsPhaseRestore = true;
+					customSamplePartsPassed = partsPassed;
+					customSampleFirstOffset = instrument.chipWaveStartOffset / chipWaveLength;
 				}
 			}
 		}
@@ -3776,7 +3743,14 @@ export class Synth {
 				tone.phaseDeltas[0] = startFreq * sampleTime;
 				tone.phaseDeltaScales[0] = basePhaseDeltaScale;
 			}
-
+			if (customSampleNeedsPhaseRestore) {
+				const _el = customSamplePartsPassed * Config.ticksPerPart * samplesPerTick;
+				for (let i = 0; i < Config.maxPitchOrOperatorCount; i++) {
+					if (tone.phaseDeltas[i] > 0) {
+						tone.phases[i] = (customSampleFirstOffset + _el * tone.phaseDeltas[i]) % 1.0;
+					}
+				}
+			}
 			// TODO: make expressionStart and expressionEnd variables earlier and modify those
 			// instead of these supersawExpression variables.
 			let supersawExpressionStart: number = 1.0;
