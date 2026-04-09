@@ -4145,6 +4145,12 @@ export function fromJsonObjectImpl(song: SongLike, jsonObject: any, jsonFormat: 
 				jsonFormat = "jummbox";
 			}
 		}
+
+		if (jsonObject["format"] === "JukeboxExp") {
+			// Treat as jukebox after stripping exp-only fields.
+			delete jsonObject["_expVersion"];
+			jsonFormat = "jukebox";
+		}
 	}
 
 	const format: string = (jsonFormat === "auto" ? jsonObject["format"] : jsonFormat).toLowerCase();
