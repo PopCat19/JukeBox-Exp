@@ -30,6 +30,7 @@ export class Tone {
 	public forceContinueAtEnd: boolean = false;
 	public noteStartPart: number = 0;
 	public noteEndPart: number = 0;
+	public noteStartBar: number = 0;
 	public ticksSinceReleased: number = 0;
 	public liveInputSamplesHeld: number = 0;
 	public lastInterval: number = 0;

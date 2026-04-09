@@ -2428,6 +2428,7 @@ export class Synth {
 					tone.note = notes[mod];
 					tone.noteStartPart = notes[mod]!.start;
 					tone.noteEndPart = notes[mod]!.end;
+					tone.noteStartBar = this.bar;
 					tone.prevNote = prevNoteForThisInstrument;
 					tone.nextNote = nextNoteForThisInstrument;
 					tone.prevNotePitchIndex = 0;
@@ -2510,9 +2511,12 @@ export class Synth {
 					let forceContinueAtEnd: boolean = false;
 					let tonesInPrevNote: number = 0;
 					let tonesInNextNote: number = 0;
+					// When starting playback mid-song, prevBar may be null even though we need to detect continue-prev.
+					// Determine effective previous bar for continue detection.
+					const effectivePrevBar: number | null = this.prevBar != null ? this.prevBar : this.bar > 0 ? this.bar - 1 : null;
 					if (note.start === 0) {
 						// If the beginning of the note coincides with the beginning of the pattern,
-						const prevPattern: Pattern | null = this.prevBar == null ? null : song.getPattern(channelIndex, this.prevBar);
+						const prevPattern: Pattern | null = effectivePrevBar == null ? null : song.getPattern(channelIndex, effectivePrevBar);
 						if (prevPattern != null) {
 							const lastNote: Note | null = prevPattern.notes.length <= 0 ? null : prevPattern.notes[prevPattern.notes.length - 1];
 							if (lastNote != null && lastNote.end === partsPerBar) {
@@ -2610,6 +2614,24 @@ export class Synth {
 						tone.note = note;
 						tone.noteStartPart = note.start;
 						tone.noteEndPart = note.end;
+						let originBar = this.bar;
+						if (forceContinueAtStart && prevNoteForThisInstrument != null) {
+							// When starting mid-song, prevBar may not be set (it's only set during playback transitions).
+							// In that case, start searching from bar - 1, or 0 if already at bar 0.
+							let searchBar = this.prevBar != null ? this.prevBar : Math.max(0, this.bar - 1);
+							let searchNote: Note = note;
+							while (searchBar != null && searchBar >= 0) {
+								const prevPattern = song.getPattern(channelIndex, searchBar);
+								if (prevPattern == null) break;
+								const lastNoteInPrev = prevPattern.notes[prevPattern.notes.length - 1];
+								if (lastNoteInPrev == null || lastNoteInPrev.end < partsPerBar) break;
+								if (!searchNote.continuesLastPattern || !Synth.adjacentNotesHaveMatchingPitches(lastNoteInPrev, searchNote)) break;
+								originBar = searchBar;
+								searchNote = lastNoteInPrev;
+								searchBar = searchBar - 1;
+							}
+						}
+						tone.noteStartBar = originBar;
 						tone.prevNote = prevNoteForThisInstrument;
 						tone.nextNote = nextNoteForThisInstrument;
 						tone.prevNotePitchIndex = 0;
@@ -2701,6 +2723,24 @@ export class Synth {
 							tone.note = noteForThisTone;
 							tone.noteStartPart = noteStartPart;
 							tone.noteEndPart = noteEndPart;
+							let originBar = this.bar;
+							if (forceContinueAtStart && prevNoteForThisTone != null) {
+								// When starting mid-song, prevBar may not be set (it's only set during playback transitions).
+								// In that case, start searching from bar - 1, or 0 if already at bar 0.
+								let searchBar = this.prevBar != null ? this.prevBar : Math.max(0, this.bar - 1);
+								let searchNote: Note = noteForThisTone;
+								while (searchBar != null && searchBar >= 0) {
+									const prevPattern = song.getPattern(channelIndex, searchBar);
+									if (prevPattern == null) break;
+									const lastNoteInPrev = prevPattern.notes[prevPattern.notes.length - 1];
+									if (lastNoteInPrev == null || lastNoteInPrev.end < partsPerBar) break;
+									if (!searchNote.continuesLastPattern || !Synth.adjacentNotesHaveMatchingPitches(lastNoteInPrev, searchNote)) break;
+									originBar = searchBar;
+									searchNote = lastNoteInPrev;
+									searchBar = searchBar - 1;
+								}
+							}
+							tone.noteStartBar = originBar;
 							tone.prevNote = prevNoteForThisTone;
 							tone.nextNote = nextNoteForThisTone;
 							tone.prevNotePitchIndex = i;
@@ -2906,6 +2946,8 @@ export class Synth {
 			throw new Error("Unknown instrument type in computeTone.");
 		}
 
+		const wasFreshlyAllocated = tone.freshlyAllocated;
+
 		if ((tone.atNoteStart && !transition.isSeamless && !tone.forceContinueAtStart) || tone.freshlyAllocated) {
 			tone.reset();
 			instrumentState.envelopeComputer.reset();
@@ -2927,6 +2969,61 @@ export class Synth {
 				}
 			}
 			// advloop addition
+
+			// Phase offset for custom sampled chips resuming mid-note (INSIDE reset block so it takes effect immediately)
+			const isCustomChip = instrument.type === InstrumentType.chip && Config.chipWaves[instrument.chipWave]?.isCustomSampled;
+			if (wasFreshlyAllocated && isCustomChip && tone.note != null) {
+				const partsPerBar = Config.partsPerBeat * song.beatsPerBar;
+				const currentPartInBar = this.beat * Config.partsPerBeat + this.part;
+
+				let noteStartAbsolutePart: number;
+
+				const shouldApplyOffset =
+					(tone.forceContinueAtStart && tone.noteStartBar !== this.bar) || (currentPartInBar > tone.noteStartPart && tone.noteStartBar === this.bar);
+
+				if (shouldApplyOffset) {
+					if (tone.forceContinueAtStart && tone.noteStartBar !== this.bar) {
+						noteStartAbsolutePart = tone.noteStartBar * partsPerBar + tone.noteStartPart;
+					} else {
+						noteStartAbsolutePart = this.bar * partsPerBar + tone.noteStartPart;
+					}
+				} else {
+					noteStartAbsolutePart = this.bar * partsPerBar + tone.noteStartPart;
+				}
+
+				const currentAbsolutePart = this.bar * partsPerBar + currentPartInBar;
+				const partsPassed = currentAbsolutePart - noteStartAbsolutePart;
+
+				if (partsPassed > 0) {
+					let noteDurationParts = tone.noteEndPart - tone.noteStartPart;
+					if (tone.note.continuesLastPattern) {
+						let checkBar = this.bar;
+						let checkNote: Note | null = tone.note;
+						while (checkNote != null && checkNote.continuesLastPattern) {
+							const nextPattern = song.getPattern(channelIndex, checkBar + 1);
+							if (nextPattern != null && nextPattern.notes.length > 0) {
+								const firstNote = nextPattern.notes[0];
+								if (firstNote != null && Synth.adjacentNotesHaveMatchingPitches(checkNote, firstNote)) {
+									noteDurationParts += partsPerBar;
+									checkBar++;
+									checkNote = firstNote;
+								} else {
+									break;
+								}
+							} else {
+								break;
+							}
+						}
+					}
+
+					if (noteDurationParts > 0) {
+						const phaseOffset = (partsPassed % noteDurationParts) / noteDurationParts;
+						for (let i = 0; i < Config.maxPitchOrOperatorCount; i++) {
+							tone.phases[i] = (tone.phases[i] + phaseOffset) % 1.0;
+						}
+					}
+				}
+			}
 		}
 		tone.freshlyAllocated = false;
 
