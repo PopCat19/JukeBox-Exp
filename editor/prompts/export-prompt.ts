@@ -8,6 +8,11 @@
 
 // Copyright (c) 2012-2022 John Nesky and contributing authors, distributed under the MIT license, see accompanying the LICENSE.md file.
 
+import {
+	toLegacyCompatJson,
+	toJukeboxExpJson,
+} from "../../synth/formats";
+
 import { HTML } from "imperative-html/dist/esm/elements-strict";
 import { ColorConfig } from "../../shared/color-config";
 import { Synth } from "../../synth";
@@ -100,6 +105,8 @@ export class ExportPrompt extends BasePrompt {
 		option({ value: "opus" }, "Export to .opus file."),
 		option({ value: "midi" }, "Export to .mid file."),
 		option({ value: "json" }, "Export to .json file."),
+		option({ value: "json-exp" }, "Export to .json file (JukeboxExp)."),
+		option({ value: "json-legacy" }, "Export to .json file (legacy forks)."),
 		option({ value: "html" }, "Export to .html file."),
 	);
 	private readonly _removeWhitespace: HTMLInputElement = input({ type: "checkbox" });
@@ -222,7 +229,10 @@ export class ExportPrompt extends BasePrompt {
 	};
 
 	private _updateWarnings = (): void => {
-		this._removeWhitespaceDiv.style.display = this._formatSelect.value === "json" ? "block" : "none";
+		this._removeWhitespaceDiv.style.display =
+			["json", "json-exp", "json-legacy"].includes(this._formatSelect.value)
+				? "block"
+				: "none";
 		const showOgg = this._formatSelect.value === "ogg" || this._formatSelect.value === "opus";
 		this._oggWarning.style.display = showOgg ? "block" : "none";
 	};
@@ -278,6 +288,14 @@ export class ExportPrompt extends BasePrompt {
 			case "json":
 				this.outputStarted = true;
 				this._exportToJson();
+				break;
+			case "json-exp":
+				this.outputStarted = true;
+				this._exportToJsonExp();
+				break;
+			case "json-legacy":
+				this.outputStarted = true;
+				this._exportToJsonLegacy();
 				break;
 			case "html":
 				this._exportToHtml();
@@ -820,6 +838,32 @@ export class ExportPrompt extends BasePrompt {
 			this._removeWhitespace.checked ? undefined : "\t",
 		);
 		save(new Blob([json], { type: "application/json" }), this._fileName.value.trim() + ".json");
+		this._close();
+	}
+
+	private _exportToJsonExp(): void {
+		const json = JSON.stringify(
+			toJukeboxExpJson(this._doc.song),
+			null,
+			this._removeWhitespace.checked ? undefined : "\t",
+		);
+		save(
+			new Blob([json], { type: "application/json" }),
+			this._fileName.value.trim() + ".json",
+		);
+		this._close();
+	}
+
+	private _exportToJsonLegacy(): void {
+		const json = JSON.stringify(
+			toLegacyCompatJson(toJukeboxExpJson(this._doc.song)),
+			null,
+			this._removeWhitespace.checked ? undefined : "\t",
+		);
+		save(
+			new Blob([json], { type: "application/json" }),
+			this._fileName.value.trim() + ".json",
+		);
 		this._close();
 	}
 
