@@ -1255,7 +1255,7 @@ html {
 }
 .beepboxEditor select {
 	margin: 0;
-	padding: 0 var(--padding-4);
+	padding: 0 var(--padding-6);
 	display: block;
 	height: var(--button-size);
 	border: none;
