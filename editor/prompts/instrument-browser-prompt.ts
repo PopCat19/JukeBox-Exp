@@ -731,7 +731,7 @@ export class InstrumentBrowserPrompt extends BasePrompt {
 			}
 			this._applySelection();
 			event.preventDefault();
-			event.stopPropagation();
+			event.stopImmediatePropagation();
 		} else if (event.keyCode === 40) {
 			this._activePane = "presets";
 			const maxIdx = this._getActivePresetCount() - 1;
@@ -866,6 +866,7 @@ export class InstrumentBrowserPrompt extends BasePrompt {
 					this._applySelection();
 				}
 				event.preventDefault();
+				event.stopImmediatePropagation();
 				break;
 			case 8:
 			case 46:

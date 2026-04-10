@@ -957,6 +957,8 @@ export class PatternEditor {
 	private _whenMousePressed = (event: MouseEvent): void => {
 		event.preventDefault();
 		const boundingRect: ClientRect = this._svg.getBoundingClientRect();
+		this._editorWidth = this.container.clientWidth;
+		this._editorHeight = this.container.clientHeight;
 		this._mouseX = (((event.clientX ?? event.pageX) - boundingRect.left) * this._editorWidth) / (boundingRect.right - boundingRect.left);
 		this._mouseY = (((event.clientY ?? event.pageY) - boundingRect.top) * this._editorHeight) / (boundingRect.bottom - boundingRect.top);
 		if (isNaN(this._mouseX)) this._mouseX = 0;
@@ -970,6 +972,8 @@ export class PatternEditor {
 	private _whenTouchPressed = (event: TouchEvent): void => {
 		event.preventDefault();
 		const boundingRect: ClientRect = this._svg.getBoundingClientRect();
+		this._editorWidth = this.container.clientWidth;
+		this._editorHeight = this.container.clientHeight;
 		this._mouseX = ((event.touches[0].clientX - boundingRect.left) * this._editorWidth) / (boundingRect.right - boundingRect.left);
 		this._mouseY = ((event.touches[0].clientY - boundingRect.top) * this._editorHeight) / (boundingRect.bottom - boundingRect.top);
 		if (isNaN(this._mouseX)) this._mouseX = 0;

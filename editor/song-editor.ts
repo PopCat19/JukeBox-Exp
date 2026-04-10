@@ -2518,6 +2518,17 @@ export class SongEditor implements ModSliderProvider, MenuHandlerHost, DrumsetSe
 	constructor(/*private _doc: SongDocument*/) {
 		this._keyboardHandler = new KeyboardHandler(this);
 		this._dispatch = new ChangeDispatcher(this);
+
+		this.mainLayer.addEventListener("pointerup", (e) => {
+			if ((e.target as HTMLElement).matches("input[type=range]")) {
+				this.mainLayer.focus();
+			}
+		});
+		this.mainLayer.addEventListener("touchend", (e) => {
+			if ((e.target as HTMLElement).matches("input[type=range]")) {
+				this.mainLayer.focus();
+			}
+		});
 		this._promptFocusController = new PromptFocusController({
 			isDraggingPrompt: () => this._draggingPrompt,
 			getFocusedPrompt: () => this._focusedPrompt,
