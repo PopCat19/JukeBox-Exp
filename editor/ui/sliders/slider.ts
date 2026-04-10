@@ -45,6 +45,7 @@ export class Slider {
 		this._oldValue = oldValue;
 		this._change = this._getChange(oldValue, newValue);
 		this._doc.record(this._change);
+		this._doc.notifier.notifyWatchers();
 		this._change = null;
 	};
 
