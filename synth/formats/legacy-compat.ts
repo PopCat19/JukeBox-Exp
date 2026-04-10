@@ -22,28 +22,23 @@ const LEGACY_TARGET_VERSION = 4;
 // }
 
 function stripExpMeta(draft: Record<string, unknown>): void {
-  delete draft["_expVersion"];
+	delete draft["_expVersion"];
 }
 
-export function toLegacyCompatJson(
-  expObj: JukeboxExpObject,
-): LegacyCompatObject {
-  const draft: Record<string, unknown> = structuredClone(expObj);
+export function toLegacyCompatJson(expObj: JukeboxExpObject): LegacyCompatObject {
+	const draft: Record<string, unknown> = structuredClone(expObj);
 
-  // Apply strip policies — one per exp feature group.
-  stripExpMeta(draft);
-  // stripGranularSynth(draft);
+	// Apply strip policies — one per exp feature group.
+	stripExpMeta(draft);
+	// stripGranularSynth(draft);
 
-  draft["format"] = LEGACY_TARGET_FORMAT;
-  draft["version"] = LEGACY_TARGET_VERSION;
+	draft["format"] = LEGACY_TARGET_FORMAT;
+	draft["version"] = LEGACY_TARGET_VERSION;
 
-  return draft as LegacyCompatObject;
+	return draft as LegacyCompatObject;
 }
 
 // Convenience: load a legacy-stripped export directly into a SongLike.
-export function fromLegacyCompatJson(
-  song: SongLike,
-  obj: LegacyCompatObject,
-): void {
-  fromJsonObjectImpl(song, obj, "jukebox");
+export function fromLegacyCompatJson(song: SongLike, obj: LegacyCompatObject): void {
+	fromJsonObjectImpl(song, obj, "jukebox");
 }

@@ -12,8 +12,24 @@ export { ChannelState } from "./channel-state";
 // Layer 5: Channels
 export { Channel } from "./channels";
 export { EnvelopeComputer } from "./envelope-computer";
+export type {
+	FormatId,
+	JukeboxExpFields,
+	JukeboxExpObject,
+	LegacyCompatObject,
+} from "./formats";
+// Layer 1b: Format variants
+export {
+	fromJukeboxExpJson,
+	fromLegacyCompatJson,
+	isJukeboxExpObject,
+	JUKEBOX_EXP_FORMAT,
+	JUKEBOX_EXP_LATEST_VERSION,
+	JUKEBOX_EXP_OLDEST_VERSION,
+	toJukeboxExpJson,
+	toLegacyCompatJson,
+} from "./formats";
 export { InstrumentState } from "./instrument-state";
-
 // Layer 4: Instruments
 export {
 	CustomAlgorithm,
@@ -44,23 +60,6 @@ export {
 	encodeUnisonSettings,
 	SongTagCode,
 } from "./serialization";
-// Layer 1b: Format variants
-export {
-	fromJukeboxExpJson,
-	fromLegacyCompatJson,
-	isJukeboxExpObject,
-	JUKEBOX_EXP_FORMAT,
-	JUKEBOX_EXP_LATEST_VERSION,
-	JUKEBOX_EXP_OLDEST_VERSION,
-	toLegacyCompatJson,
-	toJukeboxExpJson,
-} from "./formats";
-export type {
-	FormatId,
-	JukeboxExpFields,
-	JukeboxExpObject,
-	LegacyCompatObject,
-} from "./formats";
 // Layer 6: Song
 export { Song } from "./song";
 export { getNeededBits } from "./song-serialization";

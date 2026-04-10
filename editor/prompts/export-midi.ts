@@ -2,6 +2,10 @@
 //
 // Purpose: Exports a song to MIDI format
 
+import { Synth } from "../../synth";
+import { Song } from "../../synth/song";
+import { Config, getArpeggioPitchIndex, InstrumentType } from "../../synth/synth-config";
+import { EditorConfig } from "../config/editor-config";
 import {
 	defaultMidiExpression,
 	defaultMidiPitchBend,
@@ -15,11 +19,7 @@ import {
 	volumeMultToMidiExpression,
 	volumeMultToMidiVolume,
 } from "../io/midi";
-import { Config, getArpeggioPitchIndex, InstrumentType } from "../../synth/synth-config";
-import { EditorConfig } from "../config/editor-config";
 import { ArrayBufferWriter } from "../ui/array-buffer-writer";
-import { Synth } from "../../synth";
-import { Song } from "../../synth/song";
 import { save } from "./save";
 
 function lerp(low: number, high: number, t: number): number {
@@ -30,13 +30,7 @@ const midiTicksPerBeat = 2 * Config.ticksPerPart * Config.partsPerBeat;
 
 const midiChipInstruments: number[] = [0x4a, 0x47, 0x50, 0x46, 0x44, 0x51, 0x51, 0x51, 0x51];
 
-export function exportToMidi(
-	song: Song,
-	fileName: string,
-	enableIntro: boolean,
-	loopCount: number,
-	enableOutro: boolean,
-): void {
+export function exportToMidi(song: Song, fileName: string, enableIntro: boolean, loopCount: number, enableOutro: boolean): void {
 	const microsecondsPerBeat = Math.round(60000000 / song.getBeatsPerMinute());
 	const unrolledBars: number[] = [];
 	if (enableIntro) for (let i = 0; i < song.loopStart; i++) unrolledBars.push(i);
@@ -153,8 +147,7 @@ export function exportToMidi(
 					if (preset?.midiProgram !== undefined) prog = preset.midiProgram;
 					else if (instr.type === InstrumentType.drumset) prog = 116;
 					else if (instr.type === InstrumentType.noise || instr.type === InstrumentType.spectrum) prog = track.isNoise ? 116 : 75;
-					else if (instr.type === InstrumentType.chip && midiChipInstruments.length > instr.chipWave)
-						prog = midiChipInstruments[instr.chipWave];
+					else if (instr.type === InstrumentType.chip && midiChipInstruments.length > instr.chipWave) prog = midiChipInstruments[instr.chipWave];
 					else if (instr.type === InstrumentType.pickedString)
 						prog = 0x19; // steel guitar
 					else if (
