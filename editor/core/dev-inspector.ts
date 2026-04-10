@@ -129,22 +129,37 @@ function deepestElementAtPoint(x: number, y: number): Element | null {
 	const els = document.elementsFromPoint(x, y);
 	if (els.length === 0) return null;
 
-	for (let i = 0; i < els.length; i++) {
-		const el = els[i];
+	const inspectorNodes = new Set<Element>([
+		...(overlay ? [overlay] : []),
+		...(outlineOverlay ? [outlineOverlay] : []),
+		...(depthLabel ? [depthLabel] : []),
+		...boxOverlays,
+	]);
+	const filtered = els.filter((e) => !inspectorNodes.has(e));
+	if (filtered.length === 0) return null;
+
+	// Prefer elements inside an active prompt over background canvas elements
+	const promptEl = filtered.find((e) => e.closest(".prompt, .promptContainer"));
+	if (promptEl) return promptEl;
+
+	const htmlEl = filtered.find((e) => !(e instanceof SVGElement));
+
+	for (let i = 0; i < filtered.length; i++) {
+		const el = filtered[i];
 		if (el instanceof SVGSVGElement) {
 			const child = findSvgChildAtPoint(x, y, el);
 			if (child && child !== el) return child;
-			// SVG has no child at point, check for HTML elements underneath
-			for (let j = i + 1; j < els.length; j++) {
-				if (!(els[j] instanceof SVGElement) && els[j] !== document.body && els[j] !== document.documentElement) {
-					return els[j];
+			for (let j = i + 1; j < filtered.length; j++) {
+				if (!(filtered[j] instanceof SVGElement) && filtered[j] !== document.body && filtered[j] !== document.documentElement) {
+					return filtered[j];
 				}
 			}
-			return el;
+			return htmlEl ?? el;
 		}
 	}
 
-	return els[0];
+	// If first element is a non-root SVG element (e.g. <rect>), prefer HTML
+	return htmlEl ?? filtered[0];
 }
 
 function depthColor(d: number): string {
