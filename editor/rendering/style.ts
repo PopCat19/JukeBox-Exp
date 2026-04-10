@@ -268,7 +268,7 @@ document.head.appendChild(
 
 
 html {
-	scrollbar-color: var(--scrollbar-color, ${ColorConfig.uiWidgetBackground}) var(--scrollbar-background, ${ColorConfig.editorBackground});
+	scrollbar-color: var(--scrollbar-color, ${ColorConfig.uiWidgetBackground}) transparent;
 }
 
 .obtrusive-scrollbars, .obtrusive-scrollbars * {
@@ -278,11 +278,11 @@ html {
 	width: 12px;
 }
 .obtrusive-scrollbars::-webkit-scrollbar-track, .obtrusive-scrollbars *::-webkit-scrollbar-track {
-	background: ${ColorConfig.editorBackground};
+	background: transparent;
 }
 .obtrusive-scrollbars::-webkit-scrollbar-thumb, .obtrusive-scrollbars *::-webkit-scrollbar-thumb {
 	background-color: ${ColorConfig.uiWidgetBackground};
-	border: 3px solid ${ColorConfig.editorBackground};
+	border: 3px solid transparent;
 }
 
 .beepboxEditor {
