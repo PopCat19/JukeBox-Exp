@@ -16,7 +16,6 @@ import { SongDocument } from "../song-document";
 import { flexPane, inputRow, instructions, paneContainer, searchInput, tagChip } from "../ui";
 import { tabButton } from "../ui/buttons/tab-button";
 import { TagListItem } from "../ui/chips/tag-list-item";
-import { scrollableContainer } from "../ui/containers";
 import { BasePrompt } from "./base-prompt";
 
 const { button, div, h2, span } = HTML;
@@ -66,7 +65,6 @@ export class InstrumentBrowserPrompt extends BasePrompt {
 	private _tagSelectedIndex: number = 0;
 	private _tagColumns: number = 4;
 	private _tagContainer: HTMLDivElement;
-	private _tagGridContainer: HTMLDivElement;
 	private _tagSearchInput: HTMLInputElement;
 	private _tagClearButton: HTMLButtonElement;
 	private _tagKeyboardNavigated: boolean = false;
@@ -167,14 +165,20 @@ export class InstrumentBrowserPrompt extends BasePrompt {
 
 		this._tagSearchInput = searchInput("Filter tags...");
 		this._tagClearButton = button({ class: "tagClearButton" }, "Clear");
-		this._tagContainer = scrollableContainer(`display: grid; grid-template-columns: repeat(${this._tagColumns}, 1fr); gap: 4px; max-height: 380px;`);
+		this._tagContainer = flexPane({ padding: "8px" });
+		this._tagContainer.style.display = "grid";
+		this._tagContainer.style.gridTemplateColumns = `repeat(${this._tagColumns}, 1fr)`;
+		this._tagContainer.style.gap = "4px";
+		this._tagContainer.style.maxHeight = "380px";
+		this._tagContainer.style.border = "2px solid var(--ui-widget-background)";
+		this._tagContainer.style.borderRadius = "8px";
 
-		this._tagGridContainer = div({ class: "tagGridContainer" }, this._tagContainer);
+		this._tagContainer.classList.add("tagGridContainer");
 
 		this._tagsTabContent = div(
 			{ class: "tabContent tagsTabContent" },
 			inputRow({}, this._tagSearchInput, this._tagClearButton),
-			this._tagGridContainer,
+			this._tagContainer,
 			div(
 				{ style: `font-size: ${Typography.sizeSm}; color: var(--secondary-text); text-align: center;` },
 				"Click or Enter to toggle | Arrow keys to navigate | ESC to close",
@@ -184,7 +188,7 @@ export class InstrumentBrowserPrompt extends BasePrompt {
 		this._tagsTabContent = div(
 			{ class: "tabContent tagsTabContent" },
 			inputRow({}, this._tagSearchInput, this._tagClearButton),
-			this._tagGridContainer,
+			this._tagContainer,
 			div(
 				{ style: `font-size: ${Typography.sizeSm}; color: var(--secondary-text); text-align: center;` },
 				"Click or Enter to toggle | Arrow keys to navigate | ESC to close",
