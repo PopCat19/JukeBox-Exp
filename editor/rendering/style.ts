@@ -32,7 +32,6 @@ document.head.appendChild(
 :root {
 	--button-size: 26px;
 	--settings-area-width: 192px;
-	--border-radius-small: 4px;
 	--border-radius-medium: 8px;
 	--border-radius-large: 16px;
 	--padding-2: 2px;
@@ -1260,7 +1259,7 @@ html {
 	display: block;
 	height: var(--button-size);
 	border: none;
-	border-radius: var(--border-radius-small);
+	border-radius: var(--border-radius-medium);
 	background: ${ColorConfig.uiWidgetBackground};
 	color: inherit;
 	font-size: inherit;
@@ -1411,7 +1410,7 @@ html {
 	position: relative;
 	height: var(--button-size);
 	border: none;
-	border-radius: var(--border-radius-small);
+	border-radius: var(--border-radius-medium);
 	background: ${ColorConfig.uiWidgetBackground};
 	color: inherit;
 	font-size: inherit;
