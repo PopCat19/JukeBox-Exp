@@ -610,7 +610,7 @@ export class EnvelopeSettings {
 
 		let envelope: Envelope = Config.envelopes.dictionary["none"];
 		let isTremolo2: boolean = false;
-		if (format === "slarmoosbox") {
+		if (format === "slarmoosbox" || format === "jukebox") {
 			if (envelopeObject["envelope"] === "tremolo2") {
 				envelope = Config.newEnvelopes[EnvelopeType.lfo];
 				isTremolo2 = true;
@@ -1467,7 +1467,8 @@ export class Instrument {
 				format === "goldbox" ||
 				format === "paandorasbox" ||
 				format === "ultrabox" ||
-				format === "slarmoosbox"
+				format === "slarmoosbox" ||
+				format === "jukebox"
 			) {
 				this.volume = clamp(-Config.volumeRange / 2, Config.volumeRange / 2 + 1, instrumentObject["volume"] | 0);
 			} else {
