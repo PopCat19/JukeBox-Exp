@@ -299,7 +299,7 @@ export class EnvelopeEditor {
 				}
 			} else if (this.openExtraSettingsDropdowns[i]) {
 				this.extraSettingsDropdownGroups[i].style.display = "flex";
-				this.extraSettingsDropdowns[i].style.display = "inline";
+				this.extraSettingsDropdowns[i].style.display = "flex";
 				this.updateSpeedDisplay(i);
 
 				if (Config.newEnvelopes[instrument.envelopes[i].envelope].name === "pitch") {
@@ -346,9 +346,9 @@ export class EnvelopeEditor {
 					// hide other dropdown groups, show perEnvelopeSpeed
 					this.perEnvelopeSpeedGroups[i].style.display = isRandomTime ? "" : "none";
 					this.extraSettingsDropdownGroups[i].style.display = "flex";
-					this.extraSettingsDropdowns[i].style.display = "inline";
+					this.extraSettingsDropdowns[i].style.display = "flex";
 					this.extraPitchSettingsGroups[i].style.display = "none";
-					this.extraRandomSettingsGroups[i].style.display = "";
+					this.extraRandomSettingsGroups[i].style.display = "flex";
 					this.extraLFODropdownGroups[i].style.display = "none";
 				} else if (Config.newEnvelopes[instrument.envelopes[i].envelope].name === "lfo") {
 					// update values
@@ -363,10 +363,10 @@ export class EnvelopeEditor {
 					}
 
 					// hide other dropdown groups, show lfo settings and speed
-					this.extraLFODropdownGroups[i].style.display = "";
+					this.extraLFODropdownGroups[i].style.display = "flex";
 					this.perEnvelopeSpeedGroups[i].style.display = "flex";
 					this.extraSettingsDropdownGroups[i].style.display = "flex";
-					this.extraSettingsDropdowns[i].style.display = "inline";
+					this.extraSettingsDropdowns[i].style.display = "flex";
 					this.extraPitchSettingsGroups[i].style.display = "none";
 					this.extraRandomSettingsGroups[i].style.display = "none";
 				} else {
@@ -395,7 +395,7 @@ export class EnvelopeEditor {
 			} else if (this.openExtraSettingsDropdowns[i] === false) {
 				this.extraSettingsDropdownGroups[i].style.display = "none";
 				this.extraPitchSettingsGroups[i].style.display = "none";
-				this.extraSettingsDropdowns[i].style.display = "inline";
+				this.extraSettingsDropdowns[i].style.display = "flex";
 				this.perEnvelopeSpeedGroups[i].style.display = "none";
 			} else {
 				if (this.extraSettingsDropdowns[i]) {
@@ -1046,7 +1046,7 @@ export class EnvelopeEditor {
 		}
 
 		for (let envelopeIndex: number = this._renderedEnvelopeCount; envelopeIndex < instrument.envelopeCount; envelopeIndex++) {
-			this._rows[envelopeIndex].style.display = "";
+			this._rows[envelopeIndex].style.display = "flex";
 			// For newly visible rows, update target option visibiliy.
 			this._updateTargetOptionVisibility(this._targetSelects[envelopeIndex], instrument);
 		}
