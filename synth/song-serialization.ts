@@ -4026,6 +4026,7 @@ export function fromBase64StringImpl(song: SongLike, compressed: string, jsonFor
 	}
 
 	if (Config.willReloadForCustomSamples) {
+		window.sessionStorage.setItem("resetBarOnLoad", "1");
 		window.location.hash = song.toBase64String();
 		setTimeout(() => {
 			location.reload();
@@ -4528,6 +4529,7 @@ export function fromJsonObjectImpl(song: SongLike, jsonObject: any, jsonFormat: 
 	Array.prototype.push.apply(song.channels, newModChannels);
 
 	if (Config.willReloadForCustomSamples) {
+		window.sessionStorage.setItem("resetBarOnLoad", "1");
 		window.location.hash = song.toBase64String();
 		// The prompt seems to get stuck if reloading is done too quickly.
 		setTimeout(() => {

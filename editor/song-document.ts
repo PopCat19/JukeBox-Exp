@@ -131,6 +131,14 @@ export class SongDocument {
 		window.addEventListener("popstate", this._whenHistoryStateChanged);
 
 		this.bar = state.bar | 0;
+		if (window.sessionStorage.getItem("resetBarOnLoad") === "1") {
+			window.sessionStorage.removeItem("resetBarOnLoad");
+			this.bar = 0;
+			this.channel = 0;
+			this.viewedInstrument[0] = 0;
+			this.barScrollPos = 0;
+			this.channelScrollPos = 0;
+		}
 		this.channel = state.channel | 0;
 		for (let i: number = 0; i <= this.channel; i++) this.viewedInstrument[i] = 0;
 		this.viewedInstrument[this.channel] = state.instrument | 0;
@@ -252,7 +260,7 @@ export class SongDocument {
 			const state: HistoryState = {
 				canUndo: true,
 				sequenceNumber: this._sequenceNumber,
-				bar: this.bar,
+				bar: 0,
 				channel: this.channel,
 				instrument: this.viewedInstrument[this.channel],
 				recoveryUid: this._recoveryUid,
@@ -269,10 +277,10 @@ export class SongDocument {
 				this._pushState(state, this.song.toBase64String());
 			}
 			this.forgetLastChange();
-			this._cleanDocumentDeferred();
-			// Stop playing, and go to start when pasting new song in.
 			this.synth.pause();
 			this.synth.goToBar(0);
+			this.notifier.changed();
+			this._cleanDocumentDeferred();
 			return;
 		}
 

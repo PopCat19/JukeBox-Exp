@@ -99,7 +99,9 @@ export class ImportPrompt extends BasePrompt {
 				this._showLoading();
 				this._doc.prompt = null;
 				requestAnimationFrame(() => {
+					this._doc.goBackToStart();
 					this._doc.record(new ChangeSong(this._doc, <string>reader.result, this._modeImportSelect.value), false, true);
+					this._doc.notifier.notifyWatchers();
 				});
 			});
 			reader.readAsText(file);
@@ -927,5 +929,6 @@ export class ImportPrompt extends BasePrompt {
 		for (const channel of this._doc.song.channels) channel.muted = false;
 		this._doc.prompt = null;
 		this._doc.record(new ChangeImportMidi(this._doc), false, true);
+		this._doc.notifier.notifyWatchers();
 	}
 }
