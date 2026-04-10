@@ -12,7 +12,7 @@ import { HTML } from "imperative-html/dist/esm/elements-strict";
 import { ChangePreset } from "../changes";
 import { EditorConfig, fullTagList, Preset, PresetCategory } from "../config/editor-config";
 import { SongDocument } from "../song-document";
-import { fixedPane, flexPane, inputRow, instructions, paneContainer, searchInput, sectionLabel, tagChip } from "../ui";
+import { flexPane, inputRow, instructions, paneContainer, searchInput, tagChip } from "../ui";
 import { tabButton } from "../ui/buttons/tab-button";
 import { TagListItem } from "../ui/chips/tag-list-item";
 import { scrollableContainer } from "../ui/containers";
@@ -104,12 +104,13 @@ export class InstrumentBrowserPrompt extends BasePrompt {
 			style: "display: none; flex-direction: column; gap: 4px; padding: 4px 8px; font-size: 11px; color: var(--secondary-text); border: 2px solid var(--ui-widget-background); border-radius: 8px; margin-top: 4px;",
 		});
 
-		this._categoryList = fixedPane("180px", { padding: "8px" });
+		this._categoryList = flexPane({ padding: "8px" });
 		this._categoryList.className = "categoryListPane";
 		this._categoryList.style.transition = "opacity 0.15s";
-		this._categoryList.style.display = "flex";
-		this._categoryList.style.flexDirection = "column";
+		this._categoryList.style.display = "grid";
+		this._categoryList.style.gridTemplateColumns = "1fr 1fr";
 		this._categoryList.style.gap = "8px";
+		this._categoryList.style.alignContent = "start";
 		this._categoryList.addEventListener("mouseenter", () => {
 			this._lastInteraction = "hover";
 			this._hoveredPane = "categories";
@@ -137,22 +138,16 @@ export class InstrumentBrowserPrompt extends BasePrompt {
 			this._updateHighlight();
 		});
 
-		this._infoPanel = fixedPane("180px", { padding: "8px" });
+		this._infoPanel = div({ style: "display: flex; flex-direction: column; gap: 4px; font-size: 12px; color: var(--secondary-text);" });
 		this._infoPanel.className = "infoPanelPane";
-		this._infoPanel.style.fontSize = "12px";
-		this._infoPanel.style.color = "var(--secondary-text)";
-		this._infoPanel.style.lineHeight = "1.5";
-		this._infoPanel.style.display = "flex";
-		this._infoPanel.style.flexDirection = "column";
-		this._infoPanel.style.gap = "8px";
 
-		const paneContainerEl = paneContainer({ height: "400px" }, this._categoryList, this._presetList, this._infoPanel);
+		const paneContainerEl = paneContainer({ height: "400px" }, this._categoryList, this._presetList);
 		paneContainerEl.className = "presetPaneContainer";
 		paneContainerEl.className = "presetPaneContainer";
 
 		const instructionsDiv = instructions("Arrow keys: navigate | Enter / Right / Double click: commit | Tab: switch pane | #: tags | ESC: close");
 
-		this._presetsTabContent = div({ class: "tabContent presetsTabContent" }, inputRowEl, paneContainerEl, instructionsDiv, this._tagBanner);
+		this._presetsTabContent = div({ class: "tabContent presetsTabContent" }, inputRowEl, paneContainerEl, this._infoPanel, instructionsDiv, this._tagBanner);
 
 		this._tagSearchInput = searchInput("Filter tags...");
 		this._tagClearButton = button({ class: "tagClearButton" }, "Clear");
@@ -566,7 +561,13 @@ export class InstrumentBrowserPrompt extends BasePrompt {
 		const totalStr = String(total).padStart(2, "0");
 		const posStr = String(displayPresetIndex + 1).padStart(2, "0");
 		this._infoPanel.textContent = "";
-		const catCol = div({}, div({ style: "color: var(--primary-text); font-size: 13px; word-break: break-word; margin-bottom: 4px;" }, catName));
+		const topRow = div({ style: "display: flex; flex-direction: row; gap: 0; align-items: stretch; width: 100%; box-sizing: border-box; border: 2px solid var(--ui-widget-background); border-radius: 0.5rem; overflow: hidden;" });
+		const tagsRow = div({ style: "display: flex; flex-direction: row; flex-wrap: wrap; gap: 4px; align-items: center; width: 100%; box-sizing: border-box; border: 2px solid var(--ui-widget-background); border-radius: 0.5rem; padding: 8px;" });
+
+		const catCol = span({ style: "display: inline-flex; align-items: center; gap: 4px;" },
+			span({ style: "font-size: 12px; font-weight: 700;" }, "Category:"),
+			span({ style: "color: var(--primary-text); font-size: 12px;" }, catName)
+		);
 		if (this._isSearchMode) {
 			const goBtn = button(
 				{
@@ -583,21 +584,27 @@ export class InstrumentBrowserPrompt extends BasePrompt {
 					this._navigateToCategory(catIdx);
 				}
 			});
-			catCol.appendChild(goBtn);
+			topRow.appendChild(goBtn);
 		}
-		this._infoPanel.appendChild(div({}, sectionLabel("Category"), catCol));
-		this._infoPanel.appendChild(
-			div({}, sectionLabel("Preset"), div({ style: "color: var(--primary-text); font-size: 13px; word-break: break-word;" }, preset.name)),
-		);
-		this._infoPanel.appendChild(
-			div({}, sectionLabel("Position"), div({ style: "color: var(--primary-text); font-size: 13px;" }, `${posStr} / ${totalStr}`)),
-		);
+		const cell = (content: HTMLElement) =>
+			div({ style: "flex: 1; display: flex; align-items: center; gap: 4px; padding: 8px; border-right: 2px solid var(--ui-widget-background);" }, content);
+		const lastCell = (content: HTMLElement) =>
+			div({ style: "flex: 1; display: flex; align-items: center; gap: 4px; padding: 8px;" }, content);
+
+		const pill = (label: string, value: string) =>
+			span({ style: "display: inline-flex; align-items: center; gap: 4px;" },
+				span({ style: "font-size: 12px; font-weight: 700;" }, `${label}:`),
+				span({ style: "color: var(--primary-text); font-size: 12px;" }, value),
+			);
+		topRow.appendChild(cell(catCol));
+		topRow.appendChild(cell(pill("Preset", preset.name)));
+		topRow.appendChild(lastCell(pill("Position", `${posStr} / ${totalStr}`)));
 		if (this._isSearchMode) {
-			this._infoPanel.appendChild(div({}, sectionLabel("Results"), div({ style: "color: var(--primary-text); font-size: 13px;" }, `${total} matching`)));
+			topRow.appendChild(lastCell(pill("Results", `${total} matching`)));
 		}
 		const fullPreset = EditorConfig.valueToPreset(preset.value);
 		if (fullPreset && fullPreset.tags && fullPreset.tags.length > 0) {
-			const tagsDiv = div({}, sectionLabel("Tags"));
+			tagsRow.appendChild(span({ style: "font-size: 12px; font-weight: 700;" }, "Tags:"));
 			for (const tag of fullPreset.tags) {
 				const tagEl = tagChip(tag, false);
 				tagEl.addEventListener("mousedown", (e: MouseEvent) => {
@@ -618,9 +625,8 @@ export class InstrumentBrowserPrompt extends BasePrompt {
 					this._highlightTagSelected();
 					this._updateTagClearButton();
 				});
-				tagsDiv.appendChild(tagEl);
+				tagsRow.appendChild(tagEl);
 			}
-			this._infoPanel.appendChild(tagsDiv);
 		}
 		if (this._activeTags.length > 0) {
 			this._tagBanner.style.display = "flex";
@@ -662,6 +668,10 @@ export class InstrumentBrowserPrompt extends BasePrompt {
 			this._infoPanel.appendChild(this._tagBanner);
 		} else {
 			this._tagBanner.style.display = "none";
+		}
+		this._infoPanel.appendChild(topRow);
+		if (fullPreset && fullPreset.tags && fullPreset.tags.length > 0) {
+			this._infoPanel.appendChild(tagsRow);
 		}
 	}
 
