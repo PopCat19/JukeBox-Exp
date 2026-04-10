@@ -13,8 +13,8 @@ import { ColorConfig } from "../../shared/color-config";
 import { FilterSettings } from "../../synth";
 import { Config } from "../../synth/synth-config";
 import { FilterEditor } from "../components/filter-editor";
+import { PromptEditorRefs } from "../core/prompt-manager";
 import { SongDocument } from "../song-document";
-import { SongEditor } from "../song-editor";
 import { selectorButton } from "../ui";
 import { BasePrompt } from "./base-prompt";
 import { updatePlayButton } from "./input-helpers";
@@ -103,7 +103,7 @@ export class CustomFilterPrompt extends BasePrompt {
 
 	constructor(
 		doc: SongDocument,
-		private _songEditor: SongEditor,
+		private _songEditor: PromptEditorRefs,
 		private _useNoteFilter: boolean,
 		private forSong: boolean = false,
 	) {

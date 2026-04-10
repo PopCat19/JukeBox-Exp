@@ -12,8 +12,8 @@ import { Instrument } from "../../synth";
 import { ChipWave, Config, SampleLoadingStatus, sampleLoadingState } from "../../synth/synth-config";
 import { ChangeChipWaveLoopEnd, ChangeChipWaveLoopMode, ChangeChipWaveLoopStart, ChangeChipWavePlayBackwards, ChangeChipWaveStartOffset } from "../changes";
 import { ChangeGroup } from "../core/change";
+import { PromptEditorRefs } from "../core/prompt-manager";
 import { SongDocument } from "../song-document";
-import { SongEditor } from "../song-editor";
 import { addWheelSupport } from "../ui";
 import { BasePrompt } from "./base-prompt";
 import { VisualLoopControlsHandle } from "./visual-loop-controls-handle";
@@ -25,7 +25,7 @@ export class VisualLoopControlsPrompt extends BasePrompt {
 	private readonly _waveformCanvasHeight: number = 200;
 	private readonly _handleCanvasHeight: number = 20;
 
-	private readonly _songEditor: SongEditor;
+	private readonly _songEditor: PromptEditorRefs;
 	private _instrument: Instrument | null = null;
 	private _waveformData: Float32Array | null = null;
 	private _waveformDataLength: number | null = null;
@@ -319,7 +319,7 @@ export class VisualLoopControlsPrompt extends BasePrompt {
 		this._cancelButton,
 	);
 
-	constructor(doc: SongDocument, songEditor: SongEditor) {
+	constructor(doc: SongDocument, songEditor: PromptEditorRefs) {
 		super(doc);
 		this.buildTitlebar();
 		this._songEditor = songEditor;

@@ -9,8 +9,8 @@
 
 import { HTML, SVG } from "imperative-html/dist/esm/elements-strict";
 import { ColorConfig } from "../../shared/color-config";
+import { PromptEditorRefs } from "../core/prompt-manager";
 import { SongDocument } from "../song-document";
-import { SongEditor } from "../song-editor";
 import { BasePrompt } from "./base-prompt";
 
 const { div, h2, h3, span, button } = HTML;
@@ -178,7 +178,7 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 
 	constructor(
 		doc: SongDocument,
-		private _songEditor: SongEditor,
+		private _songEditor: PromptEditorRefs,
 	) {
 		super(doc);
 		this.buildTitlebar();

@@ -15,16 +15,6 @@ import { BarScrollBar } from "./components/bar-scroll-bar";
 import { Shiggy } from "./components/shiggy-component";
 import { EditorConfig, isMobile } from "./config/editor-config";
 import { Change } from "./core/change";
-import { BeatsPerBarPrompt } from "./prompts/beats-per-bar-prompt";
-import { ChannelSettingsPrompt } from "./prompts/channel-settings-prompt";
-import { ChannelVolumeVisualizerPrompt } from "./prompts/channel-volume-visualizer-prompt";
-import { CustomChipPrompt } from "./prompts/custom-chip-prompt";
-import { CustomFilterPrompt } from "./prompts/custom-filter-prompt";
-import { EuclidgenRhythmPrompt } from "./prompts/euclidgen-rhythm-prompt";
-import { ExportPrompt } from "./prompts/export-prompt";
-import { InstrumentExportPrompt } from "./prompts/instrument-export-prompt";
-import { InstrumentImportPrompt } from "./prompts/instrument-import-prompt";
-import { OctaveCountPrompt } from "./prompts/octave-count-prompt";
 import "./ui/layout/layout"; // Imported here for the sake of ensuring this code is transpiled early.
 import { HTML, SVG } from "imperative-html/dist/esm/elements-strict";
 import { oscilloscopeCanvas } from "../shared/oscilloscope";
@@ -65,12 +55,11 @@ import { EffectsPanel } from "./components/effects-panel";
 import { EnvelopeEditor } from "./components/envelope-editor";
 import { FadeInOutEditor } from "./components/fade-in-out-editor";
 import { FilterEditor } from "./components/filter-editor";
-import { HarmonicsEditor, HarmonicsEditorPrompt } from "./components/harmonics-editor";
+import { HarmonicsEditor } from "./components/harmonics-editor";
 import { MenuBar } from "./components/menu-bar";
 import { OctaveScrollBar } from "./components/octave-scroll-bar";
 import { PlaybackControls } from "./components/playback-controls";
 import { SongSettingsPanel } from "./components/song-settings-panel";
-import { SpectrumEditorPrompt } from "./components/spectrum-editor";
 import { KeyboardLayout } from "./config/keyboard-layout";
 import { ChangeDispatcher } from "./core/change-dispatcher";
 import { DrumsetSetup, DrumsetSetupHost } from "./core/drumset-setup";
@@ -82,28 +71,11 @@ import { ModSliderProvider, ModSliderRegistry } from "./core/mod-slider-registry
 import { ModulatorSetup, ModulatorSetupHost } from "./core/modulator-setup";
 import { PlayerAnimator } from "./core/player-animator";
 import { Preferences } from "./core/preferences";
-import { PromptFocusController } from "./core/prompt-focus-controller";
+import { PromptEditorRefs, PromptHost, PromptManager } from "./core/prompt-manager";
 import { TagAutocomplete } from "./core/tag-autocomplete";
 import { MidiInputHandler } from "./io/midi-input";
-import { AddSamplesPrompt } from "./prompts/add-samples-prompt";
-import { CustomScalePrompt } from "./prompts/custom-scale-prompt";
-import { CustomThemePrompt } from "./prompts/custom-theme-prompt";
-import { ImportPrompt } from "./prompts/import-prompt";
-import { InstrumentBrowserPrompt } from "./prompts/instrument-browser-prompt";
-import { KeyboardShortcutsPrompt } from "./prompts/keyboard-shortcuts-prompt";
-import { LayoutPrompt } from "./prompts/layout-prompt";
-import { LimiterPrompt } from "./prompts/limiter-prompt";
-import { MoveNotesSidewaysPrompt } from "./prompts/move-notes-sideways-prompt";
+import { CustomChipPrompt } from "./prompts/custom-chip-prompt";
 import { Prompt } from "./prompts/prompt";
-import { RecordingSetupPrompt } from "./prompts/recording-setup-prompt";
-import { SampleLoadingStatusPrompt } from "./prompts/sample-loading-status-prompt";
-import { ShortenerConfigPrompt } from "./prompts/shortener-config-prompt";
-import { SongDurationPrompt } from "./prompts/song-duration-prompt";
-import { SongRecoveryPrompt } from "./prompts/song-recovery-prompt";
-import { SustainPrompt } from "./prompts/sustain-prompt";
-import { ThemePrompt } from "./prompts/theme-prompt";
-import { TipPrompt } from "./prompts/tip-prompt";
-import { VisualLoopControlsPrompt } from "./prompts/visual-loop-controls-prompt";
 import { applyInstrumentVisibility, InstrumentVisibilityRefs } from "./renderers/instrument-visibility";
 import { renderEffectsSelect } from "./renderers/render-effects";
 import { InstrumentValueRefs, renderInstrumentValues } from "./renderers/render-instrument-values";
@@ -133,9 +105,19 @@ const { button, div, input, select, span, optgroup, option, canvas } = HTML;
 import { CustomAlgorithmCanvas } from "./rendering/custom-algorithm-canvas";
 import { CustomChipCanvas } from "./rendering/custom-chip-canvas";
 
-export class SongEditor implements ModSliderProvider, MenuHandlerHost, DrumsetSetupHost, FmOperatorSetupHost, ModulatorSetupHost, EventListenerSetupHost {
+export class SongEditor
+	implements
+		ModSliderProvider,
+		MenuHandlerHost,
+		DrumsetSetupHost,
+		FmOperatorSetupHost,
+		ModulatorSetupHost,
+		EventListenerSetupHost,
+		PromptHost,
+		PromptEditorRefs
+{
 	public get prompt(): Prompt | null {
-		return this._focusedPrompt;
+		return this._promptManager.prompt;
 	}
 
 	public doc: SongDocument = new SongDocument();
@@ -1771,18 +1753,14 @@ export class SongEditor implements ModSliderProvider, MenuHandlerHost, DrumsetSe
 		this._promptContainer,
 	);
 
-	private _wasPlaying: boolean = false;
-	private _prompts: Prompt[] = [];
-	private _focusedPrompt: Prompt | null = null;
-	private _promptFocusController: PromptFocusController;
-	private _draggingPrompt: boolean = false;
+	private readonly _promptManager: PromptManager = new PromptManager(this, this);
 	private _highlightedInstrumentIndex: number = -1;
 	private _lastPrompt: string | null = null;
 
 	private _onDocPromptChange = (): void => {
 		if (this.doc.prompt !== this._lastPrompt) {
 			this._lastPrompt = this.doc.prompt;
-			this._setPrompt(this._lastPrompt);
+			this._promptManager.sync(this._lastPrompt);
 		}
 	};
 
@@ -2529,16 +2507,6 @@ export class SongEditor implements ModSliderProvider, MenuHandlerHost, DrumsetSe
 				this.mainLayer.focus();
 			}
 		});
-		this._promptFocusController = new PromptFocusController({
-			isDraggingPrompt: () => this._draggingPrompt,
-			getFocusedPrompt: () => this._focusedPrompt,
-			setFocusedPrompt: (p) => {
-				this._focusedPrompt = p;
-			},
-			updatePromptFocus: () => this._updatePromptFocus(),
-			refocusSongEditor: () => this.refocusStage(),
-			isInPromptContainer: (el) => el !== null && this._promptContainer.contains(el),
-		});
 		this._animator = new PlayerAnimator(this.doc, {
 			modSliderUpdate: () => this._modSliderUpdate(),
 			getCtrlHeld: () => this._ctrlHeld,
@@ -3059,7 +3027,7 @@ export class SongEditor implements ModSliderProvider, MenuHandlerHost, DrumsetSe
 			return;
 		}
 		this.doc.openPrompt(promptName);
-		this._setPrompt(promptName);
+		this._promptManager.open(promptName);
 	}
 
 	public openPresetSelector(): void {
@@ -3068,356 +3036,20 @@ export class SongEditor implements ModSliderProvider, MenuHandlerHost, DrumsetSe
 			return;
 		}
 		this.doc.prompt = "instrumentBrowser";
-		this._setPrompt("instrumentBrowser");
+		this._promptManager.open("instrumentBrowser");
 	}
 
 	public openShortcuts(): void {
 		this.doc.prompt = "keyboardShortcuts";
-		this._setPrompt("keyboardShortcuts");
+		this._promptManager.sync("keyboardShortcuts");
 	}
-
-	private _promptPositions: Map<string, { x: number; y: number }> = new Map();
 
 	public closePrompt(prompt: Prompt | null): void {
-		if (prompt == null) {
-			prompt = this._focusedPrompt || this._prompts[this._prompts.length - 1];
-		}
-		if (prompt) {
-			const index = this._prompts.indexOf(prompt);
-			if (index !== -1) {
-				this._prompts.splice(index, 1);
-				const doRemove = () => {
-					this._promptContainer.removeChild(prompt.container);
-					prompt.cleanUp();
-				};
-				if (prompt.animateExit) {
-					prompt.animateExit(doRemove);
-				} else {
-					prompt.container.classList.add("exiting");
-					prompt.container.addEventListener("animationend", doRemove, { once: true });
-				}
-				if (this._focusedPrompt === prompt) {
-					this._focusedPrompt = this._prompts[this._prompts.length - 1] || null;
-					this._updatePromptFocus();
-				}
-
-				// Sync doc.prompt to the new focus, but don't trigger _onDocPromptChange for this close
-				const nextPromptName = this._focusedPrompt ? this._focusedPrompt.name! : null;
-				this.doc.prompt = nextPromptName;
-				this._lastPrompt = nextPromptName;
-				this.doc.notifier.changed();
-			}
-		}
-		if (this._prompts.length === 0 && prompt != null) {
-			this._promptFocusController.detachAll();
-			setTimeout(() => {
-				this._promptContainer.style.display = "none";
-			}, 150);
-			if (this._wasPlaying) {
-				this.doc.performance.play();
-			}
-			this._wasPlaying = false;
-			this.refocusStage();
-		}
-	}
-
-	private _updatePromptFocus(): void {
-		const activeEl = document.activeElement;
-		const wasInPrompt = this._promptContainer.contains(activeEl);
-		for (const p of this._prompts) {
-			p.container.style.boxShadow = "none";
-			if (this.doc.prefs.showPromptBackdrop) {
-				p.container.style.setProperty("--prompt-backdrop-filter", "blur(14px) brightness(0.9)");
-				p.container.style.background = "rgba(0, 0, 0, 0.4)";
-			} else {
-				p.container.style.removeProperty("--prompt-backdrop-filter");
-				p.container.style.removeProperty("--prompt-bg-color");
-				p.container.style.background = "";
-				p.container.style.opacity = "";
-			}
-
-			if (p === this._focusedPrompt) {
-				p.container.classList.add("focused");
-				if (this._promptContainer.lastElementChild !== p.container) {
-					this._promptContainer.appendChild(p.container);
-				}
-			} else {
-				p.container.classList.remove("focused");
-			}
-		}
-		if (wasInPrompt && activeEl instanceof HTMLElement && !this._promptContainer.contains(document.activeElement)) {
-			(activeEl as HTMLElement).focus({ preventScroll: true });
-		}
-	}
-
-	private _setPrompt(promptName: string | null): void {
-		if (promptName == null) {
-			this.closePrompt(null);
-			return;
-		}
-
-		// Only one instance of a specific prompt at a time.
-		const existing = this._prompts.find((p) => p.name === promptName);
-		if (existing) {
-			this._focusedPrompt = existing;
-			this._updatePromptFocus();
-			return;
-		}
-
-		let newPrompt: Prompt | null = null;
-		switch (promptName) {
-			case "export":
-				newPrompt = new ExportPrompt(this.doc);
-				break;
-			case "import":
-				newPrompt = new ImportPrompt(this.doc);
-				break;
-			case "songRecovery":
-				newPrompt = new SongRecoveryPrompt(this.doc);
-				break;
-			case "barCount":
-				newPrompt = new SongDurationPrompt(this.doc);
-				break;
-			case "beatsPerBar":
-				newPrompt = new BeatsPerBarPrompt(this.doc);
-				break;
-			case "octaves":
-				newPrompt = new OctaveCountPrompt(this.doc);
-				break;
-			case "moveNotesSideways":
-				newPrompt = new MoveNotesSidewaysPrompt(this.doc);
-				break;
-			case "channelSettings":
-				newPrompt = new ChannelSettingsPrompt(this.doc);
-				break;
-			case "channelVolumeVisualizer":
-				newPrompt = new ChannelVolumeVisualizerPrompt(this.doc, this);
-				break;
-			case "limiterSettings":
-				newPrompt = new LimiterPrompt(this.doc, this);
-				break;
-			case "customScale":
-				newPrompt = new CustomScalePrompt(this.doc);
-				break;
-			case "customChipSettings":
-				newPrompt = new CustomChipPrompt(this.doc, this);
-				break;
-			case "customEQFilterSettings":
-				newPrompt = new CustomFilterPrompt(this.doc, this, false);
-				break;
-			case "customNoteFilterSettings":
-				newPrompt = new CustomFilterPrompt(this.doc, this, true);
-				break;
-			case "customSongEQFilterSettings":
-				newPrompt = new CustomFilterPrompt(this.doc, this, false, true);
-				break;
-			case "theme":
-				newPrompt = new ThemePrompt(this.doc);
-				break;
-			case "layout":
-				newPrompt = new LayoutPrompt(this.doc);
-				break;
-			case "recordingSetup":
-				newPrompt = new RecordingSetupPrompt(this.doc);
-				break;
-			case "exportInstrument":
-				newPrompt = new InstrumentExportPrompt(this.doc);
-				break;
-			case "importInstrument":
-				newPrompt = new InstrumentImportPrompt(this.doc);
-				break;
-			case "stringSustain":
-				newPrompt = new SustainPrompt(this.doc);
-				break;
-			case "addExternal":
-				newPrompt = new AddSamplesPrompt(this.doc);
-				break;
-			case "generateEuclideanRhythm":
-				newPrompt = new EuclidgenRhythmPrompt(this.doc);
-				break;
-			case "customTheme":
-				newPrompt = new CustomThemePrompt(this.doc, this._patternEditor, this._trackArea, document.getElementById("beepboxEditorContainer")!);
-				break;
-			case "visualLoopControls":
-				newPrompt = new VisualLoopControlsPrompt(this.doc, this);
-				break;
-			case "sampleLoadingStatus":
-				newPrompt = new SampleLoadingStatusPrompt(this.doc);
-				break;
-			case "configureShortener":
-				newPrompt = new ShortenerConfigPrompt(this.doc);
-				break;
-			case "harmonicsSettings":
-				newPrompt = new HarmonicsEditorPrompt(this.doc, this);
-				break;
-			case "spectrumSettings":
-				newPrompt = new SpectrumEditorPrompt(this.doc, this, false);
-				break;
-			case "drumsetSettings":
-				newPrompt = new SpectrumEditorPrompt(this.doc, this, true);
-				break;
-			case "instrumentBrowser":
-				newPrompt = new InstrumentBrowserPrompt(this.doc, "presets");
-				break;
-			case "instrumentTags":
-				newPrompt = new InstrumentBrowserPrompt(this.doc, "tags");
-				break;
-			case "keyboardShortcuts":
-				newPrompt = new KeyboardShortcutsPrompt(this.doc);
-				break;
-			default:
-				newPrompt = new TipPrompt(this.doc, promptName);
-				break;
-		}
-
-		if (newPrompt) {
-			newPrompt.name = promptName;
-			newPrompt.closeCallback = (p) => this.closePrompt(p);
-			newPrompt.openAlongsideCallback = (name) => this._setPrompt(name);
-			this._prompts.push(newPrompt);
-			this._focusedPrompt = newPrompt;
-			this._updatePromptFocus();
-
-			if (this._prompts.length === 1) {
-				if (
-					!(
-						newPrompt instanceof TipPrompt ||
-						newPrompt instanceof LimiterPrompt ||
-						newPrompt instanceof CustomChipPrompt ||
-						newPrompt instanceof CustomFilterPrompt ||
-						newPrompt instanceof VisualLoopControlsPrompt ||
-						newPrompt instanceof SustainPrompt ||
-						newPrompt instanceof HarmonicsEditorPrompt ||
-						newPrompt instanceof SpectrumEditorPrompt ||
-						newPrompt instanceof InstrumentBrowserPrompt ||
-						newPrompt instanceof KeyboardShortcutsPrompt ||
-						newPrompt instanceof ChannelVolumeVisualizerPrompt
-					)
-				) {
-					this._wasPlaying = this.doc.synth.playing;
-					this.doc.performance.pause();
-				}
-			}
-
-			this._promptContainer.style.display = "";
-
-			this._promptContainer.appendChild(newPrompt.container);
-
-			newPrompt.container.classList.add("entering");
-			newPrompt.container.addEventListener("animationend", () => newPrompt.container.classList.remove("entering"), { once: true });
-
-			const savedPos = this._promptPositions.get(promptName);
-			if (savedPos) {
-				const applyPosition = () => {
-					if (!this._prompts.includes(newPrompt!)) return;
-					const rect = newPrompt!.container.getBoundingClientRect();
-					const containerWidth = this.mainLayer.clientWidth;
-					const containerHeight = this.mainLayer.clientHeight;
-
-					let x = savedPos.x;
-					let y = savedPos.y;
-
-					if (x + rect.width > containerWidth) {
-						x = Math.max(0, containerWidth - rect.width);
-					}
-					if (y + rect.height > containerHeight) {
-						y = Math.max(0, containerHeight - rect.height);
-					}
-					if (x < 0) {
-						x = 0;
-					}
-					if (y < 0) {
-						y = 0;
-					}
-
-					newPrompt!.container.style.left = x + "px";
-					newPrompt!.container.style.top = y + "px";
-					this._promptPositions.set(promptName, { x, y });
-				};
-
-				if (newPrompt.container.clientWidth > 0) {
-					applyPosition();
-				} else {
-					requestAnimationFrame(applyPosition);
-				}
-			} else {
-				const centerPrompt = () => {
-					if (!this._prompts.includes(newPrompt!)) return;
-					const rect = newPrompt!.container.getBoundingClientRect();
-					const containerWidth = this.mainLayer.clientWidth;
-					const containerHeight = this.mainLayer.clientHeight;
-					const x = Math.max(0, Math.min((containerWidth - rect.width) / 2, containerWidth - rect.width));
-					const y = Math.max(0, Math.min((containerHeight - rect.height) / 2, containerHeight - rect.height));
-					newPrompt!.container.style.left = x + "px";
-					newPrompt!.container.style.top = y + "px";
-					this._promptPositions.set(promptName, { x, y });
-				};
-				if (newPrompt.container.clientWidth > 0) {
-					centerPrompt();
-				} else {
-					requestAnimationFrame(centerPrompt);
-				}
-			}
-
-			this._promptFocusController.attachPrompt(newPrompt);
-
-			if ((<Prompt>newPrompt).buildTitlebar) (<Prompt>newPrompt).buildTitlebar!();
-
-			const cancelButton: HTMLElement | null = newPrompt.container.querySelector(".cancelButton");
-			if (cancelButton) {
-				cancelButton.addEventListener("click", () => {
-					this.closePrompt(newPrompt);
-				});
-			}
-
-			// Dragging logic
-			newPrompt.container.addEventListener("mousedown", (e: Event) => {
-				const mouseEvent = e as MouseEvent;
-				if (
-					mouseEvent.target instanceof HTMLInputElement ||
-					mouseEvent.target instanceof HTMLButtonElement ||
-					mouseEvent.target instanceof HTMLSelectElement ||
-					mouseEvent.target instanceof HTMLTextAreaElement ||
-					(mouseEvent.target as HTMLElement).closest(".slider")
-				)
-					return;
-
-				this._draggingPrompt = true;
-				const currentPos = this._promptPositions.get(promptName) || { x: 0, y: 0 };
-				const startX = mouseEvent.clientX - currentPos.x;
-				const startY = mouseEvent.clientY - currentPos.y;
-
-				const onMouseMove = (moveEvent: MouseEvent) => {
-					if (!this._prompts.includes(newPrompt!)) return;
-					const rect = newPrompt!.container.getBoundingClientRect();
-					let x = moveEvent.clientX - startX;
-					let y = moveEvent.clientY - startY;
-
-					x = Math.max(0, Math.min(x, this.mainLayer.clientWidth - rect.width));
-					y = Math.max(0, Math.min(y, this.mainLayer.clientHeight - rect.height));
-
-					newPrompt!.container.style.left = x + "px";
-					newPrompt!.container.style.top = y + "px";
-					this._promptPositions.set(promptName, { x, y });
-				};
-
-				const onMouseUp = () => {
-					this._draggingPrompt = false;
-					document.removeEventListener("mousemove", onMouseMove);
-					document.removeEventListener("mouseup", onMouseUp);
-				};
-
-				document.addEventListener("mousemove", onMouseMove);
-				document.addEventListener("mouseup", onMouseUp);
-			});
-
-			newPrompt.container.setAttribute("tabindex", "-1");
-			newPrompt.container.focus({ preventScroll: true });
-		}
+		this._promptManager.close(prompt);
 	}
 
 	public promptShouldReceiveKeys = (): boolean => {
-		return this._promptFocusController.shouldPromptReceiveKeys(this._focusedPrompt);
+		return this._promptManager.shouldReceiveKeys();
 	};
 
 	public refocusStage = (): void => {
@@ -3469,7 +3101,7 @@ export class SongEditor implements ModSliderProvider, MenuHandlerHost, DrumsetSe
 		const prefs: Preferences = this.doc.prefs;
 		renderLayout(this._layoutRefs, this.doc);
 
-		this._repositionOutOfBoundsPrompts();
+		this._promptManager.repositionOutOfBounds();
 
 		renderOptionsMenu(this._optionsMenu, prefs, this.doc.song.scale);
 		const textOnIcon: string = ColorConfig.getComputed("--text-enabled-icon");
@@ -3515,9 +3147,9 @@ export class SongEditor implements ModSliderProvider, MenuHandlerHost, DrumsetSe
 
 			if (getCapabilities(instrument.type).hasCustomWaveEditor) {
 				this._customWaveDrawCanvas.redrawCanvas();
-				const chipPrompt = this._prompts.find((p) => p instanceof CustomChipPrompt);
-				if (chipPrompt) {
-					(chipPrompt as CustomChipPrompt).customChipCanvas.render();
+				const chipPrompt = this.prompt;
+				if (chipPrompt instanceof CustomChipPrompt) {
+					chipPrompt.customChipCanvas.render();
 				}
 			}
 
@@ -3527,7 +3159,7 @@ export class SongEditor implements ModSliderProvider, MenuHandlerHost, DrumsetSe
 			renderModSettings(this.doc, colors, prefs, this._modSettingsRefs, this._modSettingsCallbacks);
 		}
 
-		this._setPrompt(this.doc.prompt);
+		this._promptManager.sync(this.doc.prompt);
 
 		renderPostBranchSync(
 			this._postSyncRefs,
@@ -3542,46 +3174,8 @@ export class SongEditor implements ModSliderProvider, MenuHandlerHost, DrumsetSe
 			() => this.refocusStage(),
 			() => this.handleModRecording(),
 		);
+		this._promptManager.repositionOutOfBounds();
 	};
-
-	private _repositionOutOfBoundsPrompts(): void {
-		const containerWidth = this.mainLayer.clientWidth;
-		const containerHeight = this.mainLayer.clientHeight;
-
-		for (const prompt of this._prompts) {
-			const rect = prompt.container.getBoundingClientRect();
-			const savedPos = this._promptPositions.get(prompt.name!);
-
-			if (!savedPos) continue;
-
-			const promptWidth = rect.width;
-			const promptHeight = rect.height;
-
-			let x = savedPos.x;
-			let y = savedPos.y;
-
-			const isOutOfBounds = x < 0 || y < 0 || x + promptWidth > containerWidth || y + promptHeight > containerHeight;
-
-			if (isOutOfBounds) {
-				if (x + promptWidth > containerWidth) {
-					x = Math.max(0, containerWidth - promptWidth);
-				}
-				if (y + promptHeight > containerHeight) {
-					y = Math.max(0, containerHeight - promptHeight);
-				}
-				if (x < 0) {
-					x = 0;
-				}
-				if (y < 0) {
-					y = 0;
-				}
-
-				prompt.container.style.left = x + "px";
-				prompt.container.style.top = y + "px";
-				this._promptPositions.set(prompt.name!, { x, y });
-			}
-		}
-	}
 
 	public handleModRecording(): void {
 		window.clearTimeout(this._modRecTimeout);

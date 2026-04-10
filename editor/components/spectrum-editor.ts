@@ -15,10 +15,10 @@ import { Config } from "../../synth/synth-config";
 import { ChangeSpectrum } from "../changes";
 import { prettyNumber } from "../config/editor-config";
 import { ChangeGroup } from "../core/change";
+import { PromptEditorRefs } from "../core/prompt-manager";
 import { closePrompt, updatePlayButton } from "../prompts/input-helpers";
 import { Prompt } from "../prompts/prompt";
 import { SongDocument } from "../song-document";
-import { SongEditor } from "../song-editor";
 import { selectorButton } from "../ui";
 
 export class SpectrumEditor {
@@ -463,7 +463,7 @@ export class SpectrumEditorPrompt implements Prompt {
 
 	constructor(
 		private _doc: SongDocument,
-		private _songEditor: SongEditor,
+		private _songEditor: PromptEditorRefs,
 		private _isDrumset: boolean,
 	) {
 		this._okayButton.addEventListener("click", this._saveChanges);
@@ -488,7 +488,7 @@ export class SpectrumEditorPrompt implements Prompt {
 		if (this._isDrumset) {
 			for (let i: number = Config.drumCount - 1; i >= 0; i--) {
 				this.spectrumEditors[i] = new SpectrumEditor(this._doc, Config.drumCount - 1 - i, true);
-				this.spectrumEditors[i].setSpectrumWave(this._songEditor._drumsetSpectrumEditors[Config.drumCount - 1 - i].getSpectrumWave().spectrum);
+				this.spectrumEditors[i].setSpectrumWave(this._songEditor.drumsetSpectrumEditors[Config.drumCount - 1 - i].getSpectrumWave().spectrum);
 			}
 			const colors = ColorConfig.getChannelColor(this._doc.song, this._doc.channel);
 			for (let i: number = 0; i < Config.drumCount; i++) {

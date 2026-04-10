@@ -11,8 +11,8 @@
 import { HTML, SVG } from "imperative-html/dist/esm/elements-strict";
 import { ColorConfig } from "../../shared/color-config";
 import { ChangeCustomWave } from "../changes";
+import { PromptEditorRefs } from "../core/prompt-manager";
 import { SongDocument } from "../song-document";
-import { SongEditor } from "../song-editor";
 import { BasePrompt } from "./base-prompt";
 import { updatePlayButton } from "./input-helpers";
 
@@ -336,7 +336,7 @@ export class CustomChipPrompt extends BasePrompt {
 
 	constructor(
 		doc: SongDocument,
-		private _songEditor: SongEditor,
+		private _songEditor: PromptEditorRefs,
 	) {
 		super(doc);
 		this.buildTitlebar();

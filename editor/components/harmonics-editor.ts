@@ -14,10 +14,10 @@ import { HarmonicsWave, Instrument } from "../../synth";
 import { Config } from "../../synth/synth-config";
 import { ChangeHarmonics } from "../changes";
 import { prettyNumber } from "../config/editor-config";
+import { PromptEditorRefs } from "../core/prompt-manager";
 import { closePrompt, updatePlayButton } from "../prompts/input-helpers";
 import { Prompt } from "../prompts/prompt";
 import { SongDocument } from "../song-document";
-import { SongEditor } from "../song-editor";
 
 export class HarmonicsEditor {
 	private readonly _editorWidth: number = 120;
@@ -400,7 +400,7 @@ export class HarmonicsEditorPrompt implements Prompt {
 
 	constructor(
 		private _doc: SongDocument,
-		private _songEditor: SongEditor,
+		private _songEditor: PromptEditorRefs,
 	) {
 		this._okayButton.addEventListener("click", this._saveChanges);
 		this._cancelButton.addEventListener("click", this._close);
