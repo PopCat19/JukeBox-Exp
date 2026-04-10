@@ -60,6 +60,13 @@ import {
 } from "./synth-config";
 import { clamp, convertLegacyKeyToKeyAndOctave, secondsToFadeInSetting, ticksToFadeOutSetting, validateRange } from "./util";
 
+const ENV_PITCH: number = Config.newEnvelopes.dictionary["pitch"].index;
+const ENV_RANDOM: number = Config.newEnvelopes.dictionary["random"].index;
+const ENV_LFO: number = Config.newEnvelopes.dictionary["lfo"].index;
+const ENV_NONE: number = Config.newEnvelopes.dictionary["none"].index;
+const ENV_NOTESIZE: number = Config.newEnvelopes.dictionary["note size"].index;
+const ENV_PUNCH: number = Config.newEnvelopes.dictionary["punch"].index;
+
 const FORMAT: string = Config.jsonFormat;
 const OLDEST_BEEPBOX_VERSION: number = 2;
 const LATEST_BEEPBOX_VERSION: number = 9;
@@ -1016,7 +1023,7 @@ export function toBase64StringImpl(song: SongLike): string {
 				}
 				buffer.push(base64IntToCharCode[instrument.envelopes[envelopeIndex].envelope]);
 				// run pitch envelope handling
-				if (Config.newEnvelopes[instrument.envelopes[envelopeIndex].envelope].name === "pitch") {
+				if (instrument.envelopes[envelopeIndex].envelope === ENV_PITCH) {
 					if (!instrument.isNoiseInstrument) {
 						buffer.push(
 							base64IntToCharCode[instrument.envelopes[envelopeIndex].pitchEnvelopeStart >> 6],
@@ -1031,12 +1038,12 @@ export function toBase64StringImpl(song: SongLike): string {
 						buffer.push(base64IntToCharCode[instrument.envelopes[envelopeIndex].pitchEnvelopeEnd]);
 					}
 					// random
-				} else if (Config.newEnvelopes[instrument.envelopes[envelopeIndex].envelope].name === "random") {
+				} else if (instrument.envelopes[envelopeIndex].envelope === ENV_RANDOM) {
 					buffer.push(base64IntToCharCode[instrument.envelopes[envelopeIndex].steps]);
 					buffer.push(base64IntToCharCode[instrument.envelopes[envelopeIndex].seed]);
 					buffer.push(base64IntToCharCode[instrument.envelopes[envelopeIndex].waveform]);
 					// lfo
-				} else if (Config.newEnvelopes[instrument.envelopes[envelopeIndex].envelope].name === "lfo") {
+				} else if (instrument.envelopes[envelopeIndex].envelope === ENV_LFO) {
 					buffer.push(base64IntToCharCode[instrument.envelopes[envelopeIndex].waveform]);
 					if (
 						instrument.envelopes[envelopeIndex].waveform === LFOEnvelopeTypes.steppedSaw ||
@@ -1051,12 +1058,8 @@ export function toBase64StringImpl(song: SongLike): string {
 				checkboxValues += +instrument.envelopes[envelopeIndex].inverse;
 				buffer.push(base64IntToCharCode[checkboxValues] ? base64IntToCharCode[checkboxValues] : base64IntToCharCode[0]);
 				// midbox envelope port
-				if (
-					Config.newEnvelopes[instrument.envelopes[envelopeIndex].envelope].name !== "pitch" &&
-					Config.newEnvelopes[instrument.envelopes[envelopeIndex].envelope].name !== "note size" &&
-					Config.newEnvelopes[instrument.envelopes[envelopeIndex].envelope].name !== "punch" &&
-					Config.newEnvelopes[instrument.envelopes[envelopeIndex].envelope].name !== "none"
-				) {
+				const envIdx: number = instrument.envelopes[envelopeIndex].envelope;
+				if (envIdx !== ENV_PITCH && envIdx !== ENV_NOTESIZE && envIdx !== ENV_PUNCH && envIdx !== ENV_NONE) {
 					buffer.push(base64IntToCharCode[Config.perEnvelopeSpeedToIndices[instrument.envelopes[envelopeIndex].perEnvelopeSpeed]]);
 				}
 				buffer.push(base64IntToCharCode[instrument.envelopes[envelopeIndex].perEnvelopeLowerBound * 10]);
@@ -3278,19 +3281,19 @@ export function fromBase64StringImpl(song: SongLike, compressed: string, jsonFor
 							let waveform: number = LFOEnvelopeTypes.sine;
 							// pull out unique envelope setting values first, then general ones
 							if (fromJukeBox || (fromSlarmoosBox && !beforeFour)) {
-								if (Config.newEnvelopes[envelope].name === "lfo") {
+								if (envelope === ENV_LFO) {
 									waveform = clamp(0, LFOEnvelopeTypes.length, base64CharCodeToInt[compressed.charCodeAt(charIndex++)]);
 									if (waveform === LFOEnvelopeTypes.steppedSaw || waveform === LFOEnvelopeTypes.steppedTri) {
 										steps = clamp(1, Config.randomEnvelopeStepsMax + 1, base64CharCodeToInt[compressed.charCodeAt(charIndex++)]);
 									}
-								} else if (Config.newEnvelopes[envelope].name === "random") {
+								} else if (envelope === ENV_RANDOM) {
 									steps = clamp(1, Config.randomEnvelopeStepsMax + 1, base64CharCodeToInt[compressed.charCodeAt(charIndex++)]);
 									seed = clamp(1, Config.randomEnvelopeSeedMax + 1, base64CharCodeToInt[compressed.charCodeAt(charIndex++)]);
 									waveform = clamp(0, RandomEnvelopeTypes.length, base64CharCodeToInt[compressed.charCodeAt(charIndex++)]); // we use waveform for the random type as well
 								}
 							}
 							if (fromJukeBox || (fromSlarmoosBox && !beforeThree)) {
-								if (Config.newEnvelopes[envelope].name === "pitch") {
+								if (envelope === ENV_PITCH) {
 									if (!instrument.isNoiseInstrument) {
 										let pitchEnvelopeCompact: number = base64CharCodeToInt[compressed.charCodeAt(charIndex++)];
 										pitchEnvelopeStart = clamp(
@@ -3314,12 +3317,7 @@ export function fromBase64StringImpl(song: SongLike, compressed: string, jsonFor
 									envelopeDiscrete = checkboxValues >> 1 === 1 ? true : false;
 								}
 								envelopeInverse = (checkboxValues & 1) === 1 ? true : false;
-								if (
-									Config.newEnvelopes[envelope].name !== "pitch" &&
-									Config.newEnvelopes[envelope].name !== "note size" &&
-									Config.newEnvelopes[envelope].name !== "punch" &&
-									Config.newEnvelopes[envelope].name !== "none"
-								) {
+								if (envelope !== ENV_PITCH && envelope !== ENV_NOTESIZE && envelope !== ENV_PUNCH && envelope !== ENV_NONE) {
 									perEnvelopeSpeed = Config.perEnvelopeSpeedIndices[base64CharCodeToInt[compressed.charCodeAt(charIndex++)]];
 								}
 								perEnvelopeLowerBound = base64CharCodeToInt[compressed.charCodeAt(charIndex++)] / 10;

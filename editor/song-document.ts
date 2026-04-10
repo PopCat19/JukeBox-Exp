@@ -269,7 +269,7 @@ export class SongDocument {
 				this._pushState(state, this.song.toBase64String());
 			}
 			this.forgetLastChange();
-			this.notifier.notifyWatchers();
+			this._cleanDocumentDeferred();
 			// Stop playing, and go to start when pasting new song in.
 			this.synth.pause();
 			this.synth.goToBar(0);
