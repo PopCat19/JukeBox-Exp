@@ -28,7 +28,7 @@ import { OctaveCountPrompt } from "./prompts/octave-count-prompt";
 import "./ui/layout/layout"; // Imported here for the sake of ensuring this code is transpiled early.
 import { HTML, SVG } from "imperative-html/dist/esm/elements-strict";
 import { oscilloscopeCanvas } from "../shared/oscilloscope";
-import { Channel, getCapabilities, Instrument } from "../synth";
+import { Channel, getCapabilities, Instrument, Pattern } from "../synth";
 import {
 	ChangeArpeggioSpeed,
 	ChangeBitcrusherFreq,
@@ -3794,7 +3794,9 @@ export class SongEditor implements ModSliderProvider, MenuHandlerHost, DrumsetSe
 				const modChannel: Channel = this.doc.song.channels[modChannelIdx];
 				const patternIdx = modChannel.bars[this.doc.bar];
 				if (patternIdx > 0) {
-					const modInstrumentIdx: number = modChannel.patterns[patternIdx - 1].instruments[0];
+					const modPattern: Pattern | undefined = modChannel.patterns[patternIdx - 1];
+					if (modPattern == null) continue;
+					const modInstrumentIdx: number = modPattern.instruments[0];
 					const modInstrument: Instrument = modChannel.instruments[modInstrumentIdx];
 					for (let mod: number = 0; mod < Config.modCount; mod++) {
 						if (
@@ -3829,10 +3831,13 @@ export class SongEditor implements ModSliderProvider, MenuHandlerHost, DrumsetSe
 
 		for (let i: number = 0; i < this.doc.song.barCount; i++) {
 			// Check for this exact instrument in another place, but only count it if it's not within the selection
+			const patternIndex: number = channel.bars[i] - 1;
+			const pattern: Pattern | undefined = channel.patterns[patternIndex];
 			if (
 				channel.bars[i] !== 0 &&
 				channel.bars[i] !== channel.bars[this.doc.bar] &&
-				channel.patterns[channel.bars[i] - 1].instruments.includes(instrumentIndex) &&
+				pattern != null &&
+				pattern.instruments.includes(instrumentIndex) &&
 				i !== this.doc.bar &&
 				(i < lowestSelX || i > highestSelX || this.doc.channel < lowestSelY || this.doc.channel > highestSelY)
 			) {

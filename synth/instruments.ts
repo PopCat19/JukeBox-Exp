@@ -621,7 +621,10 @@ export class EnvelopeSettings {
 				envelope = Config.newEnvelopes.dictionary[envelopeObject["envelope"]];
 			}
 		} else {
-			if (Config.envelopes.dictionary[envelopeObject["envelope"]].type === EnvelopeType.tremolo2) {
+			const oldEnvelope: Envelope | undefined = Config.envelopes.dictionary[envelopeObject["envelope"]];
+			if (oldEnvelope == null) {
+				envelope = Config.newEnvelopes.dictionary["none"];
+			} else if (oldEnvelope.type === EnvelopeType.tremolo2) {
 				envelope = Config.newEnvelopes[EnvelopeType.lfo];
 				isTremolo2 = true;
 			} else if (Config.newEnvelopes[Math.max(Config.envelopes.dictionary[envelopeObject["envelope"]].type - 1, 0)].index > EnvelopeType.lfo) {
@@ -632,7 +635,10 @@ export class EnvelopeSettings {
 		}
 
 		if (envelope === undefined) {
-			if (Config.envelopes.dictionary[envelopeObject["envelope"]].type === EnvelopeType.tremolo2) {
+			const oldEnvelope2: Envelope | undefined = Config.envelopes.dictionary[envelopeObject["envelope"]];
+			if (oldEnvelope2 == null) {
+				envelope = Config.newEnvelopes.dictionary["none"];
+			} else if (oldEnvelope2.type === EnvelopeType.tremolo2) {
 				envelope = Config.newEnvelopes[EnvelopeType.lfo];
 				isTremolo2 = true;
 			} else if (Config.newEnvelopes[Math.max(Config.envelopes.dictionary[envelopeObject["envelope"]].type - 1, 0)].index > EnvelopeType.lfo) {
@@ -667,7 +673,8 @@ export class EnvelopeSettings {
 		if (envelopeObject["perEnvelopeSpeed"] !== undefined) {
 			this.perEnvelopeSpeed = envelopeObject["perEnvelopeSpeed"];
 		} else {
-			this.perEnvelopeSpeed = Config.envelopes.dictionary[envelopeObject["envelope"]].speed;
+			const fallbackEnvelope: Envelope | undefined = Config.envelopes.dictionary[envelopeObject["envelope"]];
+			this.perEnvelopeSpeed = fallbackEnvelope != null ? fallbackEnvelope.speed : 1.0;
 		}
 
 		if (envelopeObject["perEnvelopeLowerBound"] !== undefined) {
