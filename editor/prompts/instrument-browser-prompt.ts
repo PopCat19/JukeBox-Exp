@@ -107,13 +107,13 @@ export class InstrumentBrowserPrompt extends BasePrompt {
 		this._categoryList = flexPane({ padding: "8px" });
 		this._categoryList.className = "categoryListPane";
 		this._categoryList.style.border = "2px solid var(--ui-widget-background)";
-		this._categoryList.style.borderRadius = "0.5rem";
+		this._categoryList.style.borderRadius = "8px";
 		this._categoryList.style.transition = "border-color 0.15s";
 		this._categoryList.style.display = "grid";
 		this._categoryList.style.gridTemplateColumns = "1fr 1fr";
 		this._categoryList.style.gap = "8px";
 		this._categoryList.style.alignContent = "start";
-		this._categoryList.style.borderRadius = "0.5rem";
+		this._categoryList.style.borderRadius = "8px";
 		this._categoryList.addEventListener("mouseenter", () => {
 			this._lastInteraction = "hover";
 			this._hoveredPane = "categories";
@@ -131,7 +131,7 @@ export class InstrumentBrowserPrompt extends BasePrompt {
 		this._presetList.style.gap = "8px";
 		this._presetList.style.alignContent = "start";
 		this._presetList.style.border = "2px solid var(--ui-widget-background)";
-		this._presetList.style.borderRadius = "0.5rem";
+		this._presetList.style.borderRadius = "8px";
 		this._presetList.style.transition = "border-color 0.15s";
 		this._presetList.addEventListener("mouseenter", () => {
 			this._lastInteraction = "hover";
@@ -143,7 +143,7 @@ export class InstrumentBrowserPrompt extends BasePrompt {
 			this._updateHighlight();
 		});
 
-		this._infoPanel = div({ style: "display: flex; flex-direction: column; gap: 4px; font-size: 12px; color: var(--secondary-text);" });
+		this._infoPanel = div({ style: "display: flex; flex-direction: column; gap: 8px; font-size: 12px; color: var(--secondary-text);" });
 		this._infoPanel.className = "infoPanelPane";
 
 		const paneContainerEl = paneContainer({ height: "400px", gap: "8px", overflow: "visible", border: "none" }, this._categoryList, this._presetList);
@@ -509,7 +509,9 @@ export class InstrumentBrowserPrompt extends BasePrompt {
 	}
 
 	private _updateHighlight(): void {
-		this._syncCategoryToPreset();
+		if (this._activePane === "presets" && this._lastInteraction !== "keyboard") {
+			this._syncCategoryToPreset();
+		}
 		const effectivePane = this._lastInteraction === "hover" ? this._hoveredPane : this._activePane;
 		const focusedPane = effectivePane === "categories" ? this._categoryList : this._presetList;
 		const unfocusedPane = effectivePane === "categories" ? this._presetList : this._categoryList;
@@ -548,8 +550,8 @@ export class InstrumentBrowserPrompt extends BasePrompt {
 		const totalStr = String(total).padStart(2, "0");
 		const posStr = String(displayPresetIndex + 1).padStart(2, "0");
 		this._infoPanel.textContent = "";
-		const topRow = div({ style: "display: flex; flex-direction: row; gap: 0; align-items: stretch; width: 100%; box-sizing: border-box; border: 2px solid var(--ui-widget-background); border-radius: 0.5rem; overflow: hidden;" });
-		const tagsRow = div({ style: "display: flex; flex-direction: row; flex-wrap: wrap; gap: 4px; align-items: center; width: 100%; box-sizing: border-box; border: 2px solid var(--ui-widget-background); border-radius: 0.5rem; padding: 8px;" });
+		const topRow = div({ style: "display: flex; flex-direction: row; gap: 0; align-items: stretch; width: 100%; box-sizing: border-box; border: 2px solid var(--ui-widget-background); border-radius: 8px; overflow: hidden;" });
+		const tagsRow = div({ style: "display: flex; flex-direction: row; flex-wrap: wrap; gap: 4px; align-items: center; width: 100%; box-sizing: border-box; border: 2px solid var(--ui-widget-background); border-radius: 8px; padding: 8px;" });
 
 		const catCol = span({ style: "display: inline-flex; align-items: center; gap: 4px;" },
 			span({ style: "font-size: 12px; font-weight: 700;" }, "Category:"),
@@ -559,6 +561,8 @@ export class InstrumentBrowserPrompt extends BasePrompt {
 			div({ style: "flex: 1; display: flex; align-items: center; gap: 4px; padding: 8px; border-right: 2px solid var(--ui-widget-background);" }, content);
 		const lastCell = (content: HTMLElement) =>
 			div({ style: "flex: 1; display: flex; align-items: center; gap: 4px; padding: 8px;" }, content);
+		const smallCell = (content: HTMLElement) =>
+			div({ style: "flex: 0 0 auto; display: flex; align-items: center; gap: 4px; padding: 8px;" }, content);
 
 		const catCell = div({ style: "flex: 1; display: flex; flex-direction: row; align-items: center; gap: 4px; padding: 8px; border-right: 2px solid var(--ui-widget-background); min-width: 0;" });
 		catCell.appendChild(catCol);
@@ -570,7 +574,7 @@ export class InstrumentBrowserPrompt extends BasePrompt {
 				span({ style: "color: var(--primary-text); font-size: 12px;" }, value),
 			);
 		topRow.appendChild(cell(pill("Preset", preset.name)));
-		topRow.appendChild(cell(pill("Position", `${posStr} / ${totalStr}`)));
+		topRow.appendChild(smallCell(pill("Position", `${posStr} / ${totalStr}`)));
 		if (this._isSearchMode) {
 			topRow.appendChild(lastCell(pill("Results", `${total} matching`)));
 		}
@@ -652,7 +656,7 @@ export class InstrumentBrowserPrompt extends BasePrompt {
 		if (!item) return;
 		const itemRect = item.getBoundingClientRect();
 		const containerRect = container.getBoundingClientRect();
-		const margin = 4;
+		const margin = 8;
 		if (itemRect.top < containerRect.top + margin) container.scrollTop -= containerRect.top - itemRect.top + margin;
 		else if (itemRect.bottom > containerRect.bottom - margin) container.scrollTop += itemRect.bottom - containerRect.bottom + margin;
 	}
@@ -763,8 +767,9 @@ export class InstrumentBrowserPrompt extends BasePrompt {
 		switch (event.keyCode) {
 			case 38:
 				if (this._activePane === "categories") {
-					if (this._selectedCategoryIndex > 0) {
-						this._selectedCategoryIndex--;
+					const prev = this._selectedCategoryIndex - cols;
+					if (prev >= 0) {
+						this._selectedCategoryIndex = prev;
 						this._selectedPresetIndex = 0;
 						this._renderPresets();
 						this._updateHighlight();
@@ -782,8 +787,9 @@ export class InstrumentBrowserPrompt extends BasePrompt {
 				break;
 			case 40:
 				if (this._activePane === "categories") {
-					if (this._selectedCategoryIndex < categoryCount - 1) {
-						this._selectedCategoryIndex++;
+					const next = this._selectedCategoryIndex + cols;
+					if (next < categoryCount) {
+						this._selectedCategoryIndex = next;
 						this._selectedPresetIndex = 0;
 						this._renderPresets();
 						this._updateHighlight();
@@ -801,30 +807,46 @@ export class InstrumentBrowserPrompt extends BasePrompt {
 				break;
 			case 39:
 				if (this._activePane === "categories") {
-					this._activePane = "presets";
-					this._selectedPresetIndex = 0;
-					this._updateHighlight();
-					this._scrollItemIntoView(this._presetItems, this._selectedPresetIndex, this._presetList);
-					this._scrollItemIntoView(this._categoryItems, this._selectedCategoryIndex, this._categoryList);
+					const right = this._selectedCategoryIndex + 1;
+					if (right < categoryCount && Math.floor(right / cols) === Math.floor(this._selectedCategoryIndex / cols)) {
+						this._selectedCategoryIndex = right;
+						this._updateHighlight();
+						this._scrollItemIntoView(this._categoryItems, this._selectedCategoryIndex, this._categoryList);
+					} else {
+						this._activePane = "presets";
+						this._selectedPresetIndex = 0;
+						this._updateHighlight();
+						this._scrollItemIntoView(this._presetItems, this._selectedPresetIndex, this._presetList);
+					}
 				} else {
 					const right = this._selectedPresetIndex + 1;
 					if (right < presetCount && Math.floor(right / cols) === Math.floor(this._selectedPresetIndex / cols)) {
 						this._selectedPresetIndex = right;
 						this._updateHighlight();
 						this._scrollItemIntoView(this._presetItems, this._selectedPresetIndex, this._presetList);
-					} else {
-						this._applySelection();
 					}
 				}
 				event.preventDefault();
 				break;
 			case 37:
-				if (this._activePane === "presets") {
+				if (this._activePane === "categories") {
+					const left = this._selectedCategoryIndex - 1;
+					if (left >= 0 && Math.floor(left / cols) === Math.floor(this._selectedCategoryIndex / cols)) {
+						this._selectedCategoryIndex = left;
+						this._selectedPresetIndex = 0;
+						this._renderPresets();
+						this._updateHighlight();
+						this._scrollItemIntoView(this._categoryItems, this._selectedCategoryIndex, this._categoryList);
+					}
+				} else {
 					const left = this._selectedPresetIndex - 1;
 					if (left >= 0 && Math.floor(left / cols) === Math.floor(this._selectedPresetIndex / cols)) {
 						this._selectedPresetIndex = left;
 						this._updateHighlight();
 						this._scrollItemIntoView(this._presetItems, this._selectedPresetIndex, this._presetList);
+					} else {
+						this._activePane = "categories";
+						this._updateHighlight();
 					}
 				}
 				event.preventDefault();
