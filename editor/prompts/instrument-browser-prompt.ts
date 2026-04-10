@@ -106,11 +106,14 @@ export class InstrumentBrowserPrompt extends BasePrompt {
 
 		this._categoryList = flexPane({ padding: "8px" });
 		this._categoryList.className = "categoryListPane";
-		this._categoryList.style.transition = "opacity 0.15s";
+		this._categoryList.style.border = "2px solid var(--ui-widget-background)";
+		this._categoryList.style.borderRadius = "0.5rem";
+		this._categoryList.style.transition = "border-color 0.15s";
 		this._categoryList.style.display = "grid";
 		this._categoryList.style.gridTemplateColumns = "1fr 1fr";
 		this._categoryList.style.gap = "8px";
 		this._categoryList.style.alignContent = "start";
+		this._categoryList.style.borderRadius = "0.5rem";
 		this._categoryList.addEventListener("mouseenter", () => {
 			this._lastInteraction = "hover";
 			this._hoveredPane = "categories";
@@ -123,11 +126,13 @@ export class InstrumentBrowserPrompt extends BasePrompt {
 
 		this._presetList = flexPane({ padding: "8px" });
 		this._presetList.className = "presetListPane";
-		this._presetList.className = "presetListPane";
 		this._presetList.style.display = "grid";
 		this._presetList.style.gridTemplateColumns = "1fr 1fr";
 		this._presetList.style.gap = "8px";
 		this._presetList.style.alignContent = "start";
+		this._presetList.style.border = "2px solid var(--ui-widget-background)";
+		this._presetList.style.borderRadius = "0.5rem";
+		this._presetList.style.transition = "border-color 0.15s";
 		this._presetList.addEventListener("mouseenter", () => {
 			this._lastInteraction = "hover";
 			this._hoveredPane = "presets";
@@ -141,11 +146,11 @@ export class InstrumentBrowserPrompt extends BasePrompt {
 		this._infoPanel = div({ style: "display: flex; flex-direction: column; gap: 4px; font-size: 12px; color: var(--secondary-text);" });
 		this._infoPanel.className = "infoPanelPane";
 
-		const paneContainerEl = paneContainer({ height: "400px" }, this._categoryList, this._presetList);
+		const paneContainerEl = paneContainer({ height: "400px", gap: "8px", overflow: "visible", border: "none" }, this._categoryList, this._presetList);
 		paneContainerEl.className = "presetPaneContainer";
 		paneContainerEl.className = "presetPaneContainer";
 
-		const instructionsDiv = instructions("Arrow keys: navigate | Enter / Right / Double click: commit | Tab: switch pane | #: tags | ESC: close");
+		const instructionsDiv = instructions("Arrow keys: navigate | Enter / Double click: commit | Tab: switch pane | #: tags | ESC: close", { fontSize: "11px", marginTop: "0" });
 
 		this._presetsTabContent = div({ class: "tabContent presetsTabContent" }, inputRowEl, paneContainerEl, this._infoPanel, instructionsDiv, this._tagBanner);
 
@@ -189,7 +194,7 @@ export class InstrumentBrowserPrompt extends BasePrompt {
 				style: "width: 800px; text-align: left; max-height: 90%; outline: none;",
 				tabindex: "0",
 			},
-			h2({ style: `text-align: center; margin: 0 0 ${rowGap} 0;` }, "Select Instrument"),
+			h2({ style: `text-align: center; margin: 0 0 ${rowGap} 0;` }, "Preset Selector"),
 			this._tabBar,
 			this._presetsTabContent,
 			this._tagsTabContent,
@@ -348,7 +353,6 @@ export class InstrumentBrowserPrompt extends BasePrompt {
 
 	private _updateCategoryDim(): void {
 		const hasTags = this._activeTags.length > 0;
-		this._categoryList.style.opacity = hasTags ? "0.35" : "1";
 		this._categoryList.style.pointerEvents = hasTags ? "none" : "";
 		this._categoryList.title = hasTags ? "Category navigation disabled while tag filter is active" : "";
 	}
@@ -356,21 +360,6 @@ export class InstrumentBrowserPrompt extends BasePrompt {
 	private _clearTagFilters(): void {
 		this._setExternalTagValue("");
 		this._applyTagFilter();
-	}
-
-	private _navigateToCategory(catIdx: number): void {
-		this._activeTags = [];
-		this._setExternalTagValue("");
-		this._searchInput.value = "";
-		this._isSearchMode = false;
-		this._selectedCategoryIndex = catIdx;
-		this._selectedPresetIndex = 0;
-		this._activePane = "categories";
-		this._updateCategoryDim();
-		this._renderCategories();
-		this._renderPresets();
-		this._updateHighlight();
-		this._scrollItemIntoView(this._categoryItems, catIdx, this._categoryList);
 	}
 
 	private _presetMatchesActiveTags(presetValue: number): boolean {
@@ -521,9 +510,11 @@ export class InstrumentBrowserPrompt extends BasePrompt {
 
 	private _updateHighlight(): void {
 		this._syncCategoryToPreset();
-		const hasTags = this._activeTags.length > 0;
 		const effectivePane = this._lastInteraction === "hover" ? this._hoveredPane : this._activePane;
-		const dimPane = effectivePane === "categories" ? "presets" : "categories";
+		const focusedPane = effectivePane === "categories" ? this._categoryList : this._presetList;
+		const unfocusedPane = effectivePane === "categories" ? this._presetList : this._categoryList;
+		focusedPane.style.borderColor = "var(--indicator-primary, #4444ff)";
+		unfocusedPane.style.borderColor = "var(--ui-widget-background)";
 		for (let i = 0; i < this._categoryItems.length; i++) {
 			const isFocused = i === this._selectedCategoryIndex && this._activePane === "categories";
 			const isActive = i === this._selectedCategoryIndex;
@@ -531,8 +522,6 @@ export class InstrumentBrowserPrompt extends BasePrompt {
 			this._categoryItems[i].classList.toggle("focused", isFocused);
 			this._categoryItems[i].classList.toggle("active", isActive);
 			this._categoryItems[i].classList.toggle("committed", isCommitted);
-			this._categoryItems[i].classList.toggle("dimmed", dimPane === "categories" && !isActive);
-			this._categoryItems[i].classList.toggle("dimmed-heavy", dimPane === "categories" && hasTags && !isActive);
 		}
 		for (let i = 0; i < this._presetItems.length; i++) {
 			const isFocused = i === this._selectedPresetIndex && this._activePane === "presets";
@@ -540,8 +529,6 @@ export class InstrumentBrowserPrompt extends BasePrompt {
 			const isCommitted = preset && preset.value === this._committedPreset;
 			this._presetItems[i].classList.toggle("focused", isFocused);
 			this._presetItems[i].classList.toggle("committed", isCommitted);
-			this._presetItems[i].classList.toggle("dimmed", dimPane === "presets");
-			this._presetItems[i].classList.toggle("dimmed-heavy", dimPane === "presets" && hasTags);
 		}
 		this._updateInfoPanel();
 	}
@@ -568,37 +555,22 @@ export class InstrumentBrowserPrompt extends BasePrompt {
 			span({ style: "font-size: 12px; font-weight: 700;" }, "Category:"),
 			span({ style: "color: var(--primary-text); font-size: 12px;" }, catName)
 		);
-		if (this._isSearchMode) {
-			const goBtn = button(
-				{
-					class: "tagBrowserButton",
-					style: "font-size: 11px; height: 22px; padding: 0 8px;",
-				},
-				"Go to this category",
-			);
-			goBtn.addEventListener("mousedown", (e) => {
-				e.preventDefault();
-				e.stopPropagation();
-				const catIdx = this._categories.findIndex((c) => c.name === catName);
-				if (catIdx !== -1) {
-					this._navigateToCategory(catIdx);
-				}
-			});
-			topRow.appendChild(goBtn);
-		}
 		const cell = (content: HTMLElement) =>
 			div({ style: "flex: 1; display: flex; align-items: center; gap: 4px; padding: 8px; border-right: 2px solid var(--ui-widget-background);" }, content);
 		const lastCell = (content: HTMLElement) =>
 			div({ style: "flex: 1; display: flex; align-items: center; gap: 4px; padding: 8px;" }, content);
+
+		const catCell = div({ style: "flex: 1; display: flex; flex-direction: row; align-items: center; gap: 4px; padding: 8px; border-right: 2px solid var(--ui-widget-background); min-width: 0;" });
+		catCell.appendChild(catCol);
+		topRow.appendChild(catCell);
 
 		const pill = (label: string, value: string) =>
 			span({ style: "display: inline-flex; align-items: center; gap: 4px;" },
 				span({ style: "font-size: 12px; font-weight: 700;" }, `${label}:`),
 				span({ style: "color: var(--primary-text); font-size: 12px;" }, value),
 			);
-		topRow.appendChild(cell(catCol));
 		topRow.appendChild(cell(pill("Preset", preset.name)));
-		topRow.appendChild(lastCell(pill("Position", `${posStr} / ${totalStr}`)));
+		topRow.appendChild(cell(pill("Position", `${posStr} / ${totalStr}`)));
 		if (this._isSearchMode) {
 			topRow.appendChild(lastCell(pill("Results", `${total} matching`)));
 		}
@@ -804,7 +776,6 @@ export class InstrumentBrowserPrompt extends BasePrompt {
 						this._selectedPresetIndex = prev;
 						this._updateHighlight();
 						this._scrollItemIntoView(this._presetItems, this._selectedPresetIndex, this._presetList);
-						this._scrollItemIntoView(this._categoryItems, this._selectedCategoryIndex, this._categoryList);
 					}
 				}
 				event.preventDefault();
@@ -824,7 +795,6 @@ export class InstrumentBrowserPrompt extends BasePrompt {
 						this._selectedPresetIndex = next;
 						this._updateHighlight();
 						this._scrollItemIntoView(this._presetItems, this._selectedPresetIndex, this._presetList);
-						this._scrollItemIntoView(this._categoryItems, this._selectedCategoryIndex, this._categoryList);
 					}
 				}
 				event.preventDefault();
