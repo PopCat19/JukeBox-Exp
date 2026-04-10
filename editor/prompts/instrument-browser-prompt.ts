@@ -150,9 +150,19 @@ export class InstrumentBrowserPrompt extends BasePrompt {
 		paneContainerEl.className = "presetPaneContainer";
 		paneContainerEl.className = "presetPaneContainer";
 
-		const instructionsDiv = instructions("Arrow keys: navigate | Enter / Double click: commit | Tab: switch pane | #: tags | ESC: close", { fontSize: "11px", marginTop: "0" });
+		const instructionsDiv = instructions("Arrow keys: navigate | Enter / Double click: commit | Tab: switch pane | #: tags | ESC: close", {
+			fontSize: "11px",
+			marginTop: "0",
+		});
 
-		this._presetsTabContent = div({ class: "tabContent presetsTabContent" }, inputRowEl, paneContainerEl, this._infoPanel, instructionsDiv, this._tagBanner);
+		this._presetsTabContent = div(
+			{ class: "tabContent presetsTabContent" },
+			inputRowEl,
+			paneContainerEl,
+			this._infoPanel,
+			instructionsDiv,
+			this._tagBanner,
+		);
 
 		this._tagSearchInput = searchInput("Filter tags...");
 		this._tagClearButton = button({ class: "tagClearButton" }, "Clear");
@@ -550,26 +560,35 @@ export class InstrumentBrowserPrompt extends BasePrompt {
 		const totalStr = String(total).padStart(2, "0");
 		const posStr = String(displayPresetIndex + 1).padStart(2, "0");
 		this._infoPanel.textContent = "";
-		const topRow = div({ style: "display: flex; flex-direction: row; gap: 0; align-items: stretch; width: 100%; box-sizing: border-box; border: 2px solid var(--ui-widget-background); border-radius: 8px; overflow: hidden;" });
-		const tagsRow = div({ style: "display: flex; flex-direction: row; flex-wrap: wrap; gap: 4px; align-items: center; width: 100%; box-sizing: border-box; border: 2px solid var(--ui-widget-background); border-radius: 8px; padding: 8px;" });
+		const topRow = div({
+			style: "display: flex; flex-direction: row; gap: 0; align-items: stretch; width: 100%; box-sizing: border-box; border: 2px solid var(--ui-widget-background); border-radius: 8px; overflow: hidden;",
+		});
+		const tagsRow = div({
+			style: "display: flex; flex-direction: row; flex-wrap: wrap; gap: 4px; align-items: center; width: 100%; box-sizing: border-box; border: 2px solid var(--ui-widget-background); border-radius: 8px; padding: 8px;",
+		});
 
-		const catCol = span({ style: "display: inline-flex; align-items: center; gap: 4px;" },
+		const catCol = span(
+			{ style: "display: inline-flex; align-items: center; gap: 4px;" },
 			span({ style: "font-size: 12px; font-weight: 700;" }, "Category:"),
-			span({ style: "color: var(--primary-text); font-size: 12px;" }, catName)
+			span({ style: "color: var(--primary-text); font-size: 12px;" }, catName),
 		);
 		const cell = (content: HTMLElement) =>
-			div({ style: "flex: 1; display: flex; align-items: center; gap: 4px; padding: 8px; border-right: 2px solid var(--ui-widget-background);" }, content);
-		const lastCell = (content: HTMLElement) =>
-			div({ style: "flex: 1; display: flex; align-items: center; gap: 4px; padding: 8px;" }, content);
-		const smallCell = (content: HTMLElement) =>
-			div({ style: "flex: 0 0 auto; display: flex; align-items: center; gap: 4px; padding: 8px;" }, content);
+			div(
+				{ style: "flex: 1; display: flex; align-items: center; gap: 4px; padding: 8px; border-right: 2px solid var(--ui-widget-background);" },
+				content,
+			);
+		const lastCell = (content: HTMLElement) => div({ style: "flex: 1; display: flex; align-items: center; gap: 4px; padding: 8px;" }, content);
+		const smallCell = (content: HTMLElement) => div({ style: "flex: 0 0 auto; display: flex; align-items: center; gap: 4px; padding: 8px;" }, content);
 
-		const catCell = div({ style: "flex: 1; display: flex; flex-direction: row; align-items: center; gap: 4px; padding: 8px; border-right: 2px solid var(--ui-widget-background); min-width: 0;" });
+		const catCell = div({
+			style: "flex: 1; display: flex; flex-direction: row; align-items: center; gap: 4px; padding: 8px; border-right: 2px solid var(--ui-widget-background); min-width: 0;",
+		});
 		catCell.appendChild(catCol);
 		topRow.appendChild(catCell);
 
 		const pill = (label: string, value: string) =>
-			span({ style: "display: inline-flex; align-items: center; gap: 4px;" },
+			span(
+				{ style: "display: inline-flex; align-items: center; gap: 4px;" },
 				span({ style: "font-size: 12px; font-weight: 700;" }, `${label}:`),
 				span({ style: "color: var(--primary-text); font-size: 12px;" }, value),
 			);
