@@ -17,7 +17,7 @@ export interface DropdownButtonOptions {
 const baseStyle = `margin-left:0em; height:1.5em; width: auto; padding: 8px 2px; font-size: 0.5rem; display: flex; align-items: center; justify-content: center; transition: opacity ${Animation.durationFast}; opacity: 0.7;`;
 
 export function dropdownButton(options?: DropdownButtonOptions): HTMLButtonElement {
-	const style = options?.style ? `${options.style}; ${baseStyle}` : baseStyle;
+	const style = options?.style ? `${baseStyle}; ${options.style}` : baseStyle;
 	const attrs: Record<string, string> = { style, type: "button" };
 	const btn = HTML.button(attrs, "▼");
 	if (options?.onclick) {

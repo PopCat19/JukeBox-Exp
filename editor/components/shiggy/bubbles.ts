@@ -1,3 +1,4 @@
+import { Typography } from "../../ui/style-constants";
 // bubbles.ts
 //
 // Purpose: All dialogue bubble creation, positioning, and z-index management
@@ -121,7 +122,7 @@ function makeBubble(text: string, duration: number): HTMLDivElement {
 	bubble.style.cssText = `
         position: fixed; pointer-events: none;
         font-family: 'Varela', 'Trebuchet MS', sans-serif;
-        font-size: 10px; color: var(--primary-text, white);
+        font-size: ${Typography.sizeXs}; color: var(--primary-text, white);
         background: var(--ui-widget-background, #444);
         border: 1px solid var(--secondary-text, #999);
         border-radius: 8px; padding: 3px 8px;

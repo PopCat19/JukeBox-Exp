@@ -1,3 +1,4 @@
+import { Sizing, Typography } from "./ui/style-constants";
 // SongEditor
 //
 // Purpose: Main editor UI composing all sub-editors and managing editor layout
@@ -605,7 +606,7 @@ export class SongEditor
 		1,
 	);
 	private readonly _pulseWidthDropdown: HTMLButtonElement = dropdownButton({
-		style: "margin-left: auto; margin-right: 5px;",
+		style: "margin-right: 5px;",
 		onclick: () => this._toggleDropdownMenu(DropdownID.PulseWidth),
 	});
 	private readonly _pwmSliderInputBox: HTMLInputElement = numberInput({
@@ -1196,7 +1197,7 @@ export class SongEditor
 
 	private readonly _algorithmCanvasSwitch: HTMLButtonElement = button(
 		{
-			style: "margin-left:0em; height:1.5em; width: 10px; padding: 0px; font-size: 8px;",
+			style: `margin-left:0em; height:1.5em; width: 10px; padding: 0px; font-size: ${Typography.sizeXs};`,
 			onclick: (e: Event) => this._toggleAlgorithmCanvas(e),
 		},
 		"A",
@@ -1230,7 +1231,7 @@ export class SongEditor
 
 	private readonly _instrumentCopyButton: HTMLButtonElement = button(
 		{
-			style: "max-width:86px; width: 86px;",
+			style: `max-width:${Sizing.inputSm}; width:${Sizing.inputSm};`,
 			class: "copyButton",
 			title: "Copy Instrument (⇧C)",
 		},
@@ -1255,7 +1256,7 @@ export class SongEditor
 	);
 	private readonly _instrumentPasteButton: HTMLButtonElement = button(
 		{
-			style: "max-width:86px;",
+			style: `max-width:${Sizing.inputSm};`,
 			class: "pasteButton",
 			title: "Paste Instrument (⇧V)",
 		},
@@ -1283,7 +1284,7 @@ export class SongEditor
 
 	private readonly _instrumentExportButton: HTMLButtonElement = button(
 		{
-			style: "max-width:86px; width: 86px;",
+			style: `max-width:${Sizing.inputSm}; width:${Sizing.inputSm};`,
 			class: "exportInstrumentButton",
 		},
 		[
@@ -1307,7 +1308,7 @@ export class SongEditor
 	);
 	private readonly _instrumentImportButton: HTMLButtonElement = button(
 		{
-			style: "max-width:86px;",
+			style: `max-width:${Sizing.inputSm};`,
 			class: "importInstrumentButton",
 		},
 		[

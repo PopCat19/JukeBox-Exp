@@ -1,3 +1,4 @@
+import { BorderRadius, BorderWidth, Typography } from "../ui/style-constants";
 // InstrumentBrowserPrompt
 //
 // Purpose: Tabbed modal for browsing instrument presets and tags
@@ -22,7 +23,7 @@ const { button, div, h2, span } = HTML;
 
 const STYLES = {
 	smallText: {
-		fontSize: "11px",
+		fontSize: Typography.sizeSm,
 		opacity: "0.7",
 	},
 } as const;
@@ -101,7 +102,7 @@ export class InstrumentBrowserPrompt extends BasePrompt {
 		const inputRowEl = inputRow({ gap: rowGap }, this._searchInput);
 
 		this._tagBanner = div({
-			style: "display: none; flex-direction: column; gap: 4px; padding: 4px 8px; font-size: 11px; color: var(--secondary-text); border: 2px solid var(--ui-widget-background); border-radius: 8px; margin-top: 4px;",
+			style: `display: none; flex-direction: column; gap: 4px; padding: 4px 8px; font-size: ${Typography.sizeSm}; color: var(--secondary-text); border: ${BorderWidth.default} solid var(--ui-widget-background); border-radius: ${BorderRadius.md}; margin-top: 4px;`,
 		});
 
 		this._categoryList = flexPane({ padding: "8px" });
@@ -151,7 +152,7 @@ export class InstrumentBrowserPrompt extends BasePrompt {
 		paneContainerEl.className = "presetPaneContainer";
 
 		const instructionsDiv = instructions("Arrow keys: navigate | Enter / Double click: commit | Tab: switch pane | #: tags | ESC: close", {
-			fontSize: "11px",
+			fontSize: Typography.sizeSm,
 			marginTop: "0",
 		});
 
@@ -175,7 +176,7 @@ export class InstrumentBrowserPrompt extends BasePrompt {
 			inputRow({}, this._tagSearchInput, this._tagClearButton),
 			this._tagGridContainer,
 			div(
-				{ style: "font-size: 11px; color: var(--secondary-text); text-align: center;" },
+				{ style: `font-size: ${Typography.sizeSm}; color: var(--secondary-text); text-align: center;` },
 				"Click or Enter to toggle | Arrow keys to navigate | ESC to close",
 			),
 		);
@@ -185,7 +186,7 @@ export class InstrumentBrowserPrompt extends BasePrompt {
 			inputRow({}, this._tagSearchInput, this._tagClearButton),
 			this._tagGridContainer,
 			div(
-				{ style: "font-size: 11px; color: var(--secondary-text); text-align: center;" },
+				{ style: `font-size: ${Typography.sizeSm}; color: var(--secondary-text); text-align: center;` },
 				"Click or Enter to toggle | Arrow keys to navigate | ESC to close",
 			),
 		);
@@ -561,10 +562,10 @@ export class InstrumentBrowserPrompt extends BasePrompt {
 		const posStr = String(displayPresetIndex + 1).padStart(2, "0");
 		this._infoPanel.textContent = "";
 		const topRow = div({
-			style: "display: flex; flex-direction: row; gap: 0; align-items: stretch; width: 100%; box-sizing: border-box; border: 2px solid var(--ui-widget-background); border-radius: 8px; overflow: hidden;",
+			style: `display: flex; flex-direction: row; gap: 0; align-items: stretch; width: 100%; box-sizing: border-box; border: ${BorderWidth.default} solid var(--ui-widget-background); border-radius: ${BorderRadius.md}; overflow: hidden;`,
 		});
 		const tagsRow = div({
-			style: "display: flex; flex-direction: row; flex-wrap: wrap; gap: 4px; align-items: center; width: 100%; box-sizing: border-box; border: 2px solid var(--ui-widget-background); border-radius: 8px; padding: 8px;",
+			style: `display: flex; flex-direction: row; flex-wrap: wrap; gap: 4px; align-items: center; width: 100%; box-sizing: border-box; border: ${BorderWidth.default} solid var(--ui-widget-background); border-radius: ${BorderRadius.md}; padding: 8px;`,
 		});
 
 		const catCol = span(
@@ -630,7 +631,7 @@ export class InstrumentBrowserPrompt extends BasePrompt {
 			headerRow.appendChild(span({}, "Active Tags"));
 			const clearBtn = span(
 				{
-					style: "padding: 2px 6px; cursor: pointer; color: var(--primary-text); font-size: 11px; background: rgba(255,255,255,0.06); border-radius: 4px;",
+					style: `padding: 2px 6px; cursor: pointer; color: var(--primary-text); font-size: ${Typography.sizeSm}; background: rgba(255,255,255,0.06); border-radius: 4px;`,
 				},
 				"Clear Tags",
 			);

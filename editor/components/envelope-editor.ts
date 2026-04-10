@@ -1,3 +1,4 @@
+import { Sizing } from "../ui/style-constants";
 // EnvelopeEditor
 //
 // Purpose: Renders envelope editor UI for instrument automation envelopes
@@ -484,7 +485,7 @@ export class EnvelopeEditor {
 			// pitch settings
 			const pitchStartNoteSlider: HTMLInputElement = HTML.input({
 				value: instrument.envelopes[envelopeIndex].pitchEnvelopeStart ? instrument.envelopes[envelopeIndex].pitchEnvelopeStart : 0,
-				style: "width: 113px; margin-left: 0px;",
+				style: `width:${Sizing.inputMd}; margin-left: 0px;`,
 				type: "range",
 				min: "0",
 				max: instrument.isNoiseInstrument ? Config.drumCount - 1 : Config.maxPitch,
@@ -506,7 +507,7 @@ export class EnvelopeEditor {
 					: instrument.isNoiseInstrument
 						? Config.drumCount - 1
 						: Config.maxPitch,
-				style: "width: 113px; margin-left: 0px;",
+				style: `width:${Sizing.inputMd}; margin-left: 0px;`,
 				type: "range",
 				min: "0",
 				max: instrument.isNoiseInstrument ? Config.drumCount - 1 : Config.maxPitch,
@@ -591,7 +592,7 @@ export class EnvelopeEditor {
 				min: 1,
 				max: Config.randomEnvelopeStepsMax,
 				step: 1,
-				style: "width: 113px; margin-left: 0px;",
+				style: `width:${Sizing.inputMd}; margin-left: 0px;`,
 			});
 
 			const randomSeedBox: HTMLInputElement = HTML.input({
@@ -608,7 +609,7 @@ export class EnvelopeEditor {
 				min: 1,
 				max: Config.randomEnvelopeSeedMax,
 				step: 1,
-				style: "width: 113px; margin-left: 0px;",
+				style: `width:${Sizing.inputMd}; margin-left: 0px;`,
 			});
 
 			const randomStepsBoxWrapper: HTMLDivElement = HTML.div(
@@ -651,7 +652,7 @@ export class EnvelopeEditor {
 				randomSeedSlider,
 			);
 
-			const randomTypeSelect: HTMLSelectElement = HTML.select({ style: "width: 115px;" });
+			const randomTypeSelect: HTMLSelectElement = HTML.select({ style: `width:${Sizing.inputLg};` });
 			const randomNames: string[] = ["time", "pitch", "note", "time smooth"];
 			for (let waveform: number = 0; waveform < RandomEnvelopeTypes.length; waveform++) {
 				randomTypeSelect.appendChild(HTML.option({ value: waveform }, randomNames[waveform]));
@@ -681,7 +682,7 @@ export class EnvelopeEditor {
 			extraRandomSettingsGroup.style.display = "none";
 
 			// lfo settings
-			const waveformSelect: HTMLSelectElement = HTML.select({ style: "width: 115px;" });
+			const waveformSelect: HTMLSelectElement = HTML.select({ style: `width:${Sizing.inputLg};` });
 			const LFOStepsBox: HTMLInputElement = HTML.input({
 				value: instrument.envelopes[envelopeIndex].steps,
 				type: "number",
@@ -696,7 +697,7 @@ export class EnvelopeEditor {
 				min: 1,
 				max: Config.randomEnvelopeStepsMax,
 				step: 1,
-				style: "width: 113px; margin-left: 0px;",
+				style: `width:${Sizing.inputMd}; margin-left: 0px;`,
 			});
 
 			const LFOStepsBoxWrapper: HTMLDivElement = HTML.div(
@@ -753,7 +754,7 @@ export class EnvelopeEditor {
 			const perEnvelopeSpeedSlider: Slider = new Slider(
 				HTML.input({
 					oninput: () => this.updateSpeedDisplay(envelopeIndex),
-					style: "margin: 0; width: 113px",
+					style: `margin: 0; width:${Sizing.inputMd}`,
 					type: "range",
 					min: 0,
 					max: Config.perEnvelopeSpeedIndices.length - 1,
@@ -809,7 +810,7 @@ export class EnvelopeEditor {
 					min: Config.perEnvelopeBoundMin,
 					max: Config.perEnvelopeBoundMax,
 					step: 0.1,
-					style: "width: 113px; margin-left: 0px;",
+					style: `width:${Sizing.inputMd}; margin-left: 0px;`,
 				}),
 				this._doc,
 				(oldBound: number, newBound: number) => new ChangeEnvelopeLowerBound(this._doc, oldBound, newBound, envelopeIndex),
@@ -831,7 +832,7 @@ export class EnvelopeEditor {
 					min: Config.perEnvelopeBoundMin,
 					max: Config.perEnvelopeBoundMax,
 					step: 0.1,
-					style: "width: 113px; margin-left: 0px;",
+					style: `width:${Sizing.inputMd}; margin-left: 0px;`,
 				}),
 				this._doc,
 				(oldBound: number, newBound: number) => new ChangeEnvelopeUpperBound(this._doc, oldBound, newBound, envelopeIndex),
@@ -901,7 +902,7 @@ export class EnvelopeEditor {
 			// copy paste buttons
 			const envelopeCopyButton: HTMLButtonElement = HTML.button(
 				{
-					style: "margin-left:0px; max-width:86px; width: 86px; height: 26px; padding-left: 22px",
+					style: `margin-left:0px; max-width:${Sizing.inputSm}; width:${Sizing.inputSm}; height: 26px; padding-left: 22px`,
 					class: "copyButton",
 					title: "Copy Envelope",
 				},

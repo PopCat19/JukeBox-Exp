@@ -1,3 +1,4 @@
+import { Sizing } from "../ui/style-constants";
 // HarmonicsEditor
 //
 // Purpose: Renders interactive harmonics control point editor for waveform design
@@ -341,7 +342,7 @@ export class HarmonicsEditorPrompt implements Prompt {
 
 	private readonly copyButton: HTMLButtonElement = HTML.button(
 		{
-			style: "width:86px; margin-right: 5px;",
+			style: `width:${Sizing.inputSm}; margin-right: 5px;`,
 			class: "copyButton",
 		},
 		[
@@ -363,7 +364,7 @@ export class HarmonicsEditorPrompt implements Prompt {
 			),
 		],
 	);
-	private readonly pasteButton: HTMLButtonElement = HTML.button({ style: "width:86px;", class: "pasteButton" }, [
+	private readonly pasteButton: HTMLButtonElement = HTML.button({ style: `width:${Sizing.inputSm};`, class: "pasteButton" }, [
 		"Paste",
 		// Paste icon:
 		SVG.svg(

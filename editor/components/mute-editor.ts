@@ -1,3 +1,4 @@
+import { BorderRadius } from "../ui/style-constants";
 // MuteEditor
 //
 // Purpose: Renders channel mute/solo controls in the track editor
@@ -367,10 +368,10 @@ export class MuteEditor {
 				const colors = ColorConfig.getChannelColor(this._doc.song, y);
 				this._channelCounts[y].style.color = ColorConfig.invertedText;
 				this._channelCounts[y].style.background = colors.primaryChannel;
-				this._channelCounts[y].style.borderRadius = "3px";
+				this._channelCounts[y].style.borderRadius = BorderRadius.sm;
 			} else {
 				this._channelCounts[y].style.background = "transparent";
-				this._channelCounts[y].style.borderRadius = "0px";
+				this._channelCounts[y].style.borderRadius = "0";
 			}
 
 			if (this._doc.song.channels[y].muted) {
@@ -405,7 +406,7 @@ export class MuteEditor {
 			this._channelCounts[this._hoveredChannel].style.color = ColorConfig.invertedText;
 			this._channelCounts[this._hoveredChannel].style.background = colors.primaryChannel;
 			this._channelCounts[this._hoveredChannel].style.opacity = "0.5";
-			this._channelCounts[this._hoveredChannel].style.borderRadius = "3px";
+			this._channelCounts[this._hoveredChannel].style.borderRadius = BorderRadius.sm;
 		}
 
 		if (this._renderedChannelHeight !== ChannelRow.patternHeight || startingChannelCount !== this._buttons.length) {

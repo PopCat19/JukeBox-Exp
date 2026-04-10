@@ -1,3 +1,4 @@
+import { BorderWidth, Typography } from "../ui/style-constants";
 // ChannelVolumeVisualizerPrompt
 //
 // Purpose: Modal popup displaying per-channel gain information with live updates
@@ -30,7 +31,7 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 	});
 	private readonly _outVolumeCap: SVGRectElement = rect({
 		"pointer-events": "none",
-		width: "2px",
+		width: BorderWidth.default,
 		height: "50%",
 		x: "5%",
 		y: "25%",
@@ -82,7 +83,7 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 
 	private readonly _playPauseButton: HTMLButtonElement = button(
 		{
-			style: "font-size: 11px; padding: 4px 8px;",
+			style: `font-size: ${Typography.sizeSm}; padding: 4px 8px;`,
 		},
 		"▶ Play",
 	);
@@ -103,31 +104,31 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 	private readonly _channelMaxDb: Map<number, number> = new Map();
 	private readonly _masterDbPeakLabel: HTMLSpanElement = span(
 		{
-			style: "color: var(--primary-text); font-size: 11px; font-family: monospace;",
+			style: `color: var(--primary-text); font-size: ${Typography.sizeSm}; font-family: monospace;`,
 		},
 		"Peak: -inf dB",
 	);
 	private readonly _masterDbAvgLabel: HTMLSpanElement = span(
 		{
-			style: "color: var(--secondary-text); font-size: 11px; font-family: monospace;",
+			style: `color: var(--secondary-text); font-size: ${Typography.sizeSm}; font-family: monospace;`,
 		},
 		"Avg: -inf dB",
 	);
 	private readonly _masterDbMinLabel: HTMLSpanElement = span(
 		{
-			style: "color: var(--secondary-text); font-size: 11px; font-family: monospace;",
+			style: `color: var(--secondary-text); font-size: ${Typography.sizeSm}; font-family: monospace;`,
 		},
 		"Min: -inf dB",
 	);
 	private readonly _masterDbMaxLabel: HTMLSpanElement = span(
 		{
-			style: "color: var(--secondary-text); font-size: 11px; font-family: monospace;",
+			style: `color: var(--secondary-text); font-size: ${Typography.sizeSm}; font-family: monospace;`,
 		},
 		"Max: -inf dB",
 	);
 	private readonly _currentBarLabel: HTMLSpanElement = span(
 		{
-			style: "color: var(--primary-text); font-size: 11px; font-family: monospace; margin-top: 12px;",
+			style: `color: var(--primary-text); font-size: ${Typography.sizeSm}; font-family: monospace; margin-top: 12px;`,
 		},
 		"Bar: 1",
 	);
@@ -471,7 +472,7 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 			});
 			const volCap = rect({
 				"pointer-events": "none",
-				width: "2px",
+				width: BorderWidth.default,
 				height: "40%",
 				x: "5%",
 				y: "30%",
@@ -536,7 +537,7 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 			headerDiv.appendChild(
 				span(
 					{
-						style: `font-weight: bold; color: ${channelColors.primaryChannel}; font-size: 11px;`,
+						style: `font-weight: bold; color: ${channelColors.primaryChannel}; font-size: ${Typography.sizeSm};`,
 					},
 					channelName,
 				),

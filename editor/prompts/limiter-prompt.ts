@@ -1,3 +1,4 @@
+import { BorderWidth } from "../ui/style-constants";
 // LimiterPrompt
 //
 // Purpose: Provides dialog for configuring song limiter and compressor settings
@@ -78,7 +79,7 @@ export class LimiterCanvas {
 	private readonly _inVolumeBar: SVGRectElement = SVG.rect({ "pointer-events": "none", height: "6px", x: "0%", y: "105%", fill: "url('#volumeGrad')" });
 	private readonly _inVolumeCap: SVGRectElement = SVG.rect({
 		"pointer-events": "none",
-		width: "2px",
+		width: BorderWidth.default,
 		height: "6px",
 		y: "105%",
 		fill: ColorConfig.uiWidgetFocus,
@@ -86,7 +87,7 @@ export class LimiterCanvas {
 	private readonly _outVolumeBar: SVGRectElement = SVG.rect({ "pointer-events": "none", height: "6px", x: "0%", y: "120%", fill: "url('#volumeGrad')" });
 	private readonly _outVolumeCap: SVGRectElement = SVG.rect({
 		"pointer-events": "none",
-		width: "2px",
+		width: BorderWidth.default,
 		height: "6px",
 		y: "120%",
 		fill: ColorConfig.uiWidgetFocus,

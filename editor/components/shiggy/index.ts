@@ -1,3 +1,4 @@
+import { Typography } from "../../ui/style-constants";
 // index.ts
 //
 // Purpose: Main Shiggy class - orchestrates shiggy system
@@ -75,21 +76,21 @@ export class Shiggy {
 		this._toggle.style.cssText = "text-align: center; cursor: pointer; user-select: none; margin-top: 2px;";
 
 		const label = document.createElement("div");
-		label.style.cssText = "font-size: 11px; color: var(--secondary-text);";
+		label.style.cssText = `font-size: ${Typography.sizeSm}; color: var(--secondary-text);`;
 		label.textContent = "summon shiggy";
 		label.onclick = () => this.toggle();
 
 		this._petDisplay = document.createElement("div");
 		this._petDisplay.style.cssText =
-			"font-size: 10px; color: var(--secondary-text); min-height: 1.2em; text-align: center; margin-top: 2px; word-wrap: break-word; overflow-wrap: break-word; white-space: normal;";
+			"font-size: ${Typography.sizeXs}; color: var(--secondary-text); min-height: 1.2em; text-align: center; margin-top: 2px; word-wrap: break-word; overflow-wrap: break-word; white-space: normal;";
 
 		this._counter = document.createElement("div");
-		this._counter.style.cssText = "font-size: 10px; color: var(--secondary-text); opacity: 0; transition: opacity 0.3s; min-height: 1.2em;";
+		this._counter.style.cssText = `font-size: ${Typography.sizeXs}; color: var(--secondary-text); opacity: 0; transition: opacity 0.3s; min-height: 1.2em;`;
 
 		this._releaseBtn = document.createElement("div");
 		this._releaseBtn.textContent = "release one";
 		this._releaseBtn.style.cssText =
-			"font-size: 10px; color: var(--secondary-text); cursor: pointer; opacity: 0; transition: opacity 0.3s; margin-top: 2px; user-select: none;";
+			"font-size: ${Typography.sizeXs}; color: var(--secondary-text); cursor: pointer; opacity: 0; transition: opacity 0.3s; margin-top: 2px; user-select: none;";
 		this._releaseBtn.onclick = () => this._releaseOne();
 
 		this._toggle.appendChild(label);

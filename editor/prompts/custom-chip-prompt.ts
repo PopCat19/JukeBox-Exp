@@ -1,3 +1,4 @@
+import { Sizing } from "../ui/style-constants";
 // CustomChipPrompt
 //
 // Purpose: Provides dialog for editing custom chip wave sample data
@@ -278,7 +279,7 @@ export class CustomChipPrompt extends BasePrompt {
 
 	private readonly copyButton: HTMLButtonElement = button(
 		{
-			style: "width:86px; margin-right: 5px;",
+			style: `width:${Sizing.inputSm}; margin-right: 5px;`,
 			class: "copyButton",
 		},
 		[
@@ -299,7 +300,7 @@ export class CustomChipPrompt extends BasePrompt {
 			),
 		],
 	);
-	private readonly pasteButton: HTMLButtonElement = button({ style: "width:86px;", class: "pasteButton" }, [
+	private readonly pasteButton: HTMLButtonElement = button({ style: `width:${Sizing.inputSm};`, class: "pasteButton" }, [
 		"Paste",
 		SVG.svg(
 			{

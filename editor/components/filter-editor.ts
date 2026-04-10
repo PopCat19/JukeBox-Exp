@@ -1,3 +1,4 @@
+import { Typography } from "../ui/style-constants";
 // FilterEditor
 //
 // Purpose: Renders interactive EQ and note filter control point editor
@@ -68,7 +69,7 @@ export class FilterEditor {
 	private selfUndoSettings: string[] = [];
 	private selfUndoHistoryPos: number = 0;
 	private readonly _label: HTMLDivElement = HTML.div({
-		style: "position: absolute; bottom: 0; left: 2px; font-size: 8px; line-height: 1; pointer-events: none;",
+		style: `position: absolute; bottom: 0; left: 2px; font-size: ${Typography.sizeXs}; line-height: 1; pointer-events: none;`,
 	});
 
 	public coordText: HTMLElement | null = null;

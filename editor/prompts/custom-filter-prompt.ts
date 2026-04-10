@@ -1,3 +1,4 @@
+import { Sizing } from "../ui/style-constants";
 // CustomFilterPrompt
 //
 // Purpose: Provides dialog for configuring custom EQ and note filter curves
@@ -37,7 +38,7 @@ export class CustomFilterPrompt extends BasePrompt {
 	});
 	private readonly _filterCopyButton: HTMLButtonElement = button(
 		{
-			style: "width:86px; margin-right: 5px;",
+			style: `width:${Sizing.inputSm}; margin-right: 5px;`,
 			class: "copyButton",
 		},
 		[
@@ -58,7 +59,7 @@ export class CustomFilterPrompt extends BasePrompt {
 			),
 		],
 	);
-	private readonly _filterPasteButton: HTMLButtonElement = button({ style: "width:86px;", class: "pasteButton" }, [
+	private readonly _filterPasteButton: HTMLButtonElement = button({ style: `width:${Sizing.inputSm};`, class: "pasteButton" }, [
 		"Paste",
 		SVG.svg(
 			{
