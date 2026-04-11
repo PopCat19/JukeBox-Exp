@@ -77,7 +77,7 @@ export class BarScrollBar {
 	private _svgRect: DOMRect | null = null;
 	private _mouseOver: boolean = false;
 	private _dragging: boolean = false;
-	private _dragStart: number;
+	private _dragOffset: number;
 	private _notchSpace: number;
 	private _renderedNotchCount: number = -1;
 	private _renderedScrollBarPos: number = -1;
@@ -141,7 +141,7 @@ export class BarScrollBar {
 			this._mouseX <= (this._doc.barScrollPos + this._doc.trackVisibleBars) * this._notchSpace
 		) {
 			this._dragging = true;
-			this._dragStart = this._mouseX;
+			this._dragOffset = this._mouseX - this._doc.barScrollPos * this._notchSpace;
 		}
 	};
 
@@ -157,7 +157,7 @@ export class BarScrollBar {
 			this._mouseX <= (this._doc.barScrollPos + this._doc.trackVisibleBars) * this._notchSpace
 		) {
 			this._dragging = true;
-			this._dragStart = this._mouseX;
+			this._dragOffset = this._mouseX - this._doc.barScrollPos * this._notchSpace;
 		}
 	};
 
@@ -180,46 +180,17 @@ export class BarScrollBar {
 
 	private _whenCursorMoved(): void {
 		if (this._dragging) {
-			while (this._mouseX - this._dragStart < -this._notchSpace * 0.5) {
-				if (this._doc.barScrollPos > 0) {
-					this._doc.barScrollPos--;
-					this._dragStart -= this._notchSpace;
-					this._doc.notifier.changed();
-				} else {
-					break;
-				}
-			}
-			while (this._mouseX - this._dragStart > this._notchSpace * 0.5) {
-				if (this._doc.barScrollPos < this._doc.song.barCount - this._doc.trackVisibleBars) {
-					this._doc.barScrollPos++;
-					this._dragStart += this._notchSpace;
-					this._doc.notifier.changed();
-				} else {
-					break;
-				}
-			}
+			const target = Math.round((this._mouseX - this._dragOffset) / this._notchSpace);
+			this._doc.barScrollPos = Math.max(0, Math.min(this._doc.song.barCount - this._doc.trackVisibleBars, target));
+			this._doc.notifier.changed();
 		}
 		if (this._mouseOver) this._updatePreview();
 	}
 
 	public changePos(offset: number) {
-		while (Math.abs(offset) >= 1) {
-			if (offset < 0) {
-				if (this._doc.barScrollPos > 0) {
-					this._doc.barScrollPos--;
-					this._dragStart += this._notchSpace;
-					this._doc.notifier.changed();
-				}
-			} else {
-				if (this._doc.barScrollPos < this._doc.song.barCount - this._doc.trackVisibleBars) {
-					this._doc.barScrollPos++;
-					this._dragStart += this._notchSpace;
-					this._doc.notifier.changed();
-				}
-			}
-
-			offset += offset > 0 ? -1 : 1;
-		}
+		const maxScroll: number = this._doc.song.barCount - this._doc.trackVisibleBars;
+		this._doc.barScrollPos = Math.max(0, Math.min(maxScroll, this._doc.barScrollPos + offset));
+		this._doc.notifier.changed();
 	}
 
 	private _whenCursorReleased = (_event: Event): void => {
