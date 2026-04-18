@@ -674,5 +674,7 @@ export class Layout {
 
 	public static setLayout(layout: string): void {
 		this._styleElement.textContent = this._layoutMap[layout];
+		window.dispatchEvent(new Event("resize"));
+		window.dispatchEvent(new Event("scroll"));
 	}
 }
