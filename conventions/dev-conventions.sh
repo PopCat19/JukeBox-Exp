@@ -53,10 +53,15 @@ VERSION="0.1.0"
 export SKIP_CONFIRM=false
 
 # Source modules
+# shellcheck disable=SC1091
 source "${SRC_DIR}/lib.sh"
+# shellcheck disable=SC1091
 source "${SRC_DIR}/merge.sh"
+# shellcheck disable=SC1091
 source "${SRC_DIR}/changelog.sh"
+# shellcheck disable=SC1091
 source "${SRC_DIR}/sync.sh"
+# shellcheck disable=SC1091
 source "${SRC_DIR}/lint.sh"
 
 # Show main help
@@ -219,6 +224,12 @@ main_tui() {
 
 # Main entrypoint
 main() {
+	# Always run from PROJECT_ROOT to ensure consistent path handling
+	cd "$PROJECT_ROOT" || {
+		echo "Error: Could not change to project root $PROJECT_ROOT" >&2
+		exit 1
+	}
+
 	# If no arguments, check for gum and launch TUI
 	if [[ $# -eq 0 ]]; then
 		if command_exists gum; then

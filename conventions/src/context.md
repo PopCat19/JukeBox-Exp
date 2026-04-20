@@ -1,4 +1,4 @@
-# conventions/src context
+# Context
 
 - `changelog.sh` — Changelog generation and merge workflow
 - `check-context.sh` — Verifies context.md files match actual directory contents
