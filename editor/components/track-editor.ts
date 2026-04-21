@@ -242,7 +242,8 @@ export class TrackEditor {
 	}
 
 	private _updateSelectPos(event: TouchEvent): void {
-		const boundingRect: ClientRect = this._svg.getBoundingClientRect();
+		if (!this._svgRect) this._svgRect = this._svg.getBoundingClientRect();
+		const boundingRect: DOMRect = this._svgRect;
 		this._mouseX = event.touches[0].clientX - boundingRect.left;
 		this._mouseY = event.touches[0].clientY - boundingRect.top;
 		if (isNaN(this._mouseX)) this._mouseX = 0;

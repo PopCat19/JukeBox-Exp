@@ -258,7 +258,8 @@ export class FilterEditor {
 	private _whenMousePressed = (event: MouseEvent): void => {
 		event.preventDefault();
 		this._touchMode = false;
-		const boundingRect: ClientRect = this._svg.getBoundingClientRect();
+		if (!this._svgRect) this._svgRect = this._svg.getBoundingClientRect();
+		const boundingRect: DOMRect = this._svgRect;
 		this._mouseX = (((event.clientX || event.pageX) - boundingRect.left) * this._editorWidth) / (boundingRect.right - boundingRect.left);
 		this._mouseY = (((event.clientY || event.pageY) - boundingRect.top) * this._editorHeight) / (boundingRect.bottom - boundingRect.top);
 		if (isNaN(this._mouseX)) this._mouseX = 0;
@@ -269,7 +270,8 @@ export class FilterEditor {
 	private _whenTouchPressed = (event: TouchEvent): void => {
 		event.preventDefault();
 		this._touchMode = true;
-		const boundingRect: ClientRect = this._svg.getBoundingClientRect();
+		if (!this._svgRect) this._svgRect = this._svg.getBoundingClientRect();
+		const boundingRect: DOMRect = this._svgRect;
 		this._mouseX = ((event.touches[0].clientX - boundingRect.left) * this._editorWidth) / (boundingRect.right - boundingRect.left);
 		this._mouseY = ((event.touches[0].clientY - boundingRect.top) * this._editorHeight) / (boundingRect.bottom - boundingRect.top);
 		if (isNaN(this._mouseX)) this._mouseX = 0;
@@ -293,7 +295,8 @@ export class FilterEditor {
 	private _whenTouchMoved = (event: TouchEvent): void => {
 		if (this.container.offsetParent == null) return;
 		if (this._mouseDown) event.preventDefault();
-		const boundingRect: ClientRect = this._svg.getBoundingClientRect();
+		if (!this._svgRect) this._svgRect = this._svg.getBoundingClientRect();
+		const boundingRect: DOMRect = this._svgRect;
 		this._mouseX = ((event.touches[0].clientX - boundingRect.left) * this._editorWidth) / (boundingRect.right - boundingRect.left);
 		this._mouseY = ((event.touches[0].clientY - boundingRect.top) * this._editorHeight) / (boundingRect.bottom - boundingRect.top);
 		if (isNaN(this._mouseX)) this._mouseX = 0;

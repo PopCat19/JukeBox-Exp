@@ -193,6 +193,7 @@ export class PatternEditor {
 	private _mouseDragging: boolean = false;
 	private _mouseHorizontal: boolean = false;
 	private _usingTouch: boolean = false;
+	private _cachedSvgRect: DOMRect | null = null;
 	private _copiedPinChannels: NotePin[][] = [];
 	private _copiedPins: NotePin[];
 	private _mouseXStart: number = 0;
@@ -343,6 +344,8 @@ export class PatternEditor {
 			document.addEventListener("mouseup", this._whenCursorReleased);
 			this._svg.addEventListener("mouseover", this._whenMouseOver);
 			this._svg.addEventListener("mouseout", this._whenMouseOut);
+			window.addEventListener("scroll", this._invalidateCachedSvgRect, { passive: true, capture: true });
+			window.addEventListener("resize", this._invalidateCachedSvgRect, { passive: true });
 
 			this._svg.addEventListener("touchstart", this._whenTouchPressed);
 			this._svg.addEventListener("touchmove", this._whenTouchMoved);
@@ -956,7 +959,7 @@ export class PatternEditor {
 
 	private _whenMousePressed = (event: MouseEvent): void => {
 		event.preventDefault();
-		const boundingRect: ClientRect = this._svg.getBoundingClientRect();
+		const boundingRect: DOMRect = this._getCachedSvgRect();
 		this._editorWidth = this.container.clientWidth;
 		this._editorHeight = this.container.clientHeight;
 		this._mouseX = (((event.clientX ?? event.pageX) - boundingRect.left) * this._editorWidth) / (boundingRect.right - boundingRect.left);
@@ -971,7 +974,7 @@ export class PatternEditor {
 
 	private _whenTouchPressed = (event: TouchEvent): void => {
 		event.preventDefault();
-		const boundingRect: ClientRect = this._svg.getBoundingClientRect();
+		const boundingRect: DOMRect = this._getCachedSvgRect();
 		this._editorWidth = this.container.clientWidth;
 		this._editorHeight = this.container.clientHeight;
 		this._mouseX = ((event.touches[0].clientX - boundingRect.left) * this._editorWidth) / (boundingRect.right - boundingRect.left);
@@ -2205,11 +2208,22 @@ export class PatternEditor {
 		}
 	}
 
+	private _getCachedSvgRect(): DOMRect {
+		if (this._cachedSvgRect === null) {
+			this._cachedSvgRect = this._svg.getBoundingClientRect();
+		}
+		return this._cachedSvgRect;
+	}
+
+	private _invalidateCachedSvgRect = (): void => {
+		this._cachedSvgRect = null;
+	};
+
 	private _whenMouseMoved = (event: MouseEvent): void => {
 		this.controlMode = event.ctrlKey;
 		this.shiftMode = event.shiftKey;
 
-		const boundingRect = this._svg.getBoundingClientRect();
+		const boundingRect = this._getCachedSvgRect();
 		this._mouseX = (((event.clientX ?? event.pageX) - boundingRect.left) * this._editorWidth) / (boundingRect.right - boundingRect.left);
 		this._mouseY = (((event.clientY ?? event.pageY) - boundingRect.top) * this._editorHeight) / (boundingRect.bottom - boundingRect.top);
 		if (isNaN(this._mouseX)) this._mouseX = 0;
@@ -2221,7 +2235,7 @@ export class PatternEditor {
 	private _whenTouchMoved = (event: TouchEvent): void => {
 		if (!this._mouseDown) return;
 		event.preventDefault();
-		const boundingRect: ClientRect = this._svg.getBoundingClientRect();
+		const boundingRect: DOMRect = this._getCachedSvgRect();
 		this._mouseX = ((event.touches[0].clientX - boundingRect.left) * this._editorWidth) / (boundingRect.right - boundingRect.left);
 		this._mouseY = ((event.touches[0].clientY - boundingRect.top) * this._editorHeight) / (boundingRect.bottom - boundingRect.top);
 		if (isNaN(this._mouseX)) this._mouseX = 0;
