@@ -8,7 +8,8 @@ export const PET_SUMMON_THRESHOLD = 5;
 export const AUTO_SPAWN_MILESTONE = 100;
 export const SHIGGY_SIZE = 60;
 export const SHIGGY_RADIUS = 28;
-export const SHIGGY_HITBOX_RADIUS = 18;
+// Hitbox relative to sprite size for consistent collision across scales
+export const SHIGGY_HITBOX_RADIUS = SHIGGY_SIZE * 0.3;
 export const FOLLOW_UNLOCK_PETS = 5;
 export const MAX_FOLLOWERS = 10;
 export const PROXIMITY_PX = 200;
@@ -27,9 +28,17 @@ export const ROPE_AXIAL_DAMPING = 0.1;
 export const MAX_VEL = Infinity;
 
 // Collision
-export const CURSOR_RADIUS = 16;
-export const CURSOR_MASS_TRANSFER = 0.6;
-export const CURSOR_HOTSPOT_RADIUS = 24;
+// Cursor collision radius relative to shiggy size for consistent feel
+export const CURSOR_RADIUS = SHIGGY_SIZE * 0.25;
+export const CURSOR_HOTSPOT_RADIUS = SHIGGY_SIZE * 0.4;
+// Newtonian collision: momentum transfer based on mass ratio
+// v_shiggy' = (m_cursor / (m_cursor + m_shiggy)) * (1 + e) * v_cursor_normal
+// Heavier cursor = more momentum transfer to shiggy
+export const CURSOR_MASS = 1.0;
+export const SHIGGY_MASS = 2.0;
+export const COLLISION_RESTITUTION = 0.5; // 0 = inelastic, 1 = elastic
+// Computed momentum transfer coefficient
+export const MOMENTUM_FACTOR = (CURSOR_MASS * (1 + COLLISION_RESTITUTION)) / (CURSOR_MASS + SHIGGY_MASS);
 
 // NPC movement (slow hockey puck)
 export const NPC_FRICTION = 0.99;

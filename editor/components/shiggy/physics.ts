@@ -9,7 +9,6 @@ import {
 	CONVO_CHANCE,
 	CONVO_PROXIMITY,
 	CURSOR_HOTSPOT_RADIUS,
-	CURSOR_MASS_TRANSFER,
 	CURSOR_RADIUS,
 	DWELL_TIME_MS,
 	EXPLORE_CHANCE,
@@ -19,6 +18,7 @@ import {
 	MAX_FOLLOW_SPEED,
 	MAX_FOLLOWERS,
 	MAX_VEL,
+	MOMENTUM_FACTOR,
 	NPC_BOUNCE_ENERGY,
 	NPC_FRICTION,
 	NPC_IDLE_PAUSE_MIN_MS,
@@ -587,8 +587,8 @@ export class PhysicsEngine {
 				s.y += ny * overlap;
 				const cursorNormal = this._cursorVx * nx + this._cursorVy * ny;
 				if (cursorNormal > 0) {
-					s.vx += nx * cursorNormal * CURSOR_MASS_TRANSFER;
-					s.vy += ny * cursorNormal * CURSOR_MASS_TRANSFER;
+					s.vx += nx * cursorNormal * MOMENTUM_FACTOR;
+					s.vy += ny * cursorNormal * MOMENTUM_FACTOR;
 				}
 			} else {
 				// Relative motion CCD: sweep cursor path against shiggy start pos
@@ -619,8 +619,8 @@ export class PhysicsEngine {
 						s.y += ny * (expandedMinDist - closestDist);
 						const cursorNormal = this._cursorVx * nx + this._cursorVy * ny;
 						if (cursorNormal > 0) {
-							s.vx += nx * cursorNormal * CURSOR_MASS_TRANSFER;
-							s.vy += ny * cursorNormal * CURSOR_MASS_TRANSFER;
+							s.vx += nx * cursorNormal * MOMENTUM_FACTOR;
+							s.vy += ny * cursorNormal * MOMENTUM_FACTOR;
 						}
 					}
 				} else if (speedMargin > 0) {
@@ -636,8 +636,8 @@ export class PhysicsEngine {
 						s.y += ny * (expandedMinDist - sdist);
 						const cursorNormal = this._cursorVx * nx + this._cursorVy * ny;
 						if (cursorNormal > 0) {
-							s.vx += nx * cursorNormal * CURSOR_MASS_TRANSFER;
-							s.vy += ny * cursorNormal * CURSOR_MASS_TRANSFER;
+							s.vx += nx * cursorNormal * MOMENTUM_FACTOR;
+							s.vy += ny * cursorNormal * MOMENTUM_FACTOR;
 						}
 					}
 				}
