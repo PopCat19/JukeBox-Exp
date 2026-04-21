@@ -38,7 +38,7 @@ export class Shiggy {
 		// Sidebar image
 		this._img = document.createElement("img");
 		this._img.src = `assets/images/shiggy.gif?v=${Date.now()}`;
-		this._img.style.cssText = "width: 60px; height: auto; pointer-events: auto; opacity: 0; transition: opacity 0.2s; cursor: pointer;";
+		this._img.style.cssText = "width: 60px; height: auto; pointer-events: none; opacity: 0; transition: opacity 0.2s; cursor: pointer;";
 
 		this._img.ontouchstart = (e: TouchEvent) => {
 			e.preventDefault();
@@ -73,10 +73,10 @@ export class Shiggy {
 
 		// Sidebar layout
 		this._toggle = document.createElement("div");
-		this._toggle.style.cssText = "text-align: center; cursor: pointer; user-select: none; margin-top: 2px;";
+		this._toggle.style.cssText = "text-align: center; user-select: none; margin-top: 2px;";
 
 		const label = document.createElement("div");
-		label.style.cssText = `font-size: ${Typography.sizeSm}; color: var(--secondary-text);`;
+		label.style.cssText = `font-size: ${Typography.sizeSm}; color: var(--secondary-text); cursor: pointer;`;
 		label.textContent = "summon shiggy";
 		label.onclick = () => this.toggle();
 
@@ -90,7 +90,7 @@ export class Shiggy {
 		this._releaseBtn = document.createElement("div");
 		this._releaseBtn.textContent = "release one";
 		this._releaseBtn.style.cssText =
-			"font-size: ${Typography.sizeXs}; color: var(--secondary-text); cursor: pointer; opacity: 0; transition: opacity 0.3s; margin-top: 2px; user-select: none;";
+			"font-size: ${Typography.sizeXs}; color: var(--secondary-text); cursor: pointer; opacity: 0; pointer-events: none; transition: opacity 0.3s, pointer-events 0s 0.3s; margin-top: 2px; user-select: none;";
 		this._releaseBtn.onclick = () => this._releaseOne();
 
 		this._toggle.appendChild(label);
@@ -108,21 +108,25 @@ export class Shiggy {
 		this._active = !this._active;
 		if (this._active) {
 			this._img.style.opacity = "1";
+			this._img.style.pointerEvents = "auto";
 			this._img.style.animation = "shiggy-enter 0.3s ease-out both, shiggy-bounce 1.5s ease-in-out 0.1s infinite, shiggy-rock 2s ease-in-out 0s infinite";
 			this._counter.style.opacity = "1";
 			this._releaseBtn.style.opacity = "1";
+			this._releaseBtn.style.pointerEvents = "auto";
 			this._updateCounter();
 			this._gifTimer = startGifRestart(this._img, this._summoned);
 			this._audio.playSfx("shiggy-summon");
 			this._audio.playBgm();
 		} else {
 			this._img.style.opacity = "0";
+			this._img.style.pointerEvents = "none";
 			this._img.style.animation = "none";
 			this._petCount = 0;
 			this._autoSpawnUnlocked = false;
 			this._counter.style.opacity = "0";
 			this._counter.textContent = "";
 			this._releaseBtn.style.opacity = "0";
+			this._releaseBtn.style.pointerEvents = "none";
 			this._petDisplay.textContent = "";
 			this._tracker.stop(this._summoned);
 			this._stopGifRestart();
