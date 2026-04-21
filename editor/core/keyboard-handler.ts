@@ -397,12 +397,12 @@ export class KeyboardHandler {
 			case 69: // e (+shift: eq filter settings)
 				if (canPlayNotes) break;
 				if (event.shiftKey) {
-					const instrument: Instrument = doc.song.channels[doc.channel].instruments[doc.getCurrentInstrument()];
+					const instrument: Instrument = doc.getCurrentInstrumentObj();
 					if (!instrument.eqFilterType && doc.channel < doc.song.pitchChannelCount + doc.song.noiseChannelCount) {
 						host.openPrompt("customEQFilterSettings");
 					}
 				} else if (event.altKey) {
-					const instrument: Instrument = doc.song.channels[doc.channel].instruments[doc.getCurrentInstrument()];
+					const instrument: Instrument = doc.getCurrentInstrumentObj();
 					const isAllOpen: boolean = host.envelopeEditor.openExtraSettingsDropdowns.every((x: boolean) => {
 						return x === true;
 					});
@@ -436,7 +436,7 @@ export class KeyboardHandler {
 					}
 					event.preventDefault();
 				} else if (event.altKey) {
-					const instrument: Instrument = doc.song.channels[doc.channel].instruments[doc.getCurrentInstrument()];
+					const instrument: Instrument = doc.getCurrentInstrumentObj();
 					const operatorCount: number = instrument.type === InstrumentType.fm ? 4 : 6;
 					let isAllOpen: boolean = true;
 					for (let i = 0; i < operatorCount; i++) {
@@ -537,7 +537,7 @@ export class KeyboardHandler {
 				const group: ChangeGroup = new ChangeGroup();
 
 				if (event.shiftKey) {
-					const instrument: Instrument = doc.song.channels[doc.channel].instruments[doc.getCurrentInstrument()];
+					const instrument: Instrument = doc.getCurrentInstrumentObj();
 					if (
 						effectsIncludeNoteFilter(instrument.effects) &&
 						!instrument.noteFilterType &&
@@ -690,7 +690,7 @@ export class KeyboardHandler {
 			case 73: // i
 				if (canPlayNotes) break;
 				if (needControlForShortcuts === (event.ctrlKey || event.metaKey) && event.shiftKey) {
-					const instrument: Instrument = doc.song.channels[doc.channel].instruments[doc.getCurrentInstrument()];
+					const instrument: Instrument = doc.getCurrentInstrumentObj();
 					const instrumentObject: any = instrument.toJsonObject();
 					delete instrumentObject["preset"];
 					delete instrumentObject["volume"];

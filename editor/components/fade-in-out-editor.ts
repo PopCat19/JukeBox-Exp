@@ -107,7 +107,7 @@ export class FadeInOutEditor {
 		this._mouseXStart = this._mouseX;
 		this._mouseDown = true;
 		this._mouseDragging = false;
-		const instrument: Instrument = this._doc.song.channels[this._doc.channel].instruments[this._doc.getCurrentInstrument()];
+		const instrument: Instrument = this._doc.getCurrentInstrumentObj();
 		const fadeInX: number = this._fadeInToX(instrument.fadeIn);
 		const fadeOutX: number = this._fadeOutToX(instrument.fadeOut);
 		this._draggingFadeIn = this._mouseXStart < (fadeInX + fadeOutX) / 2.0;
@@ -152,7 +152,7 @@ export class FadeInOutEditor {
 			}
 
 			if (this._mouseDragging) {
-				const instrument: Instrument = this._doc.song.channels[this._doc.channel].instruments[this._doc.getCurrentInstrument()];
+				const instrument: Instrument = this._doc.getCurrentInstrumentObj();
 				if (this._draggingFadeIn) {
 					sequence.append(
 						new ChangeFadeInOut(
@@ -178,7 +178,7 @@ export class FadeInOutEditor {
 		if (this.container.offsetParent == null) return;
 		if (this._mouseDown && this._doc.lastChangeWas(this._dragChange) && this._dragChange != null) {
 			if (!this._mouseDragging) {
-				const instrument: Instrument = this._doc.song.channels[this._doc.channel].instruments[this._doc.getCurrentInstrument()];
+				const instrument: Instrument = this._doc.getCurrentInstrumentObj();
 				if (this._draggingFadeIn) {
 					this._doc.record(new ChangeFadeInOut(this._doc, this._xToFadeIn(this._mouseX), instrument.fadeOut));
 				} else {
@@ -194,7 +194,7 @@ export class FadeInOutEditor {
 	};
 
 	public render(): void {
-		const instrument: Instrument = this._doc.song.channels[this._doc.channel].instruments[this._doc.getCurrentInstrument()];
+		const instrument: Instrument = this._doc.getCurrentInstrumentObj();
 
 		if (this._renderedFadeIn === instrument.fadeIn && this._renderedFadeOut === instrument.fadeOut) {
 			return;

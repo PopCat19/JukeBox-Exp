@@ -83,7 +83,7 @@ export class InstrumentBrowserPrompt extends BasePrompt {
 	constructor(doc: SongDocument, openTab: "presets" | "tags" = "presets") {
 		super(doc);
 		const isNoise: boolean = this._doc.song.getChannelIsNoise(this._doc.channel);
-		const currentPreset: number = this._doc.song.channels[this._doc.channel].instruments[this._doc.getCurrentInstrument()].preset;
+		const currentPreset: number = this._doc.getCurrentInstrumentObj().preset;
 
 		this._committedPreset = currentPreset;
 		this._openTab = openTab;
@@ -1097,7 +1097,7 @@ export class InstrumentBrowserPrompt extends BasePrompt {
 	};
 
 	private _onDocumentChanged = (): void => {
-		const instrument = this._doc.song.channels[this._doc.channel].instruments[this._doc.getCurrentInstrument()];
+		const instrument = this._doc.getCurrentInstrumentObj();
 		if (instrument.preset !== this._committedPreset) {
 			const isNoise = this._doc.song.getChannelIsNoise(this._doc.channel);
 			if (isNoise !== (this._categories[0]?.presets.some((p) => EditorConfig.valueToPreset(p.value)?.isNoise) ?? false)) {

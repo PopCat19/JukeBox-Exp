@@ -13,7 +13,7 @@ import { SongDocument } from "../../song-document";
 export class ChangeAddEnvelope extends Change {
 	constructor(doc: SongDocument) {
 		super();
-		const instrument: Instrument = doc.song.channels[doc.channel].instruments[doc.getCurrentInstrument()];
+		const instrument: Instrument = doc.getCurrentInstrumentObj();
 		instrument.addEnvelope(0, 0, 0, true, 0, instrument.isNoiseInstrument ? Config.drumCount : Config.maxPitch, false, 1, 0);
 		instrument.preset = instrument.type;
 		doc.notifier.changed();
@@ -24,7 +24,7 @@ export class ChangeAddEnvelope extends Change {
 export class ChangeRemoveEnvelope extends Change {
 	constructor(doc: SongDocument, index: number) {
 		super();
-		const instrument: Instrument = doc.song.channels[doc.channel].instruments[doc.getCurrentInstrument()];
+		const instrument: Instrument = doc.getCurrentInstrumentObj();
 		instrument.envelopeCount--;
 		for (let i: number = index; i < instrument.envelopeCount; i++) {
 			instrument.envelopes[i].target = instrument.envelopes[i + 1].target;
@@ -51,7 +51,7 @@ export class ChangeRemoveEnvelope extends Change {
 export class ChangeSetEnvelopeTarget extends Change {
 	constructor(doc: SongDocument, envelopeIndex: number, target: number, targetIndex: number) {
 		super();
-		const instrument: Instrument = doc.song.channels[doc.channel].instruments[doc.getCurrentInstrument()];
+		const instrument: Instrument = doc.getCurrentInstrumentObj();
 		const oldTarget: number = instrument.envelopes[envelopeIndex].target;
 		const oldIndex: number = instrument.envelopes[envelopeIndex].index;
 		if (oldTarget !== target || oldIndex !== targetIndex) {
@@ -67,7 +67,7 @@ export class ChangeSetEnvelopeTarget extends Change {
 export class ChangeSetEnvelopeType extends Change {
 	constructor(doc: SongDocument, envelopeIndex: number, newValue: number) {
 		super();
-		const instrument: Instrument = doc.song.channels[doc.channel].instruments[doc.getCurrentInstrument()];
+		const instrument: Instrument = doc.getCurrentInstrumentObj();
 		const oldValue: number = instrument.envelopes[envelopeIndex].envelope;
 		if (oldValue !== newValue) {
 			instrument.envelopes[envelopeIndex].envelope = newValue;
@@ -84,7 +84,7 @@ export class ChangeSetEnvelopeType extends Change {
 export class ChangeEnvelopePitchStart extends Change {
 	constructor(doc: SongDocument, startNote: number, index: number) {
 		super();
-		const instrument: Instrument = doc.song.channels[doc.channel].instruments[doc.getCurrentInstrument()];
+		const instrument: Instrument = doc.getCurrentInstrumentObj();
 		const oldStartNote: number = instrument.envelopes[index].pitchEnvelopeStart;
 		instrument.envelopes[index].pitchEnvelopeStart = startNote;
 		if (oldStartNote !== startNote) {
@@ -98,7 +98,7 @@ export class ChangeEnvelopePitchStart extends Change {
 export class ChangeEnvelopePitchEnd extends Change {
 	constructor(doc: SongDocument, endNote: number, index: number) {
 		super();
-		const instrument: Instrument = doc.song.channels[doc.channel].instruments[doc.getCurrentInstrument()];
+		const instrument: Instrument = doc.getCurrentInstrumentObj();
 		const oldEndNote: number = instrument.envelopes[index].pitchEnvelopeEnd;
 		instrument.envelopes[index].pitchEnvelopeEnd = endNote;
 		if (oldEndNote !== endNote) {
@@ -112,7 +112,7 @@ export class ChangeEnvelopePitchEnd extends Change {
 export class ChangeEnvelopeInverse extends Change {
 	constructor(doc: SongDocument, value: boolean, index: number) {
 		super();
-		const instrument: Instrument = doc.song.channels[doc.channel].instruments[doc.getCurrentInstrument()];
+		const instrument: Instrument = doc.getCurrentInstrumentObj();
 		const oldValue: boolean = instrument.envelopes[index].inverse;
 		instrument.envelopes[index].inverse = value;
 		if (oldValue !== value) {
@@ -126,7 +126,7 @@ export class ChangeEnvelopeInverse extends Change {
 export class ChangeDiscreteEnvelope extends Change {
 	constructor(doc: SongDocument, newValue: boolean, index: number) {
 		super();
-		const instrument: Instrument = doc.song.channels[doc.channel].instruments[doc.getCurrentInstrument()];
+		const instrument: Instrument = doc.getCurrentInstrumentObj();
 		const oldValue = instrument.envelopes[index].discrete;
 
 		doc.notifier.changed();
@@ -141,7 +141,7 @@ export class ChangeDiscreteEnvelope extends Change {
 export class ChangeRandomEnvelopeSteps extends Change {
 	constructor(doc: SongDocument, steps: number, index: number) {
 		super();
-		const instrument: Instrument = doc.song.channels[doc.channel].instruments[doc.getCurrentInstrument()];
+		const instrument: Instrument = doc.getCurrentInstrumentObj();
 		const oldSteps: number = instrument.envelopes[index].steps;
 		steps = steps > Config.randomEnvelopeStepsMax ? Config.randomEnvelopeStepsMax : steps < 1 ? 2 : Math.floor(steps);
 		instrument.envelopes[index].steps = steps;
@@ -156,7 +156,7 @@ export class ChangeRandomEnvelopeSteps extends Change {
 export class ChangeRandomEnvelopeSeed extends Change {
 	constructor(doc: SongDocument, seed: number, index: number) {
 		super();
-		const instrument: Instrument = doc.song.channels[doc.channel].instruments[doc.getCurrentInstrument()];
+		const instrument: Instrument = doc.getCurrentInstrumentObj();
 		const oldSeed: number = instrument.envelopes[index].seed;
 		seed = seed > Config.randomEnvelopeSeedMax ? Config.randomEnvelopeSeedMax : seed < 1 ? 2 : Math.floor(seed);
 		instrument.envelopes[index].seed = seed;
@@ -171,7 +171,7 @@ export class ChangeRandomEnvelopeSeed extends Change {
 export class PasteEnvelope extends Change {
 	constructor(doc: SongDocument, envelope: any, index: number) {
 		super();
-		const instrument: Instrument = doc.song.channels[doc.channel].instruments[doc.getCurrentInstrument()];
+		const instrument: Instrument = doc.getCurrentInstrumentObj();
 		instrument.envelopes[index].fromJsonObject(envelope, "slarmoosbox");
 
 		instrument.preset = instrument.type;
@@ -183,7 +183,7 @@ export class PasteEnvelope extends Change {
 export class ChangeSetEnvelopeWaveform extends Change {
 	constructor(doc: SongDocument, waveform: any, index: number) {
 		super();
-		const instrument: Instrument = doc.song.channels[doc.channel].instruments[doc.getCurrentInstrument()];
+		const instrument: Instrument = doc.getCurrentInstrumentObj();
 		const oldWaveform: number = instrument.envelopes[index].waveform;
 		waveform = parseInt(waveform + ""); // make sure waveform isn't a string
 		instrument.envelopes[index].waveform = waveform;
@@ -197,7 +197,7 @@ export class ChangeSetEnvelopeWaveform extends Change {
 export class ChangeRingModChipWave extends Change {
 	constructor(doc: SongDocument, newValue: number) {
 		super();
-		const instrument: Instrument = doc.song.channels[doc.channel].instruments[doc.getCurrentInstrument()];
+		const instrument: Instrument = doc.getCurrentInstrumentObj();
 		if (instrument.ringModWaveformIndex !== newValue) {
 			instrument.ringModWaveformIndex = newValue;
 			doc.notifier.changed();

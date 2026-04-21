@@ -88,7 +88,7 @@ export class CustomAlgorithmCanvas {
 			this.inverseModulation = [[], [], [], [], [], []];
 			this.lookUpArray = [[], [], [], [], [], []];
 
-			const oldMods = this._doc.song.channels[this._doc.channel].instruments[this._doc.getCurrentInstrument()].customAlgorithm;
+			const oldMods = this._doc.getCurrentInstrumentObj().customAlgorithm;
 			this.carriers = oldMods.carrierCount;
 			for (let i: number = 0; i < oldMods.modulatedBy.length; i++) {
 				for (let o: number = 0; o < oldMods.modulatedBy[i].length; o++) {
@@ -100,7 +100,7 @@ export class CustomAlgorithmCanvas {
 				this.feedback = [[], [], [], [], [], []];
 				this.inverseFeedback = [[], [], [], [], [], []];
 
-				const oldfeed = this._doc.song.channels[this._doc.channel].instruments[this._doc.getCurrentInstrument()].customFeedbackType.indices;
+				const oldfeed = this._doc.getCurrentInstrumentObj().customFeedbackType.indices;
 				for (let i: number = 0; i < oldfeed.length; i++) {
 					for (let o: number = 0; o < oldfeed[i].length; o++) {
 						this.inverseFeedback[oldfeed[i][o] - 1].push(i + 1);

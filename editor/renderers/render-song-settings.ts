@@ -57,7 +57,7 @@ export function renderSongSettings(refs: SongSettingsRefs, doc: SongDocument, co
 	refs.eqFilterTypeRow.style.setProperty("--background-color-lit", colors.primaryChannel);
 	refs.eqFilterTypeRow.style.setProperty("--background-color-dim", colors.secondaryChannel);
 
-	const instrument: Instrument = doc.song.channels[doc.channel].instruments[doc.getCurrentInstrument()];
+	const instrument: Instrument = doc.getCurrentInstrumentObj();
 	if (instrument.eqFilterType) {
 		refs.eqFilterSimpleButton.classList.remove("deactivated");
 		refs.eqFilterAdvancedButton.classList.add("deactivated");

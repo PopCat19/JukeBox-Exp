@@ -171,7 +171,7 @@ export class EnvelopeEditor {
 			this._doc.record(new ChangeRemoveEnvelope(this._doc, deleteButtonIndex));
 			this.extraSettingsDropdownGroups[deleteButtonIndex].style.display = "none";
 		} else if (envelopeCopyButtonIndex !== -1) {
-			const instrument: Instrument = this._doc.song.channels[this._doc.channel].instruments[this._doc.getCurrentInstrument()];
+			const instrument: Instrument = this._doc.getCurrentInstrumentObj();
 			window.localStorage.setItem("envelopeCopy", JSON.stringify(instrument.envelopes[envelopeCopyButtonIndex].toJsonObject()));
 		} else if (envelopePasteButtonIndex !== -1) {
 			const envelopeCopy: any = window.localStorage.getItem("envelopeCopy");
@@ -192,7 +192,7 @@ export class EnvelopeEditor {
 		const randomSeedSliderIndex: number = this._randomSeedSliders.indexOf(<any>event.target);
 		const LFOStepsBoxIndex: number = this.LFOStepsBoxes.indexOf(<any>event.target);
 		const LFOStepsSliderIndex: number = this._LFOStepsSliders.indexOf(<any>event.target);
-		const instrument: Instrument = this._doc.song.channels[this._doc.channel].instruments[this._doc.getCurrentInstrument()];
+		const instrument: Instrument = this._doc.getCurrentInstrumentObj();
 		if (startBoxIndex !== -1) {
 			this._lastChange = new ChangeEnvelopePitchStart(this._doc, parseInt(this.pitchStartBoxes[startBoxIndex].value), startBoxIndex);
 		} else if (endBoxIndex !== -1) {
@@ -279,7 +279,7 @@ export class EnvelopeEditor {
 
 	public rerenderExtraSettings(index: number = 0) {
 		// probably not the best solution, but very reliable and easy
-		const instrument: Instrument = this._doc.song.channels[this._doc.channel].instruments[this._doc.getCurrentInstrument()];
+		const instrument: Instrument = this._doc.getCurrentInstrumentObj();
 		for (let i = index; i < Config.maxEnvelopeCount; i++) {
 			if (i >= instrument.envelopeCount) {
 				if (this.extraSettingsDropdowns[i]) {
@@ -437,13 +437,13 @@ export class EnvelopeEditor {
 		this._perEnvelopeSpeedDisplays[envelopeIndex].textContent =
 			"Spd: x" +
 			prettyNumber(
-				this._doc.song.channels[this._doc.channel].instruments[this._doc.getCurrentInstrument()].envelopes[envelopeIndex]
+				this._doc.getCurrentInstrumentObj().envelopes[envelopeIndex]
 					.perEnvelopeSpeed /*this.convertIndexSpeed(this.perEnvelopeSpeedSliders[envelopeIndex].getValueBeforeProspectiveChange(), "speed")*/,
 			);
 	}
 
 	public render(): void {
-		const instrument: Instrument = this._doc.song.channels[this._doc.channel].instruments[this._doc.getCurrentInstrument()];
+		const instrument: Instrument = this._doc.getCurrentInstrumentObj();
 
 		for (let envelopeIndex: number = this._rows.length; envelopeIndex < instrument.envelopeCount; envelopeIndex++) {
 			const targetSelect: HTMLSelectElement = HTML.select();
@@ -962,7 +962,7 @@ export class EnvelopeEditor {
 			// general structure
 			const extraSettingsDropdown: HTMLButtonElement = dropdownButton({
 				onclick: () => {
-					const instrument: Instrument = this._doc.song.channels[this._doc.channel].instruments[this._doc.getCurrentInstrument()];
+					const instrument: Instrument = this._doc.getCurrentInstrumentObj();
 					this._extraSettingsDropdown(
 						DropdownID.EnvelopeSettings,
 						envelopeIndex,

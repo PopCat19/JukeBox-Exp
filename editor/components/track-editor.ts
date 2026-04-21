@@ -104,11 +104,6 @@ export class TrackEditor {
 	private readonly _barNumbers: SVGTextElement[] = [];
 	private _mouseX: number = 0;
 	private _mouseY: number = 0;
-	// private _lastScrollTime: number = 0;
-	// private _selecting: boolean = false;
-	// private _selectionStartBar: number = 0;
-	// private _selectionStartChannel: number = 0;
-	// private _pattern: Pattern | null = null;
 	private _mouseStartBar: number = 0;
 	private _mouseStartChannel: number = 0;
 	private _mouseBar: number = 0;

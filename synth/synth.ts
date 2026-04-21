@@ -2024,22 +2024,6 @@ export class Synth {
 				(((this.tick + 1.0 - this.tickSampleCountdown / samplesPerTick) / 2.0 + this.part) / Config.partsPerBeat + this.beat) / song.beatsPerBar +
 				this.bar;
 		}
-
-		/*
-        const synthDuration: number = performance.now() - synthStartTime;
-        // Performance measurements:
-        samplesAccumulated += outputBufferLength;
-        samplePerformance += synthDuration;
-
-        if (samplesAccumulated >= Config.defaultSampleRate * 4) {
-            const secondsGenerated = samplesAccumulated / Config.defaultSampleRate;
-            const secondsRequired = samplePerformance / 1000;
-            const ratio = secondsRequired / secondsGenerated;
-            console.log(ratio);
-            samplePerformance = 0;
-            samplesAccumulated = 0;
-        }
-        */
 	}
 
 	private freeTone(tone: Tone): void {

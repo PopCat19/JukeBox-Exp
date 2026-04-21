@@ -11,7 +11,7 @@
 
 import { ColorConfig } from "../shared/color-config";
 import { events } from "../shared/events";
-import { Channel, Pattern, Song, Synth } from "../synth";
+import { Channel, Instrument, Pattern, Song, Synth } from "../synth";
 import { Config } from "../synth/synth-config";
 import { ChangeHoldingModRecording, ChangeSong, discardInvalidPatternInstruments, setDefaultInstruments } from "./changes";
 import { isMobile } from "./config/editor-config";
@@ -514,6 +514,10 @@ export class SongDocument {
 			const pattern: Pattern | null = this.getCurrentPattern(barOffset);
 			return pattern == null ? 0 : pattern.instruments[0];
 		}
+	}
+
+	public getCurrentInstrumentObj(): Instrument {
+		return this.song.channels[this.channel].instruments[this.getCurrentInstrument()];
 	}
 
 	public getMobileLayout(): boolean {

@@ -2862,7 +2862,7 @@ export class SongEditor
 		}
 
 		if (target.textContent === "▼") {
-			const instrument: Instrument = this.doc.song.channels[this.doc.channel].instruments[this.doc.getCurrentInstrument()];
+			const instrument: Instrument = this.doc.getCurrentInstrumentObj();
 			target.textContent = "▲";
 			if (dropdown === DropdownID.EnvelopeSettings) {
 				group.style.display = "flex";

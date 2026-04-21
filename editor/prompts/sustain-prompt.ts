@@ -50,7 +50,7 @@ export class SustainPrompt extends BasePrompt {
 
 	constructor(doc: SongDocument) {
 		super(doc);
-		const instrument: Instrument = this._doc.song.channels[this._doc.channel].instruments[this._doc.getCurrentInstrument()];
+		const instrument: Instrument = this._doc.getCurrentInstrumentObj();
 		this._typeSelect.value = Config.sustainTypeNames[instrument.stringSustainType];
 
 		setTimeout(() => this._cancelButton.focus());

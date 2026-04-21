@@ -13,7 +13,7 @@ import { SongDocument } from "../../song-document";
 export class ChangeDrumsetEnvelope extends Change {
 	constructor(doc: SongDocument, drumIndex: number, newValue: number) {
 		super();
-		const instrument: Instrument = doc.song.channels[doc.channel].instruments[doc.getCurrentInstrument()];
+		const instrument: Instrument = doc.getCurrentInstrumentObj();
 		const oldValue: number = instrument.drumsetEnvelopes[drumIndex];
 		if (oldValue !== newValue) {
 			instrument.drumsetEnvelopes[drumIndex] = newValue;
@@ -27,7 +27,7 @@ export class ChangeDrumsetEnvelope extends Change {
 export class ChangeStringSustainType extends Change {
 	constructor(doc: SongDocument, newValue: SustainType) {
 		super();
-		const instrument: Instrument = doc.song.channels[doc.channel].instruments[doc.getCurrentInstrument()];
+		const instrument: Instrument = doc.getCurrentInstrumentObj();
 		const oldValue: SustainType = instrument.stringSustainType;
 		if (oldValue !== newValue) {
 			instrument.stringSustainType = newValue;
@@ -50,7 +50,7 @@ export class ChangeFadeInOut extends UndoableChange {
 	constructor(doc: SongDocument, fadeIn: number, fadeOut: number) {
 		super(false);
 		this._doc = doc;
-		this._instrument = this._doc.song.channels[this._doc.channel].instruments[this._doc.getCurrentInstrument()];
+		this._instrument = this._doc.getCurrentInstrumentObj();
 		this._instrumentNextPreset = this._instrument.type;
 		this._instrumentPrevPreset = this._instrument.preset;
 		this._oldFadeIn = this._instrument.fadeIn;

@@ -46,7 +46,7 @@ export class CustomChipCanvas {
 	}
 
 	public redrawCanvas(): void {
-		const chipData: Float32Array = this._doc.song.channels[this._doc.channel].instruments[this._doc.getCurrentInstrument()].customChipWave;
+		const chipData: Float32Array = this._doc.getCurrentInstrumentObj().customChipWave;
 		const renderColor: string = ColorConfig.getComputedChannelColor(this._doc.song, this._doc.channel).primaryNote;
 
 		// Check if the data has changed from the last render.
@@ -149,7 +149,7 @@ export class CustomChipCanvas {
 			this.lastY = y;
 
 			// Preview - update integral used for sound synthesis based on new array, not actual stored array. When mouse is released, real update will happen.
-			const instrument: Instrument = this._doc.song.channels[this._doc.channel].instruments[this._doc.getCurrentInstrument()];
+			const instrument: Instrument = this._doc.getCurrentInstrumentObj();
 
 			let sum: number = 0.0;
 			for (let i: number = 0; i < this.newArray.length; i++) {

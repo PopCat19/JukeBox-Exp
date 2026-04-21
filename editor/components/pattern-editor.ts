@@ -1149,7 +1149,7 @@ export class PatternEditor {
 
 		const sequence: ChangeSequence = new ChangeSequence();
 
-		const instrument: Instrument = this._doc.song.channels[this._doc.channel].instruments[this._doc.getCurrentInstrument()];
+		const instrument: Instrument = this._doc.getCurrentInstrumentObj();
 		const applyToMods: number[] = [];
 		const applyToFilterTargets: number[] = [];
 		const applyToEnvelopeTargets: number[] = [];

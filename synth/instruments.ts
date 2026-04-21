@@ -1998,8 +1998,6 @@ export class Instrument {
 				susdotwav: 118,
 				wackyboxtts: 119,
 			};
-			// const paandorasbetaWaveNames = {"contrabass": 55, "double bass": 56 };
-			// this.chipWave = legacyWaveNames[instrumentObject["wave"]] != undefined ? legacyWaveNames[instrumentObject["wave"]] : Config.chipWaves.findIndex(wave => wave.name == instrumentObject["wave"]);
 			this.chipWave = -1;
 			const rawName: string = instrumentObject["wave"];
 			for (const table of [legacyWaveNames, modboxWaveNames, sandboxWaveNames, zefboxWaveNames, miscWaveNames, paandorasboxWaveNames]) {
@@ -2012,7 +2010,7 @@ export class Instrument {
 				const potentialChipWaveIndex: number = Config.chipWaves.findIndex((wave) => wave.name === rawName);
 				if (potentialChipWaveIndex !== -1) this.chipWave = potentialChipWaveIndex;
 			}
-			// this.chipWave = legacyWaveNames[instrumentObject["wave"]] != undefined ? legacyWaveNames[instrumentObject["wave"]] : modboxWaveNames[instrumentObject["wave"]] != undefined ? modboxWaveNames[instrumentObject["wave"]] : sandboxWaveNames[instrumentObject["wave"]] != undefined ? sandboxWaveNames[instrumentObject["wave"]] : zefboxWaveNames[instrumentObject["wave"]] != undefined ? zefboxWaveNames[instrumentObject["wave"]] : miscWaveNames[instrumentObject["wave"]] != undefined ? miscWaveNames[instrumentObject["wave"]] : paandorasboxWaveNames[instrumentObject["wave"]] != undefined ? paandorasboxWaveNames[instrumentObject["wave"]] : Config.chipWaves.findIndex(wave => wave.name == instrumentObject["wave"]);
+
 			if (this.chipWave === -1) this.chipWave = 1;
 		}
 

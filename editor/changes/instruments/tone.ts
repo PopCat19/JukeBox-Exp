@@ -13,7 +13,7 @@ import { SongDocument } from "../../song-document";
 export class ChangeChord extends Change {
 	constructor(doc: SongDocument, newValue: number) {
 		super();
-		const instrument: Instrument = doc.song.channels[doc.channel].instruments[doc.getCurrentInstrument()];
+		const instrument: Instrument = doc.getCurrentInstrumentObj();
 		const oldValue: number = instrument.chord;
 		if (oldValue !== newValue) {
 			this._didSomething();
@@ -27,7 +27,7 @@ export class ChangeChord extends Change {
 export class ChangeVibrato extends Change {
 	constructor(doc: SongDocument, newValue: number) {
 		super();
-		const instrument: Instrument = doc.song.channels[doc.channel].instruments[doc.getCurrentInstrument()];
+		const instrument: Instrument = doc.getCurrentInstrumentObj();
 		const oldValue: number = instrument.vibrato;
 		if (oldValue !== newValue) {
 			instrument.vibrato = newValue;
@@ -45,7 +45,7 @@ export class ChangeVibrato extends Change {
 export class ChangeVibratoDepth extends Change {
 	constructor(doc: SongDocument, oldValue: number, newValue: number) {
 		super();
-		const instrument: Instrument = doc.song.channels[doc.channel].instruments[doc.getCurrentInstrument()];
+		const instrument: Instrument = doc.getCurrentInstrumentObj();
 		const prevVibrato: number = instrument.vibrato;
 		doc.synth.unsetMod(Config.modulators.dictionary["vibrato depth"].index, doc.channel, doc.getCurrentInstrument());
 
@@ -63,7 +63,7 @@ export class ChangeVibratoDepth extends Change {
 export class ChangeEnvelopeSpeed extends Change {
 	constructor(doc: SongDocument, oldValue: number, newValue: number) {
 		super();
-		const instrument: Instrument = doc.song.channels[doc.channel].instruments[doc.getCurrentInstrument()];
+		const instrument: Instrument = doc.getCurrentInstrumentObj();
 		doc.synth.unsetMod(Config.modulators.dictionary["envelope speed"].index, doc.channel, doc.getCurrentInstrument());
 
 		doc.notifier.changed();
@@ -79,7 +79,7 @@ export class ChangeEnvelopeSpeed extends Change {
 export class ChangeVibratoSpeed extends Change {
 	constructor(doc: SongDocument, oldValue: number, newValue: number) {
 		super();
-		const instrument: Instrument = doc.song.channels[doc.channel].instruments[doc.getCurrentInstrument()];
+		const instrument: Instrument = doc.getCurrentInstrumentObj();
 		const prevVibrato: number = instrument.vibrato;
 		doc.synth.unsetMod(Config.modulators.dictionary["vibrato speed"].index, doc.channel, doc.getCurrentInstrument());
 
@@ -97,7 +97,7 @@ export class ChangeVibratoSpeed extends Change {
 export class ChangeVibratoDelay extends Change {
 	constructor(doc: SongDocument, oldValue: number, newValue: number) {
 		super();
-		const instrument: Instrument = doc.song.channels[doc.channel].instruments[doc.getCurrentInstrument()];
+		const instrument: Instrument = doc.getCurrentInstrumentObj();
 		const prevVibrato: number = instrument.vibrato;
 		doc.synth.unsetMod(Config.modulators.dictionary["vibrato delay"].index, doc.channel, doc.getCurrentInstrument());
 
@@ -115,7 +115,7 @@ export class ChangeVibratoDelay extends Change {
 export class ChangeVibratoType extends Change {
 	constructor(doc: SongDocument, newValue: number) {
 		super();
-		const instrument: Instrument = doc.song.channels[doc.channel].instruments[doc.getCurrentInstrument()];
+		const instrument: Instrument = doc.getCurrentInstrumentObj();
 		const oldValue: number = instrument.vibratoType;
 		const prevVibrato: number = instrument.vibrato;
 
@@ -133,7 +133,7 @@ export class ChangeVibratoType extends Change {
 export class ChangeArpeggioSpeed extends Change {
 	constructor(doc: SongDocument, oldValue: number, newValue: number) {
 		super();
-		const instrument: Instrument = doc.song.channels[doc.channel].instruments[doc.getCurrentInstrument()];
+		const instrument: Instrument = doc.getCurrentInstrumentObj();
 		instrument.arpeggioSpeed = newValue;
 		doc.synth.unsetMod(Config.modulators.dictionary["arp speed"].index, doc.channel, doc.getCurrentInstrument());
 
@@ -148,7 +148,7 @@ export class ChangeArpeggioSpeed extends Change {
 export class ChangeFastTwoNoteArp extends Change {
 	constructor(doc: SongDocument, newValue: boolean) {
 		super();
-		const instrument: Instrument = doc.song.channels[doc.channel].instruments[doc.getCurrentInstrument()];
+		const instrument: Instrument = doc.getCurrentInstrumentObj();
 		const oldValue = instrument.fastTwoNoteArp;
 
 		doc.notifier.changed();
@@ -163,7 +163,7 @@ export class ChangeFastTwoNoteArp extends Change {
 export class ChangeMonophonicTone extends Change {
 	constructor(doc: SongDocument, newValue: number) {
 		super();
-		const instrument: Instrument = doc.song.channels[doc.channel].instruments[doc.getCurrentInstrument()];
+		const instrument: Instrument = doc.getCurrentInstrumentObj();
 		const oldValue = instrument.monoChordTone;
 
 		doc.notifier.changed();
@@ -177,7 +177,7 @@ export class ChangeMonophonicTone extends Change {
 export class ChangeClicklessTransition extends Change {
 	constructor(doc: SongDocument, newValue: boolean) {
 		super();
-		const instrument: Instrument = doc.song.channels[doc.channel].instruments[doc.getCurrentInstrument()];
+		const instrument: Instrument = doc.getCurrentInstrumentObj();
 		const oldValue = instrument.clicklessTransition;
 
 		doc.notifier.changed();
@@ -192,7 +192,7 @@ export class ChangeClicklessTransition extends Change {
 export class ChangeAliasing extends Change {
 	constructor(doc: SongDocument, newValue: boolean) {
 		super();
-		const instrument: Instrument = doc.song.channels[doc.channel].instruments[doc.getCurrentInstrument()];
+		const instrument: Instrument = doc.getCurrentInstrumentObj();
 		const oldValue = instrument.aliases;
 
 		doc.notifier.changed();
@@ -207,7 +207,7 @@ export class ChangeAliasing extends Change {
 export class ChangeInvertWave extends Change {
 	constructor(doc: SongDocument, newValue: boolean) {
 		super();
-		const instrument: Instrument = doc.song.channels[doc.channel].instruments[doc.getCurrentInstrument()];
+		const instrument: Instrument = doc.getCurrentInstrumentObj();
 		const oldValue = instrument.invertWave;
 
 		doc.notifier.changed();

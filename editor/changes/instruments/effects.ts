@@ -13,7 +13,7 @@ import { SongDocument } from "../../song-document";
 export class ChangeTransition extends Change {
 	constructor(doc: SongDocument, newValue: number) {
 		super();
-		const instrument: Instrument = doc.song.channels[doc.channel].instruments[doc.getCurrentInstrument()];
+		const instrument: Instrument = doc.getCurrentInstrumentObj();
 		const oldValue: number = instrument.transition;
 		if (oldValue !== newValue) {
 			this._didSomething();
@@ -27,7 +27,7 @@ export class ChangeTransition extends Change {
 export class ChangeToggleEffects extends Change {
 	constructor(doc: SongDocument, toggleFlag: number, useInstrument: Instrument | null) {
 		super();
-		let instrument: Instrument = doc.song.channels[doc.channel].instruments[doc.getCurrentInstrument()];
+		let instrument: Instrument = doc.getCurrentInstrumentObj();
 		if (useInstrument != null) {
 			instrument = useInstrument;
 		}

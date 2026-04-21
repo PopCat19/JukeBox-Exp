@@ -107,7 +107,7 @@ export class ChangeFilterAddPoint extends UndoableChange {
 	constructor(doc: SongDocument, filterSettings: FilterSettings, point: FilterControlPoint, index: number, isNoteFilter: boolean, deletion: boolean = false) {
 		super(deletion);
 		this._doc = doc;
-		this._instrument = this._doc.song.channels[this._doc.channel].instruments[this._doc.getCurrentInstrument()];
+		this._instrument = this._doc.getCurrentInstrumentObj();
 		this._instrumentNextPreset = deletion ? this._instrument.preset : this._instrument.type;
 		this._instrumentPrevPreset = deletion ? this._instrument.type : this._instrument.preset;
 		this._filterSettings = filterSettings;
@@ -258,7 +258,7 @@ export class ChangeFilterMovePoint extends UndoableChange {
 	) {
 		super(false);
 		this._doc = doc;
-		this._instrument = this._doc.song.channels[this._doc.channel].instruments[this._doc.getCurrentInstrument()];
+		this._instrument = this._doc.getCurrentInstrumentObj();
 		this._instrumentNextPreset = this._instrument.type;
 		this._instrumentPrevPreset = this._instrument.preset;
 		this._point = point;
@@ -363,7 +363,7 @@ export class ChangeFilterSettings extends UndoableChange {
 	) {
 		super(false);
 		this._doc = doc;
-		this._instrument = this._doc.song.channels[this._doc.channel].instruments[this._doc.getCurrentInstrument()];
+		this._instrument = this._doc.getCurrentInstrumentObj();
 		this._instrumentNextPreset = this._instrument.type;
 		this._instrumentPrevPreset = this._instrument.preset;
 		this._oldSettings = oldSettings;

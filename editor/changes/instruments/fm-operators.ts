@@ -12,7 +12,7 @@ import { SongDocument } from "../../song-document";
 export class ChangeAlgorithm extends Change {
 	constructor(doc: SongDocument, newValue: number) {
 		super();
-		const instrument: Instrument = doc.song.channels[doc.channel].instruments[doc.getCurrentInstrument()];
+		const instrument: Instrument = doc.getCurrentInstrumentObj();
 		const oldValue: number = instrument.algorithm;
 		if (oldValue !== newValue) {
 			instrument.algorithm = newValue;
@@ -26,7 +26,7 @@ export class ChangeAlgorithm extends Change {
 export class ChangeFeedbackType extends Change {
 	constructor(doc: SongDocument, newValue: number) {
 		super();
-		const instrument: Instrument = doc.song.channels[doc.channel].instruments[doc.getCurrentInstrument()];
+		const instrument: Instrument = doc.getCurrentInstrumentObj();
 		const oldValue: number = instrument.feedbackType;
 		if (oldValue !== newValue) {
 			instrument.feedbackType = newValue;
@@ -40,7 +40,7 @@ export class ChangeFeedbackType extends Change {
 export class Change6OpAlgorithm extends Change {
 	constructor(doc: SongDocument, newValue: number) {
 		super();
-		const instrument: Instrument = doc.song.channels[doc.channel].instruments[doc.getCurrentInstrument()];
+		const instrument: Instrument = doc.getCurrentInstrumentObj();
 		const oldValue: number = instrument.algorithm6Op;
 		if (oldValue !== newValue) {
 			instrument.algorithm6Op = newValue;
@@ -57,7 +57,7 @@ export class Change6OpAlgorithm extends Change {
 export class Change6OpFeedbackType extends Change {
 	constructor(doc: SongDocument, newValue: number) {
 		super();
-		const instrument: Instrument = doc.song.channels[doc.channel].instruments[doc.getCurrentInstrument()];
+		const instrument: Instrument = doc.getCurrentInstrumentObj();
 		const oldValue: number = instrument.feedbackType6Op;
 		if (oldValue !== newValue) {
 			instrument.feedbackType6Op = newValue;
@@ -74,7 +74,7 @@ export class Change6OpFeedbackType extends Change {
 export class ChangeOperatorWaveform extends Change {
 	constructor(doc: SongDocument, operatorIndex: number, newValue: number) {
 		super();
-		const instrument: Instrument = doc.song.channels[doc.channel].instruments[doc.getCurrentInstrument()];
+		const instrument: Instrument = doc.getCurrentInstrumentObj();
 		const oldValue: number = instrument.operators[operatorIndex].waveform;
 		if (oldValue !== newValue) {
 			instrument.operators[operatorIndex].waveform = newValue;
@@ -88,7 +88,7 @@ export class ChangeOperatorWaveform extends Change {
 export class ChangeOperatorPulseWidth extends Change {
 	constructor(doc: SongDocument, operatorIndex: number, oldValue: number, newValue: number) {
 		super();
-		const instrument: Instrument = doc.song.channels[doc.channel].instruments[doc.getCurrentInstrument()];
+		const instrument: Instrument = doc.getCurrentInstrumentObj();
 		instrument.operators[operatorIndex].pulseWidth = newValue;
 		doc.notifier.changed();
 		if (oldValue !== newValue) {
@@ -101,7 +101,7 @@ export class ChangeOperatorPulseWidth extends Change {
 export class ChangeOperatorFrequency extends Change {
 	constructor(doc: SongDocument, operatorIndex: number, newValue: number) {
 		super();
-		const instrument: Instrument = doc.song.channels[doc.channel].instruments[doc.getCurrentInstrument()];
+		const instrument: Instrument = doc.getCurrentInstrumentObj();
 		const oldValue: number = instrument.operators[operatorIndex].frequency;
 		if (oldValue !== newValue) {
 			instrument.operators[operatorIndex].frequency = newValue;

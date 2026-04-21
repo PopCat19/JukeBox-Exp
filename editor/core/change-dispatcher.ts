@@ -229,7 +229,7 @@ export class ChangeDispatcher {
 	};
 
 	public whenSetModChannel = (mod: number): void => {
-		const instrument: Instrument = this.doc.song.channels[this.doc.channel].instruments[this.doc.getCurrentInstrument()];
+		const instrument: Instrument = this.doc.getCurrentInstrumentObj();
 		const previouslyUnset: boolean = instrument.modulators[mod] === 0 || Config.modulators[instrument.modulators[mod]].forSong;
 
 		this.doc.selection.setModChannel(mod, this._host.modChannelBoxes[mod].selectedIndex);
@@ -262,10 +262,10 @@ export class ChangeDispatcher {
 			if (invalidIndex) {
 				this._host.modSetBoxes[mod].selectedOptions.item(0)!.style.setProperty("color", "red");
 				this._host.modSetBoxes[mod].classList.add("invalidSetting");
-				this.doc.song.channels[this.doc.channel].instruments[this.doc.getCurrentInstrument()].invalidModulators[mod] = true;
+				this.doc.getCurrentInstrumentObj().invalidModulators[mod] = true;
 			} else {
 				this._host.modSetBoxes[mod].classList.remove("invalidSetting");
-				this.doc.song.channels[this.doc.channel].instruments[this.doc.getCurrentInstrument()].invalidModulators[mod] = false;
+				this.doc.getCurrentInstrumentObj().invalidModulators[mod] = false;
 			}
 		}
 		if (!invalidIndex) {
@@ -367,7 +367,7 @@ export class ChangeDispatcher {
 	};
 
 	public whenSetEffects = (): void => {
-		const instrument: Instrument = this.doc.song.channels[this.doc.channel].instruments[this.doc.getCurrentInstrument()];
+		const instrument: Instrument = this.doc.getCurrentInstrumentObj();
 		const oldValue: number = instrument.effects;
 		const toggleFlag: number = Config.effectOrder[this._host.effectsSelect.selectedIndex - 1];
 		this.doc.record(new ChangeToggleEffects(this.doc, toggleFlag, null));

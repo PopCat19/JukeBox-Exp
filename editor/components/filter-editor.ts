@@ -154,7 +154,7 @@ export class FilterEditor {
 
 			// Push initial state
 			let filterSettings: FilterSettings;
-			const instrument: Instrument = this._doc.song.channels[this._doc.channel].instruments[this._doc.getCurrentInstrument()];
+			const instrument: Instrument = this._doc.getCurrentInstrumentObj();
 			if (this._forSong) {
 				filterSettings = this._doc.song.eqFilter;
 			} else {
@@ -344,7 +344,7 @@ export class FilterEditor {
 			if (this._forSong) {
 				this._useFilterSettings = this._getTargetFilterSettingsForSong(this._doc.song);
 			} else {
-				const instrument: Instrument = this._doc.song.channels[this._doc.channel].instruments[this._doc.getCurrentInstrument()];
+				const instrument: Instrument = this._doc.getCurrentInstrumentObj();
 				this._useFilterSettings = this._getTargetFilterSettings(instrument);
 			}
 			if (this._dragChange != null) {
@@ -455,7 +455,7 @@ export class FilterEditor {
 								this._doc.song.tmpEqFilterStart = this._doc.song.eqFilter;
 								this._doc.song.tmpEqFilterEnd = null;
 							} else {
-								const instrument: Instrument = this._doc.song.channels[this._doc.channel].instruments[this._doc.getCurrentInstrument()];
+								const instrument: Instrument = this._doc.getCurrentInstrumentObj();
 								instrument.tmpEqFilterStart = instrument.eqFilter;
 								instrument.tmpEqFilterEnd = null;
 								instrument.tmpNoteFilterStart = instrument.noteFilter;
@@ -483,7 +483,7 @@ export class FilterEditor {
 			if (this._forSong) {
 				this._useFilterSettings = this._getTargetFilterSettingsForSong(this._doc.song);
 			} else {
-				const instrument: Instrument = this._doc.song.channels[this._doc.channel].instruments[this._doc.getCurrentInstrument()];
+				const instrument: Instrument = this._doc.getCurrentInstrumentObj();
 				this._useFilterSettings = this._getTargetFilterSettings(instrument);
 			}
 		}
@@ -661,7 +661,7 @@ export class FilterEditor {
 		if (this._forSong) {
 			new ChangeSongFilterSettings(this._doc, settings, this._filterSettings, this._subFilters, this._doc.song.eqSubFilters);
 		} else {
-			const instrument: Instrument = this._doc.song.channels[this._doc.channel].instruments[this._doc.getCurrentInstrument()];
+			const instrument: Instrument = this._doc.getCurrentInstrumentObj();
 			new ChangeFilterSettings(
 				this._doc,
 				settings,
@@ -685,7 +685,7 @@ export class FilterEditor {
 	// Save settings on prompt close (record a change from first settings to newest)
 	public saveSettings() {
 		const firstFilter: FilterSettings = new FilterSettings();
-		const instrument: Instrument = this._doc.song.channels[this._doc.channel].instruments[this._doc.getCurrentInstrument()];
+		const instrument: Instrument = this._doc.getCurrentInstrumentObj();
 		firstFilter.fromJsonObject(JSON.parse(String(this.selfUndoSettings[0])));
 		if (this._forSong) {
 			this._doc.record(new ChangeSongFilterSettings(this._doc, this._subFilters[0], firstFilter, this._subFilters, this._doc.song.eqSubFilters), true);
@@ -816,7 +816,7 @@ export class FilterEditor {
 
 	public render(activeMods: boolean = false, forceModRender: boolean = false): void {
 		this._writingMods = forceModRender && this._mouseDown;
-		const instrument: Instrument = this._doc.song.channels[this._doc.channel].instruments[this._doc.getCurrentInstrument()];
+		const instrument: Instrument = this._doc.getCurrentInstrumentObj();
 		const filterSettings: FilterSettings = this._forSong ? this._doc.song.eqFilter : this._useNoteFilter ? instrument.noteFilter : instrument.eqFilter;
 		const displayMods: boolean =
 			activeMods && !this._larger && (forceModRender || (!this._mouseOver && !this._mouseDragging && !this._mouseDown)) && this._doc.synth.playing;

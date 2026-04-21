@@ -325,7 +325,7 @@ export class VisualLoopControlsPrompt extends BasePrompt {
 		this._songEditor = songEditor;
 		this._waveformContext = this._waveformCanvas.getContext("2d");
 		this._overlayContext = this._overlayCanvas.getContext("2d");
-		this._instrument = this._doc.song.channels[this._doc.channel].instruments[this._doc.getCurrentInstrument()];
+		this._instrument = this._doc.getCurrentInstrumentObj();
 		const rawChipWave: ChipWave = Config.rawRawChipWaves[this._instrument.chipWave];
 		const customSampleIsLoading: boolean =
 			(rawChipWave.isCustomSampled === true || rawChipWave.isSampled === true) &&

@@ -109,7 +109,7 @@ export class CustomChipPromptCanvas {
 		const col: string = ColorConfig.getChannelColor(this._doc.song, this._doc.channel).primaryNote;
 
 		for (let i: number = 0; i <= 64; i++) {
-			const val: number = this._doc.song.channels[this._doc.channel].instruments[this._doc.getCurrentInstrument()].customChipWave[i];
+			const val: number = this._doc.getCurrentInstrumentObj().customChipWave[i];
 			this.chipData[i] = val;
 			this.startingChipData[i] = val;
 			this._blocks.appendChild(

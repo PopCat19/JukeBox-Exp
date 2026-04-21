@@ -13,7 +13,7 @@ import { SongDocument } from "../../song-document";
 export class ChangeChipWave extends Change {
 	constructor(doc: SongDocument, newValue: number) {
 		super();
-		const instrument: Instrument = doc.song.channels[doc.channel].instruments[doc.getCurrentInstrument()];
+		const instrument: Instrument = doc.getCurrentInstrumentObj();
 		if (instrument.chipWave !== newValue) {
 			instrument.chipWave = newValue;
 			// advloop addition
@@ -34,7 +34,7 @@ export class ChangeChipWave extends Change {
 export class ChangeChipWaveUseAdvancedLoopControls extends Change {
 	constructor(doc: SongDocument, newValue: boolean) {
 		super();
-		const instrument = doc.song.channels[doc.channel].instruments[doc.getCurrentInstrument()];
+		const instrument = doc.getCurrentInstrumentObj();
 		if (instrument.isUsingAdvancedLoopControls !== newValue) {
 			instrument.isUsingAdvancedLoopControls = newValue;
 			instrument.chipWaveLoopStart = 0;
@@ -52,7 +52,7 @@ export class ChangeChipWaveUseAdvancedLoopControls extends Change {
 export class ChangeChipWaveLoopMode extends Change {
 	constructor(doc: SongDocument, newValue: number) {
 		super();
-		const instrument = doc.song.channels[doc.channel].instruments[doc.getCurrentInstrument()];
+		const instrument = doc.getCurrentInstrumentObj();
 		if (instrument.chipWaveLoopMode !== newValue) {
 			instrument.isUsingAdvancedLoopControls = true;
 			instrument.chipWaveLoopMode = newValue;
@@ -66,7 +66,7 @@ export class ChangeChipWaveLoopMode extends Change {
 export class ChangeChipWaveLoopStart extends Change {
 	constructor(doc: SongDocument, newValue: number) {
 		super();
-		const instrument = doc.song.channels[doc.channel].instruments[doc.getCurrentInstrument()];
+		const instrument = doc.getCurrentInstrumentObj();
 		if (instrument.chipWaveLoopStart !== newValue) {
 			instrument.isUsingAdvancedLoopControls = true;
 			instrument.chipWaveLoopStart = newValue;
@@ -80,7 +80,7 @@ export class ChangeChipWaveLoopStart extends Change {
 export class ChangeChipWaveLoopEnd extends Change {
 	constructor(doc: SongDocument, newValue: number) {
 		super();
-		const instrument = doc.song.channels[doc.channel].instruments[doc.getCurrentInstrument()];
+		const instrument = doc.getCurrentInstrumentObj();
 		if (instrument.chipWaveLoopEnd !== newValue) {
 			instrument.isUsingAdvancedLoopControls = true;
 			instrument.chipWaveLoopEnd = newValue;
@@ -95,7 +95,7 @@ export class ChangeChipWaveLoopEnd extends Change {
 export class ChangeChipWaveStartOffset extends Change {
 	constructor(doc: SongDocument, newValue: number) {
 		super();
-		const instrument = doc.song.channels[doc.channel].instruments[doc.getCurrentInstrument()];
+		const instrument = doc.getCurrentInstrumentObj();
 		if (instrument.chipWaveStartOffset !== newValue) {
 			instrument.isUsingAdvancedLoopControls = true;
 			instrument.chipWaveStartOffset = newValue;
@@ -109,7 +109,7 @@ export class ChangeChipWaveStartOffset extends Change {
 export class ChangeChipWavePlayBackwards extends Change {
 	constructor(doc: SongDocument, newValue: boolean) {
 		super();
-		const instrument = doc.song.channels[doc.channel].instruments[doc.getCurrentInstrument()];
+		const instrument = doc.getCurrentInstrumentObj();
 		if (instrument.chipWavePlayBackwards !== newValue) {
 			instrument.isUsingAdvancedLoopControls = true;
 			instrument.chipWavePlayBackwards = newValue;
@@ -124,7 +124,7 @@ export class ChangeChipWavePlayBackwards extends Change {
 export class ChangeNoiseWave extends Change {
 	constructor(doc: SongDocument, newValue: number) {
 		super();
-		const instrument: Instrument = doc.song.channels[doc.channel].instruments[doc.getCurrentInstrument()];
+		const instrument: Instrument = doc.getCurrentInstrumentObj();
 		if (instrument.chipNoise !== newValue) {
 			instrument.chipNoise = newValue;
 			instrument.preset = instrument.type;

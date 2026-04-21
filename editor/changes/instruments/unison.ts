@@ -13,7 +13,7 @@ import { SongDocument } from "../../song-document";
 export class ChangeUnison extends Change {
 	constructor(doc: SongDocument, newValue: number) {
 		super();
-		const instrument: Instrument = doc.song.channels[doc.channel].instruments[doc.getCurrentInstrument()];
+		const instrument: Instrument = doc.getCurrentInstrumentObj();
 		const oldValue: number = instrument.unison;
 		if (oldValue !== newValue) {
 			instrument.unison = newValue;
@@ -33,7 +33,7 @@ export class ChangeUnison extends Change {
 export class ChangeUnisonVoices extends Change {
 	constructor(doc: SongDocument, oldValue: number, newValue: number) {
 		super();
-		const instrument: Instrument = doc.song.channels[doc.channel].instruments[doc.getCurrentInstrument()];
+		const instrument: Instrument = doc.getCurrentInstrumentObj();
 		const prevUnison: number = instrument.unison;
 		if (oldValue !== newValue || prevUnison !== Config.unisons.length) {
 			instrument.unisonVoices = newValue;
@@ -48,7 +48,7 @@ export class ChangeUnisonVoices extends Change {
 export class ChangeUnisonSpread extends Change {
 	constructor(doc: SongDocument, oldValue: number, newValue: number) {
 		super();
-		const instrument: Instrument = doc.song.channels[doc.channel].instruments[doc.getCurrentInstrument()];
+		const instrument: Instrument = doc.getCurrentInstrumentObj();
 		const prevUnison: number = instrument.unison;
 		if (oldValue !== newValue || prevUnison !== Config.unisons.length) {
 			instrument.unisonSpread = newValue;
@@ -63,7 +63,7 @@ export class ChangeUnisonSpread extends Change {
 export class ChangeUnisonOffset extends Change {
 	constructor(doc: SongDocument, oldValue: number, newValue: number) {
 		super();
-		const instrument: Instrument = doc.song.channels[doc.channel].instruments[doc.getCurrentInstrument()];
+		const instrument: Instrument = doc.getCurrentInstrumentObj();
 		const prevUnison: number = instrument.unison;
 		if (oldValue !== newValue || prevUnison !== Config.unisons.length) {
 			instrument.unisonOffset = newValue;
@@ -78,7 +78,7 @@ export class ChangeUnisonOffset extends Change {
 export class ChangeUnisonExpression extends Change {
 	constructor(doc: SongDocument, oldValue: number, newValue: number) {
 		super();
-		const instrument: Instrument = doc.song.channels[doc.channel].instruments[doc.getCurrentInstrument()];
+		const instrument: Instrument = doc.getCurrentInstrumentObj();
 		const prevUnison: number = instrument.unison;
 		if (oldValue !== newValue || prevUnison !== Config.unisons.length) {
 			instrument.unisonExpression = newValue;
@@ -93,7 +93,7 @@ export class ChangeUnisonExpression extends Change {
 export class ChangeUnisonSign extends Change {
 	constructor(doc: SongDocument, oldValue: number, newValue: number) {
 		super();
-		const instrument: Instrument = doc.song.channels[doc.channel].instruments[doc.getCurrentInstrument()];
+		const instrument: Instrument = doc.getCurrentInstrumentObj();
 		const prevUnison: number = instrument.unison;
 		if (oldValue !== newValue || prevUnison !== Config.unisons.length) {
 			instrument.unisonSign = newValue;

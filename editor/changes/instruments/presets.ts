@@ -25,7 +25,7 @@ import { biasedFullyRandom, fullyRandom, randomChipWave, randomPulses, randomSin
 export class ChangeCustomizeInstrument extends Change {
 	constructor(doc: SongDocument) {
 		super();
-		const instrument: Instrument = doc.song.channels[doc.channel].instruments[doc.getCurrentInstrument()];
+		const instrument: Instrument = doc.getCurrentInstrumentObj();
 		if (instrument.preset !== instrument.type) {
 			instrument.preset = instrument.type;
 			doc.notifier.changed();
@@ -37,7 +37,7 @@ export class ChangeCustomizeInstrument extends Change {
 export class ChangeCustomWave extends Change {
 	constructor(doc: SongDocument, newArray: Float32Array) {
 		super();
-		const oldArray: Float32Array = doc.song.channels[doc.channel].instruments[doc.getCurrentInstrument()].customChipWave;
+		const oldArray: Float32Array = doc.getCurrentInstrumentObj().customChipWave;
 		let comparisonResult: boolean = true;
 		for (let i: number = 0; i < oldArray.length; i++) {
 			if (oldArray[i] !== newArray[i]) {
@@ -46,7 +46,7 @@ export class ChangeCustomWave extends Change {
 			}
 		}
 		if (comparisonResult === false) {
-			const instrument: Instrument = doc.song.channels[doc.channel].instruments[doc.getCurrentInstrument()];
+			const instrument: Instrument = doc.getCurrentInstrumentObj();
 			for (let i: number = 0; i < newArray.length; i++) {
 				instrument.customChipWave[i] = newArray[i];
 			}
@@ -78,8 +78,8 @@ export class ChangeCustomAlgorythmorFeedback extends Change {
 	constructor(doc: SongDocument, newArray: number[][], carry: number, mode: string) {
 		super();
 		if (mode === "algorithm") {
-			const oldArray: number[][] = doc.song.channels[doc.channel].instruments[doc.getCurrentInstrument()].customAlgorithm.modulatedBy;
-			const oldCarriercount: number = doc.song.channels[doc.channel].instruments[doc.getCurrentInstrument()].customAlgorithm.carrierCount;
+			const oldArray: number[][] = doc.getCurrentInstrumentObj().customAlgorithm.modulatedBy;
+			const oldCarriercount: number = doc.getCurrentInstrumentObj().customAlgorithm.carrierCount;
 			let comparisonResult: boolean = true;
 			if (carry !== oldCarriercount) {
 				comparisonResult = false;
@@ -99,7 +99,7 @@ export class ChangeCustomAlgorythmorFeedback extends Change {
 				}
 			}
 			if (comparisonResult === false) {
-				const instrument: Instrument = doc.song.channels[doc.channel].instruments[doc.getCurrentInstrument()];
+				const instrument: Instrument = doc.getCurrentInstrumentObj();
 
 				instrument.customAlgorithm.set(carry, newArray);
 
@@ -108,7 +108,7 @@ export class ChangeCustomAlgorythmorFeedback extends Change {
 				this._didSomething();
 			}
 		} else if (mode === "feedback") {
-			const oldArray: number[][] = doc.song.channels[doc.channel].instruments[doc.getCurrentInstrument()].customFeedbackType.indices;
+			const oldArray: number[][] = doc.getCurrentInstrumentObj().customFeedbackType.indices;
 			let comparisonResult: boolean = true;
 			for (let i: number = 0; i < oldArray.length; i++) {
 				if (oldArray[i].length !== newArray[i].length) {
@@ -125,7 +125,7 @@ export class ChangeCustomAlgorythmorFeedback extends Change {
 			}
 
 			if (!comparisonResult) {
-				const instrument: Instrument = doc.song.channels[doc.channel].instruments[doc.getCurrentInstrument()];
+				const instrument: Instrument = doc.getCurrentInstrumentObj();
 
 				instrument.customFeedbackType.set(newArray);
 
@@ -140,7 +140,7 @@ export class ChangeCustomAlgorythmorFeedback extends Change {
 export class ChangePreset extends Change {
 	constructor(doc: SongDocument, newValue: number) {
 		super();
-		const instrument: Instrument = doc.song.channels[doc.channel].instruments[doc.getCurrentInstrument()];
+		const instrument: Instrument = doc.getCurrentInstrumentObj();
 		const oldValue: number = instrument.preset;
 		if (oldValue !== newValue) {
 			const preset1: Preset | null = EditorConfig.instrumentToPreset(newValue);
@@ -246,7 +246,7 @@ export class ChangeRandomGeneratedInstrument extends Change {
 		}
 
 		const isNoise: boolean = doc.song.getChannelIsNoise(doc.channel);
-		const instrument: Instrument = doc.song.channels[doc.channel].instruments[doc.getCurrentInstrument()];
+		const instrument: Instrument = doc.getCurrentInstrumentObj();
 		instrument.effects = 1 << EffectType.panning; // disable all existing effects except panning, which should always be on.
 		instrument.aliases = false;
 		instrument.envelopeCount = 0;

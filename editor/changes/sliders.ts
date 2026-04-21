@@ -17,7 +17,7 @@ export class ChangeInstrumentSlider extends Change {
 	protected _instrument: Instrument;
 	constructor(private _doc: SongDocument) {
 		super();
-		this._instrument = this._doc.song.channels[this._doc.channel].instruments[this._doc.getCurrentInstrument()];
+		this._instrument = this._doc.getCurrentInstrumentObj();
 	}
 
 	public commit(): void {

@@ -134,7 +134,7 @@ export class TipPrompt extends BasePrompt {
 	private _getTipTitle(): string {
 		if (this._tipName.indexOf("modSetInfo") >= 0) {
 			const modNum: number = +this._tipName[this._tipName.length - 1];
-			const modulator: number = this._doc.song.channels[this._doc.channel].instruments[this._doc.getCurrentInstrument()].modulators[modNum];
+			const modulator: number = this._doc.getCurrentInstrumentObj().modulators[modNum];
 			return Config.modulators[modulator].promptName;
 		}
 		return this._tipTitles[this._tipName] || this._tipName;
@@ -876,7 +876,7 @@ export class TipPrompt extends BasePrompt {
 				// Check for modSetInfo#
 				if (this._tipName.indexOf("modSetInfo") >= 0) {
 					const modNum: number = +this._tipName[this._tipName.length - 1];
-					const modulator: number = this._doc.song.channels[this._doc.channel].instruments[this._doc.getCurrentInstrument()].modulators[modNum];
+					const modulator: number = this._doc.getCurrentInstrumentObj().modulators[modNum];
 					const pList: HTMLParagraphElement[] = [];
 					for (let s: number = 0; s < Config.modulators[modulator].promptDesc.length; s++) {
 						pList.push(

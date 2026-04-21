@@ -361,7 +361,7 @@ export class Piano {
 		this._renderedKey = this._doc.song.key;
 		this._renderedDrums = isDrum;
 		this._renderedMod = isMod;
-		const instrument: Instrument = this._doc.song.channels[this._doc.channel].instruments[this._doc.getCurrentInstrument()];
+		const instrument: Instrument = this._doc.getCurrentInstrumentObj();
 
 		this._pianoContainer.style.display = isDrum || isMod ? "none" : "flex";
 		this._drumContainer.style.display = isDrum ? "flex" : "none";

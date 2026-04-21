@@ -69,7 +69,7 @@ export const enum EnvelopeType {
 	twang,
 	swell,
 	lfo, // renamed from tremolo in slarmoo's box 1.3
-	tremolo2, // deprecated as of slarmoo's box 1.3; Kept for updating integrity and drumsets
+	tremolo2, // Retained for backward compatibility — used by 10+ active envelope configs (tripolo, pentolo, flutter)
 	decay,
 	wibble,
 	linear,
@@ -5378,50 +5378,54 @@ export function toNameMap<T extends BeepBoxOption>(array: Array<Pick<T, Exclude<
 	return result;
 }
 
+export function hasEffect(effects: number, effectType: EffectType): boolean {
+	return (effects & (1 << effectType)) !== 0;
+}
+
 export function effectsIncludeTransition(effects: number): boolean {
-	return (effects & (1 << EffectType.transition)) !== 0;
+	return hasEffect(effects, EffectType.transition);
 }
 export function effectsIncludeChord(effects: number): boolean {
-	return (effects & (1 << EffectType.chord)) !== 0;
+	return hasEffect(effects, EffectType.chord);
 }
 export function effectsIncludePitchShift(effects: number): boolean {
-	return (effects & (1 << EffectType.pitchShift)) !== 0;
+	return hasEffect(effects, EffectType.pitchShift);
 }
 export function effectsIncludeDetune(effects: number): boolean {
-	return (effects & (1 << EffectType.detune)) !== 0;
+	return hasEffect(effects, EffectType.detune);
 }
 export function effectsIncludeVibrato(effects: number): boolean {
-	return (effects & (1 << EffectType.vibrato)) !== 0;
+	return hasEffect(effects, EffectType.vibrato);
 }
 export function effectsIncludeNoteFilter(effects: number): boolean {
-	return (effects & (1 << EffectType.noteFilter)) !== 0;
+	return hasEffect(effects, EffectType.noteFilter);
 }
 export function effectsIncludeDistortion(effects: number): boolean {
-	return (effects & (1 << EffectType.distortion)) !== 0;
+	return hasEffect(effects, EffectType.distortion);
 }
 export function effectsIncludeBitcrusher(effects: number): boolean {
-	return (effects & (1 << EffectType.bitcrusher)) !== 0;
+	return hasEffect(effects, EffectType.bitcrusher);
 }
 export function effectsIncludePanning(effects: number): boolean {
-	return (effects & (1 << EffectType.panning)) !== 0;
+	return hasEffect(effects, EffectType.panning);
 }
 export function effectsIncludeChorus(effects: number): boolean {
-	return (effects & (1 << EffectType.chorus)) !== 0;
+	return hasEffect(effects, EffectType.chorus);
 }
 export function effectsIncludeEcho(effects: number): boolean {
-	return (effects & (1 << EffectType.echo)) !== 0;
+	return hasEffect(effects, EffectType.echo);
 }
 export function effectsIncludeReverb(effects: number): boolean {
-	return (effects & (1 << EffectType.reverb)) !== 0;
+	return hasEffect(effects, EffectType.reverb);
 }
 export function effectsIncludeRingModulation(effects: number): boolean {
-	return (effects & (1 << EffectType.ringModulation)) !== 0;
+	return hasEffect(effects, EffectType.ringModulation);
 }
 export function effectsIncludeGranular(effects: number): boolean {
-	return (effects & (1 << EffectType.granular)) !== 0;
+	return hasEffect(effects, EffectType.granular);
 }
 export function effectsIncludeNoteRange(effects: number): boolean {
-	return (effects & (1 << EffectType.noteRange)) !== 0;
+	return hasEffect(effects, EffectType.noteRange);
 }
 export function calculateRingModHertz(sliderHz: number, _sliderHzOffset: number = 0): number {
 	// replaces the value 21 with 0
@@ -5449,11 +5453,11 @@ export function rawChipToIntegrated(raw: DictionaryArray<ChipWave>): DictionaryA
 	return result;
 }
 export function effectsIncludeOctaveShift(effects: number): boolean {
-	return (effects & (1 << EffectType.octaveShift)) !== 0;
+	return hasEffect(effects, EffectType.octaveShift);
 }
 export function effectsIncludePhaser(effects: number): boolean {
-	return (effects & (1 << EffectType.phaser)) !== 0;
+	return hasEffect(effects, EffectType.phaser);
 }
 export function effectsIncludeInvertWave(effects: number): boolean {
-	return (effects & (1 << EffectType.invertWave)) !== 0;
+	return hasEffect(effects, EffectType.invertWave);
 }

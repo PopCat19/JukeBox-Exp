@@ -491,7 +491,7 @@ export class ChangeSongReverb extends Change {
 export class ChangeVolume extends Change {
 	constructor(doc: SongDocument, oldValue: number, newValue: number) {
 		super();
-		doc.song.channels[doc.channel].instruments[doc.getCurrentInstrument()].volume = newValue;
+		doc.getCurrentInstrumentObj().volume = newValue;
 		// Not used currently as mod is implemented as multiplicative.
 		// doc.synth.unsetMod(ModSetting.mstInsVolume, doc.channel, doc.getCurrentInstrument());
 		doc.notifier.changed();
@@ -531,7 +531,7 @@ export class ChangeChannelName extends Change {
 export class ChangePan extends Change {
 	constructor(doc: SongDocument, oldValue: number, newValue: number) {
 		super();
-		doc.song.channels[doc.channel].instruments[doc.getCurrentInstrument()].pan = newValue;
+		doc.getCurrentInstrumentObj().pan = newValue;
 		doc.synth.unsetMod(Config.modulators.dictionary["pan"].index, doc.channel, doc.getCurrentInstrument());
 		doc.notifier.changed();
 		if (oldValue !== newValue) this._didSomething();
@@ -541,7 +541,7 @@ export class ChangePan extends Change {
 export class ChangePanDelay extends Change {
 	constructor(doc: SongDocument, oldValue: number, newValue: number) {
 		super();
-		doc.song.channels[doc.channel].instruments[doc.getCurrentInstrument()].panDelay = newValue;
+		doc.getCurrentInstrumentObj().panDelay = newValue;
 		doc.notifier.changed();
 		if (oldValue !== newValue) this._didSomething();
 	}
@@ -596,7 +596,7 @@ export class ChangeInstrumentsFlags extends Change {
 export class ChangeModChannel extends Change {
 	constructor(doc: SongDocument, mod: number, index: number, useInstrument?: Instrument) {
 		super();
-		let instrument: Instrument = doc.song.channels[doc.channel].instruments[doc.getCurrentInstrument()];
+		let instrument: Instrument = doc.getCurrentInstrumentObj();
 		if (useInstrument !== undefined) {
 			instrument = useInstrument;
 		}
@@ -621,7 +621,7 @@ export class ChangeModInstrument extends Change {
 	constructor(doc: SongDocument, mod: number, tgtInstrument: number) {
 		super();
 
-		const instrument: Instrument = doc.song.channels[doc.channel].instruments[doc.getCurrentInstrument()];
+		const instrument: Instrument = doc.getCurrentInstrumentObj();
 
 		if (instrument.modInstruments[mod] !== tgtInstrument) {
 			instrument.modInstruments[mod] = tgtInstrument;
@@ -636,7 +636,7 @@ export class ChangeModSetting extends Change {
 	constructor(doc: SongDocument, mod: number, text: string) {
 		super();
 
-		const instrument: Instrument = doc.song.channels[doc.channel].instruments[doc.getCurrentInstrument()];
+		const instrument: Instrument = doc.getCurrentInstrumentObj();
 
 		// Populate all instruments that could be targeted by this mod setting.
 		const tgtChannel: number = instrument.modChannels[mod];
@@ -706,7 +706,7 @@ export class ChangeModFilter extends Change {
 	constructor(doc: SongDocument, mod: number, type: number) {
 		super();
 
-		const instrument: Instrument = doc.song.channels[doc.channel].instruments[doc.getCurrentInstrument()];
+		const instrument: Instrument = doc.getCurrentInstrumentObj();
 
 		if (instrument.modFilterTypes[mod] !== type) {
 			instrument.modFilterTypes[mod] = type;
@@ -741,7 +741,7 @@ export class ChangeModEnvelope extends Change {
 	constructor(doc: SongDocument, mod: number, envelope: number) {
 		super();
 
-		const instrument: Instrument = doc.song.channels[doc.channel].instruments[doc.getCurrentInstrument()];
+		const instrument: Instrument = doc.getCurrentInstrumentObj();
 
 		if (instrument.modEnvelopeNumbers[mod] !== envelope) {
 			instrument.modEnvelopeNumbers[mod] = envelope;

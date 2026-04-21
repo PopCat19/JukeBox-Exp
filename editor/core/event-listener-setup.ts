@@ -320,25 +320,21 @@ export class EventListenerSetup {
 			host.doc.record(
 				new ChangeVolume(
 					host.doc,
-					host.doc.song.channels[host.doc.channel].instruments[host.doc.getCurrentInstrument()].volume,
+					host.doc.getCurrentInstrumentObj().volume,
 					Math.min(25.0, Math.max(-25.0, Math.round(+host.instrumentVolumeSliderInputBox.value))),
 				),
 			);
 		});
 		host.panSliderInputBox.addEventListener("input", () => {
 			host.doc.record(
-				new ChangePan(
-					host.doc,
-					host.doc.song.channels[host.doc.channel].instruments[host.doc.getCurrentInstrument()].pan,
-					Math.min(100.0, Math.max(0.0, Math.round(+host.panSliderInputBox.value))),
-				),
+				new ChangePan(host.doc, host.doc.getCurrentInstrumentObj().pan, Math.min(100.0, Math.max(0.0, Math.round(+host.panSliderInputBox.value)))),
 			);
 		});
 		host.pwmSliderInputBox.addEventListener("input", () => {
 			host.doc.record(
 				new ChangePulseWidth(
 					host.doc,
-					host.doc.song.channels[host.doc.channel].instruments[host.doc.getCurrentInstrument()].pulseWidth,
+					host.doc.getCurrentInstrumentObj().pulseWidth,
 					Math.min(Config.pulseWidthRange, Math.max(1.0, Math.round(+host.pwmSliderInputBox.value))),
 				),
 			);
@@ -347,7 +343,7 @@ export class EventListenerSetup {
 			host.doc.record(
 				new ChangeDetune(
 					host.doc,
-					host.doc.song.channels[host.doc.channel].instruments[host.doc.getCurrentInstrument()].detune,
+					host.doc.getCurrentInstrumentObj().detune,
 					Math.min(
 						Config.detuneMax - Config.detuneCenter,
 						Math.max(Config.detuneMin - Config.detuneCenter, Math.round(+host.detuneSliderInputBox.value)),
@@ -359,7 +355,7 @@ export class EventListenerSetup {
 			host.doc.record(
 				new ChangeUnisonVoices(
 					host.doc,
-					host.doc.song.channels[host.doc.channel].instruments[host.doc.getCurrentInstrument()].unisonVoices,
+					host.doc.getCurrentInstrumentObj().unisonVoices,
 					Math.min(Config.unisonVoicesMax, Math.max(Config.unisonVoicesMin, Math.round(+host.unisonVoicesInputBox.value))),
 				),
 			);
@@ -368,7 +364,7 @@ export class EventListenerSetup {
 			host.doc.record(
 				new ChangeUnisonSpread(
 					host.doc,
-					host.doc.song.channels[host.doc.channel].instruments[host.doc.getCurrentInstrument()].unisonSpread,
+					host.doc.getCurrentInstrumentObj().unisonSpread,
 					Math.min(Config.unisonSpreadMax, Math.max(Config.unisonSpreadMin, +host.unisonSpreadInputBox.value)),
 				),
 			);
@@ -377,7 +373,7 @@ export class EventListenerSetup {
 			host.doc.record(
 				new ChangeUnisonOffset(
 					host.doc,
-					host.doc.song.channels[host.doc.channel].instruments[host.doc.getCurrentInstrument()].unisonOffset,
+					host.doc.getCurrentInstrumentObj().unisonOffset,
 					Math.min(Config.unisonOffsetMax, Math.max(Config.unisonOffsetMin, +host.unisonOffsetInputBox.value)),
 				),
 			);
@@ -386,7 +382,7 @@ export class EventListenerSetup {
 			host.doc.record(
 				new ChangeUnisonExpression(
 					host.doc,
-					host.doc.song.channels[host.doc.channel].instruments[host.doc.getCurrentInstrument()].unisonExpression,
+					host.doc.getCurrentInstrumentObj().unisonExpression,
 					Math.min(Config.unisonExpressionMax, Math.max(Config.unisonExpressionMin, +host.unisonExpressionInputBox.value)),
 				),
 			);
@@ -395,7 +391,7 @@ export class EventListenerSetup {
 			host.doc.record(
 				new ChangeUnisonSign(
 					host.doc,
-					host.doc.song.channels[host.doc.channel].instruments[host.doc.getCurrentInstrument()].unisonSign,
+					host.doc.getCurrentInstrumentObj().unisonSign,
 					Math.min(Config.unisonSignMax, Math.max(Config.unisonSignMin, +host.unisonSignInputBox.value)),
 				),
 			);
@@ -418,7 +414,7 @@ export class EventListenerSetup {
 			host.doc.record(
 				new ChangeUpperLimit(
 					host.doc,
-					host.doc.song.channels[host.doc.channel].instruments[host.doc.getCurrentInstrument()].upperNoteLimit,
+					host.doc.getCurrentInstrumentObj().upperNoteLimit,
 					Math.min(Config.maxPitch, Math.max(0.0, Math.round(+host.upperNoteLimitInputBox.value))),
 				),
 			);
@@ -427,7 +423,7 @@ export class EventListenerSetup {
 			host.doc.record(
 				new ChangeLowerLimit(
 					host.doc,
-					host.doc.song.channels[host.doc.channel].instruments[host.doc.getCurrentInstrument()].lowerNoteLimit,
+					host.doc.getCurrentInstrumentObj().lowerNoteLimit,
 					Math.min(Config.maxPitch, Math.max(0.0, Math.round(+host.lowerNoteLimitInputBox.value))),
 				),
 			);

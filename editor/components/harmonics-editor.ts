@@ -67,7 +67,7 @@ export class HarmonicsEditor {
 		private _doc: SongDocument,
 		private _isPrompt: boolean = false,
 	) {
-		this.instrument = this._doc.song.channels[this._doc.channel].instruments[this._doc.getCurrentInstrument()];
+		this.instrument = this._doc.getCurrentInstrumentObj();
 
 		for (let i: number = 1; i <= Config.harmonicsControlPoints; i = i * 2) {
 			this._octaves.appendChild(
@@ -227,7 +227,7 @@ export class HarmonicsEditor {
 			const freq: number = this._xToFreq(this._mouseX);
 			const amp: number = this._yToAmp(this._mouseY);
 
-			const instrument: Instrument = this._doc.song.channels[this._doc.channel].instruments[this._doc.getCurrentInstrument()];
+			const instrument: Instrument = this._doc.getCurrentInstrumentObj();
 			const harmonicsWave: HarmonicsWave = instrument.harmonicsWave; // (this._harmonicsIndex == null) ? instrument.harmonicsWave : instrument.drumsetSpectrumWaves[this._harmonicsIndex];
 
 			if (freq !== this._freqPrev) {
@@ -266,12 +266,12 @@ export class HarmonicsEditor {
 	};
 
 	public getHarmonicsWave(): HarmonicsWave {
-		const instrument: Instrument = this._doc.song.channels[this._doc.channel].instruments[this._doc.getCurrentInstrument()];
+		const instrument: Instrument = this._doc.getCurrentInstrumentObj();
 		return instrument.harmonicsWave;
 	}
 
 	public setHarmonicsWave(harmonics: number[], saveHistory: boolean = false) {
-		const instrument: Instrument = this._doc.song.channels[this._doc.channel].instruments[this._doc.getCurrentInstrument()];
+		const instrument: Instrument = this._doc.getCurrentInstrumentObj();
 		for (let i = 0; i < Config.harmonicsControlPoints; i++) {
 			instrument.harmonicsWave.harmonics[i] = harmonics[i];
 		}
@@ -283,20 +283,17 @@ export class HarmonicsEditor {
 	}
 
 	public saveSettings(): ChangeHarmonics {
-		const instrument: Instrument = this._doc.song.channels[this._doc.channel].instruments[this._doc.getCurrentInstrument()];
+		const instrument: Instrument = this._doc.getCurrentInstrumentObj();
 		return new ChangeHarmonics(this._doc, instrument, instrument.harmonicsWave);
 	}
 
 	public resetToInitial() {
-		// const instrument: Instrument = this._doc.song.channels[this._doc.channel].instruments[this._doc.getCurrentInstrument()];
-		// this.setHarmonicsWave(this._initial.harmonics);
 		this._changeQueue = [];
 		this._undoHistoryState = 0;
-		// this._doc.record(new ChangeHarmonics(this._doc, instrument, this._initial));
 	}
 
 	public render(): void {
-		const instrument: Instrument = this._doc.song.channels[this._doc.channel].instruments[this._doc.getCurrentInstrument()];
+		const instrument: Instrument = this._doc.getCurrentInstrumentObj();
 		const harmonicsWave: HarmonicsWave = instrument.harmonicsWave; // (this._harmonicsIndex == null) ? instrument.harmonicsWave : instrument.drumsetSpectrumWaves[this._harmonicsIndex];
 		const controlPointToHeight = (point: number): number => {
 			return (1 - point / Config.harmonicsMax) * this._editorHeight;
