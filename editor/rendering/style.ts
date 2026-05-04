@@ -450,14 +450,6 @@ html {
 	color: ${ColorConfig.primaryText};
 }
 
-.beepboxEditor .selectRow > .tip {
-	flex: 0 0 50%;
-	text-align: left;
-	overflow: hidden;
-	text-overflow: ellipsis;
-	white-space: nowrap;
-}
-
 .beepboxEditor .volume-speaker {
 	flex-shrink: 0;
 	width: var(--button-size);
