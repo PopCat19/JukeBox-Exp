@@ -29,8 +29,8 @@ export class Slider {
 		this._value = defaultValue ?? 0;
 		this._defaultValue = defaultValue ?? 0;
 		this.container = midTick
-			? span({ class: "midTick", style: "position: relative; flex: 0 0 61.5%;" }, input)
-			: span({ style: "position: relative; flex: 1;" }, input);
+			? span({ class: "midTick", style: "position: sticky; width: 61.5%;" }, input)
+			: span({ style: "position: sticky;" }, input);
 		input.addEventListener("input", this._whenInput);
 		input.addEventListener("change", this._whenChange);
 		input.addEventListener("dblclick", this._onDoubleClick);
