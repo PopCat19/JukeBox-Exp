@@ -81,6 +81,7 @@ export {
 } from "./instruments";
 export {
 	ChangeAppendInstrument,
+	ChangeCleanChannelInstruments,
 	ChangeCleanChannelPatterns,
 	ChangeDetectKey,
 	ChangeDragSelectedNotes,

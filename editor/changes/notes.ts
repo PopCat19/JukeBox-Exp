@@ -854,6 +854,114 @@ export class ChangeCleanChannelPatterns extends Change {
 	}
 }
 
+export class ChangeCleanChannelInstruments extends Change {
+	constructor(doc: SongDocument, channelIndex: number) {
+		super();
+		const channel: Channel = doc.song.channels[channelIndex];
+		const maxInstruments: number = doc.song.getMaxInstrumentsPerChannel();
+
+		// Collect instrument indices referenced by any pattern on this channel
+		const usedIndices: Set<number> = new Set();
+		for (const pattern of channel.patterns) {
+			for (const instIndex of pattern.instruments) {
+				if (instIndex >= 0 && instIndex < channel.instruments.length) {
+					usedIndices.add(instIndex);
+				}
+			}
+		}
+
+		if (usedIndices.size === 0) {
+			// No instruments used — keep one blank instrument at minimum
+			const isNoise: boolean = doc.song.getChannelIsNoise(channelIndex);
+			const isMod: boolean = doc.song.getChannelIsMod(channelIndex);
+			channel.instruments.length = 0;
+			channel.instruments.push(new Instrument(isNoise, isMod));
+			doc.viewedInstrument[channelIndex] = 0;
+			doc.notifier.changed();
+			this._didSomething();
+			return;
+		}
+
+		// Build fingerprint→newIndex mapping (sorted by original index for
+		// stable numbering — first-appearance in index order)
+		const sortedUsed: number[] = Array.from(usedIndices).sort((a, b) => a - b);
+		const fingerprintToNew: Map<string, number> = new Map();
+		const oldToNew: number[] = new Array(channel.instruments.length).fill(-1);
+
+		for (const oldIndex of sortedUsed) {
+			const fingerprint: string = JSON.stringify(channel.instruments[oldIndex].toJsonObject());
+			let newIndex: number | undefined = fingerprintToNew.get(fingerprint);
+			if (newIndex === undefined) {
+				newIndex = fingerprintToNew.size;
+				fingerprintToNew.set(fingerprint, newIndex);
+			}
+			oldToNew[oldIndex] = newIndex;
+		}
+
+		// Rebuild instrument array — place each unique instrument at its new index
+		const newInstruments: Instrument[] = new Array(fingerprintToNew.size);
+		for (let oldIdx: number = 0; oldIdx < oldToNew.length; oldIdx++) {
+			const newIdx: number = oldToNew[oldIdx];
+			if (newIdx >= 0 && newInstruments[newIdx] === undefined) {
+				newInstruments[newIdx] = channel.instruments[oldIdx];
+			}
+		}
+
+		// Truncate to max, pad to min
+		const finalCount: number = Math.max(Config.instrumentCountMin, Math.min(maxInstruments, newInstruments.length));
+		channel.instruments.length = 0;
+		for (let i: number = 0; i < finalCount; i++) {
+			if (i < newInstruments.length && newInstruments[i] !== undefined) {
+				channel.instruments[i] = newInstruments[i];
+			} else {
+				const isNoise: boolean = doc.song.getChannelIsNoise(channelIndex);
+				const isMod: boolean = doc.song.getChannelIsMod(channelIndex);
+				channel.instruments[i] = new Instrument(isNoise, isMod);
+			}
+		}
+
+		// Remap pattern instrument references
+		for (const pattern of channel.patterns) {
+			for (let i: number = 0; i < pattern.instruments.length; i++) {
+				const oldIdx: number = pattern.instruments[i];
+				if (oldIdx >= 0 && oldIdx < oldToNew.length && oldToNew[oldIdx] >= 0) {
+					pattern.instruments[i] = oldToNew[oldIdx];
+				}
+			}
+			discardInvalidPatternInstruments(pattern.instruments, doc.song, channelIndex);
+		}
+
+		// Update mod instrument references on other channels that target
+		// this channel's instruments. If the old index was dropped (maps to
+		// -1), reset the modulator to "none".
+		for (let modChannelIdx: number = doc.song.pitchChannelCount + doc.song.noiseChannelCount; modChannelIdx < doc.song.getChannelCount(); modChannelIdx++) {
+			for (const modInstrument of doc.song.channels[modChannelIdx].instruments) {
+				for (let mod: number = 0; mod < Config.modCount; mod++) {
+					if (modInstrument.modChannels[mod] !== channelIndex) continue;
+					const oldRef: number = modInstrument.modInstruments[mod];
+					if (oldRef >= 0 && oldRef < oldToNew.length) {
+						const newRef: number = oldToNew[oldRef];
+						if (newRef >= 0) {
+							modInstrument.modInstruments[mod] = newRef;
+						} else {
+							// Instrument was dropped — reset to none
+							modInstrument.modInstruments[mod] = 0;
+							modInstrument.modulators[mod] = Config.modulators.dictionary["none"].index;
+						}
+					}
+				}
+			}
+		}
+
+		// Clamp viewed instrument
+		doc.viewedInstrument[channelIndex] = Math.min(doc.viewedInstrument[channelIndex], channel.instruments.length - 1);
+
+		doc.synth.computeLatestModValues();
+		doc.notifier.changed();
+		this._didSomething();
+	}
+}
+
 export class ChangeNoteAdded extends UndoableChange {
 	private _doc: SongDocument;
 	private _pattern: Pattern;
