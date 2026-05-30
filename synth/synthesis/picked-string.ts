@@ -9,8 +9,6 @@ export function buildPickedStringSource(voiceCount: number): string {
 	let pickedStringSource: string = "return (synth, bufferIndex, runLength, tone, instrumentState) => {";
 
 	pickedStringSource += `
-				const Config = beepbox.Config;
-				const Synth = beepbox.Synth;
 				const data = synth.tempMonoInstrumentSampleBuffer;
 				
 				let pickedString# = tone.pickedStrings[#];
