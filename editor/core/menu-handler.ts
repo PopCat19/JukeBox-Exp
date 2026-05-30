@@ -112,6 +112,9 @@ export class MenuHandler {
 			case "insertChannel":
 				this._host.doc.selection.insertChannel();
 				break;
+			case "cloneChannel":
+				this._host.doc.selection.cloneChannel();
+				break;
 			case "deleteChannel":
 				this._host.doc.selection.deleteChannel();
 				break;

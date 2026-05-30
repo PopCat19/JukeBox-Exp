@@ -12,7 +12,7 @@ import { BorderRadius } from "../ui/style-constants";
 import { HTML } from "imperative-html/dist/esm/elements-strict";
 import { ColorConfig } from "../../shared/color-config";
 import { Config } from "../../synth/synth-config";
-import { ChangeChannelName, ChangeChannelOrder, ChangeRemoveChannel } from "../changes";
+import { ChangeChannelName, ChangeChannelOrder, ChangeCloneChannel, ChangeRemoveChannel } from "../changes";
 import { SongDocument } from "../song-document";
 import { SongEditor } from "../song-editor";
 import { InputBox } from "../ui";
@@ -53,6 +53,7 @@ export class MuteEditor {
 		HTML.option({ value: "chnMute" }, "Mute Channel"),
 		HTML.option({ value: "chnSolo" }, "Solo Channel"),
 		HTML.option({ value: "chnInsert" }, "Insert Channel Below"),
+		HTML.option({ value: "chnClone" }, "Clone Channel"),
 		HTML.option({ value: "chnDelete" }, "Delete This Channel"),
 	);
 
@@ -139,8 +140,10 @@ export class MuteEditor {
 				this._doc.song.modChannelCount === Config.modChannelCountMax)
 		) {
 			this._channelDropDown.options[5].disabled = true;
+			this._channelDropDown.options[6].disabled = true;
 		} else {
 			this._channelDropDown.options[5].disabled = false;
+			this._channelDropDown.options[6].disabled = false;
 		}
 
 		// Also check if a channel is eligible to move up or down based on the song's channel settings.
@@ -165,9 +168,9 @@ export class MuteEditor {
 
 		// Also, can't delete the last pitch channel.
 		if (this._doc.song.pitchChannelCount === 1 && this._channelDropDownChannel === 0) {
-			this._channelDropDown.options[6].disabled = true;
+			this._channelDropDown.options[7].disabled = true;
 		} else {
-			this._channelDropDown.options[6].disabled = false;
+			this._channelDropDown.options[7].disabled = false;
 		}
 	};
 
@@ -223,6 +226,10 @@ export class MuteEditor {
 				this._doc.channel = this._channelDropDownChannel;
 				this._doc.selection.resetBoxSelection();
 				this._doc.selection.insertChannel();
+				break;
+			}
+			case "chnClone": {
+				this._doc.record(new ChangeCloneChannel(this._doc, this._channelDropDownChannel));
 				break;
 			}
 			case "chnDelete": {

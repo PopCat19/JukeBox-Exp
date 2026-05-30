@@ -16,6 +16,7 @@ import {
 	ChangeAddChannel,
 	ChangeChannelBar,
 	ChangeChannelOrder,
+	ChangeCloneChannel,
 	ChangeDeleteBars,
 	ChangeDuplicateSelectedReusedPatterns,
 	ChangeEnsurePatternExists,
@@ -245,6 +246,17 @@ export class Selection {
 		const width: number = this.boxSelectionWidth;
 		this.boxSelectionX0 += width;
 		this.boxSelectionX1 += width;
+	}
+
+	public cloneChannel(): void {
+		const group: ChangeGroup = new ChangeGroup();
+		const sourceIndex: number = this.boxSelectionChannel;
+		group.append(new ChangeCloneChannel(this._doc, sourceIndex));
+		if (!group.isNoop()) {
+			this.boxSelectionY0 = this.boxSelectionY1 = sourceIndex + 1;
+			group.append(new ChangeChannelBar(this._doc, sourceIndex + 1, this._doc.bar));
+			this._doc.record(group);
+		}
 	}
 
 	public insertChannel(): void {

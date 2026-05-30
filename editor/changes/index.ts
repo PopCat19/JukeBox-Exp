@@ -162,6 +162,7 @@ export {
 	ChangeChannelCount,
 	ChangeChannelName,
 	ChangeChannelOrder,
+	ChangeCloneChannel,
 	ChangeCustomScale,
 	ChangeDeleteBars,
 	ChangeInsertBars,

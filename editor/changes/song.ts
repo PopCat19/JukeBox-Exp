@@ -4,7 +4,7 @@
 //
 // This module:
 // - Provides change classes for tempo, key, scale, and rhythm
-// - Handles channel add, remove, reorder, and bar manipulation
+// - Handles channel add, clone, remove, reorder, and bar manipulation
 // - Manages song metadata and loop region changes
 
 // Copyright (c) 2012-2022 John Nesky and contributing authors, distributed under the MIT license, see accompanying the LICENSE.md file.
@@ -327,6 +327,67 @@ export class ChangeAddChannel extends ChangeGroup {
 
 			doc.synth.computeLatestModValues();
 			doc.recalcChannelNames = true;
+		}
+	}
+}
+
+export class ChangeCloneChannel extends ChangeGroup {
+	constructor(doc: SongDocument, sourceIndex: number) {
+		super();
+		const isNoise: boolean = doc.song.getChannelIsNoise(sourceIndex);
+		const isMod: boolean = doc.song.getChannelIsMod(sourceIndex);
+		const destIndex: number = sourceIndex + 1;
+
+		const newPitchChannelCount: number = doc.song.pitchChannelCount + (isNoise || isMod ? 0 : 1);
+		const newNoiseChannelCount: number = doc.song.noiseChannelCount + (!isNoise || isMod ? 0 : 1);
+		const newModChannelCount: number = doc.song.modChannelCount + (isNoise || !isMod ? 0 : 1);
+
+		if (
+			newPitchChannelCount <= Config.pitchChannelCountMax &&
+			newNoiseChannelCount <= Config.noiseChannelCountMax &&
+			newModChannelCount <= Config.modChannelCountMax
+		) {
+			// Add a blank channel of the same type at destIndex
+			this.append(new ChangeAddChannel(doc, destIndex, isNoise, isMod));
+
+			// Deep-copy source channel data into the new destination channel
+			const src: Channel = doc.song.channels[sourceIndex];
+			const dst: Channel = doc.song.channels[destIndex];
+
+			dst.name = src.name;
+			dst.octave = src.octave;
+			dst.muted = src.muted;
+
+			// Copy bars (pattern index references)
+			dst.bars.length = 0;
+			for (let i: number = 0; i < src.bars.length; i++) {
+				dst.bars[i] = src.bars[i];
+			}
+
+			// Deep-copy instruments via JSON roundtrip
+			dst.instruments.length = 0;
+			for (const instrument of src.instruments) {
+				const instrumentCopy: any = instrument.toJsonObject();
+				instrumentCopy["isDrum"] = isNoise;
+				instrumentCopy["isMod"] = isMod;
+				const newInstrument: Instrument = new Instrument(isNoise, isMod);
+				newInstrument.fromJsonObject(instrumentCopy, isNoise, isMod, doc.song.rhythm === 0 || doc.song.rhythm === 2, doc.song.rhythm >= 2);
+				dst.instruments.push(newInstrument);
+			}
+
+			// Deep-copy patterns (notes + instrument references)
+			dst.patterns.length = 0;
+			for (const pattern of src.patterns) {
+				const newPattern: Pattern = new Pattern();
+				newPattern.notes = pattern.cloneNotes();
+				newPattern.instruments.length = 0;
+				newPattern.instruments.push(...pattern.instruments);
+				dst.patterns.push(newPattern);
+			}
+
+			doc.synth.computeLatestModValues();
+			doc.recalcChannelNames = true;
+			doc.notifier.changed();
 		}
 	}
 }

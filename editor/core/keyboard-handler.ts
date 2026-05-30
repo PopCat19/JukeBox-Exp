@@ -345,7 +345,9 @@ export class KeyboardHandler {
 				doc.synth.loopBarEnd = -1;
 				host.loopEditor.setLoopAt(doc.synth.loopBarStart, doc.synth.loopBarEnd);
 
-				if ((event.ctrlKey || event.metaKey) && !event.shiftKey) {
+				if ((event.ctrlKey || event.metaKey) && event.shiftKey) {
+					doc.selection.cloneChannel();
+				} else if ((event.ctrlKey || event.metaKey) && !event.shiftKey) {
 					doc.selection.insertChannel();
 				} else if (event.shiftKey) {
 					const width = doc.selection.boxSelectionWidth;

@@ -44,6 +44,7 @@ export class MenuBar {
 			option({ value: "insertBars" }, "Insert Bar (⏎)"),
 			option({ value: "deleteBars" }, "Delete Selected Bars (⌫)"),
 			option({ value: "insertChannel" }, "Insert Channel (" + EditorConfig.ctrlSymbol + "⏎)"),
+			option({ value: "cloneChannel" }, "Clone Channel (" + EditorConfig.ctrlSymbol + "⇧⏎)"),
 			option({ value: "deleteChannel" }, "Delete Selected Channels (" + EditorConfig.ctrlSymbol + "⌫)"),
 			option({ value: "selectChannel" }, "Select Channel (⇧A)"),
 			option({ value: "selectAll" }, "Select All (A)"),
