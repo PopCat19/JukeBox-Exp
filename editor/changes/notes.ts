@@ -834,6 +834,26 @@ export function removeDuplicatePatterns(channels: Channel[]): void {
 	}
 }
 
+export class ChangeCleanChannelPatterns extends Change {
+	constructor(doc: SongDocument, channelIndex: number) {
+		super();
+		const channel: Channel = doc.song.channels[channelIndex];
+		const patternsPerChannel: number = doc.song.patternsPerChannel;
+
+		removeDuplicatePatterns([channel]);
+
+		// Restore empty pattern slots up to patternsPerChannel so numbering
+		// stays consistent across channels.
+		for (let j: number = channel.patterns.length; j < patternsPerChannel; j++) {
+			channel.patterns[j] = new Pattern();
+		}
+		channel.patterns.length = patternsPerChannel;
+
+		doc.notifier.changed();
+		this._didSomething();
+	}
+}
+
 export class ChangeNoteAdded extends UndoableChange {
 	private _doc: SongDocument;
 	private _pattern: Pattern;
