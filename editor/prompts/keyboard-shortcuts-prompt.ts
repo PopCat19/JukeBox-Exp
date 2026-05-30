@@ -39,6 +39,7 @@ const shortcutCategories: ShortcutCategory[] = [
 			{ keys: [{ key: "Enter" }], desc: "Insert Bars / Reset Loop" },
 			{ keys: [{ key: "Enter", mods: "Shift" }], desc: "Insert Bars Before" },
 			{ keys: [{ key: "Enter", mods: "Ctrl" }], desc: "Insert Channel" },
+			{ keys: [{ key: "Enter", mods: "Ctrl+Shift" }], desc: "Clone Channel" },
 			{ keys: [{ key: "Enter", mods: "Alt" }], desc: "Add Instrument To Channel" },
 			{ keys: [{ key: "[" }], desc: "Previous Bar" },
 			{ keys: [{ key: "]" }], desc: "Next Bar" },

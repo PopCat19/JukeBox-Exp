@@ -12,7 +12,7 @@ import { BorderRadius } from "../ui/style-constants";
 import { HTML } from "imperative-html/dist/esm/elements-strict";
 import { ColorConfig } from "../../shared/color-config";
 import { Config } from "../../synth/synth-config";
-import { ChangeChannelName, ChangeChannelOrder, ChangeCloneChannel, ChangeRemoveChannel } from "../changes";
+import { ChangeChannelName, ChangeChannelOrder, ChangeRemoveChannel } from "../changes";
 import { SongDocument } from "../song-document";
 import { SongEditor } from "../song-editor";
 import { InputBox } from "../ui";
@@ -229,7 +229,9 @@ export class MuteEditor {
 				break;
 			}
 			case "chnClone": {
-				this._doc.record(new ChangeCloneChannel(this._doc, this._channelDropDownChannel));
+				this._doc.channel = this._channelDropDownChannel;
+				this._doc.selection.resetBoxSelection();
+				this._doc.selection.cloneChannel();
 				break;
 			}
 			case "chnDelete": {
