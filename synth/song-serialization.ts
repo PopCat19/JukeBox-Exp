@@ -1786,7 +1786,12 @@ export function fromBase64StringImpl(song: SongLike, compressed: string, jsonFor
 						instrumentChannelIterator++;
 						instrumentIndexIterator = 0;
 					}
-					validateRange(0, song.channels.length - 1, instrumentChannelIterator);
+					if (instrumentChannelIterator >= song.channels.length) {
+						// Corrupted data — more instrument tags than header
+						// indicated. Skip remaining instrument data safely.
+						charIndex = compressed.length;
+						break;
+					}
 					const instrument: Instrument = song.channels[instrumentChannelIterator].instruments[instrumentIndexIterator];
 					// JB before v5 had custom chip and mod before pickedString and supersaw were added. Index +2.
 					let instrumentType: number = base64CharCodeToInt[compressed.charCodeAt(charIndex++)];
