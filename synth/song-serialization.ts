@@ -1789,11 +1789,16 @@ export function fromBase64StringImpl(song: SongLike, compressed: string, jsonFor
 					validateRange(0, song.channels.length - 1, instrumentChannelIterator);
 					const instrument: Instrument = song.channels[instrumentChannelIterator].instruments[instrumentIndexIterator];
 					// JB before v5 had custom chip and mod before pickedString and supersaw were added. Index +2.
-					let instrumentType: number = validateRange(
-						0,
-						getRegisteredInstrumentTypeCount() - 1,
-						base64CharCodeToInt[compressed.charCodeAt(charIndex++)],
-					);
+					let instrumentType: number = base64CharCodeToInt[compressed.charCodeAt(charIndex++)];
+					if (instrumentType < 0 || instrumentType >= getRegisteredInstrumentTypeCount()) {
+						// Corrupted data (e.g. cross-type paste artifact) —
+						// fall back to channel-appropriate default and skip
+						// instrument deserialization to avoid cascading errors.
+						const isNoise: boolean = instrumentChannelIterator >= song.pitchChannelCount &&
+							instrumentChannelIterator < song.pitchChannelCount + song.noiseChannelCount;
+						const isMod: boolean = instrumentChannelIterator >= song.pitchChannelCount + song.noiseChannelCount;
+						instrumentType = isMod ? InstrumentType.mod : isNoise ? InstrumentType.noise : InstrumentType.chip;
+					}
 					if ((fromJummBox && beforeFive) || (beforeFour && fromGoldBox)) {
 						if (instrumentType === InstrumentType.pickedString || instrumentType === InstrumentType.supersaw) {
 							instrumentType += 2;
