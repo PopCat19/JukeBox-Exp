@@ -347,12 +347,15 @@ export class Selection {
 		const remap: number[] = [];
 
 		if (!channelCopy.instrumentDefs) {
+			console.log("[paste] legacy copy — no instrumentDefs, using identity map");
 			// Legacy copy — fall back to old behavior (identity map)
 			for (let i: number = 0; i < channel.instruments.length; i++) {
 				remap[i] = i;
 			}
 			return remap;
 		}
+
+		console.log("[paste] reconciling instruments — dest channel has", channel.instruments.length, "instruments, max", maxInstruments);
 
 		// Build fingerprint→destIndex map for existing destination instruments
 		const destFingerprints: Map<string, number> = new Map();
@@ -385,6 +388,7 @@ export class Selection {
 
 			// No match — append the instrument if we have room
 			if (channel.instruments.length >= maxInstruments) {
+				console.log("[paste] at instrument capacity, fallback to idx 0 for src", srcIdx);
 				// At capacity — map to first instrument as fallback
 				remap[srcIdx] = 0;
 				continue;
@@ -404,8 +408,10 @@ export class Selection {
 			channel.instruments.push(newInstrument);
 			destFingerprints.set(srcFingerprint, newIdx);
 			remap[srcIdx] = newIdx;
+			console.log("[paste] appended new instrument src", srcIdx, "→ dest", newIdx);
 		}
 
+		console.log("[paste] instrument remap:", remap);
 		return remap;
 	}
 
@@ -612,6 +618,8 @@ export class Selection {
 
 	private _doPasteNotes(selectionCopy: SelectionCopy): void {
 		const channelCopies: ChannelCopy[] = selectionCopy["channels"] || [];
+		const hasDefs: boolean = channelCopies.length > 0 && channelCopies[0].instrumentDefs != null;
+		console.log("[paste] _doPasteNotes — channels:", channelCopies.length, "has instrumentDefs:", hasDefs);
 		const copiedPartDuration: number = selectionCopy["partDuration"] >>> 0;
 
 		const group: ChangeGroup = new ChangeGroup();
