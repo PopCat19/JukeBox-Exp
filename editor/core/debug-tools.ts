@@ -9,7 +9,7 @@
 // - Records actions as replayable backend scripts
 
 import type { Song } from "../../synth";
-import type { Change } from "./change";
+import { type Change, ChangeGroup } from "./change";
 import type { SongDocument } from "../song-document";
 
 interface ReplayOp {
@@ -31,20 +31,6 @@ interface DebugAPI {
 	replay: (ops: ReplayOp[]) => void;
 }
 
-function extractChangeArgs(change: Change): Record<string, any> | null {
-	const name: string = change.constructor.name;
-	if (!name) return null;
-	const args: Record<string, any> = { _change: name };
-	for (const key of Object.getOwnPropertyNames(change)) {
-		if (key.startsWith("_")) continue;
-		const val: any = (change as any)[key];
-		if (typeof val === "number" || typeof val === "string" || typeof val === "boolean" || val === null || val === undefined) {
-			args[key] = val;
-		}
-	}
-	return Object.keys(args).length > 1 ? args : null;
-}
-
 export function installDebugTools(doc: SongDocument): void {
 	const ops: ReplayOp[] = [];
 	let recording: boolean = false;
@@ -53,11 +39,20 @@ export function installDebugTools(doc: SongDocument): void {
 	// ── Recorder hooks ──────────────────────────────────────────
 
 	const _origRecord = doc.record.bind(doc);
-	doc.record = function (change: Change, replace?: boolean, newSong?: boolean): void {
+	const _origGroupAppend = ChangeGroup.prototype.append;
+
+	// Intercept ChangeGroup.append to capture inner change names
+	ChangeGroup.prototype.append = function (change: Change): void {
 		if (recording && !suppress) {
-			const args = extractChangeArgs(change);
-			ops.push({ op: "change", args: args ?? { _change: change.constructor.name }, ts: Date.now() });
+			const n: string = change.constructor.name;
+			if (n !== "ChangeGroup" && n !== "ChangeSequence") {
+				ops.push({ op: "change", args: { _change: n }, ts: Date.now() });
+			}
 		}
+		return _origGroupAppend.call(this, change);
+	};
+
+	doc.record = function (change: Change, replace?: boolean, newSong?: boolean): void {
 		return _origRecord(change, replace, newSong);
 	};
 
