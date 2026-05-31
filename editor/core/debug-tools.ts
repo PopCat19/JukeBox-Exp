@@ -95,11 +95,10 @@ export function installDebugTools(doc: SongDocument): void {
 
 	// ── API ─────────────────────────────────────────────────────
 
-	function genScript(): string {
-		return [
-			"// Replay script — paste into console on a fresh JukeBox page",
-			`__jukebox__.replay(${JSON.stringify(ops, null, 2)});`,
-		].join("\n");
+	function genScript(pretty: boolean): string {
+		const json: string = pretty ? JSON.stringify(ops, null, 2) : JSON.stringify(ops);
+		const prefix: string = pretty ? "// Replay script — paste into console on a fresh JukeBox page\n" : "";
+		return `${prefix}__jukebox__.replay(${json});`;
 	}
 
 	const api: DebugAPI = {
@@ -188,12 +187,13 @@ export function installDebugTools(doc: SongDocument): void {
 			stop(): string {
 				recording = false;
 				console.log(`⏹ stopped — ${ops.length} ops`);
-				const s = genScript();
-				console.log(s);
+				const readable: string = genScript(true);
+				const minified: string = genScript(false);
+				console.log(readable);
 				if (navigator.clipboard?.writeText) {
-					navigator.clipboard.writeText(s).then(() => console.log("📋 replay script copied to clipboard")).catch(() => {});
+					navigator.clipboard.writeText(minified).then(() => console.log("📋 replay script copied to clipboard")).catch(() => {});
 				}
-				return s;
+				return readable;
 			},
 			ops(): ReplayOp[] { return [...ops]; },
 			dump(): void {
