@@ -50,7 +50,8 @@ Three TypeScript projects (separate tsconfigs):
 
 ```bash
 bun install
-bun run dev              # watch + auto-reload (scripts/live-editor.sh)
+bun run dev              # watch + auto-reload (single-tab; scripts/live-editor.sh)
+bun run dev:static        # watch, no reload (multi-tab safe; scripts/live-editor-static.sh)
 bun run build            # production build → dist/
 bun run build:offline    # offline-capable build
 ```
