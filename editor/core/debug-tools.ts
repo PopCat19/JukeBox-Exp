@@ -181,6 +181,9 @@ export function installDebugTools(doc: SongDocument): void {
 				console.log(`⏹ stopped — ${ops.length} ops`);
 				const s = genScript();
 				console.log(s);
+				if (navigator.clipboard?.writeText) {
+					navigator.clipboard.writeText(s).then(() => console.log("📋 replay script copied to clipboard")).catch(() => {});
+				}
 				return s;
 			},
 			ops(): ReplayOp[] { return [...ops]; },
