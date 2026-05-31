@@ -217,13 +217,17 @@ export function installDebugTools(doc: SongDocument): void {
 							doc.selection.copy();
 							break;
 						case "pasteNotes":
+							// Position cursor at recorded bar/ch before paste
+							if (op.args?.bar !== undefined) doc.bar = op.args.bar;
+							if (op.args?.ch !== undefined) doc.channel = op.args.ch;
+							doc.selection.setTrackSelection(doc.bar, doc.bar, doc.channel, doc.channel);
 							if (op.args?.payload) window.localStorage.setItem("selectionCopy", op.args.payload);
 							doc.selection.pasteNotes();
 							break;
 						case "insertChannel":    doc.selection.insertChannel(); break;
 						case "deleteChannel":    doc.selection.deleteChannel(); break;
 						case "cloneChannel":     doc.selection.cloneChannel(); break;
-						case "change":           break; // implicit — happens as side effect of Selection ops
+						case "change":           break; // navigation happens via pasteNotes positioning above
 						default:                 console.warn("  unknown op:", op.op);
 					}
 					count++;
