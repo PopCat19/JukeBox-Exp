@@ -59,11 +59,11 @@ export function installDebugTools(doc: SongDocument): void {
 
 	const _origCopy = doc.selection.copy.bind(doc.selection);
 	doc.selection.copy = function (): void {
+		_origCopy();
 		if (recording && !suppress) {
 			const payload: string | null = window.localStorage.getItem("selectionCopy");
 			ops.push({ op: "copy", args: { w: doc.selection.boxSelectionWidth, h: doc.selection.boxSelectionHeight, payload: payload || undefined }, ts: Date.now() });
 		}
-		return _origCopy();
 	};
 
 	const _origPaste = doc.selection.pasteNotes.bind(doc.selection);
