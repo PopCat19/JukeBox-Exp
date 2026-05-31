@@ -331,7 +331,9 @@ export class KeyboardHandler {
 			case 67: // c
 				if (canPlayNotes) break;
 
-				if (event.shiftKey) {
+				if (event.ctrlKey && event.shiftKey) {
+					doc.selection.copyChannel();
+				} else if (event.shiftKey) {
 					host.copyInstrument();
 				} else {
 					doc.selection.copy();

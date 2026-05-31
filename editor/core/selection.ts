@@ -434,6 +434,11 @@ export class Selection {
 		return true;
 	}
 
+	public copyChannel(): void {
+		this.selectChannel();
+		this.copy();
+	}
+
 	public copy(): void {
 		const channels: ChannelCopy[] = [];
 

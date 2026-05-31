@@ -39,6 +39,7 @@ export class MenuBar {
 			option({ value: "undo" }, "Undo (Z)"),
 			option({ value: "redo" }, "Redo (Y)"),
 			option({ value: "copy" }, "Copy Pattern (C)"),
+			option({ value: "copyChannel" }, "Copy Channel (" + EditorConfig.ctrlSymbol + "⇧C)"),
 			option({ value: "pasteNotes" }, "Paste Pattern Notes (V)"),
 			option({ value: "pasteNumbers" }, "Paste Pattern Numbers (" + EditorConfig.ctrlSymbol + "⇧V)"),
 			option({ value: "insertBars" }, "Insert Bar (⏎)"),

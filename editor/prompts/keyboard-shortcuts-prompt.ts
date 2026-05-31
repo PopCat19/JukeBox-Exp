@@ -68,6 +68,7 @@ const shortcutCategories: ShortcutCategory[] = [
 			{ keys: [{ key: "Z" }], desc: "Undo" },
 			{ keys: [{ key: "Z", mods: "Shift" }, { key: "Y" }], desc: "Redo" },
 			{ keys: [{ key: "C" }], desc: "Copy" },
+			{ keys: [{ key: "C", mods: "Ctrl+Shift" }], desc: "Copy Channel" },
 			{ keys: [{ key: "C", mods: "Shift" }], desc: "Copy Instrument" },
 			{ keys: [{ key: "V" }], desc: "Paste" },
 			{ keys: [{ key: "V", mods: "Shift" }], desc: "Paste Instrument" },

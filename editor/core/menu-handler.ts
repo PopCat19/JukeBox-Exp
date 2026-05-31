@@ -103,6 +103,9 @@ export class MenuHandler {
 			case "copy":
 				this._host.doc.selection.copy();
 				break;
+			case "copyChannel":
+				this._host.doc.selection.copyChannel();
+				break;
 			case "insertBars":
 				this._host.doc.selection.insertBars();
 				break;
