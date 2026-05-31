@@ -11,6 +11,7 @@
 import type { Song } from "../../synth";
 import { type Change, ChangeGroup } from "./change";
 import type { SongDocument } from "../song-document";
+import { ChangeSong } from "../changes";
 
 interface ReplayOp {
 	op: string;
@@ -180,6 +181,8 @@ export function installDebugTools(doc: SongDocument): void {
 			start(): void {
 				ops.length = 0;
 				recording = true;
+				// Capture initial song state so replay can restore it
+				ops.push({ op: "load", args: { hash: window.location.hash.slice(1) || "" }, ts: Date.now() });
 				console.log("🔴 recording — run __jukebox__.record.stop() to get replay script");
 			},
 			stop(): string {
@@ -206,6 +209,9 @@ export function installDebugTools(doc: SongDocument): void {
 			for (const op of recordedOps) {
 				try {
 					switch (op.op) {
+						case "load":
+							if (op.args?.hash) doc.record(new ChangeSong(doc, op.args.hash));
+							break;
 						case "copy":
 							if (op.args?.payload) window.localStorage.setItem("selectionCopy", op.args.payload);
 							doc.selection.copy();
