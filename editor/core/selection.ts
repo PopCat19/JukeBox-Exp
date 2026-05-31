@@ -401,6 +401,15 @@ export class Selection {
 			);
 			const newIdx: number = channel.instruments.length;
 			channel.instruments.push(newInstrument);
+
+			// If this pushes instruments past the minimum and pattern
+			// instruments are disabled, enable them so the serializer
+			// writes per-channel counts the deserializer can parse.
+			if (!this._doc.song.patternInstruments && !this._doc.song.layeredInstruments) {
+				this._doc.song.patternInstruments = true;
+				this._doc.notifier.changed();
+			}
+
 			destFingerprints.set(srcFingerprint, newIdx);
 			remap[srcIdx] = newIdx;
 		}
