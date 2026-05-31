@@ -10,7 +10,7 @@
 // Copyright (c) 2012-2022 John Nesky and contributing authors, distributed under the MIT license, see accompanying the LICENSE.md file.
 
 import { ColorConfig } from "../../shared/color-config";
-import { Note, NotePin, Pattern } from "../../synth";
+import { Note, NotePin, Pattern, Channel, Instrument } from "../../synth";
 import { Config, Dictionary } from "../../synth/synth-config";
 import {
 	ChangeAddChannel,
@@ -60,6 +60,7 @@ interface ChannelCopy {
 	isMod: boolean;
 	patterns: Dictionary<PatternCopy>;
 	bars: number[];
+	instrumentDefs?: Dictionary<object>;
 }
 
 interface SelectionCopy {
@@ -336,10 +337,84 @@ export class Selection {
 		}
 	}
 
-	private _parseCopiedInstrumentArray(patternCopy: any, channelIndex: number): number[] {
-		const instruments: number[] = Array.from(patternCopy["instruments"]).map((i) => <any>i >>> 0);
-		discardInvalidPatternInstruments(instruments, this._doc.song, channelIndex);
-		return instruments;
+	// Reconcile instrument definitions from a copied channel with the
+	// destination channel. Appends new instruments for definitions that
+	// don't match the destination and returns a sourceIndex→destIndex map.
+	// Falls back to identity mapping for legacy copies without instrumentDefs.
+	private _reconcilePastedInstruments(channelCopy: ChannelCopy, channelIndex: number): number[] {
+		const channel: Channel = this._doc.song.channels[channelIndex];
+		const maxInstruments: number = this._doc.song.getMaxInstrumentsPerChannel();
+		const remap: number[] = [];
+
+		if (!channelCopy.instrumentDefs) {
+			// Legacy copy — fall back to old behavior (identity map)
+			for (let i: number = 0; i < channel.instruments.length; i++) {
+				remap[i] = i;
+			}
+			return remap;
+		}
+
+		// Build fingerprint→destIndex map for existing destination instruments
+		const destFingerprints: Map<string, number> = new Map();
+		for (let i: number = 0; i < channel.instruments.length; i++) {
+			const fp: string = JSON.stringify(channel.instruments[i].toJsonObject());
+			if (!destFingerprints.has(fp)) {
+				destFingerprints.set(fp, i);
+			}
+		}
+
+		for (const [srcIdxStr, instDef] of Object.entries(channelCopy.instrumentDefs)) {
+			const srcIdx: number = parseInt(srcIdxStr, 10);
+			const srcFingerprint: string = JSON.stringify(instDef);
+
+			// Check if destination has matching instrument at the same index
+			if (srcIdx < channel.instruments.length) {
+				const destFp: string = JSON.stringify(channel.instruments[srcIdx].toJsonObject());
+				if (destFp === srcFingerprint) {
+					remap[srcIdx] = srcIdx;
+					continue;
+				}
+			}
+
+			// Check if destination has a matching instrument anywhere
+			const existingIdx: number | undefined = destFingerprints.get(srcFingerprint);
+			if (existingIdx !== undefined) {
+				remap[srcIdx] = existingIdx;
+				continue;
+			}
+
+			// No match — append the instrument if we have room
+			if (channel.instruments.length >= maxInstruments) {
+				// At capacity — map to first instrument as fallback
+				remap[srcIdx] = 0;
+				continue;
+			}
+
+			const isNoise: boolean = this._doc.song.getChannelIsNoise(channelIndex);
+			const isMod: boolean = this._doc.song.getChannelIsMod(channelIndex);
+			const newInstrument: Instrument = new Instrument(isNoise, isMod);
+			newInstrument.fromJsonObject(
+				instDef,
+				isNoise,
+				isMod,
+				this._doc.song.rhythm === 0 || this._doc.song.rhythm === 2,
+				this._doc.song.rhythm >= 2,
+			);
+			const newIdx: number = channel.instruments.length;
+			channel.instruments.push(newInstrument);
+			destFingerprints.set(srcFingerprint, newIdx);
+			remap[srcIdx] = newIdx;
+		}
+
+		return remap;
+	}
+
+	// Apply instrument remapping to a copied instrument array, then
+	// validate against the destination channel's limits.
+	private _remapPastedInstruments(instrumentsSrc: number[], remap: number[], channelIndex: number): number[] {
+		const remapped: number[] = instrumentsSrc.map((i) => (i < remap.length && remap[i] !== undefined ? remap[i] : i));
+		discardInvalidPatternInstruments(remapped, this._doc.song, channelIndex);
+		return remapped;
 	}
 
 	private _patternIndexIsUnused(channelIndex: number, patternIndex: number): boolean {
@@ -398,6 +473,23 @@ export class Selection {
 				patterns: patterns,
 				bars: bars,
 			};
+
+			// Serialize instrument definitions for cross-project paste fidelity
+			const collectedInstruments: Set<number> = new Set();
+			for (const key of Object.keys(patterns)) {
+				for (const instIdx of patterns[key].instruments) {
+					collectedInstruments.add(instIdx);
+				}
+			}
+			if (collectedInstruments.size > 0) {
+				channelCopy.instrumentDefs = {};
+				for (const instIdx of collectedInstruments) {
+					if (instIdx < this._doc.song.channels[channelIndex].instruments.length) {
+						channelCopy.instrumentDefs[String(instIdx)] = this._doc.song.channels[channelIndex].instruments[instIdx].toJsonObject();
+					}
+				}
+			}
+
 			channels.push(channelCopy);
 		}
 
@@ -513,6 +605,10 @@ export class Selection {
 			// if (isNoise != this._doc.song.getChannelIsNoise(channelIndex))
 			//     continue;
 
+			// Reconcile instrument definitions: merge copied instruments
+			// into destination, returning sourceIndex→destIndex remap
+			const instRemap: number[] = this._reconcilePastedInstruments(channelCopy, channelIndex);
+
 			const pasteWidth: number = fillSelection ? this.boxSelectionWidth : Math.min(copiedBars.length, this._doc.song.barCount - this.boxSelectionBar);
 			if (!fillSelection && copiedBars.length === 1 && channelCopies.length === 1) {
 				// Special case: if there's just one pattern being copied, try to insert it
@@ -524,7 +620,7 @@ export class Selection {
 
 				const patternCopy: PatternCopy = patternCopies[String(copiedPatternIndex)];
 
-				const instrumentsCopy: number[] = this._parseCopiedInstrumentArray(patternCopy, channelIndex);
+				const instrumentsCopy: number[] = this._remapPastedInstruments(patternCopy.instruments, instRemap, channelIndex);
 
 				let pastedNotes: Note[] = patternCopy["notes"];
 				if (isPitch && channelIsNoise) {
@@ -589,7 +685,7 @@ export class Selection {
 					if (currentPatternIndex === 0) {
 						group.append(new ChangeEnsurePatternExists(this._doc, channelIndex, bar));
 						const patternCopy: PatternCopy = patternCopies[String(copiedPatternIndex)];
-						const instrumentsCopy: number[] = this._parseCopiedInstrumentArray(patternCopy, channelIndex);
+						const instrumentsCopy: number[] = this._remapPastedInstruments(patternCopy.instruments, instRemap, channelIndex);
 						const pattern: Pattern = this._doc.song.getPattern(channelIndex, bar)!;
 						group.append(new ChangeSetPatternInstruments(this._doc, channelIndex, instrumentsCopy, pattern));
 					} else {
@@ -651,7 +747,7 @@ export class Selection {
 						continue;
 					}
 					const patternCopy: PatternCopy = patternCopies[String(copiedPatternIndex)];
-					const instrumentsCopy: number[] = this._parseCopiedInstrumentArray(patternCopy, channelIndex);
+					const instrumentsCopy: number[] = this._remapPastedInstruments(patternCopy.instruments, instRemap, channelIndex);
 					const existingPattern: Pattern | undefined = this._doc.song.channels[channelIndex].patterns[copiedPatternIndex - 1];
 
 					let pastedNotes: Note[] = patternCopy["notes"];
