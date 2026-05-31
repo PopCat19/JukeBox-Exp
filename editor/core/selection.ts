@@ -686,15 +686,10 @@ export class Selection {
 						copiedPartDuration,
 					),
 				);
-				// @jummbus - I actually like it better if instruments copy over, unless it's not a mod and there are notes in the pattern.
-				if (
-					currentPatternIndex === 0 ||
-					patternCopy.notes.length === 0 ||
-					channelIndex >= this._doc.song.pitchChannelCount + this._doc.song.noiseChannelCount
-				) {
-					this.selectInstrument(instrumentsCopy[0]);
-					group.append(new ChangeSetPatternInstruments(this._doc, channelIndex, instrumentsCopy, pattern));
-				}
+				// Always apply instruments — _reconcilePastedInstruments handles
+				// dedup (same instrument maps to existing index, mismatch appends new).
+				this.selectInstrument(instrumentsCopy[0]);
+				group.append(new ChangeSetPatternInstruments(this._doc, channelIndex, instrumentsCopy, pattern));
 			} else if (this.patternSelectionActive) {
 				const reusablePatterns: Dictionary<number> = {};
 				const usedPatterns: Dictionary<boolean> = {};
