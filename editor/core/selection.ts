@@ -733,8 +733,9 @@ export class Selection {
 								}
 								group.append(new ChangeNoteAdded(this._doc, newPattern, note, newPattern.notes.length, false));
 							}
-							// Don't overwrite the existing pattern's instruments if only part of the pattern content is being replaced.
-							// group.append(new ChangeSetPatternInstruments(this._doc, channelIndex, pattern.instruments, newPattern));
+							// Apply reconciled instruments to the new pattern
+							const pc: PatternCopy = patternCopies[String(copiedPatternIndex)];
+							group.append(new ChangeSetPatternInstruments(this._doc, channelIndex, this._remapPastedInstruments(pc.instruments, instRemap, channelIndex), newPattern));
 						}
 					}
 
