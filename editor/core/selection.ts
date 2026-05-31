@@ -345,8 +345,12 @@ export class Selection {
 		const channel: Channel = this._doc.song.channels[channelIndex];
 		const remap: number[] = [];
 
-		if (!channelCopy.instrumentDefs) {
-			// Legacy copy — fall back to old behavior (identity map)
+		// Skip reconciliation when channel types differ — instrument
+		// parameter sets are incompatible across pitch/noise boundaries.
+		const destIsNoise: boolean = this._doc.song.getChannelIsNoise(channelIndex);
+		const srcIsNoise: boolean = !!channelCopy["isNoise"];
+		if (!channelCopy.instrumentDefs || srcIsNoise !== destIsNoise) {
+			// Legacy copy or type mismatch — fall back to old behavior
 			for (let i: number = 0; i < channel.instruments.length; i++) {
 				remap[i] = i;
 			}
