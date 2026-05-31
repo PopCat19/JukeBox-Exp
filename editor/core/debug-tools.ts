@@ -42,11 +42,20 @@ export function installDebugTools(doc: SongDocument): void {
 	const _origRecord = doc.record.bind(doc);
 	const _origGroupAppend = ChangeGroup.prototype.append;
 
+	// Capture cursor position for navigation-dependent ops
+	function cursor(): { bar: number; ch: number } {
+		return { bar: doc.bar, ch: doc.channel };
+	}
+
 	// Intercept ChangeGroup.append to capture inner change names
 	ChangeGroup.prototype.append = function (change: Change): void {
 		if (recording && !suppress) {
 			const n: string = change.constructor.name;
-			if (n !== "ChangeGroup" && n !== "ChangeSequence") {
+			if (n === "ChangeChannelBar") {
+				// Capture navigation as a positioned no-op for replay
+				const c = cursor();
+				ops.push({ op: "navigate", args: { bar: c.bar, ch: c.ch }, ts: Date.now() });
+			} else if (n !== "ChangeGroup" && n !== "ChangeSequence") {
 				ops.push({ op: "change", args: { _change: n }, ts: Date.now() });
 			}
 		}
@@ -62,7 +71,7 @@ export function installDebugTools(doc: SongDocument): void {
 		_origCopy();
 		if (recording && !suppress) {
 			const payload: string | null = window.localStorage.getItem("selectionCopy");
-			ops.push({ op: "copy", args: { w: doc.selection.boxSelectionWidth, h: doc.selection.boxSelectionHeight, payload: payload || undefined }, ts: Date.now() });
+			ops.push({ op: "copy", args: { ...cursor(), payload: payload || undefined }, ts: Date.now() });
 		}
 	};
 
@@ -227,7 +236,12 @@ export function installDebugTools(doc: SongDocument): void {
 						case "insertChannel":    doc.selection.insertChannel(); break;
 						case "deleteChannel":    doc.selection.deleteChannel(); break;
 						case "cloneChannel":     doc.selection.cloneChannel(); break;
-						case "change":           break; // navigation happens via pasteNotes positioning above
+						case "navigate":
+							if (op.args?.bar !== undefined) doc.bar = op.args.bar;
+							if (op.args?.ch !== undefined) doc.channel = op.args.ch;
+							doc.selection.setTrackSelection(doc.bar, doc.bar, doc.channel, doc.channel);
+							break;
+						case "change":           break; // side effects only
 						default:                 console.warn("  unknown op:", op.op);
 					}
 					count++;
