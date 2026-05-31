@@ -58,13 +58,19 @@ export function installDebugTools(doc: SongDocument): void {
 
 	const _origCopy = doc.selection.copy.bind(doc.selection);
 	doc.selection.copy = function (): void {
-		if (recording && !suppress) ops.push({ op: "copy", args: { w: doc.selection.boxSelectionWidth, h: doc.selection.boxSelectionHeight }, ts: Date.now() });
+		if (recording && !suppress) {
+			const payload: string | null = window.localStorage.getItem("selectionCopy");
+			ops.push({ op: "copy", args: { w: doc.selection.boxSelectionWidth, h: doc.selection.boxSelectionHeight, payload: payload || undefined }, ts: Date.now() });
+		}
 		return _origCopy();
 	};
 
 	const _origPaste = doc.selection.pasteNotes.bind(doc.selection);
 	doc.selection.pasteNotes = function (): void {
-		if (recording && !suppress) ops.push({ op: "pasteNotes", args: { bar: doc.bar, ch: doc.channel }, ts: Date.now() });
+		if (recording && !suppress) {
+			const payload: string | null = window.localStorage.getItem("selectionCopy");
+			ops.push({ op: "pasteNotes", args: { bar: doc.bar, ch: doc.channel, payload: payload || undefined }, ts: Date.now() });
+		}
 		return _origPaste();
 	};
 
@@ -196,23 +202,31 @@ export function installDebugTools(doc: SongDocument): void {
 		replay(recordedOps: ReplayOp[]): void {
 			suppress = true;
 			console.log(`replaying ${recordedOps.length} ops...`);
+			let count = 0;
 			for (const op of recordedOps) {
 				try {
 					switch (op.op) {
-						case "copy":             doc.selection.copy(); break;
-						case "pasteNotes":       doc.selection.pasteNotes(); break;
+						case "copy":
+							if (op.args?.payload) window.localStorage.setItem("selectionCopy", op.args.payload);
+							doc.selection.copy();
+							break;
+						case "pasteNotes":
+							if (op.args?.payload) window.localStorage.setItem("selectionCopy", op.args.payload);
+							doc.selection.pasteNotes();
+							break;
 						case "insertChannel":    doc.selection.insertChannel(); break;
 						case "deleteChannel":    doc.selection.deleteChannel(); break;
 						case "cloneChannel":     doc.selection.cloneChannel(); break;
-						case "change":           console.log("  (change:", op.args?._change, "— not yet replayable)"); break;
+						case "change":           break; // implicit — happens as side effect of Selection ops
 						default:                 console.warn("  unknown op:", op.op);
 					}
+					count++;
 				} catch (e) {
-					console.error("  failed at", op.op, e);
+					console.error(`  failed at op ${count} (${op.op}):`, e);
 					break;
 				}
 			}
-			console.log("done.");
+			console.log(`done — ${count}/${recordedOps.length} ops replayed.`);
 			suppress = false;
 		},
 	};
