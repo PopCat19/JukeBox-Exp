@@ -105,6 +105,8 @@ export class SongDocument {
 			}
 		} catch (error) {
 			errorAlert(error);
+			this.song = new Song("", createCustomSampleHandler());
+			setDefaultInstruments(this.song);
 		}
 		songString = this.song.toBase64String();
 		this.synth = new Synth(this.song);
