@@ -70,6 +70,28 @@ bun run lint:fix          # auto-fix lint issues
 
 Always run `bun test && bun run typecheck:all` before committing.
 
+## Debug tools
+
+Open the browser console (F12) on a dev build. `window.__jukebox__` exposes:
+
+```js
+// State inspection
+__jukebox__.hash()        // Decode current URL hash → readable JSON object
+__jukebox__.clipboard()   // Show localStorage + system clipboard contents
+__jukebox__.validate()    // Cross-type contamination, stale refs, consistency
+
+// Action recorder — produces deterministic replay scripts
+__jukebox__.record.start()   // Begin capture
+__jukebox__.record.dump()    // Show captured ops so far
+__jukebox__.record.stop()    // Stop, print replay script, copy to clipboard
+__jukebox__.record.ops()     // Raw op array
+
+// Replay — paste a recorded script into a fresh tab's console
+__jukebox__.replay(ops)  // Deterministic: restores song, navigates, pastes
+```
+
+Recorded scripts include the initial song hash (`load` op), cursor navigation (`navigate` ops), clipboard payloads, and all Selection actions. Change ops are captured for documentation but skipped during replay (they happen as side effects). Scripts self-contained — work on a fresh blank tab.
+
 ## Separated TypeScript projects
 
 The codebase uses three `tsconfig*.json` files (all extend `tsconfig.base.json`):
