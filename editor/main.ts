@@ -14,12 +14,15 @@ import { EditorConfig, isMobile } from "./config/editor-config";
 import "./rendering/style"; // Import for the side effects, there's no exports.
 import { Channel, Instrument, Note, NotePin, Pattern, Song, Synth } from "../synth";
 import { ChangePreset } from "./changes";
+import { installDebugTools } from "./core/debug-tools";
 import { ExportPrompt } from "./prompts/export-prompt";
 import { SongDocument } from "./song-document";
 import { SongEditor } from "./song-editor";
 
 // namespace beepbox {
 const editor: SongEditor = new SongEditor(); // same as above
+
+installDebugTools(editor.doc);
 
 const beepboxEditorContainer: HTMLElement = document.getElementById("beepboxEditorContainer")!;
 beepboxEditorContainer.appendChild(editor.mainLayer);

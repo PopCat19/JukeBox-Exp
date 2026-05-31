@@ -22,9 +22,10 @@ export function clamp(min: number, max: number, val: number): number {
 	}
 }
 
-export function validateRange(min: number, max: number, val: number): number {
+export function validateRange(min: number, max: number, val: number, context?: string): number {
 	if (min <= val && val <= max) return val;
-	throw new Error(`Value ${val} not in range [${min}, ${max}]`);
+	const ctx: string = context ? ` (${context})` : "";
+	throw new Error(`Value ${val} not in range [${min}, ${max}]${ctx}`);
 }
 
 export function parseFloatWithDefault<T>(s: string, defaultValue: T): number | T {
