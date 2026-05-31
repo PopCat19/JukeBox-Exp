@@ -23,6 +23,7 @@
 		"typecheck:player": "tsc --noEmit -p tsconfig_player.json",
 		"typecheck:all": "npm run typecheck && npm run typecheck:synth && npm run typecheck:player",
 		"dev": "bash ./scripts/live-editor.sh",
+		"dev:static": "bash ./scripts/live-editor-static.sh",
 		"lint": "bash ./scripts/lint.sh",
 		"lint:fix": "npx eslint editor/ synth/ player/ shared/ --fix",
 		"test": "bun test",
