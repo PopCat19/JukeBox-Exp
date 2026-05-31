@@ -500,6 +500,14 @@ export class Selection {
 			channels: channels,
 		};
 		window.localStorage.setItem("selectionCopy", JSON.stringify(selectionCopy));
+
+		// Dual-write to system clipboard (Figma-style) for cross-tab/origin paste.
+		// Fire-and-forget — clipboard write requires a user gesture, which
+		// the C key provides.
+		if (navigator.clipboard && navigator.clipboard.writeText) {
+			navigator.clipboard.writeText(JSON.stringify(selectionCopy)).catch(() => {});
+		}
+
 		// Clear selection after copy
 		new ChangePatternSelection(this._doc, 0, 0);
 	}
@@ -577,8 +585,32 @@ export class Selection {
 	// also trying to reuse patterns where it makes sense to do so, especially
 	// in the same channel it was copied from.
 	public pasteNotes(): void {
-		const selectionCopy: SelectionCopy | null = JSON.parse(String(window.localStorage.getItem("selectionCopy")));
+		let selectionCopy: SelectionCopy | null = JSON.parse(String(window.localStorage.getItem("selectionCopy")));
+
+		// localStorage empty — try the system clipboard (Figma-style cross-tab).
+		// clipboard.readText() is async, so we cache into localStorage for the
+		// next keystroke and paste immediately.
+		if (selectionCopy == null && navigator.clipboard && navigator.clipboard.readText) {
+			navigator.clipboard.readText().then((text: string) => {
+				try {
+					const parsed: any = JSON.parse(text);
+					if (parsed && typeof parsed.partDuration === "number" && Array.isArray(parsed.channels)) {
+						window.localStorage.setItem("selectionCopy", text);
+						// Directly invoke internal paste with parsed data to
+						// avoid second clipboard read if localStorage write fails.
+						this._doPasteNotes(parsed as SelectionCopy);
+						return;
+					}
+				} catch (_) {}
+			}).catch(() => {});
+			return;
+		}
+
 		if (selectionCopy == null) return;
+		this._doPasteNotes(selectionCopy);
+	}
+
+	private _doPasteNotes(selectionCopy: SelectionCopy): void {
 		const channelCopies: ChannelCopy[] = selectionCopy["channels"] || [];
 		const copiedPartDuration: number = selectionCopy["partDuration"] >>> 0;
 
@@ -806,7 +838,21 @@ export class Selection {
 	}
 
 	public pasteNumbers(): void {
-		const selectionCopy: SelectionCopy | null = JSON.parse(String(window.localStorage.getItem("selectionCopy")));
+		let selectionCopy: SelectionCopy | null = JSON.parse(String(window.localStorage.getItem("selectionCopy")));
+
+		if (selectionCopy == null && navigator.clipboard && navigator.clipboard.readText) {
+			navigator.clipboard.readText().then((text: string) => {
+				try {
+					const parsed: any = JSON.parse(text);
+					if (parsed && typeof parsed.partDuration === "number" && Array.isArray(parsed.channels)) {
+						window.localStorage.setItem("selectionCopy", text);
+						this.pasteNumbers();
+					}
+				} catch (_) {}
+			}).catch(() => {});
+			return;
+		}
+
 		if (selectionCopy == null) return;
 		const channelCopies: ChannelCopy[] = selectionCopy["channels"] || [];
 
