@@ -12,6 +12,7 @@
 import { HTML } from "imperative-html/dist/esm/elements-strict";
 import { events } from "./events";
 import { themes } from "./themes";
+import { applyPMDTheme } from "./pmd-adapter";
 
 interface SongChannelCounts {
 	readonly pitchChannelCount: number;
@@ -55,6 +56,9 @@ export class ColorConfig {
 	public static colorLookup: Map<number, ChannelColors> = new Map<number, ChannelColors>();
 	public static usesColorFormula: boolean = false;
 	public static readonly defaultTheme: string = "nebula";
+	public static readonly PMD_THEME: string = "pmd-dynamic";
+	public static pmdHue: number = parseInt(window.localStorage.getItem("pmdHue") ?? "260", 10);
+	public static pmdDark: boolean = (window.localStorage.getItem("pmdDark") ?? "1") === "1";
 	public static readonly themes: { [name: string]: string } = themes;
 	public static readonly pageMargin: string = "var(--page-margin, black)";
 	public static readonly editorBackground: string = "var(--editor-background, black)";
@@ -797,11 +801,16 @@ export class ColorConfig {
 	private static readonly _styleElement: HTMLStyleElement = document.head.appendChild(HTML.style({ type: "text/css" }));
 
 	public static setTheme(name: string): void {
-		let theme: string = this.themes[name];
-		if (theme === undefined) theme = ColorConfig.defaultTheme;
-		this._styleElement.textContent = theme;
+		if (name === ColorConfig.PMD_THEME) {
+			applyPMDTheme(ColorConfig.pmdHue, ColorConfig.pmdDark);
+			this._styleElement.textContent = "";
+		} else {
+			let theme: string = this.themes[name];
+			if (theme === undefined) theme = ColorConfig.defaultTheme;
+			this._styleElement.textContent = theme;
+		}
 
-		// for getComputed
+		// for getComputed — fill any variables still unset
 		let valuesToAdd: string = ":root{";
 
 		if (getComputedStyle(this._styleElement).getPropertyValue("--oscilloscope-line-L") === "") {
@@ -1233,6 +1242,14 @@ export class ColorConfig {
 				this.c_modChannelCountOverride = +getComputedStyle(this._styleElement).getPropertyValue("--formula-mod-channel-count-override");
 			}
 		}
+	}
+
+	public static setPMD(hue: number, isDark: boolean): void {
+		ColorConfig.pmdHue = hue;
+		ColorConfig.pmdDark = isDark;
+		window.localStorage.setItem("pmdHue", String(hue));
+		window.localStorage.setItem("pmdDark", isDark ? "1" : "0");
+		applyPMDTheme(hue, isDark);
 	}
 
 	public static getComputed(name: string): string {

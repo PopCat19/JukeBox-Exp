@@ -14,13 +14,14 @@ import { SongDocument } from "../song-document";
 import { labelRow } from "../ui";
 import { BasePrompt } from "./base-prompt";
 
-const { div, h2, select, option, optgroup } = HTML;
+const { div, h2, select, option, optgroup, input, button, span } = HTML;
 
 export class ThemePrompt extends BasePrompt {
 	private readonly _themeSelect: HTMLSelectElement = select(
 		{ style: "width: 100%;" },
 		optgroup(
 			{ label: "Objectively The Best Ones" },
+			option({ value: ColorConfig.PMD_THEME }, "PMD Dynamic"),
 			option({ value: "violet verdant" }, "Violet Verdant"),
 			option({ value: "nebula" }, "Nebula"),
 			option({ value: "dark competition" }, "BeepBox Competition Dark"),
@@ -97,10 +98,49 @@ export class ThemePrompt extends BasePrompt {
 		optgroup({ label: "Misc" }, option({ value: "azur lane" }, "Azur Lane"), option({ value: "custom" }, "Custom")),
 	);
 
+	private readonly _pmdHueInput: HTMLInputElement = input({
+		style: "width: 100%;",
+		type: "range",
+		min: "0",
+		max: "360",
+		value: String(ColorConfig.pmdHue),
+		oninput: () => this._onPMDChange(),
+	});
+
+	private readonly _pmdHueLabel: HTMLSpanElement = span(
+		{ style: "font-size: 12px; color: var(--secondary-text);" },
+		`Hue: ${ColorConfig.pmdHue}°`,
+	);
+
+	private readonly _pmdDarkBtn: HTMLButtonElement = button(
+		{
+			type: "button",
+			style: `flex:1; padding:4px 8px; font-size:12px; font-weight:600; border:none; border-radius:var(--border-radius-medium);`,
+			onclick: () => { ColorConfig.pmdDark = true; this._onPMDChange(); this._updatePMDButtons(); },
+		},
+		"Dark",
+	);
+
+	private readonly _pmdLightBtn: HTMLButtonElement = button(
+		{
+			type: "button",
+			style: `flex:1; padding:4px 8px; font-size:12px; font-weight:600; border:none; border-radius:var(--border-radius-medium);`,
+			onclick: () => { ColorConfig.pmdDark = false; this._onPMDChange(); this._updatePMDButtons(); },
+		},
+		"Light",
+	);
+
+	private readonly _pmdControls: HTMLDivElement = div(
+		{ style: "display: none; flex-direction: column; gap: 8px; margin-top: 4px;" },
+		div({ style: "display: flex; gap: 4px;" }, this._pmdDarkBtn, this._pmdLightBtn),
+		div({ style: "display: flex; flex-direction: column; gap: 2px;" }, this._pmdHueLabel, this._pmdHueInput),
+	);
+
 	public readonly container: HTMLDivElement = div(
-		{ class: "prompt noSelection", style: "width: 220px;" },
+		{ class: "prompt noSelection", style: "width: 260px;" },
 		h2("Set Theme"),
 		labelRow(div({ class: "selectContainer", style: "width: 100%;" }, this._themeSelect)),
+		this._pmdControls,
 		this._getOkayRow(),
 		this._cancelButton,
 	);
@@ -112,7 +152,36 @@ export class ThemePrompt extends BasePrompt {
 		if (this.lastTheme != null) {
 			this._themeSelect.value = this.lastTheme;
 		}
-		this._themeSelect.addEventListener("change", this._previewTheme);
+		this._themeSelect.addEventListener("change", () => {
+			this._updatePMDVisibility();
+			this._previewTheme();
+		});
+		this._updatePMDVisibility();
+		this._updatePMDButtons();
+	}
+
+	private _updatePMDVisibility(): void {
+		const isPMD = this._themeSelect.value === ColorConfig.PMD_THEME;
+		this._pmdControls.style.display = isPMD ? "flex" : "none";
+	}
+
+	private _updatePMDButtons(): void {
+		const d = ColorConfig.pmdDark;
+		const active = "var(--primary-text)";
+		const activeText = "var(--inverted-text)";
+		const inactive = "var(--ui-widget-background)";
+		const inactiveText = "var(--secondary-text)";
+		this._pmdDarkBtn.style.background = d ? active : inactive;
+		this._pmdDarkBtn.style.color = d ? activeText : inactiveText;
+		this._pmdLightBtn.style.background = d ? inactive : active;
+		this._pmdLightBtn.style.color = d ? inactiveText : activeText;
+	}
+
+	private _onPMDChange(): void {
+		const hue = parseInt(this._pmdHueInput.value, 10);
+		this._pmdHueLabel.textContent = `Hue: ${hue}°`;
+		ColorConfig.setPMD(hue, ColorConfig.pmdDark);
+		this._doc.notifier.changed();
 	}
 
 	protected override _close = (): void => {

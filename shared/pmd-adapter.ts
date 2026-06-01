@@ -7,8 +7,9 @@
 // - Applies the palette to :root CSS custom properties
 // - Maps Base16 semantic slots to JukeBox's editor variable names
 
-import type { Base16Palette } from "./pmd";
+import type { Base16Palette, PMDVariables } from "./pmd";
 import { generatePalette, getPMD } from "./pmd";
+import { safeOklchToRgb, rgbToHex } from "./pmd/color";
 
 export function pmdGenerateColors(hue: number, isDark: boolean, lockHue: boolean = false, lockValue: number = 0): Base16Palette {
 	const { pmd, computed } = getPMD(isDark);
@@ -89,6 +90,61 @@ export function applyPMDToDOM(colors: Base16Palette): void {
 	set("--mod-label-primary-text", c("base05"));
 	set("--disabled-note-primary", c("base03"));
 	set("--disabled-note-secondary", withAlpha("base03", 0.5));
+
+	// Scrollbar
+	set("--scrollbar-color", c("base02"));
+
+	// Note flash (playback indicators)
+	set("--note-flash", c("base07"));
+	set("--note-flash-secondary", withAlpha("base07", 0.47));
+
+	// Channel colors — map to PMD accent hues
+	const { pmd } = getPMD(!(colors.base00?.rgb && (0.299 * colors.base00.rgb.r + 0.587 * colors.base00.rgb.g + 0.114 * colors.base00.rgb.b) / 255 > 0.5));
+	const primaryHue = colors.base0D?.hue ?? 260;
+	applyChannelColors(root, pmd, primaryHue);
+}
+
+// Accent hue offsets from generatePalette (base16.ts)
+const ACCENT_HUES = [30, 140, 0, -30, 290, 180, 60, 210, 90, 260];
+
+function applyChannelColors(root: HTMLElement, pmd: PMDVariables, primaryHue: number): void {
+	const set = (name: string, value: string) => root.style.setProperty(name, value);
+
+	const pitchNames = ["pitch1", "pitch2", "pitch3", "pitch4", "pitch5", "pitch6", "pitch7", "pitch8", "pitch9", "pitch10"];
+	const noiseNames = ["noise1", "noise2", "noise3", "noise4"];
+	const modNames = ["mod1", "mod2", "mod3", "mod4"];
+
+	function chanHue(index: number, offsetDeg: number): number {
+		return (primaryHue + ACCENT_HUES[index % ACCENT_HUES.length] + offsetDeg + 360) % 360;
+	}
+
+	function hexAt(l: number, c: number, h: number): string {
+		return rgbToHex(safeOklchToRgb(l, c, h));
+	}
+
+	pitchNames.forEach((name, i) => {
+		const h = chanHue(i, 0);
+		set(`--${name}-primary-note`, hexAt(pmd["88x"].l, pmd["88x"].c, h));
+		set(`--${name}-primary-channel`, hexAt(pmd["80x"].l, pmd["80x"].c, h));
+		set(`--${name}-secondary-note`, hexAt(pmd["64x"].l, pmd["64x"].c, h));
+		set(`--${name}-secondary-channel`, hexAt(pmd["4x"].l + 0.08, pmd["64x"].c, h));
+	});
+
+	noiseNames.forEach((name, i) => {
+		const h = chanHue(i, 120);
+		set(`--${name}-primary-note`, hexAt(pmd["80x"].l, pmd["80x"].c * 0.4, h));
+		set(`--${name}-primary-channel`, hexAt(pmd["64x"].l, pmd["64x"].c * 0.4, h));
+		set(`--${name}-secondary-note`, hexAt(pmd["64x"].l, pmd["64x"].c * 0.3, h));
+		set(`--${name}-secondary-channel`, hexAt(pmd["4x"].l + 0.06, pmd["64x"].c * 0.3, h));
+	});
+
+	modNames.forEach((name, i) => {
+		const h = chanHue(i, 240);
+		set(`--${name}-primary-note`, hexAt(pmd["88x"].l, pmd["88x"].c * 0.6, h));
+		set(`--${name}-primary-channel`, hexAt(pmd["80x"].l, pmd["80x"].c * 0.5, h));
+		set(`--${name}-secondary-note`, hexAt(pmd["64x"].l, pmd["64x"].c * 0.5, h));
+		set(`--${name}-secondary-channel`, hexAt(pmd["4x"].l + 0.08, pmd["64x"].c * 0.5, h));
+	});
 }
 
 const DEFAULT_HUE = 260; // Blue (matching "nebula" theme aesthetic)
