@@ -12,6 +12,14 @@
 import { HTML } from "imperative-html/dist/esm/elements-strict";
 import { ColorConfig } from "../../shared/color-config";
 import { getLocalStorageItem } from "../../synth/synth-config";
+import {
+	BorderRadius,
+	BorderWidth,
+	Gap,
+	Sizing,
+	Animation,
+	Typography,
+} from "../ui/style-constants";
 
 // Determine if the user's browser/OS adds scrollbars that occupy space.
 // See: https://www.filamentgroup.com/lab/scrollbars/
@@ -30,10 +38,10 @@ document.head.appendChild(
 
 /* Note: "#" symbols need to be encoded as "%23" in SVG data urls, otherwise they are interpreted as fragment identifiers! */
 :root {
-	--button-size: 26px;
-	--settings-area-width: 192px;
-	--border-radius-medium: 8px;
-	--border-radius-large: 16px;
+	--button-size: ${Sizing.button};
+	--settings-area-width: ${Sizing.settingsAreaWidth};
+	--border-radius-medium: ${BorderRadius.md};
+	--border-radius-large: ${BorderRadius.lg};
 	--padding-2: 2px;
 	--padding-4: 4px;
 	--padding-6: 6px;
@@ -41,14 +49,14 @@ document.head.appendChild(
 	--padding-10: 10px;
 	--padding-12: 12px;
 	--padding-16: 16px;
-	--gap-sm: 4px;
-	--gap-md: 8px;
-	--gap-lg: 12px;
-	--gap-xl: 16px;
-	--prompt-width-sm: 250px;
-	--prompt-width-md: 350px;
-	--prompt-width-lg: 400px;
-	--prompt-row-height: 2em;
+	--gap-sm: ${Gap.sm};
+	--gap-md: ${Gap.md};
+	--gap-lg: ${Gap.lg};
+	--gap-xl: ${Gap.xl};
+	--prompt-width-sm: ${Sizing.promptSm};
+	--prompt-width-md: ${Sizing.promptMd};
+	--prompt-width-lg: ${Sizing.promptLg};
+	--prompt-row-height: ${Sizing.promptRowHeight};
 	--flex-fill: 1 1 auto;
 	--flex-fit: 0 0 auto;
 	--flex-stretch: stretch;
@@ -295,16 +303,16 @@ html {
 	position: relative;
 	touch-action: manipulation;
 	cursor: default;
-	font-size: 13px;
+	font-size: 12px;
 	overflow: hidden;
 	color: ${ColorConfig.primaryText};
 	background: ${ColorConfig.editorBackground};
     opacity: 0;
-    -webkit-transition: opacity 0.2s ease-in;
-    -moz-transition: opacity 0.2s ease-in;
-    -o-transition: opacity 0.2s ease-in;
-    -ms-transition: opacity 0.2s ease-in;
-    transition: opacity 0.2s ease-in;
+    -webkit-transition: opacity ${Animation.durationSlower} ease-in;
+    -moz-transition: opacity ${Animation.durationSlower} ease-in;
+    -o-transition: opacity ${Animation.durationSlower} ease-in;
+    -ms-transition: opacity ${Animation.durationSlower} ease-in;
+    transition: opacity ${Animation.durationSlower} ease-in;
     transition-delay: 0s;
 }
 
@@ -879,7 +887,7 @@ html {
 	backdrop-filter: var(--prompt-backdrop-filter, none);
 	-webkit-backdrop-filter: var(--prompt-backdrop-filter, none);
 	border-radius: var(--border-radius-large);
-	border: 2px solid ${ColorConfig.uiWidgetBackground};
+	border: ${BorderWidth.default} solid ${ColorConfig.uiWidgetBackground};
 	color: ${ColorConfig.primaryText};
 	padding: 20px;
 	display: flex;
@@ -1045,10 +1053,10 @@ html {
 	justify-content: center;
 	height: 100%;
 	background: var(--ui-widget-background);
-	border: 2px solid transparent;
+	border: ${BorderWidth.default} solid transparent;
 	border-radius: var(--border-radius-medium);
 	color: var(--primary-text);
-	font-size: 14px;
+	font-size: 12px;
 	line-height: 1.4;
 	padding: 0 var(--padding-10);
 	box-sizing: border-box;
@@ -1066,10 +1074,10 @@ html {
 	height: 100%;
 	min-width: 80px;
 	background: var(--ui-widget-background);
-	border: 2px solid transparent;
-	border-radius: 8px;
+	border: ${BorderWidth.default} solid transparent;
+	border-radius: ${BorderRadius.md};
 	color: var(--primary-text);
-	font-size: 14px;
+	font-size: 12px;
 	line-height: 1.4;
 	padding: 0 var(--padding-10);
 	box-sizing: border-box;
@@ -1086,7 +1094,7 @@ html {
 .beepboxEditor .prompt.compactSearchPrompt .tagCountLabel {
 	display: block;
 	text-align: center;
-	font-size: 11px;
+	font-size: 10px;
 	color: var(--secondary-text);
 	margin: 4px 0;
 }
@@ -1095,7 +1103,7 @@ html {
 .beepboxEditor .prompt.compactSearchPrompt .presetItem {
 	padding: 6px 12px;
 	cursor: pointer;
-	font-size: 13px;
+	font-size: 12px;
 	line-height: 1.3;
 	border-radius: 8px;
 	background: rgba(255,255,255,0.03);
@@ -1137,7 +1145,7 @@ html {
 .beepboxEditor .prompt.compactSearchPrompt .presetListEmpty {
 	padding: 12px;
 	color: var(--secondary-text);
-	font-size: 13px;
+	font-size: 12px;
 	text-align: center;
 }
 
@@ -1157,7 +1165,7 @@ html {
 	border: none;
 	border-radius: var(--border-radius-medium);
 	color: var(--secondary-text);
-	font-size: 14px;
+	font-size: 12px;
 	line-height: 1.4;
 	cursor: pointer;
 	transition: background 80ms ease, color 80ms ease;
@@ -1178,7 +1186,7 @@ html {
 }
 
 .beepboxEditor .prompt.compactSearchPrompt .tagGridContainer {
-	border: 2px solid var(--ui-widget-background);
+	border: ${BorderWidth.default} solid var(--ui-widget-background);
 	border-radius: var(--border-radius-medium);
 	overflow: hidden;
 	padding: 8px;
@@ -1273,7 +1281,7 @@ html {
 }
 .beepboxEditor select option:disabled {
 	color: ${ColorConfig.linkAccent};
-	font-weight: bold;
+	font-weight: ${Typography.weightBold};
 }
 
 .select2-container .select2-selection--single {
@@ -1894,15 +1902,15 @@ html {
 .beepboxEditor .channelBoxLabel {
 	font-size: 20px;
 	font-family: sans-serif;
-	font-weight: bold;
+	font-weight: ${Typography.weightBold};
 }
 .beepboxEditor .dropFader {
 	opacity: 0;
-	-webkit-transition:opacity 0.17s linear;
-    -moz-transition:opacity 0.17s linear;
-    -o-transition:opacity 0.17s linear;
-    -ms-transition:opacity 0.17s linear;
-    transition:opacity 0.17s linear;
+	-webkit-transition:opacity ${Animation.durationSlow} linear;
+    -moz-transition:opacity ${Animation.durationSlow} linear;
+    -o-transition:opacity ${Animation.durationSlow} linear;
+    -ms-transition:opacity ${Animation.durationSlow} linear;
+    transition:opacity ${Animation.durationSlow} linear;
 }
 
 .beepboxEditor .muteEditor {
@@ -2000,7 +2008,7 @@ html {
 	font-family: inherit;
 	background: transparent;
 	text-align: center;
-	border: 2px solid ${ColorConfig.inputBoxOutline};
+	border: ${BorderWidth.default} solid ${ColorConfig.inputBoxOutline};
 	border-radius: var(--border-radius-medium);
 	color: ${ColorConfig.primaryText};
 }
@@ -2037,7 +2045,7 @@ html {
 	width: 1.6em;
 	padding: 0;
 	margin: 0 0.3em;
-	border: 2px solid ${ColorConfig.uiWidgetBackground};
+	border: ${BorderWidth.default} solid ${ColorConfig.uiWidgetBackground};
 	border-radius: 4px;
 	background: transparent;
 	cursor: pointer;
@@ -2065,7 +2073,7 @@ html {
 	transform: rotate(42deg);
 }
 .beepboxEditor input[type=checkbox]:focus-visible {
-	outline: 2px solid ${ColorConfig.primaryText};
+	outline: ${BorderWidth.default} solid ${ColorConfig.primaryText};
 	outline-offset: 2px;
 }
 
@@ -2190,7 +2198,7 @@ li.select2-results__option[role=group] > strong:hover {
 		flex-direction: row;
 	}
 	.beepboxEditor:focus-within {
-		outline: 3px solid ${ColorConfig.uiWidgetBackground};
+		outline: ${BorderWidth.thick} solid ${ColorConfig.uiWidgetBackground};
 	}
 	.beepboxEditor .trackAndMuteContainer {
 		width: 512px;
@@ -2302,14 +2310,14 @@ li.select2-results__option[role=group] > strong:hover {
 	min-width: 0;
 	height: 100%;
 	padding: 0 var(--padding-10);
-	border: 2px solid var(--ui-widget-background);
+	border: ${BorderWidth.default} solid var(--ui-widget-background);
 	border-radius: var(--border-radius-medium);
 	background: var(--editor-background);
 	color: var(--primary-text);
-	font-size: 14px;
+	font-size: 12px;
 	outline: none;
 	box-sizing: border-box;
-	transition: border-color 120ms ease, box-shadow 120ms ease;
+	transition: border-color ${Animation.durationNormal} ease, box-shadow ${Animation.durationNormal} ease;
 }
 
 .beepboxEditor .searchInput:hover {
@@ -2325,13 +2333,13 @@ li.select2-results__option[role=group] > strong:hover {
 	cursor: pointer;
 	font-size: 12px;
 	border-radius: var(--border-radius-medium);
-	border: 2px solid var(--ui-widget-background);
+	border: ${BorderWidth.default} solid var(--ui-widget-background);
 	background: transparent;
 	color: var(--primary-text);
 	display: flex;
 	justify-content: space-between;
 	align-items: center;
-	transition: border-color 120ms ease, background 80ms ease, color 80ms ease;
+	transition: border-color ${Animation.durationNormal} ease, background ${Animation.durationFast} ease, color ${Animation.durationFast} ease;
 	outline: none;
 }
 
@@ -2357,7 +2365,7 @@ li.select2-results__option[role=group] > strong:hover {
 	border-radius: 4px;
 	background: var(--ui-widget-background);
 	color: var(--primary-text);
-	font-size: 11px;
+	font-size: 10px;
 	cursor: pointer;
 }
 
