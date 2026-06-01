@@ -2030,7 +2030,43 @@ html {
 }
 
 .beepboxEditor input[type=checkbox] {
-  transform: scale(1.5);
+	-webkit-appearance: none;
+	-moz-appearance: none;
+	appearance: none;
+	aspect-ratio: 1;
+	width: 1.6em;
+	padding: 0;
+	margin: 0 0.3em;
+	border: 2px solid ${ColorConfig.uiWidgetBackground};
+	border-radius: 4px;
+	background: transparent;
+	cursor: pointer;
+	position: relative;
+	vertical-align: middle;
+	flex-shrink: 0;
+	box-sizing: border-box;
+}
+.beepboxEditor .selectRow > input[type=checkbox] {
+	width: 1.6em;
+}
+.beepboxEditor input[type=checkbox]:checked {
+	background: ${ColorConfig.primaryText};
+	border-color: ${ColorConfig.primaryText};
+}
+.beepboxEditor input[type=checkbox]:checked::after {
+	content: "";
+	position: absolute;
+	left: 25%;
+	top: 12%;
+	width: 35%;
+	height: 50%;
+	border: solid ${ColorConfig.editorBackground};
+	border-width: 0 2.5px 2.5px 0;
+	transform: rotate(42deg);
+}
+.beepboxEditor input[type=checkbox]:focus-visible {
+	outline: 2px solid ${ColorConfig.primaryText};
+	outline-offset: 2px;
 }
 
 .beepboxEditor input[type=range] {

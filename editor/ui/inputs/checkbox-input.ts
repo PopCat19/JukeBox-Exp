@@ -9,6 +9,7 @@
 import { createInput } from "../base/input";
 
 export function checkboxInput(opts?: { width?: string }): HTMLInputElement {
-	const width = opts?.width ?? "2em";
-	return createInput("checkbox", `width: ${width}; margin-left: 1em;`);
+	const width = opts?.width;
+	const style = width ? `width: ${width}; height: ${width}; margin-left: 1em;` : `margin-left: 1em;`;
+	return createInput("checkbox", style);
 }
