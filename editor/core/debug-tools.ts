@@ -11,6 +11,7 @@
 import type { Song } from "../../synth";
 import { ChangeSong } from "../changes";
 import type { SongDocument } from "../song-document";
+import { applyPMDTheme } from "../../shared/pmd-adapter";
 import { type Change, ChangeGroup } from "./change";
 
 interface ReplayOp {
@@ -23,6 +24,7 @@ interface DebugAPI {
 	hash: () => object | null;
 	clipboard: () => void;
 	validate: () => string[];
+	pmd: (hue?: number, isDark?: boolean) => object;
 	record: {
 		start: () => void;
 		stop: () => string;
@@ -224,6 +226,13 @@ export function installDebugTools(doc: SongDocument): void {
 				console.log(`── recording (${ops.length} ops) ──`);
 				ops.forEach((o) => console.log(`  ${o.op}`, o.args ?? ""));
 			},
+		},
+
+		pmd(hue?: number, isDark?: boolean): object {
+			const colors = applyPMDTheme(hue ?? 260, isDark ?? true);
+			console.log(`PMD theme applied: hue=${hue ?? 260}° ${isDark ?? true ? "dark" : "light"}`);
+			console.log(colors);
+			return colors;
 		},
 
 		replay(recordedOps: ReplayOp[]): void {
