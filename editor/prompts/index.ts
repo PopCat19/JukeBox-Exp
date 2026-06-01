@@ -24,6 +24,7 @@ export { KeyboardShortcutsPrompt } from "./keyboard-shortcuts-prompt";
 export { LayoutPrompt } from "./layout-prompt";
 export { LimiterPrompt } from "./limiter-prompt";
 export { MoveNotesSidewaysPrompt } from "./move-notes-sideways-prompt";
+export { PalettePrompt } from "./palette-prompt";
 export { OctaveCountPrompt } from "./octave-count-prompt";
 export { Prompt } from "./prompt";
 export { RecordingSetupPrompt } from "./recording-setup-prompt";

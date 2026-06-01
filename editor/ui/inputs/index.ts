@@ -5,4 +5,5 @@
 export { checkboxInput } from "./checkbox-input";
 export { createInputBox, InputBox } from "./input-box";
 export { searchInput } from "./search-input";
+export { createColorPicker } from "./color-picker";
 export { stepperInput } from "./stepper-input";

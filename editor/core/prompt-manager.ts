@@ -18,6 +18,7 @@ import { CustomChipPrompt } from "../prompts/custom-chip-prompt";
 import { CustomFilterPrompt } from "../prompts/custom-filter-prompt";
 import { CustomScalePrompt } from "../prompts/custom-scale-prompt";
 import { CustomThemePrompt } from "../prompts/custom-theme-prompt";
+import { PalettePrompt } from "../prompts/palette-prompt";
 import { EuclidgenRhythmPrompt } from "../prompts/euclidgen-rhythm-prompt";
 import { ExportPrompt } from "../prompts/export-prompt";
 import { ImportPrompt } from "../prompts/import-prompt";
@@ -293,6 +294,9 @@ export class PromptManager {
 				newPrompt = new EuclidgenRhythmPrompt(doc);
 				break;
 			case "customTheme":
+				newPrompt = new PalettePrompt(doc);
+				break;
+			case "customThemeRaw":
 				newPrompt = new CustomThemePrompt(doc, refs.patternEditor, refs.trackArea, document.getElementById("beepboxEditorContainer")!);
 				break;
 			case "visualLoopControls":
