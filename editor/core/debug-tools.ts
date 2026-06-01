@@ -9,9 +9,9 @@
 // - Records actions as replayable backend scripts
 
 import type { Song } from "../../synth";
-import { type Change, ChangeGroup } from "./change";
-import type { SongDocument } from "../song-document";
 import { ChangeSong } from "../changes";
+import type { SongDocument } from "../song-document";
+import { type Change, ChangeGroup } from "./change";
 
 interface ReplayOp {
 	op: string;
@@ -133,7 +133,9 @@ export function installDebugTools(doc: SongDocument): void {
 					for (let i = 0; i < (obj.channels || []).length; i++) {
 						const ch = obj.channels[i];
 						const hasDefs = ch.instrumentDefs != null;
-						console.log(`  ch${i}: noise=${ch.isNoise} mod=${ch.isMod}  bars=${ch.bars?.length}  patterns=${Object.keys(ch.patterns || {}).length}  instDefs=${hasDefs}`);
+						console.log(
+							`  ch${i}: noise=${ch.isNoise} mod=${ch.isMod}  bars=${ch.bars?.length}  patterns=${Object.keys(ch.patterns || {}).length}  instDefs=${hasDefs}`,
+						);
 						if (hasDefs) console.log("    defs:", ch.instrumentDefs);
 					}
 				} catch (e) {
@@ -143,21 +145,26 @@ export function installDebugTools(doc: SongDocument): void {
 				console.log("localStorage clipboard: empty");
 			}
 			if (navigator.clipboard?.readText) {
-				navigator.clipboard.readText().then((text: string) => {
-					try {
-						const obj: any = JSON.parse(text);
-						if (obj?.channels) {
-							console.log("── system clipboard ──");
-							console.log(`channels: ${obj.channels.length}  partDuration: ${obj.partDuration}`);
-							for (let i = 0; i < obj.channels.length; i++) {
-								const ch = obj.channels[i];
-								console.log(`  ch${i}: noise=${ch.isNoise} mod=${ch.isMod}  instDefs=${ch.instrumentDefs != null}`);
+				navigator.clipboard
+					.readText()
+					.then((text: string) => {
+						try {
+							const obj: any = JSON.parse(text);
+							if (obj?.channels) {
+								console.log("── system clipboard ──");
+								console.log(`channels: ${obj.channels.length}  partDuration: ${obj.partDuration}`);
+								for (let i = 0; i < obj.channels.length; i++) {
+									const ch = obj.channels[i];
+									console.log(`  ch${i}: noise=${ch.isNoise} mod=${ch.isMod}  instDefs=${ch.instrumentDefs != null}`);
+								}
+							} else {
+								console.log("system clipboard: not a JukeBox copy");
 							}
-						} else {
-							console.log("system clipboard: not a JukeBox copy");
+						} catch (_) {
+							console.log("system clipboard: not JSON");
 						}
-					} catch (_) { console.log("system clipboard: not JSON"); }
-				}).catch(() => console.log("system clipboard: read denied"));
+					})
+					.catch(() => console.log("system clipboard: read denied"));
 			}
 		},
 
@@ -181,7 +188,10 @@ export function installDebugTools(doc: SongDocument): void {
 				}
 			}
 			if (issues.length === 0) console.log("✓ consistent");
-			else { console.warn(`✗ ${issues.length} issues:`); issues.forEach(i => console.warn("  -", i)); }
+			else {
+				console.warn(`✗ ${issues.length} issues:`);
+				issues.forEach((i) => console.warn("  -", i));
+			}
 			return issues;
 		},
 
@@ -200,14 +210,19 @@ export function installDebugTools(doc: SongDocument): void {
 				const minified: string = genScript(false);
 				console.log(readable);
 				if (navigator.clipboard?.writeText) {
-					navigator.clipboard.writeText(minified).then(() => console.log("📋 replay script copied to clipboard")).catch(() => {});
+					navigator.clipboard
+						.writeText(minified)
+						.then(() => console.log("📋 replay script copied to clipboard"))
+						.catch(() => {});
 				}
 				return readable;
 			},
-			ops(): ReplayOp[] { return [...ops]; },
+			ops(): ReplayOp[] {
+				return [...ops];
+			},
 			dump(): void {
 				console.log(`── recording (${ops.length} ops) ──`);
-				ops.forEach(o => console.log(`  ${o.op}`, o.args ?? ""));
+				ops.forEach((o) => console.log(`  ${o.op}`, o.args ?? ""));
 			},
 		},
 
@@ -233,16 +248,24 @@ export function installDebugTools(doc: SongDocument): void {
 							if (op.args?.payload) window.localStorage.setItem("selectionCopy", op.args.payload);
 							doc.selection.pasteNotes();
 							break;
-						case "insertChannel":    doc.selection.insertChannel(); break;
-						case "deleteChannel":    doc.selection.deleteChannel(); break;
-						case "cloneChannel":     doc.selection.cloneChannel(); break;
+						case "insertChannel":
+							doc.selection.insertChannel();
+							break;
+						case "deleteChannel":
+							doc.selection.deleteChannel();
+							break;
+						case "cloneChannel":
+							doc.selection.cloneChannel();
+							break;
 						case "navigate":
 							if (op.args?.bar !== undefined) doc.bar = op.args.bar;
 							if (op.args?.ch !== undefined) doc.channel = op.args.ch;
 							doc.selection.setTrackSelection(doc.bar, doc.bar, doc.channel, doc.channel);
 							break;
-						case "change":           break; // side effects only
-						default:                 console.warn("  unknown op:", op.op);
+						case "change":
+							break; // side effects only
+						default:
+							console.warn("  unknown op:", op.op);
 					}
 					count++;
 				} catch (e) {

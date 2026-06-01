@@ -1799,8 +1799,8 @@ export function fromBase64StringImpl(song: SongLike, compressed: string, jsonFor
 						// Corrupted data (e.g. cross-type paste artifact) —
 						// fall back to channel-appropriate default and skip
 						// instrument deserialization to avoid cascading errors.
-						const isNoise: boolean = instrumentChannelIterator >= song.pitchChannelCount &&
-							instrumentChannelIterator < song.pitchChannelCount + song.noiseChannelCount;
+						const isNoise: boolean =
+							instrumentChannelIterator >= song.pitchChannelCount && instrumentChannelIterator < song.pitchChannelCount + song.noiseChannelCount;
 						const isMod: boolean = instrumentChannelIterator >= song.pitchChannelCount + song.noiseChannelCount;
 						instrumentType = isMod ? InstrumentType.mod : isNoise ? InstrumentType.noise : InstrumentType.chip;
 					}

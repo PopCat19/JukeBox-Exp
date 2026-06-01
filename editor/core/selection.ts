@@ -10,7 +10,7 @@
 // Copyright (c) 2012-2022 John Nesky and contributing authors, distributed under the MIT license, see accompanying the LICENSE.md file.
 
 import { ColorConfig } from "../../shared/color-config";
-import { Note, NotePin, Pattern, Channel, Instrument } from "../../synth";
+import { Channel, Instrument, Note, NotePin, Pattern } from "../../synth";
 import { Config, Dictionary } from "../../synth/synth-config";
 import {
 	ChangeAddChannel,
@@ -392,13 +392,7 @@ export class Selection {
 			const isNoise: boolean = this._doc.song.getChannelIsNoise(channelIndex);
 			const isMod: boolean = this._doc.song.getChannelIsMod(channelIndex);
 			const newInstrument: Instrument = new Instrument(isNoise, isMod);
-			newInstrument.fromJsonObject(
-				instDef,
-				isNoise,
-				isMod,
-				this._doc.song.rhythm === 0 || this._doc.song.rhythm === 2,
-				this._doc.song.rhythm >= 2,
-			);
+			newInstrument.fromJsonObject(instDef, isNoise, isMod, this._doc.song.rhythm === 0 || this._doc.song.rhythm === 2, this._doc.song.rhythm >= 2);
 			const newIdx: number = channel.instruments.length;
 			channel.instruments.push(newInstrument);
 
@@ -604,18 +598,21 @@ export class Selection {
 		// clipboard.readText() is async, so we cache into localStorage for the
 		// next keystroke and paste immediately.
 		if (selectionCopy == null && navigator.clipboard && navigator.clipboard.readText) {
-			navigator.clipboard.readText().then((text: string) => {
-				try {
-					const parsed: any = JSON.parse(text);
-					if (parsed && typeof parsed.partDuration === "number" && Array.isArray(parsed.channels)) {
-						window.localStorage.setItem("selectionCopy", text);
-						// Directly invoke internal paste with parsed data to
-						// avoid second clipboard read if localStorage write fails.
-						this._doPasteNotes(parsed as SelectionCopy);
-						return;
-					}
-				} catch (_) {}
-			}).catch(() => {});
+			navigator.clipboard
+				.readText()
+				.then((text: string) => {
+					try {
+						const parsed: any = JSON.parse(text);
+						if (parsed && typeof parsed.partDuration === "number" && Array.isArray(parsed.channels)) {
+							window.localStorage.setItem("selectionCopy", text);
+							// Directly invoke internal paste with parsed data to
+							// avoid second clipboard read if localStorage write fails.
+							this._doPasteNotes(parsed as SelectionCopy);
+							return;
+						}
+					} catch (_) {}
+				})
+				.catch(() => {});
 			return;
 		}
 
@@ -749,7 +746,14 @@ export class Selection {
 							}
 							// Apply reconciled instruments to the new pattern
 							const pc: PatternCopy = patternCopies[String(copiedPatternIndex)];
-							group.append(new ChangeSetPatternInstruments(this._doc, channelIndex, this._remapPastedInstruments(pc.instruments, instRemap, channelIndex), newPattern));
+							group.append(
+								new ChangeSetPatternInstruments(
+									this._doc,
+									channelIndex,
+									this._remapPastedInstruments(pc.instruments, instRemap, channelIndex),
+									newPattern,
+								),
+							);
 						}
 					}
 
@@ -850,15 +854,18 @@ export class Selection {
 		let selectionCopy: SelectionCopy | null = JSON.parse(String(window.localStorage.getItem("selectionCopy")));
 
 		if (selectionCopy == null && navigator.clipboard && navigator.clipboard.readText) {
-			navigator.clipboard.readText().then((text: string) => {
-				try {
-					const parsed: any = JSON.parse(text);
-					if (parsed && typeof parsed.partDuration === "number" && Array.isArray(parsed.channels)) {
-						window.localStorage.setItem("selectionCopy", text);
-						this.pasteNumbers();
-					}
-				} catch (_) {}
-			}).catch(() => {});
+			navigator.clipboard
+				.readText()
+				.then((text: string) => {
+					try {
+						const parsed: any = JSON.parse(text);
+						if (parsed && typeof parsed.partDuration === "number" && Array.isArray(parsed.channels)) {
+							window.localStorage.setItem("selectionCopy", text);
+							this.pasteNumbers();
+						}
+					} catch (_) {}
+				})
+				.catch(() => {});
 			return;
 		}
 
