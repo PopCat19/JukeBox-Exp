@@ -629,7 +629,7 @@ export class SongEditor
 					style: "height:1em; font-size: smaller; white-space: nowrap;",
 					onclick: () => this._openPrompt("pulseWidth"),
 				},
-				"Pulse Width:",
+				"Pulse W.:",
 			),
 			div({ style: `color: ${ColorConfig.secondaryText}; margin-top: -3px;` }, this._pwmSliderInputBox),
 		),
