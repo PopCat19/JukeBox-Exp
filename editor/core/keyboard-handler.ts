@@ -83,6 +83,9 @@ export interface KeyboardHandlerHost {
 	movePlayheadToMouseTrack(): boolean;
 	movePlayheadToMousePattern(): boolean;
 
+	playHoveredPreview(): boolean;
+	releaseHoveredPreview(): void;
+
 	setCtrlHeld(value: boolean): void;
 	setShiftHeld(value: boolean): void;
 }
@@ -249,6 +252,14 @@ export class KeyboardHandler {
 
 					window.open(shortenerStrategy + encodeURIComponent(new URL("#" + doc.song.toBase64String(), location.href).href));
 				}
+				break;
+			case 190: // . (period) — hold to preview the hovered note
+				// Works regardless of mouseDown state: the preview method
+				// itself refuses to fire when the user is dragging the
+				// mouse to play a real note, so the keybind cannot
+				// double-trigger.
+				host.playHoveredPreview();
+				event.preventDefault();
 				break;
 			case 192: // `/~
 				if (canPlayNotes) break;
@@ -921,6 +932,12 @@ export class KeyboardHandler {
 
 		host.setCtrlHeld(event.ctrlKey);
 		host.setShiftHeld(event.shiftKey);
+
+		// Release any held hovered-note preview.
+		if (event.keyCode === 190) {
+			host.releaseHoveredPreview();
+			event.preventDefault();
+		}
 
 		// Release live pitches regardless of control or caps lock
 		host.keyboardLayout.handleKeyEvent(event, false);

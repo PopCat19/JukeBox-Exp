@@ -2168,6 +2168,30 @@ export class SongEditor
 	public get customAlgorithmCanvas(): CustomAlgorithmCanvas {
 		return this._customAlgorithmCanvas;
 	}
+
+	/**
+	 * Plays the pitch currently under the mouse in whichever piano-roll
+	 * component is being hovered (side piano or pattern editor). The
+	 * caller must invoke `releaseHoveredPreview()` on keyup to stop
+	 * the note. Returns true if a preview was actually started.
+	 */
+	public playHoveredPreview(): boolean {
+		// The pattern editor and the side piano are siblings. We try the
+		// pattern editor first because it covers the vast majority of the
+		// editor area; the side piano is a narrow column.
+		if (this.patternEditor.isHovering()) {
+			return this.patternEditor.previewHoveredNote();
+		}
+		if (this.piano.isHovering()) {
+			return this.piano.previewHoveredNote();
+		}
+		return false;
+	}
+
+	public releaseHoveredPreview(): void {
+		this.patternEditor.releaseHoveredPreview();
+		this.piano.releaseHoveredPreview();
+	}
 	public get tempoStepper(): HTMLInputElement {
 		return this._tempoStepper;
 	}

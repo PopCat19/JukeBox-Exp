@@ -24,15 +24,32 @@ export class Piano {
 	private readonly _modContainer: HTMLDivElement = HTML.div({
 		style: "width: 100%; height: 100%; display: flex; flex-direction: column-reverse; align-items: stretch;",
 	});
-	private readonly _preview: HTMLDivElement = HTML.div({
-		style: `width: 100%; height: 40px; border: 2px solid ${ColorConfig.primaryText}; position: absolute; box-sizing: border-box; pointer-events: none;`,
-	});
-	public readonly container: HTMLDivElement = HTML.div(
-		{ style: "width: 32px; height: 100%; overflow: hidden; position: relative; flex-shrink: 0; touch-action: none;" },
+	private readonly _keysWrapper: HTMLDivElement = HTML.div(
+		{
+			// overflow: hidden lives on this inner wrapper so that the sibling
+			// _tooltip and _preview can extend beyond the 32px column without
+			// being clipped, while the key containers themselves still clip
+			// when the editor scrolls vertically.
+			style: "width: 100%; height: 100%; overflow: hidden; position: relative;",
+		},
 		this._pianoContainer,
 		this._drumContainer,
 		this._modContainer,
+	);
+	private readonly _preview: HTMLDivElement = HTML.div({
+		style: `width: 100%; height: 40px; border: 2px solid ${ColorConfig.primaryText}; position: absolute; box-sizing: border-box; pointer-events: none;`,
+	});
+	private readonly _tooltip: HTMLDivElement = HTML.div({
+		// PMD card: 10px meta font, widget surface, 8px radius, floats just
+		// to the right of the hovered key. pointer-events: none so the
+		// tooltip never blocks hover/mouse events on the keys.
+		style: "position: absolute; left: 36px; padding: 4px 8px; background: var(--ui-widget-background); color: var(--primary-text); border-radius: 8px; font-size: 10px; font-weight: 600; font-family: var(--font-family-mono); white-space: nowrap; pointer-events: none; z-index: 5; display: none;",
+	});
+	public readonly container: HTMLDivElement = HTML.div(
+		{ style: "width: 32px; height: 100%; position: relative; flex-shrink: 0; touch-action: none;" },
+		this._keysWrapper,
 		this._preview,
+		this._tooltip,
 	);
 	private readonly _editorHeight: number = 481;
 	private readonly _pianoKeys: HTMLDivElement[] = [];
@@ -48,6 +65,7 @@ export class Piano {
 	private _mouseY: number = 0;
 	private _mouseDown: boolean = false;
 	private _mouseOver: boolean = false;
+	private _previewByKeybind: boolean = false;
 	private _containerRect: DOMRect | null = null;
 	private _cursorPitch: number;
 	private _playedPitch: number = -1;
@@ -212,6 +230,42 @@ export class Piano {
 		this._playedPitch = -1;
 	}
 
+	/**
+	 * Plays the currently hovered pitch via the synth's performance
+	 * (added pitch). The caller is responsible for calling
+	 * `releaseHoveredPreview()` on keyup so the note stops. Returns
+	 * true if a preview was actually started (i.e. the mouse is over
+	 * the piano and a valid pitch is hovered), false otherwise.
+	 */
+	public previewHoveredNote(): boolean {
+		if (!this._mouseOver || this._mouseDown) return false;
+		const octaveOffset: number = this._doc.getBaseVisibleOctave(this._doc.channel) * Config.pitchesPerOctave;
+		const currentPitch: number = this._cursorPitch + octaveOffset;
+		if (this._playedPitch === currentPitch) {
+			// Already playing this exact pitch (e.g. via keyboard layout).
+			return true;
+		}
+		this._doc.performance.removePerformedPitch(this._playedPitch);
+		this._playedPitch = currentPitch;
+		this._previewByKeybind = true;
+		this._doc.performance.addPerformedPitch(currentPitch);
+		return true;
+	}
+
+	public releaseHoveredPreview(): void {
+		// Only release if the current play was started by the keybind
+		// handler, otherwise we would cancel a real mouse-drag note.
+		if (this._previewByKeybind && this._playedPitch !== -1) {
+			this._doc.performance.removePerformedPitch(this._playedPitch);
+			this._playedPitch = -1;
+		}
+		this._previewByKeybind = false;
+	}
+
+	public isHovering(): boolean {
+		return this._mouseOver;
+	}
+
 	private _whenMouseOver = (_event: MouseEvent): void => {
 		if (this._mouseOver) return;
 		this._mouseOver = true;
@@ -253,6 +307,10 @@ export class Piano {
 	private _whenMouseReleased = (_event: MouseEvent): void => {
 		if (this._mouseDown) this._releaseLiveInput();
 		this._mouseDown = false;
+		// Mouse interaction supersedes any keybind preview. Clear the
+		// flag so a later keyup doesn't accidentally release a note the
+		// user is now playing via real input.
+		this._previewByKeybind = false;
 		this._updatePreview();
 	};
 
@@ -326,6 +384,24 @@ export class Piano {
 			this._preview.style.left = "0px";
 			this._preview.style.top = pitchHeight * (this._pitchCount - this._cursorPitch - 1) + "px";
 			this._preview.style.height = pitchHeight + "px";
+
+			// Position and label the note-name tooltip.
+			const isMod: boolean = this._doc.song.getChannelIsMod(this._doc.channel);
+			const isDrum: boolean = this._doc.song.getChannelIsNoise(this._doc.channel);
+			const baseVisibleOctave: number = this._doc.getBaseVisibleOctave(this._doc.channel);
+			const absolutePitch: number = this._cursorPitch + baseVisibleOctave * Config.pitchesPerOctave;
+			const name: string =
+				isMod || isDrum
+					? String(this._cursorPitch)
+					: Piano.getPitchNameAlwaysOctave(absolutePitch % Config.pitchesPerOctave, absolutePitch, baseVisibleOctave);
+			this._tooltip.textContent = name;
+			this._tooltip.style.display = "block";
+			// Anchor the tooltip to the vertical center of the hovered key.
+			const keyTop: number = pitchHeight * (this._pitchCount - this._cursorPitch - 1);
+			this._tooltip.style.top = keyTop + pitchHeight / 2 + "px";
+			this._tooltip.style.transform = "translateY(-50%)";
+		} else {
+			this._tooltip.style.display = "none";
 		}
 
 		const octaveOffset: number = this._doc.getBaseVisibleOctave(this._doc.channel) * Config.pitchesPerOctave;

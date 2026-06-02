@@ -47,6 +47,7 @@ const shortcutCategories: ShortcutCategory[] = [
 			{ keys: [{ key: "B" }], desc: "Loop Selected Bars" },
 			{ keys: [{ key: "F" }], desc: "Go To Start" },
 			{ keys: [{ key: "F", mods: "Shift" }], desc: "Go To Loop Start" },
+			{ keys: [{ key: "." }], desc: "Preview Hovered Note (hold)" },
 		],
 	},
 	{

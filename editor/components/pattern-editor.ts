@@ -74,6 +74,7 @@ import { SongDocument } from "../song-document";
 import { SongEditor } from "../song-editor";
 import { Slider } from "../ui";
 import { EnvelopeEditor } from "./envelope-editor";
+import { Piano } from "./piano";
 
 function makeEmptyReplacementElement<T extends Node>(node: T): T {
 	const clone: T = <T>node.cloneNode(false);
@@ -167,6 +168,12 @@ export class PatternEditor {
 	private readonly _backgroundDrumRow: SVGRectElement = SVG.rect();
 	private readonly _backgroundModRow: SVGRectElement = SVG.rect();
 	private readonly _maximumNoteRanges: number = Math.max(Config.layeredInstrumentCountMax, Config.patternInstrumentCountMax);
+	private readonly _hoverTooltip: HTMLDivElement = HTML.div({
+		// PMD card: 10px meta font, widget surface, 8px radius. Floats
+		// in the top-right of the piano roll so it doesn't cover notes;
+		// pointer-events: none so it never blocks mouse events.
+		style: "position: absolute; top: 8px; right: 8px; padding: 4px 8px; background: var(--ui-widget-background); color: var(--primary-text); border-radius: 8px; font-size: 10px; font-weight: 600; font-family: var(--font-family-mono); white-space: nowrap; pointer-events: none; z-index: 5; display: none;",
+	});
 
 	private _editorWidth: number;
 
@@ -193,6 +200,8 @@ export class PatternEditor {
 	private _mouseDragging: boolean = false;
 	private _mouseHorizontal: boolean = false;
 	private _usingTouch: boolean = false;
+	private _previewByKeybind: boolean = false;
+	private _previewPitch: number = -1;
 	private _cachedSvgRect: DOMRect | null = null;
 	private _copiedPinChannels: NotePin[][] = [];
 	private _copiedPins: NotePin[];
@@ -309,7 +318,12 @@ export class PatternEditor {
 			this._svgPreview,
 			this._svgPlayhead,
 		);
-		this.container = HTML.div({ style: "height: 100%; overflow:hidden; position: relative; flex-grow: 1;" }, this._svg, this.modDragValueLabel);
+		this.container = HTML.div(
+			{ style: "height: 100%; overflow:hidden; position: relative; flex-grow: 1;" },
+			this._svg,
+			this.modDragValueLabel,
+			this._hoverTooltip,
+		);
 
 		for (let i: number = 0; i < Config.pitchesPerOctave; i++) {
 			const rectangle: SVGRectElement = SVG.rect();
@@ -853,6 +867,41 @@ export class PatternEditor {
 		return false;
 	}
 
+	/**
+	 * Plays the pitch currently under the mouse via the synth's
+	 * performance (added pitch). The caller is responsible for calling
+	 * `releaseHoveredPreview()` on keyup so the note stops. Returns
+	 * true if a preview was actually started, false otherwise (e.g.
+	 * mouse not over the editor or no valid pitch hovered).
+	 */
+	public previewHoveredNote(): boolean {
+		if (!this._mouseOver || this._mouseDown) return false;
+		if (this._pitchHeight <= 0) return false;
+		if (this._mouseX < 0 || this._mouseX > this._editorWidth || this._mouseY < 0 || this._mouseY > this._editorHeight) return false;
+		const rawPitch: number = this._findMousePitch(this._mouseY);
+		const snappedPitch: number = this._snapToPitch(rawPitch, 0, this._pitchCount - 1 + this._octaveOffset);
+		if (this._previewPitch === snappedPitch) {
+			return true;
+		}
+		this._doc.performance.removePerformedPitch(this._previewPitch);
+		this._previewPitch = snappedPitch;
+		this._previewByKeybind = true;
+		this._doc.performance.addPerformedPitch(snappedPitch);
+		return true;
+	}
+
+	public releaseHoveredPreview(): void {
+		if (this._previewByKeybind && this._previewPitch !== -1) {
+			this._doc.performance.removePerformedPitch(this._previewPitch);
+			this._previewPitch = -1;
+		}
+		this._previewByKeybind = false;
+	}
+
+	public isHovering(): boolean {
+		return this._mouseOver;
+	}
+
 	public resetCopiedPins = (): void => {
 		const maxDivision: number = this._getMaxDivision();
 		const cap: number = this._doc.song.getVolumeCap(false);
@@ -950,11 +999,14 @@ export class PatternEditor {
 		if (this._mouseOver) return;
 		this._mouseOver = true;
 		this._usingTouch = false;
+		this._hoverTooltip.style.display = "block";
 	};
 
 	private _whenMouseOut = (_event: MouseEvent): void => {
 		if (!this._mouseOver) return;
 		this._mouseOver = false;
+		this._hoverTooltip.style.display = "none";
+		this._previewByKeybind = false;
 	};
 
 	private _whenMousePressed = (event: MouseEvent): void => {
@@ -2229,8 +2281,32 @@ export class PatternEditor {
 		if (isNaN(this._mouseX)) this._mouseX = 0;
 		if (isNaN(this._mouseY)) this._mouseY = 0;
 		this._usingTouch = false;
+		this._updateHoverTooltip();
 		this._whenCursorMoved();
 	};
+
+	private _updateHoverTooltip(): void {
+		if (
+			!this._mouseOver ||
+			this._mouseX < 0 ||
+			this._mouseX > this._editorWidth ||
+			this._mouseY < 0 ||
+			this._mouseY > this._editorHeight ||
+			this._pitchHeight <= 0
+		) {
+			this._hoverTooltip.style.display = "none";
+			return;
+		}
+		const isMod: boolean = this._doc.song.getChannelIsMod(this._doc.channel);
+		const isDrum: boolean = this._doc.song.getChannelIsNoise(this._doc.channel);
+		const baseVisibleOctave: number = this._doc.getBaseVisibleOctave(this._doc.channel);
+		const rawPitch: number = this._findMousePitch(this._mouseY);
+		const snappedPitch: number = this._snapToPitch(rawPitch, 0, this._pitchCount - 1 + this._octaveOffset);
+		const name: string =
+			isMod || isDrum ? String(snappedPitch) : Piano.getPitchNameAlwaysOctave(snappedPitch % Config.pitchesPerOctave, snappedPitch, baseVisibleOctave);
+		this._hoverTooltip.textContent = name;
+		this._hoverTooltip.style.display = "block";
+	}
 
 	private _whenTouchMoved = (event: TouchEvent): void => {
 		if (!this._mouseDown) return;
@@ -2786,6 +2862,10 @@ export class PatternEditor {
 
 		this._mouseDown = false;
 		this._mouseDragging = false;
+		// Real input supersedes any keybind preview so a later keyup
+		// doesn't accidentally release a note the user is now playing
+		// via the mouse.
+		this._previewByKeybind = false;
 		this._draggingStartOfSelection = false;
 		this._draggingEndOfSelection = false;
 		this._draggingSelectionContents = false;
