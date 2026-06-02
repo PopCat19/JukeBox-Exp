@@ -9,7 +9,7 @@
 
 import type { Base16Palette, PMDVariables } from "./pmd";
 import { generatePalette, getPMD } from "./pmd";
-import { safeOklchToRgb, rgbToHex } from "./pmd/color";
+import { rgbToHex, safeOklchToRgb } from "./pmd/color";
 import { composite } from "./pmd/variables";
 
 export function pmdGenerateColors(hue: number, isDark: boolean, lockHue: boolean = false, lockValue: number = 0): Base16Palette {
@@ -154,7 +154,13 @@ function applyChannelColors(root: HTMLElement, pmd: PMDVariables, primaryHue: nu
 		set(`--${name}-primary-note`, hexAt(pmd["88x"].l, pmd["88x"].c, h));
 		set(`--${name}-primary-channel`, hexAt(pmd["80x"].l, pmd["80x"].c, h));
 		set(`--${name}-secondary-note`, hexAt(pmd["64x"].l, pmd["64x"].c, h));
-		set(`--${name}-secondary-channel`, hexAt(pmd["4x"].l + 0.08, pmd["64x"].c, h));
+		// Dim channel color: use a fixed L=0.32 baseline so the dim
+		// variant stays visible against both dark and light scheme
+		// backgrounds. PMD's 4x variant flips to L=0.92 in light mode,
+		// which would make the dim channel indistinguishable from the
+		// page background. Forcing L=0.32 keeps the dim color uniform
+		// across schemes at the cost of a tiny tier inconsistency.
+		set(`--${name}-secondary-channel`, hexAt(0.32, pmd["64x"].c, h));
 	});
 
 	noiseNames.forEach((name, i) => {
@@ -162,7 +168,7 @@ function applyChannelColors(root: HTMLElement, pmd: PMDVariables, primaryHue: nu
 		set(`--${name}-primary-note`, hexAt(pmd["80x"].l, pmd["80x"].c * 0.4, h));
 		set(`--${name}-primary-channel`, hexAt(pmd["64x"].l, pmd["64x"].c * 0.4, h));
 		set(`--${name}-secondary-note`, hexAt(pmd["64x"].l, pmd["64x"].c * 0.3, h));
-		set(`--${name}-secondary-channel`, hexAt(pmd["4x"].l + 0.06, pmd["64x"].c * 0.3, h));
+		set(`--${name}-secondary-channel`, hexAt(0.32, pmd["64x"].c * 0.3, h));
 	});
 
 	modNames.forEach((name, i) => {
@@ -170,7 +176,7 @@ function applyChannelColors(root: HTMLElement, pmd: PMDVariables, primaryHue: nu
 		set(`--${name}-primary-note`, hexAt(pmd["88x"].l, pmd["88x"].c * 0.6, h));
 		set(`--${name}-primary-channel`, hexAt(pmd["80x"].l, pmd["80x"].c * 0.5, h));
 		set(`--${name}-secondary-note`, hexAt(pmd["64x"].l, pmd["64x"].c * 0.5, h));
-		set(`--${name}-secondary-channel`, hexAt(pmd["4x"].l + 0.08, pmd["64x"].c * 0.5, h));
+		set(`--${name}-secondary-channel`, hexAt(0.32, pmd["64x"].c * 0.5, h));
 	});
 }
 
