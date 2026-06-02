@@ -166,7 +166,6 @@ export function parseAndConfigureCustomSample(
 			parsedUrl = new URL(urlSliced);
 		}
 	} else {
-		alert(url + " is not a valid url");
 		return false;
 	}
 
