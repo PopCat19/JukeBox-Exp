@@ -122,6 +122,9 @@ export const Animation = {
 	easingEaseIn: "ease-in",
 	easingEaseOut: "ease-out",
 	easingLinear: "linear",
+	// PMD canonical easing for interactive feedback. cubic-bezier(0.4, 0, 0.2, 1)
+	// is the standard "ease" curve for hover/focus/click transitions.
+	easingDefault: "cubic-bezier(0.4, 0, 0.2, 1)",
 } as const;
 
 export const Sizing = {

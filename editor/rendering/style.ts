@@ -12,14 +12,7 @@
 import { HTML } from "imperative-html/dist/esm/elements-strict";
 import { ColorConfig } from "../../shared/color-config";
 import { getLocalStorageItem } from "../../synth/synth-config";
-import {
-	BorderRadius,
-	BorderWidth,
-	Gap,
-	Sizing,
-	Animation,
-	Typography,
-} from "../ui/style-constants";
+import { Animation, BorderRadius, BorderWidth, Gap, Sizing, Typography } from "../ui/style-constants";
 
 // Determine if the user's browser/OS adds scrollbars that occupy space.
 // See: https://www.filamentgroup.com/lab/scrollbars/
@@ -61,6 +54,9 @@ document.head.appendChild(
 	--flex-fit: 0 0 auto;
 	--flex-stretch: stretch;
 	--pane-gap: 8px;
+	/* PMD: hover outline color (default 80x body tier), eased transition */
+	--hout: ${ColorConfig.primaryText};
+	--ease: ${Animation.easingDefault};
 	--internal-play-symbol: var(--play-symbol, url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="-13 -13 26 26"><path d="M -5 -8 L -5 8 L 8 0 z" fill="gray"/></svg>'));
 	--internal-pause-symbol: var(--pause-symbol, url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="-13 -13 26 26"><rect x="-5" y="-7" width="4" height="14" fill="gray"/><rect x="3" y="-7" width="4" height="14" fill="gray"/></svg>'));
 	--internal-record-symbol: var(--record-symbol, url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="-13 -13 26 26"><circle cx="0" cy="0" r="6" fill="gray"/></svg>'));
@@ -884,13 +880,12 @@ html {
 .beepboxEditor .prompt {
 	margin: auto;
 	text-align: center;
-	background: var(--prompt-bg-color, ${ColorConfig.editorBackground});
-	backdrop-filter: var(--prompt-backdrop-filter, none);
-	-webkit-backdrop-filter: var(--prompt-backdrop-filter, none);
+	background: var(--prompt-bg-color, transparent);
+	backdrop-filter: var(--prompt-backdrop-filter, blur(24px));
+	-webkit-backdrop-filter: var(--prompt-backdrop-filter, blur(24px));
 	border-radius: var(--border-radius-large);
-	border: ${BorderWidth.default} solid ${ColorConfig.uiWidgetBackground};
 	color: ${ColorConfig.primaryText};
-	padding: var(--padding-16);
+	padding: var(--padding-12);
 	display: flex;
 	flex-direction: column;
 	gap: var(--gap-md);
@@ -898,25 +893,26 @@ html {
 	z-index: 1;
 	pointer-events: auto;
 	outline: none;
+	transition: outline-color 150ms ${Animation.easingDefault};
 }
 
 .beepboxEditor .prompt.entering {
-	animation: prompt-enter 80ms ease-out;
+	animation: prompt-enter 150ms ${Animation.easingDefault};
 }
 
 @keyframes prompt-enter {
-	from { opacity: 0; transform: scale(0.92); }
+	from { opacity: 0; transform: scale(0.96); }
 	to { opacity: 1; transform: scale(1); }
 }
 
 .beepboxEditor .prompt.exiting {
-	animation: prompt-exit 120ms ease-out forwards;
+	animation: prompt-exit 150ms ${Animation.easingDefault} forwards;
 	pointer-events: none;
 }
 
 @keyframes prompt-exit {
 	from { opacity: 1; transform: scale(1); }
-	to { opacity: 0; transform: scale(0.92); }
+	to { opacity: 0; transform: scale(0.96); }
 }
 
 .beepboxEditor .prompt.shaded {
@@ -934,11 +930,16 @@ html {
 }
 
 .beepboxEditor .prompt:hover {
-	border-color: color-mix(in srgb, var(--indicator-primary, #4444ff), transparent 50%);
+	/* PMD: hover uses an 80x inner outline (2px, outline-offset: -2px) */
+	outline: 2px solid var(--hout, ${ColorConfig.primaryText});
+	outline-offset: -2px;
 }
 
-.beepboxEditor .prompt.focused {
-	border-color: var(--indicator-primary, #4444ff) !important;
+.beepboxEditor .prompt.focused,
+.beepboxEditor .prompt:focus-visible {
+	/* PMD: keyboard focus uses 2px 80x 48% */
+	outline: 2px solid ${ColorConfig.secondaryText};
+	outline-offset: -2px;
 }
 
 .beepboxEditor .prompt > .cancelButton {
@@ -1006,9 +1007,10 @@ html {
 }
 
 .beepboxEditor .prompt h2 {
-	font-size: 2em;
+	font-size: ${Typography.sizeLg};
 	margin: 0 16px;
 	font-weight: ${Typography.weightSemibold};
+	color: ${ColorConfig.promptTitlebarText};
 }
 
 .beepboxEditor .prompt p {
@@ -1196,13 +1198,13 @@ html {
 .beepboxEditor .prompt.keyboardShortcutsPrompt .shortcutRow {
 	display: flex;
 	justify-content: space-between;
-	padding: 0.25em 0.4em;
-	font-size: 0.9em;
+	padding: 4px 8px;
+	font-size: ${Typography.sizeLg};
 	border-radius: var(--border-radius-medium);
 }
 
 .beepboxEditor .prompt.keyboardShortcutsPrompt .shortcutRow:nth-child(even) {
-	background: rgba(255, 255, 255, 0.04);
+	background: var(--ui-widget-background);
 }
 
 .beepboxEditor .layout-option {
@@ -1470,15 +1472,19 @@ html {
 .beepboxEditor .prompt.noSelection:not(.shaded) .prompt-titlebar {
 	height: auto;
 	min-height: 28px;
-	align-items: flex-start;
+	align-items: stretch;
 }
 
 .beepboxEditor .prompt-titlebar > h2 {
 	flex: 1;
+	display: flex;
+	align-items: center;
+	justify-content: center;
 	text-align: center !important;
 	margin: 0 !important;
-	line-height: 1;
-	font-size: 2em !important;
+	min-height: 28px;
+	line-height: 1.2;
+	font-size: ${Typography.sizeLg};
 	font-weight: ${Typography.weightSemibold};
 	color: ${ColorConfig.promptTitlebarText};
 	padding: 0 !important;
@@ -1489,7 +1495,6 @@ html {
 
 .beepboxEditor .prompt.noSelection:not(.shaded) .prompt-titlebar > h2 {
 	white-space: normal;
-	line-height: 1.2 !important;
 	overflow: visible;
 	text-overflow: unset;
 	overflow-wrap: break-word;
@@ -1504,7 +1509,7 @@ html {
 	width: 28px;
 	min-width: 28px;
 	padding: 0;
-	border-radius: var(--border-radius-medium);
+	border-radius: var(--border-radius-large);
 }
 .beepboxEditor .prompt-titlebar > button::before,
 .beepboxEditor .prompt-titlebar > button.cancelButton::before {
@@ -1535,11 +1540,11 @@ html {
 
 .beepboxEditor .prompt.shaded .prompt-titlebar h2 {
 	margin: 0 !important;
-	font-size: 1.2em !important;
+	font-size: ${Typography.sizeLg} !important;
 	color: ${ColorConfig.promptTitlebarText};
 	cursor: pointer;
 	white-space: nowrap;
-	line-height: 1;
+	line-height: 1.2;
 }
 
 .beepboxEditor .playback-bar-controls {

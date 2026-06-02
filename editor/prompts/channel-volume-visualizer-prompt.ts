@@ -67,7 +67,7 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 	);
 
 	private readonly _contentContainer: HTMLDivElement = div({
-		style: "display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; align-content: start;",
+		style: "display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; align-content: start;",
 	});
 
 	// Store channel volume bar elements for live updates
@@ -145,7 +145,7 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 			// Left pane: Master controls
 			div(
 				{
-					style: "flex: 0 0 180px; display: flex; flex-direction: column; padding: 4px 12px 12px 12px; border-right: 1px solid var(--ui-widget-background);",
+					style: "flex: 0 0 180px; display: flex; flex-direction: column; padding: 4px 12px 12px 12px; border-right: 2px solid var(--ui-widget-background);",
 				},
 				h3({ style: "margin-top: 0px; margin-bottom: 12px;" }, "Master"),
 				this._currentBarLabel,
@@ -157,7 +157,7 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 				div({ style: "margin-top: 8px;" }, this._playPauseButton),
 				div(
 					{
-						style: "margin-top: 16px; font-size: 9px; color: var(--secondary-text); border-top: 1px solid var(--ui-widget-background); padding-top: 8px; white-space: nowrap;",
+						style: "margin-top: 16px; font-size: 10px; color: var(--secondary-text); border-top: 2px solid var(--ui-widget-background); padding-top: 8px; white-space: nowrap;",
 					},
 					div({ title: "Pattern number" }, span({ style: "font-weight: bold;" }, "P#"), " = Pattern"),
 					div({ title: "Instrument number" }, span({ style: "font-weight: bold;" }, "I#"), " = Instrument"),
@@ -484,7 +484,7 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 
 			const dbLabel = span(
 				{
-					style: `color: ${channelColors.primaryChannel}; opacity: 0.8; font-size: 9px; font-weight: 600; font-family: monospace; text-align: center; display: block;`,
+					style: `color: ${channelColors.primaryChannel}; opacity: 0.8; font-size: 10px; font-weight: 600; font-family: monospace; text-align: center; display: block;`,
 				},
 				"Pk:-inf",
 			);
@@ -511,9 +511,9 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 			);
 
 			const channelDiv = div({
-				style: `display: flex; flex-direction: column; padding: 4px 6px; border: 2px solid ${
+				style: `display: flex; flex-direction: column; padding: 4px 8px; border: 2px solid ${
 					isMuted ? "var(--mute-button-normal)" : channelColors.primaryChannel
-				}; border-radius: 4px; background: var(--editor-background); cursor: pointer; ${isMuted ? "opacity: 0.5;" : ""} ${isDimmed ? "opacity: 0.5;" : ""}`,
+				}; border-radius: var(--border-radius-medium); background: var(--editor-background); cursor: pointer; ${isMuted ? "opacity: 0.5;" : ""} ${isDimmed ? "opacity: 0.5;" : ""}`,
 			});
 			this._channelDivs.set(i, channelDiv);
 
@@ -531,7 +531,7 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 			});
 
 			const headerDiv = div({
-				style: "display: flex; justify-content: space-between; align-items: center; margin-bottom: 2px;",
+				style: "display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;",
 			});
 
 			headerDiv.appendChild(
@@ -546,7 +546,7 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 			headerDiv.appendChild(
 				span(
 					{
-						style: `font-size: 9px; font-weight: 600; color: ${channelColors.primaryChannel}; opacity: 0.7;`,
+						style: `font-size: 10px; font-weight: 600; color: ${channelColors.primaryChannel}; opacity: 0.7;`,
 					},
 					channelType,
 				),
@@ -557,7 +557,7 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 				headerDiv.appendChild(
 					span(
 						{
-							style: `font-size: 9px; font-weight: 600; color: ${channelColors.primaryNote}; margin-left: 4px;`,
+							style: `font-size: 10px; font-weight: 600; color: ${channelColors.primaryNote}; margin-left: 4px;`,
 						},
 						`P${patternIndex}`,
 					),
@@ -571,7 +571,7 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 			// Show instruments
 			if (channel.instruments.length > 0) {
 				const instrDiv = div({
-					style: "display: flex; flex-wrap: wrap; gap: 2px; margin-top: 4px;",
+					style: "display: flex; flex-wrap: wrap; gap: 4px; margin-top: 4px;",
 				});
 
 				// Get instruments in current pattern for highlighting
@@ -586,7 +586,7 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 						: false;
 					const instrSpan = span(
 						{
-							style: `font-size: 9px; font-weight: 600; padding: 1px 3px; border-radius: 2px; background: ${
+							style: `font-size: 10px; font-weight: 600; padding: 1px 4px; border-radius: var(--border-radius-medium); background: ${
 								isPlaying ? "white" : inPattern ? channelColors.primaryChannel : "var(--ui-widget-background)"
 							}; color: ${isPlaying ? "black" : inPattern ? "var(--editor-background)" : channelColors.primaryChannel}; opacity: ${
 								inPattern || isPlaying ? "1" : "0.5"

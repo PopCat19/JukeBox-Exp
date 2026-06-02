@@ -674,7 +674,10 @@ export class AddSamplesPrompt extends BasePrompt {
 			}
 			const entryElement: HTMLDivElement = div(
 				{
-					style: `padding: 0.6em; margin: 0.4em; border: 1px solid ${ColorConfig.uiWidgetBackground}; border-radius: 4px;`,
+					// PMD card pattern: 8x padding, 16px radius, no border.
+					// Visual separation comes from the 80×8% widget surface
+					// contrasting with the prompt's 8×40% flyout background.
+					style: `padding: 8px 12px; margin: 4px; background: ${ColorConfig.uiWidgetBackground}; border-radius: var(--border-radius-large);`,
 				},
 				div(
 					{

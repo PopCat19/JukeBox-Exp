@@ -574,7 +574,7 @@ export class InstrumentBrowserPrompt extends BasePrompt {
 
 		const catCol = span(
 			{ style: "display: inline-flex; align-items: center; gap: 4px;" },
-			span({ style: "font-size: 12px; font-weight: 700;" }, "Category:"),
+			span({ style: "font-size: 12px; font-weight: 600;" }, "Category:"),
 			span({ style: "color: var(--primary-text); font-size: 12px;" }, catName),
 		);
 		const cell = (content: HTMLElement) =>
@@ -594,7 +594,7 @@ export class InstrumentBrowserPrompt extends BasePrompt {
 		const pill = (label: string, value: string) =>
 			span(
 				{ style: "display: inline-flex; align-items: center; gap: 4px;" },
-				span({ style: "font-size: 12px; font-weight: 700;" }, `${label}:`),
+				span({ style: "font-size: 12px; font-weight: 600;" }, `${label}:`),
 				span({ style: "color: var(--primary-text); font-size: 12px;" }, value),
 			);
 		topRow.appendChild(cell(pill("Preset", preset.name)));
@@ -604,7 +604,7 @@ export class InstrumentBrowserPrompt extends BasePrompt {
 		}
 		const fullPreset = EditorConfig.valueToPreset(preset.value);
 		if (fullPreset && fullPreset.tags && fullPreset.tags.length > 0) {
-			tagsRow.appendChild(span({ style: "font-size: 12px; font-weight: 700;" }, "Tags:"));
+			tagsRow.appendChild(span({ style: "font-size: 12px; font-weight: 600;" }, "Tags:"));
 			for (const tag of fullPreset.tags) {
 				const tagEl = tagChip(tag, false);
 				tagEl.addEventListener("mousedown", (e: MouseEvent) => {
@@ -635,15 +635,15 @@ export class InstrumentBrowserPrompt extends BasePrompt {
 			headerRow.appendChild(span({}, "Active Tags"));
 			const clearBtn = span(
 				{
-					style: `padding: 2px 6px; cursor: pointer; color: var(--primary-text); font-size: ${Typography.sizeSm}; background: rgba(255,255,255,0.06); border-radius: 4px;`,
+					style: `padding: 2px 8px; cursor: pointer; color: var(--primary-text); font-size: ${Typography.sizeSm}; background: var(--ui-widget-background); border-radius: var(--border-radius-medium);`,
 				},
 				"Clear Tags",
 			);
 			clearBtn.addEventListener("mouseenter", () => {
-				clearBtn.style.background = "rgba(255,255,255,0.1)";
+				clearBtn.style.background = "var(--ui-widget-focus, #555)";
 			});
 			clearBtn.addEventListener("mouseleave", () => {
-				clearBtn.style.background = "rgba(255,255,255,0.06)";
+				clearBtn.style.background = "var(--ui-widget-background)";
 			});
 			clearBtn.addEventListener("mousedown", (e: MouseEvent) => {
 				e.preventDefault();

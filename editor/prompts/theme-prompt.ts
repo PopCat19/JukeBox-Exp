@@ -11,7 +11,7 @@
 import { HTML } from "imperative-html/dist/esm/elements-strict";
 import { ColorConfig } from "../../shared/color-config";
 import { SongDocument } from "../song-document";
-import { labelRow, createInput } from "../ui";
+import { createInput, labelRow } from "../ui";
 import { BasePrompt } from "./base-prompt";
 
 const { div, h2, select, option, optgroup, input, span } = HTML;
@@ -107,10 +107,7 @@ export class ThemePrompt extends BasePrompt {
 		oninput: () => this._onPMDChange(),
 	});
 
-	private readonly _pmdHueLabel: HTMLSpanElement = span(
-		{ style: "font-size: 12px; color: var(--secondary-text);" },
-		`Hue: ${ColorConfig.pmdHue}°`,
-	);
+	private readonly _pmdHueLabel: HTMLSpanElement = span({ style: "font-size: 12px; color: var(--secondary-text);" }, `Hue: ${ColorConfig.pmdHue}°`);
 
 	private readonly _pmdHueNum: HTMLInputElement = createInput("number", "width: 3.5em; font-size: 12px;", {
 		min: "0",
@@ -120,7 +117,11 @@ export class ThemePrompt extends BasePrompt {
 
 	private readonly _pmdControls: HTMLDivElement = div(
 		{ style: "display: none; flex-direction: column; gap: 8px; margin-top: 4px;" },
-		div({ style: "display: flex; flex-direction: column; gap: 2px;" }, div({ style: "display: flex; align-items: center; gap: 8px;" }, this._pmdHueLabel, this._pmdHueNum), this._pmdHueInput),
+		div(
+			{ style: "display: flex; flex-direction: column; gap: 4px;" },
+			div({ style: "display: flex; align-items: center; gap: 8px;" }, this._pmdHueLabel, this._pmdHueNum),
+			this._pmdHueInput,
+		),
 	);
 
 	public readonly container: HTMLDivElement = div(

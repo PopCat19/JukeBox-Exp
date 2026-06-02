@@ -86,16 +86,17 @@ export class SampleLoadingStatusPrompt extends BasePrompt {
 			const url: string = sampleLoadingState.urlTable[chipWaveIndex];
 			const loadingStatus: string = getSampleLoadingStatusName(sampleLoadingState.statusTable[chipWaveIndex]);
 			const urlDisplay: HTMLInputElement = input({
-				style: `margin-left: 0.5em; color: ${ColorConfig.primaryText}; background-color: ${ColorConfig.editorBackground}; width: 100%; border: 1px solid ${ColorConfig.uiWidgetBackground}; -webkit-user-select: none; -webkit-touch-callout: none; -moz-user-select: none; -ms-user-select: none; user-select: none;`,
+				style: `margin-left: 8px; color: ${ColorConfig.primaryText}; background-color: ${ColorConfig.editorBackground}; width: 100%; border: 2px solid ${ColorConfig.uiWidgetBackground}; border-radius: var(--border-radius-medium); -webkit-user-select: none; -webkit-touch-callout: none; -moz-user-select: none; -ms-user-select: none; user-select: none;`,
 				value: url,
 				title: url,
 				disabled: true,
 			});
 			const loadingStatusColor: string = loadingStatus === "loaded" ? ColorConfig.indicatorPrimary : ColorConfig.secondaryText;
-			const loadingStatusDisplay: HTMLSpanElement = span({ style: `margin-left: 0.5em; color: ${loadingStatusColor}` }, loadingStatus);
+			const loadingStatusDisplay: HTMLSpanElement = span({ style: `margin-left: 8px; color: ${loadingStatusColor}` }, loadingStatus);
 			const chipWaveElement: HTMLDivElement = div(
 				{
-					style: `padding: 0.6em; margin: 0.4em; border: 1px solid ${ColorConfig.uiWidgetBackground}; border-radius: 4px;`,
+					// PMD card: padding 8x, 16px radius, no border.
+					style: `padding: 8px 12px; margin: 4px; background: ${ColorConfig.uiWidgetBackground}; border-radius: var(--border-radius-large);`,
 				},
 				div(
 					{

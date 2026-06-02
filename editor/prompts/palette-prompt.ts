@@ -8,11 +8,11 @@
 // - Live-previews changes, exports to clipboard, CSS file, and JSON
 
 import { HTML } from "imperative-html/dist/esm/elements-strict";
+import { formatColorForTab, parseCssColor, rgbaToHex } from "../../shared/color-utils";
 import { SongDocument } from "../song-document";
 import { actionButton } from "../ui";
 import { createColorPicker, getLastColorTab } from "../ui/inputs/color-picker";
 import { BasePrompt } from "./base-prompt";
-import { formatColorForTab, parseCssColor, rgbaToHex } from "../../shared/color-utils";
 
 const { div, h2, input, button } = HTML;
 
@@ -198,31 +198,76 @@ function buildColorSlots(): ColorSlot[] {
 		slots.push({ varName: name, label, defaultValue: extractDefault(name), section: "Mod Labels" });
 	}
 
-	slots.push({ varName: "--disabled-note-primary", label: "Disabled Note Primary", defaultValue: extractDefault("--disabled-note-primary"), section: "Disabled Notes" });
-	slots.push({ varName: "--disabled-note-secondary", label: "Disabled Note Secondary", defaultValue: extractDefault("--disabled-note-secondary"), section: "Disabled Notes" });
+	slots.push({
+		varName: "--disabled-note-primary",
+		label: "Disabled Note Primary",
+		defaultValue: extractDefault("--disabled-note-primary"),
+		section: "Disabled Notes",
+	});
+	slots.push({
+		varName: "--disabled-note-secondary",
+		label: "Disabled Note Secondary",
+		defaultValue: extractDefault("--disabled-note-secondary"),
+		section: "Disabled Notes",
+	});
 
-	slots.push({ varName: "--multiplicative-mod-slider", label: "Multiplicative Mod Slider", defaultValue: extractDefault("--multiplicative-mod-slider"), section: "Sliders" });
-	slots.push({ varName: "--overwriting-mod-slider", label: "Overwriting Mod Slider", defaultValue: extractDefault("--overwriting-mod-slider"), section: "Sliders" });
+	slots.push({
+		varName: "--multiplicative-mod-slider",
+		label: "Multiplicative Mod Slider",
+		defaultValue: extractDefault("--multiplicative-mod-slider"),
+		section: "Sliders",
+	});
+	slots.push({
+		varName: "--overwriting-mod-slider",
+		label: "Overwriting Mod Slider",
+		defaultValue: extractDefault("--overwriting-mod-slider"),
+		section: "Sliders",
+	});
 
 	for (let i = 1; i <= 10; i++) {
 		const section = i <= 5 ? "Pitch Ch 1-5" : "Pitch Ch 6-10";
-		slots.push({ varName: `--pitch${i}-secondary-channel`, label: `P${i} Secondary Ch`, defaultValue: extractDefault(`--pitch${i}-secondary-channel`), section });
+		slots.push({
+			varName: `--pitch${i}-secondary-channel`,
+			label: `P${i} Secondary Ch`,
+			defaultValue: extractDefault(`--pitch${i}-secondary-channel`),
+			section,
+		});
 		slots.push({ varName: `--pitch${i}-primary-channel`, label: `P${i} Primary Ch`, defaultValue: extractDefault(`--pitch${i}-primary-channel`), section });
-		slots.push({ varName: `--pitch${i}-secondary-note`, label: `P${i} Secondary Note`, defaultValue: extractDefault(`--pitch${i}-secondary-note`), section });
+		slots.push({
+			varName: `--pitch${i}-secondary-note`,
+			label: `P${i} Secondary Note`,
+			defaultValue: extractDefault(`--pitch${i}-secondary-note`),
+			section,
+		});
 		slots.push({ varName: `--pitch${i}-primary-note`, label: `P${i} Primary Note`, defaultValue: extractDefault(`--pitch${i}-primary-note`), section });
 	}
 
 	for (let i = 1; i <= 5; i++) {
 		const section = "Noise Ch 1-5";
-		slots.push({ varName: `--noise${i}-secondary-channel`, label: `N${i} Secondary Ch`, defaultValue: extractDefault(`--noise${i}-secondary-channel`), section });
+		slots.push({
+			varName: `--noise${i}-secondary-channel`,
+			label: `N${i} Secondary Ch`,
+			defaultValue: extractDefault(`--noise${i}-secondary-channel`),
+			section,
+		});
 		slots.push({ varName: `--noise${i}-primary-channel`, label: `N${i} Primary Ch`, defaultValue: extractDefault(`--noise${i}-primary-channel`), section });
-		slots.push({ varName: `--noise${i}-secondary-note`, label: `N${i} Secondary Note`, defaultValue: extractDefault(`--noise${i}-secondary-note`), section });
+		slots.push({
+			varName: `--noise${i}-secondary-note`,
+			label: `N${i} Secondary Note`,
+			defaultValue: extractDefault(`--noise${i}-secondary-note`),
+			section,
+		});
 		slots.push({ varName: `--noise${i}-primary-note`, label: `N${i} Primary Note`, defaultValue: extractDefault(`--noise${i}-primary-note`), section });
 	}
 
 	for (let i = 1; i <= 4; i++) {
 		const section = "Mod Ch 1-4";
-		slots.push({ varName: `--mod${i}-secondary-channel`, label: `M${i} Secondary Ch`, defaultValue: extractDefault(`--mod${i}-secondary-channel`), section });
+		slots.push({
+			varName: `--mod${i}-secondary-channel`,
+			label: `M${i} Secondary Ch`,
+			defaultValue: extractDefault(`--mod${i}-secondary-channel`),
+			section,
+		});
 		slots.push({ varName: `--mod${i}-primary-channel`, label: `M${i} Primary Ch`, defaultValue: extractDefault(`--mod${i}-primary-channel`), section });
 		slots.push({ varName: `--mod${i}-secondary-note`, label: `M${i} Secondary Note`, defaultValue: extractDefault(`--mod${i}-secondary-note`), section });
 		slots.push({ varName: `--mod${i}-primary-note`, label: `M${i} Primary Note`, defaultValue: extractDefault(`--mod${i}-primary-note`), section });
@@ -281,11 +326,14 @@ function removePreviewCss(): void {
 	if (el) el.remove();
 }
 
-const ROW_STYLE = "display: flex; align-items: center; gap: 6px; padding: 3px 6px; border-radius: 3px;";
-const SWATCH_STYLE = "width: 22px; height: 22px; border-radius: 3px; border: 1px solid rgba(255,255,255,0.15); flex-shrink: 0; cursor: pointer;";
-const LABEL_STYLE = "width: 130px; flex-shrink: 0; font-size: 11px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--primary-text, #ccc); text-align: left;";
-const INPUT_STYLE = "flex: 1; font-family: monospace; font-size: 11px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); border-radius: 3px; padding: 2px 4px; color: var(--primary-text, #ccc); outline: none; min-width: 0;";
-const PICKER_BTN_STYLE = "font-family: monospace; font-size: 10px; padding: 2px 5px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.12); border-radius: 3px; color: var(--secondary-text, #888); cursor: pointer; flex-shrink: 0;";
+const ROW_STYLE = "display: flex; align-items: center; gap: 4px; padding: 4px 8px; border-radius: var(--border-radius-medium);";
+const SWATCH_STYLE = `width: 22px; height: 22px; border-radius: var(--border-radius-medium); border: 1px solid var(--ui-widget-background); flex-shrink: 0; cursor: pointer;`;
+const LABEL_STYLE =
+	"width: 130px; flex-shrink: 0; font-size: 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--primary-text, #ccc); text-align: left;";
+const INPUT_STYLE =
+	"flex: 1; font-family: monospace; font-size: 10px; background: var(--ui-widget-background); border: 2px solid var(--ui-widget-background); border-radius: var(--border-radius-medium); padding: 2px 4px; color: var(--primary-text, #ccc); outline: none; min-width: 0;";
+const PICKER_BTN_STYLE =
+	"font-family: monospace; font-size: 10px; padding: 2px 4px; background: var(--ui-widget-background); border: 2px solid transparent; border-radius: var(--border-radius-medium); color: var(--secondary-text, #888); cursor: pointer; flex-shrink: 0;";
 
 export class PalettePrompt extends BasePrompt {
 	private readonly _slots: ColorSlot[] = buildColorSlots();
@@ -303,17 +351,15 @@ export class PalettePrompt extends BasePrompt {
 		{ class: "prompt noSelection", style: "width: 480px; max-height: 90vh; display: flex; flex-direction: column;" },
 		h2("Color Palette"),
 		this._scrollArea,
-		div({ style: "display: flex; gap: 4px; flex-wrap: wrap; margin-top: 4px;" },
+		div(
+			{ style: "display: flex; gap: 4px; flex-wrap: wrap; margin-top: 8px;" },
 			this._exportCssBtn,
 			this._downloadCssBtn,
 			this._downloadJsonBtn,
 			this._rawCssBtn,
 			this._resetBtn,
 		),
-		div({ style: "display: flex; flex-direction: row-reverse; justify-content: space-between; margin-top: 4px;" },
-			this._getOkayRow(),
-			this._cancelButton,
-		),
+		div({ style: "display: flex; flex-direction: row-reverse; justify-content: space-between; margin-top: 8px;" }, this._getOkayRow(), this._cancelButton),
 	);
 
 	constructor(doc: SongDocument) {
@@ -334,11 +380,16 @@ export class PalettePrompt extends BasePrompt {
 
 		this._exportCssBtn.addEventListener("click", () => {
 			const css = mapToCss(this._values);
-			navigator.clipboard.writeText(css).then(() => {
-				const orig = this._exportCssBtn.textContent;
-				this._exportCssBtn.textContent = "Copied!";
-				setTimeout(() => { this._exportCssBtn.textContent = orig; }, 1200);
-			}).catch(() => {});
+			navigator.clipboard
+				.writeText(css)
+				.then(() => {
+					const orig = this._exportCssBtn.textContent;
+					this._exportCssBtn.textContent = "Copied!";
+					setTimeout(() => {
+						this._exportCssBtn.textContent = orig;
+					}, 1200);
+				})
+				.catch(() => {});
 		});
 
 		this._downloadCssBtn.addEventListener("click", () => {
@@ -392,13 +443,15 @@ export class PalettePrompt extends BasePrompt {
 		this._closePicker();
 		this._scrollArea.innerHTML = "";
 
-		const sections = [...new Set(this._slots.map(s => s.section))];
+		const sections = [...new Set(this._slots.map((s) => s.section))];
 
 		for (const sectionName of sections) {
-			const sectionSlots = this._slots.filter(s => s.section === sectionName);
+			const sectionSlots = this._slots.filter((s) => s.section === sectionName);
 
 			const sectionHeader = div(
-				{ style: "font-size: 10px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px; color: var(--secondary-text, #888); padding: 6px 6px 2px; position: sticky; top: 0; background: var(--editor-background, #1a1a2e); z-index: 1;" },
+				{
+					style: "font-size: 10px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px; color: var(--secondary-text, #888); padding: 8px 8px 4px; position: sticky; top: 0; background: var(--prompt-bg-color, var(--editor-background, #1a1a2e)); z-index: 1;",
+				},
 				sectionName,
 			);
 
@@ -409,16 +462,14 @@ export class PalettePrompt extends BasePrompt {
 				rows.push(row);
 			}
 
-			const group = div({ style: "margin-bottom: 4px;" }, sectionHeader, ...rows);
+			const group = div({ style: "margin-bottom: 8px;" }, sectionHeader, ...rows);
 			this._scrollArea.appendChild(group);
 		}
 	}
 
 	private _buildRow(slot: ColorSlot, colorVal: string): HTMLElement {
 		const parsed = parseCssColor(colorVal);
-		const displayColor = parsed.a < 1
-			? `rgba(${parsed.r}, ${parsed.g}, ${parsed.b}, ${parsed.a.toFixed(2)})`
-			: rgbaToHex(parsed);
+		const displayColor = parsed.a < 1 ? `rgba(${parsed.r}, ${parsed.g}, ${parsed.b}, ${parsed.a.toFixed(2)})` : rgbaToHex(parsed);
 
 		const tab = getLastColorTab();
 		const formatted = formatColorForTab(colorVal, tab);
@@ -432,9 +483,7 @@ export class PalettePrompt extends BasePrompt {
 
 		const applyValue = (raw: string) => {
 			const p = parseCssColor(raw);
-			const dc = p.a < 1
-				? `rgba(${p.r}, ${p.g}, ${p.b}, ${p.a.toFixed(2)})`
-				: rgbaToHex(p);
+			const dc = p.a < 1 ? `rgba(${p.r}, ${p.g}, ${p.b}, ${p.a.toFixed(2)})` : rgbaToHex(p);
 			const stored = dc;
 			this._values.set(slot.varName, stored);
 			swatch.style.background = dc;
@@ -474,9 +523,7 @@ export class PalettePrompt extends BasePrompt {
 			onChange: (val: string) => {
 				this._values.set(slot.varName, val);
 				const parsed = parseCssColor(val);
-				const displayColor = parsed.a < 1
-					? `rgba(${parsed.r}, ${parsed.g}, ${parsed.b}, ${parsed.a.toFixed(2)})`
-					: rgbaToHex(parsed);
+				const displayColor = parsed.a < 1 ? `rgba(${parsed.r}, ${parsed.g}, ${parsed.b}, ${parsed.a.toFixed(2)})` : rgbaToHex(parsed);
 				swatch.style.background = displayColor;
 				const currentTab = getLastColorTab();
 				valueInput.value = formatColorForTab(val, currentTab);

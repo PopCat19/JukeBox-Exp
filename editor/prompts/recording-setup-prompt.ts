@@ -111,9 +111,9 @@ export class RecordingSetupPrompt extends BasePrompt {
 			p(
 				'Recorded notes often overlap such that one note ends after the next note already started. In JukeBox, these notes get split into multiple notes which may sound different when re-played than they did when you were recording. To fix the sound, you can either manually clean up the notes in the pattern editor, or you could try enabling the "transition type" effect on the instrument and setting it to "continue".',
 			),
-			div({
-				style: `width: 100%; height: 80px; background: linear-gradient(rgba(0,0,0,0), ${ColorConfig.editorBackground}); position: sticky; bottom: 0; pointer-events: none;`,
-			}),
+			// (PMD disallows gradients for depth. The scroll-fade hint is removed;
+			// the parent .prompt already provides an 8×40% flyout surface that
+			// distinguishes the scroll area from the page behind it.)
 		),
 		this._getOkayRow(),
 		this._cancelButton,

@@ -10,6 +10,7 @@
 import { HTML } from "imperative-html/dist/esm/elements-strict";
 import { SongDocument } from "../song-document";
 import { inputRow, searchInput } from "../ui";
+import { Typography } from "../ui/style-constants";
 import { BasePrompt } from "./base-prompt";
 
 const { div, span, h2 } = HTML;
@@ -177,7 +178,7 @@ export class KeyboardShortcutsPrompt extends BasePrompt {
 			const filteredEntries = cat.entries.filter((e) => formatKeys(e.keys).toLowerCase().includes(filter) || e.desc.toLowerCase().includes(filter));
 
 			if (filteredEntries.length > 0) {
-				this._shortcutsContainer.appendChild(h2({ style: "font-size: 1.1em; margin: 0.5em 0;" }, cat.name));
+				this._shortcutsContainer.appendChild(h2({ style: `font-size: ${Typography.sizeLg}; margin: 8px 0;` }, cat.name));
 				for (const entry of filteredEntries) {
 					this._shortcutsContainer.appendChild(
 						div({ class: "shortcutRow" }, span({ style: "color: var(--secondary-text);" }, formatKeys(entry.keys)), span(entry.desc)),
