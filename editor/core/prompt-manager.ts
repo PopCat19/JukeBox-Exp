@@ -78,6 +78,14 @@ const _noPlayPausePrompts: ReadonlySet<Function> = new Set([
 
 export class PromptManager {
 	private readonly _prompts: Prompt[] = [];
+	// Prompts whose exit animation is still in flight (their containers
+	// are still in the DOM but they've already been spliced out of
+	// _prompts). Tracked so a subsequent _setPrompt can synchronously
+	// remove them — otherwise the old container lingers for 150ms and
+	// shows the prev prompt's exit animation under the new prompt's
+	// enter animation. The pairing of (prompt, doRemove) lets us cancel
+	// the animationend listener and run doRemove directly.
+	private readonly _exitingPrompts: Array<{ prompt: Prompt; doRemove: () => void }> = [];
 	private _hideContainerTimer: ReturnType<typeof setTimeout> | null = null;
 	private _focusedPrompt: Prompt | null = null;
 	private readonly _promptPositions: Map<string, { x: number; y: number }> = new Map();
@@ -149,9 +157,20 @@ export class PromptManager {
 				log.log("spliced", prompt.name, { stack: this._prompts.map((p) => p.name), remaining: this._prompts.length });
 				const target = prompt;
 				const doRemove = (): void => {
-					this._host.promptContainer.removeChild(target.container);
+					// Remove from the exiting list so the entry is GC-able.
+					const i = this._exitingPrompts.findIndex((e) => e.prompt === target);
+					if (i !== -1) this._exitingPrompts.splice(i, 1);
+					if (target.container.parentNode === this._host.promptContainer) {
+						this._host.promptContainer.removeChild(target.container);
+					}
 					target.cleanUp();
 				};
+				// Track this exit so a subsequent _setPrompt can cancel
+				// it and remove the container synchronously — otherwise
+				// the old container lingers for 150ms and the user sees
+				// the previous prompt's exit animation under the new
+				// prompt's enter animation.
+				this._exitingPrompts.push({ prompt: target, doRemove });
 				if (target.animateExit) {
 					target.animateExit(doRemove);
 				} else {
@@ -387,6 +406,20 @@ export class PromptManager {
 		if (this._hideContainerTimer != null) {
 			clearTimeout(this._hideContainerTimer);
 			this._hideContainerTimer = null;
+		}
+
+		// Synchronously remove any prompts whose exit animation is
+		// still in flight. Without this, the previously-closed prompt's
+		// container lingers in the DOM for the full 150ms exit
+		// animation, so opening a new prompt shows the previous
+		// prompt's fade-out under the new prompt's fade-in.
+		// doRemove is the same handler the animationend would have
+		// called, so cleanUp and parentNode check keep this safe if
+		// the animation has already finished.
+		if (this._exitingPrompts.length > 0) {
+			log.log("cancelling in-flight exit animations", this._exitingPrompts.length);
+			const pending = this._exitingPrompts.splice(0, this._exitingPrompts.length);
+			for (const { doRemove } of pending) doRemove();
 		}
 
 		this._host.promptContainer.style.display = "";
