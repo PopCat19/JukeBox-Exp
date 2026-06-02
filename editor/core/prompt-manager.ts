@@ -110,9 +110,16 @@ export class PromptManager {
 			focused: this._focusedPrompt?.name ?? null,
 			stack: this._prompts.map((p) => p.name),
 		});
-		if (this._host.doc.prompt === promptName) {
-			log.log("open -> toggle-close", promptName);
-			this.close(null);
+		// Don't compare against _host.doc.prompt here — callers (e.g.
+		// song-editor._openPrompt) set doc.prompt to promptName BEFORE
+		// delegating, so a naive comparison would always look like a
+		// toggle and close the just-opened prompt on the first call.
+		// Instead, compare against the manager's own focused state: if
+		// a prompt with this name is already focused, do nothing (it
+		// stays open). The "if exists anywhere in the stack, refocus"
+		// case is handled in _setPrompt.
+		if (this._focusedPrompt?.name === promptName) {
+			log.log("  -> already focused, no-op", promptName);
 			return;
 		}
 		this._host.doc.openPrompt(promptName);

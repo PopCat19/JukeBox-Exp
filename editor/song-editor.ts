@@ -3052,30 +3052,23 @@ export class SongEditor
 
 	private _openPrompt(promptName: string): void {
 		log.log("_openPrompt", promptName, { docPrompt: this.doc.prompt });
-		if (this.doc.prompt === promptName) {
-			log.log("  -> toggle close", promptName);
-			this.closePrompt(null);
-			return;
-		}
-		this.doc.openPrompt(promptName);
+		// Delegate to the prompt manager. The manager is the source
+		// of truth for "should this be a toggle" — comparing
+		// doc.prompt here would be a double-check and would close the
+		// just-opened prompt on the first call.
 		this._promptManager.open(promptName);
 	}
 
 	public openPresetSelector(): void {
 		log.log("openPresetSelector", { docPrompt: this.doc.prompt });
-		if (this.doc.prompt === "instrumentBrowser") {
-			log.log("  -> toggle close instrumentBrowser");
-			this.closePrompt(null);
-			return;
-		}
-		this.doc.prompt = "instrumentBrowser";
+		// Same as _openPrompt: let the manager decide, no client-side
+		// toggle-close.
 		this._promptManager.open("instrumentBrowser");
 	}
 
 	public openShortcuts(): void {
 		log.log("openShortcuts", { docPrompt: this.doc.prompt });
-		this.doc.prompt = "keyboardShortcuts";
-		this._promptManager.sync("keyboardShortcuts");
+		this._promptManager.open("keyboardShortcuts");
 	}
 
 	public closePrompt(prompt: Prompt | null): void {
