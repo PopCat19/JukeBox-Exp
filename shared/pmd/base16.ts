@@ -39,7 +39,10 @@ function rot(base: number, deg: number): number {
 	return (base + deg + HUE_MAX) % HUE_MAX;
 }
 
-export function getBase16Defs(pmd: PMDVariables, computed: ReturnType<typeof getComputed>): {
+export function getBase16Defs(
+	pmd: PMDVariables,
+	computed: ReturnType<typeof getComputed>,
+): {
 	bg: Base16Def[];
 	fg: Base16Def[];
 	accent: Base16Def[];

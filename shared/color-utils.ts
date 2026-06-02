@@ -7,9 +7,24 @@
 // - Converts between hex, HSL, OKLCH color spaces
 // - Handles 8-digit hex and alpha in all formats
 
-export interface Rgba { r: number; g: number; b: number; a: number }
-export interface Hsla { h: number; s: number; l: number; a: number }
-export interface Oklcha { l: number; c: number; h: number; a: number }
+export interface Rgba {
+	r: number;
+	g: number;
+	b: number;
+	a: number;
+}
+export interface Hsla {
+	h: number;
+	s: number;
+	l: number;
+	a: number;
+}
+export interface Oklcha {
+	l: number;
+	c: number;
+	h: number;
+	a: number;
+}
 
 export function parseCssColor(value: string): Rgba {
 	const trimmed = value.trim();
@@ -19,8 +34,8 @@ export function parseCssColor(value: string): Rgba {
 	const hexMatch = trimmed.match(/^#([0-9a-fA-F]{3,8})$/);
 	if (hexMatch) {
 		let h = hexMatch[1];
-		if (h.length === 3) h = h[0]+h[0]+h[1]+h[1]+h[2]+h[2] + "ff";
-		else if (h.length === 4) h = h[0]+h[0]+h[1]+h[1]+h[2]+h[2]+h[3]+h[3];
+		if (h.length === 3) h = h[0] + h[0] + h[1] + h[1] + h[2] + h[2] + "ff";
+		else if (h.length === 4) h = h[0] + h[0] + h[1] + h[1] + h[2] + h[2] + h[3] + h[3];
 		else if (h.length === 6) h += "ff";
 		return {
 			r: parseInt(h.substring(0, 2), 16),
@@ -79,17 +94,28 @@ export function parseCssColor(value: string): Rgba {
 }
 
 export function rgbaToHex(c: Rgba): string {
-	const r = Math.round(Math.max(0, Math.min(255, c.r))).toString(16).padStart(2, "0");
-	const g = Math.round(Math.max(0, Math.min(255, c.g))).toString(16).padStart(2, "0");
-	const b = Math.round(Math.max(0, Math.min(255, c.b))).toString(16).padStart(2, "0");
-	const a = Math.round(Math.max(0, Math.min(1, c.a)) * 255).toString(16).padStart(2, "0");
+	const r = Math.round(Math.max(0, Math.min(255, c.r)))
+		.toString(16)
+		.padStart(2, "0");
+	const g = Math.round(Math.max(0, Math.min(255, c.g)))
+		.toString(16)
+		.padStart(2, "0");
+	const b = Math.round(Math.max(0, Math.min(255, c.b)))
+		.toString(16)
+		.padStart(2, "0");
+	const a = Math.round(Math.max(0, Math.min(1, c.a)) * 255)
+		.toString(16)
+		.padStart(2, "0");
 	if (a === "ff") return `#${r}${g}${b}`;
 	return `#${r}${g}${b}${a}`;
 }
 
 export function rgbaToHsl(c: Rgba): Hsla {
-	const r = c.r / 255, g = c.g / 255, b = c.b / 255;
-	const max = Math.max(r, g, b), min = Math.min(r, g, b);
+	const r = c.r / 255,
+		g = c.g / 255,
+		b = c.b / 255;
+	const max = Math.max(r, g, b),
+		min = Math.min(r, g, b);
 	const d = max - min;
 	let h = 0;
 	if (d !== 0) {
@@ -103,19 +129,38 @@ export function rgbaToHsl(c: Rgba): Hsla {
 }
 
 export function hslToRgb(h: number, s: number, l: number): Rgba {
-	const sNorm = s / 100, lNorm = l / 100;
+	const sNorm = s / 100,
+		lNorm = l / 100;
 	const c = (1 - Math.abs(2 * lNorm - 1)) * sNorm;
 	const x = c * (1 - Math.abs(((h / 60) % 2) - 1));
 	const m = lNorm - c / 2;
-	let r = 0, g = 0, b = 0;
-	if (h < 60) { r = c; g = x; }
-	else if (h < 120) { r = x; g = c; }
-	else if (h < 180) { g = c; b = x; }
-	else if (h < 240) { g = x; b = c; }
-	else if (h < 300) { r = x; b = c; }
-	else { r = c; b = x; }
+	let r = 0,
+		g = 0,
+		b = 0;
+	if (h < 60) {
+		r = c;
+		g = x;
+	} else if (h < 120) {
+		r = x;
+		g = c;
+	} else if (h < 180) {
+		g = c;
+		b = x;
+	} else if (h < 240) {
+		g = x;
+		b = c;
+	} else if (h < 300) {
+		r = x;
+		b = c;
+	} else {
+		r = c;
+		b = x;
+	}
 	return {
-		r: Math.round((r + m) * 255), g: Math.round((g + m) * 255), b: Math.round((b + m) * 255), a: 1,
+		r: Math.round((r + m) * 255),
+		g: Math.round((g + m) * 255),
+		b: Math.round((b + m) * 255),
+		a: 1,
 	};
 }
 
@@ -133,34 +178,26 @@ function linearToSrgb(v: number): number {
 
 // sRGB linear → XYZ (D65)
 function linearRgbToXyz(r: number, g: number, b: number): [number, number, number] {
-	return [
-		r * 0.4124564 + g * 0.3575761 + b * 0.1804375,
-		r * 0.2126729 + g * 0.7151522 + b * 0.0721750,
-		r * 0.0193339 + g * 0.1191920 + b * 0.9503041,
-	];
+	return [r * 0.4124564 + g * 0.3575761 + b * 0.1804375, r * 0.2126729 + g * 0.7151522 + b * 0.072175, r * 0.0193339 + g * 0.119192 + b * 0.9503041];
 }
 
 // XYZ (D65) → linear sRGB
 function xyzToLinearRgb(x: number, y: number, z: number): [number, number, number] {
-	return [
-		x *  3.2404542 + y * -1.5371385 + z * -0.4985314,
-		x * -0.9692660 + y *  1.8760108 + z *  0.0415560,
-		x *  0.0556434 + y * -0.2040259 + z *  1.0572252,
-	];
+	return [x * 3.2404542 + y * -1.5371385 + z * -0.4985314, x * -0.969266 + y * 1.8760108 + z * 0.041556, x * 0.0556434 + y * -0.2040259 + z * 1.0572252];
 }
 
 // XYZ → OKLab
 function xyzToOklab(x: number, y: number, z: number): [number, number, number] {
 	const l_ = 0.8189330101 * x + 0.3618667424 * y - 0.1288597137 * z;
 	const m_ = 0.0329845436 * x + 0.9293118715 * y + 0.0361456387 * z;
-	const s_ = 0.0482003018 * x + 0.2643662691 * y + 0.6338517070 * z;
+	const s_ = 0.0482003018 * x + 0.2643662691 * y + 0.633851707 * z;
 	const l = Math.cbrt(l_);
 	const m = Math.cbrt(m_);
 	const s = Math.cbrt(s_);
 	return [
-		0.2104542553 * l + 0.7936177850 * m - 0.0040720468 * s,
-		1.9779984951 * l - 2.4285922050 * m + 0.4505937099 * s,
-		0.0259040371 * l + 0.7827717662 * m - 0.8086757660 * s,
+		0.2104542553 * l + 0.793617785 * m - 0.0040720468 * s,
+		1.9779984951 * l - 2.428592205 * m + 0.4505937099 * s,
+		0.0259040371 * l + 0.7827717662 * m - 0.808675766 * s,
 	];
 }
 
@@ -168,12 +205,12 @@ function xyzToOklab(x: number, y: number, z: number): [number, number, number] {
 function oklabToXyz(L: number, a: number, b: number): [number, number, number] {
 	const l_ = L + 0.3963377774 * a + 0.2158037573 * b;
 	const m_ = L - 0.1055613458 * a - 0.0638541728 * b;
-	const s_ = L - 0.0894841775 * a - 1.2914855480 * b;
+	const s_ = L - 0.0894841775 * a - 1.291485548 * b;
 	const l = l_ * l_ * l_;
 	const m = m_ * m_ * m_;
 	const s = s_ * s_ * s_;
 	return [
-		 1.2270138511 * l - 0.5577999807 * m + 0.2812561490 * s,
+		1.2270138511 * l - 0.5577999807 * m + 0.281256149 * s,
 		-0.0405801785 * l + 1.1122568696 * m - 0.0716766787 * s,
 		-0.0763812845 * l - 0.4214819784 * m + 1.5861632204 * s,
 	];
@@ -206,7 +243,10 @@ export function oklchToRgb(l: number, c: number, h: number): Rgba {
 	g = linearToSrgb(g);
 	bl = linearToSrgb(bl);
 	return {
-		r: Math.round(r * 255), g: Math.round(g * 255), b: Math.round(bl * 255), a: 1,
+		r: Math.round(r * 255),
+		g: Math.round(g * 255),
+		b: Math.round(bl * 255),
+		a: 1,
 	};
 }
 

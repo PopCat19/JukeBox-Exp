@@ -11,8 +11,8 @@
 
 import { HTML } from "imperative-html/dist/esm/elements-strict";
 import { events } from "./events";
-import { themes } from "./themes";
 import { applyPMDTheme } from "./pmd-adapter";
+import { themes } from "./themes";
 
 interface SongChannelCounts {
 	readonly pitchChannelCount: number;

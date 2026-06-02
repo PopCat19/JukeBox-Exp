@@ -20,7 +20,9 @@ export interface ColorPickerOptions {
 
 let _lastColorTab: string = "hex";
 
-export function getLastColorTab(): string { return _lastColorTab; }
+export function getLastColorTab(): string {
+	return _lastColorTab;
+}
 
 export function createColorPicker(parent: HTMLElement, options: ColorPickerOptions): HTMLElement {
 	const parsed = parseCssColor(options.value);
@@ -30,7 +32,11 @@ export function createColorPicker(parent: HTMLElement, options: ColorPickerOptio
 	let alpha = Math.round(parsed.a * 100);
 	const initialTab = _lastColorTab;
 
-	const nativeInput: HTMLInputElement = input({ type: "color", value: initHex.substring(0, 7), style: "width: 100%; height: 32px; border: none; cursor: pointer; padding: 0; background: none;" });
+	const nativeInput: HTMLInputElement = input({
+		type: "color",
+		value: initHex.substring(0, 7),
+		style: "width: 100%; height: 32px; border: none; cursor: pointer; padding: 0; background: none;",
+	});
 
 	const hexInput: HTMLInputElement = input({ type: "text", value: initHex, style: "width: 100%; font-family: monospace; font-size: 12px;" });
 	const alphaSlider: HTMLInputElement = input({ type: "range", min: "0", max: "100", value: String(alpha), style: "width: 100%;" });
@@ -42,34 +48,71 @@ export function createColorPicker(parent: HTMLElement, options: ColorPickerOptio
 	const sInput: HTMLInputElement = input({ type: "number", value: String(Math.round(hsl.s)), style: "width: 48px; font-size: 11px;", step: "0.1" });
 	const lInput: HTMLInputElement = input({ type: "number", value: String(Math.round(hsl.l)), style: "width: 48px; font-size: 11px;", step: "0.1" });
 
-	const oklInput: HTMLInputElement = input({ type: "number", value: String(Math.round(oklch.l * 100) / 100), style: "width: 48px; font-size: 11px;", step: "0.01" });
-	const okcInput: HTMLInputElement = input({ type: "number", value: String(Math.round(oklch.c * 100) / 100), style: "width: 48px; font-size: 11px;", step: "0.001" });
-	const okhInput: HTMLInputElement = input({ type: "number", value: String(Math.round(oklch.h * 100) / 100), style: "width: 48px; font-size: 11px;", step: "0.1" });
+	const oklInput: HTMLInputElement = input({
+		type: "number",
+		value: String(Math.round(oklch.l * 100) / 100),
+		style: "width: 48px; font-size: 11px;",
+		step: "0.01",
+	});
+	const okcInput: HTMLInputElement = input({
+		type: "number",
+		value: String(Math.round(oklch.c * 100) / 100),
+		style: "width: 48px; font-size: 11px;",
+		step: "0.001",
+	});
+	const okhInput: HTMLInputElement = input({
+		type: "number",
+		value: String(Math.round(oklch.h * 100) / 100),
+		style: "width: 48px; font-size: 11px;",
+		step: "0.1",
+	});
 
 	let syncing = false;
 	let alphaDisplay!: HTMLSpanElement;
 
 	const preview: HTMLDivElement = div({ style: `width: 100%; height: 24px; border-radius: 4px; background: ${formatOutput()}; border: 1px solid #555;` });
 
-	const hexTab = div({ style: `padding: 4px 0; display: ${initialTab === "hex" ? "flex" : "none"}; gap: 4px;` },
+	const hexTab = div(
+		{ style: `padding: 4px 0; display: ${initialTab === "hex" ? "flex" : "none"}; gap: 4px;` },
 		span({ style: "font-size: 10px; width: 24px;" }, "HEX"),
 		hexInput,
 	);
-	const hslTab = div({ style: `padding: 4px 0; display: ${initialTab === "hsl" ? "flex" : "none"}; flex-direction: column; gap: 3px;` },
+	const hslTab = div(
+		{ style: `padding: 4px 0; display: ${initialTab === "hsl" ? "flex" : "none"}; flex-direction: column; gap: 3px;` },
 		div({ style: "display: flex; gap: 4px; align-items: center;" }, span({ style: "font-size: 10px; width: 16px;" }, "H"), hInput),
-		div({ style: "display: flex; gap: 4px; align-items: center;" }, span({ style: "font-size: 10px; width: 16px;" }, "S"), sInput, span({ style: "font-size: 10px;" }, "%")),
-		div({ style: "display: flex; gap: 4px; align-items: center;" }, span({ style: "font-size: 10px; width: 16px;" }, "L"), lInput, span({ style: "font-size: 10px;" }, "%")),
+		div(
+			{ style: "display: flex; gap: 4px; align-items: center;" },
+			span({ style: "font-size: 10px; width: 16px;" }, "S"),
+			sInput,
+			span({ style: "font-size: 10px;" }, "%"),
+		),
+		div(
+			{ style: "display: flex; gap: 4px; align-items: center;" },
+			span({ style: "font-size: 10px; width: 16px;" }, "L"),
+			lInput,
+			span({ style: "font-size: 10px;" }, "%"),
+		),
 	);
-	const oklchTab = div({ style: `padding: 4px 0; display: ${initialTab === "oklch" ? "flex" : "none"}; flex-direction: column; gap: 3px;` },
+	const oklchTab = div(
+		{ style: `padding: 4px 0; display: ${initialTab === "oklch" ? "flex" : "none"}; flex-direction: column; gap: 3px;` },
 		div({ style: "display: flex; gap: 4px; align-items: center;" }, span({ style: "font-size: 10px; width: 16px;" }, "L"), oklInput),
 		div({ style: "display: flex; gap: 4px; align-items: center;" }, span({ style: "font-size: 10px; width: 16px;" }, "C"), okcInput),
 		div({ style: "display: flex; gap: 4px; align-items: center;" }, span({ style: "font-size: 10px; width: 16px;" }, "H"), okhInput),
 	);
 
-	const tabs = div({ style: "display: flex; gap: 0; margin-bottom: 2px;" },
-		div({ style: `padding: 2px 8px; font-size: 11px; cursor: pointer; background: ${initialTab === "hex" ? "#555" : "#333"}; border-radius: 3px 0 0 3px;` }, "Hex"),
+	const tabs = div(
+		{ style: "display: flex; gap: 0; margin-bottom: 2px;" },
+		div(
+			{ style: `padding: 2px 8px; font-size: 11px; cursor: pointer; background: ${initialTab === "hex" ? "#555" : "#333"}; border-radius: 3px 0 0 3px;` },
+			"Hex",
+		),
 		div({ style: `padding: 2px 8px; font-size: 11px; cursor: pointer; background: ${initialTab === "hsl" ? "#555" : "#333"};` }, "HSL"),
-		div({ style: `padding: 2px 8px; font-size: 11px; cursor: pointer; background: ${initialTab === "oklch" ? "#555" : "#333"}; border-radius: 0 3px 3px 0;` }, "OKLCH"),
+		div(
+			{
+				style: `padding: 2px 8px; font-size: 11px; cursor: pointer; background: ${initialTab === "oklch" ? "#555" : "#333"}; border-radius: 0 3px 3px 0;`,
+			},
+			"OKLCH",
+		),
 	);
 
 	function formatOutput(): string {
@@ -142,7 +185,9 @@ export function createColorPicker(parent: HTMLElement, options: ColorPickerOptio
 		syncFromHex(hex);
 	});
 
-	hexInput.addEventListener("input", () => { syncFromHex(hexInput.value); });
+	hexInput.addEventListener("input", () => {
+		syncFromHex(hexInput.value);
+	});
 	alphaSlider.addEventListener("input", () => {
 		alpha = parseInt(alphaSlider.value);
 		alphaDisplay.textContent = `${alpha}%`;
@@ -151,13 +196,25 @@ export function createColorPicker(parent: HTMLElement, options: ColorPickerOptio
 		syncFromHex(hex);
 	});
 
-	hInput.addEventListener("input", () => { syncFromHsl(); });
-	sInput.addEventListener("input", () => { syncFromHsl(); });
-	lInput.addEventListener("input", () => { syncFromHsl(); });
+	hInput.addEventListener("input", () => {
+		syncFromHsl();
+	});
+	sInput.addEventListener("input", () => {
+		syncFromHsl();
+	});
+	lInput.addEventListener("input", () => {
+		syncFromHsl();
+	});
 
-	oklInput.addEventListener("input", () => { syncFromOklch(); });
-	okcInput.addEventListener("input", () => { syncFromOklch(); });
-	okhInput.addEventListener("input", () => { syncFromOklch(); });
+	oklInput.addEventListener("input", () => {
+		syncFromOklch();
+	});
+	okcInput.addEventListener("input", () => {
+		syncFromOklch();
+	});
+	okhInput.addEventListener("input", () => {
+		syncFromOklch();
+	});
 
 	const tabHex = tabs.children[0] as HTMLElement;
 	const tabHsl = tabs.children[1] as HTMLElement;
@@ -165,31 +222,46 @@ export function createColorPicker(parent: HTMLElement, options: ColorPickerOptio
 
 	tabHex.addEventListener("click", () => {
 		_lastColorTab = "hex";
-		hexTab.style.display = "flex"; hslTab.style.display = "none"; oklchTab.style.display = "none";
-		tabHex.style.background = "#555"; tabHsl.style.background = "#333"; tabOklch.style.background = "#333";
+		hexTab.style.display = "flex";
+		hslTab.style.display = "none";
+		oklchTab.style.display = "none";
+		tabHex.style.background = "#555";
+		tabHsl.style.background = "#333";
+		tabOklch.style.background = "#333";
 	});
 	tabHsl.addEventListener("click", () => {
 		_lastColorTab = "hsl";
-		hexTab.style.display = "none"; hslTab.style.display = "flex"; oklchTab.style.display = "none";
-		tabHex.style.background = "#333"; tabHsl.style.background = "#555"; tabOklch.style.background = "#333";
+		hexTab.style.display = "none";
+		hslTab.style.display = "flex";
+		oklchTab.style.display = "none";
+		tabHex.style.background = "#333";
+		tabHsl.style.background = "#555";
+		tabOklch.style.background = "#333";
 	});
 	tabOklch.addEventListener("click", () => {
 		_lastColorTab = "oklch";
-		hexTab.style.display = "none"; hslTab.style.display = "none"; oklchTab.style.display = "flex";
-		tabHex.style.background = "#333"; tabHsl.style.background = "#333"; tabOklch.style.background = "#555";
+		hexTab.style.display = "none";
+		hslTab.style.display = "none";
+		oklchTab.style.display = "flex";
+		tabHex.style.background = "#333";
+		tabHsl.style.background = "#333";
+		tabOklch.style.background = "#555";
 	});
 
 	alphaDisplay = span({ style: "font-size: 10px; min-width: 24px;" }, `${alpha}%`);
 
 	const container = div(
-		{ style: "position: absolute; z-index: 9999; background: #2a2a2a; border: 1px solid #555; border-radius: 6px; padding: 8px; width: 200px; box-shadow: 0 4px 16px rgba(0,0,0,0.5);" },
+		{
+			style: "position: absolute; z-index: 9999; background: #2a2a2a; border: 1px solid #555; border-radius: 6px; padding: 8px; width: 200px; box-shadow: 0 4px 16px rgba(0,0,0,0.5);",
+		},
 		nativeInput,
 		div({ style: "margin: 4px 0;" }, preview),
 		tabs,
 		hexTab,
 		hslTab,
 		oklchTab,
-		div({ style: "display: flex; gap: 4px; align-items: center; margin-top: 4px;" },
+		div(
+			{ style: "display: flex; gap: 4px; align-items: center; margin-top: 4px;" },
 			span({ style: "font-size: 10px; width: 16px;" }, "α"),
 			alphaSlider,
 			alphaDisplay,
