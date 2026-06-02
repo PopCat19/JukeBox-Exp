@@ -267,6 +267,22 @@ export class PromptManager {
 			log.log("_setPrompt: existing found, refocusing", promptName, { stack: this._prompts.map((p) => p.name) });
 			this._focusedPrompt = existing;
 			this._updatePromptFocus();
+			// Flash the prompt with an 88x outline so the user gets
+			// visible feedback that the prompt is on top again (like
+			// a window manager 'raise' gesture). The class is removed
+			// on animationend by the listener below.
+			existing.container.classList.remove("refocus");
+			// Force a reflow so re-adding the class restarts the
+			// animation even if it was already running.
+			void existing.container.offsetWidth;
+			existing.container.classList.add("refocus");
+			existing.container.addEventListener(
+				"animationend",
+				() => {
+					existing.container.classList.remove("refocus");
+				},
+				{ once: true },
+			);
 			return;
 		}
 

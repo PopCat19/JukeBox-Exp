@@ -917,6 +917,26 @@ html {
 	to { opacity: 0; transform: scale(0.96); }
 }
 
+/* PMD: brief 88x outline flash when the user reopens or
+ * re-focuses a prompt that's already in the stack — the same
+ * visual language as a window manager 'raise' gesture, so the
+ * user gets confirmation that the prompt is on top again.
+ * The class is added by the manager and removed on animationend. */
+.beepboxEditor .prompt.refocus {
+	animation: prompt-refocus 200ms ${Animation.easingDefault};
+}
+
+@keyframes prompt-refocus {
+	from {
+		outline: 2px solid var(--prompt-titlebar-text, var(--primary-text));
+		outline-offset: -2px;
+	}
+	to {
+		outline: 2px solid transparent;
+		outline-offset: -2px;
+	}
+}
+
 .beepboxEditor .prompt.shaded {
 	padding: var(--padding-6) 14px;
 	min-width: 0;
