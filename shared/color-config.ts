@@ -1250,6 +1250,16 @@ export class ColorConfig {
 		window.localStorage.setItem("pmdHue", String(hue));
 		window.localStorage.setItem("pmdDark", isDark ? "1" : "0");
 		applyPMDTheme(hue, isDark);
+
+		// Refresh cached computed values so non-var() consumers pick up new hues
+		this.resetColors();
+		this.c_invertedText = getComputedStyle(this._styleElement).getPropertyValue("--inverted-text");
+		this.c_trackEditorBgNoiseDim = getComputedStyle(this._styleElement).getPropertyValue("--track-editor-bg-noise-dim");
+		this.c_trackEditorBgNoise = getComputedStyle(this._styleElement).getPropertyValue("--track-editor-bg-noise");
+		this.c_trackEditorBgModDim = getComputedStyle(this._styleElement).getPropertyValue("--track-editor-bg-mod-dim");
+		this.c_trackEditorBgMod = getComputedStyle(this._styleElement).getPropertyValue("--track-editor-bg-mod");
+		this.c_trackEditorBgPitchDim = getComputedStyle(this._styleElement).getPropertyValue("--track-editor-bg-pitch-dim");
+		this.c_trackEditorBgPitch = getComputedStyle(this._styleElement).getPropertyValue("--track-editor-bg-pitch");
 	}
 
 	public static getComputed(name: string): string {

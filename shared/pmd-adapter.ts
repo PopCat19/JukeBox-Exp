@@ -10,6 +10,7 @@
 import type { Base16Palette, PMDVariables } from "./pmd";
 import { generatePalette, getPMD } from "./pmd";
 import { safeOklchToRgb, rgbToHex } from "./pmd/color";
+import { composite } from "./pmd/variables";
 
 export function pmdGenerateColors(hue: number, isDark: boolean, lockHue: boolean = false, lockValue: number = 0): Base16Palette {
 	const { pmd, computed } = getPMD(isDark);
@@ -51,9 +52,10 @@ export function applyPMDToDOM(colors: Base16Palette): void {
 	set("--ui-widget-focus", c("base02"));
 	set("--pitch-background", c("base01"));
 
-	// Musical indicators — dim background-toned (not bright accents)
-	const dimL = Math.max(pmd["8x"].l, 0.32);
-	const dimC = pmd["8x"].c * 2.0;
+	// Musical indicators — dim background-toned, using surface (base02 / 80×8%) luminance level
+	const surface = composite(pmd["8x"], pmd["80x"], 0.08);
+	const dimL = surface.l;
+	const dimC = surface.c * 1.5;
 	const dimHex = (hueOffset: number): string => rgbToHex(safeOklchToRgb(dimL, dimC, (primaryHue + hueOffset + 360) % 360));
 	set("--tonic", dimHex(290));
 	set("--fifth-note", dimHex(0));
