@@ -266,16 +266,20 @@ export class PromptManager {
 		if (existing) {
 			log.log("_setPrompt: existing found, refocusing", promptName, { stack: this._prompts.map((p) => p.name) });
 			const wasAlreadyFocused = this._focusedPrompt === existing;
+			// openCount was set to 1 on the first spawn (below). Any
+			// subsequent call here is the 2nd, 3rd, ... invocation.
+			existing.openCount = (existing.openCount ?? 1) + 1;
 			this._focusedPrompt = existing;
 			this._updatePromptFocus();
-			// Flash 88x outline only when the user is targeting a
-			// prompt that's already focused — the same gesture as
-			// clicking the focused window's taskbar in a window
-			// manager. Bringing a non-focused prompt to front via
-			// .focused-class change is enough feedback. 88x is
-			// reserved for children (titlebar heading) and the
-			// transient raise gesture on the already-focused prompt.
-			if (wasAlreadyFocused) {
+			// Flash 88x outline only on the 2nd+ invocation of a
+			// prompt that was already focused. The first spawn uses
+			// the entering animation for feedback — flashing 88x on
+			// top of that would be redundant. Bringing a non-focused
+			// prompt to front doesn't flash either; the .focused
+			// class change is feedback. 88x is reserved for children
+			// (titlebar heading) and the transient 'raise' gesture
+			// on the already-focused, already-spawned prompt.
+			if (wasAlreadyFocused && existing.openCount >= 2) {
 				existing.container.classList.remove("refocus");
 				// Force a reflow so re-adding the class restarts the
 				// animation even if it was already running.
@@ -411,6 +415,7 @@ export class PromptManager {
 		newPrompt.name = promptName;
 		newPrompt.closeCallback = (p) => this.close(p);
 		newPrompt.openAlongsideCallback = (name) => this._setPrompt(name);
+		newPrompt.openCount = 1; // first spawn
 
 		this._prompts.push(newPrompt);
 		log.log("pushed", promptName, { stack: this._prompts.map((p) => p.name), total: this._prompts.length });
