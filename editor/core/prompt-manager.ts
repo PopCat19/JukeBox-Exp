@@ -87,6 +87,10 @@ export class PromptManager {
 	// the animationend listener and run doRemove directly.
 	private readonly _exitingPrompts: Array<{ prompt: Prompt; doRemove: () => void }> = [];
 	private _hideContainerTimer: ReturnType<typeof setTimeout> | null = null;
+	// True while an explicit user 'open' is in flight. The internal
+	// sync() calls hit the existing-found path on every render and
+	// should not flash; user-targeted opens should.
+	private _userInitiatedOpen: boolean = false;
 	private _focusedPrompt: Prompt | null = null;
 	private readonly _promptPositions: Map<string, { x: number; y: number }> = new Map();
 	private _draggingPrompt: boolean = false;
@@ -119,20 +123,15 @@ export class PromptManager {
 			focused: this._focusedPrompt?.name ?? null,
 			stack: this._prompts.map((p) => p.name),
 		});
-		// Don't compare against _host.doc.prompt here — callers (e.g.
-		// song-editor._openPrompt) set doc.prompt to promptName BEFORE
-		// delegating, so a naive comparison would always look like a
-		// toggle and close the just-opened prompt on the first call.
-		// Instead, compare against the manager's own focused state: if
-		// a prompt with this name is already focused, do nothing (it
-		// stays open). The "if exists anywhere in the stack, refocus"
-		// case is handled in _setPrompt.
-		if (this._focusedPrompt?.name === promptName) {
-			log.log("  -> already focused, no-op", promptName);
-			return;
-		}
+		// Always route through _setPrompt so the existing-found path
+		// runs and can fire the 88x 'raise' flash on the focused
+		// prompt. Mark this as a user-initiated call so the flash
+		// fires; the internal sync() calls below are not user
+		// actions and should not flash on their own.
+		this._userInitiatedOpen = true;
 		this._host.doc.openPrompt(promptName);
 		this._setPrompt(promptName);
+		this._userInitiatedOpen = false;
 	}
 
 	public sync(promptName: string | null): void {
@@ -267,25 +266,28 @@ export class PromptManager {
 			log.log("_setPrompt: existing found, refocusing", promptName, { stack: this._prompts.map((p) => p.name) });
 			this._focusedPrompt = existing;
 			this._updatePromptFocus();
-			// Flash 88x outline on every 'existing found' invocation
-			// — the user explicitly asked for the flash to fire only
-			// when the prompt already exists, not on first spawn.
-			// The spawn path uses the .entering animation as its
-			// feedback; the .refocus flash is for the 'raise'
-			// gesture on a prompt that's already in the stack.
-			existing.openCount = (existing.openCount ?? 1) + 1;
-			existing.container.classList.remove("refocus");
-			// Force a reflow so re-adding the class restarts the
-			// animation even if it was already running.
-			void existing.container.offsetWidth;
-			existing.container.classList.add("refocus");
-			existing.container.addEventListener(
-				"animationend",
-				() => {
-					existing.container.classList.remove("refocus");
-				},
-				{ once: true },
-			);
+			// Flash 88x outline only on user-initiated reopens of an
+			// already-open prompt. The spawn path uses the .entering
+			// animation for feedback, and the internal sync() calls
+			// on every render hit this branch too — they must not
+			// flash. _userInitiatedOpen is set true by open() and
+			// false again after _setPrompt returns.
+			if (this._userInitiatedOpen) {
+				existing.openCount = (existing.openCount ?? 1) + 1;
+				log.log("flash 88x on existing", promptName, { openCount: existing.openCount });
+				existing.container.classList.remove("refocus");
+				// Force a reflow so re-adding the class restarts the
+				// animation even if it was already running.
+				void existing.container.offsetWidth;
+				existing.container.classList.add("refocus");
+				existing.container.addEventListener(
+					"animationend",
+					() => {
+						existing.container.classList.remove("refocus");
+					},
+					{ once: true },
+				);
+			}
 			return;
 		}
 
