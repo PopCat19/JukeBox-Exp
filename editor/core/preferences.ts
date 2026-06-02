@@ -57,6 +57,7 @@ export class Preferences {
 	// jukebox
 	public rollNoveltyPresets: boolean;
 	public enableTagSearch: boolean;
+	public debugPrompts: boolean;
 
 	constructor() {
 		this.reload();
@@ -104,6 +105,7 @@ export class Preferences {
 		// jukebox
 		this.rollNoveltyPresets = window.localStorage.getItem("rollNoveltyPresets") === "true";
 		this.enableTagSearch = window.localStorage.getItem("enableTagSearch") !== "false";
+		this.debugPrompts = window.localStorage.getItem("debugPrompts") === "1";
 
 		const defaultScale: Scale | undefined = Config.scales.dictionary[window.localStorage.getItem("defaultScale")!];
 		this.defaultScale = defaultScale !== undefined ? defaultScale.index : 0;
@@ -162,5 +164,6 @@ export class Preferences {
 		// jukebox
 		window.localStorage.setItem("rollNoveltyPresets", this.rollNoveltyPresets ? "true" : "false");
 		window.localStorage.setItem("enableTagSearch", this.enableTagSearch ? "true" : "false");
+		window.localStorage.setItem("debugPrompts", this.debugPrompts ? "1" : "0");
 	}
 }

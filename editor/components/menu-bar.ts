@@ -83,6 +83,7 @@ export class MenuBar {
 				option({ value: "rollNoveltyPresets" }, "Can Randomly Select Novelty Presets"),
 				option({ value: "enableScrollStep" }, "Enable Scroll Step on Inputs"),
 				option({ value: "doubleClickSliderReset" }, "Double-Click Slider to Reset"),
+				option({ value: "debugPrompts" }, "Enable Debug Logging (Console)"),
 				option({ value: "recordingSetup" }, "Note Recording..."),
 			),
 			optgroup(

@@ -270,6 +270,18 @@ export class MenuHandler {
 			case "doubleClickSliderReset":
 				this._host.doc.prefs.doubleClickSliderReset = !this._host.doc.prefs.doubleClickSliderReset;
 				break;
+			case "debugPrompts":
+				this._host.doc.prefs.debugPrompts = !this._host.doc.prefs.debugPrompts;
+				// Sync the live flag on the debug global so log calls
+				// pick up the change immediately without a reload.
+				if (typeof window !== "undefined" && (window as any).__jukebox_debug) {
+					if (this._host.doc.prefs.debugPrompts) {
+						(window as any).__jukebox_debug.enable();
+					} else {
+						(window as any).__jukebox_debug.disable();
+					}
+				}
+				break;
 		}
 		this._optionsMenu.selectedIndex = 0;
 		this._host.doc.notifier.changed();

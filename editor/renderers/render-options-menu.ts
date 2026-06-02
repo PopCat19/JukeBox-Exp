@@ -30,6 +30,7 @@ export function renderOptionsMenu(optionsMenu: HTMLSelectElement, prefs: Prefere
 		(prefs.rollNoveltyPresets ? textOnIcon : textOffIcon) + "Can Randomly Select Novelty Presets",
 		(prefs.enableScrollStep ? textOnIcon : textOffIcon) + "Enable Scroll Step on Inputs",
 		(prefs.doubleClickSliderReset ? textOnIcon : textOffIcon) + "Double-Click Slider to Reset",
+		(prefs.debugPrompts ? textOnIcon : textOffIcon) + "Enable Debug Logging (Console)",
 		textSpacingIcon + "Note Recording...",
 		textSpacingIcon + "Appearance",
 		(prefs.showFifth ? textOnIcon : textOffIcon) + 'Highlight "Fifth" Note',
