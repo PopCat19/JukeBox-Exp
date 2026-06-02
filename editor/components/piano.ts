@@ -426,6 +426,11 @@ export class Piano {
 		this._updateCursorPitch();
 		if (this._mouseDown) this._playLiveInput();
 
+		// Always refresh the preview and hover tooltip so they reflect
+		// the current channel's octave (which can change via the
+		// octave scrollbar without scale/key/pitchCount changing).
+		this._updatePreview();
+
 		if (!this._doc.prefs.showLetters) return;
 		if (
 			this._renderedScale === this._doc.song.scale &&

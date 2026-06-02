@@ -206,7 +206,7 @@ export class InstrumentBrowserPrompt extends BasePrompt {
 		this.container = div(
 			{
 				class: "prompt noSelection presetSelectorPrompt compactSearchPrompt",
-				style: "width: 800px; text-align: left; max-height: 90%; outline: none;",
+				style: "width: 800px; text-align: left; max-height: 90%;",
 				tabindex: "0",
 			},
 			h2({ style: `text-align: center; margin: 0 0 ${rowGap} 0;` }, "Preset Selector"),

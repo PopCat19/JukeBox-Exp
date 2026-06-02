@@ -76,6 +76,12 @@ export class TrackEditor {
 		width: 62,
 		height: 62,
 	});
+	private readonly _hoverTooltip: HTMLDivElement = HTML.div({
+		// PMD card: 10px meta font, widget surface, 8px radius. Follows
+		// the mouse cursor with a 12px offset. pointer-events: none so
+		// it never blocks mouse events on the track grid.
+		style: "position: absolute; left: 0; top: 0; padding: 4px 8px; background: var(--ui-widget-background); color: var(--primary-text); border-radius: 8px; font-size: 10px; font-weight: 600; font-family: var(--font-family-mono); white-space: nowrap; pointer-events: none; z-index: 5; display: none;",
+	});
 	private readonly _svg: SVGSVGElement = SVG.svg(
 		{ style: `position: absolute; top: 0;` },
 		this._barEditorPath,
@@ -99,6 +105,7 @@ export class TrackEditor {
 		this._svg,
 		this._select,
 		this._barDropDown,
+		this._hoverTooltip,
 	);
 	private readonly _channels: ChannelRow[] = [];
 	private readonly _barNumbers: SVGTextElement[] = [];
@@ -281,12 +288,14 @@ export class TrackEditor {
 	private _whenMouseOver = (_event: MouseEvent): void => {
 		if (this._mouseOver) return;
 		this._mouseOver = true;
+		this._hoverTooltip.style.display = "block";
 	};
 
 	private _whenMouseOut = (_event: MouseEvent): void => {
 		if (!this._mouseOver) return;
 		this._mouseOver = false;
 		this._songEditor.muteEditor.setHoveredChannel(-1);
+		this._hoverTooltip.style.display = "none";
 	};
 
 	private _updateMousePos(event: MouseEvent): void {
@@ -298,6 +307,43 @@ export class TrackEditor {
 		this._mouseChannel = Math.floor(
 			Math.min(this._doc.song.getChannelCount() - 1, Math.max(0, (this._mouseY - Config.barEditorHeight) / ChannelRow.patternHeight)),
 		);
+		this._updateHoverTooltip();
+	}
+
+	private _updateHoverTooltip(): void {
+		if (!this._mouseOver || this._touchMode) {
+			this._hoverTooltip.style.display = "none";
+			return;
+		}
+		const bar: number = this._mouseBar;
+		const channel: number = this._mouseChannel;
+		const overTrackEditor: boolean = this._mouseY >= Config.barEditorHeight;
+		if (!overTrackEditor) {
+			// Over the bar-editor row: just show the bar number.
+			this._hoverTooltip.textContent = `Bar ${bar + 1}`;
+		} else {
+			// Over a channel cell: show bar + channel number + label.
+			const channelType: string = this._doc.song.getChannelIsNoise(channel) ? "D" : this._doc.song.getChannelIsMod(channel) ? "M" : "P";
+			this._hoverTooltip.textContent = `Bar ${bar + 1} \u2014 ${channelType}${channel + 1}`;
+		}
+		const offset: number = 12;
+		const containerWidth: number = this.container.clientWidth;
+		const containerHeight: number = this.container.clientHeight;
+		const tooltipWidth: number = this._hoverTooltip.offsetWidth || 100;
+		const tooltipHeight: number = this._hoverTooltip.offsetHeight || 20;
+		let left: number = this._mouseX + offset;
+		if (left + tooltipWidth > containerWidth) {
+			left = this._mouseX - offset - tooltipWidth;
+		}
+		if (left < 0) left = 0;
+		let top: number = this._mouseY + offset;
+		if (top + tooltipHeight > containerHeight) {
+			top = this._mouseY - offset - tooltipHeight;
+		}
+		if (top < 0) top = 0;
+		this._hoverTooltip.style.left = left + "px";
+		this._hoverTooltip.style.top = top + "px";
+		this._hoverTooltip.style.display = "block";
 	}
 
 	private _whenMousePressed = (event: MouseEvent): void => {
@@ -429,7 +475,7 @@ export class TrackEditor {
 			const width: number = ChannelRow.patternHeight * 0.175;
 
 			this._upHighlight.setAttribute("fill", up && !this._touchMode ? "var(--primary-text)" : ColorConfig.invertedText);
-		this._downHighlight.setAttribute("fill", !up && !this._touchMode ? "var(--primary-text)" : ColorConfig.invertedText);
+			this._downHighlight.setAttribute("fill", !up && !this._touchMode ? "var(--primary-text)" : ColorConfig.invertedText);
 
 			this._upHighlight.setAttribute("d", `M ${center} ${middle - tip} L ${center + width} ${middle - base} L ${center - width} ${middle - base} z`);
 			this._downHighlight.setAttribute("d", `M ${center} ${middle + tip} L ${center + width} ${middle + base} L ${center - width} ${middle + base} z`);
@@ -586,5 +632,6 @@ export class TrackEditor {
 		}
 
 		this._updatePreview();
+		this._updateHoverTooltip();
 	}
 }

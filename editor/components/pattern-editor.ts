@@ -3582,6 +3582,12 @@ export class PatternEditor {
 			}
 		}
 
+		// Refresh the hover tooltip in case the document changed in a
+		// way that affects pitch naming (channel octave scroll, scale
+		// change, channel switch) while the mouse is still over the
+		// editor — otherwise the tooltip would show stale info.
+		this._updateHoverTooltip();
+
 		this._doc.currentPatternIsDirty = false;
 	}
 

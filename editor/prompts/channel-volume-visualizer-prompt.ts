@@ -136,7 +136,7 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 	public container: HTMLDivElement = div(
 		{
 			class: "prompt noSelection",
-			style: "width: 600px; height: auto; max-height: 80vh; display: flex; flex-direction: column; outline: none;",
+			style: "width: 600px; height: auto; max-height: 80vh; display: flex; flex-direction: column;",
 			tabindex: "0",
 		},
 		h2({ style: "margin: 12px 12px 0px 12px; text-align: center;" }, "Channel Volume Visualizer"),
