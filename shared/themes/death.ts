@@ -110,8 +110,4 @@ export const death: string = `
 					--disabled-note-primary:    #91879f;
 					--disabled-note-secondary:  #6a679a;
 			}
-
-			@font-face {
-			font-family: "Comic Sans MS";
-			)
 		}`;
