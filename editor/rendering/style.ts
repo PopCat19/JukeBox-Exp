@@ -1404,9 +1404,19 @@ html {
 .beepboxEditor .menu select {
 	padding: 0 var(--button-size);
 }
+.beepboxEditor select:hover,
 .beepboxEditor select:focus {
+	/* PMD: hover and focus both use 80x (body tier). The focus
+	 * indicator is sustained while the dropdown is open (i.e. as
+	 * long as the select element is the active focus target) and
+	 * disappears when the user moves on. */
 	box-shadow: inset 0 0 0 2px var(--primary-text);
 	outline: none;
+}
+
+.beepboxEditor select:active {
+	/* PMD: click uses 88x (heading tier) for transient emphasis. */
+	box-shadow: inset 0 0 0 2px var(--prompt-titlebar-text, var(--primary-text));
 }
 .beepboxEditor .menu select {
 	text-align: center;
@@ -1434,10 +1444,24 @@ html {
 	font-weight: inherit;
 	cursor: pointer;
 }
-.beepboxEditor button:focus,
 .beepboxEditor button:hover {
+	/* PMD: hover uses 80x (body tier). Visible but not competing
+	 * with 88x headings. */
 	box-shadow: inset 0 0 0 2px var(--primary-text);
+}
+
+.beepboxEditor button:active {
+	/* PMD: click uses 88x (heading tier) for transient emphasis
+	 * while the button is held. Goes away on release. */
+	box-shadow: inset 0 0 0 2px var(--prompt-titlebar-text, var(--primary-text));
+}
+
+.beepboxEditor button:focus {
+	/* Buttons don't keep a focus ring after click — the browser
+	 * default is suppressed so the button returns to its resting
+	 * state once the user moves on. Inputs are the exception. */
 	outline: none;
+	box-shadow: none;
 }
 
 .beepboxEditor button.cancelButton {
