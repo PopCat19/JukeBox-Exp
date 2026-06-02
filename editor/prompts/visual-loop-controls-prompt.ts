@@ -254,7 +254,7 @@ export class VisualLoopControlsPrompt extends BasePrompt {
 	});
 	private _playBackwardsBox: HTMLInputElement = input({
 		type: "checkbox",
-		style: "width: 1em; padding: 0; margin-left: auto; margin-right: auto;",
+		style: "padding: 0;",
 	});
 	private _playSongButton: HTMLButtonElement = button({ style: "width: 55%;", type: "button" });
 	private _sampleIsLoadingMessage: HTMLDivElement = div({ style: "margin-bottom: 0.5em; display: none;" }, "Sample is loading");
@@ -306,8 +306,8 @@ export class VisualLoopControlsPrompt extends BasePrompt {
 				this._loopEndStepper,
 			),
 			div(
-				{ style: "width: 100%; display: flex; flex-direction: row; margin-bottom: 0.5em;" },
-				div({ style: `flex-shrink: 0; text-align: right; color: ${ColorConfig.primaryText}; align-self: center;` }, "Backwards"),
+				{ style: "width: 100%; display: flex; flex-direction: row; align-items: center; justify-content: space-between; margin-bottom: 0.5em;" },
+				div({ style: `flex-shrink: 0; text-align: right; color: ${ColorConfig.primaryText};` }, "Backwards"),
 				this._playBackwardsBox,
 			),
 			div({ style: "width: 100%; display: flex; flex-direction: row; margin-bottom: 0.5em; justify-content: center;" }, this._playSongButton),

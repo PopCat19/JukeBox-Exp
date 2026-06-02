@@ -2096,36 +2096,27 @@ html {
 	-webkit-appearance: none;
 	-moz-appearance: none;
 	appearance: none;
-	aspect-ratio: 1;
-	width: 1.6em;
+	width: 2.4em;
+	aspect-ratio: 2 / 1;
 	padding: 0;
 	margin: 0 0.3em;
-	border: ${BorderWidth.default} solid ${ColorConfig.uiWidgetBackground};
-	border-radius: var(--border-radius-medium);
+	border: ${BorderWidth.default} solid ${ColorConfig.secondaryText};
+	border-radius: 999px;
 	background: transparent;
 	cursor: pointer;
 	position: relative;
 	vertical-align: middle;
 	flex-shrink: 0;
 	box-sizing: border-box;
+	transition: background-color 0.12s ease, border-color 0.12s ease;
 }
 .beepboxEditor .selectRow > input[type=checkbox] {
-	width: 1.6em;
+	width: 2.4em;
+	aspect-ratio: 2 / 1;
 }
 .beepboxEditor input[type=checkbox]:checked {
 	background: ${ColorConfig.primaryText};
 	border-color: ${ColorConfig.primaryText};
-}
-.beepboxEditor input[type=checkbox]:checked::after {
-	content: "";
-	position: absolute;
-	left: 25%;
-	top: 12%;
-	width: 35%;
-	height: 50%;
-	border: solid ${ColorConfig.editorBackground};
-	border-width: 0 2.5px 2.5px 0;
-	transform: rotate(42deg);
 }
 .beepboxEditor input[type=checkbox]:focus-visible {
 	outline: ${BorderWidth.default} solid ${ColorConfig.primaryText};

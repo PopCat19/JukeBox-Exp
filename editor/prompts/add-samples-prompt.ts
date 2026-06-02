@@ -486,7 +486,7 @@ export class AddSamplesPrompt extends BasePrompt {
 				},
 				`(${this._noteNameFromPitchNumber(entry.rootKey)})`,
 			);
-			const percussionBox: HTMLInputElement = input({ style: "width: 1em; margin-left: 1em;", type: "checkbox" });
+			const percussionBox: HTMLInputElement = input({ type: "checkbox" });
 			const chipWaveLoopStartStepper: HTMLInputElement = input({
 				style: "flex-grow: 1; margin-left: 1em; width: 100%;",
 				type: "number",
@@ -521,7 +521,7 @@ export class AddSamplesPrompt extends BasePrompt {
 			}
 			const chipWavePlayBackwardsBox: HTMLInputElement = input({
 				type: "checkbox",
-				style: "width: 1em; padding: 0; margin-left: auto; margin-right: auto;",
+				style: "padding: 0;",
 			});
 			chipWavePlayBackwardsBox.checked = entry.chipWavePlayBackwards;
 			const sampleName: string = this._getSampleName(entry);
@@ -638,7 +638,7 @@ export class AddSamplesPrompt extends BasePrompt {
 				),
 				div(
 					{
-						style: "display: flex; flex-direction: row; align-items: center; justify-content: flex-end; margin-bottom: 0.5em;",
+						style: "display: flex; flex-direction: row; align-items: center; justify-content: space-between; margin-bottom: 0.5em;",
 					},
 					div(
 						{ style: `flex-shrink: 0; text-align: right; color: ${ColorConfig.primaryText};` },

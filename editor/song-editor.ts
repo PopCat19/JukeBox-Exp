@@ -323,7 +323,7 @@ export class SongEditor
 	// @TODO: Add a dropdown for these. Or maybe this checkbox is fine?
 	private readonly _useChipWaveAdvancedLoopControlsBox = input({
 		type: "checkbox",
-		style: "width: 1em; padding: 0; margin-left: 0.4em; margin-right: 4em;",
+		style: "padding: 0; margin-left: 0.4em; margin-right: 4em;",
 	});
 	private readonly _chipWaveLoopModeSelect = buildOptions(select(), ["Loop", "Ping-Pong", "Play Once", "Play Loop Once"]);
 	private readonly _chipWaveLoopStartStepper = numberInput({
@@ -363,7 +363,7 @@ export class SongEditor
 	});
 	private readonly _chipWavePlayBackwardsBox = input({
 		type: "checkbox",
-		style: "width: 1em; padding: 0; margin-left: 0.4em; margin-right: 4em;",
+		style: "padding: 0; margin-left: 0.4em; margin-right: 4em;",
 	});
 	// advloop addition
 	private readonly _chipWaveSelectRow: HTMLDivElement = div(
