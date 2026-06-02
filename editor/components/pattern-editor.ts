@@ -169,10 +169,11 @@ export class PatternEditor {
 	private readonly _backgroundModRow: SVGRectElement = SVG.rect();
 	private readonly _maximumNoteRanges: number = Math.max(Config.layeredInstrumentCountMax, Config.patternInstrumentCountMax);
 	private readonly _hoverTooltip: HTMLDivElement = HTML.div({
-		// PMD card: 10px meta font, widget surface, 8px radius. Floats
-		// in the top-right of the piano roll so it doesn't cover notes;
+		// PMD card: 10px meta font, widget surface, 8px radius. Follows
+		// the mouse cursor with a small offset so the user can see
+		// nearby notes without the label covering them.
 		// pointer-events: none so it never blocks mouse events.
-		style: "position: absolute; top: 8px; right: 8px; padding: 4px 8px; background: var(--ui-widget-background); color: var(--primary-text); border-radius: 8px; font-size: 10px; font-weight: 600; font-family: var(--font-family-mono); white-space: nowrap; pointer-events: none; z-index: 5; display: none;",
+		style: "position: absolute; left: 0; top: 0; padding: 4px 8px; background: var(--ui-widget-background); color: var(--primary-text); border-radius: 8px; font-size: 10px; font-weight: 600; font-family: var(--font-family-mono); white-space: nowrap; pointer-events: none; z-index: 5; display: none;",
 	});
 
 	private _editorWidth: number;
@@ -2305,6 +2306,26 @@ export class PatternEditor {
 		const name: string =
 			isMod || isDrum ? String(snappedPitch) : Piano.getPitchNameAlwaysOctave(snappedPitch % Config.pitchesPerOctave, snappedPitch, baseVisibleOctave);
 		this._hoverTooltip.textContent = name;
+		// Position the tooltip 12px to the right and 12px below the
+		// cursor (or 12px above if the cursor is near the bottom edge).
+		// Clamp horizontally so the tooltip never clips the container.
+		const offset: number = 12;
+		const containerWidth: number = this.container.clientWidth || this._editorWidth;
+		const containerHeight: number = this.container.clientHeight || this._editorHeight;
+		const tooltipWidth: number = this._hoverTooltip.offsetWidth || 60;
+		const tooltipHeight: number = this._hoverTooltip.offsetHeight || 20;
+		let left: number = this._mouseX + offset;
+		if (left + tooltipWidth > containerWidth) {
+			left = this._mouseX - offset - tooltipWidth;
+		}
+		if (left < 0) left = 0;
+		let top: number = this._mouseY + offset;
+		if (top + tooltipHeight > containerHeight) {
+			top = this._mouseY - offset - tooltipHeight;
+		}
+		if (top < 0) top = 0;
+		this._hoverTooltip.style.left = left + "px";
+		this._hoverTooltip.style.top = top + "px";
 		this._hoverTooltip.style.display = "block";
 	}
 
