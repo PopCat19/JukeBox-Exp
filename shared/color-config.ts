@@ -1250,6 +1250,7 @@ export class ColorConfig {
 		window.localStorage.setItem("pmdHue", String(hue));
 		window.localStorage.setItem("pmdDark", isDark ? "1" : "0");
 		applyPMDTheme(hue, isDark);
+		events.raise("themeChange", ColorConfig.PMD_THEME);
 
 		// Refresh cached computed values so non-var() consumers pick up new hues
 		this.resetColors();
