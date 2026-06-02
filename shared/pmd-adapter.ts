@@ -29,6 +29,11 @@ export function applyPMDToDOM(colors: Base16Palette): void {
 		return `rgba(${col.rgb.r}, ${col.rgb.g}, ${col.rgb.b}, ${alpha})`;
 	};
 
+	// Pre-compute helpers for dimmed pattern-cell colors
+	const isLight = colors.base00?.rgb && (0.299 * colors.base00.rgb.r + 0.587 * colors.base00.rgb.g + 0.114 * colors.base00.rgb.b) / 255 > 0.5;
+	const { pmd } = getPMD(!isLight);
+	const primaryHue = colors.base0D?.hue ?? 260;
+
 	// Core UI
 	set("--editor-background", c("base00"));
 	set("--primary-text", c("base05"));
@@ -46,16 +51,18 @@ export function applyPMDToDOM(colors: Base16Palette): void {
 	set("--ui-widget-focus", c("base02"));
 	set("--pitch-background", c("base01"));
 
-	// Musical indicators
-	set("--tonic", c("base09"));
-	set("--fifth-note", c("base0B"));
+	// Musical indicators — dim background-toned (not bright accents)
+	const dimL = Math.max(pmd["8x"].l, 0.32);
+	const dimC = pmd["8x"].c * 2.0;
+	const dimHex = (hueOffset: number): string => rgbToHex(safeOklchToRgb(dimL, dimC, (primaryHue + hueOffset + 360) % 360));
+	set("--tonic", dimHex(290));
+	set("--fifth-note", dimHex(0));
 
 	// Modulator colors
 	set("--multiplicative-mod-slider", c("base0E"));
 	set("--overwriting-mod-slider", c("base08"));
 
 	// Piano keys (light/dark adaptive)
-	const isLight = colors.base00?.rgb && (0.299 * colors.base00.rgb.r + 0.587 * colors.base00.rgb.g + 0.114 * colors.base00.rgb.b) / 255 > 0.5;
 	set("--white-piano-key", isLight ? c("base01") : c("base07"));
 	set("--black-piano-key", isLight ? c("base03") : c("base01"));
 	set("--white-piano-key-text", c("base00"));
@@ -99,8 +106,6 @@ export function applyPMDToDOM(colors: Base16Palette): void {
 	set("--note-flash-secondary", withAlpha("base07", 0.47));
 
 	// Channel colors — map to PMD accent hues
-	const { pmd } = getPMD(!(colors.base00?.rgb && (0.299 * colors.base00.rgb.r + 0.587 * colors.base00.rgb.g + 0.114 * colors.base00.rgb.b) / 255 > 0.5));
-	const primaryHue = colors.base0D?.hue ?? 260;
 	applyChannelColors(root, pmd, primaryHue);
 }
 
