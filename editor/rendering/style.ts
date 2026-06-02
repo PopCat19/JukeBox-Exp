@@ -1405,11 +1405,12 @@ html {
 	padding: 0 var(--button-size);
 }
 .beepboxEditor select:hover,
-.beepboxEditor select:focus {
-	/* PMD: hover and focus both use 80x (body tier). The focus
-	 * indicator is sustained while the dropdown is open (i.e. as
-	 * long as the select element is the active focus target) and
-	 * disappears when the user moves on. */
+.select2-container--open .select2-selection {
+	/* PMD: hover (native select) and open dropdown (select2 wrapper)
+	 * use 80x (body tier). The select2 wrapper's --focus / --open
+	 * states are managed by the library and only persist while the
+	 * dropdown is actually open, so this is the right signal for
+	 * 'sustain until dropdown exits'. */
 	box-shadow: inset 0 0 0 2px var(--primary-text);
 	outline: none;
 }
@@ -1417,6 +1418,14 @@ html {
 .beepboxEditor select:active {
 	/* PMD: click uses 88x (heading tier) for transient emphasis. */
 	box-shadow: inset 0 0 0 2px var(--prompt-titlebar-text, var(--primary-text));
+}
+
+/* The native <select> doesn't get a sustained focus ring — the
+ * select2 wrapper handles the visible 'dropdown is focused' state
+ * above. The native element can still be :focused after a click
+ * (browsers vary) but the user only ever sees the select2 wrapper. */
+.beepboxEditor select:focus {
+	outline: none;
 }
 .beepboxEditor .menu select {
 	text-align: center;
@@ -1446,7 +1455,10 @@ html {
 }
 .beepboxEditor button:hover {
 	/* PMD: hover uses 80x (body tier). Visible but not competing
-	 * with 88x headings. */
+	 * with 88x headings. The hover shadow is suppressed only when
+	 * the button is focused AND not currently hovered, so a
+	 * post-click idle state returns to resting but mousing over a
+	 * focused button still shows the hover indicator. */
 	box-shadow: inset 0 0 0 2px var(--primary-text);
 }
 
@@ -1456,10 +1468,10 @@ html {
 	box-shadow: inset 0 0 0 2px var(--prompt-titlebar-text, var(--primary-text));
 }
 
-.beepboxEditor button:focus {
-	/* Buttons don't keep a focus ring after click — the browser
-	 * default is suppressed so the button returns to its resting
-	 * state once the user moves on. Inputs are the exception. */
+.beepboxEditor button:focus:not(:hover) {
+	/* Buttons don't keep a focus ring after click — but only when
+	 * the mouse has actually left. If the cursor is still over the
+	 * button, :hover above should win. Inputs are the exception. */
 	outline: none;
 	box-shadow: none;
 }
