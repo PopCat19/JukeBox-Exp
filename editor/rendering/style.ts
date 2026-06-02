@@ -426,7 +426,7 @@ html {
 	height: 20px;
 	position: sticky;
 	bottom: 0;
-	padding: 5px 0;
+	padding: var(--padding-4) 0;
 	background-color: ${ColorConfig.editorBackground};
 }
 
@@ -890,7 +890,7 @@ html {
 	border-radius: var(--border-radius-large);
 	border: ${BorderWidth.default} solid ${ColorConfig.uiWidgetBackground};
 	color: ${ColorConfig.primaryText};
-	padding: 20px;
+	padding: var(--padding-16);
 	display: flex;
 	flex-direction: column;
 	gap: var(--gap-md);
@@ -920,7 +920,7 @@ html {
 }
 
 .beepboxEditor .prompt.shaded {
-	padding: 6px 14px;
+	padding: var(--padding-6) 14px;
 	min-width: 0;
 	max-width: max-content;
 	overflow: hidden;
@@ -1102,7 +1102,7 @@ html {
 
 .beepboxEditor .prompt.compactSearchPrompt .categoryItem,
 .beepboxEditor .prompt.compactSearchPrompt .presetItem {
-	padding: 6px 12px;
+	padding: var(--padding-6) var(--padding-12);
 	cursor: pointer;
 	font-size: 12px;
 	line-height: 1.3;
@@ -1144,7 +1144,7 @@ html {
 }
 
 .beepboxEditor .prompt.compactSearchPrompt .presetListEmpty {
-	padding: 12px;
+	padding: var(--padding-12);
 	color: var(--secondary-text);
 	font-size: 12px;
 	text-align: center;
@@ -1190,7 +1190,7 @@ html {
 	border: ${BorderWidth.default} solid var(--ui-widget-background);
 	border-radius: var(--border-radius-medium);
 	overflow: hidden;
-	padding: 8px;
+	padding: var(--padding-8);
 }
 
 .beepboxEditor .prompt.keyboardShortcutsPrompt .shortcutRow {
@@ -2330,7 +2330,7 @@ li.select2-results__option[role=group] > strong:hover {
 }
 
 .beepboxEditor .tagListItem {
-	padding: 4px 8px;
+	padding: var(--padding-4) var(--padding-8);
 	cursor: pointer;
 	font-size: 12px;
 	border-radius: var(--border-radius-medium);
@@ -2361,7 +2361,7 @@ li.select2-results__option[role=group] > strong:hover {
 
 .beepboxEditor .tagChip {
 	display: inline-block;
-	padding: 1px 6px;
+	padding: 1px var(--padding-6);
 	margin: 0 2px;
 	border-radius: var(--border-radius-medium);
 	background: var(--ui-widget-background);
