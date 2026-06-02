@@ -1480,6 +1480,7 @@ html {
 	line-height: 1;
 	font-size: 2em !important;
 	font-weight: ${Typography.weightSemibold};
+	color: ${ColorConfig.promptTitlebarText};
 	padding: 0 !important;
 	white-space: nowrap;
 	overflow: hidden;
@@ -1535,6 +1536,7 @@ html {
 .beepboxEditor .prompt.shaded .prompt-titlebar h2 {
 	margin: 0 !important;
 	font-size: 1.2em !important;
+	color: ${ColorConfig.promptTitlebarText};
 	cursor: pointer;
 	white-space: nowrap;
 	line-height: 1;

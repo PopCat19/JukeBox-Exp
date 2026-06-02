@@ -107,6 +107,10 @@ export function applyPMDToDOM(colors: Base16Palette): void {
 	// Tip and header text
 	set("--tip-text", c("base05"));
 	set("--settings-header-text", c("base06"));
+	// Prompt titlebar heading (h2 in .prompt-titlebar) — same PMD 88x Headers
+	// slot as settings headers. Kept as a distinct variable so the two roles
+	// can diverge later without rewiring call sites.
+	set("--prompt-titlebar-text", c("base06"));
 
 	// Typography
 	set("--font-family-input", "var(--font-family-mono)");

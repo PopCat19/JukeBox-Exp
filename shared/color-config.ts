@@ -174,6 +174,7 @@ export class ColorConfig {
 	public static readonly muteEditorTextDim: string = "var(--mute-editor-text-dim, #999)";
 	public static readonly tipText: string = "var(--tip-text, var(--secondary-text, #999))";
 	public static readonly settingsHeaderText: string = "var(--settings-header-text, var(--secondary-text, #999))";
+	public static readonly promptTitlebarText: string = "var(--prompt-titlebar-text, var(--primary-text, white))";
 	public static readonly disabledNotePrimary: string = "var(--disabled-note-primary, #999)";
 	public static readonly disabledNoteSecondary: string = "var(--disabled-note-secondary, #666)";
 
