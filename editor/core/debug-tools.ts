@@ -8,11 +8,14 @@
 // - Runs consistency checks on song state
 // - Records actions as replayable backend scripts
 
+import { applyPMDTheme } from "../../shared/pmd-adapter";
 import type { Song } from "../../synth";
 import { ChangeSong } from "../changes";
 import type { SongDocument } from "../song-document";
-import { applyPMDTheme } from "../../shared/pmd-adapter";
 import { type Change, ChangeGroup } from "./change";
+import { makeLogger } from "./debug-log";
+
+const log = makeLogger("startup");
 
 interface ReplayOp {
 	op: string;
@@ -230,7 +233,7 @@ export function installDebugTools(doc: SongDocument): void {
 
 		pmd(hue?: number, isDark?: boolean): object {
 			const colors = applyPMDTheme(hue ?? 260, isDark ?? true);
-			console.log(`PMD theme applied: hue=${hue ?? 260}° ${isDark ?? true ? "dark" : "light"}`);
+			console.log(`PMD theme applied: hue=${hue ?? 260}° ${(isDark ?? true) ? "dark" : "light"}`);
 			console.log(colors);
 			return colors;
 		},
@@ -288,4 +291,21 @@ export function installDebugTools(doc: SongDocument): void {
 	};
 
 	(window as any).__jukebox__ = api;
+
+	// Startup probe — fires unconditionally so the user can see the
+	// logger module is loaded. If the flag is off, this prints an
+	// instructional message instead of the [jukebox:debug] banner.
+	if (log.enabled()) {
+		log.log("debug-log is active, scopes registered");
+	} else {
+		try {
+			console.info(
+				"%c[jukebox:debug] logging disabled",
+				"background:#666;color:#fff;padding:2px 6px;border-radius:4px;font-weight:bold;",
+				"enable with: localStorage.setItem('debugPrompts','1') then reload, or load with ?debugPrompts=1",
+			);
+		} catch {
+			// ignore
+		}
+	}
 }

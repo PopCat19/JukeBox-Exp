@@ -4,24 +4,41 @@
 //
 // This module:
 // - Provides a category-prefixed logger that no-ops in production
-// - Is enabled by setting `localStorage.debugPrompts = "true"` (and
-//   reloading) or by setting the same key on `window` for the
-//   current session
-// - All log lines are tagged with `[jukebox:<scope>]` so they can be
-//   filtered in the browser console
-//
-// The logger is intentionally minimal: it has no dependencies, no
-// rate limiting, and no formatting beyond the prefix. It exists to
-// capture diagnostic data on demand without paying any cost when
-// disabled.
+// - Can be enabled via any of:
+//   * `localStorage.setItem('debugPrompts', '1')` then reload
+//   * `localStorage.debugPrompts = '1'` in the console (same effect)
+//   * `window.debugPrompts = '1'` for the current session
+//   * `?debugPrompts=1` in the URL
+// - On first activation, prints a one-line banner so you can confirm
+//   the flag took effect
+// - All log lines are tagged with `[jukebox:<scope>]` for filtering
+// - State is mirrored on `window.__jukebox_debug` for inspection
 
 const STORAGE_KEY = "debugPrompts";
+
+function readQueryString(): string | null {
+	try {
+		if (typeof window === "undefined" || !window.location) return null;
+		const params = new URLSearchParams(window.location.search);
+		const v = params.get(STORAGE_KEY);
+		if (v) return v;
+	} catch {
+		// ignore
+	}
+	return null;
+}
 
 function isEnabled(): boolean {
 	try {
 		if (typeof window === "undefined") return false;
-		if ((window as any)[STORAGE_KEY] === "true") return true;
-		if (window.localStorage && window.localStorage.getItem(STORAGE_KEY) === "true") return true;
+		const w = window as any;
+		if (w[STORAGE_KEY] === "1" || w[STORAGE_KEY] === "true") return true;
+		const q = readQueryString();
+		if (q === "1" || q === "true") return true;
+		if (window.localStorage) {
+			const stored = window.localStorage.getItem(STORAGE_KEY);
+			if (stored === "1" || stored === "true") return true;
+		}
 	} catch {
 		// localStorage access can throw in sandboxed contexts; fail closed.
 	}
@@ -35,19 +52,97 @@ export interface DebugLogger {
 	enabled(): boolean;
 }
 
+interface DebugGlobal {
+	enabled: boolean;
+	scopes: string[];
+	enable(): void;
+	disable(): void;
+}
+
+let bannerPrinted = false;
+const debugGlobal: DebugGlobal = ((): DebugGlobal => {
+	const g: any = typeof window !== "undefined" ? (window as any) : {};
+	if (!g.__jukebox_debug) {
+		g.__jukebox_debug = {
+			enabled: false,
+			scopes: [],
+			enable(): void {
+				try {
+					window.localStorage.setItem(STORAGE_KEY, "1");
+				} catch {
+					// ignore
+				}
+				(window as any)[STORAGE_KEY] = "1";
+				g.__jukebox_debug.enabled = true;
+				bannerPrinted = false; // force banner reprint
+			},
+			disable(): void {
+				try {
+					window.localStorage.removeItem(STORAGE_KEY);
+				} catch {
+					// ignore
+				}
+				(window as any)[STORAGE_KEY] = "0";
+				g.__jukebox_debug.enabled = false;
+			},
+		};
+	}
+	return g.__jukebox_debug;
+})();
+
 export function makeLogger(scope: string): DebugLogger {
 	const tag = `[jukebox:${scope}]`;
+	if (!debugGlobal.scopes.includes(scope)) debugGlobal.scopes.push(scope);
+
+	function maybeBanner(): void {
+		if (bannerPrinted) return;
+		if (!debugGlobal.enabled) return;
+		bannerPrinted = true;
+		try {
+			// Use console.info with a distinctive prefix so the user can
+			// confirm the flag is actually active.
+			console.info(
+				"%c[jukebox:debug] logging ENABLED",
+				"background:#0a84ff;color:#fff;padding:2px 6px;border-radius:4px;font-weight:bold;",
+				`scopes: ${debugGlobal.scopes.join(", ")}`,
+			);
+		} catch {
+			// ignore
+		}
+	}
+
 	return {
 		log: (...args: unknown[]): void => {
-			if (isEnabled()) console.log(tag, ...args);
+			debugGlobal.enabled = isEnabled();
+			if (!debugGlobal.enabled) return;
+			maybeBanner();
+			try {
+				console.log(tag, ...args);
+			} catch {
+				// ignore
+			}
 		},
 		warn: (...args: unknown[]): void => {
-			if (isEnabled()) console.warn(tag, ...args);
+			debugGlobal.enabled = isEnabled();
+			if (!debugGlobal.enabled) return;
+			maybeBanner();
+			try {
+				console.warn(tag, ...args);
+			} catch {
+				// ignore
+			}
 		},
 		error: (...args: unknown[]): void => {
 			// Errors always print so production bugs aren't silently lost.
-			if (isEnabled()) console.error(tag, ...args);
+			try {
+				console.error(tag, ...args);
+			} catch {
+				// ignore
+			}
 		},
-		enabled: isEnabled,
+		enabled: (): boolean => {
+			debugGlobal.enabled = isEnabled();
+			return debugGlobal.enabled;
+		},
 	};
 }
