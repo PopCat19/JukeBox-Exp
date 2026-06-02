@@ -926,7 +926,7 @@ html {
 	overflow: hidden;
 	display: flex;
 	align-items: center;
-	border-radius: 20px;
+	border-radius: var(--border-radius-large);
 }
 
 .beepboxEditor .prompt.shaded > *:not(.prompt-titlebar) {
@@ -1106,7 +1106,7 @@ html {
 	cursor: pointer;
 	font-size: 12px;
 	line-height: 1.3;
-	border-radius: 8px;
+	border-radius: var(--border-radius-medium);
 	background: rgba(255,255,255,0.03);
 }
 
@@ -1198,7 +1198,7 @@ html {
 	justify-content: space-between;
 	padding: 0.25em 0.4em;
 	font-size: 0.9em;
-	border-radius: 4px;
+	border-radius: var(--border-radius-medium);
 }
 
 .beepboxEditor .prompt.keyboardShortcutsPrompt .shortcutRow:nth-child(even) {
@@ -1332,7 +1332,7 @@ html {
 	display: block;
 	height: 2em;
 	border: none;
-	border-radius: 0.4em;
+	border-radius: var(--border-radius-medium);
 	background: ${ColorConfig.uiWidgetBackground};
 	color: inherit !important;
 	font-size: inherit;
@@ -1520,7 +1520,7 @@ html {
 	overflow: hidden;
 	display: flex;
 	align-items: center;
-	border-radius: 20px;
+	border-radius: var(--border-radius-large);
 }
 
 .beepboxEditor .prompt.shaded > *:not(.prompt-titlebar) {
@@ -2000,7 +2000,7 @@ html {
 	transform: translate(-50%, -50%);
 	position: absolute;
 	background: currentColor;
-	border-radius: 3px;
+	border-radius: 1px;
 }
 
 .beepboxEditor input[type=text], .beepboxEditor input[type=number] {
@@ -2047,7 +2047,7 @@ html {
 	padding: 0;
 	margin: 0 0.3em;
 	border: ${BorderWidth.default} solid ${ColorConfig.uiWidgetBackground};
-	border-radius: 4px;
+	border-radius: var(--border-radius-medium);
 	background: transparent;
 	cursor: pointer;
 	position: relative;
@@ -2140,7 +2140,7 @@ html {
 .beepboxEditor input[type=range]::-webkit-slider-thumb {
 	height: var(--button-size);
 	width: 6px;
-	border-radius: 3px;
+	border-radius: 2px;
 	background: currentColor;
 	cursor: pointer;
 	-webkit-appearance: none;
@@ -2162,7 +2162,7 @@ html {
 .beepboxEditor input[type=range]::-moz-range-thumb {
 	height: var(--button-size);
 	width: 6px;
-	border-radius: 3px;
+	border-radius: 2px;
 	border: none;
 	background: currentColor;
 	cursor: pointer;
@@ -2180,7 +2180,7 @@ html {
 .beepboxEditor input[type=range]::-ms-thumb {
 	height: var(--button-size);
 	width: 6px;
-	border-radius: 3px;
+	border-radius: 2px;
 	background: currentColor;
 	cursor: pointer;
 }
@@ -2363,7 +2363,7 @@ li.select2-results__option[role=group] > strong:hover {
 	display: inline-block;
 	padding: 1px 6px;
 	margin: 0 2px;
-	border-radius: 4px;
+	border-radius: var(--border-radius-medium);
 	background: var(--ui-widget-background);
 	color: var(--primary-text);
 	font-size: 10px;

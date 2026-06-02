@@ -28,7 +28,7 @@ export class MuteEditor {
 	private readonly _channelCounts: HTMLDivElement[] = [];
 	private readonly _channelNameDisplay: HTMLDivElement = HTML.div(
 		{
-			style: `background-color: ${ColorConfig.uiWidgetFocus}; white-space:nowrap; display: none; transform:translate(20px); width: auto; pointer-events: none; position: absolute; border-radius: 0.2em; z-index: 2;`,
+			style: `background-color: ${ColorConfig.uiWidgetFocus}; white-space:nowrap; display: none; transform:translate(20px); width: auto; pointer-events: none; position: absolute; border-radius: var(--border-radius-medium); z-index: 2;`,
 			color: ColorConfig.primaryText,
 		},
 		"",
@@ -36,7 +36,7 @@ export class MuteEditor {
 	public readonly _channelNameInput: InputBox = new InputBox(
 		HTML.input(
 			{
-				style: `color: ${ColorConfig.primaryText}; background-color: ${ColorConfig.uiWidgetFocus}; margin-top: -2px; display: none; width: 6em; position: absolute; border-radius: 0.2em; z-index: 2;`,
+				style: `color: ${ColorConfig.primaryText}; background-color: ${ColorConfig.uiWidgetFocus}; margin-top: -2px; display: none; width: 6em; position: absolute; border-radius: var(--border-radius-medium); z-index: 2;`,
 				color: ColorConfig.primaryText,
 			},
 			"",
