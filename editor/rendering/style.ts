@@ -1258,24 +1258,12 @@ html {
 .beepboxEditor .selectContainer {
 	position: relative;
 }
-.beepboxEditor .selectContainer:not(.menu)::after {
-	content: "";
-	flex-shrink: 0;
-	position: absolute;
-	right: 0;
-	top: 50%;
-	transform: translateY(-50%);
-	pointer-events: none;
-	width: 14px;
-	height: var(--button-size);
-	background: currentColor;
-	-webkit-mask-image: var(--internal-select-arrows-symbol);
-	-webkit-mask-repeat: no-repeat;
-	-webkit-mask-position: center;
-	mask-image: var(--internal-select-arrows-symbol);
-	mask-repeat: no-repeat;
-	mask-position: center;
-}
+/* PMD: removed the up/down triangle from .selectContainer. The
+ * dropdown's interactivity is already signalled by the focus
+ * ring on .focused / :hover (80x body tier), the cursor
+ * change, and the menu bar's existing single down-arrow on
+ * .selectContainer.menu — adding a glyph on the body of the
+ * select duplicates that affordance. */
 .beepboxEditor .selectContainer.menu::after {
 	content: "";
 	flex-shrink: 0;
@@ -1338,26 +1326,9 @@ html {
   outline: none;
 }
 
-.select2-selection__rendered:not(.menu)::before {
-	content: "";
-	position: absolute;
-	right: 0.3em;
-	top: 0.4em;
-	border-bottom: 0.4em solid currentColor;
-	border-left: 0.3em solid transparent;
-	border-right: 0.3em solid transparent;
-	pointer-events: none;
-}
-.select2-selection__rendered:not(.menu)::after {
-	content: "";
-	position: absolute;
-	right: 0.3em;
-	bottom: 0.4em;
-	border-top: 0.4em solid currentColor;
-	border-left: 0.3em solid transparent;
-	border-right: 0.3em solid transparent;
-	pointer-events: none;
-}
+/* PMD: removed the up/down triangles from .select2-selection__rendered.
+ * The dropdown's interactivity is already signalled by the focus
+ * ring (80x body tier) and the .select2-container--open state. */
 .select2-selection__rendered {
 	margin: 0;
 	padding: 0 0.3em;
@@ -1395,13 +1366,23 @@ html {
     display: inline-block;
     margin: 0;
     font-size: small;
-    position: relative;
+    position: fixed;
     vertical-align: middle;
     background-color: ${ColorConfig.uiWidgetFocus};
+    /* PMD: position: fixed lets the dropdown escape the
+     * .beepboxEditor ancestor's overflow: hidden. Select2
+     * positions via inline top/left computed from the trigger's
+     * getBoundingClientRect(), which are viewport-relative and
+     * match position: fixed exactly. */
+    z-index: 9999;
 }
 
 .select2-container--default .select2-results>.select2-results__options {
-    max-height: 430px;
+    /* PMD: clamp dropdown height to the viewport so it never
+     * extends past the bottom edge. Select2 still flips to
+     * --above when needed; this just guarantees the flipped
+     * variant also fits. */
+    max-height: min(430px, calc(100vh - 1em));
     overflow-x: hidden;
 }
 .select2-container--default .select2-results__group {
