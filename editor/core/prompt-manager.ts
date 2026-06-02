@@ -268,13 +268,14 @@ export class PromptManager {
 			const wasAlreadyFocused = this._focusedPrompt === existing;
 			this._focusedPrompt = existing;
 			this._updatePromptFocus();
-			// Flash 88x outline only when the user is bringing a
-			// non-focused prompt to the top — the same gesture as a
-			// window manager 'raise'. If the prompt was already the
-			// focused one, this is a no-op for the user and the flash
-			// would be confusing. Children (titlebar heading) get
-			// their own steady 88x via --prompt-titlebar-text.
-			if (!wasAlreadyFocused) {
+			// Flash 88x outline only when the user is targeting a
+			// prompt that's already focused — the same gesture as
+			// clicking the focused window's taskbar in a window
+			// manager. Bringing a non-focused prompt to front via
+			// .focused-class change is enough feedback. 88x is
+			// reserved for children (titlebar heading) and the
+			// transient raise gesture on the already-focused prompt.
+			if (wasAlreadyFocused) {
 				existing.container.classList.remove("refocus");
 				// Force a reflow so re-adding the class restarts the
 				// animation even if it was already running.
