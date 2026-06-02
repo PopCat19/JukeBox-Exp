@@ -54,7 +54,9 @@ document.head.appendChild(
 	--flex-fit: 0 0 auto;
 	--flex-stretch: stretch;
 	--pane-gap: 8px;
-	/* PMD: hover outline color (default 80x body tier), eased transition */
+	/* PMD: hover/focus outline color (80x body tier — present on every
+	 * prompt so the user always knows which one is targeted, but in a
+	 * neutral tier that doesn't compete with the 88x titlebar heading). */
 	--hout: ${ColorConfig.primaryText};
 	--ease: ${Animation.easingDefault};
 	--internal-play-symbol: var(--play-symbol, url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="-13 -13 26 26"><path d="M -5 -8 L -5 8 L 8 0 z" fill="gray"/></svg>'));
@@ -930,15 +932,18 @@ html {
 }
 
 .beepboxEditor .prompt:hover {
-	/* PMD: hover uses an 80x inner outline (2px, outline-offset: -2px) */
+	/* PMD: hover uses an 80x inner outline (2px, outline-offset: -2px).
+	 * 80x is the body tier — visible without competing with the 88x
+	 * titlebar heading inside the prompt. */
 	outline: 2px solid var(--hout, ${ColorConfig.primaryText});
 	outline-offset: -2px;
 }
 
 .beepboxEditor .prompt.focused,
 .beepboxEditor .prompt:focus-visible {
-	/* PMD: keyboard focus uses 2px 80x 48% */
-	outline: 2px solid ${ColorConfig.secondaryText};
+	/* PMD: keyboard focus uses the same 80x tier as hover so the visual
+	 * language is identical regardless of input modality. */
+	outline: 2px solid var(--hout, ${ColorConfig.primaryText});
 	outline-offset: -2px;
 }
 
