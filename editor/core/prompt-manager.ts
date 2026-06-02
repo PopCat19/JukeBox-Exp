@@ -265,24 +265,29 @@ export class PromptManager {
 		const existing = this._prompts.find((p) => p.name === promptName);
 		if (existing) {
 			log.log("_setPrompt: existing found, refocusing", promptName, { stack: this._prompts.map((p) => p.name) });
+			const wasAlreadyFocused = this._focusedPrompt === existing;
 			this._focusedPrompt = existing;
 			this._updatePromptFocus();
-			// Flash the prompt with an 88x outline so the user gets
-			// visible feedback that the prompt is on top again (like
-			// a window manager 'raise' gesture). The class is removed
-			// on animationend by the listener below.
-			existing.container.classList.remove("refocus");
-			// Force a reflow so re-adding the class restarts the
-			// animation even if it was already running.
-			void existing.container.offsetWidth;
-			existing.container.classList.add("refocus");
-			existing.container.addEventListener(
-				"animationend",
-				() => {
-					existing.container.classList.remove("refocus");
-				},
-				{ once: true },
-			);
+			// Flash 88x outline only when the user is bringing a
+			// non-focused prompt to the top — the same gesture as a
+			// window manager 'raise'. If the prompt was already the
+			// focused one, this is a no-op for the user and the flash
+			// would be confusing. Children (titlebar heading) get
+			// their own steady 88x via --prompt-titlebar-text.
+			if (!wasAlreadyFocused) {
+				existing.container.classList.remove("refocus");
+				// Force a reflow so re-adding the class restarts the
+				// animation even if it was already running.
+				void existing.container.offsetWidth;
+				existing.container.classList.add("refocus");
+				existing.container.addEventListener(
+					"animationend",
+					() => {
+						existing.container.classList.remove("refocus");
+					},
+					{ once: true },
+				);
+			}
 			return;
 		}
 
