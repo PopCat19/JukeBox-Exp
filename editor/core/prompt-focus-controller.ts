@@ -55,14 +55,10 @@ export class PromptFocusController {
 		};
 
 		const refocusSongEditor = (): void => {
-			// Don't clear _focusedPrompt here. The host.prompt getter
-			// returns _focusedPrompt, and the keyboard handler skips
-			// the prompt block entirely if host.prompt is null — so
-			// clearing it would make the prompt's whenKeyPressed
-			// unreachable when the user is hovering the song editor.
-			// shouldPromptReceiveKeys() already gates on the prompt's
-			// :hover state, so the prompt's key handling still won't
-			// fire while the cursor is over the song editor.
+			if (this.host.getFocusedPrompt() === prompt) {
+				this.host.setFocusedPrompt(null);
+				this.host.updatePromptFocus();
+			}
 			this.host.refocusSongEditor();
 		};
 
