@@ -2183,13 +2183,13 @@ html {
 		border-radius: var(--mod-border-radius);
 }
 .beepboxEditor input[type=range]::-webkit-slider-thumb {
-	height: var(--button-size);
-	width: 6px;
-	border-radius: 2px;
+	height: 20px;
+	width: 4px;
+	border-radius: 999px;
 	background: currentColor;
 	cursor: pointer;
 	-webkit-appearance: none;
-	margin-top: -10px;
+	margin-top: -7px;
 }
 .beepboxEditor input[type=range]:focus::-webkit-slider-runnable-track {
 	background: ${ColorConfig.uiWidgetFocus};
@@ -2205,9 +2205,9 @@ html {
 	background: ${ColorConfig.uiWidgetFocus};
 }
 .beepboxEditor input[type=range]::-moz-range-thumb {
-	height: var(--button-size);
-	width: 6px;
-	border-radius: 2px;
+	height: 20px;
+	width: 4px;
+	border-radius: 999px;
 	border: none;
 	background: currentColor;
 	cursor: pointer;
@@ -2223,9 +2223,9 @@ html {
 	background: ${ColorConfig.uiWidgetFocus};
 }
 .beepboxEditor input[type=range]::-ms-thumb {
-	height: var(--button-size);
-	width: 6px;
-	border-radius: 2px;
+	height: 20px;
+	width: 4px;
+	border-radius: 999px;
 	background: currentColor;
 	cursor: pointer;
 }
