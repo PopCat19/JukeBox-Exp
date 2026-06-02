@@ -78,6 +78,7 @@ const _noPlayPausePrompts: ReadonlySet<Function> = new Set([
 
 export class PromptManager {
 	private readonly _prompts: Prompt[] = [];
+	private _hideContainerTimer: ReturnType<typeof setTimeout> | null = null;
 	private _focusedPrompt: Prompt | null = null;
 	private readonly _promptPositions: Map<string, { x: number; y: number }> = new Map();
 	private _draggingPrompt: boolean = false;
@@ -170,8 +171,14 @@ export class PromptManager {
 		}
 		if (this._prompts.length === 0 && prompt != null) {
 			this._focusController.detachAll();
-			setTimeout(() => {
+			// If a new prompt is opened before this timer fires, the
+			// setTimeout would run afterwards and set display:none on
+			// the container, hiding the newly opened prompt. Track the
+			// timer so _setPrompt can cancel it.
+			if (this._hideContainerTimer != null) clearTimeout(this._hideContainerTimer);
+			this._hideContainerTimer = setTimeout(() => {
 				this._host.promptContainer.style.display = "none";
+				this._hideContainerTimer = null;
 			}, 150);
 			if (this._wasPlaying) {
 				this._host.doc.performance.play();
@@ -372,6 +379,14 @@ export class PromptManager {
 		if (this._prompts.length === 1 && !_noPlayPausePrompts.has(newPrompt.constructor)) {
 			this._wasPlaying = doc.synth.playing;
 			doc.performance.pause();
+		}
+
+		// Cancel any pending container-hide timeout from a recent close
+		// — otherwise it would fire after this open and hide the new
+		// prompt mid-animation. (See close(): _hideContainerTimer.)
+		if (this._hideContainerTimer != null) {
+			clearTimeout(this._hideContainerTimer);
+			this._hideContainerTimer = null;
 		}
 
 		this._host.promptContainer.style.display = "";
