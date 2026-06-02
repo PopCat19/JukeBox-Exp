@@ -265,34 +265,27 @@ export class PromptManager {
 		const existing = this._prompts.find((p) => p.name === promptName);
 		if (existing) {
 			log.log("_setPrompt: existing found, refocusing", promptName, { stack: this._prompts.map((p) => p.name) });
-			const wasAlreadyFocused = this._focusedPrompt === existing;
-			// openCount was set to 1 on the first spawn (below). Any
-			// subsequent call here is the 2nd, 3rd, ... invocation.
-			existing.openCount = (existing.openCount ?? 1) + 1;
 			this._focusedPrompt = existing;
 			this._updatePromptFocus();
-			// Flash 88x outline only on the 2nd+ invocation of a
-			// prompt that was already focused. The first spawn uses
-			// the entering animation for feedback — flashing 88x on
-			// top of that would be redundant. Bringing a non-focused
-			// prompt to front doesn't flash either; the .focused
-			// class change is feedback. 88x is reserved for children
-			// (titlebar heading) and the transient 'raise' gesture
-			// on the already-focused, already-spawned prompt.
-			if (wasAlreadyFocused && existing.openCount >= 2) {
-				existing.container.classList.remove("refocus");
-				// Force a reflow so re-adding the class restarts the
-				// animation even if it was already running.
-				void existing.container.offsetWidth;
-				existing.container.classList.add("refocus");
-				existing.container.addEventListener(
-					"animationend",
-					() => {
-						existing.container.classList.remove("refocus");
-					},
-					{ once: true },
-				);
-			}
+			// Flash 88x outline on every 'existing found' invocation
+			// — the user explicitly asked for the flash to fire only
+			// when the prompt already exists, not on first spawn.
+			// The spawn path uses the .entering animation as its
+			// feedback; the .refocus flash is for the 'raise'
+			// gesture on a prompt that's already in the stack.
+			existing.openCount = (existing.openCount ?? 1) + 1;
+			existing.container.classList.remove("refocus");
+			// Force a reflow so re-adding the class restarts the
+			// animation even if it was already running.
+			void existing.container.offsetWidth;
+			existing.container.classList.add("refocus");
+			existing.container.addEventListener(
+				"animationend",
+				() => {
+					existing.container.classList.remove("refocus");
+				},
+				{ once: true },
+			);
 			return;
 		}
 
