@@ -43,7 +43,7 @@ export class LoopEditor {
 		stroke: ColorConfig.uiWidgetFocus,
 		"stroke-width": 2,
 	});
-	private readonly _highlight: SVGPathElement = SVG.path({ fill: ColorConfig.hoverPreview, "pointer-events": "none" });
+	private readonly _highlight: SVGPathElement = SVG.path({ fill: "none", stroke: "var(--primary-text)", "stroke-width": 2, "pointer-events": "none" });
 
 	private readonly _svg: SVGSVGElement = SVG.svg(
 		{ style: `touch-action: pan-y; position: absolute;`, height: this._editorHeight },

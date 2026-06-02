@@ -202,8 +202,8 @@ document.head.appendChild(
 	--border-radius-full: 100px;
 
 	/* Design Token System — typography */
-	--font-family: 'B612', sans-serif;
-	--font-family-mono: monospace;
+	--font-family: ${Typography.fontFamily};
+	--font-family-mono: ${Typography.fontFamilyMono};
 	--font-size-xs: 0.625rem;
 	--font-size-sm: 0.6875rem;
 	--font-size-md: 0.8125rem;
@@ -212,6 +212,7 @@ document.head.appendChild(
 	--font-size-2xl: 1.25rem;
 	--font-weight-normal: 400;
 	--font-weight-medium: 500;
+	--font-weight-semibold: 600;
 	--font-weight-bold: 700;
 	--line-height-tight: 1.2;
 	--line-height-normal: 1.5;
@@ -446,7 +447,7 @@ html {
 
 .beepboxEditor .tip {
 	cursor: help;
-	color: ${ColorConfig.secondaryText};
+	color: ${ColorConfig.tipText};
 	text-decoration: none;
 }
 
@@ -1007,7 +1008,7 @@ html {
 .beepboxEditor .prompt h2 {
 	font-size: 2em;
 	margin: 0 16px;
-	font-weight: normal;
+	font-weight: ${Typography.weightSemibold};
 }
 
 .beepboxEditor .prompt p {
@@ -1281,7 +1282,7 @@ html {
 }
 .beepboxEditor select option:disabled {
 	color: ${ColorConfig.linkAccent};
-	font-weight: ${Typography.weightBold};
+	font-weight: ${Typography.weightSemibold};
 }
 
 .select2-container .select2-selection--single {
@@ -1397,7 +1398,7 @@ html {
 	padding: 0 var(--button-size);
 }
 .beepboxEditor select:focus {
-	background: ${ColorConfig.uiWidgetFocus};
+	box-shadow: inset 0 0 0 2px var(--primary-text);
 	outline: none;
 }
 .beepboxEditor .menu select {
@@ -1428,7 +1429,7 @@ html {
 }
 .beepboxEditor button:focus,
 .beepboxEditor button:hover {
-	background: ${ColorConfig.uiWidgetFocus};
+	box-shadow: inset 0 0 0 2px var(--primary-text);
 	outline: none;
 }
 
@@ -1478,7 +1479,7 @@ html {
 	margin: 0 !important;
 	line-height: 1;
 	font-size: 2em !important;
-	font-weight: normal;
+	font-weight: ${Typography.weightSemibold};
 	padding: 0 !important;
 	white-space: nowrap;
 	overflow: hidden;
@@ -1901,8 +1902,8 @@ html {
 }
 .beepboxEditor .channelBoxLabel {
 	font-size: 20px;
-	font-family: sans-serif;
-	font-weight: ${Typography.weightBold};
+	font-family: var(--font-family);
+	font-weight: ${Typography.weightSemibold};
 }
 .beepboxEditor .dropFader {
 	opacity: 0;
@@ -2005,7 +2006,7 @@ html {
 .beepboxEditor input[type=text], .beepboxEditor input[type=number] {
 	font-size: inherit;
 	font-weight: inherit;
-	font-family: inherit;
+	font-family: var(--font-family-input, inherit);
 	background: transparent;
 	text-align: center;
 	border: ${BorderWidth.default} solid ${ColorConfig.inputBoxOutline};
@@ -2096,12 +2097,12 @@ html {
 	width: 100%;
 	height: 6px;
 	cursor: pointer;
-	background: ${ColorConfig.uiWidgetBackground};
+	background: ${ColorConfig.sliderTrack};
 	border-radius: var(--border-radius-medium);
 }
 
 .modTarget:hover {
-	fill: ${ColorConfig.hoverPreview} !important;
+	fill: var(--primary-text) !important;
 }
 
 .beepboxEditor span.midTick:after {
@@ -2152,7 +2153,7 @@ html {
 	width: 100%;
 	height: 6px;
 	cursor: pointer;
-	background: ${ColorConfig.uiWidgetBackground};
+	background: ${ColorConfig.sliderTrack};
 	border-radius: var(--border-radius-medium);
 }
 .beepboxEditor input[type=range]:focus::-moz-range-track {
@@ -2170,7 +2171,7 @@ html {
 	width: 100%;
 	height: 6px;
 	cursor: pointer;
-	background: ${ColorConfig.uiWidgetBackground};
+	background: ${ColorConfig.sliderTrack};
 	border-color: transparent;
 }
 .beepboxEditor input[type=range]:focus::-ms-track {

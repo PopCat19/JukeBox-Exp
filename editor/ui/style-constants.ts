@@ -11,7 +11,7 @@
 // - Spacing: rem-based scale (0.125rem to 2rem)
 // - Border Radius: 0.25rem (sm), 0.5rem (md), 1rem (lg), 100px (full)
 // - Border Width: 1px (hairline), 2px (default), 3px (thick)
-// - Typography: B612 font family, 10px-20px size range
+// - Typography: Fredoka font family (PMD), Fira Code mono, 10px-20px size range
 // - Z-Index: 7-layer system (base through toast)
 // - Animation: 80ms-500ms durations with standard easings
 
@@ -84,8 +84,8 @@ export const BorderWidth = {
 } as const;
 
 export const Typography = {
-	fontFamily: "'B612', sans-serif",
-	fontFamilyMono: "monospace",
+	fontFamily: "'Fredoka', 'Rounded Mplus 1c', sans-serif",
+	fontFamilyMono: "'Fira Code', 'FiraCode Nerd Font', monospace",
 	sizeXs: "0.625rem",
 	sizeSm: "0.6875rem",
 	sizeMd: "0.8125rem",
@@ -94,6 +94,7 @@ export const Typography = {
 	size2Xl: "1.25rem",
 	weightNormal: "400",
 	weightMedium: "500",
+	weightSemibold: "600",
 	weightBold: "700",
 	lineHeightTight: "1.2",
 	lineHeightNormal: "1.5",

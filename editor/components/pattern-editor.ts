@@ -271,7 +271,7 @@ export class PatternEditor {
 		this._selectionRect = SVG.rect({
 			class: "dashed-line dash-move",
 			fill: ColorConfig.boxSelectionFill,
-			stroke: ColorConfig.hoverPreview,
+			stroke: "var(--primary-text)",
 			"stroke-width": 2,
 			"stroke-dasharray": "5, 3",
 			"fill-opacity": "0.4",
@@ -280,7 +280,7 @@ export class PatternEditor {
 		});
 		this._svgPreview = SVG.path({
 			fill: "none",
-			stroke: ColorConfig.hoverPreview,
+			stroke: "var(--primary-text)",
 			"stroke-width": "2",
 			"pointer-events": "none",
 		});

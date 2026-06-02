@@ -32,7 +32,7 @@ export class BarScrollBar {
 	});
 	private readonly _handleHighlight: SVGRectElement = SVG.rect({
 		fill: "none",
-		stroke: ColorConfig.hoverPreview,
+		stroke: "var(--primary-text)",
 		"stroke-width": 2,
 		"pointer-events": "none",
 		x: 0,
@@ -41,11 +41,11 @@ export class BarScrollBar {
 		height: this._editorHeight - 2,
 	});
 	private readonly _leftHighlight: SVGPathElement = SVG.path({
-		fill: ColorConfig.hoverPreview,
+		fill: "var(--primary-text)",
 		"pointer-events": "none",
 	});
 	private readonly _rightHighlight: SVGPathElement = SVG.path({
-		fill: ColorConfig.hoverPreview,
+		fill: "var(--primary-text)",
 		"pointer-events": "none",
 	});
 	private _renderedPlayhead: number = -1;

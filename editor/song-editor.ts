@@ -1376,7 +1376,7 @@ export class SongEditor
 
 	private readonly _songTitleInputBox: InputBox = new InputBox(
 		input({
-			style: `font-weight: bold; border: none; width: 98%; background-color: ${ColorConfig.editorBackground}; color: ${ColorConfig.primaryText}; text-align: center;`,
+			style: `font-weight: bold; border: none; width: 98%; background-color: ${ColorConfig.editorBackground}; color: ${ColorConfig.settingsHeaderText}; text-align: center;`,
 			maxlength: "30",
 			type: "text",
 			value: EditorConfig.versionDisplayName,
@@ -1527,7 +1527,7 @@ export class SongEditor
 	private readonly _instrumentSettingsTextRow: HTMLDivElement = div(
 		{
 			id: "instrumentSettingsText",
-			style: `padding: 3px 0; max-width: 15em; text-align: center; color: ${ColorConfig.secondaryText};`,
+			style: `padding: 3px 0; max-width: 15em; text-align: center; color: ${ColorConfig.settingsHeaderText};`,
 		},
 		"Instrument Settings",
 	);
@@ -1684,7 +1684,7 @@ export class SongEditor
 							this._usedInstrumentIndicator,
 						),
 					),
-					"Song Settings",
+					span({ style: `color: ${ColorConfig.settingsHeaderText};` }, "Song Settings"),
 					div({ style: "width: 100%; left: 0; top: -1px; position:absolute; overflow-x:clip;" }, this._jumpToModIndicator),
 				),
 			),
@@ -1724,7 +1724,7 @@ export class SongEditor
 		{ class: "settings-area noSelection" },
 		div(
 			{ class: "version-area" },
-			div({ style: `text-align: center; margin: 3px 0; color: ${ColorConfig.secondaryText};` }, this._songTitleInputBox.input),
+			div({ style: `text-align: center; margin: 3px 0; color: ${ColorConfig.settingsHeaderText};` }, this._songTitleInputBox.input),
 		),
 		div(
 			{ class: "play-pause-area" },

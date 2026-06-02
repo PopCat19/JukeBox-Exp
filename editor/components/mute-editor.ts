@@ -1,4 +1,4 @@
-import { BorderRadius } from "../ui/style-constants";
+import { BorderRadius, Typography } from "../ui/style-constants";
 // MuteEditor
 //
 // Purpose: Renders channel mute/solo controls in the track editor
@@ -352,7 +352,7 @@ export class MuteEditor {
 			for (let y: number = this._buttons.length; y < this._doc.song.getChannelCount(); y++) {
 				const channelCountText: HTMLDivElement = HTML.div({
 					class: "noSelection muteButtonText",
-					style: "display: table-cell; -webkit-text-stroke: 1.5px; vertical-align: middle; text-align: center; -webkit-user-select: none; -webkit-touch-callout: none; -moz-user-select: none; -ms-user-select: none; user-select: none; pointer-events: none; width: 12px; height: 20px; transform: translate(0px, 1px);",
+					style: `display: table-cell; -webkit-text-stroke: 1.5px; vertical-align: middle; text-align: center; -webkit-user-select: none; -webkit-touch-callout: none; -moz-user-select: none; -ms-user-select: none; user-select: none; pointer-events: none; width: 12px; height: 20px; transform: translate(0px, 1px); font-weight: ${Typography.weightSemibold}; font-family: var(--font-family-mono);`,
 				});
 				const muteButton: HTMLDivElement = HTML.div({
 					class: "mute-button",
@@ -397,25 +397,13 @@ export class MuteEditor {
 				this._buttons[y].children[0].classList.add("muted");
 
 				if (!active) {
-					if (y < this._doc.song.pitchChannelCount) {
-						this._channelCounts[y].style.color = ColorConfig.trackEditorBgPitchDim;
-					} else if (y < this._doc.song.pitchChannelCount + this._doc.song.noiseChannelCount) {
-						this._channelCounts[y].style.color = ColorConfig.trackEditorBgNoiseDim;
-					} else {
-						this._channelCounts[y].style.color = ColorConfig.trackEditorBgModDim;
-					}
+					this._channelCounts[y].style.color = ColorConfig.muteEditorTextDim;
 				}
 			} else {
 				this._buttons[y].children[0].classList.remove("muted");
 
 				if (!active) {
-					if (y < this._doc.song.pitchChannelCount) {
-						this._channelCounts[y].style.color = ColorConfig.trackEditorBgPitch;
-					} else if (y < this._doc.song.pitchChannelCount + this._doc.song.noiseChannelCount) {
-						this._channelCounts[y].style.color = ColorConfig.trackEditorBgNoise;
-					} else {
-						this._channelCounts[y].style.color = ColorConfig.trackEditorBgMod;
-					}
+					this._channelCounts[y].style.color = ColorConfig.muteEditorTextDim;
 				}
 			}
 		}

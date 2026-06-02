@@ -55,9 +55,9 @@ export interface ChannelColors extends BeepBoxOption {
 export class ColorConfig {
 	public static colorLookup: Map<number, ChannelColors> = new Map<number, ChannelColors>();
 	public static usesColorFormula: boolean = false;
-	public static readonly defaultTheme: string = "nebula";
+	public static readonly defaultTheme: string = "pmd-dynamic";
 	public static readonly PMD_THEME: string = "pmd-dynamic";
-	public static pmdHue: number = parseInt(window.localStorage.getItem("pmdHue") ?? "260", 10);
+	public static pmdHue: number = parseInt(window.localStorage.getItem("pmdHue") ?? "345", 10);
 	public static pmdDark: boolean = (window.localStorage.getItem("pmdDark") ?? "1") === "1";
 	public static readonly themes: { [name: string]: string } = themes;
 	public static readonly pageMargin: string = "var(--page-margin, black)";
@@ -160,6 +160,7 @@ export class ColorConfig {
 	public static readonly trackEditorBgMod: string = "var(--track-editor-bg-mod, #234)";
 	public static readonly trackEditorBgModDim: string = "var(--track-editor-bg-mod-dim, #123)";
 	public static readonly multiplicativeModSlider: string = "var(--multiplicative-mod-slider, #456;)";
+	public static readonly sliderTrack: string = "var(--slider-track, var(--ui-widget-background, #444))";
 	public static readonly overwritingModSlider: string = "var(--overwriting-mod-slider, #654)";
 	public static readonly indicatorPrimary: string = "var(--indicator-primary, #74f)";
 	public static readonly indicatorSecondary: string = "var(--indicator-secondary, #444)";
@@ -170,6 +171,9 @@ export class ColorConfig {
 	public static readonly modLabelPrimary: string = "var(--mod-label-primary, #999)";
 	public static readonly modLabelSecondaryText: string = "var(--mod-label-secondary-text, #333)";
 	public static readonly modLabelPrimaryText: string = "var(--mod-label-primary-text, black)";
+	public static readonly muteEditorTextDim: string = "var(--mute-editor-text-dim, #999)";
+	public static readonly tipText: string = "var(--tip-text, var(--secondary-text, #999))";
+	public static readonly settingsHeaderText: string = "var(--settings-header-text, var(--secondary-text, #999))";
 	public static readonly disabledNotePrimary: string = "var(--disabled-note-primary, #999)";
 	public static readonly disabledNoteSecondary: string = "var(--disabled-note-secondary, #666)";
 

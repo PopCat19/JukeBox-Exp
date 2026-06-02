@@ -36,7 +36,7 @@ export class TrackEditor {
 	});
 	private readonly _boxHighlight: SVGRectElement = SVG.rect({
 		fill: "none",
-		stroke: ColorConfig.hoverPreview,
+		stroke: "var(--primary-text)",
 		"stroke-width": 2,
 		"pointer-events": "none",
 		x: 1,
@@ -65,7 +65,7 @@ export class TrackEditor {
 	private readonly _selectionRect: SVGRectElement = SVG.rect({
 		class: "dashed-line dash-move",
 		fill: ColorConfig.boxSelectionFill,
-		stroke: ColorConfig.hoverPreview,
+		stroke: "var(--primary-text)",
 		"stroke-width": 2,
 		"stroke-dasharray": "5, 3",
 		"fill-opacity": "0.4",
@@ -428,8 +428,8 @@ export class TrackEditor {
 			const tip: number = ChannelRow.patternHeight * 0.4;
 			const width: number = ChannelRow.patternHeight * 0.175;
 
-			this._upHighlight.setAttribute("fill", up && !this._touchMode ? ColorConfig.hoverPreview : ColorConfig.invertedText);
-			this._downHighlight.setAttribute("fill", !up && !this._touchMode ? ColorConfig.hoverPreview : ColorConfig.invertedText);
+			this._upHighlight.setAttribute("fill", up && !this._touchMode ? "var(--primary-text)" : ColorConfig.invertedText);
+		this._downHighlight.setAttribute("fill", !up && !this._touchMode ? "var(--primary-text)" : ColorConfig.invertedText);
 
 			this._upHighlight.setAttribute("d", `M ${center} ${middle - tip} L ${center + width} ${middle - base} L ${center - width} ${middle - base} z`);
 			this._downHighlight.setAttribute("d", `M ${center} ${middle + tip} L ${center + width} ${middle + base} L ${center - width} ${middle + base} z`);
@@ -524,10 +524,10 @@ export class TrackEditor {
 				for (let pos = this._renderedBarCount; pos < this._barNumbers.length; pos++) {
 					this._barNumbers[pos] = SVG.text(
 						{
-							"font-family": "sans-serif",
+							"font-family": "'Fira Code', 'FiraCode Nerd Font', monospace",
 							"font-size": "8px",
 							"text-anchor": "middle",
-							"font-weight": "bold",
+							"font-weight": "700",
 							x: pos * this._barWidth + this._barWidth / 2 + "px",
 							y: "7px",
 							fill: ColorConfig.secondaryText,

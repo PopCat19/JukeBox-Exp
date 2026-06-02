@@ -2,7 +2,7 @@ html {
     background: var(--page-margin, black);
     overflow-x: hidden;
     font-size: large;
-    font-family: 'B612', sans-serif;
+    font-family: 'Fredoka', 'Rounded Mplus 1c', sans-serif;
     line-height: 1.3;
     color: var(--primary-text, white);
 }

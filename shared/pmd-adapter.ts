@@ -48,7 +48,7 @@ export function applyPMDToDOM(colors: Base16Palette): void {
 	set("--playhead", withAlpha("base07", 0.9));
 
 	// Widget surfaces
-	set("--ui-widget-background", c("base01"));
+	set("--ui-widget-background", c("base02"));
 	set("--ui-widget-focus", c("base02"));
 	set("--pitch-background", c("base01"));
 
@@ -60,19 +60,23 @@ export function applyPMDToDOM(colors: Base16Palette): void {
 	set("--tonic", dimHex(290));
 	set("--fifth-note", dimHex(0));
 
+	// Slider
+	set("--slider-track", c("base02"));
+
 	// Modulator colors
 	set("--multiplicative-mod-slider", c("base0E"));
 	set("--overwriting-mod-slider", c("base08"));
+	set("--overwriting-mod-slider", c("base08"));
 
 	// Piano keys (light/dark adaptive)
-	set("--white-piano-key", isLight ? c("base01") : c("base07"));
-	set("--black-piano-key", isLight ? c("base03") : c("base01"));
+	set("--white-piano-key", isLight ? c("base01") : c("base06"));
+	set("--black-piano-key", isLight ? c("base03") : c("base02"));
 	set("--white-piano-key-text", c("base00"));
 	set("--black-piano-key-text", c("base07"));
 
 	// Indicators
 	set("--indicator-primary", c("base0D"));
-	set("--indicator-secondary", c("base01"));
+	set("--indicator-secondary", c("base02"));
 
 	// Input and select
 	set("--input-box-outline", c("base02"));
@@ -82,19 +86,31 @@ export function applyPMDToDOM(colors: Base16Palette): void {
 	set("--mute-button-normal", c("base0A"));
 	set("--mute-button-mod", c("base0C"));
 
+	// Prompt/modal chrome
+	set("--prompt-bg-color", withAlpha("base02", 0.4));
+	set("--prompt-backdrop-filter", "blur(24px)");
+
 	// Page chrome
 	set("--page-margin", c("base00"));
 
 	// Track editor backgrounds
-	set("--track-editor-bg-pitch", c("base01"));
+	set("--track-editor-bg-pitch", c("base02"));
 	set("--track-editor-bg-pitch-dim", c("base00"));
-	set("--track-editor-bg-noise", c("base01"));
+	set("--track-editor-bg-noise", c("base02"));
 	set("--track-editor-bg-noise-dim", c("base00"));
-	set("--track-editor-bg-mod", c("base01"));
+	set("--track-editor-bg-mod", c("base02"));
 	set("--track-editor-bg-mod-dim", c("base00"));
 
-	// Mod labels
-	set("--mod-label-primary", c("base01"));
+	// Mute editor
+	set("--mute-editor-text-dim", c("base03"));
+
+	// Tip and header text
+	set("--tip-text", c("base05"));
+	set("--settings-header-text", c("base06"));
+
+	// Typography
+	set("--font-family-input", "var(--font-family-mono)");
+
 	set("--mod-label-secondary-text", c("base03"));
 	set("--mod-label-primary-text", c("base05"));
 	set("--disabled-note-primary", c("base03"));
@@ -154,7 +170,7 @@ function applyChannelColors(root: HTMLElement, pmd: PMDVariables, primaryHue: nu
 	});
 }
 
-const DEFAULT_HUE = 260; // Blue (matching "nebula" theme aesthetic)
+const DEFAULT_HUE = 345;
 
 export function applyPMDTheme(hue: number = DEFAULT_HUE, isDark: boolean = true): Base16Palette {
 	const colors = pmdGenerateColors(hue, isDark);

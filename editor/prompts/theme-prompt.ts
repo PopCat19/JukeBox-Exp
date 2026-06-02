@@ -11,10 +11,10 @@
 import { HTML } from "imperative-html/dist/esm/elements-strict";
 import { ColorConfig } from "../../shared/color-config";
 import { SongDocument } from "../song-document";
-import { labelRow } from "../ui";
+import { labelRow, createInput } from "../ui";
 import { BasePrompt } from "./base-prompt";
 
-const { div, h2, select, option, optgroup, input, button, span } = HTML;
+const { div, h2, select, option, optgroup, input, span } = HTML;
 
 export class ThemePrompt extends BasePrompt {
 	private readonly _themeSelect: HTMLSelectElement = select(
@@ -112,28 +112,15 @@ export class ThemePrompt extends BasePrompt {
 		`Hue: ${ColorConfig.pmdHue}°`,
 	);
 
-	private readonly _pmdDarkBtn: HTMLButtonElement = button(
-		{
-			type: "button",
-			style: `flex:1; padding:4px 8px; font-size:12px; font-weight:600; border:none; border-radius:var(--border-radius-medium);`,
-			onclick: () => { ColorConfig.pmdDark = true; this._onPMDChange(); this._updatePMDButtons(); },
-		},
-		"Dark",
-	);
-
-	private readonly _pmdLightBtn: HTMLButtonElement = button(
-		{
-			type: "button",
-			style: `flex:1; padding:4px 8px; font-size:12px; font-weight:600; border:none; border-radius:var(--border-radius-medium);`,
-			onclick: () => { ColorConfig.pmdDark = false; this._onPMDChange(); this._updatePMDButtons(); },
-		},
-		"Light",
-	);
+	private readonly _pmdHueNum: HTMLInputElement = createInput("number", "width: 3.5em; font-size: 12px;", {
+		min: "0",
+		max: "360",
+		value: String(ColorConfig.pmdHue),
+	});
 
 	private readonly _pmdControls: HTMLDivElement = div(
 		{ style: "display: none; flex-direction: column; gap: 8px; margin-top: 4px;" },
-		div({ style: "display: flex; gap: 4px;" }, this._pmdDarkBtn, this._pmdLightBtn),
-		div({ style: "display: flex; flex-direction: column; gap: 2px;" }, this._pmdHueLabel, this._pmdHueInput),
+		div({ style: "display: flex; flex-direction: column; gap: 2px;" }, div({ style: "display: flex; align-items: center; gap: 8px;" }, this._pmdHueLabel, this._pmdHueNum), this._pmdHueInput),
 	);
 
 	public readonly container: HTMLDivElement = div(
@@ -157,7 +144,19 @@ export class ThemePrompt extends BasePrompt {
 			this._previewTheme();
 		});
 		this._updatePMDVisibility();
-		this._updatePMDButtons();
+
+		this._pmdHueNum.addEventListener("input", () => {
+			const v = Math.max(0, Math.min(360, parseInt(this._pmdHueNum.value, 10) || 0));
+			this._pmdHueNum.value = String(v);
+			this._pmdHueInput.value = String(v);
+			this._onPMDChange();
+		});
+		this._pmdHueNum.addEventListener("change", () => {
+			const v = Math.max(0, Math.min(360, parseInt(this._pmdHueNum.value, 10) || 0));
+			this._pmdHueNum.value = String(v);
+			this._pmdHueInput.value = String(v);
+			this._onPMDChange();
+		});
 	}
 
 	private _updatePMDVisibility(): void {
@@ -165,22 +164,11 @@ export class ThemePrompt extends BasePrompt {
 		this._pmdControls.style.display = isPMD ? "flex" : "none";
 	}
 
-	private _updatePMDButtons(): void {
-		const d = ColorConfig.pmdDark;
-		const active = "var(--primary-text)";
-		const activeText = "var(--inverted-text)";
-		const inactive = "var(--ui-widget-background)";
-		const inactiveText = "var(--secondary-text)";
-		this._pmdDarkBtn.style.background = d ? active : inactive;
-		this._pmdDarkBtn.style.color = d ? activeText : inactiveText;
-		this._pmdLightBtn.style.background = d ? inactive : active;
-		this._pmdLightBtn.style.color = d ? inactiveText : activeText;
-	}
-
 	private _onPMDChange(): void {
 		const hue = parseInt(this._pmdHueInput.value, 10);
 		this._pmdHueLabel.textContent = `Hue: ${hue}°`;
-		ColorConfig.setPMD(hue, ColorConfig.pmdDark);
+		this._pmdHueNum.value = String(hue);
+		ColorConfig.setPMD(hue, true);
 		this._doc.notifier.changed();
 	}
 
