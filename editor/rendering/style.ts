@@ -932,7 +932,12 @@ html {
 		outline-offset: -2px;
 	}
 	to {
-		outline: 2px solid transparent;
+		/* Settle into the steady 80x focus outline (same as
+		 * .focused / :hover) so the flash doesn't leave the
+		 * prompt in an invisible state. The class is removed on
+		 * animationend; the .focused / :hover rule then takes
+		 * over with the same 80x. */
+		outline: 2px solid var(--hout, var(--primary-text));
 		outline-offset: -2px;
 	}
 }
