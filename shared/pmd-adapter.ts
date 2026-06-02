@@ -53,6 +53,10 @@ export function applyPMDToDOM(colors: Base16Palette): void {
 	set("--ui-widget-focus", c("base02"));
 	set("--pitch-background", c("base01"));
 
+	// Raw base16 surface / muted tokens for ad-hoc reuse
+	set("--base02-surface", c("base02"));
+	set("--base03-muted", c("base03"));
+
 	// Musical indicators — dim background-toned, using surface (base02 / 80×8%) luminance level
 	const surface = composite(pmd["8x"], pmd["80x"], 0.08);
 	const dimL = surface.l;

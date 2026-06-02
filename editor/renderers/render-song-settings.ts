@@ -59,12 +59,16 @@ export function renderSongSettings(refs: SongSettingsRefs, doc: SongDocument, co
 
 	const instrument: Instrument = doc.getCurrentInstrumentObj();
 	if (instrument.eqFilterType) {
+		refs.eqFilterSimpleButton.classList.add("active");
+		refs.eqFilterAdvancedButton.classList.remove("active");
 		refs.eqFilterSimpleButton.classList.remove("deactivated");
 		refs.eqFilterAdvancedButton.classList.add("deactivated");
 		refs.eqFilterRow.style.display = "none";
 		refs.eqFilterSimpleCutRow.style.display = "";
 		refs.eqFilterSimplePeakRow.style.display = "";
 	} else {
+		refs.eqFilterSimpleButton.classList.remove("active");
+		refs.eqFilterAdvancedButton.classList.add("active");
 		refs.eqFilterSimpleButton.classList.add("deactivated");
 		refs.eqFilterAdvancedButton.classList.remove("deactivated");
 		refs.eqFilterRow.style.display = "";

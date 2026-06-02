@@ -530,12 +530,16 @@ export function applyInstrumentVisibility(
 		}
 
 		if (instrument.noteFilterType) {
+			refs.noteFilterSimpleButton.classList.add("active");
+			refs.noteFilterAdvancedButton.classList.remove("active");
 			refs.noteFilterSimpleButton.classList.remove("deactivated");
 			refs.noteFilterAdvancedButton.classList.add("deactivated");
 			refs.noteFilterRow.style.display = "none";
 			refs.noteFilterSimpleCutRow.style.display = "";
 			refs.noteFilterSimplePeakRow.style.display = "";
 		} else {
+			refs.noteFilterSimpleButton.classList.remove("active");
+			refs.noteFilterAdvancedButton.classList.add("active");
 			refs.noteFilterSimpleButton.classList.add("deactivated");
 			refs.noteFilterAdvancedButton.classList.remove("deactivated");
 			refs.noteFilterRow.style.display = "";

@@ -1836,14 +1836,33 @@ html {
 	border-color: var(--background-color-dim);
 }
 
+.beepboxEditor .instrument-bar.toggle-group {
+	gap: 2px;
+}
+
+.beepboxEditor .instrument-bar.toggle-group > :not(.last-button) {
+	border-top-right-radius: 2px;
+	border-bottom-right-radius: 2px;
+}
+
+.beepboxEditor .instrument-bar.toggle-group > .last-button {
+	border-top-left-radius: 2px;
+	border-bottom-left-radius: 2px;
+}
+
 .beepboxEditor .instrument-bar .selected-instrument {
 	background: var(--background-color-lit);
 	color: ${ColorConfig.invertedText};
 }
 
+.beepboxEditor .instrument-bar .active {
+	background: var(--background-color-lit);
+	color: ${ColorConfig.invertedText};
+}
+
 .beepboxEditor .instrument-bar .deactivated {
-	background: ${ColorConfig.editorBackground};
-	color: var(--text-color-dim);
+	background: var(--base02-surface);
+	color: var(--base03-muted);
 	border-bottom: unset;
 }
 
