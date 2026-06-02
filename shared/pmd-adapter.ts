@@ -39,6 +39,7 @@ export function applyPMDToDOM(colors: Base16Palette): void {
 	set("--editor-background", c("base00"));
 	set("--primary-text", c("base05"));
 	set("--secondary-text", c("base03"));
+	set("--subtext", c("base04"));
 	set("--inverted-text", c("base00"));
 	set("--text-selection", withAlpha("base0D", 0.99));
 	set("--box-selection-fill", withAlpha("base0D", 0.2));

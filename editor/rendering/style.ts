@@ -928,15 +928,15 @@ html {
 
 @keyframes prompt-refocus {
 	from {
-		outline: 2px solid var(--prompt-titlebar-text, var(--primary-text));
+		/* PMD: 64x (subtext) is a low-prominence tier — appropriate
+		 * for a transient raise gesture that shouldn't compete with
+		 * 80x focus / 88x titlebar heading. Settles to 80x at the
+		 * end so the prompt is left in the same visible state as
+		 * the steady .focused / :hover outline. */
+		outline: 2px solid var(--subtext, var(--primary-text));
 		outline-offset: -2px;
 	}
 	to {
-		/* Settle into the steady 80x focus outline (same as
-		 * .focused / :hover) so the flash doesn't leave the
-		 * prompt in an invisible state. The class is removed on
-		 * animationend; the .focused / :hover rule then takes
-		 * over with the same 80x. */
 		outline: 2px solid var(--hout, var(--primary-text));
 		outline-offset: -2px;
 	}
