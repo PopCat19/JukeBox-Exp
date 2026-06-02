@@ -27,7 +27,10 @@ import { PatternEditor } from "../components/pattern-editor";
 import { KeyboardLayout } from "../config/keyboard-layout";
 import { SongDocument } from "../song-document";
 import { ChangeGroup } from "./change";
+import { makeLogger } from "./debug-log";
 import { isActive as inspectorActive } from "./dev-inspector";
+
+const log = makeLogger("keys");
 
 declare const OFFLINE: boolean;
 
@@ -107,15 +110,26 @@ export class KeyboardHandler {
 		host.setShiftHeld(event.shiftKey);
 
 		if (host.prompt) {
+			log.log("keydown with prompt open", {
+				key: event.key,
+				code: event.keyCode,
+				focused: host.prompt.name,
+				shouldReceiveKeys: host.promptShouldReceiveKeys(),
+			});
 			if (host.prompt.whenKeyPressed && host.promptShouldReceiveKeys()) {
 				host.prompt.whenKeyPressed(event);
 			}
-			if (event.defaultPrevented) return;
+			if (event.defaultPrevented) {
+				log.log("  -> prompt consumed key, defaultPrevented", { code: event.keyCode });
+				return;
+			}
 			if (event.keyCode === 27) {
+				log.log("  -> ESC: closePrompt(null) on", host.prompt.name);
 				// ESC key
 				host.closePrompt(null);
 				return;
 			}
+			log.log("  -> key falls through to switch (prompt stays open)");
 		}
 
 		// Defer to actively editing inputs - Enter/Escape commits and returns focus to main layer

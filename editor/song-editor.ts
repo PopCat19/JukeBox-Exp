@@ -63,11 +63,15 @@ import { PlaybackControls } from "./components/playback-controls";
 import { SongSettingsPanel } from "./components/song-settings-panel";
 import { KeyboardLayout } from "./config/keyboard-layout";
 import { ChangeDispatcher } from "./core/change-dispatcher";
+import { makeLogger } from "./core/debug-log";
 import { DrumsetSetup, DrumsetSetupHost } from "./core/drumset-setup";
 import { EventListenerSetup, EventListenerSetupHost } from "./core/event-listener-setup";
 import { FmOperatorSetup, FmOperatorSetupHost } from "./core/fm-operator-setup";
 import { KeyboardHandler } from "./core/keyboard-handler";
 import { MenuHandler, MenuHandlerHost } from "./core/menu-handler";
+
+const log = makeLogger("song-editor");
+
 import { ModSliderProvider, ModSliderRegistry } from "./core/mod-slider-registry";
 import { ModulatorSetup, ModulatorSetupHost } from "./core/modulator-setup";
 import { PlayerAnimator } from "./core/player-animator";
@@ -3047,7 +3051,9 @@ export class SongEditor
 	}
 
 	private _openPrompt(promptName: string): void {
+		log.log("_openPrompt", promptName, { docPrompt: this.doc.prompt });
 		if (this.doc.prompt === promptName) {
+			log.log("  -> toggle close", promptName);
 			this.closePrompt(null);
 			return;
 		}
@@ -3056,7 +3062,9 @@ export class SongEditor
 	}
 
 	public openPresetSelector(): void {
+		log.log("openPresetSelector", { docPrompt: this.doc.prompt });
 		if (this.doc.prompt === "instrumentBrowser") {
+			log.log("  -> toggle close instrumentBrowser");
 			this.closePrompt(null);
 			return;
 		}
@@ -3065,11 +3073,13 @@ export class SongEditor
 	}
 
 	public openShortcuts(): void {
+		log.log("openShortcuts", { docPrompt: this.doc.prompt });
 		this.doc.prompt = "keyboardShortcuts";
 		this._promptManager.sync("keyboardShortcuts");
 	}
 
 	public closePrompt(prompt: Prompt | null): void {
+		log.log("closePrompt", prompt?.name ?? null);
 		this._promptManager.close(prompt);
 	}
 

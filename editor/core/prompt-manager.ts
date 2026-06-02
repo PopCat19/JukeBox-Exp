@@ -18,7 +18,6 @@ import { CustomChipPrompt } from "../prompts/custom-chip-prompt";
 import { CustomFilterPrompt } from "../prompts/custom-filter-prompt";
 import { CustomScalePrompt } from "../prompts/custom-scale-prompt";
 import { CustomThemePrompt } from "../prompts/custom-theme-prompt";
-import { PalettePrompt } from "../prompts/palette-prompt";
 import { EuclidgenRhythmPrompt } from "../prompts/euclidgen-rhythm-prompt";
 import { ExportPrompt } from "../prompts/export-prompt";
 import { ImportPrompt } from "../prompts/import-prompt";
@@ -30,6 +29,7 @@ import { LayoutPrompt } from "../prompts/layout-prompt";
 import { LimiterPrompt } from "../prompts/limiter-prompt";
 import { MoveNotesSidewaysPrompt } from "../prompts/move-notes-sideways-prompt";
 import { OctaveCountPrompt } from "../prompts/octave-count-prompt";
+import { PalettePrompt } from "../prompts/palette-prompt";
 import { Prompt } from "../prompts/prompt";
 import { RecordingSetupPrompt } from "../prompts/recording-setup-prompt";
 import { SampleLoadingStatusPrompt } from "../prompts/sample-loading-status-prompt";
@@ -41,7 +41,10 @@ import { ThemePrompt } from "../prompts/theme-prompt";
 import { TipPrompt } from "../prompts/tip-prompt";
 import { VisualLoopControlsPrompt } from "../prompts/visual-loop-controls-prompt";
 import { SongDocument } from "../song-document";
+import { makeLogger } from "./debug-log";
 import { PromptFocusController } from "./prompt-focus-controller";
+
+const log = makeLogger("prompts");
 
 export interface PromptEditorRefs {
 	togglePlay(): void;
@@ -102,7 +105,13 @@ export class PromptManager {
 	}
 
 	public open(promptName: string): void {
+		log.log("open", promptName, {
+			docPrompt: this._host.doc.prompt,
+			focused: this._focusedPrompt?.name ?? null,
+			stack: this._prompts.map((p) => p.name),
+		});
 		if (this._host.doc.prompt === promptName) {
+			log.log("open -> toggle-close", promptName);
 			this.close(null);
 			return;
 		}
@@ -111,10 +120,17 @@ export class PromptManager {
 	}
 
 	public sync(promptName: string | null): void {
+		log.log("sync", promptName, {
+			docPrompt: this._host.doc.prompt,
+			focused: this._focusedPrompt?.name ?? null,
+			stack: this._prompts.map((p) => p.name),
+		});
 		this._setPrompt(promptName);
 	}
 
 	public close(prompt: Prompt | null): void {
+		const targetName = prompt?.name ?? this._focusedPrompt?.name ?? null;
+		log.log("close", { arg: prompt?.name ?? null, willClose: targetName, stack: this._prompts.map((p) => p.name) });
 		if (prompt == null) {
 			prompt = this._focusedPrompt || this._prompts[this._prompts.length - 1];
 		}
@@ -122,6 +138,7 @@ export class PromptManager {
 			const index = this._prompts.indexOf(prompt);
 			if (index !== -1) {
 				this._prompts.splice(index, 1);
+				log.log("spliced", prompt.name, { stack: this._prompts.map((p) => p.name), remaining: this._prompts.length });
 				const target = prompt;
 				const doRemove = (): void => {
 					this._host.promptContainer.removeChild(target.container);
@@ -214,10 +231,13 @@ export class PromptManager {
 		}
 		const existing = this._prompts.find((p) => p.name === promptName);
 		if (existing) {
+			log.log("_setPrompt: existing found, refocusing", promptName, { stack: this._prompts.map((p) => p.name) });
 			this._focusedPrompt = existing;
 			this._updatePromptFocus();
 			return;
 		}
+
+		log.log("_setPrompt: creating new", promptName);
 
 		const doc = this._host.doc;
 		const refs = this._refs;
@@ -338,6 +358,7 @@ export class PromptManager {
 		newPrompt.openAlongsideCallback = (name) => this._setPrompt(name);
 
 		this._prompts.push(newPrompt);
+		log.log("pushed", promptName, { stack: this._prompts.map((p) => p.name), total: this._prompts.length });
 		this._focusedPrompt = newPrompt;
 		this._updatePromptFocus();
 
