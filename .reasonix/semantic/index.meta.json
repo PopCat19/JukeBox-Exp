@@ -3,5 +3,5 @@
   "provider": "openai-compat",
   "model": "nvidia/llama-nemotron-embed-vl-1b-v2:free",
   "dim": 2048,
-  "updatedAt": "2026-06-03T06:50:10.294Z"
+  "updatedAt": "2026-06-03T07:05:10.890Z"
 }

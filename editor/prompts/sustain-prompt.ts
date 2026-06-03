@@ -14,19 +14,20 @@ import { Config } from "../../synth/synth-config";
 import { ChangeStringSustainType } from "../changes";
 import { ChangeGroup } from "../core/change";
 import { SongDocument } from "../song-document";
+import { s, w } from "../ui";
 import { BasePrompt } from "./base-prompt";
 
 const { div, h2, p, select, option } = HTML;
 
 export class SustainPrompt extends BasePrompt {
 	private readonly _typeSelect: HTMLSelectElement = select(
-		{ style: "width: 100%;" },
+		{ style: w("100%") },
 		option({ value: "acoustic" }, "(A) Acoustic"),
 		option({ value: "bright" }, "(B) Bright"),
 	);
 
 	public readonly container: HTMLDivElement = div(
-		{ class: "prompt", style: "width: 300px;" },
+		{ class: "prompt", style: s(w("300px")) },
 		div(
 			h2("String Sustain"),
 			p("This setting controls how quickly the picked string vibration decays."),
@@ -37,7 +38,7 @@ export class SustainPrompt extends BasePrompt {
 		div(
 			{ style: `display: ${Config.enableAcousticSustain ? "" : "none"};` },
 			p('BeepBox comes with two slightly different sustain designs. You can select one here and press "Okay" to confirm it.'),
-			div({ class: "selectContainer", style: "width: 100%;" }, this._typeSelect),
+			div({ class: "selectContainer", style: w("100%") }, this._typeSelect),
 		),
 		div(
 			{
