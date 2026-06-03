@@ -7,8 +7,8 @@
 // - Provides consistent full-width select with label on the left
 
 import { HTML } from "imperative-html/dist/esm/elements-strict";
-import { labelRow } from "./label-row";
 import { w } from "../style";
+import { labelRow } from "./label-row";
 
 const { div } = HTML;
 

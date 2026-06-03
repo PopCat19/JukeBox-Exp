@@ -28,8 +28,8 @@ import {
 	midiVolumeToVolumeMult,
 } from "../io/midi";
 import { SongDocument } from "../song-document";
-import { ArrayBufferReader } from "../ui/array-buffer-reader";
 import { w } from "../ui";
+import { ArrayBufferReader } from "../ui/array-buffer-reader";
 import { BasePrompt } from "./base-prompt";
 
 const { div, h2, p, input, select, option, button } = HTML;

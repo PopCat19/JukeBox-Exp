@@ -14,11 +14,11 @@ import { Synth } from "../../synth";
 import { toJukeboxExpJson, toLegacyCompatJson } from "../../synth/formats";
 import { Config } from "../../synth/synth-config";
 import { SongDocument } from "../song-document";
+import { flexBetween, promptPanel, s, selectField, textAlign, w } from "../ui";
 import { BasePrompt } from "./base-prompt";
 import { exportToMidi } from "./export-midi";
 import { Prompt } from "./prompt";
 import { save } from "./save";
-import { flexBetween, promptPanel, s, selectField, textAlign, w } from "../ui";
 
 const { div, h2, input, select, option } = HTML;
 
@@ -70,11 +70,7 @@ export class ExportPrompt extends BasePrompt {
 		this._removeWhitespace,
 	);
 	private readonly _keepOpen: HTMLInputElement = input({ type: "checkbox" });
-	private readonly _keepOpenDiv: HTMLDivElement = div(
-		{ style: s(flexBetween(), "margin-bottom:14px;") },
-		"Keep Open: ",
-		this._keepOpen,
-	);
+	private readonly _keepOpenDiv: HTMLDivElement = div({ style: s(flexBetween(), "margin-bottom:14px;") }, "Keep Open: ", this._keepOpen);
 	private readonly _oggWarning: HTMLDivElement = div(
 		{ style: s(flexBetween(), "margin-bottom:14px;") },
 		"Warning: .ogg files aren't supported on as many devices as mp3 or wav. So Playback might not be possible on specific devices.",
@@ -88,7 +84,7 @@ export class ExportPrompt extends BasePrompt {
 	);
 	private readonly _outputProgressContainer: HTMLDivElement = div(
 		{
-			style: s("height:12px;display:block;position:relative;z-index:1;", "background:" + ColorConfig.uiWidgetBackground + ";")
+			style: s("height:12px;display:block;position:relative;z-index:1;", "background:" + ColorConfig.uiWidgetBackground + ";"),
 		},
 		this._outputProgressBar,
 		this._outputProgressLabel,
