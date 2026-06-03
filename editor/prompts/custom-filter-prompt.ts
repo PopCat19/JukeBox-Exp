@@ -16,7 +16,7 @@ import { Config } from "../../synth/synth-config";
 import { FilterEditor } from "../components/filter-editor";
 import { PromptEditorRefs } from "../core/prompt-manager";
 import { SongDocument } from "../song-document";
-import { selectorButton } from "../ui";
+import { selectorButton, w } from "../ui";
 import { BasePrompt } from "./base-prompt";
 import { updatePlayButton } from "./input-helpers";
 
@@ -27,7 +27,7 @@ export class CustomFilterPrompt extends BasePrompt {
 	public filterData: FilterSettings = new FilterSettings();
 	public startingFilterData: FilterSettings = new FilterSettings();
 	private _subfilterIndex = 0;
-	public readonly _playButton: HTMLButtonElement = button({ style: "width: 55%;", type: "button" });
+	public readonly _playButton: HTMLButtonElement = button({ style: w("55%"), type: "button" });
 	public readonly _filterButtons: HTMLButtonElement[] = [];
 	public readonly _filterButtonContainer: HTMLDivElement = div({
 		class: "instrument-bar",
@@ -78,7 +78,7 @@ export class CustomFilterPrompt extends BasePrompt {
 			],
 		),
 	]);
-	private readonly _filterCopyPasteContainer: HTMLDivElement = div({ style: "width: 185px;" }, this._filterCopyButton, this._filterPasteButton);
+	private readonly _filterCopyPasteContainer: HTMLDivElement = div({ style: w("185px") }, this._filterCopyButton, this._filterPasteButton);
 
 	private readonly _filterCoordinateText: HTMLDivElement = div(
 		{
@@ -88,7 +88,7 @@ export class CustomFilterPrompt extends BasePrompt {
 	);
 
 	public readonly container: HTMLDivElement = div(
-		{ class: "prompt noSelection", style: "width: 600px;" },
+		{ class: "prompt noSelection", style: w("600px") },
 		h2("Edit Filter"),
 		div(
 			{

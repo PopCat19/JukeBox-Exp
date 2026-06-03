@@ -12,7 +12,7 @@ import { HTML } from "imperative-html/dist/esm/elements-strict";
 import { Channel, Instrument } from "../../synth";
 import { Config } from "../../synth/synth-config";
 import { SongDocument } from "../song-document";
-import { labelRow } from "../ui";
+import { labelRow, w } from "../ui";
 import { BasePrompt } from "./base-prompt";
 
 const { div, h2, input, br } = HTML;
@@ -26,14 +26,14 @@ export class InstrumentExportPrompt extends BasePrompt {
 		this._doc.song.channels[this._doc.channel].name === "" ? Config.jsonFormat + "-Instrument" : this._doc.song.channels[this._doc.channel].name;
 	private readonly _fileName: HTMLInputElement = input({
 		type: "text",
-		style: "width: 10em;",
+		style: w("10em"),
 		value: this._channelName,
 		maxlength: 250,
 		autofocus: "autofocus",
 	});
 
 	public readonly container: HTMLDivElement = div(
-		{ class: "prompt noSelection", style: "width: 200px;" },
+		{ class: "prompt noSelection", style: w("200px") },
 		h2("Export Instruments Options"),
 		div({ style: "display: flex; flex-direction: row; align-items: center; justify-content: space-between;" }, "File name:", this._fileName),
 		labelRow("Export all instruments", br(), "in channel:", this._exportMultipleBox),

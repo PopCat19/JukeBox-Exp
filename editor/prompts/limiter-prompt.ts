@@ -15,7 +15,7 @@ import { ChangeLimiterSettings } from "../changes";
 import { prettyNumber } from "../config/editor-config";
 import { PromptEditorRefs } from "../core/prompt-manager";
 import { SongDocument } from "../song-document";
-import { flexRowCenter, labelRow } from "../ui";
+import { flexRowCenter, labelRow, w } from "../ui";
 import { BasePrompt } from "./base-prompt";
 import { updatePlayButton } from "./input-helpers";
 
@@ -253,7 +253,7 @@ export class LimiterCanvas {
 export class LimiterPrompt extends BasePrompt {
 	private limiterCanvas: LimiterCanvas = new LimiterCanvas(this);
 
-	public readonly _playButton: HTMLButtonElement = button({ style: "width: 55%;", type: "button" });
+	public readonly _playButton: HTMLButtonElement = button({ style: w("55%"), type: "button" });
 
 	public readonly limitDecaySlider: HTMLInputElement = input({
 		title: "limit decay",
@@ -335,7 +335,7 @@ export class LimiterPrompt extends BasePrompt {
 	private readonly _resetButton: HTMLButtonElement = button({ style: "width:45%;" }, "Reset");
 
 	public readonly container: HTMLDivElement = div(
-		{ class: "prompt noSelection", style: "width: 250px;" },
+		{ class: "prompt noSelection", style: w("250px") },
 		h2("Limiter Options"),
 		div({ style: "display: flex; width: 55%; align-self: center; flex-direction: row; align-items: center; justify-content: center;" }, this._playButton),
 		flexRowCenter(undefined, this.limiterCanvas.container),

@@ -29,6 +29,7 @@ import {
 } from "../io/midi";
 import { SongDocument } from "../song-document";
 import { ArrayBufferReader } from "../ui/array-buffer-reader";
+import { w } from "../ui";
 import { BasePrompt } from "./base-prompt";
 
 const { div, h2, p, input, select, option, button } = HTML;
@@ -56,7 +57,7 @@ export class ImportPrompt extends BasePrompt {
 	);
 
 	public readonly container: HTMLDivElement = div(
-		{ class: "prompt noSelection", style: "width: 300px;" },
+		{ class: "prompt noSelection", style: w("300px") },
 		h2("Import"),
 		p(
 			{ style: "text-align: left; margin-bottom: 0.5em;" },

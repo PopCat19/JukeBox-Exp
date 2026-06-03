@@ -14,7 +14,7 @@ import { ColorConfig } from "../../shared/color-config";
 import { ChangeCustomWave } from "../changes";
 import { PromptEditorRefs } from "../core/prompt-manager";
 import { SongDocument } from "../song-document";
-import { flexRowCenter } from "../ui";
+import { flexRowCenter, w } from "../ui";
 import { BasePrompt } from "./base-prompt";
 import { updatePlayButton } from "./input-helpers";
 
@@ -283,7 +283,7 @@ export class CustomChipPromptCanvas {
 export class CustomChipPrompt extends BasePrompt {
 	public customChipCanvas: CustomChipPromptCanvas = new CustomChipPromptCanvas(this._doc);
 
-	public readonly _playButton: HTMLButtonElement = button({ style: "width: 55%;", type: "button" });
+	public readonly _playButton: HTMLButtonElement = button({ style: w("55%"), type: "button" });
 
 	private readonly copyButton: HTMLButtonElement = button(
 		{
@@ -327,10 +327,10 @@ export class CustomChipPrompt extends BasePrompt {
 			],
 		),
 	]);
-	private readonly copyPasteContainer: HTMLDivElement = div({ style: "width: 185px;" }, this.copyButton, this.pasteButton);
+	private readonly copyPasteContainer: HTMLDivElement = div({ style: w("185px") }, this.copyButton, this.pasteButton);
 
 	public readonly container: HTMLDivElement = div(
-		{ class: "prompt noSelection", style: "width: 600px;" },
+		{ class: "prompt noSelection", style: w("600px") },
 		h2("Edit Custom Chip Instrument"),
 		div(
 			{

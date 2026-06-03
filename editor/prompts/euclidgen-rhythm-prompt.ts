@@ -12,7 +12,7 @@ import { HTML, SVG } from "imperative-html/dist/esm/elements-strict";
 import { ColorConfig } from "../../shared/color-config";
 import { Config } from "../../synth/synth-config";
 import { SongDocument } from "../song-document";
-import { fieldLabel, flexRowCenter, labelRow, stepperInput } from "../ui";
+import { fieldLabel, flexRowCenter, labelRow, stepperInput, w } from "../ui";
 import { BasePrompt } from "./base-prompt";
 import { generateEuclideanRhythm, Sequence } from "./euclidgen-algorithm";
 import { generateAndApplyEuclideanNotes } from "./euclidgen-note-generator";
@@ -137,7 +137,7 @@ export class EuclidgenRhythmPrompt extends BasePrompt {
 	});
 
 	public readonly container: HTMLDivElement = div(
-		{ class: "prompt noSelection", style: "width: 600px;" },
+		{ class: "prompt noSelection", style: w("600px") },
 		h2("Generate Euclidean Rhythm"),
 		div({ style: "display: flex; flex-direction: row; align-items: center;" }, this._sequenceButtonContainer),
 		div(

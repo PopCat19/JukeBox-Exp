@@ -12,14 +12,14 @@ import { HTML } from "imperative-html/dist/esm/elements-strict";
 import { Channel, Instrument } from "../../synth";
 import { ChangeAppendInstrument, ChangePasteInstrument, ChangeViewInstrument } from "../changes";
 import { SongDocument } from "../song-document";
-import { labelRow } from "../ui";
+import { labelRow, w } from "../ui";
 import { BasePrompt } from "./base-prompt";
 
 const { div, h2, input, select, option, code } = HTML;
 
 export class InstrumentImportPrompt extends BasePrompt {
 	private readonly _importStrategySelect: HTMLSelectElement = select(
-		{ style: "width: 100%;" },
+		{ style: w("100%") },
 		option({ value: "append" }, "Append instruments to the end of the list."),
 		option({ value: "replace" }, "Replace only the selected instrument."),
 		option({ value: "all" }, "Replace all instruments in the channel."),
@@ -36,10 +36,10 @@ export class InstrumentImportPrompt extends BasePrompt {
 	);
 
 	public readonly container: HTMLDivElement = div(
-		{ class: "prompt noSelection", style: "width: 300px;" },
+		{ class: "prompt noSelection", style: w("300px") },
 		h2("Import Instrument(s)"),
 		this._strategyInfoText,
-		labelRow(div({ class: "selectContainer", style: "width: 100%;" }, this._importStrategySelect)),
+		labelRow(div({ class: "selectContainer", style: w("100%") }, this._importStrategySelect)),
 		this._fileInput,
 		this._cancelButton,
 	);

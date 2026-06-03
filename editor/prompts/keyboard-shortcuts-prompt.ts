@@ -9,7 +9,7 @@
 
 import { HTML } from "imperative-html/dist/esm/elements-strict";
 import { SongDocument } from "../song-document";
-import { inputRow, searchInput } from "../ui";
+import { inputRow, searchInput, w } from "../ui";
 import { Typography } from "../ui/style-constants";
 import { BasePrompt } from "./base-prompt";
 
@@ -146,7 +146,7 @@ export class KeyboardShortcutsPrompt extends BasePrompt {
 	});
 
 	public readonly container: HTMLDivElement = div(
-		{ class: "prompt keyboardShortcutsPrompt compactSearchPrompt", style: "width: 600px;" },
+		{ class: "prompt keyboardShortcutsPrompt compactSearchPrompt", style: w("600px") },
 		h2("Keyboard Shortcuts"),
 		inputRow({}, this._searchInput),
 		this._shortcutsContainer,

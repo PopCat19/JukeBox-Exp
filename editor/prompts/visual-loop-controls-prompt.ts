@@ -14,7 +14,7 @@ import { ChangeChipWaveLoopEnd, ChangeChipWaveLoopMode, ChangeChipWaveLoopStart,
 import { ChangeGroup } from "../core/change";
 import { PromptEditorRefs } from "../core/prompt-manager";
 import { SongDocument } from "../song-document";
-import { addWheelSupport } from "../ui";
+import { addWheelSupport, s, w } from "../ui";
 import { BasePrompt } from "./base-prompt";
 import { VisualLoopControlsHandle } from "./visual-loop-controls-handle";
 
@@ -159,13 +159,13 @@ export class VisualLoopControlsPrompt extends BasePrompt {
 	private _waveformCanvas: HTMLCanvasElement = canvas({
 		width: this._waveformCanvasWidth,
 		height: this._waveformCanvasHeight,
-		style: "cursor: default; position: static; width: 100%;",
+		style: s("cursor:default;position:static;", w("100%")),
 	});
 	private _waveformContext: CanvasRenderingContext2D | null = null;
 	private _overlayCanvas: HTMLCanvasElement = canvas({
 		width: this._waveformCanvasWidth,
 		height: this._waveformCanvasHeight,
-		style: "cursor: default; position: absolute; top: 0; left: 0; width: 100%;",
+		style: s("cursor:default;position:absolute;top:0;left:0;", w("100%")),
 	});
 	private _overlayContext: CanvasRenderingContext2D | null = null;
 	private _waveformContainer: HTMLDivElement = div(
@@ -254,9 +254,9 @@ export class VisualLoopControlsPrompt extends BasePrompt {
 	});
 	private _playBackwardsBox: HTMLInputElement = input({
 		type: "checkbox",
-		style: "padding: 0;",
+		style: "padding:0;",
 	});
-	private _playSongButton: HTMLButtonElement = button({ style: "width: 55%;", type: "button" });
+	private _playSongButton: HTMLButtonElement = button({ style: w("55%"), type: "button" });
 	private _sampleIsLoadingMessage: HTMLDivElement = div({ style: "margin-bottom: 0.5em; display: none;" }, "Sample is loading");
 	private _loopControlsContainer: HTMLDivElement = div(
 		div(
@@ -314,7 +314,7 @@ export class VisualLoopControlsPrompt extends BasePrompt {
 		),
 	);
 	public readonly container: HTMLDivElement = div(
-		{ class: "prompt noSelection", style: "width: 500px;" },
+		{ class: "prompt noSelection", style: w("500px") },
 		div(h2({ style: "margin-bottom: 0.5em;" }, "Loop Controls"), this._sampleIsLoadingMessage, this._loopControlsContainer, this._getOkayRow()),
 		this._cancelButton,
 	);
