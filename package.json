@@ -16,8 +16,8 @@
 	"homepage": "https://popcat19.github.io/JukeBox-Exp/",
 	"type": "module",
 	"scripts": {
-		"build": "node scripts/build.ts",
-		"build:offline": "node scripts/build.ts --offline",
+		"build": "bun scripts/build.ts",
+		"build:offline": "bun scripts/build.ts --offline",
 		"typecheck": "tsc --noEmit -p tsconfig_editor.json",
 		"typecheck:synth": "tsc --noEmit -p tsconfig_synth.json",
 		"typecheck:player": "tsc --noEmit -p tsconfig_player.json",

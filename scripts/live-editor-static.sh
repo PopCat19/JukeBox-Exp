@@ -10,6 +10,17 @@ set -Eeuo pipefail
 
 source "$(dirname "$0")/run.sh"
 
+# Resolve esbuild: bunx/npx → nix fallback for NixOS
+if [[ -f /etc/NIXOS ]] || [[ -d /run/current-system/sw ]]; then
+	if ! command -v esbuild &>/dev/null; then
+		ESBUILD="nix run nixpkgs#esbuild --"
+	else
+		ESBUILD="esbuild"
+	fi
+else
+	ESBUILD="$RUNX esbuild"
+fi
+
 PORT="${PORT:-4000}"
 
 # Pick an available static server, preferring Python (always available).
@@ -35,7 +46,7 @@ echo "Multi-tab safe. Open as many tabs as you want."
 ) &
 
 $RUNX concurrently --kill-others \
-	"$RUNX esbuild --format=iife --keep-names --global-name=beepbox --bundle ./synth/synth.ts --outfile=website/beepbox_synth.js --sourcemap --watch" \
-	"$RUNX esbuild --format=iife --keep-names --global-name=beepbox --bundle ./player/main.ts --outfile=website/player/beepbox_player.js --sourcemap --watch --define:OFFLINE=false" \
-	"$RUNX esbuild --format=iife --keep-names --global-name=beepbox --bundle ./editor/main.ts --outfile=website/beepbox_editor.js --sourcemap --watch" \
+	"$ESBUILD --format=iife --keep-names --global-name=beepbox --bundle ./synth/synth.ts --outfile=website/beepbox_synth.js --sourcemap --watch" \
+	"$ESBUILD --format=iife --keep-names --global-name=beepbox --bundle ./player/main.ts --outfile=website/player/beepbox_player.js --sourcemap --watch --define:OFFLINE=false" \
+	"$ESBUILD --format=iife --keep-names --global-name=beepbox --bundle ./editor/main.ts --outfile=website/beepbox_editor.js --sourcemap --watch" \
 	"$serve_cmd"
