@@ -2152,7 +2152,7 @@ html {
 	-moz-appearance: none;
 	appearance: none;
 	width: 2.4em;
-	aspect-ratio: 2 / 1;
+	height: 1.2em; /* Explicit height guarantees 2:1 pill ratio, preventing circle squashing */
 	padding: 0;
 	margin: 0 0.3em;
 	border: ${BorderWidth.default} solid ${ColorConfig.secondaryText};
@@ -2167,7 +2167,8 @@ html {
 }
 .beepboxEditor .selectRow > input[type=checkbox] {
 	width: 2.4em;
-	aspect-ratio: 2 / 1;
+	height: 1.2em;
+	margin: 0 0.3em;
 }
 .beepboxEditor input[type=checkbox]:checked {
 	background: ${ColorConfig.primaryText};

@@ -44,25 +44,25 @@ export class RecordingSetupPrompt extends BasePrompt {
 	private readonly _keyboardLayoutPreview: HTMLDivElement = div({
 		style: "display: grid; row-gap: 4px; margin: 4px auto; font-size: 10px;",
 	});
-	private readonly _enableMidi: HTMLInputElement = input({ style: "width: 2em; margin-left: 1em;", type: "checkbox" });
+	private readonly _enableMidi: HTMLInputElement = input({ style: "margin-left: 1em;", type: "checkbox" });
 	private readonly _showRecordButton: HTMLInputElement = input({
-		style: "width: 2em; margin-left: 1em;",
+		style: "margin-left: 1em;",
 		type: "checkbox",
 	});
 	private readonly _snapRecordedNotesToRhythm: HTMLInputElement = input({
-		style: "width: 2em; margin-left: 1em;",
+		style: "margin-left: 1em;",
 		type: "checkbox",
 	});
 	private readonly _ignorePerformedNotesNotInScale: HTMLInputElement = input({
-		style: "width: 2em; margin-left: 1em;",
+		style: "margin-left: 1em;",
 		type: "checkbox",
 	});
 	private readonly _metronomeCountIn: HTMLInputElement = input({
-		style: "width: 2em; margin-left: 1em;",
+		style: "margin-left: 1em;",
 		type: "checkbox",
 	});
 	private readonly _metronomeWhileRecording: HTMLInputElement = input({
-		style: "width: 2em; margin-left: 1em;",
+		style: "margin-left: 1em;",
 		type: "checkbox",
 	});
 
