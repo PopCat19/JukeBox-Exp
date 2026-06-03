@@ -2307,8 +2307,7 @@ export class PatternEditor {
 		const cursorPitch: number = snappedPitch - this._octaveOffset;
 		const keyBasePitch: number = Config.keys[this._doc.song.key]?.basePitch ?? Config.keys[0].basePitch;
 		const pitchNameIndex: number = (cursorPitch + keyBasePitch) % Config.pitchesPerOctave;
-		const name: string =
-			isMod || isDrum ? String(snappedPitch) : Piano.getPitchNameAlwaysOctave(pitchNameIndex, cursorPitch, baseVisibleOctave);
+		const name: string = isMod || isDrum ? String(snappedPitch) : Piano.getPitchNameAlwaysOctave(pitchNameIndex, cursorPitch, baseVisibleOctave);
 		this._hoverTooltip.textContent = name;
 		// Position the tooltip 12px to the right and 12px below the
 		// cursor (or 12px above if the cursor is near the bottom edge).

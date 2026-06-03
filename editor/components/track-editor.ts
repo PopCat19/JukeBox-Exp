@@ -318,7 +318,7 @@ export class TrackEditor {
 		const bar: number = this._mouseBar;
 		const channel: number = this._mouseChannel;
 		const overTrackEditor: boolean = this._mouseY >= Config.barEditorHeight;
-		
+
 		if (!overTrackEditor) {
 			this._hoverTooltip.textContent = `B${bar + 1}`;
 		} else {

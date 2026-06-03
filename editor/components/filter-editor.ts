@@ -288,7 +288,7 @@ export class FilterEditor {
 		if (this.container.offsetParent == null) return;
 		if (this._mouseDown) event.preventDefault();
 		if (!this._svgRect) this._svgRect = this._svg.getBoundingClientRect();
-		const boundingRect = this._mouseDown ? (this._dragSvgRect || this._svgRect) : this._svgRect;
+		const boundingRect = this._mouseDown ? this._dragSvgRect || this._svgRect : this._svgRect;
 		this._mouseX = (((event.clientX || event.pageX) - boundingRect.left) * this._editorWidth) / (boundingRect.right - boundingRect.left);
 		this._mouseY = (((event.clientY || event.pageY) - boundingRect.top) * this._editorHeight) / (boundingRect.bottom - boundingRect.top);
 		if (isNaN(this._mouseX)) this._mouseX = 0;
@@ -302,7 +302,7 @@ export class FilterEditor {
 		if (this.container.offsetParent == null) return;
 		if (this._mouseDown) event.preventDefault();
 		if (!this._svgRect) this._svgRect = this._svg.getBoundingClientRect();
-		const boundingRect: DOMRect = this._mouseDown ? (this._dragSvgRect || this._svgRect) : this._svgRect;
+		const boundingRect: DOMRect = this._mouseDown ? this._dragSvgRect || this._svgRect : this._svgRect;
 		this._mouseX = ((event.touches[0].clientX - boundingRect.left) * this._editorWidth) / (boundingRect.right - boundingRect.left);
 		this._mouseY = ((event.touches[0].clientY - boundingRect.top) * this._editorHeight) / (boundingRect.bottom - boundingRect.top);
 		if (isNaN(this._mouseX)) this._mouseX = 0;
