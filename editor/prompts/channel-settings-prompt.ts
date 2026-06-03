@@ -14,6 +14,7 @@ import { ChangeChannelCount, ChangeInstrumentsFlags, ChangePatternsPerChannel } 
 import { ChangeGroup } from "../core/change";
 import { SongDocument } from "../song-document";
 import { checkboxInput, labelRow, stepperInput } from "../ui";
+import { promptPanel, Sizing } from "../ui/style";
 import { BasePrompt } from "./base-prompt";
 import { validate, validateKey, validateNumber } from "./input-helpers";
 
@@ -28,7 +29,7 @@ export class ChannelSettingsPrompt extends BasePrompt {
 	private readonly _patternInstrumentsBox: HTMLInputElement = checkboxInput();
 
 	public readonly container: HTMLDivElement = div(
-		{ class: "prompt noSelection", style: "width: 250px; text-align: right;" },
+		{ class: "prompt noSelection", style: promptPanel(Sizing.promptSm, "right") },
 		h2("Channel Settings"),
 		labelRow("Pitch channels:", this._pitchChannelStepper),
 		labelRow("Drum channels:", this._drumChannelStepper),
