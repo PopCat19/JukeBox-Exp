@@ -1,10 +1,11 @@
 # lint.sh
 #
-# Purpose: Shell script linting and formatting utilities
+# Purpose: Shell script linting and formatting (NixOS-aware)
 #
 # This module provides:
 # - shfmt formatting for shell scripts
 # - shellcheck static analysis
+# - NixOS fallback: tools resolved via PATH, then nix run nixpkgs#PACKAGE
 # - Pre-push hook management
 #
 # shellcheck shell=bash
@@ -15,40 +16,95 @@ if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
 	exit 1
 fi
 
-# Find shell scripts in project
+# ── Nix detection ───────────────────────────────────────────
+
+# Detect if we're on NixOS
+_is_nixos() {
+	[[ -f /etc/NIXOS ]] || [[ -d /run/current-system/sw ]]
+}
+
+# Detect if Nix is available (nixos, nix on non-nixos, or nix-shell)
+_nix_available() {
+	command -v nix &>/dev/null
+}
+
+# ── Tool resolution (PATH first, then nix fallback) ─────────
+
+# Maps internal tool name → nixpkgs attribute name
+declare -A _NIX_PKG_MAP=(
+	[shfmt]=shfmt
+	[shellcheck]=shellcheck
+)
+
+# Resolve a tool: check PATH, then fall back to nix run
+# Usage: _resolve_tool TOOL_NAME [NIX_PKG_NAME]
+# Sets _TOOL_CMD and _TOOL_NIX to allow calling code to branch.
+_resolve_tool() {
+	local tool="$1"
+	local pkg="${2:-${_NIX_PKG_MAP[$tool]:-$tool}}"
+
+	if command -v "$tool" &>/dev/null; then
+		_TOOL_CMD="$tool"
+		_TOOL_NIX=false
+		return 0
+	fi
+
+	if _nix_available; then
+		_TOOL_CMD="$tool"
+		_TOOL_NIX=true
+		_TOOL_PKG="$pkg"
+		log_detail "Resolved ${tool} via nix run nixpkgs#${pkg}"
+		return 0
+	fi
+
+	log_error "${tool} not found on PATH and nix is not available."
+	log_detail "Install via your package manager, nixpkgs, or: nix profile install nixpkgs#${pkg}"
+	return 1
+}
+
+# Run a resolved tool with arguments.
+# Handles the difference between direct binary and nix-run invocation.
+_run_tool() {
+	if [[ "$_TOOL_NIX" == "true" ]]; then
+		# nix run expects `--` before tool arguments
+		nix run "nixpkgs#${_TOOL_PKG}" -- "$@"
+	else
+		"$_TOOL_CMD" "$@"
+	fi
+}
+
+# ── Finding shell scripts ───────────────────────────────────
+
 find_shell_scripts() {
 	local root="${1:-.}"
 	find "$root" -name "*.sh" -type f 2>/dev/null | grep -v node_modules | grep -v ".git"
 }
 
-# Run shfmt on files
+# ── shfmt ───────────────────────────────────────────────────
+
 run_shfmt() {
 	local mode="$1"
 	shift
 	local files=("$@")
 
-	if ! command_exists shfmt; then
-		log_error "shfmt not found. Install: https://github.com/mvdan/sh"
-		return 1
-	fi
+	_resolve_tool shfmt || return 1
 
 	local args=()
 	if [[ "$mode" == "check" ]]; then
-		args+=(-d)
+		args=(-d)
 	elif [[ "$mode" == "format" ]]; then
-		args+=(-w)
+		args=(-w)
 	fi
 
-	# Use shfmt defaults (tab indent, 80 width is common but default is used)
 	local failed=0
 	for file in "${files[@]}"; do
 		if [[ "$mode" == "check" ]]; then
-			if ! shfmt -d "$file" 2>/dev/null; then
+			if ! _run_tool "$_TOOL_CMD" "${args[@]}" "$file" 2>/dev/null; then
 				log_warn "Needs formatting: $file"
 				((failed++)) || true
 			fi
 		else
-			shfmt -w "$file" 2>/dev/null && log_detail "Formatted: $file"
+			_run_tool "$_TOOL_CMD" "${args[@]}" "$file" 2>/dev/null && log_detail "Formatted: $file"
 		fi
 	done
 
@@ -58,20 +114,18 @@ run_shfmt() {
 	return 0
 }
 
-# Run shellcheck on files
+# ── shellcheck ──────────────────────────────────────────────
+
 run_shellcheck() {
 	local mode="$1"
 	shift
 	local files=("$@")
 
-	if ! command_exists shellcheck; then
-		log_error "shellcheck not found. Install: https://www.shellcheck.net/"
-		return 1
-	fi
+	_resolve_tool shellcheck || return 1
 
 	local failed=0
 	for file in "${files[@]}"; do
-		if ! shellcheck "$file" 2>/dev/null; then
+		if ! _run_tool "$_TOOL_CMD" "$file" 2>/dev/null; then
 			log_warn "Issues found in: $file"
 			((failed++)) || true
 		else
@@ -85,7 +139,8 @@ run_shellcheck() {
 	return 0
 }
 
-# Install pre-push hook
+# ── Pre-push hook ───────────────────────────────────────────
+
 install_pre_push_hook() {
 	local hook_dir="${PROJECT_ROOT}/.git/hooks"
 	local hook_file="$hook_dir/pre-push"
@@ -95,7 +150,6 @@ install_pre_push_hook() {
 		return 1
 	fi
 
-	# Check if hook already exists
 	if [[ -f "$hook_file" ]]; then
 		if grep -q "dev-conventions lint" "$hook_file" 2>/dev/null; then
 			log_info "Pre-push hook already installed"
@@ -104,7 +158,6 @@ install_pre_push_hook() {
 		log_warn "Existing pre-push hook found. Appending dev-conventions check."
 	fi
 
-	# Create or append to hook
 	local hook_content='
 # dev-conventions pre-push check
 if command -v dev-conventions &>/dev/null; then
@@ -130,7 +183,6 @@ EOF
 	log_info "Installed pre-push hook: $hook_file"
 }
 
-# Remove pre-push hook
 remove_pre_push_hook() {
 	local hook_file="${PROJECT_ROOT}/.git/hooks/pre-push"
 
@@ -139,14 +191,11 @@ remove_pre_push_hook() {
 		return 0
 	fi
 
-	# Check if it's the dev-conventions hook
 	if grep -q "dev-conventions lint" "$hook_file" 2>/dev/null; then
-		# Remove the dev-conventions section
 		local temp_file
 		temp_file=$(mktemp)
 		sed '/# dev-conventions pre-push check/,/^fi$/d' "$hook_file" >"$temp_file"
 
-		# If file is now just the shebang, remove it entirely
 		if [[ $(wc -l <"$temp_file") -le 2 ]]; then
 			rm -f "$hook_file"
 			log_info "Removed pre-push hook (was only dev-conventions)"
@@ -160,7 +209,8 @@ remove_pre_push_hook() {
 	fi
 }
 
-# Main lint command
+# ── Main lint command ───────────────────────────────────────
+
 cmd_lint() {
 	local mode="check"
 	local files=()
@@ -170,7 +220,6 @@ cmd_lint() {
 	local install_context_hook=false
 	local remove_context_hook=false
 
-	# Parse arguments
 	while [[ $# -gt 0 ]]; do
 		case "$1" in
 		--format | -f)
@@ -221,14 +270,12 @@ cmd_lint() {
 		esac
 	done
 
-	# Source check-context.sh from the same directory as this module (src/ or scripts/)
 	_LINT_SH_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 	if [[ -f "${_LINT_SH_DIR}/check-context.sh" ]]; then
 		# shellcheck disable=SC1091
 		source "${_LINT_SH_DIR}/check-context.sh"
 	fi
 
-	# Handle hook operations
 	if [[ "$install_hook" == "true" ]]; then
 		install_pre_push_hook
 		return $?
@@ -249,7 +296,6 @@ cmd_lint() {
 		return $?
 	fi
 
-	# Handle context.md check
 	if [[ "$check_context" == "true" ]]; then
 		if declare -f check_context_drift &>/dev/null; then
 			log_info "Checking context.md files..."
@@ -262,7 +308,6 @@ cmd_lint() {
 		fi
 	fi
 
-	# Find shell scripts if not specified
 	if [[ ${#files[@]} -eq 0 ]]; then
 		mapfile -t files < <(find_shell_scripts "$PROJECT_ROOT")
 	fi
@@ -273,28 +318,26 @@ cmd_lint() {
 	fi
 
 	log_info "Found ${#files[@]} shell script(s)"
+	if _is_nixos; then
+		log_detail "NixOS detected — tools resolved via PATH, then nix run nixpkgs#PACKAGE"
+	fi
 	echo ""
 
 	local shfmt_failed=0
 	local shellcheck_failed=0
 
-	# Run shfmt
 	log_info "Running shfmt ($mode)..."
 	if ! run_shfmt "$mode" "${files[@]}"; then
 		shfmt_failed=1
 	fi
-
 	echo ""
 
-	# Run shellcheck
 	log_info "Running shellcheck..."
 	if ! run_shellcheck "$mode" "${files[@]}"; then
 		shellcheck_failed=1
 	fi
-
 	echo ""
 
-	# Summary
 	if [[ $shfmt_failed -eq 0 && $shellcheck_failed -eq 0 ]]; then
 		log_success "All checks passed"
 		return 0

@@ -23,6 +23,8 @@
             bun
             nodejs
             biome
+            shfmt
+            shellcheck
           ];
 
           shellHook = ''
