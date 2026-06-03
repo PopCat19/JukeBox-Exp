@@ -18,6 +18,7 @@ import { BasePrompt } from "./base-prompt";
 import { exportToMidi } from "./export-midi";
 import { Prompt } from "./prompt";
 import { save } from "./save";
+import { flexBetween, promptPanel, s, textAlign, w } from "../ui";
 
 const { div, h2, input, select, option } = HTML;
 
@@ -64,40 +65,40 @@ export class ExportPrompt extends BasePrompt {
 	);
 	private readonly _removeWhitespace: HTMLInputElement = input({ type: "checkbox" });
 	private readonly _removeWhitespaceDiv: HTMLDivElement = div(
-		{ style: "vertical-align: middle; align-items: center; justify-content: space-between; margin-bottom: 14px;" },
+		{ style: s(flexBetween(), "margin-bottom:14px;") },
 		"Remove Whitespace: ",
 		this._removeWhitespace,
 	);
 	private readonly _keepOpen: HTMLInputElement = input({ type: "checkbox" });
 	private readonly _keepOpenDiv: HTMLDivElement = div(
-		{ style: "vertical-align: middle; align-items: center; justify-content: space-between; margin-bottom: 14px;" },
+		{ style: s(flexBetween(), "margin-bottom:14px;") },
 		"Keep Open: ",
 		this._keepOpen,
 	);
 	private readonly _oggWarning: HTMLDivElement = div(
-		{ style: "vertical-align: middle; align-items: center; justify-content: space-between; margin-bottom: 14px;" },
+		{ style: s(flexBetween(), "margin-bottom:14px;") },
 		"Warning: .ogg files aren't supported on as many devices as mp3 or wav. So Playback might not be possible on specific devices.",
 	);
 	private readonly _outputProgressBar: HTMLDivElement = div({
-		style: `width: 0%; background: ${ColorConfig.loopAccent}; height: 100%; position: absolute; z-index: 2;`,
+		style: s(w("0%"), "background:" + ColorConfig.loopAccent + ";height:100%;position:absolute;z-index:2;"),
 	});
 	private readonly _outputProgressLabel: HTMLDivElement = div(
-		{ style: `position: relative; top: -1px; z-index: 3; mix-blend-mode: difference; color: #ffffff; font-weight: 600;` },
+		{ style: s("position:relative;top:-1px;z-index:3;mix-blend-mode:difference;color:#ffffff;font-weight:600;") },
 		"0%",
 	);
 	private readonly _outputProgressContainer: HTMLDivElement = div(
 		{
-			style: `height: 12px; background: ${ColorConfig.uiWidgetBackground}; display: block; position: relative; z-index: 1;`,
+			style: s("height:12px;display:block;position:relative;z-index:1;", "background:" + ColorConfig.uiWidgetBackground + ";")
 		},
 		this._outputProgressBar,
 		this._outputProgressLabel,
 	);
 
 	public readonly container: HTMLDivElement = div(
-		{ class: "prompt noSelection", style: "width: 200px;" },
+		{ class: "prompt noSelection", style: promptPanel("200px") },
 		h2("Export Options"),
-		div({ style: "display: flex; flex-direction: row; align-items: center; justify-content: space-between;" }, "File name:", this._fileName),
-		div({ style: "display: flex; flex-direction: row; align-items: center; justify-content: space-between;" }, "Length:", this._computedSamplesLabel),
+		div({ style: s(flexBetween()) }, "File name:", this._fileName),
+		div({ style: s(flexBetween()) }, "Length:", this._computedSamplesLabel),
 		div(
 			{ style: "display: table; width: 100%;" },
 			div(
@@ -116,8 +117,8 @@ export class ExportPrompt extends BasePrompt {
 		this._removeWhitespaceDiv,
 		this._keepOpenDiv,
 		this._oggWarning,
-		div({ class: "selectContainer", style: "width: 100%; margin-bottom: 14px;" }, this._formatSelect),
-		div({ style: "text-align: left;" }, "Exporting can be slow. Reloading the page or clicking the X will cancel it. Please be patient."),
+		div({ class: "selectContainer", style: s(w("100%"), "margin-bottom:14px;") }, this._formatSelect),
+		div({ style: textAlign("left") }, "Exporting can be slow. Reloading the page or clicking the X will cancel it. Please be patient."),
 		this._outputProgressContainer,
 		this._getOkayRow(),
 		this._cancelButton,
