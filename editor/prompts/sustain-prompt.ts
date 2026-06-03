@@ -14,7 +14,7 @@ import { Config } from "../../synth/synth-config";
 import { ChangeStringSustainType } from "../changes";
 import { ChangeGroup } from "../core/change";
 import { SongDocument } from "../song-document";
-import { s, w } from "../ui";
+import { w } from "../ui";
 import { BasePrompt } from "./base-prompt";
 
 const { div, h2, p, select, option } = HTML;
@@ -27,7 +27,7 @@ export class SustainPrompt extends BasePrompt {
 	);
 
 	public readonly container: HTMLDivElement = div(
-		{ class: "prompt", style: s(w("300px")) },
+		{ class: "prompt", style: w("300px") },
 		div(
 			h2("String Sustain"),
 			p("This setting controls how quickly the picked string vibration decays."),

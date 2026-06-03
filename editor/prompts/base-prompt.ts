@@ -12,8 +12,7 @@
 
 import { HTML } from "imperative-html/dist/esm/elements-strict";
 import { SongDocument } from "../song-document";
-import { actionButton, iconButton } from "../ui";
-import { w } from "../ui/style";
+import { actionButton, iconButton, w } from "../ui";
 import { Prompt } from "./prompt";
 
 const { div } = HTML;

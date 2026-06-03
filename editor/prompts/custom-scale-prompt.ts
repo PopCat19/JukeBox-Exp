@@ -45,7 +45,7 @@ export class CustomScalePrompt extends BasePrompt {
 			p(
 				'Here, you can make your own scale like a pro gamer. Press the checkboxes below to toggle which notes of an octave are in the scale. For this to work, you\'ll need to have the "Custom" scale selected.',
 			),
-			div({ style: s("display:flex;flex-direction:row;align-items:center;justify-content:flex-end;") }, scaleHolder),
+			div({ style: "display:flex;flex-direction:row;align-items:center;justify-content:flex-end;" }, scaleHolder),
 			this._getOkayRow(),
 			this._cancelButton,
 		);

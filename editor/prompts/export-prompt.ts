@@ -83,7 +83,7 @@ export class ExportPrompt extends BasePrompt {
 		style: s(w("0%"), "background:" + ColorConfig.loopAccent + ";height:100%;position:absolute;z-index:2;"),
 	});
 	private readonly _outputProgressLabel: HTMLDivElement = div(
-		{ style: s("position:relative;top:-1px;z-index:3;mix-blend-mode:difference;color:#ffffff;font-weight:600;") },
+		{ style: "position:relative;top:-1px;z-index:3;mix-blend-mode:difference;color:#ffffff;font-weight:600;" },
 		"0%",
 	);
 	private readonly _outputProgressContainer: HTMLDivElement = div(
@@ -97,8 +97,8 @@ export class ExportPrompt extends BasePrompt {
 	public readonly container: HTMLDivElement = div(
 		{ class: "prompt noSelection", style: promptPanel("200px") },
 		h2("Export Options"),
-		div({ style: s(flexBetween()) }, "File name:", this._fileName),
-		div({ style: s(flexBetween()) }, "Length:", this._computedSamplesLabel),
+		div({ style: flexBetween() }, "File name:", this._fileName),
+		div({ style: flexBetween() }, "Length:", this._computedSamplesLabel),
 		div(
 			{ style: "display: table; width: 100%;" },
 			div(

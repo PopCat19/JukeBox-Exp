@@ -70,7 +70,7 @@ export class RecordingSetupPrompt extends BasePrompt {
 		{ class: "prompt noSelection recordingSetupPrompt", style: s(w("600px"), textAlign("right"), "max-height:90%;") },
 		h2({ style: "align-self:center;" }, "Note Recording Setup"),
 		div(
-			{ style: s("display:grid;overflow-y:auto;overflow-x:hidden;flex-shrink:1;") },
+			{ style: "display:grid;overflow-y:auto;overflow-x:hidden;flex-shrink:1;" },
 			p("JukeBox can record notes as you perform them. You can start recording by pressing Ctrl+Space (or " + EditorConfig.ctrlSymbol + "P)."),
 			checkboxRow("Add ● record button next to ▶ play button:", this._showRecordButton),
 			checkboxRow("Snap recorded notes to the song's rhythm:", this._snapRecordedNotesToRhythm),

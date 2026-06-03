@@ -10,14 +10,14 @@
 
 import { HTML, SVG } from "imperative-html/dist/esm/elements-strict";
 import { SongDocument } from "../song-document";
-import { Layout, s } from "../ui";
+import { Layout } from "../ui";
 import { BasePrompt } from "./base-prompt";
 
 const { label, div, form, h2, input } = HTML;
 
 export class LayoutPrompt extends BasePrompt {
 	private readonly _form: HTMLFormElement = form(
-		{ style: s("display:flex;gap:10px;flex-wrap:wrap;justify-content:center;") },
+		{ style: "display:flex;gap:10px;flex-wrap:wrap;justify-content:center;" },
 		label(
 			{ class: "layout-option" },
 			input({ type: "radio", name: "layout", value: "small" }),
