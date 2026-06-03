@@ -198,7 +198,7 @@ export class InstrumentBrowserPrompt extends BasePrompt {
 		this._tabPresets = tabButton("Presets", this._openTab === "presets");
 		this._tabTags = tabButton("Tags", this._openTab === "tags");
 
-		this._tabBar = div({ class: "tabBar" }, this._tabPresets, this._tabTags);
+		this._tabBar = div({ class: "tabBar toggle-group" }, this._tabPresets, this._tabTags);
 
 		this._tabPresets.addEventListener("click", () => this._switchToTab("presets"));
 		this._tabTags.addEventListener("click", () => this._switchToTab("tags"));

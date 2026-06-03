@@ -1187,6 +1187,24 @@ html {
 	gap: 4px;
 }
 
+.beepboxEditor .prompt.compactSearchPrompt .tabBar.toggle-group {
+	border-radius: 16px;
+}
+
+/* Inactive joined tabs: outer corners form the pill (16px),
+   inner-facing corners are small (8px) so the gap reads clearly. */
+.beepboxEditor .prompt.compactSearchPrompt .tabBar.toggle-group > .tabButton {
+	border-radius: 8px;
+}
+.beepboxEditor .prompt.compactSearchPrompt .tabBar.toggle-group > :first-child.tabButton {
+	border-top-left-radius: 16px;
+	border-bottom-left-radius: 16px;
+}
+.beepboxEditor .prompt.compactSearchPrompt .tabBar.toggle-group > :last-child.tabButton {
+	border-top-right-radius: 16px;
+	border-bottom-right-radius: 16px;
+}
+
 .beepboxEditor .prompt.compactSearchPrompt .tabButton {
 	flex: 1;
 	display: flex;
@@ -1194,11 +1212,12 @@ html {
 	justify-content: center;
 	height: 32px;
 	padding: 0 var(--padding-10);
-	background: transparent;
+	background: var(--tab-inactive-bg);
 	border: none;
-	border-radius: var(--border-radius-medium);
-	color: var(--secondary-text);
+	border-radius: 8px;
+	color: var(--tab-inactive-fg);
 	font-size: 12px;
+	font-weight: 500;
 	line-height: 1.4;
 	cursor: pointer;
 	transition: background 80ms ease, color 80ms ease;
@@ -1207,8 +1226,9 @@ html {
 	color: var(--primary-text);
 }
 .beepboxEditor .prompt.compactSearchPrompt .tabButton.active {
-	color: var(--primary-text);
-	background: var(--ui-widget-focus);
+	color: var(--tab-active-fg);
+	background: var(--tab-active-bg);
+	font-weight: 600;
 }
 
 .beepboxEditor .prompt.compactSearchPrompt .presetsTabContent,

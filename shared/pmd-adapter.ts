@@ -48,6 +48,12 @@ export function applyPMDToDOM(colors: Base16Palette): void {
 	set("--hover-preview", c("base07"));
 	set("--playhead", withAlpha("base07", 0.9));
 
+	// Tab bar (joined pill tabs in prompts)
+	set("--tab-active-bg", c("base06"));
+	set("--tab-active-fg", c("base00"));
+	set("--tab-inactive-bg", c("base01"));
+	set("--tab-inactive-fg", c("base03"));
+
 	// Widget surfaces
 	set("--ui-widget-background", c("base02"));
 	set("--ui-widget-focus", c("base02"));
