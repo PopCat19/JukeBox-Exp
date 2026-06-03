@@ -1,4 +1,4 @@
-// shared/themes/zefbox.ts
+// zefbox.ts
 //
 // Purpose: CSS variable definitions for the "zefbox" theme
 

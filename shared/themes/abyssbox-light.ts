@@ -1,4 +1,4 @@
-// shared/themes/abyssbox-light.ts
+// abyssbox-light.ts
 //
 // Purpose: CSS variable definitions for the "abyssbox light" theme
 

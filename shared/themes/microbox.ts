@@ -1,4 +1,4 @@
-// shared/themes/microbox.ts
+// microbox.ts
 //
 // Purpose: CSS variable definitions for the "microbox" theme
 

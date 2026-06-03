@@ -1,4 +1,4 @@
-// pmd/base16.ts
+// base16.ts
 //
 // Purpose: Generates Base16 color palettes from PMD variables
 //

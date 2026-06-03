@@ -1,4 +1,4 @@
-// synth/plugins/spectrum.ts
+// spectrum.ts
 //
 // Purpose: Spectrum synthesis plugin
 

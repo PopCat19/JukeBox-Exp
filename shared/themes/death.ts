@@ -1,4 +1,4 @@
-// shared/themes/death.ts
+// death.ts
 //
 // Purpose: CSS variable definitions for the "death" theme
 

@@ -1,4 +1,4 @@
-// shared/themes/dark-competition.ts
+// dark-competition.ts
 //
 // Purpose: CSS variable definitions for the "dark competition" theme
 

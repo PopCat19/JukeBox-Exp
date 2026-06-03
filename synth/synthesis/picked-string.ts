@@ -1,4 +1,4 @@
-// synth/synthesis/picked-string.ts
+// picked-string.ts
 //
 // Purpose: Picked string (Karplus-Strong) synthesis source string builder
 //

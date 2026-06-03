@@ -1,4 +1,4 @@
-// shared/themes/inverse.ts
+// inverse.ts
 //
 // Purpose: CSS variable definitions for the "inverse" theme
 

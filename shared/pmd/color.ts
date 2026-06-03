@@ -1,4 +1,4 @@
-// pmd/color.ts
+// color.ts
 //
 // Purpose: OKLCH-to-RGB conversion utilities for PMD color system
 //

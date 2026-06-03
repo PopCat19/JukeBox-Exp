@@ -1,4 +1,4 @@
-// synth/channel-state.ts
+// channel-state.ts
 //
 // Purpose: Per-channel synthesis state container
 //

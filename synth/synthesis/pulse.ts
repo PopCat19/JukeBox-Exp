@@ -1,4 +1,4 @@
-// synth/synthesis/pulse.ts
+// pulse.ts
 //
 // Purpose: Pulse width modulation synthesis source string builder
 //

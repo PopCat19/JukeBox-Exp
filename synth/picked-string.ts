@@ -1,4 +1,4 @@
-// synth/picked-string.ts
+// picked-string.ts
 //
 // Purpose: Physical string modeling for picked string synthesis
 //

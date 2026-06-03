@@ -1,4 +1,4 @@
-// synth/plugins/effects.ts
+// effects.ts
 //
 // Purpose: Post-processing effects — NOT registered as SynthPlugin
 //

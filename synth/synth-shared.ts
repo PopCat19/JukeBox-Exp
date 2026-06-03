@@ -1,4 +1,4 @@
-// synth/synth-shared.ts
+// synth-shared.ts
 //
 // Purpose: Shared filter coefficients and volume utilities for the synth engine
 //

@@ -1,4 +1,4 @@
-// shared/themes/azur-lane.ts
+// azur-lane.ts
 //
 // Purpose: CSS variable definitions for the "azur lane" theme
 

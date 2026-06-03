@@ -1,4 +1,4 @@
-// shared/themes/forest.ts
+// forest.ts
 //
 // Purpose: CSS variable definitions for the "forest" theme
 

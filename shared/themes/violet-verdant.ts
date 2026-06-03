@@ -1,4 +1,4 @@
-// shared/themes/violet-verdant.ts
+// violet-verdant.ts
 //
 // Purpose: CSS variable definitions for the "violet verdant" theme
 

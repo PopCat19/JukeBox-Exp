@@ -1,4 +1,4 @@
-// synth/synth.ts
+// synth.ts
 //
 // Purpose: Core synthesis engine — audio playback, rendering, and modulation
 //

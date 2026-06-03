@@ -1,4 +1,4 @@
-// shared/themes/ultrabox-dark.ts
+// ultrabox-dark.ts
 //
 // Purpose: CSS variable definitions for the "ultrabox dark" theme
 

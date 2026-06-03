@@ -1,4 +1,4 @@
-// shared/themes/wackybox.ts
+// wackybox.ts
 //
 // Purpose: CSS variable definitions for the "wackybox" theme
 

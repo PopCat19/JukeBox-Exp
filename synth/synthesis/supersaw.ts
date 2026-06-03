@@ -1,4 +1,4 @@
-// synth/synthesis/supersaw.ts
+// supersaw.ts
 //
 // Purpose: Supersaw synthesis source string builder
 //

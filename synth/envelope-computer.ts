@@ -1,4 +1,4 @@
-// synth/envelope-computer.ts
+// envelope-computer.ts
 //
 // Purpose: Envelope computation for tone lifecycle and modulation
 //

@@ -1,4 +1,4 @@
-// synth/plugins/noise.ts
+// noise.ts
 //
 // Purpose: Noise synthesis plugin
 

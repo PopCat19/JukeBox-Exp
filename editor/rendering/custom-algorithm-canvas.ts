@@ -1,4 +1,4 @@
-// editor/custom-algorithm-canvas.ts
+// custom-algorithm-canvas.ts
 //
 // Purpose: Canvas editor for custom FM algorithm and feedback routing
 //

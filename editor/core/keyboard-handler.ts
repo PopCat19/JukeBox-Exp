@@ -25,9 +25,11 @@ import { LoopEditor } from "../components/loop-editor";
 import { MuteEditor } from "../components/mute-editor";
 import { PatternEditor } from "../components/pattern-editor";
 import { KeyboardLayout } from "../config/keyboard-layout";
+import type { Prompt } from "../prompts/prompt";
 import { SongDocument } from "../song-document";
 import { ChangeGroup } from "./change";
 import { makeLogger } from "./debug-log";
+
 import { isActive as inspectorActive } from "./dev-inspector";
 
 const log = makeLogger("keys");
@@ -43,7 +45,7 @@ export interface KeyboardHandlerHost {
 	keyboardLayout: KeyboardLayout;
 	envelopeEditor: EnvelopeEditor;
 	mainLayer: HTMLDivElement;
-	prompt: any;
+	prompt: Prompt | null;
 	promptShouldReceiveKeys(): boolean;
 	openOperatorDropdowns: boolean[];
 
@@ -71,7 +73,7 @@ export interface KeyboardHandlerHost {
 	refocusStage(): void;
 	toggleRecord(): void;
 	openPrompt(name: string): void;
-	closePrompt(prompt: any): void;
+	closePrompt(prompt: Prompt | null): void;
 	openPresetSelector(): void;
 	openShortcuts(): void;
 	copyInstrument(): void;
@@ -81,7 +83,7 @@ export interface KeyboardHandlerHost {
 	nextPreset(): void;
 	copyTextToClipboard(text: string): void;
 	toggleDropdownMenu(id: number, index?: number): void;
-	renderInstrumentBar(channel: Channel, instrumentIndex: number, colors: any): void;
+	renderInstrumentBar(channel: Channel, instrumentIndex: number, colors: ColorConfig): void;
 
 	movePlayheadToMouseTrack(): boolean;
 	movePlayheadToMousePattern(): boolean;
@@ -138,7 +140,7 @@ export class KeyboardHandler {
 			const isEditingTextInput =
 				document.activeElement === host.songTitleInputBox ||
 				isEditingModLabel ||
-				document.activeElement === (host.muteEditor as any)._channelNameInput?.input;
+				document.activeElement === (host.muteEditor as MuteEditor)._channelNameInput?.input;
 			const isEditingNumberInput =
 				document.activeElement === host.panSliderInputBox ||
 				document.activeElement === host.pwmSliderInputBox ||
@@ -158,12 +160,12 @@ export class KeyboardHandler {
 				document.activeElement === host.monophonicNoteInputBox ||
 				document.activeElement === host.upperNoteLimitInputBox ||
 				document.activeElement === host.lowerNoteLimitInputBox ||
-				host.envelopeEditor.pitchStartBoxes.find((el: any) => el === document.activeElement) ||
-				host.envelopeEditor.pitchEndBoxes.find((el: any) => el === document.activeElement) ||
-				host.envelopeEditor.perEnvelopeLowerBoundBoxes.find((el: any) => el === document.activeElement) ||
-				host.envelopeEditor.perEnvelopeUpperBoundBoxes.find((el: any) => el === document.activeElement) ||
-				host.envelopeEditor.randomStepsBoxes.find((el: any) => el === document.activeElement) ||
-				host.envelopeEditor.LFOStepsBoxes.find((el: any) => el === document.activeElement);
+				host.envelopeEditor.pitchStartBoxes.find((el: HTMLElement) => el === document.activeElement) ||
+				host.envelopeEditor.pitchEndBoxes.find((el: HTMLElement) => el === document.activeElement) ||
+				host.envelopeEditor.perEnvelopeLowerBoundBoxes.find((el: HTMLElement) => el === document.activeElement) ||
+				host.envelopeEditor.perEnvelopeUpperBoundBoxes.find((el: HTMLElement) => el === document.activeElement) ||
+				host.envelopeEditor.randomStepsBoxes.find((el: HTMLElement) => el === document.activeElement) ||
+				host.envelopeEditor.LFOStepsBoxes.find((el: HTMLElement) => el === document.activeElement);
 
 			if (isEditingTextInput || isEditingNumberInput) {
 				host.mainLayer.focus();
@@ -720,14 +722,14 @@ export class KeyboardHandler {
 				if (canPlayNotes) break;
 				if (needControlForShortcuts === (event.ctrlKey || event.metaKey) && event.shiftKey) {
 					const instrument: Instrument = doc.getCurrentInstrumentObj();
-					const instrumentObject: any = instrument.toJsonObject();
+					const instrumentObject: Record<string, any> = instrument.toJsonObject() as Record<string, any>;
 					delete instrumentObject["preset"];
 					delete instrumentObject["volume"];
 					delete instrumentObject["pan"];
 					const panningEffectIndex: number = instrumentObject["effects"].indexOf(Config.effectNames[EffectType.panning]);
 					if (panningEffectIndex !== -1) instrumentObject["effects"].splice(panningEffectIndex, 1);
 					for (let i: number = 0; i < instrumentObject["envelopes"].length; i++) {
-						const envelope: any = instrumentObject["envelopes"][i];
+						const envelope: Record<string, any> = instrumentObject["envelopes"][i] as Record<string, any>;
 						if (envelope["target"] === "panning" || envelope["target"] === "none" || envelope["envelope"] === "none") {
 							instrumentObject["envelopes"].splice(i, 1);
 							i--;

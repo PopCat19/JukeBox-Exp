@@ -1,4 +1,4 @@
-// editor/song-custom-samples.ts
+// song-custom-samples.ts
 //
 // Purpose: Bridges Song's custom sample callbacks to EditorConfig state
 //

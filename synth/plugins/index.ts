@@ -1,4 +1,4 @@
-// synth/plugins/index.ts
+// index.ts
 //
 // Purpose: Plugin registry barrel — side-effect imports register all plugins
 //

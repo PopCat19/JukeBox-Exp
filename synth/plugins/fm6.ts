@@ -1,4 +1,4 @@
-// synth/plugins/fm6.ts
+// fm6.ts
 //
 // Purpose: 6-operator FM synthesis plugin
 

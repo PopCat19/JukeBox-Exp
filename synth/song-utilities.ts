@@ -1,4 +1,4 @@
-// synth/song-utilities.ts
+// song-utilities.ts
 //
 // Purpose: Helper functions for song serialization and sample management
 //

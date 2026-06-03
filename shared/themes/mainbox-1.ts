@@ -1,4 +1,4 @@
-// shared/themes/mainbox-1.ts
+// mainbox-1.ts
 //
 // Purpose: CSS variable definitions for the "mainbox 1.0" theme
 

@@ -1,4 +1,4 @@
-// shared/themes/midnight.ts
+// midnight.ts
 //
 // Purpose: CSS variable definitions for the "midnight" theme
 

@@ -69,7 +69,7 @@ import {
 	FilterMoveData,
 } from "../changes";
 import { prettyNumber } from "../config/editor-config";
-import { ChangeSequence, UndoableChange } from "../core/change";
+import { Change, ChangeSequence, UndoableChange } from "../core/change";
 import { SongDocument } from "../song-document";
 import { SongEditor } from "../song-editor";
 import { Slider } from "../ui";
@@ -1042,7 +1042,7 @@ export class PatternEditor {
 	};
 
 	// For a given change type, check the modulator channels for a matching mod to the changed parameter. If it exists, add a pin onto the latest note, or make a new note if enough time elapsed since the last pin.
-	public setModSettingsForChange(change: any, songEditor: SongEditor): boolean {
+	public setModSettingsForChange(change: Change | null, songEditor: SongEditor): boolean {
 		const thisRef: PatternEditor = this;
 		const timeQuantum = Math.max(4, Config.partsPerBeat / Config.rhythms[this._doc.song.rhythm].stepsPerBeat);
 		const currentBar: number = Math.floor(this._doc.synth.playhead);

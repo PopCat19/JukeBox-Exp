@@ -1,4 +1,4 @@
-// shared/themes/nepbox.ts
+// nepbox.ts
 //
 // Purpose: CSS variable definitions for the "nepbox" theme
 

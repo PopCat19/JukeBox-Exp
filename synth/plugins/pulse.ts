@@ -1,4 +1,4 @@
-// synth/plugins/pulse.ts
+// pulse.ts
 //
 // Purpose: Pulse width modulation synthesis plugin
 

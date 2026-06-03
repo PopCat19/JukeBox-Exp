@@ -1,4 +1,4 @@
-// synth/synthesis/drum.ts
+// drum.ts
 //
 // Purpose: Drumset synthesis source string builder
 //

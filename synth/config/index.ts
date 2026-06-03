@@ -9,5 +9,6 @@
 export * from "./config-class";
 export * from "./enums";
 export * from "./instrument-registry";
+export * from "./sample-loader";
 export * from "./types";
 export * from "./utils";

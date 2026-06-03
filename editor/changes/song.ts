@@ -367,7 +367,7 @@ export class ChangeCloneChannel extends ChangeGroup {
 			// Deep-copy instruments via JSON roundtrip
 			dst.instruments.length = 0;
 			for (const instrument of src.instruments) {
-				const instrumentCopy: any = instrument.toJsonObject();
+				const instrumentCopy: Record<string, unknown> = instrument.toJsonObject() as Record<string, unknown>;
 				instrumentCopy["isDrum"] = isNoise;
 				instrumentCopy["isMod"] = isMod;
 				const newInstrument: Instrument = new Instrument(isNoise, isMod);
@@ -1041,8 +1041,8 @@ export function pickNextPresetValue(isNoise: boolean, rollNoveltyPresets: boolea
 	const _pitchedPresetSelect = document.getElementById("pitchPresetSelect") as HTMLInputElement | null;
 	const _drumPresetSelect = document.getElementById("drumPresetSelect") as HTMLInputElement | null;
 
-	let currentPresetValue: any = 0;
-	let nextPresetIndex: any = 0;
+	let currentPresetValue: string | number = 0;
+	let nextPresetIndex: string | number = 0;
 
 	if (isNoise) currentPresetValue = _drumPresetSelect?.value ?? 0;
 	else currentPresetValue = _pitchedPresetSelect?.value ?? 0;

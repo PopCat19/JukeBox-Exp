@@ -1,4 +1,4 @@
-// shared/themes/roe.ts
+// roe.ts
 //
 // Purpose: CSS variable definitions for the "roe" theme
 

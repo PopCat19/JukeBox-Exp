@@ -1,4 +1,4 @@
-// shared/themes/bloxbox-classic.ts
+// bloxbox-classic.ts
 //
 // Purpose: CSS variable definitions for the "bloxbox classic" theme
 

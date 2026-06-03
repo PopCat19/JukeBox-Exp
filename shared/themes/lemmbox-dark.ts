@@ -1,4 +1,4 @@
-// shared/themes/lemmbox-dark.ts
+// lemmbox-dark.ts
 //
 // Purpose: CSS variable definitions for the "lemmbox dark" theme
 

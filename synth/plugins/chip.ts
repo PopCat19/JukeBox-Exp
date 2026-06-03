@@ -1,4 +1,4 @@
-// synth/plugins/chip.ts
+// chip.ts
 //
 // Purpose: Chip wave synthesis plugin (handles normal, loopable, and custom chip wave)
 //

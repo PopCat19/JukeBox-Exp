@@ -1,4 +1,4 @@
-// pmd/variables.ts
+// variables.ts
 //
 // Purpose: PMD foundation color slots and alpha compositing
 //

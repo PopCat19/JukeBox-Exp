@@ -1,4 +1,4 @@
-// synth/plugins/mod.ts
+// mod.ts
 //
 // Purpose: Modulator channel synthesis plugin
 

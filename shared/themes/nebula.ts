@@ -1,4 +1,4 @@
-// shared/themes/nebula.ts
+// nebula.ts
 //
 // Purpose: CSS variable definitions for the "nebula" theme
 

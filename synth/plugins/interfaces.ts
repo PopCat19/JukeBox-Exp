@@ -1,4 +1,4 @@
-// synth/plugins/interfaces.ts
+// interfaces.ts
 //
 // Purpose: Plugin interface types for the synth plugin registry
 //

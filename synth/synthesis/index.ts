@@ -1,4 +1,4 @@
-// synth/synthesis/index.ts
+// index.ts
 //
 // Purpose: Barrel re-export of synthesis source string builders
 

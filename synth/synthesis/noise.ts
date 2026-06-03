@@ -1,4 +1,4 @@
-// synth/synthesis/noise.ts
+// noise.ts
 //
 // Purpose: Noise synthesis source string builder
 //

@@ -1,4 +1,4 @@
-// synth/instrument-state.ts
+// instrument-state.ts
 //
 // Purpose: Per-instrument DSP state and audio buffer management
 //

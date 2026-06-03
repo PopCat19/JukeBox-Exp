@@ -1,4 +1,4 @@
-// shared/themes/nerdbox.ts
+// nerdbox.ts
 //
 // Purpose: CSS variable definitions for the "nerdbox" theme
 

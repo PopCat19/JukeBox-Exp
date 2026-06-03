@@ -1,4 +1,4 @@
-// synth/synthesis/chip.ts
+// chip.ts
 //
 // Purpose: Chip and loopable chip synthesis source string builders
 //

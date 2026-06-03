@@ -1,4 +1,4 @@
-// synth/plugins/fm.ts
+// fm.ts
 //
 // Purpose: FM synthesis plugin wrapping buildFmSource + dynamic compilation
 //

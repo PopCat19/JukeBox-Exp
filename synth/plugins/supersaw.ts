@@ -1,4 +1,4 @@
-// synth/plugins/supersaw.ts
+// supersaw.ts
 //
 // Purpose: Supersaw synthesis plugin
 

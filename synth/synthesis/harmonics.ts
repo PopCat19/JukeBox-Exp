@@ -1,4 +1,4 @@
-// synth/synthesis/harmonics.ts
+// harmonics.ts
 //
 // Purpose: Harmonics synthesis source string builder
 //

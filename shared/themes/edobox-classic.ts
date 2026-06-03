@@ -1,4 +1,4 @@
-// shared/themes/edobox-classic.ts
+// edobox-classic.ts
 //
 // Purpose: CSS variable definitions for the "edobox classic" theme
 

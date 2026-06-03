@@ -1,4 +1,4 @@
-// shared/themes/jummbox-light.ts
+// jummbox-light.ts
 //
 // Purpose: CSS variable definitions for the "jummbox light" theme
 

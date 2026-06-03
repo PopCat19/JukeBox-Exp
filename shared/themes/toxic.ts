@@ -1,4 +1,4 @@
-// shared/themes/toxic.ts
+// toxic.ts
 //
 // Purpose: CSS variable definitions for the "toxic" theme
 

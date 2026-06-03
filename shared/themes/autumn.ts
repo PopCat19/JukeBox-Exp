@@ -1,4 +1,4 @@
-// shared/themes/autumn.ts
+// autumn.ts
 //
 // Purpose: CSS variable definitions for the "autumn" theme
 

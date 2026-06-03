@@ -1,4 +1,4 @@
-// shared/themes/energized.ts
+// energized.ts
 //
 // Purpose: CSS variable definitions for the "energized" theme
 

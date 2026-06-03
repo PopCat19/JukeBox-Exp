@@ -1,4 +1,4 @@
-// shared/themes/neapolitan.ts
+// neapolitan.ts
 //
 // Purpose: CSS variable definitions for the "neapolitan" theme
 

@@ -592,7 +592,7 @@ export class Selection {
 	// also trying to reuse patterns where it makes sense to do so, especially
 	// in the same channel it was copied from.
 	public pasteNotes(): void {
-		let selectionCopy: SelectionCopy | null = JSON.parse(String(window.localStorage.getItem("selectionCopy")));
+		const selectionCopy: SelectionCopy | null = JSON.parse(String(window.localStorage.getItem("selectionCopy")));
 
 		// localStorage empty — try the system clipboard (Figma-style cross-tab).
 		// clipboard.readText() is async, so we cache into localStorage for the
@@ -851,7 +851,7 @@ export class Selection {
 	}
 
 	public pasteNumbers(): void {
-		let selectionCopy: SelectionCopy | null = JSON.parse(String(window.localStorage.getItem("selectionCopy")));
+		const selectionCopy: SelectionCopy | null = JSON.parse(String(window.localStorage.getItem("selectionCopy")));
 
 		if (selectionCopy == null && navigator.clipboard && navigator.clipboard.readText) {
 			navigator.clipboard

@@ -1,4 +1,4 @@
-// synth/synthesis/fm6.ts
+// fm6.ts
 //
 // Purpose: 6-operator FM synthesis source string builder
 //

@@ -1,4 +1,4 @@
-// shared/themes/sunset.ts
+// sunset.ts
 //
 // Purpose: CSS variable definitions for the "sunset" theme
 

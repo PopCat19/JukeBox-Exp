@@ -1,4 +1,4 @@
-// synth/plugins/picked-string.ts
+// picked-string.ts
 //
 // Purpose: Picked string synthesis plugin
 

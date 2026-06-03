@@ -1,4 +1,4 @@
-// shared/themes/foxbox.ts
+// foxbox.ts
 //
 // Purpose: CSS variable definitions for the "foxbox" theme
 

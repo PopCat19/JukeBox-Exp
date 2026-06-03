@@ -1,4 +1,4 @@
-// synth/tone.ts
+// tone.ts
 //
 // Purpose: Tone data structure for active synthesis voices
 //

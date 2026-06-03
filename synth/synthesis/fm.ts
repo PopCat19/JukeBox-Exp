@@ -1,4 +1,4 @@
-// synth/synthesis/fm.ts
+// fm.ts
 //
 // Purpose: FM synthesis source string builder and templates
 //

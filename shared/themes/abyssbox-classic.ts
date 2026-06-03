@@ -1,4 +1,4 @@
-// shared/themes/abyssbox-classic.ts
+// abyssbox-classic.ts
 //
 // Purpose: CSS variable definitions for the "abyssbox classic" theme
 

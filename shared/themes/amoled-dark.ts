@@ -1,4 +1,4 @@
-// shared/themes/amoled-dark.ts
+// amoled-dark.ts
 //
 // Purpose: CSS variable definitions for the "amoled dark" theme
 

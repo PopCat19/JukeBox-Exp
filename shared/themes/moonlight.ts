@@ -1,4 +1,4 @@
-// shared/themes/moonlight.ts
+// moonlight.ts
 //
 // Purpose: CSS variable definitions for the "moonlight" theme
 

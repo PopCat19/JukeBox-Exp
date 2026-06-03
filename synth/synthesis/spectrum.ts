@@ -1,4 +1,4 @@
-// synth/synthesis/spectrum.ts
+// spectrum.ts
 //
 // Purpose: Spectrum synthesis source string builder
 //

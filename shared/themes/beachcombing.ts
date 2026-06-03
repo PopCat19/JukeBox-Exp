@@ -1,4 +1,4 @@
-// shared/themes/beachcombing.ts
+// beachcombing.ts
 //
 // Purpose: CSS variable definitions for the "beachcombing" theme
 

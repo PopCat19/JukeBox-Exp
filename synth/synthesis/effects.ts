@@ -1,4 +1,4 @@
-// synth/synthesis/effects.ts
+// effects.ts
 //
 // Purpose: Effects processing chain synthesis source string builder
 //

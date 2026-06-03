@@ -1,4 +1,4 @@
-// pmd/index.ts
+// index.ts
 //
 // Purpose: Barrel export for PMD color system
 //

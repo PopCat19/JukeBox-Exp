@@ -1,4 +1,4 @@
-// shared/themes/harrybox.ts
+// harrybox.ts
 //
 // Purpose: CSS variable definitions for the "harrybox" theme
 

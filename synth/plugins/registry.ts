@@ -1,4 +1,4 @@
-// synth/plugins/registry.ts
+// registry.ts
 //
 // Purpose: Plugin registry mapping InstrumentType → SynthPlugin
 //

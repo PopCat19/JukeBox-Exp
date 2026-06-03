@@ -1,4 +1,4 @@
-// synth/plugins/capabilities.ts
+// capabilities.ts
 //
 // Purpose: Per-instrument-type capability flags
 //

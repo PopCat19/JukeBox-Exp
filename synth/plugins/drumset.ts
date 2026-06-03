@@ -1,4 +1,4 @@
-// synth/plugins/drumset.ts
+// drumset.ts
 //
 // Purpose: Drumset synthesis plugin
 

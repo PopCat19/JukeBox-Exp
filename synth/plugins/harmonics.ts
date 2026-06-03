@@ -1,4 +1,4 @@
-// synth/plugins/harmonics.ts
+// harmonics.ts
 //
 // Purpose: Harmonics synthesis plugin — wraps private static via bridge
 

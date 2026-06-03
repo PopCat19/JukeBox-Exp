@@ -1,4 +1,4 @@
-// shared/themes/dark-classic.ts
+// dark-classic.ts
 //
 // Purpose: CSS variable definitions for the "dark classic" theme
 

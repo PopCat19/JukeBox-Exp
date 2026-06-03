@@ -1,4 +1,4 @@
-// shared/themes/dogebox2.ts
+// dogebox2.ts
 //
 // Purpose: CSS variable definitions for the "dogebox2" theme
 

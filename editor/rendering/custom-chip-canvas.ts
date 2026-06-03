@@ -1,4 +1,4 @@
-// editor/custom-chip-canvas.ts
+// custom-chip-canvas.ts
 //
 // Purpose: Canvas editor for custom chip waveforms
 //
