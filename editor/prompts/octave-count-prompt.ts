@@ -11,7 +11,7 @@
 import { HTML } from "imperative-html/dist/esm/elements-strict";
 import { ChangeOctaveCount } from "../changes";
 import { SongDocument } from "../song-document";
-import { addWheelSupport, labelRow } from "../ui";
+import { addWheelSupport, labelRow, w } from "../ui";
 import { BasePrompt } from "./base-prompt";
 import { validate, validateKey, validateNumber } from "./input-helpers";
 
@@ -19,13 +19,13 @@ const { div, h2, p, input } = HTML;
 
 export class OctaveCountPrompt extends BasePrompt {
 	private readonly _octaves: HTMLInputElement = input({
-		style: "width: 3em;",
+		style: w("3em"),
 		type: "number",
 		step: "1",
 	});
 
 	public readonly container: HTMLDivElement = div(
-		{ class: "prompt noSelection", style: "width: var(--prompt-width-sm);" },
+		{ class: "prompt noSelection", style: w("var(--prompt-width-sm)") },
 		h2("Change Octave Count"),
 		p("WARNING! This will clear all the contents of the song!"),
 		labelRow(div({ class: "prompt-label" }, "Octaves:"), this._octaves),

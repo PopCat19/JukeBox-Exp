@@ -69,6 +69,22 @@ export const flexCol = (
 	opts?.align ? `align-items:${opts.align};` : null,
 );
 
+/** Flex row with space-between alignment (row of items spread apart) */
+export const flexBetween = (...children: (string | false | null | undefined)[]) =>
+	s(
+		flex("row"),
+		"align-items:center;justify-content:space-between;",
+		...children,
+	);
+
+/** Flex row with centered content (horiz + vert) */
+export const flexCenter = (dir: "row" | "column" = "row", opts?: { gap?: string }) =>
+	s(
+		flex(dir),
+		"align-items:center;justify-content:center;",
+		opts?.gap ? gap(opts.gap) : null,
+	);
+
 /** Form row: label on left, input filling remaining space */
 export const formRow = (opts?: { gap?: string }) =>
 	s(flex("row"), `align-items:center;`, opts?.gap ? gap(opts.gap) : gap(Gap.md));
@@ -78,6 +94,13 @@ export const promptPanel = (width: string, textAlignDir: "left" | "right" | "cen
 	s(
 		`width:${width};`,
 		textAlign(textAlignDir),
+	);
+
+/** Inline-flex with gap, used for rows of small elements */
+export const flexInline = (opts?: { gap?: string }) =>
+	s(
+		"display:inline-flex;align-items:center;",
+		opts?.gap ? gap(opts.gap) : null,
 	);
 
 // ── Export all tokens for convenience ──────────────────────

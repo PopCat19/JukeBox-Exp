@@ -74,6 +74,31 @@ export {
 	Typography,
 	ZIndex,
 } from "./style-constants";
+// Style composables
+export {
+	bg,
+	display,
+	fg,
+	flex,
+	flexBetween,
+	flexCenter,
+	flexCol,
+	flexInline,
+	flexRow,
+	flexWrap,
+	fontSize,
+	gap,
+	h,
+	m,
+	maxW,
+	minW,
+	p,
+	pos,
+	promptPanel,
+	s,
+	textAlign,
+	w,
+} from "./style";
 // Tip Span
 export type { TipSpanOptions } from "./tip-span";
 export { tipSpan } from "./tip-span";

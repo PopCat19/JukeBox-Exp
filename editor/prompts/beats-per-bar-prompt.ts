@@ -12,7 +12,7 @@ import { HTML } from "imperative-html/dist/esm/elements-strict";
 import { Config } from "../../synth/synth-config";
 import { ChangeBeatsPerBar } from "../changes";
 import { SongDocument } from "../song-document";
-import { addWheelSupport, labelRow, promptHint, promptRowBetween, promptValue } from "../ui";
+import { addWheelSupport, labelRow, promptHint, promptRowBetween, promptValue, w } from "../ui";
 import { BasePrompt } from "./base-prompt";
 import { ExportPrompt } from "./export-prompt";
 import { validate, validateKey, validateNumber } from "./input-helpers";
@@ -22,19 +22,19 @@ const { div, h2, input, br, select, option } = HTML;
 export class BeatsPerBarPrompt extends BasePrompt {
 	private readonly _computedSamplesLabel = promptValue("0:00");
 	private readonly _beatsStepper: HTMLInputElement = input({
-		style: "width: 3em;",
+		style: w("3em"),
 		type: "number",
 		step: "1",
 	});
 	private readonly _conversionStrategySelect: HTMLSelectElement = select(
-		{ style: "width: 100%;" },
+		{ style: w("100%") },
 		option({ value: "splice" }, "Splice beats at end of bars."),
 		option({ value: "stretch" }, "Stretch notes to fit in bars."),
 		option({ value: "overflow" }, "Overflow notes across bars."),
 	);
 
 	public readonly container: HTMLDivElement = div(
-		{ class: "prompt noSelection", style: "width: var(--prompt-width-sm);" },
+		{ class: "prompt noSelection", style: w("var(--prompt-width-sm)") },
 		h2("Beats Per Bar"),
 		promptRowBetween("Length:", this._computedSamplesLabel),
 		labelRow(div({ class: "prompt-label" }, "Beats per bar:", br(), promptHint("(Multiples of 3 or 4 are normal and boring)")), this._beatsStepper),

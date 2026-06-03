@@ -12,20 +12,20 @@ import { HTML } from "imperative-html/dist/esm/elements-strict";
 import { Config } from "../../synth/synth-config";
 import { ChangeMoveNotesSideways } from "../changes";
 import { SongDocument } from "../song-document";
-import { addWheelSupport, labelRow, promptHint } from "../ui";
+import { addWheelSupport, labelRow, promptHint, w } from "../ui";
 import { BasePrompt } from "./base-prompt";
 
 const { div, h2, input, br, select, option } = HTML;
 
 export class MoveNotesSidewaysPrompt extends BasePrompt {
 	private readonly _beatsStepper: HTMLInputElement = input({
-		style: "width: 3em;",
+		style: w("3em"),
 		type: "number",
 		step: "0.01",
 		value: "0",
 	});
 	private readonly _conversionStrategySelect: HTMLSelectElement = select(
-		{ style: "width: 100%;" },
+		{ style: w("100%") },
 		option({ value: "overflow" }, "Overflow notes across bars."),
 		option({ value: "wrapAround" }, "Wrap notes around within bars."),
 	);

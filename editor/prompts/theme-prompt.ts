@@ -11,14 +11,14 @@
 import { HTML } from "imperative-html/dist/esm/elements-strict";
 import { ColorConfig } from "../../shared/color-config";
 import { SongDocument } from "../song-document";
-import { createInput, labelRow } from "../ui";
+import { createInput, labelRow, promptPanel, w } from "../ui";
 import { BasePrompt } from "./base-prompt";
 
 const { div, h2, select, option, optgroup, input, span } = HTML;
 
 export class ThemePrompt extends BasePrompt {
 	private readonly _themeSelect: HTMLSelectElement = select(
-		{ style: "width: 100%;" },
+		{ style: w("100%") },
 		optgroup(
 			{ label: "Objectively The Best Ones" },
 			option({ value: ColorConfig.PMD_THEME }, "PMD Dynamic"),
@@ -99,7 +99,7 @@ export class ThemePrompt extends BasePrompt {
 	);
 
 	private readonly _pmdHueInput: HTMLInputElement = input({
-		style: "width: 100%;",
+		style: w("100%"),
 		type: "range",
 		min: "0",
 		max: "360",
@@ -125,9 +125,9 @@ export class ThemePrompt extends BasePrompt {
 	);
 
 	public readonly container: HTMLDivElement = div(
-		{ class: "prompt noSelection", style: "width: 260px;" },
+		{ class: "prompt noSelection", style: promptPanel("260px") },
 		h2("Set Theme"),
-		labelRow(div({ class: "selectContainer", style: "width: 100%;" }, this._themeSelect)),
+		labelRow(div({ class: "selectContainer", style: w("100%") }, this._themeSelect)),
 		this._pmdControls,
 		this._getOkayRow(),
 		this._cancelButton,

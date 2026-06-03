@@ -13,7 +13,7 @@ import { Config } from "../../synth/synth-config";
 import { ChangeBarCount } from "../changes";
 import { ChangeGroup } from "../core/change";
 import { SongDocument } from "../song-document";
-import { addWheelSupport, labelRow, promptHint, promptRowBetween, promptValue } from "../ui";
+import { addWheelSupport, labelRow, promptHint, promptRowBetween, promptValue, w } from "../ui";
 import { BasePrompt } from "./base-prompt";
 import { ExportPrompt } from "./export-prompt";
 import { validate, validateKey, validateNumber } from "./input-helpers";
@@ -23,12 +23,12 @@ const { div, h2, input, br, select, option } = HTML;
 export class SongDurationPrompt extends BasePrompt {
 	private readonly _computedSamplesLabel = promptValue("0:00");
 	private readonly _barsStepper: HTMLInputElement = input({
-		style: "width: 3em;",
+		style: w("3em"),
 		type: "number",
 		step: "1",
 	});
 	private readonly _positionSelect: HTMLSelectElement = select(
-		{ style: "width: 100%;" },
+		{ style: w("100%") },
 		option({ value: "end" }, "Apply change at end of song."),
 		option({ value: "beginning" }, "Apply change at beginning of song."),
 	);
