@@ -9,4 +9,5 @@
 - `okay-row.ts` — Row with okay button and optional extra elements
 - `scrollable-container.ts` — Container with reserved scrollbar space
 - `select-container.ts` — Wraps select element with full-width styling
+- `select-field.ts` — Label + select dropdown field combining labelRow with selectContainer
 - `select-row.ts` — Centered row with label and select dropdown

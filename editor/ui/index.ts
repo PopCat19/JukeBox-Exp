@@ -95,6 +95,7 @@ export {
 	minW,
 	p,
 	pos,
+	promptFrame,
 	promptPanel,
 	s,
 	textAlign,
