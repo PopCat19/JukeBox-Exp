@@ -1224,22 +1224,27 @@ html {
 	height: 32px;
 	padding: 0 var(--padding-10);
 	background: var(--tab-inactive-bg);
-	border: none;
+	border: 2px solid transparent;
 	border-radius: 8px;
 	color: var(--tab-inactive-fg);
 	font-size: 12px;
 	font-weight: 500;
 	line-height: 1.4;
 	cursor: pointer;
-	transition: background 80ms ease, color 80ms ease;
+	box-sizing: border-box;
+	transition: background 80ms ease, color 80ms ease, border-color 80ms ease;
 }
 .beepboxEditor .prompt.compactSearchPrompt .tabButton:hover {
 	color: var(--primary-text);
+	border-color: var(--hout, var(--primary-text));
 }
 .beepboxEditor .prompt.compactSearchPrompt .tabButton.active {
 	color: var(--cta-fg);
 	background: var(--cta-bg);
 	font-weight: 600;
+}
+.beepboxEditor .prompt.compactSearchPrompt .tabButton.active:hover {
+	border-color: var(--editor-background);
 }
 
 .beepboxEditor .prompt.compactSearchPrompt .presetsTabContent,

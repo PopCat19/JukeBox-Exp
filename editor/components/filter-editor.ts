@@ -258,6 +258,7 @@ export class FilterEditor {
 
 	private _whenMousePressed = (event: MouseEvent): void => {
 		event.preventDefault();
+		event.stopPropagation();
 		this._touchMode = false;
 		if (!this._svgRect) this._svgRect = this._svg.getBoundingClientRect();
 		this._dragSvgRect = DOMRect.fromRect(this._svgRect);
@@ -271,6 +272,7 @@ export class FilterEditor {
 
 	private _whenTouchPressed = (event: TouchEvent): void => {
 		event.preventDefault();
+		event.stopPropagation();
 		this._touchMode = true;
 		if (!this._svgRect) this._svgRect = this._svg.getBoundingClientRect();
 		this._dragSvgRect = DOMRect.fromRect(this._svgRect);
