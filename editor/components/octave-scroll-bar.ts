@@ -22,7 +22,7 @@ export class OctaveScrollBar {
 	private readonly _octaveHeight: number = (this._editorHeight - this._notchHeight) / this._octaveCount;
 
 	private readonly _handle: SVGRectElement = SVG.rect({
-		fill: ColorConfig.sliderTrack,
+		fill: "var(--base03-muted)",
 		x: 2,
 		y: 0,
 		rx: 4,

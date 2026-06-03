@@ -259,6 +259,7 @@ export class InstrumentBrowserPrompt extends BasePrompt {
 		}
 
 		this._tagSearchInput.addEventListener("input", this._onTagSearch);
+		this._tagSearchInput.addEventListener("keydown", this._onTagSearchKeyDown);
 		this._tagClearButton.addEventListener("mousedown", (e: MouseEvent) => {
 			e.stopPropagation();
 			e.preventDefault();
@@ -998,6 +999,15 @@ export class InstrumentBrowserPrompt extends BasePrompt {
 		}
 	};
 
+	private _onTagSearchKeyDown = (event: KeyboardEvent): void => {
+		if (event.keyCode === 27) {
+			this._tagSearchInput.blur();
+			this.container.focus();
+			event.preventDefault();
+			event.stopPropagation();
+		}
+	};
+
 	private _onTagClear = (): void => {
 		this._activeTags = [];
 		this._writeActiveTags();
@@ -1088,6 +1098,7 @@ export class InstrumentBrowserPrompt extends BasePrompt {
 		this._searchInput.removeEventListener("input", this._onSearchInput);
 		this._searchInput.removeEventListener("keydown", this._onSearchKeyDown);
 		this._tagSearchInput.removeEventListener("input", this._onTagSearch);
+		this._tagSearchInput.removeEventListener("keydown", this._onTagSearchKeyDown);
 		this._tagClearButton.removeEventListener("click", this._onTagClear);
 		this.container.removeEventListener("keydown", this._onContainerKeyDown);
 		const externalInput = document.getElementById("presetTagsInputBox") as HTMLInputElement | null;
