@@ -2300,13 +2300,15 @@ export class PatternEditor {
 		}
 		const isMod: boolean = this._doc.song.getChannelIsMod(this._doc.channel);
 		const isDrum: boolean = this._doc.song.getChannelIsNoise(this._doc.channel);
-		const visibleOctave: number = this._doc.getBaseVisibleOctave(this._doc.channel) + this._doc.song.octave;
+		const baseVisibleOctave: number = this._doc.getBaseVisibleOctave(this._doc.channel);
 		const rawPitch: number = this._findMousePitch(this._mouseY);
 		const snappedPitch: number = this._snapToPitch(rawPitch, 0, this._pitchCount - 1 + this._octaveOffset);
-		const keyBasePitch: number = Config.keys[this._doc.song.key]?.basePitch ?? 0;
-		const pitchNameIndex: number = (snappedPitch + keyBasePitch) % Config.pitchesPerOctave;
+		// 0=top row index matching the piano's _cursorPitch numbering.
+		const cursorPitch: number = snappedPitch - this._octaveOffset;
+		const keyBasePitch: number = Config.keys[this._doc.song.key]?.basePitch ?? Config.keys[0].basePitch;
+		const pitchNameIndex: number = (cursorPitch + keyBasePitch) % Config.pitchesPerOctave;
 		const name: string =
-			isMod || isDrum ? String(snappedPitch) : Piano.getPitchNameAlwaysOctave(pitchNameIndex, snappedPitch, visibleOctave);
+			isMod || isDrum ? String(snappedPitch) : Piano.getPitchNameAlwaysOctave(pitchNameIndex, cursorPitch, baseVisibleOctave);
 		this._hoverTooltip.textContent = name;
 		// Position the tooltip 12px to the right and 12px below the
 		// cursor (or 12px above if the cursor is near the bottom edge).

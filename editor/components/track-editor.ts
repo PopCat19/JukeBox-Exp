@@ -318,29 +318,33 @@ export class TrackEditor {
 		const bar: number = this._mouseBar;
 		const channel: number = this._mouseChannel;
 		const overTrackEditor: boolean = this._mouseY >= Config.barEditorHeight;
+		
 		if (!overTrackEditor) {
-			// Over the bar-editor row: just show the bar number.
-			this._hoverTooltip.textContent = `Bar ${bar + 1}`;
+			this._hoverTooltip.textContent = `B${bar + 1}`;
 		} else {
-			// Over a channel cell: show bar + channel number + label.
 			const channelType: string = this._doc.song.getChannelIsNoise(channel) ? "D" : this._doc.song.getChannelIsMod(channel) ? "M" : "P";
-			this._hoverTooltip.textContent = `Bar ${bar + 1} \u2014 ${channelType}${channel + 1}`;
+			this._hoverTooltip.textContent = `B${bar + 1}/${channelType}${channel + 1}`;
 		}
+
+		// Track the cursor, swapping sides to avoid clipping at container edges.
 		const offset: number = 12;
 		const containerWidth: number = this.container.clientWidth;
 		const containerHeight: number = this.container.clientHeight;
 		const tooltipWidth: number = this._hoverTooltip.offsetWidth || 100;
 		const tooltipHeight: number = this._hoverTooltip.offsetHeight || 20;
+
 		let left: number = this._mouseX + offset;
 		if (left + tooltipWidth > containerWidth) {
 			left = this._mouseX - offset - tooltipWidth;
 		}
 		if (left < 0) left = 0;
+
 		let top: number = this._mouseY + offset;
 		if (top + tooltipHeight > containerHeight) {
 			top = this._mouseY - offset - tooltipHeight;
 		}
 		if (top < 0) top = 0;
+
 		this._hoverTooltip.style.left = left + "px";
 		this._hoverTooltip.style.top = top + "px";
 		this._hoverTooltip.style.display = "block";

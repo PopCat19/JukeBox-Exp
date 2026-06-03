@@ -389,10 +389,11 @@ export class Piano {
 			const isMod: boolean = this._doc.song.getChannelIsMod(this._doc.channel);
 			const isDrum: boolean = this._doc.song.getChannelIsNoise(this._doc.channel);
 			const baseVisibleOctave: number = this._doc.getBaseVisibleOctave(this._doc.channel);
+			const keyBasePitch: number = Config.keys[this._doc.song.key]?.basePitch ?? Config.keys[0].basePitch;
 			const name: string =
 				isMod || isDrum
 					? String(this._cursorPitch)
-					: Piano.getPitchNameAlwaysOctave(this._cursorPitch % Config.pitchesPerOctave, this._cursorPitch, baseVisibleOctave);
+					: Piano.getPitchNameAlwaysOctave((this._cursorPitch + keyBasePitch) % Config.pitchesPerOctave, this._cursorPitch, baseVisibleOctave);
 			this._tooltip.textContent = name;
 			this._tooltip.style.display = "block";
 			// Anchor the tooltip to the vertical center of the hovered key.
