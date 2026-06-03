@@ -1078,26 +1078,7 @@ html {
 .beepboxEditor .prompt.compactSearchPrompt input:focus {
 	border-color: var(--indicator-primary, #4444ff);
 }
-.beepboxEditor .prompt.compactSearchPrompt .tagBrowserButton {
-	flex: var(--flex-fit);
-	align-self: stretch;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	height: 100%;
-	background: var(--ui-widget-background);
-	border: ${BorderWidth.default} solid transparent;
-	border-radius: var(--border-radius-medium);
-	color: var(--primary-text);
-	font-size: 12px;
-	line-height: 1.4;
-	padding: 0 var(--padding-10);
-	box-sizing: border-box;
-}
-.beepboxEditor .prompt.compactSearchPrompt .tagBrowserButton:hover {
-	background: var(--ui-widget-focus);
-}
-
+.beepboxEditor .prompt.compactSearchPrompt .tagBrowserButton,
 .beepboxEditor .prompt.compactSearchPrompt .tagClearButton {
 	flex: var(--flex-fit);
 	align-self: stretch;
@@ -1106,9 +1087,9 @@ html {
 	justify-content: center;
 	height: 100%;
 	min-width: 80px;
-	background: var(--ui-widget-background);
-	border: ${BorderWidth.default} solid transparent;
-	border-radius: ${BorderRadius.md};
+	background: var(--prompt-list-item-bg);
+	border: 2px solid transparent;
+	border-radius: var(--border-radius-medium);
 	color: var(--primary-text);
 	font-size: 12px;
 	line-height: 1.4;
@@ -1116,12 +1097,27 @@ html {
 	box-sizing: border-box;
 	cursor: pointer;
 	outline: none;
-	transition: background 80ms ease;
 	white-space: nowrap;
+	/* Override the global button:hover inset box-shadow so the
+	 * border-based hover indicator isn't doubled up. */
+	box-shadow: none;
 }
 
+.beepboxEditor .prompt.compactSearchPrompt .tagBrowserButton:hover,
 .beepboxEditor .prompt.compactSearchPrompt .tagClearButton:hover {
-	background: var(--ui-widget-focus);
+	border-color: var(--hout, var(--primary-text));
+}
+
+.beepboxEditor .prompt.compactSearchPrompt .tagBrowserButton.active,
+.beepboxEditor .prompt.compactSearchPrompt .tagClearButton.active {
+	background: var(--cta-bg);
+	color: var(--cta-fg);
+	border-color: var(--cta-bg);
+}
+
+.beepboxEditor .prompt.compactSearchPrompt .tagBrowserButton.active:hover,
+.beepboxEditor .prompt.compactSearchPrompt .tagClearButton.active:hover {
+	border-color: var(--editor-background);
 }
 
 .beepboxEditor .prompt.compactSearchPrompt .tagCountLabel {
@@ -1139,25 +1135,41 @@ html {
 	font-size: 12px;
 	line-height: 1.3;
 	border-radius: var(--border-radius-medium);
-	background: rgba(255,255,255,0.03);
+	background: var(--prompt-list-item-bg);
+	border: 2px solid transparent;
+	box-sizing: border-box;
 }
 
 .beepboxEditor .prompt.compactSearchPrompt .categoryItem:hover,
 .beepboxEditor .prompt.compactSearchPrompt .presetItem:hover {
-	background: rgba(255,255,255,0.06);
+	border-color: var(--hout, var(--primary-text));
 }
 
 .beepboxEditor .prompt.compactSearchPrompt .categoryItem.committed,
 .beepboxEditor .prompt.compactSearchPrompt .presetItem.committed {
-	outline: 2px solid rgba(255,255,255,0.15);
-	outline-offset: -2px;
+	background: var(--cta-bg);
+	color: var(--cta-fg);
+	border-color: var(--cta-bg);
 }
 
+.beepboxEditor .prompt.compactSearchPrompt .categoryItem.committed:hover,
+.beepboxEditor .prompt.compactSearchPrompt .presetItem.committed:hover {
+	border-color: var(--editor-background);
+}
+
+/* Keyboard navigation focus — a distinct tier from click-committed
+ * so the user can tell "I'm hovering with the cursor" from "I
+ * navigated here with the keyboard". 80x body border, no bg swap.
+ * Inverts to 4x when the item is also CTA-active, so the border
+ * stays contrasted against the 88x fill (same rule as hover). */
 .beepboxEditor .prompt.compactSearchPrompt .categoryItem.focused,
 .beepboxEditor .prompt.compactSearchPrompt .presetItem.focused {
-	background: rgba(255,255,255,0.03);
-	outline: 2px solid var(--indicator-primary, #4444ff);
-	outline-offset: -2px;
+	border-color: var(--hout, var(--primary-text));
+}
+
+.beepboxEditor .prompt.compactSearchPrompt .categoryItem.committed.focused,
+.beepboxEditor .prompt.compactSearchPrompt .presetItem.committed.focused {
+	border-color: var(--editor-background);
 }
 
 .beepboxEditor .prompt.compactSearchPrompt .categoryItem.dimmed,
@@ -1168,9 +1180,8 @@ html {
 .beepboxEditor .prompt.compactSearchPrompt .categoryItem.dimmed-heavy,
 .beepboxEditor .prompt.compactSearchPrompt .presetItem.dimmed-heavy {
 	background: transparent;
-	color: rgba(255,255,255,0.8);
-	outline: 2px solid rgba(255,255,255,0.15);
-	outline-offset: -2px;
+	color: var(--primary-text);
+	border-color: var(--subtext, var(--primary-text));
 	cursor: default;
 	opacity: 1;
 }
@@ -1226,8 +1237,8 @@ html {
 	color: var(--primary-text);
 }
 .beepboxEditor .prompt.compactSearchPrompt .tabButton.active {
-	color: var(--tab-active-fg);
-	background: var(--tab-active-bg);
+	color: var(--cta-fg);
+	background: var(--cta-bg);
 	font-weight: 600;
 }
 
@@ -1239,7 +1250,7 @@ html {
 }
 
 .beepboxEditor .prompt.compactSearchPrompt .tagGridContainer {
-	border: ${BorderWidth.default} solid var(--ui-widget-background);
+	border: ${BorderWidth.default} solid var(--prompt-list-item-border);
 	border-radius: var(--border-radius-medium);
 	overflow: hidden;
 	padding: var(--padding-8);
@@ -2418,29 +2429,39 @@ li.select2-results__option[role=group] > strong:hover {
 	cursor: pointer;
 	font-size: 12px;
 	border-radius: var(--border-radius-medium);
-	border: ${BorderWidth.default} solid var(--ui-widget-background);
-	background: transparent;
+	border: 2px solid transparent;
+	background: var(--prompt-list-item-bg);
 	color: var(--primary-text);
 	display: flex;
 	justify-content: space-between;
 	align-items: center;
-	transition: border-color ${Animation.durationNormal} ease, background ${Animation.durationFast} ease, color ${Animation.durationFast} ease;
+	box-sizing: border-box;
 	outline: none;
 }
 
 .beepboxEditor .tagListItem:hover {
-	border-color: color-mix(in srgb, var(--indicator-primary), transparent 50%);
+	border-color: var(--hout, var(--primary-text));
 }
 
 .beepboxEditor .tagListItem.active {
-	background: var(--ui-widget-focus);
-	color: var(--primary-text);
-	border-color: var(--ui-widget-focus);
+	background: var(--cta-bg);
+	color: var(--cta-fg);
+	border-color: var(--cta-bg);
 }
 
+.beepboxEditor .tagListItem.active:hover {
+	border-color: var(--editor-background);
+}
+
+/* Keyboard navigation cursor — distinct from .active (click-pinned
+ * filter) on its own, but inverts to 4x when the item is also
+ * CTA-active so the border keeps contrast against the 88x fill. */
 .beepboxEditor .tagListItem.selected {
-	outline: 1px solid var(--ui-widget-focus);
-	outline-offset: 1px;
+	border-color: var(--hout, var(--primary-text));
+}
+
+.beepboxEditor .tagListItem.active.selected {
+	border-color: var(--editor-background);
 }
 
 .beepboxEditor .tagChip {

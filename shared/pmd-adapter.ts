@@ -49,10 +49,20 @@ export function applyPMDToDOM(colors: Base16Palette): void {
 	set("--playhead", withAlpha("base07", 0.9));
 
 	// Tab bar (joined pill tabs in prompts)
-	set("--tab-active-bg", c("base06"));
-	set("--tab-active-fg", c("base00"));
 	set("--tab-inactive-bg", c("base01"));
 	set("--tab-inactive-fg", c("base03"));
+
+	// Prompt surfaces (inner widgets). The prompt itself uses
+	// --prompt-bg-color (base02 @ 40% alpha) + 24px backdrop blur.
+	set("--prompt-list-item-bg", c("base02"));
+	set("--prompt-list-item-bg-hover", c("base01"));
+	set("--prompt-list-item-border", c("base01"));
+
+	// Generic CTA inversion (88x Headers bg + 100x body fg). Shared
+	// by tab buttons, list items, and tag buttons so the active
+	// state is visually identical across all of them.
+	set("--cta-bg", c("base06"));
+	set("--cta-fg", c("base00"));
 
 	// Widget surfaces
 	set("--ui-widget-background", c("base02"));
