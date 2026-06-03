@@ -1232,11 +1232,17 @@ html {
 	line-height: 1.4;
 	cursor: pointer;
 	box-sizing: border-box;
+	outline: none;
+	box-shadow: none;
 	transition: background 80ms ease, color 80ms ease, border-color 80ms ease;
 }
 .beepboxEditor .prompt.compactSearchPrompt .tabButton:hover {
 	color: var(--primary-text);
 	border-color: var(--hout, var(--primary-text));
+	outline: none;
+}
+.beepboxEditor .prompt.compactSearchPrompt .tabButton:focus-visible {
+	outline: none;
 }
 .beepboxEditor .prompt.compactSearchPrompt .tabButton.active {
 	color: var(--cta-fg);
@@ -1245,6 +1251,7 @@ html {
 }
 .beepboxEditor .prompt.compactSearchPrompt .tabButton.active:hover {
 	border-color: var(--editor-background);
+	outline: none;
 }
 
 .beepboxEditor .prompt.compactSearchPrompt .presetsTabContent,

@@ -15,7 +15,7 @@ import { ChangeLimiterSettings } from "../changes";
 import { prettyNumber } from "../config/editor-config";
 import { PromptEditorRefs } from "../core/prompt-manager";
 import { SongDocument } from "../song-document";
-import { labelRow } from "../ui";
+import { flexRowCenter, labelRow } from "../ui";
 import { BasePrompt } from "./base-prompt";
 import { updatePlayButton } from "./input-helpers";
 
@@ -338,7 +338,7 @@ export class LimiterPrompt extends BasePrompt {
 		{ class: "prompt noSelection", style: "width: 250px;" },
 		h2("Limiter Options"),
 		div({ style: "display: flex; width: 55%; align-self: center; flex-direction: row; align-items: center; justify-content: center;" }, this._playButton),
-		div({ style: "display: flex; flex-direction: row; align-items: center; justify-content: center;" }, this.limiterCanvas.container),
+		flexRowCenter(undefined, this.limiterCanvas.container),
 		labelRow(
 			{ marginTop: "1.5em" },
 			div({ style: `text-align: right; width: 25%; margin-right: 4.5%; color: ${ColorConfig.primaryText};` }, ""),

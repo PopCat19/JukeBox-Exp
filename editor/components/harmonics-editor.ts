@@ -19,6 +19,7 @@ import { PromptEditorRefs } from "../core/prompt-manager";
 import { closePrompt, updatePlayButton } from "../prompts/input-helpers";
 import { Prompt } from "../prompts/prompt";
 import { SongDocument } from "../song-document";
+import { flexRowCenter } from "../ui";
 
 export class HarmonicsEditor {
 	private readonly _editorWidth: number = 120;
@@ -394,7 +395,7 @@ export class HarmonicsEditorPrompt implements Prompt {
 			},
 			this._playButton,
 		),
-		HTML.div({ style: "display: flex; flex-direction: row; align-items: center; justify-content: center;" }, this.harmonicsEditor.container),
+		flexRowCenter(undefined, this.harmonicsEditor.container),
 		HTML.div({ style: "display: flex; flex-direction: row-reverse; justify-content: space-between;" }, this._okayButton, this.copyPasteContainer),
 		this._cancelButton,
 	);

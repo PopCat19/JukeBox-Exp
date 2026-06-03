@@ -14,6 +14,7 @@ import { ColorConfig } from "../../shared/color-config";
 import { ChangeCustomWave } from "../changes";
 import { PromptEditorRefs } from "../core/prompt-manager";
 import { SongDocument } from "../song-document";
+import { flexRowCenter } from "../ui";
 import { BasePrompt } from "./base-prompt";
 import { updatePlayButton } from "./input-helpers";
 
@@ -337,7 +338,7 @@ export class CustomChipPrompt extends BasePrompt {
 			},
 			this._playButton,
 		),
-		div({ style: "display: flex; flex-direction: row; align-items: center; justify-content: center;" }, this.customChipCanvas.container),
+		flexRowCenter(undefined, this.customChipCanvas.container),
 		this._getOkayRow(this.copyPasteContainer),
 		this._cancelButton,
 	);

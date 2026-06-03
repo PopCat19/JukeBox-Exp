@@ -81,7 +81,10 @@ export class ExportPrompt extends BasePrompt {
 	private readonly _outputProgressBar: HTMLDivElement = div({
 		style: `width: 0%; background: ${ColorConfig.loopAccent}; height: 100%; position: absolute; z-index: 2;`,
 	});
-	private readonly _outputProgressLabel: HTMLDivElement = div({ style: `position: relative; top: -1px; z-index: 3; mix-blend-mode: difference; color: #ffffff; font-weight: 600;` }, "0%");
+	private readonly _outputProgressLabel: HTMLDivElement = div(
+		{ style: `position: relative; top: -1px; z-index: 3; mix-blend-mode: difference; color: #ffffff; font-weight: 600;` },
+		"0%",
+	);
 	private readonly _outputProgressContainer: HTMLDivElement = div(
 		{
 			style: `height: 12px; background: ${ColorConfig.uiWidgetBackground}; display: block; position: relative; z-index: 1;`,

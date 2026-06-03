@@ -74,3 +74,8 @@ export {
 	Typography,
 	ZIndex,
 } from "./style-constants";
+// Tip Span
+export type { TipSpanOptions } from "./tip-span";
+export { tipSpan } from "./tip-span";
+// Value Label
+export { valueLabel } from "./value-label";
