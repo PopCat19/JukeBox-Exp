@@ -12,7 +12,7 @@ import { HTML } from "imperative-html/dist/esm/elements-strict";
 import { Config } from "../../synth/synth-config";
 import { ChangeMoveNotesSideways } from "../changes";
 import { SongDocument } from "../song-document";
-import { addWheelSupport, labelRow, promptHint, w } from "../ui";
+import { addWheelSupport, labelRow, promptHint, selectField, w } from "../ui";
 import { BasePrompt } from "./base-prompt";
 
 const { div, h2, input, br, select, option } = HTML;
@@ -34,7 +34,7 @@ export class MoveNotesSidewaysPrompt extends BasePrompt {
 		{ class: "prompt noSelection", style: "width: var(--prompt-width-sm);" },
 		h2("Move Notes Sideways"),
 		labelRow(div({ class: "prompt-label" }, "Beats to move:", br(), promptHint("(Negative is left, positive is right)")), this._beatsStepper),
-		labelRow(div({ class: "selectContainer", style: "width: 100%;" }, this._conversionStrategySelect)),
+		selectField("Conversion:", this._conversionStrategySelect),
 		this._getOkayRow(),
 		this._cancelButton,
 	);

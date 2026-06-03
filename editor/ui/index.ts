@@ -24,10 +24,11 @@ export type {
 	FormRowOptions,
 	LabelRowOptions,
 	SelectContainerOptions,
+	SelectFieldOptions,
 	SelectRowOptions,
 } from "./containers";
 // Containers
-export { checkboxRow, flexColumnCenter, flexRowCenter, formRow, labelRow, okayRow, scrollableContainer, selectContainer, selectRow } from "./containers";
+export { checkboxRow, flexColumnCenter, flexRowCenter, formRow, labelRow, okayRow, scrollableContainer, selectContainer, selectField, selectRow } from "./containers";
 // Inputs
 export { checkboxInput, createInputBox, InputBox, searchInput, stepperInput } from "./inputs";
 // Labels

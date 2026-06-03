@@ -18,7 +18,7 @@ import { BasePrompt } from "./base-prompt";
 import { exportToMidi } from "./export-midi";
 import { Prompt } from "./prompt";
 import { save } from "./save";
-import { flexBetween, promptPanel, s, textAlign, w } from "../ui";
+import { flexBetween, promptPanel, s, selectField, textAlign, w } from "../ui";
 
 const { div, h2, input, select, option } = HTML;
 
@@ -117,7 +117,7 @@ export class ExportPrompt extends BasePrompt {
 		this._removeWhitespaceDiv,
 		this._keepOpenDiv,
 		this._oggWarning,
-		div({ class: "selectContainer", style: s(w("100%"), "margin-bottom:14px;") }, this._formatSelect),
+		selectField("Format:", this._formatSelect, { selectWidth: "100%" }),
 		div({ style: textAlign("left") }, "Exporting can be slow. Reloading the page or clicking the X will cancel it. Please be patient."),
 		this._outputProgressContainer,
 		this._getOkayRow(),

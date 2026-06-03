@@ -8,7 +8,7 @@
 
 import { HTML } from "imperative-html/dist/esm/elements-strict";
 import { SongDocument } from "../song-document";
-import { labelRow, promptPanel, w } from "../ui";
+import { promptPanel, selectField, w } from "../ui";
 import { BasePrompt } from "./base-prompt";
 
 const { div, h2, select, option } = HTML;
@@ -23,7 +23,7 @@ export class ShortenerConfigPrompt extends BasePrompt {
 	public readonly container: HTMLDivElement = div(
 		{ class: "prompt noSelection", style: promptPanel("250px") },
 		h2("Configure Shortener"),
-		labelRow(div({ class: "selectContainer", style: w("100%") }, this._shortenerStrategySelect)),
+		selectField("Strategy:", this._shortenerStrategySelect),
 		this._getOkayRow(),
 		this._cancelButton,
 	);

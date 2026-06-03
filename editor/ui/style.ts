@@ -22,6 +22,9 @@ import {
 	Typography,
 	ZIndex,
 } from "./style-constants";
+import { HTML } from "imperative-html/dist/esm/elements-strict";
+
+const { div } = HTML;
 
 // ── Style composer ─────────────────────────────────────────
 // Compose multiple CSS declarations into one string.
@@ -95,6 +98,17 @@ export const promptPanel = (width: string, textAlignDir: "left" | "right" | "cen
 		`width:${width};`,
 		textAlign(textAlignDir),
 	);
+
+/**
+ * Creates a prompt container element.
+ * Shorthand for: div({ class: "prompt noSelection", style: w(width) }, ...children)
+ *
+ * The width parameter uses Sizing tokens or CSS values:
+ *   promptFrame("300px", children)          — fixed width
+ *   promptFrame(Sizing.promptSm, children)  — Sizing.promptSm = "250px"
+ */
+export const promptFrame = (width: string, ...children: (HTMLElement | string)[]) =>
+	div({ class: "prompt noSelection", style: w(width) }, ...children);
 
 /** Inline-flex with gap, used for rows of small elements */
 export const flexInline = (opts?: { gap?: string }) =>

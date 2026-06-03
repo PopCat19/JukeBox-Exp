@@ -13,7 +13,7 @@ import { Config } from "../../synth/synth-config";
 import { ChangeBarCount } from "../changes";
 import { ChangeGroup } from "../core/change";
 import { SongDocument } from "../song-document";
-import { addWheelSupport, labelRow, promptHint, promptRowBetween, promptValue, w } from "../ui";
+import { addWheelSupport, labelRow, promptHint, promptRowBetween, promptValue, selectField, w } from "../ui";
 import { BasePrompt } from "./base-prompt";
 import { ExportPrompt } from "./export-prompt";
 import { validate, validateKey, validateNumber } from "./input-helpers";
@@ -38,7 +38,7 @@ export class SongDurationPrompt extends BasePrompt {
 		h2("Song Length"),
 		promptRowBetween("Length:", this._computedSamplesLabel),
 		labelRow(div({ class: "prompt-label" }, "Bars per song:", br(), promptHint("(Multiples of 4 are recommended)")), this._barsStepper),
-		labelRow(div({ class: "selectContainer", style: "width: 100%;" }, this._positionSelect)),
+		selectField("Position:", this._positionSelect),
 		this._getOkayRow(),
 		this._cancelButton,
 	);

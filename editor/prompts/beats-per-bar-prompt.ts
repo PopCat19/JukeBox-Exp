@@ -12,7 +12,7 @@ import { HTML } from "imperative-html/dist/esm/elements-strict";
 import { Config } from "../../synth/synth-config";
 import { ChangeBeatsPerBar } from "../changes";
 import { SongDocument } from "../song-document";
-import { addWheelSupport, labelRow, promptHint, promptRowBetween, promptValue, w } from "../ui";
+import { addWheelSupport, labelRow, promptHint, promptRowBetween, promptValue, selectField, w } from "../ui";
 import { BasePrompt } from "./base-prompt";
 import { ExportPrompt } from "./export-prompt";
 import { validate, validateKey, validateNumber } from "./input-helpers";
@@ -38,7 +38,7 @@ export class BeatsPerBarPrompt extends BasePrompt {
 		h2("Beats Per Bar"),
 		promptRowBetween("Length:", this._computedSamplesLabel),
 		labelRow(div({ class: "prompt-label" }, "Beats per bar:", br(), promptHint("(Multiples of 3 or 4 are normal and boring)")), this._beatsStepper),
-		labelRow(div({ class: "selectContainer", style: "width: 100%;" }, this._conversionStrategySelect)),
+		selectField("Conversion:", this._conversionStrategySelect),
 		this._getOkayRow(),
 		this._cancelButton,
 	);

@@ -12,7 +12,7 @@ import { HTML } from "imperative-html/dist/esm/elements-strict";
 import { Channel, Instrument } from "../../synth";
 import { ChangeAppendInstrument, ChangePasteInstrument, ChangeViewInstrument } from "../changes";
 import { SongDocument } from "../song-document";
-import { labelRow, w } from "../ui";
+import { selectField, w } from "../ui";
 import { BasePrompt } from "./base-prompt";
 
 const { div, h2, input, select, option, code } = HTML;
@@ -39,7 +39,7 @@ export class InstrumentImportPrompt extends BasePrompt {
 		{ class: "prompt noSelection", style: w("300px") },
 		h2("Import Instrument(s)"),
 		this._strategyInfoText,
-		labelRow(div({ class: "selectContainer", style: w("100%") }, this._importStrategySelect)),
+		selectField("Import:", this._importStrategySelect),
 		this._fileInput,
 		this._cancelButton,
 	);
