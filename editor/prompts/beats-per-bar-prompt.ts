@@ -4,6 +4,8 @@
 //
 // This module:
 // - Presents UI for selecting beats-per-bar value
+// - Shows predicted song duration after the change
+// - Offers conversion strategy (splice / stretch / overflow)
 // - Applies the change to the song document
 
 // Copyright (c) 2012-2022 John Nesky and contributing authors, distributed under the MIT license, see accompanying the LICENSE.md file.
@@ -12,32 +14,35 @@ import { HTML } from "imperative-html/dist/esm/elements-strict";
 import { Config } from "../../synth/synth-config";
 import { ChangeBeatsPerBar } from "../changes";
 import { SongDocument } from "../song-document";
-import { addWheelSupport, labelRow, promptHint, promptRowBetween, promptValue, selectField, w } from "../ui";
+import { addWheelSupport, promptHint, promptLabel, promptRowBetween, promptValue, selectField } from "../ui";
 import { BasePrompt } from "./base-prompt";
 import { ExportPrompt } from "./export-prompt";
 import { validate, validateKey, validateNumber } from "./input-helpers";
 
-const { div, h2, input, br, select, option } = HTML;
+const { div, h2, input, select, option } = HTML;
 
 export class BeatsPerBarPrompt extends BasePrompt {
 	private readonly _computedSamplesLabel = promptValue("0:00");
 	private readonly _beatsStepper: HTMLInputElement = input({
-		style: w("3em"),
 		type: "number",
 		step: "1",
 	});
 	private readonly _conversionStrategySelect: HTMLSelectElement = select(
-		{ style: w("100%") },
+		{},
 		option({ value: "splice" }, "Splice beats at end of bars."),
 		option({ value: "stretch" }, "Stretch notes to fit in bars."),
 		option({ value: "overflow" }, "Overflow notes across bars."),
 	);
 
 	public readonly container: HTMLDivElement = div(
-		{ class: "prompt noSelection", style: w("var(--prompt-width-sm)") },
+		{ class: "prompt beatsPerBarPrompt noSelection" },
 		h2("Beats Per Bar"),
-		promptRowBetween("Length:", this._computedSamplesLabel),
-		labelRow(div({ class: "prompt-label" }, "Beats per bar:", br(), promptHint("(Multiples of 3 or 4 are normal and boring)")), this._beatsStepper),
+		promptRowBetween(promptLabel("Length:"), this._computedSamplesLabel),
+		promptRowBetween(
+			promptLabel("Beats per bar:"),
+			this._beatsStepper,
+		),
+		div({ class: "promptHintRow" }, promptHint("(Multiples of 3 or 4 are normal and boring)")),
 		selectField("Conversion:", this._conversionStrategySelect),
 		this._getOkayRow(),
 		this._cancelButton,

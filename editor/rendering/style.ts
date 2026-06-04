@@ -1412,6 +1412,24 @@ html {
 	display: none;
 }
 
+/* ── Beats Per Bar Prompt ── */
+.beepboxEditor .prompt.beatsPerBarPrompt {
+	width: 280px;
+}
+
+.beepboxEditor .prompt.beatsPerBarPrompt input[type="number"] {
+	width: 4em;
+	text-align: center;
+}
+
+.beepboxEditor .prompt.beatsPerBarPrompt .promptHintRow {
+	padding: 0;
+	margin: -4px 0 4px 0;
+	font-size: 10px;
+	color: var(--secondary-text);
+	text-align: right;
+}
+
 .beepboxEditor .layout-option {
 	display: flex;
 	flex-direction: column;
