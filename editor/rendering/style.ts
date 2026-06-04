@@ -1766,6 +1766,75 @@ html {
 	justify-content: space-between;
 }
 
+/* ── Recording Setup Prompt ── */
+.beepboxEditor .prompt.recordingSetupPrompt select {
+	width: 100%;
+}
+
+.beepboxEditor .prompt.recordingSetupPrompt .rsCheckbox {
+	margin-left: 1em;
+}
+
+.beepboxEditor .prompt.recordingSetupPrompt .rsGrid {
+	display: grid;
+	overflow-y: auto;
+	overflow-x: hidden;
+	flex-shrink: 1;
+}
+
+.beepboxEditor .prompt.recordingSetupPrompt .rsPreview {
+	display: grid;
+	row-gap: 4px;
+	margin: 4px auto;
+	font-size: 10px;
+}
+
+.beepboxEditor .prompt.recordingSetupPrompt .rsModeRow {
+	display: flex;
+	flex-direction: row;
+	margin-top: 0.5em;
+	margin-bottom: 0.5em;
+	height: 2em;
+	justify-content: center;
+}
+
+.beepboxEditor .prompt.recordingSetupPrompt .selectContainer {
+	width: 50%;
+}
+
+/* ── Palette Prompt ── */
+.beepboxEditor .prompt.palettePrompt {
+	width: 480px;
+	max-height: 90vh;
+	display: flex;
+	flex-direction: column;
+}
+
+.beepboxEditor .prompt.palettePrompt .ppScroll {
+	max-height: 55vh;
+	overflow-y: auto;
+	padding-right: 4px;
+}
+
+.beepboxEditor .prompt.palettePrompt .ppButtonRow {
+	display: flex;
+	gap: 4px;
+	flex-wrap: wrap;
+	margin-top: 8px;
+}
+
+.beepboxEditor .prompt.palettePrompt .ppActionBtn {
+	width: auto;
+	font-size: 10px;
+}
+
+.beepboxEditor .prompt.palettePrompt .ppFooter {
+	display: flex;
+	flex-direction: row-reverse;
+	justify-content: space-between;
+	margin-top: 8px;
+}
+
 /* ── Custom Scale Prompt ── */
 .beepboxEditor .prompt.customScalePrompt {
 	width: 250px;

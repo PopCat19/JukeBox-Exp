@@ -15,19 +15,19 @@ import { Piano } from "../components/piano";
 import { EditorConfig } from "../config/editor-config";
 import { KeyboardLayout } from "../config/keyboard-layout";
 import { SongDocument } from "../song-document";
-import { checkboxRow, flex, s, selectRow, textAlign, w } from "../ui";
+import { checkboxRow, selectRow, w } from "../ui";
 import { BasePrompt } from "./base-prompt";
 
 const { div, p, a, h2, input, select, option } = HTML;
 
 export class RecordingSetupPrompt extends BasePrompt {
 	private readonly _keyboardMode: HTMLSelectElement = select(
-		{ style: w("100%") },
+		{},
 		option({ value: "useCapsLockForNotes" }, "simple shortcuts, use caps lock to play notes"),
 		option({ value: "pressControlForShortcuts" }, "simple notes, press " + EditorConfig.ctrlName + " for shortcuts"),
 	);
 	private readonly _keyboardLayout: HTMLSelectElement = select(
-		{ style: w("100%") },
+		{},
 		option({ value: "wickiHayden" }, "Wicki-Hayden"),
 		option({ value: "songScale" }, "selected song scale"),
 		option({ value: "pianoAtC" }, "piano starting at C"),
@@ -36,41 +36,39 @@ export class RecordingSetupPrompt extends BasePrompt {
 		option({ value: "pianoTransposingA" }, "piano transposing A to song key"),
 	);
 	private readonly _bassOffset: HTMLSelectElement = select(
-		{ style: w("100%") },
+		{},
 		option({ value: "0" }, "disabled"),
 		option({ value: "-1" }, "before"),
 		option({ value: "1" }, "after"),
 	);
-	private readonly _keyboardLayoutPreview: HTMLDivElement = div({
-		style: "display: grid; row-gap: 4px; margin: 4px auto; font-size: 10px;",
-	});
-	private readonly _enableMidi: HTMLInputElement = input({ style: "margin-left:1em;", type: "checkbox" });
+	private readonly _keyboardLayoutPreview: HTMLDivElement = div({ class: "rsPreview" });
+	private readonly _enableMidi: HTMLInputElement = input({ class: "rsCheckbox", type: "checkbox" });
 	private readonly _showRecordButton: HTMLInputElement = input({
-		style: "margin-left:1em;",
+		class: "rsCheckbox",
 		type: "checkbox",
 	});
 	private readonly _snapRecordedNotesToRhythm: HTMLInputElement = input({
-		style: "margin-left:1em;",
+		class: "rsCheckbox",
 		type: "checkbox",
 	});
 	private readonly _ignorePerformedNotesNotInScale: HTMLInputElement = input({
-		style: "margin-left:1em;",
+		class: "rsCheckbox",
 		type: "checkbox",
 	});
 	private readonly _metronomeCountIn: HTMLInputElement = input({
-		style: "margin-left:1em;",
+		class: "rsCheckbox",
 		type: "checkbox",
 	});
 	private readonly _metronomeWhileRecording: HTMLInputElement = input({
-		style: "margin-left:1em;",
+		class: "rsCheckbox",
 		type: "checkbox",
 	});
 
 	public readonly container: HTMLDivElement = div(
-		{ class: "prompt noSelection recordingSetupPrompt", style: s(w("600px"), textAlign("right"), "max-height:90%;") },
-		h2({ style: "align-self:center;" }, "Note Recording Setup"),
+		{ class: "prompt recordingSetupPrompt noSelection" },
+		h2({}, "Note Recording Setup"),
 		div(
-			{ style: "display:grid;overflow-y:auto;overflow-x:hidden;flex-shrink:1;" },
+			{ class: "rsGrid" },
 			p("JukeBox can record notes as you perform them. You can start recording by pressing Ctrl+Space (or " + EditorConfig.ctrlSymbol + "P)."),
 			checkboxRow("Add ● record button next to ▶ play button:", this._showRecordButton),
 			checkboxRow("Snap recorded notes to the song's rhythm:", this._snapRecordedNotesToRhythm),
@@ -82,7 +80,7 @@ export class RecordingSetupPrompt extends BasePrompt {
 				"When not recording, you can use the computer keyboard either for shortcuts (like C and V for copy and paste) or for performing notes, depending on this mode:",
 			),
 			div(
-				{ style: s(flex("row"), "margin-top:0.5em;margin-bottom:0.5em;height:2em;justify-content:center;") },
+				{ class: "rsModeRow" },
 				div({ class: "selectContainer", style: w("50%") }, this._keyboardMode),
 			),
 			p("Performing music takes practice! Try slowing the tempo and using this metronome to help you keep a rhythm."),

@@ -348,18 +348,18 @@ export class PalettePrompt extends BasePrompt {
 	private readonly _resetBtn: HTMLButtonElement = actionButton("Reset", { style: "width: auto; font-size: 10px;" });
 
 	public readonly container: HTMLDivElement = div(
-		{ class: "prompt noSelection", style: "width: 480px; max-height: 90vh; display: flex; flex-direction: column;" },
+		{ class: "prompt palettePrompt noSelection" },
 		h2("Color Palette"),
 		this._scrollArea,
 		div(
-			{ style: "display: flex; gap: 4px; flex-wrap: wrap; margin-top: 8px;" },
+			{ class: "ppButtonRow" },
 			this._exportCssBtn,
 			this._downloadCssBtn,
 			this._downloadJsonBtn,
 			this._rawCssBtn,
 			this._resetBtn,
 		),
-		div({ style: "display: flex; flex-direction: row-reverse; justify-content: space-between; margin-top: 8px;" }, this._getOkayRow(), this._cancelButton),
+		div({ class: "ppFooter" }, this._getOkayRow(), this._cancelButton),
 	);
 
 	constructor(doc: SongDocument) {
