@@ -1,4 +1,4 @@
-import { Sizing } from "../ui/style-constants";
+
 // CustomChipPrompt
 //
 // Purpose: Provides dialog for editing custom chip wave sample data
@@ -14,7 +14,7 @@ import { ColorConfig } from "../../shared/color-config";
 import { ChangeCustomWave } from "../changes";
 import { PromptEditorRefs } from "../core/prompt-manager";
 import { SongDocument } from "../song-document";
-import { flexRowCenter, w } from "../ui";
+import { flexRowCenter } from "../ui";
 import { BasePrompt } from "./base-prompt";
 import { updatePlayButton } from "./input-helpers";
 
@@ -40,7 +40,7 @@ export class CustomChipPromptCanvas {
 	private readonly _blocks: SVGSVGElement = SVG.svg({ "pointer-events": "none" });
 	private readonly _svg: SVGSVGElement = SVG.svg(
 		{
-			style: `background-color: ${ColorConfig.editorBackground}; touch-action: none; overflow: visible;`,
+			class: "filterCanvas",
 			width: "100%",
 			height: "100%",
 			viewBox: "0 0 " + this._editorWidth + " " + this._editorHeight,
@@ -54,8 +54,7 @@ export class CustomChipPromptCanvas {
 
 	public readonly container: HTMLElement = HTML.div(
 		{
-			class: "",
-			style: "height: 294px; width: 768px; padding-bottom: 1.5em;",
+			class: "chipCanvasWrap",
 		},
 		this._svg,
 	);
@@ -283,18 +282,17 @@ export class CustomChipPromptCanvas {
 export class CustomChipPrompt extends BasePrompt {
 	public customChipCanvas: CustomChipPromptCanvas = new CustomChipPromptCanvas(this._doc);
 
-	public readonly _playButton: HTMLButtonElement = button({ style: w("55%"), type: "button" });
+	public readonly _playButton: HTMLButtonElement = button({ class: "play55Btn", type: "button" });
 
 	private readonly copyButton: HTMLButtonElement = button(
 		{
-			style: `width:${Sizing.inputSm}; margin-right: 5px;`,
-			class: "copyButton",
+			class: "iconBtnSm marginRight copyButton",
 		},
 		[
 			"Copy",
 			SVG.svg(
 				{
-					style: "flex-shrink: 0; position: absolute; left: 0; top: 50%; margin-top: -1em; pointer-events: none;",
+					class: "iconBtnSvgOverlay",
 					width: "2em",
 					height: "2em",
 					viewBox: "-5 -21 26 26",
@@ -308,11 +306,11 @@ export class CustomChipPrompt extends BasePrompt {
 			),
 		],
 	);
-	private readonly pasteButton: HTMLButtonElement = button({ style: `width:${Sizing.inputSm};`, class: "pasteButton" }, [
+	private readonly pasteButton: HTMLButtonElement = button({ class: "iconBtnSm pasteButton" }, [
 		"Paste",
 		SVG.svg(
 			{
-				style: "flex-shrink: 0; position: absolute; left: 0; top: 50%; margin-top: -1em; pointer-events: none;",
+				class: "iconBtnSvgOverlay",
 				width: "2em",
 				height: "2em",
 				viewBox: "0 0 26 26",
@@ -327,14 +325,14 @@ export class CustomChipPrompt extends BasePrompt {
 			],
 		),
 	]);
-	private readonly copyPasteContainer: HTMLDivElement = div({ style: w("185px") }, this.copyButton, this.pasteButton);
+	private readonly copyPasteContainer: HTMLDivElement = div({ class: "iconBtnContainer" }, this.copyButton, this.pasteButton);
 
 	public readonly container: HTMLDivElement = div(
-		{ class: "prompt noSelection", style: w("600px") },
+		{ class: "prompt customChipPrompt noSelection" },
 		h2("Edit Custom Chip Instrument"),
 		div(
 			{
-				style: "display: flex; width: 55%; align-self: center; flex-direction: row; align-items: center; justify-content: center;",
+				class: "filterEditorContainer",
 			},
 			this._playButton,
 		),

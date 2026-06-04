@@ -1,4 +1,4 @@
-import { Sizing } from "../ui/style-constants";
+
 // CustomFilterPrompt
 //
 // Purpose: Provides dialog for configuring custom EQ and note filter curves
@@ -16,7 +16,7 @@ import { Config } from "../../synth/synth-config";
 import { FilterEditor } from "../components/filter-editor";
 import { PromptEditorRefs } from "../core/prompt-manager";
 import { SongDocument } from "../song-document";
-import { selectorButton, w } from "../ui";
+import { selectorButton } from "../ui";
 import { BasePrompt } from "./base-prompt";
 import { updatePlayButton } from "./input-helpers";
 
@@ -27,25 +27,23 @@ export class CustomFilterPrompt extends BasePrompt {
 	public filterData: FilterSettings = new FilterSettings();
 	public startingFilterData: FilterSettings = new FilterSettings();
 	private _subfilterIndex = 0;
-	public readonly _playButton: HTMLButtonElement = button({ style: w("55%"), type: "button" });
+	public readonly _playButton: HTMLButtonElement = button({ class: "play55Btn", type: "button" });
 	public readonly _filterButtons: HTMLButtonElement[] = [];
 	public readonly _filterButtonContainer: HTMLDivElement = div({
-		class: "instrument-bar",
-		style: "justify-content: center;",
+		class: "instrument-bar filterBtnsRow",
 	});
 	private readonly _filterContainer: HTMLDivElement = div({
-		style: "width: 100%; display: flex; flex-direction: row; align-items: center; justify-content: center;",
+		class: "filterViewport",
 	});
 	private readonly _filterCopyButton: HTMLButtonElement = button(
 		{
-			style: `width:${Sizing.inputSm}; margin-right: 5px;`,
-			class: "copyButton",
+			class: "iconBtnSm marginRight copyButton",
 		},
 		[
 			"Copy",
 			SVG.svg(
 				{
-					style: "flex-shrink: 0; position: absolute; left: 0; top: 50%; margin-top: -1em; pointer-events: none;",
+					class: "iconBtnSvgOverlay",
 					width: "2em",
 					height: "2em",
 					viewBox: "-5 -21 26 26",
@@ -59,11 +57,11 @@ export class CustomFilterPrompt extends BasePrompt {
 			),
 		],
 	);
-	private readonly _filterPasteButton: HTMLButtonElement = button({ style: `width:${Sizing.inputSm};`, class: "pasteButton" }, [
+	private readonly _filterPasteButton: HTMLButtonElement = button({ class: "iconBtnSm pasteButton" }, [
 		"Paste",
 		SVG.svg(
 			{
-				style: "flex-shrink: 0; position: absolute; left: 0; top: 50%; margin-top: -1em; pointer-events: none;",
+				class: "iconBtnSvgOverlay",
 				width: "2em",
 				height: "2em",
 				viewBox: "0 0 26 26",
@@ -78,21 +76,21 @@ export class CustomFilterPrompt extends BasePrompt {
 			],
 		),
 	]);
-	private readonly _filterCopyPasteContainer: HTMLDivElement = div({ style: w("185px") }, this._filterCopyButton, this._filterPasteButton);
+	private readonly _filterCopyPasteContainer: HTMLDivElement = div({ class: "iconBtnContainer" }, this._filterCopyButton, this._filterPasteButton);
 
 	private readonly _filterCoordinateText: HTMLDivElement = div(
 		{
-			style: "text-align: left; margin-bottom: 0px; font-size: x-small; height: 1.3em; color: " + ColorConfig.secondaryText + ";",
+			class: "filterCoordText",
 		},
 		p(""),
 	);
 
 	public readonly container: HTMLDivElement = div(
-		{ class: "prompt noSelection", style: w("600px") },
+		{ class: "prompt customFilterPrompt noSelection" },
 		h2("Edit Filter"),
 		div(
 			{
-				style: "display: flex; width: 55%; align-self: center; flex-direction: row; align-items: center; justify-content: center;",
+				class: "filterEditorContainer",
 			},
 			this._playButton,
 		),
@@ -127,14 +125,14 @@ export class CustomFilterPrompt extends BasePrompt {
 			titleH2.innerHTML = forSong ? "Edit Song EQ Filter" : _useNoteFilter ? "Edit Note Filter" : "Edit EQ Filter";
 		}
 
-		const newButton: HTMLButtonElement = selectorButton("Main", { style: "max-width: 5em;" });
+		const newButton: HTMLButtonElement = selectorButton("Main", { class: "filterBtnMain" });
 		this._filterButtonContainer.appendChild(newButton);
 		this._filterButtons.push(newButton);
 		newButton.addEventListener("click", () => {
 			this._setSubfilter(0);
 		});
 		for (let i: number = 1; i < Config.filterMorphCount; i++) {
-			const newSubButton: HTMLButtonElement = selectorButton("" + i, { style: "max-width: 2em;" });
+			const newSubButton: HTMLButtonElement = selectorButton("" + i, { class: "filterBtnSub" });
 			this._filterButtons.push(newSubButton);
 			this._filterButtonContainer.appendChild(newSubButton);
 			newSubButton.addEventListener("click", () => {
