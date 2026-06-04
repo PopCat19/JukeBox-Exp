@@ -1401,8 +1401,8 @@ html {
 
 /* ── Search highlight ── */
 .beepboxEditor .prompt.keyboardShortcutsPrompt mark.searchMatch {
-	background: var(--cta-bg);
-	color: var(--cta-fg);
+	background: var(--primary-text);
+	color: var(--editor-background);
 	border-radius: var(--border-radius-medium);
 	padding: 0 3px;
 }
@@ -1420,6 +1420,10 @@ html {
 .beepboxEditor .prompt.beatsPerBarPrompt input[type="number"] {
 	width: 4em;
 	text-align: center;
+}
+
+.beepboxEditor .prompt.beatsPerBarPrompt input[type="number"]:focus {
+	border-color: var(--hout, var(--primary-text));
 }
 
 .beepboxEditor .prompt.beatsPerBarPrompt .promptHintRow {
@@ -2300,8 +2304,8 @@ html {
 }
 
 .beepboxEditor input[type=text]::selection, .beepboxEditor input[type=number]::selection {
-	background-color: ${ColorConfig.textSelection};
-	color: ${ColorConfig.primaryText};
+	background: var(--primary-text);
+	color: var(--editor-background);
 }
 
 .beepboxEditor input[type=checkbox] {
