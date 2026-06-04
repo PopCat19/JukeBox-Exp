@@ -13,7 +13,7 @@ import { Config } from "../../synth/synth-config";
 import { ChangeChannelCount, ChangeInstrumentsFlags, ChangePatternsPerChannel } from "../changes";
 import { ChangeGroup } from "../core/change";
 import { SongDocument } from "../song-document";
-import { checkboxInput, labelRow, promptPanel, Sizing, stepperInput } from "../ui";
+import { checkboxInput, labelRow, stepperInput } from "../ui";
 import { BasePrompt } from "./base-prompt";
 import { validate, validateKey, validateNumber } from "./input-helpers";
 
@@ -28,7 +28,7 @@ export class ChannelSettingsPrompt extends BasePrompt {
 	private readonly _patternInstrumentsBox: HTMLInputElement = checkboxInput();
 
 	public readonly container: HTMLDivElement = div(
-		{ class: "prompt noSelection", style: promptPanel(Sizing.promptSm, "right") },
+		{ class: "prompt channelSettingsPrompt noSelection" },
 		h2("Channel Settings"),
 		labelRow("Pitch channels:", this._pitchChannelStepper),
 		labelRow("Drum channels:", this._drumChannelStepper),

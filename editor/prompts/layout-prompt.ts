@@ -17,7 +17,7 @@ const { label, div, form, h2, input } = HTML;
 
 export class LayoutPrompt extends BasePrompt {
 	private readonly _form: HTMLFormElement = form(
-		{ style: "display:flex;gap:10px;flex-wrap:wrap;justify-content:center;" },
+		{ class: "layoutForm" },
 		label(
 			{ class: "layout-option" },
 			input({ type: "radio", name: "layout", value: "small" }),
@@ -143,7 +143,7 @@ export class LayoutPrompt extends BasePrompt {
 	);
 
 	public readonly container: HTMLDivElement = div(
-		{ class: "prompt noSelection", style: "width: 300px;" },
+		{ class: "prompt layoutPrompt noSelection" },
 		h2("Layout"),
 		this._form,
 		this._getOkayRow(),

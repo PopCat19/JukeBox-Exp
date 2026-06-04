@@ -8,20 +8,20 @@
 
 import { HTML } from "imperative-html/dist/esm/elements-strict";
 import { SongDocument } from "../song-document";
-import { promptPanel, selectField, w } from "../ui";
+import { selectField } from "../ui";
 import { BasePrompt } from "./base-prompt";
 
 const { div, h2, select, option } = HTML;
 
 export class ShortenerConfigPrompt extends BasePrompt {
 	private readonly _shortenerStrategySelect: HTMLSelectElement = select(
-		{ style: w("100%") },
+		{},
 		option({ value: "tinyurl" }, "tinyurl.com"),
 		option({ value: "isgd" }, "is.gd"),
 	);
 
 	public readonly container: HTMLDivElement = div(
-		{ class: "prompt noSelection", style: promptPanel("250px") },
+		{ class: "prompt shortenerConfigPrompt noSelection" },
 		h2("Configure Shortener"),
 		selectField("Strategy:", this._shortenerStrategySelect),
 		this._getOkayRow(),

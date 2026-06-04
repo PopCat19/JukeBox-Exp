@@ -59,7 +59,7 @@ export class VisualLoopControlsHandle {
 		this.canvas = canvas({
 			width: this._canvasWidth,
 			height: this._canvasHeight,
-			style: "cursor: default; position: static; margin-bottom: 0.5em; margin-left: auto; margin-right: auto; outline: 1px solid var(--ui-widget-background); box-sizing: border-box; width: 100%;",
+			class: "loopControlsCanvas",
 		});
 		this._context = this.canvas.getContext("2d");
 		window.addEventListener("mousemove", this._whenMouseMoves);

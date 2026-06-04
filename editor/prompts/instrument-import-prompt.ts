@@ -12,14 +12,14 @@ import { HTML } from "imperative-html/dist/esm/elements-strict";
 import { Channel, Instrument } from "../../synth";
 import { ChangeAppendInstrument, ChangePasteInstrument, ChangeViewInstrument } from "../changes";
 import { SongDocument } from "../song-document";
-import { selectField, w } from "../ui";
+import { selectField } from "../ui";
 import { BasePrompt } from "./base-prompt";
 
 const { div, h2, input, select, option, code } = HTML;
 
 export class InstrumentImportPrompt extends BasePrompt {
 	private readonly _importStrategySelect: HTMLSelectElement = select(
-		{ style: w("100%") },
+		{},
 		option({ value: "append" }, "Append instruments to the end of the list."),
 		option({ value: "replace" }, "Replace only the selected instrument."),
 		option({ value: "all" }, "Replace all instruments in the channel."),
@@ -27,7 +27,7 @@ export class InstrumentImportPrompt extends BasePrompt {
 	private readonly _fileInput: HTMLInputElement = input({ type: "file", accept: ".json,application/json" });
 
 	private readonly _strategyInfoText: HTMLDivElement = div(
-		{ style: "text-align: left;" },
+		{},
 		"You must enable either ",
 		code("Simultaneous instruments per channel"),
 		" or ",
@@ -36,7 +36,7 @@ export class InstrumentImportPrompt extends BasePrompt {
 	);
 
 	public readonly container: HTMLDivElement = div(
-		{ class: "prompt noSelection", style: w("300px") },
+		{ class: "prompt instrumentImportPrompt noSelection" },
 		h2("Import Instrument(s)"),
 		this._strategyInfoText,
 		selectField("Import:", this._importStrategySelect),

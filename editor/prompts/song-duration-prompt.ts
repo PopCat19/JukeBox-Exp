@@ -13,7 +13,7 @@ import { Config } from "../../synth/synth-config";
 import { ChangeBarCount } from "../changes";
 import { ChangeGroup } from "../core/change";
 import { SongDocument } from "../song-document";
-import { addWheelSupport, labelRow, promptHint, promptRowBetween, promptValue, selectField, w } from "../ui";
+import { addWheelSupport, labelRow, promptHint, promptRowBetween, promptValue, selectField } from "../ui";
 import { BasePrompt } from "./base-prompt";
 import { ExportPrompt } from "./export-prompt";
 import { validate, validateKey, validateNumber } from "./input-helpers";
@@ -23,18 +23,17 @@ const { div, h2, input, br, select, option } = HTML;
 export class SongDurationPrompt extends BasePrompt {
 	private readonly _computedSamplesLabel = promptValue("0:00");
 	private readonly _barsStepper: HTMLInputElement = input({
-		style: w("3em"),
-		type: "number",
+		type: "number",	
 		step: "1",
 	});
 	private readonly _positionSelect: HTMLSelectElement = select(
-		{ style: w("100%") },
+		{},
 		option({ value: "end" }, "Apply change at end of song."),
 		option({ value: "beginning" }, "Apply change at beginning of song."),
 	);
 
 	public readonly container: HTMLDivElement = div(
-		{ class: "prompt noSelection", style: "width: var(--prompt-width-sm);" },
+		{ class: "prompt songDurationPrompt noSelection" },
 		h2("Song Length"),
 		promptRowBetween("Length:", this._computedSamplesLabel),
 		labelRow(div({ class: "prompt-label" }, "Bars per song:", br(), promptHint("(Multiples of 4 are recommended)")), this._barsStepper),

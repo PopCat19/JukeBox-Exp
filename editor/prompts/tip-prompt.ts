@@ -11,7 +11,6 @@
 import { HTML } from "imperative-html/dist/esm/elements-strict";
 import { Config } from "../../synth/synth-config";
 import { SongDocument } from "../song-document";
-import { w } from "../ui";
 import { BasePrompt } from "./base-prompt";
 
 const { div, h2, h3, p, a } = HTML;
@@ -126,7 +125,7 @@ export class TipPrompt extends BasePrompt {
 	};
 
 	public readonly container: HTMLDivElement = div(
-		{ class: "prompt noSelection", style: w("300px") },
+		{ class: "prompt tipPrompt noSelection" },
 		h2(this._getTipTitle()),
 		div({ class: "prompt-tip-content" }, this._renderTip()),
 		this._cancelButton,

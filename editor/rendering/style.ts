@@ -1449,6 +1449,128 @@ html {
 	width: 100%;
 }
 
+/* ── Tip Prompt ── */
+.beepboxEditor .prompt.tipPrompt {
+	width: 300px;
+}
+
+/* ── Octave Count Prompt ── */
+.beepboxEditor .prompt.octaveCountPrompt {
+	width: var(--prompt-width-sm);
+}
+
+.beepboxEditor .prompt.octaveCountPrompt input[type="number"] {
+	width: 4em;
+	text-align: center;
+}
+
+/* ── Shortener Config Prompt ── */
+.beepboxEditor .prompt.shortenerConfigPrompt {
+	width: 250px;
+}
+
+.beepboxEditor .prompt.shortenerConfigPrompt select {
+	width: 100%;
+}
+
+/* ── Song Duration Prompt ── */
+.beepboxEditor .prompt.songDurationPrompt {
+	width: var(--prompt-width-sm);
+}
+
+.beepboxEditor .prompt.songDurationPrompt input[type="number"] {
+	width: 4em;
+	text-align: center;
+}
+
+.beepboxEditor .prompt.songDurationPrompt select {
+	width: 100%;
+}
+
+/* ── Move Notes Sideways Prompt ── */
+.beepboxEditor .prompt.moveNotesSidewaysPrompt {
+	width: var(--prompt-width-sm);
+}
+
+.beepboxEditor .prompt.moveNotesSidewaysPrompt input[type="number"] {
+	width: 4em;
+	text-align: center;
+}
+
+.beepboxEditor .prompt.moveNotesSidewaysPrompt select {
+	width: 100%;
+}
+
+/* ── Import Instrument Prompt ── */
+.beepboxEditor .prompt.instrumentImportPrompt {
+	width: 300px;
+}
+
+.beepboxEditor .prompt.instrumentImportPrompt select {
+	width: 100%;
+}
+
+/* ── Instrument Export Prompt ── */
+.beepboxEditor .prompt.instrumentExportPrompt {
+	width: 200px;
+}
+
+.beepboxEditor .prompt.instrumentExportPrompt input[type="text"] {
+	flex: 1;
+	min-width: 0;
+	width: auto;
+}
+
+.beepboxEditor .prompt.instrumentExportPrompt .rowBetween {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	justify-content: space-between;
+	gap: 8px;
+}
+
+/* ── Layout Prompt ── */
+.beepboxEditor .prompt.layoutPrompt {
+	width: 300px;
+}
+
+.beepboxEditor .prompt.layoutPrompt .layoutForm {
+	display: flex;
+	gap: 10px;
+	flex-wrap: wrap;
+	justify-content: center;
+}
+
+/* ── Channel Settings Prompt ── */
+.beepboxEditor .prompt.channelSettingsPrompt {
+	width: var(--prompt-width-sm);
+	text-align: right;
+}
+
+/* ── Visual Loop Controls ── */
+.beepboxEditor .loopControlsCanvas {
+	cursor: default;
+	position: static;
+	margin-bottom: 0.5em;
+	margin-left: auto;
+	margin-right: auto;
+	outline: 1px solid var(--ui-widget-background);
+	box-sizing: border-box;
+	width: 100%;
+}
+
+/* ── Custom Scale Prompt ── */
+.beepboxEditor .prompt.customScalePrompt {
+	width: 250px;
+}
+
+.beepboxEditor .prompt.customScalePrompt .scaleFlagsRow {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	justify-content: flex-end;
+}
+
 .beepboxEditor .prompt.exportPrompt input[type="text"] {
 	flex: 1;
 	min-width: 0;

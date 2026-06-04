@@ -12,7 +12,7 @@ import { HTML } from "imperative-html/dist/esm/elements-strict";
 import { Config } from "../../synth/synth-config";
 import { ChangeCustomScale } from "../changes";
 import { SongDocument } from "../song-document";
-import { labelRow, promptPanel, s, w } from "../ui";
+import { labelRow } from "../ui";
 import { BasePrompt } from "./base-prompt";
 
 const { div, h2, input, p } = HTML;
@@ -31,7 +31,7 @@ export class CustomScalePrompt extends BasePrompt {
 		for (let i = Config.pitchesPerOctave - 1; i > 0; i--) {
 			this._scaleFlags[i] = input({
 				type: "checkbox",
-				style: s(w("1em"), "padding:0;margin-right:4em;"),
+				//
 				checked: this._flags[i],
 				value: i,
 			});
@@ -40,12 +40,12 @@ export class CustomScalePrompt extends BasePrompt {
 		}
 
 		this.container = div(
-			{ class: "prompt noSelection", style: promptPanel("250px") },
+			{ class: "prompt customScalePrompt noSelection" },
 			h2("Custom Scale"),
 			p(
 				'Here, you can make your own scale like a pro gamer. Press the checkboxes below to toggle which notes of an octave are in the scale. For this to work, you\'ll need to have the "Custom" scale selected.',
 			),
-			div({ style: "display:flex;flex-direction:row;align-items:center;justify-content:flex-end;" }, scaleHolder),
+			div({ class: "scaleFlagsRow" }, scaleHolder),
 			this._getOkayRow(),
 			this._cancelButton,
 		);

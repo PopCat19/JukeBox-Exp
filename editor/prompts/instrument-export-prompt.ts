@@ -12,30 +12,30 @@ import { HTML } from "imperative-html/dist/esm/elements-strict";
 import { Channel, Instrument } from "../../synth";
 import { Config } from "../../synth/synth-config";
 import { SongDocument } from "../song-document";
-import { labelRow, w } from "../ui";
+import { labelRow } from "../ui";
 import { BasePrompt } from "./base-prompt";
 
 const { div, h2, input, br } = HTML;
 
 export class InstrumentExportPrompt extends BasePrompt {
 	private readonly _exportMultipleBox: HTMLInputElement = input({
-		style: "width: 3em; margin-left: 1em;",
+		//
 		type: "checkbox",
 	});
 	private readonly _channelName: string =
 		this._doc.song.channels[this._doc.channel].name === "" ? Config.jsonFormat + "-Instrument" : this._doc.song.channels[this._doc.channel].name;
 	private readonly _fileName: HTMLInputElement = input({
 		type: "text",
-		style: w("10em"),
+		//
 		value: this._channelName,
 		maxlength: 250,
 		autofocus: "autofocus",
 	});
 
 	public readonly container: HTMLDivElement = div(
-		{ class: "prompt noSelection", style: w("200px") },
+		{ class: "prompt instrumentExportPrompt noSelection" },
 		h2("Export Instruments Options"),
-		div({ style: "display: flex; flex-direction: row; align-items: center; justify-content: space-between;" }, "File name:", this._fileName),
+		div({ class: "rowBetween" }, "File name:", this._fileName),
 		labelRow("Export all instruments", br(), "in channel:", this._exportMultipleBox),
 		this._getOkayRow(),
 		this._cancelButton,
