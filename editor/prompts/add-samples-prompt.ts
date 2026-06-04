@@ -77,7 +77,7 @@ export class AddSamplesPrompt extends BasePrompt {
 			" the sample just won't load if that's not the case)",
 		),
 		div(
-			{ style: "margin-top: 0.5em; margin-bottom: 0.5em;" },
+			{ class: "asMargin" },
 			details(
 				summary("Why arbitrary URLs?"),
 				a({ href: "https://pandoras-box-archive.neptendo.repl.co/" }, "A certain BeepBox mod"),
@@ -89,7 +89,7 @@ export class AddSamplesPrompt extends BasePrompt {
 			),
 		),
 		div(
-			{ style: "margin-top: 0.5em; margin-bottom: 0.5em;" },
+			{ class: "asMargin" },
 			"As for where to upload your samples, here are some suggestions:",
 			ul(
 				{},
@@ -99,7 +99,7 @@ export class AddSamplesPrompt extends BasePrompt {
 			),
 		),
 		div(
-			{ style: "margin-top: 0.5em; margin-bottom: 0.5em;" },
+			{ class: "asMargin" },
 			"Static website hosting services may also work (such as ",
 			a({ href: "https://pages.github.com" }, "GitHub Pages"),
 			")",
@@ -481,8 +481,7 @@ export class AddSamplesPrompt extends BasePrompt {
 			});
 			const rootKeyDisplay: HTMLSpanElement = span(
 				{
-					class: "add-sample-prompt-root-key-display",
-					style: "margin-left: 0.4em; width: 3em; text-align: left; text-overflow: ellipsis; overflow: hidden; flex-shrink: 0;",
+					class: "asPitchInput",
 				},
 				`(${this._noteNameFromPitchNumber(entry.rootKey)})`,
 			);
@@ -509,7 +508,7 @@ export class AddSamplesPrompt extends BasePrompt {
 				step: "1",
 			});
 			const chipWaveLoopModeSelect: HTMLSelectElement = select(
-				{ style: "width: 100%; flex-grow: 1; margin-left: 0.5em;" },
+				{ class: "asInputHalfMargin" },
 				option({ value: -1 }, ""),
 				option({ value: 0 }, "Loop"),
 				option({ value: 1 }, "Ping-Pong"),
@@ -521,127 +520,121 @@ export class AddSamplesPrompt extends BasePrompt {
 			}
 			const chipWavePlayBackwardsBox: HTMLInputElement = input({
 				type: "checkbox",
-				style: "padding: 0;",
+				class: "asNoPad",
 			});
 			chipWavePlayBackwardsBox.checked = entry.chipWavePlayBackwards;
 			const sampleName: string = this._getSampleName(entry);
 			percussionBox.checked = entry.percussion;
 			const copyLinkPresetButton: HTMLButtonElement = button(
 				{
-					style: "height: auto; min-height: var(--button-size);",
+					class: "asBtn",
 					title: 'For use with "Add multiple samples"',
 				},
 				"Copy link preset",
 			);
 			const removeButton: HTMLButtonElement = button(
 				{
-					style: "height: auto; min-height: var(--button-size); margin-left: 0.5em;",
+					class: "asBtn asBtnHalfMargin",
 				},
 				"Remove",
 			);
 			const moveUpButton: HTMLButtonElement = button(
-				{ style: "height: auto; min-height: var(--button-size); margin-left: 0.5em;" },
+				{ class: "asBtn asBtnHalfMargin" },
 				SVG.svg(
 					{
 						width: "16",
 						height: "16",
 						viewBox: "-13 -14 26 26",
 						"pointer-events": "none",
-						style: "width: 100%; height: 100%;",
+						class: "asFullSize",
 					},
 					SVG.path({ d: "M -6 6 L 0 -6 L 6 6 z", fill: ColorConfig.primaryText }),
 				),
 			);
 			const moveDownButton: HTMLButtonElement = button(
-				{ style: "height: auto; min-height: var(--button-size); margin-left: 0.5em;" },
+				{ class: "asBtn asBtnHalfMargin" },
 				SVG.svg(
 					{
 						width: "16",
 						height: "16",
 						viewBox: "-13 -14 26 26",
 						"pointer-events": "none",
-						style: "width: 100%; height: 100%;",
+						class: "asFullSize",
 					},
 					SVG.path({ d: "M -6 -6 L 6 -6 L 0 6 z", fill: ColorConfig.primaryText }),
 				),
 			);
 			const optionsContainer: HTMLDetailsElement = details(
-				{ open: optionsVisible, style: "margin-bottom: 2em; margin-top: 1em;" },
-				summary({ style: "margin-bottom: 1em;" }, "Options"),
+				{ open: optionsVisible, class: "asMarginBottomLg" },
+				summary({ class: "asMarginBottomLg" }, "Options"),
 				div(
-					{
-						style: "display: flex; flex-direction: row; align-items: center; justify-content: flex-end; margin-bottom: 0.5em;",
-					},
+					{ class: "asFlexEndMargin" },
 					div(
-						{ style: `flex-shrink: 0; text-align: right; color: ${ColorConfig.primaryText};` },
+						{ class: "asLabelShrink" },
 						span({ title: "What rate to resample to" }, "Sample rate"),
 					),
 					sampleRateStepper,
 				),
 				div(
-					{
-						style: "display: flex; flex-direction: row; align-items: center; justify-content: flex-end; margin-bottom: 0.5em;",
-					},
+					{ class: "asFlexEndMargin" },
 					div(
-						{ style: `text-align: right; color: ${ColorConfig.primaryText}; flex-shrink: 0;` },
+						{ class: "asLabelShrink" },
 						span({ title: "Pitch where the sample is played as-is" }, "Root key"),
 					),
 					rootKeyDisplay,
 					rootKeyStepper,
 				),
 				div(
-					{
-						style: "display: flex; flex-direction: row; align-items: center; justify-content: space-between; margin-bottom: 0.5em;",
-					},
-					div({ style: `text-align: right; color: ${ColorConfig.primaryText};` }, "Percussion (pitch doesn't change with key)"),
+					{ class: "asFlexBetween" },
+					div({ class: "asLabel" }, "Percussion (pitch doesn't change with key)"),
 					percussionBox,
 				),
 				div(
 					{
-						style: "display: flex; flex-direction: row; align-items: center; justify-content: flex-end; margin-bottom: 0.5em;",
+						class: "asFlexEndMargin",
 					},
 					div(
-						{ style: `flex-shrink: 0; text-align: right; color: ${ColorConfig.primaryText};` },
+						{ class: "asLabelShrink" },
 						span({ title: 'Applies to the "Loop Start" loop control option of the preset created for this sample' }, "Loop Start"),
 					),
 					chipWaveLoopStartStepper,
 				),
 				div(
 					{
-						style: "display: flex; flex-direction: row; align-items: center; justify-content: flex-end; margin-bottom: 0.5em;",
+						class: "asFlexEndMargin",
 					},
 					div(
-						{ style: `flex-shrink: 0; text-align: right; color: ${ColorConfig.primaryText};` },
+						{ class: "asLabelShrink" },
 						span({ title: 'Applies to the "Loop End" loop control option of the preset created for this sample' }, "Loop End"),
 					),
 					chipWaveLoopEndStepper,
 				),
 				div(
 					{
-						style: "display: flex; flex-direction: row; align-items: center; justify-content: flex-end; margin-bottom: 0.5em;",
+						class: "asFlexEndMargin",
 					},
 					div(
-						{ style: `flex-shrink: 0; text-align: right; color: ${ColorConfig.primaryText};` },
+						{ class: "asLabelShrink" },
 						span({ title: 'Applies to the "Offset" loop control option of the preset created for this sample' }, "Sample Start Offset"),
 					),
 					chipWaveStartOffsetStepper,
 				),
 				div(
 					{
-						style: "display: flex; flex-direction: row; align-items: center; justify-content: flex-end; margin-bottom: 0.5em;",
+						class: "asFlexEndMargin",
 					},
 					div(
-						{ style: `flex-shrink: 0; text-align: right; color: ${ColorConfig.primaryText};` },
+						{ class: "asLabelShrink" },
 						span({ title: 'Applies to the "Loop Mode" loop control option of the preset created for this sample' }, "Loop Mode"),
 					),
 					chipWaveLoopModeSelect,
 				),
 				div(
 					{
-						style: "display: flex; flex-direction: row; align-items: center; justify-content: space-between; margin-bottom: 0.5em;",
+						class: "asFlexBetween",
 					},
 					div(
-						{ style: `flex-shrink: 0; text-align: right; color: ${ColorConfig.primaryText};` },
+						{ class: "asLabelShrink" },
 						span({ title: 'Applies to the "Backwards" loop control option of the preset created for this sample' }, "Backwards"),
 					),
 					chipWavePlayBackwardsBox,
@@ -662,7 +655,7 @@ export class AddSamplesPrompt extends BasePrompt {
 			moveDownButton.dataset.index = "" + entryIndex;
 			optionsContainer.dataset.index = "" + entryIndex;
 			const bottomButtons: HTMLDivElement = div(
-				{ style: "display: flex; flex-direction: row; align-items: center; justify-content: flex-end;" },
+				{ class: "asFlexEnd" },
 				copyLinkPresetButton,
 				removeButton,
 			);
@@ -674,24 +667,18 @@ export class AddSamplesPrompt extends BasePrompt {
 			}
 			const entryElement: HTMLDivElement = div(
 				{
-					// PMD card pattern: 8x padding, 16px radius, no border.
-					// Visual separation comes from the 80×8% widget surface
-					// contrasting with the prompt's 8×40% flyout background.
-					style: `padding: 8px 12px; margin: 4px; background: ${ColorConfig.uiWidgetBackground}; border-radius: var(--border-radius-large);`,
+					class: "asCard",
 				},
 				div(
 					{
-						class: "add-sample-prompt-sample-name",
-						style: `margin-bottom: 0.5em; color: ${ColorConfig.secondaryText}; text-overflow: ellipsis; overflow: hidden; white-space: nowrap;`,
+						class: "asCardName",
 						title: sampleName,
 					},
 					sampleName,
 				),
 				div(
-					{
-						style: "display: flex; flex-direction: row; align-items: center; justify-content: flex-end; margin-bottom: 0.5em;",
-					},
-					div({ style: `text-align: right; color: ${ColorConfig.primaryText};` }, "URL"),
+					{ class: "asCardRow" },
+					div({ class: "asLabel" }, "URL"),
 					urlInput,
 				),
 				optionsContainer,
