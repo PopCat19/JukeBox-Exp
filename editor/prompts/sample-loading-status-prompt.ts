@@ -7,7 +7,6 @@
 // - Shows loading progress indicators
 
 import { HTML } from "imperative-html/dist/esm/elements-strict";
-import { ColorConfig } from "../../shared/color-config";
 import { ChipWave, Config, getSampleLoadingStatusName, SampleLoadingStatus, sampleLoadingState } from "../../synth/synth-config";
 import { EditorConfig } from "../config/editor-config";
 import { SongDocument } from "../song-document";
@@ -20,15 +19,15 @@ export class SampleLoadingStatusPrompt extends BasePrompt {
 	private _interval: ReturnType<typeof setInterval> | null = null;
 	private _renderedWhenAllHaveStoppedChanging: boolean = false;
 	private _statusesContainer: HTMLDivElement = div();
-	private _noSamplesMessage: HTMLDivElement = div({ style: "margin-top: 0.5em; display: none;" }, "There's no custom samples in this song.");
+	private _noSamplesMessage: HTMLDivElement = div({ class: "slsNoSamples" }, "There's no custom samples in this song.");
 	public container: HTMLDivElement = div(
-		{ class: "prompt noSelection", style: "width: 350px;" },
+		{ class: "prompt sampleLoadingStatusPrompt noSelection" },
 		div(
 			h2("Sample Loading Status"),
 			div(
-				{ style: "display: flex; flex-direction: column; align-items: center; margin-bottom: 0.5em;" },
+				{ class: "slsColumn" },
 				this._noSamplesMessage,
-				div({ style: "width: 100%; max-height: 350px; overflow-y: scroll;" }, this._statusesContainer),
+				div({ class: "slsScroll" }, this._statusesContainer),
 			),
 		),
 		this._cancelButton,
@@ -86,38 +85,31 @@ export class SampleLoadingStatusPrompt extends BasePrompt {
 			const url: string = sampleLoadingState.urlTable[chipWaveIndex];
 			const loadingStatus: string = getSampleLoadingStatusName(sampleLoadingState.statusTable[chipWaveIndex]);
 			const urlDisplay: HTMLInputElement = input({
-				style: `margin-left: 8px; color: ${ColorConfig.primaryText}; background-color: ${ColorConfig.editorBackground}; width: 100%; border: 2px solid ${ColorConfig.uiWidgetBackground}; border-radius: var(--border-radius-medium); -webkit-user-select: none; -webkit-touch-callout: none; -moz-user-select: none; -ms-user-select: none; user-select: none;`,
+				class: "slsUrlInput",
 				value: url,
 				title: url,
 				disabled: true,
 			});
-			const loadingStatusColor: string = loadingStatus === "loaded" ? ColorConfig.indicatorPrimary : ColorConfig.secondaryText;
-			const loadingStatusDisplay: HTMLSpanElement = span({ style: `margin-left: 8px; color: ${loadingStatusColor}` }, loadingStatus);
+			const loadingStatusColor: string = loadingStatus === "loaded" ? "var(--indicator-primary)" : "var(--secondary-text)";
+			const loadingStatusDisplay: HTMLSpanElement = span(
+				{ class: "slsStatus", style: `color: ${loadingStatusColor}` },
+				loadingStatus,
+			);
 			const chipWaveElement: HTMLDivElement = div(
-				{
-					// PMD card: padding 8x, 16px radius, no border.
-					style: `padding: 8px 12px; margin: 4px; background: ${ColorConfig.uiWidgetBackground}; border-radius: var(--border-radius-large);`,
-				},
+				{ class: "slsCard" },
 				div(
 					{
-						class: "add-sample-prompt-sample-name",
-						style: `margin-bottom: 0.5em; color: ${ColorConfig.secondaryText}; text-overflow: ellipsis; overflow: hidden; white-space: nowrap;`,
+						class: "slsSampleName",
 						title: sampleName,
 					},
 					sampleName,
 				),
-				div(
-					{
-						style: "display: flex; flex-direction: row; align-items: center; justify-content: center; margin-bottom: 0.5em;",
-					},
-					div({ style: `text-align: right; color: ${ColorConfig.primaryText};` }, "URL"),
+				div({ class: "slsRow" },
+					div({ class: "slsLabel" }, "URL"),
 					urlDisplay,
 				),
-				div(
-					{
-						style: "display: flex; flex-direction: row; align-items: center; justify-content: center; margin-bottom: 0.5em;",
-					},
-					div({ style: `text-align: right; color: ${ColorConfig.primaryText};` }, "Status"),
+				div({ class: "slsRow" },
+					div({ class: "slsLabel" }, "Status"),
 					loadingStatusDisplay,
 				),
 			);

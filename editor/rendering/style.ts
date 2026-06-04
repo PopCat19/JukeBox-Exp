@@ -1547,6 +1547,74 @@ html {
 	text-align: right;
 }
 
+/* ── Sample Loading Status Prompt ── */
+.beepboxEditor .prompt.sampleLoadingStatusPrompt {
+	width: 350px;
+}
+
+.beepboxEditor .prompt.sampleLoadingStatusPrompt .slsColumn {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	margin-bottom: 0.5em;
+}
+
+.beepboxEditor .prompt.sampleLoadingStatusPrompt .slsScroll {
+	width: 100%;
+	max-height: 350px;
+	overflow-y: scroll;
+}
+
+.beepboxEditor .prompt.sampleLoadingStatusPrompt .slsCard {
+	padding: 8px 12px;
+	margin: 4px;
+	background: var(--ui-widget-background);
+	border-radius: var(--border-radius-large);
+}
+
+.beepboxEditor .prompt.sampleLoadingStatusPrompt .slsSampleName {
+	margin-bottom: 0.5em;
+	color: var(--secondary-text);
+	text-overflow: ellipsis;
+	overflow: hidden;
+	white-space: nowrap;
+}
+
+.beepboxEditor .prompt.sampleLoadingStatusPrompt .slsRow {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	justify-content: center;
+	margin-bottom: 0.5em;
+}
+
+.beepboxEditor .prompt.sampleLoadingStatusPrompt .slsLabel {
+	text-align: right;
+	color: var(--primary-text);
+}
+
+.beepboxEditor .prompt.sampleLoadingStatusPrompt .slsNoSamples {
+	display: none;
+	margin-top: 0.5em;
+}
+
+.beepboxEditor .prompt.sampleLoadingStatusPrompt .slsStatus {
+	margin-left: 8px;
+}
+
+.beepboxEditor .prompt.sampleLoadingStatusPrompt .slsUrlInput {
+	margin-left: 8px;
+	color: var(--primary-text);
+	background-color: var(--editor-background);
+	width: 100%;
+	border: 2px solid var(--ui-widget-background);
+	border-radius: var(--border-radius-medium);
+	-webkit-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+}
+
 /* ── Visual Loop Controls ── */
 .beepboxEditor .loopControlsCanvas {
 	cursor: default;
