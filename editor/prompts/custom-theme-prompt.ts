@@ -148,17 +148,17 @@ export class CustomThemePrompt extends BasePrompt {
 	--disabled-note-primary:    #999;
 	--disabled-note-secondary:  #666; }`,
 	});
-	private readonly _resetButton: HTMLButtonElement = button({ style: "height: auto; min-height: var(--button-size);" }, "Reset to defaults");
+	private readonly _resetButton: HTMLButtonElement = button({ class: "ctResetButton" }, "Reset to defaults");
 
 	public readonly container: HTMLDivElement = div(
-		{ class: "prompt noSelection", style: "width: 300px;" },
+		{ class: "prompt customThemePrompt noSelection" },
 		h2("Import"),
 		p(
-			{ style: "text-align: left; margin-bottom: 0.5em;" },
+			{ class: "ctNote" },
 			"You can upload images to create a custom theme. The first image will become the editor background, and the second image will be tiled across the webpage.",
 		),
 		div(
-			{ style: "text-align: left; margin-top: 0.5em; margin-bottom: 0.5em;" },
+			{ class: "ctNoteTop" },
 			"You can find a list of custom themes made by other users on the ",
 			a(
 				{
@@ -168,11 +168,11 @@ export class CustomThemePrompt extends BasePrompt {
 				"custom theme sheet.",
 			),
 		),
-		p({ style: "text-align: left; margin: 0;" }, "Editor Background Image:", this._fileInput),
-		p({ style: "text-align: left; margin: 0.5em 0;" }, "Website Background Image:", this._fileInput2),
-		p({ style: "text-align: left; margin: 0;" }, "Replace the text below with your custom theme data to load it:"),
+		p({ class: "ctFileRow" }, "Editor Background Image:", this._fileInput),
+		p({ class: "ctFileRow2" }, "Website Background Image:", this._fileInput2),
+		p({ class: "ctFileRow" }, "Replace the text below with your custom theme data to load it:"),
 		this._colorInput,
-		div({ style: "display: flex; flex-direction: row-reverse; justify-content: space-between;" }, this._resetButton),
+		div({ class: "ctButtonRow" }, this._resetButton),
 		this._getOkayRow(),
 		this._cancelButton,
 	);

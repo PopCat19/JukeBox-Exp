@@ -14,20 +14,20 @@ import { Config } from "../../synth/synth-config";
 import { ChangeStringSustainType } from "../changes";
 import { ChangeGroup } from "../core/change";
 import { SongDocument } from "../song-document";
-import { selectField, w } from "../ui";
+import { selectField } from "../ui";
 import { BasePrompt } from "./base-prompt";
 
 const { div, h2, p, select, option } = HTML;
 
 export class SustainPrompt extends BasePrompt {
 	private readonly _typeSelect: HTMLSelectElement = select(
-		{ style: w("100%") },
+		{},
 		option({ value: "acoustic" }, "(A) Acoustic"),
 		option({ value: "bright" }, "(B) Bright"),
 	);
 
 	public readonly container: HTMLDivElement = div(
-		{ class: "prompt", style: w("300px") },
+		{ class: "prompt sustainPrompt" },
 		div(
 			h2("String Sustain"),
 			p("This setting controls how quickly the picked string vibration decays."),
@@ -42,7 +42,8 @@ export class SustainPrompt extends BasePrompt {
 		),
 		div(
 			{
-				style: `display: ${Config.enableAcousticSustain ? "flex" : "none"}; flex-direction: row-reverse; justify-content: space-between;`,
+				class: "ctButtonRow",
+				style: `display: ${Config.enableAcousticSustain ? "flex" : "none"};`,
 			},
 			this._okayButton,
 		),

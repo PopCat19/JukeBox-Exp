@@ -21,10 +21,10 @@ export class SongRecoveryPrompt extends BasePrompt {
 	private readonly _songContainer: HTMLDivElement = div();
 
 	public readonly container: HTMLDivElement = div(
-		{ class: "prompt", style: "width: 300px;" },
+		{ class: "prompt songRecoveryPrompt" },
 		h2("Song Recovery"),
 		div(
-			{ style: "max-height: 385px; overflow-y: auto;" },
+			{ class: "recoveryScroll" },
 			p(
 				"This is a TEMPORARY list of songs you have recently modified. Please keep your own backups of songs you care about! SONGS THAT USE SAMPLES WILL TAKE A WHILE TO LOAD, so be patient!",
 			),
@@ -46,17 +46,17 @@ export class SongRecoveryPrompt extends BasePrompt {
 		}
 
 		for (const song of songs) {
-			const versionMenu: HTMLSelectElement = select({ style: "width: 100%;" });
+			const versionMenu: HTMLSelectElement = select({});
 
 			for (const version of song.versions) {
 				versionMenu.appendChild(option({ value: version.time }, version.name + ": " + new Date(version.time).toLocaleString()));
 			}
 
-			const player: HTMLIFrameElement = iframe({ style: "width: 100%; height: 60px; border: none; display: block;" });
+			const player: HTMLIFrameElement = iframe({ class: "recoveryPlayer" });
 			player.src = "player/" + (OFFLINE ? "index.html" : "") + "#song=" + window.localStorage.getItem(versionToKey(song.versions[0]));
 			const container: HTMLDivElement = div(
-				{ style: "margin: 4px 0;" },
-				div({ class: "selectContainer", style: "width: 100%; margin: 2px 0;" }, versionMenu),
+				{ class: "recoveryRow" },
+				div({ class: "selectContainer recoverySelectRow" }, versionMenu),
 				player,
 			);
 			this._songContainer.appendChild(container);

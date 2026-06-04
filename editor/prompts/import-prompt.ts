@@ -28,7 +28,6 @@ import {
 	midiVolumeToVolumeMult,
 } from "../io/midi";
 import { SongDocument } from "../song-document";
-import { w } from "../ui";
 import { ArrayBufferReader } from "../ui/array-buffer-reader";
 import { BasePrompt } from "./base-prompt";
 
@@ -42,9 +41,9 @@ export class ImportPrompt extends BasePrompt {
 		accept: ".json,application/json,.mid,.midi,audio/midi,audio/x-midi",
 		style: "display: none;",
 	});
-	private readonly _browseButton: HTMLButtonElement = button({ style: "width: 100%; margin-bottom: 0.5em;" }, "Browse\u2026");
+	private readonly _browseButton: HTMLButtonElement = button({ class: "importBrowseButton" }, "Browse\u2026");
 	private readonly _modeImportSelect: HTMLSelectElement = select(
-		{ style: "width: 100%; margin-bottom: 0.5em;" },
+		{ class: "importBrowseButton" },
 		option({ value: "auto" }, "Auto-detect mode (for json)"),
 		option({ value: "BeepBox" }, "BeepBox"),
 		option({ value: "ModBox" }, "ModBox"),
@@ -57,14 +56,14 @@ export class ImportPrompt extends BasePrompt {
 	);
 
 	public readonly container: HTMLDivElement = div(
-		{ class: "prompt noSelection", style: w("300px") },
+		{ class: "prompt importPrompt noSelection" },
 		h2("Import"),
 		p(
-			{ style: "text-align: left; margin-bottom: 0.5em;" },
+			{ class: "importNote" },
 			"BeepBox songs can be exported as .json files. You can also use this to import .json files from other BeepBox mods.",
 		),
 		p(
-			{ style: "text-align: left; margin: 0.5em 0;" },
+			{ class: "importNote2" },
 			"BeepBox can also (crudely) import .mid files. There are many tools available for creating .mid files. Shorter and simpler songs are more likely to work well.",
 		),
 		this._modeImportSelect,

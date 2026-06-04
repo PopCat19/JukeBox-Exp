@@ -11,14 +11,14 @@
 import { HTML } from "imperative-html/dist/esm/elements-strict";
 import { ColorConfig } from "../../shared/color-config";
 import { SongDocument } from "../song-document";
-import { createInput, promptPanel, selectField, w } from "../ui";
+import { createInput, selectField } from "../ui";
 import { BasePrompt } from "./base-prompt";
 
 const { div, h2, select, option, optgroup, input, span } = HTML;
 
 export class ThemePrompt extends BasePrompt {
 	private readonly _themeSelect: HTMLSelectElement = select(
-		{ style: w("100%") },
+		{},
 		optgroup(
 			{ label: "Objectively The Best Ones" },
 			option({ value: ColorConfig.PMD_THEME }, "PMD Dynamic"),
@@ -99,7 +99,7 @@ export class ThemePrompt extends BasePrompt {
 	);
 
 	private readonly _pmdHueInput: HTMLInputElement = input({
-		style: w("100%"),
+		//
 		type: "range",
 		min: "0",
 		max: "360",
@@ -107,25 +107,25 @@ export class ThemePrompt extends BasePrompt {
 		oninput: () => this._onPMDChange(),
 	});
 
-	private readonly _pmdHueLabel: HTMLSpanElement = span({ style: "font-size: 12px; color: var(--secondary-text);" }, `Hue: ${ColorConfig.pmdHue}°`);
+	private readonly _pmdHueLabel: HTMLSpanElement = span({ class: "pmdHueLabel" }, `Hue: ${ColorConfig.pmdHue}°`);
 
-	private readonly _pmdHueNum: HTMLInputElement = createInput("number", "width: 3.5em; font-size: 12px;", {
+	private readonly _pmdHueNum: HTMLInputElement = createInput("number", "", {
 		min: "0",
 		max: "360",
 		value: String(ColorConfig.pmdHue),
 	});
 
 	private readonly _pmdControls: HTMLDivElement = div(
-		{ style: "display: none; flex-direction: column; gap: 8px; margin-top: 4px;" },
+		{ class: "pmdControls" },
 		div(
-			{ style: "display: flex; flex-direction: column; gap: 4px;" },
-			div({ style: "display: flex; align-items: center; gap: 8px;" }, this._pmdHueLabel, this._pmdHueNum),
+			{ class: "pmdControlGroup" },
+			div({ class: "pmdHueRow" }, this._pmdHueLabel, this._pmdHueNum),
 			this._pmdHueInput,
 		),
 	);
 
 	public readonly container: HTMLDivElement = div(
-		{ class: "prompt noSelection", style: promptPanel("260px") },
+		{ class: "prompt themePrompt noSelection" },
 		h2("Set Theme"),
 		selectField("Theme:", this._themeSelect),
 		this._pmdControls,

@@ -1559,6 +1559,145 @@ html {
 	width: 100%;
 }
 
+/* ── Sustain Prompt ── */
+.beepboxEditor .prompt.sustainPrompt {
+	width: 300px;
+}
+
+.beepboxEditor .prompt.sustainPrompt select {
+	width: 100%;
+}
+
+/* ── Song Recovery Prompt ── */
+.beepboxEditor .prompt.songRecoveryPrompt {
+	width: 300px;
+}
+
+.beepboxEditor .prompt.songRecoveryPrompt .recoveryScroll {
+	max-height: 385px;
+	overflow-y: auto;
+}
+
+.beepboxEditor .prompt.songRecoveryPrompt select {
+	width: 100%;
+}
+
+.beepboxEditor .prompt.songRecoveryPrompt .recoveryPlayer {
+	width: 100%;
+	height: 60px;
+	border: none;
+	display: block;
+}
+
+.beepboxEditor .prompt.songRecoveryPrompt .recoveryRow {
+	margin: 4px 0;
+}
+
+.beepboxEditor .prompt.songRecoveryPrompt .recoverySelectRow {
+	width: 100%;
+	margin: 2px 0;
+}
+
+/* ── Import Prompt ── */
+.beepboxEditor .prompt.importPrompt {
+	width: 300px;
+}
+
+.beepboxEditor .prompt.importPrompt select {
+	width: 100%;
+	margin-bottom: 0.5em;
+}
+
+.beepboxEditor .prompt.importPrompt .importBrowseButton {
+	width: 100%;
+	margin-bottom: 0.5em;
+}
+
+.beepboxEditor .prompt.importPrompt .importNote {
+	text-align: left;
+	margin-bottom: 0.5em;
+}
+
+.beepboxEditor .prompt.importPrompt .importNote2 {
+	text-align: left;
+	margin: 0.5em 0;
+}
+
+/* ── Theme Prompt ── */
+.beepboxEditor .prompt.themePrompt {
+	width: 260px;
+}
+
+.beepboxEditor .prompt.themePrompt select {
+	width: 100%;
+}
+
+.beepboxEditor .prompt.themePrompt .pmdControls {
+	display: none;
+	flex-direction: column;
+	gap: 8px;
+	margin-top: 4px;
+}
+
+.beepboxEditor .prompt.themePrompt .pmdControlGroup {
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+}
+
+.beepboxEditor .prompt.themePrompt .pmdHueRow {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+}
+
+.beepboxEditor .prompt.themePrompt .pmdHueLabel {
+	font-size: 12px;
+	color: var(--secondary-text);
+}
+
+.beepboxEditor .prompt.themePrompt .pmdHueNum {
+	width: 3.5em;
+	font-size: 12px;
+}
+
+/* ── Custom Theme Prompt ── */
+.beepboxEditor .prompt.customThemePrompt {
+	width: 300px;
+}
+
+.beepboxEditor .prompt.customThemePrompt .ctResetButton {
+	height: auto;
+	min-height: var(--button-size);
+}
+
+.beepboxEditor .prompt.customThemePrompt .ctNote {
+	text-align: left;
+	margin-bottom: 0.5em;
+}
+
+.beepboxEditor .prompt.customThemePrompt .ctNoteTop {
+	text-align: left;
+	margin-top: 0.5em;
+	margin-bottom: 0.5em;
+}
+
+.beepboxEditor .prompt.customThemePrompt .ctFileRow {
+	text-align: left;
+	margin: 0;
+}
+
+.beepboxEditor .prompt.customThemePrompt .ctFileRow2 {
+	text-align: left;
+	margin: 0.5em 0;
+}
+
+.beepboxEditor .prompt.customThemePrompt .ctButtonRow {
+	display: flex;
+	flex-direction: row-reverse;
+	justify-content: space-between;
+}
+
 /* ── Custom Scale Prompt ── */
 .beepboxEditor .prompt.customScalePrompt {
 	width: 250px;
