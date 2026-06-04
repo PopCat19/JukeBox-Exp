@@ -1835,6 +1835,191 @@ html {
 	margin-top: 8px;
 }
 
+/* ── Add Samples Prompt ── */
+.beepboxEditor .prompt.addSamplesPrompt {
+	width: 450px;
+	max-height: calc(100% - 100px);
+}
+
+.beepboxEditor .prompt.addSamplesPrompt .asScroll {
+	overflow-y: auto;
+}
+
+.beepboxEditor .prompt.addSamplesPrompt .asColumn {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	margin-bottom: 0.5em;
+}
+
+.beepboxEditor .prompt.addSamplesPrompt .asEntryScroll {
+	width: 100%;
+	max-height: 450px;
+	overflow-y: scroll;
+}
+
+.beepboxEditor .prompt.addSamplesPrompt .asBtn {
+	height: auto;
+	min-height: var(--button-size);
+}
+
+.beepboxEditor .prompt.addSamplesPrompt .asBtnWide {
+	height: auto;
+	min-height: var(--button-size);
+	width: 100%;
+}
+
+.beepboxEditor .prompt.addSamplesPrompt .asBtnHalfMargin {
+	margin-left: 0.5em;
+}
+
+.beepboxEditor .prompt.addSamplesPrompt .asBottomRow {
+	margin-top: 0.5em;
+}
+
+.beepboxEditor .prompt.addSamplesPrompt .asMargin {
+	margin-top: 0.5em;
+	margin-bottom: 0.5em;
+}
+
+.beepboxEditor .prompt.addSamplesPrompt .asMarginBottom {
+	margin-bottom: 0.5em;
+}
+
+.beepboxEditor .prompt.addSamplesPrompt .asMarginBottomLg {
+	margin-bottom: 1em;
+}
+
+.beepboxEditor .prompt.addSamplesPrompt .asSelectable {
+	-webkit-user-select: text;
+	-moz-user-select: text;
+	-ms-user-select: text;
+	user-select: text;
+	cursor: text;
+}
+
+.beepboxEditor .prompt.addSamplesPrompt .asTextarea {
+	width: 100%;
+	height: 100%;
+	resize: none;
+	box-sizing: border-box;
+}
+
+.beepboxEditor .prompt.addSamplesPrompt .asBulkArea {
+	width: 100%;
+	height: 250px;
+	margin-top: 0.5em;
+	margin-bottom: 0.5em;
+}
+
+.beepboxEditor .prompt.addSamplesPrompt .asButtonRow {
+	display: flex;
+	flex-direction: row-reverse;
+	justify-content: space-between;
+}
+
+.beepboxEditor .prompt.addSamplesPrompt .asButtonRowTop {
+	display: flex;
+	flex-direction: row-reverse;
+	justify-content: space-between;
+	margin-top: 0.5em;
+}
+
+.beepboxEditor .prompt.addSamplesPrompt .asHidden {
+	display: none;
+}
+
+.beepboxEditor .prompt.addSamplesPrompt .asFlexEnd {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	justify-content: flex-end;
+}
+
+.beepboxEditor .prompt.addSamplesPrompt .asFlexEndMargin {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	justify-content: flex-end;
+	margin-bottom: 0.5em;
+}
+
+.beepboxEditor .prompt.addSamplesPrompt .asFlexBetween {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	justify-content: space-between;
+	margin-bottom: 0.5em;
+}
+
+.beepboxEditor .prompt.addSamplesPrompt .asLabel {
+	text-align: right;
+	color: var(--primary-text);
+}
+
+.beepboxEditor .prompt.addSamplesPrompt .asLabelShrink {
+	flex-shrink: 0;
+	text-align: right;
+	color: var(--primary-text);
+}
+
+.beepboxEditor .prompt.addSamplesPrompt .asInputGrow {
+	flex-grow: 1;
+	margin-left: 1em;
+	width: 100%;
+}
+
+.beepboxEditor .prompt.addSamplesPrompt .asInputHalfMargin {
+	flex-grow: 1;
+	margin-left: 0.5em;
+	width: 100%;
+}
+
+.beepboxEditor .prompt.addSamplesPrompt .asPitchInput {
+	margin-left: 0.4em;
+	width: 3em;
+	text-align: left;
+	text-overflow: ellipsis;
+	overflow: hidden;
+	flex-shrink: 0;
+}
+
+.beepboxEditor .prompt.addSamplesPrompt .asCard {
+	padding: 8px 12px;
+	margin: 4px;
+	background: var(--ui-widget-background);
+	border-radius: var(--border-radius-large);
+}
+
+.beepboxEditor .prompt.addSamplesPrompt .asCardName {
+	margin-bottom: 0.5em;
+	color: var(--secondary-text);
+	text-overflow: ellipsis;
+	overflow: hidden;
+	white-space: nowrap;
+}
+
+.beepboxEditor .prompt.addSamplesPrompt .asCardRow {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	justify-content: flex-end;
+	margin-bottom: 0.5em;
+}
+
+.beepboxEditor .prompt.addSamplesPrompt .asSubtext {
+	color: var(--secondary-text);
+}
+
+.beepboxEditor .prompt.addSamplesPrompt .asNoPad {
+	padding: 0;
+}
+
+.beepboxEditor .prompt.addSamplesPrompt .asFullSize {
+	width: 100%;
+	height: 100%;
+}
+
 /* ── Shared custom editor styles (custom-chip, custom-filter) ── */
 
 .beepboxEditor .filterEditorContainer,

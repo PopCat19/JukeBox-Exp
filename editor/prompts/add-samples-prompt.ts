@@ -26,18 +26,18 @@ export class AddSamplesPrompt extends BasePrompt {
 	private readonly _entryOptionsDisplayStates: Dictionary<boolean> = {};
 	private readonly _addSampleButton: HTMLButtonElement = button(
 		{
-			style: "height: auto; min-height: var(--button-size);",
+			class: "asBtn",
 		},
 		"Add sample",
 	);
 	private readonly _entryContainer: HTMLDivElement = div();
 	private readonly _addMultipleSamplesButton: HTMLButtonElement = button(
 		{
-			style: "height: auto; min-height: var(--button-size); margin-left: 0.5em;",
+			class: "asBtn asBtnHalfMargin",
 		},
 		"Add multiple samples",
 	);
-	private readonly _addSamplesAreaBottom: HTMLDivElement = div({ style: "margin-top: 0.5em;" }, this._addSampleButton, this._addMultipleSamplesButton);
+	private readonly _addSamplesAreaBottom: HTMLDivElement = div({ class: "asBottomRow" }, this._addSampleButton, this._addMultipleSamplesButton);
 	private readonly _instructionsLink: HTMLAnchorElement = a(
 		{ href: "#" },
 		"Here's more information and some instructions on how to use custom samples in JukeBox.",
@@ -45,7 +45,7 @@ export class AddSamplesPrompt extends BasePrompt {
 	private readonly _description: HTMLDivElement = div(
 		div(
 			{
-				style: "margin-bottom: 0.5em; -webkit-user-select: text; -moz-user-select: text; -ms-user-select: text; user-select: text; cursor: text;",
+				class: "asMarginBottom asSelectable",
 			},
 			"In order to use the old JukeBox samples, you should add ",
 			code("legacySamples"),
@@ -55,22 +55,22 @@ export class AddSamplesPrompt extends BasePrompt {
 			code("marioPaintboxSamples"),
 			" for more built-in sample packs.",
 		),
-		div({ style: "margin-bottom: 0.5em;" }, "The order of these samples is important - if you change it you'll break your song!"),
-		div({ style: "margin-bottom: 0.5em;" }, this._instructionsLink),
+		div({ class: "asMarginBottom" }, "The order of these samples is important - if you change it you'll break your song!"),
+		div({ class: "asMarginBottom" }, this._instructionsLink),
 	);
 	private readonly _closeInstructionsButton: HTMLButtonElement = button(
 		{
-			style: "height: auto; min-height: var(--button-size); width: 100%;",
+			class: "asBtnWide",
 		},
 		"Close instructions",
 	);
 	private readonly _instructionsArea: HTMLDivElement = div(
 		{
-			style: "display: none; margin-top: 0; -webkit-user-select: text; -moz-user-select: text; -ms-user-select: text; user-select: text; cursor: text; overflow-y: auto;",
+			class: "asHidden asSelectable",
 		},
-		div({ style: "margin-top: 0.5em; margin-bottom: 0.5em;" }, "In JukeBox, custom samples are loaded from arbitrary URLs."),
+		div({ class: "asMargin" }, "In JukeBox, custom samples are loaded from arbitrary URLs."),
 		div(
-			{ style: `margin-top: 0.5em; margin-bottom: 0.5em; color: ${ColorConfig.secondaryText};` },
+			{ class: "asMargin asSubtext" },
 			"(Technically, the web server behind the URL needs to support ",
 			a({ href: "https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS", target: "_blank" }, "CORS"),
 			", but you don't need to know about that: ",
@@ -92,7 +92,7 @@ export class AddSamplesPrompt extends BasePrompt {
 			{ style: "margin-top: 0.5em; margin-bottom: 0.5em;" },
 			"As for where to upload your samples, here are some suggestions:",
 			ul(
-				{ style: "text-align: left;" },
+				{},
 				li(a({ href: "https://filegarden.com" }, "File Garden")),
 				// there's no guarantee this will continue to work; dropbox has changed their URL formatting at least once in the past
 				li(a({ href: "https://www.dropbox.com" }, "Dropbox"), " (domain needs to be ", code("https://dl.dropboxusercontent.com"), ")"),
@@ -106,46 +106,46 @@ export class AddSamplesPrompt extends BasePrompt {
 			" but those require a bit more setup.",
 		),
 		div(
-			{ style: "margin-top: 0.5em; margin-bottom: 1em;" },
+			{ class: "asMarginBottomLg" },
 			"Finally, if have a soundfont you'd like to get samples from, consider using this ",
 			a({ href: "./sample_extractor.html", target: "_blank" }, "sample extractor"),
 			".",
 		),
-		div({ style: "display: flex; flex-direction: row-reverse; justify-content: space-between; margin-top: 0.5em;" }, this._closeInstructionsButton),
+		div({ class: "asButtonRowTop" }, this._closeInstructionsButton),
 	);
 	private readonly _addSamplesArea: HTMLDivElement = div(
-		{ style: "overflow-y: auto;" },
+		{ class: "asScroll" },
 		h2("Add Samples"),
 		div(
-			{ style: "display: flex; flex-direction: column; align-items: center; margin-bottom: 0.5em;" },
+			{ class: "asColumn" },
 			this._description,
-			div({ style: "width: 100%; max-height: 450px; overflow-y: scroll;" }, this._entryContainer),
+			div({ class: "asEntryScroll" }, this._entryContainer),
 			this._addSamplesAreaBottom,
 		),
 		this._getOkayRow(),
 	);
 	private readonly _bulkAddTextarea: HTMLTextAreaElement = textarea({
-		style: "width: 100%; height: 100%; resize: none; box-sizing: border-box;",
+		class: "asTextarea",
 	});
 	private readonly _bulkAddConfirmButton: HTMLButtonElement = button(
 		{
-			style: "height: auto; min-height: var(--button-size); width: 100%;",
+			class: "asBtnWide",
 		},
 		"Add",
 	);
 	private readonly _bulkAddArea: HTMLDivElement = div(
-		{ style: "display: none; overflow-y: auto;" },
-		h2({ style: "margin-bottom: 0.5em;" }, "Add Multiple Samples"),
+		{ class: "asHidden" },
+		h2({ class: "asMarginBottom" }, "Add Multiple Samples"),
 		div(
-			{ style: "display: flex; flex-direction: column; align-items: center;" },
+			{ class: "asColumn" },
 			div(`Add one URL per line. Remember that you can only have ${this._maxSamples} samples!`),
-			div({ style: `color: ${ColorConfig.secondaryText}` }, "(This supports the syntax used to store samples in the song URLs as well)"),
-			div({ style: "width: 100%; height: 250px; margin-top: 0.5em; margin-bottom: 0.5em;" }, this._bulkAddTextarea),
+			div({ class: "asSubtext" }, "(This supports the syntax used to store samples in the song URLs as well)"),
+			div({ class: "asBulkArea" }, this._bulkAddTextarea),
 		),
-		div({ style: "display: flex; flex-direction: row-reverse; justify-content: space-between;" }, this._bulkAddConfirmButton),
+		div({ class: "asButtonRow" }, this._bulkAddConfirmButton),
 	);
 	public container: HTMLDivElement = div(
-		{ class: "prompt noSelection", style: "width: 450px; max-height: calc(100% - 100px);" },
+		{ class: "prompt addSamplesPrompt noSelection" },
 		this._addSamplesArea,
 		this._bulkAddArea,
 		this._instructionsArea,
@@ -460,11 +460,11 @@ export class AddSamplesPrompt extends BasePrompt {
 			const entry: SampleEntry = this._entries[entryIndex];
 			const optionsVisible: boolean = Boolean(this._entryOptionsDisplayStates[entryIndex]);
 			const urlInput: HTMLInputElement = input({
-				style: "flex-grow: 1; margin-left: 1em; width: 100%;",
+				class: "asInputGrow",
 				value: entry.url,
 			});
 			const sampleRateStepper: HTMLInputElement = input({
-				style: "flex-grow: 1; margin-left: 1em; width: 100%;",
+				class: "asInputGrow",
 				type: "number",
 				value: "" + entry.sampleRate,
 				min: "8000",
@@ -472,7 +472,7 @@ export class AddSamplesPrompt extends BasePrompt {
 				step: "1",
 			});
 			const rootKeyStepper: HTMLInputElement = input({
-				style: "flex-grow: 1; margin-left: 1em; width: 100%;",
+				class: "asInputGrow",
 				type: "number",
 				value: "" + entry.rootKey,
 				min: "0",
@@ -488,21 +488,21 @@ export class AddSamplesPrompt extends BasePrompt {
 			);
 			const percussionBox: HTMLInputElement = input({ type: "checkbox" });
 			const chipWaveLoopStartStepper: HTMLInputElement = input({
-				style: "flex-grow: 1; margin-left: 1em; width: 100%;",
+				class: "asInputGrow",
 				type: "number",
 				value: "" + (entry.chipWaveLoopStart != null ? entry.chipWaveLoopStart : ""),
 				min: "0",
 				step: "1",
 			});
 			const chipWaveLoopEndStepper: HTMLInputElement = input({
-				style: "flex-grow: 1; margin-left: 1em; width: 100%;",
+				class: "asInputGrow",
 				type: "number",
 				value: "" + (entry.chipWaveLoopEnd != null ? entry.chipWaveLoopEnd : ""),
 				min: "0",
 				step: "1",
 			});
 			const chipWaveStartOffsetStepper: HTMLInputElement = input({
-				style: "flex-grow: 1; margin-left: 1em; width: 100%;",
+				class: "asInputGrow",
 				type: "number",
 				value: "" + (entry.chipWaveStartOffset != null ? entry.chipWaveStartOffset : ""),
 				min: "0",
