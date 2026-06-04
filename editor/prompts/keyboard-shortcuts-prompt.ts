@@ -73,12 +73,7 @@ function highlightText(text: string, filter: string): (string | HTMLElement)[] {
 	const match = text.slice(idx, idx + filter.length);
 	const mark = document.createElement("mark");
 	mark.textContent = match;
-	mark.style.cssText = `
-		background: var(--accent-color, #ffd700);
-		color: var(--primary-text, #000);
-		border-radius: 2px;
-		padding: 0 1px;
-	`;
+	mark.className = "searchMatch";
 	result.push(mark);
 
 	const after = text.slice(idx + filter.length);

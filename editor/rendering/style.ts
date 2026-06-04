@@ -1399,6 +1399,14 @@ html {
 	text-align: center;
 }
 
+/* ── Search highlight ── */
+.beepboxEditor .prompt.keyboardShortcutsPrompt mark.searchMatch {
+	background: var(--cta-bg);
+	color: var(--cta-fg);
+	border-radius: var(--border-radius-medium);
+	padding: 0 3px;
+}
+
 /* ── Collapsed state ── */
 .beepboxEditor .prompt.keyboardShortcutsPrompt .shortcutCategory.collapsed .shortcutCategoryBody {
 	display: none;
