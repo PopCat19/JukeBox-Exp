@@ -9,12 +9,11 @@
 // Copyright (c) 2012-2022 John Nesky and contributing authors, distributed under the MIT license, see accompanying the LICENSE.md file.
 
 import { HTML } from "imperative-html/dist/esm/elements-strict";
-import { ColorConfig } from "../../shared/color-config";
 import { Synth } from "../../synth";
 import { toJukeboxExpJson, toLegacyCompatJson } from "../../synth/formats";
 import { Config } from "../../synth/synth-config";
 import { SongDocument } from "../song-document";
-import { flexBetween, promptPanel, s, selectField, textAlign, w } from "../ui";
+import { promptLabel, promptRowBetween, selectField } from "../ui";
 import { BasePrompt } from "./base-prompt";
 import { exportToMidi } from "./export-midi";
 import { Prompt } from "./prompt";
@@ -35,15 +34,12 @@ export class ExportPrompt extends BasePrompt {
 	private outputStarted: boolean = false;
 	private readonly _fileName: HTMLInputElement = input({
 		type: "text",
-		style: "width: 10em;",
-		value: Config.jsonFormat + "-Song",
 		maxlength: 250,
 		autofocus: "autofocus",
 	});
-	private readonly _computedSamplesLabel: HTMLDivElement = div({ style: "width: 10em;" }, new Text("0:00"));
+	private readonly _computedSamplesLabel: HTMLDivElement = div({ class: "exportValue" }, "0:00");
 	private readonly _enableIntro: HTMLInputElement = input({ type: "checkbox" });
 	private readonly _loopDropDown: HTMLInputElement = input({
-		style: "width: 2em;",
 		type: "number",
 		min: "1",
 		max: "4",
@@ -51,70 +47,61 @@ export class ExportPrompt extends BasePrompt {
 	});
 	private readonly _enableOutro: HTMLInputElement = input({ type: "checkbox" });
 	private readonly _formatSelect: HTMLSelectElement = select(
-		{ style: "width: 100%;" },
-		option({ value: "wav" }, "Export to .wav file."),
-		option({ value: "mp3" }, "Export to .mp3 file."),
+		{},
+		option({ value: "wav" }, "WAV"),
+		option({ value: "mp3" }, "MP3"),
 		option({ value: "no" }, "third option"),
-		option({ value: "ogg" }, "Export to .ogg file."),
-		option({ value: "opus" }, "Export to .opus file."),
-		option({ value: "midi" }, "Export to .mid file."),
-		option({ value: "json" }, "Export to .json file."),
-		option({ value: "json-exp" }, "Export to .json file (JukeboxExp)."),
-		option({ value: "json-legacy" }, "Export to .json file (legacy forks)."),
-		option({ value: "html" }, "Export to .html file."),
+		option({ value: "ogg" }, "OGG"),
+		option({ value: "opus" }, "OPUS"),
+		option({ value: "midi" }, "MIDI"),
+		option({ value: "json" }, "JSON"),
+		option({ value: "json-exp" }, "JSON (JukeboxExp)"),
+		option({ value: "json-legacy" }, "JSON (legacy)"),
+		option({ value: "html" }, "HTML"),
 	);
 	private readonly _removeWhitespace: HTMLInputElement = input({ type: "checkbox" });
-	private readonly _removeWhitespaceDiv: HTMLDivElement = div(
-		{ style: s(flexBetween(), "margin-bottom:14px;") },
-		"Remove Whitespace: ",
-		this._removeWhitespace,
-	);
 	private readonly _keepOpen: HTMLInputElement = input({ type: "checkbox" });
-	private readonly _keepOpenDiv: HTMLDivElement = div({ style: s(flexBetween(), "margin-bottom:14px;") }, "Keep Open: ", this._keepOpen);
 	private readonly _oggWarning: HTMLDivElement = div(
-		{ style: s(flexBetween(), "margin-bottom:14px;") },
+		{ class: "exportOggWarning" },
 		"Warning: .ogg files aren't supported on as many devices as mp3 or wav. So Playback might not be possible on specific devices.",
 	);
 	private readonly _outputProgressBar: HTMLDivElement = div({
-		style: s(w("0%"), "background:" + ColorConfig.loopAccent + ";height:100%;position:absolute;z-index:2;"),
+		class: "exportProgressBar",
 	});
 	private readonly _outputProgressLabel: HTMLDivElement = div(
-		{ style: "position:relative;top:-1px;z-index:3;mix-blend-mode:difference;color:#ffffff;font-weight:600;" },
+		{ class: "exportProgressLabel" },
 		"0%",
 	);
 	private readonly _outputProgressContainer: HTMLDivElement = div(
-		{
-			style: s("height:12px;display:block;position:relative;z-index:1;", "background:" + ColorConfig.uiWidgetBackground + ";"),
-		},
+		{ class: "exportProgressContainer" },
 		this._outputProgressBar,
 		this._outputProgressLabel,
 	);
 
 	public readonly container: HTMLDivElement = div(
-		{ class: "prompt noSelection", style: promptPanel("200px") },
+		{ class: "prompt exportPrompt noSelection" },
 		h2("Export Options"),
-		div({ style: flexBetween() }, "File name:", this._fileName),
-		div({ style: flexBetween() }, "Length:", this._computedSamplesLabel),
-		div(
-			{ style: "display: table; width: 100%;" },
-			div(
-				{ style: "display: table-row;" },
-				div({ style: "display: table-cell;" }, "Intro:"),
-				div({ style: "display: table-cell;" }, "Loop Count:"),
-				div({ style: "display: table-cell;" }, "Outro:"),
+		promptRowBetween(promptLabel("File name:"), this._fileName),
+		promptRowBetween(promptLabel("Length:"), this._computedSamplesLabel),
+		div({ class: "exportGridRow" },
+			div({ class: "exportGridCell" },
+				this._enableIntro,
+				div({ class: "exportGridLabel" }, "Intro"),
 			),
-			div(
-				{ style: "display: table-row;" },
-				div({ style: "display: table-cell; vertical-align: middle;" }, this._enableIntro),
-				div({ style: "display: table-cell; vertical-align: middle;" }, this._loopDropDown),
-				div({ style: "display: table-cell; vertical-align: middle;" }, this._enableOutro),
+			div({ class: "exportGridCell" },
+				div({ class: "exportGridLabel" }, "Loop"),
+				this._loopDropDown,
+			),
+			div({ class: "exportGridCell" },
+				this._enableOutro,
+				div({ class: "exportGridLabel" }, "Outro"),
 			),
 		),
-		this._removeWhitespaceDiv,
-		this._keepOpenDiv,
+		promptRowBetween(promptLabel("Remove Whitespace:"), this._removeWhitespace),
+		promptRowBetween(promptLabel("Keep Open:"), this._keepOpen),
 		this._oggWarning,
 		selectField("Format:", this._formatSelect, { selectWidth: "100%" }),
-		div({ style: textAlign("left") }, "Exporting can be slow. Reloading the page or clicking the X will cancel it. Please be patient."),
+		div({ class: "exportNote" }, "Exporting can be slow. Reloading the page or clicking the X will cancel it. Please be patient."),
 		this._outputProgressContainer,
 		this._getOkayRow(),
 		this._cancelButton,
@@ -125,6 +112,8 @@ export class ExportPrompt extends BasePrompt {
 		this.buildTitlebar();
 		this._okayButton.classList.add("exportButton");
 		this._okayButton.textContent = "Export";
+
+		this._fileName.value = this._doc.song.title;
 
 		this._loopDropDown.value = "1";
 
@@ -149,9 +138,7 @@ export class ExportPrompt extends BasePrompt {
 		}
 
 		const lastExportWhitespace: boolean = window.localStorage.getItem("exportWhitespace") !== "false";
-		if (lastExportWhitespace != null) {
-			this._removeWhitespace.checked = lastExportWhitespace;
-		}
+		this._removeWhitespace.checked = lastExportWhitespace;
 
 		const lastExportKeepOpen: boolean = window.localStorage.getItem("exportKeepOpen") === "true";
 		this._keepOpen.checked = lastExportKeepOpen;
@@ -167,9 +154,11 @@ export class ExportPrompt extends BasePrompt {
 		this._enableIntro.addEventListener("click", this._updateSamplesLabel);
 		this._loopDropDown.addEventListener("change", this._updateSamplesLabel);
 		this._formatSelect.addEventListener("change", this._updateWarnings);
+		// Save "Keep Open" preference immediately so closing the prompt doesn't discard it
+		this._keepOpen.addEventListener("change", () => {
+			window.localStorage.setItem("exportKeepOpen", String(this._keepOpen.checked));
+		});
 
-		this._fileName.value = this._doc.song.title;
-		ExportPrompt._validateFileName(null, this._fileName);
 		this._updateSamplesLabel();
 	}
 
@@ -181,7 +170,11 @@ export class ExportPrompt extends BasePrompt {
 	};
 
 	private _updateWarnings = (): void => {
-		this._removeWhitespaceDiv.style.display = ["json", "json-exp", "json-legacy"].includes(this._formatSelect.value) ? "block" : "none";
+		// Remove Whitespace option is only relevant for JSON formats
+		const removeWsRow = this._removeWhitespace.parentElement;
+		if (removeWsRow) {
+			removeWsRow.style.display = ["json", "json-exp", "json-legacy"].includes(this._formatSelect.value) ? "flex" : "none";
+		}
 		const showOgg = this._formatSelect.value === "ogg" || this._formatSelect.value === "opus";
 		this._oggWarning.style.display = showOgg ? "block" : "none";
 	};
@@ -221,7 +214,6 @@ export class ExportPrompt extends BasePrompt {
 		if (this.outputStarted === true) return;
 		window.localStorage.setItem("exportFormat", this._formatSelect.value);
 		window.localStorage.setItem("exportWhitespace", String(this._removeWhitespace.checked));
-		window.localStorage.setItem("exportKeepOpen", String(this._keepOpen.checked));
 		switch (this._formatSelect.value) {
 			case "wav":
 			case "mp3":
