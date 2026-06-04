@@ -35,6 +35,8 @@ export interface InputBinding {
 	modifiers?: string[];
 	condition?: string;
 	detail?: string;
+	/** Optional category for display in the keyboard shortcuts prompt. */
+	displayCategory?: string;
 }
 
 export const inputBindings: InputBinding[] = [
