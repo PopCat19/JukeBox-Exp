@@ -331,6 +331,7 @@ export class AddSamplesPrompt extends BasePrompt {
 	};
 
 	private _renderList = (): void => {
+		const savedScrollTop = this._sampleList.scrollTop;
 		while (this._sampleList.firstChild) this._sampleList.removeChild(this._sampleList.firstChild);
 
 		const filtered = this._getFilteredEntries();
@@ -385,6 +386,9 @@ export class AddSamplesPrompt extends BasePrompt {
 			this._selectedIndex = -1;
 			this._renderDetails();
 		}
+
+		// Restore scroll position — prevent jumping to top on re-render
+		this._sampleList.scrollTop = savedScrollTop;
 	};
 
 	private _renderDetails = (): void => {
@@ -497,6 +501,7 @@ export class AddSamplesPrompt extends BasePrompt {
 		this._selectedIndex = this._entries.length - 1;
 		this._reconfigureAddButton();
 		this._render();
+		this._scrollToSelected();
 	};
 
 	private _onBulkOpen = (): void => {
@@ -531,6 +536,7 @@ export class AddSamplesPrompt extends BasePrompt {
 		this._exitBulkMode();
 		this._reconfigureAddButton();
 		this._render();
+		this._scrollToSelected();
 	};
 
 	private _onBulkCancel = (): void => this._exitBulkMode();
@@ -661,6 +667,10 @@ export class AddSamplesPrompt extends BasePrompt {
 		} else if (itemRect.bottom > containerRect.bottom - margin) {
 			this._sampleList.scrollTop += itemRect.bottom - containerRect.bottom + margin;
 		}
+	}
+
+	private _scrollToSelected(): void {
+		requestAnimationFrame(() => this._scrollItemIntoView(this._selectedIndex));
 	}
 
 	private _updateHighlight = (): void => {

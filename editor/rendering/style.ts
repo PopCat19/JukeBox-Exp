@@ -3450,13 +3450,12 @@ li.select2-results__option[role=group] > strong:hover {
 	font-size: 12px;
 	width: 100%;
 	box-sizing: border-box;
-	background: var(--editor-background);
+	background: transparent;
 	color: var(--primary-text);
 	border: ${BorderWidth.default} solid var(--ui-widget-background);
 	border-radius: var(--border-radius-medium);
 	padding: 4px 6px;
 	outline: none;
-	transition: border-color ${Animation.durationNormal} ease;
 }
 
 .beepboxEditor .prompt.sampleBrowserPrompt .sbpDetailUrl:hover {
@@ -3589,13 +3588,12 @@ li.select2-results__option[role=group] > strong:hover {
 	box-sizing: border-box;
 	min-height: 120px;
 	font-size: 12px;
-	background: var(--editor-background);
+	background: transparent;
 	color: var(--primary-text);
 	border: ${BorderWidth.default} solid var(--ui-widget-background);
 	border-radius: var(--border-radius-medium);
 	padding: 6px;
 	outline: none;
-	transition: border-color ${Animation.durationNormal} ease;
 }
 
 .beepboxEditor .prompt.sampleBrowserPrompt .sbpBulkText:hover {
@@ -3641,10 +3639,9 @@ li.select2-results__option[role=group] > strong:hover {
 	color: var(--primary-text);
 	border-radius: var(--border-radius-medium);
 	outline: none;
-	transition: border-color ${Animation.durationNormal} ease, box-shadow ${Animation.durationNormal} ease;
 }
 .beepboxEditor .prompt.sampleBrowserPrompt input[type=number] {
-	background: var(--editor-background);
+	background: transparent;
 	border: ${BorderWidth.default} solid var(--ui-widget-background);
 }
 .beepboxEditor .prompt.sampleBrowserPrompt select {
