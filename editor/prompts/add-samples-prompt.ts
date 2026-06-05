@@ -267,11 +267,6 @@ export class AddSamplesPrompt extends BasePrompt {
 		this._handleCommonKeys(event);
 	};
 
-	protected override _close = (): void => {
-		this._doc.prompt = null;
-		this._saveChanges();
-	};
-
 	protected override _saveChanges = (): void => {
 		const urlData: string = generateAllSampleURLs(this._entries);
 		EditorConfig.customSamples = urlData.split("|").filter((x) => x !== "");

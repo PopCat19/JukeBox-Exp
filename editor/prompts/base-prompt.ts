@@ -24,7 +24,7 @@ export abstract class BasePrompt implements Prompt {
 	public closeCallback: ((prompt: Prompt) => void) | undefined = undefined;
 	public openAlongsideCallback: ((promptName: string) => void) | undefined = undefined;
 	protected readonly _cancelButton: HTMLButtonElement = iconButton("cancelButton");
-	protected readonly _okayButton: HTMLButtonElement = actionButton("Okay");
+	protected readonly _okayButton: HTMLButtonElement = actionButton("Commit");
 
 	constructor(protected _doc: SongDocument) {
 		this._okayButton.addEventListener("click", this._onOkayClick);

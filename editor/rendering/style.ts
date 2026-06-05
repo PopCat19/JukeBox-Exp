@@ -1004,7 +1004,7 @@ html {
 
 .beepboxEditor .prompt-button-row {
 	display: flex;
-	flex-direction: row-reverse;
+	flex-direction: row;
 	justify-content: flex-end;
 	gap: var(--gap-md);
 }
@@ -1316,7 +1316,7 @@ html {
 	justify-content: space-between;
 	align-items: center;
 	padding: var(--padding-4) var(--padding-8);
-	gap: 12px;
+	gap: ${Gap.lg};
 	border: 2px solid transparent;
 	border-radius: var(--border-radius-medium);
 	transition: border-color 150ms var(--ease);
@@ -1532,7 +1532,7 @@ html {
 
 .beepboxEditor .prompt.layoutPrompt .layoutForm {
 	display: flex;
-	gap: 10px;
+	gap: ${Gap.md};
 	flex-wrap: wrap;
 	justify-content: center;
 }
@@ -1758,8 +1758,9 @@ html {
 
 .beepboxEditor .prompt.customThemePrompt .ctButtonRow {
 	display: flex;
-	flex-direction: row-reverse;
+	flex-direction: row;
 	justify-content: flex-end;
+	gap: var(--gap-md);
 }
 
 /* ── Recording Setup Prompt ── */
@@ -1817,6 +1818,7 @@ html {
 	gap: 4px;
 	flex-wrap: wrap;
 	margin-top: 8px;
+	justify-content: flex-end;
 }
 
 .beepboxEditor .prompt.palettePrompt .ppActionBtn {
@@ -1826,8 +1828,8 @@ html {
 
 .beepboxEditor .prompt.palettePrompt .ppFooter {
 	display: flex;
-	flex-direction: row-reverse;
-	justify-content: space-between;
+	flex-direction: row;
+	justify-content: flex-end;
 	margin-top: 8px;
 }
 
@@ -1940,7 +1942,7 @@ html {
 	display: flex;
 	flex-direction: row;
 	justify-content: space-between;
-	gap: 12px;
+	gap: ${Gap.lg};
 	margin: 2px 0 6px 0;
 }
 
