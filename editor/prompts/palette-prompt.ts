@@ -351,14 +351,7 @@ export class PalettePrompt extends BasePrompt {
 		{ class: "prompt palettePrompt noSelection" },
 		h2("Color Palette"),
 		this._scrollArea,
-		div(
-			{ class: "ppButtonRow" },
-			this._exportCssBtn,
-			this._downloadCssBtn,
-			this._downloadJsonBtn,
-			this._rawCssBtn,
-			this._resetBtn,
-		),
+		div({ class: "ppButtonRow" }, this._exportCssBtn, this._downloadCssBtn, this._downloadJsonBtn, this._rawCssBtn, this._resetBtn),
 		div({ class: "ppFooter" }, this._getOkayRow(), this._cancelButton),
 	);
 

@@ -58,10 +58,7 @@ export class ImportPrompt extends BasePrompt {
 	public readonly container: HTMLDivElement = div(
 		{ class: "prompt importPrompt noSelection" },
 		h2("Import"),
-		p(
-			{ class: "importNote" },
-			"BeepBox songs can be exported as .json files. You can also use this to import .json files from other BeepBox mods.",
-		),
+		p({ class: "importNote" }, "BeepBox songs can be exported as .json files. You can also use this to import .json files from other BeepBox mods."),
 		p(
 			{ class: "importNote2" },
 			"BeepBox can also (crudely) import .mid files. There are many tools available for creating .mid files. Shorter and simpler songs are more likely to work well.",

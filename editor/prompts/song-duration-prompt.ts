@@ -23,7 +23,7 @@ const { div, h2, input, br, select, option } = HTML;
 export class SongDurationPrompt extends BasePrompt {
 	private readonly _computedSamplesLabel = promptValue("0:00");
 	private readonly _barsStepper: HTMLInputElement = input({
-		type: "number",	
+		type: "number",
 		step: "1",
 	});
 	private readonly _positionSelect: HTMLSelectElement = select(

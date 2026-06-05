@@ -79,10 +79,7 @@ export class RecordingSetupPrompt extends BasePrompt {
 			p(
 				"When not recording, you can use the computer keyboard either for shortcuts (like C and V for copy and paste) or for performing notes, depending on this mode:",
 			),
-			div(
-				{ class: "rsModeRow" },
-				div({ class: "selectContainer", style: w("50%") }, this._keyboardMode),
-			),
+			div({ class: "rsModeRow" }, div({ class: "selectContainer", style: w("50%") }, this._keyboardMode)),
 			p("Performing music takes practice! Try slowing the tempo and using this metronome to help you keep a rhythm."),
 			checkboxRow("Hear metronome while recording:", this._metronomeWhileRecording),
 			checkboxRow("Count-in 1 bar of metronome before recording:", this._metronomeCountIn),

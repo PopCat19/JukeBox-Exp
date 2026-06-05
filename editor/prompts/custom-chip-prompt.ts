@@ -1,4 +1,3 @@
-
 // CustomChipPrompt
 //
 // Purpose: Provides dialog for editing custom chip wave sample data

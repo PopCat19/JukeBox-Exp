@@ -20,11 +20,7 @@ import { BasePrompt } from "./base-prompt";
 const { div, h2, p, select, option } = HTML;
 
 export class SustainPrompt extends BasePrompt {
-	private readonly _typeSelect: HTMLSelectElement = select(
-		{},
-		option({ value: "acoustic" }, "(A) Acoustic"),
-		option({ value: "bright" }, "(B) Bright"),
-	);
+	private readonly _typeSelect: HTMLSelectElement = select({}, option({ value: "acoustic" }, "(A) Acoustic"), option({ value: "bright" }, "(B) Bright"));
 
 	public readonly container: HTMLDivElement = div(
 		{ class: "prompt sustainPrompt" },

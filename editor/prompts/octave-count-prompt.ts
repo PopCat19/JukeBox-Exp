@@ -19,7 +19,7 @@ const { div, h2, p, input } = HTML;
 
 export class OctaveCountPrompt extends BasePrompt {
 	private readonly _octaves: HTMLInputElement = input({
-		type: "number",	
+		type: "number",
 		step: "1",
 	});
 

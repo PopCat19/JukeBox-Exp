@@ -22,14 +22,7 @@ export class SampleLoadingStatusPrompt extends BasePrompt {
 	private _noSamplesMessage: HTMLDivElement = div({ class: "slsNoSamples" }, "There's no custom samples in this song.");
 	public container: HTMLDivElement = div(
 		{ class: "prompt sampleLoadingStatusPrompt noSelection" },
-		div(
-			h2("Sample Loading Status"),
-			div(
-				{ class: "slsColumn" },
-				this._noSamplesMessage,
-				div({ class: "slsScroll" }, this._statusesContainer),
-			),
-		),
+		div(h2("Sample Loading Status"), div({ class: "slsColumn" }, this._noSamplesMessage, div({ class: "slsScroll" }, this._statusesContainer))),
 		this._cancelButton,
 	);
 
@@ -91,10 +84,7 @@ export class SampleLoadingStatusPrompt extends BasePrompt {
 				disabled: true,
 			});
 			const loadingStatusColor: string = loadingStatus === "loaded" ? "var(--indicator-primary)" : "var(--secondary-text)";
-			const loadingStatusDisplay: HTMLSpanElement = span(
-				{ class: "slsStatus", style: `color: ${loadingStatusColor}` },
-				loadingStatus,
-			);
+			const loadingStatusDisplay: HTMLSpanElement = span({ class: "slsStatus", style: `color: ${loadingStatusColor}` }, loadingStatus);
 			const chipWaveElement: HTMLDivElement = div(
 				{ class: "slsCard" },
 				div(
@@ -104,14 +94,8 @@ export class SampleLoadingStatusPrompt extends BasePrompt {
 					},
 					sampleName,
 				),
-				div({ class: "slsRow" },
-					div({ class: "slsLabel" }, "URL"),
-					urlDisplay,
-				),
-				div({ class: "slsRow" },
-					div({ class: "slsLabel" }, "Status"),
-					loadingStatusDisplay,
-				),
+				div({ class: "slsRow" }, div({ class: "slsLabel" }, "URL"), urlDisplay),
+				div({ class: "slsRow" }, div({ class: "slsLabel" }, "Status"), loadingStatusDisplay),
 			);
 			this._statusesContainer.appendChild(chipWaveElement);
 		}

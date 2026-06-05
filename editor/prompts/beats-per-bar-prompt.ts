@@ -38,10 +38,7 @@ export class BeatsPerBarPrompt extends BasePrompt {
 		{ class: "prompt beatsPerBarPrompt noSelection" },
 		h2("Beats Per Bar"),
 		promptRowBetween(promptLabel("Length:"), this._computedSamplesLabel),
-		promptRowBetween(
-			promptLabel("Beats per bar:"),
-			this._beatsStepper,
-		),
+		promptRowBetween(promptLabel("Beats per bar:"), this._beatsStepper),
 		div({ class: "promptHintRow" }, promptHint("(Multiples of 3 or 4 are normal and boring)")),
 		selectField("Conversion:", this._conversionStrategySelect),
 		this._getOkayRow(),

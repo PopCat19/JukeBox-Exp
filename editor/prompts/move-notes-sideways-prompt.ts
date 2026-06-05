@@ -19,7 +19,7 @@ const { div, h2, input, br, select, option } = HTML;
 
 export class MoveNotesSidewaysPrompt extends BasePrompt {
 	private readonly _beatsStepper: HTMLInputElement = input({
-		type: "number",	
+		type: "number",
 		step: "0.01",
 		value: "0",
 	});

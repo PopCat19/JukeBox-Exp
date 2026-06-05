@@ -117,11 +117,7 @@ export class ThemePrompt extends BasePrompt {
 
 	private readonly _pmdControls: HTMLDivElement = div(
 		{ class: "pmdControls" },
-		div(
-			{ class: "pmdControlGroup" },
-			div({ class: "pmdHueRow" }, this._pmdHueLabel, this._pmdHueNum),
-			this._pmdHueInput,
-		),
+		div({ class: "pmdControlGroup" }, div({ class: "pmdHueRow" }, this._pmdHueLabel, this._pmdHueNum), this._pmdHueInput),
 	);
 
 	public readonly container: HTMLDivElement = div(

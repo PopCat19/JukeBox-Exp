@@ -86,9 +86,7 @@ function highlightText(text: string, filter: string): (string | HTMLElement)[] {
 
 /** Render text with optional highlight into a document fragment. */
 function renderHighlighted(text: string, filter: string): (Text | HTMLElement)[] {
-	return highlightText(text, filter).map((part) =>
-		typeof part === "string" ? document.createTextNode(part) : part,
-	);
+	return highlightText(text, filter).map((part) => (typeof part === "string" ? document.createTextNode(part) : part));
 }
 
 /** Render a key combination as keycap badges. */
@@ -117,11 +115,7 @@ function renderKeyCombo(keys: ShortcutKey[], filter: string): HTMLDivElement {
 }
 
 /** Render description text with optional highlight and detail sub-line. */
-function renderDescription(
-	desc: string,
-	detail: string | undefined,
-	filter: string,
-): HTMLDivElement {
+function renderDescription(desc: string, detail: string | undefined, filter: string): HTMLDivElement {
 	const descSpan = span({ class: "shortcutDescText" });
 	const hl = renderHighlighted(desc, filter);
 	for (const node of hl) descSpan.appendChild(node);
@@ -194,7 +188,13 @@ const shortcutCategories: ShortcutCategory[] = [
 			{ keys: [{ key: "Backspace", mods: "Alt" }], desc: "Remove Instrument From Channel" },
 			{ keys: [{ key: "Delete" }], desc: "Reset Pattern To 0" },
 			{ keys: [{ key: "+" }, { key: "-" }], desc: "Transpose" },
-			{ keys: [{ key: "+", mods: "Shift" }, { key: "-", mods: "Shift" }], desc: "Transpose Octave" },
+			{
+				keys: [
+					{ key: "+", mods: "Shift" },
+					{ key: "-", mods: "Shift" },
+				],
+				desc: "Transpose Octave",
+			},
 		],
 	},
 	{
@@ -208,7 +208,11 @@ const shortcutCategories: ShortcutCategory[] = [
 			{ keys: [{ key: "Q", mods: "Ctrl+Shift" }], desc: "Add Custom Samples" },
 			{ keys: [{ key: "N", mods: "Ctrl" }], desc: "New Pattern" },
 			{ keys: [{ key: "N", mods: "Ctrl+Shift" }], desc: "Custom Note Filter Settings" },
-			{ keys: [{ key: "I", mods: "Ctrl+Shift" }], desc: "Copy Instrument JSON", detail: "Copies the current instrument definition as JSON to the clipboard" },
+			{
+				keys: [{ key: "I", mods: "Ctrl+Shift" }],
+				desc: "Copy Instrument JSON",
+				detail: "Copies the current instrument definition as JSON to the clipboard",
+			},
 		],
 	},
 	{
@@ -361,9 +365,7 @@ export class KeyboardShortcutsPrompt extends BasePrompt {
 		// ── Match count & empty state ──
 		if (filter) {
 			this._matchCountLabel.textContent =
-				visibleEntries === 0
-					? `No shortcuts match "${this._searchInput.value}"`
-					: `${visibleEntries} of ${totalEntries} shortcuts`;
+				visibleEntries === 0 ? `No shortcuts match "${this._searchInput.value}"` : `${visibleEntries} of ${totalEntries} shortcuts`;
 			this._matchCountLabel.style.display = "block";
 		} else {
 			this._matchCountLabel.style.display = "none";

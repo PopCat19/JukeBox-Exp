@@ -68,34 +68,19 @@ export class ExportPrompt extends BasePrompt {
 	private readonly _outputProgressBar: HTMLDivElement = div({
 		class: "exportProgressBar",
 	});
-	private readonly _outputProgressLabel: HTMLDivElement = div(
-		{ class: "exportProgressLabel" },
-		"0%",
-	);
-	private readonly _outputProgressContainer: HTMLDivElement = div(
-		{ class: "exportProgressContainer" },
-		this._outputProgressBar,
-		this._outputProgressLabel,
-	);
+	private readonly _outputProgressLabel: HTMLDivElement = div({ class: "exportProgressLabel" }, "0%");
+	private readonly _outputProgressContainer: HTMLDivElement = div({ class: "exportProgressContainer" }, this._outputProgressBar, this._outputProgressLabel);
 
 	public readonly container: HTMLDivElement = div(
 		{ class: "prompt exportPrompt noSelection" },
 		h2("Export Options"),
 		promptRowBetween(promptLabel("File name:"), this._fileName),
 		promptRowBetween(promptLabel("Length:"), this._computedSamplesLabel),
-		div({ class: "exportGridRow" },
-			div({ class: "exportGridCell" },
-				this._enableIntro,
-				div({ class: "exportGridLabel" }, "Intro"),
-			),
-			div({ class: "exportGridCell" },
-				div({ class: "exportGridLabel" }, "Loop"),
-				this._loopDropDown,
-			),
-			div({ class: "exportGridCell" },
-				this._enableOutro,
-				div({ class: "exportGridLabel" }, "Outro"),
-			),
+		div(
+			{ class: "exportGridRow" },
+			div({ class: "exportGridCell" }, this._enableIntro, div({ class: "exportGridLabel" }, "Intro")),
+			div({ class: "exportGridCell" }, div({ class: "exportGridLabel" }, "Loop"), this._loopDropDown),
+			div({ class: "exportGridCell" }, this._enableOutro, div({ class: "exportGridLabel" }, "Outro")),
 		),
 		promptRowBetween(promptLabel("Remove Whitespace:"), this._removeWhitespace),
 		promptRowBetween(promptLabel("Keep Open:"), this._keepOpen),

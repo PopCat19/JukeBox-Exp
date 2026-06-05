@@ -1,4 +1,3 @@
-
 // CustomFilterPrompt
 //
 // Purpose: Provides dialog for configuring custom EQ and note filter curves

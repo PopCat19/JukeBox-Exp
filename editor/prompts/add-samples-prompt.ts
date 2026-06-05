@@ -79,9 +79,7 @@ export class AddSamplesPrompt extends BasePrompt {
 		this._searchInput.addEventListener("input", this._onSearchInput);
 
 		this._sampleList = div({ class: "sbpList" });
-		const listContainer = div({ class: "sbpListContainer" },
-			this._sampleList,
-		);
+		const listContainer = div({ class: "sbpListContainer" }, this._sampleList);
 
 		// Bulk area
 		this._bulkTextarea = textarea({
@@ -91,10 +89,9 @@ export class AddSamplesPrompt extends BasePrompt {
 		this._bulkConfirmButton = button({}, "Add URLs");
 		this._bulkCancelButton = button({}, "Cancel");
 
-		const bulkArea = div({ class: "sbpBulkOverlay" },
-			div({ style: s(flex("row"), "align-items:center; gap:8px;") },
-				span({}, `Paste URLs, one per line (max ${this._maxSamples})`),
-			),
+		const bulkArea = div(
+			{ class: "sbpBulkOverlay" },
+			div({ style: s(flex("row"), "align-items:center; gap:8px;") }, span({}, `Paste URLs, one per line (max ${this._maxSamples})`)),
 			this._bulkTextarea,
 			promptRowEnd(this._bulkCancelButton, this._bulkConfirmButton),
 		);
@@ -104,11 +101,7 @@ export class AddSamplesPrompt extends BasePrompt {
 		this._copyButton = button({ class: "sbpCardActionBtn" }, "Copy");
 		const btnRow = div({ class: "sbpBtnRow" }, this._addSampleButton, this._addMultipleButton, this._copyButton);
 
-		this._leftPane = div({ class: "sbpLeftPane" },
-			listContainer,
-			btnRow,
-			bulkArea,
-		);
+		this._leftPane = div({ class: "sbpLeftPane" }, listContainer, btnRow, bulkArea);
 		this._leftPane.style.border = "2px solid var(--ui-widget-background)";
 		this._leftPane.style.borderRadius = "8px";
 		this._leftPane.style.transition = "border-color 0.15s";
@@ -129,7 +122,8 @@ export class AddSamplesPrompt extends BasePrompt {
 		this._detailLeStepper = stepperInput(0, 999999, 0);
 		this._detailSoStepper = stepperInput(0, 999999, 0);
 
-		this._detailModeSelect = select({},
+		this._detailModeSelect = select(
+			{},
 			option({ value: -1 }, "Off"),
 			option({ value: 0 }, "Loop"),
 			option({ value: 1 }, "Ping-Pong"),
@@ -153,8 +147,9 @@ export class AddSamplesPrompt extends BasePrompt {
 		this._detailBwBox.addEventListener("change", this._onDetailBwChange);
 		this._detailBwBox.addEventListener("change", () => this._detailBwBox.blur());
 
-		[this._detailSrStepper, this._detailRkStepper, this._detailLsStepper, this._detailLeStepper, this._detailSoStepper]
-			.forEach(el => addWheelSupport(el));
+		[this._detailSrStepper, this._detailRkStepper, this._detailLsStepper, this._detailLeStepper, this._detailSoStepper].forEach((el) =>
+			addWheelSupport(el),
+		);
 
 		this._detailCard = div({ class: "sbpCard" });
 
@@ -172,11 +167,17 @@ export class AddSamplesPrompt extends BasePrompt {
 
 		// ── Info area ──
 		// Order matters — always visible below search
-		this._orderNote = p({ class: "sbpOrderNote" }, "Sample order matters. Each entry is referenced by its position in the list. Rearranging or removing entries will break your song!");
+		this._orderNote = p(
+			{ class: "sbpOrderNote" },
+			"Sample order matters. Each entry is referenced by its position in the list. Rearranging or removing entries will break your song!",
+		);
 
-		this._infoArea = div({ class: "sbpInfoArea" },
+		this._infoArea = div(
+			{ class: "sbpInfoArea" },
 			p({}, "Custom samples are loaded from arbitrary URLs. The web server needs to support CORS."),
-			p({}, "Upload suggestions: ",
+			p(
+				{},
+				"Upload suggestions: ",
 				a({ href: "https://filegarden.com" }, "File Garden"),
 				" · ",
 				a({ href: "https://www.dropbox.com" }, "Dropbox"),
@@ -184,9 +185,7 @@ export class AddSamplesPrompt extends BasePrompt {
 				code("dl.dropboxusercontent.com"),
 				" domain)",
 			),
-			p({}, "For soundfonts, use the ",
-				a({ href: "./sample_extractor.html", target: "_blank" }, "sample extractor"),
-			),
+			p({}, "For soundfonts, use the ", a({ href: "./sample_extractor.html", target: "_blank" }, "sample extractor")),
 		);
 
 		// ── Right pane wrapper ──
@@ -203,22 +202,16 @@ export class AddSamplesPrompt extends BasePrompt {
 		this._rightPane.appendChild(this._detailCard);
 
 		// ── Container ──
-		this.container = div({
-			class: "prompt noSelection sampleBrowserPrompt compactSearchPrompt",
-			tabindex: "0",
-		},
+		this.container = div(
+			{
+				class: "prompt noSelection sampleBrowserPrompt compactSearchPrompt",
+				tabindex: "0",
+			},
 			h2({}, "Add Samples"),
 			inputRow({ gap: "8px" }, this._searchInput),
 			this._orderNote,
-			paneContainer(
-				{ height: "400px", gap: "8px", overflow: "visible", border: "none" },
-				this._leftPane,
-				this._rightPane,
-			),
-			div({ class: "sbpBottomBar" },
-				button({ class: "sbpInfoBtn" }, "\u24D8 info"),
-				this._okayButton,
-			),
+			paneContainer({ height: "400px", gap: "8px", overflow: "visible", border: "none" }, this._leftPane, this._rightPane),
+			div({ class: "sbpBottomBar" }, button({ class: "sbpInfoBtn" }, "\u24D8 info"), this._okayButton),
 			this._infoArea,
 			this._cancelButton,
 		);
@@ -281,22 +274,32 @@ export class AddSamplesPrompt extends BasePrompt {
 		try {
 			const parsedUrl = new URL(entry.url);
 			return decodeURIComponent(parsedUrl.pathname.replace(/^([^\/]*\/)+/, ""));
-		} catch { return entry.url || "(unnamed)"; }
+		} catch {
+			return entry.url || "(unnamed)";
+		}
 	};
 
 	private _noteName = (n: number): string => {
-		function wrap(x: number, b: number) { return ((x % b) + b) % b; }
+		function wrap(x: number, b: number) {
+			return ((x % b) + b) % b;
+		}
 		n = Math.floor(n) - 12;
 		const idx = wrap(n + Config.keys[this._doc.song.key].basePitch, Config.pitchesPerOctave);
 		if (Config.keys[idx].isWhiteKey) return Config.keys[idx].name + Math.floor(n / Config.pitchesPerOctave);
 		const dir = Config.blackKeyNameParents[wrap(n, Config.pitchesPerOctave)];
-		return Config.keys[wrap(idx + Config.pitchesPerOctave + dir, Config.pitchesPerOctave)].name
-			+ (dir === 1 ? "\u266D" : "\u266F") + Math.floor(n / Config.pitchesPerOctave);
+		return (
+			Config.keys[wrap(idx + Config.pitchesPerOctave + dir, Config.pitchesPerOctave)].name +
+			(dir === 1 ? "\u266D" : "\u266F") +
+			Math.floor(n / Config.pitchesPerOctave)
+		);
 	};
 
 	private _copyTextToClipboard = (text: string): void => {
 		const nav: any = navigator;
-		if (nav.clipboard?.writeText) { nav.clipboard.writeText(text).catch(() => window.prompt("Copy to clipboard:", text)); return; }
+		if (nav.clipboard?.writeText) {
+			nav.clipboard.writeText(text).catch(() => window.prompt("Copy to clipboard:", text));
+			return;
+		}
 		const tf = document.createElement("textarea");
 		tf.textContent = text;
 		document.body.appendChild(tf);
@@ -343,10 +346,11 @@ export class AddSamplesPrompt extends BasePrompt {
 			const isSelected = globalIdx === this._selectedIndex;
 			if (isSelected) selectedFound = true;
 
-			const item = div({
-				class: isSelected ? "categoryItem committed" : "categoryItem",
-				"data-index": String(globalIdx),
-			},
+			const item = div(
+				{
+					class: isSelected ? "categoryItem committed" : "categoryItem",
+					"data-index": String(globalIdx),
+				},
 				div({ class: "sbpItemLabel" }, name),
 				span({ class: "sbpPos" }, `Entry ${globalIdx + 1}`),
 			);
@@ -404,22 +408,21 @@ export class AddSamplesPrompt extends BasePrompt {
 		const entry = this._entries[this._selectedIndex];
 
 		// URL row
-		const urlRow = div({ class: "sbpCardFieldRow" },
-			span({ class: "sbpLabel" }, "URL"),
-			this._detailUrl,
-		);
+		const urlRow = div({ class: "sbpCardFieldRow" }, span({ class: "sbpLabel" }, "URL"), this._detailUrl);
 		this._detailCard.appendChild(urlRow);
 
 		// Sample settings section
-		const settingsSection = div({ class: "sbpSection" },
+		const settingsSection = div(
+			{ class: "sbpSection" },
 			div({ class: "sbpSectionTitle" }, "Sample Settings"),
-		promptRowBetween(span({ class: "prompt-label" }, "Sample Rate"), this._detailSrStepper),
+			promptRowBetween(span({ class: "prompt-label" }, "Sample Rate"), this._detailSrStepper),
 			promptRowBetween(span({ class: "prompt-label" }, "Root Key"), this._detailRkDisplay, this._detailRkStepper),
 			promptRowBetween(span({ class: "prompt-label" }, "Percussion"), this._detailPercBox),
 		);
 
 		// Chip wave options section
-		const chipSection = div({ class: "sbpSection" },
+		const chipSection = div(
+			{ class: "sbpSection" },
 			div({ class: "sbpSectionTitle" }, "Chip Wave Options"),
 			promptRowBetween(span({ class: "prompt-label" }, "Loop Start"), this._detailLsStepper),
 			promptRowBetween(span({ class: "prompt-label" }, "Loop End"), this._detailLeStepper),
@@ -428,11 +431,12 @@ export class AddSamplesPrompt extends BasePrompt {
 			promptRowBetween(span({ class: "prompt-label" }, "Backwards"), this._detailBwBox),
 		);
 
-		const settingsRow = div({ style: "display:flex; flex-direction:row; gap:8px; flex:1;" },
-		div({ style: "flex:1; min-width:0; display:flex; flex-direction:column;" }, settingsSection),
-		div({ style: "flex:1; min-width:0; display:flex; flex-direction:column;" }, chipSection),
-	);
-	this._detailCard.appendChild(settingsRow);
+		const settingsRow = div(
+			{ style: "display:flex; flex-direction:row; gap:8px; flex:1;" },
+			div({ style: "flex:1; min-width:0; display:flex; flex-direction:column;" }, settingsSection),
+			div({ style: "flex:1; min-width:0; display:flex; flex-direction:column;" }, chipSection),
+		);
+		this._detailCard.appendChild(settingsRow);
 
 		// Update field values
 		this._detailUrl.value = entry.url;
@@ -466,8 +470,10 @@ export class AddSamplesPrompt extends BasePrompt {
 	private _moveUp = (index: number): void => {
 		if (index <= 0) return;
 		[this._entries[index - 1], this._entries[index]] = [this._entries[index], this._entries[index - 1]];
-		[this._entryOptionsDisplayStates[index - 1], this._entryOptionsDisplayStates[index]] =
-			[this._entryOptionsDisplayStates[index], this._entryOptionsDisplayStates[index - 1]];
+		[this._entryOptionsDisplayStates[index - 1], this._entryOptionsDisplayStates[index]] = [
+			this._entryOptionsDisplayStates[index],
+			this._entryOptionsDisplayStates[index - 1],
+		];
 		if (this._selectedIndex === index) this._selectedIndex = index - 1;
 		else if (this._selectedIndex === index - 1) this._selectedIndex = index;
 		this._render();
@@ -476,8 +482,10 @@ export class AddSamplesPrompt extends BasePrompt {
 	private _moveDown = (index: number): void => {
 		if (index >= this._entries.length - 1) return;
 		[this._entries[index], this._entries[index + 1]] = [this._entries[index + 1], this._entries[index]];
-		[this._entryOptionsDisplayStates[index], this._entryOptionsDisplayStates[index + 1]] =
-			[this._entryOptionsDisplayStates[index + 1], this._entryOptionsDisplayStates[index]];
+		[this._entryOptionsDisplayStates[index], this._entryOptionsDisplayStates[index + 1]] = [
+			this._entryOptionsDisplayStates[index + 1],
+			this._entryOptionsDisplayStates[index],
+		];
 		if (this._selectedIndex === index) this._selectedIndex = index + 1;
 		else if (this._selectedIndex === index + 1) this._selectedIndex = index;
 		this._render();
@@ -493,9 +501,15 @@ export class AddSamplesPrompt extends BasePrompt {
 
 	private _onAddSample = (): void => {
 		this._entries.push({
-			url: "", sampleRate: Config.defaultSampleRate, rootKey: 60,
-			percussion: false, chipWaveLoopStart: null, chipWaveLoopEnd: null,
-			chipWaveStartOffset: null, chipWaveLoopMode: null, chipWavePlayBackwards: false,
+			url: "",
+			sampleRate: Config.defaultSampleRate,
+			rootKey: 60,
+			percussion: false,
+			chipWaveLoopStart: null,
+			chipWaveLoopEnd: null,
+			chipWaveStartOffset: null,
+			chipWaveLoopMode: null,
+			chipWavePlayBackwards: false,
 		});
 		this._entryOptionsDisplayStates[this._entries.length - 1] = false;
 		this._selectedIndex = this._entries.length - 1;
@@ -523,7 +537,12 @@ export class AddSamplesPrompt extends BasePrompt {
 
 	private _onBulkConfirm = (): void => {
 		const parsed = parseSampleURLs(
-			this._bulkTextarea.value.replace(/\n/g, "|").split("|").filter((x) => x !== ""), false);
+			this._bulkTextarea.value
+				.replace(/\n/g, "|")
+				.split("|")
+				.filter((x) => x !== ""),
+			false,
+		);
 		const seen = new Map<string, boolean>();
 		for (const e of this._entries) seen.set(e.url, true);
 		for (const e of parsed) {
@@ -675,9 +694,7 @@ export class AddSamplesPrompt extends BasePrompt {
 
 	private _updateHighlight = (): void => {
 		// Pane borders — hover takes priority over keyboard, matching preset browser
-		const effectivePane = this._lastInteraction === "hover" && this._hoveredPane != null
-			? this._hoveredPane
-			: this._activePane;
+		const effectivePane = this._lastInteraction === "hover" && this._hoveredPane != null ? this._hoveredPane : this._activePane;
 		const focusedPane = effectivePane === "list" ? this._leftPane : this._rightPane;
 		const unfocusedPane = effectivePane === "list" ? this._rightPane : this._leftPane;
 		focusedPane.style.borderColor = "var(--indicator-primary, #4444ff)";
@@ -713,7 +730,11 @@ export class AddSamplesPrompt extends BasePrompt {
 
 	private _onDetailSrChange = (): void => {
 		if (this._selectedIndex < 0) return;
-		this._entries[this._selectedIndex].sampleRate = clamp(Config.minSampleRate, Config.maxSampleRate + 1, parseFloatWithDefault(this._detailSrStepper.value, Config.defaultSampleRate));
+		this._entries[this._selectedIndex].sampleRate = clamp(
+			Config.minSampleRate,
+			Config.maxSampleRate + 1,
+			parseFloatWithDefault(this._detailSrStepper.value, Config.defaultSampleRate),
+		);
 	};
 
 	private _onDetailRkChange = (): void => {
@@ -753,5 +774,4 @@ export class AddSamplesPrompt extends BasePrompt {
 		if (this._selectedIndex < 0) return;
 		this._entries[this._selectedIndex].chipWavePlayBackwards = this._detailBwBox.checked;
 	};
-
 }
