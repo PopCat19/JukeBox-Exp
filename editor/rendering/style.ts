@@ -2080,7 +2080,6 @@ html {
 	font-family: inherit;
 	font-weight: inherit;
 	box-sizing: border-box;
-	transition: border-color ${Animation.durationNormal} ease;
 
 	-webkit-appearance:none;
 	-moz-appearance: none;
@@ -2866,7 +2865,6 @@ html {
 	border-radius: var(--border-radius-medium);
 	color: ${ColorConfig.primaryText};
 	box-sizing: border-box;
-	transition: border-color ${Animation.durationNormal} ease;
 }
 
 .beepboxEditor input[type=text]:hover,
@@ -2910,7 +2908,6 @@ html {
 	vertical-align: middle;
 	flex-shrink: 0;
 	box-sizing: border-box;
-	transition: background-color 0.12s ease;
 }
 .beepboxEditor .selectRow > input[type=checkbox] {
 	width: 2.4em;
@@ -3178,7 +3175,6 @@ li.select2-results__option[role=group] > strong:hover {
 	font-size: 12px;
 	outline: none;
 	box-sizing: border-box;
-	transition: border-color ${Animation.durationNormal} ease, box-shadow ${Animation.durationNormal} ease;
 }
 
 .beepboxEditor .searchInput:hover {
