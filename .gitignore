@@ -52,3 +52,6 @@ conventions/.dev-conventions-sync-cache/
 
 # Core dumps
 core.*
+
+# Semantic index
+.reasonix/

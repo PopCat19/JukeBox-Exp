@@ -1568,7 +1568,7 @@ html {
 .beepboxEditor .prompt.sampleLoadingStatusPrompt .slsCard {
 	padding: 8px 12px;
 	margin: 4px;
-	background: var(--ui-widget-background);
+	background: var(--pitch-background);
 	border-radius: var(--border-radius-large);
 }
 
@@ -1835,189 +1835,14 @@ html {
 	margin-top: 8px;
 }
 
-/* ── Add Samples Prompt ── */
-.beepboxEditor .prompt.addSamplesPrompt {
-	width: 450px;
-	max-height: calc(100% - 100px);
+/* ── Sample Browser Prompt ── */
+.beepboxEditor .prompt.sampleBrowserPrompt {
+	width: 800px;
+	max-height: calc(100% - 80px);
 }
 
-.beepboxEditor .prompt.addSamplesPrompt .asScroll {
-	overflow-y: auto;
-}
-
-.beepboxEditor .prompt.addSamplesPrompt .asColumn {
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	margin-bottom: 0.5em;
-}
-
-.beepboxEditor .prompt.addSamplesPrompt .asEntryScroll {
-	width: 100%;
-	max-height: 450px;
-	overflow-y: scroll;
-}
-
-.beepboxEditor .prompt.addSamplesPrompt .asBtn {
-	height: auto;
-	min-height: var(--button-size);
-}
-
-.beepboxEditor .prompt.addSamplesPrompt .asBtnWide {
-	height: auto;
-	min-height: var(--button-size);
-	width: 100%;
-}
-
-.beepboxEditor .prompt.addSamplesPrompt .asBtnHalfMargin {
-	margin-left: 0.5em;
-}
-
-.beepboxEditor .prompt.addSamplesPrompt .asBottomRow {
-	margin-top: 0.5em;
-}
-
-.beepboxEditor .prompt.addSamplesPrompt .asMargin {
-	margin-top: 0.5em;
-	margin-bottom: 0.5em;
-}
-
-.beepboxEditor .prompt.addSamplesPrompt .asMarginBottom {
-	margin-bottom: 0.5em;
-}
-
-.beepboxEditor .prompt.addSamplesPrompt .asMarginBottomLg {
-	margin-bottom: 1em;
-}
-
-.beepboxEditor .prompt.addSamplesPrompt .asSelectable {
-	-webkit-user-select: text;
-	-moz-user-select: text;
-	-ms-user-select: text;
-	user-select: text;
-	cursor: text;
-}
-
-.beepboxEditor .prompt.addSamplesPrompt .asTextarea {
-	width: 100%;
-	height: 100%;
-	resize: none;
-	box-sizing: border-box;
-}
-
-.beepboxEditor .prompt.addSamplesPrompt .asBulkArea {
-	width: 100%;
-	height: 250px;
-	margin-top: 0.5em;
-	margin-bottom: 0.5em;
-}
-
-.beepboxEditor .prompt.addSamplesPrompt .asButtonRow {
-	display: flex;
-	flex-direction: row-reverse;
-	justify-content: space-between;
-}
-
-.beepboxEditor .prompt.addSamplesPrompt .asButtonRowTop {
-	display: flex;
-	flex-direction: row-reverse;
-	justify-content: space-between;
-	margin-top: 0.5em;
-}
-
-.beepboxEditor .prompt.addSamplesPrompt .asHidden {
-	display: none;
-}
-
-.beepboxEditor .prompt.addSamplesPrompt .asFlexEnd {
-	display: flex;
-	flex-direction: row;
-	align-items: center;
-	justify-content: flex-end;
-}
-
-.beepboxEditor .prompt.addSamplesPrompt .asFlexEndMargin {
-	display: flex;
-	flex-direction: row;
-	align-items: center;
-	justify-content: flex-end;
-	margin-bottom: 0.5em;
-}
-
-.beepboxEditor .prompt.addSamplesPrompt .asFlexBetween {
-	display: flex;
-	flex-direction: row;
-	align-items: center;
-	justify-content: space-between;
-	margin-bottom: 0.5em;
-}
-
-.beepboxEditor .prompt.addSamplesPrompt .asLabel {
-	text-align: right;
-	color: var(--primary-text);
-}
-
-.beepboxEditor .prompt.addSamplesPrompt .asLabelShrink {
+.beepboxEditor .prompt.sampleBrowserPrompt .sbpBtnRow {
 	flex-shrink: 0;
-	text-align: right;
-	color: var(--primary-text);
-}
-
-.beepboxEditor .prompt.addSamplesPrompt .asInputGrow {
-	flex-grow: 1;
-	margin-left: 1em;
-	width: 100%;
-}
-
-.beepboxEditor .prompt.addSamplesPrompt .asInputHalfMargin {
-	flex-grow: 1;
-	margin-left: 0.5em;
-	width: 100%;
-}
-
-.beepboxEditor .prompt.addSamplesPrompt .asPitchInput {
-	margin-left: 0.4em;
-	width: 3em;
-	text-align: left;
-	text-overflow: ellipsis;
-	overflow: hidden;
-	flex-shrink: 0;
-}
-
-.beepboxEditor .prompt.addSamplesPrompt .asCard {
-	padding: 8px 12px;
-	margin: 4px;
-	background: var(--ui-widget-background);
-	border-radius: var(--border-radius-large);
-}
-
-.beepboxEditor .prompt.addSamplesPrompt .asCardName {
-	margin-bottom: 0.5em;
-	color: var(--secondary-text);
-	text-overflow: ellipsis;
-	overflow: hidden;
-	white-space: nowrap;
-}
-
-.beepboxEditor .prompt.addSamplesPrompt .asCardRow {
-	display: flex;
-	flex-direction: row;
-	align-items: center;
-	justify-content: flex-end;
-	margin-bottom: 0.5em;
-}
-
-.beepboxEditor .prompt.addSamplesPrompt .asSubtext {
-	color: var(--secondary-text);
-}
-
-.beepboxEditor .prompt.addSamplesPrompt .asNoPad {
-	padding: 0;
-}
-
-.beepboxEditor .prompt.addSamplesPrompt .asFullSize {
-	width: 100%;
-	height: 100%;
 }
 
 /* ── Shared custom editor styles (custom-chip, custom-filter) ── */
@@ -2254,6 +2079,8 @@ html {
 	cursor: pointer;
 	font-family: inherit;
 	font-weight: inherit;
+	box-sizing: border-box;
+	transition: border-color ${Animation.durationNormal} ease;
 
 	-webkit-appearance:none;
 	-moz-appearance: none;
@@ -2371,18 +2198,12 @@ html {
 }
 .beepboxEditor select:hover,
 .select2-container--open .select2-selection {
-	/* PMD: hover (native select) and open dropdown (select2 wrapper)
-	 * use 80x (body tier). The select2 wrapper's --focus / --open
-	 * states are managed by the library and only persist while the
-	 * dropdown is actually open, so this is the right signal for
-	 * 'sustain until dropdown exits'. */
-	box-shadow: inset 0 0 0 2px var(--primary-text);
+	box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--indicator-primary, #4444ff), transparent 50%);
 	outline: none;
 }
 
 .beepboxEditor select:active {
-	/* PMD: click uses 88x (heading tier) for transient emphasis. */
-	box-shadow: inset 0 0 0 2px var(--prompt-titlebar-text, var(--primary-text));
+	box-shadow: inset 0 0 0 2px var(--indicator-primary, #4444ff);
 }
 
 /* The native <select> doesn't get a sustained focus ring — the
@@ -3041,11 +2862,14 @@ html {
 	font-family: var(--font-family-input, inherit);
 	background: transparent;
 	text-align: center;
-	border: ${BorderWidth.default} solid ${ColorConfig.inputBoxOutline};
+	border: ${BorderWidth.default} solid var(--ui-widget-background);
 	border-radius: var(--border-radius-medium);
 	color: ${ColorConfig.primaryText};
+	box-sizing: border-box;
+	transition: border-color ${Animation.durationNormal} ease;
 }
 
+.beepboxEditor input[type=text]:hover,
 .beepboxEditor input[type=number]:hover {
 	border-color: color-mix(in srgb, var(--indicator-primary, #4444ff), transparent 50%);
 }
@@ -3420,6 +3244,345 @@ li.select2-results__option[role=group] > strong:hover {
 	text-transform: uppercase;
 	letter-spacing: 0.5px;
 	margin-bottom: 2px;
+}
+
+/* ── Sample Browser Prompt ── */
+.beepboxEditor .prompt.sampleBrowserPrompt {
+	width: 800px;
+	max-height: calc(100% - 80px);
+}
+
+.beepboxEditor .prompt.sampleBrowserPrompt .sbpListContainer {
+	display: flex;
+	flex-direction: row;
+	flex: 1;
+	border-radius: var(--border-radius-medium);
+	overflow: hidden;
+	min-height: 0;
+}
+
+.beepboxEditor .prompt.sampleBrowserPrompt .sbpList {
+	flex: 1;
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+	padding: 4px;
+	overflow-y: auto;
+}
+
+.beepboxEditor .prompt.sampleBrowserPrompt .sbpRow {
+	display: flex;
+	flex-direction: row;
+	align-items: stretch;
+	gap: ${Gap.sm};
+}
+
+.beepboxEditor .prompt.sampleBrowserPrompt .sbpRow .categoryItem {
+	flex: 1;
+	min-width: 0;
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	justify-content: center;
+	text-align: left;
+	border: 2px solid transparent;
+	box-sizing: border-box;
+	padding: var(--padding-8);
+	border-top-right-radius: ${BorderRadius.sm};
+	border-bottom-right-radius: ${BorderRadius.sm};
+}
+
+.beepboxEditor .prompt.sampleBrowserPrompt .sbpItemLabel {
+	width: 100%;
+	min-width: 0;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.beepboxEditor .prompt.sampleBrowserPrompt .sbpItemRemove {
+	flex-shrink: 0;
+	width: ${Sizing.widgetSm};
+	height: auto;
+	border-radius: var(--border-radius-medium);
+	border-top-left-radius: ${BorderRadius.sm};
+	border-bottom-left-radius: ${BorderRadius.sm};
+	border: 2px solid transparent;
+	box-sizing: border-box;
+	background: var(--prompt-list-item-bg);
+	color: var(--secondary-text);
+	cursor: pointer;
+	font-size: ${Typography.sizeLg};
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 0;
+	line-height: 0;
+	transition: border-color 0.15s, color 0.15s;
+}
+
+.beepboxEditor .prompt.sampleBrowserPrompt .sbpRow .sbpItemRemove:hover {
+	border: 2px solid var(--hout, var(--primary-text));
+	color: var(--primary-text);
+	box-shadow: none;
+}
+
+.beepboxEditor .prompt.sampleBrowserPrompt .sbpRow .categoryItem:hover {
+	border-color: var(--hout, var(--primary-text));
+}
+
+.beepboxEditor .prompt.sampleBrowserPrompt .sbpRow .categoryItem.committed {
+	background: var(--cta-bg);
+	border-color: var(--cta-bg);
+	color: var(--cta-fg);
+}
+
+.beepboxEditor .prompt.sampleBrowserPrompt .sbpRow .categoryItem.committed:hover {
+	border-color: var(--editor-background);
+}
+
+.beepboxEditor .prompt.sampleBrowserPrompt .sbpRow .categoryItem.committed + .sbpItemRemove {
+	background: var(--cta-bg);
+	border-color: var(--cta-bg);
+	color: var(--cta-fg);
+}
+
+.beepboxEditor .prompt.sampleBrowserPrompt .sbpRow .categoryItem.committed + .sbpItemRemove:hover {
+	border-color: var(--editor-background);
+	color: var(--cta-fg);
+}
+
+/* Keyboard navigation focus — uses the same border-color as hover
+ * so visual language is identical regardless of input modality.
+ * 80x body border distinguishes keyboard nav from committed state. */
+.beepboxEditor .prompt.sampleBrowserPrompt .sbpRow .categoryItem.focused {
+	border-color: var(--hout, var(--primary-text));
+}
+
+.beepboxEditor .prompt.sampleBrowserPrompt .sbpRow .categoryItem.committed.focused {
+	border-color: var(--editor-background);
+}
+
+.beepboxEditor .prompt.sampleBrowserPrompt .sbpCard {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+	flex: 1;
+}
+
+.beepboxEditor .prompt.sampleBrowserPrompt .sbpSection {
+	border: 2px solid var(--ui-widget-background);
+	border-radius: var(--border-radius-medium);
+	padding: 8px;
+	display: flex;
+	flex-direction: column;
+	flex: 1;
+	gap: ${Gap.sm};
+}
+
+.beepboxEditor .prompt.sampleBrowserPrompt .sbpSectionTitle {
+	font-size: 12px;
+	font-weight: 600;
+	color: var(--secondary-text);
+	margin-bottom: 4px;
+}
+
+.beepboxEditor .prompt.sampleBrowserPrompt .sbpDetailUrl {
+	flex: 1;
+	min-width: 0;
+	font-size: 12px;
+	width: 100%;
+	box-sizing: border-box;
+	background: var(--editor-background);
+	color: var(--primary-text);
+	border: ${BorderWidth.default} solid var(--ui-widget-background);
+	border-radius: var(--border-radius-medium);
+	padding: 4px 6px;
+	outline: none;
+	transition: border-color ${Animation.durationNormal} ease;
+}
+
+.beepboxEditor .prompt.sampleBrowserPrompt .sbpDetailUrl:hover {
+	border-color: color-mix(in srgb, var(--indicator-primary, #4444ff), transparent 50%);
+}
+
+.beepboxEditor .prompt.sampleBrowserPrompt .sbpDetailUrl:focus {
+	border-color: var(--indicator-primary, #4444ff);
+}
+
+.beepboxEditor .prompt.sampleBrowserPrompt .sbpNoteName {
+	font-size: 10px;
+	color: var(--secondary-text);
+	margin-left: 4px;
+}
+
+.beepboxEditor .prompt.sampleBrowserPrompt .sbpEmpty {
+	flex: 1;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	color: var(--secondary-text);
+	font-size: 16px;
+	padding: 20px;
+	text-align: center;
+}
+
+.beepboxEditor .prompt.sampleBrowserPrompt .sbpPos {
+	font-size: ${Typography.sizeSm};
+	opacity: 0.7;
+	color: var(--secondary-text);
+}
+
+.beepboxEditor .prompt.sampleBrowserPrompt .sbpInfoBtn {
+	font-size: 12px;
+	cursor: pointer;
+	background: none;
+	border: 2px solid var(--ui-widget-background);
+	padding: 4px 10px;
+	border-radius: var(--border-radius-medium);
+	color: var(--secondary-text);
+	transition: background 0.15s, color 0.15s;
+}
+
+.beepboxEditor .prompt.sampleBrowserPrompt .sbpInfoBtn:hover {
+	background: var(--ui-widget-background);
+	color: var(--primary-text);
+}
+
+.beepboxEditor .prompt.sampleBrowserPrompt .sbpInfoArea {
+	font-size: 12px;
+	color: var(--secondary-text);
+	padding: 8px;
+	background: var(--ui-widget-background);
+	border-radius: var(--border-radius-medium);
+	margin-top: 8px;
+}
+
+.beepboxEditor .prompt.sampleBrowserPrompt .sbpInfoArea.sbpHidden {
+	display: none;
+}
+
+.beepboxEditor .prompt.sampleBrowserPrompt .sbpInfoArea p {
+	margin: 4px 0;
+}
+
+.beepboxEditor .prompt.sampleBrowserPrompt .sbpLabel {
+	font-size: 12px;
+	color: var(--secondary-text);
+}
+
+.beepboxEditor .prompt.sampleBrowserPrompt .sbpLeftPane {
+	width: 280px;
+	flex-shrink: 0;
+	display: flex;
+	flex-direction: column;
+	padding: 8px;
+	gap: 0;
+}
+
+.beepboxEditor .prompt.sampleBrowserPrompt .sbpBtnRow {
+	flex-shrink: 0;
+	display: flex;
+	flex-direction: row;
+	gap: 8px;
+	margin-top: 8px;
+}
+
+.beepboxEditor .prompt.sampleBrowserPrompt .sbpBottomBar {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	justify-content: space-between;
+	margin-top: 8px;
+}
+
+.beepboxEditor .prompt.sampleBrowserPrompt .sbpBulkOverlay {
+	display: none;
+	flex-direction: column;
+	gap: 8px;
+	padding: 8px;
+	height: 100%;
+}
+
+.beepboxEditor .prompt.sampleBrowserPrompt .sbpBulkText {
+	flex: 1;
+	resize: none;
+	box-sizing: border-box;
+	min-height: 120px;
+	font-size: 12px;
+	background: var(--editor-background);
+	color: var(--primary-text);
+	border: ${BorderWidth.default} solid var(--ui-widget-background);
+	border-radius: var(--border-radius-medium);
+	padding: 6px;
+	outline: none;
+	transition: border-color ${Animation.durationNormal} ease;
+}
+
+.beepboxEditor .prompt.sampleBrowserPrompt .sbpBulkText:hover {
+	border-color: color-mix(in srgb, var(--indicator-primary, #4444ff), transparent 50%);
+}
+
+.beepboxEditor .prompt.sampleBrowserPrompt .sbpBulkText:focus {
+	border-color: var(--indicator-primary, #4444ff);
+}
+
+.beepboxEditor .prompt.sampleBrowserPrompt .sbpCardFieldRow {
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+}
+
+.beepboxEditor .prompt.sampleBrowserPrompt .sbpCardFieldGroup {
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+	padding: 4px 0;
+}
+
+.beepboxEditor .prompt.sampleBrowserPrompt .sbpCardActionRow {
+	display: flex;
+	flex-direction: row;
+	gap: 4px;
+	flex-wrap: wrap;
+}
+
+.beepboxEditor .prompt.sampleBrowserPrompt .sbpCardActionBtn {
+	flex: 1;
+	min-width: 60px;
+}
+
+.beepboxEditor .prompt.sampleBrowserPrompt .sbpRightPane {
+	display: flex;
+	flex-direction: column;
+}
+
+.beepboxEditor .prompt.sampleBrowserPrompt input[type=number],
+.beepboxEditor .prompt.sampleBrowserPrompt select {
+	color: var(--primary-text);
+	border-radius: var(--border-radius-medium);
+	outline: none;
+	transition: border-color ${Animation.durationNormal} ease, box-shadow ${Animation.durationNormal} ease;
+}
+.beepboxEditor .prompt.sampleBrowserPrompt input[type=number] {
+	background: var(--editor-background);
+	border: ${BorderWidth.default} solid var(--ui-widget-background);
+}
+.beepboxEditor .prompt.sampleBrowserPrompt select {
+	background: var(--ui-widget-background);
+	border: none;
+}
+.beepboxEditor .prompt.sampleBrowserPrompt input[type=number]:hover {
+	border-color: color-mix(in srgb, var(--indicator-primary, #4444ff), transparent 50%);
+}
+.beepboxEditor .prompt.sampleBrowserPrompt input[type=number]:focus {
+	border-color: var(--indicator-primary, #4444ff);
+}
+.beepboxEditor .prompt.sampleBrowserPrompt select:hover {
+	box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--indicator-primary, #4444ff), transparent 50%);
+}
+.beepboxEditor .prompt.sampleBrowserPrompt select:active {
+	box-shadow: inset 0 0 0 2px var(--indicator-primary, #4444ff);
 }
 
 `,

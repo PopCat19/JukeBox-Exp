@@ -1,182 +1,262 @@
 // AddSamplesPrompt
 //
-// Purpose: Provides dialog for importing and loading audio sample files
+// Purpose: Dualpane dialog for importing and managing audio sample files
 //
 // This module:
-// - Handles file input for audio sample import
-// - Manages sample loading state and user feedback
+// - Left pane: filterable, scrollable sample entry list (styled like .categoryItem)
+// - Right pane: full sample editor card for the selected entry
+// - Follows the same architecture as InstrumentBrowserPrompt
+// - Uses compactSearchPrompt class + PMD tokens throughout
 
-import { HTML, SVG } from "imperative-html/dist/esm/elements-strict";
-import { ColorConfig } from "../../shared/color-config";
+import { HTML } from "imperative-html/dist/esm/elements-strict";
 import { clamp, parseFloatWithDefault, parseIntWithDefault } from "../../synth";
 import { Config, Dictionary } from "../../synth/synth-config";
 import { EditorConfig } from "../config/editor-config";
 import { SongDocument } from "../song-document";
-import { addWheelSupport } from "../ui";
+import { addWheelSupport, flex, flexPane, inputRow, paneContainer, promptRowBetween, promptRowEnd, s, searchInput, stepperInput } from "../ui";
 import { generateAllSampleURLs, generateSampleURL, parseSampleURLs, SampleEntry } from "./add-samples-url-parser";
 import { BasePrompt } from "./base-prompt";
 
-const { div, input, button, a, code, textarea, details, summary, span, ul, li, select, option, h2 } = HTML;
+const { button, div, h2, span, input, select, option, a, code, p, textarea } = HTML;
 
 declare const OFFLINE: boolean;
 
 export class AddSamplesPrompt extends BasePrompt {
 	private readonly _maxSamples: number = 64;
-	private readonly _entries: SampleEntry[] = [];
-	private readonly _entryOptionsDisplayStates: Dictionary<boolean> = {};
-	private readonly _addSampleButton: HTMLButtonElement = button(
-		{
-			class: "asBtn",
-		},
-		"Add sample",
-	);
-	private readonly _entryContainer: HTMLDivElement = div();
-	private readonly _addMultipleSamplesButton: HTMLButtonElement = button(
-		{
-			class: "asBtn asBtnHalfMargin",
-		},
-		"Add multiple samples",
-	);
-	private readonly _addSamplesAreaBottom: HTMLDivElement = div({ class: "asBottomRow" }, this._addSampleButton, this._addMultipleSamplesButton);
-	private readonly _instructionsLink: HTMLAnchorElement = a(
-		{ href: "#" },
-		"Here's more information and some instructions on how to use custom samples in JukeBox.",
-	);
-	private readonly _description: HTMLDivElement = div(
-		div(
-			{
-				class: "asMarginBottom asSelectable",
-			},
-			"In order to use the old JukeBox samples, you should add ",
-			code("legacySamples"),
-			" as an URL. You can also use ",
-			code("nintariboxSamples"),
-			" and ",
-			code("marioPaintboxSamples"),
-			" for more built-in sample packs.",
-		),
-		div({ class: "asMarginBottom" }, "The order of these samples is important - if you change it you'll break your song!"),
-		div({ class: "asMarginBottom" }, this._instructionsLink),
-	);
-	private readonly _closeInstructionsButton: HTMLButtonElement = button(
-		{
-			class: "asBtnWide",
-		},
-		"Close instructions",
-	);
-	private readonly _instructionsArea: HTMLDivElement = div(
-		{
-			class: "asHidden asSelectable",
-		},
-		div({ class: "asMargin" }, "In JukeBox, custom samples are loaded from arbitrary URLs."),
-		div(
-			{ class: "asMargin asSubtext" },
-			"(Technically, the web server behind the URL needs to support ",
-			a({ href: "https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS", target: "_blank" }, "CORS"),
-			", but you don't need to know about that: ",
-			" the sample just won't load if that's not the case)",
-		),
-		div(
-			{ class: "asMargin" },
-			details(
-				summary("Why arbitrary URLs?"),
-				a({ href: "https://pandoras-box-archive.neptendo.repl.co/" }, "A certain BeepBox mod"),
-				" did this with one central server, but it went down, taking down",
-				" the samples with it, though thankfully it got archived.",
-				" This is always an issue with servers: it may run out of space,",
-				" stop working, and so on. With arbitrary URLs, you can always ",
-				" change them to different ones if they stop working.",
-			),
-		),
-		div(
-			{ class: "asMargin" },
-			"As for where to upload your samples, here are some suggestions:",
-			ul(
-				{},
-				li(a({ href: "https://filegarden.com" }, "File Garden")),
-				// there's no guarantee this will continue to work; dropbox has changed their URL formatting at least once in the past
-				li(a({ href: "https://www.dropbox.com" }, "Dropbox"), " (domain needs to be ", code("https://dl.dropboxusercontent.com"), ")"),
-			),
-		),
-		div(
-			{ class: "asMargin" },
-			"Static website hosting services may also work (such as ",
-			a({ href: "https://pages.github.com" }, "GitHub Pages"),
-			")",
-			" but those require a bit more setup.",
-		),
-		div(
-			{ class: "asMarginBottomLg" },
-			"Finally, if have a soundfont you'd like to get samples from, consider using this ",
-			a({ href: "./sample_extractor.html", target: "_blank" }, "sample extractor"),
-			".",
-		),
-		div({ class: "asButtonRowTop" }, this._closeInstructionsButton),
-	);
-	private readonly _addSamplesArea: HTMLDivElement = div(
-		{ class: "asScroll" },
-		h2("Add Samples"),
-		div(
-			{ class: "asColumn" },
-			this._description,
-			div({ class: "asEntryScroll" }, this._entryContainer),
-			this._addSamplesAreaBottom,
-		),
-		this._getOkayRow(),
-	);
-	private readonly _bulkAddTextarea: HTMLTextAreaElement = textarea({
-		class: "asTextarea",
-	});
-	private readonly _bulkAddConfirmButton: HTMLButtonElement = button(
-		{
-			class: "asBtnWide",
-		},
-		"Add",
-	);
-	private readonly _bulkAddArea: HTMLDivElement = div(
-		{ class: "asHidden" },
-		h2({ class: "asMarginBottom" }, "Add Multiple Samples"),
-		div(
-			{ class: "asColumn" },
-			div(`Add one URL per line. Remember that you can only have ${this._maxSamples} samples!`),
-			div({ class: "asSubtext" }, "(This supports the syntax used to store samples in the song URLs as well)"),
-			div({ class: "asBulkArea" }, this._bulkAddTextarea),
-		),
-		div({ class: "asButtonRow" }, this._bulkAddConfirmButton),
-	);
-	public container: HTMLDivElement = div(
-		{ class: "prompt addSamplesPrompt noSelection" },
-		this._addSamplesArea,
-		this._bulkAddArea,
-		this._instructionsArea,
-		this._cancelButton,
-	);
+	private _entries: SampleEntry[] = [];
+	private _selectedIndex: number = -1;
+	private _filterText: string = "";
+	private _entryOptionsDisplayStates: Dictionary<boolean> = {};
+	private _lastInteraction: "keyboard" | "mouse" | "hover" | null = null;
+	private _activePane: "list" | "details" = "list";
+	private _hoveredPane: "list" | "details" | null = null;
+
+	// Left pane
+	private _sampleList: HTMLDivElement;
+	private _searchInput: HTMLInputElement;
+	private _addSampleButton: HTMLButtonElement;
+	private _addMultipleButton: HTMLButtonElement;
+	private _copyButton: HTMLButtonElement;
+	private _leftPane: HTMLDivElement;
+
+	// Right pane
+	private _detailCard: HTMLDivElement;
+	private _rightPane: HTMLDivElement;
+	private _detailUrl: HTMLInputElement;
+	private _detailSrStepper: HTMLInputElement;
+	private _detailRkStepper: HTMLInputElement;
+	private _detailRkDisplay: HTMLSpanElement;
+	private _detailPercBox: HTMLInputElement;
+	private _detailLsStepper: HTMLInputElement;
+	private _detailLeStepper: HTMLInputElement;
+	private _detailSoStepper: HTMLInputElement;
+	private _detailModeSelect: HTMLSelectElement;
+	private _detailBwBox: HTMLInputElement;
+
+	// Bulk add
+	private _bulkTextarea: HTMLTextAreaElement;
+	private _bulkConfirmButton: HTMLButtonElement;
+	private _bulkCancelButton: HTMLButtonElement;
+
+	// Info
+	private _infoArea: HTMLDivElement;
+
+	public readonly container: HTMLDivElement;
 
 	constructor(doc: SongDocument) {
 		super(doc);
+
 		if (EditorConfig.customSamples != null) {
 			this._entries = parseSampleURLs(EditorConfig.customSamples, false);
 		}
-		this._addSampleButton.addEventListener("click", this._whenAddSampleClicked);
-		this._addMultipleSamplesButton.addEventListener("click", this._whenAddMultipleSamplesClicked);
-		this._bulkAddConfirmButton.addEventListener("click", this._whenBulkAddConfirmClicked);
-		this._instructionsLink.addEventListener("click", this._whenInstructionsLinkClicked);
-		this._closeInstructionsButton.addEventListener("click", this._whenCloseInstructionsButtonClicked);
-		this._reconfigureAddSampleButton();
-		this._render(false);
+
+		// ── Left pane: sample list ──
+
+		this._searchInput = searchInput("Filter samples...");
+		this._searchInput.addEventListener("input", this._onSearchInput);
+
+		this._sampleList = div({ class: "sbpList" });
+		const listContainer = div({ class: "sbpListContainer" },
+			this._sampleList,
+		);
+
+		// Bulk area
+		this._bulkTextarea = textarea({
+			class: "sbpBulkText",
+			placeholder: "Paste URLs, one per line...",
+		});
+		this._bulkConfirmButton = button({}, "Add URLs");
+		this._bulkCancelButton = button({}, "Cancel");
+
+		const bulkArea = div({ class: "sbpBulkOverlay" },
+			div({ style: s(flex("row"), "align-items:center; gap:8px;") },
+				span({}, `Paste URLs, one per line (max ${this._maxSamples})`),
+			),
+			this._bulkTextarea,
+			promptRowEnd(this._bulkCancelButton, this._bulkConfirmButton),
+		);
+
+		this._addSampleButton = button({}, "+ Add sample");
+		this._addMultipleButton = button({}, "+ Add multiple");
+		this._copyButton = button({ class: "sbpCardActionBtn" }, "Copy");
+		const btnRow = div({ class: "sbpBtnRow" }, this._addSampleButton, this._addMultipleButton, this._copyButton);
+
+		this._leftPane = div({ class: "sbpLeftPane" },
+			listContainer,
+			btnRow,
+			bulkArea,
+		);
+		this._leftPane.style.border = "2px solid var(--ui-widget-background)";
+		this._leftPane.style.borderRadius = "8px";
+		this._leftPane.style.transition = "border-color 0.15s";
+		this._leftPane.addEventListener("mouseenter", () => {
+			this._lastInteraction = "hover";
+			this._hoveredPane = "list";
+			this._updateHighlight();
+		});
+
+		// ── Right pane: detail card ──
+
+		this._detailUrl = input({ type: "text", class: "sbpDetailUrl" });
+		this._detailSrStepper = stepperInput(8000, 96000, Config.defaultSampleRate);
+		this._detailRkStepper = stepperInput(0, Config.maxPitch + Config.pitchesPerOctave, 60);
+		this._detailRkDisplay = span({ class: "sbpNoteName" });
+		this._detailPercBox = input({ type: "checkbox", style: "cursor:pointer; flex-shrink:0;" });
+		this._detailLsStepper = stepperInput(0, 999999, 0);
+		this._detailLeStepper = stepperInput(0, 999999, 0);
+		this._detailSoStepper = stepperInput(0, 999999, 0);
+
+		this._detailModeSelect = select({},
+			option({ value: -1 }, "Off"),
+			option({ value: 0 }, "Loop"),
+			option({ value: 1 }, "Ping-Pong"),
+			option({ value: 2 }, "Play Once"),
+			option({ value: 3 }, "Play Loop Once"),
+		);
+
+		this._detailBwBox = input({ type: "checkbox", style: "cursor:pointer; flex-shrink:0;" });
+
+		// Wire detail events
+		this._detailUrl.addEventListener("change", this._onDetailUrlChange);
+		this._detailUrl.addEventListener("keydown", this._onDetailUrlKeyDown);
+		this._detailSrStepper.addEventListener("change", this._onDetailSrChange);
+		this._detailRkStepper.addEventListener("change", this._onDetailRkChange);
+		this._detailPercBox.addEventListener("change", this._onDetailPercChange);
+		this._detailLsStepper.addEventListener("change", this._onDetailLsChange);
+		this._detailLeStepper.addEventListener("change", this._onDetailLeChange);
+		this._detailSoStepper.addEventListener("change", this._onDetailSoChange);
+		this._detailModeSelect.addEventListener("change", this._onDetailModeChange);
+		this._detailBwBox.addEventListener("change", this._onDetailBwChange);
+
+		[this._detailSrStepper, this._detailRkStepper, this._detailLsStepper, this._detailLeStepper, this._detailSoStepper]
+			.forEach(el => addWheelSupport(el));
+
+		this._detailCard = div({ class: "sbpCard" });
+
+		// Wire bulk events
+		this._bulkConfirmButton.addEventListener("click", this._onBulkConfirm);
+		this._bulkCancelButton.addEventListener("click", this._onBulkCancel);
+
+		// Wire add events
+		this._addSampleButton.addEventListener("click", this._onAddSample);
+		this._addMultipleButton.addEventListener("click", this._onBulkOpen);
+		this._copyButton.addEventListener("click", this._onCopySample);
+
+		// Keyboard nav (search input)
+		this._searchInput.addEventListener("keydown", this._onSearchKeyDown);
+
+		// ── Info area ──
+		this._infoArea = div({ class: "sbpInfoArea" },
+			p({}, "Custom samples are loaded from arbitrary URLs. The web server needs to support CORS."),
+			p({}, "Order matters. Changing it will break your song!"),
+			p({}, "Upload suggestions: ",
+				a({ href: "https://filegarden.com" }, "File Garden"),
+				" · ",
+				a({ href: "https://www.dropbox.com" }, "Dropbox"),
+				" (use ",
+				code("dl.dropboxusercontent.com"),
+				" domain)",
+			),
+			p({}, "For soundfonts, use the ",
+				a({ href: "./sample_extractor.html", target: "_blank" }, "sample extractor"),
+			),
+		);
+
+		// ── Right pane wrapper ──
+		this._rightPane = flexPane({ flex: "1", padding: "8px" });
+		this._rightPane.classList.add("sbpRightPane");
+		this._rightPane.style.border = "2px solid var(--ui-widget-background)";
+		this._rightPane.style.borderRadius = "8px";
+		this._rightPane.style.transition = "border-color 0.15s";
+		this._rightPane.addEventListener("mouseenter", () => {
+			this._lastInteraction = "hover";
+			this._hoveredPane = "details";
+			this._updateHighlight();
+		});
+		this._rightPane.appendChild(this._detailCard);
+
+		// ── Container ──
+		this.container = div({
+			class: "prompt noSelection sampleBrowserPrompt compactSearchPrompt",
+			tabindex: "0",
+		},
+			h2({}, "Add Samples"),
+			inputRow({ gap: "8px" }, this._searchInput),
+			paneContainer(
+				{ height: "400px", gap: "8px", overflow: "visible", border: "none" },
+				this._leftPane,
+				this._rightPane,
+			),
+			div({ class: "sbpBottomBar" },
+				button({ class: "sbpInfoBtn" }, "(\u24D8 info)"),
+				this._okayButton,
+			),
+			this._infoArea,
+			this._cancelButton,
+		);
+
+		// Keyboard nav (container)
+		this.container.addEventListener("keydown", this._onContainerKeyDown);
+		this.container.addEventListener("mouseleave", () => {
+			this._hoveredPane = null;
+			this._lastInteraction = null;
+			this._updateHighlight();
+		});
+
+		// Starts hidden
+		this._infoArea.classList.add("sbpHidden");
+
+		// Info toggle
+		const infoBtn = this.container.querySelector(".sbpInfoBtn") as HTMLButtonElement;
+		infoBtn.addEventListener("click", () => {
+			this._infoArea.classList.toggle("sbpHidden");
+		});
+
+		// Initial render
+		if (this._entries.length > 0) {
+			this._selectedIndex = 0;
+		}
+		this._reconfigureAddButton();
+		this._render();
+
+		setTimeout(() => this._searchInput.focus(), 100);
 	}
 
 	public override cleanUp(): void {
 		super.cleanUp();
-		while (this._entryContainer.firstChild !== null) {
-			this._entryContainer.removeChild(this._entryContainer.firstChild);
-		}
-		this._addSampleButton.removeEventListener("click", this._whenAddSampleClicked);
-		this._addMultipleSamplesButton.removeEventListener("click", this._whenAddMultipleSamplesClicked);
-		this._bulkAddConfirmButton.removeEventListener("click", this._whenBulkAddConfirmClicked);
-		this._instructionsLink.removeEventListener("click", this._whenInstructionsLinkClicked);
-		this._closeInstructionsButton.removeEventListener("click", this._whenCloseInstructionsButtonClicked);
+		const list = this._sampleList;
+		while (list.firstChild) list.removeChild(list.firstChild);
 	}
+
+	public override whenKeyPressed = (event: KeyboardEvent): void => {
+		const tag = (<Element>event.target).tagName;
+		// Let text fields handle their own Enter/newline keystrokes.
+		// Skip _handleCommonKeys entirely so it doesn't commit the prompt.
+		if ((tag === "TEXTAREA" || tag === "INPUT" || tag === "SELECT") && event.keyCode === 13) {
+			return;
+		}
+		this._handleCommonKeys(event);
+	};
 
 	protected override _close = (): void => {
 		this._doc.prompt = null;
@@ -188,530 +268,444 @@ export class AddSamplesPrompt extends BasePrompt {
 		EditorConfig.customSamples = urlData.split("|").filter((x) => x !== "");
 		Config.willReloadForCustomSamples = true;
 		window.location.hash = this._doc.song.toBase64String();
-		setTimeout(() => {
-			location.reload();
-		}, 50);
+		setTimeout(() => location.reload(), 50);
 	};
 
-	private _whenAddSampleClicked = (_event: Event): void => {
-		const entryIndex: number = this._entries.length;
-		this._entries.push({
-			url: "",
-			sampleRate: Config.defaultSampleRate,
-			rootKey: 60,
-			percussion: false,
-			chipWaveLoopStart: null,
-			chipWaveLoopEnd: null,
-			chipWaveStartOffset: null,
-			chipWaveLoopMode: null,
-			chipWavePlayBackwards: false,
-		});
-		this._entryOptionsDisplayStates[entryIndex] = false;
-		this._reconfigureAddSampleButton();
-		this._render(true);
-	};
-
-	private _whenAddMultipleSamplesClicked = (_event: Event): void => {
-		this._addSamplesArea.style.display = "none";
-		this._bulkAddArea.style.display = "";
-		this._bulkAddTextarea.value = "";
-	};
-
-	private _whenInstructionsLinkClicked = (event: Event): void => {
-		event.preventDefault();
-		this._addSamplesArea.style.display = "none";
-		this._instructionsArea.style.display = "";
-	};
-
-	private _whenCloseInstructionsButtonClicked = (_event: Event): void => {
-		this._addSamplesArea.style.display = "";
-		this._instructionsArea.style.display = "none";
-	};
-
-	private _whenBulkAddConfirmClicked = (_event: Event): void => {
-		this._addSamplesArea.style.display = "";
-		this._bulkAddArea.style.display = "none";
-		const parsed: SampleEntry[] = parseSampleURLs(
-			this._bulkAddTextarea.value
-				.replace(/\n/g, "|")
-				.split("|")
-				.filter((x: string) => x !== ""),
-			false,
-		);
-		const seen: Map<string, boolean> = new Map();
-		for (const entry of this._entries) {
-			seen.set(entry.url, true);
-		}
-		for (const entry of parsed) {
-			if (this._entries.length >= this._maxSamples) break;
-			if (seen.has(entry.url)) continue;
-			seen.set(entry.url, true);
-			const entryIndex: number = this._entries.length;
-			this._entries.push(entry);
-			this._entryOptionsDisplayStates[entryIndex] = false;
-		}
-		this._reconfigureAddSampleButton();
-		this._render(false);
-	};
-
-	private _whenOptionsAreToggled = (event: Event): void => {
-		const element: HTMLDetailsElement = <HTMLDetailsElement>event.target;
-		const entryIndex: number = +element.dataset.index!;
-		if (element.open) {
-			this._entryOptionsDisplayStates[entryIndex] = true;
-		} else {
-			this._entryOptionsDisplayStates[entryIndex] = false;
-		}
-	};
-
-	private _whenURLChanges = (event: Event): void => {
-		const element: HTMLInputElement = <HTMLInputElement>event.target;
-		const entryIndex: number = +element.dataset.index!;
-		this._entries[entryIndex].url = element.value;
-		const sampleNameElement: HTMLDivElement | null | undefined = element.parentNode?.parentNode?.querySelector(".add-sample-prompt-sample-name");
-		if (sampleNameElement != null) {
-			const sampleName: string = this._getSampleName(this._entries[entryIndex]);
-			sampleNameElement.innerText = sampleName;
-			sampleNameElement.title = sampleName;
-		}
-	};
-
-	private _whenSampleRateChanges = (event: Event): void => {
-		const element: HTMLInputElement = <HTMLInputElement>event.target;
-		const entryIndex: number = +element.dataset.index!;
-		const value: number = clamp(Config.minSampleRate, Config.maxSampleRate + 1, parseFloatWithDefault(element.value, Config.defaultSampleRate));
-		this._entries[entryIndex].sampleRate = value;
-	};
-
-	private _whenRootKeyChanges = (event: Event): void => {
-		const element: HTMLInputElement = <HTMLInputElement>event.target;
-		const entryIndex: number = +element.dataset.index!;
-		const value: number = parseFloatWithDefault(element.value, 60);
-		this._entries[entryIndex].rootKey = value;
-		const rootKeyDisplay: HTMLSpanElement | null | undefined = element.parentNode?.parentNode?.querySelector(".add-sample-prompt-root-key-display");
-		if (rootKeyDisplay != null) {
-			const noteName: string = this._noteNameFromPitchNumber(this._entries[entryIndex].rootKey);
-			if (noteName !== "") {
-				rootKeyDisplay.innerText = `(${noteName})`;
-			}
-		}
-	};
-
-	private _whenPercussionChanges = (event: Event): void => {
-		const element: HTMLInputElement = <HTMLInputElement>event.target;
-		const entryIndex: number = +element.dataset.index!;
-		this._entries[entryIndex].percussion = element.checked ? true : false;
-	};
-
-	private _whenChipWaveLoopStartChanges = (event: Event): void => {
-		const element: HTMLInputElement = <HTMLInputElement>event.target;
-		const entryIndex: number = +element.dataset.index!;
-		const value: number | null = parseIntWithDefault(element.value, null);
-		this._entries[entryIndex].chipWaveLoopStart = value;
-	};
-
-	private _whenChipWaveLoopEndChanges = (event: Event): void => {
-		const element: HTMLInputElement = <HTMLInputElement>event.target;
-		const entryIndex: number = +element.dataset.index!;
-		const value: number | null = parseIntWithDefault(element.value, null);
-		this._entries[entryIndex].chipWaveLoopEnd = value;
-	};
-
-	private _whenChipWaveStartOffsetChanges = (event: Event): void => {
-		const element: HTMLInputElement = <HTMLInputElement>event.target;
-		const entryIndex: number = +element.dataset.index!;
-		const value: number | null = parseIntWithDefault(element.value, null);
-		this._entries[entryIndex].chipWaveStartOffset = value;
-	};
-
-	private _whenChipWaveLoopModeChanges = (event: Event): void => {
-		const element: HTMLSelectElement = <HTMLSelectElement>event.target;
-		const entryIndex: number = +element.dataset.index!;
-		const newValue: number = +element.value;
-		if (newValue === -1) {
-			this._entries[entryIndex].chipWaveLoopMode = null;
-		} else {
-			this._entries[entryIndex].chipWaveLoopMode = newValue;
-		}
-	};
-
-	private _whenChipWavePlayBackwardsChanges = (event: Event): void => {
-		const element: HTMLInputElement = <HTMLInputElement>event.target;
-		const entryIndex: number = +element.dataset.index!;
-		const newValue: boolean = element.checked;
-		this._entries[entryIndex].chipWavePlayBackwards = newValue;
-	};
-
-	private _copyTextToClipboard(text: string): void {
-		let nav: any;
-		nav = navigator;
-
-		if (nav.clipboard && nav.clipboard.writeText) {
-			nav.clipboard.writeText(text).catch(() => {
-				window.prompt("Copy to clipboard:", text);
-			});
-			return;
-		}
-		const textField: HTMLTextAreaElement = document.createElement("textarea");
-		textField.textContent = text;
-		document.body.appendChild(textField);
-		textField.select();
-		const succeeded: boolean = document.execCommand("copy");
-		textField.remove();
-		this.container.focus({ preventScroll: true });
-		if (!succeeded) window.prompt("Copy this:", text);
-	}
-
-	private _whenCopyLinkPresetClicked = (event: Event): void => {
-		const element: HTMLButtonElement = <HTMLButtonElement>event.target;
-		const entryIndex: number = +element.dataset.index!;
-		this._copyTextToClipboard(generateSampleURL(this._entries[entryIndex]));
-	};
-
-	private _whenRemoveSampleClicked = (event: Event): void => {
-		const element: HTMLButtonElement = <HTMLButtonElement>event.target;
-		const entryIndex: number = +element.dataset.index!;
-		this._entryOptionsDisplayStates[entryIndex] = false;
-		this._entries.splice(entryIndex, 1);
-		this._reconfigureAddSampleButton();
-		this._render(false);
-	};
-
-	private _whenMoveSampleUpClicked = (event: Event): void => {
-		const element: HTMLButtonElement = <HTMLButtonElement>event.target;
-		const entryIndex: number = +element.dataset.index!;
-		const upEntryIndex: number = entryIndex - 1;
-		if (this._entries.length >= 2 && upEntryIndex >= 0) {
-			const upEntry: SampleEntry = this._entries[upEntryIndex];
-			const entry: SampleEntry = this._entries[entryIndex];
-			const upEntryOptionsVisibility: boolean = this._entryOptionsDisplayStates[upEntryIndex];
-			const entryOptionsVisibility: boolean = this._entryOptionsDisplayStates[entryIndex];
-			this._entries[upEntryIndex] = entry;
-			this._entries[entryIndex] = upEntry;
-			this._entryOptionsDisplayStates[upEntryIndex] = entryOptionsVisibility;
-			this._entryOptionsDisplayStates[entryIndex] = upEntryOptionsVisibility;
-			this._render(false);
-		}
-	};
-
-	private _whenMoveSampleDownClicked = (event: Event): void => {
-		const element: HTMLButtonElement = <HTMLButtonElement>event.target;
-		const entryIndex: number = +element.dataset.index!;
-		const downEntryIndex: number = entryIndex + 1;
-		if (this._entries.length >= 2 && downEntryIndex < this._entries.length) {
-			const downEntry: SampleEntry = this._entries[downEntryIndex];
-			const entry: SampleEntry = this._entries[entryIndex];
-			const downEntryOptionsVisibility: boolean = this._entryOptionsDisplayStates[downEntryIndex];
-			const entryOptionsVisibility: boolean = this._entryOptionsDisplayStates[entryIndex];
-			this._entries[downEntryIndex] = entry;
-			this._entries[entryIndex] = downEntry;
-			this._entryOptionsDisplayStates[downEntryIndex] = entryOptionsVisibility;
-			this._entryOptionsDisplayStates[entryIndex] = downEntryOptionsVisibility;
-			this._render(false);
-		}
-	};
-
-	private _reconfigureAddSampleButton = (): void => {
-		if (this._entries.length >= this._maxSamples) {
-			this._addSampleButton.style.display = "none";
-		} else {
-			this._addSampleButton.style.display = "";
-		}
-	};
+	// ── Helpers ──
 
 	private _getSampleName = (entry: SampleEntry): string => {
 		try {
-			const parsedUrl: URL = new URL(entry.url);
+			const parsedUrl = new URL(entry.url);
 			return decodeURIComponent(parsedUrl.pathname.replace(/^([^\/]*\/)+/, ""));
-		} catch (_error) {
-			return entry.url;
-		}
+		} catch { return entry.url || "(unnamed)"; }
 	};
 
-	private _noteNameFromPitchNumber = (n: number): string => {
-		function wrap(x: number, b: number): number {
-			return ((x % b) + b) % b;
-		}
+	private _noteName = (n: number): string => {
+		function wrap(x: number, b: number) { return ((x % b) + b) % b; }
 		n = Math.floor(n) - 12;
-		const pitchNameIndex: number = wrap(n + Config.keys[this._doc.song.key].basePitch, Config.pitchesPerOctave);
-		let pitch: string = "";
-		if (Config.keys[pitchNameIndex].isWhiteKey) {
-			pitch = Config.keys[pitchNameIndex].name;
-		} else {
-			const shiftDir: number = Config.blackKeyNameParents[wrap(n, Config.pitchesPerOctave)];
-			pitch = Config.keys[wrap(pitchNameIndex + Config.pitchesPerOctave + shiftDir, Config.pitchesPerOctave)].name;
-			if (shiftDir === 1) {
-				pitch += "♭";
-			} else if (shiftDir === -1) {
-				pitch += "♯";
-			}
-		}
-		pitch += Math.floor(n / Config.pitchesPerOctave);
-		return pitch;
+		const idx = wrap(n + Config.keys[this._doc.song.key].basePitch, Config.pitchesPerOctave);
+		if (Config.keys[idx].isWhiteKey) return Config.keys[idx].name + Math.floor(n / Config.pitchesPerOctave);
+		const dir = Config.blackKeyNameParents[wrap(n, Config.pitchesPerOctave)];
+		return Config.keys[wrap(idx + Config.pitchesPerOctave + dir, Config.pitchesPerOctave)].name
+			+ (dir === 1 ? "\u266D" : "\u266F") + Math.floor(n / Config.pitchesPerOctave);
 	};
 
-	private _render = (scrollToBottom: boolean): void => {
-		while (this._entryContainer.firstChild !== null) {
-			this._entryContainer.removeChild(this._entryContainer.firstChild);
+	private _copyTextToClipboard = (text: string): void => {
+		const nav: any = navigator;
+		if (nav.clipboard?.writeText) { nav.clipboard.writeText(text).catch(() => window.prompt("Copy to clipboard:", text)); return; }
+		const tf = document.createElement("textarea");
+		tf.textContent = text;
+		document.body.appendChild(tf);
+		tf.select();
+		const ok = document.execCommand("copy");
+		tf.remove();
+		this.container.focus({ preventScroll: true });
+		if (!ok) window.prompt("Copy this:", text);
+	};
+
+	private _getFilteredEntries = (): number[] => {
+		if (!this._filterText) return this._entries.map((_, i) => i);
+		const q = this._filterText.toLowerCase();
+		const result: number[] = [];
+		for (let i = 0; i < this._entries.length; i++) {
+			const name = this._getSampleName(this._entries[i]).toLowerCase();
+			const url = this._entries[i].url.toLowerCase();
+			if (name.includes(q) || url.includes(q)) result.push(i);
 		}
-		for (let entryIndex: number = 0; entryIndex < this._entries.length; entryIndex++) {
-			const canMoveUp: boolean = this._entries.length >= 2 && entryIndex > 0;
-			const canMoveDown: boolean = this._entries.length >= 2 && entryIndex < this._entries.length - 1;
-			const entry: SampleEntry = this._entries[entryIndex];
-			const optionsVisible: boolean = Boolean(this._entryOptionsDisplayStates[entryIndex]);
-			const urlInput: HTMLInputElement = input({
-				class: "asInputGrow",
-				value: entry.url,
+		return result;
+	};
+
+	private _reconfigureAddButton = (): void => {
+		this._addSampleButton.style.display = this._entries.length >= this._maxSamples ? "none" : "";
+	};
+
+	// ── Rendering ──
+
+	private _render = (): void => {
+		this._renderList();
+		this._renderDetails();
+	};
+
+	private _renderList = (): void => {
+		while (this._sampleList.firstChild) this._sampleList.removeChild(this._sampleList.firstChild);
+
+		const filtered = this._getFilteredEntries();
+		let selectedFound = false;
+
+		for (const globalIdx of filtered) {
+			const entry = this._entries[globalIdx];
+			const name = this._getSampleName(entry);
+			const isSelected = globalIdx === this._selectedIndex;
+			if (isSelected) selectedFound = true;
+
+			const item = div({
+				class: isSelected ? "categoryItem committed" : "categoryItem",
+				"data-index": String(globalIdx),
+			},
+				div({ class: "sbpItemLabel" }, name),
+				span({ class: "sbpPos" }, `#${globalIdx + 1}`),
+			);
+
+			const removeBtn = button({ class: "sbpItemRemove" }, "\u00D7");
+			removeBtn.addEventListener("click", (e) => {
+				e.stopPropagation();
+				this._removeEntry(globalIdx);
 			});
-			const sampleRateStepper: HTMLInputElement = input({
-				class: "asInputGrow",
-				type: "number",
-				value: "" + entry.sampleRate,
-				min: "8000",
-				max: "96000",
-				step: "1",
+
+			const row = div({ class: "sbpRow" }, item, removeBtn);
+			item.addEventListener("click", () => {
+				this._lastInteraction = null;
+				this._activePane = "list";
+				this._updateHighlight();
+				this._selectEntry(globalIdx);
 			});
-			const rootKeyStepper: HTMLInputElement = input({
-				class: "asInputGrow",
-				type: "number",
-				value: "" + entry.rootKey,
-				min: "0",
-				max: Config.maxPitch + Config.pitchesPerOctave,
-				step: "1",
-			});
-			const rootKeyDisplay: HTMLSpanElement = span(
-				{
-					class: "asPitchInput",
-				},
-				`(${this._noteNameFromPitchNumber(entry.rootKey)})`,
-			);
-			const percussionBox: HTMLInputElement = input({ type: "checkbox" });
-			const chipWaveLoopStartStepper: HTMLInputElement = input({
-				class: "asInputGrow",
-				type: "number",
-				value: "" + (entry.chipWaveLoopStart != null ? entry.chipWaveLoopStart : ""),
-				min: "0",
-				step: "1",
-			});
-			const chipWaveLoopEndStepper: HTMLInputElement = input({
-				class: "asInputGrow",
-				type: "number",
-				value: "" + (entry.chipWaveLoopEnd != null ? entry.chipWaveLoopEnd : ""),
-				min: "0",
-				step: "1",
-			});
-			const chipWaveStartOffsetStepper: HTMLInputElement = input({
-				class: "asInputGrow",
-				type: "number",
-				value: "" + (entry.chipWaveStartOffset != null ? entry.chipWaveStartOffset : ""),
-				min: "0",
-				step: "1",
-			});
-			const chipWaveLoopModeSelect: HTMLSelectElement = select(
-				{ class: "asInputHalfMargin" },
-				option({ value: -1 }, ""),
-				option({ value: 0 }, "Loop"),
-				option({ value: 1 }, "Ping-Pong"),
-				option({ value: 2 }, "Play Once"),
-				option({ value: 3 }, "Play Loop Once"),
-			);
-			if (entry.chipWaveLoopMode != null) {
-				chipWaveLoopModeSelect.value = "" + entry.chipWaveLoopMode;
-			}
-			const chipWavePlayBackwardsBox: HTMLInputElement = input({
-				type: "checkbox",
-				class: "asNoPad",
-			});
-			chipWavePlayBackwardsBox.checked = entry.chipWavePlayBackwards;
-			const sampleName: string = this._getSampleName(entry);
-			percussionBox.checked = entry.percussion;
-			const copyLinkPresetButton: HTMLButtonElement = button(
-				{
-					class: "asBtn",
-					title: 'For use with "Add multiple samples"',
-				},
-				"Copy link preset",
-			);
-			const removeButton: HTMLButtonElement = button(
-				{
-					class: "asBtn asBtnHalfMargin",
-				},
-				"Remove",
-			);
-			const moveUpButton: HTMLButtonElement = button(
-				{ class: "asBtn asBtnHalfMargin" },
-				SVG.svg(
-					{
-						width: "16",
-						height: "16",
-						viewBox: "-13 -14 26 26",
-						"pointer-events": "none",
-						class: "asFullSize",
-					},
-					SVG.path({ d: "M -6 6 L 0 -6 L 6 6 z", fill: ColorConfig.primaryText }),
-				),
-			);
-			const moveDownButton: HTMLButtonElement = button(
-				{ class: "asBtn asBtnHalfMargin" },
-				SVG.svg(
-					{
-						width: "16",
-						height: "16",
-						viewBox: "-13 -14 26 26",
-						"pointer-events": "none",
-						class: "asFullSize",
-					},
-					SVG.path({ d: "M -6 -6 L 6 -6 L 0 6 z", fill: ColorConfig.primaryText }),
-				),
-			);
-			const optionsContainer: HTMLDetailsElement = details(
-				{ open: optionsVisible, class: "asMarginBottomLg" },
-				summary({ class: "asMarginBottomLg" }, "Options"),
-				div(
-					{ class: "asFlexEndMargin" },
-					div(
-						{ class: "asLabelShrink" },
-						span({ title: "What rate to resample to" }, "Sample rate"),
-					),
-					sampleRateStepper,
-				),
-				div(
-					{ class: "asFlexEndMargin" },
-					div(
-						{ class: "asLabelShrink" },
-						span({ title: "Pitch where the sample is played as-is" }, "Root key"),
-					),
-					rootKeyDisplay,
-					rootKeyStepper,
-				),
-				div(
-					{ class: "asFlexBetween" },
-					div({ class: "asLabel" }, "Percussion (pitch doesn't change with key)"),
-					percussionBox,
-				),
-				div(
-					{
-						class: "asFlexEndMargin",
-					},
-					div(
-						{ class: "asLabelShrink" },
-						span({ title: 'Applies to the "Loop Start" loop control option of the preset created for this sample' }, "Loop Start"),
-					),
-					chipWaveLoopStartStepper,
-				),
-				div(
-					{
-						class: "asFlexEndMargin",
-					},
-					div(
-						{ class: "asLabelShrink" },
-						span({ title: 'Applies to the "Loop End" loop control option of the preset created for this sample' }, "Loop End"),
-					),
-					chipWaveLoopEndStepper,
-				),
-				div(
-					{
-						class: "asFlexEndMargin",
-					},
-					div(
-						{ class: "asLabelShrink" },
-						span({ title: 'Applies to the "Offset" loop control option of the preset created for this sample' }, "Sample Start Offset"),
-					),
-					chipWaveStartOffsetStepper,
-				),
-				div(
-					{
-						class: "asFlexEndMargin",
-					},
-					div(
-						{ class: "asLabelShrink" },
-						span({ title: 'Applies to the "Loop Mode" loop control option of the preset created for this sample' }, "Loop Mode"),
-					),
-					chipWaveLoopModeSelect,
-				),
-				div(
-					{
-						class: "asFlexBetween",
-					},
-					div(
-						{ class: "asLabelShrink" },
-						span({ title: 'Applies to the "Backwards" loop control option of the preset created for this sample' }, "Backwards"),
-					),
-					chipWavePlayBackwardsBox,
-				),
-			);
-			urlInput.dataset.index = "" + entryIndex;
-			sampleRateStepper.dataset.index = "" + entryIndex;
-			rootKeyStepper.dataset.index = "" + entryIndex;
-			percussionBox.dataset.index = "" + entryIndex;
-			chipWaveLoopStartStepper.dataset.index = "" + entryIndex;
-			chipWaveLoopEndStepper.dataset.index = "" + entryIndex;
-			chipWaveStartOffsetStepper.dataset.index = "" + entryIndex;
-			chipWaveLoopModeSelect.dataset.index = "" + entryIndex;
-			chipWavePlayBackwardsBox.dataset.index = "" + entryIndex;
-			copyLinkPresetButton.dataset.index = "" + entryIndex;
-			removeButton.dataset.index = "" + entryIndex;
-			moveUpButton.dataset.index = "" + entryIndex;
-			moveDownButton.dataset.index = "" + entryIndex;
-			optionsContainer.dataset.index = "" + entryIndex;
-			const bottomButtons: HTMLDivElement = div(
-				{ class: "asFlexEnd" },
-				copyLinkPresetButton,
-				removeButton,
-			);
-			if (canMoveUp) {
-				bottomButtons.appendChild(moveUpButton);
-			}
-			if (canMoveDown) {
-				bottomButtons.appendChild(moveDownButton);
-			}
-			const entryElement: HTMLDivElement = div(
-				{
-					class: "asCard",
-				},
-				div(
-					{
-						class: "asCardName",
-						title: sampleName,
-					},
-					sampleName,
-				),
-				div(
-					{ class: "asCardRow" },
-					div({ class: "asLabel" }, "URL"),
-					urlInput,
-				),
-				optionsContainer,
-				bottomButtons,
-			);
-			optionsContainer.addEventListener("toggle", this._whenOptionsAreToggled);
-			urlInput.addEventListener("change", this._whenURLChanges);
-			sampleRateStepper.addEventListener("change", this._whenSampleRateChanges);
-			rootKeyStepper.addEventListener("change", this._whenRootKeyChanges);
-			percussionBox.addEventListener("change", this._whenPercussionChanges);
-			chipWaveLoopStartStepper.addEventListener("change", this._whenChipWaveLoopStartChanges);
-			chipWaveLoopEndStepper.addEventListener("change", this._whenChipWaveLoopEndChanges);
-			chipWaveStartOffsetStepper.addEventListener("change", this._whenChipWaveStartOffsetChanges);
-			chipWaveLoopModeSelect.addEventListener("change", this._whenChipWaveLoopModeChanges);
-			chipWavePlayBackwardsBox.addEventListener("change", this._whenChipWavePlayBackwardsChanges);
-			addWheelSupport(sampleRateStepper);
-			addWheelSupport(rootKeyStepper);
-			addWheelSupport(chipWaveLoopStartStepper);
-			addWheelSupport(chipWaveLoopEndStepper);
-			addWheelSupport(chipWaveStartOffsetStepper);
-			copyLinkPresetButton.addEventListener("click", this._whenCopyLinkPresetClicked);
-			removeButton.addEventListener("click", this._whenRemoveSampleClicked);
-			if (canMoveUp) {
-				moveUpButton.addEventListener("click", this._whenMoveSampleUpClicked);
-			}
-			if (canMoveDown) {
-				moveDownButton.addEventListener("click", this._whenMoveSampleDownClicked);
-			}
-			this._entryContainer.appendChild(entryElement);
-			const thisIsTheLastElement: boolean = entryIndex === this._entries.length - 1;
-			if (scrollToBottom && thisIsTheLastElement) {
-				entryElement.scrollIntoView({ block: "nearest", inline: "nearest" });
-			}
+
+			this._sampleList.appendChild(row);
+		}
+
+		if (!selectedFound && filtered.length > 0) {
+			this._selectEntry(filtered[0]);
+		} else if (filtered.length === 0) {
+			this._selectedIndex = -1;
+			this._renderDetails();
 		}
 	};
+
+	private _renderDetails = (): void => {
+		while (this._detailCard.firstChild) this._detailCard.removeChild(this._detailCard.firstChild);
+
+		const hasSelection = this._selectedIndex >= 0 && this._selectedIndex < this._entries.length;
+
+		if (!hasSelection) {
+			this._detailCard.appendChild(div({ class: "sbpEmpty" }, "Select a sample from the list to edit"));
+			return;
+		}
+
+		const entry = this._entries[this._selectedIndex];
+
+		// URL row
+		const urlRow = div({ class: "sbpCardFieldRow" },
+			span({ class: "sbpLabel" }, "URL"),
+			this._detailUrl,
+		);
+		this._detailCard.appendChild(urlRow);
+
+		// Sample settings section
+		const settingsSection = div({ class: "sbpSection" },
+			div({ class: "sbpSectionTitle" }, "Sample Settings"),
+		promptRowBetween(span({ class: "prompt-label" }, "Sample Rate"), this._detailSrStepper),
+			promptRowBetween(span({ class: "prompt-label" }, "Root Key"), this._detailRkDisplay, this._detailRkStepper),
+			promptRowBetween(span({ class: "prompt-label" }, "Percussion"), this._detailPercBox),
+		);
+
+		// Chip wave options section
+		const chipSection = div({ class: "sbpSection" },
+			div({ class: "sbpSectionTitle" }, "Chip Wave Options"),
+			promptRowBetween(span({ class: "prompt-label" }, "Loop Start"), this._detailLsStepper),
+			promptRowBetween(span({ class: "prompt-label" }, "Loop End"), this._detailLeStepper),
+			promptRowBetween(span({ class: "prompt-label" }, "Offset"), this._detailSoStepper),
+			promptRowBetween(span({ class: "prompt-label" }, "Loop Mode"), this._detailModeSelect),
+			promptRowBetween(span({ class: "prompt-label" }, "Backwards"), this._detailBwBox),
+		);
+
+		const settingsRow = div({ style: "display:flex; flex-direction:row; gap:8px; flex:1;" },
+		div({ style: "flex:1; min-width:0; display:flex; flex-direction:column;" }, settingsSection),
+		div({ style: "flex:1; min-width:0; display:flex; flex-direction:column;" }, chipSection),
+	);
+	this._detailCard.appendChild(settingsRow);
+
+		// Update field values
+		this._detailUrl.value = entry.url;
+		this._detailSrStepper.value = String(entry.sampleRate);
+		this._detailRkStepper.value = String(entry.rootKey);
+		this._detailRkDisplay.textContent = `(${this._noteName(entry.rootKey)})`;
+		this._detailPercBox.checked = entry.percussion;
+		this._detailLsStepper.value = entry.chipWaveLoopStart != null ? String(entry.chipWaveLoopStart) : "0";
+		this._detailLeStepper.value = entry.chipWaveLoopEnd != null ? String(entry.chipWaveLoopEnd) : "0";
+		this._detailSoStepper.value = entry.chipWaveStartOffset != null ? String(entry.chipWaveStartOffset) : "0";
+		this._detailModeSelect.value = entry.chipWaveLoopMode != null ? String(entry.chipWaveLoopMode) : "-1";
+		this._detailBwBox.checked = entry.chipWavePlayBackwards;
+	};
+
+	private _selectEntry = (index: number): void => {
+		if (index === this._selectedIndex) return;
+		this._selectedIndex = index;
+		this._render();
+	};
+
+	private _removeEntry = (index: number): void => {
+		this._entryOptionsDisplayStates[index] = false;
+		this._entries.splice(index, 1);
+		if (this._selectedIndex >= this._entries.length) {
+			this._selectedIndex = this._entries.length - 1;
+		}
+		this._reconfigureAddButton();
+		this._render();
+	};
+
+	// ── Event handlers: add / bulk ──
+
+	private _onCopySample = (): void => {
+		if (this._selectedIndex >= 0 && this._selectedIndex < this._entries.length) {
+			this._copyTextToClipboard(generateSampleURL(this._entries[this._selectedIndex]));
+		}
+	};
+
+	private _onAddSample = (): void => {
+		this._entries.push({
+			url: "", sampleRate: Config.defaultSampleRate, rootKey: 60,
+			percussion: false, chipWaveLoopStart: null, chipWaveLoopEnd: null,
+			chipWaveStartOffset: null, chipWaveLoopMode: null, chipWavePlayBackwards: false,
+		});
+		this._entryOptionsDisplayStates[this._entries.length - 1] = false;
+		this._selectedIndex = this._entries.length - 1;
+		this._reconfigureAddButton();
+		this._render();
+	};
+
+	private _onBulkOpen = (): void => {
+		(this._leftPane.querySelector(".sbpListContainer") as HTMLElement).style.display = "none";
+		(this._leftPane.querySelector(".sbpBtnRow") as HTMLElement).style.display = "none";
+		(this._leftPane.querySelector(".sbpBulkOverlay") as HTMLElement).style.display = "flex";
+		this._bulkTextarea.value = "";
+		setTimeout(() => this._bulkTextarea.focus());
+	};
+
+	private _exitBulkMode = (): void => {
+		const listContainer = this._leftPane.querySelector(".sbpListContainer") as HTMLElement;
+		if (listContainer) listContainer.style.display = "";
+		const btnRow = this._leftPane.querySelector(".sbpBtnRow") as HTMLElement;
+		if (btnRow) btnRow.style.display = "";
+		const bulkOverlay = this._leftPane.querySelector(".sbpBulkOverlay") as HTMLElement;
+		if (bulkOverlay) bulkOverlay.style.display = "none";
+	};
+
+	private _onBulkConfirm = (): void => {
+		const parsed = parseSampleURLs(
+			this._bulkTextarea.value.replace(/\n/g, "|").split("|").filter((x) => x !== ""), false);
+		const seen = new Map<string, boolean>();
+		for (const e of this._entries) seen.set(e.url, true);
+		for (const e of parsed) {
+			if (this._entries.length >= this._maxSamples) break;
+			if (seen.has(e.url)) continue;
+			seen.set(e.url, true);
+			this._entries.push(e);
+			this._entryOptionsDisplayStates[this._entries.length - 1] = false;
+		}
+		this._exitBulkMode();
+		this._reconfigureAddButton();
+		this._render();
+	};
+
+	private _onBulkCancel = (): void => this._exitBulkMode();
+
+	// ── Event handlers: search ──
+
+	private _onSearchInput = (): void => {
+		this._filterText = this._searchInput.value;
+		this._renderList();
+		this._renderDetails();
+	};
+
+	// ── Keyboard navigation ──
+
+	private _onSearchKeyDown = (event: KeyboardEvent): void => {
+		if (event.keyCode === 27) {
+			this._searchInput.blur();
+			this.container.focus();
+			event.preventDefault();
+			event.stopPropagation();
+		} else if (event.keyCode === 13) {
+			this._searchInput.blur();
+			this.container.focus();
+			this._lastInteraction = "keyboard";
+			this._updateHighlight();
+			if (this._selectedIndex >= 0) {
+				this._scrollItemIntoView(this._selectedIndex);
+			}
+			event.preventDefault();
+			event.stopImmediatePropagation();
+		} else if (event.keyCode === 40) {
+			this._activePane = "list";
+			const filtered = this._getFilteredEntries();
+			const currentPos = filtered.indexOf(this._selectedIndex);
+			if (currentPos < filtered.length - 1) {
+				this._selectEntry(filtered[currentPos + 1]);
+				this._lastInteraction = "keyboard";
+				this._updateHighlight();
+				this._scrollItemIntoView(this._selectedIndex);
+			}
+			event.preventDefault();
+		} else if (event.keyCode === 38) {
+			this._activePane = "list";
+			const filtered = this._getFilteredEntries();
+			const currentPos = filtered.indexOf(this._selectedIndex);
+			if (currentPos > 0) {
+				this._selectEntry(filtered[currentPos - 1]);
+				this._lastInteraction = "keyboard";
+				this._updateHighlight();
+				this._scrollItemIntoView(this._selectedIndex);
+			}
+			event.preventDefault();
+		}
+	};
+
+	private _onContainerKeyDown = (event: KeyboardEvent): void => {
+		if (event.target === this._searchInput) return;
+		// Let text fields handle their own keystrokes (Enter = newline, etc.)
+		const tag = (<Element>event.target).tagName;
+		if (tag === "TEXTAREA" || tag === "INPUT" || tag === "SELECT") return;
+		// Let detail fields handle their own Tab navigation
+		if (this._activePane === "details" && event.keyCode !== 27 && event.keyCode !== 9) return;
+
+		const filtered = this._getFilteredEntries();
+		const currentPos = filtered.indexOf(this._selectedIndex);
+
+		switch (event.keyCode) {
+			case 38:
+				if (this._activePane === "list" && currentPos > 0) {
+					this._selectEntry(filtered[currentPos - 1]);
+					this._lastInteraction = "keyboard";
+					this._updateHighlight();
+					this._scrollItemIntoView(this._selectedIndex);
+				}
+				event.preventDefault();
+				break;
+			case 40:
+				if (this._activePane === "list" && currentPos >= 0 && currentPos < filtered.length - 1) {
+					this._selectEntry(filtered[currentPos + 1]);
+					this._lastInteraction = "keyboard";
+					this._updateHighlight();
+					this._scrollItemIntoView(this._selectedIndex);
+				}
+				event.preventDefault();
+				break;
+			case 13:
+				if (this._activePane === "list" && this._selectedIndex >= 0) {
+					this._activePane = "details";
+					this._detailUrl.focus();
+					this._detailUrl.select();
+					this._updateHighlight();
+				}
+				event.preventDefault();
+				event.stopImmediatePropagation();
+				break;
+			case 9:
+				this._lastInteraction = "keyboard";
+				this._activePane = this._activePane === "list" ? "details" : "list";
+				if (this._activePane === "details" && this._selectedIndex >= 0) {
+					this._detailUrl.focus();
+					this._detailUrl.select();
+				} else {
+					this._sampleList.focus();
+				}
+				this._updateHighlight();
+				event.preventDefault();
+				break;
+			case 27:
+				this._close();
+				event.preventDefault();
+				break;
+		}
+	};
+
+	private _scrollItemIntoView(index: number): void {
+		const rows = this._sampleList.children;
+		if (index < 0) return;
+		const filtered = this._getFilteredEntries();
+		const pos = filtered.indexOf(index);
+		if (pos < 0) return;
+		const row = rows[pos] as HTMLElement | undefined;
+		if (!row) return;
+		const itemRect = row.getBoundingClientRect();
+		const containerRect = this._sampleList.getBoundingClientRect();
+		const margin = 8;
+		if (itemRect.top < containerRect.top + margin) {
+			this._sampleList.scrollTop -= containerRect.top - itemRect.top + margin;
+		} else if (itemRect.bottom > containerRect.bottom - margin) {
+			this._sampleList.scrollTop += itemRect.bottom - containerRect.bottom + margin;
+		}
+	}
+
+	private _updateHighlight = (): void => {
+		// Pane borders — hover takes priority over keyboard, matching preset browser
+		const effectivePane = this._lastInteraction === "hover" && this._hoveredPane != null
+			? this._hoveredPane
+			: this._activePane;
+		const focusedPane = effectivePane === "list" ? this._leftPane : this._rightPane;
+		const unfocusedPane = effectivePane === "list" ? this._rightPane : this._leftPane;
+		focusedPane.style.borderColor = "var(--indicator-primary, #4444ff)";
+		unfocusedPane.style.borderColor = "var(--ui-widget-background)";
+
+		// List item focus
+		const rows = this._sampleList.children;
+		const filtered = this._getFilteredEntries();
+		for (let i = 0; i < rows.length; i++) {
+			const item = rows[i].querySelector(".categoryItem");
+			if (!item) continue;
+			const isFocused = filtered[i] === this._selectedIndex && this._lastInteraction === "keyboard" && this._activePane === "list";
+			item.classList.toggle("focused", isFocused);
+		}
+	};
+
+	// ── Event handlers: detail fields ──
+
+	private _onDetailUrlKeyDown = (event: KeyboardEvent): void => {
+		if (event.keyCode === 13) {
+			this._detailUrl.blur();
+			this.container.focus();
+			event.preventDefault();
+			event.stopPropagation();
+		}
+	};
+
+	private _onDetailUrlChange = (): void => {
+		if (this._selectedIndex < 0) return;
+		this._entries[this._selectedIndex].url = this._detailUrl.value;
+		this._renderList();
+	};
+
+	private _onDetailSrChange = (): void => {
+		if (this._selectedIndex < 0) return;
+		this._entries[this._selectedIndex].sampleRate = clamp(Config.minSampleRate, Config.maxSampleRate + 1, parseFloatWithDefault(this._detailSrStepper.value, Config.defaultSampleRate));
+	};
+
+	private _onDetailRkChange = (): void => {
+		if (this._selectedIndex < 0) return;
+		const val = parseFloatWithDefault(this._detailRkStepper.value, 60);
+		this._entries[this._selectedIndex].rootKey = val;
+		this._detailRkDisplay.textContent = `(${this._noteName(val)})`;
+	};
+
+	private _onDetailPercChange = (): void => {
+		if (this._selectedIndex < 0) return;
+		this._entries[this._selectedIndex].percussion = this._detailPercBox.checked;
+	};
+
+	private _onDetailLsChange = (): void => {
+		if (this._selectedIndex < 0) return;
+		this._entries[this._selectedIndex].chipWaveLoopStart = parseIntWithDefault(this._detailLsStepper.value, null);
+	};
+
+	private _onDetailLeChange = (): void => {
+		if (this._selectedIndex < 0) return;
+		this._entries[this._selectedIndex].chipWaveLoopEnd = parseIntWithDefault(this._detailLeStepper.value, null);
+	};
+
+	private _onDetailSoChange = (): void => {
+		if (this._selectedIndex < 0) return;
+		this._entries[this._selectedIndex].chipWaveStartOffset = parseIntWithDefault(this._detailSoStepper.value, null);
+	};
+
+	private _onDetailModeChange = (): void => {
+		if (this._selectedIndex < 0) return;
+		const v = +this._detailModeSelect.value;
+		this._entries[this._selectedIndex].chipWaveLoopMode = v === -1 ? null : v;
+	};
+
+	private _onDetailBwChange = (): void => {
+		if (this._selectedIndex < 0) return;
+		this._entries[this._selectedIndex].chipWavePlayBackwards = this._detailBwBox.checked;
+	};
+
 }
