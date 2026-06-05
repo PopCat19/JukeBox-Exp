@@ -2910,7 +2910,7 @@ html {
 	vertical-align: middle;
 	flex-shrink: 0;
 	box-sizing: border-box;
-	transition: background-color 0.12s ease, border-color 0.12s ease;
+	transition: background-color 0.12s ease;
 }
 .beepboxEditor .selectRow > input[type=checkbox] {
 	width: 2.4em;
@@ -2921,9 +2921,21 @@ html {
 	background: ${ColorConfig.primaryText};
 	border-color: ${ColorConfig.primaryText};
 }
+/* PMD: no focus ring on checkboxes — hover is the only visual indicator.
+ * Native checkboxes can remain :focus/:focus-visible after click in
+ * Chromium, so both states are suppressed and border is forced to
+ * default to prevent the 80x lingering after uncheck. */
+.beepboxEditor input[type=checkbox]:focus,
 .beepboxEditor input[type=checkbox]:focus-visible {
-	outline: ${BorderWidth.default} solid ${ColorConfig.primaryText};
-	outline-offset: 2px;
+	outline: none;
+	border-color: ${ColorConfig.secondaryText};
+}
+.beepboxEditor input[type=checkbox]:checked:focus,
+.beepboxEditor input[type=checkbox]:checked:focus-visible {
+	border-color: ${ColorConfig.primaryText};
+}
+.beepboxEditor input[type=checkbox]:not(:checked):hover {
+	border-color: ${ColorConfig.primaryText};
 }
 
 .beepboxEditor input[type=range] {
@@ -3288,6 +3300,8 @@ li.select2-results__option[role=group] > strong:hover {
 	border: 2px solid transparent;
 	box-sizing: border-box;
 	padding: var(--padding-8);
+	border-top-left-radius: ${BorderRadius.sm};
+	border-bottom-left-radius: ${BorderRadius.sm};
 	border-top-right-radius: ${BorderRadius.sm};
 	border-bottom-right-radius: ${BorderRadius.sm};
 }
@@ -3327,6 +3341,44 @@ li.select2-results__option[role=group] > strong:hover {
 	box-shadow: none;
 }
 
+.beepboxEditor .prompt.sampleBrowserPrompt .sbpItemMove {
+	flex: 1;
+	width: ${Sizing.widgetSm};
+	height: auto;
+	border-radius: var(--border-radius-medium);
+	border-top-right-radius: ${BorderRadius.sm};
+	border-bottom-right-radius: ${BorderRadius.sm};
+	border: 2px solid transparent;
+	box-sizing: border-box;
+	background: var(--prompt-list-item-bg);
+	color: var(--secondary-text);
+	cursor: pointer;
+	font-size: ${Typography.sizeSm};
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 0;
+	line-height: 0;
+	transition: border-color 0.15s, color 0.15s;
+}
+
+/* Inter-tile gap: move buttons top/bottom facing each other */
+.beepboxEditor .prompt.sampleBrowserPrompt .sbpItemMove:first-child {
+	border-bottom-left-radius: ${BorderRadius.sm};
+	border-bottom-right-radius: ${BorderRadius.sm};
+}
+
+.beepboxEditor .prompt.sampleBrowserPrompt .sbpItemMove:last-child {
+	border-top-left-radius: ${BorderRadius.sm};
+	border-top-right-radius: ${BorderRadius.sm};
+}
+
+.beepboxEditor .prompt.sampleBrowserPrompt .sbpRow .sbpItemMove:hover {
+	border: 2px solid var(--hout, var(--primary-text));
+	color: var(--primary-text);
+	box-shadow: none;
+}
+
 .beepboxEditor .prompt.sampleBrowserPrompt .sbpRow .categoryItem:hover {
 	border-color: var(--hout, var(--primary-text));
 }
@@ -3348,6 +3400,17 @@ li.select2-results__option[role=group] > strong:hover {
 }
 
 .beepboxEditor .prompt.sampleBrowserPrompt .sbpRow .categoryItem.committed + .sbpItemRemove:hover {
+	border-color: var(--editor-background);
+	color: var(--cta-fg);
+}
+
+.beepboxEditor .prompt.sampleBrowserPrompt .sbpRow:has(.categoryItem.committed) .sbpItemMove {
+	background: var(--cta-bg);
+	border-color: var(--cta-bg);
+	color: var(--cta-fg);
+}
+
+.beepboxEditor .prompt.sampleBrowserPrompt .sbpRow:has(.categoryItem.committed) .sbpItemMove:hover {
 	border-color: var(--editor-background);
 	color: var(--cta-fg);
 }
@@ -3436,26 +3499,35 @@ li.select2-results__option[role=group] > strong:hover {
 .beepboxEditor .prompt.sampleBrowserPrompt .sbpInfoBtn {
 	font-size: 12px;
 	cursor: pointer;
-	background: none;
-	border: 2px solid var(--ui-widget-background);
 	padding: 4px 10px;
-	border-radius: var(--border-radius-medium);
-	color: var(--secondary-text);
+	color: var(--primary-text);
 	transition: background 0.15s, color 0.15s;
 }
 
-.beepboxEditor .prompt.sampleBrowserPrompt .sbpInfoBtn:hover {
-	background: var(--ui-widget-background);
-	color: var(--primary-text);
+.beepboxEditor .prompt.sampleBrowserPrompt .sbpInfoBtn.committed {
+	background: var(--cta-bg);
+	color: var(--cta-fg);
+}
+
+.beepboxEditor .prompt.sampleBrowserPrompt .sbpInfoBtn.committed:hover {
+	box-shadow: none;
 }
 
 .beepboxEditor .prompt.sampleBrowserPrompt .sbpInfoArea {
 	font-size: 12px;
-	color: var(--secondary-text);
+	color: var(--primary-text);
 	padding: 8px;
 	background: var(--ui-widget-background);
 	border-radius: var(--border-radius-medium);
 	margin-top: 8px;
+}
+
+.beepboxEditor .prompt.sampleBrowserPrompt .sbpInfoArea a {
+	color: var(--secondary-text);
+}
+
+.beepboxEditor .prompt.sampleBrowserPrompt .sbpInfoArea a:hover {
+	color: var(--primary-text);
 }
 
 .beepboxEditor .prompt.sampleBrowserPrompt .sbpInfoArea.sbpHidden {
@@ -3493,6 +3565,7 @@ li.select2-results__option[role=group] > strong:hover {
 	flex-direction: row;
 	align-items: center;
 	justify-content: space-between;
+	gap: 4px;
 	margin-top: 8px;
 }
 

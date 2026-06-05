@@ -142,11 +142,13 @@ export class AddSamplesPrompt extends BasePrompt {
 		this._detailSrStepper.addEventListener("change", this._onDetailSrChange);
 		this._detailRkStepper.addEventListener("change", this._onDetailRkChange);
 		this._detailPercBox.addEventListener("change", this._onDetailPercChange);
+		this._detailPercBox.addEventListener("change", () => this._detailPercBox.blur());
 		this._detailLsStepper.addEventListener("change", this._onDetailLsChange);
 		this._detailLeStepper.addEventListener("change", this._onDetailLeChange);
 		this._detailSoStepper.addEventListener("change", this._onDetailSoChange);
 		this._detailModeSelect.addEventListener("change", this._onDetailModeChange);
 		this._detailBwBox.addEventListener("change", this._onDetailBwChange);
+		this._detailBwBox.addEventListener("change", () => this._detailBwBox.blur());
 
 		[this._detailSrStepper, this._detailRkStepper, this._detailLsStepper, this._detailLeStepper, this._detailSoStepper]
 			.forEach(el => addWheelSupport(el));
@@ -208,7 +210,8 @@ export class AddSamplesPrompt extends BasePrompt {
 				this._rightPane,
 			),
 			div({ class: "sbpBottomBar" },
-				button({ class: "sbpInfoBtn" }, "(\u24D8 info)"),
+				div({ style: "flex:1;" }),
+				button({ class: "sbpInfoBtn" }, "\u24D8 info"),
 				this._okayButton,
 			),
 			this._infoArea,
@@ -229,7 +232,8 @@ export class AddSamplesPrompt extends BasePrompt {
 		// Info toggle
 		const infoBtn = this.container.querySelector(".sbpInfoBtn") as HTMLButtonElement;
 		infoBtn.addEventListener("click", () => {
-			this._infoArea.classList.toggle("sbpHidden");
+			const showing = this._infoArea.classList.toggle("sbpHidden");
+			infoBtn.classList.toggle("committed", !showing);
 		});
 
 		// Initial render
@@ -352,7 +356,19 @@ export class AddSamplesPrompt extends BasePrompt {
 				this._removeEntry(globalIdx);
 			});
 
-			const row = div({ class: "sbpRow" }, item, removeBtn);
+			const upBtn = button({ class: "sbpItemMove" }, "\u25B2");
+			upBtn.addEventListener("click", (e) => {
+				e.stopPropagation();
+				this._moveUp(globalIdx);
+			});
+			const downBtn = button({ class: "sbpItemMove" }, "\u25BC");
+			downBtn.addEventListener("click", (e) => {
+				e.stopPropagation();
+				this._moveDown(globalIdx);
+			});
+
+			const moveCol = div({ style: "display:flex; flex-direction:column; flex-shrink:0; gap:4px;" }, upBtn, downBtn);
+			const row = div({ class: "sbpRow" }, moveCol, item, removeBtn);
 			item.addEventListener("click", () => {
 				this._lastInteraction = null;
 				this._activePane = "list";
@@ -440,6 +456,26 @@ export class AddSamplesPrompt extends BasePrompt {
 			this._selectedIndex = this._entries.length - 1;
 		}
 		this._reconfigureAddButton();
+		this._render();
+	};
+
+	private _moveUp = (index: number): void => {
+		if (index <= 0) return;
+		[this._entries[index - 1], this._entries[index]] = [this._entries[index], this._entries[index - 1]];
+		[this._entryOptionsDisplayStates[index - 1], this._entryOptionsDisplayStates[index]] =
+			[this._entryOptionsDisplayStates[index], this._entryOptionsDisplayStates[index - 1]];
+		if (this._selectedIndex === index) this._selectedIndex = index - 1;
+		else if (this._selectedIndex === index - 1) this._selectedIndex = index;
+		this._render();
+	};
+
+	private _moveDown = (index: number): void => {
+		if (index >= this._entries.length - 1) return;
+		[this._entries[index], this._entries[index + 1]] = [this._entries[index + 1], this._entries[index]];
+		[this._entryOptionsDisplayStates[index], this._entryOptionsDisplayStates[index + 1]] =
+			[this._entryOptionsDisplayStates[index + 1], this._entryOptionsDisplayStates[index]];
+		if (this._selectedIndex === index) this._selectedIndex = index + 1;
+		else if (this._selectedIndex === index + 1) this._selectedIndex = index;
 		this._render();
 	};
 
