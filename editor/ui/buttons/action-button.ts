@@ -7,7 +7,6 @@
 // - Used for copy, paste, export, import, and similar action buttons
 
 import { createButton } from "../base/button";
-import { Sizing } from "../style-constants";
 
 export interface ActionButtonOptions {
 	class?: string;
@@ -17,7 +16,7 @@ export interface ActionButtonOptions {
 }
 
 export function actionButton(label: string, options?: ActionButtonOptions): HTMLButtonElement {
-	const baseStyle = `width:${Sizing.inputSm};`;
+	const baseStyle = `padding:0 var(--padding-12);`;
 	return createButton(
 		baseStyle,
 		{

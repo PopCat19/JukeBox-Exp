@@ -1005,12 +1005,8 @@ html {
 .beepboxEditor .prompt-button-row {
 	display: flex;
 	flex-direction: row-reverse;
-	justify-content: space-between;
+	justify-content: flex-end;
 	gap: var(--gap-md);
-}
-
-.beepboxEditor .prompt-button-row > button {
-	width: 45%;
 }
 
 .beepboxEditor .prompt-label {
@@ -1763,7 +1759,7 @@ html {
 .beepboxEditor .prompt.customThemePrompt .ctButtonRow {
 	display: flex;
 	flex-direction: row-reverse;
-	justify-content: space-between;
+	justify-content: flex-end;
 }
 
 /* ── Recording Setup Prompt ── */
@@ -3509,6 +3505,18 @@ li.select2-results__option[role=group] > strong:hover {
 	box-shadow: none;
 }
 
+.beepboxEditor .prompt.sampleBrowserPrompt .sbpOrderNote {
+	font-size: ${Typography.sizeSm};
+	color: var(--cta-fg);
+	margin: 0 0 4px 0;
+	text-align: center;
+	padding: 4px 8px;
+	background: var(--cta-bg);
+	border-radius: var(--border-radius-medium);
+	width: 100%;
+	box-sizing: border-box;
+}
+
 .beepboxEditor .prompt.sampleBrowserPrompt .sbpInfoArea {
 	font-size: 12px;
 	color: var(--primary-text);
@@ -3560,7 +3568,7 @@ li.select2-results__option[role=group] > strong:hover {
 	display: flex;
 	flex-direction: row;
 	align-items: center;
-	justify-content: space-between;
+	justify-content: flex-end;
 	gap: 4px;
 	margin-top: 8px;
 }

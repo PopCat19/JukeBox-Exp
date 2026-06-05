@@ -31,6 +31,9 @@ export class AddSamplesPrompt extends BasePrompt {
 	private _activePane: "list" | "details" = "list";
 	private _hoveredPane: "list" | "details" | null = null;
 
+	// Persistent UI
+	private _orderNote: HTMLParagraphElement;
+
 	// Left pane
 	private _sampleList: HTMLDivElement;
 	private _searchInput: HTMLInputElement;
@@ -168,9 +171,11 @@ export class AddSamplesPrompt extends BasePrompt {
 		this._searchInput.addEventListener("keydown", this._onSearchKeyDown);
 
 		// ── Info area ──
+		// Order matters — always visible below search
+		this._orderNote = p({ class: "sbpOrderNote" }, "Sample order matters. Each entry is referenced by its position in the list. Rearranging or removing entries will break your song!");
+
 		this._infoArea = div({ class: "sbpInfoArea" },
 			p({}, "Custom samples are loaded from arbitrary URLs. The web server needs to support CORS."),
-			p({}, "Order matters. Changing it will break your song!"),
 			p({}, "Upload suggestions: ",
 				a({ href: "https://filegarden.com" }, "File Garden"),
 				" · ",
@@ -204,13 +209,13 @@ export class AddSamplesPrompt extends BasePrompt {
 		},
 			h2({}, "Add Samples"),
 			inputRow({ gap: "8px" }, this._searchInput),
+			this._orderNote,
 			paneContainer(
 				{ height: "400px", gap: "8px", overflow: "visible", border: "none" },
 				this._leftPane,
 				this._rightPane,
 			),
 			div({ class: "sbpBottomBar" },
-				div({ style: "flex:1;" }),
 				button({ class: "sbpInfoBtn" }, "\u24D8 info"),
 				this._okayButton,
 			),
@@ -347,7 +352,7 @@ export class AddSamplesPrompt extends BasePrompt {
 				"data-index": String(globalIdx),
 			},
 				div({ class: "sbpItemLabel" }, name),
-				span({ class: "sbpPos" }, `#${globalIdx + 1}`),
+				span({ class: "sbpPos" }, `Entry ${globalIdx + 1}`),
 			);
 
 			const removeBtn = button({ class: "sbpItemRemove" }, "\u00D7");

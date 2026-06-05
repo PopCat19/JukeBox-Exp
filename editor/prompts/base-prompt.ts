@@ -12,7 +12,7 @@
 
 import { HTML } from "imperative-html/dist/esm/elements-strict";
 import { SongDocument } from "../song-document";
-import { actionButton, iconButton, w } from "../ui";
+import { actionButton, iconButton } from "../ui";
 import { Prompt } from "./prompt";
 
 const { div } = HTML;
@@ -24,7 +24,7 @@ export abstract class BasePrompt implements Prompt {
 	public closeCallback: ((prompt: Prompt) => void) | undefined = undefined;
 	public openAlongsideCallback: ((promptName: string) => void) | undefined = undefined;
 	protected readonly _cancelButton: HTMLButtonElement = iconButton("cancelButton");
-	protected readonly _okayButton: HTMLButtonElement = actionButton("Okay", { style: w("45%") });
+	protected readonly _okayButton: HTMLButtonElement = actionButton("Okay");
 
 	constructor(protected _doc: SongDocument) {
 		this._okayButton.addEventListener("click", this._onOkayClick);
