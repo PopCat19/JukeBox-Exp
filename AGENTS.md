@@ -64,8 +64,8 @@ bun run typecheck         # tsc --noEmit (editor)
 bun run typecheck:synth   # tsc --noEmit (synth)
 bun run typecheck:player  # tsc --noEmit (player)
 bun run typecheck:all     # all three typechecks
-bun run lint              # ESLint + Biome format check
-bun run lint:fix          # auto-fix lint issues
+bun run lint              # Biome format/lint + type-check + ESLint
+bun run lint:fix          # auto-fix formatting with Biome --write
 ```
 
 Always run `bun test && bun run typecheck:all` before committing.

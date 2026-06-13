@@ -15,7 +15,8 @@ Builds synth, player, editor, and EditorConfig bundles via [esbuild](https://esb
 
 ```
 bun run dev              # or: npm run dev              # watch + auto-reload
-bun run lint             # or: npm run lint             # type-check + ESLint
+bun run lint             # or: npm run lint             # biome + type-check + ESLint
+bun run lint:fix         # or: npm run lint:fix         # biome format + safe fixes --write
 bun run typecheck        # or: npm run typecheck        # tsc --noEmit (editor)
 bun run typecheck:synth  # or: npm run typecheck:synth  # tsc --noEmit (synth)
 bun run typecheck:player # or: npm run typecheck:player # tsc --noEmit (player)

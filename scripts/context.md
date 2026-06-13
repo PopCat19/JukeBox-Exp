@@ -1,8 +1,9 @@
 # scripts context
 
-- `run.sh` — Detect available JS runtime and set runner variables
+- `run.sh` — Detect available JS runtime, set runner variables, and resolve tool binaries
 - `build.ts` — Builds all bundles with esbuild via JS API in parallel
 - `lint.sh` — Runs biome, TypeScript type-checking, and eslint
+- `lint-fix.sh` — Runs biome check --write for formatting and safe lint fixes
 - `deploy.sh` — Builds and deploys the website to GitHub Pages
 - `deploy_files.sh` — Assembles deployment directory with compiled assets and static files
 - `debugify.sh` — Renames compiled editor output to minified filename and plays alert beeps
