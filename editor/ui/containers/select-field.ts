@@ -26,7 +26,7 @@ export interface SelectFieldOptions {
  * Equivalent to:
  *   labelRow(div({ class: "selectContainer", style: w("100%") }, selectEl))
  */
-export function selectField(label: string, selectEl: HTMLSelectElement, opts?: SelectFieldOptions): HTMLDivElement {
+export function selectField(_label: string, selectEl: HTMLSelectElement, opts?: SelectFieldOptions): HTMLDivElement {
 	const width = opts?.selectWidth ?? "100%";
 	return labelRow(div({ class: "selectContainer", style: w(width) }, selectEl));
 }
