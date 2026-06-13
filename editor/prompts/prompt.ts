@@ -13,13 +13,13 @@ export interface Prompt {
 	id: number;
 	container: HTMLElement;
 	cleanUp: () => void;
-	buildTitlebar?: () => void;
-	whenKeyPressed?: (event: KeyboardEvent) => void;
-	gotMouseUp?: boolean;
-	closeWithoutUndo?: () => void;
-	closeCallback?: (prompt: Prompt) => void;
-	openAlongsideCallback?: (promptName: string) => void;
-	animateExit?: (callback: () => void) => void;
+	buildTitlebar?: (() => void) | undefined;
+	whenKeyPressed?: ((event: KeyboardEvent) => void) | undefined;
+	gotMouseUp?: boolean | undefined;
+	closeWithoutUndo?: (() => void) | undefined;
+	closeCallback?: ((prompt: Prompt) => void) | undefined;
+	openAlongsideCallback?: ((promptName: string) => void) | undefined;
+	animateExit?: ((callback: () => void) => void) | undefined;
 	// Number of times the manager has routed an 'open' call to
 	// this prompt. The first invocation (spawn) is count 1, the
 	// second is count 2, etc. Used to suppress the 88x 'raise'

@@ -9,10 +9,10 @@
 import { HTML } from "imperative-html/dist/esm/elements-strict";
 
 export interface ButtonOptions {
-	style?: string;
-	class?: string;
-	title?: string;
-	type?: string;
+	style?: string | undefined;
+	class?: string | undefined;
+	title?: string | undefined;
+	type?: string | undefined;
 }
 
 export function createButton(baseStyle: string, options?: ButtonOptions, ...children: (HTMLElement | string)[]): HTMLButtonElement {

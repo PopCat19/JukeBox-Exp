@@ -51,12 +51,12 @@ import { FilterSettings } from "./filter-settings";
 import { Operator } from "./operator";
 
 export interface LegacySettings {
-	filterCutoff?: number;
-	filterResonance?: number;
-	filterEnvelope?: Envelope;
-	pulseEnvelope?: Envelope;
-	operatorEnvelopes?: Envelope[];
-	feedbackEnvelope?: Envelope;
+	filterCutoff?: number | undefined;
+	filterResonance?: number | undefined;
+	filterEnvelope?: Envelope | undefined;
+	pulseEnvelope?: Envelope | undefined;
+	operatorEnvelopes?: Envelope[] | undefined;
+	feedbackEnvelope?: Envelope | undefined;
 }
 
 export interface HeldMod {

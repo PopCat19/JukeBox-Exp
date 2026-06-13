@@ -16,9 +16,9 @@ const { div, span } = HTML;
 
 export interface SliderRowOptions {
 	label: string;
-	onClick?: () => void;
-	style?: string;
-	labelStyle?: string;
+	onClick?: (() => void) | undefined;
+	style?: string | undefined;
+	labelStyle?: string | undefined;
 }
 
 export interface SliderRowWithInputOptions extends SliderRowOptions {
