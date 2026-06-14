@@ -69,6 +69,7 @@ export class UndoableChange extends Change {
 }
 
 export class ChangeGroup extends Change {
+	// eslint-disable-next-line @typescript-eslint/no-useless-constructor
 	constructor() {
 		super();
 	}

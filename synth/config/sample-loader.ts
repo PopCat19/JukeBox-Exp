@@ -55,6 +55,7 @@ export interface SampleLoadEventMap {
 }
 
 export class SampleLoadEvents extends EventTarget {
+	// eslint-disable-next-line @typescript-eslint/no-useless-constructor
 	constructor() {
 		super();
 	}

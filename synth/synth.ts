@@ -559,7 +559,9 @@ export class Synth {
 	private outputDataLUnfiltered: Float32Array | null = null;
 	private outputDataRUnfiltered: Float32Array | null = null;
 
+	// eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
 	private audioCtx: any | null = null;
+	// eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
 	private scriptNode: any | null = null;
 
 	public get playing(): boolean {

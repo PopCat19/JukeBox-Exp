@@ -1056,9 +1056,9 @@ export class PatternEditor {
 		function getMatchingInstrumentAndMod(
 			applyToMod: number,
 			modChannel: Channel,
-			modInsIndex?: number | undefined,
-			modFilterIndex?: number | undefined,
-			modEnvIndex?: number | undefined,
+			modInsIndex?: number,
+			modFilterIndex?: number,
+			modEnvIndex?: number,
 		): number[] {
 			const startIndex: number = modInsIndex === undefined ? 0 : modInsIndex;
 			const endIndex: number = modInsIndex === undefined ? modChannel.instruments.length - 1 : modInsIndex;

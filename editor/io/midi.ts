@@ -67,6 +67,8 @@ export enum MidiControlEventMessage {
     */
 }
 
+// MIDI standard RPN MSB — duplicate values are a MIDI specification constraint
+/* eslint-disable @typescript-eslint/no-duplicate-enum-values */
 export enum MidiRegisteredParameterNumberMSB {
 	pitchBendRange = 0x00, // semitones
 	fineTuning = 0x00,
@@ -75,6 +77,7 @@ export enum MidiRegisteredParameterNumberMSB {
 	tuningBankSelect = 0x00,
 	reset = 0x7f,
 }
+/* eslint-enable @typescript-eslint/no-duplicate-enum-values */
 
 export enum MidiRegisteredParameterNumberLSB {
 	pitchBendRange = 0x00, // cents

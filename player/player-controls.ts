@@ -30,6 +30,7 @@ export class PlayerControls {
 		return this.ui.synth;
 	}
 
+	// eslint-disable-next-line @typescript-eslint/no-unnecessary-type-parameters
 	private removeFromUnorderedArray<T>(array: T[], index: number): void {
 		if (array.length < 1) {
 			// Don't need to do anything when `array` is empty.
@@ -332,8 +333,8 @@ export class PlayerControls {
 		this.ui.timeline.addEventListener("touchend", () => this.onTimelineCursorUp());
 		this.ui.timeline.addEventListener("touchcancel", () => this.onTimelineCursorUp());
 
-		this.ui.playButton.addEventListener("click", () => this.onTogglePlay());
-		this.ui.loopButton.addEventListener("click", () => this.onToggleLoop());
+		this.ui.playButton.addEventListener("click", () => { void this.onTogglePlay(); });
+		this.ui.loopButton.addEventListener("click", () => { this.onToggleLoop(); });
 		this.ui.volumeSlider.addEventListener("input", () => this.onVolumeChange());
 		this.ui.zoomButton.addEventListener("click", () => this.onToggleZoom());
 		this.ui.copyLink.addEventListener("click", (e) => {

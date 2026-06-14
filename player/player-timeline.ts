@@ -53,6 +53,7 @@ export function setTimelineWidth(width: number): void {
 	timelineWidth = width;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unnecessary-type-parameters
 export function renderTimeline(ui: PlayerUI, zoomEnabled: boolean, removeFromUnorderedArray: <T>(array: T[], index: number) => void): void {
 	ui.timeline.innerHTML = "";
 	if (ui.synth.song == null) return;
@@ -177,6 +178,7 @@ export function renderTimeline(ui: PlayerUI, zoomEnabled: boolean, removeFromUno
 	renderPlayhead(ui, removeFromUnorderedArray);
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unnecessary-type-parameters
 export function renderPlayhead(ui: PlayerUI, removeFromUnorderedArray: <T>(array: T[], index: number) => void): void {
 	if (ui.synth.song != null) {
 		const pos: number = ui.synth.playhead / ui.synth.song.barCount;
