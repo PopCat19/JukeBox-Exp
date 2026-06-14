@@ -5,9 +5,17 @@
 
 import eslint from "@eslint/js";
 import tseslint from "typescript-eslint";
+import eslintSecurity from "eslint-plugin-security";
 
 export default tseslint.config(
   eslint.configs.recommended,
+  eslintSecurity.configs.recommended,
+  {
+    rules: {
+      // Known false-positive for client-side apps — config[key] is data access, not injection
+      "security/detect-object-injection": "off",
+    },
+  },
   ...tseslint.configs.strictTypeChecked,
   {
     languageOptions: {
