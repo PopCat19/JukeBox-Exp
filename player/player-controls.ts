@@ -333,8 +333,12 @@ export class PlayerControls {
 		this.ui.timeline.addEventListener("touchend", () => this.onTimelineCursorUp());
 		this.ui.timeline.addEventListener("touchcancel", () => this.onTimelineCursorUp());
 
-		this.ui.playButton.addEventListener("click", () => { void this.onTogglePlay(); });
-		this.ui.loopButton.addEventListener("click", () => { this.onToggleLoop(); });
+		this.ui.playButton.addEventListener("click", () => {
+			void this.onTogglePlay();
+		});
+		this.ui.loopButton.addEventListener("click", () => {
+			this.onToggleLoop();
+		});
 		this.ui.volumeSlider.addEventListener("input", () => this.onVolumeChange());
 		this.ui.zoomButton.addEventListener("click", () => this.onToggleZoom());
 		this.ui.copyLink.addEventListener("click", (e) => {

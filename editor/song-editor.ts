@@ -2457,7 +2457,7 @@ export class SongEditor
 		this._customWavePresetHandler(event);
 	}
 
-// eslint-disable-next-line @typescript-eslint/no-misused-promises
+	// eslint-disable-next-line @typescript-eslint/no-misused-promises
 	public async toggleRecord(): Promise<void> {
 		if (this.doc.synth.playing) {
 			this.doc.performance.pause();
