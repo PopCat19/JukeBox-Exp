@@ -9,12 +9,12 @@
 // - Toggles ring mod pulse width visibility
 // - Manages focus restoration for invisible elements
 
-import { Instrument } from "../../synth";
+import type { Instrument } from "../../synth";
 import { Config } from "../../synth/synth-config";
-import { FilterEditor } from "../components/filter-editor";
-import { Preferences } from "../core/preferences";
-import { SongDocument } from "../song-document";
-import { Slider } from "../ui";
+import type { FilterEditor } from "../components/filter-editor";
+import type { Preferences } from "../core/preferences";
+import type { SongDocument } from "../song-document";
+import type { Slider } from "../ui";
 
 export interface PostSyncRefs {
 	instrumentSettingsGroup: HTMLElement;

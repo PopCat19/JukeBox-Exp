@@ -7,12 +7,12 @@
 // - Syncs song title input box
 // - Renders song EQ filter editor and manages filter type UI
 
-import { ChannelColors } from "../../shared/color-config";
-import { Instrument } from "../../synth";
+import type { ChannelColors } from "../../shared/color-config";
+import type { Instrument } from "../../synth";
 import { Config } from "../../synth/synth-config";
-import { FilterEditor } from "../components/filter-editor";
-import { SongDocument } from "../song-document";
-import { InputBox, Slider } from "../ui";
+import type { FilterEditor } from "../components/filter-editor";
+import type { SongDocument } from "../song-document";
+import type { InputBox, Slider } from "../ui";
 
 function setSelectedValue(menu: HTMLSelectElement, value: number): void {
 	const stringValue = value.toString();

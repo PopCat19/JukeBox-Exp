@@ -9,8 +9,8 @@
 // Copyright (c) 2012-2022 John Nesky and contributing authors, distributed under the MIT license, see accompanying the LICENSE.md file.
 
 import { HTML } from "imperative-html/dist/esm/elements-strict";
-import { RecoveredSong, RecoveredVersion, SongRecovery, versionToKey } from "../io/song-recovery";
-import { SongDocument } from "../song-document";
+import { type RecoveredSong, type RecoveredVersion, SongRecovery, versionToKey } from "../io/song-recovery";
+import type { SongDocument } from "../song-document";
 import { BasePrompt } from "./base-prompt";
 
 const { div, h2, p, select, option, iframe } = HTML;

@@ -11,11 +11,11 @@
 
 import { ColorConfig } from "../shared/color-config";
 import { events } from "../shared/events";
-import { Channel, Instrument, Pattern, Song, Synth } from "../synth";
+import { type Channel, type Instrument, type Pattern, Song, Synth } from "../synth";
 import { Config } from "../synth/synth-config";
-import { ChangeHoldingModRecording, ChangeSong, discardInvalidPatternInstruments, setDefaultInstruments } from "./changes";
+import { type ChangeHoldingModRecording, ChangeSong, discardInvalidPatternInstruments, setDefaultInstruments } from "./changes";
 import { isMobile } from "./config/editor-config";
-import { Change } from "./core/change";
+import type { Change } from "./core/change";
 import { ChangeNotifier } from "./core/change-notifier";
 import { Preferences } from "./core/preferences";
 import { Selection } from "./core/selection";
@@ -502,7 +502,7 @@ export class SongDocument {
 	}
 
 	private _calcVolume(): number {
-		return Math.min(1.0, Math.pow(this.prefs.volume / 50.0, 0.5)) * Math.pow(2.0, (this.prefs.volume - 75.0) / 25.0);
+		return Math.min(1.0, (this.prefs.volume / 50.0) ** 0.5) * 2.0 ** ((this.prefs.volume - 75.0) / 25.0);
 	}
 
 	public getCurrentPattern(barOffset: number = 0): Pattern | null {

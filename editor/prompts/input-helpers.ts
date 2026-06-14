@@ -7,8 +7,8 @@
 // - Manages play/pause button state toggling
 // - Provides close handler factory for prompt-like components
 
-import { SongDocument } from "../song-document";
-import { Prompt } from "./prompt";
+import type { SongDocument } from "../song-document";
+import type { Prompt } from "./prompt";
 
 export function validateKey(event: KeyboardEvent): boolean {
 	const charCode = event.which ? event.which : event.keyCode;

@@ -8,7 +8,7 @@
 // - Dispatches preference toggles and UI updates
 
 import { ChangeSong } from "../changes";
-import { SongDocument } from "../song-document";
+import type { SongDocument } from "../song-document";
 
 const OFFLINE = location.hostname === "localhost" || location.hostname === "127.0.0.1";
 
@@ -64,7 +64,7 @@ export class MenuHandler {
 			case "shareUrl":
 				(<any>navigator).share({ url: new URL("#" + this._host.doc.song.toBase64String(), location.href).href });
 				break;
-			case "shortenUrl":
+			case "shortenUrl": {
 				let shortenerStrategy: string = "https://tinyurl.com/api-create.php?url=";
 				const localShortenerStrategy: string | null = window.localStorage.getItem("shortenerStrategySelect");
 
@@ -72,6 +72,7 @@ export class MenuHandler {
 
 				window.open(shortenerStrategy + encodeURIComponent(new URL("#" + this._host.doc.song.toBase64String(), location.href).href));
 				break;
+			}
 			case "configureShortener":
 				this._host.openPrompt("configureShortener");
 				break;

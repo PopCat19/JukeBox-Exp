@@ -5,10 +5,10 @@
 // This module:
 // - Handles chip wave selection, loop controls, and noise wave changes
 
-import { Instrument } from "../../../synth";
+import type { Instrument } from "../../../synth";
 import { Config } from "../../../synth/synth-config";
 import { Change } from "../../core/change";
-import { SongDocument } from "../../song-document";
+import type { SongDocument } from "../../song-document";
 
 export class ChangeChipWave extends Change {
 	constructor(doc: SongDocument, newValue: number) {

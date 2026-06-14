@@ -8,12 +8,12 @@
 // - Merges new notes with existing pattern notes
 // - Applies changes via ChangeGroup
 
-import { makeNotePin, Note, NotePin, Pattern } from "../../synth";
+import { makeNotePin, Note, type NotePin, type Pattern } from "../../synth";
 import { Config } from "../../synth/synth-config";
 import { ChangeEnsurePatternExists, ChangeInsertBars, ChangeNoteAdded, ChangePatternNumbers } from "../changes";
 import { ChangeGroup } from "../core/change";
-import { SongDocument } from "../song-document";
-import { Sequence } from "./euclidgen-algorithm";
+import type { SongDocument } from "../song-document";
+import type { Sequence } from "./euclidgen-algorithm";
 
 export function generateAndApplyEuclideanNotes(
 	doc: SongDocument,

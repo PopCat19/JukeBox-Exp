@@ -10,7 +10,7 @@ import { ShiggyAudio } from "./audio";
 import { PET_MESSAGES } from "./bubbles";
 import { clearAllSummoned, spawnShiggy, startGifRestart } from "./summoning";
 import { CursorTracker } from "./tracking";
-import { AUTO_SPAWN_MILESTONE, AUTO_SPAWN_MS, FOLLOW_UNLOCK_PETS, injectShiggyCss, PET_SUMMON_THRESHOLD, SummonedShiggy } from "./types";
+import { AUTO_SPAWN_MILESTONE, AUTO_SPAWN_MS, FOLLOW_UNLOCK_PETS, injectShiggyCss, PET_SUMMON_THRESHOLD, type SummonedShiggy } from "./types";
 
 export class Shiggy {
 	private _active: boolean = false;

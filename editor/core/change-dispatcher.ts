@@ -7,8 +7,8 @@
 // - Handles instrument preset, wave, effects, and modulator selections
 // - Delegates complex operations back to the host editor
 
-import { ChannelColors, ColorConfig } from "../../shared/color-config";
-import { Channel, Instrument } from "../../synth";
+import { type ChannelColors, ColorConfig } from "../../shared/color-config";
+import type { Channel, Instrument } from "../../synth";
 import { Config } from "../../synth/synth-config";
 import {
 	Change6OpAlgorithm,
@@ -48,9 +48,9 @@ import {
 	pickNextPresetValue,
 	pickRandomPresetValue,
 } from "../changes";
-import { Piano } from "../components/piano";
-import { CustomAlgorithmCanvas } from "../rendering/custom-algorithm-canvas";
-import { SongDocument } from "../song-document";
+import type { Piano } from "../components/piano";
+import type { CustomAlgorithmCanvas } from "../rendering/custom-algorithm-canvas";
+import type { SongDocument } from "../song-document";
 
 export interface ChangeDispatcherHost {
 	doc: SongDocument;

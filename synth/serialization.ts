@@ -63,7 +63,7 @@ export function encodeUnisonSettings(buffer: number[], v: number, s: number, o: 
 	buffer.push(base64IntToCharCode[cleanI % 63], base64IntToCharCode[Math.floor(cleanI / 63)]);
 }
 
-export const enum CharCode {
+export enum CharCode {
 	SPACE = 32,
 	HASH = 35,
 	PERCENT = 37,
@@ -139,7 +139,7 @@ export const enum CharCode {
 	RIGHT_CURLY_BRACE = 125,
 }
 
-export const enum SongTagCode {
+export enum SongTagCode {
 	beatCount = CharCode.a, // added in BeepBox URL version 2
 	bars = CharCode.b, // added in BeepBox URL version 2
 	songEq = CharCode.c, // added in BeepBox URL version 2 for vibrato, switched to song eq in Slarmoo's Box 1.3

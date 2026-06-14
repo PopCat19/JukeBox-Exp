@@ -9,9 +9,9 @@
 
 import {
 	Config,
-	Dictionary,
+	type Dictionary,
 	SampleLoadedEvent,
-	SampleLoadingState,
+	type SampleLoadingState,
 	SampleLoadingStatus,
 	sampleLoadEvents,
 	sampleLoadingState,
@@ -254,11 +254,11 @@ export function parseAndConfigureCustomSample(
 		// result in an empty name here.
 		let name: string;
 		if (OFFLINE) {
-			// @ts-ignore
-			name = decodeURIComponent(parsedUrl.replace(/^([^\/]*\/)+/, ""));
+			// @ts-expect-error
+			name = decodeURIComponent(parsedUrl.replace(/^([^/]*\/)+/, ""));
 		} else {
-			// @ts-ignore
-			name = decodeURIComponent(parsedUrl.pathname.replace(/^([^\/]*\/)+/, ""));
+			// @ts-expect-error
+			name = decodeURIComponent(parsedUrl.pathname.replace(/^([^/]*\/)+/, ""));
 		}
 		// @TODO: What to do about samples with the same name?
 		// The problem with using the url is that the name is

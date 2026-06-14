@@ -11,7 +11,7 @@
 import { HTML, SVG } from "imperative-html/dist/esm/elements-strict";
 import { ColorConfig } from "../../shared/color-config";
 import { Config } from "../../synth/synth-config";
-import { SongDocument } from "../song-document";
+import type { SongDocument } from "../song-document";
 
 const { div, select, span } = HTML;
 

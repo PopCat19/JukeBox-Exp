@@ -8,7 +8,7 @@
 // - Handles track container positioning
 
 import { HTML } from "imperative-html/dist/esm/elements-strict";
-import { SongDocument } from "../song-document";
+import type { SongDocument } from "../song-document";
 import { BarScrollBar } from "./bar-scroll-bar";
 import { LoopEditor } from "./loop-editor";
 import { MuteEditor } from "./mute-editor";

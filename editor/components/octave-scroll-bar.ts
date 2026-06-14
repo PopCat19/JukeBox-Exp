@@ -11,8 +11,8 @@
 import { HTML, SVG } from "imperative-html/dist/esm/elements-strict";
 import { ColorConfig } from "../../shared/color-config";
 import { ChangeOctave } from "../changes";
-import { SongDocument } from "../song-document";
-import { Piano } from "./piano";
+import type { SongDocument } from "../song-document";
+import type { Piano } from "./piano";
 
 export class OctaveScrollBar {
 	private readonly _editorWidth: number = 20;

@@ -6,7 +6,7 @@
 // - Imports all category group modules
 // - Exports presetCategoriesData as a DictionaryArray via toNameMap
 
-import { DictionaryArray, toNameMap } from "../../../synth/synth-config";
+import { type DictionaryArray, toNameMap } from "../../../synth/synth-config";
 import { challengeCategories } from "./challenges";
 import { mixedCommunityCategories } from "./community-mixed";
 import { contributorCategoriesA1 } from "./contributors-a1";
@@ -17,7 +17,7 @@ import { contributorCategoriesD } from "./contributors-d";
 import { coreCategories } from "./core";
 import { forkCategories } from "./forks";
 import { moddedCategories } from "./modded";
-import { PresetCategory } from "./types";
+import type { PresetCategory } from "./types";
 import { unboxCategories } from "./unbox";
 
 export { InputPresetCategory, Preset, PresetCategory } from "./types";

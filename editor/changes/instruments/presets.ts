@@ -6,9 +6,9 @@
 // - Handles instrument type switching and preset application
 // - Generates random instruments
 
-import { FilterControlPoint, FilterSettings, Instrument } from "../../../synth";
+import { FilterControlPoint, type FilterSettings, type Instrument } from "../../../synth";
 import {
-	Algorithm,
+	type Algorithm,
 	Config,
 	EffectType,
 	effectsIncludeDistortion,
@@ -17,9 +17,9 @@ import {
 	LFOEnvelopeTypes,
 	RandomEnvelopeTypes,
 } from "../../../synth/synth-config";
-import { EditorConfig, Preset } from "../../config/editor-config";
+import { EditorConfig, type Preset } from "../../config/editor-config";
 import { Change } from "../../core/change";
-import { SongDocument } from "../../song-document";
+import type { SongDocument } from "../../song-document";
 import { biasedFullyRandom, fullyRandom, randomChipWave, randomPulses, randomSineWave } from "../util";
 
 export class ChangeCustomizeInstrument extends Change {
@@ -203,7 +203,7 @@ export class ChangeRandomGeneratedInstrument extends Change {
 		function selectCurvedDistribution(min: number, max: number, peak: number, width: number): number {
 			const entries: Array<ItemWeight<number>> = [];
 			for (let i: number = min; i <= max; i++) {
-				entries.push({ item: i, weight: 1.0 / (Math.pow((i - peak) / width, 2.0) + 1.0) });
+				entries.push({ item: i, weight: 1.0 / (((i - peak) / width) ** 2.0 + 1.0) });
 			}
 			return selectWeightedRandom(entries);
 		}
@@ -495,7 +495,7 @@ export class ChangeRandomGeneratedInstrument extends Change {
 								let current: number = 1.0;
 								const spectrum: number[] = [current];
 								for (let i = 1; i < Config.spectrumControlPoints; i++) {
-									current *= Math.pow(2, Math.random() - 0.52);
+									current *= 2 ** (Math.random() - 0.52);
 									spectrum[i] = current;
 								}
 								return spectrum;
@@ -504,7 +504,7 @@ export class ChangeRandomGeneratedInstrument extends Change {
 								let current: number = 1.0;
 								const spectrum: number[] = [current];
 								for (let i = 1; i < Config.spectrumControlPoints; i++) {
-									current *= Math.pow(2, Math.random() - 0.52);
+									current *= 2 ** (Math.random() - 0.52);
 									spectrum[i] = current * Math.random();
 								}
 								return spectrum;
@@ -527,10 +527,10 @@ export class ChangeRandomGeneratedInstrument extends Change {
 							const spectrum: number[] = [];
 							const randomFactor: number = Math.floor(Math.random() * 3);
 							for (let j = 0; j < Config.spectrumControlPoints; j++) {
-								if (randomFactor === 0 || randomFactor === 3) spectrum[j] = Math.pow(Math.random(), 3) * 0.25;
-								else if (randomFactor === 1) spectrum[j] = Math.pow(Math.random(), i / 8 + 1);
-								else if (randomFactor === 2) spectrum[j] = Math.pow(Math.random(), 2) * (i / 3 + 1);
-								else spectrum[j] = Math.pow(Math.random(), 3) * 0.25;
+								if (randomFactor === 0 || randomFactor === 3) spectrum[j] = Math.random() ** 3 * 0.25;
+								else if (randomFactor === 1) spectrum[j] = Math.random() ** (i / 8 + 1);
+								else if (randomFactor === 2) spectrum[j] = Math.random() ** 2 * (i / 3 + 1);
+								else spectrum[j] = Math.random() ** 3 * 0.25;
 							}
 							normalize(spectrum);
 							for (let j: number = 0; j < Config.spectrumControlPoints; j++) {
@@ -1533,14 +1533,14 @@ export class ChangeRandomGeneratedInstrument extends Change {
 								for (let i: number = 0; i < Config.harmonicsControlPoints; i++) {
 									harmonics[i] = Math.random() < 0.4 ? Math.random() : 0.0;
 								}
-								harmonics[(Math.random() * 8) | 0] = Math.pow(Math.random(), 0.25);
+								harmonics[(Math.random() * 8) | 0] = Math.random() ** 0.25;
 								return harmonics;
 							},
 							(): number[] => {
 								let current: number = 1.0;
 								const harmonics: number[] = [current];
 								for (let i = 1; i < Config.harmonicsControlPoints; i++) {
-									current *= Math.pow(2, Math.random() - 0.55);
+									current *= 2 ** (Math.random() - 0.55);
 									harmonics[i] = current;
 								}
 								return harmonics;
@@ -1549,7 +1549,7 @@ export class ChangeRandomGeneratedInstrument extends Change {
 								let current: number = 1.0;
 								const harmonics: number[] = [current];
 								for (let i = 1; i < Config.harmonicsControlPoints; i++) {
-									current *= Math.pow(2, Math.random() - 0.55);
+									current *= 2 ** (Math.random() - 0.55);
 									harmonics[i] = current * Math.random();
 								}
 								return harmonics;
@@ -1570,9 +1570,9 @@ export class ChangeRandomGeneratedInstrument extends Change {
 						for (let i: number = 0; i < Config.spectrumControlPoints; i++) {
 							const isHarmonic: boolean = i === 0 || i === 7 || i === 11 || i === 14 || i === 16 || i === 18 || i === 21;
 							if (isHarmonic) {
-								spectrum[i] = Math.pow(Math.random(), 0.25);
+								spectrum[i] = Math.random() ** 0.25;
 							} else {
-								spectrum[i] = Math.pow(Math.random(), 3) * 0.5;
+								spectrum[i] = Math.random() ** 3 * 0.5;
 							}
 						}
 						normalize(spectrum);
@@ -1635,7 +1635,7 @@ export class ChangeRandomGeneratedInstrument extends Change {
 						}
 						for (let i: number = algorithm.carrierCount; i < Config.operatorCount + (type === InstrumentType.fm6op ? 2 : 0); i++) {
 							instrument.operators[i].frequency = selectCurvedDistribution(3, Config.operatorFrequencies.length - 1, 0, 3);
-							instrument.operators[i].amplitude = (Math.pow(Math.random(), 2) * Config.operatorAmplitudeMax) | 0;
+							instrument.operators[i].amplitude = (Math.random() ** 2 * Config.operatorAmplitudeMax) | 0;
 							if (instrument.envelopeCount < Config.maxEnvelopeCount && Math.random() < 0.4) {
 								let envelopeLowerBound = selectCurvedDistribution(0, 20, 8, 5) / 10;
 								let envelopeUpperBound = selectCurvedDistribution(0, 20, 8, 5) / 10;
@@ -1754,7 +1754,7 @@ export class ChangeRandomGeneratedInstrument extends Change {
 								]);
 							}
 						}
-						instrument.feedbackAmplitude = (Math.pow(Math.random(), 3) * Config.operatorAmplitudeMax) | 0;
+						instrument.feedbackAmplitude = (Math.random() ** 3 * Config.operatorAmplitudeMax) | 0;
 						if (instrument.envelopeCount < Config.maxEnvelopeCount && Math.random() < 0.4) {
 							let envelopeLowerBound = selectCurvedDistribution(0, 20, 8, 5) / 10;
 							let envelopeUpperBound = selectCurvedDistribution(0, 20, 8, 5) / 10;

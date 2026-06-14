@@ -11,15 +11,15 @@ import { Sizing } from "../ui/style-constants";
 
 import { HTML, SVG } from "imperative-html/dist/esm/elements-strict";
 import { ColorConfig } from "../../shared/color-config";
-import { Instrument, SpectrumWave } from "../../synth";
+import type { Instrument, SpectrumWave } from "../../synth";
 import { Config } from "../../synth/synth-config";
 import { ChangeSpectrum } from "../changes";
 import { prettyNumber } from "../config/editor-config";
 import { ChangeGroup } from "../core/change";
-import { PromptEditorRefs } from "../core/prompt-manager";
+import type { PromptEditorRefs } from "../core/prompt-manager";
 import { closePrompt, updatePlayButton } from "../prompts/input-helpers";
-import { Prompt } from "../prompts/prompt";
-import { SongDocument } from "../song-document";
+import type { Prompt } from "../prompts/prompt";
+import type { SongDocument } from "../song-document";
 import { selectorButton } from "../ui";
 
 export class SpectrumEditor {

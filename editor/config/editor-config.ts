@@ -9,8 +9,8 @@
 
 // Copyright (c) 2012-2022 John Nesky and contributing authors, distributed under the MIT license, see accompanying the LICENSE.md file.
 
-import { InstrumentType, TypePresets } from "../../synth/synth-config";
-import { Preset, PresetCategory, presetCategoriesData } from "./preset_category";
+import { type InstrumentType, TypePresets } from "../../synth/synth-config";
+import { type Preset, type PresetCategory, presetCategoriesData } from "./preset_category";
 
 export { Preset, PresetCategory } from "./preset_category";
 

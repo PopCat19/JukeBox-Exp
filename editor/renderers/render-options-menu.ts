@@ -7,7 +7,7 @@
 // - Syncs Technical and Appearance optgroup children text content
 
 import { ColorConfig } from "../../shared/color-config";
-import { Preferences } from "../core/preferences";
+import type { Preferences } from "../core/preferences";
 
 export function renderOptionsMenu(optionsMenu: HTMLSelectElement, prefs: Preferences, currentScale: number): void {
 	const textOnIcon: string = ColorConfig.getComputed("--text-enabled-icon");

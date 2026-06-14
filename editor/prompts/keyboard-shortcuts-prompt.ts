@@ -9,7 +9,7 @@
 // - Self-documents via declarative shortcut data
 
 import { HTML } from "imperative-html/dist/esm/elements-strict";
-import { SongDocument } from "../song-document";
+import type { SongDocument } from "../song-document";
 import { inputRow, searchInput, w } from "../ui";
 import { BasePrompt } from "./base-prompt";
 

@@ -10,11 +10,11 @@
 
 import { HTML, SVG } from "imperative-html/dist/esm/elements-strict";
 import { ColorConfig } from "../../shared/color-config";
-import { clamp, fadeOutSettingToTicks, Instrument } from "../../synth";
+import { clamp, fadeOutSettingToTicks, type Instrument } from "../../synth";
 import { Config } from "../../synth/synth-config";
 import { ChangeFadeInOut } from "../changes";
-import { ChangeSequence, UndoableChange } from "../core/change";
-import { SongDocument } from "../song-document";
+import { ChangeSequence, type UndoableChange } from "../core/change";
+import type { SongDocument } from "../song-document";
 
 export class FadeInOutEditor {
 	private readonly _editorWidth: number = 120;

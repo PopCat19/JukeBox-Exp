@@ -10,7 +10,7 @@
 
 import { HTML } from "imperative-html/dist/esm/elements-strict";
 import { Config } from "../../synth/synth-config";
-import { SongDocument } from "../song-document";
+import type { SongDocument } from "../song-document";
 import { BasePrompt } from "./base-prompt";
 
 const { div, h2, h3, p, a } = HTML;

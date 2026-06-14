@@ -168,11 +168,11 @@ export function hslToRgb(h: number, s: number, l: number): Rgba {
 // References: https://bottosson.github.io/posts/oklab/
 
 function srgbToLinear(v: number): number {
-	return v <= 0.04045 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4);
+	return v <= 0.04045 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4;
 }
 
 function linearToSrgb(v: number): number {
-	const c = v <= 0.0031308 ? 12.92 * v : 1.055 * Math.pow(v, 1 / 2.4) - 0.055;
+	const c = v <= 0.0031308 ? 12.92 * v : 1.055 * v ** (1 / 2.4) - 0.055;
 	return Math.max(0, Math.min(1, c));
 }
 

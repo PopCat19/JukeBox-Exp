@@ -10,7 +10,7 @@
 
 import { HTML, SVG } from "imperative-html/dist/esm/elements-strict";
 import { ColorConfig } from "../../shared/color-config";
-import { SongDocument } from "../song-document";
+import type { SongDocument } from "../song-document";
 
 export class BarScrollBar {
 	private readonly _editorWidth: number = 512;

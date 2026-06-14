@@ -5,8 +5,8 @@
 // This module:
 // - Exports preset categories: Krmailence through august
 
-import { DictionaryArray, toNameMap } from "../../../synth/synth-config";
-import { InputPresetCategory, Preset } from "./types";
+import { type DictionaryArray, toNameMap } from "../../../synth/synth-config";
+import type { InputPresetCategory, Preset } from "./types";
 
 export const contributorCategoriesA2: InputPresetCategory[] = [
 	{

@@ -25,8 +25,8 @@ import {
 	ChangeRingModHz,
 	ChangeRingModPulseWidth,
 } from "../changes";
-import { SongDocument } from "../song-document";
-import { rangeSlider, Slider } from "../ui";
+import type { SongDocument } from "../song-document";
+import { rangeSlider, type Slider } from "../ui";
 
 const { div, option, select, span } = HTML;
 

@@ -10,16 +10,16 @@ import { Sizing, Typography } from "./ui/style-constants";
 
 // Copyright (c) 2012-2022 John Nesky and contributing authors, distributed under the MIT license, see accompanying the LICENSE.md file.
 
-import { ChannelColors, ColorConfig } from "../shared/color-config";
-import { Config, DropdownID, SampleLoadedEvent } from "../synth/synth-config";
+import { type ChannelColors, ColorConfig } from "../shared/color-config";
+import { Config, DropdownID, type SampleLoadedEvent } from "../synth/synth-config";
 import { BarScrollBar } from "./components/bar-scroll-bar";
 import { Shiggy } from "./components/shiggy-component";
 import { EditorConfig, isMobile } from "./config/editor-config";
-import { Change } from "./core/change";
+import type { Change } from "./core/change";
 import "./ui/layout/layout"; // Imported here for the sake of ensuring this code is transpiled early.
 import { HTML, SVG } from "imperative-html/dist/esm/elements-strict";
 import { oscilloscopeCanvas } from "../shared/oscilloscope";
-import { Channel, getCapabilities, Instrument, Pattern } from "../synth";
+import { type Channel, getCapabilities, type Instrument, type Pattern } from "../synth";
 import {
 	ChangeArpeggioSpeed,
 	ChangeBitcrusherFreq,
@@ -64,32 +64,32 @@ import { SongSettingsPanel } from "./components/song-settings-panel";
 import { KeyboardLayout } from "./config/keyboard-layout";
 import { ChangeDispatcher } from "./core/change-dispatcher";
 import { makeLogger } from "./core/debug-log";
-import { DrumsetSetup, DrumsetSetupHost } from "./core/drumset-setup";
-import { EventListenerSetup, EventListenerSetupHost } from "./core/event-listener-setup";
-import { FmOperatorSetup, FmOperatorSetupHost } from "./core/fm-operator-setup";
+import { DrumsetSetup, type DrumsetSetupHost } from "./core/drumset-setup";
+import { EventListenerSetup, type EventListenerSetupHost } from "./core/event-listener-setup";
+import { FmOperatorSetup, type FmOperatorSetupHost } from "./core/fm-operator-setup";
 import { KeyboardHandler } from "./core/keyboard-handler";
-import { MenuHandler, MenuHandlerHost } from "./core/menu-handler";
+import { MenuHandler, type MenuHandlerHost } from "./core/menu-handler";
 
 const log = makeLogger("song-editor");
 
-import { ModSliderProvider, ModSliderRegistry } from "./core/mod-slider-registry";
-import { ModulatorSetup, ModulatorSetupHost } from "./core/modulator-setup";
+import { type ModSliderProvider, ModSliderRegistry } from "./core/mod-slider-registry";
+import { ModulatorSetup, type ModulatorSetupHost } from "./core/modulator-setup";
 import { PlayerAnimator } from "./core/player-animator";
-import { Preferences } from "./core/preferences";
-import { PromptEditorRefs, PromptHost, PromptManager } from "./core/prompt-manager";
+import type { Preferences } from "./core/preferences";
+import { type PromptEditorRefs, type PromptHost, PromptManager } from "./core/prompt-manager";
 import { TagAutocomplete } from "./core/tag-autocomplete";
 import { MidiInputHandler } from "./io/midi-input";
 import { CustomChipPrompt } from "./prompts/custom-chip-prompt";
-import { Prompt } from "./prompts/prompt";
-import { applyInstrumentVisibility, InstrumentVisibilityRefs } from "./renderers/instrument-visibility";
+import type { Prompt } from "./prompts/prompt";
+import { applyInstrumentVisibility, type InstrumentVisibilityRefs } from "./renderers/instrument-visibility";
 import { renderEffectsSelect } from "./renderers/render-effects";
-import { InstrumentValueRefs, renderInstrumentValues } from "./renderers/render-instrument-values";
-import { LayoutRefs, renderLayout } from "./renderers/render-layout";
-import { ModSettingsCallbacks, ModSettingsRefs, renderModSettings } from "./renderers/render-mod-settings";
+import { type InstrumentValueRefs, renderInstrumentValues } from "./renderers/render-instrument-values";
+import { type LayoutRefs, renderLayout } from "./renderers/render-layout";
+import { type ModSettingsCallbacks, type ModSettingsRefs, renderModSettings } from "./renderers/render-mod-settings";
 import { renderOptionsMenu } from "./renderers/render-options-menu";
-import { PostSyncRefs, renderPostBranchSync } from "./renderers/render-post-sync";
-import { PresetSetupRefs, renderPresetSetup } from "./renderers/render-preset-setup";
-import { renderSongSettings, SongSettingsRefs } from "./renderers/render-song-settings";
+import { type PostSyncRefs, renderPostBranchSync } from "./renderers/render-post-sync";
+import { type PresetSetupRefs, renderPresetSetup } from "./renderers/render-preset-setup";
+import { renderSongSettings, type SongSettingsRefs } from "./renderers/render-song-settings";
 import { SongDocument } from "./song-document";
 import {
 	buildHeaderedOptions,
@@ -3640,7 +3640,7 @@ export class SongEditor
 	};
 	public _refocus = (): void => {
 		const selfRef = this;
-		setTimeout(function () {
+		setTimeout(() => {
 			selfRef.mainLayer.focus();
 		}, 20);
 	};

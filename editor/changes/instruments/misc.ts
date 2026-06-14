@@ -5,10 +5,10 @@
 // This module:
 // - Handles drumset envelope, string sustain, and fade in/out changes
 
-import { Instrument } from "../../../synth";
-import { SustainType } from "../../../synth/synth-config";
+import type { Instrument } from "../../../synth";
+import type { SustainType } from "../../../synth/synth-config";
 import { Change, UndoableChange } from "../../core/change";
-import { SongDocument } from "../../song-document";
+import type { SongDocument } from "../../song-document";
 
 export class ChangeDrumsetEnvelope extends Change {
 	constructor(doc: SongDocument, drumIndex: number, newValue: number) {

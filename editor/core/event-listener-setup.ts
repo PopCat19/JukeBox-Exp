@@ -11,7 +11,7 @@
 // - Attaches sample loading event listeners
 
 import { ColorConfig } from "../../shared/color-config";
-import { Config, SampleLoadedEvent, sampleLoadEvents } from "../../synth/synth-config";
+import { Config, type SampleLoadedEvent, sampleLoadEvents } from "../../synth/synth-config";
 import {
 	ChangeAliasing,
 	ChangeClicklessTransition,
@@ -30,11 +30,11 @@ import {
 	ChangeUpperLimit,
 	ChangeVolume,
 } from "../changes";
-import { CustomChipCanvas } from "../rendering/custom-chip-canvas";
-import { SongDocument } from "../song-document";
-import { Slider } from "../ui";
-import { ChangeDispatcher } from "./change-dispatcher";
-import { KeyboardHandler } from "./keyboard-handler";
+import type { CustomChipCanvas } from "../rendering/custom-chip-canvas";
+import type { SongDocument } from "../song-document";
+import type { Slider } from "../ui";
+import type { ChangeDispatcher } from "./change-dispatcher";
+import type { KeyboardHandler } from "./keyboard-handler";
 
 export interface EventListenerSetupHost {
 	doc: SongDocument;
@@ -265,27 +265,27 @@ export class EventListenerSetup {
 		// Modulator controls
 		const thisRef = host;
 		for (let mod = 0; mod < Config.modCount; mod++) {
-			host.modChannelBoxes[mod].addEventListener("change", function () {
+			host.modChannelBoxes[mod].addEventListener("change", () => {
 				thisRef.dispatch.whenSetModChannel(mod);
 			});
-			host.modInstrumentBoxes[mod].addEventListener("change", function () {
+			host.modInstrumentBoxes[mod].addEventListener("change", () => {
 				thisRef.dispatch.whenSetModInstrument(mod);
 			});
-			host.modSetBoxes[mod].addEventListener("change", function () {
+			host.modSetBoxes[mod].addEventListener("change", () => {
 				thisRef.dispatch.whenSetModSetting(mod);
 			});
-			host.modFilterBoxes[mod].addEventListener("change", function () {
+			host.modFilterBoxes[mod].addEventListener("change", () => {
 				thisRef.dispatch.whenSetModFilter(mod);
 			});
-			host.modEnvelopeBoxes[mod].addEventListener("change", function () {
+			host.modEnvelopeBoxes[mod].addEventListener("change", () => {
 				thisRef.dispatch.whenSetModEnvelope(mod);
 			});
-			host.modTargetIndicators[mod].addEventListener("click", function () {
+			host.modTargetIndicators[mod].addEventListener("click", () => {
 				thisRef.dispatch.whenClickModTarget(mod);
 			});
 		}
 
-		host.jumpToModIndicator.addEventListener("click", function () {
+		host.jumpToModIndicator.addEventListener("click", () => {
 			thisRef.dispatch.whenClickJumpToModTarget();
 		});
 

@@ -11,10 +11,10 @@ import { Deque } from "./deque";
 import { EnvelopeComputer } from "./envelope-computer";
 import { inverseRealFourierTransform, scaleElementsByFactor } from "./fft";
 import { DynamicBiquadFilter } from "./filtering";
-import { FilterControlPoint, FilterSettings, Instrument } from "./instruments";
+import { type FilterControlPoint, FilterSettings, Instrument } from "./instruments";
 import { Synth } from "./synth";
 import {
-	Chord,
+	type Chord,
 	Config,
 	calculateRingModHertz,
 	EnvelopeComputeIndex,
@@ -32,10 +32,10 @@ import {
 	GranularEnvelopeType,
 	getDrumWave,
 	InstrumentType,
-	Unison,
+	type Unison,
 } from "./synth-config";
 import { instrumentVolumeToVolumeMult, tempFilterEndCoefficients, tempFilterStartCoefficients } from "./synth-shared";
-import { Tone } from "./tone";
+import type { Tone } from "./tone";
 import { fittingPowerOfTwo } from "./util";
 import { Grain, HarmonicsWaveState, SpectrumWaveState } from "./waves";
 
@@ -505,7 +505,7 @@ export class InstrumentState {
 				this.granularMaximumGrains = synth.getModValue(Config.modulators.dictionary["grain freq"].index, channelIndex, instrumentIndex, false);
 				granularChance = synth.getModValue(Config.modulators.dictionary["grain freq"].index, channelIndex, instrumentIndex, false) + 1;
 			}
-			this.granularMaximumGrains = Math.floor(Math.pow(2, this.granularMaximumGrains * envelopeStarts[EnvelopeComputeIndex.grainAmount]));
+			this.granularMaximumGrains = Math.floor(2 ** (this.granularMaximumGrains * envelopeStarts[EnvelopeComputeIndex.grainAmount]));
 			granularChance = granularChance * envelopeStarts[EnvelopeComputeIndex.grainAmount];
 		}
 
@@ -588,8 +588,8 @@ export class InstrumentState {
 
 			const distortionSliderStart = Math.min(1.0, (envelopeStarts[EnvelopeComputeIndex.distortion] * useDistortionStart) / (Config.distortionRange - 1));
 			const distortionSliderEnd = Math.min(1.0, (envelopeEnds[EnvelopeComputeIndex.distortion] * useDistortionEnd) / (Config.distortionRange - 1));
-			const distortionStart: number = Math.pow(1.0 - (0.895 * (Math.pow(20.0, distortionSliderStart) - 1.0)) / 19.0, 2.0);
-			const distortionEnd: number = Math.pow(1.0 - (0.895 * (Math.pow(20.0, distortionSliderEnd) - 1.0)) / 19.0, 2.0);
+			const distortionStart: number = (1.0 - (0.895 * (20.0 ** distortionSliderStart - 1.0)) / 19.0) ** 2.0;
+			const distortionEnd: number = (1.0 - (0.895 * (20.0 ** distortionSliderEnd - 1.0)) / 19.0) ** 2.0;
 			const distortionDriveStart: number = (1.0 + 2.0 * distortionSliderStart) / Config.distortionBaseVolume;
 			const distortionDriveEnd: number = (1.0 + 2.0 * distortionSliderEnd) / Config.distortionBaseVolume;
 			this.distortion = distortionStart;
@@ -627,28 +627,25 @@ export class InstrumentState {
 
 			const basePitch: number = Config.keys[synth.song!.key].basePitch + Config.pitchesPerOctave * synth.song!.octave; // TODO: What if there's a key change mid-song?
 			const freqStart: number =
-				Instrument.frequencyFromPitch(basePitch + 60) *
-				Math.pow(2.0, (Config.bitcrusherFreqRange - 1 - freqSettingStart) * Config.bitcrusherOctaveStep);
+				Instrument.frequencyFromPitch(basePitch + 60) * 2.0 ** ((Config.bitcrusherFreqRange - 1 - freqSettingStart) * Config.bitcrusherOctaveStep);
 			const freqEnd: number =
-				Instrument.frequencyFromPitch(basePitch + 60) * Math.pow(2.0, (Config.bitcrusherFreqRange - 1 - freqSettingEnd) * Config.bitcrusherOctaveStep);
+				Instrument.frequencyFromPitch(basePitch + 60) * 2.0 ** ((Config.bitcrusherFreqRange - 1 - freqSettingEnd) * Config.bitcrusherOctaveStep);
 			const phaseDeltaStart: number = Math.min(1.0, freqStart / samplesPerSecond);
 			const phaseDeltaEnd: number = Math.min(1.0, freqEnd / samplesPerSecond);
 			this.bitcrusherPhaseDelta = phaseDeltaStart;
-			this.bitcrusherPhaseDeltaScale = Math.pow(phaseDeltaEnd / phaseDeltaStart, 1.0 / roundedSamplesPerTick);
+			this.bitcrusherPhaseDeltaScale = (phaseDeltaEnd / phaseDeltaStart) ** (1.0 / roundedSamplesPerTick);
 
 			const scaleStart: number =
-				2.0 *
-				Config.bitcrusherBaseVolume *
-				Math.pow(2.0, 1.0 - Math.pow(2.0, (Config.bitcrusherQuantizationRange - 1 - quantizationSettingStart) * 0.5));
+				2.0 * Config.bitcrusherBaseVolume * 2.0 ** (1.0 - 2.0 ** ((Config.bitcrusherQuantizationRange - 1 - quantizationSettingStart) * 0.5));
 			const scaleEnd: number =
-				2.0 * Config.bitcrusherBaseVolume * Math.pow(2.0, 1.0 - Math.pow(2.0, (Config.bitcrusherQuantizationRange - 1 - quantizationSettingEnd) * 0.5));
+				2.0 * Config.bitcrusherBaseVolume * 2.0 ** (1.0 - 2.0 ** ((Config.bitcrusherQuantizationRange - 1 - quantizationSettingEnd) * 0.5));
 			this.bitcrusherScale = scaleStart;
-			this.bitcrusherScaleScale = Math.pow(scaleEnd / scaleStart, 1.0 / roundedSamplesPerTick);
+			this.bitcrusherScaleScale = (scaleEnd / scaleStart) ** (1.0 / roundedSamplesPerTick);
 
-			const foldLevelStart: number = 2.0 * Config.bitcrusherBaseVolume * Math.pow(1.5, Config.bitcrusherQuantizationRange - 1 - quantizationSettingStart);
-			const foldLevelEnd: number = 2.0 * Config.bitcrusherBaseVolume * Math.pow(1.5, Config.bitcrusherQuantizationRange - 1 - quantizationSettingEnd);
+			const foldLevelStart: number = 2.0 * Config.bitcrusherBaseVolume * 1.5 ** (Config.bitcrusherQuantizationRange - 1 - quantizationSettingStart);
+			const foldLevelEnd: number = 2.0 * Config.bitcrusherBaseVolume * 1.5 ** (Config.bitcrusherQuantizationRange - 1 - quantizationSettingEnd);
 			this.bitcrusherFoldLevel = foldLevelStart;
-			this.bitcrusherFoldLevelScale = Math.pow(foldLevelEnd / foldLevelStart, 1.0 / roundedSamplesPerTick);
+			this.bitcrusherFoldLevelScale = (foldLevelEnd / foldLevelStart) ** (1.0 / roundedSamplesPerTick);
 		}
 
 		let eqFilterVolume: number = 1.0; // this.envelopeComputer.lowpassCutoffDecayVolumeCompensation;
@@ -848,8 +845,8 @@ export class InstrumentState {
 
 			let chorusStart: number = Math.min(1.0, (chorusEnvelopeStart * useChorusStart) / (Config.chorusRange - 1));
 			let chorusEnd: number = Math.min(1.0, (chorusEnvelopeEnd * useChorusEnd) / (Config.chorusRange - 1));
-			chorusStart = chorusStart * 0.6 + Math.pow(chorusStart, 6.0) * 0.4;
-			chorusEnd = chorusEnd * 0.6 + Math.pow(chorusEnd, 6.0) * 0.4;
+			chorusStart = chorusStart * 0.6 + chorusStart ** 6.0 * 0.4;
+			chorusEnd = chorusEnd * 0.6 + chorusEnd ** 6.0 * 0.4;
 			const chorusCombinedMultStart = 1.0 / Math.sqrt(3.0 * chorusStart * chorusStart + 1.0);
 			const chorusCombinedMultEnd = 1.0 / Math.sqrt(3.0 * chorusEnd * chorusEnd + 1.0);
 			this.chorusVoiceMult = chorusStart;
@@ -919,8 +916,7 @@ export class InstrumentState {
 			}
 
 			this.ringModPhaseDelta = ringModPhaseDeltaStart;
-			this.ringModPhaseDeltaScale =
-				ringModPhaseDeltaStart === 0 ? 1 : Math.pow(ringModPhaseDeltaEnd / ringModPhaseDeltaStart, 1.0 / roundedSamplesPerTick);
+			this.ringModPhaseDeltaScale = ringModPhaseDeltaStart === 0 ? 1 : (ringModPhaseDeltaEnd / ringModPhaseDeltaStart) ** (1.0 / roundedSamplesPerTick);
 
 			this.ringModWaveformIndex = instrument.ringModWaveformIndex;
 			this.ringModPulseWidth = instrument.ringModPulseWidth;
@@ -938,8 +934,8 @@ export class InstrumentState {
 				useEchoSustainStart = Math.max(0.0, synth.getModValue(Config.modulators.dictionary["echo"].index, channelIndex, instrumentIndex, false));
 				useEchoSustainEnd = Math.max(0.0, synth.getModValue(Config.modulators.dictionary["echo"].index, channelIndex, instrumentIndex, true));
 			}
-			const echoMultStart: number = Math.min(1.0, Math.pow((echoSustainEnvelopeStart * useEchoSustainStart) / Config.echoSustainRange, 1.1)) * 0.9;
-			const echoMultEnd: number = Math.min(1.0, Math.pow((echoSustainEnvelopeEnd * useEchoSustainEnd) / Config.echoSustainRange, 1.1)) * 0.9;
+			const echoMultStart: number = Math.min(1.0, ((echoSustainEnvelopeStart * useEchoSustainStart) / Config.echoSustainRange) ** 1.1) * 0.9;
+			const echoMultEnd: number = Math.min(1.0, ((echoSustainEnvelopeEnd * useEchoSustainEnd) / Config.echoSustainRange) ** 1.1) * 0.9;
 			this.echoMult = echoMultStart;
 			this.echoMultDelta = Math.max(0.0, (echoMultEnd - echoMultStart) / roundedSamplesPerTick);
 			maxEchoMult = Math.max(echoMultStart, echoMultEnd);
@@ -1045,8 +1041,8 @@ export class InstrumentState {
 				phaserBreakFreqRawEnd =
 					synth.getModValue(Config.modulators.dictionary["phaser frequency"].index, channelIndex, instrumentIndex, true) / Config.phaserFreqRange;
 			}
-			const phaserBreakFreqRemappedStart: number = Config.phaserMinFreq * Math.pow(Config.phaserMaxFreq / Config.phaserMinFreq, phaserBreakFreqRawStart);
-			const phaserBreakFreqRemappedEnd: number = Config.phaserMinFreq * Math.pow(Config.phaserMaxFreq / Config.phaserMinFreq, phaserBreakFreqRawEnd);
+			const phaserBreakFreqRemappedStart: number = Config.phaserMinFreq * (Config.phaserMaxFreq / Config.phaserMinFreq) ** phaserBreakFreqRawStart;
+			const phaserBreakFreqRemappedEnd: number = Config.phaserMinFreq * (Config.phaserMaxFreq / Config.phaserMinFreq) ** phaserBreakFreqRawEnd;
 			const phaserBreakFreqStart: number = Math.max(Config.phaserMinFreq, Math.min(Config.phaserMaxFreq, phaserBreakFreqRemappedStart));
 			const phaserBreakFreqStartT: number = Math.tan((Math.PI * phaserBreakFreqStart) / samplesPerSecond);
 			const phaserBreakCoefStart: number = (phaserBreakFreqStartT - 1) / (phaserBreakFreqStartT + 1);
@@ -1096,8 +1092,8 @@ export class InstrumentState {
 					Config.reverbRange;
 			}
 
-			const reverbStart: number = Math.min(1.0, Math.pow((reverbEnvelopeStart * useReverbStart) / Config.reverbRange, 0.667)) * 0.425;
-			const reverbEnd: number = Math.min(1.0, Math.pow((reverbEnvelopeEnd * useReverbEnd) / Config.reverbRange, 0.667)) * 0.425;
+			const reverbStart: number = Math.min(1.0, ((reverbEnvelopeStart * useReverbStart) / Config.reverbRange) ** 0.667) * 0.425;
+			const reverbEnd: number = Math.min(1.0, ((reverbEnvelopeEnd * useReverbEnd) / Config.reverbRange) ** 0.667) * 0.425;
 
 			this.reverbMult = reverbStart;
 			this.reverbMultDelta = (reverbEnd - reverbStart) / roundedSamplesPerTick;
@@ -1135,7 +1131,7 @@ export class InstrumentState {
 			}
 
 			if (usesEcho) {
-				const attenuationPerSecond: number = Math.pow(maxEchoMult, 1.0 / averageEchoDelaySeconds);
+				const attenuationPerSecond: number = maxEchoMult ** (1.0 / averageEchoDelaySeconds);
 				const halfLife: number = -1.0 / Math.log2(attenuationPerSecond);
 				const echoDuration: number = halfLife * halfLifeMult;
 				delayDuration += echoDuration;
@@ -1144,7 +1140,7 @@ export class InstrumentState {
 			if (usesReverb) {
 				const averageMult: number = maxReverbMult * 2.0;
 				const averageReverbDelaySeconds: number = Config.reverbDelayBufferSize / 4.0 / samplesPerSecond;
-				const attenuationPerSecond: number = Math.pow(averageMult, 1.0 / averageReverbDelaySeconds);
+				const attenuationPerSecond: number = averageMult ** (1.0 / averageReverbDelaySeconds);
 				const halfLife: number = -1.0 / Math.log2(attenuationPerSecond);
 				const reverbDuration: number = halfLife * halfLifeMult;
 				delayDuration += reverbDuration;

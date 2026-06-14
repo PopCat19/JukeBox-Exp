@@ -9,9 +9,9 @@
 // - Hides modulator group
 // - Toggles pitched vs drum preset selects
 
-import { Instrument } from "../../synth";
-import { Preferences } from "../core/preferences";
-import { SongDocument } from "../song-document";
+import type { Instrument } from "../../synth";
+import type { Preferences } from "../core/preferences";
+import type { SongDocument } from "../song-document";
 
 function setSelectedValue(menu: HTMLSelectElement, value: number, isSelect2: boolean = false): void {
 	const stringValue = value.toString();

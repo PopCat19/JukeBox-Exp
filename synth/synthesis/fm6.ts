@@ -5,7 +5,7 @@
 // This module:
 // - Builds FM6 synthesis source strings using custom algorithm/feedback config
 
-import { Instrument } from "../instruments";
+import type { Instrument } from "../instruments";
 import { Config } from "../synth-config";
 import { fmSourceTemplate, operatorSourceTemplate } from "./fm";
 
@@ -37,15 +37,15 @@ export function buildFm6Source(instrument: Instrument): string {
 							}
 							modulators += feedbacks.join(" + ") + ")";
 						}
-						synthSource.push(operatorLine.replace(/\#/g, j + "").replace("/* + operator@Scaled*/", modulators));
+						synthSource.push(operatorLine.replace(/#/g, j + "").replace("/* + operator@Scaled*/", modulators));
 					} else {
-						synthSource.push(operatorLine.replace(/\#/g, j + ""));
+						synthSource.push(operatorLine.replace(/#/g, j + ""));
 					}
 				}
 			}
 		} else if (line.indexOf("#") !== -1) {
 			for (let j = 0; j < Config.operatorCount + 2; j++) {
-				synthSource.push(line.replace(/\#/g, j + ""));
+				synthSource.push(line.replace(/#/g, j + ""));
 			}
 		} else {
 			synthSource.push(line);

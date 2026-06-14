@@ -11,9 +11,9 @@ import { HTML } from "imperative-html/dist/esm/elements-strict";
 import { Config } from "../../synth/synth-config";
 import { FilterEditor } from "../components/filter-editor";
 import { Change } from "../core/change";
-import { SongSettingsRefs } from "../renderers/render-song-settings";
-import { SongDocument } from "../song-document";
-import { addWheelSupport, createInputBox, InputBox, rangeSlider, Slider, toggleButton } from "../ui";
+import type { SongSettingsRefs } from "../renderers/render-song-settings";
+import type { SongDocument } from "../song-document";
+import { addWheelSupport, createInputBox, type InputBox, rangeSlider, type Slider, toggleButton } from "../ui";
 
 const { button, div, input, option, select, span } = HTML;
 

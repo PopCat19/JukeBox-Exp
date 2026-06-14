@@ -6,7 +6,7 @@
 // - Groups instrument states by channel
 // - Tracks per-channel volume levels
 
-import { InstrumentState } from "./instrument-state";
+import type { InstrumentState } from "./instrument-state";
 
 export class ChannelState {
 	public readonly instruments: InstrumentState[] = [];

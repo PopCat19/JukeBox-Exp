@@ -11,8 +11,8 @@
 import { HTML, SVG } from "imperative-html/dist/esm/elements-strict";
 import { ColorConfig } from "../../shared/color-config";
 import { ChangeCustomWave } from "../changes";
-import { PromptEditorRefs } from "../core/prompt-manager";
-import { SongDocument } from "../song-document";
+import type { PromptEditorRefs } from "../core/prompt-manager";
+import type { SongDocument } from "../song-document";
 import { flexRowCenter } from "../ui";
 import { BasePrompt } from "./base-prompt";
 import { updatePlayButton } from "./input-helpers";

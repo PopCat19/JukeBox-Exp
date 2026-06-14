@@ -7,8 +7,8 @@
 // - Manages undo/redo for algorithm changes
 
 import { ColorConfig } from "../../shared/color-config";
-import { Change } from "../core/change";
-import { SongDocument } from "../song-document";
+import type { Change } from "../core/change";
+import type { SongDocument } from "../song-document";
 
 export class CustomAlgorithmCanvas {
 	private mouseDown: boolean;

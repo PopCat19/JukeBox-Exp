@@ -5,8 +5,8 @@
 // This module:
 // - Exports preset categories: DX7FM, ThatBeepboxGuy, HoneykitKD, Calamity, truemori, The TuneCrusher, Bagel, DamageLol
 
-import { DictionaryArray, toNameMap } from "../../../synth/synth-config";
-import { InputPresetCategory, Preset } from "./types";
+import { type DictionaryArray, toNameMap } from "../../../synth/synth-config";
+import type { InputPresetCategory, Preset } from "./types";
 
 export const contributorCategoriesA1: InputPresetCategory[] = [
 	{

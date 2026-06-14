@@ -11,7 +11,7 @@ import { Channel } from "./channels";
 import { FilterSettings, Instrument } from "./instruments";
 import { Pattern } from "./notes";
 import { fromBase64StringImpl, fromJsonObjectImpl, toBase64StringImpl, toJsonObjectImpl } from "./song-serialization";
-import { type CustomSampleHandler } from "./song-utilities";
+import type { CustomSampleHandler } from "./song-utilities";
 import { Config, InstrumentType } from "./synth-config";
 
 export type { CustomSampleHandler } from "./song-utilities";

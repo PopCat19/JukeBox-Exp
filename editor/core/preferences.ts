@@ -9,7 +9,7 @@
 // Copyright (c) 2012-2022 John Nesky and contributing authors, distributed under the MIT license, see accompanying the LICENSE.md file.
 
 import { ColorConfig } from "../../shared/color-config";
-import { Config, Scale } from "../../synth/synth-config";
+import { Config, type Scale } from "../../synth/synth-config";
 
 export class Preferences {
 	public static readonly defaultVisibleOctaves: number = 4; // slarmoo's: 3

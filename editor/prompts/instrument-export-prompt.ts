@@ -9,9 +9,9 @@
 // Copyright (c) 2012-2022 John Nesky and contributing authors, distributed under the MIT license, see accompanying the LICENSE.md file.
 
 import { HTML } from "imperative-html/dist/esm/elements-strict";
-import { Channel, Instrument } from "../../synth";
+import type { Channel, Instrument } from "../../synth";
 import { Config } from "../../synth/synth-config";
-import { SongDocument } from "../song-document";
+import type { SongDocument } from "../song-document";
 import { labelRow } from "../ui";
 import { BasePrompt } from "./base-prompt";
 
@@ -103,7 +103,7 @@ export class InstrumentExportPrompt extends BasePrompt {
 		} else {
 			return;
 		}
-		const deleteChars = /[\+\*\$\?\|\{\}\\\/<>#%!`&'"=:@]/gi;
+		const deleteChars = /[+*$?|{}\\/<>#%!`&'"=:@]/gi;
 		if (deleteChars.test(input.value)) {
 			let cursorPos: number = <number>input.selectionStart;
 			input.value = input.value.replace(deleteChars, "");

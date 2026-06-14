@@ -7,8 +7,8 @@
 // - Applies custom theme settings to the editor
 
 import { HTML } from "imperative-html/dist/esm/elements-strict";
-import { PatternEditor } from "../components/pattern-editor";
-import { SongDocument } from "../song-document";
+import type { PatternEditor } from "../components/pattern-editor";
+import type { SongDocument } from "../song-document";
 import { BasePrompt } from "./base-prompt";
 
 const { div, h2, input, p, a, button } = HTML;

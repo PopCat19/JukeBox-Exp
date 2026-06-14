@@ -8,8 +8,8 @@
 // - Handles FM 4op/6op sub-branches
 // - Handles chip wave advanced loop controls
 
-import { ChannelColors, ColorConfig } from "../../shared/color-config";
-import { detuneToCents, getCapabilities, getPlugin, Instrument } from "../../synth";
+import { type ChannelColors, ColorConfig } from "../../shared/color-config";
+import { detuneToCents, getCapabilities, getPlugin, type Instrument } from "../../synth";
 import {
 	Config,
 	effectsIncludeBitcrusher,
@@ -30,16 +30,16 @@ import {
 	effectsIncludeTransition,
 	effectsIncludeVibrato,
 } from "../../synth/synth-config";
-import { EnvelopeEditor } from "../components/envelope-editor";
-import { FadeInOutEditor } from "../components/fade-in-out-editor";
-import { FilterEditor } from "../components/filter-editor";
-import { HarmonicsEditor } from "../components/harmonics-editor";
-import { SpectrumEditor } from "../components/spectrum-editor";
+import type { EnvelopeEditor } from "../components/envelope-editor";
+import type { FadeInOutEditor } from "../components/fade-in-out-editor";
+import type { FilterEditor } from "../components/filter-editor";
+import type { HarmonicsEditor } from "../components/harmonics-editor";
+import type { SpectrumEditor } from "../components/spectrum-editor";
 import { prettyNumber } from "../config/editor-config";
-import { Preferences } from "../core/preferences";
-import { CustomAlgorithmCanvas } from "../rendering/custom-algorithm-canvas";
-import { SongDocument } from "../song-document";
-import { Slider } from "../ui";
+import type { Preferences } from "../core/preferences";
+import type { CustomAlgorithmCanvas } from "../rendering/custom-algorithm-canvas";
+import type { SongDocument } from "../song-document";
+import type { Slider } from "../ui";
 
 function setSelectedValue(menu: HTMLSelectElement, value: number, isSelect2: boolean = false): void {
 	const stringValue = value.toString();

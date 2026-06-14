@@ -11,8 +11,8 @@
 import { HTML, SVG } from "imperative-html/dist/esm/elements-strict";
 import { ColorConfig } from "../../shared/color-config";
 import { ChangeChannelBar, ChangeLoop } from "../changes";
-import { SongDocument } from "../song-document";
-import { TrackEditor } from "./track-editor";
+import type { SongDocument } from "../song-document";
+import type { TrackEditor } from "./track-editor";
 
 interface Cursor {
 	startBar: number;

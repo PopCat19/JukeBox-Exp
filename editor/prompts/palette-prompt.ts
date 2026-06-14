@@ -9,7 +9,7 @@
 
 import { HTML } from "imperative-html/dist/esm/elements-strict";
 import { formatColorForTab, parseCssColor, rgbaToHex } from "../../shared/color-utils";
-import { SongDocument } from "../song-document";
+import type { SongDocument } from "../song-document";
 import { actionButton } from "../ui";
 import { createColorPicker, getLastColorTab } from "../ui/inputs/color-picker";
 import { BasePrompt } from "./base-prompt";

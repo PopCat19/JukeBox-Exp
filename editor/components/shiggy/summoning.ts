@@ -6,7 +6,7 @@
 // - Clears all summoned shiggys with exit animation
 
 import { clearDialogue } from "./dialogue";
-import { GIF_RESTART_MS, OFFSET_RADIUS, SHIGGY_SIZE, SummonedShiggy } from "./types";
+import { GIF_RESTART_MS, OFFSET_RADIUS, SHIGGY_SIZE, type SummonedShiggy } from "./types";
 
 export function spawnShiggy(onPop: () => void): SummonedShiggy {
 	const img = document.createElement("img");

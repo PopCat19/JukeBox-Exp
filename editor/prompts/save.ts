@@ -11,17 +11,17 @@ export function save(blob: Blob, name: string): void {
 	const anchor: HTMLAnchorElement = document.createElement("a");
 	if (anchor.download !== undefined) {
 		const url: string = URL.createObjectURL(blob);
-		setTimeout(function () {
+		setTimeout(() => {
 			URL.revokeObjectURL(url);
 		}, 60000);
 		anchor.href = url;
 		anchor.download = name;
-		setTimeout(function () {
+		setTimeout(() => {
 			anchor.dispatchEvent(new MouseEvent("click"));
 		}, 0);
 	} else {
 		const url: string = URL.createObjectURL(blob);
-		setTimeout(function () {
+		setTimeout(() => {
 			URL.revokeObjectURL(url);
 		}, 60000);
 		if (!window.open(url, "_blank")) window.location.href = url;

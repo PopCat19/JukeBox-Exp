@@ -7,8 +7,8 @@
 // - Composes policies into toLegacyCompatJson for full strip pass
 // - Targets JukeBox format at current stable version for downstream compat
 
-import { fromJsonObjectImpl, SongLike } from "../song-serialization";
-import { JukeboxExpObject, LegacyCompatObject } from "./schema-types";
+import { fromJsonObjectImpl, type SongLike } from "../song-serialization";
+import type { JukeboxExpObject, LegacyCompatObject } from "./schema-types";
 
 // Target version must stay in sync with LATEST_JUKEBOX_VERSION in song-serialization.ts.
 const LEGACY_TARGET_FORMAT = "JukeBox" as const;

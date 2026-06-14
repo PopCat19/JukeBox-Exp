@@ -8,7 +8,7 @@
 // - Manages modifier key state tracking
 
 import { ColorConfig } from "../../shared/color-config";
-import { Channel, Instrument } from "../../synth";
+import type { Channel, Instrument } from "../../synth";
 import { Config, DropdownID, EffectType, effectsIncludeNoteFilter, InstrumentType } from "../../synth/synth-config";
 import {
 	ChangeAddChannelInstrument,
@@ -19,14 +19,14 @@ import {
 	ChangeSetPatternInstruments,
 	ChangeSong,
 } from "../changes";
-import { BarScrollBar } from "../components/bar-scroll-bar";
-import { EnvelopeEditor } from "../components/envelope-editor";
-import { LoopEditor } from "../components/loop-editor";
-import { MuteEditor } from "../components/mute-editor";
-import { PatternEditor } from "../components/pattern-editor";
-import { KeyboardLayout } from "../config/keyboard-layout";
+import type { BarScrollBar } from "../components/bar-scroll-bar";
+import type { EnvelopeEditor } from "../components/envelope-editor";
+import type { LoopEditor } from "../components/loop-editor";
+import type { MuteEditor } from "../components/mute-editor";
+import type { PatternEditor } from "../components/pattern-editor";
+import type { KeyboardLayout } from "../config/keyboard-layout";
 import type { Prompt } from "../prompts/prompt";
-import { SongDocument } from "../song-document";
+import type { SongDocument } from "../song-document";
 import { ChangeGroup } from "./change";
 import { makeLogger } from "./debug-log";
 
@@ -562,7 +562,8 @@ export class KeyboardHandler {
 					}
 				}
 				break;
-			case 78: // n
+			case 78: {
+				// n
 				if (canPlayNotes) break;
 
 				const group: ChangeGroup = new ChangeGroup();
@@ -635,6 +636,7 @@ export class KeyboardHandler {
 
 				event.preventDefault();
 				break;
+			}
 			case 81: // q
 				if (canPlayNotes) break;
 				if (needControlForShortcuts === (event.ctrlKey || event.metaKey)) {

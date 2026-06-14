@@ -9,12 +9,12 @@
 // - Renders pitch/bar labels
 
 import { SVG } from "imperative-html/dist/esm/elements-strict";
-import { ChannelColors, ColorConfig } from "../../shared/color-config";
-import { Song } from "../../synth";
+import { type ChannelColors, ColorConfig } from "../../shared/color-config";
+import type { Song } from "../../synth";
 import { Config } from "../../synth/synth-config";
 import { prettyNumber } from "../config/editor-config";
 import { selectorButton } from "../ui";
-import { Sequence } from "./euclidgen-algorithm";
+import type { Sequence } from "./euclidgen-algorithm";
 
 export interface EuclidgenRendererContext {
 	song: Song;

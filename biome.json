@@ -3,16 +3,37 @@
 	"linter": {
 		"enabled": true,
 		"rules": {
-			"recommended": false,
+			"recommended": true,
 			"correctness": {
-				"noUnusedImports": "warn",
+				"noConstantCondition": "off",
 				"noUnusedVariables": "warn",
-				"noConstAssign": "error",
-				"noConstantCondition": "off"
+				"noUnusedImports": "warn",
+				"noUndeclaredVariables": "off",
+				"useParseIntRadix": "warn",
+				"useQwikValidLexicalScope": "off"
 			},
 			"suspicious": {
-				"noExplicitAny": "off",
-				"noDoubleEquals": "warn"
+				"noExplicitAny": "warn",
+				"noDoubleEquals": "warn",
+				"noBitwiseOperators": "off",
+				"noGlobalIsNan": "warn",
+				"noEmptyBlockStatements": "warn",
+				"noTemplateCurlyInString": "warn",
+				"noEvolvingTypes": "warn",
+				"noImplicitAnyLet": "warn",
+				"useIterableCallbackReturn": "warn"
+			},
+			"complexity": {
+				"useLiteralKeys": "warn",
+				"noBannedTypes": "warn",
+				"noUselessTernary": "warn",
+				"noStaticOnlyClass": "warn"
+			},
+			"style": {
+				"noNonNullAssertion": "off",
+				"useTemplate": "warn",
+				"useImportType": "off",
+				"useExponentiationOperator": "warn"
 			}
 		}
 	},

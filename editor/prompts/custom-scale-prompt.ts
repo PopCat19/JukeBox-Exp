@@ -11,7 +11,7 @@
 import { HTML } from "imperative-html/dist/esm/elements-strict";
 import { Config } from "../../synth/synth-config";
 import { ChangeCustomScale } from "../changes";
-import { SongDocument } from "../song-document";
+import type { SongDocument } from "../song-document";
 import { labelRow } from "../ui";
 import { BasePrompt } from "./base-prompt";
 

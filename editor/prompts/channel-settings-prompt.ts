@@ -12,7 +12,7 @@ import { HTML } from "imperative-html/dist/esm/elements-strict";
 import { Config } from "../../synth/synth-config";
 import { ChangeChannelCount, ChangeInstrumentsFlags, ChangePatternsPerChannel } from "../changes";
 import { ChangeGroup } from "../core/change";
-import { SongDocument } from "../song-document";
+import type { SongDocument } from "../song-document";
 import { checkboxInput, labelRow, stepperInput } from "../ui";
 import { BasePrompt } from "./base-prompt";
 import { validate, validateKey, validateNumber } from "./input-helpers";

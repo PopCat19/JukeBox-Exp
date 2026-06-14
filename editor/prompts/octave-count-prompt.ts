@@ -10,7 +10,7 @@
 
 import { HTML } from "imperative-html/dist/esm/elements-strict";
 import { ChangeOctaveCount } from "../changes";
-import { SongDocument } from "../song-document";
+import type { SongDocument } from "../song-document";
 import { addWheelSupport, labelRow } from "../ui";
 import { BasePrompt } from "./base-prompt";
 import { validate, validateKey, validateNumber } from "./input-helpers";

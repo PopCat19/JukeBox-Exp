@@ -11,7 +11,7 @@ import { Typography } from "../ui/style-constants";
 
 import { HTML, SVG } from "imperative-html/dist/esm/elements-strict";
 import { ColorConfig } from "../../shared/color-config";
-import { FilterControlPoint, FilterSettings, Instrument, Song } from "../../synth";
+import { FilterControlPoint, FilterSettings, type Instrument, type Song } from "../../synth";
 import { FilterCoefficients, FrequencyResponse } from "../../synth/filtering";
 import { Config, FilterType } from "../../synth/synth-config";
 import {
@@ -21,11 +21,11 @@ import {
 	ChangeSongFilterAddPoint,
 	ChangeSongFilterMovePoint,
 	ChangeSongFilterSettings,
-	FilterMoveData,
+	type FilterMoveData,
 } from "../changes";
 import { prettyNumber } from "../config/editor-config";
-import { ChangeSequence, UndoableChange } from "../core/change";
-import { SongDocument } from "../song-document";
+import { ChangeSequence, type UndoableChange } from "../core/change";
+import type { SongDocument } from "../song-document";
 
 export class FilterEditor {
 	private _editorWidth: number = 120;
@@ -329,7 +329,7 @@ export class FilterEditor {
 		let nearestDistance: number = Number.POSITIVE_INFINITY;
 		for (let i: number = 0; i < this._useFilterSettings.controlPointCount; i++) {
 			const point: FilterControlPoint = this._useFilterSettings.controlPoints[i];
-			const distance: number = Math.sqrt(Math.pow(this._freqToX(point.freq) - this._mouseX, 2) + Math.pow(this._gainToY(point.gain) - this._mouseY, 2));
+			const distance: number = Math.sqrt((this._freqToX(point.freq) - this._mouseX) ** 2 + (this._gainToY(point.gain) - this._mouseY) ** 2);
 			if ((distance <= 13 * (1 + +this._larger) || this._useFilterSettings.controlPointCount >= Config.filterMaxPoints) && distance < nearestDistance) {
 				nearestDistance = distance;
 				this._selectedIndex = i;

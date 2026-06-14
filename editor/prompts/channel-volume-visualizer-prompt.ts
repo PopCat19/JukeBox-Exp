@@ -10,8 +10,8 @@ import { BorderWidth, Typography } from "../ui/style-constants";
 
 import { HTML, SVG } from "imperative-html/dist/esm/elements-strict";
 import { ColorConfig } from "../../shared/color-config";
-import { PromptEditorRefs } from "../core/prompt-manager";
-import { SongDocument } from "../song-document";
+import type { PromptEditorRefs } from "../core/prompt-manager";
+import type { SongDocument } from "../song-document";
 import { BasePrompt } from "./base-prompt";
 
 const { div, h2, h3, span, button } = HTML;

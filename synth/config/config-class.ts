@@ -239,9 +239,9 @@ export class Config {
 	public static readonly echoDelayStepTicks: number = 4;
 	public static readonly echoSustainRange: number = 8;
 	public static readonly echoShelfHz: number = 4000.0; // The cutoff freq of the shelf filter that is used to decay echoes.
-	public static readonly echoShelfGain: number = Math.pow(2.0, -0.5);
+	public static readonly echoShelfGain: number = 2.0 ** -0.5;
 	public static readonly reverbShelfHz: number = 8000.0; // The cutoff freq of the shelf filter that is used to decay reverb.
-	public static readonly reverbShelfGain: number = Math.pow(2.0, -1.5);
+	public static readonly reverbShelfGain: number = 2.0 ** -1.5;
 	public static readonly reverbRange: number = 32;
 	public static readonly reverbDelayBufferSize: number = 16384;
 	public static readonly reverbDelayBufferMask: number = Config.reverbDelayBufferSize - 1;
@@ -1355,7 +1355,7 @@ export class Config {
 	public static readonly filterFreqReferenceSetting: number = 28;
 	public static readonly filterFreqReferenceHz: number = 8000.0;
 	public static readonly filterFreqMaxHz: number =
-		Config.filterFreqReferenceHz * Math.pow(2.0, Config.filterFreqStep * (Config.filterFreqRange - 1 - Config.filterFreqReferenceSetting)); // ~19khz
+		Config.filterFreqReferenceHz * 2.0 ** (Config.filterFreqStep * (Config.filterFreqRange - 1 - Config.filterFreqReferenceSetting)); // ~19khz
 	public static readonly filterFreqMinHz: number = 8.0;
 	public static readonly filterGainRange: number = 15;
 	public static readonly filterGainCenter: number = 7;
@@ -3987,7 +3987,7 @@ export function getDrumWave(index: number, inverseRealFourierTransform: Function
 		} else if (index === 12) {
 			for (let i = 0; i < Config.chipNoiseLength; i++) {
 				const ultraboxnewchipnoiserand = Math.random();
-				wave[i] = Math.pow(ultraboxnewchipnoiserand, Math.clz32(ultraboxnewchipnoiserand));
+				wave[i] = ultraboxnewchipnoiserand ** Math.clz32(ultraboxnewchipnoiserand);
 			}
 		} else if (index === 13) {
 			// https://noisehack.com/generate-noise-web-audio-api/
@@ -4042,15 +4042,15 @@ export function drawNoiseSpectrum(
 ): number {
 	const referenceOctave: number = 11;
 	const referenceIndex: number = 1 << referenceOctave;
-	const lowIndex: number = Math.pow(2, lowOctave) | 0;
-	const highIndex: number = Math.min(waveLength >> 1, Math.pow(2, highOctave) | 0);
+	const lowIndex: number = (2 ** lowOctave) | 0;
+	const highIndex: number = Math.min(waveLength >> 1, (2 ** highOctave) | 0);
 	const retroWave: Float32Array = getDrumWave(0, null, null);
 	let combinedAmplitude: number = 0.0;
 	for (let i: number = lowIndex; i < highIndex; i++) {
 		const lerped: number = lowPower + ((highPower - lowPower) * (Math.log2(i) - lowOctave)) / (highOctave - lowOctave);
-		let amplitude: number = Math.pow(2, (lerped - 1) * 7 + 1) * lerped;
+		let amplitude: number = 2 ** ((lerped - 1) * 7 + 1) * lerped;
 
-		amplitude *= Math.pow(i / referenceIndex, overallSlope);
+		amplitude *= (i / referenceIndex) ** overallSlope;
 
 		combinedAmplitude += amplitude;
 
@@ -4088,5 +4088,5 @@ export function calculateRingModHertz(sliderHz: number, _sliderHzOffset: number 
 	if (sliderHz > 0) sliderHz -= 1 / Config.ringModHzRange;
 	if (sliderHz > 1 / Config.ringModHzRange) sliderHz += 1 / Config.ringModHzRange;
 	// calculate ring mod
-	return Math.floor(Config.ringModMinHz * Math.pow(Config.ringModMaxHz / Config.ringModMinHz, sliderHz));
+	return Math.floor(Config.ringModMinHz * (Config.ringModMaxHz / Config.ringModMinHz) ** sliderHz);
 }

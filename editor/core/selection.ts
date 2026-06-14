@@ -10,8 +10,8 @@
 // Copyright (c) 2012-2022 John Nesky and contributing authors, distributed under the MIT license, see accompanying the LICENSE.md file.
 
 import { ColorConfig } from "../../shared/color-config";
-import { Channel, Instrument, Note, NotePin, Pattern } from "../../synth";
-import { Config, Dictionary } from "../../synth/synth-config";
+import { type Channel, Instrument, Note, type NotePin, type Pattern } from "../../synth";
+import { Config, type Dictionary } from "../../synth/synth-config";
 import {
 	ChangeAddChannel,
 	ChangeChannelBar,
@@ -47,7 +47,7 @@ import {
 	patternsContainSameInstruments,
 	unionOfUsedNotes,
 } from "../changes";
-import { SongDocument } from "../song-document";
+import type { SongDocument } from "../song-document";
 import { ChangeGroup } from "./change";
 
 interface PatternCopy {
@@ -523,9 +523,7 @@ export class Selection {
 		const newPitches: number[] = oldPitches.slice();
 		// There may be some very "pleasing" way to place these,
 		// but I'm not sure it's worth the effort.
-		newPitches.sort(function (a: number, b: number): number {
-			return a - b;
-		});
+		newPitches.sort((a: number, b: number): number => a - b);
 		let lowestPitch: number = newPitches[0] % Config.drumCount;
 		const numberOfPitches: number = newPitches.length;
 		let highestPitch: number = lowestPitch + (numberOfPitches - 1);

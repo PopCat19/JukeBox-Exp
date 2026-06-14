@@ -5,9 +5,9 @@
 // This module:
 // - Runs requestAnimationFrame loop for mod sliders, filters, playhead, and volume bar
 
-import { BarScrollBar } from "../components/bar-scroll-bar";
-import { FilterEditor } from "../components/filter-editor";
-import { SongDocument } from "../song-document";
+import type { BarScrollBar } from "../components/bar-scroll-bar";
+import type { FilterEditor } from "../components/filter-editor";
+import type { SongDocument } from "../song-document";
 
 export class PlayerAnimator {
 	public outVolumeHistoricTimer: number = 0;

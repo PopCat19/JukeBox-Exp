@@ -6,7 +6,7 @@ import { Typography } from "../../ui/style-constants";
 // - Pairwise conversation exchanges
 // - Group dialogue for 5+ shiggys in proximity
 
-import { SHIGGY_SIZE, SummonedShiggy } from "./types";
+import { SHIGGY_SIZE, type SummonedShiggy } from "./types";
 
 // ─── Line pools ───────────────────────────────────────────────────────────────
 

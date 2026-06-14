@@ -38,9 +38,9 @@ import {
 	ChangeVolume,
 } from "../changes";
 import { EditorConfig } from "../config/editor-config";
-import { InstrumentValueRefs } from "../renderers/render-instrument-values";
-import { SongDocument } from "../song-document";
-import { addWheelSupport, dropdownButton, rangeSlider, Slider, toggleButton } from "../ui";
+import type { InstrumentValueRefs } from "../renderers/render-instrument-values";
+import type { SongDocument } from "../song-document";
+import { addWheelSupport, dropdownButton, rangeSlider, type Slider, toggleButton } from "../ui";
 import { FilterEditor } from "./filter-editor";
 
 const { button, div, input, option, select, span } = HTML;

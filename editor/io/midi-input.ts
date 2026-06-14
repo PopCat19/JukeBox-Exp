@@ -9,8 +9,8 @@
 // Copyright (c) 2012-2022 John Nesky and contributing authors, distributed under the MIT license, see accompanying the LICENSE.md file.
 
 import { Config } from "../../synth/synth-config";
-import { SongDocument } from "../song-document";
-import { AnalogousDrum, analogousDrumMap, MidiEventType } from "./midi";
+import type { SongDocument } from "../song-document";
+import { type AnalogousDrum, analogousDrumMap, MidiEventType } from "./midi";
 
 declare global {
 	interface Navigator {

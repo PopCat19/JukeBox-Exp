@@ -74,7 +74,7 @@ export class PickedString {
 
 		const phaseDeltaStart: number = tone.phaseDeltas[stringIndex];
 		const phaseDeltaScale: number = tone.phaseDeltaScales[stringIndex];
-		const phaseDeltaEnd: number = phaseDeltaStart * Math.pow(phaseDeltaScale, roundedSamplesPerTick);
+		const phaseDeltaEnd: number = phaseDeltaStart * phaseDeltaScale ** roundedSamplesPerTick;
 
 		const radiansPerSampleStart: number = Math.PI * 2.0 * phaseDeltaStart;
 		const radiansPerSampleEnd: number = Math.PI * 2.0 * phaseDeltaEnd;
@@ -84,33 +84,27 @@ export class PickedString {
 
 		const allPassRadiansStart: number = Math.min(
 			Math.PI,
-			radiansPerSampleStart *
-				Config.pickedStringDispersionFreqMult *
-				Math.pow(allPassCenter / radiansPerSampleStart, Config.pickedStringDispersionFreqScale),
+			radiansPerSampleStart * Config.pickedStringDispersionFreqMult * (allPassCenter / radiansPerSampleStart) ** Config.pickedStringDispersionFreqScale,
 		);
 		const allPassRadiansEnd: number = Math.min(
 			Math.PI,
-			radiansPerSampleEnd * Config.pickedStringDispersionFreqMult * Math.pow(allPassCenter / radiansPerSampleEnd, Config.pickedStringDispersionFreqScale),
+			radiansPerSampleEnd * Config.pickedStringDispersionFreqMult * (allPassCenter / radiansPerSampleEnd) ** Config.pickedStringDispersionFreqScale,
 		);
 		const shelfRadians: number = (2.0 * Math.PI * Config.pickedStringShelfHz) / synth.samplesPerSecond;
-		const decayCurveStart: number = (Math.pow(100.0, stringDecayStart) - 1.0) / 99.0;
-		const decayCurveEnd: number = (Math.pow(100.0, stringDecayEnd) - 1.0) / 99.0;
+		const decayCurveStart: number = (100.0 ** stringDecayStart - 1.0) / 99.0;
+		const decayCurveEnd: number = (100.0 ** stringDecayEnd - 1.0) / 99.0;
 		const register: number = sustainType === SustainType.acoustic ? 0.25 : 0.0;
 		const registerShelfCenter: number = 15.6;
 		const registerLowpassCenter: number = (3.0 * synth.samplesPerSecond) / 48000;
 		// const decayRateStart: number = Math.pow(0.5, decayCurveStart * shelfRadians / radiansPerSampleStart);
 		// const decayRateEnd: number   = Math.pow(0.5, decayCurveEnd   * shelfRadians / radiansPerSampleEnd);
-		const decayRateStart: number = Math.pow(
-			0.5,
-			decayCurveStart * Math.pow(shelfRadians / (radiansPerSampleStart * registerShelfCenter), 1.0 + 2.0 * register) * registerShelfCenter,
-		);
-		const decayRateEnd: number = Math.pow(
-			0.5,
-			decayCurveEnd * Math.pow(shelfRadians / (radiansPerSampleEnd * registerShelfCenter), 1.0 + 2.0 * register) * registerShelfCenter,
-		);
+		const decayRateStart: number =
+			0.5 ** (decayCurveStart * (shelfRadians / (radiansPerSampleStart * registerShelfCenter)) ** (1.0 + 2.0 * register) * registerShelfCenter);
+		const decayRateEnd: number =
+			0.5 ** (decayCurveEnd * (shelfRadians / (radiansPerSampleEnd * registerShelfCenter)) ** (1.0 + 2.0 * register) * registerShelfCenter);
 
-		const expressionDecayStart: number = Math.pow(decayRateStart, 0.002);
-		const expressionDecayEnd: number = Math.pow(decayRateEnd, 0.002);
+		const expressionDecayStart: number = decayRateStart ** 0.002;
+		const expressionDecayEnd: number = decayRateEnd ** 0.002;
 
 		tempFilterStartCoefficients.allPass1stOrderInvertPhaseAbove(allPassRadiansStart);
 		synth.tempFrequencyResponse.analyze(tempFilterStartCoefficients, centerHarmonicStart);
@@ -125,7 +119,7 @@ export class PickedString {
 		// 1st order shelf filters and 2nd order lowpass filters have differently shaped frequency
 		// responses, as well as adjustable shapes. I originally picked a 1st order shelf filter,
 		// but I kinda prefer 2nd order lowpass filters now and I designed a couple settings:
-		const enum PickedStringBrightnessType {
+		enum PickedStringBrightnessType {
 			bright, // 1st order shelf
 			normal, // 2nd order lowpass, rounded corner
 			resonant, // 3rd order lowpass, harder corner
@@ -133,26 +127,24 @@ export class PickedString {
 		const brightnessType: PickedStringBrightnessType =
 			<any>sustainType === SustainType.bright ? PickedStringBrightnessType.bright : PickedStringBrightnessType.normal;
 		if (brightnessType === PickedStringBrightnessType.bright) {
-			const shelfGainStart: number = Math.pow(decayRateStart, Config.stringDecayRate);
-			const shelfGainEnd: number = Math.pow(decayRateEnd, Config.stringDecayRate);
+			const shelfGainStart: number = decayRateStart ** Config.stringDecayRate;
+			const shelfGainEnd: number = decayRateEnd ** Config.stringDecayRate;
 			tempFilterStartCoefficients.highShelf2ndOrder(shelfRadians, shelfGainStart, 0.5);
 			tempFilterEndCoefficients.highShelf2ndOrder(shelfRadians, shelfGainEnd, 0.5);
 		} else {
-			const cornerHardness: number = Math.pow(brightnessType === PickedStringBrightnessType.normal ? 0.0 : 1.0, 0.25);
+			const cornerHardness: number = (brightnessType === PickedStringBrightnessType.normal ? 0.0 : 1.0) ** 0.25;
 			const lowpass1stOrderCutoffRadiansStart: number =
-				Math.pow((registerLowpassCenter * registerLowpassCenter * radiansPerSampleStart * 3.3 * 48000) / synth.samplesPerSecond, 0.5 + register) /
+				((registerLowpassCenter * registerLowpassCenter * radiansPerSampleStart * 3.3 * 48000) / synth.samplesPerSecond) ** (0.5 + register) /
 				registerLowpassCenter /
-				Math.pow(decayCurveStart, 0.5);
+				decayCurveStart ** 0.5;
 			const lowpass1stOrderCutoffRadiansEnd: number =
-				Math.pow((registerLowpassCenter * registerLowpassCenter * radiansPerSampleEnd * 3.3 * 48000) / synth.samplesPerSecond, 0.5 + register) /
+				((registerLowpassCenter * registerLowpassCenter * radiansPerSampleEnd * 3.3 * 48000) / synth.samplesPerSecond) ** (0.5 + register) /
 				registerLowpassCenter /
-				Math.pow(decayCurveEnd, 0.5);
-			const lowpass2ndOrderCutoffRadiansStart: number =
-				lowpass1stOrderCutoffRadiansStart * Math.pow(2.0, 0.5 - 1.75 * (1.0 - Math.pow(1.0 - cornerHardness, 0.85)));
-			const lowpass2ndOrderCutoffRadiansEnd: number =
-				lowpass1stOrderCutoffRadiansEnd * Math.pow(2.0, 0.5 - 1.75 * (1.0 - Math.pow(1.0 - cornerHardness, 0.85)));
-			const lowpass2ndOrderGainStart: number = Math.pow(2.0, -Math.pow(2.0, -Math.pow(cornerHardness, 0.9)));
-			const lowpass2ndOrderGainEnd: number = Math.pow(2.0, -Math.pow(2.0, -Math.pow(cornerHardness, 0.9)));
+				decayCurveEnd ** 0.5;
+			const lowpass2ndOrderCutoffRadiansStart: number = lowpass1stOrderCutoffRadiansStart * 2.0 ** (0.5 - 1.75 * (1.0 - (1.0 - cornerHardness) ** 0.85));
+			const lowpass2ndOrderCutoffRadiansEnd: number = lowpass1stOrderCutoffRadiansEnd * 2.0 ** (0.5 - 1.75 * (1.0 - (1.0 - cornerHardness) ** 0.85));
+			const lowpass2ndOrderGainStart: number = 2.0 ** -(2.0 ** -(cornerHardness ** 0.9));
+			const lowpass2ndOrderGainEnd: number = 2.0 ** -(2.0 ** -(cornerHardness ** 0.9));
 			tempFilterStartCoefficients.lowPass2ndOrderButterworth(warpInfinityToNyquist(lowpass2ndOrderCutoffRadiansStart), lowpass2ndOrderGainStart);
 			tempFilterEndCoefficients.lowPass2ndOrderButterworth(warpInfinityToNyquist(lowpass2ndOrderCutoffRadiansEnd), lowpass2ndOrderGainEnd);
 		}

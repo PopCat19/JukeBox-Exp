@@ -6,10 +6,10 @@
 // - Holds per-voice state including filters, picked strings, and envelope computers
 
 import { EnvelopeComputer } from "./envelope-computer";
-import { DynamicBiquadFilter } from "./filtering";
-import { Note } from "./notes";
-import { PickedString } from "./picked-string";
-import { Config, OperatorWave } from "./synth-config";
+import type { DynamicBiquadFilter } from "./filtering";
+import type { Note } from "./notes";
+import type { PickedString } from "./picked-string";
+import { Config, type OperatorWave } from "./synth-config";
 
 export class Tone {
 	public instrumentIndex: number;

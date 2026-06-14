@@ -10,11 +10,11 @@
 // Copyright (c) 2012-2022 John Nesky and contributing authors, distributed under the MIT license, see accompanying the LICENSE.md file.
 
 import { ColorConfig } from "../../shared/color-config";
-import { Channel, Instrument, Note, NotePin, Pattern, Song } from "../../synth";
+import { Channel, Instrument, type Note, type NotePin, Pattern, type Song } from "../../synth";
 import { Config, EffectType, InstrumentType } from "../../synth/synth-config";
-import { EditorConfig, fullTagList, Preset, PresetCategory } from "../config/editor-config";
+import { EditorConfig, fullTagList, type Preset, type PresetCategory } from "../config/editor-config";
 import { Change, ChangeGroup, ChangeSequence } from "../core/change";
-import { SongDocument } from "../song-document";
+import type { SongDocument } from "../song-document";
 import { ChangeToggleEffects } from "./instruments";
 import {
 	ChangeMoveAndOverflowNotes,
@@ -955,9 +955,7 @@ export class ChangeBeatsPerBar extends ChangeGroup {
 					break;
 				case "stretch":
 					{
-						const changeRhythm = function (oldTime: number): number {
-							return Math.round((oldTime * newValue) / doc.song.beatsPerBar);
-						};
+						const changeRhythm = (oldTime: number): number => Math.round((oldTime * newValue) / doc.song.beatsPerBar);
 						for (let channelIndex: number = 0; channelIndex < doc.song.getChannelCount(); channelIndex++) {
 							for (let patternIndex: number = 0; patternIndex < doc.song.channels[channelIndex].patterns.length; patternIndex++) {
 								const pattern: Pattern = doc.song.channels[channelIndex].patterns[patternIndex];

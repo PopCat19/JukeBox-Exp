@@ -8,12 +8,12 @@
 
 import { HTML, SVG } from "imperative-html/dist/esm/elements-strict";
 import { ColorConfig } from "../../shared/color-config";
-import { Instrument } from "../../synth";
-import { ChipWave, Config, SampleLoadingStatus, sampleLoadingState } from "../../synth/synth-config";
+import type { Instrument } from "../../synth";
+import { type ChipWave, Config, SampleLoadingStatus, sampleLoadingState } from "../../synth/synth-config";
 import { ChangeChipWaveLoopEnd, ChangeChipWaveLoopMode, ChangeChipWaveLoopStart, ChangeChipWavePlayBackwards, ChangeChipWaveStartOffset } from "../changes";
 import { ChangeGroup } from "../core/change";
-import { PromptEditorRefs } from "../core/prompt-manager";
-import { SongDocument } from "../song-document";
+import type { PromptEditorRefs } from "../core/prompt-manager";
+import type { SongDocument } from "../song-document";
 import { addWheelSupport, s, w } from "../ui";
 import { BasePrompt } from "./base-prompt";
 import { VisualLoopControlsHandle } from "./visual-loop-controls-handle";

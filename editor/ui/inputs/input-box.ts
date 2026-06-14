@@ -7,8 +7,8 @@
 // - Integrates with SongDocument for undo/redo support
 
 import { HTML } from "imperative-html/dist/esm/elements-strict";
-import { Change } from "../../core/change";
-import { SongDocument } from "../../song-document";
+import type { Change } from "../../core/change";
+import type { SongDocument } from "../../song-document";
 
 export class InputBox {
 	private _change: Change | null = null;

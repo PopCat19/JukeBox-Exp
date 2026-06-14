@@ -7,7 +7,7 @@
 // - Handles pitch envelope ranges and LFO waveform selection
 // - Provides tremolo2-to-LFO migration and JSON serialization
 
-import { AutomationTarget, Config, Envelope, EnvelopeType, LFOEnvelopeTypes } from "../synth-config";
+import { type AutomationTarget, Config, type Envelope, EnvelopeType, LFOEnvelopeTypes } from "../synth-config";
 import { clamp } from "../util";
 
 export class EnvelopeSettings {

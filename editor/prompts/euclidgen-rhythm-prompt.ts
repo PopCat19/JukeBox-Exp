@@ -11,12 +11,12 @@
 import { HTML, SVG } from "imperative-html/dist/esm/elements-strict";
 import { ColorConfig } from "../../shared/color-config";
 import { Config } from "../../synth/synth-config";
-import { SongDocument } from "../song-document";
+import type { SongDocument } from "../song-document";
 import { fieldLabel, flexRowCenter, labelRow, stepperInput, w } from "../ui";
 import { BasePrompt } from "./base-prompt";
-import { generateEuclideanRhythm, Sequence } from "./euclidgen-algorithm";
+import { generateEuclideanRhythm, type Sequence } from "./euclidgen-algorithm";
 import { generateAndApplyEuclideanNotes } from "./euclidgen-note-generator";
-import { EuclidgenRendererContext, renderInitialBackground, renderSequenceButtons } from "./euclidgen-renderer";
+import { type EuclidgenRendererContext, renderInitialBackground, renderSequenceButtons } from "./euclidgen-renderer";
 
 const { button, div, h2, input } = HTML;
 

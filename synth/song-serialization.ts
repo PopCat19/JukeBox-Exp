@@ -1448,7 +1448,6 @@ export function fromBase64StringImpl(song: SongLike, compressed: string, jsonFor
 					const parseOldSyntax: boolean = beforeThree;
 					const ok: boolean = parseAndConfigureCustomSample(url, customSampleUrls, customSamplePresets, sampleLoadingState, parseOldSyntax);
 					if (!ok) {
-						continue;
 					}
 				}
 			}
@@ -1884,8 +1883,10 @@ export function fromBase64StringImpl(song: SongLike, compressed: string, jsonFor
 					}
 					// BeepBox directly tweaked "grand piano", but JB kept it the same. The most up to date version is now "grand piano 3"
 					if (fromBeepBox && presetValue === song.customSampleHandler?.nameToPresetValue("grand piano 1")) {
-						song.channels[instrumentChannelIterator].instruments[instrumentIndexIterator].preset =
-							song.customSampleHandler?.nameToPresetValue("grand piano 3")!;
+						const gp3Preset = song.customSampleHandler?.nameToPresetValue("grand piano 3");
+						if (gp3Preset != null) {
+							song.channels[instrumentChannelIterator].instruments[instrumentIndexIterator].preset = gp3Preset;
+						}
 					}
 				}
 				break;
@@ -2227,7 +2228,7 @@ export function fromBase64StringImpl(song: SongLike, compressed: string, jsonFor
 					instrument.pulseWidth = clamp(0, Config.pulseWidthRange + +fromJummBox + 1, base64CharCodeToInt[compressed.charCodeAt(charIndex++)]);
 					if (fromBeepBox) {
 						// BeepBox formula
-						instrument.pulseWidth = Math.round(Math.pow(0.5, (7 - instrument.pulseWidth) * Config.pulseWidthStepPower) * Config.pulseWidthRange);
+						instrument.pulseWidth = Math.round(0.5 ** ((7 - instrument.pulseWidth) * Config.pulseWidthStepPower) * Config.pulseWidthRange);
 					}
 
 					if ((beforeNine && fromBeepBox) || (beforeFive && fromJummBox) || (beforeFour && fromGoldBox)) {
@@ -4512,7 +4513,7 @@ export function fromJsonObjectImpl(song: SongLike, jsonObject: any, jsonFormat: 
 				const pattern: Pattern = new Pattern();
 				channel.patterns[i] = pattern;
 
-				let patternObject: any = undefined;
+				let patternObject: any;
 				if (channelObject["patterns"]) patternObject = channelObject["patterns"][i];
 				if (patternObject === undefined) continue;
 

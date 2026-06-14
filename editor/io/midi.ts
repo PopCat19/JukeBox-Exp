@@ -11,19 +11,19 @@
 export const defaultMidiExpression: number = 0x7f;
 export const defaultMidiPitchBend: number = 0x2000;
 
-export const enum MidiChunkType {
+export enum MidiChunkType {
 	header = 0x4d546864, // "MThd" as bytes, big endian
 	track = 0x4d54726b, // "MTrk" as bytes, big endian
 }
 
-export const enum MidiFileFormat {
+export enum MidiFileFormat {
 	singleTrack = 0x0000,
 	simultaneousTracks = 0x0001,
 	independentTracks = 0x0002,
 }
 
 // Lower 4 bits indicate channel, except for meta and sysex events.
-export const enum MidiEventType {
+export enum MidiEventType {
 	// channelMode = 0x70,
 	noteOff = 0x80,
 	noteOn = 0x90,
@@ -40,7 +40,7 @@ export const enum MidiEventType {
 	// sysexEscape = 0xF7,
 }
 
-export const enum MidiControlEventMessage {
+export enum MidiControlEventMessage {
 	setParameterMSB = 0x06,
 	volumeMSB = 0x07,
 	panMSB = 0x0a,
@@ -67,7 +67,7 @@ export const enum MidiControlEventMessage {
     */
 }
 
-export const enum MidiRegisteredParameterNumberMSB {
+export enum MidiRegisteredParameterNumberMSB {
 	pitchBendRange = 0x00, // semitones
 	fineTuning = 0x00,
 	coarseTuning = 0x00,
@@ -76,7 +76,7 @@ export const enum MidiRegisteredParameterNumberMSB {
 	reset = 0x7f,
 }
 
-export const enum MidiRegisteredParameterNumberLSB {
+export enum MidiRegisteredParameterNumberLSB {
 	pitchBendRange = 0x00, // cents
 	fineTuning = 0x01,
 	coarseTuning = 0x02,
@@ -85,7 +85,7 @@ export const enum MidiRegisteredParameterNumberLSB {
 	reset = 0x7f,
 }
 
-export const enum MidiMetaEventMessage {
+export enum MidiMetaEventMessage {
 	sequenceNumber = 0x00,
 	text = 0x01,
 	copyrightNotice = 0x02,
@@ -161,14 +161,14 @@ export const analogousDrumMap: { [K: number]: AnalogousDrum } = {
 
 export function midiVolumeToVolumeMult(volume: number): number {
 	// default midi volume is 100, pow(100/127,4)≈0.384 so I'm considering that the baseline volume.
-	return Math.pow(volume / 127, 4.0) / 0.3844015376046128;
+	return (volume / 127) ** 4.0 / 0.3844015376046128;
 }
 export function volumeMultToMidiVolume(volumeMult: number): number {
-	return Math.pow(volumeMult * 0.3844015376046128, 0.25) * 127;
+	return (volumeMult * 0.3844015376046128) ** 0.25 * 127;
 }
 export function midiExpressionToVolumeMult(expression: number): number {
-	return Math.pow(expression / 127, 4.0);
+	return (expression / 127) ** 4.0;
 }
 export function volumeMultToMidiExpression(volumeMult: number): number {
-	return Math.pow(volumeMult, 0.25) * 127;
+	return volumeMult ** 0.25 * 127;
 }

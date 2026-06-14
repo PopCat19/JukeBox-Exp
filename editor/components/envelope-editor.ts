@@ -10,8 +10,8 @@ import { Sizing } from "../ui/style-constants";
 // Copyright (c) 2012-2022 John Nesky and contributing authors, distributed under the MIT license, see accompanying the LICENSE.md file.
 
 import { HTML, SVG } from "imperative-html/dist/esm/elements-strict";
-import { Instrument } from "../../synth";
-import { Config, DropdownID, InstrumentType, LFOEnvelopeTypes, RandomEnvelopeTypes } from "../../synth/synth-config";
+import type { Instrument } from "../../synth";
+import { Config, DropdownID, type InstrumentType, LFOEnvelopeTypes, RandomEnvelopeTypes } from "../../synth/synth-config";
 import {
 	ChangeDiscreteEnvelope,
 	ChangeEnvelopeInverse,
@@ -29,8 +29,8 @@ import {
 	PasteEnvelope,
 } from "../changes";
 import { prettyNumber } from "../config/editor-config";
-import { Change } from "../core/change";
-import { SongDocument } from "../song-document";
+import type { Change } from "../core/change";
+import type { SongDocument } from "../song-document";
 import { addWheelSupport, deleteButton, dropdownButton, Slider } from "../ui";
 
 export class EnvelopeEditor {

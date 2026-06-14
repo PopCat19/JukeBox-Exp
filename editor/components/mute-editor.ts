@@ -13,8 +13,8 @@ import { HTML } from "imperative-html/dist/esm/elements-strict";
 import { ColorConfig } from "../../shared/color-config";
 import { Config } from "../../synth/synth-config";
 import { ChangeChannelName, ChangeChannelOrder, ChangeCleanChannelInstruments, ChangeCleanChannelPatterns, ChangeRemoveChannel } from "../changes";
-import { SongDocument } from "../song-document";
-import { SongEditor } from "../song-editor";
+import type { SongDocument } from "../song-document";
+import type { SongEditor } from "../song-editor";
 import { InputBox } from "../ui";
 import { ChannelRow } from "./channel-row";
 

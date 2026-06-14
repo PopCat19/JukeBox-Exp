@@ -5,9 +5,9 @@
 // This module:
 // - Handles spectrum and harmonics wave generation and updates
 
-import { HarmonicsWave, Instrument, SpectrumWave } from "../../../synth";
+import type { HarmonicsWave, Instrument, SpectrumWave } from "../../../synth";
 import { Change } from "../../core/change";
-import { SongDocument } from "../../song-document";
+import type { SongDocument } from "../../song-document";
 
 export class ChangeSpectrum extends Change {
 	constructor(doc: SongDocument, instrument: Instrument, spectrumWave: SpectrumWave) {

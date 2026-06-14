@@ -12,8 +12,8 @@ import { HTML, SVG } from "imperative-html/dist/esm/elements-strict";
 import { ColorConfig } from "../../shared/color-config";
 import { Config } from "../../synth/synth-config";
 import { isMobile } from "../config/editor-config";
-import { SongDocument } from "../song-document";
-import { SongEditor } from "../song-editor";
+import type { SongDocument } from "../song-document";
+import type { SongEditor } from "../song-editor";
 import { ChannelRow } from "./channel-row";
 
 export class TrackEditor {

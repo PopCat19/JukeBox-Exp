@@ -5,9 +5,9 @@
 // This module:
 // - Handles algorithm, feedback, operator waveform, pulse width, and frequency changes
 
-import { Instrument } from "../../../synth";
+import type { Instrument } from "../../../synth";
 import { Change } from "../../core/change";
-import { SongDocument } from "../../song-document";
+import type { SongDocument } from "../../song-document";
 
 export class ChangeAlgorithm extends Change {
 	constructor(doc: SongDocument, newValue: number) {

@@ -8,8 +8,8 @@
 // - Strips exp fields and delegates to base deserializer on read
 // - Guards format identity via isJukeboxExpObject
 
-import { fromJsonObjectImpl, SongLike, toJsonObjectImpl } from "../song-serialization";
-import { JUKEBOX_EXP_FORMAT, JUKEBOX_EXP_LATEST_VERSION, JUKEBOX_EXP_OLDEST_VERSION, JukeboxExpFields, JukeboxExpObject } from "./schema-types";
+import { fromJsonObjectImpl, type SongLike, toJsonObjectImpl } from "../song-serialization";
+import { JUKEBOX_EXP_FORMAT, JUKEBOX_EXP_LATEST_VERSION, JUKEBOX_EXP_OLDEST_VERSION, type JukeboxExpFields, type JukeboxExpObject } from "./schema-types";
 
 export function toJukeboxExpJson(song: SongLike, enableIntro = true, loopCount = 1, enableOutro = true): JukeboxExpObject {
 	const base = toJsonObjectImpl(song, enableIntro, loopCount, enableOutro) as Record<string, unknown>;

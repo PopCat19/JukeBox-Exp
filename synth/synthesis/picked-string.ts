@@ -133,10 +133,10 @@ export function buildPickedStringSource(voiceCount: number): string {
 			}`;
 
 	// Duplicate lines containing "#" for each voice and replace the "#" with the voice index.
-	pickedStringSource = pickedStringSource.replace(/^.*\#.*$/gm, (line) => {
+	pickedStringSource = pickedStringSource.replace(/^.*#.*$/gm, (line) => {
 		const lines: string[] = [];
 		for (let voice: number = 0; voice < voiceCount; voice++) {
-			lines.push(line.replace(/\#/g, String(voice)));
+			lines.push(line.replace(/#/g, String(voice)));
 		}
 		return lines.join("\n");
 	});

@@ -332,9 +332,9 @@ export class DynamicBiquadFilter {
 		this.a1Delta = (end.a[1] - start.a[1]) * deltaRate;
 		this.a2Delta = (end.a[2] - start.a[2]) * deltaRate;
 		if (useMultiplicativeInputCoefficients) {
-			this.b0Delta = Math.pow(end.b[0] / start.b[0], deltaRate);
-			this.b1Delta = Math.pow(end.b[1] / start.b[1], deltaRate);
-			this.b2Delta = Math.pow(end.b[2] / start.b[2], deltaRate);
+			this.b0Delta = (end.b[0] / start.b[0]) ** deltaRate;
+			this.b1Delta = (end.b[1] / start.b[1]) ** deltaRate;
+			this.b2Delta = (end.b[2] / start.b[2]) ** deltaRate;
 		} else {
 			this.b0Delta = (end.b[0] - start.b[0]) * deltaRate;
 			this.b1Delta = (end.b[1] - start.b[1]) * deltaRate;

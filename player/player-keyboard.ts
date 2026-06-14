@@ -5,7 +5,7 @@
 // This module:
 // - Registers a keydown listener for playback, navigation, and sharing shortcuts
 
-import { PlayerControls } from "./player-controls";
+import type { PlayerControls } from "./player-controls";
 
 export function bindPlayerKeys(controls: PlayerControls): void {
 	window.addEventListener("keydown", (event: KeyboardEvent): void => {

@@ -10,11 +10,11 @@
 
 import { HTML } from "imperative-html/dist/esm/elements-strict";
 import { clamp, parseFloatWithDefault, parseIntWithDefault } from "../../synth";
-import { Config, Dictionary } from "../../synth/synth-config";
+import { Config, type Dictionary } from "../../synth/synth-config";
 import { EditorConfig } from "../config/editor-config";
-import { SongDocument } from "../song-document";
+import type { SongDocument } from "../song-document";
 import { addWheelSupport, flex, flexPane, inputRow, paneContainer, promptRowBetween, promptRowEnd, s, searchInput, stepperInput } from "../ui";
-import { generateAllSampleURLs, generateSampleURL, parseSampleURLs, SampleEntry } from "./add-samples-url-parser";
+import { generateAllSampleURLs, generateSampleURL, parseSampleURLs, type SampleEntry } from "./add-samples-url-parser";
 import { BasePrompt } from "./base-prompt";
 
 const { button, div, h2, span, input, select, option, a, code, p, textarea } = HTML;
@@ -273,7 +273,7 @@ export class AddSamplesPrompt extends BasePrompt {
 	private _getSampleName = (entry: SampleEntry): string => {
 		try {
 			const parsedUrl = new URL(entry.url);
-			return decodeURIComponent(parsedUrl.pathname.replace(/^([^\/]*\/)+/, ""));
+			return decodeURIComponent(parsedUrl.pathname.replace(/^([^/]*\/)+/, ""));
 		} catch {
 			return entry.url || "(unnamed)";
 		}

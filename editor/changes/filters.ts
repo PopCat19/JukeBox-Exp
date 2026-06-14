@@ -8,10 +8,10 @@
 
 // Copyright (c) 2012-2022 John Nesky and contributing authors, distributed under the MIT license, see accompanying the LICENSE.md file.
 
-import { FilterControlPoint, FilterSettings, Instrument } from "../../synth";
-import { AutomationTarget, Config, EffectType, FilterType } from "../../synth/synth-config";
+import type { FilterControlPoint, FilterSettings, Instrument } from "../../synth";
+import { type AutomationTarget, Config, EffectType, type FilterType } from "../../synth/synth-config";
 import { Change, UndoableChange } from "../core/change";
-import { SongDocument } from "../song-document";
+import type { SongDocument } from "../song-document";
 
 export class ChangeEQFilterType extends Change {
 	constructor(doc: SongDocument, instrument: Instrument, newValue: boolean) {

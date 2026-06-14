@@ -9,13 +9,13 @@
 
 import { getPlugin } from "../plugins";
 import {
-	AutomationTarget,
-	Chord,
+	type AutomationTarget,
+	type Chord,
 	Config,
-	Dictionary,
-	DictionaryArray,
+	type Dictionary,
+	type DictionaryArray,
 	EffectType,
-	Envelope,
+	type Envelope,
 	EnvelopeType,
 	effectsIncludeBitcrusher,
 	effectsIncludeChord,
@@ -37,10 +37,10 @@ import {
 	InstrumentType,
 	LFOEnvelopeTypes,
 	SustainType,
-	Transition,
+	type Transition,
 	toNameMap,
-	Unison,
-	Vibrato,
+	type Unison,
+	type Vibrato,
 } from "../synth-config";
 import { centsToDetune, clamp, detuneToCents, fadeInSettingToSeconds, fadeOutSettingToTicks, secondsToFadeInSetting, ticksToFadeOutSetting } from "../util";
 import { HarmonicsWave, SpectrumWave } from "../waves";
@@ -1408,7 +1408,7 @@ export class Instrument {
 
 			for (let j: number = 0; j < Config.operatorCount + (this.type === InstrumentType.fm6op ? 2 : 0); j++) {
 				const operator: Operator = this.operators[j];
-				let operatorObject: any = undefined;
+				let operatorObject: any;
 				if (instrumentObject["operators"] !== undefined) operatorObject = instrumentObject["operators"][j];
 				if (operatorObject === undefined) operatorObject = {};
 
@@ -1737,7 +1737,7 @@ export class Instrument {
 	}
 
 	public static frequencyFromPitch(pitch: number): number {
-		return 440.0 * Math.pow(2.0, (pitch - 69.0) / Config.pitchesPerOctave);
+		return 440.0 * 2.0 ** ((pitch - 69.0) / Config.pitchesPerOctave);
 	}
 
 	public addEnvelope(

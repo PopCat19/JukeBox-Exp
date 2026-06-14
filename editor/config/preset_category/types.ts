@@ -5,7 +5,7 @@
 // This module:
 // - Exports PresetCategory, Preset, and InputPresetCategory interfaces
 
-import { BeepBoxOption, DictionaryArray, InstrumentType } from "../../../synth/synth-config";
+import type { BeepBoxOption, DictionaryArray, InstrumentType } from "../../../synth/synth-config";
 
 export interface PresetCategory extends BeepBoxOption {
 	readonly presets: DictionaryArray<Preset>;

@@ -9,11 +9,11 @@
 
 // Copyright (c) 2012-2022 John Nesky and contributing authors, distributed under the MIT license, see accompanying the LICENSE.md file.
 
-import { Note, Pattern } from "../../synth";
+import { Note, type Pattern } from "../../synth";
 import { Config } from "../../synth/synth-config";
 import { ChangeChannelBar, ChangeDeleteBars, ChangeEnsurePatternExists, ChangeInsertBars, ChangeNoteAdded, ChangeNoteLength, ChangePinTime } from "../changes";
 import { Piano } from "../components/piano";
-import { SongDocument } from "../song-document";
+import type { SongDocument } from "../song-document";
 import { ChangeGroup } from "./change";
 
 export class SongPerformance {

@@ -29,27 +29,27 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-export const enum FilterType {
+export enum FilterType {
 	lowPass,
 	highPass,
 	peak,
 	length,
 }
 
-export const enum SustainType {
+export enum SustainType {
 	bright,
 	acoustic,
 	length,
 }
 
-export const enum GranularEnvelopeType {
+export enum GranularEnvelopeType {
 	parabolic,
 	raisedCosineBell,
 	// trapezoid,
 	length,
 }
 
-export const enum EnvelopeType {
+export enum EnvelopeType {
 	none,
 	noteSize,
 	pitch, // slarmoo's box 0.9
@@ -69,7 +69,7 @@ export const enum EnvelopeType {
 	// add new envelope types here
 }
 
-export const enum DropdownID {
+export enum DropdownID {
 	Vibrato = 0,
 	Pan = 1,
 	Chord = 2,
@@ -81,7 +81,7 @@ export const enum DropdownID {
 	EnvelopeSettings = 8,
 }
 
-export const enum EffectType {
+export enum EffectType {
 	reverb,
 	chorus,
 	panning,
@@ -104,7 +104,7 @@ export const enum EffectType {
 	length,
 }
 
-export const enum EnvelopeComputeIndex {
+export enum EnvelopeComputeIndex {
 	noteVolume,
 	noteFilterAllFreqs,
 	pulseWidth,
@@ -173,7 +173,7 @@ export const enum EnvelopeComputeIndex {
 	length,
 }
 
-export const enum LFOEnvelopeTypes {
+export enum LFOEnvelopeTypes {
 	sine,
 	square,
 	triangle,
@@ -184,7 +184,7 @@ export const enum LFOEnvelopeTypes {
 	length,
 }
 
-export const enum RandomEnvelopeTypes {
+export enum RandomEnvelopeTypes {
 	time,
 	pitch,
 	note,
@@ -192,7 +192,7 @@ export const enum RandomEnvelopeTypes {
 	length,
 }
 
-export const enum SampleLoadingStatus {
+export enum SampleLoadingStatus {
 	loading,
 	loaded,
 	error,

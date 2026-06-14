@@ -11,14 +11,14 @@ import { Sizing } from "../ui/style-constants";
 
 import { HTML, SVG } from "imperative-html/dist/esm/elements-strict";
 import { ColorConfig } from "../../shared/color-config";
-import { HarmonicsWave, Instrument } from "../../synth";
+import type { HarmonicsWave, Instrument } from "../../synth";
 import { Config } from "../../synth/synth-config";
 import { ChangeHarmonics } from "../changes";
 import { prettyNumber } from "../config/editor-config";
-import { PromptEditorRefs } from "../core/prompt-manager";
+import type { PromptEditorRefs } from "../core/prompt-manager";
 import { closePrompt, updatePlayButton } from "../prompts/input-helpers";
-import { Prompt } from "../prompts/prompt";
-import { SongDocument } from "../song-document";
+import type { Prompt } from "../prompts/prompt";
+import type { SongDocument } from "../song-document";
 import { flexRowCenter } from "../ui";
 
 export class HarmonicsEditor {

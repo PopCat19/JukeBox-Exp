@@ -8,7 +8,7 @@
 // - Manages playback controls at bottom of panel
 
 import { HTML } from "imperative-html/dist/esm/elements-strict";
-import { SongDocument } from "../song-document";
+import type { SongDocument } from "../song-document";
 import { InstrumentSettingsPanel } from "./instrument-settings-panel";
 import { MenuBar } from "./menu-bar";
 import { PlaybackControls } from "./playback-controls";

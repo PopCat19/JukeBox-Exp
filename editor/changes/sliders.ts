@@ -8,10 +8,10 @@
 
 // Copyright (c) 2012-2022 John Nesky and contributing authors, distributed under the MIT license, see accompanying the LICENSE.md file.
 
-import { Instrument } from "../../synth";
+import type { Instrument } from "../../synth";
 import { Config } from "../../synth/synth-config";
 import { Change } from "../core/change";
-import { SongDocument } from "../song-document";
+import type { SongDocument } from "../song-document";
 
 export class ChangeInstrumentSlider extends Change {
 	protected _instrument: Instrument;

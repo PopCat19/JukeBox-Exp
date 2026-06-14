@@ -3,7 +3,7 @@
 // Purpose: Exports a song to MIDI format
 
 import { Synth } from "../../synth";
-import { Song } from "../../synth/song";
+import type { Song } from "../../synth/song";
 import { Config, getArpeggioPitchIndex, InstrumentType } from "../../synth/synth-config";
 import { EditorConfig } from "../config/editor-config";
 import {

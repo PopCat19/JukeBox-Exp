@@ -5,10 +5,10 @@
 // This module:
 // - Handles transition and effect toggle changes
 
-import { Instrument } from "../../../synth";
+import type { Instrument } from "../../../synth";
 import { EffectType } from "../../../synth/synth-config";
 import { Change } from "../../core/change";
-import { SongDocument } from "../../song-document";
+import type { SongDocument } from "../../song-document";
 
 export class ChangeTransition extends Change {
 	constructor(doc: SongDocument, newValue: number) {

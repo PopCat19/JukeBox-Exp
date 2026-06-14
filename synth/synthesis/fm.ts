@@ -6,7 +6,7 @@
 // - Provides FM and operator source code templates
 // - Builds FM synthesis source strings for new Function() compilation
 
-import { Instrument } from "../instruments";
+import type { Instrument } from "../instruments";
 import { Config } from "../synth-config";
 
 export const fmSourceTemplate: string[] = (
@@ -116,15 +116,15 @@ export function buildFmSource(instrument: Instrument): string {
 							}
 							modulators += feedbacks.join(" + ") + ")";
 						}
-						synthSource.push(operatorLine.replace(/\#/g, j + "").replace("/* + operator@Scaled*/", modulators));
+						synthSource.push(operatorLine.replace(/#/g, j + "").replace("/* + operator@Scaled*/", modulators));
 					} else {
-						synthSource.push(operatorLine.replace(/\#/g, j + ""));
+						synthSource.push(operatorLine.replace(/#/g, j + ""));
 					}
 				}
 			}
 		} else if (line.indexOf("#") !== -1) {
 			for (let j: number = 0; j < Config.operatorCount; j++) {
-				synthSource.push(line.replace(/\#/g, j + ""));
+				synthSource.push(line.replace(/#/g, j + ""));
 			}
 		} else {
 			synthSource.push(line);

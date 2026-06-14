@@ -5,10 +5,10 @@
 // This module:
 // - Handles envelope add/remove, target, type, pitch, and random envelope changes
 
-import { Instrument } from "../../../synth";
+import type { Instrument } from "../../../synth";
 import { Config } from "../../../synth/synth-config";
 import { Change } from "../../core/change";
-import { SongDocument } from "../../song-document";
+import type { SongDocument } from "../../song-document";
 
 export class ChangeAddEnvelope extends Change {
 	constructor(doc: SongDocument) {

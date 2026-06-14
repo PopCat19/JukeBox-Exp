@@ -7,7 +7,7 @@
 // - Applies shortener configuration
 
 import { HTML } from "imperative-html/dist/esm/elements-strict";
-import { SongDocument } from "../song-document";
+import type { SongDocument } from "../song-document";
 import { selectField } from "../ui";
 import { BasePrompt } from "./base-prompt";
 

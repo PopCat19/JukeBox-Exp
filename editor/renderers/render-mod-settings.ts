@@ -9,8 +9,8 @@
 // - Hides chord options, custom settings group, and related rows
 
 import { HTML } from "imperative-html/dist/esm/elements-strict";
-import { ChannelColors, ColorConfig } from "../../shared/color-config";
-import { Channel, Instrument } from "../../synth";
+import { type ChannelColors, ColorConfig } from "../../shared/color-config";
+import type { Channel, Instrument } from "../../synth";
 import {
 	Config,
 	effectsIncludeBitcrusher,
@@ -30,8 +30,8 @@ import {
 	effectsIncludeVibrato,
 	InstrumentType,
 } from "../../synth/synth-config";
-import { Preferences } from "../core/preferences";
-import { SongDocument } from "../song-document";
+import type { Preferences } from "../core/preferences";
+import type { SongDocument } from "../song-document";
 
 const { option } = HTML;
 

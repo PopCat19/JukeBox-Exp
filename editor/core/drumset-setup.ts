@@ -11,7 +11,7 @@ import { HTML } from "imperative-html/dist/esm/elements-strict";
 import { Config } from "../../synth/synth-config";
 import { ChangeDrumsetEnvelope } from "../changes";
 import { SpectrumEditor } from "../components/spectrum-editor";
-import { SongDocument } from "../song-document";
+import type { SongDocument } from "../song-document";
 
 const { div, select, span, option } = HTML;
 

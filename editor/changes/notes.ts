@@ -10,11 +10,11 @@
 // Copyright (c) 2012-2022 John Nesky and contributing authors, distributed under the MIT license, see accompanying the LICENSE.md file.
 
 import { ColorConfig } from "../../shared/color-config";
-import { Channel, Instrument, makeNotePin, Note, NotePin, Pattern, Song } from "../../synth";
-import { Config, Dictionary } from "../../synth/synth-config";
+import { Channel, Instrument, makeNotePin, Note, type NotePin, Pattern, type Song } from "../../synth";
+import { Config, type Dictionary } from "../../synth/synth-config";
 import { Change, ChangeGroup, ChangeSequence, UndoableChange } from "../core/change";
-import { SongDocument } from "../song-document";
-import { Slider } from "../ui";
+import type { SongDocument } from "../song-document";
+import type { Slider } from "../ui";
 import { discardInvalidPatternInstruments, patternsContainSameInstruments, projectNoteIntoBar, removeRedundantPins } from "./util";
 
 export class ChangeMoveAndOverflowNotes extends ChangeGroup {
@@ -469,7 +469,7 @@ export class ChangePatternRhythm extends ChangeSequence {
 		super();
 		const minDivision: number = Config.partsPerBeat / Config.rhythms[doc.song.rhythm].stepsPerBeat;
 
-		const changeRhythm: (oldTime: number) => number = function (oldTime: number): number {
+		const changeRhythm: (oldTime: number) => number = (oldTime: number): number => {
 			const thresholds: number[] | null = Config.rhythms[doc.song.rhythm].roundUpThresholds;
 			if (thresholds != null) {
 				const beatStart: number = Math.floor(oldTime / Config.partsPerBeat) * Config.partsPerBeat;
@@ -1607,9 +1607,7 @@ export class ChangePaste extends ChangeGroup {
 
 		// Need to re-sort the notes by start time as they might change order because of paste.
 		if (pattern != null && doc.song.getChannelIsMod(doc.channel)) {
-			pattern.notes.sort(function (a, b) {
-				return a.start === b.start ? a.pitches[0] - b.pitches[0] : a.start - b.start;
-			});
+			pattern.notes.sort((a, b) => (a.start === b.start ? a.pitches[0] - b.pitches[0] : a.start - b.start));
 		}
 
 		doc.notifier.changed();

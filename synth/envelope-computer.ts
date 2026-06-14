@@ -8,20 +8,20 @@
 
 import { xxHash32 } from "js-xxhash";
 import type { InstrumentState } from "./instrument-state";
-import { EnvelopeSettings, FilterSettings, Instrument } from "./instruments";
-import { NotePin } from "./notes";
+import type { EnvelopeSettings, FilterSettings, Instrument } from "./instruments";
+import type { NotePin } from "./notes";
 import type { Synth } from "./synth";
 import {
-	AutomationTarget,
+	type AutomationTarget,
 	Config,
-	Envelope,
+	type Envelope,
 	EnvelopeComputeIndex,
 	EnvelopeType,
 	FilterType,
 	getArpeggioPitchIndex,
 	LFOEnvelopeTypes,
 	RandomEnvelopeTypes,
-	Transition,
+	type Transition,
 } from "./synth-config";
 import { noteSizeToVolumeMult } from "./synth-shared";
 import type { Tone } from "./tone";
@@ -251,7 +251,7 @@ export class EnvelopeComputer {
 				inverse = instrument.envelopes[envelopeIndex].inverse;
 				isDiscrete = instrument.envelopes[envelopeIndex].discrete;
 				perEnvelopeSpeed = instrument.envelopes[envelopeIndex].perEnvelopeSpeed;
-				globalEnvelopeSpeed = Math.pow(instrument.envelopeSpeed, 2) / 144;
+				globalEnvelopeSpeed = instrument.envelopeSpeed ** 2 / 144;
 				envelopeSpeed = perEnvelopeSpeed * globalEnvelopeSpeed;
 
 				perEnvelopeLowerBound = instrument.envelopes[envelopeIndex].perEnvelopeLowerBound;
@@ -540,13 +540,13 @@ export class EnvelopeComputer {
 			case EnvelopeType.pitch:
 				// inversion and bounds are handled in the pitch calculation done prior
 				return pitch;
-			case EnvelopeType.pseudorandom:
+			case EnvelopeType.pseudorandom: {
 				// randomization is essentially just a complex hashing function which appears random to us, but is repeatable every time
 				// either the time passed from the beginning of the song or the pitch of the note can be used for hashing
 				const hashMax: number = 0xffffffff;
 				const step: number = steps;
 				switch (waveform) {
-					case RandomEnvelopeTypes.time:
+					case RandomEnvelopeTypes.time: {
 						if (step <= 1) return 1;
 						const timeHash: number = xxHash32((perEnvelopeSpeed === 0 ? 0 : Math.floor((timeSinceStart * perEnvelopeSpeed) / 256)) + "", seed);
 						if (inverse) {
@@ -554,14 +554,16 @@ export class EnvelopeComputer {
 						} else {
 							return (boundAdjust * (step / (step - 1)) * Math.floor((timeHash * step) / (hashMax + 1))) / step + perEnvelopeLowerBound;
 						}
-					case RandomEnvelopeTypes.pitch:
+					}
+					case RandomEnvelopeTypes.pitch: {
 						const pitchHash: number = xxHash32(defaultPitch + "", seed);
 						if (inverse) {
 							return perEnvelopeUpperBound - (boundAdjust * pitchHash) / (hashMax + 1);
 						} else {
 							return (boundAdjust * pitchHash) / (hashMax + 1) + perEnvelopeLowerBound;
 						}
-					case RandomEnvelopeTypes.note:
+					}
+					case RandomEnvelopeTypes.note: {
 						if (step <= 1) return 1;
 						const noteHash: number = xxHash32(notePinStart + "", seed);
 						if (inverse) {
@@ -569,7 +571,8 @@ export class EnvelopeComputer {
 						} else {
 							return (boundAdjust * (step / (step - 1)) * Math.floor((noteHash * step) / (hashMax + 1))) / step + perEnvelopeLowerBound;
 						}
-					case RandomEnvelopeTypes.timeSmooth:
+					}
+					case RandomEnvelopeTypes.timeSmooth: {
 						const timeHashA: number = xxHash32((perEnvelopeSpeed === 0 ? 0 : Math.floor((timeSinceStart * perEnvelopeSpeed) / 256)) + "", seed);
 						const timeHashB: number = xxHash32(
 							(perEnvelopeSpeed === 0 ? 0 : Math.floor((timeSinceStart * perEnvelopeSpeed + 256) / 256)) + "",
@@ -582,9 +585,11 @@ export class EnvelopeComputer {
 						} else {
 							return (boundAdjust * weightedAverage) / (hashMax + 1) + perEnvelopeLowerBound;
 						}
+					}
 					default:
 						throw new Error("Unrecognized operator envelope waveform type: " + waveform);
 				}
+			}
 			case EnvelopeType.twang:
 				if (inverse) {
 					return perEnvelopeUpperBound - boundAdjust * (1.0 / (1.0 + time * envelopeSpeed));
@@ -631,7 +636,7 @@ export class EnvelopeComputer {
 						} else {
 							return ((beats * envelopeSpeed) % 1) * boundAdjust + perEnvelopeLowerBound;
 						}
-					case LFOEnvelopeTypes.trapezoid:
+					case LFOEnvelopeTypes.trapezoid: {
 						let trap: number = 0;
 						if (inverse) {
 							trap =
@@ -645,7 +650,8 @@ export class EnvelopeComputer {
 								perEnvelopeLowerBound / 2;
 						}
 						return Math.max(perEnvelopeLowerBound, Math.min(perEnvelopeUpperBound, trap));
-					case LFOEnvelopeTypes.steppedSaw:
+					}
+					case LFOEnvelopeTypes.steppedSaw: {
 						if (steps <= 1) return 1;
 						const saw: number = (beats * envelopeSpeed) % 1;
 						if (inverse) {
@@ -653,11 +659,13 @@ export class EnvelopeComputer {
 						} else {
 							return (Math.floor(saw * steps) * boundAdjust) / (steps - 1) + perEnvelopeLowerBound;
 						}
+					}
 
-					case LFOEnvelopeTypes.steppedTri:
+					case LFOEnvelopeTypes.steppedTri: {
 						if (steps <= 1) return 1;
 						const tri: number = 0.5 + (inverse ? -1 : 1) * (1 / Math.PI) * Math.asin(Math.sin(Math.PI / 2 + beats * Math.PI * 2.0 * envelopeSpeed));
 						return (Math.round(tri * (steps - 1)) * boundAdjust) / (steps - 1) + perEnvelopeLowerBound;
+					}
 					default:
 						throw new Error("Unrecognized operator envelope waveform type: " + waveform);
 				}
@@ -678,7 +686,7 @@ export class EnvelopeComputer {
 				} else {
 					return Math.max(1.0 + perEnvelopeLowerBound, 1.0 + perEnvelopeUpperBound - unspedTime * globalEnvelopeSpeed * 10.0); // punch only uses global envelope speed
 				}
-			case EnvelopeType.flare:
+			case EnvelopeType.flare: {
 				const attack: number = 0.25 / Math.sqrt(envelopeSpeed * perEnvelopeSpeed); // flare and blip need to be handled a little differently with envelope speeds. The old system must be used here
 				if (inverse) {
 					return (
@@ -691,11 +699,12 @@ export class EnvelopeComputer {
 						perEnvelopeLowerBound
 					);
 				}
+			}
 			case EnvelopeType.decay:
 				if (inverse) {
-					return perEnvelopeUpperBound - boundAdjust * Math.pow(2, -envelopeSpeed * time);
+					return perEnvelopeUpperBound - boundAdjust * 2 ** (-envelopeSpeed * time);
 				} else {
-					return boundAdjust * Math.pow(2, -envelopeSpeed * time) + perEnvelopeLowerBound;
+					return boundAdjust * 2 ** (-envelopeSpeed * time) + perEnvelopeLowerBound;
 				}
 			case EnvelopeType.blip:
 				if (inverse) {
@@ -703,7 +712,7 @@ export class EnvelopeComputer {
 				} else {
 					return boundAdjust * +(unspedTime < 0.25 / Math.sqrt(envelopeSpeed * perEnvelopeSpeed)) + perEnvelopeLowerBound;
 				}
-			case EnvelopeType.wibble:
+			case EnvelopeType.wibble: {
 				let temp = 0.5 - Math.cos(beats * envelopeSpeed) * 0.5;
 				temp = 1.0 / (1.0 + time * (envelopeSpeed - temp / (1.5 / envelopeSpeed)));
 				temp = temp > 0.0 ? temp : 0.0;
@@ -712,6 +721,7 @@ export class EnvelopeComputer {
 				} else {
 					return boundAdjust * temp + perEnvelopeLowerBound;
 				}
+			}
 			case EnvelopeType.linear: {
 				let lin = 1.0 - time / (16 / envelopeSpeed);
 				lin = lin > 0.0 ? lin : 0.0;

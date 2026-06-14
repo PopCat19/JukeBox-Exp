@@ -7,9 +7,9 @@
 // - Shows loading progress indicators
 
 import { HTML } from "imperative-html/dist/esm/elements-strict";
-import { ChipWave, Config, getSampleLoadingStatusName, SampleLoadingStatus, sampleLoadingState } from "../../synth/synth-config";
+import { type ChipWave, Config, getSampleLoadingStatusName, SampleLoadingStatus, sampleLoadingState } from "../../synth/synth-config";
 import { EditorConfig } from "../config/editor-config";
-import { SongDocument } from "../song-document";
+import type { SongDocument } from "../song-document";
 import { BasePrompt } from "./base-prompt";
 
 const { div, h2, span, input } = HTML;

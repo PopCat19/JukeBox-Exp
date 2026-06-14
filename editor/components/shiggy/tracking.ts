@@ -7,8 +7,8 @@
 
 import { tickGroupDialogue } from "./bubbles";
 import { clearDialogue, forceEndConversation, positionDialogue, showNpcDialogue, startConversation } from "./dialogue";
-import { FrameResult, PhysEvent, PhysicsEngine } from "./physics";
-import { SHIGGY_SIZE, SummonedShiggy } from "./types";
+import { type FrameResult, type PhysEvent, PhysicsEngine } from "./physics";
+import { SHIGGY_SIZE, type SummonedShiggy } from "./types";
 
 export class CursorTracker {
 	private _physics: PhysicsEngine = new PhysicsEngine();

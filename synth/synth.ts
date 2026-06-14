@@ -11,13 +11,13 @@
 // Copyright (c) 2012-2022 John Nesky and contributing authors, distributed under the MIT license, see accompanying the LICENSE.md file.
 
 import { ChannelState } from "./channel-state";
-import { Channel } from "./channels";
+import type { Channel } from "./channels";
 import { Deque } from "./deque";
 import { EnvelopeComputer } from "./envelope-computer";
-import { DynamicBiquadFilter, FilterCoefficients, FrequencyResponse } from "./filtering";
+import { DynamicBiquadFilter, type FilterCoefficients, FrequencyResponse } from "./filtering";
 import { InstrumentState } from "./instrument-state";
-import { FilterControlPoint, FilterSettings, HeldMod, Instrument } from "./instruments";
-import { Note, NotePin, Pattern } from "./notes";
+import { FilterControlPoint, FilterSettings, type HeldMod, Instrument } from "./instruments";
+import type { Note, NotePin, Pattern } from "./notes";
 import { PickedString } from "./picked-string";
 import { getCapabilities, getEffectsSynthFunction, getPlugin } from "./plugins";
 import { Song } from "./song";
@@ -462,7 +462,7 @@ export class Synth {
 	}
 
 	private static operatorAmplitudeCurve(amplitude: number): number {
-		return (Math.pow(16.0, amplitude / 15.0) - 1.0) / 15.0;
+		return (16.0 ** (amplitude / 15.0) - 1.0) / 15.0;
 	}
 
 	public samplesPerSecond: number = Config.defaultSampleRate;
@@ -743,9 +743,7 @@ export class Synth {
 										// Only the first tempo mod instrument for this bar will be checked (well, the first with a note in this bar).
 										foundMod = true;
 										// Need to re-sort the notes by start time to make the next part much less painful.
-										pattern.notes.sort(function (a, b) {
-											return a.start === b.start ? a.pitches[0] - b.pitches[0] : a.start - b.start;
-										});
+										pattern.notes.sort((a, b) => (a.start === b.start ? a.pitches[0] - b.pitches[0] : a.start - b.start));
 										for (const note of pattern.notes) {
 											if (note.pitches[0] === Config.modCount - 1 - mod) {
 												// Compute samples up to this note
@@ -1457,8 +1455,8 @@ export class Synth {
 
 		// Post processing parameters:
 		const volume: number = +this.volume;
-		const limitDecay: number = 1.0 - Math.pow(0.5, this.song.limitDecay / this.samplesPerSecond);
-		const limitRise: number = 1.0 - Math.pow(0.5, this.song.limitRise / this.samplesPerSecond);
+		const limitDecay: number = 1.0 - 0.5 ** (this.song.limitDecay / this.samplesPerSecond);
+		const limitRise: number = 1.0 - 0.5 ** (this.song.limitRise / this.samplesPerSecond);
 		let limit: number = +this.limit;
 		const skippedBars: number[] = [];
 		let firstSkippedBufferIndex = -1;
@@ -3464,14 +3462,14 @@ export class Synth {
 				let freqStart: number;
 				let freqEnd: number;
 				if (freqEnvelopeStart !== 1.0 || freqEnvelopeEnd !== 1.0) {
-					freqStart = Math.pow(2.0, Math.log2(targetFreqStart / baseFreqStart) * freqEnvelopeStart) * baseFreqStart;
-					freqEnd = Math.pow(2.0, Math.log2(targetFreqEnd / baseFreqEnd) * freqEnvelopeEnd) * baseFreqEnd;
+					freqStart = 2.0 ** (Math.log2(targetFreqStart / baseFreqStart) * freqEnvelopeStart) * baseFreqStart;
+					freqEnd = 2.0 ** (Math.log2(targetFreqEnd / baseFreqEnd) * freqEnvelopeEnd) * baseFreqEnd;
 				} else {
 					freqStart = targetFreqStart;
 					freqEnd = targetFreqEnd;
 				}
 				tone.phaseDeltas[i] = freqStart * sampleTime;
-				tone.phaseDeltaScales[i] = Math.pow(freqEnd / freqStart, 1.0 / roundedSamplesPerTick);
+				tone.phaseDeltaScales[i] = (freqEnd / freqStart) ** (1.0 / roundedSamplesPerTick);
 
 				let amplitudeStart: number = instrument.operators[i].amplitude;
 				let amplitudeEnd: number = instrument.operators[i].amplitude;
@@ -3505,9 +3503,9 @@ export class Synth {
 					if (tone.prevPitchExpressions[i] != null) {
 						pitchExpressionStart = tone.prevPitchExpressions[i]!;
 					} else {
-						pitchExpressionStart = Math.pow(2.0, -(pitchStart - expressionReferencePitch) / pitchDamping);
+						pitchExpressionStart = 2.0 ** (-(pitchStart - expressionReferencePitch) / pitchDamping);
 					}
-					const pitchExpressionEnd: number = Math.pow(2.0, -(pitchEnd - expressionReferencePitch) / pitchDamping);
+					const pitchExpressionEnd: number = 2.0 ** (-(pitchEnd - expressionReferencePitch) / pitchDamping);
 					tone.prevPitchExpressions[i] = pitchExpressionEnd;
 					expressionStart *= pitchExpressionStart;
 					expressionEnd *= pitchExpressionEnd;
@@ -3541,7 +3539,7 @@ export class Synth {
 				tone.operatorExpressionDeltas[i] = (expressionEnd - expressionStart) / roundedSamplesPerTick;
 			}
 
-			sineExpressionBoost *= (Math.pow(2.0, 2.0 - (1.4 * instrument.feedbackAmplitude) / 15.0) - 1.0) / 3.0;
+			sineExpressionBoost *= (2.0 ** (2.0 - (1.4 * instrument.feedbackAmplitude) / 15.0) - 1.0) / 3.0;
 			sineExpressionBoost *= 1.0 - Math.min(1.0, Math.max(0.0, totalCarrierExpression - 1) / 2.0);
 			sineExpressionBoost = 1.0 + sineExpressionBoost * 3.0;
 			let expressionStart: number =
@@ -3582,8 +3580,8 @@ export class Synth {
 			tone.feedbackMult = feedbackStart;
 			tone.feedbackDelta = (feedbackEnd - feedbackStart) / roundedSamplesPerTick;
 		} else {
-			const freqEndRatio: number = Math.pow(2.0, ((intervalEnd - intervalStart) * intervalScale) / 12.0);
-			const basePhaseDeltaScale: number = Math.pow(freqEndRatio, 1.0 / roundedSamplesPerTick);
+			const freqEndRatio: number = 2.0 ** (((intervalEnd - intervalStart) * intervalScale) / 12.0);
+			const basePhaseDeltaScale: number = freqEndRatio ** (1.0 / roundedSamplesPerTick);
 			const isMono: boolean = chord.name === "monophonic";
 
 			let pitch: number = tone.pitches[0];
@@ -3592,8 +3590,8 @@ export class Synth {
 				if (chord.customInterval) {
 					const intervalOffset: number =
 						tone.pitches[1 + getArpeggioPitchIndex(tone.pitchCount - 1, instrument.fastTwoNoteArp, arpeggio)] - tone.pitches[0];
-					specialIntervalMult = Math.pow(2.0, intervalOffset / 12.0);
-					tone.specialIntervalExpressionMult = Math.pow(2.0, -intervalOffset / pitchDamping);
+					specialIntervalMult = 2.0 ** (intervalOffset / 12.0);
+					tone.specialIntervalExpressionMult = 2.0 ** (-intervalOffset / pitchDamping);
 				} else if (chord.arpeggiates) {
 					pitch = tone.pitches[getArpeggioPitchIndex(tone.pitchCount, instrument.fastTwoNoteArp, arpeggio)];
 				} else {
@@ -3608,9 +3606,9 @@ export class Synth {
 			if (tone.prevPitchExpressions[0] != null) {
 				pitchExpressionStart = tone.prevPitchExpressions[0]!;
 			} else {
-				pitchExpressionStart = Math.pow(2.0, -(startPitch - expressionReferencePitch) / pitchDamping);
+				pitchExpressionStart = 2.0 ** (-(startPitch - expressionReferencePitch) / pitchDamping);
 			}
-			const pitchExpressionEnd: number = Math.pow(2.0, -(endPitch - expressionReferencePitch) / pitchDamping);
+			const pitchExpressionEnd: number = 2.0 ** (-(endPitch - expressionReferencePitch) / pitchDamping);
 			tone.prevPitchExpressions[0] = pitchExpressionEnd;
 			let settingsExpressionMult: number = baseExpression * noteFilterExpression;
 
@@ -3664,7 +3662,7 @@ export class Synth {
 				tone.stringSustainEnd = useSustainEnd;
 
 				// Increase expression to compensate for string decay.
-				settingsExpressionMult *= Math.pow(2.0, 0.7 * (1.0 - useSustainStart / (Config.stringSustainRange - 1)));
+				settingsExpressionMult *= 2.0 ** (0.7 * (1.0 - useSustainStart / (Config.stringSustainRange - 1)));
 			}
 
 			const startFreq: number = Instrument.frequencyFromPitch(startPitch);
@@ -3677,25 +3675,25 @@ export class Synth {
 				settingsExpressionMult *= unisonExpression * voiceCountExpression;
 				const unisonEnvelopeStart = envelopeStarts[EnvelopeComputeIndex.unison];
 				const unisonEnvelopeEnd = envelopeEnds[EnvelopeComputeIndex.unison];
-				const unisonStartA: number = Math.pow(2.0, ((unisonOffset + unisonSpread) * unisonEnvelopeStart) / 12.0);
-				const unisonEndA: number = Math.pow(2.0, ((unisonOffset + unisonSpread) * unisonEnvelopeEnd) / 12.0);
+				const unisonStartA: number = 2.0 ** (((unisonOffset + unisonSpread) * unisonEnvelopeStart) / 12.0);
+				const unisonEndA: number = 2.0 ** (((unisonOffset + unisonSpread) * unisonEnvelopeEnd) / 12.0);
 				tone.phaseDeltas[0] = startFreq * sampleTime * unisonStartA;
-				tone.phaseDeltaScales[0] = basePhaseDeltaScale * Math.pow(unisonEndA / unisonStartA, 1.0 / roundedSamplesPerTick);
+				tone.phaseDeltaScales[0] = basePhaseDeltaScale * (unisonEndA / unisonStartA) ** (1.0 / roundedSamplesPerTick);
 				const divisor = unisonVoices === 1 ? 1 : unisonVoices - 1;
 				for (let i: number = 1; i <= unisonVoices; i++) {
 					const unisonStart: number =
-						Math.pow(2.0, ((unisonOffset + unisonSpread - (2 * i * unisonSpread) / divisor) * unisonEnvelopeStart) / 12.0) * specialIntervalMult;
+						2.0 ** (((unisonOffset + unisonSpread - (2 * i * unisonSpread) / divisor) * unisonEnvelopeStart) / 12.0) * specialIntervalMult;
 					const unisonEnd: number =
-						Math.pow(2.0, ((unisonOffset + unisonSpread - (2 * i * unisonSpread) / divisor) * unisonEnvelopeEnd) / 12.0) * specialIntervalMult;
+						2.0 ** (((unisonOffset + unisonSpread - (2 * i * unisonSpread) / divisor) * unisonEnvelopeEnd) / 12.0) * specialIntervalMult;
 					tone.phaseDeltas[i] = startFreq * sampleTime * unisonStart;
-					tone.phaseDeltaScales[i] = basePhaseDeltaScale * Math.pow(unisonEnd / unisonStart, 1.0 / roundedSamplesPerTick);
+					tone.phaseDeltaScales[i] = basePhaseDeltaScale * (unisonEnd / unisonStart) ** (1.0 / roundedSamplesPerTick);
 				}
 				for (let i: number = unisonVoices + 1; i < Config.unisonVoicesMax; i++) {
 					if (i === 2) {
-						const unisonBStart: number = Math.pow(2.0, ((unisonOffset - unisonSpread) * unisonEnvelopeStart) / 12.0) * specialIntervalMult;
-						const unisonBEnd: number = Math.pow(2.0, ((unisonOffset - unisonSpread) * unisonEnvelopeEnd) / 12.0) * specialIntervalMult;
+						const unisonBStart: number = 2.0 ** (((unisonOffset - unisonSpread) * unisonEnvelopeStart) / 12.0) * specialIntervalMult;
+						const unisonBEnd: number = 2.0 ** (((unisonOffset - unisonSpread) * unisonEnvelopeEnd) / 12.0) * specialIntervalMult;
 						tone.phaseDeltas[i] = startFreq * sampleTime * unisonBStart;
-						tone.phaseDeltaScales[i] = basePhaseDeltaScale * Math.pow(unisonBEnd / unisonBStart, 1.0 / roundedSamplesPerTick);
+						tone.phaseDeltaScales[i] = basePhaseDeltaScale * (unisonBEnd / unisonBStart) ** (1.0 / roundedSamplesPerTick);
 					} else {
 						tone.phaseDeltas[i] = tone.phaseDeltas[0];
 						tone.phaseDeltaScales[i] = tone.phaseDeltaScales[0];
@@ -3708,20 +3706,19 @@ export class Synth {
 				const unisonEnvelopeStart = envelopeStarts[EnvelopeComputeIndex.unison];
 				const unisonEnvelopeEnd = envelopeEnds[EnvelopeComputeIndex.unison];
 
-				const unisonStartA: number = Math.pow(2.0, ((unisonOffset + unisonSpread) * unisonEnvelopeStart) / 12.0);
-				const unisonEndA: number = Math.pow(2.0, ((unisonOffset + unisonSpread) * unisonEnvelopeEnd) / 12.0);
+				const unisonStartA: number = 2.0 ** (((unisonOffset + unisonSpread) * unisonEnvelopeStart) / 12.0);
+				const unisonEndA: number = 2.0 ** (((unisonOffset + unisonSpread) * unisonEnvelopeEnd) / 12.0);
 				tone.phaseDeltas[0] = startFreq * sampleTime * unisonStartA;
-				tone.phaseDeltaScales[0] = basePhaseDeltaScale * Math.pow(unisonEndA / unisonStartA, 1.0 / roundedSamplesPerTick);
+				tone.phaseDeltaScales[0] = basePhaseDeltaScale * (unisonEndA / unisonStartA) ** (1.0 / roundedSamplesPerTick);
 
 				const divisor = unisonVoices === 1 ? 1 : unisonVoices - 1;
 				for (let voice: number = 1; voice < unisonVoices; voice++) {
 					const unisonStart: number =
-						Math.pow(2.0, ((unisonOffset + unisonSpread - (2 * voice * unisonSpread) / divisor) * unisonEnvelopeStart) / 12.0) *
-						specialIntervalMult;
+						2.0 ** (((unisonOffset + unisonSpread - (2 * voice * unisonSpread) / divisor) * unisonEnvelopeStart) / 12.0) * specialIntervalMult;
 					const unisonEnd: number =
-						Math.pow(2.0, ((unisonOffset + unisonSpread - (2 * voice * unisonSpread) / divisor) * unisonEnvelopeEnd) / 12.0) * specialIntervalMult;
+						2.0 ** (((unisonOffset + unisonSpread - (2 * voice * unisonSpread) / divisor) * unisonEnvelopeEnd) / 12.0) * specialIntervalMult;
 					tone.phaseDeltas[voice] = startFreq * sampleTime * unisonStart;
-					tone.phaseDeltaScales[voice] = basePhaseDeltaScale * Math.pow(unisonEnd / unisonStart, 1.0 / roundedSamplesPerTick);
+					tone.phaseDeltaScales[voice] = basePhaseDeltaScale * (unisonEnd / unisonStart) ** (1.0 / roundedSamplesPerTick);
 				}
 			} else {
 				tone.phaseDeltas[0] = startFreq * sampleTime;
@@ -3755,15 +3752,13 @@ export class Synth {
 						this.getModValue(Config.modulators.dictionary["dynamism"].index, channelIndex, tone.instrumentIndex, true) / Config.supersawDynamismMax;
 				}
 
-				const curvedDynamismStart: number =
-					1.0 - Math.pow(Math.max(0.0, 1.0 - useDynamismStart * envelopeStarts[EnvelopeComputeIndex.supersawDynamism]), 0.2);
-				const curvedDynamismEnd: number =
-					1.0 - Math.pow(Math.max(0.0, 1.0 - useDynamismEnd * envelopeEnds[EnvelopeComputeIndex.supersawDynamism]), 0.2);
-				const firstVoiceAmplitudeStart: number = Math.pow(2.0, Math.log2(minFirstVoiceAmplitude) * curvedDynamismStart);
-				const firstVoiceAmplitudeEnd: number = Math.pow(2.0, Math.log2(minFirstVoiceAmplitude) * curvedDynamismEnd);
+				const curvedDynamismStart: number = 1.0 - Math.max(0.0, 1.0 - useDynamismStart * envelopeStarts[EnvelopeComputeIndex.supersawDynamism]) ** 0.2;
+				const curvedDynamismEnd: number = 1.0 - Math.max(0.0, 1.0 - useDynamismEnd * envelopeEnds[EnvelopeComputeIndex.supersawDynamism]) ** 0.2;
+				const firstVoiceAmplitudeStart: number = 2.0 ** (Math.log2(minFirstVoiceAmplitude) * curvedDynamismStart);
+				const firstVoiceAmplitudeEnd: number = 2.0 ** (Math.log2(minFirstVoiceAmplitude) * curvedDynamismEnd);
 
-				const dynamismStart: number = Math.sqrt((1.0 / Math.pow(firstVoiceAmplitudeStart, 2.0) - 1.0) / (Config.supersawVoiceCount - 1.0));
-				const dynamismEnd: number = Math.sqrt((1.0 / Math.pow(firstVoiceAmplitudeEnd, 2.0) - 1.0) / (Config.supersawVoiceCount - 1.0));
+				const dynamismStart: number = Math.sqrt((1.0 / firstVoiceAmplitudeStart ** 2.0 - 1.0) / (Config.supersawVoiceCount - 1.0));
+				const dynamismEnd: number = Math.sqrt((1.0 / firstVoiceAmplitudeEnd ** 2.0 - 1.0) / (Config.supersawVoiceCount - 1.0));
 				tone.supersawDynamism = dynamismStart;
 				tone.supersawDynamismDelta = (dynamismEnd - dynamismStart) / roundedSamplesPerTick;
 
@@ -3857,12 +3852,12 @@ export class Synth {
 				const spreadSliderEnd: number = useSpreadEnd * envelopeEnds[EnvelopeComputeIndex.supersawSpread];
 				// Just use the average detune for the current tick in the below loop.
 				const averageSpreadSlider: number = (spreadSliderStart + spreadSliderEnd) * 0.5;
-				const curvedSpread: number = Math.pow(1.0 - Math.sqrt(Math.max(0.0, 1.0 - averageSpreadSlider)), 1.75);
+				const curvedSpread: number = (1.0 - Math.sqrt(Math.max(0.0, 1.0 - averageSpreadSlider))) ** 1.75;
 				for (let i = 0; i < Config.supersawVoiceCount; i++) {
 					// Spread out the detunes around the center;
 					const offset: number =
-						i === 0 ? 0.0 : Math.pow((((i + 1) >> 1) - 0.5 + 0.025 * ((i & 2) - 1)) / (Config.supersawVoiceCount >> 1), 1.1) * ((i & 1) * 2 - 1);
-					tone.supersawUnisonDetunes[i] = Math.pow(2.0, (curvedSpread * offset) / 12.0);
+						i === 0 ? 0.0 : ((((i + 1) >> 1) - 0.5 + 0.025 * ((i & 2) - 1)) / (Config.supersawVoiceCount >> 1)) ** 1.1 * ((i & 1) * 2 - 1);
+					tone.supersawUnisonDetunes[i] = 2.0 ** ((curvedSpread * offset) / 12.0);
 				}
 
 				const baseShape: number = instrument.supersawShape / Config.supersawShapeMax;
@@ -4585,16 +4580,16 @@ export class Synth {
 	}
 
 	public static instrumentVolumeToVolumeMult(instrumentVolume: number): number {
-		return instrumentVolume === -Config.volumeRange / 2.0 ? 0.0 : Math.pow(2, Config.volumeLogScale * instrumentVolume);
+		return instrumentVolume === -Config.volumeRange / 2.0 ? 0.0 : 2 ** (Config.volumeLogScale * instrumentVolume);
 	}
 	public static volumeMultToInstrumentVolume(volumeMult: number): number {
 		return volumeMult <= 0.0 ? -Config.volumeRange / 2 : Math.min(Config.volumeRange, Math.log(volumeMult) / Math.LN2 / Config.volumeLogScale);
 	}
 	public static noteSizeToVolumeMult(size: number): number {
-		return Math.pow(Math.max(0.0, size) / Config.noteSizeMax, 1.5);
+		return (Math.max(0.0, size) / Config.noteSizeMax) ** 1.5;
 	}
 	public static volumeMultToNoteSize(volumeMult: number): number {
-		return Math.pow(Math.max(0.0, volumeMult), 1 / 1.5) * Config.noteSizeMax;
+		return Math.max(0.0, volumeMult) ** (1 / 1.5) * Config.noteSizeMax;
 	}
 
 	public getSamplesPerTick(): number {

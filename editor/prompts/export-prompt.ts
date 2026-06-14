@@ -12,11 +12,11 @@ import { HTML } from "imperative-html/dist/esm/elements-strict";
 import { Synth } from "../../synth";
 import { toJukeboxExpJson, toLegacyCompatJson } from "../../synth/formats";
 import { Config } from "../../synth/synth-config";
-import { SongDocument } from "../song-document";
+import type { SongDocument } from "../song-document";
 import { promptLabel, promptRowBetween, selectField } from "../ui";
 import { BasePrompt } from "./base-prompt";
 import { exportToMidi } from "./export-midi";
-import { Prompt } from "./prompt";
+import type { Prompt } from "./prompt";
 import { save } from "./save";
 
 const { div, h2, input, select, option } = HTML;
@@ -506,7 +506,7 @@ export class ExportPrompt extends BasePrompt {
 		if (event != null) input = <HTMLInputElement>event.target;
 		else if (use !== undefined) input = use;
 		else return;
-		const deleteChars = /[\+\*\$\?\|\{\}\\\/<>#%!`&'"=:@]/gi;
+		const deleteChars = /[+*$?|{}\\/<>#%!`&'"=:@]/gi;
 		if (deleteChars.test(input.value)) {
 			let cursorPos: number = <number>input.selectionStart;
 			input.value = input.value.replace(deleteChars, "");

@@ -9,7 +9,7 @@
 
 // Copyright (c) 2012-2022 John Nesky and contributing authors, distributed under the MIT license, see accompanying the LICENSE.md file.
 
-import { clamp, makeNotePin, Note, NotePin, Pattern, Song, Synth } from "../../synth";
+import { clamp, makeNotePin, Note, type NotePin, type Pattern, type Song, Synth } from "../../synth";
 import { Config } from "../../synth/synth-config";
 
 export function patternsContainSameInstruments(pattern1Instruments: number[], pattern2Instruments: number[]): boolean {
@@ -398,7 +398,7 @@ export function biasedFullyRandom(wave: Float32Array): void {
 	for (let i: number = 0; i < waveLength; i++) {
 		const v = Math.random() * 2 - 1;
 		const bias = 6;
-		const biased = v > 0 ? Math.pow(v, bias) : -Math.pow(-v, bias);
+		const biased = v > 0 ? v ** bias : -((-v) ** bias);
 		fullyRandomWave[i] = clamp(-24, 24 + 1, Math.floor(biased * 24));
 	}
 	for (let i = 0; i < waveLength; i++) {

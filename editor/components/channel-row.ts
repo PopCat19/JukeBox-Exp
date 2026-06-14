@@ -9,9 +9,9 @@
 // Copyright (C) 2021 John Nesky, distributed under the MIT license.
 
 import { HTML } from "imperative-html/dist/esm/elements-strict";
-import { ChannelColors, ColorConfig } from "../../shared/color-config";
-import { Pattern } from "../../synth";
-import { SongDocument } from "../song-document";
+import { type ChannelColors, ColorConfig } from "../../shared/color-config";
+import type { Pattern } from "../../synth";
+import type { SongDocument } from "../song-document";
 
 export class Box {
 	private readonly _text: Text = document.createTextNode("");

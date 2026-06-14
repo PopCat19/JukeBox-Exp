@@ -9,9 +9,9 @@
 // - Processes URL hash for song loading and sharing
 
 import { ColorConfig } from "../shared/color-config";
-import { SampleLoadedEvent, sampleLoadEvents } from "../synth/synth-config";
+import { type SampleLoadedEvent, sampleLoadEvents } from "../synth/synth-config";
 import { renderPlayhead, renderTimeline } from "./player-timeline";
-import { getLocalStorage, PlayerUI, setLocalStorage } from "./player-ui";
+import { getLocalStorage, type PlayerUI, setLocalStorage } from "./player-ui";
 
 export class PlayerControls {
 	private animationRequest: number | null = null;
@@ -226,7 +226,7 @@ export class PlayerControls {
 
 	private setSynthVolume(): void {
 		const volume: number = +this.ui.volumeSlider.value;
-		this.ui.synth.volume = Math.min(1.0, Math.pow(volume / 50.0, 0.5)) * Math.pow(2.0, (volume - 75.0) / 25.0);
+		this.ui.synth.volume = Math.min(1.0, (volume / 50.0) ** 0.5) * 2.0 ** ((volume - 75.0) / 25.0);
 	}
 
 	public renderPlayhead(): void {

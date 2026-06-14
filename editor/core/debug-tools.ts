@@ -64,15 +64,13 @@ export function installDebugTools(doc: SongDocument): void {
 				ops.push({ op: "change", args: { _change: n }, ts: Date.now() });
 			}
 		}
-		return _origGroupAppend.call(this, change);
+		_origGroupAppend.call(this, change);
 	};
 
-	doc.record = function (change: Change, replace?: boolean, newSong?: boolean): void {
-		return _origRecord(change, replace, newSong);
-	};
+	doc.record = (change: Change, replace?: boolean, newSong?: boolean): void => _origRecord(change, replace, newSong);
 
 	const _origCopy = doc.selection.copy.bind(doc.selection);
-	doc.selection.copy = function (): void {
+	doc.selection.copy = (): void => {
 		_origCopy();
 		if (recording && !suppress) {
 			const payload: string | null = window.localStorage.getItem("selectionCopy");
@@ -81,30 +79,30 @@ export function installDebugTools(doc: SongDocument): void {
 	};
 
 	const _origPaste = doc.selection.pasteNotes.bind(doc.selection);
-	doc.selection.pasteNotes = function (): void {
+	doc.selection.pasteNotes = (): void => {
 		if (recording && !suppress) {
 			const payload: string | null = window.localStorage.getItem("selectionCopy");
 			ops.push({ op: "pasteNotes", args: { bar: doc.bar, ch: doc.channel, payload: payload || undefined }, ts: Date.now() });
 		}
-		return _origPaste();
+		_origPaste();
 	};
 
 	const _origInsert = doc.selection.insertChannel.bind(doc.selection);
-	doc.selection.insertChannel = function (): void {
+	doc.selection.insertChannel = (): void => {
 		if (recording && !suppress) ops.push({ op: "insertChannel", ts: Date.now() });
-		return _origInsert();
+		_origInsert();
 	};
 
 	const _origDelete = doc.selection.deleteChannel.bind(doc.selection);
-	doc.selection.deleteChannel = function (): void {
+	doc.selection.deleteChannel = (): void => {
 		if (recording && !suppress) ops.push({ op: "deleteChannel", ts: Date.now() });
-		return _origDelete();
+		_origDelete();
 	};
 
 	const _origClone = doc.selection.cloneChannel.bind(doc.selection);
-	doc.selection.cloneChannel = function (): void {
+	doc.selection.cloneChannel = (): void => {
 		if (recording && !suppress) ops.push({ op: "cloneChannel", args: { src: doc.selection.boxSelectionChannel }, ts: Date.now() });
-		return _origClone();
+		_origClone();
 	};
 
 	// ── API ─────────────────────────────────────────────────────

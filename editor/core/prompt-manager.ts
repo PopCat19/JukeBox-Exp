@@ -8,8 +8,8 @@
 // - Handles play/pause state around modal prompt display
 
 import { HarmonicsEditorPrompt } from "../components/harmonics-editor";
-import { PatternEditor } from "../components/pattern-editor";
-import { SpectrumEditor, SpectrumEditorPrompt } from "../components/spectrum-editor";
+import type { PatternEditor } from "../components/pattern-editor";
+import { type SpectrumEditor, SpectrumEditorPrompt } from "../components/spectrum-editor";
 import { AddSamplesPrompt } from "../prompts/add-samples-prompt";
 import { BeatsPerBarPrompt } from "../prompts/beats-per-bar-prompt";
 import { ChannelSettingsPrompt } from "../prompts/channel-settings-prompt";
@@ -30,7 +30,7 @@ import { LimiterPrompt } from "../prompts/limiter-prompt";
 import { MoveNotesSidewaysPrompt } from "../prompts/move-notes-sideways-prompt";
 import { OctaveCountPrompt } from "../prompts/octave-count-prompt";
 import { PalettePrompt } from "../prompts/palette-prompt";
-import { Prompt } from "../prompts/prompt";
+import type { Prompt } from "../prompts/prompt";
 import { RecordingSetupPrompt } from "../prompts/recording-setup-prompt";
 import { SampleLoadingStatusPrompt } from "../prompts/sample-loading-status-prompt";
 import { ShortenerConfigPrompt } from "../prompts/shortener-config-prompt";
@@ -40,7 +40,7 @@ import { SustainPrompt } from "../prompts/sustain-prompt";
 import { ThemePrompt } from "../prompts/theme-prompt";
 import { TipPrompt } from "../prompts/tip-prompt";
 import { VisualLoopControlsPrompt } from "../prompts/visual-loop-controls-prompt";
-import { SongDocument } from "../song-document";
+import type { SongDocument } from "../song-document";
 import { makeLogger } from "./debug-log";
 import { PromptFocusController } from "./prompt-focus-controller";
 

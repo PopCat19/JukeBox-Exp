@@ -6,8 +6,8 @@
 // - Exports preset categories: Custom Instruments through Novelty
 
 import { getRegisteredPlugins } from "../../../synth/plugins/registry";
-import { DictionaryArray, toNameMap } from "../../../synth/synth-config";
-import { InputPresetCategory, Preset } from "./types";
+import { type DictionaryArray, toNameMap } from "../../../synth/synth-config";
+import type { InputPresetCategory, Preset } from "./types";
 
 export const coreCategories: InputPresetCategory[] = [
 	{

@@ -9,7 +9,7 @@
 
 import { HTML } from "imperative-html/dist/esm/elements-strict";
 import { ColorConfig } from "../../../shared/color-config";
-import { Slider } from "../sliders/slider";
+import type { Slider } from "../sliders/slider";
 import { Margin } from "../style-constants";
 
 const { div, span } = HTML;

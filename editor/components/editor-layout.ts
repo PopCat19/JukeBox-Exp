@@ -9,8 +9,8 @@
 
 import { HTML } from "imperative-html/dist/esm/elements-strict";
 import { ColorConfig } from "../../shared/color-config";
-import { LayoutRefs } from "../renderers/render-layout";
-import { SongDocument } from "../song-document";
+import type { LayoutRefs } from "../renderers/render-layout";
+import type { SongDocument } from "../song-document";
 import { PatternArea } from "./pattern-area";
 import { SettingsArea } from "./settings-area";
 import { Shiggy } from "./shiggy-component";

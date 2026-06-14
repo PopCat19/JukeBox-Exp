@@ -11,8 +11,8 @@ import { BorderRadius, BorderWidth, Typography } from "../ui/style-constants";
 
 import { HTML } from "imperative-html/dist/esm/elements-strict";
 import { ChangePreset } from "../changes";
-import { EditorConfig, fullTagList, Preset, PresetCategory } from "../config/editor-config";
-import { SongDocument } from "../song-document";
+import { EditorConfig, fullTagList, type Preset, type PresetCategory } from "../config/editor-config";
+import type { SongDocument } from "../song-document";
 import { flexPane, inputRow, instructions, paneContainer, searchInput, tagChip } from "../ui";
 import { tabButton } from "../ui/buttons/tab-button";
 import { TagListItem } from "../ui/chips/tag-list-item";

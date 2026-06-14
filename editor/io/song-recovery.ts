@@ -9,7 +9,7 @@
 
 // Copyright (c) 2012-2022 John Nesky and contributing authors, distributed under the MIT license, see accompanying the LICENSE.md file.
 
-import { Dictionary } from "../../synth/synth-config";
+import type { Dictionary } from "../../synth/synth-config";
 
 export interface RecoveredVersion {
 	uid: string;
@@ -118,7 +118,7 @@ export class SongRecovery {
 
 			// Consider deleting an old version to free up space.
 			let minSpan: number = minimumWorkPerSpan; // start out with a gap between versions.
-			const spanMult: number = Math.pow(2, 1 / 2); // Double the span every 2 versions back.
+			const spanMult: number = 2 ** (1 / 2); // Double the span every 2 versions back.
 			for (let i: number = 1; i < versions.length; i++) {
 				const currentWork: number = versions[i].work;
 				const olderWork: number = i === versions.length - 1 ? 0.0 : versions[i + 1].work;

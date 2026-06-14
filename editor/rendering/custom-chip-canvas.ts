@@ -7,9 +7,9 @@
 // - Manages undo/redo for waveform changes
 
 import { ColorConfig } from "../../shared/color-config";
-import { Instrument } from "../../synth/instruments";
-import { Change } from "../core/change";
-import { SongDocument } from "../song-document";
+import type { Instrument } from "../../synth/instruments";
+import type { Change } from "../core/change";
+import type { SongDocument } from "../song-document";
 
 export class CustomChipCanvas {
 	private mouseDown: boolean;

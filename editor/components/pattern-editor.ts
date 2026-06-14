@@ -11,8 +11,8 @@
 
 import { HTML, SVG } from "imperative-html/dist/esm/elements-strict";
 import { ColorConfig } from "../../shared/color-config";
-import { Channel, FilterControlPoint, FilterSettings, Instrument, makeNotePin, Note, NotePin, Pattern } from "../../synth";
-import { Chord, Config, effectsIncludeNoteRange, getLocalStorageItem, Transition } from "../../synth/synth-config";
+import { type Channel, type FilterControlPoint, FilterSettings, type Instrument, makeNotePin, Note, type NotePin, type Pattern } from "../../synth";
+import { type Chord, Config, effectsIncludeNoteRange, getLocalStorageItem, type Transition } from "../../synth/synth-config";
 import {
 	ChangeArpeggioSpeed,
 	ChangeBitcrusherFreq,
@@ -66,13 +66,13 @@ import {
 	ChangeVibratoDepth,
 	ChangeVibratoSpeed,
 	ChangeVolume,
-	FilterMoveData,
+	type FilterMoveData,
 } from "../changes";
 import { prettyNumber } from "../config/editor-config";
-import { Change, ChangeSequence, UndoableChange } from "../core/change";
-import { SongDocument } from "../song-document";
-import { SongEditor } from "../song-editor";
-import { Slider } from "../ui";
+import { type Change, ChangeSequence, type UndoableChange } from "../core/change";
+import type { SongDocument } from "../song-document";
+import type { SongEditor } from "../song-editor";
+import type { Slider } from "../ui";
 import { EnvelopeEditor } from "./envelope-editor";
 import { Piano } from "./piano";
 
@@ -621,7 +621,7 @@ export class PatternEditor {
 				if (this._mouseX > rightSide) continue;
 				if (this._mouseX < leftSide) throw new Error();
 				const intervalRatio: number = (this._mouseX - leftSide) / (rightSide - leftSide);
-				const arc: number = Math.sqrt(1.0 / Math.sqrt(4.0) - Math.pow(intervalRatio - 0.5, 2.0)) - 0.5;
+				const arc: number = Math.sqrt(1.0 / Math.sqrt(4.0) - (intervalRatio - 0.5) ** 2.0) - 0.5;
 				const bendHeight: number = Math.abs(nextPin.interval - prevPin.interval);
 				interval = prevPin.interval * (1.0 - intervalRatio) + nextPin.interval * intervalRatio;
 				error = arc * bendHeight + 0.95;
@@ -2076,9 +2076,7 @@ export class PatternEditor {
 
 				// A few sanity checks.
 				const lastNoteEnds: number[] = [-1, -1, -1, -1, -1, -1];
-				usedPatterns[i].notes.sort(function (a, b) {
-					return a.start === b.start ? a.pitches[0] - b.pitches[0] : a.start - b.start;
-				});
+				usedPatterns[i].notes.sort((a, b) => (a.start === b.start ? a.pitches[0] - b.pitches[0] : a.start - b.start));
 				for (let checkIndex: number = 0; checkIndex < usedPatterns[i].notes.length; checkIndex++) {
 					const note: Note = usedPatterns[i].notes[checkIndex];
 					if (note.start < lastNoteEnds[note.pitches[0]]) {
@@ -2585,9 +2583,7 @@ export class PatternEditor {
 
 					if (this._pattern != null && this._doc.song.getChannelIsMod(this._doc.channel) && this._interactive && prevPattern !== this._pattern) {
 						// Need to re-sort the notes by start time as they might change order if user drags them around.
-						this._pattern.notes.sort(function (a, b) {
-							return a.start === b.start ? a.pitches[0] - b.pitches[0] : a.start - b.start;
-						});
+						this._pattern.notes.sort((a, b) => (a.start === b.start ? a.pitches[0] - b.pitches[0] : a.start - b.start));
 					}
 				} else if (this._mouseHorizontal) {
 					sequence.append(new ChangePatternSelection(this._doc, 0, 0));
@@ -2650,8 +2646,8 @@ export class PatternEditor {
 					);
 
 					// Dragging gets a bit faster after difference in drag counts is >8.
-					const dragFactorSlow: number = 25.0 / Math.pow(cap, 0.4);
-					const dragFactorFast: number = 22.0 / Math.pow(cap, 0.5);
+					const dragFactorSlow: number = 25.0 / cap ** 0.4;
+					const dragFactorFast: number = 22.0 / cap ** 0.5;
 					const dragSign: number = this._mouseYStart > this._mouseY ? 1 : -1;
 					const dragCounts: number =
 						Math.min(Math.abs(this._mouseYStart - this._mouseY) / dragFactorSlow, 8) +
@@ -2823,9 +2819,7 @@ export class PatternEditor {
 				this._dragChange = null;
 				// Need to re-sort the notes by start time as they might change order if user drags them around.
 				if (this._pattern != null && this._doc.song.getChannelIsMod(this._doc.channel)) {
-					this._pattern.notes.sort(function (a, b) {
-						return a.start === b.start ? a.pitches[0] - b.pitches[0] : a.start - b.start;
-					});
+					this._pattern.notes.sort((a, b) => (a.start === b.start ? a.pitches[0] - b.pitches[0] : a.start - b.start));
 				}
 			} else if (this._draggingStartOfSelection || this._draggingEndOfSelection || this._shiftHeld) {
 				this._setPatternSelection(this._dragChange);
@@ -2843,9 +2837,7 @@ export class PatternEditor {
 				this._dragChange = null;
 				// Need to re-sort the notes by start time as they might change order if user drags them around.
 				if (this._pattern != null && this._doc.song.getChannelIsMod(this._doc.channel)) {
-					this._pattern.notes.sort(function (a, b) {
-						return a.start === b.start ? a.pitches[0] - b.pitches[0] : a.start - b.start;
-					});
+					this._pattern.notes.sort((a, b) => (a.start === b.start ? a.pitches[0] - b.pitches[0] : a.start - b.start));
 				}
 			} else {
 				if (this._pattern == null) throw new Error();
@@ -3252,9 +3244,7 @@ export class PatternEditor {
 		if (this._pattern !== nextPattern) {
 			if (this._doc.song.getChannelIsMod(this._doc.channel) && this._interactive && nextPattern != null) {
 				// Need to re-sort the notes by start time as they might change order if user drags them around.
-				nextPattern.notes.sort(function (a, b) {
-					return a.start === b.start ? a.pitches[0] - b.pitches[0] : a.start - b.start;
-				});
+				nextPattern.notes.sort((a, b) => (a.start === b.start ? a.pitches[0] - b.pitches[0] : a.start - b.start));
 			}
 			if (this._pattern != null) {
 				this._dragChange = null;

@@ -14,7 +14,7 @@ import { Config } from "../../synth/synth-config";
 import { Piano } from "../components/piano";
 import { EditorConfig } from "../config/editor-config";
 import { KeyboardLayout } from "../config/keyboard-layout";
-import { SongDocument } from "../song-document";
+import type { SongDocument } from "../song-document";
 import { checkboxRow, selectRow, w } from "../ui";
 import { BasePrompt } from "./base-prompt";
 

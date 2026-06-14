@@ -10,9 +10,9 @@
 
 import { HTML, SVG } from "imperative-html/dist/esm/elements-strict";
 import { ColorConfig } from "../../shared/color-config";
-import { Instrument } from "../../synth";
+import type { Instrument } from "../../synth";
 import { Config } from "../../synth/synth-config";
-import { SongDocument } from "../song-document";
+import type { SongDocument } from "../song-document";
 
 export class Piano {
 	private readonly _pianoContainer: HTMLDivElement = HTML.div({
@@ -577,7 +577,7 @@ export class Piano {
 							}
 						}
 						break;
-					case 2:
+					case 2: {
 						const absoluteChannelVal: number = instrument.modChannels[Config.modCount - j - 1];
 						const relativeChannelVal: number = absoluteChannelVal - this._doc.song.pitchChannelCount;
 
@@ -622,6 +622,7 @@ export class Piano {
 							}
 						}
 						break;
+					}
 					case 3:
 						firstRow = "Song";
 						break;

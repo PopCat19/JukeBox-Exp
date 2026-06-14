@@ -5,10 +5,10 @@
 // This module:
 // - Handles chord, vibrato, arpeggio, and transition changes
 
-import { Instrument } from "../../../synth";
+import type { Instrument } from "../../../synth";
 import { Config } from "../../../synth/synth-config";
 import { Change } from "../../core/change";
-import { SongDocument } from "../../song-document";
+import type { SongDocument } from "../../song-document";
 
 export class ChangeChord extends Change {
 	constructor(doc: SongDocument, newValue: number) {

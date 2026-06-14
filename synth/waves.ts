@@ -95,7 +95,7 @@ export class SpectrumWaveState {
 		}
 
 		inverseRealFourierTransform(wave, waveLength);
-		scaleElementsByFactor(wave, 5.0 / (Math.sqrt(waveLength) * Math.pow(combinedAmplitude, 0.75)));
+		scaleElementsByFactor(wave, 5.0 / (Math.sqrt(waveLength) * combinedAmplitude ** 0.75));
 
 		// Duplicate the first sample at the end for easier wrap-around interpolation.
 		wave[waveLength] = wave[0];
@@ -165,11 +165,11 @@ export class HarmonicsWaveState {
 				controlValue *= 1 - (harmonicIndex - Config.harmonicsControlPoints) / (harmonicsRendered - Config.harmonicsControlPoints);
 			}
 			const normalizedValue: number = controlValue / Config.harmonicsMax;
-			let amplitude: number = Math.pow(2, controlValue - Config.harmonicsMax + 1) * Math.sqrt(normalizedValue);
+			let amplitude: number = 2 ** (controlValue - Config.harmonicsMax + 1) * Math.sqrt(normalizedValue);
 			if (harmonicIndex < Config.harmonicsControlPoints) {
 				combinedControlPointAmplitude += amplitude;
 			}
-			amplitude *= Math.pow(harmonicFreq, overallSlope);
+			amplitude *= harmonicFreq ** overallSlope;
 
 			// Multiply all the sine wave amplitudes by 1 or -1 based on the LFSR
 			// retro wave (effectively random) to avoid egregiously tall spikes.
@@ -181,7 +181,7 @@ export class HarmonicsWaveState {
 		inverseRealFourierTransform(wave, waveLength);
 
 		// Limit the maximum wave amplitude.
-		const mult: number = 1 / Math.pow(combinedControlPointAmplitude, 0.7);
+		const mult: number = 1 / combinedControlPointAmplitude ** 0.7;
 		for (let i: number = 0; i < wave.length; i++) wave[i] *= mult;
 
 		performIntegralOld(wave);
