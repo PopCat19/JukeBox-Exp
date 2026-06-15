@@ -8,10 +8,10 @@ the same layout shell (defined in `subpages.css`) and the same typography
 
 ## Files
 
-- `subpages.css` — shared stylesheet, includes layout and `font-family` rules
-- `*.html` — one per topic (FAQ, credits, features, …)
-- `keybinds.html` — keyboard shortcut reference
-- `leaderboard.html` + `leaderboard.js` — interactive community scores page
+- `subpages.css`, shared stylesheet, includes layout and `font-family` rules
+- `*.html`, one per topic (FAQ, credits, features, …)
+- `keybinds.html`, keyboard shortcut reference
+- `leaderboard.html` + `leaderboard.js`, interactive community scores page
   (the only page with logic in this folder)
 
 ## Typography

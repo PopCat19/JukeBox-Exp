@@ -5,9 +5,9 @@
 No shared component system exists. UI elements are created ad-hoc via `imperative-html` (`HTML.button()`, `HTML.div()`, `HTML.input()`, etc.) with inline styles or CSS classes defined in `editor/rendering/style.ts`.
 
 Existing helpers:
-- `editor/ui/html-wrapper.ts` — `InputBox`, `Slider` (undo-aware wrappers)
-- `editor/prompts/input-helpers.ts` — `validateKey`, `validateNumber`, `validate`, `labelRow`, `updatePlayButton`
-- `editor/prompts/base-prompt.ts` — `_cancelButton`, `_okayButton`, `_getOkayRow`, `buildTitlebar`
+- `editor/ui/html-wrapper.ts`, `InputBox`, `Slider` (undo-aware wrappers)
+- `editor/prompts/input-helpers.ts`, `validateKey`, `validateNumber`, `validate`, `labelRow`, `updatePlayButton`
+- `editor/prompts/base-prompt.ts`, `_cancelButton`, `_okayButton`, `_getOkayRow`, `buildTitlebar`
 
 ---
 
@@ -106,7 +106,7 @@ Same active/inactive toggle pattern as tag chips, different sizing.
 `euclidgen-rhythm-prompt.ts` creates 7 identical number inputs:
 
 ```ts
-// Lines 216-269 — all share:
+// Lines 216-269, all share:
 input({ style: "width: 3em; margin-left: 1em;", type: "number", min, max, value, step })
 ```
 
@@ -117,7 +117,7 @@ A `stepperInput(min, max, value, step?)` factory would reduce repetition.
 ### 6. Section Label
 
 ```ts
-// preset-selector-prompt.ts:486, 497 — uppercase section headers
+// preset-selector-prompt.ts:486, 497, uppercase section headers
 `color: var(--secondary-text); font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 2px;`
 ```
 
@@ -137,26 +137,26 @@ New file alongside existing `editor/ui/` utilities. Exports factory functions th
 import { HTML } from "imperative-html/dist/esm/elements-strict";
 const { div, span, input } = HTML;
 
-// Label row — replaces 24+ inline copies
+// Label row, replaces 24+ inline copies
 export function labelRow(...children: (HTMLElement | string)[]): HTMLDivElement;
 export function labelRow(opts: { height?: string; marginTop?: string }, ...children: (HTMLElement | string)[]): HTMLDivElement;
 
-// Search input — replaces 2 inline copies
+// Search input, replaces 2 inline copies
 export function searchInput(placeholder: string, extraStyle?: string): HTMLInputElement;
 
-// Tag chip — replaces 2 inline copies
+// Tag chip, replaces 2 inline copies
 export function tagChip(text: string, active?: boolean): HTMLSpanElement;
 
-// Tag list item — replaces tag-browser inline style
+// Tag list item, replaces tag-browser inline style
 export function tagListItem(tag: string, presetCount: number, active?: boolean, selected?: boolean): HTMLDivElement;
 
-// Number stepper — replaces 7 copies in euclidgen
+// Number stepper, replaces 7 copies in euclidgen
 export function stepperInput(min: number | string, max: number | string, value: number | string, step?: string): HTMLInputElement;
 
-// Section label — replaces 2 inline copies
+// Section label, replaces 2 inline copies
 export function sectionLabel(text: string): HTMLDivElement;
 
-// Okay/cancel row — currently on BasePrompt, could be extracted
+// Okay/cancel row, currently on BasePrompt, could be extracted
 export function okayRow(okayButton: HTMLButtonElement, ...extra: HTMLElement[]): HTMLDivElement;
 ```
 

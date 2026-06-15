@@ -76,8 +76,8 @@ A sub-editor is a grid editor inside a note where "pieces" (mini-slices of the n
 
 | Param | Meaning |
 |-------|---------|
-| range | Bar offset within note (start, end) — where sub-editor activates |
-| rate | Cycles per bar/beat (density) — tempo-relative unit, independent of song BPM |
+| range | Bar offset within note (start, end), where sub-editor activates |
+| rate | Cycles per bar/beat (density), tempo-relative unit, independent of song BPM |
 | pitch | Pitch offset (global or per-piece) |
 | pieces[] | Grid cells holding slice/pitch data |
 
@@ -95,7 +95,7 @@ This concept: discrete programmed slices, rate-decoupled, fully editable.
 
 ## Modulator Support
 
-Not redundant — adds expressiveness:
+Not redundant, adds expressiveness:
 
 - Built-in curves: quick control
 - Modulator routing: external/complex control (pattern automation, MIDI CC)

@@ -12,8 +12,8 @@
 
 ### CSS Files
 - **4 CSS files** total, all in `website/` (landing/manual pages only)
-- **0 SCSS/SASS/Less** files — no preprocessor pipeline
-- **No CSS frameworks** — just `imperative-html` with template literal interpolation
+- **0 SCSS/SASS/Less** files, no preprocessor pipeline
+- **No CSS frameworks**, just `imperative-html` with template literal interpolation
 
 ### Inline Styles (the problem)
 - **175+ inline `style:`** attributes in HTML template literals across the editor
@@ -22,35 +22,35 @@
 - Hardcoded values scattered as: `px`, `em`, `%`, raw numbers, inconsistent spacing
 
 ### Existing Token Infrastructure (underutilized)
-- **`editor/ui/style-constants.ts`** — defines Gap, Padding, Margin, BorderRadius tokens but has **zero imports** across the entire codebase
-- **`editor/rendering/style.ts`** (2241 lines) — injects all editor CSS via JS, already defines ~30 CSS custom properties (`--button-size`, `--padding-*`, `--gap-*`, `--border-radius-*`, `--prompt-width-*`, icon symbols)
-- **`shared/color-config.ts`** — ColorConfig class with 50+ `var()` references, works well, theme system is functional
-- **58 theme files** in `shared/themes/` — each defines 80-120 CSS custom properties in `:root {}` blocks
-- **Channel color formula system** — dynamic HSL color generation for pitch (10), noise (5), mod (4) channels
+- **`editor/ui/style-constants.ts`**, defines Gap, Padding, Margin, BorderRadius tokens but has **zero imports** across the entire codebase
+- **`editor/rendering/style.ts`** (2241 lines), injects all editor CSS via JS, already defines ~30 CSS custom properties (`--button-size`, `--padding-*`, `--gap-*`, `--border-radius-*`, `--prompt-width-*`, icon symbols)
+- **`shared/color-config.ts`**, ColorConfig class with 50+ `var()` references, works well, theme system is functional
+- **58 theme files** in `shared/themes/`, each defines 80-120 CSS custom properties in `:root {}` blocks
+- **Channel color formula system**, dynamic HSL color generation for pitch (10), noise (5), mod (4) channels
 
 ### PMD Reference (`project-minimalist-design`)
 Key design principles from the sister project:
-- **Lightness-driven hierarchy** — numeric tiers (100x, 88x, 80x, 72x, 8x, 4x, 0x) over arbitrary names
-- **Opacity as composable dimension** — `80x@80%`, `8x+80x@16%` compositing notation
-- **OKLCH over HSL** — perceptually uniform color space
-- **YAGNI minimalism** — only tokens that are actually used
-- **rem-based spacing scale** — 0.125, 0.25, 0.5, 1, 1.5, 2rem
-- **No decorative tokens** — hierarchy via lightness/opacity/weight/spacing, not shadows/gradients
+- **Lightness-driven hierarchy**, numeric tiers (100x, 88x, 80x, 72x, 8x, 4x, 0x) over arbitrary names
+- **Opacity as composable dimension**, `80x@80%`, `8x+80x@16%` compositing notation
+- **OKLCH over HSL**, perceptually uniform color space
+- **YAGNI minimalism**, only tokens that are actually used
+- **rem-based spacing scale**, 0.125, 0.25, 0.5, 1, 1.5, 2rem
+- **No decorative tokens**, hierarchy via lightness/opacity/weight/spacing, not shadows/gradients
 
 ## Design Decisions
 
 ### What stays unchanged
-- **ColorConfig class** — all existing `var()` references remain functional
-- **58 theme files** — no modifications to theme CSS custom property definitions
-- **Channel color formula system** — pitch/noise/mod HSL generation untouched
-- **`editor/rendering/style.ts`** — existing CSS custom properties preserved
-- **All existing visual output** — no changes to how the editor looks
+- **ColorConfig class**, all existing `var()` references remain functional
+- **58 theme files**, no modifications to theme CSS custom property definitions
+- **Channel color formula system**, pitch/noise/mod HSL generation untouched
+- **`editor/rendering/style.ts`**, existing CSS custom properties preserved
+- **All existing visual output**, no changes to how the editor looks
 
 ### What gets added
 - **New token categories** in `style-constants.ts`: Typography, Z-Index, Animation, Border, Sizing
-- **PMD-inspired spacing scale** — rem-based, replacing the current px-only approach
-- **CSS custom property alignment** — mirror all TypeScript tokens as `--var()` in `style.ts`
-- **Systematic component usage** — wire tokens into `editor/ui/` components
+- **PMD-inspired spacing scale**, rem-based, replacing the current px-only approach
+- **CSS custom property alignment**, mirror all TypeScript tokens as `--var()` in `style.ts`
+- **Systematic component usage**, wire tokens into `editor/ui/` components
 
 ### Why not refactor colors
 - 58 themes × 80-120 properties each = ~5,000+ CSS custom property definitions
@@ -69,12 +69,12 @@ Add the following token categories (PMD-inspired, adapted to existing codebase n
 ```typescript
 // Spacing: rem-based scale (16px root)
 export const Spacing = {
-  xs: "0.125rem",   // 2px — borders, micro gaps
-  sm: "0.25rem",    // 4px — compact spacing
-  md: "0.5rem",     // 8px — standard spacing
-  lg: "1rem",       // 16px — section spacing
-  xl: "1.5rem",     // 24px — header spacing
-  xxl: "2rem",      // 32px — prominent sections
+  xs: "0.125rem",   // 2px, borders, micro gaps
+  sm: "0.25rem",    // 4px, compact spacing
+  md: "0.5rem",     // 8px, standard spacing
+  lg: "1rem",       // 16px, section spacing
+  xl: "1.5rem",     // 24px, header spacing
+  xxl: "2rem",      // 32px, prominent sections
 } as const;
 
 // Gap: component gaps (keep existing, add rem equivalents)
@@ -109,9 +109,9 @@ export const Margin = {
 
 // Border Radius
 export const BorderRadius = {
-  sm: "0.25rem",    // 4px — inputs, small elements
-  md: "0.5rem",     // 8px — cards, buttons
-  lg: "1rem",       // 16px — prompts, panels
+  sm: "0.25rem",    // 4px, inputs, small elements
+  md: "0.5rem",     // 8px, cards, buttons
+  lg: "1rem",       // 16px, prompts, panels
   full: "100px",    // pill shapes, avatars
 } as const;
 
@@ -175,7 +175,7 @@ export const Sizing = {
   promptRowHeight: "2em",   // --prompt-row-height
 } as const;
 
-// Shadows (minimal — PMD principle)
+// Shadows (minimal, PMD principle)
 export const Shadows = {
   none: "none",
   subtle: "0 0 4px rgba(0,0,0,0.3)",
@@ -288,13 +288,13 @@ Add matching CSS custom properties to the existing `:root {}` block:
 
 **Priority order** (lowest risk first):
 
-1. **Prompt widths and sizing** — replace hardcoded `250px`, `350px`, `400px` with `Sizing.promptSm`, etc.
-2. **Button sizes** — replace hardcoded `26px` with `Sizing.button`
-3. **Gaps and padding in UI components** — replace `8px`, `12px`, `16px` with `Gap.md`, `Padding.lg`, etc.
-4. **Border radii** — replace `4px`, `8px`, `16px` with `BorderRadius.sm`, etc.
-5. **Font sizes** — replace scattered `10px`, `11px`, `13px`, `14px` with `Typography.sizeXs`, etc.
-6. **Animation durations** — replace `80ms`, `120ms`, `170ms`, `200ms`, `250ms` with `Animation.durationFast`, etc.
-7. **Z-index values** — replace implicit layering with `ZIndex.*` tokens
+1. **Prompt widths and sizing**, replace hardcoded `250px`, `350px`, `400px` with `Sizing.promptSm`, etc.
+2. **Button sizes**, replace hardcoded `26px` with `Sizing.button`
+3. **Gaps and padding in UI components**, replace `8px`, `12px`, `16px` with `Gap.md`, `Padding.lg`, etc.
+4. **Border radii**, replace `4px`, `8px`, `16px` with `BorderRadius.sm`, etc.
+5. **Font sizes**, replace scattered `10px`, `11px`, `13px`, `14px` with `Typography.sizeXs`, etc.
+6. **Animation durations**, replace `80ms`, `120ms`, `170ms`, `200ms`, `250ms` with `Animation.durationFast`, etc.
+7. **Z-index values**, replace implicit layering with `ZIndex.*` tokens
 
 **Target directories:**
 - `editor/ui/base/`
@@ -368,15 +368,15 @@ Add matching CSS custom properties to the existing `:root {}` block:
 
 | Directory | Estimated Files | Priority |
 |-----------|----------------|----------|
-| `editor/ui/base/` | ~5 | High — foundational, used everywhere |
+| `editor/ui/base/` | ~5 | High, foundational, used everywhere |
 | `editor/ui/containers/` | ~5 | High |
 | `editor/ui/rows/` | ~5 | High |
 | `editor/ui/sliders/` | ~5 | Medium |
 | `editor/ui/layout/` | ~3 | Medium |
-| `editor/prompts/` | ~30 | High — many hardcoded values |
-| `editor/components/` | ~30 | Medium — complex, higher risk |
-| `editor/renderers/` | ~20 | Low — mostly dynamic `.style.` manipulation |
-| `editor/core/` | ~20 | Low — mostly logic, minimal styling |
+| `editor/prompts/` | ~30 | High, many hardcoded values |
+| `editor/components/` | ~30 | Medium, complex, higher risk |
+| `editor/renderers/` | ~20 | Low, mostly dynamic `.style.` manipulation |
+| `editor/core/` | ~20 | Low, mostly logic, minimal styling |
 
 **Phase 6: Backdrop blur alignment**
 - Mockup uses `blur(12px)`, current token is `blur(14px)`

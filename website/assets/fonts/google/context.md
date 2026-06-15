@@ -8,17 +8,17 @@ site renders correctly with no network access.
 
 ## Files
 
-- `fonts.css` — `@font-face` rules for Fredoka, Fira Code, Roboto, B612.
+- `fonts.css`, `@font-face` rules for Fredoka, Fira Code, Roboto, B612.
   Each rule carries its own `unicode-range`, so the browser only fetches the
   subset it needs. Subset filenames follow the `*.<subset>.woff2` convention
   and stay stable across re-vendoring.
-- `fredoka/{hebrew,latin-ext,latin}.woff2` — variable font covering weights
+- `fredoka/{hebrew,latin-ext,latin}.woff2`, variable font covering weights
   500–700 (single file, three subsets).
 - `fira-code/{cyrillic-ext,cyrillic,greek-ext,greek,symbols2,latin-ext,latin}.woff2`
-  — weight 400, monospace.
+ , weight 400, monospace.
 - `roboto/{cyrillic-ext,cyrillic,greek-ext,greek,math,symbols,vietnamese,latin-ext,latin}.woff2`
-  — weight 400, used by the standalone player page.
-- `b612/latin.woff2` — Latin-only, lifted from the existing offline bundle
+ , weight 400, used by the standalone player page.
+- `b612/latin.woff2`, Latin-only, lifted from the existing offline bundle
   (was `website/offline/3JnySDDxiSz36j6yGQ.woff2`).
 
 ## Vendoring workflow

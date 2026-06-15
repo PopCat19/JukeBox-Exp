@@ -1,4 +1,4 @@
-# Maintainability Audit — Sprint Progress
+# Maintainability Audit, Sprint Progress
 
 **Initial Score:** 5.6/10 (2026-04-01)
 **After Sprint 1-2:** 5.2/10 (2026-04-07)
@@ -45,8 +45,8 @@ Pruned 41 tests that tested constructor assignments, default values, array index
 | Target | Result |
 |--------|--------|
 | Split `synth/instruments.ts` | 2536 lines → 8 focused files under `synth/instruments/` |
-| `computeTone()` extraction | **Deferred** — 1861 lines, 92 `this.` references, core audio path, high risk |
-| `SongEditor` handler extraction | **Deferred** — 8 interfaces, 3704 lines, UI tightly coupled to DOM |
+| `computeTone()` extraction | **Deferred**, 1861 lines, 92 `this.` references, core audio path, high risk |
+| `SongEditor` handler extraction | **Deferred**, 8 interfaces, 3704 lines, UI tightly coupled to DOM |
 
 **Commit:** `a11ea1c0`
 
@@ -56,9 +56,9 @@ Pruned 41 tests that tested constructor assignments, default values, array index
 |--------|------------|----------|
 | ~~`effectsInclude*`~~ | Completed Sprint 1 | ✅ Done |
 | ~~`getCurrentInstrumentObj()`~~ | Completed Sprint 1 | ✅ Done |
-| Plugin `getSynthFunction` default | 8 plugins × 3 lines = 24 lines | Skip — minimal duplication |
-| Slider change factory | 38 classes × 11 lines = 417 lines | Skip — named commands > hidden abstraction |
-| Linter consolidation | ESLint 735 errors: 600+ are intentional `== null` checks | Skip — Biome correctly ignores with `ignoreNull: true` |
+| Plugin `getSynthFunction` default | 8 plugins × 3 lines = 24 lines | Skip, minimal duplication |
+| Slider change factory | 38 classes × 11 lines = 417 lines | Skip, named commands > hidden abstraction |
+| Linter consolidation | ESLint 735 errors: 600+ are intentional `== null` checks | Skip, Biome correctly ignores with `ignoreNull: true` |
 | TODO/HACK markers | 36 remaining | Track as issues |
 
 ## Files Changed
@@ -66,34 +66,34 @@ Pruned 41 tests that tested constructor assignments, default values, array index
 | File | Before | After | Change |
 |------|--------|-------|--------|
 | `synth/instruments.ts` | 2536 lines | Deleted | Split into 8 files |
-| `synth/instruments/operator.ts` | — | 34 lines | New |
-| `synth/instruments/custom-algorithm.ts` | — | 70 lines | New |
-| `synth/instruments/custom-feedback.ts` | — | 56 lines | New |
-| `synth/instruments/filter-control-point.ts` | — | 93 lines | New |
-| `synth/instruments/filter-settings.ts` | — | 269 lines | New |
-| `synth/instruments/envelope-settings.ts` | — | 217 lines | New |
-| `synth/instruments/instrument.ts` | — | 1787 lines | New (main class) |
-| `synth/instruments/index.ts` | — | 17 lines | New (barrel) |
-| `tests/filtering.test.ts` | — | 276 lines | New |
-| `tests/notes.test.ts` | — | 88 lines | New |
-| `tests/song-document-integration.test.ts` | — | 65 lines | New |
-| `tests/test-helpers.ts` | — | 26 lines | New |
+| `synth/instruments/operator.ts` |, | 34 lines | New |
+| `synth/instruments/custom-algorithm.ts` |, | 70 lines | New |
+| `synth/instruments/custom-feedback.ts` |, | 56 lines | New |
+| `synth/instruments/filter-control-point.ts` |, | 93 lines | New |
+| `synth/instruments/filter-settings.ts` |, | 269 lines | New |
+| `synth/instruments/envelope-settings.ts` |, | 217 lines | New |
+| `synth/instruments/instrument.ts` |, | 1787 lines | New (main class) |
+| `synth/instruments/index.ts` |, | 17 lines | New (barrel) |
+| `tests/filtering.test.ts` |, | 276 lines | New |
+| `tests/notes.test.ts` |, | 88 lines | New |
+| `tests/song-document-integration.test.ts` |, | 65 lines | New |
+| `tests/test-helpers.ts` |, | 26 lines | New |
 
 ## Recommendations
 
 ### High Priority (address later)
 
-1. **Test coverage for `synth/synth.ts`** — 4689 lines, core audio engine, 0 direct tests
-2. **Test coverage for `synth/song-serialization.ts`** — 4533 lines, data integrity critical
-3. **Split `Synth.computeTone()`** — AFTER comprehensive audio tests
+1. **Test coverage for `synth/synth.ts`**, 4689 lines, core audio engine, 0 direct tests
+2. **Test coverage for `synth/song-serialization.ts`**, 4533 lines, data integrity critical
+3. **Split `Synth.computeTone()`**, AFTER comprehensive audio tests
 
 ### Medium Priority (track as issues)
 
 1. TODO/HACK markers → GitHub issues for actionable ones
-2. `SongEditor` interface extraction — would require browser testing infra
+2. `SongEditor` interface extraction, would require browser testing infra
 
 ### Low Priority (accept)
 
-1. Plugin `getSynthFunction` "duplication" — 24 lines, explicit > abstracted
-2. Slider change classes — named commands provide discoverability
-3. Linter consolidation — Biome + ESLint overlap is marginal
+1. Plugin `getSynthFunction` "duplication", 24 lines, explicit > abstracted
+2. Slider change classes, named commands provide discoverability
+3. Linter consolidation, Biome + ESLint overlap is marginal

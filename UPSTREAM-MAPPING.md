@@ -91,7 +91,7 @@ Upstream has a single `synth/synth.ts`. This fork splits it into modules:
 
 ## `synth/` fork-only additions
 
-These modules don't exist in upstream — they replace switch-case logic in `synth/synth.ts`:
+These modules don't exist in upstream, they replace switch-case logic in `synth/synth.ts`:
 
 | Fork path | Content |
 |---|---|
@@ -124,7 +124,7 @@ Upstream has `player/main.ts` (monolithic). The fork extracts UI components:
 
 ## Fork-only additions
 
-- `editor/song-custom-samples.ts` — custom sample management (extracted from `SongEditor.ts`)
+- `editor/song-custom-samples.ts`, custom sample management (extracted from `SongEditor.ts`)
 
 ## Renamed files (kebab-case)
 

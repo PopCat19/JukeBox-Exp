@@ -1,20 +1,20 @@
 # editor/core context
 
-- `index.ts` — Barrel re-export of editor core modules
-- `change.ts` — Defines base classes for undoable and grouped editor mutations
-- `change-notifier.ts` — Implements observer pattern for notifying editor components of state changes
-- `change-dispatcher.ts` — Dispatches UI change events for instrument and song settings
-- `dev-inspector.ts` — Injects a hover-based DOM inspector that copies computed styles to clipboard
-- `drumset-setup.ts` — Sets up drumset UI rows with envelope and spectrum controls
-- `event-listener-setup.ts` — Sets up all event listeners for UI controls and interactions
-- `fm-operator-setup.ts` — Sets up FM operator UI rows with frequency, amplitude, and waveform controls
-- `modulator-setup.ts` — Sets up modulator UI rows with channel, instrument, setting, filter, and envelope controls
-- `keyboard-handler.ts` — Extracts keyboard shortcut handling from SongEditor
-- `menu-handler.ts` — Handles menu change events for file, edit, and preferences menus
-- `mod-slider-registry.ts` — Maps mod setting indices to Slider refs via a provider interface
-- `player-animator.ts` — Drives animation-frame loop for playback UI updates
-- `preferences.ts` — Manages user preference settings with localStorage persistence
-- `prompt-focus-controller.ts` — Manages Hyprland-style focus behavior for prompt dialogs
-- `prompt-manager.ts` — owns prompt stack, focus, drag, position memory, and enter/exit animation
-- `selection.ts` — Manages note and bar selection state with clipboard copy/paste support
-- `song-performance.ts` — Manages live performance mode with real-time note input and recording
+- `index.ts`, Barrel re-export of editor core modules
+- `change.ts`, Defines base classes for undoable and grouped editor mutations
+- `change-notifier.ts`, Implements observer pattern for notifying editor components of state changes
+- `change-dispatcher.ts`, Dispatches UI change events for instrument and song settings
+- `dev-inspector.ts`, Injects a hover-based DOM inspector that copies computed styles to clipboard
+- `drumset-setup.ts`, Sets up drumset UI rows with envelope and spectrum controls
+- `event-listener-setup.ts`, Sets up all event listeners for UI controls and interactions
+- `fm-operator-setup.ts`, Sets up FM operator UI rows with frequency, amplitude, and waveform controls
+- `modulator-setup.ts`, Sets up modulator UI rows with channel, instrument, setting, filter, and envelope controls
+- `keyboard-handler.ts`, Extracts keyboard shortcut handling from SongEditor
+- `menu-handler.ts`, Handles menu change events for file, edit, and preferences menus
+- `mod-slider-registry.ts`, Maps mod setting indices to Slider refs via a provider interface
+- `player-animator.ts`, Drives animation-frame loop for playback UI updates
+- `preferences.ts`, Manages user preference settings with localStorage persistence
+- `prompt-focus-controller.ts`, Manages Hyprland-style focus behavior for prompt dialogs
+- `prompt-manager.ts`, owns prompt stack, focus, drag, position memory, and enter/exit animation
+- `selection.ts`, Manages note and bar selection state with clipboard copy/paste support
+- `song-performance.ts`, Manages live performance mode with real-time note input and recording

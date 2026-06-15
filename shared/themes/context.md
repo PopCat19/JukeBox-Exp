@@ -1,60 +1,60 @@
 # shared/themes context
 
-- `index.ts` — Theme registry assembling all named theme CSS variable maps
-- `abyssbox-classic.ts` — CSS variable definitions for the "abyssbox classic" theme
-- `abyssbox-light.ts` — CSS variable definitions for the "abyssbox light" theme
-- `amoled-dark.ts` — CSS variable definitions for the "amoled dark" theme
-- `autumn.ts` — CSS variable definitions for the "autumn" theme
-- `axobox.ts` — CSS variable definitions for the "axobox" theme
-- `azur-lane.ts` — CSS variable definitions for the "azur lane" theme
-- `beachcombing.ts` — CSS variable definitions for the "beachcombing" theme
-- `bloxbox-classic.ts` — CSS variable definitions for the "bloxbox classic" theme
-- `blubox-classic.ts` — CSS variable definitions for the "blubox classic" theme
-- `brucebox.ts` — CSS variable definitions for the "brucebox" theme
-- `canyon.ts` — CSS variable definitions for the "canyon" theme
-- `cardboardbox-classic.ts` — CSS variable definitions for the "cardboardbox classic" theme
-- `dark-classic.ts` — CSS variable definitions for the "dark classic" theme
-- `dark-competition.ts` — CSS variable definitions for the "dark competition" theme
-- `death.ts` — CSS variable definitions for the "death" theme
-- `dogebox-classic.ts` — CSS variable definitions for the "dogebox classic" theme
-- `dogebox-dark.ts` — CSS variable definitions for the "dogebox dark" theme
-- `dogebox2.ts` — CSS variable definitions for the "dogebox2" theme
-- `edobox-classic.ts` — CSS variable definitions for the "edobox classic" theme
-- `energized.ts` — CSS variable definitions for the "energized" theme
-- `fmbox.ts` — CSS variable definitions for the "fmbox" theme
-- `fogbox.ts` — CSS variable definitions for the "fogbox" theme
-- `forest.ts` — CSS variable definitions for the "forest" theme
-- `foxbox.ts` — CSS variable definitions for the "foxbox" theme
-- `fruit.ts` — CSS variable definitions for the "fruit" theme
-- `fusion.ts` — CSS variable definitions for the "fusion" theme
-- `harrybox.ts` — CSS variable definitions for the "harrybox" theme
-- `inverse.ts` — CSS variable definitions for the "inverse" theme
-- `jummbox-classic.ts` — CSS variable definitions for the "jummbox classic" theme
-- `jummbox-light.ts` — CSS variable definitions for the "jummbox light" theme
-- `lemmbox-dark.ts` — CSS variable definitions for the "lemmbox dark" theme
-- `light-classic.ts` — CSS variable definitions for the "light classic" theme
-- `mainbox-1.ts` — CSS variable definitions for the "mainbox 1.0" theme
-- `microbox.ts` — CSS variable definitions for the "microbox" theme
-- `midnight.ts` — CSS variable definitions for the "midnight" theme
-- `modbox-classic.ts` — CSS variable definitions for the "modbox classic" theme
-- `moonlight.ts` — CSS variable definitions for the "moonlight" theme
-- `neapolitan.ts` — CSS variable definitions for the "neapolitan" theme
-- `nebula.ts` — CSS variable definitions for the "nebula" theme
-- `nepbox.ts` — CSS variable definitions for the "nepbox" theme
-- `nerdbox.ts` — CSS variable definitions for the "nerdbox" theme
-- `paandorasbox.ts` — CSS variable definitions for the "paandorasbox" theme
-- `portal.ts` — CSS variable definitions for the "portal" theme
-- `roe-light.ts` — CSS variable definitions for the "roe light" theme
-- `roe.ts` — CSS variable definitions for the "roe" theme
-- `sandbox-classic.ts` — CSS variable definitions for the "sandbox classic" theme
-- `shitbox-2.ts` — CSS variable definitions for the "shitbox 2.0" theme
-- `shitbox-3.ts` — CSS variable definitions for the "shitbox 3.0" theme
-- `slarmoosbox.ts` — CSS variable definitions for the "slarmoosbox" theme
-- `slushie.ts` — CSS variable definitions for the "slushie" theme
-- `sunset.ts` — CSS variable definitions for the "sunset" theme
-- `todbox-dark-mode.ts` — CSS variable definitions for the "todbox dark mode" theme
-- `toxic.ts` — CSS variable definitions for the "toxic" theme
-- `ultrabox-dark.ts` — CSS variable definitions for the "ultrabox dark" theme
-- `violet-verdant.ts` — CSS variable definitions for the "violet verdant" theme
-- `wackybox.ts` — CSS variable definitions for the "wackybox" theme
-- `zefbox.ts` — CSS variable definitions for the "zefbox" theme
+- `index.ts`, Theme registry assembling all named theme CSS variable maps
+- `abyssbox-classic.ts`, CSS variable definitions for the "abyssbox classic" theme
+- `abyssbox-light.ts`, CSS variable definitions for the "abyssbox light" theme
+- `amoled-dark.ts`, CSS variable definitions for the "amoled dark" theme
+- `autumn.ts`, CSS variable definitions for the "autumn" theme
+- `axobox.ts`, CSS variable definitions for the "axobox" theme
+- `azur-lane.ts`, CSS variable definitions for the "azur lane" theme
+- `beachcombing.ts`, CSS variable definitions for the "beachcombing" theme
+- `bloxbox-classic.ts`, CSS variable definitions for the "bloxbox classic" theme
+- `blubox-classic.ts`, CSS variable definitions for the "blubox classic" theme
+- `brucebox.ts`, CSS variable definitions for the "brucebox" theme
+- `canyon.ts`, CSS variable definitions for the "canyon" theme
+- `cardboardbox-classic.ts`, CSS variable definitions for the "cardboardbox classic" theme
+- `dark-classic.ts`, CSS variable definitions for the "dark classic" theme
+- `dark-competition.ts`, CSS variable definitions for the "dark competition" theme
+- `death.ts`, CSS variable definitions for the "death" theme
+- `dogebox-classic.ts`, CSS variable definitions for the "dogebox classic" theme
+- `dogebox-dark.ts`, CSS variable definitions for the "dogebox dark" theme
+- `dogebox2.ts`, CSS variable definitions for the "dogebox2" theme
+- `edobox-classic.ts`, CSS variable definitions for the "edobox classic" theme
+- `energized.ts`, CSS variable definitions for the "energized" theme
+- `fmbox.ts`, CSS variable definitions for the "fmbox" theme
+- `fogbox.ts`, CSS variable definitions for the "fogbox" theme
+- `forest.ts`, CSS variable definitions for the "forest" theme
+- `foxbox.ts`, CSS variable definitions for the "foxbox" theme
+- `fruit.ts`, CSS variable definitions for the "fruit" theme
+- `fusion.ts`, CSS variable definitions for the "fusion" theme
+- `harrybox.ts`, CSS variable definitions for the "harrybox" theme
+- `inverse.ts`, CSS variable definitions for the "inverse" theme
+- `jummbox-classic.ts`, CSS variable definitions for the "jummbox classic" theme
+- `jummbox-light.ts`, CSS variable definitions for the "jummbox light" theme
+- `lemmbox-dark.ts`, CSS variable definitions for the "lemmbox dark" theme
+- `light-classic.ts`, CSS variable definitions for the "light classic" theme
+- `mainbox-1.ts`, CSS variable definitions for the "mainbox 1.0" theme
+- `microbox.ts`, CSS variable definitions for the "microbox" theme
+- `midnight.ts`, CSS variable definitions for the "midnight" theme
+- `modbox-classic.ts`, CSS variable definitions for the "modbox classic" theme
+- `moonlight.ts`, CSS variable definitions for the "moonlight" theme
+- `neapolitan.ts`, CSS variable definitions for the "neapolitan" theme
+- `nebula.ts`, CSS variable definitions for the "nebula" theme
+- `nepbox.ts`, CSS variable definitions for the "nepbox" theme
+- `nerdbox.ts`, CSS variable definitions for the "nerdbox" theme
+- `paandorasbox.ts`, CSS variable definitions for the "paandorasbox" theme
+- `portal.ts`, CSS variable definitions for the "portal" theme
+- `roe-light.ts`, CSS variable definitions for the "roe light" theme
+- `roe.ts`, CSS variable definitions for the "roe" theme
+- `sandbox-classic.ts`, CSS variable definitions for the "sandbox classic" theme
+- `shitbox-2.ts`, CSS variable definitions for the "shitbox 2.0" theme
+- `shitbox-3.ts`, CSS variable definitions for the "shitbox 3.0" theme
+- `slarmoosbox.ts`, CSS variable definitions for the "slarmoosbox" theme
+- `slushie.ts`, CSS variable definitions for the "slushie" theme
+- `sunset.ts`, CSS variable definitions for the "sunset" theme
+- `todbox-dark-mode.ts`, CSS variable definitions for the "todbox dark mode" theme
+- `toxic.ts`, CSS variable definitions for the "toxic" theme
+- `ultrabox-dark.ts`, CSS variable definitions for the "ultrabox dark" theme
+- `violet-verdant.ts`, CSS variable definitions for the "violet verdant" theme
+- `wackybox.ts`, CSS variable definitions for the "wackybox" theme
+- `zefbox.ts`, CSS variable definitions for the "zefbox" theme

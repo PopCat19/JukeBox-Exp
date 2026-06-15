@@ -104,7 +104,7 @@ Preset data files (10 files, 21K+ lines each) are expected to be large and are n
 - `recommended: false` disables many useful rules
 - No `noUnusedImports` enforcement at CI level (only warn)
 
-**ESLint overlap:** Both Biome and ESLint are configured. ESLint `@typescript-eslint/no-explicit-any` is also disabled. Running two linters adds CI time without benefit — consider consolidating to Biome.
+**ESLint overlap:** Both Biome and ESLint are configured. ESLint `@typescript-eslint/no-explicit-any` is also disabled. Running two linters adds CI time without benefit, consider consolidating to Biome.
 
 **tsconfig:** `target: "es6"` is conservative. The browser targets for this app likely support ES2020+.
 
@@ -135,7 +135,7 @@ The `cache-then-compile` pattern in `synth.ts:4021-4188` is also duplicated in `
 ### 9. Documentation Alignment (Score: 7/10)
 
 - `context.md` files exist in 15/17 directories (missing: `editor/components/shiggy/`, `editor/config/preset_category/`)
-- Previous audit (2026-04-01) recommended splitting `synth.ts` — not yet done
+- Previous audit (2026-04-01) recommended splitting `synth.ts`, not yet done
 - `conventions/` directory is well-structured with AGENTS.md, DEVELOPMENT.md
 - File headers: ~70% compliance (57 theme files missing headers)
 
@@ -154,15 +154,15 @@ The `cache-then-compile` pattern in `synth.ts:4021-4188` is also duplicated in `
 ## Recommended Action Plan
 
 ### Sprint 1: Stop the Bleeding
-1. **Add `getCurrentInstrumentObj()` to SongDocument** — eliminates 75+ duplicate lines
-2. **Extract 18 `effectsInclude*` into generic `hasEffect()`** — reduces 18 functions to 1
-3. **Remove all commented-out code blocks** — ~50 lines across 6 files
+1. **Add `getCurrentInstrumentObj()` to SongDocument**, eliminates 75+ duplicate lines
+2. **Extract 18 `effectsInclude*` into generic `hasEffect()`**, reduces 18 functions to 1
+3. **Remove all commented-out code blocks**, ~50 lines across 6 files
 4. **Move `@types/*` to devDependencies**
 
 ### Sprint 2: Test Critical Paths
-1. **`synth/song-serialization.ts` round-trip tests** — highest risk, 4,533 untested lines
-2. **`synth/filtering.ts` coefficient tests** — mathematical correctness
-3. **`synth/notes.ts` + `editor/changes/notes.ts` tests** — user data integrity
+1. **`synth/song-serialization.ts` round-trip tests**, highest risk, 4,533 untested lines
+2. **`synth/filtering.ts` coefficient tests**, mathematical correctness
+3. **`synth/notes.ts` + `editor/changes/notes.ts` tests**, user data integrity
 4. **Create shared test fixtures** (mock SongDocument, sample instruments)
 
 ### Sprint 3: Decompose God Classes
@@ -171,10 +171,10 @@ The `cache-then-compile` pattern in `synth.ts:4021-4188` is also duplicated in `
 3. **Split `synth/instruments.ts`** (7 classes) into per-type files
 
 ### Sprint 4: Duplication Elimination
-1. **Generic slider change factory** — replaces 30+ boilerplate classes
-2. **Plugin base with default `getSynthFunction`** — eliminates 8 duplicate methods
-3. **Consolidate linters** — choose Biome or ESLint, not both
-4. **Address 39 TODO/HACK markers** — resolve or convert to tracked issues
+1. **Generic slider change factory**, replaces 30+ boilerplate classes
+2. **Plugin base with default `getSynthFunction`**, eliminates 8 duplicate methods
+3. **Consolidate linters**, choose Biome or ESLint, not both
+4. **Address 39 TODO/HACK markers**, resolve or convert to tracked issues
 
 ## Comparison with Previous Audit (2026-04-01)
 

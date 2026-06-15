@@ -8,16 +8,16 @@ via `rsync -a website/ dist/`.
 
 ## Subfolders
 
-- `fonts/` — typeface files referenced by `@font-face` rules
-  - `abysstype*.otf` — used by `abyssbox-*` themes
-  - `Varela.ttf` — used by shiggy dialogue bubbles
-  - `trebuc.otf`, `raleway.ttf`, `tahoma.otf`, `doomfont.otf` — bundled
+- `fonts/`, typeface files referenced by `@font-face` rules
+  - `abysstype*.otf`, used by `abyssbox-*` themes
+  - `Varela.ttf`, used by shiggy dialogue bubbles
+  - `trebuc.otf`, `raleway.ttf`, `tahoma.otf`, `doomfont.otf`, bundled
     but currently unreferenced (legacy)
-  - `google/` — self-hosted Google Fonts (woff2 subsets + declarations).
+  - `google/`, self-hosted Google Fonts (woff2 subsets + declarations).
     See `google/context.md`.
-- `images/` — UI icons, theme logos, manual illustrations
-- `icons/` — favicons, PWA icons, maskable variants
-- `audio/` — preloaded sound assets
+- `images/`, UI icons, theme logos, manual illustrations
+- `icons/`, favicons, PWA icons, maskable variants
+- `audio/`, preloaded sound assets
 
 ## Path convention
 

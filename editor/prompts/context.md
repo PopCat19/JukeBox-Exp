@@ -1,41 +1,41 @@
 # editor/prompts context
 
-- `index.ts` — Barrel re-export of all editor prompt classes
-- `prompt.ts` — Defines the Prompt interface for modal dialog components
-- `base-prompt.ts` — Abstract base class for all editor prompt dialogs
-- `input-helpers.ts` — Shared validation and layout helpers for prompt dialogs
-- `add-samples-prompt.ts` — Provides dialog for importing and loading audio sample files
-- `add-samples-url-parser.ts` — Parses and generates URL data for custom sample entries
-- `beats-per-bar-prompt.ts` — Provides dialog for changing the number of beats per bar
-- `channel-settings-prompt.ts` — Provides dialog for configuring channel-specific settings
-- `channel-volume-visualizer-prompt.ts` — Modal popup displaying per-channel gain information with live updates
-- `custom-chip-prompt.ts` — Provides dialog for editing custom chip wave sample data
-- `custom-filter-prompt.ts` — Provides dialog for configuring custom EQ and note filter curves
-- `custom-scale-prompt.ts` — Provides dialog for defining custom musical scale intervals
-- `custom-theme-prompt.ts` — Provides dialog for editing and applying custom color themes
-- `euclidgen-algorithm.ts` — Pure math functions for Euclidean rhythm generation and fraction arithmetic
-- `euclidgen-note-generator.ts` — Generates and applies Euclidean rhythm notes to song patterns
-- `euclidgen-renderer.ts` — Renders SVG visualizations for Euclidean rhythm preview
-- `euclidgen-rhythm-prompt.ts` — Provides dialog for generating Euclidean rhythm patterns
-- `export-midi.ts` — Exports a song to MIDI format
-- `export-prompt.ts` — Provides dialog for exporting songs as audio, MIDI, or URL formats
-- `import-prompt.ts` — Provides dialog for importing songs from URLs, files, or clipboard data
-- `instrument-export-prompt.ts` — Provides dialog for exporting instrument settings as shareable JSON
-- `instrument-import-prompt.ts` — Provides dialog for importing instrument settings from JSON or URL data
-- `keyboard-shortcuts-prompt.ts` — Modal popup listing all keyboard shortcuts with search
-- `layout-prompt.ts` — Provides dialog for selecting editor layout mode
-- `limiter-prompt.ts` — Provides dialog for configuring song limiter and compressor settings
-- `move-notes-sideways-prompt.ts` — Provides dialog for shifting selected notes horizontally in time
-- `octave-count-prompt.ts` — Provides dialog for changing the song octave count
-- `instrument-browser-prompt.ts` — Tabbed modal for browsing instrument presets and tags with shared filter state
-- `recording-setup-prompt.ts` — Provides dialog for configuring live recording input settings
-- `sample-loading-status-prompt.ts` — Provides dialog showing progress of audio sample loading
-- `shortener-config-prompt.ts` — Provides dialog for configuring URL shortener settings
-- `song-duration-prompt.ts` — Provides dialog for adjusting song length and loop end bar
-- `song-recovery-prompt.ts` — Provides dialog for browsing and restoring song recovery snapshots
-- `sustain-prompt.ts` — Provides dialog for configuring string sustain type and level
-- `save.ts` — Triggers a browser file download from a Blob
-- `theme-prompt.ts` — Provides dialog for selecting editor color theme
-- `tip-prompt.ts` — Provides dialog displaying usage tips and keyboard shortcuts
-- `visual-loop-controls-handle.ts` — Draggable canvas handle for waveform loop point visualization
-- `visual-loop-controls-prompt.ts` — Provides dialog for configuring visual loop display and chip wave loop settings
+- `index.ts`, Barrel re-export of all editor prompt classes
+- `prompt.ts`, Defines the Prompt interface for modal dialog components
+- `base-prompt.ts`, Abstract base class for all editor prompt dialogs
+- `input-helpers.ts`, Shared validation and layout helpers for prompt dialogs
+- `add-samples-prompt.ts`, Provides dialog for importing and loading audio sample files
+- `add-samples-url-parser.ts`, Parses and generates URL data for custom sample entries
+- `beats-per-bar-prompt.ts`, Provides dialog for changing the number of beats per bar
+- `channel-settings-prompt.ts`, Provides dialog for configuring channel-specific settings
+- `channel-volume-visualizer-prompt.ts`, Modal popup displaying per-channel gain information with live updates
+- `custom-chip-prompt.ts`, Provides dialog for editing custom chip wave sample data
+- `custom-filter-prompt.ts`, Provides dialog for configuring custom EQ and note filter curves
+- `custom-scale-prompt.ts`, Provides dialog for defining custom musical scale intervals
+- `custom-theme-prompt.ts`, Provides dialog for editing and applying custom color themes
+- `euclidgen-algorithm.ts`, Pure math functions for Euclidean rhythm generation and fraction arithmetic
+- `euclidgen-note-generator.ts`, Generates and applies Euclidean rhythm notes to song patterns
+- `euclidgen-renderer.ts`, Renders SVG visualizations for Euclidean rhythm preview
+- `euclidgen-rhythm-prompt.ts`, Provides dialog for generating Euclidean rhythm patterns
+- `export-midi.ts`, Exports a song to MIDI format
+- `export-prompt.ts`, Provides dialog for exporting songs as audio, MIDI, or URL formats
+- `import-prompt.ts`, Provides dialog for importing songs from URLs, files, or clipboard data
+- `instrument-export-prompt.ts`, Provides dialog for exporting instrument settings as shareable JSON
+- `instrument-import-prompt.ts`, Provides dialog for importing instrument settings from JSON or URL data
+- `keyboard-shortcuts-prompt.ts`, Modal popup listing all keyboard shortcuts with search
+- `layout-prompt.ts`, Provides dialog for selecting editor layout mode
+- `limiter-prompt.ts`, Provides dialog for configuring song limiter and compressor settings
+- `move-notes-sideways-prompt.ts`, Provides dialog for shifting selected notes horizontally in time
+- `octave-count-prompt.ts`, Provides dialog for changing the song octave count
+- `instrument-browser-prompt.ts`, Tabbed modal for browsing instrument presets and tags with shared filter state
+- `recording-setup-prompt.ts`, Provides dialog for configuring live recording input settings
+- `sample-loading-status-prompt.ts`, Provides dialog showing progress of audio sample loading
+- `shortener-config-prompt.ts`, Provides dialog for configuring URL shortener settings
+- `song-duration-prompt.ts`, Provides dialog for adjusting song length and loop end bar
+- `song-recovery-prompt.ts`, Provides dialog for browsing and restoring song recovery snapshots
+- `sustain-prompt.ts`, Provides dialog for configuring string sustain type and level
+- `save.ts`, Triggers a browser file download from a Blob
+- `theme-prompt.ts`, Provides dialog for selecting editor color theme
+- `tip-prompt.ts`, Provides dialog displaying usage tips and keyboard shortcuts
+- `visual-loop-controls-handle.ts`, Draggable canvas handle for waveform loop point visualization
+- `visual-loop-controls-prompt.ts`, Provides dialog for configuring visual loop display and chip wave loop settings
