@@ -6,7 +6,11 @@
 
 ## Executive Summary
 
-The codebase has a solid architectural foundation (clean synth/editor/player/shared separation) and strong tooling (TypeScript strict mode passes, CI configured). However, deep structural issues persist: god-class patterns, near-zero test coverage, and systematic code duplication across the editor change system. The codebase is functional but accumulating technical debt faster than it's being paid down.
+The codebase has a solid architectural foundation (clean synth/editor/player/shared separation) and strong tooling (TypeScript strict mode passes, CI configured).
+
+However, deep structural issues persist: god-class patterns, near-zero test coverage, and systematic code duplication across the editor change system.
+
+The codebase is functional but accumulating technical debt faster than it’s being paid down.
 
 ## Health Checks
 
