@@ -85,7 +85,7 @@ Pruned 41 tests that tested constructor assignments, default values, array index
 
 1. **Test coverage for `synth/synth.ts`**, 4689 lines, core audio engine, 0 direct tests
 2. **Test coverage for `synth/song-serialization.ts`**, 4533 lines, data integrity critical
-3. **Split `Synth.computeTone()`**, AFTER comprehensive audio tests
+3. **Split `Synth.computeTone()`**, AFTER full audio tests
 
 ### Medium Priority (track as issues)
 
