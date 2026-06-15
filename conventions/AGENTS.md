@@ -18,7 +18,19 @@ Opinionated agent development rules and conventions. Covers:
 - Principles (KISS, DRY, SoC, SRP, CoC, maintainable over clever)
 - Vocabulary (DDD + Figma bridge, repo-agnostic definitions)
 
-**Reading guide:** Comprehensive document (1.5~3k lines). Use the table of contents to navigate to relevant sections.
+**Reading guide:** Full document (~1.5-3k lines). Use the table of contents to navigate to relevant sections.
+
+### SKILL.md
+
+Condensed non-obvious conventions only. Assumes standard SWE practices. Located at `conventions/SKILL.md`. Covers:
+
+- Naming (snake_case dirs, kebab-case files)
+- Structure (depth limits, context.md requirements, module wiring, stratification thresholds)
+- File headers (Purpose lines)
+- Commit format and workflow
+- Agent interaction patterns (one-shot commands, wl-copy wrapping)
+
+**Reading guide:** Start here for quick reference. Fall back to DEVELOPMENT.md for detail.
 
 ### DEV-EXAMPLES.md
 
@@ -36,7 +48,9 @@ Concrete examples demonstrating conventions from DEVELOPMENT.md. Includes:
 
 ### context.md
 
-Each directory with 5+ non-obvious files has a `context.md` listing every file with a one-line purpose. These derive from file header `Purpose:` lines and must stay in sync.
+Each directory with 5+ non-obvious files has a `context.md` listing every file with a one-line purpose.
+
+Entries derive from file header `Purpose:` lines and must stay in sync.
 
 **Reading guide:** Check `context.md` to understand a directory's contents without opening each file.
 
@@ -44,7 +58,9 @@ Each directory with 5+ non-obvious files has a `context.md` listing every file w
 
 ### dev-conventions.sh
 
-Unified CLI for all convention tooling. Entry point for changelog, sync, and lint commands.
+Unified CLI for all convention tooling.
+
+Entry point for changelog, sync, and lint commands.
 
 **Usage:**
 ```bash
@@ -65,60 +81,26 @@ Syncs convention files from remote repository to target projects. Called via `de
 
 ### src/lint.sh
 
-Shell script linting and formatting (shfmt, shellcheck). NixOS-aware: resolves tools via PATH first, then falls back to `nix run nixpkgs#PACKAGE`. Called via `dev-conventions.sh lint`.
+Shell script linting and formatting (shfmt, shellcheck). Called via `dev-conventions.sh lint`.
 
 ### src/check-context.sh
 
-Verifies `context.md` files match actual directory contents. Detects structural and content drift.
+Verifies `context.md` files match actual directory contents.
 
-## Project Scripts (`scripts/`)
-
-### scripts/lint.sh
-
-Runs biome, TypeScript type-checking, and eslint. NixOS-aware: resolves biome/tsc/eslint via PATH → `./node_modules/.bin/` → `nix run nixpkgs#PACKAGE`.
-
-### scripts/live-editor.sh / scripts/live-editor-static.sh
-
-Esbuild watch + dev server. On NixOS, uses `nix run nixpkgs#esbuild` instead of `bunx`/`npx` (the npm esbuild binary is dynamically linked and won't run on NixOS).
-
-### scripts/run.sh
-
-Detects JS runtime: exports `RUNNER=bun` (or `node`) and `RUNX=bunx` (or `npx`).
-
-### scripts/build.ts
-
-Production build via esbuild JS API. Called via `bun scripts/build.ts` (or `bun run build`).
-
-## Environment
-
-### NixOS support
-
-This project works on NixOS via `flake.nix`:
-
-```bash
-nix develop          # Enter dev shell (bun, nodejs, biome, shfmt, shellcheck)
-bun install
-bun run dev          # Start dev server
-```
-
-The dev flake provides: `bun`, `nodejs`, `biome`, `shfmt`, `shellcheck`.
-Scripts detect NixOS (`/etc/NIXOS`) and fall back to `nix run nixpkgs#PACKAGE`
-for tools whose npm binaries are dynamically linked (esbuild, biome).
+Detects structural and content drift.
 
 ## Important Notice
 
 **Do not revise these files unless explicitly requested by the user:**
 
-- `DEVELOPMENT.md` — Established conventions for this project
-- `DEV-EXAMPLES.md` — Reference examples tied to DEVELOPMENT.md rules
-- `src/changelog.sh` — Workflow script following project conventions
-- `src/sync.sh` — Workflow script following project conventions
+- `DEVELOPMENT.md`, Established conventions for this project
+- `DEV-EXAMPLES.md`, Reference examples tied to DEVELOPMENT.md rules
+- `SKILL.md`, Condensed conventions derived from DEVELOPMENT.md
+- `src/changelog.sh`, Workflow script following project conventions
+- `src/sync.sh`, Workflow script following project conventions
 
-**Note on SKILL.md:** The `conventions/SKILL.md` file is a dangling reference
-to `../skills/dev-mini/SKILL.md` (from the upstream dev-conventions project).
-It is not applicable to this repo unless the skills directory is populated.
-
-**Repo-specific vocabulary mapping** lives in the root `context.md`, not in
-convention files. Do not add project paths to DEVELOPMENT.md.
+**Repo-specific vocabulary mapping lives in the root `context.md`, not in
+convention files. Do not add project paths to DEVELOPMENT.md or
+SKILL.md.**
 
 These files represent intentional design decisions. Modifications should only occur when the user explicitly states a need for changes.
