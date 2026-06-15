@@ -1,3 +1,7 @@
+# flake.nix
+#
+# Purpose: Define Nix flake with package, devshell, and overlay outputs for JukeBox-Exp
+#
 {
   description = "JukeBox-Exp dev environment";
 
