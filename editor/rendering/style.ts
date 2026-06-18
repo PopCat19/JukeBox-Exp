@@ -1637,49 +1637,81 @@ html {
 	width: 600px;
 }
 
-/* ── Left pane: channel list ── */
+/* ── Left pane — mirrors sbpLeftPane / sbpListContainer / sbpList ── */
 .beepboxEditor .prompt.cleanChannelPrompt .ccpLeftPane {
-	flex: 0 0 200px;
+	width: 220px;
+	flex-shrink: 0;
 	display: flex;
 	flex-direction: column;
-	min-height: 0;
+	padding: var(--padding-8);
+	gap: 0;
 }
 
 .beepboxEditor .prompt.cleanChannelPrompt .ccpListContainer {
+	display: flex;
+	flex-direction: column;
 	flex: 1;
+	border-radius: var(--border-radius-medium);
+	overflow: hidden;
+	min-height: 0;
+}
+
+.beepboxEditor .prompt.cleanChannelPrompt .ccpList {
+	flex: 1;
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+	padding: 2px;
 	overflow-y: auto;
-	overflow-x: hidden;
 }
 
-.beepboxEditor .prompt.cleanChannelPrompt .ccpChannelList {
+/* ── Channel list items — reuse categoryItem with CTA inversion ── */
+.beepboxEditor .prompt.cleanChannelPrompt .ccpList .categoryItem {
 	display: flex;
 	flex-direction: column;
-}
-
-/* ── Channel list items — reuse categoryItem pattern ── */
-.beepboxEditor .prompt.cleanChannelPrompt .ccpChannelList .categoryItem {
-	display: flex;
-	flex-direction: column;
-	padding: var(--padding-6) var(--padding-8);
+	align-items: flex-start;
+	text-align: left;
+	border: 2px solid transparent;
+	box-sizing: border-box;
+	padding: var(--padding-8);
+	border-radius: var(--border-radius-medium);
 	cursor: pointer;
-	gap: 1px;
-	border-bottom: 1px solid var(--ui-widget-background);
-	transition: background 150ms var(--ease);
+	transition: border-color 150ms var(--ease);
 }
 
-.beepboxEditor .prompt.cleanChannelPrompt .ccpChannelList .categoryItem:hover {
-	background: var(--ui-widget-background);
+.beepboxEditor .prompt.cleanChannelPrompt .ccpList .categoryItem:hover {
+	border-color: var(--hout, var(--primary-text));
 }
 
+.beepboxEditor .prompt.cleanChannelPrompt .ccpList .categoryItem.committed {
+	background: var(--cta-bg);
+	border-color: var(--cta-bg);
+	color: var(--cta-fg);
+}
+
+.beepboxEditor .prompt.cleanChannelPrompt .ccpList .categoryItem.committed:hover {
+	border-color: var(--editor-background);
+}
+
+.beepboxEditor .prompt.cleanChannelPrompt .ccpList .categoryItem.committed .ccpItemLabel,
+.beepboxEditor .prompt.cleanChannelPrompt .ccpList .categoryItem.committed .ccpItemDetail,
+.beepboxEditor .prompt.cleanChannelPrompt .ccpList .categoryItem.committed .ccpItemBadge {
+	color: var(--cta-fg);
+}
+
+/* ── Item label — heading tier: 88x @ 100%, 12px/600 ── */
 .beepboxEditor .prompt.cleanChannelPrompt .ccpItemLabel {
+	width: 100%;
+	min-width: 0;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
 	font-size: 12px;
 	font-weight: 600;
 	color: var(--primary-text);
-	white-space: nowrap;
-	overflow: hidden;
-	text-overflow: ellipsis;
 }
 
+/* ── Item detail — meta tier: 80x @ 48%, 10px/500 ── */
 .beepboxEditor .prompt.cleanChannelPrompt .ccpItemDetail {
 	font-size: 10px;
 	font-weight: 500;
@@ -1687,6 +1719,7 @@ html {
 	font-family: var(--font-family-mono);
 }
 
+/* ── Item badge — meta tier: 80x @ 48%, 10px/500 ── */
 .beepboxEditor .prompt.cleanChannelPrompt .ccpItemBadge {
 	font-size: 10px;
 	font-weight: 500;

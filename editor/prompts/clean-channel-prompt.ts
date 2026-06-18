@@ -174,16 +174,7 @@ function computeInstrumentDiff(doc: SongDocument, channelIndex: number): Instrum
 	};
 }
 
-function diffSummary(diff: ChannelDiff, mode: CleanMode): string {
-	if (mode === "patterns") {
-		const d = diff as PatternDiff;
-		return `${d.mergedPatterns.length} dup${d.mergedPatterns.length !== 1 ? "s" : ""}`;
-	}
-	const d = diff as InstrumentDiff;
-	return `${d.dropped.length} unused`;
-}
-
-function diffCount(diff: ChannelDiff, mode: CleanMode): string {
+function diffCountLabel(diff: ChannelDiff, mode: CleanMode): string {
 	if (mode === "patterns") {
 		const d = diff as PatternDiff;
 		return `Patterns: ${d.patternsBefore} → ${d.patternsAfter}`;
@@ -192,13 +183,22 @@ function diffCount(diff: ChannelDiff, mode: CleanMode): string {
 	return `Instruments: ${d.instrumentsBefore} → ${d.instrumentsAfter}`;
 }
 
+function diffBadge(diff: ChannelDiff, mode: CleanMode): string {
+	if (mode === "patterns") {
+		const d = diff as PatternDiff;
+		return `${d.mergedPatterns.length} dup${d.mergedPatterns.length !== 1 ? "s" : ""}`;
+	}
+	const d = diff as InstrumentDiff;
+	return `${d.dropped.length} unused`;
+}
+
 export class CleanChannelPrompt extends BasePrompt {
 	private readonly _mode: CleanMode;
 	private readonly _scope: CleanScope;
 	private readonly _diffs: ChannelDiff[] = [];
 	private _selectedIndex: number = 0;
 
-	private readonly _channelList: HTMLDivElement = div({ class: "ccpChannelList" });
+	private readonly _channelList: HTMLDivElement = div({ class: "ccpList" });
 	private readonly _detailPane: HTMLDivElement = flexPane({ flex: "1", padding: "var(--padding-8)" });
 	private readonly _leftPane: HTMLDivElement;
 	private readonly _searchInput: HTMLInputElement = searchInput("Filter channels...");
@@ -231,12 +231,13 @@ export class CleanChannelPrompt extends BasePrompt {
 				? `Clean Patterns (LSDj) — ${scope === "all" ? "All Channels" : "Current Channel"}`
 				: `Clean Instruments (LSDj) — ${scope === "all" ? "All Channels" : "Current Channel"}`;
 
-		// Left pane: channel list
+		// Left pane: channel list (mirrors sbpLeftPane / sbpListContainer / sbpList)
 		this._searchInput.addEventListener("input", () => this._renderList());
 
-		this._leftPane = div({ class: "ccpLeftPane" }, div({ class: "ccpListContainer" }, this._channelList));
+		const listContainer = div({ class: "ccpListContainer" }, this._channelList);
 
-		// Container
+		this._leftPane = div({ class: "ccpLeftPane" }, listContainer);
+
 		this.container = div(
 			{ class: "prompt cleanChannelPrompt noSelection" },
 			h2({}, title),
@@ -281,14 +282,15 @@ export class CleanChannelPrompt extends BasePrompt {
 			const diff = this._diffs[idx];
 			const isSelected = idx === this._selectedIndex;
 
+			// categoryItem pattern: border:2px transparent, committed = CTA inversion
 			const item = div(
 				{
 					class: isSelected ? "categoryItem committed" : "categoryItem",
 					"data-index": String(idx),
 				},
 				div({ class: "ccpItemLabel" }, diff.channelLabel),
-				span({ class: "ccpItemDetail" }, diffCount(diff, this._mode)),
-				span({ class: "ccpItemBadge" }, diffSummary(diff, this._mode)),
+				span({ class: "ccpItemDetail" }, diffCountLabel(diff, this._mode)),
+				span({ class: "ccpItemBadge" }, diffBadge(diff, this._mode)),
 			);
 
 			item.addEventListener("click", () => {
@@ -323,7 +325,7 @@ export class CleanChannelPrompt extends BasePrompt {
 	}
 
 	private _renderPatternDetail(diff: PatternDiff): void {
-		// Summary
+		// Summary header
 		this._detailPane.appendChild(
 			div(
 				{ class: "ccpDetailSummary" },
@@ -352,7 +354,7 @@ export class CleanChannelPrompt extends BasePrompt {
 	}
 
 	private _renderInstrumentDetail(diff: InstrumentDiff): void {
-		// Summary
+		// Summary header
 		this._detailPane.appendChild(
 			div(
 				{ class: "ccpDetailSummary" },
