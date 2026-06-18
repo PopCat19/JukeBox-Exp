@@ -1663,6 +1663,7 @@ html {
 	gap: 4px;
 	padding: 2px;
 	overflow-y: auto;
+	scrollbar-gutter: stable;
 }
 
 /* ── Channel list items — reuse categoryItem with CTA inversion ── */
