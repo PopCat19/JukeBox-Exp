@@ -1645,6 +1645,8 @@ html {
 .beepboxEditor .prompt.cleanChannelPrompt .ccpEmpty {
 	padding: var(--padding-16) var(--padding-8);
 	text-align: center;
+	font-size: 12px;
+	font-weight: 500;
 	color: var(--secondary-text);
 }
 
@@ -1653,6 +1655,7 @@ html {
 	margin-bottom: 2px;
 }
 
+/* ── Category header — heading tier: 88x @ 100%, 12px/600 ── */
 .beepboxEditor .prompt.cleanChannelPrompt .ccpCategoryHeader {
 	display: flex;
 	align-items: center;
@@ -1679,10 +1682,11 @@ html {
 	font-weight: 600;
 }
 
+/* ── Header summary — meta tier: 80x @ 48%, 10px/500 ── */
 .beepboxEditor .prompt.cleanChannelPrompt .ccpHeaderSummary {
 	margin-left: auto;
-	font-size: 11px;
-	font-weight: 400;
+	font-size: 10px;
+	font-weight: 500;
 	color: var(--secondary-text);
 	font-family: var(--font-family-mono);
 }
@@ -1691,19 +1695,23 @@ html {
 	padding: var(--padding-4) var(--padding-8) var(--padding-8);
 }
 
+/* ── Summary line — meta tier: 80x @ 48%, 10px/500 ── */
 .beepboxEditor .prompt.cleanChannelPrompt .ccpSummary {
 	margin: 0 0 var(--padding-4);
-	font-size: 11px;
+	font-size: 10px;
+	font-weight: 500;
 	color: var(--secondary-text);
 }
 
 .beepboxEditor .prompt.cleanChannelPrompt .ccpDropped {
 	margin: var(--padding-4) 0 0;
-	font-size: 11px;
+	font-size: 10px;
+	font-weight: 500;
 	color: var(--secondary-text);
 }
 
-/* ── Tables ── */
+/* ── Table labels — source name tier: 80x @ 100%, 10px/500 ── */
+/* Distinct from secondary-text to avoid blending with table data */
 .beepboxEditor .prompt.cleanChannelPrompt .ccpTableWrap {
 	margin: var(--padding-4) 0;
 }
@@ -1711,34 +1719,43 @@ html {
 .beepboxEditor .prompt.cleanChannelPrompt .ccpTableLabel {
 	margin: 0 0 2px;
 	font-size: 10px;
-	color: var(--secondary-text);
+	font-weight: 500;
+	color: var(--primary-text);
 }
 
+/* ── Tables ── */
 .beepboxEditor .prompt.cleanChannelPrompt table {
 	width: 100%;
 	border-collapse: collapse;
 	font-family: var(--font-family-mono);
-	font-size: 11px;
+	font-size: 12px;
 }
 
+/* ── Column headers — meta tier: 80x @ 48%, 10px/500 ── */
 .beepboxEditor .prompt.cleanChannelPrompt th {
 	text-align: left;
 	padding: var(--padding-2) var(--padding-6);
+	font-size: 10px;
+	font-weight: 500;
 	color: var(--secondary-text);
 	border-bottom: 1px solid var(--ui-widget-background);
-	font-weight: 400;
 }
 
+/* ── Table data — body tier: 80x @ 100%, 12px/500 ── */
 .beepboxEditor .prompt.cleanChannelPrompt td {
 	padding: var(--padding-2) var(--padding-6);
+	font-size: 12px;
+	font-weight: 500;
 	color: var(--primary-text);
 }
 
+/* ── Arrow — annotation: 80x @ 48% ── */
 .beepboxEditor .prompt.cleanChannelPrompt .ccpArrow {
 	color: var(--secondary-text);
 	text-align: center;
 }
 
+/* ── Fingerprint — subtext tier: 64x @ 100%, 10px ── */
 .beepboxEditor .prompt.cleanChannelPrompt .ccpFingerprint {
 	color: var(--secondary-text);
 	font-size: 10px;
