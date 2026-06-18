@@ -123,6 +123,14 @@ export class MuteEditor {
 	};
 
 	private _channelDropDownGetOpenedPosition = (_event: MouseEvent): void => {
+		// Guard: if the dropdown was already hidden (e.g. by the change handler
+		// via _channelDropDownHandler), a trailing click event from the native
+		// select popup must not re-show the name display or corrupt the
+		// _channelDropDownOpen / _channelDropDownLastState flags. Without this
+		// guard, _onMouseMove sees _channelDropDownOpen === true and refuses to
+		// re-show the dropdown, freezing the mute editor until page refresh.
+		if (this._channelDropDown.style.getPropertyValue("display") === "none") return;
+
 		this._channelDropDownLastState = this._channelDropDownOpen;
 
 		this._channelDropDownChannel = Math.floor(
@@ -182,79 +190,85 @@ export class MuteEditor {
 		this._channelDropDownOpen = false;
 		event.stopPropagation();
 
-		switch (this._channelDropDown.value) {
-			case "rename":
-				this._channelNameInput.input.style.setProperty("display", "");
-				this._channelNameInput.input.style.setProperty("transform", this._channelNameDisplay.style.getPropertyValue("transform"));
-				if (this._channelNameDisplay.textContent != null) {
-					this._channelNameInput.input.value = this._channelNameDisplay.textContent;
-				} else {
-					this._channelNameInput.input.value = "";
-				}
-				this._channelNameInput.input.select();
-				break;
-			case "chnUp":
-				this._doc.record(new ChangeChannelOrder(this._doc, this._channelDropDownChannel, this._channelDropDownChannel, -1));
-				break;
-			case "chnDown":
-				this._doc.record(new ChangeChannelOrder(this._doc, this._channelDropDownChannel, this._channelDropDownChannel, 1));
-				break;
-			case "chnMute":
-				this._doc.song.channels[this._channelDropDownChannel].muted = !this._doc.song.channels[this._channelDropDownChannel].muted;
-				this.render();
-				break;
-			case "chnSolo": {
-				// Check for any channel not matching solo pattern
-				let shouldSolo: boolean = false;
-				for (let channel: number = 0; channel < this._doc.song.pitchChannelCount + this._doc.song.noiseChannelCount; channel++) {
-					if (this._doc.song.channels[channel].muted === (channel === this._channelDropDownChannel)) {
-						shouldSolo = true;
-						channel = this._doc.song.pitchChannelCount + this._doc.song.noiseChannelCount;
+		try {
+			switch (this._channelDropDown.value) {
+				case "rename":
+					this._channelNameInput.input.style.setProperty("display", "");
+					this._channelNameInput.input.style.setProperty("transform", this._channelNameDisplay.style.getPropertyValue("transform"));
+					if (this._channelNameDisplay.textContent != null) {
+						this._channelNameInput.input.value = this._channelNameDisplay.textContent;
+					} else {
+						this._channelNameInput.input.value = "";
 					}
-				}
-				if (shouldSolo) {
+					this._channelNameInput.input.select();
+					break;
+				case "chnUp":
+					this._doc.record(new ChangeChannelOrder(this._doc, this._channelDropDownChannel, this._channelDropDownChannel, -1));
+					break;
+				case "chnDown":
+					this._doc.record(new ChangeChannelOrder(this._doc, this._channelDropDownChannel, this._channelDropDownChannel, 1));
+					break;
+				case "chnMute":
+					this._doc.song.channels[this._channelDropDownChannel].muted = !this._doc.song.channels[this._channelDropDownChannel].muted;
+					this.render();
+					break;
+				case "chnSolo": {
+					// Check for any channel not matching solo pattern
+					let shouldSolo: boolean = false;
 					for (let channel: number = 0; channel < this._doc.song.pitchChannelCount + this._doc.song.noiseChannelCount; channel++) {
-						this._doc.song.channels[channel].muted = channel !== this._channelDropDownChannel;
+						if (this._doc.song.channels[channel].muted === (channel === this._channelDropDownChannel)) {
+							shouldSolo = true;
+							channel = this._doc.song.pitchChannelCount + this._doc.song.noiseChannelCount;
+						}
 					}
-				} else {
-					for (let channel: number = 0; channel < this._doc.song.pitchChannelCount + this._doc.song.noiseChannelCount; channel++) {
-						this._doc.song.channels[channel].muted = false;
+					if (shouldSolo) {
+						for (let channel: number = 0; channel < this._doc.song.pitchChannelCount + this._doc.song.noiseChannelCount; channel++) {
+							this._doc.song.channels[channel].muted = channel !== this._channelDropDownChannel;
+						}
+					} else {
+						for (let channel: number = 0; channel < this._doc.song.pitchChannelCount + this._doc.song.noiseChannelCount; channel++) {
+							this._doc.song.channels[channel].muted = false;
+						}
 					}
+					this.render();
+					break;
 				}
-				this.render();
-				break;
-			}
-			case "chnInsert": {
-				this._doc.channel = this._channelDropDownChannel;
-				this._doc.selection.resetBoxSelection();
-				this._doc.selection.insertChannel();
-				break;
-			}
-			case "chnClone": {
-				this._doc.channel = this._channelDropDownChannel;
-				this._doc.selection.resetBoxSelection();
-				this._doc.selection.cloneChannel();
-				break;
-			}
-			case "chnClean": {
-				this._doc.record(new ChangeCleanChannelPatterns(this._doc, this._channelDropDownChannel));
-				break;
-			}
-			case "chnCleanInst": {
-				this._doc.record(new ChangeCleanChannelInstruments(this._doc, this._channelDropDownChannel));
-				break;
-			}
-			case "chnDelete": {
-				this._doc.record(new ChangeRemoveChannel(this._doc, this._channelDropDownChannel, this._channelDropDownChannel));
+				case "chnInsert": {
+					this._doc.channel = this._channelDropDownChannel;
+					this._doc.selection.resetBoxSelection();
+					this._doc.selection.insertChannel();
+					break;
+				}
+				case "chnClone": {
+					this._doc.channel = this._channelDropDownChannel;
+					this._doc.selection.resetBoxSelection();
+					this._doc.selection.cloneChannel();
+					break;
+				}
+				case "chnClean": {
+					this._doc.record(new ChangeCleanChannelPatterns(this._doc, this._channelDropDownChannel));
+					break;
+				}
+				case "chnCleanInst": {
+					this._doc.record(new ChangeCleanChannelInstruments(this._doc, this._channelDropDownChannel));
+					break;
+				}
+				case "chnDelete": {
+					this._doc.record(new ChangeRemoveChannel(this._doc, this._channelDropDownChannel, this._channelDropDownChannel));
 
-				break;
+					break;
+				}
 			}
+			if (this._channelDropDown.value !== "rename") {
+				this._editor.refocusStage();
+			}
+		} finally {
+			// Reset width so a stale 15px invisible select does not linger;
+			// _onMouseMove / _onMouseLeave both reset width but the change
+			// handler previously only set display:none, leaving width:15px.
+			this._channelDropDown.style.setProperty("width", "0px");
+			this._channelDropDown.selectedIndex = -1;
 		}
-		if (this._channelDropDown.value !== "rename") {
-			this._editor.refocusStage();
-		}
-
-		this._channelDropDown.selectedIndex = -1;
 	};
 
 	private _onClick = (event: MouseEvent): void => {
