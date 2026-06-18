@@ -1660,8 +1660,8 @@ html {
 	flex: 1;
 	display: flex;
 	flex-direction: column;
-	gap: 4px;
-	padding: 2px;
+	gap: 8px;
+	padding: 4px;
 	overflow-y: auto;
 	scrollbar-gutter: stable;
 }
