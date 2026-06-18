@@ -1655,7 +1655,6 @@ html {
 	justify-content: flex-end;
 	gap: 4px;
 	padding: 8px;
-	border-top: 1px solid ${ColorConfig.uiWidgetBackground};
 }
 
 .beepboxEditor .prompt.cleanChannelPrompt .ccpNoChanges {
