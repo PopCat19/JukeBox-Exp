@@ -1676,6 +1676,7 @@ html {
 	padding: var(--padding-8);
 	border-radius: var(--border-radius-medium);
 	cursor: pointer;
+	background: var(--prompt-list-item-bg);
 	transition: border-color 150ms var(--ease);
 }
 
