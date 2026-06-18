@@ -1634,15 +1634,75 @@ html {
 
 /* ── Clean Channel Prompt ── */
 .beepboxEditor .prompt.cleanChannelPrompt {
-	width: 480px;
+	width: 600px;
 }
 
-.beepboxEditor .prompt.cleanChannelPrompt .ccpList {
-	max-height: 420px;
+/* ── Left pane: channel list ── */
+.beepboxEditor .prompt.cleanChannelPrompt .ccpLeftPane {
+	flex: 0 0 200px;
+	display: flex;
+	flex-direction: column;
+	min-height: 0;
+}
+
+.beepboxEditor .prompt.cleanChannelPrompt .ccpListContainer {
+	flex: 1;
 	overflow-y: auto;
+	overflow-x: hidden;
 }
 
-.beepboxEditor .prompt.cleanChannelPrompt .ccpEmpty {
+.beepboxEditor .prompt.cleanChannelPrompt .ccpChannelList {
+	display: flex;
+	flex-direction: column;
+}
+
+/* ── Channel list items — reuse categoryItem pattern ── */
+.beepboxEditor .prompt.cleanChannelPrompt .ccpChannelList .categoryItem {
+	display: flex;
+	flex-direction: column;
+	padding: var(--padding-6) var(--padding-8);
+	cursor: pointer;
+	gap: 1px;
+	border-bottom: 1px solid var(--ui-widget-background);
+	transition: background 150ms var(--ease);
+}
+
+.beepboxEditor .prompt.cleanChannelPrompt .ccpChannelList .categoryItem:hover {
+	background: var(--ui-widget-background);
+}
+
+.beepboxEditor .prompt.cleanChannelPrompt .ccpItemLabel {
+	font-size: 12px;
+	font-weight: 600;
+	color: var(--primary-text);
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.beepboxEditor .prompt.cleanChannelPrompt .ccpItemDetail {
+	font-size: 10px;
+	font-weight: 500;
+	color: var(--secondary-text);
+	font-family: var(--font-family-mono);
+}
+
+.beepboxEditor .prompt.cleanChannelPrompt .ccpItemBadge {
+	font-size: 10px;
+	font-weight: 500;
+	color: var(--secondary-text);
+}
+
+.beepboxEditor .prompt.cleanChannelPrompt .ccpEmptyList {
+	padding: var(--padding-8);
+	font-size: 12px;
+	font-weight: 500;
+	color: var(--secondary-text);
+	text-align: center;
+}
+
+/* ── Right pane: detail ── */
+.beepboxEditor .prompt.cleanChannelPrompt .ccpEmptyDetail {
 	padding: var(--padding-16) var(--padding-8);
 	text-align: center;
 	font-size: 12px;
@@ -1650,70 +1710,32 @@ html {
 	color: var(--secondary-text);
 }
 
-/* ── Collapsible category section ── */
-.beepboxEditor .prompt.cleanChannelPrompt .ccpCategory {
-	margin-bottom: 2px;
+/* ── Detail summary — source name tier: 80x @ 100%, 12px/600 ── */
+.beepboxEditor .prompt.cleanChannelPrompt .ccpDetailSummary {
+	display: flex;
+	align-items: baseline;
+	gap: var(--gap-md);
+	padding: var(--padding-4) 0 var(--padding-8);
+	border-bottom: 1px solid var(--ui-widget-background);
+	margin-bottom: var(--padding-8);
 }
 
-/* ── Category header — heading tier: 88x @ 100%, 12px/600 ── */
-.beepboxEditor .prompt.cleanChannelPrompt .ccpCategoryHeader {
-	display: flex;
-	align-items: center;
-	gap: var(--gap-md);
-	padding: var(--padding-8) var(--padding-10);
-	cursor: pointer;
-	user-select: none;
+.beepboxEditor .prompt.cleanChannelPrompt .ccpDetailCount {
 	font-size: 12px;
 	font-weight: 600;
 	color: var(--primary-text);
-}
-
-.beepboxEditor .prompt.cleanChannelPrompt .ccpCollapseIcon {
-	font-size: 10px;
-	color: var(--secondary-text);
-	width: 12px;
-	text-align: center;
-	flex-shrink: 0;
-}
-
-.beepboxEditor .prompt.cleanChannelPrompt .ccpCategoryHeader h2 {
-	margin: 0;
-	font-size: 12px;
-	font-weight: 600;
-}
-
-/* ── Header summary — meta tier: 80x @ 48%, 10px/500 ── */
-.beepboxEditor .prompt.cleanChannelPrompt .ccpHeaderSummary {
-	margin-left: auto;
-	font-size: 10px;
-	font-weight: 500;
-	color: var(--secondary-text);
 	font-family: var(--font-family-mono);
 }
 
-.beepboxEditor .prompt.cleanChannelPrompt .ccpCategoryBody {
-	padding: var(--padding-4) var(--padding-8) var(--padding-8);
-}
-
-/* ── Summary line — meta tier: 80x @ 48%, 10px/500 ── */
-.beepboxEditor .prompt.cleanChannelPrompt .ccpSummary {
-	margin: 0 0 var(--padding-4);
-	font-size: 10px;
-	font-weight: 500;
-	color: var(--secondary-text);
-}
-
-.beepboxEditor .prompt.cleanChannelPrompt .ccpDropped {
-	margin: var(--padding-4) 0 0;
+.beepboxEditor .prompt.cleanChannelPrompt .ccpDetailMeta {
 	font-size: 10px;
 	font-weight: 500;
 	color: var(--secondary-text);
 }
 
 /* ── Table labels — source name tier: 80x @ 100%, 10px/500 ── */
-/* Distinct from secondary-text to avoid blending with table data */
 .beepboxEditor .prompt.cleanChannelPrompt .ccpTableWrap {
-	margin: var(--padding-4) 0;
+	margin: var(--padding-4) 0 var(--padding-8);
 }
 
 .beepboxEditor .prompt.cleanChannelPrompt .ccpTableLabel {
@@ -1767,8 +1789,11 @@ html {
 	background: var(--editor-background);
 }
 
-.beepboxEditor .prompt.cleanChannelPrompt .ccpCategory.collapsed .ccpCategoryBody {
-	display: none;
+.beepboxEditor .prompt.cleanChannelPrompt .ccpDropped {
+	margin: var(--padding-4) 0 0;
+	font-size: 10px;
+	font-weight: 500;
+	color: var(--secondary-text);
 }
 ;
 };

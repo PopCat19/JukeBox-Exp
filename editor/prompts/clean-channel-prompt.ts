@@ -4,9 +4,8 @@
 //
 // This module:
 // - Computes a dry-run diff of duplicate pattern merges and instrument dedup
-// - Displays per-bar before→after pattern numbers and instrument remap tables
+// - Dual-pane layout: channel list (left) + detail tables (right)
 // - Supports current-channel or all-channels scope
-// - Collapsible per-channel sections, scrollable list, stationary buttons
 // - Applies changes via ChangeCleanChannelPatterns / ChangeCleanChannelInstruments
 
 import { HTML } from "imperative-html/dist/esm/elements-strict";
@@ -15,6 +14,7 @@ import { Config } from "../../synth/synth-config";
 import { ChangeCleanChannelInstruments, ChangeCleanChannelPatterns, comparePatternNotes, patternsContainSameInstruments } from "../changes";
 import { ChangeGroup } from "../core/change";
 import type { SongDocument } from "../song-document";
+import { flexPane, inputRow, paneContainer, searchInput } from "../ui";
 import { BasePrompt } from "./base-prompt";
 
 const { div, h2, span, p, table, tbody, tr, td, th } = HTML;
@@ -39,6 +39,8 @@ interface InstrumentDiff {
 	remap: { oldIndex: number; newIndex: number; fingerprint: string }[];
 	dropped: number[];
 }
+
+type ChannelDiff = PatternDiff | InstrumentDiff;
 
 function channelLabel(doc: SongDocument, index: number): string {
 	const name = doc.song.channels[index].name;
@@ -172,11 +174,34 @@ function computeInstrumentDiff(doc: SongDocument, channelIndex: number): Instrum
 	};
 }
 
+function diffSummary(diff: ChannelDiff, mode: CleanMode): string {
+	if (mode === "patterns") {
+		const d = diff as PatternDiff;
+		return `${d.mergedPatterns.length} dup${d.mergedPatterns.length !== 1 ? "s" : ""}`;
+	}
+	const d = diff as InstrumentDiff;
+	return `${d.dropped.length} unused`;
+}
+
+function diffCount(diff: ChannelDiff, mode: CleanMode): string {
+	if (mode === "patterns") {
+		const d = diff as PatternDiff;
+		return `Patterns: ${d.patternsBefore} → ${d.patternsAfter}`;
+	}
+	const d = diff as InstrumentDiff;
+	return `Instruments: ${d.instrumentsBefore} → ${d.instrumentsAfter}`;
+}
+
 export class CleanChannelPrompt extends BasePrompt {
 	private readonly _mode: CleanMode;
 	private readonly _scope: CleanScope;
-	private readonly _diffList: HTMLDivElement = div({ class: "ccpList" });
-	private _collapsed: Set<number> = new Set();
+	private readonly _diffs: ChannelDiff[] = [];
+	private _selectedIndex: number = 0;
+
+	private readonly _channelList: HTMLDivElement = div({ class: "ccpChannelList" });
+	private readonly _detailPane: HTMLDivElement = flexPane({ flex: "1", padding: "var(--padding-8)" });
+	private readonly _leftPane: HTMLDivElement;
+	private readonly _searchInput: HTMLInputElement = searchInput("Filter channels...");
 
 	public readonly container: HTMLDivElement;
 
@@ -187,150 +212,177 @@ export class CleanChannelPrompt extends BasePrompt {
 
 		const channels: number[] = scope === "all" ? Array.from({ length: doc.song.getChannelCount() }, (_, i) => i) : [doc.channel];
 
-		const patternDiffs: PatternDiff[] =
-			mode === "patterns" ? channels.map((ch) => computePatternDiff(doc, ch)).filter((d): d is PatternDiff => d !== null) : [];
-		const instrumentDiffs: InstrumentDiff[] =
-			mode === "instruments" ? channels.map((ch) => computeInstrumentDiff(doc, ch)).filter((d): d is InstrumentDiff => d !== null) : [];
+		if (mode === "patterns") {
+			for (const ch of channels) {
+				const d = computePatternDiff(doc, ch);
+				if (d) this._diffs.push(d);
+			}
+		} else {
+			for (const ch of channels) {
+				const d = computeInstrumentDiff(doc, ch);
+				if (d) this._diffs.push(d);
+			}
+		}
 
-		const hasChanges = patternDiffs.length > 0 || instrumentDiffs.length > 0;
+		const hasChanges = this._diffs.length > 0;
 
 		const title =
 			mode === "patterns"
 				? `Clean Patterns (LSDj) — ${scope === "all" ? "All Channels" : "Current Channel"}`
 				: `Clean Instruments (LSDj) — ${scope === "all" ? "All Channels" : "Current Channel"}`;
 
+		// Left pane: channel list
+		this._searchInput.addEventListener("input", () => this._renderList());
+
+		this._leftPane = div({ class: "ccpLeftPane" }, div({ class: "ccpListContainer" }, this._channelList));
+
+		// Container
 		this.container = div(
 			{ class: "prompt cleanChannelPrompt noSelection" },
 			h2({}, title),
-			this._diffList,
+			inputRow({ marginBottom: "var(--padding-4)" }, this._searchInput),
+			paneContainer(
+				{ height: "400px", gap: "0", border: "2px solid var(--ui-widget-background)", borderRadius: "var(--border-radius-medium)" },
+				this._leftPane,
+				this._detailPane,
+			),
 			hasChanges ? this._okayButton : div(),
 			this._cancelButton,
 		);
 
 		this.buildTitlebar();
-		this._render(patternDiffs, instrumentDiffs, hasChanges);
+
+		if (hasChanges) {
+			this._selectedIndex = 0;
+			this._renderList();
+			this._renderDetail();
+		} else {
+			this._renderEmpty();
+		}
+
+		setTimeout(() => this._searchInput.focus(), 100);
 	}
 
-	private _render(patternDiffs: PatternDiff[], instrumentDiffs: InstrumentDiff[], hasChanges: boolean): void {
-		while (this._diffList.firstChild) this._diffList.removeChild(this._diffList.firstChild);
+	private _getFilteredIndices(): number[] {
+		if (!this._searchInput.value) return this._diffs.map((_, i) => i);
+		const q = this._searchInput.value.toLowerCase();
+		return this._diffs
+			.map((d, i) => ({ d, i }))
+			.filter(({ d }) => d.channelLabel.toLowerCase().includes(q))
+			.map(({ i }) => i);
+	}
 
-		if (!hasChanges) {
-			this._diffList.appendChild(p({ class: "ccpEmpty" }, "No duplicate patterns or instruments found. Nothing to clean."));
+	private _renderList(): void {
+		while (this._channelList.firstChild) this._channelList.removeChild(this._channelList.firstChild);
+
+		const filtered = this._getFilteredIndices();
+
+		for (const idx of filtered) {
+			const diff = this._diffs[idx];
+			const isSelected = idx === this._selectedIndex;
+
+			const item = div(
+				{
+					class: isSelected ? "categoryItem committed" : "categoryItem",
+					"data-index": String(idx),
+				},
+				div({ class: "ccpItemLabel" }, diff.channelLabel),
+				span({ class: "ccpItemDetail" }, diffCount(diff, this._mode)),
+				span({ class: "ccpItemBadge" }, diffSummary(diff, this._mode)),
+			);
+
+			item.addEventListener("click", () => {
+				this._selectedIndex = idx;
+				this._renderList();
+				this._renderDetail();
+			});
+
+			this._channelList.appendChild(item);
+		}
+
+		if (filtered.length === 0) {
+			this._channelList.appendChild(p({ class: "ccpEmptyList" }, "No channels match."));
+		}
+	}
+
+	private _renderDetail(): void {
+		while (this._detailPane.firstChild) this._detailPane.removeChild(this._detailPane.firstChild);
+
+		if (this._selectedIndex < 0 || this._selectedIndex >= this._diffs.length) {
+			this._detailPane.appendChild(div({ class: "ccpEmptyDetail" }, "Select a channel to view its diff."));
 			return;
 		}
 
+		const diff = this._diffs[this._selectedIndex];
+
 		if (this._mode === "patterns") {
-			for (const diff of patternDiffs) {
-				this._diffList.appendChild(this._buildPatternSection(diff));
-			}
+			this._renderPatternDetail(diff as PatternDiff);
 		} else {
-			for (const diff of instrumentDiffs) {
-				this._diffList.appendChild(this._buildInstrumentSection(diff));
-			}
+			this._renderInstrumentDetail(diff as InstrumentDiff);
 		}
 	}
 
-	private _toggleSection(channelIndex: number): void {
-		if (this._collapsed.has(channelIndex)) {
-			this._collapsed.delete(channelIndex);
-		} else {
-			this._collapsed.add(channelIndex);
-		}
-		// Re-render the list
-		const channels: number[] = this._scope === "all" ? Array.from({ length: this._doc.song.getChannelCount() }, (_, i) => i) : [this._doc.channel];
+	private _renderPatternDetail(diff: PatternDiff): void {
+		// Summary
+		this._detailPane.appendChild(
+			div(
+				{ class: "ccpDetailSummary" },
+				span({ class: "ccpDetailCount" }, `Patterns: ${diff.patternsBefore} → ${diff.patternsAfter}`),
+				span({ class: "ccpDetailMeta" }, `${diff.mergedPatterns.length} duplicate${diff.mergedPatterns.length !== 1 ? "s" : ""} removed`),
+			),
+		);
 
-		const patternDiffs: PatternDiff[] =
-			this._mode === "patterns" ? channels.map((ch) => computePatternDiff(this._doc, ch)).filter((d): d is PatternDiff => d !== null) : [];
-		const instrumentDiffs: InstrumentDiff[] =
-			this._mode === "instruments" ? channels.map((ch) => computeInstrumentDiff(this._doc, ch)).filter((d): d is InstrumentDiff => d !== null) : [];
-		this._render(patternDiffs, instrumentDiffs, patternDiffs.length > 0 || instrumentDiffs.length > 0);
-	}
-
-	private _buildPatternSection(diff: PatternDiff): HTMLDivElement {
-		const isCollapsed = this._collapsed.has(diff.channelIndex);
-
-		const section = div({ class: "ccpCategory" });
-		if (isCollapsed) section.classList.add("collapsed");
-
-		// Header (clickable, collapsible)
-		const header = div({ class: "ccpCategoryHeader" });
-		const toggleIcon = span({ class: "ccpCollapseIcon" });
-		toggleIcon.textContent = isCollapsed ? "\u25B6" : "\u25BC";
-		header.appendChild(toggleIcon);
-		header.appendChild(h2({}, diff.channelLabel));
-		header.appendChild(span({ class: "ccpHeaderSummary" }, `${diff.patternsBefore} → ${diff.patternsAfter}`));
-		header.addEventListener("click", () => this._toggleSection(diff.channelIndex));
-		section.appendChild(header);
-
-		if (!isCollapsed) {
-			const body = div({ class: "ccpCategoryBody" });
-
-			// Summary line
-			body.appendChild(p({ class: "ccpSummary" }, `${diff.mergedPatterns.length} duplicate${diff.mergedPatterns.length !== 1 ? "s" : ""} removed`));
-
-			// Bar remap table
-			const barRows: HTMLTableRowElement[] = [tr(th("Bar"), th("Before"), th({ class: "ccpArrow" }, "→"), th("After"))];
+		// Bar remap table
+		if (diff.barRemaps.length > 0) {
+			const rows: HTMLTableRowElement[] = [tr(th("Bar"), th("Before"), th({ class: "ccpArrow" }, "→"), th("After"))];
 			for (const r of diff.barRemaps) {
-				barRows.push(tr(td(`${r.bar + 1}`), td(`${r.from}`), td({ class: "ccpArrow" }, "→"), td(`${r.to}`)));
+				rows.push(tr(td(`${r.bar + 1}`), td(`${r.from}`), td({ class: "ccpArrow" }, "→"), td(`${r.to}`)));
 			}
-			body.appendChild(div({ class: "ccpTableWrap" }, p({ class: "ccpTableLabel" }, "Bar remap"), table(tbody(...barRows))));
-
-			// Merged patterns table
-			if (diff.mergedPatterns.length > 0) {
-				const mergedRows: HTMLTableRowElement[] = [tr(th("Old #"), th({ class: "ccpArrow" }, "→"), th("Merged into #"))];
-				for (const m of diff.mergedPatterns) {
-					mergedRows.push(tr(td(`${m.oldIndex}`), td({ class: "ccpArrow" }, "→"), td(`${m.intoIndex}`)));
-				}
-				body.appendChild(div({ class: "ccpTableWrap" }, p({ class: "ccpTableLabel" }, "Merged patterns"), table(tbody(...mergedRows))));
-			}
-
-			section.appendChild(body);
+			this._detailPane.appendChild(div({ class: "ccpTableWrap" }, p({ class: "ccpTableLabel" }, "Bar remap"), table(tbody(...rows))));
 		}
 
-		return section;
+		// Merged patterns table
+		if (diff.mergedPatterns.length > 0) {
+			const rows: HTMLTableRowElement[] = [tr(th("Old pattern"), th({ class: "ccpArrow" }, "→"), th("Merged into"))];
+			for (const m of diff.mergedPatterns) {
+				rows.push(tr(td(`${m.oldIndex}`), td({ class: "ccpArrow" }, "→"), td(`${m.intoIndex}`)));
+			}
+			this._detailPane.appendChild(div({ class: "ccpTableWrap" }, p({ class: "ccpTableLabel" }, "Merged patterns"), table(tbody(...rows))));
+		}
 	}
 
-	private _buildInstrumentSection(diff: InstrumentDiff): HTMLDivElement {
-		const isCollapsed = this._collapsed.has(diff.channelIndex);
+	private _renderInstrumentDetail(diff: InstrumentDiff): void {
+		// Summary
+		this._detailPane.appendChild(
+			div(
+				{ class: "ccpDetailSummary" },
+				span({ class: "ccpDetailCount" }, `Instruments: ${diff.instrumentsBefore} → ${diff.instrumentsAfter}`),
+				span({ class: "ccpDetailMeta" }, `${diff.dropped.length} unused instrument${diff.dropped.length !== 1 ? "s" : ""} dropped`),
+			),
+		);
 
-		const section = div({ class: "ccpCategory" });
-		if (isCollapsed) section.classList.add("collapsed");
-
-		// Header
-		const header = div({ class: "ccpCategoryHeader" });
-		const toggleIcon = span({ class: "ccpCollapseIcon" });
-		toggleIcon.textContent = isCollapsed ? "\u25B6" : "\u25BC";
-		header.appendChild(toggleIcon);
-		header.appendChild(h2({}, diff.channelLabel));
-		header.appendChild(span({ class: "ccpHeaderSummary" }, `${diff.instrumentsBefore} → ${diff.instrumentsAfter}`));
-		header.addEventListener("click", () => this._toggleSection(diff.channelIndex));
-		section.appendChild(header);
-
-		if (!isCollapsed) {
-			const body = div({ class: "ccpCategoryBody" });
-
-			// Remap table
-			const rows: HTMLTableRowElement[] = [tr(th("Old Inst"), th({ class: "ccpArrow" }, "→"), th("New Inst"), th("Fingerprint"))];
-			for (const r of diff.remap) {
-				rows.push(
-					tr(
-						td(`${r.oldIndex + 1}`),
-						td({ class: "ccpArrow" }, "→"),
-						td(r.newIndex >= 0 ? `${r.newIndex + 1}` : "dropped"),
-						td({ class: "ccpFingerprint" }, r.fingerprint === "dropped" ? "(unused)" : r.fingerprint),
-					),
-				);
-			}
-			body.appendChild(div({ class: "ccpTableWrap" }, p({ class: "ccpTableLabel" }, "Instrument remap"), table(tbody(...rows))));
-
-			if (diff.dropped.length > 0) {
-				body.appendChild(p({ class: "ccpDropped" }, `Dropped: ${diff.dropped.map((i) => i + 1).join(", ")}`));
-			}
-
-			section.appendChild(body);
+		// Remap table
+		const rows: HTMLTableRowElement[] = [tr(th("Old inst"), th({ class: "ccpArrow" }, "→"), th("New inst"), th("Fingerprint"))];
+		for (const r of diff.remap) {
+			rows.push(
+				tr(
+					td(`${r.oldIndex + 1}`),
+					td({ class: "ccpArrow" }, "→"),
+					td(r.newIndex >= 0 ? `${r.newIndex + 1}` : "dropped"),
+					td({ class: "ccpFingerprint" }, r.fingerprint === "dropped" ? "(unused)" : r.fingerprint),
+				),
+			);
 		}
+		this._detailPane.appendChild(div({ class: "ccpTableWrap" }, p({ class: "ccpTableLabel" }, "Instrument remap"), table(tbody(...rows))));
 
-		return section;
+		if (diff.dropped.length > 0) {
+			this._detailPane.appendChild(p({ class: "ccpDropped" }, `Dropped instruments: ${diff.dropped.map((i) => i + 1).join(", ")}`));
+		}
+	}
+
+	private _renderEmpty(): void {
+		while (this._detailPane.firstChild) this._detailPane.removeChild(this._detailPane.firstChild);
+		this._detailPane.appendChild(p({ class: "ccpEmptyDetail" }, "No duplicate patterns or instruments found. Nothing to clean."));
 	}
 
 	protected override _saveChanges(): void {
