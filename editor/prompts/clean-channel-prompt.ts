@@ -6,17 +6,13 @@
 // - Computes a dry-run diff of duplicate pattern merges and instrument dedup
 // - Displays per-bar before→after pattern numbers and instrument remap tables
 // - Supports current-channel or all-channels scope
+// - Stationary titlebar and bottom bar, scrollable diff content (GTK4-style)
 // - Applies changes via ChangeCleanChannelPatterns / ChangeCleanChannelInstruments
 
 import { HTML } from "imperative-html/dist/esm/elements-strict";
-import { Config } from "../../synth/synth-config";
 import type { Channel, Pattern } from "../../synth";
-import {
-	ChangeCleanChannelInstruments,
-	ChangeCleanChannelPatterns,
-	comparePatternNotes,
-	patternsContainSameInstruments,
-} from "../changes";
+import { Config } from "../../synth/synth-config";
+import { ChangeCleanChannelInstruments, ChangeCleanChannelPatterns, comparePatternNotes, patternsContainSameInstruments } from "../changes";
 import { ChangeGroup } from "../core/change";
 import type { SongDocument } from "../song-document";
 import { BasePrompt } from "./base-prompt";
@@ -70,7 +66,8 @@ function computePatternDiff(doc: SongDocument, channelIndex: number): PatternDif
 		let foundMatching = false;
 		for (let newIdx = 0; newIdx < newPatterns.length; newIdx++) {
 			const newPattern = newPatterns[newIdx];
-			if (!patternsContainSameInstruments(oldPattern.instruments, newPattern.instruments) || newPattern.notes.length !== oldPattern.notes.length) continue;
+			if (!patternsContainSameInstruments(oldPattern.instruments, newPattern.instruments) || newPattern.notes.length !== oldPattern.notes.length)
+				continue;
 			if (comparePatternNotes(oldPattern.notes, newPattern.notes)) {
 				foundMatching = true;
 				bars[bar] = newIdx + 1;
@@ -132,8 +129,8 @@ function computeInstrumentDiff(doc: SongDocument, channelIndex: number): Instrum
 			channelLabel: channelLabel(doc, channelIndex),
 			instrumentsBefore: instruments.length,
 			instrumentsAfter: 1,
-			remap: instruments.map((_, i) => ({ oldIndex: i, newIndex: 0, fingerprint: "dropped" })),
-			dropped: instruments.map((_, i) => i).slice(1),
+			remap: instruments.map((_inst, i) => ({ oldIndex: i, newIndex: 0, fingerprint: "dropped" })),
+			dropped: instruments.map((_inst, i) => i).slice(1),
 		};
 	}
 
@@ -182,6 +179,12 @@ export class CleanChannelPrompt extends BasePrompt {
 	private readonly _patternDiffs: PatternDiff[];
 	private readonly _instrumentDiffs: InstrumentDiff[];
 
+	// Scrollable diff content area
+	private readonly _scrollArea: HTMLDivElement;
+
+	// Stationary bottom bar
+	private readonly _bottomBar: HTMLDivElement;
+
 	public readonly container: HTMLDivElement;
 
 	constructor(doc: SongDocument, mode: CleanMode, scope: CleanScope) {
@@ -189,161 +192,107 @@ export class CleanChannelPrompt extends BasePrompt {
 		this._mode = mode;
 		this._scope = scope;
 
-		const channels: number[] =
-			scope === "all"
-				? Array.from({ length: doc.song.getChannelCount() }, (_, i) => i)
-				: [doc.channel];
+		const channels: number[] = scope === "all" ? Array.from({ length: doc.song.getChannelCount() }, (_, i) => i) : [doc.channel];
 
 		if (mode === "patterns") {
-			this._patternDiffs = channels
-				.map((ch) => computePatternDiff(doc, ch))
-				.filter((d): d is PatternDiff => d !== null);
+			this._patternDiffs = channels.map((ch) => computePatternDiff(doc, ch)).filter((d): d is PatternDiff => d !== null);
 			this._instrumentDiffs = [];
 		} else {
-			this._instrumentDiffs = channels
-				.map((ch) => computeInstrumentDiff(doc, ch))
-				.filter((d): d is InstrumentDiff => d !== null);
+			this._instrumentDiffs = channels.map((ch) => computeInstrumentDiff(doc, ch)).filter((d): d is InstrumentDiff => d !== null);
 			this._patternDiffs = [];
 		}
 
-		this.container = div(
-			{ class: "prompt cleanChannelPrompt noSelection" },
-			this._buildContent(),
-			this._cancelButton,
-		);
-	}
+		const hasChanges = this._patternDiffs.length > 0 || this._instrumentDiffs.length > 0;
 
-	private _buildContent(): HTMLDivElement {
+		// ── Scrollable diff content ──
+		this._scrollArea = div({ class: "ccpScrollArea" });
+		if (hasChanges) {
+			if (this._mode === "patterns") {
+				for (const diff of this._patternDiffs) {
+					this._scrollArea.appendChild(this._buildPatternSection(diff));
+				}
+			} else {
+				for (const diff of this._instrumentDiffs) {
+					this._scrollArea.appendChild(this._buildInstrumentSection(diff));
+				}
+			}
+		} else {
+			this._scrollArea.appendChild(p({ class: "ccpNoChanges" }, "No duplicate patterns or instruments found. Nothing to clean."));
+		}
+
+		// ── Stationary bottom bar ──
+		this._bottomBar = div({ class: "ccpBottomBar" });
+		if (hasChanges) {
+			this._bottomBar.appendChild(this._okayButton);
+		}
+		this._bottomBar.appendChild(this._cancelButton);
+
+		// ── Container: titlebar (stationary) + scroll area + bottom bar (stationary) ──
 		const title =
 			this._mode === "patterns"
 				? `Clean Patterns (LSDj) — ${this._scope === "all" ? "All Channels" : "Current Channel"}`
 				: `Clean Instruments (LSDj) — ${this._scope === "all" ? "All Channels" : "Current Channel"}`;
 
-		const hasChanges = this._patternDiffs.length > 0 || this._instrumentDiffs.length > 0;
-
-		if (!hasChanges) {
-			return div(
-				h2(title),
-				p("No duplicate patterns or instruments found. Nothing to clean."),
-			);
-		}
-
-		const sections: HTMLElement[] = [h2(title)];
-
-		if (this._mode === "patterns") {
-			for (const diff of this._patternDiffs) {
-				sections.push(this._buildPatternSection(diff));
-			}
-		} else {
-			for (const diff of this._instrumentDiffs) {
-				sections.push(this._buildInstrumentSection(diff));
-			}
-		}
-
-		sections.push(
-			div(
-				{ class: "ctButtonRow" },
-				this._okayButton,
-			),
-		);
-
-		return div(...sections);
+		this.container = div({ class: "prompt cleanChannelPrompt noSelection" }, h2({}, title), this._scrollArea, this._bottomBar);
 	}
 
 	private _buildPatternSection(diff: PatternDiff): HTMLDivElement {
-		const rows: HTMLTableRowElement[] = [];
-
 		// Bar remap table
-		rows.push(
-			tr(
-				th("Bar"),
-				th("Pattern Before"),
-				th("Pattern After"),
-			),
-		);
+		const barRows: HTMLTableRowElement[] = [tr(th("Bar"), th("Before"), th("→"), th("After"))];
 		for (const r of diff.barRemaps) {
-			rows.push(
-				tr(
-					td(`${r.bar + 1}`),
-					td(`${r.from}`),
-					td(`${r.to}`),
-				),
-			);
+			barRows.push(tr(td(`${r.bar + 1}`), td(`${r.from}`), td({ class: "ccpArrow" }, "→"), td(`${r.to}`)));
 		}
 
 		// Merged patterns table
 		const mergedRows: HTMLTableRowElement[] = [];
 		if (diff.mergedPatterns.length > 0) {
-			mergedRows.push(
-				tr(
-					th("Old Pattern #"),
-					th("Merged Into #"),
-				),
-			);
+			mergedRows.push(tr(th("Old Pattern #"), th("→"), th("Merged Into #")));
 			for (const m of diff.mergedPatterns) {
-				mergedRows.push(
-					tr(
-						td(`${m.oldIndex}`),
-						td(`${m.intoIndex}`),
-					),
-				);
+				mergedRows.push(tr(td(`${m.oldIndex}`), td({ class: "ccpArrow" }, "→"), td(`${m.intoIndex}`)));
 			}
 		}
 
 		return div(
+			{ class: "ccpChannelSection" },
 			h3(diff.channelLabel),
 			p(
-				span(`${diff.patternsBefore} → ${diff.patternsAfter} patterns`),
-				span(` (${diff.mergedPatterns.length} duplicate${diff.mergedPatterns.length !== 1 ? "s" : ""} removed)`),
+				{ class: "ccpSummary" },
+				span({ class: "ccpCount" }, `${diff.patternsBefore} → ${diff.patternsAfter} patterns`),
+				span({ class: "ccpDetail" }, ` (${diff.mergedPatterns.length} duplicate${diff.mergedPatterns.length !== 1 ? "s" : ""} removed)`),
 			),
-			p("Bar remap:"),
-			table(tbody(...rows)),
+			div({ class: "ccpTableWrap" }, p({ class: "ccpTableLabel" }, "Bar remap:"), table(tbody(...barRows))),
 			diff.mergedPatterns.length > 0
-				? div(p("Merged patterns:"), table(tbody(...mergedRows)))
+				? div({ class: "ccpTableWrap" }, p({ class: "ccpTableLabel" }, "Merged patterns:"), table(tbody(...mergedRows)))
 				: div(),
 		);
 	}
 
 	private _buildInstrumentSection(diff: InstrumentDiff): HTMLDivElement {
-		const rows: HTMLTableRowElement[] = [];
-		rows.push(
-			tr(
-				th("Old Inst #"),
-				th("New Inst #"),
-				th("Fingerprint (truncated)"),
-			),
-		);
+		const rows: HTMLTableRowElement[] = [tr(th("Old Inst #"), th("→"), th("New Inst #"), th("Fingerprint"))];
 		for (const r of diff.remap) {
 			rows.push(
 				tr(
 					td(`${r.oldIndex + 1}`),
+					td({ class: "ccpArrow" }, "→"),
 					td(r.newIndex >= 0 ? `${r.newIndex + 1}` : "dropped"),
-					td(r.fingerprint === "dropped" ? "(unused)" : r.fingerprint),
+					td({ class: "ccpFingerprint" }, r.fingerprint === "dropped" ? "(unused)" : r.fingerprint),
 				),
 			);
 		}
 
-		const droppedText =
-			diff.dropped.length > 0
-				? `Dropped instruments: ${diff.dropped.map((i) => i + 1).join(", ")}`
-				: "";
+		const droppedText = diff.dropped.length > 0 ? `Dropped instruments: ${diff.dropped.map((i) => i + 1).join(", ")}` : "";
 
 		return div(
+			{ class: "ccpChannelSection" },
 			h3(diff.channelLabel),
-			p(
-				span(`${diff.instrumentsBefore} → ${diff.instrumentsAfter} instruments`),
-			),
-			p("Instrument remap:"),
-			table(tbody(...rows)),
-			droppedText ? p(droppedText) : div(),
+			p({ class: "ccpSummary" }, span({ class: "ccpCount" }, `${diff.instrumentsBefore} → ${diff.instrumentsAfter} instruments`)),
+			div({ class: "ccpTableWrap" }, p({ class: "ccpTableLabel" }, "Instrument remap:"), table(tbody(...rows))),
+			droppedText ? p({ class: "ccpDropped" }, droppedText) : div(),
 		);
 	}
 
 	protected override _saveChanges(): void {
-		const channels: number[] =
-			this._scope === "all"
-				? Array.from({ length: this._doc.song.getChannelCount() }, (_, i) => i)
-				: [this._doc.channel];
+		const channels: number[] = this._scope === "all" ? Array.from({ length: this._doc.song.getChannelCount() }, (_, i) => i) : [this._doc.channel];
 
 		const group = new ChangeGroup();
 

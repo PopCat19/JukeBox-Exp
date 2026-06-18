@@ -1635,14 +1635,77 @@ html {
 /* ── Clean Channel Prompt ── */
 .beepboxEditor .prompt.cleanChannelPrompt {
 	width: 520px;
-	max-height: 600px;
+	max-height: calc(100% - 80px);
+	display: flex;
+	flex-direction: column;
+}
+
+.beepboxEditor .prompt.cleanChannelPrompt .ccpScrollArea {
+	flex: 1;
 	overflow-y: auto;
+	min-height: 0;
+	padding: 4px 8px;
+}
+
+.beepboxEditor .prompt.cleanChannelPrompt .ccpBottomBar {
+	flex-shrink: 0;
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	justify-content: flex-end;
+	gap: 4px;
+	padding: 8px;
+	border-top: 1px solid ${ColorConfig.uiWidgetBackground};
+}
+
+.beepboxEditor .prompt.cleanChannelPrompt .ccpNoChanges {
+	padding: 24px 8px;
+	text-align: center;
+	color: ${ColorConfig.secondaryText};
+}
+
+.beepboxEditor .prompt.cleanChannelPrompt .ccpChannelSection {
+	padding: 8px 0;
+	border-bottom: 1px solid ${ColorConfig.uiWidgetBackground};
+}
+
+.beepboxEditor .prompt.cleanChannelPrompt .ccpChannelSection:last-child {
+	border-bottom: none;
 }
 
 .beepboxEditor .prompt.cleanChannelPrompt h3 {
-	margin: 12px 0 4px;
+	margin: 4px 0 4px;
 	font-size: 14px;
 	color: ${ColorConfig.primaryText};
+}
+
+.beepboxEditor .prompt.cleanChannelPrompt .ccpSummary {
+	margin: 2px 0 8px;
+}
+
+.beepboxEditor .prompt.cleanChannelPrompt .ccpCount {
+	font-weight: bold;
+	color: ${ColorConfig.primaryText};
+}
+
+.beepboxEditor .prompt.cleanChannelPrompt .ccpDetail {
+	color: ${ColorConfig.secondaryText};
+}
+
+.beepboxEditor .prompt.cleanChannelPrompt .ccpDropped {
+	color: ${ColorConfig.secondaryText};
+	font-size: 12px;
+	margin: 4px 0;
+}
+
+.beepboxEditor .prompt.cleanChannelPrompt .ccpTableWrap {
+	margin: 4px 0 8px;
+}
+
+.beepboxEditor .prompt.cleanChannelPrompt .ccpTableLabel {
+	font-size: 11px;
+	color: ${ColorConfig.secondaryText};
+	margin: 2px 0;
 }
 
 .beepboxEditor .prompt.cleanChannelPrompt table {
@@ -1650,7 +1713,6 @@ html {
 	border-collapse: collapse;
 	font-family: var(--font-family-mono);
 	font-size: 12px;
-	margin: 4px 0 8px;
 }
 
 .beepboxEditor .prompt.cleanChannelPrompt th {
@@ -1665,8 +1727,20 @@ html {
 	color: ${ColorConfig.primaryText};
 }
 
+.beepboxEditor .prompt.cleanChannelPrompt .ccpArrow {
+	color: ${ColorConfig.secondaryText};
+	text-align: center;
+}
+
+.beepboxEditor .prompt.cleanChannelPrompt .ccpFingerprint {
+	color: ${ColorConfig.secondaryText};
+	font-size: 10px;
+	word-break: break-all;
+}
+
 .beepboxEditor .prompt.cleanChannelPrompt tr:nth-child(even) td {
 	background: ${ColorConfig.editorBackground};
+};
 }
 
 /* ── Song Recovery Prompt ── */
