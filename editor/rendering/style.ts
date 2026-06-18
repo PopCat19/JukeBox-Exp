@@ -1634,111 +1634,126 @@ html {
 
 /* ── Clean Channel Prompt ── */
 .beepboxEditor .prompt.cleanChannelPrompt {
-	width: 520px;
-	max-height: calc(100% - 80px);
-	display: flex;
-	flex-direction: column;
+	width: 480px;
 }
 
-.beepboxEditor .prompt.cleanChannelPrompt .ccpScrollArea {
-	flex: 1;
+.beepboxEditor .prompt.cleanChannelPrompt .ccpList {
+	max-height: 420px;
 	overflow-y: auto;
-	min-height: 0;
-	padding: 4px 8px;
 }
 
-.beepboxEditor .prompt.cleanChannelPrompt .ccpBottomBar {
-	flex-shrink: 0;
-	display: flex;
-	flex-direction: row;
-	align-items: center;
-	justify-content: flex-end;
-	gap: 4px;
-	padding: 8px;
-}
-
-.beepboxEditor .prompt.cleanChannelPrompt .ccpNoChanges {
-	padding: 24px 8px;
+.beepboxEditor .prompt.cleanChannelPrompt .ccpEmpty {
+	padding: var(--padding-16) var(--padding-8);
 	text-align: center;
-	color: ${ColorConfig.secondaryText};
+	color: var(--secondary-text);
 }
 
-.beepboxEditor .prompt.cleanChannelPrompt .ccpChannelSection {
-	padding: 8px 0;
-	border-bottom: 1px solid ${ColorConfig.uiWidgetBackground};
+/* ── Collapsible category section ── */
+.beepboxEditor .prompt.cleanChannelPrompt .ccpCategory {
+	margin-bottom: 2px;
 }
 
-.beepboxEditor .prompt.cleanChannelPrompt .ccpChannelSection:last-child {
-	border-bottom: none;
+.beepboxEditor .prompt.cleanChannelPrompt .ccpCategoryHeader {
+	display: flex;
+	align-items: center;
+	gap: var(--gap-md);
+	padding: var(--padding-8) var(--padding-10);
+	cursor: pointer;
+	user-select: none;
+	font-size: 12px;
+	font-weight: 600;
+	color: var(--primary-text);
 }
 
-.beepboxEditor .prompt.cleanChannelPrompt h3 {
-	margin: 4px 0 4px;
-	font-size: 14px;
-	color: ${ColorConfig.primaryText};
+.beepboxEditor .prompt.cleanChannelPrompt .ccpCollapseIcon {
+	font-size: 10px;
+	color: var(--secondary-text);
+	width: 12px;
+	text-align: center;
+	flex-shrink: 0;
+}
+
+.beepboxEditor .prompt.cleanChannelPrompt .ccpCategoryHeader h2 {
+	margin: 0;
+	font-size: 12px;
+	font-weight: 600;
+}
+
+.beepboxEditor .prompt.cleanChannelPrompt .ccpHeaderSummary {
+	margin-left: auto;
+	font-size: 11px;
+	font-weight: 400;
+	color: var(--secondary-text);
+	font-family: var(--font-family-mono);
+}
+
+.beepboxEditor .prompt.cleanChannelPrompt .ccpCategoryBody {
+	padding: var(--padding-4) var(--padding-8) var(--padding-8);
 }
 
 .beepboxEditor .prompt.cleanChannelPrompt .ccpSummary {
-	margin: 2px 0 8px;
-}
-
-.beepboxEditor .prompt.cleanChannelPrompt .ccpCount {
-	font-weight: bold;
-	color: ${ColorConfig.primaryText};
-}
-
-.beepboxEditor .prompt.cleanChannelPrompt .ccpDetail {
-	color: ${ColorConfig.secondaryText};
+	margin: 0 0 var(--padding-4);
+	font-size: 11px;
+	color: var(--secondary-text);
 }
 
 .beepboxEditor .prompt.cleanChannelPrompt .ccpDropped {
-	color: ${ColorConfig.secondaryText};
-	font-size: 12px;
-	margin: 4px 0;
+	margin: var(--padding-4) 0 0;
+	font-size: 11px;
+	color: var(--secondary-text);
 }
 
+/* ── Tables ── */
 .beepboxEditor .prompt.cleanChannelPrompt .ccpTableWrap {
-	margin: 4px 0 8px;
+	margin: var(--padding-4) 0;
 }
 
 .beepboxEditor .prompt.cleanChannelPrompt .ccpTableLabel {
-	font-size: 11px;
-	color: ${ColorConfig.secondaryText};
-	margin: 2px 0;
+	margin: 0 0 2px;
+	font-size: 10px;
+	color: var(--secondary-text);
 }
 
 .beepboxEditor .prompt.cleanChannelPrompt table {
 	width: 100%;
 	border-collapse: collapse;
 	font-family: var(--font-family-mono);
-	font-size: 12px;
+	font-size: 11px;
 }
 
 .beepboxEditor .prompt.cleanChannelPrompt th {
 	text-align: left;
-	padding: 2px 6px;
-	color: ${ColorConfig.secondaryText};
-	border-bottom: 1px solid ${ColorConfig.uiWidgetBackground};
+	padding: var(--padding-2) var(--padding-6);
+	color: var(--secondary-text);
+	border-bottom: 1px solid var(--ui-widget-background);
+	font-weight: 400;
 }
 
 .beepboxEditor .prompt.cleanChannelPrompt td {
-	padding: 2px 6px;
-	color: ${ColorConfig.primaryText};
+	padding: var(--padding-2) var(--padding-6);
+	color: var(--primary-text);
 }
 
 .beepboxEditor .prompt.cleanChannelPrompt .ccpArrow {
-	color: ${ColorConfig.secondaryText};
+	color: var(--secondary-text);
 	text-align: center;
 }
 
 .beepboxEditor .prompt.cleanChannelPrompt .ccpFingerprint {
-	color: ${ColorConfig.secondaryText};
+	color: var(--secondary-text);
 	font-size: 10px;
 	word-break: break-all;
+	max-width: 200px;
 }
 
 .beepboxEditor .prompt.cleanChannelPrompt tr:nth-child(even) td {
-	background: ${ColorConfig.editorBackground};
+	background: var(--editor-background);
+}
+
+.beepboxEditor .prompt.cleanChannelPrompt .ccpCategory.collapsed .ccpCategoryBody {
+	display: none;
+}
+;
 };
 }
 

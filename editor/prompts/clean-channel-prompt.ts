@@ -6,7 +6,7 @@
 // - Computes a dry-run diff of duplicate pattern merges and instrument dedup
 // - Displays per-bar before→after pattern numbers and instrument remap tables
 // - Supports current-channel or all-channels scope
-// - Stationary titlebar and bottom bar, scrollable diff content (GTK4-style)
+// - Collapsible per-channel sections, scrollable list, stationary buttons
 // - Applies changes via ChangeCleanChannelPatterns / ChangeCleanChannelInstruments
 
 import { HTML } from "imperative-html/dist/esm/elements-strict";
@@ -17,7 +17,7 @@ import { ChangeGroup } from "../core/change";
 import type { SongDocument } from "../song-document";
 import { BasePrompt } from "./base-prompt";
 
-const { div, h2, h3, p, span, table, tbody, tr, td, th } = HTML;
+const { div, h2, span, p, table, tbody, tr, td, th } = HTML;
 
 type CleanMode = "patterns" | "instruments";
 type CleanScope = "current" | "all";
@@ -53,7 +53,6 @@ function computePatternDiff(doc: SongDocument, channelIndex: number): PatternDif
 	const bars: number[] = [...channel.bars];
 	const patterns: (Pattern | null)[] = channel.patterns.map((p) => p);
 
-	// Simulate removeDuplicatePatterns
 	const newPatterns: Pattern[] = [];
 	const oldToNew: number[] = new Array(patterns.length).fill(-1);
 
@@ -176,14 +175,8 @@ function computeInstrumentDiff(doc: SongDocument, channelIndex: number): Instrum
 export class CleanChannelPrompt extends BasePrompt {
 	private readonly _mode: CleanMode;
 	private readonly _scope: CleanScope;
-	private readonly _patternDiffs: PatternDiff[];
-	private readonly _instrumentDiffs: InstrumentDiff[];
-
-	// Scrollable diff content area
-	private readonly _scrollArea: HTMLDivElement;
-
-	// Stationary bottom bar
-	private readonly _bottomBar: HTMLDivElement;
+	private readonly _diffList: HTMLDivElement = div({ class: "ccpList" });
+	private _collapsed: Set<number> = new Set();
 
 	public readonly container: HTMLDivElement;
 
@@ -194,101 +187,150 @@ export class CleanChannelPrompt extends BasePrompt {
 
 		const channels: number[] = scope === "all" ? Array.from({ length: doc.song.getChannelCount() }, (_, i) => i) : [doc.channel];
 
-		if (mode === "patterns") {
-			this._patternDiffs = channels.map((ch) => computePatternDiff(doc, ch)).filter((d): d is PatternDiff => d !== null);
-			this._instrumentDiffs = [];
-		} else {
-			this._instrumentDiffs = channels.map((ch) => computeInstrumentDiff(doc, ch)).filter((d): d is InstrumentDiff => d !== null);
-			this._patternDiffs = [];
+		const patternDiffs: PatternDiff[] =
+			mode === "patterns" ? channels.map((ch) => computePatternDiff(doc, ch)).filter((d): d is PatternDiff => d !== null) : [];
+		const instrumentDiffs: InstrumentDiff[] =
+			mode === "instruments" ? channels.map((ch) => computeInstrumentDiff(doc, ch)).filter((d): d is InstrumentDiff => d !== null) : [];
+
+		const hasChanges = patternDiffs.length > 0 || instrumentDiffs.length > 0;
+
+		const title =
+			mode === "patterns"
+				? `Clean Patterns (LSDj) — ${scope === "all" ? "All Channels" : "Current Channel"}`
+				: `Clean Instruments (LSDj) — ${scope === "all" ? "All Channels" : "Current Channel"}`;
+
+		this.container = div(
+			{ class: "prompt cleanChannelPrompt noSelection" },
+			h2({}, title),
+			this._diffList,
+			hasChanges ? this._okayButton : div(),
+			this._cancelButton,
+		);
+
+		this.buildTitlebar();
+		this._render(patternDiffs, instrumentDiffs, hasChanges);
+	}
+
+	private _render(patternDiffs: PatternDiff[], instrumentDiffs: InstrumentDiff[], hasChanges: boolean): void {
+		while (this._diffList.firstChild) this._diffList.removeChild(this._diffList.firstChild);
+
+		if (!hasChanges) {
+			this._diffList.appendChild(p({ class: "ccpEmpty" }, "No duplicate patterns or instruments found. Nothing to clean."));
+			return;
 		}
 
-		const hasChanges = this._patternDiffs.length > 0 || this._instrumentDiffs.length > 0;
-
-		// ── Scrollable diff content ──
-		this._scrollArea = div({ class: "ccpScrollArea" });
-		if (hasChanges) {
-			if (this._mode === "patterns") {
-				for (const diff of this._patternDiffs) {
-					this._scrollArea.appendChild(this._buildPatternSection(diff));
-				}
-			} else {
-				for (const diff of this._instrumentDiffs) {
-					this._scrollArea.appendChild(this._buildInstrumentSection(diff));
-				}
+		if (this._mode === "patterns") {
+			for (const diff of patternDiffs) {
+				this._diffList.appendChild(this._buildPatternSection(diff));
 			}
 		} else {
-			this._scrollArea.appendChild(p({ class: "ccpNoChanges" }, "No duplicate patterns or instruments found. Nothing to clean."));
+			for (const diff of instrumentDiffs) {
+				this._diffList.appendChild(this._buildInstrumentSection(diff));
+			}
 		}
+	}
 
-		// ── Stationary bottom bar ──
-		this._bottomBar = div({ class: "ccpBottomBar" });
-		if (hasChanges) {
-			this._bottomBar.appendChild(this._okayButton);
+	private _toggleSection(channelIndex: number): void {
+		if (this._collapsed.has(channelIndex)) {
+			this._collapsed.delete(channelIndex);
+		} else {
+			this._collapsed.add(channelIndex);
 		}
-		this._bottomBar.appendChild(this._cancelButton);
+		// Re-render the list
+		const channels: number[] = this._scope === "all" ? Array.from({ length: this._doc.song.getChannelCount() }, (_, i) => i) : [this._doc.channel];
 
-		// ── Container: titlebar (stationary) + scroll area + bottom bar (stationary) ──
-		const title =
-			this._mode === "patterns"
-				? `Clean Patterns (LSDj) — ${this._scope === "all" ? "All Channels" : "Current Channel"}`
-				: `Clean Instruments (LSDj) — ${this._scope === "all" ? "All Channels" : "Current Channel"}`;
-
-		this.container = div({ class: "prompt cleanChannelPrompt noSelection" }, h2({}, title), this._scrollArea, this._bottomBar);
+		const patternDiffs: PatternDiff[] =
+			this._mode === "patterns" ? channels.map((ch) => computePatternDiff(this._doc, ch)).filter((d): d is PatternDiff => d !== null) : [];
+		const instrumentDiffs: InstrumentDiff[] =
+			this._mode === "instruments" ? channels.map((ch) => computeInstrumentDiff(this._doc, ch)).filter((d): d is InstrumentDiff => d !== null) : [];
+		this._render(patternDiffs, instrumentDiffs, patternDiffs.length > 0 || instrumentDiffs.length > 0);
 	}
 
 	private _buildPatternSection(diff: PatternDiff): HTMLDivElement {
-		// Bar remap table
-		const barRows: HTMLTableRowElement[] = [tr(th("Bar"), th("Before"), th("→"), th("After"))];
-		for (const r of diff.barRemaps) {
-			barRows.push(tr(td(`${r.bar + 1}`), td(`${r.from}`), td({ class: "ccpArrow" }, "→"), td(`${r.to}`)));
-		}
+		const isCollapsed = this._collapsed.has(diff.channelIndex);
 
-		// Merged patterns table
-		const mergedRows: HTMLTableRowElement[] = [];
-		if (diff.mergedPatterns.length > 0) {
-			mergedRows.push(tr(th("Old Pattern #"), th("→"), th("Merged Into #")));
-			for (const m of diff.mergedPatterns) {
-				mergedRows.push(tr(td(`${m.oldIndex}`), td({ class: "ccpArrow" }, "→"), td(`${m.intoIndex}`)));
+		const section = div({ class: "ccpCategory" });
+		if (isCollapsed) section.classList.add("collapsed");
+
+		// Header (clickable, collapsible)
+		const header = div({ class: "ccpCategoryHeader" });
+		const toggleIcon = span({ class: "ccpCollapseIcon" });
+		toggleIcon.textContent = isCollapsed ? "\u25B6" : "\u25BC";
+		header.appendChild(toggleIcon);
+		header.appendChild(h2({}, diff.channelLabel));
+		header.appendChild(span({ class: "ccpHeaderSummary" }, `${diff.patternsBefore} → ${diff.patternsAfter}`));
+		header.addEventListener("click", () => this._toggleSection(diff.channelIndex));
+		section.appendChild(header);
+
+		if (!isCollapsed) {
+			const body = div({ class: "ccpCategoryBody" });
+
+			// Summary line
+			body.appendChild(p({ class: "ccpSummary" }, `${diff.mergedPatterns.length} duplicate${diff.mergedPatterns.length !== 1 ? "s" : ""} removed`));
+
+			// Bar remap table
+			const barRows: HTMLTableRowElement[] = [tr(th("Bar"), th("Before"), th({ class: "ccpArrow" }, "→"), th("After"))];
+			for (const r of diff.barRemaps) {
+				barRows.push(tr(td(`${r.bar + 1}`), td(`${r.from}`), td({ class: "ccpArrow" }, "→"), td(`${r.to}`)));
 			}
+			body.appendChild(div({ class: "ccpTableWrap" }, p({ class: "ccpTableLabel" }, "Bar remap"), table(tbody(...barRows))));
+
+			// Merged patterns table
+			if (diff.mergedPatterns.length > 0) {
+				const mergedRows: HTMLTableRowElement[] = [tr(th("Old #"), th({ class: "ccpArrow" }, "→"), th("Merged into #"))];
+				for (const m of diff.mergedPatterns) {
+					mergedRows.push(tr(td(`${m.oldIndex}`), td({ class: "ccpArrow" }, "→"), td(`${m.intoIndex}`)));
+				}
+				body.appendChild(div({ class: "ccpTableWrap" }, p({ class: "ccpTableLabel" }, "Merged patterns"), table(tbody(...mergedRows))));
+			}
+
+			section.appendChild(body);
 		}
 
-		return div(
-			{ class: "ccpChannelSection" },
-			h3(diff.channelLabel),
-			p(
-				{ class: "ccpSummary" },
-				span({ class: "ccpCount" }, `${diff.patternsBefore} → ${diff.patternsAfter} patterns`),
-				span({ class: "ccpDetail" }, ` (${diff.mergedPatterns.length} duplicate${diff.mergedPatterns.length !== 1 ? "s" : ""} removed)`),
-			),
-			div({ class: "ccpTableWrap" }, p({ class: "ccpTableLabel" }, "Bar remap:"), table(tbody(...barRows))),
-			diff.mergedPatterns.length > 0
-				? div({ class: "ccpTableWrap" }, p({ class: "ccpTableLabel" }, "Merged patterns:"), table(tbody(...mergedRows)))
-				: div(),
-		);
+		return section;
 	}
 
 	private _buildInstrumentSection(diff: InstrumentDiff): HTMLDivElement {
-		const rows: HTMLTableRowElement[] = [tr(th("Old Inst #"), th("→"), th("New Inst #"), th("Fingerprint"))];
-		for (const r of diff.remap) {
-			rows.push(
-				tr(
-					td(`${r.oldIndex + 1}`),
-					td({ class: "ccpArrow" }, "→"),
-					td(r.newIndex >= 0 ? `${r.newIndex + 1}` : "dropped"),
-					td({ class: "ccpFingerprint" }, r.fingerprint === "dropped" ? "(unused)" : r.fingerprint),
-				),
-			);
+		const isCollapsed = this._collapsed.has(diff.channelIndex);
+
+		const section = div({ class: "ccpCategory" });
+		if (isCollapsed) section.classList.add("collapsed");
+
+		// Header
+		const header = div({ class: "ccpCategoryHeader" });
+		const toggleIcon = span({ class: "ccpCollapseIcon" });
+		toggleIcon.textContent = isCollapsed ? "\u25B6" : "\u25BC";
+		header.appendChild(toggleIcon);
+		header.appendChild(h2({}, diff.channelLabel));
+		header.appendChild(span({ class: "ccpHeaderSummary" }, `${diff.instrumentsBefore} → ${diff.instrumentsAfter}`));
+		header.addEventListener("click", () => this._toggleSection(diff.channelIndex));
+		section.appendChild(header);
+
+		if (!isCollapsed) {
+			const body = div({ class: "ccpCategoryBody" });
+
+			// Remap table
+			const rows: HTMLTableRowElement[] = [tr(th("Old Inst"), th({ class: "ccpArrow" }, "→"), th("New Inst"), th("Fingerprint"))];
+			for (const r of diff.remap) {
+				rows.push(
+					tr(
+						td(`${r.oldIndex + 1}`),
+						td({ class: "ccpArrow" }, "→"),
+						td(r.newIndex >= 0 ? `${r.newIndex + 1}` : "dropped"),
+						td({ class: "ccpFingerprint" }, r.fingerprint === "dropped" ? "(unused)" : r.fingerprint),
+					),
+				);
+			}
+			body.appendChild(div({ class: "ccpTableWrap" }, p({ class: "ccpTableLabel" }, "Instrument remap"), table(tbody(...rows))));
+
+			if (diff.dropped.length > 0) {
+				body.appendChild(p({ class: "ccpDropped" }, `Dropped: ${diff.dropped.map((i) => i + 1).join(", ")}`));
+			}
+
+			section.appendChild(body);
 		}
 
-		const droppedText = diff.dropped.length > 0 ? `Dropped instruments: ${diff.dropped.map((i) => i + 1).join(", ")}` : "";
-
-		return div(
-			{ class: "ccpChannelSection" },
-			h3(diff.channelLabel),
-			p({ class: "ccpSummary" }, span({ class: "ccpCount" }, `${diff.instrumentsBefore} → ${diff.instrumentsAfter} instruments`)),
-			div({ class: "ccpTableWrap" }, p({ class: "ccpTableLabel" }, "Instrument remap:"), table(tbody(...rows))),
-			droppedText ? p({ class: "ccpDropped" }, droppedText) : div(),
-		);
+		return section;
 	}
 
 	protected override _saveChanges(): void {
