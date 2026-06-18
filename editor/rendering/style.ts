@@ -1632,6 +1632,43 @@ html {
 	width: 100%;
 }
 
+/* ── Clean Channel Prompt ── */
+.beepboxEditor .prompt.cleanChannelPrompt {
+	width: 520px;
+	max-height: 600px;
+	overflow-y: auto;
+}
+
+.beepboxEditor .prompt.cleanChannelPrompt h3 {
+	margin: 12px 0 4px;
+	font-size: 14px;
+	color: ${ColorConfig.primaryText};
+}
+
+.beepboxEditor .prompt.cleanChannelPrompt table {
+	width: 100%;
+	border-collapse: collapse;
+	font-family: var(--font-family-mono);
+	font-size: 12px;
+	margin: 4px 0 8px;
+}
+
+.beepboxEditor .prompt.cleanChannelPrompt th {
+	text-align: left;
+	padding: 2px 6px;
+	color: ${ColorConfig.secondaryText};
+	border-bottom: 1px solid ${ColorConfig.uiWidgetBackground};
+}
+
+.beepboxEditor .prompt.cleanChannelPrompt td {
+	padding: 2px 6px;
+	color: ${ColorConfig.primaryText};
+}
+
+.beepboxEditor .prompt.cleanChannelPrompt tr:nth-child(even) td {
+	background: ${ColorConfig.editorBackground};
+}
+
 /* ── Song Recovery Prompt ── */
 .beepboxEditor .prompt.songRecoveryPrompt {
 	width: 300px;

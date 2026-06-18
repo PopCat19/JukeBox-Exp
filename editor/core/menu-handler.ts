@@ -128,6 +128,18 @@ export class MenuHandler {
 			case "pasteNumbers":
 				this._host.doc.selection.pasteNumbers();
 				break;
+			case "cleanPatternsCurrent":
+				this._host.openPrompt("cleanPatternsCurrent");
+				break;
+			case "cleanPatternsAll":
+				this._host.openPrompt("cleanPatternsAll");
+				break;
+			case "cleanInstrumentsCurrent":
+				this._host.openPrompt("cleanInstrumentsCurrent");
+				break;
+			case "cleanInstrumentsAll":
+				this._host.openPrompt("cleanInstrumentsAll");
+				break;
 			case "transposeUp":
 				this._host.doc.selection.transpose(true, false);
 				break;

@@ -15,6 +15,7 @@ import { BeatsPerBarPrompt } from "../prompts/beats-per-bar-prompt";
 import { ChannelSettingsPrompt } from "../prompts/channel-settings-prompt";
 import { ChannelVolumeVisualizerPrompt } from "../prompts/channel-volume-visualizer-prompt";
 import { CustomChipPrompt } from "../prompts/custom-chip-prompt";
+import { CleanChannelPrompt } from "../prompts/clean-channel-prompt";
 import { CustomFilterPrompt } from "../prompts/custom-filter-prompt";
 import { CustomScalePrompt } from "../prompts/custom-scale-prompt";
 import { CustomThemePrompt } from "../prompts/custom-theme-prompt";
@@ -363,6 +364,18 @@ export class PromptManager {
 				break;
 			case "addExternal":
 				newPrompt = new AddSamplesPrompt(doc);
+				break;
+			case "cleanPatternsCurrent":
+				newPrompt = new CleanChannelPrompt(doc, "patterns", "current");
+				break;
+			case "cleanPatternsAll":
+				newPrompt = new CleanChannelPrompt(doc, "patterns", "all");
+				break;
+			case "cleanInstrumentsCurrent":
+				newPrompt = new CleanChannelPrompt(doc, "instruments", "current");
+				break;
+			case "cleanInstrumentsAll":
+				newPrompt = new CleanChannelPrompt(doc, "instruments", "all");
 				break;
 			case "generateEuclideanRhythm":
 				newPrompt = new EuclidgenRhythmPrompt(doc);
