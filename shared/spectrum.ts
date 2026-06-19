@@ -83,9 +83,8 @@ export class spectrumCanvas {
 					re += mono[n] * coefs[n].cos;
 					im -= mono[n] * coefs[n].sin;
 				}
-				const fgRaw = Math.sqrt(Math.sqrt(re * re + im * im) / sampleCount);
-				const fgGain = 1 + (this._fgFreqs[b] / FG_MIN_FREQ - 1) * 0.1; // boost highs: 400Hz=1x, 12000Hz=~4x
-				fgMags[b] = fgRaw * fgGain;
+				// Natural fourth-root magnitude (no gain curve)
+				fgMags[b] = Math.sqrt(Math.sqrt(re * re + im * im) / sampleCount);
 				if (fgMags[b] > fgInstMax) fgInstMax = fgMags[b];
 			}
 
@@ -99,11 +98,8 @@ export class spectrumCanvas {
 					re += mono[n] * coefs[n].cos;
 					im -= mono[n] * coefs[n].sin;
 				}
-				// Squared magnitude with frequency-dependent gain: boosts lower bands
-				// so the curve approaching x=0 (30Hz) is visible, not invisible
-				const raw = (re * re + im * im) / sampleCount;
-				const gain = 1 + (160 / this._bgFreqs[b] - 1) * 1.0; // prioritize lower peaks: 20Hz=8x, 160Hz=1x
-				bgMags[b] = raw * gain;
+				// Natural squared magnitude (no gain curve)
+				bgMags[b] = (re * re + im * im) / sampleCount;
 				if (bgMags[b] > bgInstMax) bgInstMax = bgMags[b];
 			}
 
