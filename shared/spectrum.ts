@@ -38,6 +38,9 @@ export class spectrumCanvas {
 	private _lastBufferSize = 0;
 	private readonly _bgFreqs: number[] = [];
 	private readonly _fgFreqs: number[] = [];
+	// Rolling buffer for CQT: accumulates chunks so low freqs get enough samples
+	private _ringBuffer: Float32Array = new Float32Array(32768); // ~683ms, enough for 20Hz CQT window: 8*48000/20=19200
+	private _ringPos = 0;
 
 	// Fixed normalization references (floor for soft compression)
 	private static readonly FG_REF = 0.02;
@@ -76,37 +79,44 @@ export class spectrumCanvas {
 				this._lastBufferSize = sampleCount;
 			}
 
-			// Mix to mono (Hann window applied per-band with CQT window length)
-			const mono = new Float32Array(sampleCount);
+			// Mix to mono and accumulate in ring buffer for CQT
+			const ringBuf = this._ringBuffer;
+			const ringLen = this._ringBuffer.length;
 			for (let i = 0; i < sampleCount; i++) {
-				mono[i] = (directlinkL[i] + directlinkR[i]) * 0.5;
+				ringBuf[(this._ringPos + i) & (ringLen - 1)] = (directlinkL[i] + directlinkR[i]) * 0.5;
 			}
+			this._ringPos = (this._ringPos + sampleCount) & (ringLen - 1);
 
-			// Compute foreground spectrum (CQT: each band uses frequency-dependent window)
+			// Compute foreground spectrum (CQT: each band reads from ring buffer)
 			const fgMags = new Float32Array(FG_BANDS);
 			for (let b = 0; b < FG_BANDS; b++) {
 				const bw = this._fgCoefs[b];
 				let re = 0, im = 0;
 				const nFrames = bw.len;
+				// Read nFrames samples from ring buffer ending at current position
+				const offset = this._ringPos - nFrames;
 				for (let n = 0; n < nFrames; n++) {
+					const idx = (offset + n + ringLen * 2) & (ringLen - 1); // ensure positive before mask
 					const hann = 0.5 * (1 - Math.cos(2 * Math.PI * n / (nFrames - 1)));
-					re += mono[n] * bw.cos[n] * hann;
-					im -= mono[n] * bw.sin[n] * hann;
+					re += ringBuf[idx] * bw.cos[n] * hann;
+					im -= ringBuf[idx] * bw.sin[n] * hann;
 				}
 				fgMags[b] = Math.sqrt(re * re + im * im) / nFrames;
 			}
 
-			// Compute background (bass) spectrum (CQT: each band uses frequency-dependent window)
+			// Compute background (bass) spectrum (CQT: each band reads from ring buffer)
 			const bgMags = new Float32Array(BG_BANDS);
 			let bgInstMax = 0.0001;
 			for (let b = 0; b < BG_BANDS; b++) {
 				const bw = this._bgCoefs[b];
 				let re = 0, im = 0;
 				const nFrames = bw.len;
+				const offset = this._ringPos - nFrames;
 				for (let n = 0; n < nFrames; n++) {
+					const idx = (offset + n + ringLen * 2) & (ringLen - 1); // ensure positive before mask
 					const hann = 0.5 * (1 - Math.cos(2 * Math.PI * n / (nFrames - 1)));
-					re += mono[n] * bw.cos[n] * hann;
-					im -= mono[n] * bw.sin[n] * hann;
+					re += ringBuf[idx] * bw.cos[n] * hann;
+					im -= ringBuf[idx] * bw.sin[n] * hann;
 				}
 				bgMags[b] = (re * re + im * im) / nFrames;
 				if (bgMags[b] > bgInstMax) bgInstMax = bgMags[b];
