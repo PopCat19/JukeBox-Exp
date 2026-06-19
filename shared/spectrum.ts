@@ -12,7 +12,7 @@
 import { ColorConfig } from "./color-config";
 import { events } from "./events";
 
-const FG_BANDS = 8;
+const FG_BANDS = 16;
 const FG_MIN_FREQ = 400;
 const FG_MAX_FREQ = 12000;
 
