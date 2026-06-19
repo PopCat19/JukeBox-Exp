@@ -12,11 +12,11 @@
 import { ColorConfig } from "./color-config";
 import { events } from "./events";
 
-const FG_BANDS = 16;
+const FG_BANDS = 32;
 const FG_MIN_FREQ = 20;
 const FG_MAX_FREQ = 4000;
 
-const BG_BANDS = 12;
+const BG_BANDS = 24;
 const BG_MIN_FREQ = 20;
 const BG_MAX_FREQ = 240;
 
@@ -38,8 +38,8 @@ export class spectrumCanvas {
 	private static readonly BG_REF = 1.0;
 	// Per-band temporal smoothing (~30ms decay at 60fps)
 	// factor^2 ≈ 0.1, so ~30ms to decay to 10%
-	private _fgSmoothMags = new Float32Array(16);
-	private _bgSmoothMags = new Float32Array(40);
+	private _fgSmoothMags = new Float32Array(32);
+	private _bgSmoothMags = new Float32Array(24);
 
 	constructor(
 		public readonly canvas: HTMLCanvasElement,
@@ -141,7 +141,9 @@ export class spectrumCanvas {
 		const bandWidth = w / (bandCount - 1);
 		const ys = new Array<number>(bandCount);
 		for (let b = 0; b < bandCount; b++) {
-			ys[b] = h - (mags[b] / (mags[b] + maxMag)) * h * heightScale;
+			const m2 = mags[b] * mags[b];
+			const r2 = maxMag * maxMag;
+			ys[b] = h - (m2 / (m2 + r2)) * h * heightScale;
 		}
 
 		ctx.globalAlpha = opacity;
