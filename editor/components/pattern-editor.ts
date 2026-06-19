@@ -203,6 +203,7 @@ export class PatternEditor {
 	private _usingTouch: boolean = false;
 	private _previewByKeybind: boolean = false;
 	private _previewPitch: number = -1;
+	public periodKeyHeld: boolean = false;
 	private _cachedSvgRect: DOMRect | null = null;
 	private _mouseMoveRAF: number | null = null;
 	private _copiedPinChannels: NotePin[][] = [];
@@ -2287,6 +2288,7 @@ export class PatternEditor {
 		this._mouseMoveRAF = requestAnimationFrame(() => {
 			this._mouseMoveRAF = null;
 			this._updateHoverTooltip();
+			if (this.periodKeyHeld) this.previewHoveredNote();
 			this._whenCursorMoved();
 		});
 	};

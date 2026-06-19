@@ -66,6 +66,7 @@ export class Piano {
 	private _mouseDown: boolean = false;
 	private _mouseOver: boolean = false;
 	private _previewByKeybind: boolean = false;
+	public periodKeyHeld: boolean = false;
 	private _containerRect: DOMRect | null = null;
 	private _cursorPitch: number;
 	private _playedPitch: number = -1;
@@ -301,6 +302,7 @@ export class Piano {
 		if (isNaN(this._mouseY)) this._mouseY = 0;
 		this._updateCursorPitch();
 		if (this._mouseDown) this._playLiveInput();
+		if (this.periodKeyHeld) this.previewHoveredNote();
 		this._updatePreview();
 	};
 

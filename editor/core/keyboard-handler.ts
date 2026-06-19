@@ -24,6 +24,7 @@ import type { EnvelopeEditor } from "../components/envelope-editor";
 import type { LoopEditor } from "../components/loop-editor";
 import type { MuteEditor } from "../components/mute-editor";
 import type { PatternEditor } from "../components/pattern-editor";
+import type { Piano } from "../components/piano";
 import type { KeyboardLayout } from "../config/keyboard-layout";
 import type { Prompt } from "../prompts/prompt";
 import type { SongDocument } from "../song-document";
@@ -39,6 +40,7 @@ declare const OFFLINE: boolean;
 export interface KeyboardHandlerHost {
 	doc: SongDocument;
 	patternEditor: PatternEditor;
+	piano: Piano;
 	muteEditor: MuteEditor;
 	loopEditor: LoopEditor;
 	barScrollBar: BarScrollBar;
@@ -274,6 +276,8 @@ export class KeyboardHandler {
 				// itself refuses to fire when the user is dragging the
 				// mouse to play a real note, so the keybind cannot
 				// double-trigger.
+				host.patternEditor.periodKeyHeld = true;
+				host.piano.periodKeyHeld = true;
 				host.playHoveredPreview();
 				event.preventDefault();
 				break;
@@ -953,6 +957,8 @@ export class KeyboardHandler {
 
 		// Release any held hovered-note preview.
 		if (event.keyCode === 190) {
+			host.patternEditor.periodKeyHeld = false;
+			host.piano.periodKeyHeld = false;
 			host.releaseHoveredPreview();
 			event.preventDefault();
 		}
