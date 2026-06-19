@@ -135,7 +135,7 @@ export class spectrumCanvas {
 			}
 			// Per-band gain: ramp from 0.5x (low) to 2x (high) to compensate for spectral tilt
 			// Low freqs have more natural energy, so we attenuate them relative to highs
-			const fgGainStep = 2.0 / (FG_BANDS - 1);
+			const fgGainStep = 1.5 / (FG_BANDS - 1);
 			for (let b = 0; b < FG_BANDS; b++) {
 				fgMags[b] *= (0.5 + b * fgGainStep);
 			}
