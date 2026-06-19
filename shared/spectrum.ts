@@ -31,6 +31,7 @@ export class spectrumCanvas {
 	private _sampleRate = 48000;
 	private _lastBufferSize = 0;
 	private readonly _bgFreqs: number[] = [];
+	private readonly _fgFreqs: number[] = [];
 
 	// Dynamic amplification: slow-decay peak hold
 	private _fgSmoothMax = 0.001;
@@ -82,7 +83,9 @@ export class spectrumCanvas {
 					re += mono[n] * coefs[n].cos;
 					im -= mono[n] * coefs[n].sin;
 				}
-				fgMags[b] = Math.sqrt(Math.sqrt(re * re + im * im) / sampleCount);
+				const fgRaw = Math.sqrt(Math.sqrt(re * re + im * im) / sampleCount);
+				const fgGain = 1 + (this._fgFreqs[b] / FG_MIN_FREQ - 1) * 0.1; // boost highs: 400Hz=1x, 12000Hz=~4x
+				fgMags[b] = fgRaw * fgGain;
 				if (fgMags[b] > fgInstMax) fgInstMax = fgMags[b];
 			}
 
@@ -193,10 +196,17 @@ export class spectrumCanvas {
 		this._bgCoefs = this._buildCoefs(BG_BANDS, BG_MIN_FREQ, BG_MAX_FREQ, sampleRate, bufferSize);
 		// Compute BG center frequencies for gain curve
 		this._bgFreqs.length = 0;
-		const logMin = Math.log(BG_MIN_FREQ);
-		const logMax = Math.log(BG_MAX_FREQ);
+		const bgLogMin = Math.log(BG_MIN_FREQ);
+		const bgLogMax = Math.log(BG_MAX_FREQ);
 		for (let b = 0; b < BG_BANDS; b++) {
-			this._bgFreqs.push(Math.exp(logMin + (b / (BG_BANDS - 1)) * (logMax - logMin)));
+			this._bgFreqs.push(Math.exp(bgLogMin + (b / (BG_BANDS - 1)) * (bgLogMax - bgLogMin)));
+		}
+		// Compute FG center frequencies for gain curve
+		this._fgFreqs.length = 0;
+		const fgLogMin = Math.log(FG_MIN_FREQ);
+		const fgLogMax = Math.log(FG_MAX_FREQ);
+		for (let b = 0; b < FG_BANDS; b++) {
+			this._fgFreqs.push(Math.exp(fgLogMin + (b / (FG_BANDS - 1)) * (fgLogMax - fgLogMin)));
 		}
 	}
 
