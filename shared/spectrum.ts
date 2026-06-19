@@ -13,7 +13,7 @@ import { ColorConfig } from "./color-config";
 import { events } from "./events";
 import { forwardRealFourierTransform } from "../synth/fft";
 
-const FG_BANDS = 133;
+const FG_BANDS = 151;
 const FG_MIN_FREQ = 130;
 const BG_MIN_FREQ = 20;
 const BG_BANDS = 67;
@@ -46,7 +46,7 @@ export class spectrumCanvas {
 	private _fftBuffer: Float32Array = new Float32Array(2048);
 	// Per-band temporal smoothing (~30ms decay at 60fps)
 	// factor^2 ≈ 0.1, so ~30ms to decay to 10%
-	private _fgSmoothMags = new Float32Array(133);
+	private _fgSmoothMags = new Float32Array(151);
 	private _bgSmoothMags = new Float32Array(67);
 
 	constructor(
@@ -279,7 +279,7 @@ export class spectrumCanvas {
 		for (let b = 0; b < BG_BANDS; b++) {
 			this._bgFreqs.push(bgA4 * Math.pow(2, (bgNoteStart + b * 0.5 - 69) / 12));
 		}
-		// Every quarter-tone (24TET): 133 bands from ~130Hz to ~6000Hz
+		// Every quarter-tone (24TET): 151 bands from ~130Hz to ~10000Hz
 		this._fgFreqs.length = 0;
 		const fgNoteStart = Math.round(12 * Math.log2(FG_MIN_FREQ / 440) + 69);
 		for (let b = 0; b < FG_BANDS; b++) {
