@@ -143,7 +143,6 @@ export class spectrumCanvas {
 
 		events.listen("spectrumUpdate", this._EventUpdateCanvas);
 		events.listen("spectrumReset", () => this.reset());
-		events.listen("spectrumReset", () => this.reset());
 		events.listen("themeChange", () => this._updateCachedColors());
 	}
 
@@ -164,21 +163,16 @@ export class spectrumCanvas {
 
 		ctx.globalAlpha = opacity;
 
-		// Catmull-Rom spline: smooth curves through every point
+		// Simple quadratic bezier: data points as control, midpoints as endpoints
 		ctx.beginPath();
 		ctx.moveTo(0, h);
 		ctx.lineTo(0, ys[0]);
 		for (let b = 0; b < bandCount - 1; b++) {
-			const p0 = ys[Math.max(0, b - 1)];
-			const p1 = ys[b];
-			const p2 = ys[b + 1];
-			const p3 = ys[Math.min(bandCount - 1, b + 2)];
 			const x1 = b * bandWidth;
 			const x2 = (b + 1) * bandWidth;
-			const cp1y = p1 + (p2 - p0) / 6;
-			const cp2y = p2 - (p3 - p1) / 6;
-			ctx.bezierCurveTo(x1 + (x2 - x1) / 3, cp1y, x2 - (x2 - x1) / 3, cp2y, x2, p2);
+			ctx.quadraticCurveTo(x1, ys[b], (x1 + x2) / 2, (ys[b] + ys[b + 1]) / 2);
 		}
+		ctx.lineTo(w, ys[bandCount - 1]);
 		ctx.lineTo(w, h);
 		ctx.closePath();
 		ctx.fillStyle = color;
