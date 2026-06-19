@@ -58,6 +58,7 @@ export class Preferences {
 	public rollNoveltyPresets: boolean;
 	public enableTagSearch: boolean;
 	public debugPrompts: boolean;
+	public debugSynth: boolean;
 
 	constructor() {
 		this.reload();
@@ -106,6 +107,7 @@ export class Preferences {
 		this.rollNoveltyPresets = window.localStorage.getItem("rollNoveltyPresets") === "true";
 		this.enableTagSearch = window.localStorage.getItem("enableTagSearch") !== "false";
 		this.debugPrompts = window.localStorage.getItem("debugPrompts") === "1";
+		this.debugSynth = window.localStorage.getItem("debugSynth") === "1";
 
 		const defaultScale: Scale | undefined = Config.scales.dictionary[window.localStorage.getItem("defaultScale")!];
 		this.defaultScale = defaultScale !== undefined ? defaultScale.index : 0;
@@ -165,5 +167,6 @@ export class Preferences {
 		window.localStorage.setItem("rollNoveltyPresets", this.rollNoveltyPresets ? "true" : "false");
 		window.localStorage.setItem("enableTagSearch", this.enableTagSearch ? "true" : "false");
 		window.localStorage.setItem("debugPrompts", this.debugPrompts ? "1" : "0");
+		window.localStorage.setItem("debugSynth", this.debugSynth ? "1" : "0");
 	}
 }

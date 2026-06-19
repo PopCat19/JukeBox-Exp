@@ -300,7 +300,7 @@ export function installDebugTools(doc: SongDocument): void {
 			console.info(
 				"%c[jukebox:debug] logging disabled",
 				"background:#666;color:#fff;padding:2px 6px;border-radius:4px;font-weight:bold;",
-				"enable with: localStorage.setItem('debugPrompts','1') then reload, or load with ?debugPrompts=1",
+				"enable with: localStorage.setItem('debugPrompts','1') then reload, or load with ?debugPrompts=1. For synth/worklet logging: localStorage.setItem('debugSynth','1')",
 			);
 		} catch {
 			// ignore

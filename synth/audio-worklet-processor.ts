@@ -7,7 +7,7 @@
 // - Maintains an internal buffer queue of audio data received from the main thread
 // - Requests more data via MessagePort when the queue runs low
 // - Outputs audio in 128-sample render quantums via process()
-// - Extensive logging for diagnostics
+// - Logging is opt-in, controlled by the debug flag passed via processorOptions
 
 // IMPORTANT: This code runs in AudioWorkletGlobalScope, NOT the main thread.
 // It is loaded as a string via audioWorklet.addModule(blobUrl).
@@ -29,6 +29,7 @@ class BeepBoxAudioWorkletProcessor extends AudioWorkletProcessor {
     this._underrunCount = 0;
     this._processCallCount = 0;
     this._active = true;
+    this._debug = !!(options && options.processorOptions && options.processorOptions.debug);
 
     this.port.onmessage = (e) => {
       const msg = e.data;
@@ -39,21 +40,21 @@ class BeepBoxAudioWorkletProcessor extends AudioWorkletProcessor {
         this._totalReceived += msg.left.length;
         this._dataRequested = false;
         this._processCallCount++;
-        if (this._processCallCount <= 5 || this._processCallCount % 100 === 0) {
+        if (this._debug && (this._processCallCount <= 5 || this._processCallCount % 100 === 0)) {
           console.log("[Worklet] Received audio buffer #" + this._processCallCount + ", queue size: " + this._queue.length + ", total received: " + this._totalProcessed + " samples, buffered: " + this._getBufferedSamples() + " samples");
         }
       } else if (msg.type === "clear") {
         this._queue.length = 0;
         this._offset = 0;
         this._dataRequested = false;
-        console.log("[Worklet] Queue cleared");
+        if (this._debug) console.log("[Worklet] Queue cleared");
       } else if (msg.type === "stop") {
         this._active = false;
-        console.log("[Worklet] Stop signal received");
+        if (this._debug) console.log("[Worklet] Stop signal received");
       }
     };
 
-    console.log("[Worklet] Processor created, bufferSize: " + this._bufferSize + ", sampleRate: " + this._sampleRate);
+    if (this._debug) console.log("[Worklet] Processor created, bufferSize: " + this._bufferSize + ", sampleRate: " + this._sampleRate);
   }
 
   _getBufferedSamples() {
@@ -86,7 +87,7 @@ class BeepBoxAudioWorkletProcessor extends AudioWorkletProcessor {
           outR[i] = 0.0;
         }
         this._underrunCount++;
-        if (this._underrunCount <= 5 || this._underrunCount % 500 === 0) {
+        if (this._debug && (this._underrunCount <= 5 || this._underrunCount % 500 === 0)) {
           console.warn("[Worklet] UNDERRUN #" + this._underrunCount + ", total processed: " + this._totalProcessed + " samples");
         }
         break;

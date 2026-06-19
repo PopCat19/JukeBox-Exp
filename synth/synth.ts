@@ -116,7 +116,7 @@ export class Synth {
 		}
 	}
 	public warmUpSynthesizer(song: Song | null): void {
-		console.log("[Synth] warmUpSynthesizer called, song:", !!song);
+		this._dbg("warmUpSynthesizer called, song:", !!song);
 		// Don't bother to generate the drum waves unless the song actually
 		// uses them, since they may require a lot of computation.
 		if (song != null) {
@@ -571,6 +571,27 @@ export class Synth {
 	private _logSynthCallCount: number = 0;
 	private _logNeedDataCount: number = 0;
 
+	private static _debugSynthEnabled(): boolean {
+		try {
+			if (typeof window === "undefined") return false;
+			const w = window as any;
+			if (w.debugSynth === "1" || w.debugSynth === "true") return true;
+			if (window.localStorage) {
+				const v = window.localStorage.getItem("debugSynth");
+				if (v === "1" || v === "true") return true;
+			}
+		} catch { /* ignore */ }
+		return false;
+	}
+
+	private _dbg(...args: unknown[]): void {
+		if (Synth._debugSynthEnabled()) console.log("[Synth]", ...args);
+	}
+
+	private _dbgWarn(...args: unknown[]): void {
+		if (Synth._debugSynthEnabled()) console.warn("[Synth]", ...args);
+	}
+
 	public get playing(): boolean {
 		return this.isPlayingSong;
 	}
@@ -887,7 +908,7 @@ export class Synth {
 			this._activateAudioPromise = null;
 			return;
 		}
-		console.log("[Synth] activateAudio called, bufferSize:", bufferSize, "currentBufferSize:", this._currentBufferSize, "audioCtx:", !!this.audioCtx, "workletNode:", !!this._workletNode);
+		this._dbg("activateAudio called, bufferSize:", bufferSize, "currentBufferSize:", this._currentBufferSize, "audioCtx:", !!this.audioCtx, "workletNode:", !!this._workletNode);
 		try {
 		if (this._workletNode != null) this.deactivateAudio();
 		const latencyHint: string = this.anticipatePoorPerformance
@@ -897,11 +918,11 @@ export class Synth {
 			: this.preferLowerLatency
 				? "interactive"
 				: "balanced";
-		console.log("[Synth] Creating AudioContext, latencyHint:", latencyHint);
+		this._dbg("Creating AudioContext, latencyHint:", latencyHint);
 		this.audioCtx = this.audioCtx || new (window.AudioContext || window.webkitAudioContext)({ latencyHint: latencyHint });
 		const ctx = this.audioCtx!;
 		this.samplesPerSecond = ctx.sampleRate;
-		console.log("[Synth] AudioContext sampleRate:", this.samplesPerSecond);
+		this._dbg("AudioContext sampleRate:", this.samplesPerSecond);
 
 		// If the AudioContext is suspended (no user gesture yet), register a
 		// one-time click/keydown listener to resume it on the first user gesture.
@@ -911,31 +932,31 @@ export class Synth {
 			const resume = () => {
 				if (this.audioCtx && this.audioCtx.state === "suspended") {
 					this.audioCtx.resume().then(() => {
-						console.log("[Synth] AudioContext resumed via user gesture");
+						this._dbg("AudioContext resumed via user gesture");
 					});
 				}
 			};
 			window.addEventListener("click", resume, { once: true });
 			window.addEventListener("keydown", resume, { once: true });
-			console.log("[Synth] Added one-time gesture listener to resume AudioContext");
+			this._dbg("Added one-time gesture listener to resume AudioContext");
 		}
 
 		// Load AudioWorklet module via blob URL
 		if (this._workletModuleUrl == null) {
 			const blob = new Blob([AUDIO_WORKLET_PROCESSOR_CODE], { type: "application/javascript" });
 			this._workletModuleUrl = URL.createObjectURL(blob);
-			console.log("[Synth] Created worklet module blob URL:", this._workletModuleUrl);
+			this._dbg("Created worklet module blob URL:", this._workletModuleUrl);
 		}
-		console.log("[Synth] Loading AudioWorklet module...");
+		this._dbg("Loading AudioWorklet module...");
 		await ctx.audioWorklet.addModule(this._workletModuleUrl);
-		console.log("[Synth] AudioWorklet module loaded");
+		this._dbg("AudioWorklet module loaded");
 
 		// Create AudioWorkletNode
 		this._workletNode = new AudioWorkletNode(ctx, "beepbox-audio-worklet-processor", {
 			outputChannelCount: [2],
-			processorOptions: { bufferSize: bufferSize },
+			processorOptions: { bufferSize: bufferSize, debug: Synth._debugSynthEnabled() },
 		});
-		console.log("[Synth] AudioWorkletNode created");
+		this._dbg("AudioWorkletNode created");
 
 		// Set up message port handler
 		this._workletNode.port.onmessage = (e: MessageEvent) => {
@@ -946,7 +967,7 @@ export class Synth {
 		};
 
 		this._workletNode.connect(ctx.destination);
-		console.log("[Synth] WorkletNode connected to destination");
+		this._dbg("WorkletNode connected to destination");
 
 		this._currentBufferSize = bufferSize;
 		this._workletPrimed = false;
@@ -954,7 +975,7 @@ export class Synth {
 		this._logNeedDataCount = 0;
 
 		this.computeDelayBufferSizes();
-		console.log("[Synth] activateAudio complete, bufferSize:", bufferSize, "sampleRate:", this.samplesPerSecond);
+		this._dbg("activateAudio complete, bufferSize:", bufferSize, "sampleRate:", this.samplesPerSecond);
 		} finally {
 			this._activateAudioPromise = null;
 		}
@@ -964,7 +985,7 @@ export class Synth {
 		if (this.audioCtx && this.audioCtx.state === "suspended") {
 			try {
 			await this.audioCtx.resume();
-				console.log("[Synth] AudioContext resumed, state:", this.audioCtx.state);
+				this._dbg("AudioContext resumed, state:", this.audioCtx.state);
 			} catch (e) {
 				// AudioContext can't resume without user gesture, ignore
 			}
@@ -972,30 +993,30 @@ export class Synth {
 	}
 
 	private deactivateAudio(): void {
-		console.log("[Synth] deactivateAudio called, audioCtx:", !!this.audioCtx, "workletNode:", !!this._workletNode);
+		this._dbg("deactivateAudio called, audioCtx:", !!this.audioCtx, "workletNode:", !!this._workletNode);
 		if (this.audioCtx != null && this._workletNode != null) {
-			console.log("[Synth] Disconnecting worklet node...");
+			this._dbg("Disconnecting worklet node...");
 			this._workletNode.port.postMessage({ type: "stop" });
 			this._workletNode.disconnect(this.audioCtx.destination);
 			this._workletNode = null;
 			if (this.audioCtx.close) {
-				console.log("[Synth] Closing AudioContext...");
+				this._dbg("Closing AudioContext...");
 				this.audioCtx.close();
 			}
 			this.audioCtx = null;
 			this._workletPrimed = false;
-			console.log("[Synth] Audio deactivated");
+			this._dbg("Audio deactivated");
 		}
 	}
 
 	private _onWorkletNeedData(): void {
 		this._logNeedDataCount++;
 		if (this._logNeedDataCount <= 5 || this._logNeedDataCount % 100 === 0) {
-			console.log("[Synth] need-data #" + this._logNeedDataCount + ", isPlayingSong:", this.isPlayingSong, "liveInputEndTime:", this.liveInputEndTime, "now:", performance.now());
+			this._dbg("need-data #" + this._logNeedDataCount + ", isPlayingSong:", this.isPlayingSong, "liveInputEndTime:", this.liveInputEndTime, "now:", performance.now());
 		}
 
 		if (!this.isPlayingSong && performance.now() >= this.liveInputEndTime) {
-			console.log("[Synth] Not playing and live input expired, deactivating");
+			this._dbg("Not playing and live input expired, deactivating");
 			this.deactivateAudio();
 			return;
 		}
@@ -1017,13 +1038,13 @@ export class Synth {
 		if (this._workletNode != null) {
 			this._workletNode.port.postMessage({ type: "audio", left, right }, [left.buffer, right.buffer]);
 		} else {
-			console.warn("[Synth] Worklet node is null after synthesize, audio data lost");
+			this._dbgWarn("Worklet node is null after synthesize, audio data lost");
 		}
 	}
 
 	private _primeWorklet(): void {
 		if (this._workletPrimed || this._workletNode == null) return;
-		console.log("[Synth] Priming worklet queue with 2 buffers...");
+		this._dbg("Priming worklet queue with 2 buffers...");
 		for (let i = 0; i < 2; i++) {
 			const left = new Float32Array(this._currentBufferSize);
 			const right = new Float32Array(this._currentBufferSize);
@@ -1033,7 +1054,7 @@ export class Synth {
 			}
 		}
 		this._workletPrimed = true;
-		console.log("[Synth] Worklet primed with 2 buffers");
+		this._dbg("Worklet primed with 2 buffers");
 	}
 
 	public async maintainLiveInput(): Promise<void> {
@@ -1047,14 +1068,14 @@ export class Synth {
 			}
 			return;
 		}
-		console.log("[Synth] maintainLiveInput: activating audio");
+		this._dbg("maintainLiveInput: activating audio");
 		await this.activateAudio();
 		await this.resumeAudioContext();
 		this.liveInputEndTime = performance.now() + 10000.0;
 	}
 
 	public async play(): Promise<void> {
-		console.log("[Synth] play() called, isPlayingSong:", this.isPlayingSong);
+		this._dbg("play() called, isPlayingSong:", this.isPlayingSong);
 		if (this.isPlayingSong) return;
 		this.initModFilters(this.song);
 		this.computeLatestModValues();
@@ -1062,17 +1083,17 @@ export class Synth {
 		await this.resumeAudioContext();
 		this.warmUpSynthesizer(this.song);
 		this.isPlayingSong = true;
-		console.log("[Synth] isPlayingSong set to true, playhead:", this.playheadInternal, "bar:", this.bar);
+		this._dbg("isPlayingSong set to true, playhead:", this.playheadInternal, "bar:", this.bar);
 		this._primeWorklet();
 	}
 
 	public pause(): void {
-		console.log("[Synth] pause() called, isPlayingSong:", this.isPlayingSong);
+		this._dbg("pause() called, isPlayingSong:", this.isPlayingSong);
 		if (!this.isPlayingSong) return;
 		this.isPlayingSong = false;
 		this.isRecording = false;
 		this.preferLowerLatency = false;
-		console.log("[Synth] Pausing, freeing tones, clearing mods, playhead:", this.playheadInternal, "bar:", this.bar);
+		this._dbg("Pausing, freeing tones, clearing mods, playhead:", this.playheadInternal, "bar:", this.bar);
 		this.freeAllTones();
 		this.modValues = [];
 		this.nextModValues = [];
@@ -1090,7 +1111,7 @@ export class Synth {
 	}
 
 	public async startRecording(): Promise<void> {
-		console.log("[Synth] startRecording() called");
+		this._dbg("startRecording() called");
 		this.preferLowerLatency = true;
 		this.isRecording = true;
 		await this.play();
@@ -1253,21 +1274,21 @@ export class Synth {
 	}
 
 	public snapToStart(): void {
-		console.log("[Synth] snapToStart");
+		this._dbg("snapToStart");
 		this.bar = 0;
 		this.resetEffects();
 		this.snapToBar();
 	}
 
 	public goToBar(bar: number): void {
-		console.log("[Synth] goToBar:", bar);
+		this._dbg("goToBar:", bar);
 		this.bar = bar;
 		this.resetEffects();
 		this.playheadInternal = this.bar;
 	}
 
 	public snapToBar(): void {
-		console.log("[Synth] snapToBar, bar:", this.bar);
+		this._dbg("snapToBar, bar:", this.bar);
 		this.playheadInternal = this.bar;
 		this.beat = 0;
 		this.part = 0;
@@ -1297,7 +1318,7 @@ export class Synth {
 		if (this.bar >= this.song.barCount) {
 			this.bar = 0;
 		}
-		console.log("[Synth] goToNextBar:", oldBar, "to", this.bar);
+		this._dbg("goToNextBar:", oldBar, "to", this.bar);
 		this.playheadInternal += this.bar - oldBar;
 
 		if (this.playing) {
@@ -1313,7 +1334,7 @@ export class Synth {
 		if (this.bar < 0 || this.bar >= this.song.barCount) {
 			this.bar = this.song.barCount - 1;
 		}
-		console.log("[Synth] goToPrevBar:", oldBar, "to", this.bar);
+		this._dbg("goToPrevBar:", oldBar, "to", this.bar);
 		this.playheadInternal += this.bar - oldBar;
 
 		if (this.playing) {
@@ -1508,11 +1529,11 @@ export class Synth {
 	public synthesize(outputDataL: Float32Array, outputDataR: Float32Array, outputBufferLength: number, playSong: boolean = true): void {
 		this._logSynthCallCount++;
 		if (this._logSynthCallCount <= 5 || this._logSynthCallCount % 200 === 0) {
-			console.log("[Synth] synthesize #" + this._logSynthCallCount + ", bufferLength: " + outputBufferLength + ", playSong: " + playSong + ", isPlayingSong: " + this.isPlayingSong + ", playhead: " + this.playheadInternal.toFixed(4) + ", bar: " + this.bar + ", beat: " + this.beat + ", tick: " + this.tick + ", tickCountdown: " + this.tickSampleCountdown.toFixed(2));
+			this._dbg("synthesize #" + this._logSynthCallCount + ", bufferLength: " + outputBufferLength + ", playSong: " + playSong + ", isPlayingSong: " + this.isPlayingSong + ", playhead: " + this.playheadInternal.toFixed(4) + ", bar: " + this.bar + ", beat: " + this.beat + ", tick: " + this.tick + ", tickCountdown: " + this.tickSampleCountdown.toFixed(2));
 		}
 
 		if (this.song == null) {
-			console.warn("[Synth] synthesize: song is null, filling silence and deactivating");
+			this._dbgWarn("synthesize: song is null, filling silence and deactivating");
 			outputDataL.fill(0.0);
 			outputDataR.fill(0.0);
 			this.deactivateAudio();
@@ -1563,7 +1584,7 @@ export class Synth {
 			if (this.bar >= song.barCount) {
 				this.bar = 0;
 				if (this.loopRepeatCount !== -1) {
-					console.log("[Synth] Song ended (bar >= barCount), pausing. loopRepeatCount:", this.loopRepeatCount);
+					this._dbg("Song ended (bar >= barCount), pausing. loopRepeatCount:", this.loopRepeatCount);
 					ended = true;
 					this.pause();
 				}
@@ -1661,7 +1682,7 @@ export class Synth {
 				// In this case processing will return before the designated number of samples are processed. In other words, silence will be generated.
 				const barVisited: boolean = skippedBars.includes(this.bar);
 				if (barVisited && bufferIndex === firstSkippedBufferIndex) {
-					console.warn("[Synth] Infinite skip detected, pausing. bar:", this.bar, "bufferIndex:", bufferIndex);
+					this._dbgWarn("Infinite skip detected, pausing. bar:", this.bar, "bufferIndex:", bufferIndex);
 					this.pause();
 					return;
 				}
@@ -2080,7 +2101,7 @@ export class Synth {
 									if (this.bar >= song.barCount) {
 										this.bar = 0;
 										if (this.loopRepeatCount !== -1) {
-											console.log("[Synth] Song ended (inside render loop), pausing. loopRepeatCount:", this.loopRepeatCount);
+											this._dbg("Song ended (inside render loop), pausing. loopRepeatCount:", this.loopRepeatCount);
 											ended = true;
 											this.resetEffects();
 											this.pause();
