@@ -5,9 +5,8 @@
 // Inspired by camellia/seatrus MV visualizers and Furnace tracker spectrum.
 // This module:
 // - Computes a 16-band logarithmic frequency spectrum from the mono mix
-// - Draws a smooth bezier curve through band magnitudes (not flat bars)
+// - Draws a smooth bezier curve through band magnitudes using full canvas
 // - Fills below the curve with a vertical gradient
-// - Mirrors a faint reflection below the center line for depth
 // - Always clean and readable regardless of project size or channel count
 
 import { ColorConfig } from "./color-config";
@@ -84,19 +83,20 @@ export class spectrumCanvas {
 				norms[b] = Math.min(1, magnitudes[b] / maxMag);
 			}
 
-			// Map bands to x positions across the canvas width
+			// Map bands to x positions across the full canvas width
+			// Use edge-to-edge: first band at x=0, last band at x=w
 			const bandWidth = w / (BAND_COUNT - 1);
 			const ys: number[] = new Array(BAND_COUNT);
 			for (let b = 0; b < BAND_COUNT; b++) {
-				ys[b] = h * 0.5 - norms[b] * h * 0.45;
+				// Full height: y=0 at peak, y=h at silence
+				ys[b] = h - norms[b] * h;
 			}
 
 			// Draw smooth bezier curve through the band points
 			// Using quadraticCurveTo with midpoints for smooth interpolation
 			ctx.beginPath();
-			ctx.moveTo(0, h * 0.5);
-
-			// First point
+			// Start at bottom-left, go up to first band
+			ctx.moveTo(0, h);
 			ctx.lineTo(0, ys[0]);
 
 			// Smooth curve through all points using midpoint quadratic method
@@ -107,17 +107,18 @@ export class spectrumCanvas {
 				const midY = (ys[b] + ys[b + 1]) * 0.5;
 				ctx.quadraticCurveTo(x1, ys[b], midX, midY);
 			}
-			// Last segment
+			// Last segment to the right edge
 			ctx.quadraticCurveTo((BAND_COUNT - 1) * bandWidth, ys[BAND_COUNT - 1], w, ys[BAND_COUNT - 1]);
 
-			// Close the path along the top for fill
-			ctx.lineTo(w, h * 0.5);
-			ctx.lineTo(0, h * 0.5);
+			// Close path: right edge down to bottom, across to left
+			ctx.lineTo(w, h);
+			ctx.lineTo(0, h);
 			ctx.closePath();
 
-			// Fill with vertical gradient: L color at curve peak, fading to bg at center
-			const grad = ctx.createLinearGradient(0, 0, 0, h * 0.5);
+			// Fill with vertical gradient: L color at top, fading to R color at bottom
+			const grad = ctx.createLinearGradient(0, 0, 0, h);
 			grad.addColorStop(0, this._cachedLColor);
+			grad.addColorStop(0.6, this._cachedRColor);
 			grad.addColorStop(1, this._cachedBgColor);
 			ctx.fillStyle = grad;
 			ctx.fill();
@@ -138,52 +139,6 @@ export class spectrumCanvas {
 			ctx.lineJoin = "round";
 			ctx.lineCap = "round";
 			ctx.stroke();
-
-			// Mirrored reflection below center line (faint)
-			const mirrorYs: number[] = new Array(BAND_COUNT);
-			for (let b = 0; b < BAND_COUNT; b++) {
-				mirrorYs[b] = h - ys[b];
-			}
-
-			ctx.beginPath();
-			ctx.moveTo(0, h * 0.5);
-			ctx.lineTo(0, mirrorYs[0]);
-			for (let b = 0; b < BAND_COUNT - 1; b++) {
-				const x1 = b * bandWidth;
-				const x2 = (b + 1) * bandWidth;
-				const midX = (x1 + x2) * 0.5;
-				const midY = (mirrorYs[b] + mirrorYs[b + 1]) * 0.5;
-				ctx.quadraticCurveTo(x1, mirrorYs[b], midX, midY);
-			}
-			ctx.quadraticCurveTo((BAND_COUNT - 1) * bandWidth, mirrorYs[BAND_COUNT - 1], w, mirrorYs[BAND_COUNT - 1]);
-			ctx.lineTo(w, h * 0.5);
-			ctx.closePath();
-
-			// Fill mirror with R color gradient at low opacity
-			const mirrorGrad = ctx.createLinearGradient(0, h * 0.5, 0, h);
-			mirrorGrad.addColorStop(0, this._cachedBgColor);
-			mirrorGrad.addColorStop(1, this._cachedRColor);
-			ctx.fillStyle = mirrorGrad;
-			ctx.globalAlpha = 0.3;
-			ctx.fill();
-			ctx.globalAlpha = 1.0;
-
-			// Stroke mirror curve faintly
-			ctx.beginPath();
-			ctx.moveTo(0, mirrorYs[0]);
-			for (let b = 0; b < BAND_COUNT - 1; b++) {
-				const x1 = b * bandWidth;
-				const x2 = (b + 1) * bandWidth;
-				const midX = (x1 + x2) * 0.5;
-				const midY = (mirrorYs[b] + mirrorYs[b + 1]) * 0.5;
-				ctx.quadraticCurveTo(x1, mirrorYs[b], midX, midY);
-			}
-			ctx.quadraticCurveTo((BAND_COUNT - 1) * bandWidth, mirrorYs[BAND_COUNT - 1], w, mirrorYs[BAND_COUNT - 1]);
-			ctx.strokeStyle = this._cachedRColor;
-			ctx.lineWidth = scale;
-			ctx.globalAlpha = 0.3;
-			ctx.stroke();
-			ctx.globalAlpha = 1.0;
 		};
 
 		events.listen("spectrumUpdate", this._EventUpdateCanvas);
