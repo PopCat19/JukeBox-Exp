@@ -127,12 +127,8 @@ export class spectrumCanvas {
 				this._fgSmoothMax *= 0.96; // ~1s decay at 60fps
 				if (this._fgSmoothMax < 0.001) this._fgSmoothMax = 0.001;
 			}
-			if (bgInstMax > this._bgSmoothMax) {
-				this._bgSmoothMax = bgInstMax;
-			} else {
-				this._bgSmoothMax *= 0.88; // faster decay: peaks stand out more
-				if (this._bgSmoothMax < 0.001) this._bgSmoothMax = 0.001;
-			}
+			// Instant normalization: loudest band always reaches ceiling
+			this._bgSmoothMax = Math.max(bgInstMax, 0.001);
 
 			// Draw background bass layer (R color, low opacity, thicker)
 			this._drawSmooth(ctx, w, h, this._bgSmoothMags, this._bgSmoothMax, BG_BANDS, this._cachedRColor, 0.4, 1.0);
