@@ -111,14 +111,14 @@ export class spectrumCanvas {
 				if (fgMags[b] > this._fgSmoothMags[b]) {
 					this._fgSmoothMags[b] = fgMags[b]; // instant attack
 				} else {
-					this._fgSmoothMags[b] = this._fgSmoothMags[b] * 0.19 + fgMags[b] * 0.81;
+					this._fgSmoothMags[b] = this._fgSmoothMags[b] * 0.4 + fgMags[b] * 0.6;
 				}
 			}
 			for (let b = 0; b < BG_BANDS; b++) {
 				if (bgMags[b] > this._bgSmoothMags[b]) {
 					this._bgSmoothMags[b] = bgMags[b]; // instant attack
 				} else {
-					this._bgSmoothMags[b] = this._bgSmoothMags[b] * 0.19 + bgMags[b] * 0.81;
+					this._bgSmoothMags[b] = this._bgSmoothMags[b] * 0.4 + bgMags[b] * 0.6;
 				}
 			}
 
