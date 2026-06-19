@@ -14,7 +14,7 @@ import { events } from "./events";
 
 const FG_BANDS = 8;
 const FG_MIN_FREQ = 400;
-const FG_MAX_FREQ = 8000;
+const FG_MAX_FREQ = 12000;
 
 const BG_BANDS = 12;
 const BG_MIN_FREQ = 30;
