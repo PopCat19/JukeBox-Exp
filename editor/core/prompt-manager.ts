@@ -365,17 +365,8 @@ export class PromptManager {
 			case "addExternal":
 				newPrompt = new AddSamplesPrompt(doc);
 				break;
-			case "cleanPatternsCurrent":
-				newPrompt = new CleanChannelPrompt(doc, "patterns", "current");
-				break;
-			case "cleanPatternsAll":
-				newPrompt = new CleanChannelPrompt(doc, "patterns", "all");
-				break;
-			case "cleanInstrumentsCurrent":
-				newPrompt = new CleanChannelPrompt(doc, "instruments", "current");
-				break;
-			case "cleanInstrumentsAll":
-				newPrompt = new CleanChannelPrompt(doc, "instruments", "all");
+			case "cleanLsdj":
+				newPrompt = new CleanChannelPrompt(doc);
 				break;
 			case "generateEuclideanRhythm":
 				newPrompt = new EuclidgenRhythmPrompt(doc);

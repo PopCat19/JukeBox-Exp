@@ -3,9 +3,10 @@
 // Purpose: Preview and apply LSDj-style pattern/instrument cleaning with diff
 //
 // This module:
-// - Computes a dry-run diff of duplicate pattern merges and instrument dedup
+// - Tabbed mode selection: Patterns / Instruments (no filter/search needed)
+// - Scope: always all channels
 // - Dual-pane layout: channel list (left) + detail tables (right)
-// - Supports current-channel or all-channels scope
+// - Each pane gets its own border (mirrors AddSamplesPrompt)
 // - Applies changes via ChangeCleanChannelPatterns / ChangeCleanChannelInstruments
 
 import { HTML } from "imperative-html/dist/esm/elements-strict";
@@ -14,13 +15,13 @@ import { Config } from "../../synth/synth-config";
 import { ChangeCleanChannelInstruments, ChangeCleanChannelPatterns, comparePatternNotes, patternsContainSameInstruments } from "../changes";
 import { ChangeGroup } from "../core/change";
 import type { SongDocument } from "../song-document";
-import { actionButton, flexPane, inputRow, paneContainer, searchInput } from "../ui";
+import { actionButton, flexPane } from "../ui";
+import { tabButton } from "../ui/buttons/tab-button";
 import { BasePrompt } from "./base-prompt";
 
 const { button, div, h2, span, p, table, tbody, tr, td, th } = HTML;
 
-type CleanMode = "patterns" | "instruments";
-type CleanScope = "current" | "all";
+type Tab = "patterns" | "instruments";
 
 interface PatternDiff {
 	channelIndex: number;
@@ -174,8 +175,8 @@ function computeInstrumentDiff(doc: SongDocument, channelIndex: number): Instrum
 	};
 }
 
-function diffCountLabel(diff: ChannelDiff, mode: CleanMode): string {
-	if (mode === "patterns") {
+function diffCountLabel(diff: ChannelDiff, tab: Tab): string {
+	if (tab === "patterns") {
 		const d = diff as PatternDiff;
 		return `Patterns: ${d.patternsBefore} → ${d.patternsAfter}`;
 	}
@@ -183,8 +184,8 @@ function diffCountLabel(diff: ChannelDiff, mode: CleanMode): string {
 	return `Instruments: ${d.instrumentsBefore} → ${d.instrumentsAfter}`;
 }
 
-function diffBadge(diff: ChannelDiff, mode: CleanMode): string {
-	if (mode === "patterns") {
+function diffBadge(diff: ChannelDiff, tab: Tab): string {
+	if (tab === "patterns") {
 		const d = diff as PatternDiff;
 		return `${d.mergedPatterns.length} dup${d.mergedPatterns.length !== 1 ? "s" : ""}`;
 	}
@@ -192,67 +193,78 @@ function diffBadge(diff: ChannelDiff, mode: CleanMode): string {
 	return `${d.dropped.length} unused`;
 }
 
+function computeDiffs(doc: SongDocument, tab: Tab): ChannelDiff[] {
+	const result: ChannelDiff[] = [];
+	const channels = Array.from({ length: doc.song.getChannelCount() }, (_, i) => i);
+	if (tab === "patterns") {
+		for (const ch of channels) {
+			const d = computePatternDiff(doc, ch);
+			if (d) result.push(d);
+		}
+	} else {
+		for (const ch of channels) {
+			const d = computeInstrumentDiff(doc, ch);
+			if (d) result.push(d);
+		}
+	}
+	return result;
+}
+
 export class CleanChannelPrompt extends BasePrompt {
-	private readonly _mode: CleanMode;
-	private readonly _scope: CleanScope;
-	private readonly _diffs: ChannelDiff[] = [];
+	private _tab: Tab = "patterns";
+	private _diffs: ChannelDiff[] = [];
 	private _selectedIndex: number = 0;
 
 	private readonly _channelList: HTMLDivElement = div({ class: "ccpList" });
-	private readonly _detailPane: HTMLDivElement = flexPane({ flex: "1", padding: "var(--padding-8)" });
+	private readonly _detailPane: HTMLDivElement = flexPane({
+		flex: "1",
+		padding: "var(--padding-8)",
+	});
 	private readonly _leftPane: HTMLDivElement;
-	private readonly _searchInput: HTMLInputElement = searchInput("Filter channels...");
-	private readonly _cleanOneButton: HTMLButtonElement = button({ class: "sbpCardActionBtn", style: "width: 100%;" }, "Clean selected");
+	private readonly _cleanOneButton: HTMLButtonElement = button({ class: "sbpCardActionBtn" }, "Clean selected");
 	private readonly _cleanAllButton: HTMLButtonElement = actionButton("Clean all and Commit");
+
+	private readonly _tabPatterns: HTMLButtonElement;
+	private readonly _tabInstruments: HTMLButtonElement;
+	private readonly _tabBar: HTMLDivElement;
 
 	public readonly container: HTMLDivElement;
 
-	constructor(doc: SongDocument, mode: CleanMode, scope: CleanScope) {
+	constructor(doc: SongDocument) {
 		super(doc);
-		this._mode = mode;
-		this._scope = scope;
 
-		const channels: number[] = scope === "all" ? Array.from({ length: doc.song.getChannelCount() }, (_, i) => i) : [doc.channel];
-
-		if (mode === "patterns") {
-			for (const ch of channels) {
-				const d = computePatternDiff(doc, ch);
-				if (d) this._diffs.push(d);
-			}
-		} else {
-			for (const ch of channels) {
-				const d = computeInstrumentDiff(doc, ch);
-				if (d) this._diffs.push(d);
-			}
-		}
-
+		this._diffs = computeDiffs(doc, this._tab);
 		const hasChanges = this._diffs.length > 0;
 
-		const title =
-			mode === "patterns"
-				? `Clean Patterns (LSDj), ${scope === "all" ? "All Channels" : "Current Channel"}`
-				: `Clean Instruments (LSDj), ${scope === "all" ? "All Channels" : "Current Channel"}`;
+		this._tabPatterns = tabButton("Patterns", true);
+		this._tabInstruments = tabButton("Instruments", false);
+		this._tabBar = div({ class: "tabBar toggle-group" }, this._tabPatterns, this._tabInstruments);
 
-		// Left pane: channel list (mirrors sbpLeftPane / sbpListContainer / sbpList)
-		this._searchInput.addEventListener("input", () => this._renderList());
+		this._tabPatterns.addEventListener("click", () => this._switchTab("patterns"));
+		this._tabInstruments.addEventListener("click", () => this._switchTab("instruments"));
+
 		this._cleanOneButton.addEventListener("click", this._onCleanOne);
 		this._cleanAllButton.addEventListener("click", this._onCleanAll);
 
+		this._detailPane.style.border = "2px solid var(--ui-widget-background)";
+		this._detailPane.style.borderRadius = "var(--border-radius-medium)";
+		this._detailPane.style.overflow = "hidden";
+
 		const listContainer = div({ class: "ccpListContainer" }, this._channelList);
 
-		this._leftPane = div({ class: "ccpLeftPane" }, listContainer, div({ class: "sbpBtnRow" }, this._cleanOneButton));
+		this._leftPane = div({ class: "ccpLeftPane" }, listContainer);
 
 		this.container = div(
 			{ class: "prompt cleanChannelPrompt noSelection" },
-			h2({}, title),
-			inputRow({ marginBottom: "var(--padding-4)" }, this._searchInput),
-			paneContainer(
-				{ height: "400px", gap: "0", border: "2px solid var(--ui-widget-background)", borderRadius: "var(--border-radius-medium)" },
+			h2({}, "Clean (LSDj)"),
+			this._tabBar,
+			div(
+				{ class: "ccpPaneContainer" },
 				this._leftPane,
+				div({ style: "width: 2px; background: var(--ui-widget-background); flex-shrink: 0;" }),
 				this._detailPane,
 			),
-			hasChanges ? this._cleanAllButton : div(),
-			this._cancelButton,
+			div({ class: "ccpBottomBar" }, this._cleanOneButton, div({ style: "flex: 1;" }), this._cleanAllButton, this._cancelButton),
 		);
 
 		this.buildTitlebar();
@@ -264,17 +276,30 @@ export class CleanChannelPrompt extends BasePrompt {
 		} else {
 			this._renderEmpty();
 		}
+	}
 
-		setTimeout(() => this._searchInput.focus(), 100);
+	private _switchTab(tab: Tab): void {
+		if (tab === this._tab) return;
+		this._tab = tab;
+
+		this._tabPatterns.className = tab === "patterns" ? "tabButton active" : "tabButton";
+		this._tabInstruments.className = tab === "instruments" ? "tabButton active" : "tabButton";
+
+		this._diffs = computeDiffs(this._doc, this._tab);
+		const hasChanges = this._diffs.length > 0;
+
+		if (hasChanges) {
+			this._selectedIndex = 0;
+			this._renderList();
+			this._renderDetail();
+		} else {
+			this._renderEmpty();
+			while (this._channelList.firstChild) this._channelList.removeChild(this._channelList.firstChild);
+		}
 	}
 
 	private _getFilteredIndices(): number[] {
-		if (!this._searchInput.value) return this._diffs.map((_, i) => i);
-		const q = this._searchInput.value.toLowerCase();
-		return this._diffs
-			.map((d, i) => ({ d, i }))
-			.filter(({ d }) => d.channelLabel.toLowerCase().includes(q))
-			.map(({ i }) => i);
+		return this._diffs.map((_, i) => i);
 	}
 
 	private _renderList(): void {
@@ -286,15 +311,14 @@ export class CleanChannelPrompt extends BasePrompt {
 			const diff = this._diffs[idx];
 			const isSelected = idx === this._selectedIndex;
 
-			// categoryItem pattern: border:2px transparent, committed = CTA inversion
 			const item = div(
 				{
 					class: isSelected ? "categoryItem committed" : "categoryItem",
 					"data-index": String(idx),
 				},
 				div({ class: "ccpItemLabel" }, diff.channelLabel),
-				span({ class: "ccpItemDetail" }, diffCountLabel(diff, this._mode)),
-				span({ class: "ccpItemBadge" }, diffBadge(diff, this._mode)),
+				span({ class: "ccpItemDetail" }, diffCountLabel(diff, this._tab)),
+				span({ class: "ccpItemBadge" }, diffBadge(diff, this._tab)),
 			);
 
 			item.addEventListener("click", () => {
@@ -321,7 +345,7 @@ export class CleanChannelPrompt extends BasePrompt {
 
 		const diff = this._diffs[this._selectedIndex];
 
-		if (this._mode === "patterns") {
+		if (this._tab === "patterns") {
 			this._renderPatternDetail(diff as PatternDiff);
 		} else {
 			this._renderInstrumentDetail(diff as InstrumentDiff);
@@ -329,7 +353,6 @@ export class CleanChannelPrompt extends BasePrompt {
 	}
 
 	private _renderPatternDetail(diff: PatternDiff): void {
-		// Summary header
 		this._detailPane.appendChild(
 			div(
 				{ class: "ccpDetailSummary" },
@@ -338,7 +361,6 @@ export class CleanChannelPrompt extends BasePrompt {
 			),
 		);
 
-		// Bar remap table
 		if (diff.barRemaps.length > 0) {
 			const rows: HTMLTableRowElement[] = [tr(th("Bar"), th("Before"), th({ class: "ccpArrow" }, "→"), th("After"))];
 			for (const r of diff.barRemaps) {
@@ -347,7 +369,6 @@ export class CleanChannelPrompt extends BasePrompt {
 			this._detailPane.appendChild(div({ class: "ccpTableWrap" }, p({ class: "ccpTableLabel" }, "Bar remap"), table(tbody(...rows))));
 		}
 
-		// Merged patterns table
 		if (diff.mergedPatterns.length > 0) {
 			const rows: HTMLTableRowElement[] = [tr(th("Old pattern"), th({ class: "ccpArrow" }, "→"), th("Merged into"))];
 			for (const m of diff.mergedPatterns) {
@@ -358,7 +379,6 @@ export class CleanChannelPrompt extends BasePrompt {
 	}
 
 	private _renderInstrumentDetail(diff: InstrumentDiff): void {
-		// Summary header
 		this._detailPane.appendChild(
 			div(
 				{ class: "ccpDetailSummary" },
@@ -367,7 +387,6 @@ export class CleanChannelPrompt extends BasePrompt {
 			),
 		);
 
-		// Remap table
 		const rows: HTMLTableRowElement[] = [tr(th("Old inst"), th({ class: "ccpArrow" }, "→"), th("New inst"), th("Fingerprint"))];
 		for (const r of diff.remap) {
 			rows.push(
@@ -398,7 +417,7 @@ export class CleanChannelPrompt extends BasePrompt {
 	private _onCleanOne = (): void => {
 		const ch = this._diffs[this._selectedIndex].channelIndex;
 		const group = new ChangeGroup();
-		if (this._mode === "patterns") {
+		if (this._tab === "patterns") {
 			group.append(new ChangeCleanChannelPatterns(this._doc, ch));
 		} else {
 			group.append(new ChangeCleanChannelInstruments(this._doc, ch));
@@ -406,19 +425,8 @@ export class CleanChannelPrompt extends BasePrompt {
 		this._doc.record(group);
 
 		// Recompute diffs for all channels and update list/detail
-		this._diffs.length = 0;
-		const channels: number[] = this._scope === "all" ? Array.from({ length: this._doc.song.getChannelCount() }, (_, i) => i) : [this._doc.channel];
-		if (this._mode === "patterns") {
-			for (const c of channels) {
-				const d = computePatternDiff(this._doc, c);
-				if (d) this._diffs.push(d);
-			}
-		} else {
-			for (const c of channels) {
-				const d = computeInstrumentDiff(this._doc, c);
-				if (d) this._diffs.push(d);
-			}
-		}
+		this._diffs = computeDiffs(this._doc, this._tab);
+		this._selectedIndex = Math.min(this._selectedIndex, Math.max(this._diffs.length - 1, 0));
 
 		if (this._diffs.length === 0) {
 			this._renderEmpty();
@@ -426,17 +434,16 @@ export class CleanChannelPrompt extends BasePrompt {
 			return;
 		}
 
-		this._selectedIndex = Math.min(this._selectedIndex, this._diffs.length - 1);
 		this._renderList();
 		this._renderDetail();
 	};
 
 	protected override _saveChanges(): void {
-		const channels: number[] = this._scope === "all" ? Array.from({ length: this._doc.song.getChannelCount() }, (_, i) => i) : [this._doc.channel];
+		const channels = Array.from({ length: this._doc.song.getChannelCount() }, (_, i) => i);
 
 		const group = new ChangeGroup();
 
-		if (this._mode === "patterns") {
+		if (this._tab === "patterns") {
 			for (const ch of channels) {
 				group.append(new ChangeCleanChannelPatterns(this._doc, ch));
 			}

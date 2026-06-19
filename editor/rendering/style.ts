@@ -1268,6 +1268,71 @@ html {
 	width: 480px;
 }
 
+.beepboxEditor .prompt.cleanChannelPrompt .tabBar {
+	display: flex;
+	gap: 4px;
+}
+
+.beepboxEditor .prompt.cleanChannelPrompt .tabBar.toggle-group {
+	border-radius: 16px;
+}
+
+.beepboxEditor .prompt.cleanChannelPrompt .tabBar.toggle-group > .tabButton {
+	border-radius: 8px;
+}
+
+.beepboxEditor .prompt.cleanChannelPrompt .tabBar.toggle-group > :first-child.tabButton {
+	border-top-left-radius: 16px;
+	border-bottom-left-radius: 16px;
+}
+
+.beepboxEditor .prompt.cleanChannelPrompt .tabBar.toggle-group > :last-child.tabButton {
+	border-top-right-radius: 16px;
+	border-bottom-right-radius: 16px;
+}
+
+.beepboxEditor .prompt.cleanChannelPrompt .tabButton {
+	flex: 1;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	height: 32px;
+	padding: 0 var(--padding-10);
+	background: var(--tab-inactive-bg);
+	border: 2px solid transparent;
+	border-radius: 8px;
+	color: var(--tab-inactive-fg);
+	font-size: 12px;
+	font-weight: 500;
+	line-height: 1.4;
+	cursor: pointer;
+	box-sizing: border-box;
+	outline: none;
+	box-shadow: none;
+	transition: background 80ms ease, color 80ms ease, border-color 80ms ease;
+}
+
+.beepboxEditor .prompt.cleanChannelPrompt .tabButton:hover {
+	color: var(--primary-text);
+	border-color: var(--hout, var(--primary-text));
+	outline: none;
+}
+
+.beepboxEditor .prompt.cleanChannelPrompt .tabButton:focus-visible {
+	outline: none;
+}
+
+.beepboxEditor .prompt.cleanChannelPrompt .tabButton.active {
+	color: var(--cta-fg);
+	background: var(--cta-bg);
+	font-weight: 600;
+}
+
+.beepboxEditor .prompt.cleanChannelPrompt .tabButton.active:hover {
+	border-color: var(--editor-background);
+	outline: none;
+}
+
 .beepboxEditor .prompt.keyboardShortcutsPrompt .shortcutsList {
 	max-height: 420px;
 	overflow-y: auto;
@@ -1638,6 +1703,13 @@ html {
 }
 
 /* ── Left pane — mirrors sbpLeftPane / sbpListContainer / sbpList ── */
+.beepboxEditor .prompt.cleanChannelPrompt .ccpPaneContainer {
+	display: flex;
+	flex-direction: row;
+	height: 400px;
+	gap: 0;
+}
+
 .beepboxEditor .prompt.cleanChannelPrompt .ccpLeftPane {
 	width: 220px;
 	flex-shrink: 0;
@@ -1645,6 +1717,9 @@ html {
 	flex-direction: column;
 	padding: var(--padding-8);
 	gap: 0;
+	border: 2px solid var(--ui-widget-background);
+	border-radius: var(--border-radius-medium);
+	overflow: hidden;
 }
 
 .beepboxEditor .prompt.cleanChannelPrompt .ccpListContainer {
@@ -1702,14 +1777,6 @@ html {
 }
 
 /* ── Item label — heading tier: 88x @ 100%, 12px/600 ── */
-.beepboxEditor .prompt.cleanChannelPrompt .ccpLeftPane .sbpBtnRow {
-	flex-shrink: 0;
-	display: flex;
-	flex-direction: row;
-	gap: 8px;
-	margin-top: 8px;
-}
-
 .beepboxEditor .prompt.cleanChannelPrompt .ccpItemLabel {
 	width: 100%;
 	min-width: 0;
@@ -1838,8 +1905,13 @@ html {
 	font-weight: 500;
 	color: var(--secondary-text);
 }
-;
-};
+
+.beepboxEditor .prompt.cleanChannelPrompt .ccpBottomBar {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	gap: 8px;
+	margin-top: 8px;
 }
 
 /* ── Song Recovery Prompt ── */
