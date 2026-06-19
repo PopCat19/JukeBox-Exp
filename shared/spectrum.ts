@@ -37,19 +37,14 @@ export class spectrumCanvas {
 	private readonly _fgFreqs: number[] = [];
 
 	// Fixed normalization references (floor for soft compression)
-	private static readonly FG_REF = 0.008;
-	private static readonly BG_REF = 0.005;
-	// Peak hold: gentle decay (0.92 ≈ 120ms) so peaks reach ceiling
-	// without being too aggressive like the old 30ms (0.57)
-	private _bgSmoothMax = 0.001;
+	private static readonly FG_REF = 0.04;
+	private static readonly BG_REF = 0.05;
 	// FFT scratch buffer (reallocated on buffer size change)
 	private _fftBuffer: Float32Array = new Float32Array(2048);
 	// Per-band temporal smoothing (~30ms decay at 60fps)
 	// factor^2 ≈ 0.1, so ~30ms to decay to 10%
 	private _fgSmoothMags = new Float32Array(151);
 	private _bgSmoothMags = new Float32Array(67);
-	// FG peak hold for auto-leveling (gentle decay replaces fixed FG_REF)
-	private _fgSmoothMax = 0.001;
 
 	constructor(
 		public readonly canvas: HTMLCanvasElement,
@@ -156,7 +151,6 @@ export class spectrumCanvas {
 			}
 
 			const bgMags = new Float32Array(BG_BANDS);
-			let bgInstMax = 0.0001;
 			// BG: separate 16384-sample FFT for 2.93Hz bins (fine low-freq resolution)
 			const bgFftSize = 16384;
 			const bgHalfN = bgFftSize >> 1;
@@ -183,14 +177,14 @@ export class spectrumCanvas {
 				const frac = kFloat - kLo;
 				bgMags[b] = bgMagsArr[kLo] + (bgMagsArr[kHi] - bgMagsArr[kLo]) * frac;
 			}
-			// Wide gaussian spatial blur (sigma=5 bands = 2.5 semitones) for smooth slides
+			// Light gaussian blur (sigma=2 bands = 1 semitone) to suppress tiny spikes
 			{
 				const blurred = new Float32Array(BG_BANDS);
 				for (let b = 0; b < BG_BANDS; b++) {
 					let sum = 0, wSum = 0;
 					for (let n = 0; n < BG_BANDS; n++) {
 						const d = n - b;
-						const w = Math.exp(-0.5 * d * d / 25); // sigma=5
+						const w = Math.exp(-0.5 * d * d / 4);
 						sum += bgMags[n] * w;
 						wSum += w;
 					}
@@ -198,16 +192,12 @@ export class spectrumCanvas {
 				}
 				for (let b = 0; b < BG_BANDS; b++) bgMags[b] = blurred[b];
 			}
-			// Peak hold for normalization
-			for (let b = 0; b < BG_BANDS; b++) {
-				if (bgMags[b] > bgInstMax) bgInstMax = bgMags[b];
-			}
 			// Per-band decay
 			for (let b = 0; b < BG_BANDS; b++) {
 				if (bgMags[b] > this._bgSmoothMags[b]) {
-					this._bgSmoothMags[b] = bgMags[b]; // instant attack
+					this._bgSmoothMags[b] = bgMags[b];
 				} else {
-					this._bgSmoothMags[b] = this._bgSmoothMags[b] * 0.44 + bgMags[b] * 0.56;
+					this._bgSmoothMags[b] = this._bgSmoothMags[b] * 0.31 + bgMags[b] * 0.69;
 				}
 			}
 			// Per-band decay for FG only
@@ -215,31 +205,12 @@ export class spectrumCanvas {
 				if (fgMags[b] > this._fgSmoothMags[b]) {
 					this._fgSmoothMags[b] = fgMags[b]; // instant attack
 				} else {
-					this._fgSmoothMags[b] = this._fgSmoothMags[b] * 0.4 + fgMags[b] * 0.6;
+					this._fgSmoothMags[b] = this._fgSmoothMags[b] * 0.31 + fgMags[b] * 0.69;
 				}
 			}
 
-			// BG peak hold: gentle decay so bass peaks reach ceiling
-			if (bgInstMax > this._bgSmoothMax) {
-				this._bgSmoothMax = bgInstMax;
-			} else {
-				this._bgSmoothMax *= 0.92;
-				if (this._bgSmoothMax < 0.001) this._bgSmoothMax = 0.001;
-			}
-
-			// FG peak hold: same gentle decay as BG for auto-leveling
-			let fgInstMax = 0.0001;
-			for (let b = 0; b < FG_BANDS; b++) {
-				if (fgMags[b] > fgInstMax) fgInstMax = fgMags[b];
-			}
-			if (fgInstMax > this._fgSmoothMax) {
-				this._fgSmoothMax = fgInstMax;
-			} else {
-				this._fgSmoothMax *= 0.85;
-				if (this._fgSmoothMax < 0.001) this._fgSmoothMax = 0.001;
-			}
-			const bgRef = Math.max(this._bgSmoothMax, spectrumCanvas.BG_REF);
-			const fgRef = Math.max(this._fgSmoothMax, spectrumCanvas.FG_REF);
+			const bgRef = spectrumCanvas.BG_REF;
+			const fgRef = spectrumCanvas.FG_REF;
 
 			// Draw background bass layer (R color, low opacity) — individual bars, not a smooth curve
 			this._drawSmooth(ctx, w, h, this._bgSmoothMags, bgRef, BG_BANDS, this._cachedRColor, 0.4, 1.0);
