@@ -1114,6 +1114,21 @@ html {
 	border-color: var(--hout, var(--primary-text));
 }
 
+/* Active (selected but not committed): CTA fill, like committed
+ * but without the final confirmation. Single-click in presets pane
+ * immediately shows this state. */
+.beepboxEditor .prompt.compactSearchPrompt .presetItem.active,
+.beepboxEditor .prompt.compactSearchPrompt .categoryItem.active {
+	background: var(--cta-bg);
+	color: var(--cta-fg);
+	border-color: var(--cta-bg);
+}
+
+.beepboxEditor .prompt.compactSearchPrompt .presetItem.active:hover,
+.beepboxEditor .prompt.compactSearchPrompt .categoryItem.active:hover {
+	border-color: var(--editor-background);
+}
+
 .beepboxEditor .prompt.compactSearchPrompt .categoryItem.committed.focused,
 .beepboxEditor .prompt.compactSearchPrompt .presetItem.committed.focused {
 	border-color: var(--editor-background);

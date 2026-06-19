@@ -89,6 +89,7 @@ export class InstrumentBrowserPrompt extends BasePrompt {
 		this._openTab = openTab;
 
 		this._buildCategories(isNoise);
+		this._syncSelectionToCommittedPreset();
 		this._initTagData();
 		this._readActiveTags();
 
@@ -118,8 +119,7 @@ export class InstrumentBrowserPrompt extends BasePrompt {
 			this._updateHighlight();
 		});
 		this._categoryList.addEventListener("mouseleave", () => {
-			this._hoveredPane = null;
-			this._updateHighlight();
+			// No-op: same rationale as presets pane.
 		});
 
 		this._presetList = flexPane({ padding: "8px" });
@@ -136,8 +136,8 @@ export class InstrumentBrowserPrompt extends BasePrompt {
 			this._updateHighlight();
 		});
 		this._presetList.addEventListener("mouseleave", () => {
-			this._hoveredPane = null;
-			this._updateHighlight();
+			// No-op: the pane's effective hover area includes buttons
+			// below the list. Only container mouseleave clears it.
 		});
 
 		this._infoPanel = div({ style: "display: flex; flex-direction: column; gap: 8px; font-size: 12px; color: var(--secondary-text);" });
@@ -219,25 +219,13 @@ export class InstrumentBrowserPrompt extends BasePrompt {
 		this._applyTagFilter();
 		this._renderCategories();
 
-		let initCatIndex = 0;
-		let initPresetIndex = 0;
-		for (let ci = 0; ci < this._categories.length; ci++) {
-			const pi = this._categories[ci].presets.findIndex((p) => p.value === currentPreset);
-			if (pi !== -1) {
-				initCatIndex = ci;
-				initPresetIndex = pi;
-				break;
-			}
-		}
 		if (this._categories.length > 0) {
-			this._selectedCategoryIndex = initCatIndex;
 			this._renderPresets();
-			this._selectedPresetIndex = initPresetIndex;
 			this._activePane = "presets";
 			this._updateHighlight();
 			setTimeout(() => {
-				this._scrollItemIntoView(this._categoryItems, initCatIndex, this._categoryList);
-				this._scrollItemIntoView(this._presetItems, initPresetIndex, this._presetList);
+				this._scrollItemIntoView(this._categoryItems, this._selectedCategoryIndex, this._categoryList);
+				this._scrollItemIntoView(this._presetItems, this._selectedPresetIndex, this._presetList);
 			}, 100);
 		}
 
@@ -411,7 +399,23 @@ export class InstrumentBrowserPrompt extends BasePrompt {
 			} else {
 				this._activePane = "presets";
 				this._selectedPresetIndex = index;
-				this._syncCategoryToPreset();
+				// Find which category this preset belongs to, then
+				// re-index within that category's preset list.
+				const presets = this._isSearchMode ? this._filteredPresets : (this._categories[this._selectedCategoryIndex]?.presets ?? []);
+				const preset = presets[index];
+				if (preset) {
+					let newCategory = this._selectedCategoryIndex;
+					for (let ci = 0; ci < this._categories.length; ci++) {
+						const pi = this._categories[ci].presets.findIndex((p) => p.value === preset.value);
+						if (pi !== -1) {
+							newCategory = ci;
+							this._selectedPresetIndex = pi;
+							break;
+						}
+					}
+					this._selectedCategoryIndex = newCategory;
+				}
+				this._renderPresets();
 				this._updateHighlight();
 			}
 		}
@@ -500,7 +504,6 @@ export class InstrumentBrowserPrompt extends BasePrompt {
 				this._updateHighlight();
 			});
 			item.addEventListener("mouseleave", () => {
-				this._hoveredPane = null;
 				this._hoveredPresetIndex = null;
 				this._updateHighlight();
 			});
@@ -558,8 +561,10 @@ export class InstrumentBrowserPrompt extends BasePrompt {
 			const isFocused = i === this._selectedPresetIndex && this._activePane === "presets";
 			const preset = this._isSearchMode ? this._filteredPresets[i] : this._categories[this._selectedCategoryIndex]?.presets[i];
 			const isCommitted = preset && preset.value === this._committedPreset;
-			this._presetItems[i].classList.toggle("focused", isFocused);
+			const isActive = isFocused && !isCommitted;
+			this._presetItems[i].classList.toggle("focused", isFocused && !isActive);
 			this._presetItems[i].classList.toggle("committed", isCommitted);
+			this._presetItems[i].classList.toggle("active", isActive);
 		}
 		this._updateInfoPanel();
 	}
