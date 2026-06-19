@@ -14,7 +14,7 @@ import { InstrumentType } from "../../synth/synth-config";
 import { EditorConfig, type Preset, type PresetCategory } from "../config/editor-config";
 import { addWheelSupport } from "./base/input";
 
-const { select, option, optgroup, input } = HTML;
+const { select, option, optgroup, input, button } = HTML;
 
 export function numberInput(attrs: Record<string, any>): HTMLInputElement {
 	const el = input(attrs);
@@ -38,6 +38,10 @@ export function buildHeaderedOptions(header: string, menu: HTMLSelectElement, it
 		menu.appendChild(option({ value: item }, item));
 	}
 	return menu;
+}
+
+export function buildPresetButton(id: string): HTMLButtonElement {
+	return button({ id, class: "presetButton" }, "Preset");
 }
 
 export function buildPresetOptions(isNoise: boolean, idSet: string): HTMLSelectElement {

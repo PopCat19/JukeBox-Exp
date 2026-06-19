@@ -97,8 +97,7 @@ export interface ChangeDispatcherHost {
 	unisonSelect: HTMLSelectElement;
 	chordSelect: HTMLSelectElement;
 	monophonicNoteInputBox: HTMLInputElement;
-	pitchedPresetSelect: HTMLSelectElement;
-	drumPresetSelect: HTMLSelectElement;
+
 	setChipWaveLoopEndToEndButton: HTMLButtonElement;
 	addEnvelopeButton: HTMLButtonElement;
 }
@@ -161,35 +160,6 @@ export class ChangeDispatcher {
 		}
 	};
 
-	public whenSetPitchedPreset = (): void => {
-		this._setPreset($("#pitchPresetSelect").val() + "");
-	};
-
-	public whenSetDrumPreset = (): void => {
-		this._setPreset($("#drumPresetSelect").val() + "");
-	};
-
-	private _setPreset(preset: string): void {
-		if (isNaN(<number>(<unknown>preset))) {
-			switch (preset) {
-				case "copyInstrument":
-					this._host.copyInstrument();
-					break;
-				case "pasteInstrument":
-					this._host.pasteInstrument();
-					break;
-				case "randomPreset":
-					this._host.randomPreset();
-					break;
-				case "randomGenerated":
-					this._host.randomGenerated(false);
-					break;
-			}
-			this.doc.notifier.changed();
-		} else {
-			this.doc.record(new ChangePreset(this.doc, parseInt(preset)));
-		}
-	}
 
 	public whenSetFeedbackType = (): void => {
 		this.doc.record(new ChangeFeedbackType(this.doc, this._host.feedbackTypeSelect.selectedIndex));

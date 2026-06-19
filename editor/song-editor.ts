@@ -94,7 +94,7 @@ import { SongDocument } from "./song-document";
 import {
 	buildHeaderedOptions,
 	buildOptions,
-	buildPresetOptions,
+	buildPresetButton,
 	clearButton,
 	dropdownButton,
 	InputBox,
@@ -209,8 +209,16 @@ export class SongEditor
 	private readonly _phaserStagesSlider: Slider = this._effectsPanel.phaserStagesSlider;
 	private readonly _phaserStagesRow: HTMLDivElement = this._effectsPanel.phaserStagesRow;
 	private readonly _rhythmSelect: HTMLSelectElement = this._songSettingsPanel.rhythmSelect;
-	private readonly _pitchedPresetSelect: HTMLSelectElement = buildPresetOptions(false, "pitchPresetSelect");
-	private readonly _drumPresetSelect: HTMLSelectElement = buildPresetOptions(true, "drumPresetSelect");
+	private readonly _pitchedPresetSelect: HTMLButtonElement = (() => {
+		const btn = buildPresetButton("pitchPresetSelect");
+		btn.addEventListener("click", () => this.openPresetSelector());
+		return btn;
+	})();
+	private readonly _drumPresetSelect: HTMLButtonElement = (() => {
+		const btn = buildPresetButton("drumPresetSelect");
+		btn.addEventListener("click", () => this.openPresetSelector());
+		return btn;
+	})();
 	private readonly _algorithmSelect: HTMLSelectElement = buildOptions(
 		select(),
 		Config.algorithms.map((algorithm) => algorithm.name),
@@ -2278,10 +2286,10 @@ export class SongEditor
 	public get chordSelect(): HTMLSelectElement {
 		return this._chordSelect;
 	}
-	public get pitchedPresetSelect(): HTMLSelectElement {
+	public get pitchedPresetSelect(): HTMLButtonElement {
 		return this._pitchedPresetSelect;
 	}
-	public get drumPresetSelect(): HTMLSelectElement {
+	public get drumPresetSelect(): HTMLButtonElement {
 		return this._drumPresetSelect;
 	}
 	public get setChipWaveLoopEndToEndButton(): HTMLButtonElement {
@@ -3633,18 +3641,6 @@ export class SongEditor
 		this._dispatch.switchNoteFilterType(toSimple);
 	}
 
-	public _whenSetPitchedPreset = (): void => {
-		this._dispatch.whenSetPitchedPreset();
-	};
-	public _whenSetDrumPreset = (): void => {
-		this._dispatch.whenSetDrumPreset();
-	};
-	public _refocus = (): void => {
-		const selfRef = this;
-		setTimeout(() => {
-			selfRef.mainLayer.focus();
-		}, 20);
-	};
 
 	private _zoomIn(): void {
 		this.doc.prefs.visibleOctaves = Math.max(1, this.doc.prefs.visibleOctaves - 1);

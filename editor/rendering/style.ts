@@ -2328,129 +2328,34 @@ html {
 	font-weight: ${Typography.weightSemibold};
 }
 
-/* ── Select2 trigger (closed) ── */
-.select2-container .select2-selection--single {
-	height: auto;
-}
-
-.select2-container {
-	width: -moz-available !important;
-	width: -webkit-fill-available !important;
-}
-@media (min-width: 711px) {
-	.select2 {
-	  width: calc(var(--settings-area-width) * 0.625) !important;
-	}
-}
-
-.select2-container--default .select2-selection--single {
-	border-radius: var(--border-radius-medium);
-	border: 2px solid transparent;
-	background: ${ColorConfig.uiWidgetBackground};
-	outline: none;
-}
-
-.select2-selection__rendered {
+/* ── Preset button (replaces select2 dropdown) ── */
+.beepboxEditor .presetButton {
 	margin: 0;
 	padding: 0 var(--padding-6);
 	display: block;
 	height: var(--button-size);
-	border: none;
+	border: 2px solid transparent;
 	border-radius: var(--border-radius-medium);
 	background: ${ColorConfig.uiWidgetBackground};
-	color: inherit !important;
+	color: inherit;
 	font-size: inherit;
 	cursor: pointer;
 	font-family: inherit;
 	font-weight: inherit;
 	box-sizing: border-box;
-	-webkit-appearance: none;
-	-moz-appearance: none;
-	appearance: none;
-}
-
-/* ── Select2 arrow ── */
-.select2-selection__arrow {
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	width: var(--button-size);
-	height: 100%;
-	position: absolute;
-	right: 0;
-	top: 0;
-}
-
-.select2-selection__arrow b {
-	display: block;
-	width: 0;
-	height: 0;
-	border-left: 4px solid transparent;
-	border-right: 4px solid transparent;
-	border-top: 5px solid currentColor;
-}
-
-.select2-selection__rendered--focus {
-	background: ${ColorConfig.uiWidgetFocus};
-	outline: none;
-}
-
-/* ── Select2 search ── */
-.select2-search__field {
-	background: ${ColorConfig.uiWidgetBackground};
-	color: inherit !important;
-	font-size: 12px;
-	font-family: inherit;
-	border: none;
-	padding: var(--padding-6);
-	border-radius: var(--border-radius-medium);
-	box-sizing: border-box;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	text-align: left;
 	width: 100%;
 }
-.select2-dropdown {
-    box-sizing: border-box;
-    display: inline-block;
-    margin: 0;
-    font-size: small;
-    position: fixed;
-    vertical-align: middle;
-    background-color: ${ColorConfig.uiWidgetFocus};
-    /* position: fixed lets the dropdown escape the
-     * .beepboxEditor ancestor's overflow: hidden. Select2
-     * positions via inline top/left computed from the trigger's
-     * getBoundingClientRect(), which are viewport-relative and
-     * match position: fixed exactly. */
-    z-index: 9999;
+.beepboxEditor .presetButton:hover {
+	border-color: var(--hout, var(--primary-text));
+	box-shadow: none;
 }
-
-.select2-container--default .select2-results>.select2-results__options {
-    /* PMD: clamp dropdown height to the viewport so it never
-     * extends past the bottom edge. Select2 still flips to
-     * --above when needed; this just guarantees the flipped
-     * variant also fits. */
-    max-height: min(430px, calc(100vh - 1em));
-    overflow-x: hidden;
-}
-.select2-container--default .select2-results__group {
-    cursor: default;
-    display: block;
-    padding: 1px;
-    background: ${ColorConfig.select2OptGroup};
-}
-.select2-results__option {
-    padding: var(--padding-2);
-    user-select: none;
-    -webkit-user-select: none;
-}
-.select2-container--default .select2-results__option .select2-results__option {
-    padding-left: 0.1em;
-}
-.select2-container--default .select2-results__option[aria-selected=true] {
-  background-color: transparent !important;
-}
-
-.select2-results__option--highlighted[aria-selected] {
-	color: white !important;
+.beepboxEditor .presetButton:active {
+	border-color: var(--indicator-primary, #4444ff);
+	box-shadow: none;
 }
 
 .beepboxEditor .menu select {
@@ -2460,19 +2365,11 @@ html {
 	box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--indicator-primary, #4444ff), transparent 50%);
 	outline: none;
 }
-.select2-container:hover .select2-selection--single,
-.select2-container--open .select2-selection--single {
-	border-color: var(--hout, var(--primary-text));
-}
 
 .beepboxEditor select:active {
 	box-shadow: inset 0 0 0 2px var(--indicator-primary, #4444ff);
 }
 
-/* The native <select> doesn't get a sustained focus ring — the
- * select2 wrapper handles the visible 'dropdown is focused' state
- * above. The native element can still be :focused after a click
- * (browsers vary) but the user only ever sees the select2 wrapper. */
 .beepboxEditor select:focus {
 	outline: none;
 }
@@ -3298,10 +3195,6 @@ html {
 	border-radius: 999px;
 	background: currentColor;
 	cursor: pointer;
-}
-
-li.select2-results__option[role=group] > strong:hover {
-  background-color: #516fbb;
 }
 
 /* wide screen */

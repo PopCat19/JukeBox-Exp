@@ -8,10 +8,10 @@
 
 // Copyright (c) 2012-2022 John Nesky and contributing authors, distributed under the MIT license, see accompanying the LICENSE.md file.
 
-import { ColorConfig } from "../shared/color-config";
 import { Chord, Config, Dictionary, DictionaryArray, Envelope, EnvelopeType, InstrumentType, Transition } from "../synth/synth-config";
 import { EditorConfig, isMobile } from "./config/editor-config";
 import "./rendering/style"; // Import for the side effects, there's no exports.
+import { ColorConfig } from "../shared/color-config";
 import { Channel, Instrument, Note, NotePin, Pattern, Song, Synth } from "../synth";
 import { ChangePreset } from "./changes";
 import { installDebugTools } from "./core/debug-tools";
@@ -37,67 +37,6 @@ editor.mainLayer.getElementsByClassName("instrument-settings-area")[0].className
 editor.mainLayer.getElementsByClassName("trackAndMuteContainer")[0].className += " load";
 editor.mainLayer.getElementsByClassName("barScrollBar")[0].className += " load";
 
-// Give select2 class to these
-$("#pitchPresetSelect").select2({ dropdownAutoWidth: true });
-$("#drumPresetSelect").select2({ dropdownAutoWidth: true });
-// $('#envelopeSelect').select2({ dropdownAutoWidth: true });
-
-// Onclick event to expand/collapse optgroups
-$("body").on("click", ".select2-container--open .select2-results__group", function () {
-	$(this).siblings().toggle();
-});
-
-// Open event to collapse all optgroups by default
-$("#pitchPresetSelect").on("select2:open", () => {
-	editor.filterPresetSelectByTags();
-	$(".select2-dropdown--below").css("opacity", 0);
-	$(".select2-dropdown").css("opacity", 1);
-	$("#pitchPresetSelect");
-	setTimeout(() => {
-		const groups = $(".select2-container--open .select2-results__group");
-		const options = $(".select2-container--open .select2-results__option");
-
-		$.each(groups, (_index, v) => {
-			$(v).siblings().hide();
-			$(v)[0].setAttribute("style", "color: " + ColorConfig.getChannelColor(editor.doc.song, editor.doc.channel).primaryNote + ";");
-		});
-		$.each(options, (_index, v) => {
-			$(v)[0].setAttribute("style", "color: " + ColorConfig.getChannelColor(editor.doc.song, editor.doc.channel).primaryNote + ";");
-		});
-
-		$(".select2-dropdown--below").css("opacity", 1);
-	}, 0);
-});
-
-// Open event to collapse all optgroups by default
-$("#drumPresetSelect").on("select2:open", () => {
-	editor.filterPresetSelectByTags();
-	$(".select2-dropdown--below").css("opacity", 0);
-	$(".select2-dropdown").css("opacity", 1);
-	$("#drumPresetSelect");
-	setTimeout(() => {
-		const groups = $(".select2-container--open .select2-results__group");
-		const options = $(".select2-container--open .select2-results__option");
-
-		$.each(groups, (_index, v) => {
-			$(v).siblings().hide();
-			$(v)[0].setAttribute("style", "color: " + ColorConfig.getChannelColor(editor.doc.song, editor.doc.channel).primaryNote + ";");
-		});
-		$.each(options, (_index, v) => {
-			$(v)[0].setAttribute("style", "color: " + ColorConfig.getChannelColor(editor.doc.song, editor.doc.channel).primaryNote + ";");
-		});
-
-		$(".select2-dropdown--below").css("opacity", 1);
-	}, 0);
-});
-
-// Select2 events
-// The latter is to ensure select2 doesn't keep focus after the select2 is closed without making a selection.
-$("#pitchPresetSelect").on("change", editor._whenSetPitchedPreset);
-$("#pitchPresetSelect").on("select2:close", editor._refocus);
-
-$("#drumPresetSelect").on("change", editor._whenSetDrumPreset);
-$("#drumPresetSelect").on("select2:close", editor._refocus);
 
 editor.mainLayer.focus();
 

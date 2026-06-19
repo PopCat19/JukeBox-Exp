@@ -40,7 +40,7 @@ import {
 import { EditorConfig } from "../config/editor-config";
 import type { InstrumentValueRefs } from "../renderers/render-instrument-values";
 import type { SongDocument } from "../song-document";
-import { addWheelSupport, dropdownButton, rangeSlider, type Slider, toggleButton } from "../ui";
+import { addWheelSupport, buildPresetButton, dropdownButton, rangeSlider, type Slider, toggleButton } from "../ui";
 import { FilterEditor } from "./filter-editor";
 
 const { button, div, input, option, select, span } = HTML;
@@ -56,22 +56,6 @@ function numberInput(attrs: Record<string, any>): HTMLInputElement {
 function buildOptions(menu: HTMLSelectElement, items: ReadonlyArray<string | number>): HTMLSelectElement {
 	for (let index: number = 0; index < items.length; index++) {
 		menu.appendChild(option({ value: index }, items[index]));
-	}
-	return menu;
-}
-
-function buildPresetOptions(_isDrum: boolean, id: string): HTMLSelectElement {
-	const menu = select({ id });
-	const presets = EditorConfig.presetCategories;
-	let value = 0;
-	for (let categoryIndex = 0; categoryIndex < presets.length; categoryIndex++) {
-		const category = presets[categoryIndex];
-		const categoryOption = option({ disabled: true, style: "font-weight: bold;" }, category.name);
-		if (categoryIndex === 0) categoryOption.setAttribute("selected", "");
-		menu.appendChild(categoryOption);
-		for (const preset of category.presets) {
-			menu.appendChild(option({ value: value++ }, "    " + preset));
-		}
 	}
 	return menu;
 }
@@ -95,8 +79,8 @@ export class InstrumentSettingsPanel {
 	public readonly panDelayRow: HTMLElement;
 
 	// Type Selection
-	public readonly pitchedPresetSelect: HTMLSelectElement;
-	public readonly drumPresetSelect: HTMLSelectElement;
+	public readonly pitchedPresetSelect: HTMLButtonElement;
+	public readonly drumPresetSelect: HTMLButtonElement;
 	public readonly instrumentTypeSelectRow: HTMLDivElement;
 
 	// Effects
@@ -295,8 +279,8 @@ export class InstrumentSettingsPanel {
 		this.panDropdownGroup = div({ class: "editor-controls", style: "display: none;" }, this.panDelayRow);
 
 		// Type Selection
-		this.pitchedPresetSelect = buildPresetOptions(false, "pitchPresetSelect");
-		this.drumPresetSelect = buildPresetOptions(true, "drumPresetSelect");
+		this.pitchedPresetSelect = buildPresetButton("pitchPresetSelect");
+		this.drumPresetSelect = buildPresetButton("drumPresetSelect");
 
 		this.instrumentTypeSelectRow = div(
 			{ class: "selectRow", id: "typeSelectRow" },
@@ -836,10 +820,12 @@ export class InstrumentSettingsPanel {
 	}
 
 	public updatePreset(index: number, isDrum: boolean): void {
+		const preset = EditorConfig.valueToPreset(index);
+		const name = preset?.name ?? "Preset";
 		if (isDrum) {
-			this.drumPresetSelect.value = index.toString();
+			this.drumPresetSelect.textContent = name;
 		} else {
-			this.pitchedPresetSelect.value = index.toString();
+			this.pitchedPresetSelect.textContent = name;
 		}
 	}
 

@@ -11,6 +11,8 @@
 
 import type { Instrument } from "../../synth";
 import type { Preferences } from "../core/preferences";
+import { EditorConfig } from "../config/editor-config";
+import { getInstrumentTypeName } from "../../synth/config/instrument-registry";
 import type { SongDocument } from "../song-document";
 
 function setSelectedValue(menu: HTMLSelectElement, value: number, isSelect2: boolean = false): void {
@@ -37,8 +39,8 @@ export interface PresetSetupRefs {
 	instrumentsButtonRow: HTMLElement;
 	instrumentSettingsTextRow: HTMLElement;
 	modulatorGroup: HTMLElement;
-	pitchedPresetSelect: HTMLSelectElement;
-	drumPresetSelect: HTMLSelectElement;
+	pitchedPresetSelect: HTMLButtonElement | HTMLSelectElement;
+	drumPresetSelect: HTMLButtonElement | HTMLSelectElement;
 }
 
 export function renderPresetSetup(
@@ -78,14 +80,20 @@ export function renderPresetSetup(
 	if (doc.song.getChannelIsNoise(doc.channel)) {
 		refs.pitchedPresetSelect.style.display = "none";
 		refs.drumPresetSelect.style.display = "";
-		$("#pitchPresetSelect").parent().hide();
-		$("#drumPresetSelect").parent().show();
-		setSelectedValue(refs.drumPresetSelect, instrument.preset, true);
+		if (refs.drumPresetSelect instanceof HTMLButtonElement) {
+			const preset = EditorConfig.valueToPreset(instrument.preset);
+			refs.drumPresetSelect.textContent = preset?.name ?? getInstrumentTypeName(instrument.type);
+		} else {
+			setSelectedValue(refs.drumPresetSelect, instrument.preset, true);
+		}
 	} else {
 		refs.pitchedPresetSelect.style.display = "";
 		refs.drumPresetSelect.style.display = "none";
-		$("#pitchPresetSelect").parent().show();
-		$("#drumPresetSelect").parent().hide();
-		setSelectedValue(refs.pitchedPresetSelect, instrument.preset, true);
+		if (refs.pitchedPresetSelect instanceof HTMLButtonElement) {
+			const preset = EditorConfig.valueToPreset(instrument.preset);
+			refs.pitchedPresetSelect.textContent = preset?.name ?? getInstrumentTypeName(instrument.type);
+		} else {
+			setSelectedValue(refs.pitchedPresetSelect, instrument.preset, true);
+		}
 	}
 }

@@ -15,8 +15,8 @@ const { div } = HTML;
 
 export interface TagAutocompleteHost {
 	readonly presetTagsInputBox: HTMLInputElement;
-	readonly pitchedPresetSelect: HTMLSelectElement;
-	readonly drumPresetSelect: HTMLSelectElement;
+	readonly pitchedPresetSelect: HTMLButtonElement | HTMLSelectElement;
+	readonly drumPresetSelect: HTMLButtonElement | HTMLSelectElement;
 }
 
 export class TagAutocomplete {
@@ -126,6 +126,9 @@ export class TagAutocomplete {
 	}
 
 	public filterPresetSelectByTags(): void {
+		const pitchedSelect = this._host.pitchedPresetSelect;
+		const drumSelect = this._host.drumPresetSelect;
+		if (!(pitchedSelect instanceof HTMLSelectElement) || !(drumSelect instanceof HTMLSelectElement)) return;
 		const input = document.getElementById("presetTagsInputBox") as HTMLInputElement | null;
 		const rawTags: string[] = input
 			? input.value
@@ -134,8 +137,6 @@ export class TagAutocomplete {
 					.filter((t) => t !== "")
 			: [];
 
-		const pitchedSelect = this._host.pitchedPresetSelect;
-		const drumSelect = this._host.drumPresetSelect;
 		const currentPitch = pitchedSelect.value;
 		const currentDrum = drumSelect.value;
 

@@ -11,7 +11,7 @@ export type { ButtonOptions, ContainerOptions, InputOptions, LabelOptions } from
 // Base factories
 export { addWheelSupport, createButton, createContainer, createDiv, createInput, createLabel, createSpan } from "./base";
 // Build helpers
-export { buildHeaderedOptions, buildOptions, buildPresetOptions, numberInput } from "./build-helpers";
+export { buildHeaderedOptions, buildOptions, buildPresetButton, buildPresetOptions, numberInput } from "./build-helpers";
 export type { ActionButtonOptions, DeleteButtonOptions, DropdownButtonOptions, IconButtonOptions, SelectorButtonOptions } from "./buttons";
 // Buttons
 export { actionButton, clearButton, deleteButton, dropdownButton, iconButton, selectorButton, toggleButton } from "./buttons";

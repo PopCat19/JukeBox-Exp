@@ -121,8 +121,6 @@ export function renderModSettings(doc: SongDocument, colors: ChannelColors, pref
 
 	refs.pitchedPresetSelect.style.display = "none";
 	refs.drumPresetSelect.style.display = "none";
-	$("#pitchPresetSelect").parent().hide();
-	$("#drumPresetSelect").parent().hide();
 	if (prefs.instrumentButtonsAtTop) {
 		refs.modulatorGroup.insertBefore(refs.instrumentExportGroup, refs.modulatorGroup.firstChild);
 		refs.modulatorGroup.insertBefore(refs.instrumentCopyGroup, refs.modulatorGroup.firstChild);
