@@ -34,8 +34,8 @@ export class spectrumCanvas {
 	private readonly _fgFreqs: number[] = [];
 
 	// Fixed normalization references (no dynamic peak hold)
-	private static readonly FG_REF = 0.005;
-	private static readonly BG_REF = 1.0;
+	private static readonly FG_REF = 0.003;
+	private static readonly BG_REF = 0.5;
 	// Per-band temporal smoothing (~30ms decay at 60fps)
 	// factor^2 ≈ 0.1, so ~30ms to decay to 10%
 	private _fgSmoothMags = new Float32Array(32);
@@ -141,9 +141,7 @@ export class spectrumCanvas {
 		const bandWidth = w / (bandCount - 1);
 		const ys = new Array<number>(bandCount);
 		for (let b = 0; b < bandCount; b++) {
-			const m2 = mags[b] * mags[b];
-			const r2 = maxMag * maxMag;
-			ys[b] = h - (m2 / (m2 + r2)) * h * heightScale;
+			ys[b] = h - (mags[b] / (mags[b] + maxMag)) * h * heightScale;
 		}
 
 		ctx.globalAlpha = opacity;
