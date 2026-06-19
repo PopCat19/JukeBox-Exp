@@ -167,7 +167,7 @@ export class spectrumCanvas {
 		const bandWidth = w / (bandCount - 1);
 		const ys = new Array<number>(bandCount);
 		for (let b = 0; b < bandCount; b++) {
-			ys[b] = h - (mags[b] / (mags[b] + maxMag)) * h * heightScale;
+			ys[b] = h - Math.min(1, 2 * mags[b] / (mags[b] + maxMag)) * h * heightScale;
 		}
 
 		ctx.globalAlpha = opacity;
