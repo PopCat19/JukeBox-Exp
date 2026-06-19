@@ -12,11 +12,11 @@
 import { ColorConfig } from "./color-config";
 import { events } from "./events";
 
-const FG_BANDS = 32;
+const FG_BANDS = 16;
 const FG_MIN_FREQ = 201;
 const FG_MAX_FREQ = 12000;
 
-const BG_BANDS = 12;
+const BG_BANDS = 8;
 const BG_MIN_FREQ = 20;
 const BG_MAX_FREQ = 200;
 
@@ -36,8 +36,8 @@ export class spectrumCanvas {
 	private _bgSmoothMax = 0.001;
 	// Per-band temporal smoothing (~30ms decay at 60fps)
 	// factor^2 ≈ 0.1, so ~30ms to decay to 10%
-	private _fgSmoothMags = new Float32Array(32);
-	private _bgSmoothMags = new Float32Array(12);
+	private _fgSmoothMags = new Float32Array(16);
+	private _bgSmoothMags = new Float32Array(8);
 
 	constructor(
 		public readonly canvas: HTMLCanvasElement,
@@ -95,7 +95,7 @@ export class spectrumCanvas {
 					re += mono[n] * coefs[n].cos;
 					im -= mono[n] * coefs[n].sin;
 				}
-				bgMags[b] = Math.sqrt(Math.sqrt(re * re + im * im) / sampleCount);
+				bgMags[b] = (re * re + im * im) / sampleCount; // squared: exaggerates peaks
 				if (bgMags[b] > bgInstMax) bgInstMax = bgMags[b];
 			}
 
@@ -126,22 +126,22 @@ export class spectrumCanvas {
 			if (bgInstMax > this._bgSmoothMax) {
 				this._bgSmoothMax = bgInstMax;
 			} else {
-				this._bgSmoothMax *= 0.96;
+				this._bgSmoothMax *= 0.88; // faster decay: peaks stand out more
 				if (this._bgSmoothMax < 0.001) this._bgSmoothMax = 0.001;
 			}
 
 			// Draw background bass layer (R color, low opacity, thicker)
-			this._drawCurve(ctx, w, h, this._bgSmoothMags, this._bgSmoothMax, BG_BANDS, this._cachedRColor, 0.25, 0.35);
+			this._drawSmooth(ctx, w, h, this._bgSmoothMags, this._bgSmoothMax, BG_BANDS, this._cachedRColor, 0.4, 0.6);
 
 			// Draw foreground main layer (L color, full opacity)
-			this._drawCurve(ctx, w, h, this._fgSmoothMags, this._fgSmoothMax, FG_BANDS, this._cachedLColor, 1.0, 1.0);
+			this._drawSmooth(ctx, w, h, this._fgSmoothMags, this._fgSmoothMax, FG_BANDS, this._cachedLColor, 1.0, 1.0);
 		};
 
 		events.listen("spectrumUpdate", this._EventUpdateCanvas);
 		events.listen("themeChange", () => this._updateCachedColors());
 	}
 
-	private _drawCurve(
+	private _drawSmooth(
 		ctx: CanvasRenderingContext2D,
 		w: number, h: number,
 		mags: Float32Array, maxMag: number,
@@ -158,10 +158,7 @@ export class spectrumCanvas {
 
 		ctx.globalAlpha = opacity;
 
-		// Fill below curve using Catmull-Rom spline through data points.
-		// Passes through every point with smooth curves (no jagged lines,
-		// no over-smoothed hill). Uses bezierCurveTo with Catmull-Rom
-		// control points: cp = P1 +/- (P2-P0)/6.
+		// Catmull-Rom spline: smooth curves through every point
 		ctx.beginPath();
 		ctx.moveTo(0, h);
 		ctx.lineTo(0, ys[0]);
@@ -172,7 +169,6 @@ export class spectrumCanvas {
 			const p3 = ys[Math.min(bandCount - 1, b + 2)];
 			const x1 = b * bandWidth;
 			const x2 = (b + 1) * bandWidth;
-			// Catmull-Rom to bezier control points
 			const cp1y = p1 + (p2 - p0) / 6;
 			const cp2y = p2 - (p3 - p1) / 6;
 			ctx.bezierCurveTo(x1 + (x2 - x1) / 3, cp1y, x2 - (x2 - x1) / 3, cp2y, x2, p2);
@@ -181,7 +177,6 @@ export class spectrumCanvas {
 		ctx.closePath();
 		ctx.fillStyle = color;
 		ctx.fill();
-
 		ctx.globalAlpha = 1.0;
 	}
 
