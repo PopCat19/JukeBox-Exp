@@ -92,6 +92,9 @@ export class PromptManager {
 	// sync() calls hit the existing-found path on every render and
 	// should not flash; user-targeted opens should.
 	private _userInitiatedOpen: boolean = false;
+	// Bounding rect of the last clicked element before a prompt opens.
+	// Used by _spawnNear to place the prompt next to its caller.
+	private _clickedRect: DOMRect | null = null;
 	private _focusedPrompt: Prompt | null = null;
 	private readonly _promptPositions: Map<string, { x: number; y: number }> = new Map();
 	private _draggingPrompt: boolean = false;
@@ -102,6 +105,13 @@ export class PromptManager {
 		private readonly _host: PromptHost,
 		private readonly _refs: PromptEditorRefs,
 	) {
+		// Capture the last clicked element's bounds for caller-relative
+		// prompt spawning. Must use capture phase so the target is still
+		// valid before prompt open handlers fire.
+		document.addEventListener("click", (e: MouseEvent) => {
+			this._clickedRect = (e.target as HTMLElement).getBoundingClientRect();
+		}, true);
+
 		this._focusController = new PromptFocusController({
 			isDraggingPrompt: () => this._draggingPrompt,
 			getFocusedPrompt: () => this._focusedPrompt,
@@ -457,6 +467,10 @@ export class PromptManager {
 		const savedPos = this._promptPositions.get(promptName);
 		if (savedPos) {
 			requestAnimationFrame(() => this._applyPosition(newPrompt!, promptName, savedPos.x, savedPos.y));
+		} else if (this._clickedRect) {
+			const rect = this._clickedRect;
+			this._clickedRect = null;
+			requestAnimationFrame(() => this._spawnNear(newPrompt!, promptName, rect));
 		} else {
 			requestAnimationFrame(() => this._centerPrompt(newPrompt!, promptName));
 		}
@@ -485,6 +499,52 @@ export class PromptManager {
 		prompt.container.style.left = x + "px";
 		prompt.container.style.top = y + "px";
 		this._promptPositions.set(name, { x, y });
+	}
+
+	private _spawnNear(prompt: Prompt, name: string, from: DOMRect): void {
+		if (!this._prompts.includes(prompt)) return;
+		const promptBounds = prompt.container.getBoundingClientRect();
+		const pw = promptBounds.width;
+		const ph = promptBounds.height;
+		const vw = window.innerWidth;
+		const vh = window.innerHeight;
+		const gap = 8;
+
+		// Try positions in order: below (left-aligned), below (centered),
+		// above (centered), then fallback to non-obstructing center.
+		const candidates = [
+			// below, aligned to caller left
+			{ x: from.left, y: from.bottom + gap },
+			// below, centered on caller
+			{ x: from.left + (from.width - pw) / 2, y: from.bottom + gap },
+			// above, centered on caller
+			{ x: from.left + (from.width - pw) / 2, y: from.top - ph - gap },
+			// fallback: center of promptContainer with top priority
+			{ x: (vw - pw) / 2, y: Math.max(0, (vh - ph) / 4) },
+		];
+
+		let best: { x: number; y: number } | null = null;
+		for (const c of candidates) {
+			const cx = Math.max(0, Math.min(c.x, vw - pw));
+			const cy = Math.max(0, Math.min(c.y, vh - ph));
+			// Check the prompt doesn't re-cover the caller.
+			const reOverlaps =
+				cx < from.right + gap &&
+				cx + pw > from.left - gap &&
+				cy < from.bottom + gap &&
+				cy + ph > from.top - gap;
+			if (!reOverlaps) {
+				best = { x: cx, y: cy };
+				break;
+			}
+			// First candidate always sets a baseline.
+			best ??= { x: cx, y: cy };
+		}
+
+		if (!best) best = { x: (vw - pw) / 2, y: (vh - ph) / 4 };
+		prompt.container.style.left = best.x + "px";
+		prompt.container.style.top = best.y + "px";
+		this._promptPositions.set(name, best);
 	}
 
 	private _centerPrompt(prompt: Prompt, name: string): void {
