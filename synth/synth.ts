@@ -566,6 +566,7 @@ export class Synth {
 	private _workletModuleUrl: string | null = null;
 	private _currentBufferSize: number = 0;
 	private _workletPrimed: boolean = false;
+	private _activateAudioPromise: Promise<void> | null = null;
 	private _logSynthCallCount: number = 0;
 	private _logNeedDataCount: number = 0;
 
@@ -871,67 +872,84 @@ export class Synth {
 		this.chorusDelayBufferMask = this.chorusDelayBufferSize - 1;
 	}
 
-	private async activateAudio(): Promise<void> {
+	private activateAudio(): Promise<void> {
+		// Guard against concurrent calls: if activation is in progress,
+		// return the existing promise instead of starting a second one.
+		if (this._activateAudioPromise != null) return this._activateAudioPromise;
+		this._activateAudioPromise = this._doActivateAudio();
+		return this._activateAudioPromise;
+	}
+
+	private async _doActivateAudio(): Promise<void> {
 		const bufferSize: number = this.anticipatePoorPerformance ? (this.preferLowerLatency ? 2048 : 4096) : this.preferLowerLatency ? 512 : 2048;
+		if (this.audioCtx != null && this._workletNode != null && this._currentBufferSize === bufferSize) {
+			this._activateAudioPromise = null;
+			return;
+		}
 		console.log("[Synth] activateAudio called, bufferSize:", bufferSize, "currentBufferSize:", this._currentBufferSize, "audioCtx:", !!this.audioCtx, "workletNode:", !!this._workletNode);
-		if (this.audioCtx == null || this._workletNode == null || this._currentBufferSize !== bufferSize) {
-			if (this._workletNode != null) this.deactivateAudio();
-			const latencyHint: string = this.anticipatePoorPerformance
-				? this.preferLowerLatency
-					? "balanced"
-					: "playback"
-				: this.preferLowerLatency
-					? "interactive"
-					: "balanced";
-			console.log("[Synth] Creating AudioContext, latencyHint:", latencyHint);
-			this.audioCtx = this.audioCtx || new (window.AudioContext || window.webkitAudioContext)({ latencyHint: latencyHint });
-			const ctx = this.audioCtx!;
-			this.samplesPerSecond = ctx.sampleRate;
-			console.log("[Synth] AudioContext sampleRate:", this.samplesPerSecond);
+		try {
+		if (this._workletNode != null) this.deactivateAudio();
+		const latencyHint: string = this.anticipatePoorPerformance
+			? this.preferLowerLatency
+				? "balanced"
+				: "playback"
+			: this.preferLowerLatency
+				? "interactive"
+				: "balanced";
+		console.log("[Synth] Creating AudioContext, latencyHint:", latencyHint);
+		this.audioCtx = this.audioCtx || new (window.AudioContext || window.webkitAudioContext)({ latencyHint: latencyHint });
+		const ctx = this.audioCtx!;
+		this.samplesPerSecond = ctx.sampleRate;
+		console.log("[Synth] AudioContext sampleRate:", this.samplesPerSecond);
 
-			// Load AudioWorklet module via blob URL
-			if (this._workletModuleUrl == null) {
-				const blob = new Blob([AUDIO_WORKLET_PROCESSOR_CODE], { type: "application/javascript" });
-				this._workletModuleUrl = URL.createObjectURL(blob);
-				console.log("[Synth] Created worklet module blob URL:", this._workletModuleUrl);
+		// Load AudioWorklet module via blob URL
+		if (this._workletModuleUrl == null) {
+			const blob = new Blob([AUDIO_WORKLET_PROCESSOR_CODE], { type: "application/javascript" });
+			this._workletModuleUrl = URL.createObjectURL(blob);
+			console.log("[Synth] Created worklet module blob URL:", this._workletModuleUrl);
+		}
+		console.log("[Synth] Loading AudioWorklet module...");
+		await ctx.audioWorklet.addModule(this._workletModuleUrl);
+		console.log("[Synth] AudioWorklet module loaded");
+
+		// Create AudioWorkletNode
+		this._workletNode = new AudioWorkletNode(ctx, "beepbox-audio-worklet-processor", {
+			outputChannelCount: [2],
+			processorOptions: { bufferSize: bufferSize },
+		});
+		console.log("[Synth] AudioWorkletNode created");
+
+		// Set up message port handler
+		this._workletNode.port.onmessage = (e: MessageEvent) => {
+			const msg = e.data;
+			if (msg && msg.type === "need-data") {
+				this._onWorkletNeedData();
 			}
-			console.log("[Synth] Loading AudioWorklet module...");
-			await ctx.audioWorklet.addModule(this._workletModuleUrl);
-			console.log("[Synth] AudioWorklet module loaded");
+		};
 
-			// Create AudioWorkletNode
-			this._workletNode = new AudioWorkletNode(ctx, "beepbox-audio-worklet-processor", {
-				outputChannelCount: [2],
-				processorOptions: { bufferSize: bufferSize },
-			});
-			console.log("[Synth] AudioWorkletNode created");
+		this._workletNode.connect(ctx.destination);
+		console.log("[Synth] WorkletNode connected to destination");
 
-			// Set up message port handler
-			this._workletNode.port.onmessage = (e: MessageEvent) => {
-				const msg = e.data;
-				if (msg && msg.type === "need-data") {
-					this._onWorkletNeedData();
-				}
-			};
+		this._currentBufferSize = bufferSize;
+		this._workletPrimed = false;
+		this._logSynthCallCount = 0;
+		this._logNeedDataCount = 0;
 
-			this._workletNode.connect(ctx.destination);
-			console.log("[Synth] WorkletNode connected to destination");
-
-			this._currentBufferSize = bufferSize;
-			this._workletPrimed = false;
-			this._logSynthCallCount = 0;
-			this._logNeedDataCount = 0;
-
-			this.computeDelayBufferSizes();
-			console.log("[Synth] activateAudio complete, bufferSize:", bufferSize, "sampleRate:", this.samplesPerSecond);
+		this.computeDelayBufferSizes();
+		console.log("[Synth] activateAudio complete, bufferSize:", bufferSize, "sampleRate:", this.samplesPerSecond);
+		} finally {
+			this._activateAudioPromise = null;
 		}
 	}
 
 	private async resumeAudioContext(): Promise<void> {
 		if (this.audioCtx && this.audioCtx.state === "suspended") {
-			console.log("[Synth] Resuming suspended AudioContext...");
+			try {
 			await this.audioCtx.resume();
-			console.log("[Synth] AudioContext resumed, state:", this.audioCtx.state);
+				console.log("[Synth] AudioContext resumed, state:", this.audioCtx.state);
+			} catch (e) {
+				// AudioContext can't resume without user gesture, ignore
+			}
 		}
 	}
 
@@ -1001,11 +1019,16 @@ export class Synth {
 	}
 
 	public async maintainLiveInput(): Promise<void> {
-		console.log("[Synth] maintainLiveInput called");
+		// If audio is already active, just extend the timeout.
+		// Avoids spamming activateAudio/resumeAudioContext on every mousemove.
+		if (this.audioCtx != null && this._workletNode != null) {
+			this.liveInputEndTime = performance.now() + 10000.0;
+			return;
+		}
+		console.log("[Synth] maintainLiveInput: activating audio");
 		await this.activateAudio();
 		await this.resumeAudioContext();
 		this.liveInputEndTime = performance.now() + 10000.0;
-		console.log("[Synth] maintainLiveInput done, liveInputEndTime:", this.liveInputEndTime);
 	}
 
 	public async play(): Promise<void> {
