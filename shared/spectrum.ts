@@ -86,10 +86,8 @@ export class spectrumCanvas {
 					re += mono[n] * coefs[n].cos;
 					im -= mono[n] * coefs[n].sin;
 				}
-				// Linear magnitude with mid-boost gain (prioritize 200-2000Hz melody range)
-				const fgRaw = Math.sqrt(re * re + im * im) / sampleCount;
-				const fgGain = 1 + 2.0 * Math.exp(-Math.pow(Math.log(this._fgFreqs[b] / 800), 2) / 0.5);
-				fgMags[b] = fgRaw * fgGain;
+				// Linear magnitude (natural, no gain curve)
+				fgMags[b] = Math.sqrt(re * re + im * im) / sampleCount;
 			}
 
 			// Compute background (bass) spectrum
