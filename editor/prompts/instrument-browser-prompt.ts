@@ -417,7 +417,13 @@ export class InstrumentBrowserPrompt extends BasePrompt {
 			} else {
 				this._activePane = "presets";
 				this._selectedPresetIndex = index;
-				this._syncCategoryToPreset();
+				// Sync category only in non-search mode. In search
+				// mode, indices are for _filteredPresets, not a
+				// category's preset list — re-indexing would break
+				// the .active class render below.
+				if (!this._isSearchMode) {
+					this._syncCategoryToPreset();
+				}
 				this._renderPresets();
 				this._updateHighlight();
 			}

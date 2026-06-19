@@ -14,8 +14,8 @@ import { AddSamplesPrompt } from "../prompts/add-samples-prompt";
 import { BeatsPerBarPrompt } from "../prompts/beats-per-bar-prompt";
 import { ChannelSettingsPrompt } from "../prompts/channel-settings-prompt";
 import { ChannelVolumeVisualizerPrompt } from "../prompts/channel-volume-visualizer-prompt";
-import { CustomChipPrompt } from "../prompts/custom-chip-prompt";
 import { CleanChannelPrompt } from "../prompts/clean-channel-prompt";
+import { CustomChipPrompt } from "../prompts/custom-chip-prompt";
 import { CustomFilterPrompt } from "../prompts/custom-filter-prompt";
 import { CustomScalePrompt } from "../prompts/custom-scale-prompt";
 import { CustomThemePrompt } from "../prompts/custom-theme-prompt";
@@ -112,14 +112,18 @@ export class PromptManager {
 		// Capture the last clicked element's bounds for caller-relative
 		// prompt spawning. Must use capture phase so the target is still
 		// valid before prompt open handlers fire.
-		document.addEventListener("click", (e: MouseEvent) => {
-			this._mousePos = { x: e.clientX, y: e.clientY };
-			this._clickInfo = {
-				clientX: e.clientX,
-				clientY: e.clientY,
-				elRect: (e.target as HTMLElement).getBoundingClientRect(),
-			};
-		}, true);
+		document.addEventListener(
+			"click",
+			(e: MouseEvent) => {
+				this._mousePos = { x: e.clientX, y: e.clientY };
+				this._clickInfo = {
+					clientX: e.clientX,
+					clientY: e.clientY,
+					elRect: (e.target as HTMLElement).getBoundingClientRect(),
+				};
+			},
+			true,
+		);
 		document.addEventListener("mousemove", (e: MouseEvent) => {
 			this._mousePos = { x: e.clientX, y: e.clientY };
 		});
@@ -152,11 +156,15 @@ export class PromptManager {
 		// from last mouse position. Only use cursor when mouse has
 		// actually moved — {0,0} default would spawn at top-left.
 		const hasMouse = this._mousePos.x !== 0 || this._mousePos.y !== 0;
-		this._pendingClickInfo = this._clickInfo ?? (hasMouse ? {
-			clientX: this._mousePos.x,
-			clientY: this._mousePos.y,
-			elRect: new DOMRect(this._mousePos.x - 8, this._mousePos.y - 8, 16, 16),
-		} : null);
+		this._pendingClickInfo =
+			this._clickInfo ??
+			(hasMouse
+				? {
+						clientX: this._mousePos.x,
+						clientY: this._mousePos.y,
+						elRect: new DOMRect(this._mousePos.x - 8, this._mousePos.y - 8, 16, 16),
+					}
+				: null);
 		this._clickInfo = null;
 
 		this._userInitiatedOpen = true;
@@ -504,9 +512,13 @@ export class PromptManager {
 			// Start enter animation; remove initial opacity hide.
 			newPrompt!.container.classList.add("entering");
 			newPrompt!.container.style.removeProperty("opacity");
-			newPrompt!.container.addEventListener("animationend", () => {
-				newPrompt!.container.classList.remove("entering");
-			}, { once: true });
+			newPrompt!.container.addEventListener(
+				"animationend",
+				() => {
+					newPrompt!.container.classList.remove("entering");
+				},
+				{ once: true },
+			);
 		};
 		requestAnimationFrame(afterPos);
 
