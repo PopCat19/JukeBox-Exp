@@ -13,12 +13,12 @@ import { ColorConfig } from "./color-config";
 import { events } from "./events";
 
 const FG_BANDS = 32;
-const FG_MIN_FREQ = 20;
+const FG_MIN_FREQ = 160;
 const FG_MAX_FREQ = 4000;
 
 const BG_BANDS = 24;
-const BG_MIN_FREQ = 1;
-const BG_MAX_FREQ = 200;
+const BG_MIN_FREQ = 20;
+const BG_MAX_FREQ = 160;
 
 export class spectrumCanvas {
 	public _EventUpdateCanvas: (left: Float32Array, right?: Float32Array) => void;
@@ -34,11 +34,10 @@ export class spectrumCanvas {
 	private readonly _fgFreqs: number[] = [];
 
 	// Fixed normalization references (floor for soft compression)
-	private static readonly FG_REF = 0.003;
+	private static readonly FG_REF = 0.02;
 	private static readonly BG_REF = 0.5;
 	// Peak hold: gentle decay (0.92 ≈ 120ms) so peaks reach ceiling
 	// without being too aggressive like the old 30ms (0.57)
-	private _fgSmoothMax = 0.001;
 	private _bgSmoothMax = 0.001;
 	// Per-band temporal smoothing (~30ms decay at 60fps)
 	// factor^2 ≈ 0.1, so ~30ms to decay to 10%
@@ -80,7 +79,6 @@ export class spectrumCanvas {
 
 			// Compute foreground spectrum
 			const fgMags = new Float32Array(FG_BANDS);
-			let fgInstMax = 0.0001;
 			for (let b = 0; b < FG_BANDS; b++) {
 				const coefs = this._fgCoefs[b];
 				let re = 0, im = 0;
@@ -92,7 +90,6 @@ export class spectrumCanvas {
 				const fgRaw = Math.sqrt(re * re + im * im) / sampleCount;
 				const fgGain = 1 + 2.0 * Math.exp(-Math.pow(Math.log(this._fgFreqs[b] / 800), 2) / 0.5);
 				fgMags[b] = fgRaw * fgGain;
-				if (fgMags[b] > fgInstMax) fgInstMax = fgMags[b];
 			}
 
 			// Compute background (bass) spectrum
@@ -127,13 +124,7 @@ export class spectrumCanvas {
 				}
 			}
 
-			// Peak hold: gentle decay so peaks reach ceiling without being aggressive
-			if (fgInstMax > this._fgSmoothMax) {
-				this._fgSmoothMax = fgInstMax;
-			} else {
-				this._fgSmoothMax *= 0.92; // ~120ms decay (gentler than old 30ms)
-				if (this._fgSmoothMax < 0.001) this._fgSmoothMax = 0.001;
-			}
+			// BG peak hold: gentle decay so bass peaks reach ceiling
 			if (bgInstMax > this._bgSmoothMax) {
 				this._bgSmoothMax = bgInstMax;
 			} else {
@@ -141,8 +132,8 @@ export class spectrumCanvas {
 				if (this._bgSmoothMax < 0.001) this._bgSmoothMax = 0.001;
 			}
 
-			// Use peak hold as reference (max of peak hold and floor)
-			const fgRef = Math.max(this._fgSmoothMax, spectrumCanvas.FG_REF);
+			// FG uses fixed floor ref (no peak hold), BG uses peak hold
+			const fgRef = spectrumCanvas.FG_REF;
 			const bgRef = Math.max(this._bgSmoothMax, spectrumCanvas.BG_REF);
 
 			// Draw background bass layer (R color, low opacity)
