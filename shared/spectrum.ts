@@ -13,16 +13,12 @@ import { ColorConfig } from "./color-config";
 import { events } from "./events";
 import { forwardRealFourierTransform } from "../synth/fft";
 
-const FG_BANDS = 56;
-const FG_MIN_FREQ = 165;
+const FG_BANDS = 67;
+const FG_MIN_FREQ = 130;
 const BG_MIN_FREQ = 20;
-const BG_BANDS = 37;
+const BG_BANDS = 34;
 
 
-// CQT Q factor: constant ratio of frequency to bandwidth
-// Q=8 means bandwidth = freq/8. Higher Q = narrower filters.
-// At 2048 buffer/48kHz: lowest freq with full CQT is ~60Hz.
-// Below that, window is clamped to buffer size.
 
 
 export class spectrumCanvas {
@@ -50,8 +46,8 @@ export class spectrumCanvas {
 	private _fftBuffer: Float32Array = new Float32Array(2048);
 	// Per-band temporal smoothing (~30ms decay at 60fps)
 	// factor^2 ≈ 0.1, so ~30ms to decay to 10%
-	private _fgSmoothMags = new Float32Array(56);
-	private _bgSmoothMags = new Float32Array(37);
+	private _fgSmoothMags = new Float32Array(67);
+	private _bgSmoothMags = new Float32Array(34);
 
 	constructor(
 		public readonly canvas: HTMLCanvasElement,
@@ -127,6 +123,21 @@ export class spectrumCanvas {
 					const qc = y0;
 					fgMags[b] = qa * frac * frac + qb * frac + qc;
 				}
+			}
+			// Light gaussian spatial blur (sigma=1.5 bands) to suppress tiny peak jitter
+			{
+				const blurred = new Float32Array(FG_BANDS);
+				for (let b = 0; b < FG_BANDS; b++) {
+					let sum = 0, wSum = 0;
+					for (let n = 0; n < FG_BANDS; n++) {
+						const d = n - b;
+						const w = Math.exp(-0.5 * d * d / 2.25);
+						sum += fgMags[n] * w;
+						wSum += w;
+					}
+					blurred[b] = wSum > 0.001 ? sum / wSum : 0;
+				}
+				for (let b = 0; b < FG_BANDS; b++) fgMags[b] = blurred[b];
 			}
 
 			const bgMags = new Float32Array(BG_BANDS);
@@ -258,12 +269,11 @@ export class spectrumCanvas {
 		this._bgFreqs.length = 0;
 		const bgA4 = 440;
 		const bgNoteStart = Math.round(12 * Math.log2(BG_MIN_FREQ / bgA4) + 69);
-		// Every semitone: 37 bands from ~20Hz to ~160Hz
+		// Every semitone: 40 bands from ~20Hz to ~185Hz (matches BG_BANDS)
 		for (let b = 0; b < BG_BANDS; b++) {
 			this._bgFreqs.push(bgA4 * Math.pow(2, (bgNoteStart + b - 69) / 12));
 		}
-		// Compute FG center frequencies: 12TET semitones (A4=440Hz)
-		// Note 0 = E4 (164.8Hz), covers 160-4000Hz range
+		// Every semitone: 61 bands from ~185Hz to ~6000Hz (matches FG_BANDS)
 		this._fgFreqs.length = 0;
 		const fgNoteStart = Math.round(12 * Math.log2(FG_MIN_FREQ / 440) + 69);
 		for (let b = 0; b < FG_BANDS; b++) {
