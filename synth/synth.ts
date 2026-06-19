@@ -493,7 +493,7 @@ export class Synth {
 	public spectrumEnabled: boolean = true;
 	public onSpectrumUpdate?: (left: Float32Array, right: Float32Array) => void;
 	private _lastSpectrumUpdateTime: number = 0;
-	private static readonly SPECTRUM_UPDATE_INTERVAL_MS: number = 1000 / 30; // 30fps
+	private static readonly SPECTRUM_UPDATE_INTERVAL_MS: number = 1000 / 60; // 60fps
 	public enableMetronome: boolean = false;
 	public countInMetronome: boolean = false;
 	public renderingSong: boolean = false;

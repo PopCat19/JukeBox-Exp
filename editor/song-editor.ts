@@ -1333,9 +1333,9 @@ export class SongEditor
 
 	public readonly _globalSpectrum: spectrumCanvas = new spectrumCanvas(
 		canvas({
-			width: 144,
-			height: 32,
-			style: "display: block; margin: 0 auto;",
+			width: 384,
+			height: 64,
+			style: "display: block; width: 100%; height: 32px;",
 			id: "spectrumAll",
 		}),
 		1,

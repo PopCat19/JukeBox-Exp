@@ -4,17 +4,23 @@
 //
 // Inspired by camellia/seatrus MV visualizers and Furnace tracker spectrum.
 // This module:
-// - Computes a 16-band logarithmic frequency spectrum from the mono mix
-// - Draws a smooth bezier curve through band magnitudes using full canvas
-// - Fills below the curve with a vertical gradient
-// - Always clean and readable regardless of project size or channel count
+// - Dual layer: background bass (20-250Hz) + foreground main (250-8000Hz)
+// - Smooth bezier curves through band magnitudes
+// - Flat fills (no gradients), full canvas width and height
+// - 60fps update rate, always clean regardless of project size
 
 import { ColorConfig } from "./color-config";
 import { events } from "./events";
 
-const BAND_COUNT = 16;
-const MIN_FREQ = 40; // Hz
-const MAX_FREQ = 12000; // Hz
+// Foreground (main) spectrum: 250Hz to 8kHz
+const FG_BANDS = 16;
+const FG_MIN_FREQ = 250;
+const FG_MAX_FREQ = 8000;
+
+// Background (bass) spectrum: 20Hz to 250Hz
+const BG_BANDS = 8;
+const BG_MIN_FREQ = 20;
+const BG_MAX_FREQ = 250;
 
 export class spectrumCanvas {
 	public _EventUpdateCanvas: (left: Float32Array, right?: Float32Array) => void;
@@ -22,9 +28,8 @@ export class spectrumCanvas {
 	private _cachedLColor: string = "";
 	private _cachedRColor: string = "";
 
-	// Precompute Goertzel coefficients for each band
-	private readonly _bandFreqs: number[] = [];
-	private readonly _bandCoefs: { cos: number; sin: number }[][] = [];
+	private _fgCoefs: { cos: number; sin: number }[][] = [];
+	private _bgCoefs: { cos: number; sin: number }[][] = [];
 	private _sampleRate = 48000;
 	private _lastBufferSize = 0;
 
@@ -42,14 +47,13 @@ export class spectrumCanvas {
 			const w = canvas.width;
 			const h = canvas.height;
 
-			// Clear with cached background color
+			// Clear
 			ctx.fillStyle = this._cachedBgColor;
 			ctx.fillRect(0, 0, w, h);
 
 			const sampleCount = directlinkL.length;
 			if (sampleCount < 4) return;
 
-			// Recompute coefficients if buffer size changed
 			if (sampleCount !== this._lastBufferSize) {
 				this._initBands(this._sampleRate, sampleCount);
 				this._lastBufferSize = sampleCount;
@@ -61,110 +65,122 @@ export class spectrumCanvas {
 				mono[i] = (directlinkL[i] + directlinkR[i]) * 0.5;
 			}
 
-			// Compute spectrum via Goertzel for each band
-			const magnitudes = new Float32Array(BAND_COUNT);
-			let maxMag = 0.0001;
-			for (let b = 0; b < BAND_COUNT; b++) {
-				const coefs = this._bandCoefs[b];
-				let re = 0;
-				let im = 0;
+			// Compute foreground spectrum
+			const fgMags = new Float32Array(FG_BANDS);
+			let fgMax = 0.0001;
+			for (let b = 0; b < FG_BANDS; b++) {
+				const coefs = this._fgCoefs[b];
+				let re = 0, im = 0;
 				for (let n = 0; n < sampleCount; n++) {
 					re += mono[n] * coefs[n].cos;
 					im -= mono[n] * coefs[n].sin;
 				}
-				const mag = Math.sqrt(re * re + im * im) / sampleCount;
-				magnitudes[b] = Math.sqrt(mag);
-				if (magnitudes[b] > maxMag) maxMag = magnitudes[b];
+				fgMags[b] = Math.sqrt(Math.sqrt(re * re + im * im) / sampleCount);
+				if (fgMags[b] > fgMax) fgMax = fgMags[b];
 			}
 
-			// Normalize magnitudes to 0..1
-			const norms = new Float32Array(BAND_COUNT);
-			for (let b = 0; b < BAND_COUNT; b++) {
-				norms[b] = Math.min(1, magnitudes[b] / maxMag);
+			// Compute background (bass) spectrum
+			const bgMags = new Float32Array(BG_BANDS);
+			let bgMax = 0.0001;
+			for (let b = 0; b < BG_BANDS; b++) {
+				const coefs = this._bgCoefs[b];
+				let re = 0, im = 0;
+				for (let n = 0; n < sampleCount; n++) {
+					re += mono[n] * coefs[n].cos;
+					im -= mono[n] * coefs[n].sin;
+				}
+				bgMags[b] = Math.sqrt(Math.sqrt(re * re + im * im) / sampleCount);
+				if (bgMags[b] > bgMax) bgMax = bgMags[b];
 			}
 
-			// Map bands to x positions across the full canvas width
-			// Use edge-to-edge: first band at x=0, last band at x=w
-			const bandWidth = w / (BAND_COUNT - 1);
-			const ys: number[] = new Array(BAND_COUNT);
-			for (let b = 0; b < BAND_COUNT; b++) {
-				// Full height: y=0 at peak, y=h at silence
-				ys[b] = h - norms[b] * h;
-			}
+			// Draw background bass layer (R color, low opacity, thicker)
+			this._drawCurve(ctx, w, h, bgMags, bgMax, BG_BANDS, this._cachedRColor, 0.25, scale * 2);
 
-			// Draw smooth bezier curve through the band points
-			// Using quadraticCurveTo with midpoints for smooth interpolation
-			ctx.beginPath();
-			// Start at bottom-left, go up to first band
-			ctx.moveTo(0, h);
-			ctx.lineTo(0, ys[0]);
-
-			// Smooth curve through all points using midpoint quadratic method
-			for (let b = 0; b < BAND_COUNT - 1; b++) {
-				const x1 = b * bandWidth;
-				const x2 = (b + 1) * bandWidth;
-				const midX = (x1 + x2) * 0.5;
-				const midY = (ys[b] + ys[b + 1]) * 0.5;
-				ctx.quadraticCurveTo(x1, ys[b], midX, midY);
-			}
-			// Last segment to the right edge
-			ctx.quadraticCurveTo((BAND_COUNT - 1) * bandWidth, ys[BAND_COUNT - 1], w, ys[BAND_COUNT - 1]);
-
-			// Close path: right edge down to bottom, across to left
-			ctx.lineTo(w, h);
-			ctx.lineTo(0, h);
-			ctx.closePath();
-
-			// Fill with vertical gradient: L color at top, fading to R color at bottom
-			const grad = ctx.createLinearGradient(0, 0, 0, h);
-			grad.addColorStop(0, this._cachedLColor);
-			grad.addColorStop(0.6, this._cachedRColor);
-			grad.addColorStop(1, this._cachedBgColor);
-			ctx.fillStyle = grad;
-			ctx.fill();
-
-			// Stroke the curve line on top
-			ctx.beginPath();
-			ctx.moveTo(0, ys[0]);
-			for (let b = 0; b < BAND_COUNT - 1; b++) {
-				const x1 = b * bandWidth;
-				const x2 = (b + 1) * bandWidth;
-				const midX = (x1 + x2) * 0.5;
-				const midY = (ys[b] + ys[b + 1]) * 0.5;
-				ctx.quadraticCurveTo(x1, ys[b], midX, midY);
-			}
-			ctx.quadraticCurveTo((BAND_COUNT - 1) * bandWidth, ys[BAND_COUNT - 1], w, ys[BAND_COUNT - 1]);
-			ctx.strokeStyle = this._cachedLColor;
-			ctx.lineWidth = scale;
-			ctx.lineJoin = "round";
-			ctx.lineCap = "round";
-			ctx.stroke();
+			// Draw foreground main layer (L color, full opacity)
+			this._drawCurve(ctx, w, h, fgMags, fgMax, FG_BANDS, this._cachedLColor, 1.0, scale);
 		};
 
 		events.listen("spectrumUpdate", this._EventUpdateCanvas);
 		events.listen("themeChange", () => this._updateCachedColors());
 	}
 
+	private _drawCurve(
+		ctx: CanvasRenderingContext2D,
+		w: number, h: number,
+		mags: Float32Array, maxMag: number,
+		bandCount: number,
+		color: string,
+		opacity: number,
+		lineWidth: number,
+	): void {
+		const bandWidth = w / (bandCount - 1);
+		const ys = new Array<number>(bandCount);
+		for (let b = 0; b < bandCount; b++) {
+			ys[b] = h - Math.min(1, mags[b] / maxMag) * h;
+		}
+
+		ctx.globalAlpha = opacity;
+
+		// Fill below curve
+		ctx.beginPath();
+		ctx.moveTo(0, h);
+		ctx.lineTo(0, ys[0]);
+		for (let b = 0; b < bandCount - 1; b++) {
+			const x1 = b * bandWidth;
+			const x2 = (b + 1) * bandWidth;
+			ctx.quadraticCurveTo(x1, ys[b], (x1 + x2) * 0.5, (ys[b] + ys[b + 1]) * 0.5);
+		}
+		ctx.quadraticCurveTo((bandCount - 1) * bandWidth, ys[bandCount - 1], w, ys[bandCount - 1]);
+		ctx.lineTo(w, h);
+		ctx.closePath();
+		ctx.fillStyle = color;
+		ctx.fill();
+
+		// Stroke curve line
+		ctx.beginPath();
+		ctx.moveTo(0, ys[0]);
+		for (let b = 0; b < bandCount - 1; b++) {
+			const x1 = b * bandWidth;
+			const x2 = (b + 1) * bandWidth;
+			ctx.quadraticCurveTo(x1, ys[b], (x1 + x2) * 0.5, (ys[b] + ys[b + 1]) * 0.5);
+		}
+		ctx.quadraticCurveTo((bandCount - 1) * bandWidth, ys[bandCount - 1], w, ys[bandCount - 1]);
+		ctx.strokeStyle = color;
+		ctx.lineWidth = lineWidth;
+		ctx.lineJoin = "round";
+		ctx.lineCap = "round";
+		ctx.stroke();
+
+		ctx.globalAlpha = 1.0;
+	}
+
 	private _initBands(sampleRate: number, bufferSize: number): void {
 		this._sampleRate = sampleRate;
-		this._bandFreqs.length = 0;
-		this._bandCoefs.length = 0;
+		this._fgCoefs = [];
+		this._bgCoefs = [];
 
-		const logMin = Math.log(MIN_FREQ);
-		const logMax = Math.log(MAX_FREQ);
+		this._fgCoefs = this._buildCoefs(FG_BANDS, FG_MIN_FREQ, FG_MAX_FREQ, sampleRate, bufferSize);
+		this._bgCoefs = this._buildCoefs(BG_BANDS, BG_MIN_FREQ, BG_MAX_FREQ, sampleRate, bufferSize);
+	}
 
-		for (let b = 0; b < BAND_COUNT; b++) {
-			const t = b / (BAND_COUNT - 1);
+	private _buildCoefs(
+		bandCount: number, minFreq: number, maxFreq: number,
+		sampleRate: number, bufferSize: number,
+	): { cos: number; sin: number }[][] {
+		const coefs: { cos: number; sin: number }[][] = [];
+		const logMin = Math.log(minFreq);
+		const logMax = Math.log(maxFreq);
+		for (let b = 0; b < bandCount; b++) {
+			const t = b / (bandCount - 1);
 			const freq = Math.exp(logMin + t * (logMax - logMin));
-			this._bandFreqs.push(freq);
-
 			const omega = (2 * Math.PI * freq) / sampleRate;
-			const coefs: { cos: number; sin: number }[] = new Array(bufferSize);
+			const band: { cos: number; sin: number }[] = new Array(bufferSize);
 			for (let n = 0; n < bufferSize; n++) {
-				coefs[n] = { cos: Math.cos(omega * n), sin: Math.sin(omega * n) };
+				band[n] = { cos: Math.cos(omega * n), sin: Math.sin(omega * n) };
 			}
-			this._bandCoefs.push(coefs);
+			coefs.push(band);
 		}
+		return coefs;
 	}
 
 	private _updateCachedColors(): void {
