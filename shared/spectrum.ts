@@ -16,8 +16,8 @@ const FG_BANDS = 16;
 const FG_MIN_FREQ = 201;
 const FG_MAX_FREQ = 12000;
 
-const BG_BANDS = 8;
-const BG_MIN_FREQ = 20;
+const BG_BANDS = 16;
+const BG_MIN_FREQ = 30;
 const BG_MAX_FREQ = 200;
 
 export class spectrumCanvas {
@@ -37,7 +37,7 @@ export class spectrumCanvas {
 	// Per-band temporal smoothing (~30ms decay at 60fps)
 	// factor^2 ≈ 0.1, so ~30ms to decay to 10%
 	private _fgSmoothMags = new Float32Array(16);
-	private _bgSmoothMags = new Float32Array(8);
+	private _bgSmoothMags = new Float32Array(16);
 
 	constructor(
 		public readonly canvas: HTMLCanvasElement,
