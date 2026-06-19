@@ -34,6 +34,10 @@ export class spectrumCanvas {
 	// Dynamic amplification: slow-decay peak hold
 	private _fgSmoothMax = 0.001;
 	private _bgSmoothMax = 0.001;
+	// Per-band temporal smoothing (~100ms decay at 60fps)
+	// factor^6 ≈ 0.1, so ~100ms to decay to 10%
+	private _fgSmoothMags = new Float32Array(FG_BANDS);
+	private _bgSmoothMags = new Float32Array(BG_BANDS);
 
 	constructor(
 		public readonly canvas: HTMLCanvasElement,
@@ -95,9 +99,24 @@ export class spectrumCanvas {
 				if (bgMags[b] > bgInstMax) bgInstMax = bgMags[b];
 			}
 
+			// Per-band temporal smoothing: instant attack, ~100ms decay
+			// At 60fps, 6 frames = 100ms. factor^6 ≈ 0.1
+			for (let b = 0; b < FG_BANDS; b++) {
+				if (fgMags[b] > this._fgSmoothMags[b]) {
+					this._fgSmoothMags[b] = fgMags[b]; // instant attack
+				} else {
+					this._fgSmoothMags[b] = this._fgSmoothMags[b] * 0.68 + fgMags[b] * 0.32; // ~100ms decay
+				}
+			}
+			for (let b = 0; b < BG_BANDS; b++) {
+				if (bgMags[b] > this._bgSmoothMags[b]) {
+					this._bgSmoothMags[b] = bgMags[b]; // instant attack
+				} else {
+					this._bgSmoothMags[b] = this._bgSmoothMags[b] * 0.68 + bgMags[b] * 0.32; // ~100ms decay
+				}
+			}
+
 			// Dynamic amplification: instant attack, slow decay
-			// Attack: jump up immediately when louder
-			// Decay: fall gradually so quiet passages don't fill 80% of height
 			if (fgInstMax > this._fgSmoothMax) {
 				this._fgSmoothMax = fgInstMax;
 			} else {
@@ -112,10 +131,10 @@ export class spectrumCanvas {
 			}
 
 			// Draw background bass layer (R color, low opacity, thicker)
-			this._drawCurve(ctx, w, h, bgMags, this._bgSmoothMax, BG_BANDS, this._cachedRColor, 0.25);
+			this._drawCurve(ctx, w, h, this._bgSmoothMags, this._bgSmoothMax, BG_BANDS, this._cachedRColor, 0.25);
 
 			// Draw foreground main layer (L color, full opacity)
-			this._drawCurve(ctx, w, h, fgMags, this._fgSmoothMax, FG_BANDS, this._cachedLColor, 1.0);
+			this._drawCurve(ctx, w, h, this._fgSmoothMags, this._fgSmoothMax, FG_BANDS, this._cachedLColor, 1.0);
 		};
 
 		events.listen("spectrumUpdate", this._EventUpdateCanvas);
