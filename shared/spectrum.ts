@@ -15,7 +15,7 @@ import { forwardRealFourierTransform } from "../synth/fft";
 
 const FG_BANDS = 56;
 const FG_MIN_FREQ = 165;
-const BG_MIN_FREQ = 25;
+const BG_MIN_FREQ = 20;
 const BG_MAX_FREQ = 320;
 
 const BG_BANDS = 12;
