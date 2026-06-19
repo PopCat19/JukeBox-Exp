@@ -1085,6 +1085,7 @@ html {
 	background: var(--prompt-list-item-bg);
 	border: 2px solid transparent;
 	box-sizing: border-box;
+	min-width: 0;
 }
 
 .beepboxEditor .prompt.compactSearchPrompt .categoryItem:hover,
@@ -1094,14 +1095,14 @@ html {
 
 .beepboxEditor .prompt.compactSearchPrompt .categoryItem.committed,
 .beepboxEditor .prompt.compactSearchPrompt .presetItem.committed {
-	background: var(--cta-bg);
-	color: var(--cta-fg);
-	border-color: var(--cta-bg);
+	/* 88x alert border: highest emphasis border, no bg fill
+	 * to avoid conflict with active selection (CTA fill). */
+	border-color: var(--indicator-primary, #4444ff);
 }
 
 .beepboxEditor .prompt.compactSearchPrompt .categoryItem.committed:hover,
 .beepboxEditor .prompt.compactSearchPrompt .presetItem.committed:hover {
-	border-color: var(--editor-background);
+	border-color: var(--indicator-primary, #4444ff);
 }
 
 /* Keyboard navigation focus — a distinct tier from click-committed
@@ -1131,7 +1132,14 @@ html {
 
 .beepboxEditor .prompt.compactSearchPrompt .categoryItem.committed.focused,
 .beepboxEditor .prompt.compactSearchPrompt .presetItem.committed.focused {
-	border-color: var(--editor-background);
+	border-color: var(--indicator-primary, #4444ff);
+}
+
+/* Category can be both committed (88x border) and active (CTA fill). */
+.beepboxEditor .prompt.compactSearchPrompt .categoryItem.committed.active {
+	background: var(--cta-bg);
+	color: var(--cta-fg);
+	border-color: var(--indicator-primary, #4444ff);
 }
 
 .beepboxEditor .prompt.compactSearchPrompt .categoryItem.dimmed,

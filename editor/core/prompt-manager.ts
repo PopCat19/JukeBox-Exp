@@ -149,12 +149,14 @@ export class PromptManager {
 			stack: this._prompts.map((p) => p.name),
 		});
 		// For keybind-triggered prompts (no click event), synthesize
-		// from last mouse position.
-		this._pendingClickInfo = this._clickInfo ?? {
+		// from last mouse position. Only use cursor when mouse has
+		// actually moved — {0,0} default would spawn at top-left.
+		const hasMouse = this._mousePos.x !== 0 || this._mousePos.y !== 0;
+		this._pendingClickInfo = this._clickInfo ?? (hasMouse ? {
 			clientX: this._mousePos.x,
 			clientY: this._mousePos.y,
 			elRect: new DOMRect(this._mousePos.x - 8, this._mousePos.y - 8, 16, 16),
-		};
+		} : null);
 		this._clickInfo = null;
 
 		this._userInitiatedOpen = true;

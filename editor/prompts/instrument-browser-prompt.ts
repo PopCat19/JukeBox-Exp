@@ -56,6 +56,7 @@ export class InstrumentBrowserPrompt extends BasePrompt {
 	private _tagBanner: HTMLDivElement;
 	private _externalTagHandler: () => void;
 	private _committedPreset: number;
+	private _lastChannel: number;
 	private _hoveredPane: "categories" | "presets" | null = null;
 	private _hoveredPresetIndex: number | null = null;
 	private _lastInteraction: "hover" | "keyboard" | null = null;
@@ -86,6 +87,7 @@ export class InstrumentBrowserPrompt extends BasePrompt {
 		const currentPreset: number = this._doc.getCurrentInstrumentObj().preset;
 
 		this._committedPreset = currentPreset;
+		this._lastChannel = this._doc.channel;
 		this._openTab = openTab;
 
 		this._buildCategories(isNoise);
@@ -119,7 +121,10 @@ export class InstrumentBrowserPrompt extends BasePrompt {
 			this._updateHighlight();
 		});
 		this._categoryList.addEventListener("mouseleave", () => {
-			// No-op: same rationale as presets pane.
+			if (this._hoveredPane === "categories") {
+				this._hoveredPane = null;
+				this._updateHighlight();
+			}
 		});
 
 		this._presetList = flexPane({ padding: "8px" });
@@ -130,14 +135,20 @@ export class InstrumentBrowserPrompt extends BasePrompt {
 		this._presetList.style.alignContent = "start";
 		this._presetList.style.border = "2px solid var(--ui-widget-background)";
 		this._presetList.style.borderRadius = "8px";
+		this._presetList.style.minWidth = "0";
 		this._presetList.addEventListener("mouseenter", () => {
 			this._lastInteraction = "hover";
 			this._hoveredPane = "presets";
 			this._updateHighlight();
 		});
 		this._presetList.addEventListener("mouseleave", () => {
-			// No-op: the pane's effective hover area includes buttons
-			// below the list. Only container mouseleave clears it.
+			// Clear hover when cursor fully leaves the presets pane.
+			// Cursor moving between items within the pane is handled
+			// by the item-level mouseenter/mouseleave.
+			if (this._hoveredPane === "presets") {
+				this._hoveredPane = null;
+				this._updateHighlight();
+			}
 		});
 
 		this._infoPanel = div({ style: "display: flex; flex-direction: column; gap: 8px; font-size: 12px; color: var(--secondary-text);" });
@@ -346,7 +357,14 @@ export class InstrumentBrowserPrompt extends BasePrompt {
 				}
 			}
 		}
-		this._selectedPresetIndex = 0;
+		// When tags are active, find the committed preset in
+		// filtered results rather than resetting to 0.
+		if (this._filteredPresets.length > 0) {
+			const committedIdx = this._filteredPresets.findIndex((p) => p.value === this._committedPreset);
+			this._selectedPresetIndex = committedIdx >= 0 ? committedIdx : 0;
+		} else {
+			this._selectedPresetIndex = 0;
+		}
 		this._activePane = "presets";
 		this._updateCategoryDim();
 		this._renderPresets();
@@ -399,22 +417,7 @@ export class InstrumentBrowserPrompt extends BasePrompt {
 			} else {
 				this._activePane = "presets";
 				this._selectedPresetIndex = index;
-				// Find which category this preset belongs to, then
-				// re-index within that category's preset list.
-				const presets = this._isSearchMode ? this._filteredPresets : (this._categories[this._selectedCategoryIndex]?.presets ?? []);
-				const preset = presets[index];
-				if (preset) {
-					let newCategory = this._selectedCategoryIndex;
-					for (let ci = 0; ci < this._categories.length; ci++) {
-						const pi = this._categories[ci].presets.findIndex((p) => p.value === preset.value);
-						if (pi !== -1) {
-							newCategory = ci;
-							this._selectedPresetIndex = pi;
-							break;
-						}
-					}
-					this._selectedCategoryIndex = newCategory;
-				}
+				this._syncCategoryToPreset();
 				this._renderPresets();
 				this._updateHighlight();
 			}
@@ -477,20 +480,12 @@ export class InstrumentBrowserPrompt extends BasePrompt {
 
 		for (let i = 0; i < presets.length; i++) {
 			const preset = presets[i];
-			const label = this._isSearchMode ? `${preset.name} [${(preset as any).categoryName}]` : preset.name;
 			const item = div(
 				{
 					class: "presetItem",
-					title: label,
+					title: preset.name,
 				},
-				this._isSearchMode
-					? div(
-							{},
-							preset.name,
-							div({ style: STYLES.smallText }, (preset as any).categoryName),
-							div({ style: STYLES.smallText }, `Position: ${i + 1}`),
-						)
-					: div({}, preset.name, div({ style: STYLES.smallText }, `Position: ${i + 1}`)),
+				div({}, preset.name, div({ style: STYLES.smallText }, `Position: ${i + 1}`)),
 			);
 			const idx = i;
 			item.addEventListener("mousedown", (event: MouseEvent) => {
@@ -518,31 +513,38 @@ export class InstrumentBrowserPrompt extends BasePrompt {
 		const preset = presets[this._selectedPresetIndex];
 		if (!preset) return;
 		for (let ci = 0; ci < this._categories.length; ci++) {
-			if (this._categories[ci].presets.some((p) => p.value === preset.value)) {
+			const pi = this._categories[ci].presets.findIndex((p) => p.value === preset.value);
+			if (pi !== -1) {
 				this._selectedCategoryIndex = ci;
+				this._selectedPresetIndex = pi;
 				return;
 			}
 		}
 	}
 
 	private _updateHighlight(): void {
-		// No hover on any pane, clear all borders and keyboard focus.
+		// No hover on any pane: keep committed/active items visible,
+		// only clear pane borders and keyboard focus.
 		if (this._hoveredPane == null) {
 			this._categoryList.style.borderColor = "var(--ui-widget-background)";
 			this._presetList.style.borderColor = "var(--ui-widget-background)";
 			for (let i = 0; i < this._categoryItems.length; i++) {
 				const isCommitted = this._categories[i].presets.some((p) => p.value === this._committedPreset);
+				const isActive = i === this._selectedCategoryIndex;
 				this._categoryItems[i].classList.toggle("focused", false);
-				this._categoryItems[i].classList.toggle("active", false);
+				this._categoryItems[i].classList.toggle("active", isActive);
 				this._categoryItems[i].classList.toggle("committed", isCommitted);
 			}
 			for (let i = 0; i < this._presetItems.length; i++) {
-				this._presetItems[i].classList.toggle("focused", false);
+				const preset = this._isSearchMode ? this._filteredPresets[i] : this._categories[this._selectedCategoryIndex]?.presets[i];
+				const isCommitted = preset && preset.value === this._committedPreset;
+				const isFocused = i === this._selectedPresetIndex && this._activePane === "presets";
+				const isActive = isFocused && !isCommitted;
+				this._presetItems[i].classList.toggle("focused", isFocused && !isActive);
+				this._presetItems[i].classList.toggle("committed", isCommitted);
+				this._presetItems[i].classList.toggle("active", isActive);
 			}
 			return;
-		}
-		if (this._activePane === "presets" && this._lastInteraction !== "keyboard") {
-			this._syncCategoryToPreset();
 		}
 		const effectivePane = this._lastInteraction === "hover" ? this._hoveredPane : this._activePane;
 		const focusedPane = effectivePane === "categories" ? this._categoryList : this._presetList;
@@ -717,7 +719,7 @@ export class InstrumentBrowserPrompt extends BasePrompt {
 		const query = this._searchInput.value.trim().toLowerCase();
 		if (query === "" && this._activeTags.length === 0) {
 			this._isSearchMode = false;
-			this._selectedPresetIndex = 0;
+			this._syncSelectionToCommittedPreset();
 			this._updateCategoryDim();
 			this._renderPresets();
 			this._updateHighlight();
@@ -1127,14 +1129,17 @@ export class InstrumentBrowserPrompt extends BasePrompt {
 
 	private _onDocumentChanged = (): void => {
 		const instrument = this._doc.getCurrentInstrumentObj();
-		if (instrument.preset !== this._committedPreset) {
+		const channelChanged = this._doc.channel !== this._lastChannel;
+		this._lastChannel = this._doc.channel;
+		if (instrument.preset !== this._committedPreset || channelChanged) {
 			const isNoise = this._doc.song.getChannelIsNoise(this._doc.channel);
 			if (isNoise !== (this._categories[0]?.presets.some((p) => EditorConfig.valueToPreset(p.value)?.isNoise) ?? false)) {
 				this._buildCategories(isNoise);
-				this._renderCategories();
 			}
 			this._committedPreset = instrument.preset;
 			this._syncSelectionToCommittedPreset();
+			this._renderCategories();
+			this._renderPresets();
 			this._updateHighlight();
 			this._scrollItemIntoView(this._categoryItems, this._selectedCategoryIndex, this._categoryList);
 			this._scrollItemIntoView(this._presetItems, this._selectedPresetIndex, this._presetList);
@@ -1146,10 +1151,7 @@ export class InstrumentBrowserPrompt extends BasePrompt {
 			const pi = this._categories[ci].presets.findIndex((p) => p.value === this._committedPreset);
 			if (pi !== -1) {
 				this._selectedCategoryIndex = ci;
-				if (!this._isSearchMode) {
-					this._renderPresets();
-				}
-				this._selectedPresetIndex = this._isSearchMode ? this._filteredPresets.findIndex((p) => p.value === this._committedPreset) : pi;
+				this._selectedPresetIndex = pi;
 				if (this._selectedPresetIndex < 0) this._selectedPresetIndex = 0;
 				return;
 			}
