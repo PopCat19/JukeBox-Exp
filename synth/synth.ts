@@ -1094,6 +1094,11 @@ export class Synth {
 		this.isRecording = false;
 		this.preferLowerLatency = false;
 		this._dbg("Pausing, freeing tones, clearing mods, playhead:", this.playheadInternal, "bar:", this.bar);
+		// Clear the oscilloscope display so it doesn't freeze on the last frame.
+		if (this.oscEnabled && this.onOscilloscopeUpdate) {
+			const silence = new Float32Array(128);
+			this.onOscilloscopeUpdate(silence, silence);
+		}
 		this.freeAllTones();
 		this.modValues = [];
 		this.nextModValues = [];
