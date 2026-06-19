@@ -204,6 +204,7 @@ export class PatternEditor {
 	private _previewByKeybind: boolean = false;
 	private _previewPitch: number = -1;
 	private _cachedSvgRect: DOMRect | null = null;
+	private _mouseMoveRAF: number | null = null;
 	private _copiedPinChannels: NotePin[][] = [];
 	private _copiedPins: NotePin[];
 	private _mouseXStart: number = 0;
@@ -2280,8 +2281,14 @@ export class PatternEditor {
 		if (isNaN(this._mouseX)) this._mouseX = 0;
 		if (isNaN(this._mouseY)) this._mouseY = 0;
 		this._usingTouch = false;
-		this._updateHoverTooltip();
-		this._whenCursorMoved();
+		// RAF-throttle the expensive tooltip + cursor update to once per frame.
+		// This avoids forced reflows from offsetWidth/offsetHeight on every mousemove.
+		if (this._mouseMoveRAF !== null) return;
+		this._mouseMoveRAF = requestAnimationFrame(() => {
+			this._mouseMoveRAF = null;
+			this._updateHoverTooltip();
+			this._whenCursorMoved();
+		});
 	};
 
 	private _updateHoverTooltip(): void {
