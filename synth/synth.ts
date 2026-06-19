@@ -568,6 +568,7 @@ export class Synth {
 	private _workletPrimed: boolean = false;
 	private _activateAudioPromise: Promise<void> | null = null;
 	private _gestureListenerAdded: boolean = false;
+	private _spectrumDecayRAF: number | null = null;
 	private _logSynthCallCount: number = 0;
 	private _logNeedDataCount: number = 0;
 
@@ -1009,6 +1010,23 @@ export class Synth {
 		}
 	}
 
+	private _startSpectrumDecay(): void {
+		if (this._spectrumDecayRAF !== null) return;
+		let frames = 0;
+		const maxFrames = 6; // ~100ms at 60fps, enough for 30ms smoothing to complete
+		const decayLoop = (): void => {
+			if (frames >= maxFrames || !this.spectrumEnabled || !this.onSpectrumUpdate) {
+				this._spectrumDecayRAF = null;
+				return;
+			}
+			const silence = new Float32Array(this._currentBufferSize || 2048);
+			this.onSpectrumUpdate(silence, silence);
+			frames++;
+			this._spectrumDecayRAF = requestAnimationFrame(decayLoop);
+		};
+		this._spectrumDecayRAF = requestAnimationFrame(decayLoop);
+	}
+
 	private _onWorkletNeedData(): void {
 		this._logNeedDataCount++;
 		if (this._logNeedDataCount <= 5 || this._logNeedDataCount % 100 === 0) {
@@ -1076,6 +1094,10 @@ export class Synth {
 
 	public async play(): Promise<void> {
 		this._dbg("play() called, isPlayingSong:", this.isPlayingSong);
+		if (this._spectrumDecayRAF !== null) {
+			cancelAnimationFrame(this._spectrumDecayRAF);
+			this._spectrumDecayRAF = null;
+		}
 		if (this.isPlayingSong) return;
 		this.initModFilters(this.song);
 		this.computeLatestModValues();
@@ -1094,11 +1116,8 @@ export class Synth {
 		this.isRecording = false;
 		this.preferLowerLatency = false;
 		this._dbg("Pausing, freeing tones, clearing mods, playhead:", this.playheadInternal, "bar:", this.bar);
-		// Clear the spectrum display so it doesn't freeze on the last frame.
-		if (this.spectrumEnabled && this.onSpectrumUpdate) {
-			const silence = new Float32Array(this._currentBufferSize || 2048);
-			this.onSpectrumUpdate(silence, silence);
-		}
+		// Start spectrum decay loop so it fades smoothly instead of freezing
+		this._startSpectrumDecay();
 		this.freeAllTones();
 		this.modValues = [];
 		this.nextModValues = [];

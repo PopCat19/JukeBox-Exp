@@ -34,8 +34,8 @@ export class spectrumCanvas {
 	// Dynamic amplification: slow-decay peak hold
 	private _fgSmoothMax = 0.001;
 	private _bgSmoothMax = 0.001;
-	// Per-band temporal smoothing (~100ms decay at 60fps)
-	// factor^6 ≈ 0.1, so ~100ms to decay to 10%
+	// Per-band temporal smoothing (~30ms decay at 60fps)
+	// factor^2 ≈ 0.1, so ~30ms to decay to 10%
 	private _fgSmoothMags = new Float32Array(FG_BANDS);
 	private _bgSmoothMags = new Float32Array(BG_BANDS);
 
@@ -105,7 +105,7 @@ export class spectrumCanvas {
 				if (fgMags[b] > this._fgSmoothMags[b]) {
 					this._fgSmoothMags[b] = fgMags[b]; // instant attack
 				} else {
-					this._fgSmoothMags[b] = this._fgSmoothMags[b] * 0.68 + fgMags[b] * 0.32; // ~100ms decay
+					this._fgSmoothMags[b] = this._fgSmoothMags[b] * 0.32 + fgMags[b] * 0.68; // ~30ms decay
 				}
 			}
 			for (let b = 0; b < BG_BANDS; b++) {
