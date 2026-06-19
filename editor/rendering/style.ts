@@ -1913,6 +1913,7 @@ html {
 	justify-content: flex-end;
 	gap: 8px;
 	margin-top: 8px;
+	width: 100%;
 }
 
 /* ── Song Recovery Prompt ── */
