@@ -211,7 +211,7 @@ export class AddSamplesPrompt extends BasePrompt {
 			inputRow({ gap: "8px" }, this._searchInput),
 			this._orderNote,
 			paneContainer({ height: "400px", gap: "8px", overflow: "visible", border: "none" }, this._leftPane, this._rightPane),
-			div({ class: "sbpBottomBar" }, button({ class: "sbpInfoBtn" }, "\u24D8 info"), this._okayButton),
+			div({ class: "sbpBottomBar" }, button({ class: "sbpInfoBtn" }, "info"), this._okayButton),
 			this._infoArea,
 			this._cancelButton,
 		);

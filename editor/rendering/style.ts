@@ -3702,7 +3702,7 @@ li.select2-results__option[role=group] > strong:hover {
 .beepboxEditor .prompt.sampleBrowserPrompt .sbpInfoBtn {
 	font-size: 12px;
 	cursor: pointer;
-	padding: 4px 10px;
+	padding: 0 10px;
 	color: var(--primary-text);
 	transition: background 0.15s, color 0.15s;
 }
