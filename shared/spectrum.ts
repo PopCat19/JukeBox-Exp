@@ -152,71 +152,49 @@ export class spectrumCanvas {
 				const bgIm = (k === 0 || k === bgHalfN) ? 0 : bgBuf[bgFftSize - k];
 				bgMagsArr[k] = Math.sqrt(bgRe * bgRe + bgIm * bgIm) / bgFftSize;
 			}
-			// Gaussian-weighted contribution per band: sigma = 1 semitone
-			// A sliding tone at any frequency contributes to multiple bands as exp(-d^2/2)
-			// where d = semitones of distance from band center
-			// Single-peak gaussian: find dominant frequency, spread as one smooth hill
-			// Step 1: find max FFT bin in the BG frequency range
-			const bgMaxK = this._bgFreqs[0] / bgBinFreq | 0;
-			const bgMaxEnd = Math.min(bgHalfN, (this._bgFreqs[BG_BANDS - 1] * 2 / bgBinFreq) | 0);
-			let peakBin = bgMaxK;
-			let peakVal = bgMagsArr[bgMaxK];
-			for (let k = bgMaxK + 1; k <= bgMaxEnd; k++) {
-				if (bgMagsArr[k] > peakVal) { peakVal = bgMagsArr[k]; peakBin = k; }
+			// Per-band: interpolate from FFT bins, then heavy spatial blur for smooth slides
+			for (let b = 0; b < BG_BANDS; b++) {
+				const kFloat = this._bgFreqs[b] / bgBinFreq;
+				const kLo = Math.floor(kFloat);
+				const kHi = Math.min(kLo + 1, bgHalfN);
+				const frac = kFloat - kLo;
+				bgMags[b] = bgMagsArr[kLo] + (bgMagsArr[kHi] - bgMagsArr[kLo]) * frac;
 			}
-			// Step 2: power-weighted centroid over ±3 bins for smooth continuous position
-			let wSum = 0, fSum = 0;
-			const kL = Math.max(bgMaxK, peakBin - 3);
-			const kR = Math.min(bgMaxEnd, peakBin + 3);
-			for (let k = kL; k <= kR; k++) {
-				const w = bgMagsArr[k] * bgMagsArr[k]; // power weighting
-				wSum += w;
-				fSum += w * k * bgBinFreq;
+			// Temporal smoothing for peak position: track the band index with max energy
+			// and lerp toward it (suppresses frame-to-frame jitter during slides)
+			let peakBand = 0;
+			let peakBandVal = bgMags[0];
+			for (let b = 1; b < BG_BANDS; b++) {
+				if (bgMags[b] > peakBandVal) { peakBandVal = bgMags[b]; peakBand = b; }
 			}
-			const peakFreq = wSum > 1e-10 ? fSum / wSum : peakBin * bgBinFreq;
-			// Step 3: no tone if below noise floor
-			const hasTone = peakVal > 0.0001;
-			// Step 4: smooth peak position over time (lerp factor 0.12 per frame ≈ 200ms)
-			if (hasTone) {
-				if (this._smoothPeakVal <= 0 || peakVal > this._smoothPeakVal) {
-					// Instant attack on new/louder tone
-					this._smoothPeakFreq = peakFreq;
-					this._smoothPeakVal = peakVal;
-				} else {
-					// Gentle decay: blend toward current raw values
-					this._smoothPeakFreq += (peakFreq - this._smoothPeakFreq) * 0.12;
-					this._smoothPeakVal += (peakVal - this._smoothPeakVal) * 0.12;
-				}
-				const logFreq = Math.log(this._smoothPeakFreq);
-				const logSr12 = Math.log(1.059463);
+			if (this._smoothPeakVal <= 0 || peakBandVal > this._smoothPeakVal) {
+				this._smoothPeakVal = peakBandVal;
+				this._smoothPeakFreq = peakBand;
+			} else {
+				this._smoothPeakVal += (peakBandVal - this._smoothPeakVal) * 0.12;
+				this._smoothPeakFreq += (peakBand - this._smoothPeakFreq) * 0.12;
+			}
+			// Generate gaussian hill centered on smoothed band position
+			if (peakBandVal > 0.0001) {
+				const smoothBand = Math.max(0, Math.min(BG_BANDS - 1, this._smoothPeakFreq));
 				for (let b = 0; b < BG_BANDS; b++) {
-					const semitones = (Math.log(this._bgFreqs[b]) - logFreq) / logSr12;
-					bgMags[b] = this._smoothPeakVal * Math.exp(-0.5 * semitones * semitones / 4);
+					const semitones = (b - smoothBand) * 2; // each band is 2 semitones apart
+					bgMags[b] = this._smoothPeakVal * Math.exp(-0.5 * semitones * semitones / 9);
 				}
 			} else {
+				bgMags.fill(0);
 				this._smoothPeakVal *= 0.9;
 				if (this._smoothPeakVal < 0.001) this._smoothPeakVal = 0;
-				if (this._smoothPeakVal > 0) {
-					const logFreq = Math.log(this._smoothPeakFreq);
-					const logSr12 = Math.log(1.059463);
-					for (let b = 0; b < BG_BANDS; b++) {
-						const semitones = (Math.log(this._bgFreqs[b]) - logFreq) / logSr12;
-						bgMags[b] = this._smoothPeakVal * Math.exp(-0.5 * semitones * semitones / 4);
-					}
-				} else {
-					bgMags.fill(0);
-				}
 			}
+			// Peak hold for normalization
 			for (let b = 0; b < BG_BANDS; b++) {
 				if (bgMags[b] > bgInstMax) bgInstMax = bgMags[b];
 			}
-
-			// Apply smoothed mags (no per-band decay needed since peak position is smoothed)
+			// Apply smoothed values (no per-band decay needed)
 			for (let b = 0; b < BG_BANDS; b++) {
 				this._bgSmoothMags[b] = bgMags[b];
 			}
-
-			// Per-band decay for FG
+			// Per-band decay for FG only
 			for (let b = 0; b < FG_BANDS; b++) {
 				if (fgMags[b] > this._fgSmoothMags[b]) {
 					this._fgSmoothMags[b] = fgMags[b]; // instant attack
