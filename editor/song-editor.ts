@@ -1342,7 +1342,7 @@ export class SongEditor
 	);
 	private readonly _globalSpectrumContainer: HTMLDivElement = div(
 		{
-			style: "height: 32px; margin: 2px 0;",
+			style: "height: 32px; margin: 2px 0; overflow: hidden;",
 		},
 		this._globalSpectrum.canvas,
 	);

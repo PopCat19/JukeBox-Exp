@@ -6,18 +6,16 @@
 // This module:
 // - Dual layer: background bass (20-250Hz) + foreground main (250-8000Hz)
 // - Smooth bezier curves through band magnitudes
-// - Flat fills (no gradients), full canvas width and height
+// - Dynamic amplification with slow-decay peak hold (no constant 80% fill)
 // - 60fps update rate, always clean regardless of project size
 
 import { ColorConfig } from "./color-config";
 import { events } from "./events";
 
-// Foreground (main) spectrum: 250Hz to 8kHz
 const FG_BANDS = 16;
 const FG_MIN_FREQ = 250;
 const FG_MAX_FREQ = 8000;
 
-// Background (bass) spectrum: 20Hz to 250Hz
 const BG_BANDS = 8;
 const BG_MIN_FREQ = 20;
 const BG_MAX_FREQ = 250;
@@ -32,6 +30,10 @@ export class spectrumCanvas {
 	private _bgCoefs: { cos: number; sin: number }[][] = [];
 	private _sampleRate = 48000;
 	private _lastBufferSize = 0;
+
+	// Dynamic amplification: slow-decay peak hold
+	private _fgSmoothMax = 0.001;
+	private _bgSmoothMax = 0.001;
 
 	constructor(
 		public readonly canvas: HTMLCanvasElement,
@@ -67,7 +69,7 @@ export class spectrumCanvas {
 
 			// Compute foreground spectrum
 			const fgMags = new Float32Array(FG_BANDS);
-			let fgMax = 0.0001;
+			let fgInstMax = 0.0001;
 			for (let b = 0; b < FG_BANDS; b++) {
 				const coefs = this._fgCoefs[b];
 				let re = 0, im = 0;
@@ -76,12 +78,12 @@ export class spectrumCanvas {
 					im -= mono[n] * coefs[n].sin;
 				}
 				fgMags[b] = Math.sqrt(Math.sqrt(re * re + im * im) / sampleCount);
-				if (fgMags[b] > fgMax) fgMax = fgMags[b];
+				if (fgMags[b] > fgInstMax) fgInstMax = fgMags[b];
 			}
 
 			// Compute background (bass) spectrum
 			const bgMags = new Float32Array(BG_BANDS);
-			let bgMax = 0.0001;
+			let bgInstMax = 0.0001;
 			for (let b = 0; b < BG_BANDS; b++) {
 				const coefs = this._bgCoefs[b];
 				let re = 0, im = 0;
@@ -90,14 +92,30 @@ export class spectrumCanvas {
 					im -= mono[n] * coefs[n].sin;
 				}
 				bgMags[b] = Math.sqrt(Math.sqrt(re * re + im * im) / sampleCount);
-				if (bgMags[b] > bgMax) bgMax = bgMags[b];
+				if (bgMags[b] > bgInstMax) bgInstMax = bgMags[b];
+			}
+
+			// Dynamic amplification: instant attack, slow decay
+			// Attack: jump up immediately when louder
+			// Decay: fall gradually so quiet passages don't fill 80% of height
+			if (fgInstMax > this._fgSmoothMax) {
+				this._fgSmoothMax = fgInstMax;
+			} else {
+				this._fgSmoothMax *= 0.96; // ~1s decay at 60fps
+				if (this._fgSmoothMax < 0.001) this._fgSmoothMax = 0.001;
+			}
+			if (bgInstMax > this._bgSmoothMax) {
+				this._bgSmoothMax = bgInstMax;
+			} else {
+				this._bgSmoothMax *= 0.96;
+				if (this._bgSmoothMax < 0.001) this._bgSmoothMax = 0.001;
 			}
 
 			// Draw background bass layer (R color, low opacity, thicker)
-			this._drawCurve(ctx, w, h, bgMags, bgMax, BG_BANDS, this._cachedRColor, 0.25, scale * 2);
+			this._drawCurve(ctx, w, h, bgMags, this._bgSmoothMax, BG_BANDS, this._cachedRColor, 0.25, scale * 2);
 
 			// Draw foreground main layer (L color, full opacity)
-			this._drawCurve(ctx, w, h, fgMags, fgMax, FG_BANDS, this._cachedLColor, 1.0, scale);
+			this._drawCurve(ctx, w, h, fgMags, this._fgSmoothMax, FG_BANDS, this._cachedLColor, 1.0, scale);
 		};
 
 		events.listen("spectrumUpdate", this._EventUpdateCanvas);
@@ -156,9 +174,6 @@ export class spectrumCanvas {
 
 	private _initBands(sampleRate: number, bufferSize: number): void {
 		this._sampleRate = sampleRate;
-		this._fgCoefs = [];
-		this._bgCoefs = [];
-
 		this._fgCoefs = this._buildCoefs(FG_BANDS, FG_MIN_FREQ, FG_MAX_FREQ, sampleRate, bufferSize);
 		this._bgCoefs = this._buildCoefs(BG_BANDS, BG_MIN_FREQ, BG_MAX_FREQ, sampleRate, bufferSize);
 	}
