@@ -1914,6 +1914,11 @@ html {
 	width: 100%;
 }
 
+.beepboxEditor .prompt.cleanChannelPrompt .ccpBottomBar > button {
+	flex: none;
+	min-width: 0;
+}
+
 /* ── Song Recovery Prompt ── */
 .beepboxEditor .prompt.songRecoveryPrompt {
 	width: 300px;
