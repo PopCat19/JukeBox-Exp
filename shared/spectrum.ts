@@ -149,25 +149,39 @@ export class spectrumCanvas {
 				const bgIm = (k === 0 || k === bgHalfN) ? 0 : bgBuf[bgFftSize - k];
 				bgMagsArr[k] = Math.sqrt(bgRe * bgRe + bgIm * bgIm) / bgFftSize;
 			}
-			// Linear interpolation: each note is within 0.5 semitones of a band center
-			for (let b = 0; b < BG_BANDS; b++) {
-				const kFloat = this._bgFreqs[b] / bgBinFreq;
-				const kLo = Math.floor(kFloat);
-				const kHi = Math.min(kLo + 1, bgHalfN);
-				const frac = kFloat - kLo;
-				bgMags[b] = bgMagsArr[kLo] + (bgMagsArr[kHi] - bgMagsArr[kLo]) * frac;
+			// Gaussian-weighted contribution per band: sigma = 1 semitone
+			// A sliding tone at any frequency contributes to multiple bands as exp(-d^2/2)
+			// where d = semitones of distance from band center
+			// Single-peak gaussian: find dominant frequency, spread as one smooth hill
+			// Step 1: find max FFT bin in the BG frequency range
+			const bgMaxK = this._bgFreqs[0] / bgBinFreq | 0;
+			const bgMaxEnd = Math.min(bgHalfN, (this._bgFreqs[BG_BANDS - 1] * 2 / bgBinFreq) | 0);
+			let peakBin = bgMaxK;
+			let peakVal = bgMagsArr[bgMaxK];
+			for (let k = bgMaxK + 1; k <= bgMaxEnd; k++) {
+				if (bgMagsArr[k] > peakVal) { peakVal = bgMagsArr[k]; peakBin = k; }
 			}
-			// Spatial blur: gaussian kernel spreads energy for wave-like smoothness
-			// 5-tap: [0.0625, 0.25, 0.375, 0.25, 0.0625]
-			for (let p = 0; p < 3; p++) {
-				let b0 = bgMags[0], b1 = bgMags[Math.min(1, BG_BANDS - 1)];
+			// Step 2: sub-bin centroid via quadratic interpolation
+			let peakFreq: number;
+			if (peakBin > 0 && peakBin < bgHalfN) {
+				const ym1 = bgMagsArr[peakBin - 1], y0 = peakVal, yp1 = bgMagsArr[peakBin + 1];
+				const frac = (ym1 - yp1) / (2 * (ym1 + yp1 - 2 * y0));
+				peakFreq = (peakBin + Math.max(-0.5, Math.min(0.5, frac))) * bgBinFreq;
+			} else {
+				peakFreq = peakBin * bgBinFreq;
+			}
+			// Step 3: no tone if below noise floor
+			const hasTone = peakVal > 0.0001;
+			// Step 4: spread as gaussian hill (sigma = 2 semitones)
+			if (hasTone) {
+				const logFreq = Math.log(peakFreq);
+				const logSr12 = Math.log(1.059463);
 				for (let b = 0; b < BG_BANDS; b++) {
-					const b2 = b + 1 < BG_BANDS ? bgMags[b + 1] : bgMags[b];
-					const b3 = b + 2 < BG_BANDS ? bgMags[b + 2] : bgMags[b];
-					const blurred = b0 * 0.0625 + b1 * 0.25 + bgMags[b] * 0.375 + b2 * 0.25 + b3 * 0.0625;
-					b0 = b1; b1 = bgMags[b];
-					bgMags[b] = blurred;
+					const semitones = (Math.log(this._bgFreqs[b]) - logFreq) / logSr12;
+					bgMags[b] = peakVal * Math.exp(-0.5 * semitones * semitones / 4);
 				}
+			} else {
+				bgMags.fill(0);
 			}
 			for (let b = 0; b < BG_BANDS; b++) {
 				if (bgMags[b] > bgInstMax) bgInstMax = bgMags[b];
