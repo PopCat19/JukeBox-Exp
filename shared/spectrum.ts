@@ -40,7 +40,7 @@ export class spectrumCanvas {
 
 	// Fixed normalization references (floor for soft compression)
 	private static readonly FG_REF = 0.02;
-	private static readonly BG_REF = 0.5;
+	private static readonly BG_REF = 0.005;
 	// Peak hold: gentle decay (0.92 ≈ 120ms) so peaks reach ceiling
 	// without being too aggressive like the old 30ms (0.57)
 	private _bgSmoothMax = 0.001;
@@ -96,7 +96,7 @@ export class spectrumCanvas {
 			for (let k = 0; k <= halfN; k++) {
 				const re = fftBuf[k];
 				const im = (k === 0 || k === halfN) ? 0 : fftBuf[fftSize - k];
-				mags[k] = Math.sqrt(re * re + im * im) / fftSize;
+				mags[k] = Math.sqrt(re * re + im * im) / fftSize; // keep /N for FG (linear mag)
 			}
 
 			// Interpolate FG + BG bands from FFT bins (log-frequency interpolation)
@@ -116,8 +116,8 @@ export class spectrumCanvas {
 				const kLo = Math.floor(kFloat);
 				const kHi = Math.min(kLo + 1, halfN);
 				const frac = kFloat - kLo;
-				const mag = mags[kLo] + (mags[kHi] - mags[kLo]) * frac;
-				bgMags[b] = mag * mag; // squared for power-law
+				// Interpolate magnitude from adjacent FFT bins (natural, no squaring)
+				bgMags[b] = mags[kLo] + (mags[kHi] - mags[kLo]) * frac;
 				if (bgMags[b] > bgInstMax) bgInstMax = bgMags[b];
 			}
 
