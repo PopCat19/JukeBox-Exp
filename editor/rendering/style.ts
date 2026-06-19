@@ -1918,7 +1918,8 @@ html {
 
 .beepboxEditor .prompt.cleanChannelPrompt .ccpBottomBar > button {
 	flex: none;
-	min-width: 0;
+	padding: 0 var(--padding-12);
+	white-space: nowrap;
 }
 
 /* ── Song Recovery Prompt ── */
