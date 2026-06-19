@@ -15,6 +15,8 @@ import { forwardRealFourierTransform } from "../synth/fft";
 
 const FG_BANDS = 56;
 const FG_MIN_FREQ = 165;
+const BG_MIN_FREQ = 25;
+const BG_MAX_FREQ = 320;
 
 const BG_BANDS = 12;
 
@@ -236,12 +238,15 @@ export class spectrumCanvas {
 
 	private _initBands(sampleRate: number): void {
 		this._sampleRate = sampleRate;
-		// Compute BG center frequencies: 12TET semitones (every 4th, covering 10-160Hz)
+		// Compute BG center frequencies: 12TET semitones
+		// Find the semitone nearest to BG_MIN_FREQ that allows even spacing to BG_MAX_FREQ
 		this._bgFreqs.length = 0;
-		const a4b = 440;
-		const noteStart = 16; // ~20.6Hz, so band 11 = 262Hz (every 4th semitone)
+		const bgA4 = 440;
+		const bgNoteStart = Math.round(12 * Math.log2(BG_MIN_FREQ / bgA4) + 69);
+		const bgNoteEnd = Math.round(12 * Math.log2(BG_MAX_FREQ / bgA4) + 69);
+		const bgStep = Math.floor((bgNoteEnd - bgNoteStart) / (BG_BANDS - 1));
 		for (let b = 0; b < BG_BANDS; b++) {
-			this._bgFreqs.push(a4b * Math.pow(2, (noteStart + b * 4 - 69) / 12));
+			this._bgFreqs.push(bgA4 * Math.pow(2, (bgNoteStart + b * bgStep - 69) / 12));
 		}
 		// Compute FG center frequencies: 12TET semitones (A4=440Hz)
 		// Note 0 = E4 (164.8Hz), covers 160-4000Hz range
