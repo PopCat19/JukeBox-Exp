@@ -1027,25 +1027,14 @@ export class Synth {
 
 	private _startSpectrumDecay(): void {
 		if (this._spectrumDecayRAF !== null) return;
-		let frames = 0;
-		const maxFrames = 2; // no smoothing: silence = zero mags immediately, just need render + reset
-		const decayLoop = (): void => {
-			if (frames >= maxFrames || !this.spectrumEnabled || !this.onSpectrumUpdate) {
-				// Final: send one more silence frame, then reset spectrum to flat
-				if (this.onSpectrumUpdate) {
-					const silence = new Float32Array(this._currentBufferSize || 2048);
-					this.onSpectrumUpdate(silence, silence);
-				}
-				if (this.onSpectrumReset) this.onSpectrumReset();
-				this._spectrumDecayRAF = null;
-				return;
-			}
+		// Immediately render flat spectrum (don't wait for RAF, which leaves
+		// the last active frame visible for ~16ms)
+		if (this.spectrumEnabled && this.onSpectrumUpdate) {
 			const silence = new Float32Array(this._currentBufferSize || 2048);
 			this.onSpectrumUpdate(silence, silence);
-			frames++;
-			this._spectrumDecayRAF = requestAnimationFrame(decayLoop);
-		};
-		this._spectrumDecayRAF = requestAnimationFrame(decayLoop);
+		}
+		if (this.onSpectrumReset) this.onSpectrumReset();
+		this._spectrumDecayRAF = null;
 	}
 
 	private _onWorkletNeedData(): void {
