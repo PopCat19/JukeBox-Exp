@@ -13,7 +13,7 @@ import { ColorConfig } from "./color-config";
 import { events } from "./events";
 
 const FG_BANDS = 16;
-const FG_MIN_FREQ = 250;
+const FG_MIN_FREQ = 500; // mid+high, bass is exclusive to BG
 const FG_MAX_FREQ = 8000;
 
 const BG_BANDS = 8;
@@ -112,10 +112,10 @@ export class spectrumCanvas {
 			}
 
 			// Draw background bass layer (R color, low opacity, thicker)
-			this._drawCurve(ctx, w, h, bgMags, this._bgSmoothMax, BG_BANDS, this._cachedRColor, 0.25, scale * 2);
+			this._drawCurve(ctx, w, h, bgMags, this._bgSmoothMax, BG_BANDS, this._cachedRColor, 0.25);
 
 			// Draw foreground main layer (L color, full opacity)
-			this._drawCurve(ctx, w, h, fgMags, this._fgSmoothMax, FG_BANDS, this._cachedLColor, 1.0, scale);
+			this._drawCurve(ctx, w, h, fgMags, this._fgSmoothMax, FG_BANDS, this._cachedLColor, 1.0);
 		};
 
 		events.listen("spectrumUpdate", this._EventUpdateCanvas);
@@ -129,7 +129,6 @@ export class spectrumCanvas {
 		bandCount: number,
 		color: string,
 		opacity: number,
-		lineWidth: number,
 	): void {
 		const bandWidth = w / (bandCount - 1);
 		const ys = new Array<number>(bandCount);
@@ -153,21 +152,6 @@ export class spectrumCanvas {
 		ctx.closePath();
 		ctx.fillStyle = color;
 		ctx.fill();
-
-		// Stroke curve line
-		ctx.beginPath();
-		ctx.moveTo(0, ys[0]);
-		for (let b = 0; b < bandCount - 1; b++) {
-			const x1 = b * bandWidth;
-			const x2 = (b + 1) * bandWidth;
-			ctx.quadraticCurveTo(x1, ys[b], (x1 + x2) * 0.5, (ys[b] + ys[b + 1]) * 0.5);
-		}
-		ctx.quadraticCurveTo((bandCount - 1) * bandWidth, ys[bandCount - 1], w, ys[bandCount - 1]);
-		ctx.strokeStyle = color;
-		ctx.lineWidth = lineWidth;
-		ctx.lineJoin = "round";
-		ctx.lineCap = "round";
-		ctx.stroke();
 
 		ctx.globalAlpha = 1.0;
 	}
