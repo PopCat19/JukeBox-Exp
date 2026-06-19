@@ -13,12 +13,12 @@ import { ColorConfig } from "./color-config";
 import { events } from "./events";
 
 const FG_BANDS = 16;
-const FG_MIN_FREQ = 600;
-const FG_MAX_FREQ = 12000;
+const FG_MIN_FREQ = 300;
+const FG_MAX_FREQ = 8000;
 
 const BG_BANDS = 12;
-const BG_MIN_FREQ = 20;
-const BG_MAX_FREQ = 600;
+const BG_MIN_FREQ = 30;
+const BG_MAX_FREQ = 240;
 
 export class spectrumCanvas {
 	public _EventUpdateCanvas: (left: Float32Array, right?: Float32Array) => void;
