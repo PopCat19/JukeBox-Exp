@@ -30,10 +30,10 @@ export class spectrumCanvas {
 	private _sampleRate = 48000;
 	private _lastBufferSize = 0;
 	private readonly _bgFreqs: number[] = [];
-	// Ring buffer for BG long-FFT (16384 = ~341ms at 48kHz, provides 2.93Hz bins)
-	private _bgRingBuf: Float32Array = new Float32Array(16384);
+	// Ring buffer for BG long-FFT (8192 = ~170ms at 48kHz, provides 5.86Hz bins)
+	private _bgRingBuf: Float32Array = new Float32Array(8192);
 	private _bgRingPos = 0;
-	private _bgFftBuf: Float32Array = new Float32Array(16384);
+	private _bgFftBuf: Float32Array = new Float32Array(8192);
 	private readonly _fgFreqs: number[] = [];
 
 	// Fixed normalization references (floor for soft compression)
@@ -94,7 +94,7 @@ export class spectrumCanvas {
 				fftBuf[i] = s * hann;
 				// Accumulate raw (unwindowed) audio in BG ring buffer for high-res FFT
 				this._bgRingBuf[this._bgRingPos] = s;
-				this._bgRingPos = (this._bgRingPos + 1) & 16383;
+				this._bgRingPos = (this._bgRingPos + 1) & 8191;
 			}
 			for (let i = copyLen; i < fftSize; i++) fftBuf[i] = 0;
 			forwardRealFourierTransform(fftBuf);
@@ -151,12 +151,12 @@ export class spectrumCanvas {
 			}
 
 			const bgMags = new Float32Array(BG_BANDS);
-			// BG: separate 16384-sample FFT for 2.93Hz bins (fine low-freq resolution)
-			const bgFftSize = 16384;
+			// BG: separate 8192-sample FFT for 5.86Hz bins (fine low-freq resolution), halves attack lag vs 16384
+			const bgFftSize = 8192;
 			const bgHalfN = bgFftSize >> 1;
 			const bgBuf = this._bgFftBuf;
 			for (let i = 0; i < bgFftSize; i++) {
-				const idx = (this._bgRingPos + i) & 16383;
+				const idx = (this._bgRingPos + i) & 8191;
 				const hann = 0.5 * (1 - Math.cos(2 * Math.PI * i / (bgFftSize - 1)));
 				bgBuf[i] = this._bgRingBuf[idx] * hann;
 			}
@@ -205,7 +205,7 @@ export class spectrumCanvas {
 				if (fgMags[b] > this._fgSmoothMags[b]) {
 					this._fgSmoothMags[b] = fgMags[b]; // instant attack
 				} else {
-					this._fgSmoothMags[b] = this._fgSmoothMags[b] * 0.31 + fgMags[b] * 0.69;
+					this._fgSmoothMags[b] = this._fgSmoothMags[b] * 0.55 + fgMags[b] * 0.45;
 				}
 			}
 
