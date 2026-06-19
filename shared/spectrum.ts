@@ -11,12 +11,13 @@
 
 import { ColorConfig } from "./color-config";
 import { events } from "./events";
+import { forwardRealFourierTransform } from "../synth/fft";
 
 const FG_BANDS = 32;
 const FG_MIN_FREQ = 160;
 const FG_MAX_FREQ = 4000;
 
-const BG_BANDS = 24;
+const BG_BANDS = 12;
 const BG_MIN_FREQ = 20;
 const BG_MAX_FREQ = 160;
 
@@ -24,7 +25,7 @@ const BG_MAX_FREQ = 160;
 // Q=8 means bandwidth = freq/8. Higher Q = narrower filters.
 // At 2048 buffer/48kHz: lowest freq with full CQT is ~60Hz.
 // Below that, window is clamped to buffer size.
-const CQT_Q = 8;
+const FFT_SIZE = 2048;
 
 export class spectrumCanvas {
 	public _EventUpdateCanvas: (left: Float32Array, right?: Float32Array) => void;
@@ -32,15 +33,10 @@ export class spectrumCanvas {
 	private _cachedLColor: string = "";
 	private _cachedRColor: string = "";
 
-	private _fgCoefs: { cos: Float32Array; sin: Float32Array; len: number }[] = [];
-	private _bgCoefs: { cos: Float32Array; sin: Float32Array; len: number }[] = [];
 	private _sampleRate = 48000;
 	private _lastBufferSize = 0;
 	private readonly _bgFreqs: number[] = [];
 	private readonly _fgFreqs: number[] = [];
-	// Rolling buffer for CQT: accumulates chunks so low freqs get enough samples
-	private _ringBuffer: Float32Array = new Float32Array(32768); // ~683ms, enough for 20Hz CQT window: 8*48000/20=19200
-	private _ringPos = 0;
 
 	// Fixed normalization references (floor for soft compression)
 	private static readonly FG_REF = 0.02;
@@ -48,17 +44,19 @@ export class spectrumCanvas {
 	// Peak hold: gentle decay (0.92 ≈ 120ms) so peaks reach ceiling
 	// without being too aggressive like the old 30ms (0.57)
 	private _bgSmoothMax = 0.001;
+	// FFT scratch buffer (reused each frame)
+	private _fftBuffer: Float32Array = new Float32Array(FFT_SIZE);
 	// Per-band temporal smoothing (~30ms decay at 60fps)
 	// factor^2 ≈ 0.1, so ~30ms to decay to 10%
 	private _fgSmoothMags = new Float32Array(32);
-	private _bgSmoothMags = new Float32Array(24);
+	private _bgSmoothMags = new Float32Array(12);
 
 	constructor(
 		public readonly canvas: HTMLCanvasElement,
 		readonly scale: number = 1,
 	) {
 		this._updateCachedColors();
-		this._initBands(48000, 2048);
+		this._initBands(48000);
 
 		this._EventUpdateCanvas = (directlinkL: Float32Array, directlinkR?: Float32Array): void => {
 			if (!directlinkR) return;
@@ -75,50 +73,51 @@ export class spectrumCanvas {
 			if (sampleCount < 4) return;
 
 			if (sampleCount !== this._lastBufferSize) {
-				this._initBands(this._sampleRate, sampleCount);
+				this._initBands(this._sampleRate);
 				this._lastBufferSize = sampleCount;
 			}
+			this._sampleRate = this._sampleRate || 48000;
 
-			// Mix to mono and accumulate in ring buffer for CQT
-			const ringBuf = this._ringBuffer;
-			const ringLen = this._ringBuffer.length;
-			for (let i = 0; i < sampleCount; i++) {
-				ringBuf[(this._ringPos + i) & (ringLen - 1)] = (directlinkL[i] + directlinkR[i]) * 0.5;
+			// Compute FFT on latest samples (mix to mono, Hann window)
+			const fftBuf = this._fftBuffer;
+			const fftSize = FFT_SIZE;
+			const copyLen = Math.min(sampleCount, fftSize);
+			for (let i = 0; i < copyLen; i++) {
+				const hann = 0.5 * (1 - Math.cos(2 * Math.PI * i / (fftSize - 1)));
+				fftBuf[i] = (directlinkL[i] + directlinkR[i]) * 0.5 * hann;
 			}
-			this._ringPos = (this._ringPos + sampleCount) & (ringLen - 1);
+			for (let i = copyLen; i < fftSize; i++) fftBuf[i] = 0;
+			forwardRealFourierTransform(fftBuf);
 
-			// Compute foreground spectrum (CQT: each band reads from ring buffer)
+			// FFT output format: elements 0..N/2 are real, N/2+1..N-1 are imag in descending order
+			const halfN = fftSize >> 1;
+			const binFreq = this._sampleRate / fftSize;
+			const mags = new Float32Array(halfN + 1);
+			for (let k = 0; k <= halfN; k++) {
+				const re = fftBuf[k];
+				const im = (k === 0 || k === halfN) ? 0 : fftBuf[fftSize - k];
+				mags[k] = Math.sqrt(re * re + im * im) / fftSize;
+			}
+
+			// Interpolate FG + BG bands from FFT bins (log-frequency interpolation)
 			const fgMags = new Float32Array(FG_BANDS);
 			for (let b = 0; b < FG_BANDS; b++) {
-				const bw = this._fgCoefs[b];
-				let re = 0, im = 0;
-				const nFrames = bw.len;
-				// Read nFrames samples from ring buffer ending at current position
-				const offset = this._ringPos - nFrames;
-				for (let n = 0; n < nFrames; n++) {
-					const idx = (offset + n + ringLen * 2) & (ringLen - 1); // ensure positive before mask
-					const hann = 0.5 * (1 - Math.cos(2 * Math.PI * n / (nFrames - 1)));
-					re += ringBuf[idx] * bw.cos[n] * hann;
-					im -= ringBuf[idx] * bw.sin[n] * hann;
-				}
-				fgMags[b] = Math.sqrt(re * re + im * im) / nFrames;
+				const kFloat = this._fgFreqs[b] / binFreq;
+				const kLo = Math.floor(kFloat);
+				const kHi = Math.min(kLo + 1, halfN);
+				const frac = kFloat - kLo;
+				fgMags[b] = mags[kLo] + (mags[kHi] - mags[kLo]) * frac;
 			}
 
-			// Compute background (bass) spectrum (CQT: each band reads from ring buffer)
 			const bgMags = new Float32Array(BG_BANDS);
 			let bgInstMax = 0.0001;
 			for (let b = 0; b < BG_BANDS; b++) {
-				const bw = this._bgCoefs[b];
-				let re = 0, im = 0;
-				const nFrames = bw.len;
-				const offset = this._ringPos - nFrames;
-				for (let n = 0; n < nFrames; n++) {
-					const idx = (offset + n + ringLen * 2) & (ringLen - 1); // ensure positive before mask
-					const hann = 0.5 * (1 - Math.cos(2 * Math.PI * n / (nFrames - 1)));
-					re += ringBuf[idx] * bw.cos[n] * hann;
-					im -= ringBuf[idx] * bw.sin[n] * hann;
-				}
-				bgMags[b] = (re * re + im * im) / nFrames;
+				const kFloat = this._bgFreqs[b] / binFreq;
+				const kLo = Math.floor(kFloat);
+				const kHi = Math.min(kLo + 1, halfN);
+				const frac = kFloat - kLo;
+				const mag = mags[kLo] + (mags[kHi] - mags[kLo]) * frac;
+				bgMags[b] = mag * mag; // squared for power-law
 				if (bgMags[b] > bgInstMax) bgInstMax = bgMags[b];
 			}
 
@@ -197,18 +196,16 @@ export class spectrumCanvas {
 		ctx.globalAlpha = 1.0;
 	}
 
-	private _initBands(sampleRate: number, bufferSize: number): void {
+	private _initBands(sampleRate: number): void {
 		this._sampleRate = sampleRate;
-		this._fgCoefs = this._buildCoefs(FG_BANDS, FG_MIN_FREQ, FG_MAX_FREQ, sampleRate, bufferSize);
-		this._bgCoefs = this._buildCoefs(BG_BANDS, BG_MIN_FREQ, BG_MAX_FREQ, sampleRate, bufferSize);
-		// Compute BG center frequencies for gain curve
+		// Compute BG center frequencies for band interpolation
 		this._bgFreqs.length = 0;
 		const bgLogMin = Math.log(BG_MIN_FREQ);
 		const bgLogMax = Math.log(BG_MAX_FREQ);
 		for (let b = 0; b < BG_BANDS; b++) {
 			this._bgFreqs.push(Math.exp(bgLogMin + (b / (BG_BANDS - 1)) * (bgLogMax - bgLogMin)));
 		}
-		// Compute FG center frequencies for gain curve
+		// Compute FG center frequencies for band interpolation
 		this._fgFreqs.length = 0;
 		const fgLogMin = Math.log(FG_MIN_FREQ);
 		const fgLogMax = Math.log(FG_MAX_FREQ);
@@ -222,36 +219,10 @@ export class spectrumCanvas {
 		this._bgSmoothMags.fill(0);
 	}
 
-	private _buildCoefs(
-		bandCount: number, minFreq: number, maxFreq: number,
-		sampleRate: number, bufferSize: number,
-	): { cos: Float32Array; sin: Float32Array; len: number }[] {
-		const coefs: { cos: Float32Array; sin: Float32Array; len: number }[] = [];
-		const logMin = Math.log(minFreq);
-		const logMax = Math.log(maxFreq);
-		for (let b = 0; b < bandCount; b++) {
-			const t = b / (bandCount - 1);
-			const freq = Math.exp(logMin + t * (logMax - logMin));
-			// CQT: each band processes a frequency-dependent number of samples.
-			// Higher frequencies use fewer samples (wider bandwidth proportional to freq).
-			// Low frequencies use more samples, clamped to buffer size.
-			const cqtLen = Math.min(bufferSize, Math.max(2, Math.round(CQT_Q * sampleRate / freq)));
-			const omega = (2 * Math.PI * freq) / sampleRate;
-			const cos = new Float32Array(cqtLen);
-			const sin = new Float32Array(cqtLen);
-			for (let n = 0; n < cqtLen; n++) {
-				cos[n] = Math.cos(omega * n);
-				sin[n] = Math.sin(omega * n);
-			}
-			coefs.push({ cos, sin, len: cqtLen });
-		}
-		return coefs;
-	}
-
-
 	private _updateCachedColors(): void {
 		this._cachedBgColor = ColorConfig.getComputed("--editor-background") || "black";
 		this._cachedLColor = ColorConfig.getComputed("--spectrum-line-L") || "white";
 		this._cachedRColor = ColorConfig.getComputed("--spectrum-line-R") || "rgba(119,68,255,0.99)";
 	}
 }
+
