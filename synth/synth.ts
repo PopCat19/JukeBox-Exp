@@ -492,6 +492,7 @@ export class Synth {
 	public oscRefreshEventTimer: number = 0;
 	public spectrumEnabled: boolean = true;
 	public onSpectrumUpdate?: (left: Float32Array, right: Float32Array) => void;
+	public onSpectrumReset?: () => void;
 	private _lastSpectrumUpdateTime: number = 0;
 	private static readonly SPECTRUM_UPDATE_INTERVAL_MS: number = 1000 / 60; // 60fps
 	public enableMetronome: boolean = false;
@@ -1027,9 +1028,15 @@ export class Synth {
 	private _startSpectrumDecay(): void {
 		if (this._spectrumDecayRAF !== null) return;
 		let frames = 0;
-		const maxFrames = 6; // ~100ms at 60fps, enough for 30ms smoothing to complete
+		const maxFrames = 2; // no smoothing: silence = zero mags immediately, just need render + reset
 		const decayLoop = (): void => {
 			if (frames >= maxFrames || !this.spectrumEnabled || !this.onSpectrumUpdate) {
+				// Final: send one more silence frame, then reset spectrum to flat
+				if (this.onSpectrumUpdate) {
+					const silence = new Float32Array(this._currentBufferSize || 2048);
+					this.onSpectrumUpdate(silence, silence);
+				}
+				if (this.onSpectrumReset) this.onSpectrumReset();
 				this._spectrumDecayRAF = null;
 				return;
 			}

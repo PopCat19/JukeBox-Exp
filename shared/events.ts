@@ -8,6 +8,7 @@
 
 export interface EventMap {
 	spectrumUpdate: (left: Float32Array, right: Float32Array) => void;
+	spectrumReset: () => void;
 	themeChange: (name: string) => void;
 }
 

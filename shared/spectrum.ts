@@ -143,6 +143,7 @@ export class spectrumCanvas {
 		};
 
 		events.listen("spectrumUpdate", this._EventUpdateCanvas);
+		events.listen("spectrumReset", () => this.reset());
 		events.listen("themeChange", () => this._updateCachedColors());
 	}
 
@@ -196,6 +197,13 @@ export class spectrumCanvas {
 		for (let b = 0; b < BG_BANDS; b++) {
 			this._bgFreqs.push(Math.exp(logMin + (b / (BG_BANDS - 1)) * (logMax - logMin)));
 		}
+	}
+
+	public reset(): void {
+		this._fgSmoothMags.fill(0);
+		this._bgSmoothMags.fill(0);
+		this._fgSmoothMax = 0.001;
+		this._bgSmoothMax = 0.001;
 	}
 
 	private _buildCoefs(
