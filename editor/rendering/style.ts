@@ -2328,13 +2328,14 @@ html {
 	font-weight: ${Typography.weightSemibold};
 }
 
+/* ── Select2 trigger (closed) ── */
 .select2-container .select2-selection--single {
-  height: auto;
+	height: auto;
 }
 
 .select2-container {
-  width: -moz-available !important;
-  width: -webkit-fill-available !important;
+	width: -moz-available !important;
+	width: -webkit-fill-available !important;
 }
 @media (min-width: 711px) {
 	.select2 {
@@ -2342,21 +2343,18 @@ html {
 	}
 }
 
-.select2-container--default .select2-selection--single{
-  border-radius: 0px;
-  border: 0px;
-  background-color: transparent;
-  outline: none;
+.select2-container--default .select2-selection--single {
+	border-radius: var(--border-radius-medium);
+	border: 2px solid transparent;
+	background: ${ColorConfig.uiWidgetBackground};
+	outline: none;
 }
 
-/* PMD: removed the up/down triangles from .select2-selection__rendered.
- * The dropdown's interactivity is already signalled by the focus
- * ring (80x body tier) and the .select2-container--open state. */
 .select2-selection__rendered {
 	margin: 0;
-	padding: 0 0.3em;
+	padding: 0 var(--padding-6);
 	display: block;
-	height: 2em;
+	height: var(--button-size);
 	border: none;
 	border-radius: var(--border-radius-medium);
 	background: ${ColorConfig.uiWidgetBackground};
@@ -2364,25 +2362,50 @@ html {
 	font-size: inherit;
 	cursor: pointer;
 	font-family: inherit;
-	-webkit-appearance:none;
+	font-weight: inherit;
+	box-sizing: border-box;
+	-webkit-appearance: none;
 	-moz-appearance: none;
 	appearance: none;
 }
-.select2-selection__arrow b{
-    display:none !important;
+
+/* ── Select2 arrow ── */
+.select2-selection__arrow {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: var(--button-size);
+	height: 100%;
+	position: absolute;
+	right: 0;
+	top: 0;
+}
+
+.select2-selection__arrow b {
+	display: block;
+	width: 0;
+	height: 0;
+	border-left: 4px solid transparent;
+	border-right: 4px solid transparent;
+	border-top: 5px solid currentColor;
 }
 
 .select2-selection__rendered--focus {
 	background: ${ColorConfig.uiWidgetFocus};
 	outline: none;
 }
+
+/* ── Select2 search ── */
 .select2-search__field {
-    background: ${ColorConfig.uiWidgetBackground};
-    color: inherit !important;
-    font-size: small;
-    font-family: inherit;
-    border: 0px !important;
-    padding: 1px !important;
+	background: ${ColorConfig.uiWidgetBackground};
+	color: inherit !important;
+	font-size: 12px;
+	font-family: inherit;
+	border: none;
+	padding: var(--padding-6);
+	border-radius: var(--border-radius-medium);
+	box-sizing: border-box;
+	width: 100%;
 }
 .select2-dropdown {
     box-sizing: border-box;
@@ -2392,7 +2415,7 @@ html {
     position: fixed;
     vertical-align: middle;
     background-color: ${ColorConfig.uiWidgetFocus};
-    /* PMD: position: fixed lets the dropdown escape the
+    /* position: fixed lets the dropdown escape the
      * .beepboxEditor ancestor's overflow: hidden. Select2
      * positions via inline top/left computed from the trigger's
      * getBoundingClientRect(), which are viewport-relative and
@@ -2433,10 +2456,13 @@ html {
 .beepboxEditor .menu select {
 	padding: 0 var(--button-size);
 }
-.beepboxEditor select:hover,
-.select2-container--open .select2-selection {
+.beepboxEditor select:hover {
 	box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--indicator-primary, #4444ff), transparent 50%);
 	outline: none;
+}
+.select2-container:hover .select2-selection--single,
+.select2-container--open .select2-selection--single {
+	border-color: var(--hout, var(--primary-text));
 }
 
 .beepboxEditor select:active {
