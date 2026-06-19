@@ -1863,7 +1863,7 @@ html {
 
 /* ── Column headers — meta tier: 80x @ 48%, 10px/500 ── */
 .beepboxEditor .prompt.cleanChannelPrompt th {
-	text-align: left;
+	text-align: center;
 	padding: var(--padding-2) var(--padding-6);
 	font-size: 10px;
 	font-weight: 500;
@@ -1873,6 +1873,7 @@ html {
 
 /* ── Table data — body tier: 80x @ 100%, 12px/500 ── */
 .beepboxEditor .prompt.cleanChannelPrompt td {
+	text-align: center;
 	padding: var(--padding-2) var(--padding-6);
 	font-size: 12px;
 	font-weight: 500;
@@ -1886,11 +1887,13 @@ html {
 }
 
 /* ── Fingerprint — subtext tier: 64x @ 100%, 10px ── */
-.beepboxEditor .prompt.cleanChannelPrompt .ccpFingerprint {
+.beepboxEditor .prompt.cleanChannelPrompt td.ccpFingerprint,
+.beepboxEditor .prompt.cleanChannelPrompt th.ccpFingerprint {
 	color: var(--secondary-text);
 	font-size: 10px;
 	word-break: break-all;
 	max-width: 200px;
+	text-align: left;
 }
 
 .beepboxEditor .prompt.cleanChannelPrompt tr:nth-child(even) td {

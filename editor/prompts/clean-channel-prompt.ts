@@ -414,7 +414,9 @@ export class CleanChannelPrompt extends BasePrompt {
 			),
 		);
 
-		const rows: HTMLTableRowElement[] = [tr(th("Old inst"), th({ class: "ccpArrow" }, "→"), th("New inst"), th("Fingerprint"))];
+		const rows: HTMLTableRowElement[] = [
+			tr(th("Old inst"), th({ class: "ccpArrow" }, "→"), th("New inst"), th({ class: "ccpFingerprint" }, "Fingerprint")),
+		];
 		for (const r of diff.remap) {
 			rows.push(
 				tr(
