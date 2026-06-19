@@ -104,21 +104,12 @@ export class spectrumCanvas {
 				if (bgMags[b] > bgInstMax) bgInstMax = bgMags[b];
 			}
 
-			// Per-band temporal smoothing: instant attack, ~100ms decay
-			// At 60fps, 6 frames = 100ms. factor^6 ≈ 0.1
+			// No per-band smoothing: raw magnitudes directly
 			for (let b = 0; b < FG_BANDS; b++) {
-				if (fgMags[b] > this._fgSmoothMags[b]) {
-					this._fgSmoothMags[b] = fgMags[b]; // instant attack
-				} else {
-					this._fgSmoothMags[b] = this._fgSmoothMags[b] * 0.32 + fgMags[b] * 0.68; // ~30ms decay
-				}
+				this._fgSmoothMags[b] = fgMags[b];
 			}
 			for (let b = 0; b < BG_BANDS; b++) {
-				if (bgMags[b] > this._bgSmoothMags[b]) {
-					this._bgSmoothMags[b] = bgMags[b]; // instant attack
-				} else {
-					this._bgSmoothMags[b] = this._bgSmoothMags[b] * 0.68 + bgMags[b] * 0.32; // ~100ms decay
-				}
+				this._bgSmoothMags[b] = bgMags[b];
 			}
 
 			// Dynamic amplification: instant attack, slow decay

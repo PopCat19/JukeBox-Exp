@@ -1027,13 +1027,13 @@ export class Synth {
 
 	private _startSpectrumDecay(): void {
 		if (this._spectrumDecayRAF !== null) return;
-		// Immediately render flat spectrum (don't wait for RAF, which leaves
-		// the last active frame visible for ~16ms)
+		// Reset first (clears mags to 0, maxHold to 0.001), then render
+		// silence frame so canvas draws 0/0.001 = flat immediately
+		if (this.onSpectrumReset) this.onSpectrumReset();
 		if (this.spectrumEnabled && this.onSpectrumUpdate) {
 			const silence = new Float32Array(this._currentBufferSize || 2048);
 			this.onSpectrumUpdate(silence, silence);
 		}
-		if (this.onSpectrumReset) this.onSpectrumReset();
 		this._spectrumDecayRAF = null;
 	}
 
