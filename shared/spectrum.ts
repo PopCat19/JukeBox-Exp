@@ -17,7 +17,7 @@ const FG_MIN_FREQ = 20;
 const FG_MAX_FREQ = 4000;
 
 const BG_BANDS = 24;
-const BG_MIN_FREQ = 0;
+const BG_MIN_FREQ = 10;
 const BG_MAX_FREQ = 120;
 
 export class spectrumCanvas {
