@@ -13,10 +13,10 @@ import { ColorConfig } from "./color-config";
 import { events } from "./events";
 import { forwardRealFourierTransform } from "../synth/fft";
 
-const FG_BANDS = 67;
+const FG_BANDS = 133;
 const FG_MIN_FREQ = 130;
 const BG_MIN_FREQ = 20;
-const BG_BANDS = 34;
+const BG_BANDS = 67;
 
 
 
@@ -46,8 +46,8 @@ export class spectrumCanvas {
 	private _fftBuffer: Float32Array = new Float32Array(2048);
 	// Per-band temporal smoothing (~30ms decay at 60fps)
 	// factor^2 ≈ 0.1, so ~30ms to decay to 10%
-	private _fgSmoothMags = new Float32Array(67);
-	private _bgSmoothMags = new Float32Array(34);
+	private _fgSmoothMags = new Float32Array(133);
+	private _bgSmoothMags = new Float32Array(67);
 
 	constructor(
 		public readonly canvas: HTMLCanvasElement,
@@ -124,14 +124,14 @@ export class spectrumCanvas {
 					fgMags[b] = qa * frac * frac + qb * frac + qc;
 				}
 			}
-			// Light gaussian spatial blur (sigma=1.5 bands) to suppress tiny peak jitter
+			// Light gaussian spatial blur (sigma=3 bands = 1.5 semitones) to suppress tiny peak jitter
 			{
 				const blurred = new Float32Array(FG_BANDS);
 				for (let b = 0; b < FG_BANDS; b++) {
 					let sum = 0, wSum = 0;
 					for (let n = 0; n < FG_BANDS; n++) {
 						const d = n - b;
-						const w = Math.exp(-0.5 * d * d / 2.25);
+						const w = Math.exp(-0.5 * d * d / 9);
 						sum += fgMags[n] * w;
 						wSum += w;
 					}
@@ -168,14 +168,14 @@ export class spectrumCanvas {
 				const frac = kFloat - kLo;
 				bgMags[b] = bgMagsArr[kLo] + (bgMagsArr[kHi] - bgMagsArr[kLo]) * frac;
 			}
-			// Wide gaussian spatial blur (sigma=2.5 bands) for smooth slides across semitones
+			// Wide gaussian spatial blur (sigma=5 bands = 2.5 semitones) for smooth slides
 			{
 				const blurred = new Float32Array(BG_BANDS);
 				for (let b = 0; b < BG_BANDS; b++) {
 					let sum = 0, wSum = 0;
 					for (let n = 0; n < BG_BANDS; n++) {
 						const d = n - b;
-						const w = Math.exp(-0.5 * d * d / 6.25); // sigma=2.5
+						const w = Math.exp(-0.5 * d * d / 25); // sigma=5
 						sum += bgMags[n] * w;
 						wSum += w;
 					}
@@ -269,15 +269,15 @@ export class spectrumCanvas {
 		this._bgFreqs.length = 0;
 		const bgA4 = 440;
 		const bgNoteStart = Math.round(12 * Math.log2(BG_MIN_FREQ / bgA4) + 69);
-		// Every semitone: 40 bands from ~20Hz to ~185Hz (matches BG_BANDS)
+		// Every quarter-tone (24TET): 67 bands from ~20Hz to ~130Hz
 		for (let b = 0; b < BG_BANDS; b++) {
-			this._bgFreqs.push(bgA4 * Math.pow(2, (bgNoteStart + b - 69) / 12));
+			this._bgFreqs.push(bgA4 * Math.pow(2, (bgNoteStart + b * 0.5 - 69) / 12));
 		}
-		// Every semitone: 61 bands from ~185Hz to ~6000Hz (matches FG_BANDS)
+		// Every quarter-tone (24TET): 133 bands from ~130Hz to ~6000Hz
 		this._fgFreqs.length = 0;
 		const fgNoteStart = Math.round(12 * Math.log2(FG_MIN_FREQ / 440) + 69);
 		for (let b = 0; b < FG_BANDS; b++) {
-			this._fgFreqs.push(440 * Math.pow(2, (fgNoteStart + b - 69) / 12));
+			this._fgFreqs.push(440 * Math.pow(2, (fgNoteStart + b * 0.5 - 69) / 12));
 		}
 	}
 
