@@ -13,12 +13,12 @@ import { ColorConfig } from "./color-config";
 import { events } from "./events";
 
 const FG_BANDS = 16;
-const FG_MIN_FREQ = 500; // mid+high, bass is exclusive to BG
-const FG_MAX_FREQ = 8000;
+const FG_MIN_FREQ = 201;
+const FG_MAX_FREQ = 12000;
 
 const BG_BANDS = 8;
 const BG_MIN_FREQ = 20;
-const BG_MAX_FREQ = 250;
+const BG_MAX_FREQ = 200;
 
 export class spectrumCanvas {
 	public _EventUpdateCanvas: (left: Float32Array, right?: Float32Array) => void;
