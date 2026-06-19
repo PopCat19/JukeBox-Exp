@@ -12,7 +12,7 @@
 import { ColorConfig } from "./color-config";
 import { events } from "./events";
 
-const FG_BANDS = 16;
+const FG_BANDS = 48;
 const FG_MIN_FREQ = 300;
 const FG_MAX_FREQ = 6000;
 
@@ -26,7 +26,7 @@ const BG_MAX_FREQ = 240;
 // and eliminates the wedge (high freqs show their natural low level).
 const FG_MIN_DB = -80;   // noise floor
 const FG_MAX_DB = -25;   // loud band ceiling (narrow range = more contrast)
-const FG_BOOST = 1.3;     // mild contrast: pushes mid values down
+const FG_BOOST = 1.5;     // mild contrast: pushes mid values down
 
 const BG_MIN_DB = -70;   // silence floor
 const BG_MAX_DB = 20;    // bass can be very loud (+15dB measured), needs headroom
@@ -50,7 +50,7 @@ export class spectrumCanvas {
 	private readonly _fgFreqs: number[] = [];
 
 	// Per-band temporal smoothing (30ms time constant)
-	private _fgSmoothMags = new Float32Array(16);
+	private _fgSmoothMags = new Float32Array(48);
 	private _bgSmoothMags = new Float32Array(40);
 
 	constructor(
