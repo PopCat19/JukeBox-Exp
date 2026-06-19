@@ -215,6 +215,10 @@ export class CleanChannelPrompt extends BasePrompt {
 	private _diffs: ChannelDiff[] = [];
 	private _selectedIndex: number = 0;
 
+	private _lastInteraction: "keyboard" | "mouse" | "hover" | null = null;
+	private _activePane: "list" | "details" = "list";
+	private _hoveredPane: "list" | "details" | null = null;
+
 	private readonly _channelList: HTMLDivElement = div({ class: "ccpList" });
 	private readonly _detailPane: HTMLDivElement = flexPane({
 		flex: "1",
@@ -249,10 +253,22 @@ export class CleanChannelPrompt extends BasePrompt {
 		this._detailPane.style.border = "2px solid var(--ui-widget-background)";
 		this._detailPane.style.borderRadius = "var(--border-radius-medium)";
 		this._detailPane.style.overflow = "hidden";
+		this._detailPane.style.transition = "border-color 0.15s";
+		this._detailPane.addEventListener("mouseenter", () => {
+			this._lastInteraction = "hover";
+			this._hoveredPane = "details";
+			this._updateHighlight();
+		});
 
 		const listContainer = div({ class: "ccpListContainer" }, this._channelList);
 
 		this._leftPane = div({ class: "ccpLeftPane" }, listContainer);
+		this._leftPane.style.transition = "border-color 0.15s";
+		this._leftPane.addEventListener("mouseenter", () => {
+			this._lastInteraction = "hover";
+			this._hoveredPane = "list";
+			this._updateHighlight();
+		});
 
 		this.container = div(
 			{ class: "prompt cleanChannelPrompt noSelection" },
@@ -269,6 +285,12 @@ export class CleanChannelPrompt extends BasePrompt {
 
 		this.buildTitlebar();
 
+		this.container.addEventListener("mouseleave", () => {
+			this._hoveredPane = null;
+			this._lastInteraction = null;
+			this._updateHighlight();
+		});
+
 		if (hasChanges) {
 			this._selectedIndex = 0;
 			this._renderList();
@@ -277,6 +299,14 @@ export class CleanChannelPrompt extends BasePrompt {
 			this._renderEmpty();
 		}
 	}
+
+	private _updateHighlight = (): void => {
+		const effectivePane = this._lastInteraction === "hover" && this._hoveredPane != null ? this._hoveredPane : this._activePane;
+		const focusedPane = effectivePane === "list" ? this._leftPane : this._detailPane;
+		const unfocusedPane = effectivePane === "list" ? this._detailPane : this._leftPane;
+		focusedPane.style.borderColor = "var(--indicator-primary, #4444ff)";
+		unfocusedPane.style.borderColor = "var(--ui-widget-background)";
+	};
 
 	private _switchTab(tab: Tab): void {
 		if (tab === this._tab) return;
