@@ -48,6 +48,8 @@ export class spectrumCanvas {
 	// factor^2 ≈ 0.1, so ~30ms to decay to 10%
 	private _fgSmoothMags = new Float32Array(151);
 	private _bgSmoothMags = new Float32Array(67);
+	// FG peak hold for auto-leveling (gentle decay replaces fixed FG_REF)
+	private _fgSmoothMax = 0.001;
 
 	constructor(
 		public readonly canvas: HTMLCanvasElement,
@@ -225,9 +227,19 @@ export class spectrumCanvas {
 				if (this._bgSmoothMax < 0.001) this._bgSmoothMax = 0.001;
 			}
 
-			// FG uses fixed floor ref (no peak hold), BG uses peak hold
-			const fgRef = spectrumCanvas.FG_REF;
+			// FG peak hold: same gentle decay as BG for auto-leveling
+			let fgInstMax = 0.0001;
+			for (let b = 0; b < FG_BANDS; b++) {
+				if (fgMags[b] > fgInstMax) fgInstMax = fgMags[b];
+			}
+			if (fgInstMax > this._fgSmoothMax) {
+				this._fgSmoothMax = fgInstMax;
+			} else {
+				this._fgSmoothMax *= 0.92;
+				if (this._fgSmoothMax < 0.001) this._fgSmoothMax = 0.001;
+			}
 			const bgRef = Math.max(this._bgSmoothMax, spectrumCanvas.BG_REF);
+			const fgRef = Math.max(this._fgSmoothMax, spectrumCanvas.FG_REF);
 
 			// Draw background bass layer (R color, low opacity) — individual bars, not a smooth curve
 			this._drawSmooth(ctx, w, h, this._bgSmoothMags, bgRef, BG_BANDS, this._cachedRColor, 0.4, 1.0);
