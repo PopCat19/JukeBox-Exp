@@ -131,7 +131,7 @@ export class spectrumCanvas {
 			}
 
 			// Draw background bass layer (R color, low opacity, thicker)
-			this._drawSmooth(ctx, w, h, this._bgSmoothMags, this._bgSmoothMax, BG_BANDS, this._cachedRColor, 0.4, 0.6);
+			this._drawSmooth(ctx, w, h, this._bgSmoothMags, this._bgSmoothMax, BG_BANDS, this._cachedRColor, 0.4, 1.0);
 
 			// Draw foreground main layer (L color, full opacity)
 			this._drawSmooth(ctx, w, h, this._fgSmoothMags, this._fgSmoothMax, FG_BANDS, this._cachedLColor, 1.0, 1.0);
