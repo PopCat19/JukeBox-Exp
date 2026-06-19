@@ -60,6 +60,13 @@ export class spectrumCanvas {
 			if (!directlinkR) return;
 
 			const ctx = canvas.getContext("2d") as CanvasRenderingContext2D;
+			// Match canvas resolution to CSS layout for sharp rendering
+			const displayW = Math.round(canvas.clientWidth * devicePixelRatio);
+			const displayH = Math.round(canvas.clientHeight * devicePixelRatio);
+			if (canvas.width !== displayW || canvas.height !== displayH) {
+				canvas.width = displayW;
+				canvas.height = displayH;
+			}
 			const w = canvas.width;
 			const h = canvas.height;
 
