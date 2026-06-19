@@ -92,9 +92,13 @@ export class PromptManager {
 	// sync() calls hit the existing-found path on every render and
 	// should not flash; user-targeted opens should.
 	private _userInitiatedOpen: boolean = false;
-	// Bounding rect of the last clicked element before a prompt opens.
-	// Used by _spawnNear to place the prompt next to its caller.
-	private _clickedRect: DOMRect | null = null;
+	// Cursor position and target element rect at last click before a
+	// prompt opens. Used by _spawnNearCursor for desktop desktop
+	// (near cursor) vs mobile (centered) spawning.
+	private _clickInfo: { clientX: number; clientY: number; elRect: DOMRect } | null = null;
+	// Last mouse position, updated on mousemove. Used by keybind-triggered
+	// prompts (no click event) to spawn near the cursor.
+	private _mousePos: { x: number; y: number } = { x: 0, y: 0 };
 	private _focusedPrompt: Prompt | null = null;
 	private readonly _promptPositions: Map<string, { x: number; y: number }> = new Map();
 	private _draggingPrompt: boolean = false;
@@ -109,8 +113,16 @@ export class PromptManager {
 		// prompt spawning. Must use capture phase so the target is still
 		// valid before prompt open handlers fire.
 		document.addEventListener("click", (e: MouseEvent) => {
-			this._clickedRect = (e.target as HTMLElement).getBoundingClientRect();
+			this._mousePos = { x: e.clientX, y: e.clientY };
+			this._clickInfo = {
+				clientX: e.clientX,
+				clientY: e.clientY,
+				elRect: (e.target as HTMLElement).getBoundingClientRect(),
+			};
 		}, true);
+		document.addEventListener("mousemove", (e: MouseEvent) => {
+			this._mousePos = { x: e.clientX, y: e.clientY };
+		});
 
 		this._focusController = new PromptFocusController({
 			isDraggingPrompt: () => this._draggingPrompt,
@@ -128,17 +140,23 @@ export class PromptManager {
 		return this._focusedPrompt;
 	}
 
+	private _pendingClickInfo: { clientX: number; clientY: number; elRect: DOMRect } | null = null;
+
 	public open(promptName: string): void {
 		log.log("open", promptName, {
 			docPrompt: this._host.doc.prompt,
 			focused: this._focusedPrompt?.name ?? null,
 			stack: this._prompts.map((p) => p.name),
 		});
-		// Always route through _setPrompt so the existing-found path
-		// runs and can fire the 88x 'raise' flash on the focused
-		// prompt. Mark this as a user-initiated call so the flash
-		// fires; the internal sync() calls below are not user
-		// actions and should not flash on their own.
+		// For keybind-triggered prompts (no click event), synthesize
+		// from last mouse position.
+		this._pendingClickInfo = this._clickInfo ?? {
+			clientX: this._mousePos.x,
+			clientY: this._mousePos.y,
+			elRect: new DOMRect(this._mousePos.x - 8, this._mousePos.y - 8, 16, 16),
+		};
+		this._clickInfo = null;
+
 		this._userInitiatedOpen = true;
 		this._host.doc.openPrompt(promptName);
 		this._setPrompt(promptName);
@@ -459,21 +477,36 @@ export class PromptManager {
 		}
 
 		this._host.promptContainer.style.display = "";
+		newPrompt.container.style.opacity = "0";
 		this._host.promptContainer.appendChild(newPrompt.container);
 
-		newPrompt.container.classList.add("entering");
-		newPrompt.container.addEventListener("animationend", () => newPrompt!.container.classList.remove("entering"), { once: true });
+		// Close over cursor info here (synchronously before any
+		// rAF or other _setPrompt call clears _pendingClickInfo).
+		const cursorInfo = this._pendingClickInfo ?? this._clickInfo;
+		this._pendingClickInfo = null;
+		this._clickInfo = null;
 
 		const savedPos = this._promptPositions.get(promptName);
-		if (savedPos) {
-			requestAnimationFrame(() => this._applyPosition(newPrompt!, promptName, savedPos.x, savedPos.y));
-		} else if (this._clickedRect) {
-			const rect = this._clickedRect;
-			this._clickedRect = null;
-			requestAnimationFrame(() => this._spawnNear(newPrompt!, promptName, rect));
-		} else {
-			requestAnimationFrame(() => this._centerPrompt(newPrompt!, promptName));
-		}
+
+		// Measure and position via rAF (for layout) before starting
+		// the enter animation. The 0.96→1.0 scale animation makes
+		// getBoundingClientRect unreliable mid-anim.
+		const afterPos = (): void => {
+			if (cursorInfo) {
+				this._spawnNearCursor(newPrompt!, promptName, cursorInfo);
+			} else if (savedPos) {
+				this._applyPosition(newPrompt!, promptName, savedPos.x, savedPos.y);
+			} else {
+				this._centerPrompt(newPrompt!, promptName);
+			}
+			// Start enter animation; remove initial opacity hide.
+			newPrompt!.container.classList.add("entering");
+			newPrompt!.container.style.removeProperty("opacity");
+			newPrompt!.container.addEventListener("animationend", () => {
+				newPrompt!.container.classList.remove("entering");
+			}, { once: true });
+		};
+		requestAnimationFrame(afterPos);
 
 		this._attachDrag(newPrompt, promptName);
 		this._focusController.attachPrompt(newPrompt);
@@ -501,43 +534,45 @@ export class PromptManager {
 		this._promptPositions.set(name, { x, y });
 	}
 
-	private _spawnNear(prompt: Prompt, name: string, from: DOMRect): void {
+	private _spawnNearCursor(prompt: Prompt, name: string, info: { clientX: number; clientY: number; elRect: DOMRect }): void {
 		if (!this._prompts.includes(prompt)) return;
 		const promptBounds = prompt.container.getBoundingClientRect();
-		const pw = promptBounds.width;
-		const ph = promptBounds.height;
+		const pw = promptBounds.width || prompt.container.scrollWidth || 300;
+		const ph = promptBounds.height || prompt.container.scrollHeight || 200;
+		// Everything is in mainLayer's coordinate space.
+		// Convert viewport-relative coords by subtracting
+		// mainLayer's viewport offset.
+		const mlRect = this._host.mainLayer.getBoundingClientRect();
 		const vw = this._host.mainLayer.clientWidth;
 		const vh = this._host.mainLayer.clientHeight;
 		const gap = 8;
+		const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini|android|ipad|playbook|silk/i.test(navigator.userAgent);
 
-		// X is always centered on the caller, clamped to viewport.
-		const cx = Math.max(0, Math.min(from.left + (from.width - pw) / 2, vw - pw));
+		let x: number;
+		let y: number;
 
-		// Try Y positions: below, above, then centered upper.
-		const yCandidates = [
-			from.bottom + gap,
-			from.top - ph - gap,
-			Math.max(gap, (vh - ph) / 4),
-		];
+		if (isMobile) {
+			x = Math.max(gap, (vw - pw) / 2);
+			y = Math.max(gap, (vh - ph) / 2);
+		} else {
+			const elCenter = info.elRect.left + info.elRect.width / 2 - mlRect.left;
+			x = Math.max(gap, Math.min(elCenter - pw / 2, vw - pw - gap));
 
-		let bestY = yCandidates[2];
-		for (const cy of yCandidates) {
-			const clampedY = Math.max(0, Math.min(cy, vh - ph));
-			// Check the prompt doesn't re-cover the caller.
-			const reOverlaps =
-				cx < from.right + gap &&
-				cx + pw > from.left - gap &&
-				clampedY < from.bottom + gap &&
-				clampedY + ph > from.top - gap;
-			if (!reOverlaps) {
-				bestY = clampedY;
-				break;
+			const cursorY = info.clientY - mlRect.top;
+			const below = cursorY + gap;
+			const above = cursorY - ph - gap;
+			if (below + ph <= vh) {
+				y = Math.max(gap, below);
+			} else if (above >= gap) {
+				y = Math.max(gap, above);
+			} else {
+				y = Math.max(gap, (vh - ph) / 2);
 			}
 		}
 
-		prompt.container.style.left = cx + "px";
-		prompt.container.style.top = bestY + "px";
-		this._promptPositions.set(name, { x: cx, y: bestY });
+		prompt.container.style.left = x + "px";
+		prompt.container.style.top = y + "px";
+		this._promptPositions.set(name, { x, y });
 	}
 
 	private _centerPrompt(prompt: Prompt, name: string): void {
