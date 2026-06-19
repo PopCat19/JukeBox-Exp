@@ -20,14 +20,20 @@ const BG_BANDS = 24;
 const BG_MIN_FREQ = 20;
 const BG_MAX_FREQ = 160;
 
+// CQT Q factor: constant ratio of frequency to bandwidth
+// Q=8 means bandwidth = freq/8. Higher Q = narrower filters.
+// At 2048 buffer/48kHz: lowest freq with full CQT is ~60Hz.
+// Below that, window is clamped to buffer size.
+const CQT_Q = 8;
+
 export class spectrumCanvas {
 	public _EventUpdateCanvas: (left: Float32Array, right?: Float32Array) => void;
 	private _cachedBgColor: string = "";
 	private _cachedLColor: string = "";
 	private _cachedRColor: string = "";
 
-	private _fgCoefs: { cos: number; sin: number }[][] = [];
-	private _bgCoefs: { cos: number; sin: number }[][] = [];
+	private _fgCoefs: { cos: Float32Array; sin: Float32Array; len: number }[] = [];
+	private _bgCoefs: { cos: Float32Array; sin: Float32Array; len: number }[] = [];
 	private _sampleRate = 48000;
 	private _lastBufferSize = 0;
 	private readonly _bgFreqs: number[] = [];
@@ -70,38 +76,39 @@ export class spectrumCanvas {
 				this._lastBufferSize = sampleCount;
 			}
 
-			// Mix to mono with Hann window to prevent spectral leakage
+			// Mix to mono (Hann window applied per-band with CQT window length)
 			const mono = new Float32Array(sampleCount);
 			for (let i = 0; i < sampleCount; i++) {
-				const hann = 0.5 * (1 - Math.cos(2 * Math.PI * i / (sampleCount - 1)));
-				mono[i] = (directlinkL[i] + directlinkR[i]) * 0.5 * hann;
+				mono[i] = (directlinkL[i] + directlinkR[i]) * 0.5;
 			}
 
-			// Compute foreground spectrum
+			// Compute foreground spectrum (CQT: each band uses frequency-dependent window)
 			const fgMags = new Float32Array(FG_BANDS);
 			for (let b = 0; b < FG_BANDS; b++) {
-				const coefs = this._fgCoefs[b];
+				const bw = this._fgCoefs[b];
 				let re = 0, im = 0;
-				for (let n = 0; n < sampleCount; n++) {
-					re += mono[n] * coefs[n].cos;
-					im -= mono[n] * coefs[n].sin;
+				const nFrames = bw.len;
+				for (let n = 0; n < nFrames; n++) {
+					const hann = 0.5 * (1 - Math.cos(2 * Math.PI * n / (nFrames - 1)));
+					re += mono[n] * bw.cos[n] * hann;
+					im -= mono[n] * bw.sin[n] * hann;
 				}
-				// Linear magnitude (natural, no gain curve)
-				fgMags[b] = Math.sqrt(re * re + im * im) / sampleCount;
+				fgMags[b] = Math.sqrt(re * re + im * im) / nFrames;
 			}
 
-			// Compute background (bass) spectrum
+			// Compute background (bass) spectrum (CQT: each band uses frequency-dependent window)
 			const bgMags = new Float32Array(BG_BANDS);
 			let bgInstMax = 0.0001;
 			for (let b = 0; b < BG_BANDS; b++) {
-				const coefs = this._bgCoefs[b];
+				const bw = this._bgCoefs[b];
 				let re = 0, im = 0;
-				for (let n = 0; n < sampleCount; n++) {
-					re += mono[n] * coefs[n].cos;
-					im -= mono[n] * coefs[n].sin;
+				const nFrames = bw.len;
+				for (let n = 0; n < nFrames; n++) {
+					const hann = 0.5 * (1 - Math.cos(2 * Math.PI * n / (nFrames - 1)));
+					re += mono[n] * bw.cos[n] * hann;
+					im -= mono[n] * bw.sin[n] * hann;
 				}
-				// Natural squared magnitude (no gain curve)
-				bgMags[b] = (re * re + im * im) / sampleCount;
+				bgMags[b] = (re * re + im * im) / nFrames;
 				if (bgMags[b] > bgInstMax) bgInstMax = bgMags[b];
 			}
 
@@ -208,19 +215,25 @@ export class spectrumCanvas {
 	private _buildCoefs(
 		bandCount: number, minFreq: number, maxFreq: number,
 		sampleRate: number, bufferSize: number,
-	): { cos: number; sin: number }[][] {
-		const coefs: { cos: number; sin: number }[][] = [];
+	): { cos: Float32Array; sin: Float32Array; len: number }[] {
+		const coefs: { cos: Float32Array; sin: Float32Array; len: number }[] = [];
 		const logMin = Math.log(minFreq);
 		const logMax = Math.log(maxFreq);
 		for (let b = 0; b < bandCount; b++) {
 			const t = b / (bandCount - 1);
 			const freq = Math.exp(logMin + t * (logMax - logMin));
+			// CQT: each band processes a frequency-dependent number of samples.
+			// Higher frequencies use fewer samples (wider bandwidth proportional to freq).
+			// Low frequencies use more samples, clamped to buffer size.
+			const cqtLen = Math.min(bufferSize, Math.max(2, Math.round(CQT_Q * sampleRate / freq)));
 			const omega = (2 * Math.PI * freq) / sampleRate;
-			const band: { cos: number; sin: number }[] = new Array(bufferSize);
-			for (let n = 0; n < bufferSize; n++) {
-				band[n] = { cos: Math.cos(omega * n), sin: Math.sin(omega * n) };
+			const cos = new Float32Array(cqtLen);
+			const sin = new Float32Array(cqtLen);
+			for (let n = 0; n < cqtLen; n++) {
+				cos[n] = Math.cos(omega * n);
+				sin[n] = Math.sin(omega * n);
 			}
-			coefs.push(band);
+			coefs.push({ cos, sin, len: cqtLen });
 		}
 		return coefs;
 	}
