@@ -17,7 +17,7 @@ import type { SongDocument } from "../song-document";
 import { flexPane, inputRow, paneContainer, searchInput } from "../ui";
 import { BasePrompt } from "./base-prompt";
 
-const { div, h2, span, p, table, tbody, tr, td, th } = HTML;
+const { button, div, h2, span, p, table, tbody, tr, td, th } = HTML;
 
 type CleanMode = "patterns" | "instruments";
 type CleanScope = "current" | "all";
@@ -202,6 +202,7 @@ export class CleanChannelPrompt extends BasePrompt {
 	private readonly _detailPane: HTMLDivElement = flexPane({ flex: "1", padding: "var(--padding-8)" });
 	private readonly _leftPane: HTMLDivElement;
 	private readonly _searchInput: HTMLInputElement = searchInput("Filter channels...");
+	private readonly _cleanOneButton: HTMLButtonElement = button({ class: "sbpCardActionBtn", style: "width: 100%;" }, "Clean selected");
 
 	public readonly container: HTMLDivElement;
 
@@ -233,10 +234,11 @@ export class CleanChannelPrompt extends BasePrompt {
 
 		// Left pane: channel list (mirrors sbpLeftPane / sbpListContainer / sbpList)
 		this._searchInput.addEventListener("input", () => this._renderList());
+		this._cleanOneButton.addEventListener("click", this._onCleanOne);
 
 		const listContainer = div({ class: "ccpListContainer" }, this._channelList);
 
-		this._leftPane = div({ class: "ccpLeftPane" }, listContainer);
+		this._leftPane = div({ class: "ccpLeftPane" }, listContainer, div({ class: "sbpBtnRow" }, this._cleanOneButton));
 
 		this.container = div(
 			{ class: "prompt cleanChannelPrompt noSelection" },
@@ -386,6 +388,18 @@ export class CleanChannelPrompt extends BasePrompt {
 		while (this._detailPane.firstChild) this._detailPane.removeChild(this._detailPane.firstChild);
 		this._detailPane.appendChild(p({ class: "ccpEmptyDetail" }, "No duplicate patterns or instruments found. Nothing to clean."));
 	}
+
+	private _onCleanOne = (): void => {
+		const ch = this._diffs[this._selectedIndex].channelIndex;
+		const group = new ChangeGroup();
+		if (this._mode === "patterns") {
+			group.append(new ChangeCleanChannelPatterns(this._doc, ch));
+		} else {
+			group.append(new ChangeCleanChannelInstruments(this._doc, ch));
+		}
+		this._doc.prompt = null;
+		this._doc.record(group);
+	};
 
 	protected override _saveChanges(): void {
 		const channels: number[] = this._scope === "all" ? Array.from({ length: this._doc.song.getChannelCount() }, (_, i) => i) : [this._doc.channel];
