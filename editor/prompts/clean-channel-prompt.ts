@@ -15,7 +15,7 @@ import { Config } from "../../synth/synth-config";
 import { ChangeCleanChannelInstruments, ChangeCleanChannelPatterns, comparePatternNotes, patternsContainSameInstruments } from "../changes";
 import { ChangeGroup } from "../core/change";
 import type { SongDocument } from "../song-document";
-import { actionButton, flexPane } from "../ui";
+import { actionButton, flexPane, paneContainer } from "../ui";
 import { tabButton } from "../ui/buttons/tab-button";
 import { BasePrompt } from "./base-prompt";
 
@@ -252,7 +252,6 @@ export class CleanChannelPrompt extends BasePrompt {
 
 		this._detailPane.style.border = "2px solid var(--ui-widget-background)";
 		this._detailPane.style.borderRadius = "var(--border-radius-medium)";
-		this._detailPane.style.overflow = "hidden";
 		this._detailPane.style.transition = "border-color 0.15s";
 		this._detailPane.addEventListener("mouseenter", () => {
 			this._lastInteraction = "hover";
@@ -274,13 +273,13 @@ export class CleanChannelPrompt extends BasePrompt {
 			{ class: "prompt cleanChannelPrompt noSelection" },
 			h2({}, "Clean (LSDj)"),
 			this._tabBar,
+				paneContainer({ height: "400px", gap: "8px", overflow: "hidden", border: "none" }, this._leftPane, this._detailPane),
 			div(
-				{ class: "ccpPaneContainer" },
-				this._leftPane,
-				div({ style: "width: 2px; background: var(--ui-widget-background); flex-shrink: 0;" }),
-				this._detailPane,
+				{ class: "ccpBottomBar" },
+				this._cleanOneButton,
+				this._cleanAllButton,
+				this._cancelButton,
 			),
-			div({ class: "ccpBottomBar" }, this._cleanOneButton, div({ style: "flex: 1;" }), this._cleanAllButton, this._cancelButton),
 		);
 
 		this.buildTitlebar();
