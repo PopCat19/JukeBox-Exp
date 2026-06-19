@@ -2886,6 +2886,11 @@ html {
 	display: block;
   cursor: crosshair;
 }
+.beepboxEditor canvas#spectrumAll {
+	position: static;
+	overflow: hidden;
+	cursor: default;
+}
 
 @keyframes dash-animation {
   to {
