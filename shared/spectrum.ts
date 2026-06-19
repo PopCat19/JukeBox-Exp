@@ -20,6 +20,22 @@ const BG_BANDS = 12;
 const BG_MIN_FREQ = 30;
 const BG_MAX_FREQ = 240;
 
+// Fixed dB normalization (inspired by audioMotion-analyzer)
+// Instead of dynamic peak hold, normalize against fixed dB limits.
+// This prevents flooding (loudest band doesn't set ceiling for all)
+// and eliminates the wedge (high freqs show their natural low level).
+const FG_MIN_DB = -70;   // noise floor
+const FG_MAX_DB = -10;   // near full scale (Hann window gain ~0.5 → -6dB)
+const FG_BOOST = 2.0;     // high contrast: peaks stand out, quiet bands suppressed
+
+const BG_MIN_DB = -60;
+const BG_MAX_DB = -20;
+const BG_BOOST = 1.5;     // moderate contrast: bass peaks reach ceiling
+
+// Per-band temporal smoothing (30ms time constant)
+// At 60fps (16.67ms/frame): factor = e^(-16.67/30) ≈ 0.57
+const BAND_DECAY = 0.57;
+
 export class spectrumCanvas {
 	public _EventUpdateCanvas: (left: Float32Array, right?: Float32Array) => void;
 	private _cachedBgColor: string = "";
@@ -33,11 +49,7 @@ export class spectrumCanvas {
 	private readonly _bgFreqs: number[] = [];
 	private readonly _fgFreqs: number[] = [];
 
-	// Dynamic amplification: slow-decay peak hold
-	private _fgSmoothMax = 0.001;
-	private _bgSmoothMax = 0.001;
-	// Per-band temporal smoothing (~30ms decay at 60fps)
-	// factor^2 ≈ 0.1, so ~30ms to decay to 10%
+	// Per-band temporal smoothing (30ms time constant)
 	private _fgSmoothMags = new Float32Array(16);
 	private _bgSmoothMags = new Float32Array(40);
 
@@ -76,7 +88,6 @@ export class spectrumCanvas {
 
 			// Compute foreground spectrum
 			const fgMags = new Float32Array(FG_BANDS);
-			let fgInstMax = 0.0001;
 			for (let b = 0; b < FG_BANDS; b++) {
 				const coefs = this._fgCoefs[b];
 				let re = 0, im = 0;
@@ -84,14 +95,15 @@ export class spectrumCanvas {
 					re += mono[n] * coefs[n].cos;
 					im -= mono[n] * coefs[n].sin;
 				}
-				// Linear magnitude: more contrast than fourth-root (peaks stand out, not flood)
-				fgMags[b] = Math.sqrt(re * re + im * im) / sampleCount;
-				if (fgMags[b] > fgInstMax) fgInstMax = fgMags[b];
+					// Fixed dB normalization: magnitude → dB → normalize → boost for contrast
+				const fgRaw = Math.sqrt(re * re + im * im) / sampleCount;
+				const fgDb = 20 * Math.log10(fgRaw + 1e-10);
+				let fgNorm = Math.max(0, Math.min(1, (fgDb - FG_MIN_DB) / (FG_MAX_DB - FG_MIN_DB)));
+				fgMags[b] = Math.pow(fgNorm, FG_BOOST);
 			}
 
 			// Compute background (bass) spectrum
 			const bgMags = new Float32Array(BG_BANDS);
-			let bgInstMax = 0.0001;
 			for (let b = 0; b < BG_BANDS; b++) {
 				const coefs = this._bgCoefs[b];
 				let re = 0, im = 0;
@@ -99,49 +111,34 @@ export class spectrumCanvas {
 					re += mono[n] * coefs[n].cos;
 					im -= mono[n] * coefs[n].sin;
 				}
-				// Natural squared magnitude (no gain curve)
-				bgMags[b] = (re * re + im * im) / sampleCount;
-				if (bgMags[b] > bgInstMax) bgInstMax = bgMags[b];
+					// Fixed dB normalization: power → dB → normalize → boost for contrast
+				const bgRaw = (re * re + im * im) / sampleCount;
+				const bgDb = 10 * Math.log10(bgRaw + 1e-10);
+				let bgNorm = Math.max(0, Math.min(1, (bgDb - BG_MIN_DB) / (BG_MAX_DB - BG_MIN_DB)));
+				bgMags[b] = Math.pow(bgNorm, BG_BOOST);
 			}
 
-			// Per-band decay: instant attack, 10ms time constant
-			// At 60fps (16.67ms/frame): factor = e^(-16.67/10) ≈ 0.19
+			// Per-band temporal smoothing: instant attack, 30ms decay
 			for (let b = 0; b < FG_BANDS; b++) {
 				if (fgMags[b] > this._fgSmoothMags[b]) {
 					this._fgSmoothMags[b] = fgMags[b]; // instant attack
 				} else {
-					this._fgSmoothMags[b] = this._fgSmoothMags[b] * 0.19 + fgMags[b] * 0.81;
+					this._fgSmoothMags[b] = this._fgSmoothMags[b] * BAND_DECAY + fgMags[b] * (1 - BAND_DECAY);
 				}
 			}
 			for (let b = 0; b < BG_BANDS; b++) {
 				if (bgMags[b] > this._bgSmoothMags[b]) {
 					this._bgSmoothMags[b] = bgMags[b]; // instant attack
 				} else {
-					this._bgSmoothMags[b] = this._bgSmoothMags[b] * 0.19 + bgMags[b] * 0.81;
+					this._bgSmoothMags[b] = this._bgSmoothMags[b] * BAND_DECAY + bgMags[b] * (1 - BAND_DECAY);
 				}
 			}
 
-			// Dynamic amplification: instant attack, slow decay
-			if (fgInstMax > this._fgSmoothMax) {
-				this._fgSmoothMax = fgInstMax;
-			} else {
-				this._fgSmoothMax *= 0.57; // 30ms decay
-				if (this._fgSmoothMax < 0.001) this._fgSmoothMax = 0.001;
-			}
-			// Peak hold with fast decay: ceiling drops ~80ms after bass hit
-			// so quieter bands can reach top when bass isn't flooding
-			if (bgInstMax > this._bgSmoothMax) {
-				this._bgSmoothMax = bgInstMax;
-			} else {
-				this._bgSmoothMax *= 0.57; // 30ms decay
-				if (this._bgSmoothMax < 0.001) this._bgSmoothMax = 0.001;
-			}
-
-			// Draw background bass layer (R color, low opacity, thicker)
-			this._drawSmooth(ctx, w, h, this._bgSmoothMags, this._bgSmoothMax, BG_BANDS, this._cachedRColor, 0.4, 1.0);
+			// Draw background bass layer (R color, low opacity)
+			this._drawSmooth(ctx, w, h, this._bgSmoothMags, BG_BANDS, this._cachedRColor, 0.4, 1.0);
 
 			// Draw foreground main layer (L color, full opacity)
-			this._drawSmooth(ctx, w, h, this._fgSmoothMags, this._fgSmoothMax, FG_BANDS, this._cachedLColor, 1.0, 1.0);
+			this._drawSmooth(ctx, w, h, this._fgSmoothMags, FG_BANDS, this._cachedLColor, 1.0, 1.0);
 		};
 
 		events.listen("spectrumUpdate", this._EventUpdateCanvas);
@@ -152,7 +149,7 @@ export class spectrumCanvas {
 	private _drawSmooth(
 		ctx: CanvasRenderingContext2D,
 		w: number, h: number,
-		mags: Float32Array, maxMag: number,
+		mags: Float32Array, // pre-normalized [0,1]
 		bandCount: number,
 		color: string,
 		opacity: number,
@@ -161,7 +158,7 @@ export class spectrumCanvas {
 		const bandWidth = w / (bandCount - 1);
 		const ys = new Array<number>(bandCount);
 		for (let b = 0; b < bandCount; b++) {
-			ys[b] = h - Math.min(1, mags[b] / maxMag) * h * heightScale;
+			ys[b] = h - mags[b] * h * heightScale;
 		}
 
 		ctx.globalAlpha = opacity;
@@ -206,8 +203,6 @@ export class spectrumCanvas {
 	public reset(): void {
 		this._fgSmoothMags.fill(0);
 		this._bgSmoothMags.fill(0);
-		this._fgSmoothMax = 0.001;
-		this._bgSmoothMax = 0.001;
 	}
 
 	private _buildCoefs(
