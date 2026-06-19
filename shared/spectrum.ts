@@ -12,11 +12,11 @@
 import { ColorConfig } from "./color-config";
 import { events } from "./events";
 
-const FG_BANDS = 16;
+const FG_BANDS = 48;
 const FG_MIN_FREQ = 201;
 const FG_MAX_FREQ = 12000;
 
-const BG_BANDS = 8;
+const BG_BANDS = 16;
 const BG_MIN_FREQ = 20;
 const BG_MAX_FREQ = 200;
 
@@ -36,8 +36,8 @@ export class spectrumCanvas {
 	private _bgSmoothMax = 0.001;
 	// Per-band temporal smoothing (~30ms decay at 60fps)
 	// factor^2 ≈ 0.1, so ~30ms to decay to 10%
-	private _fgSmoothMags = new Float32Array(FG_BANDS);
-	private _bgSmoothMags = new Float32Array(BG_BANDS);
+	private _fgSmoothMags = new Float32Array(48);
+	private _bgSmoothMags = new Float32Array(16);
 
 	constructor(
 		public readonly canvas: HTMLCanvasElement,
@@ -157,16 +157,13 @@ export class spectrumCanvas {
 
 		ctx.globalAlpha = opacity;
 
-		// Fill below curve
+		// Fill below curve using direct lines through data points
+		// (sharper peaks, less hill-like than midpoint quadratic)
 		ctx.beginPath();
 		ctx.moveTo(0, h);
-		ctx.lineTo(0, ys[0]);
-		for (let b = 0; b < bandCount - 1; b++) {
-			const x1 = b * bandWidth;
-			const x2 = (b + 1) * bandWidth;
-			ctx.quadraticCurveTo(x1, ys[b], (x1 + x2) * 0.5, (ys[b] + ys[b + 1]) * 0.5);
+		for (let b = 0; b < bandCount; b++) {
+			ctx.lineTo(b * bandWidth, ys[b]);
 		}
-		ctx.quadraticCurveTo((bandCount - 1) * bandWidth, ys[bandCount - 1], w, ys[bandCount - 1]);
 		ctx.lineTo(w, h);
 		ctx.closePath();
 		ctx.fillStyle = color;
