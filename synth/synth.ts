@@ -959,11 +959,7 @@ export class Synth {
 		}
 
 		if (!this.isPlayingSong && performance.now() >= this.liveInputEndTime) {
-			console.log("[Synth] Not playing and live input expired, sending silence and deactivating");
-			if (this._workletNode != null) {
-				const silence = new Float32Array(this._currentBufferSize);
-				this._workletNode.port.postMessage({ type: "audio", left: silence, right: silence }, [silence.buffer, silence.buffer]);
-			}
+			console.log("[Synth] Not playing and live input expired, deactivating");
 			this.deactivateAudio();
 			return;
 		}

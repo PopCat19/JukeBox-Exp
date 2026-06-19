@@ -86,8 +86,8 @@ class BeepBoxAudioWorkletProcessor extends AudioWorkletProcessor {
           outR[i] = 0.0;
         }
         this._underrunCount++;
-        if (this._underrunCount <= 10 || this._underrunCount % 50 === 0) {
-          console.warn("[Worklet] UNDERRUN #" + this._underrunCount + ", total processed: " + this._totalProcessed + " samples, written so far: " + written + "/" + len);
+        if (this._underrunCount <= 5 || this._underrunCount % 500 === 0) {
+          console.warn("[Worklet] UNDERRUN #" + this._underrunCount + ", total processed: " + this._totalProcessed + " samples");
         }
         break;
       }
@@ -115,10 +115,12 @@ class BeepBoxAudioWorkletProcessor extends AudioWorkletProcessor {
 
     // Request more data when the queue is running low.
     // Low watermark: request when buffered data falls below 2x buffer size.
-    var buffered = this._getBufferedSamples();
-    if (buffered < this._bufferSize * 2 && !this._dataRequested) {
-      this.port.postMessage({ type: "need-data" });
-      this._dataRequested = true;
+    if (this._active) {
+      var buffered = this._getBufferedSamples();
+      if (buffered < this._bufferSize * 2 && !this._dataRequested) {
+        this.port.postMessage({ type: "need-data" });
+        this._dataRequested = true;
+      }
     }
 
     return true;
