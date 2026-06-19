@@ -237,6 +237,9 @@ export class MenuHandler {
 			case "showSpectrum":
 				this._host.doc.prefs.showSpectrum = !this._host.doc.prefs.showSpectrum;
 				break;
+			case "showSpectrumOverlay":
+				this._host.doc.prefs.showSpectrumOverlay = !this._host.doc.prefs.showSpectrumOverlay;
+				break;
 			case "showDescription":
 				this._host.doc.prefs.showDescription = !this._host.doc.prefs.showDescription;
 				break;

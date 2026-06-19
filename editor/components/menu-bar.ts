@@ -99,6 +99,7 @@ export class MenuBar {
 				option({ value: "showLetters" }, "Show Piano Keys"),
 				option({ value: "displayVolumeBar" }, "Show Playback Volume"),
 				option({ value: "showSpectrum" }, "Show Spectrum"),
+				option({ value: "showSpectrumOverlay" }, "Show Spectrum Overlay (Track Editor)"),
 				option({ value: "showSampleLoadingStatus" }, "Show Sample Loading Status"),
 				option({ value: "showDescription" }, "Show Description"),
 				option({ value: "layout" }, "Set Layout..."),

@@ -1346,6 +1346,22 @@ export class SongEditor
 		},
 		this._globalSpectrum.canvas,
 	);
+	// Overlay spectrum rendered on track editor (separate canvas, controlled by showSpectrumOverlay pref)
+	private readonly _overlaySpectrum: spectrumCanvas = new spectrumCanvas(
+		canvas({
+			width: 384,
+			height: 64,
+			style: "display: block; width: 100%; height: 100%;",
+			id: "spectrumOverlay",
+		}),
+		1,
+	);
+	private readonly _overlaySpectrumContainer: HTMLDivElement = div(
+		{
+			style: "position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; opacity: 0.08; overflow: hidden;",
+		},
+		this._overlaySpectrum.canvas,
+	);
 	private readonly _customWaveDrawCanvas: CustomChipCanvas = new CustomChipCanvas(
 		canvas({
 			width: 128,
@@ -1621,7 +1637,7 @@ export class SongEditor
 		this._trackVisibleArea,
 	);
 	public readonly _barScrollBar: BarScrollBar = new BarScrollBar(this.doc);
-	private readonly _trackArea: HTMLDivElement = div({ class: "track-area" }, this._trackAndMuteContainer, this._barScrollBar.container);
+	private readonly _trackArea: HTMLDivElement = div({ class: "track-area" }, this._trackAndMuteContainer, this._barScrollBar.container, this._overlaySpectrumContainer);
 
 	private readonly _menuArea: HTMLDivElement = div(
 		{ class: "menu-area" },
@@ -2072,6 +2088,7 @@ export class SongEditor
 			octaveScrollBar: this._octaveScrollBar,
 			volumeBarBox: this._volumeBarBox,
 			globalSpectrumContainer: this._globalSpectrumContainer,
+			overlaySpectrumContainer: this._overlaySpectrumContainer,
 			sampleLoadingStatusContainer: this._sampleLoadingStatusContainer,
 			instrumentCopyGroup: this._instrumentCopyGroup,
 			instrumentTagRow: this._instrumentTagRow,

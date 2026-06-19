@@ -43,6 +43,7 @@ export function renderOptionsMenu(optionsMenu: HTMLSelectElement, prefs: Prefere
 		(prefs.showLetters ? textOnIcon : textOffIcon) + "Show Piano Keys",
 		(prefs.displayVolumeBar ? textOnIcon : textOffIcon) + "Show Playback Volume",
 		(prefs.showSpectrum ? textOnIcon : textOffIcon) + "Show Spectrum",
+		(prefs.showSpectrumOverlay ? textOnIcon : textOffIcon) + "Show Spectrum Overlay (Track Editor)",
 		(prefs.showSampleLoadingStatus ? textOnIcon : textOffIcon) + "Show Sample Loading Status",
 		(prefs.showDescription ? textOnIcon : textOffIcon) + "Show Description",
 		textSpacingIcon + "Set Layout...",

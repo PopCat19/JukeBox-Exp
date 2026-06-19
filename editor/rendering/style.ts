@@ -368,7 +368,14 @@ html {
 
 .beepboxEditor .track-area {
 	grid-area: track-area;
+	position: relative;
 	background-image: url(${getLocalStorageItem("customTheme2", "")});
+}
+
+.beepboxEditor canvas#spectrumOverlay {
+	position: static;
+	overflow: hidden;
+	cursor: default;
 }
 
 .beepboxEditor .loopEditor {

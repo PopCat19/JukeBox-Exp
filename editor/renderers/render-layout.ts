@@ -28,6 +28,7 @@ export interface LayoutRefs {
 	octaveScrollBar: OctaveScrollBar;
 	volumeBarBox: HTMLElement;
 	globalSpectrumContainer: HTMLElement;
+	overlaySpectrumContainer?: HTMLElement;
 	sampleLoadingStatusContainer: HTMLElement;
 	instrumentCopyGroup: HTMLElement;
 	instrumentTagRow: HTMLElement;
@@ -68,7 +69,10 @@ export function renderLayout(refs: LayoutRefs, doc: SongDocument): void {
 	refs.barScrollBar.container.style.display = doc.song.barCount > doc.trackVisibleBars ? "" : "none";
 	refs.volumeBarBox.style.display = doc.prefs.displayVolumeBar ? "" : "none";
 	refs.globalSpectrumContainer.style.display = doc.prefs.showSpectrum ? "" : "none";
-	doc.synth.spectrumEnabled = doc.prefs.showSpectrum;
+	doc.synth.spectrumEnabled = doc.prefs.showSpectrum || doc.prefs.showSpectrumOverlay;
+	if (refs.overlaySpectrumContainer) {
+		refs.overlaySpectrumContainer.style.display = doc.prefs.showSpectrumOverlay ? "" : "none";
+	}
 	refs.sampleLoadingStatusContainer.style.display = doc.prefs.showSampleLoadingStatus ? "" : "none";
 	refs.instrumentCopyGroup.style.display = doc.prefs.instrumentCopyPaste ? "" : "none";
 	refs.instrumentTagRow.style.display = doc.prefs.enableTagSearch ? "" : "none";
