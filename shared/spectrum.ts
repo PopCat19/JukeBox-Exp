@@ -13,10 +13,10 @@ import { ColorConfig } from "./color-config";
 import { events } from "./events";
 
 const FG_BANDS = 16;
-const FG_MIN_FREQ = 201;
+const FG_MIN_FREQ = 20;
 const FG_MAX_FREQ = 12000;
 
-const BG_BANDS = 16;
+const BG_BANDS = 24;
 const BG_MIN_FREQ = 30;
 const BG_MAX_FREQ = 200;
 
@@ -30,6 +30,7 @@ export class spectrumCanvas {
 	private _bgCoefs: { cos: number; sin: number }[][] = [];
 	private _sampleRate = 48000;
 	private _lastBufferSize = 0;
+	private readonly _bgFreqs: number[] = [];
 
 	// Dynamic amplification: slow-decay peak hold
 	private _fgSmoothMax = 0.001;
@@ -37,7 +38,7 @@ export class spectrumCanvas {
 	// Per-band temporal smoothing (~30ms decay at 60fps)
 	// factor^2 ≈ 0.1, so ~30ms to decay to 10%
 	private _fgSmoothMags = new Float32Array(16);
-	private _bgSmoothMags = new Float32Array(16);
+	private _bgSmoothMags = new Float32Array(24);
 
 	constructor(
 		public readonly canvas: HTMLCanvasElement,
@@ -95,7 +96,11 @@ export class spectrumCanvas {
 					re += mono[n] * coefs[n].cos;
 					im -= mono[n] * coefs[n].sin;
 				}
-				bgMags[b] = (re * re + im * im) / sampleCount; // squared: exaggerates peaks
+				// Squared magnitude with frequency-dependent gain: boosts lower bands
+				// so the curve approaching x=0 (30Hz) is visible, not invisible
+				const raw = (re * re + im * im) / sampleCount;
+				const gain = 1 + (200 / this._bgFreqs[b] - 1) * 0.6;
+				bgMags[b] = raw * gain;
 				if (bgMags[b] > bgInstMax) bgInstMax = bgMags[b];
 			}
 
@@ -184,6 +189,13 @@ export class spectrumCanvas {
 		this._sampleRate = sampleRate;
 		this._fgCoefs = this._buildCoefs(FG_BANDS, FG_MIN_FREQ, FG_MAX_FREQ, sampleRate, bufferSize);
 		this._bgCoefs = this._buildCoefs(BG_BANDS, BG_MIN_FREQ, BG_MAX_FREQ, sampleRate, bufferSize);
+		// Compute BG center frequencies for gain curve
+		this._bgFreqs.length = 0;
+		const logMin = Math.log(BG_MIN_FREQ);
+		const logMax = Math.log(BG_MAX_FREQ);
+		for (let b = 0; b < BG_BANDS; b++) {
+			this._bgFreqs.push(Math.exp(logMin + (b / (BG_BANDS - 1)) * (logMax - logMin)));
+		}
 	}
 
 	private _buildCoefs(
