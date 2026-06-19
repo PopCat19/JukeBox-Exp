@@ -271,13 +271,8 @@ export class CleanChannelPrompt extends BasePrompt {
 			{ class: "prompt cleanChannelPrompt noSelection" },
 			h2({}, "Clean (LSDj)"),
 			this._tabBar,
-				paneContainer({ height: "400px", gap: "8px", overflow: "hidden", border: "none" }, this._leftPane, this._detailPane),
-			div(
-				{ class: "ccpBottomBar" },
-				this._cleanOneButton,
-				this._cleanAllButton,
-				this._cancelButton,
-			),
+			paneContainer({ height: "400px", gap: "8px", overflow: "hidden", border: "none" }, this._leftPane, this._detailPane),
+			div({ class: "ccpBottomBar" }, this._cleanOneButton, this._cleanAllButton, this._cancelButton),
 		);
 
 		this.buildTitlebar();
