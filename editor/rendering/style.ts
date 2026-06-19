@@ -1230,7 +1230,6 @@ html {
 	box-sizing: border-box;
 	outline: none;
 	box-shadow: none;
-	transition: background 80ms ease, color 80ms ease, border-color 80ms ease;
 }
 .beepboxEditor .prompt.compactSearchPrompt .tabButton:hover {
 	color: var(--primary-text);
