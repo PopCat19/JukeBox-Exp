@@ -124,7 +124,7 @@ export class spectrumCanvas {
 			if (fgInstMax > this._fgSmoothMax) {
 				this._fgSmoothMax = fgInstMax;
 			} else {
-				this._fgSmoothMax *= 0.8;
+				this._fgSmoothMax *= 0.57; // 30ms decay
 				if (this._fgSmoothMax < 0.001) this._fgSmoothMax = 0.001;
 			}
 			// Peak hold with fast decay: ceiling drops ~80ms after bass hit
@@ -132,7 +132,7 @@ export class spectrumCanvas {
 			if (bgInstMax > this._bgSmoothMax) {
 				this._bgSmoothMax = bgInstMax;
 			} else {
-				this._bgSmoothMax *= 0.8;
+				this._bgSmoothMax *= 0.57; // 30ms decay
 				if (this._bgSmoothMax < 0.001) this._bgSmoothMax = 0.001;
 			}
 
