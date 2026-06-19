@@ -37,7 +37,6 @@ editor.mainLayer.getElementsByClassName("instrument-settings-area")[0].className
 editor.mainLayer.getElementsByClassName("trackAndMuteContainer")[0].className += " load";
 editor.mainLayer.getElementsByClassName("barScrollBar")[0].className += " load";
 
-
 editor.mainLayer.focus();
 
 // don't autoplay on mobile devices, wait for input.

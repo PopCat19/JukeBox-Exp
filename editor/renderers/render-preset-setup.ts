@@ -10,9 +10,9 @@
 // - Toggles pitched vs drum preset selects
 
 import type { Instrument } from "../../synth";
-import type { Preferences } from "../core/preferences";
-import { EditorConfig } from "../config/editor-config";
 import { getInstrumentTypeName } from "../../synth/config/instrument-registry";
+import { EditorConfig } from "../config/editor-config";
+import type { Preferences } from "../core/preferences";
 import type { SongDocument } from "../song-document";
 
 function setSelectedValue(menu: HTMLSelectElement, value: number, isSelect2: boolean = false): void {

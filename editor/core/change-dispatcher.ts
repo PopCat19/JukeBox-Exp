@@ -160,7 +160,6 @@ export class ChangeDispatcher {
 		}
 	};
 
-
 	public whenSetFeedbackType = (): void => {
 		this.doc.record(new ChangeFeedbackType(this.doc, this._host.feedbackTypeSelect.selectedIndex));
 	};

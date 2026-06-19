@@ -9,17 +9,14 @@
 // - Dynamic amplification with slow-decay peak hold (no constant 80% fill)
 // - 60fps update rate, always clean regardless of project size
 
+import { forwardRealFourierTransform } from "../synth/fft";
 import { ColorConfig } from "./color-config";
 import { events } from "./events";
-import { forwardRealFourierTransform } from "../synth/fft";
 
 const FG_BANDS = 151;
 const FG_MIN_FREQ = 130;
 const BG_MIN_FREQ = 20;
 const BG_BANDS = 67;
-
-
-
 
 export class spectrumCanvas {
 	public _EventUpdateCanvas: (left: Float32Array, right?: Float32Array) => void;
@@ -81,7 +78,7 @@ export class spectrumCanvas {
 			this._sampleRate = this._sampleRate || 48000;
 
 			// Use the actual buffer size if power of 2, else clamp to previous power of 2
-			const fftSize = sampleCount <= 4096 ? (Math.pow(2, Math.floor(Math.log2(sampleCount)))) : 2048;
+			const fftSize = sampleCount <= 4096 ? 2 ** Math.floor(Math.log2(sampleCount)) : 2048;
 			if (fftSize < 4) return;
 			if (this._fftBuffer.length !== fftSize) {
 				this._fftBuffer = new Float32Array(fftSize);
@@ -90,7 +87,7 @@ export class spectrumCanvas {
 			const copyLen = Math.min(sampleCount, fftSize);
 			for (let i = 0; i < copyLen; i++) {
 				const s = (directlinkL[i] + directlinkR[i]) * 0.5;
-				const hann = 0.5 * (1 - Math.cos(2 * Math.PI * i / (fftSize - 1)));
+				const hann = 0.5 * (1 - Math.cos((2 * Math.PI * i) / (fftSize - 1)));
 				fftBuf[i] = s * hann;
 				// Accumulate raw (unwindowed) audio in BG ring buffer for high-res FFT
 				this._bgRingBuf[this._bgRingPos] = s;
@@ -105,7 +102,7 @@ export class spectrumCanvas {
 			const mags = new Float32Array(halfN + 1);
 			for (let k = 0; k <= halfN; k++) {
 				const re = fftBuf[k];
-				const im = (k === 0 || k === halfN) ? 0 : fftBuf[fftSize - k];
+				const im = k === 0 || k === halfN ? 0 : fftBuf[fftSize - k];
 				mags[k] = Math.sqrt(re * re + im * im) / fftSize;
 			}
 
@@ -121,7 +118,9 @@ export class spectrumCanvas {
 					const kHi = Math.min(k + 1, halfN);
 					fgMags[b] = mags[k] + (mags[kHi] - mags[k]) * frac;
 				} else {
-					const ym1 = mags[k - 1], y0 = mags[k], yp1 = mags[k + 1];
+					const ym1 = mags[k - 1],
+						y0 = mags[k],
+						yp1 = mags[k + 1];
 					const qa = (ym1 + yp1) * 0.5 - y0;
 					const qb = (yp1 - ym1) * 0.5;
 					const qc = y0;
@@ -132,16 +131,17 @@ export class spectrumCanvas {
 			// Low freqs have more natural energy, so we attenuate them relative to highs
 			const fgGainStep = 1.5 / (FG_BANDS - 1);
 			for (let b = 0; b < FG_BANDS; b++) {
-				fgMags[b] *= (0.5 + b * fgGainStep);
+				fgMags[b] *= 0.5 + b * fgGainStep;
 			}
 			// Light gaussian spatial blur (sigma=3 bands = 1.5 semitones) to suppress tiny peak jitter
 			{
 				const blurred = new Float32Array(FG_BANDS);
 				for (let b = 0; b < FG_BANDS; b++) {
-					let sum = 0, wSum = 0;
+					let sum = 0,
+						wSum = 0;
 					for (let n = 0; n < FG_BANDS; n++) {
 						const d = n - b;
-						const w = Math.exp(-0.5 * d * d / 9);
+						const w = Math.exp((-0.5 * d * d) / 9);
 						sum += fgMags[n] * w;
 						wSum += w;
 					}
@@ -157,7 +157,7 @@ export class spectrumCanvas {
 			const bgBuf = this._bgFftBuf;
 			for (let i = 0; i < bgFftSize; i++) {
 				const idx = (this._bgRingPos + i) & 8191;
-				const hann = 0.5 * (1 - Math.cos(2 * Math.PI * i / (bgFftSize - 1)));
+				const hann = 0.5 * (1 - Math.cos((2 * Math.PI * i) / (bgFftSize - 1)));
 				bgBuf[i] = this._bgRingBuf[idx] * hann;
 			}
 			forwardRealFourierTransform(bgBuf);
@@ -166,7 +166,7 @@ export class spectrumCanvas {
 			const bgMagsArr = new Float32Array(bgHalfN + 1);
 			for (let k = 0; k <= bgHalfN; k++) {
 				const bgRe = bgBuf[k];
-				const bgIm = (k === 0 || k === bgHalfN) ? 0 : bgBuf[bgFftSize - k];
+				const bgIm = k === 0 || k === bgHalfN ? 0 : bgBuf[bgFftSize - k];
 				bgMagsArr[k] = Math.sqrt(bgRe * bgRe + bgIm * bgIm) / bgFftSize;
 			}
 			// Per-band: interpolate from FFT bins
@@ -181,10 +181,11 @@ export class spectrumCanvas {
 			{
 				const blurred = new Float32Array(BG_BANDS);
 				for (let b = 0; b < BG_BANDS; b++) {
-					let sum = 0, wSum = 0;
+					let sum = 0,
+						wSum = 0;
 					for (let n = 0; n < BG_BANDS; n++) {
 						const d = n - b;
-						const w = Math.exp(-0.5 * d * d / 4);
+						const w = Math.exp((-0.5 * d * d) / 4);
 						sum += bgMags[n] * w;
 						wSum += w;
 					}
@@ -224,11 +225,12 @@ export class spectrumCanvas {
 		events.listen("themeChange", () => this._updateCachedColors());
 	}
 
-
 	private _drawSmooth(
 		ctx: CanvasRenderingContext2D,
-		w: number, h: number,
-		mags: Float32Array, maxMag: number,
+		w: number,
+		h: number,
+		mags: Float32Array,
+		maxMag: number,
 		bandCount: number,
 		color: string,
 		opacity: number,
@@ -237,7 +239,7 @@ export class spectrumCanvas {
 		const bandWidth = w / (bandCount - 1);
 		const ys = new Array<number>(bandCount);
 		for (let b = 0; b < bandCount; b++) {
-			ys[b] = h - Math.min(1, 2 * mags[b] / (mags[b] + maxMag)) * h * heightScale;
+			ys[b] = h - Math.min(1, (2 * mags[b]) / (mags[b] + maxMag)) * h * heightScale;
 		}
 
 		ctx.globalAlpha = opacity;
@@ -267,13 +269,13 @@ export class spectrumCanvas {
 		const bgNoteStart = Math.round(12 * Math.log2(BG_MIN_FREQ / bgA4) + 69);
 		// Every quarter-tone (24TET): 67 bands from ~20Hz to ~130Hz
 		for (let b = 0; b < BG_BANDS; b++) {
-			this._bgFreqs.push(bgA4 * Math.pow(2, (bgNoteStart + b * 0.5 - 69) / 12));
+			this._bgFreqs.push(bgA4 * 2 ** ((bgNoteStart + b * 0.5 - 69) / 12));
 		}
 		// Every quarter-tone (24TET): 151 bands from ~130Hz to ~10000Hz
 		this._fgFreqs.length = 0;
 		const fgNoteStart = Math.round(12 * Math.log2(FG_MIN_FREQ / 440) + 69);
 		for (let b = 0; b < FG_BANDS; b++) {
-			this._fgFreqs.push(440 * Math.pow(2, (fgNoteStart + b * 0.5 - 69) / 12));
+			this._fgFreqs.push(440 * 2 ** ((fgNoteStart + b * 0.5 - 69) / 12));
 		}
 	}
 
@@ -288,4 +290,3 @@ export class spectrumCanvas {
 		this._cachedRColor = ColorConfig.getComputed("--spectrum-line-R") || "rgba(119,68,255,0.99)";
 	}
 }
-

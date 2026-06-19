@@ -10,6 +10,7 @@
 
 // Copyright (c) 2012-2022 John Nesky and contributing authors, distributed under the MIT license, see accompanying the LICENSE.md file.
 
+import { AUDIO_WORKLET_PROCESSOR_CODE } from "./audio-worklet-processor";
 import { ChannelState } from "./channel-state";
 import type { Channel } from "./channels";
 import { Deque } from "./deque";
@@ -65,7 +66,6 @@ import {
 } from "./synthesis";
 import { Tone } from "./tone";
 import { clamp, detuneToCents, epsilon, fittingPowerOfTwo, getOperatorWave } from "./util";
-import { AUDIO_WORKLET_PROCESSOR_CODE } from "./audio-worklet-processor";
 
 declare global {
 	interface Window {
@@ -582,7 +582,9 @@ export class Synth {
 				const v = window.localStorage.getItem("debugSynth");
 				if (v === "1" || v === "true") return true;
 			}
-		} catch { /* ignore */ }
+		} catch {
+			/* ignore */
+		}
 		return false;
 	}
 
@@ -913,74 +915,83 @@ export class Synth {
 			this._activateAudioPromise = null;
 			return;
 		}
-		this._dbg("activateAudio called, bufferSize:", bufferSize, "currentBufferSize:", this._currentBufferSize, "audioCtx:", !!this.audioCtx, "workletNode:", !!this._workletNode);
+		this._dbg(
+			"activateAudio called, bufferSize:",
+			bufferSize,
+			"currentBufferSize:",
+			this._currentBufferSize,
+			"audioCtx:",
+			!!this.audioCtx,
+			"workletNode:",
+			!!this._workletNode,
+		);
 		try {
-		if (this._workletNode != null) this.deactivateAudio();
-		const latencyHint: string = this.anticipatePoorPerformance
-			? this.preferLowerLatency
-				? "balanced"
-				: "playback"
-			: this.preferLowerLatency
-				? "interactive"
-				: "balanced";
-		this._dbg("Creating AudioContext, latencyHint:", latencyHint);
-		this.audioCtx = this.audioCtx || new (window.AudioContext || window.webkitAudioContext)({ latencyHint: latencyHint });
-		const ctx = this.audioCtx!;
-		this.samplesPerSecond = ctx.sampleRate;
-		this._dbg("AudioContext sampleRate:", this.samplesPerSecond);
+			if (this._workletNode != null) this.deactivateAudio();
+			const latencyHint: string = this.anticipatePoorPerformance
+				? this.preferLowerLatency
+					? "balanced"
+					: "playback"
+				: this.preferLowerLatency
+					? "interactive"
+					: "balanced";
+			this._dbg("Creating AudioContext, latencyHint:", latencyHint);
+			this.audioCtx = this.audioCtx || new (window.AudioContext || window.webkitAudioContext)({ latencyHint: latencyHint });
+			const ctx = this.audioCtx!;
+			this.samplesPerSecond = ctx.sampleRate;
+			this._dbg("AudioContext sampleRate:", this.samplesPerSecond);
 
-		// If the AudioContext is suspended (no user gesture yet), register a
-		// one-time click/keydown listener to resume it on the first user gesture.
-		// This enables note preview before the user clicks Play.
-		if (ctx.state === "suspended" && !this._gestureListenerAdded) {
-			this._gestureListenerAdded = true;
-			const resume = () => {
-				if (this.audioCtx && this.audioCtx.state === "suspended") {
-					this.audioCtx.resume().then(() => {
-						this._dbg("AudioContext resumed via user gesture");
-					});
+			// If the AudioContext is suspended (no user gesture yet), register a
+			// one-time click/keydown listener to resume it on the first user gesture.
+			// This enables note preview before the user clicks Play.
+			if (ctx.state === "suspended" && !this._gestureListenerAdded) {
+				this._gestureListenerAdded = true;
+				const resume = () => {
+					if (this.audioCtx && this.audioCtx.state === "suspended") {
+						this.audioCtx.resume().then(() => {
+							this._dbg("AudioContext resumed via user gesture");
+						});
+					}
+				};
+				window.addEventListener("click", resume, { once: true });
+				window.addEventListener("keydown", resume, { once: true });
+				this._dbg("Added one-time gesture listener to resume AudioContext");
+			}
+
+			// Load AudioWorklet module via blob URL
+			if (this._workletModuleUrl == null) {
+				const blob = new Blob([AUDIO_WORKLET_PROCESSOR_CODE], { type: "application/javascript" });
+				this._workletModuleUrl = URL.createObjectURL(blob);
+				this._dbg("Created worklet module blob URL:", this._workletModuleUrl);
+			}
+			this._dbg("Loading AudioWorklet module...");
+			await ctx.audioWorklet.addModule(this._workletModuleUrl);
+			this._dbg("AudioWorklet module loaded");
+
+			// Create AudioWorkletNode
+			this._workletNode = new AudioWorkletNode(ctx, "beepbox-audio-worklet-processor", {
+				outputChannelCount: [2],
+				processorOptions: { bufferSize: bufferSize, debug: Synth._debugSynthEnabled() },
+			});
+			this._dbg("AudioWorkletNode created");
+
+			// Set up message port handler
+			this._workletNode.port.onmessage = (e: MessageEvent) => {
+				const msg = e.data;
+				if (msg && msg.type === "need-data") {
+					this._onWorkletNeedData();
 				}
 			};
-			window.addEventListener("click", resume, { once: true });
-			window.addEventListener("keydown", resume, { once: true });
-			this._dbg("Added one-time gesture listener to resume AudioContext");
-		}
 
-		// Load AudioWorklet module via blob URL
-		if (this._workletModuleUrl == null) {
-			const blob = new Blob([AUDIO_WORKLET_PROCESSOR_CODE], { type: "application/javascript" });
-			this._workletModuleUrl = URL.createObjectURL(blob);
-			this._dbg("Created worklet module blob URL:", this._workletModuleUrl);
-		}
-		this._dbg("Loading AudioWorklet module...");
-		await ctx.audioWorklet.addModule(this._workletModuleUrl);
-		this._dbg("AudioWorklet module loaded");
+			this._workletNode.connect(ctx.destination);
+			this._dbg("WorkletNode connected to destination");
 
-		// Create AudioWorkletNode
-		this._workletNode = new AudioWorkletNode(ctx, "beepbox-audio-worklet-processor", {
-			outputChannelCount: [2],
-			processorOptions: { bufferSize: bufferSize, debug: Synth._debugSynthEnabled() },
-		});
-		this._dbg("AudioWorkletNode created");
+			this._currentBufferSize = bufferSize;
+			this._workletPrimed = false;
+			this._logSynthCallCount = 0;
+			this._logNeedDataCount = 0;
 
-		// Set up message port handler
-		this._workletNode.port.onmessage = (e: MessageEvent) => {
-			const msg = e.data;
-			if (msg && msg.type === "need-data") {
-				this._onWorkletNeedData();
-			}
-		};
-
-		this._workletNode.connect(ctx.destination);
-		this._dbg("WorkletNode connected to destination");
-
-		this._currentBufferSize = bufferSize;
-		this._workletPrimed = false;
-		this._logSynthCallCount = 0;
-		this._logNeedDataCount = 0;
-
-		this.computeDelayBufferSizes();
-		this._dbg("activateAudio complete, bufferSize:", bufferSize, "sampleRate:", this.samplesPerSecond);
+			this.computeDelayBufferSizes();
+			this._dbg("activateAudio complete, bufferSize:", bufferSize, "sampleRate:", this.samplesPerSecond);
 		} catch (e) {
 			this._dbgWarn("activateAudio failed:", e);
 			this.deactivateAudio();
@@ -993,7 +1004,7 @@ export class Synth {
 	private async resumeAudioContext(): Promise<void> {
 		if (this.audioCtx && this.audioCtx.state === "suspended") {
 			try {
-			await this.audioCtx.resume();
+				await this.audioCtx.resume();
 				this._dbg("AudioContext resumed, state:", this.audioCtx.state);
 			} catch (e) {
 				// AudioContext can't resume without user gesture, ignore
@@ -1040,7 +1051,14 @@ export class Synth {
 	private _onWorkletNeedData(): void {
 		this._logNeedDataCount++;
 		if (this._logNeedDataCount <= 5 || this._logNeedDataCount % 100 === 0) {
-			this._dbg("need-data #" + this._logNeedDataCount + ", isPlayingSong:", this.isPlayingSong, "liveInputEndTime:", this.liveInputEndTime, "now:", performance.now());
+			this._dbg(
+				"need-data #" + this._logNeedDataCount + ", isPlayingSong:",
+				this.isPlayingSong,
+				"liveInputEndTime:",
+				this.liveInputEndTime,
+				"now:",
+				performance.now(),
+			);
 		}
 
 		if (!this.isPlayingSong && performance.now() >= this.liveInputEndTime) {
@@ -1575,7 +1593,26 @@ export class Synth {
 	public synthesize(outputDataL: Float32Array, outputDataR: Float32Array, outputBufferLength: number, playSong: boolean = true): void {
 		this._logSynthCallCount++;
 		if (this._logSynthCallCount <= 5 || this._logSynthCallCount % 200 === 0) {
-			this._dbg("synthesize #" + this._logSynthCallCount + ", bufferLength: " + outputBufferLength + ", playSong: " + playSong + ", isPlayingSong: " + this.isPlayingSong + ", playhead: " + this.playheadInternal.toFixed(4) + ", bar: " + this.bar + ", beat: " + this.beat + ", tick: " + this.tick + ", tickCountdown: " + this.tickSampleCountdown.toFixed(2));
+			this._dbg(
+				"synthesize #" +
+					this._logSynthCallCount +
+					", bufferLength: " +
+					outputBufferLength +
+					", playSong: " +
+					playSong +
+					", isPlayingSong: " +
+					this.isPlayingSong +
+					", playhead: " +
+					this.playheadInternal.toFixed(4) +
+					", bar: " +
+					this.bar +
+					", beat: " +
+					this.beat +
+					", tick: " +
+					this.tick +
+					", tickCountdown: " +
+					this.tickSampleCountdown.toFixed(2),
+			);
 		}
 
 		if (this.song == null) {

@@ -1637,7 +1637,12 @@ export class SongEditor
 		this._trackVisibleArea,
 	);
 	public readonly _barScrollBar: BarScrollBar = new BarScrollBar(this.doc);
-	private readonly _trackArea: HTMLDivElement = div({ class: "track-area" }, this._trackAndMuteContainer, this._barScrollBar.container, this._overlaySpectrumContainer);
+	private readonly _trackArea: HTMLDivElement = div(
+		{ class: "track-area" },
+		this._trackAndMuteContainer,
+		this._barScrollBar.container,
+		this._overlaySpectrumContainer,
+	);
 
 	private readonly _menuArea: HTMLDivElement = div(
 		{ class: "menu-area" },
@@ -3657,7 +3662,6 @@ export class SongEditor
 	private _switchNoteFilterType(toSimple: boolean): void {
 		this._dispatch.switchNoteFilterType(toSimple);
 	}
-
 
 	private _zoomIn(): void {
 		this.doc.prefs.visibleOctaves = Math.max(1, this.doc.prefs.visibleOctaves - 1);
