@@ -124,6 +124,12 @@ export class spectrumCanvas {
 					fgMags[b] = qa * frac * frac + qb * frac + qc;
 				}
 			}
+			// Per-band gain: ramp from 0.5x (low) to 2x (high) to compensate for spectral tilt
+			// Low freqs have more natural energy, so we attenuate them relative to highs
+			const fgGainStep = 1.5 / (FG_BANDS - 1);
+			for (let b = 0; b < FG_BANDS; b++) {
+				fgMags[b] *= (0.5 + b * fgGainStep);
+			}
 			// Light gaussian spatial blur (sigma=3 bands = 1.5 semitones) to suppress tiny peak jitter
 			{
 				const blurred = new Float32Array(FG_BANDS);
