@@ -16,7 +16,7 @@ import { forwardRealFourierTransform } from "../synth/fft";
 const FG_BANDS = 56;
 const FG_MIN_FREQ = 165;
 
-const BG_BANDS = 8;
+const BG_BANDS = 12;
 const BG_MIN_FREQ = 20;
 const BG_MAX_FREQ = 160;
 
@@ -35,10 +35,10 @@ export class spectrumCanvas {
 	private _sampleRate = 48000;
 	private _lastBufferSize = 0;
 	private readonly _bgFreqs: number[] = [];
-	// Ring buffer for BG long-FFT (8192 = ~170ms at 48kHz, provides 5.86Hz bins)
-	private _bgRingBuf: Float32Array = new Float32Array(8192);
+	// Ring buffer for BG long-FFT (16384 = ~341ms at 48kHz, provides 2.93Hz bins)
+	private _bgRingBuf: Float32Array = new Float32Array(16384);
 	private _bgRingPos = 0;
-	private _bgFftBuf: Float32Array = new Float32Array(8192);
+	private _bgFftBuf: Float32Array = new Float32Array(16384);
 	private readonly _fgFreqs: number[] = [];
 
 	// Fixed normalization references (floor for soft compression)
@@ -52,7 +52,7 @@ export class spectrumCanvas {
 	// Per-band temporal smoothing (~30ms decay at 60fps)
 	// factor^2 ≈ 0.1, so ~30ms to decay to 10%
 	private _fgSmoothMags = new Float32Array(56);
-	private _bgSmoothMags = new Float32Array(8);
+	private _bgSmoothMags = new Float32Array(12);
 
 	constructor(
 		public readonly canvas: HTMLCanvasElement,
@@ -95,7 +95,7 @@ export class spectrumCanvas {
 				fftBuf[i] = s * hann;
 				// Accumulate raw (unwindowed) audio in BG ring buffer for high-res FFT
 				this._bgRingBuf[this._bgRingPos] = s;
-				this._bgRingPos = (this._bgRingPos + 1) & 8191;
+				this._bgRingPos = (this._bgRingPos + 1) & 16383;
 			}
 			for (let i = copyLen; i < fftSize; i++) fftBuf[i] = 0;
 			forwardRealFourierTransform(fftBuf);
@@ -132,28 +132,31 @@ export class spectrumCanvas {
 
 			const bgMags = new Float32Array(BG_BANDS);
 			let bgInstMax = 0.0001;
-			// BG: separate 8192-sample FFT for 5.86Hz bins (fine low-freq resolution)
-			const bgFftSize = 8192;
-			const bgHalfN = 4096;
+			// BG: separate 16384-sample FFT for 2.93Hz bins (fine low-freq resolution)
+			const bgFftSize = 16384;
+			const bgHalfN = bgFftSize >> 1;
 			const bgBuf = this._bgFftBuf;
 			for (let i = 0; i < bgFftSize; i++) {
-				const idx = (this._bgRingPos + i) & 8191;
+				const idx = (this._bgRingPos + i) & 16383;
 				const hann = 0.5 * (1 - Math.cos(2 * Math.PI * i / (bgFftSize - 1)));
 				bgBuf[i] = this._bgRingBuf[idx] * hann;
 			}
 			forwardRealFourierTransform(bgBuf);
 			const bgBinFreq = this._sampleRate / bgFftSize;
+			// Compute BG magnitudes from FFT bins
+			const bgMagsArr = new Float32Array(bgHalfN + 1);
+			for (let k = 0; k <= bgHalfN; k++) {
+				const bgRe = bgBuf[k];
+				const bgIm = (k === 0 || k === bgHalfN) ? 0 : bgBuf[bgFftSize - k];
+				bgMagsArr[k] = Math.sqrt(bgRe * bgRe + bgIm * bgIm) / bgFftSize;
+			}
 			// Interpolate BG bands from high-res FFT bins
 			for (let b = 0; b < BG_BANDS; b++) {
 				const kFloat = this._bgFreqs[b] / bgBinFreq;
 				const kLo = Math.floor(kFloat);
 				const kHi = Math.min(kLo + 1, bgHalfN);
 				const frac = kFloat - kLo;
-				const re = bgBuf[kLo] + (bgBuf[kHi] - bgBuf[kLo]) * frac;
-				const im0 = (kLo === 0 || kLo === bgHalfN) ? 0 : bgBuf[bgFftSize - kLo];
-				const im1 = (kHi === 0 || kHi === bgHalfN) ? 0 : bgBuf[bgFftSize - kHi];
-				const im = im0 + (im1 - im0) * frac;
-				bgMags[b] = Math.sqrt(re * re + im * im) / bgFftSize;
+				bgMags[b] = bgMagsArr[kLo] + (bgMagsArr[kHi] - bgMagsArr[kLo]) * frac;
 				if (bgMags[b] > bgInstMax) bgInstMax = bgMags[b];
 			}
 
