@@ -1335,14 +1335,14 @@ export class SongEditor
 		canvas({
 			width: 144,
 			height: 32,
-			style: `border: 2px solid ${ColorConfig.uiWidgetBackground}; position: static;`,
+			style: "display: block; margin: 0 auto;",
 			id: "spectrumAll",
 		}),
 		1,
 	);
 	private readonly _globalSpectrumContainer: HTMLDivElement = div(
 		{
-			style: "height: 38px; margin-left: auto; margin-right: auto;",
+			style: "height: 32px; margin: 2px 0;",
 		},
 		this._globalSpectrum.canvas,
 	);
