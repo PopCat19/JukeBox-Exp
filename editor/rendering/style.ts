@@ -1309,7 +1309,6 @@ html {
 	box-sizing: border-box;
 	outline: none;
 	box-shadow: none;
-	transition: background 80ms ease, color 80ms ease, border-color 80ms ease;
 }
 
 .beepboxEditor .prompt.cleanChannelPrompt .tabButton:hover {
@@ -1753,7 +1752,6 @@ html {
 	border-radius: var(--border-radius-medium);
 	cursor: pointer;
 	background: var(--prompt-list-item-bg);
-	transition: border-color 150ms var(--ease);
 }
 
 .beepboxEditor .prompt.cleanChannelPrompt .ccpList .categoryItem:hover {

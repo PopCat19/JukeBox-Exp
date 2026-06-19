@@ -252,7 +252,6 @@ export class CleanChannelPrompt extends BasePrompt {
 
 		this._detailPane.style.border = "2px solid var(--ui-widget-background)";
 		this._detailPane.style.borderRadius = "var(--border-radius-medium)";
-		this._detailPane.style.transition = "border-color 0.15s";
 		this._detailPane.addEventListener("mouseenter", () => {
 			this._lastInteraction = "hover";
 			this._hoveredPane = "details";
@@ -262,7 +261,6 @@ export class CleanChannelPrompt extends BasePrompt {
 		const listContainer = div({ class: "ccpListContainer" }, this._channelList);
 
 		this._leftPane = div({ class: "ccpLeftPane" }, listContainer);
-		this._leftPane.style.transition = "border-color 0.15s";
 		this._leftPane.addEventListener("mouseenter", () => {
 			this._lastInteraction = "hover";
 			this._hoveredPane = "list";
