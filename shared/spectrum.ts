@@ -24,13 +24,13 @@ const BG_MAX_FREQ = 240;
 // Instead of dynamic peak hold, normalize against fixed dB limits.
 // This prevents flooding (loudest band doesn't set ceiling for all)
 // and eliminates the wedge (high freqs show their natural low level).
-const FG_MIN_DB = -70;   // noise floor
-const FG_MAX_DB = -10;   // near full scale (Hann window gain ~0.5 → -6dB)
-const FG_BOOST = 2.0;     // high contrast: peaks stand out, quiet bands suppressed
+const FG_MIN_DB = -90;   // noise floor (very sensitive)
+const FG_MAX_DB = -15;   // near full scale
+const FG_BOOST = 1.0;     // natural (no boost)
 
-const BG_MIN_DB = -60;
-const BG_MAX_DB = -20;
-const BG_BOOST = 1.5;     // moderate contrast: bass peaks reach ceiling
+const BG_MIN_DB = -80;
+const BG_MAX_DB = -5;     // wide headroom for bass (prevents flooding)
+const BG_BOOST = 1.0;     // natural (no boost)
 
 // Per-band temporal smoothing (30ms time constant)
 // At 60fps (16.67ms/frame): factor = e^(-16.67/30) ≈ 0.57
