@@ -12,13 +12,13 @@
 import { ColorConfig } from "./color-config";
 import { events } from "./events";
 
-const FG_BANDS = 24;
+const FG_BANDS = 8;
 const FG_MIN_FREQ = 400;
-const FG_MAX_FREQ = 700;
+const FG_MAX_FREQ = 8000;
 
-const BG_BANDS = 24;
+const BG_BANDS = 16;
 const BG_MIN_FREQ = 30;
-const BG_MAX_FREQ = 250;
+const BG_MAX_FREQ = 180;
 
 export class spectrumCanvas {
 	public _EventUpdateCanvas: (left: Float32Array, right?: Float32Array) => void;
@@ -99,7 +99,7 @@ export class spectrumCanvas {
 				// Squared magnitude with frequency-dependent gain: boosts lower bands
 				// so the curve approaching x=0 (30Hz) is visible, not invisible
 				const raw = (re * re + im * im) / sampleCount;
-				const gain = 1 + (250 / this._bgFreqs[b] - 1) * 1.0; // prioritize lower peaks: 30Hz=~9x, 250Hz=1x
+				const gain = 1 + (160 / this._bgFreqs[b] - 1) * 1.0; // prioritize lower peaks: 20Hz=8x, 160Hz=1x
 				bgMags[b] = raw * gain;
 				if (bgMags[b] > bgInstMax) bgInstMax = bgMags[b];
 			}
@@ -134,6 +134,7 @@ export class spectrumCanvas {
 		};
 
 		events.listen("spectrumUpdate", this._EventUpdateCanvas);
+		events.listen("spectrumReset", () => this.reset());
 		events.listen("spectrumReset", () => this.reset());
 		events.listen("themeChange", () => this._updateCachedColors());
 	}
@@ -216,6 +217,7 @@ export class spectrumCanvas {
 		}
 		return coefs;
 	}
+
 
 	private _updateCachedColors(): void {
 		this._cachedBgColor = ColorConfig.getComputed("--editor-background") || "black";
