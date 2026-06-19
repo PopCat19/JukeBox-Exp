@@ -96,8 +96,8 @@ export class AddSamplesPrompt extends BasePrompt {
 			promptRowEnd(this._bulkCancelButton, this._bulkConfirmButton),
 		);
 
-		this._addSampleButton = button({}, "+ Add sample");
-		this._addMultipleButton = button({}, "+ Add multiple");
+		this._addSampleButton = button({}, "Add sample");
+		this._addMultipleButton = button({}, "Add multiple");
 		this._copyButton = button({ class: "sbpCardActionBtn" }, "Copy");
 		const btnRow = div({ class: "sbpBtnRow" }, this._addSampleButton, this._addMultipleButton, this._copyButton);
 
