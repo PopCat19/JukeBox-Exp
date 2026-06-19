@@ -14,7 +14,7 @@ import { Config } from "../../synth/synth-config";
 import { ChangeCleanChannelInstruments, ChangeCleanChannelPatterns, comparePatternNotes, patternsContainSameInstruments } from "../changes";
 import { ChangeGroup } from "../core/change";
 import type { SongDocument } from "../song-document";
-import { flexPane, inputRow, paneContainer, searchInput } from "../ui";
+import { actionButton, flexPane, inputRow, paneContainer, searchInput } from "../ui";
 import { BasePrompt } from "./base-prompt";
 
 const { button, div, h2, span, p, table, tbody, tr, td, th } = HTML;
@@ -203,6 +203,7 @@ export class CleanChannelPrompt extends BasePrompt {
 	private readonly _leftPane: HTMLDivElement;
 	private readonly _searchInput: HTMLInputElement = searchInput("Filter channels...");
 	private readonly _cleanOneButton: HTMLButtonElement = button({ class: "sbpCardActionBtn", style: "width: 100%;" }, "Clean selected");
+	private readonly _cleanAllButton: HTMLButtonElement = actionButton("Clean all and Commit");
 
 	public readonly container: HTMLDivElement;
 
@@ -235,6 +236,7 @@ export class CleanChannelPrompt extends BasePrompt {
 		// Left pane: channel list (mirrors sbpLeftPane / sbpListContainer / sbpList)
 		this._searchInput.addEventListener("input", () => this._renderList());
 		this._cleanOneButton.addEventListener("click", this._onCleanOne);
+		this._cleanAllButton.addEventListener("click", this._onCleanAll);
 
 		const listContainer = div({ class: "ccpListContainer" }, this._channelList);
 
@@ -249,7 +251,7 @@ export class CleanChannelPrompt extends BasePrompt {
 				this._leftPane,
 				this._detailPane,
 			),
-			hasChanges ? this._okayButton : div(),
+			hasChanges ? this._cleanAllButton : div(),
 			this._cancelButton,
 		);
 
@@ -389,6 +391,10 @@ export class CleanChannelPrompt extends BasePrompt {
 		this._detailPane.appendChild(p({ class: "ccpEmptyDetail" }, "No duplicate patterns or instruments found. Nothing to clean."));
 	}
 
+	private _onCleanAll = (): void => {
+		this._saveChanges();
+	};
+
 	private _onCleanOne = (): void => {
 		const ch = this._diffs[this._selectedIndex].channelIndex;
 		const group = new ChangeGroup();
@@ -397,8 +403,32 @@ export class CleanChannelPrompt extends BasePrompt {
 		} else {
 			group.append(new ChangeCleanChannelInstruments(this._doc, ch));
 		}
-		this._doc.prompt = null;
 		this._doc.record(group);
+
+		// Recompute diffs for all channels and update list/detail
+		this._diffs.length = 0;
+		const channels: number[] = this._scope === "all" ? Array.from({ length: this._doc.song.getChannelCount() }, (_, i) => i) : [this._doc.channel];
+		if (this._mode === "patterns") {
+			for (const c of channels) {
+				const d = computePatternDiff(this._doc, c);
+				if (d) this._diffs.push(d);
+			}
+		} else {
+			for (const c of channels) {
+				const d = computeInstrumentDiff(this._doc, c);
+				if (d) this._diffs.push(d);
+			}
+		}
+
+		if (this._diffs.length === 0) {
+			this._renderEmpty();
+			while (this._channelList.firstChild) this._channelList.removeChild(this._channelList.firstChild);
+			return;
+		}
+
+		this._selectedIndex = Math.min(this._selectedIndex, this._diffs.length - 1);
+		this._renderList();
+		this._renderDetail();
 	};
 
 	protected override _saveChanges(): void {
