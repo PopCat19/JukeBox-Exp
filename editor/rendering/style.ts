@@ -3775,6 +3775,11 @@ li.select2-results__option[role=group] > strong:hover {
 	margin-top: 8px;
 }
 
+.beepboxEditor .prompt.sampleBrowserPrompt .sbpBtnRow > button {
+	flex: 1;
+	text-align: center;
+}
+
 .beepboxEditor .prompt.sampleBrowserPrompt .sbpBottomBar {
 	display: flex;
 	flex-direction: row;
