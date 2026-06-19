@@ -16,9 +16,8 @@ import { forwardRealFourierTransform } from "../synth/fft";
 const FG_BANDS = 56;
 const FG_MIN_FREQ = 165;
 const BG_MIN_FREQ = 20;
-const BG_MAX_FREQ = 320;
+const BG_BANDS = 37;
 
-const BG_BANDS = 12;
 
 // CQT Q factor: constant ratio of frequency to bandwidth
 // Q=8 means bandwidth = freq/8. Higher Q = narrower filters.
@@ -52,7 +51,7 @@ export class spectrumCanvas {
 	// Per-band temporal smoothing (~30ms decay at 60fps)
 	// factor^2 ≈ 0.1, so ~30ms to decay to 10%
 	private _fgSmoothMags = new Float32Array(56);
-	private _bgSmoothMags = new Float32Array(12);
+	private _bgSmoothMags = new Float32Array(37);
 
 	constructor(
 		public readonly canvas: HTMLCanvasElement,
@@ -150,13 +149,27 @@ export class spectrumCanvas {
 				const bgIm = (k === 0 || k === bgHalfN) ? 0 : bgBuf[bgFftSize - k];
 				bgMagsArr[k] = Math.sqrt(bgRe * bgRe + bgIm * bgIm) / bgFftSize;
 			}
-			// Interpolate BG bands from high-res FFT bins
+			// Linear interpolation: each note is within 0.5 semitones of a band center
 			for (let b = 0; b < BG_BANDS; b++) {
 				const kFloat = this._bgFreqs[b] / bgBinFreq;
 				const kLo = Math.floor(kFloat);
 				const kHi = Math.min(kLo + 1, bgHalfN);
 				const frac = kFloat - kLo;
 				bgMags[b] = bgMagsArr[kLo] + (bgMagsArr[kHi] - bgMagsArr[kLo]) * frac;
+			}
+			// Spatial blur: gaussian kernel spreads energy for wave-like smoothness
+			// 5-tap: [0.0625, 0.25, 0.375, 0.25, 0.0625]
+			for (let p = 0; p < 3; p++) {
+				let b0 = bgMags[0], b1 = bgMags[Math.min(1, BG_BANDS - 1)];
+				for (let b = 0; b < BG_BANDS; b++) {
+					const b2 = b + 1 < BG_BANDS ? bgMags[b + 1] : bgMags[b];
+					const b3 = b + 2 < BG_BANDS ? bgMags[b + 2] : bgMags[b];
+					const blurred = b0 * 0.0625 + b1 * 0.25 + bgMags[b] * 0.375 + b2 * 0.25 + b3 * 0.0625;
+					b0 = b1; b1 = bgMags[b];
+					bgMags[b] = blurred;
+				}
+			}
+			for (let b = 0; b < BG_BANDS; b++) {
 				if (bgMags[b] > bgInstMax) bgInstMax = bgMags[b];
 			}
 
@@ -238,15 +251,13 @@ export class spectrumCanvas {
 
 	private _initBands(sampleRate: number): void {
 		this._sampleRate = sampleRate;
-		// Compute BG center frequencies: 12TET semitones
-		// Find the semitone nearest to BG_MIN_FREQ that allows even spacing to BG_MAX_FREQ
+		// Compute BG center frequencies: every 2nd semitone from BG_MIN_FREQ (~20Hz)
 		this._bgFreqs.length = 0;
 		const bgA4 = 440;
 		const bgNoteStart = Math.round(12 * Math.log2(BG_MIN_FREQ / bgA4) + 69);
-		const bgNoteEnd = Math.round(12 * Math.log2(BG_MAX_FREQ / bgA4) + 69);
-		const bgStep = Math.floor((bgNoteEnd - bgNoteStart) / (BG_BANDS - 1));
+		// Every semitone: 37 bands from ~20Hz to ~160Hz
 		for (let b = 0; b < BG_BANDS; b++) {
-			this._bgFreqs.push(bgA4 * Math.pow(2, (bgNoteStart + b * bgStep - 69) / 12));
+			this._bgFreqs.push(bgA4 * Math.pow(2, (bgNoteStart + b - 69) / 12));
 		}
 		// Compute FG center frequencies: 12TET semitones (A4=440Hz)
 		// Note 0 = E4 (164.8Hz), covers 160-4000Hz range
