@@ -17,7 +17,7 @@ const FG_BANDS = 32;
 const FG_MIN_FREQ = 160;
 const FG_MAX_FREQ = 4000;
 
-const BG_BANDS = 12;
+const BG_BANDS = 8;
 const BG_MIN_FREQ = 20;
 const BG_MAX_FREQ = 160;
 
@@ -25,7 +25,7 @@ const BG_MAX_FREQ = 160;
 // Q=8 means bandwidth = freq/8. Higher Q = narrower filters.
 // At 2048 buffer/48kHz: lowest freq with full CQT is ~60Hz.
 // Below that, window is clamped to buffer size.
-const FFT_SIZE = 2048;
+
 
 export class spectrumCanvas {
 	public _EventUpdateCanvas: (left: Float32Array, right?: Float32Array) => void;
@@ -44,12 +44,12 @@ export class spectrumCanvas {
 	// Peak hold: gentle decay (0.92 ≈ 120ms) so peaks reach ceiling
 	// without being too aggressive like the old 30ms (0.57)
 	private _bgSmoothMax = 0.001;
-	// FFT scratch buffer (reused each frame)
-	private _fftBuffer: Float32Array = new Float32Array(FFT_SIZE);
+	// FFT scratch buffer (reallocated on buffer size change)
+	private _fftBuffer: Float32Array = new Float32Array(2048);
 	// Per-band temporal smoothing (~30ms decay at 60fps)
 	// factor^2 ≈ 0.1, so ~30ms to decay to 10%
 	private _fgSmoothMags = new Float32Array(32);
-	private _bgSmoothMags = new Float32Array(12);
+	private _bgSmoothMags = new Float32Array(8);
 
 	constructor(
 		public readonly canvas: HTMLCanvasElement,
@@ -78,9 +78,13 @@ export class spectrumCanvas {
 			}
 			this._sampleRate = this._sampleRate || 48000;
 
-			// Compute FFT on latest samples (mix to mono, Hann window)
+			// Use the actual buffer size if power of 2, else clamp to previous power of 2
+			const fftSize = sampleCount <= 4096 ? (Math.pow(2, Math.floor(Math.log2(sampleCount)))) : 2048;
+			if (fftSize < 4) return;
+			if (this._fftBuffer.length !== fftSize) {
+				this._fftBuffer = new Float32Array(fftSize);
+			}
 			const fftBuf = this._fftBuffer;
-			const fftSize = FFT_SIZE;
 			const copyLen = Math.min(sampleCount, fftSize);
 			for (let i = 0; i < copyLen; i++) {
 				const hann = 0.5 * (1 - Math.cos(2 * Math.PI * i / (fftSize - 1)));
@@ -96,7 +100,7 @@ export class spectrumCanvas {
 			for (let k = 0; k <= halfN; k++) {
 				const re = fftBuf[k];
 				const im = (k === 0 || k === halfN) ? 0 : fftBuf[fftSize - k];
-				mags[k] = Math.sqrt(re * re + im * im) / fftSize; // keep /N for FG (linear mag)
+				mags[k] = Math.sqrt(re * re + im * im) / fftSize;
 			}
 
 			// Interpolate FG + BG bands from FFT bins (log-frequency interpolation)
