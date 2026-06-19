@@ -977,6 +977,10 @@ export class Synth {
 
 		this.computeDelayBufferSizes();
 		this._dbg("activateAudio complete, bufferSize:", bufferSize, "sampleRate:", this.samplesPerSecond);
+		} catch (e) {
+			this._dbgWarn("activateAudio failed:", e);
+			this.deactivateAudio();
+			throw e;
 		} finally {
 			this._activateAudioPromise = null;
 		}
@@ -995,19 +999,25 @@ export class Synth {
 
 	private deactivateAudio(): void {
 		this._dbg("deactivateAudio called, audioCtx:", !!this.audioCtx, "workletNode:", !!this._workletNode);
-		if (this.audioCtx != null && this._workletNode != null) {
+		// Disconnect worklet node if it exists
+		if (this._workletNode != null && this.audioCtx != null) {
 			this._dbg("Disconnecting worklet node...");
 			this._workletNode.port.postMessage({ type: "stop" });
 			this._workletNode.disconnect(this.audioCtx.destination);
 			this._workletNode = null;
+		}
+		// Close AudioContext if it exists (even if worklet was already null)
+		if (this.audioCtx != null) {
 			if (this.audioCtx.close) {
 				this._dbg("Closing AudioContext...");
 				this.audioCtx.close();
 			}
 			this.audioCtx = null;
-			this._workletPrimed = false;
-			this._dbg("Audio deactivated");
 		}
+		this._workletPrimed = false;
+		this._currentBufferSize = 0;
+		this._gestureListenerAdded = false; // allow re-adding gesture listener on next activation
+		this._dbg("Audio deactivated");
 	}
 
 	private _startSpectrumDecay(): void {

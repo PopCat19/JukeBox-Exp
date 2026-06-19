@@ -131,10 +131,10 @@ export class spectrumCanvas {
 			}
 
 			// Draw background bass layer (R color, low opacity, thicker)
-			this._drawCurve(ctx, w, h, this._bgSmoothMags, this._bgSmoothMax, BG_BANDS, this._cachedRColor, 0.25);
+			this._drawCurve(ctx, w, h, this._bgSmoothMags, this._bgSmoothMax, BG_BANDS, this._cachedRColor, 0.25, 0.35);
 
 			// Draw foreground main layer (L color, full opacity)
-			this._drawCurve(ctx, w, h, this._fgSmoothMags, this._fgSmoothMax, FG_BANDS, this._cachedLColor, 1.0);
+			this._drawCurve(ctx, w, h, this._fgSmoothMags, this._fgSmoothMax, FG_BANDS, this._cachedLColor, 1.0, 1.0);
 		};
 
 		events.listen("spectrumUpdate", this._EventUpdateCanvas);
@@ -148,11 +148,12 @@ export class spectrumCanvas {
 		bandCount: number,
 		color: string,
 		opacity: number,
+		heightScale: number,
 	): void {
 		const bandWidth = w / (bandCount - 1);
 		const ys = new Array<number>(bandCount);
 		for (let b = 0; b < bandCount; b++) {
-			ys[b] = h - Math.min(1, mags[b] / maxMag) * h;
+			ys[b] = h - Math.min(1, mags[b] / maxMag) * h * heightScale;
 		}
 
 		ctx.globalAlpha = opacity;
