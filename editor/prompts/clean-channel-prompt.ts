@@ -228,8 +228,8 @@ export class CleanChannelPrompt extends BasePrompt {
 
 		const title =
 			mode === "patterns"
-				? `Clean Patterns (LSDj) — ${scope === "all" ? "All Channels" : "Current Channel"}`
-				: `Clean Instruments (LSDj) — ${scope === "all" ? "All Channels" : "Current Channel"}`;
+				? `Clean Patterns (LSDj), ${scope === "all" ? "All Channels" : "Current Channel"}`
+				: `Clean Instruments (LSDj), ${scope === "all" ? "All Channels" : "Current Channel"}`;
 
 		// Left pane: channel list (mirrors sbpLeftPane / sbpListContainer / sbpList)
 		this._searchInput.addEventListener("input", () => this._renderList());

@@ -34,7 +34,7 @@ function stripExpMeta(draft: Record<string, unknown>): void {
 // envelopes.dictionary path and crash on generic names. This map converts
 // newEnvelopes names to a representative envelopes name with the same type.
 // The exact speed suffix doesn't matter because perEnvelopeSpeed is serialised
-// separately — only the EnvelopeType must match.
+// separately: only the EnvelopeType must match.
 const NEW_TO_LEGACY_ENVELOPE_NAME: Readonly<Record<string, string>> = {
 	none: "none",
 	"note size": "note size",
@@ -76,7 +76,7 @@ function convertEnvelopeNames(draft: Record<string, unknown>): void {
 export function toLegacyCompatJson(expObj: JukeboxExpObject): LegacyCompatObject {
 	const draft: Record<string, unknown> = structuredClone(expObj);
 
-	// Apply strip policies — one per exp feature group.
+	// Apply strip policies, one per exp feature group.
 	stripExpMeta(draft);
 	convertEnvelopeNames(draft);
 	// stripGranularSynth(draft);
