@@ -60,6 +60,7 @@ export class InstrumentBrowserPrompt extends BasePrompt {
 	private _hoveredPane: "categories" | "presets" | null = null;
 	private _hoveredPresetIndex: number | null = null;
 	private _lastInteraction: "hover" | "keyboard" | null = null;
+	private _infoPanelRAF: number | null = null;
 
 	private _tagData: TagData[] = [];
 	private _tagItems: TagListItem[] = [];
@@ -574,7 +575,15 @@ export class InstrumentBrowserPrompt extends BasePrompt {
 			this._presetItems[i].classList.toggle("committed", isCommitted);
 			this._presetItems[i].classList.toggle("active", isActive);
 		}
-		this._updateInfoPanel();
+		// Info panel DOM rebuild is heavy. RAF to coalesce rapid
+		// mouse moves into a single frame update.
+		if (this._infoPanelRAF !== null) {
+			cancelAnimationFrame(this._infoPanelRAF);
+		}
+		this._infoPanelRAF = requestAnimationFrame(() => {
+			this._infoPanelRAF = null;
+			this._updateInfoPanel();
+		});
 	}
 
 	private _updateInfoPanel(): void {
