@@ -14,7 +14,7 @@ import { events } from "./events";
 
 const FG_BANDS = 24;
 const FG_MIN_FREQ = 400;
-const FG_MAX_FREQ = 2000;
+const FG_MAX_FREQ = 1500;
 
 const BG_BANDS = 24;
 const BG_MIN_FREQ = 30;
@@ -84,7 +84,7 @@ export class spectrumCanvas {
 					im -= mono[n] * coefs[n].sin;
 				}
 				const fgRaw = Math.sqrt(Math.sqrt(re * re + im * im) / sampleCount);
-				const fgGain = 1 + (this._fgFreqs[b] / FG_MIN_FREQ - 1) * 0.15; // boost highs: 400Hz=1x, 2000Hz=1.6x
+				const fgGain = 1 + (this._fgFreqs[b] / FG_MIN_FREQ - 1) * 0.35; // boost highs: 400Hz=1x, 2000Hz=2.4x
 				fgMags[b] = fgRaw * fgGain;
 				if (fgMags[b] > fgInstMax) fgInstMax = fgMags[b];
 			}
