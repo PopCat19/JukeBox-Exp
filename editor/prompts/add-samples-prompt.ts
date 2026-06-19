@@ -104,7 +104,6 @@ export class AddSamplesPrompt extends BasePrompt {
 		this._leftPane = div({ class: "sbpLeftPane" }, listContainer, btnRow, bulkArea);
 		this._leftPane.style.border = "2px solid var(--ui-widget-background)";
 		this._leftPane.style.borderRadius = "8px";
-		this._leftPane.style.transition = "border-color 0.15s";
 		this._leftPane.addEventListener("mouseenter", () => {
 			this._lastInteraction = "hover";
 			this._hoveredPane = "list";
@@ -193,7 +192,6 @@ export class AddSamplesPrompt extends BasePrompt {
 		this._rightPane.classList.add("sbpRightPane");
 		this._rightPane.style.border = "2px solid var(--ui-widget-background)";
 		this._rightPane.style.borderRadius = "8px";
-		this._rightPane.style.transition = "border-color 0.15s";
 		this._rightPane.addEventListener("mouseenter", () => {
 			this._lastInteraction = "hover";
 			this._hoveredPane = "details";

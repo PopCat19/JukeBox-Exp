@@ -107,7 +107,6 @@ export class InstrumentBrowserPrompt extends BasePrompt {
 		this._categoryList.className = "categoryListPane";
 		this._categoryList.style.border = "2px solid var(--ui-widget-background)";
 		this._categoryList.style.borderRadius = "8px";
-		this._categoryList.style.transition = "border-color 0.15s";
 		this._categoryList.style.display = "grid";
 		this._categoryList.style.gridTemplateColumns = "1fr 1fr";
 		this._categoryList.style.gap = "8px";
@@ -131,7 +130,6 @@ export class InstrumentBrowserPrompt extends BasePrompt {
 		this._presetList.style.alignContent = "start";
 		this._presetList.style.border = "2px solid var(--ui-widget-background)";
 		this._presetList.style.borderRadius = "8px";
-		this._presetList.style.transition = "border-color 0.15s";
 		this._presetList.addEventListener("mouseenter", () => {
 			this._lastInteraction = "hover";
 			this._hoveredPane = "presets";

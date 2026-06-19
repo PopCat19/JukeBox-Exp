@@ -306,13 +306,6 @@ html {
 	overflow: hidden;
 	color: ${ColorConfig.primaryText};
 	background: ${ColorConfig.editorBackground};
-    opacity: 0;
-    -webkit-transition: opacity ${Animation.durationSlower} ease-in;
-    -moz-transition: opacity ${Animation.durationSlower} ease-in;
-    -o-transition: opacity ${Animation.durationSlower} ease-in;
-    -ms-transition: opacity ${Animation.durationSlower} ease-in;
-    transition: opacity ${Animation.durationSlower} ease-in;
-    transition-delay: 0s;
 }
 
 .beepboxEditor .operatorRow {
@@ -329,63 +322,21 @@ html {
 }
 
 .pattern-area {
-     opacity: 0;
-    -webkit-transition: opacity 0.5s ease-in;
-    -moz-transition: opacity 0.5s ease-in;
-    -o-transition: opacity 0.5s ease-in;
-    -ms-transition: opacity 0.5s ease-in;
-    transition: opacity 0.5s ease-in;
-    transition-delay: 0s;
 }
 
 .settings-area {
-    opacity: 0;
-    -webkit-transition: opacity 0.5s ease-in;
-    -moz-transition: opacity 0.5s ease-in;
-    -o-transition: opacity 0.5s ease-in;
-    -ms-transition: opacity 0.5s ease-in;
-    transition: opacity 0.5s ease-in;
-    transition-delay: 0.15s;
 }
 
 .editor-song-settings {
-    opacity: 0;
-    -webkit-transition: opacity 0.5s ease-in;
-    -moz-transition: opacity 0.5s ease-in;
-    -o-transition: opacity 0.5s ease-in;
-    -ms-transition: opacity 0.5s ease-in;
-    transition: opacity 0.5s ease-in;
-    transition-delay: 0.35s;
 }
 
 .instrument-settings-area {
-    opacity: 0;
-    -webkit-transition: opacity 0.5s ease-in;
-    -moz-transition: opacity 0.5s ease-in;
-    -o-transition: opacity 0.5s ease-in;
-    -ms-transition: opacity 0.5s ease-in;
-    transition: opacity 0.5s ease-in;
-    transition-delay: 0.45s;
 }
 
 .trackAndMuteContainer {
-    opacity: 0;
-    -webkit-transition: opacity 0.5s ease-in;
-    -moz-transition: opacity 0.5s ease-in;
-    -o-transition: opacity 0.5s ease-in;
-    -ms-transition: opacity 0.5s ease-in;
-    transition: opacity 0.5s ease-in;
-    transition-delay: 0.4s;
 }
 
 .barScrollBar {
-    opacity: 0;
-    -webkit-transition: opacity 0.5s ease-in;
-    -moz-transition: opacity 0.5s ease-in;
-    -o-transition: opacity 0.5s ease-in;
-    -ms-transition: opacity 0.5s ease-in;
-    transition: opacity 0.5s ease-in;
-    transition-delay: 0.5s;
 }
 
 
@@ -1382,7 +1333,6 @@ html {
 	gap: ${Gap.lg};
 	border: 2px solid transparent;
 	border-radius: var(--border-radius-medium);
-	transition: border-color 150ms var(--ease);
 }
 
 .beepboxEditor .prompt.keyboardShortcutsPrompt .shortcutRow:hover {
@@ -3012,7 +2962,6 @@ html {
 }
 
 .beepboxEditor .dash-move {
-  animation: dash-animation 20s infinite linear;
 }
 
 .beepboxEditor .trackContainer {
@@ -3047,11 +2996,6 @@ html {
 }
 .beepboxEditor .dropFader {
 	opacity: 0;
-	-webkit-transition:opacity ${Animation.durationSlow} linear;
-    -moz-transition:opacity ${Animation.durationSlow} linear;
-    -o-transition:opacity ${Animation.durationSlow} linear;
-    -ms-transition:opacity ${Animation.durationSlow} linear;
-    transition:opacity ${Animation.durationSlow} linear;
 }
 
 .beepboxEditor .muteEditor {
@@ -3616,7 +3560,6 @@ li.select2-results__option[role=group] > strong:hover {
 	justify-content: center;
 	padding: 0;
 	line-height: 0;
-	transition: border-color 0.15s, color 0.15s;
 }
 
 .beepboxEditor .prompt.sampleBrowserPrompt .sbpRow .sbpItemRemove:hover {
@@ -3643,7 +3586,6 @@ li.select2-results__option[role=group] > strong:hover {
 	justify-content: center;
 	padding: 0;
 	line-height: 0;
-	transition: border-color 0.15s, color 0.15s;
 }
 
 /* Inter-tile gap: move buttons top/bottom facing each other */
@@ -3784,7 +3726,6 @@ li.select2-results__option[role=group] > strong:hover {
 	cursor: pointer;
 	padding: 0 10px;
 	color: var(--primary-text);
-	transition: background 0.15s, color 0.15s;
 }
 
 .beepboxEditor .prompt.sampleBrowserPrompt .sbpInfoBtn.committed {
