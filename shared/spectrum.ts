@@ -33,9 +33,9 @@ export class spectrumCanvas {
 	private readonly _bgFreqs: number[] = [];
 	private readonly _fgFreqs: number[] = [];
 
-	// Dynamic amplification: slow-decay peak hold
-	private _fgSmoothMax = 0.001;
-	private _bgSmoothMax = 0.001;
+	// Fixed normalization references (no dynamic peak hold)
+	private static readonly FG_REF = 0.005;
+	private static readonly BG_REF = 1.0;
 	// Per-band temporal smoothing (~30ms decay at 60fps)
 	// factor^2 ≈ 0.1, so ~30ms to decay to 10%
 	private _fgSmoothMags = new Float32Array(16);
@@ -76,7 +76,6 @@ export class spectrumCanvas {
 
 			// Compute foreground spectrum
 			const fgMags = new Float32Array(FG_BANDS);
-			let fgInstMax = 0.0001;
 			for (let b = 0; b < FG_BANDS; b++) {
 				const coefs = this._fgCoefs[b];
 				let re = 0, im = 0;
@@ -86,12 +85,10 @@ export class spectrumCanvas {
 				}
 				// Linear magnitude: more contrast than fourth-root (peaks stand out, not flood)
 				fgMags[b] = Math.sqrt(re * re + im * im) / sampleCount;
-				if (fgMags[b] > fgInstMax) fgInstMax = fgMags[b];
 			}
 
 			// Compute background (bass) spectrum
 			const bgMags = new Float32Array(BG_BANDS);
-			let bgInstMax = 0.0001;
 			for (let b = 0; b < BG_BANDS; b++) {
 				const coefs = this._bgCoefs[b];
 				let re = 0, im = 0;
@@ -101,7 +98,6 @@ export class spectrumCanvas {
 				}
 				// Natural squared magnitude (no gain curve)
 				bgMags[b] = (re * re + im * im) / sampleCount;
-				if (bgMags[b] > bgInstMax) bgInstMax = bgMags[b];
 			}
 
 			// Per-band decay: instant attack, 10ms time constant
@@ -121,27 +117,11 @@ export class spectrumCanvas {
 				}
 			}
 
-			// Dynamic amplification: instant attack, slow decay
-			if (fgInstMax > this._fgSmoothMax) {
-				this._fgSmoothMax = fgInstMax;
-			} else {
-				this._fgSmoothMax *= 0.57; // 30ms decay
-				if (this._fgSmoothMax < 0.001) this._fgSmoothMax = 0.001;
-			}
-			// Peak hold with fast decay: ceiling drops ~80ms after bass hit
-			// so quieter bands can reach top when bass isn't flooding
-			if (bgInstMax > this._bgSmoothMax) {
-				this._bgSmoothMax = bgInstMax;
-			} else {
-				this._bgSmoothMax *= 0.57; // 30ms decay
-				if (this._bgSmoothMax < 0.001) this._bgSmoothMax = 0.001;
-			}
-
-			// Draw background bass layer (R color, low opacity, thicker)
-			this._drawSmooth(ctx, w, h, this._bgSmoothMags, this._bgSmoothMax, BG_BANDS, this._cachedRColor, 0.4, 1.0);
+			// Draw background bass layer (R color, low opacity)
+			this._drawSmooth(ctx, w, h, this._bgSmoothMags, spectrumCanvas.BG_REF, BG_BANDS, this._cachedRColor, 0.4, 1.0);
 
 			// Draw foreground main layer (L color, full opacity)
-			this._drawSmooth(ctx, w, h, this._fgSmoothMags, this._fgSmoothMax, FG_BANDS, this._cachedLColor, 1.0, 1.0);
+			this._drawSmooth(ctx, w, h, this._fgSmoothMags, spectrumCanvas.FG_REF, FG_BANDS, this._cachedLColor, 1.0, 1.0);
 		};
 
 		events.listen("spectrumUpdate", this._EventUpdateCanvas);
@@ -161,7 +141,7 @@ export class spectrumCanvas {
 		const bandWidth = w / (bandCount - 1);
 		const ys = new Array<number>(bandCount);
 		for (let b = 0; b < bandCount; b++) {
-			ys[b] = h - Math.min(1, mags[b] / maxMag) * h * heightScale;
+			ys[b] = h - (mags[b] / (mags[b] + maxMag)) * h * heightScale;
 		}
 
 		ctx.globalAlpha = opacity;
@@ -206,8 +186,6 @@ export class spectrumCanvas {
 	public reset(): void {
 		this._fgSmoothMags.fill(0);
 		this._bgSmoothMags.fill(0);
-		this._fgSmoothMax = 0.001;
-		this._bgSmoothMax = 0.001;
 	}
 
 	private _buildCoefs(
