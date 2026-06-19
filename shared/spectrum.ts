@@ -67,10 +67,11 @@ export class spectrumCanvas {
 				this._lastBufferSize = sampleCount;
 			}
 
-			// Mix to mono
+			// Mix to mono with Hann window to prevent spectral leakage
 			const mono = new Float32Array(sampleCount);
 			for (let i = 0; i < sampleCount; i++) {
-				mono[i] = (directlinkL[i] + directlinkR[i]) * 0.5;
+				const hann = 0.5 * (1 - Math.cos(2 * Math.PI * i / (sampleCount - 1)));
+				mono[i] = (directlinkL[i] + directlinkR[i]) * 0.5 * hann;
 			}
 
 			// Compute foreground spectrum
@@ -83,8 +84,8 @@ export class spectrumCanvas {
 					re += mono[n] * coefs[n].cos;
 					im -= mono[n] * coefs[n].sin;
 				}
-				// Natural fourth-root magnitude (no gain curve)
-				fgMags[b] = Math.sqrt(Math.sqrt(re * re + im * im) / sampleCount);
+				// Linear magnitude: more contrast than fourth-root (peaks stand out, not flood)
+				fgMags[b] = Math.sqrt(re * re + im * im) / sampleCount;
 				if (fgMags[b] > fgInstMax) fgInstMax = fgMags[b];
 			}
 
