@@ -18,7 +18,7 @@ const FG_MAX_FREQ = 4000;
 
 const BG_BANDS = 12;
 const BG_MIN_FREQ = 20;
-const BG_MAX_FREQ = 400;
+const BG_MAX_FREQ = 240;
 
 export class spectrumCanvas {
 	public _EventUpdateCanvas: (left: Float32Array, right?: Float32Array) => void;
