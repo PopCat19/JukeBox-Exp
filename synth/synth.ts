@@ -898,7 +898,10 @@ export class Synth {
 	private activateAudio(): Promise<void> {
 		// Guard against concurrent calls: if activation is in progress,
 		// return the existing promise instead of starting a second one.
-		if (this._activateAudioPromise != null) return this._activateAudioPromise;
+		if (this._activateAudioPromise != null) {
+			this._dbg("activateAudio: returning existing in-progress promise");
+			return this._activateAudioPromise;
+		}
 		this._activateAudioPromise = this._doActivateAudio();
 		return this._activateAudioPromise;
 	}
@@ -1016,7 +1019,8 @@ export class Synth {
 		}
 		this._workletPrimed = false;
 		this._currentBufferSize = 0;
-		this._gestureListenerAdded = false; // allow re-adding gesture listener on next activation
+		this._gestureListenerAdded = false;
+		this._activateAudioPromise = null; // clear stale promise so next activateAudio() creates fresh
 		this._dbg("Audio deactivated");
 	}
 
@@ -1098,6 +1102,11 @@ export class Synth {
 		}
 		this._dbg("maintainLiveInput: activating audio");
 		await this.activateAudio();
+		if (this.audioCtx == null || this._workletNode == null) {
+			this._dbgWarn("maintainLiveInput: audio not active after activateAudio, forcing re-activation");
+			this._activateAudioPromise = null;
+			await this.activateAudio();
+		}
 		await this.resumeAudioContext();
 		this.liveInputEndTime = performance.now() + 10000.0;
 	}
@@ -1112,6 +1121,13 @@ export class Synth {
 		this.initModFilters(this.song);
 		this.computeLatestModValues();
 		await this.activateAudio();
+		// Safety: if activation returned a stale resolved promise but audio is dead,
+		// force a fresh activation.
+		if (this.audioCtx == null || this._workletNode == null) {
+			this._dbgWarn("play: audio not active after activateAudio, forcing re-activation");
+			this._activateAudioPromise = null;
+			await this.activateAudio();
+		}
 		await this.resumeAudioContext();
 		this.warmUpSynthesizer(this.song);
 		this.isPlayingSong = true;
