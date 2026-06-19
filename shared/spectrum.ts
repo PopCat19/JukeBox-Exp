@@ -13,9 +13,8 @@ import { ColorConfig } from "./color-config";
 import { events } from "./events";
 import { forwardRealFourierTransform } from "../synth/fft";
 
-const FG_BANDS = 32;
-const FG_MIN_FREQ = 160;
-const FG_MAX_FREQ = 4000;
+const FG_BANDS = 56;
+const FG_MIN_FREQ = 165;
 
 const BG_BANDS = 8;
 const BG_MIN_FREQ = 20;
@@ -36,6 +35,10 @@ export class spectrumCanvas {
 	private _sampleRate = 48000;
 	private _lastBufferSize = 0;
 	private readonly _bgFreqs: number[] = [];
+	// Ring buffer for BG long-FFT (8192 = ~170ms at 48kHz, provides 5.86Hz bins)
+	private _bgRingBuf: Float32Array = new Float32Array(8192);
+	private _bgRingPos = 0;
+	private _bgFftBuf: Float32Array = new Float32Array(8192);
 	private readonly _fgFreqs: number[] = [];
 
 	// Fixed normalization references (floor for soft compression)
@@ -48,7 +51,7 @@ export class spectrumCanvas {
 	private _fftBuffer: Float32Array = new Float32Array(2048);
 	// Per-band temporal smoothing (~30ms decay at 60fps)
 	// factor^2 ≈ 0.1, so ~30ms to decay to 10%
-	private _fgSmoothMags = new Float32Array(32);
+	private _fgSmoothMags = new Float32Array(56);
 	private _bgSmoothMags = new Float32Array(8);
 
 	constructor(
@@ -87,8 +90,12 @@ export class spectrumCanvas {
 			const fftBuf = this._fftBuffer;
 			const copyLen = Math.min(sampleCount, fftSize);
 			for (let i = 0; i < copyLen; i++) {
+				const s = (directlinkL[i] + directlinkR[i]) * 0.5;
 				const hann = 0.5 * (1 - Math.cos(2 * Math.PI * i / (fftSize - 1)));
-				fftBuf[i] = (directlinkL[i] + directlinkR[i]) * 0.5 * hann;
+				fftBuf[i] = s * hann;
+				// Accumulate raw (unwindowed) audio in BG ring buffer for high-res FFT
+				this._bgRingBuf[this._bgRingPos] = s;
+				this._bgRingPos = (this._bgRingPos + 1) & 8191;
 			}
 			for (let i = copyLen; i < fftSize; i++) fftBuf[i] = 0;
 			forwardRealFourierTransform(fftBuf);
@@ -103,25 +110,50 @@ export class spectrumCanvas {
 				mags[k] = Math.sqrt(re * re + im * im) / fftSize;
 			}
 
-			// Interpolate FG + BG bands from FFT bins (log-frequency interpolation)
+			// Interpolate FG bands from FFT bins: quadratic interpolation for sensitivity
+			// Quadratic: y = a*x^2 + b*x + c through (k-1, ym1), (k, y0), (k+1, yp1)
 			const fgMags = new Float32Array(FG_BANDS);
 			for (let b = 0; b < FG_BANDS; b++) {
 				const kFloat = this._fgFreqs[b] / binFreq;
-				const kLo = Math.floor(kFloat);
-				const kHi = Math.min(kLo + 1, halfN);
-				const frac = kFloat - kLo;
-				fgMags[b] = mags[kLo] + (mags[kHi] - mags[kLo]) * frac;
+				const k = Math.floor(kFloat);
+				const frac = kFloat - k;
+				if (k < 1 || k >= halfN) {
+					// Edge: fall back to linear
+					const kHi = Math.min(k + 1, halfN);
+					fgMags[b] = mags[k] + (mags[kHi] - mags[k]) * frac;
+				} else {
+					const ym1 = mags[k - 1], y0 = mags[k], yp1 = mags[k + 1];
+					const qa = (ym1 + yp1) * 0.5 - y0;
+					const qb = (yp1 - ym1) * 0.5;
+					const qc = y0;
+					fgMags[b] = qa * frac * frac + qb * frac + qc;
+				}
 			}
 
 			const bgMags = new Float32Array(BG_BANDS);
 			let bgInstMax = 0.0001;
+			// BG: separate 8192-sample FFT for 5.86Hz bins (fine low-freq resolution)
+			const bgFftSize = 8192;
+			const bgHalfN = 4096;
+			const bgBuf = this._bgFftBuf;
+			for (let i = 0; i < bgFftSize; i++) {
+				const idx = (this._bgRingPos + i) & 8191;
+				const hann = 0.5 * (1 - Math.cos(2 * Math.PI * i / (bgFftSize - 1)));
+				bgBuf[i] = this._bgRingBuf[idx] * hann;
+			}
+			forwardRealFourierTransform(bgBuf);
+			const bgBinFreq = this._sampleRate / bgFftSize;
+			// Interpolate BG bands from high-res FFT bins
 			for (let b = 0; b < BG_BANDS; b++) {
-				const kFloat = this._bgFreqs[b] / binFreq;
+				const kFloat = this._bgFreqs[b] / bgBinFreq;
 				const kLo = Math.floor(kFloat);
-				const kHi = Math.min(kLo + 1, halfN);
+				const kHi = Math.min(kLo + 1, bgHalfN);
 				const frac = kFloat - kLo;
-				// Interpolate magnitude from adjacent FFT bins (natural, no squaring)
-				bgMags[b] = mags[kLo] + (mags[kHi] - mags[kLo]) * frac;
+				const re = bgBuf[kLo] + (bgBuf[kHi] - bgBuf[kLo]) * frac;
+				const im0 = (kLo === 0 || kLo === bgHalfN) ? 0 : bgBuf[bgFftSize - kLo];
+				const im1 = (kHi === 0 || kHi === bgHalfN) ? 0 : bgBuf[bgFftSize - kHi];
+				const im = im0 + (im1 - im0) * frac;
+				bgMags[b] = Math.sqrt(re * re + im * im) / bgFftSize;
 				if (bgMags[b] > bgInstMax) bgInstMax = bgMags[b];
 			}
 
@@ -154,7 +186,7 @@ export class spectrumCanvas {
 			const fgRef = spectrumCanvas.FG_REF;
 			const bgRef = Math.max(this._bgSmoothMax, spectrumCanvas.BG_REF);
 
-			// Draw background bass layer (R color, low opacity)
+			// Draw background bass layer (R color, low opacity) — individual bars, not a smooth curve
 			this._drawSmooth(ctx, w, h, this._bgSmoothMags, bgRef, BG_BANDS, this._cachedRColor, 0.4, 1.0);
 
 			// Draw foreground main layer (L color, full opacity)
@@ -165,6 +197,7 @@ export class spectrumCanvas {
 		events.listen("spectrumReset", () => this.reset());
 		events.listen("themeChange", () => this._updateCachedColors());
 	}
+
 
 	private _drawSmooth(
 		ctx: CanvasRenderingContext2D,
@@ -209,12 +242,13 @@ export class spectrumCanvas {
 		for (let b = 0; b < BG_BANDS; b++) {
 			this._bgFreqs.push(Math.exp(bgLogMin + (b / (BG_BANDS - 1)) * (bgLogMax - bgLogMin)));
 		}
-		// Compute FG center frequencies for band interpolation
+		// Compute FG center frequencies: 12TET semitones (A4=440Hz)
+		// Note 0 = E4 (164.8Hz), covers 160-4000Hz range
 		this._fgFreqs.length = 0;
-		const fgLogMin = Math.log(FG_MIN_FREQ);
-		const fgLogMax = Math.log(FG_MAX_FREQ);
+		const a4 = 440;
+		const noteStart = Math.round(12 * Math.log2(FG_MIN_FREQ / a4) + 69);
 		for (let b = 0; b < FG_BANDS; b++) {
-			this._fgFreqs.push(Math.exp(fgLogMin + (b / (FG_BANDS - 1)) * (fgLogMax - fgLogMin)));
+			this._fgFreqs.push(a4 * Math.pow(2, (noteStart + b - 69) / 12));
 		}
 	}
 
