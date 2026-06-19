@@ -12,11 +12,11 @@
 import { ColorConfig } from "./color-config";
 import { events } from "./events";
 
-const FG_BANDS = 48;
+const FG_BANDS = 24;
 const FG_MIN_FREQ = 300;
 const FG_MAX_FREQ = 6000;
 
-const BG_BANDS = 12;
+const BG_BANDS = 48;
 const BG_MIN_FREQ = 30;
 const BG_MAX_FREQ = 240;
 
@@ -50,8 +50,8 @@ export class spectrumCanvas {
 	private readonly _fgFreqs: number[] = [];
 
 	// Per-band temporal smoothing (30ms time constant)
-	private _fgSmoothMags = new Float32Array(48);
-	private _bgSmoothMags = new Float32Array(40);
+	private _fgSmoothMags = new Float32Array(24);
+	private _bgSmoothMags = new Float32Array(48);
 
 	constructor(
 		public readonly canvas: HTMLCanvasElement,
