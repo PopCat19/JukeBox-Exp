@@ -17,8 +17,6 @@ const FG_BANDS = 56;
 const FG_MIN_FREQ = 165;
 
 const BG_BANDS = 12;
-const BG_MIN_FREQ = 20;
-const BG_MAX_FREQ = 160;
 
 // CQT Q factor: constant ratio of frequency to bandwidth
 // Q=8 means bandwidth = freq/8. Higher Q = narrower filters.
@@ -238,20 +236,19 @@ export class spectrumCanvas {
 
 	private _initBands(sampleRate: number): void {
 		this._sampleRate = sampleRate;
-		// Compute BG center frequencies for band interpolation
+		// Compute BG center frequencies: 12TET semitones (every 4th, covering 10-160Hz)
 		this._bgFreqs.length = 0;
-		const bgLogMin = Math.log(BG_MIN_FREQ);
-		const bgLogMax = Math.log(BG_MAX_FREQ);
+		const a4b = 440;
+		const noteStart = 16; // ~20.6Hz, so band 11 = 262Hz (every 4th semitone)
 		for (let b = 0; b < BG_BANDS; b++) {
-			this._bgFreqs.push(Math.exp(bgLogMin + (b / (BG_BANDS - 1)) * (bgLogMax - bgLogMin)));
+			this._bgFreqs.push(a4b * Math.pow(2, (noteStart + b * 4 - 69) / 12));
 		}
 		// Compute FG center frequencies: 12TET semitones (A4=440Hz)
 		// Note 0 = E4 (164.8Hz), covers 160-4000Hz range
 		this._fgFreqs.length = 0;
-		const a4 = 440;
-		const noteStart = Math.round(12 * Math.log2(FG_MIN_FREQ / a4) + 69);
+		const fgNoteStart = Math.round(12 * Math.log2(FG_MIN_FREQ / 440) + 69);
 		for (let b = 0; b < FG_BANDS; b++) {
-			this._fgFreqs.push(a4 * Math.pow(2, (noteStart + b - 69) / 12));
+			this._fgFreqs.push(440 * Math.pow(2, (fgNoteStart + b - 69) / 12));
 		}
 	}
 
