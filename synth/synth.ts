@@ -567,6 +567,7 @@ export class Synth {
 	private _currentBufferSize: number = 0;
 	private _workletPrimed: boolean = false;
 	private _activateAudioPromise: Promise<void> | null = null;
+	private _gestureListenerAdded: boolean = false;
 	private _logSynthCallCount: number = 0;
 	private _logNeedDataCount: number = 0;
 
@@ -902,6 +903,23 @@ export class Synth {
 		this.samplesPerSecond = ctx.sampleRate;
 		console.log("[Synth] AudioContext sampleRate:", this.samplesPerSecond);
 
+		// If the AudioContext is suspended (no user gesture yet), register a
+		// one-time click/keydown listener to resume it on the first user gesture.
+		// This enables note preview before the user clicks Play.
+		if (ctx.state === "suspended" && !this._gestureListenerAdded) {
+			this._gestureListenerAdded = true;
+			const resume = () => {
+				if (this.audioCtx && this.audioCtx.state === "suspended") {
+					this.audioCtx.resume().then(() => {
+						console.log("[Synth] AudioContext resumed via user gesture");
+					});
+				}
+			};
+			window.addEventListener("click", resume, { once: true });
+			window.addEventListener("keydown", resume, { once: true });
+			console.log("[Synth] Added one-time gesture listener to resume AudioContext");
+		}
+
 		// Load AudioWorklet module via blob URL
 		if (this._workletModuleUrl == null) {
 			const blob = new Blob([AUDIO_WORKLET_PROCESSOR_CODE], { type: "application/javascript" });
@@ -1019,10 +1037,14 @@ export class Synth {
 	}
 
 	public async maintainLiveInput(): Promise<void> {
-		// If audio is already active, just extend the timeout.
-		// Avoids spamming activateAudio/resumeAudioContext on every mousemove.
+		// If audio is already active, only extend timeout when notes are
+		// actually being played. This prevents the audio context from
+		// staying alive indefinitely while the user moves the mouse around
+		// the pattern grid without playing anything.
 		if (this.audioCtx != null && this._workletNode != null) {
-			this.liveInputEndTime = performance.now() + 10000.0;
+			if (this.liveInputPitches.length > 0 || this.liveBassInputPitches.length > 0) {
+				this.liveInputEndTime = performance.now() + 10000.0;
+			}
 			return;
 		}
 		console.log("[Synth] maintainLiveInput: activating audio");
