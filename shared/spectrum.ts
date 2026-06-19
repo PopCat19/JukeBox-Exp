@@ -16,7 +16,7 @@ const FG_BANDS = 8;
 const FG_MIN_FREQ = 400;
 const FG_MAX_FREQ = 8000;
 
-const BG_BANDS = 16;
+const BG_BANDS = 24;
 const BG_MIN_FREQ = 30;
 const BG_MAX_FREQ = 180;
 
