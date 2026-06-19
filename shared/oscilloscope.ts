@@ -1,12 +1,12 @@
 // Oscilloscope
 //
-// Purpose: Renders real-time audio as a vectorscope (Lissajous X-Y plot)
+// Purpose: Renders real-time audio waveform in corrscope style
 //
 // This module:
-// - Plots left channel as X, right channel as Y (Lissajous figure)
-// - Shows stereo correlation: mono = diagonal line, wide = circle, out-of-phase = opposite diagonal
+// - Draws a single mono waveform trace (L+R mixed) as a continuous line path
+// - Centered vertically, fills canvas width
+// - Thin bright line on dark background (corrscope aesthetic)
 // - Listens for oscilloscope update events from the synth engine
-// - Uses line-segment rendering for smooth waveform trails
 
 import { ColorConfig } from "./color-config";
 import { events } from "./events";
@@ -34,61 +34,58 @@ export class oscilloscopeCanvas {
 			ctx.fillStyle = this._cachedBgColor;
 			ctx.fillRect(0, 0, w, h);
 
-			// Center of the canvas
-			const cx = w / 2;
-			const cy = h / 2;
-
-			// Scale factor: fit the Lissajous pattern within the canvas.
-			// Use the smaller dimension so the pattern doesn't clip.
-			const radius = Math.min(cx, cy) - 1;
-
-			// Draw faint center crosshair for reference
-			ctx.strokeStyle = this._cachedBgColor;
-			ctx.globalAlpha = 0.3;
-			ctx.lineWidth = 1;
-			ctx.beginPath();
-			ctx.moveTo(cx, 0);
-			ctx.lineTo(cx, h);
-			ctx.moveTo(0, cy);
-			ctx.lineTo(w, cy);
-			ctx.stroke();
-			ctx.globalAlpha = 1.0;
-
-			// Draw Lissajous figure: left = X, right = Y
-			// Use the most recent samples to show current state
+			const halfH = h / 2;
 			const sampleCount = directlinkL.length;
 			if (sampleCount < 2) return;
 
-			// Draw a faint R-color echo behind the main L-color line for depth
-			ctx.strokeStyle = this._cachedRColor;
-			ctx.globalAlpha = 0.3;
-			ctx.lineWidth = scale + 1;
-			ctx.beginPath();
+			// Use the most recent samples that fit the canvas width
+			const visibleSamples = Math.min(sampleCount, w);
+			const startIdx = sampleCount - visibleSamples;
 
-			let prevX = cx + directlinkL[0] * radius;
-			let prevY = cy + directlinkR[0] * radius;
-			ctx.moveTo(prevX, prevY);
-
-			for (let i = 1; i < sampleCount; i++) {
-				const x = cx + directlinkL[i] * radius;
-				const y = cy + directlinkR[i] * radius;
-				ctx.lineTo(x, y);
-				prevX = x;
-				prevY = y;
-			}
-
-			ctx.stroke();
-
-			// Main L-color line on top
-			ctx.globalAlpha = 1.0;
+			// Draw the waveform as a continuous line path (corrscope style)
+			// Mix L and R to mono for a single clean trace
 			ctx.strokeStyle = this._cachedLColor;
 			ctx.lineWidth = scale;
+			ctx.lineJoin = "round";
+			ctx.lineCap = "round";
 			ctx.beginPath();
-			ctx.moveTo(cx + directlinkL[0] * radius, cy + directlinkR[0] * radius);
-			for (let i = 1; i < sampleCount; i++) {
-				ctx.lineTo(cx + directlinkL[i] * radius, cy + directlinkR[i] * radius);
+
+			for (let i = 0; i < visibleSamples; i++) {
+				const sampleIdx = startIdx + i;
+				// Mix to mono: average L and R
+				const mono = (directlinkL[sampleIdx] + directlinkR[sampleIdx]) * 0.5;
+				const x = (i / (visibleSamples - 1)) * w;
+				const y = halfH - mono * halfH;
+				if (i === 0) {
+					ctx.moveTo(x, y);
+				} else {
+					ctx.lineTo(x, y);
+				}
 			}
+
 			ctx.stroke();
+
+			// Draw a faint R-color trace offset slightly for stereo hint
+			ctx.strokeStyle = this._cachedRColor;
+			ctx.globalAlpha = 0.35;
+			ctx.lineWidth = scale;
+			ctx.beginPath();
+
+			for (let i = 0; i < visibleSamples; i++) {
+				const sampleIdx = startIdx + i;
+				// Use right channel only for the secondary trace
+				const r = directlinkR[sampleIdx];
+				const x = (i / (visibleSamples - 1)) * w;
+				const y = halfH - r * halfH;
+				if (i === 0) {
+					ctx.moveTo(x, y);
+				} else {
+					ctx.lineTo(x, y);
+				}
+			}
+
+			ctx.stroke();
+			ctx.globalAlpha = 1.0;
 		};
 
 		events.listen("oscilloscopeUpdate", this._EventUpdateCanvas);
