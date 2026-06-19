@@ -17,8 +17,8 @@ const FG_MIN_FREQ = 240;
 const FG_MAX_FREQ = 12000;
 
 const BG_BANDS = 40;
-const BG_MIN_FREQ = 20;
-const BG_MAX_FREQ = 160;
+const BG_MIN_FREQ = 30;
+const BG_MAX_FREQ = 180;
 
 export class spectrumCanvas {
 	public _EventUpdateCanvas: (left: Float32Array, right?: Float32Array) => void;
@@ -99,7 +99,7 @@ export class spectrumCanvas {
 				// Squared magnitude with frequency-dependent gain: boosts lower bands
 				// so the curve approaching x=0 (30Hz) is visible, not invisible
 				const raw = (re * re + im * im) / sampleCount;
-				const gain = 1 + (200 / this._bgFreqs[b] - 1) * 0.6;
+				const gain = 1 + (160 / this._bgFreqs[b] - 1) * 1.0; // prioritize lower peaks: 20Hz=8x, 160Hz=1x
 				bgMags[b] = raw * gain;
 				if (bgMags[b] > bgInstMax) bgInstMax = bgMags[b];
 			}
