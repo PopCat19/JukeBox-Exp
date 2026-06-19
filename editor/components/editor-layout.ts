@@ -118,7 +118,7 @@ export class EditorLayout {
 			piano: this.patternArea.piano,
 			octaveScrollBar: this.patternArea.octaveScrollBar,
 			volumeBarBox: this.settingsArea.playbackControls.volumeBarBox,
-			globalOscscopeContainer: this.container,
+			globalSpectrumContainer: this.container,
 			sampleLoadingStatusContainer: this._sampleLoadingStatusContainer,
 			instrumentCopyGroup: this.container,
 			instrumentTagRow: this.container,

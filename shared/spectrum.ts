@@ -1,4 +1,4 @@
-// Oscilloscope
+// Spectrum
 //
 // Purpose: Renders real-time audio as a mini spectrum analyzer (corrscope-style)
 //
@@ -15,7 +15,7 @@ const BAND_COUNT = 16;
 const MIN_FREQ = 40; // Hz
 const MAX_FREQ = 12000; // Hz
 
-export class oscilloscopeCanvas {
+export class spectrumCanvas {
 	public _EventUpdateCanvas: (left: Float32Array, right?: Float32Array) => void;
 	private _cachedBgColor: string = "";
 	private _cachedLColor: string = "";
@@ -107,7 +107,7 @@ export class oscilloscopeCanvas {
 			ctx.globalAlpha = 1.0;
 		};
 
-		events.listen("oscilloscopeUpdate", this._EventUpdateCanvas);
+		events.listen("spectrumUpdate", this._EventUpdateCanvas);
 		events.listen("themeChange", () => this._updateCachedColors());
 	}
 
@@ -137,7 +137,7 @@ export class oscilloscopeCanvas {
 
 	private _updateCachedColors(): void {
 		this._cachedBgColor = ColorConfig.getComputed("--editor-background") || "black";
-		this._cachedLColor = ColorConfig.getComputed("--oscilloscope-line-L") || "white";
-		this._cachedRColor = ColorConfig.getComputed("--oscilloscope-line-R") || "rgba(119,68,255,0.99)";
+		this._cachedLColor = ColorConfig.getComputed("--spectrum-line-L") || "white";
+		this._cachedRColor = ColorConfig.getComputed("--spectrum-line-R") || "rgba(119,68,255,0.99)";
 	}
 }

@@ -110,7 +110,7 @@ export class SongDocument {
 		}
 		songString = this.song.toBase64String();
 		this.synth = new Synth(this.song);
-		this.synth.onOscilloscopeUpdate = (l, r) => events.raise("oscilloscopeUpdate", l, r);
+		this.synth.onSpectrumUpdate = (l, r) => events.raise("spectrumUpdate", l, r);
 		this.synth.volume = this._calcVolume();
 		this.synth.anticipatePoorPerformance = isMobile;
 

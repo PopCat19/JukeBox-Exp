@@ -16,8 +16,8 @@ export const ultraboxDark: string = `
 --white-piano-key: #CCCCCC;
 /*--black-piano-key: #444;*/
 --text-selection: #932253;
---oscilloscope-line-L: #CCCCCC;
---oscilloscope-line-R: #932253;
+--spectrum-line-L: #CCCCCC;
+--spectrum-line-R: #932253;
 --pitch-channel-limit: 8;
 --pitch1-secondary-channel: #A83030;
 --pitch1-primary-channel:   #FF7C7C;

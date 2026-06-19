@@ -42,7 +42,7 @@ export function renderOptionsMenu(optionsMenu: HTMLSelectElement, prefs: Prefere
 		(prefs.showInstrumentScrollbars ? textOnIcon : textOffIcon) + "Show Instrument Scrollbars",
 		(prefs.showLetters ? textOnIcon : textOffIcon) + "Show Piano Keys",
 		(prefs.displayVolumeBar ? textOnIcon : textOffIcon) + "Show Playback Volume",
-		(prefs.showOscilloscope ? textOnIcon : textOffIcon) + "Show Oscilloscope",
+		(prefs.showSpectrum ? textOnIcon : textOffIcon) + "Show Spectrum",
 		(prefs.showSampleLoadingStatus ? textOnIcon : textOffIcon) + "Show Sample Loading Status",
 		(prefs.showDescription ? textOnIcon : textOffIcon) + "Show Description",
 		textSpacingIcon + "Set Layout...",

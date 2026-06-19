@@ -680,7 +680,7 @@ export class KeyboardHandler {
 					doc.prefs.instrumentImportExport = true;
 					doc.prefs.notesFlashWhenPlayed = true;
 
-					doc.prefs.showOscilloscope = true;
+					doc.prefs.showSpectrum = true;
 					doc.prefs.rollNoveltyPresets = false;
 					doc.prefs.enableTagSearch = false;
 					doc.prefs.save();
@@ -783,7 +783,7 @@ export class KeyboardHandler {
 					doc.prefs.instrumentImportExport = true;
 					doc.prefs.notesFlashWhenPlayed = true;
 
-					doc.prefs.showOscilloscope = true;
+					doc.prefs.showSpectrum = true;
 					doc.prefs.rollNoveltyPresets = true;
 					doc.prefs.enableTagSearch = true;
 					doc.prefs.save();

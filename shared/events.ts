@@ -7,7 +7,7 @@
 // - Dispatches events to all registered listeners
 
 export interface EventMap {
-	oscilloscopeUpdate: (left: Float32Array, right: Float32Array) => void;
+	spectrumUpdate: (left: Float32Array, right: Float32Array) => void;
 	themeChange: (name: string) => void;
 }
 

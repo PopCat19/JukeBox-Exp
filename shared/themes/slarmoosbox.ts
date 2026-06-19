@@ -112,6 +112,6 @@ export const slarmoosbox: string = `
 			--mod-primary-note-sat-scale: 0;
 			--mod-primary-note-lum: 85;
 			--mod-primary-note-lum-scale: 0;
-			--oscilloscope-line-R: white;
-			--oscilloscope-line-L: var(--secondary-text);
+			--spectrum-line-R: white;
+			--spectrum-line-L: var(--secondary-text);
 		}`;

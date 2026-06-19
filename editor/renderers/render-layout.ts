@@ -5,7 +5,7 @@
 // This module:
 // - Calculates track visible bars/channels from DOM bounds
 // - Renders track, bar, and mute editors with scroll synchronization
-// - Toggles visibility of piano, scrollbars, volume bar, oscilloscope, and settings rows
+// - Toggles visibility of piano, scrollbars, volume bar, spectrum, and settings rows
 // - Handles fullscreen pattern editor width, prev/next panes, and zoom button positioning
 
 import type { BarScrollBar } from "../components/bar-scroll-bar";
@@ -27,7 +27,7 @@ export interface LayoutRefs {
 	piano: Piano;
 	octaveScrollBar: OctaveScrollBar;
 	volumeBarBox: HTMLElement;
-	globalOscscopeContainer: HTMLElement;
+	globalSpectrumContainer: HTMLElement;
 	sampleLoadingStatusContainer: HTMLElement;
 	instrumentCopyGroup: HTMLElement;
 	instrumentTagRow: HTMLElement;
@@ -67,8 +67,8 @@ export function renderLayout(refs: LayoutRefs, doc: SongDocument): void {
 	refs.octaveScrollBar.container.style.display = prefs.showScrollBar ? "" : "none";
 	refs.barScrollBar.container.style.display = doc.song.barCount > doc.trackVisibleBars ? "" : "none";
 	refs.volumeBarBox.style.display = doc.prefs.displayVolumeBar ? "" : "none";
-	refs.globalOscscopeContainer.style.display = doc.prefs.showOscilloscope ? "" : "none";
-	doc.synth.oscEnabled = doc.prefs.showOscilloscope;
+	refs.globalSpectrumContainer.style.display = doc.prefs.showSpectrum ? "" : "none";
+	doc.synth.spectrumEnabled = doc.prefs.showSpectrum;
 	refs.sampleLoadingStatusContainer.style.display = doc.prefs.showSampleLoadingStatus ? "" : "none";
 	refs.instrumentCopyGroup.style.display = doc.prefs.instrumentCopyPaste ? "" : "none";
 	refs.instrumentTagRow.style.display = doc.prefs.enableTagSearch ? "" : "none";

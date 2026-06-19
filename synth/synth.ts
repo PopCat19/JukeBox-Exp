@@ -490,10 +490,10 @@ export class Synth {
 	public loopRepeatCount: number = -1;
 	public volume: number = 1.0;
 	public oscRefreshEventTimer: number = 0;
-	public oscEnabled: boolean = true;
-	public onOscilloscopeUpdate?: (left: Float32Array, right: Float32Array) => void;
-	private _lastOscUpdateTime: number = 0;
-	private static readonly OSC_UPDATE_INTERVAL_MS: number = 1000 / 30; // 30fps
+	public spectrumEnabled: boolean = true;
+	public onSpectrumUpdate?: (left: Float32Array, right: Float32Array) => void;
+	private _lastSpectrumUpdateTime: number = 0;
+	private static readonly SPECTRUM_UPDATE_INTERVAL_MS: number = 1000 / 30; // 30fps
 	public enableMetronome: boolean = false;
 	public countInMetronome: boolean = false;
 	public renderingSong: boolean = false;
@@ -1025,12 +1025,12 @@ export class Synth {
 		const right = new Float32Array(this._currentBufferSize);
 		this.synthesize(left, right, this._currentBufferSize, this.isPlayingSong);
 
-		// Oscilloscope update (same as old audioProcessCallback)
-		if (this.oscEnabled) {
+		// Spectrum update (same as old audioProcessCallback)
+		if (this.spectrumEnabled) {
 			const now = performance.now();
-			if (now - this._lastOscUpdateTime >= Synth.OSC_UPDATE_INTERVAL_MS) {
-				if (this.onOscilloscopeUpdate) this.onOscilloscopeUpdate(left, right);
-				this._lastOscUpdateTime = now;
+			if (now - this._lastSpectrumUpdateTime >= Synth.SPECTRUM_UPDATE_INTERVAL_MS) {
+				if (this.onSpectrumUpdate) this.onSpectrumUpdate(left, right);
+				this._lastSpectrumUpdateTime = now;
 			}
 		}
 
@@ -1094,10 +1094,10 @@ export class Synth {
 		this.isRecording = false;
 		this.preferLowerLatency = false;
 		this._dbg("Pausing, freeing tones, clearing mods, playhead:", this.playheadInternal, "bar:", this.bar);
-		// Clear the oscilloscope display so it doesn't freeze on the last frame.
-		if (this.oscEnabled && this.onOscilloscopeUpdate) {
+		// Clear the spectrum display so it doesn't freeze on the last frame.
+		if (this.spectrumEnabled && this.onSpectrumUpdate) {
 			const silence = new Float32Array(this._currentBufferSize || 2048);
-			this.onOscilloscopeUpdate(silence, silence);
+			this.onSpectrumUpdate(silence, silence);
 		}
 		this.freeAllTones();
 		this.modValues = [];

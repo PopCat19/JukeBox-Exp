@@ -98,7 +98,7 @@ export class MenuBar {
 				option({ value: "showInstrumentScrollbars" }, "Show Intsrument Scrollbars"),
 				option({ value: "showLetters" }, "Show Piano Keys"),
 				option({ value: "displayVolumeBar" }, "Show Playback Volume"),
-				option({ value: "showOscilloscope" }, "Show Oscilloscope"),
+				option({ value: "showSpectrum" }, "Show Spectrum"),
 				option({ value: "showSampleLoadingStatus" }, "Show Sample Loading Status"),
 				option({ value: "showDescription" }, "Show Description"),
 				option({ value: "layout" }, "Set Layout..."),

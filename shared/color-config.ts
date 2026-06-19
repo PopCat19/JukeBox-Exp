@@ -837,11 +837,11 @@ export class ColorConfig {
 		// for getComputed — fill any variables still unset
 		let valuesToAdd: string = ":root{";
 
-		if (getComputedStyle(ColorConfig._styleElement).getPropertyValue("--oscilloscope-line-L") === "") {
-			valuesToAdd += "--oscilloscope-line-L:var(--primary-text,white);";
+		if (getComputedStyle(ColorConfig._styleElement).getPropertyValue("--spectrum-line-L") === "") {
+			valuesToAdd += "--spectrum-line-L:var(--primary-text,white);";
 		}
-		if (getComputedStyle(ColorConfig._styleElement).getPropertyValue("--oscilloscope-line-R") === "") {
-			valuesToAdd += "--oscilloscope-line-R:var(--text-selection,rgba(119,68,255,0.99));";
+		if (getComputedStyle(ColorConfig._styleElement).getPropertyValue("--spectrum-line-R") === "") {
+			valuesToAdd += "--spectrum-line-R:var(--text-selection,rgba(119,68,255,0.99));";
 		}
 		if (getComputedStyle(ColorConfig._styleElement).getPropertyValue("--text-enabled-icon") === "") {
 			valuesToAdd += "--text-enabled-icon:✓ ;";
@@ -1160,7 +1160,7 @@ export class ColorConfig {
 
 		ColorConfig.resetColors();
 
-		// Dispatch theme change event for oscilloscope and other listeners
+		// Dispatch theme change event for spectrum and other listeners
 		events.raise("themeChange", name);
 
 		ColorConfig.usesColorFormula = getComputedStyle(ColorConfig._styleElement).getPropertyValue("--use-color-formula").trim() === "true";

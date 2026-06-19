@@ -234,8 +234,8 @@ export class MenuHandler {
 			case "recordingSetup":
 				this._host.openPrompt("recordingSetup");
 				break;
-			case "showOscilloscope":
-				this._host.doc.prefs.showOscilloscope = !this._host.doc.prefs.showOscilloscope;
+			case "showSpectrum":
+				this._host.doc.prefs.showSpectrum = !this._host.doc.prefs.showSpectrum;
 				break;
 			case "showDescription":
 				this._host.doc.prefs.showDescription = !this._host.doc.prefs.showDescription;

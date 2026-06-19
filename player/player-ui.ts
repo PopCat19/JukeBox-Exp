@@ -10,7 +10,7 @@
 import { HTML, SVG } from "imperative-html/dist/esm/elements-strict";
 import { ColorConfig } from "../shared/color-config";
 import { events } from "../shared/events";
-import { oscilloscopeCanvas } from "../shared/oscilloscope";
+import { spectrumCanvas } from "../shared/spectrum";
 import { Synth } from "../synth";
 
 const { a, button, div, h1, input, canvas } = HTML;
@@ -37,7 +37,7 @@ export function setLocalStorage(key: string, value: string): void {
 
 export interface PlayerUI {
 	synth: Synth;
-	oscilloscope: oscilloscopeCanvas;
+	spectrum: spectrumCanvas;
 	titleText: HTMLHeadingElement;
 	editLink: HTMLAnchorElement;
 	copyLink: HTMLAnchorElement;
@@ -312,20 +312,20 @@ export function buildPlayerUI(): PlayerUI {
 	ColorConfig.setTheme(colorTheme === null ? ColorConfig.defaultTheme : colorTheme);
 
 	const synth: Synth = new Synth();
-	synth.onOscilloscopeUpdate = (l, r) => events.raise("oscilloscopeUpdate", l, r);
-	const oscilloscope: oscilloscopeCanvas = new oscilloscopeCanvas(
+	synth.onSpectrumUpdate = (l, r) => events.raise("spectrumUpdate", l, r);
+	const spectrum: spectrumCanvas = new spectrumCanvas(
 		canvas({
 			width: isMobile ? 144 : 288,
 			height: isMobile ? 32 : 64,
 			style: `border:2px solid ${ColorConfig.uiWidgetBackground}; overflow: hidden;`,
-			id: "oscilloscopeAll",
+			id: "spectrumAll",
 		}),
 		isMobile ? 1 : 2,
 	);
-	const showOscilloscope: boolean = getLocalStorage("showOscilloscope") !== "false";
-	if (!showOscilloscope) {
-		oscilloscope.canvas.style.display = "none";
-		synth.oscEnabled = false;
+	const showSpectrum: boolean = getLocalStorage("showSpectrum") !== "false";
+	if (!showSpectrum) {
+		spectrum.canvas.style.display = "none";
+		synth.spectrumEnabled = false;
 	}
 	const titleText: HTMLHeadingElement = h1(
 		{
@@ -474,7 +474,7 @@ export function buildPlayerUI(): PlayerUI {
 			volumeSlider,
 			zoomButton,
 			volumeBarContainerDiv,
-			oscilloscope.canvas, // make it auto remove itself later
+			spectrum.canvas, // make it auto remove itself later
 			titleText,
 			editLink,
 			copyLink,
@@ -485,7 +485,7 @@ export function buildPlayerUI(): PlayerUI {
 
 	return {
 		synth,
-		oscilloscope,
+		spectrum,
 		titleText,
 		editLink,
 		copyLink,

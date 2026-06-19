@@ -127,8 +127,8 @@ export const abyssboxLight: string = `
 			--note-flash: #ffffff;
 			--note-flash-secondary: #ffffff77;
 
-			--oscilloscope-line-R: var(--ui-widget-background);
-			--oscilloscope-line-L: var(--secondary-text);
+			--spectrum-line-R: var(--ui-widget-background);
+			--spectrum-line-L: var(--secondary-text);
 			--text-spacing-icon: > ;
 			--scrollbar-color: #bf2c5d;
 

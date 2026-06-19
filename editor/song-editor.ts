@@ -18,7 +18,7 @@ import { EditorConfig, isMobile } from "./config/editor-config";
 import type { Change } from "./core/change";
 import "./ui/layout/layout"; // Imported here for the sake of ensuring this code is transpiled early.
 import { HTML, SVG } from "imperative-html/dist/esm/elements-strict";
-import { oscilloscopeCanvas } from "../shared/oscilloscope";
+import { spectrumCanvas } from "../shared/spectrum";
 import { type Channel, getCapabilities, type Instrument, type Pattern } from "../synth";
 import {
 	ChangeArpeggioSpeed,
@@ -1331,20 +1331,20 @@ export class SongEditor
 		],
 	);
 
-	public readonly _globalOscscope: oscilloscopeCanvas = new oscilloscopeCanvas(
+	public readonly _globalSpectrum: spectrumCanvas = new spectrumCanvas(
 		canvas({
 			width: 144,
 			height: 32,
 			style: `border: 2px solid ${ColorConfig.uiWidgetBackground}; position: static;`,
-			id: "oscilloscopeAll",
+			id: "spectrumAll",
 		}),
 		1,
 	);
-	private readonly _globalOscscopeContainer: HTMLDivElement = div(
+	private readonly _globalSpectrumContainer: HTMLDivElement = div(
 		{
 			style: "height: 38px; margin-left: auto; margin-right: auto;",
 		},
-		this._globalOscscope.canvas,
+		this._globalSpectrum.canvas,
 	);
 	private readonly _customWaveDrawCanvas: CustomChipCanvas = new CustomChipCanvas(
 		canvas({
@@ -1749,7 +1749,7 @@ export class SongEditor
 				this._nextBarButton,
 			),
 			div({ class: "playback-volume-controls" }, span({ class: "volume-speaker" }), this._volumeSlider.container),
-			this._globalOscscopeContainer,
+			this._globalSpectrumContainer,
 		),
 		this._menuArea,
 		this._songSettingsArea,
@@ -2071,7 +2071,7 @@ export class SongEditor
 			piano: this._piano,
 			octaveScrollBar: this._octaveScrollBar,
 			volumeBarBox: this._volumeBarBox,
-			globalOscscopeContainer: this._globalOscscopeContainer,
+			globalSpectrumContainer: this._globalSpectrumContainer,
 			sampleLoadingStatusContainer: this._sampleLoadingStatusContainer,
 			instrumentCopyGroup: this._instrumentCopyGroup,
 			instrumentTagRow: this._instrumentTagRow,
