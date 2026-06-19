@@ -216,7 +216,7 @@ export class CleanChannelPrompt extends BasePrompt {
 	private _selectedIndex: number = 0;
 
 	private _lastInteraction: "keyboard" | "mouse" | "hover" | null = null;
-	private _activePane: "list" | "details" = "list";
+	private _activePane: "list" | "details" | null = "list";
 	private _hoveredPane: "list" | "details" | null = null;
 
 	private readonly _channelList: HTMLDivElement = div({ class: "ccpList" });
@@ -257,6 +257,12 @@ export class CleanChannelPrompt extends BasePrompt {
 			this._hoveredPane = "details";
 			this._updateHighlight();
 		});
+		this._detailPane.addEventListener("mouseleave", () => {
+			if (this._hoveredPane === "details") {
+				this._hoveredPane = null;
+				this._updateHighlight();
+			}
+		});
 
 		const listContainer = div({ class: "ccpListContainer" }, this._channelList);
 
@@ -265,6 +271,12 @@ export class CleanChannelPrompt extends BasePrompt {
 			this._lastInteraction = "hover";
 			this._hoveredPane = "list";
 			this._updateHighlight();
+		});
+		this._leftPane.addEventListener("mouseleave", () => {
+			if (this._hoveredPane === "list") {
+				this._hoveredPane = null;
+				this._updateHighlight();
+			}
 		});
 
 		this.container = div(
@@ -293,7 +305,13 @@ export class CleanChannelPrompt extends BasePrompt {
 	}
 
 	private _updateHighlight = (): void => {
-		const effectivePane = this._lastInteraction === "hover" && this._hoveredPane != null ? this._hoveredPane : this._activePane;
+		// No hover on any pane, clear all borders.
+		if (this._hoveredPane == null) {
+			this._leftPane.style.borderColor = "var(--ui-widget-background)";
+			this._detailPane.style.borderColor = "var(--ui-widget-background)";
+			return;
+		}
+		const effectivePane = this._lastInteraction === "hover" ? this._hoveredPane : this._activePane;
 		const focusedPane = effectivePane === "list" ? this._leftPane : this._detailPane;
 		const unfocusedPane = effectivePane === "list" ? this._detailPane : this._leftPane;
 		focusedPane.style.borderColor = "var(--indicator-primary, #4444ff)";

@@ -45,7 +45,7 @@ export class InstrumentBrowserPrompt extends BasePrompt {
 	private _categories: CategoryEntry[] = [];
 	private _selectedCategoryIndex: number = 0;
 	private _selectedPresetIndex: number = 0;
-	private _activePane: "categories" | "presets" = "categories";
+	private _activePane: "categories" | "presets" | null = "categories";
 	private _filteredPresets: { name: string; value: number; categoryName: string }[] = [];
 	private _isSearchMode: boolean = false;
 	private _categoryItems: HTMLDivElement[] = [];
@@ -523,6 +523,21 @@ export class InstrumentBrowserPrompt extends BasePrompt {
 	}
 
 	private _updateHighlight(): void {
+		// No hover on any pane, clear all borders and keyboard focus.
+		if (this._hoveredPane == null) {
+			this._categoryList.style.borderColor = "var(--ui-widget-background)";
+			this._presetList.style.borderColor = "var(--ui-widget-background)";
+			for (let i = 0; i < this._categoryItems.length; i++) {
+				const isCommitted = this._categories[i].presets.some((p) => p.value === this._committedPreset);
+				this._categoryItems[i].classList.toggle("focused", false);
+				this._categoryItems[i].classList.toggle("active", false);
+				this._categoryItems[i].classList.toggle("committed", isCommitted);
+			}
+			for (let i = 0; i < this._presetItems.length; i++) {
+				this._presetItems[i].classList.toggle("focused", false);
+			}
+			return;
+		}
 		if (this._activePane === "presets" && this._lastInteraction !== "keyboard") {
 			this._syncCategoryToPreset();
 		}

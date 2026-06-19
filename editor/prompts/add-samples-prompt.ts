@@ -28,7 +28,7 @@ export class AddSamplesPrompt extends BasePrompt {
 	private _filterText: string = "";
 	private _entryOptionsDisplayStates: Dictionary<boolean> = {};
 	private _lastInteraction: "keyboard" | "mouse" | "hover" | null = null;
-	private _activePane: "list" | "details" = "list";
+	private _activePane: "list" | "details" | null = "list";
 	private _hoveredPane: "list" | "details" | null = null;
 
 	// Persistent UI
@@ -108,6 +108,12 @@ export class AddSamplesPrompt extends BasePrompt {
 			this._lastInteraction = "hover";
 			this._hoveredPane = "list";
 			this._updateHighlight();
+		});
+		this._leftPane.addEventListener("mouseleave", () => {
+			if (this._hoveredPane === "list") {
+				this._hoveredPane = null;
+				this._updateHighlight();
+			}
 		});
 
 		// ── Right pane: detail card ──
@@ -196,6 +202,12 @@ export class AddSamplesPrompt extends BasePrompt {
 			this._lastInteraction = "hover";
 			this._hoveredPane = "details";
 			this._updateHighlight();
+		});
+		this._rightPane.addEventListener("mouseleave", () => {
+			if (this._hoveredPane === "details") {
+				this._hoveredPane = null;
+				this._updateHighlight();
+			}
 		});
 		this._rightPane.appendChild(this._detailCard);
 
@@ -691,8 +703,14 @@ export class AddSamplesPrompt extends BasePrompt {
 	}
 
 	private _updateHighlight = (): void => {
+		// No hover on any pane, clear all borders.
+		if (this._hoveredPane == null) {
+			this._leftPane.style.borderColor = "var(--ui-widget-background)";
+			this._rightPane.style.borderColor = "var(--ui-widget-background)";
+			return;
+		}
 		// Pane borders — hover takes priority over keyboard, matching preset browser
-		const effectivePane = this._lastInteraction === "hover" && this._hoveredPane != null ? this._hoveredPane : this._activePane;
+		const effectivePane = this._lastInteraction === "hover" ? this._hoveredPane : this._activePane;
 		const focusedPane = effectivePane === "list" ? this._leftPane : this._rightPane;
 		const unfocusedPane = effectivePane === "list" ? this._rightPane : this._leftPane;
 		focusedPane.style.borderColor = "var(--indicator-primary, #4444ff)";
