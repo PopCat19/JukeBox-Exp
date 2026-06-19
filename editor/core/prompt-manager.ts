@@ -506,45 +506,38 @@ export class PromptManager {
 		const promptBounds = prompt.container.getBoundingClientRect();
 		const pw = promptBounds.width;
 		const ph = promptBounds.height;
-		const vw = window.innerWidth;
-		const vh = window.innerHeight;
+		const vw = this._host.mainLayer.clientWidth;
+		const vh = this._host.mainLayer.clientHeight;
 		const gap = 8;
 
-		// Try positions in order: below (left-aligned), below (centered),
-		// above (centered), then fallback to non-obstructing center.
-		const candidates = [
-			// below, aligned to caller left
-			{ x: from.left, y: from.bottom + gap },
-			// below, centered on caller
-			{ x: from.left + (from.width - pw) / 2, y: from.bottom + gap },
-			// above, centered on caller
-			{ x: from.left + (from.width - pw) / 2, y: from.top - ph - gap },
-			// fallback: center of promptContainer with top priority
-			{ x: (vw - pw) / 2, y: Math.max(0, (vh - ph) / 4) },
+		// X is always centered on the caller, clamped to viewport.
+		const cx = Math.max(0, Math.min(from.left + (from.width - pw) / 2, vw - pw));
+
+		// Try Y positions: below, above, then centered upper.
+		const yCandidates = [
+			from.bottom + gap,
+			from.top - ph - gap,
+			Math.max(gap, (vh - ph) / 4),
 		];
 
-		let best: { x: number; y: number } | null = null;
-		for (const c of candidates) {
-			const cx = Math.max(0, Math.min(c.x, vw - pw));
-			const cy = Math.max(0, Math.min(c.y, vh - ph));
+		let bestY = yCandidates[2];
+		for (const cy of yCandidates) {
+			const clampedY = Math.max(0, Math.min(cy, vh - ph));
 			// Check the prompt doesn't re-cover the caller.
 			const reOverlaps =
 				cx < from.right + gap &&
 				cx + pw > from.left - gap &&
-				cy < from.bottom + gap &&
-				cy + ph > from.top - gap;
+				clampedY < from.bottom + gap &&
+				clampedY + ph > from.top - gap;
 			if (!reOverlaps) {
-				best = { x: cx, y: cy };
+				bestY = clampedY;
 				break;
 			}
-			// First candidate always sets a baseline.
-			best ??= { x: cx, y: cy };
 		}
 
-		if (!best) best = { x: (vw - pw) / 2, y: (vh - ph) / 4 };
-		prompt.container.style.left = best.x + "px";
-		prompt.container.style.top = best.y + "px";
-		this._promptPositions.set(name, best);
+		prompt.container.style.left = cx + "px";
+		prompt.container.style.top = bestY + "px";
+		this._promptPositions.set(name, { x: cx, y: bestY });
 	}
 
 	private _centerPrompt(prompt: Prompt, name: string): void {
