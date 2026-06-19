@@ -1702,6 +1702,14 @@ html {
 }
 
 /* ── Item label — heading tier: 88x @ 100%, 12px/600 ── */
+.beepboxEditor .prompt.cleanChannelPrompt .ccpLeftPane .sbpBtnRow {
+	flex-shrink: 0;
+	display: flex;
+	flex-direction: row;
+	gap: 8px;
+	margin-top: 8px;
+}
+
 .beepboxEditor .prompt.cleanChannelPrompt .ccpItemLabel {
 	width: 100%;
 	min-width: 0;
