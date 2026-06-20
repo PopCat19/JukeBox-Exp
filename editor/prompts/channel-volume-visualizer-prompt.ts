@@ -12,6 +12,7 @@ import { HTML, SVG } from "imperative-html/dist/esm/elements-strict";
 import { ColorConfig } from "../../shared/color-config";
 import { events } from "../../shared/events";
 import { forwardRealFourierTransform } from "../../synth/fft";
+import type { ChannelState } from "../../synth/channel-state";
 import type { PromptEditorRefs } from "../core/prompt-manager";
 import type { SongDocument } from "../song-document";
 import { BasePrompt } from "./base-prompt";
@@ -47,6 +48,23 @@ function ChannelVolumeVisualizerPrompt_initBlurKernel(): number[] {
 		kernel.push(Math.exp((-0.5 * d * d) / 9));
 	}
 	return kernel;
+}
+
+// Perceived-loudness metering. Meters use A-weighted RMS (IEC 61672 analytical
+// curve) instead of sample-peak, so they track hearing rather than headroom.
+// LOUDNESS_REF is the RMS of a full-scale 1 kHz sine (1/sqrt(2)); a FS sine
+// reads 0 dB and fills the bar, so the dB scale is dBFS(A).
+const LOUDNESS_REF: number = Math.SQRT1_2;
+
+// Ra(f): unnormalized A-weighting transfer magnitude (IEC 61672). Normalized
+// against Ra(1000) so the result is 1.0 at 1 kHz.
+function computeRaWeight(f: number): number {
+	const f2 = f * f;
+	const num = 12194 * 12194 * f2 * f2;
+	const d1 = f2 + 20.6 * 20.6;
+	const d2 = f2 + 12194 * 12194;
+	const d3 = Math.sqrt((f2 + 107.7 * 107.7) * (f2 + 737.9 * 737.9));
+	return num / (d1 * d2 * d3);
 }
 
 export class ChannelVolumeVisualizerPrompt extends BasePrompt {
@@ -132,6 +150,13 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 	// (which would force layout reflows interleaved with style writes).
 	private readonly _canvasSizes: Map<number, { w: number; h: number }> = new Map();
 	private _resizeObserver: ResizeObserver | null = null;
+	// A-weighting per FFT bin, precomputed for the current synth sample rate.
+	private _aWeight: Float32Array | null = null;
+	private _aWeightSampleRate: number = 0;
+	// Per-channel A-weighted RMS loudness (0..~0.7), populated each frame from the
+	// spectrum FFT. Read by the metering code (one frame of latency, imperceptible
+	// for a ~170ms-integrated loudness meter) so metering needs no second FFT.
+	private readonly _channelLoudnessRms: Map<number, number> = new Map();
 	// FG band center frequencies (absolute Hz, independent of sample rate).
 	private readonly _fgFreqs: number[] = ChannelVolumeVisualizerPrompt._initFgFreqs();
 
@@ -308,6 +333,7 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 		this._instrumentSpans.clear();
 		this._channelSpectrumColors.clear();
 		this._canvasSizes.clear();
+		this._channelLoudnessRms.clear();
 		this._playPauseButton.removeEventListener("click", this._togglePlayPause);
 		this._songEditor.muteEditor.setHoveredChannel(-1);
 		this._songEditor.trackEditor.setHoveredChannel(-1);
@@ -331,6 +357,50 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 		}
 	}
 
+	// Build (or return cached) A-weighting per FFT bin for the given sample rate.
+	private _ensureAWeight(sampleRate: number): Float32Array {
+		if (this._aWeight != null && this._aWeightSampleRate === sampleRate) return this._aWeight;
+		const halfN = FFT_SIZE >> 1;
+		const binFreq = sampleRate / FFT_SIZE;
+		const ra1000 = computeRaWeight(1000);
+		const arr = new Float32Array(halfN + 1);
+		for (let k = 0; k <= halfN; k++) {
+			const f = k * binFreq;
+			arr[k] = f > 0 ? computeRaWeight(f) / ra1000 : 0;
+		}
+		this._aWeight = arr;
+		this._aWeightSampleRate = sampleRate;
+		return arr;
+	}
+
+	// A-weighted RMS loudness for one channel from its isolated ring buffer.
+	// unweightedRMS is exact (time domain over the full ~170ms window). The
+	// A-weighting factor is sqrt(weighted spectral energy / unweighted); the Hann
+	// window applied to `mags` cancels in that ratio, so the result is independent
+	// of the window. `mags` being scaled by CHANNEL_GAIN (a constant) also cancels.
+	private _computeLoudnessRms(channelState: ChannelState, mags: Float32Array, halfN: number): number {
+		const aW = this._ensureAWeight(this._doc.synth.samplesPerSecond || 48000);
+		let unweighted = 0;
+		let weighted = 0;
+		for (let k = 1; k < halfN; k++) {
+			const m = mags[k];
+			unweighted += m * m;
+			const wm = aW[k] * m;
+			weighted += wm * wm;
+		}
+		const ratio = unweighted > 1e-18 ? Math.sqrt(weighted / unweighted) : 0;
+		const fftSize = FFT_SIZE;
+		const ring = channelState.audioRing;
+		const ringPos = channelState.audioRingPos;
+		let sumSq = 0;
+		for (let i = 0; i < fftSize; i++) {
+			const s = ring[(ringPos + i) & (fftSize - 1)];
+			sumSq += s * s;
+		}
+		const unweightedRms = Math.sqrt(sumSq / fftSize);
+		return unweightedRms * ratio;
+	}
+
 	private _animate = (): void => {
 		// Update play/pause button state
 		this._updatePlayPauseButton();
@@ -339,17 +409,25 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 		const currentBar = Math.floor(this._doc.synth.playhead);
 		this._currentBarLabel.textContent = `Bar: ${currentBar + 1}`;
 
+		// Master loudness = energy sum of per-channel A-weighted RMS (loudness adds
+		// for mostly-uncorrelated mixer channels). Read from last frame's map values;
+		// one frame of latency is imperceptible for a ~170ms-integrated meter.
+		let masterRmsSqSum = 0;
+		for (const v of this._channelLoudnessRms.values()) masterRmsSqSum += v * v;
+		const masterRms = Math.sqrt(masterRmsSqSum);
+		const masterLevel = Math.min(1, masterRms / LOUDNESS_REF);
+
 		// Update master volume bar
 		this._historicTimer--;
 		if (this._historicTimer <= 0) {
 			this._historicVolumeCap -= 0.03;
 		}
-		if (this._doc.song.outVolumeCap > this._historicVolumeCap) {
-			this._historicVolumeCap = this._doc.song.outVolumeCap;
+		if (masterLevel > this._historicVolumeCap) {
+			this._historicVolumeCap = masterLevel;
 			this._historicTimer = 50;
 		}
 
-		const volumeWidth = Math.min(144, this._doc.song.outVolumeCap * 144);
+		const volumeWidth = Math.min(144, masterLevel * 144);
 		const capX = 8 + Math.min(144, this._historicVolumeCap * 144);
 		if (volumeWidth !== this._lastVolumeWidth) {
 			this._lastVolumeWidth = volumeWidth;
@@ -360,16 +438,16 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 			this._outVolumeCap.setAttribute("x", `${capX}`);
 		}
 
-		// Update master dB labels
+		// Update master dB labels (dBFS(A): full-scale 1 kHz sine = 0 dB)
 		const masterPeakDb = this._historicVolumeCap > 0 ? 20 * Math.log10(this._historicVolumeCap) : -Infinity;
 		this._masterDbPeakLabel.textContent = Number.isFinite(masterPeakDb) ? `Peak: ${masterPeakDb.toFixed(1)} dB` : "Peak: -inf dB";
 
 		// Update average, min, max
-		if (this._doc.song.outVolumeCap > 0) {
-			this._masterVolumeSum += this._doc.song.outVolumeCap;
+		if (masterLevel > 0) {
+			this._masterVolumeSum += masterLevel;
 			this._masterSampleCount++;
 
-			const currentDb = 20 * Math.log10(this._doc.song.outVolumeCap);
+			const currentDb = 20 * Math.log10(masterLevel);
 			if (Number.isFinite(currentDb)) {
 				if (currentDb < this._masterMinDb) this._masterMinDb = currentDb;
 				if (currentDb > this._masterMaxDb) this._masterMaxDb = currentDb;
@@ -392,6 +470,11 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 			const channelState = synth.channels[channelIndex];
 			if (!channelState) continue;
 
+			// Per-channel perceived loudness (A-weighted RMS of the isolated ring),
+			// normalized so a full-scale 1 kHz sine fills the bar. Reads last frame's
+			// value (populated in the spectrum FFT pass) to avoid a second FFT.
+			const channelLevel = Math.min(1, (this._channelLoudnessRms.get(channelIndex) ?? 0) / LOUDNESS_REF);
+
 			let historic = this._channelHistoricCaps.get(channelIndex);
 			if (!historic) {
 				historic = { cap: 0, timer: 0 };
@@ -402,12 +485,12 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 			if (historic.timer <= 0) {
 				historic.cap -= 0.03;
 			}
-			if (channelState.volumeCap > historic.cap) {
-				historic.cap = channelState.volumeCap;
+			if (channelLevel > historic.cap) {
+				historic.cap = channelLevel;
 				historic.timer = 50;
 			}
 
-			const chWidth = Math.min(144, channelState.volumeCap * 144);
+			const chWidth = Math.min(144, channelLevel * 144);
 			const chCapX = 8 + Math.min(144, historic.cap * 144);
 			const lastWidth = this._channelLastWidths.get(channelIndex) ?? -1;
 			const lastCap = this._channelLastCaps.get(channelIndex) ?? -1;
@@ -421,14 +504,14 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 				capEl.setAttribute("x", `${chCapX}`);
 			}
 
-			// Update average and range for channel
-			if (channelState.volumeCap > 0) {
-				const sum = (this._channelVolumeSums.get(channelIndex) ?? 0) + channelState.volumeCap;
+			// Update average and range for channel (dBFS(A))
+			if (channelLevel > 0) {
+				const sum = (this._channelVolumeSums.get(channelIndex) ?? 0) + channelLevel;
 				const count = (this._channelSampleCounts.get(channelIndex) ?? 0) + 1;
 				this._channelVolumeSums.set(channelIndex, sum);
 				this._channelSampleCounts.set(channelIndex, count);
 
-				const currentDb = 20 * Math.log10(channelState.volumeCap);
+				const currentDb = 20 * Math.log10(channelLevel);
 				if (Number.isFinite(currentDb)) {
 					const minDb = this._channelMinDb.get(channelIndex) ?? Infinity;
 					const maxDb = this._channelMaxDb.get(channelIndex) ?? -Infinity;
@@ -499,6 +582,10 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 						const im = k === 0 || k === halfN ? 0 : fftBuf[fftSize - k];
 						mags[k] = Math.sqrt(re * re + im * im) / fftSize;
 					}
+
+					// Perceived-loudness (A-weighted RMS) for the meter, from the same FFT.
+					// Stored for the metering pass (one frame latency) to avoid a second FFT.
+					this._channelLoudnessRms.set(channelIndex, this._computeLoudnessRms(channelState, mags, halfN));
 
 					// Interpolate FG bands from FFT bins (quadratic for sensitivity).
 					const bandMags = this._bandMags;
@@ -655,6 +742,7 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 		this._spectrumSmooth.clear();
 		this._channelSpectrumColors.clear();
 		this._canvasSizes.clear();
+		this._channelLoudnessRms.clear();
 
 		const song = this._doc.song;
 		const synth = this._doc.synth;
