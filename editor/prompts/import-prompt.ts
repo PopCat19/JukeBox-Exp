@@ -1124,6 +1124,65 @@ export class ImportPrompt extends BasePrompt {
 		compactChannels(noiseChannels, Config.noiseChannelCountMax);
 		compactChannels(modChannels, Config.modChannelCountMax);
 
+		// === Validation Pass ===
+		// Ensure all notes are within valid ranges and sorted by start time.
+		// The serialization format uses delta encoding for note positions, so
+		// unsorted notes or out-of-range values produce corrupted data that
+		// fails to deserialize on page reload.
+		const maxPitch: number = Config.maxPitch;
+		const maxNoisePitch: number = Config.drumCount - 1;
+		function validateChannelNotes(channels: Channel[], isNoise: boolean): void {
+			const pitchMax: number = isNoise ? maxNoisePitch : maxPitch;
+			for (const channel of channels) {
+				for (const pattern of channel.patterns) {
+					// Sort notes by start time to ensure correct delta encoding
+					pattern.notes.sort((a: Note, b: Note) => a.start - b.start);
+					// Filter out invalid notes and clamp values to valid ranges
+					const validNotes: Note[] = [];
+					for (const note of pattern.notes) {
+						// Clamp start/end to bar boundaries
+						note.start = Math.max(0, Math.min(partsPerBar, note.start));
+						note.end = Math.max(0, Math.min(partsPerBar, note.end));
+						// Skip zero-length or inverted notes
+						if (note.start >= note.end) continue;
+						// Clamp pitches to valid range
+						for (let i: number = 0; i < note.pitches.length; i++) {
+							note.pitches[i] = Math.max(0, Math.min(pitchMax, note.pitches[i]));
+						}
+						// Skip notes with no valid pitches
+						if (note.pitches.length === 0) continue;
+						// Clamp pin times to note duration
+						const noteDuration: number = note.end - note.start;
+						for (const pin of note.pins) {
+							pin.time = Math.max(0, Math.min(noteDuration, pin.time));
+							pin.size = Math.max(0, Math.min(Config.noteSizeMax, pin.size));
+						}
+						// Ensure pins are sorted by time (serialization writes deltas)
+						note.pins.sort((a: NotePin, b: NotePin) => a.time - b.time);
+						// Ensure at least 2 pins: one at time 0 and one at note duration
+						if (note.pins.length === 0) {
+							note.pins.push(makeNotePin(0, 0, Config.noteSizeMax));
+						}
+						// Ensure first pin is at time 0
+						if (note.pins[0].time !== 0) {
+							note.pins.unshift(makeNotePin(0, 0, note.pins[0].size));
+						}
+						// Ensure last pin is at note duration
+						const lastPin: NotePin = note.pins[note.pins.length - 1];
+						if (lastPin.time !== noteDuration) {
+							note.pins.push(makeNotePin(lastPin.interval, noteDuration, lastPin.size));
+						}
+						validNotes.push(note);
+					}
+					pattern.notes.length = 0;
+					for (const note of validNotes) pattern.notes.push(note);
+				}
+			}
+		}
+		validateChannelNotes(pitchChannels, false);
+		validateChannelNotes(noiseChannels, true);
+		validateChannelNotes(modChannels, false);
+
 		class ChangeImportMidi extends ChangeGroup {
 			constructor(doc: SongDocument) {
 				super();
