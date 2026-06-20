@@ -466,7 +466,7 @@ export class ImportPrompt extends BasePrompt {
 		const songTotalBars: number = Math.min(Config.barCountMax, Math.ceil(currentMidiTick / midiTicksPerPart / partsPerBar));
 
 		function quantizeMidiTickToPart(midiTick: number): number {
-			return Math.round(midiTick / midiTicksPerPart);
+			return Math.floor(midiTick / midiTicksPerPart);
 		}
 
 		let key: number = numSharps;
@@ -1068,8 +1068,9 @@ export class ImportPrompt extends BasePrompt {
 					const nextChange = tempoChanges[changeIndex + 1];
 					changeEndPart = quantizeMidiTickToPart(nextChange.midiTick);
 				}
-				// Skip redundant changes at the same quantized position
-				if (changeEndPart <= changeStartPart) continue;
+				// Give adjacent changes minimum 1-part duration to prevent loss
+				// when consecutive tempo events quantize to the same part.
+				if (changeEndPart <= changeStartPart) changeEndPart = changeStartPart + 1;
 				// Fill gap from previous change end to this change start
 				if (changeStartPart > prevChangeEndPart) {
 					// Use the previous (same) BPM — no actual change happened
