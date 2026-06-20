@@ -1360,7 +1360,7 @@ export class SongEditor
 	);
 	private readonly _overlaySpectrumContainer: HTMLDivElement = div(
 		{
-			style: "position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; opacity: 0.16; overflow: hidden; z-index: 1;",
+			style: "position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; opacity: 0.08; overflow: hidden; z-index: 1;",
 		},
 		this._overlaySpectrum.canvas,
 	);
