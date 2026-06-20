@@ -1107,6 +1107,18 @@ export class ImportPrompt extends BasePrompt {
 		// compactChannels(noiseChannels, Config.noiseChannelCountMax);
 		// compactChannels(modChannels, Config.modChannelCountMax);
 
+		// Sort channels by earliest bar with content. MIDI channels are
+		// processed sequentially so tracks from a later MIDI channel may start
+		// at an earlier bar than tracks from an earlier MIDI channel, making
+		// those tracks appear misaligned in the editor.
+		const firstContentBar = (channel: Channel): number => {
+			const bar: number = channel.bars.findIndex((b: number): boolean => b !== 0);
+			return bar < 0 ? Infinity : bar;
+		};
+		pitchChannels.sort((a: Channel, b: Channel): number => firstContentBar(a) - firstContentBar(b));
+		noiseChannels.sort((a: Channel, b: Channel): number => firstContentBar(a) - firstContentBar(b));
+		modChannels.sort((a: Channel, b: Channel): number => firstContentBar(a) - firstContentBar(b));
+
 		// === Validation Pass ===
 		// Ensure all notes are within valid ranges and sorted by start time.
 		// The serialization format uses delta encoding for note positions, so
