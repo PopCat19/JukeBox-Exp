@@ -146,7 +146,7 @@ export class PlaybackControls {
 
 		this.barPosLabel = span(
 			{
-				style: "font-size: 10px; font-family: monospace; color: var(--secondary-text); white-space: nowrap; align-self: center; margin-left: 6px;",
+				style: "font-size: 10px; font-family: monospace; color: var(--secondary-text); white-space: nowrap; line-height: 1.2; display: inline-block;",
 			},
 			"0 / 0",
 		);
