@@ -1,4 +1,3 @@
-import { Typography } from "../../ui/style-constants";
 // index.ts
 //
 // Purpose: Main Shiggy class - orchestrates shiggy system
@@ -6,6 +5,7 @@ import { Typography } from "../../ui/style-constants";
 // - Pet counter, message display, and release button
 // - Delegates tracking, summoning, dialogue, and audio to submodules
 
+import { Typography } from "../../ui/style-constants";
 import { ShiggyAudio } from "./audio";
 import { PET_MESSAGES } from "./bubbles";
 import { clearAllSummoned, spawnShiggy, startGifRestart } from "./summoning";

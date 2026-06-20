@@ -14,7 +14,7 @@ site renders correctly with no network access.
   and stay stable across re-vendoring.
 - `fredoka/{hebrew,latin-ext,latin}.woff2`, variable font covering weights
   500–700 (single file, three subsets).
-- `fira-code/{cyrillic-ext,cyrillic,greek-ext,greek,symbols2,latin-ext,latin}.woff2`
+- `fira_code/{cyrillic-ext,cyrillic,greek-ext,greek,symbols2,latin-ext,latin}.woff2`
  , weight 400, monospace.
 - `roboto/{cyrillic-ext,cyrillic,greek-ext,greek,math,symbols,vietnamese,latin-ext,latin}.woff2`
  , weight 400, used by the standalone player page.
