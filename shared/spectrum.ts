@@ -24,21 +24,23 @@ interface Particle {
 	life: number;
 	maxLife: number;
 	size: number;
+	color: string;
 }
 
 const MAX_PARTICLES = 300;
 
-function spawnParticle(x: number, y: number, mag: number, impulse: number): Particle {
-	const maxLife = 20 + Math.random() * 30;
-	const speed = 1.0 + impulse * 1.5 + mag * 1.2;
+function spawnParticle(x: number, y: number, mag: number, impulse: number, color: string): Particle {
+	const maxLife = 80 + Math.random() * 120;
+	const speed = 0.3 + impulse * 1.0 + mag * 0.6;
 	return {
 		x,
 		y,
-		vx: (Math.random() - 0.5) * speed * 0.5,
-		vy: -(0.8 + Math.random() * 1.5 + speed * 0.6),
+		vx: (Math.random() - 0.5) * speed * 0.3,
+		vy: -(0.2 + Math.random() * 0.5 + speed * 0.4),
 		life: maxLife,
 		maxLife,
-		size: 2 + Math.random() * 3 + mag * 4 + impulse * 2,
+		size: 1 + Math.random() * 3 + mag * 2,
+		color,
 	};
 }
 
@@ -341,9 +343,10 @@ export class spectrumCanvas {
 			const p = this._particles[i];
 			p.x += p.vx;
 			p.y += p.vy;
-			p.vy += 0.2; // gravity deceleration for visible arc
+			p.vy += 0.006;
 			p.life--;
-			if (p.life <= 0 || p.y > h + 10 || p.y < -20) {
+			// Remove when out of viewport (top is canvas top, -50 buffer)
+			if (p.life <= 0 || p.y > h + 10 || p.y < -50) {
 				this._particles.splice(i, 1);
 			}
 		}
@@ -352,16 +355,32 @@ export class spectrumCanvas {
 	private _spawnParticles(w: number, impulse: number): void {
 		if (this._particles.length >= MAX_PARTICLES) return;
 
-		const bandCount = FG_BANDS;
-		const bandWidth = w / (bandCount - 1);
-		for (let b = 0; b < bandCount; b++) {
+		// Spawn from FG bands (L color)
+		const fgBandCount = FG_BANDS;
+		const fgBandWidth = w / (fgBandCount - 1);
+		for (let b = 0; b < fgBandCount; b++) {
 			const mag = this._fgSmoothMags[b];
 			if (mag < 0.001) continue;
 			const normMag = (2 * mag) / (mag + spectrumCanvas.FG_REF);
 			if (normMag > 0.08 && Math.random() < normMag * (0.5 + impulse * 0.3)) {
-				const x = b * bandWidth + (Math.random() - 0.5) * bandWidth * 0.8;
+				const x = b * fgBandWidth + (Math.random() - 0.5) * fgBandWidth * 0.8;
 				const y = this._fgYs[b] + (Math.random() - 0.5) * 6;
-				this._particles.push(spawnParticle(x, y, normMag, impulse));
+				this._particles.push(spawnParticle(x, y, normMag, impulse, this._cachedLColor));
+				if (this._particles.length >= MAX_PARTICLES) return;
+			}
+		}
+
+		// Spawn from BG bands (R color, lower spawn rate)
+		const bgBandCount = BG_BANDS;
+		const bgBandWidth = w / (bgBandCount - 1);
+		for (let b = 0; b < bgBandCount; b++) {
+			const mag = this._bgSmoothMags[b];
+			if (mag < 0.001) continue;
+			const normMag = (2 * mag) / (mag + spectrumCanvas.BG_REF);
+			if (normMag > 0.1 && Math.random() < normMag * 0.25) {
+				const x = b * bgBandWidth + (Math.random() - 0.5) * bgBandWidth * 0.5;
+				const y = this._bgYs[b] + (Math.random() - 0.5) * 4;
+				this._particles.push(spawnParticle(x, y, normMag, impulse, this._cachedRColor));
 				if (this._particles.length >= MAX_PARTICLES) return;
 			}
 		}
@@ -374,7 +393,7 @@ export class spectrumCanvas {
 			const alpha = Math.min(1, t * 3) * (1 - t * 0.5);
 			const radius = p.size * (0.4 + 0.6 * t);
 			ctx.globalAlpha = alpha;
-			ctx.fillStyle = this._cachedLColor;
+			ctx.fillStyle = p.color;
 			ctx.beginPath();
 			ctx.arc(p.x, p.y, radius, 0, Math.PI * 2);
 			ctx.fill();
