@@ -217,6 +217,11 @@ export class ImportPrompt extends BasePrompt {
 		const pitchBendEvents: PitchBendEvent[][] = [[], [], [], [], [], [], [], [], [], [], [], [], [], [], [], []];
 		const noteSizeEvents: NoteSizeEvent[][] = [[], [], [], [], [], [], [], [], [], [], [], [], [], [], [], []];
 		const tempoChanges: TempoChange[] = [];
+		interface TimeSigChange {
+			midiTick: number;
+			beatsPerBar: number;
+		}
+		const timeSigChanges: TimeSigChange[] = [];
 		let beatsPerBar: number = 8;
 		let numSharps: number = 0;
 		let isMinor: boolean = false;
@@ -403,6 +408,7 @@ export class ImportPrompt extends BasePrompt {
 											denominatorExponent = denominatorExponent - 1;
 										}
 										beatsPerBar = Math.max(Config.beatsPerBarMin, Math.min(Config.beatsPerBarMax, beatsPerBar));
+										timeSigChanges.push({ midiTick: currentMidiTick, beatsPerBar: beatsPerBar });
 									} else if (message === MidiMetaEventMessage.keySignature) {
 										numSharps = track.reader.readInt8();
 										isMinor = track.reader.readUint8() === 1;
@@ -463,11 +469,62 @@ export class ImportPrompt extends BasePrompt {
 		const beatsPerMinute: number = Math.max(Config.tempoMin, Math.min(Config.tempoMax, Math.round(microsecondsPerMinute / mspb)));
 		const midiTicksPerPart: number = midiTicksPerBeat / Config.partsPerBeat;
 		const partsPerBar: number = Config.partsPerBeat * beatsPerBar;
-		const songTotalBars: number = Math.min(Config.barCountMax, Math.ceil(currentMidiTick / midiTicksPerPart / partsPerBar));
 
-		function quantizeMidiTickToPart(midiTick: number): number {
-			return Math.round(midiTick / midiTicksPerPart);
+		// Build time-sig-aware tick-to-part mapping so that when the MIDI
+		// changes time signature mid-song (e.g., 2/4 -> 4/4), earlier segments
+		// pad to complete bars on the final grid instead of compressing into
+		// partial bars that shift all subsequent notes.
+		function buildTickToPartFn() {
+			interface Seg {
+				startTick: number;
+				endTick: number;
+				startPart: number;
+			}
+			const segs: Seg[] = [];
+			let prevTick = 0;
+			let prevBeatsPerBar = 4;
+			let accParts = 0;
+			for (const change of timeSigChanges) {
+				const segEndTick = change.midiTick;
+				const segDuration = segEndTick - prevTick;
+				if (segDuration > 0) {
+					const segPpb = Config.partsPerBeat * prevBeatsPerBar;
+					const segParts = Math.round(segDuration / midiTicksPerPart);
+					const segBars = segParts / segPpb;
+					// Pad this segment's bars to the final grid
+					const paddedBars = Math.ceil((segBars * segPpb) / partsPerBar);
+					const paddedParts = paddedBars * partsPerBar;
+					segs.push({
+						startTick: prevTick,
+						endTick: segEndTick,
+						startPart: accParts,
+					});
+					accParts += paddedParts;
+				}
+				prevTick = segEndTick;
+				prevBeatsPerBar = change.beatsPerBar;
+			}
+			// Final segment (after last time sig change), no padding needed
+			segs.push({
+				startTick: prevTick,
+				endTick: Number.MAX_SAFE_INTEGER,
+				startPart: accParts,
+			});
+			return (midiTick: number): number => {
+				for (const seg of segs) {
+					if (midiTick >= seg.startTick && midiTick < seg.endTick) {
+						const offset = Math.round((midiTick - seg.startTick) / midiTicksPerPart);
+						return seg.startPart + offset;
+					}
+				}
+				return Math.round(midiTick / midiTicksPerPart);
+			};
 		}
+		const quantizeMidiTickToPart = buildTickToPartFn();
+		const songTotalBars: number = Math.min(
+			Config.barCountMax,
+			Math.ceil(quantizeMidiTickToPart(currentMidiTick) / partsPerBar),
+		);
 
 		let key: number = numSharps;
 		if (isMinor) key += 3;
