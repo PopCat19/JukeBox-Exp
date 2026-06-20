@@ -442,7 +442,7 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 					}
 
 					// Draw smooth bezier fill (like track editor overlay)
-					const col = ColorConfig.getChannelColor(this._doc.song, channelIndex).primaryChannel;
+					const col = ColorConfig.getComputedChannelColor(this._doc.song, channelIndex).primaryChannel;
 					const bandW = w / (bandCount - 1);
 					const ys: number[] = [];
 					for (let b = 0; b < bandCount; b++) {
@@ -461,7 +461,7 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 					spectrumCtx.lineTo(w, h);
 					spectrumCtx.closePath();
 					spectrumCtx.fillStyle = col;
-					spectrumCtx.globalAlpha = 0.2;
+					spectrumCtx.globalAlpha = 0.45;
 					spectrumCtx.fill();
 					spectrumCtx.globalAlpha = 1.0;
 				}
