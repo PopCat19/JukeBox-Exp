@@ -18,6 +18,20 @@ import { BasePrompt } from "./base-prompt";
 const { div, h2, h3, span, button } = HTML;
 const { svg, defs, linearGradient, stop, rect } = SVG;
 
+// Spectrum overlay tuning, mirroring shared/spectrum.ts main FG layer so the
+// per-channel overlay matches the editor's main spectrum look.
+// FG bands: 151 quarter-tone bands from ~130Hz to ~10000Hz.
+const FG_BANDS = 151;
+// Fixed soft-compression reference (same as main spectrum FG_REF).
+const FG_REF = 0.04;
+// Per-channel diff audio (channelState.audioRing) is ~1/16 the amplitude of
+// the full mix that feeds the main spectrum. Apply a fixed gain so the same
+// FG_REF normalization yields a comparable curve while preserving dynamics:
+// a quiet channel still shows a small curve, a loud one a big one.
+const CHANNEL_GAIN = 24;
+// 8192-point FFT: at 48kHz gives 5.86Hz bins, enough resolution for the FG band grid.
+const FFT_SIZE = 8192;
+
 export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 	private _animationId: number = 0;
 
@@ -85,6 +99,20 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 	private readonly _channelSpectrumCanvases: Map<number, HTMLCanvasElement> = new Map();
 	private readonly _channelSpectrumCanvas2ds: Map<number, CanvasRenderingContext2D | null> = new Map();
 	private readonly _spectrumSmooth: Map<number, Float32Array> = new Map();
+	// Reusable FFT scratch buffers (avoid per-frame allocation across channels).
+	private _fftScratch: Float32Array = new Float32Array(FFT_SIZE);
+	private _magScratch: Float32Array = new Float32Array(FFT_SIZE / 2 + 1);
+	// FG band center frequencies (absolute Hz, independent of sample rate).
+	private readonly _fgFreqs: number[] = ChannelVolumeVisualizerPrompt._initFgFreqs();
+
+	private static _initFgFreqs(): number[] {
+		const freqs: number[] = [];
+		const noteStart = Math.round(12 * Math.log2(130 / 440) + 69);
+		for (let b = 0; b < FG_BANDS; b++) {
+			freqs.push(440 * 2 ** ((noteStart + b * 0.5 - 69) / 12));
+		}
+		return freqs;
+	}
 
 	private readonly _playPauseButton: HTMLButtonElement = button(
 		{
@@ -393,103 +421,104 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 					const h = cvs.height;
 					spectrumCtx.clearRect(0, 0, w, h);
 
-					// Real audio FFT from per-channel ring buffer (8192 samples at 48kHz = ~170ms, 5.86Hz bins)
-					// Real audio FFT from per-channel ring buffer
-					// 8192-point FFT at 48kHz = 5.86Hz bins, matches main spectrum resolution
-					const fftSize = 8192;
-					const fftBuf = new Float32Array(fftSize);
+					// Real audio FFT from per-channel ring buffer. Pipeline mirrors the
+					// main FG spectrum (shared/spectrum.ts): Hann window, magnitude per
+					// bin, quadratic-interpolated log bands, spectral-tilt gain, gaussian
+					// blur, temporal smoothing, single fixed-ref soft-compression. The
+					// only per-channel adjustment is CHANNEL_GAIN to compensate the
+					// quieter isolated-diff amplitude.
+					const fftSize = FFT_SIZE;
+					const fftBuf = this._fftScratch;
+					const mags = this._magScratch;
 					const ring = channelState.audioRing;
 					const ringPos = channelState.audioRingPos;
 					for (let i = 0; i < fftSize; i++) {
-						const idx = (ringPos + i) & 8191;
+						const idx = (ringPos + i) & (fftSize - 1);
 						const hann = 0.5 * (1 - Math.cos((2 * Math.PI * i) / (fftSize - 1)));
-						fftBuf[i] = ring[idx] * hann;
+						fftBuf[i] = ring[idx] * hann * CHANNEL_GAIN;
 					}
 					forwardRealFourierTransform(fftBuf);
 
 					const halfN = fftSize >> 1;
-					const binFreq = 48000 / fftSize;
-
-					// 48 log-spaced bands from 20Hz to 6000Hz (quarter-tone spacing)
-					const bandCount = 48;
-					const bandFreqs: number[] = [];
-					const noteStart = Math.round(12 * Math.log2(20 / 440) + 69);
-					for (let b = 0; b < bandCount; b++) {
-						bandFreqs.push(440 * 2 ** ((noteStart + b * 0.5 - 69) / 12));
+					const sampleRate = this._doc.synth.samplesPerSecond || 48000;
+					const binFreq = sampleRate / fftSize;
+					for (let k = 0; k <= halfN; k++) {
+						const re = fftBuf[k];
+						const im = k === 0 || k === halfN ? 0 : fftBuf[fftSize - k];
+						mags[k] = Math.sqrt(re * re + im * im) / fftSize;
 					}
 
-					// Single-channel diff audio has ~1/16th the amplitude of full mix.
-					// Use per-frame peak normalization: find max band magnitude, scale so
-					// peak maps to reference 0.15, then apply same soft compression as main FG.
-					// Clip to avoid blowing out on completely silent channels.
-					const bandMags = new Float32Array(bandCount);
-					for (let b = 0; b < bandCount; b++) {
-						const kFloat = bandFreqs[b] / binFreq;
+					// Interpolate FG bands from FFT bins (quadratic for sensitivity).
+					const bandMags = new Float32Array(FG_BANDS);
+					for (let b = 0; b < FG_BANDS; b++) {
+						const kFloat = this._fgFreqs[b] / binFreq;
 						const k = Math.floor(kFloat);
 						const frac = kFloat - k;
-						let mag: number;
 						if (k < 1 || k >= halfN) {
 							const kHi = Math.min(k + 1, halfN);
-							const re0 = fftBuf[k],
-								re1 = fftBuf[kHi];
-							mag = (Math.sqrt(re0 * re0) + (Math.sqrt(re1 * re1) - Math.sqrt(re0 * re0)) * frac) / fftSize;
+							bandMags[b] = mags[k] + (mags[kHi] - mags[k]) * frac;
 						} else {
-							const re0 = fftBuf[k],
-								im0 = fftBuf[fftSize - k];
-							const ym1 = Math.sqrt(re0 * re0 + im0 * im0) / fftSize;
-							const reP = fftBuf[k + 1],
-								imP = fftBuf[fftSize - k - 1];
-							const yp1 = Math.sqrt(reP * reP + imP * imP) / fftSize;
-							const reM = fftBuf[k - 1],
-								imM = fftBuf[fftSize - k + 1];
-							const ym1M = Math.sqrt(reM * reM + imM * imM) / fftSize;
-							const qa = (ym1M + yp1) * 0.5 - ym1;
-							const qb = (yp1 - ym1M) * 0.5;
-							const qc = ym1;
-							mag = Math.max(0, qa * frac * frac + qb * frac + qc);
+							const ym1 = mags[k - 1],
+								y0 = mags[k],
+								yp1 = mags[k + 1];
+							const qa = (ym1 + yp1) * 0.5 - y0;
+							const qb = (yp1 - ym1) * 0.5;
+							const qc = y0;
+							bandMags[b] = qa * frac * frac + qb * frac + qc;
 						}
-						bandMags[b] = mag;
 					}
-					// Peak-normalize: find peak band, scale so peak = 0.15, soft-compress
-					let peak = 0;
-					for (let b = 0; b < bandCount; b++) if (bandMags[b] > peak) peak = bandMags[b];
-					const gain = peak > 0 ? Math.min(120, 0.15 / peak) : 0;
-					for (let b = 0; b < bandCount; b++) {
-						const s = bandMags[b] * gain;
-						bandMags[b] = Math.min(1, (2 * s) / (s + 0.04));
+					// Per-band gain: ramp 0.5x (low) to 2x (high) to compensate spectral tilt.
+					const fgGainStep = 1.5 / (FG_BANDS - 1);
+					for (let b = 0; b < FG_BANDS; b++) {
+						bandMags[b] *= 0.5 + b * fgGainStep;
 					}
+					// Light gaussian spatial blur (sigma=3 bands) to suppress peak jitter.
+					// Separate output array: blurring must read original values, not in-place writes.
+					const blurred = new Float32Array(FG_BANDS);
+					for (let b = 0; b < FG_BANDS; b++) {
+						let sum = 0,
+							wSum = 0;
+						for (let n = 0; n < FG_BANDS; n++) {
+							const d = n - b;
+							const wt = Math.exp((-0.5 * d * d) / 9);
+							sum += bandMags[n] * wt;
+							wSum += wt;
+						}
+						blurred[b] = wSum > 0.001 ? sum / wSum : 0;
+					}
+					for (let b = 0; b < FG_BANDS; b++) bandMags[b] = blurred[b];
 
-					// Temporal smoothing
+					// Temporal smoothing: instant attack, 0.55/0.45 decay (matches main FG).
 					let smooth = this._spectrumSmooth.get(channelIndex);
-					if (!smooth || smooth.length !== bandCount) {
-						smooth = new Float32Array(bandCount);
+					if (!smooth || smooth.length !== FG_BANDS) {
+						smooth = new Float32Array(FG_BANDS);
 						this._spectrumSmooth.set(channelIndex, smooth);
 					}
-					for (let b = 0; b < bandCount; b++) {
+					for (let b = 0; b < FG_BANDS; b++) {
 						if (bandMags[b] > smooth[b]) {
 							smooth[b] = bandMags[b];
 						} else {
-							smooth[b] = smooth[b] * 0.88 + bandMags[b] * 0.12;
+							smooth[b] = smooth[b] * 0.55 + bandMags[b] * 0.45;
 						}
 					}
 
-					// Draw smooth bezier fill (like track editor overlay)
+					// Draw smooth bezier fill, single fixed-ref soft-compression (no second compress).
 					const col = ColorConfig.getComputedChannelColor(this._doc.song, channelIndex).primaryChannel;
-					const bandW = w / (bandCount - 1);
+					const bandW = w / (FG_BANDS - 1);
 					const ys: number[] = [];
-					for (let b = 0; b < bandCount; b++) {
-						ys[b] = h - Math.min(1, (2 * smooth[b]) / (smooth[b] + 0.35)) * h;
+					for (let b = 0; b < FG_BANDS; b++) {
+						ys[b] = h - Math.min(1, (2 * smooth[b]) / (smooth[b] + FG_REF)) * h;
 					}
 
 					spectrumCtx.beginPath();
 					spectrumCtx.moveTo(0, h);
 					spectrumCtx.lineTo(0, ys[0]);
-					for (let b = 0; b < bandCount - 1; b++) {
+					for (let b = 0; b < FG_BANDS - 1; b++) {
 						const x1 = b * bandW;
 						const x2 = (b + 1) * bandW;
 						spectrumCtx.quadraticCurveTo(x1, ys[b], (x1 + x2) / 2, (ys[b] + ys[b + 1]) / 2);
 					}
-					spectrumCtx.lineTo(w, ys[bandCount - 1]);
+					spectrumCtx.lineTo(w, ys[FG_BANDS - 1]);
 					spectrumCtx.lineTo(w, h);
 					spectrumCtx.closePath();
 					spectrumCtx.fillStyle = col;
