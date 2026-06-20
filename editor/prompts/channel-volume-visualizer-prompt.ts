@@ -392,11 +392,12 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 					const h = cvs.height;
 					spectrumCtx.clearRect(0, 0, w, h);
 
-					// Build 32 pitch band magnitudes (C1-C8)
-					const bandCount = 32;
+					// Build band magnitudes from active tones (20-4000Hz, ~48 bands)
+					const bandCount = 48;
 					const bandMags = new Float32Array(bandCount);
-					const minPitch = 24;
-					const bandRange = (108 - minPitch) / bandCount;
+					const minPitch = 12;  // C0 ~16Hz, covers below 20Hz
+					const maxPitch = 115; // G#8 ~6.2kHz, covers up to 6kHz
+					const bandRange = (maxPitch - minPitch) / bandCount;
 
 					for (const instrState of channelState.instruments) {
 						const count = instrState.activeTones.count();
@@ -405,13 +406,13 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 							for (let p = 0; p < tone.pitchCount; p++) {
 								if (tone.pitches[p] > 0) {
 									const b = Math.min(bandCount - 1, Math.max(0, Math.floor((tone.pitches[p] - minPitch) / bandRange)));
-									bandMags[b] = Math.min(1, bandMags[b] + 0.2);
+									bandMags[b] = Math.min(1, bandMags[b] + 0.35);
 								}
 							}
 						}
 					}
 
-					// Temporal smoothing (instant attack, slow decay)
+					// Temporal smoothing (instant attack, 0.9 decay)
 					let smooth = this._spectrumSmooth.get(channelIndex);
 					if (!smooth || smooth.length !== bandCount) {
 						smooth = new Float32Array(bandCount);
@@ -421,18 +422,18 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 						if (bandMags[b] > smooth[b]) {
 							smooth[b] = bandMags[b];
 						} else {
-							smooth[b] = smooth[b] * 0.92 + bandMags[b] * 0.08;
+							smooth[b] = smooth[b] * 0.9 + bandMags[b] * 0.1;
 						}
 					}
 
-					// Spatial blur (gaussian, sigma=1.5 bands)
+					// Spatial blur (gaussian, sigma=1.2 bands)
 					{
 						const blurred = new Float32Array(bandCount);
 						for (let b = 0; b < bandCount; b++) {
 							let sum = 0, wSum = 0;
 							for (let n = 0; n < bandCount; n++) {
 								const d = n - b;
-								const w = Math.exp((-0.5 * d * d) / 2.25);
+								const w = Math.exp((-0.5 * d * d) / 1.44);
 								sum += smooth[n] * w;
 								wSum += w;
 							}
@@ -446,7 +447,7 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 					const bandW = w / (bandCount - 1);
 					const ys: number[] = [];
 					for (let b = 0; b < bandCount; b++) {
-						ys[b] = h - Math.min(0.85, smooth[b] * 0.7) * h;
+						ys[b] = h * (1 - Math.min(0.5, smooth[b] * 2.0));
 					}
 
 					spectrumCtx.beginPath();
