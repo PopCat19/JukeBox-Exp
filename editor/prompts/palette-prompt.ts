@@ -542,7 +542,7 @@ export class PalettePrompt extends BasePrompt {
 	}
 
 	private _closePicker(): void {
-		if (this._activePicker && this._activePicker.parentNode) {
+		if (this._activePicker?.parentNode) {
 			this._activePicker.parentNode.removeChild(this._activePicker);
 			this._activePicker = null;
 		}

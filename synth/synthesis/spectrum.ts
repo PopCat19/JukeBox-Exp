@@ -26,7 +26,7 @@ export function buildSpectrumSource(voiceCount: number): string {
                 // This is for a "legacy" style simplified 1st order lowpass filter with
                 // a cutoff frequency that is relative to the tone's fundamental frequency.
                 const pitchRelativefilter# = Math.min(1.0, phaseDelta#);
-                `.replaceAll("#", i + "");
+                `.replaceAll("#", `${i}`);
 	}
 
 	spectrumSource += `
@@ -43,7 +43,7 @@ export function buildSpectrumSource(voiceCount: number): string {
         `;
 	for (let i: number = 0; i < voiceCount; i++) {
 		spectrumSource += `let phase# = (tone.phases[#] - (tone.phases[#] | 0)) * Config.spectrumNoiseLength;
-                `.replaceAll("#", i + "");
+                `.replaceAll("#", `${i}`);
 	}
 	spectrumSource += `
             if (tone.phases[0] == 0.0) {
@@ -55,7 +55,7 @@ export function buildSpectrumSource(voiceCount: number): string {
                 if (instrumentState.unisonVoices <= # && instrumentState.unisonSpread == 0 && !instrumentState.chord.customInterval) {
                     phase# = phase0;
                 }
-            `.replaceAll("#", i + "");
+            `.replaceAll("#", `${i}`);
 	}
 	spectrumSource += `}`;
 	for (let i: number = 1; i < voiceCount; i++) {
@@ -64,7 +64,7 @@ export function buildSpectrumSource(voiceCount: number): string {
                     // Zero phase means the tone was reset, just give noise a random start phase instead.
                 phase# = Synth.findRandomZeroCrossing(wave, Config.spectrumNoiseLength) + phaseDelta#;
                 }
-            `.replaceAll("#", i + "");
+            `.replaceAll("#", `${i}`);
 	}
 	spectrumSource += `
         const stopIndex = bufferIndex + runLength;
@@ -79,15 +79,15 @@ export function buildSpectrumSource(voiceCount: number): string {
                 waveSample# += (wave[index# + 1] - waveSample#) * phase#Ratio;
 
                 noiseSample# += (waveSample# - noiseSample#) * pitchRelativefilter#;
-                `.replaceAll("#", i + "");
+                `.replaceAll("#", `${i}`);
 	}
 
 	const sampleList: string[] = [];
 	for (let voice: number = 0; voice < voiceCount; voice++) {
-		sampleList.push("noiseSample" + voice + (voice !== 0 ? " * unisonSign" : ""));
+		sampleList.push(`noiseSample${voice}${voice !== 0 ? " * unisonSign" : ""}`);
 	}
 
-	spectrumSource += "let inputSample = " + sampleList.join(" + ") + ";";
+	spectrumSource += `let inputSample = ${sampleList.join(" + ")};`;
 
 	spectrumSource += `const sample = applyFilters(inputSample, initialFilterInput1, initialFilterInput2, filterCount, filters);
             initialFilterInput2 = initialFilterInput1;
@@ -96,7 +96,7 @@ export function buildSpectrumSource(voiceCount: number): string {
 	for (let i = 0; i < voiceCount; i++) {
 		spectrumSource += `phase# += phaseDelta#;
                 phaseDelta# *= phaseDeltaScale#;
-                `.replaceAll("#", i + "");
+                `.replaceAll("#", `${i}`);
 	}
 
 	spectrumSource += `const output = sample * expression;
@@ -106,17 +106,17 @@ export function buildSpectrumSource(voiceCount: number): string {
 
 	for (let i: number = 0; i < voiceCount; i++) {
 		spectrumSource +=
-			`tone.phases[#] = phase# / `.replaceAll("#", i + "") +
+			`tone.phases[#] = phase# / `.replaceAll("#", `${i}`) +
 			Config.spectrumNoiseLength +
 			`;
             tone.phaseDeltas[#] = phaseDelta# / samplesInPeriod;
-            `.replaceAll("#", i + "");
+            `.replaceAll("#", `${i}`);
 	}
 
 	spectrumSource += "tone.expression = expression;";
 	for (let i: number = 0; i < voiceCount; i++) {
 		spectrumSource += `tone.noiseSamples[#] = noiseSample#;
-             `.replaceAll("#", i + "");
+             `.replaceAll("#", `${i}`);
 	}
 
 	spectrumSource += `

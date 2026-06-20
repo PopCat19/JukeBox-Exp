@@ -60,7 +60,7 @@ export class ArrayBufferReader {
 
 	public readMidi7Bits(): number {
 		const result: number = this.readUint8();
-		if (result >= 0x80) console.log("7 bit value contained 8th bit! value " + result + ", index " + this._readIndex);
+		if (result >= 0x80) console.log(`7 bit value contained 8th bit! value ${result}, index ${this._readIndex}`);
 		return result & 0x7f;
 	}
 

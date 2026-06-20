@@ -320,9 +320,9 @@ export function applyInstrumentVisibility(
 			showRow(refs.chipWavePlayBackwardsRow, true);
 			refs.useChipWaveAdvancedLoopControlsBox.checked = true;
 			setSelectedValue(refs.chipWaveLoopModeSelect, instrument.chipWaveLoopMode);
-			refs.chipWaveLoopStartStepper.value = instrument.chipWaveLoopStart + "";
-			refs.chipWaveLoopEndStepper.value = instrument.chipWaveLoopEnd + "";
-			refs.chipWaveStartOffsetStepper.value = instrument.chipWaveStartOffset + "";
+			refs.chipWaveLoopStartStepper.value = `${instrument.chipWaveLoopStart}`;
+			refs.chipWaveLoopEndStepper.value = `${instrument.chipWaveLoopEnd}`;
+			refs.chipWaveStartOffsetStepper.value = `${instrument.chipWaveStartOffset}`;
 			refs.chipWavePlayBackwardsBox.checked = instrument.chipWavePlayBackwards;
 		} else {
 			refs.useChipWaveAdvancedLoopControlsBox.checked = false;
@@ -352,7 +352,7 @@ export function applyInstrumentVisibility(
 		showRow(refs.stringSustainRow, true);
 		refs.stringSustainSlider.updateValue(instrument.stringSustain);
 		refs.stringSustainLabel.textContent = Config.enableAcousticSustain
-			? "Sustain (" + Config.sustainTypeNames[instrument.stringSustainType].substring(0, 1).toUpperCase() + "):"
+			? `Sustain (${Config.sustainTypeNames[instrument.stringSustainType].substring(0, 1).toUpperCase()}):`
 			: "Sustain:";
 	}
 
@@ -391,9 +391,9 @@ export function applyInstrumentVisibility(
 	// Pulse width
 	if (rows.has("pulseWidth")) {
 		showRow(refs.pulseWidthRow, true);
-		refs.pulseWidthSlider.input.title = prettyNumber(instrument.pulseWidth) + "%";
+		refs.pulseWidthSlider.input.title = `${prettyNumber(instrument.pulseWidth)}%`;
 		refs.pulseWidthSlider.updateValue(instrument.pulseWidth);
-		refs.decimalOffsetSlider.input.title = instrument.decimalOffset / 100 <= 0 ? "none" : "-" + prettyNumber(instrument.decimalOffset / 100) + "%";
+		refs.decimalOffsetSlider.input.title = instrument.decimalOffset / 100 <= 0 ? "none" : `-${prettyNumber(instrument.decimalOffset / 100)}%`;
 		refs.decimalOffsetSlider.updateValue(99 - instrument.decimalOffset);
 		showRow(refs.pulseWidthDropdownGroup, dropdownState.openPulseWidthDropdown);
 	}
@@ -414,10 +414,10 @@ export function applyInstrumentVisibility(
 			refs.operatorAmplitudeSliders[i].updateValue(instrument.operators[i].amplitude);
 			setSelectedValue(refs.operatorWaveformSelects[i], instrument.operators[i].waveform);
 			refs.operatorWaveformPulsewidthSliders[i].updateValue(instrument.operators[i].pulseWidth);
-			refs.operatorWaveformPulsewidthSliders[i].input.title = "" + Config.pwmOperatorWaves[instrument.operators[i].pulseWidth].name;
+			refs.operatorWaveformPulsewidthSliders[i].input.title = `${Config.pwmOperatorWaves[instrument.operators[i].pulseWidth].name}`;
 			refs.operatorDropdownGroups[i].style.color = isCarrier ? ColorConfig.primaryText : "";
 			const operatorName: string = (isCarrier ? "Voice " : "Modulator ") + (i + 1);
-			refs.operatorFrequencySelects[i].title = operatorName + " Frequency";
+			refs.operatorFrequencySelects[i].title = `${operatorName} Frequency`;
 			refs.operatorAmplitudeSliders[i].input.title = operatorName + (isCarrier ? " Volume" : " Amplitude");
 			refs.operatorDropdownGroups[i].style.display = dropdownState.openOperatorDropdowns[i] ? "" : "none";
 			if (instrument.operators[i].waveform === 2) {
@@ -446,7 +446,7 @@ export function applyInstrumentVisibility(
 		}
 	}
 
-	refs.pulseWidthSlider.input.title = prettyNumber(instrument.pulseWidth) + "%";
+	refs.pulseWidthSlider.input.title = `${prettyNumber(instrument.pulseWidth)}%`;
 
 	if (effectsIncludeTransition(instrument.effects)) {
 		refs.transitionRow.style.display = "";
@@ -461,19 +461,19 @@ export function applyInstrumentVisibility(
 
 	if (effectsIncludeChord(instrument.effects)) {
 		refs.chordSelectRow.style.display = "flex";
-		refs.chordDropdown.style.display = instrument.chord === Config.chords.dictionary["arpeggio"].index ? "" : "none";
+		refs.chordDropdown.style.display = instrument.chord === Config.chords.dictionary.arpeggio.index ? "" : "none";
 		if (dropdownState.openChordDropdown) {
-			if (instrument.chord === Config.chords.dictionary["arpeggio"].index) {
+			if (instrument.chord === Config.chords.dictionary.arpeggio.index) {
 				refs.chordDropdownGroup.style.display = "";
-			} else if (instrument.chord === Config.chords.dictionary["monophonic"].index) {
+			} else if (instrument.chord === Config.chords.dictionary.monophonic.index) {
 				refs.chordDropdownGroup.style.display = "";
 				setSelectedValue(refs.chordSelect, instrument.chord);
 			} else {
 				refs.chordDropdownGroup.style.display = "none";
 			}
 		}
-		if (instrument.chord === Config.chords.dictionary["monophonic"].index) {
-			refs.monophonicNoteInputBox.value = instrument.monoChordTone + 1 + "";
+		if (instrument.chord === Config.chords.dictionary.monophonic.index) {
+			refs.monophonicNoteInputBox.value = `${instrument.monoChordTone + 1}`;
 			refs.monophonicNoteInputBox.style.display = "";
 			refs.chordSelectContainer.style.width = "52.5%";
 		} else {
@@ -489,7 +489,7 @@ export function applyInstrumentVisibility(
 	if (effectsIncludePitchShift(instrument.effects)) {
 		refs.pitchShiftRow.style.display = "";
 		refs.pitchShiftSlider.updateValue(instrument.pitchShift);
-		refs.pitchShiftSlider.input.title = instrument.pitchShift - Config.pitchShiftCenter + " semitone(s)";
+		refs.pitchShiftSlider.input.title = `${instrument.pitchShift - Config.pitchShiftCenter} semitone(s)`;
 		for (const marker of refs.pitchShiftFifthMarkers) {
 			marker.style.display = prefs.showFifth ? "" : "none";
 		}
@@ -500,7 +500,7 @@ export function applyInstrumentVisibility(
 	if (effectsIncludeDetune(instrument.effects)) {
 		refs.detuneSliderRow.style.display = "";
 		refs.detuneSlider.updateValue(instrument.detune - Config.detuneCenter);
-		refs.detuneSlider.input.title = detuneToCents(instrument.detune) + " cent(s)";
+		refs.detuneSlider.input.title = `${detuneToCents(instrument.detune)} cent(s)`;
 	} else {
 		refs.detuneSliderRow.style.display = "none";
 	}
@@ -595,8 +595,7 @@ export function applyInstrumentVisibility(
 		refs.echoSustainSlider.updateValue(instrument.echoSustain);
 		refs.echoDelayRow.style.display = "";
 		refs.echoDelaySlider.updateValue(instrument.echoDelay);
-		refs.echoDelaySlider.input.title =
-			Math.round((((instrument.echoDelay + 1) * Config.echoDelayStepTicks) / (Config.ticksPerPart * Config.partsPerBeat)) * 1000) / 1000 + " beat(s)";
+		refs.echoDelaySlider.input.title = `${Math.round((((instrument.echoDelay + 1) * Config.echoDelayStepTicks) / (Config.ticksPerPart * Config.partsPerBeat)) * 1000) / 1000} beat(s)`;
 	} else {
 		refs.echoSustainRow.style.display = "none";
 		refs.echoDelayRow.style.display = "none";
@@ -664,11 +663,11 @@ export function applyInstrumentVisibility(
 	if (getCapabilities(instrument.type).hasUnison) {
 		refs.unisonSelectRow.style.display = "";
 		setSelectedValue(refs.unisonSelect, instrument.unison);
-		refs.unisonVoicesInputBox.value = instrument.unisonVoices + "";
-		refs.unisonSpreadInputBox.value = instrument.unisonSpread + "";
-		refs.unisonOffsetInputBox.value = instrument.unisonOffset + "";
-		refs.unisonExpressionInputBox.value = instrument.unisonExpression + "";
-		refs.unisonSignInputBox.value = instrument.unisonSign + "";
+		refs.unisonVoicesInputBox.value = `${instrument.unisonVoices}`;
+		refs.unisonSpreadInputBox.value = `${instrument.unisonSpread}`;
+		refs.unisonOffsetInputBox.value = `${instrument.unisonOffset}`;
+		refs.unisonExpressionInputBox.value = `${instrument.unisonExpression}`;
+		refs.unisonSignInputBox.value = `${instrument.unisonSign}`;
 		refs.unisonDropdownGroup.style.display = dropdownState.openUnisonDropdown ? "" : "none";
 	} else {
 		refs.unisonSelectRow.style.display = "none";

@@ -36,7 +36,7 @@ export class OctaveCountPrompt extends BasePrompt {
 	constructor(doc: SongDocument) {
 		super(doc);
 		this.buildTitlebar();
-		this._octaves.value = this._doc.song.octaveCount + "";
+		this._octaves.value = `${this._doc.song.octaveCount}`;
 		this._octaves.min = "1";
 		this._octaves.max = "16";
 

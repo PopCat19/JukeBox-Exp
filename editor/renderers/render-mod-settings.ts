@@ -205,14 +205,14 @@ export function renderModSettings(doc: SongDocument, colors: ChannelColors, pref
 			channelList.push("song");
 			for (let i: number = 0; i < doc.song.pitchChannelCount; i++) {
 				if (doc.song.channels[i].name === "") {
-					channelList.push("pitch " + (i + 1));
+					channelList.push(`pitch ${i + 1}`);
 				} else {
 					channelList.push(doc.song.channels[i].name);
 				}
 			}
 			for (let i: number = 0; i < doc.song.noiseChannelCount; i++) {
 				if (doc.song.channels[i + doc.song.pitchChannelCount].name === "") {
-					channelList.push("noise " + (i + 1));
+					channelList.push(`noise ${i + 1}`);
 				} else {
 					channelList.push(doc.song.channels[i + doc.song.pitchChannelCount].name);
 				}
@@ -231,7 +231,7 @@ export function renderModSettings(doc: SongDocument, colors: ChannelColors, pref
 			while (refs.modInstrumentBoxes[mod].firstChild) refs.modInstrumentBoxes[mod].remove(0);
 			const instrumentList: string[] = [];
 			for (let i: number = 0; i < channel.instruments.length; i++) {
-				instrumentList.push("" + i + 1);
+				instrumentList.push(`${i}${1}`);
 			}
 			instrumentList.push("all");
 			instrumentList.push("active");
@@ -244,14 +244,14 @@ export function renderModSettings(doc: SongDocument, colors: ChannelColors, pref
 
 			for (let i: number = 0; i < channel.instruments.length; i++) {
 				if (usedInstruments.includes(i)) {
-					refs.modInstrumentBoxes[mod].options[i].label = "🢒" + (i + 1);
+					refs.modInstrumentBoxes[mod].options[i].label = `🢒${i + 1}`;
 				} else {
-					refs.modInstrumentBoxes[mod].options[i].label = "" + (i + 1);
+					refs.modInstrumentBoxes[mod].options[i].label = `${i + 1}`;
 				}
 			}
 		} else {
 			for (let i: number = 0; i < channel.instruments.length; i++) {
-				refs.modInstrumentBoxes[mod].options[i].label = "" + (i + 1);
+				refs.modInstrumentBoxes[mod].options[i].label = `${i + 1}`;
 			}
 		}
 
@@ -609,15 +609,15 @@ export function renderModSettings(doc: SongDocument, colors: ChannelColors, pref
 		// Hopefully the !. don't ruin something...
 		if (instrument.modChannels[mod] < 0) {
 			(refs.modInstrumentBoxes[mod].parentElement as HTMLDivElement).style.display = "none";
-			$("#modInstrumentText" + mod).get(0)!.style.display = "none";
-			$("#modChannelText" + mod).get(0)!.innerText = "Channel:";
+			$(`#modInstrumentText${mod}`).get(0)!.style.display = "none";
+			$(`#modChannelText${mod}`).get(0)!.innerText = "Channel:";
 
 			// Hide setting select if channel is "none"
 			if (instrument.modChannels[mod] === -2) {
-				$("#modSettingText" + mod).get(0)!.style.display = "none";
+				$(`#modSettingText${mod}`).get(0)!.style.display = "none";
 				(refs.modSetBoxes[mod].parentElement as HTMLDivElement).style.display = "none";
 			} else {
-				$("#modSettingText" + mod).get(0)!.style.display = "";
+				$(`#modSettingText${mod}`).get(0)!.style.display = "";
 				(refs.modSetBoxes[mod].parentElement as HTMLDivElement).style.display = "";
 			}
 
@@ -625,9 +625,9 @@ export function renderModSettings(doc: SongDocument, colors: ChannelColors, pref
 			refs.modTargetIndicators[mod].classList.remove("modTarget");
 		} else {
 			(refs.modInstrumentBoxes[mod].parentElement as HTMLDivElement).style.display = channel.instruments.length > 1 ? "" : "none";
-			$("#modInstrumentText" + mod).get(0)!.style.display = channel.instruments.length > 1 ? "" : "none";
-			$("#modChannelText" + mod).get(0)!.innerText = channel.instruments.length > 1 ? "Ch:" : "Channel:";
-			$("#modSettingText" + mod).get(0)!.style.display = "";
+			$(`#modInstrumentText${mod}`).get(0)!.style.display = channel.instruments.length > 1 ? "" : "none";
+			$(`#modChannelText${mod}`).get(0)!.innerText = channel.instruments.length > 1 ? "Ch:" : "Channel:";
+			$(`#modSettingText${mod}`).get(0)!.style.display = "";
 			(refs.modSetBoxes[mod].parentElement as HTMLDivElement).style.display = "";
 
 			refs.modTargetIndicators[mod].style.setProperty("fill", ColorConfig.indicatorPrimary);
@@ -638,11 +638,9 @@ export function renderModSettings(doc: SongDocument, colors: ChannelColors, pref
 		const useSongEq: boolean = filterType === "song eq";
 		if (useSongEq) filterType = "eq filter";
 		if (filterType === "eq filter" || filterType === "note filter") {
-			$("#modFilterText" + mod).get(0)!.style.display = "";
-			$("#modEnvelopeText" + mod).get(0)!.style.display = "none";
-			$("#modSettingText" + mod)
-				.get(0)!
-				.style.setProperty("margin-bottom", "2px");
+			$(`#modFilterText${mod}`).get(0)!.style.display = "";
+			$(`#modEnvelopeText${mod}`).get(0)!.style.display = "none";
+			$(`#modSettingText${mod}`).get(0)!.style.setProperty("margin-bottom", "2px");
 
 			let useInstrument: number = instrument.modInstruments[mod];
 			const modChannel: Channel = doc.song.channels[Math.max(0, instrument.modChannels[mod])];
@@ -685,8 +683,8 @@ export function renderModSettings(doc: SongDocument, colors: ChannelColors, pref
 					const dotList: string[] = [];
 					dotList.push("morph");
 					for (let i: number = 0; i < dotCount; i++) {
-						dotList.push("dot " + (i + 1) + " x");
-						dotList.push("dot " + (i + 1) + " y");
+						dotList.push(`dot ${i + 1} x`);
+						dotList.push(`dot ${i + 1} y`);
 					}
 					buildOptions(refs.modFilterBoxes[mod], dotList);
 				}
@@ -697,8 +695,8 @@ export function renderModSettings(doc: SongDocument, colors: ChannelColors, pref
 					dotList.push("morph");
 				}
 				for (let i: number = 0; i < dotCount; i++) {
-					dotList.push("dot " + (i + 1) + " x");
-					dotList.push("dot " + (i + 1) + " y");
+					dotList.push(`dot ${i + 1} x`);
+					dotList.push(`dot ${i + 1} y`);
 				}
 				buildOptions(refs.modFilterBoxes[mod], dotList);
 			}
@@ -708,8 +706,8 @@ export function renderModSettings(doc: SongDocument, colors: ChannelColors, pref
 				instrument.invalidModulators[mod] = true;
 				let useName: string =
 					(instrument.modFilterTypes[mod] - 1) % 2 === 1
-						? "dot " + (Math.floor((instrument.modFilterTypes[mod] - 1) / 2) + 1) + " y"
-						: "dot " + (Math.floor((instrument.modFilterTypes[mod] - 1) / 2) + 1) + " x";
+						? `dot ${Math.floor((instrument.modFilterTypes[mod] - 1) / 2) + 1} y`
+						: `dot ${Math.floor((instrument.modFilterTypes[mod] - 1) / 2) + 1} x`;
 				if (instrument.modFilterTypes[mod] === 0) {
 					useName = "morph";
 				}
@@ -721,10 +719,8 @@ export function renderModSettings(doc: SongDocument, colors: ChannelColors, pref
 				refs.modFilterBoxes[mod].selectedIndex = instrument.modFilterTypes[mod];
 			}
 		} else {
-			$("#modFilterText" + mod).get(0)!.style.display = "none";
-			$("#modSettingText" + mod)
-				.get(0)!
-				.style.setProperty("margin-bottom", "0.9em");
+			$(`#modFilterText${mod}`).get(0)!.style.display = "none";
+			$(`#modSettingText${mod}`).get(0)!.style.setProperty("margin-bottom", "0.9em");
 		}
 
 		const envelopes: string = Config.modulators[instrument.modulators[mod]].name;
@@ -734,11 +730,9 @@ export function renderModSettings(doc: SongDocument, colors: ChannelColors, pref
 			envelopes === "individual envelope lower bound" ||
 			envelopes === "individual envelope upper bound"
 		) {
-			$("#modEnvelopeText" + mod).get(0)!.style.display = "";
-			$("#modFilterText" + mod).get(0)!.style.display = "none";
-			$("#modSettingText" + mod)
-				.get(0)!
-				.style.setProperty("margin-bottom", "2px");
+			$(`#modEnvelopeText${mod}`).get(0)!.style.display = "";
+			$(`#modFilterText${mod}`).get(0)!.style.display = "none";
+			$(`#modSettingText${mod}`).get(0)!.style.setProperty("margin-bottom", "2px");
 
 			const modChannel: Channel = doc.song.channels[Math.max(0, instrument.modChannels[mod])];
 			let envCount: number = -1;
@@ -753,14 +747,14 @@ export function renderModSettings(doc: SongDocument, colors: ChannelColors, pref
 			while (refs.modEnvelopeBoxes[mod].firstChild) refs.modEnvelopeBoxes[mod].remove(0);
 			const envelopeList: string[] = [];
 			for (let i: number = 0; i < envCount; i++) {
-				envelopeList.push("envelope " + (i + 1));
+				envelopeList.push(`envelope ${i + 1}`);
 			}
 			buildOptions(refs.modEnvelopeBoxes[mod], envelopeList);
 
 			if (instrument.modEnvelopeNumbers[mod] >= refs.modEnvelopeBoxes[mod].length) {
 				refs.modEnvelopeBoxes[mod].classList.add("invalidSetting");
 				instrument.invalidModulators[mod] = true;
-				const useName: string = "envelope " + instrument.modEnvelopeNumbers[mod];
+				const useName: string = `envelope ${instrument.modEnvelopeNumbers[mod]}`;
 				refs.modEnvelopeBoxes[mod].insertBefore(option({ value: useName, style: "color: red;" }, useName), refs.modEnvelopeBoxes[mod].children[0]);
 				refs.modEnvelopeBoxes[mod].selectedIndex = 0;
 			} else {
@@ -769,11 +763,9 @@ export function renderModSettings(doc: SongDocument, colors: ChannelColors, pref
 				refs.modEnvelopeBoxes[mod].selectedIndex = instrument.modEnvelopeNumbers[mod];
 			}
 		} else {
-			$("#modEnvelopeText" + mod).get(0)!.style.display = "none";
+			$(`#modEnvelopeText${mod}`).get(0)!.style.display = "none";
 			if (!(filterType === "eq filter" || filterType === "note filter")) {
-				$("#modSettingText" + mod)
-					.get(0)!
-					.style.setProperty("margin-bottom", "0.9em");
+				$(`#modSettingText${mod}`).get(0)!.style.setProperty("margin-bottom", "0.9em");
 			}
 		}
 	}

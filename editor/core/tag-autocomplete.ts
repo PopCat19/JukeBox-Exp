@@ -66,7 +66,7 @@ export class TagAutocomplete {
 
 		const completedTags = new Set(tags.filter((_, i) => i < tags.length - 1));
 
-		const matches = fullTagList.filter((tag) => tag.startsWith(searchTerm) && !completedTags.has(tag) && !completedTags.has("!" + tag));
+		const matches = fullTagList.filter((tag) => tag.startsWith(searchTerm) && !completedTags.has(tag) && !completedTags.has(`!${tag}`));
 
 		if (matches.length === 0 || (matches.length === 1 && matches[0] === searchTerm)) {
 			this.hide();
@@ -159,7 +159,7 @@ export class TagAutocomplete {
 
 		const matchesTags = (presetValue: number): boolean => {
 			const preset = EditorConfig.valueToPreset(presetValue);
-			if (!preset || !preset.tags) return false;
+			if (!preset?.tags) return false;
 			return rawTags.every((tag) => (tag.startsWith("!") ? !preset.tags.includes(tag.slice(1)) : preset.tags.includes(tag)));
 		};
 
@@ -172,7 +172,7 @@ export class TagAutocomplete {
 
 			for (const opt of srcOptions) {
 				const val = Number(opt.value);
-				if (isNaN(val) || matchesTags(val)) {
+				if (Number.isNaN(val) || matchesTags(val)) {
 					const clone = opt.cloneNode(true) as HTMLOptionElement;
 					if (opt.parentElement?.tagName === "OPTGROUP") {
 						const label = (opt.parentElement as HTMLOptGroupElement).label;

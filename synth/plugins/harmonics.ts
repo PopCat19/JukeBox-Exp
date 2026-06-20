@@ -18,7 +18,7 @@ registerPlugin({
 	displayName: "harmonics",
 	editorRows: ["harmonics"],
 	initialize: (instrument: Instrument) => {
-		instrument.chord = Config.chords.dictionary["simultaneous"].index;
+		instrument.chord = Config.chords.dictionary.simultaneous.index;
 		instrument.harmonicsWave.reset();
 	},
 	getSynthFunction,

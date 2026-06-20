@@ -53,7 +53,7 @@ export class PlayerControls {
 		this.ui.synth.setSong(songString);
 		this.ui.synth.snapToStart();
 		const updatedSongString: string = this.ui.synth.song!.toBase64String();
-		this.ui.editLink.href = "../" + (OFFLINE ? "index.html" : "") + "#" + updatedSongString;
+		this.ui.editLink.href = `../${OFFLINE ? "index.html" : ""}#${updatedSongString}`;
 	}
 
 	public hashUpdatedExternally(): void {
@@ -150,8 +150,8 @@ export class PlayerControls {
 	}
 
 	private animateVolume(useOutVolumeCap: number, historicOutCap: number): void {
-		this.ui.outVolumeBar.setAttribute("width", "" + Math.min(144, useOutVolumeCap * 144));
-		this.ui.outVolumeCap.setAttribute("x", "" + (8 + Math.min(144, historicOutCap * 144)));
+		this.ui.outVolumeBar.setAttribute("width", `${Math.min(144, useOutVolumeCap * 144)}`);
+		this.ui.outVolumeCap.setAttribute("x", `${8 + Math.min(144, historicOutCap * 144)}`);
 	}
 
 	public async onTogglePlay(): Promise<void> {
@@ -269,7 +269,7 @@ export class PlayerControls {
 		// if (localShortenerStrategy == "beepboxnet") shortenerStrategy = "https://www.beepbox.net/api-create.php?url=";
 		if (localShortenerStrategy === "isgd") shortenerStrategy = "https://is.gd/create.php?format=simple&url=";
 
-		window.open(shortenerStrategy + encodeURIComponent(new URL("#" + this.ui.synth.song!.toBase64String(), location.href).href));
+		window.open(shortenerStrategy + encodeURIComponent(new URL(`#${this.ui.synth.song!.toBase64String()}`, location.href).href));
 	}
 
 	public onCopyClicked(): void {
@@ -277,7 +277,7 @@ export class PlayerControls {
 		let nav: any;
 		nav = navigator;
 
-		if (nav.clipboard && nav.clipboard.writeText) {
+		if (nav.clipboard?.writeText) {
 			nav.clipboard.writeText(location.href).catch(() => {
 				window.prompt("Copy to clipboard:", location.href);
 			});
@@ -298,7 +298,7 @@ export class PlayerControls {
 
 	private updateSampleLoadingBar(e: SampleLoadedEvent): void {
 		const percent: number = e.totalSamples === 0 ? 0 : Math.floor((e.samplesLoaded / e.totalSamples) * 100);
-		this.ui.sampleLoadingBarContainer.title = "Total Samples: " + String(e.totalSamples) + "; Loaded Samples: " + String(e.samplesLoaded) + "; ";
+		this.ui.sampleLoadingBarContainer.title = `Total Samples: ${String(e.totalSamples)}; Loaded Samples: ${String(e.samplesLoaded)}; `;
 		this.ui.sampleLoadingBar.style.width = `${percent}%`;
 		if (e.totalSamples !== 0) {
 			this.ui.sampleLoadingBarContainer.style.backgroundColor = "var(--indicator-secondary)";

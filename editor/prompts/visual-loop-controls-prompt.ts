@@ -543,10 +543,10 @@ export class VisualLoopControlsPrompt extends BasePrompt {
 	};
 
 	private _reconfigureLoopControls = (): void => {
-		this._loopModeSelect.value = "" + this._chipWaveLoopMode;
-		this._startOffsetStepper.value = "" + this._chipWaveStartOffset;
-		this._loopStartStepper.value = "" + this._chipWaveLoopStart;
-		this._loopEndStepper.value = "" + this._chipWaveLoopEnd;
+		this._loopModeSelect.value = `${this._chipWaveLoopMode}`;
+		this._startOffsetStepper.value = `${this._chipWaveStartOffset}`;
+		this._loopStartStepper.value = `${this._chipWaveLoopStart}`;
+		this._loopEndStepper.value = `${this._chipWaveLoopEnd}`;
 		this._playBackwardsBox.checked = this._chipWavePlayBackwards;
 	};
 
@@ -554,7 +554,7 @@ export class VisualLoopControlsPrompt extends BasePrompt {
 		const rawOffset: number = Math.max(0, Math.min(1, +(<HTMLInputElement>event.target).value));
 		const newViewportOffset: number = Math.max(0, Math.min(this._waveformViewportMaxOffset, rawOffset * this._waveformViewportMaxOffset));
 		this._waveformViewportOffset = Math.min(this._waveformViewportMaxOffset, newViewportOffset);
-		this._viewportOffsetSlider.value = "" + this._waveformViewportOffset / this._waveformViewportMaxOffset;
+		this._viewportOffsetSlider.value = `${this._waveformViewportOffset / this._waveformViewportMaxOffset}`;
 		this._waveformViewportX0 = 0 + this._waveformViewportOffset;
 		this._waveformViewportX1 = this._waveformViewportWidth + this._waveformViewportOffset;
 		this._propagateViewportUpdate();
@@ -573,7 +573,7 @@ export class VisualLoopControlsPrompt extends BasePrompt {
 		);
 		this._waveformViewportX0 = 0 + this._waveformViewportOffset;
 		this._waveformViewportX1 = this._waveformViewportWidth + this._waveformViewportOffset;
-		this._viewportOffsetSlider.value = "" + this._waveformViewportOffset / this._waveformViewportMaxOffset;
+		this._viewportOffsetSlider.value = `${this._waveformViewportOffset / this._waveformViewportMaxOffset}`;
 		this._propagateViewportUpdate();
 		this._render();
 	};
@@ -591,7 +591,7 @@ export class VisualLoopControlsPrompt extends BasePrompt {
 		this._waveformViewportX0 = 0 + this._waveformViewportOffset;
 		this._waveformViewportX1 = this._waveformViewportWidth + this._waveformViewportOffset;
 		this._viewportOffsetSlider.value =
-			this._waveformViewportWidth === this._waveformDataLength! ? "0" : "" + this._waveformViewportOffset / this._waveformViewportMaxOffset;
+			this._waveformViewportWidth === this._waveformDataLength! ? "0" : `${this._waveformViewportOffset / this._waveformViewportMaxOffset}`;
 		this._propagateViewportUpdate();
 		this._render();
 	};
@@ -616,7 +616,7 @@ export class VisualLoopControlsPrompt extends BasePrompt {
 		const newValue: number = this._startOffsetValidator(+(<HTMLInputElement>event.target).value);
 		this._chipWaveStartOffset = newValue;
 		this._instrument!.chipWaveStartOffset = this._chipWaveStartOffset;
-		(<HTMLInputElement>event.target).value = "" + newValue;
+		(<HTMLInputElement>event.target).value = `${newValue}`;
 		this._startOffsetHandle.update(newValue);
 		this._startOffsetHandle.render();
 		this._renderOverlay();
@@ -626,7 +626,7 @@ export class VisualLoopControlsPrompt extends BasePrompt {
 		const newValue: number = this._loopStartValidator(+(<HTMLInputElement>event.target).value);
 		this._chipWaveLoopStart = newValue;
 		this._instrument!.chipWaveLoopStart = this._chipWaveLoopStart;
-		(<HTMLInputElement>event.target).value = "" + newValue;
+		(<HTMLInputElement>event.target).value = `${newValue}`;
 		this._loopStartHandle.update(newValue);
 		this._loopStartHandle.render();
 		this._renderOverlay();
@@ -636,7 +636,7 @@ export class VisualLoopControlsPrompt extends BasePrompt {
 		const newValue: number = this._loopEndValidator(+(<HTMLInputElement>event.target).value);
 		this._chipWaveLoopEnd = newValue;
 		this._instrument!.chipWaveLoopEnd = this._chipWaveLoopEnd;
-		(<HTMLInputElement>event.target).value = "" + newValue;
+		(<HTMLInputElement>event.target).value = `${newValue}`;
 		this._loopEndHandle.update(newValue);
 		this._loopEndHandle.render();
 		this._renderOverlay();
@@ -698,7 +698,7 @@ export class VisualLoopControlsPrompt extends BasePrompt {
 			this._waveformViewportX0 = 0 + this._waveformViewportOffset;
 			this._waveformViewportX1 = this._waveformViewportWidth + this._waveformViewportOffset;
 			this._viewportOffsetSlider.value =
-				this._waveformViewportWidth === this._waveformDataLength! ? "0" : "" + this._waveformViewportOffset / this._waveformViewportMaxOffset;
+				this._waveformViewportWidth === this._waveformDataLength! ? "0" : `${this._waveformViewportOffset / this._waveformViewportMaxOffset}`;
 			this._propagateViewportUpdate();
 			this._render();
 		}
@@ -757,7 +757,7 @@ export class VisualLoopControlsPrompt extends BasePrompt {
 			this._waveformViewportX0 = 0 + this._waveformViewportOffset;
 			this._waveformViewportX1 = this._waveformViewportWidth + this._waveformViewportOffset;
 			this._viewportOffsetSlider.value =
-				this._waveformViewportWidth === this._waveformDataLength! ? "0" : "" + this._waveformViewportOffset / this._waveformViewportMaxOffset;
+				this._waveformViewportWidth === this._waveformDataLength! ? "0" : `${this._waveformViewportOffset / this._waveformViewportMaxOffset}`;
 			this._propagateViewportUpdate();
 			this._render();
 		}

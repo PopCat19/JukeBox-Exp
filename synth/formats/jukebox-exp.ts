@@ -42,5 +42,5 @@ export function fromJukeboxExpJson(song: SongLike, obj: JukeboxExpObject): void 
 }
 
 export function isJukeboxExpObject(obj: unknown): obj is JukeboxExpObject {
-	return typeof obj === "object" && obj !== null && (obj as Record<string, unknown>)["format"] === JUKEBOX_EXP_FORMAT;
+	return typeof obj === "object" && obj !== null && (obj as Record<string, unknown>).format === JUKEBOX_EXP_FORMAT;
 }

@@ -31,7 +31,7 @@ export function createCustomSampleHandler(): CustomSampleHandler {
 			return EditorConfig.versionDisplayName;
 		},
 		setDocumentTitle(title: string): void {
-			document.title = title + " - " + EditorConfig.versionDisplayName;
+			document.title = `${title} - ${EditorConfig.versionDisplayName}`;
 		},
 		clearSamples(): void {
 			EditorConfig.customSamples = null;

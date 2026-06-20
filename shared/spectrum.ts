@@ -289,14 +289,7 @@ export class spectrumCanvas {
 		events.listen("themeChange", () => this._updateCachedColors());
 	}
 
-	private _computeYPositions(
-		h: number,
-		mags: Float32Array,
-		maxMag: number,
-		bandCount: number,
-		out: Float64Array,
-		heightScale: number,
-	): void {
+	private _computeYPositions(h: number, mags: Float32Array, maxMag: number, bandCount: number, out: Float64Array, heightScale: number): void {
 		for (let b = 0; b < bandCount; b++) {
 			out[b] = h - Math.min(1, (2 * mags[b]) / (mags[b] + maxMag)) * h * heightScale;
 		}

@@ -69,18 +69,18 @@ export class EnvelopeSettings {
 			discrete: this.discrete,
 		};
 		if (Config.instrumentAutomationTargets[this.target].maxCount > 1) {
-			envelopeObject["index"] = this.index;
+			envelopeObject.index = this.index;
 		}
 		if (Config.newEnvelopes[this.envelope].name === "pitch") {
-			envelopeObject["pitchEnvelopeStart"] = this.pitchEnvelopeStart;
-			envelopeObject["pitchEnvelopeEnd"] = this.pitchEnvelopeEnd;
+			envelopeObject.pitchEnvelopeStart = this.pitchEnvelopeStart;
+			envelopeObject.pitchEnvelopeEnd = this.pitchEnvelopeEnd;
 		} else if (Config.newEnvelopes[this.envelope].name === "random") {
-			envelopeObject["steps"] = this.steps;
-			envelopeObject["seed"] = this.seed;
-			envelopeObject["waveform"] = this.waveform;
+			envelopeObject.steps = this.steps;
+			envelopeObject.seed = this.seed;
+			envelopeObject.waveform = this.waveform;
 		} else if (Config.newEnvelopes[this.envelope].name === "lfo") {
-			envelopeObject["waveform"] = this.waveform;
-			envelopeObject["steps"] = this.steps;
+			envelopeObject.waveform = this.waveform;
+			envelopeObject.steps = this.steps;
 		}
 		return envelopeObject;
 	}
@@ -88,87 +88,87 @@ export class EnvelopeSettings {
 	public fromJsonObject(envelopeObject: any, format: string): void {
 		this.reset();
 
-		let target: AutomationTarget = Config.instrumentAutomationTargets.dictionary[envelopeObject["target"]];
-		if (target == null) target = Config.instrumentAutomationTargets.dictionary["noteVolume"];
+		let target: AutomationTarget = Config.instrumentAutomationTargets.dictionary[envelopeObject.target];
+		if (target == null) target = Config.instrumentAutomationTargets.dictionary.noteVolume;
 		this.target = target.index;
 
-		let envelope: Envelope = Config.envelopes.dictionary["none"];
+		let envelope: Envelope = Config.envelopes.dictionary.none;
 		let isTremolo2: boolean = false;
 		if (format === "slarmoosbox" || format === "jukebox") {
-			if (envelopeObject["envelope"] === "tremolo2") {
+			if (envelopeObject.envelope === "tremolo2") {
 				envelope = Config.newEnvelopes[EnvelopeType.lfo];
 				isTremolo2 = true;
-			} else if (envelopeObject["envelope"] === "tremolo") {
+			} else if (envelopeObject.envelope === "tremolo") {
 				envelope = Config.newEnvelopes[EnvelopeType.lfo];
 				isTremolo2 = false;
 			} else {
-				envelope = Config.newEnvelopes.dictionary[envelopeObject["envelope"]];
+				envelope = Config.newEnvelopes.dictionary[envelopeObject.envelope];
 			}
 		} else {
-			const oldEnvelope: Envelope | undefined = Config.envelopes.dictionary[envelopeObject["envelope"]];
+			const oldEnvelope: Envelope | undefined = Config.envelopes.dictionary[envelopeObject.envelope];
 			if (oldEnvelope == null) {
-				envelope = Config.newEnvelopes.dictionary["none"];
+				envelope = Config.newEnvelopes.dictionary.none;
 			} else if (oldEnvelope.type === EnvelopeType.tremolo2) {
 				envelope = Config.newEnvelopes[EnvelopeType.lfo];
 				isTremolo2 = true;
-			} else if (Config.newEnvelopes[Math.max(Config.envelopes.dictionary[envelopeObject["envelope"]].type - 1, 0)].index > EnvelopeType.lfo) {
-				envelope = Config.newEnvelopes[Config.envelopes.dictionary[envelopeObject["envelope"]].type - 1];
+			} else if (Config.newEnvelopes[Math.max(Config.envelopes.dictionary[envelopeObject.envelope].type - 1, 0)].index > EnvelopeType.lfo) {
+				envelope = Config.newEnvelopes[Config.envelopes.dictionary[envelopeObject.envelope].type - 1];
 			} else {
-				envelope = Config.newEnvelopes[Config.envelopes.dictionary[envelopeObject["envelope"]].type];
+				envelope = Config.newEnvelopes[Config.envelopes.dictionary[envelopeObject.envelope].type];
 			}
 		}
 
 		if (envelope === undefined) {
-			const oldEnvelope2: Envelope | undefined = Config.envelopes.dictionary[envelopeObject["envelope"]];
+			const oldEnvelope2: Envelope | undefined = Config.envelopes.dictionary[envelopeObject.envelope];
 			if (oldEnvelope2 == null) {
-				envelope = Config.newEnvelopes.dictionary["none"];
+				envelope = Config.newEnvelopes.dictionary.none;
 			} else if (oldEnvelope2.type === EnvelopeType.tremolo2) {
 				envelope = Config.newEnvelopes[EnvelopeType.lfo];
 				isTremolo2 = true;
-			} else if (Config.newEnvelopes[Math.max(Config.envelopes.dictionary[envelopeObject["envelope"]].type - 1, 0)].index > EnvelopeType.lfo) {
-				envelope = Config.newEnvelopes[Config.envelopes.dictionary[envelopeObject["envelope"]].type - 1];
+			} else if (Config.newEnvelopes[Math.max(Config.envelopes.dictionary[envelopeObject.envelope].type - 1, 0)].index > EnvelopeType.lfo) {
+				envelope = Config.newEnvelopes[Config.envelopes.dictionary[envelopeObject.envelope].type - 1];
 			} else {
-				envelope = Config.newEnvelopes[Config.envelopes.dictionary[envelopeObject["envelope"]].type];
+				envelope = Config.newEnvelopes[Config.envelopes.dictionary[envelopeObject.envelope].type];
 			}
 		}
-		if (envelope == null) envelope = Config.envelopes.dictionary["none"];
+		if (envelope == null) envelope = Config.envelopes.dictionary.none;
 		this.envelope = envelope.index;
 
-		if (envelopeObject["index"] !== undefined) {
-			this.index = clamp(0, Config.instrumentAutomationTargets[this.target].maxCount, envelopeObject["index"] | 0);
+		if (envelopeObject.index !== undefined) {
+			this.index = clamp(0, Config.instrumentAutomationTargets[this.target].maxCount, envelopeObject.index | 0);
 		} else {
 			this.index = 0;
 		}
 
-		if (envelopeObject["pitchEnvelopeStart"] !== undefined) {
-			this.pitchEnvelopeStart = clamp(0, this.isNoiseEnvelope ? Config.drumCount : Config.maxPitch + 1, envelopeObject["pitchEnvelopeStart"]);
+		if (envelopeObject.pitchEnvelopeStart !== undefined) {
+			this.pitchEnvelopeStart = clamp(0, this.isNoiseEnvelope ? Config.drumCount : Config.maxPitch + 1, envelopeObject.pitchEnvelopeStart);
 		} else {
 			this.pitchEnvelopeStart = 0;
 		}
 
-		if (envelopeObject["pitchEnvelopeEnd"] !== undefined) {
-			this.pitchEnvelopeEnd = clamp(0, this.isNoiseEnvelope ? Config.drumCount : Config.maxPitch + 1, envelopeObject["pitchEnvelopeEnd"]);
+		if (envelopeObject.pitchEnvelopeEnd !== undefined) {
+			this.pitchEnvelopeEnd = clamp(0, this.isNoiseEnvelope ? Config.drumCount : Config.maxPitch + 1, envelopeObject.pitchEnvelopeEnd);
 		} else {
 			this.pitchEnvelopeEnd = this.isNoiseEnvelope ? Config.drumCount : Config.maxPitch;
 		}
 
-		this.inverse = Boolean(envelopeObject["inverse"]);
+		this.inverse = Boolean(envelopeObject.inverse);
 
-		if (envelopeObject["perEnvelopeSpeed"] !== undefined) {
-			this.perEnvelopeSpeed = envelopeObject["perEnvelopeSpeed"];
+		if (envelopeObject.perEnvelopeSpeed !== undefined) {
+			this.perEnvelopeSpeed = envelopeObject.perEnvelopeSpeed;
 		} else {
-			const fallbackEnvelope: Envelope | undefined = Config.envelopes.dictionary[envelopeObject["envelope"]];
+			const fallbackEnvelope: Envelope | undefined = Config.envelopes.dictionary[envelopeObject.envelope];
 			this.perEnvelopeSpeed = fallbackEnvelope != null ? fallbackEnvelope.speed : 1.0;
 		}
 
-		if (envelopeObject["perEnvelopeLowerBound"] !== undefined) {
-			this.perEnvelopeLowerBound = clamp(Config.perEnvelopeBoundMin, Config.perEnvelopeBoundMax + 1, envelopeObject["perEnvelopeLowerBound"]);
+		if (envelopeObject.perEnvelopeLowerBound !== undefined) {
+			this.perEnvelopeLowerBound = clamp(Config.perEnvelopeBoundMin, Config.perEnvelopeBoundMax + 1, envelopeObject.perEnvelopeLowerBound);
 		} else {
 			this.perEnvelopeLowerBound = 0;
 		}
 
-		if (envelopeObject["perEnvelopeUpperBound"] !== undefined) {
-			this.perEnvelopeUpperBound = clamp(Config.perEnvelopeBoundMin, Config.perEnvelopeBoundMax + 1, envelopeObject["perEnvelopeUpperBound"]);
+		if (envelopeObject.perEnvelopeUpperBound !== undefined) {
+			this.perEnvelopeUpperBound = clamp(Config.perEnvelopeBoundMin, Config.perEnvelopeBoundMax + 1, envelopeObject.perEnvelopeUpperBound);
 		} else {
 			this.perEnvelopeUpperBound = 1;
 		}
@@ -184,26 +184,26 @@ export class EnvelopeSettings {
 			}
 		}
 
-		if (envelopeObject["steps"] !== undefined) {
-			this.steps = clamp(1, Config.randomEnvelopeStepsMax + 1, envelopeObject["steps"]);
+		if (envelopeObject.steps !== undefined) {
+			this.steps = clamp(1, Config.randomEnvelopeStepsMax + 1, envelopeObject.steps);
 		} else {
 			this.steps = 2;
 		}
 
-		if (envelopeObject["seed"] !== undefined) {
-			this.seed = clamp(1, Config.randomEnvelopeSeedMax + 1, envelopeObject["seed"]);
+		if (envelopeObject.seed !== undefined) {
+			this.seed = clamp(1, Config.randomEnvelopeSeedMax + 1, envelopeObject.seed);
 		} else {
 			this.seed = 2;
 		}
 
-		if (envelopeObject["waveform"] !== undefined) {
-			this.waveform = envelopeObject["waveform"];
+		if (envelopeObject.waveform !== undefined) {
+			this.waveform = envelopeObject.waveform;
 		} else {
 			this.waveform = LFOEnvelopeTypes.sine;
 		}
 
-		if (envelopeObject["discrete"] !== undefined) {
-			this.discrete = envelopeObject["discrete"];
+		if (envelopeObject.discrete !== undefined) {
+			this.discrete = envelopeObject.discrete;
 		} else {
 			this.discrete = false;
 		}

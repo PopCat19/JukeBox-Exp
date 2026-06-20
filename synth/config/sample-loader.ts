@@ -54,12 +54,7 @@ export interface SampleLoadEventMap {
 	sampleloaded: SampleLoadedEvent;
 }
 
-export class SampleLoadEvents extends EventTarget {
-	// eslint-disable-next-line @typescript-eslint/no-useless-constructor
-	constructor() {
-		super();
-	}
-}
+export class SampleLoadEvents extends EventTarget {}
 
 export const sampleLoadEvents: SampleLoadEvents = new SampleLoadEvents();
 
@@ -108,12 +103,12 @@ export async function startLoadingSample(
 			chipWave.samples = integratedSamples;
 			rawChipWave.samples = samples;
 			rawRawChipWave.samples = samples;
-			if (rawLoopOptions["isUsingAdvancedLoopControls"]) {
-				presetSettings["chipWaveLoopStart"] = rawLoopOptions["chipWaveLoopStart"] != null ? rawLoopOptions["chipWaveLoopStart"] : 0;
-				presetSettings["chipWaveLoopEnd"] = rawLoopOptions["chipWaveLoopEnd"] != null ? rawLoopOptions["chipWaveLoopEnd"] : samples.length - 1;
-				presetSettings["chipWaveLoopMode"] = rawLoopOptions["chipWaveLoopMode"] != null ? rawLoopOptions["chipWaveLoopMode"] : 0;
-				presetSettings["chipWavePlayBackwards"] = rawLoopOptions["chipWavePlayBackwards"];
-				presetSettings["chipWaveStartOffset"] = rawLoopOptions["chipWaveStartOffset"] != null ? rawLoopOptions["chipWaveStartOffset"] : 0;
+			if (rawLoopOptions.isUsingAdvancedLoopControls) {
+				presetSettings.chipWaveLoopStart = rawLoopOptions.chipWaveLoopStart != null ? rawLoopOptions.chipWaveLoopStart : 0;
+				presetSettings.chipWaveLoopEnd = rawLoopOptions.chipWaveLoopEnd != null ? rawLoopOptions.chipWaveLoopEnd : samples.length - 1;
+				presetSettings.chipWaveLoopMode = rawLoopOptions.chipWaveLoopMode != null ? rawLoopOptions.chipWaveLoopMode : 0;
+				presetSettings.chipWavePlayBackwards = rawLoopOptions.chipWavePlayBackwards;
+				presetSettings.chipWaveStartOffset = rawLoopOptions.chipWaveStartOffset != null ? rawLoopOptions.chipWaveStartOffset : 0;
 			}
 			sampleLoadingState.samplesLoaded++;
 			sampleLoadingState.statusTable[chipWaveIndex] = SampleLoadingStatus.loaded;
@@ -126,7 +121,7 @@ export async function startLoadingSample(
 		.catch((error) => {
 			// console.error(error);
 			sampleLoadingState.statusTable[chipWaveIndex] = SampleLoadingStatus.error;
-			alert("Failed to load " + url + ":\n" + error);
+			alert(`Failed to load ${url}:\n${error}`);
 			if (!closedSampleLoaderAudioContext) {
 				closedSampleLoaderAudioContext = true;
 				sampleLoaderAudioContext.close();

@@ -22,12 +22,12 @@ export function buildHarmonicsSource(voiceCount: number): string {
             let phaseDeltaScale# = +tone.phaseDeltaScales[#];
 
             if (instrumentState.unisonVoices <= # && instrumentState.unisonSpread == 0 && !instrumentState.chord.customInterval) tone.phases[#] = tone.phases[# - 1];
-            `.replaceAll("#", i + "");
+            `.replaceAll("#", `${i}`);
 	}
 
 	for (let i: number = 0; i < voiceCount; i++) {
 		harmonicsSource += `let phase# = (tone.phases[#] - (tone.phases[#] | 0)) * waveLength;
-            `.replaceAll("#", i + "");
+            `.replaceAll("#", `${i}`);
 	}
 
 	harmonicsSource += `const filters = tone.noteFilters;
@@ -43,7 +43,7 @@ export function buildHarmonicsSource(voiceCount: number): string {
             prevWaveIntegral# = +wave[index#]
             const phase#Ratio = phase# - phase#Int;
             prevWaveIntegral# += (wave[index# + 1] - prevWaveIntegral#) * phase#Ratio;
-            `.replaceAll("#", i + "");
+            `.replaceAll("#", `${i}`);
 	}
 
 	harmonicsSource += `const stopIndex = bufferIndex + roundedSamplesPerTick;
@@ -60,14 +60,14 @@ export function buildHarmonicsSource(voiceCount: number): string {
                         const wave# = (nextWaveIntegral# - prevWaveIntegral#) / phaseDelta#;
                         prevWaveIntegral# = nextWaveIntegral#;
                         let inputSample# = wave#;
-                        `.replaceAll("#", i + "");
+                        `.replaceAll("#", `${i}`);
 	}
 	const sampleList: string[] = [];
 	for (let voice: number = 0; voice < voiceCount; voice++) {
-		sampleList.push("inputSample" + voice + (voice !== 0 ? " * unisonSign" : ""));
+		sampleList.push(`inputSample${voice}${voice !== 0 ? " * unisonSign" : ""}`);
 	}
 
-	harmonicsSource += "inputSample = " + sampleList.join(" + ") + ";";
+	harmonicsSource += `inputSample = ${sampleList.join(" + ")};`;
 
 	harmonicsSource += `const sample = applyFilters(inputSample, initialFilterInput1, initialFilterInput2, filterCount, filters);
             initialFilterInput2 = initialFilterInput1;
@@ -76,7 +76,7 @@ export function buildHarmonicsSource(voiceCount: number): string {
 	for (let i = 0; i < voiceCount; i++) {
 		harmonicsSource += `
                 phaseDelta# *= phaseDeltaScale#;
-                `.replaceAll("#", i + "");
+                `.replaceAll("#", `${i}`);
 	}
 
 	harmonicsSource += `const output = sample * expression;
@@ -88,7 +88,7 @@ export function buildHarmonicsSource(voiceCount: number): string {
 	for (let i: number = 0; i < voiceCount; i++) {
 		harmonicsSource += `tone.phases[#] = phase# / waveLength;
             tone.phaseDeltas[#] = phaseDelta# / waveLength;
-            `.replaceAll("#", i + "");
+            `.replaceAll("#", `${i}`);
 	}
 
 	harmonicsSource += "tone.expression = expression;";

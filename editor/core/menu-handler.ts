@@ -60,10 +60,10 @@ export class MenuHandler {
 				this._host.openPrompt("import");
 				break;
 			case "copyUrl":
-				this._host.copyTextToClipboard(new URL("#" + this._host.doc.song.toBase64String(), location.href).href);
+				this._host.copyTextToClipboard(new URL(`#${this._host.doc.song.toBase64String()}`, location.href).href);
 				break;
 			case "shareUrl":
-				(<any>navigator).share({ url: new URL("#" + this._host.doc.song.toBase64String(), location.href).href });
+				(<any>navigator).share({ url: new URL(`#${this._host.doc.song.toBase64String()}`, location.href).href });
 				break;
 			case "shortenUrl": {
 				let shortenerStrategy: string = "https://tinyurl.com/api-create.php?url=";
@@ -71,19 +71,19 @@ export class MenuHandler {
 
 				if (localShortenerStrategy === "isgd") shortenerStrategy = "https://is.gd/create.php?format=simple&url=";
 
-				window.open(shortenerStrategy + encodeURIComponent(new URL("#" + this._host.doc.song.toBase64String(), location.href).href));
+				window.open(shortenerStrategy + encodeURIComponent(new URL(`#${this._host.doc.song.toBase64String()}`, location.href).href));
 				break;
 			}
 			case "configureShortener":
 				this._host.openPrompt("configureShortener");
 				break;
 			case "viewPlayer":
-				location.href = "player/" + (OFFLINE ? "index.html" : "") + "#song=" + this._host.doc.song.toBase64String();
+				location.href = `player/${OFFLINE ? "index.html" : ""}#song=${this._host.doc.song.toBase64String()}`;
 				break;
 			case "copyEmbed":
 				this._host.copyTextToClipboard(
 					`<iframe width="384" height="60" style="border: none;" src="${
-						new URL("player/#song=" + this._host.doc.song.toBase64String(), location.href).href
+						new URL(`player/#song=${this._host.doc.song.toBase64String()}`, location.href).href
 					}"></iframe>`,
 				);
 				break;

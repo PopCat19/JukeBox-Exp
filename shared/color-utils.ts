@@ -34,7 +34,7 @@ export function parseCssColor(value: string): Rgba {
 	const hexMatch = trimmed.match(/^#([0-9a-fA-F]{3,8})$/);
 	if (hexMatch) {
 		let h = hexMatch[1];
-		if (h.length === 3) h = h[0] + h[0] + h[1] + h[1] + h[2] + h[2] + "ff";
+		if (h.length === 3) h = `${h[0] + h[0] + h[1] + h[1] + h[2] + h[2]}ff`;
 		else if (h.length === 4) h = h[0] + h[0] + h[1] + h[1] + h[2] + h[2] + h[3] + h[3];
 		else if (h.length === 6) h += "ff";
 		return {

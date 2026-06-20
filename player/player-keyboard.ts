@@ -37,7 +37,7 @@ export function bindPlayerKeys(controls: PlayerControls): void {
 			case 80: // p
 				if (event.shiftKey) {
 					controls.hashUpdatedExternally();
-					location.href = "../" + (OFFLINE ? "index.html" : "") + "#" + controls.synth.song!.toBase64String();
+					location.href = `../${OFFLINE ? "index.html" : ""}#${controls.synth.song!.toBase64String()}`;
 					event.preventDefault();
 				}
 				break;

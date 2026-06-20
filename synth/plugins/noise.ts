@@ -19,7 +19,7 @@ registerPlugin({
 	editorRows: ["noiseSelect"],
 	initialize: (instrument: Instrument) => {
 		instrument.chipNoise = 1;
-		instrument.chord = Config.chords.dictionary["arpeggio"].index;
+		instrument.chord = Config.chords.dictionary.arpeggio.index;
 	},
 	getSynthFunction,
 	buildSource: (_instrument: Instrument, voiceCount?: number) => buildNoiseSource(voiceCount ?? 0),

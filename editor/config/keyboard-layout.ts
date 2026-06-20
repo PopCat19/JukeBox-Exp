@@ -34,7 +34,7 @@ export class KeyboardLayout {
 				break;
 			case "songScale": {
 				const scaleFlags: ReadonlyArray<boolean> =
-					doc.song.scale === Config.scales.dictionary["Custom"].index ? doc.song.scaleCustom : Config.scales[doc.song.scale].flags;
+					doc.song.scale === Config.scales.dictionary.Custom.index ? doc.song.scaleCustom : Config.scales[doc.song.scale].flags;
 				const scaleIndices: number[] = <number[]>scaleFlags.map((flag, index) => (flag ? index : null)).filter((index) => index != null);
 				pitchOffset =
 					(y - 1 + Math.floor(x / scaleIndices.length)) * Config.pitchesPerOctave + scaleIndices[(x + scaleIndices.length) % scaleIndices.length];
@@ -42,11 +42,11 @@ export class KeyboardLayout {
 			}
 			case "pianoAtC":
 				pitchOffset = KeyboardLayout._pianoAtC[y][x];
-				forcedKey = Config.keys.dictionary["C"].basePitch;
+				forcedKey = Config.keys.dictionary.C.basePitch;
 				break;
 			case "pianoAtA":
 				pitchOffset = KeyboardLayout._pianoAtA[y][x];
-				forcedKey = Config.keys.dictionary["A"].basePitch;
+				forcedKey = Config.keys.dictionary.A.basePitch;
 				break;
 			case "pianoTransposingC":
 				pitchOffset = KeyboardLayout._pianoAtC[y][x];

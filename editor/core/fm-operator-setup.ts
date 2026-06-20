@@ -45,7 +45,7 @@ export class FmOperatorSetup {
 		host.phaseModGroup.appendChild(
 			div(
 				{ class: "selectRow", style: `color: ${ColorConfig.secondaryText}; height: 1em; margin-top: 0.5em;` },
-				div({ style: "margin-right: .1em; visibility: hidden;" }, 1 + "."),
+				div({ style: "margin-right: .1em; visibility: hidden;" }, `${1}.`),
 				div(
 					{
 						style: "width: 3em; margin-right: .3em;",
@@ -61,9 +61,9 @@ export class FmOperatorSetup {
 			const operatorIndex: number = i;
 			const operatorNumber: HTMLDivElement = div(
 				{
-					style: "margin-right: 0px; color: " + ColorConfig.secondaryText + ";",
+					style: `margin-right: 0px; color: ${ColorConfig.secondaryText};`,
 				},
-				i + 1 + "",
+				`${i + 1}`,
 			);
 			const frequencySelect: HTMLSelectElement = buildOptions(
 				select({ style: "width: 100%;", title: "Frequency" }),

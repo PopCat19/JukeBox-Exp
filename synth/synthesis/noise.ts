@@ -26,7 +26,7 @@ export function buildNoiseSource(voiceCount: number): string {
             const pitchRelativefilter# = Math.min(1.0, phaseDelta# * instrumentState.noisePitchFilterMult);
             
             if (instrumentState.unisonVoices <= # && instrumentState.unisonSpread == 0 && !instrumentState.chord.customInterval) tone.phases[#] = tone.phases[#-1];
-            `.replaceAll("#", i + "");
+            `.replaceAll("#", `${i}`);
 	}
 
 	noiseSource += `
@@ -44,7 +44,7 @@ export function buildNoiseSource(voiceCount: number): string {
         `;
 	for (let i: number = 0; i < voiceCount; i++) {
 		noiseSource += `let phase# = (tone.phases[#] - (tone.phases[#] | 0)) * Config.chipNoiseLength;
-                `.replaceAll("#", i + "");
+                `.replaceAll("#", `${i}`);
 	}
 	noiseSource += "let test = true;";
 	for (let i: number = 0; i < voiceCount; i++) {
@@ -53,11 +53,11 @@ export function buildNoiseSource(voiceCount: number): string {
                 // Zero phase means the tone was reset, just give noise a random start phase instead.
                 phase# = Math.random() * Config.chipNoiseLength;
                 if (@ <= # && test && instrumentState.unisonSpread == 0 && !instrumentState.chord.customInterval) {`
-			.replaceAll("#", i + "")
-			.replaceAll("@", voiceCount + "")
-			.replaceAll("~", voiceCount + 2 + "");
+			.replaceAll("#", `${i}`)
+			.replaceAll("@", `${voiceCount}`)
+			.replaceAll("~", `${voiceCount + 2}`);
 		for (let j: number = i + 1; j < voiceCount + 2; j++) {
-			noiseSource += "phase~ = phase#;".replaceAll("#", i + "").replaceAll("~", j + "");
+			noiseSource += "phase~ = phase#;".replaceAll("#", `${i}`).replaceAll("~", `${j}`);
 		}
 		noiseSource += `
                     test = false;
@@ -75,15 +75,15 @@ export function buildNoiseSource(voiceCount: number): string {
                 let waveSample# = wave[phase# & phaseMask];
 
                 noiseSample# += (waveSample# - noiseSample#) * pitchRelativefilter#;
-                `.replaceAll("#", i + "");
+                `.replaceAll("#", `${i}`);
 	}
 
 	const sampleList: string[] = [];
 	for (let voice: number = 0; voice < voiceCount; voice++) {
-		sampleList.push("noiseSample" + voice + (voice !== 0 ? " * unisonSign" : ""));
+		sampleList.push(`noiseSample${voice}${voice !== 0 ? " * unisonSign" : ""}`);
 	}
 
-	noiseSource += "let inputSample = " + sampleList.join(" + ") + ";";
+	noiseSource += `let inputSample = ${sampleList.join(" + ")};`;
 
 	noiseSource += `const sample = applyFilters(inputSample, initialFilterInput1, initialFilterInput2, filterCount, filters);
             initialFilterInput2 = initialFilterInput1;
@@ -92,7 +92,7 @@ export function buildNoiseSource(voiceCount: number): string {
 	for (let i = 0; i < voiceCount; i++) {
 		noiseSource += `phase# += phaseDelta#;
                 phaseDelta# *= phaseDeltaScale#;
-                `.replaceAll("#", i + "");
+                `.replaceAll("#", `${i}`);
 	}
 
 	noiseSource += `const output = sample * expression;
@@ -102,17 +102,17 @@ export function buildNoiseSource(voiceCount: number): string {
 
 	for (let i: number = 0; i < voiceCount; i++) {
 		noiseSource +=
-			`tone.phases[#] = phase# / `.replaceAll("#", i + "") +
+			`tone.phases[#] = phase# / `.replaceAll("#", `${i}`) +
 			Config.chipNoiseLength +
 			`;
             tone.phaseDeltas[#] = phaseDelta#;
-            `.replaceAll("#", i + "");
+            `.replaceAll("#", `${i}`);
 	}
 
 	noiseSource += "tone.expression = expression;";
 	for (let i: number = 0; i < voiceCount; i++) {
 		noiseSource += `tone.noiseSamples[#] = noiseSample#;
-             `.replaceAll("#", i + "");
+             `.replaceAll("#", `${i}`);
 	}
 
 	noiseSource += `

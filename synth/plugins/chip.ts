@@ -33,7 +33,7 @@ registerPlugin({
 	displayName: "chip",
 	editorRows: ["waveSelect", "loopControls"] as const,
 	initialize: (instrument: Instrument) => {
-		instrument.chord = Config.chords.dictionary["arpeggio"].index;
+		instrument.chord = Config.chords.dictionary.arpeggio.index;
 	},
 });
 registerPlugin({
@@ -42,7 +42,7 @@ registerPlugin({
 	displayName: "chip (custom)",
 	editorRows: ["customWave"] as const,
 	initialize: (instrument: Instrument) => {
-		instrument.chord = Config.chords.dictionary["arpeggio"].index;
+		instrument.chord = Config.chords.dictionary.arpeggio.index;
 		instrument.chipWave = 2;
 		for (let i = 0; i < 64; i++) {
 			instrument.customChipWave[i] = 24 - Math.floor(i * (48 / 64));

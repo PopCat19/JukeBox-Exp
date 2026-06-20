@@ -304,7 +304,7 @@ export class ChangeRandomGeneratedInstrument extends Change {
 				if (instrument.pitchShift !== Config.pitchShiftCenter) {
 					instrument.effects |= 1 << EffectType.pitchShift;
 					instrument.addEnvelope(
-						Config.instrumentAutomationTargets.dictionary["pitchShift"].index,
+						Config.instrumentAutomationTargets.dictionary.pitchShift.index,
 						0,
 						Config.newEnvelopes.dictionary[
 							selectWeightedRandom([
@@ -347,7 +347,7 @@ export class ChangeRandomGeneratedInstrument extends Change {
 				instrument.effects |= 1 << EffectType.noteFilter;
 				applyFilterPoints(instrument.noteFilter, [new PotentialFilterPoint(1.0, FilterType.lowPass, midFreq, maxFreq, 8000.0, -1)]);
 				instrument.addEnvelope(
-					Config.instrumentAutomationTargets.dictionary["noteFilterAllFreqs"].index,
+					Config.instrumentAutomationTargets.dictionary.noteFilterAllFreqs.index,
 					0,
 					Config.newEnvelopes.dictionary[
 						selectWeightedRandom([
@@ -437,9 +437,9 @@ export class ChangeRandomGeneratedInstrument extends Change {
 						])
 					].index;
 
-				if (instrument.unison !== Config.unisons.dictionary["none"].index && Math.random() > 0.4) {
+				if (instrument.unison !== Config.unisons.dictionary.none.index && Math.random() > 0.4) {
 					instrument.addEnvelope(
-						Config.instrumentAutomationTargets.dictionary["unison"].index,
+						Config.instrumentAutomationTargets.dictionary.unison.index,
 						0,
 						Config.newEnvelopes.dictionary[
 							selectWeightedRandom([
@@ -644,7 +644,7 @@ export class ChangeRandomGeneratedInstrument extends Change {
 				if (instrument.pitchShift !== Config.pitchShiftCenter) {
 					instrument.effects |= 1 << EffectType.pitchShift;
 					instrument.addEnvelope(
-						Config.instrumentAutomationTargets.dictionary["pitchShift"].index,
+						Config.instrumentAutomationTargets.dictionary.pitchShift.index,
 						0,
 						Config.newEnvelopes.dictionary[
 							selectWeightedRandom([
@@ -694,7 +694,7 @@ export class ChangeRandomGeneratedInstrument extends Change {
 						envelopeUpperBound = 1;
 					}
 					instrument.addEnvelope(
-						Config.instrumentAutomationTargets.dictionary["distortion"].index,
+						Config.instrumentAutomationTargets.dictionary.distortion.index,
 						0,
 						Config.newEnvelopes.dictionary[
 							selectWeightedRandom([
@@ -752,7 +752,7 @@ export class ChangeRandomGeneratedInstrument extends Change {
 					envelopeUpperBound = 1;
 				}
 				instrument.addEnvelope(
-					Config.instrumentAutomationTargets.dictionary["noteFilterAllFreqs"].index,
+					Config.instrumentAutomationTargets.dictionary.noteFilterAllFreqs.index,
 					0,
 					Config.newEnvelopes.dictionary[
 						selectWeightedRandom([
@@ -807,7 +807,7 @@ export class ChangeRandomGeneratedInstrument extends Change {
 				}
 				if (Math.random() < 0.3) {
 					instrument.addEnvelope(
-						Config.instrumentAutomationTargets.dictionary["bitcrusherFrequency"].index,
+						Config.instrumentAutomationTargets.dictionary.bitcrusherFrequency.index,
 						0,
 						Config.newEnvelopes.dictionary[
 							selectWeightedRandom([
@@ -849,7 +849,7 @@ export class ChangeRandomGeneratedInstrument extends Change {
 				}
 				if (Math.random() < 0.5) {
 					instrument.addEnvelope(
-						Config.instrumentAutomationTargets.dictionary["bitcrusherQuantization"].index,
+						Config.instrumentAutomationTargets.dictionary.bitcrusherQuantization.index,
 						0,
 						Config.newEnvelopes.dictionary[
 							selectWeightedRandom([
@@ -890,13 +890,13 @@ export class ChangeRandomGeneratedInstrument extends Change {
 					);
 				} else if (type === InstrumentType.spectrum) {
 					instrument.addEnvelope(
-						Config.instrumentAutomationTargets.dictionary["noteVolume"].index,
+						Config.instrumentAutomationTargets.dictionary.noteVolume.index,
 						0,
 						Config.newEnvelopes.dictionary["note size"].index,
 						true,
 					);
 					instrument.addEnvelope(
-						Config.instrumentAutomationTargets.dictionary["bitcrusherQuantization"].index,
+						Config.instrumentAutomationTargets.dictionary.bitcrusherQuantization.index,
 						0,
 						Config.newEnvelopes.dictionary["note size"].index,
 						true,
@@ -914,7 +914,7 @@ export class ChangeRandomGeneratedInstrument extends Change {
 						envelopeUpperBound = 1;
 					}
 					instrument.addEnvelope(
-						Config.instrumentAutomationTargets.dictionary["chorus"].index,
+						Config.instrumentAutomationTargets.dictionary.chorus.index,
 						0,
 						Config.newEnvelopes.dictionary[
 							selectWeightedRandom([
@@ -968,7 +968,7 @@ export class ChangeRandomGeneratedInstrument extends Change {
 							envelopeUpperBound = 1;
 						}
 						instrument.addEnvelope(
-							Config.instrumentAutomationTargets.dictionary["echoDelay"].index,
+							Config.instrumentAutomationTargets.dictionary.echoDelay.index,
 							0,
 							Config.newEnvelopes.dictionary[
 								selectWeightedRandom([
@@ -1023,7 +1023,7 @@ export class ChangeRandomGeneratedInstrument extends Change {
 							envelopeUpperBound = 1;
 						}
 						instrument.addEnvelope(
-							Config.instrumentAutomationTargets.dictionary["ringModulation"].index,
+							Config.instrumentAutomationTargets.dictionary.ringModulation.index,
 							0,
 							Config.newEnvelopes.dictionary[
 								selectWeightedRandom([
@@ -1072,7 +1072,7 @@ export class ChangeRandomGeneratedInstrument extends Change {
 							envelopeUpperBound = 1;
 						}
 						instrument.addEnvelope(
-							Config.instrumentAutomationTargets.dictionary["ringModulationHz"].index,
+							Config.instrumentAutomationTargets.dictionary.ringModulationHz.index,
 							0,
 							Config.newEnvelopes.dictionary[
 								selectWeightedRandom([
@@ -1126,7 +1126,7 @@ export class ChangeRandomGeneratedInstrument extends Change {
 						envelopeUpperBound = 1;
 					}
 					instrument.addEnvelope(
-						Config.instrumentAutomationTargets.dictionary["reverb"].index,
+						Config.instrumentAutomationTargets.dictionary.reverb.index,
 						0,
 						Config.newEnvelopes.dictionary[
 							selectWeightedRandom([
@@ -1192,7 +1192,7 @@ export class ChangeRandomGeneratedInstrument extends Change {
 						envelopeUpperBound = 1;
 					}
 					instrument.addEnvelope(
-						Config.instrumentAutomationTargets.dictionary["granular"].index,
+						Config.instrumentAutomationTargets.dictionary.granular.index,
 						0,
 						Config.newEnvelopes.dictionary[
 							selectWeightedRandom([
@@ -1240,7 +1240,7 @@ export class ChangeRandomGeneratedInstrument extends Change {
 						envelopeUpperBound = 1;
 					}
 					instrument.addEnvelope(
-						Config.instrumentAutomationTargets.dictionary["grainFreq"].index,
+						Config.instrumentAutomationTargets.dictionary.grainFreq.index,
 						0,
 						Config.newEnvelopes.dictionary[
 							selectWeightedRandom([
@@ -1289,7 +1289,7 @@ export class ChangeRandomGeneratedInstrument extends Change {
 						envelopeUpperBound = 1;
 					}
 					instrument.addEnvelope(
-						Config.instrumentAutomationTargets.dictionary["grainSize"].index,
+						Config.instrumentAutomationTargets.dictionary.grainSize.index,
 						0,
 						Config.newEnvelopes.dictionary[
 							selectWeightedRandom([
@@ -1339,7 +1339,7 @@ export class ChangeRandomGeneratedInstrument extends Change {
 						envelopeUpperBound = 1;
 					}
 					instrument.addEnvelope(
-						Config.instrumentAutomationTargets.dictionary["grainRange"].index,
+						Config.instrumentAutomationTargets.dictionary.grainRange.index,
 						0,
 						Config.newEnvelopes.dictionary[
 							selectWeightedRandom([
@@ -1389,7 +1389,7 @@ export class ChangeRandomGeneratedInstrument extends Change {
 					envelopeUpperBound = 1;
 				}
 				instrument.addEnvelope(
-					Config.instrumentAutomationTargets.dictionary["noteVolume"].index,
+					Config.instrumentAutomationTargets.dictionary.noteVolume.index,
 					0,
 					Config.newEnvelopes.dictionary[
 						selectWeightedRandom([
@@ -1464,7 +1464,7 @@ export class ChangeRandomGeneratedInstrument extends Change {
 
 						if (Math.random() < 0.6) {
 							instrument.addEnvelope(
-								Config.instrumentAutomationTargets.dictionary["pulseWidth"].index,
+								Config.instrumentAutomationTargets.dictionary.pulseWidth.index,
 								0,
 								Config.newEnvelopes.dictionary[
 									selectWeightedRandom([
@@ -1644,7 +1644,7 @@ export class ChangeRandomGeneratedInstrument extends Change {
 									envelopeUpperBound = 1;
 								}
 								instrument.addEnvelope(
-									Config.instrumentAutomationTargets.dictionary["operatorAmplitude"].index,
+									Config.instrumentAutomationTargets.dictionary.operatorAmplitude.index,
 									i,
 									Config.newEnvelopes.dictionary[
 										selectWeightedRandom([
@@ -1689,7 +1689,7 @@ export class ChangeRandomGeneratedInstrument extends Change {
 									envelopeUpperBound = 1;
 								}
 								instrument.addEnvelope(
-									Config.instrumentAutomationTargets.dictionary["operatorFrequency"].index,
+									Config.instrumentAutomationTargets.dictionary.operatorFrequency.index,
 									i,
 									Config.newEnvelopes.dictionary[
 										selectWeightedRandom([
@@ -1763,7 +1763,7 @@ export class ChangeRandomGeneratedInstrument extends Change {
 								envelopeUpperBound = 1;
 							}
 							instrument.addEnvelope(
-								Config.instrumentAutomationTargets.dictionary["feedbackAmplitude"].index,
+								Config.instrumentAutomationTargets.dictionary.feedbackAmplitude.index,
 								0,
 								Config.newEnvelopes.dictionary[
 									selectWeightedRandom([

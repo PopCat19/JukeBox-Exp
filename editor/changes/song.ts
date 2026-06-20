@@ -283,7 +283,7 @@ export class ChangeChannelCount extends Change {
 							(modChannel >= doc.song.pitchChannelCount && modChannel < oldPitchCount) ||
 							modChannel >= doc.song.pitchChannelCount + doc.song.noiseChannelCount
 						) {
-							instrument.modulators[mod] = Config.modulators.dictionary["none"].index;
+							instrument.modulators[mod] = Config.modulators.dictionary.none.index;
 						}
 
 						// Bump indices - new pitch channel added, bump all noise mods.
@@ -368,8 +368,8 @@ export class ChangeCloneChannel extends ChangeGroup {
 			dst.instruments.length = 0;
 			for (const instrument of src.instruments) {
 				const instrumentCopy: Record<string, unknown> = instrument.toJsonObject() as Record<string, unknown>;
-				instrumentCopy["isDrum"] = isNoise;
-				instrumentCopy["isMod"] = isMod;
+				instrumentCopy.isDrum = isNoise;
+				instrumentCopy.isMod = isMod;
 				const newInstrument: Instrument = new Instrument(isNoise, isMod);
 				newInstrument.fromJsonObject(instrumentCopy, isNoise, isMod, doc.song.rhythm === 0 || doc.song.rhythm === 2, doc.song.rhythm >= 2);
 				dst.instruments.push(newInstrument);
@@ -533,7 +533,7 @@ export class ChangeTempo extends Change {
 	constructor(doc: SongDocument, oldValue: number, newValue: number) {
 		super();
 		doc.song.tempo = Math.max(Config.tempoMin, Math.min(Config.tempoMax, Math.round(newValue)));
-		doc.synth.unsetMod(Config.modulators.dictionary["tempo"].index);
+		doc.synth.unsetMod(Config.modulators.dictionary.tempo.index);
 		doc.notifier.changed();
 		if (oldValue !== newValue) this._didSomething();
 	}
@@ -568,7 +568,7 @@ export class ChangeSongTitle extends Change {
 		}
 
 		doc.song.title = newValue;
-		document.title = newValue + " - " + EditorConfig.versionDisplayName;
+		document.title = `${newValue} - ${EditorConfig.versionDisplayName}`;
 		doc.notifier.changed();
 		if (oldValue !== newValue) this._didSomething();
 	}
@@ -593,7 +593,7 @@ export class ChangePan extends Change {
 	constructor(doc: SongDocument, oldValue: number, newValue: number) {
 		super();
 		doc.getCurrentInstrumentObj().pan = newValue;
-		doc.synth.unsetMod(Config.modulators.dictionary["pan"].index, doc.channel, doc.getCurrentInstrument());
+		doc.synth.unsetMod(Config.modulators.dictionary.pan.index, doc.channel, doc.getCurrentInstrument());
 		doc.notifier.changed();
 		if (oldValue !== newValue) this._didSomething();
 	}
@@ -668,7 +668,7 @@ export class ChangeModChannel extends Change {
 			(Config.modulators[instrument.modulators[mod]].forSong && index >= 2) ||
 			(!Config.modulators[instrument.modulators[mod]].forSong && index < 2)
 		) {
-			instrument.modulators[mod] = Config.modulators.dictionary["none"].index;
+			instrument.modulators[mod] = Config.modulators.dictionary.none.index;
 		}
 
 		instrument.modChannels[mod] = index - 2;

@@ -62,10 +62,10 @@ export function renderPostBranchSync(
 	}
 	refs.instrumentVolumeSlider.updateValue(instrument.volume);
 	refs.detuneSlider.updateValue(instrument.detune - Config.detuneCenter);
-	refs.twoNoteArpBox.checked = instrument.fastTwoNoteArp ? true : false;
-	refs.clicklessTransitionBox.checked = instrument.clicklessTransition ? true : false;
-	refs.aliasingBox.checked = instrument.aliases ? true : false;
-	refs.invertWaveBox.checked = instrument.invertWave ? true : false;
+	refs.twoNoteArpBox.checked = !!instrument.fastTwoNoteArp;
+	refs.clicklessTransitionBox.checked = !!instrument.clicklessTransition;
+	refs.aliasingBox.checked = !!instrument.aliases;
+	refs.invertWaveBox.checked = !!instrument.invertWave;
 	refs.addEnvelopeButton.disabled = instrument.envelopeCount >= Config.maxEnvelopeCount;
 	refs.volumeSlider.updateValue(prefs.volume);
 

@@ -113,7 +113,7 @@ export class BarScrollBar {
 		const playhead = Math.min(512, Math.max(0, this._notchSpace * this._doc.synth.playhead - 2));
 		if (this._renderedPlayhead !== playhead) {
 			this._renderedPlayhead = playhead;
-			this._playhead.setAttribute("x", "" + playhead);
+			this._playhead.setAttribute("x", `${playhead}`);
 		}
 	};
 

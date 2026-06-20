@@ -46,7 +46,7 @@ export function buildLoopableChipSource(voiceCount: number): string {
 		chipSource += `
                 if (instrumentState.unisonVoices <= #)
                     tone.phases[#] = tone.phases[#-1];
-                `.replaceAll("#", i + "");
+                `.replaceAll("#", `${i}`);
 	}
 	chipSource += `
             }`;
@@ -56,7 +56,7 @@ export function buildLoopableChipSource(voiceCount: number): string {
                 let direction# = tone.directions[#];
                 let chipWaveCompletion# = tone.chipWaveCompletions[#];
 
-                `.replaceAll("#", i + "");
+                `.replaceAll("#", `${i}`);
 	}
 
 	chipSource += `
@@ -69,13 +69,13 @@ export function buildLoopableChipSource(voiceCount: number): string {
 	for (let i: number = 0; i < voiceCount; i++) {
 		chipSource += `
                         direction# = 1;
-                        `.replaceAll("#", i + "");
+                        `.replaceAll("#", `${i}`);
 	}
 	chipSource += `} else {`;
 	for (let i: number = 0; i < voiceCount; i++) {
 		chipSource += `
                         direction# = -1;
-                        `.replaceAll("#", i + "");
+                        `.replaceAll("#", `${i}`);
 	}
 	chipSource += `
                 }
@@ -88,7 +88,7 @@ export function buildLoopableChipSource(voiceCount: number): string {
 	for (let i: number = 0; i < voiceCount; i++) {
 		chipSource += `
                     chipWaveCompletion# = 0;
-                    `.replaceAll("#", i + "");
+                    `.replaceAll("#", `${i}`);
 	}
 	chipSource += `    
             }
@@ -104,7 +104,7 @@ export function buildLoopableChipSource(voiceCount: number): string {
                 let phase# = Synth.wrap(tone.phases[#], 1) * waveLength;
                 let prevWaveIntegral# = 0;
 
-                `.replaceAll("#", i + "");
+                `.replaceAll("#", `${i}`);
 	}
 	chipSource += `
             if (!aliases) {
@@ -116,7 +116,7 @@ export function buildLoopableChipSource(voiceCount: number): string {
                     const phaseRatio# = phase# - phase#Int;
                     prevWaveIntegral# = +wave[index#];
                     prevWaveIntegral# += (wave[Synth.wrap(index# + 1, waveLength)] - prevWaveIntegral#) * phaseRatio#;
-                    `.replaceAll("#", i + "");
+                    `.replaceAll("#", `${i}`);
 	}
 	chipSource += `
             }
@@ -131,7 +131,7 @@ export function buildLoopableChipSource(voiceCount: number): string {
 		chipSource += `
                 let prevWave# = tone.chipWavePrevWaves[#];
 
-                `.replaceAll("#", i + "");
+                `.replaceAll("#", `${i}`);
 	}
 	chipSource += `
             for (let sampleIndex = bufferIndex; sampleIndex < stopIndex; sampleIndex++) {
@@ -144,7 +144,7 @@ export function buildLoopableChipSource(voiceCount: number): string {
                     }
                     phase# += phaseDelta# * direction#;
 
-                    `.replaceAll("#", i + "");
+                    `.replaceAll("#", `${i}`);
 	}
 	chipSource += `
                 if (chipWaveLoopMode === 2) {
@@ -170,7 +170,7 @@ export function buildLoopableChipSource(voiceCount: number): string {
                             }
                         }
 
-                        `.replaceAll("#", i + "");
+                        `.replaceAll("#", `${i}`);
 	}
 	chipSource += `
                 } else if (chipWaveLoopMode === 3) {
@@ -196,7 +196,7 @@ export function buildLoopableChipSource(voiceCount: number): string {
                             }
                         }
 
-                        `.replaceAll("#", i + "");
+                        `.replaceAll("#", `${i}`);
 	}
 	chipSource += `
                 } else if (chipWaveLoopMode === 0) {
@@ -218,7 +218,7 @@ export function buildLoopableChipSource(voiceCount: number): string {
                             }
                         }
 
-                        `.replaceAll("#", i + "");
+                        `.replaceAll("#", `${i}`);
 	}
 	chipSource += `    
                 } else if (chipWaveLoopMode === 1) {
@@ -242,7 +242,7 @@ export function buildLoopableChipSource(voiceCount: number): string {
                             }
                         }
 
-                        `.replaceAll("#", i + "");
+                        `.replaceAll("#", `${i}`);
 	}
 	chipSource += `    
                 }
@@ -250,7 +250,7 @@ export function buildLoopableChipSource(voiceCount: number): string {
 	for (let i: number = 0; i < voiceCount; i++) {
 		chipSource += `
                     let wave# = 0;
-                    `.replaceAll("#", i + "");
+                    `.replaceAll("#", `${i}`);
 	}
 	chipSource += `    
                 let inputSample = 0;
@@ -268,7 +268,7 @@ export function buildLoopableChipSource(voiceCount: number): string {
                         } else {
                             inputSample += wave#;
                         }
-                        `.replaceAll("#", i + "");
+                        `.replaceAll("#", `${i}`);
 	}
 	chipSource += `   
                 } else {
@@ -280,7 +280,7 @@ export function buildLoopableChipSource(voiceCount: number): string {
                         let nextWaveIntegral# = wave[index#];
                         const phaseRatio# = phase# - phase#Int;
                         nextWaveIntegral# += (wave[Synth.wrap(index# + 1, waveLength)] - nextWaveIntegral#) * phaseRatio#;
-                        `.replaceAll("#", i + "");
+                        `.replaceAll("#", `${i}`);
 	}
 
 	chipSource += `
@@ -295,7 +295,7 @@ export function buildLoopableChipSource(voiceCount: number): string {
                             pwi# = wave[index#];
                             pwi# += (wave[Synth.wrap(index# + 1, waveLength)] - pwi#) * (phase#_ - phase#Int) * direction#;
                             prevWaveIntegral# = pwi#;
-                            `.replaceAll("#", i + "");
+                            `.replaceAll("#", `${i}`);
 	}
 	chipSource += `    
                     }
@@ -304,7 +304,7 @@ export function buildLoopableChipSource(voiceCount: number): string {
 	for (let i: number = 0; i < voiceCount; i++) {
 		chipSource += `
                             wave# = prevWave#;
-                            `.replaceAll("#", i + "");
+                            `.replaceAll("#", `${i}`);
 	}
 	chipSource += `
                     } else {
@@ -312,7 +312,7 @@ export function buildLoopableChipSource(voiceCount: number): string {
 	for (let i: number = 0; i < voiceCount; i++) {
 		chipSource += `
                             wave# = (nextWaveIntegral# - prevWaveIntegral#) / (phaseDelta# * direction#);
-                            `.replaceAll("#", i + "");
+                            `.replaceAll("#", `${i}`);
 	}
 	chipSource += `
                     }
@@ -327,7 +327,7 @@ export function buildLoopableChipSource(voiceCount: number): string {
                         } else {
                             inputSample += wave#;
                         }
-                        `.replaceAll("#", i + "");
+                        `.replaceAll("#", `${i}`);
 	}
 	chipSource += `
                 }
@@ -341,7 +341,7 @@ export function buildLoopableChipSource(voiceCount: number): string {
 	for (let i: number = 0; i < voiceCount; i++) {
 		chipSource += `
                     phaseDelta# *= phaseDeltaScale#;
-                    `.replaceAll("#", i + "");
+                    `.replaceAll("#", `${i}`);
 	}
 	chipSource += `
             }
@@ -355,7 +355,7 @@ export function buildLoopableChipSource(voiceCount: number): string {
                 tone.chipWavePrevWaves[#] = prevWave#;
                 tone.chipWaveCompletionsLastWave[#] = lastWave#;
                 
-                `.replaceAll("#", i + "");
+                `.replaceAll("#", `${i}`);
 	}
 
 	chipSource += `
@@ -387,13 +387,13 @@ export function buildChipSource(voiceCount: number): string {
             let phaseDeltaScale# = +tone.phaseDeltaScales[#];
 
             if (instrumentState.unisonVoices <= # && instrumentState.unisonSpread == 0 && !instrumentState.chord.customInterval) tone.phases[#] = tone.phases[# - 1];
-            `.replaceAll("#", i + "");
+            `.replaceAll("#", `${i}`);
 	}
 
 	for (let i: number = 0; i < voiceCount; i++) {
 		chipSource += `let phase# = (tone.phases[#] - (tone.phases[#] | 0)) * waveLength;
             let prevWaveIntegral# = 0.0;
-            `.replaceAll("#", i + "");
+            `.replaceAll("#", `${i}`);
 	}
 
 	chipSource += `const filters = tone.noteFilters;
@@ -410,7 +410,7 @@ export function buildChipSource(voiceCount: number): string {
                 prevWaveIntegral# = +wave[index#]
                 const phase#Ratio = phase# - phase#Int;
                 prevWaveIntegral# += (wave[index# + 1] - prevWaveIntegral#) * phase#Ratio;
-                `.replaceAll("#", i + "");
+                `.replaceAll("#", `${i}`);
 	}
 	chipSource += `
         } 
@@ -424,14 +424,14 @@ export function buildChipSource(voiceCount: number): string {
 		chipSource += `phase# += phaseDelta#;
 
                     const inputSample# = wave[(0 | phase#) % waveLength];
-                    `.replaceAll("#", i + "");
+                    `.replaceAll("#", `${i}`);
 	}
 	const sampleListA: string[] = [];
 	for (let voice: number = 0; voice < voiceCount; voice++) {
-		sampleListA.push("inputSample" + voice + (voice !== 0 ? " * unisonSign" : ""));
+		sampleListA.push(`inputSample${voice}${voice !== 0 ? " * unisonSign" : ""}`);
 	}
 
-	chipSource += "inputSample = " + sampleListA.join(" + ") + ";";
+	chipSource += `inputSample = ${sampleListA.join(" + ")};`;
 	chipSource += `} else {
                     `;
 	for (let i: number = 0; i < voiceCount; i++) {
@@ -446,14 +446,14 @@ export function buildChipSource(voiceCount: number): string {
                         const wave# = (nextWaveIntegral# - prevWaveIntegral#) / phaseDelta#;
                         prevWaveIntegral# = nextWaveIntegral#;
                         let inputSample# = wave#;
-                        `.replaceAll("#", i + "");
+                        `.replaceAll("#", `${i}`);
 	}
 	const sampleListB: string[] = [];
 	for (let voice: number = 0; voice < voiceCount; voice++) {
-		sampleListB.push("inputSample" + voice + (voice !== 0 ? " * unisonSign" : ""));
+		sampleListB.push(`inputSample${voice}${voice !== 0 ? " * unisonSign" : ""}`);
 	}
 
-	chipSource += "inputSample = " + sampleListB.join(" + ") + ";";
+	chipSource += `inputSample = ${sampleListB.join(" + ")};`;
 	chipSource += `}
         `;
 
@@ -464,7 +464,7 @@ export function buildChipSource(voiceCount: number): string {
 	for (let i = 0; i < voiceCount; i++) {
 		chipSource += `
                 phaseDelta# *= phaseDeltaScale#;
-                `.replaceAll("#", i + "");
+                `.replaceAll("#", `${i}`);
 	}
 
 	chipSource += `const output = sample * expression;
@@ -476,7 +476,7 @@ export function buildChipSource(voiceCount: number): string {
 	for (let i: number = 0; i < voiceCount; i++) {
 		chipSource += `tone.phases[#] = phase# / waveLength;
             tone.phaseDeltas[#] = phaseDelta# / waveLength;
-            `.replaceAll("#", i + "");
+            `.replaceAll("#", `${i}`);
 	}
 
 	chipSource += "tone.expression = expression;";

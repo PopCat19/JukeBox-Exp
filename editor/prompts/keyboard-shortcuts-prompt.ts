@@ -53,7 +53,7 @@ function splitKeyParts(key: ShortcutKey): string[] {
 
 /** Human-readable flat string for search purposes. */
 function formatKeys(entries: ShortcutKey[]): string {
-	return entries.map((e) => (e.mods ? e.mods + "+" : "") + e.key).join(" or ");
+	return entries.map((e) => (e.mods ? `${e.mods}+` : "") + e.key).join(" or ");
 }
 
 /**
@@ -322,10 +322,7 @@ export class KeyboardShortcutsPrompt extends BasePrompt {
 
 		for (const cat of shortcutCategories) {
 			const catFiltered = cat.entries.filter(
-				(e) =>
-					formatKeys(e.keys).toLowerCase().includes(filter) ||
-					e.desc.toLowerCase().includes(filter) ||
-					(e.detail && e.detail.toLowerCase().includes(filter)),
+				(e) => formatKeys(e.keys).toLowerCase().includes(filter) || e.desc.toLowerCase().includes(filter) || e.detail?.toLowerCase().includes(filter),
 			);
 
 			if (catFiltered.length === 0) continue;

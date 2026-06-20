@@ -3700,7 +3700,7 @@ export class Config {
 			promptName: "Grain Size",
 			promptDesc: [
 				"This setting controls the grain size of the granular effect in your instrument.",
-				"The number shown in the mod channel is multiplied by " + Config.grainSizeStep + " to get the actual grain size.",
+				`The number shown in the mod channel is multiplied by ${Config.grainSizeStep} to get the actual grain size.`,
 				"[OVERWRITING] [$LO - $HI]",
 			],
 		},
@@ -3716,7 +3716,7 @@ export class Config {
 			promptName: "Grain Range",
 			promptDesc: [
 				"This setting controls the range of values for your grain size of the granular effect in your instrument, from no variation to a lot",
-				"The number shown in the mod channel is multiplied by " + Config.grainSizeStep + " to get the actual grain size.",
+				`The number shown in the mod channel is multiplied by ${Config.grainSizeStep} to get the actual grain size.`,
 				"[OVERWRITING] [$LO - $HI]",
 			],
 		},
@@ -4022,7 +4022,7 @@ export function getDrumWave(index: number, inverseRealFourierTransform: Function
 				wave[i] *= 14;
 			}
 		} else {
-			throw new Error("Unrecognized drum index: " + index);
+			throw new Error(`Unrecognized drum index: ${index}`);
 		}
 
 		wave[Config.chipNoiseLength] = wave[0];

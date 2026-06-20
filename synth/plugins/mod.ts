@@ -28,7 +28,7 @@ registerPlugin({
 		for (let mod = 0; mod < Config.modCount; mod++) {
 			instrument.modChannels.push(-2);
 			instrument.modInstruments.push(0);
-			instrument.modulators.push(Config.modulators.dictionary["none"].index);
+			instrument.modulators.push(Config.modulators.dictionary.none.index);
 			instrument.invalidModulators[mod] = false;
 			instrument.modFilterTypes[mod] = 0;
 			instrument.modEnvelopeNumbers[mod] = 0;

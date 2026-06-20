@@ -35,11 +35,11 @@ export class Box {
 	}
 
 	public setWidth(width: number): void {
-		this.container.style.width = width - 2 + "px"; // there's a 1 pixel margin on either side.
+		this.container.style.width = `${width - 2}px`; // there's a 1 pixel margin on either side.
 	}
 
 	public setHeight(height: number): void {
-		this.container.style.height = height - 2 + "px"; // there's a 1 pixel margin on either side.
+		this.container.style.height = `${height - 2}px`; // there's a 1 pixel margin on either side.
 	}
 
 	public setIndex(index: number, selected: boolean, dim: boolean, color: string, isNoise: boolean, isMod: boolean): void {

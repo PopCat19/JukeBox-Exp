@@ -122,7 +122,7 @@ export class EnvelopeEditor {
 		const LFOStepsBoxIndex: number = this.LFOStepsBoxes.indexOf(<any>event.target);
 		const LFOStepsSliderIndex: number = this._LFOStepsSliders.indexOf(<any>event.target);
 		if (targetSelectIndex !== -1) {
-			const combinedValue: number = parseInt(this._targetSelects[targetSelectIndex].value);
+			const combinedValue: number = parseInt(this._targetSelects[targetSelectIndex].value, 10);
 			const target: number = combinedValue % Config.instrumentAutomationTargets.length;
 			const index: number = (combinedValue / Config.instrumentAutomationTargets.length) >>> 0;
 			this._doc.record(new ChangeSetEnvelopeTarget(this._doc, targetSelectIndex, target, index));
@@ -194,13 +194,13 @@ export class EnvelopeEditor {
 		const LFOStepsSliderIndex: number = this._LFOStepsSliders.indexOf(<any>event.target);
 		const instrument: Instrument = this._doc.getCurrentInstrumentObj();
 		if (startBoxIndex !== -1) {
-			this._lastChange = new ChangeEnvelopePitchStart(this._doc, parseInt(this.pitchStartBoxes[startBoxIndex].value), startBoxIndex);
+			this._lastChange = new ChangeEnvelopePitchStart(this._doc, parseInt(this.pitchStartBoxes[startBoxIndex].value, 10), startBoxIndex);
 		} else if (endBoxIndex !== -1) {
-			this._lastChange = new ChangeEnvelopePitchEnd(this._doc, parseInt(this.pitchEndBoxes[endBoxIndex].value), endBoxIndex);
+			this._lastChange = new ChangeEnvelopePitchEnd(this._doc, parseInt(this.pitchEndBoxes[endBoxIndex].value, 10), endBoxIndex);
 		} else if (startSliderIndex !== -1) {
-			this._lastChange = new ChangeEnvelopePitchStart(this._doc, parseInt(this._pitchStartSliders[startSliderIndex].value), startSliderIndex);
+			this._lastChange = new ChangeEnvelopePitchStart(this._doc, parseInt(this._pitchStartSliders[startSliderIndex].value, 10), startSliderIndex);
 		} else if (endSliderIndex !== -1) {
-			this._lastChange = new ChangeEnvelopePitchEnd(this._doc, parseInt(this._pitchEndSliders[endSliderIndex].value), endSliderIndex);
+			this._lastChange = new ChangeEnvelopePitchEnd(this._doc, parseInt(this._pitchEndSliders[endSliderIndex].value, 10), endSliderIndex);
 		} else if (lowerBoundBoxIndex !== -1) {
 			this._lastChange = new ChangeEnvelopeLowerBound(
 				this._doc,
@@ -240,7 +240,7 @@ export class EnvelopeEditor {
 			if (displayName.indexOf("#") !== -1) {
 				displayName = displayName.replace("#", String(index + 1));
 			} else {
-				displayName += " " + (index + 1);
+				displayName += ` ${index + 1}`;
 			}
 		}
 		return HTML.option({ value: target + index * Config.instrumentAutomationTargets.length }, displayName);
@@ -249,7 +249,7 @@ export class EnvelopeEditor {
 	private _updateTargetOptionVisibility(menu: HTMLSelectElement, instrument: Instrument): void {
 		for (let optionIndex: number = 0; optionIndex < menu.childElementCount; optionIndex++) {
 			const option: HTMLOptionElement = <HTMLOptionElement>menu.children[optionIndex];
-			const combinedValue: number = parseInt(option.value);
+			const combinedValue: number = parseInt(option.value, 10);
 			const target: number = combinedValue % Config.instrumentAutomationTargets.length;
 			const index: number = (combinedValue / Config.instrumentAutomationTargets.length) >>> 0;
 			option.hidden = !instrument.supportsEnvelopeTarget(target, index);
@@ -274,7 +274,7 @@ export class EnvelopeEditor {
 				text += "♯";
 			}
 		}
-		return "[" + text + Math.floor((value + Config.pitchesPerOctave) / 12 + this._doc.song.octave - 1) + "]";
+		return `[${text}${Math.floor((value + Config.pitchesPerOctave) / 12 + this._doc.song.octave - 1)}]`;
 	}
 
 	public rerenderExtraSettings(index: number = 0) {
@@ -312,17 +312,17 @@ export class EnvelopeEditor {
 					this.pitchStartBoxes[i].max = (instrument.isNoiseInstrument ? Config.drumCount - 1 : Config.maxPitch).toString();
 					this._pitchEndSliders[i].max = (instrument.isNoiseInstrument ? Config.drumCount - 1 : Config.maxPitch).toString();
 					this.pitchEndBoxes[i].max = (instrument.isNoiseInstrument ? Config.drumCount - 1 : Config.maxPitch).toString();
-					if (instrument.isNoiseInstrument && parseInt(this.pitchStartBoxes[i].value) > Config.drumCount - 1) {
+					if (instrument.isNoiseInstrument && parseInt(this.pitchStartBoxes[i].value, 10) > Config.drumCount - 1) {
 						this.pitchStartBoxes[i].value = (Config.drumCount - 1).toString(); // reset if somehow greater than it should be
 					}
-					if (instrument.isNoiseInstrument && parseInt(this.pitchEndBoxes[i].value) > Config.drumCount - 1) {
+					if (instrument.isNoiseInstrument && parseInt(this.pitchEndBoxes[i].value, 10) > Config.drumCount - 1) {
 						this.pitchEndBoxes[i].value = (Config.drumCount - 1).toString();
 					}
 					// update note displays
 					this._startNoteDisplays[i].textContent =
-						"Start " + this._pitchToNote(parseInt(this.pitchStartBoxes[i].value), instrument.isNoiseInstrument) + ": ";
+						`Start ${this._pitchToNote(parseInt(this.pitchStartBoxes[i].value, 10), instrument.isNoiseInstrument)}: `;
 					this._endNoteDisplays[i].textContent =
-						"End " + this._pitchToNote(parseInt(this.pitchEndBoxes[i].value), instrument.isNoiseInstrument) + ": ";
+						`End ${this._pitchToNote(parseInt(this.pitchEndBoxes[i].value, 10), instrument.isNoiseInstrument)}: `;
 					// show pitch, hide others
 					this.extraPitchSettingsGroups[i].style.display = "flex";
 					this.perEnvelopeSpeedGroups[i].style.display = "none";
@@ -533,7 +533,7 @@ export class EnvelopeEditor {
 					style: `width:68px; flex:1; height:1em; font-size: smaller;`,
 					onclick: () => this._openPrompt("pitchRange"),
 				},
-				"Start " + this._pitchToNote(parseInt(pitchStartNoteBox.value), instrument.isNoiseInstrument) + ": ",
+				`Start ${this._pitchToNote(parseInt(pitchStartNoteBox.value, 10), instrument.isNoiseInstrument)}: `,
 			);
 			const pitchEndNoteDisplay: HTMLSpanElement = HTML.span(
 				{
@@ -541,7 +541,7 @@ export class EnvelopeEditor {
 					style: `width:68px; flex:1; height:1em; font-size: smaller;`,
 					onclick: () => this._openPrompt("pitchRange"),
 				},
-				"End " + this._pitchToNote(parseInt(pitchEndNoteBox.value), instrument.isNoiseInstrument) + ": ",
+				`End ${this._pitchToNote(parseInt(pitchEndNoteBox.value, 10), instrument.isNoiseInstrument)}: `,
 			);
 
 			const pitchStartBoxWrapper: HTMLDivElement = HTML.div(
@@ -777,7 +777,7 @@ export class EnvelopeEditor {
 					style: `width:58px; flex:1; height:1em; font-size: smaller; margin-left: 10px;`,
 					onclick: () => this._openPrompt("perEnvelopeSpeed"),
 				},
-				"Spd: x" + prettyNumber(EnvelopeEditor.convertIndexSpeed(perEnvelopeSpeedSlider.getValueBeforeProspectiveChange(), "speed")),
+				`Spd: x${prettyNumber(EnvelopeEditor.convertIndexSpeed(perEnvelopeSpeedSlider.getValueBeforeProspectiveChange(), "speed"))}`,
 			);
 			const perEnvelopeSpeedWrapper: HTMLDivElement = HTML.div(
 				{
@@ -1098,7 +1098,7 @@ export class EnvelopeEditor {
 			this._randomSeedSliders[envelopeIndex].value = String(instrument.envelopes[envelopeIndex].seed);
 			this.LFOStepsBoxes[envelopeIndex].value = String(instrument.envelopes[envelopeIndex].steps);
 			this._LFOStepsSliders[envelopeIndex].value = String(instrument.envelopes[envelopeIndex].steps);
-			this.openExtraSettingsDropdowns[envelopeIndex] = this.openExtraSettingsDropdowns[envelopeIndex] ? true : false;
+			this.openExtraSettingsDropdowns[envelopeIndex] = !!this.openExtraSettingsDropdowns[envelopeIndex];
 		}
 
 		this._renderedEnvelopeCount = instrument.envelopeCount;

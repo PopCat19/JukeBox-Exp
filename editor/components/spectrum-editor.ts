@@ -40,7 +40,7 @@ export class SpectrumEditor {
 			style: `background-color: ${ColorConfig.editorBackground}; touch-action: none; cursor: crosshair;`,
 			width: "100%",
 			height: "100%",
-			viewBox: "0 0 " + this._editorWidth + " " + this._editorHeight,
+			viewBox: `0 0 ${this._editorWidth} ${this._editorHeight}`,
 			preserveAspectRatio: "none",
 		},
 		this._fill,
@@ -174,8 +174,8 @@ export class SpectrumEditor {
 		const boundingRect: DOMRect = this._svgRect;
 		this._mouseX = (((event.clientX || event.pageX) - boundingRect.left) * this._editorWidth) / (boundingRect.right - boundingRect.left);
 		this._mouseY = (((event.clientY || event.pageY) - boundingRect.top) * this._editorHeight) / (boundingRect.bottom - boundingRect.top);
-		if (isNaN(this._mouseX)) this._mouseX = 0;
-		if (isNaN(this._mouseY)) this._mouseY = 0;
+		if (Number.isNaN(this._mouseX)) this._mouseX = 0;
+		if (Number.isNaN(this._mouseY)) this._mouseY = 0;
 
 		this._freqPrev = this._xToFreq(this._mouseX);
 		this._ampPrev = this._yToAmp(this._mouseY);
@@ -189,8 +189,8 @@ export class SpectrumEditor {
 		const boundingRect: DOMRect = this._svgRect;
 		this._mouseX = ((event.touches[0].clientX - boundingRect.left) * this._editorWidth) / (boundingRect.right - boundingRect.left);
 		this._mouseY = ((event.touches[0].clientY - boundingRect.top) * this._editorHeight) / (boundingRect.bottom - boundingRect.top);
-		if (isNaN(this._mouseX)) this._mouseX = 0;
-		if (isNaN(this._mouseY)) this._mouseY = 0;
+		if (Number.isNaN(this._mouseX)) this._mouseX = 0;
+		if (Number.isNaN(this._mouseY)) this._mouseY = 0;
 
 		this._freqPrev = this._xToFreq(this._mouseX);
 		this._ampPrev = this._yToAmp(this._mouseY);
@@ -203,8 +203,8 @@ export class SpectrumEditor {
 		const boundingRect = this._svgRect;
 		this._mouseX = (((event.clientX || event.pageX) - boundingRect.left) * this._editorWidth) / (boundingRect.right - boundingRect.left);
 		this._mouseY = (((event.clientY || event.pageY) - boundingRect.top) * this._editorHeight) / (boundingRect.bottom - boundingRect.top);
-		if (isNaN(this._mouseX)) this._mouseX = 0;
-		if (isNaN(this._mouseY)) this._mouseY = 0;
+		if (Number.isNaN(this._mouseX)) this._mouseX = 0;
+		if (Number.isNaN(this._mouseY)) this._mouseY = 0;
 		this._whenCursorMoved();
 	};
 
@@ -216,8 +216,8 @@ export class SpectrumEditor {
 		const boundingRect: DOMRect = this._svgRect;
 		this._mouseX = ((event.touches[0].clientX - boundingRect.left) * this._editorWidth) / (boundingRect.right - boundingRect.left);
 		this._mouseY = ((event.touches[0].clientY - boundingRect.top) * this._editorHeight) / (boundingRect.bottom - boundingRect.top);
-		if (isNaN(this._mouseX)) this._mouseX = 0;
-		if (isNaN(this._mouseY)) this._mouseY = 0;
+		if (Number.isNaN(this._mouseX)) this._mouseX = 0;
+		if (Number.isNaN(this._mouseY)) this._mouseY = 0;
 		this._whenCursorMoved();
 		this.render();
 	};
@@ -318,7 +318,7 @@ export class SpectrumEditor {
 		};
 
 		let lastValue: number = 0;
-		let path: string = "M 0 " + prettyNumber(this._editorHeight) + " ";
+		let path: string = `M 0 ${prettyNumber(this._editorHeight)} `;
 		for (let i: number = 0; i < Config.spectrumControlPoints; i++) {
 			const nextValue: number = spectrumWave.spectrum[i];
 			if (lastValue !== 0 || nextValue !== 0) {
@@ -326,14 +326,13 @@ export class SpectrumEditor {
 			} else {
 				path += "M ";
 			}
-			path +=
-				prettyNumber(((i + 1) * this._editorWidth) / (Config.spectrumControlPoints + 2)) + " " + prettyNumber(controlPointToHeight(nextValue)) + " ";
+			path += `${prettyNumber(((i + 1) * this._editorWidth) / (Config.spectrumControlPoints + 2))} ${prettyNumber(controlPointToHeight(nextValue))} `;
 			lastValue = nextValue;
 		}
 
 		const lastHeight: number = controlPointToHeight(lastValue);
 		if (lastValue > 0) {
-			path += "L " + (this._editorWidth - 1) + " " + prettyNumber(lastHeight) + " ";
+			path += `L ${this._editorWidth - 1} ${prettyNumber(lastHeight)} `;
 		}
 
 		if (this._renderedPath !== path) {
@@ -496,7 +495,7 @@ export class SpectrumEditorPrompt implements Prompt {
 			}
 			const colors = ColorConfig.getChannelColor(this._doc.song, this._doc.channel);
 			for (let i: number = 0; i < Config.drumCount; i++) {
-				const newSpectrumButton: HTMLButtonElement = selectorButton("" + (i + 1), { style: "max-width: 2em;" });
+				const newSpectrumButton: HTMLButtonElement = selectorButton(`${i + 1}`, { style: "max-width: 2em;" });
 				this._drumsetButtons.push(newSpectrumButton);
 				this._drumsetButtonContainer.appendChild(newSpectrumButton);
 				newSpectrumButton.addEventListener("click", () => {

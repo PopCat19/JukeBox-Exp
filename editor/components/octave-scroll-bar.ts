@@ -50,7 +50,7 @@ export class OctaveScrollBar {
 		style: `background-color: ${ColorConfig.editorBackground}; touch-action: pan-x; position: absolute;`,
 		width: this._editorWidth,
 		height: "100%",
-		viewBox: "0 0 20 " + this._editorHeight,
+		viewBox: `0 0 20 ${this._editorHeight}`,
 		preserveAspectRatio: "none",
 	});
 	public readonly container: HTMLDivElement = HTML.div(
@@ -145,7 +145,7 @@ export class OctaveScrollBar {
 		const boundingRect: DOMRect = this._svgRect;
 		// this._mouseX = (event.clientX || event.pageX) - boundingRect.left;
 		this._mouseY = (((event.clientY || event.pageY) - boundingRect.top) * this._editorHeight) / (boundingRect.bottom - boundingRect.top);
-		if (isNaN(this._mouseY)) this._mouseY = 0;
+		if (Number.isNaN(this._mouseY)) this._mouseY = 0;
 		if (this._doc.song.getChannelIsNoise(this._doc.channel) || this._doc.song.getChannelIsMod(this._doc.channel)) {
 			return;
 		}
@@ -165,7 +165,7 @@ export class OctaveScrollBar {
 		const boundingRect: DOMRect = this._svgRect;
 		// this._mouseX = event.touches[0].clientX - boundingRect.left;
 		this._mouseY = ((event.touches[0].clientY - boundingRect.top) * this._editorHeight) / (boundingRect.bottom - boundingRect.top);
-		if (isNaN(this._mouseY)) this._mouseY = 0;
+		if (Number.isNaN(this._mouseY)) this._mouseY = 0;
 		if (this._doc.song.getChannelIsNoise(this._doc.channel) || this._doc.song.getChannelIsMod(this._doc.channel)) {
 			return;
 		}
@@ -183,7 +183,7 @@ export class OctaveScrollBar {
 		const boundingRect = this._svgRect;
 		// this._mouseX = (event.clientX || event.pageX) - boundingRect.left;
 		this._mouseY = (((event.clientY || event.pageY) - boundingRect.top) * this._editorHeight) / (boundingRect.bottom - boundingRect.top);
-		if (isNaN(this._mouseY)) this._mouseY = 0;
+		if (Number.isNaN(this._mouseY)) this._mouseY = 0;
 		this._whenCursorMoved();
 	};
 
@@ -194,7 +194,7 @@ export class OctaveScrollBar {
 		const boundingRect: DOMRect = this._svgRect;
 		// this._mouseX = event.touches[0].clientX - boundingRect.left;
 		this._mouseY = ((event.touches[0].clientY - boundingRect.top) * this._editorHeight) / (boundingRect.bottom - boundingRect.top);
-		if (isNaN(this._mouseY)) this._mouseY = 0;
+		if (Number.isNaN(this._mouseY)) this._mouseY = 0;
 		this._whenCursorMoved();
 	};
 

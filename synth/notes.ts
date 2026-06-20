@@ -126,14 +126,14 @@ export class Pattern {
 				points: pointArray,
 			};
 			if (note.start === 0) {
-				noteObject["continuesLastPattern"] = note.continuesLastPattern;
+				noteObject.continuesLastPattern = note.continuesLastPattern;
 			}
 			noteArray.push(noteObject);
 		}
 
 		const patternObject: any = { notes: noteArray };
 		if (song.patternInstruments) {
-			patternObject["instruments"] = this.instruments.map((i) => i + 1);
+			patternObject.instruments = this.instruments.map((i) => i + 1);
 		}
 		return patternObject;
 	}
@@ -150,38 +150,32 @@ export class Pattern {
 		const format: string = jsonFormat.toLowerCase();
 
 		if (song.patternInstruments) {
-			if (Array.isArray(patternObject["instruments"])) {
-				const instruments: any[] = patternObject["instruments"];
+			if (Array.isArray(patternObject.instruments)) {
+				const instruments: any[] = patternObject.instruments;
 				const instrumentCount: number = clamp(Config.instrumentCountMin, song.getMaxInstrumentsPerPatternForChannel(channel) + 1, instruments.length);
 				for (let j: number = 0; j < instrumentCount; j++) {
 					this.instruments[j] = clamp(0, channel.instruments.length, (instruments[j] | 0) - 1);
 				}
 				this.instruments.length = instrumentCount;
 			} else {
-				this.instruments[0] = clamp(0, channel.instruments.length, (patternObject["instrument"] | 0) - 1);
+				this.instruments[0] = clamp(0, channel.instruments.length, (patternObject.instrument | 0) - 1);
 				this.instruments.length = 1;
 			}
 		}
 
-		if (patternObject["notes"] && patternObject["notes"].length > 0) {
+		if (patternObject.notes && patternObject.notes.length > 0) {
 			const maxNoteCount: number = Math.min(
 				song.beatsPerBar * Config.partsPerBeat * (isModChannel ? Config.modCount : 1),
-				patternObject["notes"].length >>> 0,
+				patternObject.notes.length >>> 0,
 			);
 
 			// TODO: Consider supporting notes specified in any timing order, sorting them and truncating as necessary.
 			// let tickClock: number = 0;
-			for (let j: number = 0; j < patternObject["notes"].length; j++) {
+			for (let j: number = 0; j < patternObject.notes.length; j++) {
 				if (j >= maxNoteCount) break;
 
-				const noteObject = patternObject["notes"][j];
-				if (
-					!noteObject ||
-					!noteObject["pitches"] ||
-					!(noteObject["pitches"].length >= 1) ||
-					!noteObject["points"] ||
-					!(noteObject["points"].length >= 2)
-				) {
+				const noteObject = patternObject.notes[j];
+				if (!noteObject?.pitches || !(noteObject.pitches.length >= 1) || !noteObject.points || !(noteObject.points.length >= 2)) {
 					continue;
 				}
 
@@ -189,8 +183,8 @@ export class Pattern {
 				note.pitches = [];
 				note.pins = [];
 
-				for (let k: number = 0; k < noteObject["pitches"].length; k++) {
-					const pitch: number = noteObject["pitches"][k] | 0;
+				for (let k: number = 0; k < noteObject.pitches.length; k++) {
+					const pitch: number = noteObject.pitches[k] | 0;
 					if (note.pitches.indexOf(pitch) !== -1) continue;
 					note.pitches.push(pitch);
 					if (note.pitches.length >= Config.maxChordSize) break;
@@ -203,12 +197,12 @@ export class Pattern {
 				const instrument: Instrument = channel.instruments[this.instruments[0]];
 				const mod: number = Math.max(0, Config.modCount - note.pitches[0] - 1);
 
-				for (let k: number = 0; k < noteObject["points"].length; k++) {
-					const pointObject: any = noteObject["points"][k];
-					if (pointObject === undefined || pointObject["tick"] === undefined) continue;
-					const interval: number = pointObject["pitchBend"] === undefined ? 0 : pointObject["pitchBend"] | 0;
+				for (let k: number = 0; k < noteObject.points.length; k++) {
+					const pointObject: any = noteObject.points[k];
+					if (pointObject === undefined || pointObject.tick === undefined) continue;
+					const interval: number = pointObject.pitchBend === undefined ? 0 : pointObject.pitchBend | 0;
 
-					const time: number = Math.round((+pointObject["tick"] * Config.partsPerBeat) / importedPartsPerBeat);
+					const time: number = Math.round((+pointObject.tick * Config.partsPerBeat) / importedPartsPerBeat);
 
 					// Only one instrument per pattern allowed in mod channels.
 					const volumeCap: number = song.getVolumeCapForSetting(isModChannel, instrument.modulators[mod], instrument.modFilterTypes[mod]);
@@ -216,15 +210,15 @@ export class Pattern {
 					// The strange volume formula used for notes is not needed for mods. Some rounding errors were possible.
 					// A "forMod" signifier was added to new JSON export to detect when the higher precision export was used in a file.
 					let size: number;
-					if (pointObject["volume"] === undefined) {
+					if (pointObject.volume === undefined) {
 						size = volumeCap;
-					} else if (pointObject["forMod"] === undefined) {
-						size = Math.max(0, Math.min(volumeCap, Math.round(((pointObject["volume"] | 0) * volumeCap) / 100)));
+					} else if (pointObject.forMod === undefined) {
+						size = Math.max(0, Math.min(volumeCap, Math.round(((pointObject.volume | 0) * volumeCap) / 100)));
 					} else {
 						size =
-							(pointObject["forMod"] | 0) > 0
-								? Math.round(pointObject["volume"] | 0)
-								: Math.max(0, Math.min(volumeCap, Math.round(((pointObject["volume"] | 0) * volumeCap) / 100)));
+							(pointObject.forMod | 0) > 0
+								? Math.round(pointObject.volume | 0)
+								: Math.max(0, Math.min(volumeCap, Math.round(((pointObject.volume | 0) * volumeCap) / 100)));
 					}
 
 					if (time > song.beatsPerBar * Config.partsPerBeat) continue;
@@ -275,12 +269,12 @@ export class Pattern {
 				}
 
 				if (note.start === 0) {
-					note.continuesLastPattern = noteObject["continuesLastPattern"] === true;
+					note.continuesLastPattern = noteObject.continuesLastPattern === true;
 				} else {
 					note.continuesLastPattern = false;
 				}
 
-				if (format !== "ultrabox" && format !== "slarmoosbox" && instrument.modulators[mod] === Config.modulators.dictionary["tempo"].index) {
+				if (format !== "ultrabox" && format !== "slarmoosbox" && instrument.modulators[mod] === Config.modulators.dictionary.tempo.index) {
 					for (const pin of note.pins) {
 						const oldMin: number = 30;
 						const newMin: number = 1;

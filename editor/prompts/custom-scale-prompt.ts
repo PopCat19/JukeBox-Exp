@@ -35,7 +35,7 @@ export class CustomScalePrompt extends BasePrompt {
 				checked: this._flags[i],
 				value: i,
 			});
-			this._scaleRows[i] = labelRow("Note " + i + ":", this._scaleFlags[i]);
+			this._scaleRows[i] = labelRow(`Note ${i}:`, this._scaleFlags[i]);
 			scaleHolder.appendChild(this._scaleRows[i]);
 		}
 

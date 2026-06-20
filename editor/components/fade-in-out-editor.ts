@@ -41,7 +41,7 @@ export class FadeInOutEditor {
 			style: `background-color: ${ColorConfig.editorBackground}; touch-action: none; cursor: crosshair;`,
 			width: "100%",
 			height: "100%",
-			viewBox: "0 0 " + this._editorWidth + " " + this._editorHeight,
+			viewBox: `0 0 ${this._editorWidth} ${this._editorHeight}`,
 			preserveAspectRatio: "none",
 		},
 		this._fadeCurve,
@@ -105,7 +105,7 @@ export class FadeInOutEditor {
 	};
 
 	private _whenCursorPressed(): void {
-		if (isNaN(this._mouseX)) this._mouseX = 0;
+		if (Number.isNaN(this._mouseX)) this._mouseX = 0;
 		this._mouseXStart = this._mouseX;
 		this._mouseDown = true;
 		this._mouseDragging = false;
@@ -122,7 +122,7 @@ export class FadeInOutEditor {
 		if (!this._svgRect) this._svgRect = this._svg.getBoundingClientRect();
 		const boundingRect = this._svgRect;
 		this._mouseX = (event.clientX || event.pageX) - boundingRect.left;
-		if (isNaN(this._mouseX)) this._mouseX = 0;
+		if (Number.isNaN(this._mouseX)) this._mouseX = 0;
 		this._whenCursorMoved();
 	};
 
@@ -133,7 +133,7 @@ export class FadeInOutEditor {
 		if (!this._svgRect) this._svgRect = this._svg.getBoundingClientRect();
 		const boundingRect: DOMRect = this._svgRect;
 		this._mouseX = event.touches[0].clientX - boundingRect.left;
-		if (isNaN(this._mouseX)) this._mouseX = 0;
+		if (Number.isNaN(this._mouseX)) this._mouseX = 0;
 		this._whenCursorMoved();
 	};
 

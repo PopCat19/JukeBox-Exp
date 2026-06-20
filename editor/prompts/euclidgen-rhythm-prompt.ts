@@ -226,10 +226,10 @@ export class EuclidgenRhythmPrompt extends BasePrompt {
 		this._barPreviewBarIndex = this._startBar;
 
 		this._barsAvailable = Config.barCountMax - this._startBar;
-		this._barAmountStepper.max = this._barsAvailable + "";
+		this._barAmountStepper.max = `${this._barsAvailable}`;
 
 		this._maxChannel = this._doc.song.pitchChannelCount + this._doc.song.noiseChannelCount - 1;
-		this._channelStepper.max = this._maxChannel + 1 + "";
+		this._channelStepper.max = `${this._maxChannel + 1}`;
 
 		const defaultSteps: number = Math.max(this._minSteps, Math.min(this._maxSteps, this._doc.song.beatsPerBar));
 		const defaultPulses: number = Math.max(0, Math.min(defaultSteps, 5));
@@ -270,20 +270,20 @@ export class EuclidgenRhythmPrompt extends BasePrompt {
 		} else {
 			const savedData: any = JSON.parse(String(window.localStorage.getItem(this._localStorageKey)));
 			if (savedData != null) {
-				const rawSequences: any = savedData["sequences"];
+				const rawSequences: any = savedData.sequences;
 				if (rawSequences != null && Array.isArray(rawSequences)) {
 					const parsedSequences: Sequence[] = [];
 					for (const rawSequence of rawSequences) {
 						parsedSequences.push({
-							steps: Math.max(this._minSteps, Math.min(this._maxSteps, rawSequence["steps"] ?? this._doc.song.beatsPerBar)),
-							pulses: Math.max(0, Math.min(this._maxSteps, rawSequence["pulses"] ?? 5)),
-							rotation: Math.max(0, Math.min(this._maxSteps, rawSequence["rotation"] ?? 0)),
-							stepSizeNumerator: Math.max(1, Math.min(Config.partsPerBeat, rawSequence["stepSizeNumerator"] ?? 1)),
-							stepSizeDenominator: Math.max(1, Math.min(Config.partsPerBeat, rawSequence["stepSizeDenominator"] ?? 4)),
-							channel: Math.max(0, Math.min(this._maxChannel, rawSequence["channel"])),
-							pitch: rawSequence["pitch"] ?? 0,
-							invert: rawSequence["invert"] ?? false,
-							generateFadingNotes: rawSequence["generateFadingNotes"] ?? false,
+							steps: Math.max(this._minSteps, Math.min(this._maxSteps, rawSequence.steps ?? this._doc.song.beatsPerBar)),
+							pulses: Math.max(0, Math.min(this._maxSteps, rawSequence.pulses ?? 5)),
+							rotation: Math.max(0, Math.min(this._maxSteps, rawSequence.rotation ?? 0)),
+							stepSizeNumerator: Math.max(1, Math.min(Config.partsPerBeat, rawSequence.stepSizeNumerator ?? 1)),
+							stepSizeDenominator: Math.max(1, Math.min(Config.partsPerBeat, rawSequence.stepSizeDenominator ?? 4)),
+							channel: Math.max(0, Math.min(this._maxChannel, rawSequence.channel)),
+							pitch: rawSequence.pitch ?? 0,
+							invert: rawSequence.invert ?? false,
+							generateFadingNotes: rawSequence.generateFadingNotes ?? false,
 						});
 					}
 					this._sequences = parsedSequences;
@@ -296,7 +296,7 @@ export class EuclidgenRhythmPrompt extends BasePrompt {
 						sequence.pitch = Math.max(0, Math.min(maxPitch, sequence.pitch));
 					}
 				}
-				this._barAmount = Math.max(1, Math.min(this._barsAvailable, savedData["barAmount"] ?? this._barAmount));
+				this._barAmount = Math.max(1, Math.min(this._barsAvailable, savedData.barAmount ?? this._barAmount));
 			}
 		}
 
@@ -476,7 +476,7 @@ export class EuclidgenRhythmPrompt extends BasePrompt {
 		const barAmountFraction: [number, number] = this._computeLoopBars(beatsPerBarFraction);
 		this._barAmount = Math.max(1, Math.min(this._barsAvailable, barAmountFraction[0]));
 		this._barPreviewBarIndex = Math.max(this._startBar, Math.min(this._startBar + this._barAmount - 1, this._barPreviewBarIndex));
-		this._barAmountStepper.value = this._barAmount + "";
+		this._barAmountStepper.value = `${this._barAmount}`;
 		this._renderBarPreview();
 		this._renderLabel();
 	};
@@ -524,7 +524,7 @@ export class EuclidgenRhythmPrompt extends BasePrompt {
 		const steps: number = Math.max(this._minSteps, Math.min(this._maxSteps, +this._stepsStepper.value));
 		const sequence: Sequence = this._sequences[this._sequenceIndex];
 		sequence.steps = steps;
-		this._stepsStepper.value = steps + "";
+		this._stepsStepper.value = `${steps}`;
 		this._reconfigurePulsesStepper();
 		this._generateCurrentSequence();
 		this._render();
@@ -534,7 +534,7 @@ export class EuclidgenRhythmPrompt extends BasePrompt {
 		const sequence: Sequence = this._sequences[this._sequenceIndex];
 		const pulses: number = Math.max(0, Math.min(sequence.steps, +this._pulsesStepper.value));
 		sequence.pulses = pulses;
-		this._pulsesStepper.value = pulses + "";
+		this._pulsesStepper.value = `${pulses}`;
 		this._generateCurrentSequence();
 		this._render();
 	};
@@ -543,7 +543,7 @@ export class EuclidgenRhythmPrompt extends BasePrompt {
 		const rotation: number = Math.max(0, Math.min(this._maxSteps, +this._rotationStepper.value));
 		const sequence: Sequence = this._sequences[this._sequenceIndex];
 		sequence.rotation = rotation;
-		this._rotationStepper.value = rotation + "";
+		this._rotationStepper.value = `${rotation}`;
 		this._generateCurrentSequence();
 		this._render();
 	};
@@ -554,8 +554,8 @@ export class EuclidgenRhythmPrompt extends BasePrompt {
 		const sequence: Sequence = this._sequences[this._sequenceIndex];
 		sequence.stepSizeNumerator = numerator;
 		sequence.stepSizeDenominator = denominator;
-		this._stepSizeNumeratorStepper.value = numerator + "";
-		this._stepSizeDenominatorStepper.value = denominator + "";
+		this._stepSizeNumeratorStepper.value = `${numerator}`;
+		this._stepSizeDenominatorStepper.value = `${denominator}`;
 		this._renderBarPreview();
 	};
 
@@ -564,7 +564,7 @@ export class EuclidgenRhythmPrompt extends BasePrompt {
 		const maxPitch: number = this._doc.song.getChannelIsNoise(sequence.channel) ? Config.drumCount - 1 : Config.maxPitch;
 		const pitch: number = Math.max(0, Math.min(maxPitch, +this._pitchStepper.value));
 		sequence.pitch = pitch;
-		this._pitchStepper.value = pitch + "";
+		this._pitchStepper.value = `${pitch}`;
 		this._renderLabel();
 	};
 
@@ -572,7 +572,7 @@ export class EuclidgenRhythmPrompt extends BasePrompt {
 		const channel: number = Math.max(0, Math.min(this._maxChannel, +this._channelStepper.value - 1));
 		const sequence: Sequence = this._sequences[this._sequenceIndex];
 		sequence.channel = channel;
-		this._channelStepper.value = channel + 1 + "";
+		this._channelStepper.value = `${channel + 1}`;
 		this._reconfigurePitchStepper();
 		this._render();
 	};
@@ -580,7 +580,7 @@ export class EuclidgenRhythmPrompt extends BasePrompt {
 	private _whenBarAmountChanges = (): void => {
 		this._barAmount = Math.max(1, Math.min(this._barsAvailable, +this._barAmountStepper.value));
 		this._barPreviewBarIndex = Math.max(this._startBar, Math.min(this._startBar + this._barAmount - 1, this._barPreviewBarIndex));
-		this._barAmountStepper.value = this._barAmount + "";
+		this._barAmountStepper.value = `${this._barAmount}`;
 		this._renderBarPreview();
 		this._renderLabel();
 	};
@@ -594,30 +594,30 @@ export class EuclidgenRhythmPrompt extends BasePrompt {
 
 	private _refreshSequenceWidgets = (): void => {
 		const sequence: Sequence = this._sequences[this._sequenceIndex];
-		this._stepsStepper.value = sequence.steps + "";
-		this._pulsesStepper.value = sequence.pulses + "";
-		this._rotationStepper.value = sequence.rotation + "";
-		this._stepSizeNumeratorStepper.value = sequence.stepSizeNumerator + "";
-		this._stepSizeDenominatorStepper.value = sequence.stepSizeDenominator + "";
-		this._channelStepper.value = sequence.channel + 1 + "";
-		this._pitchStepper.value = sequence.pitch + "";
+		this._stepsStepper.value = `${sequence.steps}`;
+		this._pulsesStepper.value = `${sequence.pulses}`;
+		this._rotationStepper.value = `${sequence.rotation}`;
+		this._stepSizeNumeratorStepper.value = `${sequence.stepSizeNumerator}`;
+		this._stepSizeDenominatorStepper.value = `${sequence.stepSizeDenominator}`;
+		this._channelStepper.value = `${sequence.channel + 1}`;
+		this._pitchStepper.value = `${sequence.pitch}`;
 		this._invertBox.checked = sequence.invert;
 		this._generateFadingNotesBox.checked = sequence.generateFadingNotes;
-		this._barAmountStepper.value = this._barAmount + "";
+		this._barAmountStepper.value = `${this._barAmount}`;
 	};
 
 	private _reconfigurePitchStepper = (): void => {
 		const sequence: Sequence = this._sequences[this._sequenceIndex];
 		const maxPitch: number = this._doc.song.getChannelIsNoise(sequence.channel) ? Config.drumCount - 1 : Config.maxPitch;
-		this._pitchStepper.value = Math.max(0, Math.min(maxPitch, +this._pitchStepper.value)) + "";
-		this._pitchStepper.max = maxPitch + "";
+		this._pitchStepper.value = `${Math.max(0, Math.min(maxPitch, +this._pitchStepper.value))}`;
+		this._pitchStepper.max = `${maxPitch}`;
 		sequence.pitch = +this._pitchStepper.value;
 	};
 
 	private _reconfigurePulsesStepper = (): void => {
 		const sequence: Sequence = this._sequences[this._sequenceIndex];
-		this._pulsesStepper.value = Math.max(0, Math.min(sequence.steps, +this._pulsesStepper.value)) + "";
-		this._pulsesStepper.max = sequence.steps + "";
+		this._pulsesStepper.value = `${Math.max(0, Math.min(sequence.steps, +this._pulsesStepper.value))}`;
+		this._pulsesStepper.max = `${sequence.steps}`;
 		sequence.pulses = +this._pulsesStepper.value;
 	};
 
@@ -711,7 +711,7 @@ export class EuclidgenRhythmPrompt extends BasePrompt {
 	};
 
 	private _prettyNumber(n: number): string {
-		return Math.round(n * 1000) / 1000 + "";
+		return `${Math.round(n * 1000) / 1000}`;
 	}
 
 	private _renderLabel = (): void => {

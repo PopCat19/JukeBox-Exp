@@ -160,7 +160,7 @@ export class Piano {
 			const modKey: HTMLDivElement = HTML.div(
 				{
 					class: "modulator-button",
-					style: "background: " + ColorConfig.modLabelPrimary + ";",
+					style: `background: ${ColorConfig.modLabelPrimary};`,
 				},
 				flexContainer,
 			);
@@ -192,7 +192,7 @@ export class Piano {
 
 	private _updateCursorPitch(): void {
 		const scale: ReadonlyArray<boolean> =
-			this._doc.song.scale === Config.scales.dictionary["Custom"].index ? this._doc.song.scaleCustom : Config.scales[this._doc.song.scale].flags;
+			this._doc.song.scale === Config.scales.dictionary.Custom.index ? this._doc.song.scaleCustom : Config.scales[this._doc.song.scale].flags;
 		const mousePitch: number = Math.max(0, Math.min(this._pitchCount - 1, this._pitchCount - this._mouseY / this._pitchHeight));
 		if (scale[Math.floor(mousePitch) % Config.pitchesPerOctave] || this._doc.song.getChannelIsNoise(this._doc.channel)) {
 			this._cursorPitch = Math.floor(mousePitch);
@@ -287,7 +287,7 @@ export class Piano {
 		const boundingRect: DOMRect = this._containerRect;
 		// this._mouseX = (event.clientX || event.pageX) - boundingRect.left;
 		this._mouseY = (((event.clientY || event.pageY) - boundingRect.top) * this._editorHeight) / (boundingRect.bottom - boundingRect.top);
-		if (isNaN(this._mouseY)) this._mouseY = 0;
+		if (Number.isNaN(this._mouseY)) this._mouseY = 0;
 		this._updateCursorPitch();
 		this._playLiveInput();
 		this._updatePreview();
@@ -299,7 +299,7 @@ export class Piano {
 		const boundingRect = this._containerRect;
 		// this._mouseX = (event.clientX || event.pageX) - boundingRect.left;
 		this._mouseY = (((event.clientY || event.pageY) - boundingRect.top) * this._editorHeight) / (boundingRect.bottom - boundingRect.top);
-		if (isNaN(this._mouseY)) this._mouseY = 0;
+		if (Number.isNaN(this._mouseY)) this._mouseY = 0;
 		this._updateCursorPitch();
 		if (this._mouseDown) this._playLiveInput();
 		if (this.periodKeyHeld) this.previewHoveredNote();
@@ -324,7 +324,7 @@ export class Piano {
 		const boundingRect: DOMRect = this._containerRect;
 		// this._mouseX = event.touches[0].clientX - boundingRect.left;
 		this._mouseY = ((event.touches[0].clientY - boundingRect.top) * this._editorHeight) / (boundingRect.bottom - boundingRect.top);
-		if (isNaN(this._mouseY)) this._mouseY = 0;
+		if (Number.isNaN(this._mouseY)) this._mouseY = 0;
 		this._updateCursorPitch();
 		this._playLiveInput();
 	};
@@ -336,7 +336,7 @@ export class Piano {
 		const boundingRect: DOMRect = this._containerRect;
 		// this._mouseX = event.touches[0].clientX - boundingRect.left;
 		this._mouseY = ((event.touches[0].clientY - boundingRect.top) * this._editorHeight) / (boundingRect.bottom - boundingRect.top);
-		if (isNaN(this._mouseY)) this._mouseY = 0;
+		if (Number.isNaN(this._mouseY)) this._mouseY = 0;
 		this._updateCursorPitch();
 		if (this._mouseDown) this._playLiveInput();
 	};
@@ -384,8 +384,8 @@ export class Piano {
 			const pitchHeight: number = this._pitchHeight / (this._editorHeight / (boundingRect.bottom - boundingRect.top));
 
 			this._preview.style.left = "0px";
-			this._preview.style.top = pitchHeight * (this._pitchCount - this._cursorPitch - 1) + "px";
-			this._preview.style.height = pitchHeight + "px";
+			this._preview.style.top = `${pitchHeight * (this._pitchCount - this._cursorPitch - 1)}px`;
+			this._preview.style.height = `${pitchHeight}px`;
 
 			// Position and label the note-name tooltip.
 			const isMod: boolean = this._doc.song.getChannelIsMod(this._doc.channel);
@@ -400,7 +400,7 @@ export class Piano {
 			this._tooltip.style.display = "block";
 			// Anchor the tooltip to the vertical center of the hovered key.
 			const keyTop: number = pitchHeight * (this._pitchCount - this._cursorPitch - 1);
-			this._tooltip.style.top = keyTop + pitchHeight / 2 + "px";
+			this._tooltip.style.top = `${keyTop + pitchHeight / 2}px`;
 			this._tooltip.style.transform = "translateY(-50%)";
 		} else {
 			this._tooltip.style.display = "none";
@@ -436,7 +436,7 @@ export class Piano {
 		if (!this._doc.prefs.showLetters) return;
 		if (
 			this._renderedScale === this._doc.song.scale &&
-			this._doc.song.scale !== Config.scales.dictionary["Custom"].index &&
+			this._doc.song.scale !== Config.scales.dictionary.Custom.index &&
 			this._renderedKey === this._doc.song.key &&
 			this._renderedDrums === isDrum &&
 			this._renderedMod === isMod &&
@@ -477,7 +477,7 @@ export class Piano {
 				const isWhiteKey: boolean = Config.keys[pitchNameIndex].isWhiteKey;
 				this._pianoKeys[j].style.background = isWhiteKey ? ColorConfig.whitePianoKey : ColorConfig.blackPianoKey;
 				const scale =
-					this._doc.song.scale === Config.scales.dictionary["Custom"].index ? this._doc.song.scaleCustom : Config.scales[this._doc.song.scale].flags;
+					this._doc.song.scale === Config.scales.dictionary.Custom.index ? this._doc.song.scaleCustom : Config.scales[this._doc.song.scale].flags;
 				if (!scale[j % Config.pitchesPerOctave]) {
 					this._pianoKeys[j].classList.add("disabled");
 					this._pianoLabels[j].style.display = "none";
@@ -541,26 +541,26 @@ export class Piano {
 						if (this._doc.song.channels[channelVal - 1].name === "") {
 							if (instrumentsLength > 1) {
 								if (channelVal >= 10 || instrumentVal >= 10) {
-									firstRow = "P" + channelVal;
+									firstRow = `P${channelVal}`;
 									if (instrumentVal - 1 === instrumentsLength) {
 										firstRow += " All";
 									} else if (instrumentVal - 1 > instrumentsLength) {
 										firstRow += " Act";
 									} else {
-										firstRow += " I" + instrumentVal;
+										firstRow += ` I${instrumentVal}`;
 									}
 								} else {
-									firstRow = "Pitch" + channelVal;
+									firstRow = `Pitch${channelVal}`;
 									if (instrumentVal - 1 === instrumentsLength) {
 										firstRow += " All";
 									} else if (instrumentVal - 1 > instrumentsLength) {
 										firstRow += " Act";
 									} else {
-										firstRow += " Ins" + instrumentVal;
+										firstRow += ` Ins${instrumentVal}`;
 									}
 								}
 							} else {
-								firstRow = "Pitch " + channelVal;
+								firstRow = `Pitch ${channelVal}`;
 							}
 						} else {
 							// Channel name display
@@ -570,12 +570,12 @@ export class Piano {
 							} else if (instrumentVal - 1 > instrumentsLength) {
 								insText = " Act";
 							} else {
-								insText = " I" + instrumentVal;
+								insText = ` I${instrumentVal}`;
 							}
 							if (instrumentsLength > 1) {
-								firstRow = "P" + channelVal + " " + this._doc.song.channels[channelVal - 1].name + insText;
+								firstRow = `P${channelVal} ${this._doc.song.channels[channelVal - 1].name}${insText}`;
 							} else {
-								firstRow = "P" + channelVal + " " + this._doc.song.channels[channelVal - 1].name;
+								firstRow = `P${channelVal} ${this._doc.song.channels[channelVal - 1].name}`;
 							}
 						}
 						break;
@@ -586,26 +586,26 @@ export class Piano {
 						if (this._doc.song.channels[absoluteChannelVal].name === "") {
 							if (instrumentsLength > 1) {
 								if (relativeChannelVal + 1 >= 10 || instrumentVal >= 10) {
-									firstRow = "N" + (relativeChannelVal + 1);
+									firstRow = `N${relativeChannelVal + 1}`;
 									if (instrumentVal - 1 === instrumentsLength) {
 										firstRow += " All";
 									} else if (instrumentVal - 1 > instrumentsLength) {
 										firstRow += " Act";
 									} else {
-										firstRow += " I" + instrumentVal;
+										firstRow += ` I${instrumentVal}`;
 									}
 								} else {
-									firstRow = "Noise" + (relativeChannelVal + 1);
+									firstRow = `Noise${relativeChannelVal + 1}`;
 									if (instrumentVal - 1 === instrumentsLength) {
 										firstRow += " All";
 									} else if (instrumentVal - 1 > instrumentsLength) {
 										firstRow += " Act";
 									} else {
-										firstRow += " Ins" + instrumentVal;
+										firstRow += ` Ins${instrumentVal}`;
 									}
 								}
 							} else {
-								firstRow = "Noise " + (relativeChannelVal + 1);
+								firstRow = `Noise ${relativeChannelVal + 1}`;
 							}
 						} else {
 							// Channel name display
@@ -616,11 +616,11 @@ export class Piano {
 								} else if (instrumentVal - 1 > instrumentsLength) {
 									insText = " Act";
 								} else {
-									insText = " I" + instrumentVal;
+									insText = ` I${instrumentVal}`;
 								}
-								firstRow = "N" + (relativeChannelVal + 1) + " " + this._doc.song.channels[absoluteChannelVal].name + insText;
+								firstRow = `N${relativeChannelVal + 1} ${this._doc.song.channels[absoluteChannelVal].name}${insText}`;
 							} else {
-								firstRow = "N" + (relativeChannelVal + 1) + " " + this._doc.song.channels[absoluteChannelVal].name;
+								firstRow = `N${relativeChannelVal + 1} ${this._doc.song.channels[absoluteChannelVal].name}`;
 							}
 						}
 						break;
@@ -633,7 +633,7 @@ export class Piano {
 				// When unused, show name of mod on second row
 				if (usingSecondRow) {
 					secondRow = Config.modulators[modulator].pianoName;
-					if (modulator === Config.modulators.dictionary["none"].index) {
+					if (modulator === Config.modulators.dictionary.none.index) {
 						useSecondColor = ColorConfig.modLabelSecondaryText;
 						usingMod = false;
 					} else if (
@@ -644,9 +644,9 @@ export class Piano {
 						let text = " Morph";
 						const filterVal = instrument.modFilterTypes[Config.modCount - j - 1];
 						if (filterVal > 0 && filterVal % 2) {
-							text = " Dot" + Math.ceil(filterVal / 2) + "X";
+							text = ` Dot${Math.ceil(filterVal / 2)}X`;
 						} else if (filterVal > 0) {
-							text = " Dot" + Math.ceil(filterVal / 2) + "Y";
+							text = ` Dot${Math.ceil(filterVal / 2)}Y`;
 						}
 
 						secondRow += text;
@@ -661,7 +661,7 @@ export class Piano {
 				firstLabel.textContent = firstRow;
 				secondLabel.style.fill = useSecondColor;
 				secondLabel.textContent = usingSecondRow ? secondRow : "Not set";
-				modCountLabel.textContent = "" + (Config.modCount - j);
+				modCountLabel.textContent = `${Config.modCount - j}`;
 				if (usingMod && status !== 0 && status !== 3) {
 					modCountRect.style.fill = ColorConfig.getChannelColor(this._doc.song, instrument.modChannels[Config.modCount - j - 1]).primaryChannel;
 				} else {
@@ -681,8 +681,7 @@ export class Piano {
 						scaleFactor = "0.8";
 						squeeze = 1;
 					}
-					firstLabel.style.transform =
-						"rotate(-90deg) translate(" + (-20 - squeeze - Math.round(Math.max(0, (height - 80) / 2))) + "px, 39px) scale(" + scaleFactor + ", 1)";
+					firstLabel.style.transform = `rotate(-90deg) translate(${-20 - squeeze - Math.round(Math.max(0, (height - 80) / 2))}px, 39px) scale(${scaleFactor}, 1)`;
 					// Truncate end of string if it's too long, but keep instrument num
 					while (scaleFactor === "0.65" && firstLabel.getComputedTextLength() > height + 8) {
 						const offset = 4 + (instrumentVal >= 10 ? 1 : 0);
@@ -692,7 +691,7 @@ export class Piano {
 					}
 				} else {
 					const height: number = firstLabel.parentElement!.parentElement!.getBoundingClientRect().height;
-					firstLabel.style.transform = "rotate(-90deg) translate(" + (-20 - Math.round(Math.max(0, (height - 80) / 2))) + "px, 39px) scale(1, 1)";
+					firstLabel.style.transform = `rotate(-90deg) translate(${-20 - Math.round(Math.max(0, (height - 80) / 2))}px, 39px) scale(1, 1)`;
 				}
 			}
 		}

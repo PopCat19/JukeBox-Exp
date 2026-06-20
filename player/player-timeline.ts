@@ -79,10 +79,10 @@ export function renderTimeline(ui: PlayerUI, zoomEnabled: boolean, removeFromUno
 		windowPitchCount = windowOctaves * 12 + 1;
 	}
 
-	ui.timelineContainer.style.width = timelineWidth + "px";
-	ui.timelineContainer.style.height = timelineHeight + "px";
-	ui.timeline.style.width = timelineWidth + "px";
-	ui.timeline.style.height = timelineHeight + "px";
+	ui.timelineContainer.style.width = `${timelineWidth}px`;
+	ui.timelineContainer.style.height = `${timelineHeight}px`;
+	ui.timeline.style.width = `${timelineWidth}px`;
+	ui.timeline.style.height = `${timelineHeight}px`;
 
 	const barWidth: number = timelineWidth / ui.synth.song.barCount;
 	const partWidth: number = barWidth / (ui.synth.song.beatsPerBar * Config.partsPerBeat);
@@ -182,7 +182,7 @@ export function renderTimeline(ui: PlayerUI, zoomEnabled: boolean, removeFromUno
 export function renderPlayhead(ui: PlayerUI, removeFromUnorderedArray: <T>(array: T[], index: number) => void): void {
 	if (ui.synth.song != null) {
 		const pos: number = ui.synth.playhead / ui.synth.song.barCount;
-		ui.playhead.style.left = timelineWidth * pos + "px";
+		ui.playhead.style.left = `${timelineWidth * pos}px`;
 
 		const boundingRect: ClientRect = ui.visualizationContainer.getBoundingClientRect();
 		ui.visualizationContainer.scrollLeft = pos * (timelineWidth - boundingRect.width);

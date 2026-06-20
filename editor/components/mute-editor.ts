@@ -60,7 +60,7 @@ export class MuteEditor {
 	);
 
 	public readonly container: HTMLElement = HTML.div(
-		{ class: "muteEditor", style: "position: sticky; padding-top: " + Config.barEditorHeight + "px;" },
+		{ class: "muteEditor", style: `position: sticky; padding-top: ${Config.barEditorHeight}px;` },
 		this._channelNameDisplay,
 		this._channelNameInput.input,
 		this._channelDropDown,
@@ -134,7 +134,7 @@ export class MuteEditor {
 		this._channelDropDownLastState = this._channelDropDownOpen;
 
 		this._channelDropDownChannel = Math.floor(
-			Math.min(this._buttons.length, Math.max(0, parseInt(this._channelDropDown.style.getPropertyValue("top")) / ChannelRow.patternHeight)),
+			Math.min(this._buttons.length, Math.max(0, parseInt(this._channelDropDown.style.getPropertyValue("top"), 10) / ChannelRow.patternHeight)),
 		);
 		this._doc.muteEditorChannel = this._channelDropDownChannel;
 
@@ -304,24 +304,24 @@ export class MuteEditor {
 				// Mouse over chn. number
 				this._channelDropDown.style.setProperty("display", "");
 				const height = ChannelRow.patternHeight;
-				this._channelNameDisplay.style.setProperty("transform", "translate(20px, " + (height / 4 + height * index) + "px)");
+				this._channelNameDisplay.style.setProperty("transform", `translate(20px, ${height / 4 + height * index}px)`);
 
 				if (this._doc.song.channels[index].name !== "") {
 					this._channelNameDisplay.textContent = this._doc.song.channels[index].name;
 					this._channelNameDisplay.style.setProperty("display", "");
 				} else {
 					if (index < this._doc.song.pitchChannelCount) {
-						this._channelNameDisplay.textContent = "Pitch " + (index + 1);
+						this._channelNameDisplay.textContent = `Pitch ${index + 1}`;
 					} else if (index < this._doc.song.pitchChannelCount + this._doc.song.noiseChannelCount) {
-						this._channelNameDisplay.textContent = "Noise " + (index - this._doc.song.pitchChannelCount + 1);
+						this._channelNameDisplay.textContent = `Noise ${index - this._doc.song.pitchChannelCount + 1}`;
 					} else {
-						this._channelNameDisplay.textContent = "Mod " + (index - this._doc.song.pitchChannelCount - this._doc.song.noiseChannelCount + 1);
+						this._channelNameDisplay.textContent = `Mod ${index - this._doc.song.pitchChannelCount - this._doc.song.noiseChannelCount + 1}`;
 					}
 					// The name set will only show up when this becomes visible, e.g. when the dropdown is opened.
 					this._channelNameDisplay.style.setProperty("display", "none");
 				}
 
-				this._channelDropDown.style.top = Config.barEditorHeight + 2 + index * ChannelRow.patternHeight + "px";
+				this._channelDropDown.style.top = `${Config.barEditorHeight + 2 + index * ChannelRow.patternHeight}px`;
 				this._channelDropDown.style.setProperty("width", "15px");
 			}
 		} else {
@@ -432,8 +432,8 @@ export class MuteEditor {
 
 		if (this._renderedChannelHeight !== ChannelRow.patternHeight || startingChannelCount !== this._buttons.length) {
 			for (let y: number = 0; y < this._doc.song.getChannelCount(); y++) {
-				this._buttons[y].style.marginTop = (ChannelRow.patternHeight - 20) / 2 + "px";
-				this._buttons[y].style.marginBottom = (ChannelRow.patternHeight - 20) / 2 + "px";
+				this._buttons[y].style.marginTop = `${(ChannelRow.patternHeight - 20) / 2}px`;
+				this._buttons[y].style.marginBottom = `${(ChannelRow.patternHeight - 20) / 2}px`;
 			}
 		}
 
@@ -455,15 +455,15 @@ export class MuteEditor {
 			for (let y: number = 0; y < this._doc.song.getChannelCount(); y++) {
 				if (y < this._doc.song.pitchChannelCount) {
 					const val: number = y + 1;
-					this._channelCounts[y].textContent = val + "";
+					this._channelCounts[y].textContent = `${val}`;
 					this._channelCounts[y].style.fontSize = val >= 10 ? "xx-small" : "inherit";
 				} else if (y < this._doc.song.pitchChannelCount + this._doc.song.noiseChannelCount) {
 					const val: number = y - this._doc.song.pitchChannelCount + 1;
-					this._channelCounts[y].textContent = val + "";
+					this._channelCounts[y].textContent = `${val}`;
 					this._channelCounts[y].style.fontSize = val >= 10 ? "xx-small" : "inherit";
 				} else {
 					const val: number = y - this._doc.song.pitchChannelCount - this._doc.song.noiseChannelCount + 1;
-					this._channelCounts[y].textContent = val + "";
+					this._channelCounts[y].textContent = `${val}`;
 					this._channelCounts[y].style.fontSize = val >= 10 ? "xx-small" : "inherit";
 				}
 			}
@@ -476,7 +476,7 @@ export class MuteEditor {
 			this._renderedChannelHeight = ChannelRow.patternHeight;
 			this._editorHeight = Config.barEditorHeight + this._doc.song.getChannelCount() * ChannelRow.patternHeight;
 			this._channelNameDisplay.style.setProperty("display", "none");
-			this.container.style.height = this._editorHeight + 16 + "px";
+			this.container.style.height = `${this._editorHeight + 16}px`;
 
 			if (ChannelRow.patternHeight < 27) {
 				this._channelNameDisplay.style.setProperty("margin-top", "-2px");

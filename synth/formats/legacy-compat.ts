@@ -23,7 +23,7 @@ const LEGACY_TARGET_VERSION = 4;
 // }
 
 function stripExpMeta(draft: Record<string, unknown>): void {
-	delete draft["_expVersion"];
+	delete draft._expVersion;
 }
 
 // JukeBox-Exp serialises envelope names from Config.newEnvelopes (generic
@@ -54,19 +54,19 @@ const NEW_TO_LEGACY_ENVELOPE_NAME: Readonly<Record<string, string>> = {
 };
 
 function convertEnvelopeNames(draft: Record<string, unknown>): void {
-	const channels = draft["channels"];
+	const channels = draft.channels;
 	if (!Array.isArray(channels)) return;
 	for (const channel of channels) {
-		const instruments = channel?.["instruments"];
+		const instruments = channel?.instruments;
 		if (!Array.isArray(instruments)) continue;
 		for (const instrument of instruments) {
-			const envelopes = instrument?.["envelopes"];
+			const envelopes = instrument?.envelopes;
 			if (!Array.isArray(envelopes)) continue;
 			for (const env of envelopes) {
 				if (env == null || typeof env !== "object") continue;
-				const name = env["envelope"];
+				const name = env.envelope;
 				if (typeof name === "string" && name in NEW_TO_LEGACY_ENVELOPE_NAME) {
-					env["envelope"] = NEW_TO_LEGACY_ENVELOPE_NAME[name];
+					env.envelope = NEW_TO_LEGACY_ENVELOPE_NAME[name];
 				}
 			}
 		}
@@ -81,8 +81,8 @@ export function toLegacyCompatJson(expObj: JukeboxExpObject): LegacyCompatObject
 	convertEnvelopeNames(draft);
 	// stripGranularSynth(draft);
 
-	draft["format"] = LEGACY_TARGET_FORMAT;
-	draft["version"] = LEGACY_TARGET_VERSION;
+	draft.format = LEGACY_TARGET_FORMAT;
+	draft.version = LEGACY_TARGET_VERSION;
 
 	return draft as LegacyCompatObject;
 }

@@ -256,7 +256,7 @@ export class InstrumentSettingsPanel {
 					},
 					"Pan: ",
 				),
-				div({ style: "color: " + ColorConfig.secondaryText + "; margin-top: -3px;" }, this.panSliderInputBox),
+				div({ style: `color: ${ColorConfig.secondaryText}; margin-top: -3px;` }, this.panSliderInputBox),
 			),
 			this.panDropdown,
 			this.panSlider.container,
@@ -802,7 +802,7 @@ export class InstrumentSettingsPanel {
 
 		this.settingsGroup = div(
 			{ class: "editor-controls" },
-			div({ style: "padding: 3px 0; max-width: 15em; text-align: center; color: " + ColorConfig.secondaryText + ";" }, "Instrument Settings"),
+			div({ style: `padding: 3px 0; max-width: 15em; text-align: center; color: ${ColorConfig.secondaryText};` }, "Instrument Settings"),
 			this.instrumentTypeSelectRow,
 			this.volumeSliderRow,
 			this.customSettingsGroup,

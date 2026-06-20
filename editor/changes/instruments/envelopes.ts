@@ -72,7 +72,7 @@ export class ChangeSetEnvelopeType extends Change {
 		if (oldValue !== newValue) {
 			instrument.envelopes[envelopeIndex].envelope = newValue;
 			instrument.preset = instrument.type;
-			if (oldValue === Config.newEnvelopes.dictionary["none"].index) {
+			if (oldValue === Config.newEnvelopes.dictionary.none.index) {
 				instrument.envelopes[envelopeIndex].perEnvelopeSpeed = Config.newEnvelopes[newValue].speed;
 			}
 			doc.notifier.changed();
@@ -185,7 +185,7 @@ export class ChangeSetEnvelopeWaveform extends Change {
 		super();
 		const instrument: Instrument = doc.getCurrentInstrumentObj();
 		const oldWaveform: number = instrument.envelopes[index].waveform;
-		waveform = parseInt(waveform + ""); // make sure waveform isn't a string
+		waveform = parseInt(`${waveform}`, 10); // make sure waveform isn't a string
 		instrument.envelopes[index].waveform = waveform;
 		if (oldWaveform !== waveform) {
 			instrument.preset = instrument.type;

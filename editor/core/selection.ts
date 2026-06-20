@@ -99,12 +99,12 @@ export class Selection {
 
 	public fromJSON(json: { x0: number; x1: number; y0: number; y1: number; start: number; end: number }): void {
 		if (json == null) return;
-		this.boxSelectionX0 = +json["x0"];
-		this.boxSelectionX1 = +json["x1"];
-		this.boxSelectionY0 = +json["y0"];
-		this.boxSelectionY1 = +json["y1"];
-		this.patternSelectionStart = +json["start"];
-		this.patternSelectionEnd = +json["end"];
+		this.boxSelectionX0 = +json.x0;
+		this.boxSelectionX1 = +json.x1;
+		this.boxSelectionY0 = +json.y0;
+		this.boxSelectionY1 = +json.y1;
+		this.patternSelectionStart = +json.start;
+		this.patternSelectionEnd = +json.end;
 		this.digits = "";
 		this.instrumentDigits = "";
 		this.patternSelectionActive = this.patternSelectionStart < this.patternSelectionEnd;
@@ -188,14 +188,14 @@ export class Selection {
 			// Treat "0" as meaning instrument 10
 			if (digit === "0") digit = "10";
 			this.instrumentDigits += digit;
-			let parsed = parseInt(this.instrumentDigits);
+			let parsed = parseInt(this.instrumentDigits, 10);
 			// var pattern: Pattern | null = this._doc.getCurrentPattern();
 			if (parsed !== 0 && parsed <= this._doc.song.channels[this._doc.channel].instruments.length) {
 				this.selectInstrument(parsed - 1);
 				return;
 			}
 			this.instrumentDigits = digit;
-			parsed = parseInt(this.instrumentDigits);
+			parsed = parseInt(this.instrumentDigits, 10);
 			if (parsed !== 0 && parsed <= this._doc.song.channels[this._doc.channel].instruments.length) {
 				this.selectInstrument(parsed - 1);
 				return;
@@ -203,7 +203,7 @@ export class Selection {
 			this.instrumentDigits = "";
 		} else {
 			this.digits += digit;
-			let parsed: number = parseInt(this.digits);
+			let parsed: number = parseInt(this.digits, 10);
 			if (parsed <= this._doc.song.patternsPerChannel) {
 				this.setPattern(parsed);
 
@@ -211,7 +211,7 @@ export class Selection {
 			}
 
 			this.digits = digit;
-			parsed = parseInt(this.digits);
+			parsed = parseInt(this.digits, 10);
 			if (parsed <= this._doc.song.patternsPerChannel) {
 				this.setPattern(parsed);
 
@@ -348,7 +348,7 @@ export class Selection {
 		// Skip reconciliation when channel types differ — instrument
 		// parameter sets are incompatible across pitch/noise boundaries.
 		const destIsNoise: boolean = this._doc.song.getChannelIsNoise(channelIndex);
-		const srcIsNoise: boolean = !!channelCopy["isNoise"];
+		const srcIsNoise: boolean = !!channelCopy.isNoise;
 		if (!channelCopy.instrumentDefs || srcIsNoise !== destIsNoise) {
 			// Legacy copy or type mismatch — fall back to old behavior
 			for (let i: number = 0; i < channel.instruments.length; i++) {
@@ -511,7 +511,7 @@ export class Selection {
 		// Dual-write to system clipboard (Figma-style) for cross-tab/origin paste.
 		// Fire-and-forget — clipboard write requires a user gesture, which
 		// the C key provides.
-		if (navigator.clipboard && navigator.clipboard.writeText) {
+		if (navigator.clipboard?.writeText) {
 			navigator.clipboard.writeText(JSON.stringify(selectionCopy)).catch(() => {});
 		}
 
@@ -542,7 +542,7 @@ export class Selection {
 		const newNotes: Note[] = [];
 		for (let noteIndex: number = 0; noteIndex < oldNotes.length; noteIndex++) {
 			const oldNote: Note = oldNotes[noteIndex];
-			const newNotePitches: number[] = this._remapToNoisePitches(oldNote["pitches"].slice());
+			const newNotePitches: number[] = this._remapToNoisePitches(oldNote.pitches.slice());
 			const oldNotePins: NotePin[] = oldNote.pins;
 			const newNotePins: NotePin[] = [];
 			for (let notePinIndex: number = 0; notePinIndex < oldNotePins.length; notePinIndex++) {
@@ -553,9 +553,9 @@ export class Selection {
 					size: oldPin.size,
 				});
 			}
-			const newNoteStart: number = oldNote["start"];
-			const newNoteEnd: number = oldNote["end"];
-			const newNoteContinuesLastPattern: boolean = oldNote["continuesLastPattern"];
+			const newNoteStart: number = oldNote.start;
+			const newNoteEnd: number = oldNote.end;
+			const newNoteContinuesLastPattern: boolean = oldNote.continuesLastPattern;
 			const newNote = new Note(0, newNoteStart, newNoteEnd, 0, false);
 			newNote.pitches = newNotePitches;
 			newNote.pins = newNotePins;
@@ -619,8 +619,8 @@ export class Selection {
 	}
 
 	private _doPasteNotes(selectionCopy: SelectionCopy): void {
-		const channelCopies: ChannelCopy[] = selectionCopy["channels"] || [];
-		const copiedPartDuration: number = selectionCopy["partDuration"] >>> 0;
+		const channelCopies: ChannelCopy[] = selectionCopy.channels || [];
+		const copiedPartDuration: number = selectionCopy.partDuration >>> 0;
 
 		const group: ChangeGroup = new ChangeGroup();
 		const fillSelection: boolean = this.boxSelectionWidth > 1 || this.boxSelectionHeight > 1;
@@ -633,11 +633,11 @@ export class Selection {
 			const channelIndex: number = this.boxSelectionChannel + pasteChannel;
 			const channelIsNoise = this._doc.song.getChannelIsNoise(channelIndex);
 
-			const isNoise: boolean = !!channelCopy["isNoise"];
-			const isMod: boolean = !!channelCopy["isMod"];
+			const isNoise: boolean = !!channelCopy.isNoise;
+			const isMod: boolean = !!channelCopy.isMod;
 			const isPitch = !isNoise && !isMod;
-			const patternCopies: Dictionary<PatternCopy> = channelCopy["patterns"] || {};
-			const copiedBars: number[] = channelCopy["bars"] || [];
+			const patternCopies: Dictionary<PatternCopy> = channelCopy.patterns || {};
+			const copiedBars: number[] = channelCopy.bars || [];
 			if (copiedBars.length === 0) continue;
 			// Allow pasting from a pitch channel to a noise channel (and the opposite).
 			if (isNoise && this._doc.song.getChannelIsMod(channelIndex)) continue;
@@ -662,7 +662,7 @@ export class Selection {
 
 				const instrumentsCopy: number[] = this._remapPastedInstruments(patternCopy.instruments, instRemap, channelIndex);
 
-				let pastedNotes: Note[] = patternCopy["notes"];
+				let pastedNotes: Note[] = patternCopy.notes;
 				if (isPitch && channelIsNoise) {
 					pastedNotes = this._convertCopiedPitchNotesToNoiseNotes(pastedNotes);
 				}
@@ -761,7 +761,7 @@ export class Selection {
 						group.append(new ChangeNoteTruncate(this._doc, pattern, this.patternSelectionStart, this.patternSelectionEnd));
 					} else {
 						const patternCopy: PatternCopy = patternCopies[String(copiedPatternIndex)];
-						let pastedNotes: Note[] = patternCopy["notes"];
+						let pastedNotes: Note[] = patternCopy.notes;
 						if (isPitch && channelIsNoise) {
 							pastedNotes = this._convertCopiedPitchNotesToNoiseNotes(pastedNotes);
 						}
@@ -793,7 +793,7 @@ export class Selection {
 					const instrumentsCopy: number[] = this._remapPastedInstruments(patternCopy.instruments, instRemap, channelIndex);
 					const existingPattern: Pattern | undefined = this._doc.song.channels[channelIndex].patterns[copiedPatternIndex - 1];
 
-					let pastedNotes: Note[] = patternCopy["notes"];
+					let pastedNotes: Note[] = patternCopy.notes;
 					if (isPitch && channelIsNoise) {
 						pastedNotes = this._convertCopiedPitchNotesToNoiseNotes(pastedNotes);
 					}
@@ -868,7 +868,7 @@ export class Selection {
 		}
 
 		if (selectionCopy == null) return;
-		const channelCopies: ChannelCopy[] = selectionCopy["channels"] || [];
+		const channelCopies: ChannelCopy[] = selectionCopy.channels || [];
 
 		const group: ChangeGroup = new ChangeGroup();
 		const fillSelection: boolean = this.boxSelectionActive;
@@ -880,7 +880,7 @@ export class Selection {
 			const channelCopy: ChannelCopy = channelCopies[pasteChannel % channelCopies.length];
 			const channelIndex: number = this.boxSelectionChannel + pasteChannel;
 
-			const copiedBars: number[] = channelCopy["bars"] || [];
+			const copiedBars: number[] = channelCopy.bars || [];
 			if (copiedBars.length === 0) continue;
 
 			const pasteWidth: number = fillSelection ? this.boxSelectionWidth : Math.min(copiedBars.length, this._doc.song.barCount - this.boxSelectionBar);

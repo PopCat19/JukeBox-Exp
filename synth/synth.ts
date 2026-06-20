@@ -682,7 +682,7 @@ export class Synth {
 				if (pattern != null) {
 					const instrument: Instrument = this.song.channels[channel].instruments[pattern.instruments[0]];
 					for (let mod: number = 0; mod < Config.modCount; mod++) {
-						if (instrument.modulators[mod] === Config.modulators.dictionary["tempo"].index) {
+						if (instrument.modulators[mod] === Config.modulators.dictionary.tempo.index) {
 							hasTempoMods = true;
 						}
 						if (instrument.modulators[mod] === Config.modulators.dictionary["next bar"].index) {
@@ -709,7 +709,7 @@ export class Synth {
 						const partsInBar: number = this.findPartsInBar(bar);
 
 						for (const note of pattern.notes) {
-							if (instrument.modulators[Config.modCount - 1 - note.pitches[0]] === Config.modulators.dictionary["tempo"].index) {
+							if (instrument.modulators[Config.modCount - 1 - note.pitches[0]] === Config.modulators.dictionary.tempo.index) {
 								if (note.start < partsInBar && (latestTempoPin == null || note.end > latestTempoPin)) {
 									if (note.end <= partsInBar) {
 										latestTempoPin = note.end;
@@ -736,7 +736,7 @@ export class Synth {
 
 				// Done once you process a pattern where tempo mods happened, since the search happens backward
 				if (latestTempoPin != null) {
-					prevTempo = latestTempoValue + Config.modulators.dictionary["tempo"].convertRealFactor;
+					prevTempo = latestTempoValue + Config.modulators.dictionary.tempo.convertRealFactor;
 					bar = -1;
 				}
 			}
@@ -772,7 +772,7 @@ export class Synth {
 								for (let mod: number = 0; mod < Config.modCount; mod++) {
 									if (
 										foundMod === false &&
-										instrument.modulators[mod] === Config.modulators.dictionary["tempo"].index &&
+										instrument.modulators[mod] === Config.modulators.dictionary.tempo.index &&
 										pattern.notes.find((n) => n.pitches[0] === Config.modCount - 1 - mod)
 									) {
 										// Only the first tempo mod instrument for this bar will be checked (well, the first with a note in this bar).
@@ -798,9 +798,9 @@ export class Synth {
 																	note.pins[pinIdx].time - note.pins[pinIdx - 1].time,
 																);
 															const prevPinTempo: number =
-																note.pins[pinIdx - 1].size + Config.modulators.dictionary["tempo"].convertRealFactor;
+																note.pins[pinIdx - 1].size + Config.modulators.dictionary.tempo.convertRealFactor;
 															let currPinTempo: number =
-																note.pins[pinIdx].size + Config.modulators.dictionary["tempo"].convertRealFactor;
+																note.pins[pinIdx].size + Config.modulators.dictionary.tempo.convertRealFactor;
 															if (note.pins[pinIdx].time + note.start > partsInBar) {
 																// Compute an intermediary tempo since bar changed over mid-pin. Maybe I'm deep in "what if" territory now!
 																currPinTempo =
@@ -808,7 +808,7 @@ export class Synth {
 																	((note.pins[pinIdx].size - note.pins[pinIdx - 1].size) *
 																		(partsInBar - (note.start + note.pins[pinIdx - 1].time))) /
 																		(note.pins[pinIdx].time - note.pins[pinIdx - 1].time) +
-																	Config.modulators.dictionary["tempo"].convertRealFactor;
+																	Config.modulators.dictionary.tempo.convertRealFactor;
 															}
 															const bpmScalar: number = (Config.partsPerBeat * Config.ticksPerPart) / 60;
 
@@ -1007,7 +1007,7 @@ export class Synth {
 			try {
 				await this.audioCtx.resume();
 				this._dbg("AudioContext resumed, state:", this.audioCtx.state);
-			} catch (e) {
+			} catch (_e) {
 				// AudioContext can't resume without user gesture, ignore
 			}
 		}
@@ -1050,7 +1050,7 @@ export class Synth {
 		this._logNeedDataCount++;
 		if (this._logNeedDataCount <= 5 || this._logNeedDataCount % 100 === 0) {
 			this._dbg(
-				"need-data #" + this._logNeedDataCount + ", isPlayingSong:",
+				`need-data #${this._logNeedDataCount}, isPlayingSong:`,
 				this.isPlayingSong,
 				"liveInputEndTime:",
 				this.liveInputEndTime,
@@ -1793,9 +1793,9 @@ export class Synth {
 
 				// Snapshot output before this channel contributes (use pre-allocated scratch, L+R interleaved)
 				const scratch = channelState.audioScratch;
-				for (let i = bufferIndex, si = 0; i < runEnd; i++, si+=2) {
+				for (let i = bufferIndex, si = 0; i < runEnd; i++, si += 2) {
 					scratch[si] = outputDataL[i] + (this.outputDataLUnfiltered?.[i] ?? 0);
-					scratch[si+1] = outputDataR[i] + (this.outputDataRUnfiltered?.[i] ?? 0);
+					scratch[si + 1] = outputDataR[i] + (this.outputDataRUnfiltered?.[i] ?? 0);
 				}
 
 				// Track per-channel volume by measuring before/after this channel's contribution
@@ -1901,11 +1901,11 @@ export class Synth {
 
 				// Diff snapshotted vs current output to isolate this channel's audio (L+R interleaved)
 				const ring = channelState.audioRing;
-				for (let i = bufferIndex, si = 0; i < runEnd; i++, si+=2) {
+				for (let i = bufferIndex, si = 0; i < runEnd; i++, si += 2) {
 					const currentL = outputDataL[i] + (this.outputDataLUnfiltered?.[i] ?? 0);
 					const currentR = outputDataR[i] + (this.outputDataRUnfiltered?.[i] ?? 0);
 					const diffL = currentL - scratch[si];
-					const diffR = currentR - scratch[si+1];
+					const diffR = currentR - scratch[si + 1];
 					ring[channelState.audioRingPos] = (diffL + diffR) * 0.5;
 					channelState.audioRingPos = (channelState.audioRingPos + 1) & 8191;
 				}
@@ -2224,7 +2224,7 @@ export class Synth {
 			}
 
 			// Set samples per tick if song tempo mods changed it
-			if (this.isModActive(Config.modulators.dictionary["tempo"].index)) {
+			if (this.isModActive(Config.modulators.dictionary.tempo.index)) {
 				samplesPerTick = this.getSamplesPerTick();
 				this.tickSampleCountdown = Math.min(this.tickSampleCountdown, samplesPerTick);
 			}
@@ -3453,10 +3453,9 @@ export class Synth {
 			const envelopeEnd: number = envelopeEnds[EnvelopeComputeIndex.detune];
 			let modDetuneStart: number = instrument.detune;
 			let modDetuneEnd: number = instrument.detune;
-			if (this.isModActive(Config.modulators.dictionary["detune"].index, channelIndex, tone.instrumentIndex)) {
-				modDetuneStart =
-					this.getModValue(Config.modulators.dictionary["detune"].index, channelIndex, tone.instrumentIndex, false) + Config.detuneCenter;
-				modDetuneEnd = this.getModValue(Config.modulators.dictionary["detune"].index, channelIndex, tone.instrumentIndex, true) + Config.detuneCenter;
+			if (this.isModActive(Config.modulators.dictionary.detune.index, channelIndex, tone.instrumentIndex)) {
+				modDetuneStart = this.getModValue(Config.modulators.dictionary.detune.index, channelIndex, tone.instrumentIndex, false) + Config.detuneCenter;
+				modDetuneEnd = this.getModValue(Config.modulators.dictionary.detune.index, channelIndex, tone.instrumentIndex, true) + Config.detuneCenter;
 			}
 			if (this.isModActive(Config.modulators.dictionary["song detune"].index, channelIndex, tone.instrumentIndex)) {
 				modDetuneStart += 4 * this.getModValue(Config.modulators.dictionary["song detune"].index, channelIndex, tone.instrumentIndex, false);
@@ -3903,9 +3902,9 @@ export class Synth {
 				// Check for sustain mods
 				let useSustainStart: number = instrument.stringSustain;
 				let useSustainEnd: number = instrument.stringSustain;
-				if (this.isModActive(Config.modulators.dictionary["sustain"].index, channelIndex, tone.instrumentIndex)) {
-					useSustainStart = this.getModValue(Config.modulators.dictionary["sustain"].index, channelIndex, tone.instrumentIndex, false);
-					useSustainEnd = this.getModValue(Config.modulators.dictionary["sustain"].index, channelIndex, tone.instrumentIndex, true);
+				if (this.isModActive(Config.modulators.dictionary.sustain.index, channelIndex, tone.instrumentIndex)) {
+					useSustainStart = this.getModValue(Config.modulators.dictionary.sustain.index, channelIndex, tone.instrumentIndex, false);
+					useSustainEnd = this.getModValue(Config.modulators.dictionary.sustain.index, channelIndex, tone.instrumentIndex, true);
 				}
 
 				tone.stringSustainStart = useSustainStart;
@@ -3994,12 +3993,11 @@ export class Synth {
 				// Dynamism mods
 				let useDynamismStart: number = instrument.supersawDynamism / Config.supersawDynamismMax;
 				let useDynamismEnd: number = instrument.supersawDynamism / Config.supersawDynamismMax;
-				if (this.isModActive(Config.modulators.dictionary["dynamism"].index, channelIndex, tone.instrumentIndex)) {
+				if (this.isModActive(Config.modulators.dictionary.dynamism.index, channelIndex, tone.instrumentIndex)) {
 					useDynamismStart =
-						this.getModValue(Config.modulators.dictionary["dynamism"].index, channelIndex, tone.instrumentIndex, false) /
-						Config.supersawDynamismMax;
+						this.getModValue(Config.modulators.dictionary.dynamism.index, channelIndex, tone.instrumentIndex, false) / Config.supersawDynamismMax;
 					useDynamismEnd =
-						this.getModValue(Config.modulators.dictionary["dynamism"].index, channelIndex, tone.instrumentIndex, true) / Config.supersawDynamismMax;
+						this.getModValue(Config.modulators.dictionary.dynamism.index, channelIndex, tone.instrumentIndex, true) / Config.supersawDynamismMax;
 				}
 
 				const curvedDynamismStart: number = 1.0 - Math.max(0.0, 1.0 - useDynamismStart * envelopeStarts[EnvelopeComputeIndex.supersawDynamism]) ** 0.2;
@@ -4087,11 +4085,11 @@ export class Synth {
 				// Spread mods
 				let useSpreadStart: number = baseSpreadSlider;
 				let useSpreadEnd: number = baseSpreadSlider;
-				if (this.isModActive(Config.modulators.dictionary["spread"].index, channelIndex, tone.instrumentIndex)) {
+				if (this.isModActive(Config.modulators.dictionary.spread.index, channelIndex, tone.instrumentIndex)) {
 					useSpreadStart =
-						this.getModValue(Config.modulators.dictionary["spread"].index, channelIndex, tone.instrumentIndex, false) / Config.supersawSpreadMax;
+						this.getModValue(Config.modulators.dictionary.spread.index, channelIndex, tone.instrumentIndex, false) / Config.supersawSpreadMax;
 					useSpreadEnd =
-						this.getModValue(Config.modulators.dictionary["spread"].index, channelIndex, tone.instrumentIndex, true) / Config.supersawSpreadMax;
+						this.getModValue(Config.modulators.dictionary.spread.index, channelIndex, tone.instrumentIndex, true) / Config.supersawSpreadMax;
 				}
 
 				// clamp the spread values to prevent negative ones polluting the output
@@ -4278,7 +4276,7 @@ export class Synth {
 		if (plugin) {
 			return plugin.getSynthFunction(instrument, Synth);
 		}
-		throw new Error("Unrecognized instrument type: " + instrument.type);
+		throw new Error(`Unrecognized instrument type: ${instrument.type}`);
 	}
 
 	// Bridge to private static synth methods — used by plugins that cannot
@@ -4845,8 +4843,8 @@ export class Synth {
 	public getSamplesPerTick(): number {
 		if (this.song == null) return 0;
 		let beatsPerMinute: number = this.song.getBeatsPerMinute();
-		if (this.isModActive(Config.modulators.dictionary["tempo"].index)) {
-			beatsPerMinute = this.getModValue(Config.modulators.dictionary["tempo"].index);
+		if (this.isModActive(Config.modulators.dictionary.tempo.index)) {
+			beatsPerMinute = this.getModValue(Config.modulators.dictionary.tempo.index);
 		}
 		return this.getSamplesPerTickSpecificBPM(beatsPerMinute);
 	}

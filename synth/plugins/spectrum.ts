@@ -18,7 +18,7 @@ registerPlugin({
 	displayName: "spectrum",
 	editorRows: ["spectrum"],
 	initialize: (instrument: Instrument) => {
-		instrument.chord = Config.chords.dictionary["simultaneous"].index;
+		instrument.chord = Config.chords.dictionary.simultaneous.index;
 		instrument.spectrumWave.reset(true);
 	},
 	getSynthFunction,

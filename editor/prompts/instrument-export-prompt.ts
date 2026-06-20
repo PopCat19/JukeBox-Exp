@@ -23,7 +23,7 @@ export class InstrumentExportPrompt extends BasePrompt {
 		type: "checkbox",
 	});
 	private readonly _channelName: string =
-		this._doc.song.channels[this._doc.channel].name === "" ? Config.jsonFormat + "-Instrument" : this._doc.song.channels[this._doc.channel].name;
+		this._doc.song.channels[this._doc.channel].name === "" ? `${Config.jsonFormat}-Instrument` : this._doc.song.channels[this._doc.channel].name;
 	private readonly _fileName: HTMLInputElement = input({
 		type: "text",
 		//
@@ -62,14 +62,14 @@ export class InstrumentExportPrompt extends BasePrompt {
 		const channel: Channel = this._doc.song.channels[this._doc.channel];
 		const instruments: any[] = channel.instruments.map((instrument) => {
 			const instrumentCopy: any = instrument.toJsonObject();
-			instrumentCopy["isDrum"] = this._doc.song.getChannelIsNoise(this._doc.channel);
+			instrumentCopy.isDrum = this._doc.song.getChannelIsNoise(this._doc.channel);
 			return instrumentCopy;
 		});
 
 		const jsonBlob = new Blob([JSON.stringify(instruments)], { type: "application/json" });
 		const downloadLink = document.createElement("a");
 		downloadLink.href = URL.createObjectURL(jsonBlob);
-		downloadLink.download = this._fileName.value + ".json";
+		downloadLink.download = `${this._fileName.value}.json`;
 		document.body.appendChild(downloadLink);
 		downloadLink.click();
 		document.body.removeChild(downloadLink);
@@ -81,12 +81,12 @@ export class InstrumentExportPrompt extends BasePrompt {
 		const channel: Channel = this._doc.song.channels[this._doc.channel];
 		const instrument: Instrument = channel.instruments[this._doc.getCurrentInstrument()];
 		const instrumentCopy: any = instrument.toJsonObject();
-		instrumentCopy["isDrum"] = this._doc.song.getChannelIsNoise(this._doc.channel);
+		instrumentCopy.isDrum = this._doc.song.getChannelIsNoise(this._doc.channel);
 
 		const jsonBlob = new Blob([JSON.stringify(instrumentCopy)], { type: "application/json" });
 		const downloadLink = document.createElement("a");
 		downloadLink.href = URL.createObjectURL(jsonBlob);
-		downloadLink.download = this._fileName.value + ".json";
+		downloadLink.download = `${this._fileName.value}.json`;
 		document.body.appendChild(downloadLink);
 		downloadLink.click();
 		document.body.removeChild(downloadLink);

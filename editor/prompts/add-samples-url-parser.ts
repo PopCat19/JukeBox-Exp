@@ -170,18 +170,18 @@ export function generateSampleURL(entry: SampleEntry): string {
 	const isBundledSamplePack: boolean =
 		urlInLowerCase === "legacysamples" || urlInLowerCase === "nintariboxsamples" || urlInLowerCase === "mariopaintboxsamples";
 	const options: string[] = [];
-	if (sampleRate !== Config.defaultSampleRate) options.push("s" + sampleRate);
-	if (rootKey !== 60) options.push("r" + rootKey);
+	if (sampleRate !== Config.defaultSampleRate) options.push(`s${sampleRate}`);
+	if (rootKey !== 60) options.push(`r${rootKey}`);
 	if (percussion) options.push("p");
-	if (chipWaveLoopStart != null) options.push("a" + chipWaveLoopStart);
-	if (chipWaveLoopEnd != null) options.push("b" + chipWaveLoopEnd);
-	if (chipWaveStartOffset != null) options.push("c" + chipWaveStartOffset);
-	if (chipWaveLoopMode != null) options.push("d" + chipWaveLoopMode);
+	if (chipWaveLoopStart != null) options.push(`a${chipWaveLoopStart}`);
+	if (chipWaveLoopEnd != null) options.push(`b${chipWaveLoopEnd}`);
+	if (chipWaveStartOffset != null) options.push(`c${chipWaveStartOffset}`);
+	if (chipWaveLoopMode != null) options.push(`d${chipWaveLoopMode}`);
 	if (chipWavePlayBackwards) options.push("e");
 	if (isBundledSamplePack || options.length <= 0) {
 		return url;
 	} else {
-		return "!" + options.join(",") + "!" + url;
+		return `!${options.join(",")}!${url}`;
 	}
 }
 
@@ -190,7 +190,7 @@ export function generateAllSampleURLs(entries: SampleEntry[]): string {
 	for (const entry of entries) {
 		const url: string = entry.url.trim();
 		if (url === "") continue;
-		output += "|" + generateSampleURL(entry);
+		output += `|${generateSampleURL(entry)}`;
 	}
 	return output;
 }

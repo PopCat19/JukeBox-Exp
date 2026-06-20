@@ -107,7 +107,7 @@ export class LimiterCanvas {
 			style: `background-color: ${ColorConfig.editorBackground}; touch-action: none; overflow: visible;`,
 			width: "100%",
 			height: "100%",
-			viewBox: "0 0 " + this._editorWidth + " " + this._editorHeight,
+			viewBox: `0 0 ${this._editorWidth} ${this._editorHeight}`,
 			preserveAspectRatio: "none",
 		},
 		this._defs,
@@ -151,10 +151,10 @@ export class LimiterCanvas {
 	}
 
 	public animateVolume(inVolumeCap: number, historicInCap: number, outVolumeCap: number, historicOutCap: number): void {
-		this._inVolumeBar.setAttribute("width", "" + Math.min(this._editorWidth, inVolumeCap * (this._editorWidth / 2.0)));
-		this._inVolumeCap.setAttribute("x", "" + Math.min(this._editorWidth, historicInCap * (this._editorWidth / 2.0)));
-		this._outVolumeBar.setAttribute("width", "" + Math.min(this._editorWidth, outVolumeCap * (this._editorWidth / 2.0)));
-		this._outVolumeCap.setAttribute("x", "" + Math.min(this._editorWidth, historicOutCap * (this._editorWidth / 2.0)));
+		this._inVolumeBar.setAttribute("width", `${Math.min(this._editorWidth, inVolumeCap * (this._editorWidth / 2.0))}`);
+		this._inVolumeCap.setAttribute("x", `${Math.min(this._editorWidth, historicInCap * (this._editorWidth / 2.0))}`);
+		this._outVolumeBar.setAttribute("width", `${Math.min(this._editorWidth, outVolumeCap * (this._editorWidth / 2.0))}`);
+		this._outVolumeCap.setAttribute("x", `${Math.min(this._editorWidth, historicOutCap * (this._editorWidth / 2.0))}`);
 	}
 
 	public render(): void {
@@ -183,14 +183,14 @@ export class LimiterCanvas {
 			}
 
 			if (i === 0) {
-				path += "M 0 " + prettyNumber(controlPointToHeight(nextValue)) + " ";
+				path += `M 0 ${prettyNumber(controlPointToHeight(nextValue))} `;
 			}
 
 			if (currentSubpathIdx > lastSubpathIdx) {
 				if (lastSubpathIdx >= 0) {
-					subPaths[lastSubpathIdx] += "L " + prettyNumber((i * this._editorWidth) / 64) + " " + prettyNumber(controlPointToHeight(nextValue)) + " ";
+					subPaths[lastSubpathIdx] += `L ${prettyNumber((i * this._editorWidth) / 64)} ${prettyNumber(controlPointToHeight(nextValue))} `;
 				}
-				subPaths[currentSubpathIdx] += "M " + prettyNumber((i * this._editorWidth) / 64) + " " + prettyNumber(controlPointToHeight(nextValue)) + " ";
+				subPaths[currentSubpathIdx] += `M ${prettyNumber((i * this._editorWidth) / 64)} ${prettyNumber(controlPointToHeight(nextValue))} `;
 
 				if (currentSubpathIdx === 1 || (lastSubpathIdx === 0 && currentSubpathIdx === 2)) {
 					this._boostDot.setAttribute("cx", prettyNumber((i * this._editorWidth) / 64));
@@ -211,8 +211,8 @@ export class LimiterCanvas {
 				path += "M ";
 				subPaths[currentSubpathIdx] += "M ";
 			}
-			path += prettyNumber((i * this._editorWidth) / 64) + " " + prettyNumber(controlPointToHeight(nextValue)) + " ";
-			subPaths[currentSubpathIdx] += prettyNumber((i * this._editorWidth) / 64) + " " + prettyNumber(controlPointToHeight(nextValue)) + " ";
+			path += `${prettyNumber((i * this._editorWidth) / 64)} ${prettyNumber(controlPointToHeight(nextValue))} `;
+			subPaths[currentSubpathIdx] += `${prettyNumber((i * this._editorWidth) / 64)} ${prettyNumber(controlPointToHeight(nextValue))} `;
 			lastValue = nextValue;
 
 			if (currentSubpathIdx === 0 && i >= compressorThreshold * 32 - 2) {
@@ -225,8 +225,8 @@ export class LimiterCanvas {
 
 		const lastHeight: number = controlPointToHeight(lastValue);
 		if (lastValue > 0) {
-			path += "L " + (this._editorWidth - 1) + " " + prettyNumber(lastHeight) + " ";
-			subPaths[currentSubpathIdx] += "L " + (this._editorWidth - 1) + " " + prettyNumber(lastHeight) + " ";
+			path += `L ${this._editorWidth - 1} ${prettyNumber(lastHeight)} `;
+			subPaths[currentSubpathIdx] += `L ${this._editorWidth - 1} ${prettyNumber(lastHeight)} `;
 		}
 
 		this._boostCurve.setAttribute("d", subPaths[0]);
@@ -379,14 +379,13 @@ export class LimiterPrompt extends BasePrompt {
 		this._resetButton.addEventListener("click", this._resetDefaults);
 		this.container.addEventListener("keydown", this.whenKeyPressed);
 
-		this.limitRatioSlider.value = "" + (this._doc.song.limitRatio < 1 ? this._doc.song.limitRatio * 10 : 9 + this._doc.song.limitRatio);
-		this.compressionRatioSlider.value =
-			"" + (this._doc.song.compressionRatio < 1 ? this._doc.song.compressionRatio * 10 : 10 + (this._doc.song.compressionRatio - 1) * 60);
-		this.limitThresholdSlider.value = "" + this._doc.song.limitThreshold;
-		this.compressionThresholdSlider.value = "" + this._doc.song.compressionThreshold;
-		this.limitDecaySlider.value = "" + this._doc.song.limitDecay;
-		this.limitRiseSlider.value = "" + this._doc.song.limitRise;
-		this.masterGainSlider.value = "" + this._doc.song.masterGain;
+		this.limitRatioSlider.value = `${this._doc.song.limitRatio < 1 ? this._doc.song.limitRatio * 10 : 9 + this._doc.song.limitRatio}`;
+		this.compressionRatioSlider.value = `${this._doc.song.compressionRatio < 1 ? this._doc.song.compressionRatio * 10 : 10 + (this._doc.song.compressionRatio - 1) * 60}`;
+		this.limitThresholdSlider.value = `${this._doc.song.limitThreshold}`;
+		this.compressionThresholdSlider.value = `${this._doc.song.compressionThreshold}`;
+		this.limitDecaySlider.value = `${this._doc.song.limitDecay}`;
+		this.limitRiseSlider.value = `${this._doc.song.limitRise}`;
+		this.masterGainSlider.value = `${this._doc.song.masterGain}`;
 
 		this.startingLimitRatio = +this.limitRatioSlider.value;
 		this.startingCompressionRatio = +this.compressionRatioSlider.value;
@@ -464,13 +463,13 @@ export class LimiterPrompt extends BasePrompt {
 	};
 
 	protected override _close = (): void => {
-		this.limitRatioSlider.value = "" + this.startingLimitRatio;
-		this.compressionRatioSlider.value = "" + this.startingCompressionRatio;
-		this.limitThresholdSlider.value = "" + this.startingLimitThreshold;
-		this.compressionThresholdSlider.value = "" + this.startingCompressionThreshold;
-		this.limitDecaySlider.value = "" + this.startingLimitDecay;
-		this.limitRiseSlider.value = "" + this.startingLimitRise;
-		this.masterGainSlider.value = "" + this.startingMasterGain;
+		this.limitRatioSlider.value = `${this.startingLimitRatio}`;
+		this.compressionRatioSlider.value = `${this.startingCompressionRatio}`;
+		this.limitThresholdSlider.value = `${this.startingLimitThreshold}`;
+		this.compressionThresholdSlider.value = `${this.startingCompressionThreshold}`;
+		this.limitDecaySlider.value = `${this.startingLimitDecay}`;
+		this.limitRiseSlider.value = `${this.startingLimitRise}`;
+		this.masterGainSlider.value = `${this.startingMasterGain}`;
 
 		this._updateLimiter();
 		this._doc.prompt = null;

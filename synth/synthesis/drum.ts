@@ -20,7 +20,7 @@ export function buildDrumSource(voiceCount: number): string {
 		drumSource += `let phaseDelta# = tone.phaseDeltas[#] / referenceDelta;
             let phaseDeltaScale# = +tone.phaseDeltaScales[#];
             if (instrumentState.unisonVoices <= # && instrumentState.unisonSpread == 0 && !instrumentState.chord.customInterval) tone.phases[#] = tone.phases[# - 1];
-            `.replaceAll("#", i + "");
+            `.replaceAll("#", `${i}`);
 	}
 
 	drumSource += `let expression = +tone.expression;
@@ -34,7 +34,7 @@ export function buildDrumSource(voiceCount: number): string {
 
 	for (let i: number = 0; i < voiceCount; i++) {
 		drumSource += `let phase# = (tone.phases[#] - (tone.phases[#] | 0)) * Config.spectrumNoiseLength;
-            `.replaceAll("#", i + "");
+            `.replaceAll("#", `${i}`);
 	}
 	drumSource += `
         if (tone.phases[0] == 0.0) {
@@ -46,7 +46,7 @@ export function buildDrumSource(voiceCount: number): string {
             if (instrumentState.unisonVoices <= # && instrumentState.unisonSpread == 0 && !instrumentState.chord.customInterval) {
                 phase# = phase0;
             }
-        `.replaceAll("#", i + "");
+        `.replaceAll("#", `${i}`);
 	}
 	drumSource += `}`;
 	for (let i: number = 1; i < voiceCount; i++) {
@@ -55,7 +55,7 @@ export function buildDrumSource(voiceCount: number): string {
                 // Zero phase means the tone was reset, just give noise a random start phase instead.
             phase# = Synth.findRandomZeroCrossing(wave, Config.spectrumNoiseLength) + phaseDelta#;
             }
-        `.replaceAll("#", i + "");
+        `.replaceAll("#", `${i}`);
 	}
 
 	drumSource += `const phaseMask = Config.spectrumNoiseLength - 1;
@@ -70,15 +70,15 @@ export function buildDrumSource(voiceCount: number): string {
                 let noiseSample# = wave[index#]
                 const phase#Ratio = phase# - phase#Int;
                 noiseSample# += (wave[index# + 1] - noiseSample#) * phase#Ratio;
-                `.replaceAll("#", i + "");
+                `.replaceAll("#", `${i}`);
 	}
 
 	const sampleList: string[] = [];
 	for (let voice: number = 0; voice < voiceCount; voice++) {
-		sampleList.push("noiseSample" + voice + (voice !== 0 ? " * unisonSign" : ""));
+		sampleList.push(`noiseSample${voice}${voice !== 0 ? " * unisonSign" : ""}`);
 	}
 
-	drumSource += "let inputSample = " + sampleList.join(" + ") + ";";
+	drumSource += `let inputSample = ${sampleList.join(" + ")};`;
 
 	drumSource += `const sample = applyFilters(inputSample, initialFilterInput1, initialFilterInput2, filterCount, filters);
             initialFilterInput2 = initialFilterInput1;
@@ -87,7 +87,7 @@ export function buildDrumSource(voiceCount: number): string {
 	for (let i = 0; i < voiceCount; i++) {
 		drumSource += `phase# += phaseDelta#;
                 phaseDelta# *= phaseDeltaScale#;
-                `.replaceAll("#", i + "");
+                `.replaceAll("#", `${i}`);
 	}
 
 	drumSource += `const output = sample * expression;
@@ -97,11 +97,11 @@ export function buildDrumSource(voiceCount: number): string {
 
 	for (let i: number = 0; i < voiceCount; i++) {
 		drumSource +=
-			`tone.phases[#] = phase# / `.replaceAll("#", i + "") +
+			`tone.phases[#] = phase# / `.replaceAll("#", `${i}`) +
 			Config.spectrumNoiseLength +
 			`;
             tone.phaseDeltas[#] = phaseDelta# * referenceDelta;
-            `.replaceAll("#", i + "");
+            `.replaceAll("#", `${i}`);
 	}
 
 	drumSource += `tone.expression = expression;

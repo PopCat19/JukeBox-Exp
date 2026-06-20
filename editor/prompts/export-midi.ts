@@ -88,7 +88,7 @@ export function exportToMidi(song: Song, fileName: string, enableIntro: boolean,
 			writer.writeUint8(2);
 			writer.writeUint8(24);
 			writer.writeUint8(8);
-			const tempScale = song.scale === Config.scales.dictionary["Custom"].index ? song.scaleCustom : Config.scales[song.scale].flags;
+			const tempScale = song.scale === Config.scales.dictionary.Custom.index ? song.scaleCustom : Config.scales[song.scale].flags;
 			const isMinor = tempScale[3] && !tempScale[4];
 			let numSharps = song.key;
 			if ((song.key & 1) === 1) numSharps += 6;
@@ -106,7 +106,7 @@ export function exportToMidi(song: Song, fileName: string, enableIntro: boolean,
 			writer.writeUint8(MidiEventType.meta);
 			writer.writeMidi7Bits(MidiMetaEventMessage.marker);
 			writer.writeMidiAscii("Loop Start");
-			for (let i = 0; i < parseInt(String(loopCount)); i++) {
+			for (let i = 0; i < parseInt(String(loopCount), 10); i++) {
 				loopTime += midiTicksPerBeat * song.beatsPerBar * song.loopLength;
 				writeTime(loopTime);
 				writer.writeUint8(MidiEventType.meta);
@@ -119,7 +119,7 @@ export function exportToMidi(song: Song, fileName: string, enableIntro: boolean,
 			writeTime(0);
 			writer.writeUint8(MidiEventType.meta);
 			writer.writeMidi7Bits(MidiMetaEventMessage.trackName);
-			writer.writeMidiAscii(track.isNoise ? "noise channel " + track.channel : "pitch channel " + track.channel);
+			writer.writeMidiAscii(track.isNoise ? `noise channel ${track.channel}` : `pitch channel ${track.channel}`);
 			writeTime(0);
 			writeControl(MidiControlEventMessage.registeredParameterNumberMSB, MidiRegisteredParameterNumberMSB.pitchBendRange);
 			writeTime(0);
@@ -140,7 +140,7 @@ export function exportToMidi(song: Song, fileName: string, enableIntro: boolean,
 				writeTime(barStartTime);
 				writer.writeUint8(MidiEventType.meta);
 				writer.writeMidi7Bits(MidiMetaEventMessage.instrumentName);
-				writer.writeMidiAscii("Instrument " + (idx + 1));
+				writer.writeMidiAscii(`Instrument ${idx + 1}`);
 				if (!track.isDrumset) {
 					let prog = 81;
 					const preset = EditorConfig.valueToPreset(instr.preset);
@@ -239,7 +239,7 @@ export function exportToMidi(song: Song, fileName: string, enableIntro: boolean,
 										const drumsetMap = [36, 41, 45, 48, 40, 39, 59, 49, 46, 55, 69, 54];
 										const drumIdx = p + mainInt;
 										if (drumIdx < 0 || drumIdx >= drumsetMap.length)
-											throw new Error("Could not find corresponding drumset pitch. " + drumIdx);
+											throw new Error(`Could not find corresponding drumset pitch. ${drumIdx}`);
 										p = drumsetMap[drumIdx];
 									} else {
 										if (usesArp && note.pitches.length > t + 1 && t === toneCount - 1) {
@@ -314,5 +314,5 @@ export function exportToMidi(song: Song, fileName: string, enableIntro: boolean,
 		writer.writeMidiVariableLength(0);
 		writer.rewriteUint32(trackStartIndex, writer.getWriteIndex() - trackStartIndex - 4);
 	}
-	save(new Blob([writer.toCompactArrayBuffer()], { type: "audio/midi" }), fileName + ".mid");
+	save(new Blob([writer.toCompactArrayBuffer()], { type: "audio/midi" }), `${fileName}.mid`);
 }

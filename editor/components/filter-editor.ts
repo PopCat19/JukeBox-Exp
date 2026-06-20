@@ -57,7 +57,7 @@ export class FilterEditor {
 			style: `background-color: ${ColorConfig.editorBackground}; touch-action: none;`,
 			width: "100%",
 			height: "100%",
-			viewBox: "0 0 " + this._editorWidth + " " + this._editorHeight,
+			viewBox: `0 0 ${this._editorWidth} ${this._editorHeight}`,
 			preserveAspectRatio: "none",
 		},
 		this._responsePath,
@@ -122,7 +122,7 @@ export class FilterEditor {
 			this._editorHeight = 260;
 			this._pointRadius = 14;
 			// A bit of vertical spacing on viewBox so that numbers will show.
-			this._svg.setAttribute("viewBox", "0 -20 " + this._editorWidth + " " + (this._editorHeight + 30));
+			this._svg.setAttribute("viewBox", `0 -20 ${this._editorWidth} ${this._editorHeight + 30}`);
 			this._label.style.setProperty("font-size", "16px");
 			this._label.style.setProperty("position", "");
 			this._label.style.setProperty("bottom", "-16px");
@@ -141,7 +141,7 @@ export class FilterEditor {
 				this._indicators[i].setAttribute("dominant-baseline", "central");
 				this._indicators[i].setAttribute("pointer-events", "none");
 				this._indicators[i].setAttribute("font-weight", "bolder");
-				this._indicators[i].textContent = "" + (i + 1);
+				this._indicators[i].textContent = `${i + 1}`;
 				this._indicators[i].style.setProperty("display", "none");
 				if (i > 8) {
 					// two digit
@@ -265,8 +265,8 @@ export class FilterEditor {
 		const boundingRect: DOMRect = this._svgRect;
 		this._mouseX = (((event.clientX || event.pageX) - boundingRect.left) * this._editorWidth) / (boundingRect.right - boundingRect.left);
 		this._mouseY = (((event.clientY || event.pageY) - boundingRect.top) * this._editorHeight) / (boundingRect.bottom - boundingRect.top);
-		if (isNaN(this._mouseX)) this._mouseX = 0;
-		if (isNaN(this._mouseY)) this._mouseY = 0;
+		if (Number.isNaN(this._mouseX)) this._mouseX = 0;
+		if (Number.isNaN(this._mouseY)) this._mouseY = 0;
 		this._whenCursorPressed();
 	};
 
@@ -279,8 +279,8 @@ export class FilterEditor {
 		const boundingRect: DOMRect = this._svgRect;
 		this._mouseX = ((event.touches[0].clientX - boundingRect.left) * this._editorWidth) / (boundingRect.right - boundingRect.left);
 		this._mouseY = ((event.touches[0].clientY - boundingRect.top) * this._editorHeight) / (boundingRect.bottom - boundingRect.top);
-		if (isNaN(this._mouseX)) this._mouseX = 0;
-		if (isNaN(this._mouseY)) this._mouseY = 0;
+		if (Number.isNaN(this._mouseX)) this._mouseX = 0;
+		if (Number.isNaN(this._mouseY)) this._mouseY = 0;
 		this._whenCursorPressed();
 	};
 
@@ -291,8 +291,8 @@ export class FilterEditor {
 		const boundingRect = this._mouseDown ? this._dragSvgRect || this._svgRect : this._svgRect;
 		this._mouseX = (((event.clientX || event.pageX) - boundingRect.left) * this._editorWidth) / (boundingRect.right - boundingRect.left);
 		this._mouseY = (((event.clientY || event.pageY) - boundingRect.top) * this._editorHeight) / (boundingRect.bottom - boundingRect.top);
-		if (isNaN(this._mouseX)) this._mouseX = 0;
-		if (isNaN(this._mouseY)) this._mouseY = 0;
+		if (Number.isNaN(this._mouseX)) this._mouseX = 0;
+		if (Number.isNaN(this._mouseY)) this._mouseY = 0;
 		if (!this._mouseDown) this._updateCursor();
 
 		this._whenCursorMoved();
@@ -305,8 +305,8 @@ export class FilterEditor {
 		const boundingRect: DOMRect = this._mouseDown ? this._dragSvgRect || this._svgRect : this._svgRect;
 		this._mouseX = ((event.touches[0].clientX - boundingRect.left) * this._editorWidth) / (boundingRect.right - boundingRect.left);
 		this._mouseY = ((event.touches[0].clientY - boundingRect.top) * this._editorHeight) / (boundingRect.bottom - boundingRect.top);
-		if (isNaN(this._mouseX)) this._mouseX = 0;
-		if (isNaN(this._mouseY)) this._mouseY = 0;
+		if (Number.isNaN(this._mouseX)) this._mouseX = 0;
+		if (Number.isNaN(this._mouseY)) this._mouseY = 0;
 		if (!this._mouseDown) this._updateCursor();
 		this._whenCursorMoved();
 	};
@@ -401,7 +401,7 @@ export class FilterEditor {
 			const gain: number = Math.round(this._yToGain(this._mouseY));
 			const freq: number = Math.round(this._xToFreq(this._mouseX));
 			if (freq >= 0 && freq < Config.filterFreqRange && gain >= 0 && gain < Config.filterGainRange) {
-				this.coordText.innerText = "(" + freq + ", " + gain + ")";
+				this.coordText.innerText = `(${freq}, ${gain})`;
 			} else {
 				this.coordText.innerText = "";
 			}
@@ -430,7 +430,7 @@ export class FilterEditor {
 					}
 
 					if (this.coordText != null) {
-						this.coordText.innerText = "(" + freq + ", " + gain + ")";
+						this.coordText.innerText = `(${freq}, ${gain})`;
 					}
 				} else {
 					this._deletingPoint = true;
@@ -458,7 +458,7 @@ export class FilterEditor {
 						);
 					}
 					if (this.coordText != null) {
-						this.coordText.innerText = "(" + freq + ", " + gain + ")";
+						this.coordText.innerText = `(${freq}, ${gain})`;
 						if (!this._writingMods) {
 							if (this._forSong) {
 								this._doc.song.tmpEqFilterStart = this._doc.song.eqFilter;
@@ -590,9 +590,9 @@ export class FilterEditor {
 			controlPointPath += FilterEditor._circlePath(pointX, pointY, this._pointRadius);
 
 			if (point.type === FilterType.highPass) {
-				dottedLinePath += "M " + 0 + " " + pointY + " L " + pointX + " " + pointY + " ";
+				dottedLinePath += `M ${0} ${pointY} L ${pointX} ${pointY} `;
 			} else if (point.type === FilterType.lowPass) {
-				dottedLinePath += "M " + this._editorWidth + " " + pointY + " L " + pointX + " " + pointY + " ";
+				dottedLinePath += `M ${this._editorWidth} ${pointY} L ${pointX} ${pointY} `;
 			}
 
 			if (this._selectedIndex === i && this._mouseOver && !this._mouseDown) {
@@ -601,7 +601,7 @@ export class FilterEditor {
 				this._highlight.style.display = "";
 
 				if (this.coordText != null) {
-					this.coordText.innerText = "(" + point.freq + ", " + point.gain + ")";
+					this.coordText.innerText = `(${point.freq}, ${point.gain})`;
 				}
 			}
 			if (
@@ -609,19 +609,19 @@ export class FilterEditor {
 				(this._mouseOver || this._mouseDown) &&
 				!this._deletingPoint
 			) {
-				this._label.textContent = i + 1 + ": " + Config.filterTypeNames[point.type] + (this._larger ? " @" + prettyNumber(point.getHz()) + "Hz" : "");
+				this._label.textContent = `${i + 1}: ${Config.filterTypeNames[point.type]}${this._larger ? ` @${prettyNumber(point.getHz())}Hz` : ""}`;
 			}
 
 			if (this._larger) {
 				this._indicators[i].style.setProperty("display", "");
-				this._indicators[i].setAttribute("x", "" + pointX);
-				this._indicators[i].setAttribute("y", "" + (pointY + 2));
+				this._indicators[i].setAttribute("x", `${pointX}`);
+				this._indicators[i].setAttribute("y", `${pointY + 2}`);
 			}
 		}
 		this._controlPointPath.setAttribute("d", controlPointPath);
 		this._dottedLinePath.setAttribute("d", dottedLinePath);
 		if (this._addingPoint && !this._mouseDown && this._mouseOver) {
-			this._label.textContent = "+ " + Config.filterTypeNames[this._addedType];
+			this._label.textContent = `+ ${Config.filterTypeNames[this._addedType]}`;
 		}
 
 		// Hide unused control point labels
@@ -643,7 +643,7 @@ export class FilterEditor {
 		}
 
 		const response: FrequencyResponse = new FrequencyResponse();
-		let responsePath: string = "M 0 " + this._editorHeight + " ";
+		let responsePath: string = `M 0 ${this._editorHeight} `;
 		for (let i: number = -1; i <= Config.filterFreqRange; i++) {
 			const hz: number = FilterControlPoint.getHzFromSettingValue(i);
 			const cornerRadiansPerSample: number = (2.0 * Math.PI * hz) / standardSampleRate;
@@ -659,10 +659,10 @@ export class FilterEditor {
 			const gainSetting: number = Math.log2(linearGain) / Config.filterGainStep + Config.filterGainCenter;
 			const y: number = this._gainToY(gainSetting);
 			const x: number = this._freqToX(i);
-			responsePath += "L " + prettyNumber(x) + " " + prettyNumber(y) + " ";
+			responsePath += `L ${prettyNumber(x)} ${prettyNumber(y)} `;
 		}
 
-		responsePath += "L " + this._editorWidth + " " + this._editorHeight + " L 0 " + this._editorHeight + " z ";
+		responsePath += `L ${this._editorWidth} ${this._editorHeight} L 0 ${this._editorHeight} z `;
 		this._responsePath.setAttribute("d", responsePath);
 	}
 
@@ -798,7 +798,7 @@ export class FilterEditor {
 			if (useHistory) {
 				this.selfUndoSettings.length = this.selfUndoHistoryPos + 1;
 				// Swap from|to:filterInitSettings
-				this.selfUndoSettings.push("jmp" + oldIndex + "|" + newIndex + ":" + JSON.stringify(this._subFilters[newIndex].toJsonObject()));
+				this.selfUndoSettings.push(`jmp${oldIndex}|${newIndex}:${JSON.stringify(this._subFilters[newIndex].toJsonObject())}`);
 				this.selfUndoHistoryPos++;
 			}
 

@@ -63,9 +63,9 @@ export class ModSliderRegistry {
 		index = index === undefined ? 0 : index;
 		const p = this._provider;
 		switch (setting) {
-			case Config.modulators.dictionary["pan"].index:
+			case Config.modulators.dictionary.pan.index:
 				return p.panSlider;
-			case Config.modulators.dictionary["detune"].index:
+			case Config.modulators.dictionary.detune.index:
 				return p.detuneSlider;
 			case Config.modulators.dictionary["fm slider 1"].index:
 				return p.operatorAmplitudeSliders[0];
@@ -81,9 +81,9 @@ export class ModSliderRegistry {
 				return p.pulseWidthSlider;
 			case Config.modulators.dictionary["decimal offset"].index:
 				return p.decimalOffsetSlider;
-			case Config.modulators.dictionary["reverb"].index:
+			case Config.modulators.dictionary.reverb.index:
 				return p.reverbSlider;
-			case Config.modulators.dictionary["distortion"].index:
+			case Config.modulators.dictionary.distortion.index:
 				return p.distortionSlider;
 			case Config.modulators.dictionary["note volume"].index:
 				// So, this should technically not affect this slider, but it will look better as legacy songs used this mod as 'volume'.
@@ -104,7 +104,7 @@ export class ModSliderRegistry {
 				return p.arpeggioSpeedSlider;
 			case Config.modulators.dictionary["pan delay"].index:
 				return p.panDelaySlider;
-			case Config.modulators.dictionary["tempo"].index:
+			case Config.modulators.dictionary.tempo.index:
 				return p.tempoSlider;
 			case Config.modulators.dictionary["song volume"].index:
 				return p.volumeSlider;
@@ -122,13 +122,13 @@ export class ModSliderRegistry {
 				return p.bitcrusherFreqSlider;
 			case Config.modulators.dictionary["pitch shift"].index:
 				return p.pitchShiftSlider;
-			case Config.modulators.dictionary["chorus"].index:
+			case Config.modulators.dictionary.chorus.index:
 				return p.chorusSlider;
-			case Config.modulators.dictionary["echo"].index:
+			case Config.modulators.dictionary.echo.index:
 				return p.echoSustainSlider;
 			case Config.modulators.dictionary["echo delay"].index:
 				return p.echoDelaySlider;
-			case Config.modulators.dictionary["sustain"].index:
+			case Config.modulators.dictionary.sustain.index:
 				return p.stringSustainSlider;
 			case Config.modulators.dictionary["fm slider 5"].index:
 				return p.operatorAmplitudeSliders[4];
@@ -136,9 +136,9 @@ export class ModSliderRegistry {
 				return p.operatorAmplitudeSliders[5];
 			case Config.modulators.dictionary["envelope speed"].index:
 				return p.envelopeSpeedSlider;
-			case Config.modulators.dictionary["dynamism"].index:
+			case Config.modulators.dictionary.dynamism.index:
 				return p.supersawDynamismSlider;
-			case Config.modulators.dictionary["spread"].index:
+			case Config.modulators.dictionary.spread.index:
 				return p.supersawSpreadSlider;
 			case Config.modulators.dictionary["saw shape"].index:
 				return p.supersawShapeSlider;
@@ -152,7 +152,7 @@ export class ModSliderRegistry {
 				return p.ringModSlider;
 			case Config.modulators.dictionary["ring mod hertz"].index:
 				return p.ringModHzSlider;
-			case Config.modulators.dictionary["phaser"].index:
+			case Config.modulators.dictionary.phaser.index:
 				return p.phaserMixSlider;
 			case Config.modulators.dictionary["phaser frequency"].index:
 				return p.phaserFreqSlider;
@@ -160,7 +160,7 @@ export class ModSliderRegistry {
 				return p.phaserFeedbackSlider;
 			case Config.modulators.dictionary["phaser stages"].index:
 				return p.phaserStagesSlider;
-			case Config.modulators.dictionary["granular"].index:
+			case Config.modulators.dictionary.granular.index:
 				return p.granularSlider;
 			case Config.modulators.dictionary["grain freq"].index:
 				return p.grainAmountsSlider;

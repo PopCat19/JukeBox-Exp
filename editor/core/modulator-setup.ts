@@ -45,7 +45,7 @@ export class ModulatorSetup {
 					{
 						class: "tip",
 						style: "width: 10%; max-width: 5.4em;",
-						id: "modChannelText" + mod,
+						id: `modChannelText${mod}`,
 						onclick: () => host.openPrompt("modChannel"),
 					},
 					"Ch:",
@@ -55,7 +55,7 @@ export class ModulatorSetup {
 					{
 						class: "tip",
 						style: "width: 1.2em; margin-left: 0.8em;",
-						id: "modInstrumentText" + mod,
+						id: `modInstrumentText${mod}`,
 						onclick: () => host.openPrompt("modInstrument"),
 					},
 					"Ins:",
@@ -67,7 +67,7 @@ export class ModulatorSetup {
 			const modFilterBox: HTMLSelectElement = select();
 			const modEnvelopeBox: HTMLSelectElement = select();
 			const modSetRow: HTMLDivElement = div(
-				{ class: "selectRow", id: "modSettingText" + mod, style: "margin-bottom: 0.9em; color: currentColor;" },
+				{ class: "selectRow", id: `modSettingText${mod}`, style: "margin-bottom: 0.9em; color: currentColor;" },
 				span(
 					{
 						class: "tip",
@@ -75,22 +75,22 @@ export class ModulatorSetup {
 					},
 					"Setting: ",
 				),
-				span({ class: "tip", style: "font-size:x-small;", onclick: () => host.openPrompt("modSetInfo" + mod) }, "?"),
+				span({ class: "tip", style: "font-size:x-small;", onclick: () => host.openPrompt(`modSetInfo${mod}`) }, "?"),
 				div({ class: "selectContainer" }, modSetBox),
 			);
 			const modFilterRow: HTMLDivElement = div(
-				{ class: "selectRow", id: "modFilterText" + mod, style: "margin-bottom: 0.9em; color: currentColor;" },
+				{ class: "selectRow", id: `modFilterText${mod}`, style: "margin-bottom: 0.9em; color: currentColor;" },
 				span(
 					{
 						class: "tip",
-						onclick: () => host.openPrompt("modFilter" + mod),
+						onclick: () => host.openPrompt(`modFilter${mod}`),
 					},
 					"Target: ",
 				),
 				div({ class: "selectContainer" }, modFilterBox),
 			);
 			const modEnvelopeRow: HTMLDivElement = div(
-				{ class: "selectRow", id: "modEnvelopeText" + mod, style: "margin-bottom: 0.9em; color: currentColor;" },
+				{ class: "selectRow", id: `modEnvelopeText${mod}`, style: "margin-bottom: 0.9em; color: currentColor;" },
 				span(
 					{
 						class: "tip",
@@ -148,7 +148,7 @@ export class ModulatorSetup {
 							ColorConfig.uiWidgetBackground +
 							";",
 					},
-					["Modulator " + (mod + 1), modTarget],
+					[`Modulator ${mod + 1}`, modTarget],
 				),
 			);
 			host.modulatorGroup.appendChild(modNameRow);

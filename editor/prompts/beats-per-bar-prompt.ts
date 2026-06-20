@@ -48,9 +48,9 @@ export class BeatsPerBarPrompt extends BasePrompt {
 	constructor(doc: SongDocument) {
 		super(doc);
 		this.buildTitlebar();
-		this._beatsStepper.value = this._doc.song.beatsPerBar + "";
-		this._beatsStepper.min = Config.beatsPerBarMin + "";
-		this._beatsStepper.max = Config.beatsPerBarMax + "";
+		this._beatsStepper.value = `${this._doc.song.beatsPerBar}`;
+		this._beatsStepper.min = `${Config.beatsPerBarMin}`;
+		this._beatsStepper.max = `${Config.beatsPerBarMax}`;
 
 		const lastStrategy: string | null = window.localStorage.getItem("beatCountStrategy");
 		if (lastStrategy != null) {

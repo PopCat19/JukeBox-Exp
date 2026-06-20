@@ -55,15 +55,15 @@ export class FilterSettings {
 		if (filterObject) {
 			for (const pointObject of filterObject) {
 				const point: FilterControlPoint = new FilterControlPoint();
-				point.type = Config.filterTypeNames.indexOf(pointObject["type"]);
+				point.type = Config.filterTypeNames.indexOf(pointObject.type);
 				if (<any>point.type === -1) point.type = FilterType.peak;
-				if (pointObject["cutoffHz"] !== undefined) {
-					point.freq = FilterControlPoint.getRoundedSettingValueFromHz(pointObject["cutoffHz"]);
+				if (pointObject.cutoffHz !== undefined) {
+					point.freq = FilterControlPoint.getRoundedSettingValueFromHz(pointObject.cutoffHz);
 				} else {
 					point.freq = 0;
 				}
-				if (pointObject["linearGain"] !== undefined) {
-					point.gain = FilterControlPoint.getRoundedSettingValueFromLinearGain(pointObject["linearGain"]);
+				if (pointObject.linearGain !== undefined) {
+					point.gain = FilterControlPoint.getRoundedSettingValueFromLinearGain(pointObject.linearGain);
 				} else {
 					point.gain = Config.filterGainCenter;
 				}

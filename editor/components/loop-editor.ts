@@ -341,8 +341,8 @@ export class LoopEditor {
 			this._renderedBarCount = this._doc.song.barCount;
 			this._renderedBarWidth = this._barWidth;
 			const editorWidth = this._barWidth * this._doc.song.barCount;
-			this.container.style.width = editorWidth + "px";
-			this._svg.setAttribute("width", editorWidth + "");
+			this.container.style.width = `${editorWidth}px`;
+			this._svg.setAttribute("width", `${editorWidth}`);
 		}
 
 		if (this._renderedLoopStart !== loopStart || this._renderedLoopStop !== loopStop) {

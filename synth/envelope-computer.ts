@@ -117,7 +117,7 @@ export class EnvelopeComputer {
 	): void {
 		const secondsPerTickUnscaled: number = secondsPerTick;
 		const transition: Transition = instrument.getTransition();
-		if (tone != null && tone.atNoteStart && !transition.continues && !tone.forceContinueAtStart) {
+		if (tone?.atNoteStart && !transition.continues && !tone.forceContinueAtStart) {
 			this.prevNoteSecondsEndUnscaled = this.noteSecondsEndUnscaled;
 			this.prevNoteTicksEnd = this.noteTicksEnd;
 			this._prevNoteSizeFinal = this._noteSizeFinal;
@@ -240,7 +240,7 @@ export class EnvelopeComputer {
 			if (envelopeIndex === instrument.envelopeCount) {
 				if (usedNoteSize /*|| !this._perNote*/) break;
 				// Special case: if no other envelopes used note size, default to applying it to note volume.
-				automationTarget = Config.instrumentAutomationTargets.dictionary["noteVolume"];
+				automationTarget = Config.instrumentAutomationTargets.dictionary.noteVolume;
 				targetIndex = 0;
 				envelope = Config.newEnvelopes.dictionary["note size"];
 			} else {
@@ -548,7 +548,7 @@ export class EnvelopeComputer {
 				switch (waveform) {
 					case RandomEnvelopeTypes.time: {
 						if (step <= 1) return 1;
-						const timeHash: number = xxHash32((perEnvelopeSpeed === 0 ? 0 : Math.floor((timeSinceStart * perEnvelopeSpeed) / 256)) + "", seed);
+						const timeHash: number = xxHash32(`${perEnvelopeSpeed === 0 ? 0 : Math.floor((timeSinceStart * perEnvelopeSpeed) / 256)}`, seed);
 						if (inverse) {
 							return perEnvelopeUpperBound - (boundAdjust * (step / (step - 1)) * Math.floor((timeHash * step) / (hashMax + 1))) / step;
 						} else {
@@ -556,7 +556,7 @@ export class EnvelopeComputer {
 						}
 					}
 					case RandomEnvelopeTypes.pitch: {
-						const pitchHash: number = xxHash32(defaultPitch + "", seed);
+						const pitchHash: number = xxHash32(`${defaultPitch}`, seed);
 						if (inverse) {
 							return perEnvelopeUpperBound - (boundAdjust * pitchHash) / (hashMax + 1);
 						} else {
@@ -565,7 +565,7 @@ export class EnvelopeComputer {
 					}
 					case RandomEnvelopeTypes.note: {
 						if (step <= 1) return 1;
-						const noteHash: number = xxHash32(notePinStart + "", seed);
+						const noteHash: number = xxHash32(`${notePinStart}`, seed);
 						if (inverse) {
 							return perEnvelopeUpperBound - (boundAdjust * (step / (step - 1)) * Math.floor((noteHash * step) / (hashMax + 1))) / step;
 						} else {
@@ -573,11 +573,8 @@ export class EnvelopeComputer {
 						}
 					}
 					case RandomEnvelopeTypes.timeSmooth: {
-						const timeHashA: number = xxHash32((perEnvelopeSpeed === 0 ? 0 : Math.floor((timeSinceStart * perEnvelopeSpeed) / 256)) + "", seed);
-						const timeHashB: number = xxHash32(
-							(perEnvelopeSpeed === 0 ? 0 : Math.floor((timeSinceStart * perEnvelopeSpeed + 256) / 256)) + "",
-							seed,
-						);
+						const timeHashA: number = xxHash32(`${perEnvelopeSpeed === 0 ? 0 : Math.floor((timeSinceStart * perEnvelopeSpeed) / 256)}`, seed);
+						const timeHashB: number = xxHash32(`${perEnvelopeSpeed === 0 ? 0 : Math.floor((timeSinceStart * perEnvelopeSpeed + 256) / 256)}`, seed);
 						const weightedAverage: number =
 							timeHashA * (1 - (((timeSinceStart * perEnvelopeSpeed) / 256) % 1)) + timeHashB * (((timeSinceStart * perEnvelopeSpeed) / 256) % 1);
 						if (inverse) {
@@ -587,7 +584,7 @@ export class EnvelopeComputer {
 						}
 					}
 					default:
-						throw new Error("Unrecognized operator envelope waveform type: " + waveform);
+						throw new Error(`Unrecognized operator envelope waveform type: ${waveform}`);
 				}
 			}
 			case EnvelopeType.twang:
@@ -667,7 +664,7 @@ export class EnvelopeComputer {
 						return (Math.round(tri * (steps - 1)) * boundAdjust) / (steps - 1) + perEnvelopeLowerBound;
 					}
 					default:
-						throw new Error("Unrecognized operator envelope waveform type: " + waveform);
+						throw new Error(`Unrecognized operator envelope waveform type: ${waveform}`);
 				}
 			case EnvelopeType.tremolo2: // kept only for drumsets right now
 				if (inverse) {

@@ -142,7 +142,8 @@ export class PromptManager {
 				target instanceof HTMLSelectElement ||
 				target instanceof HTMLTextAreaElement ||
 				target.closest(".slider")
-			) return;
+			)
+				return;
 			e.preventDefault();
 			for (const p of this._prompts) {
 				if (p.container.contains(target)) {
@@ -286,8 +287,8 @@ export class PromptManager {
 			if (x < 0 || y < 0 || x + rect.width > containerWidth || y + rect.height > containerHeight) {
 				x = Math.max(0, Math.min(x, containerWidth - rect.width));
 				y = Math.max(0, Math.min(y, containerHeight - rect.height));
-				p.container.style.left = x + "px";
-				p.container.style.top = y + "px";
+				p.container.style.left = `${x}px`;
+				p.container.style.top = `${y}px`;
 				this._promptPositions.set(p.name!, { x, y });
 			}
 		}
@@ -569,8 +570,8 @@ export class PromptManager {
 		const h = this._host.mainLayer.clientHeight;
 		x = Math.max(0, Math.min(x, w - rect.width));
 		y = Math.max(0, Math.min(y, h - rect.height));
-		prompt.container.style.left = x + "px";
-		prompt.container.style.top = y + "px";
+		prompt.container.style.left = `${x}px`;
+		prompt.container.style.top = `${y}px`;
 		this._promptPositions.set(name, { x, y });
 	}
 
@@ -610,8 +611,8 @@ export class PromptManager {
 			}
 		}
 
-		prompt.container.style.left = x + "px";
-		prompt.container.style.top = y + "px";
+		prompt.container.style.left = `${x}px`;
+		prompt.container.style.top = `${y}px`;
 		this._promptPositions.set(name, { x, y });
 	}
 
@@ -622,8 +623,8 @@ export class PromptManager {
 		const h = this._host.mainLayer.clientHeight;
 		const x = Math.max(0, (w - rect.width) / 2);
 		const y = Math.max(0, (h - rect.height) / 2);
-		prompt.container.style.left = x + "px";
-		prompt.container.style.top = y + "px";
+		prompt.container.style.left = `${x}px`;
+		prompt.container.style.top = `${y}px`;
 		this._promptPositions.set(name, { x, y });
 	}
 
@@ -654,8 +655,8 @@ export class PromptManager {
 				const h = this._host.mainLayer.clientHeight;
 				const x = Math.max(0, Math.min(me.clientX - startX, w - rect.width));
 				const y = Math.max(0, Math.min(me.clientY - startY, h - rect.height));
-				prompt.container.style.left = x + "px";
-				prompt.container.style.top = y + "px";
+				prompt.container.style.left = `${x}px`;
+				prompt.container.style.top = `${y}px`;
 				this._promptPositions.set(promptName, { x, y });
 			};
 			const onUp = (): void => {

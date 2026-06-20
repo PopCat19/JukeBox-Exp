@@ -204,7 +204,7 @@ function hexColor(rgb: string): string {
 	if (!m || m.length < 3) return rgb;
 	const hex = m
 		.slice(0, 3)
-		.map((v) => parseInt(v).toString(16).padStart(2, "0"))
+		.map((v) => parseInt(v, 10).toString(16).padStart(2, "0"))
 		.join("");
 	return `#${hex}`;
 }
@@ -238,7 +238,7 @@ function elementHtml(el: Element, maxLen = 120): string {
 	const inline = clone.getAttribute("style");
 	if (inline) clone.setAttribute("style", inline.replace(/\s*outline:\s*[^;]+;?\s*/gi, ""));
 	const html = clone.outerHTML;
-	return html.length > maxLen ? html.slice(0, maxLen) + "…" : html;
+	return html.length > maxLen ? `${html.slice(0, maxLen)}…` : html;
 }
 
 function addStrip(
@@ -681,7 +681,7 @@ function captureStyles(): void {
 				classes: Array.from(el.classList),
 				siblingIndex: siblings.length > 1 ? siblingIndex : undefined,
 				parent: parentInfo,
-				html: html.length > 1000 ? html.slice(0, 1000) + "…" : html,
+				html: html.length > 1000 ? `${html.slice(0, 1000)}…` : html,
 				...(inputInfo ? { input: inputInfo } : {}),
 				styles,
 			},

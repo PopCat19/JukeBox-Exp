@@ -131,7 +131,7 @@ export class CustomFilterPrompt extends BasePrompt {
 			this._setSubfilter(0);
 		});
 		for (let i: number = 1; i < Config.filterMorphCount; i++) {
-			const newSubButton: HTMLButtonElement = selectorButton("" + i, { class: "filterBtnSub" });
+			const newSubButton: HTMLButtonElement = selectorButton(`${i}`, { class: "filterBtnSub" });
 			this._filterButtons.push(newSubButton);
 			this._filterButtonContainer.appendChild(newSubButton);
 			newSubButton.addEventListener("click", () => {

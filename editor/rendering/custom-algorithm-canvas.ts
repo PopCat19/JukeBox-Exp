@@ -259,14 +259,14 @@ export class CustomAlgorithmCanvas {
 						ctx.fillStyle = ColorConfig.getComputed("--editor-background");
 						ctx.fillRect(x * 24 + 13, y * 24 + 1, 10, 10);
 						ctx.fillStyle = ColorConfig.getComputedChannelColor(this._doc.song, this._doc.channel).primaryNote;
-						ctx.fillText(this.drawArray[y][x] + "", x * 24 + 14, y * 24 + 10);
+						ctx.fillText(`${this.drawArray[y][x]}`, x * 24 + 14, y * 24 + 10);
 					} else {
 						ctx.fillStyle = ColorConfig.getComputedChannelColor(this._doc.song, this._doc.channel).primaryNote;
 						ctx.fillRect(x * 24 + 12, y * 24, 12, 12);
 						ctx.fillStyle = ColorConfig.getComputed("--editor-background");
 						ctx.fillRect(x * 24 + 13, y * 24 + 1, 10, 10);
 						ctx.fillStyle = ColorConfig.getComputed("--primary-text");
-						ctx.fillText(this.drawArray[y][x] + "", x * 24 + 14, y * 24 + 10);
+						ctx.fillText(`${this.drawArray[y][x]}`, x * 24 + 14, y * 24 + 10);
 					}
 				}
 			}
@@ -297,7 +297,7 @@ export class CustomAlgorithmCanvas {
 					this.selected = this.drawArray[yindex][xindex];
 					ctx.fillRect(xindex * 24 + 12, yindex * 24, 12, 12);
 					ctx.fillStyle = ColorConfig.getComputed("--editor-background");
-					ctx.fillText(this.drawArray[yindex][xindex] + "", xindex * 24 + 14, yindex * 24 + 10);
+					ctx.fillText(`${this.drawArray[yindex][xindex]}`, xindex * 24 + 14, yindex * 24 + 10);
 					this.mouseDown = false;
 				}
 			} else {

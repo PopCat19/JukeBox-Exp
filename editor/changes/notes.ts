@@ -946,7 +946,7 @@ export class ChangeCleanChannelInstruments extends Change {
 						} else {
 							// Instrument was dropped — reset to none
 							modInstrument.modInstruments[mod] = 0;
-							modInstrument.modulators[mod] = Config.modulators.dictionary["none"].index;
+							modInstrument.modulators[mod] = Config.modulators.dictionary.none.index;
 						}
 					}
 				}
@@ -1142,7 +1142,7 @@ class ChangeTransposeNote extends UndoableChange {
 					pitch = Math.max(0, pitch - 12);
 				}
 			} else {
-				const scale = doc.song.scale === Config.scales.dictionary["Custom"].index ? doc.song.scaleCustom : Config.scales[doc.song.scale].flags;
+				const scale = doc.song.scale === Config.scales.dictionary.Custom.index ? doc.song.scaleCustom : Config.scales[doc.song.scale].flags;
 				if (upward) {
 					for (let j: number = pitch + 1; j <= maxPitch; j++) {
 						if (isNoise || ignoreScale || scale[j % 12]) {
@@ -1191,7 +1191,7 @@ class ChangeTransposeNote extends UndoableChange {
 					interval = Math.max(min, interval - 12);
 				}
 			} else {
-				const scale = doc.song.scale === Config.scales.dictionary["Custom"].index ? doc.song.scaleCustom : Config.scales[doc.song.scale].flags;
+				const scale = doc.song.scale === Config.scales.dictionary.Custom.index ? doc.song.scaleCustom : Config.scales[doc.song.scale].flags;
 				if (upward) {
 					for (let i: number = interval + 1; i <= max; i++) {
 						if (isNoise || ignoreScale || scale[i % 12]) {
@@ -1583,19 +1583,19 @@ export class ChangePaste extends ChangeGroup {
 
 		while (selectionStart < selectionEnd) {
 			for (const noteObject of notes) {
-				const noteStart: number = noteObject["start"] + selectionStart;
-				const noteEnd: number = noteObject["end"] + selectionStart;
+				const noteStart: number = noteObject.start + selectionStart;
+				const noteEnd: number = noteObject.end + selectionStart;
 				if (noteStart >= selectionEnd) break;
-				const note: Note = new Note(noteObject["pitches"][0], noteStart, noteEnd, noteObject["pins"][0]["size"], false);
+				const note: Note = new Note(noteObject.pitches[0], noteStart, noteEnd, noteObject.pins[0].size, false);
 				note.pitches.length = 0;
-				for (const pitch of noteObject["pitches"]) {
+				for (const pitch of noteObject.pitches) {
 					note.pitches.push(pitch);
 				}
 				note.pins.length = 0;
-				for (const pin of noteObject["pins"]) {
+				for (const pin of noteObject.pins) {
 					note.pins.push(makeNotePin(pin.interval, pin.time, pin.size));
 				}
-				note.continuesLastPattern = noteObject["continuesLastPattern"] === true && note.start === 0;
+				note.continuesLastPattern = noteObject.continuesLastPattern === true && note.start === 0;
 				pattern.notes.splice(noteInsertionIndex++, 0, note);
 				if (note.end > selectionEnd) {
 					this.append(new ChangeNoteLength(doc, note, note.start, selectionEnd));
@@ -1618,7 +1618,7 @@ export class ChangePaste extends ChangeGroup {
 export class ChangePasteInstrument extends ChangeGroup {
 	constructor(doc: SongDocument, instrument: Instrument, instrumentCopy: any) {
 		super();
-		instrument.fromJsonObject(instrumentCopy, instrumentCopy["isDrum"], instrumentCopy["isMod"], false, false);
+		instrument.fromJsonObject(instrumentCopy, instrumentCopy.isDrum, instrumentCopy.isMod, false, false);
 		doc.notifier.changed();
 		this._didSomething();
 	}
@@ -1627,8 +1627,8 @@ export class ChangePasteInstrument extends ChangeGroup {
 export class ChangeAppendInstrument extends ChangeGroup {
 	constructor(doc: SongDocument, channel: Channel, instrument: any) {
 		super();
-		const newInstrument: Instrument = new Instrument(instrument["isDrum"], instrument["isMod"]);
-		newInstrument.fromJsonObject(instrument, instrument["isDrum"], instrument["isMod"], false, false);
+		const newInstrument: Instrument = new Instrument(instrument.isDrum, instrument.isMod);
+		newInstrument.fromJsonObject(instrument, instrument.isDrum, instrument.isMod, false, false);
 		channel.instruments.push(newInstrument);
 		this._didSomething();
 		doc.notifier.changed();

@@ -69,11 +69,6 @@ export class UndoableChange extends Change {
 }
 
 export class ChangeGroup extends Change {
-	// eslint-disable-next-line @typescript-eslint/no-useless-constructor
-	constructor() {
-		super();
-	}
-
 	public append(change: Change): void {
 		if (change.isNoop()) return;
 		this._didSomething();

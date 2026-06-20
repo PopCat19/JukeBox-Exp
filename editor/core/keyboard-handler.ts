@@ -257,7 +257,7 @@ export class KeyboardHandler {
 					host.refocusStage();
 				} else if (canPlayNotes) break;
 				if (needControlForShortcuts === (event.ctrlKey || event.metaKey) && event.shiftKey) {
-					location.href = "player/" + (OFFLINE ? "index.html" : "") + "#song=" + doc.song.toBase64String();
+					location.href = `player/${OFFLINE ? "index.html" : ""}#song=${doc.song.toBase64String()}`;
 					event.preventDefault();
 				}
 				break;
@@ -268,7 +268,7 @@ export class KeyboardHandler {
 
 					if (localShortenerStrategy === "isgd") shortenerStrategy = "https://is.gd/create.php?format=simple&url=";
 
-					window.open(shortenerStrategy + encodeURIComponent(new URL("#" + doc.song.toBase64String(), location.href).href));
+					window.open(shortenerStrategy + encodeURIComponent(new URL(`#${doc.song.toBase64String()}`, location.href).href));
 				}
 				break;
 			case 190: // . (period) — hold to preview the hovered note
@@ -424,7 +424,7 @@ export class KeyboardHandler {
 				} else {
 					if (canPlayNotes) break;
 					if (needControlForShortcuts === (event.ctrlKey || event.metaKey)) {
-						doc.selection.duplicatePatterns(event.shiftKey ? false : true);
+						doc.selection.duplicatePatterns(!event.shiftKey);
 						event.preventDefault();
 					}
 				}
@@ -729,15 +729,15 @@ export class KeyboardHandler {
 				if (needControlForShortcuts === (event.ctrlKey || event.metaKey) && event.shiftKey) {
 					const instrument: Instrument = doc.getCurrentInstrumentObj();
 					const instrumentObject: Record<string, any> = instrument.toJsonObject() as Record<string, any>;
-					delete instrumentObject["preset"];
-					delete instrumentObject["volume"];
-					delete instrumentObject["pan"];
-					const panningEffectIndex: number = instrumentObject["effects"].indexOf(Config.effectNames[EffectType.panning]);
-					if (panningEffectIndex !== -1) instrumentObject["effects"].splice(panningEffectIndex, 1);
-					for (let i: number = 0; i < instrumentObject["envelopes"].length; i++) {
-						const envelope: Record<string, any> = instrumentObject["envelopes"][i] as Record<string, any>;
-						if (envelope["target"] === "panning" || envelope["target"] === "none" || envelope["envelope"] === "none") {
-							instrumentObject["envelopes"].splice(i, 1);
+					delete instrumentObject.preset;
+					delete instrumentObject.volume;
+					delete instrumentObject.pan;
+					const panningEffectIndex: number = instrumentObject.effects.indexOf(Config.effectNames[EffectType.panning]);
+					if (panningEffectIndex !== -1) instrumentObject.effects.splice(panningEffectIndex, 1);
+					for (let i: number = 0; i < instrumentObject.envelopes.length; i++) {
+						const envelope: Record<string, any> = instrumentObject.envelopes[i] as Record<string, any>;
+						if (envelope.target === "panning" || envelope.target === "none" || envelope.envelope === "none") {
+							instrumentObject.envelopes.splice(i, 1);
 							i--;
 						}
 					}

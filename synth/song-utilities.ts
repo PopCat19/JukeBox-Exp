@@ -231,18 +231,18 @@ export function parseAndConfigureCustomSample(
 		// Store in the new format.
 		let urlWithNamedOptions = urlSliced;
 		const namedOptions: string[] = [];
-		if (customSampleRate !== Config.defaultSampleRate) namedOptions.push("s" + customSampleRate);
-		if (customRootKey !== 60) namedOptions.push("r" + customRootKey);
+		if (customSampleRate !== Config.defaultSampleRate) namedOptions.push(`s${customSampleRate}`);
+		if (customRootKey !== 60) namedOptions.push(`r${customRootKey}`);
 		if (isCustomPercussive) namedOptions.push("p");
 		if (presetIsUsingAdvancedLoopControls) {
-			if (presetChipWaveLoopStart != null) namedOptions.push("a" + presetChipWaveLoopStart);
-			if (presetChipWaveLoopEnd != null) namedOptions.push("b" + presetChipWaveLoopEnd);
-			if (presetChipWaveStartOffset != null) namedOptions.push("c" + presetChipWaveStartOffset);
-			if (presetChipWaveLoopMode != null) namedOptions.push("d" + presetChipWaveLoopMode);
+			if (presetChipWaveLoopStart != null) namedOptions.push(`a${presetChipWaveLoopStart}`);
+			if (presetChipWaveLoopEnd != null) namedOptions.push(`b${presetChipWaveLoopEnd}`);
+			if (presetChipWaveStartOffset != null) namedOptions.push(`c${presetChipWaveStartOffset}`);
+			if (presetChipWaveLoopMode != null) namedOptions.push(`d${presetChipWaveLoopMode}`);
 			if (presetChipWavePlayBackwards) namedOptions.push("e");
 		}
 		if (namedOptions.length > 0) {
-			urlWithNamedOptions = "!" + namedOptions.join(",") + "!" + urlSliced;
+			urlWithNamedOptions = `!${namedOptions.join(",")}!${urlSliced}`;
 		}
 		customSampleUrls[customSampleUrlIndex] = urlWithNamedOptions;
 
@@ -308,12 +308,12 @@ export function parseAndConfigureCustomSample(
 			envelopes: [],
 		};
 		if (presetIsUsingAdvancedLoopControls) {
-			customSamplePresetSettings["isUsingAdvancedLoopControls"] = true;
-			customSamplePresetSettings["chipWaveLoopStart"] = presetChipWaveLoopStart != null ? presetChipWaveLoopStart : 0;
-			customSamplePresetSettings["chipWaveLoopEnd"] = presetChipWaveLoopEnd != null ? presetChipWaveLoopEnd : 2;
-			customSamplePresetSettings["chipWaveLoopMode"] = presetChipWaveLoopMode != null ? presetChipWaveLoopMode : 0;
-			customSamplePresetSettings["chipWavePlayBackwards"] = presetChipWavePlayBackwards;
-			customSamplePresetSettings["chipWaveStartOffset"] = presetChipWaveStartOffset != null ? presetChipWaveStartOffset : 0;
+			customSamplePresetSettings.isUsingAdvancedLoopControls = true;
+			customSamplePresetSettings.chipWaveLoopStart = presetChipWaveLoopStart != null ? presetChipWaveLoopStart : 0;
+			customSamplePresetSettings.chipWaveLoopEnd = presetChipWaveLoopEnd != null ? presetChipWaveLoopEnd : 2;
+			customSamplePresetSettings.chipWaveLoopMode = presetChipWaveLoopMode != null ? presetChipWaveLoopMode : 0;
+			customSamplePresetSettings.chipWavePlayBackwards = presetChipWavePlayBackwards;
+			customSamplePresetSettings.chipWaveStartOffset = presetChipWaveStartOffset != null ? presetChipWaveStartOffset : 0;
 		}
 		const customSamplePreset: PresetLike = {
 			index: 0, // This should be overwritten by toNameMap, in our caller.

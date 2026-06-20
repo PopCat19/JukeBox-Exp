@@ -60,12 +60,12 @@ import {
 } from "./synth-config";
 import { clamp, convertLegacyKeyToKeyAndOctave, secondsToFadeInSetting, ticksToFadeOutSetting, validateRange } from "./util";
 
-const ENV_PITCH: number = Config.newEnvelopes.dictionary["pitch"].index;
-const ENV_RANDOM: number = Config.newEnvelopes.dictionary["random"].index;
-const ENV_LFO: number = Config.newEnvelopes.dictionary["lfo"].index;
-const ENV_NONE: number = Config.newEnvelopes.dictionary["none"].index;
+const ENV_PITCH: number = Config.newEnvelopes.dictionary.pitch.index;
+const ENV_RANDOM: number = Config.newEnvelopes.dictionary.random.index;
+const ENV_LFO: number = Config.newEnvelopes.dictionary.lfo.index;
+const ENV_NONE: number = Config.newEnvelopes.dictionary.none.index;
 const ENV_NOTESIZE: number = Config.newEnvelopes.dictionary["note size"].index;
-const ENV_PUNCH: number = Config.newEnvelopes.dictionary["punch"].index;
+const ENV_PUNCH: number = Config.newEnvelopes.dictionary.punch.index;
 
 const FORMAT: string = Config.jsonFormat;
 const OLDEST_BEEPBOX_VERSION: number = 2;
@@ -451,7 +451,7 @@ export function toBase64StringImpl(song: SongLike): string {
 		base64IntToCharCode[song.modChannelCount],
 	);
 	buffer.push(SongTagCode.scale, base64IntToCharCode[song.scale]);
-	if (song.scale === Config.scales["dictionary"]["Custom"].index) {
+	if (song.scale === Config.scales.dictionary.Custom.index) {
 		for (let i = 1; i < Config.pitchesPerOctave; i++) {
 			buffer.push(base64IntToCharCode[song.scaleCustom[i] ? 1 : 0]); // ineffiecent? yes, but this is all that's needed for now
 		}
@@ -570,7 +570,7 @@ export function toBase64StringImpl(song: SongLike): string {
 				if (instrument.eqFilter == null) {
 					// Push null filter settings
 					buffer.push(base64IntToCharCode[0]);
-					console.log("Null EQ filter settings detected in toBase64String for channelIndex " + channelIndex + ", instrumentIndex " + i);
+					console.log(`Null EQ filter settings detected in toBase64String for channelIndex ${channelIndex}, instrumentIndex ${i}`);
 				} else {
 					buffer.push(base64IntToCharCode[instrument.eqFilter.controlPointCount]);
 					for (let j: number = 0; j < instrument.eqFilter.controlPointCount; j++) {
@@ -618,7 +618,7 @@ export function toBase64StringImpl(song: SongLike): string {
 					if (instrument.noteFilter == null) {
 						// Push null filter settings
 						buffer.push(base64IntToCharCode[0]);
-						console.log("Null note filter settings detected in toBase64String for channelIndex " + channelIndex + ", instrumentIndex " + i);
+						console.log(`Null note filter settings detected in toBase64String for channelIndex ${channelIndex}, instrumentIndex ${i}`);
 					} else {
 						buffer.push(base64IntToCharCode[instrument.noteFilter.controlPointCount]);
 						for (let j: number = 0; j < instrument.noteFilter.controlPointCount; j++) {
@@ -660,11 +660,11 @@ export function toBase64StringImpl(song: SongLike): string {
 			if (effectsIncludeChord(instrument.effects)) {
 				buffer.push(base64IntToCharCode[instrument.chord]);
 				// Custom arpeggio speed... only if the instrument arpeggiates.
-				if (instrument.chord === Config.chords.dictionary["arpeggio"].index) {
+				if (instrument.chord === Config.chords.dictionary.arpeggio.index) {
 					buffer.push(base64IntToCharCode[instrument.arpeggioSpeed]);
 					buffer.push(base64IntToCharCode[+instrument.fastTwoNoteArp]); // Two note arp setting piggybacks on this
 				}
-				if (instrument.chord === Config.chords.dictionary["monophonic"].index) {
+				if (instrument.chord === Config.chords.dictionary.monophonic.index) {
 					buffer.push(base64IntToCharCode[instrument.monoChordTone]); // which note is selected
 				}
 			}
@@ -1111,7 +1111,7 @@ export function toBase64StringImpl(song: SongLike): string {
 					// 3 - None
 
 					let status: number = Config.modulators[modSetting].forSong ? 2 : 0;
-					if (modSetting === Config.modulators.dictionary["none"].index) {
+					if (modSetting === Config.modulators.dictionary.none.index) {
 						status = 3;
 					}
 
@@ -1307,7 +1307,7 @@ export function toBase64StringImpl(song: SongLike): string {
 	let customSamplesStr = "";
 	const customSamples = song.customSampleHandler?.getCustomSamples();
 	if (customSamples != null && customSamples.length > 0) {
-		customSamplesStr = "|" + customSamples.join("|");
+		customSamplesStr = `|${customSamples.join("|")}`;
 	}
 	// samplemark
 	if (buffer.length < maxApplyArgs) {
@@ -1473,7 +1473,7 @@ export function fromBase64StringImpl(song: SongLike, compressed: string, jsonFor
 	if (beforeThree && fromBeepBox) {
 		// Originally, the only instrument transition was "instant" and the only drum wave was "retro".
 		for (const channel of song.channels) {
-			channel.instruments[0].transition = Config.transitions.dictionary["interrupt"].index;
+			channel.instruments[0].transition = Config.transitions.dictionary.interrupt.index;
 			channel.instruments[0].effects |= 1 << EffectType.transition;
 		}
 		song.channels[3].instruments[0].chipNoise = 0;
@@ -1548,7 +1548,7 @@ export function fromBase64StringImpl(song: SongLike, compressed: string, jsonFor
 				{
 					song.scale = clamp(0, Config.scales.length, base64CharCodeToInt[compressed.charCodeAt(charIndex++)]);
 					// All the scales were jumbled around by Jummbox. Just convert to free.
-					if (song.scale === Config.scales["dictionary"]["Custom"].index) {
+					if (song.scale === Config.scales.dictionary.Custom.index) {
 						for (let i = 1; i < Config.pitchesPerOctave; i++) {
 							song.scaleCustom[i] = base64CharCodeToInt[compressed.charCodeAt(charIndex++)] === 1; // ineffiecent? yes, but this is all that's needed for now
 						}
@@ -1843,7 +1843,7 @@ export function fromBase64StringImpl(song: SongLike, compressed: string, jsonFor
 						// instrument.effects = 0;
 						// Chip/noise instruments had arpeggio and FM had custom interval but neither
 						// explicitly saved the chorus setting beforeSeven so enable it here.
-						if (instrument.chord !== Config.chords.dictionary["simultaneous"].index) {
+						if (instrument.chord !== Config.chords.dictionary.simultaneous.index) {
 							// Enable chord if it was used.
 							instrument.effects |= 1 << EffectType.chord;
 						}
@@ -2015,7 +2015,7 @@ export function fromBase64StringImpl(song: SongLike, compressed: string, jsonFor
 										} else {
 											legacySettings.filterCutoff = 10;
 											legacySettings.filterResonance = 0;
-											legacySettings.filterEnvelope = Config.envelopes.dictionary["none"];
+											legacySettings.filterEnvelope = Config.envelopes.dictionary.none;
 										}
 										instrument.convertLegacySettings(legacySettings, forceSimpleFilter);
 									}
@@ -2128,16 +2128,16 @@ export function fromBase64StringImpl(song: SongLike, compressed: string, jsonFor
 							}
 							const sampleLoopInfo: SampleLoopInfoEntry[] = JSON.parse(atob(sampleLoopInfoEncoded));
 							for (const entry of sampleLoopInfo) {
-								const channelIndex: number = entry["channel"];
-								const instrumentIndex: number = entry["instrument"];
-								const info: SampleLoopInfo = entry["info"];
+								const channelIndex: number = entry.channel;
+								const instrumentIndex: number = entry.instrument;
+								const info: SampleLoopInfo = entry.info;
 								const instrument: Instrument = song.channels[channelIndex].instruments[instrumentIndex];
-								instrument.isUsingAdvancedLoopControls = info["isUsingAdvancedLoopControls"];
-								instrument.chipWaveLoopStart = info["chipWaveLoopStart"];
-								instrument.chipWaveLoopEnd = info["chipWaveLoopEnd"];
-								instrument.chipWaveLoopMode = info["chipWaveLoopMode"];
-								instrument.chipWavePlayBackwards = info["chipWavePlayBackwards"];
-								instrument.chipWaveStartOffset = info["chipWaveStartOffset"];
+								instrument.isUsingAdvancedLoopControls = info.isUsingAdvancedLoopControls;
+								instrument.chipWaveLoopStart = info.chipWaveLoopStart;
+								instrument.chipWaveLoopEnd = info.chipWaveLoopEnd;
+								instrument.chipWaveLoopMode = info.chipWaveLoopMode;
+								instrument.chipWavePlayBackwards = info.chipWavePlayBackwards;
+								instrument.chipWaveStartOffset = info.chipWaveStartOffset;
 								// @TODO: Whenever chipWaveReleaseMode is implemented, it should be set here to the default.
 							}
 						} else {
@@ -2283,7 +2283,7 @@ export function fromBase64StringImpl(song: SongLike, compressed: string, jsonFor
 							instrument.fadeIn = secondsToFadeInSetting(settings.fadeInSeconds);
 							instrument.fadeOut = ticksToFadeOutSetting(settings.fadeOutTicks);
 							instrument.transition = Config.transitions.dictionary[settings.transition].index;
-							if (instrument.transition !== Config.transitions.dictionary["normal"].index) {
+							if (instrument.transition !== Config.transitions.dictionary.normal.index) {
 								// Enable transition if it was used.
 								instrument.effects |= 1 << EffectType.transition;
 							}
@@ -2294,7 +2294,7 @@ export function fromBase64StringImpl(song: SongLike, compressed: string, jsonFor
 									instrument.fadeIn = secondsToFadeInSetting(settings.fadeInSeconds);
 									instrument.fadeOut = ticksToFadeOutSetting(settings.fadeOutTicks);
 									instrument.transition = Config.transitions.dictionary[settings.transition].index;
-									if (instrument.transition !== Config.transitions.dictionary["normal"].index) {
+									if (instrument.transition !== Config.transitions.dictionary.normal.index) {
 										// Enable transition if it was used.
 										instrument.effects |= 1 << EffectType.transition;
 									}
@@ -2306,7 +2306,7 @@ export function fromBase64StringImpl(song: SongLike, compressed: string, jsonFor
 							instrument.fadeIn = secondsToFadeInSetting(settings.fadeInSeconds);
 							instrument.fadeOut = ticksToFadeOutSetting(settings.fadeOutTicks);
 							instrument.transition = Config.transitions.dictionary[settings.transition].index;
-							if (instrument.transition !== Config.transitions.dictionary["normal"].index) {
+							if (instrument.transition !== Config.transitions.dictionary.normal.index) {
 								// Enable transition if it was used.
 								instrument.effects |= 1 << EffectType.transition;
 							}
@@ -2322,9 +2322,9 @@ export function fromBase64StringImpl(song: SongLike, compressed: string, jsonFor
 								// Set legacy tie over flag, which is only used to port notes in patterns using this instrument as tying.
 								instrument.legacyTieOver = true;
 							}
-							instrument.clicklessTransition = base64CharCodeToInt[compressed.charCodeAt(charIndex++)] ? true : false;
+							instrument.clicklessTransition = !!base64CharCodeToInt[compressed.charCodeAt(charIndex++)];
 
-							if (instrument.transition !== Config.transitions.dictionary["normal"].index || instrument.clicklessTransition) {
+							if (instrument.transition !== Config.transitions.dictionary.normal.index || instrument.clicklessTransition) {
 								// Enable transition if it was used.
 								instrument.effects |= 1 << EffectType.transition;
 							}
@@ -2334,7 +2334,7 @@ export function fromBase64StringImpl(song: SongLike, compressed: string, jsonFor
 						instrument.fadeIn = clamp(0, Config.fadeInRange, base64CharCodeToInt[compressed.charCodeAt(charIndex++)]);
 						instrument.fadeOut = clamp(0, Config.fadeOutTicks.length, base64CharCodeToInt[compressed.charCodeAt(charIndex++)]);
 						if (fromJummBox || fromGoldBox || fromUltraBox || fromSlarmoosBox || fromJukeBox) {
-							instrument.clicklessTransition = base64CharCodeToInt[compressed.charCodeAt(charIndex++)] ? true : false;
+							instrument.clicklessTransition = !!base64CharCodeToInt[compressed.charCodeAt(charIndex++)];
 						}
 					}
 				}
@@ -2357,7 +2357,7 @@ export function fromBase64StringImpl(song: SongLike, compressed: string, jsonFor
 									legacySettings.filterEnvelope = Config.envelopes.dictionary[legacyEnvelopes[effect]];
 									instrument.convertLegacySettings(legacySettings, forceSimpleFilter);
 								}
-								if (instrument.vibrato !== Config.vibratos.dictionary["none"].index) {
+								if (instrument.vibrato !== Config.vibratos.dictionary.none.index) {
 									// Enable vibrato if it was used.
 									instrument.effects |= 1 << EffectType.vibrato;
 								}
@@ -2375,7 +2375,7 @@ export function fromBase64StringImpl(song: SongLike, compressed: string, jsonFor
 											legacySettings.filterEnvelope = Config.envelopes.dictionary[legacyEnvelopes[effect]];
 											instrument.convertLegacySettings(legacySettings, forceSimpleFilter);
 										}
-										if (instrument.vibrato !== Config.vibratos.dictionary["none"].index) {
+										if (instrument.vibrato !== Config.vibratos.dictionary.none.index) {
 											// Enable vibrato if it was used.
 											instrument.effects |= 1 << EffectType.vibrato;
 										}
@@ -2401,7 +2401,7 @@ export function fromBase64StringImpl(song: SongLike, compressed: string, jsonFor
 									legacySettings.filterEnvelope = Config.envelopes.dictionary[legacyEnvelopes[effect]];
 									instrument.convertLegacySettings(legacySettings, forceSimpleFilter);
 								}
-								if (instrument.vibrato !== Config.vibratos.dictionary["none"].index) {
+								if (instrument.vibrato !== Config.vibratos.dictionary.none.index) {
 									// Enable vibrato if it was used.
 									instrument.effects |= 1 << EffectType.vibrato;
 								}
@@ -2415,7 +2415,7 @@ export function fromBase64StringImpl(song: SongLike, compressed: string, jsonFor
 							const instrument: Instrument = song.channels[instrumentChannelIterator].instruments[instrumentIndexIterator];
 							const vibrato: number = clamp(0, Config.vibratos.length + 1, base64CharCodeToInt[compressed.charCodeAt(charIndex++)]);
 							instrument.vibrato = vibrato;
-							if (instrument.vibrato !== Config.vibratos.dictionary["none"].index) {
+							if (instrument.vibrato !== Config.vibratos.dictionary.none.index) {
 								// Enable vibrato if it was used.
 								instrument.effects |= 1 << EffectType.vibrato;
 							}
@@ -2507,7 +2507,7 @@ export function fromBase64StringImpl(song: SongLike, compressed: string, jsonFor
 							Config.modulators.dictionary["arp speed"].maxRawVol + 1,
 							base64CharCodeToInt[compressed.charCodeAt(charIndex++)],
 						);
-						instrument.fastTwoNoteArp = base64CharCodeToInt[compressed.charCodeAt(charIndex++)] ? true : false; // Two note arp setting piggybacks on this
+						instrument.fastTwoNoteArp = !!base64CharCodeToInt[compressed.charCodeAt(charIndex++)]; // Two note arp setting piggybacks on this
 					} else {
 						// Do nothing, deprecated for now
 					}
@@ -2611,7 +2611,7 @@ export function fromBase64StringImpl(song: SongLike, compressed: string, jsonFor
 					if ((beforeNine && fromBeepBox) || (fromJummBox && beforeFive) || (beforeFour && fromGoldBox)) {
 						const instrument: Instrument = song.channels[instrumentChannelIterator].instruments[instrumentIndexIterator];
 						instrument.chord = clamp(0, Config.chords.length, base64CharCodeToInt[compressed.charCodeAt(charIndex++)]);
-						if (instrument.chord !== Config.chords.dictionary["simultaneous"].index) {
+						if (instrument.chord !== Config.chords.dictionary.simultaneous.index) {
 							// Enable chord if it was used.
 							instrument.effects |= 1 << EffectType.chord;
 						}
@@ -2635,7 +2635,7 @@ export function fromBase64StringImpl(song: SongLike, compressed: string, jsonFor
 						// if (instrument.pan != Config.panCenter) {
 						instrument.effects |= 1 << EffectType.panning;
 						// }
-						if (instrument.vibrato !== Config.vibratos.dictionary["none"].index) {
+						if (instrument.vibrato !== Config.vibratos.dictionary.none.index) {
 							// Enable vibrato if it was used.
 							instrument.effects |= 1 << EffectType.vibrato;
 						}
@@ -2746,13 +2746,13 @@ export function fromBase64StringImpl(song: SongLike, compressed: string, jsonFor
 							instrument.chord = clamp(0, Config.chords.length, base64CharCodeToInt[compressed.charCodeAt(charIndex++)]);
 							// Custom arpeggio speed... only in JB, and only if the instrument arpeggiates.
 							if (
-								instrument.chord === Config.chords.dictionary["arpeggio"].index &&
+								instrument.chord === Config.chords.dictionary.arpeggio.index &&
 								(fromJummBox || fromGoldBox || fromUltraBox || fromSlarmoosBox || fromJukeBox)
 							) {
 								instrument.arpeggioSpeed = base64CharCodeToInt[compressed.charCodeAt(charIndex++)];
-								instrument.fastTwoNoteArp = base64CharCodeToInt[compressed.charCodeAt(charIndex++)] ? true : false;
+								instrument.fastTwoNoteArp = !!base64CharCodeToInt[compressed.charCodeAt(charIndex++)];
 							}
-							if (instrument.chord === Config.chords.dictionary["monophonic"].index && ((fromSlarmoosBox && !beforeFive) || fromJukeBox)) {
+							if (instrument.chord === Config.chords.dictionary.monophonic.index && ((fromSlarmoosBox && !beforeFive) || fromJukeBox)) {
 								instrument.monoChordTone = base64CharCodeToInt[compressed.charCodeAt(charIndex++)];
 							}
 						}
@@ -2808,7 +2808,7 @@ export function fromBase64StringImpl(song: SongLike, compressed: string, jsonFor
 						if (effectsIncludeDistortion(instrument.effects)) {
 							instrument.distortion = clamp(0, Config.distortionRange, base64CharCodeToInt[compressed.charCodeAt(charIndex++)]);
 							if ((fromJummBox && !beforeFive) || fromGoldBox || fromUltraBox || fromSlarmoosBox || fromJukeBox) {
-								instrument.aliases = base64CharCodeToInt[compressed.charCodeAt(charIndex++)] ? true : false;
+								instrument.aliases = !!base64CharCodeToInt[compressed.charCodeAt(charIndex++)];
 							}
 						}
 						if (effectsIncludeBitcrusher(instrument.effects)) {
@@ -2888,7 +2888,7 @@ export function fromBase64StringImpl(song: SongLike, compressed: string, jsonFor
 							instrument.phaserMix = clamp(0, Config.phaserMixRange, base64CharCodeToInt[compressed.charCodeAt(charIndex++)]);
 						}
 						if (effectsIncludeInvertWave(instrument.effects)) {
-							instrument.invertWave = base64CharCodeToInt[compressed.charCodeAt(charIndex++)] ? true : false;
+							instrument.invertWave = !!base64CharCodeToInt[compressed.charCodeAt(charIndex++)];
 						}
 						if (effectsIncludeNoteRange(instrument.effects)) {
 							instrument.upperNoteLimit =
@@ -3249,7 +3249,7 @@ export function fromBase64StringImpl(song: SongLike, compressed: string, jsonFor
 								base64CharCodeToInt[compressed.charCodeAt(charIndex++)],
 							);
 							if ((!fromSlarmoosBox || beforeFive) && !fromJukeBox) {
-								envelopeDiscrete = base64CharCodeToInt[compressed.charCodeAt(charIndex++)] ? true : false;
+								envelopeDiscrete = !!base64CharCodeToInt[compressed.charCodeAt(charIndex++)];
 							}
 						}
 						for (let i: number = 0; i < envelopeCount; i++) {
@@ -3325,9 +3325,9 @@ export function fromBase64StringImpl(song: SongLike, compressed: string, jsonFor
 								}
 								const checkboxValues: number = base64CharCodeToInt[compressed.charCodeAt(charIndex++)];
 								if (fromJukeBox || (fromSlarmoosBox && !beforeFive)) {
-									envelopeDiscrete = checkboxValues >> 1 === 1 ? true : false;
+									envelopeDiscrete = checkboxValues >> 1 === 1;
 								}
-								envelopeInverse = (checkboxValues & 1) === 1 ? true : false;
+								envelopeInverse = (checkboxValues & 1) === 1;
 								if (envelope !== ENV_PITCH && envelope !== ENV_NOTESIZE && envelope !== ENV_PUNCH && envelope !== ENV_NONE) {
 									perEnvelopeSpeed = Config.perEnvelopeSpeedIndices[base64CharCodeToInt[compressed.charCodeAt(charIndex++)]];
 								}
@@ -3370,7 +3370,7 @@ export function fromBase64StringImpl(song: SongLike, compressed: string, jsonFor
 									pitchEnvelopeCompact * 64 + base64CharCodeToInt[compressed.charCodeAt(charIndex++)];
 								pitchEnvelopeCompact = base64CharCodeToInt[compressed.charCodeAt(charIndex++)];
 								instrument.envelopes[i].pitchEnvelopeEnd = pitchEnvelopeCompact * 64 + base64CharCodeToInt[compressed.charCodeAt(charIndex++)];
-								instrument.envelopes[i].inverse = base64CharCodeToInt[compressed.charCodeAt(charIndex++)] === 1 ? true : false;
+								instrument.envelopes[i].inverse = base64CharCodeToInt[compressed.charCodeAt(charIndex++)] === 1;
 							}
 						}
 
@@ -3382,7 +3382,7 @@ export function fromBase64StringImpl(song: SongLike, compressed: string, jsonFor
 							instrumentPitchEnvelopeStart = pitchEnvelopeCompact * 64 + base64CharCodeToInt[compressed.charCodeAt(charIndex++)];
 							pitchEnvelopeCompact = base64CharCodeToInt[compressed.charCodeAt(charIndex++)];
 							instrumentPitchEnvelopeEnd = pitchEnvelopeCompact * 64 + base64CharCodeToInt[compressed.charCodeAt(charIndex++)];
-							instrumentEnvelopeInverse = base64CharCodeToInt[compressed.charCodeAt(charIndex++)] === 1 ? true : false;
+							instrumentEnvelopeInverse = base64CharCodeToInt[compressed.charCodeAt(charIndex++)] === 1;
 							for (let i: number = 0; i < envelopeCount; i++) {
 								instrument.envelopes[i].pitchEnvelopeStart = instrumentPitchEnvelopeStart;
 								instrument.envelopes[i].pitchEnvelopeEnd = instrumentPitchEnvelopeEnd;
@@ -3477,7 +3477,7 @@ export function fromBase64StringImpl(song: SongLike, compressed: string, jsonFor
 				{
 					if ((fromJummBox && beforeFive) || (fromGoldBox && beforeFour)) {
 						const instrument: Instrument = song.channels[instrumentChannelIterator].instruments[instrumentIndexIterator];
-						instrument.aliases = base64CharCodeToInt[compressed.charCodeAt(charIndex++)] ? true : false;
+						instrument.aliases = !!base64CharCodeToInt[compressed.charCodeAt(charIndex++)];
 						if (instrument.aliases) {
 							instrument.distortion = 0;
 							instrument.effects |= 1 << EffectType.distortion;
@@ -3700,7 +3700,7 @@ export function fromBase64StringImpl(song: SongLike, compressed: string, jsonFor
 										+(
 											((beforeFive && fromJummBox) || (beforeFour && fromGoldBox)) &&
 											isModChannel &&
-											channel.instruments[j].modulators[i] === Config.modulators.dictionary["detune"].index
+											channel.instruments[j].modulators[i] === Config.modulators.dictionary.detune.index
 										);
 							}
 						}
@@ -3895,7 +3895,7 @@ export function fromBase64StringImpl(song: SongLike, compressed: string, jsonFor
 									const noteIsForTempoMod: boolean =
 										isModChannel &&
 										channel.instruments[newPattern.instruments[0]].modulators[Config.modCount - 1 - note.pitches[0]] ===
-											Config.modulators.dictionary["tempo"].index;
+											Config.modulators.dictionary.tempo.index;
 									let tempoOffset: number = 0;
 									if (shouldCorrectTempoMods && noteIsForTempoMod) {
 										tempoOffset = jummboxTempoMin - Config.tempoMin; // convertRealFactor will add back Config.tempoMin as necessary
@@ -4087,7 +4087,7 @@ export function toJsonObjectImpl(song: SongLike, enableIntro: boolean = true, lo
 		};
 		if (!isNoiseChannel) {
 			// For compatibility with old versions the octave is offset by one.
-			channelObject["octaveScrollBar"] = channel.octave - 1;
+			channelObject.octaveScrollBar = channel.octave - 1;
 		}
 		channelArray.push(channelObject);
 	}
@@ -4123,12 +4123,12 @@ export function toJsonObjectImpl(song: SongLike, enableIntro: boolean = true, lo
 
 	// song eq subfilters
 	for (let i: number = 0; i < Config.filterMorphCount - 1; i++) {
-		result["songEq" + i] = song.eqSubFilters[i];
+		result[`songEq${i}`] = song.eqSubFilters[i];
 	}
 
 	const customSamples = song.customSampleHandler?.getCustomSamples();
 	if (customSamples != null && customSamples.length > 0) {
-		result["customSamples"] = customSamples;
+		result.customSamples = customSamples;
 	}
 
 	return result;
@@ -4143,34 +4143,34 @@ export function fromJsonObjectImpl(song: SongLike, jsonObject: any, jsonFormat: 
 
 	// Code for auto-detect mode; if statements that are lower down have 'higher priority'
 	if (jsonFormat === "auto") {
-		if (jsonObject["format"] === "BeepBox") {
+		if (jsonObject.format === "BeepBox") {
 			// Assume that if there is a "riff" song setting then it must be modbox
-			if (jsonObject["riff"] !== undefined) {
+			if (jsonObject.riff !== undefined) {
 				jsonFormat = "modbox";
 			}
 
 			// Assume that if there are limiter song settings then it must be jummbox
 			// Despite being added in JB 2.1, json export for the limiter settings wasn't added until 2.3
-			if (jsonObject["masterGain"] !== undefined) {
+			if (jsonObject.masterGain !== undefined) {
 				jsonFormat = "jummbox";
 			}
 		}
 
-		if (jsonObject["format"] === "JukeboxExp") {
+		if (jsonObject.format === "JukeboxExp") {
 			// Treat as jukebox after stripping exp-only fields.
-			delete jsonObject["_expVersion"];
+			delete jsonObject._expVersion;
 			jsonFormat = "jukebox";
 		}
 	}
 
-	const format: string = (jsonFormat === "auto" ? jsonObject["format"] : jsonFormat).toLowerCase();
+	const format: string = (jsonFormat === "auto" ? jsonObject.format : jsonFormat).toLowerCase();
 
-	if (jsonObject["name"] !== undefined) {
-		song.title = jsonObject["name"];
+	if (jsonObject.name !== undefined) {
+		song.title = jsonObject.name;
 	}
 
-	if (jsonObject["customSamples"] !== undefined) {
-		const customSamples: string[] = jsonObject["customSamples"];
+	if (jsonObject.customSamples !== undefined) {
+		const customSamples: string[] = jsonObject.customSamples;
 		const currentSamples = song.customSampleHandler?.getCustomSamples();
 		if (currentSamples == null || currentSamples.join(", ") !== customSamples.join(", ")) {
 			// Have to duplicate the work done in Song.fromBase64String
@@ -4230,38 +4230,38 @@ export function fromJsonObjectImpl(song: SongLike, jsonObject: any, jsonFormat: 
 		// we need to load the legacy samples. Let's check whether that's
 		// necessary.
 		let shouldLoadLegacySamples: boolean = false;
-		if (jsonObject["channels"] !== undefined) {
-			for (let channelIndex: number = 0; channelIndex < jsonObject["channels"].length; channelIndex++) {
-				const channelObject: any = jsonObject["channels"][channelIndex];
-				if (channelObject["type"] !== "pitch") {
+		if (jsonObject.channels !== undefined) {
+			for (let channelIndex: number = 0; channelIndex < jsonObject.channels.length; channelIndex++) {
+				const channelObject: any = jsonObject.channels[channelIndex];
+				if (channelObject.type !== "pitch") {
 					// Legacy samples can only exist in pitch channels.
 					continue;
 				}
-				if (Array.isArray(channelObject["instruments"])) {
-					const instrumentObjects: any[] = channelObject["instruments"];
+				if (Array.isArray(channelObject.instruments)) {
+					const instrumentObjects: any[] = channelObject.instruments;
 					for (let i: number = 0; i < instrumentObjects.length; i++) {
 						const instrumentObject: any = instrumentObjects[i];
-						if (instrumentObject["type"] !== "chip") {
+						if (instrumentObject.type !== "chip") {
 							// Legacy samples can only exist in chip wave
 							// instruments.
 							continue;
 						}
-						if (instrumentObject["wave"] == null) {
+						if (instrumentObject.wave == null) {
 							// This should exist if things got saved
 							// correctly, but if they didn't, skip this.
 							continue;
 						}
-						const waveName: string = instrumentObject["wave"];
+						const waveName: string = instrumentObject.wave;
 						if (legacySampleNames.has(waveName)) {
 							shouldLoadLegacySamples = true;
 						} else if (legacyOldNames.has(waveName)) {
 							shouldLoadLegacySamples = true;
-							instrumentObject["wave"] = legacyOldToNewNames.get(waveName);
+							instrumentObject.wave = legacyOldToNewNames.get(waveName);
 						} else if (legacyVeryOldNames.has(waveName)) {
 							if ((waveName === "trumpet" || waveName === "flute") && format !== "paandorasbox") {
 							} else {
 								shouldLoadLegacySamples = true;
-								instrumentObject["wave"] = legacyVeryOldToNewNames.get(waveName);
+								instrumentObject.wave = legacyVeryOldToNewNames.get(waveName);
 							}
 						}
 					}
@@ -4289,7 +4289,7 @@ export function fromJsonObjectImpl(song: SongLike, jsonObject: any, jsonFormat: 
 	}
 
 	song.scale = 0; // default to free.
-	if (jsonObject["scale"] !== undefined) {
+	if (jsonObject.scale !== undefined) {
 		const oldScaleNames: Dictionary<string> = {
 			"romani :)": "double harmonic :)",
 			"romani :(": "double harmonic :(",
@@ -4297,23 +4297,23 @@ export function fromJsonObjectImpl(song: SongLike, jsonObject: any, jsonFormat: 
 			"dbl harmonic :(": "double harmonic :(",
 			enigma: "strange",
 		};
-		const scaleName: string = oldScaleNames[jsonObject["scale"]] !== undefined ? oldScaleNames[jsonObject["scale"]] : jsonObject["scale"];
+		const scaleName: string = oldScaleNames[jsonObject.scale] !== undefined ? oldScaleNames[jsonObject.scale] : jsonObject.scale;
 		const scale: number = Config.scales.findIndex((scale) => scale.name === scaleName);
 		if (scale !== -1) song.scale = scale;
-		if (song.scale === Config.scales["dictionary"]["Custom"].index) {
-			if (jsonObject["customScale"] !== undefined) {
-				for (const i of jsonObject["customScale"].keys()) {
-					song.scaleCustom[i] = jsonObject["customScale"][i];
+		if (song.scale === Config.scales.dictionary.Custom.index) {
+			if (jsonObject.customScale !== undefined) {
+				for (const i of jsonObject.customScale.keys()) {
+					song.scaleCustom[i] = jsonObject.customScale[i];
 				}
 			}
 		}
 	}
 
-	if (jsonObject["key"] !== undefined) {
-		if (typeof jsonObject["key"] === "number") {
-			song.key = ((jsonObject["key"] + 1200) >>> 0) % Config.keys.length;
-		} else if (typeof jsonObject["key"] === "string") {
-			const key: string = jsonObject["key"];
+	if (jsonObject.key !== undefined) {
+		if (typeof jsonObject.key === "number") {
+			song.key = ((jsonObject.key + 1200) >>> 0) % Config.keys.length;
+		} else if (typeof jsonObject.key === "string") {
+			const key: string = jsonObject.key;
 			// This conversion code depends on C through B being
 			// available as keys, of course.
 			if (key === "C+") {
@@ -4345,26 +4345,26 @@ export function fromJsonObjectImpl(song: SongLike, jsonObject: any, jsonFormat: 
 		}
 	}
 
-	if (jsonObject["beatsPerMinute"] !== undefined) {
-		song.tempo = clamp(Config.tempoMin, Config.tempoMax + 1, jsonObject["beatsPerMinute"] | 0);
+	if (jsonObject.beatsPerMinute !== undefined) {
+		song.tempo = clamp(Config.tempoMin, Config.tempoMax + 1, jsonObject.beatsPerMinute | 0);
 	}
 
-	if (jsonObject["keyOctave"] !== undefined) {
-		song.octave = clamp(Config.octaveMin, Config.octaveMax + 1, jsonObject["keyOctave"] | 0);
+	if (jsonObject.keyOctave !== undefined) {
+		song.octave = clamp(Config.octaveMin, Config.octaveMax + 1, jsonObject.keyOctave | 0);
 	}
 
 	let legacyGlobalReverb: number = 0; // In older songs, reverb was song-global, record that here and pass it to Instrument.fromJsonObject() for context.
-	if (jsonObject["reverb"] !== undefined) {
-		legacyGlobalReverb = clamp(0, 32, jsonObject["reverb"] | 0);
+	if (jsonObject.reverb !== undefined) {
+		legacyGlobalReverb = clamp(0, 32, jsonObject.reverb | 0);
 	}
 
-	if (jsonObject["beatsPerBar"] !== undefined) {
-		song.beatsPerBar = Math.max(Config.beatsPerBarMin, Math.min(Config.beatsPerBarMax, jsonObject["beatsPerBar"] | 0));
+	if (jsonObject.beatsPerBar !== undefined) {
+		song.beatsPerBar = Math.max(Config.beatsPerBarMin, Math.min(Config.beatsPerBarMax, jsonObject.beatsPerBar | 0));
 	}
 
 	let importedPartsPerBeat: number = 4;
-	if (jsonObject["ticksPerBeat"] !== undefined) {
-		importedPartsPerBeat = jsonObject["ticksPerBeat"] | 0 || 4;
+	if (jsonObject.ticksPerBeat !== undefined) {
+		importedPartsPerBeat = jsonObject.ticksPerBeat | 0 || 4;
 		song.rhythm = Config.rhythms.findIndex((rhythm) => rhythm.stepsPerBeat === importedPartsPerBeat);
 		if (song.rhythm === -1) {
 			song.rhythm = 1; // default rhythm
@@ -4373,57 +4373,57 @@ export function fromJsonObjectImpl(song: SongLike, jsonObject: any, jsonFormat: 
 
 	// Read limiter settings. Ranges and defaults are based on slider settings
 
-	if (jsonObject["masterGain"] !== undefined) {
-		song.masterGain = Math.max(0.0, Math.min(5.0, jsonObject["masterGain"] || 0));
+	if (jsonObject.masterGain !== undefined) {
+		song.masterGain = Math.max(0.0, Math.min(5.0, jsonObject.masterGain || 0));
 	} else {
 		song.masterGain = 1.0;
 	}
 
-	if (jsonObject["limitThreshold"] !== undefined) {
-		song.limitThreshold = Math.max(0.0, Math.min(2.0, jsonObject["limitThreshold"] || 0));
+	if (jsonObject.limitThreshold !== undefined) {
+		song.limitThreshold = Math.max(0.0, Math.min(2.0, jsonObject.limitThreshold || 0));
 	} else {
 		song.limitThreshold = 1.0;
 	}
 
-	if (jsonObject["compressionThreshold"] !== undefined) {
-		song.compressionThreshold = Math.max(0.0, Math.min(1.1, jsonObject["compressionThreshold"] || 0));
+	if (jsonObject.compressionThreshold !== undefined) {
+		song.compressionThreshold = Math.max(0.0, Math.min(1.1, jsonObject.compressionThreshold || 0));
 	} else {
 		song.compressionThreshold = 1.0;
 	}
 
-	if (jsonObject["limitRise"] !== undefined) {
-		song.limitRise = Math.max(2000.0, Math.min(10000.0, jsonObject["limitRise"] || 0));
+	if (jsonObject.limitRise !== undefined) {
+		song.limitRise = Math.max(2000.0, Math.min(10000.0, jsonObject.limitRise || 0));
 	} else {
 		song.limitRise = 4000.0;
 	}
 
-	if (jsonObject["limitDecay"] !== undefined) {
-		song.limitDecay = Math.max(1.0, Math.min(30.0, jsonObject["limitDecay"] || 0));
+	if (jsonObject.limitDecay !== undefined) {
+		song.limitDecay = Math.max(1.0, Math.min(30.0, jsonObject.limitDecay || 0));
 	} else {
 		song.limitDecay = 4.0;
 	}
 
-	if (jsonObject["limitRatio"] !== undefined) {
-		song.limitRatio = Math.max(0.0, Math.min(11.0, jsonObject["limitRatio"] || 0));
+	if (jsonObject.limitRatio !== undefined) {
+		song.limitRatio = Math.max(0.0, Math.min(11.0, jsonObject.limitRatio || 0));
 	} else {
 		song.limitRatio = 1.0;
 	}
 
-	if (jsonObject["compressionRatio"] !== undefined) {
-		song.compressionRatio = Math.max(0.0, Math.min(1.168, jsonObject["compressionRatio"] || 0));
+	if (jsonObject.compressionRatio !== undefined) {
+		song.compressionRatio = Math.max(0.0, Math.min(1.168, jsonObject.compressionRatio || 0));
 	} else {
 		song.compressionRatio = 1.0;
 	}
 
-	if (jsonObject["songEq"] !== undefined) {
-		song.eqFilter.fromJsonObject(jsonObject["songEq"]);
+	if (jsonObject.songEq !== undefined) {
+		song.eqFilter.fromJsonObject(jsonObject.songEq);
 	} else {
 		song.eqFilter.reset();
 	}
 
 	for (let i: number = 0; i < Config.filterMorphCount - 1; i++) {
-		if (jsonObject["songEq" + i]) {
-			song.eqSubFilters[i] = jsonObject["songEq" + i];
+		if (jsonObject[`songEq${i}`]) {
+			song.eqSubFilters[i] = jsonObject[`songEq${i}`];
 		} else {
 			song.eqSubFilters[i] = null;
 		}
@@ -4432,50 +4432,50 @@ export function fromJsonObjectImpl(song: SongLike, jsonObject: any, jsonFormat: 
 	let maxInstruments: number = 1;
 	let maxPatterns: number = 1;
 	let maxBars: number = 1;
-	if (jsonObject["channels"] !== undefined) {
-		for (const channelObject of jsonObject["channels"]) {
-			if (channelObject["instruments"]) {
-				maxInstruments = Math.max(maxInstruments, channelObject["instruments"].length | 0);
+	if (jsonObject.channels !== undefined) {
+		for (const channelObject of jsonObject.channels) {
+			if (channelObject.instruments) {
+				maxInstruments = Math.max(maxInstruments, channelObject.instruments.length | 0);
 			}
-			if (channelObject["patterns"]) maxPatterns = Math.max(maxPatterns, channelObject["patterns"].length | 0);
-			if (channelObject["sequence"]) maxBars = Math.max(maxBars, channelObject["sequence"].length | 0);
+			if (channelObject.patterns) maxPatterns = Math.max(maxPatterns, channelObject.patterns.length | 0);
+			if (channelObject.sequence) maxBars = Math.max(maxBars, channelObject.sequence.length | 0);
 		}
 	}
 
-	if (jsonObject["layeredInstruments"] !== undefined) {
-		song.layeredInstruments = !!jsonObject["layeredInstruments"];
+	if (jsonObject.layeredInstruments !== undefined) {
+		song.layeredInstruments = !!jsonObject.layeredInstruments;
 	} else {
 		song.layeredInstruments = false;
 	}
-	if (jsonObject["patternInstruments"] !== undefined) {
-		song.patternInstruments = !!jsonObject["patternInstruments"];
+	if (jsonObject.patternInstruments !== undefined) {
+		song.patternInstruments = !!jsonObject.patternInstruments;
 	} else {
 		song.patternInstruments = maxInstruments > 1;
 	}
 	song.patternsPerChannel = Math.min(maxPatterns, Config.barCountMax);
 	song.barCount = Math.min(maxBars, Config.barCountMax);
 
-	if (jsonObject["introBars"] !== undefined) {
-		song.loopStart = clamp(0, song.barCount, jsonObject["introBars"] | 0);
+	if (jsonObject.introBars !== undefined) {
+		song.loopStart = clamp(0, song.barCount, jsonObject.introBars | 0);
 	}
-	if (jsonObject["loopBars"] !== undefined) {
-		song.loopLength = clamp(1, song.barCount - song.loopStart + 1, jsonObject["loopBars"] | 0);
+	if (jsonObject.loopBars !== undefined) {
+		song.loopLength = clamp(1, song.barCount - song.loopStart + 1, jsonObject.loopBars | 0);
 	}
 
 	const newPitchChannels: Channel[] = [];
 	const newNoiseChannels: Channel[] = [];
 	const newModChannels: Channel[] = [];
-	if (jsonObject["channels"] !== undefined) {
-		for (let channelIndex: number = 0; channelIndex < jsonObject["channels"].length; channelIndex++) {
-			const channelObject: any = jsonObject["channels"][channelIndex];
+	if (jsonObject.channels !== undefined) {
+		for (let channelIndex: number = 0; channelIndex < jsonObject.channels.length; channelIndex++) {
+			const channelObject: any = jsonObject.channels[channelIndex];
 
 			const channel: Channel = new Channel();
 
 			let isNoiseChannel: boolean = false;
 			let isModChannel: boolean = false;
-			if (channelObject["type"] !== undefined) {
-				isNoiseChannel = channelObject["type"] === "drum";
-				isModChannel = channelObject["type"] === "mod";
+			if (channelObject.type !== undefined) {
+				isNoiseChannel = channelObject.type === "drum";
+				isModChannel = channelObject.type === "mod";
 			} else {
 				// for older files, assume drums are channel 3.
 				isNoiseChannel = channelIndex >= 3;
@@ -4488,19 +4488,19 @@ export function fromJsonObjectImpl(song: SongLike, jsonObject: any, jsonFormat: 
 				newPitchChannels.push(channel);
 			}
 
-			if (channelObject["octaveScrollBar"] !== undefined) {
-				channel.octave = clamp(0, song.octaveCount, (channelObject["octaveScrollBar"] | 0) + 1);
+			if (channelObject.octaveScrollBar !== undefined) {
+				channel.octave = clamp(0, song.octaveCount, (channelObject.octaveScrollBar | 0) + 1);
 				if (isNoiseChannel) channel.octave = 0;
 			}
 
-			if (channelObject["name"] !== undefined) {
-				channel.name = channelObject["name"];
+			if (channelObject.name !== undefined) {
+				channel.name = channelObject.name;
 			} else {
 				channel.name = "";
 			}
 
-			if (Array.isArray(channelObject["instruments"])) {
-				const instrumentObjects: any[] = channelObject["instruments"];
+			if (Array.isArray(channelObject.instruments)) {
+				const instrumentObjects: any[] = channelObject.instruments;
 				for (let i: number = 0; i < instrumentObjects.length; i++) {
 					if (i >= song.getMaxInstrumentsPerChannel()) break;
 					const instrument: Instrument = new Instrument(isNoiseChannel, isModChannel);
@@ -4514,7 +4514,7 @@ export function fromJsonObjectImpl(song: SongLike, jsonObject: any, jsonFormat: 
 				channel.patterns[i] = pattern;
 
 				let patternObject: any;
-				if (channelObject["patterns"]) patternObject = channelObject["patterns"][i];
+				if (channelObject.patterns) patternObject = channelObject.patterns[i];
 				if (patternObject === undefined) continue;
 
 				pattern.fromJsonObject(patternObject, song as any, channel, importedPartsPerBeat, isNoiseChannel, isModChannel, format);
@@ -4522,7 +4522,7 @@ export function fromJsonObjectImpl(song: SongLike, jsonObject: any, jsonFormat: 
 			channel.patterns.length = song.patternsPerChannel;
 
 			for (let i: number = 0; i < song.barCount; i++) {
-				channel.bars[i] = channelObject["sequence"] !== undefined ? Math.min(song.patternsPerChannel, channelObject["sequence"][i] >>> 0) : 0;
+				channel.bars[i] = channelObject.sequence !== undefined ? Math.min(song.patternsPerChannel, channelObject.sequence[i] >>> 0) : 0;
 			}
 			channel.bars.length = song.barCount;
 		}

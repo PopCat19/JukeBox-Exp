@@ -24,7 +24,7 @@ export class RecordingSetupPrompt extends BasePrompt {
 	private readonly _keyboardMode: HTMLSelectElement = select(
 		{},
 		option({ value: "useCapsLockForNotes" }, "simple shortcuts, use caps lock to play notes"),
-		option({ value: "pressControlForShortcuts" }, "simple notes, press " + EditorConfig.ctrlName + " for shortcuts"),
+		option({ value: "pressControlForShortcuts" }, `simple notes, press ${EditorConfig.ctrlName} for shortcuts`),
 	);
 	private readonly _keyboardLayout: HTMLSelectElement = select(
 		{},
@@ -69,7 +69,7 @@ export class RecordingSetupPrompt extends BasePrompt {
 		h2({}, "Note Recording Setup"),
 		div(
 			{ class: "rsGrid" },
-			p("JukeBox can record notes as you perform them. You can start recording by pressing Ctrl+Space (or " + EditorConfig.ctrlSymbol + "P)."),
+			p(`JukeBox can record notes as you perform them. You can start recording by pressing Ctrl+Space (or ${EditorConfig.ctrlSymbol}P).`),
 			checkboxRow("Add ● record button next to ▶ play button:", this._showRecordButton),
 			checkboxRow("Snap recorded notes to the song's rhythm:", this._snapRecordedNotesToRhythm),
 			checkboxRow("Ignore notes not in the song's scale:", this._ignorePerformedNotesNotInScale),
@@ -158,11 +158,11 @@ export class RecordingSetupPrompt extends BasePrompt {
 		}
 		const rowLengths: number[] = [12, 12, 11, 10];
 		const scale: ReadonlyArray<boolean> =
-			this._doc.song.scale === Config.scales.dictionary["Custom"].index ? this._doc.song.scaleCustom : Config.scales[this._doc.song.scale].flags;
+			this._doc.song.scale === Config.scales.dictionary.Custom.index ? this._doc.song.scaleCustom : Config.scales[this._doc.song.scale].flags;
 		for (let rowIndex: number = 0; rowIndex < 4; rowIndex++) {
 			const row: HTMLDivElement = div({ style: "display: flex;" });
 			this._keyboardLayoutPreview.appendChild(row);
-			const spacer: HTMLDivElement = div({ style: "width: " + rowIndex * 12 + "px; height: 20px; flex-shrink: 0;" });
+			const spacer: HTMLDivElement = div({ style: `width: ${rowIndex * 12}px; height: 20px; flex-shrink: 0;` });
 			row.appendChild(spacer);
 			for (let colIndex: number = 0; colIndex < rowLengths[rowIndex]; colIndex++) {
 				const key: HTMLDivElement = div({
@@ -181,7 +181,7 @@ export class RecordingSetupPrompt extends BasePrompt {
 							key.style.background = ColorConfig.pitchBackground;
 						}
 					} else {
-						key.style.border = "2px solid " + ColorConfig.pitchBackground;
+						key.style.border = `2px solid ${ColorConfig.pitchBackground}`;
 					}
 
 					if (this._bassOffset.selectedIndex !== 0 && pitch <= Piano.getBassCutoffPitch(this._doc)) {

@@ -189,7 +189,7 @@ export function createColorPicker(parent: HTMLElement, options: ColorPickerOptio
 		syncFromHex(hexInput.value);
 	});
 	alphaSlider.addEventListener("input", () => {
-		alpha = parseInt(alphaSlider.value);
+		alpha = parseInt(alphaSlider.value, 10);
 		alphaDisplay.textContent = `${alpha}%`;
 		const p = parseCssColor(hex);
 		hex = rgbaToHex({ ...p, a: alpha / 100 });

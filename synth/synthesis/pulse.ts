@@ -21,12 +21,12 @@ export function buildPulseWidthSource(voiceCount: number): string {
             let phaseDeltaScale# = +tone.phaseDeltaScales[#];
 
             if (instrumentState.unisonVoices <= # && instrumentState.unisonSpread == 0 && !instrumentState.chord.customInterval) tone.phases[#] = tone.phases[# - 1];
-            `.replaceAll("#", i + "");
+            `.replaceAll("#", `${i}`);
 	}
 
 	for (let i: number = 0; i < voiceCount; i++) {
 		pulseSource += `phase# = (tone.phases[#] - (tone.phases[#] | 0));
-            `.replaceAll("#", i + "");
+            `.replaceAll("#", `${i}`);
 	}
 
 	pulseSource += `let pulseWidth = tone.pulseWidth;
@@ -63,14 +63,14 @@ export function buildPulseWidthSource(voiceCount: number): string {
                     }
                 }
 
-                `.replaceAll("#", i + "");
+                `.replaceAll("#", `${i}`);
 	}
 	const sampleList: string[] = [];
 	for (let voice: number = 0; voice < voiceCount; voice++) {
-		sampleList.push("pulseWave" + voice + (voice !== 0 ? " * unisonSign" : ""));
+		sampleList.push(`pulseWave${voice}${voice !== 0 ? " * unisonSign" : ""}`);
 	}
 
-	pulseSource += "let inputSample = " + sampleList.join(" + ") + ";";
+	pulseSource += `let inputSample = ${sampleList.join(" + ")};`;
 
 	pulseSource += `const sample = applyFilters(inputSample, initialFilterInput1, initialFilterInput2, filterCount, filters);
             initialFilterInput2 = initialFilterInput1;
@@ -79,7 +79,7 @@ export function buildPulseWidthSource(voiceCount: number): string {
 	for (let i = 0; i < voiceCount; i++) {
 		pulseSource += `phase# += phaseDelta#;
                 phaseDelta# *= phaseDeltaScale#;
-                `.replaceAll("#", i + "");
+                `.replaceAll("#", `${i}`);
 	}
 
 	pulseSource += `pulseWidth += pulseWidthDelta;
@@ -92,7 +92,7 @@ export function buildPulseWidthSource(voiceCount: number): string {
 	for (let i: number = 0; i < voiceCount; i++) {
 		pulseSource += `tone.phases[#] = phase#;
             tone.phaseDeltas[#] = phaseDelta#;
-                `.replaceAll("#", i + "");
+                `.replaceAll("#", `${i}`);
 	}
 
 	pulseSource += `tone.expression = expression;

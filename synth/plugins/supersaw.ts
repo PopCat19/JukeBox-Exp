@@ -18,7 +18,7 @@ registerPlugin({
 	displayName: "supersaw",
 	editorRows: ["supersaw", "pulseWidth"],
 	initialize: (instrument: Instrument) => {
-		instrument.chord = Config.chords.dictionary["arpeggio"].index;
+		instrument.chord = Config.chords.dictionary.arpeggio.index;
 		instrument.supersawDynamism = Config.supersawDynamismMax;
 		instrument.supersawSpread = Math.ceil(Config.supersawSpreadMax / 2.0);
 		instrument.supersawShape = 0;

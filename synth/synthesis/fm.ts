@@ -95,7 +95,7 @@ export function buildFmSource(instrument: Instrument): string {
 		if (line.indexOf("// CARRIER OUTPUTS") !== -1) {
 			const outputs: string[] = [];
 			for (let j: number = 0; j < Config.algorithms[instrument.algorithm].carrierCount; j++) {
-				outputs.push("operator" + j + "Scaled");
+				outputs.push(`operator${j}Scaled`);
 			}
 			synthSource.push(line.replace("/*operator#Scaled*/", outputs.join(" + ")));
 		} else if (line.indexOf("// INSERT OPERATOR COMPUTATION HERE") !== -1) {
@@ -104,7 +104,7 @@ export function buildFmSource(instrument: Instrument): string {
 					if (operatorLine.indexOf("/* + operator@Scaled*/") !== -1) {
 						let modulators = "";
 						for (const modulatorNumber of Config.algorithms[instrument.algorithm].modulatedBy[j]) {
-							modulators += " + operator" + (modulatorNumber - 1) + "Scaled";
+							modulators += ` + operator${modulatorNumber - 1}Scaled`;
 						}
 
 						const feedbackIndices: ReadonlyArray<number> = Config.feedbacks[instrument.feedbackType].indices[j];
@@ -112,24 +112,24 @@ export function buildFmSource(instrument: Instrument): string {
 							modulators += " + feedbackMult * (";
 							const feedbacks: string[] = [];
 							for (const modulatorNumber of feedbackIndices) {
-								feedbacks.push("operator" + (modulatorNumber - 1) + "Output");
+								feedbacks.push(`operator${modulatorNumber - 1}Output`);
 							}
-							modulators += feedbacks.join(" + ") + ")";
+							modulators += `${feedbacks.join(" + ")})`;
 						}
-						synthSource.push(operatorLine.replace(/#/g, j + "").replace("/* + operator@Scaled*/", modulators));
+						synthSource.push(operatorLine.replace(/#/g, `${j}`).replace("/* + operator@Scaled*/", modulators));
 					} else {
-						synthSource.push(operatorLine.replace(/#/g, j + ""));
+						synthSource.push(operatorLine.replace(/#/g, `${j}`));
 					}
 				}
 			}
 		} else if (line.indexOf("#") !== -1) {
 			for (let j: number = 0; j < Config.operatorCount; j++) {
-				synthSource.push(line.replace(/#/g, j + ""));
+				synthSource.push(line.replace(/#/g, `${j}`));
 			}
 		} else {
 			synthSource.push(line);
 		}
 	}
 
-	return "return (synth, bufferIndex, roundedSamplesPerTick, tone, instrument) => {" + synthSource.join("\n") + "}";
+	return `return (synth, bufferIndex, roundedSamplesPerTick, tone, instrument) => {${synthSource.join("\n")}}`;
 }

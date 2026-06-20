@@ -515,10 +515,9 @@ export class InstrumentState {
 			this.granularMix = instrument.granular / Config.granularRange;
 			this.computeGrains = true;
 			let granularMixEnd = this.granularMix;
-			if (synth.isModActive(Config.modulators.dictionary["granular"].index, channelIndex, instrumentIndex)) {
-				this.granularMix =
-					synth.getModValue(Config.modulators.dictionary["granular"].index, channelIndex, instrumentIndex, false) / Config.granularRange;
-				granularMixEnd = synth.getModValue(Config.modulators.dictionary["granular"].index, channelIndex, instrumentIndex, true) / Config.granularRange;
+			if (synth.isModActive(Config.modulators.dictionary.granular.index, channelIndex, instrumentIndex)) {
+				this.granularMix = synth.getModValue(Config.modulators.dictionary.granular.index, channelIndex, instrumentIndex, false) / Config.granularRange;
+				granularMixEnd = synth.getModValue(Config.modulators.dictionary.granular.index, channelIndex, instrumentIndex, true) / Config.granularRange;
 			}
 			this.granularMix *= envelopeStarts[EnvelopeComputeIndex.granular];
 			granularMixEnd *= envelopeEnds[EnvelopeComputeIndex.granular];
@@ -581,9 +580,9 @@ export class InstrumentState {
 			let useDistortionEnd: number = instrument.distortion;
 
 			// Check for distortion mods
-			if (synth.isModActive(Config.modulators.dictionary["distortion"].index, channelIndex, instrumentIndex)) {
-				useDistortionStart = synth.getModValue(Config.modulators.dictionary["distortion"].index, channelIndex, instrumentIndex, false);
-				useDistortionEnd = synth.getModValue(Config.modulators.dictionary["distortion"].index, channelIndex, instrumentIndex, true);
+			if (synth.isModActive(Config.modulators.dictionary.distortion.index, channelIndex, instrumentIndex)) {
+				useDistortionStart = synth.getModValue(Config.modulators.dictionary.distortion.index, channelIndex, instrumentIndex, false);
+				useDistortionEnd = synth.getModValue(Config.modulators.dictionary.distortion.index, channelIndex, instrumentIndex, true);
 			}
 
 			const distortionSliderStart = Math.min(1.0, (envelopeStarts[EnvelopeComputeIndex.distortion] * useDistortionStart) / (Config.distortionRange - 1));
@@ -793,9 +792,9 @@ export class InstrumentState {
 			let usePanStart: number = instrument.pan;
 			let usePanEnd: number = instrument.pan;
 			// Check for pan mods
-			if (synth.isModActive(Config.modulators.dictionary["pan"].index, channelIndex, instrumentIndex)) {
-				usePanStart = synth.getModValue(Config.modulators.dictionary["pan"].index, channelIndex, instrumentIndex, false);
-				usePanEnd = synth.getModValue(Config.modulators.dictionary["pan"].index, channelIndex, instrumentIndex, true);
+			if (synth.isModActive(Config.modulators.dictionary.pan.index, channelIndex, instrumentIndex)) {
+				usePanStart = synth.getModValue(Config.modulators.dictionary.pan.index, channelIndex, instrumentIndex, false);
+				usePanEnd = synth.getModValue(Config.modulators.dictionary.pan.index, channelIndex, instrumentIndex, true);
 			}
 
 			const panStart: number = Math.max(-1.0, Math.min(1.0, ((usePanStart - Config.panCenter) / Config.panCenter) * panEnvelopeStart));
@@ -838,9 +837,9 @@ export class InstrumentState {
 			let useChorusStart: number = instrument.chorus;
 			let useChorusEnd: number = instrument.chorus;
 			// Check for chorus mods
-			if (synth.isModActive(Config.modulators.dictionary["chorus"].index, channelIndex, instrumentIndex)) {
-				useChorusStart = synth.getModValue(Config.modulators.dictionary["chorus"].index, channelIndex, instrumentIndex, false);
-				useChorusEnd = synth.getModValue(Config.modulators.dictionary["chorus"].index, channelIndex, instrumentIndex, true);
+			if (synth.isModActive(Config.modulators.dictionary.chorus.index, channelIndex, instrumentIndex)) {
+				useChorusStart = synth.getModValue(Config.modulators.dictionary.chorus.index, channelIndex, instrumentIndex, false);
+				useChorusEnd = synth.getModValue(Config.modulators.dictionary.chorus.index, channelIndex, instrumentIndex, true);
 			}
 
 			let chorusStart: number = Math.min(1.0, (chorusEnvelopeStart * useChorusStart) / (Config.chorusRange - 1));
@@ -930,9 +929,9 @@ export class InstrumentState {
 			let useEchoSustainStart: number = instrument.echoSustain;
 			let useEchoSustainEnd: number = instrument.echoSustain;
 			// Check for echo mods
-			if (synth.isModActive(Config.modulators.dictionary["echo"].index, channelIndex, instrumentIndex)) {
-				useEchoSustainStart = Math.max(0.0, synth.getModValue(Config.modulators.dictionary["echo"].index, channelIndex, instrumentIndex, false));
-				useEchoSustainEnd = Math.max(0.0, synth.getModValue(Config.modulators.dictionary["echo"].index, channelIndex, instrumentIndex, true));
+			if (synth.isModActive(Config.modulators.dictionary.echo.index, channelIndex, instrumentIndex)) {
+				useEchoSustainStart = Math.max(0.0, synth.getModValue(Config.modulators.dictionary.echo.index, channelIndex, instrumentIndex, false));
+				useEchoSustainEnd = Math.max(0.0, synth.getModValue(Config.modulators.dictionary.echo.index, channelIndex, instrumentIndex, true));
 			}
 			const echoMultStart: number = Math.min(1.0, ((echoSustainEnvelopeStart * useEchoSustainStart) / Config.echoSustainRange) ** 1.1) * 0.9;
 			const echoMultEnd: number = Math.min(1.0, ((echoSustainEnvelopeEnd * useEchoSustainEnd) / Config.echoSustainRange) ** 1.1) * 0.9;
@@ -1006,23 +1005,17 @@ export class InstrumentState {
 			let phaserMixStart: number = phaserMixSlider * phaserMixEnvelopeStart;
 			let phaserMixEnd: number = phaserMixSlider * phaserMixEnvelopeEnd;
 
-			if (synth.isModActive(Config.modulators.dictionary["phaser"].index, channelIndex, instrumentIndex)) {
+			if (synth.isModActive(Config.modulators.dictionary.phaser.index, channelIndex, instrumentIndex)) {
 				phaserMixStart =
 					Math.max(
 						0,
-						Math.min(
-							Config.phaserMixRange - 1,
-							synth.getModValue(Config.modulators.dictionary["phaser"].index, channelIndex, instrumentIndex, false),
-						),
+						Math.min(Config.phaserMixRange - 1, synth.getModValue(Config.modulators.dictionary.phaser.index, channelIndex, instrumentIndex, false)),
 					) /
 					(Config.phaserMixRange - 1);
 				phaserMixEnd =
 					Math.max(
 						0,
-						Math.min(
-							Config.phaserMixRange - 1,
-							synth.getModValue(Config.modulators.dictionary["phaser"].index, channelIndex, instrumentIndex, true),
-						),
+						Math.min(Config.phaserMixRange - 1, synth.getModValue(Config.modulators.dictionary.phaser.index, channelIndex, instrumentIndex, true)),
 					) /
 					(Config.phaserMixRange - 1);
 			}
@@ -1076,9 +1069,9 @@ export class InstrumentState {
 			let useReverbEnd: number = instrument.reverb;
 
 			// Check for mod reverb, instrument level
-			if (synth.isModActive(Config.modulators.dictionary["reverb"].index, channelIndex, instrumentIndex)) {
-				useReverbStart = synth.getModValue(Config.modulators.dictionary["reverb"].index, channelIndex, instrumentIndex, false);
-				useReverbEnd = synth.getModValue(Config.modulators.dictionary["reverb"].index, channelIndex, instrumentIndex, true);
+			if (synth.isModActive(Config.modulators.dictionary.reverb.index, channelIndex, instrumentIndex)) {
+				useReverbStart = synth.getModValue(Config.modulators.dictionary.reverb.index, channelIndex, instrumentIndex, false);
+				useReverbEnd = synth.getModValue(Config.modulators.dictionary.reverb.index, channelIndex, instrumentIndex, true);
 			}
 			// Check for mod reverb, song scalar
 			if (synth.isModActive(Config.modulators.dictionary["song reverb"].index, channelIndex, instrumentIndex)) {

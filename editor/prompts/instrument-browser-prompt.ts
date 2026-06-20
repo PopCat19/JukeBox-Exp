@@ -386,7 +386,7 @@ export class InstrumentBrowserPrompt extends BasePrompt {
 	private _presetMatchesActiveTags(presetValue: number): boolean {
 		if (this._activeTags.length === 0) return true;
 		const preset = EditorConfig.valueToPreset(presetValue);
-		if (!preset || !preset.tags) return false;
+		if (!preset?.tags) return false;
 		return this._activeTags.every((tag) => (tag.startsWith("!") ? !preset.tags.includes(tag.slice(1)) : preset.tags.includes(tag)));
 	}
 
@@ -639,7 +639,7 @@ export class InstrumentBrowserPrompt extends BasePrompt {
 			topRow.appendChild(lastCell(pill("Results", `${total} matching`)));
 		}
 		const fullPreset = EditorConfig.valueToPreset(preset.value);
-		if (fullPreset && fullPreset.tags && fullPreset.tags.length > 0) {
+		if (fullPreset?.tags && fullPreset.tags.length > 0) {
 			tagsRow.appendChild(span({ style: "font-size: 12px; font-weight: 600;" }, "Tags:"));
 			for (const tag of fullPreset.tags) {
 				const tagEl = tagChip(tag, false);
@@ -706,7 +706,7 @@ export class InstrumentBrowserPrompt extends BasePrompt {
 			this._tagBanner.style.display = "none";
 		}
 		this._infoPanel.appendChild(topRow);
-		if (fullPreset && fullPreset.tags && fullPreset.tags.length > 0) {
+		if (fullPreset?.tags && fullPreset.tags.length > 0) {
 			this._infoPanel.appendChild(tagsRow);
 		}
 	}

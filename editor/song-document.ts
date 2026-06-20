@@ -192,7 +192,7 @@ export class SongDocument {
 
 	private _replaceState(state: HistoryState, hash: string): void {
 		if (this.prefs.displayBrowserUrl) {
-			window.history.replaceState(state, "", "#" + hash);
+			window.history.replaceState(state, "", `#${hash}`);
 		} else {
 			window.sessionStorage.setItem(window.sessionStorage.getItem("currentUndoIndex") || "0", JSON.stringify({ state, hash }));
 			window.history.replaceState(null, "", location.pathname);
@@ -201,7 +201,7 @@ export class SongDocument {
 
 	private _pushState(state: HistoryState, hash: string): void {
 		if (this.prefs.displayBrowserUrl) {
-			window.history.pushState(state, "", "#" + hash);
+			window.history.pushState(state, "", `#${hash}`);
 		} else {
 			let currentIndex: number = Number(window.sessionStorage.getItem("currentUndoIndex"));
 			let oldestIndex: number = Number(window.sessionStorage.getItem("oldestUndoIndex"));

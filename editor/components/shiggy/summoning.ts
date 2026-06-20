@@ -79,7 +79,7 @@ export function clearAllSummoned(summoned: SummonedShiggy[]): void {
 }
 
 export function restartGif(img: HTMLImageElement): void {
-	const url = img.src.split("?")[0] + `?v=${Date.now()}`;
+	const url = `${img.src.split("?")[0]}?v=${Date.now()}`;
 	const preloader = new Image();
 	preloader.onload = () => {
 		img.src = url;

@@ -18,7 +18,7 @@ registerPlugin({
 	displayName: "pulse width",
 	editorRows: ["pulseWidth"],
 	initialize: (instrument: Instrument) => {
-		instrument.chord = Config.chords.dictionary["arpeggio"].index;
+		instrument.chord = Config.chords.dictionary.arpeggio.index;
 		instrument.pulseWidth = Config.pulseWidthRange;
 		instrument.decimalOffset = 0;
 	},

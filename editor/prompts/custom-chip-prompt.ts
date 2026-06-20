@@ -42,7 +42,7 @@ export class CustomChipPromptCanvas {
 			class: "filterCanvas",
 			width: "100%",
 			height: "100%",
-			viewBox: "0 0 " + this._editorWidth + " " + this._editorHeight,
+			viewBox: `0 0 ${this._editorWidth} ${this._editorHeight}`,
 			preserveAspectRatio: "none",
 		},
 		this._fill,
@@ -183,8 +183,8 @@ export class CustomChipPromptCanvas {
 		const boundingRect: DOMRect = this._svgRect;
 		this._mouseX = (((event.clientX || event.pageX) - boundingRect.left) * this._editorWidth) / (boundingRect.right - boundingRect.left);
 		this._mouseY = (((event.clientY || event.pageY) - boundingRect.top) * this._editorHeight) / (boundingRect.bottom - boundingRect.top);
-		if (isNaN(this._mouseX)) this._mouseX = 0;
-		if (isNaN(this._mouseY)) this._mouseY = 0;
+		if (Number.isNaN(this._mouseX)) this._mouseX = 0;
+		if (Number.isNaN(this._mouseY)) this._mouseY = 0;
 		this._lastIndex = -1;
 
 		this._whenCursorMoved();
@@ -197,8 +197,8 @@ export class CustomChipPromptCanvas {
 		const boundingRect: DOMRect = this._svgRect;
 		this._mouseX = ((event.touches[0].clientX - boundingRect.left) * this._editorWidth) / (boundingRect.right - boundingRect.left);
 		this._mouseY = ((event.touches[0].clientY - boundingRect.top) * this._editorHeight) / (boundingRect.bottom - boundingRect.top);
-		if (isNaN(this._mouseX)) this._mouseX = 0;
-		if (isNaN(this._mouseY)) this._mouseY = 0;
+		if (Number.isNaN(this._mouseX)) this._mouseX = 0;
+		if (Number.isNaN(this._mouseY)) this._mouseY = 0;
 		this._lastIndex = -1;
 
 		this._whenCursorMoved();
@@ -210,8 +210,8 @@ export class CustomChipPromptCanvas {
 		const boundingRect: DOMRect = this._svgRect;
 		this._mouseX = (((event.clientX || event.pageX) - boundingRect.left) * this._editorWidth) / (boundingRect.right - boundingRect.left);
 		this._mouseY = (((event.clientY || event.pageY) - boundingRect.top) * this._editorHeight) / (boundingRect.bottom - boundingRect.top);
-		if (isNaN(this._mouseX)) this._mouseX = 0;
-		if (isNaN(this._mouseY)) this._mouseY = 0;
+		if (Number.isNaN(this._mouseX)) this._mouseX = 0;
+		if (Number.isNaN(this._mouseY)) this._mouseY = 0;
 		this._whenCursorMoved();
 	};
 
@@ -223,8 +223,8 @@ export class CustomChipPromptCanvas {
 		const boundingRect: DOMRect = this._svgRect;
 		this._mouseX = ((event.touches[0].clientX - boundingRect.left) * this._editorWidth) / (boundingRect.right - boundingRect.left);
 		this._mouseY = ((event.touches[0].clientY - boundingRect.top) * this._editorHeight) / (boundingRect.bottom - boundingRect.top);
-		if (isNaN(this._mouseX)) this._mouseX = 0;
-		if (isNaN(this._mouseY)) this._mouseY = 0;
+		if (Number.isNaN(this._mouseX)) this._mouseX = 0;
+		if (Number.isNaN(this._mouseY)) this._mouseY = 0;
 		this._whenCursorMoved();
 	};
 
@@ -247,11 +247,11 @@ export class CustomChipPromptCanvas {
 				for (let i = lowest; i <= highest; i++) {
 					const medAmp: number = Math.round(startingAmp + (endingAmp - startingAmp) * ((i - lowest) / (highest - lowest)));
 					this.chipData[i] = medAmp - 24;
-					this._blocks.children[i].setAttribute("y", "" + medAmp * (this._editorHeight / 49));
+					this._blocks.children[i].setAttribute("y", `${medAmp * (this._editorHeight / 49)}`);
 				}
 			} else {
 				this.chipData[index] = amp - 24;
-				this._blocks.children[index].setAttribute("y", "" + amp * (this._editorHeight / 49));
+				this._blocks.children[index].setAttribute("y", `${amp * (this._editorHeight / 49)}`);
 			}
 
 			new ChangeCustomWave(this._doc, this.chipData);
@@ -268,7 +268,7 @@ export class CustomChipPromptCanvas {
 
 	public render(): void {
 		for (let i = 0; i < 64; i++) {
-			this._blocks.children[i].setAttribute("y", "" + (this.chipData[i] + 24) * (this._editorHeight / 49));
+			this._blocks.children[i].setAttribute("y", `${(this.chipData[i] + 24) * (this._editorHeight / 49)}`);
 		}
 	}
 

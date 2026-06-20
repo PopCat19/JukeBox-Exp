@@ -39,7 +39,7 @@ export class HarmonicsEditor {
 			style: `background-color: ${ColorConfig.editorBackground}; touch-action: none; cursor: crosshair;`,
 			width: "100%",
 			height: "100%",
-			viewBox: "0 0 " + this._editorWidth + " " + this._editorHeight,
+			viewBox: `0 0 ${this._editorWidth} ${this._editorHeight}`,
 			preserveAspectRatio: "none",
 		},
 		this._octaves,
@@ -178,8 +178,8 @@ export class HarmonicsEditor {
 		const boundingRect: DOMRect = this._svgRect;
 		this._mouseX = (((event.clientX || event.pageX) - boundingRect.left) * this._editorWidth) / (boundingRect.right - boundingRect.left);
 		this._mouseY = (((event.clientY || event.pageY) - boundingRect.top) * this._editorHeight) / (boundingRect.bottom - boundingRect.top);
-		if (isNaN(this._mouseX)) this._mouseX = 0;
-		if (isNaN(this._mouseY)) this._mouseY = 0;
+		if (Number.isNaN(this._mouseX)) this._mouseX = 0;
+		if (Number.isNaN(this._mouseY)) this._mouseY = 0;
 
 		this._freqPrev = this._xToFreq(this._mouseX);
 		this._ampPrev = this._yToAmp(this._mouseY);
@@ -193,8 +193,8 @@ export class HarmonicsEditor {
 		const boundingRect: DOMRect = this._svgRect;
 		this._mouseX = ((event.touches[0].clientX - boundingRect.left) * this._editorWidth) / (boundingRect.right - boundingRect.left);
 		this._mouseY = ((event.touches[0].clientY - boundingRect.top) * this._editorHeight) / (boundingRect.bottom - boundingRect.top);
-		if (isNaN(this._mouseX)) this._mouseX = 0;
-		if (isNaN(this._mouseY)) this._mouseY = 0;
+		if (Number.isNaN(this._mouseX)) this._mouseX = 0;
+		if (Number.isNaN(this._mouseY)) this._mouseY = 0;
 
 		this._freqPrev = this._xToFreq(this._mouseX);
 		this._ampPrev = this._yToAmp(this._mouseY);
@@ -207,8 +207,8 @@ export class HarmonicsEditor {
 		const boundingRect = this._svgRect;
 		this._mouseX = (((event.clientX || event.pageX) - boundingRect.left) * this._editorWidth) / (boundingRect.right - boundingRect.left);
 		this._mouseY = (((event.clientY || event.pageY) - boundingRect.top) * this._editorHeight) / (boundingRect.bottom - boundingRect.top);
-		if (isNaN(this._mouseX)) this._mouseX = 0;
-		if (isNaN(this._mouseY)) this._mouseY = 0;
+		if (Number.isNaN(this._mouseX)) this._mouseX = 0;
+		if (Number.isNaN(this._mouseY)) this._mouseY = 0;
 		this._whenCursorMoved();
 	};
 
@@ -220,8 +220,8 @@ export class HarmonicsEditor {
 		const boundingRect: DOMRect = this._svgRect;
 		this._mouseX = ((event.touches[0].clientX - boundingRect.left) * this._editorWidth) / (boundingRect.right - boundingRect.left);
 		this._mouseY = ((event.touches[0].clientY - boundingRect.top) * this._editorHeight) / (boundingRect.bottom - boundingRect.top);
-		if (isNaN(this._mouseX)) this._mouseX = 0;
-		if (isNaN(this._mouseY)) this._mouseY = 0;
+		if (Number.isNaN(this._mouseX)) this._mouseX = 0;
+		if (Number.isNaN(this._mouseY)) this._mouseY = 0;
 		this._whenCursorMoved();
 		this.render();
 	};
@@ -308,8 +308,8 @@ export class HarmonicsEditor {
 		for (let i: number = 0; i < Config.harmonicsControlPoints - 1; i++) {
 			if (harmonicsWave.harmonics[i] === 0) continue;
 			const xPos: string = prettyNumber(((i + 0.5) * (this._editorWidth - 8)) / (Config.harmonicsControlPoints - 1));
-			path += "M " + xPos + " " + bottom + " ";
-			path += "L " + xPos + " " + prettyNumber(controlPointToHeight(harmonicsWave.harmonics[i])) + " ";
+			path += `M ${xPos} ${bottom} `;
+			path += `L ${xPos} ${prettyNumber(controlPointToHeight(harmonicsWave.harmonics[i]))} `;
 		}
 
 		const lastHeight: number = controlPointToHeight(harmonicsWave.harmonics[Config.harmonicsControlPoints - 1]);

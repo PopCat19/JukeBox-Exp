@@ -49,19 +49,17 @@ export class SongRecoveryPrompt extends BasePrompt {
 			const versionMenu: HTMLSelectElement = select({});
 
 			for (const version of song.versions) {
-				versionMenu.appendChild(option({ value: version.time }, version.name + ": " + new Date(version.time).toLocaleString()));
+				versionMenu.appendChild(option({ value: version.time }, `${version.name}: ${new Date(version.time).toLocaleString()}`));
 			}
 
 			const player: HTMLIFrameElement = iframe({ class: "recoveryPlayer" });
-			player.src = "player/" + (OFFLINE ? "index.html" : "") + "#song=" + window.localStorage.getItem(versionToKey(song.versions[0]));
+			player.src = `player/${OFFLINE ? "index.html" : ""}#song=${window.localStorage.getItem(versionToKey(song.versions[0]))}`;
 			const container: HTMLDivElement = div({ class: "recoveryRow" }, div({ class: "selectContainer recoverySelectRow" }, versionMenu), player);
 			this._songContainer.appendChild(container);
 
 			versionMenu.addEventListener("change", () => {
 				const version: RecoveredVersion = song.versions[versionMenu.selectedIndex];
-				player.contentWindow!.location.replace(
-					"player/" + (OFFLINE ? "index.html" : "") + "#song=" + window.localStorage.getItem(versionToKey(version)),
-				);
+				player.contentWindow!.location.replace(`player/${OFFLINE ? "index.html" : ""}#song=${window.localStorage.getItem(versionToKey(version))}`);
 				player.contentWindow!.dispatchEvent(new Event("hashchange"));
 			});
 		}

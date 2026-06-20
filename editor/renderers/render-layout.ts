@@ -8,6 +8,7 @@
 // - Toggles visibility of piano, scrollbars, volume bar, spectrum, and settings rows
 // - Handles fullscreen pattern editor width, prev/next panes, and zoom button positioning
 
+import type { spectrumCanvas } from "../../shared/spectrum";
 import type { BarScrollBar } from "../components/bar-scroll-bar";
 import { ChannelRow } from "../components/channel-row";
 import type { MuteEditor } from "../components/mute-editor";
@@ -16,7 +17,6 @@ import type { PatternEditor } from "../components/pattern-editor";
 import type { Piano } from "../components/piano";
 import type { Preferences } from "../core/preferences";
 import type { SongDocument } from "../song-document";
-import type { spectrumCanvas } from "../../shared/spectrum";
 
 export interface LayoutRefs {
 	muteEditor: MuteEditor;
@@ -106,9 +106,9 @@ export function renderLayout(refs: LayoutRefs, doc: SongDocument): void {
 			beepboxEditorContainer.style.borderStyle = "";
 		}
 
-		refs.patternEditorPrev.container.style.width = patternEditorWidth + "px";
-		refs.patternEditor.container.style.width = patternEditorWidth + "px";
-		refs.patternEditorNext.container.style.width = patternEditorWidth + "px";
+		refs.patternEditorPrev.container.style.width = `${patternEditorWidth}px`;
+		refs.patternEditor.container.style.width = `${patternEditorWidth}px`;
+		refs.patternEditorNext.container.style.width = `${patternEditorWidth}px`;
 		refs.patternEditorPrev.container.style.flexShrink = "0";
 		refs.patternEditor.container.style.flexShrink = "0";
 		refs.patternEditorNext.container.style.flexShrink = "0";

@@ -429,7 +429,6 @@ export class ColorConfig {
 					base = ColorConfig.modChannels[(channel % ColorConfig.c_modLimit) % ColorConfig.modChannels.length];
 					break;
 				}
-				case "pitch":
 				default: {
 					base = ColorConfig.pitchChannels[(channel % ColorConfig.c_pitchLimit) % ColorConfig.pitchChannels.length];
 					break;
@@ -553,7 +552,6 @@ export class ColorConfig {
 				};
 				return newChannelColors;
 			}
-			case "pitch":
 			default: {
 				// Pitch formula
 

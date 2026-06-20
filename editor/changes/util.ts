@@ -51,7 +51,7 @@ export function unionOfUsedNotes(pattern: Pattern, flags: boolean[]): void {
 
 export function generateScaleMap(oldScaleFlags: ReadonlyArray<boolean>, newScaleValue: number, customScaleFlags: ReadonlyArray<boolean>): number[] {
 	const newScaleFlags: ReadonlyArray<boolean> =
-		newScaleValue === Config.scales["dictionary"]["Custom"].index ? customScaleFlags : Config.scales[newScaleValue].flags;
+		newScaleValue === Config.scales.dictionary.Custom.index ? customScaleFlags : Config.scales[newScaleValue].flags;
 	const oldScale: number[] = [];
 	const newScale: number[] = [];
 	for (let i: number = 0; i < 12; i++) {

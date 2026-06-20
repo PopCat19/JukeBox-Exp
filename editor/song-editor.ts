@@ -667,8 +667,8 @@ export class SongEditor
 		div({ class: "pitchShiftMarker", style: { color: ColorConfig.tonic, left: "100%" } }),
 	];
 	private readonly _pitchShiftFifthMarkers: HTMLDivElement[] = [
-		div({ class: "pitchShiftMarker", style: { color: ColorConfig.fifthNote, left: (100 * 7) / 24 + "%" } }),
-		div({ class: "pitchShiftMarker", style: { color: ColorConfig.fifthNote, left: (100 * 19) / 24 + "%" } }),
+		div({ class: "pitchShiftMarker", style: { color: ColorConfig.fifthNote, left: `${(100 * 7) / 24}%` } }),
+		div({ class: "pitchShiftMarker", style: { color: ColorConfig.fifthNote, left: `${(100 * 19) / 24}%` } }),
 	];
 	private readonly _pitchShiftMarkerContainer: HTMLDivElement = div(
 		{ style: "display: flex; position: relative;" },
@@ -1208,7 +1208,7 @@ export class SongEditor
 		canvas({
 			width: 144,
 			height: 144,
-			style: "border:2px solid " + ColorConfig.uiWidgetBackground,
+			style: `border:2px solid ${ColorConfig.uiWidgetBackground}`,
 			id: "customAlgorithmCanvas",
 		}),
 		this.doc,
@@ -1369,7 +1369,7 @@ export class SongEditor
 		canvas({
 			width: 128,
 			height: 52,
-			style: "border:2px solid " + ColorConfig.uiWidgetBackground,
+			style: `border:2px solid ${ColorConfig.uiWidgetBackground}`,
 			id: "customWaveDrawCanvas",
 		}),
 		this.doc,
@@ -1773,11 +1773,7 @@ export class SongEditor
 				this._nextBarButton,
 			),
 			div({ style: "text-align: center; font-size: 10px; color: var(--primary-text); margin-top: 2px;" }, this._barPosLabel),
-			div(
-				{ class: "playback-volume-controls" },
-				span({ class: "volume-speaker" }),
-				this._volumeSlider.container,
-			),
+			div({ class: "playback-volume-controls" }, span({ class: "volume-speaker" }), this._volumeSlider.container),
 			this._globalSpectrumContainer,
 		),
 		this._menuArea,
@@ -2599,7 +2595,7 @@ export class SongEditor
 		// Attach to window to ensure it always fires during playback
 		// (mainLayer may not receive events when player animator is active).
 		const _onDragOver = (e: DragEvent) => {
-			if (e.dataTransfer && (e.dataTransfer.types.indexOf("Files") !== -1)) {
+			if (e.dataTransfer && e.dataTransfer.types.indexOf("Files") !== -1) {
 				e.preventDefault();
 			}
 		};
@@ -2910,47 +2906,47 @@ export class SongEditor
 		switch (dropdown) {
 			case DropdownID.Envelope:
 				target = this._envelopeDropdown;
-				this._openEnvelopeDropdown = this._openEnvelopeDropdown ? false : true;
+				this._openEnvelopeDropdown = !this._openEnvelopeDropdown;
 				group = this._envelopeDropdownGroup;
 				break;
 			case DropdownID.Vibrato:
 				target = this._vibratoDropdown;
-				this._openVibratoDropdown = this._openVibratoDropdown ? false : true;
+				this._openVibratoDropdown = !this._openVibratoDropdown;
 				group = this._vibratoDropdownGroup;
 				break;
 			case DropdownID.Pan:
 				target = this._panDropdown;
-				this._openPanDropdown = this._openPanDropdown ? false : true;
+				this._openPanDropdown = !this._openPanDropdown;
 				group = this._panDropdownGroup;
 				break;
 			case DropdownID.Chord:
 				target = this._chordDropdown;
-				this._openChordDropdown = this._openChordDropdown ? false : true;
+				this._openChordDropdown = !this._openChordDropdown;
 				group = this._chordDropdownGroup;
 				break;
 			case DropdownID.Transition:
 				target = this._transitionDropdown;
-				this._openTransitionDropdown = this._openTransitionDropdown ? false : true;
+				this._openTransitionDropdown = !this._openTransitionDropdown;
 				group = this._transitionDropdownGroup;
 				break;
 			case DropdownID.FM:
 				target = this._operatorDropdowns[submenu];
-				this._openOperatorDropdowns[submenu] = this._openOperatorDropdowns[submenu] ? false : true;
+				this._openOperatorDropdowns[submenu] = !this._openOperatorDropdowns[submenu];
 				group = this._operatorDropdownGroups[submenu];
 				break;
 			case DropdownID.PulseWidth:
 				target = this._pulseWidthDropdown;
-				this._openPulseWidthDropdown = this._openPulseWidthDropdown ? false : true;
+				this._openPulseWidthDropdown = !this._openPulseWidthDropdown;
 				group = this._pulseWidthDropdownGroup;
 				break;
 			case DropdownID.Unison:
 				target = this._unisonDropdown;
-				this._openUnisonDropdown = this._openUnisonDropdown ? false : true;
+				this._openUnisonDropdown = !this._openUnisonDropdown;
 				group = this._unisonDropdownGroup;
 				break;
 			case DropdownID.EnvelopeSettings:
 				target = this.envelopeEditor.extraSettingsDropdowns[submenu];
-				this.envelopeEditor.openExtraSettingsDropdowns[submenu] = this.envelopeEditor.openExtraSettingsDropdowns[submenu] ? false : true;
+				this.envelopeEditor.openExtraSettingsDropdowns[submenu] = !this.envelopeEditor.openExtraSettingsDropdowns[submenu];
 				group = this.envelopeEditor.extraSettingsDropdownGroups[submenu];
 				break;
 		}
@@ -2964,9 +2960,9 @@ export class SongEditor
 			} else if (group !== this._chordDropdownGroup) {
 				group.style.display = "";
 			} // Only show arpeggio dropdown if chord arpeggiates
-			else if (instrument.chord === Config.chords.dictionary["arpeggio"].index) {
+			else if (instrument.chord === Config.chords.dictionary.arpeggio.index) {
 				group.style.display = "";
-				if (instrument.chord === Config.chords.dictionary["arpeggio"].index) {
+				if (instrument.chord === Config.chords.dictionary.arpeggio.index) {
 					this._chordDropdownGroup.style.display = "";
 				} else {
 					this._chordDropdownGroup.style.display = "none";
@@ -3056,7 +3052,7 @@ export class SongEditor
 
 						if (currentVal !== editor._modSliderValues[setting][index]) {
 							editor._modSliderValues[setting][index] = currentVal;
-							slider.container.style.setProperty("--mod-position", currentVal * 96.0 + 2.0 + "%");
+							slider.container.style.setProperty("--mod-position", `${currentVal * 96.0 + 2.0}%`);
 						}
 						return true;
 					}
@@ -3524,8 +3520,7 @@ export class SongEditor
 			if (
 				channel.bars[i] !== 0 &&
 				channel.bars[i] !== channel.bars[this.doc.bar] &&
-				pattern != null &&
-				pattern.instruments.includes(instrumentIndex) &&
+				pattern?.instruments.includes(instrumentIndex) &&
 				i !== this.doc.bar &&
 				(i < lowestSelX || i > highestSelX || this.doc.channel < lowestSelY || this.doc.channel > highestSelY)
 			) {
@@ -3588,7 +3583,7 @@ export class SongEditor
 		let nav: any;
 		nav = navigator;
 
-		if (nav.clipboard && nav.clipboard.writeText) {
+		if (nav.clipboard?.writeText) {
 			nav.clipboard.writeText(text).catch(() => {
 				window.prompt("Copy to clipboard:", text);
 			});
@@ -3767,7 +3762,7 @@ export class SongEditor
 							-Config.volumeRange / 2 +
 								Math.round(
 									(Math.sqrt(Config.chipWaves[index].expression) * Config.volumeRange) / 2 +
-										parseInt(this._instrumentVolumeSlider.input.value),
+										parseInt(this._instrumentVolumeSlider.input.value, 10),
 								),
 							-Config.volumeRange / 2,
 						) >> 1,

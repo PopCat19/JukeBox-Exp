@@ -35,7 +35,7 @@ export function parseFloatWithDefault<T>(s: string, defaultValue: T): number | T
 }
 
 export function parseIntWithDefault<T>(s: string, defaultValue: T): number | T {
-	let result: number | T = parseInt(s);
+	let result: number | T = parseInt(s, 10);
 	if (Number.isNaN(result)) result = defaultValue;
 	return result;
 }

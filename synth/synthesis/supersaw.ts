@@ -20,7 +20,7 @@ export function buildSupersawSource(voiceCount: number): string {
 		supersawSource += `
                 let phase# = tone.phases[#];
                 const unisonDetune# = tone.supersawUnisonDetunes[#];
-                `.replaceAll("#", i + "");
+                `.replaceAll("#", `${i}`);
 	}
 
 	supersawSource +=
@@ -81,7 +81,7 @@ export function buildSupersawSource(voiceCount: number): string {
                     supersawSample -= (t + t + t * t + 1) * 0.5 * dynamism;
                 }
                 phase# = aphase#;
-                `.replaceAll("#", i + "");
+                `.replaceAll("#", `${i}`);
 	}
 
 	supersawSource += `
@@ -94,7 +94,7 @@ export function buildSupersawSource(voiceCount: number): string {
                 // the delta before first sample to get a nonzero value.
                 phase# = (phase# + detunedPhaseDelta#) - ((phase# + detunedPhaseDelta#) | 0);
                 supersawSample += phase# * dynamism;
-                `.replaceAll("#", i + "");
+                `.replaceAll("#", `${i}`);
 	}
 	supersawSource += `
             }
@@ -126,7 +126,7 @@ export function buildSupersawSource(voiceCount: number): string {
 	for (let i: number = 0; i < voiceCount; i++) {
 		supersawSource += `
             tone.phases[#] = phase#;
-            `.replaceAll("#", i + "");
+            `.replaceAll("#", `${i}`);
 	}
 	supersawSource += `
         tone.phaseDeltas[0] = phaseDelta;

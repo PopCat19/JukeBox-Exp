@@ -41,8 +41,8 @@ export class MoveNotesSidewaysPrompt extends BasePrompt {
 	constructor(doc: SongDocument) {
 		super(doc);
 		this.buildTitlebar();
-		this._beatsStepper.min = -this._doc.song.beatsPerBar + "";
-		this._beatsStepper.max = this._doc.song.beatsPerBar + "";
+		this._beatsStepper.min = `${-this._doc.song.beatsPerBar}`;
+		this._beatsStepper.max = `${this._doc.song.beatsPerBar}`;
 
 		const lastStrategy: string | null = window.localStorage.getItem("moveNotesSidewaysStrategy");
 		if (lastStrategy != null) {
@@ -66,7 +66,7 @@ export class MoveNotesSidewaysPrompt extends BasePrompt {
 		let value: number = +input.value;
 		value = Math.round(value * Config.partsPerBeat) / Config.partsPerBeat;
 		value = Math.round(value * 100) / 100;
-		input.value = Math.max(+input.min, Math.min(+input.max, value)) + "";
+		input.value = `${Math.max(+input.min, Math.min(+input.max, value))}`;
 	}
 
 	protected override _saveChanges(): void {

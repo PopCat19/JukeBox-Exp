@@ -18,7 +18,7 @@ registerPlugin({
 	displayName: "picked string",
 	editorRows: ["harmonics", "stringSustain"],
 	initialize: (instrument: Instrument) => {
-		instrument.chord = Config.chords.dictionary["strum"].index;
+		instrument.chord = Config.chords.dictionary.strum.index;
 		instrument.harmonicsWave.reset();
 	},
 	getSynthFunction,

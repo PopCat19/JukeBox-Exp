@@ -255,19 +255,19 @@ export class PatternEditor {
 		private _barOffset: number,
 	) {
 		this._svgNoteBackground = SVG.pattern({
-			id: "patternEditorNoteBackground" + this._barOffset,
+			id: `patternEditorNoteBackground${this._barOffset}`,
 			x: "0",
 			y: "0",
 			patternUnits: "userSpaceOnUse",
 		});
 		this._svgDrumBackground = SVG.pattern({
-			id: "patternEditorDrumBackground" + this._barOffset,
+			id: `patternEditorDrumBackground${this._barOffset}`,
 			x: "0",
 			y: "0",
 			patternUnits: "userSpaceOnUse",
 		});
 		this._svgModBackground = SVG.pattern({
-			id: "patternEditorModBackground" + this._barOffset,
+			id: `patternEditorModBackground${this._barOffset}`,
 			x: "0",
 			y: "0",
 			patternUnits: "userSpaceOnUse",
@@ -276,7 +276,7 @@ export class PatternEditor {
 			x: "0",
 			y: "0",
 			"pointer-events": "none",
-			fill: "url(#patternEditorNoteBackground" + this._barOffset + ")",
+			fill: `url(#patternEditorNoteBackground${this._barOffset})`,
 		});
 		this._svgNoteContainer = SVG.svg();
 		this._svgPlayhead = SVG.rect({ x: "0", y: "0", width: "4", fill: ColorConfig.playhead, "pointer-events": "none" });
@@ -400,21 +400,21 @@ export class PatternEditor {
 
 		// Special case - when user is typing a number between zero and min, allow it (the alternative is quite annoying, when min is nonzero)
 		let converted: number = Number(label.innerText);
-		if (!isNaN(converted) && converted >= 0 && converted < this._modDragLowerBound) {
+		if (!Number.isNaN(converted) && converted >= 0 && converted < this._modDragLowerBound) {
 			return;
 		}
 
 		// Another special case - allow "" e.g. the empty string and a single negative sign, but don't do anything about it.
 		if (label.innerText !== "" && label.innerText !== "-") {
 			// Force NaN results to be 0
-			if (isNaN(converted)) {
+			if (Number.isNaN(converted)) {
 				converted = this._modDragLowerBound;
-				label.innerText = "" + this._modDragLowerBound;
+				label.innerText = `${this._modDragLowerBound}`;
 			}
 
 			const presValue: number = Math.floor(Math.max(Number(this._modDragLowerBound), Math.min(Number(this._modDragUpperBound), converted)));
-			if (label.innerText !== presValue + "") {
-				label.innerText = presValue + "";
+			if (label.innerText !== `${presValue}`) {
+				label.innerText = `${presValue}`;
 			}
 
 			// This is me being too lazy to fiddle with the css to get it to align center.
@@ -425,7 +425,7 @@ export class PatternEditor {
 					2,
 				),
 			);
-			this.modDragValueLabel.style.setProperty("left", "" + this._modDragValueLabelLeft + "px");
+			this.modDragValueLabel.style.setProperty("left", `${this._modDragValueLabelLeft}px`);
 
 			const sequence: ChangeSequence = new ChangeSequence();
 			this._dragChange = sequence;
@@ -585,9 +585,9 @@ export class PatternEditor {
 						);
 					this._modDragSetting = setting;
 
-					this.modDragValueLabel.style.setProperty("left", "" + this._modDragValueLabelLeft + "px");
-					this.modDragValueLabel.style.setProperty("top", "" + this._modDragValueLabelTop + "px");
-					this.modDragValueLabel.textContent = "" + presValue;
+					this.modDragValueLabel.style.setProperty("left", `${this._modDragValueLabelLeft}px`);
+					this.modDragValueLabel.style.setProperty("top", `${this._modDragValueLabelTop}px`);
+					this.modDragValueLabel.textContent = `${presValue}`;
 				} else {
 					this.modDragValueLabel.style.setProperty("display", "none");
 					this.modDragValueLabel.style.setProperty("pointer-events", "none");
@@ -802,8 +802,8 @@ export class PatternEditor {
 		if (guess < min) guess = min;
 		if (guess > max) guess = max;
 		const scale: ReadonlyArray<boolean> = this._doc.prefs.notesOutsideScale
-			? Config.scales.dictionary["Free"].flags
-			: this._doc.song.scale === Config.scales.dictionary["Custom"].index
+			? Config.scales.dictionary.Free.flags
+			: this._doc.song.scale === Config.scales.dictionary.Custom.index
 				? this._doc.song.scaleCustom
 				: Config.scales[this._doc.song.scale].flags;
 		if (
@@ -972,7 +972,7 @@ export class PatternEditor {
 			} else {
 				this._playheadX += (modPlayhead - this._playheadX) * 0.2;
 			}
-			this._svgPlayhead.setAttribute("x", "" + prettyNumber(this._playheadX * this._editorWidth - 2));
+			this._svgPlayhead.setAttribute("x", `${prettyNumber(this._playheadX * this._editorWidth - 2)}`);
 		} else {
 			this._svgPlayhead.setAttribute("visibility", "hidden");
 
@@ -1019,8 +1019,8 @@ export class PatternEditor {
 		this._editorHeight = this.container.clientHeight;
 		this._mouseX = (((event.clientX ?? event.pageX) - boundingRect.left) * this._editorWidth) / (boundingRect.right - boundingRect.left);
 		this._mouseY = (((event.clientY ?? event.pageY) - boundingRect.top) * this._editorHeight) / (boundingRect.bottom - boundingRect.top);
-		if (isNaN(this._mouseX)) this._mouseX = 0;
-		if (isNaN(this._mouseY)) this._mouseY = 0;
+		if (Number.isNaN(this._mouseX)) this._mouseX = 0;
+		if (Number.isNaN(this._mouseY)) this._mouseY = 0;
 		this._usingTouch = false;
 		this._shiftHeld = event.shiftKey;
 		this._dragConfirmed = false;
@@ -1034,8 +1034,8 @@ export class PatternEditor {
 		this._editorHeight = this.container.clientHeight;
 		this._mouseX = ((event.touches[0].clientX - boundingRect.left) * this._editorWidth) / (boundingRect.right - boundingRect.left);
 		this._mouseY = ((event.touches[0].clientY - boundingRect.top) * this._editorHeight) / (boundingRect.bottom - boundingRect.top);
-		if (isNaN(this._mouseX)) this._mouseX = 0;
-		if (isNaN(this._mouseY)) this._mouseY = 0;
+		if (Number.isNaN(this._mouseX)) this._mouseX = 0;
+		if (Number.isNaN(this._mouseY)) this._mouseY = 0;
 		this._usingTouch = true;
 		this._shiftHeld = event.shiftKey;
 		this._dragConfirmed = false;
@@ -1230,7 +1230,7 @@ export class PatternEditor {
 			applyToMods.push(modulator.index);
 			if (toApply) applyValues.push(this._doc.continuingModRecordingChange.storedValues![0]);
 		} else if (change instanceof ChangeTempo) {
-			const modulator = Config.modulators.dictionary["tempo"];
+			const modulator = Config.modulators.dictionary.tempo;
 			applyToMods.push(modulator.index);
 			if (toApply) applyValues.push(this._doc.song.tempo - modulator.convertRealFactor);
 			// Move the actual value back, since we just want to update the modulated value and not the base slider.
@@ -1298,7 +1298,7 @@ export class PatternEditor {
 				instrument.volume = slider.getValueBeforeProspectiveChange();
 			}
 		} else if (change instanceof ChangePan) {
-			const modulator = Config.modulators.dictionary["pan"];
+			const modulator = Config.modulators.dictionary.pan;
 			applyToMods.push(modulator.index);
 			if (toApply) applyValues.push(instrument.pan - modulator.convertRealFactor);
 			// Move the actual value back, since we just want to update the modulated value and not the base slider.
@@ -1307,7 +1307,7 @@ export class PatternEditor {
 				instrument.pan = slider.getValueBeforeProspectiveChange();
 			}
 		} else if (change instanceof ChangeReverb) {
-			const modulator = Config.modulators.dictionary["reverb"];
+			const modulator = Config.modulators.dictionary.reverb;
 			applyToMods.push(modulator.index);
 			if (toApply) applyValues.push(instrument.reverb - modulator.convertRealFactor);
 			// Move the actual value back, since we just want to update the modulated value and not the base slider.
@@ -1316,7 +1316,7 @@ export class PatternEditor {
 				instrument.reverb = slider.getValueBeforeProspectiveChange();
 			}
 		} else if (change instanceof ChangeDistortion) {
-			const modulator = Config.modulators.dictionary["distortion"];
+			const modulator = Config.modulators.dictionary.distortion;
 			applyToMods.push(modulator.index);
 			if (toApply) applyValues.push(instrument.distortion - modulator.convertRealFactor);
 			// Move the actual value back, since we just want to update the modulated value and not the base slider.
@@ -1341,10 +1341,10 @@ export class PatternEditor {
 			slider = songEditor.modSliders.getSliderForModSetting(modulator.index);
 			if (slider != null) {
 				instrument.ringModulationHz = slider.getValueBeforeProspectiveChange();
-				songEditor.ringModHzNum.innerHTML = "(" + instrument.ringModulationHz + ")";
+				songEditor.ringModHzNum.innerHTML = `(${instrument.ringModulationHz})`;
 			}
 		} else if (change instanceof ChangeGranular) {
-			const modulator = Config.modulators.dictionary["granular"];
+			const modulator = Config.modulators.dictionary.granular;
 			applyToMods.push(modulator.index);
 			if (toApply) applyValues.push(instrument.granular - modulator.convertRealFactor);
 			// Move the actual value back, since we just want to update the modulated value and not the base slider.
@@ -1369,7 +1369,7 @@ export class PatternEditor {
 			slider = songEditor.modSliders.getSliderForModSetting(modulator.index);
 			if (slider != null) {
 				instrument.grainSize = slider.getValueBeforeProspectiveChange();
-				songEditor.grainSizeNum.innerHTML = "(" + instrument.grainSize * Config.grainSizeStep + ")";
+				songEditor.grainSizeNum.innerHTML = `(${instrument.grainSize * Config.grainSizeStep})`;
 			}
 		} else if (change instanceof ChangeGrainRange) {
 			const modulator = Config.modulators.dictionary["grain range"];
@@ -1379,10 +1379,10 @@ export class PatternEditor {
 			slider = songEditor.modSliders.getSliderForModSetting(modulator.index);
 			if (slider != null) {
 				instrument.grainRange = slider.getValueBeforeProspectiveChange();
-				songEditor.grainRangeNum.innerHTML = "(" + instrument.grainRange * Config.grainSizeStep + ")";
+				songEditor.grainRangeNum.innerHTML = `(${instrument.grainRange * Config.grainSizeStep})`;
 			}
 		} else if (change instanceof ChangeOperatorAmplitude) {
-			const modulator = Config.modulators.dictionary["fm slider " + (change.operatorIndex + 1)];
+			const modulator = Config.modulators.dictionary[`fm slider ${change.operatorIndex + 1}`];
 			applyToMods.push(modulator.index);
 			if (toApply) applyValues.push(instrument.operators[change.operatorIndex].amplitude - modulator.convertRealFactor);
 			// Move the actual value back, since we just want to update the modulated value and not the base slider.
@@ -1419,7 +1419,7 @@ export class PatternEditor {
 				instrument.decimalOffset = slider.getValueBeforeProspectiveChange();
 			}
 		} else if (change instanceof ChangeDetune) {
-			const modulator = Config.modulators.dictionary["detune"];
+			const modulator = Config.modulators.dictionary.detune;
 			applyToMods.push(modulator.index);
 			if (toApply) applyValues.push(instrument.detune - modulator.convertRealFactor - Config.detuneCenter);
 			// Move the actual value back, since we just want to update the modulated value and not the base slider.
@@ -1558,7 +1558,7 @@ export class PatternEditor {
 				instrument.bitcrusherFreq = slider.getValueBeforeProspectiveChange();
 			}
 		} else if (change instanceof ChangeEchoSustain) {
-			const modulator = Config.modulators.dictionary["echo"];
+			const modulator = Config.modulators.dictionary.echo;
 			applyToMods.push(modulator.index);
 			if (toApply) applyValues.push(instrument.echoSustain - modulator.convertRealFactor);
 			// Move the actual value back, since we just want to update the modulated value and not the base slider.
@@ -1567,7 +1567,7 @@ export class PatternEditor {
 				instrument.echoSustain = slider.getValueBeforeProspectiveChange();
 			}
 		} else if (change instanceof ChangeChorus) {
-			const modulator = Config.modulators.dictionary["chorus"];
+			const modulator = Config.modulators.dictionary.chorus;
 			applyToMods.push(modulator.index);
 			if (toApply) applyValues.push(instrument.chorus - modulator.convertRealFactor);
 			// Move the actual value back, since we just want to update the modulated value and not the base slider.
@@ -1621,7 +1621,7 @@ export class PatternEditor {
 				instrument.pitchShift = slider.getValueBeforeProspectiveChange();
 			}
 		} else if (change instanceof ChangeStringSustain) {
-			const modulator = Config.modulators.dictionary["sustain"];
+			const modulator = Config.modulators.dictionary.sustain;
 			applyToMods.push(modulator.index);
 			if (toApply) applyValues.push(instrument.stringSustain - modulator.convertRealFactor);
 			// Move the actual value back, since we just want to update the modulated value and not the base slider.
@@ -1639,7 +1639,7 @@ export class PatternEditor {
 				instrument.envelopeSpeed = slider.getValueBeforeProspectiveChange();
 			}
 		} else if (change instanceof ChangeSupersawDynamism) {
-			const modulator = Config.modulators.dictionary["dynamism"];
+			const modulator = Config.modulators.dictionary.dynamism;
 			applyToMods.push(modulator.index);
 			if (toApply) applyValues.push(instrument.supersawDynamism - modulator.convertRealFactor);
 			// Move the actual value back, since we just want to update the modulated value and not the base slider.
@@ -1648,7 +1648,7 @@ export class PatternEditor {
 				instrument.supersawDynamism = slider.getValueBeforeProspectiveChange();
 			}
 		} else if (change instanceof ChangeSupersawSpread) {
-			const modulator = Config.modulators.dictionary["spread"];
+			const modulator = Config.modulators.dictionary.spread;
 			applyToMods.push(modulator.index);
 			if (toApply) applyValues.push(instrument.supersawSpread - modulator.convertRealFactor);
 			// Move the actual value back, since we just want to update the modulated value and not the base slider.
@@ -1821,7 +1821,7 @@ export class PatternEditor {
 					else {
 						for (let instrumentIndex: number = 0; instrumentIndex < channel.instruments.length; instrumentIndex++) {
 							for (let mod: number = 0; mod < Config.modCount; mod++) {
-								if (channel.instruments[instrumentIndex].modulators[mod] === Config.modulators.dictionary["none"].index) {
+								if (channel.instruments[instrumentIndex].modulators[mod] === Config.modulators.dictionary.none.index) {
 									useInstrument = instrumentIndex;
 
 									sequence.append(new ChangeEnsurePatternExists(this._doc, channelIndex, currentBar));
@@ -1844,7 +1844,7 @@ export class PatternEditor {
 					if (useInstrument !== -1) {
 						const instrument: Instrument = channel.instruments[useInstrument];
 						for (let mod: number = 0; mod < Config.modCount; mod++) {
-							if (instrument.modulators[mod] === Config.modulators.dictionary["none"].index) {
+							if (instrument.modulators[mod] === Config.modulators.dictionary.none.index) {
 								instrument.modulators[mod] = applyToMods[applyIndex];
 								if (Config.modulators[applyToMods[applyIndex]].forSong) {
 									if (applyToFilterTargets.length > applyIndex) {
@@ -2142,7 +2142,7 @@ export class PatternEditor {
 						2,
 					),
 				);
-				this.modDragValueLabel.style.setProperty("left", "" + this._modDragValueLabelLeft + "px");
+				this.modDragValueLabel.style.setProperty("left", `${this._modDragValueLabelLeft}px`);
 
 				const sequence: ChangeSequence = new ChangeSequence();
 				this._dragChange = sequence;
@@ -2279,8 +2279,8 @@ export class PatternEditor {
 		const boundingRect = this._getCachedSvgRect();
 		this._mouseX = (((event.clientX ?? event.pageX) - boundingRect.left) * this._editorWidth) / (boundingRect.right - boundingRect.left);
 		this._mouseY = (((event.clientY ?? event.pageY) - boundingRect.top) * this._editorHeight) / (boundingRect.bottom - boundingRect.top);
-		if (isNaN(this._mouseX)) this._mouseX = 0;
-		if (isNaN(this._mouseY)) this._mouseY = 0;
+		if (Number.isNaN(this._mouseX)) this._mouseX = 0;
+		if (Number.isNaN(this._mouseY)) this._mouseY = 0;
 		this._usingTouch = false;
 		// RAF-throttle the expensive tooltip + cursor update to once per frame.
 		// This avoids forced reflows from offsetWidth/offsetHeight on every mousemove.
@@ -2334,8 +2334,8 @@ export class PatternEditor {
 			top = this._mouseY - offset - tooltipHeight;
 		}
 		if (top < 0) top = 0;
-		this._hoverTooltip.style.left = left + "px";
-		this._hoverTooltip.style.top = top + "px";
+		this._hoverTooltip.style.left = `${left}px`;
+		this._hoverTooltip.style.top = `${top}px`;
 		this._hoverTooltip.style.display = "block";
 	}
 
@@ -2345,8 +2345,8 @@ export class PatternEditor {
 		const boundingRect: DOMRect = this._getCachedSvgRect();
 		this._mouseX = ((event.touches[0].clientX - boundingRect.left) * this._editorWidth) / (boundingRect.right - boundingRect.left);
 		this._mouseY = ((event.touches[0].clientY - boundingRect.top) * this._editorHeight) / (boundingRect.bottom - boundingRect.top);
-		if (isNaN(this._mouseX)) this._mouseX = 0;
-		if (isNaN(this._mouseY)) this._mouseY = 0;
+		if (Number.isNaN(this._mouseX)) this._mouseX = 0;
+		if (Number.isNaN(this._mouseY)) this._mouseY = 0;
 		this._whenCursorMoved();
 	};
 
@@ -2407,9 +2407,7 @@ export class PatternEditor {
 					this._doc.setProspectiveChange(this._dragChange);
 
 					const scale =
-						this._doc.song.scale === Config.scales.dictionary["Custom"].index
-							? this._doc.song.scaleCustom
-							: Config.scales[this._doc.song.scale].flags;
+						this._doc.song.scale === Config.scales.dictionary.Custom.index ? this._doc.song.scaleCustom : Config.scales[this._doc.song.scale].flags;
 					const notesInScale: number = scale.filter((x) => x).length;
 					const pitchRatio: number = this._doc.song.getChannelIsNoise(this._doc.channel) ? 1 : 12 / notesInScale;
 					const draggedParts: number = Math.round((this._mouseX - this._mouseXStart) / (this._partWidth * minDivision)) * minDivision;
@@ -2942,18 +2940,18 @@ export class PatternEditor {
 
 				let pathString: string = "";
 
-				pathString += "M " + prettyNumber(x) + " " + prettyNumber(y - radius * (this._dragSize / cap)) + " ";
-				pathString += "L " + prettyNumber(x) + " " + prettyNumber(y - radius * (this._dragSize / cap) - height) + " ";
-				pathString += "M " + prettyNumber(x) + " " + prettyNumber(y + radius * (this._dragSize / cap)) + " ";
-				pathString += "L " + prettyNumber(x) + " " + prettyNumber(y + radius * (this._dragSize / cap) + height) + " ";
-				pathString += "M " + prettyNumber(x) + " " + prettyNumber(y - radius * (this._dragSize / cap)) + " ";
-				pathString += "L " + prettyNumber(x + width) + " " + prettyNumber(y - radius * (this._dragSize / cap)) + " ";
-				pathString += "M " + prettyNumber(x) + " " + prettyNumber(y + radius * (this._dragSize / cap)) + " ";
-				pathString += "L " + prettyNumber(x + width) + " " + prettyNumber(y + radius * (this._dragSize / cap)) + " ";
-				pathString += "M " + prettyNumber(x) + " " + prettyNumber(y - radius * (this._dragSize / cap)) + " ";
-				pathString += "L " + prettyNumber(x - width) + " " + prettyNumber(y - radius * (this._dragSize / cap)) + " ";
-				pathString += "M " + prettyNumber(x) + " " + prettyNumber(y + radius * (this._dragSize / cap)) + " ";
-				pathString += "L " + prettyNumber(x - width) + " " + prettyNumber(y + radius * (this._dragSize / cap)) + " ";
+				pathString += `M ${prettyNumber(x)} ${prettyNumber(y - radius * (this._dragSize / cap))} `;
+				pathString += `L ${prettyNumber(x)} ${prettyNumber(y - radius * (this._dragSize / cap) - height)} `;
+				pathString += `M ${prettyNumber(x)} ${prettyNumber(y + radius * (this._dragSize / cap))} `;
+				pathString += `L ${prettyNumber(x)} ${prettyNumber(y + radius * (this._dragSize / cap) + height)} `;
+				pathString += `M ${prettyNumber(x)} ${prettyNumber(y - radius * (this._dragSize / cap))} `;
+				pathString += `L ${prettyNumber(x + width)} ${prettyNumber(y - radius * (this._dragSize / cap))} `;
+				pathString += `M ${prettyNumber(x)} ${prettyNumber(y + radius * (this._dragSize / cap))} `;
+				pathString += `L ${prettyNumber(x + width)} ${prettyNumber(y + radius * (this._dragSize / cap))} `;
+				pathString += `M ${prettyNumber(x)} ${prettyNumber(y - radius * (this._dragSize / cap))} `;
+				pathString += `L ${prettyNumber(x - width)} ${prettyNumber(y - radius * (this._dragSize / cap))} `;
+				pathString += `M ${prettyNumber(x)} ${prettyNumber(y + radius * (this._dragSize / cap))} `;
+				pathString += `L ${prettyNumber(x - width)} ${prettyNumber(y + radius * (this._dragSize / cap))} `;
 
 				this._svgPreview.setAttribute("d", pathString);
 			}
@@ -2973,18 +2971,18 @@ export class PatternEditor {
 					const left: string = prettyNumber(center - 4);
 					const right: string = prettyNumber(center + 4);
 					const bottom: number = this._pitchToPixelHeight(-0.5);
-					this._svgPreview.setAttribute("d", "M " + left + " 0 L " + left + " " + bottom + " L " + right + " " + bottom + " L " + right + " 0 z");
+					this._svgPreview.setAttribute("d", `M ${left} 0 L ${left} ${bottom} L ${right} ${bottom} L ${right} 0 z`);
 				} else if (this._cursorAtEndOfSelection()) {
 					const center: number = this._partWidth * this._doc.selection.patternSelectionEnd;
 					const left: string = prettyNumber(center - 4);
 					const right: string = prettyNumber(center + 4);
 					const bottom: number = this._pitchToPixelHeight(-0.5);
-					this._svgPreview.setAttribute("d", "M " + left + " 0 L " + left + " " + bottom + " L " + right + " " + bottom + " L " + right + " 0 z");
+					this._svgPreview.setAttribute("d", `M ${left} 0 L ${left} ${bottom} L ${right} ${bottom} L ${right} 0 z`);
 				} else if (this._cursorIsInSelection()) {
 					const left: string = prettyNumber(this._partWidth * this._doc.selection.patternSelectionStart - 2);
 					const right: string = prettyNumber(this._partWidth * this._doc.selection.patternSelectionEnd + 2);
 					const bottom: number = this._pitchToPixelHeight(-0.5);
-					this._svgPreview.setAttribute("d", "M " + left + " 0 L " + left + " " + bottom + " L " + right + " " + bottom + " L " + right + " 0 z");
+					this._svgPreview.setAttribute("d", `M ${left} 0 L ${left} ${bottom} L ${right} ${bottom} L ${right} 0 z`);
 				} else {
 					this._drawNote(
 						this._svgPreview,
@@ -3173,7 +3171,7 @@ export class PatternEditor {
 
 					if (allNoteRangesAreEmpty) {
 						// Cover the entire piano roll.
-						const path: string = "M 0 0" + " L " + width + " 0" + " L " + width + " " + height + " L 0 " + height + " z";
+						const path: string = `M 0 0 L ${width} 0 L ${width} ${height} L 0 ${height} z`;
 						this._svgNoteRangeIndicatorOverlay.setAttribute("d", path);
 					} else {
 						let path: string = " ";
@@ -3207,7 +3205,7 @@ export class PatternEditor {
 								rectY0 < rectY1;
 
 							if (rectIsVisible) {
-								path += " M 0 " + rectY0 + " L " + width + " " + rectY0 + " L " + width + " " + rectY1 + " L 0 " + rectY1 + " z";
+								path += ` M 0 ${rectY0} L ${width} ${rectY0} L ${width} ${rectY1} L 0 ${rectY1} z`;
 							}
 						}
 
@@ -3221,7 +3219,7 @@ export class PatternEditor {
 						const topIsVisible: boolean = this._renderedNoteRangeHighestNoteLimit !== -1 && topY0 < topY1;
 
 						if (topIsVisible) {
-							path += " M 0 " + topY0 + " L " + width + " " + topY0 + " L " + width + " " + topY1 + " L 0 " + topY1 + " z";
+							path += ` M 0 ${topY0} L ${width} ${topY0} L ${width} ${topY1} L 0 ${topY1} z`;
 						}
 
 						const bottomY0: number = Math.min(
@@ -3233,7 +3231,7 @@ export class PatternEditor {
 						const bottomIsVisible: boolean = this._renderedNoteRangeLowestNoteLimit !== -1 && bottomY0 < bottomY1;
 
 						if (bottomIsVisible) {
-							path += " M 0 " + bottomY0 + " L " + width + " " + bottomY0 + " L " + width + " " + bottomY1 + " L 0 " + bottomY1 + " z";
+							path += ` M 0 ${bottomY0} L ${width} ${bottomY0} L ${width} ${bottomY1} L 0 ${bottomY1} z`;
 						}
 
 						this._svgNoteRangeIndicatorOverlay.setAttribute("d", path);
@@ -3323,11 +3321,11 @@ export class PatternEditor {
 			wasResized = true;
 			this._renderedWidth = this._editorWidth;
 			this._renderedHeight = this._editorHeight;
-			this._svgBackground.setAttribute("width", "" + this._editorWidth);
-			this._svgBackground.setAttribute("height", "" + this._editorHeight);
-			this._svgPlayhead.setAttribute("height", "" + this._editorHeight);
+			this._svgBackground.setAttribute("width", `${this._editorWidth}`);
+			this._svgBackground.setAttribute("height", `${this._editorHeight}`);
+			this._svgPlayhead.setAttribute("height", `${this._editorHeight}`);
 			this._selectionRect.setAttribute("y", "0");
-			this._selectionRect.setAttribute("height", "" + this._editorHeight);
+			this._selectionRect.setAttribute("height", `${this._editorHeight}`);
 		}
 
 		const beatWidth = this._editorWidth / this._doc.song.beatsPerBar;
@@ -3335,26 +3333,26 @@ export class PatternEditor {
 			wasResized = true;
 			this._renderedBeatWidth = beatWidth;
 			this._renderedPitchHeight = this._pitchHeight;
-			this._svgNoteBackground.setAttribute("width", "" + beatWidth);
-			this._svgNoteBackground.setAttribute("height", "" + this._pitchHeight * Config.pitchesPerOctave);
-			this._svgDrumBackground.setAttribute("width", "" + beatWidth);
-			this._svgDrumBackground.setAttribute("height", "" + this._pitchHeight);
-			this._svgModBackground.setAttribute("width", "" + beatWidth);
-			this._svgModBackground.setAttribute("height", "" + this._pitchHeight);
-			this._svgModBackground.setAttribute("y", "" + this._pitchBorder / 2);
-			this._backgroundDrumRow.setAttribute("width", "" + (beatWidth - 2));
-			this._backgroundDrumRow.setAttribute("height", "" + (this._pitchHeight - 2));
+			this._svgNoteBackground.setAttribute("width", `${beatWidth}`);
+			this._svgNoteBackground.setAttribute("height", `${this._pitchHeight * Config.pitchesPerOctave}`);
+			this._svgDrumBackground.setAttribute("width", `${beatWidth}`);
+			this._svgDrumBackground.setAttribute("height", `${this._pitchHeight}`);
+			this._svgModBackground.setAttribute("width", `${beatWidth}`);
+			this._svgModBackground.setAttribute("height", `${this._pitchHeight}`);
+			this._svgModBackground.setAttribute("y", `${this._pitchBorder / 2}`);
+			this._backgroundDrumRow.setAttribute("width", `${beatWidth - 2}`);
+			this._backgroundDrumRow.setAttribute("height", `${this._pitchHeight - 2}`);
 			if (this._pitchHeight > this._pitchBorder) {
-				this._backgroundModRow.setAttribute("width", "" + (beatWidth - 2));
-				this._backgroundModRow.setAttribute("height", "" + (this._pitchHeight - this._pitchBorder));
+				this._backgroundModRow.setAttribute("width", `${beatWidth - 2}`);
+				this._backgroundModRow.setAttribute("height", `${this._pitchHeight - this._pitchBorder}`);
 			}
 
 			for (let j: number = 0; j < Config.pitchesPerOctave; j++) {
 				const rectangle: SVGRectElement = this._backgroundPitchRows[j];
 				const y: number = (Config.pitchesPerOctave - j) % Config.pitchesPerOctave;
-				rectangle.setAttribute("width", "" + (beatWidth - 2));
-				rectangle.setAttribute("y", "" + (y * this._pitchHeight + 1));
-				rectangle.setAttribute("height", "" + (this._pitchHeight - 2));
+				rectangle.setAttribute("width", `${beatWidth - 2}`);
+				rectangle.setAttribute("y", `${y * this._pitchHeight + 1}`);
+				rectangle.setAttribute("height", `${this._pitchHeight - 2}`);
 			}
 		}
 
@@ -3371,7 +3369,7 @@ export class PatternEditor {
 
 		for (let j: number = 0; j < Config.pitchesPerOctave; j++) {
 			const scale =
-				this._doc.song.scale === Config.scales.dictionary["Custom"].index ? this._doc.song.scaleCustom : Config.scales[this._doc.song.scale].flags;
+				this._doc.song.scale === Config.scales.dictionary.Custom.index ? this._doc.song.scaleCustom : Config.scales[this._doc.song.scale].flags;
 
 			this._backgroundPitchRows[j].style.visibility = scale[j] ? "visible" : "hidden";
 		}
@@ -3380,19 +3378,19 @@ export class PatternEditor {
 			if (!this._renderedDrums) {
 				this._renderedDrums = true;
 				this._renderedMod = false;
-				this._svgBackground.setAttribute("fill", "url(#patternEditorDrumBackground" + this._barOffset + ")");
+				this._svgBackground.setAttribute("fill", `url(#patternEditorDrumBackground${this._barOffset})`);
 			}
 		} else if (this._doc.song.getChannelIsMod(this._doc.channel)) {
 			if (!this._renderedMod) {
 				this._renderedDrums = false;
 				this._renderedMod = true;
-				this._svgBackground.setAttribute("fill", "url(#patternEditorModBackground" + this._barOffset + ")");
+				this._svgBackground.setAttribute("fill", `url(#patternEditorModBackground${this._barOffset})`);
 			}
 		} else {
 			if (this._renderedDrums || this._renderedMod) {
 				this._renderedDrums = false;
 				this._renderedMod = false;
-				this._svgBackground.setAttribute("fill", "url(#patternEditorNoteBackground" + this._barOffset + ")");
+				this._svgBackground.setAttribute("fill", `url(#patternEditorNoteBackground${this._barOffset})`);
 			}
 		}
 
@@ -3457,7 +3455,7 @@ export class PatternEditor {
 				if (this._doc.song.getChannelIsMod(this._doc.channel)) {
 					const modSlot: number = Config.modCount - 1 - note.pitches[0];
 					const modIndex: number = instrument.modulators[modSlot];
-					if (modIndex === Config.modulators.dictionary["none"].index || instrument.invalidModulators[modSlot]) {
+					if (modIndex === Config.modulators.dictionary.none.index || instrument.invalidModulators[modSlot]) {
 						disabled = true;
 					}
 					const targetChannel: number = instrument.modChannels[modSlot];
@@ -3542,14 +3540,14 @@ export class PatternEditor {
 					if (note.pitches.length > 1) {
 						if (displayNumberedChords) {
 							const oscillatorLabel: SVGTextElement = SVG.text();
-							oscillatorLabel.setAttribute("x", "" + prettyNumber(this._partWidth * note.start + indicatorOffset));
-							oscillatorLabel.setAttribute("y", "" + prettyNumber(this._pitchToPixelHeight(pitch - this._octaveOffset)));
+							oscillatorLabel.setAttribute("x", `${prettyNumber(this._partWidth * note.start + indicatorOffset)}`);
+							oscillatorLabel.setAttribute("y", `${prettyNumber(this._pitchToPixelHeight(pitch - this._octaveOffset))}`);
 							oscillatorLabel.setAttribute("width", "30");
 							oscillatorLabel.setAttribute("fill", ColorConfig.invertedText);
 							oscillatorLabel.setAttribute("text-anchor", "start");
 							oscillatorLabel.setAttribute("dominant-baseline", "central");
 							oscillatorLabel.setAttribute("pointer-events", "none");
-							oscillatorLabel.textContent = "" + (i + 1);
+							oscillatorLabel.textContent = `${i + 1}`;
 							this._svgNoteContainer.appendChild(oscillatorLabel);
 						}
 					}
@@ -3577,9 +3575,9 @@ export class PatternEditor {
 						this._pitchToPixelHeight(note.pitches[0] - this._octaveOffset) - 17 - (this._pitchHeight - this._pitchBorder) / 2,
 					);
 
-					this.modDragValueLabel.style.setProperty("left", "" + this._modDragValueLabelLeft + "px");
-					this.modDragValueLabel.style.setProperty("top", "" + this._modDragValueLabelTop + "px");
-					this.modDragValueLabel.textContent = "" + presValue;
+					this.modDragValueLabel.style.setProperty("left", `${this._modDragValueLabelLeft}px`);
+					this.modDragValueLabel.style.setProperty("top", `${this._modDragValueLabelTop}px`);
+					this.modDragValueLabel.textContent = `${presValue}`;
 				}
 			}
 		}
@@ -3622,14 +3620,14 @@ export class PatternEditor {
 			const nextHeight: number = this._pitchToPixelHeight(pitch + nextPin.interval - offset);
 			const prevSize: number = showSize ? prevPin.size / cap : 1.0;
 			const nextSize: number = showSize ? nextPin.size / cap : 1.0;
-			pathString += "L " + prettyNumber(prevSide) + " " + prettyNumber(prevHeight - radius * prevSize) + " ";
+			pathString += `L ${prettyNumber(prevSide)} ${prettyNumber(prevHeight - radius * prevSize)} `;
 			if (prevPin.interval > nextPin.interval) {
-				pathString += "L " + prettyNumber(prevSide + 1) + " " + prettyNumber(prevHeight - radius * prevSize) + " ";
+				pathString += `L ${prettyNumber(prevSide + 1)} ${prettyNumber(prevHeight - radius * prevSize)} `;
 			}
 			if (prevPin.interval < nextPin.interval) {
-				pathString += "L " + prettyNumber(nextSide - 1) + " " + prettyNumber(nextHeight - radius * nextSize) + " ";
+				pathString += `L ${prettyNumber(nextSide - 1)} ${prettyNumber(nextHeight - radius * nextSize)} `;
 			}
-			pathString += "L " + prettyNumber(nextSide) + " " + prettyNumber(nextHeight - radius * nextSize) + " ";
+			pathString += `L ${prettyNumber(nextSide)} ${prettyNumber(nextHeight - radius * nextSize)} `;
 		}
 		for (let i: number = pins.length - 2; i >= 0; i--) {
 			const prevPin: NotePin = nextPin;
@@ -3640,14 +3638,14 @@ export class PatternEditor {
 			const nextHeight: number = this._pitchToPixelHeight(pitch + nextPin.interval - offset);
 			const prevSize: number = showSize ? prevPin.size / cap : 1.0;
 			const nextSize: number = showSize ? nextPin.size / cap : 1.0;
-			pathString += "L " + prettyNumber(prevSide) + " " + prettyNumber(prevHeight + radius * prevSize) + " ";
+			pathString += `L ${prettyNumber(prevSide)} ${prettyNumber(prevHeight + radius * prevSize)} `;
 			if (prevPin.interval < nextPin.interval) {
-				pathString += "L " + prettyNumber(prevSide - 1) + " " + prettyNumber(prevHeight + radius * prevSize) + " ";
+				pathString += `L ${prettyNumber(prevSide - 1)} ${prettyNumber(prevHeight + radius * prevSize)} `;
 			}
 			if (prevPin.interval > nextPin.interval) {
-				pathString += "L " + prettyNumber(nextSide + 1) + " " + prettyNumber(nextHeight + radius * nextSize) + " ";
+				pathString += `L ${prettyNumber(nextSide + 1)} ${prettyNumber(nextHeight + radius * nextSize)} `;
 			}
-			pathString += "L " + prettyNumber(nextSide) + " " + prettyNumber(nextHeight + radius * nextSize) + " ";
+			pathString += `L ${prettyNumber(nextSide)} ${prettyNumber(nextHeight + radius * nextSize)} `;
 		}
 		pathString += "z";
 

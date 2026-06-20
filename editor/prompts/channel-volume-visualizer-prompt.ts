@@ -10,10 +10,10 @@ import { BorderWidth, Typography } from "../ui/style-constants";
 
 import { HTML, SVG } from "imperative-html/dist/esm/elements-strict";
 import { ColorConfig } from "../../shared/color-config";
+import { forwardRealFourierTransform } from "../../synth/fft";
 import type { PromptEditorRefs } from "../core/prompt-manager";
 import type { SongDocument } from "../song-document";
 import { BasePrompt } from "./base-prompt";
-import { forwardRealFourierTransform } from "../../synth/fft";
 
 const { div, h2, h3, span, button } = HTML;
 const { svg, defs, linearGradient, stop, rect } = SVG;
@@ -274,16 +274,16 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 		const capX = 8 + Math.min(144, this._historicVolumeCap * 144);
 		if (volumeWidth !== this._lastVolumeWidth) {
 			this._lastVolumeWidth = volumeWidth;
-			this._outVolumeBar.setAttribute("width", "" + volumeWidth);
+			this._outVolumeBar.setAttribute("width", `${volumeWidth}`);
 		}
 		if (capX !== this._lastCapX) {
 			this._lastCapX = capX;
-			this._outVolumeCap.setAttribute("x", "" + capX);
+			this._outVolumeCap.setAttribute("x", `${capX}`);
 		}
 
 		// Update master dB labels
 		const masterPeakDb = this._historicVolumeCap > 0 ? 20 * Math.log10(this._historicVolumeCap) : -Infinity;
-		this._masterDbPeakLabel.textContent = isFinite(masterPeakDb) ? `Peak: ${masterPeakDb.toFixed(1)} dB` : "Peak: -inf dB";
+		this._masterDbPeakLabel.textContent = Number.isFinite(masterPeakDb) ? `Peak: ${masterPeakDb.toFixed(1)} dB` : "Peak: -inf dB";
 
 		// Update average, min, max
 		if (this._doc.song.outVolumeCap > 0) {
@@ -291,7 +291,7 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 			this._masterSampleCount++;
 
 			const currentDb = 20 * Math.log10(this._doc.song.outVolumeCap);
-			if (isFinite(currentDb)) {
+			if (Number.isFinite(currentDb)) {
 				if (currentDb < this._masterMinDb) this._masterMinDb = currentDb;
 				if (currentDb > this._masterMaxDb) this._masterMaxDb = currentDb;
 			}
@@ -299,10 +299,10 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 		if (this._masterSampleCount > 0) {
 			const avg = this._masterVolumeSum / this._masterSampleCount;
 			const avgDb = avg > 0 ? 20 * Math.log10(avg) : -Infinity;
-			this._masterDbAvgLabel.textContent = isFinite(avgDb) ? `Avg: ${avgDb.toFixed(1)} dB` : "Avg: -inf dB";
+			this._masterDbAvgLabel.textContent = Number.isFinite(avgDb) ? `Avg: ${avgDb.toFixed(1)} dB` : "Avg: -inf dB";
 
-			const minDb = isFinite(this._masterMinDb) ? this._masterMinDb.toFixed(1) : "-inf";
-			const maxDb = isFinite(this._masterMaxDb) ? this._masterMaxDb.toFixed(1) : "-inf";
+			const minDb = Number.isFinite(this._masterMinDb) ? this._masterMinDb.toFixed(1) : "-inf";
+			const maxDb = Number.isFinite(this._masterMaxDb) ? this._masterMaxDb.toFixed(1) : "-inf";
 			this._masterDbMinLabel.textContent = `Min: ${minDb} dB`;
 			this._masterDbMaxLabel.textContent = `Max: ${maxDb} dB`;
 		}
@@ -334,12 +334,12 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 			const lastCap = this._channelLastCaps.get(channelIndex) ?? -1;
 			if (chWidth !== lastWidth) {
 				this._channelLastWidths.set(channelIndex, chWidth);
-				bar.setAttribute("width", "" + chWidth);
+				bar.setAttribute("width", `${chWidth}`);
 			}
 			const capEl = this._channelVolumeCaps.get(channelIndex);
 			if (capEl && chCapX !== lastCap) {
 				this._channelLastCaps.set(channelIndex, chCapX);
-				capEl.setAttribute("x", "" + chCapX);
+				capEl.setAttribute("x", `${chCapX}`);
 			}
 
 			// Update average and range for channel
@@ -350,7 +350,7 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 				this._channelSampleCounts.set(channelIndex, count);
 
 				const currentDb = 20 * Math.log10(channelState.volumeCap);
-				if (isFinite(currentDb)) {
+				if (Number.isFinite(currentDb)) {
 					const minDb = this._channelMinDb.get(channelIndex) ?? Infinity;
 					const maxDb = this._channelMaxDb.get(channelIndex) ?? -Infinity;
 					if (currentDb < minDb) this._channelMinDb.set(channelIndex, currentDb);
@@ -369,19 +369,19 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 					const avgDb = avg > 0 ? 20 * Math.log10(avg) : -Infinity;
 					const minDb = this._channelMinDb.get(channelIndex) ?? -Infinity;
 					const maxDb = this._channelMaxDb.get(channelIndex) ?? -Infinity;
-					const avgText = isFinite(avgDb) ? avgDb.toFixed(1) : "-inf";
-					const minText = isFinite(minDb) ? minDb.toFixed(1) : "-inf";
-					const maxText = isFinite(maxDb) ? maxDb.toFixed(1) : "-inf";
+					const avgText = Number.isFinite(avgDb) ? avgDb.toFixed(1) : "-inf";
+					const minText = Number.isFinite(minDb) ? minDb.toFixed(1) : "-inf";
+					const maxText = Number.isFinite(maxDb) ? maxDb.toFixed(1) : "-inf";
 					statsText = ` | A:${avgText} | ${minText}/${maxText}`;
 				}
-				dbLabel.textContent = isFinite(peakDb) ? `Pk:${peakDb.toFixed(1)}${statsText}` : `Pk:-inf${statsText}`;
+				dbLabel.textContent = Number.isFinite(peakDb) ? `Pk:${peakDb.toFixed(1)}${statsText}` : `Pk:-inf${statsText}`;
 			}
 
 			// Draw pitch spectrum overlay: smooth bezier curve fill from active tone bands
 			const spectrumCtx = this._channelSpectrumCanvas2ds.get(channelIndex);
 			if (spectrumCtx) {
 				const cvs = this._channelSpectrumCanvases.get(channelIndex);
-				if (cvs && cvs.parentElement) {
+				if (cvs?.parentElement) {
 					const dispW = Math.round(cvs.parentElement.clientWidth * devicePixelRatio);
 					const dispH = Math.round(cvs.parentElement.clientHeight * devicePixelRatio);
 					if (cvs.width !== dispW || cvs.height !== dispH) {
@@ -430,14 +430,18 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 						let mag: number;
 						if (k < 1 || k >= halfN) {
 							const kHi = Math.min(k + 1, halfN);
-							const re0 = fftBuf[k], re1 = fftBuf[kHi];
+							const re0 = fftBuf[k],
+								re1 = fftBuf[kHi];
 							mag = (Math.sqrt(re0 * re0) + (Math.sqrt(re1 * re1) - Math.sqrt(re0 * re0)) * frac) / fftSize;
 						} else {
-							const re0 = fftBuf[k], im0 = fftBuf[fftSize - k];
+							const re0 = fftBuf[k],
+								im0 = fftBuf[fftSize - k];
 							const ym1 = Math.sqrt(re0 * re0 + im0 * im0) / fftSize;
-							const reP = fftBuf[k + 1], imP = fftBuf[fftSize - k - 1];
+							const reP = fftBuf[k + 1],
+								imP = fftBuf[fftSize - k - 1];
 							const yp1 = Math.sqrt(reP * reP + imP * imP) / fftSize;
-							const reM = fftBuf[k - 1], imM = fftBuf[fftSize - k + 1];
+							const reM = fftBuf[k - 1],
+								imM = fftBuf[fftSize - k + 1];
 							const ym1M = Math.sqrt(reM * reM + imM * imM) / fftSize;
 							const qa = (ym1M + yp1) * 0.5 - ym1;
 							const qb = (yp1 - ym1M) * 0.5;
@@ -517,7 +521,7 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 
 				for (const [key, instrSpan] of this._instrumentSpans) {
 					if (key.startsWith(`${channelIndex}-`)) {
-						const j = parseInt(key.split("-")[1]);
+						const j = parseInt(key.split("-")[1], 10);
 						const instrState = channelState.instruments[j];
 						if (instrState && instrSpan) {
 							const isPlaying =

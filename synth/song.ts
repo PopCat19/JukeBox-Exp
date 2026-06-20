@@ -86,31 +86,31 @@ export class Song {
 
 			const currentIndex: number = instrument.modulators[modCount];
 			// For tempo, actually use user defined tempo
-			const tempoIndex: number = Config.modulators.dictionary["tempo"].index;
+			const tempoIndex: number = Config.modulators.dictionary.tempo.index;
 			if (currentIndex === tempoIndex) vol = this.tempo - Config.modulators[tempoIndex].convertRealFactor;
 			// for effects and envelopes, use the user defined value of the selected instrument (or the default value if all or active is selected)
 			if (
 				!Config.modulators[currentIndex].forSong &&
 				instrument.modInstruments[modCount] < this.channels[instrument.modChannels[modCount]].instruments.length
 			) {
-				const chorusIndex: number = Config.modulators.dictionary["chorus"].index;
-				const reverbIndex: number = Config.modulators.dictionary["reverb"].index;
-				const panningIndex: number = Config.modulators.dictionary["pan"].index;
+				const chorusIndex: number = Config.modulators.dictionary.chorus.index;
+				const reverbIndex: number = Config.modulators.dictionary.reverb.index;
+				const panningIndex: number = Config.modulators.dictionary.pan.index;
 				const panDelayIndex: number = Config.modulators.dictionary["pan delay"].index;
-				const distortionIndex: number = Config.modulators.dictionary["distortion"].index;
-				const detuneIndex: number = Config.modulators.dictionary["detune"].index;
+				const distortionIndex: number = Config.modulators.dictionary.distortion.index;
+				const detuneIndex: number = Config.modulators.dictionary.detune.index;
 				const vibratoDepthIndex: number = Config.modulators.dictionary["vibrato depth"].index;
 				const vibratoSpeedIndex: number = Config.modulators.dictionary["vibrato speed"].index;
 				const vibratoDelayIndex: number = Config.modulators.dictionary["vibrato delay"].index;
 				const arpSpeedIndex: number = Config.modulators.dictionary["arp speed"].index;
 				const bitCrushIndex: number = Config.modulators.dictionary["bit crush"].index;
 				const freqCrushIndex: number = Config.modulators.dictionary["freq crush"].index;
-				const echoIndex: number = Config.modulators.dictionary["echo"].index;
+				const echoIndex: number = Config.modulators.dictionary.echo.index;
 				const echoDelayIndex: number = Config.modulators.dictionary["echo delay"].index;
 				const pitchShiftIndex: number = Config.modulators.dictionary["pitch shift"].index;
 				const ringModIndex: number = Config.modulators.dictionary["ring modulation"].index;
 				const ringModHertzIndex: number = Config.modulators.dictionary["ring mod hertz"].index;
-				const granularIndex: number = Config.modulators.dictionary["granular"].index;
+				const granularIndex: number = Config.modulators.dictionary.granular.index;
 				const grainAmountIndex: number = Config.modulators.dictionary["grain freq"].index;
 				const grainSizeIndex: number = Config.modulators.dictionary["grain size"].index;
 				const grainRangeIndex: number = Config.modulators.dictionary["grain range"].index;

@@ -142,7 +142,7 @@ export function renderLabel(ctx: EuclidgenRendererContext): void {
 export function renderSequenceButtons(ctx: EuclidgenRendererContext): void {
 	const container: HTMLDivElement = ctx.sequenceButtonContainer;
 	while (ctx.sequenceButtons.length < ctx.sequences.length) {
-		const sequenceButton: HTMLButtonElement = selectorButton(ctx.sequenceButtons.length + 1 + "");
+		const sequenceButton: HTMLButtonElement = selectorButton(`${ctx.sequenceButtons.length + 1}`);
 		ctx.sequenceButtons.push(sequenceButton);
 		container.insertBefore(sequenceButton, ctx.sequenceRemoveButton);
 	}

@@ -14,7 +14,7 @@ const BAR_LABEL_THROTTLE = 5; // avoid text reflow every rAF
 function formatTime(seconds: number): string {
 	const mins = Math.floor(seconds / 60);
 	const secs = Math.floor(seconds % 60);
-	return `${mins}:${secs.toString().padStart(2, '0')}`;
+	return `${mins}:${secs.toString().padStart(2, "0")}`;
 }
 
 export class PlayerAnimator {
@@ -91,10 +91,7 @@ export class PlayerAnimator {
 		const playhead = Math.floor(this._doc.synth.playhead);
 		const visible = this._doc.trackVisibleBars;
 		if (visible <= 0) return;
-		const target = Math.max(0, Math.min(
-			this._doc.song.barCount - visible,
-			playhead - Math.floor(visible / 2),
-		));
+		const target = Math.max(0, Math.min(this._doc.song.barCount - visible, playhead - Math.floor(visible / 2)));
 		if (target !== this._doc.barScrollPos) {
 			this._doc.barScrollPos = target;
 			this._doc.notifier.changed();
@@ -113,8 +110,8 @@ export class PlayerAnimator {
 
 		if (this._doc.song.outVolumeCap !== this.lastOutVolumeCap) {
 			this.lastOutVolumeCap = this._doc.song.outVolumeCap;
-			this._callbacks.outVolumeBar.setAttribute("width", "" + Math.min(144, this._doc.song.outVolumeCap * 144));
-			this._callbacks.outVolumeCap.setAttribute("x", "" + (8 + Math.min(144, this.outVolumeHistoricCap * 144)));
+			this._callbacks.outVolumeBar.setAttribute("width", `${Math.min(144, this._doc.song.outVolumeCap * 144)}`);
+			this._callbacks.outVolumeCap.setAttribute("x", `${8 + Math.min(144, this.outVolumeHistoricCap * 144)}`);
 		}
 	};
 }

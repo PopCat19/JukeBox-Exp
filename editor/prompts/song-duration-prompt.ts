@@ -45,9 +45,9 @@ export class SongDurationPrompt extends BasePrompt {
 	constructor(doc: SongDocument) {
 		super(doc);
 		this.buildTitlebar();
-		this._barsStepper.value = this._doc.song.barCount + "";
-		this._barsStepper.min = Config.barCountMin + "";
-		this._barsStepper.max = Config.barCountMax + "";
+		this._barsStepper.value = `${this._doc.song.barCount}`;
+		this._barsStepper.min = `${Config.barCountMin}`;
+		this._barsStepper.max = `${Config.barCountMax}`;
 
 		const lastPosition: string | null = window.localStorage.getItem("barCountPosition");
 		if (lastPosition != null) {

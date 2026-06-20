@@ -438,14 +438,14 @@ export class ImportPrompt extends BasePrompt {
 									const length: number = track.reader.readMidiVariableLength();
 									track.reader.skipBytes(length);
 								} else {
-									console.error("Unrecognized event status: " + eventStatus);
+									console.error(`Unrecognized event status: ${eventStatus}`);
 									this._close();
 									return;
 								}
 							}
 							break;
 						default: {
-							console.error("Unrecognized event type: " + eventType);
+							console.error(`Unrecognized event type: ${eventType}`);
 							this._close();
 							return;
 						}
@@ -892,7 +892,7 @@ export class ImportPrompt extends BasePrompt {
 						}
 						heldPitches.length = 0;
 					}
-					if (noteEvent != null && noteEvent.on) {
+					if (noteEvent?.on) {
 						heldPitches.push(noteEvent.pitch);
 						prevEventPart = nextEventPart;
 						currentVelocity = noteEvent.velocity;
@@ -1196,7 +1196,7 @@ export class ImportPrompt extends BasePrompt {
 			modChannels.push(tempoModChannel);
 			const tempoModInstrument = new Instrument(false, true);
 			tempoModInstrument.setTypeAndReset(9, false, true);
-			tempoModInstrument.modulators[0] = Config.modulators.dictionary["tempo"].index;
+			tempoModInstrument.modulators[0] = Config.modulators.dictionary.tempo.index;
 			tempoModInstrument.modChannels[0] = -1;
 			tempoModChannel.instruments.push(tempoModInstrument);
 			const tempoModPitch = Config.modCount - 1;
@@ -1241,7 +1241,7 @@ export class ImportPrompt extends BasePrompt {
 							pattern.instruments.length = 1;
 						}
 						const realBPM: number = Math.round(microsecondsPerMinute / change.microsecondsPerBeat);
-						const newBPM = Math.max(Config.tempoMin, Math.min(Config.tempoMax, realBPM - Config.modulators.dictionary["tempo"].convertRealFactor));
+						const newBPM = Math.max(Config.tempoMin, Math.min(Config.tempoMax, realBPM - Config.modulators.dictionary.tempo.convertRealFactor));
 						pattern.notes.push(new Note(tempoModPitch, noteStartPart, noteEndPart, newBPM, false));
 					}
 				}

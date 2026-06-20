@@ -66,7 +66,7 @@ export class ChangeSupersawDynamism extends ChangeInstrumentSlider {
 	constructor(doc: SongDocument, oldValue: number, newValue: number) {
 		super(doc);
 		this._instrument.supersawDynamism = newValue;
-		doc.synth.unsetMod(Config.modulators.dictionary["dynamism"].index, doc.channel, doc.getCurrentInstrument());
+		doc.synth.unsetMod(Config.modulators.dictionary.dynamism.index, doc.channel, doc.getCurrentInstrument());
 		doc.notifier.changed();
 		if (oldValue !== newValue) this._didSomething();
 	}
@@ -75,7 +75,7 @@ export class ChangeSupersawSpread extends ChangeInstrumentSlider {
 	constructor(doc: SongDocument, oldValue: number, newValue: number) {
 		super(doc);
 		this._instrument.supersawSpread = newValue;
-		doc.synth.unsetMod(Config.modulators.dictionary["spread"].index, doc.channel, doc.getCurrentInstrument());
+		doc.synth.unsetMod(Config.modulators.dictionary.spread.index, doc.channel, doc.getCurrentInstrument());
 		doc.notifier.changed();
 		if (oldValue !== newValue) this._didSomething();
 	}
@@ -104,7 +104,7 @@ export class ChangeDetune extends ChangeInstrumentSlider {
 		super(doc);
 		this._instrument.detune = newValue + Config.detuneCenter;
 		doc.notifier.changed();
-		doc.synth.unsetMod(Config.modulators.dictionary["detune"].index, doc.channel, doc.getCurrentInstrument());
+		doc.synth.unsetMod(Config.modulators.dictionary.detune.index, doc.channel, doc.getCurrentInstrument());
 		if (oldValue !== newValue) this._didSomething();
 	}
 }
@@ -161,7 +161,7 @@ export class ChangeGranular extends ChangeInstrumentSlider {
 		super(doc);
 		this._instrument.granular = newValue;
 		doc.notifier.changed();
-		doc.synth.unsetMod(Config.modulators.dictionary["granular"].index, doc.channel, doc.getCurrentInstrument());
+		doc.synth.unsetMod(Config.modulators.dictionary.granular.index, doc.channel, doc.getCurrentInstrument());
 		if (oldValue !== newValue) this._didSomething();
 	}
 }
@@ -199,7 +199,7 @@ export class ChangeDistortion extends ChangeInstrumentSlider {
 		super(doc);
 		this._instrument.distortion = newValue;
 		doc.notifier.changed();
-		doc.synth.unsetMod(Config.modulators.dictionary["distortion"].index, doc.channel, doc.getCurrentInstrument());
+		doc.synth.unsetMod(Config.modulators.dictionary.distortion.index, doc.channel, doc.getCurrentInstrument());
 		if (oldValue !== newValue) this._didSomething();
 	}
 }
@@ -264,7 +264,7 @@ export class ChangeStringSustain extends ChangeInstrumentSlider {
 	constructor(doc: SongDocument, oldValue: number, newValue: number) {
 		super(doc);
 		this._instrument.stringSustain = newValue;
-		doc.synth.unsetMod(Config.modulators.dictionary["sustain"].index, doc.channel, doc.getCurrentInstrument());
+		doc.synth.unsetMod(Config.modulators.dictionary.sustain.index, doc.channel, doc.getCurrentInstrument());
 		doc.notifier.changed();
 		if (oldValue !== newValue) this._didSomething();
 	}
@@ -324,7 +324,7 @@ export class ChangeEchoSustain extends ChangeInstrumentSlider {
 	constructor(doc: SongDocument, oldValue: number, newValue: number) {
 		super(doc);
 		this._instrument.echoSustain = newValue;
-		doc.synth.unsetMod(Config.modulators.dictionary["echo"].index, doc.channel, doc.getCurrentInstrument());
+		doc.synth.unsetMod(Config.modulators.dictionary.echo.index, doc.channel, doc.getCurrentInstrument());
 		doc.notifier.changed();
 		if (oldValue !== newValue) this._didSomething();
 	}
@@ -334,7 +334,7 @@ export class ChangeChorus extends ChangeInstrumentSlider {
 	constructor(doc: SongDocument, oldValue: number, newValue: number) {
 		super(doc);
 		this._instrument.chorus = newValue;
-		doc.synth.unsetMod(Config.modulators.dictionary["chorus"].index, doc.channel, doc.getCurrentInstrument());
+		doc.synth.unsetMod(Config.modulators.dictionary.chorus.index, doc.channel, doc.getCurrentInstrument());
 		doc.notifier.changed();
 		if (oldValue !== newValue) this._didSomething();
 	}
@@ -344,7 +344,7 @@ export class ChangeReverb extends ChangeInstrumentSlider {
 	constructor(doc: SongDocument, oldValue: number, newValue: number) {
 		super(doc);
 		this._instrument.reverb = newValue;
-		doc.synth.unsetMod(Config.modulators.dictionary["reverb"].index, doc.channel, doc.getCurrentInstrument());
+		doc.synth.unsetMod(Config.modulators.dictionary.reverb.index, doc.channel, doc.getCurrentInstrument());
 		doc.notifier.changed();
 		if (oldValue !== newValue) this._didSomething();
 	}

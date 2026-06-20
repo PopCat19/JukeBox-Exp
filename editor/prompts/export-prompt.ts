@@ -168,7 +168,7 @@ export class ExportPrompt extends BasePrompt {
 		const rawSeconds: number = Math.round(samples / _doc.synth.samplesPerSecond);
 		const seconds: number = rawSeconds % 60;
 		const minutes: number = Math.floor(rawSeconds / 60);
-		return minutes + ":" + (seconds < 10 ? "0" : "") + seconds;
+		return `${minutes}:${seconds < 10 ? "0" : ""}${seconds}`;
 	}
 
 	protected override _close = (): void => {
@@ -249,8 +249,8 @@ export class ExportPrompt extends BasePrompt {
 		this.synth.synthesize(tempSamplesL, tempSamplesR, samplesInChunk);
 		this.recordedSamplesL.set(tempSamplesL, currentFrame);
 		this.recordedSamplesR.set(tempSamplesR, currentFrame);
-		this._outputProgressBar.style.setProperty("width", Math.round(((this.currentChunk + 1) / this.totalChunks) * 100.0) + "%");
-		this._outputProgressLabel.innerText = Math.round(((this.currentChunk + 1) / this.totalChunks) * 100.0) + "%";
+		this._outputProgressBar.style.setProperty("width", `${Math.round(((this.currentChunk + 1) / this.totalChunks) * 100.0)}%`);
+		this._outputProgressLabel.innerText = `${Math.round(((this.currentChunk + 1) / this.totalChunks) * 100.0)}%`;
 		this.currentChunk++;
 		if (this.currentChunk >= this.totalChunks) {
 			this.synth.renderingSong = false;
@@ -329,13 +329,13 @@ export class ExportPrompt extends BasePrompt {
 			data.setInt16(index, Math.floor(Math.max(-1, Math.min(1, this.recordedSamplesR[i])) * range), true);
 			index += 2;
 		}
-		save(new Blob([arrayBuffer], { type: "audio/wav" }), this._fileName.value.trim() + ".wav");
+		save(new Blob([arrayBuffer], { type: "audio/wav" }), `${this._fileName.value.trim()}.wav`);
 		this._close();
 	}
 
 	private _exportToMp3Finish(): void {
 		const whenEncoderIsAvailable = (): void => {
-			const lamejs: any = (<any>window)["lamejs"];
+			const lamejs: any = (<any>window).lamejs;
 			const mp3encoder: any = new lamejs.Mp3Encoder(2, this.synth.samplesPerSecond, 192);
 			const mp3Data: any[] = [];
 			const left: Int16Array = new Int16Array(this.recordedSamplesL.length);
@@ -351,7 +351,7 @@ export class ExportPrompt extends BasePrompt {
 			}
 			const flush: any = mp3encoder.flush();
 			if (flush.length > 0) mp3Data.push(flush);
-			save(new Blob(mp3Data, { type: "audio/mp3" }), this._fileName.value.trim() + ".mp3");
+			save(new Blob(mp3Data, { type: "audio/mp3" }), `${this._fileName.value.trim()}.mp3`);
 			this._close();
 		};
 		if ("lamejs" in window) whenEncoderIsAvailable();
@@ -365,7 +365,7 @@ export class ExportPrompt extends BasePrompt {
 
 	private _exportToOggFinish(): void {
 		const whenEncoderIsAvailable = (): void => {
-			const WasmMediaEncoder: any = (<any>window)["WasmMediaEncoder"];
+			const WasmMediaEncoder: any = (<any>window).WasmMediaEncoder;
 			WasmMediaEncoder.createOggEncoder().then((oggEncoder: any) => {
 				oggEncoder.configure({ channels: 2, sampleRate: this.synth.samplesPerSecond, vbrQuality: 10 });
 				const parts: Uint8Array[] = [];
@@ -373,7 +373,7 @@ export class ExportPrompt extends BasePrompt {
 					parts.push(oggEncoder.encode([this.recordedSamplesL.subarray(i, i + 4096), this.recordedSamplesR.subarray(i, i + 4096)]).slice());
 				}
 				parts.push(oggEncoder.finalize().slice());
-				save(new Blob(parts, { type: "audio/ogg" }), this._fileName.value.trim() + ".ogg");
+				save(new Blob(parts, { type: "audio/ogg" }), `${this._fileName.value.trim()}.ogg`);
 				this._close();
 			});
 		};
@@ -388,16 +388,16 @@ export class ExportPrompt extends BasePrompt {
 
 	private _exportToOpusFinish(): void {
 		const whenEncoderIsAvailable = (): void => {
-			const OggOpusEncoder: any = (<any>window)["OggOpusEncoder"];
-			const OpusEncoderLib: any = (<any>window)["OpusEncoderLib"];
+			const OggOpusEncoder: any = (<any>window).OggOpusEncoder;
+			const OpusEncoderLib: any = (<any>window).OpusEncoderLib;
 			OggOpusEncoder.prototype.getOpusControl = function (control: number): number | null {
-				const location: number = this["_malloc"](4);
-				const outputLocation: number = this["_malloc"](4);
+				const location: number = this._malloc(4);
+				const outputLocation: number = this._malloc(4);
 				this.HEAP32[location >> 2] = outputLocation;
-				const returnCode: number = this["_opus_encoder_ctl"](this.encoder, control, location);
+				const returnCode: number = this._opus_encoder_ctl(this.encoder, control, location);
 				const result = returnCode === 0 ? this.HEAP32[outputLocation >> 2] : null;
-				this["_free"](outputLocation);
-				this["_free"](location);
+				this._free(outputLocation);
+				this._free(location);
 				return result;
 			};
 			OggOpusEncoder.prototype.getLookahead = function (): number {
@@ -452,7 +452,7 @@ export class ExportPrompt extends BasePrompt {
 			}
 			encoder.encodeFinalFrame().forEach((p: any) => parts.push(p.page));
 			encoder.destroy();
-			save(new Blob(parts, { type: "audio/opus" }), this._fileName.value.trim() + ".opus");
+			save(new Blob(parts, { type: "audio/opus" }), `${this._fileName.value.trim()}.opus`);
 			this._close();
 		};
 		if ("OggOpusEncoder" in window) whenEncoderIsAvailable();
@@ -479,25 +479,25 @@ export class ExportPrompt extends BasePrompt {
 			null,
 			this._removeWhitespace.checked ? undefined : "\t",
 		);
-		save(new Blob([json], { type: "application/json" }), this._fileName.value.trim() + ".json");
+		save(new Blob([json], { type: "application/json" }), `${this._fileName.value.trim()}.json`);
 		this._close();
 	}
 
 	private _exportToJsonExp(): void {
 		const json = JSON.stringify(toJukeboxExpJson(this._doc.song), null, this._removeWhitespace.checked ? undefined : "\t");
-		save(new Blob([json], { type: "application/json" }), this._fileName.value.trim() + ".json");
+		save(new Blob([json], { type: "application/json" }), `${this._fileName.value.trim()}.json`);
 		this._close();
 	}
 
 	private _exportToJsonLegacy(): void {
 		const json = JSON.stringify(toLegacyCompatJson(toJukeboxExpJson(this._doc.song)), null, this._removeWhitespace.checked ? undefined : "\t");
-		save(new Blob([json], { type: "application/json" }), this._fileName.value.trim() + ".json");
+		save(new Blob([json], { type: "application/json" }), `${this._fileName.value.trim()}.json`);
 		this._close();
 	}
 
 	private _exportToHtml(): void {
-		const html = `<!DOCTYPE html><meta charset="utf-8">Redirecting to <a href="${new URL("#" + this._doc.song.toBase64String(), location.href).href}">song</a>...<script>location.assign(location.hash);</script>`;
-		save(new Blob([html], { type: "text/html" }), this._fileName.value.trim() + ".html");
+		const html = `<!DOCTYPE html><meta charset="utf-8">Redirecting to <a href="${new URL(`#${this._doc.song.toBase64String()}`, location.href).href}">song</a>...<script>location.assign(location.hash);</script>`;
+		save(new Blob([html], { type: "text/html" }), `${this._fileName.value.trim()}.html`);
 		this._close();
 	}
 
@@ -517,6 +517,6 @@ export class ExportPrompt extends BasePrompt {
 
 	private static _validateNumber(event: Event): void {
 		const input: HTMLInputElement = <HTMLInputElement>event.target;
-		input.value = Math.floor(Math.max(Number(input.min), Math.min(Number(input.max), Number(input.value)))) + "";
+		input.value = `${Math.floor(Math.max(Number(input.min), Math.min(Number(input.max), Number(input.value))))}`;
 	}
 }

@@ -15,7 +15,7 @@ import { registerPlugin } from "./registry";
 const cache: Map<string, Function> = new Map();
 
 function getSynthFunction(instrument: Instrument, synth: typeof Synth): Function {
-	const fingerprint: string = instrument.algorithm + "_" + instrument.feedbackType;
+	const fingerprint: string = `${instrument.algorithm}_${instrument.feedbackType}`;
 	if (!cache.has(fingerprint)) {
 		const source: string = buildFmSource(instrument);
 		cache.set(fingerprint, new Function("Config", "Synth", source)(Config, synth));

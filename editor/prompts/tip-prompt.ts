@@ -882,16 +882,16 @@ export class TipPrompt extends BasePrompt {
 						pList.push(
 							p(
 								Config.modulators[modulator].promptDesc[s]
-									.replace("$LO", "" + Config.modulators[modulator].convertRealFactor)
-									.replace("$MID", "" + (Config.modulators[modulator].convertRealFactor + Config.modulators[modulator].maxRawVol / 2))
-									.replace("$HI", "" + (Config.modulators[modulator].convertRealFactor + Config.modulators[modulator].maxRawVol)),
+									.replace("$LO", `${Config.modulators[modulator].convertRealFactor}`)
+									.replace("$MID", `${Config.modulators[modulator].convertRealFactor + Config.modulators[modulator].maxRawVol / 2}`)
+									.replace("$HI", `${Config.modulators[modulator].convertRealFactor + Config.modulators[modulator].maxRawVol}`),
 							),
 						);
 					}
 					pList[pList.length - 1].style.setProperty("color", "var(--secondary-text)");
 					return div(...pList);
 				}
-				return div(p("This is a tip about " + this._tipName + "."));
+				return div(p(`This is a tip about ${this._tipName}.`));
 		}
 	}
 }
