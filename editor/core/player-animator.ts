@@ -64,7 +64,7 @@ export class PlayerAnimator {
 			const elapsed = fraction * this._cachedDuration;
 			const elapsedStr = formatTime(elapsed);
 			const totalStr = formatTime(this._cachedDuration);
-			this._callbacks.barPosLabel.textContent = `${elapsedStr} / ${totalStr}  \u2502  ${bar}/${total}`;
+			this._callbacks.barPosLabel.textContent = `${elapsedStr} / ${totalStr}  -  ${bar}/${total}`;
 		}
 
 		// Center-follow: scroll so playhead stays near middle of viewport

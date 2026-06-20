@@ -1774,7 +1774,7 @@ export class SongEditor
 			),
 			div({ class: "playback-volume-controls" }, span({ class: "volume-speaker" }), this._volumeSlider.container),
 			this._globalSpectrumContainer,
-			div({ style: "text-align: center; font-size: 10px; font-family: monospace; color: var(--primary-text);" }, this._barPosLabel),
+			div({ style: "text-align: center; font-size: 10px; color: var(--primary-text);" }, this._barPosLabel),
 		),
 		this._menuArea,
 		this._songSettingsArea,
