@@ -88,8 +88,12 @@ export class ImportPrompt extends BasePrompt {
 	private _whenFileSelected = (): void => {
 		const file: File = this._fileInput.files![0];
 		if (!file) return;
+		this._handleFile(file);
+	};
 
-		const extension: string = file.name.slice(((file.name.lastIndexOf(".") - 1) >>> 0) + 2).toLowerCase();
+	private _handleFile(file: File): void {
+		const fileName: string = file.name;
+		const extension: string = fileName.slice(((fileName.lastIndexOf(".") - 1) >>> 0) + 2).toLowerCase();
 		if (extension === "json") {
 			const reader: FileReader = new FileReader();
 			reader.addEventListener("load", (_event: Event): void => {
@@ -106,14 +110,18 @@ export class ImportPrompt extends BasePrompt {
 			const reader: FileReader = new FileReader();
 			reader.addEventListener("load", (_event: Event): void => {
 				this._doc.prompt = null;
-				this._parseMidiFile(<ArrayBuffer>reader.result);
+				this._parseMidiFile(<ArrayBuffer>reader.result, fileName);
 			});
 			reader.readAsArrayBuffer(file);
 		} else {
 			console.error("Unrecognized file extension.");
 			this._close();
 		}
-	};
+	}
+
+	public handleExternalFile(file: File): void {
+		this._handleFile(file);
+	}
 
 	private _showLoading(): void {
 		this.container.innerHTML = "";
@@ -122,7 +130,7 @@ export class ImportPrompt extends BasePrompt {
 		this.container.appendChild(loadingMsg);
 	}
 
-	private _parseMidiFile(buffer: ArrayBuffer): void {
+	private _parseMidiFile(buffer: ArrayBuffer, fileName?: string): void {
 		const reader = new ArrayBufferReader(new DataView(buffer));
 		let headerReader: ArrayBufferReader | null = null;
 		interface Track {
@@ -1169,6 +1177,11 @@ export class ImportPrompt extends BasePrompt {
 				song.scale = scale;
 				song.rhythm = detectedRhythm;
 				song.layeredInstruments = false;
+				if (fileName) {
+					// Strip extension from filename for project title
+					const dotIdx: number = fileName.lastIndexOf(".");
+					song.title = dotIdx > 0 ? fileName.substring(0, dotIdx) : fileName;
+				}
 				song.patternInstruments =
 					pitchChannels.some((channel) => channel.instruments.length > 1) || noiseChannels.some((channel) => channel.instruments.length > 1);
 				removeDuplicatePatterns(pitchChannels);

@@ -80,6 +80,7 @@ import { type PromptEditorRefs, type PromptHost, PromptManager } from "./core/pr
 import { TagAutocomplete } from "./core/tag-autocomplete";
 import { MidiInputHandler } from "./io/midi-input";
 import { CustomChipPrompt } from "./prompts/custom-chip-prompt";
+import { ImportPrompt } from "./prompts/import-prompt";
 import type { Prompt } from "./prompts/prompt";
 import { applyInstrumentVisibility, type InstrumentVisibilityRefs } from "./renderers/instrument-visibility";
 import { renderEffectsSelect } from "./renderers/render-effects";
@@ -2584,6 +2585,30 @@ export class SongEditor
 			this.handleModRecording();
 		};
 		new MidiInputHandler(this.doc);
+
+		// Drag-and-drop file import for .mid, .midi, and .json files
+		this.mainLayer.addEventListener("dragover", (e: DragEvent) => {
+			if (e.dataTransfer && (e.dataTransfer.types.indexOf("Files") !== -1)) {
+				e.preventDefault();
+			}
+		});
+		this.mainLayer.addEventListener("drop", (e: DragEvent) => {
+			if (!e.dataTransfer) return;
+			const files: FileList = e.dataTransfer.files;
+			if (files.length === 0) return;
+			const file: File = files[0];
+			const name: string = file.name.toLowerCase();
+			if (name.endsWith(".mid") || name.endsWith(".midi") || name.endsWith(".json")) {
+				e.preventDefault();
+				// Open import prompt and forward the file
+				this._promptManager.open("import");
+				const importPrompt: ImportPrompt | null = this._promptManager.prompt as ImportPrompt | null;
+				if (importPrompt && typeof (importPrompt as any).handleExternalFile === "function") {
+					(importPrompt as any).handleExternalFile(file);
+				}
+			}
+		});
+
 		window.addEventListener("resize", this.whenUpdated);
 		window.requestAnimationFrame(this.updatePlayButton);
 		window.requestAnimationFrame(this._animate);
