@@ -1788,6 +1788,12 @@ export class Synth {
 				const channel: Channel = song.channels[channelIndex];
 				const channelState: ChannelState = this.channels[channelIndex];
 
+				// Snapshot output before this channel contributes (use pre-allocated scratch)
+				const scratch = channelState.audioScratch;
+				for (let i = bufferIndex, si = 0; i < runEnd; i++, si++) {
+					scratch[si] = outputDataL[i] + (this.outputDataLUnfiltered?.[i] ?? 0);
+				}
+
 				// Track per-channel volume by measuring before/after this channel's contribution
 				let channelPeakBefore: number = 0;
 				for (let i = bufferIndex; i < runEnd; i++) {
@@ -1887,6 +1893,15 @@ export class Synth {
 					if (peak > channelState.volumeCap) {
 						channelState.volumeCap = peak;
 					}
+				}
+
+				// Diff snapshotted vs current output to isolate this channel's audio
+				const ring = channelState.audioRing;
+				for (let i = bufferIndex, si = 0; i < runEnd; i++, si++) {
+					const currentL = outputDataL[i] + (this.outputDataLUnfiltered?.[i] ?? 0);
+					const diff = currentL - scratch[si];
+					ring[channelState.audioRingPos] = diff;
+					channelState.audioRingPos = (channelState.audioRingPos + 1) & 8191;
 				}
 			}
 

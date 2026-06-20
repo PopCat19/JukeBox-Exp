@@ -13,6 +13,7 @@ import { ColorConfig } from "../../shared/color-config";
 import type { PromptEditorRefs } from "../core/prompt-manager";
 import type { SongDocument } from "../song-document";
 import { BasePrompt } from "./base-prompt";
+import { forwardRealFourierTransform } from "../../synth/fft";
 
 const { div, h2, h3, span, button } = HTML;
 const { svg, defs, linearGradient, stop, rect } = SVG;
@@ -392,27 +393,49 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 					const h = cvs.height;
 					spectrumCtx.clearRect(0, 0, w, h);
 
-					// Build band magnitudes from active tones (20-4000Hz, ~48 bands)
-					const bandCount = 48;
-					const bandMags = new Float32Array(bandCount);
-					const minPitch = 12;
-					const maxPitch = 115;
+					// Real audio FFT from per-channel ring buffer (8192 samples at 48kHz = ~170ms, 5.86Hz bins)
+					const fftSize = 2048;
+					const fftBuf = new Float32Array(fftSize);
+					const ring = channelState.audioRing;
+					const ringPos = channelState.audioRingPos;
+					for (let i = 0; i < fftSize; i++) {
+						const idx = (ringPos + i) & 8191;
+						const hann = 0.5 * (1 - Math.cos((2 * Math.PI * i) / (fftSize - 1)));
+						fftBuf[i] = ring[idx] * hann;
+					}
+					forwardRealFourierTransform(fftBuf);
 
-					// Accumulate gaussian contributions at pitch positions (sigma=0.6 bands)
-					for (const instrState of channelState.instruments) {
-						const count = instrState.activeTones.count();
-						for (let t = 0; t < count; t++) {
-							const tone = instrState.activeTones.get(t);
-							for (let p = 0; p < tone.pitchCount; p++) {
-								if (tone.pitches[p] > 0) {
-									const centerBand = (tone.pitches[p] - minPitch) / (maxPitch - minPitch) * (bandCount - 1);
-									for (let b = 0; b < bandCount; b++) {
-										const d = (b - centerBand) / 0.6;
-										const w = Math.exp(-0.5 * d * d);
-										bandMags[b] = Math.min(1, bandMags[b] + w * 0.4);
-									}
-								}
-							}
+					const halfN = fftSize >> 1;
+					const binFreq = 48000 / fftSize;
+
+					// Map FFT bins to 48 bands (20-6000Hz, log-spaced per semantic)
+					const bandCount = 48;
+					const bandFreqs: number[] = [];
+					const noteStart = Math.round(12 * Math.log2(20 / 440) + 69);
+					for (let b = 0; b < bandCount; b++) {
+						bandFreqs.push(440 * 2 ** ((noteStart + b * 0.5 - 69) / 12));
+					}
+
+					const bandMags = new Float32Array(bandCount);
+					for (let b = 0; b < bandCount; b++) {
+						const kFloat = bandFreqs[b] / binFreq;
+						const k = Math.floor(kFloat);
+						const frac = kFloat - k;
+						if (k < 1 || k >= halfN) {
+							const kHi = Math.min(k + 1, halfN);
+							const re0 = fftBuf[k], re1 = fftBuf[kHi];
+							bandMags[b] = (Math.abs(re0) + (Math.abs(re1) - Math.abs(re0)) * frac) / fftSize;
+						} else {
+							const re = fftBuf[k], im = fftBuf[fftSize - k];
+							const ym1 = Math.sqrt(re * re + im * im) / fftSize;
+							const reP = fftBuf[k + 1], imP = fftBuf[fftSize - k - 1];
+							const yp1 = Math.sqrt(reP * reP + imP * imP) / fftSize;
+							const reM = fftBuf[k - 1], imM = fftBuf[fftSize - k + 1];
+							const ym1M = Math.sqrt(reM * reM + imM * imM) / fftSize;
+							const qa = (ym1M + yp1) * 0.5 - ym1;
+							const qb = (yp1 - ym1M) * 0.5;
+							const qc = ym1;
+							bandMags[b] = Math.max(0, qa * frac * frac + qb * frac + qc);
 						}
 					}
 
@@ -426,24 +449,8 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 						if (bandMags[b] > smooth[b]) {
 							smooth[b] = bandMags[b];
 						} else {
-							smooth[b] = smooth[b] * 0.85 + bandMags[b] * 0.15;
+							smooth[b] = smooth[b] * 0.88 + bandMags[b] * 0.12;
 						}
-					}
-
-					// Spatial blur (gaussian, sigma=1.2 bands)
-					{
-						const blurred = new Float32Array(bandCount);
-						for (let b = 0; b < bandCount; b++) {
-							let sum = 0, wSum = 0;
-							for (let n = 0; n < bandCount; n++) {
-								const d = n - b;
-								const w = Math.exp((-0.5 * d * d) / 1.44);
-								sum += smooth[n] * w;
-								wSum += w;
-							}
-							blurred[b] = wSum > 0.001 ? sum / wSum : 0;
-						}
-						for (let b = 0; b < bandCount; b++) smooth[b] = blurred[b];
 					}
 
 					// Draw smooth bezier fill (like track editor overlay)
