@@ -71,6 +71,7 @@ export class MenuBar {
 				{ label: "Technical" },
 				option({ value: "autoPlay" }, "Auto Play on Load"),
 				option({ value: "autoFollow" }, "Auto Follow Playhead"),
+				option({ value: "centerFollow" }, "Center Follow Playhead"),
 				option({ value: "enableNotePreview" }, "Hear Added Notes"),
 				option({ value: "notesOutsideScale" }, "Place Notes Out of Scale"),
 				option({ value: "setDefaultScale" }, "Set Current Scale as Default"),

@@ -36,6 +36,11 @@ export class PlayerAnimator {
 		}
 		this._callbacks.barScrollBar.animatePlayhead();
 
+		// Center-follow: scroll so playhead stays near middle of viewport
+		if (this._doc.prefs.centerFollow && this._doc.synth.playing) {
+			this._centerFollowScroll();
+		}
+
 		const ctrlShift = this._callbacks.getCtrlHeld() || this._callbacks.getShiftHeld();
 		if (this._doc.synth.isFilterModActive(false, this._doc.channel, this._doc.getCurrentInstrument())) {
 			this._callbacks.eqFilterEditor.render(true, ctrlShift);
@@ -49,6 +54,21 @@ export class PlayerAnimator {
 
 		window.requestAnimationFrame(this.animate);
 	};
+
+	// Scroll to keep playhead centered, clamped at song edges
+	private _centerFollowScroll(): void {
+		const playhead = Math.floor(this._doc.synth.playhead);
+		const visible = this._doc.trackVisibleBars;
+		if (visible <= 0) return;
+		const target = Math.max(0, Math.min(
+			this._doc.song.barCount - visible,
+			playhead - Math.floor(visible / 2),
+		));
+		if (target !== this._doc.barScrollPos) {
+			this._doc.barScrollPos = target;
+			this._doc.notifier.changed();
+		}
+	}
 
 	public volumeUpdate = (): void => {
 		this.outVolumeHistoricTimer--;

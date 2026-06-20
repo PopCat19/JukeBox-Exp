@@ -185,6 +185,9 @@ export class MenuHandler {
 			case "autoFollow":
 				this._host.doc.prefs.autoFollow = !this._host.doc.prefs.autoFollow;
 				break;
+			case "centerFollow":
+				this._host.doc.prefs.centerFollow = !this._host.doc.prefs.centerFollow;
+				break;
 			case "enableNotePreview":
 				this._host.doc.prefs.enableNotePreview = !this._host.doc.prefs.enableNotePreview;
 				break;

@@ -18,6 +18,7 @@ export class Preferences {
 	public customTheme2: string | null;
 	public autoPlay: boolean;
 	public autoFollow: boolean;
+	public centerFollow: boolean;
 	public enableNotePreview: boolean;
 	public showFifth: boolean = true;
 	public notesOutsideScale: boolean;
@@ -69,6 +70,7 @@ export class Preferences {
 	public reload(): void {
 		this.autoPlay = window.localStorage.getItem("autoPlay") === "true";
 		this.autoFollow = window.localStorage.getItem("autoFollow") !== "false";
+		this.centerFollow = window.localStorage.getItem("centerFollow") === "true";
 		this.enableNotePreview = window.localStorage.getItem("enableNotePreview") !== "false";
 		this.showFifth = window.localStorage.getItem("showFifth") !== "false";
 		this.notesOutsideScale = window.localStorage.getItem("notesOutsideScale") !== "false";
@@ -129,6 +131,7 @@ export class Preferences {
 	public save(): void {
 		window.localStorage.setItem("autoPlay", this.autoPlay ? "true" : "false");
 		window.localStorage.setItem("autoFollow", this.autoFollow ? "true" : "false");
+		window.localStorage.setItem("centerFollow", this.centerFollow ? "true" : "false");
 		window.localStorage.setItem("enableNotePreview", this.enableNotePreview ? "true" : "false");
 		window.localStorage.setItem("showFifth", this.showFifth ? "true" : "false");
 		window.localStorage.setItem("notesOutsideScale", this.notesOutsideScale ? "true" : "false");

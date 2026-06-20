@@ -17,6 +17,7 @@ export function renderOptionsMenu(optionsMenu: HTMLSelectElement, prefs: Prefere
 		"Technical",
 		(prefs.autoPlay ? textOnIcon : textOffIcon) + "Auto Play on Load",
 		(prefs.autoFollow ? textOnIcon : textOffIcon) + "Auto Follow Playhead",
+		(prefs.centerFollow ? textOnIcon : textOffIcon) + "Center Follow Playhead",
 		(prefs.enableNotePreview ? textOnIcon : textOffIcon) + "Hear Added Notes",
 		(prefs.notesOutsideScale ? textOnIcon : textOffIcon) + "Place Notes Out of Scale",
 		(prefs.defaultScale === currentScale ? textOnIcon : textOffIcon) + "Set Current Scale as Default",
