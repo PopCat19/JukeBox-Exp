@@ -54,14 +54,14 @@ export class PlayerAnimator {
 			this._barLabelCounter = BAR_LABEL_THROTTLE;
 			const bar = Math.floor(this._doc.synth.playhead) + 1;
 			const total = this._doc.song.barCount;
-			// Recompute duration when song changes (bar count or tempo mods)
+			// Recompute total duration when bar count changes
 			if (this._cachedDuration < 0 || this._doc.song.barCount !== this._cachedBarCount) {
 				const totalSamples = this._doc.synth.getTotalSamples(true, true, 0);
 				this._cachedDuration = totalSamples > 0 ? totalSamples / this._doc.synth.samplesPerSecond : 0;
 				this._cachedBarCount = this._doc.song.barCount;
 			}
-			const fraction = total > 0 ? this._doc.synth.playhead / total : 0;
-			const elapsed = fraction * this._cachedDuration;
+			// Elapsed = actual samples rendered (respects tempo mods)
+			const elapsed = this._doc.synth.totalSamplesRendered / this._doc.synth.samplesPerSecond;
 			const elapsedStr = formatTime(elapsed);
 			const totalStr = formatTime(this._cachedDuration);
 			this._callbacks.barPosLabel.textContent = `${elapsedStr} / ${totalStr}  -  ${bar}/${total}`;

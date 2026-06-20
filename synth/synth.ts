@@ -493,6 +493,7 @@ export class Synth {
 	public spectrumEnabled: boolean = true;
 	public onSpectrumUpdate?: (left: Float32Array, right: Float32Array) => void;
 	public onSpectrumReset?: () => void;
+	public totalSamplesRendered: number = 0;
 	private _lastSpectrumUpdateTime: number = 0;
 	private static readonly SPECTRUM_UPDATE_INTERVAL_MS: number = 1000 / 60; // 60fps
 	public enableMetronome: boolean = false;
@@ -1142,6 +1143,7 @@ export class Synth {
 		await this.resumeAudioContext();
 		this.warmUpSynthesizer(this.song);
 		this.isPlayingSong = true;
+		this.totalSamplesRendered = 0;
 		this._dbg("isPlayingSong set to true, playhead:", this.playheadInternal, "bar:", this.bar);
 		this._primeWorklet();
 	}
@@ -2012,6 +2014,7 @@ export class Synth {
 			}
 
 			bufferIndex += runLength;
+			this.totalSamplesRendered += runLength;
 
 			this.isAtStartOfTick = false;
 			this.tickSampleCountdown -= runLength;
