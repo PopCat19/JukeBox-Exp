@@ -571,7 +571,7 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 						const barW = barOuter - gap;
 						const radius = Math.min(barW * 0.5, h * 0.12);
 						spectrumCtx.fillStyle = col;
-						spectrumCtx.globalAlpha = 0.24;
+						spectrumCtx.globalAlpha = 0.32;
 						spectrumCtx.beginPath();
 						for (let bar = 0; bar < BAR_COUNT; bar++) {
 							// Average the smoothed magnitude across this bar's band range.
