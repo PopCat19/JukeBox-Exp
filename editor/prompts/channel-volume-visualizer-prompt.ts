@@ -67,7 +67,7 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 	);
 
 	private readonly _contentContainer: HTMLDivElement = div({
-		style: "display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; align-content: start; overflow-y: auto; flex: 1; min-height: 0;",
+		style: "display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 8px; align-content: start; overflow-y: auto; flex: 1; min-height: 0;",
 	});
 
 	// Store channel volume bar elements for live updates
@@ -136,7 +136,7 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 	public container: HTMLDivElement = div(
 		{
 			class: "prompt noSelection",
-			style: "width: 600px; height: auto; max-height: 80vh; display: flex; flex-direction: column;",
+			style: "width: 720px; height: auto; max-height: 80vh; display: flex; flex-direction: column;",
 			tabindex: "0",
 		},
 		h2({ style: "margin: 12px 12px 0px 12px; text-align: center;" }, "Channel Volume Visualizer"),
@@ -511,7 +511,7 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 			);
 
 			const channelDiv = div({
-				style: `display: flex; flex-direction: column; padding: 4px 8px; border: 2px solid ${
+				style: `display: flex; flex-direction: column; padding: 4px 8px; min-width: 0; aspect-ratio: 1; overflow: hidden; border: 2px solid ${
 					isMuted ? "var(--mute-button-normal)" : channelColors.primaryChannel
 				}; border-radius: var(--border-radius-medium); background: var(--editor-background); cursor: pointer; ${isMuted ? "opacity: 0.5;" : ""} ${isDimmed ? "opacity: 0.5;" : ""}`,
 			});
@@ -531,13 +531,13 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 			});
 
 			const headerDiv = div({
-				style: "display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;",
+				style: "display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; min-width: 0; overflow: hidden;",
 			});
 
 			headerDiv.appendChild(
 				span(
 					{
-						style: `font-weight: bold; color: ${channelColors.primaryChannel}; font-size: ${Typography.sizeSm};`,
+						style: `font-weight: bold; color: ${channelColors.primaryChannel}; font-size: ${Typography.sizeSm}; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex-shrink: 1; min-width: 0;`,
 					},
 					channelName,
 				),
