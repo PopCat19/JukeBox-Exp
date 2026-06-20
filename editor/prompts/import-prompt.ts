@@ -409,7 +409,11 @@ export class ImportPrompt extends BasePrompt {
 									} else if (message === MidiMetaEventMessage.timeSignature) {
 										const numerator: number = track.reader.readUint8();
 										let denominatorExponent: number = track.reader.readUint8();
-										track.reader.skipBytes(length - 4);
+										// Payload is NN DD CC BB (length 4). Two bytes consumed above; skip CC
+										// (clocks_per_click) and BB (32nd notes per beat). Skipping length-4
+										// left CC/BB unread, and the next event's delta was then read
+										// starting at CC, shifting every subsequent event by CC ticks.
+										track.reader.skipBytes(length - 2);
 										beatsPerBar = numerator * 4;
 										while (
 											(beatsPerBar & 1) === 0 &&
