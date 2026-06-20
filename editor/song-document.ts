@@ -340,6 +340,13 @@ export class SongDocument {
 
 	private _validateDocState = (): void => {
 		const channelCount: number = this.song.getChannelCount();
+		// Clamp the active channel against the loaded song's channel count. A
+		// history/URL state saved while viewing a high channel index (e.g. after a
+		// 26-channel MIDI import) survives into a song with fewer channels and
+		// would otherwise index channels[channel] out of bounds, crashing
+		// SongPerformance._documentChanged and this validator.
+		if (this.channel >= channelCount) this.channel = channelCount - 1;
+		if (this.channel < 0) this.channel = 0;
 		for (let i: number = this.recentPatternInstruments.length; i < channelCount; i++) {
 			this.recentPatternInstruments[i] = [0];
 		}
