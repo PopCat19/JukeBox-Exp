@@ -394,7 +394,9 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 					spectrumCtx.clearRect(0, 0, w, h);
 
 					// Real audio FFT from per-channel ring buffer (8192 samples at 48kHz = ~170ms, 5.86Hz bins)
-					const fftSize = 2048;
+					// Real audio FFT from per-channel ring buffer
+					// 8192-point FFT at 48kHz = 5.86Hz bins, matches main spectrum resolution
+					const fftSize = 8192;
 					const fftBuf = new Float32Array(fftSize);
 					const ring = channelState.audioRing;
 					const ringPos = channelState.audioRingPos;
@@ -408,7 +410,7 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 					const halfN = fftSize >> 1;
 					const binFreq = 48000 / fftSize;
 
-					// Map FFT bins to 48 bands (20-6000Hz, log-spaced per semantic)
+					// 48 log-spaced bands from 20Hz to 6000Hz (quarter-tone spacing)
 					const bandCount = 48;
 					const bandFreqs: number[] = [];
 					const noteStart = Math.round(12 * Math.log2(20 / 440) + 69);
@@ -416,18 +418,26 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 						bandFreqs.push(440 * 2 ** ((noteStart + b * 0.5 - 69) / 12));
 					}
 
+					// Normalize: single-channel diff audio is quieter than full mix.
+					// Compute total RMS of the FFT window to scale band mags.
+					let rms = 0;
+					for (let i = 0; i < fftSize; i++) rms += ring[(ringPos + i) & 8191] ** 2;
+					rms = Math.sqrt(rms / fftSize);
+					const gain = Math.min(3, 0.15 / Math.max(rms, 0.00001));
+
 					const bandMags = new Float32Array(bandCount);
 					for (let b = 0; b < bandCount; b++) {
 						const kFloat = bandFreqs[b] / binFreq;
 						const k = Math.floor(kFloat);
 						const frac = kFloat - k;
+						let mag: number;
 						if (k < 1 || k >= halfN) {
 							const kHi = Math.min(k + 1, halfN);
 							const re0 = fftBuf[k], re1 = fftBuf[kHi];
-							bandMags[b] = (Math.abs(re0) + (Math.abs(re1) - Math.abs(re0)) * frac) / fftSize;
+							mag = (Math.sqrt(re0 * re0) + (Math.sqrt(re1 * re1) - Math.sqrt(re0 * re0)) * frac) / fftSize;
 						} else {
-							const re = fftBuf[k], im = fftBuf[fftSize - k];
-							const ym1 = Math.sqrt(re * re + im * im) / fftSize;
+							const re0 = fftBuf[k], im0 = fftBuf[fftSize - k];
+							const ym1 = Math.sqrt(re0 * re0 + im0 * im0) / fftSize;
 							const reP = fftBuf[k + 1], imP = fftBuf[fftSize - k - 1];
 							const yp1 = Math.sqrt(reP * reP + imP * imP) / fftSize;
 							const reM = fftBuf[k - 1], imM = fftBuf[fftSize - k + 1];
@@ -435,8 +445,9 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 							const qa = (ym1M + yp1) * 0.5 - ym1;
 							const qb = (yp1 - ym1M) * 0.5;
 							const qc = ym1;
-							bandMags[b] = Math.max(0, qa * frac * frac + qb * frac + qc);
+							mag = Math.max(0, qa * frac * frac + qb * frac + qc);
 						}
+						bandMags[b] = Math.min(1, mag * gain);
 					}
 
 					// Temporal smoothing
