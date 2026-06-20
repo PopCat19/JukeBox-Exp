@@ -91,6 +91,7 @@ export class MenuHandler {
 				break;
 		}
 		this._fileMenu.selectedIndex = 0;
+		this._fileMenu.blur();
 	};
 
 	private _editMenuHandler = (_event: Event): void => {
@@ -299,5 +300,6 @@ export class MenuHandler {
 		this._optionsMenu.selectedIndex = 0;
 		this._host.doc.notifier.changed();
 		this._host.doc.prefs.save();
+		this._optionsMenu.blur();
 	};
 }
