@@ -662,19 +662,20 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 				);
 			}
 
-			channelDiv.appendChild(headerDiv);
-			channelDiv.appendChild(volBarContainer);
+			const contentWrap = div({ style: "display: flex; flex-direction: column; flex: 1; min-height: 0; position: relative; z-index: 1;" });
+			contentWrap.appendChild(headerDiv);
+			contentWrap.appendChild(volBarContainer);
+			contentWrap.appendChild(dbLabel);
 
-			// Pitch spectrum overlay canvas (positioned over the tile, pointer-events none)
+			// Pitch spectrum overlay canvas (z-index: 0 paints after parent bg, before contentWrap at z-index 1)
 			const spectrumCanvas = document.createElement("canvas");
 			spectrumCanvas.width = 128;
 			spectrumCanvas.height = 16;
-			spectrumCanvas.style.cssText = "position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: -1; border-radius: inherit;";
-			channelDiv.appendChild(spectrumCanvas);
+			spectrumCanvas.style.cssText = "position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; border-radius: inherit;";
+			channelDiv.insertBefore(spectrumCanvas, contentWrap);
 			this._channelSpectrumCanvases.set(i, spectrumCanvas);
 			this._channelSpectrumCanvas2ds.set(i, spectrumCanvas.getContext("2d"));
-
-			channelDiv.appendChild(dbLabel);
+			channelDiv.appendChild(contentWrap);
 
 			// Show instruments
 			if (channel.instruments.length > 0) {
@@ -705,7 +706,7 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 					this._instrumentSpans.set(`${i}-${j}`, instrSpan);
 					instrDiv.appendChild(instrSpan);
 				}
-				channelDiv.appendChild(instrDiv);
+				contentWrap.appendChild(instrDiv);
 			}
 
 			this._contentContainer.appendChild(channelDiv);
