@@ -418,13 +418,10 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 						bandFreqs.push(440 * 2 ** ((noteStart + b * 0.5 - 69) / 12));
 					}
 
-					// Normalize: single-channel diff audio is quieter than full mix.
-					// Compute total RMS of the FFT window to scale band mags.
-					let rms = 0;
-					for (let i = 0; i < fftSize; i++) rms += ring[(ringPos + i) & 8191] ** 2;
-					rms = Math.sqrt(rms / fftSize);
-					const gain = Math.min(3, 0.15 / Math.max(rms, 0.00001));
-
+					// Single-channel diff audio has ~1/16th the amplitude of full mix.
+					// Use per-frame peak normalization: find max band magnitude, scale so
+					// peak maps to reference 0.15, then apply same soft compression as main FG.
+					// Clip to avoid blowing out on completely silent channels.
 					const bandMags = new Float32Array(bandCount);
 					for (let b = 0; b < bandCount; b++) {
 						const kFloat = bandFreqs[b] / binFreq;
@@ -447,7 +444,15 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 							const qc = ym1;
 							mag = Math.max(0, qa * frac * frac + qb * frac + qc);
 						}
-						bandMags[b] = Math.min(1, mag * gain);
+						bandMags[b] = mag;
+					}
+					// Peak-normalize: find peak band, scale so peak = 0.15, soft-compress
+					let peak = 0;
+					for (let b = 0; b < bandCount; b++) if (bandMags[b] > peak) peak = bandMags[b];
+					const gain = peak > 0 ? Math.min(120, 0.15 / peak) : 0;
+					for (let b = 0; b < bandCount; b++) {
+						const s = bandMags[b] * gain;
+						bandMags[b] = Math.min(1, (2 * s) / (s + 0.04));
 					}
 
 					// Temporal smoothing

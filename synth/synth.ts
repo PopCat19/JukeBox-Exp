@@ -1348,6 +1348,7 @@ export class Synth {
 		this.bar = bar;
 		this.resetEffects();
 		this.playheadInternal = this.bar;
+		this.totalSamplesRendered = Math.floor(this.getSamplesPerBar() * bar);
 	}
 
 	public snapToBar(): void {
@@ -1790,10 +1791,11 @@ export class Synth {
 				const channel: Channel = song.channels[channelIndex];
 				const channelState: ChannelState = this.channels[channelIndex];
 
-				// Snapshot output before this channel contributes (use pre-allocated scratch)
+				// Snapshot output before this channel contributes (use pre-allocated scratch, L+R interleaved)
 				const scratch = channelState.audioScratch;
-				for (let i = bufferIndex, si = 0; i < runEnd; i++, si++) {
+				for (let i = bufferIndex, si = 0; i < runEnd; i++, si+=2) {
 					scratch[si] = outputDataL[i] + (this.outputDataLUnfiltered?.[i] ?? 0);
+					scratch[si+1] = outputDataR[i] + (this.outputDataRUnfiltered?.[i] ?? 0);
 				}
 
 				// Track per-channel volume by measuring before/after this channel's contribution
@@ -1897,12 +1899,14 @@ export class Synth {
 					}
 				}
 
-				// Diff snapshotted vs current output to isolate this channel's audio
+				// Diff snapshotted vs current output to isolate this channel's audio (L+R interleaved)
 				const ring = channelState.audioRing;
-				for (let i = bufferIndex, si = 0; i < runEnd; i++, si++) {
+				for (let i = bufferIndex, si = 0; i < runEnd; i++, si+=2) {
 					const currentL = outputDataL[i] + (this.outputDataLUnfiltered?.[i] ?? 0);
-					const diff = currentL - scratch[si];
-					ring[channelState.audioRingPos] = diff;
+					const currentR = outputDataR[i] + (this.outputDataRUnfiltered?.[i] ?? 0);
+					const diffL = currentL - scratch[si];
+					const diffR = currentR - scratch[si+1];
+					ring[channelState.audioRingPos] = (diffL + diffR) * 0.5;
 					channelState.audioRingPos = (channelState.audioRingPos + 1) & 8191;
 				}
 			}

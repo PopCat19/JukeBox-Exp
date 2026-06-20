@@ -16,6 +16,6 @@ export class ChannelState {
 	// Per-channel audio capture for CVV real FFT spectrum
 	public readonly audioRing: Float32Array = new Float32Array(8192);
 	public audioRingPos: number = 0;
-	// Scratch buffer sized to max output buffer length (pre-allocated, no hot-path allocation)
-	public readonly audioScratch: Float32Array = new Float32Array(4096);
+	// Scratch buffer sized to max output buffer length x2 (L+R interleaved, pre-allocated, no hot-path allocation)
+	public readonly audioScratch: Float32Array = new Float32Array(8192);
 }
