@@ -1060,35 +1060,32 @@ export class ImportPrompt extends BasePrompt {
 					const nextChange = tempoChanges[changeIndex + 1];
 					changeEndPart = quantizeMidiTickToPart(nextChange.midiTick);
 				}
+				// Skip redundant changes at the same quantized position
+				if (changeEndPart <= changeStartPart) continue;
+				// Fill gap from previous change end to this change start
+				if (changeStartPart > prevChangeEndPart) {
+					// Use the previous (same) BPM — no actual change happened
+					prevChangeEndPart = changeStartPart;
+				}
 				const startBar = Math.floor(changeStartPart / partsPerBar);
 				const endBar = Math.ceil(changeEndPart / partsPerBar);
 				for (let bar = startBar; bar < endBar; bar++) {
 					const barStartPart = bar * partsPerBar;
-					const noteStartPart = Math.max(0, prevChangeEndPart - barStartPart);
+					const noteStartPart = Math.max(0, changeStartPart - barStartPart);
 					const noteEndPart = Math.min(partsPerBar, changeEndPart - barStartPart);
 					if (noteStartPart < noteEndPart) {
 						if (currentBar !== bar || pattern == null) {
 							currentBar++;
-							while (currentBar < bar) {
-								tempoModChannel.bars[currentBar] = 0;
-								currentBar++;
-							}
+							while (currentBar < bar) { tempoModChannel.bars[currentBar] = 0; currentBar++; }
 							pattern = new Pattern();
 							tempoModChannel.patterns.push(pattern);
 							tempoModChannel.bars[currentBar] = tempoModChannel.patterns.length;
-							pattern.instruments[0] = 0;
-							pattern.instruments.length = 1;
+							pattern.instruments[0] = 0; pattern.instruments.length = 1;
 						}
 						const realBPM: number = Math.round(microsecondsPerMinute / change.microsecondsPerBeat);
-						const newBPM = Math.max(
-							Config.tempoMin,
-							Math.min(
-								Config.tempoMax,
-								realBPM - Config.modulators.dictionary["tempo"].convertRealFactor,
-							),
-						);
-						const note = new Note(tempoModPitch, noteStartPart, noteEndPart, newBPM, false);
-						pattern.notes.push(note);
+						const newBPM = Math.max(Config.tempoMin, Math.min(Config.tempoMax,
+							realBPM - Config.modulators.dictionary["tempo"].convertRealFactor));
+						pattern.notes.push(new Note(tempoModPitch, noteStartPart, noteEndPart, newBPM, false));
 					}
 				}
 				prevChangeEndPart = changeEndPart;
