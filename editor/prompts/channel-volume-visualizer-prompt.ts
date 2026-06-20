@@ -10,6 +10,7 @@ import { BorderWidth, Typography } from "../ui/style-constants";
 
 import { HTML, SVG } from "imperative-html/dist/esm/elements-strict";
 import { ColorConfig } from "../../shared/color-config";
+import { events } from "../../shared/events";
 import { forwardRealFourierTransform } from "../../synth/fft";
 import type { PromptEditorRefs } from "../core/prompt-manager";
 import type { SongDocument } from "../song-document";
@@ -31,6 +32,18 @@ const FG_REF = 0.04;
 const CHANNEL_GAIN = 24;
 // 8192-point FFT: at 48kHz gives 5.86Hz bins, enough resolution for the FG band grid.
 const FFT_SIZE = 8192;
+// Gaussian spatial-blur kernel (sigma=3 bands), truncated to +-BLUR_RADIUS.
+// Precomputed once so the per-channel per-frame blur is O(FG_BANDS * kernel)
+// instead of O(FG_BANDS^2). At 3 sigma the truncated tail is negligible.
+const BLUR_RADIUS = 9;
+const BLUR_KERNEL: readonly number[] = ChannelVolumeVisualizerPrompt_initBlurKernel();
+function ChannelVolumeVisualizerPrompt_initBlurKernel(): number[] {
+	const kernel: number[] = [];
+	for (let d = -BLUR_RADIUS; d <= BLUR_RADIUS; d++) {
+		kernel.push(Math.exp((-0.5 * d * d) / 9));
+	}
+	return kernel;
+}
 
 export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 	private _animationId: number = 0;
@@ -102,6 +115,20 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 	// Reusable FFT scratch buffers (avoid per-frame allocation across channels).
 	private _fftScratch: Float32Array = new Float32Array(FFT_SIZE);
 	private _magScratch: Float32Array = new Float32Array(FFT_SIZE / 2 + 1);
+	// Reusable per-band work arrays (channels are processed sequentially per frame,
+	// so a single set shared across channels avoids per-frame allocation).
+	private readonly _bandMags: Float32Array = new Float32Array(FG_BANDS);
+	private readonly _blurred: Float32Array = new Float32Array(FG_BANDS);
+	private readonly _ys: number[] = new Array(FG_BANDS);
+	// Cached per-channel overlay fill color. getComputedChannelColor calls
+	// getComputedStyle 4x per call, which forces a style recalc; computing it
+	// once per channel on render (and on theme change) removes that per-frame reflow.
+	private readonly _channelSpectrumColors: Map<number, string> = new Map();
+	// Cached per-channel canvas backing-store size in device pixels, refreshed by a
+	// ResizeObserver so the animate loop never reads clientWidth/clientHeight
+	// (which would force layout reflows interleaved with style writes).
+	private readonly _canvasSizes: Map<number, { w: number; h: number }> = new Map();
+	private _resizeObserver: ResizeObserver | null = null;
 	// FG band center frequencies (absolute Hz, independent of sample rate).
 	private readonly _fgFreqs: number[] = ChannelVolumeVisualizerPrompt._initFgFreqs();
 
@@ -219,11 +246,15 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 		this._animate = this._animate.bind(this);
 		this._onDocChange = this._renderChannelList.bind(this);
 		this._doc.notifier.watch(this._onDocChange);
+		this._onThemeChange = this._refreshSpectrumColors.bind(this);
+		events.listen("themeChange", this._onThemeChange);
 		this._renderChannelList();
 		this._animationId = window.requestAnimationFrame(this._animate);
 		this._playPauseButton.addEventListener("click", this._togglePlayPause);
 		setTimeout(() => this.container.focus());
 	}
+
+	private _onThemeChange!: (name: string) => void;
 
 	private _togglePlayPause = (): void => {
 		if (this._doc.synth.playing) {
@@ -252,6 +283,11 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 	public override cleanUp = (): void => {
 		super.cleanUp();
 		this._doc.notifier.unwatch(this._onDocChange);
+		events.unlisten("themeChange", this._onThemeChange);
+		if (this._resizeObserver != null) {
+			this._resizeObserver.disconnect();
+			this._resizeObserver = null;
+		}
 		if (this._animationId !== 0) {
 			window.cancelAnimationFrame(this._animationId);
 			this._animationId = 0;
@@ -267,6 +303,8 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 		this._channelDbLabels.clear();
 		this._channelDivs.clear();
 		this._instrumentSpans.clear();
+		this._channelSpectrumColors.clear();
+		this._canvasSizes.clear();
 		this._playPauseButton.removeEventListener("click", this._togglePlayPause);
 		this._songEditor.muteEditor.setHoveredChannel(-1);
 		this._songEditor.trackEditor.setHoveredChannel(-1);
@@ -279,6 +317,16 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 	};
 
 	private _onDocChange!: () => void;
+
+	// Recompute cached per-channel overlay colors. Called on render and on
+	// themeChange. getComputedChannelColor forces 4 getComputedStyle calls, so
+	// this must stay out of the per-frame animate loop.
+	private _refreshSpectrumColors(): void {
+		const song = this._doc.song;
+		for (const channelIndex of this._channelSpectrumCanvases.keys()) {
+			this._channelSpectrumColors.set(channelIndex, ColorConfig.getComputedChannelColor(song, channelIndex).primaryChannel);
+		}
+	}
 
 	private _animate = (): void => {
 		// Update play/pause button state
@@ -409,12 +457,13 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 			const spectrumCtx = this._channelSpectrumCanvas2ds.get(channelIndex);
 			if (spectrumCtx) {
 				const cvs = this._channelSpectrumCanvases.get(channelIndex);
-				if (cvs?.parentElement) {
-					const dispW = Math.round(cvs.parentElement.clientWidth * devicePixelRatio);
-					const dispH = Math.round(cvs.parentElement.clientHeight * devicePixelRatio);
-					if (cvs.width !== dispW || cvs.height !== dispH) {
-						cvs.width = dispW;
-						cvs.height = dispH;
+				// Backing-store size comes from the ResizeObserver cache, not a per-frame
+				// clientWidth/clientHeight read (which would force a layout reflow).
+				const size = this._canvasSizes.get(channelIndex);
+				if (cvs && size && size.w > 0 && size.h > 0) {
+					if (cvs.width !== size.w || cvs.height !== size.h) {
+						cvs.width = size.w;
+						cvs.height = size.h;
 					}
 
 					const w = cvs.width;
@@ -449,7 +498,7 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 					}
 
 					// Interpolate FG bands from FFT bins (quadratic for sensitivity).
-					const bandMags = new Float32Array(FG_BANDS);
+					const bandMags = this._bandMags;
 					for (let b = 0; b < FG_BANDS; b++) {
 						const kFloat = this._fgFreqs[b] / binFreq;
 						const k = Math.floor(kFloat);
@@ -473,14 +522,18 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 						bandMags[b] *= 0.5 + b * fgGainStep;
 					}
 					// Light gaussian spatial blur (sigma=3 bands) to suppress peak jitter.
-					// Separate output array: blurring must read original values, not in-place writes.
-					const blurred = new Float32Array(FG_BANDS);
+					// Truncated precomputed kernel (BLUR_KERNEL, +-BLUR_RADIUS) makes this
+					// O(FG_BANDS * kernelWidth) instead of O(FG_BANDS^2). Output written to a
+					// separate array so the convolution reads original values, not in-place writes.
+					const blurred = this._blurred;
+					const kernel = BLUR_KERNEL;
 					for (let b = 0; b < FG_BANDS; b++) {
-						let sum = 0,
-							wSum = 0;
-						for (let n = 0; n < FG_BANDS; n++) {
-							const d = n - b;
-							const wt = Math.exp((-0.5 * d * d) / 9);
+						let sum = 0;
+						let wSum = 0;
+						const n0 = Math.max(0, b - BLUR_RADIUS);
+						const n1 = Math.min(FG_BANDS - 1, b + BLUR_RADIUS);
+						for (let n = n0; n <= n1; n++) {
+							const wt = kernel[BLUR_RADIUS + (n - b)];
 							sum += bandMags[n] * wt;
 							wSum += wt;
 						}
@@ -503,28 +556,30 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 					}
 
 					// Draw smooth bezier fill, single fixed-ref soft-compression (no second compress).
-					const col = ColorConfig.getComputedChannelColor(this._doc.song, channelIndex).primaryChannel;
-					const bandW = w / (FG_BANDS - 1);
-					const ys: number[] = [];
-					for (let b = 0; b < FG_BANDS; b++) {
-						ys[b] = h - Math.min(1, (2 * smooth[b]) / (smooth[b] + FG_REF)) * h;
-					}
+					const col = this._channelSpectrumColors.get(channelIndex);
+					if (col) {
+						const bandW = w / (FG_BANDS - 1);
+						const ys = this._ys;
+						for (let b = 0; b < FG_BANDS; b++) {
+							ys[b] = h - Math.min(1, (2 * smooth[b]) / (smooth[b] + FG_REF)) * h;
+						}
 
-					spectrumCtx.beginPath();
-					spectrumCtx.moveTo(0, h);
-					spectrumCtx.lineTo(0, ys[0]);
-					for (let b = 0; b < FG_BANDS - 1; b++) {
-						const x1 = b * bandW;
-						const x2 = (b + 1) * bandW;
-						spectrumCtx.quadraticCurveTo(x1, ys[b], (x1 + x2) / 2, (ys[b] + ys[b + 1]) / 2);
+						spectrumCtx.beginPath();
+						spectrumCtx.moveTo(0, h);
+						spectrumCtx.lineTo(0, ys[0]);
+						for (let b = 0; b < FG_BANDS - 1; b++) {
+							const x1 = b * bandW;
+							const x2 = (b + 1) * bandW;
+							spectrumCtx.quadraticCurveTo(x1, ys[b], (x1 + x2) / 2, (ys[b] + ys[b + 1]) / 2);
+						}
+						spectrumCtx.lineTo(w, ys[FG_BANDS - 1]);
+						spectrumCtx.lineTo(w, h);
+						spectrumCtx.closePath();
+						spectrumCtx.fillStyle = col;
+						spectrumCtx.globalAlpha = 0.45;
+						spectrumCtx.fill();
+						spectrumCtx.globalAlpha = 1.0;
 					}
-					spectrumCtx.lineTo(w, ys[FG_BANDS - 1]);
-					spectrumCtx.lineTo(w, h);
-					spectrumCtx.closePath();
-					spectrumCtx.fillStyle = col;
-					spectrumCtx.globalAlpha = 0.45;
-					spectrumCtx.fill();
-					spectrumCtx.globalAlpha = 1.0;
 				}
 			}
 
@@ -581,6 +636,8 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 		this._channelSpectrumCanvases.clear();
 		this._channelSpectrumCanvas2ds.clear();
 		this._spectrumSmooth.clear();
+		this._channelSpectrumColors.clear();
+		this._canvasSizes.clear();
 
 		const song = this._doc.song;
 		const synth = this._doc.synth;
@@ -737,6 +794,7 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 			channelDiv.insertBefore(spectrumCanvas, contentWrap);
 			this._channelSpectrumCanvases.set(i, spectrumCanvas);
 			this._channelSpectrumCanvas2ds.set(i, spectrumCanvas.getContext("2d"));
+			this._channelSpectrumColors.set(i, ColorConfig.getComputedChannelColor(song, i).primaryChannel);
 
 			// Show instruments
 			if (channel.instruments.length > 0) {
@@ -772,5 +830,33 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 
 			this._contentContainer.appendChild(channelDiv);
 		}
+
+		// Observe the grid container so per-channel canvas backing-store sizes are
+		// refreshed on layout changes without any per-frame clientWidth reads.
+		this._setupResizeObserver();
 	};
+
+	private _setupResizeObserver(): void {
+		if (this._resizeObserver != null) {
+			this._resizeObserver.disconnect();
+		}
+		const dpr = window.devicePixelRatio || 1;
+		const measure = (): void => {
+			for (const [channelIndex, cvs] of this._channelSpectrumCanvases) {
+				const parent = cvs.parentElement;
+				if (parent) {
+					this._canvasSizes.set(channelIndex, {
+						w: Math.round(parent.clientWidth * dpr),
+						h: Math.round(parent.clientHeight * dpr),
+					});
+				}
+			}
+		};
+		const observer = new ResizeObserver((): void => measure());
+		observer.observe(this._contentContainer);
+		this._resizeObserver = observer;
+		// ResizeObserver fires once asynchronously on observe; also measure now in
+		// case layout is already settled.
+		measure();
+	}
 }
