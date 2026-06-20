@@ -1217,23 +1217,6 @@ export class ImportPrompt extends BasePrompt {
 		this._doc.goBackToStart();
 		for (const channel of this._doc.song.channels) channel.muted = false;
 		this._doc.prompt = null;
-
-		// Probe watcher: fires synchronously during notifyWatchers() below
-		const probeSlot = () => {
-			this._doc.notifier.unwatch(probeSlot);
-			const mp: number = this._doc.song.beatsPerBar * Config.partsPerBeat;
-			for (const ch of this._doc.song.channels) {
-				for (const pat of ch.patterns) {
-					for (const n of pat.notes) {
-						if (n.end > mp || n.start >= n.end) {
-							console.warn(`[MIDI Probe] INVALID during notifyWatchers: end=${n.end} start=${n.start} max=${mp}`);
-						}
-					}
-				}
-			}
-		};
-		this._doc.notifier.watch(probeSlot);
-
 		this._doc.record(new ChangeImportMidi(this._doc), false, true);
 		this._doc.notifier.notifyWatchers();
 	}
