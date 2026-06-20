@@ -418,9 +418,11 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 		const currentBar = Math.floor(this._doc.synth.playhead);
 		this._currentBarLabel.textContent = `Bar: ${currentBar + 1}`;
 
-		// Master loudness from the synth's rolling unweighted RMS of the post-limiter
-		// master output. Same source as the editor's main meter, so the two agree.
-		const masterLevel = this._doc.synth.getOutLoudness();
+		// Master volume from the post-limiter sample peak (song.outVolumeCap), the
+		// same source as the limiter prompt's Out meter and the editor's main meter.
+		// Peak (not RMS) so it reacts to kicks/transients and matches the actual
+		// output sample level.
+		const masterLevel = this._doc.song.outVolumeCap;
 
 		// Update master volume bar
 		this._historicTimer--;
@@ -443,7 +445,7 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 			this._outVolumeCap.setAttribute("x", `${capX}`);
 		}
 
-		// Update master dB labels (dBFS(A): full-scale 1 kHz sine = 0 dB)
+		// Update master dB labels (dBFS peak: full-scale = 0 dB)
 		const masterPeakDb = this._historicVolumeCap > 0 ? 20 * Math.log10(this._historicVolumeCap) : -Infinity;
 		this._masterDbPeakLabel.textContent = Number.isFinite(masterPeakDb) ? `Peak: ${masterPeakDb.toFixed(1)} dB` : "Peak: -inf dB";
 
@@ -471,13 +473,19 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 
 		// Update per-channel volume bars
 		const synth = this._doc.synth;
+		// Smooth the post-limiter master gain the per-channel ring omits, so the
+		// per-channel meters and spectrum reflect the output-bus level. Smoothed to
+		// tame the limiter's fast per-sample dynamics.
+		const targetScale = synth.getMasterScale();
+		this._smoothedMasterScale += (targetScale - this._smoothedMasterScale) * 0.3;
 		for (const [channelIndex, bar] of this._channelVolumeBars) {
 			const channelState = synth.channels[channelIndex];
 			if (!channelState) continue;
 
-			// Per-channel perceived loudness (A-weighted RMS of the isolated ring),
-			// normalized so a full-scale 1 kHz sine fills the bar. Reads last frame's
-			// value (populated in the spectrum FFT pass) to avoid a second FFT.
+			// Per-channel perceived loudness (C-weighted RMS of the isolated ring,
+			// scaled by the post-limiter master gain), normalized so a full-scale
+			// 1 kHz sine fills the bar. Reads last frame's value (populated in the
+			// spectrum FFT pass) to avoid a second FFT.
 			const channelLevel = Math.min(1, (this._channelLoudnessRms.get(channelIndex) ?? 0) / LOUDNESS_REF);
 
 			let historic = this._channelHistoricCaps.get(channelIndex);

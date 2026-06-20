@@ -104,10 +104,10 @@ export class PlayerAnimator {
 	}
 
 	public volumeUpdate = (): void => {
-		// Loudness (rolling unweighted RMS of post-limiter output) instead of
-		// sample peak, so the meter tracks energy and responds to kicks/bass
-		// rather than just transient spikes.
-		const level = this._doc.synth.getOutLoudness();
+		// Post-limiter sample peak (song.outVolumeCap), same source as the limiter
+		// prompt's Out meter. Peak reacts to kicks/transients and matches the actual
+		// output sample level.
+		const level = this._doc.song.outVolumeCap;
 		this.outVolumeHistoricTimer--;
 		if (this.outVolumeHistoricTimer <= 0) {
 			this.outVolumeHistoricCap -= 0.03;
