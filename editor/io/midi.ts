@@ -50,6 +50,8 @@ export enum MidiControlEventMessage {
 	// volumeLSB = 0x27,
 	// expressionLSB = 0x2B,
 
+	sustainPedal = 0x40, // CC 64, hold pedal. Ignored behaviorally by the importer; logged for diagnosis.
+
 	// nonRegisteredParameterNumberLSB = 0x62,
 	// nonRegisteredParameterNumberMSB = 0x63,
 	registeredParameterNumberLSB = 0x64,

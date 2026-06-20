@@ -216,6 +216,12 @@ export class ImportPrompt extends BasePrompt {
 		const noteEvents: NoteEvent[][] = [[], [], [], [], [], [], [], [], [], [], [], [], [], [], [], []];
 		const pitchBendEvents: PitchBendEvent[][] = [[], [], [], [], [], [], [], [], [], [], [], [], [], [], [], []];
 		const noteSizeEvents: NoteSizeEvent[][] = [[], [], [], [], [], [], [], [], [], [], [], [], [], [], [], []];
+		interface SustainEvent {
+			midiTick: number;
+			channel: number;
+			value: number;
+		}
+		const sustainEvents: SustainEvent[] = [];
 		const tempoChanges: TempoChange[] = [];
 		interface TimeSigChange {
 			midiTick: number;
@@ -343,6 +349,12 @@ export class ImportPrompt extends BasePrompt {
 											midiTick: currentMidiTick,
 											size: Synth.volumeMultToNoteSize(midiExpressionToVolumeMult(value)),
 										});
+										break;
+									case MidiControlEventMessage.sustainPedal:
+										// CC 64 (hold pedal). Behaviorally ignored: sustained MIDI notes keep
+										// their written duration, which the bar-splitter then fragments
+										// across bar boundaries. Recorded for diagnostic logging only.
+										sustainEvents.push({ midiTick: currentMidiTick, channel: eventChannel, value: value });
 										break;
 									case MidiControlEventMessage.setParameterLSB:
 										if (
@@ -521,10 +533,7 @@ export class ImportPrompt extends BasePrompt {
 			};
 		}
 		const quantizeMidiTickToPart = buildTickToPartFn();
-		const songTotalBars: number = Math.min(
-			Config.barCountMax,
-			Math.ceil(quantizeMidiTickToPart(currentMidiTick) / partsPerBar),
-		);
+		const songTotalBars: number = Math.min(Config.barCountMax, Math.ceil(quantizeMidiTickToPart(currentMidiTick) / partsPerBar));
 
 		let key: number = numSharps;
 		if (isMinor) key += 3;
@@ -601,7 +610,7 @@ export class ImportPrompt extends BasePrompt {
 					for (let midiChannel: number = 0; midiChannel < 16; midiChannel++) {
 						for (const event of noteEvents[midiChannel]) {
 							const part: number = quantizeMidiTickToPart(event.midiTick);
-							if (part % Config.partsPerBeat % minDivision === 0) fitCount++;
+							if ((part % Config.partsPerBeat) % minDivision === 0) fitCount++;
 						}
 					}
 					if (fitCount / totalPositions >= 0.8) {
@@ -665,8 +674,14 @@ export class ImportPrompt extends BasePrompt {
 			return notes;
 		}
 
+		interface ChordGroupStats {
+			inputNotes: number;
+			outputChords: number;
+			merges: number;
+			maxChordSize: number;
+		}
 		// Group notes that start and end at the same time into chords
-		function groupChords(notes: DiscreteNote[]): DiscreteNote[] {
+		function groupChords(notes: DiscreteNote[], stats?: ChordGroupStats): DiscreteNote[] {
 			const sorted: DiscreteNote[] = notes.slice().sort((a, b) => a.startMidiTick - b.startMidiTick || a.endMidiTick - b.endMidiTick);
 			const grouped: DiscreteNote[] = [];
 			for (const note of sorted) {
@@ -674,6 +689,10 @@ export class ImportPrompt extends BasePrompt {
 				if (last && last.startMidiTick === note.startMidiTick && last.endMidiTick === note.endMidiTick && last.pitches.length < Config.maxChordSize) {
 					for (const p of note.pitches) {
 						if (last.pitches.indexOf(p) === -1) last.pitches.push(p);
+					}
+					if (stats) {
+						stats.merges++;
+						stats.maxChordSize = Math.max(stats.maxChordSize, last.pitches.length);
 					}
 				} else {
 					grouped.push({
@@ -685,7 +704,12 @@ export class ImportPrompt extends BasePrompt {
 						instrumentVolume: note.instrumentVolume,
 						instrumentPan: note.instrumentPan,
 					});
+					if (stats) stats.maxChordSize = Math.max(stats.maxChordSize, note.pitches.length);
 				}
+			}
+			if (stats) {
+				stats.inputNotes = notes.length;
+				stats.outputChords = grouped.length;
 			}
 			return grouped;
 		}
@@ -838,8 +862,19 @@ export class ImportPrompt extends BasePrompt {
 				// from corrupting song data (the editor doesn't permit mixed start-stop
 				// notes in a single channel).
 				const discreteNotes: DiscreteNote[] = parseDiscreteNotes(noteEvents[midiChannel]);
-				const grouped: DiscreteNote[] = groupChords(discreteNotes);
+				const chordStats: ChordGroupStats = { inputNotes: 0, outputChords: 0, merges: 0, maxChordSize: 0 };
+				const grouped: DiscreteNote[] = groupChords(discreteNotes, chordStats);
 				const tracks: DiscreteNote[][] = assignTracks(grouped);
+
+				// Per-MIDI-channel pipeline accounting. Sustained MIDI notes (held past
+				// note-off by CC 64) keep their written duration here; the per-track bar
+				// loop below splits them across bar boundaries, inflating note count.
+				console.log(
+					`[MIDI Import] midiCh=${midiChannel} ${isNoiseChannel ? "noise" : isModChannel ? "mod" : "pitch"}: ` +
+						`rawEvents=${noteEvents[midiChannel].length} discrete=${discreteNotes.length} ` +
+						`chords=${chordStats.outputChords} (merged ${chordStats.merges}, maxChordSize=${chordStats.maxChordSize}) ` +
+						`tracks(channels)=${tracks.length}`,
+				);
 
 				for (const track of tracks) {
 					const channel: Channel = new Channel();
@@ -855,6 +890,14 @@ export class ImportPrompt extends BasePrompt {
 					let currentBar: number = -1;
 					let pattern: Pattern | null = null;
 					let pitchSum: number = 0;
+					// Bar-split accounting for this track (channel). A discrete note that
+					// spans N bar boundaries emits N+1 Notes; only the first is a real
+					// onset, the rest are continuesLastPattern links. Sustained MIDI notes
+					// (CC 64) dominate this counter.
+					let trackSplitNotes: number = 0;
+					let trackLinkNotes: number = 0;
+					let trackRealNotes: number = 0;
+					let trackMultiBarSource: number = 0;
 					let pitchCount: number = 0;
 
 					// Pitch bend and expression tracking (reset per track)
@@ -873,7 +916,10 @@ export class ImportPrompt extends BasePrompt {
 						}
 					}
 					function updateCurrentMidiNoteSize(midiTick: number) {
-						while (noteSizeEventIndex < noteSizeEvents[midiChannel].length && noteSizeEvents[midiChannel][noteSizeEventIndex].midiTick <= midiTick) {
+						while (
+							noteSizeEventIndex < noteSizeEvents[midiChannel].length &&
+							noteSizeEvents[midiChannel][noteSizeEventIndex].midiTick <= midiTick
+						) {
 							currentMidiNoteSize = noteSizeEvents[midiChannel][noteSizeEventIndex].size;
 							noteSizeEventIndex++;
 						}
@@ -885,16 +931,6 @@ export class ImportPrompt extends BasePrompt {
 						// Ensure note has at least minimum duration after snapping
 						const rhythmMinDivision: number = Config.partsPerBeat / Config.rhythms[detectedRhythm].stepsPerBeat;
 						if (endPart <= startPart) endPart = startPart + Math.max(rhythmMinDivision, 3);
-
-						// If note barely extends past a bar boundary (<3 parts), snap to
-						// the boundary to avoid tiny continuation notes at the start
-						// of the next bar.
-						if (endPart > partsPerBar) {
-							const overflowIntoBar: number = endPart % partsPerBar;
-							if (overflowIntoBar > 0 && overflowIntoBar < 3) {
-								endPart = endPart - overflowIntoBar;
-							}
-						}
 
 						const startBar: number = Math.floor(startPart / partsPerBar);
 						const endBar: number = Math.ceil(endPart / partsPerBar);
@@ -959,6 +995,13 @@ export class ImportPrompt extends BasePrompt {
 							const note: Note = new Note(-1, noteStartPart, noteEndPart, Config.noteSizeMax, false);
 							note.pins.length = 0;
 							note.continuesLastPattern = createdNote && noteStartPart === 0;
+							if (!createdNote) {
+								trackRealNotes++;
+								if (endBar - startBar > 1) trackMultiBarSource++;
+							} else {
+								trackSplitNotes++;
+								if (noteStartPart === 0) trackLinkNotes++;
+							}
 							createdNote = true;
 							updateCurrentMidiInterval(noteStartMidiTick);
 							updateCurrentMidiNoteSize(noteStartMidiTick);
@@ -1081,10 +1124,7 @@ export class ImportPrompt extends BasePrompt {
 							for (let pitchIndex: number = 0; pitchIndex < Math.min(Config.maxChordSize, dnote.pitches.length); pitchIndex++) {
 								let heldPitch: number = dnote.pitches[pitchIndex + Math.max(0, dnote.pitches.length - Config.maxChordSize)] * midiIntervalScale;
 								if (preset != null && preset.midiSubharmonicOctaves !== undefined) heldPitch -= 12 * preset.midiSubharmonicOctaves;
-								const shiftedPitch: number = Math.max(
-									minPitch,
-									Math.min(maxPitch, Math.round((heldPitch + heldPitchOffset) / intervalScale)),
-								);
+								const shiftedPitch: number = Math.max(minPitch, Math.min(maxPitch, Math.round((heldPitch + heldPitchOffset) / intervalScale)));
 								if (note.pitches.indexOf(shiftedPitch) === -1) {
 									note.pitches.push(shiftedPitch);
 									const weight: number = note.end - note.start;
@@ -1100,6 +1140,11 @@ export class ImportPrompt extends BasePrompt {
 						const averagePitch: number = pitchSum / pitchCount;
 						channel.octave = isNoiseChannel || isModChannel ? 0 : Math.max(0, Math.min(Config.pitchOctaves - 1, Math.floor(averagePitch / 12)));
 					}
+					console.log(
+						`[MIDI Import]   track: real=${trackRealNotes} multiBarSource=${trackMultiBarSource} ` +
+							`split=${trackSplitNotes} barLinks=${trackLinkNotes} ` +
+							`totalEmitted=${trackRealNotes + trackSplitNotes} (split adds ${trackSplitNotes} notes)`,
+					);
 				}
 			}
 		}
@@ -1142,15 +1187,18 @@ export class ImportPrompt extends BasePrompt {
 					if (noteStartPart < noteEndPart) {
 						if (currentBar !== bar || pattern == null) {
 							currentBar++;
-							while (currentBar < bar) { tempoModChannel.bars[currentBar] = 0; currentBar++; }
+							while (currentBar < bar) {
+								tempoModChannel.bars[currentBar] = 0;
+								currentBar++;
+							}
 							pattern = new Pattern();
 							tempoModChannel.patterns.push(pattern);
 							tempoModChannel.bars[currentBar] = tempoModChannel.patterns.length;
-							pattern.instruments[0] = 0; pattern.instruments.length = 1;
+							pattern.instruments[0] = 0;
+							pattern.instruments.length = 1;
 						}
 						const realBPM: number = Math.round(microsecondsPerMinute / change.microsecondsPerBeat);
-						const newBPM = Math.max(Config.tempoMin, Math.min(Config.tempoMax,
-							realBPM - Config.modulators.dictionary["tempo"].convertRealFactor));
+						const newBPM = Math.max(Config.tempoMin, Math.min(Config.tempoMax, realBPM - Config.modulators.dictionary["tempo"].convertRealFactor));
 						pattern.notes.push(new Note(tempoModPitch, noteStartPart, noteEndPart, newBPM, false));
 					}
 				}
@@ -1200,7 +1248,10 @@ export class ImportPrompt extends BasePrompt {
 						note.end = Math.max(0, Math.min(partsPerBar, note.end));
 						if (note.start !== origStart || note.end !== origEnd) wasClamped = true;
 						// Skip zero-length or inverted notes
-						if (note.start >= note.end) { skippedNotes++; continue; }
+						if (note.start >= note.end) {
+							skippedNotes++;
+							continue;
+						}
 						// Clamp pitches to valid range
 						for (let i: number = 0; i < note.pitches.length; i++) {
 							const orig: number = note.pitches[i];
@@ -1208,7 +1259,10 @@ export class ImportPrompt extends BasePrompt {
 							if (note.pitches[i] !== orig) wasClamped = true;
 						}
 						// Skip notes with no valid pitches
-						if (note.pitches.length === 0) { skippedNotes++; continue; }
+						if (note.pitches.length === 0) {
+							skippedNotes++;
+							continue;
+						}
 						// Clamp pin times and sizes to valid ranges
 						const noteDuration: number = note.end - note.start;
 						for (const pin of note.pins) {
@@ -1232,10 +1286,37 @@ export class ImportPrompt extends BasePrompt {
 		validateChannelNotes(noiseChannels, Config.drumCount - 1, Config.noteSizeMax, "noise channels");
 		validateChannelNotes(modChannels, Config.modCount - 1, Config.tempoMax, "mod channels");
 
-		console.log(`[MIDI Import] key=${key} scale=${scale} (${Config.scales[scale].name}) rhythm=${detectedRhythm} (${Config.rhythms[detectedRhythm].name}) beatsPerBar=${beatsPerBar} tempo=${beatsPerMinute} BPM`);
+		console.log(
+			`[MIDI Import] key=${key} scale=${scale} (${Config.scales[scale].name}) rhythm=${detectedRhythm} (${Config.rhythms[detectedRhythm].name}) beatsPerBar=${beatsPerBar} tempo=${beatsPerMinute} BPM`,
+		);
 		console.log(`[MIDI Import] midiTicksPerBeat=${midiTicksPerBeat} midiTicksPerPart=${midiTicksPerPart} partsPerBar=${partsPerBar}`);
-		console.log(`[MIDI Import] ${pitchChannels.length} pitch channels, ${noiseChannels.length} noise channels, ${modChannels.length} mod channels, ${songTotalBars} bars`);
+		console.log(
+			`[MIDI Import] ${pitchChannels.length} pitch channels, ${noiseChannels.length} noise channels, ${modChannels.length} mod channels, ${songTotalBars} bars`,
+		);
 		if (tempoChanges.length > 1) console.log(`[MIDI Import] ${tempoChanges.length} tempo changes detected`);
+		// Sustain pedal (CC 64) diagnostics. The importer ignores CC 64
+		// behaviorally, so sustained notes keep their written duration and the
+		// bar-splitter fragments them. This log exposes the hold/release timing
+		// so the inflation can be attributed. Compare with libFluidLite, which
+		// defers note-off until pedal release instead.
+		if (sustainEvents.length > 0) {
+			const sustainByChannel: { [channel: number]: number } = {};
+			for (const ev of sustainEvents) sustainByChannel[ev.channel] = (sustainByChannel[ev.channel] ?? 0) + 1;
+			const holds: number = sustainEvents.filter((ev) => ev.value >= 64).length;
+			const releases: number = sustainEvents.length - holds;
+			console.log(
+				`[MIDI Import] CC 64 sustain: ${sustainEvents.length} events (${holds} hold / ${releases} release) ` +
+					`per-channel=${JSON.stringify(sustainByChannel)} -- currently IGNORED, notes keep written duration`,
+			);
+			const firstTick: number = sustainEvents[0].midiTick;
+			const lastTick: number = sustainEvents[sustainEvents.length - 1].midiTick;
+			console.log(
+				`[MIDI Import] sustain span: tick ${firstTick}..${lastTick} ` +
+					`(${(firstTick / midiTicksPerBeat).toFixed(2)}..${(lastTick / midiTicksPerBeat).toFixed(2)} beats)`,
+			);
+		} else {
+			console.log(`[MIDI Import] CC 64 sustain: none`);
+		}
 
 		class ChangeImportMidi extends ChangeGroup {
 			constructor(doc: SongDocument) {
@@ -1280,14 +1361,20 @@ export class ImportPrompt extends BasePrompt {
 							const origEnd: number = note.end;
 							note.start = Math.max(0, Math.min(finalMaxPart, note.start));
 							note.end = Math.max(0, Math.min(finalMaxPart, note.end));
-							if (note.start >= note.end) { finalFixed++; continue; }
+							if (note.start >= note.end) {
+								finalFixed++;
+								continue;
+							}
 							// If this note's start is behind the cursor, the writer
 							// would skip it; the reader would place it at simCurPart
 							// instead of note.start. Snap it to simCurPart.
 							if (note.start < simCurPart) {
 								note.start = Math.min(simCurPart, finalMaxPart - 1);
 								note.end = Math.max(note.start + 1, Math.min(finalMaxPart, note.end));
-								if (note.start >= note.end) { finalFixed++; continue; }
+								if (note.start >= note.end) {
+									finalFixed++;
+									continue;
+								}
 							}
 							if (note.end !== origEnd) finalFixed++;
 							const dur: number = note.end - note.start;
