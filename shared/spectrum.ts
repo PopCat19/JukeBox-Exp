@@ -52,27 +52,33 @@ export class spectrumCanvas {
 		this._initBands(48000);
 
 		this._EventUpdateCanvas = (directlinkL: Float32Array, directlinkR?: Float32Array): void => {
-			if (!directlinkR) return;
-
 			const ctx = canvas.getContext("2d") as CanvasRenderingContext2D;
-			// Match canvas resolution to CSS layout for sharp rendering
+			// Always clear first — prevents stale-pixel artifacting
+			// when directlinkR is missing (e.g. mod-controlled volume
+			// causes sparse callbacks).
+
+			// Match canvas resolution to CSS layout for sharp rendering.
+			// Use a 2px tolerance to prevent constant resizing from
+			// sub-pixel fluctuations at 60fps, which causes visible
+			// artifacting above the volume slider.
 			const displayW = Math.round(canvas.clientWidth * devicePixelRatio);
 			const displayH = Math.round(canvas.clientHeight * devicePixelRatio);
-			if (canvas.width !== displayW || canvas.height !== displayH) {
+			if (Math.abs(canvas.width - displayW) > 1 || Math.abs(canvas.height - displayH) > 1) {
 				canvas.width = displayW;
 				canvas.height = displayH;
 			}
 			const w = canvas.width;
 			const h = canvas.height;
 
-			// Clear — skip background fill on overlay to avoid tinting
-			// the track editor underneath.
+			// Clear
 			if (!this.transparentBg) {
 				ctx.fillStyle = this._cachedBgColor;
 				ctx.fillRect(0, 0, w, h);
 			} else {
 				ctx.clearRect(0, 0, w, h);
 			}
+
+			if (!directlinkR) return;
 
 			const sampleCount = directlinkL.length;
 			if (sampleCount < 4) return;
