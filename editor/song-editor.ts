@@ -3637,7 +3637,7 @@ export class SongEditor
 		// Song volume slider doesn't use a change, but it can still be modulated.
 		if ((this._ctrlHeld || this._shiftHeld) && this.doc.synth.playing) {
 			const prevVol = this.doc.prefs.volume;
-			// The slider only goes to 75, but the mod is 0-100 and in this instance we're using the value for a mod set.
+			// Slider range 0-75 mapped to mod range 0-100.
 			this.doc.prefs.volume = Math.round((Number(this._volumeSlider.input.value) * 4) / 3);
 			const changedPatterns = this._patternEditor.setModSettingsForChange(null, this);
 			const useVol: number = this.doc.prefs.volume;
@@ -3667,7 +3667,7 @@ export class SongEditor
 		// Song volume slider doesn't use a change, but it can still be modulated.
 		if ((this._ctrlHeld || this._shiftHeld) && this.doc.synth.playing) {
 			const prevVol = this.doc.prefs.volume;
-			// The slider only goes to 75, but the mod is 0-100 and in this instance we're using the value for a mod set.
+			// Slider range 0-75 mapped to mod range 0-100.
 			this.doc.prefs.volume = useVol;
 			this._patternEditor.setModSettingsForChange(null, this);
 			window.clearTimeout(this._modRecTimeout);

@@ -6515,7 +6515,7 @@ export const unboxCategories: InputPresetCategory[] = [
 	{
 		name: "UnBox Picked String",
 		presets: <DictionaryArray<Preset>>toNameMap([
-			// Picked String instruments I made/like. - Picked as the real instrument, not the type.
+			// Picked String instruments.
 			{
 				name: "Mandolin Body",
 				generalMidi: false,

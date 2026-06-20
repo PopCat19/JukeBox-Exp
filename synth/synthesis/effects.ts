@@ -698,8 +698,8 @@ export function buildEffectsSource(
 		effectsSource += `
 					
 				synth.sanitizeFilters(filters);
-				// The filter input here is downstream from another filter so we
-				// better make sure it's safe too.
+				// The filter input here is downstream from another filter;
+				// sanitize it before use.
 				if (!(initialFilterInput1 < 100) || !(initialFilterInput2 < 100)) {
 					initialFilterInput1 = 0.0;
 					initialFilterInput2 = 0.0;

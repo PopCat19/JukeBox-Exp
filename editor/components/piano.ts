@@ -254,8 +254,7 @@ export class Piano {
 	}
 
 	public releaseHoveredPreview(): void {
-		// Only release if the current play was started by the keybind
-		// handler, otherwise we would cancel a real mouse-drag note.
+		// Only release if started by keybind handler, to avoid canceling a real mouse-drag note.
 		if (this._previewByKeybind && this._playedPitch !== -1) {
 			this._doc.performance.removePerformedPitch(this._playedPitch);
 			this._playedPitch = -1;

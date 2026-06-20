@@ -1329,7 +1329,7 @@ export class Config {
 		{ name: "clang", expression: 0.4, basePitch: 69, pitchFilterMult: 1024.0, isSoft: false, samples: null },
 		{ name: "buzz", expression: 0.3, basePitch: 69, pitchFilterMult: 1024.0, isSoft: false, samples: null },
 		{ name: "hollow", expression: 1.5, basePitch: 96, pitchFilterMult: 1.0, isSoft: true, samples: null },
-		{ name: "shine", expression: 1.0, basePitch: 69, pitchFilterMult: 1024.0, isSoft: false, samples: null }, // Identical to buzz but louder. For now we're keeping it...
+		{ name: "shine", expression: 1.0, basePitch: 69, pitchFilterMult: 1024.0, isSoft: false, samples: null }, // Identical to buzz but louder.
 		{ name: "deep", expression: 1.5, basePitch: 120, pitchFilterMult: 1024.0, isSoft: true, samples: null },
 		{ name: "cutter", expression: 0.005, basePitch: 96, pitchFilterMult: 1024.0, isSoft: false, samples: null },
 		{ name: "metallic", expression: 1.0, basePitch: 96, pitchFilterMult: 1024.0, isSoft: false, samples: null },
@@ -1833,7 +1833,7 @@ export class Config {
 			associatedCarrier: [1, 2, 3, 4, 5, 6],
 			modulatedBy: [[], [], [], [], [], []],
 		},
-		// Section 4 where we take our own previous ones for 4op and it gets weird
+		// Section 4: own previous operators reused for 4op.
 		{
 			name: "1←(2 (3 (4 (5 (6",
 			carrierCount: 5,
@@ -1894,7 +1894,7 @@ export class Config {
 		// ultrabox
 		{ name: "20×", mult: 20.0, hzOffset: 0.0, amplitudeSign: 1.0 },
 		{ name: "~20×", mult: 20.0, hzOffset: -5.0, amplitudeSign: -1.0 },
-		// dogebox (maybe another mod also adds this? I got it from dogebox)
+		// dogebox (also present in other mods)
 		{ name: "25×", mult: 25.0, hzOffset: 0.0, amplitudeSign: 1.0 },
 		{ name: "50×", mult: 50.0, hzOffset: 0.0, amplitudeSign: 1.0 },
 		{ name: "75×", mult: 75.0, hzOffset: 0.0, amplitudeSign: 1.0 },
@@ -1937,8 +1937,7 @@ export class Config {
 		{ name: "decay 2", type: EnvelopeType.decay, speed: 7.0 },
 		{ name: "decay 3", type: EnvelopeType.decay, speed: 4.0 },
 		{ name: "wibble-1", type: EnvelopeType.wibble, speed: 128.0 },
-		// Changed speed from 96 to 128. I forgot to include a 96 earlier, and now it's too late to add one, so we have this now. Hopefully no one notices
-		// As noted by Slarmoo.
+		// Speed changed from 96 to 128 (96 was omitted, now too late to add).
 		{ name: "wibble 1", type: EnvelopeType.wibble, speed: 24.0 },
 		{ name: "wibble 2", type: EnvelopeType.wibble, speed: 12.0 },
 		{ name: "wibble 3", type: EnvelopeType.wibble, speed: 4.0 },
@@ -2793,7 +2792,7 @@ export class Config {
 			effect: EffectType.phaser,
 			compatibleInstruments: null,
 		},
-		// Controlling filter gain is less obvious and intuitive than controlling filter freq, so to avoid confusion I've disabled it for now...
+		// note filter gain disabled — controlling filter gain is less intuitive than controlling filter freq.
 		// {name: "noteFilterGain",         computeIndex:       EnvelopeComputeIndex.noteFilterGain0,        displayName: "n. filter # vol",  /*perNote:  true,*/ interleave: false, isFilter:  true, range: Config.filterGainRange,             maxCount: Config.filterMaxPoints, effect: EffectType.noteFilter, compatibleInstruments: null},
 		/*
         {name: "eqFilterAllFreqs",       computeIndex: InstrumentAutomationIndex.eqFilterAllFreqs,       displayName: "eq filter freqs",  perNote: false, interleave: false, isFilter:  true, range: null,                               maxCount: 1,    effect: null,                    compatibleInstruments: null},
@@ -3837,7 +3836,7 @@ export function centerWave(wave: Array<number>): Float32Array {
 	const average: number = sum / wave.length;
 	for (let i: number = 0; i < wave.length; i++) wave[i] -= average;
 	performIntegral(wave);
-	// The first sample should be zero, and we'll duplicate it at the end for easier interpolation.
+	// Duplicate first sample at end for easier interpolation.
 	wave.push(0);
 	return new Float32Array(wave);
 }
@@ -3865,9 +3864,8 @@ export function getPulseWidthRatio(pulseWidth: number): number {
 	return pulseWidth / (Config.pulseWidthRange * 2);
 }
 
-// The function arguments will be defined in FFT.ts, but I want
-// SynthConfig.ts to be at the top of the compiled JS so I won't directly
-// depend on FFT here. synth.ts will take care of importing FFT.ts.
+// Function arguments defined in FFT.ts. Config must be at top of compiled JS,
+// so FFT dependency is resolved by synth.ts instead.
 // function inverseRealFourierTransform(array: {length: number, [index: number]: number}, fullArrayLength: number): void;
 // function scaleElementsByFactor(array: {length: number, [index: number]: number}, factor: number): void;
 export function getDrumWave(index: number, inverseRealFourierTransform: Function | null, scaleElementsByFactor: Function | null): Float32Array {

@@ -165,7 +165,7 @@ export const analogousDrumMap: { [K: number]: AnalogousDrum } = {
 };
 
 export function midiVolumeToVolumeMult(volume: number): number {
-	// default midi volume is 100, pow(100/127,4)≈0.384 so I'm considering that the baseline volume.
+	// default midi volume is 100, pow(100/127,4)≈0.384 baseline volume.
 	return (volume / 127) ** 4.0 / 0.3844015376046128;
 }
 export function volumeMultToMidiVolume(volumeMult: number): number {

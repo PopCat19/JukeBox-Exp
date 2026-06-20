@@ -61,10 +61,8 @@ export function buildLoopableChipSource(voiceCount: number): string {
 
 	chipSource += `
             if (chipWaveLoopMode === 3 || chipWaveLoopMode === 2 || chipWaveLoopMode === 0) {
-                // If playing once or looping, we force the correct direction,
-                // since it shouldn't really change. This is mostly so that if
-                // the mode is changed midway through playback, it won't get
-                // stuck on the wrong direction.
+                // Force the correct direction for one-shot or looping playback.
+                // Prevents getting stuck on wrong direction when mode changes mid-playback.
                 if (!chipWavePlayBackwards) {`;
 	for (let i: number = 0; i < voiceCount; i++) {
 		chipSource += `
@@ -81,10 +79,8 @@ export function buildLoopableChipSource(voiceCount: number): string {
                 }
             }
             if (chipWaveLoopMode === 0 || chipWaveLoopMode === 1) {`;
-	// If looping or ping-ponging, we clear the completion status,
-	// as it's not relevant anymore. This is mostly so that if the
-	// mode is changed midway through playback, it won't get stuck
-	// on zero volume.
+	// Clear completion status for loop/ping-pong modes.
+	// Prevents getting stuck at zero volume when mode changes mid-playback.
 	for (let i: number = 0; i < voiceCount; i++) {
 		chipSource += `
                     chipWaveCompletion# = 0;

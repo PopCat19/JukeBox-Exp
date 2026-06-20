@@ -3300,7 +3300,7 @@ export function fromBase64StringImpl(song: SongLike, compressed: string, jsonFor
 								} else if (envelope === ENV_RANDOM) {
 									steps = clamp(1, Config.randomEnvelopeStepsMax + 1, base64CharCodeToInt[compressed.charCodeAt(charIndex++)]);
 									seed = clamp(1, Config.randomEnvelopeSeedMax + 1, base64CharCodeToInt[compressed.charCodeAt(charIndex++)]);
-									waveform = clamp(0, RandomEnvelopeTypes.length, base64CharCodeToInt[compressed.charCodeAt(charIndex++)]); // we use waveform for the random type as well
+									waveform = clamp(0, RandomEnvelopeTypes.length, base64CharCodeToInt[compressed.charCodeAt(charIndex++)]); // waveform field reused for random type
 								}
 							}
 							if (fromJukeBox || (fromSlarmoosBox && !beforeThree)) {
@@ -4139,7 +4139,7 @@ export function fromJsonObjectImpl(song: SongLike, jsonObject: any, jsonFormat: 
 	if (!jsonObject) return;
 
 	// const version: number = jsonObject["version"] | 0;
-	// if (version > LATEST_VERSION) return; // Go ahead and try to parse something from the future I guess? JSON is pretty easy-going!
+	// if (version > LATEST_VERSION) return; // Parse future versions too (JSON is forwards-compatible).
 
 	// Code for auto-detect mode; if statements that are lower down have 'higher priority'
 	if (jsonFormat === "auto") {
@@ -4206,10 +4206,8 @@ export function fromJsonObjectImpl(song: SongLike, jsonObject: any, jsonFormat: 
 						loadBuiltInSamples(2);
 					}
 				} else {
-					// When EditorConfig.customSamples is saved in the json
-					// export, it should be using the new syntax, unless
-					// the user has manually modified the URL, so we don't
-					// really need to parse the old syntax here.
+					// EditorConfig.customSamples in JSON export uses new syntax.
+					// Old syntax only appears if the URL was manually modified, skip it.
 					const parseOldSyntax: boolean = false;
 					parseAndConfigureCustomSample(url, customSampleUrls, customSamplePresets, sampleLoadingState, parseOldSyntax);
 				}
@@ -4226,9 +4224,7 @@ export function fromJsonObjectImpl(song: SongLike, jsonObject: any, jsonFormat: 
 			}
 		}
 	} else {
-		// No custom samples, so the only possibility at this point is that
-		// we need to load the legacy samples. Let's check whether that's
-		// necessary.
+		// No custom samples; check if legacy samples need loading.
 		let shouldLoadLegacySamples: boolean = false;
 		if (jsonObject.channels !== undefined) {
 			for (let channelIndex: number = 0; channelIndex < jsonObject.channels.length; channelIndex++) {
@@ -4276,8 +4272,7 @@ export function fromJsonObjectImpl(song: SongLike, jsonObject: any, jsonFormat: 
 			loadBuiltInSamples(0);
 			song.customSampleHandler?.setCustomSamples(["legacySamples"]);
 		} else {
-			// We don't need to load the legacy samples, but we may have
-			// leftover samples in memory. If we do, clear them.
+			// Legacy samples not needed; clear any leftover samples from memory.
 			const currentSamples = song.customSampleHandler?.getCustomSamples();
 			if (currentSamples != null && currentSamples.length > 0) {
 				// We need to reload anyway in this case, because (for now)

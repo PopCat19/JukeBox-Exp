@@ -95,7 +95,7 @@ export class InstrumentState {
 	public granularGrains: Grain[];
 	public granularGrainsLength: number;
 	public granularMaximumGrains: number;
-	public usesRandomGrainLocation: boolean = true; // eventually I might use the granular code for sample pitch shifting, but we'll see
+	public usesRandomGrainLocation: boolean = true;
 	public granularDelayLineDirty: boolean = false;
 	public computeGrains: boolean = true;
 
@@ -277,17 +277,15 @@ export class InstrumentState {
 
 	public allocateEchoBuffers(samplesPerTick: number, echoDelay: number) {
 		// account for tempo and delay automation changing delay length during a tick?
-		const safeEchoDelaySteps: number = Math.max(Config.echoDelayRange >> 1, echoDelay + 1); // The delay may be very short now, but if it increases later make sure we have enough sample history.
+		const safeEchoDelaySteps: number = Math.max(Config.echoDelayRange >> 1, echoDelay + 1); // Buffer for potential delay increase mid-tick.
 		const baseEchoDelayBufferSize: number = fittingPowerOfTwo(safeEchoDelaySteps * Config.echoDelayStepTicks * samplesPerTick);
-		const safeEchoDelayBufferSize: number = baseEchoDelayBufferSize * 2; // If the tempo or delay changes and we suddenly need a longer delay, make sure that we have enough sample history to accomodate the longer delay.
+		const safeEchoDelayBufferSize: number = baseEchoDelayBufferSize * 2; // Double buffer for tempo/delay automation extending delay length.
 
 		if (this.echoDelayLineL == null || this.echoDelayLineR == null) {
 			this.echoDelayLineL = new Float32Array(safeEchoDelayBufferSize);
 			this.echoDelayLineR = new Float32Array(safeEchoDelayBufferSize);
 		} else if (this.echoDelayLineL.length < safeEchoDelayBufferSize || this.echoDelayLineR.length < safeEchoDelayBufferSize) {
-			// The echo delay length may change while the song is playing if tempo changes,
-			// so buffers may need to be reallocated, but we don't want to lose any echoes
-			// so we need to copy the contents of the old buffer to the new one.
+			// Reallocate echo buffers on tempo change, preserving existing echo contents.
 			const newDelayLineL: Float32Array = new Float32Array(safeEchoDelayBufferSize);
 			const newDelayLineR: Float32Array = new Float32Array(safeEchoDelayBufferSize);
 			const oldMask: number = this.echoDelayLineL.length - 1;
@@ -562,7 +560,7 @@ export class InstrumentState {
 					grain.delayLinePosition = this.usesRandomGrainLocation
 						? (minDelayTimeInSeconds + (maxDelayTimeInSeconds - minDelayTimeInSeconds) * Math.random() * Math.random() * samplesPerSecond) %
 							(granularDelayLineLength - 1)
-						: minDelayTimeInSeconds; // dirty weighting toward lower numbers ; The clamp was clumping everything at the end, so I decided to use a modulo instead
+						: minDelayTimeInSeconds; // Weight toward lower numbers using squared random, modulo instead of clamp to avoid end-clumping.
 					if (Config.granularEnvelopeType === GranularEnvelopeType.parabolic) {
 						grain.initializeParabolicEnvelope(grain.maxAgeInSamples, 1.0);
 					} else if (Config.granularEnvelopeType === GranularEnvelopeType.raisedCosineBell) {
@@ -943,8 +941,7 @@ export class InstrumentState {
 			// good for audio worklet threads), compute the echo delay envelopes at tick (or
 			// part) boundaries to interpolate between two delay taps.
 
-			// slarmoo - I decided instead to enable and have the artifacts be part of the sound.
-			// Worst case scenario I add a toggle for if upstream it gets done differently
+			// Enable echo delay artifacts intentionally (they are part of the intended sound).
 			const echoDelayEnvelopeStart: number = envelopeStarts[EnvelopeComputeIndex.echoDelay];
 			const echoDelayEnvelopeEnd: number = envelopeEnds[EnvelopeComputeIndex.echoDelay];
 			let useEchoDelayStart: number = instrument.echoDelay * echoDelayEnvelopeStart;

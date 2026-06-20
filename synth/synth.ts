@@ -861,7 +861,7 @@ export class Synth {
 																// Substituting BPM for a step variable that moves with respect to the current tick, we get
 																// SamplesPerTick = SamplesPerSec / (BPMScalar * ( (EndTempo - StartTempo / TickLength) * t + StartTempo ) )
 																//
-																// When this equation is integrated from 0 to TickLength with respect to t, we get the following expression:
+																// Integrating from 0 to TickLength with respect to t:
 																//   Samples = - SamplesPerSec * TickLength * ( log( BPMScalar * EndTempo * TickLength ) - log( BPMScalar * StartTempo * TickLength ) ) / BPMScalar * ( StartTempo - EndTempo )
 
 																totalSamples +=
@@ -1809,7 +1809,7 @@ export class Synth {
 
 			// Handle next bar mods if they were set
 			if (this.wantToSkip) {
-				// Unable to continue, as we have skipped back to a previously visited bar without generating new samples, which means we are infinitely skipping.
+				// Skipped back to a previously visited bar without generating new samples — infinite skip detected.
 				// In this case processing will return before the designated number of samples are processed. In other words, silence will be generated.
 				const barVisited: boolean = skippedBars.includes(this.bar);
 				if (barVisited && bufferIndex === firstSkippedBufferIndex) {
@@ -2021,8 +2021,7 @@ export class Synth {
 					outputDataR[i] = sampleR;
 					eqFilterVolume += eqFilterVolumeDelta;
 					this.sanitizeFilters(filtersL);
-					// The filter input here is downstream from another filter so we
-					// better make sure it's safe too.
+					// Filter input is downstream from another filter; sanitize before use.
 					if (!(initialFilterInput1L < 100) || !(initialFilterInput2L < 100)) {
 						initialFilterInput1L = 0.0;
 						initialFilterInput2L = 0.0;
@@ -2138,7 +2137,7 @@ export class Synth {
 							}
 						}
 
-						// annoyingly arp speed is calculated in a completely separate place from everything else, and thus we need to run compute envelopes just for it.
+						// Arp speed calculated separately from envelopes; run compute envelopes for arp.
 						// This uses the instrumentState envelopeComputer, but is effectively per tone to the user given that arpeggios cause only one tone to play at a time
 						if (instrumentState.activeTones.count() > 0) {
 							const tone: Tone = instrumentState.activeTones.get(0);
@@ -2792,7 +2791,7 @@ export class Synth {
 					let forceContinueAtEnd: boolean = false;
 					let tonesInPrevNote: number = 0;
 					let tonesInNextNote: number = 0;
-					// When starting playback mid-song, prevBar may be null even though we need to detect continue-prev.
+					// prevBar may be null when starting mid-song; detect continue-prev from effective previous bar.
 					// Determine effective previous bar for continue detection.
 					const effectivePrevBar: number | null = this.prevBar != null ? this.prevBar : this.bar > 0 ? this.bar - 1 : null;
 					if (note.start === 0) {
@@ -3238,9 +3237,7 @@ export class Synth {
 				const chipWaveLength = Config.rawRawChipWaves[instrument.chipWave].samples.length - 1;
 				const firstOffset = instrument.chipWaveStartOffset / chipWaveLength;
 				// const lastOffset = (chipWaveLength - 0.01) / chipWaveLength;
-				// @TODO: This is silly and I should actually figure out how to
-				// properly keep lastOffset as 1.0 and not get it wrapped back
-				// to 0 once it's in `Synth.loopableChipSynth`.
+				// @TODO: Keep lastOffset as 1.0 without wrap-back to 0 in loopableChipSynth.
 				const lastOffset = 0.999999999999999;
 				for (let i = 0; i < Config.maxPitchOrOperatorCount; i++) {
 					tone.phases[i] = instrument.chipWavePlayBackwards ? Math.max(0, Math.min(lastOffset, firstOffset)) : Math.max(0, firstOffset);
@@ -3694,7 +3691,7 @@ export class Synth {
 			point.type = FilterType.lowPass;
 			point.gain = FilterControlPoint.getRoundedSettingValueFromLinearGain(0.5);
 			point.freq = FilterControlPoint.getRoundedSettingValueFromHz(8000.0);
-			// Drumset envelopes are warped to better imitate the legacy simplified 2nd order lowpass at ~48000Hz that I used to use.
+			// Drumset envelopes warped to imitate the legacy simplified 2nd order lowpass at ~48000Hz.
 			point.toCoefficients(tempFilterStartCoefficients, this.samplesPerSecond, drumsetFilterEnvelopeStart * (1.0 + drumsetFilterEnvelopeStart), 1.0);
 			point.toCoefficients(tempFilterEndCoefficients, this.samplesPerSecond, drumsetFilterEnvelopeEnd * (1.0 + drumsetFilterEnvelopeEnd), 1.0);
 			if (tone.noteFilters.length === tone.noteFilterCount) {

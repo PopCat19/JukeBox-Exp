@@ -152,8 +152,7 @@ export function removeRedundantPins(pins: NotePin[]): void {
 }
 
 export function projectNoteIntoBar(oldNote: Note, timeOffset: number, noteStartPart: number, noteEndPart: number, newNotes: Note[]): void {
-	// Create a new note, and interpret the pitch bend and size events
-	// to determine where we need to insert pins to control interval and volume.
+	// Create a new note from pitch bend and size events to determine pin insertion points for interval and volume.
 	const newNote: Note = new Note(-1, noteStartPart, noteEndPart, Config.noteSizeMax, false);
 	newNote.pins.length = 0;
 	newNote.pitches.length = 0;

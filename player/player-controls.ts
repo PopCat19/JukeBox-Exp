@@ -33,17 +33,12 @@ export class PlayerControls {
 	// eslint-disable-next-line @typescript-eslint/no-unnecessary-type-parameters
 	private removeFromUnorderedArray<T>(array: T[], index: number): void {
 		if (array.length < 1) {
-			// Don't need to do anything when `array` is empty.
 			return;
 		}
 		if (index === array.length - 1) {
-			// Trivial case.
 			array.pop();
 		} else if (index >= 0 && index < array.length - 1) {
-			// The idea here is that we want to remove an element from the array
-			// quickly, and the fastest way to do that is to use `array.pop()`. As
-			// the name of this function says, we assume `array` to be unordered,
-			// so this trick is okay to do.
+			// Swap with last element and pop for O(1) removal. Only valid for unordered arrays.
 			const lastElement: T = array.pop()!;
 			array[index] = lastElement;
 		}
@@ -273,7 +268,7 @@ export class PlayerControls {
 	}
 
 	public onCopyClicked(): void {
-		// Set as any to allow compilation without clipboard types (since, uh, I didn't write this bit and don't know the proper types library) -jummbus
+		// Set as any to allow compilation without clipboard types.
 		let nav: any;
 		nav = navigator;
 

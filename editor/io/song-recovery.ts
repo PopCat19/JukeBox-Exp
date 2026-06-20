@@ -40,7 +40,7 @@ export function versionToKey(version: RecoveredVersion): string {
 }
 
 export function generateUid(): string {
-	// Not especially robust, but simple and effective!
+	// Simple unique ID generation using random base32.
 	return ((Math.random() * (-1 >>> 0)) >>> 0).toString(32);
 }
 

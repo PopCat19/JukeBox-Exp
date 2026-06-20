@@ -105,7 +105,7 @@ class BeepBoxAudioWorkletProcessor extends AudioWorkletProcessor {
       this._offset += toCopy;
       written += toCopy;
 
-      // If we've consumed the entire buffer, shift it off the queue
+      // Buffer consumed, shift off queue.
       if (this._offset >= buf.left.length) {
         this._queue.shift();
         this._offset = 0;

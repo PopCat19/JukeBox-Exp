@@ -350,7 +350,7 @@ export class Instrument {
 		}
 		if (legacyFeedbackEnv === undefined) legacyFeedbackEnv = Config.envelopes.dictionary.none;
 
-		// The "punch" envelope is special: it goes *above* the chosen cutoff. But if the cutoff was already at the max, it couldn't go any higher... except in the current version of BeepBox I raised the max cutoff so it *can* but then it sounds different, so to preserve the original sound let's just remove the punch envelope.
+		// The "punch" envelope goes above the chosen cutoff. If cutoff is at max, removing the punch envelope preserves original sound.
 		const legacyFilterCutoffRange: number = 11;
 		const cutoffAtMax: boolean = legacyCutoffSetting === legacyFilterCutoffRange - 1;
 		if (cutoffAtMax && legacyFilterEnv.type === EnvelopeType.punch) {
@@ -1415,7 +1415,7 @@ export class Instrument {
 					operator.amplitude = 0;
 				}
 				if (operatorObject.waveform !== undefined) {
-					// If the json is from GB, we override the last two waves to be sine to account for a bug
+					// Override last two waves to sine for goldbox format (bug workaround).
 					if (format === "goldbox" && j > 3) {
 						operator.waveform = 0;
 						continue;

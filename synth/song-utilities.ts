@@ -316,7 +316,7 @@ export function parseAndConfigureCustomSample(
 			customSamplePresetSettings.chipWaveStartOffset = presetChipWaveStartOffset != null ? presetChipWaveStartOffset : 0;
 		}
 		const customSamplePreset: PresetLike = {
-			index: 0, // This should be overwritten by toNameMap, in our caller.
+			index: 0, // Overwritten by toNameMap in the caller.
 			name: name,
 			midiProgram: 80,
 			settings: customSamplePresetSettings,

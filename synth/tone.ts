@@ -61,7 +61,7 @@ export class Tone {
 	public decimalOffset: number = 0.0;
 	public supersawDynamism: number = 0.0;
 	public supersawDynamismDelta: number = 0.0;
-	public supersawUnisonDetunes: number[] = []; // These can change over time, but slowly enough that I'm not including corresponding delta values within a tick run.
+	public supersawUnisonDetunes: number[] = []; // Changes slowly, no delta values needed within a tick run.
 	public supersawShape: number = 0.0;
 	public supersawShapeDelta: number = 0.0;
 	public supersawDelayLength: number = 0.0;

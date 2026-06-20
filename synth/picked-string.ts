@@ -116,9 +116,8 @@ export class PickedString {
 		const allPassGEnd: number = tempFilterEndCoefficients.b[0]; /* same as a[1] */
 		const allPassPhaseDelayEnd: number = -synth.tempFrequencyResponse.angle() / centerHarmonicEnd;
 
-		// 1st order shelf filters and 2nd order lowpass filters have differently shaped frequency
-		// responses, as well as adjustable shapes. I originally picked a 1st order shelf filter,
-		// but I kinda prefer 2nd order lowpass filters now and I designed a couple settings:
+		// 1st order shelf vs 2nd order lowpass: different frequency response shapes.
+		// Supports multiple brightness types (bright/shelf, normal/lowpass, resonant/3rd-order).
 		enum PickedStringBrightnessType {
 			bright, // 1st order shelf
 			normal, // 2nd order lowpass, rounded corner

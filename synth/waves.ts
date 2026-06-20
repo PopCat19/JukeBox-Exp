@@ -186,7 +186,7 @@ export class HarmonicsWaveState {
 
 		performIntegralOld(wave);
 
-		// The first sample should be zero, and we'll duplicate it at the end for easier interpolation.
+		// Duplicate first sample at end for easier interpolation.
 		wave[waveLength] = wave[0];
 
 		return wave;

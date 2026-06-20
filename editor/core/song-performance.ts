@@ -22,8 +22,8 @@ export class SongPerformance {
 	private _songKey: number = -1;
 	private _pitchesAreTemporary: boolean = false;
 	private _bassPitchesAreTemporary: boolean = false;
-	private readonly _recentlyAddedPitches: number[] = []; // Pitches that are rapidly added then removed within a minimum rhythm duration wouldn't get recorded until I explicitly track recently added notes and check if any are no longer held.
-	private readonly _recentlyAddedBassPitches: number[] = []; // Pitches that are rapidly added then removed within a minimum rhythm duration wouldn't get recorded until I explicitly track recently added notes and check if any are no longer held.
+	private readonly _recentlyAddedPitches: number[] = []; // Track rapidly added-then-removed pitches to ensure they get recorded.
+	private readonly _recentlyAddedBassPitches: number[] = []; // Same tracking for bass pitches.
 
 	private _songLengthWhenRecordingStarted: number = -1;
 	private _playheadPart: number = -1;

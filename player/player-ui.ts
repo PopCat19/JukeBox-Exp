@@ -22,7 +22,6 @@ export function getLocalStorage(key: string): string | null {
 	try {
 		return localStorage.getItem(key);
 	} catch (_error) {
-		// Ignore the error since we can't fix it.
 		return null;
 	}
 }
@@ -31,7 +30,6 @@ export function setLocalStorage(key: string, value: string): void {
 	try {
 		localStorage.setItem(key, value);
 	} catch (_error) {
-		// Ignore the error since we can't fix it.
 	}
 }
 

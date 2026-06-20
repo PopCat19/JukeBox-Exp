@@ -283,7 +283,6 @@ export class EnvelopeEditor {
 		for (let i = index; i < Config.maxEnvelopeCount; i++) {
 			if (i >= instrument.envelopeCount) {
 				if (this.extraSettingsDropdowns[i]) {
-					// make sure is not null so that we don't get an error
 					this.extraSettingsDropdowns[i].style.display = "none";
 				}
 				if (this.extraSettingsDropdownGroups[i]) {
@@ -400,7 +399,6 @@ export class EnvelopeEditor {
 				this.perEnvelopeSpeedGroups[i].style.display = "none";
 			} else {
 				if (this.extraSettingsDropdowns[i]) {
-					// make sure is not null so that we don't get an error
 					this.extraSettingsDropdowns[i].style.display = "none";
 				}
 				if (this.extraSettingsDropdownGroups[i]) {

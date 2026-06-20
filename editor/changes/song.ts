@@ -131,7 +131,7 @@ export class ChangeLimiterSettings extends Change {
 	) {
 		super();
 
-		// This check causes issues with the state change handler because it gets superceded by whenupdated when the limiter prompt closes for some reason, causing the state to revert. I think it's because the notifier change needs to happen right as the prompt closes.
+		// This check causes state reversion when the limiter prompt closes; the notifier change must happen immediately.
 		// if (limitRatio != doc.song.limitRatio || compressionRatio != doc.song.compressionRatio || limitThreshold != doc.song.limitThreshold || compressionThreshold != doc.song.compressionThreshold || limitRise != doc.song.limitRise || limitDecay != doc.song.limitDecay) {
 
 		doc.song.limitRatio = limitRatio;

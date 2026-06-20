@@ -521,8 +521,6 @@ export class Selection {
 
 	private _remapToNoisePitches(oldPitches: number[]): number[] {
 		const newPitches: number[] = oldPitches.slice();
-		// There may be some very "pleasing" way to place these,
-		// but I'm not sure it's worth the effort.
 		newPitches.sort((a: number, b: number): number => a - b);
 		let lowestPitch: number = newPitches[0] % Config.drumCount;
 		const numberOfPitches: number = newPitches.length;
@@ -584,17 +582,13 @@ export class Selection {
 		this._doc.record(group);
 	}
 
-	// Note: this function is intentionally complex.
-	// Basically I'm trying to avoid accidentally modifying patterns that are used
-	// elsewhere in the song (unless we're just pasting a single pattern) but I'm
-	// also trying to reuse patterns where it makes sense to do so, especially
-	// in the same channel it was copied from.
+	// Avoid accidentally modifying patterns used elsewhere in the song.
+	// Reuse patterns where it makes sense, especially in the same channel.
 	public pasteNotes(): void {
 		const selectionCopy: SelectionCopy | null = JSON.parse(String(window.localStorage.getItem("selectionCopy")));
 
-		// localStorage empty — try the system clipboard (Figma-style cross-tab).
-		// clipboard.readText() is async, so we cache into localStorage for the
-		// next keystroke and paste immediately.
+		// localStorage empty — try system clipboard (Figma-style cross-tab).
+		// clipboard.readText() is async; cache into localStorage for next keystroke.
 		if (selectionCopy == null && navigator.clipboard && navigator.clipboard.readText) {
 			navigator.clipboard
 				.readText()
