@@ -213,6 +213,7 @@ export class ImportPrompt extends BasePrompt {
 		let numSharps: number = 0;
 		let isMinor: boolean = false;
 		let foundKeySignature: boolean = false;
+		let keySignatureCount: number = 0;
 
 		let currentMidiTick: number = 0;
 		while (true) {
@@ -398,6 +399,7 @@ export class ImportPrompt extends BasePrompt {
 										numSharps = track.reader.readInt8();
 										isMinor = track.reader.readUint8() === 1;
 										foundKeySignature = true;
+										keySignatureCount++;
 										track.reader.skipBytes(length - 2);
 									} else {
 										track.reader.skipBytes(length);
@@ -468,7 +470,10 @@ export class ImportPrompt extends BasePrompt {
 		// === Scale Detection ===
 		// Use key signature if present, otherwise analyze pitch classes
 		let scale: number = 0;
-		if (foundKeySignature) {
+		// Only use key signature for scale/key if the MIDI file has exactly one
+		// key signature. If it modulates between keys (2+ changes), fall back to
+		// pitch class analysis instead.
+		if (foundKeySignature && keySignatureCount <= 1) {
 			scale = isMinor ? 2 : 1; // Minor or Major
 		} else {
 			const pitchClassCounts: number[] = new Array(12).fill(0);
