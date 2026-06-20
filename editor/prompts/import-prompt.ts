@@ -212,6 +212,7 @@ export class ImportPrompt extends BasePrompt {
 		let beatsPerBar: number = 8;
 		let numSharps: number = 0;
 		let isMinor: boolean = false;
+		let foundKeySignature: boolean = false;
 
 		let currentMidiTick: number = 0;
 		while (true) {
@@ -396,6 +397,7 @@ export class ImportPrompt extends BasePrompt {
 									} else if (message === MidiMetaEventMessage.keySignature) {
 										numSharps = track.reader.readInt8();
 										isMinor = track.reader.readUint8() === 1;
+										foundKeySignature = true;
 										track.reader.skipBytes(length - 2);
 									} else {
 										track.reader.skipBytes(length);
@@ -463,12 +465,202 @@ export class ImportPrompt extends BasePrompt {
 		while (key < 0) key += 12;
 		key = key % 12;
 
+		// === Scale Detection ===
+		// Use key signature if present, otherwise analyze pitch classes
+		let scale: number = 0;
+		if (foundKeySignature) {
+			scale = isMinor ? 2 : 1; // Minor or Major
+		} else {
+			const pitchClassCounts: number[] = new Array(12).fill(0);
+			for (let midiChannel: number = 0; midiChannel < 16; midiChannel++) {
+				if (midiChannel === 9) continue; // skip drums
+				for (const event of noteEvents[midiChannel]) {
+					if (event.on) pitchClassCounts[event.pitch % 12]++;
+				}
+			}
+			let bestScale: number = 0;
+			let bestScore: number = -Infinity;
+			for (let s: number = 0; s < Config.scales.length; s++) {
+				const flags: ReadonlyArray<boolean> = Config.scales[s].flags;
+				let score: number = 0;
+				for (let pc: number = 0; pc < 12; pc++) {
+					if (flags[pc]) score += pitchClassCounts[pc];
+					else score -= pitchClassCounts[pc] * 0.5;
+				}
+				if (score > bestScore) {
+					bestScore = score;
+					bestScale = s;
+				}
+			}
+			scale = bestScale;
+		}
+
+		// === Rhythm Detection ===
+		// Try coarsest rhythm first, fall back to freehand (÷24) for accuracy
+		function snapPartToRhythm(part: number, rhythmIndex: number): number {
+			const rhythm = Config.rhythms[rhythmIndex];
+			const minDivision: number = Config.partsPerBeat / rhythm.stepsPerBeat;
+			if (rhythm.roundUpThresholds != null) {
+				const beatStart: number = Math.floor(part / Config.partsPerBeat) * Config.partsPerBeat;
+				const remainder: number = part - beatStart;
+				let newTime: number = beatStart;
+				for (const threshold of rhythm.roundUpThresholds) {
+					if (remainder >= threshold) newTime += minDivision;
+					else break;
+				}
+				return newTime;
+			} else {
+				return Math.round(part / minDivision) * minDivision;
+			}
+		}
+
+		let detectedRhythm: number = Config.rhythms.length - 1; // default to freehand (÷24)
+		{
+			for (let r: number = 0; r < Config.rhythms.length; r++) {
+				const stepsPerBeat: number = Config.rhythms[r].stepsPerBeat;
+				const minDivision: number = Config.partsPerBeat / stepsPerBeat;
+				let allFit: boolean = true;
+				for (let midiChannel: number = 0; midiChannel < 16 && allFit; midiChannel++) {
+					for (const event of noteEvents[midiChannel]) {
+						const part: number = quantizeMidiTickToPart(event.midiTick);
+						const partInBeat: number = part % Config.partsPerBeat;
+						if (partInBeat % minDivision !== 0) {
+							allFit = false;
+							break;
+						}
+					}
+				}
+				if (allFit) {
+					detectedRhythm = r;
+					break;
+				}
+			}
+		}
+
+		// === Discrete Note Parsing ===
+		// Parse noteOn/noteOff pairs into discrete notes with start/end times
+		interface DiscreteNote {
+			startMidiTick: number;
+			endMidiTick: number;
+			pitches: number[];
+			velocity: number;
+			program: number;
+			instrumentVolume: number;
+			instrumentPan: number;
+		}
+
+		function parseDiscreteNotes(events: NoteEvent[]): DiscreteNote[] {
+			const notes: DiscreteNote[] = [];
+			const held: { [pitch: number]: DiscreteNote } = {};
+			for (const event of events) {
+				if (event.on) {
+					// If this pitch is already held, end the previous note first
+					if (held[event.pitch] !== undefined) {
+						const prev: DiscreteNote = held[event.pitch];
+						prev.endMidiTick = event.midiTick;
+						notes.push(prev);
+						delete held[event.pitch];
+					}
+					held[event.pitch] = {
+						startMidiTick: event.midiTick,
+						endMidiTick: -1,
+						pitches: [event.pitch],
+						velocity: event.velocity,
+						program: event.program,
+						instrumentVolume: event.instrumentVolume,
+						instrumentPan: event.instrumentPan,
+					};
+				} else {
+					if (held[event.pitch] !== undefined) {
+						const note: DiscreteNote = held[event.pitch];
+						note.endMidiTick = event.midiTick;
+						notes.push(note);
+						delete held[event.pitch];
+					}
+				}
+			}
+			// Handle notes that were never turned off
+			for (const pitch in held) {
+				const note: DiscreteNote = held[pitch];
+				if (note.endMidiTick === -1) {
+					note.endMidiTick = note.startMidiTick + midiTicksPerPart;
+					notes.push(note);
+				}
+			}
+			return notes;
+		}
+
+		// Group notes that start and end at the same time into chords
+		function groupChords(notes: DiscreteNote[]): DiscreteNote[] {
+			const sorted: DiscreteNote[] = notes.slice().sort((a, b) => a.startMidiTick - b.startMidiTick || a.endMidiTick - b.endMidiTick);
+			const grouped: DiscreteNote[] = [];
+			for (const note of sorted) {
+				const last: DiscreteNote | undefined = grouped[grouped.length - 1];
+				if (last && last.startMidiTick === note.startMidiTick && last.endMidiTick === note.endMidiTick && last.pitches.length < Config.maxChordSize) {
+					for (const p of note.pitches) {
+						if (last.pitches.indexOf(p) === -1) last.pitches.push(p);
+					}
+				} else {
+					grouped.push({
+						startMidiTick: note.startMidiTick,
+						endMidiTick: note.endMidiTick,
+					pitches: note.pitches.slice(),
+					velocity: note.velocity,
+					program: note.program,
+					instrumentVolume: note.instrumentVolume,
+					instrumentPan: note.instrumentPan,
+					});
+				}
+			}
+			return grouped;
+		}
+
+		// Assign notes to tracks so no two notes in the same track overlap in time
+		// Each track becomes a separate editor channel
+		function assignTracks(notes: DiscreteNote[]): DiscreteNote[][] {
+			const sorted: DiscreteNote[] = notes.slice().sort((a, b) => a.startMidiTick - b.startMidiTick || a.endMidiTick - b.endMidiTick);
+			const tracks: DiscreteNote[][] = [];
+			for (const note of sorted) {
+				let assigned: boolean = false;
+				for (const track of tracks) {
+					const last: DiscreteNote = track[track.length - 1];
+					if (last.endMidiTick <= note.startMidiTick) {
+						track.push(note);
+						assigned = true;
+						break;
+					}
+				}
+				if (!assigned) {
+					tracks.push([note]);
+				}
+			}
+			return tracks;
+		}
+
+		// === Drum Helper ===
+		// Find the closest mapped drum for unmapped MIDI drum pitches
+		function findClosestDrum(pitch: number): AnalogousDrum {
+			if (analogousDrumMap[pitch] !== undefined) return analogousDrumMap[pitch];
+			let closestPitch: number = 35;
+			let closestDist: number = Number.MAX_VALUE;
+			for (const drumPitchStr in analogousDrumMap) {
+				const drumPitch: number = Number(drumPitchStr);
+				const dist: number = Math.abs(drumPitch - pitch);
+				if (dist < closestDist) {
+					closestDist = dist;
+					closestPitch = drumPitch;
+				}
+			}
+			return analogousDrumMap[closestPitch];
+		}
+
+		// === Channel Building ===
 		const pitchChannels: Channel[] = [];
 		const noiseChannels: Channel[] = [];
 		const modChannels: Channel[] = [];
 		for (let midiChannel: number = 0; midiChannel < 16; midiChannel++) {
 			if (noteEvents[midiChannel].length === 0) continue;
-			const channel: Channel = new Channel();
+
 			const channelPresetValue: number | null = EditorConfig.midiProgramToPresetValue(noteEvents[midiChannel][0].program);
 			const channelPreset: Preset | null = channelPresetValue == null ? null : EditorConfig.valueToPreset(channelPresetValue);
 			const isDrumsetChannel: boolean = midiChannel === 9;
@@ -479,26 +671,21 @@ export class ImportPrompt extends BasePrompt {
 			const midiIntervalScale: number = isNoiseChannel ? 0.5 : 1;
 			const channelMaxPitch: number = isNoiseChannel ? Config.drumCount - 1 : Config.maxPitch;
 
-			if (isNoiseChannel) {
-				if (isDrumsetChannel) noiseChannels.unshift(channel);
-				else noiseChannels.push(channel);
-			} else if (isModChannel) {
-				modChannels.push(channel);
-			} else {
-				pitchChannels.push(channel);
-			}
-
-			let currentVelocity: number = 1.0;
-			let currentProgram: number = 0;
-			let currentInstrumentVolume: number = 0;
-			let currentInstrumentPan: number = Config.panCenter;
-
 			if (isDrumsetChannel) {
+				// === Drum Channel Processing ===
+				// Drum notes are percussion triggers: duration comes from the drum map,
+				// not from MIDI note duration. Rhythm snapping is applied to onset times.
+				const channel: Channel = new Channel();
+				noiseChannels.unshift(channel);
+
 				const heldPitches: number[] = [];
 				let currentBar: number = -1;
 				let pattern: Pattern | null = null;
 				let prevEventPart: number = 0;
 				let setInstrumentVolume: boolean = false;
+				let currentVelocity: number = 1.0;
+				let currentInstrumentVolume: number = 0;
+				let currentInstrumentPan: number = Config.panCenter;
 				const presetValue: number = EditorConfig.nameToPresetValue("standard drumset")!;
 				const preset: Preset = EditorConfig.valueToPreset(presetValue)!;
 				const instrument: Instrument = new Instrument(false, false);
@@ -509,7 +696,8 @@ export class ImportPrompt extends BasePrompt {
 				for (let noteEventIndex: number = 0; noteEventIndex <= noteEvents[midiChannel].length; noteEventIndex++) {
 					const noMoreNotes: boolean = noteEventIndex === noteEvents[midiChannel].length;
 					const noteEvent: NoteEvent | null = noMoreNotes ? null : noteEvents[midiChannel][noteEventIndex];
-					const nextEventPart: number = noteEvent == null ? Number.MAX_SAFE_INTEGER : quantizeMidiTickToPart(noteEvent.midiTick);
+					const rawEventPart: number = noteEvent == null ? Number.MAX_SAFE_INTEGER : quantizeMidiTickToPart(noteEvent.midiTick);
+					const nextEventPart: number = noteEvent == null ? Number.MAX_SAFE_INTEGER : snapPartToRhythm(rawEventPart, detectedRhythm);
 					if (heldPitches.length > 0 && nextEventPart > prevEventPart && (noteEvent == null || noteEvent.on)) {
 						const bar: number = Math.floor(prevEventPart / partsPerBar);
 						const barStartPart: number = bar * partsPerBar;
@@ -536,7 +724,7 @@ export class ImportPrompt extends BasePrompt {
 						let maxDuration: number = 0;
 						let noteSize: number = 1;
 						for (const pitch of heldPitches) {
-							const drum: AnalogousDrum | undefined = analogousDrumMap[pitch];
+							const drum: AnalogousDrum = findClosestDrum(pitch);
 							if (drumFreqs.indexOf(drum.frequency) === -1) drumFreqs.push(drum.frequency);
 							noteSize = Math.max(noteSize, Math.round(drum.volume * currentVelocity));
 							minDuration = Math.min(minDuration, drum.duration);
@@ -545,16 +733,18 @@ export class ImportPrompt extends BasePrompt {
 						const duration: number = Math.min(maxDuration, Math.max(minDuration, 2));
 						const noteStartPart: number = prevEventPart - barStartPart;
 						const noteEndPart: number = Math.min(partsPerBar, Math.min(nextEventPart - barStartPart, noteStartPart + duration * 6));
-						const note: Note = new Note(-1, noteStartPart, noteEndPart, noteSize, true);
-						note.pitches.length = 0;
-						for (let pitchIndex: number = 0; pitchIndex < Math.min(Config.maxChordSize, drumFreqs.length); pitchIndex++) {
-							const heldPitch: number = drumFreqs[pitchIndex + Math.max(0, drumFreqs.length - Config.maxChordSize)];
-							if (note.pitches.indexOf(heldPitch) === -1) note.pitches.push(heldPitch);
+						if (noteStartPart < noteEndPart) {
+							const note: Note = new Note(-1, noteStartPart, noteEndPart, noteSize, true);
+							note.pitches.length = 0;
+							for (let pitchIndex: number = 0; pitchIndex < Math.min(Config.maxChordSize, drumFreqs.length); pitchIndex++) {
+								const heldPitch: number = drumFreqs[pitchIndex + Math.max(0, drumFreqs.length - Config.maxChordSize)];
+								if (note.pitches.indexOf(heldPitch) === -1) note.pitches.push(heldPitch);
+							}
+							pattern.notes.push(note);
 						}
-						pattern.notes.push(note);
 						heldPitches.length = 0;
 					}
-					if (noteEvent != null && noteEvent.on && analogousDrumMap[noteEvent.pitch] !== undefined) {
+					if (noteEvent != null && noteEvent.on) {
 						heldPitches.push(noteEvent.pitch);
 						prevEventPart = nextEventPart;
 						currentVelocity = noteEvent.velocity;
@@ -562,242 +752,268 @@ export class ImportPrompt extends BasePrompt {
 						currentInstrumentPan = noteEvent.instrumentPan;
 					}
 				}
+				while (channel.bars.length < songTotalBars) channel.bars.push(0);
 			} else {
-				let currentMidiInterval: number = 0.0;
-				let currentMidiNoteSize: number = Config.noteSizeMax;
-				let pitchBendEventIndex: number = 0;
-				let noteSizeEventIndex: number = 0;
-				function updateCurrentMidiInterval(midiTick: number) {
-					while (
-						pitchBendEventIndex < pitchBendEvents[midiChannel].length &&
-						pitchBendEvents[midiChannel][pitchBendEventIndex].midiTick <= midiTick
-					) {
-						currentMidiInterval = pitchBendEvents[midiChannel][pitchBendEventIndex].interval;
-						pitchBendEventIndex++;
+				// === Pitch/Noise/Mod Channel Processing with Track Isolation ===
+				// Parse discrete notes, group chords, and assign to non-overlapping tracks.
+				// Each track becomes a separate editor channel to prevent overlapping notes
+				// from corrupting song data (the editor doesn't permit mixed start-stop
+				// notes in a single channel).
+				const discreteNotes: DiscreteNote[] = parseDiscreteNotes(noteEvents[midiChannel]);
+				const grouped: DiscreteNote[] = groupChords(discreteNotes);
+				const tracks: DiscreteNote[][] = assignTracks(grouped);
+
+				for (const track of tracks) {
+					const channel: Channel = new Channel();
+					if (isNoiseChannel) {
+						noiseChannels.push(channel);
+					} else if (isModChannel) {
+						modChannels.push(channel);
+					} else {
+						pitchChannels.push(channel);
 					}
-				}
-				function updateCurrentMidiNoteSize(midiTick: number) {
-					while (noteSizeEventIndex < noteSizeEvents[midiChannel].length && noteSizeEvents[midiChannel][noteSizeEventIndex].midiTick <= midiTick) {
-						currentMidiNoteSize = noteSizeEvents[midiChannel][noteSizeEventIndex].size;
-						noteSizeEventIndex++;
+
+					const instrumentByProgram: Instrument[] = [];
+					let currentBar: number = -1;
+					let pattern: Pattern | null = null;
+					let pitchSum: number = 0;
+					let pitchCount: number = 0;
+
+					// Pitch bend and expression tracking (reset per track)
+					let currentMidiInterval: number = 0.0;
+					let currentMidiNoteSize: number = Config.noteSizeMax;
+					let pitchBendEventIndex: number = 0;
+					let noteSizeEventIndex: number = 0;
+
+					function updateCurrentMidiInterval(midiTick: number) {
+						while (
+							pitchBendEventIndex < pitchBendEvents[midiChannel].length &&
+							pitchBendEvents[midiChannel][pitchBendEventIndex].midiTick <= midiTick
+						) {
+							currentMidiInterval = pitchBendEvents[midiChannel][pitchBendEventIndex].interval;
+							pitchBendEventIndex++;
+						}
 					}
-				}
-				const instrumentByProgram: Instrument[] = [];
-				const heldPitches: number[] = [];
-				let currentBar: number = -1;
-				let pattern: Pattern | null = null;
-				let prevEventMidiTick: number = 0;
-				let prevEventPart: number = 0;
-				let pitchSum: number = 0;
-				let pitchCount: number = 0;
-				for (const noteEvent of noteEvents[midiChannel]) {
-					const nextEventMidiTick: number = noteEvent.midiTick;
-					const nextEventPart: number = quantizeMidiTickToPart(nextEventMidiTick);
-					if (heldPitches.length > 0 && nextEventPart > prevEventPart) {
-						const startBar: number = Math.floor(prevEventPart / partsPerBar);
-						const endBar: number = Math.ceil(nextEventPart / partsPerBar);
+					function updateCurrentMidiNoteSize(midiTick: number) {
+						while (noteSizeEventIndex < noteSizeEvents[midiChannel].length && noteSizeEvents[midiChannel][noteSizeEventIndex].midiTick <= midiTick) {
+							currentMidiNoteSize = noteSizeEvents[midiChannel][noteSizeEventIndex].size;
+							noteSizeEventIndex++;
+						}
+					}
+
+					for (const dnote of track) {
+						const startPart: number = snapPartToRhythm(quantizeMidiTickToPart(dnote.startMidiTick), detectedRhythm);
+						let endPart: number = snapPartToRhythm(quantizeMidiTickToPart(dnote.endMidiTick), detectedRhythm);
+						// Ensure note has at least minimum duration after snapping
+						const rhythmMinDivision: number = Config.partsPerBeat / Config.rhythms[detectedRhythm].stepsPerBeat;
+						if (endPart <= startPart) endPart = startPart + rhythmMinDivision;
+
+						const startBar: number = Math.floor(startPart / partsPerBar);
+						const endBar: number = Math.ceil(endPart / partsPerBar);
 						let createdNote: boolean = false;
+
+						const presetValue: number | null = EditorConfig.midiProgramToPresetValue(dnote.program);
+						const preset: Preset | null = presetValue == null ? null : EditorConfig.valueToPreset(presetValue);
+
 						for (let bar: number = startBar; bar < endBar; bar++) {
 							const barStartPart: number = bar * partsPerBar;
 							const barStartMidiTick: number = bar * beatsPerBar * midiTicksPerBeat;
 							const barEndMidiTick: number = (bar + 1) * beatsPerBar * midiTicksPerBeat;
-							const noteStartPart: number = Math.max(0, prevEventPart - barStartPart);
-							const noteEndPart: number = Math.min(partsPerBar, nextEventPart - barStartPart);
-							const noteStartMidiTick: number = Math.max(barStartMidiTick, prevEventMidiTick);
-							const noteEndMidiTick: number = Math.min(barEndMidiTick, nextEventMidiTick);
-							if (noteStartPart < noteEndPart) {
-								const presetValue: number | null = EditorConfig.midiProgramToPresetValue(currentProgram);
-								const preset: Preset | null = presetValue == null ? null : EditorConfig.valueToPreset(presetValue);
-								if (currentBar !== bar || pattern == null) {
-									currentBar++;
-									while (currentBar < bar) {
-										channel.bars[currentBar] = 0;
-										currentBar++;
-									}
-									pattern = new Pattern();
-									channel.patterns.push(pattern);
-									channel.bars[currentBar] = channel.patterns.length;
-									if (instrumentByProgram[currentProgram] === undefined) {
-										const instrument: Instrument = new Instrument(isNoiseChannel, isModChannel);
-										instrumentByProgram[currentProgram] = instrument;
-										if (presetValue != null && preset != null && (preset.isNoise === true) === isNoiseChannel) {
-											instrument.fromJsonObject(preset.settings, isNoiseChannel, isModChannel, false, false, 1);
-											instrument.preset = presetValue;
-										} else {
-											instrument.setTypeAndReset(
-												isModChannel ? InstrumentType.mod : isNoiseChannel ? InstrumentType.noise : InstrumentType.chip,
-												isNoiseChannel,
-												isModChannel,
-											);
-											instrument.chord = 0;
-										}
-										instrument.volume = currentInstrumentVolume;
-										instrument.pan = currentInstrumentPan;
-										instrument.panDelay = 0;
-										channel.instruments.push(instrument);
-									}
-									pattern.instruments[0] = channel.instruments.indexOf(instrumentByProgram[currentProgram]);
-									pattern.instruments.length = 1;
-								}
-								if (instrumentByProgram[currentProgram] !== undefined) {
-									instrumentByProgram[currentProgram].volume = Math.min(instrumentByProgram[currentProgram].volume, currentInstrumentVolume);
-									instrumentByProgram[currentProgram].pan = Math.min(instrumentByProgram[currentProgram].pan, currentInstrumentPan);
-								}
-								const note: Note = new Note(-1, noteStartPart, noteEndPart, Config.noteSizeMax, false);
-								note.pins.length = 0;
-								note.continuesLastPattern = createdNote && noteStartPart === 0;
-								createdNote = true;
-								updateCurrentMidiInterval(noteStartMidiTick);
-								updateCurrentMidiNoteSize(noteStartMidiTick);
-								const shiftedHeldPitch: number = heldPitches[0] * midiIntervalScale - channelBasePitch;
-								const initialBeepBoxPitch: number = Math.round((shiftedHeldPitch + currentMidiInterval) / intervalScale);
-								const heldPitchOffset: number = Math.round(currentMidiInterval - channelBasePitch);
-								const firstPin: NotePin = makeNotePin(0, 0, Math.round(currentVelocity * currentMidiNoteSize));
-								note.pins.push(firstPin);
-								interface PotentialPin {
-									part: number;
-									pitch: number;
-									size: number;
-									keyPitch: boolean;
-									keySize: boolean;
-								}
-								const potentialPins: PotentialPin[] = [
-									{ part: 0, pitch: initialBeepBoxPitch, size: firstPin.size, keyPitch: false, keySize: false },
-								];
-								let prevPinIndex: number = 0;
-								let prevPartPitch: number = (shiftedHeldPitch + currentMidiInterval) / intervalScale;
-								let prevPartSize: number = currentVelocity * currentMidiNoteSize;
-								for (let part: number = noteStartPart + 1; part <= noteEndPart; part++) {
-									const midiTick: number = Math.max(
-										noteStartMidiTick,
-										Math.min(noteEndMidiTick - 1, Math.round(midiTicksPerPart * (part + barStartPart))),
+							const noteStartPart: number = Math.max(0, startPart - barStartPart);
+							const noteEndPart: number = Math.min(partsPerBar, endPart - barStartPart);
+							const noteStartMidiTick: number = Math.max(barStartMidiTick, dnote.startMidiTick);
+							const noteEndMidiTick: number = Math.min(barEndMidiTick, dnote.endMidiTick);
+
+							if (noteStartPart >= noteEndPart) continue;
+
+							// Create/get instrument
+							if (instrumentByProgram[dnote.program] === undefined) {
+								const instrument: Instrument = new Instrument(isNoiseChannel, isModChannel);
+								instrumentByProgram[dnote.program] = instrument;
+								if (presetValue != null && preset != null && (preset.isNoise === true) === isNoiseChannel) {
+									instrument.fromJsonObject(preset.settings, isNoiseChannel, isModChannel, false, false, 1);
+									instrument.preset = presetValue;
+								} else {
+									instrument.setTypeAndReset(
+										isModChannel ? InstrumentType.mod : isNoiseChannel ? InstrumentType.noise : InstrumentType.chip,
+										isNoiseChannel,
+										isModChannel,
 									);
-									const noteRelativePart: number = part - noteStartPart;
-									const lastPart: boolean = part === noteEndPart;
-									updateCurrentMidiInterval(midiTick);
-									updateCurrentMidiNoteSize(midiTick);
-									const partPitch: number = (currentMidiInterval + shiftedHeldPitch) / intervalScale;
-									const partSize: number = currentVelocity * currentMidiNoteSize;
-									const nearestPitch: number = Math.round(partPitch);
-									const pitchIsNearInteger: boolean = Math.abs(partPitch - nearestPitch) < 0.01;
-									const pitchCrossedInteger: boolean =
-										Math.abs(prevPartPitch - Math.round(prevPartPitch)) < 0.01
-											? Math.abs(partPitch - prevPartPitch) >= 1.0
-											: Math.floor(partPitch) !== Math.floor(prevPartPitch);
-									const keyPitch: boolean = pitchIsNearInteger || pitchCrossedInteger;
-									const nearestSize: number = Math.round(partSize);
-									const sizeIsNearInteger: boolean = Math.abs(partSize - nearestSize) < 0.01;
-									const sizeCrossedInteger: boolean = Math.abs(prevPartSize - Math.round(prevPartSize))
-										? Math.abs(partSize - prevPartSize) >= 1.0
-										: Math.floor(partSize) !== Math.floor(prevPartSize);
-									const keySize: boolean = sizeIsNearInteger || sizeCrossedInteger;
-									prevPartPitch = partPitch;
-									prevPartSize = partSize;
-									if (keyPitch || keySize || lastPart) {
-										const currentPin: PotentialPin = {
-											part: noteRelativePart,
-											pitch: nearestPitch,
-											size: nearestSize,
-											keyPitch: keyPitch || lastPart,
-											keySize: keySize || lastPart,
-										};
-										const prevPin: PotentialPin = potentialPins[prevPinIndex];
-										let addPin: boolean = false;
-										let addPinAtIndex: number = Number.MAX_VALUE;
-										if (currentPin.keyPitch) {
-											const slope: number = (currentPin.pitch - prevPin.pitch) / (currentPin.part - prevPin.part);
-											let furthestIntervalDistance: number = Math.abs(slope);
-											let addIntervalPin: boolean = false;
-											let addIntervalPinAtIndex: number = Number.MAX_VALUE;
-											for (let potentialIndex: number = prevPinIndex + 1; potentialIndex < potentialPins.length; potentialIndex++) {
-												const potentialPin: PotentialPin = potentialPins[potentialIndex];
-												if (potentialPin.keyPitch) {
-													const interpolatedInterval: number = prevPin.pitch + slope * (potentialPin.part - prevPin.part);
-													const distance: number = Math.abs(interpolatedInterval - potentialPin.pitch);
-													if (furthestIntervalDistance < distance) {
-														furthestIntervalDistance = distance;
-														addIntervalPin = true;
-														addIntervalPinAtIndex = potentialIndex;
-													}
-												}
-											}
-											if (addIntervalPin) {
-												addPin = true;
-												addPinAtIndex = Math.min(addPinAtIndex, addIntervalPinAtIndex);
-											}
-										}
-										if (currentPin.keySize) {
-											const slope: number = (currentPin.size - prevPin.size) / (currentPin.part - prevPin.part);
-											let furthestSizeDistance: number = Math.abs(slope);
-											let addSizePin: boolean = false;
-											let addSizePinAtIndex: number = Number.MAX_VALUE;
-											for (let potentialIndex: number = prevPinIndex + 1; potentialIndex < potentialPins.length; potentialIndex++) {
-												const potentialPin: PotentialPin = potentialPins[potentialIndex];
-												if (potentialPin.keySize) {
-													const interpolatedSize: number = prevPin.size + slope * (potentialPin.part - prevPin.part);
-													const distance: number = Math.abs(interpolatedSize - potentialPin.size);
-													if (furthestSizeDistance < distance) {
-														furthestSizeDistance = distance;
-														addSizePin = true;
-														addSizePinAtIndex = potentialIndex;
-													}
-												}
-											}
-											if (addSizePin) {
-												addPin = true;
-												addPinAtIndex = Math.min(addPinAtIndex, addSizePinAtIndex);
-											}
-										}
-										if (addPin) {
-											const toBePinned: PotentialPin = potentialPins[addPinAtIndex];
-											note.pins.push(makeNotePin(toBePinned.pitch - initialBeepBoxPitch, toBePinned.part, toBePinned.size));
-											prevPinIndex = addPinAtIndex;
-										}
-										potentialPins.push(currentPin);
-									}
+									instrument.chord = 0;
 								}
-								const lastToBePinned: PotentialPin = potentialPins[potentialPins.length - 1];
-								note.pins.push(makeNotePin(lastToBePinned.pitch - initialBeepBoxPitch, lastToBePinned.part, lastToBePinned.size));
-								let maxPitch: number = channelMaxPitch;
-								let minPitch: number = 0;
-								for (const notePin of note.pins) {
-									maxPitch = Math.min(maxPitch, channelMaxPitch - notePin.interval);
-									minPitch = Math.min(minPitch, -notePin.interval);
-								}
-								note.pitches.length = 0;
-								for (let pitchIndex: number = 0; pitchIndex < Math.min(Config.maxChordSize, heldPitches.length); pitchIndex++) {
-									let heldPitch: number = heldPitches[pitchIndex + Math.max(0, heldPitches.length - Config.maxChordSize)] * midiIntervalScale;
-									if (preset != null && preset.midiSubharmonicOctaves !== undefined) heldPitch -= 12 * preset.midiSubharmonicOctaves;
-									const shiftedPitch: number = Math.max(
-										minPitch,
-										Math.min(maxPitch, Math.round((heldPitch + heldPitchOffset) / intervalScale)),
-									);
-									if (note.pitches.indexOf(shiftedPitch) === -1) {
-										note.pitches.push(shiftedPitch);
-										const weight: number = note.end - note.start;
-										pitchSum += shiftedPitch * weight;
-										pitchCount += weight;
-									}
-								}
-								pattern.notes.push(note);
+								instrument.volume = dnote.instrumentVolume;
+								instrument.pan = dnote.instrumentPan;
+								instrument.panDelay = 0;
+								channel.instruments.push(instrument);
 							}
+
+							// Create pattern if needed
+							if (currentBar !== bar || pattern == null) {
+								currentBar++;
+								while (currentBar < bar) {
+									channel.bars[currentBar] = 0;
+									currentBar++;
+								}
+								pattern = new Pattern();
+								channel.patterns.push(pattern);
+								channel.bars[currentBar] = channel.patterns.length;
+							}
+							pattern.instruments[0] = channel.instruments.indexOf(instrumentByProgram[dnote.program]);
+							pattern.instruments.length = 1;
+
+							// Update instrument volume/pan
+							if (instrumentByProgram[dnote.program] !== undefined) {
+								instrumentByProgram[dnote.program].volume = Math.min(instrumentByProgram[dnote.program].volume, dnote.instrumentVolume);
+								instrumentByProgram[dnote.program].pan = Math.min(instrumentByProgram[dnote.program].pan, dnote.instrumentPan);
+							}
+
+							// Build note with pitch bend and expression pins
+							const note: Note = new Note(-1, noteStartPart, noteEndPart, Config.noteSizeMax, false);
+							note.pins.length = 0;
+							note.continuesLastPattern = createdNote && noteStartPart === 0;
+							createdNote = true;
+							updateCurrentMidiInterval(noteStartMidiTick);
+							updateCurrentMidiNoteSize(noteStartMidiTick);
+							const shiftedHeldPitch: number = dnote.pitches[0] * midiIntervalScale - channelBasePitch;
+							const initialBeepBoxPitch: number = Math.round((shiftedHeldPitch + currentMidiInterval) / intervalScale);
+							const heldPitchOffset: number = Math.round(currentMidiInterval - channelBasePitch);
+							const firstPin: NotePin = makeNotePin(0, 0, Math.round(dnote.velocity * currentMidiNoteSize));
+							note.pins.push(firstPin);
+							interface PotentialPin {
+								part: number;
+								pitch: number;
+								size: number;
+								keyPitch: boolean;
+								keySize: boolean;
+							}
+							const potentialPins: PotentialPin[] = [
+								{ part: 0, pitch: initialBeepBoxPitch, size: firstPin.size, keyPitch: false, keySize: false },
+							];
+							let prevPinIndex: number = 0;
+							let prevPartPitch: number = (shiftedHeldPitch + currentMidiInterval) / intervalScale;
+							let prevPartSize: number = dnote.velocity * currentMidiNoteSize;
+							for (let part: number = noteStartPart + 1; part <= noteEndPart; part++) {
+								const midiTick: number = Math.max(
+									noteStartMidiTick,
+									Math.min(noteEndMidiTick - 1, Math.round(midiTicksPerPart * (part + barStartPart))),
+								);
+								const noteRelativePart: number = part - noteStartPart;
+								const lastPart: boolean = part === noteEndPart;
+								updateCurrentMidiInterval(midiTick);
+								updateCurrentMidiNoteSize(midiTick);
+								const partPitch: number = (currentMidiInterval + shiftedHeldPitch) / intervalScale;
+								const partSize: number = dnote.velocity * currentMidiNoteSize;
+								const nearestPitch: number = Math.round(partPitch);
+								const pitchIsNearInteger: boolean = Math.abs(partPitch - nearestPitch) < 0.01;
+								const pitchCrossedInteger: boolean =
+									Math.abs(prevPartPitch - Math.round(prevPartPitch)) < 0.01
+										? Math.abs(partPitch - prevPartPitch) >= 1.0
+										: Math.floor(partPitch) !== Math.floor(prevPartPitch);
+								const keyPitch: boolean = pitchIsNearInteger || pitchCrossedInteger;
+								const nearestSize: number = Math.round(partSize);
+								const sizeIsNearInteger: boolean = Math.abs(partSize - nearestSize) < 0.01;
+								const sizeCrossedInteger: boolean = Math.abs(prevPartSize - Math.round(prevPartSize))
+									? Math.abs(partSize - prevPartSize) >= 1.0
+									: Math.floor(partSize) !== Math.floor(prevPartSize);
+								const keySize: boolean = sizeIsNearInteger || sizeCrossedInteger;
+								prevPartPitch = partPitch;
+								prevPartSize = partSize;
+								if (keyPitch || keySize || lastPart) {
+									const currentPin: PotentialPin = {
+										part: noteRelativePart,
+										pitch: nearestPitch,
+										size: nearestSize,
+										keyPitch: keyPitch || lastPart,
+										keySize: keySize || lastPart,
+									};
+									const prevPin: PotentialPin = potentialPins[prevPinIndex];
+									let addPin: boolean = false;
+									let addPinAtIndex: number = Number.MAX_VALUE;
+									if (currentPin.keyPitch) {
+										const slope: number = (currentPin.pitch - prevPin.pitch) / (currentPin.part - prevPin.part);
+										let furthestIntervalDistance: number = Math.abs(slope);
+										let addIntervalPin: boolean = false;
+										let addIntervalPinAtIndex: number = Number.MAX_VALUE;
+										for (let potentialIndex: number = prevPinIndex + 1; potentialIndex < potentialPins.length; potentialIndex++) {
+											const potentialPin: PotentialPin = potentialPins[potentialIndex];
+											if (potentialPin.keyPitch) {
+												const interpolatedInterval: number = prevPin.pitch + slope * (potentialPin.part - prevPin.part);
+												const distance: number = Math.abs(interpolatedInterval - potentialPin.pitch);
+												if (furthestIntervalDistance < distance) {
+													furthestIntervalDistance = distance;
+													addIntervalPin = true;
+													addIntervalPinAtIndex = potentialIndex;
+												}
+											}
+										}
+										if (addIntervalPin) {
+											addPin = true;
+											addPinAtIndex = Math.min(addPinAtIndex, addIntervalPinAtIndex);
+										}
+									}
+									if (currentPin.keySize) {
+										const slope: number = (currentPin.size - prevPin.size) / (currentPin.part - prevPin.part);
+										let furthestSizeDistance: number = Math.abs(slope);
+										let addSizePin: boolean = false;
+										let addSizePinAtIndex: number = Number.MAX_VALUE;
+										for (let potentialIndex: number = prevPinIndex + 1; potentialIndex < potentialPins.length; potentialIndex++) {
+											const potentialPin: PotentialPin = potentialPins[potentialIndex];
+											if (potentialPin.keySize) {
+												const interpolatedSize: number = prevPin.size + slope * (potentialPin.part - prevPin.part);
+												const distance: number = Math.abs(interpolatedSize - potentialPin.size);
+												if (furthestSizeDistance < distance) {
+													furthestSizeDistance = distance;
+													addSizePin = true;
+													addSizePinAtIndex = potentialIndex;
+												}
+											}
+										}
+										if (addSizePin) {
+											addPin = true;
+											addPinAtIndex = Math.min(addPinAtIndex, addSizePinAtIndex);
+										}
+									}
+									if (addPin) {
+										const toBePinned: PotentialPin = potentialPins[addPinAtIndex];
+										note.pins.push(makeNotePin(toBePinned.pitch - initialBeepBoxPitch, toBePinned.part, toBePinned.size));
+										prevPinIndex = addPinAtIndex;
+									}
+									potentialPins.push(currentPin);
+								}
+							}
+							const lastToBePinned: PotentialPin = potentialPins[potentialPins.length - 1];
+							note.pins.push(makeNotePin(lastToBePinned.pitch - initialBeepBoxPitch, lastToBePinned.part, lastToBePinned.size));
+							let maxPitch: number = channelMaxPitch;
+							let minPitch: number = 0;
+							for (const notePin of note.pins) {
+								maxPitch = Math.min(maxPitch, channelMaxPitch - notePin.interval);
+								minPitch = Math.min(minPitch, -notePin.interval);
+							}
+							note.pitches.length = 0;
+							for (let pitchIndex: number = 0; pitchIndex < Math.min(Config.maxChordSize, dnote.pitches.length); pitchIndex++) {
+								let heldPitch: number = dnote.pitches[pitchIndex + Math.max(0, dnote.pitches.length - Config.maxChordSize)] * midiIntervalScale;
+								if (preset != null && preset.midiSubharmonicOctaves !== undefined) heldPitch -= 12 * preset.midiSubharmonicOctaves;
+								const shiftedPitch: number = Math.max(
+									minPitch,
+									Math.min(maxPitch, Math.round((heldPitch + heldPitchOffset) / intervalScale)),
+								);
+								if (note.pitches.indexOf(shiftedPitch) === -1) {
+									note.pitches.push(shiftedPitch);
+									const weight: number = note.end - note.start;
+									pitchSum += shiftedPitch * weight;
+									pitchCount += weight;
+								}
+							}
+							pattern.notes.push(note);
 						}
 					}
-					if (heldPitches.indexOf(noteEvent.pitch) !== -1) heldPitches.splice(heldPitches.indexOf(noteEvent.pitch), 1);
-					if (noteEvent.on) {
-						heldPitches.push(noteEvent.pitch);
-						currentVelocity = noteEvent.velocity;
-						currentProgram = noteEvent.program;
-						currentInstrumentVolume = noteEvent.instrumentVolume;
-						currentInstrumentPan = noteEvent.instrumentPan;
+					while (channel.bars.length < songTotalBars) channel.bars.push(0);
+					if (pitchCount > 0) {
+						const averagePitch: number = pitchSum / pitchCount;
+						channel.octave = isNoiseChannel || isModChannel ? 0 : Math.max(0, Math.min(Config.pitchOctaves - 1, Math.floor(averagePitch / 12)));
 					}
-					prevEventMidiTick = nextEventMidiTick;
-					prevEventPart = nextEventPart;
 				}
-				const averagePitch: number = pitchSum / pitchCount;
-				channel.octave = isNoiseChannel || isModChannel ? 0 : Math.max(0, Math.min(Config.pitchOctaves - 1, Math.floor(averagePitch / 12)));
 			}
-			while (channel.bars.length < songTotalBars) channel.bars.push(0);
 		}
 		if (tempoChanges.length > 1) {
 			const tempoModChannel = new Channel();
@@ -907,8 +1123,8 @@ export class ImportPrompt extends BasePrompt {
 				song.tempo = beatsPerMinute;
 				song.beatsPerBar = beatsPerBar;
 				song.key = key;
-				song.scale = 0;
-				song.rhythm = 2;
+				song.scale = scale;
+				song.rhythm = detectedRhythm;
 				song.layeredInstruments = false;
 				song.patternInstruments =
 					pitchChannels.some((channel) => channel.instruments.length > 1) || noiseChannels.some((channel) => channel.instruments.length > 1);
