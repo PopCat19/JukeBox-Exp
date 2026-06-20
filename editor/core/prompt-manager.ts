@@ -128,6 +128,30 @@ export class PromptManager {
 			this._mousePos = { x: e.clientX, y: e.clientY };
 		});
 
+		// Right-click on a hovered prompt closes it without closing
+		// other prompts or the browser context menu.
+		// Excludes input, button, select, textarea, and slider elements
+		// so their native context menu still works.
+		document.addEventListener("contextmenu", (e: MouseEvent) => {
+			const target = e.target as HTMLElement;
+			const tc = this._host.promptContainer;
+			if (!tc.contains(target)) return;
+			if (
+				target instanceof HTMLInputElement ||
+				target instanceof HTMLButtonElement ||
+				target instanceof HTMLSelectElement ||
+				target instanceof HTMLTextAreaElement ||
+				target.closest(".slider")
+			) return;
+			e.preventDefault();
+			for (const p of this._prompts) {
+				if (p.container.contains(target)) {
+					this.close(p);
+					return;
+				}
+			}
+		});
+
 		this._focusController = new PromptFocusController({
 			isDraggingPrompt: () => this._draggingPrompt,
 			getFocusedPrompt: () => this._focusedPrompt,
