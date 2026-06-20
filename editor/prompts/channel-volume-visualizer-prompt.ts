@@ -80,6 +80,9 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 	private readonly _channelDivs: Map<number, HTMLDivElement> = new Map();
 	// Store instrument spans for live updates: key is "channelIndex-instrumentIndex"
 	private readonly _instrumentSpans: Map<string, HTMLSpanElement> = new Map();
+	// Per-channel pitch spectrum overlay canvases
+	private readonly _channelSpectrumCanvases: Map<number, HTMLCanvasElement> = new Map();
+	private readonly _channelSpectrumCanvas2ds: Map<number, CanvasRenderingContext2D | null> = new Map();
 
 	private readonly _playPauseButton: HTMLButtonElement = button(
 		{
@@ -372,6 +375,50 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 				dbLabel.textContent = isFinite(peakDb) ? `Pk:${peakDb.toFixed(1)}${statsText}` : `Pk:-inf${statsText}`;
 			}
 
+			// Draw pitch spectrum overlay: vertical bars at active tone pitch positions
+			const spectrumCtx = this._channelSpectrumCanvas2ds.get(channelIndex);
+			if (spectrumCtx) {
+				const cvs = this._channelSpectrumCanvases.get(channelIndex);
+				if (cvs && cvs.parentElement) {
+					const dispW = Math.round(cvs.parentElement.clientWidth * devicePixelRatio);
+					const dispH = Math.round(cvs.parentElement.clientHeight * devicePixelRatio);
+					if (cvs.width !== dispW || cvs.height !== dispH) {
+						cvs.width = dispW;
+						cvs.height = dispH;
+					}
+					spectrumCtx.clearRect(0, 0, cvs.width, cvs.height);
+
+					// Collect active tone pitches
+					const pitches: number[] = [];
+					for (const instrState of channelState.instruments) {
+						const count = instrState.activeTones.count();
+						for (let t = 0; t < count; t++) {
+							const tone = instrState.activeTones.get(t);
+							for (let p = 0; p < tone.pitchCount; p++) {
+								if (tone.pitches[p] > 0) pitches.push(tone.pitches[p]);
+							}
+						}
+					}
+
+					if (pitches.length > 0) {
+						const w = cvs.width;
+						const h = cvs.height;
+						const minPitch = 36;
+						const maxPitch = 96;
+						const range = Math.max(1, maxPitch - minPitch);
+						const barW = Math.max(1.5, w / range);
+						const col = ColorConfig.getChannelColor(this._doc.song, channelIndex).primaryChannel;
+						for (const p of pitches) {
+							const px = ((Math.min(maxPitch, Math.max(minPitch, p)) - minPitch) / range) * w;
+							spectrumCtx.fillStyle = col;
+							spectrumCtx.globalAlpha = 0.5;
+							spectrumCtx.fillRect(px, 0, barW, h);
+						}
+						spectrumCtx.globalAlpha = 1.0;
+					}
+				}
+			}
+
 			// Update dim state: dim if P0
 			const channelDiv = this._channelDivs.get(channelIndex);
 			if (channelDiv) {
@@ -422,6 +469,8 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 		this._channelLastCaps.clear();
 		this._channelDbLabels.clear();
 		this._channelDivs.clear();
+		this._channelSpectrumCanvases.clear();
+		this._channelSpectrumCanvas2ds.clear();
 
 		const song = this._doc.song;
 		const synth = this._doc.synth;
@@ -511,7 +560,7 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 			);
 
 			const channelDiv = div({
-				style: `display: flex; flex-direction: column; padding: 4px 8px; min-width: 0; aspect-ratio: 1; overflow: hidden; border: 2px solid ${
+				style: `display: flex; flex-direction: column; padding: 4px 8px; min-width: 0; aspect-ratio: 1; overflow: hidden; position: relative; border: 2px solid ${
 					isMuted ? "var(--mute-button-normal)" : channelColors.primaryChannel
 				}; border-radius: var(--border-radius-medium); background: var(--editor-background); cursor: pointer; ${isMuted ? "opacity: 0.5;" : ""} ${isDimmed ? "opacity: 0.5;" : ""}`,
 			});
@@ -566,6 +615,16 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 
 			channelDiv.appendChild(headerDiv);
 			channelDiv.appendChild(volBarContainer);
+
+			// Pitch spectrum overlay canvas (positioned over the tile, pointer-events none)
+			const spectrumCanvas = document.createElement("canvas");
+			spectrumCanvas.width = 128;
+			spectrumCanvas.height = 16;
+			spectrumCanvas.style.cssText = "position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none;";
+			channelDiv.appendChild(spectrumCanvas);
+			this._channelSpectrumCanvases.set(i, spectrumCanvas);
+			this._channelSpectrumCanvas2ds.set(i, spectrumCanvas.getContext("2d"));
+
 			channelDiv.appendChild(dbLabel);
 
 			// Show instruments
