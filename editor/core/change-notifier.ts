@@ -11,6 +11,7 @@
 export class ChangeNotifier {
 	private _watchers: (() => void)[] = [];
 	private _dirty: boolean = false;
+	private _generation: number = 0;
 
 	public watch(watcher: () => void): void {
 		if (this._watchers.indexOf(watcher) === -1) {
@@ -27,6 +28,14 @@ export class ChangeNotifier {
 
 	public changed(): void {
 		this._dirty = true;
+		this._generation++;
+	}
+
+	// Monotonic counter incremented on every change(). Lets rAF-driven
+	// consumers detect that something changed even after notifyWatchers()
+	// clears the dirty flag, without watching the notifier directly.
+	public get generation(): number {
+		return this._generation;
 	}
 
 	public notifyWatchers(): void {

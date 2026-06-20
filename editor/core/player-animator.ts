@@ -24,6 +24,7 @@ export class PlayerAnimator {
 	private _barLabelCounter: number = 0;
 	private _cachedDuration: number = -1;
 	private _cachedBarCount: number = -1;
+	private _cachedGeneration: number = -1;
 
 	constructor(
 		private _doc: SongDocument,
@@ -54,11 +55,15 @@ export class PlayerAnimator {
 			this._barLabelCounter = BAR_LABEL_THROTTLE;
 			const bar = Math.floor(this._doc.synth.playhead) + 1;
 			const total = this._doc.song.barCount;
-			// Recompute total duration when bar count changes
-			if (this._cachedDuration < 0 || this._doc.song.barCount !== this._cachedBarCount) {
+			// Recompute total duration when the bar count changes or any song edit
+			// happened (covers tempo mods and next-bar skip mods added/removed
+			// without a bar-count change, which also alter the real duration).
+			const generation = this._doc.notifier.generation;
+			if (this._cachedDuration < 0 || this._doc.song.barCount !== this._cachedBarCount || generation !== this._cachedGeneration) {
 				const totalSamples = this._doc.synth.getTotalSamples(true, true, 0);
 				this._cachedDuration = totalSamples > 0 ? totalSamples / this._doc.synth.samplesPerSecond : 0;
 				this._cachedBarCount = this._doc.song.barCount;
+				this._cachedGeneration = generation;
 			}
 			// Elapsed = actual samples rendered (respects tempo mods)
 			const elapsed = this._doc.synth.totalSamplesRendered / this._doc.synth.samplesPerSecond;

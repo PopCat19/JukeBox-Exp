@@ -671,6 +671,23 @@ export class Synth {
 		// Compute the window to be checked (start bar to end bar)
 		const startBar: number = enableIntro ? 0 : this.song.loopStart;
 		const endBar: number = enableOutro ? this.song.barCount : this.song.loopStart + this.song.loopLength;
+		return this._getTotalSamplesCore(startBar, endBar, loop, enableIntro, enableOutro);
+	}
+
+	// Mod-aware sample count from bar 0 up to (not including) the given bar.
+	// Used to seed totalSamplesRendered on play and navigation so the elapsed
+	// counter stays accurate and continuous across tempo mods and next-bar skips.
+	// Mirrors getTotalSamples with startBar=0, no loop, full song window.
+	public getSamplesUpToBar(bar: number): number {
+		if (this.song == null) return 0;
+		const clampedBar: number = Math.max(0, Math.min(bar, this.song.barCount));
+		return this._getTotalSamplesCore(0, clampedBar, 0, true, true);
+	}
+
+	private _getTotalSamplesCore(startBar: number, endBar: number, loop: number, enableIntro: boolean, enableOutro: boolean): number {
+		if (this.song == null) {
+			return -1;
+		}
 		let hasTempoMods: boolean = false;
 		let hasNextBarMods: boolean = false;
 		let prevTempo: number = this.song.tempo;
@@ -866,7 +883,11 @@ export class Synth {
 			return Math.ceil(totalSamples);
 		} else {
 			// No tempo or next bar mods... phew! Just calculate normally.
-			return this.getSamplesPerBar() * this.getTotalBars(enableIntro, enableOutro, loop);
+			// Count bars actually traversed in the window: for looped playback this
+			// matches getTotalBars (intro + loop*(loop+1) + outro); for an unlooped
+			// slice (e.g. getSamplesUpToBar) it is just endBar - startBar.
+			const barCount: number = loop === 0 ? endBar - startBar : this.getTotalBars(enableIntro, enableOutro, loop);
+			return this.getSamplesPerBar() * barCount;
 		}
 	}
 
@@ -1143,7 +1164,10 @@ export class Synth {
 		await this.resumeAudioContext();
 		this.warmUpSynthesizer(this.song);
 		this.isPlayingSong = true;
-		this.totalSamplesRendered = 0;
+		// Seed the elapsed counter at the current bar so the duration display
+		// continues from where navigation left it instead of resetting to 0:00.
+		// getSamplesUpToBar is mod-aware (tempo and next-bar skip mods).
+		this.totalSamplesRendered = this.getSamplesUpToBar(this.bar);
 		this._dbg("isPlayingSong set to true, playhead:", this.playheadInternal, "bar:", this.bar);
 		this._primeWorklet();
 	}
@@ -1348,7 +1372,10 @@ export class Synth {
 		this.bar = bar;
 		this.resetEffects();
 		this.playheadInternal = this.bar;
-		this.totalSamplesRendered = Math.floor(this.getSamplesPerBar() * bar);
+		// Use the mod-aware sample count so the elapsed counter is accurate for
+		// songs with tempo mods or next-bar skip mods, not just a flat per-bar
+		// estimate.
+		this.totalSamplesRendered = this.getSamplesUpToBar(bar);
 	}
 
 	public snapToBar(): void {
