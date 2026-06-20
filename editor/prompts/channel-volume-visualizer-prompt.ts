@@ -29,12 +29,16 @@ const FG_BANDS = 151;
 // ~9-10 bands each and read clearly at the card width.
 const BAR_COUNT = 16;
 // Fixed soft-compression reference (same as main spectrum FG_REF). The bar
-// height is min(1, 2*avg/(avg+FG_REF)), so a band reaches the ceiling only at
+// height is min(1, 2*v/(v+FG_REF)), so a band reaches the ceiling only at
 // ~FG_REF in magnitude. The per-channel ring holds the channel's own isolated
-// diff at its true sample amplitude (a solo full-scale channel writes +/-1),
-// so no extra gain is needed: bars respond to the channel's actual level with
-// the same compression curve as the main spectrum.
+// diff at its true sample amplitude (a solo full-scale channel writes +/-1).
 const FG_REF = 0.04;
+// Display-only gain for the spectrum bars (not the meter). The per-channel
+// isolated signal is quieter than the main spectrum's full-mix source, so a
+// modest fixed lift makes the bars read visibly without affecting the peak
+// meter, which stays accurate to the post-limiter output level. Tuned so a
+// typical channel sits mid-bar rather than near the floor.
+const SPECTRUM_DISPLAY_GAIN = 3;
 // 8192-point FFT: at 48kHz gives 5.86Hz bins, enough resolution for the FG band grid.
 const FFT_SIZE = 8192;
 // Gaussian spatial-blur kernel (sigma=3 bands), truncated to +-BLUR_RADIUS.
@@ -633,7 +637,7 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 							const s1 = Math.min(FG_BANDS, Math.floor((bar + 1) * bandsPerBar));
 							let peak = 0;
 							for (let b = s0; b < s1; b++) if (smooth[b] > peak) peak = smooth[b];
-							const v = peak * this._smoothedMasterScale;
+							const v = peak * this._smoothedMasterScale * SPECTRUM_DISPLAY_GAIN;
 							const norm = Math.min(1, (2 * v) / (v + FG_REF));
 							const barH = norm * h;
 							if (barH < 0.5) continue;
