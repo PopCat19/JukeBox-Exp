@@ -44,6 +44,7 @@ export function renderOptionsMenu(optionsMenu: HTMLSelectElement, prefs: Prefere
 		(prefs.displayVolumeBar ? textOnIcon : textOffIcon) + "Show Playback Volume",
 		(prefs.showSpectrum ? textOnIcon : textOffIcon) + "Show Spectrum",
 		(prefs.showSpectrumOverlay ? textOnIcon : textOffIcon) + "Show Spectrum Overlay (Track Editor)",
+		(prefs.showSpectrumParticles ? textOnIcon : textOffIcon) + "Show Spectrum Particles",
 		(prefs.showSampleLoadingStatus ? textOnIcon : textOffIcon) + "Show Sample Loading Status",
 		(prefs.showDescription ? textOnIcon : textOffIcon) + "Show Description",
 		textSpacingIcon + "Set Layout...",

@@ -14,9 +14,32 @@ import { ColorConfig } from "./color-config";
 import { events } from "./events";
 
 const FG_BANDS = 151;
-const FG_MIN_FREQ = 130;
-const BG_MIN_FREQ = 20;
 const BG_BANDS = 67;
+
+interface Particle {
+	x: number;
+	y: number;
+	vx: number;
+	vy: number;
+	life: number;
+	maxLife: number;
+	size: number;
+}
+
+const MAX_PARTICLES = 200;
+
+function spawnParticle(x: number, y: number, mag: number): Particle {
+	const maxLife = 40 + Math.random() * 60;
+	return {
+		x,
+		y,
+		vx: (Math.random() - 0.5) * 0.4,
+		vy: -(0.4 + Math.random() * 0.8 + mag * 0.5),
+		life: maxLife,
+		maxLife,
+		size: 1 + Math.random() * 3 + mag * 2,
+	};
+}
 
 export class spectrumCanvas {
 	public _EventUpdateCanvas: (left: Float32Array, right?: Float32Array) => void;
@@ -42,6 +65,12 @@ export class spectrumCanvas {
 	// factor^2 ≈ 0.1, so ~30ms to decay to 10%
 	private _fgSmoothMags = new Float32Array(151);
 	private _bgSmoothMags = new Float32Array(67);
+
+	// Particle system
+	public showParticles: boolean = false;
+	private _particles: Particle[] = [];
+	private _fgYs: Float64Array = new Float64Array(151);
+	private _bgYs: Float64Array = new Float64Array(67);
 
 	constructor(
 		public readonly canvas: HTMLCanvasElement,
@@ -218,16 +247,42 @@ export class spectrumCanvas {
 			const bgRef = spectrumCanvas.BG_REF;
 			const fgRef = spectrumCanvas.FG_REF;
 
-			// Draw background bass layer (R color, low opacity) — individual bars, not a smooth curve
+			// Cache Y positions for particle spawning
+			this._computeYPositions(h, this._bgSmoothMags, bgRef, BG_BANDS, this._bgYs, 1.0);
+			this._computeYPositions(h, this._fgSmoothMags, fgRef, FG_BANDS, this._fgYs, 1.0);
+
+			// Draw background bass layer (R color, low opacity)
 			this._drawSmooth(ctx, w, h, this._bgSmoothMags, bgRef, BG_BANDS, this._cachedRColor, 0.4, 1.0);
 
 			// Draw foreground main layer (L color, full opacity)
 			this._drawSmooth(ctx, w, h, this._fgSmoothMags, fgRef, FG_BANDS, this._cachedLColor, 1.0, 1.0);
+
+			// Update and draw particles
+			if (this.showParticles) {
+				this._updateParticles(h);
+				this._spawnParticles(w);
+				this._drawParticles(ctx);
+			} else {
+				this._particles.length = 0;
+			}
 		};
 
 		events.listen("spectrumUpdate", this._EventUpdateCanvas);
 		events.listen("spectrumReset", () => this.reset());
 		events.listen("themeChange", () => this._updateCachedColors());
+	}
+
+	private _computeYPositions(
+		h: number,
+		mags: Float32Array,
+		maxMag: number,
+		bandCount: number,
+		out: Float64Array,
+		heightScale: number,
+	): void {
+		for (let b = 0; b < bandCount; b++) {
+			out[b] = h - Math.min(1, (2 * mags[b]) / (mags[b] + maxMag)) * h * heightScale;
+		}
 	}
 
 	private _drawSmooth(
@@ -266,19 +321,67 @@ export class spectrumCanvas {
 		ctx.globalAlpha = 1.0;
 	}
 
+	private _updateParticles(h: number): void {
+		for (let i = this._particles.length - 1; i >= 0; i--) {
+			const p = this._particles[i];
+			p.x += p.vx;
+			p.y += p.vy;
+			p.vy += 0.003; // gravity deceleration on upward float
+			p.life--;
+			if (p.life <= 0 || p.y > h + 10 || p.y < -20) {
+				this._particles.splice(i, 1);
+			}
+		}
+	}
+
+	private _spawnParticles(w: number): void {
+		if (this._particles.length >= MAX_PARTICLES) return;
+
+		const bandCount = FG_BANDS;
+		const bandWidth = w / (bandCount - 1);
+		for (let b = 0; b < bandCount; b++) {
+			const mag = this._fgSmoothMags[b];
+			if (mag < 0.001) continue;
+			const normMag = (2 * mag) / (mag + spectrumCanvas.FG_REF);
+			if (normMag > 0.15 && Math.random() < normMag * 0.3) {
+				const x = b * bandWidth + (Math.random() - 0.5) * bandWidth * 0.6;
+				const y = this._fgYs[b] + (Math.random() - 0.5) * 8;
+				this._particles.push(spawnParticle(x, y, normMag));
+				if (this._particles.length >= MAX_PARTICLES) return;
+			}
+		}
+	}
+
+	private _drawParticles(ctx: CanvasRenderingContext2D): void {
+		ctx.save();
+		for (const p of this._particles) {
+			const alpha = Math.min(1, (p.life / p.maxLife) * 2) * 0.6;
+			const size = p.size * (0.3 + 0.7 * (p.life / p.maxLife));
+			const gradient = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, size * 2);
+			gradient.addColorStop(0, `rgba(255,255,255,${alpha})`);
+			gradient.addColorStop(0.3, `rgba(200,180,255,${alpha * 0.6})`);
+			gradient.addColorStop(1, `rgba(200,180,255,0)`);
+			ctx.fillStyle = gradient;
+			ctx.beginPath();
+			ctx.arc(p.x, p.y, size * 2, 0, Math.PI * 2);
+			ctx.fill();
+		}
+		ctx.restore();
+	}
+
 	private _initBands(sampleRate: number): void {
 		this._sampleRate = sampleRate;
 		// Compute BG center frequencies: every 2nd semitone from BG_MIN_FREQ (~20Hz)
 		this._bgFreqs.length = 0;
 		const bgA4 = 440;
-		const bgNoteStart = Math.round(12 * Math.log2(BG_MIN_FREQ / bgA4) + 69);
+		const bgNoteStart = Math.round(12 * Math.log2(20 / bgA4) + 69);
 		// Every quarter-tone (24TET): 67 bands from ~20Hz to ~130Hz
 		for (let b = 0; b < BG_BANDS; b++) {
 			this._bgFreqs.push(bgA4 * 2 ** ((bgNoteStart + b * 0.5 - 69) / 12));
 		}
 		// Every quarter-tone (24TET): 151 bands from ~130Hz to ~10000Hz
 		this._fgFreqs.length = 0;
-		const fgNoteStart = Math.round(12 * Math.log2(FG_MIN_FREQ / 440) + 69);
+		const fgNoteStart = Math.round(12 * Math.log2(130 / 440) + 69);
 		for (let b = 0; b < FG_BANDS; b++) {
 			this._fgFreqs.push(440 * 2 ** ((fgNoteStart + b * 0.5 - 69) / 12));
 		}
@@ -291,6 +394,7 @@ export class spectrumCanvas {
 		// reconstruct stale magnitudes from paused audio.
 		this._bgRingBuf.fill(0);
 		this._bgRingPos = 0;
+		this._particles.length = 0;
 		// Clear canvas immediately so the last frame doesn't persist
 		// (spectrumUpdate stops firing when paused).
 		const ctx = this.canvas.getContext("2d");

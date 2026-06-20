@@ -16,6 +16,7 @@ import type { PatternEditor } from "../components/pattern-editor";
 import type { Piano } from "../components/piano";
 import type { Preferences } from "../core/preferences";
 import type { SongDocument } from "../song-document";
+import type { spectrumCanvas } from "../../shared/spectrum";
 
 export interface LayoutRefs {
 	muteEditor: MuteEditor;
@@ -29,6 +30,7 @@ export interface LayoutRefs {
 	volumeBarBox: HTMLElement;
 	globalSpectrumContainer: HTMLElement;
 	overlaySpectrumContainer?: HTMLElement;
+	overlaySpectrum?: spectrumCanvas;
 	sampleLoadingStatusContainer: HTMLElement;
 	instrumentCopyGroup: HTMLElement;
 	instrumentTagRow: HTMLElement;
@@ -72,6 +74,10 @@ export function renderLayout(refs: LayoutRefs, doc: SongDocument): void {
 	doc.synth.spectrumEnabled = doc.prefs.showSpectrum || doc.prefs.showSpectrumOverlay;
 	if (refs.overlaySpectrumContainer) {
 		refs.overlaySpectrumContainer.style.display = doc.prefs.showSpectrumOverlay ? "" : "none";
+	}
+	// Sync particle toggle to overlay spectrum
+	if (refs.overlaySpectrum) {
+		refs.overlaySpectrum.showParticles = doc.prefs.showSpectrumParticles && doc.prefs.showSpectrumOverlay;
 	}
 	refs.sampleLoadingStatusContainer.style.display = doc.prefs.showSampleLoadingStatus ? "" : "none";
 	refs.instrumentCopyGroup.style.display = doc.prefs.instrumentCopyPaste ? "" : "none";

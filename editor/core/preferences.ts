@@ -48,6 +48,7 @@ export class Preferences {
 	public notesFlashWhenPlayed: boolean;
 	public showSpectrum: boolean;
 	public showSpectrumOverlay: boolean;
+	public showSpectrumParticles: boolean;
 	public showSampleLoadingStatus: boolean;
 	public showDescription: boolean;
 	public showInstrumentScrollbars: boolean;
@@ -91,6 +92,7 @@ export class Preferences {
 		this.notesFlashWhenPlayed = window.localStorage.getItem("notesFlashWhenPlayed") !== "flase";
 		this.showSpectrum = window.localStorage.getItem("showSpectrum") === "true";
 		this.showSpectrumOverlay = window.localStorage.getItem("showSpectrumOverlay") === "true";
+		this.showSpectrumParticles = window.localStorage.getItem("showSpectrumParticles") === "true";
 		this.showSampleLoadingStatus = window.localStorage.getItem("showSampleLoadingStatus") !== "false";
 		this.showDescription = window.localStorage.getItem("showDescription") !== "false";
 		this.showInstrumentScrollbars = window.localStorage.getItem("showInstrumentScrollbars") !== "false";
@@ -151,6 +153,7 @@ export class Preferences {
 		window.localStorage.setItem("notesFlashWhenPlayed", this.notesFlashWhenPlayed ? "true" : "false");
 		window.localStorage.setItem("showSpectrum", this.showSpectrum ? "true" : "false");
 		window.localStorage.setItem("showSpectrumOverlay", this.showSpectrumOverlay ? "true" : "false");
+		window.localStorage.setItem("showSpectrumParticles", this.showSpectrumParticles ? "true" : "false");
 		window.localStorage.setItem("showSampleLoadingStatus", this.showSampleLoadingStatus ? "true" : "false");
 		window.localStorage.setItem("showDescription", this.showDescription ? "true" : "false");
 		window.localStorage.setItem("showInstrumentScrollbars", this.showInstrumentScrollbars ? "true" : "false");

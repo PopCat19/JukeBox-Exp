@@ -100,6 +100,7 @@ export class MenuBar {
 				option({ value: "displayVolumeBar" }, "Show Playback Volume"),
 				option({ value: "showSpectrum" }, "Show Spectrum"),
 				option({ value: "showSpectrumOverlay" }, "Show Spectrum Overlay (Track Editor)"),
+				option({ value: "showSpectrumParticles" }, "Show Spectrum Particles"),
 				option({ value: "showSampleLoadingStatus" }, "Show Sample Loading Status"),
 				option({ value: "showDescription" }, "Show Description"),
 				option({ value: "layout" }, "Set Layout..."),

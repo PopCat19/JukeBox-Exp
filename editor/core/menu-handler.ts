@@ -240,6 +240,9 @@ export class MenuHandler {
 			case "showSpectrumOverlay":
 				this._host.doc.prefs.showSpectrumOverlay = !this._host.doc.prefs.showSpectrumOverlay;
 				break;
+			case "showSpectrumParticles":
+				this._host.doc.prefs.showSpectrumParticles = !this._host.doc.prefs.showSpectrumParticles;
+				break;
 			case "showDescription":
 				this._host.doc.prefs.showDescription = !this._host.doc.prefs.showDescription;
 				break;
