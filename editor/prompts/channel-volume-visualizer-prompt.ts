@@ -160,6 +160,11 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 	// spectrum FFT. Read by the metering code (one frame of latency, imperceptible
 	// for a ~170ms-integrated loudness meter) so metering needs no second FFT.
 	private readonly _channelLoudnessRms: Map<number, number> = new Map();
+	// Smoothed post-limiter master gain (masterGain^2 * volume * limiter) that the
+	// per-channel ring omits. Smoothed per frame so the limiter's fast dynamics and
+	// startup transient don't make the meters/spectrum jump; the underlying ring
+	// already integrates over ~170ms so a slow gain factor is appropriate.
+	private _smoothedMasterScale: number = 1;
 	// FG band center frequencies (absolute Hz, independent of sample rate).
 	private readonly _fgFreqs: number[] = ChannelVolumeVisualizerPrompt._initFgFreqs();
 
@@ -380,8 +385,9 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 	// unweightedRMS is exact (time domain over the full ~170ms window). The
 	// C-weighting factor is sqrt(weighted spectral energy / unweighted); the Hann
 	// window applied to `mags` cancels in that ratio, so the result is independent
-	// of the window. No signal gain is applied, so `mags` is the raw magnitude.
-	private _computeLoudnessRms(channelState: ChannelState, mags: Float32Array, halfN: number): number {
+	// of the window. No signal gain is applied to `mags`, so it is the raw
+	// magnitude; `masterScale` folds in the post-limiter master gain the ring omits.
+	private _computeLoudnessRms(channelState: ChannelState, mags: Float32Array, halfN: number, masterScale: number): number {
 		const aW = this._ensureAWeight(this._doc.synth.samplesPerSecond || 48000);
 		let unweighted = 0;
 		let weighted = 0;
@@ -401,7 +407,7 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 			sumSq += s * s;
 		}
 		const unweightedRms = Math.sqrt(sumSq / fftSize);
-		return unweightedRms * ratio;
+		return unweightedRms * ratio * masterScale;
 	}
 
 	private _animate = (): void => {
@@ -584,7 +590,7 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 
 					// Perceived-loudness (A-weighted RMS) for the meter, from the same FFT.
 					// Stored for the metering pass (one frame latency) to avoid a second FFT.
-					this._channelLoudnessRms.set(channelIndex, this._computeLoudnessRms(channelState, mags, halfN));
+					this._channelLoudnessRms.set(channelIndex, this._computeLoudnessRms(channelState, mags, halfN, this._smoothedMasterScale));
 
 					// Interpolate FG bands from FFT bins (quadratic for sensitivity).
 					const bandMags = this._bandMags;
@@ -660,13 +666,16 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 						spectrumCtx.globalAlpha = 0.2;
 						spectrumCtx.beginPath();
 						for (let bar = 0; bar < BAR_COUNT; bar++) {
-							// Average the smoothed magnitude across this bar's band range.
+							// Peak (max) of the smoothed bands in this bar's range, not the average:
+							// averaging dilutes a concentrated loud band across quiet neighbors and
+							// desensitizes the bars. Scale by the master gain (omitted by the ring)
+							// before soft-compression so bars reflect the output-bus level.
 							const s0 = Math.floor(bar * bandsPerBar);
 							const s1 = Math.min(FG_BANDS, Math.floor((bar + 1) * bandsPerBar));
-							let acc = 0;
-							for (let b = s0; b < s1; b++) acc += smooth[b];
-							const avg = acc / (s1 - s0);
-							const norm = Math.min(1, (2 * avg) / (avg + FG_REF));
+							let peak = 0;
+							for (let b = s0; b < s1; b++) if (smooth[b] > peak) peak = smooth[b];
+							const v = peak * this._smoothedMasterScale;
+							const norm = Math.min(1, (2 * v) / (v + FG_REF));
 							const barH = norm * h;
 							if (barH < 0.5) continue;
 							const x = bar * barOuter + gap * 0.5;

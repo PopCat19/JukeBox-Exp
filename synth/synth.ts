@@ -659,6 +659,21 @@ export class Synth {
 		this._loudnessFilled = 0;
 	}
 
+	// Full post-limiter master gain factor that the per-channel audio ring omits:
+	// masterGain^2 (song) and the volume knob + limiter (limitedVolume). The
+	// channel-volume visualizer multiplies the per-channel ring by this so its
+	// meters/spectrum reflect the channel's level at the output bus, matching what
+	// is heard, instead of the pre-master mix-bus level the ring captures.
+	// Clamped to avoid the limiter's startup spike (limit starts at 0, which
+	// would otherwise yield volume/0.25 for the first buffer).
+	public getMasterScale(): number {
+		const song = this.song;
+		if (song == null) return 1;
+		const limit = this.limit < 0.1 ? 0.1 : this.limit;
+		const limitedVolume = this.volume / (limit >= 1 ? limit * 1.05 : limit * 0.8 + 0.25);
+		return Math.min(8, song.masterGain * song.masterGain * limitedVolume);
+	}
+
 	public getTicksIntoBar(): number {
 		return (this.beat * Config.partsPerBeat + this.part) * Config.ticksPerPart + this.tick;
 	}
