@@ -150,6 +150,7 @@ export class SongEditor
 	private readonly _nextBarButton: HTMLButtonElement = this._playbackControls.nextBarButton;
 	private readonly _volumeSlider: Slider = this._playbackControls.volumeSlider;
 	private readonly _volumeBarBox: HTMLDivElement = this._playbackControls.volumeBarBox;
+	private readonly _barPosLabel: HTMLSpanElement = this._playbackControls.barPosLabel;
 	private readonly _menuBar: MenuBar = new MenuBar();
 	private readonly _fileMenu: HTMLSelectElement = this._menuBar.fileMenu;
 	private readonly _editMenu: HTMLSelectElement = this._menuBar.editMenu;
@@ -1773,6 +1774,7 @@ export class SongEditor
 			),
 			div({ class: "playback-volume-controls" }, span({ class: "volume-speaker" }), this._volumeSlider.container),
 			this._globalSpectrumContainer,
+			div({ style: "text-align: center; font-size: 10px; font-family: monospace; color: var(--primary-text);" }, this._barPosLabel),
 		),
 		this._menuArea,
 		this._songSettingsArea,

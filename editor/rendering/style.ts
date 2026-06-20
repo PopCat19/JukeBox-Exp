@@ -390,8 +390,8 @@ html {
 	grid-area: settings-area;
 	display: grid;
     grid-template-columns: auto;
-    grid-template-rows: min-content min-content min-content min-content min-content;
-    grid-template-areas: "version-area" "play-pause-area" "menu-area" "song-settings-area" "instrument-settings-area";
+    grid-template-rows: min-content min-content min-content min-content min-content min-content;
+    grid-template-areas: "version-area" "play-pause-area" "menu-area" "song-settings-area" "instrument-settings-area" "settings-volume-area";
 	grid-column-gap: 6px;
 }
 
@@ -400,6 +400,7 @@ html {
 .beepboxEditor .menu-area{ grid-area: menu-area; }
 .beepboxEditor .song-settings-area{ grid-area: song-settings-area; }
 .beepboxEditor .instrument-settings-area{ grid-area: instrument-settings-area; }
+.beepboxEditor .settings-volume{ grid-area: settings-volume-area; }
 
 .beepboxEditor .tip {
 	cursor: help;

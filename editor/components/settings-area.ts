@@ -63,11 +63,7 @@ export class SettingsArea {
 				this.playbackControls.prevBarButton,
 				this.playbackControls.nextBarButton,
 			),
-			div(
-				{ class: "settings-volume", style: "display: flex; flex-direction: column; align-items: center;" },
-				div({ style: "display: flex; align-items: center; gap: 4px;" }, this.playbackControls.volumeSlider.container, this.playbackControls.volumeBarBox),
-				this.playbackControls.barPosLabel,
-			),
+			div({ class: "settings-volume" }, this.playbackControls.volumeSlider.container, this.playbackControls.volumeBarBox),
 		);
 	}
 
