@@ -480,59 +480,101 @@ export class ImportPrompt extends BasePrompt {
 		const microsecondsPerMinute: number = 60 * 1000 * 1000;
 		const beatsPerMinute: number = Math.max(Config.tempoMin, Math.min(Config.tempoMax, Math.round(microsecondsPerMinute / mspb)));
 		const midiTicksPerPart: number = midiTicksPerBeat / Config.partsPerBeat;
+		// JukeBox has a single global beatsPerBar. Flatten mixed meters by using the
+		// maximum across all time-sig changes so every source bar fits on the grid;
+		// shorter bars are padded and skipped at playback via next-bar mod notes
+		// (see buildTickToPartFn / nextBarModParts). Only actual parsed time-sig
+		// values participate; the pre-parse default (8) is excluded so it cannot
+		// inflate the grid when the MIDI specifies a smaller meter.
+		if (timeSigChanges.length > 0) {
+			beatsPerBar = timeSigChanges[0].beatsPerBar;
+			for (const change of timeSigChanges) {
+				if (change.beatsPerBar > beatsPerBar) beatsPerBar = change.beatsPerBar;
+			}
+		}
 		const partsPerBar: number = Config.partsPerBeat * beatsPerBar;
 
-		// Build time-sig-aware tick-to-part mapping so that when the MIDI
-		// changes time signature mid-song (e.g., 2/4 -> 4/4), earlier segments
-		// pad to complete bars on the final grid instead of compressing into
-		// partial bars that shift all subsequent notes.
-		function buildTickToPartFn() {
-			interface Seg {
-				startTick: number;
-				endTick: number;
-				startPart: number;
-			}
-			const segs: Seg[] = [];
-			let prevTick = 0;
-			let prevBeatsPerBar = 4;
-			let accParts = 0;
-			for (const change of timeSigChanges) {
-				const segEndTick = change.midiTick;
-				const segDuration = segEndTick - prevTick;
-				if (segDuration > 0) {
-					const segPpb = Config.partsPerBeat * prevBeatsPerBar;
-					const segParts = Math.round(segDuration / midiTicksPerPart);
-					const segBars = segParts / segPpb;
-					// Pad this segment's bars to the final grid
-					const paddedBars = Math.ceil((segBars * segPpb) / partsPerBar);
-					const paddedParts = paddedBars * partsPerBar;
-					segs.push({
-						startTick: prevTick,
-						endTick: segEndTick,
-						startPart: accParts,
-					});
-					accParts += paddedParts;
-				}
-				prevTick = segEndTick;
-				prevBeatsPerBar = change.beatsPerBar;
-			}
-			// Final segment (after last time sig change), no padding needed
-			segs.push({
-				startTick: prevTick,
-				endTick: Number.MAX_SAFE_INTEGER,
-				startPart: accParts,
-			});
-			return (midiTick: number): number => {
-				for (const seg of segs) {
-					if (midiTick >= seg.startTick && midiTick < seg.endTick) {
-						const offset = Math.round((midiTick - seg.startTick) / midiTicksPerPart);
-						return seg.startPart + offset;
-					}
-				}
-				return Math.round(midiTick / midiTicksPerPart);
-			};
+		// Flatten mixed time signatures onto JukeBox's single global beatsPerBar.
+		// The song uses the maximum beatsPerBar across all time-sig changes so every
+		// source bar fits. Earlier segments with a smaller meter pad up to whole bars
+		// on that grid (e.g. a 2/4 bar pads to one 4/4 bar = 48 parts of music + 48
+		// parts of silence). A "next bar" mod note is placed at each padded bar's
+		// real music end so playback jumps past the padding silence, preserving the
+		// original rhythm without delaying later notes. Without the next-bar mod the
+		// padding would shift every note after the time-sig change by the padding
+		// width.
+		interface TimeSigSeg {
+			startTick: number;
+			endTick: number;
+			startPart: number;
+			musicParts: number; // source-music length in parts (before padding)
+			paddedParts: number; // grid-aligned length in parts (>= musicParts)
 		}
-		const quantizeMidiTickToPart = buildTickToPartFn();
+		const timeSigSegs: TimeSigSeg[] = [];
+		const nextBarModParts: number[] = [];
+		let prevTick = 0;
+		let prevBeatsPerBar = 4;
+		let accParts = 0;
+		for (const change of timeSigChanges) {
+			const segEndTick = change.midiTick;
+			const segDuration = segEndTick - prevTick;
+			if (segDuration > 0) {
+				const segPpb = Config.partsPerBeat * prevBeatsPerBar;
+				const segParts = Math.round(segDuration / midiTicksPerPart);
+				const segBars = segParts / segPpb;
+				const paddedBars = Math.ceil((segBars * segPpb) / partsPerBar);
+				const paddedParts = paddedBars * partsPerBar;
+				timeSigSegs.push({
+					startTick: prevTick,
+					endTick: segEndTick,
+					startPart: accParts,
+					musicParts: segParts,
+					paddedParts: paddedParts,
+				});
+				// If the segment's music ends mid-bar on the final grid, the remainder of
+				// that bar is padding silence. Schedule a next-bar mod at the music end so
+				// playback skips the silence. Only segments before the final time-sig
+				// change are padded; the final segment maps linearly.
+				const musicEndPart = accParts + segParts;
+				if (segParts % partsPerBar !== 0) {
+					nextBarModParts.push(musicEndPart);
+				}
+				accParts += paddedParts;
+			}
+			prevTick = segEndTick;
+			prevBeatsPerBar = change.beatsPerBar;
+		}
+		timeSigSegs.push({
+			startTick: prevTick,
+			endTick: Number.MAX_SAFE_INTEGER,
+			startPart: accParts,
+			musicParts: Number.MAX_SAFE_INTEGER,
+			paddedParts: Number.MAX_SAFE_INTEGER,
+		});
+		const quantizeMidiTickToPart = (midiTick: number): number => {
+			for (const seg of timeSigSegs) {
+				if (midiTick >= seg.startTick && midiTick < seg.endTick) {
+					const offset = Math.round((midiTick - seg.startTick) / midiTicksPerPart);
+					return seg.startPart + offset;
+				}
+			}
+			return Math.round(midiTick / midiTicksPerPart);
+		};
+		// Inverse map: flattened part -> source midi tick. Used to look up pitch-bend
+		// and expression (CC 11) events, which are indexed by source tick, from a
+		// note's flattened part position. Without this, padded segments would read
+		// events at the wrong tick (the silence region maps to source ticks past the
+		// time-sig change).
+		const partToMidiTick = (part: number): number => {
+			for (const seg of timeSigSegs) {
+				const segEndPart = seg.startPart + seg.paddedParts;
+				if (part >= seg.startPart && part < segEndPart) {
+					const within = Math.min(part - seg.startPart, seg.musicParts - 1);
+					return seg.startTick + Math.round(within * midiTicksPerPart);
+				}
+			}
+			return Math.round(part * midiTicksPerPart);
+		};
 		const songTotalBars: number = Math.min(Config.barCountMax, Math.ceil(quantizeMidiTickToPart(currentMidiTick) / partsPerBar));
 
 		let key: number = numSharps;
@@ -941,8 +983,8 @@ export class ImportPrompt extends BasePrompt {
 
 						for (let bar: number = startBar; bar < endBar; bar++) {
 							const barStartPart: number = bar * partsPerBar;
-							const barStartMidiTick: number = bar * beatsPerBar * midiTicksPerBeat;
-							const barEndMidiTick: number = (bar + 1) * beatsPerBar * midiTicksPerBeat;
+							const barStartMidiTick: number = partToMidiTick(barStartPart);
+							const barEndMidiTick: number = partToMidiTick(barStartPart + partsPerBar);
 							const noteStartPart: number = Math.max(0, startPart - barStartPart);
 							const noteEndPart: number = Math.min(partsPerBar, endPart - barStartPart);
 							const noteStartMidiTick: number = Math.max(barStartMidiTick, dnote.startMidiTick);
@@ -1024,10 +1066,7 @@ export class ImportPrompt extends BasePrompt {
 							let prevPartPitch: number = (shiftedHeldPitch + currentMidiInterval) / intervalScale;
 							let prevPartSize: number = dnote.velocity * currentMidiNoteSize;
 							for (let part: number = noteStartPart + 1; part <= noteEndPart; part++) {
-								const midiTick: number = Math.max(
-									noteStartMidiTick,
-									Math.min(noteEndMidiTick - 1, Math.round(midiTicksPerPart * (part + barStartPart))),
-								);
+								const midiTick: number = Math.max(noteStartMidiTick, Math.min(noteEndMidiTick - 1, partToMidiTick(part + barStartPart)));
 								const noteRelativePart: number = part - noteStartPart;
 								const lastPart: boolean = part === noteEndPart;
 								updateCurrentMidiInterval(midiTick);
@@ -1205,6 +1244,38 @@ export class ImportPrompt extends BasePrompt {
 				prevChangeEndPart = changeEndPart;
 			}
 		}
+		// Next-bar mod channel for mixed time signatures. Each entry in
+		// nextBarModParts is a flattened absolute part where a source meter ended
+		// mid-bar on the final grid; a next-bar mod note there makes playback jump
+		// to the next bar, skipping the padding silence so later notes keep their
+		// original timing.
+		if (nextBarModParts.length > 0) {
+			const nextBarModChannel = new Channel();
+			modChannels.push(nextBarModChannel);
+			const nextBarModInstrument = new Instrument(false, true);
+			nextBarModInstrument.setTypeAndReset(9, false, true);
+			nextBarModInstrument.modulators[0] = Config.modulators.dictionary["next bar"].index;
+			nextBarModInstrument.modChannels[0] = -1;
+			nextBarModChannel.instruments.push(nextBarModInstrument);
+			const nextBarModPitch = Config.modCount - 1;
+			for (const absPart of nextBarModParts) {
+				const bar = Math.floor(absPart / partsPerBar);
+				const noteStartPart = absPart % partsPerBar;
+				// The note length is irrelevant for next-bar mods (the jump fires at the
+				// note start), but give it one part so it survives validation.
+				const noteEndPart = Math.min(partsPerBar, noteStartPart + 1);
+				while (nextBarModChannel.bars.length <= bar) nextBarModChannel.bars.push(0);
+				let pattern = nextBarModChannel.patterns[nextBarModChannel.bars[bar] - 1] ?? null;
+				if (pattern == null) {
+					pattern = new Pattern();
+					nextBarModChannel.patterns.push(pattern);
+					nextBarModChannel.bars[bar] = nextBarModChannel.patterns.length;
+					pattern.instruments[0] = 0;
+					pattern.instruments.length = 1;
+				}
+				pattern.notes.push(new Note(nextBarModPitch, noteStartPart, noteEndPart, 0, false));
+			}
+		}
 		// Channel compaction disabled: overlapping notes keep their own channels.
 		// The track-based assignment already guarantees non-overlapping notes
 		// within each channel, so merging is unnecessary.
@@ -1294,6 +1365,18 @@ export class ImportPrompt extends BasePrompt {
 			`[MIDI Import] ${pitchChannels.length} pitch channels, ${noiseChannels.length} noise channels, ${modChannels.length} mod channels, ${songTotalBars} bars`,
 		);
 		if (tempoChanges.length > 1) console.log(`[MIDI Import] ${tempoChanges.length} tempo changes detected`);
+		// Mixed-meter diagnostics. When the MIDI changes time signature, segments
+		// with a smaller meter than the final grid are padded and a next-bar mod
+		// skips the padding silence at playback.
+		if (timeSigChanges.length > 0) {
+			const sigList: string = timeSigChanges.map((c) => `${c.beatsPerBar}@tick${c.midiTick}`).join(", ");
+			console.log(
+				`[MIDI Import] time sig changes: ${timeSigChanges.length} (${sigList}) -> flattened to beatsPerBar=${beatsPerBar}, ` +
+					`${nextBarModParts.length} next-bar mod note(s) at flattened parts [${nextBarModParts.join(", ")}]`,
+			);
+		} else {
+			console.log(`[MIDI Import] time sig: single (${beatsPerBar}), no flattening`);
+		}
 		// Sustain pedal (CC 64) diagnostics. The importer ignores CC 64
 		// behaviorally, so sustained notes keep their written duration and the
 		// bar-splitter fragments them. This log exposes the hold/release timing
