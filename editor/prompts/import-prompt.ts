@@ -814,7 +814,7 @@ export class ImportPrompt extends BasePrompt {
 						let endPart: number = snapPartToRhythm(quantizeMidiTickToPart(dnote.endMidiTick), detectedRhythm);
 						// Ensure note has at least minimum duration after snapping
 						const rhythmMinDivision: number = Config.partsPerBeat / Config.rhythms[detectedRhythm].stepsPerBeat;
-						if (endPart <= startPart) endPart = startPart + rhythmMinDivision;
+						if (endPart <= startPart) endPart = startPart + Math.max(rhythmMinDivision, 3);
 
 						const startBar: number = Math.floor(startPart / partsPerBar);
 						const endBar: number = Math.ceil(endPart / partsPerBar);
@@ -1064,11 +1064,12 @@ export class ImportPrompt extends BasePrompt {
 							pattern.instruments[0] = 0;
 							pattern.instruments.length = 1;
 						}
+						const realBPM: number = Math.round(microsecondsPerMinute / change.microsecondsPerBeat);
 						const newBPM = Math.max(
 							Config.tempoMin,
 							Math.min(
 								Config.tempoMax,
-								Math.round(microsecondsPerMinute / change.microsecondsPerBeat) - Config.modulators.dictionary["tempo"].convertRealFactor,
+								realBPM - Config.modulators.dictionary["tempo"].convertRealFactor,
 							),
 						);
 						const note = new Note(tempoModPitch, noteStartPart, noteEndPart, newBPM, false);
@@ -1129,10 +1130,10 @@ export class ImportPrompt extends BasePrompt {
 		// The serialization format uses delta encoding for note positions, so
 		// unsorted notes or out-of-range values produce corrupted data that
 		// fails to deserialize on page reload.
-		const maxPitch: number = Config.maxPitch;
-		const maxNoisePitch: number = Config.drumCount - 1;
-		function validateChannelNotes(channels: Channel[], isNoise: boolean): void {
-			const pitchMax: number = isNoise ? maxNoisePitch : maxPitch;
+		function validateChannelNotes(channels: Channel[], pitchMax: number, maxSize: number, label: string): void {
+			let totalNotes: number = 0;
+			let skippedNotes: number = 0;
+			let clampedNotes: number = 0;
 			for (const channel of channels) {
 				for (const pattern of channel.patterns) {
 					// Sort notes by start time to ensure correct delta encoding
@@ -1140,28 +1141,38 @@ export class ImportPrompt extends BasePrompt {
 					// Filter out invalid notes and clamp values to valid ranges
 					const validNotes: Note[] = [];
 					for (const note of pattern.notes) {
+						let wasClamped: boolean = false;
 						// Clamp start/end to bar boundaries
+						const origStart: number = note.start;
+						const origEnd: number = note.end;
 						note.start = Math.max(0, Math.min(partsPerBar, note.start));
 						note.end = Math.max(0, Math.min(partsPerBar, note.end));
+						if (note.start !== origStart || note.end !== origEnd) wasClamped = true;
 						// Skip zero-length or inverted notes
-						if (note.start >= note.end) continue;
+						if (note.start >= note.end) { skippedNotes++; continue; }
 						// Clamp pitches to valid range
 						for (let i: number = 0; i < note.pitches.length; i++) {
+							const orig: number = note.pitches[i];
 							note.pitches[i] = Math.max(0, Math.min(pitchMax, note.pitches[i]));
+							if (note.pitches[i] !== orig) wasClamped = true;
 						}
 						// Skip notes with no valid pitches
-						if (note.pitches.length === 0) continue;
-						// Clamp pin times to note duration
+						if (note.pitches.length === 0) { skippedNotes++; continue; }
+						// Clamp pin times and sizes to valid ranges
 						const noteDuration: number = note.end - note.start;
 						for (const pin of note.pins) {
+							const origTime: number = pin.time;
+							const origSize: number = pin.size;
 							pin.time = Math.max(0, Math.min(noteDuration, pin.time));
-							pin.size = Math.max(0, Math.min(Config.noteSizeMax, pin.size));
+							pin.size = Math.max(0, Math.min(maxSize, pin.size));
+							if (pin.time !== origTime || pin.size !== origSize) wasClamped = true;
 						}
+						if (wasClamped) clampedNotes++;
 						// Ensure pins are sorted by time (serialization writes deltas)
 						note.pins.sort((a: NotePin, b: NotePin) => a.time - b.time);
-						// Ensure at least 2 pins: one at time 0 and one at note duration
+						// Ensure at least 1 pin exists
 						if (note.pins.length === 0) {
-							note.pins.push(makeNotePin(0, 0, Config.noteSizeMax));
+							note.pins.push(makeNotePin(0, 0, Math.min(maxSize, Config.noteSizeMax)));
 						}
 						// Ensure first pin is at time 0
 						if (note.pins[0].time !== 0) {
@@ -1172,16 +1183,22 @@ export class ImportPrompt extends BasePrompt {
 						if (lastPin.time !== noteDuration) {
 							note.pins.push(makeNotePin(lastPin.interval, noteDuration, lastPin.size));
 						}
+						totalNotes++;
 						validNotes.push(note);
 					}
 					pattern.notes.length = 0;
 					for (const note of validNotes) pattern.notes.push(note);
 				}
 			}
+			console.log(`[MIDI Import] ${label}: ${totalNotes} notes valid, ${clampedNotes} clamped, ${skippedNotes} skipped`);
 		}
-		validateChannelNotes(pitchChannels, false);
-		validateChannelNotes(noiseChannels, true);
-		validateChannelNotes(modChannels, false);
+		validateChannelNotes(pitchChannels, Config.maxPitch, Config.noteSizeMax, "pitch channels");
+		validateChannelNotes(noiseChannels, Config.drumCount - 1, Config.noteSizeMax, "noise channels");
+		validateChannelNotes(modChannels, Config.modCount - 1, Config.tempoMax, "mod channels");
+
+		console.log(`[MIDI Import] key=${key} scale=${scale} (${Config.scales[scale].name}) rhythm=${detectedRhythm} (${Config.rhythms[detectedRhythm].name}) beatsPerBar=${beatsPerBar} tempo=${beatsPerMinute} BPM`);
+		console.log(`[MIDI Import] ${pitchChannels.length} pitch channels, ${noiseChannels.length} noise channels, ${modChannels.length} mod channels, ${songTotalBars} bars`);
+		if (tempoChanges.length > 1) console.log(`[MIDI Import] ${tempoChanges.length} tempo changes detected`);
 
 		class ChangeImportMidi extends ChangeGroup {
 			constructor(doc: SongDocument) {
