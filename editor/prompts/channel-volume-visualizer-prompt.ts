@@ -447,7 +447,7 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 					const bandW = w / (bandCount - 1);
 					const ys: number[] = [];
 					for (let b = 0; b < bandCount; b++) {
-						ys[b] = h - Math.min(0.5, (2 * smooth[b]) / (smooth[b] + 0.04)) * h;
+						ys[b] = h - Math.min(0.5, (2 * smooth[b]) / (smooth[b] + 0.02)) * h;
 					}
 
 					spectrumCtx.beginPath();
