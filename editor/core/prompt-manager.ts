@@ -154,8 +154,10 @@ export class PromptManager {
 		});
 		// For keybind-triggered prompts (no click event), synthesize
 		// from last mouse position. Only use cursor when mouse has
-		// actually moved — {0,0} default would spawn at top-left.
-		const hasMouse = this._mousePos.x !== 0 || this._mousePos.y !== 0;
+		// actually moved to a position > 10px from origin to prevent
+		// spawning at the top-left corner if the mouse was never moved
+		// or was at an edge position.
+		const hasMouse = this._mousePos.x > 10 || this._mousePos.y > 10;
 		this._pendingClickInfo =
 			this._clickInfo ??
 			(hasMouse
