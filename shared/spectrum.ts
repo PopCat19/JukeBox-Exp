@@ -28,16 +28,17 @@ interface Particle {
 
 const MAX_PARTICLES = 300;
 
-function spawnParticle(x: number, y: number, mag: number): Particle {
-	const maxLife = 30 + Math.random() * 40;
+function spawnParticle(x: number, y: number, mag: number, impulse: number): Particle {
+	const maxLife = 20 + Math.random() * 30;
+	const speed = 1.0 + impulse * 1.5 + mag * 1.2;
 	return {
 		x,
 		y,
-		vx: (Math.random() - 0.5) * 0.6,
-		vy: -(0.6 + Math.random() * 1.2 + mag * 0.8),
+		vx: (Math.random() - 0.5) * speed * 0.5,
+		vy: -(0.8 + Math.random() * 1.5 + speed * 0.6),
 		life: maxLife,
 		maxLife,
-		size: 3 + Math.random() * 4 + mag * 3,
+		size: 2 + Math.random() * 3 + mag * 4 + impulse * 2,
 	};
 }
 
@@ -71,6 +72,9 @@ export class spectrumCanvas {
 	private _particles: Particle[] = [];
 	private _fgYs: Float64Array = new Float64Array(151);
 	private _bgYs: Float64Array = new Float64Array(67);
+	// Impulse tracking: ratio of instant RMS to slow-decay average.
+	// >1.0 means an attack/impulse is happening.
+	private _energyAvg: number = 0.001;
 
 	constructor(
 		public readonly canvas: HTMLCanvasElement,
@@ -104,6 +108,17 @@ export class spectrumCanvas {
 
 			const sampleCount = directlinkL.length;
 			if (sampleCount < 4) return;
+
+			// Compute instant RMS energy for impulse tracking
+			let rawEnergy = 0;
+			const rmsStep = Math.max(1, Math.floor(sampleCount / 128));
+			for (let i = 0; i < sampleCount; i += rmsStep) {
+				const s = (directlinkL[i] + directlinkR[i]) * 0.5;
+				rawEnergy += s * s;
+			}
+			rawEnergy = Math.sqrt(rawEnergy / Math.ceil(sampleCount / rmsStep));
+			this._energyAvg += (rawEnergy - this._energyAvg) * 0.08;
+			const impulse = rawEnergy / Math.max(this._energyAvg, 0.00001);
 
 			if (sampleCount !== this._lastBufferSize) {
 				this._initBands(this._sampleRate);
@@ -260,7 +275,7 @@ export class spectrumCanvas {
 			// Update and draw particles
 			if (this.showParticles) {
 				this._updateParticles(h);
-				this._spawnParticles(w);
+				this._spawnParticles(w, impulse);
 				this._drawParticles(ctx);
 			} else {
 				this._particles.length = 0;
@@ -326,7 +341,7 @@ export class spectrumCanvas {
 			const p = this._particles[i];
 			p.x += p.vx;
 			p.y += p.vy;
-			p.vy += 0.003; // gravity deceleration on upward float
+			p.vy += 0.2; // gravity deceleration for visible arc
 			p.life--;
 			if (p.life <= 0 || p.y > h + 10 || p.y < -20) {
 				this._particles.splice(i, 1);
@@ -334,7 +349,7 @@ export class spectrumCanvas {
 		}
 	}
 
-	private _spawnParticles(w: number): void {
+	private _spawnParticles(w: number, impulse: number): void {
 		if (this._particles.length >= MAX_PARTICLES) return;
 
 		const bandCount = FG_BANDS;
@@ -343,10 +358,10 @@ export class spectrumCanvas {
 			const mag = this._fgSmoothMags[b];
 			if (mag < 0.001) continue;
 			const normMag = (2 * mag) / (mag + spectrumCanvas.FG_REF);
-			if (normMag > 0.08 && Math.random() < normMag * 0.5) {
+			if (normMag > 0.08 && Math.random() < normMag * (0.5 + impulse * 0.3)) {
 				const x = b * bandWidth + (Math.random() - 0.5) * bandWidth * 0.8;
 				const y = this._fgYs[b] + (Math.random() - 0.5) * 6;
-				this._particles.push(spawnParticle(x, y, normMag));
+				this._particles.push(spawnParticle(x, y, normMag, impulse));
 				if (this._particles.length >= MAX_PARTICLES) return;
 			}
 		}
