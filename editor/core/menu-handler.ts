@@ -18,6 +18,7 @@ export interface MenuHandlerHost {
 	openShortcuts(): void;
 	copyTextToClipboard(text: string): void;
 	presetTagsInputBox: HTMLInputElement;
+	refocusStage(): void;
 }
 
 export class MenuHandler {
@@ -92,6 +93,7 @@ export class MenuHandler {
 		}
 		this._fileMenu.selectedIndex = 0;
 		this._fileMenu.blur();
+		this._host.refocusStage();
 	};
 
 	private _editMenuHandler = (_event: Event): void => {
@@ -176,6 +178,8 @@ export class MenuHandler {
 				break;
 		}
 		this._editMenu.selectedIndex = 0;
+		this._editMenu.blur();
+		this._host.refocusStage();
 	};
 
 	private _optionsMenuHandler = (_event: Event): void => {
@@ -301,5 +305,6 @@ export class MenuHandler {
 		this._host.doc.notifier.changed();
 		this._host.doc.prefs.save();
 		this._optionsMenu.blur();
+		this._host.refocusStage();
 	};
 }
