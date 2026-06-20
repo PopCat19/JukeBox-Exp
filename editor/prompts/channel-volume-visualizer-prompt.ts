@@ -83,6 +83,7 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 	// Per-channel pitch spectrum overlay canvases
 	private readonly _channelSpectrumCanvases: Map<number, HTMLCanvasElement> = new Map();
 	private readonly _channelSpectrumCanvas2ds: Map<number, CanvasRenderingContext2D | null> = new Map();
+	private readonly _spectrumSmooth: Map<number, Float32Array> = new Map();
 
 	private readonly _playPauseButton: HTMLButtonElement = button(
 		{
@@ -375,7 +376,7 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 				dbLabel.textContent = isFinite(peakDb) ? `Pk:${peakDb.toFixed(1)}${statsText}` : `Pk:-inf${statsText}`;
 			}
 
-			// Draw pitch spectrum overlay: vertical bars at active tone pitch positions
+			// Draw pitch spectrum overlay: smooth bezier curve fill from active tone bands
 			const spectrumCtx = this._channelSpectrumCanvas2ds.get(channelIndex);
 			if (spectrumCtx) {
 				const cvs = this._channelSpectrumCanvases.get(channelIndex);
@@ -386,36 +387,83 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 						cvs.width = dispW;
 						cvs.height = dispH;
 					}
-					spectrumCtx.clearRect(0, 0, cvs.width, cvs.height);
 
-					// Collect active tone pitches
-					const pitches: number[] = [];
+					const w = cvs.width;
+					const h = cvs.height;
+					spectrumCtx.clearRect(0, 0, w, h);
+
+					// Build 32 pitch band magnitudes (C1-C8)
+					const bandCount = 32;
+					const bandMags = new Float32Array(bandCount);
+					const minPitch = 24;
+					const bandRange = (108 - minPitch) / bandCount;
+
 					for (const instrState of channelState.instruments) {
 						const count = instrState.activeTones.count();
 						for (let t = 0; t < count; t++) {
 							const tone = instrState.activeTones.get(t);
 							for (let p = 0; p < tone.pitchCount; p++) {
-								if (tone.pitches[p] > 0) pitches.push(tone.pitches[p]);
+								if (tone.pitches[p] > 0) {
+									const b = Math.min(bandCount - 1, Math.max(0, Math.floor((tone.pitches[p] - minPitch) / bandRange)));
+									bandMags[b] = Math.min(1, bandMags[b] + 0.2);
+								}
 							}
 						}
 					}
 
-					if (pitches.length > 0) {
-						const w = cvs.width;
-						const h = cvs.height;
-						const minPitch = 36;
-						const maxPitch = 96;
-						const range = Math.max(1, maxPitch - minPitch);
-						const barW = Math.max(1.5, w / range);
-						const col = ColorConfig.getChannelColor(this._doc.song, channelIndex).primaryChannel;
-						for (const p of pitches) {
-							const px = ((Math.min(maxPitch, Math.max(minPitch, p)) - minPitch) / range) * w;
-							spectrumCtx.fillStyle = col;
-							spectrumCtx.globalAlpha = 0.5;
-							spectrumCtx.fillRect(px, 0, barW, h);
-						}
-						spectrumCtx.globalAlpha = 1.0;
+					// Temporal smoothing (instant attack, slow decay)
+					let smooth = this._spectrumSmooth.get(channelIndex);
+					if (!smooth || smooth.length !== bandCount) {
+						smooth = new Float32Array(bandCount);
+						this._spectrumSmooth.set(channelIndex, smooth);
 					}
+					for (let b = 0; b < bandCount; b++) {
+						if (bandMags[b] > smooth[b]) {
+							smooth[b] = bandMags[b];
+						} else {
+							smooth[b] = smooth[b] * 0.92 + bandMags[b] * 0.08;
+						}
+					}
+
+					// Spatial blur (gaussian, sigma=1.5 bands)
+					{
+						const blurred = new Float32Array(bandCount);
+						for (let b = 0; b < bandCount; b++) {
+							let sum = 0, wSum = 0;
+							for (let n = 0; n < bandCount; n++) {
+								const d = n - b;
+								const w = Math.exp((-0.5 * d * d) / 2.25);
+								sum += smooth[n] * w;
+								wSum += w;
+							}
+							blurred[b] = wSum > 0.001 ? sum / wSum : 0;
+						}
+						for (let b = 0; b < bandCount; b++) smooth[b] = blurred[b];
+					}
+
+					// Draw smooth bezier fill (like track editor overlay)
+					const col = ColorConfig.getChannelColor(this._doc.song, channelIndex).primaryChannel;
+					const bandW = w / (bandCount - 1);
+					const ys: number[] = [];
+					for (let b = 0; b < bandCount; b++) {
+						ys[b] = h - Math.min(0.85, smooth[b] * 0.7) * h;
+					}
+
+					spectrumCtx.beginPath();
+					spectrumCtx.moveTo(0, h);
+					spectrumCtx.lineTo(0, ys[0]);
+					for (let b = 0; b < bandCount - 1; b++) {
+						const x1 = b * bandW;
+						const x2 = (b + 1) * bandW;
+						spectrumCtx.quadraticCurveTo(x1, ys[b], (x1 + x2) / 2, (ys[b] + ys[b + 1]) / 2);
+					}
+					spectrumCtx.lineTo(w, ys[bandCount - 1]);
+					spectrumCtx.lineTo(w, h);
+					spectrumCtx.closePath();
+					spectrumCtx.fillStyle = col;
+					spectrumCtx.globalAlpha = 0.2;
+					spectrumCtx.fill();
+					spectrumCtx.globalAlpha = 1.0;
 				}
 			}
 
@@ -471,6 +519,7 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 		this._channelDivs.clear();
 		this._channelSpectrumCanvases.clear();
 		this._channelSpectrumCanvas2ds.clear();
+		this._spectrumSmooth.clear();
 
 		const song = this._doc.song;
 		const synth = this._doc.synth;
@@ -620,7 +669,7 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 			const spectrumCanvas = document.createElement("canvas");
 			spectrumCanvas.width = 128;
 			spectrumCanvas.height = 16;
-			spectrumCanvas.style.cssText = "position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none;";
+			spectrumCanvas.style.cssText = "position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: -1; border-radius: inherit;";
 			channelDiv.appendChild(spectrumCanvas);
 			this._channelSpectrumCanvases.set(i, spectrumCanvas);
 			this._channelSpectrumCanvas2ds.set(i, spectrumCanvas.getContext("2d"));
