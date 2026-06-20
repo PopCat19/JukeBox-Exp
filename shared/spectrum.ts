@@ -356,14 +356,13 @@ export class spectrumCanvas {
 		ctx.save();
 		for (const p of this._particles) {
 			const t = p.life / p.maxLife;
-			const alpha = Math.min(1, t * 3) * (1 - t * 0.5) * 0.45;
+			const alpha = Math.min(1, t * 3) * (1 - t * 0.5);
 			const radius = p.size * (0.4 + 0.6 * t);
 			ctx.globalAlpha = alpha;
-			ctx.strokeStyle = this._cachedLColor;
-			ctx.lineWidth = 4;
+			ctx.fillStyle = this._cachedLColor;
 			ctx.beginPath();
 			ctx.arc(p.x, p.y, radius, 0, Math.PI * 2);
-			ctx.stroke();
+			ctx.fill();
 		}
 		ctx.restore();
 	}
