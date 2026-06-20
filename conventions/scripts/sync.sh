@@ -16,7 +16,7 @@ if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
 fi
 
 # Default values
-DEFAULT_REMOTE="https://github.com/PopCat19/dev-conventions"
+DEFAULT_REMOTE="https://dawn.wine/popcat19/dev-conventions"
 DEFAULT_BRANCH="main"
 
 # Build default files list dynamically

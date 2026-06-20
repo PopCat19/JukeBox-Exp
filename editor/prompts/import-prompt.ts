@@ -466,7 +466,7 @@ export class ImportPrompt extends BasePrompt {
 		const songTotalBars: number = Math.min(Config.barCountMax, Math.ceil(currentMidiTick / midiTicksPerPart / partsPerBar));
 
 		function quantizeMidiTickToPart(midiTick: number): number {
-			return Math.floor(midiTick / midiTicksPerPart);
+			return Math.round(midiTick / midiTicksPerPart);
 		}
 
 		let key: number = numSharps;

@@ -139,7 +139,7 @@ Usage:
   dev-conventions sync [options]
 
 Options:
-  --remote URL       Source repository URL (default: https://github.com/PopCat19/dev-conventions)
+  --remote URL       Source repository URL (default: https://dawn.wine/popcat19/dev-conventions)
   --branch BRANCH    Branch to pull from (default: main)
   --version HASH     Specific commit hash or tag (default: latest on branch)
   --files LIST       Comma-separated list of files (default: all in conventions/)

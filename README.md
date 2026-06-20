@@ -14,7 +14,7 @@ Song data is encoded in the URL hash. Copy the URL to save and share.
 Requires [Bun](https://bun.sh) or [Node.js](https://nodejs.org) (v18+). Licensed under MIT.
 
 ```
-git clone https://github.com/PopCat19/JukeBox-Exp.git
+git clone https://dawn.wine/popcat19/JukeBox-Exp.git
 cd JukeBox-Exp
 bun install   # or: npm install
 bun run build # or: npm run build
