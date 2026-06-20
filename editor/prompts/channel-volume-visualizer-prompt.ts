@@ -663,6 +663,7 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 			}
 
 			const contentWrap = div({ style: "display: flex; flex-direction: column; flex: 1; min-height: 0; position: relative; z-index: 1;" });
+			channelDiv.appendChild(contentWrap);
 			contentWrap.appendChild(headerDiv);
 			contentWrap.appendChild(volBarContainer);
 			contentWrap.appendChild(dbLabel);
@@ -675,7 +676,6 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 			channelDiv.insertBefore(spectrumCanvas, contentWrap);
 			this._channelSpectrumCanvases.set(i, spectrumCanvas);
 			this._channelSpectrumCanvas2ds.set(i, spectrumCanvas.getContext("2d"));
-			channelDiv.appendChild(contentWrap);
 
 			// Show instruments
 			if (channel.instruments.length > 0) {

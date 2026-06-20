@@ -11,11 +11,19 @@ import type { SongDocument } from "../song-document";
 
 const BAR_LABEL_THROTTLE = 5; // avoid text reflow every rAF
 
+function formatTime(seconds: number): string {
+	const mins = Math.floor(seconds / 60);
+	const secs = Math.floor(seconds % 60);
+	return `${mins}:${secs.toString().padStart(2, '0')}`;
+}
+
 export class PlayerAnimator {
 	public outVolumeHistoricTimer: number = 0;
 	public outVolumeHistoricCap: number = 0;
 	public lastOutVolumeCap: number = 0;
 	private _barLabelCounter: number = 0;
+	private _cachedDuration: number = -1;
+	private _cachedBarCount: number = -1;
 
 	constructor(
 		private _doc: SongDocument,
@@ -40,13 +48,23 @@ export class PlayerAnimator {
 		}
 		this._callbacks.barScrollBar.animatePlayhead();
 
-		// Update bar position label (throttled)
+		// Update bar position label with elapsed time (throttled)
 		this._barLabelCounter--;
 		if (this._barLabelCounter <= 0) {
 			this._barLabelCounter = BAR_LABEL_THROTTLE;
 			const bar = Math.floor(this._doc.synth.playhead) + 1;
 			const total = this._doc.song.barCount;
-			this._callbacks.barPosLabel.textContent = `${bar} / ${total}`;
+			// Recompute duration when song changes (bar count or tempo mods)
+			if (this._cachedDuration < 0 || this._doc.song.barCount !== this._cachedBarCount) {
+				const totalSamples = this._doc.synth.getTotalSamples(true, true, 0);
+				this._cachedDuration = totalSamples > 0 ? totalSamples / this._doc.synth.samplesPerSecond : 0;
+				this._cachedBarCount = this._doc.song.barCount;
+			}
+			const fraction = total > 0 ? this._doc.synth.playhead / total : 0;
+			const elapsed = fraction * this._cachedDuration;
+			const elapsedStr = formatTime(elapsed);
+			const totalStr = formatTime(this._cachedDuration);
+			this._callbacks.barPosLabel.textContent = `${elapsedStr} / ${totalStr}  \u2502  ${bar}/${total}`;
 		}
 
 		// Center-follow: scroll so playhead stays near middle of viewport
