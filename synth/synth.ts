@@ -1038,13 +1038,10 @@ export class Synth {
 
 	private _startSpectrumDecay(): void {
 		if (this._spectrumDecayRAF !== null) return;
-		// Reset first (clears mags to 0, maxHold to 0.001), then render
-		// silence frame so canvas draws 0/0.001 = flat immediately
+		// Reset clears mags, ring buffer, and canvas directly.
+		// No need to send a silence frame — that would run the
+		// full FFT pipeline and redraw the canvas unnecessarily.
 		if (this.onSpectrumReset) this.onSpectrumReset();
-		if (this.spectrumEnabled && this.onSpectrumUpdate) {
-			const silence = new Float32Array(this._currentBufferSize || 2048);
-			this.onSpectrumUpdate(silence, silence);
-		}
 		this._spectrumDecayRAF = null;
 	}
 

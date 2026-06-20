@@ -298,6 +298,10 @@ export class spectrumCanvas {
 	public reset(): void {
 		this._fgSmoothMags.fill(0);
 		this._bgSmoothMags.fill(0);
+		// Clear the background ring buffer so the next FFT doesn't
+		// reconstruct stale magnitudes from paused audio.
+		this._bgRingBuf.fill(0);
+		this._bgRingPos = 0;
 		// Clear canvas immediately so the last frame doesn't persist
 		// (spectrumUpdate stops firing when paused).
 		const ctx = this.canvas.getContext("2d");
