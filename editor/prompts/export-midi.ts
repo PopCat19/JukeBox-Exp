@@ -26,6 +26,32 @@ function lerp(low: number, high: number, t: number): number {
 	return low + t * (high - low);
 }
 
+// Mirrors Synth.findPartsInBar: returns how many parts of a bar actually play
+// before a "next bar" mod note jumps to the next bar. Without this the exporter
+// advances every bar by the full beatsPerBar and re-introduces the padding
+// silence that mixed-meter imports flatten via next-bar mods, making the
+// import -> export round trip lossy. Notes at or past partsInBar are skipped
+// (they never sound during playback) and notes crossing the jump are clamped.
+function findPartsInBar(song: Song, bar: number): number {
+	let partsInBar: number = Config.partsPerBeat * song.beatsPerBar;
+	for (let channel = song.pitchChannelCount + song.noiseChannelCount; channel < song.getChannelCount(); channel++) {
+		const pattern = song.getPattern(channel, bar);
+		if (pattern != null) {
+			const instrument = song.channels[channel].instruments[pattern.instruments[0]];
+			for (let mod = 0; mod < Config.modCount; mod++) {
+				if (instrument.modulators[mod] === Config.modulators.dictionary["next bar"].index) {
+					for (const note of pattern.notes) {
+						if (note.pitches[0] === Config.modCount - 1 - mod) {
+							if (partsInBar > note.start) partsInBar = note.start;
+						}
+					}
+				}
+			}
+		}
+	}
+	return partsInBar;
+}
+
 const midiTicksPerBeat = 2 * Config.ticksPerPart * Config.partsPerBeat;
 
 const midiChipInstruments: number[] = [0x4a, 0x47, 0x50, 0x46, 0x44, 0x51, 0x51, 0x51, 0x51];
@@ -180,6 +206,10 @@ export function exportToMidi(song: Song, fileName: string, enableIntro: boolean,
 			const ticksPerPart = 2 * Config.ticksPerPart;
 			for (const bar of unrolledBars) {
 				const pattern = song.getPattern(track.channel, bar);
+				// Next-bar mod notes truncate this bar during playback; mirror that here
+				// so the exported MIDI matches what is heard and the round trip from a
+				// mixed-meter import stays lossless.
+				const partsInBar: number = findPartsInBar(song, bar);
 				if (pattern != null) {
 					const instrIdx = pattern.instruments[0];
 					writeInstr(instrIdx);
@@ -192,6 +222,8 @@ export function exportToMidi(song: Song, fileName: string, enableIntro: boolean,
 						} else if (instr.type === InstrumentType.fm) poly = Config.operatorCount;
 					}
 					for (const note of pattern.notes) {
+						const noteEnd = Math.min(note.end, partsInBar);
+						if (note.start >= partsInBar || noteEnd <= note.start) continue;
 						const start = barStartTime + note.start * ticksPerPart;
 						const toneCount = Math.min(poly, note.pitches.length);
 						const vel = track.isDrumset ? Math.max(1, Math.round((90 * note.pins[0].size) / Config.noteSizeMax)) : 90;
@@ -281,7 +313,7 @@ export function exportToMidi(song: Song, fileName: string, enableIntro: boolean,
 							pinS = note.pins[i].size;
 							pinI = note.pins[i].interval;
 						}
-						const end = barStartTime + note.end * ticksPerPart;
+						const end = barStartTime + noteEnd * ticksPerPart;
 						for (let t = 0; t < toneCount; t++) {
 							writeTime(end);
 							writer.writeUint8(MidiEventType.noteOff | track.midiChannel);
@@ -305,7 +337,7 @@ export function exportToMidi(song: Song, fileName: string, enableIntro: boolean,
 						writer.writeMidi7Bits((prevPB >> 7) & 0x7f);
 					}
 				}
-				barStartTime += midiTicksPerBeat * song.beatsPerBar;
+				barStartTime += partsInBar * ticksPerPart;
 			}
 		}
 		writeTime(barStartTime);
