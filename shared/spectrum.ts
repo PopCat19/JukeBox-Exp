@@ -46,6 +46,7 @@ export class spectrumCanvas {
 	constructor(
 		public readonly canvas: HTMLCanvasElement,
 		readonly scale: number = 1,
+		readonly transparentBg: boolean = false,
 	) {
 		this._updateCachedColors();
 		this._initBands(48000);
@@ -64,9 +65,14 @@ export class spectrumCanvas {
 			const w = canvas.width;
 			const h = canvas.height;
 
-			// Clear
-			ctx.fillStyle = this._cachedBgColor;
-			ctx.fillRect(0, 0, w, h);
+			// Clear — skip background fill on overlay to avoid tinting
+			// the track editor underneath.
+			if (!this.transparentBg) {
+				ctx.fillStyle = this._cachedBgColor;
+				ctx.fillRect(0, 0, w, h);
+			} else {
+				ctx.clearRect(0, 0, w, h);
+			}
 
 			const sampleCount = directlinkL.length;
 			if (sampleCount < 4) return;
