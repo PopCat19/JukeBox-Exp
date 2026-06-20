@@ -2587,13 +2587,15 @@ export class SongEditor
 		};
 		new MidiInputHandler(this.doc);
 
-		// Drag-and-drop file import for .mid, .midi, and .json files
-		this.mainLayer.addEventListener("dragover", (e: DragEvent) => {
+		// Drag-and-drop file import for .mid, .midi, and .json files.
+		// Attach to window to ensure it always fires during playback
+		// (mainLayer may not receive events when player animator is active).
+		const _onDragOver = (e: DragEvent) => {
 			if (e.dataTransfer && (e.dataTransfer.types.indexOf("Files") !== -1)) {
 				e.preventDefault();
 			}
-		});
-		this.mainLayer.addEventListener("drop", (e: DragEvent) => {
+		};
+		const _onDrop = (e: DragEvent) => {
 			if (!e.dataTransfer) return;
 			const files: FileList = e.dataTransfer.files;
 			if (files.length === 0) return;
@@ -2601,14 +2603,15 @@ export class SongEditor
 			const name: string = file.name.toLowerCase();
 			if (name.endsWith(".mid") || name.endsWith(".midi") || name.endsWith(".json")) {
 				e.preventDefault();
-				// Open import prompt and forward the file
 				this._promptManager.open("import");
 				const importPrompt: ImportPrompt | null = this._promptManager.prompt as ImportPrompt | null;
 				if (importPrompt && typeof (importPrompt as any).handleExternalFile === "function") {
 					(importPrompt as any).handleExternalFile(file);
 				}
 			}
-		});
+		};
+		window.addEventListener("dragover", _onDragOver);
+		window.addEventListener("drop", _onDrop);
 
 		window.addEventListener("resize", this.whenUpdated);
 		window.requestAnimationFrame(this.updatePlayButton);
