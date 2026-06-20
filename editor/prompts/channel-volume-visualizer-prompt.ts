@@ -406,13 +406,13 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 							for (let p = 0; p < tone.pitchCount; p++) {
 								if (tone.pitches[p] > 0) {
 									const b = Math.min(bandCount - 1, Math.max(0, Math.floor((tone.pitches[p] - minPitch) / bandRange)));
-									bandMags[b] = Math.min(1, bandMags[b] + 0.35);
+									bandMags[b] = Math.min(1, bandMags[b] + 0.2);
 								}
 							}
 						}
 					}
 
-					// Temporal smoothing (instant attack, 0.9 decay)
+					// Temporal smoothing (instant attack, 0.85 decay)
 					let smooth = this._spectrumSmooth.get(channelIndex);
 					if (!smooth || smooth.length !== bandCount) {
 						smooth = new Float32Array(bandCount);
@@ -422,7 +422,7 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 						if (bandMags[b] > smooth[b]) {
 							smooth[b] = bandMags[b];
 						} else {
-							smooth[b] = smooth[b] * 0.9 + bandMags[b] * 0.1;
+							smooth[b] = smooth[b] * 0.85 + bandMags[b] * 0.15;
 						}
 					}
 
@@ -447,7 +447,7 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 					const bandW = w / (bandCount - 1);
 					const ys: number[] = [];
 					for (let b = 0; b < bandCount; b++) {
-						ys[b] = h - Math.min(0.5, (2 * smooth[b]) / (smooth[b] + 0.02)) * h;
+						ys[b] = h - Math.min(1, (2 * smooth[b]) / (smooth[b] + 0.6)) * h;
 					}
 
 					spectrumCtx.beginPath();
