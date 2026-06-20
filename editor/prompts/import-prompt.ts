@@ -455,7 +455,7 @@ export class ImportPrompt extends BasePrompt {
 		const beatsPerMinute: number = Math.max(Config.tempoMin, Math.min(Config.tempoMax, Math.round(microsecondsPerMinute / mspb)));
 		const midiTicksPerPart: number = midiTicksPerBeat / Config.partsPerBeat;
 		const partsPerBar: number = Config.partsPerBeat * beatsPerBar;
-		const songTotalBars: number = Math.min(1000, Math.ceil(currentMidiTick / midiTicksPerPart / partsPerBar));
+		const songTotalBars: number = Math.min(Config.barCountMax, Math.ceil(currentMidiTick / midiTicksPerPart / partsPerBar));
 
 		function quantizeMidiTickToPart(midiTick: number): number {
 			return Math.round(midiTick / midiTicksPerPart);
@@ -1178,9 +1178,7 @@ export class ImportPrompt extends BasePrompt {
 				song.loopStart = 0;
 				song.loopLength = song.barCount;
 
-				// Cap bar count to 1000 to prevent MIDI timing issues from
-				// creating 3000+ bar songs that are unusable.
-				song.barCount = Math.min(1000, song.barCount);
+				song.barCount = Math.min(Config.barCountMax, song.barCount);
 				// Re-validate against song.beatsPerBar (which should match partsPerBar)
 				// to catch any drift between the pre-validation and serialization.
 				const finalMaxPart: number = song.beatsPerBar * Config.partsPerBeat;
