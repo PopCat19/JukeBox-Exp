@@ -213,7 +213,7 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 	public container: HTMLDivElement = div(
 		{
 			class: "prompt noSelection",
-			style: "width: 720px; height: auto; max-height: 80vh; display: flex; flex-direction: column;",
+			style: "width: 720px; max-height: 80vh; display: flex; flex-direction: column;",
 			tabindex: "0",
 		},
 		h2({ style: "margin: 12px 12px 0px 12px; text-align: center;" }, "Channel Volume Visualizer"),
@@ -905,6 +905,16 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 			}
 
 			this._contentContainer.appendChild(channelDiv);
+		}
+
+		// When exceeding 28 channels, limit the content area height so the grid
+		// scrolls instead of extending the prompt to hug all tiles.
+		if (channelCount > 28) {
+			// Grid auto-fill at ~500px pane width yields ~4 columns.
+			// 28 channels / 4 = 7 rows at ~80px per card + gaps ≈ 560px.
+			this._contentContainer.style.maxHeight = "560px";
+		} else {
+			this._contentContainer.style.maxHeight = "";
 		}
 
 		// Observe the grid container so per-channel canvas backing-store sizes are
