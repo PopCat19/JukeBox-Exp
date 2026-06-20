@@ -52,22 +52,13 @@ export class spectrumCanvas {
 		this._initBands(48000);
 
 		this._EventUpdateCanvas = (directlinkL: Float32Array, directlinkR?: Float32Array): void => {
-			const ctx = canvas.getContext("2d") as CanvasRenderingContext2D;
-			// Always clear first — prevents stale-pixel artifacting
-			// when directlinkR is missing (e.g. mod-controlled volume
-			// causes sparse callbacks).
+			if (!directlinkR) return;
 
-			// Match canvas resolution to CSS layout for sharp rendering.
-			// Use a 3px tolerance to prevent constant resizing from
-			// sub-pixel oscillations at 60fps (±2px from clientWidth
-			// * devicePixelRatio bouncing by 1 CSS pixel). At narrower
-			// tolerances the canvas resizes every other frame, clearing
-			// the context and accumulating gaps at the right edge of
-			// the bezier fill — visible as artifacting above the
-			// volume slider.
+			const ctx = canvas.getContext("2d") as CanvasRenderingContext2D;
+			// Match canvas resolution to CSS layout for sharp rendering
 			const displayW = Math.round(canvas.clientWidth * devicePixelRatio);
 			const displayH = Math.round(canvas.clientHeight * devicePixelRatio);
-			if (Math.abs(canvas.width - displayW) > 2 || Math.abs(canvas.height - displayH) > 2) {
+			if (canvas.width !== displayW || canvas.height !== displayH) {
 				canvas.width = displayW;
 				canvas.height = displayH;
 			}
@@ -81,8 +72,6 @@ export class spectrumCanvas {
 			} else {
 				ctx.clearRect(0, 0, w, h);
 			}
-
-			if (!directlinkR) return;
 
 			const sampleCount = directlinkL.length;
 			if (sampleCount < 4) return;
