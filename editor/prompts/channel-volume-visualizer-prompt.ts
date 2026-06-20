@@ -50,21 +50,24 @@ function ChannelVolumeVisualizerPrompt_initBlurKernel(): number[] {
 	return kernel;
 }
 
-// Perceived-loudness metering. Meters use A-weighted RMS (IEC 61672 analytical
-// curve) instead of sample-peak, so they track hearing rather than headroom.
+// Perceived-loudness metering. Meters use C-weighted RMS (IEC 61672 C curve)
+// instead of sample-peak, so they track energy rather than headroom. C-weighting
+// is nearly flat and only rolls off sub-bass below ~30Hz, so kicks and bass
+// register at near-full weight (A-weighting would attenuate a 50Hz kick by ~30dB
+// and desensitize the meter to them).
 // LOUDNESS_REF is the RMS of a full-scale 1 kHz sine (1/sqrt(2)); a FS sine
-// reads 0 dB and fills the bar, so the dB scale is dBFS(A).
+// reads 0 dB and fills the bar, so the dB scale is dBFS(C).
 const LOUDNESS_REF: number = Math.SQRT1_2;
 
-// Ra(f): unnormalized A-weighting transfer magnitude (IEC 61672). Normalized
-// against Ra(1000) so the result is 1.0 at 1 kHz.
-function computeRaWeight(f: number): number {
+// Rc(f): unnormalized C-weighting transfer magnitude (IEC 61672). Same low and
+// high poles as A, but without the 107.7/737.9 Hz resonance pair. Normalized
+// against Rc(1000) so the result is 1.0 at 1 kHz.
+function computeRcWeight(f: number): number {
 	const f2 = f * f;
 	const num = 12194 * 12194 * f2 * f2;
 	const d1 = f2 + 20.6 * 20.6;
 	const d2 = f2 + 12194 * 12194;
-	const d3 = Math.sqrt((f2 + 107.7 * 107.7) * (f2 + 737.9 * 737.9));
-	return num / (d1 * d2 * d3);
+	return num / (d1 * d2);
 }
 
 export class ChannelVolumeVisualizerPrompt extends BasePrompt {
@@ -357,25 +360,25 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 		}
 	}
 
-	// Build (or return cached) A-weighting per FFT bin for the given sample rate.
+	// Build (or return cached) C-weighting per FFT bin for the given sample rate.
 	private _ensureAWeight(sampleRate: number): Float32Array {
 		if (this._aWeight != null && this._aWeightSampleRate === sampleRate) return this._aWeight;
 		const halfN = FFT_SIZE >> 1;
 		const binFreq = sampleRate / FFT_SIZE;
-		const ra1000 = computeRaWeight(1000);
+		const ra1000 = computeRcWeight(1000);
 		const arr = new Float32Array(halfN + 1);
 		for (let k = 0; k <= halfN; k++) {
 			const f = k * binFreq;
-			arr[k] = f > 0 ? computeRaWeight(f) / ra1000 : 0;
+			arr[k] = f > 0 ? computeRcWeight(f) / ra1000 : 0;
 		}
 		this._aWeight = arr;
 		this._aWeightSampleRate = sampleRate;
 		return arr;
 	}
 
-	// A-weighted RMS loudness for one channel from its isolated ring buffer.
+	// C-weighted RMS loudness for one channel from its isolated ring buffer.
 	// unweightedRMS is exact (time domain over the full ~170ms window). The
-	// A-weighting factor is sqrt(weighted spectral energy / unweighted); the Hann
+	// C-weighting factor is sqrt(weighted spectral energy / unweighted); the Hann
 	// window applied to `mags` cancels in that ratio, so the result is independent
 	// of the window. No signal gain is applied, so `mags` is the raw magnitude.
 	private _computeLoudnessRms(channelState: ChannelState, mags: Float32Array, halfN: number): number {
@@ -409,13 +412,9 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 		const currentBar = Math.floor(this._doc.synth.playhead);
 		this._currentBarLabel.textContent = `Bar: ${currentBar + 1}`;
 
-		// Master loudness = energy sum of per-channel A-weighted RMS (loudness adds
-		// for mostly-uncorrelated mixer channels). Read from last frame's map values;
-		// one frame of latency is imperceptible for a ~170ms-integrated meter.
-		let masterRmsSqSum = 0;
-		for (const v of this._channelLoudnessRms.values()) masterRmsSqSum += v * v;
-		const masterRms = Math.sqrt(masterRmsSqSum);
-		const masterLevel = Math.min(1, masterRms / LOUDNESS_REF);
+		// Master loudness from the synth's rolling unweighted RMS of the post-limiter
+		// master output. Same source as the editor's main meter, so the two agree.
+		const masterLevel = this._doc.synth.getOutLoudness();
 
 		// Update master volume bar
 		this._historicTimer--;
@@ -832,7 +831,7 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 			);
 
 			const channelDiv = div({
-				style: `display: flex; flex-direction: column; padding: 4px 8px; min-width: 0; aspect-ratio: 1; overflow: hidden; position: relative; border: 2px solid ${
+				style: `display: flex; flex-direction: column; padding: 4px 8px; min-width: 0; overflow: hidden; position: relative; border: 2px solid ${
 					isMuted ? "var(--mute-button-normal)" : channelColors.primaryChannel
 				}; border-radius: var(--border-radius-medium); background: var(--editor-background); cursor: pointer; ${isMuted ? "opacity: 0.5;" : ""} ${isDimmed ? "opacity: 0.5;" : ""}`,
 			});

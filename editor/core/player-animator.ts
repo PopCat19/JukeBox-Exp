@@ -104,18 +104,22 @@ export class PlayerAnimator {
 	}
 
 	public volumeUpdate = (): void => {
+		// Loudness (rolling unweighted RMS of post-limiter output) instead of
+		// sample peak, so the meter tracks energy and responds to kicks/bass
+		// rather than just transient spikes.
+		const level = this._doc.synth.getOutLoudness();
 		this.outVolumeHistoricTimer--;
 		if (this.outVolumeHistoricTimer <= 0) {
 			this.outVolumeHistoricCap -= 0.03;
 		}
-		if (this._doc.song.outVolumeCap > this.outVolumeHistoricCap) {
-			this.outVolumeHistoricCap = this._doc.song.outVolumeCap;
+		if (level > this.outVolumeHistoricCap) {
+			this.outVolumeHistoricCap = level;
 			this.outVolumeHistoricTimer = 50;
 		}
 
-		if (this._doc.song.outVolumeCap !== this.lastOutVolumeCap) {
-			this.lastOutVolumeCap = this._doc.song.outVolumeCap;
-			this._callbacks.outVolumeBar.setAttribute("width", `${Math.min(144, this._doc.song.outVolumeCap * 144)}`);
+		if (level !== this.lastOutVolumeCap) {
+			this.lastOutVolumeCap = level;
+			this._callbacks.outVolumeBar.setAttribute("width", `${Math.min(144, level * 144)}`);
 			this._callbacks.outVolumeCap.setAttribute("x", `${8 + Math.min(144, this.outVolumeHistoricCap * 144)}`);
 		}
 	};

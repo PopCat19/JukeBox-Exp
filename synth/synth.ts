@@ -494,6 +494,16 @@ export class Synth {
 	public onSpectrumUpdate?: (left: Float32Array, right: Float32Array) => void;
 	public onSpectrumReset?: () => void;
 	public totalSamplesRendered: number = 0;
+	// Rolling master loudness (unweighted RMS of post-limiter output) over a
+	// ~186ms window (8192 samples at 44.1k, ~170ms at 48k). Unweighted RMS keeps
+	// low-frequency content (kicks/bass) at full weight, unlike A-weighting, so
+	// the meter responds to kick impact. Exposed via song.outLoudness for the
+	// editor main meter and the channel-volume visualizer master meter.
+	private static readonly LOUDNESS_WINDOW: number = 8192;
+	private _loudnessRing: Float32Array = new Float32Array(Synth.LOUDNESS_WINDOW);
+	private _loudnessRingPos: number = 0;
+	private _loudnessSumSq: number = 0;
+	private _loudnessFilled: number = 0;
 	private _lastSpectrumUpdateTime: number = 0;
 	private static readonly SPECTRUM_UPDATE_INTERVAL_MS: number = 1000 / 60; // 60fps
 	public enableMetronome: boolean = false;
@@ -629,6 +639,24 @@ export class Synth {
 	public getSamplesPerBar(): number {
 		if (this.song == null) throw new Error();
 		return this.getSamplesPerTick() * Config.ticksPerPart * Config.partsPerBeat * this.song.beatsPerBar;
+	}
+
+	// Rolling unweighted RMS of the post-limiter master output over the
+	// loudness window. Normalized against a full-scale 1 kHz sine (1/sqrt(2))
+	// so the value is 0..~0.7 and a FS sine fills the meter (0 dBFS RMS).
+	public getOutLoudness(): number {
+		if (this._loudnessFilled <= 0) return 0;
+		const rms = Math.sqrt(Math.max(0, this._loudnessSumSq) / this._loudnessFilled);
+		return Math.min(1, rms / Math.SQRT1_2);
+	}
+
+	// Reset the loudness rolling window (e.g. on pause/song change) so stale
+	// audio does not keep the meter elevated.
+	public resetLoudness(): void {
+		this._loudnessRing.fill(0);
+		this._loudnessRingPos = 0;
+		this._loudnessSumSq = 0;
+		this._loudnessFilled = 0;
 	}
 
 	public getTicksIntoBar(): number {
@@ -1185,6 +1213,7 @@ export class Synth {
 		this.modValues = [];
 		this.nextModValues = [];
 		this.heldMods = [];
+		this.resetLoudness();
 		if (this.song != null) {
 			this.song.inVolumeCap = 0.0;
 			this.song.outVolumeCap = 0.0;
@@ -2042,6 +2071,14 @@ export class Synth {
 				outputDataR[i] = sampleR * limitedVolume;
 
 				this.song.outVolumeCap = this.song.outVolumeCap > abs * limitedVolume ? this.song.outVolumeCap : abs * limitedVolume; // Analytics, spit out limited output volume
+
+				// Rolling unweighted RMS of the post-limiter mono mix for loudness metering.
+				const outMono = (sampleL + sampleR) * 0.5 * limitedVolume;
+				const old = this._loudnessRing[this._loudnessRingPos];
+				this._loudnessSumSq += outMono * outMono - old * old;
+				this._loudnessRing[this._loudnessRingPos] = outMono;
+				this._loudnessRingPos = (this._loudnessRingPos + 1) % Synth.LOUDNESS_WINDOW;
+				if (this._loudnessFilled < Synth.LOUDNESS_WINDOW) this._loudnessFilled++;
 			}
 
 			bufferIndex += runLength;
