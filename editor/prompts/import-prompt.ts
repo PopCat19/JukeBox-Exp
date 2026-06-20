@@ -816,6 +816,16 @@ export class ImportPrompt extends BasePrompt {
 						const rhythmMinDivision: number = Config.partsPerBeat / Config.rhythms[detectedRhythm].stepsPerBeat;
 						if (endPart <= startPart) endPart = startPart + Math.max(rhythmMinDivision, 3);
 
+						// If note barely extends past a bar boundary (<3 parts), snap to
+						// the boundary to avoid tiny continuation notes at the start
+						// of the next bar.
+						if (endPart > partsPerBar) {
+							const overflowIntoBar: number = endPart % partsPerBar;
+							if (overflowIntoBar > 0 && overflowIntoBar < 3) {
+								endPart = endPart - overflowIntoBar;
+							}
+						}
+
 						const startBar: number = Math.floor(startPart / partsPerBar);
 						const endBar: number = Math.ceil(endPart / partsPerBar);
 						let createdNote: boolean = false;
@@ -1197,6 +1207,7 @@ export class ImportPrompt extends BasePrompt {
 		validateChannelNotes(modChannels, Config.modCount - 1, Config.tempoMax, "mod channels");
 
 		console.log(`[MIDI Import] key=${key} scale=${scale} (${Config.scales[scale].name}) rhythm=${detectedRhythm} (${Config.rhythms[detectedRhythm].name}) beatsPerBar=${beatsPerBar} tempo=${beatsPerMinute} BPM`);
+		console.log(`[MIDI Import] midiTicksPerBeat=${midiTicksPerBeat} midiTicksPerPart=${midiTicksPerPart} partsPerBar=${partsPerBar}`);
 		console.log(`[MIDI Import] ${pitchChannels.length} pitch channels, ${noiseChannels.length} noise channels, ${modChannels.length} mod channels, ${songTotalBars} bars`);
 		if (tempoChanges.length > 1) console.log(`[MIDI Import] ${tempoChanges.length} tempo changes detected`);
 
