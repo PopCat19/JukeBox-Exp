@@ -395,24 +395,28 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 					// Build band magnitudes from active tones (20-4000Hz, ~48 bands)
 					const bandCount = 48;
 					const bandMags = new Float32Array(bandCount);
-					const minPitch = 12;  // C0 ~16Hz, covers below 20Hz
-					const maxPitch = 115; // G#8 ~6.2kHz, covers up to 6kHz
-					const bandRange = (maxPitch - minPitch) / bandCount;
+					const minPitch = 12;
+					const maxPitch = 115;
 
+					// Accumulate gaussian contributions at pitch positions (sigma=0.6 bands)
 					for (const instrState of channelState.instruments) {
 						const count = instrState.activeTones.count();
 						for (let t = 0; t < count; t++) {
 							const tone = instrState.activeTones.get(t);
 							for (let p = 0; p < tone.pitchCount; p++) {
 								if (tone.pitches[p] > 0) {
-									const b = Math.min(bandCount - 1, Math.max(0, Math.floor((tone.pitches[p] - minPitch) / bandRange)));
-									bandMags[b] = Math.min(1, bandMags[b] + 0.2);
+									const centerBand = (tone.pitches[p] - minPitch) / (maxPitch - minPitch) * (bandCount - 1);
+									for (let b = 0; b < bandCount; b++) {
+										const d = (b - centerBand) / 0.6;
+										const w = Math.exp(-0.5 * d * d);
+										bandMags[b] = Math.min(1, bandMags[b] + w * 0.4);
+									}
 								}
 							}
 						}
 					}
 
-					// Temporal smoothing (instant attack, 0.85 decay)
+					// Temporal smoothing
 					let smooth = this._spectrumSmooth.get(channelIndex);
 					if (!smooth || smooth.length !== bandCount) {
 						smooth = new Float32Array(bandCount);
@@ -447,7 +451,7 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 					const bandW = w / (bandCount - 1);
 					const ys: number[] = [];
 					for (let b = 0; b < bandCount; b++) {
-						ys[b] = h - Math.min(1, (2 * smooth[b]) / (smooth[b] + 0.6)) * h;
+						ys[b] = h - Math.min(1, (2 * smooth[b]) / (smooth[b] + 0.35)) * h;
 					}
 
 					spectrumCtx.beginPath();
