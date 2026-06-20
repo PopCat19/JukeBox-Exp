@@ -516,23 +516,28 @@ export class ImportPrompt extends BasePrompt {
 
 		let detectedRhythm: number = Config.rhythms.length - 1; // default to freehand (÷24)
 		{
-			for (let r: number = 0; r < Config.rhythms.length; r++) {
-				const stepsPerBeat: number = Config.rhythms[r].stepsPerBeat;
-				const minDivision: number = Config.partsPerBeat / stepsPerBeat;
-				let allFit: boolean = true;
-				for (let midiChannel: number = 0; midiChannel < 16 && allFit; midiChannel++) {
-					for (const event of noteEvents[midiChannel]) {
-						const part: number = quantizeMidiTickToPart(event.midiTick);
-						const partInBeat: number = part % Config.partsPerBeat;
-						if (partInBeat % minDivision !== 0) {
-							allFit = false;
-							break;
+			// Count total note event positions (onsets + offsets) across all channels
+			let totalPositions: number = 0;
+			for (let midiChannel: number = 0; midiChannel < 16; midiChannel++) {
+				totalPositions += noteEvents[midiChannel].length;
+			}
+			// Pick the coarsest rhythm where >=80% of positions land on the grid.
+			// Outliers (the remaining <20%) get snapped to the grid by snapPartToRhythm(),
+			// preventing drift without forcing freehand for the whole song.
+			if (totalPositions > 0) {
+				for (let r: number = 0; r < Config.rhythms.length; r++) {
+					const minDivision: number = Config.partsPerBeat / Config.rhythms[r].stepsPerBeat;
+					let fitCount: number = 0;
+					for (let midiChannel: number = 0; midiChannel < 16; midiChannel++) {
+						for (const event of noteEvents[midiChannel]) {
+							const part: number = quantizeMidiTickToPart(event.midiTick);
+							if (part % Config.partsPerBeat % minDivision === 0) fitCount++;
 						}
 					}
-				}
-				if (allFit) {
-					detectedRhythm = r;
-					break;
+					if (fitCount / totalPositions >= 0.8) {
+						detectedRhythm = r;
+						break;
+					}
 				}
 			}
 		}
@@ -604,11 +609,11 @@ export class ImportPrompt extends BasePrompt {
 					grouped.push({
 						startMidiTick: note.startMidiTick,
 						endMidiTick: note.endMidiTick,
-					pitches: note.pitches.slice(),
-					velocity: note.velocity,
-					program: note.program,
-					instrumentVolume: note.instrumentVolume,
-					instrumentPan: note.instrumentPan,
+						pitches: note.pitches.slice(),
+						velocity: note.velocity,
+						program: note.program,
+						instrumentVolume: note.instrumentVolume,
+						instrumentPan: note.instrumentPan,
 					});
 				}
 			}
@@ -732,7 +737,10 @@ export class ImportPrompt extends BasePrompt {
 						}
 						const duration: number = Math.min(maxDuration, Math.max(minDuration, 2));
 						const noteStartPart: number = prevEventPart - barStartPart;
-						const noteEndPart: number = Math.min(partsPerBar, Math.min(nextEventPart - barStartPart, noteStartPart + duration * 6));
+						let noteEndPart: number = Math.min(partsPerBar, Math.min(nextEventPart - barStartPart, noteStartPart + duration * 6));
+						// Ensure drum note has at least 1-part duration to prevent loss
+						// when next hit lands at the same snapped position
+						if (noteEndPart <= noteStartPart) noteEndPart = Math.min(partsPerBar, noteStartPart + 1);
 						if (noteStartPart < noteEndPart) {
 							const note: Note = new Note(-1, noteStartPart, noteEndPart, noteSize, true);
 							note.pitches.length = 0;
