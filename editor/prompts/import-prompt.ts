@@ -1191,17 +1191,32 @@ export class ImportPrompt extends BasePrompt {
 				for (const channel of song.channels) {
 					for (const pattern of channel.patterns) {
 						pattern.notes.sort((a: Note, b: Note) => a.start - b.start);
+						// Simulate serialization cursor: the writer uses delta encoding
+						// and cannot encode note.start < curPart for non-mod channels.
+						// If two notes share start=0, the second would be placed at
+						// curPart by the reader, producing end = curPart + noteDuration.
+						// Detect this by walking notes and dropping/merging collisions.
+						let simCurPart: number = 0;
 						const validNotes: Note[] = [];
 						for (const note of pattern.notes) {
 							const origEnd: number = note.end;
 							note.start = Math.max(0, Math.min(finalMaxPart, note.start));
 							note.end = Math.max(0, Math.min(finalMaxPart, note.end));
 							if (note.start >= note.end) { finalFixed++; continue; }
+							// If this note's start is behind the cursor, the writer
+							// would skip it; the reader would place it at simCurPart
+							// instead of note.start. Snap it to simCurPart.
+							if (note.start < simCurPart) {
+								note.start = Math.min(simCurPart, finalMaxPart - 1);
+								note.end = Math.max(note.start + 1, Math.min(finalMaxPart, note.end));
+								if (note.start >= note.end) { finalFixed++; continue; }
+							}
+							if (note.end !== origEnd) finalFixed++;
 							const dur: number = note.end - note.start;
 							for (const pin of note.pins) {
 								pin.time = Math.max(0, Math.min(dur, pin.time));
 							}
-							if (note.end !== origEnd) finalFixed++;
+							simCurPart = note.end;
 							validNotes.push(note);
 						}
 						pattern.notes.length = 0;
