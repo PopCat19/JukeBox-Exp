@@ -23,6 +23,10 @@ const { svg, defs, linearGradient, stop, rect } = SVG;
 // per-channel overlay matches the editor's main spectrum look.
 // FG bands: 151 quarter-tone bands from ~130Hz to ~10000Hz.
 const FG_BANDS = 151;
+// Display bars aggregated from the FG bands. The channel cards are narrow
+// (1:1 aspect), so a 151-point wave is unreadable; 16 rounded bars aggregate
+// ~9-10 bands each and read clearly at the card width.
+const BAR_COUNT = 16;
 // Fixed soft-compression reference (same as main spectrum FG_REF).
 const FG_REF = 0.04;
 // Per-channel diff audio (channelState.audioRing) is ~1/16 the amplitude of
@@ -119,7 +123,6 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 	// so a single set shared across channels avoids per-frame allocation).
 	private readonly _bandMags: Float32Array = new Float32Array(FG_BANDS);
 	private readonly _blurred: Float32Array = new Float32Array(FG_BANDS);
-	private readonly _ys: number[] = new Array(FG_BANDS);
 	// Cached per-channel overlay fill color. getComputedChannelColor calls
 	// getComputedStyle 4x per call, which forces a style recalc; computing it
 	// once per channel on render (and on theme change) removes that per-frame reflow.
@@ -555,28 +558,42 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 						}
 					}
 
-					// Draw smooth bezier fill, single fixed-ref soft-compression (no second compress).
+					// Draw rounded-bottom-up bars: aggregate the FG bands into BAR_COUNT bars,
+					// each a rounded-top rectangle filled from the card bottom. A continuous
+					// wave is unreadable on the narrow 1:1 cards.
 					const col = this._channelSpectrumColors.get(channelIndex);
 					if (col) {
-						const bandW = w / (FG_BANDS - 1);
-						const ys = this._ys;
-						for (let b = 0; b < FG_BANDS; b++) {
-							ys[b] = h - Math.min(1, (2 * smooth[b]) / (smooth[b] + FG_REF)) * h;
-						}
-
-						spectrumCtx.beginPath();
-						spectrumCtx.moveTo(0, h);
-						spectrumCtx.lineTo(0, ys[0]);
-						for (let b = 0; b < FG_BANDS - 1; b++) {
-							const x1 = b * bandW;
-							const x2 = (b + 1) * bandW;
-							spectrumCtx.quadraticCurveTo(x1, ys[b], (x1 + x2) / 2, (ys[b] + ys[b + 1]) / 2);
-						}
-						spectrumCtx.lineTo(w, ys[FG_BANDS - 1]);
-						spectrumCtx.lineTo(w, h);
-						spectrumCtx.closePath();
+						const bandsPerBar = FG_BANDS / BAR_COUNT;
+						// Leave a 1px gap between bars; cap radius at half the bar width so tall
+						// bars stay fully rounded and thin bars don't over-round.
+						const gap = Math.max(1, window.devicePixelRatio || 1);
+						const barOuter = w / BAR_COUNT;
+						const barW = barOuter - gap;
+						const radius = Math.min(barW * 0.5, h * 0.12);
 						spectrumCtx.fillStyle = col;
 						spectrumCtx.globalAlpha = 0.45;
+						spectrumCtx.beginPath();
+						for (let bar = 0; bar < BAR_COUNT; bar++) {
+							// Average the smoothed magnitude across this bar's band range.
+							const s0 = Math.floor(bar * bandsPerBar);
+							const s1 = Math.min(FG_BANDS, Math.floor((bar + 1) * bandsPerBar));
+							let acc = 0;
+							for (let b = s0; b < s1; b++) acc += smooth[b];
+							const avg = acc / (s1 - s0);
+							const norm = Math.min(1, (2 * avg) / (avg + FG_REF));
+							const barH = norm * h;
+							if (barH < 0.5) continue;
+							const x = bar * barOuter + gap * 0.5;
+							const y = h - barH;
+							// Rounded-top rectangle path (bottom corners square, top corners rounded).
+							const r = Math.min(radius, barH * 0.5);
+							spectrumCtx.moveTo(x, h);
+							spectrumCtx.lineTo(x, y + r);
+							spectrumCtx.quadraticCurveTo(x, y, x + r, y);
+							spectrumCtx.lineTo(x + barW - r, y);
+							spectrumCtx.quadraticCurveTo(x + barW, y, x + barW, y + r);
+							spectrumCtx.lineTo(x + barW, h);
+						}
 						spectrumCtx.fill();
 						spectrumCtx.globalAlpha = 1.0;
 					}
