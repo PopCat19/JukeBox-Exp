@@ -26,18 +26,18 @@ interface Particle {
 	size: number;
 }
 
-const MAX_PARTICLES = 200;
+const MAX_PARTICLES = 300;
 
 function spawnParticle(x: number, y: number, mag: number): Particle {
-	const maxLife = 40 + Math.random() * 60;
+	const maxLife = 30 + Math.random() * 40;
 	return {
 		x,
 		y,
-		vx: (Math.random() - 0.5) * 0.4,
-		vy: -(0.4 + Math.random() * 0.8 + mag * 0.5),
+		vx: (Math.random() - 0.5) * 0.6,
+		vy: -(0.6 + Math.random() * 1.2 + mag * 0.8),
 		life: maxLife,
 		maxLife,
-		size: 1 + Math.random() * 3 + mag * 2,
+		size: 3 + Math.random() * 4 + mag * 3,
 	};
 }
 
@@ -343,9 +343,9 @@ export class spectrumCanvas {
 			const mag = this._fgSmoothMags[b];
 			if (mag < 0.001) continue;
 			const normMag = (2 * mag) / (mag + spectrumCanvas.FG_REF);
-			if (normMag > 0.15 && Math.random() < normMag * 0.3) {
-				const x = b * bandWidth + (Math.random() - 0.5) * bandWidth * 0.6;
-				const y = this._fgYs[b] + (Math.random() - 0.5) * 8;
+			if (normMag > 0.08 && Math.random() < normMag * 0.5) {
+				const x = b * bandWidth + (Math.random() - 0.5) * bandWidth * 0.8;
+				const y = this._fgYs[b] + (Math.random() - 0.5) * 6;
 				this._particles.push(spawnParticle(x, y, normMag));
 				if (this._particles.length >= MAX_PARTICLES) return;
 			}
@@ -355,16 +355,16 @@ export class spectrumCanvas {
 	private _drawParticles(ctx: CanvasRenderingContext2D): void {
 		ctx.save();
 		for (const p of this._particles) {
-			const alpha = Math.min(1, (p.life / p.maxLife) * 2) * 0.6;
-			const size = p.size * (0.3 + 0.7 * (p.life / p.maxLife));
-			const gradient = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, size * 2);
-			gradient.addColorStop(0, `rgba(255,255,255,${alpha})`);
-			gradient.addColorStop(0.3, `rgba(200,180,255,${alpha * 0.6})`);
-			gradient.addColorStop(1, `rgba(200,180,255,0)`);
-			ctx.fillStyle = gradient;
+			const t = p.life / p.maxLife;
+			const alpha = (Math.min(1, t * 3) * (1 - t * 0.5)) * 0.7;
+			const radius = p.size * (0.4 + 0.6 * t);
+			const lineW = Math.max(0.5, radius * 0.35);
+			ctx.globalAlpha = alpha;
+			ctx.strokeStyle = this._cachedLColor;
+			ctx.lineWidth = lineW;
 			ctx.beginPath();
-			ctx.arc(p.x, p.y, size * 2, 0, Math.PI * 2);
-			ctx.fill();
+			ctx.arc(p.x, p.y, radius, 0, Math.PI * 2);
+			ctx.stroke();
 		}
 		ctx.restore();
 	}
