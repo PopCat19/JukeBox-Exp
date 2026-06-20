@@ -1144,21 +1144,6 @@ export class ImportPrompt extends BasePrompt {
 							if (pin.time !== origTime || pin.size !== origSize) wasClamped = true;
 						}
 						if (wasClamped) clampedNotes++;
-						// Ensure pins are sorted by time (serialization writes deltas)
-						note.pins.sort((a: NotePin, b: NotePin) => a.time - b.time);
-						// Ensure at least 1 pin exists
-						if (note.pins.length === 0) {
-							note.pins.push(makeNotePin(0, 0, Math.min(maxSize, Config.noteSizeMax)));
-						}
-						// Ensure first pin is at time 0
-						if (note.pins[0].time !== 0) {
-							note.pins.unshift(makeNotePin(0, 0, note.pins[0].size));
-						}
-						// Ensure last pin is at note duration
-						const lastPin: NotePin = note.pins[note.pins.length - 1];
-						if (lastPin.time !== noteDuration) {
-							note.pins.push(makeNotePin(lastPin.interval, noteDuration, lastPin.size));
-						}
 						totalNotes++;
 						validNotes.push(note);
 					}
@@ -1215,14 +1200,6 @@ export class ImportPrompt extends BasePrompt {
 							const dur: number = note.end - note.start;
 							for (const pin of note.pins) {
 								pin.time = Math.max(0, Math.min(dur, pin.time));
-							}
-							note.pins.sort((a: NotePin, b: NotePin) => a.time - b.time);
-							if (note.pins.length > 0 && note.pins[0].time !== 0) {
-								note.pins.unshift(makeNotePin(0, 0, note.pins[0].size));
-							}
-							if (note.pins.length > 0) {
-								const lp: NotePin = note.pins[note.pins.length - 1];
-								if (lp.time !== dur) note.pins.push(makeNotePin(lp.interval, dur, lp.size));
 							}
 							if (note.end !== origEnd) finalFixed++;
 							validNotes.push(note);
