@@ -453,7 +453,7 @@ export class ImportPrompt extends BasePrompt {
 		const beatsPerMinute: number = Math.max(Config.tempoMin, Math.min(Config.tempoMax, Math.round(microsecondsPerMinute / mspb)));
 		const midiTicksPerPart: number = midiTicksPerBeat / Config.partsPerBeat;
 		const partsPerBar: number = Config.partsPerBeat * beatsPerBar;
-		const songTotalBars: number = Math.ceil(currentMidiTick / midiTicksPerPart / partsPerBar);
+		const songTotalBars: number = Math.min(1000, Math.ceil(currentMidiTick / midiTicksPerPart / partsPerBar));
 
 		function quantizeMidiTickToPart(midiTick: number): number {
 			return Math.round(midiTick / midiTicksPerPart);
@@ -1089,51 +1089,12 @@ export class ImportPrompt extends BasePrompt {
 				prevChangeEndPart = changeEndPart;
 			}
 		}
-		function compactChannels(channels: Channel[], maxLength: number): void {
-			while (channels.length > maxLength) {
-				let bestChannelIndexA: number = channels.length - 2;
-				let bestChannelIndexB: number = channels.length - 1;
-				let fewestConflicts: number = Number.MAX_VALUE;
-				let fewestGaps: number = Number.MAX_VALUE;
-				for (let channelIndexA: number = 0; channelIndexA < channels.length - 1; channelIndexA++) {
-					for (let channelIndexB: number = channelIndexA + 1; channelIndexB < channels.length; channelIndexB++) {
-						const channelA: Channel = channels[channelIndexA];
-						const channelB: Channel = channels[channelIndexB];
-						let conflicts: number = 0;
-						let gaps: number = 0;
-						for (let barIndex: number = 0; barIndex < channelA.bars.length && barIndex < channelB.bars.length; barIndex++) {
-							if (channelA.bars[barIndex] !== 0 && channelB.bars[barIndex] !== 0) conflicts++;
-							if (channelA.bars[barIndex] === 0 && channelB.bars[barIndex] === 0) gaps++;
-						}
-						if (conflicts <= fewestConflicts) {
-							if (conflicts < fewestConflicts || gaps < fewestGaps) {
-								bestChannelIndexA = channelIndexA;
-								bestChannelIndexB = channelIndexB;
-								fewestConflicts = conflicts;
-								fewestGaps = gaps;
-							}
-						}
-					}
-				}
-				const channelA: Channel = channels[bestChannelIndexA];
-				const channelB: Channel = channels[bestChannelIndexB];
-				const channelAInstrumentCount: number = channelA.instruments.length;
-				const channelAPatternCount: number = channelA.patterns.length;
-				for (const instrument of channelB.instruments) channelA.instruments.push(instrument);
-				for (const pattern of channelB.patterns) {
-					pattern.instruments[0] += channelAInstrumentCount;
-					channelA.patterns.push(pattern);
-				}
-				for (let barIndex: number = 0; barIndex < channelA.bars.length && barIndex < channelB.bars.length; barIndex++) {
-					if (channelA.bars[barIndex] === 0 && channelB.bars[barIndex] !== 0)
-						channelA.bars[barIndex] = channelB.bars[barIndex] + channelAPatternCount;
-				}
-				channels.splice(bestChannelIndexB, 1);
-			}
-		}
-		compactChannels(pitchChannels, Config.pitchChannelCountMax);
-		compactChannels(noiseChannels, Config.noiseChannelCountMax);
-		compactChannels(modChannels, Config.modChannelCountMax);
+		// Channel compaction disabled: overlapping notes keep their own channels.
+		// The track-based assignment already guarantees non-overlapping notes
+		// within each channel, so merging is unnecessary.
+		// compactChannels(pitchChannels, Config.pitchChannelCountMax);
+		// compactChannels(noiseChannels, Config.noiseChannelCountMax);
+		// compactChannels(modChannels, Config.modChannelCountMax);
 
 		// === Validation Pass ===
 		// Ensure all notes are within valid ranges and sorted by start time.
@@ -1230,7 +1191,9 @@ export class ImportPrompt extends BasePrompt {
 				song.loopStart = 0;
 				song.loopLength = song.barCount;
 
-				// === Final Safety Validation ===
+				// Cap bar count to 1000 to prevent MIDI timing issues from
+				// creating 3000+ bar songs that are unusable.
+				song.barCount = Math.min(1000, song.barCount);
 				// Re-validate against song.beatsPerBar (which should match partsPerBar)
 				// to catch any drift between the pre-validation and serialization.
 				const finalMaxPart: number = song.beatsPerBar * Config.partsPerBeat;
