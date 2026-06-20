@@ -25,6 +25,7 @@ export class PlaybackControls {
 	public readonly volumeSlider: Slider;
 	public readonly volumeBarContainer: SVGSVGElement;
 	public readonly volumeBarBox: HTMLDivElement;
+	public readonly barPosLabel: HTMLSpanElement;
 
 	private readonly _outVolumeBar: SVGRectElement;
 	private readonly _outVolumeCap: SVGRectElement;
@@ -141,6 +142,13 @@ export class PlaybackControls {
 				style: "height: 12px; align-self: center;",
 			},
 			this.volumeBarContainer,
+		);
+
+		this.barPosLabel = span(
+			{
+				style: "font-size: 10px; font-family: monospace; color: var(--secondary-text); white-space: nowrap; align-self: center; margin-left: 6px;",
+			},
+			"0 / 0",
 		);
 	}
 

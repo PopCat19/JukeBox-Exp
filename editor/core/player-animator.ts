@@ -9,10 +9,13 @@ import type { BarScrollBar } from "../components/bar-scroll-bar";
 import type { FilterEditor } from "../components/filter-editor";
 import type { SongDocument } from "../song-document";
 
+const BAR_LABEL_THROTTLE = 5; // avoid text reflow every rAF
+
 export class PlayerAnimator {
 	public outVolumeHistoricTimer: number = 0;
 	public outVolumeHistoricCap: number = 0;
 	public lastOutVolumeCap: number = 0;
+	private _barLabelCounter: number = 0;
 
 	constructor(
 		private _doc: SongDocument,
@@ -26,6 +29,7 @@ export class PlayerAnimator {
 			barScrollBar: BarScrollBar;
 			outVolumeBar: SVGElement;
 			outVolumeCap: SVGElement;
+			barPosLabel: HTMLSpanElement;
 		},
 	) {}
 
@@ -35,6 +39,15 @@ export class PlayerAnimator {
 			this.volumeUpdate();
 		}
 		this._callbacks.barScrollBar.animatePlayhead();
+
+		// Update bar position label (throttled)
+		this._barLabelCounter--;
+		if (this._barLabelCounter <= 0) {
+			this._barLabelCounter = BAR_LABEL_THROTTLE;
+			const bar = Math.floor(this._doc.synth.playhead) + 1;
+			const total = this._doc.song.barCount;
+			this._callbacks.barPosLabel.textContent = `${bar} / ${total}`;
+		}
 
 		// Center-follow: scroll so playhead stays near middle of viewport
 		if (this._doc.prefs.centerFollow && this._doc.synth.playing) {

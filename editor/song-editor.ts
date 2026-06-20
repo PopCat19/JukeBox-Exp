@@ -2578,6 +2578,7 @@ export class SongEditor
 			barScrollBar: this._barScrollBar,
 			outVolumeBar: this._playbackControls.volumeBarContainer.querySelector("rect:nth-child(3)") as SVGRectElement,
 			outVolumeCap: this._playbackControls.volumeBarContainer.querySelector("rect:nth-child(4)") as SVGRectElement,
+			barPosLabel: this._playbackControls.barPosLabel,
 		});
 		new MenuHandler(this, this._fileMenu, this._editMenu, this._optionsMenu);
 
