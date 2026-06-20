@@ -58,12 +58,16 @@ export class spectrumCanvas {
 			// causes sparse callbacks).
 
 			// Match canvas resolution to CSS layout for sharp rendering.
-			// Use a 2px tolerance to prevent constant resizing from
-			// sub-pixel fluctuations at 60fps, which causes visible
-			// artifacting above the volume slider.
+			// Use a 3px tolerance to prevent constant resizing from
+			// sub-pixel oscillations at 60fps (±2px from clientWidth
+			// * devicePixelRatio bouncing by 1 CSS pixel). At narrower
+			// tolerances the canvas resizes every other frame, clearing
+			// the context and accumulating gaps at the right edge of
+			// the bezier fill — visible as artifacting above the
+			// volume slider.
 			const displayW = Math.round(canvas.clientWidth * devicePixelRatio);
 			const displayH = Math.round(canvas.clientHeight * devicePixelRatio);
-			if (Math.abs(canvas.width - displayW) > 1 || Math.abs(canvas.height - displayH) > 1) {
+			if (Math.abs(canvas.width - displayW) > 2 || Math.abs(canvas.height - displayH) > 2) {
 				canvas.width = displayW;
 				canvas.height = displayH;
 			}
