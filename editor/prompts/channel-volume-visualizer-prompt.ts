@@ -67,7 +67,7 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 	);
 
 	private readonly _contentContainer: HTMLDivElement = div({
-		style: "display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; align-content: start;",
+		style: "display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; align-content: start; overflow-y: auto; flex: 1; min-height: 0;",
 	});
 
 	// Store channel volume bar elements for live updates
