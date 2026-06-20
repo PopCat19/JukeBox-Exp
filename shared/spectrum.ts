@@ -294,6 +294,17 @@ export class spectrumCanvas {
 	public reset(): void {
 		this._fgSmoothMags.fill(0);
 		this._bgSmoothMags.fill(0);
+		// Clear canvas immediately so the last frame doesn't persist
+		// (spectrumUpdate stops firing when paused).
+		const ctx = this.canvas.getContext("2d");
+		if (ctx) {
+			if (!this.transparentBg) {
+				ctx.fillStyle = this._cachedBgColor;
+				ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+			} else {
+				ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+			}
+		}
 	}
 
 	private _updateCachedColors(): void {
