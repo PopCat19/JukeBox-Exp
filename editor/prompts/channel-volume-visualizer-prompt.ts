@@ -28,13 +28,13 @@ const FG_BANDS = 151;
 // (1:1 aspect), so a 151-point wave is unreadable; 16 rounded bars aggregate
 // ~9-10 bands each and read clearly at the card width.
 const BAR_COUNT = 16;
-// Fixed soft-compression reference (same as main spectrum FG_REF).
+// Fixed soft-compression reference (same as main spectrum FG_REF). The bar
+// height is min(1, 2*avg/(avg+FG_REF)), so a band reaches the ceiling only at
+// ~FG_REF in magnitude. The per-channel ring holds the channel's own isolated
+// diff at its true sample amplitude (a solo full-scale channel writes +/-1),
+// so no extra gain is needed: bars respond to the channel's actual level with
+// the same compression curve as the main spectrum.
 const FG_REF = 0.04;
-// Per-channel diff audio (channelState.audioRing) is ~1/16 the amplitude of
-// the full mix that feeds the main spectrum. Apply a fixed gain so the same
-// FG_REF normalization yields a comparable curve while preserving dynamics:
-// a quiet channel still shows a small curve, a loud one a big one.
-const CHANNEL_GAIN = 24;
 // 8192-point FFT: at 48kHz gives 5.86Hz bins, enough resolution for the FG band grid.
 const FFT_SIZE = 8192;
 // Gaussian spatial-blur kernel (sigma=3 bands), truncated to +-BLUR_RADIUS.
@@ -377,7 +377,7 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 	// unweightedRMS is exact (time domain over the full ~170ms window). The
 	// A-weighting factor is sqrt(weighted spectral energy / unweighted); the Hann
 	// window applied to `mags` cancels in that ratio, so the result is independent
-	// of the window. `mags` being scaled by CHANNEL_GAIN (a constant) also cancels.
+	// of the window. No signal gain is applied, so `mags` is the raw magnitude.
 	private _computeLoudnessRms(channelState: ChannelState, mags: Float32Array, halfN: number): number {
 		const aW = this._ensureAWeight(this._doc.synth.samplesPerSecond || 48000);
 		let unweighted = 0;
@@ -560,8 +560,8 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 					// main FG spectrum (shared/spectrum.ts): Hann window, magnitude per
 					// bin, quadratic-interpolated log bands, spectral-tilt gain, gaussian
 					// blur, temporal smoothing, single fixed-ref soft-compression. The
-					// only per-channel adjustment is CHANNEL_GAIN to compensate the
-					// quieter isolated-diff amplitude.
+					// per-channel ring holds the channel's own isolated diff at true
+					// amplitude, so no extra gain is applied.
 					const fftSize = FFT_SIZE;
 					const fftBuf = this._fftScratch;
 					const mags = this._magScratch;
@@ -570,7 +570,7 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 					for (let i = 0; i < fftSize; i++) {
 						const idx = (ringPos + i) & (fftSize - 1);
 						const hann = 0.5 * (1 - Math.cos((2 * Math.PI * i) / (fftSize - 1)));
-						fftBuf[i] = ring[idx] * hann * CHANNEL_GAIN;
+						fftBuf[i] = ring[idx] * hann;
 					}
 					forwardRealFourierTransform(fftBuf);
 
