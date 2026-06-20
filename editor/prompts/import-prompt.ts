@@ -1229,6 +1229,42 @@ export class ImportPrompt extends BasePrompt {
 				this.append(new ChangeReplacePatterns(doc, pitchChannels, noiseChannels, modChannels));
 				song.loopStart = 0;
 				song.loopLength = song.barCount;
+
+				// === Final Safety Validation ===
+				// Re-validate against song.beatsPerBar (which should match partsPerBar)
+				// to catch any drift between the pre-validation and serialization.
+				const finalMaxPart: number = song.beatsPerBar * Config.partsPerBeat;
+				let finalFixed: number = 0;
+				for (const channel of song.channels) {
+					for (const pattern of channel.patterns) {
+						pattern.notes.sort((a: Note, b: Note) => a.start - b.start);
+						const validNotes: Note[] = [];
+						for (const note of pattern.notes) {
+							const origEnd: number = note.end;
+							note.start = Math.max(0, Math.min(finalMaxPart, note.start));
+							note.end = Math.max(0, Math.min(finalMaxPart, note.end));
+							if (note.start >= note.end) { finalFixed++; continue; }
+							const dur: number = note.end - note.start;
+							for (const pin of note.pins) {
+								pin.time = Math.max(0, Math.min(dur, pin.time));
+							}
+							note.pins.sort((a: NotePin, b: NotePin) => a.time - b.time);
+							if (note.pins.length > 0 && note.pins[0].time !== 0) {
+								note.pins.unshift(makeNotePin(0, 0, note.pins[0].size));
+							}
+							if (note.pins.length > 0) {
+								const lp: NotePin = note.pins[note.pins.length - 1];
+								if (lp.time !== dur) note.pins.push(makeNotePin(lp.interval, dur, lp.size));
+							}
+							if (note.end !== origEnd) finalFixed++;
+							validNotes.push(note);
+						}
+						pattern.notes.length = 0;
+						for (const note of validNotes) pattern.notes.push(note);
+					}
+				}
+				if (finalFixed > 0) console.warn(`[MIDI Import] Final validation fixed ${finalFixed} notes`);
+
 				this._didSomething();
 				doc.notifier.changed();
 			}
