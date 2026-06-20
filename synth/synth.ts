@@ -149,15 +149,21 @@ export class Synth {
 	}
 
 	public computeLatestModValues(): void {
+		// Always clear stale mod state so values from a previous song (e.g. tempo
+		// mods) don't persist when the new song has no mod channels. Without this,
+		// importing a mod-less song over one that had tempo mods leaves the old
+		// modValues[tempo] set, since the pattern scan below is guarded on
+		// modChannelCount > 0 and never runs to clear it. The scan only populates
+		// values when the new song actually has mod channels.
+		this.modValues = [];
+		this.nextModValues = [];
+		this.modInsValues = [];
+		this.nextModInsValues = [];
+		this.heldMods = [];
 		if (this.song != null && this.song.modChannelCount > 0) {
-			// Clear all mod values, and set up temp variables for the time a mod would be set at.
+			// Set up temp variables for the time a mod would be set at.
 			const latestModTimes: (number | null)[] = [];
 			const latestModInsTimes: (number | null)[][][] = [];
-			this.modValues = [];
-			this.nextModValues = [];
-			this.modInsValues = [];
-			this.nextModInsValues = [];
-			this.heldMods = [];
 			for (let channel: number = 0; channel < this.song.pitchChannelCount + this.song.noiseChannelCount; channel++) {
 				latestModInsTimes[channel] = [];
 				this.modInsValues[channel] = [];

@@ -1477,6 +1477,11 @@ export class ImportPrompt extends BasePrompt {
 				}
 				if (finalFixed > 0) console.warn(`[MIDI Import] Final validation fixed ${finalFixed} notes`);
 
+				// Reset mod state so values from the previous song (e.g. tempo mods) do
+				// not persist into the imported song. computeLatestModValues clears
+				// stale modValues unconditionally and repopulates from the new song's
+				// mod channels if it has any.
+				doc.synth.computeLatestModValues();
 				this._didSomething();
 				doc.notifier.changed();
 			}
