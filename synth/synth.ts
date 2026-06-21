@@ -2073,7 +2073,9 @@ export class Synth {
 			}
 
 			bufferIndex += runLength;
-			this.totalSamplesRendered += runLength;
+			if (playSong) {
+				this.totalSamplesRendered += runLength;
+			}
 
 			this.isAtStartOfTick = false;
 			this.tickSampleCountdown -= runLength;
