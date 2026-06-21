@@ -224,35 +224,63 @@ export class SongSettingsPanel {
 
 	private _createTitleRow(): HTMLDivElement {
 		const input = this.songTitleInputBox.input;
-		let scrollTimer: ReturnType<typeof setInterval> | null = null;
-		let scrollPos = 0;
+		const display = div({
+			class: "song-title-marquee",
+			style: "overflow: hidden; white-space: nowrap; flex: 1 1 auto; min-width: 0; line-height: var(--button-size); padding: 0 4px; cursor: text; border: 2px solid var(--ui-widget-background); border-radius: var(--border-radius-medium); background: var(--editor-background); color: var(--primary-text);",
+		});
+		const text = span({ style: "display: inline-block;" }, input.value);
+		display.appendChild(text);
+
+		// Keep display text in sync with input value
+		const syncText = (): void => { text.textContent = input.value; };
+		input.addEventListener("input", syncText);
+
+		// Marquee animation on hover
+		let animId: number | null = null;
+		let pos = 0;
 
 		const startScroll = (): void => {
-			if (scrollTimer !== null) return;
+			if (animId !== null) return;
 			if (input.value.length <= 15) return;
-			scrollPos = 0;
-			scrollTimer = setInterval(() => {
-				scrollPos++;
-				if (scrollPos > input.value.length) scrollPos = 0;
-				input.setSelectionRange(scrollPos, Math.min(scrollPos + 1, input.value.length));
-			}, 200);
+			pos = display.clientWidth;
+			const totalWidth = text.scrollWidth;
+			const distance = totalWidth + display.clientWidth;
+			const duration = distance * 8;
+			let start: number | null = null;
+
+			const step = (ts: number): void => {
+				if (start === null) start = ts;
+				const elapsed = ts - start;
+				const progress = (elapsed % duration) / duration;
+				pos = display.clientWidth - progress * distance;
+				text.style.transform = `translateX(${pos}px)`;
+				animId = requestAnimationFrame(step);
+			};
+			animId = requestAnimationFrame(step);
 		};
 
 		const stopScroll = (): void => {
-			if (scrollTimer !== null) {
-				clearInterval(scrollTimer);
-				scrollTimer = null;
+			if (animId !== null) {
+				cancelAnimationFrame(animId);
+				animId = null;
 			}
-			input.setSelectionRange(0, 0);
-			scrollPos = 0;
+			text.style.transform = "";
 		};
 
-		input.addEventListener("mouseenter", startScroll);
-		input.addEventListener("mouseleave", stopScroll);
+		display.addEventListener("mouseenter", startScroll);
+		display.addEventListener("mouseleave", stopScroll);
+
+		// Click display to focus input for editing
+		display.addEventListener("click", () => input.focus());
 		input.addEventListener("focus", startScroll);
 		input.addEventListener("blur", stopScroll);
 
-		return div({ class: "selectRow" }, span({ class: "tip" }, "Title:"), input);
+		// Hide real input off-screen
+		input.style.position = "absolute";
+		input.style.opacity = "0";
+		input.style.pointerEvents = "none";
+
+		return div({ class: "selectRow" }, span({ class: "tip" }, "Title:"), display, input);
 	}
 
 	private _createScaleRow(): HTMLDivElement {
