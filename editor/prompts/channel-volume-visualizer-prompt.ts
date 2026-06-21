@@ -775,7 +775,8 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 								(instrState.activeTones.count() > 0 || instrState.releasedTones.count() > 0 || instrState.liveInputTones.count() > 0) &&
 								chanPeak > 0.001;
 							if (isPlaying) {
-								// Blend from channel color to white as volume rises.
+								// Blend from channel color to white as volume rises,
+								// with opacity fading in from the floor for a smooth ramp.
 								const hex = this._channelSpectrumColors.get(channelIndex) ?? "#888";
 								const r = parseInt(hex.length >= 7 ? hex.slice(1, 3) : hex.slice(1, 2) + hex.slice(1, 2), 16);
 								const g = parseInt(hex.length >= 7 ? hex.slice(3, 5) : hex.slice(2, 3) + hex.slice(2, 3), 16);
@@ -786,7 +787,7 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 								const bb = Math.round(b + (255 - b) * t);
 								instrSpan.style.background = `rgb(${br},${bg},${bb})`;
 								instrSpan.style.color = t > 0.5 ? "black" : "var(--editor-background)";
-								instrSpan.style.opacity = "1";
+								instrSpan.style.opacity = String(volBrightness);
 							} else {
 								instrSpan.style.background = "var(--ui-widget-background)";
 								instrSpan.style.color = this._channelSpectrumColors.get(channelIndex) ?? "var(--primary-text)";
