@@ -182,25 +182,28 @@ export class PromptDock {
 	private _pinPrompt(prompt: Prompt, side: DockSide, width: number): void {
 		const r = this._editorRect();
 		const vw = window.innerWidth;
-		const c = prompt.container;
 		const overlap = this._overlap(side, width);
+		const c = prompt.container;
 		c.style.margin = "0";
 		c.style.borderRadius = "0";
 		c.style.transform = "none";
 		c.style.width = `${width}px`;
 		c.style.maxWidth = "none";
-		c.style.height = "100vh";
+		// Span the editor's vertical extent so the dock doesn't overlay
+		// page text below the editor.
+		c.style.top = `${r.top}px`;
+		c.style.height = `${r.height}px`;
 		c.style.maxHeight = "none";
-		c.style.top = "0px";
 		if (side === "left") {
-			// Inner edge at the editor content boundary (editor left + overlap).
+			// Inner edge flush with the editor's left content boundary.
 			const inner = r.left + overlap;
 			c.style.left = `${Math.max(0, inner - width)}px`;
 			c.style.right = "";
 		} else {
+			// Inner edge flush with the editor's right content boundary.
 			const inner = r.right - overlap;
-			c.style.right = `${Math.max(0, vw - inner - width)}px`;
-			c.style.left = "";
+			c.style.left = `${Math.min(vw - width, inner)}px`;
+			c.style.right = "";
 		}
 	}
 
@@ -220,19 +223,17 @@ export class PromptDock {
 		const divider = this._dividerEls.get(side);
 		if (!divider) return;
 		const r = this._editorRect();
-		const vw = window.innerWidth;
-		divider.style.top = "0px";
-		divider.style.height = "100vh";
+		divider.style.top = `${r.top}px`;
+		divider.style.height = `${r.height}px`;
 		const overlap = this._overlap(side, width);
 		if (side === "left") {
-			// Divider sits just inside the dock, at the content boundary.
 			const inner = r.left + overlap;
 			divider.style.left = `${inner - 6}px`;
 			divider.style.right = "";
 		} else {
 			const inner = r.right - overlap;
-			divider.style.right = `${vw - inner - 6}px`;
-			divider.style.left = "";
+			divider.style.left = `${inner}px`;
+			divider.style.right = "";
 		}
 	}
 

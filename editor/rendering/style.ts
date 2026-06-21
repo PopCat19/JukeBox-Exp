@@ -866,7 +866,6 @@ html {
 	backdrop-filter: none;
 	-webkit-backdrop-filter: none;
 	outline: none !important;
-	background: var(--prompt-bg-color, var(--editor-bg-color, ${ColorConfig.editorBackground}));
 }
 
 .beepboxEditor .prompt {
