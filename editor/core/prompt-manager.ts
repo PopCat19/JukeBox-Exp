@@ -287,6 +287,7 @@ export class PromptManager {
 		const containerWidth = this._host.mainLayer.clientWidth;
 		const containerHeight = this._host.mainLayer.clientHeight;
 		for (const p of this._prompts) {
+			if (this._dock.isDocked(p)) continue;
 			const savedPos = this._promptPositions.get(p.name!);
 			if (!savedPos) continue;
 			const rect = p.container.getBoundingClientRect();
@@ -663,8 +664,8 @@ export class PromptManager {
 				const mlRect = this._host.mainLayer.getBoundingClientRect();
 				currentPos = { x: r.left - mlRect.left, y: r.top - mlRect.top };
 			}
-			const startX = e.clientX - currentPos.x;
-			const startY = e.clientY - currentPos.y;
+			let startX = e.clientX - currentPos.x;
+			let startY = e.clientY - currentPos.y;
 
 			const onMove = (me: MouseEvent): void => {
 				if (!this._prompts.includes(prompt)) return;
@@ -672,6 +673,18 @@ export class PromptManager {
 					if (this._dock.shouldUnsnapByDrag(prompt, me.clientX - anchorX)) {
 						this._dock.undock(prompt);
 						anchorX = me.clientX;
+						// Re-anchor the grab point to the restored (smaller)
+						// floating prompt so it stays under the cursor at
+						// the titlebar instead of jumping above it.
+						const mlRect = this._host.mainLayer.getBoundingClientRect();
+						const r2 = prompt.container.getBoundingClientRect();
+						const nx = me.clientX - mlRect.left - Math.min(r2.width / 2, 80);
+						const ny = me.clientY - mlRect.top - 16;
+						prompt.container.style.left = `${nx}px`;
+						prompt.container.style.top = `${ny}px`;
+						this._promptPositions.set(promptName, { x: nx, y: ny });
+						startX = me.clientX - nx;
+						startY = me.clientY - ny;
 					} else {
 						return;
 					}
