@@ -397,8 +397,7 @@ export class MuteEditor {
 		for (let y: number = 0; y < this._doc.song.getChannelCount(); y++) {
 			const active: boolean = y === this._doc.channel;
 			this._channelCounts[y].style.opacity = "1";
-			const playing = this._doc.synth.playing;
-			if (active && !playing) {
+			if (active) {
 				const colors = ColorConfig.getChannelColor(this._doc.song, y);
 				this._channelCounts[y].style.color = ColorConfig.invertedText;
 				this._channelCounts[y].style.background = colors.primaryChannel;
@@ -406,9 +405,6 @@ export class MuteEditor {
 			} else {
 				this._channelCounts[y].style.background = "transparent";
 				this._channelCounts[y].style.borderRadius = "0";
-				if (!active || playing) {
-					this._channelCounts[y].style.color = ColorConfig.muteEditorTextDim;
-				}
 			}
 
 			if (this._doc.song.channels[y].muted) {
