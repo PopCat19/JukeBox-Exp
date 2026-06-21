@@ -26,10 +26,13 @@ const { svg, defs, linearGradient, stop, rect } = SVG;
 // per-channel overlay matches the editor's main spectrum look.
 // FG bands: 151 quarter-tone bands from ~130Hz to ~10000Hz.
 const FG_BANDS = 151;
-// Display bars aggregated from the FG bands. The channel cards are narrow
+// Display bars aggregated from the FG or BG bands. The channel cards are narrow
 // (1:1 aspect), so a 151-point wave is unreadable; 16 rounded bars aggregate
 // ~9-10 bands each and read clearly at the card width.
 const BAR_COUNT = 16;
+// BG bands: 67 quarter-tone bands from ~20Hz to ~130Hz (mirrors main spectrum).
+const BG_BANDS = 67;
+const BG_REF = 0.05;
 // Fixed soft-compression reference (same as main spectrum FG_REF). The bar
 // height is min(1, 2*v/(v+FG_REF)), so a band reaches the ceiling only at
 // ~FG_REF in magnitude. The per-channel ring holds the channel's own isolated
@@ -126,6 +129,7 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 	private readonly _channelSpectrumCanvases: Map<number, HTMLCanvasElement> = new Map();
 	private readonly _channelSpectrumCanvas2ds: Map<number, CanvasRenderingContext2D | null> = new Map();
 	private readonly _spectrumSmooth: Map<number, Float32Array> = new Map();
+	private readonly _bgSpectrumSmooth: Map<number, Float32Array> = new Map();
 	// Reusable FFT scratch buffers (avoid per-frame allocation across channels).
 	private _fftScratch: Float32Array = new Float32Array(FFT_SIZE);
 	private _magScratch: Float32Array = new Float32Array(FFT_SIZE / 2 + 1);
@@ -133,6 +137,8 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 	// so a single set shared across channels avoids per-frame allocation).
 	private readonly _bandMags: Float32Array = new Float32Array(FG_BANDS);
 	private readonly _blurred: Float32Array = new Float32Array(FG_BANDS);
+	private readonly _bgBandMags: Float32Array = new Float32Array(BG_BANDS);
+	private readonly _bgBlurred: Float32Array = new Float32Array(BG_BANDS);
 	// Cached per-channel overlay fill color. getComputedChannelColor calls
 	// getComputedStyle 4x per call, which forces a style recalc; computing it
 	// once per channel on render (and on theme change) removes that per-frame reflow.
@@ -153,11 +159,20 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 	private _smoothedMasterScale: number = 1;
 	// FG band center frequencies (absolute Hz, independent of sample rate).
 	private readonly _fgFreqs: number[] = ChannelVolumeVisualizerPrompt._initFgFreqs();
+	private readonly _bgFreqs: number[] = ChannelVolumeVisualizerPrompt._initBgFreqs();
 
 	private static _initFgFreqs(): number[] {
 		const freqs: number[] = [];
 		const noteStart = Math.round(12 * Math.log2(130 / 440) + 69);
 		for (let b = 0; b < FG_BANDS; b++) {
+			freqs.push(440 * 2 ** ((noteStart + b * 0.5 - 69) / 12));
+		}
+		return freqs;
+	}
+	private static _initBgFreqs(): number[] {
+		const freqs: number[] = [];
+		const noteStart = Math.round(12 * Math.log2(20 / 440) + 69);
+		for (let b = 0; b < BG_BANDS; b++) {
 			freqs.push(440 * 2 ** ((noteStart + b * 0.5 - 69) / 12));
 		}
 		return freqs;
@@ -614,46 +629,102 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 						}
 					}
 
+					// Interpolate BG bands from same FFT bins.
+					const bgBandMags = this._bgBandMags;
+					for (let b = 0; b < BG_BANDS; b++) {
+						const kFloat = this._bgFreqs[b] / binFreq;
+						const k = Math.floor(kFloat);
+						const frac = kFloat - k;
+						if (k < 1 || k >= halfN) {
+							const kHi = Math.min(k + 1, halfN);
+							bgBandMags[b] = mags[k] + (mags[kHi] - mags[k]) * frac;
+						} else {
+							const ym1 = mags[k - 1],
+								y0 = mags[k],
+								yp1 = mags[k + 1];
+							const qa = (ym1 + yp1) * 0.5 - y0;
+							const qb = (yp1 - ym1) * 0.5;
+							const qc = y0;
+							bgBandMags[b] = qa * frac * frac + qb * frac + qc;
+						}
+					}
+					// BG light gaussian blur (sigma=2 bands)
+					{
+						const bgBlurred = this._bgBlurred;
+						for (let b = 0; b < BG_BANDS; b++) {
+							let sum = 0,
+								wSum = 0;
+							for (let n = 0; n < BG_BANDS; n++) {
+								const d = n - b;
+								const w = Math.exp((-0.5 * d * d) / 4);
+								sum += bgBandMags[n] * w;
+								wSum += w;
+							}
+							bgBlurred[b] = wSum > 0.001 ? sum / wSum : 0;
+						}
+						for (let b = 0; b < BG_BANDS; b++) bgBandMags[b] = bgBlurred[b];
+					}
+					// BG temporal smoothing: instant attack, faster decay (matches main BG).
+					let bgSmooth = this._bgSpectrumSmooth.get(channelIndex);
+					if (!bgSmooth || bgSmooth.length !== BG_BANDS) {
+						bgSmooth = new Float32Array(BG_BANDS);
+						this._bgSpectrumSmooth.set(channelIndex, bgSmooth);
+					}
+					for (let b = 0; b < BG_BANDS; b++) {
+						if (bgBandMags[b] > bgSmooth[b]) {
+							bgSmooth[b] = bgBandMags[b];
+						} else {
+							bgSmooth[b] = bgSmooth[b] * 0.31 + bgBandMags[b] * 0.69;
+						}
+					}
+
 					// Draw rounded-bottom-up bars: aggregate the FG bands into BAR_COUNT bars,
 					// each a rounded-top rectangle filled from the card bottom. A continuous
 					// wave is unreadable on the narrow 1:1 cards.
 					const col = this._channelSpectrumColors.get(channelIndex);
 					if (col) {
-						const bandsPerBar = FG_BANDS / BAR_COUNT;
-						// Leave a 1px gap between bars; cap radius at half the bar width so tall
-						// bars stay fully rounded and thin bars don't over-round.
 						const gap = Math.max(1, window.devicePixelRatio || 1);
 						const barOuter = w / BAR_COUNT;
 						const barW = barOuter - gap;
 						const radius = Math.min(barW * 0.5, h * 0.12);
+
+						// Helper to draw one layer of 16 bars from band magnitudes.
 						spectrumCtx.fillStyle = col;
-						spectrumCtx.globalAlpha = 0.4;
-						spectrumCtx.beginPath();
-						for (let bar = 0; bar < BAR_COUNT; bar++) {
-							// Peak (max) of the smoothed bands in this bar's range, not the average:
-							// averaging dilutes a concentrated loud band across quiet neighbors and
-							// desensitizes the bars. Scale by the master gain (omitted by the ring)
-							// before soft-compression so bars reflect the output-bus level.
-							const s0 = Math.floor(bar * bandsPerBar);
-							const s1 = Math.min(FG_BANDS, Math.floor((bar + 1) * bandsPerBar));
-							let peak = 0;
-							for (let b = s0; b < s1; b++) if (smooth[b] > peak) peak = smooth[b];
-							const v = peak * this._smoothedMasterScale * SPECTRUM_DISPLAY_GAIN;
-							const norm = Math.min(1, (2 * v) / (v + FG_REF));
-							const barH = norm * h;
-							if (barH < 0.5) continue;
-							const x = bar * barOuter + gap * 0.5;
-							const y = h - barH;
-							// Rounded-top rectangle path (bottom corners square, top corners rounded).
-							const r = Math.min(radius, barH * 0.5);
-							spectrumCtx.moveTo(x, h);
-							spectrumCtx.lineTo(x, y + r);
-							spectrumCtx.quadraticCurveTo(x, y, x + r, y);
-							spectrumCtx.lineTo(x + barW - r, y);
-							spectrumCtx.quadraticCurveTo(x + barW, y, x + barW, y + r);
-							spectrumCtx.lineTo(x + barW, h);
-						}
-						spectrumCtx.fill();
+						const drawBars = (
+							bandCount: number,
+							mags: Float32Array,
+							ref: number,
+							alpha: number,
+						): void => {
+							const bandsPerBar = bandCount / BAR_COUNT;
+							spectrumCtx.globalAlpha = alpha;
+							spectrumCtx.beginPath();
+							for (let bar = 0; bar < BAR_COUNT; bar++) {
+								const s0 = Math.floor(bar * bandsPerBar);
+								const s1 = Math.min(bandCount, Math.floor((bar + 1) * bandsPerBar));
+								let peak = 0;
+								for (let b = s0; b < s1; b++) if (mags[b] > peak) peak = mags[b];
+								const v = peak * this._smoothedMasterScale * SPECTRUM_DISPLAY_GAIN;
+								const norm = Math.min(1, (2 * v) / (v + ref));
+								const barH = norm * h;
+								if (barH < 0.5) continue;
+								const x = bar * barOuter + gap * 0.5;
+								const y = h - barH;
+								const r = Math.min(radius, barH * 0.5);
+								spectrumCtx.moveTo(x, h);
+								spectrumCtx.lineTo(x, y + r);
+								spectrumCtx.quadraticCurveTo(x, y, x + r, y);
+								spectrumCtx.lineTo(x + barW - r, y);
+								spectrumCtx.quadraticCurveTo(x + barW, y, x + barW, y + r);
+								spectrumCtx.lineTo(x + barW, h);
+							}
+							spectrumCtx.fill();
+						};
+
+						// BG layer (low frequencies) drawn first
+						drawBars(BG_BANDS, bgSmooth, BG_REF, 0.2);
+						// FG layer (mid-high frequencies) drawn on top
+						drawBars(FG_BANDS, smooth, FG_REF, 0.4);
 						spectrumCtx.globalAlpha = 1.0;
 					}
 				}
