@@ -779,8 +779,8 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 							const isPlaying =
 								instrState.activeTones.count() > 0 || instrState.releasedTones.count() > 0 || instrState.liveInputTones.count() > 0;
 							const inPattern = patternInstrumentsAnim.includes(j);
-							instrSpan.style.background = isPlaying ? channelColors.primaryChannel : inPattern ? channelColors.primaryChannel : "var(--ui-widget-background)";
-							instrSpan.style.color = isPlaying ? "var(--editor-background)" : inPattern ? "var(--editor-background)" : channelColors.primaryChannel;
+							instrSpan.style.background = isPlaying ? "white" : inPattern ? channelColors.primaryChannel : "var(--ui-widget-background)";
+							instrSpan.style.color = isPlaying ? "black" : inPattern ? "var(--editor-background)" : channelColors.primaryChannel;
 							instrSpan.style.opacity = isPlaying ? String(volBrightness) : inPattern ? "1" : "0.5";
 						}
 					}
