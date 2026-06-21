@@ -18,6 +18,7 @@ import type { SongDocument } from "../song-document";
 import { BasePrompt } from "./base-prompt";
 import { getInstrumentTypeName } from "../../synth/config/instrument-registry";
 import { EditorConfig } from "../config/editor-config";
+import { Config } from "../../synth/config/index";
 
 const { div, h2, h3, span, button } = HTML;
 const { svg, defs, linearGradient, stop, rect } = SVG;
@@ -56,6 +57,17 @@ function ChannelVolumeVisualizerPrompt_initBlurKernel(): number[] {
 		kernel.push(Math.exp((-0.5 * d * d) / 9));
 	}
 	return kernel;
+}
+
+function getInstrumentDisplayName(instrument: import("../../synth/instruments").Instrument): string {
+	// Prefer preset name if instrument has one.
+	const preset = EditorConfig.valueToPreset(instrument.preset);
+	if (preset) return preset.name;
+	// For chip instruments using a custom sample, show the sample name.
+	const chipWave = Config.chipWaves[instrument.chipWave];
+	if (chipWave?.isCustomSampled && chipWave.name) return chipWave.name;
+	// Fall back to instrument type name.
+	return getInstrumentTypeName(instrument.type);
 }
 
 export class ChannelVolumeVisualizerPrompt extends BasePrompt {
@@ -963,7 +975,7 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 				const typeCounts: Map<string, number> = new Map();
 				for (let j = 0; j < channel.instruments.length; j++) {
 					const instrument = channel.instruments[j];
-					const typeName = instrument ? (EditorConfig.valueToPreset(instrument.preset)?.name ?? getInstrumentTypeName(instrument.type)) : "?";
+					const typeName = instrument ? getInstrumentDisplayName(instrument) : "?";
 					typeCounts.set(typeName, (typeCounts.get(typeName) || 0) + 1);
 				}
 
@@ -975,7 +987,7 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 						? instrState.activeTones.count() > 0 || instrState.releasedTones.count() > 0 || instrState.liveInputTones.count() > 0
 						: false;
 					const instrument = channel.instruments[j];
-					const typeName = instrument ? (EditorConfig.valueToPreset(instrument.preset)?.name ?? getInstrumentTypeName(instrument.type)) : "?";
+					const typeName = instrument ? getInstrumentDisplayName(instrument) : "?";
 					const total = typeCounts.get(typeName) || 1;
 					const nth = (currentCounts.get(typeName) || 0) + 1;
 					currentCounts.set(typeName, nth);
