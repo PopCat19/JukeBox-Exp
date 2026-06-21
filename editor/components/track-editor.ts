@@ -137,6 +137,7 @@ export class TrackEditor {
 	private _barDropDownBar: number = 0;
 	private _lastScrollTime: number = 0;
 	private _svgRect: DOMRect | null = null;
+	private _svgRectResizeObserver: ResizeObserver | null = null;
 
 	constructor(
 		private _doc: SongDocument,
@@ -148,6 +149,13 @@ export class TrackEditor {
 		document.addEventListener("mouseup", this._whenMouseReleased);
 		window.addEventListener("resize", () => (this._svgRect = null));
 		window.addEventListener("scroll", () => (this._svgRect = null), { capture: true, passive: true });
+		// Docking a prompt changes .beepboxEditor padding, which shifts this
+		// SVG without firing window resize. Observe the container so the
+		// cached rect is invalidated on layout.
+		if (typeof ResizeObserver !== "undefined") {
+			this._svgRectResizeObserver = new ResizeObserver(() => (this._svgRect = null));
+			this._svgRectResizeObserver.observe(this.container);
+		}
 		this._svg.addEventListener("mouseover", this._whenMouseOver);
 		this._svg.addEventListener("mouseout", this._whenMouseOut);
 
