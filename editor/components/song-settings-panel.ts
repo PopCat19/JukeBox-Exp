@@ -223,12 +223,36 @@ export class SongSettingsPanel {
 	}
 
 	private _createTitleRow(): HTMLDivElement {
-		const wrapper = div({
-			class: "song-title-marquee",
-			style: "overflow: hidden; flex: 1 1 auto; min-width: 0;",
-		});
-		wrapper.appendChild(this.songTitleInputBox.input);
-		return div({ class: "selectRow" }, span({ class: "tip" }, "Title:"), wrapper);
+		const input = this.songTitleInputBox.input;
+		let scrollTimer: ReturnType<typeof setInterval> | null = null;
+		let scrollPos = 0;
+
+		const startScroll = (): void => {
+			if (scrollTimer !== null) return;
+			if (input.value.length <= 15) return;
+			scrollPos = 0;
+			scrollTimer = setInterval(() => {
+				scrollPos++;
+				if (scrollPos > input.value.length) scrollPos = 0;
+				input.setSelectionRange(scrollPos, scrollPos);
+			}, 200);
+		};
+
+		const stopScroll = (): void => {
+			if (scrollTimer !== null) {
+				clearInterval(scrollTimer);
+				scrollTimer = null;
+			}
+			input.setSelectionRange(0, 0);
+			scrollPos = 0;
+		};
+
+		input.addEventListener("mouseenter", startScroll);
+		input.addEventListener("mouseleave", stopScroll);
+		input.addEventListener("focus", startScroll);
+		input.addEventListener("blur", stopScroll);
+
+		return div({ class: "selectRow" }, span({ class: "tip" }, "Title:"), input);
 	}
 
 	private _createScaleRow(): HTMLDivElement {

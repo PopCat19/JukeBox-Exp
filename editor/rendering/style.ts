@@ -3040,22 +3040,6 @@ html {
 	flex-shrink: 0;
 }
 
-@keyframes marquee-ltr {
-	0% { transform: translateX(0); }
-	100% { transform: translateX(-100%); }
-}
-.beepboxEditor .song-title-marquee {
-	position: relative;
-}
-.beepboxEditor .song-title-marquee > input {
-	width: 100%;
-	box-sizing: border-box;
-}
-.beepboxEditor .song-title-marquee:hover > input,
-.beepboxEditor .song-title-marquee:focus-within > input {
-	animation: marquee-ltr 4s linear infinite;
-}
-
 
 
 .beepboxEditor .menu-area {
