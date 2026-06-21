@@ -73,51 +73,7 @@ function getInstrumentDisplayName(instrument: import("../../synth/instruments").
 export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 	private _animationId: number = 0;
 
-	// Volume bar elements
-	private readonly _outVolumeBar: SVGRectElement = rect({
-		"pointer-events": "none",
-		height: "50%",
-		width: "0%",
-		x: "5%",
-		y: "25%",
-		fill: "url('#channelVolumeVisualizerGrad')",
-	});
-	private readonly _outVolumeCap: SVGRectElement = rect({
-		"pointer-events": "none",
-		width: BorderWidth.default,
-		height: "50%",
-		x: "5%",
-		y: "25%",
-		fill: "var(--ui-widget-focus, #777)",
-	});
-	private readonly _volumeBarContainer: SVGSVGElement = svg(
-		{
-			style: "touch-action: none; overflow: visible; margin: auto;",
-			width: "160px",
-			height: "12px",
-			preserveAspectRatio: "none",
-			viewBox: "0 0 160 12",
-		},
-		defs(
-			{},
-			linearGradient(
-				{ id: "channelVolumeVisualizerGrad", gradientUnits: "userSpaceOnUse" },
-				stop({ "stop-color": "lime", offset: "60%" }),
-				stop({ "stop-color": "orange", offset: "90%" }),
-				stop({ "stop-color": "red", offset: "100%" }),
-			),
-		),
-		rect({
-			"pointer-events": "none",
-			width: "90%",
-			height: "50%",
-			x: "5%",
-			y: "25%",
-			fill: "var(--ui-widget-background, #444)",
-		}),
-		this._outVolumeBar,
-		this._outVolumeCap,
-	);
+	
 
 	private readonly _contentContainer: HTMLDivElement = div({
 		style: "display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; align-content: start;",
@@ -200,6 +156,52 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 		"▶ Play",
 	);
 
+	// Volume bar elements
+	private readonly _outVolumeBar: SVGRectElement = rect({
+		"pointer-events": "none",
+		height: "50%",
+		width: "0%",
+		x: "5%",
+		y: "25%",
+		fill: "url('#channelVolumeVisualizerGrad')",
+	});
+	private readonly _outVolumeCap: SVGRectElement = rect({
+		"pointer-events": "none",
+		width: BorderWidth.default,
+		height: "50%",
+		x: "5%",
+		y: "25%",
+		fill: "var(--ui-widget-focus, #777)",
+	});
+	private readonly _volumeBarContainer: SVGSVGElement = svg(
+		{
+			style: "touch-action: none; overflow: visible; margin: auto;",
+			width: "160px",
+			height: "12px",
+			preserveAspectRatio: "none",
+			viewBox: "0 0 160 12",
+		},
+		defs(
+			{},
+			linearGradient(
+				{ id: "channelVolumeVisualizerGrad", gradientUnits: "userSpaceOnUse" },
+				stop({ "stop-color": "lime", offset: "60%" }),
+				stop({ "stop-color": "orange", offset: "90%" }),
+				stop({ "stop-color": "red", offset: "100%" }),
+			),
+		),
+		rect({
+			"pointer-events": "none",
+			width: "90%",
+			height: "50%",
+			x: "5%",
+			y: "25%",
+			fill: "var(--ui-widget-background, #444)",
+		}),
+		this._outVolumeBar,
+		this._outVolumeCap,
+	);
+
 	private _historicVolumeCap: number = 0;
 	private _historicTimer: number = 0;
 	private _lastVolumeWidth: number = -1;
@@ -216,34 +218,29 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 	private readonly _channelMaxDb: Map<number, number> = new Map();
 	private readonly _masterDbPeakLabel: HTMLSpanElement = span(
 		{
-			style: `color: var(--primary-text); font-size: ${Typography.sizeSm}; font-family: monospace;`,
+			style: `color: var(--primary-text); font-size: ${Typography.sizeSm}; font-family: monospace; white-space: nowrap;`,
 		},
 		"Peak: -inf dB",
 	);
 	private readonly _masterDbAvgLabel: HTMLSpanElement = span(
 		{
-			style: `color: var(--secondary-text); font-size: ${Typography.sizeSm}; font-family: monospace;`,
+			style: `color: var(--secondary-text); font-size: ${Typography.sizeSm}; font-family: monospace; white-space: nowrap;`,
 		},
 		"Avg: -inf dB",
 	);
 	private readonly _masterDbMinLabel: HTMLSpanElement = span(
 		{
-			style: `color: var(--secondary-text); font-size: ${Typography.sizeSm}; font-family: monospace;`,
+			style: `color: var(--secondary-text); font-size: ${Typography.sizeSm}; font-family: monospace; white-space: nowrap;`,
 		},
 		"Min: -inf dB",
 	);
 	private readonly _masterDbMaxLabel: HTMLSpanElement = span(
 		{
-			style: `color: var(--secondary-text); font-size: ${Typography.sizeSm}; font-family: monospace;`,
+			style: `color: var(--secondary-text); font-size: ${Typography.sizeSm}; font-family: monospace; white-space: nowrap;`,
 		},
 		"Max: -inf dB",
 	);
-	private readonly _currentBarLabel: HTMLSpanElement = span(
-		{
-			style: `color: var(--primary-text); font-size: ${Typography.sizeSm}; font-family: monospace;`,
-		},
-		"Bar: 1",
-	);
+
 
 	public container: HTMLDivElement = div(
 		{
@@ -252,31 +249,20 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 			tabindex: "0",
 		},
 		h2({ style: "margin: 12px 12px 0px 12px; text-align: center;" }, "Channel Volume Visualizer"),
-		// Row 1: top bar — play/pause, bar label, volume meter, stats
+		// Top bar — play/pause, volume meter, stats
 		div(
 			{
-				style: "display: flex; align-items: center; gap: 8px; flex-wrap: wrap; padding: 4px 12px 0px 12px;",
+				style: "display: flex; align-items: center; justify-content: center; gap: 12px; flex-wrap: nowrap; padding: 4px 12px 0px 12px;"
 			},
 			this._playPauseButton,
-			this._currentBarLabel,
 			this._volumeBarContainer,
 			span(
-				{ style: `display: inline-flex; gap: 10px; flex-wrap: wrap;` },
+				{ style: `display: inline-flex; gap: 10px; flex-wrap: nowrap;` },
 				this._masterDbPeakLabel,
 				this._masterDbAvgLabel,
 				this._masterDbMinLabel,
 				this._masterDbMaxLabel,
 			),
-		),
-		// Row 2: legend
-		div(
-			{
-				style: "display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; padding: 4px 12px 4px 12px; font-size: 10px; color: var(--secondary-text);",
-			},
-			span({}, span({ style: "font-weight: bold;" }, "P#"), " = Pattern"),
-			span({}, span({ style: "font-weight: bold;" }, "Pk"), " = Peak"),
-			span({}, span({ style: "font-weight: bold;" }, "A"), " = Average"),
-			span({}, span({ style: "font-weight: bold;" }, "min/max"), " = Range"),
 		),
 		// Divider
 		div({ style: "border-top: 2px solid var(--ui-widget-background); margin: 0 12px;" }),
@@ -410,17 +396,13 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 		// Update play/pause button state
 		this._updatePlayPauseButton();
 
-		// Update current bar
-		const currentBar = Math.floor(this._doc.synth.playhead);
-		this._currentBarLabel.textContent = `Bar: ${currentBar + 1}`;
-
 		// Master volume from the post-limiter sample peak (song.outVolumeCap), the
 		// same source as the limiter prompt's Out meter and the editor's main meter.
 		// Peak (not RMS) so it reacts to kicks/transients and matches the actual
 		// output sample level.
 		const masterLevel = this._doc.song.outVolumeCap;
 
-		// Update master volume bar
+		// Track historic peak for dB stats
 		this._historicTimer--;
 		if (this._historicTimer <= 0) {
 			this._historicVolumeCap -= 0.03;
@@ -430,6 +412,7 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 			this._historicTimer = 50;
 		}
 
+		// Update master volume bar
 		const volumeWidth = Math.min(144, masterLevel * 144);
 		const capX = 8 + Math.min(144, this._historicVolumeCap * 144);
 		if (volumeWidth !== this._lastVolumeWidth) {
