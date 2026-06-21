@@ -439,6 +439,9 @@ export class MuteEditor {
 			} else {
 				this._channelCounts[y].style.background = "transparent";
 				this._channelCounts[y].style.borderRadius = "0";
+				if (!active || playing) {
+					this._channelCounts[y].style.color = ColorConfig.muteEditorTextDim;
+				}
 			}
 
 			if (this._doc.song.channels[y].muted) {
