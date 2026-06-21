@@ -21,7 +21,7 @@ import type { SongDocument } from "../song-document";
 import { BasePrompt } from "./base-prompt";
 
 const { div, h2, span, button } = HTML;
-const { svg, defs, linearGradient, stop, rect } = SVG;
+const { svg, rect } = SVG;
 
 // Spectrum overlay tuning, mirroring shared/spectrum.ts main FG layer so the
 // per-channel overlay matches the editor's main spectrum look.
@@ -156,56 +156,8 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 		"▶ Play",
 	);
 
-	// Volume bar elements
-	private readonly _outVolumeBar: SVGRectElement = rect({
-		"pointer-events": "none",
-		height: "50%",
-		width: "0%",
-		x: "5%",
-		y: "25%",
-		fill: "url('#channelVolumeVisualizerGrad')",
-	});
-	private readonly _outVolumeCap: SVGRectElement = rect({
-		"pointer-events": "none",
-		width: BorderWidth.default,
-		height: "50%",
-		x: "5%",
-		y: "25%",
-		fill: "var(--ui-widget-focus, #777)",
-	});
-	private readonly _volumeBarContainer: SVGSVGElement = svg(
-		{
-			style: "touch-action: none; overflow: visible; margin: auto;",
-			width: "160px",
-			height: "12px",
-			preserveAspectRatio: "none",
-			viewBox: "0 0 160 12",
-		},
-		defs(
-			{},
-			linearGradient(
-				{ id: "channelVolumeVisualizerGrad", gradientUnits: "userSpaceOnUse" },
-				stop({ "stop-color": "lime", offset: "60%" }),
-				stop({ "stop-color": "orange", offset: "90%" }),
-				stop({ "stop-color": "red", offset: "100%" }),
-			),
-		),
-		rect({
-			"pointer-events": "none",
-			width: "90%",
-			height: "50%",
-			x: "5%",
-			y: "25%",
-			fill: "var(--ui-widget-background, #444)",
-		}),
-		this._outVolumeBar,
-		this._outVolumeCap,
-	);
-
 	private _historicVolumeCap: number = 0;
 	private _historicTimer: number = 0;
-	private _lastVolumeWidth: number = -1;
-	private _lastCapX: number = -1;
 
 	// Running averages for dB
 	private _masterVolumeSum: number = 0;
@@ -255,7 +207,6 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 				style: "display: flex; align-items: center; justify-content: center; gap: 12px; flex-wrap: nowrap; padding: 4px 12px 0px 12px;"
 			},
 			this._playPauseButton,
-			this._volumeBarContainer,
 			span(
 				{ style: `display: inline-flex; gap: 10px; flex-wrap: nowrap;` },
 				this._masterDbPeakLabel,
@@ -410,18 +361,6 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 		if (masterLevel > this._historicVolumeCap) {
 			this._historicVolumeCap = masterLevel;
 			this._historicTimer = 50;
-		}
-
-		// Update master volume bar
-		const volumeWidth = Math.min(144, masterLevel * 144);
-		const capX = 8 + Math.min(144, this._historicVolumeCap * 144);
-		if (volumeWidth !== this._lastVolumeWidth) {
-			this._lastVolumeWidth = volumeWidth;
-			this._outVolumeBar.setAttribute("width", `${volumeWidth}`);
-		}
-		if (capX !== this._lastCapX) {
-			this._lastCapX = capX;
-			this._outVolumeCap.setAttribute("x", `${capX}`);
 		}
 
 		// Update master dB labels (dBFS peak: full-scale = 0 dB)
