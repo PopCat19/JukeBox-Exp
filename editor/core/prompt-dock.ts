@@ -29,7 +29,7 @@ const UNSNAP_THRESHOLD = 90;
 export class PromptDock {
 	private readonly _editor: HTMLElement;
 	private readonly _promptContainer: HTMLElement;
-	private readonly _container: HTMLElement;
+	private _container: HTMLElement | null = null;
 	private readonly _docked: Map<DockSide, Prompt> = new Map();
 	private readonly _dockEls: Map<DockSide, HTMLDivElement> = new Map();
 	private readonly _dividerEls: Map<DockSide, HTMLDivElement> = new Map();
@@ -39,7 +39,13 @@ export class PromptDock {
 	constructor(host: PromptDockHost) {
 		this._editor = host.editor;
 		this._promptContainer = host.promptContainer;
-		this._container = host.editor.parentElement as HTMLElement;
+	}
+
+	private get container(): HTMLElement {
+		// Resolved lazily: mainLayer is not appended to
+		// #beepboxEditorContainer until after SongEditor construction.
+		if (!this._container) this._container = this._editor.parentElement as HTMLElement;
+		return this._container;
 	}
 
 	public isDocked(prompt: Prompt): boolean {
@@ -136,7 +142,7 @@ export class PromptDock {
 
 	private _ensureDock(side: DockSide): void {
 		if (this._dockEls.has(side)) return;
-		const maxW = Math.min(this._container.clientWidth * 0.5, Math.max(MIN_WIDTH, this._container.clientWidth - 520));
+		const maxW = Math.min(this.container.clientWidth * 0.5, Math.max(MIN_WIDTH, this.container.clientWidth - 520));
 		const width = Math.max(MIN_WIDTH, Math.min(maxW, this._widths.get(side) ?? DEFAULT_WIDTH));
 		const dockEl = div({ class: `prompt-dock prompt-dock-${side}`, style: `width: ${width}px;` }, div({ class: "prompt-dock-content" }));
 		const divider = div({ class: "prompt-dock-divider" });
@@ -162,22 +168,24 @@ export class PromptDock {
 		const leftDiv = this._dividerEls.get("left");
 		const rightDiv = this._dividerEls.get("right");
 		const rightDock = this._dockEls.get("right");
-		if (leftDock) this._container.insertBefore(leftDock, ref);
-		if (leftDiv) this._container.insertBefore(leftDiv, ref);
-		if (rightDiv) this._container.insertBefore(rightDiv, ref.nextSibling);
-		if (rightDock) this._container.insertBefore(rightDock, rightDiv ? rightDiv.nextSibling : ref.nextSibling);
+		const c = this.container;
+		if (leftDock) c.insertBefore(leftDock, ref);
+		if (leftDiv) c.insertBefore(leftDiv, ref);
+		if (rightDiv) c.insertBefore(rightDiv, ref.nextSibling);
+		if (rightDock) c.insertBefore(rightDock, rightDiv ? rightDiv.nextSibling : ref.nextSibling);
 	}
 
 	private _applyLayout(): void {
 		const anyDocked = this._docked.size > 0;
+		const c = this.container;
 		if (anyDocked) {
-			this._container.style.display = "flex";
-			this._container.style.flexDirection = "row";
+			c.style.display = "flex";
+			c.style.flexDirection = "row";
 			this._editor.style.flex = "1 1 auto";
 			this._editor.style.minWidth = "0";
 		} else {
-			this._container.style.display = "";
-			this._container.style.flexDirection = "";
+			c.style.display = "";
+			c.style.flexDirection = "";
 			this._editor.style.flex = "";
 			this._editor.style.minWidth = "";
 		}
@@ -193,7 +201,7 @@ export class PromptDock {
 				const dockEl = this._dockEls.get(side);
 				if (!dockEl) return;
 				const delta = side === "left" ? me.clientX - startX : startX - me.clientX;
-				const maxW = Math.min(this._container.clientWidth * 0.5, Math.max(MIN_WIDTH, this._container.clientWidth - 520));
+				const maxW = Math.min(this.container.clientWidth * 0.5, Math.max(MIN_WIDTH, this.container.clientWidth - 520));
 				const w = Math.max(MIN_WIDTH, Math.min(maxW, startWidth + delta));
 				this._widths.set(side, w);
 				dockEl.style.width = `${w}px`;
