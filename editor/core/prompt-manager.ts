@@ -43,6 +43,7 @@ import { TipPrompt } from "../prompts/tip-prompt";
 import { VisualLoopControlsPrompt } from "../prompts/visual-loop-controls-prompt";
 import type { SongDocument } from "../song-document";
 import { makeLogger } from "./debug-log";
+import { type DockSide, PromptDock } from "./prompt-dock";
 import { PromptFocusController } from "./prompt-focus-controller";
 
 const log = makeLogger("prompts");
@@ -104,6 +105,7 @@ export class PromptManager {
 	private _draggingPrompt: boolean = false;
 	private _wasPlaying: boolean = false;
 	private readonly _focusController: PromptFocusController;
+	private readonly _dock: PromptDock;
 
 	constructor(
 		private readonly _host: PromptHost,
@@ -163,6 +165,11 @@ export class PromptManager {
 			refocusSongEditor: () => this._host.refocusStage(),
 			isInPromptContainer: (el) => el !== null && this._host.promptContainer.contains(el),
 		});
+
+		this._dock = new PromptDock({
+			editor: this._host.mainLayer,
+			promptContainer: this._host.promptContainer,
+		});
 	}
 
 	public get prompt(): Prompt | null {
@@ -219,6 +226,7 @@ export class PromptManager {
 			const index = this._prompts.indexOf(prompt);
 			if (index !== -1) {
 				this._prompts.splice(index, 1);
+				this._dock.remove(prompt);
 				log.log("spliced", prompt.name, { stack: this._prompts.map((p) => p.name), remaining: this._prompts.length });
 				const target = prompt;
 				const doRemove = (): void => {
@@ -299,7 +307,13 @@ export class PromptManager {
 		const wasInPrompt = this._host.promptContainer.contains(activeEl);
 		for (const p of this._prompts) {
 			p.container.style.boxShadow = "none";
-			if (this._host.doc.prefs.showPromptBackdrop) {
+			const docked = this._dock.isDocked(p);
+			if (docked) {
+				p.container.style.removeProperty("--prompt-backdrop-filter");
+				p.container.style.removeProperty("--prompt-bg-color");
+				p.container.style.background = "";
+				p.container.style.opacity = "";
+			} else if (this._host.doc.prefs.showPromptBackdrop) {
 				p.container.style.setProperty("--prompt-backdrop-filter", "blur(14px) brightness(0.9)");
 				p.container.style.background = "rgba(0, 0, 0, 0.4)";
 			} else {
@@ -310,7 +324,7 @@ export class PromptManager {
 			}
 			if (p === this._focusedPrompt) {
 				p.container.classList.add("focused");
-				if (this._host.promptContainer.lastElementChild !== p.container) {
+				if (!docked && this._host.promptContainer.lastElementChild !== p.container) {
 					this._host.promptContainer.appendChild(p.container);
 				}
 			} else {
@@ -636,25 +650,44 @@ export class PromptManager {
 				target instanceof HTMLButtonElement ||
 				target instanceof HTMLSelectElement ||
 				target instanceof HTMLTextAreaElement ||
-				target.closest(".slider")
+				target.closest(".slider") ||
+				target.closest(".prompt-dock-divider")
 			)
 				return;
 
 			this._draggingPrompt = true;
-			const currentPos = this._promptPositions.get(promptName) || {
-				x: 0,
-				y: 0,
-			};
+			let anchorX = e.clientX;
+			const dockedAtDown = this._dock.isDocked(prompt);
+			let currentPos = this._promptPositions.get(promptName) || { x: 0, y: 0 };
+			if (dockedAtDown) {
+				const r = prompt.container.getBoundingClientRect();
+				const mlRect = this._host.mainLayer.getBoundingClientRect();
+				currentPos = { x: r.left - mlRect.left, y: r.top - mlRect.top };
+			}
 			const startX = e.clientX - currentPos.x;
 			const startY = e.clientY - currentPos.y;
 
 			const onMove = (me: MouseEvent): void => {
 				if (!this._prompts.includes(prompt)) return;
+				if (this._dock.isDocked(prompt)) {
+					if (this._dock.shouldUnsnapByDrag(prompt, me.clientX - anchorX)) {
+						this._dock.undock(prompt);
+						anchorX = me.clientX;
+					} else {
+						return;
+					}
+				}
 				const rect = prompt.container.getBoundingClientRect();
 				const w = this._host.mainLayer.clientWidth;
 				const h = this._host.mainLayer.clientHeight;
 				const x = Math.max(0, Math.min(me.clientX - startX, w - rect.width));
 				const y = Math.max(0, Math.min(me.clientY - startY, h - rect.height));
+				const side = this._dock.getSnapSide(x, w, rect.width) as DockSide | null;
+				if (side) {
+					this._dock.snap(prompt, side);
+					anchorX = me.clientX;
+					return;
+				}
 				prompt.container.style.left = `${x}px`;
 				prompt.container.style.top = `${y}px`;
 				this._promptPositions.set(promptName, { x, y });
