@@ -2557,6 +2557,22 @@ html {
 	-webkit-mask-position: center;
 }
 
+/* PMD: popped-out prompts (data-popout="true", set by PromptPopout) live in a
+ * separate OS window. There is no editor content behind them to raise above,
+ * so the hover/focus outline is visual noise; and the shade + popout titlebar
+ * buttons have no useful action in a window that already has its own OS
+ * chrome. Hide all three for a clean window-filling panel. */
+.beepboxEditor .prompt[data-popout="true"]:hover,
+.beepboxEditor .prompt[data-popout="true"].focused,
+.beepboxEditor .prompt[data-popout="true"]:focus-visible {
+	outline: none;
+}
+
+.beepboxEditor .prompt[data-popout="true"] .shadeButton,
+.beepboxEditor .prompt[data-popout="true"] .popoutButton {
+	display: none;
+}
+
 .beepboxEditor .prompt-titlebar {
 	display: flex;
 	align-items: center;

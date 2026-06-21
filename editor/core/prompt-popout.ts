@@ -62,26 +62,30 @@ export class PromptPopout {
 		const doc = win.document;
 		doc.title = prompt.name ?? "Popout";
 
-		// Base reset: the popout body becomes the prompt surface itself, edge to
-		// edge, so the prompt fills and scales to the window dimensions (Hyprland
-		// resizes the window freely; the per-channel grid reflows to match). body
-		// gets .beepboxEditor so the scoped rules (.beepboxEditor .prompt { ... })
-		// still match. overflow:auto is a safety net for absurd resizes; the
-		// prompt's own channels pane handles in-panel scroll.
+		// Base reset: the popout body is the editor-background stage with a PMD
+		// --padding-12 margin on both axes, so the prompt panel fills the window
+		// minus consistent design-token breathing room and keeps its rounded
+		// corners against the stage. body gets .beepboxEditor so the scoped rules
+		// (.beepboxEditor .prompt { ... }) still match. overflow:auto is a safety
+		// net for absurd Hyprland resizes; the prompt's own channels pane handles
+		// in-panel scroll.
 		const base = doc.createElement("style");
 		base.setAttribute(POPOUT_STYLE_ATTR, "");
-		base.textContent = "html,body{margin:0;padding:0;height:100%;background:var(--editor-background,black);}" + "body{overflow:auto;box-sizing:border-box;";
+		base.textContent =
+			"html,body{margin:0;padding:0;height:100%;background:var(--editor-background,black);}" +
+			"body{padding:var(--padding-12);overflow:auto;box-sizing:border-box;}";
 		doc.head.appendChild(base);
 		doc.body.classList.add("beepboxEditor");
 
 		this._cloneStyles(doc);
 
-		// Relocate the container and restyle it to fill the window. The .beepboxEditor
-		// .prompt CSS supplies padding and gap; we override the manager's inline
-		// positioning (absolute, fixed 720px) plus border-radius so the prompt is
-		// the whole window surface rather than a floating panel. The manager never
-		// repositions a popped prompt (guarded by isOpen checks), so these overrides
-		// persist until close.
+		// Relocate the container and restyle it to fill the window's content box
+		// (body padding supplies the PMD margin on both axes). The .beepboxEditor
+		// .prompt CSS supplies border-radius, padding, and gap; we override only the
+		// manager's inline positioning (absolute, fixed 720px) so the panel fills
+		// width and height and stays rounded. The manager never repositions a
+		// popped prompt (guarded by isOpen checks), so these overrides persist
+		// until close.
 		//
 		// Background: in-editor the prompt reads as glass because backdrop-filter
 		// blurs the editor content behind a transparent bg. In the popout the body
@@ -99,7 +103,6 @@ export class PromptPopout {
 		c.style.height = "100%";
 		c.style.maxHeight = "none";
 		c.style.margin = "0";
-		c.style.borderRadius = "0";
 		c.style.transform = "none";
 		c.style.setProperty("--prompt-bg-color", "var(--ui-widget-background, #444)");
 		c.style.setProperty("--prompt-backdrop-filter", "none");
