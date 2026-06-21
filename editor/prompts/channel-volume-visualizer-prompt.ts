@@ -762,11 +762,6 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 			const channel = this._doc.song.channels[channelIndex];
 			if (channel) {
 				const channelColors = ColorConfig.getChannelColor(this._doc.song, channelIndex);
-				const currentBarAnim = Math.floor(this._doc.synth.playhead);
-				const patternIndexAnim = channel.bars[currentBarAnim];
-				const patternAnim = patternIndexAnim > 0 ? this._doc.song.getPattern(channelIndex, currentBarAnim) : null;
-				const patternInstrumentsAnim = patternAnim ? patternAnim.instruments : [];
-
 				const chanPeak = this._channelPeak.get(channelIndex) ?? 0;
 				const v = chanPeak * 3.16;
 				const peakScaled = (2 * v) / (v + 1.0);
@@ -779,10 +774,9 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 						if (instrState && instrSpan) {
 							const isPlaying =
 								instrState.activeTones.count() > 0 || instrState.releasedTones.count() > 0 || instrState.liveInputTones.count() > 0;
-							const inPattern = patternInstrumentsAnim.includes(j);
-							instrSpan.style.background = isPlaying || inPattern ? channelColors.primaryChannel : "var(--ui-widget-background)";
-							instrSpan.style.color = isPlaying || inPattern ? "var(--editor-background)" : channelColors.primaryChannel;
-							instrSpan.style.opacity = isPlaying ? String(volBrightness) : inPattern ? "1" : "0.5";
+							instrSpan.style.background = isPlaying ? channelColors.primaryChannel : "var(--ui-widget-background)";
+							instrSpan.style.color = isPlaying ? "var(--editor-background)" : channelColors.primaryChannel;
+							instrSpan.style.opacity = isPlaying ? String(volBrightness) : "0.5";
 						}
 					}
 				}
