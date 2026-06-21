@@ -761,7 +761,6 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 			// Update instrument highlights
 			const channel = this._doc.song.channels[channelIndex];
 			if (channel) {
-				const channelColors = ColorConfig.getChannelColor(this._doc.song, channelIndex);
 				const chanPeak = this._channelPeak.get(channelIndex) ?? 0;
 				const v = chanPeak * 3.16;
 				const peakScaled = (2 * v) / (v + 1.0);
@@ -774,9 +773,24 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 						if (instrState && instrSpan) {
 							const isPlaying =
 								instrState.activeTones.count() > 0 || instrState.releasedTones.count() > 0 || instrState.liveInputTones.count() > 0;
-							instrSpan.style.background = isPlaying ? channelColors.primaryChannel : "var(--ui-widget-background)";
-							instrSpan.style.color = isPlaying ? "var(--editor-background)" : channelColors.primaryChannel;
-							instrSpan.style.opacity = isPlaying ? String(volBrightness) : "0.5";
+							if (isPlaying) {
+								// Blend from channel color to white as volume rises.
+								const hex = this._channelSpectrumColors.get(channelIndex) ?? "#888";
+								const r = parseInt(hex.length >= 7 ? hex.slice(1, 3) : hex.slice(1, 2) + hex.slice(1, 2), 16);
+								const g = parseInt(hex.length >= 7 ? hex.slice(3, 5) : hex.slice(2, 3) + hex.slice(2, 3), 16);
+								const b = parseInt(hex.length >= 7 ? hex.slice(5, 7) : hex.slice(3, 4) + hex.slice(3, 4), 16);
+								const t = Math.min(1, Math.max(0, (volBrightness - 0.3) / 0.7));
+								const br = Math.round(r + (255 - r) * t);
+								const bg = Math.round(g + (255 - g) * t);
+								const bb = Math.round(b + (255 - b) * t);
+								instrSpan.style.background = `rgb(${br},${bg},${bb})`;
+								instrSpan.style.color = t > 0.5 ? "black" : "var(--editor-background)";
+								instrSpan.style.opacity = "1";
+							} else {
+								instrSpan.style.background = "var(--ui-widget-background)";
+								instrSpan.style.color = this._channelSpectrumColors.get(channelIndex) ?? "var(--primary-text)";
+								instrSpan.style.opacity = "0.5";
+							}
 						}
 					}
 				}
