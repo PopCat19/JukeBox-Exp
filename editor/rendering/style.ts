@@ -875,7 +875,6 @@ html {
 	position: sticky;
 	top: 0;
 	z-index: 2;
-	background: var(--prompt-bg-color, var(--editor-background, #fff));
 }
 .beepboxEditor .prompt.docked.fill-y .paneContainer {
 	height: auto !important;

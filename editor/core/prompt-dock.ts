@@ -276,14 +276,23 @@ export class PromptDock {
 
 	private _pinPrompt(prompt: Prompt, leftPx: number, topPx: number, width: number, height: number): void {
 		const c = prompt.container;
+		const fillY = c.classList.contains("fill-y");
 		c.style.position = "fixed";
 		c.style.margin = "0";
 		c.style.borderRadius = "0";
 		c.style.transform = "none";
 		c.style.width = `${width}px`;
 		c.style.maxWidth = "none";
-		c.style.height = `${height}px`;
-		c.style.maxHeight = "none";
+		// Only stretch non-list prompts to the full slot height; visual/SVG
+		// prompts keep their intrinsic height and sit at the slot top so
+		// their SVGs do not distort.
+		if (fillY) {
+			c.style.height = `${height}px`;
+			c.style.maxHeight = "none";
+		} else {
+			c.style.height = "";
+			c.style.maxHeight = "";
+		}
 		c.style.top = `${topPx}px`;
 		c.style.left = `${leftPx}px`;
 		c.style.right = "";

@@ -191,8 +191,8 @@ export class FilterEditor {
 		window.addEventListener("resize", () => (this._svgRect = null));
 		window.addEventListener("scroll", () => (this._svgRect = null), { capture: true, passive: true });
 
-		this.container.addEventListener("touchstart", this._whenTouchPressed);
-		this.container.addEventListener("touchmove", this._whenTouchMoved);
+		this.container.addEventListener("touchstart", this._whenTouchPressed, { passive: true });
+		this.container.addEventListener("touchmove", this._whenTouchMoved, { passive: true });
 		this.container.addEventListener("touchend", this._whenCursorReleased);
 		this.container.addEventListener("touchcancel", this._whenCursorReleased);
 	}
@@ -271,7 +271,6 @@ export class FilterEditor {
 	};
 
 	private _whenTouchPressed = (event: TouchEvent): void => {
-		event.preventDefault();
 		event.stopPropagation();
 		this._touchMode = true;
 		if (!this._svgRect) this._svgRect = this._svg.getBoundingClientRect();
@@ -300,7 +299,6 @@ export class FilterEditor {
 
 	private _whenTouchMoved = (event: TouchEvent): void => {
 		if (this.container.offsetParent == null) return;
-		if (this._mouseDown) event.preventDefault();
 		if (!this._svgRect) this._svgRect = this._svg.getBoundingClientRect();
 		const boundingRect: DOMRect = this._mouseDown ? this._dragSvgRect || this._svgRect : this._svgRect;
 		this._mouseX = ((event.touches[0].clientX - boundingRect.left) * this._editorWidth) / (boundingRect.right - boundingRect.left);

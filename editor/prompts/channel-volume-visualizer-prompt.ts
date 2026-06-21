@@ -247,7 +247,7 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 
 	public container: HTMLDivElement = div(
 		{
-			class: "prompt noSelection",
+			class: "prompt noSelection fill-y",
 			style: "width: 720px; height: auto; max-height: 80vh; display: flex; flex-direction: column;",
 			tabindex: "0",
 		},
@@ -1021,13 +1021,15 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 			this._contentContainer.appendChild(channelDiv);
 		}
 
-		// When exceeding 28 channels, cap the channels pane height and let it
-		// scroll instead of the flex chain squishing the grid cards.
+		// When exceeding 28 channels, let the channels pane scroll so the
+		// grid cards keep their size. When docked the pane fills its slot, so
+		// omit the fixed 600px cap and scroll only if content overflows the
+		// available slot height instead.
 		if (channelCount > 28) {
-			this._channelsPane.style.display = "block";
+			this._channelsPane.style.display = "flex";
 			this._channelsPane.style.flex = "1";
-			this._channelsPane.style.maxHeight = "600px";
 			this._channelsPane.style.overflowY = "auto";
+			this._channelsPane.style.maxHeight = this.container.classList.contains("docked") ? "" : "600px";
 		} else {
 			this._channelsPane.style.display = "flex";
 			this._channelsPane.style.flex = "1";
