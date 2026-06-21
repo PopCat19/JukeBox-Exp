@@ -531,7 +531,7 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 				const avgText = Number.isFinite(avgDb) ? avgDb.toFixed(1) : "-inf";
 				const minText = Number.isFinite(minDb) ? minDb.toFixed(1) : "-inf";
 				const maxText = Number.isFinite(maxDb) ? maxDb.toFixed(1) : "-inf";
-				dbLabel.textContent = Number.isFinite(peakDb) ? `Pk:${peakDb.toFixed(1)} | A:${avgText} | ${minText}/${maxText}` : `Pk:-inf | A:-inf | -inf/-inf`;
+				dbLabel.textContent = Number.isFinite(peakDb) ? `Pk:${peakDb.toFixed(1)}\nA:${avgText}\n${minText}/${maxText}` : `Pk:-inf\nA:-inf\n-inf/-inf`;
 			}
 
 			// Draw pitch spectrum overlay: smooth bezier curve fill from active tone bands
@@ -875,9 +875,9 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 
 			const dbLabel = span(
 				{
-					style: `color: ${channelColors.primaryChannel}; opacity: 0.8; font-size: 10px; font-weight: 600; font-family: monospace; text-align: center; display: block;`,
+					style: `color: ${channelColors.primaryChannel}; opacity: 0.8; font-size: 10px; font-weight: 600; font-family: monospace; text-align: center; display: block; white-space: pre-line;`,
 				},
-				"Pk:-inf | A:-inf | -inf/-inf",
+				"Pk:-inf\nA:-inf\n-inf/-inf",
 			);
 			this._channelDbLabels.set(i, dbLabel);
 
