@@ -361,10 +361,6 @@ export class MuteEditor {
 	}
 
 	private _animateActivity = (): void => {
-		if (!this._doc.synth.playing) {
-			window.requestAnimationFrame(this._animateActivity);
-			return;
-		}
 		const channelCount = this._doc.song.getChannelCount();
 		while (this._activityFlash.length < channelCount) this._activityFlash.push(0);
 
@@ -382,11 +378,7 @@ export class MuteEditor {
 				}
 			}
 			const prev = this._activityFlash[y] || 0;
-			if (hasActivity) {
-				this._activityFlash[y] = 1;
-			} else if (prev > 0) {
-				this._activityFlash[y] = prev - 0.05;
-			}
+			this._activityFlash[y] = hasActivity ? 1 : 0;
 			if (this._activityFlash[y] !== prev) changed = true;
 		}
 		if (changed) this.render();
