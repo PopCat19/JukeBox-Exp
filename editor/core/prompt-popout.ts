@@ -147,10 +147,13 @@ export class PromptPopout {
 		// a bounded panel, would clip. Forcing overflowY:auto here makes the pane's
 		// scroll area reach the full panel height at any channel count. The pane is
 		// the grid's parent (flex:1; min-height:0), so it bounds to the remaining
-		// panel height.
+		// panel height. Explicit height:100% is set as a fallback in case the flex
+		// basis doesn't resolve (e.g. if the container's calc height is invalid).
 		if (grid?.parentElement) {
-			grid.parentElement.style.overflowY = "auto";
-			grid.parentElement.style.minHeight = "0";
+			const pane = grid.parentElement;
+			pane.style.overflowY = "auto";
+			pane.style.minHeight = "0";
+			pane.style.height = "100%";
 		}
 
 		// Route popout keydown to the prompt's handler. The main window's
