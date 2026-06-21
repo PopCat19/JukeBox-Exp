@@ -20,7 +20,7 @@ import type { PromptEditorRefs } from "../core/prompt-manager";
 import type { SongDocument } from "../song-document";
 import { BasePrompt } from "./base-prompt";
 
-const { div, h2, h3, span, button } = HTML;
+const { div, span, button } = HTML;
 const { svg, defs, linearGradient, stop, rect } = SVG;
 
 // Spectrum overlay tuning, mirroring shared/spectrum.ts main FG layer so the
@@ -120,13 +120,12 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 	);
 
 	private readonly _contentContainer: HTMLDivElement = div({
-		style: "display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 8px; align-content: start;",
+		style: "display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; align-content: start;",
 	});
 	private readonly _channelsPane: HTMLDivElement = div(
 		{
 			style: "flex: 1; display: flex; flex-direction: column; min-height: 0; padding: 4px 12px 12px 12px;",
 		},
-		h3({ style: "margin-top: 0px; margin-bottom: 8px;" }, "Channels"),
 		this._contentContainer,
 	);
 
@@ -241,7 +240,7 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 	);
 	private readonly _currentBarLabel: HTMLSpanElement = span(
 		{
-			style: `color: var(--primary-text); font-size: ${Typography.sizeSm}; font-family: monospace; margin-top: 12px;`,
+			style: `color: var(--primary-text); font-size: ${Typography.sizeSm}; font-family: monospace;`,
 		},
 		"Bar: 1",
 	);
@@ -252,37 +251,36 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 			style: "width: 720px; height: auto; max-height: 80vh; display: flex; flex-direction: column;",
 			tabindex: "0",
 		},
-		h2({ style: "margin: 12px 12px 0px 12px; text-align: center;" }, "Channel Volume Visualizer"),
+		// Row 1: top bar — play/pause, bar label, volume meter, stats
 		div(
-			{ style: "display: flex; flex: 1; min-height: 0; gap: 12px;" },
-			// Left pane: Master controls
-			div(
-				{
-					style: "flex: 0 0 180px; display: flex; flex-direction: column; padding: 4px 12px 12px 12px; border-right: 2px solid var(--ui-widget-background);",
-				},
-				h3({ style: "margin-top: 0px; margin-bottom: 12px;" }, "Master"),
-				this._currentBarLabel,
-				div({ style: "display: flex; flex-direction: column; align-items: center; margin-bottom: 8px; margin-top: 8px;" }, this._volumeBarContainer),
+			{
+				style: "display: flex; align-items: center; gap: 8px; flex-wrap: wrap; padding: 4px 12px 0px 12px;",
+			},
+			this._playPauseButton,
+			this._currentBarLabel,
+			this._volumeBarContainer,
+			span(
+				{ style: `display: inline-flex; gap: 10px; flex-wrap: wrap;` },
 				this._masterDbPeakLabel,
 				this._masterDbAvgLabel,
 				this._masterDbMinLabel,
 				this._masterDbMaxLabel,
-				div({ style: "margin-top: 8px;" }, this._playPauseButton),
-				div(
-					{
-						style: "margin-top: 16px; font-size: 10px; color: var(--secondary-text); border-top: 2px solid var(--ui-widget-background); padding-top: 8px; white-space: nowrap;",
-					},
-					div({ title: "Pattern number" }, span({ style: "font-weight: bold;" }, "P#"), " = Pattern"),
-					div({ title: "Instrument number" }, span({ style: "font-weight: bold;" }, "I#"), " = Instrument"),
-					div({ title: "Decibel - volume measurement" }, span({ style: "font-weight: bold;" }, "dB"), " = Decibel"),
-					div({ title: "Highest volume level" }, span({ style: "font-weight: bold;" }, "Pk"), " = Peak"),
-					div({ title: "Average volume level" }, span({ style: "font-weight: bold;" }, "A"), " = Average"),
-					div({ title: "Volume range" }, span({ style: "font-weight: bold;" }, "min/max"), " = Range"),
-				),
 			),
-			// Right pane: Channels
-			this._channelsPane,
 		),
+		// Row 2: legend
+		div(
+			{
+				style: "display: flex; gap: 10px; flex-wrap: wrap; padding: 4px 12px 4px 12px; font-size: 10px; color: var(--secondary-text);",
+			},
+			span({}, span({ style: "font-weight: bold;" }, "P#"), " = Pattern"),
+			span({}, span({ style: "font-weight: bold;" }, "Pk"), " = Peak"),
+			span({}, span({ style: "font-weight: bold;" }, "A"), " = Average"),
+			span({}, span({ style: "font-weight: bold;" }, "min/max"), " = Range"),
+		),
+		// Divider
+		div({ style: "border-top: 2px solid var(--ui-widget-background); margin: 0 12px;" }),
+		// Channels grid
+		this._channelsPane,
 		this._cancelButton,
 	);
 
