@@ -336,10 +336,10 @@ export class TrackEditor {
 		const elapsedStr = formatTime(barTime);
 
 		if (!overTrackEditor) {
-			this._hoverTooltip.textContent = `B${bar + 1}  -  ${elapsedStr}`;
+			this._hoverTooltip.innerHTML = `<div>B${bar + 1}</div><div>${elapsedStr}</div>`;
 		} else {
 			const channelType: string = this._doc.song.getChannelIsNoise(channel) ? "D" : this._doc.song.getChannelIsMod(channel) ? "M" : "P";
-			this._hoverTooltip.textContent = `B${bar + 1}/${channelType}${channel + 1}  -  ${elapsedStr}`;
+			this._hoverTooltip.innerHTML = `<div>B${bar + 1}/${channelType}${channel + 1}</div><div>${elapsedStr}</div>`;
 		}
 
 		// Track the cursor in viewport coordinates, swapping sides to avoid
