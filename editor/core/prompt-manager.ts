@@ -658,6 +658,7 @@ export class PromptManager {
 
 			this._draggingPrompt = true;
 			let anchorX = e.clientX;
+			let suppressSnap = false;
 			const dockedAtDown = this._dock.isDocked(prompt);
 			let currentPos = this._promptPositions.get(promptName) || { x: 0, y: 0 };
 			if (dockedAtDown) {
@@ -674,6 +675,7 @@ export class PromptManager {
 					if (this._dock.shouldUnsnapByDrag(prompt, me.clientX - anchorX)) {
 						this._dock.undock(prompt);
 						anchorX = me.clientX;
+						suppressSnap = true;
 						// Re-anchor the grab point to the restored (smaller)
 						// floating prompt so it stays under the cursor at
 						// the titlebar instead of jumping above it.
@@ -696,10 +698,15 @@ export class PromptManager {
 				const x = Math.max(0, Math.min(me.clientX - startX, w - rect.width));
 				const y = Math.max(0, Math.min(me.clientY - startY, h - rect.height));
 				const side = this._dock.getSnapSide(x, w, rect.width, me.clientX) as DockSide | null;
-				if (side) {
+				if (side && !suppressSnap) {
 					this._dock.snap(prompt, side);
 					anchorX = me.clientX;
 					return;
+				}
+				if (!side) {
+					// Pointer left the edge zone: re-arm snapping so the prompt
+					// can dock to the opposite side later in the same drag.
+					suppressSnap = false;
 				}
 				prompt.container.style.left = `${x}px`;
 				prompt.container.style.top = `${y}px`;

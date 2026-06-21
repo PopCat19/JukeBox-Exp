@@ -871,12 +871,18 @@ html {
 .beepboxEditor .prompt.docked .shadeButton {
 	display: none;
 }
-.beepboxEditor .prompt.docked .paneContainer {
+.beepboxEditor .prompt.docked .prompt-titlebar {
+	position: sticky;
+	top: 0;
+	z-index: 2;
+	background: var(--prompt-bg-color, var(--editor-background, #fff));
+}
+.beepboxEditor .prompt.docked.fill-y .paneContainer {
 	height: auto !important;
 	flex: 1 1 auto;
 	min-height: 0;
 }
-.beepboxEditor .prompt.docked .tabContent {
+.beepboxEditor .prompt.docked.fill-y .tabContent {
 	flex: 1 1 auto;
 	min-height: 0;
 	display: flex;
