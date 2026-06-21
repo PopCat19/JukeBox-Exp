@@ -17,5 +17,6 @@
 - `prompt-focus-controller.ts`, Manages Hyprland-style focus behavior for prompt dialogs
 - `prompt-dock.ts`, Snaps prompts to the L/R edge outside the editor with up to two stacked slots per side and resizable dividers
 - `prompt-manager.ts`, owns prompt stack, focus, drag, position memory, and enter/exit animation
+- `prompt-popout.ts`, detaches a prompt into a separate OS window via window.open, cloning editor styles and syncing theme changes
 - `selection.ts`, Manages note and bar selection state with clipboard copy/paste support
 - `song-performance.ts`, Manages live performance mode with real-time note input and recording

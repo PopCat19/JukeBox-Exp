@@ -42,9 +42,11 @@ import { ThemePrompt } from "../prompts/theme-prompt";
 import { TipPrompt } from "../prompts/tip-prompt";
 import { VisualLoopControlsPrompt } from "../prompts/visual-loop-controls-prompt";
 import type { SongDocument } from "../song-document";
+import { iconButton } from "../ui";
 import { makeLogger } from "./debug-log";
 import { type DockSide, PromptDock } from "./prompt-dock";
 import { PromptFocusController } from "./prompt-focus-controller";
+import { PromptPopout } from "./prompt-popout";
 
 const log = makeLogger("prompts");
 
@@ -63,6 +65,12 @@ export interface PromptHost {
 	promptContainer: HTMLDivElement;
 	refocusStage(): void;
 }
+
+// Prompts that offer a "pop out" titlebar button to detach into a separate
+// OS window via PromptPopout. Limited to read-only live visualizers whose
+// only inputs are play/pause and channel hover; prompts that mutate song
+// state or rely on editor-component geometry are not popout-safe.
+const _popoutCapablePrompts: ReadonlySet<Function> = new Set([ChannelVolumeVisualizerPrompt]);
 
 const _noPlayPausePrompts: ReadonlySet<Function> = new Set([
 	TipPrompt,
@@ -106,6 +114,7 @@ export class PromptManager {
 	private _wasPlaying: boolean = false;
 	private readonly _focusController: PromptFocusController;
 	private readonly _dock: PromptDock;
+	private readonly _popout: PromptPopout;
 
 	constructor(
 		private readonly _host: PromptHost,
@@ -169,6 +178,7 @@ export class PromptManager {
 		this._dock = new PromptDock({
 			editor: this._host.mainLayer,
 		});
+		this._popout = new PromptPopout({ onPopoutClosed: (p) => this.close(p) });
 	}
 
 	public get prompt(): Prompt | null {
@@ -226,6 +236,7 @@ export class PromptManager {
 			if (index !== -1) {
 				this._prompts.splice(index, 1);
 				this._dock.remove(prompt);
+				this._popout.closeWindow(prompt);
 				log.log("spliced", prompt.name, { stack: this._prompts.map((p) => p.name), remaining: this._prompts.length });
 				const target = prompt;
 				const doRemove = (): void => {
@@ -288,6 +299,7 @@ export class PromptManager {
 		const containerHeight = this._host.mainLayer.clientHeight;
 		for (const p of this._prompts) {
 			if (this._dock.isDocked(p)) continue;
+			if (this._popout.isOpen(p)) continue;
 			const savedPos = this._promptPositions.get(p.name!);
 			if (!savedPos) continue;
 			const rect = p.container.getBoundingClientRect();
@@ -308,7 +320,8 @@ export class PromptManager {
 		for (const p of this._prompts) {
 			p.container.style.boxShadow = "none";
 			const docked = this._dock.isDocked(p);
-			if (docked) {
+			const popped = this._popout.isOpen(p);
+			if (docked || popped) {
 				p.container.style.removeProperty("--prompt-backdrop-filter");
 				p.container.style.removeProperty("--prompt-bg-color");
 				p.container.style.background = "";
@@ -324,7 +337,7 @@ export class PromptManager {
 			}
 			if (p === this._focusedPrompt) {
 				p.container.classList.add("focused");
-				if (!docked && this._host.promptContainer.lastElementChild !== p.container) {
+				if (!docked && !popped && this._host.promptContainer.lastElementChild !== p.container) {
 					this._host.promptContainer.appendChild(p.container);
 				}
 			} else {
@@ -569,6 +582,10 @@ export class PromptManager {
 
 		if (newPrompt.buildTitlebar) newPrompt.buildTitlebar();
 
+		if (_popoutCapablePrompts.has(newPrompt.constructor)) {
+			this._addPopoutButton(newPrompt);
+		}
+
 		const cancelButton = newPrompt.container.querySelector(".cancelButton");
 		if (cancelButton) {
 			cancelButton.addEventListener("click", () => this.close(newPrompt));
@@ -578,6 +595,26 @@ export class PromptManager {
 		newPrompt.container.focus({ preventScroll: true });
 	}
 
+	// Adds the "pop out" button to a capable prompt's titlebar. Toggling it
+	// either detaches the prompt into a new OS window or closes that window.
+	// Docking is cleared first so the dock does not fight the popout for the
+	// container's parent and inline positioning.
+	private _addPopoutButton(prompt: Prompt): void {
+		const titlebar = prompt.container.querySelector(".prompt-titlebar");
+		if (!titlebar || titlebar.querySelector(".popoutButton")) return;
+		const btn = iconButton("popoutButton", { type: "button", title: "Pop out into separate window" });
+		btn.addEventListener("click", (e: Event) => {
+			e.stopPropagation();
+			if (this._popout.isOpen(prompt)) {
+				this.close(prompt);
+			} else {
+				this._dock.undock(prompt);
+				this._popout.open(prompt);
+			}
+		});
+		titlebar.appendChild(btn);
+	}
+
 	private _editorPadding(): { left: number; top: number } {
 		const cs = getComputedStyle(this._host.mainLayer);
 		return { left: parseFloat(cs.paddingLeft) || 0, top: parseFloat(cs.paddingTop) || 0 };
@@ -585,6 +622,7 @@ export class PromptManager {
 
 	private _applyPosition(prompt: Prompt, name: string, x: number, y: number): void {
 		if (!this._prompts.includes(prompt)) return;
+		if (this._popout.isOpen(prompt)) return;
 		const rect = prompt.container.getBoundingClientRect();
 		const w = this._host.mainLayer.clientWidth;
 		const h = this._host.mainLayer.clientHeight;
@@ -598,6 +636,7 @@ export class PromptManager {
 
 	private _spawnNearCursor(prompt: Prompt, name: string, info: { clientX: number; clientY: number; elRect: DOMRect }): void {
 		if (!this._prompts.includes(prompt)) return;
+		if (this._popout.isOpen(prompt)) return;
 		const promptBounds = prompt.container.getBoundingClientRect();
 		const pw = promptBounds.width || prompt.container.scrollWidth || 300;
 		const ph = promptBounds.height || prompt.container.scrollHeight || 200;
@@ -643,6 +682,7 @@ export class PromptManager {
 
 	private _centerPrompt(prompt: Prompt, name: string): void {
 		if (!this._prompts.includes(prompt)) return;
+		if (this._popout.isOpen(prompt)) return;
 		const rect = prompt.container.getBoundingClientRect();
 		const w = this._host.mainLayer.clientWidth;
 		const h = this._host.mainLayer.clientHeight;
@@ -680,6 +720,9 @@ export class PromptManager {
 
 	private _attachDrag(prompt: Prompt, promptName: string): void {
 		prompt.container.addEventListener("mousedown", (e: MouseEvent) => {
+			// Popped-out prompts live in another window; the drag/dock math is
+			// computed against the main editor's mainLayer rect and would misfire.
+			if (this._popout.isOpen(prompt)) return;
 			const target = e.target as HTMLElement;
 			if (
 				target instanceof HTMLInputElement ||
