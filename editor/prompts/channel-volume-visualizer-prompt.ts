@@ -32,7 +32,6 @@ const FG_BANDS = 151;
 const BAR_COUNT = 24;
 // BG bands: 67 quarter-tone bands from ~20Hz to ~130Hz (mirrors main spectrum).
 const BG_BANDS = 67;
-const BG_REF = 0.05;
 // Fixed soft-compression reference (same as main spectrum FG_REF). The bar
 // height is min(1, 2*v/(v+FG_REF)), so a band reaches the ceiling only at
 // ~FG_REF in magnitude. The per-channel ring holds the channel's own isolated
@@ -648,6 +647,12 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 							bgBandMags[b] = qa * frac * frac + qb * frac + qc;
 						}
 					}
+					// BG spectral tilt: 0.25x at 20Hz to 0.5x at 130Hz (matches FG's
+					// 0.5x floor at the transition, preventing BG from looking amp'd).
+					const bgGainStep = 0.25 / (BG_BANDS - 1);
+					for (let b = 0; b < BG_BANDS; b++) {
+						bgBandMags[b] *= 0.25 + b * bgGainStep;
+					}
 					// BG light gaussian blur (sigma=2 bands)
 					{
 						const bgBlurred = this._bgBlurred;
@@ -722,7 +727,7 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 						};
 
 						// BG layer (low frequencies) drawn first
-						drawBars(BG_BANDS, bgSmooth, BG_REF, 0.24);
+						drawBars(BG_BANDS, bgSmooth, FG_REF, 0.24);
 						// FG layer (mid-high frequencies) drawn on top
 						drawBars(FG_BANDS, smooth, FG_REF, 0.48);
 						spectrumCtx.globalAlpha = 1.0;
