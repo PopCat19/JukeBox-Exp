@@ -42,5 +42,5 @@ export function paneContainer(options?: PaneContainerOptions, ...panes: (HTMLEle
 		children.push(panes[i]);
 	}
 
-	return createDiv(style, undefined, ...children);
+	return createDiv(style, { class: "paneContainer" }, ...children);
 }

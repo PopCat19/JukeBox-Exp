@@ -865,7 +865,22 @@ html {
 	max-width: 50vw;
 	backdrop-filter: none;
 	-webkit-backdrop-filter: none;
+	background: transparent !important;
 	outline: none !important;
+}
+.beepboxEditor .prompt.docked .shadeButton {
+	display: none;
+}
+.beepboxEditor .prompt.docked .paneContainer {
+	height: auto !important;
+	flex: 1 1 auto;
+	min-height: 0;
+}
+.beepboxEditor .prompt.docked .tabContent {
+	flex: 1 1 auto;
+	min-height: 0;
+	display: flex;
+	flex-direction: column;
 }
 
 .beepboxEditor .prompt {

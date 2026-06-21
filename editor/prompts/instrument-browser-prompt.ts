@@ -156,8 +156,7 @@ export class InstrumentBrowserPrompt extends BasePrompt {
 		this._infoPanel.className = "infoPanelPane";
 
 		const paneContainerEl = paneContainer({ height: "400px", gap: "8px", overflow: "visible", border: "none" }, this._categoryList, this._presetList);
-		paneContainerEl.className = "presetPaneContainer";
-		paneContainerEl.className = "presetPaneContainer";
+		paneContainerEl.classList.add("presetPaneContainer");
 
 		const instructionsDiv = instructions("Arrow keys: navigate | Enter / Double click: commit | Tab: switch pane | #: tags | ESC: close", {
 			fontSize: Typography.sizeSm,
