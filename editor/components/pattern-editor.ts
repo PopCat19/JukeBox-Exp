@@ -205,6 +205,7 @@ export class PatternEditor {
 	private _previewPitch: number = -1;
 	public periodKeyHeld: boolean = false;
 	private _cachedSvgRect: DOMRect | null = null;
+	private _svgRectResizeObserver: ResizeObserver | null = null;
 	private _mouseMoveRAF: number | null = null;
 	private _copiedPinChannels: NotePin[][] = [];
 	private _copiedPins: NotePin[];
@@ -363,6 +364,13 @@ export class PatternEditor {
 			this._svg.addEventListener("mouseout", this._whenMouseOut);
 			window.addEventListener("scroll", this._invalidateCachedSvgRect, { passive: true, capture: true });
 			window.addEventListener("resize", this._invalidateCachedSvgRect, { passive: true });
+			// Docking a prompt changes .beepboxEditor padding, which resizes
+			// and shifts this grid cell without firing window resize. Observe
+			// the container so the cached SVG rect is invalidated on layout.
+			if (typeof ResizeObserver !== "undefined") {
+				this._svgRectResizeObserver = new ResizeObserver(this._invalidateCachedSvgRect);
+				this._svgRectResizeObserver.observe(this.container);
+			}
 
 			this._svg.addEventListener("touchstart", this._whenTouchPressed);
 			this._svg.addEventListener("touchmove", this._whenTouchMoved);
