@@ -223,58 +223,7 @@ export class SongSettingsPanel {
 	}
 
 	private _createTitleRow(): HTMLDivElement {
-		const input = this.songTitleInputBox.input;
-		const display = div({
-			class: "song-title-marquee",
-			style: "overflow: hidden; white-space: nowrap; flex: 1 1 auto; min-width: 0; line-height: var(--button-size); padding: 0 4px; cursor: text; border: 2px solid var(--ui-widget-background); border-radius: var(--border-radius-medium); background: var(--editor-background); color: var(--primary-text);",
-		});
-		const text = span({ style: "display: inline-block;" }, input.value);
-		display.appendChild(text);
-
-		const syncText = (): void => { text.textContent = input.value; };
-		input.addEventListener("input", syncText);
-
-		let animId: number | null = null;
-
-		const startScroll = (): void => {
-			if (animId !== null) return;
-			syncText();
-			// Force layout so offsetWidth is accurate
-			const textW = text.offsetWidth;
-			const containerW = display.clientWidth;
-			if (textW <= containerW) return;
-
-			const total = textW + containerW;
-			let start: number | null = null;
-
-			const step = (ts: number): void => {
-				if (start === null) start = ts;
-				const progress = ((ts - start) % (total * 8)) / (total * 8);
-				text.style.transform = `translateX(${containerW - progress * total}px)`;
-				animId = requestAnimationFrame(step);
-			};
-			animId = requestAnimationFrame(step);
-		};
-
-		const stopScroll = (): void => {
-			if (animId !== null) {
-				cancelAnimationFrame(animId);
-				animId = null;
-			}
-			text.style.transform = "";
-		};
-
-		display.addEventListener("mouseenter", startScroll);
-		display.addEventListener("mouseleave", stopScroll);
-		display.addEventListener("click", () => input.focus());
-		input.addEventListener("focus", startScroll);
-		input.addEventListener("blur", stopScroll);
-
-		input.style.position = "absolute";
-		input.style.opacity = "0";
-		input.style.pointerEvents = "none";
-
-		return div({ class: "selectRow" }, span({ class: "tip" }, "Title:"), display, input);
+		return div({ class: "selectRow" }, span({ class: "tip" }, "Title:"), this.songTitleInputBox.input);
 	}
 
 	private _createScaleRow(): HTMLDivElement {

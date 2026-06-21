@@ -3040,8 +3040,6 @@ html {
 	flex-shrink: 0;
 }
 
-
-
 .beepboxEditor .menu-area {
 	display: flex;
 	flex-direction: column;
