@@ -36,7 +36,20 @@ export class PromptDock {
 
 	constructor(host: PromptDockHost) {
 		this._editor = host.editor;
+		window.addEventListener("resize", this._onWindowResize);
 	}
+
+	private _onWindowResize = (): void => {
+		for (const side of this._docked.keys()) {
+			const prompt = this._docked.get(side) as Prompt;
+			const maxW = this._maxWidth();
+			const w = Math.max(MIN_WIDTH, Math.min(maxW, this._widths.get(side) as number));
+			this._widths.set(side, w);
+			this._pinPrompt(prompt, side, w);
+			this._positionDivider(side, w);
+		}
+		this._applyEditorPadding();
+	};
 
 	public isDocked(prompt: Prompt): boolean {
 		return this.getSide(prompt) !== null;
@@ -79,8 +92,11 @@ export class PromptDock {
 			});
 		}
 
+		// First snap: adopt the prompt's own width so it keeps its layout.
+		const promptW = prompt.container.getBoundingClientRect().width;
 		const maxW = this._maxWidth();
-		const width = Math.max(MIN_WIDTH, Math.min(maxW, this._widths.get(side) ?? DEFAULT_WIDTH));
+		const stored = this._widths.get(side);
+		const width = Math.max(MIN_WIDTH, Math.min(maxW, stored ?? Math.min(promptW, maxW)));
 		this._widths.set(side, width);
 
 		prompt.container.classList.add("docked");
@@ -119,6 +135,7 @@ export class PromptDock {
 		c.style.height = "";
 		c.style.margin = "";
 		c.style.borderRadius = "";
+		c.style.transform = "";
 	}
 
 	public remove(prompt: Prompt): void {
@@ -148,20 +165,27 @@ export class PromptDock {
 		c.style.height = "";
 		c.style.margin = "";
 		c.style.borderRadius = "";
+		c.style.transform = "";
+	}
+
+	private _editorRect(): DOMRect {
+		return this._editor.getBoundingClientRect();
 	}
 
 	private _pinPrompt(prompt: Prompt, side: DockSide, width: number): void {
+		const r = this._editorRect();
 		const c = prompt.container;
 		c.style.margin = "0";
 		c.style.borderRadius = "0";
+		c.style.transform = "none";
 		c.style.width = `${width}px`;
-		c.style.height = "100%";
-		c.style.top = "0";
+		c.style.top = "0px";
+		c.style.height = "100vh";
 		if (side === "left") {
-			c.style.left = "0";
+			c.style.left = `${r.left}px`;
 			c.style.right = "";
 		} else {
-			c.style.right = "0";
+			c.style.right = `${window.innerWidth - r.right}px`;
 			c.style.left = "";
 		}
 	}
@@ -181,13 +205,14 @@ export class PromptDock {
 	private _positionDivider(side: DockSide, width: number): void {
 		const divider = this._dividerEls.get(side);
 		if (!divider) return;
-		divider.style.top = "0";
-		divider.style.height = "100%";
+		const r = this._editorRect();
+		divider.style.top = "0px";
+		divider.style.height = "100vh";
 		if (side === "left") {
-			divider.style.left = `${width}px`;
+			divider.style.left = `${r.left + width}px`;
 			divider.style.right = "";
 		} else {
-			divider.style.right = `${width}px`;
+			divider.style.right = `${window.innerWidth - r.right + width}px`;
 			divider.style.left = "";
 		}
 	}
@@ -206,8 +231,8 @@ export class PromptDock {
 	}
 
 	private _maxWidth(): number {
-		const cw = this._editor.clientWidth;
-		return Math.min(cw * 0.5, Math.max(MIN_WIDTH, cw - EDITOR_FLOOR));
+		const cw = this._editorRect().width;
+		return Math.min(window.innerWidth * 0.5, Math.max(MIN_WIDTH, cw - EDITOR_FLOOR));
 	}
 
 	private _attachDivider(side: DockSide, divider: HTMLDivElement): void {

@@ -844,7 +844,7 @@ html {
  * the editor grid content is inset via padding to make room. A
  * resizable divider sits at the padding boundary. */
 .beepboxEditor .prompt-dock-divider {
-	position: absolute;
+	position: fixed;
 	z-index: 101;
 	width: 6px;
 	cursor: col-resize;
@@ -856,11 +856,13 @@ html {
 	background: var(--ui-widget-focus, #666);
 }
 .beepboxEditor .prompt.docked {
-	position: absolute;
+	position: fixed;
 	margin: 0;
+	box-sizing: border-box;
 	border-radius: 0;
 	overflow: auto;
 	min-width: 0;
+	max-width: 50vw;
 	backdrop-filter: none;
 	-webkit-backdrop-filter: none;
 	background: var(--prompt-bg-color, var(--editor-bg-color, ${ColorConfig.editorBackground}));
