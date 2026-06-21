@@ -446,8 +446,10 @@ export class MuteEditor {
 				this._channelCounts[y].style.background = colors.primaryChannel;
 				this._channelCounts[y].style.borderRadius = BorderRadius.sm;
 			} else if (flash > 0) {
-				const peak = Math.min(1, (this._channelPeak[y] ?? 0) * 2);
-				const brightness = 0.3 + peak * 0.7;
+				// Scale so -16dB (sample amplitude ~0.158) reaches full brightness.
+				// 1 / 10^(-16/20) ≈ 6.3
+				const scaled = Math.min(1, (this._channelPeak[y] ?? 0) * 6.3);
+				const brightness = 0.3 + scaled * 0.7;
 				this._channelCounts[y].style.color = ColorConfig.getChannelColor(this._doc.song, y).primaryNote;
 				this._channelCounts[y].style.background = "transparent";
 				this._channelCounts[y].style.opacity = String(brightness);
