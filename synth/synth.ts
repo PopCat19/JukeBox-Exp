@@ -1435,6 +1435,10 @@ export class Synth {
 
 		if (this.playing) {
 			this.computeLatestModValues();
+		} else {
+			// Seed the elapsed counter so the duration display updates when
+			// navigating while paused.
+			this.totalSamplesRendered = this.getSamplesUpToBar(this.bar);
 		}
 	}
 
@@ -1451,6 +1455,10 @@ export class Synth {
 
 		if (this.playing) {
 			this.computeLatestModValues();
+		} else {
+			// Seed the elapsed counter so the duration display updates when
+			// navigating while paused.
+			this.totalSamplesRendered = this.getSamplesUpToBar(this.bar);
 		}
 	}
 
