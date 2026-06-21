@@ -762,7 +762,7 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 			const channel = this._doc.song.channels[channelIndex];
 			if (channel) {
 				const chanPeak = this._channelPeak.get(channelIndex) ?? 0;
-				const v = chanPeak * 3.16;
+				const v = chanPeak * 2.51;
 				const peakScaled = (2 * v) / (v + 1.0);
 				const volBrightness = 0.3 + Math.min(1, peakScaled) * 0.7;
 
