@@ -66,14 +66,14 @@ export class PromptPopout {
 		// --padding-12 margin on both axes, so the prompt panel fills the window
 		// minus consistent design-token breathing room and keeps its rounded
 		// corners against the stage. body gets .beepboxEditor so the scoped rules
-		// (.beepboxEditor .prompt { ... }) still match. overflow:auto is a safety
-		// net for absurd Hyprland resizes; the prompt's own channels pane handles
-		// in-panel scroll.
+		// (.beepboxEditor .prompt { ... }) still match. overflow:hidden keeps the
+		// scroll inside the channels pane (forced below) rather than the body, so
+		// the pane's scroll area reaches the full panel height.
 		const base = doc.createElement("style");
 		base.setAttribute(POPOUT_STYLE_ATTR, "");
 		base.textContent =
 			"html,body{margin:0;padding:0;height:100%;background:var(--editor-background,black);}" +
-			"body{padding:var(--padding-12);overflow:auto;box-sizing:border-box;}";
+			"body{padding:var(--padding-12);overflow:hidden;box-sizing:border-box;}";
 		doc.head.appendChild(base);
 		doc.body.classList.add("beepboxEditor");
 
@@ -81,9 +81,12 @@ export class PromptPopout {
 
 		// Relocate the container and restyle it to fill the window's content box
 		// (body padding supplies the PMD margin on both axes). The .beepboxEditor
-		// .prompt CSS supplies border-radius, padding, and gap; we override only the
-		// manager's inline positioning (absolute, fixed 720px) so the panel fills
-		// width and height and stays rounded. The manager never repositions a
+		// .prompt CSS supplies border-radius, padding, and gap; we override the
+		// manager's inline positioning (absolute, fixed 720px) and the prompt's own
+		// inline size (width:720px, height:auto, max-height:80vh) so the panel fills
+		// both axes. Sizing uses explicit viewport-unit calc rather than 100% so the
+		// fill does not depend on the html/body height chain resolving and is not
+		// defeated by any residual inline width. The manager never repositions a
 		// popped prompt (guarded by isOpen checks), so these overrides persist
 		// until close.
 		//
@@ -100,11 +103,21 @@ export class PromptPopout {
 		c.style.left = "";
 		c.style.top = "";
 		c.style.right = "";
-		c.style.width = "100%";
+		// calc(100vw - 2 * var(--padding-12)) = viewport minus both body margins.
+		// Multiplication by a number is valid in calc and resolves the var once.
+		c.style.width = "calc(100vw - 2 * var(--padding-12))";
 		c.style.maxWidth = "none";
-		c.style.height = "100%";
+		c.style.height = "calc(100vh - 2 * var(--padding-12))";
 		c.style.maxHeight = "none";
 		c.style.margin = "0";
+		// Drop the .prompt rule's padding (var(--padding-12)) so it does not stack
+		// on top of each inner section's own 12px horizontal padding/margin. Without
+		// this, the h2/topbar/divider (direct children) sit 12px from the panel edge
+		// while the channel cards (nested in the channelsPane) sit 24px out — a
+		// 12px mismatch that makes the header read wider than the cards. Zeroing
+		// the container padding makes every section's own 12px the single
+		// consistent inset, and the grid fills the full panel width.
+		c.style.padding = "0";
 		c.style.transform = "none";
 		c.style.setProperty("--prompt-bg-color", "var(--editor-background, black)");
 		c.style.setProperty("--prompt-backdrop-filter", "none");
@@ -118,6 +131,18 @@ export class PromptPopout {
 		// because popout is only enabled for the channel volume visualizer.
 		const grid = c.querySelector<HTMLElement>("[style*=grid-template-columns]");
 		if (grid) grid.style.gridTemplateColumns = "repeat(auto-fill, minmax(110px, 1fr))";
+
+		// Force the channels pane to scroll inside the bounded panel regardless of
+		// channel count. The prompt's own _applyChannelsPaneScroll only enables
+		// overflowY:auto past 28 channels; below that it overflows visibly and, with
+		// a bounded panel, would clip. Forcing overflowY:auto here makes the pane's
+		// scroll area reach the full panel height at any channel count. The pane is
+		// the grid's parent (flex:1; min-height:0), so it bounds to the remaining
+		// panel height.
+		if (grid?.parentElement) {
+			grid.parentElement.style.overflowY = "auto";
+			grid.parentElement.style.minHeight = "0";
+		}
 
 		// Route popout keydown to the prompt's handler. The main window's
 		// PromptFocusController never receives events from another window, so
