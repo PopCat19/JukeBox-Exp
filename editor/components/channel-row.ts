@@ -45,10 +45,10 @@ export class Box {
 	public setIndex(index: number, selected: boolean, dim: boolean, color: string, isNoise: boolean, isMod: boolean): void {
 		if (this._renderedIndex !== index) {
 			if (index >= 100) {
-				this._label.setAttribute("font-size", "16");
+				this._label.setAttribute("font-size", "14");
 				this._label.style.setProperty("transform", "translate(0px, -1.5px)");
 			} else {
-				this._label.setAttribute("font-size", "20");
+				this._label.setAttribute("font-size", "18");
 				this._label.style.setProperty("transform", "translate(0px, 0px)");
 			}
 
