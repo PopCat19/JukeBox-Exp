@@ -772,7 +772,8 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 						const instrState = channelState.instruments[j];
 						if (instrState && instrSpan) {
 							const isPlaying =
-								instrState.activeTones.count() > 0 || instrState.releasedTones.count() > 0 || instrState.liveInputTones.count() > 0;
+								(instrState.activeTones.count() > 0 || instrState.releasedTones.count() > 0 || instrState.liveInputTones.count() > 0) &&
+								chanPeak > 0.001;
 							if (isPlaying) {
 								// Blend from channel color to white as volume rises.
 								const hex = this._channelSpectrumColors.get(channelIndex) ?? "#888";
