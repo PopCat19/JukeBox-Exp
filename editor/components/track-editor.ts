@@ -86,7 +86,7 @@ export class TrackEditor {
 		// PMD card: 10px meta font, widget surface, 8px radius. Follows
 		// the mouse cursor with a 12px offset. pointer-events: none so
 		// it never blocks mouse events on the track grid.
-		style: "position: absolute; left: 0; top: 0; padding: 4px 8px; background: var(--ui-widget-background); color: var(--primary-text); border-radius: 8px; font-size: 10px; font-weight: 600; font-family: var(--font-family-mono); white-space: nowrap; pointer-events: none; z-index: 5; display: none;",
+		style: "position: fixed; left: 0; top: 0; padding: 4px 8px; background: var(--ui-widget-background); color: var(--primary-text); border-radius: 8px; font-size: 10px; font-weight: 600; font-family: var(--font-family-mono); white-space: nowrap; pointer-events: none; z-index: 999; display: none;",
 	});
 	private readonly _svg: SVGSVGElement = SVG.svg(
 		{ style: `position: absolute; top: 0;` },
@@ -121,6 +121,8 @@ export class TrackEditor {
 	private _mouseStartChannel: number = 0;
 	private _mouseBar: number = 0;
 	private _mouseChannel: number = 0;
+	private _mouseViewportX: number = 0;
+	private _mouseViewportY: number = 0;
 	private _mouseOver: boolean = false;
 	private _mousePressed: boolean = false;
 	private _mouseDragging = false;
@@ -307,8 +309,10 @@ export class TrackEditor {
 	private _updateMousePos(event: MouseEvent): void {
 		if (!this._svgRect) this._svgRect = this._svg.getBoundingClientRect();
 		const boundingRect = this._svgRect;
-		this._mouseX = (event.clientX || event.pageX) - boundingRect.left;
-		this._mouseY = (event.clientY || event.pageY) - boundingRect.top;
+		this._mouseViewportX = event.clientX || event.pageX;
+		this._mouseViewportY = event.clientY || event.pageY;
+		this._mouseX = this._mouseViewportX - boundingRect.left;
+		this._mouseY = this._mouseViewportY - boundingRect.top;
 		this._mouseBar = Math.floor(Math.min(this._doc.song.barCount - 1, Math.max(0, this._mouseX / this._barWidth)));
 		this._mouseChannel = Math.floor(
 			Math.min(this._doc.song.getChannelCount() - 1, Math.max(0, (this._mouseY - Config.barEditorHeight) / ChannelRow.patternHeight)),
@@ -338,33 +342,32 @@ export class TrackEditor {
 			this._hoverTooltip.textContent = `B${bar + 1}/${channelType}${channel + 1}  -  ${elapsedStr}`;
 		}
 
-		// Track the cursor, swapping sides to avoid clipping at container edges.
-		// `_mouseX` is in SVG coordinate space and may exceed containerWidth when
-		// scrolled, so clamp to the visible area before positioning.
+		// Track the cursor in viewport coordinates, swapping sides to avoid
+		// clipping. Uses position: fixed so the tooltip is never clipped by
+		// parent overflow (the track container may extend beyond the viewport
+		// when scrolled right).
 		const offset: number = 12;
-		const containerWidth: number = this.container.clientWidth;
-		const containerHeight: number = this.container.clientHeight;
+		const viewportWidth: number = window.innerWidth;
+		const viewportHeight: number = window.innerHeight;
 		const tooltipWidth: number = this._hoverTooltip.offsetWidth || 100;
 		const tooltipHeight: number = this._hoverTooltip.offsetHeight || 20;
-		const clampedX: number = Math.min(this._mouseX, containerWidth);
-		const clampedY: number = Math.min(this._mouseY, containerHeight);
 
-		let left: number = clampedX + offset;
-		if (left + tooltipWidth > containerWidth) {
-			left = clampedX - offset - tooltipWidth;
+		let left: number = this._mouseViewportX + offset;
+		if (left + tooltipWidth > viewportWidth) {
+			left = this._mouseViewportX - offset - tooltipWidth;
 		}
 		if (left < 0) left = 0;
-		if (left + tooltipWidth > containerWidth) {
-			left = Math.max(0, containerWidth - tooltipWidth);
+		if (left + tooltipWidth > viewportWidth) {
+			left = Math.max(0, viewportWidth - tooltipWidth);
 		}
 
-		let top: number = clampedY + offset;
-		if (top + tooltipHeight > containerHeight) {
-			top = clampedY - offset - tooltipHeight;
+		let top: number = this._mouseViewportY + offset;
+		if (top + tooltipHeight > viewportHeight) {
+			top = this._mouseViewportY - offset - tooltipHeight;
 		}
 		if (top < 0) top = 0;
-		if (top + tooltipHeight > containerHeight) {
-			top = Math.max(0, containerHeight - tooltipHeight);
+		if (top + tooltipHeight > viewportHeight) {
+			top = Math.max(0, viewportHeight - tooltipHeight);
 		}
 
 		this._hoverTooltip.style.left = `${left}px`;
