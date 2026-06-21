@@ -313,7 +313,7 @@ export class PatternEditor {
 				style: `background-image: url(${getLocalStorageItem(
 					"customTheme",
 					"",
-				)}); background-repeat: no-repeat; background-size: 100% 100%; background-color: ${ColorConfig.editorBackground}; touch-action: none; position: absolute;`,
+				)}); background-repeat: no-repeat; background-size: 100% 100%; background-color: transparent; touch-action: none; position: absolute;`,
 				width: "100%",
 				height: "100%",
 			},
