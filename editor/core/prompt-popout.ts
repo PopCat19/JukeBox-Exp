@@ -90,9 +90,11 @@ export class PromptPopout {
 		// Background: in-editor the prompt reads as glass because backdrop-filter
 		// blurs the editor content behind a transparent bg. In the popout the body
 		// is a solid color, so blur is a no-op and a transparent bg would show the
-		// body color through. Switch to an opaque widget-surface bg
-		// (--ui-widget-background) and disable backdrop-filter. The channel cards
-		// inside use --editor-background, so they keep contrast against the surface.
+		// body color through. Switch to the PMD 4x tier (--editor-background) for a
+		// uniform low-prominence surface and disable backdrop-filter. Note: the
+		// channel cards inside also use --editor-background, so against a 4x panel
+		// they read by their 2px channel-color border alone, not by bg contrast —
+		// a flatter look by design.
 		const c = prompt.container;
 		c.style.position = "static";
 		c.style.left = "";
@@ -104,7 +106,7 @@ export class PromptPopout {
 		c.style.maxHeight = "none";
 		c.style.margin = "0";
 		c.style.transform = "none";
-		c.style.setProperty("--prompt-bg-color", "var(--ui-widget-background, #444)");
+		c.style.setProperty("--prompt-bg-color", "var(--editor-background, black)");
 		c.style.setProperty("--prompt-backdrop-filter", "none");
 		c.dataset.popout = "true";
 		doc.body.appendChild(c);
