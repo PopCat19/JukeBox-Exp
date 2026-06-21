@@ -231,29 +231,26 @@ export class SongSettingsPanel {
 		const text = span({ style: "display: inline-block;" }, input.value);
 		display.appendChild(text);
 
-		// Keep display text in sync with input value
 		const syncText = (): void => { text.textContent = input.value; };
 		input.addEventListener("input", syncText);
 
-		// Marquee animation on hover
 		let animId: number | null = null;
-		let pos = 0;
 
 		const startScroll = (): void => {
 			if (animId !== null) return;
-			if (input.value.length <= 15) return;
-			pos = display.clientWidth;
-			const totalWidth = text.scrollWidth;
-			const distance = totalWidth + display.clientWidth;
-			const duration = distance * 8;
+			syncText();
+			// Force layout so offsetWidth is accurate
+			const textW = text.offsetWidth;
+			const containerW = display.clientWidth;
+			if (textW <= containerW) return;
+
+			const total = textW + containerW;
 			let start: number | null = null;
 
 			const step = (ts: number): void => {
 				if (start === null) start = ts;
-				const elapsed = ts - start;
-				const progress = (elapsed % duration) / duration;
-				pos = display.clientWidth - progress * distance;
-				text.style.transform = `translateX(${pos}px)`;
+				const progress = ((ts - start) % (total * 8)) / (total * 8);
+				text.style.transform = `translateX(${containerW - progress * total}px)`;
 				animId = requestAnimationFrame(step);
 			};
 			animId = requestAnimationFrame(step);
@@ -269,13 +266,10 @@ export class SongSettingsPanel {
 
 		display.addEventListener("mouseenter", startScroll);
 		display.addEventListener("mouseleave", stopScroll);
-
-		// Click display to focus input for editing
 		display.addEventListener("click", () => input.focus());
 		input.addEventListener("focus", startScroll);
 		input.addEventListener("blur", stopScroll);
 
-		// Hide real input off-screen
 		input.style.position = "absolute";
 		input.style.opacity = "0";
 		input.style.pointerEvents = "none";
