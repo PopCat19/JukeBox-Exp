@@ -71,9 +71,7 @@ export class PromptPopout {
 		// the pane's scroll area reaches the full panel height.
 		const base = doc.createElement("style");
 		base.setAttribute(POPOUT_STYLE_ATTR, "");
-		base.textContent =
-			"html,body{margin:0;padding:0;height:100%;background:var(--editor-background,black);}" +
-			"body{padding:var(--padding-12);overflow:hidden;box-sizing:border-box;}";
+		base.textContent = "html,body{margin:0;padding:0;height:100%;}" + "body{padding:var(--padding-12);overflow:hidden;box-sizing:border-box;}";
 		doc.head.appendChild(base);
 		doc.body.classList.add("beepboxEditor");
 
@@ -91,13 +89,10 @@ export class PromptPopout {
 		// until close.
 		//
 		// Background: in-editor the prompt reads as glass because backdrop-filter
-		// blurs the editor content behind a transparent bg. In the popout the body
-		// is a solid color, so blur is a no-op and a transparent bg would show the
-		// body color through. Switch to the PMD 4x tier (--editor-background) for a
-		// uniform low-prominence surface and disable backdrop-filter. Note: the
-		// channel cards inside also use --editor-background, so against a 4x panel
-		// they read by their 2px channel-color border alone, not by bg contrast —
-		// a flatter look by design.
+		// blurs the editor content behind a transparent bg. In the popout the panel
+		// is fully transparent — no bg, no backdrop-filter — so the OS window
+		// background shows through directly. Channel cards retain their own inline
+		// --editor-background bg for structure.
 		const c = prompt.container;
 		c.style.position = "static";
 		c.style.left = "";
@@ -119,7 +114,7 @@ export class PromptPopout {
 		// consistent inset, and the grid fills the full panel width.
 		c.style.padding = "0";
 		c.style.transform = "none";
-		c.style.setProperty("--prompt-bg-color", "var(--editor-background, black)");
+		c.style.setProperty("--prompt-bg-color", "transparent");
 		c.style.setProperty("--prompt-backdrop-filter", "none");
 		c.dataset.popout = "true";
 		doc.body.appendChild(c);
