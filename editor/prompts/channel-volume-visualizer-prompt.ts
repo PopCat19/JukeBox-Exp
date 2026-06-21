@@ -29,7 +29,7 @@ const FG_BANDS = 151;
 // Display bars aggregated from the FG or BG bands. The channel cards are narrow
 // (1:1 aspect), so a 151-point wave is unreadable; 16 rounded bars aggregate
 // ~9-10 bands each and read clearly at the card width.
-const BAR_COUNT = 16;
+const BAR_COUNT = 24;
 // BG bands: 67 quarter-tone bands from ~20Hz to ~130Hz (mirrors main spectrum).
 const BG_BANDS = 67;
 const BG_REF = 0.05;
