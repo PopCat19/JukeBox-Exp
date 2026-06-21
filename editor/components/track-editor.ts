@@ -136,8 +136,6 @@ export class TrackEditor {
 	private _touchMode: boolean = isMobile;
 	private _barDropDownBar: number = 0;
 	private _lastScrollTime: number = 0;
-	private _svgRect: DOMRect | null = null;
-	private _svgRectResizeObserver: ResizeObserver | null = null;
 
 	constructor(
 		private _doc: SongDocument,
@@ -147,15 +145,7 @@ export class TrackEditor {
 		this._svg.addEventListener("mousedown", this._whenMousePressed);
 		document.addEventListener("mousemove", this._whenMouseMoved);
 		document.addEventListener("mouseup", this._whenMouseReleased);
-		window.addEventListener("resize", () => (this._svgRect = null));
-		window.addEventListener("scroll", () => (this._svgRect = null), { capture: true, passive: true });
-		// Docking a prompt changes .beepboxEditor padding, which shifts this
-		// SVG without firing window resize. Observe the container so the
-		// cached rect is invalidated on layout.
-		if (typeof ResizeObserver !== "undefined") {
-			this._svgRectResizeObserver = new ResizeObserver(() => (this._svgRect = null));
-			this._svgRectResizeObserver.observe(this.container);
-		}
+
 		this._svg.addEventListener("mouseover", this._whenMouseOver);
 		this._svg.addEventListener("mouseout", this._whenMouseOut);
 
@@ -265,8 +255,7 @@ export class TrackEditor {
 	}
 
 	private _updateSelectPos(event: TouchEvent): void {
-		if (!this._svgRect) this._svgRect = this._svg.getBoundingClientRect();
-		const boundingRect: DOMRect = this._svgRect;
+		const boundingRect: DOMRect = this._svg.getBoundingClientRect();
 		this._mouseX = event.touches[0].clientX - boundingRect.left;
 		this._mouseY = event.touches[0].clientY - boundingRect.top;
 		if (Number.isNaN(this._mouseX)) this._mouseX = 0;
@@ -315,8 +304,7 @@ export class TrackEditor {
 	};
 
 	private _updateMousePos(event: MouseEvent): void {
-		if (!this._svgRect) this._svgRect = this._svg.getBoundingClientRect();
-		const boundingRect = this._svgRect;
+		const boundingRect: DOMRect = this._svg.getBoundingClientRect();
 		this._mouseViewportX = event.clientX || event.pageX;
 		this._mouseViewportY = event.clientY || event.pageY;
 		this._mouseX = this._mouseViewportX - boundingRect.left;
@@ -650,7 +638,6 @@ export class TrackEditor {
 			this._svg.setAttribute("height", `${editorHeight + Config.barEditorHeight}`);
 			this._playhead.setAttribute("height", `${editorHeight + Config.barEditorHeight}`);
 			this.container.style.height = `${editorHeight + Config.barEditorHeight}px`;
-			this._svgRect = null;
 		}
 
 		this._select.style.display = this._touchMode ? "" : "none";
