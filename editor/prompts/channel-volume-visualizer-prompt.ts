@@ -897,7 +897,7 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 			// Show instruments
 			if (channel.instruments.length > 0) {
 				const instrDiv = div({
-					style: "display: flex; flex-wrap: wrap; gap: 4px; margin-top: 4px;",
+					style: "display: flex; flex-wrap: wrap; gap: 4px; margin-top: 4px; justify-content: center;",
 				});
 
 				// Get instruments in current pattern for highlighting
