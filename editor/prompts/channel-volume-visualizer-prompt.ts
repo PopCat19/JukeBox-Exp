@@ -771,8 +771,7 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 						const instrState = channelState.instruments[j];
 						if (instrState && instrSpan) {
 							const isPlaying =
-								(instrState.activeTones.count() > 0 || instrState.releasedTones.count() > 0 || instrState.liveInputTones.count() > 0) &&
-								chanPeak > 0.001;
+								(instrState.activeTones.count() > 0 || instrState.liveInputTones.count() > 0) && chanPeak > 0.001;
 							if (isPlaying) {
 								// Blend from channel color to white as volume rises,
 								// with opacity fading in from the floor for a smooth ramp.
@@ -998,7 +997,7 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 					const inPattern = patternInstruments.includes(j);
 					const instrState = channelState ? channelState.instruments[j] : null;
 					const isPlaying = instrState
-						? instrState.activeTones.count() > 0 || instrState.releasedTones.count() > 0 || instrState.liveInputTones.count() > 0
+						? instrState.activeTones.count() > 0 || instrState.liveInputTones.count() > 0
 						: false;
 					const instrument = channel.instruments[j];
 					const typeName = instrument ? getInstrumentDisplayName(instrument) : "?";

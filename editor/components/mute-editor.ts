@@ -373,7 +373,7 @@ export class MuteEditor {
 			if (chState) {
 				for (let k = 0; k < chState.instruments.length; k++) {
 					const inst = chState.instruments[k];
-					if (inst.activeTones.count() > 0 || inst.releasedTones.count() > 0 || inst.liveInputTones.count() > 0) {
+					if (inst.activeTones.count() > 0 || inst.liveInputTones.count() > 0) {
 						hasActivity = true;
 						break;
 					}
