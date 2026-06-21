@@ -53,9 +53,10 @@ export class PromptDock {
 		return null;
 	}
 
-	public getSnapSide(pointerX: number, editorRect: DOMRect): DockSide | null {
-		if (pointerX <= editorRect.left + SNAP_THRESHOLD) return "left";
-		if (pointerX >= editorRect.right - SNAP_THRESHOLD) return "right";
+	public getSnapSide(promptX: number, editorWidth: number, promptWidth: number, pointerX: number): DockSide | null {
+		const vw = window.innerWidth;
+		if (promptX <= SNAP_THRESHOLD || pointerX <= SNAP_THRESHOLD) return "left";
+		if (promptX >= editorWidth - promptWidth - SNAP_THRESHOLD || pointerX >= vw - SNAP_THRESHOLD) return "right";
 		return null;
 	}
 

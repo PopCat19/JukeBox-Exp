@@ -682,8 +682,7 @@ export class PromptManager {
 				const h = this._host.mainLayer.clientHeight;
 				const x = Math.max(0, Math.min(me.clientX - startX, w - rect.width));
 				const y = Math.max(0, Math.min(me.clientY - startY, h - rect.height));
-				const eRect = this._host.mainLayer.getBoundingClientRect();
-				const side = this._dock.getSnapSide(me.clientX, eRect) as DockSide | null;
+				const side = this._dock.getSnapSide(x, w, rect.width, me.clientX) as DockSide | null;
 				if (side) {
 					this._dock.snap(prompt, side);
 					anchorX = me.clientX;
