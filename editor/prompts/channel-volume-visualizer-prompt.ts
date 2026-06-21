@@ -11,14 +11,14 @@ import { BorderWidth, Typography } from "../ui/style-constants";
 import { HTML, SVG } from "imperative-html/dist/esm/elements-strict";
 import { ColorConfig } from "../../shared/color-config";
 import { events } from "../../shared/events";
-import { forwardRealFourierTransform } from "../../synth/fft";
 import type { ChannelState } from "../../synth/channel-state";
+import { Config } from "../../synth/config/index";
+import { getInstrumentTypeName } from "../../synth/config/instrument-registry";
+import { forwardRealFourierTransform } from "../../synth/fft";
+import { EditorConfig } from "../config/editor-config";
 import type { PromptEditorRefs } from "../core/prompt-manager";
 import type { SongDocument } from "../song-document";
 import { BasePrompt } from "./base-prompt";
-import { getInstrumentTypeName } from "../../synth/config/instrument-registry";
-import { EditorConfig } from "../config/editor-config";
-import { Config } from "../../synth/config/index";
 
 const { div, h2, h3, span, button } = HTML;
 const { svg, defs, linearGradient, stop, rect } = SVG;
@@ -122,9 +122,13 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 	private readonly _contentContainer: HTMLDivElement = div({
 		style: "display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 8px; align-content: start;",
 	});
-	private readonly _channelsPane: HTMLDivElement = div({
-		style: "flex: 1; display: flex; flex-direction: column; min-height: 0; padding: 4px 12px 12px 12px;",
-	}, h3({ style: "margin-top: 0px; margin-bottom: 8px;" }, "Channels"), this._contentContainer);
+	private readonly _channelsPane: HTMLDivElement = div(
+		{
+			style: "flex: 1; display: flex; flex-direction: column; min-height: 0; padding: 4px 12px 12px 12px;",
+		},
+		h3({ style: "margin-top: 0px; margin-bottom: 8px;" }, "Channels"),
+		this._contentContainer,
+	);
 
 	// Store channel volume bar elements for live updates
 	private readonly _channelVolumeBars: Map<number, SVGRectElement> = new Map();
@@ -707,12 +711,7 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 
 						// Helper to draw one layer of 16 bars from band magnitudes.
 						spectrumCtx.fillStyle = col;
-						const drawBars = (
-							bandCount: number,
-							mags: Float32Array,
-							ref: number,
-							alpha: number,
-						): void => {
+						const drawBars = (bandCount: number, mags: Float32Array, ref: number, alpha: number): void => {
 							const bandsPerBar = bandCount / BAR_COUNT;
 							spectrumCtx.globalAlpha = alpha;
 							spectrumCtx.beginPath();

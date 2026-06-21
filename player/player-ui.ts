@@ -29,8 +29,7 @@ export function getLocalStorage(key: string): string | null {
 export function setLocalStorage(key: string, value: string): void {
 	try {
 		localStorage.setItem(key, value);
-	} catch (_error) {
-	}
+	} catch (_error) {}
 }
 
 export interface PlayerUI {
