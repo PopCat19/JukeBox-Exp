@@ -75,8 +75,6 @@ export class MuteEditor {
 	private _channelDropDownOpen: boolean = false;
 	private _channelDropDownLastState: boolean = false;
 	private _hoveredChannel: number = -1;
-	private _activityFlash: number[] = [];
-	private _channelPeak: number[] = [];
 
 	constructor(
 		private _doc: SongDocument,
@@ -88,7 +86,6 @@ export class MuteEditor {
 
 		this._channelDropDown.selectedIndex = -1;
 		this._channelDropDown.addEventListener("change", this._channelDropDownHandler);
-		window.requestAnimationFrame(this._animateActivity);
 		this._channelDropDown.addEventListener("mousedown", this._channelDropDownGetOpenedPosition);
 		this._channelDropDown.addEventListener("blur", this._channelDropDownBlur);
 		this._channelDropDown.addEventListener("click", this._channelDropDownClick);
@@ -361,46 +358,6 @@ export class MuteEditor {
 		this.render();
 	}
 
-	private _animateActivity = (): void => {
-		const channelCount = this._doc.song.getChannelCount();
-		while (this._activityFlash.length < channelCount) this._activityFlash.push(0);
-		while (this._channelPeak.length < channelCount) this._channelPeak.push(0);
-
-		let changed = false;
-		for (let y = 0; y < channelCount; y++) {
-			const chState = this._doc.synth.channels[y];
-			let hasActivity = false;
-			if (chState) {
-				for (let k = 0; k < chState.instruments.length; k++) {
-					const inst = chState.instruments[k];
-					if (inst.activeTones.count() > 0 || inst.liveInputTones.count() > 0) {
-						hasActivity = true;
-						break;
-					}
-				}
-				// Compute peak from audio ring for brightness scaling.
-				const ring = chState.audioRing;
-				const ringPos = chState.audioRingPos;
-				let peak = 0;
-				for (let i = 0; i < 8192; i++) {
-					const s = ring[(ringPos + i) & 8191];
-					const a = s < 0 ? -s : s;
-					if (a > peak) peak = a;
-				}
-				this._channelPeak[y] = Math.min(1, peak * this._doc.synth.getMasterScale());
-			} else {
-				this._channelPeak[y] = 0;
-			}
-			const prev = this._activityFlash[y] || 0;
-			// Hold flash for ~4 frames after activity stops to prevent
-			// flicker at bar boundaries where tones briefly clear.
-			this._activityFlash[y] = hasActivity ? 5 : Math.max(0, prev - 1);
-			if (this._activityFlash[y] !== prev) changed = true;
-		}
-		if (changed) this.render();
-		window.requestAnimationFrame(this._animateActivity);
-	};
-
 	public render(): void {
 		if (!this._doc.prefs.enableChannelMuting) return;
 		const startingChannelCount: number = this._buttons.length;
@@ -439,7 +396,6 @@ export class MuteEditor {
 
 		for (let y: number = 0; y < this._doc.song.getChannelCount(); y++) {
 			const active: boolean = y === this._doc.channel;
-			const flash = this._activityFlash[y] || 0;
 			this._channelCounts[y].style.opacity = "1";
 			const playing = this._doc.synth.playing;
 			if (active && !playing) {
@@ -447,17 +403,6 @@ export class MuteEditor {
 				this._channelCounts[y].style.color = ColorConfig.invertedText;
 				this._channelCounts[y].style.background = colors.primaryChannel;
 				this._channelCounts[y].style.borderRadius = BorderRadius.sm;
-			} else if (flash > 0) {
-				// Soft compression: natural vol→brightness curve without hard clamping.
-				// 3.16x gain maps -10dB (amp 0.316) to v=1.0; ref=1.0 means the
-				// compression saturates around -10dB but approaches gradually.
-				const v = (this._channelPeak[y] ?? 0) * 3.16;
-				const scaled = (2 * v) / (v + 1.0);
-				const brightness = 0.3 + Math.min(1, scaled) * 0.7;
-				this._channelCounts[y].style.color = ColorConfig.getChannelColor(this._doc.song, y).primaryNote;
-				this._channelCounts[y].style.background = "transparent";
-				this._channelCounts[y].style.opacity = String(brightness);
-				this._channelCounts[y].style.borderRadius = "0";
 			} else {
 				this._channelCounts[y].style.background = "transparent";
 				this._channelCounts[y].style.borderRadius = "0";
@@ -469,13 +414,13 @@ export class MuteEditor {
 			if (this._doc.song.channels[y].muted) {
 				this._buttons[y].children[0].classList.add("muted");
 
-				if (!active && !flash) {
+				if (!active) {
 					this._channelCounts[y].style.color = ColorConfig.muteEditorTextDim;
 				}
 			} else {
 				this._buttons[y].children[0].classList.remove("muted");
 
-				if (!active && !flash) {
+				if (!active) {
 					this._channelCounts[y].style.color = ColorConfig.muteEditorTextDim;
 				}
 			}
