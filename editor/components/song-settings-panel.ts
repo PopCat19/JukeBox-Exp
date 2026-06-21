@@ -234,7 +234,7 @@ export class SongSettingsPanel {
 			scrollTimer = setInterval(() => {
 				scrollPos++;
 				if (scrollPos > input.value.length) scrollPos = 0;
-				input.setSelectionRange(scrollPos, scrollPos);
+				input.setSelectionRange(scrollPos, Math.min(scrollPos + 1, input.value.length));
 			}, 200);
 		};
 
