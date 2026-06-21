@@ -17,6 +17,7 @@ import type { PromptEditorRefs } from "../core/prompt-manager";
 import type { SongDocument } from "../song-document";
 import { BasePrompt } from "./base-prompt";
 import { getInstrumentTypeName } from "../../synth/config/instrument-registry";
+import { EditorConfig } from "../config/editor-config";
 
 const { div, h2, h3, span, button } = HTML;
 const { svg, defs, linearGradient, stop, rect } = SVG;
@@ -886,7 +887,7 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 				const typeCounts: Map<string, number> = new Map();
 				for (let j = 0; j < channel.instruments.length; j++) {
 					const instrument = channel.instruments[j];
-					const typeName = instrument ? getInstrumentTypeName(instrument.type) : "?";
+					const typeName = instrument ? (EditorConfig.valueToPreset(instrument.preset)?.name ?? getInstrumentTypeName(instrument.type)) : "?";
 					typeCounts.set(typeName, (typeCounts.get(typeName) || 0) + 1);
 				}
 
@@ -898,14 +899,14 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 						? instrState.activeTones.count() > 0 || instrState.releasedTones.count() > 0 || instrState.liveInputTones.count() > 0
 						: false;
 					const instrument = channel.instruments[j];
-					const typeName = instrument ? getInstrumentTypeName(instrument.type) : "?";
+					const typeName = instrument ? (EditorConfig.valueToPreset(instrument.preset)?.name ?? getInstrumentTypeName(instrument.type)) : "?";
 					const total = typeCounts.get(typeName) || 1;
 					const nth = (currentCounts.get(typeName) || 0) + 1;
 					currentCounts.set(typeName, nth);
 					const instrName = total > 1 ? `${typeName} ${nth}` : typeName;
 					const instrSpan = span(
 						{
-							style: `font-size: 10px; font-weight: 600; padding: 1px 4px; border-radius: var(--border-radius-medium); word-break: break-word; max-width: 100%; background: ${
+							style: `font-size: 10px; font-weight: 600; padding: 1px 4px; border-radius: var(--border-radius-medium); max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; background: ${
 								isPlaying ? "white" : inPattern ? channelColors.primaryChannel : "var(--ui-widget-background)"
 							}; color: ${isPlaying ? "black" : inPattern ? "var(--editor-background)" : channelColors.primaryChannel}; opacity: ${
 								inPattern || isPlaying ? "1" : "0.5"
