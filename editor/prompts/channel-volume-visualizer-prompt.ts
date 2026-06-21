@@ -537,12 +537,12 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 				const sampleCount = this._channelSampleCounts.get(channelIndex) ?? 0;
 				const avg = sampleCount > 0 ? (this._channelVolumeSums.get(channelIndex) ?? 0) / sampleCount : -Infinity;
 				const avgDb = avg > 0 ? 20 * Math.log10(avg) : -Infinity;
-				const minDb = this._channelMinDb.get(channelIndex) ?? -Infinity;
+				const minDb = this._channelMinDb.get(channelIndex) ?? Infinity;
 				const maxDb = this._channelMaxDb.get(channelIndex) ?? -Infinity;
 				const avgText = Number.isFinite(avgDb) ? avgDb.toFixed(1) : "-inf";
 				const minText = Number.isFinite(minDb) ? minDb.toFixed(1) : "-inf";
 				const maxText = Number.isFinite(maxDb) ? maxDb.toFixed(1) : "-inf";
-				dbLabel.textContent = Number.isFinite(peakDb) ? `Pk:${peakDb.toFixed(1)}\nA:${avgText}\n${minText}/${maxText}` : `Pk:-inf\nA:-inf\n-inf/-inf`;
+				dbLabel.textContent = Number.isFinite(peakDb) ? `Pk:${peakDb.toFixed(1)}\nA:${avgText}\n${minText}/${maxText}` : `Pk:-inf\nA:${avgText}\n${minText}/${maxText}`;
 			}
 
 			// Draw pitch spectrum overlay: smooth bezier curve fill from active tone bands
