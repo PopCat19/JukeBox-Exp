@@ -20,7 +20,7 @@ import type { PromptEditorRefs } from "../core/prompt-manager";
 import type { SongDocument } from "../song-document";
 import { BasePrompt } from "./base-prompt";
 
-const { div, span, button } = HTML;
+const { div, h2, span, button } = HTML;
 const { svg, defs, linearGradient, stop, rect } = SVG;
 
 // Spectrum overlay tuning, mirroring shared/spectrum.ts main FG layer so the
@@ -251,6 +251,7 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 			style: "width: 720px; height: auto; max-height: 80vh; display: flex; flex-direction: column;",
 			tabindex: "0",
 		},
+		h2({ style: "margin: 12px 12px 0px 12px; text-align: center;" }, "Channel Volume Visualizer"),
 		// Row 1: top bar — play/pause, bar label, volume meter, stats
 		div(
 			{
@@ -270,7 +271,7 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 		// Row 2: legend
 		div(
 			{
-				style: "display: flex; gap: 10px; flex-wrap: wrap; padding: 4px 12px 4px 12px; font-size: 10px; color: var(--secondary-text);",
+				style: "display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; padding: 4px 12px 4px 12px; font-size: 10px; color: var(--secondary-text);",
 			},
 			span({}, span({ style: "font-weight: bold;" }, "P#"), " = Pattern"),
 			span({}, span({ style: "font-weight: bold;" }, "Pk"), " = Peak"),
