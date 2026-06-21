@@ -23,7 +23,7 @@ export interface PromptDockHost {
 
 const DEFAULT_WIDTH = 360;
 const MIN_WIDTH = 240;
-const SNAP_THRESHOLD = 14;
+const SNAP_THRESHOLD = 40;
 const UNSNAP_THRESHOLD = 90;
 
 export class PromptDock {
@@ -53,9 +53,9 @@ export class PromptDock {
 		return null;
 	}
 
-	public getSnapSide(x: number, editorWidth: number, promptWidth: number): DockSide | null {
-		if (x <= SNAP_THRESHOLD) return "left";
-		if (x >= editorWidth - promptWidth - SNAP_THRESHOLD) return "right";
+	public getSnapSide(pointerX: number, editorRect: DOMRect): DockSide | null {
+		if (pointerX <= editorRect.left + SNAP_THRESHOLD) return "left";
+		if (pointerX >= editorRect.right - SNAP_THRESHOLD) return "right";
 		return null;
 	}
 
