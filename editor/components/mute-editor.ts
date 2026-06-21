@@ -431,11 +431,10 @@ export class MuteEditor {
 				this._channelCounts[y].style.background = colors.primaryChannel;
 				this._channelCounts[y].style.borderRadius = BorderRadius.sm;
 			} else if (flash > 0) {
-				const colors = ColorConfig.getChannelColor(this._doc.song, y);
-				this._channelCounts[y].style.color = ColorConfig.invertedText;
-				this._channelCounts[y].style.background = colors.primaryChannel;
-				this._channelCounts[y].style.opacity = "0.6";
-				this._channelCounts[y].style.borderRadius = BorderRadius.sm;
+				this._channelCounts[y].style.color = "white";
+				this._channelCounts[y].style.background = "transparent";
+				this._channelCounts[y].style.opacity = "1";
+				this._channelCounts[y].style.borderRadius = "0";
 			} else {
 				this._channelCounts[y].style.background = "transparent";
 				this._channelCounts[y].style.borderRadius = "0";
@@ -444,13 +443,13 @@ export class MuteEditor {
 			if (this._doc.song.channels[y].muted) {
 				this._buttons[y].children[0].classList.add("muted");
 
-				if (!active) {
+				if (!active && !flash) {
 					this._channelCounts[y].style.color = ColorConfig.muteEditorTextDim;
 				}
 			} else {
 				this._buttons[y].children[0].classList.remove("muted");
 
-				if (!active) {
+				if (!active && !flash) {
 					this._channelCounts[y].style.color = ColorConfig.muteEditorTextDim;
 				}
 			}
