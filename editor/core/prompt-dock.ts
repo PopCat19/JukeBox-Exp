@@ -22,7 +22,8 @@ export interface PromptDockHost {
 }
 
 const DEFAULT_WIDTH = 360;
-const MIN_WIDTH = 240;
+const MIN_WIDTH = 280;
+const EDITOR_FLOOR = 560;
 const SNAP_THRESHOLD = 40;
 const UNSNAP_THRESHOLD = 90;
 
@@ -90,14 +91,34 @@ export class PromptDock {
 		this._applyEditorPadding();
 	}
 
-	public undock(prompt: Prompt): void {
+	public undock(prompt: Prompt, keepSize = false): void {
 		const side = this.getSide(prompt);
 		if (!side) return;
 		this._clearDockState(prompt);
-		this._restorePrompt(prompt);
 		this._removeDivider(side);
 		this._docked.delete(side);
 		this._applyEditorPadding();
+		if (keepSize) {
+			// Tearing off mid-drag: keep the dock size so the prompt
+			// doesn't collapse while following the cursor. Natural size
+			// is restored on drag end via restoreFloatingSize.
+			const c = prompt.container;
+			c.style.left = "";
+			c.style.right = "";
+			c.style.top = "";
+			c.style.height = "";
+		} else {
+			this._restorePrompt(prompt);
+		}
+	}
+
+	public restoreFloatingSize(prompt: Prompt): void {
+		if (this.isDocked(prompt)) return;
+		const c = prompt.container;
+		c.style.width = "";
+		c.style.height = "";
+		c.style.margin = "";
+		c.style.borderRadius = "";
 	}
 
 	public remove(prompt: Prompt): void {
@@ -122,9 +143,9 @@ export class PromptDock {
 		const c = prompt.container;
 		c.style.left = saved ? `${saved.x}px` : "";
 		c.style.top = saved ? `${saved.y}px` : "";
+		c.style.right = "";
 		c.style.width = "";
 		c.style.height = "";
-		c.style.right = "";
 		c.style.margin = "";
 		c.style.borderRadius = "";
 	}
@@ -186,7 +207,7 @@ export class PromptDock {
 
 	private _maxWidth(): number {
 		const cw = this._editor.clientWidth;
-		return Math.min(cw * 0.5, Math.max(MIN_WIDTH, cw - 520));
+		return Math.min(cw * 0.5, Math.max(MIN_WIDTH, cw - EDITOR_FLOOR));
 	}
 
 	private _attachDivider(side: DockSide, divider: HTMLDivElement): void {

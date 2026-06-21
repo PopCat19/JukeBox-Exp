@@ -300,6 +300,7 @@ html {
 	grid-column-gap: 6px;
 	grid-row-gap: 6px;
 	position: relative;
+	box-sizing: border-box;
 	touch-action: manipulation;
 	cursor: default;
 	font-size: 12px;
@@ -858,6 +859,8 @@ html {
 	position: absolute;
 	margin: 0;
 	border-radius: 0;
+	overflow: auto;
+	min-width: 0;
 	backdrop-filter: none;
 	-webkit-backdrop-filter: none;
 	background: var(--prompt-bg-color, var(--editor-bg-color, ${ColorConfig.editorBackground}));

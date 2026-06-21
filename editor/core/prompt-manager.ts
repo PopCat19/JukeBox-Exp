@@ -670,7 +670,7 @@ export class PromptManager {
 				if (!this._prompts.includes(prompt)) return;
 				if (this._dock.isDocked(prompt)) {
 					if (this._dock.shouldUnsnapByDrag(prompt, me.clientX - anchorX)) {
-						this._dock.undock(prompt);
+						this._dock.undock(prompt, true);
 						anchorX = me.clientX;
 					} else {
 						return;
@@ -693,6 +693,7 @@ export class PromptManager {
 			};
 			const onUp = (): void => {
 				this._draggingPrompt = false;
+				this._dock.restoreFloatingSize(prompt);
 				document.removeEventListener("mousemove", onMove);
 				document.removeEventListener("mouseup", onUp);
 			};
