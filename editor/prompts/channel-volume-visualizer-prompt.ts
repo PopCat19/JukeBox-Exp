@@ -16,6 +16,7 @@ import type { ChannelState } from "../../synth/channel-state";
 import type { PromptEditorRefs } from "../core/prompt-manager";
 import type { SongDocument } from "../song-document";
 import { BasePrompt } from "./base-prompt";
+import { getInstrumentTypeName } from "../../synth/config/instrument-registry";
 
 const { div, h2, h3, span, button } = HTML;
 const { svg, defs, linearGradient, stop, rect } = SVG;
@@ -887,15 +888,17 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 					const isPlaying = instrState
 						? instrState.activeTones.count() > 0 || instrState.releasedTones.count() > 0 || instrState.liveInputTones.count() > 0
 						: false;
+					const instrument = channel.instruments[j];
+					const instrName = instrument ? getInstrumentTypeName(instrument.type) : "?";
 					const instrSpan = span(
 						{
-							style: `font-size: 10px; font-weight: 600; padding: 1px 4px; border-radius: var(--border-radius-medium); background: ${
+							style: `font-size: 10px; font-weight: 600; padding: 1px 4px; border-radius: var(--border-radius-medium); word-break: break-word; max-width: 100%; background: ${
 								isPlaying ? "white" : inPattern ? channelColors.primaryChannel : "var(--ui-widget-background)"
 							}; color: ${isPlaying ? "black" : inPattern ? "var(--editor-background)" : channelColors.primaryChannel}; opacity: ${
 								inPattern || isPlaying ? "1" : "0.5"
 							};`,
 						},
-						`I${j + 1}`,
+						instrName,
 					);
 					this._instrumentSpans.set(`${i}-${j}`, instrSpan);
 					instrDiv.appendChild(instrSpan);
