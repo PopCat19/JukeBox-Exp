@@ -722,7 +722,7 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 						};
 
 						// BG layer (low frequencies) drawn first
-						drawBars(BG_BANDS, bgSmooth, BG_REF, 0.32);
+						drawBars(BG_BANDS, bgSmooth, BG_REF, 0.24);
 						// FG layer (mid-high frequencies) drawn on top
 						drawBars(FG_BANDS, smooth, FG_REF, 0.48);
 						spectrumCtx.globalAlpha = 1.0;
