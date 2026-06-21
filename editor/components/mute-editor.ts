@@ -392,7 +392,9 @@ export class MuteEditor {
 				this._channelPeak[y] = 0;
 			}
 			const prev = this._activityFlash[y] || 0;
-			this._activityFlash[y] = hasActivity ? 1 : 0;
+			// Hold flash for ~4 frames after activity stops to prevent
+			// flicker at bar boundaries where tones briefly clear.
+			this._activityFlash[y] = hasActivity ? 5 : Math.max(0, prev - 1);
 			if (this._activityFlash[y] !== prev) changed = true;
 		}
 		if (changed) this.render();
