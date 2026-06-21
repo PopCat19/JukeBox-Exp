@@ -768,8 +768,9 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 				const patternInstrumentsAnim = patternAnim ? patternAnim.instruments : [];
 
 				const chanPeak = this._channelPeak.get(channelIndex) ?? 0;
-				const peakScaled = Math.min(1, chanPeak * 3.16);
-				const volBrightness = 0.3 + peakScaled * 0.7;
+				const v = chanPeak * 3.16;
+				const peakScaled = (2 * v) / (v + 1.0);
+				const volBrightness = 0.3 + Math.min(1, peakScaled) * 0.7;
 
 				for (const [key, instrSpan] of this._instrumentSpans) {
 					if (key.startsWith(`${channelIndex}-`)) {

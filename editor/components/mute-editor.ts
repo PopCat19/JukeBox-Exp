@@ -446,10 +446,12 @@ export class MuteEditor {
 				this._channelCounts[y].style.background = colors.primaryChannel;
 				this._channelCounts[y].style.borderRadius = BorderRadius.sm;
 			} else if (flash > 0) {
-				// Scale so -10dB (sample amplitude ~0.316) reaches full brightness.
-				// 1 / 10^(-10/20) ≈ 3.16
-				const scaled = Math.min(1, (this._channelPeak[y] ?? 0) * 3.16);
-				const brightness = 0.3 + scaled * 0.7;
+				// Soft compression: natural vol→brightness curve without hard clamping.
+				// 3.16x gain maps -10dB (amp 0.316) to v=1.0; ref=1.0 means the
+				// compression saturates around -10dB but approaches gradually.
+				const v = (this._channelPeak[y] ?? 0) * 3.16;
+				const scaled = (2 * v) / (v + 1.0);
+				const brightness = 0.3 + Math.min(1, scaled) * 0.7;
 				this._channelCounts[y].style.color = ColorConfig.getChannelColor(this._doc.song, y).primaryNote;
 				this._channelCounts[y].style.background = "transparent";
 				this._channelCounts[y].style.opacity = String(brightness);
