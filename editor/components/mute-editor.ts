@@ -76,6 +76,7 @@ export class MuteEditor {
 	private _channelDropDownLastState: boolean = false;
 	private _hoveredChannel: number = -1;
 	private _activityFlash: number[] = [];
+	private _channelPeak: number[] = [];
 
 	constructor(
 		private _doc: SongDocument,
@@ -363,6 +364,7 @@ export class MuteEditor {
 	private _animateActivity = (): void => {
 		const channelCount = this._doc.song.getChannelCount();
 		while (this._activityFlash.length < channelCount) this._activityFlash.push(0);
+		while (this._channelPeak.length < channelCount) this._channelPeak.push(0);
 
 		let changed = false;
 		for (let y = 0; y < channelCount; y++) {
@@ -376,6 +378,18 @@ export class MuteEditor {
 						break;
 					}
 				}
+				// Compute peak from audio ring for brightness scaling.
+				const ring = chState.audioRing;
+				const ringPos = chState.audioRingPos;
+				let peak = 0;
+				for (let i = 0; i < 8192; i++) {
+					const s = ring[(ringPos + i) & 8191];
+					const a = s < 0 ? -s : s;
+					if (a > peak) peak = a;
+				}
+				this._channelPeak[y] = Math.min(1, peak * this._doc.synth.getMasterScale());
+			} else {
+				this._channelPeak[y] = 0;
 			}
 			const prev = this._activityFlash[y] || 0;
 			this._activityFlash[y] = hasActivity ? 1 : 0;
@@ -432,9 +446,11 @@ export class MuteEditor {
 				this._channelCounts[y].style.background = colors.primaryChannel;
 				this._channelCounts[y].style.borderRadius = BorderRadius.sm;
 			} else if (flash > 0) {
+				const peak = Math.min(1, (this._channelPeak[y] ?? 0) * 2);
+				const brightness = 0.3 + peak * 0.7;
 				this._channelCounts[y].style.color = ColorConfig.getChannelColor(this._doc.song, y).primaryNote;
 				this._channelCounts[y].style.background = "transparent";
-				this._channelCounts[y].style.opacity = "1";
+				this._channelCounts[y].style.opacity = String(brightness);
 				this._channelCounts[y].style.borderRadius = "0";
 			} else {
 				this._channelCounts[y].style.background = "transparent";
