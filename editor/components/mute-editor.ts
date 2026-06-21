@@ -75,6 +75,7 @@ export class MuteEditor {
 	private _channelDropDownOpen: boolean = false;
 	private _channelDropDownLastState: boolean = false;
 	private _hoveredChannel: number = -1;
+	private _activityFlash: number[] = [];
 
 	constructor(
 		private _doc: SongDocument,
@@ -86,6 +87,7 @@ export class MuteEditor {
 
 		this._channelDropDown.selectedIndex = -1;
 		this._channelDropDown.addEventListener("change", this._channelDropDownHandler);
+		window.requestAnimationFrame(this._animateActivity);
 		this._channelDropDown.addEventListener("mousedown", this._channelDropDownGetOpenedPosition);
 		this._channelDropDown.addEventListener("blur", this._channelDropDownBlur);
 		this._channelDropDown.addEventListener("click", this._channelDropDownClick);
@@ -358,6 +360,39 @@ export class MuteEditor {
 		this.render();
 	}
 
+	private _animateActivity = (): void => {
+		if (!this._doc.synth.playing) {
+			window.requestAnimationFrame(this._animateActivity);
+			return;
+		}
+		const channelCount = this._doc.song.getChannelCount();
+		while (this._activityFlash.length < channelCount) this._activityFlash.push(0);
+
+		let changed = false;
+		for (let y = 0; y < channelCount; y++) {
+			const chState = this._doc.synth.channels[y];
+			let hasActivity = false;
+			if (chState) {
+				for (let k = 0; k < chState.instruments.length; k++) {
+					const inst = chState.instruments[k];
+					if (inst.activeTones.count() > 0 || inst.releasedTones.count() > 0 || inst.liveInputTones.count() > 0) {
+						hasActivity = true;
+						break;
+					}
+				}
+			}
+			const prev = this._activityFlash[y] || 0;
+			if (hasActivity) {
+				this._activityFlash[y] = 1;
+			} else if (prev > 0) {
+				this._activityFlash[y] = prev - 0.05;
+			}
+			if (this._activityFlash[y] !== prev) changed = true;
+		}
+		if (changed) this.render();
+		window.requestAnimationFrame(this._animateActivity);
+	};
+
 	public render(): void {
 		if (!this._doc.prefs.enableChannelMuting) return;
 		const startingChannelCount: number = this._buttons.length;
@@ -396,11 +431,18 @@ export class MuteEditor {
 
 		for (let y: number = 0; y < this._doc.song.getChannelCount(); y++) {
 			const active: boolean = y === this._doc.channel;
+			const flash = this._activityFlash[y] || 0;
 			this._channelCounts[y].style.opacity = "1";
 			if (active) {
 				const colors = ColorConfig.getChannelColor(this._doc.song, y);
 				this._channelCounts[y].style.color = ColorConfig.invertedText;
 				this._channelCounts[y].style.background = colors.primaryChannel;
+				this._channelCounts[y].style.borderRadius = BorderRadius.sm;
+			} else if (flash > 0) {
+				const colors = ColorConfig.getChannelColor(this._doc.song, y);
+				this._channelCounts[y].style.color = colors.primaryChannel;
+				this._channelCounts[y].style.background = "transparent";
+				this._channelCounts[y].style.opacity = String(0.3 + flash * 0.5);
 				this._channelCounts[y].style.borderRadius = BorderRadius.sm;
 			} else {
 				this._channelCounts[y].style.background = "transparent";
