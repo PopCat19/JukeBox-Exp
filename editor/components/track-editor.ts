@@ -135,9 +135,6 @@ export class TrackEditor {
 	private _barDropDownBar: number = 0;
 	private _lastScrollTime: number = 0;
 	private _svgRect: DOMRect | null = null;
-	private _cachedDuration: number = -1;
-	private _cachedBarCount: number = -1;
-	private _cachedGeneration: number = -1;
 
 	constructor(
 		private _doc: SongDocument,
@@ -328,21 +325,17 @@ export class TrackEditor {
 		const channel: number = this._mouseChannel;
 		const overTrackEditor: boolean = this._mouseY >= Config.barEditorHeight;
 
-		// Cache total duration, recompute on bar count or song edit changes.
-		const generation = this._doc.notifier.generation;
-		if (this._cachedDuration < 0 || this._doc.song.barCount !== this._cachedBarCount || generation !== this._cachedGeneration) {
-			const totalSamples = this._doc.synth.getTotalSamples(true, true, 0);
-			this._cachedDuration = totalSamples > 0 ? totalSamples / this._doc.synth.samplesPerSecond : 0;
-			this._cachedBarCount = this._doc.song.barCount;
-			this._cachedGeneration = generation;
-		}
-		const durationStr = formatTime(this._cachedDuration);
+		// Elapsed samples up to the hovered bar. `getSamplesUpToBar` respects
+		// tempo mods and next-bar skips, giving accurate per-bar timestamps.
+		const barSamples = this._doc.synth.getSamplesUpToBar(bar);
+		const barTime = barSamples > 0 ? barSamples / this._doc.synth.samplesPerSecond : 0;
+		const elapsedStr = formatTime(barTime);
 
 		if (!overTrackEditor) {
-			this._hoverTooltip.textContent = `B${bar + 1}  -  ${durationStr}`;
+			this._hoverTooltip.textContent = `B${bar + 1}  -  ${elapsedStr}`;
 		} else {
 			const channelType: string = this._doc.song.getChannelIsNoise(channel) ? "D" : this._doc.song.getChannelIsMod(channel) ? "M" : "P";
-			this._hoverTooltip.textContent = `B${bar + 1}/${channelType}${channel + 1}  -  ${durationStr}`;
+			this._hoverTooltip.textContent = `B${bar + 1}/${channelType}${channel + 1}  -  ${elapsedStr}`;
 		}
 
 		// Track the cursor, swapping sides to avoid clipping at container edges.
