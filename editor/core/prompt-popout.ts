@@ -77,6 +77,14 @@ export class PromptPopout {
 
 		this._cloneStyles(doc);
 
+		// Override PMD prompt-surface vars at the popout root so the panel and any
+		// child referencing --prompt-bg-color (or backdrop-filter) resolve to
+		// transparent. applyPMDToDOM sets these on the editor's documentElement;
+		// cloned stylesheets carry :root rules from base16 themes. Setting them on
+		// the popout's own documentElement wins the cascade for every descendant.
+		doc.documentElement.style.setProperty("--prompt-bg-color", "transparent");
+		doc.documentElement.style.setProperty("--prompt-backdrop-filter", "none");
+
 		// Relocate the container and restyle it to fill the window's content box
 		// (body padding supplies the PMD margin on both axes). The .beepboxEditor
 		// .prompt CSS supplies border-radius, padding, and gap; we override the
