@@ -488,7 +488,8 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 				historic.timer = 50;
 			}
 
-			const chWidth = Math.min(144, channelLevel * 144);
+			// Floor at 1px so tiles are sized identically before first playback.
+			const chWidth = channelLevel > 0 ? Math.min(144, channelLevel * 144) : 1;
 			const chCapX = 8 + Math.min(144, historic.cap * 144);
 			const lastWidth = this._channelLastWidths.get(channelIndex) ?? -1;
 			const lastCap = this._channelLastCaps.get(channelIndex) ?? -1;
@@ -859,8 +860,8 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 			const volBar = rect({
 				"pointer-events": "none",
 				height: "40%",
-				width: "0%",
-				x: "5%",
+				width: 1,
+				x: 8,
 				y: "30%",
 				fill: channelColors.primaryChannel,
 			});
