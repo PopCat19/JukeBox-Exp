@@ -695,7 +695,6 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 							mags: Float32Array,
 							ref: number,
 							alpha: number,
-							gain: number = 1,
 						): void => {
 							const bandsPerBar = bandCount / BAR_COUNT;
 							spectrumCtx.globalAlpha = alpha;
@@ -705,7 +704,7 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 								const s1 = Math.min(bandCount, Math.floor((bar + 1) * bandsPerBar));
 								let peak = 0;
 								for (let b = s0; b < s1; b++) if (mags[b] > peak) peak = mags[b];
-								const v = peak * this._smoothedMasterScale * SPECTRUM_DISPLAY_GAIN * gain;
+								const v = peak * this._smoothedMasterScale * SPECTRUM_DISPLAY_GAIN;
 								const norm = Math.min(1, (2 * v) / (v + ref));
 								const barH = norm * h;
 								if (barH < 0.5) continue;
@@ -724,8 +723,8 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 
 						// BG layer (low frequencies) drawn first
 						drawBars(BG_BANDS, bgSmooth, BG_REF, 0.24);
-						// FG layer (mid-high frequencies) drawn on top with mild extra gain
-						drawBars(FG_BANDS, smooth, FG_REF, 0.48, 1.5);
+						// FG layer (mid-high frequencies) drawn on top
+						drawBars(FG_BANDS, smooth, FG_REF, 0.48);
 						spectrumCtx.globalAlpha = 1.0;
 					}
 				}
