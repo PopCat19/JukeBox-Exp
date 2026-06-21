@@ -980,8 +980,14 @@ export class Synth {
 			this._dbg("Creating AudioContext, latencyHint:", latencyHint);
 			this.audioCtx = this.audioCtx || new (window.AudioContext || window.webkitAudioContext)({ latencyHint: latencyHint });
 			const ctx = this.audioCtx!;
-			this.samplesPerSecond = ctx.sampleRate;
-			this._dbg("AudioContext sampleRate:", this.samplesPerSecond);
+			// Only adopt the AudioContext sample rate when playing. During preview
+			// (hover notes while paused) the default rate keeps the elapsed-time
+			// calculation consistent with the totalSamplesRendered accumulator,
+			// preventing a visual jump when the rate shifts from 44100→48000.
+			if (this.isPlayingSong) {
+				this.samplesPerSecond = ctx.sampleRate;
+			}
+			this._dbg("AudioContext sampleRate:", ctx.sampleRate);
 
 			// If the AudioContext is suspended (no user gesture yet), register a
 			// one-time click/keydown listener to resume it on the first user gesture.
@@ -1185,6 +1191,10 @@ export class Synth {
 		await this.resumeAudioContext();
 		this.warmUpSynthesizer(this.song);
 		this.isPlayingSong = true;
+		// Adopt the AudioContext sample rate now that playback is active.
+		if (this.audioCtx) {
+			this.samplesPerSecond = this.audioCtx.sampleRate;
+		}
 		// Seed the elapsed counter at the current bar so the duration display
 		// continues from where navigation left it instead of resetting to 0:00.
 		// getSamplesUpToBar is mod-aware (tempo and next-bar skip mods).
