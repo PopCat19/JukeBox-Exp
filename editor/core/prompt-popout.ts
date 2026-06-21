@@ -114,6 +114,12 @@ export class PromptPopout {
 		// consistent inset, and the grid fills the full panel width.
 		c.style.padding = "0";
 		c.style.transform = "none";
+		// Directly remove bg and backdrop-filter. The .prompt CSS rule uses
+		// var(--prompt-bg-color) which should resolve to transparent via the inline
+		// override below, but setting the property directly is a guaranteed override
+		// regardless of cascade or var resolution.
+		c.style.background = "none";
+		c.style.backdropFilter = "none";
 		c.style.setProperty("--prompt-bg-color", "transparent");
 		c.style.setProperty("--prompt-backdrop-filter", "none");
 		c.dataset.popout = "true";
