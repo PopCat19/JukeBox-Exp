@@ -910,7 +910,7 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 		// scroll instead of the flex chain squishing the grid cards.
 		if (channelCount > 28) {
 			this._channelsPane.style.display = "block";
-			this._channelsPane.style.flex = "none";
+			this._channelsPane.style.flex = "1";
 			this._channelsPane.style.maxHeight = "600px";
 			this._channelsPane.style.overflowY = "auto";
 		} else {
