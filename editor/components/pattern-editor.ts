@@ -160,6 +160,10 @@ export class PatternEditor {
 		"pointer-events": "none",
 	});
 	public modDragValueLabel: HTMLDivElement;
+	private _canvas: HTMLCanvasElement;
+	private _ctx: CanvasRenderingContext2D;
+	private _canvasWidth: number = 0;
+	private _canvasHeight: number = 0;
 	public _svg: SVGSVGElement;
 	public readonly container: HTMLDivElement;
 
@@ -276,7 +280,7 @@ export class PatternEditor {
 			x: "0",
 			y: "0",
 			"pointer-events": "none",
-			fill: `url(#patternEditorNoteBackground${this._barOffset})`,
+			fill: "none",
 		});
 		this._svgNoteContainer = SVG.svg();
 		this._svgPlayhead = SVG.rect({ x: "0", y: "0", width: "4", fill: ColorConfig.playhead, "pointer-events": "none" });
@@ -321,8 +325,13 @@ export class PatternEditor {
 			this._svgPreview,
 			this._svgPlayhead,
 		);
+		this._canvas = document.createElement("canvas");
+		this._canvas.style.cssText = "position:absolute;left:0;top:0;width:100%;height:100%;pointer-events:none;";
+		this._ctx = this._canvas.getContext("2d")!;
+
 		this.container = HTML.div(
 			{ style: "height: 100%; overflow:hidden; position: relative; flex-grow: 1;" },
+			this._canvas,
 			this._svg,
 			this.modDragValueLabel,
 			this._hoverTooltip,
@@ -384,6 +393,93 @@ export class PatternEditor {
 		}
 
 		this.resetCopiedPins();
+	}
+
+	private _initCanvas(): void {
+		const dpr: number = window.devicePixelRatio || 1;
+		const w: number = this.container.clientWidth;
+		const h: number = this.container.clientHeight;
+		if (this._canvasWidth === w && this._canvasHeight === h) return;
+		this._canvasWidth = w;
+		this._canvasHeight = h;
+		this._canvas.width = w * dpr;
+		this._canvas.height = h * dpr;
+		this._ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+	}
+
+	private _drawBackgroundToCanvas(): void {
+		const ctx: CanvasRenderingContext2D = this._ctx;
+		const w: number = this._canvasWidth;
+		const h: number = this._canvasHeight;
+		ctx.clearRect(0, 0, w, h);
+
+		if (this._doc.song.getChannelIsNoise(this._doc.channel) || this._doc.song.getChannelIsMod(this._doc.channel)) {
+			ctx.fillStyle = ColorConfig.pitchBackground;
+			ctx.fillRect(0, 0, w, h);
+			return;
+		}
+
+		for (let i: number = 0; i < Config.pitchesPerOctave; i++) {
+			const rowY: number = ((Config.pitchesPerOctave - i) % Config.pitchesPerOctave) * this._pitchHeight + 1;
+			ctx.fillStyle = i === 0 ? ColorConfig.tonic : ColorConfig.pitchBackground;
+			ctx.fillRect(1, rowY, w - 2, this._pitchHeight - 2);
+		}
+	}
+
+	private _drawNoteToCanvas(
+		pitch: number,
+		start: number,
+		pins: NotePin[],
+		radius: number,
+		showSize: boolean,
+		offset: number,
+	): void {
+		const ctx: CanvasRenderingContext2D = this._ctx;
+		const cap: number = this._doc.song.getVolumeCap(
+			this._doc.song.getChannelIsMod(this._doc.channel),
+			this._doc.channel,
+			this._doc.getCurrentInstrument(this._barOffset),
+			pitch,
+		);
+
+		const totalWidth: number = this._partWidth * (pins[pins.length - 1].time + pins[0].time);
+		const endOffset: number = 0.5 * Math.min(2, totalWidth - 1);
+
+		let nextPin: NotePin = pins[0];
+		const px: number = this._partWidth * (start + nextPin.time) + endOffset;
+		const py: number = this._pitchToPixelHeight(pitch - offset) + radius * (showSize ? nextPin.size / cap : 1.0);
+		ctx.beginPath();
+		ctx.moveTo(px, py);
+
+		for (let i: number = 1; i < pins.length; i++) {
+			const prevPin: NotePin = nextPin;
+			nextPin = pins[i];
+			const prevSide: number = this._partWidth * (start + prevPin.time) + (i === 1 ? endOffset : 0);
+			const nextSide: number = this._partWidth * (start + nextPin.time) - (i === pins.length - 1 ? endOffset : 0);
+			const prevHeight: number = this._pitchToPixelHeight(pitch + prevPin.interval - offset);
+			const nextHeight: number = this._pitchToPixelHeight(pitch + nextPin.interval - offset);
+			const prevSize: number = showSize ? prevPin.size / cap : 1.0;
+			const nextSize: number = showSize ? nextPin.size / cap : 1.0;
+			ctx.lineTo(prevSide, prevHeight - radius * prevSize);
+			if (prevPin.interval > nextPin.interval) ctx.lineTo(prevSide + 1, prevHeight - radius * prevSize);
+			if (prevPin.interval < nextPin.interval) ctx.lineTo(nextSide - 1, nextHeight - radius * nextSize);
+			ctx.lineTo(nextSide, nextHeight - radius * nextSize);
+		}
+		for (let i: number = pins.length - 2; i >= 0; i--) {
+			const prevPin: NotePin = nextPin;
+			nextPin = pins[i];
+			const prevSide: number = this._partWidth * (start + prevPin.time) - (i === pins.length - 2 ? endOffset : 0);
+			const nextSide: number = this._partWidth * (start + nextPin.time) + (i === 0 ? endOffset : 0);
+			const prevHeight: number = this._pitchToPixelHeight(pitch + prevPin.interval - offset);
+			const nextHeight: number = this._pitchToPixelHeight(pitch + nextPin.interval - offset);
+			const prevSize: number = showSize ? prevPin.size / cap : 1.0;
+			const nextSize: number = showSize ? nextPin.size / cap : 1.0;
+			ctx.lineTo(prevSide, prevHeight + radius * prevSize);
+			if (prevPin.interval < nextPin.interval) ctx.lineTo(prevSide - 1, prevHeight + radius * prevSize);
+			if (prevPin.interval > nextPin.interval) ctx.lineTo(nextSide + 1, nextHeight + radius * nextSize);
+			ctx.lineTo(nextSide, nextHeight + radius * nextSize);
+		}
+		ctx.closePath();
 	}
 
 	private _getMaxPitch(): number {
@@ -3369,19 +3465,16 @@ export class PatternEditor {
 			if (!this._renderedDrums) {
 				this._renderedDrums = true;
 				this._renderedMod = false;
-				this._svgBackground.setAttribute("fill", `url(#patternEditorDrumBackground${this._barOffset})`);
 			}
 		} else if (this._doc.song.getChannelIsMod(this._doc.channel)) {
 			if (!this._renderedMod) {
 				this._renderedDrums = false;
 				this._renderedMod = true;
-				this._svgBackground.setAttribute("fill", `url(#patternEditorModBackground${this._barOffset})`);
 			}
 		} else {
 			if (this._renderedDrums || this._renderedMod) {
 				this._renderedDrums = false;
 				this._renderedMod = false;
-				this._svgBackground.setAttribute("fill", `url(#patternEditorNoteBackground${this._barOffset})`);
 			}
 		}
 
@@ -3390,8 +3483,13 @@ export class PatternEditor {
 	}
 
 	private _redrawNotePatterns(): void {
+		this._initCanvas();
+		this._drawBackgroundToCanvas();
 		this._svgNoteContainer = makeEmptyReplacementElement(this._svgNoteContainer);
 
+		const ctx: CanvasRenderingContext2D = this._ctx;
+
+		// --- Other-channel notes (background layer) ---
 		if (this._doc.prefs.showChannels) {
 			if (!this._doc.song.getChannelIsMod(this._doc.channel)) {
 				let noteFlashColor: string = "#ffffff77";
@@ -3406,17 +3504,17 @@ export class PatternEditor {
 					if (pattern2 == null) continue;
 
 					const octaveOffset: number = this._doc.getBaseVisibleOctave(channel) * Config.pitchesPerOctave;
+					const secondaryColor: string = ColorConfig.getChannelColor(this._doc.song, channel).secondaryNote;
 					for (const note of pattern2.notes) {
 						for (const pitch of note.pitches) {
-							let notePath: SVGPathElement = SVG.path();
-							notePath.setAttribute("fill", ColorConfig.getChannelColor(this._doc.song, channel).secondaryNote);
-							notePath.setAttribute("pointer-events", "none");
-							this._drawNote(notePath, pitch, note.start, note.pins, this._pitchHeight * 0.19, false, octaveOffset);
-							this._svgNoteContainer.appendChild(notePath);
+							// Canvas: static fill
+							this._drawNoteToCanvas(pitch, note.start, note.pins, this._pitchHeight * 0.19, false, octaveOffset);
+							ctx.fillStyle = secondaryColor;
+							ctx.fill();
 
+							// SVG: flash overlay
 							if (this._doc.prefs.notesFlashWhenPlayed) {
-								notePath = SVG.path();
-								// const noteFlashColor = ColorConfig.getComputed("--note-flash-secondary") !== "" ? "var(--note-flash-secondary)" : "#ffffff77";
+								const notePath: SVGPathElement = SVG.path();
 								notePath.setAttribute("fill", noteFlashColor);
 								notePath.setAttribute("pointer-events", "none");
 								this._drawNote(notePath, pitch, note.start, note.pins, this._pitchHeight * 0.19, false, octaveOffset);
@@ -3432,6 +3530,7 @@ export class PatternEditor {
 			}
 		}
 
+		// --- Current-channel notes ---
 		if (this._pattern != null) {
 			const instrument: Instrument = this._doc.song.channels[this._doc.channel].instruments[this._doc.getCurrentInstrument(this._barOffset)];
 			const chord: Chord = instrument.getChord();
@@ -3454,24 +3553,24 @@ export class PatternEditor {
 						noteColors = ColorConfig.getChannelColor(this._doc.song, targetChannel);
 					}
 				}
+				const colorPrimary: string = disabled ? ColorConfig.disabledNotePrimary : noteColors.primaryNote;
+				const colorSecondary: string = disabled ? ColorConfig.disabledNoteSecondary : noteColors.secondaryNote;
 				for (let i: number = 0; i < note.pitches.length; i++) {
 					const pitch: number = note.pitches[i];
-					let notePath: SVGPathElement = SVG.path();
-					const colorPrimary: string = disabled ? ColorConfig.disabledNotePrimary : noteColors.primaryNote;
-					const colorSecondary: string = disabled ? ColorConfig.disabledNoteSecondary : noteColors.secondaryNote;
-					notePath.setAttribute("fill", colorSecondary);
-					notePath.setAttribute("pointer-events", "none");
-					this._drawNote(notePath, pitch, note.start, note.pins, (this._pitchHeight - this._pitchBorder) / 2 + 1, false, this._octaveOffset);
-					this._svgNoteContainer.appendChild(notePath);
-					notePath = SVG.path();
-					notePath.setAttribute("fill", colorPrimary);
-					notePath.setAttribute("pointer-events", "none");
-					this._drawNote(notePath, pitch, note.start, note.pins, (this._pitchHeight - this._pitchBorder) / 2 + 1, true, this._octaveOffset);
-					this._svgNoteContainer.appendChild(notePath);
 
+					// Canvas: secondary fill
+					this._drawNoteToCanvas(pitch, note.start, note.pins, (this._pitchHeight - this._pitchBorder) / 2 + 1, false, this._octaveOffset);
+					ctx.fillStyle = colorSecondary;
+					ctx.fill();
+
+					// Canvas: primary fill
+					this._drawNoteToCanvas(pitch, note.start, note.pins, (this._pitchHeight - this._pitchBorder) / 2 + 1, true, this._octaveOffset);
+					ctx.fillStyle = colorPrimary;
+					ctx.fill();
+
+					// SVG: flash overlay
 					if (this._doc.prefs.notesFlashWhenPlayed && !disabled) {
-						notePath = SVG.path();
-						// const noteFlashColor = ColorConfig.getComputed("--note-flash") !== "" ? "var(--note-flash)" : "#ffffff";
+						const notePath: SVGPathElement = SVG.path();
 						notePath.setAttribute("fill", noteFlashColor);
 						notePath.setAttribute("pointer-events", "none");
 						this._drawNote(notePath, pitch, note.start, note.pins, (this._pitchHeight - this._pitchBorder) / 2 + 1, true, this._octaveOffset);
@@ -3482,6 +3581,7 @@ export class PatternEditor {
 						notePath.setAttribute("note-end", String(note.end));
 					}
 
+					// SVG: continuation arrow
 					let indicatorOffset: number = 2;
 					if (note.continuesLastPattern) {
 						const arrowHeight: number = Math.min(this._pitchHeight, 20);
@@ -3528,6 +3628,7 @@ export class PatternEditor {
 						indicatorOffset += 12;
 					}
 
+					// SVG: chord label
 					if (note.pitches.length > 1) {
 						if (displayNumberedChords) {
 							const oscillatorLabel: SVGTextElement = SVG.text();
