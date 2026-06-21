@@ -407,6 +407,15 @@ export class PatternEditor {
 		this._ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 	}
 
+	private _resolveCssColor(cssValue: string): string {
+		const match: RegExpMatchArray | null = cssValue.match(/var\((--[^,]+),\s*([^)]+)\)/);
+		if (match) {
+			const resolved: string = getComputedStyle(document.documentElement).getPropertyValue(match[1]).trim();
+			return resolved || match[2];
+		}
+		return cssValue;
+	}
+
 	private _drawBackgroundToCanvas(): void {
 		const ctx: CanvasRenderingContext2D = this._ctx;
 		const w: number = this._canvasWidth;
@@ -414,14 +423,16 @@ export class PatternEditor {
 		ctx.clearRect(0, 0, w, h);
 
 		if (this._doc.song.getChannelIsNoise(this._doc.channel) || this._doc.song.getChannelIsMod(this._doc.channel)) {
-			ctx.fillStyle = ColorConfig.pitchBackground;
+			ctx.fillStyle = this._resolveCssColor(ColorConfig.pitchBackground);
 			ctx.fillRect(0, 0, w, h);
 			return;
 		}
 
+		const tonicColor: string = this._resolveCssColor(ColorConfig.tonic);
+		const pitchBgColor: string = this._resolveCssColor(ColorConfig.pitchBackground);
 		for (let i: number = 0; i < Config.pitchesPerOctave; i++) {
 			const rowY: number = ((Config.pitchesPerOctave - i) % Config.pitchesPerOctave) * this._pitchHeight + 1;
-			ctx.fillStyle = i === 0 ? ColorConfig.tonic : ColorConfig.pitchBackground;
+			ctx.fillStyle = i === 0 ? tonicColor : pitchBgColor;
 			ctx.fillRect(1, rowY, w - 2, this._pitchHeight - 2);
 		}
 	}
@@ -3504,7 +3515,7 @@ export class PatternEditor {
 					if (pattern2 == null) continue;
 
 					const octaveOffset: number = this._doc.getBaseVisibleOctave(channel) * Config.pitchesPerOctave;
-					const secondaryColor: string = ColorConfig.getChannelColor(this._doc.song, channel).secondaryNote;
+					const secondaryColor: string = this._resolveCssColor(ColorConfig.getChannelColor(this._doc.song, channel).secondaryNote);
 					for (const note of pattern2.notes) {
 						for (const pitch of note.pitches) {
 							// Canvas: static fill
@@ -3553,8 +3564,8 @@ export class PatternEditor {
 						noteColors = ColorConfig.getChannelColor(this._doc.song, targetChannel);
 					}
 				}
-				const colorPrimary: string = disabled ? ColorConfig.disabledNotePrimary : noteColors.primaryNote;
-				const colorSecondary: string = disabled ? ColorConfig.disabledNoteSecondary : noteColors.secondaryNote;
+				const colorPrimary: string = this._resolveCssColor(disabled ? ColorConfig.disabledNotePrimary : noteColors.primaryNote);
+				const colorSecondary: string = this._resolveCssColor(disabled ? ColorConfig.disabledNoteSecondary : noteColors.secondaryNote);
 				for (let i: number = 0; i < note.pitches.length; i++) {
 					const pitch: number = note.pitches[i];
 
