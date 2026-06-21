@@ -21,7 +21,7 @@ export class SampleLoadingStatusPrompt extends BasePrompt {
 	private _statusesContainer: HTMLDivElement = div();
 	private _noSamplesMessage: HTMLDivElement = div({ class: "slsNoSamples" }, "There's no custom samples in this song.");
 	public container: HTMLDivElement = div(
-		{ class: "prompt sampleLoadingStatusPrompt noSelection" },
+		{ class: "prompt sampleLoadingStatusPrompt noSelection fill-y" },
 		div(h2("Sample Loading Status"), div({ class: "slsColumn" }, this._noSamplesMessage, div({ class: "slsScroll" }, this._statusesContainer))),
 		this._cancelButton,
 	);

@@ -1647,12 +1647,19 @@ html {
 	flex-direction: column;
 	align-items: center;
 	margin-bottom: 0.5em;
+	flex: 1 1 auto;
+	min-height: 0;
 }
 
 .beepboxEditor .prompt.sampleLoadingStatusPrompt .slsScroll {
 	width: 100%;
 	max-height: 350px;
 	overflow-y: scroll;
+}
+.beepboxEditor .prompt.sampleLoadingStatusPrompt.docked .slsScroll {
+	max-height: none;
+	flex: 1 1 auto;
+	min-height: 0;
 }
 
 .beepboxEditor .prompt.sampleLoadingStatusPrompt .slsCard {
