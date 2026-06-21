@@ -838,40 +838,25 @@ html {
 	pointer-events: auto;
 }
 
-/* Prompt docking: a prompt snapped to the L/R edge sits beside the
- * editor inside #beepboxEditorContainer, shrinking the editor to
- * make room. The dock holds one prompt per side; a resizable
- * divider separates it from the editor. */
-#beepboxEditorContainer > .prompt-dock {
-	display: flex;
-	flex-direction: column;
-	flex: 0 0 auto;
-	background: var(--editor-bg-color, ${ColorConfig.editorBackground});
-	overflow: hidden;
-	min-width: 0;
-}
-#beepboxEditorContainer > .prompt-dock .prompt-dock-content {
-	flex: 1 1 auto;
-	overflow: auto;
-	display: flex;
-	min-height: 0;
-}
-#beepboxEditorContainer > .prompt-dock-divider {
-	flex: 0 0 auto;
+/* Prompt docking: a docked prompt is pinned to the L/R side of the
+ * editor (still inside .beepboxEditor so component styles apply) and
+ * the editor grid content is inset via padding to make room. A
+ * resizable divider sits at the padding boundary. */
+.beepboxEditor .prompt-dock-divider {
+	position: absolute;
+	z-index: 101;
 	width: 6px;
 	cursor: col-resize;
 	background: var(--ui-widget-background, #444);
 	transition: background 100ms ${Animation.easingDefault};
+	pointer-events: auto;
 }
-#beepboxEditorContainer > .prompt-dock-divider:hover {
+.beepboxEditor .prompt-dock-divider:hover {
 	background: var(--ui-widget-focus, #666);
 }
-#beepboxEditorContainer > .prompt-dock .prompt.docked {
-	position: relative;
+.beepboxEditor .prompt.docked {
+	position: absolute;
 	margin: 0;
-	width: 100%;
-	min-height: 100%;
-	flex: 1 1 auto;
 	border-radius: 0;
 	backdrop-filter: none;
 	-webkit-backdrop-filter: none;

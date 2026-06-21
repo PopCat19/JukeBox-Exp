@@ -168,7 +168,6 @@ export class PromptManager {
 
 		this._dock = new PromptDock({
 			editor: this._host.mainLayer,
-			promptContainer: this._host.promptContainer,
 		});
 	}
 
