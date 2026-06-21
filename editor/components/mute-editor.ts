@@ -425,7 +425,8 @@ export class MuteEditor {
 			const active: boolean = y === this._doc.channel;
 			const flash = this._activityFlash[y] || 0;
 			this._channelCounts[y].style.opacity = "1";
-			if (active) {
+			const playing = this._doc.synth.playing;
+			if (active && !playing) {
 				const colors = ColorConfig.getChannelColor(this._doc.song, y);
 				this._channelCounts[y].style.color = ColorConfig.invertedText;
 				this._channelCounts[y].style.background = colors.primaryChannel;
