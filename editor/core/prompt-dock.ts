@@ -96,6 +96,22 @@ export class PromptDock {
 		// Remove from any other side first.
 		if (found) this._removeFromSide(found.side, found.index);
 
+		// Only one side may be docked at a time to avoid cramping the
+		// editor on narrower viewports (e.g. 16:9).
+		const opposite: DockSide = side === "left" ? "right" : "left";
+		const oppositeSlots = this._docked.get(opposite);
+		if (oppositeSlots && oppositeSlots.length > 0) {
+			while (oppositeSlots.length > 0) {
+				const evicted = oppositeSlots.shift() as SlotEntry;
+				this._clearDockClass(evicted.prompt);
+				this._restorePrompt(evicted.prompt);
+			}
+			this._relayoutSide(opposite);
+			this._removeDivider(opposite);
+			this._removeSlotDividers(opposite);
+			this._docked.delete(opposite);
+		}
+
 		if (!this._savedPositions.has(prompt)) {
 			const c = prompt.container;
 			const left = c.style.left;
