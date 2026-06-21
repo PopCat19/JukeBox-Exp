@@ -223,7 +223,12 @@ export class SongSettingsPanel {
 	}
 
 	private _createTitleRow(): HTMLDivElement {
-		return div({ class: "selectRow" }, span({ class: "tip" }, "Title:"), this.songTitleInputBox.input);
+		const wrapper = div({
+			class: "song-title-marquee",
+			style: "overflow: hidden; flex: 1 1 auto; min-width: 0;",
+		});
+		wrapper.appendChild(this.songTitleInputBox.input);
+		return div({ class: "selectRow" }, span({ class: "tip" }, "Title:"), wrapper);
 	}
 
 	private _createScaleRow(): HTMLDivElement {
