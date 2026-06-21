@@ -62,34 +62,58 @@ export class PromptPopout {
 		const doc = win.document;
 		doc.title = prompt.name ?? "Popout";
 
-		// Base reset: the container fills the window. body gets .beepboxEditor so
-		// the scoped editor rules (.beepboxEditor .prompt { ... }) still match.
+		// Base reset: the popout body is the editor-background stage, with 12px
+		// padding so the prompt's rounded corners read against it. body gets
+		// .beepboxEditor so the scoped rules (.beepboxEditor .prompt { ... }) still
+		// match. overflow:auto is a safety net for absurd Hyprland resizes; the
+		// prompt's own channels pane handles in-panel scroll.
 		const base = doc.createElement("style");
 		base.setAttribute(POPOUT_STYLE_ATTR, "");
-		base.textContent = "html,body{margin:0;padding:0;height:100%;background:var(--editor-background,black);overflow:hidden;}" + "body{display:block;}";
+		base.textContent =
+			"html,body{margin:0;padding:0;height:100%;background:var(--editor-background,black);}" + "body{padding:12px;overflow:auto;box-sizing:border-box;}";
 		doc.head.appendChild(base);
 		doc.body.classList.add("beepboxEditor");
 
 		this._cloneStyles(doc);
 
-		// Relocate the container, overriding the inline positioning the manager
-		// set (absolute, fixed pixel size) so it fills the popout. The manager
-		// never repositions a popped prompt (guarded by isOpen checks), so these
-		// overrides persist until close.
+		// Relocate the container and restyle it as a framed panel that matches the
+		// in-editor prompt look. The .beepboxEditor .prompt CSS already supplies
+		// border-radius, padding, and gap; we only override the manager's inline
+		// positioning (absolute, fixed 720px) so the panel centers and fills the
+		// window width up to its native 720px cap. The manager never repositions a
+		// popped prompt (guarded by isOpen checks), so these overrides persist
+		// until close.
+		//
+		// Background: in-editor the prompt reads as glass because backdrop-filter
+		// blurs the editor content behind a transparent bg. In the popout the body
+		// is a solid color, so blur is a no-op and a transparent bg would make the
+		// rounded panel invisible. Switch to an opaque widget-surface bg
+		// (--ui-widget-background) and disable backdrop-filter. The channel cards
+		// inside use --editor-background, so they keep contrast against the panel.
 		const c = prompt.container;
 		c.style.position = "static";
 		c.style.left = "";
 		c.style.top = "";
 		c.style.right = "";
 		c.style.width = "100%";
-		c.style.height = "100%";
-		c.style.maxWidth = "none";
-		c.style.maxHeight = "none";
-		c.style.margin = "0";
-		c.style.borderRadius = "0";
+		c.style.maxWidth = "720px";
+		c.style.height = "auto";
+		c.style.maxHeight = "calc(100vh - 24px)";
+		c.style.margin = "auto";
 		c.style.transform = "none";
+		c.style.setProperty("--prompt-bg-color", "var(--ui-widget-background, #444)");
+		c.style.setProperty("--prompt-backdrop-filter", "none");
 		c.dataset.popout = "true";
 		doc.body.appendChild(c);
+
+		// Reflow the per-channel grid so a narrow popout window drops to fewer
+		// columns instead of crushing the fixed 6-column layout. The grid is the
+		// unique element with an inline grid-template-columns; safe because popout
+		// is only enabled for the channel volume visualizer. minmax(110px,1fr)
+		// preserves the original 6-column density at the 720px cap (720/110 ~= 6)
+		// and reflows down to a single column on very narrow windows.
+		const grid = c.querySelector<HTMLElement>("[style*=grid-template-columns]");
+		if (grid) grid.style.gridTemplateColumns = "repeat(auto-fill, minmax(110px, 1fr))";
 
 		// Route popout keydown to the prompt's handler. The main window's
 		// PromptFocusController never receives events from another window, so

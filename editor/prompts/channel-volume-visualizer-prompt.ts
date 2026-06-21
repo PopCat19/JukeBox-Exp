@@ -72,8 +72,15 @@ function getInstrumentDisplayName(instrument: import("../../synth/instruments").
 
 export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 	private _animationId: number = 0;
-
-	
+	// Window the current rAF id is scheduled on. Tracked so cancel targets the
+	// correct window (main and popout have separate rAF id spaces) and so the
+	// animate loop reschedules on whichever window currently hosts the container.
+	// When popped out the container lives in the popout window, whose rAF keeps
+	// firing while the main editor window is throttled out of view — this is what
+	// lets the popout stay live without the editor rendering. The audio data it
+	// reads (outVolumeCap, per-channel audioRing, playhead) is written by the
+	// AudioWorklet on the audio thread, independent of either window's visibility.
+	private _rafWin: Window = window;
 
 	private readonly _contentContainer: HTMLDivElement = div({
 		style: "display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; align-content: start;",
@@ -234,7 +241,7 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 		this._onThemeChange = this._refreshSpectrumColors.bind(this);
 		events.listen("themeChange", this._onThemeChange);
 		this._renderChannelList();
-		this._animationId = window.requestAnimationFrame(this._animate);
+		this._scheduleFrame();
 		this._playPauseButton.addEventListener("click", this._togglePlayPause);
 		setTimeout(() => this.container.focus());
 		// Re-apply the channels pane scroll state when the dock toggles, since
@@ -285,7 +292,12 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 			this._dockClassObserver = null;
 		}
 		if (this._animationId !== 0) {
-			window.cancelAnimationFrame(this._animationId);
+			try {
+				this._rafWin.cancelAnimationFrame(this._animationId);
+			} catch {
+				// The rAF window may already be closed (popout X-button close path);
+				// a closed window auto-cancels its pending rAF callbacks on close.
+			}
 			this._animationId = 0;
 		}
 		while (this._contentContainer.firstChild !== null) {
@@ -341,6 +353,16 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 			if (a > peak) peak = a;
 		}
 		return Math.min(1, peak * masterScale);
+	}
+
+	// Schedule the next animate frame on whichever window currently hosts the
+	// container. ownerDocument.defaultView is the popout window when the container
+	// has been adopted into it, otherwise the main window. Falling back to the
+	// main window covers the close path where the container may be momentarily
+	// detached. Tracking _rafWin lets cleanUp cancel on the same window.
+	private _scheduleFrame(): void {
+		this._rafWin = (this.container.ownerDocument.defaultView as Window | null) ?? window;
+		this._animationId = this._rafWin.requestAnimationFrame(this._animate);
 	}
 
 	private _animate = (): void => {
@@ -727,7 +749,7 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 			}
 		}
 
-		this._animationId = window.requestAnimationFrame(this._animate);
+		this._scheduleFrame();
 	};
 
 	private _renderChannelList = (): void => {
