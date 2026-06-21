@@ -32,7 +32,7 @@ export class PromptDock {
 	private readonly _docked: Map<DockSide, Prompt> = new Map();
 	private readonly _dividerEls: Map<DockSide, HTMLDivElement> = new Map();
 	private readonly _widths: Map<DockSide, number> = new Map();
-	private readonly _savedPositions: Map<Prompt, { x: number; y: number }> = new Map();
+	private readonly _savedPositions: Map<Prompt, { x: number; y: number; styles: Record<string, string> }> = new Map();
 
 	constructor(host: PromptDockHost) {
 		this._editor = host.editor;
@@ -84,11 +84,13 @@ export class PromptDock {
 		if (this._docked.get(otherSide) === prompt) this._clearDockState(prompt);
 
 		if (!this._savedPositions.has(prompt)) {
-			const left = prompt.container.style.left;
-			const top = prompt.container.style.top;
+			const c = prompt.container;
+			const left = c.style.left;
+			const top = c.style.top;
 			this._savedPositions.set(prompt, {
 				x: left ? parseFloat(left) : 0,
 				y: top ? parseFloat(top) : 0,
+				styles: this._snapshotStyles(c),
 			});
 		}
 
@@ -107,35 +109,19 @@ export class PromptDock {
 		this._applyEditorPadding();
 	}
 
-	public undock(prompt: Prompt, keepSize = false): void {
+	public undock(prompt: Prompt): void {
 		const side = this.getSide(prompt);
 		if (!side) return;
 		this._clearDockState(prompt);
+		this._restorePrompt(prompt);
 		this._removeDivider(side);
 		this._docked.delete(side);
 		this._applyEditorPadding();
-		if (keepSize) {
-			// Tearing off mid-drag: keep the dock size so the prompt
-			// doesn't collapse while following the cursor. Natural size
-			// is restored on drag end via restoreFloatingSize.
-			const c = prompt.container;
-			c.style.left = "";
-			c.style.right = "";
-			c.style.top = "";
-			c.style.height = "";
-		} else {
-			this._restorePrompt(prompt);
-		}
 	}
 
-	public restoreFloatingSize(prompt: Prompt): void {
-		if (this.isDocked(prompt)) return;
-		const c = prompt.container;
-		c.style.width = "";
-		c.style.height = "";
-		c.style.margin = "";
-		c.style.borderRadius = "";
-		c.style.transform = "";
+	public restoreFloatingSize(_prompt: Prompt): void {
+		// Retained for the drag-end hook; undock already restores
+		// spawn dimensions synchronously, so there is nothing to do.
 	}
 
 	public remove(prompt: Prompt): void {
@@ -150,7 +136,6 @@ export class PromptDock {
 
 	private _clearDockState(prompt: Prompt): void {
 		this._docked.delete(this.getSide(prompt) as DockSide);
-		this._savedPositions.delete(prompt);
 		prompt.container.classList.remove("docked");
 	}
 
@@ -158,34 +143,63 @@ export class PromptDock {
 		const saved = this._savedPositions.get(prompt);
 		this._savedPositions.delete(prompt);
 		const c = prompt.container;
-		c.style.left = saved ? `${saved.x}px` : "";
-		c.style.top = saved ? `${saved.y}px` : "";
-		c.style.right = "";
-		c.style.width = "";
-		c.style.height = "";
-		c.style.margin = "";
-		c.style.borderRadius = "";
-		c.style.transform = "";
+		if (saved) {
+			this._restoreStyles(c, saved.styles);
+			c.style.left = `${saved.x}px`;
+			c.style.top = `${saved.y}px`;
+		} else {
+			c.style.left = "";
+			c.style.top = "";
+			c.style.right = "";
+			c.style.width = "";
+			c.style.maxWidth = "";
+			c.style.height = "";
+			c.style.maxHeight = "";
+			c.style.margin = "";
+			c.style.borderRadius = "";
+			c.style.transform = "";
+		}
 	}
 
 	private _editorRect(): DOMRect {
 		return this._editor.getBoundingClientRect();
 	}
 
+	private _snapshotStyles(c: HTMLElement): Record<string, string> {
+		const props = ["margin", "border-radius", "transform", "width", "max-width", "height", "max-height", "top", "bottom", "left", "right"];
+		const out: Record<string, string> = {};
+		for (const p of props) out[p] = c.style.getPropertyValue(p);
+		return out;
+	}
+
+	private _restoreStyles(c: HTMLElement, styles: Record<string, string>): void {
+		for (const [p, v] of Object.entries(styles)) {
+			if (v) c.style.setProperty(p, v);
+			else c.style.removeProperty(p);
+		}
+	}
+
 	private _pinPrompt(prompt: Prompt, side: DockSide, width: number): void {
 		const r = this._editorRect();
+		const vw = window.innerWidth;
 		const c = prompt.container;
+		const overlap = this._overlap(side, width);
 		c.style.margin = "0";
 		c.style.borderRadius = "0";
 		c.style.transform = "none";
 		c.style.width = `${width}px`;
-		c.style.top = "0px";
+		c.style.maxWidth = "none";
 		c.style.height = "100vh";
+		c.style.maxHeight = "none";
+		c.style.top = "0px";
 		if (side === "left") {
-			c.style.left = `${r.left}px`;
+			// Inner edge at the editor content boundary (editor left + overlap).
+			const inner = r.left + overlap;
+			c.style.left = `${Math.max(0, inner - width)}px`;
 			c.style.right = "";
 		} else {
-			c.style.right = `${window.innerWidth - r.right}px`;
+			const inner = r.right - overlap;
+			c.style.right = `${Math.max(0, vw - inner - width)}px`;
 			c.style.left = "";
 		}
 	}
@@ -206,13 +220,18 @@ export class PromptDock {
 		const divider = this._dividerEls.get(side);
 		if (!divider) return;
 		const r = this._editorRect();
+		const vw = window.innerWidth;
 		divider.style.top = "0px";
 		divider.style.height = "100vh";
+		const overlap = this._overlap(side, width);
 		if (side === "left") {
-			divider.style.left = `${r.left + width}px`;
+			// Divider sits just inside the dock, at the content boundary.
+			const inner = r.left + overlap;
+			divider.style.left = `${inner - 6}px`;
 			divider.style.right = "";
 		} else {
-			divider.style.right = `${window.innerWidth - r.right + width}px`;
+			const inner = r.right - overlap;
+			divider.style.right = `${vw - inner - 6}px`;
 			divider.style.left = "";
 		}
 	}
@@ -223,16 +242,27 @@ export class PromptDock {
 		this._dividerEls.delete(side);
 	}
 
+	private _overlap(side: DockSide, width: number): number {
+		const r = this._editorRect();
+		const vw = window.innerWidth;
+		const margin = side === "left" ? r.left : vw - r.right;
+		return Math.max(0, width - margin);
+	}
+
 	private _applyEditorPadding(): void {
-		const leftW = this._docked.has("left") ? (this._widths.get("left") as number) : 0;
-		const rightW = this._docked.has("right") ? (this._widths.get("right") as number) : 0;
-		this._editor.style.paddingLeft = leftW ? `${leftW}px` : "";
-		this._editor.style.paddingRight = rightW ? `${rightW}px` : "";
+		const leftOverlap = this._docked.has("left") ? this._overlap("left", this._widths.get("left") as number) : 0;
+		const rightOverlap = this._docked.has("right") ? this._overlap("right", this._widths.get("right") as number) : 0;
+		this._editor.style.paddingLeft = leftOverlap ? `${leftOverlap}px` : "";
+		this._editor.style.paddingRight = rightOverlap ? `${rightOverlap}px` : "";
 	}
 
 	private _maxWidth(): number {
-		const cw = this._editorRect().width;
-		return Math.min(window.innerWidth * 0.5, Math.max(MIN_WIDTH, cw - EDITOR_FLOOR));
+		const r = this._editorRect();
+		const vw = window.innerWidth;
+		// The dock lives in the viewport margin; beyond that it overlaps
+		// the editor, which must keep at least EDITOR_FLOOR of content.
+		const margin = Math.max(r.left, vw - r.right);
+		return Math.min(vw * 0.5, Math.max(MIN_WIDTH, margin + (r.width - EDITOR_FLOOR)));
 	}
 
 	private _attachDivider(side: DockSide, divider: HTMLDivElement): void {

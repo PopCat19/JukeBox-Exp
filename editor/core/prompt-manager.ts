@@ -656,7 +656,6 @@ export class PromptManager {
 
 			this._draggingPrompt = true;
 			let anchorX = e.clientX;
-			let wasDockedDuringDrag = false;
 			const dockedAtDown = this._dock.isDocked(prompt);
 			let currentPos = this._promptPositions.get(promptName) || { x: 0, y: 0 };
 			if (dockedAtDown) {
@@ -670,9 +669,8 @@ export class PromptManager {
 			const onMove = (me: MouseEvent): void => {
 				if (!this._prompts.includes(prompt)) return;
 				if (this._dock.isDocked(prompt)) {
-					wasDockedDuringDrag = true;
 					if (this._dock.shouldUnsnapByDrag(prompt, me.clientX - anchorX)) {
-						this._dock.undock(prompt, true);
+						this._dock.undock(prompt);
 						anchorX = me.clientX;
 					} else {
 						return;
@@ -685,7 +683,6 @@ export class PromptManager {
 				const y = Math.max(0, Math.min(me.clientY - startY, h - rect.height));
 				const side = this._dock.getSnapSide(x, w, rect.width, me.clientX) as DockSide | null;
 				if (side) {
-					wasDockedDuringDrag = true;
 					this._dock.snap(prompt, side);
 					anchorX = me.clientX;
 					return;
@@ -696,9 +693,6 @@ export class PromptManager {
 			};
 			const onUp = (): void => {
 				this._draggingPrompt = false;
-				if (wasDockedDuringDrag && !this._dock.isDocked(prompt)) {
-					this._dock.restoreFloatingSize(prompt);
-				}
 				document.removeEventListener("mousemove", onMove);
 				document.removeEventListener("mouseup", onUp);
 			};
