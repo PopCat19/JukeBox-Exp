@@ -339,23 +339,33 @@ export class TrackEditor {
 		}
 
 		// Track the cursor, swapping sides to avoid clipping at container edges.
+		// `_mouseX` is in SVG coordinate space and may exceed containerWidth when
+		// scrolled, so clamp to the visible area before positioning.
 		const offset: number = 12;
 		const containerWidth: number = this.container.clientWidth;
 		const containerHeight: number = this.container.clientHeight;
 		const tooltipWidth: number = this._hoverTooltip.offsetWidth || 100;
 		const tooltipHeight: number = this._hoverTooltip.offsetHeight || 20;
+		const clampedX: number = Math.min(this._mouseX, containerWidth);
+		const clampedY: number = Math.min(this._mouseY, containerHeight);
 
-		let left: number = this._mouseX + offset;
+		let left: number = clampedX + offset;
 		if (left + tooltipWidth > containerWidth) {
-			left = this._mouseX - offset - tooltipWidth;
+			left = clampedX - offset - tooltipWidth;
 		}
 		if (left < 0) left = 0;
+		if (left + tooltipWidth > containerWidth) {
+			left = Math.max(0, containerWidth - tooltipWidth);
+		}
 
-		let top: number = this._mouseY + offset;
+		let top: number = clampedY + offset;
 		if (top + tooltipHeight > containerHeight) {
-			top = this._mouseY - offset - tooltipHeight;
+			top = clampedY - offset - tooltipHeight;
 		}
 		if (top < 0) top = 0;
+		if (top + tooltipHeight > containerHeight) {
+			top = Math.max(0, containerHeight - tooltipHeight);
+		}
 
 		this._hoverTooltip.style.left = `${left}px`;
 		this._hoverTooltip.style.top = `${top}px`;
