@@ -104,8 +104,11 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 	);
 
 	private readonly _contentContainer: HTMLDivElement = div({
-		style: "display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 8px; align-content: start; overflow-y: auto; flex: 1; min-height: 0;",
+		style: "display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 8px; align-content: start;",
 	});
+	private readonly _channelsPane: HTMLDivElement = div({
+		style: "flex: 1; display: flex; flex-direction: column; min-height: 0; padding: 4px 12px 12px 12px;",
+	}, h3({ style: "margin-top: 0px; margin-bottom: 8px;" }, "Channels"), this._contentContainer);
 
 	// Store channel volume bar elements for live updates
 	private readonly _channelVolumeBars: Map<number, SVGRectElement> = new Map();
@@ -245,11 +248,7 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 				),
 			),
 			// Right pane: Channels
-			div(
-				{ style: "flex: 1; display: flex; flex-direction: column; min-height: 0; padding: 4px 12px 12px 12px;" },
-				h3({ style: "margin-top: 0px; margin-bottom: 8px;" }, "Channels"),
-				this._contentContainer,
-			),
+			this._channelsPane,
 		),
 		this._cancelButton,
 	);
@@ -907,17 +906,18 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 			this._contentContainer.appendChild(channelDiv);
 		}
 
-		// When exceeding 28 channels, cap the grid height and let it scroll
-		// instead of squishing cards to fit the prompt height.
+		// When exceeding 28 channels, cap the channels pane height and let it
+		// scroll instead of the flex chain squishing the grid cards.
 		if (channelCount > 28) {
-			// flex: 0 0 auto prevents the flex chain from compressing the grid
-			// below its content; overflow-y: auto on the inline style handles
-			// the scrollbar when content exceeds max-height.
-			this._contentContainer.style.flex = "0 0 auto";
-			this._contentContainer.style.maxHeight = "560px";
+			this._channelsPane.style.display = "block";
+			this._channelsPane.style.flex = "none";
+			this._channelsPane.style.maxHeight = "600px";
+			this._channelsPane.style.overflowY = "auto";
 		} else {
-			this._contentContainer.style.flex = "";
-			this._contentContainer.style.maxHeight = "";
+			this._channelsPane.style.display = "flex";
+			this._channelsPane.style.flex = "1";
+			this._channelsPane.style.maxHeight = "";
+			this._channelsPane.style.overflowY = "";
 		}
 
 		// Observe the grid container so per-channel canvas backing-store sizes are
