@@ -432,7 +432,7 @@ export class MuteEditor {
 				this._channelCounts[y].style.background = colors.primaryChannel;
 				this._channelCounts[y].style.borderRadius = BorderRadius.sm;
 			} else if (flash > 0) {
-				this._channelCounts[y].style.color = "white";
+				this._channelCounts[y].style.color = ColorConfig.getChannelColor(this._doc.song, y).primaryNote;
 				this._channelCounts[y].style.background = "transparent";
 				this._channelCounts[y].style.opacity = "1";
 				this._channelCounts[y].style.borderRadius = "0";
