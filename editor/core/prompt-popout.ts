@@ -165,9 +165,9 @@ export class PromptPopout {
 	}
 
 	private _cloneStyles(doc: Document): void {
-		// Copy every <style> and stylesheet <link> from the main head. The theme's
-		// :root variables live inside ColorConfig._styleElement.textContent, so a
-		// single clone captures both editor CSS and the active theme's variables.
+		// Copy every <style> and stylesheet <link> from the main head. Built-in
+		// themes write their :root variables into ColorConfig._styleElement.textContent
+		// (a <style> node in document.head), so cloning head nodes captures those.
 		for (const node of Array.from(document.head.children)) {
 			if (node instanceof HTMLStyleElement) {
 				const clone = doc.createElement("style");
@@ -183,6 +183,24 @@ export class PromptPopout {
 				doc.head.appendChild(clone);
 			}
 		}
+		// PMD theme path: applyPMDTheme sets each color var via
+		// document.documentElement.style.setProperty(...), i.e. inline style on
+		// <html>, not inside any <style> node. The head clone above misses these,
+		// so the popout would fall back to default beepbox colors under PMD. Copy
+		// every custom property currently set on the main <html> onto the popout's
+		// <html>. Enumerating via the computed style (not a hardcoded var list) so
+		// this tracks future vars without drift.
+		const srcRoot = document.documentElement;
+		const dstRoot = doc.documentElement;
+		const srcStyle = srcRoot.style;
+		// source.style only lists vars set via JS (not those from <style> :root),
+		// which is exactly the PMD-injected set we need to mirror.
+		for (let i = 0; i < srcStyle.length; i++) {
+			const prop = srcStyle.item(i);
+			if (prop.startsWith("--")) {
+				dstRoot.style.setProperty(prop, srcStyle.getPropertyValue(prop));
+			}
+		}
 	}
 
 	private _resyncAllThemes(): void {
@@ -192,6 +210,10 @@ export class PromptPopout {
 			for (const node of Array.from(doc.head.querySelectorAll(`[${POPOUT_STYLE_ATTR}]`))) {
 				node.parentNode?.removeChild(node);
 			}
+			// Clear PMD vars set on the popout's <html> by the previous clone so a
+			// theme switch (e.g. PMD -> built-in) does not leave stale inline vars
+			// overriding the newly cloned <style> :root block.
+			doc.documentElement.style.cssText = "";
 			this._cloneStyles(doc);
 		}
 	}
