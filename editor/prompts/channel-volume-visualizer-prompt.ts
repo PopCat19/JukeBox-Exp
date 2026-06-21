@@ -20,7 +20,7 @@ import type { PromptEditorRefs } from "../core/prompt-manager";
 import type { SongDocument } from "../song-document";
 import { BasePrompt } from "./base-prompt";
 
-const { div, h2, span } = HTML;
+const { div, h2, span, button } = HTML;
 const { svg, rect } = SVG;
 
 // Spectrum overlay tuning, mirroring shared/spectrum.ts main FG layer so the
@@ -149,7 +149,12 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 		return freqs;
 	}
 
-
+	private readonly _playPauseButton: HTMLButtonElement = button(
+		{
+			style: `font-size: ${Typography.sizeSm}; padding: 4px 8px;`,
+		},
+		"▶ Play",
+	);
 
 	private _historicVolumeCap: number = 0;
 	private _historicTimer: number = 0;
@@ -201,6 +206,7 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 			{
 				style: "display: flex; align-items: center; justify-content: center; gap: 12px; flex-wrap: nowrap; padding: 4px 12px 0px 12px;"
 			},
+			this._playPauseButton,
 			span(
 				{ style: `display: inline-flex; gap: 10px; flex-wrap: nowrap;` },
 				this._masterDbPeakLabel,
@@ -229,7 +235,7 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 		events.listen("themeChange", this._onThemeChange);
 		this._renderChannelList();
 		this._animationId = window.requestAnimationFrame(this._animate);
-
+		this._playPauseButton.addEventListener("click", this._togglePlayPause);
 		setTimeout(() => this.container.focus());
 		// Re-apply the channels pane scroll state when the dock toggles, since
 		// docking happens after the last render and the pane style would
@@ -248,9 +254,12 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 		} else {
 			this._doc.performance.play();
 		}
+		this._updatePlayPauseButton();
 	};
 
-
+	private _updatePlayPauseButton = (): void => {
+		this._playPauseButton.textContent = this._doc.synth.playing ? "⏸ Pause" : "▶ Play";
+	};
 
 	public override whenKeyPressed = (event: KeyboardEvent): void => {
 		if (event.key === " ") {
@@ -293,7 +302,7 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 		this._channelSpectrumColors.clear();
 		this._canvasSizes.clear();
 		this._channelPeak.clear();
-
+		this._playPauseButton.removeEventListener("click", this._togglePlayPause);
 		this._songEditor.muteEditor.setHoveredChannel(-1);
 		this._songEditor.trackEditor.setHoveredChannel(-1);
 		// Invalidate cached bounding rects in other components
@@ -335,7 +344,8 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 	}
 
 	private _animate = (): void => {
-
+		// Update play/pause button state
+		this._updatePlayPauseButton();
 
 		// Master volume from the post-limiter sample peak (song.outVolumeCap), the
 		// same source as the limiter prompt's Out meter and the editor's main meter.
@@ -927,7 +937,7 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 					const instrName = total > 1 ? `${typeName} ${nth}` : typeName;
 					const instrSpan = span(
 						{
-							style: `font-size: 10px; font-weight: 600; padding: 1px 4px; border-radius: var(--border-radius-medium); max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; text-align: center; background: ${
+							style: `font-size: 10px; font-weight: 600; padding: 1px 4px; border-radius: var(--border-radius-medium); max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; background: ${
 								isPlaying ? "white" : inPattern ? channelColors.primaryChannel : "var(--ui-widget-background)"
 							}; color: ${isPlaying ? "black" : inPattern ? "var(--editor-background)" : channelColors.primaryChannel}; opacity: ${
 								inPattern || isPlaying ? "1" : "0.5"
