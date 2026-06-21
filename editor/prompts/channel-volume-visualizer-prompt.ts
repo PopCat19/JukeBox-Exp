@@ -524,18 +524,14 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 			if (dbLabel) {
 				const peakDb = historic.cap > 0 ? 20 * Math.log10(historic.cap) : -Infinity;
 				const sampleCount = this._channelSampleCounts.get(channelIndex) ?? 0;
-				let statsText = "";
-				if (sampleCount > 0) {
-					const avg = (this._channelVolumeSums.get(channelIndex) ?? 0) / sampleCount;
-					const avgDb = avg > 0 ? 20 * Math.log10(avg) : -Infinity;
-					const minDb = this._channelMinDb.get(channelIndex) ?? -Infinity;
-					const maxDb = this._channelMaxDb.get(channelIndex) ?? -Infinity;
-					const avgText = Number.isFinite(avgDb) ? avgDb.toFixed(1) : "-inf";
-					const minText = Number.isFinite(minDb) ? minDb.toFixed(1) : "-inf";
-					const maxText = Number.isFinite(maxDb) ? maxDb.toFixed(1) : "-inf";
-					statsText = ` | A:${avgText} | ${minText}/${maxText}`;
-				}
-				dbLabel.textContent = Number.isFinite(peakDb) ? `Pk:${peakDb.toFixed(1)}${statsText}` : `Pk:-inf${statsText}`;
+				const avg = sampleCount > 0 ? (this._channelVolumeSums.get(channelIndex) ?? 0) / sampleCount : -Infinity;
+				const avgDb = avg > 0 ? 20 * Math.log10(avg) : -Infinity;
+				const minDb = this._channelMinDb.get(channelIndex) ?? -Infinity;
+				const maxDb = this._channelMaxDb.get(channelIndex) ?? -Infinity;
+				const avgText = Number.isFinite(avgDb) ? avgDb.toFixed(1) : "-inf";
+				const minText = Number.isFinite(minDb) ? minDb.toFixed(1) : "-inf";
+				const maxText = Number.isFinite(maxDb) ? maxDb.toFixed(1) : "-inf";
+				dbLabel.textContent = Number.isFinite(peakDb) ? `Pk:${peakDb.toFixed(1)} | A:${avgText} | ${minText}/${maxText}` : `Pk:-inf | A:-inf | -inf/-inf`;
 			}
 
 			// Draw pitch spectrum overlay: smooth bezier curve fill from active tone bands
@@ -881,7 +877,7 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 				{
 					style: `color: ${channelColors.primaryChannel}; opacity: 0.8; font-size: 10px; font-weight: 600; font-family: monospace; text-align: center; display: block;`,
 				},
-				"Pk:-inf",
+				"Pk:-inf | A:-inf | -inf/-inf",
 			);
 			this._channelDbLabels.set(i, dbLabel);
 
