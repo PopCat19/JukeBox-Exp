@@ -24,6 +24,7 @@ export interface PromptDockHost {
 const DEFAULT_WIDTH = 360;
 const MIN_WIDTH = 280;
 const EDITOR_FLOOR = 560;
+const DIVIDER_WIDTH = 6;
 const SNAP_THRESHOLD = 40;
 const UNSNAP_THRESHOLD = 90;
 
@@ -195,14 +196,16 @@ export class PromptDock {
 		c.style.height = `${r.height}px`;
 		c.style.maxHeight = "none";
 		if (side === "left") {
-			// Inner edge flush with the editor's left content boundary.
+			// Divider sits at the editor boundary; prompt starts after it
+			// so the bar faces inward into the dock, not over the prompt.
 			const inner = r.left + overlap;
-			c.style.left = `${Math.max(0, inner - width)}px`;
+			const divEdge = inner - DIVIDER_WIDTH;
+			c.style.left = `${Math.max(0, divEdge - width)}px`;
 			c.style.right = "";
 		} else {
-			// Inner edge flush with the editor's right content boundary.
 			const inner = r.right - overlap;
-			c.style.left = `${Math.min(vw - width, inner)}px`;
+			const divEdge = inner + DIVIDER_WIDTH;
+			c.style.left = `${Math.min(vw - width, divEdge)}px`;
 			c.style.right = "";
 		}
 	}
@@ -228,7 +231,7 @@ export class PromptDock {
 		const overlap = this._overlap(side, width);
 		if (side === "left") {
 			const inner = r.left + overlap;
-			divider.style.left = `${inner - 6}px`;
+			divider.style.left = `${inner - DIVIDER_WIDTH}px`;
 			divider.style.right = "";
 		} else {
 			const inner = r.right - overlap;
