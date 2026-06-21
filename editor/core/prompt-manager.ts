@@ -564,6 +564,7 @@ export class PromptManager {
 		requestAnimationFrame(afterPos);
 
 		this._attachDrag(newPrompt, promptName);
+		this._attachWheelLock(newPrompt);
 		this._focusController.attachPrompt(newPrompt);
 
 		if (newPrompt.buildTitlebar) newPrompt.buildTitlebar();
@@ -577,13 +578,19 @@ export class PromptManager {
 		newPrompt.container.focus({ preventScroll: true });
 	}
 
+	private _editorPadding(): { left: number; top: number } {
+		const cs = getComputedStyle(this._host.mainLayer);
+		return { left: parseFloat(cs.paddingLeft) || 0, top: parseFloat(cs.paddingTop) || 0 };
+	}
+
 	private _applyPosition(prompt: Prompt, name: string, x: number, y: number): void {
 		if (!this._prompts.includes(prompt)) return;
 		const rect = prompt.container.getBoundingClientRect();
 		const w = this._host.mainLayer.clientWidth;
 		const h = this._host.mainLayer.clientHeight;
-		x = Math.max(0, Math.min(x, w - rect.width));
-		y = Math.max(0, Math.min(y, h - rect.height));
+		const pad = this._editorPadding();
+		x = Math.max(pad.left, Math.min(x, pad.left + w - rect.width));
+		y = Math.max(pad.top, Math.min(y, pad.top + h - rect.height));
 		prompt.container.style.left = `${x}px`;
 		prompt.container.style.top = `${y}px`;
 		this._promptPositions.set(name, { x, y });
@@ -600,6 +607,7 @@ export class PromptManager {
 		const mlRect = this._host.mainLayer.getBoundingClientRect();
 		const vw = this._host.mainLayer.clientWidth;
 		const vh = this._host.mainLayer.clientHeight;
+		const pad = this._editorPadding();
 		const gap = 8;
 		const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini|android|ipad|playbook|silk/i.test(navigator.userAgent);
 
@@ -607,22 +615,25 @@ export class PromptManager {
 		let y: number;
 
 		if (isMobile) {
-			x = Math.max(gap, (vw - pw) / 2);
-			y = Math.max(gap, (vh - ph) / 2);
+			x = pad.left + Math.max(gap, (vw - pw) / 2);
+			y = pad.top + Math.max(gap, (vh - ph) / 2);
 		} else {
 			const elCenter = info.elRect.left + info.elRect.width / 2 - mlRect.left;
-			x = Math.max(gap, Math.min(elCenter - pw / 2, vw - pw - gap));
+			x = Math.max(pad.left + gap, Math.min(elCenter - pw / 2, pad.left + vw - pw - gap));
 
 			const cursorY = info.clientY - mlRect.top;
 			const below = cursorY + gap;
 			const above = cursorY - ph - gap;
-			if (below + ph <= vh) {
-				y = Math.max(gap, below);
-			} else if (above >= gap) {
-				y = Math.max(gap, above);
+			const yMin = pad.top + gap;
+			const yMax = pad.top + vh - ph - gap;
+			if (below + ph <= pad.top + vh) {
+				y = Math.max(yMin, below);
+			} else if (above >= yMin) {
+				y = Math.max(yMin, above);
 			} else {
-				y = Math.max(gap, (vh - ph) / 2);
+				y = pad.top + Math.max(gap, (vh - ph) / 2);
 			}
+			y = Math.min(y, yMax);
 		}
 
 		prompt.container.style.left = `${x}px`;
@@ -635,11 +646,36 @@ export class PromptManager {
 		const rect = prompt.container.getBoundingClientRect();
 		const w = this._host.mainLayer.clientWidth;
 		const h = this._host.mainLayer.clientHeight;
-		const x = Math.max(0, (w - rect.width) / 2);
-		const y = Math.max(0, (h - rect.height) / 2);
+		const pad = this._editorPadding();
+		const x = pad.left + Math.max(0, (w - rect.width) / 2);
+		const y = pad.top + Math.max(0, (h - rect.height) / 2);
 		prompt.container.style.left = `${x}px`;
 		prompt.container.style.top = `${y}px`;
 		this._promptPositions.set(name, { x, y });
+	}
+
+	private _attachWheelLock(prompt: Prompt): void {
+		const container = prompt.container;
+		const onWheel = (e: WheelEvent): void => {
+			let el = e.target as HTMLElement | null;
+			while (el && el !== container) {
+				const sty = getComputedStyle(el);
+				const overflowY = sty.overflowY;
+				const canScroll = (overflowY === "auto" || overflowY === "scroll") && el.scrollHeight > el.clientHeight;
+				if (canScroll) {
+					const delta = e.deltaY;
+					const atTop = delta < 0 && el.scrollTop <= 0;
+					const atBottom = delta > 0 && el.scrollTop + el.clientHeight >= el.scrollHeight - 1;
+					if (atTop || atBottom) e.preventDefault();
+					return;
+				}
+				el = el.parentElement;
+			}
+			// No scrollable ancestor inside the prompt: keep wheel events
+			// from scrolling the page underneath the prompt.
+			e.preventDefault();
+		};
+		container.addEventListener("wheel", onWheel, { passive: false });
 	}
 
 	private _attachDrag(prompt: Prompt, promptName: string): void {
@@ -672,32 +708,24 @@ export class PromptManager {
 			const onMove = (me: MouseEvent): void => {
 				if (!this._prompts.includes(prompt)) return;
 				if (this._dock.isDocked(prompt)) {
-					if (this._dock.shouldUnsnapByDrag(prompt, me.clientX - anchorX)) {
-						this._dock.undock(prompt);
-						anchorX = me.clientX;
-						suppressSnap = true;
-						// Re-anchor the grab point to the restored (smaller)
-						// floating prompt so it stays under the cursor at
-						// the titlebar instead of jumping above it.
-						const mlRect = this._host.mainLayer.getBoundingClientRect();
-						const r2 = prompt.container.getBoundingClientRect();
-						const nx = me.clientX - mlRect.left - Math.min(r2.width / 2, 80);
-						const ny = me.clientY - mlRect.top - 16;
-						prompt.container.style.left = `${nx}px`;
-						prompt.container.style.top = `${ny}px`;
-						this._promptPositions.set(promptName, { x: nx, y: ny });
-						startX = me.clientX - nx;
-						startY = me.clientY - ny;
-					} else {
-						return;
-					}
+				if (this._dock.shouldUnsnapByDrag(prompt, me.clientX - anchorX)) {
+					this._dock.undock(prompt);
+					anchorX = me.clientX;
+					suppressSnap = true;
+					// Continue the drag with the original grab offset so the
+					// prompt follows the cursor instead of jumping to the
+					// titlebar.
+				} else {
+					return;
+				}
 				}
 				const rect = prompt.container.getBoundingClientRect();
 				const w = this._host.mainLayer.clientWidth;
 				const h = this._host.mainLayer.clientHeight;
-				const x = Math.max(0, Math.min(me.clientX - startX, w - rect.width));
-				const y = Math.max(0, Math.min(me.clientY - startY, h - rect.height));
-				const side = this._dock.getSnapSide(x, w, rect.width, me.clientX) as DockSide | null;
+				const pad = this._editorPadding();
+				const x = Math.max(pad.left, Math.min(me.clientX - startX, pad.left + w - rect.width));
+				const y = Math.max(pad.top, Math.min(me.clientY - startY, pad.top + h - rect.height));
+				const side = this._dock.getSnapSide(x, rect.width, me.clientX) as DockSide | null;
 				if (side && !suppressSnap) {
 					this._dock.snap(prompt, side);
 					anchorX = me.clientX;

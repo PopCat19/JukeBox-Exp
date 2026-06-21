@@ -73,10 +73,13 @@ export class PromptDock {
 		return null;
 	}
 
-	public getSnapSide(promptX: number, editorWidth: number, promptWidth: number, pointerX: number): DockSide | null {
+	public getSnapSide(promptX: number, promptWidth: number, pointerX: number): DockSide | null {
+		const r = this._editor.getBoundingClientRect();
 		const vw = window.innerWidth;
-		if (promptX <= SNAP_THRESHOLD || pointerX <= SNAP_THRESHOLD) return "left";
-		if (promptX >= editorWidth - promptWidth - SNAP_THRESHOLD || pointerX >= vw - SNAP_THRESHOLD) return "right";
+		const promptLeftVp = r.left + promptX;
+		const promptRightVp = promptLeftVp + promptWidth;
+		if (promptLeftVp <= r.left + SNAP_THRESHOLD || pointerX <= SNAP_THRESHOLD) return "left";
+		if (promptRightVp >= r.right - SNAP_THRESHOLD || pointerX >= vw - SNAP_THRESHOLD) return "right";
 		return null;
 	}
 
@@ -281,21 +284,22 @@ export class PromptDock {
 		c.style.margin = "0";
 		c.style.borderRadius = "0";
 		c.style.transform = "none";
-		c.style.width = `${width}px`;
-		c.style.maxWidth = "none";
-		// Only stretch non-list prompts to the full slot height; visual/SVG
-		// prompts keep their intrinsic height and sit at the slot top so
-		// their SVGs do not distort.
+		c.style.top = `${topPx}px`;
+		c.style.right = "";
 		if (fillY) {
+			c.style.width = `${width}px`;
+			c.style.maxWidth = "none";
 			c.style.height = `${height}px`;
 			c.style.maxHeight = "none";
+			c.style.left = `${leftPx}px`;
 		} else {
+			// Visual/SVG prompts keep their intrinsic size and center in
+			// the slot so their graphics do not stretch to the dock width.
 			c.style.height = "";
 			c.style.maxHeight = "";
+			const naturalW = c.getBoundingClientRect().width;
+			c.style.left = `${leftPx + Math.max(0, (width - naturalW) / 2)}px`;
 		}
-		c.style.top = `${topPx}px`;
-		c.style.left = `${leftPx}px`;
-		c.style.right = "";
 	}
 
 	private _ensureDivider(side: DockSide): void {

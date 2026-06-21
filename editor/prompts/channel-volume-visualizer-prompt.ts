@@ -163,6 +163,7 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 	// (which would force layout reflows interleaved with style writes).
 	private readonly _canvasSizes: Map<number, { w: number; h: number }> = new Map();
 	private _resizeObserver: ResizeObserver | null = null;
+	private _dockClassObserver: MutationObserver | null = null;
 	// Per-channel post-limiter peak (0..1), populated each frame from the
 	// isolated ring. Read by the metering code (one frame of latency) so metering
 	// needs no second FFT.
@@ -300,6 +301,13 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 		this._animationId = window.requestAnimationFrame(this._animate);
 		this._playPauseButton.addEventListener("click", this._togglePlayPause);
 		setTimeout(() => this.container.focus());
+		// Re-apply the channels pane scroll state when the dock toggles, since
+		// docking happens after the last render and the pane style would
+		// otherwise stay stale until the next doc change.
+		this._dockClassObserver = new MutationObserver(() => {
+			this._applyChannelsPaneScroll(this._channelDivs.size);
+		});
+		this._dockClassObserver.observe(this.container, { attributes: true, attributeFilter: ["class"] });
 	}
 
 	private _onThemeChange!: (name: string) => void;
@@ -335,6 +343,10 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 		if (this._resizeObserver != null) {
 			this._resizeObserver.disconnect();
 			this._resizeObserver = null;
+		}
+		if (this._dockClassObserver != null) {
+			this._dockClassObserver.disconnect();
+			this._dockClassObserver = null;
 		}
 		if (this._animationId !== 0) {
 			window.cancelAnimationFrame(this._animationId);
@@ -1021,6 +1033,16 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 			this._contentContainer.appendChild(channelDiv);
 		}
 
+		if (channelCount > 28) {
+			this._applyChannelsPaneScroll(channelCount);
+		}
+
+		// Observe the grid container so per-channel canvas backing-store sizes are
+		// refreshed on layout changes without any per-frame clientWidth reads.
+		this._setupResizeObserver();
+	};
+
+	private _applyChannelsPaneScroll(channelCount: number): void {
 		// When exceeding 28 channels, let the channels pane scroll so the
 		// grid cards keep their size. When docked the pane fills its slot, so
 		// omit the fixed 600px cap and scroll only if content overflows the
@@ -1036,11 +1058,7 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 			this._channelsPane.style.maxHeight = "";
 			this._channelsPane.style.overflowY = "";
 		}
-
-		// Observe the grid container so per-channel canvas backing-store sizes are
-		// refreshed on layout changes without any per-frame clientWidth reads.
-		this._setupResizeObserver();
-	};
+	}
 
 	private _setupResizeObserver(): void {
 		if (this._resizeObserver != null) {
