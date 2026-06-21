@@ -134,7 +134,7 @@ export class LimiterCanvas {
 		this._outVolumeCap,
 	);
 
-	public readonly container: HTMLElement = HTML.div({ class: "", style: "height: 4em; width: 80%; padding-bottom: 1.5em;" }, this._svg);
+	public readonly container: HTMLElement = HTML.div({ class: "", style: "width: 100%; aspect-ratio: 200 / 52; padding-bottom: 1.5em;" }, this._svg);
 
 	private _limiterPrompt: LimiterPrompt;
 
@@ -335,7 +335,7 @@ export class LimiterPrompt extends BasePrompt {
 	private readonly _resetButton: HTMLButtonElement = button({ style: "width:45%;" }, "Reset");
 
 	public readonly container: HTMLDivElement = div(
-		{ class: "prompt noSelection", style: w("250px") },
+		{ class: "prompt noSelection fill-x", style: w("250px") },
 		h2("Limiter Options"),
 		div({ style: "display: flex; width: 55%; align-self: center; flex-direction: row; align-items: center; justify-content: center;" }, this._playButton),
 		flexRowCenter(undefined, this.limiterCanvas.container),

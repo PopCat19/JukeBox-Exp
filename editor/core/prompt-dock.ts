@@ -280,24 +280,33 @@ export class PromptDock {
 	private _pinPrompt(prompt: Prompt, leftPx: number, topPx: number, width: number, height: number): void {
 		const c = prompt.container;
 		const fillY = c.classList.contains("fill-y");
+		const fillX = c.classList.contains("fill-x");
 		c.style.position = "fixed";
 		c.style.margin = "0";
 		c.style.borderRadius = "0";
 		c.style.transform = "none";
 		c.style.top = `${topPx}px`;
 		c.style.right = "";
+		c.style.maxWidth = "none";
+		c.style.maxHeight = "none";
 		if (fillY) {
 			c.style.width = `${width}px`;
-			c.style.maxWidth = "none";
 			c.style.height = `${height}px`;
-			c.style.maxHeight = "none";
+			c.style.left = `${leftPx}px`;
+		} else if (fillX) {
+			// Fill the slot width but keep the prompt's natural height so
+			// compact control panels (e.g. limiter) use the dock space
+			// without stretching vertically. SVG content must keep its own
+			// aspect ratio to avoid distorting the graph.
+			c.style.width = `${width}px`;
+			c.style.height = "";
 			c.style.left = `${leftPx}px`;
 		} else {
 			// Visual/SVG prompts keep their intrinsic size and center in
 			// the slot so their graphics do not stretch to the dock width.
 			c.style.height = "";
-			c.style.maxHeight = "";
 			const naturalW = c.getBoundingClientRect().width;
+			c.style.width = "";
 			c.style.left = `${leftPx + Math.max(0, (width - naturalW) / 2)}px`;
 		}
 	}
