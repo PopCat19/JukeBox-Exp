@@ -651,7 +651,8 @@ export class PromptManager {
 				target instanceof HTMLSelectElement ||
 				target instanceof HTMLTextAreaElement ||
 				target.closest(".slider") ||
-				target.closest(".prompt-dock-divider")
+				target.closest(".prompt-dock-divider") ||
+				target.closest(".prompt-dock-slot-divider")
 			)
 				return;
 
