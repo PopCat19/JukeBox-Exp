@@ -3040,6 +3040,15 @@ html {
 	flex-shrink: 0;
 }
 
+@keyframes marquee-ltr {
+	0% { text-indent: 100%; }
+	100% { text-indent: -100%; }
+}
+.beepboxEditor .selectRow input[type="text"]:hover,
+.beepboxEditor .selectRow input[type="text"]:focus {
+	animation: marquee-ltr 4s linear infinite;
+}
+
 .beepboxEditor .menu-area {
 	display: flex;
 	flex-direction: column;
