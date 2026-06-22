@@ -296,7 +296,15 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 	// against DOM churn during playback.
 	private _playerRenderedStart = -1;
 	private _playerRenderedEnd = -1;
+	// Piano layout: -1 unknown, 0 double row, 1 single row. Rebuild only
+	// when the mode changes (throttled width check ~every 0.5s).
+	private _pianoLayoutMode = -1;
+	private _pianoLayoutCheckCounter = 0;
 	private static readonly PLAYER_OVERSCAN = 8;
+	// Container width at which the two piano rows merge into one. Above
+	// this, two rows make black keys too wide; one 56-unit row halves
+	// key width. Checked on a throttled cadence to avoid per-frame reflow.
+	private static readonly PIANO_SINGLE_THRESHOLD = 1000;
 
 	// Global spectrum bar pinned to the absolute bottom of the prompt.
 	// Only visible when popped out; when docked the editor's main
@@ -518,10 +526,13 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 		return Math.min(1, peak * masterScale);
 	}
 
-	// Build the two piano-key octave rows. Row 0: octaves 0–3. Row 1: octaves 4–7.
-	// Each key is an SVG rect; references are stored in _whiteKeyRects / _blackKeyRects
-	// keyed by MIDI pitch for per-frame active-pitch updates.
-	private _buildPianoKeyRows(): void {
+	// Build the piano-key rows for the current layout mode.
+	// Mode 0 (double): two rows, octaves 0–3 and 4–7, each viewBox 28×1.
+	// Mode 1 (single): one row, octaves 0–7, viewBox 56×1 — used when the
+	// container is wide enough that two rows would make black keys too
+	// wide. Re-callable: clears the SVGs and key caches first so layout
+	// switches rebuild cleanly.
+	private _buildPianoKeyRows(mode: number = 0): void {
 		const WHITE_IDX = new Map<number, number>([
 			[0, 0],
 			[2, 1],
@@ -534,6 +545,14 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 		const BLACK_X: Record<number, number> = { 1: 0.2, 3: 1.2, 6: 3.2, 8: 4.2, 10: 5.2 };
 		const BLACK_KEY_W = 0.6;
 		const BLACK_KEY_H = 0.6;
+
+		// Clear previous layout: remove all key rects and reset caches.
+		for (const svgEl of [this._octaveRow0Svg, this._octaveRow1Svg]) {
+			while (svgEl.firstChild) svgEl.removeChild(svgEl.firstChild);
+		}
+		this._whiteKeyRects.clear();
+		this._blackKeyRects.clear();
+		this._keyLastRender.clear();
 
 		const buildRow = (svgEl: SVGSVGElement, startOctave: number, endOctave: number, viewBaseOctave: number): void => {
 			for (let oct = startOctave; oct <= endOctave; oct++) {
@@ -570,8 +589,19 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 			}
 		};
 
-		buildRow(this._octaveRow0Svg, 0, 3, 0);
-		buildRow(this._octaveRow1Svg, 4, 7, 4);
+		if (mode === 1) {
+			// Single row: octaves 0–7 in one 56-unit viewBox, hide row 1.
+			this._octaveRow0Svg.setAttribute("viewBox", "0 0 56 1");
+			this._octaveRow1Svg.style.display = "none";
+			buildRow(this._octaveRow0Svg, 0, 7, 0);
+		} else {
+			// Double row: 0–3 and 4–7, each 28-unit viewBox, show both.
+			this._octaveRow0Svg.setAttribute("viewBox", "0 0 28 1");
+			this._octaveRow1Svg.setAttribute("viewBox", "0 0 28 1");
+			this._octaveRow1Svg.style.display = "";
+			buildRow(this._octaveRow0Svg, 0, 3, 0);
+			buildRow(this._octaveRow1Svg, 4, 7, 4);
+		}
 	}
 
 	// Minimal PlayerUI adapter exposing only the timeline-related fields
@@ -615,6 +645,20 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 		const isPopout = this.container.ownerDocument.defaultView !== window;
 		this._cvSpectrum.canvas.style.display = isPopout ? "block" : "none";
 		this._playerOverlay.style.display = isPopout ? "" : "none";
+
+		// Piano layout: merge two rows into one when the container is wide
+		// enough. Checked on a throttled cadence (~every 0.5s) so the
+		// clientWidth read doesn't force a per-frame reflow; rebuild only
+		// when the mode actually changes.
+		if (--this._pianoLayoutCheckCounter <= 0) {
+			this._pianoLayoutCheckCounter = 30;
+			const cw = this.container.clientWidth;
+			const desired = cw >= ChannelVolumeVisualizerPrompt.PIANO_SINGLE_THRESHOLD ? 1 : 0;
+			if (desired !== this._pianoLayoutMode) {
+				this._pianoLayoutMode = desired;
+				this._buildPianoKeyRows(desired);
+			}
+		}
 
 		const __tPlayerA = performance.now();
 		// Player timeline background: render only the bars inside (or near)
