@@ -1137,6 +1137,8 @@ export class ChangeSong extends ChangeGroup {
 		// New song loaded (import / new / hashchange / replay): re-seed the
 		// elapsed counter to the current bar's offset in the new song so the
 		// timer does not carry over the prior song's accumulated samples.
+		if (doc.synth.playing) doc.synth.pause();
+		doc.synth.snapToStart();
 		doc.synth.totalSamplesRendered = 0;
 		doc.notifier.changed();
 		this._didSomething();
