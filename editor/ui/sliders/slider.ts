@@ -66,7 +66,7 @@ export class Slider {
 
 		this.container = midTick
 			? span({ class: "midTick", style: "position: sticky; display: flex; width: 61.5%; flex-shrink: 0;" }, input, this._wrapperDiv)
-			: span({ style: "position: sticky; display: flex; flex: 1;" }, input, this._wrapperDiv);
+			: span({ style: "position: sticky; display: flex; width: 62.5%; flex-shrink: 0;" }, input, this._wrapperDiv);
 
 		input.addEventListener("input", this._whenInput);
 		input.addEventListener("change", this._whenChange);
