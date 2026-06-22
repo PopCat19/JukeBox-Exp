@@ -53,10 +53,26 @@ export function setTimelineWidth(width: number): void {
 	timelineWidth = width;
 }
 
+export function getTimelineWidth(): number {
+	return timelineWidth;
+}
+
 // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-parameters
-export function renderTimeline(ui: PlayerUI, zoomEnabled: boolean, removeFromUnorderedArray: <T>(array: T[], index: number) => void): void {
+export function renderTimeline(
+	ui: PlayerUI,
+	zoomEnabled: boolean,
+	removeFromUnorderedArray: <T>(array: T[], index: number) => void,
+	startBar: number = 0,
+	endBar?: number,
+): void {
 	ui.timeline.innerHTML = "";
 	if (ui.synth.song == null) return;
+	// Optional bar window: only note paths inside [barStart, barEnd) are
+	// created. Bar lines and octave shading still span the full timeline
+	// (cheap rects, keep edge continuity). Callers that want the whole
+	// song omit the window.
+	const barStart: number = Math.max(0, Math.floor(startBar));
+	const barEnd: number = Math.min(ui.synth.song.barCount, endBar ?? ui.synth.song.barCount);
 
 	const boundingRect: ClientRect = ui.visualizationContainer.getBoundingClientRect();
 
@@ -139,7 +155,7 @@ export function renderTimeline(ui: PlayerUI, zoomEnabled: boolean, removeFromUno
 
 		const offsetY: number = newOctaveScroll * pitchHeight * 12 + timelineHeight - pitchHeight * 0.5 - 0.5;
 
-		for (let bar: number = 0; bar < ui.synth.song.barCount; bar++) {
+		for (let bar: number = barStart; bar < barEnd; bar++) {
 			const pattern: Pattern | null = ui.synth.song.getPattern(channel, bar);
 			if (pattern == null) continue;
 			const offsetX: number = bar * barWidth;

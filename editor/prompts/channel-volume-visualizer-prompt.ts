@@ -9,7 +9,7 @@ import { BorderWidth, Sizing, Typography } from "../ui/style-constants";
 // - Updates in real-time during playback
 
 import { HTML, SVG } from "imperative-html/dist/esm/elements-strict";
-import { renderPlayhead, renderTimeline } from "../../player/player-timeline";
+import { getTimelineWidth, renderPlayhead, renderTimeline } from "../../player/player-timeline";
 import type { PlayerUI } from "../../player/player-ui";
 import { ColorConfig } from "../../shared/color-config";
 import { events } from "../../shared/events";
@@ -270,6 +270,13 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 	private _wasPopout = false;
 	private _playerLastW = 0;
 	private _playerLastH = 0;
+	// Currently rendered bar window [start, end). Re-render only when the
+	// visible window drifts past this overscan margin, so off-screen bars
+	// are never drawn. Overscan of 4 bars balances re-render frequency
+	// against DOM churn during playback.
+	private _playerRenderedStart = -1;
+	private _playerRenderedEnd = -1;
+	private static readonly PLAYER_OVERSCAN = 4;
 
 	// Global spectrum bar pinned to the absolute bottom of the prompt.
 	// Only visible when popped out; when docked the editor's main
@@ -587,23 +594,38 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 		this._cvSpectrum.canvas.style.display = isPopout ? "block" : "none";
 		this._playerOverlay.style.display = isPopout ? "" : "none";
 
-		// Player timeline background: render the full SVG only when the
-		// song changes or the viewport resizes (procedural), then follow
-		// the playhead each frame via the lightweight renderPlayhead.
+		// Player timeline background: render only the bars inside (or near)
+		// the visible viewport, not the whole song. renderTimeline rebuilds
+		// the SVG, so it runs only when the song changes, the viewport
+		// resizes, or the visible bar window drifts past the overscan
+		// margin. renderPlayhead runs every frame to follow the playhead.
 		if (isPopout) {
 			if (!this._wasPopout) this._playerTimelineDirty = true;
 			const vw = this._playerVizContainer.clientWidth;
 			const vh = this._playerVizContainer.clientHeight;
 			if (vw !== this._playerLastW || vh !== this._playerLastH) this._playerTimelineDirty = true;
-			if (this._playerTimelineDirty && vw > 0 && vh > 0) {
-				const ui = this._playerUI();
-				renderTimeline(ui, true, ChannelVolumeVisualizerPrompt._removeAt);
-				this._playerTimelineDirty = false;
-				this._playerLastW = vw;
-				this._playerLastH = vh;
-			}
-			if (!this._playerTimelineDirty) {
-				renderPlayhead(this._playerUI(), ChannelVolumeVisualizerPrompt._removeAt);
+			if (vw > 0 && vh > 0) {
+				const barCount = this._doc.song.barCount;
+				const tlW = getTimelineWidth();
+				const barWidth = barCount > 0 ? tlW / barCount : 1;
+				const scroll = this._playerVizContainer.scrollLeft;
+				const visStart = barWidth > 0 ? Math.floor(scroll / barWidth) : 0;
+				const visEnd = barWidth > 0 ? Math.ceil((scroll + vw) / barWidth) : barCount;
+				const desStart = Math.max(0, visStart - ChannelVolumeVisualizerPrompt.PLAYER_OVERSCAN);
+				const desEnd = Math.min(barCount, visEnd + ChannelVolumeVisualizerPrompt.PLAYER_OVERSCAN);
+				const windowChanged = desStart !== this._playerRenderedStart || desEnd !== this._playerRenderedEnd;
+				if ((this._playerTimelineDirty || windowChanged) && tlW > 0) {
+					const ui = this._playerUI();
+					renderTimeline(ui, true, ChannelVolumeVisualizerPrompt._removeAt, desStart, desEnd);
+					this._playerTimelineDirty = false;
+					this._playerLastW = vw;
+					this._playerLastH = vh;
+					this._playerRenderedStart = desStart;
+					this._playerRenderedEnd = desEnd;
+				}
+				if (!this._playerTimelineDirty && this._playerRenderedStart >= 0) {
+					renderPlayhead(this._playerUI(), ChannelVolumeVisualizerPrompt._removeAt);
+				}
 			}
 		}
 		this._wasPopout = isPopout;
@@ -1081,6 +1103,8 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 			this._contentContainer.removeChild(this._contentContainer.firstChild);
 		}
 		this._playerTimelineDirty = true;
+		this._playerRenderedStart = -1;
+		this._playerRenderedEnd = -1;
 		this._channelVolumeBars.clear();
 		this._channelVolumeCaps.clear();
 		this._channelLastWidths.clear();
