@@ -63,12 +63,9 @@ export class PromptPopout {
 		doc.title = prompt.name ?? "Popout";
 
 		// Base reset: the popout body is the editor-background stage with a PMD
-		// --padding-12 margin on both axes, so the prompt panel fills the window
-		// minus consistent design-token breathing room and keeps its rounded
-		// corners against the stage. body gets .beepboxEditor so the scoped rules
-		// (.beepboxEditor .prompt { ... }) still match. overflow:hidden keeps the
-		// scroll inside the channels pane (forced below) rather than the body, so
-		// the pane's scroll area reaches the full panel height.
+		// --padding-12 margin on both axes. body gets .beepboxEditor so the scoped
+		// rules (.beepboxEditor .prompt { ... }) still match. overflow:hidden keeps
+		// the scroll inside the channels pane rather than the body.
 		const base = doc.createElement("style");
 		base.setAttribute(POPOUT_STYLE_ATTR, "");
 		base.textContent = "html,body{margin:0;padding:0;height:100%;}" + "body{padding:var(--padding-12);overflow:hidden;box-sizing:border-box;}";
@@ -95,37 +92,18 @@ export class PromptPopout {
 		// defeated by any residual inline width. The manager never repositions a
 		// popped prompt (guarded by isOpen checks), so these overrides persist
 		// until close.
-		//
-		// Background: in-editor the prompt reads as glass because backdrop-filter
-		// blurs the editor content behind a transparent bg. In the popout the panel
-		// is fully transparent — no bg, no backdrop-filter — so the OS window
-		// background shows through directly. Channel cards retain their own inline
-		// --editor-background bg for structure.
 		const c = prompt.container;
 		c.style.position = "static";
 		c.style.left = "";
 		c.style.top = "";
 		c.style.right = "";
-		// calc(100vw - 2 * var(--padding-12)) = viewport minus both body margins.
-		// Multiplication by a number is valid in calc and resolves the var once.
 		c.style.width = "calc(100vw - 2 * var(--padding-12))";
 		c.style.maxWidth = "none";
 		c.style.height = "calc(100vh - 2 * var(--padding-12))";
 		c.style.maxHeight = "none";
 		c.style.margin = "0";
-		// Drop the .prompt rule's padding (var(--padding-12)) so it does not stack
-		// on top of each inner section's own 12px horizontal padding/margin. Without
-		// this, the h2/topbar/divider (direct children) sit 12px from the panel edge
-		// while the channel cards (nested in the channelsPane) sit 24px out — a
-		// 12px mismatch that makes the header read wider than the cards. Zeroing
-		// the container padding makes every section's own 12px the single
-		// consistent inset, and the grid fills the full panel width.
 		c.style.padding = "0";
 		c.style.transform = "none";
-		// Directly remove bg and backdrop-filter. The .prompt CSS rule uses
-		// var(--prompt-bg-color) which should resolve to transparent via the inline
-		// override below, but setting the property directly is a guaranteed override
-		// regardless of cascade or var resolution.
 		c.style.background = "none";
 		c.style.backdropFilter = "none";
 		c.style.setProperty("--prompt-bg-color", "transparent");

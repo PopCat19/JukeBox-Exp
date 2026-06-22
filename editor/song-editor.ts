@@ -3629,6 +3629,14 @@ export class SongEditor
 		}
 	}
 
+	public handleImportFile(file: File): void {
+		this._promptManager.open("import");
+		const importPrompt: ImportPrompt | null = this._promptManager.prompt as ImportPrompt | null;
+		if (importPrompt && typeof (importPrompt as any).handleExternalFile === "function") {
+			(importPrompt as any).handleExternalFile(file);
+		}
+	}
+
 	public get _animate(): () => void {
 		return this._animator.animate;
 	}

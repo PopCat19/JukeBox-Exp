@@ -70,6 +70,21 @@ function getInstrumentDisplayName(instrument: import("../../synth/instruments").
 	return getInstrumentTypeName(instrument.type);
 }
 
+// Format seconds as M:SS, matching player-animator.ts.
+function formatTime(seconds: number): string {
+	const mins = Math.floor(seconds / 60);
+	const secs = Math.floor(seconds % 60);
+	return `${mins}:${secs.toString().padStart(2, "0")}`;
+}
+
+// Convert a MIDI-style pitch number to a note name (e.g. pitch 60 → "C4").
+// Pitch 12 = C0 per the Config.keys basePitch convention.
+function pitchToNoteName(pitch: number): string {
+	const noteNames = ["C", "C♯", "D", "D♯", "E", "F", "F♯", "G", "G♯", "A", "A♯", "B"];
+	const octave = Math.floor(pitch / 12) - 1;
+	return `${noteNames[pitch % 12]}${octave}`;
+}
+
 export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 	private _animationId: number = 0;
 	// Window the current rAF id is scheduled on. Tracked so cancel targets the
@@ -102,6 +117,10 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 	private readonly _channelDivs: Map<number, HTMLDivElement> = new Map();
 	// Store instrument spans for live updates: key is "channelIndex-instrumentIndex"
 	private readonly _instrumentSpans: Map<string, HTMLSpanElement> = new Map();
+	// Store note name containers per channel for active pitch display
+	private readonly _channelNoteContainers: Map<number, HTMLDivElement> = new Map();
+	// Store note name spans: key is "channelIndex-pitch"
+	private readonly _noteSpans: Map<string, HTMLSpanElement> = new Map();
 	// Per-channel pitch spectrum overlay canvases
 	private readonly _channelSpectrumCanvases: Map<number, HTMLCanvasElement> = new Map();
 	private readonly _channelSpectrumCanvas2ds: Map<number, CanvasRenderingContext2D | null> = new Map();
@@ -162,9 +181,21 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 		},
 		"▶ Play",
 	);
+	private readonly _tempoLabel: HTMLSpanElement = span(
+		{
+			style: `color: var(--secondary-text); font-size: ${Typography.sizeSm}; font-family: monospace; white-space: nowrap;`,
+		},
+		"",
+	);
 
 	private _historicVolumeCap: number = 0;
 	private _historicTimer: number = 0;
+
+	// Bar position label throttle (mirroring player-animator.ts BAR_LABEL_THROTTLE)
+	private _barLabelCounter: number = 0;
+	private _cachedDuration: number = -1;
+	private _cachedBarCount: number = -1;
+	private _cachedGeneration: number = -1;
 
 	// Running averages for dB
 	private _masterVolumeSum: number = 0;
@@ -200,6 +231,12 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 		"Max: -inf dB",
 	);
 
+	private readonly _barPosLabel: HTMLSpanElement = span(
+		{
+			style: `color: var(--secondary-text); font-size: ${Typography.sizeSm}; font-family: monospace; white-space: nowrap;`,
+		},
+		"0:00 / 0:00  -  0/0",
+	);
 
 	public container: HTMLDivElement = div(
 		{
@@ -214,12 +251,14 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 				style: "display: flex; align-items: center; justify-content: center; gap: 12px; flex-wrap: nowrap; padding: 4px 12px 0px 12px;"
 			},
 			this._playPauseButton,
+			this._tempoLabel,
 			span(
 				{ style: `display: inline-flex; gap: 10px; flex-wrap: nowrap;` },
 				this._masterDbPeakLabel,
 				this._masterDbAvgLabel,
 				this._masterDbMinLabel,
 				this._masterDbMaxLabel,
+				this._barPosLabel,
 			),
 		),
 		// Divider
@@ -244,6 +283,29 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 		this._scheduleFrame();
 		this._playPauseButton.addEventListener("click", this._togglePlayPause);
 		setTimeout(() => this.container.focus());
+
+		// Drag-and-drop file import for .json, .mid, .midi files.
+		// Attach to the container so it works in both main-window and popped-out
+		// documents (popout key events are routed separately via prompt-popout).
+		const _onDragOver = (e: DragEvent) => {
+			if (e.dataTransfer && e.dataTransfer.types.indexOf("Files") !== -1) {
+				e.preventDefault();
+			}
+		};
+		const _onDrop = (e: DragEvent) => {
+			if (!e.dataTransfer) return;
+			const files: FileList = e.dataTransfer.files;
+			if (files.length === 0) return;
+			const file: File = files[0];
+			const name: string = file.name.toLowerCase();
+			if (name.endsWith(".json") || name.endsWith(".mid") || name.endsWith(".midi")) {
+				e.preventDefault();
+				this._songEditor.handleImportFile(file);
+			}
+		};
+		this.container.addEventListener("dragover", _onDragOver);
+		this.container.addEventListener("drop", _onDrop);
+
 		// Re-apply the channels pane scroll state when the dock toggles, since
 		// docking happens after the last render and the pane style would
 		// otherwise stay stale until the next doc change.
@@ -272,6 +334,14 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 		if (event.key === " ") {
 			event.preventDefault();
 			this._togglePlayPause();
+		} else if (event.key === "[") {
+			event.preventDefault();
+			this._doc.synth.goToPrevBar();
+			this._barLabelCounter = 0;
+		} else if (event.key === "]") {
+			event.preventDefault();
+			this._doc.synth.goToNextBar();
+			this._barLabelCounter = 0;
 		}
 	};
 
@@ -314,6 +384,8 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 		this._channelSpectrumColors.clear();
 		this._canvasSizes.clear();
 		this._channelPeak.clear();
+		this._channelNoteContainers.clear();
+		this._noteSpans.clear();
 		this._playPauseButton.removeEventListener("click", this._togglePlayPause);
 		this._songEditor.muteEditor.setHoveredChannel(-1);
 		this._songEditor.trackEditor.setHoveredChannel(-1);
@@ -368,6 +440,29 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 	private _animate = (): void => {
 		// Update play/pause button state
 		this._updatePlayPauseButton();
+
+		// Update bar position label with elapsed time (throttled). Mirrors
+		// player-animator.ts BAR_LABEL_THROTTLE logic.
+		this._barLabelCounter--;
+		if (this._barLabelCounter <= 0) {
+			this._barLabelCounter = 5;
+			const bar = Math.floor(this._doc.synth.playhead) + 1;
+			const total = this._doc.song.barCount;
+			const generation = this._doc.notifier.generation;
+			if (this._cachedDuration < 0 || this._doc.song.barCount !== this._cachedBarCount || generation !== this._cachedGeneration) {
+				const totalSamples = this._doc.synth.getTotalSamples(true, true, 0);
+				this._cachedDuration = totalSamples > 0 ? totalSamples / this._doc.synth.samplesPerSecond : 0;
+				this._cachedBarCount = this._doc.song.barCount;
+				this._cachedGeneration = generation;
+			}
+			const elapsed = this._doc.synth.totalSamplesRendered / this._doc.synth.samplesPerSecond;
+			const elapsedStr = formatTime(elapsed);
+			const totalStr = formatTime(this._cachedDuration);
+			this._barPosLabel.textContent = `${elapsedStr} / ${totalStr}  -  ${bar}/${total}`;
+		}
+
+		// Update tempo label
+		this._tempoLabel.textContent = `${this._doc.song.tempo} BPM`;
 
 		// Master volume from the post-limiter sample peak (song.outVolumeCap), the
 		// same source as the limiter prompt's Out meter and the editor's main meter.
@@ -746,6 +841,52 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 						}
 					}
 				}
+
+				// Update note name display for this channel: show active
+				// pitches with opacity based on per-channel volume.
+				var _nc = this._channelNoteContainers.get(channelIndex);
+				if (_nc) {
+					var _ap = new Set<number>();
+					if (channelState) {
+						for (var _ji = 0; _ji < channelState.instruments.length; _ji++) {
+							var _is = channelState.instruments[_ji];
+							for (var _ti = 0; _ti < _is.activeTones.count(); _ti++) {
+								var _t = _is.activeTones.get(_ti);
+								for (var _pi = 0; _pi < _t.pitchCount; _pi++) _ap.add(_t.pitches[_pi]);
+							}
+							for (var _li = 0; _li < _is.liveInputTones.count(); _li++) {
+								var _lt = _is.liveInputTones.get(_li);
+								for (var _lpi = 0; _lpi < _lt.pitchCount; _lpi++) _ap.add(_lt.pitches[_lpi]);
+							}
+						}
+					}
+					// Remove stale spans
+					var _keys = Array.from(this._noteSpans.keys());
+					for (var _ki = 0; _ki < _keys.length; _ki++) {
+						var _k = _keys[_ki];
+						if (_k.startsWith(channelIndex + "-")) {
+							var _p = parseInt(_k.split("-")[1], 10);
+							if (!_ap.has(_p)) { var _os = this._noteSpans.get(_k); if (_os) { _os.remove(); this._noteSpans.delete(_k); } }
+						}
+					}
+					// Create/update active spans
+					var _cp = this._channelPeak.get(channelIndex) ?? 0;
+					var _vb = 0.3 + Math.min(1, (2 * _cp * 3.16) / (_cp * 3.16 + 1.0)) * 0.7;
+					var _cc = this._channelSpectrumColors.get(channelIndex) ?? "#888";
+					var _sp = Array.from(_ap).sort(function(a: number, b: number) { return a - b; });
+					for (var _si = 0; _si < _sp.length; _si++) {
+						var _p2 = _sp[_si];
+						var _k2 = channelIndex + "-" + _p2;
+						var _s2 = this._noteSpans.get(_k2);
+						if (!_s2) {
+							_s2 = span({ style: "font-size: 9px; font-weight: 600; padding: 0px 3px; border-radius: 2px; white-space: nowrap; color: " + _cc + "; opacity: " + _vb + ";" }, pitchToNoteName(_p2));
+							this._noteSpans.set(_k2, _s2);
+							_nc.appendChild(_s2);
+						} else {
+							_s2.style.opacity = String(_vb);
+						}
+					}
+				}
 			}
 		}
 
@@ -768,6 +909,13 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 		this._channelSpectrumColors.clear();
 		this._canvasSizes.clear();
 		this._channelPeak.clear();
+		this._channelNoteContainers.clear();
+		this._noteSpans.clear();
+
+		// Invalidate duration cache so the bar position label reflects the
+		// newly imported song's bar count and duration.
+		this._cachedDuration = -1;
+		this._cachedBarCount = -1;
 
 		const song = this._doc.song;
 		const synth = this._doc.synth;
@@ -973,6 +1121,10 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 				contentWrap.appendChild(instrDiv);
 			}
 
+			// Note name container for active pitch display
+			var _ncDiv = div({ style: "display: flex; flex-wrap: wrap; gap: 3px; margin-top: 4px; justify-content: center; min-height: 14px;" });
+			this._channelNoteContainers.set(i, _ncDiv);
+			contentWrap.appendChild(_ncDiv);
 			this._contentContainer.appendChild(channelDiv);
 		}
 
@@ -986,20 +1138,32 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 	};
 
 	private _applyChannelsPaneScroll(channelCount: number): void {
-		// When exceeding 28 channels, let the channels pane scroll so the
-		// grid cards keep their size. When docked the pane fills its slot, so
-		// omit the fixed 600px cap and scroll only if content overflows the
-		// available slot height instead.
-		if (channelCount > 28) {
+		// In popout mode, always enable scrolling regardless of channel count
+		// so the pane fills the bounded popout panel height. When docked, rely
+		// on the flex slot height; otherwise cap at 600px for the main-window
+		// modal (past 28 channels the grid overflows the viewport).
+		const isPopout = this.container.hasAttribute("data-popout");
+		if (isPopout) {
+			this._channelsPane.style.display = "flex";
+			this._channelsPane.style.flex = "1";
+			this._channelsPane.style.overflowY = "auto";
+			this._channelsPane.style.minHeight = "0";
+			this._channelsPane.style.height = "100%";
+			this._channelsPane.style.maxHeight = "";
+		} else if (channelCount > 28) {
 			this._channelsPane.style.display = "flex";
 			this._channelsPane.style.flex = "1";
 			this._channelsPane.style.overflowY = "auto";
 			this._channelsPane.style.maxHeight = this.container.classList.contains("docked") ? "" : "600px";
+			this._channelsPane.style.minHeight = "";
+			this._channelsPane.style.height = "";
 		} else {
 			this._channelsPane.style.display = "flex";
 			this._channelsPane.style.flex = "1";
 			this._channelsPane.style.maxHeight = "";
 			this._channelsPane.style.overflowY = "";
+			this._channelsPane.style.minHeight = "";
+			this._channelsPane.style.height = "";
 		}
 	}
 

@@ -57,6 +57,8 @@ export interface PromptEditorRefs {
 	drumsetSpectrumEditors: SpectrumEditor[];
 	patternEditor: PatternEditor;
 	trackArea: HTMLDivElement;
+	// Opens the ImportPrompt and passes the file for drag-drop import.
+	handleImportFile(file: File): void;
 }
 
 export interface PromptHost {
@@ -608,11 +610,17 @@ export class PromptManager {
 			if (this._popout.isOpen(prompt)) {
 				this.close(prompt);
 			} else {
+				// Close the in-window prompt so the popout owns the container.
 				this._dock.undock(prompt);
 				this._popout.open(prompt);
 			}
 		});
-		titlebar.appendChild(btn);
+		const cancelButton = titlebar.querySelector(".cancelButton");
+		if (cancelButton) {
+			titlebar.insertBefore(btn, cancelButton);
+		} else {
+			titlebar.appendChild(btn);
+		}
 	}
 
 	private _editorPadding(): { left: number; top: number } {
