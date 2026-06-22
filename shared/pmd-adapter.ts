@@ -152,8 +152,18 @@ export function applyPMDToDOM(colors: Base16Palette): void {
 	applyChannelColors(root, pmd, primaryHue);
 }
 
-// Accent hue offsets from generatePalette (base16.ts)
-const ACCENT_HUES = [30, 140, 0, -30, 290, 180, 60, 210, 90, 260];
+// Distribute n hues evenly around the 360° OKLCH hue circle with at least
+// minGap° separation, anchored such that the first hue lands near anchorHue.
+// Returns unique hue values; no two channels ever repeat.
+function spreadHues(n: number, anchorHue: number): number[] {
+	const step = 360 / n;
+	const shift = (anchorHue - (step * (n - 1)) / 2 + 360) % 360;
+	const hues: number[] = [];
+	for (let i = 0; i < n; i++) {
+		hues.push((shift + i * step) % 360);
+	}
+	return hues;
+}
 
 function applyChannelColors(root: HTMLElement, pmd: PMDVariables, primaryHue: number): void {
 	const set = (name: string, value: string) => root.style.setProperty(name, value);
@@ -162,16 +172,16 @@ function applyChannelColors(root: HTMLElement, pmd: PMDVariables, primaryHue: nu
 	const noiseNames = ["noise1", "noise2", "noise3", "noise4"];
 	const modNames = ["mod1", "mod2", "mod3", "mod4"];
 
-	function chanHue(index: number, offsetDeg: number): number {
-		return (primaryHue + ACCENT_HUES[index % ACCENT_HUES.length] + offsetDeg + 360) % 360;
-	}
+	const pitchHues = spreadHues(pitchNames.length, primaryHue);
+	const noiseHues = spreadHues(noiseNames.length, primaryHue + 120);
+	const modHues = spreadHues(modNames.length, primaryHue + 240);
 
 	function hexAt(l: number, c: number, h: number): string {
 		return rgbToHex(safeOklchToRgb(l, c, h));
 	}
 
 	pitchNames.forEach((name, i) => {
-		const h = chanHue(i, 0);
+		const h = pitchHues[i];
 		set(`--${name}-primary-note`, hexAt(pmd["88x"].l, pmd["88x"].c, h));
 		set(`--${name}-primary-channel`, hexAt(pmd["80x"].l, pmd["80x"].c, h));
 		set(`--${name}-secondary-note`, hexAt(pmd["64x"].l, pmd["64x"].c, h));
@@ -185,7 +195,7 @@ function applyChannelColors(root: HTMLElement, pmd: PMDVariables, primaryHue: nu
 	});
 
 	noiseNames.forEach((name, i) => {
-		const h = chanHue(i, 120);
+		const h = noiseHues[i];
 		set(`--${name}-primary-note`, hexAt(pmd["80x"].l, pmd["80x"].c * 0.4, h));
 		set(`--${name}-primary-channel`, hexAt(pmd["64x"].l, pmd["64x"].c * 0.4, h));
 		set(`--${name}-secondary-note`, hexAt(pmd["64x"].l, pmd["64x"].c * 0.3, h));
@@ -193,7 +203,7 @@ function applyChannelColors(root: HTMLElement, pmd: PMDVariables, primaryHue: nu
 	});
 
 	modNames.forEach((name, i) => {
-		const h = chanHue(i, 240);
+		const h = modHues[i];
 		set(`--${name}-primary-note`, hexAt(pmd["88x"].l, pmd["88x"].c * 0.6, h));
 		set(`--${name}-primary-channel`, hexAt(pmd["80x"].l, pmd["80x"].c * 0.5, h));
 		set(`--${name}-secondary-note`, hexAt(pmd["64x"].l, pmd["64x"].c * 0.5, h));
