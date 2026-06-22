@@ -953,7 +953,9 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 						const gg = Math.round(b.g / b.w);
 						const bb = Math.round(b.b / b.w);
 						rect.setAttribute("fill", `rgb(${rr},${gg},${bb})`);
-						const alpha = Math.min(1, (2 * b.maxPeak) / (b.maxPeak + FG_REF));
+						const v = b.maxPeak * 3.16;
+						const peakScaled = (2 * v) / (v + 1.0);
+						const alpha = 0.3 + Math.min(1, peakScaled) * 0.7;
 						rect.setAttribute("opacity", String(alpha));
 					} else {
 						rect.setAttribute("fill", defaultFill);
