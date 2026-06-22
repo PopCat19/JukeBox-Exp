@@ -187,6 +187,15 @@ export class PromptManager {
 		return this._focusedPrompt;
 	}
 
+	// Programmatic popout for the currently-focused prompt (keybinding).
+	public popoutCurrent(): void {
+		const p = this._focusedPrompt;
+		if (!p || !_popoutCapablePrompts.has(p.constructor)) return;
+		if (this._popout.isOpen(p)) return;
+		this._dock.undock(p);
+		this._popout.open(p);
+	}
+
 	private _pendingClickInfo: { clientX: number; clientY: number; elRect: DOMRect } | null = null;
 
 	public open(promptName: string): void {

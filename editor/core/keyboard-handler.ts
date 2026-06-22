@@ -75,6 +75,7 @@ export interface KeyboardHandlerHost {
 	refocusStage(): void;
 	toggleRecord(): void;
 	openPrompt(name: string): void;
+	popoutCurrentPrompt(): void;
 	closePrompt(prompt: Prompt | null): void;
 	openPresetSelector(): void;
 	openShortcuts(): void;
@@ -98,6 +99,9 @@ export interface KeyboardHandlerHost {
 }
 
 export class KeyboardHandler {
+	private _lastGPressTime: number = 0;
+	private static readonly DOUBLE_PRESS_MS = 400;
+
 	constructor(private _host: KeyboardHandlerHost) {}
 
 	public handleKeyDown = (event: KeyboardEvent): void => {
@@ -499,7 +503,15 @@ export class KeyboardHandler {
 				break;
 			case 71: // g
 				if (canPlayNotes) break;
-				host.openPrompt("channelVolumeVisualizer");
+				{
+					const now = performance.now();
+					const doublePressed = now - this._lastGPressTime < KeyboardHandler.DOUBLE_PRESS_MS;
+					this._lastGPressTime = now;
+					host.openPrompt("channelVolumeVisualizer");
+					if (doublePressed) {
+						host.popoutCurrentPrompt();
+					}
+				}
 				event.preventDefault();
 				break;
 			case 72: // h

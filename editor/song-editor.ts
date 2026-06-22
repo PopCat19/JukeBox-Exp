@@ -3138,6 +3138,10 @@ export class SongEditor
 		this._promptManager.close(prompt);
 	}
 
+	public popoutCurrentPrompt(): void {
+		this._promptManager.popoutCurrent();
+	}
+
 	public promptShouldReceiveKeys = (): boolean => {
 		return this._promptManager.shouldReceiveKeys();
 	};
