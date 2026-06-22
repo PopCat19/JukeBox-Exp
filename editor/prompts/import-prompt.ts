@@ -1482,6 +1482,12 @@ export class ImportPrompt extends BasePrompt {
 				// stale modValues unconditionally and repopulates from the new song's
 				// mod channels if it has any.
 				doc.synth.computeLatestModValues();
+				// Pause and jump to bar 0 so the elapsed counter resets to
+				// 0:00 on import while playing. Mirrors ChangeSong's transport
+				// reset; goToBar(0) seeds totalSamplesRendered via
+				// getSamplesUpToBar(0) (which returns 0 for an empty window).
+				doc.synth.pause();
+				doc.synth.goToBar(0);
 				this._didSomething();
 				doc.notifier.changed();
 			}
