@@ -3263,17 +3263,17 @@ html {
 .beepboxEditor span.modSlider {
 	--mod-position: 20%;
 	--mod-color: ${ColorConfig.overwritingModSlider};
-  --mod-border-radius: 0%;
+  --mod-border-radius: 999px;
 }
 .beepboxEditor span.modSlider:before {
 	content: "";
     display:inline-block;
     position: absolute;
     background: var(--mod-color);
-    width: 4%;
+    width: 4px;
     left: var(--mod-position);
-    height: 0.8em;
-    top: 28%;
+    height: 100%;
+    top: 0;
     z-index: 2;
 		transform: translate(-50%, 0%);
 		pointer-events: none;
