@@ -25,6 +25,7 @@ export class Slider {
 	private _wrapperDiv: HTMLDivElement;
 	private _fillDiv: HTMLDivElement;
 	private _trackDiv: HTMLDivElement;
+	private readonly _modIndicator: HTMLDivElement;
 	private _dragging: boolean = false;
 	public container: HTMLSpanElement;
 
@@ -48,14 +49,18 @@ export class Slider {
 		this._trackDiv = div({
 			style: "flex: 1; height: 6px; background: var(--slider-track, var(--ui-widget-background, #444)); border-radius: 2px 999px 999px 2px; align-self: center;",
 		});
+		this._modIndicator = div({
+			style: "position: absolute; left: var(--mod-position, -50%); width: 4px; height: 100%; top: 0; background: var(--subtext); border-radius: 999px; transform: translate(-50%, 0); pointer-events: none; z-index: 10;",
+		});
 
 		this._wrapperDiv = div(
 			{
-				style: "width: 100%; min-width: 0; display: flex; align-items: center; gap: 4px; height: 16px; cursor: pointer; user-select: none; touch-action: none;",
+				style: "width: 100%; min-width: 0; position: relative; display: flex; align-items: center; gap: 4px; height: 16px; cursor: pointer; user-select: none; touch-action: none;",
 			},
 			this._fillDiv,
 			knob,
 			this._trackDiv,
+			this._modIndicator,
 		);
 
 		this.container = midTick

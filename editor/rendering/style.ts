@@ -3262,23 +3262,6 @@ html {
 }
 .beepboxEditor span.modSlider {
 	--mod-position: 20%;
-	--mod-color: ${ColorConfig.overwritingModSlider};
-  --mod-border-radius: 999px;
-}
-.beepboxEditor span.modSlider:before {
-	content: "";
-    display:inline-block;
-    position: absolute;
-    background: var(--mod-color);
-    width: 4px;
-    left: var(--mod-position);
-    height: 100%;
-    top: 0;
-    z-index: 2;
-		transform: translate(-50%, 0%);
-		pointer-events: none;
-		border: 40%;
-		border-radius: var(--mod-border-radius);
 }
 .beepboxEditor input[type=range]::-webkit-slider-thumb {
 	height: 20px;
