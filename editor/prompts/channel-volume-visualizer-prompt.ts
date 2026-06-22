@@ -471,7 +471,7 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 						y: "0",
 						width: "1",
 						height: "1",
-						fill: "var(--base03-muted)",
+						fill: "var(--pitch-background)",
 						opacity: "1",
 					});
 					svgEl.appendChild(r);
@@ -941,7 +941,7 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 				}
 			};
 
-			updateKeys(this._whiteKeyRects, "var(--base03-muted)");
+			updateKeys(this._whiteKeyRects, "var(--pitch-background)");
 			updateKeys(this._blackKeyRects, "var(--base02-surface)");
 		}
 
