@@ -177,7 +177,7 @@ function applyChannelColors(root: HTMLElement, pmd: PMDVariables, palette: Base1
 
 	// Reserve fixed PMD accent slots for noise and mod channels.
 	const noiseHue = palette.base09?.hue ?? (primaryHue + 290) % 360;
-	const noiseL = palette.base09?.rgb ? Math.round(palette.base09.rgb.r * 0.299 + palette.base09.rgb.g * 0.587 + palette.base09.rgb.b * 0.114) / 255 : pmd["64x"].l;
+	const noiseL = pmd["64x"].l;
 	const noiseC = pmd["64x"].c;
 	const modHue = palette.base0E?.hue ?? (primaryHue + 330) % 360;
 	const modL = pmd["64x"].l;
