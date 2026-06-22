@@ -296,7 +296,7 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 	// against DOM churn during playback.
 	private _playerRenderedStart = -1;
 	private _playerRenderedEnd = -1;
-	private static readonly PLAYER_OVERSCAN = 4;
+	private static readonly PLAYER_OVERSCAN = 8;
 
 	// Global spectrum bar pinned to the absolute bottom of the prompt.
 	// Only visible when popped out; when docked the editor's main
@@ -627,23 +627,39 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 				this._playerTimelineDirty = true;
 				invalidateVizWidthCache();
 			}
-			const vw = this._playerVizContainer.clientWidth;
-			const vh = this._playerVizContainer.clientHeight;
-			if (vw !== this._playerLastW || vh !== this._playerLastH) {
-				this._playerTimelineDirty = true;
-				invalidateVizWidthCache();
+			// Measure viewport size only when dirty (resize / popout transition).
+			// Reading clientWidth/Height every frame forces reflow against the
+			// SVG after renderTimeline writes; caching avoids that on steady frames.
+			let vw = this._playerLastW;
+			let vh = this._playerLastH;
+			if (this._playerTimelineDirty || vw <= 0 || vh <= 0) {
+				vw = this._playerVizContainer.clientWidth;
+				vh = this._playerVizContainer.clientHeight;
+				if (vw !== this._playerLastW || vh !== this._playerLastH) invalidateVizWidthCache();
 			}
 			if (vw > 0 && vh > 0) {
 				const barCount = this._doc.song.barCount;
 				const tlW = getTimelineWidth();
 				const barWidth = barCount > 0 ? tlW / barCount : 1;
-				const scroll = this._playerVizContainer.scrollLeft;
+				// Compute scroll from the playhead directly (same formula
+				// renderPlayhead uses) instead of reading scrollLeft back.
+				// The read-back forced a reflow after renderPlayhead's write and
+				// coupled the window computation to the write frame.
+				const pos = barCount > 0 ? this._doc.synth.playhead / barCount : 0;
+				const scroll = tlW > vw ? pos * (tlW - vw) : 0;
 				const visStart = barWidth > 0 ? Math.floor(scroll / barWidth) : 0;
 				const visEnd = barWidth > 0 ? Math.ceil((scroll + vw) / barWidth) : barCount;
-				const desStart = Math.max(0, visStart - ChannelVolumeVisualizerPrompt.PLAYER_OVERSCAN);
-				const desEnd = Math.min(barCount, visEnd + ChannelVolumeVisualizerPrompt.PLAYER_OVERSCAN);
-				const windowChanged = desStart !== this._playerRenderedStart || desEnd !== this._playerRenderedEnd;
-				if ((this._playerTimelineDirty || windowChanged) && tlW > 0) {
+				// Overscan as a real buffer: only re-render when the visible
+				// window is about to exit the rendered window. The previous
+				// condition (desStart !== renderedStart) re-rendered on every
+				// 1-bar shift, making the overscan useless and firing a full
+				// SVG rebuild per bar of playback (the 100-300ms spikes).
+				const renderedStart = this._playerRenderedStart;
+				const renderedEnd = this._playerRenderedEnd;
+				const exitedWindow = renderedStart < 0 || visStart < renderedStart || visEnd > renderedEnd;
+				if ((this._playerTimelineDirty || exitedWindow) && tlW > 0) {
+					const desStart = Math.max(0, visStart - ChannelVolumeVisualizerPrompt.PLAYER_OVERSCAN);
+					const desEnd = Math.min(barCount, visEnd + ChannelVolumeVisualizerPrompt.PLAYER_OVERSCAN);
 					const ui = this._playerUI();
 					renderTimeline(ui, true, ChannelVolumeVisualizerPrompt._removeAt, desStart, desEnd, true);
 					this._playerTimelineDirty = false;
@@ -653,8 +669,6 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 					this._playerRenderedEnd = desEnd;
 				}
 				// Throttle the playhead follow to every 2nd frame (30fps).
-				// renderPlayhead sets scrollLeft + playhead left; at 30fps
-				// the playhead is still smooth and we halve its reflow risk.
 				if (!this._playerTimelineDirty && this._playerRenderedStart >= 0 && this._playerFrameToggle) {
 					renderPlayhead(this._playerUI(), ChannelVolumeVisualizerPrompt._removeAt);
 				}
