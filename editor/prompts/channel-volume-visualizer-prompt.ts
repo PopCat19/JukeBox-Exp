@@ -177,9 +177,9 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 
 	private readonly _playPauseButton: HTMLButtonElement = button(
 		{
-			style: `font-size: ${Typography.sizeSm}; padding: 4px 8px;`,
+			style: `font-size: ${Typography.sizeLg}; width: 32px; height: 32px; padding: 0; border-radius: 50%; display: flex; align-items: center; justify-content: center; line-height: 1;`,
 		},
-		"▶ Play",
+		"▶",
 	);
 	private readonly _tempoLabel: HTMLSpanElement = span(
 		{
@@ -330,7 +330,7 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 	};
 
 	private _updatePlayPauseButton = (): void => {
-		this._playPauseButton.textContent = this._doc.synth.playing ? "⏸ Pause" : "▶ Play";
+		this._playPauseButton.textContent = this._doc.synth.playing ? "⏸" : "▶";
 	};
 
 	private _updateBarPosLabel(): void {
