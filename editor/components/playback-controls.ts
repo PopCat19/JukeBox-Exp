@@ -96,6 +96,7 @@ export class PlaybackControls {
 			x: "5%",
 			y: "25%",
 			fill: ColorConfig.uiWidgetBackground,
+			rx: "3",
 		});
 
 		this._outVolumeBar = SVG.rect({
@@ -105,6 +106,7 @@ export class PlaybackControls {
 			x: "5%",
 			y: "25%",
 			fill: "url('#volumeGrad2')",
+			rx: "3",
 		});
 
 		this._outVolumeCap = SVG.rect({
@@ -114,6 +116,7 @@ export class PlaybackControls {
 			x: "5%",
 			y: "25%",
 			fill: ColorConfig.uiWidgetFocus,
+			rx: "3",
 		});
 
 		const stop1 = SVG.stop({ "stop-color": "lime", offset: "60%" });

@@ -67,6 +67,7 @@ export class LimiterCanvas {
 		x: "0%",
 		y: "105%",
 		fill: ColorConfig.uiWidgetBackground,
+		rx: "3",
 	});
 	private readonly _outVolumeBg: SVGRectElement = SVG.rect({
 		"pointer-events": "none",
@@ -75,22 +76,25 @@ export class LimiterCanvas {
 		x: "0%",
 		y: "120%",
 		fill: ColorConfig.uiWidgetBackground,
+		rx: "3",
 	});
-	private readonly _inVolumeBar: SVGRectElement = SVG.rect({ "pointer-events": "none", height: "6px", x: "0%", y: "105%", fill: "url('#volumeGrad')" });
+	private readonly _inVolumeBar: SVGRectElement = SVG.rect({ "pointer-events": "none", height: "6px", x: "0%", y: "105%", fill: "url('#volumeGrad')", rx: "3" });
 	private readonly _inVolumeCap: SVGRectElement = SVG.rect({
 		"pointer-events": "none",
 		width: BorderWidth.default,
 		height: "6px",
 		y: "105%",
 		fill: ColorConfig.uiWidgetFocus,
+		rx: "3",
 	});
-	private readonly _outVolumeBar: SVGRectElement = SVG.rect({ "pointer-events": "none", height: "6px", x: "0%", y: "120%", fill: "url('#volumeGrad')" });
+	private readonly _outVolumeBar: SVGRectElement = SVG.rect({ "pointer-events": "none", height: "6px", x: "0%", y: "120%", fill: "url('#volumeGrad')", rx: "3" });
 	private readonly _outVolumeCap: SVGRectElement = SVG.rect({
 		"pointer-events": "none",
 		width: BorderWidth.default,
 		height: "6px",
 		y: "120%",
 		fill: ColorConfig.uiWidgetFocus,
+		rx: "3",
 	});
 	private readonly _stop1: SVGStopElement = SVG.stop({ "stop-color": "lime", offset: "30%" });
 	private readonly _stop2: SVGStopElement = SVG.stop({ "stop-color": "orange", offset: "45%" });
