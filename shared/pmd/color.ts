@@ -61,7 +61,7 @@ function isInGamut(l: number, c: number, h: number): boolean {
 	return rLin >= -1e-9 && rLin <= 1 + 1e-9 && gLin >= -1e-9 && gLin <= 1 + 1e-9 && bLin >= -1e-9 && bLin <= 1 + 1e-9;
 }
 
-function maxChroma(l: number, h: number): number {
+export function maxChroma(l: number, h: number): number {
 	let lo = 0;
 	let hi = 0.4;
 	for (let i = 0; i < 24; i++) {
@@ -72,7 +72,7 @@ function maxChroma(l: number, h: number): number {
 	return lo;
 }
 
-function clampChroma(l: number, c: number, h: number): number {
+export function clampChroma(l: number, c: number, h: number): number {
 	const max = maxChroma(l, h);
 	return Math.min(c, max);
 }
