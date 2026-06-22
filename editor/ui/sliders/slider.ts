@@ -51,7 +51,7 @@ export class Slider {
 
 		this._wrapperDiv = div(
 			{
-				style: "display: flex; align-items: center; gap: 2px; height: 6px; cursor: pointer; user-select: none; touch-action: none;",
+				style: "flex: 1; display: flex; align-items: center; gap: 2px; height: 6px; cursor: pointer; user-select: none; touch-action: none;",
 			},
 			this._fillDiv,
 			knob,
