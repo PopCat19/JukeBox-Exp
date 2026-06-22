@@ -218,18 +218,24 @@ export class Slider {
 			const k = frac * 100;
 			const farGap = Math.max(0, k - gapPct);   // gap edge away from center
 			const nearGap = Math.min(100, k + gapPct); // gap edge toward center
-			if (k <= 50) {
+			if (k < 50) {
 				// Active = left side: track 0→farGap, fill nearGap→center
 				if (this._leftTrackDiv) this._leftTrackDiv.style.width = `${farGap}%`;
 				if (this._rightTrackDiv) this._rightTrackDiv.style.width = "50%";
 				if (this._leftFillDiv) this._leftFillDiv.style.width = `${Math.max(0, 50 - nearGap)}%`;
 				if (this._rightFillDiv) this._rightFillDiv.style.width = "0";
-			} else {
+			} else if (k > 50) {
 				// Active = right side: track farGap→edge, fill center→farGap
 				if (this._leftTrackDiv) this._leftTrackDiv.style.width = "50%";
 				if (this._rightTrackDiv) this._rightTrackDiv.style.width = `${Math.max(0, 100 - nearGap)}%`;
 				if (this._leftFillDiv) this._leftFillDiv.style.width = "0";
 				if (this._rightFillDiv) this._rightFillDiv.style.width = `${Math.max(0, farGap - 50)}%`;
+			} else {
+				// Center: both tracks stop at gap edges, no fill
+				if (this._leftTrackDiv) this._leftTrackDiv.style.width = `${farGap}%`;
+				if (this._rightTrackDiv) this._rightTrackDiv.style.width = `${Math.max(0, 100 - nearGap)}%`;
+				if (this._leftFillDiv) this._leftFillDiv.style.width = "0";
+				if (this._rightFillDiv) this._rightFillDiv.style.width = "0";
 			}
 			if (this._knobDiv) this._knobDiv.style.left = `${k}%`;
 		} else {
