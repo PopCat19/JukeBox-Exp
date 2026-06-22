@@ -210,27 +210,26 @@ export class Slider {
 		if (this._midTick) {
 			// Delta mode: tracks and fills both respect the knob gap.
 			// Active side (knob < 50 = left, knob > 50 = right):
-			//   track extends from edge to knob-gap
-			//   fill overlays inner portion (center to knob-gap)
-			// Inactive side: track fills full half (edge to center, static)
+			//   track: edge to far gap edge (farthest from center)
+			//   fill:  near gap edge (closest to center) to center
+			// Inactive side: track fills full half (static).
 			const w = this._wrapperDiv.offsetWidth || 120;
-			const gapPct = (6 / w) * 100; // 4px visible + 2px knob half-width
+			const gapPct = (6 / w) * 100;
 			const k = frac * 100;
-			const gapK = Math.max(0, k - gapPct); // knob edge minus gap
-			const gapR = Math.min(100, k + gapPct); // knob edge plus gap
+			const farGap = Math.max(0, k - gapPct);   // gap edge away from center
+			const nearGap = Math.min(100, k + gapPct); // gap edge toward center
 			if (k <= 50) {
-				// Active = left side
-				if (this._leftTrackDiv) this._leftTrackDiv.style.width = `${gapK}%`;
-				if (this._rightTrackDiv) this._rightTrackDiv.style.width = `${100 - 50}%`; // full right half
-				if (this._leftFillDiv) this._leftFillDiv.style.width = `${Math.max(0, 50 - gapK)}%`;
+				// Active = left side: track 0→farGap, fill nearGap→center
+				if (this._leftTrackDiv) this._leftTrackDiv.style.width = `${farGap}%`;
+				if (this._rightTrackDiv) this._rightTrackDiv.style.width = "50%";
+				if (this._leftFillDiv) this._leftFillDiv.style.width = `${Math.max(0, 50 - nearGap)}%`;
 				if (this._rightFillDiv) this._rightFillDiv.style.width = "0";
 			} else {
-				// Active = right side
-				if (this._leftTrackDiv) this._leftTrackDiv.style.width = "50%"; // full left half
-				const rw = Math.max(0, 100 - gapR);
-				if (this._rightTrackDiv) this._rightTrackDiv.style.width = `${rw}%`;
+				// Active = right side: track farGap→edge, fill center→farGap
+				if (this._leftTrackDiv) this._leftTrackDiv.style.width = "50%";
+				if (this._rightTrackDiv) this._rightTrackDiv.style.width = `${Math.max(0, 100 - nearGap)}%`;
 				if (this._leftFillDiv) this._leftFillDiv.style.width = "0";
-				if (this._rightFillDiv) this._rightFillDiv.style.width = `${Math.max(0, gapK - 50)}%`;
+				if (this._rightFillDiv) this._rightFillDiv.style.width = `${Math.max(0, farGap - 50)}%`;
 			}
 			if (this._knobDiv) this._knobDiv.style.left = `${k}%`;
 		} else {
