@@ -1453,6 +1453,8 @@ export function fromBase64StringImpl(song: SongLike, compressed: string, jsonFor
 			}
 			if (customSampleUrls.length > 0) {
 				song.customSampleHandler?.setCustomSamples(customSampleUrls);
+			} else if (compressed_array.length === 0) {
+				clearSamples(song.customSampleHandler);
 			}
 			if (customSamplePresets.length > 0) {
 				const customSamplePresetsMap: DictionaryArray<any> = toNameMap(customSamplePresets);
