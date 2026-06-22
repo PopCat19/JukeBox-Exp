@@ -50,6 +50,7 @@ export class Slider {
 			style: "flex: 1; height: 6px; background: var(--slider-track, var(--ui-widget-background, #444)); border-radius: 2px 999px 999px 2px; align-self: center;",
 		});
 		this._modIndicator = div({
+			class: "slider-mod-indicator",
 			style: "position: absolute; left: var(--mod-position, -50%); width: 4px; height: 100%; top: 0; background: var(--subtext); border-radius: 999px; transform: translate(-50%, 0); pointer-events: none; z-index: 10;",
 		});
 
@@ -64,8 +65,8 @@ export class Slider {
 		);
 
 		this.container = midTick
-			? span({ class: "midTick", style: "position: sticky; display: flex; width: 61.5%;" }, input, this._wrapperDiv)
-			: span({ style: "position: sticky; display: flex;" }, input, this._wrapperDiv);
+			? span({ class: "midTick", style: "position: sticky; display: flex; width: 61.5%; flex-shrink: 0;" }, input, this._wrapperDiv)
+			: span({ style: "position: sticky; display: flex; flex: 1;" }, input, this._wrapperDiv);
 
 		input.addEventListener("input", this._whenInput);
 		input.addEventListener("change", this._whenChange);

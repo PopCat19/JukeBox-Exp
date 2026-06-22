@@ -3263,6 +3263,10 @@ html {
 .beepboxEditor span.modSlider {
 	--mod-position: 20%;
 }
+
+/* Show mod indicator only when the container has .modSlider class */
+.beepboxEditor .slider-mod-indicator { display: none; }
+.beepboxEditor span.modSlider .slider-mod-indicator { display: block; }
 .beepboxEditor input[type=range]::-webkit-slider-thumb {
 	height: 20px;
 	width: 4px;
