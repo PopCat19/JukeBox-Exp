@@ -240,8 +240,8 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 	private readonly _cvSpectrum: spectrumCanvas = new spectrumCanvas(
 		canvas({
 			width: 384,
-			height: 64,
-			style: "display: block; width: 100%; height: 64px; flex-shrink: 0;",
+			height: 72,
+			style: "display: block; width: 100%; height: 72px; flex-shrink: 0;",
 		}),
 		1,
 		false,
