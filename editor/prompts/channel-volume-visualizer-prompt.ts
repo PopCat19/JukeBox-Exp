@@ -224,7 +224,7 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 	// light up to the channel's 80x PMD color when pitches are active.
 	private readonly _octaveRow0Svg: SVGSVGElement = svg({
 		style: "width: calc(100% - 24px); height: 20px; display: block; margin: 2px 12px; overflow: visible; shape-rendering: crispEdges;",
-		viewBox: "0 0 35 1",
+		viewBox: "0 0 28 1",
 		preserveAspectRatio: "none",
 	});
 	private readonly _octaveRow1Svg: SVGSVGElement = svg({
@@ -444,7 +444,7 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 		return Math.min(1, peak * masterScale);
 	}
 
-	// Build the two piano-key octave rows. Row 0: octaves 0–4. Row 1: octaves 5–8.
+	// Build the two piano-key octave rows. Row 0: octaves 0–3. Row 1: octaves 4–7.
 	// Each key is an SVG rect; references are stored in _whiteKeyRects / _blackKeyRects
 	// keyed by MIDI pitch for per-frame active-pitch updates.
 	private _buildPianoKeyRows(): void {
@@ -495,8 +495,8 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 			}
 		};
 
-		buildRow(this._octaveRow0Svg, 0, 4, 0);
-		buildRow(this._octaveRow1Svg, 5, 8, 5);
+		buildRow(this._octaveRow0Svg, 0, 3, 0);
+		buildRow(this._octaveRow1Svg, 4, 7, 4);
 	}
 
 	// Schedule the next animate frame on whichever window currently hosts the
