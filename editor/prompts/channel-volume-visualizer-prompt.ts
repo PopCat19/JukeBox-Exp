@@ -223,12 +223,12 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 	// Piano key octave display — two rows of octave-spanning keys that
 	// light up to the channel's 80x PMD color when pitches are active.
 	private readonly _octaveRow0Svg: SVGSVGElement = svg({
-		style: "width: calc(100% - 24px); height: 20px; display: block; margin: 2px 12px; overflow: visible;",
+		style: "width: calc(100% - 24px); height: 20px; display: block; margin: 2px 12px; overflow: visible; shape-rendering: crispEdges;",
 		viewBox: "0 0 35 1",
 		preserveAspectRatio: "none",
 	});
 	private readonly _octaveRow1Svg: SVGSVGElement = svg({
-		style: "width: calc(100% - 24px); height: 20px; display: block; margin: 2px 12px; overflow: visible;",
+		style: "width: calc(100% - 24px); height: 20px; display: block; margin: 2px 12px; overflow: visible; shape-rendering: crispEdges;",
 		viewBox: "0 0 28 1",
 		preserveAspectRatio: "none",
 	});
