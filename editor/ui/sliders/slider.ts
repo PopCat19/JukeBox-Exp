@@ -107,13 +107,15 @@ export class Slider {
 			},
 			// Track background (fills entire track area)
 			div({ style: "position: absolute; inset: 0; background: var(--slider-track, var(--ui-widget-background, #444));" }),
-			// Left fill: anchored at left:0, extends rightward toward knob (minus gap)
+			// Left fill: anchored at right:50% (center), extends LEFT toward knob.
+			// Pill end at center (right side), square end at knob side (left).
 			(this._leftFillDiv = div({
-				style: "position: absolute; left: 0; width: 0; height: 100%; background: var(--cta-bg); border-radius: 999px 0 0 999px;",
+				style: "position: absolute; right: 50%; width: 0; height: 100%; background: var(--cta-bg); border-radius: 0 999px 999px 0;",
 			})),
-			// Right fill: anchored at right:0, extends leftward toward knob (minus gap)
+			// Right fill: anchored at left:50% (center), extends RIGHT toward knob.
+			// Pill end at center (left side), square end at knob side (right).
 			(this._rightFillDiv = div({
-				style: "position: absolute; right: 0; width: 0; height: 100%; background: var(--cta-bg); border-radius: 0 999px 999px 0;",
+				style: "position: absolute; left: 50%; width: 0; height: 100%; background: var(--cta-bg); border-radius: 999px 0 0 999px;",
 			})),
 		);
 
@@ -197,20 +199,25 @@ export class Slider {
 		const frac = this._max > this._min ? (val - this._min) / (this._max - this._min) : 0;
 
 		if (this._midTick) {
-			// Delta mode: fills grow from outer edges toward knob (minus 4px gap).
-			const w = this._wrapperDiv.offsetWidth;
-			const gapPct = w > 0 ? (4 / w) * 100 : 0;
-			const knobPct = frac * 100;
-			if (knobPct <= 50) {
-				const fillW = Math.max(0, knobPct - gapPct);
-				if (this._leftFillDiv) this._leftFillDiv.style.width = `${fillW}%`;
+			// Delta mode: fills extend from center (50%) toward the knob.
+			// Pill end is at center, square end faces the knob with a gap.
+			// Gap = 4px visible between fill's square edge and knob's nearest edge.
+			// The knob is 4px wide + centered (2px half-width extends past center).
+			const w = this._wrapperDiv.offsetWidth || 120;
+			const gapPct = (6 / w) * 100; // 4px visible + 2px knob half-width
+			const k = frac * 100;
+			if (k <= 50) {
+				// Left fill: width = (50 - k - gap)%, anchored at right:50%
+				const fw = Math.max(0, 50 - k - gapPct);
+				if (this._leftFillDiv) this._leftFillDiv.style.width = `${fw}%`;
 				if (this._rightFillDiv) this._rightFillDiv.style.width = "0";
 			} else {
-				const fillW = Math.max(0, 100 - knobPct - gapPct);
+				// Right fill: width = (k - 50 - gap)%, anchored at left:50%
+				const fw = Math.max(0, k - 50 - gapPct);
 				if (this._leftFillDiv) this._leftFillDiv.style.width = "0";
-				if (this._rightFillDiv) this._rightFillDiv.style.width = `${fillW}%`;
+				if (this._rightFillDiv) this._rightFillDiv.style.width = `${fw}%`;
 			}
-			if (this._knobDiv) this._knobDiv.style.left = `${knobPct}%`;
+			if (this._knobDiv) this._knobDiv.style.left = `${k}%`;
 		} else {
 			// Regular mode: single fill from left edge
 			if (this._fillDiv) {
