@@ -471,7 +471,7 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 						y: "0",
 						width: "1",
 						height: "1",
-						fill: "var(--base02-surface)",
+						fill: "var(--base03-muted)",
 						opacity: "1",
 					});
 					svgEl.appendChild(r);
@@ -486,7 +486,7 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 						y: "0",
 						width: String(BLACK_KEY_W),
 						height: String(BLACK_KEY_H),
-						fill: "var(--base03-muted)",
+						fill: "var(--base02-surface)",
 						opacity: "1",
 					});
 					svgEl.appendChild(r);
@@ -941,8 +941,8 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 				}
 			};
 
-			updateKeys(this._whiteKeyRects, "var(--base02-surface)");
-			updateKeys(this._blackKeyRects, "var(--base03-muted)");
+			updateKeys(this._whiteKeyRects, "var(--base03-muted)");
+			updateKeys(this._blackKeyRects, "var(--base02-surface)");
 		}
 
 		this._scheduleFrame();
