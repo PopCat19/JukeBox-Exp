@@ -51,7 +51,7 @@ export class Slider {
 
 		this._wrapperDiv = div(
 			{
-				style: "flex: 1; display: flex; align-items: center; gap: 4px; height: 16px; cursor: pointer; user-select: none; touch-action: none;",
+				style: "width: 100%; min-width: 0; display: flex; align-items: center; gap: 4px; height: 16px; cursor: pointer; user-select: none; touch-action: none;",
 			},
 			this._fillDiv,
 			knob,
@@ -59,8 +59,8 @@ export class Slider {
 		);
 
 		this.container = midTick
-			? span({ class: "midTick", style: "position: sticky; width: 61.5%; display: flex; align-items: center;" }, input, this._wrapperDiv)
-			: span({ style: "position: sticky; display: flex; align-items: center;" }, input, this._wrapperDiv);
+			? span({ class: "midTick", style: "position: sticky; width: 61.5%; display: block;" }, input, this._wrapperDiv)
+			: span({ style: "position: sticky; display: block;" }, input, this._wrapperDiv);
 
 		input.addEventListener("input", this._whenInput);
 		input.addEventListener("change", this._whenChange);
