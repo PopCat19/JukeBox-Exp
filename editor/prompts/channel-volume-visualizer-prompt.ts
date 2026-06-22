@@ -198,8 +198,7 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 	// region (when loop on) and the playhead position. SVG so the
 	// playhead updates are cheap setAttribute calls.
 	private readonly _scrubTrack: SVGRectElement = rect({ x: 0, y: 0, width: 1000, height: 8, fill: "var(--secondary-text)", rx: 4 });
-	private readonly _scrubLoopRegion: SVGRectElement = rect({ x: 0, y: 0, width: 0, height: 8, fill: ColorConfig.loopAccent, opacity: "0.5", rx: 4 });
-	private readonly _scrubProgress: SVGRectElement = rect({ x: 0, y: 0, width: 0, height: 8, fill: "var(--cta-bg)" });
+	private readonly _scrubProgress: SVGRectElement = rect({ x: 0, y: 0, width: 0, height: 8, fill: "var(--cta-bg)", rx: 4 });
 	private _scrubSvgRect: DOMRect | null = null;
 	private _scrubDragging: boolean = false;
 	private readonly _scrubBar: SVGSVGElement = svg(
@@ -209,7 +208,6 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 			preserveAspectRatio: "none",
 		},
 		this._scrubTrack,
-		this._scrubLoopRegion,
 		this._scrubProgress,
 	);
 	private readonly _tempoLabel: HTMLSpanElement = span(
@@ -848,16 +846,6 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 			const frac = barCount > 0 ? Math.max(0, Math.min(1, this._doc.synth.playhead / barCount)) : 0;
 			const px = frac * 1000;
 			this._scrubProgress.setAttribute("width", String(px));
-			const looping = this._doc.synth.loopRepeatCount === -1 && this._doc.song.loopLength > 0;
-			if (looping) {
-				const ls = (this._doc.song.loopStart / barCount) * 1000;
-				const le = ((this._doc.song.loopStart + this._doc.song.loopLength) / barCount) * 1000;
-				this._scrubLoopRegion.setAttribute("x", String(ls));
-				this._scrubLoopRegion.setAttribute("width", String(Math.max(0, le - ls)));
-				this._scrubLoopRegion.style.display = "";
-			} else {
-				this._scrubLoopRegion.style.display = "none";
-			}
 		}
 
 		// Update bar position label with elapsed time (throttled).
