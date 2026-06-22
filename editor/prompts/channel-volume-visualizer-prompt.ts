@@ -11,6 +11,7 @@ import { BorderWidth, Sizing, Typography } from "../ui/style-constants";
 import { HTML, SVG } from "imperative-html/dist/esm/elements-strict";
 import { ColorConfig } from "../../shared/color-config";
 import { events } from "../../shared/events";
+import { spectrumCanvas } from "../../shared/spectrum";
 import type { ChannelState } from "../../synth/channel-state";
 import { Config } from "../../synth/config/index";
 import { getInstrumentTypeName } from "../../synth/config/instrument-registry";
@@ -20,7 +21,7 @@ import type { PromptEditorRefs } from "../core/prompt-manager";
 import type { SongDocument } from "../song-document";
 import { BasePrompt } from "./base-prompt";
 
-const { div, h2, span, button } = HTML;
+const { div, h2, span, button, canvas } = HTML;
 const { svg, rect } = SVG;
 
 // Spectrum overlay tuning, mirroring shared/spectrum.ts main FG layer so the
@@ -94,7 +95,7 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 	});
 	private readonly _channelsPane: HTMLDivElement = div(
 		{
-			style: "flex: 1; display: flex; flex-direction: column; min-height: 0; padding: 4px 12px 12px 12px;",
+			style: "flex: 1; display: flex; flex-direction: column; min-height: 0; padding: 4px 12px 12px 12px; position: relative; z-index: 1;",
 		},
 		this._contentContainer,
 	);
@@ -235,6 +236,32 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 	private readonly _whiteKeyRects: Map<number, SVGRectElement> = new Map();
 	private readonly _blackKeyRects: Map<number, SVGRectElement> = new Map();
 
+	// Global spectrum overlay rendered behind the channel cards with
+	// additive blending so the waveform peaks through subtly without
+	// competing with the per-channel bar displays.
+	private readonly _spectrumOverlay: spectrumCanvas = new spectrumCanvas(
+		canvas({
+			width: 384,
+			height: 96,
+			style: "display: block; width: 100%; height: 100%; max-height: 96px; opacity: 0.25;",
+		}),
+		1,
+		true,
+	);
+	private readonly _spectrumOverlayWrapper: HTMLDivElement = div(
+		{
+			style: "position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0;",
+		},
+		this._spectrumOverlay.canvas,
+	);
+	private readonly _channelsPaneWrapper: HTMLDivElement = div(
+		{
+			style: "position: relative; flex: 1 1 auto; overflow: hidden; min-height: 0;",
+		},
+		this._spectrumOverlayWrapper,
+		this._channelsPane,
+	);
+
 	public container: HTMLDivElement = div(
 		{
 			class: "prompt noSelection fill-y",
@@ -262,8 +289,8 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 		// Piano key octave rows
 		this._octaveRow0Svg,
 		this._octaveRow1Svg,
-		// Channels grid
-		this._channelsPane,
+		// Channels grid with spectrum overlay
+		this._channelsPaneWrapper,
 		this._cancelButton,
 	);
 
