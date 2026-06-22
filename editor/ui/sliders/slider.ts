@@ -34,6 +34,8 @@ export class Slider {
 	// Delta slider fields
 	private _leftFillDiv: HTMLDivElement | null = null;
 	private _rightFillDiv: HTMLDivElement | null = null;
+	private _leftTrackDiv: HTMLDivElement | null = null;
+	private _rightTrackDiv: HTMLDivElement | null = null;
 	private _centerLine: HTMLDivElement | null = null;
 	private _knobDiv: HTMLDivElement | null = null;
 	private readonly _modIndicator: HTMLDivElement;
@@ -100,23 +102,27 @@ export class Slider {
 	}
 
 	private _buildDeltaSlider(): void {
-		// Track layer: left and right track halves with gap at center,
-		// plus two fills that grow from center toward the knob.
+		// Track layer: left and right tracks both respect the knob gap.
+		// On the active side (where fill is), track extends from edge to
+		// knob-gap. On the inactive side, track fills full half (edge to
+		// center gap). Fill overlays the inner portion of the active track.
 		const trackLayer = div(
 			{
 				style: "position: absolute; top: 5px; left: 0; right: 0; height: 6px; overflow: hidden; border-radius: 999px;",
 			},
-			// Left track half: pill at left edge, gap at center
-			div({ style: "position: absolute; left: 0; right: calc(50% + 2px); height: 100%; background: var(--slider-track, var(--ui-widget-background, #444)); border-radius: 999px 0 0 999px;" }),
-			// Right track half: pill at right edge, gap at center
-			div({ style: "position: absolute; left: calc(50% + 2px); right: 0; height: 100%; background: var(--slider-track, var(--ui-widget-background, #444)); border-radius: 0 999px 999px 0;" }),
+			// Left track: anchored at left:0, extends rightward (dynamic width)
+			(this._leftTrackDiv = div({
+				style: "position: absolute; left: 0; width: 0; height: 100%; background: var(--slider-track, var(--ui-widget-background, #444)); border-radius: 999px 0 0 999px;",
+			})),
+			// Right track: anchored at right:0, extends leftward (dynamic width)
+			(this._rightTrackDiv = div({
+				style: "position: absolute; right: 0; width: 0; height: 100%; background: var(--slider-track, var(--ui-widget-background, #444)); border-radius: 0 999px 999px 0;",
+			})),
 			// Left fill: anchored at right:50% (center), extends LEFT toward knob.
-			// Pill end at center, square end at knob side.
 			(this._leftFillDiv = div({
 				style: "position: absolute; right: 50%; width: 0; height: 100%; background: var(--cta-bg); border-radius: 0 999px 999px 0;",
 			})),
 			// Right fill: anchored at left:50% (center), extends RIGHT toward knob.
-			// Pill end at center, square end at knob side.
 			(this._rightFillDiv = div({
 				style: "position: absolute; left: 50%; width: 0; height: 100%; background: var(--cta-bg); border-radius: 999px 0 0 999px;",
 			})),
@@ -202,23 +208,29 @@ export class Slider {
 		const frac = this._max > this._min ? (val - this._min) / (this._max - this._min) : 0;
 
 		if (this._midTick) {
-			// Delta mode: fills extend from center (50%) toward the knob.
-			// Pill end is at center, square end faces the knob with a gap.
-			// Gap = 4px visible between fill's square edge and knob's nearest edge.
-			// The knob is 4px wide + centered (2px half-width extends past center).
+			// Delta mode: tracks and fills both respect the knob gap.
+			// Active side (knob < 50 = left, knob > 50 = right):
+			//   track extends from edge to knob-gap
+			//   fill overlays inner portion (center to knob-gap)
+			// Inactive side: track fills full half (edge to center, static)
 			const w = this._wrapperDiv.offsetWidth || 120;
 			const gapPct = (6 / w) * 100; // 4px visible + 2px knob half-width
 			const k = frac * 100;
+			const gapK = Math.max(0, k - gapPct); // knob edge minus gap
+			const gapR = Math.min(100, k + gapPct); // knob edge plus gap
 			if (k <= 50) {
-				// Left fill: width = (50 - k - gap)%, anchored at right:50%
-				const fw = Math.max(0, 50 - k - gapPct);
-				if (this._leftFillDiv) this._leftFillDiv.style.width = `${fw}%`;
+				// Active = left side
+				if (this._leftTrackDiv) this._leftTrackDiv.style.width = `${gapK}%`;
+				if (this._rightTrackDiv) this._rightTrackDiv.style.width = `${100 - 50}%`; // full right half
+				if (this._leftFillDiv) this._leftFillDiv.style.width = `${Math.max(0, 50 - gapK)}%`;
 				if (this._rightFillDiv) this._rightFillDiv.style.width = "0";
 			} else {
-				// Right fill: width = (k - 50 - gap)%, anchored at left:50%
-				const fw = Math.max(0, k - 50 - gapPct);
+				// Active = right side
+				if (this._leftTrackDiv) this._leftTrackDiv.style.width = "50%"; // full left half
+				const rw = Math.max(0, 100 - gapR);
+				if (this._rightTrackDiv) this._rightTrackDiv.style.width = `${rw}%`;
 				if (this._leftFillDiv) this._leftFillDiv.style.width = "0";
-				if (this._rightFillDiv) this._rightFillDiv.style.width = `${fw}%`;
+				if (this._rightFillDiv) this._rightFillDiv.style.width = `${Math.max(0, gapK - 50)}%`;
 			}
 			if (this._knobDiv) this._knobDiv.style.left = `${k}%`;
 		} else {
