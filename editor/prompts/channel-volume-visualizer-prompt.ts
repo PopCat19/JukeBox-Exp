@@ -263,7 +263,7 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 		this._playerTimelineContainer,
 	);
 	private readonly _playerOverlay: HTMLDivElement = div(
-		{ style: "position: absolute; inset: 0; z-index: 0; opacity: 0.16; pointer-events: none; display: none;" },
+		{ style: "position: absolute; inset: 0; z-index: 2; opacity: 0.16; pointer-events: none; display: none;" },
 		this._playerVizContainer,
 	);
 	private readonly _channelsWrapper: HTMLDivElement = div(
