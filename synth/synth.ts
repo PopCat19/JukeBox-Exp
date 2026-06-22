@@ -1452,13 +1452,9 @@ export class Synth {
 		}
 		this._dbg("goToNextBar:", oldBar, "to", this.bar);
 		this.playheadInternal += this.bar - oldBar;
-
+		this.totalSamplesRendered = this.getSamplesUpToBar(this.bar);
 		if (this.playing) {
 			this.computeLatestModValues();
-		} else {
-			// Seed the elapsed counter so the duration display updates when
-			// navigating while paused.
-			this.totalSamplesRendered = this.getSamplesUpToBar(this.bar);
 		}
 	}
 
@@ -1472,13 +1468,9 @@ export class Synth {
 		}
 		this._dbg("goToPrevBar:", oldBar, "to", this.bar);
 		this.playheadInternal += this.bar - oldBar;
-
+		this.totalSamplesRendered = this.getSamplesUpToBar(this.bar);
 		if (this.playing) {
 			this.computeLatestModValues();
-		} else {
-			// Seed the elapsed counter so the duration display updates when
-			// navigating while paused.
-			this.totalSamplesRendered = this.getSamplesUpToBar(this.bar);
 		}
 	}
 
