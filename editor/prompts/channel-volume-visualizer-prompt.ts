@@ -889,7 +889,7 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 						var _k2 = channelIndex + "-" + _p2;
 						var _s2 = this._noteSpans.get(_k2);
 						if (!_s2) {
-							_s2 = span({ style: "font-size: 9px; font-weight: 600; padding: 0px 3px; border-radius: 2px; white-space: nowrap; background: rgb(" + _br + "," + _bg + "," + _bb + "); color: " + (_bt > 0.5 ? "black" : "var(--editor-background)") + "; opacity: " + _vb + ";" }, pitchToNoteName(_p2));
+							_s2 = span({ style: "font-size: 9px; font-weight: 600; padding: 0px 3px; border-radius: 99px; white-space: nowrap; background: rgb(" + _br + "," + _bg + "," + _bb + "); color: " + (_bt > 0.5 ? "black" : "var(--editor-background)") + "; opacity: " + _vb + ";" }, pitchToNoteName(_p2));
 							this._noteSpans.set(_k2, _s2);
 							_nc.appendChild(_s2);
 						} else {
