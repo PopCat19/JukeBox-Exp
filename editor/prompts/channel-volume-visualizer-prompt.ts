@@ -236,6 +236,14 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 	private readonly _whiteKeyRects: Map<number, SVGRectElement> = new Map();
 	private readonly _blackKeyRects: Map<number, SVGRectElement> = new Map();
 
+	// Pattern timeline background — renders colored bar segments at low
+	// opacity so the song structure is visible behind the channel cards.
+	private readonly _patternBgCanvas: HTMLCanvasElement = canvas({
+		width: 384,
+		height: 256,
+		style: "display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; opacity: 0.16;",
+	});
+
 	// Global spectrum bar pinned to the absolute bottom of the prompt.
 	// Only visible when popped out; when docked the editor's main
 	// spectrum is already visible.
@@ -280,6 +288,7 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 		this._channelsPane,
 		// Spectrum bar
 		this._cvSpectrum.canvas,
+		this._patternBgCanvas,
 		this._cancelButton,
 	);
 
@@ -515,6 +524,47 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 		buildRow(this._octaveRow1Svg, 4, 7, 4);
 	}
 
+	// Draw faint pattern bars in the popup background so the song
+	// structure is visible behind the per-channel meter cards.
+	private _drawPatternBg(): void {
+		const canvas = this._patternBgCanvas;
+		const ctx = canvas.getContext("2d");
+		if (!ctx) return;
+
+		const song = this._doc.song;
+		const channels = song.channels;
+		const barCount = song.barCount;
+		const chanCount = Math.min(channels.length, 32);
+		if (barCount === 0 || chanCount === 0) return;
+
+		// Match canvas backing store to CSS size.
+		const dpr = window.devicePixelRatio || 1;
+		const w = Math.round(canvas.clientWidth * dpr);
+		const h = Math.round(canvas.clientHeight * dpr);
+		if (canvas.width !== w || canvas.height !== h) {
+			canvas.width = w;
+			canvas.height = h;
+		}
+
+		ctx.clearRect(0, 0, w, h);
+
+		const rowH = h / chanCount;
+		for (let ci = 0; ci < chanCount; ci++) {
+			const color = this._channelSpectrumColors.get(ci);
+			if (!color) continue;
+			ctx.fillStyle = color;
+			const y = ci * rowH;
+			for (let b = 0; b < barCount; b++) {
+				const pattern = song.getPattern(ci, b);
+				if (pattern && pattern.notes.length > 0) {
+					const x = (b / barCount) * w;
+					const bw = Math.max(1, w / barCount);
+					ctx.fillRect(x, y, bw, rowH);
+				}
+			}
+		}
+	}
+
 	// Schedule the next animate frame on whichever window currently hosts the
 	// container. ownerDocument.defaultView is the popout window when the container
 	// has been adopted into it, otherwise the main window. Falling back to the
@@ -530,6 +580,11 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 		// main spectrum already fills the viewport.
 		this._cvSpectrum.canvas.style.display =
 			this.container.ownerDocument.defaultView !== window ? "block" : "none";
+		this._patternBgCanvas.style.display =
+			this.container.ownerDocument.defaultView !== window ? "block" : "none";
+		if (this._patternBgCanvas.style.display !== "none") {
+			this._drawPatternBg();
+		}
 
 		// Update play/pause button state
 		this._updatePlayPauseButton();
