@@ -71,8 +71,32 @@ export class PlayerAnimator {
 			this._callbacks.songEqFilterEditor.render(true, ctrlShift);
 		}
 
+		// Self-gate: every per-frame task above only produces a visible
+		// change while audio is moving (synth.playing drives playhead,
+		// volume bar, mod sliders, center-follow, and filter mod
+		// overlays; synth.recording / doc.recordingModulators cover the
+		// recording paths). When none hold, this frame was the settle
+		// pass, modSliderUpdate's !playing branch already cleared mod
+		// sliders and _hasActiveModSliders, so stop rescheduling to free
+		// rAF while paused. start() re-arms the loop on the next play.
+		const keepRunning: boolean = this._doc.synth.playing || this._doc.synth.recording || this._doc.recordingModulators;
+		if (keepRunning) {
+			window.requestAnimationFrame(this.animate);
+		} else {
+			this._running = false;
+		}
+	};
+
+	// Arm the animation loop. Idempotent: no-op when already running.
+	// SongPerformance's rAF observer calls this on the rising edge of
+	// synth.playing so every play entry point (togglePlay, keyboard,
+	// CVV play, autoplay) is covered without wiring each one.
+	public start = (): void => {
+		if (this._running) return;
+		this._running = true;
 		window.requestAnimationFrame(this.animate);
 	};
+	private _running: boolean = false;
 
 	// Scroll to keep playhead centered, clamped at song edges
 	private _centerFollowScroll(): void {

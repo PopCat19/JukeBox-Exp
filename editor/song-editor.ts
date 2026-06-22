@@ -2582,6 +2582,9 @@ export class SongEditor
 			outVolumeCap: this._playbackControls.volumeBarContainer.querySelector("rect:nth-child(4)") as SVGRectElement,
 			barPosLabel: this._playbackControls.barPosLabel,
 		});
+		// Arm the animator from SongPerformance's play-state observer so
+		// every play entry point starts the loop without per-call wiring.
+		this.doc.performance.animatorStart = this._animator.start;
 		new MenuHandler(this, this._fileMenu, this._editMenu, this._optionsMenu);
 
 		this.doc.notifier.watch(this.whenUpdated);
@@ -2619,7 +2622,9 @@ export class SongEditor
 
 		window.addEventListener("resize", this.whenUpdated);
 		window.requestAnimationFrame(this.updatePlayButton);
-		window.requestAnimationFrame(this._animate);
+		// Animator loop is no longer started unconditionally; it self-gates
+		// on synth.playing/recording and is armed by SongPerformance's
+		// rAF observer on the rising edge of playback (see animatorStart).
 
 		this._scaleSelect.appendChild(
 			optgroup({ label: "Edit" }, option({ value: "forceScale" }, "Snap Notes To Scale"), option({ value: "customize" }, "Edit Custom Scale")),

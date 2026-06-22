@@ -42,6 +42,12 @@ export class SongPerformance {
 		window.requestAnimationFrame(this._onAnimationFrame);
 	}
 
+	// Hook the editor sets after construction so SongPerformance can
+	// start the editor's animator when playback begins, without
+	// SongDocument having to know about the animator.
+	public animatorStart: (() => void) | null = null;
+	private _wasPlaying: boolean = false;
+
 	public async play(): Promise<void> {
 		await this._doc.synth.play();
 		this._doc.synth.enableMetronome = false;
@@ -153,6 +159,14 @@ export class SongPerformance {
 
 	private _onAnimationFrame = (): void => {
 		window.requestAnimationFrame(this._onAnimationFrame);
+		// Rising-edge nudge: kick the editor's animator when playback
+		// starts. The animator self-gates and stops when idle, so this
+		// is the only start signal it needs; start() is idempotent.
+		const playing: boolean = this._doc.synth.playing;
+		if (playing && !this._wasPlaying) {
+			this.animatorStart?.();
+		}
+		this._wasPlaying = playing;
 		if (this._doc.synth.recording) {
 			let dirty: boolean = this._updateRecordedNotes();
 			dirty = this._updateRecordedBassNotes() ? true : dirty;
