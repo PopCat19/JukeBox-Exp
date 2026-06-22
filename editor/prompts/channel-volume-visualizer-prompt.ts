@@ -236,12 +236,14 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 	private readonly _whiteKeyRects: Map<number, SVGRectElement> = new Map();
 	private readonly _blackKeyRects: Map<number, SVGRectElement> = new Map();
 
-	// Global spectrum bar pinned to the bottom of the viewport.
+	// Global spectrum bar pinned to the absolute bottom of the prompt.
+	// Only visible when popped out; when docked the editor's main
+	// spectrum is already visible.
 	private readonly _cvSpectrum: spectrumCanvas = new spectrumCanvas(
 		canvas({
 			width: 384,
 			height: 72,
-			style: "display: block; width: 100%; height: 72px; flex-shrink: 0;",
+			style: "display: none; position: absolute; bottom: 0; left: 0; width: 100%; height: 72px; pointer-events: none; z-index: 1;",
 		}),
 		1,
 		false,
@@ -250,7 +252,7 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 	public container: HTMLDivElement = div(
 		{
 			class: "prompt noSelection fill-y",
-			style: "width: 720px; height: auto; max-height: 80vh; display: flex; flex-direction: column;",
+			style: "width: 720px; height: auto; max-height: 80vh; display: flex; flex-direction: column; position: relative;",
 			tabindex: "0",
 		},
 		h2({ style: "margin: 12px 12px 0px 12px; text-align: center;" }, "Channel Volume Visualizer"),
@@ -524,6 +526,11 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 	}
 
 	private _animate = (): void => {
+		// Show spectrum only when popped out; when docked the editor's
+		// main spectrum already fills the viewport.
+		this._cvSpectrum.canvas.style.display =
+			this.container.ownerDocument.defaultView !== window ? "block" : "none";
+
 		// Update play/pause button state
 		this._updatePlayPauseButton();
 
