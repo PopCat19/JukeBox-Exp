@@ -136,6 +136,13 @@ export class TrackEditor {
 	private _touchMode: boolean = isMobile;
 	private _barDropDownBar: number = 0;
 	private _lastScrollTime: number = 0;
+	// rAF throttle for mousemove's expensive tail (hover tooltip +
+	// preview). mousemove fires far faster than the frame budget;
+	// coalescing removes the per-event getSamplesUpToBar + innerHTML
+	// + offsetWidth/Height reflow storm. Mirrors pattern-editor's
+	// _mouseMoveRAF. Coordinate math stays synchronous so drag
+	// detection (_mouseBar/_mouseChannel) stays responsive.
+	private _mouseMoveRAF: number | null = null;
 
 	constructor(
 		private _doc: SongDocument,
@@ -303,7 +310,7 @@ export class TrackEditor {
 		this._hoverTooltip.style.display = "none";
 	};
 
-	private _updateMousePos(event: MouseEvent): void {
+	private _updateMouseCoords(event: MouseEvent): void {
 		const boundingRect: DOMRect = this._svg.getBoundingClientRect();
 		this._mouseViewportX = event.clientX || event.pageX;
 		this._mouseViewportY = event.clientY || event.pageY;
@@ -313,6 +320,10 @@ export class TrackEditor {
 		this._mouseChannel = Math.floor(
 			Math.min(this._doc.song.getChannelCount() - 1, Math.max(0, (this._mouseY - Config.barEditorHeight) / ChannelRow.patternHeight)),
 		);
+	}
+
+	private _updateMousePos(event: MouseEvent): void {
+		this._updateMouseCoords(event);
 		this._updateHoverTooltip();
 	}
 
@@ -401,14 +412,25 @@ export class TrackEditor {
 	};
 
 	private _whenMouseMoved = (event: MouseEvent): void => {
-		this._updateMousePos(event);
+		// Coordinate math stays synchronous so drag detection and
+		// _dragBoxSelection see current _mouseBar/_mouseChannel. The
+		// expensive tooltip (getSamplesUpToBar + innerHTML + offset
+		// reads) and preview/highlight update are coalesced to one
+		// rAF per frame, removing the reflow storm from high-rate
+		// pointers (125-1000Hz mousemove vs 60Hz frame budget).
+		this._updateMouseCoords(event);
 		if (this._mousePressed) {
 			if (this._mouseStartBar !== this._mouseBar || this._mouseStartChannel !== this._mouseChannel) {
 				this._mouseDragging = true;
 			}
 			this._dragBoxSelection();
 		}
-		this._updatePreview();
+		if (this._mouseMoveRAF !== null) return;
+		this._mouseMoveRAF = requestAnimationFrame(() => {
+			this._mouseMoveRAF = null;
+			this._updateHoverTooltip();
+			this._updatePreview();
+		});
 	};
 
 	private _whenMouseReleased = (_event: MouseEvent): void => {
