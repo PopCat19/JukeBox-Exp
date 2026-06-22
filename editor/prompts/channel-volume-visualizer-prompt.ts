@@ -9,6 +9,8 @@ import { BorderWidth, Sizing, Typography } from "../ui/style-constants";
 // - Updates in real-time during playback
 
 import { HTML, SVG } from "imperative-html/dist/esm/elements-strict";
+import { renderPlayhead, renderTimeline } from "../../player/player-timeline";
+import type { PlayerUI } from "../../player/player-ui";
 import { ColorConfig } from "../../shared/color-config";
 import { events } from "../../shared/events";
 import { spectrumCanvas } from "../../shared/spectrum";
@@ -95,7 +97,7 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 	});
 	private readonly _channelsPane: HTMLDivElement = div(
 		{
-			style: "flex: 1; display: flex; flex-direction: column; min-height: 0; padding: 4px 12px 12px 12px;",
+			style: "flex: 1; display: flex; flex-direction: column; min-height: 0; padding: 4px 12px 12px 12px; position: relative; z-index: 1;",
 		},
 		this._contentContainer,
 	);
@@ -236,6 +238,39 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 	private readonly _whiteKeyRects: Map<number, SVGRectElement> = new Map();
 	private readonly _blackKeyRects: Map<number, SVGRectElement> = new Map();
 
+	// Song-player timeline rendered as a faint background behind the
+	// channel cards when popped out. Reuses the player's renderTimeline /
+	// renderPlayhead so note shapes, colors, and auto-scroll match the
+	// standalone player. renderTimeline is called only on song change or
+	// resize (procedural); renderPlayhead runs per frame to follow the
+	// playhead, keeping rAF cost low.
+	private readonly _playerTimelineSvg: SVGSVGElement = svg({ style: "min-width: 0; min-height: 0; touch-action: pan-y pinch-zoom;" });
+	private readonly _playerPlayhead: HTMLDivElement = div({
+		style: `position: absolute; left: 0; top: 0; width: 2px; height: 100%; background: ${ColorConfig.playhead}; pointer-events: none;`,
+	});
+	private readonly _playerTimelineContainer: HTMLDivElement = div(
+		{ style: "display: flex; flex-grow: 1; flex-shrink: 1; position: relative;" },
+		this._playerTimelineSvg,
+		this._playerPlayhead,
+	);
+	private readonly _playerVizContainer: HTMLDivElement = div(
+		{ style: "display: flex; flex-grow: 1; flex-shrink: 1; height: 100%; position: relative; align-items: center; overflow: hidden;" },
+		this._playerTimelineContainer,
+	);
+	private readonly _playerOverlay: HTMLDivElement = div(
+		{ style: "position: absolute; inset: 0; z-index: 0; opacity: 0.16; pointer-events: none; display: none;" },
+		this._playerVizContainer,
+	);
+	private readonly _channelsWrapper: HTMLDivElement = div(
+		{ style: "position: relative; flex: 1 1 auto; display: flex; min-height: 0; overflow: hidden;" },
+		this._playerOverlay,
+		this._channelsPane,
+	);
+	private _playerTimelineDirty = true;
+	private _wasPopout = false;
+	private _playerLastW = 0;
+	private _playerLastH = 0;
+
 	// Global spectrum bar pinned to the absolute bottom of the prompt.
 	// Only visible when popped out; when docked the editor's main
 	// spectrum is already visible.
@@ -259,17 +294,12 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 		// Top bar — play/pause, volume meter, stats
 		div(
 			{
-				style: "display: flex; align-items: center; justify-content: center; gap: 12px; flex-wrap: nowrap; padding: 4px 12px 0px 12px;"
+				style: "display: flex; align-items: center; justify-content: center; gap: 12px; flex-wrap: nowrap; padding: 4px 12px 0px 12px;",
 			},
 			this._playPauseButton,
 			this._barPosLabel,
 			this._tempoLabel,
-			span(
-				{ style: `display: inline-flex; gap: 10px; flex-wrap: nowrap;` },
-				this._masterDbPeakLabel,
-				this._masterDbAvgLabel,
-				this._masterDbMinMaxLabel,
-			),
+			span({ style: `display: inline-flex; gap: 10px; flex-wrap: nowrap;` }, this._masterDbPeakLabel, this._masterDbAvgLabel, this._masterDbMinMaxLabel),
 		),
 		// Divider
 		div({ style: "border-top: 2px solid var(--ui-widget-background); margin: 0 12px;" }),
@@ -277,7 +307,7 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 		this._octaveRow0Svg,
 		this._octaveRow1Svg,
 		// Channels grid
-		this._channelsPane,
+		this._channelsWrapper,
 		// Spectrum bar
 		this._cvSpectrum.canvas,
 		this._cancelButton,
@@ -465,18 +495,19 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 	// keyed by MIDI pitch for per-frame active-pitch updates.
 	private _buildPianoKeyRows(): void {
 		const WHITE_IDX = new Map<number, number>([
-			[0, 0], [2, 1], [4, 2], [5, 3], [7, 4], [9, 5], [11, 6],
+			[0, 0],
+			[2, 1],
+			[4, 2],
+			[5, 3],
+			[7, 4],
+			[9, 5],
+			[11, 6],
 		]);
 		const BLACK_X: Record<number, number> = { 1: 0.2, 3: 1.2, 6: 3.2, 8: 4.2, 10: 5.2 };
 		const BLACK_KEY_W = 0.6;
 		const BLACK_KEY_H = 0.6;
 
-		const buildRow = (
-			svgEl: SVGSVGElement,
-			startOctave: number,
-			endOctave: number,
-			viewBaseOctave: number,
-		): void => {
+		const buildRow = (svgEl: SVGSVGElement, startOctave: number, endOctave: number, viewBaseOctave: number): void => {
 			for (let oct = startOctave; oct <= endOctave; oct++) {
 				const octX = (oct - viewBaseOctave) * 7;
 				// White keys
@@ -515,6 +546,30 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 		buildRow(this._octaveRow1Svg, 4, 7, 4);
 	}
 
+	// Minimal PlayerUI adapter exposing only the timeline-related fields
+	// renderTimeline / renderPlayhead touch. The full PlayerUI has many
+	// more fields (buttons, sliders) that the background overlay does not
+	// need; the cast bypasses the missing optional members.
+	private _playerUI(): PlayerUI {
+		return {
+			synth: this._doc.synth,
+			timeline: this._playerTimelineSvg,
+			playhead: this._playerPlayhead,
+			timelineContainer: this._playerTimelineContainer,
+			visualizationContainer: this._playerVizContainer,
+		} as unknown as PlayerUI;
+	}
+
+	// Swap-and-pop removal used by renderPlayhead's note-flash cleanup.
+	// Only invoked when the user has enabled notesFlashWhenPlayed; the
+	// background overlay does not rely on flash but the player code path
+	// still requires a valid callback.
+	private static _removeAt<T>(array: T[], index: number): void {
+		const last = array.length - 1;
+		array[index] = array[last];
+		array.pop();
+	}
+
 	// Schedule the next animate frame on whichever window currently hosts the
 	// container. ownerDocument.defaultView is the popout window when the container
 	// has been adopted into it, otherwise the main window. Falling back to the
@@ -530,10 +585,32 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 		// main spectrum already fills the viewport.
 		const isPopout = this.container.ownerDocument.defaultView !== window;
 		this._cvSpectrum.canvas.style.display = isPopout ? "block" : "none";
+		this._playerOverlay.style.display = isPopout ? "" : "none";
+
+		// Player timeline background: render the full SVG only when the
+		// song changes or the viewport resizes (procedural), then follow
+		// the playhead each frame via the lightweight renderPlayhead.
+		if (isPopout) {
+			if (!this._wasPopout) this._playerTimelineDirty = true;
+			const vw = this._playerVizContainer.clientWidth;
+			const vh = this._playerVizContainer.clientHeight;
+			if (vw !== this._playerLastW || vh !== this._playerLastH) this._playerTimelineDirty = true;
+			if (this._playerTimelineDirty && vw > 0 && vh > 0) {
+				const ui = this._playerUI();
+				renderTimeline(ui, true, ChannelVolumeVisualizerPrompt._removeAt);
+				this._playerTimelineDirty = false;
+				this._playerLastW = vw;
+				this._playerLastH = vh;
+			}
+			if (!this._playerTimelineDirty) {
+				renderPlayhead(this._playerUI(), ChannelVolumeVisualizerPrompt._removeAt);
+			}
+		}
+		this._wasPopout = isPopout;
 
 		// Show song title in the prompt titlebar when popped out.
 		const h2 = this.container.querySelector<HTMLHeadingElement>(".prompt-titlebar h2");
-		if (h2) h2.textContent = isPopout ? (this._doc.song.title || "Untitled") : "Channel Volume Visualizer";
+		if (h2) h2.textContent = isPopout ? this._doc.song.title || "Untitled" : "Channel Volume Visualizer";
 
 		// Update play/pause button state
 		this._updatePlayPauseButton();
@@ -663,7 +740,9 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 				const avgText = Number.isFinite(avgDb) ? avgDb.toFixed(1) : "-inf";
 				const minText = Number.isFinite(minDb) ? minDb.toFixed(1) : "-inf";
 				const maxText = Number.isFinite(maxDb) ? maxDb.toFixed(1) : "-inf";
-				dbLabel.textContent = Number.isFinite(peakDb) ? `Pk:${peakDb.toFixed(1)}\nA:${avgText}\n${minText}/${maxText}` : `Pk:-inf\nA:${avgText}\n${minText}/${maxText}`;
+				dbLabel.textContent = Number.isFinite(peakDb)
+					? `Pk:${peakDb.toFixed(1)}\nA:${avgText}\n${minText}/${maxText}`
+					: `Pk:-inf\nA:${avgText}\n${minText}/${maxText}`;
 			}
 
 			// Draw pitch spectrum overlay: smooth bezier curve fill from active tone bands
@@ -899,8 +978,7 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 						const j = parseInt(key.split("-")[1], 10);
 						const instrState = channelState.instruments[j];
 						if (instrState && instrSpan) {
-							const isPlaying =
-								(instrState.activeTones.count() > 0 || instrState.liveInputTones.count() > 0) && chanPeak > 0.001;
+							const isPlaying = (instrState.activeTones.count() > 0 || instrState.liveInputTones.count() > 0) && chanPeak > 0.001;
 							if (isPlaying) {
 								// Blend from channel color to white as volume rises,
 								// with opacity fading in from the floor for a smooth ramp.
@@ -923,7 +1001,6 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 						}
 					}
 				}
-
 			}
 		}
 
@@ -949,7 +1026,10 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 					for (let pi = 0; pi < count; pi++) {
 						const p = pitches[pi];
 						let b = pitchBlend.get(p);
-						if (!b) { b = { r: 0, g: 0, b: 0, w: 0, maxPeak: 0 }; pitchBlend.set(p, b); }
+						if (!b) {
+							b = { r: 0, g: 0, b: 0, w: 0, maxPeak: 0 };
+							pitchBlend.set(p, b);
+						}
 						b.r += cr * peak;
 						b.g += cg * peak;
 						b.b += cb * peak;
@@ -1000,6 +1080,7 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 		while (this._contentContainer.firstChild) {
 			this._contentContainer.removeChild(this._contentContainer.firstChild);
 		}
+		this._playerTimelineDirty = true;
 		this._channelVolumeBars.clear();
 		this._channelVolumeCaps.clear();
 		this._channelLastWidths.clear();
@@ -1197,9 +1278,7 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 				for (let j = 0; j < channel.instruments.length; j++) {
 					const inPattern = patternInstruments.includes(j);
 					const instrState = channelState ? channelState.instruments[j] : null;
-					const isPlaying = instrState
-						? instrState.activeTones.count() > 0 || instrState.liveInputTones.count() > 0
-						: false;
+					const isPlaying = instrState ? instrState.activeTones.count() > 0 || instrState.liveInputTones.count() > 0 : false;
 					const instrument = channel.instruments[j];
 					const typeName = instrument ? getInstrumentDisplayName(instrument) : "?";
 					const total = typeCounts.get(typeName) || 1;
