@@ -590,6 +590,10 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 		this._patternBgCanvas.style.display = isPopout ? "block" : "none";
 		if (isPopout) this._drawPatternBg();
 
+		// Show song title in the prompt titlebar when popped out.
+		const h2 = this.container.querySelector<HTMLHeadingElement>(".prompt-titlebar h2");
+		if (h2) h2.textContent = isPopout ? (this._doc.song.title || "Untitled") : "Channel Volume Visualizer";
+
 		// Update play/pause button state
 		this._updatePlayPauseButton();
 
