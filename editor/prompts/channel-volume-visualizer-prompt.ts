@@ -206,17 +206,11 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 		},
 		"Avg: -inf dB",
 	);
-	private readonly _masterDbMinLabel: HTMLSpanElement = span(
+	private readonly _masterDbMinMaxLabel: HTMLSpanElement = span(
 		{
 			style: `color: var(--secondary-text); font-size: ${Typography.sizeSm}; font-family: monospace; white-space: nowrap;`,
 		},
-		"Min: -inf dB",
-	);
-	private readonly _masterDbMaxLabel: HTMLSpanElement = span(
-		{
-			style: `color: var(--secondary-text); font-size: ${Typography.sizeSm}; font-family: monospace; white-space: nowrap;`,
-		},
-		"Max: -inf dB",
+		"-inf/-inf dB",
 	);
 
 	private readonly _barPosLabel: HTMLSpanElement = span(
@@ -245,8 +239,7 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 				{ style: `display: inline-flex; gap: 10px; flex-wrap: nowrap;` },
 				this._masterDbPeakLabel,
 				this._masterDbAvgLabel,
-				this._masterDbMinLabel,
-				this._masterDbMaxLabel,
+				this._masterDbMinMaxLabel,
 			),
 		),
 		// Divider
@@ -491,8 +484,7 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 
 			const minDb = Number.isFinite(this._masterMinDb) ? this._masterMinDb.toFixed(1) : "-inf";
 			const maxDb = Number.isFinite(this._masterMaxDb) ? this._masterMaxDb.toFixed(1) : "-inf";
-			this._masterDbMinLabel.textContent = `Min: ${minDb} dB`;
-			this._masterDbMaxLabel.textContent = `Max: ${maxDb} dB`;
+			this._masterDbMinMaxLabel.textContent = `${minDb}/${maxDb} dB`;
 		}
 
 		// Update per-channel volume bars
