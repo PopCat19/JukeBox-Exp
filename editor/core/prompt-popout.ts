@@ -83,11 +83,6 @@ export class PromptPopout {
 		base.setAttribute(POPOUT_STYLE_ATTR, "");
 		base.textContent = "html,body{margin:0;padding:0;height:100%;}" + "body{padding:var(--padding-12);overflow:hidden;box-sizing:border-box;}";
 		doc.head.appendChild(base);
-		// Prevent Dark Reader (or similar invert-extension) from
-		// double-darkening the popout's already-PMD-dark surface.
-		const drLock = doc.createElement("meta");
-		drLock.name = "darkreader-lock";
-		doc.head.appendChild(drLock);
 		doc.body.classList.add("beepboxEditor");
 
 		this._cloneStyles(doc);
