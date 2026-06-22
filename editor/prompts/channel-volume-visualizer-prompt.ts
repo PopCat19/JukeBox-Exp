@@ -1,4 +1,4 @@
-import { BorderWidth, Typography } from "../ui/style-constants";
+import { BorderWidth, Sizing, Typography } from "../ui/style-constants";
 // ChannelVolumeVisualizerPrompt
 //
 // Purpose: Modal popup displaying per-channel gain information with live updates
@@ -177,7 +177,7 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 
 	private readonly _playPauseButton: HTMLButtonElement = button(
 		{
-			style: `font-size: ${Typography.sizeLg}; width: 32px; height: 32px; padding: 0; border-radius: 50%; display: flex; align-items: center; justify-content: center; line-height: 1;`,
+			style: `font-size: ${Typography.sizeSm}; width: ${Sizing.button}; height: ${Sizing.button}; padding: 0; border-radius: 50%; display: flex; align-items: center; justify-content: center; line-height: 1;`,
 		},
 		"▶",
 	);
