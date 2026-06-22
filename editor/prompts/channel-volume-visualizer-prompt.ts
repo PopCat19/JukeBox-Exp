@@ -193,6 +193,13 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 	// interleaves with the spectrum/peak work rather than piling on
 	// the same frame.
 	private _playerFrameToggle: boolean = false;
+	// Perf logging: accumulate per-phase ms across frames and log a
+	// summary to the console every ~1s. Shareable from devtools.
+	private _perfFrames: number = 0;
+	private _perfAccum: Record<string, number> = {};
+	private _perfLastLog: number = 0;
+	private _perfFpsLast: number = 0;
+	private _perfFpsMin: number = Infinity;
 	private _cachedDuration: number = -1;
 	private _cachedBarCount: number = -1;
 	private _cachedGeneration: number = -1;
@@ -602,12 +609,14 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 	}
 
 	private _animate = (): void => {
+		const __t0 = performance.now();
 		// Show spectrum only when popped out; when docked the editor's
 		// main spectrum already fills the viewport.
 		const isPopout = this.container.ownerDocument.defaultView !== window;
 		this._cvSpectrum.canvas.style.display = isPopout ? "block" : "none";
 		this._playerOverlay.style.display = isPopout ? "" : "none";
 
+		const __tPlayerA = performance.now();
 		// Player timeline background: render only the bars inside (or near)
 		// the visible viewport, not the whole song. renderTimeline rebuilds
 		// the SVG, so it runs only when the song changes, the viewport
@@ -651,7 +660,9 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 				}
 			}
 		}
+		const __tPlayerB = performance.now();
 		this._wasPopout = isPopout;
+		const __tLabelsA = performance.now();
 
 		// Show song title in the prompt titlebar when popped out.
 		const h2 = this.container.querySelector<HTMLHeadingElement>(".prompt-titlebar h2");
@@ -710,6 +721,7 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 			this._masterDbMinMaxLabel.textContent = `${minDb}/${maxDb} dB`;
 		}
 
+		const __tLabelsB = performance.now();
 		// Update per-channel volume bars
 		const synth = this._doc.synth;
 		// Smooth the post-limiter master gain the per-channel ring omits, so the
@@ -1056,6 +1068,8 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 			}
 		}
 
+		const __tChanB = performance.now();
+		const __tKeysA = performance.now();
 		// Update piano key octave display — alpha peak curve with
 		// weighted-RGB channel color mixing when multiple channels
 		// play the same pitch.
@@ -1130,6 +1144,42 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 
 			updateKeys(this._whiteKeyRects, "var(--pitch-background)");
 			updateKeys(this._blackKeyRects, "var(--base02-surface)");
+		}
+		const __tKeysB = performance.now();
+
+		// --- Perf logging: accumulate per-phase ms, log every ~1s ---
+		const __tEnd = performance.now();
+		const frameMs = __tEnd - __t0;
+		this._perfFrames++;
+		this._perfAccum.player = (this._perfAccum.player ?? 0) + (__tPlayerB - __tPlayerA);
+		this._perfAccum.labels = (this._perfAccum.labels ?? 0) + (__tLabelsB - __tLabelsA);
+		this._perfAccum.channels = (this._perfAccum.channels ?? 0) + (__tChanB - __tLabelsB);
+		this._perfAccum.keys = (this._perfAccum.keys ?? 0) + (__tKeysB - __tKeysA);
+		this._perfAccum.total = (this._perfAccum.total ?? 0) + frameMs;
+		// Rolling frame interval for FPS (wall clock between frames).
+		if (this._perfFpsLast > 0) {
+			const interval = __tEnd - this._perfFpsLast;
+			if (interval > 0) {
+				const fps = 1000 / interval;
+				if (fps < this._perfFpsMin) this._perfFpsMin = fps;
+			}
+		}
+		this._perfFpsLast = __tEnd;
+		if (this._perfLastLog === 0) this._perfLastLog = __tEnd;
+		if (__tEnd - this._perfLastLog >= 1000) {
+			const a = this._perfAccum;
+			const avgFps = (this._perfFrames * 1000) / (__tEnd - this._perfLastLog);
+			const minFps = this._perfFpsMin === Infinity ? 0 : this._perfFpsMin;
+			const pct = (v: number): string => `${((v / a.total) * 100).toFixed(0)}%`;
+			const r = (k: string): string => `${k} ${a[k].toFixed(2)}ms (${pct(a[k])})`;
+			console.log(
+				`[CVV perf] fps avg ${avgFps.toFixed(1)} min ${minFps.toFixed(1)} | frames ${this._perfFrames} | ${r("player")} ${r("labels")} ${r("channels")} ${r("keys")} | total ${a.total.toFixed(2)}ms`,
+			);
+			this._perfAccum = {};
+			this._perfFrames = 0;
+			this._perfLastLog = __tEnd;
+			// Reset min FPS every window so it reflects recent hiccups.
+			this._perfFpsMin = Infinity;
 		}
 
 		this._spectrumFrameToggle = !this._spectrumFrameToggle;
