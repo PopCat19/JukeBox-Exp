@@ -8,6 +8,10 @@
 // - Renders a pill-shaped track + fill + knob using divs instead
 //   of the native <input type="range">, matching the PMD design
 //   system (see project-minimalist-design hue slider)
+// - Supports two layouts:
+//   Regular (midTick=false): fill originates from the left edge
+//   Delta (midTick=true): fill emanates from center, knob is
+//     absolutely positioned, center-line shows the reference
 
 import { HTML } from "imperative-html/dist/esm/elements-strict";
 import type { Change } from "../../core/change";
@@ -22,9 +26,16 @@ export class Slider {
 	private _defaultValue: number = 0;
 	private _min: number;
 	private _max: number;
+	private readonly _midTick: boolean;
 	private _wrapperDiv: HTMLDivElement;
-	private _fillDiv: HTMLDivElement;
-	private _trackDiv: HTMLDivElement;
+	// Regular slider fields
+	private _fillDiv: HTMLDivElement | null = null;
+	private _trackDiv: HTMLDivElement | null = null;
+	// Delta slider fields
+	private _leftFillDiv: HTMLDivElement | null = null;
+	private _rightFillDiv: HTMLDivElement | null = null;
+	private _centerLine: HTMLDivElement | null = null;
+	private _knobDiv: HTMLDivElement | null = null;
 	private readonly _modIndicator: HTMLDivElement;
 	private _dragging: boolean = false;
 	public container: HTMLSpanElement;
@@ -40,18 +51,41 @@ export class Slider {
 		this._defaultValue = defaultValue ?? 0;
 		this._min = parseFloat(input.min) || 0;
 		this._max = parseFloat(input.max) || 100;
+		this._midTick = midTick;
 
 		// Hide the native range input; the div-based visual takes over.
 		input.style.display = "none";
 
+		this._modIndicator = div({
+			class: "slider-mod-indicator",
+			style: "position: absolute; left: var(--mod-position, -50%); width: 4px; height: 100%; top: 0; background: var(--subtext); border-radius: 999px; transform: translate(-50%, 0); pointer-events: none; z-index: 10;",
+		});
+
+		if (midTick) {
+			this._buildDeltaSlider();
+		} else {
+			this._buildRegularSlider();
+		}
+
+		this.container = midTick
+			? span({ style: "position: sticky; display: flex; width: 61.5%; flex-shrink: 0;" }, input, this._wrapperDiv)
+			: span({ style: "position: sticky; display: flex; width: 62.5%; flex-shrink: 0;" }, input, this._wrapperDiv);
+
+		input.addEventListener("input", this._whenInput);
+		input.addEventListener("change", this._whenChange);
+		this._wrapperDiv.addEventListener("pointerdown", this._onPointerDown);
+		this._wrapperDiv.addEventListener("dblclick", this._onDoubleClick);
+
+		this._syncVisual();
+	}
+
+	// ── Layout builders ──
+
+	private _buildRegularSlider(): void {
 		this._fillDiv = div({ style: "height: 6px; background: var(--cta-bg); border-radius: 999px 2px 2px 999px; flex-shrink: 0; align-self: center;" });
 		const knob = div({ style: "width: 4px; height: 100%; background: var(--cta-bg); border-radius: 999px; flex-shrink: 0;" });
 		this._trackDiv = div({
 			style: "flex: 1; height: 6px; background: var(--slider-track, var(--ui-widget-background, #444)); border-radius: 2px 999px 999px 2px; align-self: center;",
-		});
-		this._modIndicator = div({
-			class: "slider-mod-indicator",
-			style: "position: absolute; left: var(--mod-position, -50%); width: 4px; height: 100%; top: 0; background: var(--subtext); border-radius: 999px; transform: translate(-50%, 0); pointer-events: none; z-index: 10;",
 		});
 
 		this._wrapperDiv = div(
@@ -63,18 +97,48 @@ export class Slider {
 			this._trackDiv,
 			this._modIndicator,
 		);
-
-		this.container = midTick
-			? span({ class: "midTick", style: "position: sticky; display: flex; width: 61.5%; flex-shrink: 0;" }, input, this._wrapperDiv)
-			: span({ style: "position: sticky; display: flex; width: 62.5%; flex-shrink: 0;" }, input, this._wrapperDiv);
-
-		input.addEventListener("input", this._whenInput);
-		input.addEventListener("change", this._whenChange);
-		this._wrapperDiv.addEventListener("pointerdown", this._onPointerDown);
-		this._wrapperDiv.addEventListener("dblclick", this._onDoubleClick);
-
-		this._syncVisual();
 	}
+
+	private _buildDeltaSlider(): void {
+		// Track layer: contains track-bg and two fills that grow from center.
+		const trackLayer = div(
+			{
+				style: "position: absolute; top: 5px; left: 0; right: 0; height: 6px; overflow: hidden; border-radius: 999px;",
+			},
+			// Track background (fills entire track area)
+			div({ style: "position: absolute; inset: 0; background: var(--slider-track, var(--ui-widget-background, #444));" }),
+			// Left fill: anchored at right:50%, width extends leftward from center
+			(this._leftFillDiv = div({
+				style: "position: absolute; right: 50%; width: 0; height: 100%; background: var(--cta-bg); border-radius: 999px 0 0 999px;",
+			})),
+			// Right fill: anchored at left:50%, width extends rightward from center
+			(this._rightFillDiv = div({
+				style: "position: absolute; left: 50%; width: 0; height: 100%; background: var(--cta-bg); border-radius: 0 999px 999px 0;",
+			})),
+		);
+
+		// Center reference line (replaces the old midTick:after pseudo-element)
+		this._centerLine = div({
+			style: "position: absolute; left: 50%; width: 2px; height: 100%; background: var(--subtext); border-radius: 999px; transform: translateX(-50%); pointer-events: none; z-index: 2;",
+		});
+
+		// Knob: absolutely positioned at the current value
+		this._knobDiv = div({
+			style: "position: absolute; width: 4px; height: 100%; background: var(--cta-bg); border-radius: 999px; transform: translateX(-50%); pointer-events: none; z-index: 3;",
+		});
+
+		this._wrapperDiv = div(
+			{
+				style: "width: 100%; min-width: 0; position: relative; height: 16px; cursor: pointer; user-select: none; touch-action: none;",
+			},
+			trackLayer,
+			this._centerLine,
+			this._knobDiv,
+			this._modIndicator,
+		);
+	}
+
+	// ── Event handlers ──
 
 	private _whenInput = (): void => {
 		const continuingProspectiveChange: boolean = this._doc.lastChangeWas(this._change);
@@ -131,7 +195,20 @@ export class Slider {
 	private _syncVisual(): void {
 		const val = parseFloat(this.input.value) || this._min;
 		const frac = this._max > this._min ? (val - this._min) / (this._max - this._min) : 0;
-		this._fillDiv.style.flex = `0 0 ${Math.max(0, Math.min(100, frac * 100))}%`;
+
+		if (this._midTick) {
+			// Delta mode: fills grow from center, knob tracks the value
+			const leftPct = Math.max(0, (0.5 - frac)) * 100;
+			const rightPct = Math.max(0, (frac - 0.5)) * 100;
+			if (this._leftFillDiv) this._leftFillDiv.style.width = `${leftPct}%`;
+			if (this._rightFillDiv) this._rightFillDiv.style.width = `${rightPct}%`;
+			if (this._knobDiv) this._knobDiv.style.left = `${frac * 100}%`;
+		} else {
+			// Regular mode: single fill from left edge
+			if (this._fillDiv) {
+				this._fillDiv.style.flex = `0 0 ${Math.max(0, Math.min(100, frac * 100))}%`;
+			}
+		}
 	}
 
 	// ── Double-click reset ──

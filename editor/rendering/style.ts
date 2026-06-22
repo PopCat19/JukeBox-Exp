@@ -3248,18 +3248,6 @@ html {
 	fill: var(--primary-text) !important;
 }
 
-.beepboxEditor span.midTick:after {
-    content: "";
-    display:inline-block;
-    position: absolute;
-    background: currentColor;
-    width: 2%;
-    left: 49%;
-    height: 0.5em;
-    top: 32%;
-    z-index: 1;
-		pointer-events: none;
-}
 .beepboxEditor span.modSlider {
 	--mod-position: 20%;
 }
