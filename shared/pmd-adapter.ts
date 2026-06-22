@@ -184,7 +184,7 @@ function applyChannelColors(root: HTMLElement, pmd: PMDVariables, primaryHue: nu
 	// below the PMD default chroma.
 	function boostC(defaultC: number, l: number, h: number): number {
 		const maxC = maxChroma(l, h);
-		const target = maxC * 0.75;
+		const target = Math.min(0.14, maxC * 0.75);
 		return Math.max(defaultC, target);
 	}
 
