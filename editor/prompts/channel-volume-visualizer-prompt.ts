@@ -258,8 +258,11 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 				this._masterDbAvgLabel,
 				this._masterDbMinLabel,
 				this._masterDbMaxLabel,
-				this._barPosLabel,
 			),
+		),
+		div(
+			{ style: "text-align: center; padding: 2px 12px 0px 12px;" },
+			this._barPosLabel,
 		),
 		// Divider
 		div({ style: "border-top: 2px solid var(--ui-widget-background); margin: 0 12px;" }),
@@ -873,17 +876,24 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 					var _cp = this._channelPeak.get(channelIndex) ?? 0;
 					var _vb = 0.3 + Math.min(1, (2 * _cp * 3.16) / (_cp * 3.16 + 1.0)) * 0.7;
 					var _cc = this._channelSpectrumColors.get(channelIndex) ?? "#888";
+					var _r = parseInt(_cc.length >= 7 ? _cc.slice(1, 3) : _cc.slice(1, 2) + _cc.slice(1, 2), 16);
+					var _g = parseInt(_cc.length >= 7 ? _cc.slice(3, 5) : _cc.slice(2, 3) + _cc.slice(2, 3), 16);
+					var _b = parseInt(_cc.length >= 7 ? _cc.slice(5, 7) : _cc.slice(3, 4) + _cc.slice(3, 4), 16);
+					var _bt = Math.min(1, Math.max(0, (_vb - 0.3) / 0.7));
+					var _br = Math.round(_r + (255 - _r) * _bt);
+					var _bg = Math.round(_g + (255 - _g) * _bt);
+					var _bb = Math.round(_b + (255 - _b) * _bt);
 					var _sp = Array.from(_ap).sort(function(a: number, b: number) { return a - b; });
 					for (var _si = 0; _si < _sp.length; _si++) {
 						var _p2 = _sp[_si];
 						var _k2 = channelIndex + "-" + _p2;
 						var _s2 = this._noteSpans.get(_k2);
 						if (!_s2) {
-							_s2 = span({ style: "font-size: 9px; font-weight: 600; padding: 0px 3px; border-radius: 2px; white-space: nowrap; color: " + _cc + "; opacity: " + _vb + ";" }, pitchToNoteName(_p2));
+							_s2 = span({ style: "font-size: 9px; font-weight: 600; padding: 0px 3px; border-radius: 2px; white-space: nowrap; background: rgb(" + _br + "," + _bg + "," + _bb + "); color: " + (_bt > 0.5 ? "black" : "var(--editor-background)") + "; opacity: " + _vb + ";" }, pitchToNoteName(_p2));
 							this._noteSpans.set(_k2, _s2);
 							_nc.appendChild(_s2);
 						} else {
-							_s2.style.opacity = String(_vb);
+							_s2.style.background = "rgb(" + _br + "," + _bg + "," + _bb + ")"; _s2.style.color = _bt > 0.5 ? "black" : "var(--editor-background)"; _s2.style.opacity = String(_vb);
 						}
 					}
 				}
