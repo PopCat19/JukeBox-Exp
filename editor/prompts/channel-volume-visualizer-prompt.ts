@@ -239,6 +239,7 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 				style: "display: flex; align-items: center; justify-content: center; gap: 12px; flex-wrap: nowrap; padding: 4px 12px 0px 12px;"
 			},
 			this._playPauseButton,
+			this._barPosLabel,
 			this._tempoLabel,
 			span(
 				{ style: `display: inline-flex; gap: 10px; flex-wrap: nowrap;` },
@@ -247,7 +248,6 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 				this._masterDbMinLabel,
 				this._masterDbMaxLabel,
 			),
-			this._barPosLabel,
 		),
 		// Divider
 		div({ style: "border-top: 2px solid var(--ui-widget-background); margin: 0 12px;" }),
@@ -451,7 +451,7 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 		}
 
 		// Update tempo label
-		this._tempoLabel.textContent = `${this._doc.song.tempo} BPM`;
+		this._tempoLabel.textContent = `BPM: ${this._doc.song.tempo}`;
 
 		// Master volume from the post-limiter sample peak (song.outVolumeCap), the
 		// same source as the limiter prompt's Out meter and the editor's main meter.
