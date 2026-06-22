@@ -43,15 +43,15 @@ export class Slider {
 		// Hide the native range input; the div-based visual takes over.
 		input.style.display = "none";
 
-		this._fillDiv = div({ style: "height: 100%; background: var(--cta-bg); border-radius: 999px 2px 2px 999px; flex-shrink: 0;" });
+		this._fillDiv = div({ style: "height: 6px; background: var(--cta-bg); border-radius: 999px 2px 2px 999px; flex-shrink: 0; align-self: center;" });
 		const knob = div({ style: "width: 2px; height: 100%; background: var(--cta-bg); border-radius: 999px; flex-shrink: 0;" });
 		this._trackDiv = div({
-			style: "flex: 1; height: 100%; background: var(--slider-track, var(--ui-widget-background, #444)); border-radius: 2px 999px 999px 2px;",
+			style: "flex: 1; height: 6px; background: var(--slider-track, var(--ui-widget-background, #444)); border-radius: 2px 999px 999px 2px; align-self: center;",
 		});
 
 		this._wrapperDiv = div(
 			{
-				style: "flex: 1; display: flex; align-items: center; gap: 2px; height: 6px; cursor: pointer; user-select: none; touch-action: none;",
+				style: "flex: 1; display: flex; align-items: center; gap: 2px; height: 16px; cursor: pointer; user-select: none; touch-action: none;",
 			},
 			this._fillDiv,
 			knob,
