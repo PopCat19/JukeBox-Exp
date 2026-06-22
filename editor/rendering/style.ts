@@ -395,6 +395,7 @@ html {
     grid-template-rows: min-content min-content min-content min-content min-content min-content;
     grid-template-areas: "version-area" "play-pause-area" "menu-area" "song-settings-area" "instrument-settings-area" "settings-volume-area";
 	grid-column-gap: 6px;
+	padding-right: 6px;
 }
 
 .beepboxEditor .version-area{ grid-area: version-area; }
@@ -3360,6 +3361,7 @@ html {
 			"version-area version-area";
 		grid-column-gap: 8px;
 		margin: 0 4px;
+		padding-right: 6px;
 	}
 	.beepboxEditor:focus-within {
 		outline: none;
