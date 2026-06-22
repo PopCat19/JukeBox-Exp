@@ -193,7 +193,7 @@ export class Slider {
 	// ── Visual sync ──
 
 	private _syncVisual(): void {
-		const val = parseFloat(this.input.value) || this._min;
+		const val = parseFloat(this.input.value) ?? this._min;
 		const frac = this._max > this._min ? (val - this._min) / (this._max - this._min) : 0;
 
 		if (this._midTick) {
