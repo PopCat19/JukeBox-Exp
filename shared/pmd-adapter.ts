@@ -149,7 +149,7 @@ export function applyPMDToDOM(colors: Base16Palette): void {
 	set("--note-flash-secondary", withAlpha("base07", 0.47));
 
 	// Channel colors — map to PMD accent hues
-	applyChannelColors(root, pmd, primaryHue);
+	applyChannelColors(root, pmd, colors);
 }
 
 // Distribute n hues evenly around the 360° OKLCH hue circle with at least
@@ -165,16 +165,23 @@ function spreadHues(n: number, anchorHue: number): number[] {
 	return hues;
 }
 
-function applyChannelColors(root: HTMLElement, pmd: PMDVariables, primaryHue: number): void {
+function applyChannelColors(root: HTMLElement, pmd: PMDVariables, palette: Base16Palette): void {
 	const set = (name: string, value: string) => root.style.setProperty(name, value);
 
 	const pitchNames = ["pitch1", "pitch2", "pitch3", "pitch4", "pitch5", "pitch6", "pitch7", "pitch8", "pitch9", "pitch10"];
 	const noiseNames = ["noise1", "noise2", "noise3", "noise4"];
 	const modNames = ["mod1", "mod2", "mod3", "mod4"];
 
+	const primaryHue = palette.base0D?.hue ?? 260;
 	const pitchHues = spreadHues(pitchNames.length, primaryHue);
-	const noiseHues = spreadHues(noiseNames.length, primaryHue + 120);
-	const modHues = spreadHues(modNames.length, primaryHue + 240);
+
+	// Reserve fixed PMD accent slots for noise and mod channels.
+	const noiseHue = palette.base09?.hue ?? (primaryHue + 290) % 360;
+	const noiseL = palette.base09?.rgb ? Math.round(palette.base09.rgb.r * 0.299 + palette.base09.rgb.g * 0.587 + palette.base09.rgb.b * 0.114) / 255 : pmd["64x"].l;
+	const noiseC = pmd["64x"].c;
+	const modHue = palette.base0E?.hue ?? (primaryHue + 330) % 360;
+	const modL = pmd["64x"].l;
+	const modC = pmd["64x"].c;
 
 	function hexAt(l: number, c: number, h: number): string {
 		return rgbToHex(safeOklchToRgb(l, c, h));
@@ -206,20 +213,18 @@ function applyChannelColors(root: HTMLElement, pmd: PMDVariables, primaryHue: nu
 		set(`--${name}-secondary-channel`, hc(0.32, pmd["64x"].c, h));
 	});
 
-	noiseNames.forEach((name, i) => {
-		const h = noiseHues[i];
-		set(`--${name}-primary-note`, hc(pmd["80x"].l, pmd["80x"].c * 0.4, h));
-		set(`--${name}-primary-channel`, hc(pmd["64x"].l, pmd["64x"].c * 0.4, h));
-		set(`--${name}-secondary-note`, hc(pmd["64x"].l, pmd["64x"].c * 0.3, h));
-		set(`--${name}-secondary-channel`, hc(0.32, pmd["64x"].c * 0.3, h));
+	noiseNames.forEach((name) => {
+		set(`--${name}-primary-note`, hc(noiseL, noiseC, noiseHue));
+		set(`--${name}-primary-channel`, hc(noiseL, noiseC * 0.6, noiseHue));
+		set(`--${name}-secondary-note`, hc(noiseL, noiseC * 0.5, noiseHue));
+		set(`--${name}-secondary-channel`, hc(0.32, noiseC * 0.4, noiseHue));
 	});
 
-	modNames.forEach((name, i) => {
-		const h = modHues[i];
-		set(`--${name}-primary-note`, hc(pmd["88x"].l, pmd["88x"].c * 0.6, h));
-		set(`--${name}-primary-channel`, hc(pmd["80x"].l, pmd["80x"].c * 0.5, h));
-		set(`--${name}-secondary-note`, hc(pmd["64x"].l, pmd["64x"].c * 0.5, h));
-		set(`--${name}-secondary-channel`, hc(0.32, pmd["64x"].c * 0.5, h));
+	modNames.forEach((name) => {
+		set(`--${name}-primary-note`, hc(modL, modC, modHue));
+		set(`--${name}-primary-channel`, hc(modL, modC * 0.6, modHue));
+		set(`--${name}-secondary-note`, hc(modL, modC * 0.5, modHue));
+		set(`--${name}-secondary-channel`, hc(0.32, modC * 0.4, modHue));
 	});
 }
 
