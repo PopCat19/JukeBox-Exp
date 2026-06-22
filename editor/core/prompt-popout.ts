@@ -44,6 +44,16 @@ export class PromptPopout {
 	constructor(private readonly _host: PromptPopoutHost) {
 		this._onThemeChange = (): void => this._resyncAllThemes();
 		events.listen("themeChange", this._onThemeChange);
+
+		// Close all popouts when the editor tab refreshes or closes.
+		// window.opener is unreliable across navigation (it may persist
+		// even after the opener page reloads), so the parent must
+		// explicitly close popouts before it unloads.
+		window.addEventListener("beforeunload", () => {
+			for (const win of this._windows.values()) {
+				try { win.close(); } catch { /* already closed */ }
+			}
+		});
 	}
 
 	public isOpen(prompt: Prompt): boolean {
@@ -146,18 +156,6 @@ export class PromptPopout {
 		// way the popout is gone and the manager must clean up its stack.
 		const onUnload = (): void => this._handleClosed(prompt);
 		win.addEventListener("pagehide", onUnload);
-
-		// Inject a self-closing watchdog into the popup window so it lives
-		// in the popup's own JS context. When the parent editor refreshes,
-		// window.opener is nulled; the popup detects this and closes itself
-		// to avoid an orphaned, unresponsive window.
-		const watchdog = doc.createElement("script");
-		watchdog.textContent = `
-			setInterval(function(){
-				try{if(!window.opener||window.opener.closed)window.close()}catch(e){window.close()}
-			},500)
-		`;
-		doc.head.appendChild(watchdog);
 
 		this._cleanupOnClose.set(prompt, (): void => {
 			doc.removeEventListener("keydown", onKey);
