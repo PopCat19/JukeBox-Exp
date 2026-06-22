@@ -197,9 +197,9 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 	// Progress / scrub bar: click or drag to seek. Shows the loop
 	// region (when loop on) and the playhead position. SVG so the
 	// playhead updates are cheap setAttribute calls.
-	private readonly _scrubTrack: SVGRectElement = rect({ x: 0, y: 0, width: 1000, height: 8, fill: "var(--base03)", rx: 4 });
+	private readonly _scrubTrack: SVGRectElement = rect({ x: 0, y: 0, width: 1000, height: 8, fill: "var(--secondary-text)", rx: 4 });
 	private readonly _scrubLoopRegion: SVGRectElement = rect({ x: 0, y: 0, width: 0, height: 8, fill: ColorConfig.loopAccent, opacity: "0.5", rx: 4 });
-	private readonly _scrubProgress: SVGRectElement = rect({ x: 0, y: 0, width: 0, height: 8, fill: "var(--base06)" });
+	private readonly _scrubProgress: SVGRectElement = rect({ x: 0, y: 0, width: 0, height: 8, fill: "var(--cta-bg)" });
 	private _scrubSvgRect: DOMRect | null = null;
 	private _scrubDragging: boolean = false;
 	private readonly _scrubBar: SVGSVGElement = svg(
