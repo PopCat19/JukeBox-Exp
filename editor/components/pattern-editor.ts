@@ -437,13 +437,17 @@ export class PatternEditor {
 				? this._doc.song.scaleCustom
 				: Config.scales[this._doc.song.scale].flags;
 
+		const rowHeight: number = this._pitchHeight - 2;
 		for (let beat: number = 0; beat < this._doc.song.beatsPerBar; beat++) {
 			const beatX: number = beat * beatWidth + 1;
-			for (let i: number = 0; i < Config.pitchesPerOctave; i++) {
-				if (!scale[i]) continue;
-				const rowY: number = ((Config.pitchesPerOctave - i) % Config.pitchesPerOctave) * this._pitchHeight + 1;
-				ctx.fillStyle = i === 0 ? tonicColor : i === 7 && this._doc.prefs.showFifth ? fifthColor : pitchBgColor;
-				ctx.fillRect(beatX, rowY, beatWidth - 2, this._pitchHeight - 2);
+			let y: number = 1;
+			for (let row: number = 0; y < h; row++) {
+				const scaleIndex: number = (Config.pitchesPerOctave - (row % Config.pitchesPerOctave)) % Config.pitchesPerOctave;
+				if (scale[scaleIndex]) {
+					ctx.fillStyle = scaleIndex === 0 ? tonicColor : scaleIndex === 7 && this._doc.prefs.showFifth ? fifthColor : pitchBgColor;
+					ctx.fillRect(beatX, y, beatWidth - 2, rowHeight);
+				}
+				y += this._pitchHeight;
 			}
 		}
 	}
