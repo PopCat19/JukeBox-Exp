@@ -719,6 +719,16 @@ export class Synth {
 		if (this.song == null) {
 			return -1;
 		}
+		// Empty or inverted window with no looping renders zero samples.
+		// Without this guard the tempo-mod branch below runs its loop once
+		// for startBar===endBar (it checks the exit condition after
+		// processing a bar), returning ~one bar of samples instead of 0.
+		// That made getSamplesUpToBar(0) nonzero for mod songs, so
+		// goToBar(0) / play() from bar 0 seeded totalSamplesRendered to
+		// ~1 bar and the elapsed counter never reset on import.
+		if (loop === 0 && endBar <= startBar) {
+			return 0;
+		}
 		let hasTempoMods: boolean = false;
 		let hasNextBarMods: boolean = false;
 		let prevTempo: number = this.song.tempo;
@@ -2988,7 +2998,11 @@ export class Synth {
 									noteForThisTone = prevNoteForThisTone;
 									pitchesForThisTone = noteForThisTone.pitches;
 									if (effectsIncludeNoteRange(instrument.effects)) {
-										pitchesForThisTone = this._fillFilteredPitches(pitchesForThisTone, instrument.lowerNoteLimit, instrument.upperNoteLimit);
+										pitchesForThisTone = this._fillFilteredPitches(
+											pitchesForThisTone,
+											instrument.lowerNoteLimit,
+											instrument.upperNoteLimit,
+										);
 									}
 									prevNoteForThisTone = null;
 									noteStartPart = noteForThisTone.start + strumOffsetParts;
