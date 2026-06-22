@@ -107,13 +107,13 @@ export class Slider {
 			},
 			// Track background (fills entire track area)
 			div({ style: "position: absolute; inset: 0; background: var(--slider-track, var(--ui-widget-background, #444));" }),
-			// Left fill: anchored at right:50%, width extends leftward from center
+			// Left fill: anchored at left:0, extends rightward toward knob (minus gap)
 			(this._leftFillDiv = div({
-				style: "position: absolute; right: 50%; width: 0; height: 100%; background: var(--cta-bg); border-radius: 999px 0 0 999px;",
+				style: "position: absolute; left: 0; width: 0; height: 100%; background: var(--cta-bg); border-radius: 999px 0 0 999px;",
 			})),
-			// Right fill: anchored at left:50%, width extends rightward from center
+			// Right fill: anchored at right:0, extends leftward toward knob (minus gap)
 			(this._rightFillDiv = div({
-				style: "position: absolute; left: 50%; width: 0; height: 100%; background: var(--cta-bg); border-radius: 0 999px 999px 0;",
+				style: "position: absolute; right: 0; width: 0; height: 100%; background: var(--cta-bg); border-radius: 0 999px 999px 0;",
 			})),
 		);
 
@@ -197,12 +197,20 @@ export class Slider {
 		const frac = this._max > this._min ? (val - this._min) / (this._max - this._min) : 0;
 
 		if (this._midTick) {
-			// Delta mode: fills grow from center, knob tracks the value
-			const leftPct = Math.max(0, (0.5 - frac)) * 100;
-			const rightPct = Math.max(0, (frac - 0.5)) * 100;
-			if (this._leftFillDiv) this._leftFillDiv.style.width = `${leftPct}%`;
-			if (this._rightFillDiv) this._rightFillDiv.style.width = `${rightPct}%`;
-			if (this._knobDiv) this._knobDiv.style.left = `${frac * 100}%`;
+			// Delta mode: fills grow from outer edges toward knob (minus 4px gap).
+			const w = this._wrapperDiv.offsetWidth;
+			const gapPct = w > 0 ? (4 / w) * 100 : 0;
+			const knobPct = frac * 100;
+			if (knobPct <= 50) {
+				const fillW = Math.max(0, knobPct - gapPct);
+				if (this._leftFillDiv) this._leftFillDiv.style.width = `${fillW}%`;
+				if (this._rightFillDiv) this._rightFillDiv.style.width = "0";
+			} else {
+				const fillW = Math.max(0, 100 - knobPct - gapPct);
+				if (this._leftFillDiv) this._leftFillDiv.style.width = "0";
+				if (this._rightFillDiv) this._rightFillDiv.style.width = `${fillW}%`;
+			}
+			if (this._knobDiv) this._knobDiv.style.left = `${knobPct}%`;
 		} else {
 			// Regular mode: single fill from left edge
 			if (this._fillDiv) {
