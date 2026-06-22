@@ -24,7 +24,7 @@ import type { SongDocument } from "../song-document";
 import { BasePrompt } from "./base-prompt";
 
 const { div, h2, span, button, canvas } = HTML;
-const { svg, rect } = SVG;
+const { svg, rect, path } = SVG;
 
 // Spectrum overlay tuning, mirroring shared/spectrum.ts main FG layer so the
 // per-channel overlay matches the editor's main spectrum look.
@@ -171,6 +171,48 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 			style: `font-size: ${Typography.sizeSm}; width: ${Sizing.button}; height: ${Sizing.button}; padding: 0; border-radius: 50%; display: flex; align-items: center; justify-content: center; line-height: 1;`,
 		},
 		"▶",
+	);
+	private readonly _stopButton: HTMLButtonElement = button(
+		{
+			style: `font-size: ${Typography.sizeSm}; width: ${Sizing.button}; height: ${Sizing.button}; padding: 0; border-radius: 50%; display: flex; align-items: center; justify-content: center; line-height: 1;`,
+		},
+		"■",
+	);
+	// Loop toggle icon (mirrors the standalone player's loopButton).
+	private readonly _loopIcon: SVGPathElement = path({
+		d: "M 2 6 a 4 4 0 1 0 1.2 2.8 M 3 7.5 L 1.5 6 L 3 4.5",
+		fill: "none",
+		stroke: "currentColor",
+		"stroke-width": "1.2",
+		"stroke-linecap": "round",
+		"stroke-linejoin": "round",
+	});
+	private readonly _loopButton: HTMLButtonElement = button(
+		{
+			style: `width: ${Sizing.button}; height: ${Sizing.button}; padding: 0; border-radius: 50%; display: flex; align-items: center; justify-content: center; line-height: 1; color: var(--ui-widget-background);`,
+			title: "Toggle loop",
+		},
+		svg({ width: 12, height: 12, viewBox: "0 0 8 8" }, this._loopIcon),
+	);
+	// Progress / scrub bar: click or drag to seek. Shows the loop
+	// region (when loop on) and the playhead position. SVG so the
+	// playhead updates are cheap setAttribute calls.
+	private readonly _scrubTrack: SVGRectElement = rect({ x: 0, y: 0, width: 1000, height: 8, fill: "var(--ui-widget-background)", rx: 4 });
+	private readonly _scrubLoopRegion: SVGRectElement = rect({ x: 0, y: 0, width: 0, height: 8, fill: ColorConfig.loopAccent, opacity: "0.5", rx: 4 });
+	private readonly _scrubProgress: SVGRectElement = rect({ x: 0, y: 0, width: 0, height: 8, fill: ColorConfig.playhead, opacity: "0.5", rx: 4 });
+	private readonly _scrubPlayhead: SVGRectElement = rect({ x: 0, y: -1, width: 2, height: 10, fill: ColorConfig.playhead });
+	private _scrubSvgRect: DOMRect | null = null;
+	private _scrubDragging: boolean = false;
+	private readonly _scrubBar: SVGSVGElement = svg(
+		{
+			style: "width: calc(100% - 24px); height: 12px; display: block; margin: 4px 12px 0px 12px; cursor: pointer; touch-action: none;",
+			viewBox: "0 0 1000 8",
+			preserveAspectRatio: "none",
+		},
+		this._scrubTrack,
+		this._scrubLoopRegion,
+		this._scrubProgress,
+		this._scrubPlayhead,
 	);
 	private readonly _tempoLabel: HTMLSpanElement = span(
 		{
@@ -332,10 +374,14 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 				style: "display: flex; align-items: center; justify-content: center; gap: 12px; flex-wrap: nowrap; padding: 4px 12px 0px 12px;",
 			},
 			this._playPauseButton,
+			this._stopButton,
+			this._loopButton,
 			this._barPosLabel,
 			this._tempoLabel,
 			span({ style: `display: inline-flex; gap: 10px; flex-wrap: nowrap;` }, this._masterDbPeakLabel, this._masterDbAvgLabel, this._masterDbMinMaxLabel),
 		),
+		// Progress / scrub bar
+		this._scrubBar,
 		// Divider
 		div({ style: "border-top: 2px solid var(--ui-widget-background); margin: 0 12px;" }),
 		// Piano key octave rows
@@ -363,6 +409,9 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 		this._buildPianoKeyRows();
 		this._scheduleFrame();
 		this._playPauseButton.addEventListener("click", this._togglePlayPause);
+		this._stopButton.addEventListener("click", this._stop);
+		this._loopButton.addEventListener("click", this._toggleLoop);
+		this._scrubBar.addEventListener("pointerdown", this._onScrubPointerDown);
 		setTimeout(() => this.container.focus());
 
 		// Drag-and-drop file import for .json, .mid, .midi files.
@@ -410,6 +459,52 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 			this._doc.performance.play();
 		}
 		this._updatePlayPauseButton();
+	};
+
+	private _stop = (): void => {
+		// Pause and jump to bar 0. goToBar(0) seeds
+		// totalSamplesRendered to 0 so the elapsed counter resets.
+		this._doc.performance.pause();
+		this._doc.synth.goToBar(0);
+		this._updatePlayPauseButton();
+	};
+
+	private _toggleLoop = (): void => {
+		// Mirror the standalone player: -1 = loop forever, 0 = no loop.
+		this._doc.synth.loopRepeatCount = this._doc.synth.loopRepeatCount === -1 ? 0 : -1;
+		this._updateLoopButton();
+	};
+
+	private _updateLoopButton = (): void => {
+		this._loopButton.style.color = this._doc.synth.loopRepeatCount === -1 ? ColorConfig.loopAccent : "var(--ui-widget-background)";
+	};
+
+	// Seek the playhead to the bar position under the pointer.
+	private _seekToPointer = (clientX: number): void => {
+		if (!this._scrubSvgRect) this._scrubSvgRect = this._scrubBar.getBoundingClientRect();
+		const r = this._scrubSvgRect;
+		const frac = Math.max(0, Math.min(1, (clientX - r.left) / r.width));
+		const barCount = this._doc.song.barCount;
+		this._doc.synth.playhead = frac * barCount;
+	};
+
+	private _onScrubPointerDown = (event: PointerEvent): void => {
+		event.preventDefault();
+		this._scrubDragging = true;
+		this._scrubSvgRect = this._scrubBar.getBoundingClientRect();
+		this._seekToPointer(event.clientX);
+		const win = (this.container.ownerDocument.defaultView as Window | null) ?? window;
+		const onMove = (e: PointerEvent): void => {
+			if (!this._scrubDragging) return;
+			this._seekToPointer(e.clientX);
+		};
+		const onUp = (): void => {
+			this._scrubDragging = false;
+			win.removeEventListener("pointermove", onMove);
+			win.removeEventListener("pointerup", onUp);
+		};
+		win.addEventListener("pointermove", onMove);
+		win.addEventListener("pointerup", onUp);
 	};
 
 	private _updatePlayPauseButton = (): void => {
@@ -491,6 +586,9 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 		this._blackKeyRects.clear();
 		this._keyLastRender.clear();
 		this._playPauseButton.removeEventListener("click", this._togglePlayPause);
+		this._stopButton.removeEventListener("click", this._stop);
+		this._loopButton.removeEventListener("click", this._toggleLoop);
+		this._scrubBar.removeEventListener("pointerdown", this._onScrubPointerDown);
 		this._songEditor.muteEditor.setHoveredChannel(-1);
 		this._songEditor.trackEditor.setHoveredChannel(-1);
 		// Invalidate cached bounding rects in other components
@@ -733,6 +831,27 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 
 		// Update play/pause button state
 		this._updatePlayPauseButton();
+		this._updateLoopButton();
+
+		// Update scrub bar: progress fill, playhead position, loop region.
+		// viewBox is 0..1000 wide; map playhead fraction to that space.
+		{
+			const barCount = this._doc.song.barCount;
+			const frac = barCount > 0 ? Math.max(0, Math.min(1, this._doc.synth.playhead / barCount)) : 0;
+			const px = frac * 1000;
+			this._scrubProgress.setAttribute("width", String(px));
+			this._scrubPlayhead.setAttribute("x", String(px - 1));
+			const looping = this._doc.synth.loopRepeatCount === -1 && this._doc.song.loopLength > 0;
+			if (looping) {
+				const ls = (this._doc.song.loopStart / barCount) * 1000;
+				const le = ((this._doc.song.loopStart + this._doc.song.loopLength) / barCount) * 1000;
+				this._scrubLoopRegion.setAttribute("x", String(ls));
+				this._scrubLoopRegion.setAttribute("width", String(Math.max(0, le - ls)));
+				this._scrubLoopRegion.style.display = "";
+			} else {
+				this._scrubLoopRegion.style.display = "none";
+			}
+		}
 
 		// Update bar position label with elapsed time (throttled).
 		this._barLabelCounter--;
