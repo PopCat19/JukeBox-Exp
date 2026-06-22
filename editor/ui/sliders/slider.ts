@@ -100,20 +100,23 @@ export class Slider {
 	}
 
 	private _buildDeltaSlider(): void {
-		// Track layer: contains track-bg and two fills that grow from center.
+		// Track layer: left and right track halves with gap at center,
+		// plus two fills that grow from center toward the knob.
 		const trackLayer = div(
 			{
 				style: "position: absolute; top: 5px; left: 0; right: 0; height: 6px; overflow: hidden; border-radius: 999px;",
 			},
-			// Track background (fills entire track area)
-			div({ style: "position: absolute; inset: 0; background: var(--slider-track, var(--ui-widget-background, #444));" }),
+			// Left track half: pill at left edge, gap at center
+			div({ style: "position: absolute; left: 0; right: calc(50% + 2px); height: 100%; background: var(--slider-track, var(--ui-widget-background, #444)); border-radius: 999px 0 0 999px;" }),
+			// Right track half: pill at right edge, gap at center
+			div({ style: "position: absolute; left: calc(50% + 2px); right: 0; height: 100%; background: var(--slider-track, var(--ui-widget-background, #444)); border-radius: 0 999px 999px 0;" }),
 			// Left fill: anchored at right:50% (center), extends LEFT toward knob.
-			// Pill end at center (right side), square end at knob side (left).
+			// Pill end at center, square end at knob side.
 			(this._leftFillDiv = div({
 				style: "position: absolute; right: 50%; width: 0; height: 100%; background: var(--cta-bg); border-radius: 0 999px 999px 0;",
 			})),
 			// Right fill: anchored at left:50% (center), extends RIGHT toward knob.
-			// Pill end at center (left side), square end at knob side (right).
+			// Pill end at center, square end at knob side.
 			(this._rightFillDiv = div({
 				style: "position: absolute; left: 50%; width: 0; height: 100%; background: var(--cta-bg); border-radius: 999px 0 0 999px;",
 			})),
