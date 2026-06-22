@@ -197,10 +197,9 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 	// Progress / scrub bar: click or drag to seek. Shows the loop
 	// region (when loop on) and the playhead position. SVG so the
 	// playhead updates are cheap setAttribute calls.
-	private readonly _scrubTrack: SVGRectElement = rect({ x: 0, y: 0, width: 1000, height: 8, fill: "var(--ui-widget-background)", rx: 4 });
+	private readonly _scrubTrack: SVGRectElement = rect({ x: 0, y: 0, width: 1000, height: 8, fill: "var(--base03)", rx: 4 });
 	private readonly _scrubLoopRegion: SVGRectElement = rect({ x: 0, y: 0, width: 0, height: 8, fill: ColorConfig.loopAccent, opacity: "0.5", rx: 4 });
-	private readonly _scrubProgress: SVGRectElement = rect({ x: 0, y: 0, width: 0, height: 8, fill: ColorConfig.playhead, opacity: "0.5", rx: 4 });
-	private readonly _scrubPlayhead: SVGRectElement = rect({ x: 0, y: -1, width: 2, height: 10, fill: ColorConfig.playhead });
+	private readonly _scrubProgress: SVGRectElement = rect({ x: 0, y: 0, width: 0, height: 8, fill: "var(--base06)", rx: 4 });
 	private _scrubSvgRect: DOMRect | null = null;
 	private _scrubDragging: boolean = false;
 	private readonly _scrubBar: SVGSVGElement = svg(
@@ -212,7 +211,6 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 		this._scrubTrack,
 		this._scrubLoopRegion,
 		this._scrubProgress,
-		this._scrubPlayhead,
 	);
 	private readonly _tempoLabel: HTMLSpanElement = span(
 		{
@@ -850,7 +848,6 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 			const frac = barCount > 0 ? Math.max(0, Math.min(1, this._doc.synth.playhead / barCount)) : 0;
 			const px = frac * 1000;
 			this._scrubProgress.setAttribute("width", String(px));
-			this._scrubPlayhead.setAttribute("x", String(px - 1));
 			const looping = this._doc.synth.loopRepeatCount === -1 && this._doc.song.loopLength > 0;
 			if (looping) {
 				const ls = (this._doc.song.loopStart / barCount) * 1000;
