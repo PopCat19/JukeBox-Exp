@@ -4169,6 +4169,7 @@ export function fromJsonObjectImpl(song: SongLike, jsonObject: any, jsonFormat: 
 
 	if (jsonObject.name !== undefined) {
 		song.title = jsonObject.name;
+		song.customSampleHandler?.setDocumentTitle(song.title);
 	}
 
 	if (jsonObject.customSamples !== undefined) {
