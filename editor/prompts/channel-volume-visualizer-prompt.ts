@@ -243,7 +243,7 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 		canvas({
 			width: 384,
 			height: 96,
-			style: "display: none; position: absolute; bottom: 0; left: 0; width: 100%; height: 96px; pointer-events: none; z-index: 1;",
+			style: "display: none; position: absolute; bottom: 0; left: 0; width: 100%; height: 96px; pointer-events: none; z-index: 1; opacity: 0.12;",
 		}),
 		1,
 		true,
