@@ -430,10 +430,21 @@ export class PatternEditor {
 
 		const tonicColor: string = this._resolveCssColor(ColorConfig.tonic);
 		const pitchBgColor: string = this._resolveCssColor(ColorConfig.pitchBackground);
-		for (let i: number = 0; i < Config.pitchesPerOctave; i++) {
-			const rowY: number = ((Config.pitchesPerOctave - i) % Config.pitchesPerOctave) * this._pitchHeight + 1;
-			ctx.fillStyle = i === 0 ? tonicColor : pitchBgColor;
-			ctx.fillRect(1, rowY, w - 2, this._pitchHeight - 2);
+		const fifthColor: string = this._resolveCssColor(ColorConfig.fifthNote);
+		const beatWidth: number = w / this._doc.song.beatsPerBar;
+		const scale: ReadonlyArray<boolean> =
+			this._doc.song.scale === Config.scales.dictionary.Custom.index
+				? this._doc.song.scaleCustom
+				: Config.scales[this._doc.song.scale].flags;
+
+		for (let beat: number = 0; beat < this._doc.song.beatsPerBar; beat++) {
+			const beatX: number = beat * beatWidth + 1;
+			for (let i: number = 0; i < Config.pitchesPerOctave; i++) {
+				if (!scale[i]) continue;
+				const rowY: number = ((Config.pitchesPerOctave - i) % Config.pitchesPerOctave) * this._pitchHeight + 1;
+				ctx.fillStyle = i === 0 ? tonicColor : i === 7 && this._doc.prefs.showFifth ? fifthColor : pitchBgColor;
+				ctx.fillRect(beatX, rowY, beatWidth - 2, this._pitchHeight - 2);
+			}
 		}
 	}
 
