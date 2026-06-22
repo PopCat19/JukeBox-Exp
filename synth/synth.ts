@@ -567,6 +567,16 @@ export class Synth {
 	private tempMonoInstrumentSampleBuffer: Float32Array | null = null;
 	private outputDataLUnfiltered: Float32Array | null = null;
 	private outputDataRUnfiltered: Float32Array | null = null;
+	private readonly _reusableFilteredPitches: number[] = [];
+
+	private _fillFilteredPitches(source: number[], lower: number, upper: number): number[] {
+		const out: number[] = this._reusableFilteredPitches;
+		out.length = 0;
+		for (let i: number = 0; i < source.length; i++) {
+			if (source[i] >= lower && source[i] <= upper) out.push(source[i]);
+		}
+		return out;
+	}
 
 	// eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
 	private audioCtx: AudioContext | null = null;
@@ -2389,11 +2399,11 @@ export class Synth {
 			const instrument: Instrument = channel.instruments[instrumentIndex];
 			let filteredPitches = pitches;
 			if (effectsIncludeNoteRange(instrument.effects)) {
-				filteredPitches = pitches.filter((pitch) => pitch >= instrument.lowerNoteLimit && pitch <= instrument.upperNoteLimit);
+				filteredPitches = this._fillFilteredPitches(pitches, instrument.lowerNoteLimit, instrument.upperNoteLimit);
 			}
 			let filteredBassPitches: number[] = bassPitches;
 			if (effectsIncludeNoteRange(instrument.effects)) {
-				filteredBassPitches = bassPitches.filter((pitch) => pitch >= instrument.lowerNoteLimit && pitch <= instrument.upperNoteLimit);
+				filteredBassPitches = this._fillFilteredPitches(bassPitches, instrument.lowerNoteLimit, instrument.upperNoteLimit);
 			}
 			if (
 				this.liveInputDuration > 0 &&
@@ -2880,7 +2890,7 @@ export class Synth {
 
 					let filteredPitches: number[] = note.pitches;
 					if (effectsIncludeNoteRange(instrument.effects)) {
-						filteredPitches = note.pitches.filter((pitch) => pitch >= instrument.lowerNoteLimit && pitch <= instrument.upperNoteLimit);
+						filteredPitches = this._fillFilteredPitches(note.pitches, instrument.lowerNoteLimit, instrument.upperNoteLimit);
 					}
 					if (chord.singleTone && !(filteredPitches.length <= 0)) {
 						const atNoteStart: boolean = Config.ticksPerPart * note.start === currentTick;
@@ -2972,9 +2982,7 @@ export class Synth {
 									noteForThisTone = prevNoteForThisTone;
 									pitchesForThisTone = noteForThisTone.pitches;
 									if (effectsIncludeNoteRange(instrument.effects)) {
-										pitchesForThisTone = pitchesForThisTone.filter(
-											(pitch) => pitch >= instrument.lowerNoteLimit && pitch <= instrument.upperNoteLimit,
-										);
+										pitchesForThisTone = this._fillFilteredPitches(pitchesForThisTone, instrument.lowerNoteLimit, instrument.upperNoteLimit);
 									}
 									prevNoteForThisTone = null;
 									noteStartPart = noteForThisTone.start + strumOffsetParts;
