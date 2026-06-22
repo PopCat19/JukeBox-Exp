@@ -1134,6 +1134,10 @@ export class ChangeSong extends ChangeGroup {
 			this.append(new ChangeValidateTrackSelection(doc));
 		}
 		doc.synth.computeLatestModValues();
+		// New song loaded (import / new / hashchange / replay): re-seed the
+		// elapsed counter to the current bar's offset in the new song so the
+		// timer does not carry over the prior song's accumulated samples.
+		doc.synth.totalSamplesRendered = doc.synth.getSamplesUpToBar(Math.floor(doc.synth.playhead));
 		doc.notifier.changed();
 		this._didSomething();
 	}
