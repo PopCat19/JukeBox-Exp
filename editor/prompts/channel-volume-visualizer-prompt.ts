@@ -486,7 +486,7 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 						y: "0",
 						width: String(BLACK_KEY_W),
 						height: String(BLACK_KEY_H),
-						fill: "var(--ui-widget-background)",
+						fill: "var(--base03-muted)",
 						opacity: "0.2",
 					});
 					svgEl.appendChild(r);
@@ -927,7 +927,7 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 				}
 			}
 
-			const updateKeys = (rects: Map<number, SVGRectElement>, defaultOpacity: string): void => {
+			const updateKeys = (rects: Map<number, SVGRectElement>, defaultFill: string, defaultOpacity: string): void => {
 				for (const [pitch, rect] of rects) {
 					const ci = pitchChannel.get(pitch);
 					if (ci !== undefined) {
@@ -935,14 +935,14 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 						rect.setAttribute("fill", color);
 						rect.setAttribute("opacity", "0.8");
 					} else {
-						rect.setAttribute("fill", "var(--ui-widget-background)");
+						rect.setAttribute("fill", defaultFill);
 						rect.setAttribute("opacity", defaultOpacity);
 					}
 				}
 			};
 
-			updateKeys(this._whiteKeyRects, "0.3");
-			updateKeys(this._blackKeyRects, "0.2");
+			updateKeys(this._whiteKeyRects, "var(--ui-widget-background)", "0.3");
+			updateKeys(this._blackKeyRects, "var(--base03-muted)", "0.2");
 		}
 
 		this._scheduleFrame();
