@@ -70,7 +70,10 @@ export class PromptPopout {
 
 		this._windows.set(prompt, win);
 		const doc = win.document;
-		doc.title = prompt.name ?? "Popout";
+		// Use the song title from the main window (format: "Title - AppName").
+		const mainTitle = document.title;
+		const sep = mainTitle.lastIndexOf(" - ");
+		doc.title = sep > 0 ? mainTitle.slice(0, sep) : (mainTitle || prompt.name || "Popout");
 
 		// Base reset: the popout body is the editor-background stage with a PMD
 		// --padding-12 margin on both axes. body gets .beepboxEditor so the scoped
