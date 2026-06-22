@@ -130,7 +130,7 @@ export class Slider {
 
 		// Center reference line (replaces the old midTick:after pseudo-element)
 		this._centerLine = div({
-			style: "position: absolute; left: 50%; width: 2px; height: 8px; background: var(--primary-text); border-radius: 999px; top: 50%; transform: translate(-50%, -50%); pointer-events: none; z-index: 2;",
+			style: "position: absolute; left: 50%; width: 2px; height: 12px; background: var(--primary-text); border-radius: 999px; top: 50%; transform: translate(-50%, -50%); pointer-events: none; z-index: 2;",
 		});
 
 		// Knob: absolutely positioned at the current value
