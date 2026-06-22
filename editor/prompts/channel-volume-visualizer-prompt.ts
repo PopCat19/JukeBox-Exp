@@ -293,8 +293,8 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 		viewBox: "0 0 28 1",
 		preserveAspectRatio: "none",
 	});
-	private readonly _whiteKeyRects: Map<number, SVGRectElement> = new Map();
-	private readonly _blackKeyRects: Map<number, SVGRectElement> = new Map();
+	private readonly _whiteKeyRects: Map<number, SVGPathElement> = new Map();
+	private readonly _blackKeyRects: Map<number, SVGPathElement> = new Map();
 	// Cache last rendered fill|opacity per key so idle keys skip the
 	// setAttribute writes (96 keys × 2 attrs = 192 DOM writes/frame
 	// without this; most keys are idle most frames).
@@ -648,6 +648,22 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 		const BLACK_X: Record<number, number> = { 1: 0.2, 3: 1.2, 6: 3.2, 8: 4.2, 10: 5.2 };
 		const BLACK_KEY_W = 0.6;
 		const BLACK_KEY_H = 0.6;
+		// Corner radius (viewBox units). Keys are 1 unit wide (white) /
+		// 0.6 (black), height 1 / 0.6. Round only the bottom corners; the
+		// top edge stays sharp so adjacent keys meet cleanly. viewBox is
+		// 0 0 N 1 with Y pointing DOWN (top=Y0, bottom=Y1), so rounding
+		// the bottom = rounding the large-Y corners.
+		const WHITE_R = 0.18;
+		const BLACK_R = 0.12;
+		// Rect with rounded bottom-left + bottom-right corners, sharp top.
+		// x/y is top-left; w/h the size; r the bottom radius (clamped to
+		// half width/height so it never inverts).
+		const roundedBottomKey = (x: number, y: number, w: number, h: number, r: number): string => {
+			const rr = Math.min(r, w / 2, h / 2);
+			const x1 = x + w;
+			const y1 = y + h;
+			return `M ${x} ${y} L ${x1} ${y} L ${x1} ${y1 - rr} Q ${x1} ${y1} ${x1 - rr} ${y1} L ${x + rr} ${y1} Q ${x} ${y1} ${x} ${y1 - rr} Z`;
+		};
 
 		// Clear previous layout: remove all key rects and reset caches.
 		for (const svgEl of [this._octaveRow0Svg, this._octaveRow1Svg]) {
@@ -663,11 +679,8 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 				// White keys
 				for (const [note, idx] of WHITE_IDX) {
 					const pitch = (oct + 1) * 12 + note;
-					const r = rect({
-						x: String(octX + idx),
-						y: "0",
-						width: "1",
-						height: "1",
+					const r = path({
+						d: roundedBottomKey(octX + idx, 0, 1, 1, WHITE_R),
 						fill: "var(--pitch-background)",
 						opacity: "1",
 					});
@@ -678,11 +691,8 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 				for (const noteStr of Object.keys(BLACK_X)) {
 					const note = parseInt(noteStr, 10);
 					const pitch = (oct + 1) * 12 + note;
-					const r = rect({
-						x: String(octX + BLACK_X[note]),
-						y: "0",
-						width: String(BLACK_KEY_W),
-						height: String(BLACK_KEY_H),
+					const r = path({
+						d: roundedBottomKey(octX + BLACK_X[note], 0, BLACK_KEY_W, BLACK_KEY_H, BLACK_R),
 						fill: "var(--base02-surface)",
 						opacity: "1",
 					});
@@ -1298,7 +1308,7 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 				}
 			}
 
-			const updateKeys = (rects: Map<number, SVGRectElement>, defaultFill: string): void => {
+			const updateKeys = (rects: Map<number, SVGPathElement>, defaultFill: string): void => {
 				for (const [pitch, r] of rects) {
 					const b = pitchBlend.get(pitch);
 					let fill: string;
