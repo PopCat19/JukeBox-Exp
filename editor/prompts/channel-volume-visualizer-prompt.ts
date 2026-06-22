@@ -247,9 +247,6 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 				this._masterDbMinLabel,
 				this._masterDbMaxLabel,
 			),
-		),
-		div(
-			{ style: "text-align: center; padding: 2px 12px 0px 12px;" },
 			this._barPosLabel,
 		),
 		// Divider
