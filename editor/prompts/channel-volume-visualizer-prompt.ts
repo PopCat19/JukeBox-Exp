@@ -1,4 +1,4 @@
-import { BorderWidth, Sizing, Typography } from "../ui/style-constants";
+import { Sizing, Typography } from "../ui/style-constants";
 // ChannelVolumeVisualizerPrompt
 //
 // Purpose: Modal popup displaying per-channel gain information with live updates
@@ -24,7 +24,7 @@ import type { SongDocument } from "../song-document";
 import { BasePrompt } from "./base-prompt";
 
 const { div, h2, span, button, canvas } = HTML;
-const { svg, rect, path } = SVG;
+const { svg, path } = SVG;
 
 // Spectrum overlay tuning, mirroring shared/spectrum.ts main FG layer so the
 // per-channel overlay matches the editor's main spectrum look.
@@ -103,8 +103,8 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 	);
 
 	// Store channel volume bar elements for live updates
-	private readonly _channelVolumeBars: Map<number, SVGRectElement> = new Map();
-	private readonly _channelVolumeCaps: Map<number, SVGRectElement> = new Map();
+	private readonly _channelVolumeBars: Map<number, HTMLDivElement> = new Map();
+	private readonly _channelVolumeCaps: Map<number, HTMLDivElement> = new Map();
 	private readonly _channelHistoricCaps: Map<number, { cap: number; timer: number }> = new Map();
 	private readonly _channelLastWidths: Map<number, number> = new Map();
 	private readonly _channelLastCaps: Map<number, number> = new Map();
@@ -835,7 +835,7 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 		{
 			const barCount = this._doc.song.barCount;
 			const frac = barCount > 0 ? Math.max(0, Math.min(1, this._doc.synth.playhead / barCount)) : 0;
-			this._scrubFill.style.width = frac * 100 + "%";
+			this._scrubFill.style.width = `${frac * 100}%`;
 		}
 
 		// Update bar position label with elapsed time (throttled).
@@ -921,19 +921,19 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 				historic.timer = 50;
 			}
 
-			// Floor at 1px so tiles are sized identically before first playback.
-			const chWidth = channelLevel > 0 ? Math.min(144, channelLevel * 144) : 1;
-			const chCapX = 8 + Math.min(144, historic.cap * 144);
+			// Fill and cap as percentages of the track (90% of container = 144 viewBox units).
+			const fillPct = Math.round(Math.max(1 / 144, Math.min(1, channelLevel)) * 10000) / 100;
+			const capPct = Math.round(Math.min(1, historic.cap) * 10000) / 100;
 			const lastWidth = this._channelLastWidths.get(channelIndex) ?? -1;
 			const lastCap = this._channelLastCaps.get(channelIndex) ?? -1;
-			if (chWidth !== lastWidth) {
-				this._channelLastWidths.set(channelIndex, chWidth);
-				bar.setAttribute("width", `${chWidth}`);
+			if (fillPct !== lastWidth) {
+				this._channelLastWidths.set(channelIndex, fillPct);
+				bar.style.width = `${fillPct}%`;
 			}
 			const capEl = this._channelVolumeCaps.get(channelIndex);
-			if (capEl && chCapX !== lastCap) {
-				this._channelLastCaps.set(channelIndex, chCapX);
-				capEl.setAttribute("x", `${chCapX}`);
+			if (capEl && capPct !== lastCap) {
+				this._channelLastCaps.set(channelIndex, capPct);
+				capEl.style.left = `${capPct}%`;
 			}
 
 			// Update average and range for channel (dBFS(A))
@@ -1418,25 +1418,15 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 			const isPlaying = this._doc.synth.playing;
 			const isDimmed = isPlaying && !hasPattern;
 
-			// Volume bar for this channel
-			const volBar = rect({
-				"pointer-events": "none",
-				height: "40%",
-				width: 1,
-				x: 8,
-				y: "30%",
-				fill: channelColors.primaryChannel,
+			// Volume bar for this channel — pill-shaped div track + fill + cap
+			const volFill = div({
+				style: `width: 0%; height: 100%; background: ${channelColors.primaryChannel}; border-radius: 999px;`,
 			});
-			const volCap = rect({
-				"pointer-events": "none",
-				width: BorderWidth.default,
-				height: "40%",
-				x: "5%",
-				y: "30%",
-				fill: channelColors.primaryNote,
+			const volCap = div({
+				style: `position: absolute; left: 0%; top: 0; width: 2px; height: 100%; background: ${channelColors.primaryNote}; border-radius: 1px;`,
 			});
 
-			this._channelVolumeBars.set(i, volBar);
+			this._channelVolumeBars.set(i, volFill);
 			this._channelVolumeCaps.set(i, volCap);
 
 			const dbLabel = span(
@@ -1447,24 +1437,15 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 			);
 			this._channelDbLabels.set(i, dbLabel);
 
-			const volBarContainer = svg(
-				{
-					style: "touch-action: none; overflow: visible;",
-					width: "100%",
-					height: "12px",
-					preserveAspectRatio: "none",
-					viewBox: "0 0 160 12",
-				},
-				rect({
-					"pointer-events": "none",
-					width: "90%",
-					height: "40%",
-					x: "5%",
-					y: "30%",
-					fill: "var(--ui-widget-background, #444)",
-				}),
-				volBar,
-				volCap,
+			const volBarContainer = div(
+				{ style: "position: relative; width: 100%; height: 12px; touch-action: none;" },
+				div(
+					{
+						style: "position: absolute; left: 5%; top: 30%; width: 90%; height: 40%; background: var(--ui-widget-background, #444); border-radius: 999px; overflow: hidden;",
+					},
+					volFill,
+					volCap,
+				),
 			);
 
 			const channelDiv = div({
