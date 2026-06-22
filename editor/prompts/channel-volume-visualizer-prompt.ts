@@ -220,6 +220,21 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 		"0:00 / 0:00  -  0/0",
 	);
 
+	// Piano key octave display — two rows of octave-spanning keys that
+	// light up to the channel's 80x PMD color when pitches are active.
+	private readonly _octaveRow0Svg: SVGSVGElement = svg({
+		style: "width: calc(100% - 24px); height: 20px; display: block; margin: 2px 12px; overflow: visible;",
+		viewBox: "0 0 35 1",
+		preserveAspectRatio: "none",
+	});
+	private readonly _octaveRow1Svg: SVGSVGElement = svg({
+		style: "width: calc(100% - 24px); height: 20px; display: block; margin: 2px 12px; overflow: visible;",
+		viewBox: "0 0 28 1",
+		preserveAspectRatio: "none",
+	});
+	private readonly _whiteKeyRects: Map<number, SVGRectElement> = new Map();
+	private readonly _blackKeyRects: Map<number, SVGRectElement> = new Map();
+
 	public container: HTMLDivElement = div(
 		{
 			class: "prompt noSelection fill-y",
@@ -244,6 +259,9 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 		),
 		// Divider
 		div({ style: "border-top: 2px solid var(--ui-widget-background); margin: 0 12px;" }),
+		// Piano key octave rows
+		this._octaveRow0Svg,
+		this._octaveRow1Svg,
 		// Channels grid
 		this._channelsPane,
 		this._cancelButton,
@@ -261,6 +279,7 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 		this._onThemeChange = this._refreshSpectrumColors.bind(this);
 		events.listen("themeChange", this._onThemeChange);
 		this._renderChannelList();
+		this._buildPianoKeyRows();
 		this._scheduleFrame();
 		this._playPauseButton.addEventListener("click", this._togglePlayPause);
 		setTimeout(() => this.container.focus());
@@ -382,6 +401,8 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 		this._channelSpectrumColors.clear();
 		this._canvasSizes.clear();
 		this._channelPeak.clear();
+		this._whiteKeyRects.clear();
+		this._blackKeyRects.clear();
 		this._playPauseButton.removeEventListener("click", this._togglePlayPause);
 		this._songEditor.muteEditor.setHoveredChannel(-1);
 		this._songEditor.trackEditor.setHoveredChannel(-1);
@@ -421,6 +442,61 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 			if (a > peak) peak = a;
 		}
 		return Math.min(1, peak * masterScale);
+	}
+
+	// Build the two piano-key octave rows. Row 0: octaves 0–4. Row 1: octaves 5–8.
+	// Each key is an SVG rect; references are stored in _whiteKeyRects / _blackKeyRects
+	// keyed by MIDI pitch for per-frame active-pitch updates.
+	private _buildPianoKeyRows(): void {
+		const WHITE_IDX = new Map<number, number>([
+			[0, 0], [2, 1], [4, 2], [5, 3], [7, 4], [9, 5], [11, 6],
+		]);
+		const BLACK_X: Record<number, number> = { 1: 0.2, 3: 1.2, 6: 3.2, 8: 4.2, 10: 5.2 };
+		const BLACK_KEY_W = 0.6;
+		const BLACK_KEY_H = 0.6;
+
+		const buildRow = (
+			svgEl: SVGSVGElement,
+			startOctave: number,
+			endOctave: number,
+			viewBaseOctave: number,
+		): void => {
+			for (let oct = startOctave; oct <= endOctave; oct++) {
+				const octX = (oct - viewBaseOctave) * 7;
+				// White keys
+				for (const [note, idx] of WHITE_IDX) {
+					const pitch = (oct + 1) * 12 + note;
+					const r = rect({
+						x: String(octX + idx),
+						y: "0",
+						width: "1",
+						height: "1",
+						fill: "var(--ui-widget-background)",
+						opacity: "0.3",
+					});
+					svgEl.appendChild(r);
+					this._whiteKeyRects.set(pitch, r);
+				}
+				// Black keys
+				for (const noteStr of Object.keys(BLACK_X)) {
+					const note = parseInt(noteStr, 10);
+					const pitch = (oct + 1) * 12 + note;
+					const r = rect({
+						x: String(octX + BLACK_X[note]),
+						y: "0",
+						width: String(BLACK_KEY_W),
+						height: String(BLACK_KEY_H),
+						fill: "var(--ui-widget-background)",
+						opacity: "0.2",
+					});
+					svgEl.appendChild(r);
+					this._blackKeyRects.set(pitch, r);
+				}
+			}
+		};
+
+		buildRow(this._octaveRow0Svg, 0, 4, 0);
+		buildRow(this._octaveRow1Svg, 5, 8, 5);
 	}
 
 	// Schedule the next animate frame on whichever window currently hosts the
@@ -824,6 +900,49 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 				}
 
 			}
+		}
+
+		// Update piano key octave display — light up keys whose pitches
+		// are active in any channel, using the channel's 80x PMD color.
+		{
+			const pitchChannel = new Map<number, number>();
+			for (let ci = 0; ci < synth.channels.length; ci++) {
+				const cs = synth.channels[ci];
+				if (!cs) continue;
+				for (const inst of cs.instruments) {
+					for (let ti = 0; ti < inst.activeTones.count(); ti++) {
+						const tone = inst.activeTones.get(ti);
+						for (let pi = 0; pi < tone.pitchCount; pi++) {
+							const p = tone.pitches[pi];
+							if (!pitchChannel.has(p)) pitchChannel.set(p, ci);
+						}
+					}
+					for (let li = 0; li < inst.liveInputTones.count(); li++) {
+						const tone = inst.liveInputTones.get(li);
+						for (let pi = 0; pi < tone.pitchCount; pi++) {
+							const p = tone.pitches[pi];
+							if (!pitchChannel.has(p)) pitchChannel.set(p, ci);
+						}
+					}
+				}
+			}
+
+			const updateKeys = (rects: Map<number, SVGRectElement>, defaultOpacity: string): void => {
+				for (const [pitch, rect] of rects) {
+					const ci = pitchChannel.get(pitch);
+					if (ci !== undefined) {
+						const color = this._channelSpectrumColors.get(ci) ?? "var(--note-flash)";
+						rect.setAttribute("fill", color);
+						rect.setAttribute("opacity", "0.8");
+					} else {
+						rect.setAttribute("fill", "var(--ui-widget-background)");
+						rect.setAttribute("opacity", defaultOpacity);
+					}
+				}
+			};
+
+			updateKeys(this._whiteKeyRects, "0.3");
+			updateKeys(this._blackKeyRects, "0.2");
 		}
 
 		this._scheduleFrame();
