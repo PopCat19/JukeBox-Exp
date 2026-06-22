@@ -95,7 +95,7 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 	});
 	private readonly _channelsPane: HTMLDivElement = div(
 		{
-			style: "flex: 1; display: flex; flex-direction: column; min-height: 0; padding: 4px 12px 12px 12px; position: relative; z-index: 1;",
+			style: "flex: 1; display: flex; flex-direction: column; min-height: 0; padding: 4px 12px 12px 12px;",
 		},
 		this._contentContainer,
 	);
@@ -236,30 +236,15 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 	private readonly _whiteKeyRects: Map<number, SVGRectElement> = new Map();
 	private readonly _blackKeyRects: Map<number, SVGRectElement> = new Map();
 
-	// Global spectrum overlay rendered behind the channel cards with
-	// additive blending so the waveform peaks through subtly without
-	// competing with the per-channel bar displays.
-	private readonly _spectrumOverlay: spectrumCanvas = new spectrumCanvas(
+	// Global spectrum bar pinned to the bottom of the viewport.
+	private readonly _cvSpectrum: spectrumCanvas = new spectrumCanvas(
 		canvas({
 			width: 384,
-			height: 96,
-			style: "display: block; width: 100%; height: 100%; max-height: 96px; opacity: 0.25;",
+			height: 64,
+			style: "display: block; width: 100%; height: 64px; flex-shrink: 0;",
 		}),
 		1,
-		true,
-	);
-	private readonly _spectrumOverlayWrapper: HTMLDivElement = div(
-		{
-			style: "position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0;",
-		},
-		this._spectrumOverlay.canvas,
-	);
-	private readonly _channelsPaneWrapper: HTMLDivElement = div(
-		{
-			style: "position: relative; flex: 1 1 auto; overflow: hidden; min-height: 0;",
-		},
-		this._spectrumOverlayWrapper,
-		this._channelsPane,
+		false,
 	);
 
 	public container: HTMLDivElement = div(
@@ -289,8 +274,10 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 		// Piano key octave rows
 		this._octaveRow0Svg,
 		this._octaveRow1Svg,
-		// Channels grid with spectrum overlay
-		this._channelsPaneWrapper,
+		// Channels grid
+		this._channelsPane,
+		// Spectrum bar
+		this._cvSpectrum.canvas,
 		this._cancelButton,
 	);
 
