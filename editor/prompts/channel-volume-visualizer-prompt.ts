@@ -184,6 +184,11 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 
 	// Bar position label throttle (mirroring player-animator.ts BAR_LABEL_THROTTLE)
 	private _barLabelCounter: number = 0;
+	// Per-channel FFT (8192-point) is the dominant per-frame cost — N
+	// channels × O(n log n) vs the editor's single spectrum FFT.
+	// Throttle the FFT + spectrum draw to every 2nd frame (30fps);
+	// metering (peak scan, volume bars, dB labels) stays at full rate.
+	private _spectrumFrameToggle: boolean = false;
 	private _cachedDuration: number = -1;
 	private _cachedBarCount: number = -1;
 	private _cachedGeneration: number = -1;
@@ -767,7 +772,17 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 					: `Pk:-inf\nA:${avgText}\n${minText}/${maxText}`;
 			}
 
-			// Draw pitch spectrum overlay: smooth bezier curve fill from active tone bands
+			// Per-channel post-limiter peak for the meter, computed from the
+			// isolated ring (linear scan, no FFT). Runs every frame so the
+			// volume bar / dB labels stay responsive; the expensive FFT
+			// spectrum draw below is throttled to every 2nd frame.
+			this._channelPeak.set(channelIndex, this._computeChannelPeak(channelState, this._smoothedMasterScale));
+
+			// Draw pitch spectrum overlay: smooth bezier curve fill from active tone bands.
+			// The 8192-point FFT is the dominant per-frame cost (N channels ×
+			// O(n log n)), so it runs every 2nd frame (30fps). Metering above
+			// stays at full rate.
+			if (!this._spectrumFrameToggle) continue;
 			const spectrumCtx = this._channelSpectrumCanvas2ds.get(channelIndex);
 			if (spectrumCtx) {
 				const cvs = this._channelSpectrumCanvases.get(channelIndex);
@@ -810,11 +825,6 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 						const im = k === 0 || k === halfN ? 0 : fftBuf[fftSize - k];
 						mags[k] = Math.sqrt(re * re + im * im) / fftSize;
 					}
-
-					// Per-channel post-limiter peak for the meter, computed from the isolated
-					// ring (no second FFT needed; the ring is read directly). Stored for the
-					// metering pass (one frame latency).
-					this._channelPeak.set(channelIndex, this._computeChannelPeak(channelState, this._smoothedMasterScale));
 
 					// Interpolate FG bands from FFT bins (quadratic for sensitivity).
 					const bandMags = this._bandMags;
@@ -1095,6 +1105,7 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 			updateKeys(this._blackKeyRects, "var(--base02-surface)");
 		}
 
+		this._spectrumFrameToggle = !this._spectrumFrameToggle;
 		this._scheduleFrame();
 	};
 
