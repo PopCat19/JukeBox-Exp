@@ -472,7 +472,7 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 						width: "1",
 						height: "1",
 						fill: "var(--base02-surface)",
-						opacity: "0.3",
+						opacity: "1",
 					});
 					svgEl.appendChild(r);
 					this._whiteKeyRects.set(pitch, r);
@@ -487,7 +487,7 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 						width: String(BLACK_KEY_W),
 						height: String(BLACK_KEY_H),
 						fill: "var(--base03-muted)",
-						opacity: "0.2",
+						opacity: "1",
 					});
 					svgEl.appendChild(r);
 					this._blackKeyRects.set(pitch, r);
@@ -927,22 +927,22 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 				}
 			}
 
-			const updateKeys = (rects: Map<number, SVGRectElement>, defaultFill: string, defaultOpacity: string): void => {
+			const updateKeys = (rects: Map<number, SVGRectElement>, defaultFill: string): void => {
 				for (const [pitch, rect] of rects) {
 					const ci = pitchChannel.get(pitch);
 					if (ci !== undefined) {
 						const color = this._channelSpectrumColors.get(ci) ?? "var(--note-flash)";
 						rect.setAttribute("fill", color);
-						rect.setAttribute("opacity", "0.8");
+						rect.setAttribute("opacity", "1");
 					} else {
 						rect.setAttribute("fill", defaultFill);
-						rect.setAttribute("opacity", defaultOpacity);
+						rect.setAttribute("opacity", "1");
 					}
 				}
 			};
 
-			updateKeys(this._whiteKeyRects, "var(--base02-surface)", "0.3");
-			updateKeys(this._blackKeyRects, "var(--base03-muted)", "0.2");
+			updateKeys(this._whiteKeyRects, "var(--base02-surface)");
+			updateKeys(this._blackKeyRects, "var(--base03-muted)");
 		}
 
 		this._scheduleFrame();
