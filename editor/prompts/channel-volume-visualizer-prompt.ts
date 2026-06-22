@@ -194,22 +194,16 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 		},
 		svg({ width: 12, height: 12, viewBox: "0 0 8 8" }, this._loopIcon),
 	);
-	// Progress / scrub bar: click or drag to seek. Shows the loop
-	// region (when loop on) and the playhead position. SVG so the
-	// playhead updates are cheap setAttribute calls.
-	private readonly _scrubTrack: SVGRectElement = rect({ x: 0, y: 0, width: 1000, height: 8, fill: "var(--secondary-text)", rx: 4 });
-	private readonly _scrubProgress: SVGRectElement = rect({ x: 0, y: 0, width: 0, height: 8, fill: "var(--cta-bg)", rx: 4 });
-	private _scrubSvgRect: DOMRect | null = null;
-	private _scrubDragging: boolean = false;
-	private readonly _scrubBar: SVGSVGElement = svg(
+	// Progress / scrub bar: a pill-shaped track div with a child
+	// fill div whose width (as %) tracks the playhead.
+	private readonly _scrubFill: HTMLDivElement = div({ style: "width: 0; height: 100%; background: var(--cta-bg); border-radius: 6px;" });
+	private readonly _scrubTrack: HTMLDivElement = div(
 		{
-			style: "width: calc(100% - 24px); height: 12px; display: block; margin: 4px 12px 0px 12px; cursor: pointer; touch-action: none;",
-			viewBox: "0 0 1000 8",
-			preserveAspectRatio: "none",
+			style: "width: calc(100% - 24px); height: 12px; display: block; margin: 4px 12px 0px 12px; cursor: pointer; touch-action: none; position: relative; background: var(--secondary-text); border-radius: 6px; overflow: hidden;",
 		},
-		this._scrubTrack,
-		this._scrubProgress,
+		this._scrubFill,
 	);
+	private _scrubDragging: boolean = false;
 	private readonly _tempoLabel: HTMLSpanElement = span(
 		{
 			style: `color: var(--secondary-text); font-size: ${Typography.sizeSm}; font-family: monospace; white-space: nowrap;`,
@@ -377,7 +371,7 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 			span({ style: `display: inline-flex; gap: 10px; flex-wrap: nowrap;` }, this._masterDbPeakLabel, this._masterDbAvgLabel, this._masterDbMinMaxLabel),
 		),
 		// Progress / scrub bar
-		this._scrubBar,
+		this._scrubTrack,
 		// Divider
 		div({ style: "border-top: 2px solid var(--ui-widget-background); margin: 0 12px;" }),
 		// Piano key octave rows
@@ -407,7 +401,7 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 		this._playPauseButton.addEventListener("click", this._togglePlayPause);
 		this._stopButton.addEventListener("click", this._stop);
 		this._loopButton.addEventListener("click", this._toggleLoop);
-		this._scrubBar.addEventListener("pointerdown", this._onScrubPointerDown);
+		this._scrubTrack.addEventListener("pointerdown", this._onScrubPointerDown);
 		setTimeout(() => this.container.focus());
 
 		// Drag-and-drop file import for .json, .mid, .midi files.
@@ -477,8 +471,7 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 
 	// Seek the playhead to the bar position under the pointer.
 	private _seekToPointer = (clientX: number): void => {
-		if (!this._scrubSvgRect) this._scrubSvgRect = this._scrubBar.getBoundingClientRect();
-		const r = this._scrubSvgRect;
+		const r = this._scrubTrack.getBoundingClientRect();
 		const frac = Math.max(0, Math.min(1, (clientX - r.left) / r.width));
 		const barCount = this._doc.song.barCount;
 		this._doc.synth.playhead = frac * barCount;
@@ -487,7 +480,6 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 	private _onScrubPointerDown = (event: PointerEvent): void => {
 		event.preventDefault();
 		this._scrubDragging = true;
-		this._scrubSvgRect = this._scrubBar.getBoundingClientRect();
 		this._seekToPointer(event.clientX);
 		const win = (this.container.ownerDocument.defaultView as Window | null) ?? window;
 		const onMove = (e: PointerEvent): void => {
@@ -584,7 +576,7 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 		this._playPauseButton.removeEventListener("click", this._togglePlayPause);
 		this._stopButton.removeEventListener("click", this._stop);
 		this._loopButton.removeEventListener("click", this._toggleLoop);
-		this._scrubBar.removeEventListener("pointerdown", this._onScrubPointerDown);
+		this._scrubTrack.removeEventListener("pointerdown", this._onScrubPointerDown);
 		this._songEditor.muteEditor.setHoveredChannel(-1);
 		this._songEditor.trackEditor.setHoveredChannel(-1);
 		// Invalidate cached bounding rects in other components
@@ -839,13 +831,11 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 		this._updatePlayPauseButton();
 		this._updateLoopButton();
 
-		// Update scrub bar: progress fill, playhead position, loop region.
-		// viewBox is 0..1000 wide; map playhead fraction to that space.
+		// Update scrub bar: progress fill width as percentage of track.
 		{
 			const barCount = this._doc.song.barCount;
 			const frac = barCount > 0 ? Math.max(0, Math.min(1, this._doc.synth.playhead / barCount)) : 0;
-			const px = frac * 1000;
-			this._scrubProgress.setAttribute("width", String(px));
+			this._scrubFill.style.width = frac * 100 + "%";
 		}
 
 		// Update bar position label with elapsed time (throttled).
