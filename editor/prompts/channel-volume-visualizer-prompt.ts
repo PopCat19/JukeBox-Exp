@@ -902,38 +902,59 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 			}
 		}
 
-		// Update piano key octave display — light up keys whose pitches
-		// are active in any channel, using the channel's 80x PMD color.
+		// Update piano key octave display — alpha peak curve with
+		// weighted-RGB channel color mixing when multiple channels
+		// play the same pitch.
 		{
-			const pitchChannel = new Map<number, number>();
+			const pitchBlend = new Map<number, { r: number; g: number; b: number; w: number; maxPeak: number }>();
+
 			for (let ci = 0; ci < synth.channels.length; ci++) {
 				const cs = synth.channels[ci];
 				if (!cs) continue;
+				const peak = this._channelPeak.get(ci) ?? 0;
+				if (peak <= 0.001) continue;
+
+				const hex = this._channelSpectrumColors.get(ci);
+				if (!hex) continue;
+				const cr = parseInt(hex.length >= 7 ? hex.slice(1, 3) : hex.slice(1, 2) + hex.slice(1, 2), 16);
+				const cg = parseInt(hex.length >= 7 ? hex.slice(3, 5) : hex.slice(2, 3) + hex.slice(2, 3), 16);
+				const cb = parseInt(hex.length >= 7 ? hex.slice(5, 7) : hex.slice(3, 4) + hex.slice(3, 4), 16);
+
+				const collectPitches = (pitches: number[], count: number): void => {
+					for (let pi = 0; pi < count; pi++) {
+						const p = pitches[pi];
+						let b = pitchBlend.get(p);
+						if (!b) { b = { r: 0, g: 0, b: 0, w: 0, maxPeak: 0 }; pitchBlend.set(p, b); }
+						b.r += cr * peak;
+						b.g += cg * peak;
+						b.b += cb * peak;
+						b.w += peak;
+						if (peak > b.maxPeak) b.maxPeak = peak;
+					}
+				};
+
 				for (const inst of cs.instruments) {
 					for (let ti = 0; ti < inst.activeTones.count(); ti++) {
 						const tone = inst.activeTones.get(ti);
-						for (let pi = 0; pi < tone.pitchCount; pi++) {
-							const p = tone.pitches[pi];
-							if (!pitchChannel.has(p)) pitchChannel.set(p, ci);
-						}
+						collectPitches(tone.pitches, tone.pitchCount);
 					}
 					for (let li = 0; li < inst.liveInputTones.count(); li++) {
 						const tone = inst.liveInputTones.get(li);
-						for (let pi = 0; pi < tone.pitchCount; pi++) {
-							const p = tone.pitches[pi];
-							if (!pitchChannel.has(p)) pitchChannel.set(p, ci);
-						}
+						collectPitches(tone.pitches, tone.pitchCount);
 					}
 				}
 			}
 
 			const updateKeys = (rects: Map<number, SVGRectElement>, defaultFill: string): void => {
 				for (const [pitch, rect] of rects) {
-					const ci = pitchChannel.get(pitch);
-					if (ci !== undefined) {
-						const color = this._channelSpectrumColors.get(ci) ?? "var(--note-flash)";
-						rect.setAttribute("fill", color);
-						rect.setAttribute("opacity", "1");
+					const b = pitchBlend.get(pitch);
+					if (b && b.w > 0) {
+						const rr = Math.round(b.r / b.w);
+						const gg = Math.round(b.g / b.w);
+						const bb = Math.round(b.b / b.w);
+						rect.setAttribute("fill", `rgb(${rr},${gg},${bb})`);
+						const alpha = Math.min(1, (2 * b.maxPeak) / (b.maxPeak + FG_REF));
+						rect.setAttribute("opacity", String(alpha));
 					} else {
 						rect.setAttribute("fill", defaultFill);
 						rect.setAttribute("opacity", "1");
