@@ -3607,6 +3607,7 @@ export class SongEditor
 			this._loopEditor.setLoopAt(this.doc.synth.loopBarStart, this.doc.synth.loopBarEnd);
 		}
 		this._barScrollBar.animatePlayhead();
+		this._animator.forceBarLabelUpdate();
 	}
 
 	private _whenNextBarPressed(): void {
@@ -3617,6 +3618,7 @@ export class SongEditor
 			this._loopEditor.setLoopAt(this.doc.synth.loopBarStart, this.doc.synth.loopBarEnd);
 		}
 		this._barScrollBar.animatePlayhead();
+		this._animator.forceBarLabelUpdate();
 	}
 
 	public togglePlay(): void {

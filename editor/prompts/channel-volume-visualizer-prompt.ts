@@ -333,6 +333,23 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 		this._playPauseButton.textContent = this._doc.synth.playing ? "⏸ Pause" : "▶ Play";
 	};
 
+	private _updateBarPosLabel(): void {
+		const bar = Math.floor(this._doc.synth.playhead) + 1;
+		const total = this._doc.song.barCount;
+		const generation = this._doc.notifier.generation;
+		if (this._cachedDuration < 0 || this._doc.song.barCount !== this._cachedBarCount || generation !== this._cachedGeneration) {
+			const totalSamples = this._doc.synth.getTotalSamples(true, true, 0);
+			this._cachedDuration = totalSamples > 0 ? totalSamples / this._doc.synth.samplesPerSecond : 0;
+			this._cachedBarCount = this._doc.song.barCount;
+			this._cachedGeneration = generation;
+		}
+		const elapsed = this._doc.synth.totalSamplesRendered / this._doc.synth.samplesPerSecond;
+		const elapsedStr = formatTime(elapsed);
+		const totalStr = formatTime(this._cachedDuration);
+		this._barPosLabel.textContent = `${elapsedStr} / ${totalStr}  -  ${bar}/${total}`;
+		this._barLabelCounter = 5;
+	}
+
 	public override whenKeyPressed = (event: KeyboardEvent): void => {
 		if (event.key === " ") {
 			event.preventDefault();
@@ -340,11 +357,11 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 		} else if (event.key === "[") {
 			event.preventDefault();
 			this._doc.synth.goToPrevBar();
-			this._barLabelCounter = 0;
+			this._updateBarPosLabel();
 		} else if (event.key === "]") {
 			event.preventDefault();
 			this._doc.synth.goToNextBar();
-			this._barLabelCounter = 0;
+			this._updateBarPosLabel();
 		}
 	};
 
@@ -444,24 +461,10 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 		// Update play/pause button state
 		this._updatePlayPauseButton();
 
-		// Update bar position label with elapsed time (throttled). Mirrors
-		// player-animator.ts BAR_LABEL_THROTTLE logic.
+		// Update bar position label with elapsed time (throttled).
 		this._barLabelCounter--;
 		if (this._barLabelCounter <= 0) {
-			this._barLabelCounter = 5;
-			const bar = Math.floor(this._doc.synth.playhead) + 1;
-			const total = this._doc.song.barCount;
-			const generation = this._doc.notifier.generation;
-			if (this._cachedDuration < 0 || this._doc.song.barCount !== this._cachedBarCount || generation !== this._cachedGeneration) {
-				const totalSamples = this._doc.synth.getTotalSamples(true, true, 0);
-				this._cachedDuration = totalSamples > 0 ? totalSamples / this._doc.synth.samplesPerSecond : 0;
-				this._cachedBarCount = this._doc.song.barCount;
-				this._cachedGeneration = generation;
-			}
-			const elapsed = this._doc.synth.totalSamplesRendered / this._doc.synth.samplesPerSecond;
-			const elapsedStr = formatTime(elapsed);
-			const totalStr = formatTime(this._cachedDuration);
-			this._barPosLabel.textContent = `${elapsedStr} / ${totalStr}  -  ${bar}/${total}`;
+			this._updateBarPosLabel();
 		}
 
 		// Update tempo label
@@ -889,7 +892,7 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 						var _k2 = channelIndex + "-" + _p2;
 						var _s2 = this._noteSpans.get(_k2);
 						if (!_s2) {
-							_s2 = span({ style: "font-size: 9px; font-weight: 600; padding: 0px 3px; border-radius: 99px; white-space: nowrap; background: rgb(" + _br + "," + _bg + "," + _bb + "); color: " + (_bt > 0.5 ? "black" : "var(--editor-background)") + "; opacity: " + _vb + ";" }, pitchToNoteName(_p2));
+							_s2 = span({ style: "font-size: 9px; font-weight: 600; padding: 1px 5px; border-radius: 99px; white-space: nowrap; line-height: 9px; background: rgb(" + _br + "," + _bg + "," + _bb + "); color: " + (_bt > 0.5 ? "black" : "var(--editor-background)") + "; opacity: " + _vb + ";" }, pitchToNoteName(_p2));
 							this._noteSpans.set(_k2, _s2);
 							_nc.appendChild(_s2);
 						} else {

@@ -52,24 +52,7 @@ export class PlayerAnimator {
 		// Update bar position label with elapsed time (throttled)
 		this._barLabelCounter--;
 		if (this._barLabelCounter <= 0) {
-			this._barLabelCounter = BAR_LABEL_THROTTLE;
-			const bar = Math.floor(this._doc.synth.playhead) + 1;
-			const total = this._doc.song.barCount;
-			// Recompute total duration when the bar count changes or any song edit
-			// happened (covers tempo mods and next-bar skip mods added/removed
-			// without a bar-count change, which also alter the real duration).
-			const generation = this._doc.notifier.generation;
-			if (this._cachedDuration < 0 || this._doc.song.barCount !== this._cachedBarCount || generation !== this._cachedGeneration) {
-				const totalSamples = this._doc.synth.getTotalSamples(true, true, 0);
-				this._cachedDuration = totalSamples > 0 ? totalSamples / this._doc.synth.samplesPerSecond : 0;
-				this._cachedBarCount = this._doc.song.barCount;
-				this._cachedGeneration = generation;
-			}
-			// Elapsed = actual samples rendered (respects tempo mods)
-			const elapsed = this._doc.synth.totalSamplesRendered / this._doc.synth.samplesPerSecond;
-			const elapsedStr = formatTime(elapsed);
-			const totalStr = formatTime(this._cachedDuration);
-			this._callbacks.barPosLabel.textContent = `${elapsedStr} / ${totalStr}  -  ${bar}/${total}`;
+			this.updateBarLabel();
 		}
 
 		// Center-follow: scroll so playhead stays near middle of viewport
@@ -101,6 +84,30 @@ export class PlayerAnimator {
 			this._doc.barScrollPos = target;
 			this._doc.notifier.changed();
 		}
+	}
+
+	// Immediately update the bar position label, bypassing the throttle.
+	// Called when [ or ] jumps the playhead so the label stays accurate
+	// during playback without waiting for the next throttle cycle.
+	public forceBarLabelUpdate(): void {
+		this.updateBarLabel();
+	}
+
+	private updateBarLabel(): void {
+		this._barLabelCounter = BAR_LABEL_THROTTLE;
+		const bar = Math.floor(this._doc.synth.playhead) + 1;
+		const total = this._doc.song.barCount;
+		const generation = this._doc.notifier.generation;
+		if (this._cachedDuration < 0 || this._doc.song.barCount !== this._cachedBarCount || generation !== this._cachedGeneration) {
+			const totalSamples = this._doc.synth.getTotalSamples(true, true, 0);
+			this._cachedDuration = totalSamples > 0 ? totalSamples / this._doc.synth.samplesPerSecond : 0;
+			this._cachedBarCount = this._doc.song.barCount;
+			this._cachedGeneration = generation;
+		}
+		const elapsed = this._doc.synth.totalSamplesRendered / this._doc.synth.samplesPerSecond;
+		const elapsedStr = formatTime(elapsed);
+		const totalStr = formatTime(this._cachedDuration);
+		this._callbacks.barPosLabel.textContent = `${elapsedStr} / ${totalStr}  -  ${bar}/${total}`;
 	}
 
 	public volumeUpdate = (): void => {
