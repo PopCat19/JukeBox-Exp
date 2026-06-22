@@ -91,7 +91,7 @@ export class ImportPrompt extends BasePrompt {
 		this._handleFile(file);
 	};
 
-	private _handleFile(file: File): void {
+	private _handleFile(file: File, rafWin?: Window): void {
 		const fileName: string = file.name;
 		const extension: string = fileName.slice(((fileName.lastIndexOf(".") - 1) >>> 0) + 2).toLowerCase();
 		if (extension === "json") {
@@ -99,7 +99,13 @@ export class ImportPrompt extends BasePrompt {
 			reader.addEventListener("load", (_event: Event): void => {
 				this._showLoading();
 				this._doc.prompt = null;
-				requestAnimationFrame(() => {
+				// Schedule the heavy ChangeSong on the provided window when
+				// given (the visible popup that received the drop), else the
+				// main window. The main window's rAF is throttled to ~1fps
+				// when backgrounded behind a popup, which previously deferred
+				// the load until the editor regained visibility.
+				const raf: Window = rafWin ?? window;
+				raf.requestAnimationFrame(() => {
 					this._doc.goBackToStart();
 					this._doc.record(new ChangeSong(this._doc, <string>reader.result, this._modeImportSelect.value), false, true);
 					this._doc.notifier.notifyWatchers();
@@ -119,8 +125,8 @@ export class ImportPrompt extends BasePrompt {
 		}
 	}
 
-	public handleExternalFile(file: File): void {
-		this._handleFile(file);
+	public handleExternalFile(file: File, rafWin?: Window): void {
+		this._handleFile(file, rafWin);
 	}
 
 	private _showLoading(): void {

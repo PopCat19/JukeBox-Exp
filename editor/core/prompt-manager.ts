@@ -58,7 +58,11 @@ export interface PromptEditorRefs {
 	patternEditor: PatternEditor;
 	trackArea: HTMLDivElement;
 	// Opens the ImportPrompt and passes the file for drag-drop import.
-	handleImportFile(file: File): void;
+	// rafWin, when provided, is the window whose requestAnimationFrame
+	// schedules the deferred ChangeSong — needed when the drop targets
+	// a popped-out prompt so the work runs on the visible (unthrottled)
+	// window instead of the backgrounded main editor.
+	handleImportFile(file: File, rafWin?: Window): void;
 }
 
 export interface PromptHost {
@@ -762,22 +766,22 @@ export class PromptManager {
 				const mlRect = this._host.mainLayer.getBoundingClientRect();
 				currentPos = { x: r.left - mlRect.left, y: r.top - mlRect.top };
 			}
-			let startX = e.clientX - currentPos.x;
-			let startY = e.clientY - currentPos.y;
+			const startX = e.clientX - currentPos.x;
+			const startY = e.clientY - currentPos.y;
 
 			const onMove = (me: MouseEvent): void => {
 				if (!this._prompts.includes(prompt)) return;
 				if (this._dock.isDocked(prompt)) {
-				if (this._dock.shouldUnsnapByDrag(prompt, me.clientX - anchorX)) {
-					this._dock.undock(prompt);
-					anchorX = me.clientX;
-					suppressSnap = true;
-					// Continue the drag with the original grab offset so the
-					// prompt follows the cursor instead of jumping to the
-					// titlebar.
-				} else {
-					return;
-				}
+					if (this._dock.shouldUnsnapByDrag(prompt, me.clientX - anchorX)) {
+						this._dock.undock(prompt);
+						anchorX = me.clientX;
+						suppressSnap = true;
+						// Continue the drag with the original grab offset so the
+						// prompt follows the cursor instead of jumping to the
+						// titlebar.
+					} else {
+						return;
+					}
 				}
 				const rect = prompt.container.getBoundingClientRect();
 				const w = this._host.mainLayer.clientWidth;

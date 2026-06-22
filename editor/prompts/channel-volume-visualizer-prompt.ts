@@ -381,7 +381,12 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 			const name: string = file.name.toLowerCase();
 			if (name.endsWith(".json") || name.endsWith(".mid") || name.endsWith(".midi")) {
 				e.preventDefault();
-				this._songEditor.handleImportFile(file);
+				// Pass the window hosting this container so the import's
+				// deferred ChangeSong runs on the visible popup rAF, not the
+				// backgrounded main editor rAF (which is throttled and would
+				// defer the load until the editor regains visibility).
+				const rafWin: Window = (this.container.ownerDocument.defaultView as Window | null) ?? window;
+				this._songEditor.handleImportFile(file, rafWin);
 			}
 		};
 		this.container.addEventListener("dragover", _onDragOver);

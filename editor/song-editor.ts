@@ -3640,11 +3640,11 @@ export class SongEditor
 		}
 	}
 
-	public handleImportFile(file: File): void {
+	public handleImportFile(file: File, rafWin?: Window): void {
 		this._promptManager.open("import");
 		const importPrompt: ImportPrompt | null = this._promptManager.prompt as ImportPrompt | null;
 		if (importPrompt && typeof (importPrompt as any).handleExternalFile === "function") {
-			(importPrompt as any).handleExternalFile(file);
+			(importPrompt as any).handleExternalFile(file, rafWin);
 		}
 	}
 
