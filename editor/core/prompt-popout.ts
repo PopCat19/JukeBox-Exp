@@ -147,27 +147,19 @@ export class PromptPopout {
 		const onUnload = (): void => this._handleClosed(prompt);
 		win.addEventListener("pagehide", onUnload);
 
-		// Watch for parent window close/refresh. When the editor reloads the
-		// popout cannot reconnect (it references a dead document), so close
-		// itself to avoid an orphaned, unresponsive window.
-		const parentWatch = win.setInterval(() => {
-			if (win.closed) {
-				win.clearInterval(parentWatch);
-				return;
-			}
-			try {
-				if (!win.opener || win.opener.closed) {
-					win.clearInterval(parentWatch);
-					win.close();
-				}
-			} catch {
-				win.clearInterval(parentWatch);
-				win.close();
-			}
-		}, 500);
+		// Inject a self-closing watchdog into the popup window so it lives
+		// in the popup's own JS context. When the parent editor refreshes,
+		// window.opener is nulled; the popup detects this and closes itself
+		// to avoid an orphaned, unresponsive window.
+		const watchdog = doc.createElement("script");
+		watchdog.textContent = `
+			setInterval(function(){
+				try{if(!window.opener||window.opener.closed)window.close()}catch(e){window.close()}
+			},500)
+		`;
+		doc.head.appendChild(watchdog);
 
 		this._cleanupOnClose.set(prompt, (): void => {
-			win.clearInterval(parentWatch);
 			doc.removeEventListener("keydown", onKey);
 			win.removeEventListener("pagehide", onUnload);
 		});
