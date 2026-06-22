@@ -230,6 +230,8 @@ export class PatternEditor {
 	private _cursor: PatternCursor = new PatternCursor();
 	private _stashCursorPinVols: number[][] = [];
 	private _pattern: Pattern | null = null;
+	private _cachedFlashElements: SVGPathElement[] = [];
+	private _cachedFlashRanges: [number, number][] = [];
 	private _playheadX: number = 0.0;
 	private _octaveOffset: number = 0;
 	private _renderedWidth: number = -1;
@@ -1065,7 +1067,7 @@ export class PatternEditor {
 		}
 
 		const playheadBar: number = Math.floor(this._doc.synth.playhead);
-		const noteFlashElements: NodeListOf<SVGPathElement> = this._svgNoteContainer.querySelectorAll(".note-flash");
+		const noteFlashElements: SVGPathElement[] = this._cachedFlashElements;
 
 		if (
 			this._doc.synth.playing &&
@@ -1078,11 +1080,10 @@ export class PatternEditor {
 			// note flash
 			for (let i = 0; i < noteFlashElements.length; i++) {
 				const element: SVGPathElement = noteFlashElements[i];
-				const noteStart: number = Number(element.getAttribute("note-start")) / (this._doc.song.beatsPerBar * Config.partsPerBeat);
-				const noteEnd: number = Number(element.getAttribute("note-end")) / (this._doc.song.beatsPerBar * Config.partsPerBeat);
-				if (modPlayhead >= noteStart && this._doc.prefs.notesFlashWhenPlayed) {
-					const dist = noteEnd - noteStart;
-					element.style.opacity = String(1 - (modPlayhead - noteStart - dist / 2) / (dist / 2));
+				const range: [number, number] = this._cachedFlashRanges[i];
+				if (modPlayhead >= range[0] && this._doc.prefs.notesFlashWhenPlayed) {
+					const dist: number = range[1] - range[0];
+					element.style.opacity = String(1 - (modPlayhead - range[0] - dist / 2) / (dist / 2));
 				} else {
 					element.style.opacity = "0";
 				}
@@ -3509,6 +3510,8 @@ export class PatternEditor {
 	}
 
 	private _redrawNotePatterns(): void {
+		this._cachedFlashElements.length = 0;
+		this._cachedFlashRanges.length = 0;
 		this._initCanvas();
 		this._drawBackgroundToCanvas();
 		this._svgNoteContainer = makeEmptyReplacementElement(this._svgNoteContainer);
@@ -3549,6 +3552,9 @@ export class PatternEditor {
 								notePath.style.opacity = "0";
 								notePath.setAttribute("note-start", String(note.start));
 								notePath.setAttribute("note-end", String(note.end));
+								this._cachedFlashElements.push(notePath);
+								const totalParts: number = this._doc.song.beatsPerBar * Config.partsPerBeat;
+								this._cachedFlashRanges.push([note.start / totalParts, note.end / totalParts]);
 							}
 						}
 					}
@@ -3605,6 +3611,9 @@ export class PatternEditor {
 						notePath.style.opacity = "0";
 						notePath.setAttribute("note-start", String(note.start));
 						notePath.setAttribute("note-end", String(note.end));
+						this._cachedFlashElements.push(notePath);
+						const totalParts: number = this._doc.song.beatsPerBar * Config.partsPerBeat;
+						this._cachedFlashRanges.push([note.start / totalParts, note.end / totalParts]);
 					}
 
 					// SVG: continuation arrow
