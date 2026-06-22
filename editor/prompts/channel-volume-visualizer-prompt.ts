@@ -242,6 +242,10 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 	});
 	private readonly _whiteKeyRects: Map<number, SVGRectElement> = new Map();
 	private readonly _blackKeyRects: Map<number, SVGRectElement> = new Map();
+	// Cache last rendered fill|opacity per key so idle keys skip the
+	// setAttribute writes (96 keys × 2 attrs = 192 DOM writes/frame
+	// without this; most keys are idle most frames).
+	private readonly _keyLastRender: Map<number, string> = new Map();
 
 	// Song-player timeline rendered as a faint background behind the
 	// channel cards when popped out. Reuses the player's renderTimeline /
@@ -461,6 +465,7 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 		this._channelPeak.clear();
 		this._whiteKeyRects.clear();
 		this._blackKeyRects.clear();
+		this._keyLastRender.clear();
 		this._playPauseButton.removeEventListener("click", this._togglePlayPause);
 		this._songEditor.muteEditor.setHoveredChannel(-1);
 		this._songEditor.trackEditor.setHoveredChannel(-1);
@@ -773,16 +778,18 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 			}
 
 			// Per-channel post-limiter peak for the meter, computed from the
-			// isolated ring (linear scan, no FFT). Runs every frame so the
-			// volume bar / dB labels stay responsive; the expensive FFT
-			// spectrum draw below is throttled to every 2nd frame.
-			this._channelPeak.set(channelIndex, this._computeChannelPeak(channelState, this._smoothedMasterScale));
+			// isolated ring (linear scan, no FFT). Interleaved with the FFT
+			// on the opposite phase so each frame does either the peak scan
+			// OR the FFT, never both — halves the per-channel scan cost and
+			// distributes work evenly. Metering above reads the cached peak
+			// (at most 1 frame stale on FFT frames, imperceptible).
+			if (!this._spectrumFrameToggle) {
+				this._channelPeak.set(channelIndex, this._computeChannelPeak(channelState, this._smoothedMasterScale));
+				continue;
+			}
 
 			// Draw pitch spectrum overlay: smooth bezier curve fill from active tone bands.
-			// The 8192-point FFT is the dominant per-frame cost (N channels ×
-			// O(n log n)), so it runs every 2nd frame (30fps). Metering above
-			// stays at full rate.
-			if (!this._spectrumFrameToggle) continue;
+			// The 8192-point FFT runs on this phase (every 2nd frame, 30fps).
 			const spectrumCtx = this._channelSpectrumCanvas2ds.get(channelIndex);
 			if (spectrumCtx) {
 				const cvs = this._channelSpectrumCanvases.get(channelIndex);
@@ -1083,20 +1090,27 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 			}
 
 			const updateKeys = (rects: Map<number, SVGRectElement>, defaultFill: string): void => {
-				for (const [pitch, rect] of rects) {
+				for (const [pitch, r] of rects) {
 					const b = pitchBlend.get(pitch);
+					let fill: string;
+					let opacity: string;
 					if (b && b.w > 0) {
 						const rr = Math.round(b.r / b.w);
 						const gg = Math.round(b.g / b.w);
 						const bb = Math.round(b.b / b.w);
-						rect.setAttribute("fill", `rgb(${rr},${gg},${bb})`);
+						fill = `rgb(${rr},${gg},${bb})`;
 						const v = b.maxPeak * 3.16;
 						const peakScaled = (2 * v) / (v + 1.0);
-						const alpha = 0.3 + Math.min(1, peakScaled) * 0.7;
-						rect.setAttribute("opacity", String(alpha));
+						opacity = String(0.3 + Math.min(1, peakScaled) * 0.7);
 					} else {
-						rect.setAttribute("fill", defaultFill);
-						rect.setAttribute("opacity", "1");
+						fill = defaultFill;
+						opacity = "1";
+					}
+					const sig = `${fill}|${opacity}`;
+					if (this._keyLastRender.get(pitch) !== sig) {
+						this._keyLastRender.set(pitch, sig);
+						r.setAttribute("fill", fill);
+						r.setAttribute("opacity", opacity);
 					}
 				}
 			};
