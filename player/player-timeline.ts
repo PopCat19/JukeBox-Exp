@@ -57,6 +57,12 @@ export function getTimelineWidth(): number {
 	return timelineWidth;
 }
 
+// Invalidate the cached visualizationContainer width so the next
+// renderPlayhead re-measures. Call after resize / popout transitions.
+export function invalidateVizWidthCache(): void {
+	cachedVizWidth = -1;
+}
+
 // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-parameters
 export function renderTimeline(
 	ui: PlayerUI,
@@ -64,6 +70,7 @@ export function renderTimeline(
 	removeFromUnorderedArray: <T>(array: T[], index: number) => void,
 	startBar: number = 0,
 	endBar?: number,
+	noBackground: boolean = false,
 ): void {
 	ui.timeline.innerHTML = "";
 	if (ui.synth.song == null) return;
@@ -106,25 +113,27 @@ export function renderTimeline(
 	const wavePitchHeight: number = (timelineHeight - 1) / windowPitchCount;
 	const drumPitchHeight: number = (timelineHeight - 1) / Config.drumCount;
 
-	for (let bar: number = 0; bar < ui.synth.song.barCount + 1; bar++) {
-		const color: string =
-			bar === ui.synth.song.loopStart || bar === ui.synth.song.loopStart + ui.synth.song.loopLength
-				? ColorConfig.loopAccent
-				: ColorConfig.uiWidgetBackground;
-		ui.timeline.appendChild(rect({ x: bar * barWidth - 1, y: 0, width: 2, height: timelineHeight, fill: color }));
-	}
+	if (!noBackground) {
+		for (let bar: number = 0; bar < ui.synth.song.barCount + 1; bar++) {
+			const color: string =
+				bar === ui.synth.song.loopStart || bar === ui.synth.song.loopStart + ui.synth.song.loopLength
+					? ColorConfig.loopAccent
+					: ColorConfig.uiWidgetBackground;
+			ui.timeline.appendChild(rect({ x: bar * barWidth - 1, y: 0, width: 2, height: timelineHeight, fill: color }));
+		}
 
-	for (let octave: number = 0; octave <= windowOctaves; octave++) {
-		ui.timeline.appendChild(
-			rect({
-				x: 0,
-				y: octave * 12 * wavePitchHeight,
-				width: timelineWidth,
-				height: wavePitchHeight + 1,
-				fill: ColorConfig.tonic,
-				opacity: 0.75,
-			}),
-		);
+		for (let octave: number = 0; octave <= windowOctaves; octave++) {
+			ui.timeline.appendChild(
+				rect({
+					x: 0,
+					y: octave * 12 * wavePitchHeight,
+					width: timelineWidth,
+					height: wavePitchHeight + 1,
+					fill: ColorConfig.tonic,
+					opacity: 0.75,
+				}),
+			);
+		}
 	}
 
 	// note flash colors
@@ -194,14 +203,24 @@ export function renderTimeline(
 	renderPlayhead(ui, removeFromUnorderedArray);
 }
 
+// Cached visualizationContainer width so renderPlayhead avoids a
+// per-frame getBoundingClientRect (forced reflow). Invalidated when
+// the container width changes, which only happens on resize / popout.
+let cachedVizWidth: number = -1;
+
 // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-parameters
 export function renderPlayhead(ui: PlayerUI, removeFromUnorderedArray: <T>(array: T[], index: number) => void): void {
 	if (ui.synth.song != null) {
 		const pos: number = ui.synth.playhead / ui.synth.song.barCount;
 		ui.playhead.style.left = `${timelineWidth * pos}px`;
 
-		const boundingRect: ClientRect = ui.visualizationContainer.getBoundingClientRect();
-		ui.visualizationContainer.scrollLeft = pos * (timelineWidth - boundingRect.width);
+		let vizWidth: number = cachedVizWidth;
+		if (vizWidth < 0) {
+			const boundingRect: ClientRect = ui.visualizationContainer.getBoundingClientRect();
+			vizWidth = boundingRect.width;
+			cachedVizWidth = vizWidth;
+		}
+		ui.visualizationContainer.scrollLeft = pos * (timelineWidth - vizWidth);
 
 		if (notesFlashWhenPlayed) {
 			const playheadBar: number = Math.floor(ui.synth.playhead);

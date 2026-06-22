@@ -9,7 +9,7 @@ import { BorderWidth, Sizing, Typography } from "../ui/style-constants";
 // - Updates in real-time during playback
 
 import { HTML, SVG } from "imperative-html/dist/esm/elements-strict";
-import { getTimelineWidth, renderPlayhead, renderTimeline } from "../../player/player-timeline";
+import { getTimelineWidth, invalidateVizWidthCache, renderPlayhead, renderTimeline } from "../../player/player-timeline";
 import type { PlayerUI } from "../../player/player-ui";
 import { ColorConfig } from "../../shared/color-config";
 import { events } from "../../shared/events";
@@ -189,6 +189,10 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 	// Throttle the FFT + spectrum draw to every 2nd frame (30fps);
 	// metering (peak scan, volume bars, dB labels) stays at full rate.
 	private _spectrumFrameToggle: boolean = false;
+	// Separate phase for the player-overlay playhead follow so it
+	// interleaves with the spectrum/peak work rather than piling on
+	// the same frame.
+	private _playerFrameToggle: boolean = false;
 	private _cachedDuration: number = -1;
 	private _cachedBarCount: number = -1;
 	private _cachedGeneration: number = -1;
@@ -610,10 +614,16 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 		// resizes, or the visible bar window drifts past the overscan
 		// margin. renderPlayhead runs every frame to follow the playhead.
 		if (isPopout) {
-			if (!this._wasPopout) this._playerTimelineDirty = true;
+			if (!this._wasPopout) {
+				this._playerTimelineDirty = true;
+				invalidateVizWidthCache();
+			}
 			const vw = this._playerVizContainer.clientWidth;
 			const vh = this._playerVizContainer.clientHeight;
-			if (vw !== this._playerLastW || vh !== this._playerLastH) this._playerTimelineDirty = true;
+			if (vw !== this._playerLastW || vh !== this._playerLastH) {
+				this._playerTimelineDirty = true;
+				invalidateVizWidthCache();
+			}
 			if (vw > 0 && vh > 0) {
 				const barCount = this._doc.song.barCount;
 				const tlW = getTimelineWidth();
@@ -626,14 +636,17 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 				const windowChanged = desStart !== this._playerRenderedStart || desEnd !== this._playerRenderedEnd;
 				if ((this._playerTimelineDirty || windowChanged) && tlW > 0) {
 					const ui = this._playerUI();
-					renderTimeline(ui, true, ChannelVolumeVisualizerPrompt._removeAt, desStart, desEnd);
+					renderTimeline(ui, true, ChannelVolumeVisualizerPrompt._removeAt, desStart, desEnd, true);
 					this._playerTimelineDirty = false;
 					this._playerLastW = vw;
 					this._playerLastH = vh;
 					this._playerRenderedStart = desStart;
 					this._playerRenderedEnd = desEnd;
 				}
-				if (!this._playerTimelineDirty && this._playerRenderedStart >= 0) {
+				// Throttle the playhead follow to every 2nd frame (30fps).
+				// renderPlayhead sets scrollLeft + playhead left; at 30fps
+				// the playhead is still smooth and we halve its reflow risk.
+				if (!this._playerTimelineDirty && this._playerRenderedStart >= 0 && this._playerFrameToggle) {
 					renderPlayhead(this._playerUI(), ChannelVolumeVisualizerPrompt._removeAt);
 				}
 			}
@@ -1120,6 +1133,7 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 		}
 
 		this._spectrumFrameToggle = !this._spectrumFrameToggle;
+		this._playerFrameToggle = !this._playerFrameToggle;
 		this._scheduleFrame();
 	};
 
@@ -1128,6 +1142,7 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 			this._contentContainer.removeChild(this._contentContainer.firstChild);
 		}
 		this._playerTimelineDirty = true;
+		invalidateVizWidthCache();
 		this._playerRenderedStart = -1;
 		this._playerRenderedEnd = -1;
 		this._channelVolumeBars.clear();
