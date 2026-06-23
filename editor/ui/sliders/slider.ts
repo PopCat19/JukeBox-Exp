@@ -230,16 +230,15 @@ export class Slider {
 			//   fill:  near gap edge (closest to center) to center
 			// Inactive side: track fills full half (static).
 			const gapPct = (6 / w) * 100;
-			const k = frac * 100;
-			const farGap = Math.max(0, k - gapPct);   // gap edge away from center
-			const nearGap = Math.min(100, k + gapPct); // gap edge toward center
-			if (k < 50) {
+			const farGap = Math.max(0, kClamped - gapPct);
+			const nearGap = Math.min(100, kClamped + gapPct);
+			if (kClamped < 50) {
 				// Active = left side: track 0→farGap, fill nearGap→center
 				if (this._leftTrackDiv) this._leftTrackDiv.style.width = `${farGap}%`;
 				if (this._rightTrackDiv) this._rightTrackDiv.style.width = "50%";
 				if (this._leftFillDiv) this._leftFillDiv.style.width = `${Math.max(0, 50 - nearGap)}%`;
 				if (this._rightFillDiv) this._rightFillDiv.style.width = "0";
-			} else if (k > 50) {
+			} else if (kClamped > 50) {
 				// Active = right side: track farGap→edge, fill center→farGap
 				if (this._leftTrackDiv) this._leftTrackDiv.style.width = "50%";
 				if (this._rightTrackDiv) this._rightTrackDiv.style.width = `${Math.max(0, 100 - nearGap)}%`;
@@ -256,9 +255,8 @@ export class Slider {
 		} else {
 			// Regular mode: fill from left → knob, track from knob → right, both with 4px visible gap.
 			const gapPct = (6 / w) * 100;
-			const k = frac * 100;
-			const fillPct = Math.max(0, k - gapPct);
-			const trackPct = Math.max(0, 100 - k - gapPct);
+			const fillPct = Math.max(0, kClamped - gapPct);
+			const trackPct = Math.max(0, 100 - kClamped - gapPct);
 			if (this._fillDiv) this._fillDiv.style.width = `${fillPct}%`;
 			if (this._trackDiv) this._trackDiv.style.width = `${trackPct}%`;
 			if (this._knobDiv) this._knobDiv.style.left = `${kClamped}%`;
