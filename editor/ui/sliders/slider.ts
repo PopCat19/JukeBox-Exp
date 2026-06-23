@@ -84,21 +84,18 @@ export class Slider {
 	// ── Layout builders ──
 
 	private _buildRegularSlider(): void {
-		// Track layer: fill (left) + track (right), both with 2px gaps from knob.
-		// 2px inner radius where fill/track face the knob; pill at outer edges.
-		const trackLayer = div(
-			{
-				style: "position: absolute; top: 5px; left: 0; right: 0; height: 6px; overflow: hidden; border-radius: 999px;",
-			},
-			// Fill: pill at left, 2px at right (knob side)
-			(this._fillDiv = div({
-				style: "position: absolute; left: 0; width: 0; height: 100%; background: var(--cta-bg); border-radius: 999px 2px 2px 999px;",
-			})),
-			// Track: pill at right, 2px at left (knob side)
-			(this._trackDiv = div({
-				style: "position: absolute; right: 0; width: 0; height: 100%; background: var(--slider-track, var(--ui-widget-background, #444)); border-radius: 2px 999px 999px 2px;",
-			})),
-		);
+		// Each fill/track element clips itself with overflow:hidden + border-radius.
+		// No parent track-layer — avoids browser clipping issues with nested border-radius + overflow.
+
+		// Fill: pill at left, 2px at right (knob side)
+		this._fillDiv = div({
+			style: "position: absolute; left: 0; top: 5px; width: 0; height: 6px; overflow: hidden; background: var(--cta-bg); border-radius: 999px 2px 2px 999px;",
+		});
+
+		// Track: pill at right, 2px at left (knob side)
+		this._trackDiv = div({
+			style: "position: absolute; right: 0; top: 5px; width: 0; height: 6px; overflow: hidden; background: var(--slider-track, var(--ui-widget-background, #444)); border-radius: 2px 999px 999px 2px;",
+		});
 
 		this._knobDiv = div({
 			style: "position: absolute; width: 4px; height: 100%; background: var(--cta-bg); border-radius: 999px; transform: translateX(-50%); pointer-events: none; z-index: 3;",
@@ -108,40 +105,35 @@ export class Slider {
 			{
 				style: "width: 100%; min-width: 0; position: relative; height: 16px; cursor: pointer; user-select: none; touch-action: none;",
 			},
-			trackLayer,
+			this._fillDiv,
+			this._trackDiv,
 			this._knobDiv,
 			this._modIndicator,
 		);
 	}
 
 	private _buildDeltaSlider(): void {
-		// Track layer: left and right tracks both respect the knob gap.
-		// On the active side (where fill is), track extends from edge to
-		// knob-gap. On the inactive side, track fills full half (edge to
-		// center gap). Fill overlays the inner portion of the active track.
-		const trackLayer = div(
-			{
-				style: "position: absolute; top: 5px; left: 0; right: 0; height: 6px; overflow: hidden; border-radius: 999px;",
-			},
-			// Left track: anchored at left:0, extends rightward (dynamic width)
-			(this._leftTrackDiv = div({
-				style: "position: absolute; left: 0; width: 0; height: 100%; background: var(--slider-track, var(--ui-widget-background, #444)); border-radius: 999px 2px 2px 999px;",
-			})),
-			// Right track: anchored at right:0, extends leftward (dynamic width)
-			(this._rightTrackDiv = div({
-				style: "position: absolute; right: 0; width: 0; height: 100%; background: var(--slider-track, var(--ui-widget-background, #444)); border-radius: 2px 999px 999px 2px;",
-			})),
-			// Left fill: anchored at right:50% (center), extends LEFT toward knob.
-			// 2px at knob side (left), pill at center (right).
-			(this._leftFillDiv = div({
-				style: "position: absolute; right: 50%; width: 0; height: 100%; background: var(--cta-bg); border-radius: 2px 999px 999px 2px;",
-			})),
-			// Right fill: anchored at left:50% (center), extends RIGHT toward knob.
-			// Pill at center (left), 2px at knob side (right).
-			(this._rightFillDiv = div({
-				style: "position: absolute; left: 50%; width: 0; height: 100%; background: var(--cta-bg); border-radius: 999px 2px 2px 999px;",
-			})),
-		);
+		// Each track/fill element clips itself. No parent track-layer.
+
+		// Left track: pill at left edge, 2px at knob side
+		this._leftTrackDiv = div({
+			style: "position: absolute; left: 0; top: 5px; width: 0; height: 6px; overflow: hidden; background: var(--slider-track, var(--ui-widget-background, #444)); border-radius: 999px 2px 2px 999px;",
+		});
+
+		// Right track: pill at right edge, 2px at knob side
+		this._rightTrackDiv = div({
+			style: "position: absolute; right: 0; top: 5px; width: 0; height: 6px; overflow: hidden; background: var(--slider-track, var(--ui-widget-background, #444)); border-radius: 2px 999px 999px 2px;",
+		});
+
+		// Left fill: pill at center (right), 2px at knob side (left)
+		this._leftFillDiv = div({
+			style: "position: absolute; right: 50%; top: 5px; width: 0; height: 6px; overflow: hidden; background: var(--cta-bg); border-radius: 2px 999px 999px 2px;",
+		});
+
+		// Right fill: pill at center (left), 2px at knob side (right)
+		this._rightFillDiv = div({
+			style: "position: absolute; left: 50%; top: 5px; width: 0; height: 6px; overflow: hidden; background: var(--cta-bg); border-radius: 999px 2px 2px 999px;",
+		});
 
 		// Center reference line (replaces the old midTick:after pseudo-element)
 		this._centerLine = div({
@@ -157,7 +149,10 @@ export class Slider {
 			{
 				style: "width: 100%; min-width: 0; position: relative; height: 16px; cursor: pointer; user-select: none; touch-action: none;",
 			},
-			trackLayer,
+			this._leftTrackDiv,
+			this._rightTrackDiv,
+			this._leftFillDiv,
+			this._rightFillDiv,
 			this._centerLine,
 			this._knobDiv,
 			this._modIndicator,
