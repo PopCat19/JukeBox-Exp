@@ -164,6 +164,7 @@ export class PatternEditor {
 	private _ctx: CanvasRenderingContext2D;
 	private _canvasWidth: number = 0;
 	private _canvasHeight: number = 0;
+	private _dpr: number = 1;
 	public _svg: SVGSVGElement;
 	public readonly container: HTMLDivElement;
 
@@ -401,9 +402,10 @@ export class PatternEditor {
 		const dpr: number = window.devicePixelRatio || 1;
 		const w: number = this.container.clientWidth;
 		const h: number = this.container.clientHeight;
-		if (this._canvasWidth === w && this._canvasHeight === h) return;
+		if (this._canvasWidth === w && this._canvasHeight === h && this._dpr === dpr) return;
 		this._canvasWidth = w;
 		this._canvasHeight = h;
+		this._dpr = dpr;
 		this._canvas.width = w * dpr;
 		this._canvas.height = h * dpr;
 		this._ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
@@ -477,9 +479,9 @@ export class PatternEditor {
 	): void {
 		const ctx: CanvasRenderingContext2D = this._ctx;
 
-		// Fast-path: flat rectangle for single-pin notes with no pitch interval.
+		// Fast-path: flat rectangle for notes with no pitch interval (single or double pin).
 		// fillRect is pixel-sharp and cheaper than the path-based approach.
-		if (pins.length === 1 && pins[0].interval === 0) {
+		if ((pins.length === 1 || pins.length === 2) && pins.every((p: NotePin) => p.interval === 0)) {
 			const cap: number = this._doc.song.getVolumeCap(
 				this._doc.song.getChannelIsMod(this._doc.channel),
 				this._doc.channel,
@@ -487,10 +489,13 @@ export class PatternEditor {
 				pitch,
 			);
 			const scale: number = showSize ? pins[0].size / cap : 1.0;
-			const w: number = this._partWidth * pins[0].time * 2 - 1;
-			const x: number = this._partWidth * start + 0.5;
-			const h: number = radius * 2 * scale;
-			const y: number = this._pitchToPixelHeight(pitch - offset) - radius * scale;
+			const snap = (v: number): number => Math.round(v * this._dpr) / this._dpr;
+			const totalW: number = this._partWidth * (pins[pins.length - 1].time + pins[0].time);
+			const endOff: number = 0.5 * Math.min(2, totalW - 1);
+			const h: number = Math.max(1, snap(radius * 2 * scale));
+			const y: number = snap(this._pitchToPixelHeight(pitch - offset) - radius * scale);
+			const x: number = snap(this._partWidth * start + endOff);
+			const w: number = Math.max(1, snap(totalW - 2 * endOff));
 			ctx.fillRect(x, y, Math.max(1, w), Math.max(1, h));
 			return;
 		}
