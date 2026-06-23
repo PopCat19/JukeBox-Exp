@@ -400,7 +400,7 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 		this._loopButton.addEventListener("mouseenter", () => {
 			const active: boolean = this._doc.synth.loopRepeatCount === -1;
 			if (active) {
-				this._loopButton.style.outline = "2px solid var(--editor-background)";
+				this._loopButton.style.outline = "2px solid var(--cta-fg)";
 			} else {
 				this._loopButton.style.color = "var(--primary-text)";
 				this._loopButton.style.outline = "2px solid var(--hout, var(--primary-text))";
