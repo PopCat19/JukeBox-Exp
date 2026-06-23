@@ -425,28 +425,21 @@ export class PatternEditor {
 		ctx.clearRect(0, 0, w, h);
 
 		if (this._doc.song.getChannelIsNoise(this._doc.channel) || this._doc.song.getChannelIsMod(this._doc.channel)) {
-			ctx.fillStyle = this._resolveCssColor(ColorConfig.pitchBackground);
-			ctx.fillRect(0, 0, w, h);
-			// Subtle beat division lines
+			// Same row-rectangle approach as pitch channels, but uniform color
+			// (no scale rows). Gaps between rectangles form the grid lines,
+			// showing through to the editor background.
+			const pitchBg: string = this._resolveCssColor(ColorConfig.pitchBackground);
 			const beatWidth: number = w / this._doc.song.beatsPerBar;
-			ctx.strokeStyle = "#ffffff";
-			ctx.globalAlpha = 0.2;
-			ctx.lineWidth = 1;
-			for (let beat: number = 1; beat < this._doc.song.beatsPerBar; beat++) {
-				const x: number = beat * beatWidth;
-				ctx.beginPath();
-				ctx.moveTo(x, 0);
-				ctx.lineTo(x, h);
-				ctx.stroke();
+			const rowHeight: number = this._pitchHeight - 2;
+			for (let beat: number = 0; beat < this._doc.song.beatsPerBar; beat++) {
+				const beatX: number = beat * beatWidth + 1;
+				let y: number = 1;
+				while (y < h) {
+					ctx.fillStyle = pitchBg;
+					ctx.fillRect(beatX, y, beatWidth - 2, rowHeight);
+					y += this._pitchHeight;
+				}
 			}
-			// Horizontal row separators
-			for (let y: number = this._pitchHeight; y < h; y += this._pitchHeight) {
-				ctx.beginPath();
-				ctx.moveTo(0, y);
-				ctx.lineTo(w, y);
-				ctx.stroke();
-			}
-			ctx.globalAlpha = 1;
 			return;
 		}
 
