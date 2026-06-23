@@ -3617,6 +3617,7 @@ export class PatternEditor {
 						envPath.setAttribute("pointer-events", "none");
 						this._drawNote(envPath, pitch, note.start, note.pins, (this._pitchHeight - this._pitchBorder) / 2 + 1, true, this._octaveOffset);
 						this._svgNoteContainer.appendChild(envPath);
+					}
 
 					// SVG: flash overlay
 					if (this._doc.prefs.notesFlashWhenPlayed && !disabled) {
