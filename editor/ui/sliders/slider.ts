@@ -219,6 +219,9 @@ export class Slider {
 	private _syncVisual(): void {
 		const val = parseFloat(this.input.value) ?? this._min;
 		const frac = this._max > this._min ? (val - this._min) / (this._max - this._min) : 0;
+		const w = this._wrapperDiv.offsetWidth || 120;
+		const knobHalfPct = (2 / w) * 100;
+		const kClamped = Math.max(knobHalfPct, Math.min(100 - knobHalfPct, frac * 100));
 
 		if (this._midTick) {
 			// Delta mode: tracks and fills both respect the knob gap.
@@ -226,7 +229,6 @@ export class Slider {
 			//   track: edge to far gap edge (farthest from center)
 			//   fill:  near gap edge (closest to center) to center
 			// Inactive side: track fills full half (static).
-			const w = this._wrapperDiv.offsetWidth || 120;
 			const gapPct = (6 / w) * 100;
 			const k = frac * 100;
 			const farGap = Math.max(0, k - gapPct);   // gap edge away from center
@@ -250,17 +252,16 @@ export class Slider {
 				if (this._leftFillDiv) this._leftFillDiv.style.width = "0";
 				if (this._rightFillDiv) this._rightFillDiv.style.width = "0";
 			}
-			if (this._knobDiv) this._knobDiv.style.left = `${k}%`;
+			if (this._knobDiv) this._knobDiv.style.left = `${kClamped}%`;
 		} else {
 			// Regular mode: fill from left → knob, track from knob → right, both with 4px visible gap.
-			const w = this._wrapperDiv.offsetWidth || 120;
 			const gapPct = (6 / w) * 100;
 			const k = frac * 100;
 			const fillPct = Math.max(0, k - gapPct);
 			const trackPct = Math.max(0, 100 - k - gapPct);
 			if (this._fillDiv) this._fillDiv.style.width = `${fillPct}%`;
 			if (this._trackDiv) this._trackDiv.style.width = `${trackPct}%`;
-			if (this._knobDiv) this._knobDiv.style.left = `${k}%`;
+			if (this._knobDiv) this._knobDiv.style.left = `${kClamped}%`;
 		}
 	}
 
