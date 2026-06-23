@@ -3544,12 +3544,11 @@ export class PatternEditor {
 							// SVG: persistent envelope overlay for mod/drum channels
 							if (this._doc.song.getChannelIsMod(channel) || this._doc.song.getChannelIsNoise(channel)) {
 								const envPath: SVGPathElement = SVG.path();
-								envPath.setAttribute("fill", "#ffffff");
+								envPath.setAttribute("fill", "var(--overwriting-mod-slider)");
 								envPath.setAttribute("fill-opacity", "0.15");
 								envPath.setAttribute("pointer-events", "none");
 								this._drawNote(envPath, pitch, note.start, note.pins, this._pitchHeight * 0.19, false, octaveOffset);
 								this._svgNoteContainer.appendChild(envPath);
-								envPath.style.opacity = "1";
 							}
 
 							// SVG: flash overlay
@@ -3614,13 +3613,10 @@ export class PatternEditor {
 					// SVG: persistent envelope overlay for mod/drum channels
 					if (this._doc.song.getChannelIsMod(this._doc.channel) || this._doc.song.getChannelIsNoise(this._doc.channel)) {
 						const envPath: SVGPathElement = SVG.path();
-						envPath.setAttribute("fill", "#ffffff");
-						envPath.setAttribute("fill-opacity", "0.25");
+						envPath.setAttribute("fill", "var(--overwriting-mod-slider)");
 						envPath.setAttribute("pointer-events", "none");
 						this._drawNote(envPath, pitch, note.start, note.pins, (this._pitchHeight - this._pitchBorder) / 2 + 1, true, this._octaveOffset);
 						this._svgNoteContainer.appendChild(envPath);
-						envPath.style.opacity = "1";
-					}
 
 					// SVG: flash overlay
 					if (this._doc.prefs.notesFlashWhenPlayed && !disabled) {
