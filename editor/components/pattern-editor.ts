@@ -427,6 +427,26 @@ export class PatternEditor {
 		if (this._doc.song.getChannelIsNoise(this._doc.channel) || this._doc.song.getChannelIsMod(this._doc.channel)) {
 			ctx.fillStyle = this._resolveCssColor(ColorConfig.pitchBackground);
 			ctx.fillRect(0, 0, w, h);
+			// Subtle beat division lines
+			const beatWidth: number = w / this._doc.song.beatsPerBar;
+			ctx.strokeStyle = this._resolveCssColor(ColorConfig.secondaryText);
+			ctx.globalAlpha = 0.3;
+			ctx.lineWidth = 1;
+			for (let beat: number = 1; beat < this._doc.song.beatsPerBar; beat++) {
+				const x: number = beat * beatWidth;
+				ctx.beginPath();
+				ctx.moveTo(x, 0);
+				ctx.lineTo(x, h);
+				ctx.stroke();
+			}
+			// Horizontal row separators
+			for (let y: number = this._pitchHeight; y < h; y += this._pitchHeight) {
+				ctx.beginPath();
+				ctx.moveTo(0, y);
+				ctx.lineTo(w, y);
+				ctx.stroke();
+			}
+			ctx.globalAlpha = 1;
 			return;
 		}
 
