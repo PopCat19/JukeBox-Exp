@@ -481,7 +481,17 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 		const active: boolean = this._doc.synth.loopRepeatCount === -1;
 		this._loopButton.style.background = active ? "var(--cta-bg)" : "var(--tab-inactive-bg)";
 		this._loopButton.style.color = active ? "var(--cta-fg)" : "var(--tab-inactive-fg)";
-		this._loopButton.style.outline = "none";
+		// Re-apply hover outline if the mouse is still over the button.
+		try {
+			if (this._loopButton.matches(":hover")) {
+				this._loopButton.style.outline = active ? "2px solid var(--cta-fg)" : "2px solid var(--hout, var(--primary-text))";
+				if (!active) this._loopButton.style.color = "var(--primary-text)";
+			} else {
+				this._loopButton.style.outline = "none";
+			}
+		} catch {
+			this._loopButton.style.outline = "none";
+		}
 	};
 
 	// Seek the playhead to the bar position under the pointer.
