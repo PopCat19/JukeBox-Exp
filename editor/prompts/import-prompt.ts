@@ -10,6 +10,7 @@
 
 import { HTML } from "imperative-html/dist/esm/elements-strict";
 import { Channel, Instrument, makeNotePin, Note, type NotePin, Pattern, type Song, Synth } from "../../synth";
+import { clearSamples } from "../../synth/song-utilities";
 import { Config, InstrumentType } from "../../synth/synth-config";
 import { ChangeReplacePatterns, ChangeSong, removeDuplicatePatterns } from "../changes";
 import { EditorConfig, type Preset } from "../config/editor-config";
@@ -1415,6 +1416,12 @@ export class ImportPrompt extends BasePrompt {
 			constructor(doc: SongDocument) {
 				super();
 				const song: Song = doc.song;
+				// Reset all scalar configs to defaults (reverb, EQ, limiter,
+				// compression, custom samples, title, etc.) so old project
+				// settings don't carry over. Override with MIDI-specific values.
+				song.initScalarsOnly();
+				song.restoreLimiterDefaults();
+				clearSamples(song.customSampleHandler);
 				song.tempo = beatsPerMinute;
 				song.beatsPerBar = beatsPerBar;
 				song.key = key;
