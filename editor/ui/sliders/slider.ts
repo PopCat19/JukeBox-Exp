@@ -30,7 +30,6 @@ export class Slider {
 	private _wrapperDiv: HTMLDivElement;
 	// Regular slider fields
 	private _fillDiv: HTMLDivElement | null = null;
-	private _trackDiv: HTMLDivElement | null = null;
 	// Delta slider fields
 	private _leftFillDiv: HTMLDivElement | null = null;
 	private _rightFillDiv: HTMLDivElement | null = null;
@@ -84,18 +83,21 @@ export class Slider {
 	// ── Layout builders ──
 
 	private _buildRegularSlider(): void {
-		// Each fill/track element clips itself with overflow:hidden + border-radius.
-		// No parent track-layer — avoids browser clipping issues with nested border-radius + overflow.
+		// MD3-style approach: fill uses transform:scaleX clipped by parent overflow.
+		// Avoids sub-pixel rendering issues with percentage width + border-radius.
 
-		// Fill: pill at left, square at right (knob side)
-		this._fillDiv = div({
-			style: "position: absolute; left: 0; top: 5px; width: 0; height: 6px; background: var(--cta-bg); border-radius: 999px 0 0 999px;",
-		});
-
-		// Track: square at left (knob side), pill at right
-		this._trackDiv = div({
-			style: "position: absolute; right: 0; top: 5px; width: 0; height: 6px; background: var(--slider-track, var(--ui-widget-background, #444)); border-radius: 0 999px 999px 0;",
-		});
+		// Track container: pills the outer edges, clips fill/track inside.
+		const trackLayer = div(
+			{
+				style: "position: absolute; top: 5px; left: 0; right: 0; height: 6px; overflow: hidden; border-radius: 999px;",
+			},
+			// Inactive track (fills entire track)
+			div({ style: "position: absolute; inset: 0; background: var(--slider-track, var(--ui-widget-background, #444));" }),
+			// Fill: always 100% wide, scaled via transform
+			(this._fillDiv = div({
+				style: "position: absolute; left: 0; top: 0; width: 100%; height: 100%; background: var(--cta-bg); transform-origin: left; transform: scaleX(0);",
+			})),
+		);
 
 		this._knobDiv = div({
 			style: "position: absolute; width: 4px; height: 100%; background: var(--cta-bg); border-radius: 999px; transform: translateX(-50%); pointer-events: none; z-index: 3;",
@@ -105,8 +107,7 @@ export class Slider {
 			{
 				style: "width: 100%; min-width: 0; position: relative; height: 16px; cursor: pointer; user-select: none; touch-action: none;",
 			},
-			this._fillDiv,
-			this._trackDiv,
+			trackLayer,
 			this._knobDiv,
 			this._modIndicator,
 		);
@@ -250,12 +251,11 @@ export class Slider {
 			}
 			if (this._knobDiv) this._knobDiv.style.left = `${kClamped}%`;
 		} else {
-			// Regular mode: fill from left → knob, track from knob → right, both with 2px visible gap.
+			// Regular mode: fill via transform:scaleX (MD3-style), clipped by track-layer.
+			// Gap from knob: fill stops at kClamped - gapPct.
 			const gapPct = (4 / w) * 100;
 			const fillPct = Math.max(0, kClamped - gapPct);
-			const trackPct = Math.max(0, 100 - kClamped - gapPct);
-			if (this._fillDiv) this._fillDiv.style.width = `${fillPct}%`;
-			if (this._trackDiv) this._trackDiv.style.width = `${trackPct}%`;
+			if (this._fillDiv) this._fillDiv.style.transform = `scaleX(${Math.min(1, fillPct / 100)})`;
 			if (this._knobDiv) this._knobDiv.style.left = `${kClamped}%`;
 		}
 	}
