@@ -59,7 +59,7 @@ export class Slider {
 
 		this._modIndicator = div({
 			class: "slider-mod-indicator",
-			style: "position: absolute; left: var(--mod-position, -50%); width: 4px; height: 100%; top: 0; background: var(--cta-bg); border-radius: 999px; transform: translateX(-50%); pointer-events: none; z-index: 10;",
+			style: "position: absolute; left: var(--mod-position, -50%); width: 4px; height: 100%; top: 0; background: var(--subtext); border-radius: 999px; transform: translateX(-50%); pointer-events: none; z-index: 10;",
 		});
 
 		if (midTick) {
