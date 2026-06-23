@@ -185,7 +185,7 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 	});
 	private readonly _loopButton: HTMLButtonElement = button(
 		{
-			style: `width: 26px; height: 26px; padding: 0; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; outline: none; line-height: 1; font-size: 12px; background: var(--tab-inactive-bg); color: var(--tab-inactive-fg); transition: background 150ms, color 150ms;`,
+			style: `width: 26px; height: 26px; padding: 0; border: 2px solid transparent; box-sizing: border-box; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; outline: none; line-height: 1; font-size: 12px; background: var(--tab-inactive-bg); color: var(--tab-inactive-fg); transition: background 150ms, color 150ms, border-color 150ms;`,
 			title: "Toggle loop",
 		},
 		svg({ width: 12, height: 12, viewBox: "0 0 12 12" }, this._loopIcon),
@@ -399,18 +399,18 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 		this._loopButton.addEventListener("click", this._toggleLoop);
 		this._loopButton.addEventListener("mouseenter", () => {
 			if (this._doc.synth.loopRepeatCount === -1) {
-				this._loopButton.style.outline = "2px solid var(--cta-fg)";
+				this._loopButton.style.borderColor = "var(--editor-background)";
 			} else {
 				this._loopButton.style.color = "var(--primary-text)";
-				this._loopButton.style.outline = "2px solid var(--hout, var(--primary-text))";
+				this._loopButton.style.borderColor = "var(--hout, var(--primary-text))";
 			}
 		});
 		this._loopButton.addEventListener("mouseleave", () => {
 			if (this._doc.synth.loopRepeatCount === -1) {
-				this._loopButton.style.outline = "none";
+				this._loopButton.style.borderColor = "transparent";
 			} else {
 				this._loopButton.style.color = "var(--tab-inactive-fg)";
-				this._loopButton.style.outline = "none";
+				this._loopButton.style.borderColor = "transparent";
 			}
 		});
 		this._scrubTrack.addEventListener("pointerdown", this._onScrubPointerDown);
@@ -481,16 +481,15 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 		const active: boolean = this._doc.synth.loopRepeatCount === -1;
 		this._loopButton.style.background = active ? "var(--cta-bg)" : "var(--tab-inactive-bg)";
 		this._loopButton.style.color = active ? "var(--cta-fg)" : "var(--tab-inactive-fg)";
-		// Re-apply hover outline if the mouse is still over the button.
+		this._loopButton.style.borderColor = "transparent";
+		// Re-apply hover border if the mouse is still over the button.
 		try {
 			if (this._loopButton.matches(":hover")) {
-				this._loopButton.style.outline = active ? "2px solid var(--cta-fg)" : "2px solid var(--hout, var(--primary-text))";
+				this._loopButton.style.borderColor = active ? "var(--editor-background)" : "var(--hout, var(--primary-text))";
 				if (!active) this._loopButton.style.color = "var(--primary-text)";
-			} else {
-				this._loopButton.style.outline = "none";
 			}
 		} catch {
-			this._loopButton.style.outline = "none";
+			// matches not supported
 		}
 	};
 
