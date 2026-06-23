@@ -398,18 +398,14 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 		this._stopButton.addEventListener("click", this._stop);
 		this._loopButton.addEventListener("click", this._toggleLoop);
 		this._loopButton.addEventListener("mouseenter", () => {
-			const active: boolean = this._doc.synth.loopRepeatCount === -1;
-			if (active) {
-				this._loopButton.style.outline = "2px solid var(--cta-fg)";
-			} else {
-				this._loopButton.style.color = "var(--primary-text)";
-				this._loopButton.style.outline = "2px solid var(--hout, var(--primary-text))";
-			}
+			if (this._doc.synth.loopRepeatCount === -1) return;
+			this._loopButton.style.color = "var(--primary-text)";
+			this._loopButton.style.outline = "2px solid var(--hout, var(--primary-text))";
 		});
 		this._loopButton.addEventListener("mouseleave", () => {
-			const active: boolean = this._doc.synth.loopRepeatCount === -1;
+			if (this._doc.synth.loopRepeatCount === -1) return;
+			this._loopButton.style.color = "var(--tab-inactive-fg)";
 			this._loopButton.style.outline = "none";
-			if (!active) this._loopButton.style.color = "var(--tab-inactive-fg)";
 		});
 		this._scrubTrack.addEventListener("pointerdown", this._onScrubPointerDown);
 		setTimeout(() => this.container.focus());
