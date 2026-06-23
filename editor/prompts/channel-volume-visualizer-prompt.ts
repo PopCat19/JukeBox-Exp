@@ -61,6 +61,61 @@ function ChannelVolumeVisualizerPrompt_initBlurKernel(): number[] {
 	}
 	return kernel;
 }
+// Precomputed BG gaussian blur kernel (sigma=2 bands), truncated at 4 sigma.
+// Avoids Math.exp() allocation per band per channel per FFT frame.
+const BG_BLUR_RADIUS = 8;
+const BG_BLUR_KERNEL: readonly number[] = ChannelVolumeVisualizerPrompt_initBgBlurKernel();
+
+// Module-level draw helper for per-channel spectrum bars. Defined outside
+// the class to avoid per-channel closure allocation every FFT frame.
+function drawSpectrumBars(
+	ctx: CanvasRenderingContext2D,
+	col: string,
+	h: number,
+	barOuter: number,
+	barW: number,
+	radius: number,
+	gap: number,
+	bandCount: number,
+	mags: Float32Array,
+	ref: number,
+	alpha: number,
+	masterScale: number,
+): void {
+	const bandsPerBar = bandCount / BAR_COUNT;
+	ctx.fillStyle = col;
+	ctx.globalAlpha = alpha;
+	ctx.beginPath();
+	for (let bar = 0; bar < BAR_COUNT; bar++) {
+		const s0 = Math.floor(bar * bandsPerBar);
+		const s1 = Math.min(bandCount, Math.floor((bar + 1) * bandsPerBar));
+		let peak = 0;
+		for (let b = s0; b < s1; b++) if (mags[b] > peak) peak = mags[b];
+		const v = peak * masterScale * SPECTRUM_DISPLAY_GAIN;
+		const norm = Math.min(1, (2 * v) / (v + ref));
+		const barH = norm * h;
+		if (barH < 0.5) continue;
+		const x = bar * barOuter + gap * 0.5;
+		const y = h - barH;
+		const r = Math.min(radius, barH * 0.5);
+		ctx.moveTo(x, h);
+		ctx.lineTo(x, y + r);
+		ctx.quadraticCurveTo(x, y, x + r, y);
+		ctx.lineTo(x + barW - r, y);
+		ctx.quadraticCurveTo(x + barW, y, x + barW, y + r);
+		ctx.lineTo(x + barW, h);
+	}
+	ctx.fill();
+	ctx.globalAlpha = 1.0;
+}
+
+function ChannelVolumeVisualizerPrompt_initBgBlurKernel(): number[] {
+	const kernel: number[] = [];
+	for (let d = -BG_BLUR_RADIUS; d <= BG_BLUR_RADIUS; d++) {
+		kernel.push(Math.exp((-0.5 * d * d) / 4));
+	}
+	return kernel;
+}
 
 function getInstrumentDisplayName(instrument: import("../../synth/instruments").Instrument): string {
 	// Prefer preset name if instrument has one.
@@ -223,14 +278,17 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 	private _playerFrameToggle: boolean = false;
 	// Perf logging: accumulate per-phase ms across frames and log a
 	// summary to the console every ~1s. Shareable from devtools.
-	private _perfFrames: number = 0;
-	private _perfAccum: Record<string, number> = {};
-	private _perfLastLog: number = 0;
-	private _perfFpsLast: number = 0;
-	private _perfFpsMin: number = Infinity;
+
 	private _cachedDuration: number = -1;
 	private _cachedBarCount: number = -1;
 	private _cachedGeneration: number = -1;
+
+	// Structural signature: tracks (channelCount, perChannelInstrumentCounts)
+	// to skip full DOM rebuild in _renderChannelList when nothing structurally
+	// changed. During playback, notifyWatchers fires on window mousemove every
+	// frame, which would tear down and recreate the entire channel card grid
+	// on every bar — causing the full-grid flash flicker.
+	private _renderSignature: string = "";
 
 	// Running averages for dB
 	private _masterVolumeSum: number = 0;
@@ -285,6 +343,33 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 	// setAttribute writes (96 keys × 2 attrs = 192 DOM writes/frame
 	// without this; most keys are idle most frames).
 	private readonly _keyLastRender: Map<number, string> = new Map();
+	// Reusable pitch blend accumulator for piano keys, cleared per frame
+	// instead of allocating a new Map every rAF (eliminates GC pressure).
+	private readonly _pitchBlend: Map<number, { r: number; g: number; b: number; w: number; maxPeak: number }> = new Map();
+	// Object pool for pitch blend entries. Recycles {r,g,b,w,maxPeak}
+	// objects across frames so Map misses hit the pool instead of
+	// allocating fresh objects (eliminates nursery GC pressure). The
+	// pool grows to peak active-pitch count and never shrinks.
+	private readonly _pitchBlendPool: { r: number; g: number; b: number; w: number; maxPeak: number }[] = [];
+	// Per-channel pre-parsed RGB values cached from hex, avoiding
+	// hex.slice() + parseInt() allocations every frame per active instrument.
+	private readonly _cachedChannelRGB: Map<number, { r: number; g: number; b: number }> = new Map();
+	// Last rendered style signature per instrument key, so style writes
+	// only fire when the value actually changes (avoid forced style recalc).
+	private readonly _cachedInstrStyle: Map<string, string> = new Map();
+	// Decay hold timer per instrument key: when activeTones drops to 0,
+	// continue showing the active highlight for N more frames so the brief
+	// gap at bar boundaries doesn't flicker to inactive then back.
+	private readonly _instrActiveDecay: Map<string, number> = new Map();
+	// Last opacity value written per channel div, so style writes fire
+	// only on actual dim-state changes.
+	private readonly _lastChannelOpacity: Map<number, string> = new Map();
+	// Pre-parsed instrument index per key, avoiding key.split("-")[1]
+	// which allocates a new array every frame per instrument.
+	private readonly _instrumentIndex: Map<string, number> = new Map();
+	// Pre-computed inactive style signatures per channel, avoiding
+	// template-literal string allocation every frame per instrument.
+	private readonly _inactiveSig: Map<number, string> = new Map();
 
 	// Song-player timeline rendered as a faint background behind the
 	// channel cards when popped out. Reuses the player's renderTimeline /
@@ -594,6 +679,15 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 		this._whiteKeyRects.clear();
 		this._blackKeyRects.clear();
 		this._keyLastRender.clear();
+		this._pitchBlend.clear();
+		this._cachedChannelRGB.clear();
+		this._cachedInstrStyle.clear();
+		this._instrActiveDecay.clear();
+		this._lastChannelOpacity.clear();
+		this._instrumentIndex.clear();
+		this._inactiveSig.clear();
+		this._pitchBlendPool.length = 0;
+		this._renderSignature = "";
 		this._playPauseButton.removeEventListener("click", this._togglePlayPause);
 		this._stopButton.removeEventListener("click", this._stop);
 		this._loopButton.removeEventListener("click", this._toggleLoop);
@@ -613,10 +707,19 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 	// Recompute cached per-channel overlay colors. Called on render and on
 	// themeChange. getComputedChannelColor forces 4 getComputedStyle calls, so
 	// this must stay out of the per-frame animate loop.
+	private _hexToRgb(hex: string): { r: number; g: number; b: number } {
+		const r = parseInt(hex.length >= 7 ? hex.slice(1, 3) : hex.slice(1, 2) + hex.slice(1, 2), 16);
+		const g = parseInt(hex.length >= 7 ? hex.slice(3, 5) : hex.slice(2, 3) + hex.slice(2, 3), 16);
+		const b = parseInt(hex.length >= 7 ? hex.slice(5, 7) : hex.slice(3, 4) + hex.slice(3, 4), 16);
+		return { r, g, b };
+	}
+
 	private _refreshSpectrumColors(): void {
 		const song = this._doc.song;
 		for (const channelIndex of this._channelSpectrumCanvases.keys()) {
-			this._channelSpectrumColors.set(channelIndex, ColorConfig.getComputedChannelColor(song, channelIndex).primaryChannel);
+			const hex = ColorConfig.getComputedChannelColor(song, channelIndex).primaryChannel;
+			this._channelSpectrumColors.set(channelIndex, hex);
+			this._cachedChannelRGB.set(channelIndex, this._hexToRgb(hex));
 		}
 	}
 
@@ -761,7 +864,6 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 	}
 
 	private _animate = (): void => {
-		const __t0 = performance.now();
 		// Show spectrum only when popped out; when docked the editor's
 		// main spectrum already fills the viewport.
 		const isPopout = this.container.ownerDocument.defaultView !== window;
@@ -782,7 +884,6 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 			}
 		}
 
-		const __tPlayerA = performance.now();
 		// Player timeline background: render only the bars inside (or near)
 		// the visible viewport, not the whole song. renderTimeline rebuilds
 		// the SVG, so it runs only when the song changes, the viewport
@@ -840,9 +941,7 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 				}
 			}
 		}
-		const __tPlayerB = performance.now();
 		this._wasPopout = isPopout;
-		const __tLabelsA = performance.now();
 
 		// Show song title in the prompt titlebar when popped out.
 		const h2 = this.container.querySelector<HTMLHeadingElement>(".prompt-titlebar h2");
@@ -909,7 +1008,6 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 			this._masterDbMinMaxLabel.textContent = `${minDb}/${maxDb} dB`;
 		}
 
-		const __tLabelsB = performance.now();
 		// Update per-channel volume bars
 		const synth = this._doc.synth;
 		// Smooth the post-limiter master gain the per-channel ring omits, so the
@@ -1130,16 +1228,20 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 						bgBandMags[b] *= 0.25 + b * bgGainStep;
 					}
 					// BG light gaussian blur (sigma=2 bands)
+					// BG light gaussian blur (sigma=2 bands) with precomputed
+					// truncated kernel — avoids O(N^2) Math.exp() per frame.
 					{
 						const bgBlurred = this._bgBlurred;
+						const kernel = BG_BLUR_KERNEL;
 						for (let b = 0; b < BG_BANDS; b++) {
 							let sum = 0,
 								wSum = 0;
-							for (let n = 0; n < BG_BANDS; n++) {
-								const d = n - b;
-								const w = Math.exp((-0.5 * d * d) / 4);
-								sum += bgBandMags[n] * w;
-								wSum += w;
+							const n0 = Math.max(0, b - BG_BLUR_RADIUS);
+							const n1 = Math.min(BG_BANDS - 1, b + BG_BLUR_RADIUS);
+							for (let n = n0; n <= n1; n++) {
+								const wt = kernel[BG_BLUR_RADIUS + (n - b)];
+								sum += bgBandMags[n] * wt;
+								wSum += wt;
 							}
 							bgBlurred[b] = wSum > 0.001 ? sum / wSum : 0;
 						}
@@ -1161,108 +1263,121 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 
 					// Draw rounded-bottom-up bars: aggregate the FG bands into BAR_COUNT bars,
 					// each a rounded-top rectangle filled from the card bottom. A continuous
-					// wave is unreadable on the narrow 1:1 cards.
+					// wave is unreadable on the narrow 1:1 cards. Uses module-level
+					// drawSpectrumBars to avoid per-channel closure allocation.
 					const col = this._channelSpectrumColors.get(channelIndex);
 					if (col) {
 						const gap = Math.max(1, window.devicePixelRatio || 1);
 						const barOuter = w / BAR_COUNT;
 						const barW = barOuter - gap;
 						const radius = Math.min(barW * 0.5, h * 0.12);
-
-						// Helper to draw one layer of 16 bars from band magnitudes.
-						spectrumCtx.fillStyle = col;
-						const drawBars = (bandCount: number, mags: Float32Array, ref: number, alpha: number): void => {
-							const bandsPerBar = bandCount / BAR_COUNT;
-							spectrumCtx.globalAlpha = alpha;
-							spectrumCtx.beginPath();
-							for (let bar = 0; bar < BAR_COUNT; bar++) {
-								const s0 = Math.floor(bar * bandsPerBar);
-								const s1 = Math.min(bandCount, Math.floor((bar + 1) * bandsPerBar));
-								let peak = 0;
-								for (let b = s0; b < s1; b++) if (mags[b] > peak) peak = mags[b];
-								const v = peak * this._smoothedMasterScale * SPECTRUM_DISPLAY_GAIN;
-								const norm = Math.min(1, (2 * v) / (v + ref));
-								const barH = norm * h;
-								if (barH < 0.5) continue;
-								const x = bar * barOuter + gap * 0.5;
-								const y = h - barH;
-								const r = Math.min(radius, barH * 0.5);
-								spectrumCtx.moveTo(x, h);
-								spectrumCtx.lineTo(x, y + r);
-								spectrumCtx.quadraticCurveTo(x, y, x + r, y);
-								spectrumCtx.lineTo(x + barW - r, y);
-								spectrumCtx.quadraticCurveTo(x + barW, y, x + barW, y + r);
-								spectrumCtx.lineTo(x + barW, h);
-							}
-							spectrumCtx.fill();
-						};
+						const ms = this._smoothedMasterScale;
 
 						// BG layer (low frequencies) drawn first
-						drawBars(BG_BANDS, bgSmooth, FG_REF, 0.24);
+						drawSpectrumBars(spectrumCtx, col, h, barOuter, barW, radius, gap, BG_BANDS, bgSmooth, FG_REF, 0.24, ms);
 						// FG layer (mid-high frequencies) drawn on top
-						drawBars(FG_BANDS, smooth, FG_REF, 0.48);
-						spectrumCtx.globalAlpha = 1.0;
+						drawSpectrumBars(spectrumCtx, col, h, barOuter, barW, radius, gap, FG_BANDS, smooth, FG_REF, 0.48, ms);
 					}
 				}
 			}
 
-			// Update dim state: dim if P0
+			// Update dim state: dim if P0. Gate writes to avoid forced
+			// style recalc on every frame when the value is stable.
 			const channelDiv = this._channelDivs.get(channelIndex);
 			if (channelDiv) {
 				const songChannel = this._doc.song.channels[channelIndex];
 				if (songChannel) {
 					const currentBarAnim = Math.floor(this._doc.synth.playhead);
 					const hasPat = songChannel.bars[currentBarAnim] > 0;
-					channelDiv.style.opacity = hasPat ? "1" : "0.5";
+					const newOpacity = hasPat ? "1" : "0.5";
+					const lastOpacity = this._lastChannelOpacity.get(channelIndex);
+					if (lastOpacity !== newOpacity) {
+						this._lastChannelOpacity.set(channelIndex, newOpacity);
+						channelDiv.style.opacity = newOpacity;
+					}
 				}
 			}
 
-			// Update instrument highlights
+			// Update instrument highlights. Uses cached RGB, pre-parsed
+			// instrument indices, and pre-computed sig strings to eliminate
+			// ALL per-frame allocations in this hot loop: no key.split(),
+			// no template-literal strings, no String() coercion.
 			const channel = this._doc.song.channels[channelIndex];
 			if (channel) {
 				const chanPeak = this._channelPeak.get(channelIndex) ?? 0;
 				const v = chanPeak * 3.16;
 				const peakScaled = (2 * v) / (v + 1.0);
 				const volBrightness = 0.3 + Math.min(1, peakScaled) * 0.7;
+				const rgb = this._cachedChannelRGB.get(channelIndex) ?? { r: 0x88, g: 0x88, b: 0x88 };
+				const t = Math.min(1, Math.max(0, (volBrightness - 0.3) / 0.7));
+				const br = Math.round(rgb.r + (255 - rgb.r) * t);
+				const bg = Math.round(rgb.g + (255 - rgb.g) * t);
+				const bb = Math.round(rgb.b + (255 - rgb.b) * t);
+				const activeBg = `rgb(${br},${bg},${bb})`;
+				const activeColor = t > 0.5 ? "black" : "var(--editor-background)";
+				const activeOpacity = String(volBrightness);
+				const spectrumColor = this._channelSpectrumColors.get(channelIndex) ?? "var(--primary-text)";
+				const inactiveBg = "var(--ui-widget-background)";
+				const inactiveOpacity = "0.5";
+				// Pre-compute sig strings for this channel so the
+				// per-instrument loop does zero string allocation.
+				const activeSig = `a:${activeBg}|${activeColor}|${activeOpacity}`;
+				const inactiveSig = `i:${inactiveBg}|${spectrumColor}|${inactiveOpacity}`;
+				this._inactiveSig.set(channelIndex, inactiveSig);
 
 				for (const [key, instrSpan] of this._instrumentSpans) {
-					if (key.startsWith(`${channelIndex}-`)) {
-						const j = parseInt(key.split("-")[1], 10);
-						const instrState = channelState.instruments[j];
-						if (instrState && instrSpan) {
-							const isPlaying = (instrState.activeTones.count() > 0 || instrState.liveInputTones.count() > 0) && chanPeak > 0.001;
-							if (isPlaying) {
-								// Blend from channel color to white as volume rises,
-								// with opacity fading in from the floor for a smooth ramp.
-								const hex = this._channelSpectrumColors.get(channelIndex) ?? "#888";
-								const r = parseInt(hex.length >= 7 ? hex.slice(1, 3) : hex.slice(1, 2) + hex.slice(1, 2), 16);
-								const g = parseInt(hex.length >= 7 ? hex.slice(3, 5) : hex.slice(2, 3) + hex.slice(2, 3), 16);
-								const b = parseInt(hex.length >= 7 ? hex.slice(5, 7) : hex.slice(3, 4) + hex.slice(3, 4), 16);
-								const t = Math.min(1, Math.max(0, (volBrightness - 0.3) / 0.7));
-								const br = Math.round(r + (255 - r) * t);
-								const bg = Math.round(g + (255 - g) * t);
-								const bb = Math.round(b + (255 - b) * t);
-								instrSpan.style.background = `rgb(${br},${bg},${bb})`;
-								instrSpan.style.color = t > 0.5 ? "black" : "var(--editor-background)";
-								instrSpan.style.opacity = String(volBrightness);
-							} else {
-								instrSpan.style.background = "var(--ui-widget-background)";
-								instrSpan.style.color = this._channelSpectrumColors.get(channelIndex) ?? "var(--primary-text)";
-								instrSpan.style.opacity = "0.5";
-							}
+					if (!key.startsWith(`${channelIndex}-`)) continue;
+					const j = this._instrumentIndex.get(key);
+					if (j === undefined) continue;
+					const instrState = channelState.instruments[j];
+					if (!instrState || !instrSpan) continue;
+
+					const isPlaying = (instrState.activeTones.count() > 0 || instrState.liveInputTones.count() > 0) && chanPeak > 0.001;
+					if (isPlaying) {
+						this._instrActiveDecay.set(key, 4);
+					}
+
+					const decay = this._instrActiveDecay.get(key) ?? 0;
+					const showActive = isPlaying || decay > 0;
+					if (!isPlaying && decay > 0) {
+						this._instrActiveDecay.set(key, decay - 1);
+					}
+
+					if (showActive) {
+						if (this._cachedInstrStyle.get(key) !== activeSig) {
+							this._cachedInstrStyle.set(key, activeSig);
+							instrSpan.style.background = activeBg;
+							instrSpan.style.color = activeColor;
+							instrSpan.style.opacity = activeOpacity;
+						}
+					} else {
+						if (this._cachedInstrStyle.get(key) !== inactiveSig) {
+							this._cachedInstrStyle.set(key, inactiveSig);
+							instrSpan.style.background = inactiveBg;
+							instrSpan.style.color = spectrumColor;
+							instrSpan.style.opacity = inactiveOpacity;
 						}
 					}
 				}
 			}
 		}
 
-		const __tChanB = performance.now();
-		const __tKeysA = performance.now();
 		// Update piano key octave display — alpha peak curve with
 		// weighted-RGB channel color mixing when multiple channels
-		// play the same pitch.
+		// play the same pitch. Reuses a single Map cleared per frame
+		// instead of allocating a new Map every rAF (eliminates GC
+		// pressure from ~hundreds of kB/s of Map + entry objects).
 		{
-			const pitchBlend = new Map<number, { r: number; g: number; b: number; w: number; maxPeak: number }>();
+			const pitchBlend = this._pitchBlend;
+			const pool = this._pitchBlendPool;
+			// Return last frame's entries to pool before clearing, so the
+			// collectPitches loop below reuses existing objects instead of
+			// allocating new {r,g,b,w,maxPeak} every frame. The pool grows
+			// to peak pitch count and stays — no GC pressure from entries.
+			for (const [, entry] of pitchBlend) {
+				pool.push(entry);
+			}
+			pitchBlend.clear();
 
 			for (let ci = 0; ci < synth.channels.length; ci++) {
 				const cs = synth.channels[ci];
@@ -1270,18 +1385,24 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 				const peak = this._channelPeak.get(ci) ?? 0;
 				if (peak <= 0.001) continue;
 
-				const hex = this._channelSpectrumColors.get(ci);
-				if (!hex) continue;
-				const cr = parseInt(hex.length >= 7 ? hex.slice(1, 3) : hex.slice(1, 2) + hex.slice(1, 2), 16);
-				const cg = parseInt(hex.length >= 7 ? hex.slice(3, 5) : hex.slice(2, 3) + hex.slice(2, 3), 16);
-				const cb = parseInt(hex.length >= 7 ? hex.slice(5, 7) : hex.slice(3, 4) + hex.slice(3, 4), 16);
+				const cachedRgb = this._cachedChannelRGB.get(ci);
+				if (!cachedRgb) continue;
+				const cr = cachedRgb.r;
+				const cg = cachedRgb.g;
+				const cb = cachedRgb.b;
 
 				const collectPitches = (pitches: number[], count: number): void => {
 					for (let pi = 0; pi < count; pi++) {
 						const p = pitches[pi];
 						let b = pitchBlend.get(p);
 						if (!b) {
-							b = { r: 0, g: 0, b: 0, w: 0, maxPeak: 0 };
+							// Reuse from pool if available, else allocate once.
+							b = this._pitchBlendPool.pop() ?? { r: 0, g: 0, b: 0, w: 0, maxPeak: 0 };
+							b.r = 0;
+							b.g = 0;
+							b.b = 0;
+							b.w = 0;
+							b.maxPeak = 0;
 							pitchBlend.set(p, b);
 						}
 						b.r += cr * peak;
@@ -1333,49 +1454,29 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 			updateKeys(this._whiteKeyRects, "var(--pitch-background)");
 			updateKeys(this._blackKeyRects, "var(--base02-surface)");
 		}
-		const __tKeysB = performance.now();
-
-		// --- Perf logging: accumulate per-phase ms, log every ~1s ---
-		const __tEnd = performance.now();
-		const frameMs = __tEnd - __t0;
-		this._perfFrames++;
-		this._perfAccum.player = (this._perfAccum.player ?? 0) + (__tPlayerB - __tPlayerA);
-		this._perfAccum.labels = (this._perfAccum.labels ?? 0) + (__tLabelsB - __tLabelsA);
-		this._perfAccum.channels = (this._perfAccum.channels ?? 0) + (__tChanB - __tLabelsB);
-		this._perfAccum.keys = (this._perfAccum.keys ?? 0) + (__tKeysB - __tKeysA);
-		this._perfAccum.total = (this._perfAccum.total ?? 0) + frameMs;
-		// Rolling frame interval for FPS (wall clock between frames).
-		if (this._perfFpsLast > 0) {
-			const interval = __tEnd - this._perfFpsLast;
-			if (interval > 0) {
-				const fps = 1000 / interval;
-				if (fps < this._perfFpsMin) this._perfFpsMin = fps;
-			}
-		}
-		this._perfFpsLast = __tEnd;
-		if (this._perfLastLog === 0) this._perfLastLog = __tEnd;
-		if (__tEnd - this._perfLastLog >= 1000) {
-			const a = this._perfAccum;
-			const avgFps = (this._perfFrames * 1000) / (__tEnd - this._perfLastLog);
-			const minFps = this._perfFpsMin === Infinity ? 0 : this._perfFpsMin;
-			const pct = (v: number): string => `${((v / a.total) * 100).toFixed(0)}%`;
-			const r = (k: string): string => `${k} ${a[k].toFixed(2)}ms (${pct(a[k])})`;
-			console.log(
-				`[CVV perf] fps avg ${avgFps.toFixed(1)} min ${minFps.toFixed(1)} | frames ${this._perfFrames} | ${r("player")} ${r("labels")} ${r("channels")} ${r("keys")} | total ${a.total.toFixed(2)}ms`,
-			);
-			this._perfAccum = {};
-			this._perfFrames = 0;
-			this._perfLastLog = __tEnd;
-			// Reset min FPS every window so it reflects recent hiccups.
-			this._perfFpsMin = Infinity;
-		}
-
 		this._spectrumFrameToggle = !this._spectrumFrameToggle;
 		this._playerFrameToggle = !this._playerFrameToggle;
 		this._scheduleFrame();
 	};
 
 	private _renderChannelList = (): void => {
+		const song = this._doc.song;
+		const synth = this._doc.synth;
+		const channelCount = song.getChannelCount();
+
+		// Compute structural signature: channel count + instrument count per
+		// channel. If the signature matches the last render, skip the full DOM
+		// rebuild — nothing structural changed. This prevents a full-grid flash
+		// (DOM teardown + recreation) when notifyWatchers fires during playback
+		// from unrelated window events (mousemove, etc.) or center-follow scroll.
+		let sig = String(channelCount);
+		for (let ci = 0; ci < channelCount; ci++) {
+			sig += "," + song.channels[ci].instruments.length;
+		}
+		if (sig === this._renderSignature && this._channelDivs.size > 0) {
+			return;
+		}
+		this._renderSignature = sig;
 		while (this._contentContainer.firstChild) {
 			this._contentContainer.removeChild(this._contentContainer.firstChild);
 		}
@@ -1395,15 +1496,19 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 		this._channelSpectrumColors.clear();
 		this._canvasSizes.clear();
 		this._channelPeak.clear();
+		this._cachedChannelRGB.clear();
+		this._cachedInstrStyle.clear();
+		this._instrActiveDecay.clear();
+		this._lastChannelOpacity.clear();
+		this._instrumentIndex.clear();
+		this._inactiveSig.clear();
+		this._pitchBlendPool.length = 0;
+		this._pitchBlend.clear();
 
 		// Invalidate duration cache so the bar position label reflects the
 		// newly imported song's bar count and duration.
 		this._cachedDuration = -1;
 		this._cachedBarCount = -1;
-
-		const song = this._doc.song;
-		const synth = this._doc.synth;
-		const channelCount = song.getChannelCount();
 
 		if (channelCount === 0) {
 			this._contentContainer.appendChild(
@@ -1537,7 +1642,9 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 			channelDiv.insertBefore(spectrumCanvas, contentWrap);
 			this._channelSpectrumCanvases.set(i, spectrumCanvas);
 			this._channelSpectrumCanvas2ds.set(i, spectrumCanvas.getContext("2d"));
-			this._channelSpectrumColors.set(i, ColorConfig.getComputedChannelColor(song, i).primaryChannel);
+			const hex = ColorConfig.getComputedChannelColor(song, i).primaryChannel;
+			this._channelSpectrumColors.set(i, hex);
+			this._cachedChannelRGB.set(i, this._hexToRgb(hex));
 
 			// Show instruments
 			if (channel.instruments.length > 0) {
@@ -1578,7 +1685,9 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 						},
 						instrName,
 					);
-					this._instrumentSpans.set(`${i}-${j}`, instrSpan);
+					const instrKey = `${i}-${j}`;
+					this._instrumentSpans.set(instrKey, instrSpan);
+					this._instrumentIndex.set(instrKey, j);
 					instrDiv.appendChild(instrSpan);
 				}
 				contentWrap.appendChild(instrDiv);
