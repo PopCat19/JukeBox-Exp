@@ -222,6 +222,8 @@ export class PatternEditor {
 	private _draggingStartOfSelection: boolean = false;
 	private _draggingEndOfSelection: boolean = false;
 	private _draggingSelectionContents: boolean = false;
+	private _edgeGrabNote: Note | null = null;
+	private _edgeGrabTail: boolean = false;
 	private _dragTime: number = 0;
 	private _dragPitch: number = 0;
 	private _dragSize: number = 0;
@@ -944,6 +946,24 @@ export class PatternEditor {
 			this._doc.selection.patternSelectionEnd - 1.25 <= this._cursor.exactPart &&
 			this._cursor.exactPart <= this._doc.selection.patternSelectionEnd + 3
 		);
+	}
+
+	// Full-height head/tail grab for lone notes. When the mouse X is within
+	// half a minDivision of a note's start or end (regardless of pitch row),
+	// the nearest end becomes the resize target. Only engaged after a drag
+	// threshold so plain clicks can still place adjacent notes/chords.
+	private _cursorAtNoteEdge(): { note: Note; end: "start" | "end" } | null {
+		if (!this._cursor.valid || this._pattern == null) return null;
+		const halfStep: number = this._getMinDivision() / 2;
+		for (const note of this._pattern.notes) {
+			if (Math.abs(this._cursor.exactPart - note.start) <= halfStep) {
+				return { note, end: "start" };
+			}
+			if (Math.abs(this._cursor.exactPart - note.end) <= halfStep) {
+				return { note, end: "end" };
+			}
+		}
+		return null;
 	}
 
 	private _findMousePitch(pixelY: number): number {
@@ -2378,6 +2398,11 @@ export class PatternEditor {
 			} else if (this._cursorIsInSelection()) {
 				this._draggingSelectionContents = true;
 			} else if (this._cursor.valid && this._cursor.curNote == null) {
+				const edge = this._cursorAtNoteEdge();
+				if (edge != null) {
+					this._edgeGrabNote = edge.note;
+					this._edgeGrabTail = edge.end === "end";
+				}
 				sequence.append(new ChangePatternSelection(this._doc, 0, 0));
 
 				// If clicking in empty space, the result will be adding a note,
@@ -2557,6 +2582,25 @@ export class PatternEditor {
 					const draggedTranspose: number = Math.round((this._mouseYStart - this._mouseY) / (this._pitchHeight * pitchRatio));
 					sequence.append(new ChangeDragSelectedNotes(this._doc, this._doc.channel, pattern, draggedParts, draggedTranspose));
 				}
+			} else if (this._edgeGrabNote != null && this._mouseHorizontal) {
+				// Full-height head/tail grab: pressing an empty row aligned with a
+				// note's start or end resizes that end on horizontal drag. A plain
+				// click (no drag) still places the note created at press time.
+				const note: Note = this._edgeGrabNote;
+				let newStart: number = note.start;
+				let newEnd: number = note.end;
+				if (this._edgeGrabTail) {
+					newEnd = Math.max(note.start + minDivision, Math.min(this._doc.song.beatsPerBar * Config.partsPerBeat, currentPart));
+				} else {
+					newStart = Math.max(0, Math.min(note.end - minDivision, currentPart));
+				}
+				if (this._pattern == null) throw new Error();
+				sequence.append(new ChangePatternSelection(this._doc, 0, 0));
+				sequence.append(new ChangeNoteTruncate(this._doc, this._pattern, newStart, newEnd, note));
+				sequence.append(new ChangeNoteLength(this._doc, note, newStart, newEnd));
+				this._copyPins(note);
+				this._dragTime = this._edgeGrabTail ? newEnd : newStart;
+				this._dragVisible = true;
 			} else if (this._shiftHeld && this._dragConfirmed) {
 				if (this._mouseDragging) {
 					let start: number = Math.max(
@@ -3035,6 +3079,8 @@ export class PatternEditor {
 		this._draggingStartOfSelection = false;
 		this._draggingEndOfSelection = false;
 		this._draggingSelectionContents = false;
+		this._edgeGrabNote = null;
+		this._edgeGrabTail = false;
 		this._lastChangeWasPatternSelection = false;
 		this.modDragValueLabel.setAttribute("fill", ColorConfig.secondaryText);
 		this._updateCursorStatus();

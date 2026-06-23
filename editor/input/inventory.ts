@@ -488,7 +488,7 @@ export const inputBindings: InputBinding[] = [
 		concern: "pattern-draw",
 		sourceFile: "editor/components/pattern-editor.ts",
 		handler: "_whenMouseMoved",
-		detail: "Drag notes, resize, move selection",
+		detail: "Drag notes, resize (pin or full-height edge grab), move selection",
 	},
 	{
 		id: "edit_pattern_draw_release",
