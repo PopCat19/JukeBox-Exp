@@ -2381,28 +2381,17 @@ export class PatternEditor {
 			} else if (this._cursorAtEndOfSelection()) {
 				this._draggingEndOfSelection = true;
 			} else if (this._shiftHeld) {
-				if (this._cursor.curNote != null) {
-					// Context-aware: Shift+cursor on a note body starts note-move.
-					this._noteMoveDrag = true;
-					this._noteMoveStart = this._cursor.curNote.start;
-					this._noteMoveEnd = this._cursor.curNote.end;
-					this._draggingSelectionContents = true;
-					sequence.append(new ChangePatternSelection(this._doc, this._cursor.curNote.start, this._cursor.curNote.end));
-				} else if (this._cursorIsInSelection()) {
-					// Empty row inside an existing selection: clear selection.
-					sequence.append(new ChangePatternSelection(this._doc, 0, 0));
-				} else {
-					// Empty space: box-select the current beat.
-					const start: number = Math.max(
-						0,
-						Math.min(
-							(this._doc.song.beatsPerBar - 1) * Config.partsPerBeat,
-							Math.floor(this._cursor.exactPart / Config.partsPerBeat) * Config.partsPerBeat,
-						),
-					);
-					const end: number = start + Config.partsPerBeat;
-					sequence.append(new ChangePatternSelection(this._doc, start, end));
-				}
+				// Shift+click always selects the current beat range.
+				// Note-moving requires a non-shift drag on a selected note.
+				const start: number = Math.max(
+					0,
+					Math.min(
+						(this._doc.song.beatsPerBar - 1) * Config.partsPerBeat,
+						Math.floor(this._cursor.exactPart / Config.partsPerBeat) * Config.partsPerBeat,
+					),
+				);
+				const end: number = start + Config.partsPerBeat;
+				sequence.append(new ChangePatternSelection(this._doc, start, end));
 			} else if (this._cursorIsInSelection()) {
 				this._draggingSelectionContents = true;
 			} else if (this._cursor.valid && this._cursor.curNote == null) {
