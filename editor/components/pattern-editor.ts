@@ -41,6 +41,7 @@ import {
 	ChangeNoteAdded,
 	ChangeNoteFilterSimpleCut,
 	ChangeNoteFilterSimplePeak,
+	ChangeNoteLength,
 	ChangeNoteTruncate,
 	ChangeOperatorAmplitude,
 	ChangePan,
@@ -373,7 +374,7 @@ export class PatternEditor {
 			document.addEventListener("mouseup", this._whenCursorReleased);
 			this._svg.addEventListener("mouseover", this._whenMouseOver);
 			this._svg.addEventListener("mouseout", this._whenMouseOut);
-
+			this._svg.addEventListener("wheel", this._whenWheel, { passive: false });
 
 			this._svg.addEventListener("touchstart", this._whenTouchPressed);
 			this._svg.addEventListener("touchmove", this._whenTouchMoved);
@@ -450,9 +451,7 @@ export class PatternEditor {
 		const fifthColor: string = this._resolveCssColor(ColorConfig.fifthNote);
 		const beatWidth: number = w / this._doc.song.beatsPerBar;
 		const scale: ReadonlyArray<boolean> =
-			this._doc.song.scale === Config.scales.dictionary.Custom.index
-				? this._doc.song.scaleCustom
-				: Config.scales[this._doc.song.scale].flags;
+			this._doc.song.scale === Config.scales.dictionary.Custom.index ? this._doc.song.scaleCustom : Config.scales[this._doc.song.scale].flags;
 
 		const rowHeight: number = this._pitchHeight - 2;
 		for (let beat: number = 0; beat < this._doc.song.beatsPerBar; beat++) {
@@ -469,14 +468,7 @@ export class PatternEditor {
 		}
 	}
 
-	private _drawNoteToCanvas(
-		pitch: number,
-		start: number,
-		pins: NotePin[],
-		radius: number,
-		showSize: boolean,
-		offset: number,
-	): void {
+	private _drawNoteToCanvas(pitch: number, start: number, pins: NotePin[], radius: number, showSize: boolean, offset: number): void {
 		const ctx: CanvasRenderingContext2D = this._ctx;
 
 		// Fast-path: flat rectangle for notes with no pitch interval (single or double pin).
@@ -3047,6 +3039,65 @@ export class PatternEditor {
 		this.modDragValueLabel.setAttribute("fill", ColorConfig.secondaryText);
 		this._updateCursorStatus();
 		this._updatePreview();
+	};
+
+	private _whenWheel = (event: WheelEvent): void => {
+		if (!this._interactive || this._mouseDown) return;
+		event.preventDefault();
+
+		const direction: number = Math.sign(event.deltaY);
+		if (direction === 0) return;
+		// Scroll up lengthens, scroll down shortens.
+		const delta: number = direction < 0 ? 1 : -1;
+		const minDivision: number = this._getMinDivision();
+		const beatLength: number = this._doc.song.beatsPerBar * Config.partsPerBeat;
+
+		if (this._cursor.curNote != null && this._cursor.valid) {
+			// Feature B: scroll on a hovered note resizes its nearest end.
+			const note: Note = this._cursor.curNote;
+			const length: number = note.end - note.start;
+			const midpoint: number = note.start + length / 2;
+			const adjustTail: boolean = this._cursor.part >= midpoint;
+			let newStart: number = note.start;
+			let newEnd: number = note.end;
+			if (adjustTail) {
+				newEnd = this._snapToMinDivision(note.end + delta * minDivision);
+				if (newEnd <= newStart) newEnd = newStart + minDivision;
+				if (newEnd > beatLength) newEnd = beatLength;
+				if (newEnd === note.end) return;
+			} else {
+				newStart = this._snapToMinDivision(note.start + delta * minDivision);
+				if (newStart >= newEnd) newStart = newEnd - minDivision;
+				if (newStart < 0) newStart = 0;
+				if (newStart === note.start) return;
+			}
+			this._doc.record(new ChangeNoteLength(this._doc, note, newStart, newEnd));
+			this._doc.notifier.notifyWatchers();
+			this._updateCursorStatus();
+			this._updatePreview();
+		} else {
+			// Feature A: scroll on empty space adjusts the default placement length.
+			const oldLength: number = this._copiedPins[this._copiedPins.length - 1].time;
+			if (oldLength <= 0) return;
+			let newLength: number = this._snapToMinDivision(oldLength + delta * minDivision);
+			if (newLength < minDivision) newLength = minDivision;
+			if (newLength > beatLength) newLength = beatLength;
+			if (newLength === oldLength) return;
+
+			const scale: number = newLength / oldLength;
+			const scaledPins: NotePin[] = [];
+			for (const pin of this._copiedPins) {
+				scaledPins.push(makeNotePin(pin.interval, this._snapToMinDivision(pin.time * scale), pin.size));
+			}
+			// Guarantee the terminal pin lands exactly on the new length so the
+			// default-length derivation in _updateCursorStatus stays consistent.
+			scaledPins[scaledPins.length - 1] = makeNotePin(0, newLength, scaledPins[scaledPins.length - 1].size);
+			this._copiedPins = scaledPins;
+			this._copiedPinChannels[this._doc.channel] = scaledPins;
+
+			this._updateCursorStatus();
+			this._updatePreview();
+		}
 	};
 
 	private _setPatternSelection(change: UndoableChange): void {

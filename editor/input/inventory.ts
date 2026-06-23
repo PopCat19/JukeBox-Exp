@@ -507,6 +507,15 @@ export const inputBindings: InputBinding[] = [
 		detail: "Start touch note editing",
 	},
 	{
+		id: "edit_pattern_draw_wheel",
+		kind: "wheel",
+		concern: "pattern-draw",
+		sourceFile: "editor/components/pattern-editor.ts",
+		handler: "_whenWheel",
+		condition: "when not mouseDown",
+		detail: "Scroll to adjust hovered note length (nearest end) or default placement length on empty space",
+	},
+	{
 		id: "edit_track_select_mouse",
 		kind: "mouse",
 		concern: "pattern-select",
