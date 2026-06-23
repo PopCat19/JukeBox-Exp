@@ -402,7 +402,6 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 				this._loopButton.style.borderColor = "var(--editor-background)";
 			} else {
 				this._loopButton.style.color = "var(--primary-text)";
-				this._loopButton.style.borderColor = "var(--hout, var(--primary-text))";
 			}
 		});
 		this._loopButton.addEventListener("mouseleave", () => {
@@ -410,7 +409,6 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 				this._loopButton.style.borderColor = "transparent";
 			} else {
 				this._loopButton.style.color = "var(--tab-inactive-fg)";
-				this._loopButton.style.borderColor = "transparent";
 			}
 		});
 		this._scrubTrack.addEventListener("pointerdown", this._onScrubPointerDown);
@@ -482,11 +480,10 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 		this._loopButton.style.background = active ? "var(--cta-bg)" : "var(--tab-inactive-bg)";
 		this._loopButton.style.color = active ? "var(--cta-fg)" : "var(--tab-inactive-fg)";
 		this._loopButton.style.borderColor = "transparent";
-		// Re-apply hover border if the mouse is still over the button.
+		// Re-apply hover border if mouse is still over button after toggle.
 		try {
-			if (this._loopButton.matches(":hover")) {
-				this._loopButton.style.borderColor = active ? "var(--editor-background)" : "var(--hout, var(--primary-text))";
-				if (!active) this._loopButton.style.color = "var(--primary-text)";
+			if (this._loopButton.matches(":hover") && active) {
+				this._loopButton.style.borderColor = "var(--editor-background)";
 			}
 		} catch {
 			// matches not supported
