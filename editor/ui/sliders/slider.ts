@@ -30,6 +30,7 @@ export class Slider {
 	private _wrapperDiv: HTMLDivElement;
 	// Regular slider fields
 	private _fillDiv: HTMLDivElement | null = null;
+	private _trackDiv: HTMLDivElement | null = null;
 	// Delta slider fields
 	private _leftFillDiv: HTMLDivElement | null = null;
 	private _rightFillDiv: HTMLDivElement | null = null;
@@ -83,18 +84,19 @@ export class Slider {
 	// ── Layout builders ──
 
 	private _buildRegularSlider(): void {
-		// Track layer: single track-bg + single fill, both absolutely positioned.
-		// Fill grows from left edge, knob is positioned at frac*100%.
-		// Gap between fill and knob is computed from container width.
+		// Track layer: fill (left) + track (right), both with gaps from knob.
+		// Pill at left edge (fill), pill at right edge (track).
 		const trackLayer = div(
 			{
 				style: "position: absolute; top: 5px; left: 0; right: 0; height: 6px; overflow: hidden; border-radius: 999px;",
 			},
-			// Track background (fills entire track area)
-			div({ style: "position: absolute; inset: 0; background: var(--slider-track, var(--ui-widget-background, #444));" }),
 			// Fill: pill at left, square at right (knob side)
 			(this._fillDiv = div({
 				style: "position: absolute; left: 0; width: 0; height: 100%; background: var(--cta-bg); border-radius: 999px 0 0 999px;",
+			})),
+			// Track: pill at right, square at left (knob side)
+			(this._trackDiv = div({
+				style: "position: absolute; right: 0; width: 0; height: 100%; background: var(--slider-track, var(--ui-widget-background, #444)); border-radius: 0 999px 999px 0;",
 			})),
 		);
 
@@ -250,14 +252,15 @@ export class Slider {
 			}
 			if (this._knobDiv) this._knobDiv.style.left = `${k}%`;
 		} else {
-			// Regular mode: fill from left edge toward knob (minus 4px visible gap).
-			// Gap between fill right edge and knob left edge = 4px.
-			// Knob is 4px wide + centered → 2px half-width extends past center.
+			// Regular mode: fill from left → knob, track from knob → right, both with 4px visible gap.
 			const w = this._wrapperDiv.offsetWidth || 120;
-			const gapPct = (6 / w) * 100; // 4px visible + 2px knob half-width
-			const fillPct = Math.max(0, Math.min(100, frac * 100 - gapPct));
+			const gapPct = (6 / w) * 100;
+			const k = frac * 100;
+			const fillPct = Math.max(0, k - gapPct);
+			const trackPct = Math.max(0, 100 - k - gapPct);
 			if (this._fillDiv) this._fillDiv.style.width = `${fillPct}%`;
-			if (this._knobDiv) this._knobDiv.style.left = `${frac * 100}%`;
+			if (this._trackDiv) this._trackDiv.style.width = `${trackPct}%`;
+			if (this._knobDiv) this._knobDiv.style.left = `${k}%`;
 		}
 	}
 
