@@ -317,11 +317,12 @@ export class PromptManager {
 			if (this._popout.isOpen(p)) continue;
 			const savedPos = this._promptPositions.get(p.name!);
 			if (!savedPos) continue;
-			const rect = p.container.getBoundingClientRect();
+			const pw: number = p.container.offsetWidth;
+			const ph: number = p.container.offsetHeight;
 			let { x, y } = savedPos;
-			if (x < 0 || y < 0 || x + rect.width > containerWidth || y + rect.height > containerHeight) {
-				x = Math.max(0, Math.min(x, containerWidth - rect.width));
-				y = Math.max(0, Math.min(y, containerHeight - rect.height));
+			if (x < 0 || y < 0 || x + pw > containerWidth || y + ph > containerHeight) {
+				x = Math.max(0, Math.min(x, containerWidth - pw));
+				y = Math.max(0, Math.min(y, containerHeight - ph));
 				p.container.style.left = `${x}px`;
 				p.container.style.top = `${y}px`;
 				this._promptPositions.set(p.name!, { x, y });
@@ -644,12 +645,11 @@ export class PromptManager {
 	private _applyPosition(prompt: Prompt, name: string, x: number, y: number): void {
 		if (!this._prompts.includes(prompt)) return;
 		if (this._popout.isOpen(prompt)) return;
-		const rect = prompt.container.getBoundingClientRect();
 		const w = this._host.mainLayer.clientWidth;
 		const h = this._host.mainLayer.clientHeight;
 		const pad = this._editorPadding();
-		x = Math.max(pad.left, Math.min(x, pad.left + w - rect.width));
-		y = Math.max(pad.top, Math.min(y, pad.top + h - rect.height));
+		x = Math.max(pad.left, Math.min(x, pad.left + w - prompt.container.offsetWidth));
+		y = Math.max(pad.top, Math.min(y, pad.top + h - prompt.container.offsetHeight));
 		prompt.container.style.left = `${x}px`;
 		prompt.container.style.top = `${y}px`;
 		this._promptPositions.set(name, { x, y });
@@ -658,9 +658,13 @@ export class PromptManager {
 	private _spawnNearCursor(prompt: Prompt, name: string, info: { clientX: number; clientY: number; elRect: DOMRect }): void {
 		if (!this._prompts.includes(prompt)) return;
 		if (this._popout.isOpen(prompt)) return;
-		const promptBounds = prompt.container.getBoundingClientRect();
-		const pw = promptBounds.width || prompt.container.scrollWidth || 300;
-		const ph = promptBounds.height || prompt.container.scrollHeight || 200;
+		// Use offsetWidth/offsetHeight (forces synchronous layout) instead of
+		// getBoundingClientRect().width — the latter can return 0 at rAF time if
+		// the container was just appended and its grid/flex children haven't fully
+		// resolved. A fallback of 300 would then let the prompt be placed far right,
+		// causing overflow when its actual rendered width is much larger.
+		const pw = prompt.container.offsetWidth || 300;
+		const ph = prompt.container.offsetHeight || 200;
 		// Everything is in mainLayer's coordinate space.
 		// Convert viewport-relative coords by subtracting
 		// mainLayer's viewport offset.
@@ -704,12 +708,11 @@ export class PromptManager {
 	private _centerPrompt(prompt: Prompt, name: string): void {
 		if (!this._prompts.includes(prompt)) return;
 		if (this._popout.isOpen(prompt)) return;
-		const rect = prompt.container.getBoundingClientRect();
 		const w = this._host.mainLayer.clientWidth;
 		const h = this._host.mainLayer.clientHeight;
 		const pad = this._editorPadding();
-		const x = pad.left + Math.max(0, (w - rect.width) / 2);
-		const y = pad.top + Math.max(0, (h - rect.height) / 2);
+		const x = pad.left + Math.max(0, (w - prompt.container.offsetWidth) / 2);
+		const y = pad.top + Math.max(0, (h - prompt.container.offsetHeight) / 2);
 		prompt.container.style.left = `${x}px`;
 		prompt.container.style.top = `${y}px`;
 		this._promptPositions.set(name, { x, y });
