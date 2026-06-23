@@ -90,13 +90,13 @@ export class Slider {
 			{
 				style: "position: absolute; top: 5px; left: 0; right: 0; height: 6px; overflow: hidden; border-radius: 999px;",
 			},
-			// Fill: pill at left, 4px at right (knob side)
+			// Fill: pill at left, 2px at right (knob side)
 			(this._fillDiv = div({
-				style: "position: absolute; left: 0; width: 0; height: 100%; background: var(--cta-bg); border-radius: 999px 4px 4px 999px;",
+				style: "position: absolute; left: 0; width: 0; height: 100%; background: var(--cta-bg); border-radius: 999px 2px 2px 999px;",
 			})),
-			// Track: pill at right, 4px at left (knob side)
+			// Track: pill at right, 2px at left (knob side)
 			(this._trackDiv = div({
-				style: "position: absolute; right: 0; width: 0; height: 100%; background: var(--slider-track, var(--ui-widget-background, #444)); border-radius: 4px 999px 999px 4px;",
+				style: "position: absolute; right: 0; width: 0; height: 100%; background: var(--slider-track, var(--ui-widget-background, #444)); border-radius: 2px 999px 999px 2px;",
 			})),
 		);
 
@@ -125,21 +125,21 @@ export class Slider {
 			},
 			// Left track: anchored at left:0, extends rightward (dynamic width)
 			(this._leftTrackDiv = div({
-				style: "position: absolute; left: 0; width: 0; height: 100%; background: var(--slider-track, var(--ui-widget-background, #444)); border-radius: 999px 4px 4px 999px;",
+				style: "position: absolute; left: 0; width: 0; height: 100%; background: var(--slider-track, var(--ui-widget-background, #444)); border-radius: 999px 2px 2px 999px;",
 			})),
 			// Right track: anchored at right:0, extends leftward (dynamic width)
 			(this._rightTrackDiv = div({
-				style: "position: absolute; right: 0; width: 0; height: 100%; background: var(--slider-track, var(--ui-widget-background, #444)); border-radius: 4px 999px 999px 4px;",
+				style: "position: absolute; right: 0; width: 0; height: 100%; background: var(--slider-track, var(--ui-widget-background, #444)); border-radius: 2px 999px 999px 2px;",
 			})),
 			// Left fill: anchored at right:50% (center), extends LEFT toward knob.
-			// 4px at knob side (left), pill at center (right).
+			// 2px at knob side (left), pill at center (right).
 			(this._leftFillDiv = div({
-				style: "position: absolute; right: 50%; width: 0; height: 100%; background: var(--cta-bg); border-radius: 4px 999px 999px 4px;",
+				style: "position: absolute; right: 50%; width: 0; height: 100%; background: var(--cta-bg); border-radius: 2px 999px 999px 2px;",
 			})),
 			// Right fill: anchored at left:50% (center), extends RIGHT toward knob.
-			// Pill at center (left), 4px at knob side (right).
+			// Pill at center (left), 2px at knob side (right).
 			(this._rightFillDiv = div({
-				style: "position: absolute; left: 50%; width: 0; height: 100%; background: var(--cta-bg); border-radius: 999px 4px 4px 999px;",
+				style: "position: absolute; left: 50%; width: 0; height: 100%; background: var(--cta-bg); border-radius: 999px 2px 2px 999px;",
 			})),
 		);
 
