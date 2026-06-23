@@ -87,14 +87,14 @@ export class Slider {
 		// Each fill/track element clips itself with overflow:hidden + border-radius.
 		// No parent track-layer — avoids browser clipping issues with nested border-radius + overflow.
 
-		// Fill: pill at both ends, width accounts for inward curve at gap side
+		// Fill: pill at left, 8px at right (knob side)
 		this._fillDiv = div({
-			style: "position: absolute; left: 0; top: 5px; width: 0; height: 6px; background: var(--cta-bg); border-radius: 999px;",
+			style: "position: absolute; left: 0; top: 5px; width: 0; height: 6px; background: var(--cta-bg); border-radius: 999px 8px 8px 999px;",
 		});
 
-		// Track: pill at both ends, width accounts for inward curve at gap side
+		// Track: 8px at left (knob side), pill at right
 		this._trackDiv = div({
-			style: "position: absolute; right: 0; top: 5px; width: 0; height: 6px; background: var(--slider-track, var(--ui-widget-background, #444)); border-radius: 999px;",
+			style: "position: absolute; right: 0; top: 5px; width: 0; height: 6px; background: var(--slider-track, var(--ui-widget-background, #444)); border-radius: 8px 999px 999px 8px;",
 		});
 
 		this._knobDiv = div({
@@ -115,24 +115,24 @@ export class Slider {
 	private _buildDeltaSlider(): void {
 		// Each track/fill element clips itself. No parent track-layer.
 
-		// Left track: pill at both ends
+		// Left track: pill at left edge, 8px at knob side
 		this._leftTrackDiv = div({
-			style: "position: absolute; left: 0; top: 5px; width: 0; height: 6px; background: var(--slider-track, var(--ui-widget-background, #444)); border-radius: 999px;",
+			style: "position: absolute; left: 0; top: 5px; width: 0; height: 6px; background: var(--slider-track, var(--ui-widget-background, #444)); border-radius: 999px 8px 8px 999px;",
 		});
 
-		// Right track: pill at both ends
+		// Right track: 8px at knob side, pill at right edge
 		this._rightTrackDiv = div({
-			style: "position: absolute; right: 0; top: 5px; width: 0; height: 6px; background: var(--slider-track, var(--ui-widget-background, #444)); border-radius: 999px;",
+			style: "position: absolute; right: 0; top: 5px; width: 0; height: 6px; background: var(--slider-track, var(--ui-widget-background, #444)); border-radius: 8px 999px 999px 8px;",
 		});
 
-		// Left fill: pill at both ends
+		// Left fill: pill at center (right), 8px at knob side (left)
 		this._leftFillDiv = div({
-			style: "position: absolute; right: 50%; top: 5px; width: 0; height: 6px; background: var(--cta-bg); border-radius: 999px;",
+			style: "position: absolute; right: 50%; top: 5px; width: 0; height: 6px; background: var(--cta-bg); border-radius: 8px 999px 999px 8px;",
 		});
 
-		// Right fill: pill at both ends
+		// Right fill: pill at center (left), 8px at knob side (right)
 		this._rightFillDiv = div({
-			style: "position: absolute; left: 50%; top: 5px; width: 0; height: 6px; background: var(--cta-bg); border-radius: 999px;",
+			style: "position: absolute; left: 50%; top: 5px; width: 0; height: 6px; background: var(--cta-bg); border-radius: 999px 8px 8px 999px;",
 		});
 
 		// Center reference line (replaces the old midTick:after pseudo-element)
