@@ -390,6 +390,44 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 	) {
 		super(doc);
 		this.buildTitlebar();
+
+		// Replace the close (X) button in the titlebar with a loop toggle
+		// that uses tabButton-style CTA colors when active.
+		const titlebar = this.container.querySelector(".prompt-titlebar");
+		const existingCancel = this.container.querySelector(".cancelButton");
+		if (titlebar && existingCancel) {
+			const loopToggleBtn: HTMLButtonElement = button(
+				{
+					style: `width: ${Sizing.button}; height: ${Sizing.button}; padding: 0; border-radius: 16px; display: flex; align-items: center; justify-content: center; line-height: 1; cursor: pointer; border: none; outline: none; transition: background 150ms, color 150ms; color: var(--tab-inactive-fg); background: transparent;`,
+					title: "Toggle loop repeat",
+				},
+				svg(
+					{ width: 12, height: 12, viewBox: "0 0 8 8" },
+					path({
+						d: "M 2 6 a 4 4 0 1 0 1.2 2.8 M 3 7.5 L 1.5 6 L 3 4.5",
+						fill: "none",
+						stroke: "currentColor",
+						"stroke-width": "1.2",
+						"stroke-linecap": "round",
+						"stroke-linejoin": "round",
+					}),
+				),
+			);
+			const updateLoopToggle = (): void => {
+				const active: boolean = this._doc.synth.loopRepeatCount === -1;
+				loopToggleBtn.style.background = active ? "var(--cta-bg)" : "transparent";
+				loopToggleBtn.style.color = active ? "var(--cta-fg)" : "var(--tab-inactive-fg)";
+			};
+			loopToggleBtn.addEventListener("click", (e: Event) => {
+				e.stopPropagation();
+				this._toggleLoop();
+			});
+			// Sync when the existing loop button toggles.
+			this._loopButton.addEventListener("click", updateLoopToggle);
+			existingCancel.replaceWith(loopToggleBtn);
+			updateLoopToggle();
+		}
+
 		this._animate = this._animate.bind(this);
 		this._onDocChange = this._renderChannelList.bind(this);
 		this._doc.notifier.watch(this._onDocChange);
@@ -467,6 +505,13 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 
 	private _updateLoopButton = (): void => {
 		this._loopButton.style.color = this._doc.synth.loopRepeatCount === -1 ? ColorConfig.loopAccent : "var(--ui-widget-background)";
+		// Sync titlebar loop toggle if present.
+		const toggleBtn = this.container.querySelector<HTMLButtonElement>(".prompt-titlebar [title='Toggle loop repeat']");
+		if (toggleBtn) {
+			const active: boolean = this._doc.synth.loopRepeatCount === -1;
+			toggleBtn.style.background = active ? "var(--cta-bg)" : "transparent";
+			toggleBtn.style.color = active ? "var(--cta-fg)" : "var(--tab-inactive-fg)";
+		}
 	};
 
 	// Seek the playhead to the bar position under the pointer.
