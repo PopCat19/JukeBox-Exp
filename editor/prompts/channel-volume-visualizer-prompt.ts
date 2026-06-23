@@ -185,7 +185,7 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 	});
 	private readonly _loopButton: HTMLButtonElement = button(
 		{
-			style: `height: 32px; padding: 0 10px; border-radius: 16px; display: flex; align-items: center; justify-content: center; cursor: pointer; box-sizing: border-box; outline: none; line-height: 1.4; font-size: 12px; font-weight: 500; background: var(--tab-inactive-bg); color: var(--tab-inactive-fg); border: 2px solid transparent; transition: background 150ms, color 150ms, border-color 150ms;`,
+			style: `width: 26px; height: 26px; padding: 0; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; outline: none; line-height: 1; font-size: 12px; background: var(--tab-inactive-bg); color: var(--tab-inactive-fg); transition: background 150ms, color 150ms;`,
 			title: "Toggle loop",
 		},
 		svg({ width: 12, height: 12, viewBox: "0 0 12 12" }, this._loopIcon),
@@ -399,12 +399,16 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 		this._loopButton.addEventListener("click", this._toggleLoop);
 		this._loopButton.addEventListener("mouseenter", () => {
 			const active: boolean = this._doc.synth.loopRepeatCount === -1;
-			this._loopButton.style.borderColor = active ? "var(--cta-bg)" : "var(--hout, var(--primary-text))";
-			if (!active) this._loopButton.style.color = "var(--primary-text)";
+			if (active) {
+				this._loopButton.style.outline = "2px solid var(--editor-background)";
+			} else {
+				this._loopButton.style.color = "var(--primary-text)";
+				this._loopButton.style.outline = "2px solid var(--hout, var(--primary-text))";
+			}
 		});
 		this._loopButton.addEventListener("mouseleave", () => {
 			const active: boolean = this._doc.synth.loopRepeatCount === -1;
-			this._loopButton.style.borderColor = "transparent";
+			this._loopButton.style.outline = "none";
 			if (!active) this._loopButton.style.color = "var(--tab-inactive-fg)";
 		});
 		this._scrubTrack.addEventListener("pointerdown", this._onScrubPointerDown);
@@ -475,8 +479,7 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 		const active: boolean = this._doc.synth.loopRepeatCount === -1;
 		this._loopButton.style.background = active ? "var(--cta-bg)" : "var(--tab-inactive-bg)";
 		this._loopButton.style.color = active ? "var(--cta-fg)" : "var(--tab-inactive-fg)";
-		this._loopButton.style.borderColor = "transparent";
-		this._loopButton.style.fontWeight = active ? "600" : "500";
+		this._loopButton.style.outline = "none";
 	};
 
 	// Seek the playhead to the bar position under the pointer.
