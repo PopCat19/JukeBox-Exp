@@ -476,6 +476,25 @@ export class PatternEditor {
 		offset: number,
 	): void {
 		const ctx: CanvasRenderingContext2D = this._ctx;
+
+		// Fast-path: flat rectangle for single-pin notes with no pitch interval.
+		// fillRect is pixel-sharp and cheaper than the path-based approach.
+		if (pins.length === 1 && pins[0].interval === 0) {
+			const cap: number = this._doc.song.getVolumeCap(
+				this._doc.song.getChannelIsMod(this._doc.channel),
+				this._doc.channel,
+				this._doc.getCurrentInstrument(this._barOffset),
+				pitch,
+			);
+			const scale: number = showSize ? pins[0].size / cap : 1.0;
+			const w: number = this._partWidth * pins[0].time * 2 - 1;
+			const x: number = this._partWidth * start + 0.5;
+			const h: number = radius * 2 * scale;
+			const y: number = this._pitchToPixelHeight(pitch - offset) - radius * scale;
+			ctx.fillRect(x, y, Math.max(1, w), Math.max(1, h));
+			return;
+		}
+
 		const cap: number = this._doc.song.getVolumeCap(
 			this._doc.song.getChannelIsMod(this._doc.channel),
 			this._doc.channel,
