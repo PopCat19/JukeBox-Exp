@@ -222,6 +222,9 @@ export class PatternEditor {
 	private _draggingStartOfSelection: boolean = false;
 	private _draggingEndOfSelection: boolean = false;
 	private _draggingSelectionContents: boolean = false;
+	private _noteMoveDrag: boolean = false;
+	private _noteMoveStart: number = 0;
+	private _noteMoveEnd: number = 0;
 	private _edgeGrabNote: Note | null = null;
 	private _edgeGrabTail: boolean = false;
 	private _dragTime: number = 0;
@@ -2378,22 +2381,27 @@ export class PatternEditor {
 			} else if (this._cursorAtEndOfSelection()) {
 				this._draggingEndOfSelection = true;
 			} else if (this._shiftHeld) {
-				if ((this._doc.selection.patternSelectionActive && this._cursor.pitchIndex === -1) || this._cursorIsInSelection()) {
+				if (this._cursor.curNote != null) {
+					// Context-aware: Shift+cursor on a note body starts note-move.
+					this._noteMoveDrag = true;
+					this._noteMoveStart = this._cursor.curNote.start;
+					this._noteMoveEnd = this._cursor.curNote.end;
+					this._draggingSelectionContents = true;
+					sequence.append(new ChangePatternSelection(this._doc, this._cursor.curNote.start, this._cursor.curNote.end));
+				} else if (this._cursorIsInSelection()) {
+					// Empty row inside an existing selection: clear selection.
 					sequence.append(new ChangePatternSelection(this._doc, 0, 0));
 				} else {
-					if (this._cursor.curNote != null) {
-						sequence.append(new ChangePatternSelection(this._doc, this._cursor.curNote.start, this._cursor.curNote.end));
-					} else {
-						const start: number = Math.max(
-							0,
-							Math.min(
-								(this._doc.song.beatsPerBar - 1) * Config.partsPerBeat,
-								Math.floor(this._cursor.exactPart / Config.partsPerBeat) * Config.partsPerBeat,
-							),
-						);
-						const end: number = start + Config.partsPerBeat;
-						sequence.append(new ChangePatternSelection(this._doc, start, end));
-					}
+					// Empty space: box-select the current beat.
+					const start: number = Math.max(
+						0,
+						Math.min(
+							(this._doc.song.beatsPerBar - 1) * Config.partsPerBeat,
+							Math.floor(this._cursor.exactPart / Config.partsPerBeat) * Config.partsPerBeat,
+						),
+					);
+					const end: number = start + Config.partsPerBeat;
+					sequence.append(new ChangePatternSelection(this._doc, start, end));
 				}
 			} else if (this._cursorIsInSelection()) {
 				this._draggingSelectionContents = true;
@@ -2573,6 +2581,13 @@ export class PatternEditor {
 					const sequence: ChangeSequence = new ChangeSequence();
 					this._dragChange = sequence;
 					this._doc.setProspectiveChange(this._dragChange);
+
+					// Restore selection before ChangeDragSelectedNotes reads it.
+					// undo() above reverted the press-time ChangePatternSelection
+					// (set for note-move or edge-grab), so reassert the note's span.
+					if (this._noteMoveDrag) {
+						sequence.append(new ChangePatternSelection(this._doc, this._noteMoveStart, this._noteMoveEnd));
+					}
 
 					const scale =
 						this._doc.song.scale === Config.scales.dictionary.Custom.index ? this._doc.song.scaleCustom : Config.scales[this._doc.song.scale].flags;
@@ -3081,6 +3096,9 @@ export class PatternEditor {
 		this._draggingSelectionContents = false;
 		this._edgeGrabNote = null;
 		this._edgeGrabTail = false;
+		this._noteMoveDrag = false;
+		this._noteMoveStart = 0;
+		this._noteMoveEnd = 0;
 		this._lastChangeWasPatternSelection = false;
 		this.modDragValueLabel.setAttribute("fill", ColorConfig.secondaryText);
 		this._updateCursorStatus();
