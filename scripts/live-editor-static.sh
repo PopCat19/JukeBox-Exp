@@ -21,6 +21,8 @@ else
 	ESBUILD="$RUNX esbuild"
 fi
 
+bash "$(dirname "$0")/build-wasm.sh"
+
 PORT="${PORT:-4000}"
 
 # Pick an available static server, preferring Python (always available).

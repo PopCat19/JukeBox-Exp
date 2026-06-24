@@ -9,6 +9,14 @@
 
 import * as esbuild from "esbuild";
 import { mkdirSync } from "node:fs";
+import { execSync } from "node:child_process";
+
+console.log("Building WASM synth...");
+try {
+	execSync("bash scripts/build-wasm.sh", { stdio: "inherit" });
+} catch {
+	console.warn("WASM build skipped (wasm-pack/nix-shell not available)");
+}
 
 const offline = process.argv.includes("--offline");
 

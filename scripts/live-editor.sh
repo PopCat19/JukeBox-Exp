@@ -21,6 +21,8 @@ else
 	ESBUILD="$RUNX esbuild"
 fi
 
+bash "$(dirname "$0")/build-wasm.sh"
+
 open_browser_path=/index_debug.html
 for arg in "$@"; do
 	case "$arg" in
