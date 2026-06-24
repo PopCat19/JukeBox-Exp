@@ -7,7 +7,7 @@
 // - Registers via registry on module load
 
 import type { Instrument } from "../instruments";
-import type { Synth } from "../synth";
+import { Synth } from "../synth";
 import { Config, InstrumentType } from "../synth-config";
 import { buildFmSource } from "../synthesis/fm";
 import { registerPlugin } from "./registry";

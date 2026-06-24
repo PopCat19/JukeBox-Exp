@@ -38,7 +38,7 @@ Purpose: Phased plan for DRY, SoC, KISS, and stratification improvements across 
 
 ## Phase 2 · Change system DRY (DRY + KISS)
 
-**Status: IN PROGRESS** (2026-06-24)
+**Status: COMPLETE** (2026-06-24)
 
 **Goal:** Eliminate repetitive Change subclasses.
 
@@ -75,18 +75,20 @@ Purpose: Phased plan for DRY, SoC, KISS, and stratification improvements across 
 
 ## Phase 4 · Stratification: move synth logic out of synth.ts (SoC + SRP)
 
+**Status: PARTIAL** (2026-06-24) — 4.1 complete
+
 **Goal:** `synth.ts` ≤ 1500 lines; per-instrument logic lives in plugins.
 
-| Change | Files | Rationale |
+| Change | Files | Status |
 |---|---|---|
-| 4.1 Delegate synth functions to plugins | `synth/plugins/*.ts`, `synth/synth.ts` | Static methods `chipSynth`, `harmonicsSynth`, etc. in `synth.ts` (~200 lines) duplicate the `getSynthFunction` path. Move implementations into each plugin's `getSynthFunction` body. Delete `_synthFunctionRegistry` and the 10 static methods. |
-| 4.2 Extract modulator resolution | New `synth/modulator-resolution.ts` | ~300 lines of mod value computation in `synth.ts`. Single `resolveModulators(synth, song, channelIndex, instrumentIndex, bufferIndex, samplesPerTick)` function. |
-| 4.3 Extract effects dispatch | `synth/plugins/effects.ts` or new `synth/effects-dispatch.ts` | `effectsSynth` method and signature bitmask (~100 lines). Keep in plugin or dedicated module. |
-| 4.4 Split `song-serialization.ts` (4548 lines) | New `synth/formats/legacy-compat.ts`, `synth/formats/jukebox-exp.ts` | Move legacy format parsing out of main serializer. Each file ≤ 1000 lines. |
+| 4.1 Delegate synth functions to plugins | `synth/plugins/*.ts`, `synth/synth.ts` | ✓ Moved 9 private static synth functions + 9 function caches out of synth.ts into their respective plugins (chip, harmonics, noise, drumset, spectrum, pulse, supersaw, picked-string). Removed bridge registry (_synthFunctionRegistry, registerSynthFunction, getStaticSynthFunction, static initializer block, loopableChipSynth). modSynth remains in synth.ts (accesses private members bar/tick/beat/part/wantToSkip) with a public runModSynth bridge. synth.ts reduced from 5021→4870 lines (−151, ~47 from function bodies + ~104 from bridge + caches). |
+| 4.2 Extract modulator resolution | New `synth/modulator-resolution.ts` | ○ Not yet started. |
+| 4.3 Extract effects dispatch | `synth/plugins/effects.ts` or new `synth/effects-dispatch.ts` | ○ Not yet started. effectsSynth still in synth.ts. |
+| 4.4 Split `song-serialization.ts` (4548 lines) | New `synth/formats/legacy-compat.ts`, `synth/formats/jukebox-exp.ts` | ○ Not yet started. Formats directory already exists with thin wrappers; core serialization logic remains in song-serialization.ts. |
 
 **Validation:** `bun test` (serialization round-trips), `bun run typecheck:synth`, manual playback of songs with each instrument type.
 
-**Risk:** Dynamic `new Function()` compilation depends on closure over `Config` and `Synth`. Confirm plugins can pass these through without circular deps.
+**Risk:** Dynamic `new Function()` compilation depends on closure over `Config` and `Synth`. Each plugin now owns its own caches — verified that all generated code references work via the value-imported `Synth` and `Config` globals.
 
 ---
 

@@ -48,17 +48,6 @@ import {
 } from "./synth-config";
 import type { Chord, Envelope, Transition } from "./synth-config";
 import { instrumentVolumeToVolumeMult, noteSizeToVolumeMult, tempFilterEndCoefficients, tempFilterStartCoefficients } from "./synth-shared";
-import {
-	buildChipSource,
-	buildDrumSource,
-	buildHarmonicsSource,
-	buildLoopableChipSource,
-	buildNoiseSource,
-	buildPickedStringSource,
-	buildPulseWidthSource,
-	buildSpectrumSource,
-	buildSupersawSource,
-} from "./synthesis";
 import { Tone } from "./tone";
 import { clamp, detuneToCents, epsilon, fittingPowerOfTwo, getOperatorWave, wrap } from "./util";
 
@@ -528,15 +517,6 @@ export class Synth {
 	public loopBarStart: number = -1;
 	public loopBarEnd: number = -1;
 
-	private static readonly pickedStringFunctionCache: Function[] = Array(3).fill(undefined); // keep in sync with the number of unison voices.
-	private static readonly spectrumFunctionCache: Function[] = [];
-	private static readonly noiseFunctionCache: Function[] = [];
-	private static readonly drumFunctionCache: Function[] = [];
-	private static readonly chipFunctionCache: Function[] = [];
-	private static readonly pulseFunctionCache: Function[] = [];
-	private static readonly supersawFunctionCache: Function[] = [];
-	private static readonly harmonicsFunctionCache: Function[] = [];
-	private static readonly loopableChipFunctionCache: Function[] = Array(Config.unisonVoicesMax + 1).fill(undefined); // For loopable chips, we have a matrix where the rows represent voices and the columns represent loop types
 
 	public readonly channels: ChannelState[] = [];
 	private readonly tonePool: Deque<Tone> = new Deque<Tone>();
@@ -3156,7 +3136,7 @@ export class Synth {
 			tone.expression = startPin.size + (endPin.size - startPin.size) * ratioStart;
 			tone.expressionDelta = startPin.size + (endPin.size - startPin.size) * ratioEnd - tone.expression;
 
-			Synth.modSynth(this, bufferIndex, roundedSamplesPerTick, tone, instrument);
+			Synth.getInstrumentSynthFunction(instrument)(this, bufferIndex, roundedSamplesPerTick, tone, instrument);
 		}
 	}
 
@@ -4358,6 +4338,9 @@ export class Synth {
 		}
 		return effect;
 	}
+	static wrap(x: number, b: number): number {
+		return wrap(x, b);
+	}
 
 	public static getInstrumentSynthFunction(instrument: Instrument): Function {
 		const plugin = getPlugin(instrument.type);
@@ -4367,92 +4350,9 @@ export class Synth {
 		throw new Error(`Unrecognized instrument type: ${instrument.type}`);
 	}
 
-	// Bridge to private static synth methods — used by plugins that cannot
-	// reference private statics from outside the class.
-	private static readonly _synthFunctionRegistry: Map<number, Function> = new Map();
 
-	public static registerSynthFunction(type: number, fn: Function): void {
-		Synth._synthFunctionRegistry.set(type, fn);
-	}
 
-	public static getStaticSynthFunction(type: InstrumentType): Function | null {
-		return Synth._synthFunctionRegistry.get(type) ?? null;
-	}
 
-	static {
-		Synth._synthFunctionRegistry.set(InstrumentType.chip, Synth.chipSynth);
-		Synth._synthFunctionRegistry.set(InstrumentType.customChipWave, Synth.chipSynth);
-		Synth._synthFunctionRegistry.set(InstrumentType.harmonics, Synth.harmonicsSynth);
-		Synth._synthFunctionRegistry.set(InstrumentType.pickedString, Synth.pickedStringSynth);
-		Synth._synthFunctionRegistry.set(InstrumentType.pwm, Synth.pulseWidthSynth);
-		Synth._synthFunctionRegistry.set(InstrumentType.supersaw, Synth.supersawSynth);
-		Synth._synthFunctionRegistry.set(InstrumentType.noise, Synth.noiseSynth);
-		Synth._synthFunctionRegistry.set(InstrumentType.spectrum, Synth.spectrumSynth);
-		Synth._synthFunctionRegistry.set(InstrumentType.drumset, Synth.drumsetSynth);
-		Synth._synthFunctionRegistry.set(InstrumentType.mod, Synth.modSynth);
-	}
-	// advloop addition
-	static wrap(x: number, b: number): number {
-		return wrap(x, b);
-	}
-	static loopableChipSynth(synth: Synth, bufferIndex: number, roundedSamplesPerTick: number, tone: Tone, instrumentState: InstrumentState): void {
-		// @TODO:
-		// - Longer declicking? This is more difficult than I thought.
-		//   When determining this automatically is difficult (or the input
-		//   samples are expected to vary too much), this is left up to the
-		//   user.
-		const voiceCount: number = Math.max(2, instrumentState.unisonVoices);
-		let chipFunction: Function = Synth.loopableChipFunctionCache[instrumentState.unisonVoices];
-		if (chipFunction === undefined) {
-			const chipSource: string = buildLoopableChipSource(voiceCount);
-			chipFunction = new Function("Config", "Synth", "effectsIncludeDistortion", chipSource)(Config, Synth, effectsIncludeDistortion);
-			Synth.loopableChipFunctionCache[instrumentState.unisonVoices] = chipFunction;
-		}
-		chipFunction(synth, bufferIndex, roundedSamplesPerTick, tone, instrumentState);
-	}
-
-	private static chipSynth(synth: Synth, bufferIndex: number, roundedSamplesPerTick: number, tone: Tone, instrumentState: InstrumentState): void {
-		const voiceCount: number = Math.max(2, instrumentState.unisonVoices);
-		let chipFunction: Function = Synth.chipFunctionCache[instrumentState.unisonVoices];
-		if (chipFunction === undefined) {
-			const chipSource: string = buildChipSource(voiceCount);
-			chipFunction = new Function("Config", "Synth", "effectsIncludeDistortion", chipSource)(Config, Synth, effectsIncludeDistortion);
-			Synth.chipFunctionCache[instrumentState.unisonVoices] = chipFunction;
-		}
-		chipFunction(synth, bufferIndex, roundedSamplesPerTick, tone, instrumentState);
-	}
-
-	private static harmonicsSynth(synth: Synth, bufferIndex: number, roundedSamplesPerTick: number, tone: Tone, instrumentState: InstrumentState): void {
-		const voiceCount: number = Math.max(2, instrumentState.unisonVoices);
-		let harmonicsFunction: Function = Synth.harmonicsFunctionCache[instrumentState.unisonVoices];
-		if (harmonicsFunction === undefined) {
-			const harmonicsSource: string = buildHarmonicsSource(voiceCount);
-			harmonicsFunction = new Function("Config", "Synth", harmonicsSource)(Config, Synth);
-			Synth.harmonicsFunctionCache[instrumentState.unisonVoices] = harmonicsFunction;
-		}
-		harmonicsFunction(synth, bufferIndex, roundedSamplesPerTick, tone, instrumentState);
-	}
-
-	private static pickedStringSynth(synth: Synth, bufferIndex: number, roundedSamplesPerTick: number, tone: Tone, instrumentState: InstrumentState): void {
-		// This algorithm is similar to the Karpluss-Strong algorithm in principle, but with an
-		// all-pass filter for dispersion and with more control over the impulse harmonics.
-		// The source code is processed as a string before being compiled, in order to
-		// handle the unison feature. If unison is disabled or set to none, then only one
-		// string voice is required, otherwise two string voices are required. We only want
-		// to compute the minimum possible number of string voices, so omit the code for
-		// processing extra ones if possible. Any line containing a "#" is duplicated for
-		// each required voice, replacing the "#" with the voice index.
-
-		const voiceCount: number = instrumentState.unisonVoices;
-		let pickedStringFunction: Function = Synth.pickedStringFunctionCache[voiceCount];
-		if (pickedStringFunction === undefined) {
-			const pickedStringSource: string = buildPickedStringSource(voiceCount);
-			pickedStringFunction = new Function("Config", "Synth", pickedStringSource)(Config, Synth);
-			Synth.pickedStringFunctionCache[voiceCount] = pickedStringFunction;
-		}
-
-		pickedStringFunction(synth, bufferIndex, roundedSamplesPerTick, tone, instrumentState);
-	}
 
 	private static effectsSynth(
 		synth: Synth,
@@ -4518,62 +4418,7 @@ export class Synth {
 		effectsFunction(synth, outputDataL, outputDataR, bufferIndex, runLength, instrumentState);
 	}
 
-	private static pulseWidthSynth(synth: Synth, bufferIndex: number, roundedSamplesPerTick: number, tone: Tone, instrumentState: InstrumentState): void {
-		const voiceCount: number = Math.max(2, instrumentState.unisonVoices);
-		let pulseFunction: Function = Synth.pulseFunctionCache[instrumentState.unisonVoices];
-		if (pulseFunction === undefined) {
-			const pulseSource: string = buildPulseWidthSource(voiceCount);
-			pulseFunction = new Function("Config", "Synth", pulseSource)(Config, Synth);
-			Synth.pulseFunctionCache[instrumentState.unisonVoices] = pulseFunction;
-		}
 
-		pulseFunction(synth, bufferIndex, roundedSamplesPerTick, tone, instrumentState);
-	}
-
-	private static supersawSynth(synth: Synth, bufferIndex: number, runLength: number, tone: Tone, instrumentState: InstrumentState): void {
-		const voiceCount: number = Config.supersawVoiceCount | 0;
-		let supersawFunction: Function = Synth.supersawFunctionCache[0]; // currently only one supersaw function can exist in a given song / mod. Change to an array if you desire to support multiple by, for example, having unisons on supersaws
-		if (supersawFunction === undefined) {
-			const supersawSource: string = buildSupersawSource(voiceCount);
-			supersawFunction = new Function("Config", "Synth", supersawSource)(Config, Synth);
-			Synth.supersawFunctionCache[0] = supersawFunction;
-		}
-
-		supersawFunction(synth, bufferIndex, runLength, tone, instrumentState);
-	}
-
-	private static noiseSynth(synth: Synth, bufferIndex: number, runLength: number, tone: Tone, instrumentState: InstrumentState): void {
-		const voiceCount: number = Math.max(2, instrumentState.unisonVoices);
-		let noiseFunction: Function = Synth.noiseFunctionCache[instrumentState.unisonVoices];
-		if (noiseFunction === undefined) {
-			const noiseSource: string = buildNoiseSource(voiceCount);
-			noiseFunction = new Function("Config", "Synth", noiseSource)(Config, Synth);
-			Synth.noiseFunctionCache[instrumentState.unisonVoices] = noiseFunction;
-		}
-		noiseFunction(synth, bufferIndex, runLength, tone, instrumentState);
-	}
-
-	private static spectrumSynth(synth: Synth, bufferIndex: number, runLength: number, tone: Tone, instrumentState: InstrumentState): void {
-		const voiceCount: number = Math.max(2, instrumentState.unisonVoices);
-		let spectrumFunction: Function = Synth.spectrumFunctionCache[instrumentState.unisonVoices];
-		if (spectrumFunction === undefined) {
-			const spectrumSource: string = buildSpectrumSource(voiceCount);
-			spectrumFunction = new Function("Config", "Synth", spectrumSource)(Config, Synth);
-			Synth.spectrumFunctionCache[instrumentState.unisonVoices] = spectrumFunction;
-		}
-		spectrumFunction(synth, bufferIndex, runLength, tone, instrumentState);
-	}
-
-	private static drumsetSynth(synth: Synth, bufferIndex: number, runLength: number, tone: Tone, instrumentState: InstrumentState): void {
-		const voiceCount: number = Math.max(2, instrumentState.unisonVoices);
-		let drumFunction: Function = Synth.drumFunctionCache[instrumentState.unisonVoices];
-		if (drumFunction === undefined) {
-			const drumSource: string = buildDrumSource(voiceCount);
-			drumFunction = new Function("Config", "Synth", "InstrumentState", drumSource)(Config, Synth, InstrumentState);
-			Synth.drumFunctionCache[instrumentState.unisonVoices] = drumFunction;
-		}
-		drumFunction(synth, bufferIndex, runLength, tone, instrumentState);
-	}
 
 	private static modSynth(synth: Synth, _stereoBufferIndex: number, roundedSamplesPerTick: number, tone: Tone, instrument: Instrument): void {
 		// Note: present modulator value is tone.expressionStarts[0].
@@ -4871,6 +4716,11 @@ export class Synth {
 				}
 			}
 		}
+	}
+
+	// Public bridge for mod plugin — modSynth needs private Synth state
+	public static runModSynth(synth: Synth, bufferIndex: number, roundedSamplesPerTick: number, tone: Tone, instrument: Instrument): void {
+		Synth.modSynth(synth, bufferIndex, roundedSamplesPerTick, tone, instrument);
 	}
 
 	public static findRandomZeroCrossing(wave: Float32Array, waveLength: number): number {

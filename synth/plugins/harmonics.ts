@@ -1,15 +1,30 @@
 // harmonics.ts
 //
-// Purpose: Harmonics synthesis plugin — wraps private static via bridge
+// Purpose: Harmonics synthesis plugin — compiled-function + per-voice cache
+//
+// This module:
+// - Embeds private-scale build/compile/cache per unison voice
+// - Registers via plugin registry on module load
 
 import type { Instrument } from "../instruments";
-import type { Synth } from "../synth";
+import { Synth } from "../synth";
 import { Config, InstrumentType } from "../synth-config";
+import { InstrumentState } from "../instrument-state";
+import type { Tone } from "../tone";
 import { buildHarmonicsSource } from "../synthesis/harmonics";
 import { registerPlugin } from "./registry";
 
-function getSynthFunction(_instrument: Instrument, synth: typeof Synth): Function {
-	return synth.getStaticSynthFunction(InstrumentType.harmonics)!;
+const functionCache: Function[] = [];
+
+function harmonicsSynth(synth: Synth, bufferIndex: number, roundedSamplesPerTick: number, tone: Tone, instrumentState: InstrumentState): void {
+	const voiceCount: number = Math.max(2, instrumentState.unisonVoices);
+	let fn: Function = functionCache[instrumentState.unisonVoices];
+	if (fn === undefined) {
+		const source: string = buildHarmonicsSource(voiceCount);
+		fn = new Function("Config", "Synth", source)(Config, Synth);
+		functionCache[instrumentState.unisonVoices] = fn;
+	}
+	fn(synth, bufferIndex, roundedSamplesPerTick, tone, instrumentState);
 }
 
 registerPlugin({
@@ -21,6 +36,6 @@ registerPlugin({
 		instrument.chord = Config.chords.dictionary.simultaneous.index;
 		instrument.harmonicsWave.reset();
 	},
-	getSynthFunction,
+	getSynthFunction: (_instrument: Instrument, _synth: typeof Synth) => harmonicsSynth,
 	buildSource: (_instrument: Instrument, voiceCount?: number) => buildHarmonicsSource(voiceCount ?? 0),
 });

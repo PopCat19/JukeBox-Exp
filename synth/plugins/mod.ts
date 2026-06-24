@@ -1,15 +1,15 @@
 // mod.ts
 //
 // Purpose: Modulator channel synthesis plugin
+//
+// This module:
+// - Bridges to Synth.runModSynth (modSynth accesses private Synth state)
+// - Registers via plugin registry on module load
 
 import type { Instrument } from "../instruments";
-import type { Synth } from "../synth";
+import { Synth } from "../synth";
 import { Config, InstrumentType } from "../synth-config";
 import { registerPlugin } from "./registry";
-
-function getSynthFunction(_instrument: Instrument, synth: typeof Synth): Function {
-	return synth.getStaticSynthFunction(InstrumentType.mod)!;
-}
 
 registerPlugin({
 	type: InstrumentType.mod,
@@ -34,7 +34,7 @@ registerPlugin({
 			instrument.modEnvelopeNumbers[mod] = 0;
 		}
 	},
-	getSynthFunction,
+	getSynthFunction: (_instrument: Instrument, synth: typeof Synth) => synth.runModSynth,
 	buildSource: () => {
 		throw new Error("Mod instruments do not support code generation");
 	},
