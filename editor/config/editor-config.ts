@@ -12,7 +12,7 @@
 import { type InstrumentType, TypePresets } from "../../synth/synth-config";
 import { type Preset, type PresetCategory, presetCategoriesData } from "./preset_category";
 
-export { Preset, PresetCategory } from "./preset_category";
+export type { Preset, PresetCategory } from "./preset_category";
 
 // Tags curated by the JukeBox community (https://github.com/JohnnesN/JukeBox)
 export const fullTagList: string[] = [

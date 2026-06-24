@@ -57,8 +57,8 @@ export class ColorConfig {
 	public static usesColorFormula: boolean = false;
 	public static readonly defaultTheme: string = "pmd-dynamic";
 	public static readonly PMD_THEME: string = "pmd-dynamic";
-	public static pmdHue: number = parseInt(window.localStorage.getItem("pmdHue") ?? "345", 10);
-	public static pmdDark: boolean = (window.localStorage.getItem("pmdDark") ?? "1") === "1";
+	public static pmdHue: number = typeof window !== "undefined" ? parseInt(window.localStorage.getItem("pmdHue") ?? "345", 10) : 345;
+	public static pmdDark: boolean = typeof window !== "undefined" ? (window.localStorage.getItem("pmdDark") ?? "1") === "1" : true;
 	public static readonly themes: { [name: string]: string } = themes;
 	public static readonly pageMargin: string = "var(--page-margin, black)";
 	public static readonly editorBackground: string = "var(--editor-background, black)";
@@ -820,9 +820,17 @@ export class ColorConfig {
 		}
 	}
 
-	private static readonly _styleElement: HTMLStyleElement = document.head.appendChild(HTML.style({ type: "text/css" }));
+	private static _styleElement: HTMLStyleElement = null!;
+	private static _initialized = false;
+	private static _ensureInit(): void {
+		if (!ColorConfig._initialized && typeof document !== "undefined") {
+			ColorConfig._styleElement = document.head.appendChild(HTML.style({ type: "text/css" }));
+			ColorConfig._initialized = true;
+		}
+	}
 
 	public static setTheme(name: string): void {
+		ColorConfig._ensureInit();
 		if (name === ColorConfig.PMD_THEME) {
 			applyPMDTheme(ColorConfig.pmdHue, ColorConfig.pmdDark);
 			ColorConfig._styleElement.textContent = "";

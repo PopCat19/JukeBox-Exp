@@ -20,7 +20,7 @@ import { moddedCategories } from "./modded";
 import type { PresetCategory } from "./types";
 import { unboxCategories } from "./unbox";
 
-export { InputPresetCategory, Preset, PresetCategory } from "./types";
+export type { InputPresetCategory, Preset, PresetCategory } from "./types";
 
 export const presetCategoriesData: DictionaryArray<PresetCategory> = toNameMap([
 	...coreCategories,

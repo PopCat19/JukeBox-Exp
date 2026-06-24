@@ -23,14 +23,9 @@ import { PickedString } from "./picked-string";
 import { getCapabilities, getEffectsSynthFunction, getPlugin } from "./plugins";
 import { Song } from "./song";
 import {
-	Chord,
 	Config,
-	Dictionary,
-	DictionaryArray,
 	EffectType,
-	Envelope,
 	EnvelopeComputeIndex,
-	EnvelopeType,
 	effectsIncludeBitcrusher,
 	effectsIncludeChorus,
 	effectsIncludeDetune,
@@ -50,8 +45,8 @@ import {
 	getArpeggioPitchIndex,
 	getPulseWidthRatio,
 	InstrumentType,
-	Transition,
 } from "./synth-config";
+import type { Chord, Envelope, Transition } from "./synth-config";
 import { instrumentVolumeToVolumeMult, noteSizeToVolumeMult, tempFilterEndCoefficients, tempFilterStartCoefficients } from "./synth-shared";
 import {
 	buildChipSource,
@@ -5022,4 +5017,5 @@ export class Synth {
 }
 
 // When compiling synth.ts as a standalone module named "beepbox", expose these classes as members to JavaScript:
-export { Chord, Config, Dictionary, DictionaryArray, Envelope, EnvelopeType, FilterType, InstrumentType, Transition };
+export { Config, EnvelopeType, FilterType, InstrumentType } from "./synth-config";
+export type { Chord, Dictionary, DictionaryArray, Envelope, Transition } from "./synth-config";

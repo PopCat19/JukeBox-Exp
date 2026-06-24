@@ -41,7 +41,8 @@ export {
 	Operator,
 } from "./instruments";
 // Layer 2: Notes
-export { makeNotePin, Note, NotePin, Pattern } from "./notes";
+export { makeNotePin, Note, Pattern } from "./notes";
+export type { NotePin } from "./notes";
 export { PickedString } from "./picked-string";
 export type { InstrumentCapabilities } from "./plugins/capabilities";
 // Plugin registry
@@ -67,17 +68,8 @@ export type { CustomSampleHandler } from "./song-utilities";
 // Layer 7: Synth
 export { Synth } from "./synth";
 // Re-export types from SynthConfig that consumers expect from synth module
-export {
-	Chord,
-	Config,
-	Dictionary,
-	DictionaryArray,
-	Envelope,
-	EnvelopeType,
-	FilterType,
-	InstrumentType,
-	Transition,
-} from "./synth-config";
+export { Config, EnvelopeType, FilterType, InstrumentType } from "./synth-config";
+export type { Chord, Dictionary, DictionaryArray, Envelope, Transition } from "./synth-config";
 export { Tone } from "./tone";
 // Stratified Module Hierarchy - barrel re-export
 // Layer 0: Utilities

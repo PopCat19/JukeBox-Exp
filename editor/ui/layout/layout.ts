@@ -670,9 +670,17 @@ export class Layout {
 			`,
 	};
 
-	private static readonly _styleElement: HTMLStyleElement = document.head.appendChild(HTML.style({ type: "text/css" }));
+	private static _styleElement: HTMLStyleElement = null!;
+	private static _initialized = false;
+	private static _ensureInit(): void {
+		if (!Layout._initialized && typeof document !== "undefined") {
+			Layout._styleElement = document.head.appendChild(HTML.style({ type: "text/css" }));
+			Layout._initialized = true;
+		}
+	}
 
 	public static setLayout(layout: string): void {
+		Layout._ensureInit();
 		Layout._styleElement.textContent = Layout._layoutMap[layout];
 		window.dispatchEvent(new Event("resize"));
 		window.dispatchEvent(new Event("scroll"));

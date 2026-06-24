@@ -64,7 +64,7 @@ import { violetVerdant } from "./violet-verdant";
 import { wackybox } from "./wackybox";
 import { zefbox } from "./zefbox";
 
-const customTheme: string = `${localStorage.getItem("customColors") || `:root {  }`}`;
+const customTheme: string = typeof localStorage !== "undefined" ? `${localStorage.getItem("customColors") || `:root {  }`}` : ":root {  }";
 
 export const themes: { [name: string]: string } = {
 	"dark classic": darkClassic,
