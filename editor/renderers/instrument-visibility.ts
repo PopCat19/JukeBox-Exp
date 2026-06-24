@@ -40,16 +40,7 @@ import type { Preferences } from "../core/preferences";
 import type { CustomAlgorithmCanvas } from "../rendering/custom-algorithm-canvas";
 import type { SongDocument } from "../song-document";
 import type { Slider } from "../ui";
-
-function setSelectedValue(menu: HTMLSelectElement, value: number, isSelect2: boolean = false): void {
-	const stringValue = value.toString();
-	if (menu.value !== stringValue) {
-		menu.value = stringValue;
-		if (isSelect2) {
-			$(menu).val(value).trigger("change.select2");
-		}
-	}
-}
+import { setSelectedValue } from "../ui";
 
 export interface InstrumentVisibilityRefs {
 	// Chip wave

@@ -13,13 +13,7 @@ import { Config } from "../../synth/synth-config";
 import type { FilterEditor } from "../components/filter-editor";
 import type { SongDocument } from "../song-document";
 import type { InputBox, Slider } from "../ui";
-
-function setSelectedValue(menu: HTMLSelectElement, value: number): void {
-	const stringValue = value.toString();
-	if (menu.value !== stringValue) {
-		menu.value = stringValue;
-	}
-}
+import { setSelectedValue } from "../ui";
 
 export interface SongSettingsRefs {
 	scaleSelect: HTMLSelectElement;

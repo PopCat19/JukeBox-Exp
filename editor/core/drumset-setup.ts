@@ -12,15 +12,9 @@ import { Config } from "../../synth/synth-config";
 import { ChangeDrumsetEnvelope } from "../changes";
 import { SpectrumEditor } from "../components/spectrum-editor";
 import type { SongDocument } from "../song-document";
+import { buildOptions } from "../ui";
 
-const { div, select, span, option } = HTML;
-
-function buildOptions(menu: HTMLSelectElement, items: ReadonlyArray<string | number>): HTMLSelectElement {
-	for (let index: number = 0; index < items.length; index++) {
-		menu.appendChild(option({ value: index }, items[index]));
-	}
-	return menu;
-}
+const { div, select, span } = HTML;
 
 export interface DrumsetSetupHost {
 	doc: SongDocument;

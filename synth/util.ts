@@ -108,3 +108,7 @@ export function getOperatorWave(waveform: number, pulseWidth: number) {
 		return Config.pwmOperatorWaves[pulseWidth];
 	}
 }
+
+export function wrap(x: number, b: number): number {
+	return ((x % b) + b) % b;
+}

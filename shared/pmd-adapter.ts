@@ -9,7 +9,8 @@
 
 import type { Base16Palette, PMDVariables } from "./pmd";
 import { generatePalette, getPMD } from "./pmd";
-import { rgbToHex, safeOklchToRgb, maxChroma } from "./pmd/color";
+import { rgbToHex, maxOklchChroma } from "./color-utils";
+import { safeOklchToRgb } from "./pmd/color";
 import { composite } from "./pmd/variables";
 
 export function pmdGenerateColors(hue: number, isDark: boolean, lockHue: boolean = false, lockValue: number = 0): Base16Palette {
@@ -190,7 +191,7 @@ function applyChannelColors(root: HTMLElement, pmd: PMDVariables, palette: Base1
 	// Boost chroma toward 75% of sRGB gamut maximum, but never drop
 	// below the PMD default chroma.
 	function boostC(defaultC: number, l: number, h: number): number {
-		const maxC = maxChroma(l, h);
+		const maxC = maxOklchChroma(l, h);
 		const target = Math.min(0.14, maxC * 0.75);
 		return Math.max(defaultC, target);
 	}

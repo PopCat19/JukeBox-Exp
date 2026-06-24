@@ -12,6 +12,7 @@ import { HTML, SVG } from "imperative-html/dist/esm/elements-strict";
 import { getTimelineWidth, invalidateVizWidthCache, renderPlayhead, renderTimeline } from "../../player/player-timeline";
 import type { PlayerUI } from "../../player/player-ui";
 import { ColorConfig } from "../../shared/color-config";
+import { hexToRgb } from "../../shared/color-utils";
 import { events } from "../../shared/events";
 import { spectrumCanvas } from "../../shared/spectrum";
 import type { ChannelState } from "../../synth/channel-state";
@@ -707,19 +708,12 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 	// Recompute cached per-channel overlay colors. Called on render and on
 	// themeChange. getComputedChannelColor forces 4 getComputedStyle calls, so
 	// this must stay out of the per-frame animate loop.
-	private _hexToRgb(hex: string): { r: number; g: number; b: number } {
-		const r = parseInt(hex.length >= 7 ? hex.slice(1, 3) : hex.slice(1, 2) + hex.slice(1, 2), 16);
-		const g = parseInt(hex.length >= 7 ? hex.slice(3, 5) : hex.slice(2, 3) + hex.slice(2, 3), 16);
-		const b = parseInt(hex.length >= 7 ? hex.slice(5, 7) : hex.slice(3, 4) + hex.slice(3, 4), 16);
-		return { r, g, b };
-	}
-
 	private _refreshSpectrumColors(): void {
 		const song = this._doc.song;
 		for (const channelIndex of this._channelSpectrumCanvases.keys()) {
 			const hex = ColorConfig.getComputedChannelColor(song, channelIndex).primaryChannel;
 			this._channelSpectrumColors.set(channelIndex, hex);
-			this._cachedChannelRGB.set(channelIndex, this._hexToRgb(hex));
+			this._cachedChannelRGB.set(channelIndex, hexToRgb(hex));
 		}
 	}
 
@@ -1644,7 +1638,7 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 			this._channelSpectrumCanvas2ds.set(i, spectrumCanvas.getContext("2d"));
 			const hex = ColorConfig.getComputedChannelColor(song, i).primaryChannel;
 			this._channelSpectrumColors.set(i, hex);
-			this._cachedChannelRGB.set(i, this._hexToRgb(hex));
+			this._cachedChannelRGB.set(i, hexToRgb(hex));
 
 			// Show instruments
 			if (channel.instruments.length > 0) {

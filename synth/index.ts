@@ -96,6 +96,7 @@ export {
 	secondsToFadeInSetting,
 	ticksToFadeOutSetting,
 	validateRange,
+	wrap,
 } from "./util";
 // Layer 3: Waves
 export { Grain, HarmonicsWave, HarmonicsWaveState, SpectrumWave, SpectrumWaveState } from "./waves";

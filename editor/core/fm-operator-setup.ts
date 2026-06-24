@@ -12,16 +12,9 @@ import { ColorConfig } from "../../shared/color-config";
 import { Config, DropdownID } from "../../synth/synth-config";
 import { ChangeOperatorAmplitude, ChangeOperatorFrequency, ChangeOperatorPulseWidth, ChangeOperatorWaveform } from "../changes";
 import type { SongDocument } from "../song-document";
-import { dropdownButton, Slider } from "../ui";
+import { buildOptions, dropdownButton, Slider } from "../ui";
 
-const { div, select, span, input, option } = HTML;
-
-function buildOptions(menu: HTMLSelectElement, items: ReadonlyArray<string | number>): HTMLSelectElement {
-	for (let index: number = 0; index < items.length; index++) {
-		menu.appendChild(option({ value: index }, items[index]));
-	}
-	return menu;
-}
+const { div, select, span, input } = HTML;
 
 export interface FmOperatorSetupHost {
 	doc: SongDocument;

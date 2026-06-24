@@ -65,7 +65,7 @@ import {
 	buildSupersawSource,
 } from "./synthesis";
 import { Tone } from "./tone";
-import { clamp, detuneToCents, epsilon, fittingPowerOfTwo, getOperatorWave } from "./util";
+import { clamp, detuneToCents, epsilon, fittingPowerOfTwo, getOperatorWave, wrap } from "./util";
 
 declare global {
 	interface Window {
@@ -4398,7 +4398,7 @@ export class Synth {
 	}
 	// advloop addition
 	static wrap(x: number, b: number): number {
-		return ((x % b) + b) % b;
+		return wrap(x, b);
 	}
 	static loopableChipSynth(synth: Synth, bufferIndex: number, roundedSamplesPerTick: number, tone: Tone, instrumentState: InstrumentState): void {
 		// @TODO:

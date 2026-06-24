@@ -14,16 +14,7 @@ import { getInstrumentTypeName } from "../../synth/config/instrument-registry";
 import { EditorConfig } from "../config/editor-config";
 import type { Preferences } from "../core/preferences";
 import type { SongDocument } from "../song-document";
-
-function setSelectedValue(menu: HTMLSelectElement, value: number, isSelect2: boolean = false): void {
-	const stringValue = value.toString();
-	if (menu.value !== stringValue) {
-		menu.value = stringValue;
-		if (isSelect2) {
-			$(menu).val(value).trigger("change.select2");
-		}
-	}
-}
+import { setSelectedValue } from "../ui";
 
 export interface PresetSetupRefs {
 	customInstrumentSettingsGroup: HTMLElement;

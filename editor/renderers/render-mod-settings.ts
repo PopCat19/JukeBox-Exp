@@ -32,15 +32,9 @@ import {
 } from "../../synth/synth-config";
 import type { Preferences } from "../core/preferences";
 import type { SongDocument } from "../song-document";
+import { buildOptions } from "../ui";
 
 const { option } = HTML;
-
-function buildOptions(menu: HTMLSelectElement, items: ReadonlyArray<string | number>): HTMLSelectElement {
-	for (let index: number = 0; index < items.length; index++) {
-		menu.appendChild(option({ value: index }, items[index]));
-	}
-	return menu;
-}
 
 export interface ModSettingsRefs {
 	modulatorGroup: HTMLElement;

@@ -10,30 +10,14 @@
 import { HTML } from "imperative-html/dist/esm/elements-strict";
 import { Config } from "../../synth/synth-config";
 import { FilterEditor } from "../components/filter-editor";
-import { Change } from "../core/change";
 import type { SongSettingsRefs } from "../renderers/render-song-settings";
 import type { SongDocument } from "../song-document";
-import { addWheelSupport, createInputBox, type InputBox, rangeSlider, type Slider, toggleButton } from "../ui";
+import { buildOptions, createInputBox, type InputBox, numberInput, rangeSlider, type Slider, toggleButton } from "../ui";
 
-const { button, div, input, option, select, span } = HTML;
-
-function numberInput(attrs: Record<string, any>): HTMLInputElement {
-	const el = input(attrs);
-	if (attrs.type === "number") {
-		addWheelSupport(el);
-	}
-	return el;
-}
-
-function buildOptions(menu: HTMLSelectElement, items: ReadonlyArray<string | number>): HTMLSelectElement {
-	for (let index: number = 0; index < items.length; index++) {
-		menu.appendChild(option({ value: index }, items[index]));
-	}
-	return menu;
-}
+const { button, div, select, span } = HTML;
 
 // Change classes imported from changes/index
-import { ChangeChorus, ChangeEQFilterSimpleCut, ChangeEQFilterSimplePeak, ChangeReverb, ChangeTempo } from "../changes";
+import { ChangeChorus, ChangeEQFilterSimpleCut, ChangeEQFilterSimplePeak, ChangeReverb, ChangeSongTitle, ChangeTempo } from "../changes";
 
 export class SongSettingsPanel {
 	// Scale and Key
@@ -112,23 +96,6 @@ export class SongSettingsPanel {
 		);
 
 		// Song Title
-		class ChangeSongTitle extends Change {
-			constructor(
-				private _doc: SongDocument,
-				private _oldValue: string,
-				private _newValue: string,
-			) {
-				super();
-				// _oldValue is used for comparison
-				if (this._oldValue !== this._newValue) {
-					this._didSomething();
-				}
-			}
-			public commit(): void {
-				this._doc.song.title = this._newValue;
-			}
-		}
-
 		const { inputBox: songTitleInputBox } = createInputBox(doc, (oldValue: string, newValue: string) => new ChangeSongTitle(doc, oldValue, newValue));
 		this.songTitleInputBox = songTitleInputBox;
 

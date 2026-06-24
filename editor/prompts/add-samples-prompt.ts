@@ -9,7 +9,7 @@
 // - Uses compactSearchPrompt class + PMD tokens throughout
 
 import { HTML } from "imperative-html/dist/esm/elements-strict";
-import { clamp, parseFloatWithDefault, parseIntWithDefault } from "../../synth";
+import { clamp, parseFloatWithDefault, parseIntWithDefault, wrap } from "../../synth";
 import { Config, type Dictionary } from "../../synth/synth-config";
 import { EditorConfig } from "../config/editor-config";
 import type { SongDocument } from "../song-document";
@@ -290,9 +290,6 @@ export class AddSamplesPrompt extends BasePrompt {
 	};
 
 	private _noteName = (n: number): string => {
-		function wrap(x: number, b: number) {
-			return ((x % b) + b) % b;
-		}
 		n = Math.floor(n) - 12;
 		const idx = wrap(n + Config.keys[this._doc.song.key].basePitch, Config.pitchesPerOctave);
 		if (Config.keys[idx].isWhiteKey) return Config.keys[idx].name + Math.floor(n / Config.pitchesPerOctave);

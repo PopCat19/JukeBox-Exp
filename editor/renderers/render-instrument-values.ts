@@ -14,11 +14,7 @@ import { Piano } from "../components/piano";
 import { prettyNumber } from "../config/editor-config";
 import type { SongDocument } from "../song-document";
 import type { Slider } from "../ui";
-
-function setSelectedValue(menu: HTMLSelectElement, value: number): void {
-	const stringValue = value.toString();
-	if (menu.value !== stringValue) menu.value = stringValue;
-}
+import { setSelectedValue } from "../ui";
 
 export interface InstrumentValueRefs {
 	transitionSelect: HTMLSelectElement;

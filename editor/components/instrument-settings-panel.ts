@@ -40,25 +40,10 @@ import {
 import { EditorConfig } from "../config/editor-config";
 import type { InstrumentValueRefs } from "../renderers/render-instrument-values";
 import type { SongDocument } from "../song-document";
-import { addWheelSupport, buildPresetButton, dropdownButton, rangeSlider, type Slider, toggleButton } from "../ui";
+import { buildOptions, buildPresetButton, dropdownButton, numberInput, rangeSlider, type Slider, toggleButton } from "../ui";
 import { FilterEditor } from "./filter-editor";
 
 const { button, div, input, option, select, span } = HTML;
-
-function numberInput(attrs: Record<string, any>): HTMLInputElement {
-	const el = input(attrs);
-	if (attrs.type === "number") {
-		addWheelSupport(el);
-	}
-	return el;
-}
-
-function buildOptions(menu: HTMLSelectElement, items: ReadonlyArray<string | number>): HTMLSelectElement {
-	for (let index: number = 0; index < items.length; index++) {
-		menu.appendChild(option({ value: index }, items[index]));
-	}
-	return menu;
-}
 
 export class InstrumentSettingsPanel {
 	// Container

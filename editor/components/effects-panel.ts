@@ -26,16 +26,9 @@ import {
 	ChangeRingModPulseWidth,
 } from "../changes";
 import type { SongDocument } from "../song-document";
-import { rangeSlider, type Slider } from "../ui";
+import { buildOptions, rangeSlider, type Slider } from "../ui";
 
-const { div, option, select, span } = HTML;
-
-function buildOptions(menu: HTMLSelectElement, items: ReadonlyArray<string | number>): HTMLSelectElement {
-	for (let index: number = 0; index < items.length; index++) {
-		menu.appendChild(option({ value: index }, items[index]));
-	}
-	return menu;
-}
+const { div, select, span } = HTML;
 
 export interface EffectRow {
 	label: string;

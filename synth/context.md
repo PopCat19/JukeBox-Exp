@@ -20,4 +20,4 @@
 - `waves.ts`, Generates custom waveform data for spectrum, harmonics, and granular synthesis
 - `picked-string.ts`, Physical string modeling for picked string synthesis
 - `deque.ts`, Implements a double-ended queue with dynamic circular buffer
-- `util.ts`, Provides shared math and conversion utilities for the synth engine
+- `util.ts`, Provides shared math and conversion utilities for the synth engine (clamp, validate, wrap, detune, fade)
