@@ -29,9 +29,16 @@
             biome
             shfmt
             shellcheck
+            # Rust / WASM toolchain
+            cargo
+            rustc
+            rust-analyzer
+            wasm-pack
+            binaryen # wasm-opt for post-build optimization
           ];
 
           shellHook = ''
+            export RUST_SRC_PATH="${pkgs.rust.packages.stable.rustPlatform.rustLibSrc}"
             if [ ! -d node_modules ]; then
               if command -v bun &>/dev/null; then
                 bun install
