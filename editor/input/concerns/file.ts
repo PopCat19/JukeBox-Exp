@@ -5,6 +5,6 @@
 // This module:
 // - Re-exports file-scoped bindings from the central inventory
 
-import { inputBindings } from "../inventory";
+import { byConcern } from "./by-concern";
 
-export const fileBindings = inputBindings.filter((b) => b.concern === "file");
+export const fileBindings = byConcern("file");

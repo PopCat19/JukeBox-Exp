@@ -13,6 +13,8 @@ import { Config } from "../../synth/synth-config";
 import { Change } from "../core/change";
 import type { SongDocument } from "../song-document";
 
+export { ChangeFieldValue } from "./field-value";
+
 export class ChangeInstrumentSlider extends Change {
 	protected _instrument: Instrument;
 	constructor(private _doc: SongDocument) {

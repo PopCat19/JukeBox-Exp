@@ -38,13 +38,16 @@ Purpose: Phased plan for DRY, SoC, KISS, and stratification improvements across 
 
 ## Phase 2 · Change system DRY (DRY + KISS)
 
+**Status: IN PROGRESS** (2026-06-24)
+
 **Goal:** Eliminate repetitive Change subclasses.
 
-| Change | Files | Rationale |
+| Change | Files | Status |
 |---|---|---|
-| 2.1 Generic `ChangeFieldValue` | New `editor/changes/field-value.ts` | ~30 simple Change classes in `changes/song.ts`, `changes/instruments/tone.ts`, etc. follow the pattern: get oldValue, set newValue, notify. One class with `(target, key, old, new)` replaces them. |
-| 2.2 Data-driven slider changes | `editor/changes/sliders.ts` | 30+ `ChangeXxxSlider` subclasses differ only by property name and min/max. Replace with `ChangeSliderValue(doc, 'propertyName', min, max, old, new)`. Keep named exports as thin wrappers if callers rely on them. |
-| 2.3 Remove local `ChangeSongTitle` | `editor/components/song-settings-panel.ts` | Duplicate of `changes/song.ts:563`. Delete local class, import from `changes`. |
+| 2.1 Generic `ChangeFieldValue` | New `editor/changes/field-value.ts` | ✓ Created generic class with options for target, property, clamp, maxLength, afterSet, unsetModKey. |
+| 2.2 Data-driven slider changes | `editor/changes/sliders.ts` | ○ Existing slider changes extend ChangeInstrumentSlider; consider refactoring to use ChangeFieldValue with preset setting. |
+| 2.3 Remove local `ChangeSongTitle` | `editor/components/song-settings-panel.ts` | ✓ Already done in Phase 1. |
+| 2.4 Refactor simple song-level changes | `editor/changes/song.ts` | ✓ Refactored ChangeTempo, ChangeSongReverb, ChangeVolume, ChangePan, ChangePanDelay, ChangeOctave, ChangeKey, ChangeKeyOctave, ChangeSongTitle, ChangeChannelName to use ChangeFieldValue. |
 
 **Validation:** `bun test` (undo/redo coverage), manual undo/redo in editor.
 
@@ -54,13 +57,15 @@ Purpose: Phased plan for DRY, SoC, KISS, and stratification improvements across 
 
 ## Phase 3 · Input binding consolidation (DRY + KISS)
 
+**Status: COMPLETE** (2026-06-24)
+
 **Goal:** Replace 14 identical one-liner files with a single helper.
 
-| Change | Files | Rationale |
+| Change | Files | Status |
 |---|---|---|
-| 3.1 Create `byConcern` helper | `editor/input/concerns/by-concern.ts` | `export const byConcern = (c: InputConcern) => inputBindings.filter(b => b.concern === c);` |
-| 3.2 Replace 14 files | `editor/input/concerns/*.ts` | Each file becomes a one-line re-export or is deleted in favor of inline calls. |
-| 3.3 Update barrel | `editor/input/concerns/index.ts` | Re-export `byConcern` and the concern constants. |
+| 3.1 Create `byConcern` helper | `editor/input/concerns/by-concern.ts` | ✓ Created function that filters inputBindings by concern. |
+| 3.2 Replace 14 files | `editor/input/concerns/*.ts` | ✓ All 14 concern files now use byConcern helper. |
+| 3.3 Update barrel | `editor/input/concerns/index.ts` | ✓ Added byConcern export. |
 
 **Validation:** `bun run typecheck:all`, grep for stale imports.
 

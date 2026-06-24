@@ -5,6 +5,6 @@
 // This module:
 // - Re-exports pattern-draw-scoped bindings from the central inventory
 
-import { inputBindings } from "../inventory";
+import { byConcern } from "./by-concern";
 
-export const patternDrawBindings = inputBindings.filter((b) => b.concern === "pattern-draw");
+export const patternDrawBindings = byConcern("pattern-draw");

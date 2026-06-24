@@ -5,6 +5,6 @@
 // This module:
 // - Re-exports presets-scoped bindings from the central inventory
 
-import { inputBindings } from "../inventory";
+import { byConcern } from "./by-concern";
 
-export const presetsBindings = inputBindings.filter((b) => b.concern === "presets");
+export const presetsBindings = byConcern("presets");

@@ -5,6 +5,7 @@
 - `notes.ts`, Implements undoable changes for note editing and pattern manipulation
 - `filters.ts`, Implements undoable changes for filter control points and settings
 - `sliders.ts`, Implements undoable changes for continuous instrument slider values
+- `field-value.ts`, Generic change class for simple field value modifications
 - `util.ts`, Shared utility functions for editor change operations
 
 ## Subdirectories

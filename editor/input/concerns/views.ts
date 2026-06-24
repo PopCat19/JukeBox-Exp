@@ -5,6 +5,6 @@
 // This module:
 // - Re-exports views-scoped bindings from the central inventory
 
-import { inputBindings } from "../inventory";
+import { byConcern } from "./by-concern";
 
-export const viewsBindings = inputBindings.filter((b) => b.concern === "views");
+export const viewsBindings = byConcern("views");

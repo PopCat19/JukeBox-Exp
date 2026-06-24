@@ -5,6 +5,6 @@
 // This module:
 // - Re-exports playback-scoped bindings from the central inventory
 
-import { inputBindings } from "../inventory";
+import { byConcern } from "./by-concern";
 
-export const playbackBindings = inputBindings.filter((b) => b.concern === "playback");
+export const playbackBindings = byConcern("playback");

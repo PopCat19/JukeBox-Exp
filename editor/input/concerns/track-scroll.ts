@@ -5,6 +5,6 @@
 // This module:
 // - Re-exports track-scroll-scoped bindings from the central inventory
 
-import { inputBindings } from "../inventory";
+import { byConcern } from "./by-concern";
 
-export const trackScrollBindings = inputBindings.filter((b) => b.concern === "track-scroll");
+export const trackScrollBindings = byConcern("track-scroll");

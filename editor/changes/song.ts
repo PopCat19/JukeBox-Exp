@@ -14,6 +14,7 @@ import { Channel, Instrument, type Note, type NotePin, Pattern, type Song } from
 import { Config, EffectType, InstrumentType } from "../../synth/synth-config";
 import { EditorConfig, fullTagList, type Preset, type PresetCategory } from "../config/editor-config";
 import { Change, ChangeGroup, ChangeSequence } from "../core/change";
+import { ChangeFieldValue } from "./field-value";
 import type { SongDocument } from "../song-document";
 import { ChangeToggleEffects } from "./instruments";
 import {
@@ -25,6 +26,8 @@ import {
 	ChangeValidateTrackSelection,
 } from "./notes";
 import { discardInvalidPatternInstruments } from "./util";
+
+export { ChangeFieldValue } from "./field-value";
 
 export class ChangeBarCount extends Change {
 	constructor(doc: SongDocument, newValue: number, atBeginning: boolean) {
@@ -466,16 +469,18 @@ export class ChangeChannelBar extends Change {
 	}
 }
 
-export class ChangeOctave extends Change {
+export class ChangeOctave extends ChangeFieldValue<number> {
 	constructor(
 		doc: SongDocument,
 		public oldValue: number,
 		newValue: number,
 	) {
-		super();
-		doc.song.channels[doc.channel].octave = newValue;
-		doc.notifier.changed();
-		if (oldValue !== newValue) this._didSomething();
+		super(doc, {
+			target: doc.song.channels[doc.channel],
+			property: "octave",
+			oldValue,
+			newValue,
+		});
 	}
 }
 
@@ -491,14 +496,14 @@ export class ChangeRhythm extends ChangeGroup {
 	}
 }
 
-export class ChangeKey extends Change {
+export class ChangeKey extends ChangeFieldValue<number> {
 	constructor(doc: SongDocument, newValue: number) {
-		super();
-		if (doc.song.key !== newValue) {
-			doc.song.key = newValue;
-			doc.notifier.changed();
-			this._didSomething();
-		}
+		super(doc, {
+			target: doc.song,
+			property: "key",
+			oldValue: doc.song.key,
+			newValue,
+		});
 	}
 }
 
@@ -520,91 +525,100 @@ export class ChangeLoop extends Change {
 	}
 }
 
-export class ChangeKeyOctave extends Change {
+export class ChangeKeyOctave extends ChangeFieldValue<number> {
 	constructor(doc: SongDocument, oldValue: number, newValue: number) {
-		super();
-		doc.song.octave = Math.max(Config.octaveMin, Math.min(Config.octaveMax, Math.round(newValue)));
-		doc.notifier.changed();
-		if (oldValue !== newValue) this._didSomething();
+		super(doc, {
+			target: doc.song,
+			property: "octave",
+			oldValue,
+			newValue,
+			clamp: { min: Config.octaveMin, max: Config.octaveMax },
+		});
 	}
 }
 
-export class ChangeTempo extends Change {
+export class ChangeTempo extends ChangeFieldValue<number> {
 	constructor(doc: SongDocument, oldValue: number, newValue: number) {
-		super();
-		doc.song.tempo = Math.max(Config.tempoMin, Math.min(Config.tempoMax, Math.round(newValue)));
-		doc.synth.unsetMod(Config.modulators.dictionary.tempo.index);
-		doc.notifier.changed();
-		if (oldValue !== newValue) this._didSomething();
+		super(doc, {
+			target: doc.song,
+			property: "tempo",
+			oldValue,
+			newValue,
+			clamp: { min: Config.tempoMin, max: Config.tempoMax },
+			unsetModKey: Config.modulators.dictionary.tempo.index,
+		});
 	}
 }
 
-export class ChangeSongReverb extends Change {
+export class ChangeSongReverb extends ChangeFieldValue<number> {
 	constructor(doc: SongDocument, oldValue: number, newValue: number) {
-		super();
-		doc.song.reverb = newValue;
-		doc.synth.unsetMod(Config.modulators.dictionary["song reverb"].index);
-		doc.notifier.changed();
-		if (oldValue !== newValue) this._didSomething();
+		super(doc, {
+			target: doc.song,
+			property: "reverb",
+			oldValue,
+			newValue,
+			unsetModKey: Config.modulators.dictionary["song reverb"].index,
+		});
 	}
 }
 
-export class ChangeVolume extends Change {
+export class ChangeVolume extends ChangeFieldValue<number> {
 	constructor(doc: SongDocument, oldValue: number, newValue: number) {
-		super();
-		doc.getCurrentInstrumentObj().volume = newValue;
-		// Not used currently as mod is implemented as multiplicative.
-		// doc.synth.unsetMod(ModSetting.mstInsVolume, doc.channel, doc.getCurrentInstrument());
-		doc.notifier.changed();
-		if (oldValue !== newValue) this._didSomething();
+		super(doc, {
+			target: doc.getCurrentInstrumentObj(),
+			property: "volume",
+			oldValue,
+			newValue,
+		});
 	}
 }
 
-export class ChangeSongTitle extends Change {
+export class ChangeSongTitle extends ChangeFieldValue<string> {
 	constructor(doc: SongDocument, oldValue: string, newValue: string) {
-		super();
-		if (newValue.length > 30) {
-			newValue = newValue.substring(0, 30);
-		}
-
-		doc.song.title = newValue;
-		document.title = `${newValue} - ${EditorConfig.versionDisplayName}`;
-		doc.notifier.changed();
-		if (oldValue !== newValue) this._didSomething();
+		super(doc, {
+			target: doc.song,
+			property: "title",
+			oldValue,
+			newValue,
+			maxLength: 30,
+			afterSet: () => { document.title = `${doc.song.title} - ${EditorConfig.versionDisplayName}`; },
+		});
 	}
 }
 
-export class ChangeChannelName extends Change {
+export class ChangeChannelName extends ChangeFieldValue<string> {
 	constructor(doc: SongDocument, oldValue: string, newValue: string) {
-		super();
-		if (newValue.length > 15) {
-			newValue = newValue.substring(0, 15);
-		}
-
-		doc.song.channels[doc.muteEditorChannel].name = newValue;
-		doc.recalcChannelNames = true;
-
-		doc.notifier.changed();
-		if (oldValue !== newValue) this._didSomething();
+		super(doc, {
+			target: doc.song.channels[doc.muteEditorChannel],
+			property: "name",
+			oldValue,
+			newValue,
+			maxLength: 15,
+			afterSet: () => { doc.recalcChannelNames = true; },
+		});
 	}
 }
 
-export class ChangePan extends Change {
+export class ChangePan extends ChangeFieldValue<number> {
 	constructor(doc: SongDocument, oldValue: number, newValue: number) {
-		super();
-		doc.getCurrentInstrumentObj().pan = newValue;
-		doc.synth.unsetMod(Config.modulators.dictionary.pan.index, doc.channel, doc.getCurrentInstrument());
-		doc.notifier.changed();
-		if (oldValue !== newValue) this._didSomething();
+		super(doc, {
+			target: doc.getCurrentInstrumentObj(),
+			property: "pan",
+			oldValue,
+			newValue,
+			unsetModKey: Config.modulators.dictionary.pan.index,
+		});
 	}
 }
 
-export class ChangePanDelay extends Change {
+export class ChangePanDelay extends ChangeFieldValue<number> {
 	constructor(doc: SongDocument, oldValue: number, newValue: number) {
-		super();
-		doc.getCurrentInstrumentObj().panDelay = newValue;
-		doc.notifier.changed();
-		if (oldValue !== newValue) this._didSomething();
+		super(doc, {
+			target: doc.getCurrentInstrumentObj(),
+			property: "panDelay",
+			oldValue,
+			newValue,
+		});
 	}
 }
 

@@ -167,6 +167,7 @@ export {
 	ChangeCloneChannel,
 	ChangeCustomScale,
 	ChangeDeleteBars,
+	ChangeFieldValue,
 	ChangeInsertBars,
 	ChangeInstrumentsFlags,
 	ChangeKey,

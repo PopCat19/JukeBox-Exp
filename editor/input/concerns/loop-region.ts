@@ -5,6 +5,6 @@
 // This module:
 // - Re-exports loop-region-scoped bindings from the central inventory
 
-import { inputBindings } from "../inventory";
+import { byConcern } from "./by-concern";
 
-export const loopRegionBindings = inputBindings.filter((b) => b.concern === "loop-region");
+export const loopRegionBindings = byConcern("loop-region");

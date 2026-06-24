@@ -5,6 +5,6 @@
 // This module:
 // - Re-exports navigation-scoped bindings from the central inventory
 
-import { inputBindings } from "../inventory";
+import { byConcern } from "./by-concern";
 
-export const navigationBindings = inputBindings.filter((b) => b.concern === "navigation");
+export const navigationBindings = byConcern("navigation");

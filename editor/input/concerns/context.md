@@ -14,4 +14,5 @@
 - `loop-region.ts`, input bindings for loop region concern
 - `track-scroll.ts`, input bindings for track scroll concern
 - `mod-recording.ts`, input bindings for mod recording concern
+- `by-concern.ts`, helper to filter input bindings by concern
 - `index.ts`, aggregates all concern binding slices

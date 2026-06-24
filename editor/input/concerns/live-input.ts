@@ -5,6 +5,6 @@
 // This module:
 // - Re-exports live-input-scoped bindings from the central inventory
 
-import { inputBindings } from "../inventory";
+import { byConcern } from "./by-concern";
 
-export const liveInputBindings = inputBindings.filter((b) => b.concern === "live-input");
+export const liveInputBindings = byConcern("live-input");

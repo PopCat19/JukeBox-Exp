@@ -5,6 +5,6 @@
 // This module:
 // - Re-exports selection-scoped bindings from the central inventory
 
-import { inputBindings } from "../inventory";
+import { byConcern } from "./by-concern";
 
-export const selectionBindings = inputBindings.filter((b) => b.concern === "selection");
+export const selectionBindings = byConcern("selection");

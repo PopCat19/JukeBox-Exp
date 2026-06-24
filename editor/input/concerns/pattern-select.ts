@@ -5,6 +5,6 @@
 // This module:
 // - Re-exports pattern-select-scoped bindings from the central inventory
 
-import { inputBindings } from "../inventory";
+import { byConcern } from "./by-concern";
 
-export const patternSelectBindings = inputBindings.filter((b) => b.concern === "pattern-select");
+export const patternSelectBindings = byConcern("pattern-select");

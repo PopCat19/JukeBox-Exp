@@ -5,6 +5,6 @@
 // This module:
 // - Re-exports channels-scoped bindings from the central inventory
 
-import { inputBindings } from "../inventory";
+import { byConcern } from "./by-concern";
 
-export const channelsBindings = inputBindings.filter((b) => b.concern === "channels");
+export const channelsBindings = byConcern("channels");
