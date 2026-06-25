@@ -46,8 +46,9 @@ an uncovered module.
 | `synth/synthesis/supersaw.ts` | `tests/synthesis.test.ts` | buildSupersawSource |
 | `synth/config/` | `tests/barrel-exports.test.ts` | Config, types, utils barrel |
 | `synth/formats/` | `tests/barrel-exports.test.ts` | JukeboxExp + legacy compat barrel |
+| `synth/synth.ts` | `tests/synth-contract.test.ts` | Public API surface after extraction (sanitizeFilters delegation, removed legacy fields) |
 
-**Untested synth modules:** `synth.ts`, `tone.ts`, `channels.ts`, `channel-state.ts`,
+**Untested synth modules:** `tone.ts`, `channels.ts`, `channel-state.ts`,
 `envelope-computer.ts`, `mod-state.ts`, `fft.ts`, `waves.ts`, `deque.ts`,
 `picked-string.ts`, `song-utilities.ts`, `instrument-state.ts`,
 `config/sample-loader.ts` (barrel verified),

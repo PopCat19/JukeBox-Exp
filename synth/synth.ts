@@ -4053,6 +4053,10 @@ export class Synth {
 		return this.samplesPerSecond / tickPerSecond;
 	}
 
+	public sanitizeFilters(filters: DynamicBiquadFilter[]): void {
+		return this._postProc.sanitizeFilters(filters);
+	}
+
 	public static sanitizeDelayLine(delayLine: Float32Array, lastIndex: number, mask: number): void {
 		sanitizeDelayLine(delayLine, lastIndex, mask);
 	}

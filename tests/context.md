@@ -17,6 +17,7 @@ Purpose: bun:test test files covering editor, synth, and shared modules.
 - `song-round-trip.test.ts`, Integration tests for song serialization round-trip encode/decode
 - `song-serialization.test.ts`, Unit tests for song serialization API and failure resilience
 - `synthesis.test.ts`, Unit tests for synthesis source string builders (chip, drum, effects, FM, FM6, harmonics, noise, picked-string, pulse, spectrum, supersaw)
+- `synth-contract.test.ts`, Regression tests for Synth public API surface after extraction (sanitizeFilters delegation, removed legacy fields)
 - `synth-math.test.ts`, Unit tests for pure synth math utilities (getLFOAmplitude, computeChordExpression, operatorAmplitudeCurve, adjacentNotesHaveMatchingPitches, volume conversion round-trips)
 - `synth-utilities.test.ts`, Unit tests for synth utility functions
 

@@ -86,7 +86,7 @@ export class PostProcessingState {
 				sampleR *= eqFilterVolume;
 				outputDataR[i] = sampleR;
 				eqFilterVolume += eqFilterVolumeDelta;
-				this._sanitizeFilters(filtersL);
+				this.sanitizeFilters(filtersL);
 				if (!(initialFilterInput1L < 100) || !(initialFilterInput2L < 100)) {
 					initialFilterInput1L = 0.0;
 					initialFilterInput2L = 0.0;
@@ -95,7 +95,7 @@ export class PostProcessingState {
 				if (Math.abs(initialFilterInput2L) < epsilon) initialFilterInput2L = 0.0;
 				this.initialSongEqFilterInput1L = initialFilterInput1L;
 				this.initialSongEqFilterInput2L = initialFilterInput2L;
-				this._sanitizeFilters(filtersR);
+				this.sanitizeFilters(filtersR);
 				if (!(initialFilterInput1R < 100) || !(initialFilterInput2R < 100)) {
 					initialFilterInput1R = 0.0;
 					initialFilterInput2R = 0.0;
@@ -127,7 +127,7 @@ export class PostProcessingState {
 		}
 	}
 
-	private _sanitizeFilters(filters: DynamicBiquadFilter[]): void {
+	public sanitizeFilters(filters: DynamicBiquadFilter[]): void {
 		let reset: boolean = false;
 		for (const filter of filters) {
 			const output1: number = Math.abs(filter.output1);
