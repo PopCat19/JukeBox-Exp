@@ -1,6 +1,7 @@
 # editor/core context
 
 - `index.ts`, Barrel re-export of editor core modules
+- `history-manager.ts`, Abstraction over browser undo/redo history with dual-mode storage (window.history + sessionStorage fallback)
 - `change.ts`, Defines base classes for undoable and grouped editor mutations
 - `change-notifier.ts`, Implements observer pattern for notifying editor components of state changes
 - `change-dispatcher.ts`, Dispatches UI change events for instrument and song settings
@@ -13,7 +14,7 @@
 - `menu-handler.ts`, Handles menu change events for file, edit, and preferences menus
 - `mod-slider-registry.ts`, Maps mod setting indices to Slider refs via a provider interface
 - `player-animator.ts`, Drives animation-frame loop for playback UI updates
-- `preferences.ts`, Manages user preference settings with localStorage persistence
+- `preferences.ts`, Manages user preference settings with localStorage persistence via data-driven preference schema
 - `prompt-focus-controller.ts`, Manages Hyprland-style focus behavior for prompt dialogs
 - `prompt-dock.ts`, Snaps prompts to the L/R edge outside the editor with up to two stacked slots per side and resizable dividers
 - `prompt-manager.ts`, owns prompt stack, focus, drag, position memory, and enter/exit animation

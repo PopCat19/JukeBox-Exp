@@ -3,7 +3,7 @@
 // Purpose: Central song document model managing undo history, synth, and editor state
 //
 // This module:
-// - Manages song data, undo/redo history, and change tracking
+// - Manages song data, undo/redo history (delegated to HistoryManager), and change tracking
 // - Coordinates synth playback and editor selection state
 // - Handles URL persistence and song recovery
 
@@ -17,22 +17,16 @@ import { type ChangeHoldingModRecording, ChangeSong, discardInvalidPatternInstru
 import { isMobile } from "./config/editor-config";
 import type { Change } from "./core/change";
 import { ChangeNotifier } from "./core/change-notifier";
+import { BrowserHistoryManager, type HistoryManager, type HistoryState } from "./core/history-manager";
+import { errorAlert, generateUid } from "./io/song-recovery";
 import { Preferences } from "./core/preferences";
 import { Selection } from "./core/selection";
 import { SongPerformance } from "./core/song-performance";
-import { errorAlert, generateUid, SongRecovery } from "./io/song-recovery";
+
 import { createCustomSampleHandler } from "./song-custom-samples";
 import { Layout } from "./ui";
 
-interface HistoryState {
-	canUndo: boolean;
-	sequenceNumber: number;
-	bar: number;
-	channel: number;
-	instrument: number;
-	recoveryUid: string;
-	selection: { x0: number; x1: number; y0: number; y1: number; start: number; end: number };
-}
+
 
 export class SongDocument {
 	public colorTheme: string;
@@ -71,12 +65,10 @@ export class SongDocument {
 	public currentPatternIsDirty: boolean = false;
 	public modRecordingHandler: () => void;
 
-	private static readonly _maximumUndoHistory: number = 300;
-	private _recovery: SongRecovery = new SongRecovery();
+	private _history: HistoryManager;
 	private _recoveryUid: string;
 	private _recentChange: Change | null = null;
 	private _sequenceNumber: number = 0;
-	private _lastSequenceNumber: number = 0;
 	private _stateShouldBePushed: boolean = false;
 	private _recordedNewSong: boolean = false;
 	public _waitingToUpdateState: boolean = false;
@@ -87,15 +79,11 @@ export class SongDocument {
 		ColorConfig.setTheme(this.prefs.colorTheme);
 		Layout.setLayout(this.prefs.layout);
 
-		if (window.sessionStorage.getItem("currentUndoIndex") == null) {
-			window.sessionStorage.setItem("currentUndoIndex", "0");
-			window.sessionStorage.setItem("oldestUndoIndex", "0");
-			window.sessionStorage.setItem("newestUndoIndex", "0");
-		}
+		this._history = new BrowserHistoryManager(() => this.prefs.displayBrowserUrl);
 
 		let songString: string = window.location.hash;
 		if (songString === "") {
-			songString = this._getHash();
+			songString = this._history.getHash();
 		}
 		try {
 			this.song = new Song(songString, createCustomSampleHandler());
@@ -115,7 +103,7 @@ export class SongDocument {
 		this.synth.volume = this._calcVolume();
 		this.synth.anticipatePoorPerformance = isMobile;
 
-		let state: HistoryState | null = this._getHistoryState();
+		let state: HistoryState | null = this._history.getState();
 		if (state == null) {
 			// When the page is first loaded, indicate that undo is NOT possible.
 			state = {
@@ -129,10 +117,8 @@ export class SongDocument {
 			};
 		}
 		if (state.recoveryUid === undefined) state.recoveryUid = generateUid();
-		this._replaceState(state, songString);
-		window.addEventListener("hashchange", this._whenHistoryStateChanged);
-		window.addEventListener("popstate", this._whenHistoryStateChanged);
-
+		this._history.replaceState(state, songString);
+		this._history.onChange(this._whenHistoryStateChanged);
 		this.bar = state.bar | 0;
 		if (window.sessionStorage.getItem("resetBarOnLoad") === "1") {
 			window.sessionStorage.removeItem("resetBarOnLoad");
@@ -166,88 +152,24 @@ export class SongDocument {
 	}
 
 	public toggleDisplayBrowserUrl() {
-		const state: HistoryState | null = this._getHistoryState();
+		const state: HistoryState | null = this._history.getState();
 		if (state == null) throw new Error("History state is null.");
 		this.prefs.displayBrowserUrl = !this.prefs.displayBrowserUrl;
-		this._replaceState(state, this.song.toBase64String());
+		this._history.replaceState(state, this.song.toBase64String());
 	}
 
-	private _getHistoryState(): HistoryState | null {
-		if (this.prefs.displayBrowserUrl) {
-			return window.history.state;
-		} else {
-			const json: any = JSON.parse(window.sessionStorage.getItem(window.sessionStorage.getItem("currentUndoIndex")!)!);
-			return json == null ? null : json.state;
-		}
-	}
-
-	private _getHash(): string {
-		if (this.prefs.displayBrowserUrl) {
-			return window.location.hash;
-		} else {
-			const json: any = JSON.parse(window.sessionStorage.getItem(window.sessionStorage.getItem("currentUndoIndex")!)!);
-			return json == null ? "" : json.hash;
-		}
-	}
-
-	private _replaceState(state: HistoryState, hash: string): void {
-		if (this.prefs.displayBrowserUrl) {
-			window.history.replaceState(state, "", `#${hash}`);
-		} else {
-			window.sessionStorage.setItem(window.sessionStorage.getItem("currentUndoIndex") || "0", JSON.stringify({ state, hash }));
-			window.history.replaceState(null, "", location.pathname);
-		}
-	}
-
-	private _pushState(state: HistoryState, hash: string): void {
-		if (this.prefs.displayBrowserUrl) {
-			window.history.pushState(state, "", `#${hash}`);
-		} else {
-			let currentIndex: number = Number(window.sessionStorage.getItem("currentUndoIndex"));
-			let oldestIndex: number = Number(window.sessionStorage.getItem("oldestUndoIndex"));
-			currentIndex = (currentIndex + 1) % SongDocument._maximumUndoHistory;
-			window.sessionStorage.setItem("currentUndoIndex", String(currentIndex));
-			window.sessionStorage.setItem("newestUndoIndex", String(currentIndex));
-			if (currentIndex === oldestIndex) {
-				oldestIndex = (oldestIndex + 1) % SongDocument._maximumUndoHistory;
-				window.sessionStorage.setItem("oldestUndoIndex", String(oldestIndex));
-			}
-			window.sessionStorage.setItem(String(currentIndex), JSON.stringify({ state, hash }));
-			window.history.replaceState(null, "", location.pathname);
-		}
-		this._lastSequenceNumber = state.sequenceNumber;
-	}
+	
 
 	public hasRedoHistory(): boolean {
-		return this._lastSequenceNumber > this._sequenceNumber;
+		return this._history.canRedo;
 	}
 
 	private _forward(): void {
-		if (this.prefs.displayBrowserUrl) {
-			window.history.forward();
-		} else {
-			let currentIndex: number = Number(window.sessionStorage.getItem("currentUndoIndex"));
-			const newestIndex: number = Number(window.sessionStorage.getItem("newestUndoIndex"));
-			if (currentIndex !== newestIndex) {
-				currentIndex = (currentIndex + 1) % SongDocument._maximumUndoHistory;
-				window.sessionStorage.setItem("currentUndoIndex", String(currentIndex));
-				setTimeout(this._whenHistoryStateChanged);
-			}
-		}
+		this._history.forward();
 	}
 
 	private _back(): void {
-		if (this.prefs.displayBrowserUrl) {
-			window.history.back();
-		} else {
-			let currentIndex: number = Number(window.sessionStorage.getItem("currentUndoIndex"));
-			const oldestIndex: number = Number(window.sessionStorage.getItem("oldestUndoIndex"));
-			if (currentIndex !== oldestIndex) {
-				currentIndex = (currentIndex + SongDocument._maximumUndoHistory - 1) % SongDocument._maximumUndoHistory;
-				window.sessionStorage.setItem("currentUndoIndex", String(currentIndex));
-				setTimeout(this._whenHistoryStateChanged);
-			}
-		}
+		this._history.back();
 	}
 
 	private _whenHistoryStateChanged = (): void => {
@@ -270,15 +192,11 @@ export class SongDocument {
 				selection: this.selection.toJSON(),
 			};
 			try {
-				new ChangeSong(this, this._getHash());
+				new ChangeSong(this, this._history.getHash());
 			} catch (error) {
 				errorAlert(error);
 			}
-			if (this.prefs.displayBrowserUrl) {
-				this._replaceState(state, this.song.toBase64String());
-			} else {
-				this._pushState(state, this.song.toBase64String());
-			}
+			this._history.replaceState(state, this.song.toBase64String());
 			this.forgetLastChange();
 			this.synth.pause();
 			this.synth.goToBar(0);
@@ -287,7 +205,7 @@ export class SongDocument {
 			return;
 		}
 
-		const state: HistoryState | null = this._getHistoryState();
+		const state: HistoryState | null = this._history.getState();
 		if (state == null) throw new Error("History state is null.");
 
 		// Abort if we've already handled the current state.
@@ -298,7 +216,7 @@ export class SongDocument {
 		this.viewedInstrument[this.channel] = state.instrument;
 		this._sequenceNumber = state.sequenceNumber;
 		try {
-			new ChangeSong(this, this._getHash());
+			new ChangeSong(this, this._history.getHash());
 		} catch (error) {
 			errorAlert(error);
 		}
@@ -422,7 +340,7 @@ export class SongDocument {
 		if (this._recordedNewSong) {
 			this._resetSongRecoveryUid();
 		} else {
-			this._recovery.saveVersion(this._recoveryUid, this.song.title, hash);
+			this._history.recovery.saveVersion(this._recoveryUid, this.song.title, hash);
 		}
 		const state: HistoryState = {
 			canUndo: true,
@@ -434,9 +352,9 @@ export class SongDocument {
 			selection: this.selection.toJSON(),
 		};
 		if (this._stateShouldBePushed) {
-			this._pushState(state, hash);
+			this._history.pushState(state, hash);
 		} else {
-			this._replaceState(state, hash);
+			this._history.replaceState(state, hash);
 		}
 		this._stateShouldBePushed = false;
 		this._recordedNewSong = false;
@@ -470,7 +388,7 @@ export class SongDocument {
 	}
 
 	public undo(): void {
-		const state: HistoryState | null = this._getHistoryState();
+		const state: HistoryState | null = this._history.getState();
 		if (state == null || state.canUndo) this._back();
 	}
 
