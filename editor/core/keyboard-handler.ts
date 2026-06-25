@@ -232,12 +232,19 @@ export class KeyboardHandler {
 					host.toggleRecord();
 				} else if (event.shiftKey) {
 					const moved = host.movePlayheadToMouseTrack() || host.movePlayheadToMousePattern();
-					if (moved || doc.synth.playing) {
-						if (doc.synth.playing) {
-							doc.synth.pause();
-						}
-						doc.performance.play();
+					if (!moved) {
+						// No mouse hover position — play from current editor bar
+						doc.synth.goToBar(doc.bar);
+						doc.synth.snapToBar();
+					} else {
+						// Synth playhead moved to hover position — sync pattern
+						// view to follow.
+						doc.selection.setChannelBar(doc.channel, Math.floor(doc.synth.playhead));
 					}
+					if (doc.synth.playing) {
+						doc.synth.pause();
+					}
+					doc.performance.play();
 					if (Math.floor(doc.synth.playhead) < doc.synth.loopBarStart || Math.floor(doc.synth.playhead) > doc.synth.loopBarEnd) {
 						doc.synth.loopBarStart = -1;
 						doc.synth.loopBarEnd = -1;
