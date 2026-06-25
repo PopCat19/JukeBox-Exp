@@ -202,7 +202,7 @@ export class Synth {
 	private _stopFadeSamplesRemaining: number = 0;
 	/** Total samples at the start of the fade — for linear ramp. */
 	private _stopFadeSamplesTotal: number = 0;
-	private static readonly STOP_FADE_DURATION_MS: number = 3000;
+	private static readonly STOP_FADE_DURATION_MS: number = 800;
 
 	public readonly channels: ChannelState[] = [];
 	private readonly tonePool: Deque<Tone> = new Deque<Tone>();
@@ -675,26 +675,29 @@ export class Synth {
 		// Start spectrum decay loop so it fades smoothly instead of freezing
 		this._startSpectrumDecay();
 
-		// Move active tones to released state so they ring out naturally via
-		// fadeOutTicks, instead of calling freeAllTones() which kills them.
-		for (const channelState of this.channels) {
-			for (const instrumentState of channelState.instruments) {
-				while (instrumentState.activeTones.count() > 0) {
-					this.releaseTone(instrumentState, instrumentState.activeTones.popBack());
-				}
-				while (instrumentState.activeModTones.count() > 0) {
-					this.releaseTone(instrumentState, instrumentState.activeModTones.popBack());
-				}
-				while (instrumentState.liveInputTones.count() > 0) {
-					this.releaseTone(instrumentState, instrumentState.liveInputTones.popBack());
-				}
-			}
-		}
+		// Keep active tones as-is — don't release them. With isPlayingSong=false,
+		// the song won't advance and no new notes will be created, but existing
+		// active tones continue producing their waveform. The master gain ramp in
+		// synthesize() handles the smooth fade out. This avoids the "blip blip blip"
+		// of each tone hitting its fadeOutTicks cutoff and going silent early.
 
 		// Start master gain fade: the worklet keeps calling synthesize() with
 		// playSong=false until the fade completes or the queue drains.
 		this._stopFadeSamplesTotal = Math.round(Synth.STOP_FADE_DURATION_MS * 0.001 * this.samplesPerSecond);
 		this._stopFadeSamplesRemaining = this._stopFadeSamplesTotal;
+
+		// Debug: count active tones at fade start
+		if (AudioBackend._debugSynthEnabled()) {
+			let activeCount = 0;
+			let releasedCount = 0;
+			for (const channelState of this.channels) {
+				for (const instrumentState of channelState.instruments) {
+					activeCount += instrumentState.activeTones.count();
+					releasedCount += instrumentState.releasedTones.count();
+				}
+			}
+			this._dbg("Fade start: fadeSamples=", this._stopFadeSamplesTotal, "activeTones=", activeCount, "releasedTones=", releasedCount);
+		}
 
 		// Don't free tones, clear mods, or reset effects — let the fade
 		// ramp in synthesize() handle cleanup on completion.
@@ -1268,12 +1271,12 @@ export class Synth {
 						let tonesPlayedInThisInstrument: number = instrumentState.activeTones.count() + instrumentState.liveInputTones.count();
 
 						for (let i: number = 0; i < instrumentState.releasedTones.count(); i++) {
-							const tone: Tone = instrumentState.releasedTones.get(i);
-							if (tone.ticksSinceReleased >= Math.abs(instrument.getFadeOutTicks())) {
-								this.freeReleasedTone(instrumentState, i);
-								i--;
-								continue;
-							}
+						const tone: Tone = instrumentState.releasedTones.get(i);
+						if (tone.ticksSinceReleased >= Math.abs(instrument.getFadeOutTicks())) {
+							this.freeReleasedTone(instrumentState, i);
+							i--;
+							continue;
+						}
 							const shouldFadeOutFast: boolean = tonesPlayedInThisInstrument >= Config.maximumTonesPerChannel;
 							this.computeTone(song, channelIndex, samplesPerTick, tone, true, shouldFadeOutFast);
 							tonesPlayedInThisInstrument++;
