@@ -579,8 +579,8 @@ export class Synth {
 	private _toAudioHost(): AudioBackendHost {
 		return {
 			synthesize: (l, r, len, play) => this.synthesize(l, r, len, play),
-			isPlayingSong: this.isPlayingSong,
-			liveInputEndTime: this.liveInputEndTime,
+			isPlayingSong: () => this.isPlayingSong,
+			liveInputEndTime: () => this.liveInputEndTime,
 			spectrumEnabled: this.spectrumEnabled,
 			onSpectrumUpdate: this.onSpectrumUpdate,
 			onSpectrumReset: this.onSpectrumReset,

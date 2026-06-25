@@ -13,8 +13,10 @@ import { AUDIO_WORKLET_PROCESSOR_CODE } from "./audio-worklet-processor";
 /** Interface for the host object that owns the audio backend. */
 export interface AudioBackendHost {
 	synthesize(outputDataL: Float32Array, outputDataR: Float32Array, outputBufferLength: number, playSong: boolean): void;
-	isPlayingSong: boolean;
-	liveInputEndTime: number;
+	/** Live-read — always returns the caller's current value. */
+	isPlayingSong(): boolean;
+	/** Live-read — always returns the caller's current value. */
+	liveInputEndTime(): number;
 	spectrumEnabled: boolean;
 	onSpectrumUpdate: ((left: Float32Array, right: Float32Array) => void) | undefined;
 	onSpectrumReset: (() => void) | undefined;
@@ -31,6 +33,7 @@ export class AudioBackend {
 	private _activateAudioPromise: Promise<void> | null = null;
 	private _gestureListenerAdded: boolean = false;
 	private _lastSpectrumUpdateTime: number = 0;
+	private _spectrumDecayStarted: boolean = false;
 	private _logNeedDataCount: number = 0;
 	private static readonly SPECTRUM_UPDATE_INTERVAL_MS: number = 1000 / 60;
 
@@ -184,7 +187,8 @@ export class AudioBackend {
 	}
 
 	public startSpectrumDecay(host: AudioBackendHost): void {
-		if (this._lastSpectrumUpdateTime !== 0) return; // already decaying
+		if (this._spectrumDecayStarted) return;
+		this._spectrumDecayStarted = true;
 		if (host.onSpectrumReset) host.onSpectrumReset();
 	}
 
@@ -194,14 +198,15 @@ export class AudioBackend {
 
 	private _onWorkletNeedData(host: AudioBackendHost): void {
 		this._logNeedDataCount++;
+		const isPlayingSong: boolean = host.isPlayingSong();
 		if (this._logNeedDataCount <= 5 || this._logNeedDataCount % 100 === 0) {
 			this._dbg(
-				`need-data #${this._logNeedDataCount}, isPlayingSong:`, host.isPlayingSong,
-				"liveInputEndTime:", host.liveInputEndTime, "now:", performance.now(),
+				`need-data #${this._logNeedDataCount}, isPlayingSong:`, isPlayingSong,
+				"liveInputEndTime:", host.liveInputEndTime(), "now:", performance.now(),
 			);
 		}
 
-		if (!host.isPlayingSong && performance.now() >= host.liveInputEndTime) {
+		if (!isPlayingSong && performance.now() >= host.liveInputEndTime()) {
 			this._dbg("Not playing and live input expired, deactivating");
 			this.deactivate();
 			return;
@@ -209,7 +214,7 @@ export class AudioBackend {
 
 		const left = new Float32Array(this._currentBufferSize);
 		const right = new Float32Array(this._currentBufferSize);
-		host.synthesize(left, right, this._currentBufferSize, host.isPlayingSong);
+		host.synthesize(left, right, this._currentBufferSize, isPlayingSong);
 
 		if (host.spectrumEnabled) {
 			const now = performance.now();
@@ -229,10 +234,11 @@ export class AudioBackend {
 	public primeWorklet(host: AudioBackendHost): void {
 		if (this._workletPrimed || this._workletNode == null) return;
 		this._dbg("Priming worklet queue with 2 buffers...");
+		const isPlayingSong: boolean = host.isPlayingSong();
 		for (let i = 0; i < 2; i++) {
 			const left = new Float32Array(this._currentBufferSize);
 			const right = new Float32Array(this._currentBufferSize);
-			host.synthesize(left, right, this._currentBufferSize, host.isPlayingSong);
+			host.synthesize(left, right, this._currentBufferSize, isPlayingSong);
 			if (this._workletNode != null) {
 				this._workletNode.port.postMessage({ type: "audio", left, right }, [left.buffer, right.buffer]);
 			}
