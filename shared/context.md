@@ -14,3 +14,4 @@ Purpose: Shared kernel — code no single domain owns but multiple domains use.
 
 - `pmd/`, PMD (Palette Meta-Designer) color system utilities
 - `themes/`, 58 color theme definitions as CSS variable maps
+- `styles/`, Shared design token stylesheets eliminated duplicate CSS between editor and player
