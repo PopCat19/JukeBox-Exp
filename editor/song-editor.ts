@@ -2564,17 +2564,27 @@ export class SongEditor
 		// last clicked element instead of toggling playback.
 		// Excludes text inputs and contenteditable elements.
 		// Uses document-level listener to cover prompts outside mainLayer.
-		const blurOnClick = (e: Event): void => {
-			const target: HTMLElement = e.target as HTMLElement;
-			if (target.matches("input[type=range]")) {
-				this.mainLayer.focus();
-			} else if (target.matches("button, select")) {
-				// Defer so the click handler runs first.
+		// Blur buttons and selects on mousedown (fires before focus transfer)
+		// so subsequent Space keydown goes to mainLayer instead of the element.
+		// Without this, clicking a button or select leaves focus on it, and
+		// pressing Space toggles the element's default behavior (e.g. opening
+		// a select dropdown) instead of toggling playback.
+		// Blur buttons after mouseup so Space toggles playback.
+		// For selects, intercept Space at keydown (native opens dropdown).
+		document.addEventListener("mouseup", (e: Event) => {
+			const target = e.target as HTMLElement;
+			if (target.closest("button, select")) {
 				setTimeout(() => this.mainLayer.focus({ preventScroll: true }), 0);
 			}
-		};
-		document.addEventListener("pointerup", blurOnClick);
-		document.addEventListener("touchend", blurOnClick);
+		});
+		document.addEventListener("keydown", (e: KeyboardEvent) => {
+			if (!e.keyCode || e.keyCode !== 32) return;
+			const target = e.target as HTMLElement;
+			if (target.closest("select")) {
+				e.preventDefault();
+				this.mainLayer.focus({ preventScroll: true });
+			}
+		});
 		this._animator = new PlayerAnimator(this.doc, {
 			modSliderUpdate: () => this._modSliderUpdate(),
 			getCtrlHeld: () => this._ctrlHeld,
