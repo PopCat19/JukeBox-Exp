@@ -79,7 +79,7 @@ export class PlayerAnimator {
 		// pass, modSliderUpdate's !playing branch already cleared mod
 		// sliders and _hasActiveModSliders, so stop rescheduling to free
 		// rAF while paused. start() re-arms the loop on the next play.
-		const keepRunning: boolean = this._doc.synth.playing || this._doc.synth.recording || this._doc.recordingModulators;
+		const keepRunning: boolean = this._doc.synth.playing || this._doc.synth.fadingOut || this._doc.synth.recording || this._doc.recordingModulators;
 		if (keepRunning) {
 			window.requestAnimationFrame(this.animate);
 		} else {

@@ -260,6 +260,10 @@ export class Synth {
 		return this.isPlayingSong;
 	}
 
+	public get fadingOut(): boolean {
+		return this._stopFadeSamplesRemaining > 0;
+	}
+
 	public get recording(): boolean {
 		return this.isRecording;
 	}
