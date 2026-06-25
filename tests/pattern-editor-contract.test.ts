@@ -15,6 +15,10 @@
 //   so fast-path fillRect uses stale fillStyle (pitchBg from background). Note
 //   paints with wrong color and ctx.fill() is a no-op on an empty path (Bug 1
 //   residual).
+// - Seam gaps: fast-path fillRect paints at full radius*2 height which with
+//   pitchBorder=0 produces pitchHeight+2 — erasing vertical seam between
+//   adjacent rows. Width endOffset alone doesn't guarantee gap at DPR 2.
+//   Both must be capped to maintain 1px gaps.
 //
 // These invariants are verified by scanning the source file at test time,
 // because pattern-editor depends on a live DOM + canvas context and cannot
@@ -131,7 +135,28 @@ describe("pattern-editor rendering contract", () => {
 	});
 
 	// -----------------------------------------------------------------------
-	// Category C: SVG/canvas y-center alignment
+	// Category D: Seam gap invariants — note body size must leave
+	// visible gaps between adjacent notes horizontally and vertically.
+	// -----------------------------------------------------------------------
+	test("fast-path seamH is capped at pitchHeight - 1 (1px vertical gap)", () => {
+		const body = functionBody(lines, drawNoteToCanvasIdx);
+		// The fast-path must cap height against pitchHeight to keep gaps.
+		const hasCapH = body.some((l) => l.includes("this._pitchHeight - 1"));
+		expect(hasCapH).toBeTrue();
+		const hasMin = body.some((l) => l.includes("Math.min(maxH, snap(radius * 2 * scale))"));
+		expect(hasMin).toBeTrue();
+	});
+
+	test("fast-path seamW is capped at partWidth - 1 (1px horizontal gap)", () => {
+		const body = functionBody(lines, drawNoteToCanvasIdx);
+		const hasCapW = body.some((l) => l.includes("this._partWidth - 1"));
+		expect(hasCapW).toBeTrue();
+		const hasMin = body.some((l) => l.includes("Math.min(maxW, Math.max(1, snap(totalW - 2 * endOff)))"));
+		expect(hasMin).toBeTrue();
+	});
+
+	// -----------------------------------------------------------------------
+	// Category E: SVG/canvas y-center alignment
 	// -----------------------------------------------------------------------
 	test("_drawNote uses snap() for y-center to match canvas DPR rounding", () => {
 		const body = functionBody(lines, drawNoteIdx);
