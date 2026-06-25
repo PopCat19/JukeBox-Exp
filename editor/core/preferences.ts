@@ -4,124 +4,166 @@
 //
 // This module:
 // - Stores editor display, behavior, and audio preferences
-// - Handles preference serialization and defaults
+// - Uses a data-driven preference schema to eliminate repetitive getItem/setItem pairs
+// - Fixes original typo in notesFlashWhenPlayed reload check ("flase" → "false")
 
 // Copyright (c) 2012-2022 John Nesky and contributing authors, distributed under the MIT license, see accompanying the LICENSE.md file.
 
 import { ColorConfig } from "../../shared/color-config";
 import { Config, type Scale } from "../../synth/synth-config";
 
-export class Preferences {
-	public static readonly defaultVisibleOctaves: number = 4; // slarmoo's: 3
+type PrefEntry<T = any> = {
+	key: string;
+	default: T;
+	// parse: optional custom deserializer; only called when raw is non-null
+	parse?: (raw: string) => T;
+	// serialize: optional custom serializer; default uses String()
+	serialize?: (val: T) => string;
+};
 
-	public customTheme: string | null;
-	public customTheme2: string | null;
-	public autoPlay: boolean;
-	public autoFollow: boolean;
-	public centerFollow: boolean;
-	public enableNotePreview: boolean;
+// Schema: one entry per stored preference.  Entries at the end handle
+// special cases (scale, fullScreen migration) that don't fit the pattern.
+const prefSchema: PrefEntry[] = [
+	// --- Booleans defaulting to true ---
+	{ key: "autoFollow", default: true },
+	{ key: "enableNotePreview", default: true },
+	{ key: "showFifth", default: true },
+	{ key: "notesOutsideScale", default: true },
+	{ key: "showLetters", default: true },
+	{ key: "showChannels", default: true },
+	{ key: "showScrollBar", default: true },
+	{ key: "displayVolumeBar", default: true },
+	{ key: "instrumentCopyPaste", default: true },
+	{ key: "instrumentImportExport", default: true },
+	{ key: "instrumentButtonsAtTop", default: true },
+	{ key: "enableChannelMuting", default: true },
+	{ key: "enableMidi", default: true },
+	{ key: "metronomeCountIn", default: true },
+	{ key: "metronomeWhileRecording", default: true },
+	{ key: "showSampleLoadingStatus", default: true },
+	{ key: "showDescription", default: true },
+	{ key: "showInstrumentScrollbars", default: true },
+	{ key: "closePromptByClickoff", default: true },
+	{ key: "showPromptBackdrop", default: true },
+	{ key: "displayBrowserUrl", default: true },
+	{ key: "enableTagSearch", default: true },
+	// notesFlashWhenPlayed: original code had a typo ("flase" for "false")
+	// which meant saving "false" still produced true on reload. Fixed here.
+	{ key: "notesFlashWhenPlayed", default: true },
+	// --- Booleans defaulting to false ---
+	{ key: "autoPlay", default: false },
+	{ key: "centerFollow", default: false },
+	{ key: "alwaysFineNoteVol", default: false },
+	{ key: "pressControlForShortcuts", default: false },
+	{ key: "showRecordButton", default: false },
+	{ key: "snapRecordedNotesToRhythm", default: false },
+	{ key: "ignorePerformedNotesNotInScale", default: false },
+	{ key: "showSpectrum", default: false },
+	{ key: "showSpectrumOverlay", default: false },
+	{ key: "showSpectrumParticles", default: false },
+	{ key: "enableScrollStep", default: false },
+	{ key: "doubleClickSliderReset", default: false },
+	{ key: "rollNoveltyPresets", default: false },
+	// --- Strings ---
+	{ key: "keyboardLayout", default: "pianoTransposingC" },
+	{ key: "layout", default: "long" },
+	{ key: "colorTheme", default: ColorConfig.defaultTheme },
+	{ key: "customTheme", default: null },
+	{ key: "customTheme2", default: null },
+	// --- Numbers ---
+	{ key: "volume", default: 75, parse: (raw) => Math.min(Number(raw) >>> 0, 75) },
+	{ key: "visibleOctaves", default: 4, parse: (raw) => Number(raw) >>> 0 || 4 },
+	{ key: "bassOffset", default: 0, parse: (raw) => +raw || 0 },
+	// --- Debug (stored as "1"/"0", not "true"/"false") ---
+	{ key: "debugPrompts", default: false, parse: (raw) => raw === "1", serialize: (v) => v ? "1" : "0" },
+	{ key: "debugSynth", default: false, parse: (raw) => raw === "1", serialize: (v) => v ? "1" : "0" },
+];
+
+function parsePref(entry: PrefEntry, raw: string | null): any {
+	if (raw === null) return entry.default;
+	if (entry.parse) return entry.parse(raw);
+	// Default: boolean
+	if (typeof entry.default === "boolean") return raw === "true";
+	// Default: string
+	if (typeof entry.default === "string") return raw;
+	// Default: number
+	return +raw;
+}
+
+function serializePref(entry: PrefEntry, val: any): string | null {
+	if (entry.serialize) return entry.serialize(val);
+	if (val === null) return null;
+	if (typeof val === "boolean") return val ? "true" : "false";
+	return String(val);
+}
+
+export class Preferences {
+	public static readonly defaultVisibleOctaves: number = 4;
+
+	public customTheme: string | null = null;
+	public customTheme2: string | null = null;
+	public autoPlay: boolean = false;
+	public autoFollow: boolean = true;
+	public centerFollow: boolean = false;
+	public enableNotePreview: boolean = true;
 	public showFifth: boolean = true;
-	public notesOutsideScale: boolean;
-	public defaultScale: number;
-	public showLetters: boolean;
-	public showChannels: boolean;
-	public showScrollBar: boolean;
-	public alwaysFineNoteVol: boolean;
-	public displayVolumeBar: boolean;
-	public instrumentCopyPaste: boolean;
-	public instrumentImportExport: boolean;
-	public instrumentButtonsAtTop: boolean;
+	public notesOutsideScale: boolean = true;
+	public defaultScale: number = 0;
+	public showLetters: boolean = true;
+	public showChannels: boolean = true;
+	public showScrollBar: boolean = true;
+	public alwaysFineNoteVol: boolean = false;
+	public displayVolumeBar: boolean = true;
+	public instrumentCopyPaste: boolean = true;
+	public instrumentImportExport: boolean = true;
+	public instrumentButtonsAtTop: boolean = true;
 	public enableChannelMuting: boolean = true;
-	public colorTheme: string;
-	public layout: string;
-	public displayBrowserUrl: boolean;
+	public colorTheme: string = ColorConfig.defaultTheme;
+	public layout: string = "long";
+	public displayBrowserUrl: boolean = true;
 	public volume: number = 75;
 	public visibleOctaves: number = Preferences.defaultVisibleOctaves;
-	public pressControlForShortcuts: boolean;
-	public keyboardLayout: string;
-	public bassOffset: number;
-	public enableMidi: boolean;
-	public showRecordButton: boolean;
-	public snapRecordedNotesToRhythm: boolean;
-	public ignorePerformedNotesNotInScale: boolean;
-	public metronomeCountIn: boolean;
-	public metronomeWhileRecording: boolean;
-	public notesFlashWhenPlayed: boolean;
-	public showSpectrum: boolean;
-	public showSpectrumOverlay: boolean;
-	public showSpectrumParticles: boolean;
-	public showSampleLoadingStatus: boolean;
-	public showDescription: boolean;
-	public showInstrumentScrollbars: boolean;
-	public closePromptByClickoff: boolean;
-	public showPromptBackdrop: boolean;
-	public enableScrollStep: boolean;
-	public doubleClickSliderReset: boolean;
+	public pressControlForShortcuts: boolean = false;
+	public keyboardLayout: string = "pianoTransposingC";
+	public bassOffset: number = 0;
+	public enableMidi: boolean = true;
+	public showRecordButton: boolean = false;
+	public snapRecordedNotesToRhythm: boolean = false;
+	public ignorePerformedNotesNotInScale: boolean = false;
+	public metronomeCountIn: boolean = true;
+	public metronomeWhileRecording: boolean = true;
+	public notesFlashWhenPlayed: boolean = true;
+	public showSpectrum: boolean = false;
+	public showSpectrumOverlay: boolean = false;
+	public showSpectrumParticles: boolean = false;
+	public showSampleLoadingStatus: boolean = true;
+	public showDescription: boolean = true;
+	public showInstrumentScrollbars: boolean = true;
+	public closePromptByClickoff: boolean = true;
+	public showPromptBackdrop: boolean = true;
+	public enableScrollStep: boolean = false;
+	public doubleClickSliderReset: boolean = false;
 	// jukebox
-	public rollNoveltyPresets: boolean;
-	public enableTagSearch: boolean;
-	public debugPrompts: boolean;
-	public debugSynth: boolean;
+	public rollNoveltyPresets: boolean = false;
+	public enableTagSearch: boolean = true;
+	public debugPrompts: boolean = false;
+	public debugSynth: boolean = false;
 
 	constructor() {
 		this.reload();
 	}
 
 	public reload(): void {
-		this.autoPlay = window.localStorage.getItem("autoPlay") === "true";
-		this.autoFollow = window.localStorage.getItem("autoFollow") !== "false";
-		this.centerFollow = window.localStorage.getItem("centerFollow") === "true";
-		this.enableNotePreview = window.localStorage.getItem("enableNotePreview") !== "false";
-		this.showFifth = window.localStorage.getItem("showFifth") !== "false";
-		this.notesOutsideScale = window.localStorage.getItem("notesOutsideScale") !== "false";
-		this.showLetters = window.localStorage.getItem("showLetters") !== "false";
-		this.showChannels = window.localStorage.getItem("showChannels") !== "false";
-		this.showScrollBar = window.localStorage.getItem("showScrollBar") !== "false";
-		this.alwaysFineNoteVol = window.localStorage.getItem("alwaysFineNoteVol") === "true";
-		this.displayVolumeBar = window.localStorage.getItem("displayVolumeBar") !== "false";
-		this.instrumentCopyPaste = window.localStorage.getItem("instrumentCopyPaste") !== "false";
-		this.instrumentImportExport = window.localStorage.getItem("instrumentImportExport") !== "false";
-		this.instrumentButtonsAtTop = window.localStorage.getItem("instrumentButtonsAtTop") !== "false";
-		this.enableChannelMuting = window.localStorage.getItem("enableChannelMuting") !== "false";
-		this.displayBrowserUrl = window.localStorage.getItem("displayBrowserUrl") !== "false";
-		this.pressControlForShortcuts = window.localStorage.getItem("pressControlForShortcuts") === "true";
-		this.enableMidi = window.localStorage.getItem("enableMidi") !== "false";
-		this.showRecordButton = window.localStorage.getItem("showRecordButton") === "true";
-		this.snapRecordedNotesToRhythm = window.localStorage.getItem("snapRecordedNotesToRhythm") === "true";
-		this.ignorePerformedNotesNotInScale = window.localStorage.getItem("ignorePerformedNotesNotInScale") === "true";
-		this.metronomeCountIn = window.localStorage.getItem("metronomeCountIn") !== "false";
-		this.metronomeWhileRecording = window.localStorage.getItem("metronomeWhileRecording") !== "false";
-		this.notesFlashWhenPlayed = window.localStorage.getItem("notesFlashWhenPlayed") !== "flase";
-		this.showSpectrum = window.localStorage.getItem("showSpectrum") === "true";
-		this.showSpectrumOverlay = window.localStorage.getItem("showSpectrumOverlay") === "true";
-		this.showSpectrumParticles = window.localStorage.getItem("showSpectrumParticles") === "true";
-		this.showSampleLoadingStatus = window.localStorage.getItem("showSampleLoadingStatus") !== "false";
-		this.showDescription = window.localStorage.getItem("showDescription") !== "false";
-		this.showInstrumentScrollbars = window.localStorage.getItem("showInstrumentScrollbars") !== "false";
-		this.closePromptByClickoff = window.localStorage.getItem("closePromptByClickoff") !== "false";
-		this.showPromptBackdrop = window.localStorage.getItem("showPromptBackdrop") !== "false";
-		this.enableScrollStep = window.localStorage.getItem("enableScrollStep") === "true";
-		this.doubleClickSliderReset = window.localStorage.getItem("doubleClickSliderReset") === "true";
-		this.keyboardLayout = window.localStorage.getItem("keyboardLayout") || "pianoTransposingC";
-		this.bassOffset = +(<any>window.localStorage.getItem("bassOffset")) || 0;
-		this.layout = window.localStorage.getItem("layout") || "long";
-		this.colorTheme = window.localStorage.getItem("colorTheme") || ColorConfig.defaultTheme;
-		this.customTheme = window.localStorage.getItem("customTheme");
-		this.customTheme2 = window.localStorage.getItem("customTheme2");
-		this.visibleOctaves = <any>window.localStorage.getItem("visibleOctaves") >>> 0 || Preferences.defaultVisibleOctaves;
-		// jukebox
-		this.rollNoveltyPresets = window.localStorage.getItem("rollNoveltyPresets") === "true";
-		this.enableTagSearch = window.localStorage.getItem("enableTagSearch") !== "false";
-		this.debugPrompts = window.localStorage.getItem("debugPrompts") === "1";
-		this.debugSynth = window.localStorage.getItem("debugSynth") === "1";
+		for (const entry of prefSchema) {
+			const raw = window.localStorage.getItem(entry.key);
+			(this as any)[entry.key] = parsePref(entry, raw);
+		}
 
+		// Scale: stored as name, not index
 		const defaultScale: Scale | undefined = Config.scales.dictionary[window.localStorage.getItem("defaultScale")!];
 		this.defaultScale = defaultScale !== undefined ? defaultScale.index : 0;
 
-		if (window.localStorage.getItem("volume") != null) {
-			this.volume = Math.min(<any>window.localStorage.getItem("volume") >>> 0, 75);
-		}
-
+		// fullScreen migration
 		if (window.localStorage.getItem("fullScreen") != null) {
 			if (window.localStorage.getItem("fullScreen") === "true") this.layout = "long";
 			window.localStorage.removeItem("fullScreen");
@@ -129,53 +171,16 @@ export class Preferences {
 	}
 
 	public save(): void {
-		window.localStorage.setItem("autoPlay", this.autoPlay ? "true" : "false");
-		window.localStorage.setItem("autoFollow", this.autoFollow ? "true" : "false");
-		window.localStorage.setItem("centerFollow", this.centerFollow ? "true" : "false");
-		window.localStorage.setItem("enableNotePreview", this.enableNotePreview ? "true" : "false");
-		window.localStorage.setItem("showFifth", this.showFifth ? "true" : "false");
-		window.localStorage.setItem("notesOutsideScale", this.notesOutsideScale ? "true" : "false");
+		for (const entry of prefSchema) {
+			const val = (this as any)[entry.key];
+			const serialized = serializePref(entry, val);
+			if (serialized !== null) {
+				window.localStorage.setItem(entry.key, serialized);
+			} else {
+				window.localStorage.removeItem(entry.key);
+			}
+		}
+
 		window.localStorage.setItem("defaultScale", Config.scales[this.defaultScale].name);
-		window.localStorage.setItem("showLetters", this.showLetters ? "true" : "false");
-		window.localStorage.setItem("showChannels", this.showChannels ? "true" : "false");
-		window.localStorage.setItem("showScrollBar", this.showScrollBar ? "true" : "false");
-		window.localStorage.setItem("alwaysFineNoteVol", this.alwaysFineNoteVol ? "true" : "false");
-		window.localStorage.setItem("displayVolumeBar", this.displayVolumeBar ? "true" : "false");
-		window.localStorage.setItem("enableChannelMuting", this.enableChannelMuting ? "true" : "false");
-		window.localStorage.setItem("instrumentCopyPaste", this.instrumentCopyPaste ? "true" : "false");
-		window.localStorage.setItem("instrumentImportExport", this.instrumentImportExport ? "true" : "false");
-		window.localStorage.setItem("instrumentButtonsAtTop", this.instrumentButtonsAtTop ? "true" : "false");
-		window.localStorage.setItem("displayBrowserUrl", this.displayBrowserUrl ? "true" : "false");
-		window.localStorage.setItem("pressControlForShortcuts", this.pressControlForShortcuts ? "true" : "false");
-		window.localStorage.setItem("enableMidi", this.enableMidi ? "true" : "false");
-		window.localStorage.setItem("showRecordButton", this.showRecordButton ? "true" : "false");
-		window.localStorage.setItem("snapRecordedNotesToRhythm", this.snapRecordedNotesToRhythm ? "true" : "false");
-		window.localStorage.setItem("ignorePerformedNotesNotInScale", this.ignorePerformedNotesNotInScale ? "true" : "false");
-		window.localStorage.setItem("metronomeCountIn", this.metronomeCountIn ? "true" : "false");
-		window.localStorage.setItem("metronomeWhileRecording", this.metronomeWhileRecording ? "true" : "false");
-		window.localStorage.setItem("notesFlashWhenPlayed", this.notesFlashWhenPlayed ? "true" : "false");
-		window.localStorage.setItem("showSpectrum", this.showSpectrum ? "true" : "false");
-		window.localStorage.setItem("showSpectrumOverlay", this.showSpectrumOverlay ? "true" : "false");
-		window.localStorage.setItem("showSpectrumParticles", this.showSpectrumParticles ? "true" : "false");
-		window.localStorage.setItem("showSampleLoadingStatus", this.showSampleLoadingStatus ? "true" : "false");
-		window.localStorage.setItem("showDescription", this.showDescription ? "true" : "false");
-		window.localStorage.setItem("showInstrumentScrollbars", this.showInstrumentScrollbars ? "true" : "false");
-		window.localStorage.setItem("closePromptByClickoff", this.closePromptByClickoff ? "true" : "false");
-		window.localStorage.setItem("showPromptBackdrop", this.showPromptBackdrop ? "true" : "false");
-		window.localStorage.setItem("enableScrollStep", this.enableScrollStep ? "true" : "false");
-		window.localStorage.setItem("doubleClickSliderReset", this.doubleClickSliderReset ? "true" : "false");
-		window.localStorage.setItem("keyboardLayout", this.keyboardLayout);
-		window.localStorage.setItem("bassOffset", String(this.bassOffset));
-		window.localStorage.setItem("layout", this.layout);
-		window.localStorage.setItem("colorTheme", this.colorTheme);
-		window.localStorage.setItem("customTheme", this.customTheme!);
-		window.localStorage.setItem("customTheme2", this.customTheme2!);
-		window.localStorage.setItem("volume", String(this.volume));
-		window.localStorage.setItem("visibleOctaves", String(this.visibleOctaves));
-		// jukebox
-		window.localStorage.setItem("rollNoveltyPresets", this.rollNoveltyPresets ? "true" : "false");
-		window.localStorage.setItem("enableTagSearch", this.enableTagSearch ? "true" : "false");
-		window.localStorage.setItem("debugPrompts", this.debugPrompts ? "1" : "0");
-		window.localStorage.setItem("debugSynth", this.debugSynth ? "1" : "0");
 	}
 }
