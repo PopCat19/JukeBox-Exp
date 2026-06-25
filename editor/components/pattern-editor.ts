@@ -3681,9 +3681,10 @@ export class PatternEditor {
 					const secondaryColor: string = this._resolveCssColor(ColorConfig.getChannelColor(this._doc.song, channel).secondaryNote);
 					for (const note of pattern2.notes) {
 						for (const pitch of note.pitches) {
-							// Canvas: static fill
-							this._drawNoteToCanvas(pitch, note.start, note.pins, this._pitchHeight * 0.19, false, octaveOffset);
+							// Canvas: static fill — set fillStyle before drawing;
+							// _drawNoteToCanvas paints immediately (fillRect fast-path).
 							ctx.fillStyle = secondaryColor;
+							this._drawNoteToCanvas(pitch, note.start, note.pins, this._pitchHeight * 0.19, false, octaveOffset);
 							ctx.fill();
 
 							// SVG: persistent envelope overlay for mod/drum channels
@@ -3745,14 +3746,15 @@ export class PatternEditor {
 				for (let i: number = 0; i < note.pitches.length; i++) {
 					const pitch: number = note.pitches[i];
 
-					// Canvas: secondary fill
-					this._drawNoteToCanvas(pitch, note.start, note.pins, (this._pitchHeight - this._pitchBorder) / 2 + 1, false, this._octaveOffset);
+					// Canvas: secondary fill — set fillStyle before drawing;
+					// _drawNoteToCanvas paints immediately (fillRect fast-path).
 					ctx.fillStyle = colorSecondary;
+					this._drawNoteToCanvas(pitch, note.start, note.pins, (this._pitchHeight - this._pitchBorder) / 2 + 1, false, this._octaveOffset);
 					ctx.fill();
 
 					// Canvas: primary fill
-					this._drawNoteToCanvas(pitch, note.start, note.pins, (this._pitchHeight - this._pitchBorder) / 2 + 1, true, this._octaveOffset);
 					ctx.fillStyle = colorPrimary;
+					this._drawNoteToCanvas(pitch, note.start, note.pins, (this._pitchHeight - this._pitchBorder) / 2 + 1, true, this._octaveOffset);
 					ctx.fill();
 
 					// SVG: persistent envelope overlay for mod/drum channels

@@ -11,6 +11,10 @@
 //   envelope center but the canvas fast-path uses DPR-aware snap(). This
 //   produces a vertical offset between the note body and the envelope overlay
 //   (Bug 2).
+// - fillStyle-before-draw: caller sets fillStyle after _drawNoteToCanvas returns,
+//   so fast-path fillRect uses stale fillStyle (pitchBg from background). Note
+//   paints with wrong color and ctx.fill() is a no-op on an empty path (Bug 1
+//   residual).
 //
 // These invariants are verified by scanning the source file at test time,
 // because pattern-editor depends on a live DOM + canvas context and cannot
@@ -96,7 +100,38 @@ describe("pattern-editor rendering contract", () => {
 	});
 
 	// -----------------------------------------------------------------------
-	// Category B: SVG/canvas y-center alignment
+	// Category B: fillStyle ordering — must be set before _drawNoteToCanvas
+	// because the fast-path paints immediately via fillRect.
+	// -----------------------------------------------------------------------
+	test("_redrawNotePatterns sets fillStyle before every _drawNoteToCanvas call", () => {
+		const redrawIdx = findFunction(lines, "redrawNotePatterns");
+		const body = functionBody(lines, redrawIdx);
+
+		// Find every _drawNoteToCanvas call in the body.
+		const drawCallLines = body
+			.map((l, i) => ({ line: l, idx: i }))
+			.filter(({ line }) => line.includes("_drawNoteToCanvas("));
+
+		expect(drawCallLines.length).toBeGreaterThanOrEqual(3);
+
+		for (const { line, idx } of drawCallLines) {
+			// Scan backward from idx to find the nearest non-blank,
+			// non-comment, non-brace line.
+			let prev = idx - 1;
+			while (prev >= 0) {
+				const prevLine = body[prev].trim();
+				if (prevLine !== "" && !prevLine.startsWith("//") && prevLine !== "{" && prevLine !== "}") {
+					break;
+				}
+				prev--;
+			}
+			expect(prev).toBeGreaterThanOrEqual(0);
+			expect(body[prev]).toContain("ctx.fillStyle");
+		}
+	});
+
+	// -----------------------------------------------------------------------
+	// Category C: SVG/canvas y-center alignment
 	// -----------------------------------------------------------------------
 	test("_drawNote uses snap() for y-center to match canvas DPR rounding", () => {
 		const body = functionBody(lines, drawNoteIdx);
