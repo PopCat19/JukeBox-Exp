@@ -10,9 +10,7 @@ Purpose: Project root with configuration, build tooling, and entry points.
 - `AGENTS.md`, Reference document for LLM assistants working with this repository
 - `README.md`, Project overview and user-facing documentation
 - `LICENSE.md`, MIT license file
-- `INTEGRATION_STATUS.md`, Status of cross-domain refactor integrations
 - `UPSTREAM-MAPPING.md`, Mapping from upstream BeepBox source to local module locations
-- `.session-next.md`, Continuation notes for the next coding session
 - `bun.lock`, Bun package lockfile
 - `bun.lockb`, Bun binary lockfile
 - `package.json`, Node.js package manifest with scripts and dependencies

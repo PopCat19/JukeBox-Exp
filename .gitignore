@@ -39,22 +39,7 @@ offline/node_modules
 deployFiles.sh
 pm2handler.cjs
 
-# Cache directories
-.dev-conventions-sync-cache/
-conventions/.dev-conventions-sync-cache/
-
-# Local settings
-*.local.json
-.letta/settings.local.json
-
-# Session files
-.session-*.md
-
 # Core dumps
-core.*
-
-# Semantic index
-.reasonix/
 core.*
 website/beepbox_editor.js
 website/beepbox_synth.js
