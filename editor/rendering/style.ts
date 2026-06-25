@@ -2532,6 +2532,14 @@ html {
 	top: 0;
 }
 
+/* CVV loop button: hover border matching titlebar buttons */
+.beepboxEditor .cvv-loop-btn {
+	box-shadow: none;
+}
+.beepboxEditor .cvv-loop-btn:hover {
+	box-shadow: inset 0 0 0 2px var(--editor-background);
+}
+
 .beepboxEditor .prompt.shaded {
 	padding: var(--padding-6) 14px;
 	min-width: 0;

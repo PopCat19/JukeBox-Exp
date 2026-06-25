@@ -241,7 +241,8 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 	});
 	private readonly _loopButton: HTMLButtonElement = button(
 		{
-			style: `width: 26px; height: 26px; padding: 0; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; outline: none; line-height: 1; font-size: 12px; background: var(--tab-inactive-bg); color: var(--tab-inactive-fg); transition: background 150ms, color 150ms;`,
+			style: `width: 26px; height: 26px; padding: 0; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; outline: none; line-height: 1; font-size: 12px; background: var(--tab-inactive-bg); color: var(--tab-inactive-fg); transition: background 150ms, color 150ms, box-shadow 150ms;`,
+			class: "cvv-loop-btn",
 			title: "Toggle loop",
 		},
 		svg({ width: 12, height: 12, viewBox: "0 0 12 12" }, this._loopIcon),
@@ -484,7 +485,6 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 		this._stopButton.addEventListener("click", this._stop);
 		this._loopButton.addEventListener("click", this._toggleLoop);
 		this._loopButton.addEventListener("mouseenter", () => {
-			this._loopButton.style.boxShadow = "inset 0 0 0 2px var(--editor-background)";
 			if (this._doc.synth.loopRepeatCount === -1) {
 				this._loopButton.style.color = "var(--cta-fg)";
 			} else {
@@ -492,7 +492,6 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 			}
 		});
 		this._loopButton.addEventListener("mouseleave", () => {
-			this._loopButton.style.boxShadow = "none";
 			if (this._doc.synth.loopRepeatCount === -1) {
 				this._loopButton.style.color = "var(--cta-fg)";
 			} else {
@@ -567,15 +566,6 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 		const active: boolean = this._doc.synth.loopRepeatCount === -1;
 		this._loopButton.style.background = active ? "var(--cta-bg)" : "var(--tab-inactive-bg)";
 		this._loopButton.style.color = active ? "var(--cta-fg)" : "var(--tab-inactive-fg)";
-		this._loopButton.style.boxShadow = "none";
-		// Re-apply hover shadow if mouse is still over button after toggle.
-		try {
-			if (this._loopButton.matches(":hover") && active) {
-				this._loopButton.style.boxShadow = "inset 0 0 0 2px var(--editor-background)";
-			}
-		} catch {
-			// matches not supported
-		}
 	};
 
 	// Seek the playhead to the bar position under the pointer.
