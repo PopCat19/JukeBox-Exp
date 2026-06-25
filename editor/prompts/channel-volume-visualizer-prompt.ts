@@ -241,7 +241,7 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 	});
 	private readonly _loopButton: HTMLButtonElement = button(
 		{
-			style: `width: 26px; height: 26px; padding: 0; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; outline: none; line-height: 1; font-size: 12px; background: var(--tab-inactive-bg); color: var(--tab-inactive-fg); transition: background 150ms, color 150ms, box-shadow 150ms;`,
+			style: `width: 26px; height: 26px; padding: 0; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; outline: none; line-height: 1; font-size: 12px; background: var(--tab-inactive-bg); color: var(--tab-inactive-fg); transition: background 150ms, color 150ms;`,
 			class: "cvv-loop-btn",
 			title: "Toggle loop",
 		},
