@@ -2573,7 +2573,7 @@ export class SongEditor
 		// For selects, intercept Space at keydown (native opens dropdown).
 		document.addEventListener("mouseup", (e: Event) => {
 			const target = e.target as HTMLElement;
-			if (target.closest("button, select")) {
+			if (target.closest("button")) {
 				setTimeout(() => this.mainLayer.focus({ preventScroll: true }), 0);
 			}
 		});
