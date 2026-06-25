@@ -52,8 +52,7 @@ import type {
 	Vibrato,
 	VibratoType,
 } from "./types";
-import { performIntegral, rawChipToIntegrated, toNameMap } from "./utils";
-
+import { centerAndNormalizeWave, centerWave, rawChipToIntegrated, toNameMap } from "./utils";
 export class Config {
 	// Params for post-processing compressor
 	public static thresholdVal: number = -10;
@@ -3830,33 +3829,8 @@ export class Config {
 	]);
 }
 
-export function centerWave(wave: Array<number>): Float32Array {
-	let sum: number = 0.0;
-	for (let i: number = 0; i < wave.length; i++) sum += wave[i];
-	const average: number = sum / wave.length;
-	for (let i: number = 0; i < wave.length; i++) wave[i] -= average;
-	performIntegral(wave);
-	// Duplicate first sample at end for easier interpolation.
-	wave.push(0);
-	return new Float32Array(wave);
-}
-function centerAndNormalizeWave(wave: Array<number>): Float32Array {
-	let magn: number = 0.0;
+export { centerWave, centerAndNormalizeWave } from "./utils";
 
-	centerWave(wave);
-
-	// Going to length-1 because an extra 0 sample is added on the end as part of centerWave, which shouldn't impact magnitude calculation.
-	for (let i: number = 0; i < wave.length - 1; i++) {
-		magn += Math.abs(wave[i]);
-	}
-	const magnAvg: number = magn / (wave.length - 1);
-
-	for (let i: number = 0; i < wave.length - 1; i++) {
-		wave[i] = wave[i] / magnAvg;
-	}
-
-	return new Float32Array(wave);
-}
 export function getPulseWidthRatio(pulseWidth: number): number {
 	// BeepBox formula for reference
 	// return Math.pow(0.5, (Config.pulseWidthRange - 1 - pulseWidth) * Config.pulseWidthStepPower) * 0.5;
@@ -4088,3 +4062,4 @@ export function calculateRingModHertz(sliderHz: number, _sliderHzOffset: number 
 	// calculate ring mod
 	return Math.floor(Config.ringModMinHz * (Config.ringModMaxHz / Config.ringModMinHz) ** sliderHz);
 }
+

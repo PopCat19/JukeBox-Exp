@@ -44,6 +44,35 @@ export function performIntegral(wave: { length: number; [index: number]: number 
 	return newWave;
 }
 
+export function centerWave(wave: Array<number>): Float32Array {
+	let sum: number = 0.0;
+	for (let i: number = 0; i < wave.length; i++) sum += wave[i];
+	const average: number = sum / wave.length;
+	for (let i: number = 0; i < wave.length; i++) wave[i] -= average;
+	performIntegral(wave);
+	// Duplicate first sample at end for easier interpolation.
+	wave.push(0);
+	return new Float32Array(wave);
+}
+
+export function centerAndNormalizeWave(wave: Array<number>): Float32Array {
+	let magn: number = 0.0;
+
+	centerWave(wave);
+
+	// Going to length-1 because an extra 0 sample is added on the end as part of centerWave, which shouldn't impact magnitude calculation.
+	for (let i: number = 0; i < wave.length - 1; i++) {
+		magn += Math.abs(wave[i]);
+	}
+	const magnAvg: number = magn / (wave.length - 1);
+
+	for (let i: number = 0; i < wave.length - 1; i++) {
+		wave[i] = wave[i] / magnAvg;
+	}
+
+	return new Float32Array(wave);
+}
+
 export function performIntegralOld(wave: { length: number; [index: number]: number }): void {
 	// Old ver used in harmonics/picked string instruments, manipulates wave in place.
 	let cumulative: number = 0.0;

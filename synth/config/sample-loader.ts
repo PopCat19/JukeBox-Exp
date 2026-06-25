@@ -7,7 +7,8 @@
 // - Provides loadBuiltInSamples for legacy, nintaribox, and mario paintbox sample sets
 // - Supports dynamic sample loading (startLoadingSample) and localStorage helpers
 
-import { Config, centerWave } from "./config-class";
+import { Config } from "./config-class";
+import { centerWave } from "./utils";
 import { SampleLoadingStatus } from "./enums";
 import type { Dictionary } from "./types";
 import { performIntegral } from "./utils";
