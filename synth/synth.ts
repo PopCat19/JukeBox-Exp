@@ -11,6 +11,7 @@
 // Copyright (c) 2012-2022 John Nesky and contributing authors, distributed under the MIT license, see accompanying the LICENSE.md file.
 
 import { AudioBackend, type AudioBackendHost } from "./audio-backend";
+import { PostProcessingState } from "./post-processing";
 import { ChannelState } from "./channel-state";
 import type { Channel } from "./channels";
 import { Deque } from "./deque";
@@ -207,21 +208,11 @@ export class Synth {
 	private metronomeAmplitude: number = 0.0;
 	private metronomePrevAmplitude: number = 0.0;
 	private metronomeFilter: number = 0.0;
-	private limit: number = 0.0;
-
-	public songEqFilterVolume: number = 1.0;
-	public songEqFilterVolumeDelta: number = 0.0;
-	public readonly songEqFiltersL: DynamicBiquadFilter[] = [];
-	public readonly songEqFiltersR: DynamicBiquadFilter[] = [];
-	public songEqFilterCount: number = 0;
-	public initialSongEqFilterInput1L: number = 0.0;
-	public initialSongEqFilterInput2L: number = 0.0;
-	public initialSongEqFilterInput1R: number = 0.0;
-	public initialSongEqFilterInput2R: number = 0.0;
+	private _postProc: PostProcessingState = new PostProcessingState();
 
 	private tempMonoInstrumentSampleBuffer: Float32Array | null = null;
-	private outputDataLUnfiltered: Float32Array | null = null;
-	private outputDataRUnfiltered: Float32Array | null = null;
+	public outputDataLUnfiltered: Float32Array | null = null;
+	public outputDataRUnfiltered: Float32Array | null = null;
 	private readonly _reusableFilteredPitches: number[] = [];
 
 	private _fillFilteredPitches(source: number[], lower: number, upper: number): number[] {
@@ -305,7 +296,7 @@ export class Synth {
 	public getMasterScale(): number {
 		const song = this.song;
 		if (song == null) return 1;
-		const limit = this.limit < 0.1 ? 0.1 : this.limit;
+		const limit = this._postProc.limit < 0.1 ? 0.1 : this._postProc.limit;
 		const limitedVolume = this.volume / (limit >= 1 ? limit * 1.05 : limit * 0.8 + 0.25);
 		return Math.min(8, song.masterGain * song.masterGain * limitedVolume);
 	}
@@ -693,7 +684,7 @@ export class Synth {
 	}
 
 	public resetEffects(): void {
-		this.limit = 0.0;
+		this._postProc.resetLimit();
 		this.freeAllTones();
 		if (this.song != null) {
 			for (const channelState of this.channels) {
@@ -909,15 +900,15 @@ export class Synth {
 				startPoint.toCoefficients(tempFilterStartCoefficients, samplesPerSecond, 1.0, 1.0);
 				endPoint.toCoefficients(tempFilterEndCoefficients, samplesPerSecond, 1.0, 1.0);
 
-				if (this.songEqFiltersL.length < 1) this.songEqFiltersL[0] = new DynamicBiquadFilter();
-				this.songEqFiltersL[0].loadCoefficientsWithGradient(
+				if (this._postProc.songEqFiltersL.length < 1) this._postProc.songEqFiltersL[0] = new DynamicBiquadFilter();
+				this._postProc.songEqFiltersL[0].loadCoefficientsWithGradient(
 					tempFilterStartCoefficients,
 					tempFilterEndCoefficients,
 					1.0 / roundedSamplesPerTick,
 					startPoint.type === FilterType.lowPass,
 				);
-				if (this.songEqFiltersR.length < 1) this.songEqFiltersR[0] = new DynamicBiquadFilter();
-				this.songEqFiltersR[0].loadCoefficientsWithGradient(
+				if (this._postProc.songEqFiltersR.length < 1) this._postProc.songEqFiltersR[0] = new DynamicBiquadFilter();
+				this._postProc.songEqFiltersR[0].loadCoefficientsWithGradient(
 					tempFilterStartCoefficients,
 					tempFilterEndCoefficients,
 					1.0 / roundedSamplesPerTick,
@@ -930,15 +921,15 @@ export class Synth {
 
 				startPoint.toCoefficients(tempFilterStartCoefficients, samplesPerSecond, 1.0, 1.0);
 
-				if (this.songEqFiltersL.length < 1) this.songEqFiltersL[0] = new DynamicBiquadFilter();
-				this.songEqFiltersL[0].loadCoefficientsWithGradient(
+				if (this._postProc.songEqFiltersL.length < 1) this._postProc.songEqFiltersL[0] = new DynamicBiquadFilter();
+				this._postProc.songEqFiltersL[0].loadCoefficientsWithGradient(
 					tempFilterStartCoefficients,
 					tempFilterStartCoefficients,
 					1.0 / roundedSamplesPerTick,
 					startPoint.type === FilterType.lowPass,
 				);
-				if (this.songEqFiltersR.length < 1) this.songEqFiltersR[0] = new DynamicBiquadFilter();
-				this.songEqFiltersR[0].loadCoefficientsWithGradient(
+				if (this._postProc.songEqFiltersR.length < 1) this._postProc.songEqFiltersR[0] = new DynamicBiquadFilter();
+				this._postProc.songEqFiltersR[0].loadCoefficientsWithGradient(
 					tempFilterStartCoefficients,
 					tempFilterStartCoefficients,
 					1.0 / roundedSamplesPerTick,
@@ -948,7 +939,7 @@ export class Synth {
 
 			eqFilterVolume *= startPoint.getVolumeCompensationMult();
 
-			this.songEqFilterCount = 1;
+			this._postProc.songEqFilterCount = 1;
 			eqFilterVolume = Math.min(3.0, eqFilterVolume);
 		} else {
 			const eqFilterSettings: FilterSettings = this.song.tmpEqFilterStart != null ? this.song.tmpEqFilterStart : this.song.eqFilter;
@@ -982,15 +973,15 @@ export class Synth {
 					/*eqAllFreqsEnvelopeEnd   * eqFreqEnvelopeEnd*/ 1.0,
 					/*eqPeakEnvelopeEnd*/ 1.0,
 				);
-				if (this.songEqFiltersL.length <= i) this.songEqFiltersL[i] = new DynamicBiquadFilter();
-				this.songEqFiltersL[i].loadCoefficientsWithGradient(
+				if (this._postProc.songEqFiltersL.length <= i) this._postProc.songEqFiltersL[i] = new DynamicBiquadFilter();
+				this._postProc.songEqFiltersL[i].loadCoefficientsWithGradient(
 					tempFilterStartCoefficients,
 					tempFilterEndCoefficients,
 					1.0 / roundedSamplesPerTick,
 					startPoint.type === FilterType.lowPass,
 				);
-				if (this.songEqFiltersR.length <= i) this.songEqFiltersR[i] = new DynamicBiquadFilter();
-				this.songEqFiltersR[i].loadCoefficientsWithGradient(
+				if (this._postProc.songEqFiltersR.length <= i) this._postProc.songEqFiltersR[i] = new DynamicBiquadFilter();
+				this._postProc.songEqFiltersR[i].loadCoefficientsWithGradient(
 					tempFilterStartCoefficients,
 					tempFilterEndCoefficients,
 					1.0 / roundedSamplesPerTick,
@@ -998,15 +989,15 @@ export class Synth {
 				);
 				eqFilterVolume *= startPoint.getVolumeCompensationMult();
 			}
-			this.songEqFilterCount = eqFilterSettings.controlPointCount;
+			this._postProc.songEqFilterCount = eqFilterSettings.controlPointCount;
 			eqFilterVolume = Math.min(3.0, eqFilterVolume);
 		}
 
 		const eqFilterVolumeStart: number = eqFilterVolume;
 		const eqFilterVolumeEnd: number = eqFilterVolume;
 
-		this.songEqFilterVolume = eqFilterVolumeStart;
-		this.songEqFilterVolumeDelta = (eqFilterVolumeEnd - eqFilterVolumeStart) / roundedSamplesPerTick;
+		this._postProc.songEqFilterVolume = eqFilterVolumeStart;
+		this._postProc.songEqFilterVolumeDelta = (eqFilterVolumeEnd - eqFilterVolumeStart) / roundedSamplesPerTick;
 	}
 
 	public synthesize(outputDataL: Float32Array, outputDataR: Float32Array, outputBufferLength: number, playSong: boolean = true): void {
@@ -1110,9 +1101,15 @@ export class Synth {
 
 		// Post processing parameters:
 		const volume: number = +this.volume;
-		const limitDecay: number = 1.0 - 0.5 ** (this.song.limitDecay / this.samplesPerSecond);
-		const limitRise: number = 1.0 - 0.5 ** (this.song.limitRise / this.samplesPerSecond);
-		let limit: number = +this.limit;
+		const songParams = {
+			masterGain: this.song.masterGain,
+			compressionThreshold: this.song.compressionThreshold,
+			limitThreshold: this.song.limitThreshold,
+			compressionRatio: this.song.compressionRatio,
+			limitRatio: this.song.limitRatio,
+			limitDecay: this.song.limitDecay,
+			limitRise: this.song.limitRise,
+		};
 		const skippedBars: number[] = [];
 		let firstSkippedBufferIndex = -1;
 
@@ -1370,77 +1367,21 @@ export class Synth {
 			}
 
 			// Post processing:
-			for (let i: number = bufferIndex; i < runEnd; i++) {
-				// Song EQ
-				{
-					const filtersL = this.songEqFiltersL;
-					const filtersR = this.songEqFiltersR;
-					const filterCount = this.songEqFilterCount | 0;
-					let initialFilterInput1L = +this.initialSongEqFilterInput1L;
-					let initialFilterInput2L = +this.initialSongEqFilterInput2L;
-					let initialFilterInput1R = +this.initialSongEqFilterInput1R;
-					let initialFilterInput2R = +this.initialSongEqFilterInput2R;
-					const applyFilters = Synth.applyFilters;
-					let eqFilterVolume = +this.songEqFilterVolume;
-					const eqFilterVolumeDelta = +this.songEqFilterVolumeDelta;
-					const inputSampleL = outputDataL[i];
-					let sampleL = inputSampleL;
-					sampleL = applyFilters(sampleL, initialFilterInput1L, initialFilterInput2L, filterCount, filtersL);
-					initialFilterInput2L = initialFilterInput1L;
-					initialFilterInput1L = inputSampleL;
-					sampleL *= eqFilterVolume;
-					outputDataL[i] = sampleL;
-					const inputSampleR = outputDataR[i];
-					let sampleR = inputSampleR;
-					sampleR = applyFilters(sampleR, initialFilterInput1R, initialFilterInput2R, filterCount, filtersR);
-					initialFilterInput2R = initialFilterInput1R;
-					initialFilterInput1R = inputSampleR;
-					sampleR *= eqFilterVolume;
-					outputDataR[i] = sampleR;
-					eqFilterVolume += eqFilterVolumeDelta;
-					this.sanitizeFilters(filtersL);
-					// Filter input is downstream from another filter; sanitize before use.
-					if (!(initialFilterInput1L < 100) || !(initialFilterInput2L < 100)) {
-						initialFilterInput1L = 0.0;
-						initialFilterInput2L = 0.0;
-					}
-					if (Math.abs(initialFilterInput1L) < epsilon) initialFilterInput1L = 0.0;
-					if (Math.abs(initialFilterInput2L) < epsilon) initialFilterInput2L = 0.0;
-					this.initialSongEqFilterInput1L = initialFilterInput1L;
-					this.initialSongEqFilterInput2L = initialFilterInput2L;
-					this.sanitizeFilters(filtersR);
-					if (!(initialFilterInput1R < 100) || !(initialFilterInput2R < 100)) {
-						initialFilterInput1R = 0.0;
-						initialFilterInput2R = 0.0;
-					}
-					if (Math.abs(initialFilterInput1R) < epsilon) initialFilterInput1R = 0.0;
-					if (Math.abs(initialFilterInput2R) < epsilon) initialFilterInput2R = 0.0;
-					this.initialSongEqFilterInput1R = initialFilterInput1R;
-					this.initialSongEqFilterInput2R = initialFilterInput2R;
-				}
-
-				// A compressor/limiter.
-				const sampleL = (outputDataL[i] + this.outputDataLUnfiltered![i]) * song.masterGain * song.masterGain;
-				const sampleR = (outputDataR[i] + this.outputDataRUnfiltered![i]) * song.masterGain * song.masterGain;
-				const absL: number = sampleL < 0.0 ? -sampleL : sampleL;
-				const absR: number = sampleR < 0.0 ? -sampleR : sampleR;
-				const abs: number = absL > absR ? absL : absR;
-				this.song.inVolumeCap = this.song.inVolumeCap > abs ? this.song.inVolumeCap : abs; // Analytics, spit out raw input volume
-				// Determines which formula to use. 0 when volume is between [0, compressionThreshold], 1 when between (compressionThreshold, limitThreshold], 2 above
-				const limitRange: number = +(abs > song.compressionThreshold) + +(abs > song.limitThreshold);
-				// Determine the target amplification based on the range of the curve
-				const limitTarget: number =
-					+(limitRange === 0) * (((abs + 1 - song.compressionThreshold) * 0.8 + 0.25) * song.compressionRatio + 1.05 * (1 - song.compressionRatio)) +
-					+(limitRange === 1) * 1.05 +
-					+(limitRange === 2) * (1.05 * ((abs + 1 - song.limitThreshold) * song.limitRatio + (1 - song.limitThreshold)));
-				// Move the limit towards the target
-				limit += (limitTarget - limit) * (limit < limitTarget ? limitRise : limitDecay);
-				const limitedVolume = volume / (limit >= 1 ? limit * 1.05 : limit * 0.8 + 0.25);
-				outputDataL[i] = sampleL * limitedVolume;
-				outputDataR[i] = sampleR * limitedVolume;
-
-				this.song.outVolumeCap = this.song.outVolumeCap > abs * limitedVolume ? this.song.outVolumeCap : abs * limitedVolume; // Analytics, spit out limited output volume
-			}
+			const volCap = { in: this.song.inVolumeCap, out: this.song.outVolumeCap };
+			this._postProc.processBlock(
+				outputDataL,
+				outputDataR,
+				this.outputDataLUnfiltered!,
+				this.outputDataRUnfiltered!,
+				bufferIndex,
+				runEnd,
+				songParams,
+				volume,
+				this.samplesPerSecond,
+				volCap,
+			);
+			this.song.inVolumeCap = volCap.in;
+			this.song.outVolumeCap = volCap.out;
 
 			bufferIndex += runLength;
 			if (playSong) {
@@ -1698,8 +1639,7 @@ export class Synth {
 		}
 
 		// Optimization: Avoid persistent reverb values in the float denormal range.
-		if (!Number.isFinite(limit) || Math.abs(limit) < epsilon) limit = 0.0;
-		this.limit = limit;
+		if (!Number.isFinite(this._postProc.limit) || Math.abs(this._postProc.limit) < epsilon) this._postProc.limit = 0.0;
 
 		if (playSong && !this.countInMetronome) {
 			this.playheadInternal =
@@ -4111,27 +4051,6 @@ export class Synth {
 		const partsPerSecond: number = Config.partsPerBeat * beatsPerSecond;
 		const tickPerSecond: number = Config.ticksPerPart * partsPerSecond;
 		return this.samplesPerSecond / tickPerSecond;
-	}
-
-	private sanitizeFilters(filters: DynamicBiquadFilter[]): void {
-		let reset: boolean = false;
-		for (const filter of filters) {
-			const output1: number = Math.abs(filter.output1);
-			const output2: number = Math.abs(filter.output2);
-			// If either is a large value, Infinity, or NaN, then just reset all filter history.
-			if (!(output1 < 100) || !(output2 < 100)) {
-				reset = true;
-				break;
-			}
-			if (output1 < epsilon) filter.output1 = 0.0;
-			if (output2 < epsilon) filter.output2 = 0.0;
-		}
-		if (reset) {
-			for (const filter of filters) {
-				filter.output1 = 0.0;
-				filter.output2 = 0.0;
-			}
-		}
 	}
 
 	public static sanitizeDelayLine(delayLine: Float32Array, lastIndex: number, mask: number): void {
