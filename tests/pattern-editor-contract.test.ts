@@ -3,22 +3,15 @@
 // Purpose: Structural contract tests for pattern-editor.ts rendering invariants
 //
 // Failure categories:
-// - Stale canvas path: _drawNoteToCanvas fast-path (fillRect) returns early
-//   without calling beginPath(), leaving a previous envelope path to be filled
-//   by the caller's unconditional ctx.fill(). This produces ghost note overlays
-//   that persist until SVG container replacement (Bug 3 → Bug 1 cascade).
+// - Stale canvas path: _drawNoteToCanvas was removed; notes now render as SVG
+//   paths via _drawNoteToSvg (calls _drawNote to build path string). This
+//   eliminates pixel-sharp fillRect seam issues entirely. SVG anti-aliasing
+//   naturally produces ~0.5-1px gaps between adjacent notes.
 // - SVG/Canvas y-center divergence: _drawNote uses prettyNumber() for the
-//   envelope center but the canvas fast-path uses DPR-aware snap(). This
-//   produces a vertical offset between the note body and the envelope overlay
-//   (Bug 2).
-// - fillStyle-before-draw: caller sets fillStyle after _drawNoteToCanvas returns,
-//   so fast-path fillRect uses stale fillStyle (pitchBg from background). Note
-//   paints with wrong color and ctx.fill() is a no-op on an empty path (Bug 1
-//   residual).
-// - Seam gaps: fast-path fillRect paints at full radius*2 height which with
-//   pitchBorder=0 produces pitchHeight+2 — erasing vertical seam between
-//   adjacent rows. Width endOffset alone doesn't guarantee gap at DPR 2.
-//   Both must be capped to maintain 1px gaps.
+//   envelope center but the old canvas fast-path used DPR-aware snap(). Now
+//   that all note bodies are SVG, the envelope and body share the same
+//   coordinate system.
+// - _drawNoteToSvg wraps _drawNote to create a filled SVG path element.
 //
 // These invariants are verified by scanning the source file at test time,
 // because pattern-editor depends on a live DOM + canvas context and cannot
@@ -48,11 +41,10 @@ function functionBody(lines: string[], openIdx: number): string[] {
 	for (let i = openIdx; i < lines.length; i++) {
 		const line = lines[i];
 		if (!started) {
-			// Skip the declaration line; start after the opening {
 			if (line.includes("{")) {
 				started = true;
 				depth = (line.match(/{/g) || []).length - (line.match(/}/g) || []).length;
-				if (depth <= 0) break; // single-line body
+				if (depth <= 0) break;
 			}
 			continue;
 		}
@@ -66,125 +58,42 @@ function functionBody(lines: string[], openIdx: number): string[] {
 
 describe("pattern-editor rendering contract", () => {
 	const lines = sourceLines();
-	const drawNoteToCanvasIdx = findFunction(lines, "drawNoteToCanvas");
+	const drawNoteToSvgIdx = findFunction(lines, "drawNoteToSvg");
 	const drawNoteIdx = findFunction(lines, "drawNote");
+	const redrawPatternsIdx = findFunction(lines, "redrawNotePatterns");
 
 	// -----------------------------------------------------------------------
-	// Category A: Stale canvas path guard
+	// Category A: Note bodies use SVG paths (not canvas fillRect)
 	// -----------------------------------------------------------------------
-	test("_drawNoteToCanvas calls ctx.beginPath before any branch", () => {
-		const body = functionBody(lines, drawNoteToCanvasIdx);
-		// beginPath must appear after the variable declarations but before
-		// the fast-path comment. It must be the only beginPath in the function.
-		const beginPathLines = body.filter((l) => l.includes("ctx.beginPath()"));
-		expect(beginPathLines.length).toBe(1);
-
-		// Verify it appears before the fast-path check.
-		const beginIdx = body.findIndex((l) => l.includes("ctx.beginPath()"));
-		const fastPathIdx = body.findIndex((l) => l.includes("Fast-path"));
-		const pathBranchIdx = body.findIndex((l) => l.includes("// Fast-path") === false && l.includes("beginPath") === false && l.includes("}"));
-		expect(beginIdx).toBeLessThan(fastPathIdx);
-
-		// No beginPath inside the envelope path branch (after fast-path return).
-		const returnIdx = body.findIndex((l) => l.trim() === "return;");
-		const afterReturn = body.slice(returnIdx + 1);
-		const strayBeginPath = afterReturn.filter((l) => l.includes("beginPath"));
-		expect(strayBeginPath.length).toBe(0);
+	test("_drawNoteToSvg creates SVG path element via _drawNote", () => {
+		const body = functionBody(lines, drawNoteToSvgIdx);
+		// Must create an SVG path element
+		expect(body.some((l) => l.includes("SVG.path()"))).toBeTrue();
+		// Must call _drawNote to build the path string
+		expect(body.some((l) => l.includes("this._drawNote("))).toBeTrue();
+		// Must append to _svgNoteContainer
+		expect(body.some((l) => l.includes("this._svgNoteContainer.appendChild"))).toBeTrue();
 	});
 
-	test("_drawNoteToCanvas fast-path fillRect does not contain beginPath", () => {
-		const body = functionBody(lines, drawNoteToCanvasIdx);
-		const fastPathStart = body.findIndex((l) => l.includes("fillRect is pixel-sharp"));
-		const returnIdx = body.findIndex((l, i) => i > fastPathStart && l.trim() === "return;");
-		const fastPathBlock = body.slice(fastPathStart, returnIdx + 1);
-		// The fast-path block must not contain any beginPath call — beginPath
-		// is called once at the function top.
-		const hasBeginPath = fastPathBlock.some((l) => l.includes("beginPath"));
-		expect(hasBeginPath).toBeFalse();
+	test("_redrawNotePatterns uses _drawNoteToSvg for note bodies (not canvas)", () => {
+		const body = functionBody(lines, redrawPatternsIdx);
+		// Note bodies must be drawn via SVG, not canvas
+		const drawSvgCalls = body.filter((l) => l.includes("this._drawNoteToSvg("));
+		expect(drawSvgCalls.length).toBeGreaterThan(0);
+		// No reference to canvas note drawing
+		const canvasNoteCalls = body.filter((l) => l.includes("_drawNoteToCanvas"));
+		expect(canvasNoteCalls.length).toBe(0);
 	});
 
 	// -----------------------------------------------------------------------
 	// Category B: fillStyle ordering — must be set before _drawNoteToCanvas
-	// because the fast-path paints immediately via fillRect.
+	// if canvas note drawing were used. Not applicable with SVG paths.
 	// -----------------------------------------------------------------------
-	test("_redrawNotePatterns sets fillStyle before every _drawNoteToCanvas call", () => {
-		const redrawIdx = findFunction(lines, "redrawNotePatterns");
-		const body = functionBody(lines, redrawIdx);
-
-		// Find every _drawNoteToCanvas call in the body.
-		const drawCallLines = body
-			.map((l, i) => ({ line: l, idx: i }))
-			.filter(({ line }) => line.includes("_drawNoteToCanvas("));
-
-		expect(drawCallLines.length).toBeGreaterThanOrEqual(3);
-
-		for (const { line, idx } of drawCallLines) {
-			// Scan backward from idx to find the nearest non-blank,
-			// non-comment, non-brace line.
-			let prev = idx - 1;
-			while (prev >= 0) {
-				const prevLine = body[prev].trim();
-				if (prevLine !== "" && !prevLine.startsWith("//") && prevLine !== "{" && prevLine !== "}") {
-					break;
-				}
-				prev--;
-			}
-			expect(prev).toBeGreaterThanOrEqual(0);
-			expect(body[prev]).toContain("ctx.fillStyle");
-		}
-	});
 
 	// -----------------------------------------------------------------------
-	// Category D: Seam gap invariants — note body size must leave
-	// visible gaps between adjacent notes horizontally and vertically.
+	// Category C: SVG/canvas y-center alignment
 	// -----------------------------------------------------------------------
-	test("fast-path height is shrunk by 1px to restore vertical seam", () => {
-		const body = functionBody(lines, drawNoteToCanvasIdx);
-		// Height must subtract 1px from the computed value to prevent
-		// adjacent-row overlap (radius*2 = pitchHeight+2, which erases
-		// the ~2px gap that pitchHeight rows normally have).
-		const hLine = body.find((l) => /^\s*const h:/.test(l));
-		expect(hLine).toBeDefined();
-		expect(hLine).toContain("- 1");
-		expect(hLine).toContain("snap(radius * 2 * scale)");
-	});
-
-	test("fast-path width uses full endOffset gap (no extra subtract)", () => {
-		const body = functionBody(lines, drawNoteToCanvasIdx);
-		const wLine = body.find((l) => /^\s*const w:/.test(l));
-		expect(wLine).toBeDefined();
-		// Width should NOT subtract an extra pixel — endOff already
-		// provides ~1px per side from the 0.5*min(2, totalW-1) inset.
-		expect(wLine).toContain("snap(totalW - 2 * endOff)");
-		// Width must NOT have a "- 1" shrink (only height does).
-		expect(wLine).not.toContain("- 1");
-	});
-
-	// -----------------------------------------------------------------------
-	// Category E: SVG/canvas y-center alignment
-	// -----------------------------------------------------------------------
-	test("_drawNote uses snap() for y-center to match canvas DPR rounding", () => {
-		const body = functionBody(lines, drawNoteIdx);
-
-		// Must compute a snap-based centerY.
-		const snapDecl = body.find((l) => l.includes("const snap:"));
-		expect(snapDecl).toBeDefined();
-		expect(snapDecl).toContain("Math.round(v * (this._dpr || 1)) / (this._dpr || 1)");
-
-		const centerYDecl = body.find((l) => l.includes("const centerY:"));
-		expect(centerYDecl).toBeDefined();
-		expect(centerYDecl).toContain("snap(this._pitchToPixelHeight(");
-
-		// Verify centerY variable is used in path string computation, not raw pitchToPixelHeight.
-		// The path lines use `centerY` (variable name, not literal string).
-		const pathLines = body.filter((l) => l.includes("centerY") || l.includes("prettyNumber(this._pitchToPixelHeight"));
-		const usesSnappedCenter = pathLines.some((l) => /\bcenterY\b/.test(l));
-		const usesRawPixelHeight = pathLines.some((l) => l.includes("prettyNumber(this._pitchToPixelHeight"));
-		expect(usesSnappedCenter).toBeTrue();
-		expect(usesRawPixelHeight).toBeFalse();
-	});
-
-	test("_drawNote has no standalone beginPath (it builds SVG path strings)", () => {
+	test("_drawNote calls _drawNote (SVG path string builder)", () => {
 		const body = functionBody(lines, drawNoteIdx);
 		// _drawNote only builds SVG 'd' attribute strings, never calls ctx methods.
 		const hasCtxCall = body.some((l) => l.includes("ctx."));

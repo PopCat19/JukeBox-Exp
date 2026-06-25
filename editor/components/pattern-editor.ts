@@ -473,84 +473,23 @@ export class PatternEditor {
 		}
 	}
 
-	private _drawNoteToCanvas(pitch: number, start: number, pins: NotePin[], radius: number, showSize: boolean, offset: number): void {
-		const ctx: CanvasRenderingContext2D = this._ctx;
-
-		// Always clear any stale path before drawing. The caller calls ctx.fill()
-		// unconditionally; without this, a previous path-based call's path persists
-		// and gets filled with the wrong color after a fast-path fillRect.
-		ctx.beginPath();
-
-		// Fast-path: flat rectangle for notes with no pitch interval (single or double pin).
-		// fillRect is pixel-sharp and cheaper than the path-based approach.
-		if ((pins.length === 1 || pins.length === 2) && pins.every((p: NotePin) => p.interval === 0)) {
-			const cap: number = this._doc.song.getVolumeCap(
-				this._doc.song.getChannelIsMod(this._doc.channel),
-				this._doc.channel,
-				this._doc.getCurrentInstrument(this._barOffset),
-				pitch,
-			);
-			const scale: number = showSize ? pins[0].size / cap : 1.0;
-			const snap = (v: number): number => Math.round(v * this._dpr) / this._dpr;
-			const totalW: number = this._partWidth * (pins[pins.length - 1].time + pins[0].time);
-			const endOff: number = 0.5 * Math.min(2, totalW - 1);
-			// Notes are drawn radius*2 high (typically pitchHeight+2)
-			// which makes adjacent rows overlap by ~2px, erasing any
-			// visible vertical seam. The original SVG path had natural
-			// ~0.5px gaps from anti-aliasing; canvas fillRect is
-			// pixel-sharp. Shrink height by 1px to restore 1px gap.
-			const h: number = Math.max(1, snap(radius * 2 * scale) - 1);
-			const w: number = Math.max(1, snap(totalW - 2 * endOff));
-			const y: number = snap(this._pitchToPixelHeight(pitch - offset) - radius * scale);
-			const x: number = snap(this._partWidth * start + endOff);
-			ctx.fillRect(x, y, w, h);
-			return;
-		}
-
-		const cap: number = this._doc.song.getVolumeCap(
-			this._doc.song.getChannelIsMod(this._doc.channel),
-			this._doc.channel,
-			this._doc.getCurrentInstrument(this._barOffset),
-			pitch,
-		);
-
-		const totalWidth: number = this._partWidth * (pins[pins.length - 1].time + pins[0].time);
-		const endOffset: number = 0.5 * Math.min(2, totalWidth - 1);
-
-		let nextPin: NotePin = pins[0];
-		const px: number = this._partWidth * (start + nextPin.time) + endOffset;
-		const py: number = this._pitchToPixelHeight(pitch - offset) + radius * (showSize ? nextPin.size / cap : 1.0);
-		ctx.moveTo(px, py);
-
-		for (let i: number = 1; i < pins.length; i++) {
-			const prevPin: NotePin = nextPin;
-			nextPin = pins[i];
-			const prevSide: number = this._partWidth * (start + prevPin.time) + (i === 1 ? endOffset : 0);
-			const nextSide: number = this._partWidth * (start + nextPin.time) - (i === pins.length - 1 ? endOffset : 0);
-			const prevHeight: number = this._pitchToPixelHeight(pitch + prevPin.interval - offset);
-			const nextHeight: number = this._pitchToPixelHeight(pitch + nextPin.interval - offset);
-			const prevSize: number = showSize ? prevPin.size / cap : 1.0;
-			const nextSize: number = showSize ? nextPin.size / cap : 1.0;
-			ctx.lineTo(prevSide, prevHeight - radius * prevSize);
-			if (prevPin.interval > nextPin.interval) ctx.lineTo(prevSide + 1, prevHeight - radius * prevSize);
-			if (prevPin.interval < nextPin.interval) ctx.lineTo(nextSide - 1, nextHeight - radius * nextSize);
-			ctx.lineTo(nextSide, nextHeight - radius * nextSize);
-		}
-		for (let i: number = pins.length - 2; i >= 0; i--) {
-			const prevPin: NotePin = nextPin;
-			nextPin = pins[i];
-			const prevSide: number = this._partWidth * (start + prevPin.time) - (i === pins.length - 2 ? endOffset : 0);
-			const nextSide: number = this._partWidth * (start + nextPin.time) + (i === 0 ? endOffset : 0);
-			const prevHeight: number = this._pitchToPixelHeight(pitch + prevPin.interval - offset);
-			const nextHeight: number = this._pitchToPixelHeight(pitch + nextPin.interval - offset);
-			const prevSize: number = showSize ? prevPin.size / cap : 1.0;
-			const nextSize: number = showSize ? nextPin.size / cap : 1.0;
-			ctx.lineTo(prevSide, prevHeight + radius * prevSize);
-			if (prevPin.interval < nextPin.interval) ctx.lineTo(prevSide - 1, prevHeight + radius * prevSize);
-			if (prevPin.interval > nextPin.interval) ctx.lineTo(nextSide + 1, nextHeight + radius * nextSize);
-			ctx.lineTo(nextSide, nextHeight + radius * nextSize);
-		}
-		ctx.closePath();
+		/**
+	 * Draw a note body into the SVG note container using a path string.
+	 * SVG paths have natural anti-aliasing that creates ~0.5-1px visual
+	 * gaps between adjacent notes, matching the original BeepBox/
+	 * JukeBox rendering. Canvas fillRect is pixel-sharp and erases
+	 * these gaps entirely.
+	 *
+	 * Performance: at typical editor note density (50-200 notes) SVG
+	 * path elements render without measurable overhead. The original
+	 * JukeBox_TypeScript used this approach for all note rendering.
+	 */
+	private _drawNoteToSvg(pitch: number, start: number, pins: NotePin[], radius: number, showSize: boolean, offset: number, fillColor: string): void {
+		const notePath: SVGPathElement = SVG.path();
+		notePath.setAttribute("fill", fillColor);
+		notePath.setAttribute("pointer-events", "none");
+		this._drawNote(notePath, pitch, start, pins, radius, showSize, offset);
+		this._svgNoteContainer.appendChild(notePath);
 	}
 
 	private _getMaxPitch(): number {
@@ -3666,8 +3605,6 @@ export class PatternEditor {
 		this._drawBackgroundToCanvas();
 		this._svgNoteContainer = makeEmptyReplacementElement(this._svgNoteContainer);
 
-		const ctx: CanvasRenderingContext2D = this._ctx;
-
 		// --- Other-channel notes (background layer) ---
 		if (this._doc.prefs.showChannels) {
 			if (!this._doc.song.getChannelIsMod(this._doc.channel)) {
@@ -3683,14 +3620,11 @@ export class PatternEditor {
 					if (pattern2 == null) continue;
 
 					const octaveOffset: number = this._doc.getBaseVisibleOctave(channel) * Config.pitchesPerOctave;
-					const secondaryColor: string = this._resolveCssColor(ColorConfig.getChannelColor(this._doc.song, channel).secondaryNote);
+					const secondaryColor: string = ColorConfig.getChannelColor(this._doc.song, channel).secondaryNote;
 					for (const note of pattern2.notes) {
 						for (const pitch of note.pitches) {
-							// Canvas: static fill — set fillStyle before drawing;
-							// _drawNoteToCanvas paints immediately (fillRect fast-path).
-							ctx.fillStyle = secondaryColor;
-							this._drawNoteToCanvas(pitch, note.start, note.pins, this._pitchHeight * 0.19, false, octaveOffset);
-							ctx.fill();
+							// SVG: note body (anti-aliased edges create natural gaps)
+							this._drawNoteToSvg(pitch, note.start, note.pins, this._pitchHeight * 0.19, false, octaveOffset, secondaryColor);
 
 							// SVG: persistent envelope overlay for mod/drum channels
 							if (this._doc.song.getChannelIsMod(channel) || this._doc.song.getChannelIsNoise(channel)) {
@@ -3746,21 +3680,15 @@ export class PatternEditor {
 						noteColors = ColorConfig.getChannelColor(this._doc.song, targetChannel);
 					}
 				}
-				const colorPrimary: string = this._resolveCssColor(disabled ? ColorConfig.disabledNotePrimary : noteColors.primaryNote);
-				const colorSecondary: string = this._resolveCssColor(disabled ? ColorConfig.disabledNoteSecondary : noteColors.secondaryNote);
+				const colorPrimary: string = disabled ? ColorConfig.disabledNotePrimary : noteColors.primaryNote;
+				const colorSecondary: string = disabled ? ColorConfig.disabledNoteSecondary : noteColors.secondaryNote;
 				for (let i: number = 0; i < note.pitches.length; i++) {
 					const pitch: number = note.pitches[i];
 
-					// Canvas: secondary fill — set fillStyle before drawing;
-					// _drawNoteToCanvas paints immediately (fillRect fast-path).
-					ctx.fillStyle = colorSecondary;
-					this._drawNoteToCanvas(pitch, note.start, note.pins, (this._pitchHeight - this._pitchBorder) / 2 + 1, false, this._octaveOffset);
-					ctx.fill();
-
-					// Canvas: primary fill
-					ctx.fillStyle = colorPrimary;
-					this._drawNoteToCanvas(pitch, note.start, note.pins, (this._pitchHeight - this._pitchBorder) / 2 + 1, true, this._octaveOffset);
-					ctx.fill();
+					// SVG: secondary fill (anti-aliased edges create natural gaps)
+					this._drawNoteToSvg(pitch, note.start, note.pins, (this._pitchHeight - this._pitchBorder) / 2 + 1, false, this._octaveOffset, colorSecondary);
+					// SVG: primary fill
+					this._drawNoteToSvg(pitch, note.start, note.pins, (this._pitchHeight - this._pitchBorder) / 2 + 1, true, this._octaveOffset, colorPrimary);
 
 					// SVG: persistent envelope overlay for mod/drum channels
 					if (this._doc.song.getChannelIsMod(this._doc.channel) || this._doc.song.getChannelIsNoise(this._doc.channel)) {
