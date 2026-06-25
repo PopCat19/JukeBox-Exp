@@ -64,6 +64,7 @@ All 12 types verified via encode→decode→type-preservation.
 |--------|-----------|-------|
 | `editor/input/inventory.ts` | `tests/input-inventory.test.ts` | InputBinding, inputBindings |
 | `editor/components/pattern-editor.ts` | `tests/pattern-editor-contract.test.ts` | Stale canvas path guard, SVG/canvas y-center alignment |
+| `editor/components/loop-editor.ts` | `tests/loop-editor-contract.test.ts` | CSS class for disabled state, no inline opacity conflict |
 | `editor/ui/index.ts` (barrel) | `tests/barrel-exports.test.ts` | buildOptions, numberInput, Slider, Layout, createDiv, etc. |
 
 **Untested editor modules:** All `editor/core/`, `editor/changes/`,
@@ -71,7 +72,7 @@ All 12 types verified via encode→decode→type-preservation.
 `editor/rendering/`, `editor/io/`, `editor/config/`,
 `editor/ui/*` subdirectories (except barrel), `editor/main.ts`,
 `editor/song-document.ts`, `editor/song-editor.ts`,
-`editor/song-custom-samples.ts`.
+`editor/song-custom-samples.ts`, `editor/components/mute-editor.ts`.
 
 ### shared/
 

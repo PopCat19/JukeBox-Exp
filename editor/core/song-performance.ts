@@ -169,11 +169,14 @@ export class SongPerformance {
 			// Falling edge: playback stopped (possibly from within
 			// synthesize() song-ended path). Sync editor bar to
 			// synth.bar (not playhead — playhead may be stale when
-			// ended=true skips the playhead update).
+			// ended=true skips the playhead update). Also reset
+			// scroll position so the pattern view follows.
 			const synthBar: number = this._doc.synth.currentBar;
 			if (synthBar !== this._doc.bar) {
 				this._doc.bar = synthBar;
+				this._doc.barScrollPos = 0;
 				this._doc.notifier.changed();
+				this._doc.notifier.notifyWatchers();
 			}
 		}
 		this._wasPlaying = playing;
