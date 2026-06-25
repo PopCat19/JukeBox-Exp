@@ -2580,9 +2580,11 @@ export class SongEditor
 		document.addEventListener("keydown", (e: KeyboardEvent) => {
 			if (!e.keyCode || e.keyCode !== 32) return;
 			const target = e.target as HTMLElement;
-			if (target.closest("select")) {
+			if (target.closest("select, button")) {
 				e.preventDefault();
-				this.mainLayer.focus({ preventScroll: true });
+				// Route directly to keyboard handler so Space toggles
+				// playback on this keypress, not the next one.
+				this._keyboardHandler.handleKeyDown(e);
 			}
 		});
 		this._animator = new PlayerAnimator(this.doc, {
