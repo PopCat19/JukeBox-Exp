@@ -484,15 +484,17 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 		this._stopButton.addEventListener("click", this._stop);
 		this._loopButton.addEventListener("click", this._toggleLoop);
 		this._loopButton.addEventListener("mouseenter", () => {
+			this._loopButton.style.boxShadow = "inset 0 0 0 2px var(--editor-background)";
 			if (this._doc.synth.loopRepeatCount === -1) {
-				this._loopButton.style.boxShadow = "inset 0 0 0 2px var(--editor-background)";
+				this._loopButton.style.color = "var(--cta-fg)";
 			} else {
 				this._loopButton.style.color = "var(--primary-text)";
 			}
 		});
 		this._loopButton.addEventListener("mouseleave", () => {
+			this._loopButton.style.boxShadow = "none";
 			if (this._doc.synth.loopRepeatCount === -1) {
-				this._loopButton.style.boxShadow = "none";
+				this._loopButton.style.color = "var(--cta-fg)";
 			} else {
 				this._loopButton.style.color = "var(--tab-inactive-fg)";
 			}
