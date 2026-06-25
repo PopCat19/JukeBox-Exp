@@ -260,6 +260,10 @@ export class Synth {
 		return this.isPlayingSong;
 	}
 
+	public get currentBar(): number {
+		return this.bar;
+	}
+
 	public get fadingOut(): boolean {
 		return this._stopFadeSamplesRemaining > 0;
 	}
