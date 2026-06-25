@@ -63,10 +63,11 @@ All 12 types verified via encode→decode→type-preservation.
 | Source | Test file | Scope |
 |--------|-----------|-------|
 | `editor/input/inventory.ts` | `tests/input-inventory.test.ts` | InputBinding, inputBindings |
+| `editor/components/pattern-editor.ts` | `tests/pattern-editor-contract.test.ts` | Stale canvas path guard, SVG/canvas y-center alignment |
 | `editor/ui/index.ts` (barrel) | `tests/barrel-exports.test.ts` | buildOptions, numberInput, Slider, Layout, createDiv, etc. |
 
 **Untested editor modules:** All `editor/core/`, `editor/changes/`,
-`editor/components/`, `editor/prompts/`, `editor/renderers/`,
+`editor/prompts/`, `editor/renderers/`,
 `editor/rendering/`, `editor/io/`, `editor/config/`,
 `editor/ui/*` subdirectories (except barrel), `editor/main.ts`,
 `editor/song-document.ts`, `editor/song-editor.ts`,
