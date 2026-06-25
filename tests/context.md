@@ -13,6 +13,7 @@ Purpose: bun:test test files covering editor, synth, and shared modules.
 - `input-inventory.test.ts`, Unit tests for input binding inventory and concern modules
 - `notes.test.ts`, Unit tests for note and pattern data structures
 - `song-document-integration.test.ts`, Integration tests for Sprint 1 refactorings and song serialization
+- `plugin-round-trip.test.ts`, Per-plugin-type instrument round-trip encode/decode tests
 - `song-round-trip.test.ts`, Integration tests for song serialization round-trip encode/decode
 - `song-serialization.test.ts`, Unit tests for song serialization API and failure resilience
 - `synth-math.test.ts`, Unit tests for pure synth math utilities (getLFOAmplitude, computeChordExpression, operatorAmplitudeCurve, adjacentNotesHaveMatchingPitches, volume conversion round-trips)

@@ -26,17 +26,26 @@ an uncovered module.
 | `synth/song.ts` | `tests/song-serialization.test.ts` | toBase64String, fromBase64String, failure resilience |
 | `synth/song.ts` | `tests/song-round-trip.test.ts` | round-trip encode/decode, modified song, toJsonObject/fromJsonObject |
 | `synth/song.ts` | `tests/song-document-integration.test.ts` | hasEffect, effects bitmask round-trip |
+| `synth/song.ts` | `tests/plugin-round-trip.test.ts` | per-type instrument encode→decode |
 | `synth/instruments/` | `tests/synth-math.test.ts` | Instrument usage in operatorAmplitudeCurve |
 | `synth/serialization.ts` | `tests/song-serialization.test.ts` | base64CharCodeToInt, base64IntToCharCode, getNeededBits |
 | `synth/formats/jukebox-exp.ts` | `tests/barrel-exports.test.ts` | fromJukeboxExpJson, toJukeboxExpJson (indirect) |
 | `synth/index.ts` (barrel) | `tests/barrel-exports.test.ts` | All synth re-exports |
+| `synth/plugins/` | `tests/barrel-exports.test.ts` | Plugin registry barrel |
+| `synth/synthesis/` | `tests/barrel-exports.test.ts` | Synthesis source builders barrel |
+| `synth/config/` | `tests/barrel-exports.test.ts` | Config, types, utils barrel |
+| `synth/formats/` | `tests/barrel-exports.test.ts` | JukeboxExp + legacy compat barrel |
 
 **Untested synth modules:** `synth.ts`, `tone.ts`, `channels.ts`, `channel-state.ts`,
 `envelope-computer.ts`, `mod-state.ts`, `fft.ts`, `waves.ts`, `deque.ts`,
 `picked-string.ts`, `song-utilities.ts`, `instrument-state.ts`,
-`plugins/*.ts` (17 files), `synthesis/*.ts` (11 files),
-`config/*.ts` (6 files), `instruments/*.ts` (6 files),
-`formats/*.ts` (4 files).
+`synthesis/*.ts` (sources only — barrel verified),
+`config/sample-loader.ts` (barrel verified),
+`formats/legacy-compat.ts` (barrel verified).
+
+**Instrument type round-trips (tested):** chip, fm, noise, spectrum, drumset,
+harmonics, pwm, pickedString, supersaw, customChipWave, mod, fm6op.
+All 12 types verified via encode→decode→type-preservation.
 
 ### editor/
 
