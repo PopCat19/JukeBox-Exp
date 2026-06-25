@@ -2560,16 +2560,21 @@ export class SongEditor
 		this._keyboardHandler = new KeyboardHandler(this);
 		this._dispatch = new ChangeDispatcher(this);
 
-		this.mainLayer.addEventListener("pointerup", (e) => {
-			if ((e.target as HTMLElement).matches("input[type=range]")) {
+		// Blur buttons and selects on click so Space doesn't re-trigger the
+		// last clicked element instead of toggling playback.
+		// Excludes text inputs and contenteditable elements.
+		// Uses document-level listener to cover prompts outside mainLayer.
+		const blurOnClick = (e: Event): void => {
+			const target: HTMLElement = e.target as HTMLElement;
+			if (target.matches("input[type=range]")) {
 				this.mainLayer.focus();
+			} else if (target.matches("button, select")) {
+				// Defer so the click handler runs first.
+				setTimeout(() => this.mainLayer.focus({ preventScroll: true }), 0);
 			}
-		});
-		this.mainLayer.addEventListener("touchend", (e) => {
-			if ((e.target as HTMLElement).matches("input[type=range]")) {
-				this.mainLayer.focus();
-			}
-		});
+		};
+		document.addEventListener("pointerup", blurOnClick);
+		document.addEventListener("touchend", blurOnClick);
 		this._animator = new PlayerAnimator(this.doc, {
 			modSliderUpdate: () => this._modSliderUpdate(),
 			getCtrlHeld: () => this._ctrlHeld,
