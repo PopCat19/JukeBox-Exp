@@ -384,6 +384,6 @@ export class LoopEditor {
 
 		// Dim the entire loop pill when loop is disabled.
 		const loopEnabled: boolean = this._doc.synth.loopRepeatCount !== 0;
-		this.container.style.opacity = loopEnabled ? "1" : "0.35";
+		this.container.classList.toggle("loopDisabled", !loopEnabled);
 	}
 }

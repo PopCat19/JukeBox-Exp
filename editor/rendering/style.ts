@@ -286,6 +286,9 @@ html {
 	padding: var(--padding-4) 0;
 	background-color: ${ColorConfig.editorBackground};
 }
+.beepboxEditor .loopEditor.loopDisabled {
+	opacity: 0.2;
+}
 
 .beepboxEditor .settings-area {
 	grid-area: settings-area;
