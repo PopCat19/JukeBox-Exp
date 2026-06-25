@@ -149,11 +149,15 @@ describe("getArpeggioPitchIndex", () => {
 		}
 	});
 
-	test("fast mode differs from normal mode for 2-note", () => {
-		const normal = getArpeggioPitchIndex(2, false, 0);
-		const fast = getArpeggioPitchIndex(2, true, 0);
-		expect(normal).toBeDefined();
-		expect(fast).toBeDefined();
+	test("fast mode reads valid index for multiple arp patterns", () => {
+		for (let arp = 0; arp < Config.arpeggioPatterns.length; arp++) {
+			const normal = getArpeggioPitchIndex(2, false, arp);
+			const fast = getArpeggioPitchIndex(2, true, arp);
+			expect(normal).toBeGreaterThanOrEqual(0);
+			expect(fast).toBeGreaterThanOrEqual(0);
+			expect(fast).not.toBeGreaterThanOrEqual(2);
+			expect(normal).not.toBeGreaterThanOrEqual(2);
+		}
 	});
 });
 

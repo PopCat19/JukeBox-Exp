@@ -177,6 +177,7 @@ describe("failure injection", () => {
 			const decoded = new Song();
 			// Should not throw — parser reads past end and gets NaN/undefined which maps to 0
 			expect(() => decoded.fromBase64String(truncated)).not.toThrow();
+			expect(decoded.getChannelCount()).toBeGreaterThanOrEqual(0);
 		});
 
 		test("truncated base64 string to just variant+version does not crash", () => {
@@ -196,6 +197,7 @@ describe("failure injection", () => {
 			const truncated = encoded.substring(0, 1);
 			const decoded = new Song();
 			expect(() => decoded.fromBase64String(truncated)).not.toThrow();
+			expect(decoded.getChannelCount()).toBeGreaterThanOrEqual(0);
 		});
 	});
 
@@ -240,6 +242,7 @@ describe("failure injection", () => {
 			const corrupted = chars.join("");
 			const decoded = new Song();
 			expect(() => decoded.fromBase64String(corrupted)).not.toThrow();
+			expect(decoded.getChannelCount()).toBeGreaterThanOrEqual(0);
 		});
 	});
 
@@ -247,6 +250,7 @@ describe("failure injection", () => {
 		test("invalid base64 characters do not crash", () => {
 			const song = new Song();
 			expect(() => song.fromBase64String("J4!@#$%^&*()[]{}|\\;:'\",.<>?/~`\x01\x02\x03")).not.toThrow();
+			expect(song.getChannelCount()).toBeGreaterThanOrEqual(0);
 		});
 
 		test("whitespace-only string does not crash", () => {
@@ -260,16 +264,19 @@ describe("failure injection", () => {
 			const song = new Song();
 			const garbage = "X".repeat(10000);
 			expect(() => song.fromBase64String(garbage)).not.toThrow();
+			expect(song.getChannelCount()).toBeGreaterThanOrEqual(0);
 		});
 
 		test("padding-only string does not crash", () => {
 			const song = new Song();
 			expect(() => song.fromBase64String("====")).not.toThrow();
+			expect(song.getChannelCount()).toBeGreaterThanOrEqual(0);
 		});
 
 		test("hash prefix with garbage does not crash", () => {
 			const song = new Song();
 			expect(() => song.fromBase64String("#!@#$%")).not.toThrow();
+			expect(song.getChannelCount()).toBeGreaterThanOrEqual(0);
 		});
 
 		test("valid variant marker followed by invalid version resets to default", () => {
@@ -356,6 +363,9 @@ describe("failure injection", () => {
 
 		test("constructor with null or undefined creates default song", () => {
 			expect(() => new Song(null as any)).not.toThrow();
+			const song0 = new Song(null as any);
+			expect(song0.tempo).toBe(160);
+			expect(song0.getChannelCount()).toBe(4);
 			const song1 = new Song(undefined);
 			expect(song1.tempo).toBe(160);
 			expect(song1.getChannelCount()).toBe(4);
@@ -369,7 +379,10 @@ describe("failure injection", () => {
 			const song = new Song();
 			song.tempo = 300;
 			expect(() => song.fromJsonObject(null)).not.toThrow();
+			// null/undefined cause a reset to defaults
+			expect(song.tempo).toBe(160);
 			expect(() => song.fromJsonObject(undefined)).not.toThrow();
+			expect(song.tempo).toBe(160);
 		});
 
 		test("fromJsonObject with empty object — KNOWN CRASH", () => {

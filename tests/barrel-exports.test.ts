@@ -28,13 +28,13 @@ describe("synth barrel exports", () => {
 
 	test("core classes are accessible", async () => {
 		const mod = await import("../synth");
-		expect(mod.Song).toBeDefined();
-		expect(mod.Synth).toBeDefined();
-		expect(mod.Tone).toBeDefined();
-		expect(mod.Note).toBeDefined();
-		expect(mod.Pattern).toBeDefined();
-		expect(mod.Channel).toBeDefined();
-		expect(mod.Instrument).toBeDefined();
+		expect(typeof mod.Song).toBe("function");
+		expect(typeof mod.Synth).toBe("function");
+		expect(typeof mod.Tone).toBe("function");
+		expect(typeof mod.Note).toBe("function");
+		expect(typeof mod.Pattern).toBe("function");
+		expect(typeof mod.Channel).toBe("function");
+		expect(typeof mod.Instrument).toBe("function");
 	});
 
 	test("plugin registry is accessible", async () => {
@@ -47,17 +47,17 @@ describe("synth barrel exports", () => {
 
 	test("synth-config re-exports are accessible", async () => {
 		const mod = await import("../synth");
-		expect(mod.Config).toBeDefined();
-		expect(mod.InstrumentType).toBeDefined();
-		expect(mod.FilterType).toBeDefined();
-		expect(mod.EnvelopeType).toBeDefined();
+		expect(typeof mod.Config).toBe("function");
+		expect(typeof mod.InstrumentType).toBe("object");
+		expect(typeof mod.FilterType).toBe("object");
+		expect(typeof mod.EnvelopeType).toBe("object");
 		// Chord and Transition are type-only (interfaces), not runtime values
 	});
 
 	test("serialization helpers are accessible", async () => {
 		const mod = await import("../synth");
-		expect(mod.base64CharCodeToInt).toBeDefined();
-		expect(mod.base64IntToCharCode).toBeDefined();
+		expect(typeof mod.base64CharCodeToInt).toBe("object");
+		expect(typeof mod.base64IntToCharCode).toBe("object");
 		expect(typeof mod.getNeededBits).toBe("function");
 	});
 
@@ -84,11 +84,11 @@ describe("editor/ui barrel exports", () => {
 		// Slider and Layout have circular deps with SongDocument via the barrel.
 		// Test direct imports to avoid ESM dead zones.
 		const sliderMod = await import("../editor/ui/sliders/slider");
-		expect(sliderMod.Slider).toBeDefined();
+		expect(typeof sliderMod.Slider).toBe("function");
 		expect(typeof sliderMod.rangeSlider).toBe("function");
 		// Layout has circular dependency with barrel — verify direct import works
 		const layoutMod = await import("../editor/ui/layout/layout");
-		expect(layoutMod.Layout).toBeDefined();
+		expect(typeof layoutMod.Layout).toBe("function");
 	});
 
 	test("base factories are accessible", async () => {
@@ -173,7 +173,6 @@ describe("shared barrel exports", () => {
 
 	test("events module is accessible", async () => {
 		const mod = await import("../shared/events");
-		expect(mod.events).toBeDefined();
 		expect(typeof mod.events.raise).toBe("function");
 		expect(typeof mod.events.listen).toBe("function");
 		expect(typeof mod.events.unlisten).toBe("function");

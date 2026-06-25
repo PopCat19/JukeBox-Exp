@@ -94,13 +94,15 @@ describe("warpNyquistToInfinity / warpInfinityToNyquist", () => {
 	});
 });
 
-describe("DynamicBiquadFilter", () => {
-	test("loadCoefficientsWithGradient does not throw for 2nd-order filters", () => {
+	describe("DynamicBiquadFilter", () => {
+	test("loadCoefficientsWithGradient loads coefficients for 2nd-order filters", () => {
 		const start = new FilterCoefficients();
 		start.lowPass2ndOrderButterworth(Math.PI / 4, 1.0);
 		const end = new FilterCoefficients();
 		end.lowPass2ndOrderButterworth(Math.PI / 2, 1.0);
 		const filter = new DynamicBiquadFilter();
 		expect(() => filter.loadCoefficientsWithGradient(start, end, 0.01, false)).not.toThrow();
+		expect(filter.a1).not.toBe(0);
+		expect(filter.b0).not.toBe(0);
 	});
 });

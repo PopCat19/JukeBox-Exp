@@ -37,9 +37,12 @@ describe("inputBindings inventory", () => {
       expect(typeof b.id).toBe("string");
       expect(b.id.length).toBeGreaterThan(0);
       expect(["key", "mouse", "touch", "wheel", "scroll"]).toContain(b.kind);
-      expect(b.sourceFile).toBeDefined();
-      expect(b.handler).toBeDefined();
-      expect(b.concern).toBeDefined();
+      expect(typeof b.sourceFile).toBe("string");
+      expect(b.sourceFile.length).toBeGreaterThan(0);
+      expect(typeof b.handler).toBe("string");
+      expect(b.handler.length).toBeGreaterThan(0);
+      expect(typeof b.concern).toBe("string");
+      expect(b.concern.length).toBeGreaterThan(0);
     }
   });
 
@@ -59,8 +62,13 @@ describe("inputBindings inventory", () => {
   test("key bindings have a keys field", () => {
     for (const b of inputBindings) {
       if (b.kind === "key") {
-        expect(b.keys).toBeDefined();
-        expect(b.keys!.length).toBeGreaterThan(0);
+        expect(b.keys != null).toBe(true);
+        if (Array.isArray(b.keys)) {
+          expect(b.keys.length).toBeGreaterThan(0);
+        } else {
+          expect(typeof b.keys).toBe("string");
+          expect((b.keys as string).length).toBeGreaterThan(0);
+        }
       }
     }
   });
