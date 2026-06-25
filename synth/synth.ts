@@ -202,7 +202,7 @@ export class Synth {
 	private _stopFadeSamplesRemaining: number = 0;
 	/** Total samples at the start of the fade — for linear ramp. */
 	private _stopFadeSamplesTotal: number = 0;
-	private static readonly STOP_FADE_DURATION_MS: number = 150;
+	private static readonly STOP_FADE_DURATION_MS: number = 3000;
 
 	public readonly channels: ChannelState[] = [];
 	private readonly tonePool: Deque<Tone> = new Deque<Tone>();
@@ -1409,14 +1409,16 @@ export class Synth {
 			this.song.inVolumeCap = volCap.in;
 			this.song.outVolumeCap = volCap.out;
 
-			// Stop-fade gain ramp: after post-processing, apply a linear gain
-			// from 1.0 to 0.0 over _stopFadeSamplesRemaining samples.
+			// Stop-fade gain ramp: exponential-style decay (quadratic curve)
+			// mimics a natural reverb tail — fast initial drop with a long
+			// gentle fade at the end, like FL Studio's stop behavior.
 			if (this._stopFadeSamplesRemaining > 0) {
 				const total = this._stopFadeSamplesTotal;
 				for (let i: number = bufferIndex; i < runEnd; i++) {
 					const t: number = this._stopFadeSamplesRemaining / total;
-					outputDataL[i] *= t;
-					outputDataR[i] *= t;
+					const gain: number = t * t;
+					outputDataL[i] *= gain;
+					outputDataR[i] *= gain;
 					this._stopFadeSamplesRemaining--;
 					if (this._stopFadeSamplesRemaining <= 0) break;
 				}
