@@ -476,6 +476,11 @@ export class PatternEditor {
 	private _drawNoteToCanvas(pitch: number, start: number, pins: NotePin[], radius: number, showSize: boolean, offset: number): void {
 		const ctx: CanvasRenderingContext2D = this._ctx;
 
+		// Always clear any stale path before drawing. The caller calls ctx.fill()
+		// unconditionally; without this, a previous path-based call's path persists
+		// and gets filled with the wrong color after a fast-path fillRect.
+		ctx.beginPath();
+
 		// Fast-path: flat rectangle for notes with no pitch interval (single or double pin).
 		// fillRect is pixel-sharp and cheaper than the path-based approach.
 		if ((pins.length === 1 || pins.length === 2) && pins.every((p: NotePin) => p.interval === 0)) {
@@ -510,7 +515,6 @@ export class PatternEditor {
 		let nextPin: NotePin = pins[0];
 		const px: number = this._partWidth * (start + nextPin.time) + endOffset;
 		const py: number = this._pitchToPixelHeight(pitch - offset) + radius * (showSize ? nextPin.size / cap : 1.0);
-		ctx.beginPath();
 		ctx.moveTo(px, py);
 
 		for (let i: number = 1; i < pins.length; i++) {
@@ -3891,11 +3895,16 @@ export class PatternEditor {
 			pitch,
 		);
 
+		// Compute y-center using snapped-to-pixel y, matching _drawNoteToCanvas
+		// fast-path center so the SVG envelope overlay aligns with the canvas note body.
+		const snap: (v: number) => number = (v: number): number => Math.round(v * (this._dpr || 1)) / (this._dpr || 1);
+		const centerY: number = snap(this._pitchToPixelHeight(pitch - offset));
+
 		let pathString: string =
 			"M " +
 			prettyNumber(this._partWidth * (start + nextPin.time) + endOffset) +
 			" " +
-			prettyNumber(this._pitchToPixelHeight(pitch - offset) + radius * (showSize ? nextPin.size / cap : 1.0)) +
+			prettyNumber(centerY + radius * (showSize ? nextPin.size / cap : 1.0)) +
 			" ";
 
 		for (let i: number = 1; i < pins.length; i++) {
