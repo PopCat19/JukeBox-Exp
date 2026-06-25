@@ -9,15 +9,15 @@
 // - monkey-patched methods still work after install
 
 import { describe, test, expect } from "bun:test";
-import { Song } from "../synth/song";
 import { InstrumentType } from "../synth/synth-config";
+import { createTestSong } from "./test-helpers";
 
 // We can't fully instantiate SongDocument in tests (needs browser APIs),
 // but we can test the core logic that doesn't depend on the document.
 
 describe("validate (logic)", () => {
 	test("detects chip instrument on noise channel", () => {
-		const song = new Song();
+		const song = createTestSong();
 		// channel 2 is noise (default: 2 pitch, 1 noise, 1 mod)
 		const noiseCh = song.channels[2];
 		expect(song.getChannelIsNoise(2)).toBe(true);
@@ -41,7 +41,7 @@ describe("validate (logic)", () => {
 	});
 
 	test("detects stale pattern instrument reference", () => {
-		const song = new Song();
+		const song = createTestSong();
 		const ch = song.channels[0];
 		// Pattern references instrument 99 (doesn't exist)
 		ch.patterns[0].instruments = [99];
@@ -59,7 +59,7 @@ describe("validate (logic)", () => {
 	});
 
 	test("clean song produces no issues", () => {
-		const song = new Song();
+		const song = createTestSong();
 		const issues: string[] = [];
 		for (let ci = 0; ci < song.getChannelCount(); ci++) {
 			const ch = song.channels[ci];

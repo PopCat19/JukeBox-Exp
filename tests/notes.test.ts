@@ -7,13 +7,12 @@
 // if Note() didn't set fields, nothing would work at all.
 
 import { describe, test, expect } from "bun:test";
-import { makeNotePin, Note, Pattern } from "../synth/notes";
 import { Config } from "../synth/synth-config";
-import { Song } from "../synth/song";
+import { createTestNote, createTestPattern, createTestSong } from "./test-helpers";
 
 describe("Note.clone()", () => {
 	test("clone is structurally equal to original", () => {
-		const original = new Note(3, 2, 8, 2);
+		const original = createTestNote(3, 2, 8, 2);
 		const clone = original.clone();
 		expect(clone.start).toBe(original.start);
 		expect(clone.end).toBe(original.end);
@@ -21,7 +20,7 @@ describe("Note.clone()", () => {
 	});
 
 	test("clone is independent — mutating clone does not affect original", () => {
-		const original = new Note(3, 2, 8, 2);
+		const original = createTestNote(3, 2, 8, 2);
 		const clone = original.clone();
 		clone.pitches[0] = 99;
 		clone.start = 100;
@@ -30,7 +29,7 @@ describe("Note.clone()", () => {
 	});
 
 	test("clone of multi-pitch note is independent", () => {
-		const original = new Note(0, 0, 4, 0);
+		const original = createTestNote(0, 0, 4, 0);
 		original.pitches = [0, 4, 7];
 		const clone = original.clone();
 		clone.pitches.push(11);
@@ -40,26 +39,26 @@ describe("Note.clone()", () => {
 
 describe("Pattern serialization round-trip", () => {
 	test("instrument index survives toJsonObject/fromJsonObject", () => {
-		const song = new Song();
+		const song = createTestSong();
 		const channel = song.channels[0];
-		const pattern = new Pattern();
+		const pattern = createTestPattern();
 		pattern.instruments[0] = 1;
 
 		const json = pattern.toJsonObject(song, channel, song.getChannelIsMod(0));
-		const restored = new Pattern();
+		const restored = createTestPattern();
 		restored.fromJsonObject(json, song, channel, Config.rhythms[song.rhythm].stepsPerBeat, false, song.getChannelIsMod(0));
 
 		expect(restored.instruments[0]).toBe(0); // 1-based in JSON → 0-based internally
 	});
 
 	test("notes survive toJsonObject/fromJsonObject", () => {
-		const song = new Song();
+		const song = createTestSong();
 		const channel = song.channels[0];
-		const pattern = new Pattern();
-		pattern.notes.push(new Note(5, 0, 4, 3));
+		const pattern = createTestPattern();
+		pattern.notes.push(createTestNote(5, 0, 4, 3));
 
 		const json = pattern.toJsonObject(song, channel, song.getChannelIsMod(0));
-		const restored = new Pattern();
+		const restored = createTestPattern();
 		restored.fromJsonObject(json, song, channel, Config.rhythms[song.rhythm].stepsPerBeat, false, song.getChannelIsMod(0));
 
 		expect(restored.notes.length).toBe(1);
@@ -71,8 +70,8 @@ describe("Pattern serialization round-trip", () => {
 
 describe("Pattern.reset()", () => {
 	test("reset clears notes and resets instruments to default", () => {
-		const pattern = new Pattern();
-		pattern.notes.push(new Note(0, 0, 4, 3));
+		const pattern = createTestPattern();
+		pattern.notes.push(createTestNote(0, 0, 4, 3));
 		pattern.instruments[0] = 5;
 		pattern.instruments.push(2);
 

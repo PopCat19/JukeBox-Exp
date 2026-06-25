@@ -9,12 +9,11 @@
 
 import { describe, test, expect } from "bun:test";
 import { hasEffect, EffectType, effectsIncludeTransition, effectsIncludeChord } from "../synth/synth-config";
-import { Song } from "../synth/song";
-import { roundTripSong } from "./test-helpers";
+import { createTestSong, roundTripSong } from "./test-helpers";
 
 describe("Effects bitmask round-trip", () => {
 	test("all 18 effects enabled survive serialization round-trip", () => {
-		const song = new Song();
+		const song = createTestSong();
 		const instrument = song.channels[0].instruments[0];
 
 		instrument.effects = 0;
@@ -27,7 +26,7 @@ describe("Effects bitmask round-trip", () => {
 	});
 
 	test("instrument type change survives serialization round-trip", () => {
-		const song = new Song();
+		const song = createTestSong();
 		song.channels[0].instruments[0].type = 1;
 
 		const decoded = roundTripSong(song);

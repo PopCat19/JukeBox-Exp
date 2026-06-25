@@ -6,8 +6,6 @@
 // concrete invariant — if the logic changes incorrectly, at least one will fail.
 
 import { describe, test, expect } from "bun:test";
-import { Instrument } from "../synth/instruments";
-import { Note } from "../synth/notes";
 import { Config } from "../synth/synth-config";
 import {
 	getLFOAmplitude,
@@ -18,13 +16,14 @@ import {
 	volumeMultToNoteSize,
 } from "../synth/synth-math";
 import { instrumentVolumeToVolumeMult, noteSizeToVolumeMult } from "../synth/synth-shared";
+import { createTestInstrument, createTestNote } from "./test-helpers";
 
 // ----------------------------------------------------------------
 // getLFOAmplitude
 // ----------------------------------------------------------------
 describe("getLFOAmplitude", () => {
 	test("returns 0 at secondsIntoBar=0 for any vibrato type (sin(0)=0 summed)", () => {
-		const instr = new Instrument();
+		const instr = createTestInstrument();
 		for (let vt = 0; vt < Config.vibratoTypes.length; vt++) {
 			instr.vibratoType = vt;
 			const amp = getLFOAmplitude(instr, 0);
@@ -33,7 +32,7 @@ describe("getLFOAmplitude", () => {
 	});
 
 	test("returns positive amplitude after a quarter-period of the first vibrato type", () => {
-		const instr = new Instrument();
+	        const instr = createTestInstrument();
 		instr.vibratoType = 0;
 		const firstPeriod = Config.vibratoTypes[0].periodsSeconds[0];
 		const amp = getLFOAmplitude(instr, firstPeriod / 4);
@@ -41,7 +40,7 @@ describe("getLFOAmplitude", () => {
 	});
 
 	test("returns negative amplitude after a three-quarter-period", () => {
-		const instr = new Instrument();
+		const instr = createTestInstrument();
 		instr.vibratoType = 0;
 		const firstPeriod = Config.vibratoTypes[0].periodsSeconds[0];
 		const amp = getLFOAmplitude(instr, (3 * firstPeriod) / 4);
@@ -49,7 +48,7 @@ describe("getLFOAmplitude", () => {
 	});
 
 	test("sums multiple vibrato periods when Config defines them", () => {
-		const instr = new Instrument();
+		const instr = createTestInstrument();
 		// Pick the vibrato type with the most sub-periods
 		let maxPeriods = 0;
 		let maxVt = 0;
@@ -135,43 +134,43 @@ describe("operatorAmplitudeCurve", () => {
 // ----------------------------------------------------------------
 describe("adjacentNotesHaveMatchingPitches", () => {
 	test("single-pitch notes with zero interval return true when pitches match", () => {
-		const a = new Note(30, 0, 1, 1); // pins: [{interval:0,time:0,size:1}, {interval:0,time:1,size:1}]
-		const b = new Note(30, 1, 2, 1);
+		const a = createTestNote(30, 0, 1, 1); // pins: [{interval:0,time:0,size:1}, {interval:0,time:1,size:1}]
+		const b = createTestNote(30, 1, 2, 1);
 		expect(adjacentNotesHaveMatchingPitches(a, b)).toBe(true);
 	});
 
 	test("single-pitch notes with zero interval and different pitches return false", () => {
-		const a = new Note(30, 0, 1, 1);
-		const b = new Note(31, 1, 2, 1);
+		const a = createTestNote(30, 0, 1, 1);
+		const b = createTestNote(31, 1, 2, 1);
 		expect(adjacentNotesHaveMatchingPitches(a, b)).toBe(false);
 	});
 
 	test("multi-pitch notes with matching transposition at interval 0 return true", () => {
-		const a = new Note(30, 0, 1, 1);
+		const a = createTestNote(30, 0, 1, 1);
 		a.pitches.push(34);
 		a.pitches.push(37);
-		const b = new Note(30, 1, 2, 1); // last pin interval = 0
+		const b = createTestNote(30, 1, 2, 1); // last pin interval = 0
 		b.pitches.push(34);
 		b.pitches.push(37);
 		expect(adjacentNotesHaveMatchingPitches(a, b)).toBe(true);
 	});
 
 	test("multi-pitch notes with size mismatch return false", () => {
-		const a = new Note(30, 0, 1, 1);
+		const a = createTestNote(30, 0, 1, 1);
 		a.pitches.push(34);
-		const b = new Note(30, 1, 2, 1);
+		const b = createTestNote(30, 1, 2, 1);
 		b.pitches.push(37);
 		b.pitches.push(40); // 3 pitches vs 2 in a
 		expect(adjacentNotesHaveMatchingPitches(a, b)).toBe(false);
 	});
 
 	test("interval from last pin is used for transposition check", () => {
-		const a = new Note(30, 0, 1, 1);
+		const a = createTestNote(30, 0, 1, 1);
 		a.pins = [
 			{ interval: 0, time: 0, size: 1 },
 			{ interval: 5, time: 1, size: 1 },
 		];
-		const b = new Note(35, 1, 2, 1); // pitch = 30+5=35
+		const b = createTestNote(35, 1, 2, 1); // pitch = 30+5=35
 		b.pins = [
 			{ interval: 5, time: 0, size: 1 },
 			{ interval: 5, time: 1, size: 1 },
