@@ -1673,7 +1673,6 @@ export class Synth {
 										if (this.loopRepeatCount !== -1) {
 											this._dbg("Song ended (inside render loop), pausing. loopRepeatCount:", this.loopRepeatCount);
 											ended = true;
-											this.resetEffects();
 											this.pause();
 										}
 									}
