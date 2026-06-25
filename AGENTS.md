@@ -33,11 +33,13 @@ Three TypeScript projects (separate tsconfigs):
 
 **shared/**, shared kernel
 - `themes/`, 58 color theme definitions
-- `color-config.ts`, `events.ts`, `oscilloscope.ts`
+- `color-config.ts`, `color-utils.ts`, `events.ts`, `spectrum.ts`
+- `pmd/`, PMD color system (base16, variables, compositing)
+- `pmd-adapter.ts`, legacy PMD to new color system bridge
 
 **Other directories:**
 - `scripts/`, build, lint, deploy, dev tooling
-- `tests/`, bun:test test files
+- `tests/`, bun:test test files (14 files, 269 tests, 3109 expect calls)
 - `docs/`, architecture refactors and audits
 - `concepts/`, design concept docs
 - `conventions/`, dev-mini conventions reference
@@ -60,6 +62,7 @@ bun run build:offline    # offline-capable build
 
 ```bash
 bun test                  # bun:test (all tests in tests/)
+bun test --filter "getLFO" # run tests matching name pattern
 bun run typecheck         # tsc --noEmit (editor)
 bun run typecheck:synth   # tsc --noEmit (synth)
 bun run typecheck:player  # tsc --noEmit (player)
@@ -68,7 +71,10 @@ bun run lint              # Biome format/lint + type-check + ESLint
 bun run lint:fix          # auto-fix formatting with Biome --write
 ```
 
-Always run `bun test && bun run typecheck:all` before committing.
+Before every commit: `bun test && bun run typecheck:all`.
+
+See `tests/TESTING.md` for the source-to-test cross-reference, test conventions,
+and assertion rules.
 
 ## Debug tools
 
