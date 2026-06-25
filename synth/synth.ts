@@ -1458,6 +1458,20 @@ export class Synth {
 				if (this._stopFadeSamplesRemaining <= 0 && !this._stopFadeCleanupDone) {
 					this._stopFadeCleanupDone = true;
 					this.freeAllTones();
+					if (this.song != null) {
+						for (const channelState of this.channels) {
+							for (const instrumentState of channelState.instruments) {
+								instrumentState.resetAllEffects();
+							}
+						}
+					}
+					// Zero unfiltered buffers so stale reverb/echo delay data
+					// doesn't spike on the next processBlock call (which
+					// combines outputL + outputLUnfiltered * masterGain^2).
+					if (this.outputDataLUnfiltered != null) {
+						this.outputDataLUnfiltered.fill(0);
+						this.outputDataRUnfiltered!.fill(0);
+					}
 					this.modState.values = [];
 					this.modState.nextValues = [];
 					this.modState.heldMods = [];
@@ -1471,7 +1485,7 @@ export class Synth {
 							this.modState.nextInsValues[channelIndex] = [];
 						}
 					}
-					this._dbg("Stop fade complete, tones freed, mods cleared");
+					this._dbg("Stop fade complete, tones freed, effects reset, unfiltered buffers cleared");
 				}
 			}
 
