@@ -138,21 +138,26 @@ describe("pattern-editor rendering contract", () => {
 	// Category D: Seam gap invariants — note body size must leave
 	// visible gaps between adjacent notes horizontally and vertically.
 	// -----------------------------------------------------------------------
-	test("fast-path seamH is capped at pitchHeight - 1 (1px vertical gap)", () => {
+	test("fast-path height is shrunk by 1px to restore vertical seam", () => {
 		const body = functionBody(lines, drawNoteToCanvasIdx);
-		// The fast-path must cap height against pitchHeight to keep gaps.
-		const hasCapH = body.some((l) => l.includes("this._pitchHeight - 1"));
-		expect(hasCapH).toBeTrue();
-		const hasMin = body.some((l) => l.includes("Math.min(maxH, snap(radius * 2 * scale))"));
-		expect(hasMin).toBeTrue();
+		// Height must subtract 1px from the computed value to prevent
+		// adjacent-row overlap (radius*2 = pitchHeight+2, which erases
+		// the ~2px gap that pitchHeight rows normally have).
+		const hLine = body.find((l) => /^\s*const h:/.test(l));
+		expect(hLine).toBeDefined();
+		expect(hLine).toContain("- 1");
+		expect(hLine).toContain("snap(radius * 2 * scale)");
 	});
 
-	test("fast-path seamW is capped at partWidth - 1 (1px horizontal gap)", () => {
+	test("fast-path width uses full endOffset gap (no extra subtract)", () => {
 		const body = functionBody(lines, drawNoteToCanvasIdx);
-		const hasCapW = body.some((l) => l.includes("this._partWidth - 1"));
-		expect(hasCapW).toBeTrue();
-		const hasMin = body.some((l) => l.includes("Math.min(maxW, Math.max(1, snap(totalW - 2 * endOff)))"));
-		expect(hasMin).toBeTrue();
+		const wLine = body.find((l) => /^\s*const w:/.test(l));
+		expect(wLine).toBeDefined();
+		// Width should NOT subtract an extra pixel — endOff already
+		// provides ~1px per side from the 0.5*min(2, totalW-1) inset.
+		expect(wLine).toContain("snap(totalW - 2 * endOff)");
+		// Width must NOT have a "- 1" shrink (only height does).
+		expect(wLine).not.toContain("- 1");
 	});
 
 	// -----------------------------------------------------------------------
