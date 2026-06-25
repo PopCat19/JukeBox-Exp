@@ -10,7 +10,7 @@
 
 // Copyright (c) 2012-2022 John Nesky and contributing authors, distributed under the MIT license, see accompanying the LICENSE.md file.
 
-import { AUDIO_WORKLET_PROCESSOR_CODE } from "./audio-worklet-processor";
+import { AudioBackend, type AudioBackendHost } from "./audio-backend";
 import { ChannelState } from "./channel-state";
 import type { Channel } from "./channels";
 import { Deque } from "./deque";
@@ -168,8 +168,7 @@ export class Synth {
 	public onSpectrumUpdate?: (left: Float32Array, right: Float32Array) => void;
 	public onSpectrumReset?: () => void;
 	public totalSamplesRendered: number = 0;
-	private _lastSpectrumUpdateTime: number = 0;
-	private static readonly SPECTRUM_UPDATE_INTERVAL_MS: number = 1000 / 60; // 60fps
+	// _lastSpectrumUpdateTime and SPECTRUM_UPDATE_INTERVAL_MS moved to AudioBackend
 	public enableMetronome: boolean = false;
 	public countInMetronome: boolean = false;
 	public renderingSong: boolean = false;
@@ -187,9 +186,9 @@ export class Synth {
 	public tickSampleCountdown: number = 0;
 	private _playheadNeedsReset: boolean = false;
 	public modState: SynthModState = new SynthModState();
-	private isPlayingSong: boolean = false;
+	public isPlayingSong: boolean = false;
 	private isRecording: boolean = false;
-	private liveInputEndTime: number = 0.0;
+	public liveInputEndTime: number = 0.0;
 
 	public static readonly tempFilterStartCoefficients: FilterCoefficients = tempFilterStartCoefficients;
 	public static readonly tempFilterEndCoefficients: FilterCoefficients = tempFilterEndCoefficients;
@@ -235,16 +234,9 @@ export class Synth {
 	}
 
 	// eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
-	private audioCtx: AudioContext | null = null;
-	private _workletNode: AudioWorkletNode | null = null;
-	private _workletModuleUrl: string | null = null;
-	private _currentBufferSize: number = 0;
-	private _workletPrimed: boolean = false;
-	private _activateAudioPromise: Promise<void> | null = null;
-	private _gestureListenerAdded: boolean = false;
-	private _spectrumDecayRAF: number | null = null;
+	private _audio: AudioBackend = new AudioBackend();
 	private _logSynthCallCount: number = 0;
-	private _logNeedDataCount: number = 0;
+	// _logNeedDataCount moved to AudioBackend
 
 	private static _debugSynthEnabled(): boolean {
 		try {
@@ -593,220 +585,44 @@ export class Synth {
 		this.chorusDelayBufferMask = this.chorusDelayBufferSize - 1;
 	}
 
-	private activateAudio(): Promise<void> {
-		// Guard against concurrent calls: if activation is in progress,
-		// return the existing promise instead of starting a second one.
-		if (this._activateAudioPromise != null) {
-			this._dbg("activateAudio: returning existing in-progress promise");
-			return this._activateAudioPromise;
-		}
-		this._activateAudioPromise = this._doActivateAudio();
-		return this._activateAudioPromise;
+	private _toAudioHost(): AudioBackendHost {
+		return {
+			synthesize: (l, r, len, play) => this.synthesize(l, r, len, play),
+			isPlayingSong: this.isPlayingSong,
+			liveInputEndTime: this.liveInputEndTime,
+			spectrumEnabled: this.spectrumEnabled,
+			onSpectrumUpdate: this.onSpectrumUpdate,
+			onSpectrumReset: this.onSpectrumReset,
+			anticipatePoorPerformance: this.anticipatePoorPerformance,
+			preferLowerLatency: this.preferLowerLatency,
+		};
 	}
 
-	private async _doActivateAudio(): Promise<void> {
-		const bufferSize: number = this.anticipatePoorPerformance ? (this.preferLowerLatency ? 2048 : 4096) : this.preferLowerLatency ? 512 : 2048;
-		if (this.audioCtx != null && this._workletNode != null && this._currentBufferSize === bufferSize) {
-			this._activateAudioPromise = null;
-			return;
+	private activateAudio(): Promise<void> {
+		if (this.isPlayingSong && this._audio.context) {
+			this.samplesPerSecond = this._audio.context.sampleRate;
 		}
-		this._dbg(
-			"activateAudio called, bufferSize:",
-			bufferSize,
-			"currentBufferSize:",
-			this._currentBufferSize,
-			"audioCtx:",
-			!!this.audioCtx,
-			"workletNode:",
-			!!this._workletNode,
-		);
-		try {
-			if (this._workletNode != null) this.deactivateAudio();
-			const latencyHint: string = this.anticipatePoorPerformance
-				? this.preferLowerLatency
-					? "balanced"
-					: "playback"
-				: this.preferLowerLatency
-					? "interactive"
-					: "balanced";
-			this._dbg("Creating AudioContext, latencyHint:", latencyHint);
-			this.audioCtx = this.audioCtx || new (window.AudioContext || window.webkitAudioContext)({ latencyHint: latencyHint });
-			const ctx = this.audioCtx!;
-			// Only adopt the AudioContext sample rate when playing. During preview
-			// (hover notes while paused) the default rate keeps the elapsed-time
-			// calculation consistent with the totalSamplesRendered accumulator,
-			// preventing a visual jump when the rate shifts from 44100→48000.
-			if (this.isPlayingSong) {
-				this.samplesPerSecond = ctx.sampleRate;
-			}
-			this._dbg("AudioContext sampleRate:", ctx.sampleRate);
-
-			// If the AudioContext is suspended (no user gesture yet), register a
-			// one-time click/keydown listener to resume it on the first user gesture.
-			// This enables note preview before the user clicks Play.
-			if (ctx.state === "suspended" && !this._gestureListenerAdded) {
-				this._gestureListenerAdded = true;
-				const resume = () => {
-					if (this.audioCtx && this.audioCtx.state === "suspended") {
-						this.audioCtx.resume().then(() => {
-							this._dbg("AudioContext resumed via user gesture");
-						});
-					}
-				};
-				window.addEventListener("click", resume, { once: true });
-				window.addEventListener("keydown", resume, { once: true });
-				this._dbg("Added one-time gesture listener to resume AudioContext");
-			}
-
-			// Load AudioWorklet module via blob URL
-			if (this._workletModuleUrl == null) {
-				const blob = new Blob([AUDIO_WORKLET_PROCESSOR_CODE], { type: "application/javascript" });
-				this._workletModuleUrl = URL.createObjectURL(blob);
-				this._dbg("Created worklet module blob URL:", this._workletModuleUrl);
-			}
-			this._dbg("Loading AudioWorklet module...");
-			await ctx.audioWorklet.addModule(this._workletModuleUrl);
-			this._dbg("AudioWorklet module loaded");
-
-			// Create AudioWorkletNode
-			this._workletNode = new AudioWorkletNode(ctx, "beepbox-audio-worklet-processor", {
-				outputChannelCount: [2],
-				processorOptions: { bufferSize: bufferSize, debug: Synth._debugSynthEnabled() },
-			});
-			this._dbg("AudioWorkletNode created");
-
-			// Set up message port handler
-			this._workletNode.port.onmessage = (e: MessageEvent) => {
-				const msg = e.data;
-				if (msg && msg.type === "need-data") {
-					this._onWorkletNeedData();
-				}
-			};
-
-			this._workletNode.connect(ctx.destination);
-			this._dbg("WorkletNode connected to destination");
-
-			this._currentBufferSize = bufferSize;
-			this._workletPrimed = false;
-			this._logSynthCallCount = 0;
-			this._logNeedDataCount = 0;
-
-			this.computeDelayBufferSizes();
-			this._dbg("activateAudio complete, bufferSize:", bufferSize, "sampleRate:", this.samplesPerSecond);
-		} catch (e) {
-			this._dbgWarn("activateAudio failed:", e);
-			this.deactivateAudio();
-			throw e;
-		} finally {
-			this._activateAudioPromise = null;
-		}
+		return this._audio.activate(this._toAudioHost());
 	}
 
 	private async resumeAudioContext(): Promise<void> {
-		if (this.audioCtx && this.audioCtx.state === "suspended") {
-			try {
-				await this.audioCtx.resume();
-				this._dbg("AudioContext resumed, state:", this.audioCtx.state);
-			} catch (_e) {
-				// AudioContext can't resume without user gesture, ignore
-			}
-		}
+		return this._audio.resumeContext();
 	}
 
 	private deactivateAudio(): void {
-		this._dbg("deactivateAudio called, audioCtx:", !!this.audioCtx, "workletNode:", !!this._workletNode);
-		// Disconnect worklet node if it exists
-		if (this._workletNode != null && this.audioCtx != null) {
-			this._dbg("Disconnecting worklet node...");
-			this._workletNode.port.postMessage({ type: "stop" });
-			this._workletNode.disconnect(this.audioCtx.destination);
-			this._workletNode = null;
-		}
-		// Close AudioContext if it exists (even if worklet was already null)
-		if (this.audioCtx != null) {
-			if (this.audioCtx.close) {
-				this._dbg("Closing AudioContext...");
-				this.audioCtx.close();
-			}
-			this.audioCtx = null;
-		}
-		this._workletPrimed = false;
-		this._currentBufferSize = 0;
-		this._gestureListenerAdded = false;
-		this._activateAudioPromise = null; // clear stale promise so next activateAudio() creates fresh
-		this._dbg("Audio deactivated");
+		this._audio.deactivate();
 	}
 
 	private _startSpectrumDecay(): void {
-		if (this._spectrumDecayRAF !== null) return;
-		// Reset clears mags, ring buffer, and canvas directly.
-		// No need to send a silence frame — that would run the
-		// full FFT pipeline and redraw the canvas unnecessarily.
-		if (this.onSpectrumReset) this.onSpectrumReset();
-		this._spectrumDecayRAF = null;
-	}
-
-	private _onWorkletNeedData(): void {
-		this._logNeedDataCount++;
-		if (this._logNeedDataCount <= 5 || this._logNeedDataCount % 100 === 0) {
-			this._dbg(
-				`need-data #${this._logNeedDataCount}, isPlayingSong:`,
-				this.isPlayingSong,
-				"liveInputEndTime:",
-				this.liveInputEndTime,
-				"now:",
-				performance.now(),
-			);
-		}
-
-		if (!this.isPlayingSong && performance.now() >= this.liveInputEndTime) {
-			this._dbg("Not playing and live input expired, deactivating");
-			this.deactivateAudio();
-			return;
-		}
-
-		const left = new Float32Array(this._currentBufferSize);
-		const right = new Float32Array(this._currentBufferSize);
-		this.synthesize(left, right, this._currentBufferSize, this.isPlayingSong);
-
-		// Spectrum update (same as old audioProcessCallback)
-		if (this.spectrumEnabled) {
-			const now = performance.now();
-			if (now - this._lastSpectrumUpdateTime >= Synth.SPECTRUM_UPDATE_INTERVAL_MS) {
-				if (this.onSpectrumUpdate) this.onSpectrumUpdate(left, right);
-				this._lastSpectrumUpdateTime = now;
-			}
-		}
-
-		// Send audio to worklet (check if still active, synthesize may have called pause/deactivate)
-		if (this._workletNode != null) {
-			this._workletNode.port.postMessage({ type: "audio", left, right }, [left.buffer, right.buffer]);
-		} else {
-			this._dbgWarn("Worklet node is null after synthesize, audio data lost");
-		}
+		this._audio.startSpectrumDecay(this._toAudioHost());
 	}
 
 	private _primeWorklet(): void {
-		if (this._workletPrimed || this._workletNode == null) return;
-		this._dbg("Priming worklet queue with 2 buffers...");
-		for (let i = 0; i < 2; i++) {
-			const left = new Float32Array(this._currentBufferSize);
-			const right = new Float32Array(this._currentBufferSize);
-			this.synthesize(left, right, this._currentBufferSize, this.isPlayingSong);
-			if (this._workletNode != null) {
-				this._workletNode.port.postMessage({ type: "audio", left, right }, [left.buffer, right.buffer]);
-			}
-		}
-		this._workletPrimed = true;
-		this._dbg("Worklet primed with 2 buffers");
+		this._audio.primeWorklet(this._toAudioHost());
 	}
 
 	public async maintainLiveInput(): Promise<void> {
-		// If audio is already active, only extend timeout when notes are
-		// actually being played. This prevents the audio context from
-		// staying alive indefinitely while the user moves the mouse around
-		// the pattern grid without playing anything.
-		if (this.audioCtx != null && this._workletNode != null) {
+		if (this._audio.isActive) {
 			if (this.liveInputPitches.length > 0 || this.liveBassInputPitches.length > 0) {
 				this.liveInputEndTime = performance.now() + 10000.0;
 			}
@@ -814,9 +630,8 @@ export class Synth {
 		}
 		this._dbg("maintainLiveInput: activating audio");
 		await this.activateAudio();
-		if (this.audioCtx == null || this._workletNode == null) {
+		if (!this._audio.isActive) {
 			this._dbgWarn("maintainLiveInput: audio not active after activateAudio, forcing re-activation");
-			this._activateAudioPromise = null;
 			await this.activateAudio();
 		}
 		await this.resumeAudioContext();
@@ -825,31 +640,21 @@ export class Synth {
 
 	public async play(): Promise<void> {
 		this._dbg("play() called, isPlayingSong:", this.isPlayingSong);
-		if (this._spectrumDecayRAF !== null) {
-			cancelAnimationFrame(this._spectrumDecayRAF);
-			this._spectrumDecayRAF = null;
-		}
+		this._audio.cancelSpectrumDecay();
 		if (this.isPlayingSong) return;
 		this.modState.initModFilters(this.song);
 		this.modState.computeLatestModValues(this.song, this.bar, this.beat, this.part);
 		await this.activateAudio();
-		// Safety: if activation returned a stale resolved promise but audio is dead,
-		// force a fresh activation.
-		if (this.audioCtx == null || this._workletNode == null) {
+		if (!this._audio.isActive) {
 			this._dbgWarn("play: audio not active after activateAudio, forcing re-activation");
-			this._activateAudioPromise = null;
 			await this.activateAudio();
 		}
 		await this.resumeAudioContext();
 		this.warmUpSynthesizer(this.song);
 		this.isPlayingSong = true;
-		// Adopt the AudioContext sample rate now that playback is active.
-		if (this.audioCtx) {
-			this.samplesPerSecond = this.audioCtx.sampleRate;
+		if (this._audio.context) {
+			this.samplesPerSecond = this._audio.context.sampleRate;
 		}
-		// Seed the elapsed counter at the current bar so the duration display
-		// continues from where navigation left it instead of resetting to 0:00.
-		// getSamplesUpToBar is mod-aware (tempo and next-bar skip mods).
 		this.totalSamplesRendered = this.getSamplesUpToBar(this.bar);
 		this._dbg("isPlayingSong set to true, playhead:", this.playheadInternal, "bar:", this.bar);
 		this._primeWorklet();
