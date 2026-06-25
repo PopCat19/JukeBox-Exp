@@ -47,6 +47,7 @@ export class SongPerformance {
 	// SongDocument having to know about the animator.
 	public animatorStart: (() => void) | null = null;
 	private _wasPlaying: boolean = false;
+	private _wasFadingOut: boolean = false;
 
 	public async play(): Promise<void> {
 		await this._doc.synth.play();
@@ -163,14 +164,17 @@ export class SongPerformance {
 		// starts. The animator self-gates and stops when idle, so this
 		// is the only start signal it needs; start() is idempotent.
 		const playing: boolean = this._doc.synth.playing;
+		const fadingOut: boolean = this._doc.synth.fadingOut;
 		if (playing && !this._wasPlaying) {
 			this.animatorStart?.();
 		} else if (!playing && this._wasPlaying) {
 			// Falling edge: playback stopped (possibly from within
-			// synthesize() song-ended path). Sync editor bar to
-			// synth.bar (not playhead — playhead may be stale when
-			// ended=true skips the playhead update). Also reset
-			// scroll position so the pattern view follows.
+			// synthesize() song-ended path). Don't sync bar here — the
+			// bar is still at the last bar. The fade completes later in
+			// cleanup, which resets bar to 0. Catch that below.
+		} else if (this._wasFadingOut && !fadingOut) {
+			// Fade-completion edge: bar has been reset to 0 in cleanup.
+			// Sync editor to the new position.
 			const synthBar: number = this._doc.synth.currentBar;
 			if (synthBar !== this._doc.bar) {
 				this._doc.bar = synthBar;
@@ -180,6 +184,7 @@ export class SongPerformance {
 			}
 		}
 		this._wasPlaying = playing;
+		this._wasFadingOut = fadingOut;
 		if (this._doc.synth.recording) {
 			let dirty: boolean = this._updateRecordedNotes();
 			dirty = this._updateRecordedBassNotes() ? true : dirty;
