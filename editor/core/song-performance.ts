@@ -74,10 +74,14 @@ export class SongPerformance {
 		this._doc.synth.resetEffects();
 		this._doc.synth.enableMetronome = false;
 		this._doc.synth.countInMetronome = false;
+		// Sync editor bar to synth playhead (playhead may have been
+		// reset to 0 by song-ended logic without updating doc.bar).
+		this._doc.bar = Math.floor(this._doc.synth.playhead);
 		if (this._doc.prefs.autoFollow) {
 			this._doc.synth.goToBar(this._doc.bar);
 		}
 		this._doc.synth.snapToBar();
+		this._doc.notifier.changed();
 	}
 
 	public async record(): Promise<void> {
