@@ -1,6 +1,7 @@
 # synth/ context
 
 - `index.ts`, Barrel re-export organizing synth modules by dependency layer
+- `mod-state.ts`, Modulator state container — values, accessors, and resolution logic
 - `synth.ts`, Core synthesis engine, tick/bar orchestration, tone lifecycle, computeTone (phase, expression, interval, mod resolution), and audio buffer rendering
 - `song.ts`, Manages song data model, fields, and initialization
 - `song-serialization.ts`, URL hash serialization for songs (toBase64String, fromBase64String)
