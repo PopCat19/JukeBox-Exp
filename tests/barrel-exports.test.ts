@@ -8,6 +8,67 @@
 import { describe, test, expect } from "bun:test";
 
 describe("synth barrel exports", () => {
+	test("synth/synthesis build functions are accessible from sub-barrel", async () => {
+		const mod = await import("../synth/synthesis");
+		expect(typeof mod.buildChipSource).toBe("function");
+		expect(typeof mod.buildDrumSource).toBe("function");
+		expect(typeof mod.buildEffectsSource).toBe("function");
+		expect(typeof mod.buildFmSource).toBe("function");
+		expect(typeof mod.buildFm6Source).toBe("function");
+		expect(typeof mod.buildHarmonicsSource).toBe("function");
+		expect(typeof mod.buildNoiseSource).toBe("function");
+		expect(typeof mod.buildPickedStringSource).toBe("function");
+		expect(typeof mod.buildPulseWidthSource).toBe("function");
+		expect(typeof mod.buildSpectrumSource).toBe("function");
+		expect(typeof mod.buildSupersawSource).toBe("function");
+	});
+
+	test("synth/config utils and sample-loader are accessible from sub-barrel", async () => {
+		const configMod = await import("../synth/config");
+		expect(typeof configMod.Config).toBe("function");
+		expect(typeof configMod.InstrumentType).toBe("object");
+		expect(typeof configMod.FilterType).toBe("object");
+		expect(typeof configMod.EnvelopeType).toBe("object");
+		expect(typeof configMod.getInstrumentTypeName).toBe("function");
+		expect(typeof configMod.getInstrumentTypeId).toBe("function");
+		expect(typeof configMod.startLoadingSample).toBe("function");
+		expect(typeof configMod.centerWave).toBe("function");
+		expect(typeof configMod.getArpeggioPitchIndex).toBe("function");
+		expect(typeof configMod.getPulseWidthRatio).toBe("function");
+		expect(typeof configMod.sampleLoadingState).toBe("object");
+	});
+
+	test("synth/formats legacy-compat is accessible from sub-barrel", async () => {
+		const fmtMod = await import("../synth/formats");
+		expect(typeof fmtMod.fromJukeboxExpJson).toBe("function");
+		expect(typeof fmtMod.toJukeboxExpJson).toBe("function");
+		expect(typeof fmtMod.fromLegacyCompatJson).toBe("function");
+		expect(typeof fmtMod.toLegacyCompatJson).toBe("function");
+		expect(typeof fmtMod.JUKEBOX_EXP_FORMAT).toBe("string");
+		expect(typeof fmtMod.JUKEBOX_EXP_LATEST_VERSION).toBe("number");
+	});
+
+	test("synth/instruments barrel is accessible", async () => {
+		const instMod = await import("../synth/instruments");
+		expect(typeof instMod.Instrument).toBe("function");
+		expect(typeof instMod.Operator).toBe("function");
+		expect(typeof instMod.FilterSettings).toBe("function");
+		expect(typeof instMod.EnvelopeSettings).toBe("function");
+		expect(typeof instMod.CustomAlgorithm).toBe("function");
+		expect(typeof instMod.CustomFeedBack).toBe("function");
+		expect(typeof instMod.FilterControlPoint).toBe("function");
+	});
+
+	test("synth/plugins barrel is accessible", async () => {
+		const plugMod = await import("../synth/plugins");
+		expect(typeof plugMod.getPlugin).toBe("function");
+		expect(typeof plugMod.registerPlugin).toBe("function");
+		expect(typeof plugMod.getRegisteredPlugins).toBe("function");
+		expect(typeof plugMod.getCapabilities).toBe("function");
+		expect(typeof plugMod.registerCapabilities).toBe("function");
+		expect(typeof plugMod.getEffectsSynthFunction).toBe("function");
+	});
+
 	test("util functions are accessible", async () => {
 		const mod = await import("../synth");
 		expect(typeof mod.clamp).toBe("function");
@@ -153,6 +214,20 @@ describe("editor/ui barrel exports", () => {
 });
 
 describe("shared barrel exports", () => {
+	test("shared/pmd color system is accessible from sub-barrel", async () => {
+		const pmdMod = await import("../shared/pmd");
+		expect(typeof pmdMod.bake).toBe("function");
+		expect(typeof pmdMod.composite).toBe("function");
+		expect(typeof pmdMod.stack).toBe("function");
+		expect(typeof pmdMod.getPMD).toBe("function");
+		expect(typeof pmdMod.getComputed).toBe("function");
+		expect(typeof pmdMod.getAuxHue).toBe("function");
+		expect(typeof pmdMod.generatePalette).toBe("function");
+		expect(typeof pmdMod.getBase16Defs).toBe("function");
+		expect(typeof pmdMod.HUE_MAX).toBe("number");
+		expect(typeof pmdMod.AUX_HUE_OFFSET).toBe("number");
+	});
+
 	test("color-utils functions are accessible from shared/color-utils", async () => {
 		const mod = await import("../shared/color-utils");
 		expect(typeof mod.parseCssColor).toBe("function");
