@@ -559,7 +559,11 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 	private _toggleLoop = (): void => {
 		// Mirror the standalone player: -1 = loop forever, 0 = no loop.
 		this._doc.synth.loopRepeatCount = this._doc.synth.loopRepeatCount === -1 ? 0 : -1;
+		this._doc.prefs.loopEnabled = this._doc.synth.loopRepeatCount === -1;
+		this._doc.prefs.save();
 		this._updateLoopButton();
+		this._doc.notifier.changed();
+		this._doc.notifier.notifyWatchers();
 	};
 
 	private _updateLoopButton = (): void => {
