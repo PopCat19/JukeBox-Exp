@@ -17,6 +17,8 @@ export interface AudioBackendHost {
 	isPlayingSong(): boolean;
 	/** Live-read — always returns the caller's current value. */
 	liveInputEndTime(): number;
+	/** Live-read — true during a stop fade-out so the worklet keeps running. */
+	isFadingOut(): boolean;
 	spectrumEnabled: boolean;
 	onSpectrumUpdate: ((left: Float32Array, right: Float32Array) => void) | undefined;
 	onSpectrumReset: (() => void) | undefined;
@@ -206,8 +208,8 @@ export class AudioBackend {
 			);
 		}
 
-		if (!isPlayingSong && performance.now() >= host.liveInputEndTime()) {
-			this._dbg("Not playing and live input expired, deactivating");
+		if (!isPlayingSong && !host.isFadingOut() && performance.now() >= host.liveInputEndTime()) {
+			this._dbg("Not playing, not fading out, and live input expired, deactivating");
 			this.deactivate();
 			return;
 		}

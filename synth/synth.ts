@@ -198,6 +198,11 @@ export class Synth {
 	public loopBarStart: number = -1;
 	public loopBarEnd: number = -1;
 
+	/** Samples remaining in the stop fade-out ramp. 0 when idle. */
+	private _stopFadeSamplesRemaining: number = 0;
+	/** Total samples at the start of the fade — for linear ramp. */
+	private _stopFadeSamplesTotal: number = 0;
+	private static readonly STOP_FADE_DURATION_MS: number = 150;
 
 	public readonly channels: ChannelState[] = [];
 	private readonly tonePool: Deque<Tone> = new Deque<Tone>();
@@ -580,6 +585,7 @@ export class Synth {
 		return {
 			synthesize: (l, r, len, play) => this.synthesize(l, r, len, play),
 			isPlayingSong: () => this.isPlayingSong,
+			isFadingOut: () => this._stopFadeSamplesRemaining > 0,
 			liveInputEndTime: () => this.liveInputEndTime,
 			spectrumEnabled: this.spectrumEnabled,
 			onSpectrumUpdate: this.onSpectrumUpdate,
@@ -630,8 +636,15 @@ export class Synth {
 	}
 
 	public async play(): Promise<void> {
-		this._dbg("play() called, isPlayingSong:", this.isPlayingSong);
+		this._dbg("play() called, isPlayingSong:", this.isPlayingSong, "fadeRemaining:", this._stopFadeSamplesRemaining);
 		this._audio.cancelSpectrumDecay();
+
+		// Cancel any pending stop fade and clean up immediately
+		if (this._stopFadeSamplesRemaining > 0) {
+			this._stopFadeSamplesRemaining = 0;
+			this.freeAllTones();
+		}
+
 		if (this.isPlayingSong) return;
 		this.modState.initModFilters(this.song);
 		this.modState.computeLatestModValues(this.song, this.bar, this.beat, this.part);
@@ -657,23 +670,34 @@ export class Synth {
 		this.isPlayingSong = false;
 		this.isRecording = false;
 		this.preferLowerLatency = false;
-		this._dbg("Pausing, freeing tones, clearing mods, playhead:", this.playheadInternal, "bar:", this.bar);
+		this._dbg("Pausing with fade, playhead:", this.playheadInternal, "bar:", this.bar);
+
 		// Start spectrum decay loop so it fades smoothly instead of freezing
 		this._startSpectrumDecay();
-		this.freeAllTones();
-		this.modState.values = [];
-		this.modState.nextValues = [];
-		this.modState.heldMods = [];
-		if (this.song != null) {
-			this.song.inVolumeCap = 0.0;
-			this.song.outVolumeCap = 0.0;
-			this.song.tmpEqFilterStart = null;
-			this.song.tmpEqFilterEnd = null;
-			for (let channelIndex: number = 0; channelIndex < this.song.pitchChannelCount + this.song.noiseChannelCount; channelIndex++) {
-				this.modState.insValues[channelIndex] = [];
-				this.modState.nextInsValues[channelIndex] = [];
+
+		// Move active tones to released state so they ring out naturally via
+		// fadeOutTicks, instead of calling freeAllTones() which kills them.
+		for (const channelState of this.channels) {
+			for (const instrumentState of channelState.instruments) {
+				while (instrumentState.activeTones.count() > 0) {
+					this.releaseTone(instrumentState, instrumentState.activeTones.popBack());
+				}
+				while (instrumentState.activeModTones.count() > 0) {
+					this.releaseTone(instrumentState, instrumentState.activeModTones.popBack());
+				}
+				while (instrumentState.liveInputTones.count() > 0) {
+					this.releaseTone(instrumentState, instrumentState.liveInputTones.popBack());
+				}
 			}
 		}
+
+		// Start master gain fade: the worklet keeps calling synthesize() with
+		// playSong=false until the fade completes or the queue drains.
+		this._stopFadeSamplesTotal = Math.round(Synth.STOP_FADE_DURATION_MS * 0.001 * this.samplesPerSecond);
+		this._stopFadeSamplesRemaining = this._stopFadeSamplesTotal;
+
+		// Don't free tones, clear mods, or reset effects — let the fade
+		// ramp in synthesize() handle cleanup on completion.
 	}
 
 	public async startRecording(): Promise<void> {
@@ -685,7 +709,9 @@ export class Synth {
 
 	public resetEffects(): void {
 		this._postProc.resetLimit();
-		this.freeAllTones();
+		if (this._stopFadeSamplesRemaining <= 0) {
+			this.freeAllTones();
+		}
 		if (this.song != null) {
 			for (const channelState of this.channels) {
 				for (const instrumentState of channelState.instruments) {
@@ -1382,6 +1408,39 @@ export class Synth {
 			);
 			this.song.inVolumeCap = volCap.in;
 			this.song.outVolumeCap = volCap.out;
+
+			// Stop-fade gain ramp: after post-processing, apply a linear gain
+			// from 1.0 to 0.0 over _stopFadeSamplesRemaining samples.
+			if (this._stopFadeSamplesRemaining > 0) {
+				const total = this._stopFadeSamplesTotal;
+				for (let i: number = bufferIndex; i < runEnd; i++) {
+					const t: number = this._stopFadeSamplesRemaining / total;
+					outputDataL[i] *= t;
+					outputDataR[i] *= t;
+					this._stopFadeSamplesRemaining--;
+					if (this._stopFadeSamplesRemaining <= 0) break;
+				}
+				// Fade completed: clean up tones and mods now that the buffer
+				// has been sent with the final silent samples.
+				if (this._stopFadeSamplesRemaining <= 0) {
+					this.freeAllTones();
+					this.modState.values = [];
+					this.modState.nextValues = [];
+					this.modState.heldMods = [];
+					if (this.song != null) {
+						this.song.inVolumeCap = 0.0;
+						this.song.outVolumeCap = 0.0;
+						this.song.tmpEqFilterStart = null;
+						this.song.tmpEqFilterEnd = null;
+						for (let channelIndex: number = 0; channelIndex < this.song.pitchChannelCount + this.song.noiseChannelCount; channelIndex++) {
+							this.modState.insValues[channelIndex] = [];
+							this.modState.nextInsValues[channelIndex] = [];
+						}
+					}
+					this._postProc.resetLimit();
+					this._dbg("Stop fade complete, tones freed, mods cleared");
+				}
+			}
 
 			bufferIndex += runLength;
 			if (playSong) {

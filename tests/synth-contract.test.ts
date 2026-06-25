@@ -106,9 +106,9 @@ describe("Category A: generated sources match Synth API", () => {
 
 // ---------------------------------------------------------------------------
 // Category B: Host interface snapshot rot — values that change mid-stream
-// (isPlayingSong, liveInputEndTime) must be getter functions, not scalars.
-// Configuration values (set before activation, stable during playback) may be
-// scalars.
+// (isPlayingSong, isFadingOut, liveInputEndTime) must be getter functions,
+// not scalars. Configuration values (set before activation, stable during
+// playback) may be scalars.
 // ---------------------------------------------------------------------------
 
 describe("Category B: AudioBackendHost live-read contract", () => {
@@ -130,6 +130,19 @@ describe("Category B: AudioBackendHost live-read contract", () => {
 		expect(host.liveInputEndTime()).toBe(42);
 		synth.liveInputEndTime = 999;
 		expect(host.liveInputEndTime()).toBe(999);
+	});
+
+	test("isFadingOut is a getter function (not scalar snapshot)", () => {
+		const synth = new Synth();
+		const host = (synth as any)._toAudioHost();
+		expect(typeof host.isFadingOut).toBe("function");
+		// Not fading by default
+		expect(host.isFadingOut()).toBe(false);
+		// Set the internal field directly to simulate fade state
+		synth._stopFadeSamplesRemaining = 100;
+		expect(host.isFadingOut()).toBe(true);
+		synth._stopFadeSamplesRemaining = 0;
+		expect(host.isFadingOut()).toBe(false);
 	});
 
 	test("configuration values are scalar (stable during playback)", () => {
