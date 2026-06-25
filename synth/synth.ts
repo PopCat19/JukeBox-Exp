@@ -50,6 +50,15 @@ import { instrumentVolumeToVolumeMult, noteSizeToVolumeMult, tempFilterEndCoeffi
 import { SynthModState } from "./mod-state";
 import { Tone } from "./tone";
 import { clamp, detuneToCents, epsilon, fittingPowerOfTwo, getOperatorWave, wrap } from "./util";
+import { applyFilters, findRandomZeroCrossing, sanitizeDelayLine } from "./dsp-utils";
+import {
+	adjacentNotesHaveMatchingPitches,
+	computeChordExpression,
+	getLFOAmplitude,
+	operatorAmplitudeCurve,
+	volumeMultToInstrumentVolume,
+	volumeMultToNoteSize,
+} from "./synth-math";
 
 declare global {
 	interface Window {
@@ -129,7 +138,7 @@ export class Synth {
 	public determineInvalidModulators(instrument: Instrument): void { this.modState.determineInvalidModulators(this.song, instrument); }
 
 	private static operatorAmplitudeCurve(amplitude: number): number {
-		return (16.0 ** (amplitude / 15.0) - 1.0) / 15.0;
+		return operatorAmplitudeCurve(amplitude);
 	}
 
 	public samplesPerSecond: number = Config.defaultSampleRate;
@@ -2142,12 +2151,7 @@ export class Synth {
 	}
 
 	public static adjacentNotesHaveMatchingPitches(firstNote: Note, secondNote: Note): boolean {
-		if (firstNote.pitches.length !== secondNote.pitches.length) return false;
-		const firstNoteInterval: number = firstNote.pins[firstNote.pins.length - 1].interval;
-		for (const pitch of firstNote.pitches) {
-			if (secondNote.pitches.indexOf(pitch + firstNoteInterval) === -1) return false;
-		}
-		return true;
+		return adjacentNotesHaveMatchingPitches(firstNote, secondNote);
 	}
 
 	private moveTonesIntoOrderedTempMatchedList(toneList: Deque<Tone>, notePitches: number[]): void {
@@ -2693,7 +2697,7 @@ export class Synth {
 	}
 
 	private static computeChordExpression(chordSize: number): number {
-		return 1.0 / ((chordSize - 1) * 0.25 + 1.0);
+		return computeChordExpression(chordSize);
 	}
 
 	private computeTone(song: Song, channelIndex: number, samplesPerTick: number, tone: Tone, released: boolean, shouldFadeOutFast: boolean): void {
@@ -3884,11 +3888,7 @@ export class Synth {
 	}
 
 	public static getLFOAmplitude(instrument: Instrument, secondsIntoBar: number): number {
-		let effect: number = 0.0;
-		for (const vibratoPeriodSeconds of Config.vibratoTypes[instrument.vibratoType].periodsSeconds) {
-			effect += Math.sin((Math.PI * 2.0 * secondsIntoBar) / vibratoPeriodSeconds);
-		}
-		return effect;
+		return getLFOAmplitude(instrument, secondsIntoBar);
 	}
 	static wrap(x: number, b: number): number {
 		return wrap(x, b);
@@ -4276,58 +4276,20 @@ export class Synth {
 	}
 
 	public static findRandomZeroCrossing(wave: Float32Array, waveLength: number): number {
-		// literally only public to let typescript compile
-		let phase: number = Math.random() * waveLength;
-		const phaseMask: number = waveLength - 1;
-
-		// Spectrum and drumset waves sounds best when they start at a zero crossing,
-		// otherwise they pop. Try to find a zero crossing.
-		let indexPrev: number = phase & phaseMask;
-		let wavePrev: number = wave[indexPrev];
-		const stride: number = 16;
-		for (let attemptsRemaining: number = 128; attemptsRemaining > 0; attemptsRemaining--) {
-			const indexNext: number = (indexPrev + stride) & phaseMask;
-			const waveNext: number = wave[indexNext];
-			if (wavePrev * waveNext <= 0.0) {
-				// Found a zero crossing! Now let's narrow it down to two adjacent sample indices.
-				for (let i: number = 0; i < stride; i++) {
-					const innerIndexNext: number = (indexPrev + 1) & phaseMask;
-					const innerWaveNext: number = wave[innerIndexNext];
-					if (wavePrev * innerWaveNext <= 0.0) {
-						// Found the zero crossing again! Now let's find the exact intersection.
-						const slope: number = innerWaveNext - wavePrev;
-						phase = indexPrev;
-						if (Math.abs(slope) > 0.00000001) {
-							phase += -wavePrev / slope;
-						}
-						phase = Math.max(0, phase) % waveLength;
-						break;
-					} else {
-						indexPrev = innerIndexNext;
-						wavePrev = innerWaveNext;
-					}
-				}
-				break;
-			} else {
-				indexPrev = indexNext;
-				wavePrev = waveNext;
-			}
-		}
-
-		return phase;
+		return findRandomZeroCrossing(wave, waveLength);
 	}
 
 	public static instrumentVolumeToVolumeMult(instrumentVolume: number): number {
-		return instrumentVolume === -Config.volumeRange / 2.0 ? 0.0 : 2 ** (Config.volumeLogScale * instrumentVolume);
+		return instrumentVolumeToVolumeMult(instrumentVolume);
 	}
 	public static volumeMultToInstrumentVolume(volumeMult: number): number {
-		return volumeMult <= 0.0 ? -Config.volumeRange / 2 : Math.min(Config.volumeRange, Math.log(volumeMult) / Math.LN2 / Config.volumeLogScale);
+		return volumeMultToInstrumentVolume(volumeMult);
 	}
 	public static noteSizeToVolumeMult(size: number): number {
-		return (Math.max(0.0, size) / Config.noteSizeMax) ** 1.5;
+		return noteSizeToVolumeMult(size);
 	}
 	public static volumeMultToNoteSize(volumeMult: number): number {
-		return Math.max(0.0, volumeMult) ** (1 / 1.5) * Config.noteSizeMax;
+		return volumeMultToNoteSize(volumeMult);
 	}
 
 	public getSamplesPerTick(): number {
@@ -4368,44 +4330,11 @@ export class Synth {
 	}
 
 	public static sanitizeDelayLine(delayLine: Float32Array, lastIndex: number, mask: number): void {
-		while (true) {
-			lastIndex--;
-			const index: number = lastIndex & mask;
-			const sample: number = Math.abs(delayLine[index]);
-			if (Number.isFinite(sample) && (sample === 0.0 || sample >= epsilon)) break;
-			delayLine[index] = 0.0;
-		}
+		sanitizeDelayLine(delayLine, lastIndex, mask);
 	}
 
 	public static applyFilters(sample: number, input1: number, input2: number, filterCount: number, filters: DynamicBiquadFilter[]): number {
-		for (let i: number = 0; i < filterCount; i++) {
-			const filter: DynamicBiquadFilter = filters[i];
-			const output1: number = filter.output1;
-			const output2: number = filter.output2;
-			const a1: number = filter.a1;
-			const a2: number = filter.a2;
-			const b0: number = filter.b0;
-			const b1: number = filter.b1;
-			const b2: number = filter.b2;
-			sample = b0 * sample + b1 * input1 + b2 * input2 - a1 * output1 - a2 * output2;
-			filter.a1 = a1 + filter.a1Delta;
-			filter.a2 = a2 + filter.a2Delta;
-			if (filter.useMultiplicativeInputCoefficients) {
-				filter.b0 = b0 * filter.b0Delta;
-				filter.b1 = b1 * filter.b1Delta;
-				filter.b2 = b2 * filter.b2Delta;
-			} else {
-				filter.b0 = b0 + filter.b0Delta;
-				filter.b1 = b1 + filter.b1Delta;
-				filter.b2 = b2 + filter.b2Delta;
-			}
-			filter.output2 = output1;
-			filter.output1 = sample;
-			// Updating the input values is waste if the next filter doesn't exist...
-			input2 = output2;
-			input1 = output1;
-		}
-		return sample;
+		return applyFilters(sample, input1, input2, filterCount, filters);
 	}
 
 	public computeTicksSinceStart(ofBar: boolean = false) {

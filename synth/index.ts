@@ -71,6 +71,17 @@ export { Synth } from "./synth";
 export { Config, EnvelopeType, FilterType, InstrumentType } from "./synth-config";
 export type { Chord, Dictionary, DictionaryArray, Envelope, Transition } from "./synth-config";
 export { Tone } from "./tone";
+// Layer 7d: Pure DSP utilities
+export { applyFilters, findRandomZeroCrossing, sanitizeDelayLine } from "./dsp-utils";
+// Layer 7e: Synth math utilities
+export {
+	adjacentNotesHaveMatchingPitches,
+	computeChordExpression,
+	getLFOAmplitude,
+	operatorAmplitudeCurve,
+	volumeMultToInstrumentVolume,
+	volumeMultToNoteSize,
+} from "./synth-math";
 // Stratified Module Hierarchy - barrel re-export
 // Layer 0: Utilities
 export {
