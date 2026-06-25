@@ -494,11 +494,21 @@ export class PatternEditor {
 			const snap = (v: number): number => Math.round(v * this._dpr) / this._dpr;
 			const totalW: number = this._partWidth * (pins[pins.length - 1].time + pins[0].time);
 			const endOff: number = 0.5 * Math.min(2, totalW - 1);
-			const h: number = Math.max(1, snap(radius * 2 * scale));
+			// Cap the height so adjacent notes have a visible 1px seam
+			// between them (the original SVG path rendering naturally
+			// produced ~0.5-1px gaps from anti-aliasing). Without this
+			// the canvas fillRect paints radius*2 high, which with
+			// pitchBorder=0 produces pitchHeight+2 — wider than the
+			// row spacing, erasing the vertical seam entirely.
+			const maxH: number = Math.max(1, this._pitchHeight - 1);
+			const seamH: number = Math.min(maxH, snap(radius * 2 * scale));
+			// Shrink width by 1px for a visible gap between adjacent
+			// notes at the same pitch (seam between consecutive parts).
+			const maxW: number = Math.max(1, this._partWidth - 1);
+			const seamW: number = Math.min(maxW, Math.max(1, snap(totalW - 2 * endOff)));
 			const y: number = snap(this._pitchToPixelHeight(pitch - offset) - radius * scale);
 			const x: number = snap(this._partWidth * start + endOff);
-			const w: number = Math.max(1, snap(totalW - 2 * endOff));
-			ctx.fillRect(x, y, Math.max(1, w), Math.max(1, h));
+			ctx.fillRect(x, y, Math.max(1, seamW), Math.max(1, seamH));
 			return;
 		}
 
