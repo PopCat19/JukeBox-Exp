@@ -127,6 +127,19 @@ export class SongDocument {
 			this.viewedInstrument[0] = 0;
 			this.barScrollPos = 0;
 			this.channelScrollPos = 0;
+		} else {
+			// On page refresh, window.history.state is null — recover
+			// bar/channel from sessionStorage so the editor doesn't
+			// snap to bar 1 on every reload.
+			const savedBar: string | null = window.sessionStorage.getItem("jukeboxCurrentBar");
+			if (savedBar != null) {
+				this.bar = Number(savedBar);
+				state.bar = this.bar;
+			}
+			const savedChannel: string | null = window.sessionStorage.getItem("jukeboxCurrentChannel");
+			if (savedChannel != null) {
+				this.channel = Number(savedChannel);
+			}
 		}
 		this.channel = state.channel | 0;
 		for (let i: number = 0; i <= this.channel; i++) this.viewedInstrument[i] = 0;
@@ -358,6 +371,13 @@ export class SongDocument {
 		}
 		this._stateShouldBePushed = false;
 		this._recordedNewSong = false;
+
+		// Persist bar/channel to sessionStorage so they survive page refresh
+		// (window.history.state is null on fresh page loads).
+		try {
+			window.sessionStorage.setItem("jukeboxCurrentBar", String(this.bar));
+			window.sessionStorage.setItem("jukeboxCurrentChannel", String(this.channel));
+		} catch { /* sessionStorage may be unavailable */ }
 	};
 
 	public record(change: Change, replace: boolean = false, newSong: boolean = false): void {
