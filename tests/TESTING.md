@@ -33,13 +33,23 @@ an uncovered module.
 | `synth/index.ts` (barrel) | `tests/barrel-exports.test.ts` | All synth re-exports |
 | `synth/plugins/` | `tests/barrel-exports.test.ts` | Plugin registry barrel |
 | `synth/synthesis/` | `tests/barrel-exports.test.ts` | Synthesis source builders barrel |
+| `synth/synthesis/chip.ts` | `tests/synthesis.test.ts` | buildChipSource, buildLoopableChipSource |
+| `synth/synthesis/drum.ts` | `tests/synthesis.test.ts` | buildDrumSource |
+| `synth/synthesis/effects.ts` | `tests/synthesis.test.ts` | buildEffectsSource |
+| `synth/synthesis/fm.ts` | `tests/synthesis.test.ts` | buildFmSource |
+| `synth/synthesis/fm6.ts` | `tests/synthesis.test.ts` | buildFm6Source |
+| `synth/synthesis/harmonics.ts` | `tests/synthesis.test.ts` | buildHarmonicsSource |
+| `synth/synthesis/noise.ts` | `tests/synthesis.test.ts` | buildNoiseSource |
+| `synth/synthesis/picked-string.ts` | `tests/synthesis.test.ts` | buildPickedStringSource |
+| `synth/synthesis/pulse.ts` | `tests/synthesis.test.ts` | buildPulseWidthSource |
+| `synth/synthesis/spectrum.ts` | `tests/synthesis.test.ts` | buildSpectrumSource |
+| `synth/synthesis/supersaw.ts` | `tests/synthesis.test.ts` | buildSupersawSource |
 | `synth/config/` | `tests/barrel-exports.test.ts` | Config, types, utils barrel |
 | `synth/formats/` | `tests/barrel-exports.test.ts` | JukeboxExp + legacy compat barrel |
 
 **Untested synth modules:** `synth.ts`, `tone.ts`, `channels.ts`, `channel-state.ts`,
 `envelope-computer.ts`, `mod-state.ts`, `fft.ts`, `waves.ts`, `deque.ts`,
 `picked-string.ts`, `song-utilities.ts`, `instrument-state.ts`,
-`synthesis/*.ts` (sources only — barrel verified),
 `config/sample-loader.ts` (barrel verified),
 `formats/legacy-compat.ts` (barrel verified).
 
