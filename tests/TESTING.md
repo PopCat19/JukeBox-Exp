@@ -23,7 +23,8 @@ an uncovered module.
 | `synth/dsp-utils.ts` | `tests/dsp-utils.test.ts` | applyFilters, sanitizeDelayLine, findRandomZeroCrossing |
 | `synth/filtering.ts` | `tests/filtering.test.ts` | FilterCoefficients, FrequencyResponse, DynamicBiquadFilter, warp functions |
 | `synth/notes.ts` | `tests/notes.test.ts` | Note, Pattern, makeNotePin |
-| `synth/song.ts` | `tests/song-serialization.test.ts` | toBase64String, fromBase64String, encode/decode |
+| `synth/song.ts` | `tests/song-serialization.test.ts` | toBase64String, fromBase64String, failure resilience |
+| `synth/song.ts` | `tests/song-round-trip.test.ts` | round-trip encode/decode, modified song, toJsonObject/fromJsonObject |
 | `synth/song.ts` | `tests/song-document-integration.test.ts` | hasEffect, effects bitmask round-trip |
 | `synth/instruments/` | `tests/synth-math.test.ts` | Instrument usage in operatorAmplitudeCurve |
 | `synth/serialization.ts` | `tests/song-serialization.test.ts` | base64CharCodeToInt, base64IntToCharCode, getNeededBits |
