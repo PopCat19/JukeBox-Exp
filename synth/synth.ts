@@ -1132,14 +1132,24 @@ export class Synth {
 				if (this.bar <= this.prevBar) this.totalSamplesRendered = this.getSamplesUpToBar(this.bar);
 			}
 			if (this.bar >= song.barCount) {
-				this.bar = 0;
-				// Infinite end-wrap (no user loop points, loopRepeatCount === -1):
-				// reset elapsed to 0 for the new pass.
-				this.totalSamplesRendered = this.getSamplesUpToBar(0);
 				if (this.loopRepeatCount !== -1) {
 					this._dbg("Song ended (bar >= barCount), pausing. loopRepeatCount:", this.loopRepeatCount);
-					ended = true;
+					// Don't set ended=true — the while loop below must continue
+					// to apply the stop fade gain ramp. pause() sets _stopFadeSamplesRemaining
+					// and the fade logic at the bottom of the loop handles the transition.
+					// If we exit the loop early, this entire buffer is zeroed, creating
+					// a discontinuity from the last full-gain tick.
+					// Don't reset bar/totalSamplesRendered either — pause() starts
+					// a stop fade and synthesize() continues during the fade.
+					// Fresh notes from bar 0 mixing with the fading tail cause
+					// clicks (especially on reverb/delay instruments). Wait until
+					// fade cleanup to reset.
 					this.pause();
+				} else {
+					// Infinite end-wrap (no user loop points, loopRepeatCount === -1):
+					// reset elapsed to 0 for the new pass.
+					this.bar = 0;
+					this.totalSamplesRendered = this.getSamplesUpToBar(0);
 				}
 			}
 		}
@@ -1490,6 +1500,10 @@ export class Synth {
 						}
 					}
 					this._dbg("Stop fade complete, tones freed, effects reset, unfiltered buffers cleared");
+					// Reset bar position after fade so fresh notes from bar 0
+					// don't mix with the fading tail.
+					this.bar = 0;
+					this.totalSamplesRendered = 0;
 				}
 			}
 
@@ -1684,14 +1698,21 @@ export class Synth {
 									if (this.bar <= this.prevBar) this.totalSamplesRendered = this.getSamplesUpToBar(this.bar);
 
 									if (this.bar >= song.barCount) {
-										this.bar = 0;
-										// Infinite end-wrap (no user loop points, loopRepeatCount === -1):
-										// reset elapsed to 0 for the new pass.
-										this.totalSamplesRendered = this.getSamplesUpToBar(0);
 										if (this.loopRepeatCount !== -1) {
 											this._dbg("Song ended (inside render loop), pausing. loopRepeatCount:", this.loopRepeatCount);
-											ended = true;
+											// Don't set ended=true — the while loop must continue
+											// so the stop fade gain ramp applies to this buffer.
+											// pause() sets _stopFadeSamplesRemaining and the fade
+											// logic at the bottom handles the transition.
+											// If we exit the loop early, this entire buffer is zeroed,
+											// creating a discontinuity from the last full-gain tick.
+											// Wait until fade cleanup to reset bar.
 											this.pause();
+										} else {
+											// Infinite end-wrap (no user loop points, loopRepeatCount === -1):
+											// reset elapsed to 0 for the new pass.
+											this.bar = 0;
+											this.totalSamplesRendered = this.getSamplesUpToBar(0);
 										}
 									}
 								}
