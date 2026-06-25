@@ -2532,6 +2532,17 @@ html {
 	top: 0;
 }
 
+/* Loop button in mute editor: centered at bottom, matching loop bar height */
+.beepboxEditor .cvv-loop-btn {
+	border-radius: 50% !important;
+	height: 20px;
+	width: 20px;
+	margin: 4px 0;
+	align-self: center;
+	position: sticky;
+	bottom: 0;
+}
+
 .beepboxEditor .prompt.shaded {
 	padding: var(--padding-6) 14px;
 	min-width: 0;

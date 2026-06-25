@@ -102,6 +102,7 @@ export class SongDocument {
 		this.synth.onSpectrumReset = () => events.raise("spectrumReset");
 		this.synth.volume = this._calcVolume();
 		this.synth.anticipatePoorPerformance = isMobile;
+		if (!this.prefs.loopEnabled) this.synth.loopRepeatCount = 0;
 
 		let state: HistoryState | null = this._history.getState();
 		if (state == null) {

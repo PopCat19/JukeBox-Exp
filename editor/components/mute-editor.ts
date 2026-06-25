@@ -9,7 +9,7 @@ import { BorderRadius, Typography } from "../ui/style-constants";
 
 // Copyright (c) 2012-2022 John Nesky and contributing authors, distributed under the MIT license, see accompanying the LICENSE.md file.
 
-import { HTML } from "imperative-html/dist/esm/elements-strict";
+import { HTML, SVG } from "imperative-html/dist/esm/elements-strict";
 import { ColorConfig } from "../../shared/color-config";
 import { Config } from "../../synth/synth-config";
 import { ChangeChannelName, ChangeChannelOrder, ChangeCleanChannelInstruments, ChangeCleanChannelPatterns, ChangeRemoveChannel } from "../changes";
@@ -20,9 +20,16 @@ import { ChannelRow } from "./channel-row";
 
 // namespace beepbox {
 export class MuteEditor {
-	private _cornerFiller: HTMLDivElement = HTML.div({
-		style: `background: ${ColorConfig.editorBackground}; position: sticky; bottom: 0; left: 0; width: 32px; height: 30px;`,
-	});
+	private static _loopIconPath: string = "M 4 2 L 4 0 L 7 3 L 4 6 L 4 4 Q 2 4 2 6 Q 2 8 4 8 L 4 10 Q 0 10 0 6 Q 0 2 4 2 M 8 10 L 8 12 L 5 9 L 8 6 L 8 8 Q 10 8 10 6 Q 10 4 8 4 L 8 2 Q 12 2 12 6 Q 12 10 8 10 z";
+	private readonly _loopIcon: SVGPathElement = SVG.path({ d: MuteEditor._loopIconPath, fill: "currentColor" });
+	private readonly _loopButton: HTMLButtonElement = HTML.button(
+		{
+			style: `width: 20px; height: 20px; padding: 0; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; outline: none; line-height: 1; font-size: 10px; background: var(--tab-inactive-bg); color: var(--tab-inactive-fg); transition: none;`,
+			class: "cvv-loop-btn",
+			title: "Toggle loop",
+		},
+		SVG.svg({ width: 10, height: 10, viewBox: "0 0 12 12" }, this._loopIcon),
+	);
 
 	private readonly _buttons: HTMLDivElement[] = [];
 	private readonly _channelCounts: HTMLDivElement[] = [];
@@ -64,6 +71,7 @@ export class MuteEditor {
 		this._channelNameDisplay,
 		this._channelNameInput.input,
 		this._channelDropDown,
+		this._loopButton,
 	);
 
 	private _editorHeight: number = 128;
@@ -94,6 +102,11 @@ export class MuteEditor {
 		this._channelNameInput.input.addEventListener("blur", this._channelNameInputHide);
 		this._channelNameInput.input.addEventListener("mousedown", this._channelNameInputClicked);
 		this._channelNameInput.input.addEventListener("input", this._channelNameInputWhenInput);
+
+		this._loopButton.addEventListener("click", this._toggleLoop);
+		this._loopButton.addEventListener("mouseenter", this._onLoopMouseEnter);
+		this._loopButton.addEventListener("mouseleave", this._onLoopMouseLeave);
+		this._updateLoopButton();
 	}
 
 	private _channelNameInputWhenInput = (): void => {
@@ -391,7 +404,7 @@ export class MuteEditor {
 
 			this._buttons.length = this._doc.song.getChannelCount();
 
-			this.container.appendChild(this._cornerFiller);
+			this.container.appendChild(this._loopButton);
 		}
 
 		for (let y: number = 0; y < this._doc.song.getChannelCount(); y++) {
@@ -493,5 +506,36 @@ export class MuteEditor {
 			}
 		}
 	}
+
+	private _toggleLoop = (): void => {
+		this._doc.synth.loopRepeatCount = this._doc.synth.loopRepeatCount === -1 ? 0 : -1;
+		this._doc.prefs.loopEnabled = this._doc.synth.loopRepeatCount === -1;
+		this._doc.prefs.save();
+		this._updateLoopButton();
+		this._doc.notifier.changed();
+		this._doc.notifier.notifyWatchers();
+	};
+
+	private _onLoopMouseEnter = (): void => {
+		if (this._doc.synth.loopRepeatCount === -1) {
+			this._loopButton.style.color = "var(--cta-fg)";
+		} else {
+			this._loopButton.style.color = "var(--primary-text)";
+		}
+	};
+
+	private _onLoopMouseLeave = (): void => {
+		if (this._doc.synth.loopRepeatCount === -1) {
+			this._loopButton.style.color = "var(--cta-fg)";
+		} else {
+			this._loopButton.style.color = "var(--tab-inactive-fg)";
+		}
+	};
+
+	private _updateLoopButton = (): void => {
+		const active: boolean = this._doc.synth.loopRepeatCount === -1;
+		this._loopButton.style.background = active ? "var(--cta-bg)" : "var(--tab-inactive-bg)";
+		this._loopButton.style.color = active ? "var(--cta-fg)" : "var(--tab-inactive-fg)";
+	};
 }
 // }

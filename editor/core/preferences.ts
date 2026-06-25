@@ -50,6 +50,7 @@ const prefSchema: PrefEntry[] = [
 	// notesFlashWhenPlayed: original code had a typo ("flase" for "false")
 	// which meant saving "false" still produced true on reload. Fixed here.
 	{ key: "notesFlashWhenPlayed", default: true },
+	{ key: "loopEnabled", default: true },
 	// --- Booleans defaulting to false ---
 	{ key: "autoPlay", default: false },
 	{ key: "centerFollow", default: false },
@@ -141,6 +142,7 @@ export class Preferences {
 	public showInstrumentScrollbars: boolean = true;
 	public closePromptByClickoff: boolean = true;
 	public showPromptBackdrop: boolean = true;
+	public loopEnabled: boolean = true;
 	public enableScrollStep: boolean = false;
 	public doubleClickSliderReset: boolean = false;
 	// jukebox
