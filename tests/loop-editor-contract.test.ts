@@ -94,16 +94,19 @@ describe("loop-editor UI contract / song-editor focus-steal contract", () => {
 		expect(hasClosestButton).toBeTrue();
 	});
 
-	test("registers keydown listener calling handleKeyDown", () => {
-		const hasKeydown = songLines.some((l) => l.includes("handleKeyDown"));
-		expect(hasKeydown).toBeTrue();
+	test("registers document keydown listener calling handleKeyDown on Space", () => {
+		const hasDocumentKeydown = songLines.some((l) => l.includes("handleKeyDown"));
+		expect(hasDocumentKeydown).toBeTrue();
 	});
 
-	test("keydown intercept prevents default on Space for select/button", () => {
+	test("keydown listener skips when target is inside mainLayer", () => {
+		const hasMainLayerGuard = songLines.some((l) => l.includes("mainLayer.contains"));
+		expect(hasMainLayerGuard).toBeTrue();
+	});
+
+	test("keydown listener prevents default on Space", () => {
 		const hasPreventDefault = songLines.some((l) => l.includes("preventDefault"));
 		expect(hasPreventDefault).toBeTrue();
-		const hasSelectButton = songLines.some((l) => l.includes("select, button"));
-		expect(hasSelectButton).toBeTrue();
 	});
 });
 });

@@ -2579,13 +2579,12 @@ export class SongEditor
 		});
 		document.addEventListener("keydown", (e: KeyboardEvent) => {
 			if (!e.keyCode || e.keyCode !== 32) return;
-			const target = e.target as HTMLElement;
-			if (target.closest("select, button")) {
-				e.preventDefault();
-				// Route directly to keyboard handler so Space toggles
-				// playback on this keypress, not the next one.
-				this._keyboardHandler.handleKeyDown(e);
-			}
+			// Only intercept when focus is outside mainLayer (e.g. on a
+			// button, select, or <body> after select off-click). When
+			// mainLayer has focus its own handler already toggles playback.
+			if (this.mainLayer.contains(e.target as Node)) return;
+			e.preventDefault();
+			this._keyboardHandler.handleKeyDown(e);
 		});
 		this._animator = new PlayerAnimator(this.doc, {
 			modSliderUpdate: () => this._modSliderUpdate(),
