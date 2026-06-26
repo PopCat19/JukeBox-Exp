@@ -2760,12 +2760,6 @@ ${buildAnimationsCSS()}
 	cursor: default;
 }
 
-@keyframes dash-animation {
-  to {
-    stroke-dashoffset: -100;
-  }
-}
-
 .beepboxEditor .trackContainer {
 	flex-grow: 1;
 }

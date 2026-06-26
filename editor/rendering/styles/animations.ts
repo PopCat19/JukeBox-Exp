@@ -77,5 +77,6 @@ export function buildAnimationsCSS(): string {
 }
 
 .beepboxEditor .dash-move {
+	animation: dash-animation 20s infinite linear;
 }`;
 }
