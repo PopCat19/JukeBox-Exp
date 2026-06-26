@@ -11,3 +11,4 @@ Purpose: Synth configuration layer — types, enums, registry, sample loading, a
 - `sample-loader.ts`, Sample loading infrastructure — state tracking, events, and built-in sample loading
 - `types.ts`, Core type definitions shared across the synth config layer
 - `utils.ts`, Pure utility functions with no dependency on the Config class
+- `synth-math-utils.ts`, Module-level waveform and pitch utilities — getPulseWidthRatio, getDrumWave, drawNoiseSpectrum, getArpeggioPitchIndex, calculateRingModHertz
