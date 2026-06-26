@@ -12,7 +12,7 @@ import { fromJsonObjectImpl, toJsonObjectImpl } from "./formats/json-serializati
 import { FilterSettings, Instrument } from "./instruments";
 import { Pattern } from "./notes";
 import { toBase64StringImpl } from "./synth-serialize";
-import { fromBase64StringImpl } from "./song-serialization";
+import { fromBase64StringImpl } from "./synth-deserialize";
 import type { CustomSampleHandler } from "./song-utilities";
 import { Config, InstrumentType } from "./synth-config";
 
