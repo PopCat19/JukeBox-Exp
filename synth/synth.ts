@@ -201,9 +201,6 @@ export class Synth {
 	private _stopFadeSamplesRemaining: number = 0;
 	private _stopFadeSamplesTotal: number = 0;
 	private _stopFadeCleanupDone: boolean = false;
-	// Set by song-ended path to reset bar to 0 after the fade completes.
-	// Manual pause (Space, pause button) leaves bar at the current position.
-	private _resetBarAfterFade: boolean = false;
 	private static readonly STOP_FADE_DURATION_MS: number = 800;
 
 	public readonly channels: ChannelState[] = [];
@@ -656,7 +653,6 @@ export class Synth {
 		if (this._stopFadeSamplesRemaining > 0) {
 			this._stopFadeSamplesRemaining = 0;
 			this.freeAllTones();
-			this._resetBarAfterFade = false;
 		}
 
 		if (this.isPlayingSong) return;
@@ -1146,8 +1142,6 @@ export class Synth {
 					// and the fade logic at the bottom of the loop handles the transition.
 					// If we exit the loop early, this entire buffer is zeroed, creating
 					// a discontinuity from the last full-gain tick.
-					// Signal fade cleanup to reset bar to 0 after fade completes.
-					this._resetBarAfterFade = true;
 					this.pause();
 				} else {
 					// Infinite end-wrap (no user loop points, loopRepeatCount === -1):
@@ -1504,13 +1498,12 @@ export class Synth {
 						}
 					}
 					this._dbg("Stop fade complete, tones freed, effects reset, unfiltered buffers cleared");
-					// Reset bar position after song-end fade so fresh notes
-					// from bar 0 don't mix with the fading tail. Manual pause
+					// Song-end pause: snap to last bar index. Manual pause
 					// (Space, pause button) leaves bar at the current position.
-					if (this._resetBarAfterFade) {
-						this.bar = 0;
-						this.totalSamplesRendered = 0;
-						this._resetBarAfterFade = false;
+					if (this.song != null && this.bar >= this.song.barCount) {
+						this.bar = this.song.barCount - 1;
+						this.totalSamplesRendered = this.getSamplesUpToBar(this.bar);
+						this.snapToBar();
 					}
 				}
 			}
@@ -1714,8 +1707,6 @@ export class Synth {
 											// logic at the bottom handles the transition.
 											// If we exit the loop early, this entire buffer is zeroed,
 											// creating a discontinuity from the last full-gain tick.
-											// Signal fade cleanup to reset bar to 0 after the fade.
-											this._resetBarAfterFade = true;
 											this.pause();
 										} else {
 											// Infinite end-wrap (no user loop points, loopRepeatCount === -1):

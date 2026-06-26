@@ -171,9 +171,11 @@ export class SongPerformance {
 			// Falling edge: playback stopped (possibly from within
 			// synthesize() song-ended path). Don't sync bar here — the
 			// bar is still at the last bar. The fade completes later in
-			// cleanup, which resets bar to 0. Catch that below.
+			// cleanup, which snaps to last bar on song-end or leaves bar
+			// in place on manual pause. Catch that below.
 		} else if (this._wasFadingOut && !fadingOut) {
-			// Fade-completion edge: bar has been reset to 0 in cleanup.
+			// Fade-completion edge: synth cleanup snapped bar to the
+			// last bar (song-end) or left it in place (manual pause).
 			// Sync editor to the new position.
 			const synthBar: number = this._doc.synth.currentBar;
 			if (synthBar !== this._doc.bar) {
