@@ -1,0 +1,22 @@
+# editor/rendering/styles
+
+CSS-in-JS style definitions for the editor UI. Each file exports a CSS string (embedded `<style>` content or template literal) used by the corresponding editor component.
+
+## Files
+
+- `animations.ts`, `@keyframes` definitions for editor UI animations
+- `base-widgets.ts`, CSS for editor base widget controls — layout-option, select, slider, checkbox
+- `editor-layout.ts`, CSS for editor layout components — instrument-bar, canvas, track area
+- `filter-editors.ts`, CSS for filter/chip editor components — filter canvas, chip canvas
+- `form-inputs.ts`, CSS for editor form input controls — text, number, checkbox, dropdown
+- `icon-buttons.ts`, CSS for editor icon button components — tip spans, volume speaker
+- `icon-symbols.ts`, CSS custom property declarations for editor icon SVGs (data URIs)
+- `prompt-clean-channel.ts`, CSS for the clean channel prompt — tab bar, channel list pane
+- `prompt-compact-search.ts`, CSS for compact search prompt (preset/tag browser with tabs)
+- `prompt-keyboard-shortcuts.ts`, CSS for the keyboard shortcuts prompt — shortcut categories
+- `prompt-misc.ts`, CSS for remaining miscellaneous prompts — songRecovery, import, etc.
+- `prompt-sample-browser.ts`, CSS for sample browser prompt — list pane with reorderable items
+- `prompt-shell.ts`, CSS for generic prompt container, dock, shell, titlebar
+- `prompt-small.ts`, CSS for small one-off prompts — beatsPerBar, export header
+- `responsive.ts`, CSS for responsive layout breakpoints — wide screen (>=711px) and narrow
+- `shared-ui.ts`, CSS for shared UI components — labelRow, searchInput, tagListItem
