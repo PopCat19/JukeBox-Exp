@@ -63,6 +63,7 @@ export function invalidateVizWidthCache(): void {
 	cachedVizWidth = -1;
 }
 
+// Generic parameter required so caller can type the array element — not inferable from arguments alone
 // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-parameters
 export function renderTimeline(
 	ui: PlayerUI,
@@ -208,6 +209,7 @@ export function renderTimeline(
 // the container width changes, which only happens on resize / popout.
 let cachedVizWidth: number = -1;
 
+// Generic parameter required so caller can type the array element — not inferable from arguments alone
 // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-parameters
 export function renderPlayhead(ui: PlayerUI, removeFromUnorderedArray: <T>(array: T[], index: number) => void): void {
 	if (ui.synth.song != null) {

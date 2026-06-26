@@ -30,6 +30,7 @@ export class PlayerControls {
 		return this.ui.synth;
 	}
 
+	// Generic parameter required — type cannot be inferred from void arguments alone
 	// eslint-disable-next-line @typescript-eslint/no-unnecessary-type-parameters
 	private removeFromUnorderedArray<T>(array: T[], index: number): void {
 		if (array.length < 1) {

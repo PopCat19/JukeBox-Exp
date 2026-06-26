@@ -228,6 +228,7 @@ export class Synth {
 		return out;
 	}
 
+	// Redundant with inferred type but kept for self-documenting field declaration
 	// eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
 	private _audio: AudioBackend = new AudioBackend();
 	private _logSynthCallCount: number = 0;

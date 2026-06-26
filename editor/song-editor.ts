@@ -2492,6 +2492,7 @@ export class SongEditor
 		this._customWavePresetHandler(event);
 	}
 
+	// Used as click handler — Promise errors caught internally, no caller await needed
 	// eslint-disable-next-line @typescript-eslint/no-misused-promises
 	public async toggleRecord(): Promise<void> {
 		if (this.doc.synth.playing) {
