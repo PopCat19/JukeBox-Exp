@@ -90,16 +90,34 @@ export function renderTimeline(
 
 	if (zoomEnabled) {
 		timelineHeight = boundingRect.height;
-		windowOctaves = Math.max(1, Math.min(ui.synth.song.octaveCount, Math.round(timelineHeight / (12 * 2))));
+		windowOctaves = Math.max(
+			1,
+			Math.min(ui.synth.song.octaveCount, Math.round(timelineHeight / (12 * 2))),
+		);
 		windowPitchCount = windowOctaves * 12 + 1;
 		const semitoneHeight: number = (timelineHeight - 1) / windowPitchCount;
 		const targetBeatWidth: number = Math.max(8, semitoneHeight * 4);
-		timelineWidth = Math.max(boundingRect.width, targetBeatWidth * ui.synth.song.barCount * ui.synth.song.beatsPerBar);
+		timelineWidth = Math.max(
+			boundingRect.width,
+			targetBeatWidth * ui.synth.song.barCount * ui.synth.song.beatsPerBar,
+		);
 	} else {
 		timelineWidth = boundingRect.width;
-		const targetSemitoneHeight: number = Math.max(1, timelineWidth / (ui.synth.song.barCount * ui.synth.song.beatsPerBar) / 6.0);
-		timelineHeight = Math.min(boundingRect.height, targetSemitoneHeight * (Config.maxPitch + 1) + 1);
-		windowOctaves = Math.max(3, Math.min(ui.synth.song.octaveCount, Math.round(timelineHeight / (12 * targetSemitoneHeight))));
+		const targetSemitoneHeight: number = Math.max(
+			1,
+			timelineWidth / (ui.synth.song.barCount * ui.synth.song.beatsPerBar) / 6.0,
+		);
+		timelineHeight = Math.min(
+			boundingRect.height,
+			targetSemitoneHeight * (Config.maxPitch + 1) + 1,
+		);
+		windowOctaves = Math.max(
+			3,
+			Math.min(
+				ui.synth.song.octaveCount,
+				Math.round(timelineHeight / (12 * targetSemitoneHeight)),
+			),
+		);
 		windowPitchCount = windowOctaves * 12 + 1;
 	}
 
@@ -117,10 +135,19 @@ export function renderTimeline(
 	if (!noBackground) {
 		for (let bar: number = 0; bar < ui.synth.song.barCount + 1; bar++) {
 			const color: string =
-				bar === ui.synth.song.loopStart || bar === ui.synth.song.loopStart + ui.synth.song.loopLength
+				bar === ui.synth.song.loopStart ||
+				bar === ui.synth.song.loopStart + ui.synth.song.loopLength
 					? ColorConfig.loopAccent
 					: ColorConfig.uiWidgetBackground;
-			ui.timeline.appendChild(rect({ x: bar * barWidth - 1, y: 0, width: 2, height: timelineHeight, fill: color }));
+			ui.timeline.appendChild(
+				rect({
+					x: bar * barWidth - 1,
+					y: 0,
+					width: 2,
+					height: timelineHeight,
+					fill: color,
+				}),
+			);
 		}
 
 		for (let octave: number = 0; octave <= windowOctaves; octave++) {
@@ -153,17 +180,25 @@ export function renderTimeline(
 		currentNoteFlashBar = -1;
 	}
 
-	for (let channel: number = ui.synth.song.channels.length - 1 - ui.synth.song.modChannelCount; channel >= 0; channel--) {
+	for (
+		let channel: number = ui.synth.song.channels.length - 1 - ui.synth.song.modChannelCount;
+		channel >= 0;
+		channel--
+	) {
 		const isNoise: boolean = ui.synth.song.getChannelIsNoise(channel);
 		const pitchHeight: number = isNoise ? drumPitchHeight : wavePitchHeight;
 
 		const configuredOctaveScroll: number = ui.synth.song.channels[channel].octave;
 		const newOctaveScroll: number = Math.max(
 			0,
-			Math.min(ui.synth.song.octaveCount - windowOctaves, Math.ceil(configuredOctaveScroll - windowOctaves * 0.5)),
+			Math.min(
+				ui.synth.song.octaveCount - windowOctaves,
+				Math.ceil(configuredOctaveScroll - windowOctaves * 0.5),
+			),
 		);
 
-		const offsetY: number = newOctaveScroll * pitchHeight * 12 + timelineHeight - pitchHeight * 0.5 - 0.5;
+		const offsetY: number =
+			newOctaveScroll * pitchHeight * 12 + timelineHeight - pitchHeight * 0.5 - 0.5;
 
 		for (let bar: number = barStart; bar < barEnd; bar++) {
 			const pattern: Pattern | null = ui.synth.song.getPattern(channel, bar);
@@ -174,7 +209,16 @@ export function renderTimeline(
 				const note: Note = pattern.notes[i];
 
 				for (const pitch of note.pitches) {
-					const d: string = drawNote(pitch, note.start, note.pins, (pitchHeight + 1) / 2, offsetX, offsetY, partWidth, pitchHeight);
+					const d: string = drawNote(
+						pitch,
+						note.start,
+						note.pins,
+						(pitchHeight + 1) / 2,
+						offsetX,
+						offsetY,
+						partWidth,
+						pitchHeight,
+					);
 					const noteElement: SVGPathElement = path({
 						d: d,
 						fill: ColorConfig.getChannelColor(ui.synth.song, channel).primaryChannel,
@@ -183,7 +227,16 @@ export function renderTimeline(
 					ui.timeline.appendChild(noteElement);
 
 					if (notesFlashWhenPlayed) {
-						const dflash: string = drawNote(pitch, note.start, note.pins, (pitchHeight + 1) / 2, offsetX, offsetY, partWidth, pitchHeight);
+						const dflash: string = drawNote(
+							pitch,
+							note.start,
+							note.pins,
+							(pitchHeight + 1) / 2,
+							offsetX,
+							offsetY,
+							partWidth,
+							pitchHeight,
+						);
 						const noteFlashElement: SVGPathElement = path({
 							d: dflash,
 							fill: isNoise ? noteFlashColorSecondary : noteFlashColor,
@@ -193,7 +246,8 @@ export function renderTimeline(
 						noteFlashElement.setAttribute("note-end", String(note.end));
 						noteFlashElement.setAttribute("note-bar", String(bar));
 						ui.timeline.appendChild(noteFlashElement);
-						const noteFlashElementsForThisBar: SVGPathElement[] = noteFlashElementsPerBar[bar];
+						const noteFlashElementsForThisBar: SVGPathElement[] =
+							noteFlashElementsPerBar[bar];
 						noteFlashElementsForThisBar.push(noteFlashElement);
 					}
 				}
@@ -211,7 +265,10 @@ let cachedVizWidth: number = -1;
 
 // Generic parameter required so caller can type the array element — not inferable from arguments alone
 // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-parameters
-export function renderPlayhead(ui: PlayerUI, removeFromUnorderedArray: <T>(array: T[], index: number) => void): void {
+export function renderPlayhead(
+	ui: PlayerUI,
+	removeFromUnorderedArray: <T>(array: T[], index: number) => void,
+): void {
 	if (ui.synth.song != null) {
 		const pos: number = ui.synth.playhead / ui.synth.song.barCount;
 		ui.playhead.style.left = `${timelineWidth * pos}px`;
@@ -228,12 +285,14 @@ export function renderPlayhead(ui: PlayerUI, removeFromUnorderedArray: <T>(array
 			const playheadBar: number = Math.floor(ui.synth.playhead);
 			const modPlayhead: number = ui.synth.playhead - playheadBar;
 			const partsPerBar: number = ui.synth.song.beatsPerBar * Config.partsPerBeat;
-			const noteFlashElementsForThisBar: SVGPathElement[] = noteFlashElementsPerBar[playheadBar];
+			const noteFlashElementsForThisBar: SVGPathElement[] =
+				noteFlashElementsPerBar[playheadBar];
 
 			if (noteFlashElementsForThisBar != null && playheadBar !== currentNoteFlashBar) {
 				for (let i = currentNoteFlashElements.length - 1; i >= 0; i--) {
 					const element: SVGPathElement = currentNoteFlashElements[i];
-					const outsideOfCurrentBar = Number(element.getAttribute("note-bar")) !== playheadBar;
+					const outsideOfCurrentBar =
+						Number(element.getAttribute("note-bar")) !== playheadBar;
 					const isInvisible: boolean = element.style.opacity === "0";
 					if (outsideOfCurrentBar && isInvisible) {
 						removeFromUnorderedArray(currentNoteFlashElements, i);
@@ -248,12 +307,15 @@ export function renderPlayhead(ui: PlayerUI, removeFromUnorderedArray: <T>(array
 			if (currentNoteFlashElements != null) {
 				for (let i = 0; i < currentNoteFlashElements.length; i++) {
 					const element: SVGPathElement = currentNoteFlashElements[i];
-					const noteStart: number = Number(element.getAttribute("note-start")) / partsPerBar;
+					const noteStart: number =
+						Number(element.getAttribute("note-start")) / partsPerBar;
 					const noteEnd: number = Number(element.getAttribute("note-end")) / partsPerBar;
 					const noteBar: number = Number(element.getAttribute("note-bar"));
 					if (modPlayhead >= noteStart && noteBar === playheadBar) {
 						const dist: number = noteEnd - noteStart;
-						element.style.opacity = String(1 - (modPlayhead - noteStart - dist / 2) / (dist / 2));
+						element.style.opacity = String(
+							1 - (modPlayhead - noteStart - dist / 2) / (dist / 2),
+						);
 					} else {
 						element.style.opacity = "0";
 					}

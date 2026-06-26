@@ -6,9 +6,9 @@
 // - Converts OKLCH (lightness, chroma, hue) to sRGB
 // - Re-exports gamut clamping and hex formatting from shared/color-utils
 
-import { rgbToHex, maxOklchChroma, clampOklchChroma } from "../color-utils";
+import { clampOklchChroma, maxOklchChroma, rgbToHex } from "../color-utils";
 
-export { rgbToHex, maxOklchChroma as maxChroma, clampOklchChroma as clampChroma };
+export { clampOklchChroma as clampChroma, maxOklchChroma as maxChroma, rgbToHex };
 
 export interface RGB {
 	r: number;
@@ -33,7 +33,8 @@ export function oklchToRgb(l: number, c: number, h: number): RGB {
 	const gLin = -1.2684380046 * lCubed + 2.6097574011 * mCubed - 0.3413193965 * sCubed;
 	const bLin = -0.0041960863 * lCubed - 0.7034186147 * mCubed + 1.707614701 * sCubed;
 
-	const gamma = (v: number): number => (v <= 0.0031308 ? 12.92 * v : 1.055 * v ** (1 / 2.4) - 0.055);
+	const gamma = (v: number): number =>
+		v <= 0.0031308 ? 12.92 * v : 1.055 * v ** (1 / 2.4) - 0.055;
 
 	const clamp = (v: number): number => Math.max(0, Math.min(1, v));
 

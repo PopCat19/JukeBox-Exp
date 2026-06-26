@@ -8,10 +8,9 @@
 // - Supports dynamic sample loading (startLoadingSample) and localStorage helpers
 
 import { Config } from "./config-class";
-import { centerWave } from "./utils";
 import { SampleLoadingStatus } from "./enums";
 import type { Dictionary } from "./types";
-import { performIntegral } from "./utils";
+import { centerWave, performIntegral } from "./utils";
 
 export function getSampleLoadingStatusName(status: SampleLoadingStatus): string {
 	switch (status) {
@@ -105,15 +104,28 @@ export async function startLoadingSample(
 			rawChipWave.samples = samples;
 			rawRawChipWave.samples = samples;
 			if (rawLoopOptions.isUsingAdvancedLoopControls) {
-				presetSettings.chipWaveLoopStart = rawLoopOptions.chipWaveLoopStart != null ? rawLoopOptions.chipWaveLoopStart : 0;
-				presetSettings.chipWaveLoopEnd = rawLoopOptions.chipWaveLoopEnd != null ? rawLoopOptions.chipWaveLoopEnd : samples.length - 1;
-				presetSettings.chipWaveLoopMode = rawLoopOptions.chipWaveLoopMode != null ? rawLoopOptions.chipWaveLoopMode : 0;
+				presetSettings.chipWaveLoopStart =
+					rawLoopOptions.chipWaveLoopStart != null ? rawLoopOptions.chipWaveLoopStart : 0;
+				presetSettings.chipWaveLoopEnd =
+					rawLoopOptions.chipWaveLoopEnd != null
+						? rawLoopOptions.chipWaveLoopEnd
+						: samples.length - 1;
+				presetSettings.chipWaveLoopMode =
+					rawLoopOptions.chipWaveLoopMode != null ? rawLoopOptions.chipWaveLoopMode : 0;
 				presetSettings.chipWavePlayBackwards = rawLoopOptions.chipWavePlayBackwards;
-				presetSettings.chipWaveStartOffset = rawLoopOptions.chipWaveStartOffset != null ? rawLoopOptions.chipWaveStartOffset : 0;
+				presetSettings.chipWaveStartOffset =
+					rawLoopOptions.chipWaveStartOffset != null
+						? rawLoopOptions.chipWaveStartOffset
+						: 0;
 			}
 			sampleLoadingState.samplesLoaded++;
 			sampleLoadingState.statusTable[chipWaveIndex] = SampleLoadingStatus.loaded;
-			sampleLoadEvents.dispatchEvent(new SampleLoadedEvent(sampleLoadingState.totalSamples, sampleLoadingState.samplesLoaded));
+			sampleLoadEvents.dispatchEvent(
+				new SampleLoadedEvent(
+					sampleLoadingState.totalSamples,
+					sampleLoadingState.samplesLoaded,
+				),
+			);
 			if (!closedSampleLoaderAudioContext) {
 				closedSampleLoaderAudioContext = true;
 				sampleLoaderAudioContext.close();
@@ -257,13 +269,55 @@ export function loadBuiltInSamples(set: number): void {
 	if (set === 0) {
 		// Create chip waves with the wrong sound.
 		const chipWaves = [
-			{ name: "paandorasbox kick", expression: 4.0, isSampled: true, isPercussion: true, extraSampleDetune: 0 },
-			{ name: "paandorasbox snare", expression: 3.0, isSampled: true, isPercussion: true, extraSampleDetune: 0 },
-			{ name: "paandorasbox piano1", expression: 3.0, isSampled: true, isPercussion: false, extraSampleDetune: 2 },
-			{ name: "paandorasbox WOW", expression: 1.0, isSampled: true, isPercussion: false, extraSampleDetune: 0 },
-			{ name: "paandorasbox overdrive", expression: 1.0, isSampled: true, isPercussion: false, extraSampleDetune: -2 },
-			{ name: "paandorasbox trumpet", expression: 3.0, isSampled: true, isPercussion: false, extraSampleDetune: 1.2 },
-			{ name: "paandorasbox saxophone", expression: 2.0, isSampled: true, isPercussion: false, extraSampleDetune: -5 },
+			{
+				name: "paandorasbox kick",
+				expression: 4.0,
+				isSampled: true,
+				isPercussion: true,
+				extraSampleDetune: 0,
+			},
+			{
+				name: "paandorasbox snare",
+				expression: 3.0,
+				isSampled: true,
+				isPercussion: true,
+				extraSampleDetune: 0,
+			},
+			{
+				name: "paandorasbox piano1",
+				expression: 3.0,
+				isSampled: true,
+				isPercussion: false,
+				extraSampleDetune: 2,
+			},
+			{
+				name: "paandorasbox WOW",
+				expression: 1.0,
+				isSampled: true,
+				isPercussion: false,
+				extraSampleDetune: 0,
+			},
+			{
+				name: "paandorasbox overdrive",
+				expression: 1.0,
+				isSampled: true,
+				isPercussion: false,
+				extraSampleDetune: -2,
+			},
+			{
+				name: "paandorasbox trumpet",
+				expression: 3.0,
+				isSampled: true,
+				isPercussion: false,
+				extraSampleDetune: 1.2,
+			},
+			{
+				name: "paandorasbox saxophone",
+				expression: 2.0,
+				isSampled: true,
+				isPercussion: false,
+				extraSampleDetune: -5,
+			},
 			{
 				name: "paandorasbox orchestrahit",
 				expression: 2.0,
@@ -278,10 +332,34 @@ export function loadBuiltInSamples(set: number): void {
 				isPercussion: false,
 				extraSampleDetune: 4.2,
 			},
-			{ name: "paandorasbox synth", expression: 2.0, isSampled: true, isPercussion: false, extraSampleDetune: -0.8 },
-			{ name: "paandorasbox sonic3snare", expression: 2.0, isSampled: true, isPercussion: true, extraSampleDetune: 0 },
-			{ name: "paandorasbox come on", expression: 2.0, isSampled: true, isPercussion: false, extraSampleDetune: 0 },
-			{ name: "paandorasbox choir", expression: 2.0, isSampled: true, isPercussion: false, extraSampleDetune: -3 },
+			{
+				name: "paandorasbox synth",
+				expression: 2.0,
+				isSampled: true,
+				isPercussion: false,
+				extraSampleDetune: -0.8,
+			},
+			{
+				name: "paandorasbox sonic3snare",
+				expression: 2.0,
+				isSampled: true,
+				isPercussion: true,
+				extraSampleDetune: 0,
+			},
+			{
+				name: "paandorasbox come on",
+				expression: 2.0,
+				isSampled: true,
+				isPercussion: false,
+				extraSampleDetune: 0,
+			},
+			{
+				name: "paandorasbox choir",
+				expression: 2.0,
+				isSampled: true,
+				isPercussion: false,
+				extraSampleDetune: -3,
+			},
 			{
 				name: "paandorasbox overdriveguitar",
 				expression: 2.0,
@@ -289,7 +367,13 @@ export function loadBuiltInSamples(set: number): void {
 				isPercussion: false,
 				extraSampleDetune: -6.2,
 			},
-			{ name: "paandorasbox flute", expression: 2.0, isSampled: true, isPercussion: false, extraSampleDetune: -6 },
+			{
+				name: "paandorasbox flute",
+				expression: 2.0,
+				isSampled: true,
+				isPercussion: false,
+				extraSampleDetune: -6,
+			},
 			{
 				name: "paandorasbox legato violin",
 				expression: 2.0,
@@ -304,7 +388,13 @@ export function loadBuiltInSamples(set: number): void {
 				isPercussion: false,
 				extraSampleDetune: -33,
 			},
-			{ name: "paandorasbox amen break", expression: 1.0, isSampled: true, isPercussion: true, extraSampleDetune: -55 },
+			{
+				name: "paandorasbox amen break",
+				expression: 1.0,
+				isSampled: true,
+				isPercussion: true,
+				extraSampleDetune: -55,
+			},
 			{
 				name: "paandorasbox pizzicato violin",
 				expression: 2.0,
@@ -319,7 +409,13 @@ export function loadBuiltInSamples(set: number): void {
 				isPercussion: false,
 				extraSampleDetune: -20,
 			},
-			{ name: "paandorasbox tuba", expression: 2.0, isSampled: true, isPercussion: false, extraSampleDetune: 44 },
+			{
+				name: "paandorasbox tuba",
+				expression: 2.0,
+				isSampled: true,
+				isPercussion: false,
+				extraSampleDetune: 44,
+			},
 			{
 				name: "paandorasbox loopingcymbal",
 				expression: 2.0,
@@ -341,9 +437,27 @@ export function loadBuiltInSamples(set: number): void {
 				isPercussion: true,
 				extraSampleDetune: 0,
 			},
-			{ name: "paandorasbox closedhihat", expression: 2.0, isSampled: true, isPercussion: true, extraSampleDetune: 5 },
-			{ name: "paandorasbox foothihat", expression: 2.0, isSampled: true, isPercussion: true, extraSampleDetune: 4 },
-			{ name: "paandorasbox openhihat", expression: 2.0, isSampled: true, isPercussion: true, extraSampleDetune: -31 },
+			{
+				name: "paandorasbox closedhihat",
+				expression: 2.0,
+				isSampled: true,
+				isPercussion: true,
+				extraSampleDetune: 5,
+			},
+			{
+				name: "paandorasbox foothihat",
+				expression: 2.0,
+				isSampled: true,
+				isPercussion: true,
+				extraSampleDetune: 4,
+			},
+			{
+				name: "paandorasbox openhihat",
+				expression: 2.0,
+				isSampled: true,
+				isPercussion: true,
+				extraSampleDetune: -31,
+			},
 			{
 				name: "paandorasbox crashcymbal",
 				expression: 2.0,
@@ -351,7 +465,13 @@ export function loadBuiltInSamples(set: number): void {
 				isPercussion: true,
 				extraSampleDetune: -43,
 			},
-			{ name: "paandorasbox pianoC4", expression: 2.0, isSampled: true, isPercussion: false, extraSampleDetune: -42.5 },
+			{
+				name: "paandorasbox pianoC4",
+				expression: 2.0,
+				isSampled: true,
+				isPercussion: false,
+				extraSampleDetune: -42.5,
+			},
 			{
 				name: "paandorasbox liver pad",
 				expression: 2.0,
@@ -359,7 +479,13 @@ export function loadBuiltInSamples(set: number): void {
 				isPercussion: false,
 				extraSampleDetune: -22.5,
 			},
-			{ name: "paandorasbox marimba", expression: 2.0, isSampled: true, isPercussion: false, extraSampleDetune: -15.5 },
+			{
+				name: "paandorasbox marimba",
+				expression: 2.0,
+				isSampled: true,
+				isPercussion: false,
+				extraSampleDetune: -15.5,
+			},
 			{
 				name: "paandorasbox susdotwav",
 				expression: 2.0,
@@ -437,7 +563,13 @@ export function loadBuiltInSamples(set: number): void {
 				isPercussion: false,
 				extraSampleDetune: -29.5,
 			},
-			{ name: "paandorasbeta harp", expression: 1.0, isSampled: true, isPercussion: false, extraSampleDetune: -54 },
+			{
+				name: "paandorasbeta harp",
+				expression: 1.0,
+				isSampled: true,
+				isPercussion: false,
+				extraSampleDetune: -54,
+			},
 			{
 				name: "paandorasbeta pan flute",
 				expression: 1.0,
@@ -445,9 +577,27 @@ export function loadBuiltInSamples(set: number): void {
 				isPercussion: false,
 				extraSampleDetune: -58,
 			},
-			{ name: "paandorasbeta krumhorn", expression: 1.0, isSampled: true, isPercussion: false, extraSampleDetune: -46 },
-			{ name: "paandorasbeta timpani", expression: 1.0, isSampled: true, isPercussion: false, extraSampleDetune: -50 },
-			{ name: "paandorasbeta crowd hey", expression: 1.0, isSampled: true, isPercussion: true, extraSampleDetune: -29 },
+			{
+				name: "paandorasbeta krumhorn",
+				expression: 1.0,
+				isSampled: true,
+				isPercussion: false,
+				extraSampleDetune: -46,
+			},
+			{
+				name: "paandorasbeta timpani",
+				expression: 1.0,
+				isSampled: true,
+				isPercussion: false,
+				extraSampleDetune: -50,
+			},
+			{
+				name: "paandorasbeta crowd hey",
+				expression: 1.0,
+				isSampled: true,
+				isPercussion: true,
+				extraSampleDetune: -29,
+			},
 			{
 				name: "paandorasbeta wario land 4 brass",
 				expression: 1.0,
@@ -744,13 +894,24 @@ export function loadBuiltInSamples(set: number): void {
 					Config.chipWaves[chipWaveIndex].samples = performIntegral(chipWaveSample);
 					sampleLoadingState.statusTable[chipWaveIndex] = SampleLoadingStatus.loaded;
 					sampleLoadingState.samplesLoaded++;
-					sampleLoadEvents.dispatchEvent(new SampleLoadedEvent(sampleLoadingState.totalSamples, sampleLoadingState.samplesLoaded));
+					sampleLoadEvents.dispatchEvent(
+						new SampleLoadedEvent(
+							sampleLoadingState.totalSamples,
+							sampleLoadingState.samplesLoaded,
+						),
+					);
 					chipWaveIndexOffset++;
 				}
 			});
 		// EditorConfig.presetCategories[EditorConfig.presetCategories.length] = {name: "Legacy Sample Presets", presets:  { name: "Earthbound O. Guitar", midiProgram: 80, settings: { "type": "chip", "eqFilter": [], "effects": [], "transition": "normal", "fadeInSeconds": 0, "fadeOutTicks": -1, "chord": "arpeggio", "wave": "paandorasbox overdrive", "unison": "none",
 	} else if (set === 1) {
-		const chipWaves: { name: string; expression: number; isSampled: boolean; isPercussion: boolean; extraSampleDetune: number }[] = [
+		const chipWaves: {
+			name: string;
+			expression: number;
+			isSampled: boolean;
+			isPercussion: boolean;
+			extraSampleDetune: number;
+		}[] = [
 			{
 				name: "nintaribox chronoperc1 final",
 				expression: 1.0,
@@ -758,9 +919,27 @@ export function loadBuiltInSamples(set: number): void {
 				isPercussion: true,
 				extraSampleDetune: 0,
 			},
-			{ name: "nintaribox synth kick fm", expression: 1.0, isSampled: true, isPercussion: true, extraSampleDetune: 0 },
-			{ name: "nintaribox wood click", expression: 1.0, isSampled: true, isPercussion: true, extraSampleDetune: 0 },
-			{ name: "nintaribox acoustic snare", expression: 1.0, isSampled: true, isPercussion: true, extraSampleDetune: 0 },
+			{
+				name: "nintaribox synth kick fm",
+				expression: 1.0,
+				isSampled: true,
+				isPercussion: true,
+				extraSampleDetune: 0,
+			},
+			{
+				name: "nintaribox wood click",
+				expression: 1.0,
+				isSampled: true,
+				isPercussion: true,
+				extraSampleDetune: 0,
+			},
+			{
+				name: "nintaribox acoustic snare",
+				expression: 1.0,
+				isSampled: true,
+				isPercussion: true,
+				extraSampleDetune: 0,
+			},
 		];
 
 		sampleLoadingState.totalSamples += chipWaves.length;
@@ -820,23 +999,100 @@ export function loadBuiltInSamples(set: number): void {
 				Config.chipWaves[chipWaveIndex].samples = performIntegral(chipWaveSample);
 				sampleLoadingState.statusTable[chipWaveIndex] = SampleLoadingStatus.loaded;
 				sampleLoadingState.samplesLoaded++;
-				sampleLoadEvents.dispatchEvent(new SampleLoadedEvent(sampleLoadingState.totalSamples, sampleLoadingState.samplesLoaded));
+				sampleLoadEvents.dispatchEvent(
+					new SampleLoadedEvent(
+						sampleLoadingState.totalSamples,
+						sampleLoadingState.samplesLoaded,
+					),
+				);
 				chipWaveIndexOffset++;
 			}
 		});
 	} else if (set === 2) {
-		const chipWaves: { name: string; expression: number; isSampled: boolean; isPercussion: boolean; extraSampleDetune: number }[] = [
-			{ name: "cat", expression: 1.0, isSampled: true, isPercussion: false, extraSampleDetune: 0 },
-			{ name: "gameboy", expression: 1.0, isSampled: true, isPercussion: false, extraSampleDetune: 0 },
-			{ name: "mario", expression: 1.0, isSampled: true, isPercussion: false, extraSampleDetune: 0 },
-			{ name: "drum (paintbox)", expression: 1.0, isSampled: true, isPercussion: true, extraSampleDetune: 0 },
-			{ name: "yoshi", expression: 1.0, isSampled: true, isPercussion: false, extraSampleDetune: 0 },
-			{ name: "star (paintbox)", expression: 1.0, isSampled: true, isPercussion: false, extraSampleDetune: 0 },
-			{ name: "fire flower", expression: 1.0, isSampled: true, isPercussion: false, extraSampleDetune: 0 },
-			{ name: "dog", expression: 1.0, isSampled: true, isPercussion: false, extraSampleDetune: 0 },
-			{ name: "oink", expression: 1.0, isSampled: true, isPercussion: false, extraSampleDetune: 0 },
-			{ name: "swan", expression: 1.0, isSampled: true, isPercussion: false, extraSampleDetune: 0 },
-			{ name: "face", expression: 1.0, isSampled: true, isPercussion: false, extraSampleDetune: 0 },
+		const chipWaves: {
+			name: string;
+			expression: number;
+			isSampled: boolean;
+			isPercussion: boolean;
+			extraSampleDetune: number;
+		}[] = [
+			{
+				name: "cat",
+				expression: 1.0,
+				isSampled: true,
+				isPercussion: false,
+				extraSampleDetune: 0,
+			},
+			{
+				name: "gameboy",
+				expression: 1.0,
+				isSampled: true,
+				isPercussion: false,
+				extraSampleDetune: 0,
+			},
+			{
+				name: "mario",
+				expression: 1.0,
+				isSampled: true,
+				isPercussion: false,
+				extraSampleDetune: 0,
+			},
+			{
+				name: "drum (paintbox)",
+				expression: 1.0,
+				isSampled: true,
+				isPercussion: true,
+				extraSampleDetune: 0,
+			},
+			{
+				name: "yoshi",
+				expression: 1.0,
+				isSampled: true,
+				isPercussion: false,
+				extraSampleDetune: 0,
+			},
+			{
+				name: "star (paintbox)",
+				expression: 1.0,
+				isSampled: true,
+				isPercussion: false,
+				extraSampleDetune: 0,
+			},
+			{
+				name: "fire flower",
+				expression: 1.0,
+				isSampled: true,
+				isPercussion: false,
+				extraSampleDetune: 0,
+			},
+			{
+				name: "dog",
+				expression: 1.0,
+				isSampled: true,
+				isPercussion: false,
+				extraSampleDetune: 0,
+			},
+			{
+				name: "oink",
+				expression: 1.0,
+				isSampled: true,
+				isPercussion: false,
+				extraSampleDetune: 0,
+			},
+			{
+				name: "swan",
+				expression: 1.0,
+				isSampled: true,
+				isPercussion: false,
+				extraSampleDetune: 0,
+			},
+			{
+				name: "face",
+				expression: 1.0,
+				isSampled: true,
+				isPercussion: false,
+				extraSampleDetune: 0,
+			},
 		];
 
 		sampleLoadingState.totalSamples += chipWaves.length;
@@ -905,7 +1161,12 @@ export function loadBuiltInSamples(set: number): void {
 				Config.chipWaves[chipWaveIndex].samples = performIntegral(chipWaveSample);
 				sampleLoadingState.statusTable[chipWaveIndex] = SampleLoadingStatus.loaded;
 				sampleLoadingState.samplesLoaded++;
-				sampleLoadEvents.dispatchEvent(new SampleLoadedEvent(sampleLoadingState.totalSamples, sampleLoadingState.samplesLoaded));
+				sampleLoadEvents.dispatchEvent(
+					new SampleLoadedEvent(
+						sampleLoadingState.totalSamples,
+						sampleLoadingState.samplesLoaded,
+					),
+				);
 				chipWaveIndexOffset++;
 			}
 		});

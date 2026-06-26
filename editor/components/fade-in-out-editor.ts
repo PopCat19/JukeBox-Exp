@@ -48,7 +48,10 @@ export class FadeInOutEditor {
 		this._dottedLinePath,
 		this._controlCurve,
 	);
-	public readonly container: HTMLElement = HTML.div({ class: "fadeInOut", style: "height: 100%;" }, this._svg);
+	public readonly container: HTMLElement = HTML.div(
+		{ class: "fadeInOut", style: "height: 100%;" },
+		this._svg,
+	);
 
 	private _mouseX: number = 0;
 	private _mouseXStart: number = 0;
@@ -62,13 +65,19 @@ export class FadeInOutEditor {
 
 	constructor(private _doc: SongDocument) {
 		const dottedLineX: number = this._fadeOutToX(Config.fadeOutNeutral);
-		this._dottedLinePath.setAttribute("d", `M ${dottedLineX} 0 L ${dottedLineX} ${this._editorHeight}`);
+		this._dottedLinePath.setAttribute(
+			"d",
+			`M ${dottedLineX} 0 L ${dottedLineX} ${this._editorHeight}`,
+		);
 
 		this.container.addEventListener("mousedown", this._whenMousePressed);
 		document.addEventListener("mousemove", this._whenMouseMoved);
 		document.addEventListener("mouseup", this._whenCursorReleased);
 		window.addEventListener("resize", () => (this._svgRect = null));
-		window.addEventListener("scroll", () => (this._svgRect = null), { capture: true, passive: true });
+		window.addEventListener("scroll", () => (this._svgRect = null), {
+			capture: true,
+			passive: true,
+		});
 		this.container.addEventListener("touchstart", this._whenTouchPressed);
 		this.container.addEventListener("touchmove", this._whenTouchMoved);
 		this.container.addEventListener("touchend", this._whenCursorReleased);
@@ -79,13 +88,27 @@ export class FadeInOutEditor {
 		return 1.0 + ((this._editorWidth - 2.0) * 0.4 * fadeIn) / (Config.fadeInRange - 1);
 	}
 	private _xToFadeIn(x: number) {
-		return clamp(0, Config.fadeInRange, Math.round(((x - 1.0) * (Config.fadeInRange - 1)) / (0.4 * this._editorWidth - 2.0)));
+		return clamp(
+			0,
+			Config.fadeInRange,
+			Math.round(((x - 1.0) * (Config.fadeInRange - 1)) / (0.4 * this._editorWidth - 2.0)),
+		);
 	}
 	private _fadeOutToX(fadeOut: number) {
-		return 1.0 + (this._editorWidth - 2.0) * (0.5 + (0.5 * fadeOut) / (Config.fadeOutTicks.length - 1));
+		return (
+			1.0 +
+			(this._editorWidth - 2.0) * (0.5 + (0.5 * fadeOut) / (Config.fadeOutTicks.length - 1))
+		);
 	}
 	private _xToFadeOut(x: number) {
-		return clamp(0, Config.fadeOutTicks.length, Math.round(((Config.fadeOutTicks.length - 1) * ((x - 1.0) / (this._editorWidth - 2.0) - 0.5)) / 0.5));
+		return clamp(
+			0,
+			Config.fadeOutTicks.length,
+			Math.round(
+				((Config.fadeOutTicks.length - 1) * ((x - 1.0) / (this._editorWidth - 2.0) - 0.5)) /
+					0.5,
+			),
+		);
 	}
 
 	private _whenMousePressed = (event: MouseEvent): void => {
@@ -160,7 +183,11 @@ export class FadeInOutEditor {
 					sequence.append(
 						new ChangeFadeInOut(
 							this._doc,
-							this._xToFadeIn(this._fadeInToX(instrument.fadeIn) + this._mouseX - this._mouseXStart),
+							this._xToFadeIn(
+								this._fadeInToX(instrument.fadeIn) +
+									this._mouseX -
+									this._mouseXStart,
+							),
 							instrument.fadeOut,
 						),
 					);
@@ -169,7 +196,11 @@ export class FadeInOutEditor {
 						new ChangeFadeInOut(
 							this._doc,
 							instrument.fadeIn,
-							this._xToFadeOut(this._fadeOutToX(instrument.fadeOut) + this._mouseX - this._mouseXStart),
+							this._xToFadeOut(
+								this._fadeOutToX(instrument.fadeOut) +
+									this._mouseX -
+									this._mouseXStart,
+							),
 						),
 					);
 				}
@@ -179,13 +210,29 @@ export class FadeInOutEditor {
 
 	private _whenCursorReleased = (_event: Event): void => {
 		if (this.container.offsetParent == null) return;
-		if (this._mouseDown && this._doc.lastChangeWas(this._dragChange) && this._dragChange != null) {
+		if (
+			this._mouseDown &&
+			this._doc.lastChangeWas(this._dragChange) &&
+			this._dragChange != null
+		) {
 			if (!this._mouseDragging) {
 				const instrument: Instrument = this._doc.getCurrentInstrumentObj();
 				if (this._draggingFadeIn) {
-					this._doc.record(new ChangeFadeInOut(this._doc, this._xToFadeIn(this._mouseX), instrument.fadeOut));
+					this._doc.record(
+						new ChangeFadeInOut(
+							this._doc,
+							this._xToFadeIn(this._mouseX),
+							instrument.fadeOut,
+						),
+					);
 				} else {
-					this._doc.record(new ChangeFadeInOut(this._doc, instrument.fadeIn, this._xToFadeOut(this._mouseX)));
+					this._doc.record(
+						new ChangeFadeInOut(
+							this._doc,
+							instrument.fadeIn,
+							this._xToFadeOut(this._mouseX),
+						),
+					);
 				}
 			} else {
 				this._doc.record(this._dragChange);
@@ -199,13 +246,19 @@ export class FadeInOutEditor {
 	public render(): void {
 		const instrument: Instrument = this._doc.getCurrentInstrumentObj();
 
-		if (this._renderedFadeIn === instrument.fadeIn && this._renderedFadeOut === instrument.fadeOut) {
+		if (
+			this._renderedFadeIn === instrument.fadeIn &&
+			this._renderedFadeOut === instrument.fadeOut
+		) {
 			return;
 		}
 
 		const fadeInX: number = this._fadeInToX(instrument.fadeIn);
 		const fadeOutX: number = this._fadeOutToX(instrument.fadeOut);
-		this._controlCurve.setAttribute("d", `M ${fadeInX} 0 L ${fadeInX} ${this._editorHeight} M ${fadeOutX} 0 L ${fadeOutX} ${this._editorHeight}`);
+		this._controlCurve.setAttribute(
+			"d",
+			`M ${fadeInX} 0 L ${fadeInX} ${this._editorHeight} M ${fadeOutX} 0 L ${fadeOutX} ${this._editorHeight}`,
+		);
 
 		const dottedLineX: number = this._fadeOutToX(Config.fadeOutNeutral);
 		let fadePath: string = "";

@@ -9,7 +9,13 @@
 
 import { ColorConfig } from "../../shared/color-config";
 import type { Channel, Instrument } from "../../synth";
-import { Config, DropdownID, EffectType, effectsIncludeNoteFilter, InstrumentType } from "../../synth/synth-config";
+import {
+	Config,
+	DropdownID,
+	EffectType,
+	effectsIncludeNoteFilter,
+	InstrumentType,
+} from "../../synth/synth-config";
 import {
 	ChangeAddChannelInstrument,
 	ChangePatternNumbers,
@@ -166,12 +172,24 @@ export class KeyboardHandler {
 				document.activeElement === host.monophonicNoteInputBox ||
 				document.activeElement === host.upperNoteLimitInputBox ||
 				document.activeElement === host.lowerNoteLimitInputBox ||
-				host.envelopeEditor.pitchStartBoxes.find((el: HTMLElement) => el === document.activeElement) ||
-				host.envelopeEditor.pitchEndBoxes.find((el: HTMLElement) => el === document.activeElement) ||
-				host.envelopeEditor.perEnvelopeLowerBoundBoxes.find((el: HTMLElement) => el === document.activeElement) ||
-				host.envelopeEditor.perEnvelopeUpperBoundBoxes.find((el: HTMLElement) => el === document.activeElement) ||
-				host.envelopeEditor.randomStepsBoxes.find((el: HTMLElement) => el === document.activeElement) ||
-				host.envelopeEditor.LFOStepsBoxes.find((el: HTMLElement) => el === document.activeElement);
+				host.envelopeEditor.pitchStartBoxes.find(
+					(el: HTMLElement) => el === document.activeElement,
+				) ||
+				host.envelopeEditor.pitchEndBoxes.find(
+					(el: HTMLElement) => el === document.activeElement,
+				) ||
+				host.envelopeEditor.perEnvelopeLowerBoundBoxes.find(
+					(el: HTMLElement) => el === document.activeElement,
+				) ||
+				host.envelopeEditor.perEnvelopeUpperBoundBoxes.find(
+					(el: HTMLElement) => el === document.activeElement,
+				) ||
+				host.envelopeEditor.randomStepsBoxes.find(
+					(el: HTMLElement) => el === document.activeElement,
+				) ||
+				host.envelopeEditor.LFOStepsBoxes.find(
+					(el: HTMLElement) => el === document.activeElement,
+				);
 
 			if (isEditingTextInput || isEditingNumberInput) {
 				host.mainLayer.focus();
@@ -210,7 +228,8 @@ export class KeyboardHandler {
 			return;
 		}
 
-		const needControlForShortcuts: boolean = doc.prefs.pressControlForShortcuts !== event.getModifierState("CapsLock");
+		const needControlForShortcuts: boolean =
+			doc.prefs.pressControlForShortcuts !== event.getModifierState("CapsLock");
 		const canPlayNotes: boolean = !event.ctrlKey && !event.metaKey && needControlForShortcuts;
 		if (canPlayNotes) host.keyboardLayout.handleKeyEvent(event, true);
 
@@ -231,7 +250,8 @@ export class KeyboardHandler {
 				if (event.ctrlKey) {
 					host.toggleRecord();
 				} else if (event.shiftKey) {
-					const moved = host.movePlayheadToMouseTrack() || host.movePlayheadToMousePattern();
+					const moved =
+						host.movePlayheadToMouseTrack() || host.movePlayheadToMousePattern();
 					if (!moved) {
 						// No mouse hover position — play from current editor bar
 						doc.synth.goToBar(doc.bar);
@@ -245,7 +265,10 @@ export class KeyboardHandler {
 						doc.synth.pause();
 					}
 					doc.performance.play();
-					if (Math.floor(doc.synth.playhead) < doc.synth.loopBarStart || Math.floor(doc.synth.playhead) > doc.synth.loopBarEnd) {
+					if (
+						Math.floor(doc.synth.playhead) < doc.synth.loopBarStart ||
+						Math.floor(doc.synth.playhead) > doc.synth.loopBarEnd
+					) {
 						doc.synth.loopBarStart = -1;
 						doc.synth.loopBarEnd = -1;
 						host.loopEditor.setLoopAt(doc.synth.loopBarStart, doc.synth.loopBarEnd);
@@ -267,7 +290,10 @@ export class KeyboardHandler {
 					event.preventDefault();
 					host.refocusStage();
 				} else if (canPlayNotes) break;
-				if (needControlForShortcuts === (event.ctrlKey || event.metaKey) && event.shiftKey) {
+				if (
+					needControlForShortcuts === (event.ctrlKey || event.metaKey) &&
+					event.shiftKey
+				) {
 					location.href = `player/${OFFLINE ? "index.html" : ""}#song=${doc.song.toBase64String()}`;
 					event.preventDefault();
 				}
@@ -275,11 +301,18 @@ export class KeyboardHandler {
 			case 85: // u
 				if (event.shiftKey) {
 					let shortenerStrategy: string = "https://tinyurl.com/api-create.php?url=";
-					const localShortenerStrategy: string | null = window.localStorage.getItem("shortenerStrategySelect");
+					const localShortenerStrategy: string | null =
+						window.localStorage.getItem("shortenerStrategySelect");
 
-					if (localShortenerStrategy === "isgd") shortenerStrategy = "https://is.gd/create.php?format=simple&url=";
+					if (localShortenerStrategy === "isgd")
+						shortenerStrategy = "https://is.gd/create.php?format=simple&url=";
 
-					window.open(shortenerStrategy + encodeURIComponent(new URL(`#${doc.song.toBase64String()}`, location.href).href));
+					window.open(
+						shortenerStrategy +
+							encodeURIComponent(
+								new URL(`#${doc.song.toBase64String()}`, location.href).href,
+							),
+					);
 				}
 				break;
 			case 190: // . (period) — hold to preview the hovered note
@@ -335,8 +368,14 @@ export class KeyboardHandler {
 					if (event.shiftKey) {
 						host.openPrompt("beatsPerBar");
 					} else {
-						const leftSel = Math.min(doc.selection.boxSelectionX0, doc.selection.boxSelectionX1);
-						const rightSel = Math.max(doc.selection.boxSelectionX0, doc.selection.boxSelectionX1);
+						const leftSel = Math.min(
+							doc.selection.boxSelectionX0,
+							doc.selection.boxSelectionX1,
+						);
+						const rightSel = Math.max(
+							doc.selection.boxSelectionX0,
+							doc.selection.boxSelectionX1,
+						);
 						if (
 							leftSel < doc.synth.loopBarStart ||
 							doc.synth.loopBarStart === -1 ||
@@ -355,13 +394,19 @@ export class KeyboardHandler {
 							doc.synth.loopBarEnd = -1;
 						}
 
-						if (doc.bar !== Math.floor(doc.synth.playhead) && doc.synth.loopBarStart !== -1) {
+						if (
+							doc.bar !== Math.floor(doc.synth.playhead) &&
+							doc.synth.loopBarStart !== -1
+						) {
 							doc.synth.goToBar(doc.bar);
 							doc.synth.snapToBar();
 							doc.synth.initModFilters(doc.song);
 							doc.synth.computeLatestModValues();
 							if (doc.prefs.autoFollow) {
-								doc.selection.setChannelBar(doc.channel, Math.floor(doc.synth.playhead));
+								doc.selection.setChannelBar(
+									doc.channel,
+									Math.floor(doc.synth.playhead),
+								);
 							}
 						}
 
@@ -444,14 +489,19 @@ export class KeyboardHandler {
 				if (canPlayNotes) break;
 				if (event.shiftKey) {
 					const instrument: Instrument = doc.getCurrentInstrumentObj();
-					if (!instrument.eqFilterType && doc.channel < doc.song.pitchChannelCount + doc.song.noiseChannelCount) {
+					if (
+						!instrument.eqFilterType &&
+						doc.channel < doc.song.pitchChannelCount + doc.song.noiseChannelCount
+					) {
 						host.openPrompt("customEQFilterSettings");
 					}
 				} else if (event.altKey) {
 					const instrument: Instrument = doc.getCurrentInstrumentObj();
-					const isAllOpen: boolean = host.envelopeEditor.openExtraSettingsDropdowns.every((x: boolean) => {
-						return x === true;
-					});
+					const isAllOpen: boolean = host.envelopeEditor.openExtraSettingsDropdowns.every(
+						(x: boolean) => {
+							return x === true;
+						},
+					);
 					for (let i = 0; i < instrument.envelopeCount; i++) {
 						if (isAllOpen) host.envelopeEditor.openExtraSettingsDropdowns[i] = false;
 						else host.envelopeEditor.openExtraSettingsDropdowns[i] = true;
@@ -512,7 +562,8 @@ export class KeyboardHandler {
 				if (canPlayNotes) break;
 				{
 					const now = performance.now();
-					const doublePressed = now - this._lastGPressTime < KeyboardHandler.DOUBLE_PRESS_MS;
+					const doublePressed =
+						now - this._lastGPressTime < KeyboardHandler.DOUBLE_PRESS_MS;
 					this._lastGPressTime = now;
 					host.openPrompt("channelVolumeVisualizer");
 					if (doublePressed) {
@@ -530,7 +581,10 @@ export class KeyboardHandler {
 					doc.synth.initModFilters(doc.song);
 					doc.synth.computeLatestModValues();
 
-					if (Math.floor(doc.synth.playhead) < doc.synth.loopBarStart || Math.floor(doc.synth.playhead) > doc.synth.loopBarEnd) {
+					if (
+						Math.floor(doc.synth.playhead) < doc.synth.loopBarStart ||
+						Math.floor(doc.synth.playhead) > doc.synth.loopBarEnd
+					) {
 						doc.synth.loopBarStart = -1;
 						doc.synth.loopBarEnd = -1;
 						host.loopEditor.setLoopAt(doc.synth.loopBarStart, doc.synth.loopBarEnd);
@@ -603,7 +657,10 @@ export class KeyboardHandler {
 					break;
 				} else if (event.ctrlKey) {
 					let nextEmpty: number = 0;
-					while (nextEmpty < doc.song.patternsPerChannel && doc.song.channels[doc.channel].patterns[nextEmpty].notes.length > 0) {
+					while (
+						nextEmpty < doc.song.patternsPerChannel &&
+						doc.song.channels[doc.channel].patterns[nextEmpty].notes.length > 0
+					) {
 						nextEmpty++;
 					}
 
@@ -614,10 +671,16 @@ export class KeyboardHandler {
 							group.append(new ChangePatternsPerChannel(doc, nextEmpty));
 						}
 
-						group.append(new ChangePatternNumbers(doc, nextEmpty, doc.bar, doc.channel, 1, 1));
+						group.append(
+							new ChangePatternNumbers(doc, nextEmpty, doc.bar, doc.channel, 1, 1),
+						);
 
-						if (doc.channel >= doc.song.pitchChannelCount + doc.song.noiseChannelCount) {
-							doc.viewedInstrument[doc.channel] = doc.recentPatternInstruments[doc.channel][0];
+						if (
+							doc.channel >=
+							doc.song.pitchChannelCount + doc.song.noiseChannelCount
+						) {
+							doc.viewedInstrument[doc.channel] =
+								doc.recentPatternInstruments[doc.channel][0];
 						}
 						group.append(
 							new ChangeSetPatternInstruments(
@@ -630,7 +693,10 @@ export class KeyboardHandler {
 					}
 				} else {
 					let nextUnused: number = 1;
-					while (doc.song.channels[doc.channel].bars.indexOf(nextUnused) !== -1 && nextUnused <= doc.song.patternsPerChannel) {
+					while (
+						doc.song.channels[doc.channel].bars.indexOf(nextUnused) !== -1 &&
+						nextUnused <= doc.song.patternsPerChannel
+					) {
 						nextUnused++;
 					}
 
@@ -639,10 +705,16 @@ export class KeyboardHandler {
 							group.append(new ChangePatternsPerChannel(doc, nextUnused));
 						}
 
-						group.append(new ChangePatternNumbers(doc, nextUnused, doc.bar, doc.channel, 1, 1));
+						group.append(
+							new ChangePatternNumbers(doc, nextUnused, doc.bar, doc.channel, 1, 1),
+						);
 
-						if (doc.channel >= doc.song.pitchChannelCount + doc.song.noiseChannelCount) {
-							doc.viewedInstrument[doc.channel] = doc.recentPatternInstruments[doc.channel][0];
+						if (
+							doc.channel >=
+							doc.song.pitchChannelCount + doc.song.noiseChannelCount
+						) {
+							doc.viewedInstrument[doc.channel] =
+								doc.recentPatternInstruments[doc.channel][0];
 						}
 						group.append(
 							new ChangeSetPatternInstruments(
@@ -730,7 +802,11 @@ export class KeyboardHandler {
 				break;
 			case 86: // v
 				if (canPlayNotes) break;
-				if ((event.ctrlKey || event.metaKey) && event.shiftKey && !needControlForShortcuts) {
+				if (
+					(event.ctrlKey || event.metaKey) &&
+					event.shiftKey &&
+					!needControlForShortcuts
+				) {
 					doc.selection.pasteNumbers();
 				} else if (event.shiftKey) {
 					host.pasteInstrument();
@@ -745,17 +821,30 @@ export class KeyboardHandler {
 				break;
 			case 73: // i
 				if (canPlayNotes) break;
-				if (needControlForShortcuts === (event.ctrlKey || event.metaKey) && event.shiftKey) {
+				if (
+					needControlForShortcuts === (event.ctrlKey || event.metaKey) &&
+					event.shiftKey
+				) {
 					const instrument: Instrument = doc.getCurrentInstrumentObj();
-					const instrumentObject: Record<string, any> = instrument.toJsonObject() as Record<string, any>;
+					const instrumentObject: Record<string, any> =
+						instrument.toJsonObject() as Record<string, any>;
 					delete instrumentObject.preset;
 					delete instrumentObject.volume;
 					delete instrumentObject.pan;
-					const panningEffectIndex: number = instrumentObject.effects.indexOf(Config.effectNames[EffectType.panning]);
-					if (panningEffectIndex !== -1) instrumentObject.effects.splice(panningEffectIndex, 1);
+					const panningEffectIndex: number = instrumentObject.effects.indexOf(
+						Config.effectNames[EffectType.panning],
+					);
+					if (panningEffectIndex !== -1)
+						instrumentObject.effects.splice(panningEffectIndex, 1);
 					for (let i: number = 0; i < instrumentObject.envelopes.length; i++) {
-						const envelope: Record<string, any> = instrumentObject.envelopes[i] as Record<string, any>;
-						if (envelope.target === "panning" || envelope.target === "none" || envelope.envelope === "none") {
+						const envelope: Record<string, any> = instrumentObject.envelopes[
+							i
+						] as Record<string, any>;
+						if (
+							envelope.target === "panning" ||
+							envelope.target === "none" ||
+							envelope.envelope === "none"
+						) {
 							instrumentObject.envelopes.splice(i, 1);
 							i--;
 						}
@@ -822,7 +911,10 @@ export class KeyboardHandler {
 					doc.synth.goToPrevBar();
 					doc.synth.initModFilters(doc.song);
 					doc.synth.computeLatestModValues();
-					if (Math.floor(doc.synth.playhead) < doc.synth.loopBarStart || Math.floor(doc.synth.playhead) > doc.synth.loopBarEnd) {
+					if (
+						Math.floor(doc.synth.playhead) < doc.synth.loopBarStart ||
+						Math.floor(doc.synth.playhead) > doc.synth.loopBarEnd
+					) {
 						doc.synth.loopBarStart = -1;
 						doc.synth.loopBarEnd = -1;
 						host.loopEditor.setLoopAt(doc.synth.loopBarStart, doc.synth.loopBarEnd);
@@ -840,7 +932,10 @@ export class KeyboardHandler {
 					doc.synth.goToNextBar();
 					doc.synth.initModFilters(doc.song);
 					doc.synth.computeLatestModValues();
-					if (Math.floor(doc.synth.playhead) < doc.synth.loopBarStart || Math.floor(doc.synth.playhead) > doc.synth.loopBarEnd) {
+					if (
+						Math.floor(doc.synth.playhead) < doc.synth.loopBarStart ||
+						Math.floor(doc.synth.playhead) > doc.synth.loopBarEnd
+					) {
 						doc.synth.loopBarStart = -1;
 						doc.synth.loopBarEnd = -1;
 						host.loopEditor.setLoopAt(doc.synth.loopBarStart, doc.synth.loopBarEnd);
@@ -877,7 +972,10 @@ export class KeyboardHandler {
 					doc.selection.scrollToEndOfSelection();
 					doc.selection.selectionUpdated();
 				} else {
-					doc.selection.setChannelBar((doc.channel - 1 + doc.song.getChannelCount()) % doc.song.getChannelCount(), doc.bar);
+					doc.selection.setChannelBar(
+						(doc.channel - 1 + doc.song.getChannelCount()) % doc.song.getChannelCount(),
+						doc.bar,
+					);
 					doc.selection.resetBoxSelection();
 					host.envelopeEditor.rerenderExtraSettings();
 				}
@@ -887,11 +985,17 @@ export class KeyboardHandler {
 				if (event.ctrlKey || event.metaKey) {
 					doc.selection.swapChannels(1);
 				} else if (event.shiftKey) {
-					doc.selection.boxSelectionY1 = Math.min(doc.song.getChannelCount() - 1, doc.selection.boxSelectionY1 + 1);
+					doc.selection.boxSelectionY1 = Math.min(
+						doc.song.getChannelCount() - 1,
+						doc.selection.boxSelectionY1 + 1,
+					);
 					doc.selection.scrollToEndOfSelection();
 					doc.selection.selectionUpdated();
 				} else {
-					doc.selection.setChannelBar((doc.channel + 1) % doc.song.getChannelCount(), doc.bar);
+					doc.selection.setChannelBar(
+						(doc.channel + 1) % doc.song.getChannelCount(),
+						doc.bar,
+					);
 					doc.selection.resetBoxSelection();
 					host.envelopeEditor.rerenderExtraSettings();
 				}
@@ -903,14 +1007,20 @@ export class KeyboardHandler {
 					doc.selection.scrollToEndOfSelection();
 					doc.selection.selectionUpdated();
 				} else {
-					doc.selection.setChannelBar(doc.channel, (doc.bar + doc.song.barCount - 1) % doc.song.barCount);
+					doc.selection.setChannelBar(
+						doc.channel,
+						(doc.bar + doc.song.barCount - 1) % doc.song.barCount,
+					);
 					doc.selection.resetBoxSelection();
 				}
 				event.preventDefault();
 				break;
 			case 39: // right
 				if (event.shiftKey) {
-					doc.selection.boxSelectionX1 = Math.min(doc.song.barCount - 1, doc.selection.boxSelectionX1 + 1);
+					doc.selection.boxSelectionX1 = Math.min(
+						doc.song.barCount - 1,
+						doc.selection.boxSelectionX1 + 1,
+					);
 					doc.selection.scrollToEndOfSelection();
 					doc.selection.selectionUpdated();
 				} else {
@@ -939,7 +1049,11 @@ export class KeyboardHandler {
 					needControlForShortcuts !== (event.shiftKey || event.ctrlKey || event.metaKey),
 					event.altKey,
 				);
-				host.renderInstrumentBar(doc.song.channels[doc.channel], doc.getCurrentInstrument(), ColorConfig.getChannelColor(doc.song, doc.channel));
+				host.renderInstrumentBar(
+					doc.song.channels[doc.channel],
+					doc.getCurrentInstrument(),
+					ColorConfig.getChannelColor(doc.song, doc.channel),
+				);
 				event.preventDefault();
 				break;
 			case 191: // /?

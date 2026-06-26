@@ -12,12 +12,27 @@ import { Config } from "../../synth/synth-config";
 import { FilterEditor } from "../components/filter-editor";
 import type { SongSettingsRefs } from "../renderers/render-song-settings";
 import type { SongDocument } from "../song-document";
-import { buildOptions, createInputBox, type InputBox, numberInput, rangeSlider, type Slider, toggleButton } from "../ui";
+import {
+	buildOptions,
+	createInputBox,
+	type InputBox,
+	numberInput,
+	rangeSlider,
+	type Slider,
+	toggleButton,
+} from "../ui";
 
 const { button, div, select, span } = HTML;
 
 // Change classes imported from changes/index
-import { ChangeChorus, ChangeEQFilterSimpleCut, ChangeEQFilterSimplePeak, ChangeReverb, ChangeSongTitle, ChangeTempo } from "../changes";
+import {
+	ChangeChorus,
+	ChangeEQFilterSimpleCut,
+	ChangeEQFilterSimplePeak,
+	ChangeReverb,
+	ChangeSongTitle,
+	ChangeTempo,
+} from "../changes";
 
 export class SongSettingsPanel {
 	// Scale and Key
@@ -57,7 +72,11 @@ export class SongSettingsPanel {
 
 	private readonly _onOpenPrompt: (prompt: string) => void;
 
-	constructor(doc: SongDocument, onOpenPrompt: (prompt: string) => void, _switchEqFilterType: (simple: boolean) => void) {
+	constructor(
+		doc: SongDocument,
+		onOpenPrompt: (prompt: string) => void,
+		_switchEqFilterType: (simple: boolean) => void,
+	) {
 		this._onOpenPrompt = onOpenPrompt;
 
 		// Scale Select
@@ -79,9 +98,16 @@ export class SongSettingsPanel {
 		});
 
 		// Tempo Controls
-		this.tempoSlider = rangeSlider(doc, (oldValue: number, newValue: number) => new ChangeTempo(doc, oldValue, newValue), 1, 500, 160, {
-			style: "margin: 0; vertical-align: middle;",
-		});
+		this.tempoSlider = rangeSlider(
+			doc,
+			(oldValue: number, newValue: number) => new ChangeTempo(doc, oldValue, newValue),
+			1,
+			500,
+			160,
+			{
+				style: "margin: 0; vertical-align: middle;",
+			},
+		);
 
 		this.tempoStepper = numberInput({
 			style: "width: 4em; font-size: 80%; margin-left: 0.4em; vertical-align: middle;",
@@ -96,13 +122,18 @@ export class SongSettingsPanel {
 		);
 
 		// Song Title
-		const { inputBox: songTitleInputBox } = createInputBox(doc, (oldValue: string, newValue: string) => new ChangeSongTitle(doc, oldValue, newValue));
+		const { inputBox: songTitleInputBox } = createInputBox(
+			doc,
+			(oldValue: string, newValue: string) => new ChangeSongTitle(doc, oldValue, newValue),
+		);
 		this.songTitleInputBox = songTitleInputBox;
 
 		// Song EQ Filter
 		this.songEqFilterEditor = new FilterEditor(doc, false, false, true);
 
-		const eqFilterToggle = toggleButton(["simple", "advanced"], (index: 0 | 1) => _switchEqFilterType(index === 0));
+		const eqFilterToggle = toggleButton(["simple", "advanced"], (index: 0 | 1) =>
+			_switchEqFilterType(index === 0),
+		);
 		this.eqFilterSimpleButton = eqFilterToggle.buttons[0];
 		this.eqFilterAdvancedButton = eqFilterToggle.buttons[1];
 
@@ -136,7 +167,8 @@ export class SongSettingsPanel {
 
 		const eqFilterSimpleCutSlider = rangeSlider(
 			doc,
-			(oldValue: number, newValue: number) => new ChangeEQFilterSimpleCut(doc, oldValue, newValue),
+			(oldValue: number, newValue: number) =>
+				new ChangeEQFilterSimpleCut(doc, oldValue, newValue),
 			0,
 			Config.filterSimpleCutRange - 1,
 			6,
@@ -150,7 +182,8 @@ export class SongSettingsPanel {
 
 		const eqFilterSimplePeakSlider = rangeSlider(
 			doc,
-			(oldValue: number, newValue: number) => new ChangeEQFilterSimplePeak(doc, oldValue, newValue),
+			(oldValue: number, newValue: number) =>
+				new ChangeEQFilterSimplePeak(doc, oldValue, newValue),
 			0,
 			Config.filterSimplePeakRange - 1,
 			6,
@@ -163,14 +196,34 @@ export class SongSettingsPanel {
 		);
 
 		// Chorus
-		this.chorusSlider = rangeSlider(doc, (oldValue: number, newValue: number) => new ChangeChorus(doc, oldValue, newValue), 0, Config.chorusRange - 1, 0);
+		this.chorusSlider = rangeSlider(
+			doc,
+			(oldValue: number, newValue: number) => new ChangeChorus(doc, oldValue, newValue),
+			0,
+			Config.chorusRange - 1,
+			0,
+		);
 
-		this.chorusRow = div({ class: "selectRow" }, span({ class: "tip", onclick: () => onOpenPrompt("chorus") }, "Chorus:"), this.chorusSlider.container);
+		this.chorusRow = div(
+			{ class: "selectRow" },
+			span({ class: "tip", onclick: () => onOpenPrompt("chorus") }, "Chorus:"),
+			this.chorusSlider.container,
+		);
 
 		// Reverb
-		this.reverbSlider = rangeSlider(doc, (oldValue: number, newValue: number) => new ChangeReverb(doc, oldValue, newValue), 0, Config.reverbRange - 1, 0);
+		this.reverbSlider = rangeSlider(
+			doc,
+			(oldValue: number, newValue: number) => new ChangeReverb(doc, oldValue, newValue),
+			0,
+			Config.reverbRange - 1,
+			0,
+		);
 
-		this.reverbRow = div({ class: "selectRow" }, span({ class: "tip", onclick: () => onOpenPrompt("reverb") }, "Reverb:"), this.reverbSlider.container);
+		this.reverbRow = div(
+			{ class: "selectRow" },
+			span({ class: "tip", onclick: () => onOpenPrompt("reverb") }, "Reverb:"),
+			this.reverbSlider.container,
+		);
 
 		// Build container
 		this.container = div(
@@ -190,15 +243,27 @@ export class SongSettingsPanel {
 	}
 
 	private _createTitleRow(): HTMLDivElement {
-		return div({ class: "selectRow" }, span({ class: "tip" }, "Title:"), this.songTitleInputBox.input);
+		return div(
+			{ class: "selectRow" },
+			span({ class: "tip" }, "Title:"),
+			this.songTitleInputBox.input,
+		);
 	}
 
 	private _createScaleRow(): HTMLDivElement {
-		return div({ class: "selectRow" }, span({ class: "tip", onclick: () => this._onOpenPrompt("scale") }, "Scale:"), this.scaleSelect);
+		return div(
+			{ class: "selectRow" },
+			span({ class: "tip", onclick: () => this._onOpenPrompt("scale") }, "Scale:"),
+			this.scaleSelect,
+		);
 	}
 
 	private _createKeyRow(): HTMLDivElement {
-		return div({ class: "selectRow" }, span({ class: "tip", onclick: () => this._onOpenPrompt("key") }, "Key:"), this.keySelect);
+		return div(
+			{ class: "selectRow" },
+			span({ class: "tip", onclick: () => this._onOpenPrompt("key") }, "Key:"),
+			this.keySelect,
+		);
 	}
 
 	private _createTempoRow(): HTMLDivElement {
@@ -211,7 +276,11 @@ export class SongSettingsPanel {
 	}
 
 	private _createRhythmRow(): HTMLDivElement {
-		return div({ class: "selectRow" }, span({ class: "tip", onclick: () => this._onOpenPrompt("rhythm") }, "Rhythm:"), this.rhythmSelect);
+		return div(
+			{ class: "selectRow" },
+			span({ class: "tip", onclick: () => this._onOpenPrompt("rhythm") }, "Rhythm:"),
+			this.rhythmSelect,
+		);
 	}
 
 	public updateTempo(value: number): void {

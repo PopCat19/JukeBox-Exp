@@ -186,33 +186,63 @@ export class EventListenerSetup {
 		host.pitchShiftSlider.container.style.setProperty("width", "100%");
 
 		// Basic control event listeners
-		host.customWavePresetDrop.addEventListener("change", (event) => host.customWavePresetHandler(event));
+		host.customWavePresetDrop.addEventListener("change", (event) =>
+			host.customWavePresetHandler(event),
+		);
 		host.tempoStepper.addEventListener("change", () => host.dispatch.whenSetTempo());
 		host.scaleSelect.addEventListener("change", () => host.dispatch.whenSetScale());
 		host.keySelect.addEventListener("change", () => host.dispatch.whenSetKey());
 		host.octaveStepper.addEventListener("change", () => host.dispatch.whenSetOctave());
 		host.rhythmSelect.addEventListener("change", () => host.dispatch.whenSetRhythm());
 		host.algorithmSelect.addEventListener("change", () => host.dispatch.whenSetAlgorithm());
-		host.instrumentsButtonBar.addEventListener("click", (event) => host.dispatch.whenSelectInstrument(event as MouseEvent));
-		host.feedbackTypeSelect.addEventListener("change", () => host.dispatch.whenSetFeedbackType());
-		host.algorithm6OpSelect.addEventListener("change", () => host.dispatch.whenSet6OpAlgorithm());
-		host.feedback6OpTypeSelect.addEventListener("change", () => host.dispatch.whenSet6OpFeedbackType());
+		host.instrumentsButtonBar.addEventListener("click", (event) =>
+			host.dispatch.whenSelectInstrument(event as MouseEvent),
+		);
+		host.feedbackTypeSelect.addEventListener("change", () =>
+			host.dispatch.whenSetFeedbackType(),
+		);
+		host.algorithm6OpSelect.addEventListener("change", () =>
+			host.dispatch.whenSet6OpAlgorithm(),
+		);
+		host.feedback6OpTypeSelect.addEventListener("change", () =>
+			host.dispatch.whenSet6OpFeedbackType(),
+		);
 		host.chipWaveSelect.addEventListener("change", () => host.dispatch.whenSetChipWave());
-		host.ringModWaveSelect.addEventListener("change", () => host.dispatch.whenSetRingModChipWave());
-		host.useChipWaveAdvancedLoopControlsBox.addEventListener("input", () => host.dispatch.whenSetUseChipWaveAdvancedLoopControls());
-		host.chipWaveLoopModeSelect.addEventListener("change", () => host.dispatch.whenSetChipWaveLoopMode());
-		host.chipWaveLoopStartStepper.addEventListener("change", () => host.dispatch.whenSetChipWaveLoopStart());
-		host.chipWaveLoopEndStepper.addEventListener("change", () => host.dispatch.whenSetChipWaveLoopEnd());
-		host.setChipWaveLoopEndToEndButton.addEventListener("click", () => host.dispatch.whenSetChipWaveLoopEndToEnd());
-		host.chipWaveStartOffsetStepper.addEventListener("change", () => host.dispatch.whenSetChipWaveStartOffset());
-		host.chipWavePlayBackwardsBox.addEventListener("input", () => host.dispatch.whenSetChipWavePlayBackwards());
-		host.sampleLoadingStatusContainer.addEventListener("click", () => host.openPrompt("sampleLoadingStatus"));
+		host.ringModWaveSelect.addEventListener("change", () =>
+			host.dispatch.whenSetRingModChipWave(),
+		);
+		host.useChipWaveAdvancedLoopControlsBox.addEventListener("input", () =>
+			host.dispatch.whenSetUseChipWaveAdvancedLoopControls(),
+		);
+		host.chipWaveLoopModeSelect.addEventListener("change", () =>
+			host.dispatch.whenSetChipWaveLoopMode(),
+		);
+		host.chipWaveLoopStartStepper.addEventListener("change", () =>
+			host.dispatch.whenSetChipWaveLoopStart(),
+		);
+		host.chipWaveLoopEndStepper.addEventListener("change", () =>
+			host.dispatch.whenSetChipWaveLoopEnd(),
+		);
+		host.setChipWaveLoopEndToEndButton.addEventListener("click", () =>
+			host.dispatch.whenSetChipWaveLoopEndToEnd(),
+		);
+		host.chipWaveStartOffsetStepper.addEventListener("change", () =>
+			host.dispatch.whenSetChipWaveStartOffset(),
+		);
+		host.chipWavePlayBackwardsBox.addEventListener("input", () =>
+			host.dispatch.whenSetChipWavePlayBackwards(),
+		);
+		host.sampleLoadingStatusContainer.addEventListener("click", () =>
+			host.openPrompt("sampleLoadingStatus"),
+		);
 		host.chipNoiseSelect.addEventListener("change", () => host.dispatch.whenSetNoiseWave());
 		host.transitionSelect.addEventListener("change", () => host.dispatch.whenSetTransition());
 		host.effectsSelect.addEventListener("change", () => host.dispatch.whenSetEffects());
 		host.unisonSelect.addEventListener("change", () => host.dispatch.whenSetUnison());
 		host.chordSelect.addEventListener("change", () => host.dispatch.whenSetChord());
-		host.monophonicNoteInputBox.addEventListener("input", () => host.dispatch.whenSetMonophonicNote());
+		host.monophonicNoteInputBox.addEventListener("input", () =>
+			host.dispatch.whenSetMonophonicNote(),
+		);
 		host.vibratoSelect.addEventListener("change", () => host.dispatch.whenSetVibrato());
 		host.vibratoTypeSelect.addEventListener("change", () => host.dispatch.whenSetVibratoType());
 
@@ -239,7 +269,9 @@ export class EventListenerSetup {
 		host.volumeSlider.input.addEventListener("input", () => host.setVolumeSlider());
 
 		// Navigation and focus
-		host.patternArea.addEventListener("mousedown", (event) => host.refocusStageNotEditing(event as MouseEvent));
+		host.patternArea.addEventListener("mousedown", (event) =>
+			host.refocusStageNotEditing(event as MouseEvent),
+		);
 		host.trackArea.addEventListener("mousedown", () => host.refocusStage());
 
 		// The song volume slider is styled slightly different than the class' default.
@@ -248,18 +280,35 @@ export class EventListenerSetup {
 
 		host.volumeBarContainer.style.setProperty("flex-grow", "1");
 		host.volumeBarContainer.style.setProperty("display", "flex");
-		host.volumeBarContainer.addEventListener("click", () => host.openPrompt("channelVolumeVisualizer"));
+		host.volumeBarContainer.addEventListener("click", () =>
+			host.openPrompt("channelVolumeVisualizer"),
+		);
 
 		// Also, any slider with a multiplicative effect instead of a replacement effect gets a different mod color, and a round slider.
-		host.volumeSlider.container.style.setProperty("--mod-color", ColorConfig.multiplicativeModSlider);
+		host.volumeSlider.container.style.setProperty(
+			"--mod-color",
+			ColorConfig.multiplicativeModSlider,
+		);
 		host.volumeSlider.container.style.setProperty("--mod-border-radius", "50%");
-		host.instrumentVolumeSlider.container.style.setProperty("--mod-color", ColorConfig.multiplicativeModSlider);
+		host.instrumentVolumeSlider.container.style.setProperty(
+			"--mod-color",
+			ColorConfig.multiplicativeModSlider,
+		);
 		host.instrumentVolumeSlider.container.style.setProperty("--mod-border-radius", "50%");
-		host.feedbackAmplitudeSlider.container.style.setProperty("--mod-color", ColorConfig.multiplicativeModSlider);
+		host.feedbackAmplitudeSlider.container.style.setProperty(
+			"--mod-color",
+			ColorConfig.multiplicativeModSlider,
+		);
 		host.feedbackAmplitudeSlider.container.style.setProperty("--mod-border-radius", "50%");
 		for (let i = 0; i < Config.operatorCount + 2; i++) {
-			host.operatorAmplitudeSliders[i].container.style.setProperty("--mod-color", ColorConfig.multiplicativeModSlider);
-			host.operatorAmplitudeSliders[i].container.style.setProperty("--mod-border-radius", "50%");
+			host.operatorAmplitudeSliders[i].container.style.setProperty(
+				"--mod-color",
+				ColorConfig.multiplicativeModSlider,
+			);
+			host.operatorAmplitudeSliders[i].container.style.setProperty(
+				"--mod-border-radius",
+				"50%",
+			);
 		}
 
 		// Modulator controls
@@ -297,23 +346,43 @@ export class EventListenerSetup {
 		host.noteFilterEditor.container.addEventListener("mousedown", () => host.refocusStage());
 		host.songEqFilterEditor.container.addEventListener("mousedown", () => host.refocusStage());
 		host.harmonicsEditor.container.addEventListener("mousedown", () => host.refocusStage());
-		host.tempoStepper.addEventListener("keydown", (event) => host.tempoStepperCaptureNumberKeys(event as KeyboardEvent), false);
+		host.tempoStepper.addEventListener(
+			"keydown",
+			(event) => host.tempoStepperCaptureNumberKeys(event as KeyboardEvent),
+			false,
+		);
 		host.addEnvelopeButton.addEventListener("click", () => host.dispatch.addNewEnvelope());
-		host.patternArea.addEventListener("contextmenu", (event) => host.disableCtrlContextMenu(event as MouseEvent));
-		host.trackArea.addEventListener("contextmenu", (event) => host.disableCtrlContextMenu(event as MouseEvent));
-		host.mainLayer.addEventListener("keydown", (event) => host.keyboardHandler.handleKeyDown(event as KeyboardEvent));
-		host.mainLayer.addEventListener("keyup", (event) => host.keyboardHandler.handleKeyUp(event as KeyboardEvent));
+		host.patternArea.addEventListener("contextmenu", (event) =>
+			host.disableCtrlContextMenu(event as MouseEvent),
+		);
+		host.trackArea.addEventListener("contextmenu", (event) =>
+			host.disableCtrlContextMenu(event as MouseEvent),
+		);
+		host.mainLayer.addEventListener("keydown", (event) =>
+			host.keyboardHandler.handleKeyDown(event as KeyboardEvent),
+		);
+		host.mainLayer.addEventListener("keyup", (event) =>
+			host.keyboardHandler.handleKeyUp(event as KeyboardEvent),
+		);
 		host.mainLayer.addEventListener("focusin", (event) => host.onFocusIn(event));
-		document.addEventListener("keydown", (event) => host.handleGlobalKeyDown(event as KeyboardEvent));
+		document.addEventListener("keydown", (event) =>
+			host.handleGlobalKeyDown(event as KeyboardEvent),
+		);
 
 		// Instrument buttons
 		host.instrumentCopyButton.addEventListener("click", () => host.dispatch.copyInstrument());
 		host.instrumentPasteButton.addEventListener("click", () => host.dispatch.pasteInstrument());
-		host.instrumentExportButton.addEventListener("click", () => host.dispatch.exportInstruments());
-		host.instrumentImportButton.addEventListener("click", () => host.dispatch.importInstruments());
+		host.instrumentExportButton.addEventListener("click", () =>
+			host.dispatch.exportInstruments(),
+		);
+		host.instrumentImportButton.addEventListener("click", () =>
+			host.dispatch.importInstruments(),
+		);
 
 		// Sample loading event
-		sampleLoadEvents.addEventListener("sampleloaded", (e: Event) => host.updateSampleLoadingBar(e as SampleLoadedEvent));
+		sampleLoadEvents.addEventListener("sampleloaded", (e: Event) =>
+			host.updateSampleLoadingBar(e as SampleLoadedEvent),
+		);
 
 		// Slider input boxes with direct change handlers
 		host.instrumentVolumeSliderInputBox.addEventListener("input", () => {
@@ -321,13 +390,20 @@ export class EventListenerSetup {
 				new ChangeVolume(
 					host.doc,
 					host.doc.getCurrentInstrumentObj().volume,
-					Math.min(25.0, Math.max(-25.0, Math.round(+host.instrumentVolumeSliderInputBox.value))),
+					Math.min(
+						25.0,
+						Math.max(-25.0, Math.round(+host.instrumentVolumeSliderInputBox.value)),
+					),
 				),
 			);
 		});
 		host.panSliderInputBox.addEventListener("input", () => {
 			host.doc.record(
-				new ChangePan(host.doc, host.doc.getCurrentInstrumentObj().pan, Math.min(100.0, Math.max(0.0, Math.round(+host.panSliderInputBox.value)))),
+				new ChangePan(
+					host.doc,
+					host.doc.getCurrentInstrumentObj().pan,
+					Math.min(100.0, Math.max(0.0, Math.round(+host.panSliderInputBox.value))),
+				),
 			);
 		});
 		host.pwmSliderInputBox.addEventListener("input", () => {
@@ -335,7 +411,10 @@ export class EventListenerSetup {
 				new ChangePulseWidth(
 					host.doc,
 					host.doc.getCurrentInstrumentObj().pulseWidth,
-					Math.min(Config.pulseWidthRange, Math.max(1.0, Math.round(+host.pwmSliderInputBox.value))),
+					Math.min(
+						Config.pulseWidthRange,
+						Math.max(1.0, Math.round(+host.pwmSliderInputBox.value)),
+					),
 				),
 			);
 		});
@@ -346,7 +425,10 @@ export class EventListenerSetup {
 					host.doc.getCurrentInstrumentObj().detune,
 					Math.min(
 						Config.detuneMax - Config.detuneCenter,
-						Math.max(Config.detuneMin - Config.detuneCenter, Math.round(+host.detuneSliderInputBox.value)),
+						Math.max(
+							Config.detuneMin - Config.detuneCenter,
+							Math.round(+host.detuneSliderInputBox.value),
+						),
 					),
 				),
 			);
@@ -356,7 +438,13 @@ export class EventListenerSetup {
 				new ChangeUnisonVoices(
 					host.doc,
 					host.doc.getCurrentInstrumentObj().unisonVoices,
-					Math.min(Config.unisonVoicesMax, Math.max(Config.unisonVoicesMin, Math.round(+host.unisonVoicesInputBox.value))),
+					Math.min(
+						Config.unisonVoicesMax,
+						Math.max(
+							Config.unisonVoicesMin,
+							Math.round(+host.unisonVoicesInputBox.value),
+						),
+					),
 				),
 			);
 		});
@@ -365,7 +453,10 @@ export class EventListenerSetup {
 				new ChangeUnisonSpread(
 					host.doc,
 					host.doc.getCurrentInstrumentObj().unisonSpread,
-					Math.min(Config.unisonSpreadMax, Math.max(Config.unisonSpreadMin, +host.unisonSpreadInputBox.value)),
+					Math.min(
+						Config.unisonSpreadMax,
+						Math.max(Config.unisonSpreadMin, +host.unisonSpreadInputBox.value),
+					),
 				),
 			);
 		});
@@ -374,7 +465,10 @@ export class EventListenerSetup {
 				new ChangeUnisonOffset(
 					host.doc,
 					host.doc.getCurrentInstrumentObj().unisonOffset,
-					Math.min(Config.unisonOffsetMax, Math.max(Config.unisonOffsetMin, +host.unisonOffsetInputBox.value)),
+					Math.min(
+						Config.unisonOffsetMax,
+						Math.max(Config.unisonOffsetMin, +host.unisonOffsetInputBox.value),
+					),
 				),
 			);
 		});
@@ -383,7 +477,10 @@ export class EventListenerSetup {
 				new ChangeUnisonExpression(
 					host.doc,
 					host.doc.getCurrentInstrumentObj().unisonExpression,
-					Math.min(Config.unisonExpressionMax, Math.max(Config.unisonExpressionMin, +host.unisonExpressionInputBox.value)),
+					Math.min(
+						Config.unisonExpressionMax,
+						Math.max(Config.unisonExpressionMin, +host.unisonExpressionInputBox.value),
+					),
 				),
 			);
 		});
@@ -392,7 +489,10 @@ export class EventListenerSetup {
 				new ChangeUnisonSign(
 					host.doc,
 					host.doc.getCurrentInstrumentObj().unisonSign,
-					Math.min(Config.unisonSignMax, Math.max(Config.unisonSignMin, +host.unisonSignInputBox.value)),
+					Math.min(
+						Config.unisonSignMax,
+						Math.max(Config.unisonSignMin, +host.unisonSignInputBox.value),
+					),
 				),
 			);
 		});
@@ -405,7 +505,9 @@ export class EventListenerSetup {
 			host.doc.record(new ChangeFastTwoNoteArp(host.doc, host.twoNoteArpBox.checked));
 		});
 		host.clicklessTransitionBox.addEventListener("input", () => {
-			host.doc.record(new ChangeClicklessTransition(host.doc, host.clicklessTransitionBox.checked));
+			host.doc.record(
+				new ChangeClicklessTransition(host.doc, host.clicklessTransitionBox.checked),
+			);
 		});
 		host.aliasingBox.addEventListener("input", () => {
 			host.doc.record(new ChangeAliasing(host.doc, host.aliasingBox.checked));
@@ -415,7 +517,10 @@ export class EventListenerSetup {
 				new ChangeUpperLimit(
 					host.doc,
 					host.doc.getCurrentInstrumentObj().upperNoteLimit,
-					Math.min(Config.maxPitch, Math.max(0.0, Math.round(+host.upperNoteLimitInputBox.value))),
+					Math.min(
+						Config.maxPitch,
+						Math.max(0.0, Math.round(+host.upperNoteLimitInputBox.value)),
+					),
 				),
 			);
 		});
@@ -424,7 +529,10 @@ export class EventListenerSetup {
 				new ChangeLowerLimit(
 					host.doc,
 					host.doc.getCurrentInstrumentObj().lowerNoteLimit,
-					Math.min(Config.maxPitch, Math.max(0.0, Math.round(+host.lowerNoteLimitInputBox.value))),
+					Math.min(
+						Config.maxPitch,
+						Math.max(0.0, Math.round(+host.lowerNoteLimitInputBox.value)),
+					),
 				),
 			);
 		});
@@ -447,7 +555,8 @@ export class EventListenerSetup {
 				host.highlightTagSuggestion(items);
 			} else if (event.key === "ArrowUp") {
 				event.preventDefault();
-				host.tagAutocompleteIndex = (host.tagAutocompleteIndex - 1 + items.length) % items.length;
+				host.tagAutocompleteIndex =
+					(host.tagAutocompleteIndex - 1 + items.length) % items.length;
 				host.highlightTagSuggestion(items);
 			} else if (event.key === "Enter" || event.key === "Tab") {
 				if (host.tagAutocompleteIndex >= 0 && host.tagAutocompleteIndex < items.length) {
@@ -480,9 +589,13 @@ export class EventListenerSetup {
 		});
 
 		// Bypassing typescript type safety here to use the new "passive" option.
-		(<Function>host.trackAndMuteContainer.addEventListener)("scroll", (event: Event) => host.onTrackAreaScroll(event), {
-			capture: false,
-			passive: true,
-		});
+		(<Function>host.trackAndMuteContainer.addEventListener)(
+			"scroll",
+			(event: Event) => host.onTrackAreaScroll(event),
+			{
+				capture: false,
+				passive: true,
+			},
+		);
 	}
 }

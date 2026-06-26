@@ -7,13 +7,16 @@
 /// - Useful for button groups and dialog actions
 
 import { createDiv } from "../base/container";
-import { s, flexCenter } from "../style";
+import { flexCenter, s } from "../style";
 
 export interface FlexRowCenterOptions {
 	marginBottom?: string;
 }
 
-export function flexRowCenter(opts?: FlexRowCenterOptions, ...children: (HTMLElement | string)[]): HTMLDivElement {
+export function flexRowCenter(
+	opts?: FlexRowCenterOptions,
+	...children: (HTMLElement | string)[]
+): HTMLDivElement {
 	const marginBottom = opts?.marginBottom ?? "";
 	const style = s(flexCenter("row"), marginBottom && `margin-bottom:${marginBottom};`);
 	return createDiv(style, undefined, ...children);

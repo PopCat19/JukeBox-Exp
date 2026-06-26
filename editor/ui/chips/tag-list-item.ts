@@ -28,7 +28,10 @@ export class TagListItem {
 		this.presetCount = presetCount;
 
 		this._nameSpan = span({}, tag);
-		this._countSpan = span({ style: `font-size: ${Typography.sizeXs}; opacity: 0.6;` }, String(presetCount));
+		this._countSpan = span(
+			{ style: `font-size: ${Typography.sizeXs}; opacity: 0.6;` },
+			String(presetCount),
+		);
 
 		this.element = createDiv("", { class: "tagListItem" }, this._nameSpan, this._countSpan);
 	}
@@ -54,10 +57,20 @@ export class TagListItem {
 	}
 }
 
-export function tagListItem(tag: string, presetCount: number, active?: boolean, selected?: boolean): HTMLDivElement {
+export function tagListItem(
+	tag: string,
+	presetCount: number,
+	active?: boolean,
+	selected?: boolean,
+): HTMLDivElement {
 	const classes = ["tagListItem"];
 	if (active) classes.push("active");
 	if (selected) classes.push("selected");
 
-	return createDiv("", { class: classes.join(" ") }, span({}, tag), span({ style: `font-size: ${Typography.sizeXs}; opacity: 0.6;` }, String(presetCount)));
+	return createDiv(
+		"",
+		{ class: classes.join(" ") },
+		span({}, tag),
+		span({ style: `font-size: ${Typography.sizeXs}; opacity: 0.6;` }, String(presetCount)),
+	);
 }

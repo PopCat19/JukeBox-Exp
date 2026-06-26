@@ -28,7 +28,10 @@ export class ImportPrompt extends BasePrompt {
 		accept: ".json,application/json,.mid,.midi,audio/midi,audio/x-midi",
 		style: "display: none;",
 	});
-	private readonly _browseButton: HTMLButtonElement = button({ class: "importBrowseButton" }, "Browse\u2026");
+	private readonly _browseButton: HTMLButtonElement = button(
+		{ class: "importBrowseButton" },
+		"Browse\u2026",
+	);
 	private readonly _modeImportSelect: HTMLSelectElement = select(
 		{ class: "importBrowseButton" },
 		option({ value: "auto" }, "Auto-detect mode (for json)"),
@@ -45,7 +48,10 @@ export class ImportPrompt extends BasePrompt {
 	public readonly container: HTMLDivElement = div(
 		{ class: "prompt importPrompt noSelection" },
 		h2("Import"),
-		p({ class: "importNote" }, "BeepBox songs can be exported as .json files. You can also use this to import .json files from other BeepBox mods."),
+		p(
+			{ class: "importNote" },
+			"BeepBox songs can be exported as .json files. You can also use this to import .json files from other BeepBox mods.",
+		),
 		p(
 			{ class: "importNote2" },
 			"BeepBox can also (crudely) import .mid files. There are many tools available for creating .mid files. Shorter and simpler songs are more likely to work well.",
@@ -80,7 +86,9 @@ export class ImportPrompt extends BasePrompt {
 
 	private _handleFile(file: File, rafWin?: Window): void {
 		const fileName: string = file.name;
-		const extension: string = fileName.slice(((fileName.lastIndexOf(".") - 1) >>> 0) + 2).toLowerCase();
+		const extension: string = fileName
+			.slice(((fileName.lastIndexOf(".") - 1) >>> 0) + 2)
+			.toLowerCase();
 		if (extension === "json") {
 			const reader: FileReader = new FileReader();
 			reader.addEventListener("load", (_event: Event): void => {
@@ -94,7 +102,15 @@ export class ImportPrompt extends BasePrompt {
 				const raf: Window = rafWin ?? window;
 				raf.requestAnimationFrame(() => {
 					this._doc.goBackToStart();
-					this._doc.record(new ChangeSong(this._doc, <string>reader.result, this._modeImportSelect.value), false, true);
+					this._doc.record(
+						new ChangeSong(
+							this._doc,
+							<string>reader.result,
+							this._modeImportSelect.value,
+						),
+						false,
+						true,
+					);
 					this._doc.notifier.notifyWatchers();
 				});
 			});
@@ -119,7 +135,10 @@ export class ImportPrompt extends BasePrompt {
 	private _showLoading(): void {
 		this.container.innerHTML = "";
 		this.container.appendChild(h2("Importing\u2026"));
-		const loadingMsg = p({ style: "text-align: center; margin-top: 1em;" }, "Loading song, please wait\u2026");
+		const loadingMsg = p(
+			{ style: "text-align: center; margin-top: 1em;" },
+			"Loading song, please wait\u2026",
+		);
 		this.container.appendChild(loadingMsg);
 	}
 
@@ -129,7 +148,16 @@ export class ImportPrompt extends BasePrompt {
 			this._close();
 			return;
 		}
-		const { pitchChannels, noiseChannels, modChannels, beatsPerBar, key, scale, detectedRhythm, beatsPerMinute } = result;
+		const {
+			pitchChannels,
+			noiseChannels,
+			modChannels,
+			beatsPerBar,
+			key,
+			scale,
+			detectedRhythm,
+			beatsPerMinute,
+		} = result;
 
 		class ChangeImportMidi extends ChangeGroup {
 			constructor(doc: SongDocument) {
@@ -149,11 +177,14 @@ export class ImportPrompt extends BasePrompt {
 					song.title = dotIdx > 0 ? fileName.substring(0, dotIdx) : fileName;
 				}
 				song.patternInstruments =
-					pitchChannels.some((channel) => channel.instruments.length > 1) || noiseChannels.some((channel) => channel.instruments.length > 1);
+					pitchChannels.some((channel) => channel.instruments.length > 1) ||
+					noiseChannels.some((channel) => channel.instruments.length > 1);
 				removeDuplicatePatterns(pitchChannels);
 				removeDuplicatePatterns(noiseChannels);
 				removeDuplicatePatterns(modChannels);
-				this.append(new ChangeReplacePatterns(doc, pitchChannels, noiseChannels, modChannels));
+				this.append(
+					new ChangeReplacePatterns(doc, pitchChannels, noiseChannels, modChannels),
+				);
 				song.loopStart = 0;
 				song.loopLength = song.barCount;
 
@@ -175,7 +206,10 @@ export class ImportPrompt extends BasePrompt {
 							}
 							if (note.start < simCurPart) {
 								note.start = Math.min(simCurPart, finalMaxPart - 1);
-								note.end = Math.max(note.start + 1, Math.min(finalMaxPart, note.end));
+								note.end = Math.max(
+									note.start + 1,
+									Math.min(finalMaxPart, note.end),
+								);
 								if (note.start >= note.end) {
 									finalFixed++;
 									continue;
@@ -193,7 +227,8 @@ export class ImportPrompt extends BasePrompt {
 						for (const note of validNotes) pattern.notes.push(note);
 					}
 				}
-				if (finalFixed > 0) console.warn("[MIDI Import] Final validation fixed " + finalFixed + " notes");
+				if (finalFixed > 0)
+					console.warn("[MIDI Import] Final validation fixed " + finalFixed + " notes");
 				doc.synth.computeLatestModValues();
 				doc.synth.pause();
 				doc.synth.goToBar(0);

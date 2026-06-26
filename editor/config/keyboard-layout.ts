@@ -25,7 +25,12 @@ export class KeyboardLayout {
 		[11, 13, null, 16, 18, null, 21, 23, 25, null, 28, 30, null],
 	];
 
-	public static keyPosToPitch(doc: SongDocument, x: number, y: number, keyboardLayout: string): number | null {
+	public static keyPosToPitch(
+		doc: SongDocument,
+		x: number,
+		y: number,
+		keyboardLayout: string,
+	): number | null {
 		let pitchOffset: number | null = null;
 		let forcedKey: number | null = null;
 		switch (keyboardLayout) {
@@ -34,10 +39,17 @@ export class KeyboardLayout {
 				break;
 			case "songScale": {
 				const scaleFlags: ReadonlyArray<boolean> =
-					doc.song.scale === Config.scales.dictionary.Custom.index ? doc.song.scaleCustom : Config.scales[doc.song.scale].flags;
-				const scaleIndices: number[] = <number[]>scaleFlags.map((flag, index) => (flag ? index : null)).filter((index) => index != null);
+					doc.song.scale === Config.scales.dictionary.Custom.index
+						? doc.song.scaleCustom
+						: Config.scales[doc.song.scale].flags;
+				const scaleIndices: number[] = <number[]>(
+					scaleFlags
+						.map((flag, index) => (flag ? index : null))
+						.filter((index) => index != null)
+				);
 				pitchOffset =
-					(y - 1 + Math.floor(x / scaleIndices.length)) * Config.pitchesPerOctave + scaleIndices[(x + scaleIndices.length) % scaleIndices.length];
+					(y - 1 + Math.floor(x / scaleIndices.length)) * Config.pitchesPerOctave +
+					scaleIndices[(x + scaleIndices.length) % scaleIndices.length];
 				break;
 			}
 			case "pianoAtC":
@@ -58,7 +70,8 @@ export class KeyboardLayout {
 
 		if (pitchOffset == null) return null;
 
-		const octaveOffset: number = Math.max(0, doc.song.channels[doc.channel].octave - 1) * Config.pitchesPerOctave;
+		const octaveOffset: number =
+			Math.max(0, doc.song.channels[doc.channel].octave - 1) * Config.pitchesPerOctave;
 		let keyOffset: number = 0; // The basePitch of the song key is implicit.
 
 		if (forcedKey != null) {
@@ -274,7 +287,12 @@ export class KeyboardLayout {
 			return;
 		}
 
-		const pitch: number | null = KeyboardLayout.keyPosToPitch(this._doc, x, y, this._doc.prefs.keyboardLayout);
+		const pitch: number | null = KeyboardLayout.keyPosToPitch(
+			this._doc,
+			x,
+			y,
+			this._doc.prefs.keyboardLayout,
+		);
 
 		if (pitch != null) {
 			if (pressed) {

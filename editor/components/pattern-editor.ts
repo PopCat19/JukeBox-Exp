@@ -11,8 +11,23 @@
 
 import { HTML, SVG } from "imperative-html/dist/esm/elements-strict";
 import { ColorConfig } from "../../shared/color-config";
-import { type Channel, type FilterControlPoint, FilterSettings, type Instrument, makeNotePin, Note, type NotePin, type Pattern } from "../../synth";
-import { type Chord, Config, effectsIncludeNoteRange, getLocalStorageItem, type Transition } from "../../synth/synth-config";
+import {
+	type Channel,
+	type FilterControlPoint,
+	FilterSettings,
+	type Instrument,
+	makeNotePin,
+	Note,
+	type NotePin,
+	type Pattern,
+} from "../../synth";
+import {
+	type Chord,
+	Config,
+	effectsIncludeNoteRange,
+	getLocalStorageItem,
+	type Transition,
+} from "../../synth/synth-config";
 import {
 	ChangeArpeggioSpeed,
 	ChangeBitcrusherFreq,
@@ -173,7 +188,10 @@ export class PatternEditor {
 	private readonly _backgroundPitchRows: SVGRectElement[] = [];
 	private readonly _backgroundDrumRow: SVGRectElement = SVG.rect();
 	private readonly _backgroundModRow: SVGRectElement = SVG.rect();
-	private readonly _maximumNoteRanges: number = Math.max(Config.layeredInstrumentCountMax, Config.patternInstrumentCountMax);
+	private readonly _maximumNoteRanges: number = Math.max(
+		Config.layeredInstrumentCountMax,
+		Config.patternInstrumentCountMax,
+	);
 	private readonly _hoverTooltip: HTMLDivElement = HTML.div({
 		// PMD card: 10px meta font, widget surface, 8px radius. Follows
 		// the mouse cursor with a small offset so the user can see
@@ -292,7 +310,13 @@ export class PatternEditor {
 			fill: "none",
 		});
 		this._svgNoteContainer = SVG.svg();
-		this._svgPlayhead = SVG.rect({ x: "0", y: "0", width: "4", fill: ColorConfig.playhead, "pointer-events": "none" });
+		this._svgPlayhead = SVG.rect({
+			x: "0",
+			y: "0",
+			width: "4",
+			fill: ColorConfig.playhead,
+			"pointer-events": "none",
+		});
 		this._selectionRect = SVG.rect({
 			class: "dashed-line dash-move",
 			fill: ColorConfig.boxSelectionFill,
@@ -335,7 +359,8 @@ export class PatternEditor {
 			this._svgPlayhead,
 		);
 		this._canvas = document.createElement("canvas");
-		this._canvas.style.cssText = "position:absolute;left:0;top:0;width:100%;height:100%;pointer-events:none;";
+		this._canvas.style.cssText =
+			"position:absolute;left:0;top:0;width:100%;height:100%;pointer-events:none;";
 		this._ctx = this._canvas.getContext("2d")!;
 
 		this.container = HTML.div(
@@ -349,7 +374,10 @@ export class PatternEditor {
 		for (let i: number = 0; i < Config.pitchesPerOctave; i++) {
 			const rectangle: SVGRectElement = SVG.rect();
 			rectangle.setAttribute("x", "1");
-			rectangle.setAttribute("fill", i === 0 ? ColorConfig.tonic : ColorConfig.pitchBackground);
+			rectangle.setAttribute(
+				"fill",
+				i === 0 ? ColorConfig.tonic : ColorConfig.pitchBackground,
+			);
 			this._svgNoteBackground.appendChild(rectangle);
 			this._backgroundPitchRows[i] = rectangle;
 		}
@@ -420,7 +448,9 @@ export class PatternEditor {
 	private _resolveCssColor(cssValue: string): string {
 		const match: RegExpMatchArray | null = cssValue.match(/var\((--[^,]+),\s*([^)]+)\)/);
 		if (match) {
-			const resolved: string = getComputedStyle(document.documentElement).getPropertyValue(match[1]).trim();
+			const resolved: string = getComputedStyle(document.documentElement)
+				.getPropertyValue(match[1])
+				.trim();
 			return resolved || match[2];
 		}
 		return cssValue;
@@ -432,7 +462,10 @@ export class PatternEditor {
 		const h: number = this._canvasHeight;
 		ctx.clearRect(0, 0, w, h);
 
-		if (this._doc.song.getChannelIsNoise(this._doc.channel) || this._doc.song.getChannelIsMod(this._doc.channel)) {
+		if (
+			this._doc.song.getChannelIsNoise(this._doc.channel) ||
+			this._doc.song.getChannelIsMod(this._doc.channel)
+		) {
 			// Same row-rectangle approach as pitch channels, but uniform color
 			// (no scale rows). Gaps between rectangles form the grid lines,
 			// showing through to the editor background.
@@ -456,16 +489,25 @@ export class PatternEditor {
 		const fifthColor: string = this._resolveCssColor(ColorConfig.fifthNote);
 		const beatWidth: number = w / this._doc.song.beatsPerBar;
 		const scale: ReadonlyArray<boolean> =
-			this._doc.song.scale === Config.scales.dictionary.Custom.index ? this._doc.song.scaleCustom : Config.scales[this._doc.song.scale].flags;
+			this._doc.song.scale === Config.scales.dictionary.Custom.index
+				? this._doc.song.scaleCustom
+				: Config.scales[this._doc.song.scale].flags;
 
 		const rowHeight: number = this._pitchHeight - 2;
 		for (let beat: number = 0; beat < this._doc.song.beatsPerBar; beat++) {
 			const beatX: number = beat * beatWidth + 1;
 			let y: number = 1;
 			for (let row: number = 0; y < h; row++) {
-				const scaleIndex: number = (Config.pitchesPerOctave - (row % Config.pitchesPerOctave)) % Config.pitchesPerOctave;
+				const scaleIndex: number =
+					(Config.pitchesPerOctave - (row % Config.pitchesPerOctave)) %
+					Config.pitchesPerOctave;
 				if (scale[scaleIndex]) {
-					ctx.fillStyle = scaleIndex === 0 ? tonicColor : scaleIndex === 7 && this._doc.prefs.showFifth ? fifthColor : pitchBgColor;
+					ctx.fillStyle =
+						scaleIndex === 0
+							? tonicColor
+							: scaleIndex === 7 && this._doc.prefs.showFifth
+								? fifthColor
+								: pitchBgColor;
 					ctx.fillRect(beatX, y, beatWidth - 2, rowHeight);
 				}
 				y += this._pitchHeight;
@@ -473,7 +515,7 @@ export class PatternEditor {
 		}
 	}
 
-		/**
+	/**
 	 * Draw a note body into the SVG note container using a path string.
 	 * SVG paths have natural anti-aliasing that creates ~0.5-1px visual
 	 * gaps between adjacent notes, matching the original BeepBox/
@@ -484,7 +526,15 @@ export class PatternEditor {
 	 * path elements render without measurable overhead. The original
 	 * JukeBox_TypeScript used this approach for all note rendering.
 	 */
-	private _drawNoteToSvg(pitch: number, start: number, pins: NotePin[], radius: number, showSize: boolean, offset: number, fillColor: string): void {
+	private _drawNoteToSvg(
+		pitch: number,
+		start: number,
+		pins: NotePin[],
+		radius: number,
+		showSize: boolean,
+		offset: number,
+		fillColor: string,
+	): void {
 		const notePath: SVGPathElement = SVG.path();
 		notePath.setAttribute("fill", fillColor);
 		notePath.setAttribute("pointer-events", "none");
@@ -517,16 +567,30 @@ export class PatternEditor {
 				label.innerText = `${this._modDragLowerBound}`;
 			}
 
-			const presValue: number = Math.floor(Math.max(Number(this._modDragLowerBound), Math.min(Number(this._modDragUpperBound), converted)));
+			const presValue: number = Math.floor(
+				Math.max(
+					Number(this._modDragLowerBound),
+					Math.min(Number(this._modDragUpperBound), converted),
+				),
+			);
 			if (label.innerText !== `${presValue}`) {
 				label.innerText = `${presValue}`;
 			}
 
 			// This is me being too lazy to fiddle with the css to get it to align center.
-			const xOffset: number = +(presValue >= 10.0) + +(presValue >= 100.0) + +(presValue < 0.0) + +(presValue <= -10.0);
+			const xOffset: number =
+				+(presValue >= 10.0) +
+				+(presValue >= 100.0) +
+				+(presValue < 0.0) +
+				+(presValue <= -10.0);
 			this._modDragValueLabelLeft = +prettyNumber(
 				Math.max(
-					Math.min(this._editorWidth - 10 - xOffset * 8, this._partWidth * (this._modDragNote.start + this._modDragPin.time) - 4 - xOffset * 4),
+					Math.min(
+						this._editorWidth - 10 - xOffset * 8,
+						this._partWidth * (this._modDragNote.start + this._modDragPin.time) -
+							4 -
+							xOffset * 4,
+					),
 					2,
 				),
 			);
@@ -582,13 +646,27 @@ export class PatternEditor {
 	private _updateCursorStatus(): void {
 		this._cursor = new PatternCursor();
 
-		if (this._mouseX < 0 || this._mouseX > this._editorWidth || this._mouseY < 0 || this._mouseY > this._editorHeight || this._pitchHeight <= 0) return;
+		if (
+			this._mouseX < 0 ||
+			this._mouseX > this._editorWidth ||
+			this._mouseY < 0 ||
+			this._mouseY > this._editorHeight ||
+			this._pitchHeight <= 0
+		)
+			return;
 
 		const minDivision: number = this._getMinDivision();
 		this._cursor.exactPart = this._mouseX / this._partWidth;
 		this._cursor.part =
-			Math.floor(Math.max(0, Math.min(this._doc.song.beatsPerBar * Config.partsPerBeat - minDivision, this._cursor.exactPart)) / minDivision) *
-			minDivision;
+			Math.floor(
+				Math.max(
+					0,
+					Math.min(
+						this._doc.song.beatsPerBar * Config.partsPerBeat - minDivision,
+						this._cursor.exactPart,
+					),
+				) / minDivision,
+			) * minDivision;
 
 		let foundNote: boolean = false;
 
@@ -606,13 +684,20 @@ export class PatternEditor {
 						this._cursor.prevNote = note;
 						this._cursor.curIndex++;
 					}
-				} else if (note.start <= this._cursor.exactPart && note.end > this._cursor.exactPart) {
+				} else if (
+					note.start <= this._cursor.exactPart &&
+					note.end > this._cursor.exactPart
+				) {
 					if (this._doc.song.getChannelIsMod(this._doc.channel)) {
 						if (note.pitches[0] === Math.floor(this._findMousePitch(this._mouseY))) {
 							this._cursor.curNote = note;
 							foundNote = true;
 						} // Only increment index if the sought note has been found... or if this note truly starts before the other
-						else if (!foundNote || (this._cursor.curNote != null && note.start < this._cursor.curNote.start)) {
+						else if (
+							!foundNote ||
+							(this._cursor.curNote != null &&
+								note.start < this._cursor.curNote.start)
+						) {
 							this._cursor.curIndex++;
 						}
 					} else {
@@ -632,11 +717,15 @@ export class PatternEditor {
 			}
 
 			if (this._doc.song.getChannelIsMod(this._doc.channel) && !this.editingModLabel) {
-				if (this._pattern.notes[this._cursor.curIndex] != null && this._cursor.curNote != null) {
+				if (
+					this._pattern.notes[this._cursor.curIndex] != null &&
+					this._cursor.curNote != null
+				) {
 					let pinIdx: number = 0;
 
 					while (
-						this._cursor.curNote.start + this._cursor.curNote.pins[pinIdx].time < this._cursor.exactPart &&
+						this._cursor.curNote.start + this._cursor.curNote.pins[pinIdx].time <
+							this._cursor.exactPart &&
 						pinIdx < this._cursor.curNote.pins.length
 					) {
 						pinIdx++;
@@ -644,8 +733,12 @@ export class PatternEditor {
 					// Decide if the previous pin is closer
 					if (pinIdx > 0) {
 						if (
-							this._cursor.curNote.start + this._cursor.curNote.pins[pinIdx].time - this._cursor.exactPart >
-							this._cursor.exactPart - (this._cursor.curNote.start + this._cursor.curNote.pins[pinIdx - 1].time)
+							this._cursor.curNote.start +
+								this._cursor.curNote.pins[pinIdx].time -
+								this._cursor.exactPart >
+							this._cursor.exactPart -
+								(this._cursor.curNote.start +
+									this._cursor.curNote.pins[pinIdx - 1].time)
 						) {
 							pinIdx--;
 						}
@@ -653,28 +746,47 @@ export class PatternEditor {
 
 					this.modDragValueLabel.style.setProperty("color", "#666688");
 					this.modDragValueLabel.style.setProperty("display", "");
-					const mod: number = Math.max(0, Config.modCount - 1 - this._cursor.curNote.pitches[0]);
+					const mod: number = Math.max(
+						0,
+						Config.modCount - 1 - this._cursor.curNote.pitches[0],
+					);
 
 					const setting: number =
-						this._doc.song.channels[this._doc.channel].instruments[this._doc.getCurrentInstrument(this._barOffset)].modulators[mod];
+						this._doc.song.channels[this._doc.channel].instruments[
+							this._doc.getCurrentInstrument(this._barOffset)
+						].modulators[mod];
 
-					const presValue: number = this._cursor.curNote.pins[pinIdx].size + Config.modulators[setting].convertRealFactor;
+					const presValue: number =
+						this._cursor.curNote.pins[pinIdx].size +
+						Config.modulators[setting].convertRealFactor;
 
 					// This is me being too lazy to fiddle with the css to get it to align center.
-					const xOffset: number = +(presValue >= 10.0) + +(presValue >= 100.0) + +(presValue < 0.0) + +(presValue <= -10.0);
+					const xOffset: number =
+						+(presValue >= 10.0) +
+						+(presValue >= 100.0) +
+						+(presValue < 0.0) +
+						+(presValue <= -10.0);
 
 					this._modDragValueLabelWidth = 8 + xOffset * 8;
 					this._modDragValueLabelLeft = +prettyNumber(
 						Math.max(
 							Math.min(
 								this._editorWidth - 10 - xOffset * 8,
-								this._partWidth * (this._cursor.curNote.start + this._cursor.curNote.pins[pinIdx].time) - 4 - xOffset * 4,
+								this._partWidth *
+									(this._cursor.curNote.start +
+										this._cursor.curNote.pins[pinIdx].time) -
+									4 -
+									xOffset * 4,
 							),
 							2,
 						),
 					);
 					this._modDragValueLabelTop = +prettyNumber(
-						this._pitchToPixelHeight(this._cursor.curNote.pitches[0] - this._octaveOffset) - 17 - (this._pitchHeight - this._pitchBorder) / 2,
+						this._pitchToPixelHeight(
+							this._cursor.curNote.pitches[0] - this._octaveOffset,
+						) -
+							17 -
+							(this._pitchHeight - this._pitchBorder) / 2,
 					);
 
 					this._modDragStartValue = this._cursor.curNote.pins[pinIdx].size;
@@ -686,12 +798,20 @@ export class PatternEditor {
 						this._doc.song.getVolumeCapForSetting(
 							true,
 							setting,
-							this._doc.song.channels[this._doc.channel].instruments[this._doc.getCurrentInstrument(this._barOffset)].modFilterTypes[mod],
+							this._doc.song.channels[this._doc.channel].instruments[
+								this._doc.getCurrentInstrument(this._barOffset)
+							].modFilterTypes[mod],
 						);
 					this._modDragSetting = setting;
 
-					this.modDragValueLabel.style.setProperty("left", `${this._modDragValueLabelLeft}px`);
-					this.modDragValueLabel.style.setProperty("top", `${this._modDragValueLabelTop}px`);
+					this.modDragValueLabel.style.setProperty(
+						"left",
+						`${this._modDragValueLabelLeft}px`,
+					);
+					this.modDragValueLabel.style.setProperty(
+						"top",
+						`${this._modDragValueLabelTop}px`,
+					);
 					this.modDragValueLabel.textContent = `${presValue}`;
 				} else {
 					this.modDragValueLabel.style.setProperty("display", "none");
@@ -723,14 +843,18 @@ export class PatternEditor {
 			for (let j: number = 1; j < this._cursor.curNote.pins.length; j++) {
 				prevPin = nextPin;
 				nextPin = this._cursor.curNote.pins[j];
-				const leftSide: number = this._partWidth * (this._cursor.curNote.start + prevPin.time);
-				const rightSide: number = this._partWidth * (this._cursor.curNote.start + nextPin.time);
+				const leftSide: number =
+					this._partWidth * (this._cursor.curNote.start + prevPin.time);
+				const rightSide: number =
+					this._partWidth * (this._cursor.curNote.start + nextPin.time);
 				if (this._mouseX > rightSide) continue;
 				if (this._mouseX < leftSide) throw new Error();
 				const intervalRatio: number = (this._mouseX - leftSide) / (rightSide - leftSide);
-				const arc: number = Math.sqrt(1.0 / Math.sqrt(4.0) - (intervalRatio - 0.5) ** 2.0) - 0.5;
+				const arc: number =
+					Math.sqrt(1.0 / Math.sqrt(4.0) - (intervalRatio - 0.5) ** 2.0) - 0.5;
 				const bendHeight: number = Math.abs(nextPin.interval - prevPin.interval);
-				interval = prevPin.interval * (1.0 - intervalRatio) + nextPin.interval * intervalRatio;
+				interval =
+					prevPin.interval * (1.0 - intervalRatio) + nextPin.interval * intervalRatio;
 				error = arc * bendHeight + 0.95;
 				break;
 			}
@@ -741,7 +865,9 @@ export class PatternEditor {
 			for (const pin of this._cursor.curNote.pins) {
 				if (minInterval > pin.interval) minInterval = pin.interval;
 				if (maxInterval < pin.interval) maxInterval = pin.interval;
-				const pinDistance: number = Math.abs(this._cursor.curNote.start + pin.time - this._mouseX / this._partWidth);
+				const pinDistance: number = Math.abs(
+					this._cursor.curNote.start + pin.time - this._mouseX / this._partWidth,
+				);
 				if (bestDistance > pinDistance) {
 					bestDistance = pinDistance;
 					this._cursor.nearPinIndex = this._cursor.curNote.pins.indexOf(pin);
@@ -749,13 +875,22 @@ export class PatternEditor {
 			}
 
 			mousePitch -= interval;
-			this._cursor.pitch = this._snapToPitch(mousePitch, -minInterval, this._getMaxPitch() - maxInterval);
+			this._cursor.pitch = this._snapToPitch(
+				mousePitch,
+				-minInterval,
+				this._getMaxPitch() - maxInterval,
+			);
 
 			// Snap to nearby existing note if present.
-			if (!this._doc.song.getChannelIsNoise(this._doc.channel) && !this._doc.song.getChannelIsMod(this._doc.channel)) {
+			if (
+				!this._doc.song.getChannelIsNoise(this._doc.channel) &&
+				!this._doc.song.getChannelIsMod(this._doc.channel)
+			) {
 				let nearest: number = error;
 				for (let i: number = 0; i < this._cursor.curNote.pitches.length; i++) {
-					const distance: number = Math.abs(this._cursor.curNote.pitches[i] - mousePitch + 0.5);
+					const distance: number = Math.abs(
+						this._cursor.curNote.pitches[i] - mousePitch + 0.5,
+					);
 					if (distance > nearest) continue;
 					nearest = distance;
 					this._cursor.pitch = this._cursor.curNote.pitches[i];
@@ -785,7 +920,10 @@ export class PatternEditor {
 				}
 			} else {
 				this._cursor.start = fullBeats * Config.partsPerBeat;
-				let division = Config.partsPerBeat % defaultLength === 0 ? defaultLength : Math.min(defaultLength, maxDivision);
+				let division =
+					Config.partsPerBeat % defaultLength === 0
+						? defaultLength
+						: Math.min(defaultLength, maxDivision);
 				while (division < maxDivision && Config.partsPerBeat % division !== 0) {
 					division++;
 				}
@@ -829,7 +967,9 @@ export class PatternEditor {
 						this._cursor.pins.push(makeNotePin(0, oldPin.time, oldPin.size));
 						if (oldPin.time === this._cursor.end - this._cursor.start) break;
 					} else {
-						this._cursor.pins.push(makeNotePin(0, this._cursor.end - this._cursor.start, oldPin.size));
+						this._cursor.pins.push(
+							makeNotePin(0, this._cursor.end - this._cursor.start, oldPin.size),
+						);
 						break;
 					}
 				}
@@ -839,9 +979,13 @@ export class PatternEditor {
 				this._cursor.pitch = Math.max(0, Math.min(Config.modCount - 1, this._cursor.pitch));
 
 				// Return cursor to stashed cursor volumes (so pins aren't destroyed by moving the preview around several volume scales.)
-				if (this._stashCursorPinVols != null && this._stashCursorPinVols[this._doc.channel] != null) {
+				if (
+					this._stashCursorPinVols != null &&
+					this._stashCursorPinVols[this._doc.channel] != null
+				) {
 					for (let pin: number = 0; pin < this._cursor.pins.length; pin++) {
-						this._cursor.pins[pin].size = this._stashCursorPinVols[this._doc.channel][pin];
+						this._cursor.pins[pin].size =
+							this._stashCursorPinVols[this._doc.channel][pin];
 					}
 				}
 
@@ -918,7 +1062,12 @@ export class PatternEditor {
 	}
 
 	private _findMousePitch(pixelY: number): number {
-		return Math.max(0, Math.min(this._pitchCount - 1, this._pitchCount - pixelY / this._pitchHeight)) + this._octaveOffset;
+		return (
+			Math.max(
+				0,
+				Math.min(this._pitchCount - 1, this._pitchCount - pixelY / this._pitchHeight),
+			) + this._octaveOffset
+		);
 	}
 
 	private _snapToPitch(guess: number, min: number, max: number): number {
@@ -955,10 +1104,16 @@ export class PatternEditor {
 			}
 			let topRange: number = topPitch;
 			let bottomRange: number = bottomPitch + 1;
-			if (topPitch % Config.pitchesPerOctave === 0 || topPitch % Config.pitchesPerOctave === 7) {
+			if (
+				topPitch % Config.pitchesPerOctave === 0 ||
+				topPitch % Config.pitchesPerOctave === 7
+			) {
 				topRange -= 0.5;
 			}
-			if (bottomPitch % Config.pitchesPerOctave === 0 || bottomPitch % Config.pitchesPerOctave === 7) {
+			if (
+				bottomPitch % Config.pitchesPerOctave === 0 ||
+				bottomPitch % Config.pitchesPerOctave === 7
+			) {
 				bottomRange += 0.5;
 			}
 			return guess - bottomRange > topRange - guess ? topPitch : bottomPitch;
@@ -971,7 +1126,10 @@ export class PatternEditor {
 			this._copiedPins.push(makeNotePin(0, oldPin.time, oldPin.size));
 		}
 		for (let i: number = 1; i < this._copiedPins.length - 1; ) {
-			if (this._copiedPins[i - 1].size === this._copiedPins[i].size && this._copiedPins[i].size === this._copiedPins[i + 1].size) {
+			if (
+				this._copiedPins[i - 1].size === this._copiedPins[i].size &&
+				this._copiedPins[i].size === this._copiedPins[i + 1].size
+			) {
 				this._copiedPins.splice(i, 1);
 			} else {
 				i++;
@@ -987,7 +1145,8 @@ export class PatternEditor {
 
 	public movePlayheadToMouse(): boolean {
 		if (this._mouseOver) {
-			this._doc.synth.playhead = this._doc.bar + this._barOffset + this._mouseX / this._editorWidth;
+			this._doc.synth.playhead =
+				this._doc.bar + this._barOffset + this._mouseX / this._editorWidth;
 			return true;
 		}
 		return false;
@@ -1003,9 +1162,19 @@ export class PatternEditor {
 	public previewHoveredNote(): boolean {
 		if (!this._mouseOver || this._mouseDown) return false;
 		if (this._pitchHeight <= 0) return false;
-		if (this._mouseX < 0 || this._mouseX > this._editorWidth || this._mouseY < 0 || this._mouseY > this._editorHeight) return false;
+		if (
+			this._mouseX < 0 ||
+			this._mouseX > this._editorWidth ||
+			this._mouseY < 0 ||
+			this._mouseY > this._editorHeight
+		)
+			return false;
 		const rawPitch: number = this._findMousePitch(this._mouseY);
-		const snappedPitch: number = this._snapToPitch(rawPitch, 0, this._pitchCount - 1 + this._octaveOffset);
+		const snappedPitch: number = this._snapToPitch(
+			rawPitch,
+			0,
+			this._pitchCount - 1 + this._octaveOffset,
+		);
 		if (this._previewPitch === snappedPitch) {
 			return true;
 		}
@@ -1037,11 +1206,19 @@ export class PatternEditor {
 			this._copiedPinChannels[i] = [makeNotePin(0, 0, cap), makeNotePin(0, maxDivision, cap)];
 			this._stashCursorPinVols[i] = [cap, cap];
 		}
-		for (let i: number = this._doc.song.pitchChannelCount; i < this._doc.song.pitchChannelCount + this._doc.song.noiseChannelCount; i++) {
+		for (
+			let i: number = this._doc.song.pitchChannelCount;
+			i < this._doc.song.pitchChannelCount + this._doc.song.noiseChannelCount;
+			i++
+		) {
 			this._copiedPinChannels[i] = [makeNotePin(0, 0, cap), makeNotePin(0, maxDivision, 0)];
 			this._stashCursorPinVols[i] = [cap, 0];
 		}
-		for (let i: number = this._doc.song.pitchChannelCount + this._doc.song.noiseChannelCount; i < this._doc.song.getChannelCount(); i++) {
+		for (
+			let i: number = this._doc.song.pitchChannelCount + this._doc.song.noiseChannelCount;
+			i < this._doc.song.getChannelCount();
+			i++
+		) {
 			this._copiedPinChannels[i] = [makeNotePin(0, 0, cap), makeNotePin(0, maxDivision, 0)];
 			this._stashCursorPinVols[i] = [cap, 0];
 		}
@@ -1071,7 +1248,11 @@ export class PatternEditor {
 
 		if (
 			this._doc.synth.playing &&
-			((this._pattern != null && this._doc.song.getPattern(this._doc.channel, Math.floor(this._doc.synth.playhead)) === this._pattern) ||
+			((this._pattern != null &&
+				this._doc.song.getPattern(
+					this._doc.channel,
+					Math.floor(this._doc.synth.playhead),
+				) === this._pattern) ||
 				Math.floor(this._doc.synth.playhead) === this._doc.bar + this._barOffset)
 		) {
 			this._svgPlayhead.setAttribute("visibility", "visible");
@@ -1083,7 +1264,9 @@ export class PatternEditor {
 				const range: [number, number] = this._cachedFlashRanges[i];
 				if (modPlayhead >= range[0] && this._doc.prefs.notesFlashWhenPlayed) {
 					const dist: number = range[1] - range[0];
-					element.style.opacity = String(1 - (modPlayhead - range[0] - dist / 2) / (dist / 2));
+					element.style.opacity = String(
+						1 - (modPlayhead - range[0] - dist / 2) / (dist / 2),
+					);
 				} else {
 					element.style.opacity = "0";
 				}
@@ -1094,7 +1277,10 @@ export class PatternEditor {
 			} else {
 				this._playheadX += (modPlayhead - this._playheadX) * 0.2;
 			}
-			this._svgPlayhead.setAttribute("x", `${prettyNumber(this._playheadX * this._editorWidth - 2)}`);
+			this._svgPlayhead.setAttribute(
+				"x",
+				`${prettyNumber(this._playheadX * this._editorWidth - 2)}`,
+			);
 		} else {
 			this._svgPlayhead.setAttribute("visibility", "hidden");
 
@@ -1105,7 +1291,11 @@ export class PatternEditor {
 			}
 		}
 
-		if (this._doc.synth.playing && (this._doc.synth.recording || this._doc.prefs.autoFollow) && this._followPlayheadBar !== playheadBar) {
+		if (
+			this._doc.synth.playing &&
+			(this._doc.synth.recording || this._doc.prefs.autoFollow) &&
+			this._followPlayheadBar !== playheadBar
+		) {
 			// When autofollow is enabled, select the current bar (but don't record it in undo history).
 			new ChangeChannelBar(this._doc, this._doc.channel, playheadBar);
 			// The full interface is usually only rerendered in response to user input events, not animation events, but in this case go ahead and rerender everything.
@@ -1139,8 +1329,12 @@ export class PatternEditor {
 		const boundingRect: DOMRect = this._getCachedSvgRect();
 		this._editorWidth = this.container.clientWidth;
 		this._editorHeight = this.container.clientHeight;
-		this._mouseX = (((event.clientX ?? event.pageX) - boundingRect.left) * this._editorWidth) / (boundingRect.right - boundingRect.left);
-		this._mouseY = (((event.clientY ?? event.pageY) - boundingRect.top) * this._editorHeight) / (boundingRect.bottom - boundingRect.top);
+		this._mouseX =
+			(((event.clientX ?? event.pageX) - boundingRect.left) * this._editorWidth) /
+			(boundingRect.right - boundingRect.left);
+		this._mouseY =
+			(((event.clientY ?? event.pageY) - boundingRect.top) * this._editorHeight) /
+			(boundingRect.bottom - boundingRect.top);
 		if (Number.isNaN(this._mouseX)) this._mouseX = 0;
 		if (Number.isNaN(this._mouseY)) this._mouseY = 0;
 		this._usingTouch = false;
@@ -1154,8 +1348,12 @@ export class PatternEditor {
 		const boundingRect: DOMRect = this._getCachedSvgRect();
 		this._editorWidth = this.container.clientWidth;
 		this._editorHeight = this.container.clientHeight;
-		this._mouseX = ((event.touches[0].clientX - boundingRect.left) * this._editorWidth) / (boundingRect.right - boundingRect.left);
-		this._mouseY = ((event.touches[0].clientY - boundingRect.top) * this._editorHeight) / (boundingRect.bottom - boundingRect.top);
+		this._mouseX =
+			((event.touches[0].clientX - boundingRect.left) * this._editorWidth) /
+			(boundingRect.right - boundingRect.left);
+		this._mouseY =
+			((event.touches[0].clientY - boundingRect.top) * this._editorHeight) /
+			(boundingRect.bottom - boundingRect.top);
 		if (Number.isNaN(this._mouseX)) this._mouseX = 0;
 		if (Number.isNaN(this._mouseY)) this._mouseY = 0;
 		this._usingTouch = true;
@@ -1168,13 +1366,17 @@ export class PatternEditor {
 	// For a given change type, check the modulator channels for a matching mod to the changed parameter. If it exists, add a pin onto the latest note, or make a new note if enough time elapsed since the last pin.
 	public setModSettingsForChange(change: Change | null, songEditor: SongEditor): boolean {
 		const thisRef: PatternEditor = this;
-		const timeQuantum = Math.max(4, Config.partsPerBeat / Config.rhythms[this._doc.song.rhythm].stepsPerBeat);
+		const timeQuantum = Math.max(
+			4,
+			Config.partsPerBeat / Config.rhythms[this._doc.song.rhythm].stepsPerBeat,
+		);
 		const currentBar: number = Math.floor(this._doc.synth.playhead);
 		const realPart: number = this._doc.synth.getCurrentPart();
 		let changedPatterns: boolean = false;
 
 		// Ceiling is applied usually to give the synth time to catch the mod updates, but rounds to 0 to avoid skipping the first part.
-		const currentPart: number = realPart < timeQuantum / 2 ? 0 : Math.ceil(realPart / timeQuantum) * timeQuantum;
+		const currentPart: number =
+			realPart < timeQuantum / 2 ? 0 : Math.ceil(realPart / timeQuantum) * timeQuantum;
 
 		// For a given setting and a given channel, find the instrument and mod number that influences the setting.
 		function getMatchingInstrumentAndMod(
@@ -1185,8 +1387,13 @@ export class PatternEditor {
 			modEnvIndex?: number,
 		): number[] {
 			const startIndex: number = modInsIndex === undefined ? 0 : modInsIndex;
-			const endIndex: number = modInsIndex === undefined ? modChannel.instruments.length - 1 : modInsIndex;
-			for (let instrumentIndex: number = startIndex; instrumentIndex <= endIndex; instrumentIndex++) {
+			const endIndex: number =
+				modInsIndex === undefined ? modChannel.instruments.length - 1 : modInsIndex;
+			for (
+				let instrumentIndex: number = startIndex;
+				instrumentIndex <= endIndex;
+				instrumentIndex++
+			) {
 				const instrument: Instrument = modChannel.instruments[instrumentIndex];
 				for (let mod: number = 0; mod < Config.modCount; mod++) {
 					// Non-song application
@@ -1199,22 +1406,32 @@ export class PatternEditor {
 						// For "active" target it doesn't check if the instrument is active, allowing write to other active instruments from an inactive one. Should be fine since audibly while writing you'll hear what you'd expect -
 						// the current channel's active instruments being modulated, which is what most people would expect even if editing an inactive instrument.
 						if (
-							thisRef._doc.getCurrentInstrument() === instrument.modInstruments[mod] ||
-							instrument.modInstruments[mod] >= thisRef._doc.song.channels[thisRef._doc.channel].instruments.length
+							thisRef._doc.getCurrentInstrument() ===
+								instrument.modInstruments[mod] ||
+							instrument.modInstruments[mod] >=
+								thisRef._doc.song.channels[thisRef._doc.channel].instruments.length
 						) {
 							// If it's an eq/note filter target, one additional step is performed to see if it matches the right modFilterType.
 							if (
 								modFilterIndex !== undefined &&
 								(applyToMod === Config.modulators.dictionary["eq filter"].index ||
-									applyToMod === Config.modulators.dictionary["note filter"].index)
+									applyToMod ===
+										Config.modulators.dictionary["note filter"].index)
 							) {
 								if (instrument.modFilterTypes[mod] === modFilterIndex) {
 									return [instrumentIndex, mod];
 								}
 							} else if (
-								(modEnvIndex !== undefined && applyToMod === Config.modulators.dictionary["individual envelope speed"].index) ||
-								applyToMod === Config.modulators.dictionary["individual envelope lower bound"].index ||
-								applyToMod === Config.modulators.dictionary["individual envelope upper bound"].index
+								(modEnvIndex !== undefined &&
+									applyToMod ===
+										Config.modulators.dictionary["individual envelope speed"]
+											.index) ||
+								applyToMod ===
+									Config.modulators.dictionary["individual envelope lower bound"]
+										.index ||
+								applyToMod ===
+									Config.modulators.dictionary["individual envelope upper bound"]
+										.index
 							) {
 								if (instrument.modEnvelopeNumbers[mod] === modEnvIndex) {
 									return [instrumentIndex, mod];
@@ -1230,7 +1447,10 @@ export class PatternEditor {
 						instrument.modChannels[mod] === -1
 					) {
 						// check song eq?
-						if (modFilterIndex !== undefined && applyToMod === Config.modulators.dictionary["song eq"].index) {
+						if (
+							modFilterIndex !== undefined &&
+							applyToMod === Config.modulators.dictionary["song eq"].index
+						) {
 							if (instrument.modFilterTypes[mod] === modFilterIndex) {
 								return [instrumentIndex, mod];
 							}
@@ -1244,7 +1464,14 @@ export class PatternEditor {
 		}
 
 		// For the given duration, scans through and removes pins and notes that are within. If two pins of a note cross the interval boundary, the interior pin is moved to the boundary.
-		function sanitizeInterval(doc: SongDocument, startPart: number, endPart: number, pattern: Pattern, forMod: number, sequence: ChangeSequence) {
+		function sanitizeInterval(
+			doc: SongDocument,
+			startPart: number,
+			endPart: number,
+			pattern: Pattern,
+			forMod: number,
+			sequence: ChangeSequence,
+		) {
 			if (startPart >= endPart) return;
 			for (let noteIndex: number = 0; noteIndex < pattern.notes.length; noteIndex++) {
 				const note: Note = pattern.notes[noteIndex];
@@ -1261,7 +1488,10 @@ export class PatternEditor {
 					if (note.start <= startPart && note.end >= endPart) {
 						for (let pinIndex: number = 0; pinIndex < note.pins.length; pinIndex++) {
 							const pin: NotePin = note.pins[pinIndex];
-							if (note.start + pin.time > startPart && note.start + pin.time < endPart) {
+							if (
+								note.start + pin.time > startPart &&
+								note.start + pin.time < endPart
+							) {
 								if (firstInteriorPin < 0) {
 									firstInteriorPin = pinIndex;
 								}
@@ -1277,7 +1507,10 @@ export class PatternEditor {
 
 					for (let pinIndex: number = 0; pinIndex < note.pins.length; pinIndex++) {
 						const pin: NotePin = note.pins[pinIndex];
-						if (note.start + pin.time >= startPart && note.start + pin.time <= endPart) {
+						if (
+							note.start + pin.time >= startPart &&
+							note.start + pin.time <= endPart
+						) {
 							if (firstInteriorPin < 0) {
 								firstInteriorPin = pinIndex;
 							}
@@ -1297,7 +1530,8 @@ export class PatternEditor {
 						interiorPinCount--;
 					}
 					if (intersectsEnd && interiorPinCount > 0) {
-						note.pins[firstInteriorPin + interiorPinCount - 1].time = endPart - note.start;
+						note.pins[firstInteriorPin + interiorPinCount - 1].time =
+							endPart - note.start;
 						interiorPinCount--;
 					}
 
@@ -1360,7 +1594,11 @@ export class PatternEditor {
 			if (slider != null) {
 				this._doc.song.tempo = slider.getValueBeforeProspectiveChange();
 			}
-		} else if (change instanceof ChangeSequence && change.checkFirst() instanceof ChangeSongFilterMovePoint && !change.isCommitted()) {
+		} else if (
+			change instanceof ChangeSequence &&
+			change.checkFirst() instanceof ChangeSongFilterMovePoint &&
+			!change.isCommitted()
+		) {
 			// Pushes some pieces of data in each array, to be handled individually down below.
 			//   applyToMods:
 			//     mod index for songFilter
@@ -1372,7 +1610,8 @@ export class PatternEditor {
 			//     modFilterTarget freq index (X)
 			//     modFilterTarget gain index (Y)
 			//
-			const useChange: ChangeSongFilterMovePoint = change.checkFirst() as ChangeSongFilterMovePoint;
+			const useChange: ChangeSongFilterMovePoint =
+				change.checkFirst() as ChangeSongFilterMovePoint;
 			const preMoveData: FilterMoveData = useChange.getMoveData(true);
 			const postMoveData: FilterMoveData = useChange.getMoveData(false);
 			const song = this._doc.song;
@@ -1385,7 +1624,8 @@ export class PatternEditor {
 				song.tmpEqFilterEnd = song.tmpEqFilterStart;
 			}
 
-			const modifyPoint: FilterControlPoint | null = song.tmpEqFilterEnd.controlPoints[useChange.pointIndex];
+			const modifyPoint: FilterControlPoint | null =
+				song.tmpEqFilterEnd.controlPoints[useChange.pointIndex];
 			if (modifyPoint != null && modifyPoint.type === useChange.pointType) {
 				modifyPoint.freq = postMoveData.freq;
 				modifyPoint.gain = postMoveData.gain;
@@ -1410,7 +1650,9 @@ export class PatternEditor {
 				}
 			}
 		} /* Song reverb - a casualty of splitting to reverb per instrument, it's not modulate-able via slider!
-        else if (change instanceof ChangeSongReverb) { } */ else if (change instanceof ChangeVolume) {
+        else if (change instanceof ChangeSongReverb) { } */ else if (
+			change instanceof ChangeVolume
+		) {
 			const modulator = Config.modulators.dictionary["mix volume"];
 			applyToMods.push(modulator.index);
 			if (toApply) applyValues.push(instrument.volume - modulator.convertRealFactor);
@@ -1458,7 +1700,8 @@ export class PatternEditor {
 		} else if (change instanceof ChangeRingModHz) {
 			const modulator = Config.modulators.dictionary["ring mod hertz"];
 			applyToMods.push(modulator.index);
-			if (toApply) applyValues.push(instrument.ringModulationHz - modulator.convertRealFactor);
+			if (toApply)
+				applyValues.push(instrument.ringModulationHz - modulator.convertRealFactor);
 			// Restore base slider value — only modulated value should change.
 			slider = songEditor.modSliders.getSliderForModSetting(modulator.index);
 			if (slider != null) {
@@ -1506,16 +1749,22 @@ export class PatternEditor {
 		} else if (change instanceof ChangeOperatorAmplitude) {
 			const modulator = Config.modulators.dictionary[`fm slider ${change.operatorIndex + 1}`];
 			applyToMods.push(modulator.index);
-			if (toApply) applyValues.push(instrument.operators[change.operatorIndex].amplitude - modulator.convertRealFactor);
+			if (toApply)
+				applyValues.push(
+					instrument.operators[change.operatorIndex].amplitude -
+						modulator.convertRealFactor,
+				);
 			// Restore base slider value — only modulated value should change.
 			slider = songEditor.modSliders.getSliderForModSetting(modulator.index);
 			if (slider != null) {
-				instrument.operators[change.operatorIndex].amplitude = slider.getValueBeforeProspectiveChange();
+				instrument.operators[change.operatorIndex].amplitude =
+					slider.getValueBeforeProspectiveChange();
 			}
 		} else if (change instanceof ChangeFeedbackAmplitude) {
 			const modulator = Config.modulators.dictionary["fm feedback"];
 			applyToMods.push(modulator.index);
-			if (toApply) applyValues.push(instrument.feedbackAmplitude - modulator.convertRealFactor);
+			if (toApply)
+				applyValues.push(instrument.feedbackAmplitude - modulator.convertRealFactor);
 			// Restore base slider value — only modulated value should change.
 			slider = songEditor.modSliders.getSliderForModSetting(modulator.index);
 			if (slider != null) {
@@ -1543,7 +1792,10 @@ export class PatternEditor {
 		} else if (change instanceof ChangeDetune) {
 			const modulator = Config.modulators.dictionary.detune;
 			applyToMods.push(modulator.index);
-			if (toApply) applyValues.push(instrument.detune - modulator.convertRealFactor - Config.detuneCenter);
+			if (toApply)
+				applyValues.push(
+					instrument.detune - modulator.convertRealFactor - Config.detuneCenter,
+				);
 			// Restore base slider value — only modulated value should change.
 			slider = songEditor.modSliders.getSliderForModSetting(modulator.index);
 			if (slider != null) {
@@ -1552,7 +1804,8 @@ export class PatternEditor {
 		} else if (change instanceof ChangeVibratoDepth) {
 			const modulator = Config.modulators.dictionary["vibrato depth"];
 			applyToMods.push(modulator.index);
-			if (toApply) applyValues.push(instrument.vibratoDepth * 25 - modulator.convertRealFactor);
+			if (toApply)
+				applyValues.push(instrument.vibratoDepth * 25 - modulator.convertRealFactor);
 			// Restore base slider value — only modulated value should change.
 			slider = songEditor.modSliders.getSliderForModSetting(modulator.index);
 			if (slider != null) {
@@ -1594,7 +1847,11 @@ export class PatternEditor {
 			if (slider != null) {
 				instrument.panDelay = slider.getValueBeforeProspectiveChange();
 			}
-		} else if (change instanceof ChangeSequence && change.checkFirst() instanceof ChangeFilterMovePoint && !change.isCommitted()) {
+		} else if (
+			change instanceof ChangeSequence &&
+			change.checkFirst() instanceof ChangeFilterMovePoint &&
+			!change.isCommitted()
+		) {
 			// Pushes some pieces of data in each array, to be handled individually down below.
 			//   applyToMods:
 			//     mod index for eqFilter||noteFilter
@@ -1618,11 +1875,14 @@ export class PatternEditor {
 
 				if (instrument.tmpNoteFilterEnd == null) {
 					instrument.tmpNoteFilterStart = new FilterSettings();
-					instrument.tmpNoteFilterStart.fromJsonObject(instrument.noteFilter.toJsonObject());
+					instrument.tmpNoteFilterStart.fromJsonObject(
+						instrument.noteFilter.toJsonObject(),
+					);
 					instrument.tmpNoteFilterEnd = instrument.tmpNoteFilterStart;
 				}
 
-				const modifyPoint: FilterControlPoint | null = instrument.tmpNoteFilterEnd.controlPoints[useChange.pointIndex];
+				const modifyPoint: FilterControlPoint | null =
+					instrument.tmpNoteFilterEnd.controlPoints[useChange.pointIndex];
 				if (modifyPoint != null && modifyPoint.type === useChange.pointType) {
 					modifyPoint.freq = postMoveData.freq;
 					modifyPoint.gain = postMoveData.gain;
@@ -1636,7 +1896,8 @@ export class PatternEditor {
 					instrument.tmpEqFilterEnd = instrument.tmpEqFilterStart;
 				}
 
-				const modifyPoint: FilterControlPoint | null = instrument.tmpEqFilterEnd.controlPoints[useChange.pointIndex];
+				const modifyPoint: FilterControlPoint | null =
+					instrument.tmpEqFilterEnd.controlPoints[useChange.pointIndex];
 				if (modifyPoint != null && modifyPoint.type === useChange.pointType) {
 					modifyPoint.freq = postMoveData.freq;
 					modifyPoint.gain = postMoveData.gain;
@@ -1664,7 +1925,8 @@ export class PatternEditor {
 		} else if (change instanceof ChangeBitcrusherQuantization) {
 			const modulator = Config.modulators.dictionary["bit crush"];
 			applyToMods.push(modulator.index);
-			if (toApply) applyValues.push(instrument.bitcrusherQuantization - modulator.convertRealFactor);
+			if (toApply)
+				applyValues.push(instrument.bitcrusherQuantization - modulator.convertRealFactor);
 			// Restore base slider value — only modulated value should change.
 			slider = songEditor.modSliders.getSliderForModSetting(modulator.index);
 			if (slider != null) {
@@ -1700,7 +1962,8 @@ export class PatternEditor {
 		} else if (change instanceof ChangeEQFilterSimpleCut) {
 			const modulator = Config.modulators.dictionary["eq filt cut"];
 			applyToMods.push(modulator.index);
-			if (toApply) applyValues.push(instrument.eqFilterSimpleCut - modulator.convertRealFactor);
+			if (toApply)
+				applyValues.push(instrument.eqFilterSimpleCut - modulator.convertRealFactor);
 			// Restore base slider value — only modulated value should change.
 			slider = songEditor.modSliders.getSliderForModSetting(modulator.index);
 			if (slider != null) {
@@ -1709,7 +1972,8 @@ export class PatternEditor {
 		} else if (change instanceof ChangeEQFilterSimplePeak) {
 			const modulator = Config.modulators.dictionary["eq filt peak"];
 			applyToMods.push(modulator.index);
-			if (toApply) applyValues.push(instrument.eqFilterSimplePeak - modulator.convertRealFactor);
+			if (toApply)
+				applyValues.push(instrument.eqFilterSimplePeak - modulator.convertRealFactor);
 			// Restore base slider value — only modulated value should change.
 			slider = songEditor.modSliders.getSliderForModSetting(modulator.index);
 			if (slider != null) {
@@ -1718,7 +1982,8 @@ export class PatternEditor {
 		} else if (change instanceof ChangeNoteFilterSimpleCut) {
 			const modulator = Config.modulators.dictionary["note filt cut"];
 			applyToMods.push(modulator.index);
-			if (toApply) applyValues.push(instrument.noteFilterSimpleCut - modulator.convertRealFactor);
+			if (toApply)
+				applyValues.push(instrument.noteFilterSimpleCut - modulator.convertRealFactor);
 			// Restore base slider value — only modulated value should change.
 			slider = songEditor.modSliders.getSliderForModSetting(modulator.index);
 			if (slider != null) {
@@ -1727,7 +1992,8 @@ export class PatternEditor {
 		} else if (change instanceof ChangeNoteFilterSimplePeak) {
 			const modulator = Config.modulators.dictionary["note filt peak"];
 			applyToMods.push(modulator.index);
-			if (toApply) applyValues.push(instrument.noteFilterSimplePeak - modulator.convertRealFactor);
+			if (toApply)
+				applyValues.push(instrument.noteFilterSimplePeak - modulator.convertRealFactor);
 			// Restore base slider value — only modulated value should change.
 			slider = songEditor.modSliders.getSliderForModSetting(modulator.index);
 			if (slider != null) {
@@ -1736,7 +2002,10 @@ export class PatternEditor {
 		} else if (change instanceof ChangePitchShift) {
 			const modulator = Config.modulators.dictionary["pitch shift"];
 			applyToMods.push(modulator.index);
-			if (toApply) applyValues.push(instrument.pitchShift - Config.pitchShiftCenter - modulator.convertRealFactor);
+			if (toApply)
+				applyValues.push(
+					instrument.pitchShift - Config.pitchShiftCenter - modulator.convertRealFactor,
+				);
 			// Restore base slider value — only modulated value should change.
 			slider = songEditor.modSliders.getSliderForModSetting(modulator.index);
 			if (slider != null) {
@@ -1763,7 +2032,8 @@ export class PatternEditor {
 		} else if (change instanceof ChangeSupersawDynamism) {
 			const modulator = Config.modulators.dictionary.dynamism;
 			applyToMods.push(modulator.index);
-			if (toApply) applyValues.push(instrument.supersawDynamism - modulator.convertRealFactor);
+			if (toApply)
+				applyValues.push(instrument.supersawDynamism - modulator.convertRealFactor);
 			// Restore base slider value — only modulated value should change.
 			slider = songEditor.modSliders.getSliderForModSetting(modulator.index);
 			if (slider != null) {
@@ -1792,12 +2062,21 @@ export class PatternEditor {
 			applyToMods.push(modulator.index);
 			const envelopeIndex: number = change.getIndex();
 			if (toApply) {
-				applyValues.push(EnvelopeEditor.convertIndexSpeed(instrument.envelopes[envelopeIndex].perEnvelopeSpeed, "index") - modulator.convertRealFactor);
+				applyValues.push(
+					EnvelopeEditor.convertIndexSpeed(
+						instrument.envelopes[envelopeIndex].perEnvelopeSpeed,
+						"index",
+					) - modulator.convertRealFactor,
+				);
 			}
 			// Restore base slider value — only modulated value should change.
 			slider = songEditor.modSliders.getSliderForModSetting(modulator.index, envelopeIndex);
 			if (slider != null) {
-				instrument.envelopes[envelopeIndex].perEnvelopeSpeed = EnvelopeEditor.convertIndexSpeed(slider.getValueBeforeProspectiveChange(), "speed");
+				instrument.envelopes[envelopeIndex].perEnvelopeSpeed =
+					EnvelopeEditor.convertIndexSpeed(
+						slider.getValueBeforeProspectiveChange(),
+						"speed",
+					);
 			}
 			applyToEnvelopeTargets.push(envelopeIndex);
 		} else if (change instanceof ChangeEnvelopeLowerBound) {
@@ -1805,12 +2084,16 @@ export class PatternEditor {
 			applyToMods.push(modulator.index);
 			const envelopeIndex: number = change.getIndex();
 			if (toApply) {
-				applyValues.push(instrument.envelopes[envelopeIndex].perEnvelopeLowerBound * 10 - modulator.convertRealFactor);
+				applyValues.push(
+					instrument.envelopes[envelopeIndex].perEnvelopeLowerBound * 10 -
+						modulator.convertRealFactor,
+				);
 			}
 			// Restore base slider value — only modulated value should change.
 			slider = songEditor.modSliders.getSliderForModSetting(modulator.index, envelopeIndex);
 			if (slider != null) {
-				instrument.envelopes[envelopeIndex].perEnvelopeLowerBound = slider.getValueBeforeProspectiveChange();
+				instrument.envelopes[envelopeIndex].perEnvelopeLowerBound =
+					slider.getValueBeforeProspectiveChange();
 			}
 			applyToEnvelopeTargets.push(envelopeIndex);
 		} else if (change instanceof ChangeEnvelopeUpperBound) {
@@ -1818,12 +2101,16 @@ export class PatternEditor {
 			applyToMods.push(modulator.index);
 			const envelopeIndex: number = change.getIndex();
 			if (toApply) {
-				applyValues.push(instrument.envelopes[envelopeIndex].perEnvelopeUpperBound * 10 - modulator.convertRealFactor);
+				applyValues.push(
+					instrument.envelopes[envelopeIndex].perEnvelopeUpperBound * 10 -
+						modulator.convertRealFactor,
+				);
 			}
 			// Restore base slider value — only modulated value should change.
 			slider = songEditor.modSliders.getSliderForModSetting(modulator.index, envelopeIndex);
 			if (slider != null) {
-				instrument.envelopes[envelopeIndex].perEnvelopeUpperBound = slider.getValueBeforeProspectiveChange();
+				instrument.envelopes[envelopeIndex].perEnvelopeUpperBound =
+					slider.getValueBeforeProspectiveChange();
 			}
 			applyToEnvelopeTargets.push(envelopeIndex);
 		}
@@ -1837,7 +2124,10 @@ export class PatternEditor {
 			if (slider == null && this._doc.continuingModRecordingChange.storedSlider != null) {
 				slider = this._doc.continuingModRecordingChange.storedSlider;
 			}
-			if (slider != null && +slider.input.value === slider.getValueBeforeProspectiveChange()) {
+			if (
+				slider != null &&
+				+slider.input.value === slider.getValueBeforeProspectiveChange()
+			) {
 				applyValues = this._doc.continuingModRecordingChange.storedValues!;
 				toApply = false;
 			}
@@ -1857,7 +2147,8 @@ export class PatternEditor {
 			const usedModIndices: number[] = [];
 
 			for (
-				let channelIndex: number = this._doc.song.pitchChannelCount + this._doc.song.noiseChannelCount;
+				let channelIndex: number =
+					this._doc.song.pitchChannelCount + this._doc.song.noiseChannelCount;
 				channelIndex < this._doc.song.getChannelCount();
 				channelIndex++
 			) {
@@ -1870,9 +2161,20 @@ export class PatternEditor {
 					// Hunt for instrument matching this setting and swap to it.
 					let rtn;
 					if (applyToFilterTargets.length > applyIndex) {
-						rtn = getMatchingInstrumentAndMod(applyToMods[applyIndex], channel, undefined, applyToFilterTargets[applyIndex]);
+						rtn = getMatchingInstrumentAndMod(
+							applyToMods[applyIndex],
+							channel,
+							undefined,
+							applyToFilterTargets[applyIndex],
+						);
 					} else if (applyToEnvelopeTargets.length > applyIndex) {
-						rtn = getMatchingInstrumentAndMod(applyToMods[applyIndex], channel, undefined, undefined, applyToEnvelopeTargets[applyIndex]);
+						rtn = getMatchingInstrumentAndMod(
+							applyToMods[applyIndex],
+							channel,
+							undefined,
+							undefined,
+							applyToEnvelopeTargets[applyIndex],
+						);
 					} else {
 						rtn = getMatchingInstrumentAndMod(applyToMods[applyIndex], channel);
 					}
@@ -1881,8 +2183,17 @@ export class PatternEditor {
 
 					// Found it in this channel, but the pattern doesn't exist. So, add a new pattern and swap to that instrument.
 					if (useInstrumentIndex !== -1) {
-						sequence.append(new ChangeEnsurePatternExists(this._doc, channelIndex, currentBar));
-						new ChangeDuplicateSelectedReusedPatterns(this._doc, currentBar, 1, channelIndex, 1, false);
+						sequence.append(
+							new ChangeEnsurePatternExists(this._doc, channelIndex, currentBar),
+						);
+						new ChangeDuplicateSelectedReusedPatterns(
+							this._doc,
+							currentBar,
+							1,
+							channelIndex,
+							1,
+							false,
+						);
 
 						pattern = this._doc.song.getPattern(channelIndex, currentBar)!;
 
@@ -1893,7 +2204,12 @@ export class PatternEditor {
 				} else {
 					let rtn;
 					if (applyToFilterTargets.length > applyIndex) {
-						rtn = getMatchingInstrumentAndMod(applyToMods[applyIndex], channel, pattern.instruments[0], applyToFilterTargets[applyIndex]);
+						rtn = getMatchingInstrumentAndMod(
+							applyToMods[applyIndex],
+							channel,
+							pattern.instruments[0],
+							applyToFilterTargets[applyIndex],
+						);
 					} else if (applyToEnvelopeTargets.length > applyIndex) {
 						rtn = getMatchingInstrumentAndMod(
 							applyToMods[applyIndex],
@@ -1903,13 +2219,24 @@ export class PatternEditor {
 							applyToEnvelopeTargets[applyIndex],
 						);
 					} else {
-						rtn = getMatchingInstrumentAndMod(applyToMods[applyIndex], channel, pattern.instruments[0]);
+						rtn = getMatchingInstrumentAndMod(
+							applyToMods[applyIndex],
+							channel,
+							pattern.instruments[0],
+						);
 					}
 					useInstrumentIndex = rtn[0];
 					useModIndex = rtn[1];
 
 					if (useInstrumentIndex !== -1) {
-						new ChangeDuplicateSelectedReusedPatterns(this._doc, currentBar, 1, channelIndex, 1, false);
+						new ChangeDuplicateSelectedReusedPatterns(
+							this._doc,
+							currentBar,
+							1,
+							channelIndex,
+							1,
+							false,
+						);
 						pattern = this._doc.song.getPattern(channelIndex, currentBar);
 
 						changedPatterns = true;
@@ -1929,24 +2256,41 @@ export class PatternEditor {
 			// If the setting wasn't found in any channel or instruments, add it to the first unused slot in any channel.
 			if (usedInstrumentIndices.length === 0) {
 				for (
-					let channelIndex: number = this._doc.song.pitchChannelCount + this._doc.song.noiseChannelCount;
+					let channelIndex: number =
+						this._doc.song.pitchChannelCount + this._doc.song.noiseChannelCount;
 					channelIndex < this._doc.song.getChannelCount();
 					channelIndex++
 				) {
 					const channel: Channel = this._doc.song.channels[channelIndex];
-					let pattern: Pattern | null = this._doc.song.getPattern(channelIndex, currentBar);
+					let pattern: Pattern | null = this._doc.song.getPattern(
+						channelIndex,
+						currentBar,
+					);
 					let useInstrument: number = -1;
 					// If there's a pattern for this channel in this bar, it only makes sense to add the new slot in that instrument somewhere or give up and move to the next.
 					if (pattern != null) {
 						useInstrument = pattern.instruments[0];
 					} // No pattern for this channel, so check through all the instruments for a free slot, and add a pattern if there's a free one.
 					else {
-						for (let instrumentIndex: number = 0; instrumentIndex < channel.instruments.length; instrumentIndex++) {
+						for (
+							let instrumentIndex: number = 0;
+							instrumentIndex < channel.instruments.length;
+							instrumentIndex++
+						) {
 							for (let mod: number = 0; mod < Config.modCount; mod++) {
-								if (channel.instruments[instrumentIndex].modulators[mod] === Config.modulators.dictionary.none.index) {
+								if (
+									channel.instruments[instrumentIndex].modulators[mod] ===
+									Config.modulators.dictionary.none.index
+								) {
 									useInstrument = instrumentIndex;
 
-									sequence.append(new ChangeEnsurePatternExists(this._doc, channelIndex, currentBar));
+									sequence.append(
+										new ChangeEnsurePatternExists(
+											this._doc,
+											channelIndex,
+											currentBar,
+										),
+									);
 
 									pattern = this._doc.song.getPattern(channelIndex, currentBar)!;
 
@@ -1966,23 +2310,33 @@ export class PatternEditor {
 					if (useInstrument !== -1) {
 						const instrument: Instrument = channel.instruments[useInstrument];
 						for (let mod: number = 0; mod < Config.modCount; mod++) {
-							if (instrument.modulators[mod] === Config.modulators.dictionary.none.index) {
+							if (
+								instrument.modulators[mod] ===
+								Config.modulators.dictionary.none.index
+							) {
 								instrument.modulators[mod] = applyToMods[applyIndex];
 								if (Config.modulators[applyToMods[applyIndex]].forSong) {
 									if (applyToFilterTargets.length > applyIndex) {
-										instrument.modFilterTypes[mod] = applyToFilterTargets[applyIndex];
+										instrument.modFilterTypes[mod] =
+											applyToFilterTargets[applyIndex];
 									}
 									instrument.modChannels[mod] = -1; // Song
 								} else {
 									instrument.modChannels[mod] = this._doc.channel;
 
-									if (this._doc.song.channels[this._doc.channel].instruments.length > 1) {
+									if (
+										this._doc.song.channels[this._doc.channel].instruments
+											.length > 1
+									) {
 										// Ctrl key or Shift key: set the new mod target to "active" modulation for the most flexibility, if there's more than one instrument in the channel.
 										if (!this.controlMode || !this.shiftMode) {
-											instrument.modInstruments[mod] = this._doc.song.channels[this._doc.channel].instruments.length + 1;
+											instrument.modInstruments[mod] =
+												this._doc.song.channels[this._doc.channel]
+													.instruments.length + 1;
 										} // Control+Shift key: Set the new mod target to the currently viewed instrument only.
 										else {
-											instrument.modInstruments[mod] = this._doc.getCurrentInstrument();
+											instrument.modInstruments[mod] =
+												this._doc.getCurrentInstrument();
 										}
 									} else {
 										instrument.modInstruments[mod] = 0;
@@ -1990,10 +2344,12 @@ export class PatternEditor {
 
 									// Filter dot. Add appropriate filter target settings (dot# X and dot# Y mod).
 									if (applyToFilterTargets.length > applyIndex) {
-										instrument.modFilterTypes[mod] = applyToFilterTargets[applyIndex];
+										instrument.modFilterTypes[mod] =
+											applyToFilterTargets[applyIndex];
 									} // or add appropriate envelope settings
 									else if (applyToEnvelopeTargets.length > applyIndex) {
-										instrument.modEnvelopeNumbers[mod] = applyToEnvelopeTargets[applyIndex];
+										instrument.modEnvelopeNumbers[mod] =
+											applyToEnvelopeTargets[applyIndex];
 									}
 								}
 
@@ -2042,28 +2398,50 @@ export class PatternEditor {
 						// All
 						if (
 							usedInstrument.modInstruments[usedModIndices[i]] ===
-							this._doc.synth.song!.channels[usedInstrument.modChannels[usedModIndices[i]]].instruments.length
+							this._doc.synth.song!.channels[
+								usedInstrument.modChannels[usedModIndices[i]]
+							].instruments.length
 						) {
-							for (let k: number = 0; k < this._doc.synth.song!.channels[usedInstrument.modChannels[usedModIndices[i]]].instruments.length; k++) {
+							for (
+								let k: number = 0;
+								k <
+								this._doc.synth.song!.channels[
+									usedInstrument.modChannels[usedModIndices[i]]
+								].instruments.length;
+								k++
+							) {
 								usedNewInstrumentIndices.push(k);
 							}
 						} // Active
 						else if (
 							usedInstrument.modInstruments[usedModIndices[i]] >
-							this._doc.synth.song!.channels[usedInstrument.modChannels[usedModIndices[i]]].instruments.length
+							this._doc.synth.song!.channels[
+								usedInstrument.modChannels[usedModIndices[i]]
+							].instruments.length
 						) {
-							if (this._doc.synth.song!.getPattern(usedInstrument.modChannels[usedModIndices[i]], currentBar) != null) {
+							if (
+								this._doc.synth.song!.getPattern(
+									usedInstrument.modChannels[usedModIndices[i]],
+									currentBar,
+								) != null
+							) {
 								usedNewInstrumentIndices = this._doc.synth.song!.getPattern(
 									usedInstrument.modChannels[usedModIndices[i]],
 									currentBar,
 								)!.instruments;
 							}
 						} else {
-							usedNewInstrumentIndices.push(usedInstrument.modInstruments[usedModIndices[i]]);
+							usedNewInstrumentIndices.push(
+								usedInstrument.modInstruments[usedModIndices[i]],
+							);
 						}
 					}
 
-					for (let instrumentIndex: number = 0; instrumentIndex < usedNewInstrumentIndices.length; instrumentIndex++) {
+					for (
+						let instrumentIndex: number = 0;
+						instrumentIndex < usedNewInstrumentIndices.length;
+						instrumentIndex++
+					) {
 						this._doc.synth.setModValue(
 							applyValues[applyIndex],
 							applyValues[applyIndex],
@@ -2088,7 +2466,10 @@ export class PatternEditor {
 						for (let pinIdx: number = 0; pinIdx < note.pins.length; pinIdx++) {
 							const pin: NotePin = note.pins[pinIdx];
 							// Special case in there to prioritize picking the start of a note over the end of another (though they share the same time).
-							if (note.start + pin.time <= currentPart && (note.start + pin.time > latestPart || note.start === latestPart)) {
+							if (
+								note.start + pin.time <= currentPart &&
+								(note.start + pin.time > latestPart || note.start === latestPart)
+							) {
 								latestPart = note.start + pin.time;
 								latestPin = pin;
 								latestPinIdx = pinIdx;
@@ -2097,14 +2478,21 @@ export class PatternEditor {
 						}
 					}
 
-					if (note.pitches[0] === modNoteIndex && note.end <= currentPart && note.end > prevNotePart) {
+					if (
+						note.pitches[0] === modNoteIndex &&
+						note.end <= currentPart &&
+						note.end > prevNotePart
+					) {
 						prevNotePart = note.end;
 						prevNote = note;
 					}
 				}
 
 				const prevPart: number = Math.max(0, currentPart - timeQuantum);
-				const endPart: number = Math.min(currentPart + timeQuantum + addLength, Config.partsPerBeat * this._doc.song.beatsPerBar);
+				const endPart: number = Math.min(
+					currentPart + timeQuantum + addLength,
+					Config.partsPerBeat * this._doc.song.beatsPerBar,
+				);
 
 				const continuous: boolean = toApply === false;
 
@@ -2114,18 +2502,55 @@ export class PatternEditor {
 					if (currentPart === endPart) {
 						continue;
 					}
-					sanitizeInterval(this._doc, currentPart, endPart, usedPatterns[i], modNoteIndex, sequence);
-					latestNote = new Note(modNoteIndex, currentPart, endPart, applyValues[applyIndex], this._doc.song.getChannelIsNoise(this._doc.channel));
-					sequence.append(new ChangeNoteAdded(this._doc, usedPatterns[i], latestNote, usedPatterns[i].notes.length));
+					sanitizeInterval(
+						this._doc,
+						currentPart,
+						endPart,
+						usedPatterns[i],
+						modNoteIndex,
+						sequence,
+					);
+					latestNote = new Note(
+						modNoteIndex,
+						currentPart,
+						endPart,
+						applyValues[applyIndex],
+						this._doc.song.getChannelIsNoise(this._doc.channel),
+					);
+					sequence.append(
+						new ChangeNoteAdded(
+							this._doc,
+							usedPatterns[i],
+							latestNote,
+							usedPatterns[i].notes.length,
+						),
+					);
 				} else if (latestPart === currentPart) {
-					sanitizeInterval(this._doc, prevPart, currentPart, usedPatterns[i], modNoteIndex, sequence);
-					sanitizeInterval(this._doc, currentPart, endPart, usedPatterns[i], modNoteIndex, sequence);
+					sanitizeInterval(
+						this._doc,
+						prevPart,
+						currentPart,
+						usedPatterns[i],
+						modNoteIndex,
+						sequence,
+					);
+					sanitizeInterval(
+						this._doc,
+						currentPart,
+						endPart,
+						usedPatterns[i],
+						modNoteIndex,
+						sequence,
+					);
 
 					latestPin!.size = applyValues[applyIndex];
 
 					if (continuous) {
 						for (let usePin: number = 0; usePin < latestNote.pins.length; usePin++) {
-							if (latestNote.pins[usePin].time >= prevPart && latestNote.pins[usePin].time <= currentPart) {
+							if (
+								latestNote.pins[usePin].time >= prevPart &&
+								latestNote.pins[usePin].time <= currentPart
+							) {
 								latestNote.pins[usePin].size = applyValues[applyIndex];
 							}
 						}
@@ -2137,7 +2562,11 @@ export class PatternEditor {
 							prevNote.pins[prevNote.pins.length - 1].size = applyValues[applyIndex];
 
 							if (continuous) {
-								for (let usePin: number = 0; usePin < prevNote.pins.length; usePin++) {
+								for (
+									let usePin: number = 0;
+									usePin < prevNote.pins.length;
+									usePin++
+								) {
 									if (prevNote.pins[usePin].time + prevNote.start >= prevPart) {
 										prevNote.pins[usePin].size = applyValues[applyIndex];
 									}
@@ -2145,16 +2574,28 @@ export class PatternEditor {
 							}
 						} // Bridge the gap from previous note to this.
 						else if (prevNote.end === prevPart && latestNote.start === currentPart) {
-							prevNote.pins.push(makeNotePin(0, currentPart - prevNote.start, applyValues[applyIndex]));
+							prevNote.pins.push(
+								makeNotePin(
+									0,
+									currentPart - prevNote.start,
+									applyValues[applyIndex],
+								),
+							);
 							prevNote.end = currentPart;
 						}
 					}
-				} else if (currentPart - latestPart < 8 && latestNote.pins[latestPinIdx].size === applyValues[applyIndex]) {
+				} else if (
+					currentPart - latestPart < 8 &&
+					latestNote.pins[latestPinIdx].size === applyValues[applyIndex]
+				) {
 					// Don't record flat readings, prefer smooth interpolation.
 					// But, we'll still smooth out previous pins if we're continuously holding.
 					if (continuous) {
 						for (let usePin: number = 0; usePin < latestNote.pins.length; usePin++) {
-							if (latestNote.pins[usePin].time >= prevPart && latestNote.pins[usePin].time <= currentPart) {
+							if (
+								latestNote.pins[usePin].time >= prevPart &&
+								latestNote.pins[usePin].time <= currentPart
+							) {
 								latestNote.pins[usePin].size = applyValues[applyIndex];
 							}
 						}
@@ -2162,8 +2603,22 @@ export class PatternEditor {
 				} else {
 					// Insert a pin in the current note.
 					if (latestNote.pins.length - 1 > latestPinIdx) {
-						sanitizeInterval(this._doc, prevPart, currentPart, usedPatterns[i], modNoteIndex, sequence);
-						sanitizeInterval(this._doc, currentPart, endPart, usedPatterns[i], modNoteIndex, sequence);
+						sanitizeInterval(
+							this._doc,
+							prevPart,
+							currentPart,
+							usedPatterns[i],
+							modNoteIndex,
+							sequence,
+						);
+						sanitizeInterval(
+							this._doc,
+							currentPart,
+							endPart,
+							usedPatterns[i],
+							modNoteIndex,
+							sequence,
+						);
 
 						// Sanitization can cause a pin to snap to the insertion point. If so, use it instead.
 						let k: number;
@@ -2179,19 +2634,46 @@ export class PatternEditor {
 						if (usePin != null) {
 							usePin.size = applyValues[applyIndex];
 						} else {
-							latestNote.pins.splice(k, 0, makeNotePin(0, currentPart - latestNote.start, applyValues[applyIndex]));
+							latestNote.pins.splice(
+								k,
+								0,
+								makeNotePin(
+									0,
+									currentPart - latestNote.start,
+									applyValues[applyIndex],
+								),
+							);
 						}
 					} // Push a new pin at the end of the note.
 					else {
-						sanitizeInterval(this._doc, prevPart, currentPart, usedPatterns[i], modNoteIndex, sequence);
-						sanitizeInterval(this._doc, currentPart, endPart, usedPatterns[i], modNoteIndex, sequence);
-						latestNote.pins.push(makeNotePin(0, currentPart - latestNote.start, applyValues[applyIndex]));
+						sanitizeInterval(
+							this._doc,
+							prevPart,
+							currentPart,
+							usedPatterns[i],
+							modNoteIndex,
+							sequence,
+						);
+						sanitizeInterval(
+							this._doc,
+							currentPart,
+							endPart,
+							usedPatterns[i],
+							modNoteIndex,
+							sequence,
+						);
+						latestNote.pins.push(
+							makeNotePin(0, currentPart - latestNote.start, applyValues[applyIndex]),
+						);
 						latestNote.end = currentPart;
 					}
 
 					if (continuous) {
 						for (let usePin: number = 0; usePin < latestNote.pins.length; usePin++) {
-							if (latestNote.pins[usePin].time >= prevPart && latestNote.pins[usePin].time <= currentPart) {
+							if (
+								latestNote.pins[usePin].time >= prevPart &&
+								latestNote.pins[usePin].time <= currentPart
+							) {
 								latestNote.pins[usePin].size = applyValues[applyIndex];
 							}
 						}
@@ -2200,8 +2682,14 @@ export class PatternEditor {
 
 				// A few sanity checks.
 				const lastNoteEnds: number[] = [-1, -1, -1, -1, -1, -1];
-				usedPatterns[i].notes.sort((a, b) => (a.start === b.start ? a.pitches[0] - b.pitches[0] : a.start - b.start));
-				for (let checkIndex: number = 0; checkIndex < usedPatterns[i].notes.length; checkIndex++) {
+				usedPatterns[i].notes.sort((a, b) =>
+					a.start === b.start ? a.pitches[0] - b.pitches[0] : a.start - b.start,
+				);
+				for (
+					let checkIndex: number = 0;
+					checkIndex < usedPatterns[i].notes.length;
+					checkIndex++
+				) {
 					const note: Note = usedPatterns[i].notes[checkIndex];
 					if (note.start < lastNoteEnds[note.pitches[0]]) {
 						throw new Error("Error in mod note recording!");
@@ -2227,13 +2715,21 @@ export class PatternEditor {
 		}
 
 		// Re-render mod pattern since it may have new notes in it (e.g. if editing song mods from mod channel)
-		if (this._doc.channel >= this._doc.song.pitchChannelCount + this._doc.song.noiseChannelCount) {
+		if (
+			this._doc.channel >=
+			this._doc.song.pitchChannelCount + this._doc.song.noiseChannelCount
+		) {
 			this._doc.currentPatternIsDirty = true;
 		}
 
 		if (applyValues.length > 0) {
 			// this._doc.record(sequence);
-			this._doc.continuingModRecordingChange = new ChangeHoldingModRecording(this._doc, change, applyValues, slider);
+			this._doc.continuingModRecordingChange = new ChangeHoldingModRecording(
+				this._doc,
+				change,
+				applyValues,
+				slider,
+			);
 		}
 
 		return changedPatterns;
@@ -2254,24 +2750,45 @@ export class PatternEditor {
 			if (discardChanges) {
 				this._modDragPin.size = this._modDragStartValue;
 
-				const presValue: number = this._modDragStartValue + Config.modulators[this._modDragSetting].convertRealFactor;
+				const presValue: number =
+					this._modDragStartValue +
+					Config.modulators[this._modDragSetting].convertRealFactor;
 
 				// This is me being too lazy to fiddle with the css to get it to align center.
-				const xOffset: number = +(presValue >= 10.0) + +(presValue >= 100.0) + +(presValue < 0.0) + +(presValue <= -10.0);
+				const xOffset: number =
+					+(presValue >= 10.0) +
+					+(presValue >= 100.0) +
+					+(presValue < 0.0) +
+					+(presValue <= -10.0);
 				this._modDragValueLabelLeft = +prettyNumber(
 					Math.max(
-						Math.min(this._editorWidth - 10 - xOffset * 8, this._partWidth * (this._modDragNote.start + this._modDragPin.time) - 4 - xOffset * 4),
+						Math.min(
+							this._editorWidth - 10 - xOffset * 8,
+							this._partWidth * (this._modDragNote.start + this._modDragPin.time) -
+								4 -
+								xOffset * 4,
+						),
 						2,
 					),
 				);
-				this.modDragValueLabel.style.setProperty("left", `${this._modDragValueLabelLeft}px`);
+				this.modDragValueLabel.style.setProperty(
+					"left",
+					`${this._modDragValueLabelLeft}px`,
+				);
 
 				const sequence: ChangeSequence = new ChangeSequence();
 				this._dragChange = sequence;
 				this._doc.setProspectiveChange(this._dragChange);
 
 				sequence.append(
-					new ChangeSizeBend(this._doc, this._modDragNote, this._modDragPin.time, this._modDragStartValue, this._modDragPin.interval, this.shiftMode),
+					new ChangeSizeBend(
+						this._doc,
+						this._modDragNote,
+						this._modDragPin.time,
+						this._modDragStartValue,
+						this._modDragPin.interval,
+						this.shiftMode,
+					),
 				);
 
 				this._dragChange = null;
@@ -2321,7 +2838,9 @@ export class PatternEditor {
 			this._updatePreview();
 			const sequence: ChangeSequence = new ChangeSequence();
 			this._dragChange = sequence;
-			this._lastChangeWasPatternSelection = this._doc.lastChangeWas(this._changePatternSelection);
+			this._lastChangeWasPatternSelection = this._doc.lastChangeWas(
+				this._changePatternSelection,
+			);
 			this._doc.setProspectiveChange(this._dragChange);
 
 			if (this._cursorAtStartOfSelection()) {
@@ -2335,7 +2854,8 @@ export class PatternEditor {
 					0,
 					Math.min(
 						(this._doc.song.beatsPerBar - 1) * Config.partsPerBeat,
-						Math.floor(this._cursor.exactPart / Config.partsPerBeat) * Config.partsPerBeat,
+						Math.floor(this._cursor.exactPart / Config.partsPerBeat) *
+							Config.partsPerBeat,
 					),
 				);
 				const end: number = start + Config.partsPerBeat;
@@ -2367,14 +2887,21 @@ export class PatternEditor {
 				for (const oldPin of this._cursor.pins) {
 					note.pins.push(makeNotePin(0, oldPin.time, oldPin.size));
 				}
-				sequence.append(new ChangeEnsurePatternExists(this._doc, this._doc.channel, this._doc.bar));
+				sequence.append(
+					new ChangeEnsurePatternExists(this._doc, this._doc.channel, this._doc.bar),
+				);
 				const pattern: Pattern | null = this._doc.getCurrentPattern(this._barOffset);
 				if (pattern == null) throw new Error();
-				sequence.append(new ChangeNoteAdded(this._doc, pattern, note, this._cursor.curIndex));
+				sequence.append(
+					new ChangeNoteAdded(this._doc, pattern, note, this._cursor.curIndex),
+				);
 
 				if (this._doc.prefs.enableNotePreview && !this._doc.synth.playing) {
 					// Play the new note out loud if enabled.
-					const duration: number = Math.min(Config.partsPerBeat, this._cursor.end - this._cursor.start);
+					const duration: number = Math.min(
+						Config.partsPerBeat,
+						this._cursor.end - this._cursor.start,
+					);
 					this._doc.performance.setTemporaryPitches([this._cursor.pitch], duration);
 				}
 			}
@@ -2390,8 +2917,12 @@ export class PatternEditor {
 		this.shiftMode = event.shiftKey;
 
 		const boundingRect = this._getCachedSvgRect();
-		this._mouseX = (((event.clientX ?? event.pageX) - boundingRect.left) * this._editorWidth) / (boundingRect.right - boundingRect.left);
-		this._mouseY = (((event.clientY ?? event.pageY) - boundingRect.top) * this._editorHeight) / (boundingRect.bottom - boundingRect.top);
+		this._mouseX =
+			(((event.clientX ?? event.pageX) - boundingRect.left) * this._editorWidth) /
+			(boundingRect.right - boundingRect.left);
+		this._mouseY =
+			(((event.clientY ?? event.pageY) - boundingRect.top) * this._editorHeight) /
+			(boundingRect.bottom - boundingRect.top);
 		if (Number.isNaN(this._mouseX)) this._mouseX = 0;
 		if (Number.isNaN(this._mouseY)) this._mouseY = 0;
 		this._usingTouch = false;
@@ -2422,12 +2953,20 @@ export class PatternEditor {
 		const isDrum: boolean = this._doc.song.getChannelIsNoise(this._doc.channel);
 		const baseVisibleOctave: number = this._doc.getBaseVisibleOctave(this._doc.channel);
 		const rawPitch: number = this._findMousePitch(this._mouseY);
-		const snappedPitch: number = this._snapToPitch(rawPitch, 0, this._pitchCount - 1 + this._octaveOffset);
+		const snappedPitch: number = this._snapToPitch(
+			rawPitch,
+			0,
+			this._pitchCount - 1 + this._octaveOffset,
+		);
 		// 0=top row index matching the piano's _cursorPitch numbering.
 		const cursorPitch: number = snappedPitch - this._octaveOffset;
-		const keyBasePitch: number = Config.keys[this._doc.song.key]?.basePitch ?? Config.keys[0].basePitch;
+		const keyBasePitch: number =
+			Config.keys[this._doc.song.key]?.basePitch ?? Config.keys[0].basePitch;
 		const pitchNameIndex: number = (cursorPitch + keyBasePitch) % Config.pitchesPerOctave;
-		const name: string = isMod || isDrum ? String(snappedPitch) : Piano.getPitchNameAlwaysOctave(pitchNameIndex, cursorPitch, baseVisibleOctave);
+		const name: string =
+			isMod || isDrum
+				? String(snappedPitch)
+				: Piano.getPitchNameAlwaysOctave(pitchNameIndex, cursorPitch, baseVisibleOctave);
 		this._hoverTooltip.textContent = name;
 		// Position the tooltip 12px to the right and 12px below the
 		// cursor (or 12px above if the cursor is near the bottom edge).
@@ -2456,15 +2995,20 @@ export class PatternEditor {
 		if (!this._mouseDown) return;
 		event.preventDefault();
 		const boundingRect: DOMRect = this._getCachedSvgRect();
-		this._mouseX = ((event.touches[0].clientX - boundingRect.left) * this._editorWidth) / (boundingRect.right - boundingRect.left);
-		this._mouseY = ((event.touches[0].clientY - boundingRect.top) * this._editorHeight) / (boundingRect.bottom - boundingRect.top);
+		this._mouseX =
+			((event.touches[0].clientX - boundingRect.left) * this._editorWidth) /
+			(boundingRect.right - boundingRect.left);
+		this._mouseY =
+			((event.touches[0].clientY - boundingRect.top) * this._editorHeight) /
+			(boundingRect.bottom - boundingRect.top);
 		if (Number.isNaN(this._mouseX)) this._mouseX = 0;
 		if (Number.isNaN(this._mouseY)) this._mouseY = 0;
 		this._whenCursorMoved();
 	};
 
 	private _whenCursorMoved(): void {
-		if (this._doc.prefs.enableNotePreview && this._mouseOver) this._doc.synth.maintainLiveInput();
+		if (this._doc.prefs.enableNotePreview && this._mouseOver)
+			this._doc.synth.maintainLiveInput();
 
 		// HACK: Undoable pattern changes rely on persistent instance
 		// references. Loading song from hash via undo/redo breaks that,
@@ -2481,7 +3025,11 @@ export class PatternEditor {
 			}
 		}
 
-		if (this._shiftHeld && this._mouseHorizontal && Math.abs(this._mouseXStart - this._mouseX) > 5) {
+		if (
+			this._shiftHeld &&
+			this._mouseHorizontal &&
+			Math.abs(this._mouseXStart - this._mouseX) > 5
+		) {
 			this._dragConfirmed = true;
 		}
 
@@ -2497,7 +3045,10 @@ export class PatternEditor {
 				sequence.append(
 					new ChangePatternSelection(
 						this._doc,
-						Math.max(0, Math.min(this._doc.song.beatsPerBar * Config.partsPerBeat, currentPart)),
+						Math.max(
+							0,
+							Math.min(this._doc.song.beatsPerBar * Config.partsPerBeat, currentPart),
+						),
 						this._doc.selection.patternSelectionEnd,
 					),
 				);
@@ -2507,7 +3058,10 @@ export class PatternEditor {
 					new ChangePatternSelection(
 						this._doc,
 						this._doc.selection.patternSelectionStart,
-						Math.max(0, Math.min(this._doc.song.beatsPerBar * Config.partsPerBeat, currentPart)),
+						Math.max(
+							0,
+							Math.min(this._doc.song.beatsPerBar * Config.partsPerBeat, currentPart),
+						),
 					),
 				);
 				this._updateSelection();
@@ -2523,16 +3077,39 @@ export class PatternEditor {
 					// undo() above reverted the press-time ChangePatternSelection
 					// (set for note-move or edge-grab), so reassert the note's span.
 					if (this._noteMoveDrag) {
-						sequence.append(new ChangePatternSelection(this._doc, this._noteMoveStart, this._noteMoveEnd));
+						sequence.append(
+							new ChangePatternSelection(
+								this._doc,
+								this._noteMoveStart,
+								this._noteMoveEnd,
+							),
+						);
 					}
 
 					const scale =
-						this._doc.song.scale === Config.scales.dictionary.Custom.index ? this._doc.song.scaleCustom : Config.scales[this._doc.song.scale].flags;
+						this._doc.song.scale === Config.scales.dictionary.Custom.index
+							? this._doc.song.scaleCustom
+							: Config.scales[this._doc.song.scale].flags;
 					const notesInScale: number = scale.filter((x) => x).length;
-					const pitchRatio: number = this._doc.song.getChannelIsNoise(this._doc.channel) ? 1 : 12 / notesInScale;
-					const draggedParts: number = Math.round((this._mouseX - this._mouseXStart) / (this._partWidth * minDivision)) * minDivision;
-					const draggedTranspose: number = Math.round((this._mouseYStart - this._mouseY) / (this._pitchHeight * pitchRatio));
-					sequence.append(new ChangeDragSelectedNotes(this._doc, this._doc.channel, pattern, draggedParts, draggedTranspose));
+					const pitchRatio: number = this._doc.song.getChannelIsNoise(this._doc.channel)
+						? 1
+						: 12 / notesInScale;
+					const draggedParts: number =
+						Math.round(
+							(this._mouseX - this._mouseXStart) / (this._partWidth * minDivision),
+						) * minDivision;
+					const draggedTranspose: number = Math.round(
+						(this._mouseYStart - this._mouseY) / (this._pitchHeight * pitchRatio),
+					);
+					sequence.append(
+						new ChangeDragSelectedNotes(
+							this._doc,
+							this._doc.channel,
+							pattern,
+							draggedParts,
+							draggedTranspose,
+						),
+					);
 				}
 			} else if (this._edgeGrabNote != null && this._mouseHorizontal) {
 				// Full-height head/tail grab: pressing an empty row aligned with a
@@ -2542,13 +3119,18 @@ export class PatternEditor {
 				let newStart: number = note.start;
 				let newEnd: number = note.end;
 				if (this._edgeGrabTail) {
-					newEnd = Math.max(note.start + minDivision, Math.min(this._doc.song.beatsPerBar * Config.partsPerBeat, currentPart));
+					newEnd = Math.max(
+						note.start + minDivision,
+						Math.min(this._doc.song.beatsPerBar * Config.partsPerBeat, currentPart),
+					);
 				} else {
 					newStart = Math.max(0, Math.min(note.end - minDivision, currentPart));
 				}
 				if (this._pattern == null) throw new Error();
 				sequence.append(new ChangePatternSelection(this._doc, 0, 0));
-				sequence.append(new ChangeNoteTruncate(this._doc, this._pattern, newStart, newEnd, note));
+				sequence.append(
+					new ChangeNoteTruncate(this._doc, this._pattern, newStart, newEnd, note),
+				);
 				sequence.append(new ChangeNoteLength(this._doc, note, newStart, newEnd));
 				this._copyPins(note);
 				this._dragTime = this._edgeGrabTail ? newEnd : newStart;
@@ -2559,7 +3141,8 @@ export class PatternEditor {
 						0,
 						Math.min(
 							(this._doc.song.beatsPerBar - 1) * Config.partsPerBeat,
-							Math.floor(this._cursor.exactPart / Config.partsPerBeat) * Config.partsPerBeat,
+							Math.floor(this._cursor.exactPart / Config.partsPerBeat) *
+								Config.partsPerBeat,
 						),
 					);
 					let end: number = start + Config.partsPerBeat;
@@ -2571,7 +3154,9 @@ export class PatternEditor {
 					// Todo: The following two conditional blocks could maybe be refactored.
 					if (currentPart < start) {
 						start = 0;
-						const pattern: Pattern | null = this._doc.getCurrentPattern(this._barOffset);
+						const pattern: Pattern | null = this._doc.getCurrentPattern(
+							this._barOffset,
+						);
 						if (pattern != null) {
 							for (let i: number = 0; i < pattern.notes.length; i++) {
 								if (pattern.notes[i].start <= currentPart) {
@@ -2592,7 +3177,9 @@ export class PatternEditor {
 
 					if (currentPart > end) {
 						end = Config.partsPerBeat * this._doc.song.beatsPerBar;
-						const pattern: Pattern | null = this._doc.getCurrentPattern(this._barOffset);
+						const pattern: Pattern | null = this._doc.getCurrentPattern(
+							this._barOffset,
+						);
 						if (pattern != null) {
 							for (let i: number = 0; i < pattern.notes.length; i++) {
 								if (pattern.notes[i].start >= currentPart) {
@@ -2631,7 +3218,11 @@ export class PatternEditor {
 					}
 
 					let defaultLength: number = minDivision;
-					for (let i: number = minDivision; i <= this._doc.song.beatsPerBar * Config.partsPerBeat; i += minDivision) {
+					for (
+						let i: number = minDivision;
+						i <= this._doc.song.beatsPerBar * Config.partsPerBeat;
+						i += minDivision
+					) {
 						if (minDivision === 1) {
 							if (i < 5) {
 								// Allow small lengths.
@@ -2685,18 +3276,37 @@ export class PatternEditor {
 						start = this._cursor.start;
 						end = start + defaultLength;
 					}
-					const continuesLastPattern: boolean = start < 0 && this._doc.channel < this._doc.song.pitchChannelCount + this._doc.song.noiseChannelCount;
+					const continuesLastPattern: boolean =
+						start < 0 &&
+						this._doc.channel <
+							this._doc.song.pitchChannelCount + this._doc.song.noiseChannelCount;
 					if (start < 0) start = 0;
 					if (end > this._doc.song.beatsPerBar * Config.partsPerBeat) {
 						end = this._doc.song.beatsPerBar * Config.partsPerBeat;
 					}
 
 					if (start < end) {
-						sequence.append(new ChangeEnsurePatternExists(this._doc, this._doc.channel, this._doc.bar));
-						const pattern: Pattern | null = this._doc.getCurrentPattern(this._barOffset);
+						sequence.append(
+							new ChangeEnsurePatternExists(
+								this._doc,
+								this._doc.channel,
+								this._doc.bar,
+							),
+						);
+						const pattern: Pattern | null = this._doc.getCurrentPattern(
+							this._barOffset,
+						);
 						if (pattern == null) throw new Error();
 						// Using parameter skipNote to force proper "collision" checking vis-a-vis pitch for mod channels.
-						sequence.append(new ChangeNoteTruncate(this._doc, pattern, start, end, new Note(this._cursor.pitch, 0, 0, 0)));
+						sequence.append(
+							new ChangeNoteTruncate(
+								this._doc,
+								pattern,
+								start,
+								end,
+								new Note(this._cursor.pitch, 0, 0, 0),
+							),
+						);
 						let i: number;
 						for (i = 0; i < pattern.notes.length; i++) {
 							if (pattern.notes[i].start >= end) break;
@@ -2727,19 +3337,32 @@ export class PatternEditor {
 
 					this._pattern = this._doc.getCurrentPattern(this._barOffset);
 
-					if (this._pattern != null && this._doc.song.getChannelIsMod(this._doc.channel) && this._interactive && prevPattern !== this._pattern) {
+					if (
+						this._pattern != null &&
+						this._doc.song.getChannelIsMod(this._doc.channel) &&
+						this._interactive &&
+						prevPattern !== this._pattern
+					) {
 						// Need to re-sort the notes by start time as they might change order if user drags them around.
-						this._pattern.notes.sort((a, b) => (a.start === b.start ? a.pitches[0] - b.pitches[0] : a.start - b.start));
+						this._pattern.notes.sort((a, b) =>
+							a.start === b.start ? a.pitches[0] - b.pitches[0] : a.start - b.start,
+						);
 					}
 				} else if (this._mouseHorizontal) {
 					sequence.append(new ChangePatternSelection(this._doc, 0, 0));
 
 					const shift: number = (this._mouseX - this._mouseXStart) / this._partWidth;
 
-					const shiftedPin: NotePin = this._cursor.curNote.pins[this._cursor.nearPinIndex];
-					let shiftedTime: number = Math.round((this._cursor.curNote.start + shiftedPin.time + shift) / minDivision) * minDivision;
+					const shiftedPin: NotePin =
+						this._cursor.curNote.pins[this._cursor.nearPinIndex];
+					let shiftedTime: number =
+						Math.round(
+							(this._cursor.curNote.start + shiftedPin.time + shift) / minDivision,
+						) * minDivision;
 					const continuesLastPattern: boolean =
-						shiftedTime < 0.0 && this._doc.channel < this._doc.song.pitchChannelCount + this._doc.song.noiseChannelCount;
+						shiftedTime < 0.0 &&
+						this._doc.channel <
+							this._doc.song.pitchChannelCount + this._doc.song.noiseChannelCount;
 					if (shiftedTime < 0) shiftedTime = 0;
 					if (shiftedTime > this._doc.song.beatsPerBar * Config.partsPerBeat) {
 						shiftedTime = this._doc.song.beatsPerBar * Config.partsPerBeat;
@@ -2748,10 +3371,19 @@ export class PatternEditor {
 					if (this._pattern == null) throw new Error();
 
 					if (
-						(shiftedTime <= this._cursor.curNote.start && this._cursor.nearPinIndex === this._cursor.curNote.pins.length - 1) ||
+						(shiftedTime <= this._cursor.curNote.start &&
+							this._cursor.nearPinIndex === this._cursor.curNote.pins.length - 1) ||
 						(shiftedTime >= this._cursor.curNote.end && this._cursor.nearPinIndex === 0)
 					) {
-						sequence.append(new ChangeNoteAdded(this._doc, this._pattern, this._cursor.curNote, this._cursor.curIndex, true));
+						sequence.append(
+							new ChangeNoteAdded(
+								this._doc,
+								this._pattern,
+								this._cursor.curNote,
+								this._cursor.curIndex,
+								true,
+							),
+						);
 
 						this._dragVisible = false;
 					} else {
@@ -2760,16 +3392,36 @@ export class PatternEditor {
 
 						this._dragTime = shiftedTime;
 						this._dragPitch =
-							this._cursor.curNote.pitches[this._cursor.pitchIndex === -1 ? 0 : this._cursor.pitchIndex] +
-							this._cursor.curNote.pins[this._cursor.nearPinIndex].interval;
+							this._cursor.curNote.pitches[
+								this._cursor.pitchIndex === -1 ? 0 : this._cursor.pitchIndex
+							] + this._cursor.curNote.pins[this._cursor.nearPinIndex].interval;
 						this._dragSize = this._cursor.curNote.pins[this._cursor.nearPinIndex].size;
 						this._dragVisible = true;
 
-						sequence.append(new ChangeNoteTruncate(this._doc, this._pattern, start, end, this._cursor.curNote));
-						sequence.append(new ChangePinTime(this._doc, this._cursor.curNote, this._cursor.nearPinIndex, shiftedTime, continuesLastPattern));
+						sequence.append(
+							new ChangeNoteTruncate(
+								this._doc,
+								this._pattern,
+								start,
+								end,
+								this._cursor.curNote,
+							),
+						);
+						sequence.append(
+							new ChangePinTime(
+								this._doc,
+								this._cursor.curNote,
+								this._cursor.nearPinIndex,
+								shiftedTime,
+								continuesLastPattern,
+							),
+						);
 						this._copyPins(this._cursor.curNote);
 					}
-				} else if (this._cursor.pitchIndex === -1 || this._doc.song.getChannelIsMod(this._doc.channel)) {
+				} else if (
+					this._cursor.pitchIndex === -1 ||
+					this._doc.song.getChannelIsMod(this._doc.channel)
+				) {
 					if (!this._mouseDragging) {
 						sequence.append(new ChangePatternSelection(this._doc, 0, 0));
 					}
@@ -2777,7 +3429,11 @@ export class PatternEditor {
 					const bendPart: number =
 						Math.max(
 							this._cursor.curNote.start,
-							Math.min(this._cursor.curNote.end, Math.round(this._mouseX / (this._partWidth * minDivision)) * minDivision),
+							Math.min(
+								this._cursor.curNote.end,
+								Math.round(this._mouseX / (this._partWidth * minDivision)) *
+									minDivision,
+							),
 						) - this._cursor.curNote.start;
 
 					let prevPin: NotePin;
@@ -2797,7 +3453,10 @@ export class PatternEditor {
 					const dragSign: number = this._mouseYStart > this._mouseY ? 1 : -1;
 					const dragCounts: number =
 						Math.min(Math.abs(this._mouseYStart - this._mouseY) / dragFactorSlow, 8) +
-						Math.max(0, Math.abs(this._mouseYStart - this._mouseY) / dragFactorFast - 8);
+						Math.max(
+							0,
+							Math.abs(this._mouseYStart - this._mouseY) / dragFactorFast - 8,
+						);
 
 					// Note volume drag overrides attempts to make a pattern selection
 					if (dragCounts > 0) {
@@ -2809,17 +3468,28 @@ export class PatternEditor {
 						nextPin = this._cursor.curNote.pins[i];
 						if (bendPart > nextPin.time) continue;
 						if (bendPart < prevPin.time) throw new Error();
-						const sizeRatio: number = (bendPart - prevPin.time) / (nextPin.time - prevPin.time);
-						bendSize = Math.round(prevPin.size * (1.0 - sizeRatio) + nextPin.size * sizeRatio + dragSign * dragCounts);
+						const sizeRatio: number =
+							(bendPart - prevPin.time) / (nextPin.time - prevPin.time);
+						bendSize = Math.round(
+							prevPin.size * (1.0 - sizeRatio) +
+								nextPin.size * sizeRatio +
+								dragSign * dragCounts,
+						);
 						// If not in fine control mode, round to 0~2~4~6 (normal 4 settings)
-						if (!this.controlMode && !this._doc.prefs.alwaysFineNoteVol && !this._doc.song.getChannelIsMod(this._doc.channel)) {
+						if (
+							!this.controlMode &&
+							!this._doc.prefs.alwaysFineNoteVol &&
+							!this._doc.song.getChannelIsMod(this._doc.channel)
+						) {
 							bendSize = Math.floor(bendSize / 2) * 2;
 						}
 						if (bendSize < 0) bendSize = 0;
 						if (bendSize > cap) bendSize = cap;
 						bendInterval =
 							this._snapToPitch(
-								prevPin.interval * (1.0 - sizeRatio) + nextPin.interval * sizeRatio + this._cursor.curNote.pitches[0],
+								prevPin.interval * (1.0 - sizeRatio) +
+									nextPin.interval * sizeRatio +
+									this._cursor.curNote.pitches[0],
 								0,
 								this._getMaxPitch(),
 							) - this._cursor.curNote.pitches[0];
@@ -2827,27 +3497,60 @@ export class PatternEditor {
 					}
 					if (this._doc.song.getChannelIsMod(this._doc.channel) && this.controlMode) {
 						// Link bend to the next note over
-						if (bendPart >= this._cursor.curNote.pins[this._cursor.curNote.pins.length - 1].time) {
+						if (
+							bendPart >=
+							this._cursor.curNote.pins[this._cursor.curNote.pins.length - 1].time
+						) {
 							if (
-								this._cursor.curNote.start + this._cursor.curNote.pins[this._cursor.curNote.pins.length - 1].time <
+								this._cursor.curNote.start +
+									this._cursor.curNote.pins[this._cursor.curNote.pins.length - 1]
+										.time <
 								this._doc.song.beatsPerBar * Config.partsPerBeat
 							) {
 								for (const note of this._pattern!.notes) {
 									if (
-										note.start === this._cursor.curNote.start + this._cursor.curNote.pins[this._cursor.curNote.pins.length - 1].time &&
+										note.start ===
+											this._cursor.curNote.start +
+												this._cursor.curNote.pins[
+													this._cursor.curNote.pins.length - 1
+												].time &&
 										note.pitches[0] === this._cursor.curNote.pitches[0]
 									) {
-										sequence.append(new ChangeSizeBend(this._doc, note, note.pins[0].time, bendSize, bendInterval, this.shiftMode));
+										sequence.append(
+											new ChangeSizeBend(
+												this._doc,
+												note,
+												note.pins[0].time,
+												bendSize,
+												bendInterval,
+												this.shiftMode,
+											),
+										);
 									}
 								}
 							} else {
 								// Try to bend to the next pattern over. Only do this if a note starts at 0, and instrument is identical in next pattern.
 								const nextPattern: Pattern | null = this._doc.getCurrentPattern(1);
 
-								if (nextPattern != null && nextPattern.instruments[0] === this._pattern!.instruments[0]) {
+								if (
+									nextPattern != null &&
+									nextPattern.instruments[0] === this._pattern!.instruments[0]
+								) {
 									for (const note of nextPattern.notes) {
-										if (note.start === 0 && note.pitches[0] === this._cursor.curNote.pitches[0]) {
-											sequence.append(new ChangeSizeBend(this._doc, note, note.pins[0].time, bendSize, bendInterval, this.shiftMode));
+										if (
+											note.start === 0 &&
+											note.pitches[0] === this._cursor.curNote.pitches[0]
+										) {
+											sequence.append(
+												new ChangeSizeBend(
+													this._doc,
+													note,
+													note.pins[0].time,
+													bendSize,
+													bendInterval,
+													this.shiftMode,
+												),
+											);
 										}
 									}
 								}
@@ -2856,9 +3559,19 @@ export class PatternEditor {
 						else if (bendPart <= this._cursor.curNote.pins[0].time) {
 							if (this._cursor.curNote.start > 0) {
 								for (const note of this._pattern!.notes) {
-									if (note.end === this._cursor.curNote.start && note.pitches[0] === this._cursor.curNote.pitches[0]) {
+									if (
+										note.end === this._cursor.curNote.start &&
+										note.pitches[0] === this._cursor.curNote.pitches[0]
+									) {
 										sequence.append(
-											new ChangeSizeBend(this._doc, note, note.pins[note.pins.length - 1].time, bendSize, bendInterval, this.shiftMode),
+											new ChangeSizeBend(
+												this._doc,
+												note,
+												note.pins[note.pins.length - 1].time,
+												bendSize,
+												bendInterval,
+												this.shiftMode,
+											),
 										);
 									}
 								}
@@ -2866,10 +3579,14 @@ export class PatternEditor {
 								// Try to bend to the previous pattern over. Only do this if a note starts at the end, and instrument is identical in previous pattern.
 								const prevPattern: Pattern | null = this._doc.getCurrentPattern(-1);
 
-								if (prevPattern != null && prevPattern.instruments[0] === this._pattern!.instruments[0]) {
+								if (
+									prevPattern != null &&
+									prevPattern.instruments[0] === this._pattern!.instruments[0]
+								) {
 									for (const note of prevPattern.notes) {
 										if (
-											note.end === this._doc.song.beatsPerBar * Config.partsPerBeat &&
+											note.end ===
+												this._doc.song.beatsPerBar * Config.partsPerBeat &&
 											note.pitches[0] === this._cursor.curNote.pitches[0]
 										) {
 											sequence.append(
@@ -2890,11 +3607,23 @@ export class PatternEditor {
 					}
 
 					this._dragTime = this._cursor.curNote.start + bendPart;
-					this._dragPitch = this._cursor.curNote.pitches[this._cursor.pitchIndex === -1 ? 0 : this._cursor.pitchIndex] + bendInterval;
+					this._dragPitch =
+						this._cursor.curNote.pitches[
+							this._cursor.pitchIndex === -1 ? 0 : this._cursor.pitchIndex
+						] + bendInterval;
 					this._dragSize = bendSize;
 					this._dragVisible = true;
 
-					sequence.append(new ChangeSizeBend(this._doc, this._cursor.curNote, bendPart, bendSize, bendInterval, this.shiftMode));
+					sequence.append(
+						new ChangeSizeBend(
+							this._doc,
+							this._cursor.curNote,
+							bendPart,
+							bendSize,
+							bendInterval,
+							this.shiftMode,
+						),
+					);
 					this._copyPins(this._cursor.curNote);
 				} else {
 					sequence.append(new ChangePatternSelection(this._doc, 0, 0));
@@ -2909,7 +3638,10 @@ export class PatternEditor {
 						bendStart = Math.max(this._cursor.curNote.start, this._cursor.part);
 						bendEnd = currentPart + minDivision;
 					} else {
-						bendStart = Math.min(this._cursor.curNote.end, this._cursor.part + minDivision);
+						bendStart = Math.min(
+							this._cursor.curNote.end,
+							this._cursor.part + minDivision,
+						);
 						bendEnd = currentPart;
 					}
 					if (bendEnd < 0) bendEnd = 0;
@@ -2917,10 +3649,26 @@ export class PatternEditor {
 						bendEnd = this._doc.song.beatsPerBar * Config.partsPerBeat;
 					}
 					if (bendEnd > this._cursor.curNote.end) {
-						sequence.append(new ChangeNoteTruncate(this._doc, this._pattern, this._cursor.curNote.start, bendEnd, this._cursor.curNote));
+						sequence.append(
+							new ChangeNoteTruncate(
+								this._doc,
+								this._pattern,
+								this._cursor.curNote.start,
+								bendEnd,
+								this._cursor.curNote,
+							),
+						);
 					}
 					if (bendEnd < this._cursor.curNote.start) {
-						sequence.append(new ChangeNoteTruncate(this._doc, this._pattern, bendEnd, this._cursor.curNote.end, this._cursor.curNote));
+						sequence.append(
+							new ChangeNoteTruncate(
+								this._doc,
+								this._pattern,
+								bendEnd,
+								this._cursor.curNote.end,
+								this._cursor.curNote,
+							),
+						);
 					}
 
 					let minPitch: number = Number.MAX_VALUE;
@@ -2933,12 +3681,38 @@ export class PatternEditor {
 					maxPitch -= this._cursor.curNote.pitches[this._cursor.pitchIndex];
 
 					if (!this._doc.song.getChannelIsMod(this._doc.channel)) {
-						const bendTo: number = this._snapToPitch(this._findMousePitch(this._mouseY), -minPitch, this._getMaxPitch() - maxPitch);
-						sequence.append(new ChangePitchBend(this._doc, this._cursor.curNote, bendStart, bendEnd, bendTo, this._cursor.pitchIndex));
+						const bendTo: number = this._snapToPitch(
+							this._findMousePitch(this._mouseY),
+							-minPitch,
+							this._getMaxPitch() - maxPitch,
+						);
+						sequence.append(
+							new ChangePitchBend(
+								this._doc,
+								this._cursor.curNote,
+								bendStart,
+								bendEnd,
+								bendTo,
+								this._cursor.pitchIndex,
+							),
+						);
 						this._dragPitch = bendTo;
 					} else {
-						const bendTo: number = this._snapToPitch(this._dragPitch, -minPitch, Config.modCount - 1);
-						sequence.append(new ChangePitchBend(this._doc, this._cursor.curNote, bendStart, bendEnd, bendTo, this._cursor.pitchIndex));
+						const bendTo: number = this._snapToPitch(
+							this._dragPitch,
+							-minPitch,
+							Config.modCount - 1,
+						);
+						sequence.append(
+							new ChangePitchBend(
+								this._doc,
+								this._cursor.curNote,
+								bendStart,
+								bendEnd,
+								bendTo,
+								this._cursor.pitchIndex,
+							),
+						);
 						this._dragPitch = bendTo;
 					}
 					this._copyPins(this._cursor.curNote);
@@ -2965,9 +3739,15 @@ export class PatternEditor {
 				this._dragChange = null;
 				// Need to re-sort the notes by start time as they might change order if user drags them around.
 				if (this._pattern != null && this._doc.song.getChannelIsMod(this._doc.channel)) {
-					this._pattern.notes.sort((a, b) => (a.start === b.start ? a.pitches[0] - b.pitches[0] : a.start - b.start));
+					this._pattern.notes.sort((a, b) =>
+						a.start === b.start ? a.pitches[0] - b.pitches[0] : a.start - b.start,
+					);
 				}
-			} else if (this._draggingStartOfSelection || this._draggingEndOfSelection || this._shiftHeld) {
+			} else if (
+				this._draggingStartOfSelection ||
+				this._draggingEndOfSelection ||
+				this._shiftHeld
+			) {
 				this._setPatternSelection(this._dragChange);
 				this._dragChange = null;
 			} else if (
@@ -2983,7 +3763,9 @@ export class PatternEditor {
 				this._dragChange = null;
 				// Need to re-sort the notes by start time as they might change order if user drags them around.
 				if (this._pattern != null && this._doc.song.getChannelIsMod(this._doc.channel)) {
-					this._pattern.notes.sort((a, b) => (a.start === b.start ? a.pitches[0] - b.pitches[0] : a.start - b.start));
+					this._pattern.notes.sort((a, b) =>
+						a.start === b.start ? a.pitches[0] - b.pitches[0] : a.start - b.start,
+					);
 				}
 			} else {
 				if (this._pattern == null) throw new Error();
@@ -2993,18 +3775,47 @@ export class PatternEditor {
 
 				if (this._cursor.pitchIndex === -1) {
 					if (this._cursor.curNote.pitches.length === Config.maxChordSize) {
-						sequence.append(new ChangePitchAdded(this._doc, this._cursor.curNote, this._cursor.curNote.pitches[0], 0, true));
+						sequence.append(
+							new ChangePitchAdded(
+								this._doc,
+								this._cursor.curNote,
+								this._cursor.curNote.pitches[0],
+								0,
+								true,
+							),
+						);
 					}
-					sequence.append(new ChangePitchAdded(this._doc, this._cursor.curNote, this._cursor.pitch, this._cursor.curNote.pitches.length));
+					sequence.append(
+						new ChangePitchAdded(
+							this._doc,
+							this._cursor.curNote,
+							this._cursor.pitch,
+							this._cursor.curNote.pitches.length,
+						),
+					);
 					this._copyPins(this._cursor.curNote);
 
 					if (this._doc.prefs.enableNotePreview && !this._doc.synth.playing) {
-						const duration: number = Math.min(Config.partsPerBeat, this._cursor.end - this._cursor.start);
-						this._doc.performance.setTemporaryPitches(this._cursor.curNote.pitches, duration);
+						const duration: number = Math.min(
+							Config.partsPerBeat,
+							this._cursor.end - this._cursor.start,
+						);
+						this._doc.performance.setTemporaryPitches(
+							this._cursor.curNote.pitches,
+							duration,
+						);
 					}
 				} else {
 					if (this._cursor.curNote.pitches.length === 1) {
-						sequence.append(new ChangeNoteAdded(this._doc, this._pattern, this._cursor.curNote, this._cursor.curIndex, true));
+						sequence.append(
+							new ChangeNoteAdded(
+								this._doc,
+								this._pattern,
+								this._cursor.curNote,
+								this._cursor.curIndex,
+								true,
+							),
+						);
 					} else {
 						sequence.append(
 							new ChangePitchAdded(
@@ -3088,11 +3899,17 @@ export class PatternEditor {
 			const scale: number = newLength / oldLength;
 			const scaledPins: NotePin[] = [];
 			for (const pin of this._copiedPins) {
-				scaledPins.push(makeNotePin(pin.interval, this._snapToMinDivision(pin.time * scale), pin.size));
+				scaledPins.push(
+					makeNotePin(pin.interval, this._snapToMinDivision(pin.time * scale), pin.size),
+				);
 			}
 			// Guarantee the terminal pin lands exactly on the new length so the
 			// default-length derivation in _updateCursorStatus stays consistent.
-			scaledPins[scaledPins.length - 1] = makeNotePin(0, newLength, scaledPins[scaledPins.length - 1].size);
+			scaledPins[scaledPins.length - 1] = makeNotePin(
+				0,
+				newLength,
+				scaledPins[scaledPins.length - 1].size,
+			);
 			this._copiedPins = scaledPins;
 			this._copiedPinChannels[this._doc.channel] = scaledPins;
 
@@ -3170,22 +3987,37 @@ export class PatternEditor {
 				this._svgPreview.setAttribute("visibility", "visible");
 
 				if (this._cursorAtStartOfSelection()) {
-					const center: number = this._partWidth * this._doc.selection.patternSelectionStart;
+					const center: number =
+						this._partWidth * this._doc.selection.patternSelectionStart;
 					const left: string = prettyNumber(center - 4);
 					const right: string = prettyNumber(center + 4);
 					const bottom: number = this._pitchToPixelHeight(-0.5);
-					this._svgPreview.setAttribute("d", `M ${left} 0 L ${left} ${bottom} L ${right} ${bottom} L ${right} 0 z`);
+					this._svgPreview.setAttribute(
+						"d",
+						`M ${left} 0 L ${left} ${bottom} L ${right} ${bottom} L ${right} 0 z`,
+					);
 				} else if (this._cursorAtEndOfSelection()) {
-					const center: number = this._partWidth * this._doc.selection.patternSelectionEnd;
+					const center: number =
+						this._partWidth * this._doc.selection.patternSelectionEnd;
 					const left: string = prettyNumber(center - 4);
 					const right: string = prettyNumber(center + 4);
 					const bottom: number = this._pitchToPixelHeight(-0.5);
-					this._svgPreview.setAttribute("d", `M ${left} 0 L ${left} ${bottom} L ${right} ${bottom} L ${right} 0 z`);
+					this._svgPreview.setAttribute(
+						"d",
+						`M ${left} 0 L ${left} ${bottom} L ${right} ${bottom} L ${right} 0 z`,
+					);
 				} else if (this._cursorIsInSelection()) {
-					const left: string = prettyNumber(this._partWidth * this._doc.selection.patternSelectionStart - 2);
-					const right: string = prettyNumber(this._partWidth * this._doc.selection.patternSelectionEnd + 2);
+					const left: string = prettyNumber(
+						this._partWidth * this._doc.selection.patternSelectionStart - 2,
+					);
+					const right: string = prettyNumber(
+						this._partWidth * this._doc.selection.patternSelectionEnd + 2,
+					);
 					const bottom: number = this._pitchToPixelHeight(-0.5);
-					this._svgPreview.setAttribute("d", `M ${left} 0 L ${left} ${bottom} L ${right} ${bottom} L ${right} 0 z`);
+					this._svgPreview.setAttribute(
+						"d",
+						`M ${left} 0 L ${left} ${bottom} L ${right} ${bottom} L ${right} 0 z`,
+					);
 				} else {
 					this._drawNote(
 						this._svgPreview,
@@ -3204,10 +4036,17 @@ export class PatternEditor {
 	private _updateSelection(): void {
 		if (this._doc.selection.patternSelectionActive) {
 			this._selectionRect.setAttribute("visibility", "visible");
-			this._selectionRect.setAttribute("x", String(this._partWidth * this._doc.selection.patternSelectionStart));
+			this._selectionRect.setAttribute(
+				"x",
+				String(this._partWidth * this._doc.selection.patternSelectionStart),
+			);
 			this._selectionRect.setAttribute(
 				"width",
-				String(this._partWidth * (this._doc.selection.patternSelectionEnd - this._doc.selection.patternSelectionStart)),
+				String(
+					this._partWidth *
+						(this._doc.selection.patternSelectionEnd -
+							this._doc.selection.patternSelectionStart),
+				),
 			);
 		} else {
 			this._selectionRect.setAttribute("visibility", "hidden");
@@ -3220,7 +4059,8 @@ export class PatternEditor {
 			// editor background on top of the notes that will be silent due to
 			// the use of the note range effect.
 
-			const instruments: Instrument[] = this._doc.song.channels[this._doc.channel].instruments;
+			const instruments: Instrument[] =
+				this._doc.song.channels[this._doc.channel].instruments;
 			const pattern: Pattern | null = this._doc.getCurrentPattern(this._barOffset);
 
 			let anyNoteRangeIsDifferent: boolean = false;
@@ -3240,16 +4080,19 @@ export class PatternEditor {
 				if (i < instruments.length) {
 					const instrument: Instrument = instruments[i];
 
-					const instrumentIsActiveForThisPattern: boolean = this._doc.song.patternInstruments
+					const instrumentIsActiveForThisPattern: boolean = this._doc.song
+						.patternInstruments
 						? pattern == null
 							? // On 0 patterns we should use whatever the editor
 								// has for active instruments.
-								this._doc.recentPatternInstruments[this._doc.channel].indexOf(i) !== -1
+								this._doc.recentPatternInstruments[this._doc.channel].indexOf(i) !==
+								-1
 							: pattern.instruments.indexOf(i) !== -1
 						: true;
 
 					const noteRangeEnabled: boolean = effectsIncludeNoteRange(instrument.effects);
-					const noteRangeIsEmpty: boolean = instrument.lowerNoteLimit > instrument.upperNoteLimit;
+					const noteRangeIsEmpty: boolean =
+						instrument.lowerNoteLimit > instrument.upperNoteLimit;
 
 					if (noteRangeEnabled) {
 						anyNoteRangeIsEnabled = true;
@@ -3282,7 +4125,10 @@ export class PatternEditor {
 					}
 				}
 
-				if (newLowerNoteLimit !== oldLowerNoteLimit || newUpperNoteLimit !== oldUpperNoteLimit) {
+				if (
+					newLowerNoteLimit !== oldLowerNoteLimit ||
+					newUpperNoteLimit !== oldUpperNoteLimit
+				) {
 					anyNoteRangeIsDifferent = true;
 
 					renderedNoteRange[0] = newLowerNoteLimit;
@@ -3310,12 +4156,19 @@ export class PatternEditor {
 				this._renderedNoteRangesMerged[0][0] = this._renderedNoteRangesSorted[0][0];
 				this._renderedNoteRangesMerged[0][1] = this._renderedNoteRangesSorted[0][1];
 
-				this._renderedNoteRangeLowestNoteLimit = Math.min(this._renderedNoteRangeLowestNoteLimit, this._renderedNoteRangesMerged[0][0]);
-				this._renderedNoteRangeHighestNoteLimit = Math.max(this._renderedNoteRangeHighestNoteLimit, this._renderedNoteRangesMerged[0][1]);
+				this._renderedNoteRangeLowestNoteLimit = Math.min(
+					this._renderedNoteRangeLowestNoteLimit,
+					this._renderedNoteRangesMerged[0][0],
+				);
+				this._renderedNoteRangeHighestNoteLimit = Math.max(
+					this._renderedNoteRangeHighestNoteLimit,
+					this._renderedNoteRangesMerged[0][1],
+				);
 
 				for (let i: number = 1; i < this._maximumNoteRanges; i++) {
 					const range: [number, number] = this._renderedNoteRangesSorted[i];
-					const noteRangeToMergeWith: [number, number] = this._renderedNoteRangesMerged[indexOfRangeToMergeWith];
+					const noteRangeToMergeWith: [number, number] =
+						this._renderedNoteRangesMerged[indexOfRangeToMergeWith];
 
 					const isValid: boolean = range[0] !== -1;
 					if (!isValid) {
@@ -3325,26 +4178,47 @@ export class PatternEditor {
 						break;
 					}
 
-					const shouldMerge: boolean = noteRangesOverlap(range, noteRangeToMergeWith) || noteRangesAreNextToEachOther(range, noteRangeToMergeWith);
+					const shouldMerge: boolean =
+						noteRangesOverlap(range, noteRangeToMergeWith) ||
+						noteRangesAreNextToEachOther(range, noteRangeToMergeWith);
 
 					if (shouldMerge) {
-						const newLowerNoteLimit: number = Math.min(range[0], noteRangeToMergeWith[0]);
-						const newUpperNoteLimit: number = Math.max(range[1], noteRangeToMergeWith[1]);
+						const newLowerNoteLimit: number = Math.min(
+							range[0],
+							noteRangeToMergeWith[0],
+						);
+						const newUpperNoteLimit: number = Math.max(
+							range[1],
+							noteRangeToMergeWith[1],
+						);
 
 						noteRangeToMergeWith[0] = newLowerNoteLimit;
 						noteRangeToMergeWith[1] = newUpperNoteLimit;
 
-						this._renderedNoteRangeLowestNoteLimit = Math.min(this._renderedNoteRangeLowestNoteLimit, noteRangeToMergeWith[0]);
-						this._renderedNoteRangeHighestNoteLimit = Math.max(this._renderedNoteRangeHighestNoteLimit, noteRangeToMergeWith[1]);
+						this._renderedNoteRangeLowestNoteLimit = Math.min(
+							this._renderedNoteRangeLowestNoteLimit,
+							noteRangeToMergeWith[0],
+						);
+						this._renderedNoteRangeHighestNoteLimit = Math.max(
+							this._renderedNoteRangeHighestNoteLimit,
+							noteRangeToMergeWith[1],
+						);
 					} else {
 						indexOfRangeToMergeWith++;
 
-						const appendedRange: [number, number] = this._renderedNoteRangesMerged[indexOfRangeToMergeWith];
+						const appendedRange: [number, number] =
+							this._renderedNoteRangesMerged[indexOfRangeToMergeWith];
 						appendedRange[0] = range[0];
 						appendedRange[1] = range[1];
 
-						this._renderedNoteRangeLowestNoteLimit = Math.min(this._renderedNoteRangeLowestNoteLimit, appendedRange[0]);
-						this._renderedNoteRangeHighestNoteLimit = Math.max(this._renderedNoteRangeHighestNoteLimit, appendedRange[1]);
+						this._renderedNoteRangeLowestNoteLimit = Math.min(
+							this._renderedNoteRangeLowestNoteLimit,
+							appendedRange[0],
+						);
+						this._renderedNoteRangeHighestNoteLimit = Math.max(
+							this._renderedNoteRangeHighestNoteLimit,
+							appendedRange[1],
+						);
 					}
 				}
 
@@ -3393,18 +4267,27 @@ export class PatternEditor {
 
 							const rectY0: number = Math.min(
 								height,
-								Math.max(0, this._pitchToPixelHeight(lowerB - 1 - this._octaveOffset) - this._pitchHeight / 2),
+								Math.max(
+									0,
+									this._pitchToPixelHeight(lowerB - 1 - this._octaveOffset) -
+										this._pitchHeight / 2,
+								),
 							);
 							const rectY1: number = Math.min(
 								height,
-								Math.max(0, this._pitchToPixelHeight(upperA + 1 - this._octaveOffset) + this._pitchHeight / 2),
+								Math.max(
+									0,
+									this._pitchToPixelHeight(upperA + 1 - this._octaveOffset) +
+										this._pitchHeight / 2,
+								),
 							);
 
 							const rectIsVisible: boolean =
 								((lowerA >= lowestNoteVisible && lowerA <= highestNoteVisible) ||
 									(upperA >= lowestNoteVisible && upperA <= highestNoteVisible) ||
 									(lowerB >= lowestNoteVisible && lowerB <= highestNoteVisible) ||
-									(upperB >= lowestNoteVisible && upperB <= highestNoteVisible)) &&
+									(upperB >= lowestNoteVisible &&
+										upperB <= highestNoteVisible)) &&
 								rectY0 < rectY1;
 
 							if (rectIsVisible) {
@@ -3416,10 +4299,17 @@ export class PatternEditor {
 						const topY0: number = 0;
 						const topY1: number = Math.min(
 							height,
-							Math.max(0, this._pitchToPixelHeight(this._renderedNoteRangeHighestNoteLimit - this._octaveOffset) - this._pitchHeight / 2),
+							Math.max(
+								0,
+								this._pitchToPixelHeight(
+									this._renderedNoteRangeHighestNoteLimit - this._octaveOffset,
+								) -
+									this._pitchHeight / 2,
+							),
 						);
 
-						const topIsVisible: boolean = this._renderedNoteRangeHighestNoteLimit !== -1 && topY0 < topY1;
+						const topIsVisible: boolean =
+							this._renderedNoteRangeHighestNoteLimit !== -1 && topY0 < topY1;
 
 						if (topIsVisible) {
 							path += ` M 0 ${topY0} L ${width} ${topY0} L ${width} ${topY1} L 0 ${topY1} z`;
@@ -3427,11 +4317,18 @@ export class PatternEditor {
 
 						const bottomY0: number = Math.min(
 							height,
-							Math.max(0, this._pitchToPixelHeight(this._renderedNoteRangeLowestNoteLimit - this._octaveOffset) + this._pitchHeight / 2),
+							Math.max(
+								0,
+								this._pitchToPixelHeight(
+									this._renderedNoteRangeLowestNoteLimit - this._octaveOffset,
+								) +
+									this._pitchHeight / 2,
+							),
 						);
 						const bottomY1: number = height;
 
-						const bottomIsVisible: boolean = this._renderedNoteRangeLowestNoteLimit !== -1 && bottomY0 < bottomY1;
+						const bottomIsVisible: boolean =
+							this._renderedNoteRangeLowestNoteLimit !== -1 && bottomY0 < bottomY1;
 
 						if (bottomIsVisible) {
 							path += ` M 0 ${bottomY0} L ${width} ${bottomY0} L ${width} ${bottomY1} L 0 ${bottomY1} z`;
@@ -3452,9 +4349,15 @@ export class PatternEditor {
 		const nextPattern: Pattern | null = this._doc.getCurrentPattern(this._barOffset);
 
 		if (this._pattern !== nextPattern) {
-			if (this._doc.song.getChannelIsMod(this._doc.channel) && this._interactive && nextPattern != null) {
+			if (
+				this._doc.song.getChannelIsMod(this._doc.channel) &&
+				this._interactive &&
+				nextPattern != null
+			) {
 				// Need to re-sort the notes by start time as they might change order if user drags them around.
-				nextPattern.notes.sort((a, b) => (a.start === b.start ? a.pitches[0] - b.pitches[0] : a.start - b.start));
+				nextPattern.notes.sort((a, b) =>
+					a.start === b.start ? a.pitches[0] - b.pitches[0] : a.start - b.start,
+				);
 			}
 			if (this._pattern != null) {
 				this._dragChange = null;
@@ -3467,7 +4370,9 @@ export class PatternEditor {
 		this._editorHeight = this.container.clientHeight;
 		this._partWidth = this._editorWidth / (this._doc.song.beatsPerBar * Config.partsPerBeat);
 		this._octaveOffset =
-			this._doc.channel >= this._doc.song.pitchChannelCount ? 0 : this._doc.song.channels[this._doc.channel].octave * Config.pitchesPerOctave;
+			this._doc.channel >= this._doc.song.pitchChannelCount
+				? 0
+				: this._doc.song.channels[this._doc.channel].octave * Config.pitchesPerOctave;
 
 		if (this._doc.song.getChannelIsNoise(this._doc.channel)) {
 			this._pitchBorder = 0;
@@ -3480,7 +4385,12 @@ export class PatternEditor {
 				// Force max height of mod channels to conform to settings.
 				for (const note of this._pattern.notes) {
 					const pitch = note.pitches[0]; // No pitch bend possible in mod channels.
-					const maxHeight: number = this._doc.song.getVolumeCap(true, this._doc.channel, this._doc.getCurrentInstrument(this._barOffset), pitch);
+					const maxHeight: number = this._doc.song.getVolumeCap(
+						true,
+						this._doc.channel,
+						this._doc.getCurrentInstrument(this._barOffset),
+						pitch,
+					);
 					let maxFoundHeight: number = 0;
 					for (const pin of note.pins) {
 						if (pin.size > maxFoundHeight) {
@@ -3502,7 +4412,9 @@ export class PatternEditor {
 
 		this._pitchHeight = this._editorHeight / this._pitchCount;
 		this._octaveOffset =
-			this._doc.channel >= this._doc.song.pitchChannelCount ? 0 : this._doc.getBaseVisibleOctave(this._doc.channel) * Config.pitchesPerOctave;
+			this._doc.channel >= this._doc.song.pitchChannelCount
+				? 0
+				: this._doc.getBaseVisibleOctave(this._doc.channel) * Config.pitchesPerOctave;
 
 		if (
 			this._renderedRhythm !== this._doc.song.rhythm ||
@@ -3520,7 +4432,10 @@ export class PatternEditor {
 		this._copiedPins = this._copiedPinChannels[this._doc.channel];
 
 		let wasResized: boolean = false;
-		if (this._renderedWidth !== this._editorWidth || this._renderedHeight !== this._editorHeight) {
+		if (
+			this._renderedWidth !== this._editorWidth ||
+			this._renderedHeight !== this._editorHeight
+		) {
 			wasResized = true;
 			this._renderedWidth = this._editorWidth;
 			this._renderedHeight = this._editorHeight;
@@ -3532,12 +4447,18 @@ export class PatternEditor {
 		}
 
 		const beatWidth = this._editorWidth / this._doc.song.beatsPerBar;
-		if (this._renderedBeatWidth !== beatWidth || this._renderedPitchHeight !== this._pitchHeight) {
+		if (
+			this._renderedBeatWidth !== beatWidth ||
+			this._renderedPitchHeight !== this._pitchHeight
+		) {
 			wasResized = true;
 			this._renderedBeatWidth = beatWidth;
 			this._renderedPitchHeight = this._pitchHeight;
 			this._svgNoteBackground.setAttribute("width", `${beatWidth}`);
-			this._svgNoteBackground.setAttribute("height", `${this._pitchHeight * Config.pitchesPerOctave}`);
+			this._svgNoteBackground.setAttribute(
+				"height",
+				`${this._pitchHeight * Config.pitchesPerOctave}`,
+			);
 			this._svgDrumBackground.setAttribute("width", `${beatWidth}`);
 			this._svgDrumBackground.setAttribute("height", `${this._pitchHeight}`);
 			this._svgModBackground.setAttribute("width", `${beatWidth}`);
@@ -3547,7 +4468,10 @@ export class PatternEditor {
 			this._backgroundDrumRow.setAttribute("height", `${this._pitchHeight - 2}`);
 			if (this._pitchHeight > this._pitchBorder) {
 				this._backgroundModRow.setAttribute("width", `${beatWidth - 2}`);
-				this._backgroundModRow.setAttribute("height", `${this._pitchHeight - this._pitchBorder}`);
+				this._backgroundModRow.setAttribute(
+					"height",
+					`${this._pitchHeight - this._pitchBorder}`,
+				);
 			}
 
 			for (let j: number = 0; j < Config.pitchesPerOctave; j++) {
@@ -3567,12 +4491,17 @@ export class PatternEditor {
 
 		if (this._renderedFifths !== this._doc.prefs.showFifth) {
 			this._renderedFifths = this._doc.prefs.showFifth;
-			this._backgroundPitchRows[7].setAttribute("fill", this._doc.prefs.showFifth ? ColorConfig.fifthNote : ColorConfig.pitchBackground);
+			this._backgroundPitchRows[7].setAttribute(
+				"fill",
+				this._doc.prefs.showFifth ? ColorConfig.fifthNote : ColorConfig.pitchBackground,
+			);
 		}
 
 		for (let j: number = 0; j < Config.pitchesPerOctave; j++) {
 			const scale =
-				this._doc.song.scale === Config.scales.dictionary.Custom.index ? this._doc.song.scaleCustom : Config.scales[this._doc.song.scale].flags;
+				this._doc.song.scale === Config.scales.dictionary.Custom.index
+					? this._doc.song.scaleCustom
+					: Config.scales[this._doc.song.scale].flags;
 
 			this._backgroundPitchRows[j].style.visibility = scale[j] ? "visible" : "hidden";
 		}
@@ -3609,30 +4538,65 @@ export class PatternEditor {
 		if (this._doc.prefs.showChannels) {
 			if (!this._doc.song.getChannelIsMod(this._doc.channel)) {
 				let noteFlashColor: string = "#ffffff77";
-				if (this._doc.prefs.notesFlashWhenPlayed) noteFlashColor = ColorConfig.getComputed("--note-flash-secondary");
-				for (let channel: number = this._doc.song.pitchChannelCount + this._doc.song.noiseChannelCount - 1; channel >= 0; channel--) {
+				if (this._doc.prefs.notesFlashWhenPlayed)
+					noteFlashColor = ColorConfig.getComputed("--note-flash-secondary");
+				for (
+					let channel: number =
+						this._doc.song.pitchChannelCount + this._doc.song.noiseChannelCount - 1;
+					channel >= 0;
+					channel--
+				) {
 					if (channel === this._doc.channel) continue;
-					if (this._doc.song.getChannelIsNoise(channel) !== this._doc.song.getChannelIsNoise(this._doc.channel)) {
+					if (
+						this._doc.song.getChannelIsNoise(channel) !==
+						this._doc.song.getChannelIsNoise(this._doc.channel)
+					) {
 						continue;
 					}
 
-					const pattern2: Pattern | null = this._doc.song.getPattern(channel, this._doc.bar + this._barOffset);
+					const pattern2: Pattern | null = this._doc.song.getPattern(
+						channel,
+						this._doc.bar + this._barOffset,
+					);
 					if (pattern2 == null) continue;
 
-					const octaveOffset: number = this._doc.getBaseVisibleOctave(channel) * Config.pitchesPerOctave;
-					const secondaryColor: string = ColorConfig.getChannelColor(this._doc.song, channel).secondaryNote;
+					const octaveOffset: number =
+						this._doc.getBaseVisibleOctave(channel) * Config.pitchesPerOctave;
+					const secondaryColor: string = ColorConfig.getChannelColor(
+						this._doc.song,
+						channel,
+					).secondaryNote;
 					for (const note of pattern2.notes) {
 						for (const pitch of note.pitches) {
 							// SVG: note body (anti-aliased edges create natural gaps)
-							this._drawNoteToSvg(pitch, note.start, note.pins, this._pitchHeight * 0.19, false, octaveOffset, secondaryColor);
+							this._drawNoteToSvg(
+								pitch,
+								note.start,
+								note.pins,
+								this._pitchHeight * 0.19,
+								false,
+								octaveOffset,
+								secondaryColor,
+							);
 
 							// SVG: persistent envelope overlay for mod/drum channels
-							if (this._doc.song.getChannelIsMod(channel) || this._doc.song.getChannelIsNoise(channel)) {
+							if (
+								this._doc.song.getChannelIsMod(channel) ||
+								this._doc.song.getChannelIsNoise(channel)
+							) {
 								const envPath: SVGPathElement = SVG.path();
 								envPath.setAttribute("fill", "#ffffff");
 								envPath.setAttribute("fill-opacity", "0.15");
 								envPath.setAttribute("pointer-events", "none");
-								this._drawNote(envPath, pitch, note.start, note.pins, this._pitchHeight * 0.19, false, octaveOffset);
+								this._drawNote(
+									envPath,
+									pitch,
+									note.start,
+									note.pins,
+									this._pitchHeight * 0.19,
+									false,
+									octaveOffset,
+								);
 								this._svgNoteContainer.appendChild(envPath);
 							}
 
@@ -3641,15 +4605,27 @@ export class PatternEditor {
 								const notePath: SVGPathElement = SVG.path();
 								notePath.setAttribute("fill", noteFlashColor);
 								notePath.setAttribute("pointer-events", "none");
-								this._drawNote(notePath, pitch, note.start, note.pins, this._pitchHeight * 0.19, false, octaveOffset);
+								this._drawNote(
+									notePath,
+									pitch,
+									note.start,
+									note.pins,
+									this._pitchHeight * 0.19,
+									false,
+									octaveOffset,
+								);
 								this._svgNoteContainer.appendChild(notePath);
 								notePath.classList.add("note-flash");
 								notePath.style.opacity = "0";
 								notePath.setAttribute("note-start", String(note.start));
 								notePath.setAttribute("note-end", String(note.end));
 								this._cachedFlashElements.push(notePath);
-								const totalParts: number = this._doc.song.beatsPerBar * Config.partsPerBeat;
-								this._cachedFlashRanges.push([note.start / totalParts, note.end / totalParts]);
+								const totalParts: number =
+									this._doc.song.beatsPerBar * Config.partsPerBeat;
+								this._cachedFlashRanges.push([
+									note.start / totalParts,
+									note.end / totalParts,
+								]);
 							}
 						}
 					}
@@ -3659,20 +4635,31 @@ export class PatternEditor {
 
 		// --- Current-channel notes ---
 		if (this._pattern != null) {
-			const instrument: Instrument = this._doc.song.channels[this._doc.channel].instruments[this._doc.getCurrentInstrument(this._barOffset)];
+			const instrument: Instrument =
+				this._doc.song.channels[this._doc.channel].instruments[
+					this._doc.getCurrentInstrument(this._barOffset)
+				];
 			const chord: Chord = instrument.getChord();
 			const transition: Transition = instrument.getTransition();
 			const displayNumberedChords: boolean =
-				chord.customInterval || chord.arpeggiates || chord.strumParts > 0 || transition.slides || chord.name === "monophonic";
+				chord.customInterval ||
+				chord.arpeggiates ||
+				chord.strumParts > 0 ||
+				transition.slides ||
+				chord.name === "monophonic";
 			let noteFlashColor: string = "#ffffff";
-			if (this._doc.prefs.notesFlashWhenPlayed) noteFlashColor = ColorConfig.getComputed("--note-flash");
+			if (this._doc.prefs.notesFlashWhenPlayed)
+				noteFlashColor = ColorConfig.getComputed("--note-flash");
 			for (const note of this._pattern.notes) {
 				let disabled: boolean = false;
 				let noteColors = ColorConfig.getChannelColor(this._doc.song, this._doc.channel);
 				if (this._doc.song.getChannelIsMod(this._doc.channel)) {
 					const modSlot: number = Config.modCount - 1 - note.pitches[0];
 					const modIndex: number = instrument.modulators[modSlot];
-					if (modIndex === Config.modulators.dictionary.none.index || instrument.invalidModulators[modSlot]) {
+					if (
+						modIndex === Config.modulators.dictionary.none.index ||
+						instrument.invalidModulators[modSlot]
+					) {
 						disabled = true;
 					}
 					const targetChannel: number = instrument.modChannels[modSlot];
@@ -3680,22 +4667,53 @@ export class PatternEditor {
 						noteColors = ColorConfig.getChannelColor(this._doc.song, targetChannel);
 					}
 				}
-				const colorPrimary: string = disabled ? ColorConfig.disabledNotePrimary : noteColors.primaryNote;
-				const colorSecondary: string = disabled ? ColorConfig.disabledNoteSecondary : noteColors.secondaryNote;
+				const colorPrimary: string = disabled
+					? ColorConfig.disabledNotePrimary
+					: noteColors.primaryNote;
+				const colorSecondary: string = disabled
+					? ColorConfig.disabledNoteSecondary
+					: noteColors.secondaryNote;
 				for (let i: number = 0; i < note.pitches.length; i++) {
 					const pitch: number = note.pitches[i];
 
 					// SVG: secondary fill (anti-aliased edges create natural gaps)
-					this._drawNoteToSvg(pitch, note.start, note.pins, (this._pitchHeight - this._pitchBorder) / 2 + 1, false, this._octaveOffset, colorSecondary);
+					this._drawNoteToSvg(
+						pitch,
+						note.start,
+						note.pins,
+						(this._pitchHeight - this._pitchBorder) / 2 + 1,
+						false,
+						this._octaveOffset,
+						colorSecondary,
+					);
 					// SVG: primary fill
-					this._drawNoteToSvg(pitch, note.start, note.pins, (this._pitchHeight - this._pitchBorder) / 2 + 1, true, this._octaveOffset, colorPrimary);
+					this._drawNoteToSvg(
+						pitch,
+						note.start,
+						note.pins,
+						(this._pitchHeight - this._pitchBorder) / 2 + 1,
+						true,
+						this._octaveOffset,
+						colorPrimary,
+					);
 
 					// SVG: persistent envelope overlay for mod/drum channels
-					if (this._doc.song.getChannelIsMod(this._doc.channel) || this._doc.song.getChannelIsNoise(this._doc.channel)) {
+					if (
+						this._doc.song.getChannelIsMod(this._doc.channel) ||
+						this._doc.song.getChannelIsNoise(this._doc.channel)
+					) {
 						const envPath: SVGPathElement = SVG.path();
 						envPath.setAttribute("fill", "#ffffff");
 						envPath.setAttribute("pointer-events", "none");
-						this._drawNote(envPath, pitch, note.start, note.pins, (this._pitchHeight - this._pitchBorder) / 2 + 1, true, this._octaveOffset);
+						this._drawNote(
+							envPath,
+							pitch,
+							note.start,
+							note.pins,
+							(this._pitchHeight - this._pitchBorder) / 2 + 1,
+							true,
+							this._octaveOffset,
+						);
 						this._svgNoteContainer.appendChild(envPath);
 					}
 
@@ -3704,7 +4722,15 @@ export class PatternEditor {
 						const notePath: SVGPathElement = SVG.path();
 						notePath.setAttribute("fill", noteFlashColor);
 						notePath.setAttribute("pointer-events", "none");
-						this._drawNote(notePath, pitch, note.start, note.pins, (this._pitchHeight - this._pitchBorder) / 2 + 1, true, this._octaveOffset);
+						this._drawNote(
+							notePath,
+							pitch,
+							note.start,
+							note.pins,
+							(this._pitchHeight - this._pitchBorder) / 2 + 1,
+							true,
+							this._octaveOffset,
+						);
 						this._svgNoteContainer.appendChild(notePath);
 						notePath.classList.add("note-flash");
 						notePath.style.opacity = "0";
@@ -3712,7 +4738,10 @@ export class PatternEditor {
 						notePath.setAttribute("note-end", String(note.end));
 						this._cachedFlashElements.push(notePath);
 						const totalParts: number = this._doc.song.beatsPerBar * Config.partsPerBeat;
-						this._cachedFlashRanges.push([note.start / totalParts, note.end / totalParts]);
+						this._cachedFlashRanges.push([
+							note.start / totalParts,
+							note.end / totalParts,
+						]);
 					}
 
 					// SVG: continuation arrow
@@ -3724,22 +4753,34 @@ export class PatternEditor {
 							"M " +
 							prettyNumber(this._partWidth * note.start + indicatorOffset) +
 							" " +
-							prettyNumber(this._pitchToPixelHeight(pitch - this._octaveOffset) - 0.1 * arrowHeight);
+							prettyNumber(
+								this._pitchToPixelHeight(pitch - this._octaveOffset) -
+									0.1 * arrowHeight,
+							);
 						arrowPath +=
 							"L " +
 							prettyNumber(this._partWidth * note.start + indicatorOffset) +
 							" " +
-							prettyNumber(this._pitchToPixelHeight(pitch - this._octaveOffset) + 0.1 * arrowHeight);
+							prettyNumber(
+								this._pitchToPixelHeight(pitch - this._octaveOffset) +
+									0.1 * arrowHeight,
+							);
 						arrowPath +=
 							"L " +
 							prettyNumber(this._partWidth * note.start + indicatorOffset + 4) +
 							" " +
-							prettyNumber(this._pitchToPixelHeight(pitch - this._octaveOffset) + 0.1 * arrowHeight);
+							prettyNumber(
+								this._pitchToPixelHeight(pitch - this._octaveOffset) +
+									0.1 * arrowHeight,
+							);
 						arrowPath +=
 							"L " +
 							prettyNumber(this._partWidth * note.start + indicatorOffset + 4) +
 							" " +
-							prettyNumber(this._pitchToPixelHeight(pitch - this._octaveOffset) + 0.3 * arrowHeight);
+							prettyNumber(
+								this._pitchToPixelHeight(pitch - this._octaveOffset) +
+									0.3 * arrowHeight,
+							);
 						arrowPath +=
 							"L " +
 							prettyNumber(this._partWidth * note.start + indicatorOffset + 12) +
@@ -3749,12 +4790,18 @@ export class PatternEditor {
 							"L " +
 							prettyNumber(this._partWidth * note.start + indicatorOffset + 4) +
 							" " +
-							prettyNumber(this._pitchToPixelHeight(pitch - this._octaveOffset) - 0.3 * arrowHeight);
+							prettyNumber(
+								this._pitchToPixelHeight(pitch - this._octaveOffset) -
+									0.3 * arrowHeight,
+							);
 						arrowPath +=
 							"L " +
 							prettyNumber(this._partWidth * note.start + indicatorOffset + 4) +
 							" " +
-							prettyNumber(this._pitchToPixelHeight(pitch - this._octaveOffset) - 0.1 * arrowHeight);
+							prettyNumber(
+								this._pitchToPixelHeight(pitch - this._octaveOffset) -
+									0.1 * arrowHeight,
+							);
 						const arrow: SVGPathElement = SVG.path();
 						arrow.setAttribute("d", arrowPath);
 						arrow.setAttribute("fill", ColorConfig.invertedText);
@@ -3766,8 +4813,14 @@ export class PatternEditor {
 					if (note.pitches.length > 1) {
 						if (displayNumberedChords) {
 							const oscillatorLabel: SVGTextElement = SVG.text();
-							oscillatorLabel.setAttribute("x", `${prettyNumber(this._partWidth * note.start + indicatorOffset)}`);
-							oscillatorLabel.setAttribute("y", `${prettyNumber(this._pitchToPixelHeight(pitch - this._octaveOffset))}`);
+							oscillatorLabel.setAttribute(
+								"x",
+								`${prettyNumber(this._partWidth * note.start + indicatorOffset)}`,
+							);
+							oscillatorLabel.setAttribute(
+								"y",
+								`${prettyNumber(this._pitchToPixelHeight(pitch - this._octaveOffset))}`,
+							);
 							oscillatorLabel.setAttribute("width", "30");
 							oscillatorLabel.setAttribute("fill", ColorConfig.invertedText);
 							oscillatorLabel.setAttribute("text-anchor", "start");
@@ -3779,30 +4832,54 @@ export class PatternEditor {
 					}
 				}
 
-				if (this._doc.song.getChannelIsMod(this._doc.channel) && this._mouseDragging && !this._mouseHorizontal && note === this._cursor.curNote) {
+				if (
+					this._doc.song.getChannelIsMod(this._doc.channel) &&
+					this._mouseDragging &&
+					!this._mouseHorizontal &&
+					note === this._cursor.curNote
+				) {
 					this.modDragValueLabel.style.setProperty("display", "");
 					this.modDragValueLabel.style.setProperty("pointer-events", "none");
 					this.modDragValueLabel.setAttribute("contenteditable", "false");
 					this.modDragValueLabel.style.setProperty("color", "#FFFFFF");
 					const setting: number =
-						this._doc.song.channels[this._doc.channel].instruments[this._doc.getCurrentInstrument(this._barOffset)].modulators[
-							Config.modCount - 1 - note.pitches[0]
-						];
-					const presValue: number = this._dragSize + Config.modulators[setting].convertRealFactor;
+						this._doc.song.channels[this._doc.channel].instruments[
+							this._doc.getCurrentInstrument(this._barOffset)
+						].modulators[Config.modCount - 1 - note.pitches[0]];
+					const presValue: number =
+						this._dragSize + Config.modulators[setting].convertRealFactor;
 
 					// This is me being too lazy to fiddle with the css to get it to align center.
-					const xOffset: number = +(presValue >= 10.0) + +(presValue >= 100.0) + +(presValue < 0.0) + +(presValue <= -10.0);
+					const xOffset: number =
+						+(presValue >= 10.0) +
+						+(presValue >= 100.0) +
+						+(presValue < 0.0) +
+						+(presValue <= -10.0);
 
 					this._modDragValueLabelWidth = 8 + xOffset * 8;
 					this._modDragValueLabelLeft = +prettyNumber(
-						Math.max(Math.min(this._editorWidth - 10 - xOffset * 8, this._partWidth * this._dragTime - 4 - xOffset * 4), 2),
+						Math.max(
+							Math.min(
+								this._editorWidth - 10 - xOffset * 8,
+								this._partWidth * this._dragTime - 4 - xOffset * 4,
+							),
+							2,
+						),
 					);
 					this._modDragValueLabelTop = +prettyNumber(
-						this._pitchToPixelHeight(note.pitches[0] - this._octaveOffset) - 17 - (this._pitchHeight - this._pitchBorder) / 2,
+						this._pitchToPixelHeight(note.pitches[0] - this._octaveOffset) -
+							17 -
+							(this._pitchHeight - this._pitchBorder) / 2,
 					);
 
-					this.modDragValueLabel.style.setProperty("left", `${this._modDragValueLabelLeft}px`);
-					this.modDragValueLabel.style.setProperty("top", `${this._modDragValueLabelTop}px`);
+					this.modDragValueLabel.style.setProperty(
+						"left",
+						`${this._modDragValueLabelLeft}px`,
+					);
+					this.modDragValueLabel.style.setProperty(
+						"top",
+						`${this._modDragValueLabelTop}px`,
+					);
 					this.modDragValueLabel.textContent = `${presValue}`;
 				}
 			}
@@ -3817,7 +4894,15 @@ export class PatternEditor {
 		this._doc.currentPatternIsDirty = false;
 	}
 
-	private _drawNote(svgElement: SVGPathElement, pitch: number, start: number, pins: NotePin[], radius: number, showSize: boolean, offset: number): void {
+	private _drawNote(
+		svgElement: SVGPathElement,
+		pitch: number,
+		start: number,
+		pins: NotePin[],
+		radius: number,
+		showSize: boolean,
+		offset: number,
+	): void {
 		const totalWidth: number = this._partWidth * (pins[pins.length - 1].time + pins[0].time);
 		const endOffset: number = 0.5 * Math.min(2, totalWidth - 1);
 
@@ -3832,7 +4917,8 @@ export class PatternEditor {
 
 		// Compute y-center using snapped-to-pixel y, matching _drawNoteToCanvas
 		// fast-path center so the SVG envelope overlay aligns with the canvas note body.
-		const snap: (v: number) => number = (v: number): number => Math.round(v * (this._dpr || 1)) / (this._dpr || 1);
+		const snap: (v: number) => number = (v: number): number =>
+			Math.round(v * (this._dpr || 1)) / (this._dpr || 1);
 		const centerY: number = snap(this._pitchToPixelHeight(pitch - offset));
 
 		let pathString: string =
@@ -3845,8 +4931,10 @@ export class PatternEditor {
 		for (let i: number = 1; i < pins.length; i++) {
 			const prevPin: NotePin = nextPin;
 			nextPin = pins[i];
-			const prevSide: number = this._partWidth * (start + prevPin.time) + (i === 1 ? endOffset : 0);
-			const nextSide: number = this._partWidth * (start + nextPin.time) - (i === pins.length - 1 ? endOffset : 0);
+			const prevSide: number =
+				this._partWidth * (start + prevPin.time) + (i === 1 ? endOffset : 0);
+			const nextSide: number =
+				this._partWidth * (start + nextPin.time) - (i === pins.length - 1 ? endOffset : 0);
 			const prevHeight: number = this._pitchToPixelHeight(pitch + prevPin.interval - offset);
 			const nextHeight: number = this._pitchToPixelHeight(pitch + nextPin.interval - offset);
 			const prevSize: number = showSize ? prevPin.size / cap : 1.0;
@@ -3863,8 +4951,10 @@ export class PatternEditor {
 		for (let i: number = pins.length - 2; i >= 0; i--) {
 			const prevPin: NotePin = nextPin;
 			nextPin = pins[i];
-			const prevSide: number = this._partWidth * (start + prevPin.time) - (i === pins.length - 2 ? endOffset : 0);
-			const nextSide: number = this._partWidth * (start + nextPin.time) + (i === 0 ? endOffset : 0);
+			const prevSide: number =
+				this._partWidth * (start + prevPin.time) - (i === pins.length - 2 ? endOffset : 0);
+			const nextSide: number =
+				this._partWidth * (start + nextPin.time) + (i === 0 ? endOffset : 0);
 			const prevHeight: number = this._pitchToPixelHeight(pitch + prevPin.interval - offset);
 			const nextHeight: number = this._pitchToPixelHeight(pitch + nextPin.interval - offset);
 			const prevSize: number = showSize ? prevPin.size / cap : 1.0;

@@ -11,7 +11,8 @@ import { effectsIncludeDistortion } from "../synth-config";
 void effectsIncludeDistortion; // Used in generated source string at runtime
 
 export function buildLoopableChipSource(voiceCount: number): string {
-	let chipSource: string = "return (synth, bufferIndex, roundedSamplesPerTick, tone, instrumentState) => {";
+	let chipSource: string =
+		"return (synth, bufferIndex, roundedSamplesPerTick, tone, instrumentState) => {";
 
 	chipSource += `
             const aliases = (effectsIncludeDistortion(instrumentState.effects) && instrumentState.aliases);
@@ -364,7 +365,8 @@ export function buildLoopableChipSource(voiceCount: number): string {
 }
 
 export function buildChipSource(voiceCount: number): string {
-	let chipSource: string = "return (synth, bufferIndex, roundedSamplesPerTick, tone, instrumentState) => {";
+	let chipSource: string =
+		"return (synth, bufferIndex, roundedSamplesPerTick, tone, instrumentState) => {";
 
 	chipSource += `
         const aliases = (effectsIncludeDistortion(instrumentState.effects) && instrumentState.aliases);

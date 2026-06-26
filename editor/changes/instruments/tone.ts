@@ -47,7 +47,11 @@ export class ChangeVibratoDepth extends Change {
 		super();
 		const instrument: Instrument = doc.getCurrentInstrumentObj();
 		const prevVibrato: number = instrument.vibrato;
-		doc.synth.unsetMod(Config.modulators.dictionary["vibrato depth"].index, doc.channel, doc.getCurrentInstrument());
+		doc.synth.unsetMod(
+			Config.modulators.dictionary["vibrato depth"].index,
+			doc.channel,
+			doc.getCurrentInstrument(),
+		);
 
 		doc.notifier.changed();
 		if (oldValue !== newValue || prevVibrato !== Config.vibratos.length) {
@@ -64,7 +68,11 @@ export class ChangeEnvelopeSpeed extends Change {
 	constructor(doc: SongDocument, oldValue: number, newValue: number) {
 		super();
 		const instrument: Instrument = doc.getCurrentInstrumentObj();
-		doc.synth.unsetMod(Config.modulators.dictionary["envelope speed"].index, doc.channel, doc.getCurrentInstrument());
+		doc.synth.unsetMod(
+			Config.modulators.dictionary["envelope speed"].index,
+			doc.channel,
+			doc.getCurrentInstrument(),
+		);
 
 		doc.notifier.changed();
 		if (oldValue !== newValue) {
@@ -81,7 +89,11 @@ export class ChangeVibratoSpeed extends Change {
 		super();
 		const instrument: Instrument = doc.getCurrentInstrumentObj();
 		const prevVibrato: number = instrument.vibrato;
-		doc.synth.unsetMod(Config.modulators.dictionary["vibrato speed"].index, doc.channel, doc.getCurrentInstrument());
+		doc.synth.unsetMod(
+			Config.modulators.dictionary["vibrato speed"].index,
+			doc.channel,
+			doc.getCurrentInstrument(),
+		);
 
 		doc.notifier.changed();
 		if (oldValue !== newValue || prevVibrato !== Config.vibratos.length) {
@@ -99,7 +111,11 @@ export class ChangeVibratoDelay extends Change {
 		super();
 		const instrument: Instrument = doc.getCurrentInstrumentObj();
 		const prevVibrato: number = instrument.vibrato;
-		doc.synth.unsetMod(Config.modulators.dictionary["vibrato delay"].index, doc.channel, doc.getCurrentInstrument());
+		doc.synth.unsetMod(
+			Config.modulators.dictionary["vibrato delay"].index,
+			doc.channel,
+			doc.getCurrentInstrument(),
+		);
 
 		doc.notifier.changed();
 		if (oldValue !== newValue || prevVibrato !== Config.vibratos.length) {
@@ -135,7 +151,11 @@ export class ChangeArpeggioSpeed extends Change {
 		super();
 		const instrument: Instrument = doc.getCurrentInstrumentObj();
 		instrument.arpeggioSpeed = newValue;
-		doc.synth.unsetMod(Config.modulators.dictionary["arp speed"].index, doc.channel, doc.getCurrentInstrument());
+		doc.synth.unsetMod(
+			Config.modulators.dictionary["arp speed"].index,
+			doc.channel,
+			doc.getCurrentInstrument(),
+		);
 
 		doc.notifier.changed();
 		if (oldValue !== newValue) {

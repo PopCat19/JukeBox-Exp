@@ -108,10 +108,16 @@ export class SongRecovery {
 			if (versions.length > 0) {
 				const mostRecentTime: number = versions[0].time;
 				const mostRecentWork: number = versions[0].work;
-				newWork = mostRecentWork + Math.min(maximumWorkPerVersion, newTime - mostRecentTime);
+				newWork =
+					mostRecentWork + Math.min(maximumWorkPerVersion, newTime - mostRecentTime);
 			}
 
-			const newVersion: RecoveredVersion = { uid: uid, name: newName, time: newTime, work: newWork };
+			const newVersion: RecoveredVersion = {
+				uid: uid,
+				name: newName,
+				time: newTime,
+				work: newWork,
+			};
 			const newKey: string = versionToKey(newVersion);
 			versions.unshift(newVersion);
 			localStorage.setItem(newKey, songData);

@@ -37,7 +37,9 @@ export function renderInstrumentBar(
 
 		const maxInstrumentsPerChannel = doc.song.getMaxInstrumentsPerChannel();
 		while (instrumentButtons.length < channel.instruments.length) {
-			const instrumentButton: HTMLButtonElement = button(String(instrumentButtons.length + 1));
+			const instrumentButton: HTMLButtonElement = button(
+				String(instrumentButtons.length + 1),
+			);
 			instrumentButtons.push(instrumentButton);
 			instrumentsButtonBar.insertBefore(instrumentButton, instrumentRemoveButton);
 		}
@@ -52,8 +54,10 @@ export function renderInstrumentBar(
 			instrumentsButtonBar.removeChild(instrumentButtons.pop()!);
 		}
 
-		instrumentRemoveButton.style.display = channel.instruments.length > Config.instrumentCountMin ? "" : "none";
-		instrumentAddButton.style.display = channel.instruments.length < maxInstrumentsPerChannel ? "" : "none";
+		instrumentRemoveButton.style.display =
+			channel.instruments.length > Config.instrumentCountMin ? "" : "none";
+		instrumentAddButton.style.display =
+			channel.instruments.length < maxInstrumentsPerChannel ? "" : "none";
 		if (channel.instruments.length < maxInstrumentsPerChannel) {
 			instrumentRemoveButton.classList.remove("last-button");
 		} else {
@@ -61,19 +65,25 @@ export function renderInstrumentBar(
 		}
 		if (channel.instruments.length > 1) {
 			if (highlightedInstrumentIndex.value !== instrumentIndex) {
-				const oldButton: HTMLButtonElement = instrumentButtons[highlightedInstrumentIndex.value];
+				const oldButton: HTMLButtonElement =
+					instrumentButtons[highlightedInstrumentIndex.value];
 				if (oldButton != null) oldButton.classList.remove("selected-instrument");
 				const newButton: HTMLButtonElement = instrumentButtons[instrumentIndex];
 				newButton.classList.add("selected-instrument");
 				highlightedInstrumentIndex.value = instrumentIndex;
 			}
 		} else {
-			const oldButton: HTMLButtonElement = instrumentButtons[highlightedInstrumentIndex.value];
+			const oldButton: HTMLButtonElement =
+				instrumentButtons[highlightedInstrumentIndex.value];
 			if (oldButton != null) oldButton.classList.remove("selected-instrument");
 			highlightedInstrumentIndex.value = -1;
 		}
 
-		if (doc.song.layeredInstruments && doc.song.patternInstruments && doc.channel < doc.song.pitchChannelCount + doc.song.noiseChannelCount) {
+		if (
+			doc.song.layeredInstruments &&
+			doc.song.patternInstruments &&
+			doc.channel < doc.song.pitchChannelCount + doc.song.noiseChannelCount
+		) {
 			for (let i: number = 0; i < channel.instruments.length; i++) {
 				if (doc.recentPatternInstruments[doc.channel].indexOf(i) !== -1) {
 					instrumentButtons[i].classList.remove("deactivated");
@@ -82,7 +92,10 @@ export function renderInstrumentBar(
 				}
 			}
 			deactivatedInstruments.value = true;
-		} else if (deactivatedInstruments.value || doc.channel >= doc.song.pitchChannelCount + doc.song.noiseChannelCount) {
+		} else if (
+			deactivatedInstruments.value ||
+			doc.channel >= doc.song.pitchChannelCount + doc.song.noiseChannelCount
+		) {
 			for (let i: number = 0; i < channel.instruments.length; i++) {
 				instrumentButtons[i].classList.remove("deactivated");
 			}

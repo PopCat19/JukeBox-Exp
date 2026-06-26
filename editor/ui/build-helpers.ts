@@ -24,14 +24,21 @@ export function numberInput(attrs: Record<string, any>): HTMLInputElement {
 	return el;
 }
 
-export function buildOptions(menu: HTMLSelectElement, items: ReadonlyArray<string | number>): HTMLSelectElement {
+export function buildOptions(
+	menu: HTMLSelectElement,
+	items: ReadonlyArray<string | number>,
+): HTMLSelectElement {
 	for (let index: number = 0; index < items.length; index++) {
 		menu.appendChild(option({ value: index }, items[index]));
 	}
 	return menu;
 }
 
-export function buildHeaderedOptions(header: string, menu: HTMLSelectElement, items: ReadonlyArray<string | number>): HTMLSelectElement {
+export function buildHeaderedOptions(
+	header: string,
+	menu: HTMLSelectElement,
+	items: ReadonlyArray<string | number>,
+): HTMLSelectElement {
 	menu.appendChild(option({ selected: true, disabled: true, value: header }, header));
 
 	for (const item of items) {
@@ -49,15 +56,28 @@ export function buildPresetOptions(isNoise: boolean, idSet: string): HTMLSelectE
 
 	if (isNoise) {
 		for (const plugin of getRegisteredPlugins()) {
-			if (plugin.type === InstrumentType.noise || plugin.type === InstrumentType.spectrum || plugin.type === InstrumentType.drumset) {
+			if (
+				plugin.type === InstrumentType.noise ||
+				plugin.type === InstrumentType.spectrum ||
+				plugin.type === InstrumentType.drumset
+			) {
 				const preset = EditorConfig.valueToPreset(plugin.type);
-				menu.appendChild(option({ value: plugin.type }, preset?.name ?? plugin.displayName ?? plugin.name));
+				menu.appendChild(
+					option(
+						{ value: plugin.type },
+						preset?.name ?? plugin.displayName ?? plugin.name,
+					),
+				);
 			}
 		}
 	} else {
 		for (const plugin of getRegisteredPlugins()) {
-			const preset = EditorConfig.valueToPreset(plugin.type) ?? EditorConfig.instrumentToPreset(plugin.type);
-			menu.appendChild(option({ value: plugin.type }, preset?.name ?? plugin.displayName ?? plugin.name));
+			const preset =
+				EditorConfig.valueToPreset(plugin.type) ??
+				EditorConfig.instrumentToPreset(plugin.type);
+			menu.appendChild(
+				option({ value: plugin.type }, preset?.name ?? plugin.displayName ?? plugin.name),
+			);
 		}
 	}
 
@@ -69,14 +89,20 @@ export function buildPresetOptions(isNoise: boolean, idSet: string): HTMLSelectE
 	let firstCategoryGroup: HTMLElement | null = null;
 	let customSampleCategoryGroup: HTMLElement | null = null;
 
-	for (let categoryIndex: number = 1; categoryIndex < EditorConfig.presetCategories.length; categoryIndex++) {
+	for (
+		let categoryIndex: number = 1;
+		categoryIndex < EditorConfig.presetCategories.length;
+		categoryIndex++
+	) {
 		const category: PresetCategory = EditorConfig.presetCategories[categoryIndex];
 		const group: HTMLElement = optgroup({ label: `${category.name} ▾` });
 		let foundAny: boolean = false;
 		for (let presetIndex: number = 0; presetIndex < category.presets.length; presetIndex++) {
 			const preset: Preset = category.presets[presetIndex];
 			if ((preset.isNoise === true) === isNoise) {
-				group.appendChild(option({ value: (categoryIndex << 12) + presetIndex }, preset.name));
+				group.appendChild(
+					option({ value: (categoryIndex << 12) + presetIndex }, preset.name),
+				);
 				foundAny = true;
 			}
 		}

@@ -20,7 +20,13 @@ import {
 import { EditorConfig, type Preset } from "../../config/editor-config";
 import { Change } from "../../core/change";
 import type { SongDocument } from "../../song-document";
-import { biasedFullyRandom, fullyRandom, randomChipWave, randomPulses, randomSineWave } from "../util";
+import {
+	biasedFullyRandom,
+	fullyRandom,
+	randomChipWave,
+	randomPulses,
+	randomSineWave,
+} from "../util";
 
 export class ChangeCustomizeInstrument extends Change {
 	constructor(doc: SongDocument) {
@@ -79,7 +85,8 @@ export class ChangeCustomAlgorythmorFeedback extends Change {
 		super();
 		if (mode === "algorithm") {
 			const oldArray: number[][] = doc.getCurrentInstrumentObj().customAlgorithm.modulatedBy;
-			const oldCarriercount: number = doc.getCurrentInstrumentObj().customAlgorithm.carrierCount;
+			const oldCarriercount: number =
+				doc.getCurrentInstrumentObj().customAlgorithm.carrierCount;
 			let comparisonResult: boolean = true;
 			if (carry !== oldCarriercount) {
 				comparisonResult = false;
@@ -148,7 +155,10 @@ export class ChangePreset extends Change {
 			if (preset != null) {
 				if (preset.customType !== undefined) {
 					instrument.type = preset.customType;
-					if (!Config.instrumentTypeHasSpecialInterval[instrument.type] && Config.chords[instrument.chord].customInterval) {
+					if (
+						!Config.instrumentTypeHasSpecialInterval[instrument.type] &&
+						Config.chords[instrument.chord].customInterval
+					) {
 						instrument.chord = 0;
 					}
 					instrument.clearInvalidEnvelopeTargets();
@@ -200,7 +210,12 @@ export class ChangeRandomGeneratedInstrument extends Change {
 			}
 			return entries[(Math.random() * entries.length) | 0].item;
 		}
-		function selectCurvedDistribution(min: number, max: number, peak: number, width: number): number {
+		function selectCurvedDistribution(
+			min: number,
+			max: number,
+			peak: number,
+			width: number,
+		): number {
 			const entries: Array<ItemWeight<number>> = [];
 			for (let i: number = min; i <= max; i++) {
 				entries.push({ item: i, weight: 1.0 / (((i - peak) / width) ** 2.0 + 1.0) });
@@ -218,7 +233,10 @@ export class ChangeRandomGeneratedInstrument extends Change {
 				public readonly centerGain: number,
 			) {}
 		}
-		function applyFilterPoints(filter: FilterSettings, potentialPoints: ReadonlyArray<PotentialFilterPoint>): void {
+		function applyFilterPoints(
+			filter: FilterSettings,
+			potentialPoints: ReadonlyArray<PotentialFilterPoint>,
+		): void {
 			filter.reset();
 			const usedFreqs: number[] = [];
 			for (const potentialPoint of potentialPoints) {
@@ -237,7 +255,8 @@ export class ChangeRandomGeneratedInstrument extends Change {
 					Config.filterGainCenter + potentialPoint.centerGain,
 					2.0 / Config.filterGainStep,
 				);
-				if (point.type === FilterType.peak && point.gain === Config.filterGainCenter) continue; // skip pointless points.
+				if (point.type === FilterType.peak && point.gain === Config.filterGainCenter)
+					continue; // skip pointless points.
 				if (usedFreqs.includes(point.freq)) continue;
 				usedFreqs.push(point.freq);
 				filter.controlPoints[filter.controlPointCount] = point;
@@ -274,8 +293,16 @@ export class ChangeRandomGeneratedInstrument extends Change {
 
 			if (type !== InstrumentType.drumset) {
 				// Drumset doesn't use fade.
-				instrument.fadeIn = Math.random() < 0.8 ? 0 : selectCurvedDistribution(0, Config.fadeInRange - 1, 0, 2);
-				instrument.fadeOut = selectCurvedDistribution(0, Config.fadeOutTicks.length - 1, Config.fadeOutNeutral, 2);
+				instrument.fadeIn =
+					Math.random() < 0.8
+						? 0
+						: selectCurvedDistribution(0, Config.fadeInRange - 1, 0, 2);
+				instrument.fadeOut = selectCurvedDistribution(
+					0,
+					Config.fadeOutTicks.length - 1,
+					Config.fadeOutNeutral,
+					2,
+				);
 			}
 
 			if (Math.random() < 0.1) {
@@ -300,7 +327,12 @@ export class ChangeRandomGeneratedInstrument extends Change {
 					].index;
 			}
 			if (Math.random() < 0.1) {
-				instrument.pitchShift = selectCurvedDistribution(0, Config.pitchShiftRange - 1, Config.pitchShiftCenter, 2);
+				instrument.pitchShift = selectCurvedDistribution(
+					0,
+					Config.pitchShiftRange - 1,
+					Config.pitchShiftCenter,
+					2,
+				);
 				if (instrument.pitchShift !== Config.pitchShiftCenter) {
 					instrument.effects |= 1 << EffectType.pitchShift;
 					instrument.addEnvelope(
@@ -332,7 +364,12 @@ export class ChangeRandomGeneratedInstrument extends Change {
 			}
 			if (Math.random() < 0.1) {
 				instrument.effects |= 1 << EffectType.vibrato;
-				instrument.vibrato = selectCurvedDistribution(0, Config.echoSustainRange - 1, Config.echoSustainRange >> 1, 2);
+				instrument.vibrato = selectCurvedDistribution(
+					0,
+					Config.echoSustainRange - 1,
+					Config.echoSustainRange >> 1,
+					2,
+				);
 				instrument.vibrato =
 					Config.vibratos.dictionary[
 						selectWeightedRandom([
@@ -345,7 +382,9 @@ export class ChangeRandomGeneratedInstrument extends Change {
 			}
 			if (Math.random() < 0.8) {
 				instrument.effects |= 1 << EffectType.noteFilter;
-				applyFilterPoints(instrument.noteFilter, [new PotentialFilterPoint(1.0, FilterType.lowPass, midFreq, maxFreq, 8000.0, -1)]);
+				applyFilterPoints(instrument.noteFilter, [
+					new PotentialFilterPoint(1.0, FilterType.lowPass, midFreq, maxFreq, 8000.0, -1),
+				]);
 				instrument.addEnvelope(
 					Config.instrumentAutomationTargets.dictionary.noteFilterAllFreqs.index,
 					0,
@@ -376,11 +415,21 @@ export class ChangeRandomGeneratedInstrument extends Change {
 			}
 			if (Math.random() < 0.1) {
 				instrument.effects |= 1 << EffectType.distortion;
-				instrument.distortion = selectCurvedDistribution(1, Config.distortionRange - 1, Config.distortionRange - 1, 2);
+				instrument.distortion = selectCurvedDistribution(
+					1,
+					Config.distortionRange - 1,
+					Config.distortionRange - 1,
+					2,
+				);
 			}
 			if (Math.random() < 0.1) {
 				instrument.effects |= 1 << EffectType.bitcrusher;
-				instrument.bitcrusherFreq = selectCurvedDistribution(0, Config.bitcrusherFreqRange - 1, Config.bitcrusherFreqRange >> 1, 2);
+				instrument.bitcrusherFreq = selectCurvedDistribution(
+					0,
+					Config.bitcrusherFreqRange - 1,
+					Config.bitcrusherFreqRange >> 1,
+					2,
+				);
 				instrument.bitcrusherQuantization = selectCurvedDistribution(
 					0,
 					Config.bitcrusherQuantizationRange - 1,
@@ -390,11 +439,26 @@ export class ChangeRandomGeneratedInstrument extends Change {
 			}
 			if (Math.random() < 0.1) {
 				instrument.effects |= 1 << EffectType.chorus;
-				instrument.chorus = selectCurvedDistribution(1, Config.chorusRange - 1, Config.chorusRange - 1, 1);
+				instrument.chorus = selectCurvedDistribution(
+					1,
+					Config.chorusRange - 1,
+					Config.chorusRange - 1,
+					1,
+				);
 			}
 			if (Math.random() < 0.1) {
-				instrument.echoSustain = selectCurvedDistribution(0, Config.echoSustainRange - 1, Config.echoSustainRange >> 1, 2);
-				instrument.echoDelay = selectCurvedDistribution(0, Config.echoDelayRange - 1, Config.echoDelayRange >> 1, 2);
+				instrument.echoSustain = selectCurvedDistribution(
+					0,
+					Config.echoSustainRange - 1,
+					Config.echoSustainRange >> 1,
+					2,
+				);
+				instrument.echoDelay = selectCurvedDistribution(
+					0,
+					Config.echoDelayRange - 1,
+					Config.echoDelayRange >> 1,
+					2,
+				);
 				if (instrument.echoSustain !== 0 || instrument.echoDelay !== 0) {
 					instrument.effects |= 1 << EffectType.echo;
 				}
@@ -437,7 +501,10 @@ export class ChangeRandomGeneratedInstrument extends Change {
 						])
 					].index;
 
-				if (instrument.unison !== Config.unisons.dictionary.none.index && Math.random() > 0.4) {
+				if (
+					instrument.unison !== Config.unisons.dictionary.none.index &&
+					Math.random() > 0.4
+				) {
 					instrument.addEnvelope(
 						Config.instrumentAutomationTargets.dictionary.unison.index,
 						0,
@@ -510,7 +577,8 @@ export class ChangeRandomGeneratedInstrument extends Change {
 								return spectrum;
 							},
 						];
-						const generator = spectrumGenerators[(Math.random() * spectrumGenerators.length) | 0];
+						const generator =
+							spectrumGenerators[(Math.random() * spectrumGenerators.length) | 0];
 						const spectrum: number[] = generator();
 						normalize(spectrum);
 						for (let i: number = 0; i < Config.spectrumControlPoints; i++) {
@@ -523,18 +591,25 @@ export class ChangeRandomGeneratedInstrument extends Change {
 					{
 						for (let i: number = 0; i < Config.drumCount; i++) {
 							// Might wanna do this Random*Config.____.length thing for all envelope/unison randomization?
-							instrument.drumsetEnvelopes[i] = Math.floor(Math.random() * Config.envelopes.length);
+							instrument.drumsetEnvelopes[i] = Math.floor(
+								Math.random() * Config.envelopes.length,
+							);
 							const spectrum: number[] = [];
 							const randomFactor: number = Math.floor(Math.random() * 3);
 							for (let j = 0; j < Config.spectrumControlPoints; j++) {
-								if (randomFactor === 0 || randomFactor === 3) spectrum[j] = Math.random() ** 3 * 0.25;
-								else if (randomFactor === 1) spectrum[j] = Math.random() ** (i / 8 + 1);
-								else if (randomFactor === 2) spectrum[j] = Math.random() ** 2 * (i / 3 + 1);
+								if (randomFactor === 0 || randomFactor === 3)
+									spectrum[j] = Math.random() ** 3 * 0.25;
+								else if (randomFactor === 1)
+									spectrum[j] = Math.random() ** (i / 8 + 1);
+								else if (randomFactor === 2)
+									spectrum[j] = Math.random() ** 2 * (i / 3 + 1);
 								else spectrum[j] = Math.random() ** 3 * 0.25;
 							}
 							normalize(spectrum);
 							for (let j: number = 0; j < Config.spectrumControlPoints; j++) {
-								instrument.drumsetSpectrumWaves[i].spectrum[j] = Math.round(spectrum[j]);
+								instrument.drumsetSpectrumWaves[i].spectrum[j] = Math.round(
+									spectrum[j],
+								);
 							}
 							instrument.drumsetSpectrumWaves[i].markCustomWaveDirty();
 						}
@@ -560,8 +635,14 @@ export class ChangeRandomGeneratedInstrument extends Change {
 					]);
 			instrument.preset = instrument.type = type;
 
-			instrument.fadeIn = Math.random() < 0.5 ? 0 : selectCurvedDistribution(0, Config.fadeInRange - 1, 0, 2);
-			instrument.fadeOut = selectCurvedDistribution(0, Config.fadeOutTicks.length - 1, Config.fadeOutNeutral, 2);
+			instrument.fadeIn =
+				Math.random() < 0.5 ? 0 : selectCurvedDistribution(0, Config.fadeInRange - 1, 0, 2);
+			instrument.fadeOut = selectCurvedDistribution(
+				0,
+				Config.fadeOutTicks.length - 1,
+				Config.fadeOutNeutral,
+				2,
+			);
 			if (
 				type === InstrumentType.chip ||
 				type === InstrumentType.harmonics ||
@@ -640,7 +721,12 @@ export class ChangeRandomGeneratedInstrument extends Change {
 					].index;
 			}
 			if (Math.random() < 0.05) {
-				instrument.pitchShift = selectCurvedDistribution(0, Config.pitchShiftRange - 1, Config.pitchShiftCenter, 1);
+				instrument.pitchShift = selectCurvedDistribution(
+					0,
+					Config.pitchShiftRange - 1,
+					Config.pitchShiftCenter,
+					1,
+				);
 				if (instrument.pitchShift !== Config.pitchShiftCenter) {
 					instrument.effects |= 1 << EffectType.pitchShift;
 					instrument.addEnvelope(
@@ -672,7 +758,12 @@ export class ChangeRandomGeneratedInstrument extends Change {
 			}
 			if (Math.random() < 0.25) {
 				instrument.effects |= 1 << EffectType.vibrato;
-				instrument.vibrato = selectCurvedDistribution(0, Config.echoSustainRange - 1, Config.echoSustainRange >> 1, 2);
+				instrument.vibrato = selectCurvedDistribution(
+					0,
+					Config.echoSustainRange - 1,
+					Config.echoSustainRange >> 1,
+					2,
+				);
 				instrument.vibrato =
 					Config.vibratos.dictionary[
 						selectWeightedRandom([
@@ -685,7 +776,12 @@ export class ChangeRandomGeneratedInstrument extends Change {
 			}
 			if (Math.random() < 0.1) {
 				instrument.effects |= 1 << EffectType.distortion;
-				instrument.distortion = selectCurvedDistribution(1, Config.distortionRange - 1, Config.distortionRange - 1, 2);
+				instrument.distortion = selectCurvedDistribution(
+					1,
+					Config.distortionRange - 1,
+					Config.distortionRange - 1,
+					2,
+				);
 				if (Math.random() < 0.3) {
 					let envelopeLowerBound = selectCurvedDistribution(0, 20, 8, 5) / 10;
 					let envelopeUpperBound = selectCurvedDistribution(0, 20, 8, 5) / 10;
@@ -744,7 +840,9 @@ export class ChangeRandomGeneratedInstrument extends Change {
 				]);
 			} else if (Math.random() < 0.5) {
 				instrument.effects |= 1 << EffectType.noteFilter;
-				applyFilterPoints(instrument.noteFilter, [new PotentialFilterPoint(1.0, FilterType.lowPass, midFreq, maxFreq, 8000.0, -1)]);
+				applyFilterPoints(instrument.noteFilter, [
+					new PotentialFilterPoint(1.0, FilterType.lowPass, midFreq, maxFreq, 8000.0, -1),
+				]);
 				let envelopeLowerBound = selectCurvedDistribution(0, 20, 8, 5) / 10;
 				let envelopeUpperBound = selectCurvedDistribution(0, 20, 8, 5) / 10;
 				if (envelopeLowerBound >= envelopeUpperBound) {
@@ -792,7 +890,12 @@ export class ChangeRandomGeneratedInstrument extends Change {
 			}
 			if (Math.random() < 0.1) {
 				instrument.effects |= 1 << EffectType.bitcrusher;
-				instrument.bitcrusherFreq = selectCurvedDistribution(0, Config.bitcrusherFreqRange - 1, 0, 2);
+				instrument.bitcrusherFreq = selectCurvedDistribution(
+					0,
+					Config.bitcrusherFreqRange - 1,
+					0,
+					2,
+				);
 				instrument.bitcrusherQuantization = selectCurvedDistribution(
 					0,
 					Config.bitcrusherQuantizationRange - 1,
@@ -905,7 +1008,12 @@ export class ChangeRandomGeneratedInstrument extends Change {
 			}
 			if (Math.random() < 0.1) {
 				instrument.effects |= 1 << EffectType.chorus;
-				instrument.chorus = selectCurvedDistribution(1, Config.chorusRange - 1, Config.chorusRange - 1, 1);
+				instrument.chorus = selectCurvedDistribution(
+					1,
+					Config.chorusRange - 1,
+					Config.chorusRange - 1,
+					1,
+				);
 				if (Math.random() < 0.1) {
 					let envelopeLowerBound = selectCurvedDistribution(0, 20, 8, 5) / 10;
 					let envelopeUpperBound = selectCurvedDistribution(0, 20, 8, 5) / 10;
@@ -956,8 +1064,18 @@ export class ChangeRandomGeneratedInstrument extends Change {
 				}
 			}
 			if (Math.random() < 0.1) {
-				instrument.echoSustain = selectCurvedDistribution(0, Config.echoSustainRange - 1, Config.echoSustainRange >> 1, 2);
-				instrument.echoDelay = selectCurvedDistribution(0, Config.echoDelayRange - 1, Config.echoDelayRange >> 1, 2);
+				instrument.echoSustain = selectCurvedDistribution(
+					0,
+					Config.echoSustainRange - 1,
+					Config.echoSustainRange >> 1,
+					2,
+				);
+				instrument.echoDelay = selectCurvedDistribution(
+					0,
+					Config.echoDelayRange - 1,
+					Config.echoDelayRange >> 1,
+					2,
+				);
 				if (instrument.echoSustain !== 0 || instrument.echoDelay !== 0) {
 					instrument.effects |= 1 << EffectType.echo;
 					if (Math.random() < 0.04) {
@@ -1009,8 +1127,18 @@ export class ChangeRandomGeneratedInstrument extends Change {
 				}
 			}
 			if (Math.random() < 0.07) {
-				instrument.ringModulation = selectCurvedDistribution(1, Config.ringModRange - 1, Config.ringModRange / 2, Config.ringModRange / 2);
-				instrument.ringModulationHz = selectCurvedDistribution(1, Config.ringModHzRange - 1, Config.ringModHzRange / 2, Config.ringModHzRange / 2);
+				instrument.ringModulation = selectCurvedDistribution(
+					1,
+					Config.ringModRange - 1,
+					Config.ringModRange / 2,
+					Config.ringModRange / 2,
+				);
+				instrument.ringModulationHz = selectCurvedDistribution(
+					1,
+					Config.ringModHzRange - 1,
+					Config.ringModHzRange / 2,
+					Config.ringModHzRange / 2,
+				);
 				if (instrument.ringModulation !== 0 || instrument.ringModulationHz !== 0) {
 					instrument.effects |= 1 << EffectType.ringModulation;
 					instrument.ringModWaveformIndex = 0;
@@ -1169,8 +1297,18 @@ export class ChangeRandomGeneratedInstrument extends Change {
 			}
 			if (Math.random() < 0.1) {
 				instrument.effects |= 1 << EffectType.granular;
-				instrument.granular = selectCurvedDistribution(1, Config.granularRange - 1, Config.granularRange / 2, Config.granularRange / 3);
-				instrument.grainAmounts = selectCurvedDistribution(1, Config.grainAmountsMax - 1, Config.grainAmountsMax - 2, 3);
+				instrument.granular = selectCurvedDistribution(
+					1,
+					Config.granularRange - 1,
+					Config.granularRange / 2,
+					Config.granularRange / 3,
+				);
+				instrument.grainAmounts = selectCurvedDistribution(
+					1,
+					Config.grainAmountsMax - 1,
+					Config.grainAmountsMax - 2,
+					3,
+				);
 				instrument.grainSize = selectCurvedDistribution(
 					Config.grainSizeMin / Config.grainSizeStep,
 					Config.grainSizeMax / Config.grainSizeStep,
@@ -1444,7 +1582,8 @@ export class ChangeRandomGeneratedInstrument extends Change {
 						// advloop addition
 						instrument.isUsingAdvancedLoopControls = false;
 						instrument.chipWaveLoopStart = 0;
-						instrument.chipWaveLoopEnd = Config.rawRawChipWaves[instrument.chipWave].samples.length - 1;
+						instrument.chipWaveLoopEnd =
+							Config.rawRawChipWaves[instrument.chipWave].samples.length - 1;
 						instrument.chipWaveLoopMode = 0;
 						instrument.chipWavePlayBackwards = false;
 						instrument.chipWaveStartOffset = 0;
@@ -1455,11 +1594,31 @@ export class ChangeRandomGeneratedInstrument extends Change {
 				case InstrumentType.supersaw:
 					{
 						if (type === InstrumentType.supersaw) {
-							instrument.supersawDynamism = selectCurvedDistribution(0, Config.supersawDynamismMax, Config.supersawDynamismMax, 2);
-							instrument.supersawSpread = selectCurvedDistribution(0, Config.supersawSpreadMax, Math.ceil(Config.supersawSpreadMax / 3), 4);
-							instrument.supersawShape = selectCurvedDistribution(0, Config.supersawShapeMax, 0, 4);
+							instrument.supersawDynamism = selectCurvedDistribution(
+								0,
+								Config.supersawDynamismMax,
+								Config.supersawDynamismMax,
+								2,
+							);
+							instrument.supersawSpread = selectCurvedDistribution(
+								0,
+								Config.supersawSpreadMax,
+								Math.ceil(Config.supersawSpreadMax / 3),
+								4,
+							);
+							instrument.supersawShape = selectCurvedDistribution(
+								0,
+								Config.supersawShapeMax,
+								0,
+								4,
+							);
 						}
-						instrument.pulseWidth = selectCurvedDistribution(0, Config.pulseWidthRange - 1, Config.pulseWidthRange - 1, 2);
+						instrument.pulseWidth = selectCurvedDistribution(
+							0,
+							Config.pulseWidthRange - 1,
+							Config.pulseWidthRange - 1,
+							2,
+						);
 						instrument.decimalOffset = 0;
 
 						if (Math.random() < 0.6) {
@@ -1491,7 +1650,9 @@ export class ChangeRandomGeneratedInstrument extends Change {
 									{ item: false, weight: 8 },
 									{ item: true, weight: 1 },
 								]),
-								Config.perEnvelopeSpeedIndices[selectCurvedDistribution(1, 63, 40, 20)],
+								Config.perEnvelopeSpeedIndices[
+									selectCurvedDistribution(1, 63, 40, 20)
+								],
 								selectWeightedRandom([
 									{ item: 0, weight: 8 },
 									{ item: 0.1, weight: 4 },
@@ -1524,7 +1685,8 @@ export class ChangeRandomGeneratedInstrument extends Change {
 				case InstrumentType.harmonics:
 					{
 						if (type === InstrumentType.pickedString) {
-							instrument.stringSustain = (Math.random() * Config.stringSustainRange) | 0;
+							instrument.stringSustain =
+								(Math.random() * Config.stringSustainRange) | 0;
 						}
 
 						const harmonicGenerators: Function[] = [
@@ -1555,7 +1717,8 @@ export class ChangeRandomGeneratedInstrument extends Change {
 								return harmonics;
 							},
 						];
-						const generator = harmonicGenerators[(Math.random() * harmonicGenerators.length) | 0];
+						const generator =
+							harmonicGenerators[(Math.random() * harmonicGenerators.length) | 0];
 						const harmonics: number[] = generator();
 						normalize(harmonics);
 						for (let i: number = 0; i < Config.harmonicsControlPoints; i++) {
@@ -1568,7 +1731,14 @@ export class ChangeRandomGeneratedInstrument extends Change {
 					{
 						const spectrum: number[] = [];
 						for (let i: number = 0; i < Config.spectrumControlPoints; i++) {
-							const isHarmonic: boolean = i === 0 || i === 7 || i === 11 || i === 14 || i === 16 || i === 18 || i === 21;
+							const isHarmonic: boolean =
+								i === 0 ||
+								i === 7 ||
+								i === 11 ||
+								i === 14 ||
+								i === 16 ||
+								i === 18 ||
+								i === 21;
 							if (isHarmonic) {
 								spectrum[i] = Math.random() ** 0.25;
 							} else {
@@ -1589,16 +1759,30 @@ export class ChangeRandomGeneratedInstrument extends Change {
 							instrument.algorithm = (Math.random() * Config.algorithms.length) | 0;
 							instrument.feedbackType = (Math.random() * Config.feedbacks.length) | 0;
 						} else {
-							instrument.algorithm6Op = (Math.random() * (Config.algorithms6Op.length - 1) + 1) | 0;
+							instrument.algorithm6Op =
+								(Math.random() * (Config.algorithms6Op.length - 1) + 1) | 0;
 							instrument.customAlgorithm.fromPreset(instrument.algorithm6Op);
-							instrument.feedbackType6Op = (Math.random() * (Config.feedbacks6Op.length - 1) + 1) | 0;
+							instrument.feedbackType6Op =
+								(Math.random() * (Config.feedbacks6Op.length - 1) + 1) | 0;
 							instrument.customFeedbackType.fromPreset(instrument.feedbackType6Op);
 						}
 						const algorithm: Algorithm =
-							type === InstrumentType.fm ? Config.algorithms[instrument.algorithm] : Config.algorithms6Op[instrument.algorithm6Op];
+							type === InstrumentType.fm
+								? Config.algorithms[instrument.algorithm]
+								: Config.algorithms6Op[instrument.algorithm6Op];
 						for (let i: number = 0; i < algorithm.carrierCount; i++) {
-							instrument.operators[i].frequency = selectCurvedDistribution(0, Config.operatorFrequencies.length - 1, 0, 3);
-							instrument.operators[i].amplitude = selectCurvedDistribution(0, Config.operatorAmplitudeMax, Config.operatorAmplitudeMax - 1, 2);
+							instrument.operators[i].frequency = selectCurvedDistribution(
+								0,
+								Config.operatorFrequencies.length - 1,
+								0,
+								3,
+							);
+							instrument.operators[i].amplitude = selectCurvedDistribution(
+								0,
+								Config.operatorAmplitudeMax,
+								Config.operatorAmplitudeMax - 1,
+								2,
+							);
 							instrument.operators[i].waveform =
 								Config.operatorWaves.dictionary[
 									selectWeightedRandom([
@@ -1633,10 +1817,23 @@ export class ChangeRandomGeneratedInstrument extends Change {
 								]);
 							}
 						}
-						for (let i: number = algorithm.carrierCount; i < Config.operatorCount + (type === InstrumentType.fm6op ? 2 : 0); i++) {
-							instrument.operators[i].frequency = selectCurvedDistribution(3, Config.operatorFrequencies.length - 1, 0, 3);
-							instrument.operators[i].amplitude = (Math.random() ** 2 * Config.operatorAmplitudeMax) | 0;
-							if (instrument.envelopeCount < Config.maxEnvelopeCount && Math.random() < 0.4) {
+						for (
+							let i: number = algorithm.carrierCount;
+							i < Config.operatorCount + (type === InstrumentType.fm6op ? 2 : 0);
+							i++
+						) {
+							instrument.operators[i].frequency = selectCurvedDistribution(
+								3,
+								Config.operatorFrequencies.length - 1,
+								0,
+								3,
+							);
+							instrument.operators[i].amplitude =
+								(Math.random() ** 2 * Config.operatorAmplitudeMax) | 0;
+							if (
+								instrument.envelopeCount < Config.maxEnvelopeCount &&
+								Math.random() < 0.4
+							) {
 								let envelopeLowerBound = selectCurvedDistribution(0, 20, 8, 5) / 10;
 								let envelopeUpperBound = selectCurvedDistribution(0, 20, 8, 5) / 10;
 								if (envelopeLowerBound >= envelopeUpperBound) {
@@ -1644,7 +1841,8 @@ export class ChangeRandomGeneratedInstrument extends Change {
 									envelopeUpperBound = 1;
 								}
 								instrument.addEnvelope(
-									Config.instrumentAutomationTargets.dictionary.operatorAmplitude.index,
+									Config.instrumentAutomationTargets.dictionary.operatorAmplitude
+										.index,
 									i,
 									Config.newEnvelopes.dictionary[
 										selectWeightedRandom([
@@ -1668,7 +1866,9 @@ export class ChangeRandomGeneratedInstrument extends Change {
 										{ item: false, weight: 8 },
 										{ item: true, weight: 1 },
 									]),
-									Config.perEnvelopeSpeedIndices[selectCurvedDistribution(1, 63, 30, 30)],
+									Config.perEnvelopeSpeedIndices[
+										selectCurvedDistribution(1, 63, 30, 30)
+									],
 									envelopeLowerBound,
 									envelopeUpperBound,
 									2,
@@ -1681,7 +1881,10 @@ export class ChangeRandomGeneratedInstrument extends Change {
 									]),
 								);
 							}
-							if (instrument.envelopeCount < Config.maxEnvelopeCount && Math.random() < 0.15) {
+							if (
+								instrument.envelopeCount < Config.maxEnvelopeCount &&
+								Math.random() < 0.15
+							) {
 								let envelopeLowerBound = selectCurvedDistribution(0, 20, 8, 5) / 10;
 								let envelopeUpperBound = selectCurvedDistribution(0, 20, 8, 5) / 10;
 								if (envelopeLowerBound >= envelopeUpperBound) {
@@ -1689,7 +1892,8 @@ export class ChangeRandomGeneratedInstrument extends Change {
 									envelopeUpperBound = 1;
 								}
 								instrument.addEnvelope(
-									Config.instrumentAutomationTargets.dictionary.operatorFrequency.index,
+									Config.instrumentAutomationTargets.dictionary.operatorFrequency
+										.index,
 									i,
 									Config.newEnvelopes.dictionary[
 										selectWeightedRandom([
@@ -1713,7 +1917,9 @@ export class ChangeRandomGeneratedInstrument extends Change {
 										{ item: false, weight: 8 },
 										{ item: true, weight: 1 },
 									]),
-									Config.perEnvelopeSpeedIndices[selectCurvedDistribution(1, 63, 30, 30)],
+									Config.perEnvelopeSpeedIndices[
+										selectCurvedDistribution(1, 63, 30, 30)
+									],
 									envelopeLowerBound,
 									envelopeUpperBound,
 									2,
@@ -1754,8 +1960,12 @@ export class ChangeRandomGeneratedInstrument extends Change {
 								]);
 							}
 						}
-						instrument.feedbackAmplitude = (Math.random() ** 3 * Config.operatorAmplitudeMax) | 0;
-						if (instrument.envelopeCount < Config.maxEnvelopeCount && Math.random() < 0.4) {
+						instrument.feedbackAmplitude =
+							(Math.random() ** 3 * Config.operatorAmplitudeMax) | 0;
+						if (
+							instrument.envelopeCount < Config.maxEnvelopeCount &&
+							Math.random() < 0.4
+						) {
 							let envelopeLowerBound = selectCurvedDistribution(0, 20, 8, 5) / 10;
 							let envelopeUpperBound = selectCurvedDistribution(0, 20, 8, 5) / 10;
 							if (envelopeLowerBound >= envelopeUpperBound) {
@@ -1763,7 +1973,8 @@ export class ChangeRandomGeneratedInstrument extends Change {
 								envelopeUpperBound = 1;
 							}
 							instrument.addEnvelope(
-								Config.instrumentAutomationTargets.dictionary.feedbackAmplitude.index,
+								Config.instrumentAutomationTargets.dictionary.feedbackAmplitude
+									.index,
 								0,
 								Config.newEnvelopes.dictionary[
 									selectWeightedRandom([
@@ -1788,7 +1999,9 @@ export class ChangeRandomGeneratedInstrument extends Change {
 									{ item: false, weight: 8 },
 									{ item: true, weight: 1 },
 								]),
-								Config.perEnvelopeSpeedIndices[selectCurvedDistribution(1, 63, 30, 30)],
+								Config.perEnvelopeSpeedIndices[
+									selectCurvedDistribution(1, 63, 30, 30)
+								],
 								envelopeLowerBound,
 								envelopeUpperBound,
 								2,
@@ -1810,17 +2023,19 @@ export class ChangeRandomGeneratedInstrument extends Change {
 						// custom chip sounds.
 						const randomGeneratedArray: Float32Array = new Float32Array(64);
 						const randomGeneratedArrayIntegral: Float32Array = new Float32Array(65);
-						const algorithmFunction: (wave: Float32Array) => void = selectWeightedRandom([
-							{ item: randomSineWave, weight: 4 },
-							{ item: randomPulses, weight: 4 },
-							{ item: randomChipWave, weight: 3 },
-							{ item: biasedFullyRandom, weight: 2 },
-							{ item: fullyRandom, weight: 1 },
-						]);
+						const algorithmFunction: (wave: Float32Array) => void =
+							selectWeightedRandom([
+								{ item: randomSineWave, weight: 4 },
+								{ item: randomPulses, weight: 4 },
+								{ item: randomChipWave, weight: 3 },
+								{ item: biasedFullyRandom, weight: 2 },
+								{ item: fullyRandom, weight: 1 },
+							]);
 						algorithmFunction(randomGeneratedArray);
 
 						let sum: number = 0.0;
-						for (let i: number = 0; i < randomGeneratedArray.length; i++) sum += randomGeneratedArray[i];
+						for (let i: number = 0; i < randomGeneratedArray.length; i++)
+							sum += randomGeneratedArray[i];
 						const average: number = sum / randomGeneratedArray.length;
 						let cumulative: number = 0;
 						let wavePrev: number = 0;

@@ -42,10 +42,20 @@
 		"enabled": true,
 		"indentStyle": "tab",
 		"indentWidth": 4,
-		"lineWidth": 160
+		"lineWidth": 100
 	},
 	"files": {
 		"maxSize": 5242880,
-		"includes": ["editor/**/*.ts", "synth/**/*.ts", "player/**/*.ts", "shared/**/*.ts", "!build", "!website", "!archive", "!conventions", "!.kilocode"]
+		"includes": [
+			"editor/**/*.ts",
+			"synth/**/*.ts",
+			"player/**/*.ts",
+			"shared/**/*.ts",
+			"!build",
+			"!website",
+			"!archive",
+			"!conventions",
+			"!.kilocode"
+		]
 	}
 }

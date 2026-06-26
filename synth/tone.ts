@@ -53,7 +53,9 @@ export class Tone {
 	public expressionDelta: number = 0.0;
 	public readonly operatorExpressions: number[] = [];
 	public readonly operatorExpressionDeltas: number[] = [];
-	public readonly prevPitchExpressions: Array<number | null> = Array(Config.maxPitchOrOperatorCount).fill(null);
+	public readonly prevPitchExpressions: Array<number | null> = Array(
+		Config.maxPitchOrOperatorCount,
+	).fill(null);
 	public prevVibrato: number | null = null;
 	public prevStringDecay: number | null = null;
 	public pulseWidth: number = 0.0;

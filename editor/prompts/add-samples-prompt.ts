@@ -13,8 +13,24 @@ import { clamp, parseFloatWithDefault, parseIntWithDefault, wrap } from "../../s
 import { Config, type Dictionary } from "../../synth/synth-config";
 import { EditorConfig } from "../config/editor-config";
 import type { SongDocument } from "../song-document";
-import { addWheelSupport, flex, flexPane, inputRow, paneContainer, promptRowBetween, promptRowEnd, s, searchInput, stepperInput } from "../ui";
-import { generateAllSampleURLs, generateSampleURL, parseSampleURLs, type SampleEntry } from "./add-samples-url-parser";
+import {
+	addWheelSupport,
+	flex,
+	flexPane,
+	inputRow,
+	paneContainer,
+	promptRowBetween,
+	promptRowEnd,
+	s,
+	searchInput,
+	stepperInput,
+} from "../ui";
+import {
+	generateAllSampleURLs,
+	generateSampleURL,
+	parseSampleURLs,
+	type SampleEntry,
+} from "./add-samples-url-parser";
 import { BasePrompt } from "./base-prompt";
 
 const { button, div, h2, span, input, select, option, a, code, p, textarea } = HTML;
@@ -91,7 +107,10 @@ export class AddSamplesPrompt extends BasePrompt {
 
 		const bulkArea = div(
 			{ class: "sbpBulkOverlay" },
-			div({ style: s(flex("row"), "align-items:center; gap:8px;") }, span({}, `Paste URLs, one per line (max ${this._maxSamples})`)),
+			div(
+				{ style: s(flex("row"), "align-items:center; gap:8px;") },
+				span({}, `Paste URLs, one per line (max ${this._maxSamples})`),
+			),
 			this._bulkTextarea,
 			promptRowEnd(this._bulkCancelButton, this._bulkConfirmButton),
 		);
@@ -99,7 +118,12 @@ export class AddSamplesPrompt extends BasePrompt {
 		this._addSampleButton = button({}, "Add sample");
 		this._addMultipleButton = button({}, "Add multiple");
 		this._copyButton = button({ class: "sbpCardActionBtn" }, "Copy");
-		const btnRow = div({ class: "sbpBtnRow" }, this._addSampleButton, this._addMultipleButton, this._copyButton);
+		const btnRow = div(
+			{ class: "sbpBtnRow" },
+			this._addSampleButton,
+			this._addMultipleButton,
+			this._copyButton,
+		);
 
 		this._leftPane = div({ class: "sbpLeftPane" }, listContainer, btnRow, bulkArea);
 		this._leftPane.style.border = "2px solid var(--ui-widget-background)";
@@ -152,9 +176,13 @@ export class AddSamplesPrompt extends BasePrompt {
 		this._detailBwBox.addEventListener("change", this._onDetailBwChange);
 		this._detailBwBox.addEventListener("change", () => this._detailBwBox.blur());
 
-		[this._detailSrStepper, this._detailRkStepper, this._detailLsStepper, this._detailLeStepper, this._detailSoStepper].forEach((el) =>
-			addWheelSupport(el),
-		);
+		[
+			this._detailSrStepper,
+			this._detailRkStepper,
+			this._detailLsStepper,
+			this._detailLeStepper,
+			this._detailSoStepper,
+		].forEach((el) => addWheelSupport(el));
 
 		this._detailCard = div({ class: "sbpCard" });
 
@@ -179,7 +207,10 @@ export class AddSamplesPrompt extends BasePrompt {
 
 		this._infoArea = div(
 			{ class: "sbpInfoArea" },
-			p({}, "Custom samples are loaded from arbitrary URLs. The web server needs to support CORS."),
+			p(
+				{},
+				"Custom samples are loaded from arbitrary URLs. The web server needs to support CORS.",
+			),
 			p(
 				{},
 				"Upload suggestions: ",
@@ -190,7 +221,11 @@ export class AddSamplesPrompt extends BasePrompt {
 				code("dl.dropboxusercontent.com"),
 				" domain)",
 			),
-			p({}, "For soundfonts, use the ", a({ href: "./sample_extractor.html", target: "_blank" }, "sample extractor")),
+			p(
+				{},
+				"For soundfonts, use the ",
+				a({ href: "./sample_extractor.html", target: "_blank" }, "sample extractor"),
+			),
 		);
 
 		// ── Right pane wrapper ──
@@ -220,8 +255,16 @@ export class AddSamplesPrompt extends BasePrompt {
 			h2({}, "Add Samples"),
 			inputRow({ gap: "8px" }, this._searchInput),
 			this._orderNote,
-			paneContainer({ height: "400px", gap: "8px", overflow: "visible", border: "none" }, this._leftPane, this._rightPane),
-			div({ class: "sbpBottomBar" }, button({ class: "sbpInfoBtn" }, "info"), this._okayButton),
+			paneContainer(
+				{ height: "400px", gap: "8px", overflow: "visible", border: "none" },
+				this._leftPane,
+				this._rightPane,
+			),
+			div(
+				{ class: "sbpBottomBar" },
+				button({ class: "sbpInfoBtn" }, "info"),
+				this._okayButton,
+			),
 			this._infoArea,
 			this._cancelButton,
 		);
@@ -292,7 +335,8 @@ export class AddSamplesPrompt extends BasePrompt {
 	private _noteName = (n: number): string => {
 		n = Math.floor(n) - 12;
 		const idx = wrap(n + Config.keys[this._doc.song.key].basePitch, Config.pitchesPerOctave);
-		if (Config.keys[idx].isWhiteKey) return Config.keys[idx].name + Math.floor(n / Config.pitchesPerOctave);
+		if (Config.keys[idx].isWhiteKey)
+			return Config.keys[idx].name + Math.floor(n / Config.pitchesPerOctave);
 		const dir = Config.blackKeyNameParents[wrap(n, Config.pitchesPerOctave)];
 		return (
 			Config.keys[wrap(idx + Config.pitchesPerOctave + dir, Config.pitchesPerOctave)].name +
@@ -330,7 +374,8 @@ export class AddSamplesPrompt extends BasePrompt {
 	};
 
 	private _reconfigureAddButton = (): void => {
-		this._addSampleButton.style.display = this._entries.length >= this._maxSamples ? "none" : "";
+		this._addSampleButton.style.display =
+			this._entries.length >= this._maxSamples ? "none" : "";
 	};
 
 	// ── Rendering ──
@@ -342,7 +387,8 @@ export class AddSamplesPrompt extends BasePrompt {
 
 	private _renderList = (): void => {
 		const savedScrollTop = this._sampleList.scrollTop;
-		while (this._sampleList.firstChild) this._sampleList.removeChild(this._sampleList.firstChild);
+		while (this._sampleList.firstChild)
+			this._sampleList.removeChild(this._sampleList.firstChild);
 
 		const filtered = this._getFilteredEntries();
 		let selectedFound = false;
@@ -379,7 +425,11 @@ export class AddSamplesPrompt extends BasePrompt {
 				this._moveDown(globalIdx);
 			});
 
-			const moveCol = div({ style: "display:flex; flex-direction:column; flex-shrink:0; gap:4px;" }, upBtn, downBtn);
+			const moveCol = div(
+				{ style: "display:flex; flex-direction:column; flex-shrink:0; gap:4px;" },
+				upBtn,
+				downBtn,
+			);
 			const row = div({ class: "sbpRow" }, moveCol, item, removeBtn);
 			item.addEventListener("click", () => {
 				this._lastInteraction = null;
@@ -403,19 +453,26 @@ export class AddSamplesPrompt extends BasePrompt {
 	};
 
 	private _renderDetails = (): void => {
-		while (this._detailCard.firstChild) this._detailCard.removeChild(this._detailCard.firstChild);
+		while (this._detailCard.firstChild)
+			this._detailCard.removeChild(this._detailCard.firstChild);
 
 		const hasSelection = this._selectedIndex >= 0 && this._selectedIndex < this._entries.length;
 
 		if (!hasSelection) {
-			this._detailCard.appendChild(div({ class: "sbpEmpty" }, "Select a sample from the list to edit"));
+			this._detailCard.appendChild(
+				div({ class: "sbpEmpty" }, "Select a sample from the list to edit"),
+			);
 			return;
 		}
 
 		const entry = this._entries[this._selectedIndex];
 
 		// URL row
-		const urlRow = div({ class: "sbpCardFieldRow" }, span({ class: "sbpLabel" }, "URL"), this._detailUrl);
+		const urlRow = div(
+			{ class: "sbpCardFieldRow" },
+			span({ class: "sbpLabel" }, "URL"),
+			this._detailUrl,
+		);
 		this._detailCard.appendChild(urlRow);
 
 		// Sample settings section
@@ -423,7 +480,11 @@ export class AddSamplesPrompt extends BasePrompt {
 			{ class: "sbpSection" },
 			div({ class: "sbpSectionTitle" }, "Sample Settings"),
 			promptRowBetween(span({ class: "prompt-label" }, "Sample Rate"), this._detailSrStepper),
-			promptRowBetween(span({ class: "prompt-label" }, "Root Key"), this._detailRkDisplay, this._detailRkStepper),
+			promptRowBetween(
+				span({ class: "prompt-label" }, "Root Key"),
+				this._detailRkDisplay,
+				this._detailRkStepper,
+			),
 			promptRowBetween(span({ class: "prompt-label" }, "Percussion"), this._detailPercBox),
 		);
 
@@ -440,8 +501,14 @@ export class AddSamplesPrompt extends BasePrompt {
 
 		const settingsRow = div(
 			{ style: "display:flex; flex-direction:row; gap:8px; flex:1;" },
-			div({ style: "flex:1; min-width:0; display:flex; flex-direction:column;" }, settingsSection),
-			div({ style: "flex:1; min-width:0; display:flex; flex-direction:column;" }, chipSection),
+			div(
+				{ style: "flex:1; min-width:0; display:flex; flex-direction:column;" },
+				settingsSection,
+			),
+			div(
+				{ style: "flex:1; min-width:0; display:flex; flex-direction:column;" },
+				chipSection,
+			),
 		);
 		this._detailCard.appendChild(settingsRow);
 
@@ -451,10 +518,14 @@ export class AddSamplesPrompt extends BasePrompt {
 		this._detailRkStepper.value = String(entry.rootKey);
 		this._detailRkDisplay.textContent = `(${this._noteName(entry.rootKey)})`;
 		this._detailPercBox.checked = entry.percussion;
-		this._detailLsStepper.value = entry.chipWaveLoopStart != null ? String(entry.chipWaveLoopStart) : "0";
-		this._detailLeStepper.value = entry.chipWaveLoopEnd != null ? String(entry.chipWaveLoopEnd) : "0";
-		this._detailSoStepper.value = entry.chipWaveStartOffset != null ? String(entry.chipWaveStartOffset) : "0";
-		this._detailModeSelect.value = entry.chipWaveLoopMode != null ? String(entry.chipWaveLoopMode) : "-1";
+		this._detailLsStepper.value =
+			entry.chipWaveLoopStart != null ? String(entry.chipWaveLoopStart) : "0";
+		this._detailLeStepper.value =
+			entry.chipWaveLoopEnd != null ? String(entry.chipWaveLoopEnd) : "0";
+		this._detailSoStepper.value =
+			entry.chipWaveStartOffset != null ? String(entry.chipWaveStartOffset) : "0";
+		this._detailModeSelect.value =
+			entry.chipWaveLoopMode != null ? String(entry.chipWaveLoopMode) : "-1";
 		this._detailBwBox.checked = entry.chipWavePlayBackwards;
 	};
 
@@ -476,7 +547,10 @@ export class AddSamplesPrompt extends BasePrompt {
 
 	private _moveUp = (index: number): void => {
 		if (index <= 0) return;
-		[this._entries[index - 1], this._entries[index]] = [this._entries[index], this._entries[index - 1]];
+		[this._entries[index - 1], this._entries[index]] = [
+			this._entries[index],
+			this._entries[index - 1],
+		];
 		[this._entryOptionsDisplayStates[index - 1], this._entryOptionsDisplayStates[index]] = [
 			this._entryOptionsDisplayStates[index],
 			this._entryOptionsDisplayStates[index - 1],
@@ -488,7 +562,10 @@ export class AddSamplesPrompt extends BasePrompt {
 
 	private _moveDown = (index: number): void => {
 		if (index >= this._entries.length - 1) return;
-		[this._entries[index], this._entries[index + 1]] = [this._entries[index + 1], this._entries[index]];
+		[this._entries[index], this._entries[index + 1]] = [
+			this._entries[index + 1],
+			this._entries[index],
+		];
 		[this._entryOptionsDisplayStates[index], this._entryOptionsDisplayStates[index + 1]] = [
 			this._entryOptionsDisplayStates[index + 1],
 			this._entryOptionsDisplayStates[index],
@@ -640,7 +717,11 @@ export class AddSamplesPrompt extends BasePrompt {
 				event.preventDefault();
 				break;
 			case 40:
-				if (this._activePane === "list" && currentPos >= 0 && currentPos < filtered.length - 1) {
+				if (
+					this._activePane === "list" &&
+					currentPos >= 0 &&
+					currentPos < filtered.length - 1
+				) {
 					this._selectEntry(filtered[currentPos + 1]);
 					this._lastInteraction = "keyboard";
 					this._updateHighlight();
@@ -707,7 +788,8 @@ export class AddSamplesPrompt extends BasePrompt {
 			return;
 		}
 		// Pane borders — hover takes priority over keyboard, matching preset browser
-		const effectivePane = this._lastInteraction === "hover" ? this._hoveredPane : this._activePane;
+		const effectivePane =
+			this._lastInteraction === "hover" ? this._hoveredPane : this._activePane;
 		const focusedPane = effectivePane === "list" ? this._leftPane : this._rightPane;
 		const unfocusedPane = effectivePane === "list" ? this._rightPane : this._leftPane;
 		focusedPane.style.borderColor = "var(--indicator-primary, #4444ff)";
@@ -719,7 +801,10 @@ export class AddSamplesPrompt extends BasePrompt {
 		for (let i = 0; i < rows.length; i++) {
 			const item = rows[i].querySelector(".categoryItem");
 			if (!item) continue;
-			const isFocused = filtered[i] === this._selectedIndex && this._lastInteraction === "keyboard" && this._activePane === "list";
+			const isFocused =
+				filtered[i] === this._selectedIndex &&
+				this._lastInteraction === "keyboard" &&
+				this._activePane === "list";
 			item.classList.toggle("focused", isFocused);
 		}
 	};
@@ -764,17 +849,26 @@ export class AddSamplesPrompt extends BasePrompt {
 
 	private _onDetailLsChange = (): void => {
 		if (this._selectedIndex < 0) return;
-		this._entries[this._selectedIndex].chipWaveLoopStart = parseIntWithDefault(this._detailLsStepper.value, null);
+		this._entries[this._selectedIndex].chipWaveLoopStart = parseIntWithDefault(
+			this._detailLsStepper.value,
+			null,
+		);
 	};
 
 	private _onDetailLeChange = (): void => {
 		if (this._selectedIndex < 0) return;
-		this._entries[this._selectedIndex].chipWaveLoopEnd = parseIntWithDefault(this._detailLeStepper.value, null);
+		this._entries[this._selectedIndex].chipWaveLoopEnd = parseIntWithDefault(
+			this._detailLeStepper.value,
+			null,
+		);
 	};
 
 	private _onDetailSoChange = (): void => {
 		if (this._selectedIndex < 0) return;
-		this._entries[this._selectedIndex].chipWaveStartOffset = parseIntWithDefault(this._detailSoStepper.value, null);
+		this._entries[this._selectedIndex].chipWaveStartOffset = parseIntWithDefault(
+			this._detailSoStepper.value,
+			null,
+		);
 	};
 
 	private _onDetailModeChange = (): void => {

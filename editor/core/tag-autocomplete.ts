@@ -46,7 +46,12 @@ export class TagAutocomplete {
 			.toLowerCase()
 			.split(/\s+/)
 			.filter((t) => t !== "");
-		const invalid = tags.filter((tag) => !(tag.startsWith("!") ? fullTagList.includes(tag.slice(1)) : fullTagList.includes(tag)));
+		const invalid = tags.filter(
+			(tag) =>
+				!(tag.startsWith("!")
+					? fullTagList.includes(tag.slice(1))
+					: fullTagList.includes(tag)),
+		);
 		inputBox.title = invalid.length > 0 ? `Unknown tags: ${invalid.join(", ")}` : "";
 		inputBox.style.outline = invalid.length > 0 ? "1px solid orange" : "";
 
@@ -66,7 +71,12 @@ export class TagAutocomplete {
 
 		const completedTags = new Set(tags.filter((_, i) => i < tags.length - 1));
 
-		const matches = fullTagList.filter((tag) => tag.startsWith(searchTerm) && !completedTags.has(tag) && !completedTags.has(`!${tag}`));
+		const matches = fullTagList.filter(
+			(tag) =>
+				tag.startsWith(searchTerm) &&
+				!completedTags.has(tag) &&
+				!completedTags.has(`!${tag}`),
+		);
 
 		if (matches.length === 0 || (matches.length === 1 && matches[0] === searchTerm)) {
 			this.hide();
@@ -120,7 +130,8 @@ export class TagAutocomplete {
 
 	public highlight(items: NodeListOf<HTMLElement>): void {
 		items.forEach((el, i) => {
-			el.style.background = i === this._autocompleteIndex ? "var(--ui-widget-focus, #777)" : "";
+			el.style.background =
+				i === this._autocompleteIndex ? "var(--ui-widget-focus, #777)" : "";
 			el.style.color = i === this._autocompleteIndex ? "var(--editor-background, #fff)" : "";
 		});
 	}
@@ -128,7 +139,11 @@ export class TagAutocomplete {
 	public filterPresetSelectByTags(): void {
 		const pitchedSelect = this._host.pitchedPresetSelect;
 		const drumSelect = this._host.drumPresetSelect;
-		if (!(pitchedSelect instanceof HTMLSelectElement) || !(drumSelect instanceof HTMLSelectElement)) return;
+		if (
+			!(pitchedSelect instanceof HTMLSelectElement) ||
+			!(drumSelect instanceof HTMLSelectElement)
+		)
+			return;
 		const input = document.getElementById("presetTagsInputBox") as HTMLInputElement | null;
 		const rawTags: string[] = input
 			? input.value
@@ -160,7 +175,11 @@ export class TagAutocomplete {
 		const matchesTags = (presetValue: number): boolean => {
 			const preset = EditorConfig.valueToPreset(presetValue);
 			if (!preset?.tags) return false;
-			return rawTags.every((tag) => (tag.startsWith("!") ? !preset.tags.includes(tag.slice(1)) : preset.tags.includes(tag)));
+			return rawTags.every((tag) =>
+				tag.startsWith("!")
+					? !preset.tags.includes(tag.slice(1))
+					: preset.tags.includes(tag),
+			);
 		};
 
 		const filterSelect = (src: HTMLSelectElement): void => {

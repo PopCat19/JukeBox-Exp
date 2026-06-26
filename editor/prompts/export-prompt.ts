@@ -68,8 +68,15 @@ export class ExportPrompt extends BasePrompt {
 	private readonly _outputProgressBar: HTMLDivElement = div({
 		class: "exportProgressBar",
 	});
-	private readonly _outputProgressLabel: HTMLDivElement = div({ class: "exportProgressLabel" }, "0%");
-	private readonly _outputProgressContainer: HTMLDivElement = div({ class: "exportProgressContainer" }, this._outputProgressBar, this._outputProgressLabel);
+	private readonly _outputProgressLabel: HTMLDivElement = div(
+		{ class: "exportProgressLabel" },
+		"0%",
+	);
+	private readonly _outputProgressContainer: HTMLDivElement = div(
+		{ class: "exportProgressContainer" },
+		this._outputProgressBar,
+		this._outputProgressLabel,
+	);
 
 	public readonly container: HTMLDivElement = div(
 		{ class: "prompt exportPrompt noSelection" },
@@ -78,15 +85,30 @@ export class ExportPrompt extends BasePrompt {
 		promptRowBetween(promptLabel("Length:"), this._computedSamplesLabel),
 		div(
 			{ class: "exportGridRow" },
-			div({ class: "exportGridCell" }, this._enableIntro, div({ class: "exportGridLabel" }, "Intro")),
-			div({ class: "exportGridCell" }, div({ class: "exportGridLabel" }, "Loop"), this._loopDropDown),
-			div({ class: "exportGridCell" }, this._enableOutro, div({ class: "exportGridLabel" }, "Outro")),
+			div(
+				{ class: "exportGridCell" },
+				this._enableIntro,
+				div({ class: "exportGridLabel" }, "Intro"),
+			),
+			div(
+				{ class: "exportGridCell" },
+				div({ class: "exportGridLabel" }, "Loop"),
+				this._loopDropDown,
+			),
+			div(
+				{ class: "exportGridCell" },
+				this._enableOutro,
+				div({ class: "exportGridLabel" }, "Outro"),
+			),
 		),
 		promptRowBetween(promptLabel("Remove Whitespace:"), this._removeWhitespace),
 		promptRowBetween(promptLabel("Keep Open:"), this._keepOpen),
 		this._oggWarning,
 		selectField("Format:", this._formatSelect, { selectWidth: "100%" }),
-		div({ class: "exportNote" }, "Exporting can be slow. Reloading the page or clicking the X will cancel it. Please be patient."),
+		div(
+			{ class: "exportNote" },
+			"Exporting can be slow. Reloading the page or clicking the X will cancel it. Please be patient.",
+		),
 		this._outputProgressContainer,
 		this._getOkayRow(),
 		this._cancelButton,
@@ -122,10 +144,12 @@ export class ExportPrompt extends BasePrompt {
 			this._formatSelect.value = lastExportFormat;
 		}
 
-		const lastExportWhitespace: boolean = window.localStorage.getItem("exportWhitespace") !== "false";
+		const lastExportWhitespace: boolean =
+			window.localStorage.getItem("exportWhitespace") !== "false";
 		this._removeWhitespace.checked = lastExportWhitespace;
 
-		const lastExportKeepOpen: boolean = window.localStorage.getItem("exportKeepOpen") === "true";
+		const lastExportKeepOpen: boolean =
+			window.localStorage.getItem("exportKeepOpen") === "true";
 		this._keepOpen.checked = lastExportKeepOpen;
 
 		this._updateWarnings();
@@ -150,7 +174,11 @@ export class ExportPrompt extends BasePrompt {
 	private _updateSamplesLabel = (): void => {
 		(this._computedSamplesLabel.firstChild as Text).textContent = ExportPrompt.samplesToTime(
 			this._doc,
-			this._doc.synth.getTotalSamples(this._enableIntro.checked, this._enableOutro.checked, +this._loopDropDown.value - 1),
+			this._doc.synth.getTotalSamples(
+				this._enableIntro.checked,
+				this._enableOutro.checked,
+				+this._loopDropDown.value - 1,
+			),
 		);
 	};
 
@@ -158,7 +186,11 @@ export class ExportPrompt extends BasePrompt {
 		// Remove Whitespace option is only relevant for JSON formats
 		const removeWsRow = this._removeWhitespace.parentElement;
 		if (removeWsRow) {
-			removeWsRow.style.display = ["json", "json-exp", "json-legacy"].includes(this._formatSelect.value) ? "flex" : "none";
+			removeWsRow.style.display = ["json", "json-exp", "json-legacy"].includes(
+				this._formatSelect.value,
+			)
+				? "flex"
+				: "none";
 		}
 		const showOgg = this._formatSelect.value === "ogg" || this._formatSelect.value === "opus";
 		this._oggWarning.style.display = showOgg ? "block" : "none";
@@ -249,7 +281,10 @@ export class ExportPrompt extends BasePrompt {
 		this.synth.synthesize(tempSamplesL, tempSamplesR, samplesInChunk);
 		this.recordedSamplesL.set(tempSamplesL, currentFrame);
 		this.recordedSamplesR.set(tempSamplesR, currentFrame);
-		this._outputProgressBar.style.setProperty("width", `${Math.round(((this.currentChunk + 1) / this.totalChunks) * 100.0)}%`);
+		this._outputProgressBar.style.setProperty(
+			"width",
+			`${Math.round(((this.currentChunk + 1) / this.totalChunks) * 100.0)}%`,
+		);
 		this._outputProgressLabel.innerText = `${Math.round(((this.currentChunk + 1) / this.totalChunks) * 100.0)}%`;
 		this.currentChunk++;
 		if (this.currentChunk >= this.totalChunks) {
@@ -268,7 +303,8 @@ export class ExportPrompt extends BasePrompt {
 		this.thenExportTo = type;
 		this.currentChunk = 0;
 		this.synth = new Synth(this._doc.song);
-		if (type === "wav" || type === "ogg" || type === "opus") this.synth.samplesPerSecond = 48000;
+		if (type === "wav" || type === "ogg" || type === "opus")
+			this.synth.samplesPerSecond = 48000;
 		else if (type === "mp3") this.synth.samplesPerSecond = Config.defaultSampleRate;
 		this._outputProgressBar.style.setProperty("width", "0%");
 		this._outputProgressLabel.innerText = "0%";
@@ -279,7 +315,11 @@ export class ExportPrompt extends BasePrompt {
 		this.synth.initModFilters(this._doc.song);
 		this.synth.computeLatestModValues();
 		this.synth.warmUpSynthesizer(this._doc.song);
-		this.sampleFrames = this.synth.getTotalSamples(this._enableIntro.checked, this._enableOutro.checked, this.synth.loopRepeatCount);
+		this.sampleFrames = this.synth.getTotalSamples(
+			this._enableIntro.checked,
+			this._enableOutro.checked,
+			this.synth.loopRepeatCount,
+		);
 		this.totalChunks = Math.ceil(this.sampleFrames / (this.synth.samplesPerSecond * 5));
 		this.recordedSamplesL = new Float32Array(this.sampleFrames);
 		this.recordedSamplesR = new Float32Array(this.sampleFrames);
@@ -324,9 +364,17 @@ export class ExportPrompt extends BasePrompt {
 		index += 4;
 		const range: number = (1 << (bitsPerSample - 1)) - 1;
 		for (let i: number = 0; i < sampleFrames; i++) {
-			data.setInt16(index, Math.floor(Math.max(-1, Math.min(1, this.recordedSamplesL[i])) * range), true);
+			data.setInt16(
+				index,
+				Math.floor(Math.max(-1, Math.min(1, this.recordedSamplesL[i])) * range),
+				true,
+			);
 			index += 2;
-			data.setInt16(index, Math.floor(Math.max(-1, Math.min(1, this.recordedSamplesR[i])) * range), true);
+			data.setInt16(
+				index,
+				Math.floor(Math.max(-1, Math.min(1, this.recordedSamplesR[i])) * range),
+				true,
+			);
 			index += 2;
 		}
 		save(new Blob([arrayBuffer], { type: "audio/wav" }), `${this._fileName.value.trim()}.wav`);
@@ -346,7 +394,10 @@ export class ExportPrompt extends BasePrompt {
 				right[i] = Math.floor(Math.max(-1, Math.min(1, this.recordedSamplesR[i])) * range);
 			}
 			for (let i: number = 0; i < left.length; i += 1152) {
-				const mp3buf: any = mp3encoder.encodeBuffer(left.subarray(i, i + 1152), right.subarray(i, i + 1152));
+				const mp3buf: any = mp3encoder.encodeBuffer(
+					left.subarray(i, i + 1152),
+					right.subarray(i, i + 1152),
+				);
 				if (mp3buf.length > 0) mp3Data.push(mp3buf);
 			}
 			const flush: any = mp3encoder.flush();
@@ -367,10 +418,21 @@ export class ExportPrompt extends BasePrompt {
 		const whenEncoderIsAvailable = (): void => {
 			const WasmMediaEncoder: any = (<any>window).WasmMediaEncoder;
 			WasmMediaEncoder.createOggEncoder().then((oggEncoder: any) => {
-				oggEncoder.configure({ channels: 2, sampleRate: this.synth.samplesPerSecond, vbrQuality: 10 });
+				oggEncoder.configure({
+					channels: 2,
+					sampleRate: this.synth.samplesPerSecond,
+					vbrQuality: 10,
+				});
 				const parts: Uint8Array[] = [];
 				for (let i: number = 0; i < this.recordedSamplesL.length; i += 4096) {
-					parts.push(oggEncoder.encode([this.recordedSamplesL.subarray(i, i + 4096), this.recordedSamplesR.subarray(i, i + 4096)]).slice());
+					parts.push(
+						oggEncoder
+							.encode([
+								this.recordedSamplesL.subarray(i, i + 4096),
+								this.recordedSamplesR.subarray(i, i + 4096),
+							])
+							.slice(),
+					);
 				}
 				parts.push(oggEncoder.finalize().slice());
 				save(new Blob(parts, { type: "audio/ogg" }), `${this._fileName.value.trim()}.ogg`);
@@ -413,7 +475,11 @@ export class ExportPrompt extends BasePrompt {
 				view.setUint8(8, 1);
 				view.setUint8(9, this.config.numberOfChannels);
 				view.setUint16(10, lookahead, true);
-				view.setUint32(12, this.config.originalSampleRateOverride || this.config.originalSampleRate, true);
+				view.setUint32(
+					12,
+					this.config.originalSampleRateOverride || this.config.originalSampleRate,
+					true,
+				);
 				view.setUint16(16, 0, true);
 				view.setUint8(18, 0);
 				this.segmentTableIndex = 1;
@@ -441,7 +507,10 @@ export class ExportPrompt extends BasePrompt {
 			let i = 0;
 			for (; i < this.recordedSamplesL.length; i += blockSize) {
 				encoder
-					.encode([this.recordedSamplesL.subarray(i, i + blockSize), this.recordedSamplesR.subarray(i, i + blockSize)])
+					.encode([
+						this.recordedSamplesL.subarray(i, i + blockSize),
+						this.recordedSamplesR.subarray(i, i + blockSize),
+					])
 					.forEach((p: any) => parts.push(p.page));
 			}
 			{
@@ -475,7 +544,11 @@ export class ExportPrompt extends BasePrompt {
 
 	private _exportToJson(): void {
 		const json = JSON.stringify(
-			this._doc.song.toJsonObject(this._enableIntro.checked, Number(this._loopDropDown.value), this._enableOutro.checked),
+			this._doc.song.toJsonObject(
+				this._enableIntro.checked,
+				Number(this._loopDropDown.value),
+				this._enableOutro.checked,
+			),
 			null,
 			this._removeWhitespace.checked ? undefined : "\t",
 		);
@@ -484,13 +557,21 @@ export class ExportPrompt extends BasePrompt {
 	}
 
 	private _exportToJsonExp(): void {
-		const json = JSON.stringify(toJukeboxExpJson(this._doc.song), null, this._removeWhitespace.checked ? undefined : "\t");
+		const json = JSON.stringify(
+			toJukeboxExpJson(this._doc.song),
+			null,
+			this._removeWhitespace.checked ? undefined : "\t",
+		);
 		save(new Blob([json], { type: "application/json" }), `${this._fileName.value.trim()}.json`);
 		this._close();
 	}
 
 	private _exportToJsonLegacy(): void {
-		const json = JSON.stringify(toLegacyCompatJson(toJukeboxExpJson(this._doc.song)), null, this._removeWhitespace.checked ? undefined : "\t");
+		const json = JSON.stringify(
+			toLegacyCompatJson(toJukeboxExpJson(this._doc.song)),
+			null,
+			this._removeWhitespace.checked ? undefined : "\t",
+		);
 		save(new Blob([json], { type: "application/json" }), `${this._fileName.value.trim()}.json`);
 		this._close();
 	}

@@ -87,12 +87,18 @@ export function parseSampleURLs(urls: string[], parseOldSyntax: boolean): Sample
 			if (optionsStartIndex === 0) {
 				optionsEndIndex = url.indexOf("!", optionsStartIndex + 1);
 				if (optionsEndIndex !== -1) {
-					const rawOptions: string[] = url.slice(optionsStartIndex + 1, optionsEndIndex).split(",");
+					const rawOptions: string[] = url
+						.slice(optionsStartIndex + 1, optionsEndIndex)
+						.split(",");
 					for (const rawOption of rawOptions) {
 						const optionCode: string = rawOption.charAt(0);
 						const optionData: string = rawOption.slice(1, rawOption.length);
 						if (optionCode === "s") {
-							sampleRate = clamp(Config.minSampleRate, Config.maxSampleRate + 1, parseFloatWithDefault(optionData, Config.defaultSampleRate));
+							sampleRate = clamp(
+								Config.minSampleRate,
+								Config.maxSampleRate + 1,
+								parseFloatWithDefault(optionData, Config.defaultSampleRate),
+							);
 						} else if (optionCode === "r") {
 							rootKey = parseFloatWithDefault(optionData, 60);
 						} else if (optionCode === "p") {
@@ -168,7 +174,9 @@ export function generateSampleURL(entry: SampleEntry): string {
 	const chipWavePlayBackwards: boolean = entry.chipWavePlayBackwards;
 	const urlInLowerCase: string = url.toLowerCase();
 	const isBundledSamplePack: boolean =
-		urlInLowerCase === "legacysamples" || urlInLowerCase === "nintariboxsamples" || urlInLowerCase === "mariopaintboxsamples";
+		urlInLowerCase === "legacysamples" ||
+		urlInLowerCase === "nintariboxsamples" ||
+		urlInLowerCase === "mariopaintboxsamples";
 	const options: string[] = [];
 	if (sampleRate !== Config.defaultSampleRate) options.push(`s${sampleRate}`);
 	if (rootKey !== 60) options.push(`r${rootKey}`);

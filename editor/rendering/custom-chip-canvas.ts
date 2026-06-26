@@ -47,7 +47,10 @@ export class CustomChipCanvas {
 
 	public redrawCanvas(): void {
 		const chipData: Float32Array = this._doc.getCurrentInstrumentObj().customChipWave;
-		const renderColor: string = ColorConfig.getComputedChannelColor(this._doc.song, this._doc.channel).primaryNote;
+		const renderColor: string = ColorConfig.getComputedChannelColor(
+			this._doc.song,
+			this._doc.channel,
+		).primaryNote;
 
 		// Check if the data has changed from the last render.
 		let needsRedraw: boolean = false;
@@ -96,7 +99,9 @@ export class CustomChipCanvas {
 	private _onMouseMove = (event: MouseEvent): void => {
 		if (this.mouseDown) {
 			const x = (event.clientX || event.pageX) - this.canvas.getBoundingClientRect().left;
-			let y = Math.floor((event.clientY || event.pageY) - this.canvas.getBoundingClientRect().top);
+			let y = Math.floor(
+				(event.clientY || event.pageY) - this.canvas.getBoundingClientRect().top,
+			);
 
 			if (y < 2) y = 2;
 			if (y > 50) y = 50;
@@ -123,7 +128,10 @@ export class CustomChipCanvas {
 					ctx.fillStyle = ColorConfig.getComputed("--track-editor-bg-pitch-dim");
 					ctx.fillRect(Math.floor(i / 2) * 2, 13, 2, 1);
 					ctx.fillRect(Math.floor(i / 2) * 2, 39, 2, 1);
-					ctx.fillStyle = ColorConfig.getComputedChannelColor(this._doc.song, this._doc.channel).primaryNote;
+					ctx.fillStyle = ColorConfig.getComputedChannelColor(
+						this._doc.song,
+						this._doc.channel,
+					).primaryNote;
 					ctx.fillRect(Math.floor(i / 2) * 2, j - 2, 2, 4);
 
 					// Actually update current instrument's custom waveform
@@ -137,7 +145,10 @@ export class CustomChipCanvas {
 				ctx.fillStyle = ColorConfig.getComputed("--track-editor-bg-pitch-dim");
 				ctx.fillRect(Math.floor(x / 2) * 2, 13, 2, 1);
 				ctx.fillRect(Math.floor(x / 2) * 2, 39, 2, 1);
-				ctx.fillStyle = ColorConfig.getComputedChannelColor(this._doc.song, this._doc.channel).primaryNote;
+				ctx.fillStyle = ColorConfig.getComputedChannelColor(
+					this._doc.song,
+					this._doc.channel,
+				).primaryNote;
 				ctx.fillRect(Math.floor(x / 2) * 2, y - 2, 2, 4);
 
 				// Actually update current instrument's custom waveform

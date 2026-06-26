@@ -9,7 +9,12 @@
 // Copyright (c) 2012-2022 John Nesky and contributing authors, distributed under the MIT license, see accompanying the LICENSE.md file.
 
 import type { FilterControlPoint, FilterSettings, Instrument } from "../../synth";
-import { type AutomationTarget, Config, EffectType, type FilterType } from "../../synth/synth-config";
+import {
+	type AutomationTarget,
+	Config,
+	EffectType,
+	type FilterType,
+} from "../../synth/synth-config";
 import { Change, UndoableChange } from "../core/change";
 import type { SongDocument } from "../song-document";
 
@@ -24,7 +29,11 @@ export class ChangeEQFilterType extends Change {
 			instrument.tmpEqFilterEnd = null;
 		} else {
 			// To Advanced - convert filter
-			instrument.eqFilter.convertLegacySettings(instrument.eqFilterSimpleCut, instrument.eqFilterSimplePeak, Config.envelopes.dictionary.none);
+			instrument.eqFilter.convertLegacySettings(
+				instrument.eqFilterSimpleCut,
+				instrument.eqFilterSimplePeak,
+				Config.envelopes.dictionary.none,
+			);
 			instrument.tmpEqFilterStart = instrument.eqFilter;
 			instrument.tmpEqFilterEnd = null;
 		}
@@ -46,7 +55,11 @@ export class ChangeNoteFilterType extends Change {
 			instrument.tmpNoteFilterEnd = null;
 		} else {
 			// To Advanced - convert filter, kill modulators
-			instrument.noteFilter.convertLegacySettings(instrument.noteFilterSimpleCut, instrument.noteFilterSimplePeak, Config.envelopes.dictionary.none);
+			instrument.noteFilter.convertLegacySettings(
+				instrument.noteFilterSimpleCut,
+				instrument.noteFilterSimplePeak,
+				Config.envelopes.dictionary.none,
+			);
 			instrument.tmpNoteFilterStart = instrument.noteFilter;
 			instrument.tmpNoteFilterEnd = null;
 		}
@@ -62,7 +75,13 @@ export class ChangeSongFilterAddPoint extends UndoableChange {
 	private _filterSettings: FilterSettings;
 	private _point: FilterControlPoint;
 	private _index: number;
-	constructor(doc: SongDocument, filterSettings: FilterSettings, point: FilterControlPoint, index: number, deletion: boolean = false) {
+	constructor(
+		doc: SongDocument,
+		filterSettings: FilterSettings,
+		point: FilterControlPoint,
+		index: number,
+		deletion: boolean = false,
+	) {
 		super(deletion);
 		this._doc = doc;
 		this._filterSettings = filterSettings;
@@ -104,7 +123,14 @@ export class ChangeFilterAddPoint extends UndoableChange {
 	private _envelopeIndicesAdd: number[] = [];
 	private _envelopeTargetsRemove: number[] = [];
 	private _envelopeIndicesRemove: number[] = [];
-	constructor(doc: SongDocument, filterSettings: FilterSettings, point: FilterControlPoint, index: number, isNoteFilter: boolean, deletion: boolean = false) {
+	constructor(
+		doc: SongDocument,
+		filterSettings: FilterSettings,
+		point: FilterControlPoint,
+		index: number,
+		isNoteFilter: boolean,
+		deletion: boolean = false,
+	) {
 		super(deletion);
 		this._doc = doc;
 		this._instrument = this._doc.getCurrentInstrumentObj();
@@ -114,14 +140,22 @@ export class ChangeFilterAddPoint extends UndoableChange {
 		this._point = point;
 		this._index = index;
 
-		for (let envelopeIndex: number = 0; envelopeIndex < this._instrument.envelopeCount; envelopeIndex++) {
+		for (
+			let envelopeIndex: number = 0;
+			envelopeIndex < this._instrument.envelopeCount;
+			envelopeIndex++
+		) {
 			let target: number = this._instrument.envelopes[envelopeIndex].target;
 			let targetIndex: number = this._instrument.envelopes[envelopeIndex].index;
 			this._envelopeTargetsAdd.push(target);
 			this._envelopeIndicesAdd.push(targetIndex);
 			if (deletion) {
-				const automationTarget: AutomationTarget = Config.instrumentAutomationTargets[target];
-				if (automationTarget.isFilter && (automationTarget.effect === EffectType.noteFilter) === isNoteFilter) {
+				const automationTarget: AutomationTarget =
+					Config.instrumentAutomationTargets[target];
+				if (
+					automationTarget.isFilter &&
+					(automationTarget.effect === EffectType.noteFilter) === isNoteFilter
+				) {
 					if (automationTarget.maxCount === Config.filterMaxPoints) {
 						if (targetIndex === index) {
 							target = Config.instrumentAutomationTargets.dictionary.none.index;
@@ -150,9 +184,15 @@ export class ChangeFilterAddPoint extends UndoableChange {
 		this._filterSettings.controlPointCount++;
 		this._filterSettings.controlPoints.length = this._filterSettings.controlPointCount;
 		this._instrument.preset = this._instrumentNextPreset;
-		for (let envelopeIndex: number = 0; envelopeIndex < this._instrument.envelopeCount; envelopeIndex++) {
-			this._instrument.envelopes[envelopeIndex].target = this._envelopeTargetsAdd[envelopeIndex];
-			this._instrument.envelopes[envelopeIndex].index = this._envelopeIndicesAdd[envelopeIndex];
+		for (
+			let envelopeIndex: number = 0;
+			envelopeIndex < this._instrument.envelopeCount;
+			envelopeIndex++
+		) {
+			this._instrument.envelopes[envelopeIndex].target =
+				this._envelopeTargetsAdd[envelopeIndex];
+			this._instrument.envelopes[envelopeIndex].index =
+				this._envelopeIndicesAdd[envelopeIndex];
 		}
 		this._instrument.tmpEqFilterStart = this._instrument.eqFilter;
 		this._instrument.tmpEqFilterEnd = null;
@@ -166,9 +206,15 @@ export class ChangeFilterAddPoint extends UndoableChange {
 		this._filterSettings.controlPointCount--;
 		this._filterSettings.controlPoints.length = this._filterSettings.controlPointCount;
 		this._instrument.preset = this._instrumentPrevPreset;
-		for (let envelopeIndex: number = 0; envelopeIndex < this._instrument.envelopeCount; envelopeIndex++) {
-			this._instrument.envelopes[envelopeIndex].target = this._envelopeTargetsRemove[envelopeIndex];
-			this._instrument.envelopes[envelopeIndex].index = this._envelopeIndicesRemove[envelopeIndex];
+		for (
+			let envelopeIndex: number = 0;
+			envelopeIndex < this._instrument.envelopeCount;
+			envelopeIndex++
+		) {
+			this._instrument.envelopes[envelopeIndex].target =
+				this._envelopeTargetsRemove[envelopeIndex];
+			this._instrument.envelopes[envelopeIndex].index =
+				this._envelopeIndicesRemove[envelopeIndex];
 		}
 		this._instrument.tmpEqFilterStart = this._instrument.eqFilter;
 		this._instrument.tmpEqFilterEnd = null;
@@ -199,7 +245,15 @@ export class ChangeSongFilterMovePoint extends UndoableChange {
 	private _newGain: number;
 	public pointIndex: number;
 	public pointType: FilterType;
-	constructor(doc: SongDocument, point: FilterControlPoint, oldFreq: number, newFreq: number, oldGain: number, newGain: number, pointIndex: number) {
+	constructor(
+		doc: SongDocument,
+		point: FilterControlPoint,
+		oldFreq: number,
+		newFreq: number,
+		oldGain: number,
+		newGain: number,
+		pointIndex: number,
+	) {
 		super(false);
 		this._doc = doc;
 		this._point = point;

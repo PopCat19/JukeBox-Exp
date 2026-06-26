@@ -6,34 +6,54 @@
 // - Branches on isUsingAdvancedLoopControls for loopable variant
 // - Registers for both InstrumentType.chip and InstrumentType.customChipWave
 
+import { InstrumentState } from "../instrument-state";
 import type { Instrument } from "../instruments";
 import { Synth } from "../synth";
 import { Config, effectsIncludeDistortion, InstrumentType } from "../synth-config";
-import { InstrumentState } from "../instrument-state";
-import type { Tone } from "../tone";
 import { buildChipSource, buildLoopableChipSource } from "../synthesis/chip";
+import type { Tone } from "../tone";
 import { registerPlugin } from "./registry";
 
 const chipFunctionCache: Function[] = [];
 const loopableChipFunctionCache: Function[] = Array(Config.unisonVoicesMax + 1).fill(undefined);
 
-function chipSynth(synth: Synth, bufferIndex: number, roundedSamplesPerTick: number, tone: Tone, instrumentState: InstrumentState): void {
+function chipSynth(
+	synth: Synth,
+	bufferIndex: number,
+	roundedSamplesPerTick: number,
+	tone: Tone,
+	instrumentState: InstrumentState,
+): void {
 	const voiceCount: number = Math.max(2, instrumentState.unisonVoices);
 	let chipFunction: Function = chipFunctionCache[instrumentState.unisonVoices];
 	if (chipFunction === undefined) {
 		const chipSource: string = buildChipSource(voiceCount);
-		chipFunction = new Function("Config", "Synth", "effectsIncludeDistortion", chipSource)(Config, Synth, effectsIncludeDistortion);
+		chipFunction = new Function("Config", "Synth", "effectsIncludeDistortion", chipSource)(
+			Config,
+			Synth,
+			effectsIncludeDistortion,
+		);
 		chipFunctionCache[instrumentState.unisonVoices] = chipFunction;
 	}
 	chipFunction(synth, bufferIndex, roundedSamplesPerTick, tone, instrumentState);
 }
 
-function loopableChipSynth(synth: Synth, bufferIndex: number, roundedSamplesPerTick: number, tone: Tone, instrumentState: InstrumentState): void {
+function loopableChipSynth(
+	synth: Synth,
+	bufferIndex: number,
+	roundedSamplesPerTick: number,
+	tone: Tone,
+	instrumentState: InstrumentState,
+): void {
 	const voiceCount: number = Math.max(2, instrumentState.unisonVoices);
 	let chipFunction: Function = loopableChipFunctionCache[instrumentState.unisonVoices];
 	if (chipFunction === undefined) {
 		const chipSource: string = buildLoopableChipSource(voiceCount);
-		chipFunction = new Function("Config", "Synth", "effectsIncludeDistortion", chipSource)(Config, Synth, effectsIncludeDistortion);
+		chipFunction = new Function("Config", "Synth", "effectsIncludeDistortion", chipSource)(
+			Config,
+			Synth,
+			effectsIncludeDistortion,
+		);
 		loopableChipFunctionCache[instrumentState.unisonVoices] = chipFunction;
 	}
 	chipFunction(synth, bufferIndex, roundedSamplesPerTick, tone, instrumentState);
@@ -50,7 +70,9 @@ const plugin = {
 	name: "Chip",
 	getSynthFunction,
 	buildSource: (instrument: Instrument, voiceCount?: number) =>
-		instrument.isUsingAdvancedLoopControls ? buildLoopableChipSource(voiceCount ?? 0) : buildChipSource(voiceCount ?? 0),
+		instrument.isUsingAdvancedLoopControls
+			? buildLoopableChipSource(voiceCount ?? 0)
+			: buildChipSource(voiceCount ?? 0),
 };
 
 registerPlugin({

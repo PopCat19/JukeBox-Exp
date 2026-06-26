@@ -30,7 +30,13 @@ export class Note {
 	public end: number;
 	public continuesLastPattern: boolean;
 
-	public constructor(pitch: number, start: number, end: number, size: number, fadeout: boolean = false) {
+	public constructor(
+		pitch: number,
+		start: number,
+		end: number,
+		size: number,
+		fadeout: boolean = false,
+	) {
 		this.pitches = [pitch];
 		this.pins = [makeNotePin(0, 0, size), makeNotePin(0, end - start, fadeout ? 0 : size)];
 		this.start = start;
@@ -109,12 +115,20 @@ export class Pattern {
 			// Only one ins per pattern is enforced in mod channels.
 			const instrument: Instrument = channel.instruments[this.instruments[0]];
 			const mod: number = Math.max(0, Config.modCount - note.pitches[0] - 1);
-			const volumeCap: number = song.getVolumeCapForSetting(isModChannel, instrument.modulators[mod], instrument.modFilterTypes[mod]);
+			const volumeCap: number = song.getVolumeCapForSetting(
+				isModChannel,
+				instrument.modulators[mod],
+				instrument.modFilterTypes[mod],
+			);
 			const pointArray: object[] = [];
 			for (const pin of note.pins) {
-				const useVol: number = isModChannel ? Math.round(pin.size) : Math.round((pin.size * 100) / volumeCap);
+				const useVol: number = isModChannel
+					? Math.round(pin.size)
+					: Math.round((pin.size * 100) / volumeCap);
 				pointArray.push({
-					tick: ((pin.time + note.start) * Config.rhythms[song.rhythm].stepsPerBeat) / Config.partsPerBeat,
+					tick:
+						((pin.time + note.start) * Config.rhythms[song.rhythm].stepsPerBeat) /
+						Config.partsPerBeat,
 					pitchBend: pin.interval,
 					volume: useVol,
 					forMod: isModChannel,
@@ -152,13 +166,25 @@ export class Pattern {
 		if (song.patternInstruments) {
 			if (Array.isArray(patternObject.instruments)) {
 				const instruments: any[] = patternObject.instruments;
-				const instrumentCount: number = clamp(Config.instrumentCountMin, song.getMaxInstrumentsPerPatternForChannel(channel) + 1, instruments.length);
+				const instrumentCount: number = clamp(
+					Config.instrumentCountMin,
+					song.getMaxInstrumentsPerPatternForChannel(channel) + 1,
+					instruments.length,
+				);
 				for (let j: number = 0; j < instrumentCount; j++) {
-					this.instruments[j] = clamp(0, channel.instruments.length, (instruments[j] | 0) - 1);
+					this.instruments[j] = clamp(
+						0,
+						channel.instruments.length,
+						(instruments[j] | 0) - 1,
+					);
 				}
 				this.instruments.length = instrumentCount;
 			} else {
-				this.instruments[0] = clamp(0, channel.instruments.length, (patternObject.instrument | 0) - 1);
+				this.instruments[0] = clamp(
+					0,
+					channel.instruments.length,
+					(patternObject.instrument | 0) - 1,
+				);
 				this.instruments.length = 1;
 			}
 		}
@@ -175,7 +201,12 @@ export class Pattern {
 				if (j >= maxNoteCount) break;
 
 				const noteObject = patternObject.notes[j];
-				if (!noteObject?.pitches || !(noteObject.pitches.length >= 1) || !noteObject.points || !(noteObject.points.length >= 2)) {
+				if (
+					!noteObject?.pitches ||
+					!(noteObject.pitches.length >= 1) ||
+					!noteObject.points ||
+					!(noteObject.points.length >= 2)
+				) {
 					continue;
 				}
 
@@ -200,12 +231,19 @@ export class Pattern {
 				for (let k: number = 0; k < noteObject.points.length; k++) {
 					const pointObject: any = noteObject.points[k];
 					if (pointObject === undefined || pointObject.tick === undefined) continue;
-					const interval: number = pointObject.pitchBend === undefined ? 0 : pointObject.pitchBend | 0;
+					const interval: number =
+						pointObject.pitchBend === undefined ? 0 : pointObject.pitchBend | 0;
 
-					const time: number = Math.round((+pointObject.tick * Config.partsPerBeat) / importedPartsPerBeat);
+					const time: number = Math.round(
+						(+pointObject.tick * Config.partsPerBeat) / importedPartsPerBeat,
+					);
 
 					// Only one instrument per pattern allowed in mod channels.
-					const volumeCap: number = song.getVolumeCapForSetting(isModChannel, instrument.modulators[mod], instrument.modFilterTypes[mod]);
+					const volumeCap: number = song.getVolumeCapForSetting(
+						isModChannel,
+						instrument.modulators[mod],
+						instrument.modFilterTypes[mod],
+					);
 
 					// The strange volume formula used for notes is not needed for mods. Some rounding errors were possible.
 					// A "forMod" signifier was added to new JSON export to detect when the higher precision export was used in a file.
@@ -213,12 +251,26 @@ export class Pattern {
 					if (pointObject.volume === undefined) {
 						size = volumeCap;
 					} else if (pointObject.forMod === undefined) {
-						size = Math.max(0, Math.min(volumeCap, Math.round(((pointObject.volume | 0) * volumeCap) / 100)));
+						size = Math.max(
+							0,
+							Math.min(
+								volumeCap,
+								Math.round(((pointObject.volume | 0) * volumeCap) / 100),
+							),
+						);
 					} else {
 						size =
 							(pointObject.forMod | 0) > 0
 								? Math.round(pointObject.volume | 0)
-								: Math.max(0, Math.min(volumeCap, Math.round(((pointObject.volume | 0) * volumeCap) / 100)));
+								: Math.max(
+										0,
+										Math.min(
+											volumeCap,
+											Math.round(
+												((pointObject.volume | 0) * volumeCap) / 100,
+											),
+										),
+									);
 					}
 
 					if (time > song.beatsPerBar * Config.partsPerBeat) continue;
@@ -254,7 +306,8 @@ export class Pattern {
 				for (let k: number = 0; k < note.pins.length; k++) {
 					const pin: NotePin = note.pins[k];
 					if (pin.interval + lowestPitch < 0) pin.interval = -lowestPitch;
-					if (pin.interval + highestPitch > maxPitch) pin.interval = maxPitch - highestPitch;
+					if (pin.interval + highestPitch > maxPitch)
+						pin.interval = maxPitch - highestPitch;
 					if (k >= 2) {
 						if (
 							pin.interval === note.pins[k - 1].interval &&
@@ -274,7 +327,11 @@ export class Pattern {
 					note.continuesLastPattern = false;
 				}
 
-				if (format !== "ultrabox" && format !== "slarmoosbox" && instrument.modulators[mod] === Config.modulators.dictionary.tempo.index) {
+				if (
+					format !== "ultrabox" &&
+					format !== "slarmoosbox" &&
+					instrument.modulators[mod] === Config.modulators.dictionary.tempo.index
+				) {
 					for (const pin of note.pins) {
 						const oldMin: number = 30;
 						const newMin: number = 1;

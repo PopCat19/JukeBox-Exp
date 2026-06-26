@@ -33,7 +33,9 @@ export class ChangeToggleEffects extends Change {
 		}
 		const oldValue: number = instrument.effects;
 		const wasSelected: boolean = (oldValue & (1 << toggleFlag)) !== 0;
-		const newValue: number = wasSelected ? oldValue & ~(1 << toggleFlag) : oldValue | (1 << toggleFlag);
+		const newValue: number = wasSelected
+			? oldValue & ~(1 << toggleFlag)
+			: oldValue | (1 << toggleFlag);
 		instrument.effects = newValue;
 		// As a special case, toggling the panning effect doesn't remove the preset.
 		if (toggleFlag !== EffectType.panning) instrument.preset = instrument.type;

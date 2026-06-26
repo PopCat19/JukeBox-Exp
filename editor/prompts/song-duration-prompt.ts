@@ -13,7 +13,14 @@ import { Config } from "../../synth/synth-config";
 import { ChangeBarCount } from "../changes";
 import { ChangeGroup } from "../core/change";
 import { SongDocument } from "../song-document";
-import { addWheelSupport, labelRow, promptHint, promptRowBetween, promptValue, selectField } from "../ui";
+import {
+	addWheelSupport,
+	labelRow,
+	promptHint,
+	promptRowBetween,
+	promptValue,
+	selectField,
+} from "../ui";
 import { BasePrompt } from "./base-prompt";
 import { ExportPrompt } from "./export-prompt";
 import { validate, validateKey, validateNumber } from "./input-helpers";
@@ -36,7 +43,15 @@ export class SongDurationPrompt extends BasePrompt {
 		{ class: "prompt songDurationPrompt noSelection" },
 		h2("Song Length"),
 		promptRowBetween("Length:", this._computedSamplesLabel),
-		labelRow(div({ class: "prompt-label" }, "Bars per song:", br(), promptHint("(Multiples of 4 are recommended)")), this._barsStepper),
+		labelRow(
+			div(
+				{ class: "prompt-label" },
+				"Bars per song:",
+				br(),
+				promptHint("(Multiples of 4 are recommended)"),
+			),
+			this._barsStepper,
+		),
 		selectField("Position:", this._positionSelect),
 		this._getOkayRow(),
 		this._cancelButton,
@@ -60,12 +75,17 @@ export class SongDurationPrompt extends BasePrompt {
 		this._barsStepper.addEventListener("keypress", validateKey);
 		this._barsStepper.addEventListener("blur", validateNumber);
 		this._barsStepper.addEventListener("input", () => {
-			(this._computedSamplesLabel.firstChild as Text).textContent = this._predictFutureLength();
+			(this._computedSamplesLabel.firstChild as Text).textContent =
+				this._predictFutureLength();
 		});
 		this._positionSelect.addEventListener("change", () => {
-			(this._computedSamplesLabel.firstChild as Text).textContent = this._predictFutureLength();
+			(this._computedSamplesLabel.firstChild as Text).textContent =
+				this._predictFutureLength();
 		});
-		(this._computedSamplesLabel.firstChild as Text).textContent = ExportPrompt.samplesToTime(this._doc, this._doc.synth.getTotalSamples(true, true, 0));
+		(this._computedSamplesLabel.firstChild as Text).textContent = ExportPrompt.samplesToTime(
+			this._doc,
+			this._doc.synth.getTotalSamples(true, true, 0),
+		);
 		addWheelSupport(this._barsStepper);
 	}
 
@@ -77,15 +97,30 @@ export class SongDurationPrompt extends BasePrompt {
 
 	private _predictFutureLength(): string {
 		const futureDoc: SongDocument = new SongDocument();
-		futureDoc.synth.song?.fromBase64String(this._doc.synth.song?.toBase64String() ? this._doc.synth.song?.toBase64String() : "");
-		new ChangeBarCount(futureDoc, validate(this._barsStepper), this._positionSelect.value === "beginning");
-		return ExportPrompt.samplesToTime(futureDoc, futureDoc.synth.getTotalSamples(true, true, 0));
+		futureDoc.synth.song?.fromBase64String(
+			this._doc.synth.song?.toBase64String() ? this._doc.synth.song?.toBase64String() : "",
+		);
+		new ChangeBarCount(
+			futureDoc,
+			validate(this._barsStepper),
+			this._positionSelect.value === "beginning",
+		);
+		return ExportPrompt.samplesToTime(
+			futureDoc,
+			futureDoc.synth.getTotalSamples(true, true, 0),
+		);
 	}
 
 	protected override _saveChanges(): void {
 		window.localStorage.setItem("barCountPosition", this._positionSelect.value);
 		const group: ChangeGroup = new ChangeGroup();
-		group.append(new ChangeBarCount(this._doc, validate(this._barsStepper), this._positionSelect.value === "beginning"));
+		group.append(
+			new ChangeBarCount(
+				this._doc,
+				validate(this._barsStepper),
+				this._positionSelect.value === "beginning",
+			),
+		);
 		this._doc.prompt = null;
 		this._doc.record(group);
 	}

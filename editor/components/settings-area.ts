@@ -41,19 +41,39 @@ export class SettingsArea {
 
 		this.songSettings = new SongSettingsPanel(doc, onOpenPrompt, switchEQFilterType);
 
-		this.instrumentSettings = new InstrumentSettingsPanel(doc, onOpenPrompt, switchEQFilterType, switchNoteFilterType);
+		this.instrumentSettings = new InstrumentSettingsPanel(
+			doc,
+			onOpenPrompt,
+			switchEQFilterType,
+			switchNoteFilterType,
+		);
 
 		// Song settings group (visible by default)
-		this._songSettingsGroup = div({ class: "editor-song-settings-group", style: "display: flex;" }, this.songSettings.container);
+		this._songSettingsGroup = div(
+			{ class: "editor-song-settings-group", style: "display: flex;" },
+			this.songSettings.container,
+		);
 
 		// Instrument settings group
-		this._instrumentSettingsGroup = div({ class: "editor-instrument-settings-group" }, this.instrumentSettings.container);
+		this._instrumentSettingsGroup = div(
+			{ class: "editor-instrument-settings-group" },
+			this.instrumentSettings.container,
+		);
 
 		// Main container
 		this.container = div(
 			{ class: "settings-area" },
-			div({ class: "settings-menu" }, this.menuBar.fileMenu, this.menuBar.editMenu, this.menuBar.optionsMenu),
-			div({ class: "settings-content" }, this._songSettingsGroup, this._instrumentSettingsGroup),
+			div(
+				{ class: "settings-menu" },
+				this.menuBar.fileMenu,
+				this.menuBar.editMenu,
+				this.menuBar.optionsMenu,
+			),
+			div(
+				{ class: "settings-content" },
+				this._songSettingsGroup,
+				this._instrumentSettingsGroup,
+			),
 			div(
 				{ class: "settings-playback" },
 				this.playbackControls.playButton,
@@ -63,7 +83,11 @@ export class SettingsArea {
 				this.playbackControls.prevBarButton,
 				this.playbackControls.nextBarButton,
 			),
-			div({ class: "settings-volume" }, this.playbackControls.volumeSlider.container, this.playbackControls.volumeBarBox),
+			div(
+				{ class: "settings-volume" },
+				this.playbackControls.volumeSlider.container,
+				this.playbackControls.volumeBarBox,
+			),
 		);
 	}
 

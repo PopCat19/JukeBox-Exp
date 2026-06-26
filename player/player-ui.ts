@@ -10,14 +10,17 @@
 import { HTML, SVG } from "imperative-html/dist/esm/elements-strict";
 import { ColorConfig } from "../shared/color-config";
 import { events } from "../shared/events";
-import { buildDesignTokensCSS } from "../shared/styles/design-tokens";
 import { spectrumCanvas } from "../shared/spectrum";
+import { buildDesignTokensCSS } from "../shared/styles/design-tokens";
 import { Synth } from "../synth";
 
 const { a, button, div, h1, input, canvas } = HTML;
 const { svg, circle, path } = SVG;
 
-export const isMobile: boolean = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini|android|ipad|playbook|silk/i.test(navigator.userAgent);
+export const isMobile: boolean =
+	/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini|android|ipad|playbook|silk/i.test(
+		navigator.userAgent,
+	);
 
 export function getLocalStorage(key: string): string | null {
 	try {
@@ -236,9 +239,14 @@ export function buildPlayerUI(): PlayerUI {
 	const editLink: HTMLAnchorElement = a({ target: "_top", style: "margin: 0 4px;" }, "✎ Edit");
 	const copyLink: HTMLAnchorElement = a({ href: "#", style: "margin: 0 4px;" }, "⎘ Copy URL");
 	const shareLink: HTMLAnchorElement = a({ href: "#", style: "margin: 0 4px;" }, "⤳ Share");
-	const fullscreenLink: HTMLAnchorElement = a({ target: "_top", style: "margin: 0 4px;" }, "⇱ Fullscreen");
+	const fullscreenLink: HTMLAnchorElement = a(
+		{ target: "_top", style: "margin: 0 4px;" },
+		"⇱ Fullscreen",
+	);
 
-	const playButton: HTMLButtonElement = button({ style: "width: 100%; height: 100%; max-height: 50px;" });
+	const playButton: HTMLButtonElement = button({
+		style: "width: 100%; height: 100%; max-height: 50px;",
+	});
 	const playButtonContainer: HTMLDivElement = div(
 		{
 			style: "flex-shrink: 0; display: flex; padding: 2px; width: 80px; height: 100%; box-sizing: border-box; align-items: center;",
@@ -257,7 +265,10 @@ export function buildPlayerUI(): PlayerUI {
 	);
 
 	const volumeIcon: SVGSVGElement = svg(
-		{ style: "flex: 0 0 12px; margin: 0 1px; width: 12px; height: 12px;", viewBox: "0 0 12 12" },
+		{
+			style: "flex: 0 0 12px; margin: 0 1px; width: 12px; height: 12px;",
+			viewBox: "0 0 12 12",
+		},
 		path({
 			fill: ColorConfig.uiWidgetBackground,
 			d: "M 1 9 L 1 3 L 4 3 L 7 0 L 7 12 L 4 9 L 1 9 M 9 3 Q 12 6 9 9 L 8 8 Q 10.5 6 8 4 L 9 3 z",
@@ -275,8 +286,20 @@ export function buildPlayerUI(): PlayerUI {
 
 	const zoomIcon: SVGSVGElement = svg(
 		{ width: 12, height: 12, viewBox: "0 0 12 12" },
-		circle({ cx: "5", cy: "5", r: "4.5", "stroke-width": "1", stroke: "currentColor", fill: "none" }),
-		path({ stroke: "currentColor", "stroke-width": "2", d: "M 8 8 L 11 11 M 5 2 L 5 8 M 2 5 L 8 5", fill: "none" }),
+		circle({
+			cx: "5",
+			cy: "5",
+			r: "4.5",
+			"stroke-width": "1",
+			stroke: "currentColor",
+			fill: "none",
+		}),
+		path({
+			stroke: "currentColor",
+			"stroke-width": "2",
+			d: "M 8 8 L 11 11 M 5 2 L 5 8 M 2 5 L 8 5",
+			fill: "none",
+		}),
 	);
 	const zoomButton: HTMLButtonElement = button(
 		{
@@ -286,11 +309,17 @@ export function buildPlayerUI(): PlayerUI {
 		zoomIcon,
 	);
 
-	const timeline: SVGSVGElement = svg({ style: "min-width: 0; min-height: 0; touch-action: pan-y pinch-zoom;" });
+	const timeline: SVGSVGElement = svg({
+		style: "min-width: 0; min-height: 0; touch-action: pan-y pinch-zoom;",
+	});
 	const playhead: HTMLDivElement = div({
 		style: `position: absolute; left: 0; top: 0; width: 2px; height: 100%; background: ${ColorConfig.playhead}; pointer-events: none;`,
 	});
-	const timelineContainer: HTMLDivElement = div({ style: "display: flex; flex-grow: 1; flex-shrink: 1; position: relative;" }, timeline, playhead);
+	const timelineContainer: HTMLDivElement = div(
+		{ style: "display: flex; flex-grow: 1; flex-shrink: 1; position: relative;" },
+		timeline,
+		playhead,
+	);
 	const visualizationContainer: HTMLDivElement = div(
 		{
 			style: "display: flex; flex-grow: 1; flex-shrink: 1; height: 0; position: relative; align-items: center; overflow: hidden;",
@@ -325,7 +354,12 @@ export function buildPlayerUI(): PlayerUI {
 	const stop1: SVGStopElement = SVG.stop({ "stop-color": "lime", offset: "60%" });
 	const stop2: SVGStopElement = SVG.stop({ "stop-color": "orange", offset: "90%" });
 	const stop3: SVGStopElement = SVG.stop({ "stop-color": "red", offset: "100%" });
-	const gradient: SVGGradientElement = SVG.linearGradient({ id: "volumeGrad2", gradientUnits: "userSpaceOnUse" }, stop1, stop2, stop3);
+	const gradient: SVGGradientElement = SVG.linearGradient(
+		{ id: "volumeGrad2", gradientUnits: "userSpaceOnUse" },
+		stop1,
+		stop2,
+		stop3,
+	);
 	const defs: SVGDefsElement = SVG.defs({}, gradient);
 	const volumeBarContainer: SVGSVGElement = SVG.svg(
 		{
@@ -352,7 +386,13 @@ export function buildPlayerUI(): PlayerUI {
 	);
 	const sampleLoadingStatusContainer: HTMLDivElement = div(
 		{},
-		div({ class: "selectRow", style: "overflow: hidden; margin: auto; width: 160px; height: 10px; " }, sampleLoadingBarContainer),
+		div(
+			{
+				class: "selectRow",
+				style: "overflow: hidden; margin: auto; width: 160px; height: 10px; ",
+			},
+			sampleLoadingBarContainer,
+		),
 	);
 	const volumeBarContainerDiv: HTMLDivElement = div(
 		{

@@ -10,7 +10,14 @@ import { ShiggyAudio } from "./audio";
 import { PET_MESSAGES } from "./bubbles";
 import { clearAllSummoned, spawnShiggy, startGifRestart } from "./summoning";
 import { CursorTracker } from "./tracking";
-import { AUTO_SPAWN_MILESTONE, AUTO_SPAWN_MS, FOLLOW_UNLOCK_PETS, injectShiggyCss, PET_SUMMON_THRESHOLD, type SummonedShiggy } from "./types";
+import {
+	AUTO_SPAWN_MILESTONE,
+	AUTO_SPAWN_MS,
+	FOLLOW_UNLOCK_PETS,
+	injectShiggyCss,
+	PET_SUMMON_THRESHOLD,
+	type SummonedShiggy,
+} from "./types";
 
 export class Shiggy {
 	private _active: boolean = false;
@@ -38,7 +45,8 @@ export class Shiggy {
 		// Sidebar image
 		this._img = document.createElement("img");
 		this._img.src = `assets/images/shiggy.gif?v=${Date.now()}`;
-		this._img.style.cssText = "width: 60px; height: auto; pointer-events: none; opacity: 0; transition: opacity 0.2s; cursor: pointer;";
+		this._img.style.cssText =
+			"width: 60px; height: auto; pointer-events: none; opacity: 0; transition: opacity 0.2s; cursor: pointer;";
 
 		this._img.ontouchstart = (e: TouchEvent) => {
 			e.preventDefault();
@@ -109,7 +117,8 @@ export class Shiggy {
 		if (this._active) {
 			this._img.style.opacity = "1";
 			this._img.style.pointerEvents = "auto";
-			this._img.style.animation = "shiggy-enter 0.3s ease-out both, shiggy-bounce 1.5s ease-in-out 0.1s infinite, shiggy-rock 2s ease-in-out 0s infinite";
+			this._img.style.animation =
+				"shiggy-enter 0.3s ease-out both, shiggy-bounce 1.5s ease-in-out 0.1s infinite, shiggy-rock 2s ease-in-out 0s infinite";
 			this._counter.style.opacity = "1";
 			this._releaseBtn.style.opacity = "1";
 			this._releaseBtn.style.pointerEvents = "auto";

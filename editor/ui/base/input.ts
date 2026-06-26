@@ -37,7 +37,11 @@ export function addWheelSupport(input: HTMLInputElement): void {
 	);
 }
 
-export function createInput(type: string, baseStyle: string, options?: InputOptions): HTMLInputElement {
+export function createInput(
+	type: string,
+	baseStyle: string,
+	options?: InputOptions,
+): HTMLInputElement {
 	const attrs: Record<string, string> = {
 		type,
 		style: baseStyle,

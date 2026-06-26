@@ -14,7 +14,17 @@ export class ChangeAddEnvelope extends Change {
 	constructor(doc: SongDocument) {
 		super();
 		const instrument: Instrument = doc.getCurrentInstrumentObj();
-		instrument.addEnvelope(0, 0, 0, true, 0, instrument.isNoiseInstrument ? Config.drumCount : Config.maxPitch, false, 1, 0);
+		instrument.addEnvelope(
+			0,
+			0,
+			0,
+			true,
+			0,
+			instrument.isNoiseInstrument ? Config.drumCount : Config.maxPitch,
+			false,
+			1,
+			0,
+		);
 		instrument.preset = instrument.type;
 		doc.notifier.changed();
 		this._didSomething();
@@ -30,12 +40,15 @@ export class ChangeRemoveEnvelope extends Change {
 			instrument.envelopes[i].target = instrument.envelopes[i + 1].target;
 			instrument.envelopes[i].index = instrument.envelopes[i + 1].index;
 			instrument.envelopes[i].envelope = instrument.envelopes[i + 1].envelope;
-			instrument.envelopes[i].pitchEnvelopeStart = instrument.envelopes[i + 1].pitchEnvelopeStart;
+			instrument.envelopes[i].pitchEnvelopeStart =
+				instrument.envelopes[i + 1].pitchEnvelopeStart;
 			instrument.envelopes[i].pitchEnvelopeEnd = instrument.envelopes[i + 1].pitchEnvelopeEnd;
 			instrument.envelopes[i].inverse = instrument.envelopes[i + 1].inverse;
 			instrument.envelopes[i].perEnvelopeSpeed = instrument.envelopes[i + 1].perEnvelopeSpeed;
-			instrument.envelopes[i].perEnvelopeLowerBound = instrument.envelopes[i + 1].perEnvelopeLowerBound;
-			instrument.envelopes[i].perEnvelopeUpperBound = instrument.envelopes[i + 1].perEnvelopeUpperBound;
+			instrument.envelopes[i].perEnvelopeLowerBound =
+				instrument.envelopes[i + 1].perEnvelopeLowerBound;
+			instrument.envelopes[i].perEnvelopeUpperBound =
+				instrument.envelopes[i + 1].perEnvelopeUpperBound;
 			instrument.envelopes[i].steps = instrument.envelopes[i + 1].steps;
 			instrument.envelopes[i].seed = instrument.envelopes[i + 1].seed;
 			instrument.envelopes[i].waveform = instrument.envelopes[i + 1].waveform;
@@ -73,7 +86,8 @@ export class ChangeSetEnvelopeType extends Change {
 			instrument.envelopes[envelopeIndex].envelope = newValue;
 			instrument.preset = instrument.type;
 			if (oldValue === Config.newEnvelopes.dictionary.none.index) {
-				instrument.envelopes[envelopeIndex].perEnvelopeSpeed = Config.newEnvelopes[newValue].speed;
+				instrument.envelopes[envelopeIndex].perEnvelopeSpeed =
+					Config.newEnvelopes[newValue].speed;
 			}
 			doc.notifier.changed();
 			this._didSomething();
@@ -143,7 +157,12 @@ export class ChangeRandomEnvelopeSteps extends Change {
 		super();
 		const instrument: Instrument = doc.getCurrentInstrumentObj();
 		const oldSteps: number = instrument.envelopes[index].steps;
-		steps = steps > Config.randomEnvelopeStepsMax ? Config.randomEnvelopeStepsMax : steps < 1 ? 2 : Math.floor(steps);
+		steps =
+			steps > Config.randomEnvelopeStepsMax
+				? Config.randomEnvelopeStepsMax
+				: steps < 1
+					? 2
+					: Math.floor(steps);
 		instrument.envelopes[index].steps = steps;
 		if (oldSteps !== steps) {
 			instrument.preset = instrument.type;
@@ -158,7 +177,12 @@ export class ChangeRandomEnvelopeSeed extends Change {
 		super();
 		const instrument: Instrument = doc.getCurrentInstrumentObj();
 		const oldSeed: number = instrument.envelopes[index].seed;
-		seed = seed > Config.randomEnvelopeSeedMax ? Config.randomEnvelopeSeedMax : seed < 1 ? 2 : Math.floor(seed);
+		seed =
+			seed > Config.randomEnvelopeSeedMax
+				? Config.randomEnvelopeSeedMax
+				: seed < 1
+					? 2
+					: Math.floor(seed);
 		instrument.envelopes[index].seed = seed;
 		if (oldSeed !== seed) {
 			// changing the seed does not change the preset

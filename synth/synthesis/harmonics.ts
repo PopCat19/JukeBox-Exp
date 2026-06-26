@@ -6,7 +6,8 @@
 // - Builds harmonics synthesis source strings with band-limited waveform rendering
 
 export function buildHarmonicsSource(voiceCount: number): string {
-	let harmonicsSource: string = "return (synth, bufferIndex, roundedSamplesPerTick, tone, instrumentState) => {";
+	let harmonicsSource: string =
+		"return (synth, bufferIndex, roundedSamplesPerTick, tone, instrumentState) => {";
 
 	harmonicsSource += `
         const data = synth.tempMonoInstrumentSampleBuffer;

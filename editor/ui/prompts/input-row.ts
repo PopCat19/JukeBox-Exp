@@ -7,8 +7,8 @@
 // - Used by PresetSelectorPrompt, KeyboardShortcutsPrompt
 
 import { createDiv } from "../base/container";
+import { flex, s } from "../style";
 import { Gap } from "../style-constants";
-import { s, flex } from "../style";
 
 export interface InputRowOptions {
 	gap?: string;
@@ -16,7 +16,10 @@ export interface InputRowOptions {
 	marginBottom?: string;
 }
 
-export function inputRow(options?: InputRowOptions, ...children: (HTMLElement | string)[]): HTMLDivElement {
+export function inputRow(
+	options?: InputRowOptions,
+	...children: (HTMLElement | string)[]
+): HTMLDivElement {
 	const gap = options?.gap ?? Gap.normal;
 	let style = s(flex("row"), `gap:${gap};`, `height:32px;`);
 

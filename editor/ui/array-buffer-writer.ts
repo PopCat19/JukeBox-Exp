@@ -21,7 +21,13 @@ function transfer(source: ArrayBuffer, length: number): ArrayBuffer {
 		}
 	}
 	return dest;
-	function transferWith(wordSize: number, source: ArrayBuffer, dest: ArrayBuffer, nextOffset: number, leftBytes: number) {
+	function transferWith(
+		wordSize: number,
+		source: ArrayBuffer,
+		dest: ArrayBuffer,
+		nextOffset: number,
+		leftBytes: number,
+	) {
 		let ViewClass: any = Uint8Array;
 		switch (wordSize) {
 			case 8:
@@ -68,7 +74,10 @@ export class ArrayBufferWriter {
 	private _addBytes(numBytes: number): void {
 		this._fileSize += numBytes;
 		if (this._fileSize > this._arrayBuffer.byteLength) {
-			this._arrayBuffer = transfer(this._arrayBuffer, Math.max(this._arrayBuffer.byteLength * 2, this._fileSize));
+			this._arrayBuffer = transfer(
+				this._arrayBuffer,
+				Math.max(this._arrayBuffer.byteLength * 2, this._fileSize),
+			);
 			this._data = new DataView(this._arrayBuffer);
 		}
 	}

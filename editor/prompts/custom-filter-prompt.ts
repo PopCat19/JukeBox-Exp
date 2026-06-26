@@ -56,26 +56,36 @@ export class CustomFilterPrompt extends BasePrompt {
 			),
 		],
 	);
-	private readonly _filterPasteButton: HTMLButtonElement = button({ class: "iconBtnSm pasteButton" }, [
-		"Paste",
-		SVG.svg(
-			{
-				class: "iconBtnSvgOverlay",
-				width: "2em",
-				height: "2em",
-				viewBox: "0 0 26 26",
-			},
-			[
-				SVG.path({
-					d: "M 8 18 L 6 18 L 6 5 L 17 5 L 17 7 M 9 8 L 16 8 L 20 12 L 20 22 L 9 22 z",
-					stroke: "currentColor",
-					fill: "none",
-				}),
-				SVG.path({ d: "M 9 3 L 14 3 L 14 6 L 9 6 L 9 3 z M 16 8 L 20 12 L 16 12 L 16 8 z", fill: "currentColor" }),
-			],
-		),
-	]);
-	private readonly _filterCopyPasteContainer: HTMLDivElement = div({ class: "iconBtnContainer" }, this._filterCopyButton, this._filterPasteButton);
+	private readonly _filterPasteButton: HTMLButtonElement = button(
+		{ class: "iconBtnSm pasteButton" },
+		[
+			"Paste",
+			SVG.svg(
+				{
+					class: "iconBtnSvgOverlay",
+					width: "2em",
+					height: "2em",
+					viewBox: "0 0 26 26",
+				},
+				[
+					SVG.path({
+						d: "M 8 18 L 6 18 L 6 5 L 17 5 L 17 7 M 9 8 L 16 8 L 20 12 L 20 22 L 9 22 z",
+						stroke: "currentColor",
+						fill: "none",
+					}),
+					SVG.path({
+						d: "M 9 3 L 14 3 L 14 6 L 9 6 L 9 3 z M 16 8 L 20 12 L 16 12 L 16 8 z",
+						fill: "currentColor",
+					}),
+				],
+			),
+		],
+	);
+	private readonly _filterCopyPasteContainer: HTMLDivElement = div(
+		{ class: "iconBtnContainer" },
+		this._filterCopyButton,
+		this._filterPasteButton,
+	);
 
 	private readonly _filterCoordinateText: HTMLDivElement = div(
 		{
@@ -116,12 +126,19 @@ export class CustomFilterPrompt extends BasePrompt {
 		this.filterEditor = new FilterEditor(doc, _useNoteFilter, true, this.forSong);
 		this._filterContainer.appendChild(this.filterEditor.container);
 
-		this.filterEditor.container.insertBefore(this._filterCoordinateText, this.filterEditor.container.firstChild);
+		this.filterEditor.container.insertBefore(
+			this._filterCoordinateText,
+			this.filterEditor.container.firstChild,
+		);
 		this.filterEditor.coordText = this._filterCoordinateText;
 
 		const titleH2 = this.container.querySelector("h2");
 		if (titleH2) {
-			titleH2.innerHTML = forSong ? "Edit Song EQ Filter" : _useNoteFilter ? "Edit Note Filter" : "Edit EQ Filter";
+			titleH2.innerHTML = forSong
+				? "Edit Song EQ Filter"
+				: _useNoteFilter
+					? "Edit Note Filter"
+					: "Edit EQ Filter";
 		}
 
 		const newButton: HTMLButtonElement = selectorButton("Main", { class: "filterBtnMain" });
@@ -131,7 +148,9 @@ export class CustomFilterPrompt extends BasePrompt {
 			this._setSubfilter(0);
 		});
 		for (let i: number = 1; i < Config.filterMorphCount; i++) {
-			const newSubButton: HTMLButtonElement = selectorButton(`${i}`, { class: "filterBtnSub" });
+			const newSubButton: HTMLButtonElement = selectorButton(`${i}`, {
+				class: "filterBtnSub",
+			});
 			this._filterButtons.push(newSubButton);
 			this._filterButtonContainer.appendChild(newSubButton);
 			newSubButton.addEventListener("click", () => {
@@ -143,15 +162,25 @@ export class CustomFilterPrompt extends BasePrompt {
 
 		this._filterButtonContainer.style.setProperty("--text-color-lit", colors.primaryNote);
 		this._filterButtonContainer.style.setProperty("--text-color-dim", colors.secondaryNote);
-		this._filterButtonContainer.style.setProperty("--background-color-lit", colors.primaryChannel);
-		this._filterButtonContainer.style.setProperty("--background-color-dim", colors.secondaryChannel);
+		this._filterButtonContainer.style.setProperty(
+			"--background-color-lit",
+			colors.primaryChannel,
+		);
+		this._filterButtonContainer.style.setProperty(
+			"--background-color-dim",
+			colors.secondaryChannel,
+		);
 
 		setTimeout(() => this._playButton.focus());
 
 		this.filterEditor.render();
 	}
 
-	private _setSubfilter = (index: number, useHistory: boolean = true, doSwap: boolean = true): void => {
+	private _setSubfilter = (
+		index: number,
+		useHistory: boolean = true,
+		doSwap: boolean = true,
+	): void => {
 		this._filterButtons[this._subfilterIndex].classList.remove("selected-instrument");
 		if (doSwap) this.filterEditor.swapToSubfilter(this._subfilterIndex, index, useHistory);
 		this._subfilterIndex = index;

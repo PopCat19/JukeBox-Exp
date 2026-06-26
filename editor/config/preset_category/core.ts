@@ -338,7 +338,10 @@ export const coreCategories: InputPresetCategory[] = [
 					panDelay: 10,
 					fadeInSeconds: 0,
 					fadeOutTicks: -1,
-					harmonics: [100, 0, 0, 100, 0, 0, 100, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+					harmonics: [
+						100, 0, 0, 100, 0, 0, 100, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+						0, 0, 0, 0, 0,
+					],
 					unison: "none",
 					envelopes: [],
 					isDrum: false,
@@ -361,7 +364,10 @@ export const coreCategories: InputPresetCategory[] = [
 					panDelay: 10,
 					fadeInSeconds: 0,
 					fadeOutTicks: -1,
-					harmonics: [100, 0, 0, 100, 0, 0, 100, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+					harmonics: [
+						100, 0, 0, 100, 0, 0, 100, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+						0, 0, 0, 0, 0,
+					],
 					unison: "none",
 					stringSustain: 71,
 					envelopes: [],
@@ -385,7 +391,10 @@ export const coreCategories: InputPresetCategory[] = [
 					panDelay: 10,
 					fadeInSeconds: 0,
 					fadeOutTicks: -1,
-					spectrum: [100, 0, 0, 0, 0, 0, 0, 71, 0, 0, 0, 57, 0, 0, 57, 0, 43, 0, 43, 0, 0, 29, 0, 29, 0, 14, 14, 14, 0, 0],
+					spectrum: [
+						100, 0, 0, 0, 0, 0, 0, 71, 0, 0, 0, 57, 0, 0, 57, 0, 43, 0, 43, 0, 0, 29, 0,
+						29, 0, 14, 14, 14, 0, 0,
+					],
 					unison: "none",
 					envelopes: [],
 					isDrum: false,
@@ -432,7 +441,10 @@ export const coreCategories: InputPresetCategory[] = [
 					panDelay: 10,
 					fadeInSeconds: 0,
 					fadeOutTicks: -1,
-					spectrum: [100, 86, 71, 71, 71, 57, 57, 57, 57, 57, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 29, 29, 29, 29, 29, 29, 29, 29, 29],
+					spectrum: [
+						100, 86, 71, 71, 71, 57, 57, 57, 57, 57, 43, 43, 43, 43, 43, 43, 43, 43, 43,
+						43, 43, 29, 29, 29, 29, 29, 29, 29, 29, 29,
+					],
 					unison: "none",
 					envelopes: [],
 				},
@@ -729,9 +741,10 @@ export const coreCategories: InputPresetCategory[] = [
 					vibrato: "none",
 					envelopes: [],
 					customChipWave: [
-						-24, -24, -24, -24, -23, -23, -23, -23, -22, -22, -22, -22, -21, -21, -21, -21, -20, -20, -20, -20, -19, -19, -19, -19, -18, -18, -18,
-						-18, -17, -17, -17, -17, 24, 24, 24, 24, 23, 23, 23, 23, 22, 22, 22, 22, 21, 21, 21, 21, 20, 20, 20, 20, 19, 19, 19, 19, 18, 18, 18, 18,
-						17, 17, 17, 17,
+						-24, -24, -24, -24, -23, -23, -23, -23, -22, -22, -22, -22, -21, -21, -21,
+						-21, -20, -20, -20, -20, -19, -19, -19, -19, -18, -18, -18, -18, -17, -17,
+						-17, -17, 24, 24, 24, 24, 23, 23, 23, 23, 22, 22, 22, 22, 21, 21, 21, 21,
+						20, 20, 20, 20, 19, 19, 19, 19, 18, 18, 18, 18, 17, 17, 17, 17,
 					],
 				},
 			},
@@ -750,8 +763,10 @@ export const coreCategories: InputPresetCategory[] = [
 					unison: "none",
 					envelopes: [],
 					customChipWave: [
-						-24, -20, -17, -15, -13, -13, -11, -11, -11, -9, -9, -9, -9, -7, -7, -7, -7, -7, -5, -5, -5, -5, -5, -5, -3, -3, -3, -3, -3, -3, -3, -3,
-						24, 20, 17, 15, 13, 13, 11, 11, 11, 9, 9, 9, 9, 7, 7, 7, 7, 7, 5, 5, 5, 5, 5, 5, 3, 3, 3, 3, 3, 3, 3, 3,
+						-24, -20, -17, -15, -13, -13, -11, -11, -11, -9, -9, -9, -9, -7, -7, -7, -7,
+						-7, -5, -5, -5, -5, -5, -5, -3, -3, -3, -3, -3, -3, -3, -3, 24, 20, 17, 15,
+						13, 13, 11, 11, 11, 9, 9, 9, 9, 7, 7, 7, 7, 7, 5, 5, 5, 5, 5, 5, 3, 3, 3, 3,
+						3, 3, 3, 3,
 					],
 				},
 			},
@@ -770,8 +785,10 @@ export const coreCategories: InputPresetCategory[] = [
 					unison: "none",
 					envelopes: [],
 					customChipWave: [
-						-24, -20, -16, -13, -10, -8, -6, -5, -4, -4, 0, 0, 0, 0, 4, 4, 4, 4, 4, 4, 8, 8, 8, 8, 8, 8, 8, 8, 12, 12, 12, 12, 12, 12, 12, 12, 16,
-						16, 16, 16, 16, 16, 16, 16, 20, 20, 20, 20, 20, 20, 20, 20, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24,
+						-24, -20, -16, -13, -10, -8, -6, -5, -4, -4, 0, 0, 0, 0, 4, 4, 4, 4, 4, 4,
+						8, 8, 8, 8, 8, 8, 8, 8, 12, 12, 12, 12, 12, 12, 12, 12, 16, 16, 16, 16, 16,
+						16, 16, 16, 20, 20, 20, 20, 20, 20, 20, 20, 24, 24, 24, 24, 24, 24, 24, 24,
+						24, 24, 24, 24,
 					],
 				},
 			},
@@ -790,9 +807,10 @@ export const coreCategories: InputPresetCategory[] = [
 					unison: "none",
 					envelopes: [],
 					customChipWave: [
-						-24, -24, -24, -23, -23, -23, -22, -22, -22, -21, -21, -21, -20, -20, -20, -19, -19, -19, -18, -18, -18, -17, -17, -17, -16, -16, -16,
-						-15, -15, -15, -14, -14, -14, -13, -13, -13, 24, 24, 24, 23, 23, 23, 22, 22, 22, 21, 21, 21, 20, 20, 20, 19, 19, 19, 18, 18, 18, 17, 17,
-						17, 16, 16, 15, 15,
+						-24, -24, -24, -23, -23, -23, -22, -22, -22, -21, -21, -21, -20, -20, -20,
+						-19, -19, -19, -18, -18, -18, -17, -17, -17, -16, -16, -16, -15, -15, -15,
+						-14, -14, -14, -13, -13, -13, 24, 24, 24, 23, 23, 23, 22, 22, 22, 21, 21,
+						21, 20, 20, 20, 19, 19, 19, 18, 18, 18, 17, 17, 17, 16, 16, 15, 15,
 					],
 				},
 			},
@@ -811,9 +829,10 @@ export const coreCategories: InputPresetCategory[] = [
 					unison: "none",
 					envelopes: [],
 					customChipWave: [
-						-24, -24, -24, -24, -24, -24, -24, -24, -24, 24, 24, 24, 24, 24, 24, -24, -24, -24, 24, 24, 24, -24, -24, -24, 24, 24, 24, -24, -24,
-						-24, 24, 24, -24, -24, -24, -24, -24, -24, -24, -24, -24, 24, 24, 24, 24, 24, 24, -24, -24, 24, 24, 24, 24, 24, -24, -24, -24, -24, 24,
-						24, -24, -24, 24, 24,
+						-24, -24, -24, -24, -24, -24, -24, -24, -24, 24, 24, 24, 24, 24, 24, -24,
+						-24, -24, 24, 24, 24, -24, -24, -24, 24, 24, 24, -24, -24, -24, 24, 24, -24,
+						-24, -24, -24, -24, -24, -24, -24, -24, 24, 24, 24, 24, 24, 24, -24, -24,
+						24, 24, 24, 24, 24, -24, -24, -24, -24, 24, 24, -24, -24, 24, 24,
 					],
 				},
 			},
@@ -832,8 +851,10 @@ export const coreCategories: InputPresetCategory[] = [
 					unison: "none",
 					envelopes: [],
 					customChipWave: [
-						24, 24, 15, 15, 9, 9, -4, -4, 0, 0, -13, -13, -19, -19, -24, -24, -24, -24, -10, -10, 0, 0, -7, -7, -7, -7, 0, 0, 6, 6, -4, -4, 3, 3,
-						-4, -4, 3, 3, 3, 3, 9, 9, 15, 15, 15, 15, 6, 6, -4, -4, -4, -4, -4, -4, -4, -4, -4, -4, 3, 3, 12, 12, 24, 24,
+						24, 24, 15, 15, 9, 9, -4, -4, 0, 0, -13, -13, -19, -19, -24, -24, -24, -24,
+						-10, -10, 0, 0, -7, -7, -7, -7, 0, 0, 6, 6, -4, -4, 3, 3, -4, -4, 3, 3, 3,
+						3, 9, 9, 15, 15, 15, 15, 6, 6, -4, -4, -4, -4, -4, -4, -4, -4, -4, -4, 3, 3,
+						12, 12, 24, 24,
 					],
 				},
 			},
@@ -864,7 +885,10 @@ export const coreCategories: InputPresetCategory[] = [
 					fadeInSeconds: 0,
 					fadeOutTicks: 48,
 					chord: "simultaneous",
-					harmonics: [100, 100, 86, 86, 86, 71, 71, 71, 0, 86, 71, 71, 71, 57, 57, 71, 57, 14, 57, 57, 57, 57, 57, 57, 57, 57, 29, 57],
+					harmonics: [
+						100, 100, 86, 86, 86, 71, 71, 71, 0, 86, 71, 71, 71, 57, 57, 71, 57, 14, 57,
+						57, 57, 57, 57, 57, 57, 57, 29, 57,
+					],
 					unison: "piano",
 					stringSustain: 79,
 					envelopes: [{ target: "noteFilterAllFreqs", envelope: "note size" }],
@@ -892,7 +916,10 @@ export const coreCategories: InputPresetCategory[] = [
 					fadeInSeconds: 0,
 					fadeOutTicks: 24,
 					chord: "simultaneous",
-					harmonics: [100, 100, 86, 86, 71, 71, 0, 71, 71, 71, 71, 71, 71, 14, 57, 57, 57, 57, 57, 57, 29, 57, 57, 57, 57, 57, 57, 57],
+					harmonics: [
+						100, 100, 86, 86, 71, 71, 0, 71, 71, 71, 71, 71, 71, 14, 57, 57, 57, 57, 57,
+						57, 29, 57, 57, 57, 57, 57, 57, 57,
+					],
 					unison: "piano",
 					stringSustain: 86,
 					envelopes: [],
@@ -931,7 +958,10 @@ export const coreCategories: InputPresetCategory[] = [
 					fadeInSeconds: 0,
 					fadeOutTicks: 48,
 					chord: "simultaneous",
-					harmonics: [100, 100, 86, 71, 86, 71, 43, 71, 43, 43, 57, 57, 57, 29, 57, 57, 57, 57, 57, 57, 43, 57, 57, 57, 43, 43, 43, 43],
+					harmonics: [
+						100, 100, 86, 71, 86, 71, 43, 71, 43, 43, 57, 57, 57, 29, 57, 57, 57, 57,
+						57, 57, 43, 57, 57, 57, 43, 43, 43, 43,
+					],
 					unison: "honky tonk",
 					stringSustain: 71,
 					envelopes: [],
@@ -951,7 +981,10 @@ export const coreCategories: InputPresetCategory[] = [
 					fadeInSeconds: 0,
 					fadeOutTicks: -3,
 					chord: "simultaneous",
-					harmonics: [86, 100, 100, 71, 71, 57, 57, 43, 43, 43, 29, 29, 29, 14, 14, 14, 0, 0, 0, 0, 0, 57, 0, 0, 0, 0, 0, 0],
+					harmonics: [
+						86, 100, 100, 71, 71, 57, 57, 43, 43, 43, 29, 29, 29, 14, 14, 14, 0, 0, 0,
+						0, 0, 57, 0, 0, 0, 0, 0, 0,
+					],
 					unison: "none",
 					envelopes: [{ target: "noteFilterAllFreqs", envelope: "twang 2" }],
 				},
@@ -1013,7 +1046,10 @@ export const coreCategories: InputPresetCategory[] = [
 					fadeInSeconds: 0,
 					fadeOutTicks: 24,
 					chord: "simultaneous",
-					harmonics: [100, 100, 100, 86, 57, 86, 86, 86, 86, 57, 57, 71, 71, 86, 86, 71, 71, 86, 86, 71, 71, 71, 71, 71, 71, 71, 71, 71],
+					harmonics: [
+						100, 100, 100, 86, 57, 86, 86, 86, 86, 57, 57, 71, 71, 86, 86, 71, 71, 86,
+						86, 71, 71, 71, 71, 71, 71, 71, 71, 71,
+					],
 					unison: "none",
 					stringSustain: 79,
 					envelopes: [],
@@ -1068,7 +1104,10 @@ export const coreCategories: InputPresetCategory[] = [
 					fadeInSeconds: 0,
 					fadeOutTicks: 48,
 					chord: "strum",
-					harmonics: [100, 100, 100, 86, 100, 86, 57, 100, 100, 86, 100, 86, 100, 86, 100, 71, 57, 71, 71, 100, 86, 71, 86, 86, 100, 86, 86, 86],
+					harmonics: [
+						100, 100, 100, 86, 100, 86, 57, 100, 100, 86, 100, 86, 100, 86, 100, 71, 57,
+						71, 71, 100, 86, 71, 86, 86, 100, 86, 86, 86,
+					],
 					unison: "piano",
 					stringSustain: 79,
 					envelopes: [],
@@ -1096,7 +1135,10 @@ export const coreCategories: InputPresetCategory[] = [
 					fadeInSeconds: 0,
 					fadeOutTicks: 48,
 					chord: "simultaneous",
-					harmonics: [100, 86, 86, 86, 86, 71, 71, 57, 0, 57, 29, 43, 57, 57, 57, 43, 43, 0, 29, 43, 43, 43, 43, 43, 43, 29, 0, 29],
+					harmonics: [
+						100, 86, 86, 86, 86, 71, 71, 57, 0, 57, 29, 43, 57, 57, 57, 43, 43, 0, 29,
+						43, 43, 43, 43, 43, 43, 29, 0, 29,
+					],
 					unison: "piano",
 					stringSustain: 79,
 					envelopes: [{ target: "noteFilterAllFreqs", envelope: "note size" }],
@@ -1128,7 +1170,10 @@ export const coreCategories: InputPresetCategory[] = [
 					reverb: 67,
 					fadeInSeconds: 0,
 					fadeOutTicks: 48,
-					harmonics: [100, 100, 86, 86, 86, 71, 71, 71, 0, 71, 71, 71, 71, 57, 57, 71, 57, 14, 57, 57, 57, 57, 57, 57, 57, 57, 29, 57],
+					harmonics: [
+						100, 100, 86, 86, 86, 71, 71, 71, 0, 71, 71, 71, 71, 57, 57, 71, 57, 14, 57,
+						57, 57, 57, 57, 57, 57, 57, 29, 57,
+					],
 					unison: "piano",
 					stringSustain: 86,
 					stringSustainType: "acoustic",
@@ -1261,7 +1306,10 @@ export const coreCategories: InputPresetCategory[] = [
 					fadeInSeconds: 0,
 					fadeOutTicks: 48,
 					chord: "strum",
-					harmonics: [100, 0, 0, 100, 0, 0, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 0, 0, 0, 86, 0, 0, 0, 0, 0, 0, 71, 0],
+					harmonics: [
+						100, 0, 0, 100, 0, 0, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 0, 0, 0, 86, 0, 0, 0,
+						0, 0, 0, 71, 0,
+					],
 					unison: "none",
 					stringSustain: 64,
 					envelopes: [],
@@ -1280,7 +1328,10 @@ export const coreCategories: InputPresetCategory[] = [
 					fadeInSeconds: 0,
 					fadeOutTicks: 48,
 					chord: "strum",
-					harmonics: [100, 57, 57, 0, 0, 0, 0, 0, 0, 57, 0, 0, 0, 0, 0, 0, 0, 0, 0, 43, 0, 0, 0, 0, 0, 0, 0, 0],
+					harmonics: [
+						100, 57, 57, 0, 0, 0, 0, 0, 0, 57, 0, 0, 0, 0, 0, 0, 0, 0, 0, 43, 0, 0, 0,
+						0, 0, 0, 0, 0,
+					],
 					unison: "none",
 					stringSustain: 29,
 					envelopes: [],
@@ -1497,7 +1548,10 @@ export const coreCategories: InputPresetCategory[] = [
 					fadeInSeconds: 0,
 					fadeOutTicks: 96,
 					chord: "strum",
-					harmonics: [43, 71, 0, 100, 0, 100, 0, 86, 0, 0, 86, 0, 14, 71, 14, 14, 57, 14, 14, 43, 14, 14, 43, 14, 14, 43, 14, 14],
+					harmonics: [
+						43, 71, 0, 100, 0, 100, 0, 86, 0, 0, 86, 0, 14, 71, 14, 14, 57, 14, 14, 43,
+						14, 14, 43, 14, 14, 43, 14, 14,
+					],
 					unison: "shimmer",
 					stringSustain: 86,
 					envelopes: [],
@@ -1713,7 +1767,10 @@ export const coreCategories: InputPresetCategory[] = [
 					fadeInSeconds: 0,
 					fadeOutTicks: 48,
 					chord: "strum",
-					harmonics: [100, 100, 86, 71, 71, 71, 86, 86, 71, 57, 43, 43, 43, 57, 57, 57, 57, 57, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43],
+					harmonics: [
+						100, 100, 86, 71, 71, 71, 86, 86, 71, 57, 43, 43, 43, 57, 57, 57, 57, 57,
+						43, 43, 43, 43, 43, 43, 43, 43, 43, 43,
+					],
 					unison: "none",
 					stringSustain: 71,
 					envelopes: [],
@@ -1734,7 +1791,10 @@ export const coreCategories: InputPresetCategory[] = [
 					filterEnvelope: "twang 2",
 					interval: "union",
 					vibrato: "none",
-					harmonics: [100, 100, 86, 71, 57, 71, 71, 43, 57, 71, 57, 43, 29, 29, 29, 29, 29, 29, 29, 29, 14, 14, 14, 14, 14, 14, 14, 0],
+					harmonics: [
+						100, 100, 86, 71, 57, 71, 71, 43, 57, 71, 57, 43, 29, 29, 29, 29, 29, 29,
+						29, 29, 14, 14, 14, 14, 14, 14, 14, 0,
+					],
 				},
 			},
 			{
@@ -1752,7 +1812,10 @@ export const coreCategories: InputPresetCategory[] = [
 					filterEnvelope: "twang 2",
 					interval: "union",
 					vibrato: "none",
-					harmonics: [86, 100, 100, 100, 86, 57, 86, 100, 100, 100, 71, 57, 43, 71, 86, 71, 57, 57, 71, 71, 71, 71, 57, 57, 57, 57, 57, 43],
+					harmonics: [
+						86, 100, 100, 100, 86, 57, 86, 100, 100, 100, 71, 57, 43, 71, 86, 71, 57,
+						57, 71, 71, 71, 71, 57, 57, 57, 57, 57, 43,
+					],
 				},
 			},
 			{
@@ -1801,7 +1864,10 @@ export const coreCategories: InputPresetCategory[] = [
 					filterEnvelope: "twang 1",
 					interval: "union",
 					vibrato: "none",
-					harmonics: [100, 86, 71, 71, 71, 71, 57, 57, 57, 57, 43, 43, 43, 43, 43, 29, 29, 29, 29, 29, 29, 14, 14, 14, 14, 14, 14, 14],
+					harmonics: [
+						100, 86, 71, 71, 71, 71, 57, 57, 57, 57, 43, 43, 43, 43, 43, 29, 29, 29, 29,
+						29, 29, 14, 14, 14, 14, 14, 14, 14,
+					],
 				},
 			},
 			{
@@ -1819,7 +1885,10 @@ export const coreCategories: InputPresetCategory[] = [
 					filterEnvelope: "twang 1",
 					interval: "union",
 					vibrato: "none",
-					harmonics: [100, 86, 71, 57, 71, 43, 57, 29, 29, 29, 29, 29, 29, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 0],
+					harmonics: [
+						100, 86, 71, 57, 71, 43, 57, 29, 29, 29, 29, 29, 29, 14, 14, 14, 14, 14, 14,
+						14, 14, 14, 14, 14, 14, 14, 14, 0,
+					],
 				},
 			},
 			{
@@ -1863,7 +1932,10 @@ export const coreCategories: InputPresetCategory[] = [
 					filterEnvelope: "flare 2",
 					interval: "union",
 					vibrato: "none",
-					harmonics: [100, 100, 86, 71, 71, 57, 57, 71, 71, 71, 57, 57, 57, 57, 57, 57, 57, 43, 43, 43, 43, 43, 43, 43, 43, 29, 29, 14],
+					harmonics: [
+						100, 100, 86, 71, 71, 57, 57, 71, 71, 71, 57, 57, 57, 57, 57, 57, 57, 43,
+						43, 43, 43, 43, 43, 43, 43, 29, 29, 14,
+					],
 				},
 			},
 			{
@@ -1881,7 +1953,10 @@ export const coreCategories: InputPresetCategory[] = [
 					filterEnvelope: "twang 1",
 					interval: "union",
 					vibrato: "none",
-					harmonics: [100, 100, 100, 100, 86, 71, 57, 29, 29, 43, 43, 57, 71, 57, 29, 29, 43, 57, 57, 57, 43, 43, 43, 57, 71, 71, 71, 71],
+					harmonics: [
+						100, 100, 100, 100, 86, 71, 57, 29, 29, 43, 43, 57, 71, 57, 29, 29, 43, 57,
+						57, 57, 43, 43, 43, 57, 71, 71, 71, 71,
+					],
 				},
 			},
 			{
@@ -2218,7 +2293,10 @@ export const coreCategories: InputPresetCategory[] = [
 					fadeInSeconds: 0,
 					fadeOutTicks: 12,
 					chord: "strum",
-					harmonics: [86, 100, 100, 86, 86, 86, 86, 71, 71, 71, 71, 71, 71, 71, 71, 71, 71, 57, 57, 57, 57, 57, 57, 57, 57, 57, 57, 57],
+					harmonics: [
+						86, 100, 100, 86, 86, 86, 86, 71, 71, 71, 71, 71, 71, 71, 71, 71, 71, 57,
+						57, 57, 57, 57, 57, 57, 57, 57, 57, 57,
+					],
 					unison: "none",
 					stringSustain: 71,
 					envelopes: [{ target: "noteFilterFreq", envelope: "note size", index: 1 }],
@@ -2253,7 +2331,10 @@ export const coreCategories: InputPresetCategory[] = [
 					fadeInSeconds: 0,
 					fadeOutTicks: 12,
 					chord: "strum",
-					harmonics: [86, 100, 100, 86, 86, 86, 86, 71, 71, 71, 71, 71, 71, 71, 71, 71, 71, 57, 57, 57, 57, 57, 57, 57, 57, 57, 57, 57],
+					harmonics: [
+						86, 100, 100, 86, 86, 86, 86, 71, 71, 71, 71, 71, 71, 71, 71, 71, 71, 57,
+						57, 57, 57, 57, 57, 57, 57, 57, 57, 57,
+					],
 					unison: "none",
 					stringSustain: 71,
 					envelopes: [{ target: "noteFilterFreq", envelope: "note size", index: 1 }],
@@ -2449,7 +2530,10 @@ export const coreCategories: InputPresetCategory[] = [
 					filterEnvelope: "steady",
 					interval: "union",
 					vibrato: "none",
-					harmonics: [86, 86, 0, 86, 0, 0, 0, 86, 0, 0, 0, 0, 0, 0, 0, 86, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+					harmonics: [
+						86, 86, 0, 86, 0, 0, 0, 86, 0, 0, 0, 0, 0, 0, 0, 86, 0, 0, 0, 0, 0, 0, 0, 0,
+						0, 0, 0, 0,
+					],
 				},
 			},
 			{
@@ -2467,7 +2551,10 @@ export const coreCategories: InputPresetCategory[] = [
 					filterEnvelope: "steady",
 					interval: "union",
 					vibrato: "none",
-					harmonics: [86, 29, 71, 86, 71, 14, 0, 100, 0, 0, 0, 86, 0, 0, 0, 71, 0, 0, 0, 57, 0, 0, 0, 29, 0, 0, 0, 0],
+					harmonics: [
+						86, 29, 71, 86, 71, 14, 0, 100, 0, 0, 0, 86, 0, 0, 0, 71, 0, 0, 0, 57, 0, 0,
+						0, 29, 0, 0, 0, 0,
+					],
 				},
 			},
 			{
@@ -2605,7 +2692,10 @@ export const coreCategories: InputPresetCategory[] = [
 					filterEnvelope: "steady",
 					interval: "union",
 					vibrato: "none",
-					harmonics: [71, 86, 100, 86, 71, 100, 57, 71, 71, 71, 43, 43, 43, 71, 43, 71, 57, 57, 57, 57, 57, 57, 57, 29, 43, 29, 29, 14],
+					harmonics: [
+						71, 86, 100, 86, 71, 100, 57, 71, 71, 71, 43, 43, 43, 71, 43, 71, 57, 57,
+						57, 57, 57, 57, 57, 29, 43, 29, 29, 14,
+					],
 				},
 			},
 			{
@@ -2641,7 +2731,10 @@ export const coreCategories: InputPresetCategory[] = [
 					filterEnvelope: "swell 1",
 					interval: "hum",
 					vibrato: "none",
-					harmonics: [86, 86, 86, 57, 71, 86, 57, 71, 71, 71, 57, 43, 57, 43, 71, 43, 71, 57, 57, 43, 43, 43, 57, 43, 43, 29, 29, 29],
+					harmonics: [
+						86, 86, 86, 57, 71, 86, 57, 71, 71, 71, 57, 43, 57, 43, 71, 43, 71, 57, 57,
+						43, 43, 43, 57, 43, 43, 29, 29, 29,
+					],
 				},
 			},
 			{
@@ -2659,7 +2752,10 @@ export const coreCategories: InputPresetCategory[] = [
 					filterEnvelope: "punch",
 					interval: "hum",
 					vibrato: "none",
-					harmonics: [71, 86, 86, 100, 100, 86, 57, 100, 86, 71, 71, 71, 57, 57, 57, 71, 57, 71, 57, 71, 43, 57, 57, 43, 43, 43, 43, 43],
+					harmonics: [
+						71, 86, 86, 100, 100, 86, 57, 100, 86, 71, 71, 71, 57, 57, 57, 71, 57, 71,
+						57, 71, 43, 57, 57, 43, 43, 43, 43, 43,
+					],
 				},
 			},
 		]),
@@ -3192,7 +3288,10 @@ export const coreCategories: InputPresetCategory[] = [
 					reverb: 33,
 					fadeInSeconds: 0.0413,
 					fadeOutTicks: 24,
-					harmonics: [100, 100, 86, 57, 29, 29, 57, 71, 57, 29, 14, 14, 14, 29, 43, 57, 43, 29, 14, 14, 14, 14, 14, 14, 0, 0, 0, 0],
+					harmonics: [
+						100, 100, 86, 57, 29, 29, 57, 71, 57, 29, 14, 14, 14, 29, 43, 57, 43, 29,
+						14, 14, 14, 14, 14, 14, 0, 0, 0, 0,
+					],
 					unison: "none",
 					envelopes: [],
 				},
@@ -3220,7 +3319,10 @@ export const coreCategories: InputPresetCategory[] = [
 					fadeInSeconds: 0.0413,
 					fadeOutTicks: 48,
 					chord: "simultaneous",
-					harmonics: [86, 100, 100, 86, 71, 57, 43, 29, 29, 29, 29, 43, 43, 43, 29, 29, 29, 29, 29, 29, 29, 29, 29, 14, 14, 14, 14, 14],
+					harmonics: [
+						86, 100, 100, 86, 71, 57, 43, 29, 29, 29, 29, 43, 43, 43, 29, 29, 29, 29,
+						29, 29, 29, 29, 29, 14, 14, 14, 14, 14,
+					],
 					unison: "none",
 					envelopes: [],
 				},
@@ -3246,7 +3348,10 @@ export const coreCategories: InputPresetCategory[] = [
 					fadeInSeconds: 0.0413,
 					fadeOutTicks: 48,
 					chord: "simultaneous",
-					harmonics: [71, 86, 100, 100, 86, 86, 57, 43, 29, 29, 29, 29, 29, 29, 43, 43, 43, 43, 43, 29, 29, 29, 29, 14, 14, 14, 14, 14],
+					harmonics: [
+						71, 86, 100, 100, 86, 86, 57, 43, 29, 29, 29, 29, 29, 29, 43, 43, 43, 43,
+						43, 29, 29, 29, 29, 14, 14, 14, 14, 14,
+					],
 					unison: "none",
 					envelopes: [],
 				},
@@ -3269,7 +3374,10 @@ export const coreCategories: InputPresetCategory[] = [
 					reverb: 33,
 					fadeInSeconds: 0.0413,
 					fadeOutTicks: 12,
-					harmonics: [86, 100, 86, 43, 14, 14, 57, 71, 57, 14, 14, 14, 14, 14, 43, 57, 43, 14, 14, 14, 14, 14, 14, 14, 0, 0, 0, 0],
+					harmonics: [
+						86, 100, 86, 43, 14, 14, 57, 71, 57, 14, 14, 14, 14, 14, 43, 57, 43, 14, 14,
+						14, 14, 14, 14, 14, 0, 0, 0, 0,
+					],
 					unison: "none",
 					envelopes: [],
 				},
@@ -3293,7 +3401,10 @@ export const coreCategories: InputPresetCategory[] = [
 					reverb: 33,
 					fadeInSeconds: 0.0413,
 					fadeOutTicks: 12,
-					harmonics: [86, 100, 100, 86, 71, 57, 43, 29, 29, 29, 29, 43, 43, 43, 29, 29, 29, 29, 29, 29, 29, 29, 29, 14, 14, 14, 14, 14],
+					harmonics: [
+						86, 100, 100, 86, 71, 57, 43, 29, 29, 29, 29, 43, 43, 43, 29, 29, 29, 29,
+						29, 29, 29, 29, 29, 14, 14, 14, 14, 14,
+					],
 					unison: "none",
 					envelopes: [],
 				},
@@ -3319,7 +3430,10 @@ export const coreCategories: InputPresetCategory[] = [
 					fadeInSeconds: 0.0263,
 					fadeOutTicks: 12,
 					chord: "simultaneous",
-					harmonics: [71, 86, 100, 100, 86, 86, 57, 43, 29, 29, 29, 29, 29, 29, 43, 43, 43, 43, 43, 29, 29, 29, 29, 14, 14, 14, 14, 14],
+					harmonics: [
+						71, 86, 100, 100, 86, 86, 57, 43, 29, 29, 29, 29, 29, 29, 43, 43, 43, 43,
+						43, 29, 29, 29, 29, 14, 14, 14, 14, 14,
+					],
 					unison: "none",
 					envelopes: [],
 				},
@@ -3339,7 +3453,10 @@ export const coreCategories: InputPresetCategory[] = [
 					filterEnvelope: "steady",
 					interval: "union",
 					vibrato: "shaky",
-					harmonics: [100, 57, 43, 43, 14, 14, 0, 0, 0, 14, 29, 29, 14, 0, 14, 29, 29, 14, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+					harmonics: [
+						100, 57, 43, 43, 14, 14, 0, 0, 0, 14, 29, 29, 14, 0, 14, 29, 29, 14, 0, 0,
+						0, 0, 0, 0, 0, 0, 0, 0,
+					],
 				},
 			},
 			{
@@ -3576,7 +3693,10 @@ export const coreCategories: InputPresetCategory[] = [
 					filterCutoffHz: 4000,
 					filterResonance: 29,
 					filterEnvelope: "swell 1",
-					spectrum: [43, 14, 14, 14, 14, 14, 14, 100, 14, 14, 14, 57, 14, 14, 100, 14, 43, 14, 43, 14, 14, 43, 14, 29, 14, 29, 14, 14, 29, 0],
+					spectrum: [
+						43, 14, 14, 14, 14, 14, 14, 100, 14, 14, 14, 57, 14, 14, 100, 14, 43, 14,
+						43, 14, 14, 43, 14, 29, 14, 29, 14, 14, 29, 0,
+					],
 				},
 			},
 		]),
@@ -4095,7 +4215,10 @@ export const coreCategories: InputPresetCategory[] = [
 					filterEnvelope: "steady",
 					interval: "union",
 					vibrato: "none",
-					harmonics: [100, 43, 86, 57, 86, 71, 86, 71, 71, 71, 71, 71, 71, 43, 71, 71, 57, 57, 57, 57, 57, 57, 43, 43, 43, 29, 14, 0],
+					harmonics: [
+						100, 43, 86, 57, 86, 71, 86, 71, 71, 71, 71, 71, 71, 43, 71, 71, 57, 57, 57,
+						57, 57, 57, 43, 43, 43, 29, 14, 0,
+					],
 				},
 			},
 			{
@@ -4246,7 +4369,10 @@ export const coreCategories: InputPresetCategory[] = [
 					filterEnvelope: "swell 2",
 					interval: "union",
 					vibrato: "none",
-					harmonics: [100, 43, 57, 43, 57, 43, 43, 43, 43, 43, 43, 43, 43, 29, 29, 29, 29, 29, 29, 29, 14, 14, 14, 14, 14, 14, 14, 0],
+					harmonics: [
+						100, 43, 57, 43, 57, 43, 43, 43, 43, 43, 43, 43, 43, 29, 29, 29, 29, 29, 29,
+						29, 14, 14, 14, 14, 14, 14, 14, 0,
+					],
 				},
 			},
 			{
@@ -4264,7 +4390,10 @@ export const coreCategories: InputPresetCategory[] = [
 					filterEnvelope: "steady",
 					interval: "union",
 					vibrato: "delayed",
-					harmonics: [100, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+					harmonics: [
+						100, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+						0, 0, 0,
+					],
 				},
 			},
 			{
@@ -4282,7 +4411,10 @@ export const coreCategories: InputPresetCategory[] = [
 					filterEnvelope: "steady",
 					interval: "union",
 					vibrato: "none",
-					harmonics: [100, 14, 57, 14, 29, 14, 14, 14, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+					harmonics: [
+						100, 14, 57, 14, 29, 14, 14, 14, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+						0, 0, 0, 0, 0, 0,
+					],
 				},
 			},
 			{
@@ -4350,7 +4482,10 @@ export const coreCategories: InputPresetCategory[] = [
 					reverb: 33,
 					fadeInSeconds: 0.0125,
 					fadeOutTicks: -3,
-					spectrum: [100, 0, 0, 0, 0, 0, 0, 14, 0, 0, 0, 71, 0, 0, 14, 0, 57, 0, 29, 14, 29, 14, 14, 29, 14, 29, 14, 14, 29, 14],
+					spectrum: [
+						100, 0, 0, 0, 0, 0, 0, 14, 0, 0, 0, 71, 0, 0, 14, 0, 57, 0, 29, 14, 29, 14,
+						14, 29, 14, 29, 14, 14, 29, 14,
+					],
 					envelopes: [
 						{ target: "noteFilterFreq", envelope: "twang 1", index: 0 },
 						{
@@ -4399,7 +4534,10 @@ export const coreCategories: InputPresetCategory[] = [
 					filterCutoffHz: 5657,
 					filterResonance: 14,
 					filterEnvelope: "steady",
-					spectrum: [100, 0, 0, 0, 0, 0, 0, 86, 0, 0, 0, 71, 0, 0, 57, 0, 43, 0, 29, 14, 14, 29, 14, 14, 14, 14, 14, 14, 14, 14],
+					spectrum: [
+						100, 0, 0, 0, 0, 0, 0, 86, 0, 0, 0, 71, 0, 0, 57, 0, 43, 0, 29, 14, 14, 29,
+						14, 14, 14, 14, 14, 14, 14, 14,
+					],
 				},
 			},
 			{
@@ -4415,7 +4553,10 @@ export const coreCategories: InputPresetCategory[] = [
 					filterCutoffHz: 2000,
 					filterResonance: 14,
 					filterEnvelope: "punch",
-					spectrum: [86, 0, 0, 0, 0, 0, 0, 71, 0, 0, 0, 71, 0, 0, 57, 0, 57, 0, 43, 14, 14, 43, 14, 29, 14, 29, 29, 29, 29, 14],
+					spectrum: [
+						86, 0, 0, 0, 0, 0, 0, 71, 0, 0, 0, 71, 0, 0, 57, 0, 57, 0, 43, 14, 14, 43,
+						14, 29, 14, 29, 29, 29, 29, 14,
+					],
 				},
 			},
 			{
@@ -4439,7 +4580,10 @@ export const coreCategories: InputPresetCategory[] = [
 					reverb: 33,
 					fadeInSeconds: 0.0413,
 					fadeOutTicks: 12,
-					spectrum: [71, 0, 0, 0, 0, 0, 0, 29, 0, 0, 0, 71, 0, 0, 29, 0, 100, 29, 14, 29, 100, 29, 100, 14, 14, 71, 0, 29, 0, 0],
+					spectrum: [
+						71, 0, 0, 0, 0, 0, 0, 29, 0, 0, 0, 71, 0, 0, 29, 0, 100, 29, 14, 29, 100,
+						29, 100, 14, 14, 71, 0, 29, 0, 0,
+					],
 					envelopes: [{ target: "noteFilterAllFreqs", envelope: "twang 1" }],
 				},
 			},
@@ -4458,7 +4602,10 @@ export const coreCategories: InputPresetCategory[] = [
 					filterEnvelope: "steady",
 					interval: "union",
 					vibrato: "delayed",
-					harmonics: [100, 43, 86, 57, 86, 71, 86, 71, 71, 71, 71, 71, 71, 43, 71, 71, 57, 57, 57, 57, 57, 57, 43, 43, 43, 29, 14, 0],
+					harmonics: [
+						100, 43, 86, 57, 86, 71, 86, 71, 71, 71, 71, 71, 71, 43, 71, 71, 57, 57, 57,
+						57, 57, 57, 43, 43, 43, 29, 14, 0,
+					],
 				},
 			},
 		]),
@@ -4750,7 +4897,10 @@ export const coreCategories: InputPresetCategory[] = [
 					fadeInSeconds: 0.0125,
 					fadeOutTicks: 72,
 					chord: "simultaneous",
-					harmonics: [100, 86, 86, 86, 43, 57, 43, 71, 43, 43, 43, 57, 43, 43, 57, 71, 57, 43, 29, 43, 57, 57, 43, 29, 29, 29, 29, 14],
+					harmonics: [
+						100, 86, 86, 86, 43, 57, 43, 71, 43, 43, 43, 57, 43, 43, 57, 71, 57, 43, 29,
+						43, 57, 57, 43, 29, 29, 29, 29, 14,
+					],
 					unison: "octave",
 					stringSustain: 86,
 					envelopes: [],
@@ -4925,53 +5075,87 @@ export const coreCategories: InputPresetCategory[] = [
 					drums: [
 						{
 							filterEnvelope: "twang 1",
-							spectrum: [57, 71, 71, 86, 86, 86, 71, 71, 71, 71, 57, 57, 57, 57, 43, 43, 43, 43, 29, 29, 29, 29, 29, 29, 29, 29, 29, 29, 29, 29],
-						},
-						{
-							filterEnvelope: "twang 1",
-							spectrum: [0, 0, 0, 100, 71, 71, 57, 86, 57, 57, 57, 71, 43, 43, 57, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43],
-						},
-						{
-							filterEnvelope: "twang 1",
-							spectrum: [0, 0, 0, 0, 100, 57, 43, 43, 29, 57, 43, 29, 71, 43, 43, 43, 43, 57, 43, 43, 43, 43, 43, 43, 43, 43, 29, 43, 43, 43],
-						},
-						{
-							filterEnvelope: "twang 1",
-							spectrum: [0, 0, 0, 0, 0, 71, 57, 43, 43, 43, 57, 57, 43, 29, 57, 43, 43, 43, 29, 43, 57, 43, 43, 43, 43, 43, 43, 29, 43, 43],
-						},
-						{
-							filterEnvelope: "decay 2",
-							spectrum: [0, 14, 29, 43, 86, 71, 29, 43, 43, 43, 43, 29, 71, 29, 71, 29, 43, 43, 43, 43, 57, 43, 43, 57, 43, 43, 43, 57, 57, 57],
-						},
-						{
-							filterEnvelope: "decay 1",
-							spectrum: [0, 0, 14, 14, 14, 14, 29, 29, 29, 43, 43, 43, 57, 57, 57, 71, 71, 71, 71, 71, 71, 71, 71, 57, 57, 57, 57, 43, 43, 43],
-						},
-						{
-							filterEnvelope: "twang 3",
-							spectrum: [43, 43, 43, 71, 29, 29, 43, 43, 43, 29, 43, 43, 43, 29, 29, 43, 43, 29, 29, 29, 57, 14, 57, 43, 43, 57, 43, 43, 57, 57],
-						},
-						{
-							filterEnvelope: "decay 3",
-							spectrum: [29, 43, 43, 43, 43, 29, 29, 43, 29, 29, 43, 29, 14, 29, 43, 29, 43, 29, 57, 29, 43, 57, 43, 71, 43, 71, 57, 57, 71, 71],
-						},
-						{
-							filterEnvelope: "twang 3",
-							spectrum: [43, 29, 29, 43, 29, 29, 29, 57, 29, 29, 29, 57, 43, 43, 29, 29, 57, 43, 43, 43, 71, 43, 43, 71, 57, 71, 71, 71, 71, 71],
-						},
-						{
-							filterEnvelope: "decay 3",
-							spectrum: [57, 57, 57, 43, 57, 57, 43, 43, 57, 43, 43, 43, 71, 57, 43, 57, 86, 71, 57, 86, 71, 57, 86, 100, 71, 86, 86, 86, 86, 86],
-						},
-						{
-							filterEnvelope: "flare 1",
 							spectrum: [
-								0, 0, 14, 14, 14, 14, 29, 29, 29, 43, 43, 43, 57, 57, 71, 71, 86, 86, 100, 100, 100, 100, 100, 100, 100, 100, 86, 57, 29, 0,
+								57, 71, 71, 86, 86, 86, 71, 71, 71, 71, 57, 57, 57, 57, 43, 43, 43,
+								43, 29, 29, 29, 29, 29, 29, 29, 29, 29, 29, 29, 29,
+							],
+						},
+						{
+							filterEnvelope: "twang 1",
+							spectrum: [
+								0, 0, 0, 100, 71, 71, 57, 86, 57, 57, 57, 71, 43, 43, 57, 43, 43,
+								43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43,
+							],
+						},
+						{
+							filterEnvelope: "twang 1",
+							spectrum: [
+								0, 0, 0, 0, 100, 57, 43, 43, 29, 57, 43, 29, 71, 43, 43, 43, 43, 57,
+								43, 43, 43, 43, 43, 43, 43, 43, 29, 43, 43, 43,
+							],
+						},
+						{
+							filterEnvelope: "twang 1",
+							spectrum: [
+								0, 0, 0, 0, 0, 71, 57, 43, 43, 43, 57, 57, 43, 29, 57, 43, 43, 43,
+								29, 43, 57, 43, 43, 43, 43, 43, 43, 29, 43, 43,
 							],
 						},
 						{
 							filterEnvelope: "decay 2",
-							spectrum: [14, 14, 14, 14, 29, 14, 14, 29, 14, 43, 14, 43, 57, 86, 57, 57, 100, 57, 43, 43, 57, 100, 57, 43, 29, 14, 0, 0, 0, 0],
+							spectrum: [
+								0, 14, 29, 43, 86, 71, 29, 43, 43, 43, 43, 29, 71, 29, 71, 29, 43,
+								43, 43, 43, 57, 43, 43, 57, 43, 43, 43, 57, 57, 57,
+							],
+						},
+						{
+							filterEnvelope: "decay 1",
+							spectrum: [
+								0, 0, 14, 14, 14, 14, 29, 29, 29, 43, 43, 43, 57, 57, 57, 71, 71,
+								71, 71, 71, 71, 71, 71, 57, 57, 57, 57, 43, 43, 43,
+							],
+						},
+						{
+							filterEnvelope: "twang 3",
+							spectrum: [
+								43, 43, 43, 71, 29, 29, 43, 43, 43, 29, 43, 43, 43, 29, 29, 43, 43,
+								29, 29, 29, 57, 14, 57, 43, 43, 57, 43, 43, 57, 57,
+							],
+						},
+						{
+							filterEnvelope: "decay 3",
+							spectrum: [
+								29, 43, 43, 43, 43, 29, 29, 43, 29, 29, 43, 29, 14, 29, 43, 29, 43,
+								29, 57, 29, 43, 57, 43, 71, 43, 71, 57, 57, 71, 71,
+							],
+						},
+						{
+							filterEnvelope: "twang 3",
+							spectrum: [
+								43, 29, 29, 43, 29, 29, 29, 57, 29, 29, 29, 57, 43, 43, 29, 29, 57,
+								43, 43, 43, 71, 43, 43, 71, 57, 71, 71, 71, 71, 71,
+							],
+						},
+						{
+							filterEnvelope: "decay 3",
+							spectrum: [
+								57, 57, 57, 43, 57, 57, 43, 43, 57, 43, 43, 43, 71, 57, 43, 57, 86,
+								71, 57, 86, 71, 57, 86, 100, 71, 86, 86, 86, 86, 86,
+							],
+						},
+						{
+							filterEnvelope: "flare 1",
+							spectrum: [
+								0, 0, 14, 14, 14, 14, 29, 29, 29, 43, 43, 43, 57, 57, 71, 71, 86,
+								86, 100, 100, 100, 100, 100, 100, 100, 100, 86, 57, 29, 0,
+							],
+						},
+						{
+							filterEnvelope: "decay 2",
+							spectrum: [
+								14, 14, 14, 14, 29, 14, 14, 29, 14, 43, 14, 43, 57, 86, 57, 57, 100,
+								57, 43, 43, 57, 100, 57, 43, 29, 14, 0, 0, 0, 0,
+							],
 						},
 					],
 				},
@@ -5063,7 +5247,10 @@ export const coreCategories: InputPresetCategory[] = [
 					fadeInSeconds: 0,
 					fadeOutTicks: 48,
 					chord: "simultaneous",
-					spectrum: [100, 0, 0, 0, 86, 0, 0, 71, 0, 14, 43, 14, 43, 43, 0, 29, 43, 29, 29, 29, 43, 29, 43, 29, 43, 43, 43, 43, 43, 43],
+					spectrum: [
+						100, 0, 0, 0, 86, 0, 0, 71, 0, 14, 43, 14, 43, 43, 0, 29, 43, 29, 29, 29,
+						43, 29, 43, 29, 43, 43, 43, 43, 43, 43,
+					],
 					envelopes: [
 						{ target: "noteFilterAllFreqs", envelope: "twang 1" },
 						{
@@ -5087,7 +5274,10 @@ export const coreCategories: InputPresetCategory[] = [
 					fadeInSeconds: 0,
 					fadeOutTicks: 48,
 					chord: "simultaneous",
-					spectrum: [0, 0, 14, 14, 14, 29, 29, 43, 43, 86, 43, 43, 43, 29, 86, 29, 29, 29, 86, 29, 14, 14, 14, 14, 0, 0, 0, 0, 0, 0],
+					spectrum: [
+						0, 0, 14, 14, 14, 29, 29, 43, 43, 86, 43, 43, 43, 29, 86, 29, 29, 29, 86,
+						29, 14, 14, 14, 14, 0, 0, 0, 0, 0, 0,
+					],
 					envelopes: [{ target: "noteFilterAllFreqs", envelope: "twang 2" }],
 				},
 			},
@@ -5106,7 +5296,10 @@ export const coreCategories: InputPresetCategory[] = [
 					filterCutoffHz: 2828,
 					filterResonance: 14,
 					filterEnvelope: "twang 1",
-					spectrum: [0, 14, 29, 43, 43, 57, 86, 86, 71, 57, 57, 43, 43, 57, 86, 86, 43, 43, 71, 57, 57, 57, 57, 57, 86, 86, 71, 71, 71, 71],
+					spectrum: [
+						0, 14, 29, 43, 43, 57, 86, 86, 71, 57, 57, 43, 43, 57, 86, 86, 43, 43, 71,
+						57, 57, 57, 57, 57, 86, 86, 71, 71, 71, 71,
+					],
 				},
 			},
 			{
@@ -5124,7 +5317,10 @@ export const coreCategories: InputPresetCategory[] = [
 					filterCutoffHz: 2828,
 					filterResonance: 29,
 					filterEnvelope: "twang 1",
-					spectrum: [71, 100, 100, 43, 43, 71, 71, 43, 43, 43, 43, 43, 43, 57, 29, 57, 43, 57, 43, 43, 57, 43, 43, 43, 43, 43, 43, 43, 43, 43],
+					spectrum: [
+						71, 100, 100, 43, 43, 71, 71, 43, 43, 43, 43, 43, 43, 57, 29, 57, 43, 57,
+						43, 43, 57, 43, 43, 43, 43, 43, 43, 43, 43, 43,
+					],
 				},
 			},
 			{
@@ -5142,7 +5338,10 @@ export const coreCategories: InputPresetCategory[] = [
 					filterCutoffHz: 2828,
 					filterResonance: 43,
 					filterEnvelope: "twang 1",
-					spectrum: [100, 71, 71, 57, 57, 43, 43, 71, 43, 43, 43, 57, 43, 43, 57, 43, 43, 43, 43, 29, 29, 29, 29, 29, 29, 29, 29, 29, 29, 29],
+					spectrum: [
+						100, 71, 71, 57, 57, 43, 43, 71, 43, 43, 43, 57, 43, 43, 57, 43, 43, 43, 43,
+						29, 29, 29, 29, 29, 29, 29, 29, 29, 29, 29,
+					],
 				},
 			},
 			{
@@ -5160,7 +5359,10 @@ export const coreCategories: InputPresetCategory[] = [
 					filterCutoffHz: 4000,
 					filterResonance: 43,
 					filterEnvelope: "decay 1",
-					spectrum: [100, 86, 71, 57, 43, 29, 29, 29, 29, 29, 29, 29, 29, 29, 29, 29, 29, 29, 29, 29, 29, 29, 29, 29, 29, 29, 29, 29, 29, 29],
+					spectrum: [
+						100, 86, 71, 57, 43, 29, 29, 29, 29, 29, 29, 29, 29, 29, 29, 29, 29, 29, 29,
+						29, 29, 29, 29, 29, 29, 29, 29, 29, 29, 29,
+					],
 				},
 			},
 			{
@@ -5177,7 +5379,10 @@ export const coreCategories: InputPresetCategory[] = [
 					filterCutoffHz: 2000,
 					filterResonance: 14,
 					filterEnvelope: "twang 1",
-					spectrum: [100, 29, 14, 0, 0, 86, 14, 43, 29, 86, 29, 14, 29, 57, 43, 43, 43, 43, 57, 43, 43, 43, 29, 57, 43, 43, 43, 43, 43, 43],
+					spectrum: [
+						100, 29, 14, 0, 0, 86, 14, 43, 29, 86, 29, 14, 29, 57, 43, 43, 43, 43, 57,
+						43, 43, 43, 29, 57, 43, 43, 43, 43, 43, 43,
+					],
 				},
 			},
 			{
@@ -5194,7 +5399,10 @@ export const coreCategories: InputPresetCategory[] = [
 					filterCutoffHz: 8000,
 					filterResonance: 14,
 					filterEnvelope: "twang 2",
-					spectrum: [29, 43, 86, 43, 43, 43, 43, 43, 100, 29, 14, 14, 100, 14, 14, 0, 0, 0, 0, 0, 14, 29, 29, 14, 0, 0, 14, 29, 0, 0],
+					spectrum: [
+						29, 43, 86, 43, 43, 43, 43, 43, 100, 29, 14, 14, 100, 14, 14, 0, 0, 0, 0, 0,
+						14, 29, 29, 14, 0, 0, 14, 29, 0, 0,
+					],
 				},
 			},
 			{
@@ -5249,7 +5457,10 @@ export const coreCategories: InputPresetCategory[] = [
 					fadeInSeconds: 0.0125,
 					fadeOutTicks: -3,
 					chord: "simultaneous",
-					spectrum: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 14, 0, 0, 0, 29, 14, 0, 0, 43, 0, 43, 0, 71, 43, 0, 57, 0],
+					spectrum: [
+						0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 14, 0, 0, 0, 29, 14, 0, 0, 43, 0, 43,
+						0, 71, 43, 0, 57, 0,
+					],
 					envelopes: [
 						{ target: "noteFilterAllFreqs", envelope: "flare 1" },
 						{
@@ -5335,7 +5546,10 @@ export const coreCategories: InputPresetCategory[] = [
 					filterCutoffHz: 4000,
 					filterResonance: 14,
 					filterEnvelope: "swell 3",
-					spectrum: [29, 57, 57, 29, 57, 57, 29, 29, 43, 29, 29, 43, 29, 29, 57, 57, 14, 57, 14, 57, 71, 71, 57, 86, 57, 100, 86, 86, 86, 86],
+					spectrum: [
+						29, 57, 57, 29, 57, 57, 29, 29, 43, 29, 29, 43, 29, 29, 57, 57, 14, 57, 14,
+						57, 71, 71, 57, 86, 57, 100, 86, 86, 86, 86,
+					],
 				},
 			},
 			{
@@ -5353,7 +5567,10 @@ export const coreCategories: InputPresetCategory[] = [
 					filterCutoffHz: 2828,
 					filterResonance: 0,
 					filterEnvelope: "swell 3",
-					spectrum: [14, 14, 29, 29, 43, 43, 43, 57, 57, 57, 57, 57, 57, 71, 71, 71, 71, 71, 71, 71, 71, 71, 71, 71, 71, 71, 71, 71, 71, 57],
+					spectrum: [
+						14, 14, 29, 29, 43, 43, 43, 57, 57, 57, 57, 57, 57, 71, 71, 71, 71, 71, 71,
+						71, 71, 71, 71, 71, 71, 71, 71, 71, 71, 57,
+					],
 				},
 			},
 			{
@@ -5370,7 +5587,10 @@ export const coreCategories: InputPresetCategory[] = [
 					reverb: 67,
 					fadeInSeconds: 0.0575,
 					fadeOutTicks: -6,
-					harmonics: [0, 0, 0, 100, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+					harmonics: [
+						0, 0, 0, 100, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+						0, 0, 0,
+					],
 					unison: "hum",
 					envelopes: [{ target: "noteVolume", envelope: "decay 1" }],
 				},
@@ -5426,7 +5646,10 @@ export const coreCategories: InputPresetCategory[] = [
 					filterCutoffHz: 1414,
 					filterResonance: 14,
 					filterEnvelope: "tremolo4",
-					spectrum: [14, 43, 43, 57, 57, 57, 71, 71, 71, 71, 86, 86, 86, 86, 86, 86, 86, 86, 86, 86, 86, 71, 71, 71, 71, 71, 71, 71, 57, 57],
+					spectrum: [
+						14, 43, 43, 57, 57, 57, 71, 71, 71, 71, 86, 86, 86, 86, 86, 86, 86, 86, 86,
+						86, 86, 71, 71, 71, 71, 71, 71, 71, 57, 57,
+					],
 				},
 			},
 			{
@@ -5444,7 +5667,10 @@ export const coreCategories: InputPresetCategory[] = [
 					filterCutoffHz: 2000,
 					filterResonance: 14,
 					filterEnvelope: "swell 3",
-					spectrum: [14, 14, 29, 29, 29, 43, 43, 57, 71, 71, 86, 86, 86, 71, 71, 57, 57, 57, 71, 86, 86, 86, 86, 86, 71, 71, 57, 57, 57, 57],
+					spectrum: [
+						14, 14, 29, 29, 29, 43, 43, 57, 71, 71, 86, 86, 86, 71, 71, 57, 57, 57, 71,
+						86, 86, 86, 86, 86, 71, 71, 57, 57, 57, 57,
+					],
 				},
 			},
 			{
@@ -5462,7 +5688,10 @@ export const coreCategories: InputPresetCategory[] = [
 					filterCutoffHz: 1414,
 					filterResonance: 29,
 					filterEnvelope: "twang 1",
-					spectrum: [14, 29, 43, 43, 57, 57, 57, 71, 71, 71, 86, 86, 86, 86, 86, 86, 86, 86, 86, 86, 86, 71, 71, 71, 71, 57, 57, 57, 57, 43],
+					spectrum: [
+						14, 29, 43, 43, 57, 57, 57, 71, 71, 71, 86, 86, 86, 86, 86, 86, 86, 86, 86,
+						86, 86, 71, 71, 71, 71, 57, 57, 57, 57, 43,
+					],
 				},
 			},
 			{
@@ -5541,7 +5770,10 @@ export const coreCategories: InputPresetCategory[] = [
 					filterCutoffHz: 2000,
 					filterResonance: 14,
 					filterEnvelope: "swell 2",
-					spectrum: [14, 14, 14, 29, 29, 29, 29, 29, 43, 29, 29, 43, 43, 43, 29, 29, 71, 43, 86, 86, 57, 100, 86, 86, 86, 86, 71, 86, 71, 57],
+					spectrum: [
+						14, 14, 14, 29, 29, 29, 29, 29, 43, 29, 29, 43, 43, 43, 29, 29, 71, 43, 86,
+						86, 57, 100, 86, 86, 86, 86, 71, 86, 71, 57,
+					],
 				},
 			},
 			{
@@ -5575,7 +5807,10 @@ export const coreCategories: InputPresetCategory[] = [
 					fadeInSeconds: 0.0263,
 					fadeOutTicks: -6,
 					chord: "simultaneous",
-					harmonics: [100, 71, 57, 43, 29, 29, 14, 14, 14, 14, 14, 14, 14, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+					harmonics: [
+						100, 71, 57, 43, 29, 29, 14, 14, 14, 14, 14, 14, 14, 0, 0, 0, 0, 0, 0, 0, 0,
+						0, 0, 0, 0, 0, 0, 0,
+					],
 					unison: "none",
 					envelopes: [],
 				},
@@ -5594,7 +5829,10 @@ export const coreCategories: InputPresetCategory[] = [
 					fadeInSeconds: 0.0125,
 					fadeOutTicks: 72,
 					chord: "simultaneous",
-					spectrum: [100, 43, 29, 29, 14, 14, 14, 14, 14, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+					spectrum: [
+						100, 43, 29, 29, 14, 14, 14, 14, 14, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+						0, 0, 0, 0, 0, 0, 0, 0,
+					],
 					envelopes: [{ target: "noteFilterAllFreqs", envelope: "twang 2" }],
 				},
 			},

@@ -61,10 +61,22 @@ export class PlayerAnimator {
 		}
 
 		const ctrlShift = this._callbacks.getCtrlHeld() || this._callbacks.getShiftHeld();
-		if (this._doc.synth.isFilterModActive(false, this._doc.channel, this._doc.getCurrentInstrument())) {
+		if (
+			this._doc.synth.isFilterModActive(
+				false,
+				this._doc.channel,
+				this._doc.getCurrentInstrument(),
+			)
+		) {
 			this._callbacks.eqFilterEditor.render(true, ctrlShift);
 		}
-		if (this._doc.synth.isFilterModActive(true, this._doc.channel, this._doc.getCurrentInstrument())) {
+		if (
+			this._doc.synth.isFilterModActive(
+				true,
+				this._doc.channel,
+				this._doc.getCurrentInstrument(),
+			)
+		) {
 			this._callbacks.noteFilterEditor.render(true, ctrlShift);
 		}
 		if (this._doc.synth.isFilterModActive(false, 0, 0, true)) {
@@ -79,7 +91,11 @@ export class PlayerAnimator {
 		// pass, modSliderUpdate's !playing branch already cleared mod
 		// sliders and _hasActiveModSliders, so stop rescheduling to free
 		// rAF while paused. start() re-arms the loop on the next play.
-		const keepRunning: boolean = this._doc.synth.playing || this._doc.synth.fadingOut || this._doc.synth.recording || this._doc.recordingModulators;
+		const keepRunning: boolean =
+			this._doc.synth.playing ||
+			this._doc.synth.fadingOut ||
+			this._doc.synth.recording ||
+			this._doc.recordingModulators;
 		if (keepRunning) {
 			window.requestAnimationFrame(this.animate);
 		} else {
@@ -103,7 +119,10 @@ export class PlayerAnimator {
 		const playhead = Math.floor(this._doc.synth.playhead);
 		const visible = this._doc.trackVisibleBars;
 		if (visible <= 0) return;
-		const target = Math.max(0, Math.min(this._doc.song.barCount - visible, playhead - Math.floor(visible / 2)));
+		const target = Math.max(
+			0,
+			Math.min(this._doc.song.barCount - visible, playhead - Math.floor(visible / 2)),
+		);
 		if (target !== this._doc.barScrollPos) {
 			this._doc.barScrollPos = target;
 			this._doc.notifier.changed();
@@ -122,9 +141,14 @@ export class PlayerAnimator {
 		const bar = Math.floor(this._doc.synth.playhead) + 1;
 		const total = this._doc.song.barCount;
 		const generation = this._doc.notifier.generation;
-		if (this._cachedDuration < 0 || this._doc.song.barCount !== this._cachedBarCount || generation !== this._cachedGeneration) {
+		if (
+			this._cachedDuration < 0 ||
+			this._doc.song.barCount !== this._cachedBarCount ||
+			generation !== this._cachedGeneration
+		) {
 			const totalSamples = this._doc.synth.getTotalSamples(true, true, 0);
-			this._cachedDuration = totalSamples > 0 ? totalSamples / this._doc.synth.samplesPerSecond : 0;
+			this._cachedDuration =
+				totalSamples > 0 ? totalSamples / this._doc.synth.samplesPerSecond : 0;
 			this._cachedBarCount = this._doc.song.barCount;
 			this._cachedGeneration = generation;
 		}
@@ -151,7 +175,10 @@ export class PlayerAnimator {
 		if (level !== this.lastOutVolumeCap) {
 			this.lastOutVolumeCap = level;
 			this._callbacks.outVolumeBar.setAttribute("width", `${Math.min(144, level * 144)}`);
-			this._callbacks.outVolumeCap.setAttribute("x", `${8 + Math.min(144, this.outVolumeHistoricCap * 144)}`);
+			this._callbacks.outVolumeCap.setAttribute(
+				"x",
+				`${8 + Math.min(144, this.outVolumeHistoricCap * 144)}`,
+			);
 		}
 	};
 }

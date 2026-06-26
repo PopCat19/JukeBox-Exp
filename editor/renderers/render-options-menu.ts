@@ -9,7 +9,11 @@
 import { ColorConfig } from "../../shared/color-config";
 import type { Preferences } from "../core/preferences";
 
-export function renderOptionsMenu(optionsMenu: HTMLSelectElement, prefs: Preferences, currentScale: number): void {
+export function renderOptionsMenu(
+	optionsMenu: HTMLSelectElement,
+	prefs: Preferences,
+	currentScale: number,
+): void {
 	const textOnIcon: string = ColorConfig.getComputed("--text-enabled-icon");
 	const textOffIcon: string = ColorConfig.getComputed("--text-disabled-icon");
 	const textSpacingIcon: string = ColorConfig.getComputed("--text-spacing-icon");

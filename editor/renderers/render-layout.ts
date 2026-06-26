@@ -47,9 +47,18 @@ export function renderLayout(refs: LayoutRefs, doc: SongDocument): void {
 	const prefs: Preferences = doc.prefs;
 	refs.muteEditor.container.style.display = prefs.enableChannelMuting ? "" : "none";
 	const trackBounds: DOMRect = refs.trackVisibleArea.getBoundingClientRect();
-	doc.trackVisibleBars = Math.floor((trackBounds.right - trackBounds.left - (prefs.enableChannelMuting ? 32 : 0)) / doc.getBarWidth());
-	doc.trackVisibleChannels = Math.floor((trackBounds.bottom - trackBounds.top - 30) / ChannelRow.patternHeight);
-	for (let i: number = doc.song.pitchChannelCount + doc.song.noiseChannelCount; i < doc.song.channels.length; i++) {
+	doc.trackVisibleBars = Math.floor(
+		(trackBounds.right - trackBounds.left - (prefs.enableChannelMuting ? 32 : 0)) /
+			doc.getBarWidth(),
+	);
+	doc.trackVisibleChannels = Math.floor(
+		(trackBounds.bottom - trackBounds.top - 30) / ChannelRow.patternHeight,
+	);
+	for (
+		let i: number = doc.song.pitchChannelCount + doc.song.noiseChannelCount;
+		i < doc.song.channels.length;
+		i++
+	) {
 		const channel = doc.song.channels[i];
 		for (let j: number = 0; j < channel.instruments.length; j++) {
 			doc.synth.determineInvalidModulators(channel.instruments[j]);
@@ -62,13 +71,17 @@ export function renderLayout(refs: LayoutRefs, doc: SongDocument): void {
 	refs.trackAndMuteContainer.scrollLeft = doc.barScrollPos * doc.getBarWidth();
 	refs.trackAndMuteContainer.scrollTop = doc.channelScrollPos * ChannelRow.patternHeight;
 
-	if (document.activeElement !== refs.patternEditor.modDragValueLabel && refs.patternEditor.editingModLabel) {
+	if (
+		document.activeElement !== refs.patternEditor.modDragValueLabel &&
+		refs.patternEditor.editingModLabel
+	) {
 		refs.patternEditor.stopEditingModLabel(false);
 	}
 
 	refs.piano.container.style.display = prefs.showLetters ? "" : "none";
 	refs.octaveScrollBar.container.style.display = prefs.showScrollBar ? "" : "none";
-	refs.barScrollBar.container.style.display = doc.song.barCount > doc.trackVisibleBars ? "" : "none";
+	refs.barScrollBar.container.style.display =
+		doc.song.barCount > doc.trackVisibleBars ? "" : "none";
 	refs.volumeBarBox.style.display = doc.prefs.displayVolumeBar ? "" : "none";
 	refs.globalSpectrumContainer.style.display = doc.prefs.showSpectrum ? "" : "none";
 	doc.synth.spectrumEnabled = doc.prefs.showSpectrum || doc.prefs.showSpectrumOverlay;
@@ -77,26 +90,35 @@ export function renderLayout(refs: LayoutRefs, doc: SongDocument): void {
 	}
 	// Sync particle toggle to overlay spectrum
 	if (refs.overlaySpectrum) {
-		refs.overlaySpectrum.showParticles = doc.prefs.showSpectrumParticles && doc.prefs.showSpectrumOverlay;
+		refs.overlaySpectrum.showParticles =
+			doc.prefs.showSpectrumParticles && doc.prefs.showSpectrumOverlay;
 	}
-	refs.sampleLoadingStatusContainer.style.display = doc.prefs.showSampleLoadingStatus ? "" : "none";
+	refs.sampleLoadingStatusContainer.style.display = doc.prefs.showSampleLoadingStatus
+		? ""
+		: "none";
 	refs.instrumentCopyGroup.style.display = doc.prefs.instrumentCopyPaste ? "" : "none";
 	refs.instrumentTagRow.style.display = doc.prefs.enableTagSearch ? "" : "none";
 	refs.instrumentExportGroup.style.display = doc.prefs.instrumentImportExport ? "" : "none";
-	refs.instrumentSettingsArea.style.scrollbarWidth = doc.prefs.showInstrumentScrollbars ? "" : "none";
+	refs.instrumentSettingsArea.style.scrollbarWidth = doc.prefs.showInstrumentScrollbars
+		? ""
+		: "none";
 	if (document.getElementById("text-content")) {
-		document.getElementById("text-content")!.style.display = doc.prefs.showDescription ? "" : "none";
+		document.getElementById("text-content")!.style.display = doc.prefs.showDescription
+			? ""
+			: "none";
 	}
 
 	if (doc.getFullScreen()) {
-		const semitoneHeight: number = refs.patternEditorRow.clientHeight / doc.getVisiblePitchCount();
+		const semitoneHeight: number =
+			refs.patternEditorRow.clientHeight / doc.getVisiblePitchCount();
 		const targetBeatWidth: number = semitoneHeight * 5;
 		const minBeatWidth: number = refs.patternEditorRow.clientWidth / (doc.song.beatsPerBar * 3);
 		const maxBeatWidth: number = refs.patternEditorRow.clientWidth / (doc.song.beatsPerBar + 2);
 		const beatWidth: number = Math.max(minBeatWidth, Math.min(maxBeatWidth, targetBeatWidth));
 		const patternEditorWidth: number = beatWidth * doc.song.beatsPerBar;
 
-		const beepboxEditorContainer: HTMLElement = document.getElementById("beepboxEditorContainer")!;
+		const beepboxEditorContainer: HTMLElement =
+			document.getElementById("beepboxEditorContainer")!;
 
 		if (doc.prefs.showDescription === false) {
 			beepboxEditorContainer.style.paddingBottom = "0";

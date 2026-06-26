@@ -92,7 +92,9 @@ export class PromptFocusController {
 			}
 		};
 		prompt.container.addEventListener("mouseenter", onMouseEnter);
-		this.cleanupFns.push(() => prompt.container.removeEventListener("mouseenter", onMouseEnter));
+		this.cleanupFns.push(() =>
+			prompt.container.removeEventListener("mouseenter", onMouseEnter),
+		);
 
 		const onFocusIn = (): void => {
 			if (!this.cursorMoved || !this.mouseInPrompt) return;
@@ -116,7 +118,9 @@ export class PromptFocusController {
 			refocusSongEditor();
 		};
 		prompt.container.addEventListener("mouseleave", onMouseLeave);
-		this.cleanupFns.push(() => prompt.container.removeEventListener("mouseleave", onMouseLeave));
+		this.cleanupFns.push(() =>
+			prompt.container.removeEventListener("mouseleave", onMouseLeave),
+		);
 
 		const onMouseDown = (e: Event): void => {
 			if (this.host.getFocusedPrompt() !== prompt) {

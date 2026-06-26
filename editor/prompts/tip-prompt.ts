@@ -175,7 +175,9 @@ export class TipPrompt extends BasePrompt {
 				);
 			case "key_octave":
 				return div(
-					p('This setting can shift the "key" by an octave, allowing you to use a B- or C+ key.'),
+					p(
+						'This setting can shift the "key" by an octave, allowing you to use a B- or C+ key.',
+					),
 					p(`This goes from ${Config.octaveMin} to ${Config.octaveMax}.`),
 				);
 			case "tempo":
@@ -192,14 +194,18 @@ export class TipPrompt extends BasePrompt {
 				);
 			case "rhythm":
 				return div(
-					p("This setting determines how beats are divided. The pattern editor helps you align notes to fractions of a beat based on this setting."),
+					p(
+						"This setting determines how beats are divided. The pattern editor helps you align notes to fractions of a beat based on this setting.",
+					),
 					p(
 						"If you've already placed some notes but they don't align with the selected rhythm, you can select the \"Snap Notes To Rhythm\" option in the rhythm menu to force the notes in the currently selected pattern(s) to align with the selected rhythm.",
 					),
 				);
 			case "instrumentIndex":
 				return div(
-					p('In the "Channel Settings" option from JukeBox\'s "Edit" menu, there are a few ways to enable multiple instruments per channel.'),
+					p(
+						'In the "Channel Settings" option from JukeBox\'s "Edit" menu, there are a few ways to enable multiple instruments per channel.',
+					),
 					p(
 						"First, you could enable multiple simultaneous instruments per channel. All of the channel's instruments will play all of the notes in the channel at the same time, and you can click an instrument number to view and edit its settings.",
 					),
@@ -248,21 +254,31 @@ export class TipPrompt extends BasePrompt {
 				);
 			case "twoNoteArpeggio":
 				return div(
-					p("This setting makes arpeggios with only two notes in them happen twice as fast. Arpeggios with more notes in them are unaffected."),
+					p(
+						"This setting makes arpeggios with only two notes in them happen twice as fast. Arpeggios with more notes in them are unaffected.",
+					),
 				);
 			case "monophonic":
-				return div(p(`This setting controls which note of the chord your instrument will play. `));
+				return div(
+					p(`This setting controls which note of the chord your instrument will play. `),
+				);
 			case "detune":
 				return div(
 					p(
 						"This setting can be used to finely control the pitch of your instrument. It is in units of 'cents', 100 of which equal a pitch shift of one semitone.",
 					),
-					p("Careful - you can quickly get very dissonant sounding songs by using this setting."),
+					p(
+						"Careful - you can quickly get very dissonant sounding songs by using this setting.",
+					),
 				);
 			case "instrumentTags":
 				return div(
-					p("JukeBox's instrument tags allow for filtering out specific instrument types, authors, and more!"),
-					p("Applied tags will filter search results from the instrument type search box, as well has presets rolled with random selection."),
+					p(
+						"JukeBox's instrument tags allow for filtering out specific instrument types, authors, and more!",
+					),
+					p(
+						"Applied tags will filter search results from the instrument type search box, as well has presets rolled with random selection.",
+					),
 					p("Examples of how to use instrument tags:"),
 					p("Basic: chip"),
 					p("Multiple: ashiiware chip"),
@@ -271,11 +287,15 @@ export class TipPrompt extends BasePrompt {
 				);
 			case "instrumentType":
 				return div(
-					p("JukeBox comes with many instrument presets, try them out! You can also create your own custom instruments!"),
+					p(
+						"JukeBox comes with many instrument presets, try them out! You can also create your own custom instruments!",
+					),
 					p(
 						"There are also options for generating random instruments towards the top of the instrument type menu and for copying and pasting instrument settings in preferences.",
 					),
-					p("PS: you can type a space character into the instrument search bar to open every category at once!"),
+					p(
+						"PS: you can type a space character into the instrument search bar to open every category at once!",
+					),
 				);
 			case "eqFilter":
 				return div(
@@ -309,7 +329,9 @@ export class TipPrompt extends BasePrompt {
 				);
 			case "fadeInOut":
 				return div(
-					p("This setting controls how long it takes for notes to reach full volume at the beginning or decay to silence at the end."),
+					p(
+						"This setting controls how long it takes for notes to reach full volume at the beginning or decay to silence at the end.",
+					),
 					p(
 						"An instant fade-in sounds like instruments that are played by hitting or plucking, whereas slower fade-ins sound like instruments that are played by blowing air.",
 					),
@@ -343,7 +365,9 @@ export class TipPrompt extends BasePrompt {
 				);
 			case "supersawDynamism":
 				return div(
-					p("A supersaw is a combination of many sawtooth waves, and this setting controls the contribution of extra sawtooth waves."),
+					p(
+						"A supersaw is a combination of many sawtooth waves, and this setting controls the contribution of extra sawtooth waves.",
+					),
 					p(
 						'At the low end of the slider, only the first wave is contributing to the sound, which sounds like an ordinary static sawtooth wave. At the maximum setting, all of the waves are contributing equally and the resulting tone can randomly shift depending on how the waves line up with each other, similar to the "unison" and "chorus" settings.',
 					),
@@ -362,7 +386,9 @@ export class TipPrompt extends BasePrompt {
 					p(
 						"This supersaw instrument includes an option to change the shape of the waves from sawtooth waves to pulse waves. Use this setting to morph between the two shapes.",
 					),
-					p("When a pulse wave shape is used, you can also control the pulse width with a separate setting."),
+					p(
+						"When a pulse wave shape is used, you can also control the pulse width with a separate setting.",
+					),
 				);
 			case "pulseWidth":
 				return div(
@@ -393,9 +419,17 @@ export class TipPrompt extends BasePrompt {
 					),
 				);
 			case "vibrato":
-				return div(p("This setting causes the frequency of a note to wobble slightly. Singers and violinists often use vibrato."));
+				return div(
+					p(
+						"This setting causes the frequency of a note to wobble slightly. Singers and violinists often use vibrato.",
+					),
+				);
 			case "vibratoDepth":
-				return div(p("This setting affects the depth of your instrument's vibrato, making the wobbling effect sound stronger or weaker."));
+				return div(
+					p(
+						"This setting affects the depth of your instrument's vibrato, making the wobbling effect sound stronger or weaker.",
+					),
+				);
 			case "vibratoDelay":
 				return div(
 					p(
@@ -403,7 +437,11 @@ export class TipPrompt extends BasePrompt {
 					),
 				);
 			case "vibratoSpeed":
-				return div(p("This setting determines how fast the vibrato's up-and-down wobble effect will happen for your instrument."));
+				return div(
+					p(
+						"This setting determines how fast the vibrato's up-and-down wobble effect will happen for your instrument.",
+					),
+				);
 			case "vibratoType":
 				return div(
 					p(
@@ -415,7 +453,9 @@ export class TipPrompt extends BasePrompt {
 					p(
 						"FM Synthesis is a mysterious but powerful technique for crafting sounds, popularized by Yamaha keyboards and the Sega Genesis/Mega Drive. It may seem confusing, but try playing around with the options until you get a feel for it, or check out some of the preset examples!",
 					),
-					p("This FM synthesizer uses up to four waves, numbered 1, 2, 3, and 4. Each wave may have its own frequency and volume."),
+					p(
+						"This FM synthesizer uses up to four waves, numbered 1, 2, 3, and 4. Each wave may have its own frequency and volume.",
+					),
 					p(
 						'There are two kinds of waves: "carrier" waves play a tone out loud, but "modulator" waves distort other waves instead. Wave 1 is always a carrier and plays a tone, but other waves may distort it. The "Algorithm" setting determines which waves are modulators, and which other waves those modulators distort. For example, "1\u21902" means that wave 2 modulates wave 1, and wave 1 plays out loud.',
 					),
@@ -427,7 +467,11 @@ export class TipPrompt extends BasePrompt {
 					),
 				);
 			case "feedbackVolume":
-				return div(p("This setting controls the amount of feedback distortion based on the feedback type setting."));
+				return div(
+					p(
+						"This setting controls the amount of feedback distortion based on the feedback type setting.",
+					),
+				);
 			case "operatorFrequency":
 				return div(
 					p(
@@ -438,14 +482,22 @@ export class TipPrompt extends BasePrompt {
 					),
 				);
 			case "operatorVolume":
-				return div(p('This setting controls the volume of "carrier" waves, or the amount of distortion that "modulator" waves apply to other waves.'));
+				return div(
+					p(
+						'This setting controls the volume of "carrier" waves, or the amount of distortion that "modulator" waves apply to other waves.',
+					),
+				);
 			case "spectrum":
 				return div(
-					p("This setting allows you to draw your own noise spectrum! This is good for making drum sounds."),
+					p(
+						"This setting allows you to draw your own noise spectrum! This is good for making drum sounds.",
+					),
 					p(
 						"If you only use certain frequencies and a soft fade in/out, it's also possible to make howling wind sounds or even musical wind instruments.",
 					),
-					p("The left side of the spectrum editor controls the noise energy at lower frequencies, and the right side controls higher frequencies."),
+					p(
+						"The left side of the spectrum editor controls the noise energy at lower frequencies, and the right side controls higher frequencies.",
+					),
 				);
 			case "harmonics":
 				return div(
@@ -473,7 +525,9 @@ export class TipPrompt extends BasePrompt {
 					p(
 						"This setting allows you to draw your own noise spectrum! This is good for making drumsets. Each row in the pattern editor gets its own spectrum.",
 					),
-					p("The left side of the spectrum editor controls the noise energy at lower frequencies, and the right side controls higher frequencies."),
+					p(
+						"The left side of the spectrum editor controls the noise energy at lower frequencies, and the right side controls higher frequencies.",
+					),
 				);
 			case "chorus":
 				return div(
@@ -488,7 +542,11 @@ export class TipPrompt extends BasePrompt {
 					),
 				);
 			case "echoDelay":
-				return div(p("The echo effect repeats the instrument's sound after a delay, and this setting controls how long the delay is."));
+				return div(
+					p(
+						"The echo effect repeats the instrument's sound after a delay, and this setting controls how long the delay is.",
+					),
+				);
 			case "pitchShift":
 				return div(
 					p(
@@ -503,7 +561,9 @@ export class TipPrompt extends BasePrompt {
 				);
 			case "distortion":
 				return div(
-					p("This is the famous electric guitar effect! However, there are some things to be aware of."),
+					p(
+						"This is the famous electric guitar effect! However, there are some things to be aware of.",
+					),
 					p(
 						'First, most chords don\'t sound right when combined with heavy distortion. The only chords commonly used with distorted electric guitars are "power chords" which consist of a root note, a "fifth" note above that, and/or any octaves of those two notes.',
 					),
@@ -515,7 +575,11 @@ export class TipPrompt extends BasePrompt {
 					),
 				);
 			case "bitcrusherQuantization":
-				return div(p("This effect makes stuff sounds harsher, artificial, and \"low quality\", which is great if that's what you're going for!"));
+				return div(
+					p(
+						"This effect makes stuff sounds harsher, artificial, and \"low quality\", which is great if that's what you're going for!",
+					),
+				);
 			case "bitcrusherFreq":
 				return div(
 					p(
@@ -554,11 +618,23 @@ export class TipPrompt extends BasePrompt {
 				);
 			case "perEnvelopeSpeed":
 				return div(
-					p("This setting is applied per envelope rather than all of them simultaneously, unlike the envelope speed in the top dropdown."),
-					p("This controls the speed of this envelope as a multiplier of the global envelope speed and the envelope curve"),
-					p("The speed of an envelope changes how fast its runs. In BeepBox, this is equivalent to the numbers beside each envelope type's name."),
-					p("You can see an equivalence chart on the ", a({ href: "./faq.html", target: "_blank" }, "FAQ"), " page"),
-					p("This setting will not appear for note size, pitch, punch, or none envelopes"),
+					p(
+						"This setting is applied per envelope rather than all of them simultaneously, unlike the envelope speed in the top dropdown.",
+					),
+					p(
+						"This controls the speed of this envelope as a multiplier of the global envelope speed and the envelope curve",
+					),
+					p(
+						"The speed of an envelope changes how fast its runs. In BeepBox, this is equivalent to the numbers beside each envelope type's name.",
+					),
+					p(
+						"You can see an equivalence chart on the ",
+						a({ href: "./faq.html", target: "_blank" }, "FAQ"),
+						" page",
+					),
+					p(
+						"This setting will not appear for note size, pitch, punch, or none envelopes",
+					),
 				);
 			case "usedInstrument":
 				return div(
@@ -582,13 +658,21 @@ export class TipPrompt extends BasePrompt {
 				);
 			case "modChannel":
 				return div(
-					p("Modulators can be used to change settings in your song automatically over time. This technique is also known as automation."),
-					p("This setting controls which channel the modulators will take effect for. If you choose 'Song', you can change song-wide settings too!"),
+					p(
+						"Modulators can be used to change settings in your song automatically over time. This technique is also known as automation.",
+					),
+					p(
+						"This setting controls which channel the modulators will take effect for. If you choose 'Song', you can change song-wide settings too!",
+					),
 				);
 			case "modInstrument":
 				return div(
-					p("Modulators can be used to change settings in your song automatically over time. This technique is also known as automation."),
-					p("This setting controls which instrument your modulator will apply to within the given channel you've chosen."),
+					p(
+						"Modulators can be used to change settings in your song automatically over time. This technique is also known as automation.",
+					),
+					p(
+						"This setting controls which instrument your modulator will apply to within the given channel you've chosen.",
+					),
 					p(
 						"If you choose 'all', every instrument in the channel will be affected. If you choose 'active', just the current ones used in this pattern will be instead.",
 					),
@@ -610,7 +694,9 @@ export class TipPrompt extends BasePrompt {
 				);
 			case "modFilter":
 				return div(
-					p("This setting specifies which parameter of your targeted filter you would like to change."),
+					p(
+						"This setting specifies which parameter of your targeted filter you would like to change.",
+					),
 					p(
 						"With the 'morph' setting, the note value for your modulator represents the number of a subfilter to 'morph' into over time. For example, dragging a note from 0 to 7 will morph from your main filter to the 7th subfilter. To change how your subfilters are set up, click the '+' button on the target filter.",
 					),
@@ -640,10 +726,17 @@ export class TipPrompt extends BasePrompt {
 					),
 				);
 			case "operatorWaveform":
-				return div(p("This setting controls the what kind of sound wave an individual FM wave uses."), p("By defualt the FM synth uses sinewaves."));
+				return div(
+					p(
+						"This setting controls the what kind of sound wave an individual FM wave uses.",
+					),
+					p("By defualt the FM synth uses sinewaves."),
+				);
 			case "filterType":
 				return div(
-					p("Toggling these buttons lets you choose between a simple filter interface with two sliders, or the more advanced filter graph."),
+					p(
+						"Toggling these buttons lets you choose between a simple filter interface with two sliders, or the more advanced filter graph.",
+					),
 					p(
 						"The two-slider version controls a single low-pass filter and was used in legacy versions. It is not as powerful, but if you feel overwhelmed you can start with this.",
 					),
@@ -653,11 +746,15 @@ export class TipPrompt extends BasePrompt {
 				);
 			case "filterCutoff":
 				return div(
-					p('The lowest setting feels "muffled" or "dark", and the highest setting feels "harsh" or "bright".'),
+					p(
+						'The lowest setting feels "muffled" or "dark", and the highest setting feels "harsh" or "bright".',
+					),
 					p(
 						"Most sounds include a range of frequencies from low to high. JukeBox instruments have a filter that allows the lowest frequencies to pass through at full volume, but can reduce the volume of the higher frequencies that are above a cutoff frequency. This setting controls the cutoff frequency and thus the range of higher frequencies that are reduced.",
 					),
-					p("This cutoff setting also determines which frequency resonates when the resonance peak setting is used."),
+					p(
+						"This cutoff setting also determines which frequency resonates when the resonance peak setting is used.",
+					),
 				);
 			case "filterResonance":
 				return div(
@@ -669,15 +766,23 @@ export class TipPrompt extends BasePrompt {
 					),
 				);
 			case "loopControls":
-				return div(p("This enables the use of parameters that control how a chip wave should repeat."));
+				return div(
+					p(
+						"This enables the use of parameters that control how a chip wave should repeat.",
+					),
+				);
 			case "loopMode":
 				return div(
 					p("This sets the way the chip wave loops when its ends are reached."),
-					p('The "Loop" mode is the default: when the end of the loop is reached, it will jump back to the starting point of the loop.'),
+					p(
+						'The "Loop" mode is the default: when the end of the loop is reached, it will jump back to the starting point of the loop.',
+					),
 					p(
 						'The "Ping-Pong" mode starts playing the chip wave backwards when the end of the loop is reached. Once it reaches the start of the loop, it will start playing forwards again, endlessly going back and forth.',
 					),
-					p('The "Play Once" mode stops the chip wave once the end is reached (or the start of the loop, if it\'s playing backwards).'),
+					p(
+						'The "Play Once" mode stops the chip wave once the end is reached (or the start of the loop, if it\'s playing backwards).',
+					),
 					p(
 						'The "Play Loop Once" mode stops the chip wave once the end of the loop is reached (or the start of the loop, if it\'s playing backwards).',
 					),
@@ -734,10 +839,14 @@ export class TipPrompt extends BasePrompt {
 					),
 				);
 			case "unisonOffset":
-				return div(p("This setting controls the detune applied to ALL voices, in semitones."));
+				return div(
+					p("This setting controls the detune applied to ALL voices, in semitones."),
+				);
 			case "unisonExpression":
 				return div(
-					p("This setting controls the unison volume. Use this if the unison makes your instrument too loud in comparison to other instruments."),
+					p(
+						"This setting controls the unison volume. Use this if the unison makes your instrument too loud in comparison to other instruments.",
+					),
 					p("If this is set to a negative value, it will invert the wave!"),
 				);
 			case "unisonSign":
@@ -761,7 +870,9 @@ export class TipPrompt extends BasePrompt {
 					p(
 						"These two settings work very similarly to the pitch range bounds, except for note size envelopes instead. Everything below start envelope will be the value of the lower bound, everything above end envelope will be upper bound, and everything inbetween will scale linearly based on note size (the opposite is true if inverted).",
 					),
-					p("This will NOT work properly if note size start is greater than note size end."),
+					p(
+						"This will NOT work properly if note size start is greater than note size end.",
+					),
 				);
 			case "envelopeInvert":
 				return div(
@@ -771,11 +882,17 @@ export class TipPrompt extends BasePrompt {
 				);
 			case "envelopeRange":
 				return div(
-					p("These two settings stretch or shrink the envelope vertically, allowing for different ranges of affect."),
+					p(
+						"These two settings stretch or shrink the envelope vertically, allowing for different ranges of affect.",
+					),
 					p("This will NOT work properly if lower bound is greater than upper bound."),
 				);
 			case "modEnvelope":
-				return div(p("This setting specifies which envelope of the specified instrument you would like to change."));
+				return div(
+					p(
+						"This setting specifies which envelope of the specified instrument you would like to change.",
+					),
+				);
 			case "randomSteps":
 				return div(
 					p(
@@ -784,7 +901,9 @@ export class TipPrompt extends BasePrompt {
 				);
 			case "randomSeed":
 				return div(
-					p("There are 64 seeds, or pseudorandom patterns that you can choose from when enveloping a setting."),
+					p(
+						"There are 64 seeds, or pseudorandom patterns that you can choose from when enveloping a setting.",
+					),
 					p(
 						'The same seed will output the same value per tick or pitch if the other envelope settings are also the same, meaning that if two different songs use the same seed for their envelope they will have the same "randomization".',
 					),
@@ -806,27 +925,43 @@ export class TipPrompt extends BasePrompt {
 				);
 			case "lfoEnvelopeWaveform":
 				return div(
-					p("LFO envelopes can output a variety of different waveforms, from old tremolo's sine to more complex ones."),
-					p("These waves are: sines, squares, triangles, sawtooths, trapezoids, and stepped variants of triangles and sawtooths."),
+					p(
+						"LFO envelopes can output a variety of different waveforms, from old tremolo's sine to more complex ones.",
+					),
+					p(
+						"These waves are: sines, squares, triangles, sawtooths, trapezoids, and stepped variants of triangles and sawtooths.",
+					),
 				);
 			case "randomEnvelopeType":
-				return div(p("Random Envelopes can switch between being determined by the time in the song, the pitch of the note, or per note trigger."));
+				return div(
+					p(
+						"Random Envelopes can switch between being determined by the time in the song, the pitch of the note, or per note trigger.",
+					),
+				);
 			case "ringMod":
-				return div(p(`This setting multiplies a selected wave's frequency with an instrument frequency, this is useful for "bell-like" instruments.`));
+				return div(
+					p(
+						`This setting multiplies a selected wave's frequency with an instrument frequency, this is useful for "bell-like" instruments.`,
+					),
+				);
 			case "RingModHz":
 				return div(p(`This setting changes the Hertz of the multiplied frequency.`));
 			case "ringModChipWave":
 				return div(p("This is the shape of the wave modulating your instrument's sound"));
 			case "granular":
 				return div(
-					p(`This effect is based on granular synthesis! It takes random points from a wave and rearranges them to form "sonic clouds".`),
+					p(
+						`This effect is based on granular synthesis! It takes random points from a wave and rearranges them to form "sonic clouds".`,
+					),
 					p(`This particular slider controls the wet/dry mix of the granulation.`),
 				);
 			case "grainSize":
 				return div(p(`This setting controls the size of the grain.`));
 			case "grainAmount":
 				return div(
-					p(`This setting controls about how often a grain (a group of audio samples) is added to the output, from rarely to multiple at once.`),
+					p(
+						`This setting controls about how often a grain (a group of audio samples) is added to the output, from rarely to multiple at once.`,
+					),
 				);
 			case "grainRange":
 				return div(p(`This setting controls the range of randomization for grain sizes. `));
@@ -837,10 +972,16 @@ export class TipPrompt extends BasePrompt {
 					),
 				);
 			case "phaserFreq":
-				return div(p(`This setting controls the frequency of the the peaks and notches of the phaser.`));
+				return div(
+					p(
+						`This setting controls the frequency of the the peaks and notches of the phaser.`,
+					),
+				);
 			case "phaserFeedback":
 				return div(
-					p(`This setting effects how pronounced the Feedback of the Phaser is, this is done by adding the Feedback of the Phaser back into itself.`),
+					p(
+						`This setting effects how pronounced the Feedback of the Phaser is, this is done by adding the Feedback of the Phaser back into itself.`,
+					),
 				);
 			case "phaserStages":
 				return div(
@@ -852,13 +993,23 @@ export class TipPrompt extends BasePrompt {
 					),
 				);
 			case "upperNoteLimit":
-				return div(p("Defines the upper limit in which notes will play, useful for advanced instruments."));
+				return div(
+					p(
+						"Defines the upper limit in which notes will play, useful for advanced instruments.",
+					),
+				);
 			case "lowerNoteLimit":
-				return div(p("Defines the lower limit in which notes will play, useful for advanced instruments."));
+				return div(
+					p(
+						"Defines the lower limit in which notes will play, useful for advanced instruments.",
+					),
+				);
 			case "invertWave":
 				return div(
 					p("Flips the wave output of the instrument."),
-					p("This setting is best used with two very similar instruments, one with invert wave and the other without."),
+					p(
+						"This setting is best used with two very similar instruments, one with invert wave and the other without.",
+					),
 				);
 			case "customChipSettings":
 				return div(
@@ -876,15 +1027,29 @@ export class TipPrompt extends BasePrompt {
 				// Check for modSetInfo#
 				if (this._tipName.indexOf("modSetInfo") >= 0) {
 					const modNum: number = +this._tipName[this._tipName.length - 1];
-					const modulator: number = this._doc.getCurrentInstrumentObj().modulators[modNum];
+					const modulator: number =
+						this._doc.getCurrentInstrumentObj().modulators[modNum];
 					const pList: HTMLParagraphElement[] = [];
-					for (let s: number = 0; s < Config.modulators[modulator].promptDesc.length; s++) {
+					for (
+						let s: number = 0;
+						s < Config.modulators[modulator].promptDesc.length;
+						s++
+					) {
 						pList.push(
 							p(
 								Config.modulators[modulator].promptDesc[s]
-									.replace("$LO", `${Config.modulators[modulator].convertRealFactor}`)
-									.replace("$MID", `${Config.modulators[modulator].convertRealFactor + Config.modulators[modulator].maxRawVol / 2}`)
-									.replace("$HI", `${Config.modulators[modulator].convertRealFactor + Config.modulators[modulator].maxRawVol}`),
+									.replace(
+										"$LO",
+										`${Config.modulators[modulator].convertRealFactor}`,
+									)
+									.replace(
+										"$MID",
+										`${Config.modulators[modulator].convertRealFactor + Config.modulators[modulator].maxRawVol / 2}`,
+									)
+									.replace(
+										"$HI",
+										`${Config.modulators[modulator].convertRealFactor + Config.modulators[modulator].maxRawVol}`,
+									),
 							),
 						);
 					}

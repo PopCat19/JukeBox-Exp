@@ -14,7 +14,11 @@ import { BasePrompt } from "./base-prompt";
 const { div, h2, select, option } = HTML;
 
 export class ShortenerConfigPrompt extends BasePrompt {
-	private readonly _shortenerStrategySelect: HTMLSelectElement = select({}, option({ value: "tinyurl" }, "tinyurl.com"), option({ value: "isgd" }, "is.gd"));
+	private readonly _shortenerStrategySelect: HTMLSelectElement = select(
+		{},
+		option({ value: "tinyurl" }, "tinyurl.com"),
+		option({ value: "isgd" }, "is.gd"),
+	);
 
 	public readonly container: HTMLDivElement = div(
 		{ class: "prompt shortenerConfigPrompt noSelection" },

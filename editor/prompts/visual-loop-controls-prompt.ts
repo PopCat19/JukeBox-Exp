@@ -9,8 +9,19 @@
 import { HTML, SVG } from "imperative-html/dist/esm/elements-strict";
 import { ColorConfig } from "../../shared/color-config";
 import type { Instrument } from "../../synth";
-import { type ChipWave, Config, SampleLoadingStatus, sampleLoadingState } from "../../synth/synth-config";
-import { ChangeChipWaveLoopEnd, ChangeChipWaveLoopMode, ChangeChipWaveLoopStart, ChangeChipWavePlayBackwards, ChangeChipWaveStartOffset } from "../changes";
+import {
+	type ChipWave,
+	Config,
+	SampleLoadingStatus,
+	sampleLoadingState,
+} from "../../synth/synth-config";
+import {
+	ChangeChipWaveLoopEnd,
+	ChangeChipWaveLoopMode,
+	ChangeChipWaveLoopStart,
+	ChangeChipWavePlayBackwards,
+	ChangeChipWaveStartOffset,
+} from "../changes";
 import { ChangeGroup } from "../core/change";
 import type { PromptEditorRefs } from "../core/prompt-manager";
 import type { SongDocument } from "../song-document";
@@ -57,11 +68,20 @@ export class VisualLoopControlsPrompt extends BasePrompt {
 	};
 
 	private _loopStartValidator = (v: number): number => {
-		return Math.max(0, Math.min(this._waveformDataLength!, Math.min(this._chipWaveLoopEnd - 2, Math.floor(v))));
+		return Math.max(
+			0,
+			Math.min(this._waveformDataLength!, Math.min(this._chipWaveLoopEnd - 2, Math.floor(v))),
+		);
 	};
 
 	private _loopEndValidator = (v: number): number => {
-		return Math.max(0, Math.min(this._waveformDataLength!, Math.max(this._chipWaveLoopStart + 2, Math.floor(v))));
+		return Math.max(
+			0,
+			Math.min(
+				this._waveformDataLength!,
+				Math.max(this._chipWaveLoopStart + 2, Math.floor(v)),
+			),
+		);
 	};
 
 	private _startOffsetHandle: VisualLoopControlsHandle = new VisualLoopControlsHandle(
@@ -83,7 +103,14 @@ export class VisualLoopControlsPrompt extends BasePrompt {
 				this.gotMouseUp = false;
 			}, 10);
 		},
-		(_cnv: HTMLCanvasElement, ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number): void => {
+		(
+			_cnv: HTMLCanvasElement,
+			ctx: CanvasRenderingContext2D,
+			x: number,
+			y: number,
+			w: number,
+			h: number,
+		): void => {
 			const th: number = h / 4;
 			ctx.beginPath();
 			ctx.moveTo(x, y);
@@ -113,7 +140,14 @@ export class VisualLoopControlsPrompt extends BasePrompt {
 				this.gotMouseUp = false;
 			}, 10);
 		},
-		(_cnv: HTMLCanvasElement, ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number): void => {
+		(
+			_cnv: HTMLCanvasElement,
+			ctx: CanvasRenderingContext2D,
+			x: number,
+			y: number,
+			w: number,
+			h: number,
+		): void => {
 			const tw: number = w / 4;
 			ctx.beginPath();
 			ctx.moveTo(x, y);
@@ -143,7 +177,14 @@ export class VisualLoopControlsPrompt extends BasePrompt {
 				this.gotMouseUp = false;
 			}, 10);
 		},
-		(_cnv: HTMLCanvasElement, ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number): void => {
+		(
+			_cnv: HTMLCanvasElement,
+			ctx: CanvasRenderingContext2D,
+			x: number,
+			y: number,
+			w: number,
+			h: number,
+		): void => {
 			const tw: number = w / 4;
 			ctx.beginPath();
 			ctx.moveTo(x + w, y);
@@ -184,7 +225,11 @@ export class VisualLoopControlsPrompt extends BasePrompt {
 		step: "0.00001",
 	});
 	private _zoomInButton: HTMLButtonElement = button(
-		{ type: "button", title: "Zoom In", style: "height: var(--button-size); margin-left: 0.5em;" },
+		{
+			type: "button",
+			title: "Zoom In",
+			style: "height: var(--button-size); margin-left: 0.5em;",
+		},
 		SVG.svg(
 			{
 				width: "20",
@@ -193,7 +238,14 @@ export class VisualLoopControlsPrompt extends BasePrompt {
 				"pointer-events": "none",
 				style: "width: 100%; height: 100%;",
 			},
-			SVG.circle({ cx: -1, cy: -1, r: 6, "stroke-width": 2, stroke: ColorConfig.primaryText, fill: "none" }),
+			SVG.circle({
+				cx: -1,
+				cy: -1,
+				r: 6,
+				"stroke-width": 2,
+				stroke: ColorConfig.primaryText,
+				fill: "none",
+			}),
 			SVG.path({
 				stroke: ColorConfig.primaryText,
 				"stroke-width": 2,
@@ -203,7 +255,11 @@ export class VisualLoopControlsPrompt extends BasePrompt {
 		),
 	);
 	private _zoomOutButton: HTMLButtonElement = button(
-		{ type: "button", title: "Zoom Out", style: "height: var(--button-size); margin-left: 0.5em;" },
+		{
+			type: "button",
+			title: "Zoom Out",
+			style: "height: var(--button-size); margin-left: 0.5em;",
+		},
 		SVG.svg(
 			{
 				width: "20",
@@ -212,8 +268,20 @@ export class VisualLoopControlsPrompt extends BasePrompt {
 				"pointer-events": "none",
 				style: "width: 100%; height: 100%;",
 			},
-			SVG.circle({ cx: -1, cy: -1, r: 6, "stroke-width": 2, stroke: ColorConfig.primaryText, fill: "none" }),
-			SVG.path({ stroke: ColorConfig.primaryText, "stroke-width": 2, d: "M 3 3 L 7 7 M -4 -1 L 2 -1", fill: "none" }),
+			SVG.circle({
+				cx: -1,
+				cy: -1,
+				r: 6,
+				"stroke-width": 2,
+				stroke: ColorConfig.primaryText,
+				fill: "none",
+			}),
+			SVG.path({
+				stroke: ColorConfig.primaryText,
+				"stroke-width": 2,
+				d: "M 3 3 L 7 7 M -4 -1 L 2 -1",
+				fill: "none",
+			}),
 		),
 	);
 	private _zoom100Button: HTMLButtonElement = button(
@@ -257,14 +325,19 @@ export class VisualLoopControlsPrompt extends BasePrompt {
 		style: "padding:0;",
 	});
 	private _playSongButton: HTMLButtonElement = button({ style: w("55%"), type: "button" });
-	private _sampleIsLoadingMessage: HTMLDivElement = div({ style: "margin-bottom: 0.5em; display: none;" }, "Sample is loading");
+	private _sampleIsLoadingMessage: HTMLDivElement = div(
+		{ style: "margin-bottom: 0.5em; display: none;" },
+		"Sample is loading",
+	);
 	private _loopControlsContainer: HTMLDivElement = div(
 		div(
 			{
 				style: "display: flex; flex-direction: column; align-items: center; justify-content: center; margin-bottom: 0.5em;",
 			},
 			div(
-				{ style: `width: 100%; margin-bottom: 0.5em; text-align: center; color: ${ColorConfig.secondaryText};` },
+				{
+					style: `width: 100%; margin-bottom: 0.5em; text-align: center; color: ${ColorConfig.secondaryText};`,
+				},
 				"You can also zoom by dragging horizontally on the waveform.",
 			),
 		),
@@ -287,35 +360,72 @@ export class VisualLoopControlsPrompt extends BasePrompt {
 			},
 			div(
 				{ style: "width: 100%; display: flex; flex-direction: row; margin-bottom: 0.5em;" },
-				div({ style: `flex-shrink: 0; text-align: right: color: ${ColorConfig.primaryText}; align-self: center;` }, "Loop Mode"),
+				div(
+					{
+						style: `flex-shrink: 0; text-align: right: color: ${ColorConfig.primaryText}; align-self: center;`,
+					},
+					"Loop Mode",
+				),
 				this._loopModeSelect,
 			),
 			div(
 				{ style: "width: 100%; display: flex; flex-direction: row; margin-bottom: 0.5em;" },
-				div({ style: `flex-shrink: 0; text-align: right; color: ${ColorConfig.primaryText}; align-self: center;` }, "Offset"),
+				div(
+					{
+						style: `flex-shrink: 0; text-align: right; color: ${ColorConfig.primaryText}; align-self: center;`,
+					},
+					"Offset",
+				),
 				this._startOffsetStepper,
 			),
 			div(
 				{ style: "width: 100%; display: flex; flex-direction: row; margin-bottom: 0.5em;" },
-				div({ style: `flex-shrink: 0; text-align: right; color: ${ColorConfig.primaryText}; align-self: center;` }, "Loop Start"),
+				div(
+					{
+						style: `flex-shrink: 0; text-align: right; color: ${ColorConfig.primaryText}; align-self: center;`,
+					},
+					"Loop Start",
+				),
 				this._loopStartStepper,
 			),
 			div(
 				{ style: "width: 100%; display: flex; flex-direction: row; margin-bottom: 0.5em;" },
-				div({ style: `flex-shrink: 0; text-align: right; color: ${ColorConfig.primaryText}; align-self: center;` }, "Loop End"),
+				div(
+					{
+						style: `flex-shrink: 0; text-align: right; color: ${ColorConfig.primaryText}; align-self: center;`,
+					},
+					"Loop End",
+				),
 				this._loopEndStepper,
 			),
 			div(
-				{ style: "width: 100%; display: flex; flex-direction: row; align-items: center; justify-content: space-between; margin-bottom: 0.5em;" },
-				div({ style: `flex-shrink: 0; text-align: right; color: ${ColorConfig.primaryText};` }, "Backwards"),
+				{
+					style: "width: 100%; display: flex; flex-direction: row; align-items: center; justify-content: space-between; margin-bottom: 0.5em;",
+				},
+				div(
+					{
+						style: `flex-shrink: 0; text-align: right; color: ${ColorConfig.primaryText};`,
+					},
+					"Backwards",
+				),
 				this._playBackwardsBox,
 			),
-			div({ style: "width: 100%; display: flex; flex-direction: row; margin-bottom: 0.5em; justify-content: center;" }, this._playSongButton),
+			div(
+				{
+					style: "width: 100%; display: flex; flex-direction: row; margin-bottom: 0.5em; justify-content: center;",
+				},
+				this._playSongButton,
+			),
 		),
 	);
 	public readonly container: HTMLDivElement = div(
 		{ class: "prompt noSelection", style: w("500px") },
-		div(h2({ style: "margin-bottom: 0.5em;" }, "Loop Controls"), this._sampleIsLoadingMessage, this._loopControlsContainer, this._getOkayRow()),
+		div(
+			h2({ style: "margin-bottom: 0.5em;" }, "Loop Controls"),
+			this._sampleIsLoadingMessage,
+			this._loopControlsContainer,
+			this._getOkayRow(),
+		),
 		this._cancelButton,
 	);
 
@@ -329,7 +439,8 @@ export class VisualLoopControlsPrompt extends BasePrompt {
 		const rawChipWave: ChipWave = Config.rawRawChipWaves[this._instrument.chipWave];
 		const customSampleIsLoading: boolean =
 			(rawChipWave.isCustomSampled === true || rawChipWave.isSampled === true) &&
-			sampleLoadingState.statusTable[this._instrument.chipWave] !== SampleLoadingStatus.loaded;
+			sampleLoadingState.statusTable[this._instrument.chipWave] !==
+				SampleLoadingStatus.loaded;
 		if (customSampleIsLoading) {
 			this._sampleIsLoadingMessage.style.display = "";
 			this._loopControlsContainer.style.display = "none";
@@ -350,8 +461,12 @@ export class VisualLoopControlsPrompt extends BasePrompt {
 			this._chipWaveLoopStart = this._initialChipWaveLoopStart;
 			this._chipWaveLoopEnd = this._initialChipWaveLoopEnd;
 			this._chipWavePlayBackwards = this._initialChipWavePlayBackwards;
-			const verticalBounds: [number, number] = this._waveformSamplesLookup(0, this._waveformDataLength);
-			const maxVerticalBound: number = Math.max(Math.abs(verticalBounds[0]), Math.abs(verticalBounds[1])) + 0.01;
+			const verticalBounds: [number, number] = this._waveformSamplesLookup(
+				0,
+				this._waveformDataLength,
+			);
+			const maxVerticalBound: number =
+				Math.max(Math.abs(verticalBounds[0]), Math.abs(verticalBounds[1])) + 0.01;
 			verticalBounds[0] = -maxVerticalBound;
 			verticalBounds[1] = maxVerticalBound;
 			this._waveformViewportX0 = 0;
@@ -360,7 +475,8 @@ export class VisualLoopControlsPrompt extends BasePrompt {
 			this._waveformViewportY1 = verticalBounds[1];
 			this._waveformViewportWidth = this._waveformViewportX1 - this._waveformViewportX0;
 			this._waveformViewportOffset = 0;
-			this._waveformViewportMaxOffset = this._waveformDataLength - this._waveformViewportWidth;
+			this._waveformViewportMaxOffset =
+				this._waveformDataLength - this._waveformViewportWidth;
 			this._startOffsetHandle.update(this._chipWaveStartOffset);
 			this._loopStartHandle.update(this._chipWaveLoopStart);
 			this._loopEndHandle.update(this._chipWaveLoopEnd);
@@ -420,7 +536,10 @@ export class VisualLoopControlsPrompt extends BasePrompt {
 		this._startOffsetHandle.cleanUp();
 		this._loopStartHandle.cleanUp();
 		this._loopEndHandle.cleanUp();
-		this._viewportOffsetSlider.removeEventListener("input", this._whenViewportOffsetSliderChanges);
+		this._viewportOffsetSlider.removeEventListener(
+			"input",
+			this._whenViewportOffsetSliderChanges,
+		);
 		this._zoomInButton.removeEventListener("click", this._whenZoomInClicked);
 		this._zoomOutButton.removeEventListener("click", this._whenZoomOutClicked);
 		this._zoom100Button.removeEventListener("click", this._whenZoom100Clicked);
@@ -500,7 +619,10 @@ export class VisualLoopControlsPrompt extends BasePrompt {
 			let pcy1: number | null = null;
 			for (let cx: number = 0; cx < w; cx++) {
 				const wx: number = vx0 + cx * sampleWidth;
-				const [wy0, wy1]: [number, number] = this._waveformSamplesLookup(wx - sampleWidth / 2, wx + sampleWidth / 2);
+				const [wy0, wy1]: [number, number] = this._waveformSamplesLookup(
+					wx - sampleWidth / 2,
+					wx + sampleWidth / 2,
+				);
 				const cy0: number = Math.max(-1, Math.min(h, h - ((wy1 - vy0) * h) / (vy1 - vy0)));
 				const cy1: number = Math.max(-1, Math.min(h, h - ((wy0 - vy0) * h) / (vy1 - vy0)));
 				const cy0i: number = Math.floor(cy0);
@@ -537,7 +659,12 @@ export class VisualLoopControlsPrompt extends BasePrompt {
 		if (this._overlaySelectionX0 != null && this._overlaySelectionX1 != null) {
 			ctx.fillStyle = ColorConfig.getComputed("--box-selection-fill");
 			ctx.globalAlpha = 0.5;
-			ctx.fillRect(this._overlaySelectionX0, 0, this._overlaySelectionX1 - this._overlaySelectionX0, h);
+			ctx.fillRect(
+				this._overlaySelectionX0,
+				0,
+				this._overlaySelectionX1 - this._overlaySelectionX0,
+				h,
+			);
 			ctx.globalAlpha = 1;
 		}
 	};
@@ -552,7 +679,10 @@ export class VisualLoopControlsPrompt extends BasePrompt {
 
 	private _whenViewportOffsetSliderChanges = (event: Event): void => {
 		const rawOffset: number = Math.max(0, Math.min(1, +(<HTMLInputElement>event.target).value));
-		const newViewportOffset: number = Math.max(0, Math.min(this._waveformViewportMaxOffset, rawOffset * this._waveformViewportMaxOffset));
+		const newViewportOffset: number = Math.max(
+			0,
+			Math.min(this._waveformViewportMaxOffset, rawOffset * this._waveformViewportMaxOffset),
+		);
 		this._waveformViewportOffset = Math.min(this._waveformViewportMaxOffset, newViewportOffset);
 		this._viewportOffsetSlider.value = `${this._waveformViewportOffset / this._waveformViewportMaxOffset}`;
 		this._waveformViewportX0 = 0 + this._waveformViewportOffset;
@@ -562,14 +692,25 @@ export class VisualLoopControlsPrompt extends BasePrompt {
 	};
 
 	private _whenZoomInClicked = (_event: Event): void => {
-		const newViewportWidth: number = Math.max(1, Math.min(this._waveformDataLength!, this._waveformViewportWidth / 2));
+		const newViewportWidth: number = Math.max(
+			1,
+			Math.min(this._waveformDataLength!, this._waveformViewportWidth / 2),
+		);
 		this._waveformViewportWidth = newViewportWidth;
 		this._waveformViewportMaxOffset = this._waveformDataLength! - this._waveformViewportWidth;
 		const centerX: number =
-			this._waveformViewportX0 + ((this._waveformCanvasWidth / 2) * (this._waveformViewportX1 - this._waveformViewportX0)) / this._waveformCanvasWidth;
+			this._waveformViewportX0 +
+			((this._waveformCanvasWidth / 2) *
+				(this._waveformViewportX1 - this._waveformViewportX0)) /
+				this._waveformCanvasWidth;
 		this._waveformViewportOffset = Math.max(
 			0,
-			Math.min(this._waveformViewportMaxOffset, centerX - ((this._waveformCanvasWidth / 2) * this._waveformViewportWidth) / this._waveformCanvasWidth),
+			Math.min(
+				this._waveformViewportMaxOffset,
+				centerX -
+					((this._waveformCanvasWidth / 2) * this._waveformViewportWidth) /
+						this._waveformCanvasWidth,
+			),
 		);
 		this._waveformViewportX0 = 0 + this._waveformViewportOffset;
 		this._waveformViewportX1 = this._waveformViewportWidth + this._waveformViewportOffset;
@@ -579,19 +720,32 @@ export class VisualLoopControlsPrompt extends BasePrompt {
 	};
 
 	private _whenZoomOutClicked = (_event: Event): void => {
-		const newViewportWidth: number = Math.max(1, Math.min(this._waveformDataLength!, this._waveformViewportWidth * 2));
+		const newViewportWidth: number = Math.max(
+			1,
+			Math.min(this._waveformDataLength!, this._waveformViewportWidth * 2),
+		);
 		this._waveformViewportWidth = newViewportWidth;
 		this._waveformViewportMaxOffset = this._waveformDataLength! - this._waveformViewportWidth;
 		const centerX: number =
-			this._waveformViewportX0 + ((this._waveformCanvasWidth / 2) * (this._waveformViewportX1 - this._waveformViewportX0)) / this._waveformCanvasWidth;
+			this._waveformViewportX0 +
+			((this._waveformCanvasWidth / 2) *
+				(this._waveformViewportX1 - this._waveformViewportX0)) /
+				this._waveformCanvasWidth;
 		this._waveformViewportOffset = Math.max(
 			0,
-			Math.min(this._waveformViewportMaxOffset, centerX - ((this._waveformCanvasWidth / 2) * this._waveformViewportWidth) / this._waveformCanvasWidth),
+			Math.min(
+				this._waveformViewportMaxOffset,
+				centerX -
+					((this._waveformCanvasWidth / 2) * this._waveformViewportWidth) /
+						this._waveformCanvasWidth,
+			),
 		);
 		this._waveformViewportX0 = 0 + this._waveformViewportOffset;
 		this._waveformViewportX1 = this._waveformViewportWidth + this._waveformViewportOffset;
 		this._viewportOffsetSlider.value =
-			this._waveformViewportWidth === this._waveformDataLength! ? "0" : `${this._waveformViewportOffset / this._waveformViewportMaxOffset}`;
+			this._waveformViewportWidth === this._waveformDataLength!
+				? "0"
+				: `${this._waveformViewportOffset / this._waveformViewportMaxOffset}`;
 		this._propagateViewportUpdate();
 		this._render();
 	};
@@ -613,7 +767,9 @@ export class VisualLoopControlsPrompt extends BasePrompt {
 	};
 
 	private _whenStartOffsetStepperChanges = (event: Event): void => {
-		const newValue: number = this._startOffsetValidator(+(<HTMLInputElement>event.target).value);
+		const newValue: number = this._startOffsetValidator(
+			+(<HTMLInputElement>event.target).value,
+		);
 		this._chipWaveStartOffset = newValue;
 		this._instrument!.chipWaveStartOffset = this._chipWaveStartOffset;
 		(<HTMLInputElement>event.target).value = `${newValue}`;
@@ -690,15 +846,24 @@ export class VisualLoopControlsPrompt extends BasePrompt {
 		if (x1 - x0 > 2) {
 			const wosx0: number = vx0 + (x0 * (vx1 - vx0)) / w;
 			const wosx1: number = vx0 + (x1 * (vx1 - vx0)) / w;
-			const newViewportWidth: number = Math.max(1, Math.min(this._waveformDataLength!, wosx1 - wosx0));
+			const newViewportWidth: number = Math.max(
+				1,
+				Math.min(this._waveformDataLength!, wosx1 - wosx0),
+			);
 			this._waveformViewportWidth = newViewportWidth;
-			this._waveformViewportMaxOffset = this._waveformDataLength! - this._waveformViewportWidth;
+			this._waveformViewportMaxOffset =
+				this._waveformDataLength! - this._waveformViewportWidth;
 			const centerX: number = vx0 + (x0 * (vx1 - vx0)) / this._waveformCanvasWidth;
-			this._waveformViewportOffset = Math.max(0, Math.min(this._waveformViewportMaxOffset, centerX));
+			this._waveformViewportOffset = Math.max(
+				0,
+				Math.min(this._waveformViewportMaxOffset, centerX),
+			);
 			this._waveformViewportX0 = 0 + this._waveformViewportOffset;
 			this._waveformViewportX1 = this._waveformViewportWidth + this._waveformViewportOffset;
 			this._viewportOffsetSlider.value =
-				this._waveformViewportWidth === this._waveformDataLength! ? "0" : `${this._waveformViewportOffset / this._waveformViewportMaxOffset}`;
+				this._waveformViewportWidth === this._waveformDataLength!
+					? "0"
+					: `${this._waveformViewportOffset / this._waveformViewportMaxOffset}`;
 			this._propagateViewportUpdate();
 			this._render();
 		}
@@ -749,15 +914,24 @@ export class VisualLoopControlsPrompt extends BasePrompt {
 		if (x1 - x0 > 2) {
 			const wosx0: number = vx0 + (x0 * (vx1 - vx0)) / w;
 			const wosx1: number = vx0 + (x1 * (vx1 - vx0)) / w;
-			const newViewportWidth: number = Math.max(1, Math.min(this._waveformDataLength!, wosx1 - wosx0));
+			const newViewportWidth: number = Math.max(
+				1,
+				Math.min(this._waveformDataLength!, wosx1 - wosx0),
+			);
 			this._waveformViewportWidth = newViewportWidth;
-			this._waveformViewportMaxOffset = this._waveformDataLength! - this._waveformViewportWidth;
+			this._waveformViewportMaxOffset =
+				this._waveformDataLength! - this._waveformViewportWidth;
 			const centerX: number = vx0 + (x0 * (vx1 - vx0)) / this._waveformCanvasWidth;
-			this._waveformViewportOffset = Math.max(0, Math.min(this._waveformViewportMaxOffset, centerX));
+			this._waveformViewportOffset = Math.max(
+				0,
+				Math.min(this._waveformViewportMaxOffset, centerX),
+			);
 			this._waveformViewportX0 = 0 + this._waveformViewportOffset;
 			this._waveformViewportX1 = this._waveformViewportWidth + this._waveformViewportOffset;
 			this._viewportOffsetSlider.value =
-				this._waveformViewportWidth === this._waveformDataLength! ? "0" : `${this._waveformViewportOffset / this._waveformViewportMaxOffset}`;
+				this._waveformViewportWidth === this._waveformDataLength!
+					? "0"
+					: `${this._waveformViewportOffset / this._waveformViewportMaxOffset}`;
 			this._propagateViewportUpdate();
 			this._render();
 		}

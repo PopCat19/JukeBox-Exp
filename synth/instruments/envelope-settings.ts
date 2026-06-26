@@ -7,7 +7,13 @@
 // - Handles pitch envelope ranges and LFO waveform selection
 // - Provides tremolo2-to-LFO migration and JSON serialization
 
-import { type AutomationTarget, Config, type Envelope, EnvelopeType, LFOEnvelopeTypes } from "../synth-config";
+import {
+	type AutomationTarget,
+	Config,
+	type Envelope,
+	EnvelopeType,
+	LFOEnvelopeTypes,
+} from "../synth-config";
 import { clamp } from "../util";
 
 export class EnvelopeSettings {
@@ -88,7 +94,8 @@ export class EnvelopeSettings {
 	public fromJsonObject(envelopeObject: any, format: string): void {
 		this.reset();
 
-		let target: AutomationTarget = Config.instrumentAutomationTargets.dictionary[envelopeObject.target];
+		let target: AutomationTarget =
+			Config.instrumentAutomationTargets.dictionary[envelopeObject.target];
 		if (target == null) target = Config.instrumentAutomationTargets.dictionary.noteVolume;
 		this.target = target.index;
 
@@ -105,49 +112,79 @@ export class EnvelopeSettings {
 				envelope = Config.newEnvelopes.dictionary[envelopeObject.envelope];
 			}
 		} else {
-			const oldEnvelope: Envelope | undefined = Config.envelopes.dictionary[envelopeObject.envelope];
+			const oldEnvelope: Envelope | undefined =
+				Config.envelopes.dictionary[envelopeObject.envelope];
 			if (oldEnvelope == null) {
 				envelope = Config.newEnvelopes.dictionary.none;
 			} else if (oldEnvelope.type === EnvelopeType.tremolo2) {
 				envelope = Config.newEnvelopes[EnvelopeType.lfo];
 				isTremolo2 = true;
-			} else if (Config.newEnvelopes[Math.max(Config.envelopes.dictionary[envelopeObject.envelope].type - 1, 0)].index > EnvelopeType.lfo) {
-				envelope = Config.newEnvelopes[Config.envelopes.dictionary[envelopeObject.envelope].type - 1];
+			} else if (
+				Config.newEnvelopes[
+					Math.max(Config.envelopes.dictionary[envelopeObject.envelope].type - 1, 0)
+				].index > EnvelopeType.lfo
+			) {
+				envelope =
+					Config.newEnvelopes[
+						Config.envelopes.dictionary[envelopeObject.envelope].type - 1
+					];
 			} else {
-				envelope = Config.newEnvelopes[Config.envelopes.dictionary[envelopeObject.envelope].type];
+				envelope =
+					Config.newEnvelopes[Config.envelopes.dictionary[envelopeObject.envelope].type];
 			}
 		}
 
 		if (envelope === undefined) {
-			const oldEnvelope2: Envelope | undefined = Config.envelopes.dictionary[envelopeObject.envelope];
+			const oldEnvelope2: Envelope | undefined =
+				Config.envelopes.dictionary[envelopeObject.envelope];
 			if (oldEnvelope2 == null) {
 				envelope = Config.newEnvelopes.dictionary.none;
 			} else if (oldEnvelope2.type === EnvelopeType.tremolo2) {
 				envelope = Config.newEnvelopes[EnvelopeType.lfo];
 				isTremolo2 = true;
-			} else if (Config.newEnvelopes[Math.max(Config.envelopes.dictionary[envelopeObject.envelope].type - 1, 0)].index > EnvelopeType.lfo) {
-				envelope = Config.newEnvelopes[Config.envelopes.dictionary[envelopeObject.envelope].type - 1];
+			} else if (
+				Config.newEnvelopes[
+					Math.max(Config.envelopes.dictionary[envelopeObject.envelope].type - 1, 0)
+				].index > EnvelopeType.lfo
+			) {
+				envelope =
+					Config.newEnvelopes[
+						Config.envelopes.dictionary[envelopeObject.envelope].type - 1
+					];
 			} else {
-				envelope = Config.newEnvelopes[Config.envelopes.dictionary[envelopeObject.envelope].type];
+				envelope =
+					Config.newEnvelopes[Config.envelopes.dictionary[envelopeObject.envelope].type];
 			}
 		}
 		if (envelope == null) envelope = Config.envelopes.dictionary.none;
 		this.envelope = envelope.index;
 
 		if (envelopeObject.index !== undefined) {
-			this.index = clamp(0, Config.instrumentAutomationTargets[this.target].maxCount, envelopeObject.index | 0);
+			this.index = clamp(
+				0,
+				Config.instrumentAutomationTargets[this.target].maxCount,
+				envelopeObject.index | 0,
+			);
 		} else {
 			this.index = 0;
 		}
 
 		if (envelopeObject.pitchEnvelopeStart !== undefined) {
-			this.pitchEnvelopeStart = clamp(0, this.isNoiseEnvelope ? Config.drumCount : Config.maxPitch + 1, envelopeObject.pitchEnvelopeStart);
+			this.pitchEnvelopeStart = clamp(
+				0,
+				this.isNoiseEnvelope ? Config.drumCount : Config.maxPitch + 1,
+				envelopeObject.pitchEnvelopeStart,
+			);
 		} else {
 			this.pitchEnvelopeStart = 0;
 		}
 
 		if (envelopeObject.pitchEnvelopeEnd !== undefined) {
-			this.pitchEnvelopeEnd = clamp(0, this.isNoiseEnvelope ? Config.drumCount : Config.maxPitch + 1, envelopeObject.pitchEnvelopeEnd);
+			this.pitchEnvelopeEnd = clamp(
+				0,
+				this.isNoiseEnvelope ? Config.drumCount : Config.maxPitch + 1,
+				envelopeObject.pitchEnvelopeEnd,
+			);
 		} else {
 			this.pitchEnvelopeEnd = this.isNoiseEnvelope ? Config.drumCount : Config.maxPitch;
 		}
@@ -157,18 +194,27 @@ export class EnvelopeSettings {
 		if (envelopeObject.perEnvelopeSpeed !== undefined) {
 			this.perEnvelopeSpeed = envelopeObject.perEnvelopeSpeed;
 		} else {
-			const fallbackEnvelope: Envelope | undefined = Config.envelopes.dictionary[envelopeObject.envelope];
+			const fallbackEnvelope: Envelope | undefined =
+				Config.envelopes.dictionary[envelopeObject.envelope];
 			this.perEnvelopeSpeed = fallbackEnvelope != null ? fallbackEnvelope.speed : 1.0;
 		}
 
 		if (envelopeObject.perEnvelopeLowerBound !== undefined) {
-			this.perEnvelopeLowerBound = clamp(Config.perEnvelopeBoundMin, Config.perEnvelopeBoundMax + 1, envelopeObject.perEnvelopeLowerBound);
+			this.perEnvelopeLowerBound = clamp(
+				Config.perEnvelopeBoundMin,
+				Config.perEnvelopeBoundMax + 1,
+				envelopeObject.perEnvelopeLowerBound,
+			);
 		} else {
 			this.perEnvelopeLowerBound = 0;
 		}
 
 		if (envelopeObject.perEnvelopeUpperBound !== undefined) {
-			this.perEnvelopeUpperBound = clamp(Config.perEnvelopeBoundMin, Config.perEnvelopeBoundMax + 1, envelopeObject.perEnvelopeUpperBound);
+			this.perEnvelopeUpperBound = clamp(
+				Config.perEnvelopeBoundMin,
+				Config.perEnvelopeBoundMax + 1,
+				envelopeObject.perEnvelopeUpperBound,
+			);
 		} else {
 			this.perEnvelopeUpperBound = 1;
 		}
@@ -179,7 +225,10 @@ export class EnvelopeSettings {
 				this.perEnvelopeUpperBound = Math.floor((this.perEnvelopeUpperBound / 2) * 10) / 10;
 				this.perEnvelopeLowerBound = Math.floor((this.perEnvelopeLowerBound / 2) * 10) / 10;
 			} else {
-				this.perEnvelopeUpperBound = Math.floor((0.5 + (this.perEnvelopeUpperBound - this.perEnvelopeLowerBound) / 2) * 10) / 10;
+				this.perEnvelopeUpperBound =
+					Math.floor(
+						(0.5 + (this.perEnvelopeUpperBound - this.perEnvelopeLowerBound) / 2) * 10,
+					) / 10;
 				this.perEnvelopeLowerBound = 0.5;
 			}
 		}

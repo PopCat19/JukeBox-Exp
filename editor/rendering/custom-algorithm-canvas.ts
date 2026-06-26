@@ -116,21 +116,36 @@ export class CustomAlgorithmCanvas {
 			} else {
 				if (this.inverseModulation[i][0] !== undefined) {
 					const testPos = [
-						this.drawArray.length - (this.lookUpArray[this.inverseModulation[i][this.inverseModulation[i].length - 1] - 1][0] + 2),
-						this.lookUpArray[this.inverseModulation[i][this.inverseModulation[i].length - 1] - 1][1],
+						this.drawArray.length -
+							(this.lookUpArray[
+								this.inverseModulation[i][this.inverseModulation[i].length - 1] - 1
+							][0] +
+								2),
+						this.lookUpArray[
+							this.inverseModulation[i][this.inverseModulation[i].length - 1] - 1
+						][1],
 					];
 					if (this.drawArray[testPos[0]][testPos[1]] !== undefined) {
-						while (this.drawArray[testPos[0]][testPos[1]] !== undefined && testPos[1] < 6) {
+						while (
+							this.drawArray[testPos[0]][testPos[1]] !== undefined &&
+							testPos[1] < 6
+						) {
 							testPos[1]++;
 							if (this.drawArray[testPos[0]][testPos[1]] === undefined) {
 								this.drawArray[testPos[0]][testPos[1]] = i + 1;
-								this.lookUpArray[i] = [this.drawArray.length - (testPos[0] + 1), testPos[1]];
+								this.lookUpArray[i] = [
+									this.drawArray.length - (testPos[0] + 1),
+									testPos[1],
+								];
 								break;
 							}
 						}
 					} else {
 						this.drawArray[testPos[0]][testPos[1]] = i + 1;
-						this.lookUpArray[i] = [this.drawArray.length - (testPos[0] + 1), testPos[1]];
+						this.lookUpArray[i] = [
+							this.drawArray.length - (testPos[0] + 1),
+							testPos[1],
+						];
 					}
 				} else {
 					const testPos = [5, 0];
@@ -138,7 +153,10 @@ export class CustomAlgorithmCanvas {
 						testPos[1]++;
 						if (this.drawArray[testPos[0]][testPos[1]] === undefined) {
 							this.drawArray[testPos[0]][testPos[1]] = i + 1;
-							this.lookUpArray[i] = [this.drawArray.length - (testPos[0] + 1), testPos[1]];
+							this.lookUpArray[i] = [
+								this.drawArray.length - (testPos[0] + 1),
+								testPos[1],
+							];
 							break;
 						}
 					}
@@ -164,15 +182,30 @@ export class CustomAlgorithmCanvas {
 						if (tarpos[0] >= srtpos[0]) {
 							side = 24;
 						}
-						ctx.lineTo(srtpos[1] * 24 + side + set, (6 - srtpos[0] - 1) * 24 + 12 + set);
+						ctx.lineTo(
+							srtpos[1] * 24 + side + set,
+							(6 - srtpos[0] - 1) * 24 + 12 + set,
+						);
 						if (tarpos[1] === srtpos[1] - 1 && tarpos[0] <= srtpos[0] - 1) {
 						} else {
 							if (tarpos[0] >= srtpos[0]) {
-								ctx.lineTo((tarpos[1] + 1) * 24 + set, (6 - srtpos[0] - 1) * 24 + 12 + set);
-								ctx.lineTo((tarpos[1] + 1) * 24 + set, (6 - tarpos[0] - 1) * 24 + 12 + set);
+								ctx.lineTo(
+									(tarpos[1] + 1) * 24 + set,
+									(6 - srtpos[0] - 1) * 24 + 12 + set,
+								);
+								ctx.lineTo(
+									(tarpos[1] + 1) * 24 + set,
+									(6 - tarpos[0] - 1) * 24 + 12 + set,
+								);
 							} else {
-								ctx.lineTo(srtpos[1] * 24 + set, (6 - tarpos[0] - 1) * 24 + 12 + set);
-								ctx.lineTo((tarpos[1] + 1) * 24 + set, (6 - tarpos[0] - 1) * 24 + 12 + set);
+								ctx.lineTo(
+									srtpos[1] * 24 + set,
+									(6 - tarpos[0] - 1) * 24 + 12 + set,
+								);
+								ctx.lineTo(
+									(tarpos[1] + 1) * 24 + set,
+									(6 - tarpos[0] - 1) * 24 + 12 + set,
+								);
 							}
 						}
 						ctx.lineTo((tarpos[1] + 1) * 24 + set, (6 - tarpos[0] - 1) * 24 + set - 12);
@@ -183,14 +216,32 @@ export class CustomAlgorithmCanvas {
 							ctx.lineTo(tarpos[1] * 24 + 12 + set, (6 - tarpos[0] - 1) * 24);
 						} else {
 							if (tarpos[0] >= srtpos[0]) {
-								ctx.lineTo(srtpos[1] * 24 + 24 + set, (6 - srtpos[0] - 1) * 24 + 12 + set);
-								ctx.lineTo(srtpos[1] * 24 + 24 + set, (6 - tarpos[0] - 1) * 24 + set - 12);
-								ctx.lineTo(tarpos[1] * 24 + set + 12, (6 - tarpos[0] - 1) * 24 + set - 12);
+								ctx.lineTo(
+									srtpos[1] * 24 + 24 + set,
+									(6 - srtpos[0] - 1) * 24 + 12 + set,
+								);
+								ctx.lineTo(
+									srtpos[1] * 24 + 24 + set,
+									(6 - tarpos[0] - 1) * 24 + set - 12,
+								);
+								ctx.lineTo(
+									tarpos[1] * 24 + set + 12,
+									(6 - tarpos[0] - 1) * 24 + set - 12,
+								);
 								ctx.lineTo(tarpos[1] * 24 + set + 12, (6 - tarpos[0] - 1) * 24);
 							} else {
-								ctx.lineTo(srtpos[1] * 24 + set, (6 - srtpos[0] - 1) * 24 + 12 + set);
-								ctx.lineTo(srtpos[1] * 24 + set, (6 - tarpos[0] - 1) * 24 + set - 12);
-								ctx.lineTo(tarpos[1] * 24 + 12 + set, (6 - tarpos[0] - 1) * 24 + set - 12);
+								ctx.lineTo(
+									srtpos[1] * 24 + set,
+									(6 - srtpos[0] - 1) * 24 + 12 + set,
+								);
+								ctx.lineTo(
+									srtpos[1] * 24 + set,
+									(6 - tarpos[0] - 1) * 24 + set - 12,
+								);
+								ctx.lineTo(
+									tarpos[1] * 24 + 12 + set,
+									(6 - tarpos[0] - 1) * 24 + set - 12,
+								);
 								ctx.lineTo(tarpos[1] * 24 + 12 + set, (6 - tarpos[0] - 1) * 24);
 							}
 						}
@@ -258,10 +309,16 @@ export class CustomAlgorithmCanvas {
 						ctx.fillRect(x * 24 + 12, y * 24, 12, 12);
 						ctx.fillStyle = ColorConfig.getComputed("--editor-background");
 						ctx.fillRect(x * 24 + 13, y * 24 + 1, 10, 10);
-						ctx.fillStyle = ColorConfig.getComputedChannelColor(this._doc.song, this._doc.channel).primaryNote;
+						ctx.fillStyle = ColorConfig.getComputedChannelColor(
+							this._doc.song,
+							this._doc.channel,
+						).primaryNote;
 						ctx.fillText(`${this.drawArray[y][x]}`, x * 24 + 14, y * 24 + 10);
 					} else {
-						ctx.fillStyle = ColorConfig.getComputedChannelColor(this._doc.song, this._doc.channel).primaryNote;
+						ctx.fillStyle = ColorConfig.getComputedChannelColor(
+							this._doc.song,
+							this._doc.channel,
+						).primaryNote;
 						ctx.fillRect(x * 24 + 12, y * 24, 12, 12);
 						ctx.fillStyle = ColorConfig.getComputed("--editor-background");
 						ctx.fillRect(x * 24 + 13, y * 24 + 1, 10, 10);
@@ -278,16 +335,22 @@ export class CustomAlgorithmCanvas {
 		if (this.mouseDown) {
 			// todo rework to handle draging and single clicks differently
 			const x = (event.clientX || event.pageX) - this.canvas.getBoundingClientRect().left;
-			const y = Math.floor((event.clientY || event.pageY) - this.canvas.getBoundingClientRect().top);
+			const y = Math.floor(
+				(event.clientY || event.pageY) - this.canvas.getBoundingClientRect().top,
+			);
 
 			const ctx = this.canvas.getContext("2d") as CanvasRenderingContext2D;
 
-			ctx.fillStyle = ColorConfig.getComputedChannelColor(this._doc.song, this._doc.channel).primaryNote;
+			ctx.fillStyle = ColorConfig.getComputedChannelColor(
+				this._doc.song,
+				this._doc.channel,
+			).primaryNote;
 
 			let yindex = Math.ceil(y / 12);
 			let xindex = Math.ceil(x / 12);
 			yindex = yindex / 2 - Math.floor(yindex / 2) >= 0.5 ? Math.floor(yindex / 2) : -1;
-			xindex = xindex / 2 + 0.5 - Math.floor(xindex / 2) <= 0.5 ? Math.floor(xindex / 2) - 1 : -1;
+			xindex =
+				xindex / 2 + 0.5 - Math.floor(xindex / 2) <= 0.5 ? Math.floor(xindex / 2) - 1 : -1;
 			yindex = yindex >= 0 && yindex <= 5 ? yindex : -1;
 			xindex = xindex >= 0 && xindex <= 5 ? xindex : -1;
 			ctx.fillRect(xindex * 24 + 12, yindex * 24, 2, 2);
@@ -297,7 +360,11 @@ export class CustomAlgorithmCanvas {
 					this.selected = this.drawArray[yindex][xindex];
 					ctx.fillRect(xindex * 24 + 12, yindex * 24, 12, 12);
 					ctx.fillStyle = ColorConfig.getComputed("--editor-background");
-					ctx.fillText(`${this.drawArray[yindex][xindex]}`, xindex * 24 + 14, yindex * 24 + 10);
+					ctx.fillText(
+						`${this.drawArray[yindex][xindex]}`,
+						xindex * 24 + 14,
+						yindex * 24 + 10,
+					);
 					this.mouseDown = false;
 				}
 			} else {
@@ -365,7 +432,11 @@ export class CustomAlgorithmCanvas {
 	};
 
 	private _whenChange = (): void => {
-		this._change = this._getChange(this.mode === "algorithm" ? this.newMods : this.feedback, this.carriers, this.mode);
+		this._change = this._getChange(
+			this.mode === "algorithm" ? this.newMods : this.feedback,
+			this.carriers,
+			this.mode,
+		);
 
 		this._doc.record(this._change!);
 

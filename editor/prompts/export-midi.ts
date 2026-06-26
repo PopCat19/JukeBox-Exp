@@ -34,7 +34,11 @@ function lerp(low: number, high: number, t: number): number {
 // (they never sound during playback) and notes crossing the jump are clamped.
 function findPartsInBar(song: Song, bar: number): number {
 	let partsInBar: number = Config.partsPerBeat * song.beatsPerBar;
-	for (let channel = song.pitchChannelCount + song.noiseChannelCount; channel < song.getChannelCount(); channel++) {
+	for (
+		let channel = song.pitchChannelCount + song.noiseChannelCount;
+		channel < song.getChannelCount();
+		channel++
+	) {
 		const pattern = song.getPattern(channel, bar);
 		if (pattern != null) {
 			const instrument = song.channels[channel].instruments[pattern.instruments[0]];
@@ -56,22 +60,45 @@ const midiTicksPerBeat = 2 * Config.ticksPerPart * Config.partsPerBeat;
 
 const midiChipInstruments: number[] = [0x4a, 0x47, 0x50, 0x46, 0x44, 0x51, 0x51, 0x51, 0x51];
 
-export function exportToMidi(song: Song, fileName: string, enableIntro: boolean, loopCount: number, enableOutro: boolean): void {
+export function exportToMidi(
+	song: Song,
+	fileName: string,
+	enableIntro: boolean,
+	loopCount: number,
+	enableOutro: boolean,
+): void {
 	const microsecondsPerBeat = Math.round(60000000 / song.getBeatsPerMinute());
 	const unrolledBars: number[] = [];
 	if (enableIntro) for (let i = 0; i < song.loopStart; i++) unrolledBars.push(i);
-	for (let i = 0; i < loopCount; i++) for (let j = song.loopStart; j < song.loopStart + song.loopLength; j++) unrolledBars.push(j);
-	if (enableOutro) for (let i = song.loopStart + song.loopLength; i < song.barCount; i++) unrolledBars.push(i);
-	const tracks = [{ isMeta: true, channel: -1, midiChannel: -1, isNoise: false, isDrumset: false }];
+	for (let i = 0; i < loopCount; i++)
+		for (let j = song.loopStart; j < song.loopStart + song.loopLength; j++)
+			unrolledBars.push(j);
+	if (enableOutro)
+		for (let i = song.loopStart + song.loopLength; i < song.barCount; i++) unrolledBars.push(i);
+	const tracks = [
+		{ isMeta: true, channel: -1, midiChannel: -1, isNoise: false, isDrumset: false },
+	];
 	let midiChan = 0;
 	let foundDrum = false;
 	for (let i = 0; i < song.pitchChannelCount + song.noiseChannelCount; i++) {
 		if (!foundDrum && song.channels[i].instruments[0].type === InstrumentType.drumset) {
-			tracks.push({ isMeta: false, channel: i, midiChannel: 9, isNoise: true, isDrumset: true });
+			tracks.push({
+				isMeta: false,
+				channel: i,
+				midiChannel: 9,
+				isNoise: true,
+				isDrumset: true,
+			});
 			foundDrum = true;
 		} else {
 			if (midiChan >= 16) continue;
-			tracks.push({ isMeta: false, channel: i, midiChannel: midiChan++, isNoise: song.getChannelIsNoise(i), isDrumset: false });
+			tracks.push({
+				isMeta: false,
+				channel: i,
+				midiChannel: midiChan++,
+				isNoise: song.getChannelIsNoise(i),
+				isDrumset: false,
+			});
 			if (midiChan === 9) midiChan++;
 		}
 	}
@@ -114,7 +141,10 @@ export function exportToMidi(song: Song, fileName: string, enableIntro: boolean,
 			writer.writeUint8(2);
 			writer.writeUint8(24);
 			writer.writeUint8(8);
-			const tempScale = song.scale === Config.scales.dictionary.Custom.index ? song.scaleCustom : Config.scales[song.scale].flags;
+			const tempScale =
+				song.scale === Config.scales.dictionary.Custom.index
+					? song.scaleCustom
+					: Config.scales[song.scale].flags;
 			const isMinor = tempScale[3] && !tempScale[4];
 			let numSharps = song.key;
 			if ((song.key & 1) === 1) numSharps += 6;
@@ -140,24 +170,42 @@ export function exportToMidi(song: Song, fileName: string, enableIntro: boolean,
 				writer.writeMidiAscii(i < loopCount - 1 ? "Loop Repeat" : "Loop End");
 			}
 			barStartTime = loopTime;
-			if (enableOutro) barStartTime += midiTicksPerBeat * song.beatsPerBar * (song.barCount - song.loopStart - song.loopLength);
+			if (enableOutro)
+				barStartTime +=
+					midiTicksPerBeat *
+					song.beatsPerBar *
+					(song.barCount - song.loopStart - song.loopLength);
 		} else {
 			writeTime(0);
 			writer.writeUint8(MidiEventType.meta);
 			writer.writeMidi7Bits(MidiMetaEventMessage.trackName);
-			writer.writeMidiAscii(track.isNoise ? `noise channel ${track.channel}` : `pitch channel ${track.channel}`);
+			writer.writeMidiAscii(
+				track.isNoise ? `noise channel ${track.channel}` : `pitch channel ${track.channel}`,
+			);
 			writeTime(0);
-			writeControl(MidiControlEventMessage.registeredParameterNumberMSB, MidiRegisteredParameterNumberMSB.pitchBendRange);
+			writeControl(
+				MidiControlEventMessage.registeredParameterNumberMSB,
+				MidiRegisteredParameterNumberMSB.pitchBendRange,
+			);
 			writeTime(0);
-			writeControl(MidiControlEventMessage.registeredParameterNumberLSB, MidiRegisteredParameterNumberLSB.pitchBendRange);
+			writeControl(
+				MidiControlEventMessage.registeredParameterNumberLSB,
+				MidiRegisteredParameterNumberLSB.pitchBendRange,
+			);
 			writeTime(0);
 			writeControl(MidiControlEventMessage.setParameterMSB, 24);
 			writeTime(0);
 			writeControl(MidiControlEventMessage.setParameterLSB, 0);
 			writeTime(0);
-			writeControl(MidiControlEventMessage.registeredParameterNumberMSB, MidiRegisteredParameterNumberMSB.reset);
+			writeControl(
+				MidiControlEventMessage.registeredParameterNumberMSB,
+				MidiRegisteredParameterNumberMSB.reset,
+			);
 			writeTime(0);
-			writeControl(MidiControlEventMessage.registeredParameterNumberLSB, MidiRegisteredParameterNumberLSB.reset);
+			writeControl(
+				MidiControlEventMessage.registeredParameterNumberLSB,
+				MidiRegisteredParameterNumberLSB.reset,
+			);
 			let prevInstr = -1;
 			const writeInstr = (idx: number) => {
 				if (prevInstr === idx) return;
@@ -172,8 +220,16 @@ export function exportToMidi(song: Song, fileName: string, enableIntro: boolean,
 					const preset = EditorConfig.valueToPreset(instr.preset);
 					if (preset?.midiProgram !== undefined) prog = preset.midiProgram;
 					else if (instr.type === InstrumentType.drumset) prog = 116;
-					else if (instr.type === InstrumentType.noise || instr.type === InstrumentType.spectrum) prog = track.isNoise ? 116 : 75;
-					else if (instr.type === InstrumentType.chip && midiChipInstruments.length > instr.chipWave) prog = midiChipInstruments[instr.chipWave];
+					else if (
+						instr.type === InstrumentType.noise ||
+						instr.type === InstrumentType.spectrum
+					)
+						prog = track.isNoise ? 116 : 75;
+					else if (
+						instr.type === InstrumentType.chip &&
+						midiChipInstruments.length > instr.chipWave
+					)
+						prog = midiChipInstruments[instr.chipWave];
 					else if (instr.type === InstrumentType.pickedString)
 						prog = 0x19; // steel guitar
 					else if (
@@ -192,10 +248,20 @@ export function exportToMidi(song: Song, fileName: string, enableIntro: boolean,
 				writeTime(barStartTime);
 				writeControl(
 					MidiControlEventMessage.volumeMSB,
-					Math.min(0x7f, Math.round(volumeMultToMidiVolume(Synth.instrumentVolumeToVolumeMult(instr.volume)))),
+					Math.min(
+						0x7f,
+						Math.round(
+							volumeMultToMidiVolume(
+								Synth.instrumentVolumeToVolumeMult(instr.volume),
+							),
+						),
+					),
 				);
 				writeTime(barStartTime);
-				writeControl(MidiControlEventMessage.panMSB, Math.min(0x7f, Math.round((instr.pan / Config.panCenter - 1) * 0x3f + 0x40)));
+				writeControl(
+					MidiControlEventMessage.panMSB,
+					Math.min(0x7f, Math.round((instr.pan / Config.panCenter - 1) * 0x3f + 0x40)),
+				);
 			};
 			if (song.getPattern(track.channel, 0) == null) writeInstr(0);
 			let prevPB = defaultMidiPitchBend,
@@ -217,7 +283,10 @@ export function exportToMidi(song: Song, fileName: string, enableIntro: boolean,
 					const usesArp = instr.getChord().arpeggiates;
 					let poly = usesArp ? 1 : Config.maxChordSize;
 					if (instr.getChord().customInterval) {
-						if (instr.type === InstrumentType.chip || instr.type === InstrumentType.harmonics) {
+						if (
+							instr.type === InstrumentType.chip ||
+							instr.type === InstrumentType.harmonics
+						) {
 							poly = 2;
 						} else if (instr.type === InstrumentType.fm) poly = Config.operatorCount;
 					}
@@ -226,7 +295,9 @@ export function exportToMidi(song: Song, fileName: string, enableIntro: boolean,
 						if (note.start >= partsInBar || noteEnd <= note.start) continue;
 						const start = barStartTime + note.start * ticksPerPart;
 						const toneCount = Math.min(poly, note.pitches.length);
-						const vel = track.isDrumset ? Math.max(1, Math.round((90 * note.pins[0].size) / Config.noteSizeMax)) : 90;
+						const vel = track.isDrumset
+							? Math.max(1, Math.round((90 * note.pins[0].size) / Config.noteSizeMax))
+							: 90;
 						const mainInt = note.pickMainInterval();
 						let offset = mainInt * scale;
 						if (!track.isDrumset) {
@@ -251,8 +322,21 @@ export function exportToMidi(song: Song, fileName: string, enableIntro: boolean,
 								const time = pinT + tick;
 								const lSize = lerp(pinS, note.pins[i].size, tick / len);
 								const lInt = lerp(pinI, note.pins[i].interval, tick / len);
-								const pb = Math.max(0, Math.min(0x3fff, Math.round(0x2000 * (1 + (lInt * scale - offset) / 24))));
-								const exp = Math.min(0x7f, Math.round(volumeMultToMidiExpression(Synth.noteSizeToVolumeMult(lSize))));
+								const pb = Math.max(
+									0,
+									Math.min(
+										0x3fff,
+										Math.round(0x2000 * (1 + (lInt * scale - offset) / 24)),
+									),
+								);
+								const exp = Math.min(
+									0x7f,
+									Math.round(
+										volumeMultToMidiExpression(
+											Synth.noteSizeToVolumeMult(lSize),
+										),
+									),
+								);
 								if (pb !== prevPB) {
 									writeTime(time);
 									writer.writeUint8(MidiEventType.pitchBend | track.midiChannel);
@@ -268,25 +352,46 @@ export function exportToMidi(song: Song, fileName: string, enableIntro: boolean,
 								for (let t = 0; t < toneCount; t++) {
 									let p = note.pitches[t];
 									if (track.isDrumset) {
-										const drumsetMap = [36, 41, 45, 48, 40, 39, 59, 49, 46, 55, 69, 54];
+										const drumsetMap = [
+											36, 41, 45, 48, 40, 39, 59, 49, 46, 55, 69, 54,
+										];
 										const drumIdx = p + mainInt;
 										if (drumIdx < 0 || drumIdx >= drumsetMap.length)
-											throw new Error(`Could not find corresponding drumset pitch. ${drumIdx}`);
+											throw new Error(
+												`Could not find corresponding drumset pitch. ${drumIdx}`,
+											);
 										p = drumsetMap[drumIdx];
 									} else {
-										if (usesArp && note.pitches.length > t + 1 && t === toneCount - 1) {
+										if (
+											usesArp &&
+											note.pitches.length > t + 1 &&
+											t === toneCount - 1
+										) {
 											const arp = Math.floor(
-												((time - barStartTime) % (ticksPerPart * Config.partsPerBeat)) / (Config.ticksPerArpeggio * 2),
+												((time - barStartTime) %
+													(ticksPerPart * Config.partsPerBeat)) /
+													(Config.ticksPerArpeggio * 2),
 											);
-											p = note.pitches[t + getArpeggioPitchIndex(note.pitches.length - t, instr.fastTwoNoteArp, arp)];
+											p =
+												note.pitches[
+													t +
+														getArpeggioPitchIndex(
+															note.pitches.length - t,
+															instr.fastTwoNoteArp,
+															arp,
+														)
+												];
 										}
 										p = root + p * scale + offset;
 										const preset = EditorConfig.valueToPreset(instr.preset);
-										if (preset?.midiSubharmonicOctaves !== undefined) p += 12 * preset.midiSubharmonicOctaves;
+										if (preset?.midiSubharmonicOctaves !== undefined)
+											p += 12 * preset.midiSubharmonicOctaves;
 										else if (track.isNoise)
 											p +=
 												12 *
-												+EditorConfig.presetCategories.dictionary["Drum Presets"].presets.dictionary["taiko drum"]
+												+EditorConfig.presetCategories.dictionary[
+													"Drum Presets"
+												].presets.dictionary["taiko drum"]
 													.midiSubharmonicOctaves!;
 										if (track.isNoise) p *= 2;
 									}
@@ -294,7 +399,9 @@ export function exportToMidi(song: Song, fileName: string, enableIntro: boolean,
 									nextP[t] = p;
 									if (time !== start && prevP[t] !== nextP[t]) {
 										writeTime(time);
-										writer.writeUint8(MidiEventType.noteOff | track.midiChannel);
+										writer.writeUint8(
+											MidiEventType.noteOff | track.midiChannel,
+										);
 										writer.writeMidi7Bits(prevP[t]);
 										writer.writeMidi7Bits(vel);
 									}

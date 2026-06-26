@@ -87,7 +87,10 @@ export class BarScrollBar {
 		const base: number = 20;
 		const tip: number = 9;
 		const arrowHeight: number = 6;
-		this._leftHighlight.setAttribute("d", `M ${tip} ${center} L ${base} ${center + arrowHeight} L ${base} ${center - arrowHeight} z`);
+		this._leftHighlight.setAttribute(
+			"d",
+			`M ${tip} ${center} L ${base} ${center + arrowHeight} L ${base} ${center - arrowHeight} z`,
+		);
 		this._rightHighlight.setAttribute(
 			"d",
 			`M ${this._editorWidth - tip} ${center} L ${this._editorWidth - base} ${center + arrowHeight} L ${
@@ -99,7 +102,10 @@ export class BarScrollBar {
 		document.addEventListener("mousemove", this._whenMouseMoved);
 		document.addEventListener("mouseup", this._whenCursorReleased);
 		window.addEventListener("resize", () => (this._svgRect = null));
-		window.addEventListener("scroll", () => (this._svgRect = null), { capture: true, passive: true });
+		window.addEventListener("scroll", () => (this._svgRect = null), {
+			capture: true,
+			passive: true,
+		});
 		this.container.addEventListener("mouseover", this._whenMouseOver);
 		this.container.addEventListener("mouseout", this._whenMouseOut);
 
@@ -110,7 +116,10 @@ export class BarScrollBar {
 	}
 
 	public animatePlayhead = (): void => {
-		const playhead = Math.min(512, Math.max(0, this._notchSpace * this._doc.synth.playhead - 2));
+		const playhead = Math.min(
+			512,
+			Math.max(0, this._notchSpace * this._doc.synth.playhead - 2),
+		);
 		if (this._renderedPlayhead !== playhead) {
 			this._renderedPlayhead = playhead;
 			this._playhead.setAttribute("x", `${playhead}`);
@@ -184,7 +193,10 @@ export class BarScrollBar {
 	private _whenCursorMoved(): void {
 		if (this._dragging) {
 			const target = Math.round((this._mouseX - this._dragOffset) / this._notchSpace);
-			this._doc.barScrollPos = Math.max(0, Math.min(this._doc.song.barCount - this._doc.trackVisibleBars, target));
+			this._doc.barScrollPos = Math.max(
+				0,
+				Math.min(this._doc.song.barCount - this._doc.trackVisibleBars, target),
+			);
 			this._doc.notifier.changed();
 		}
 		if (this._mouseOver) this._updatePreview();
@@ -202,7 +214,8 @@ export class BarScrollBar {
 				if (this._doc.barScrollPos > 0) this._doc.barScrollPos--;
 				this._doc.notifier.changed();
 			} else {
-				if (this._doc.barScrollPos < this._doc.song.barCount - this._doc.trackVisibleBars) this._doc.barScrollPos++;
+				if (this._doc.barScrollPos < this._doc.song.barCount - this._doc.trackVisibleBars)
+					this._doc.barScrollPos++;
 				this._doc.notifier.changed();
 			}
 		}
@@ -220,7 +233,10 @@ export class BarScrollBar {
 		if (showHighlight) {
 			if (this._mouseX < this._doc.barScrollPos * this._notchSpace) {
 				showleftHighlight = true;
-			} else if (this._mouseX > (this._doc.barScrollPos + this._doc.trackVisibleBars) * this._notchSpace) {
+			} else if (
+				this._mouseX >
+				(this._doc.barScrollPos + this._doc.trackVisibleBars) * this._notchSpace
+			) {
 				showRightHighlight = true;
 			} else {
 				showHandleHighlight = true;
@@ -233,7 +249,8 @@ export class BarScrollBar {
 	}
 
 	public render(): void {
-		this._notchSpace = (this._editorWidth - 1) / Math.max(this._doc.trackVisibleBars, this._doc.song.barCount);
+		this._notchSpace =
+			(this._editorWidth - 1) / Math.max(this._doc.trackVisibleBars, this._doc.song.barCount);
 
 		const resized: boolean = this._renderedNotchCount !== this._doc.song.barCount;
 		if (resized) {
@@ -242,7 +259,12 @@ export class BarScrollBar {
 			while (this._notches.firstChild) this._notches.removeChild(this._notches.firstChild);
 
 			for (let i: number = 0; i <= this._doc.song.barCount; i++) {
-				const lineHeight: number = i % 16 === 0 ? 0 : i % 4 === 0 ? this._editorHeight / 8 : this._editorHeight / 3;
+				const lineHeight: number =
+					i % 16 === 0
+						? 0
+						: i % 4 === 0
+							? this._editorHeight / 8
+							: this._editorHeight / 3;
 				this._notches.appendChild(
 					SVG.rect({
 						fill: ColorConfig.uiWidgetBackground,
@@ -258,9 +280,18 @@ export class BarScrollBar {
 		if (resized || this._renderedScrollBarPos !== this._doc.barScrollPos) {
 			this._renderedScrollBarPos = this._doc.barScrollPos;
 			this._handle.setAttribute("x", String(this._notchSpace * this._doc.barScrollPos));
-			this._handle.setAttribute("width", String(this._notchSpace * this._doc.trackVisibleBars));
-			this._handleHighlight.setAttribute("x", String(this._notchSpace * this._doc.barScrollPos));
-			this._handleHighlight.setAttribute("width", String(this._notchSpace * this._doc.trackVisibleBars));
+			this._handle.setAttribute(
+				"width",
+				String(this._notchSpace * this._doc.trackVisibleBars),
+			);
+			this._handleHighlight.setAttribute(
+				"x",
+				String(this._notchSpace * this._doc.barScrollPos),
+			);
+			this._handleHighlight.setAttribute(
+				"width",
+				String(this._notchSpace * this._doc.trackVisibleBars),
+			);
 		}
 
 		this._updatePreview();

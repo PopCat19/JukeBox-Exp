@@ -38,7 +38,8 @@ export const CURSOR_MASS = 1.0;
 export const SHIGGY_MASS = 2.0;
 export const COLLISION_RESTITUTION = 0.5; // 0 = inelastic, 1 = elastic
 // Computed momentum transfer coefficient
-export const MOMENTUM_FACTOR = (CURSOR_MASS * (1 + COLLISION_RESTITUTION)) / (CURSOR_MASS + SHIGGY_MASS);
+export const MOMENTUM_FACTOR =
+	(CURSOR_MASS * (1 + COLLISION_RESTITUTION)) / (CURSOR_MASS + SHIGGY_MASS);
 
 // NPC movement (slow hockey puck)
 export const NPC_FRICTION = 0.99;

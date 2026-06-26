@@ -33,7 +33,8 @@ export function buildDrumSource(voiceCount: number): string {
         const applyFilters = Synth.applyFilters;`;
 
 	for (let i: number = 0; i < voiceCount; i++) {
-		drumSource += `let phase# = (tone.phases[#] - (tone.phases[#] | 0)) * Config.spectrumNoiseLength;
+		drumSource +=
+			`let phase# = (tone.phases[#] - (tone.phases[#] | 0)) * Config.spectrumNoiseLength;
             `.replaceAll("#", `${i}`);
 	}
 	drumSource += `

@@ -9,16 +9,39 @@
 
 // Copyright (c) 2012-2022 John Nesky and contributing authors, distributed under the MIT license, see accompanying the LICENSE.md file.
 
-import { clamp, makeNotePin, Note, type NotePin, type Pattern, type Song, Synth } from "../../synth";
+import {
+	clamp,
+	makeNotePin,
+	Note,
+	type NotePin,
+	type Pattern,
+	type Song,
+	Synth,
+} from "../../synth";
 import { Config } from "../../synth/synth-config";
 
-export function patternsContainSameInstruments(pattern1Instruments: number[], pattern2Instruments: number[]): boolean {
-	const pattern2Has1Instruments: boolean = pattern1Instruments.every((instrument) => pattern2Instruments.indexOf(instrument) !== -1);
-	const pattern1Has2Instruments: boolean = pattern2Instruments.every((instrument) => pattern1Instruments.indexOf(instrument) !== -1);
-	return pattern2Has1Instruments && pattern1Has2Instruments && pattern2Instruments.length === pattern1Instruments.length;
+export function patternsContainSameInstruments(
+	pattern1Instruments: number[],
+	pattern2Instruments: number[],
+): boolean {
+	const pattern2Has1Instruments: boolean = pattern1Instruments.every(
+		(instrument) => pattern2Instruments.indexOf(instrument) !== -1,
+	);
+	const pattern1Has2Instruments: boolean = pattern2Instruments.every(
+		(instrument) => pattern1Instruments.indexOf(instrument) !== -1,
+	);
+	return (
+		pattern2Has1Instruments &&
+		pattern1Has2Instruments &&
+		pattern2Instruments.length === pattern1Instruments.length
+	);
 }
 
-export function discardInvalidPatternInstruments(instruments: number[], song: Song, channelIndex: number) {
+export function discardInvalidPatternInstruments(
+	instruments: number[],
+	song: Song,
+	channelIndex: number,
+) {
 	const uniqueInstruments: Set<number> = new Set(instruments);
 	instruments.length = 0;
 	instruments.push(...uniqueInstruments);
@@ -49,9 +72,15 @@ export function unionOfUsedNotes(pattern: Pattern, flags: boolean[]): void {
 	}
 }
 
-export function generateScaleMap(oldScaleFlags: ReadonlyArray<boolean>, newScaleValue: number, customScaleFlags: ReadonlyArray<boolean>): number[] {
+export function generateScaleMap(
+	oldScaleFlags: ReadonlyArray<boolean>,
+	newScaleValue: number,
+	customScaleFlags: ReadonlyArray<boolean>,
+): number[] {
 	const newScaleFlags: ReadonlyArray<boolean> =
-		newScaleValue === Config.scales.dictionary.Custom.index ? customScaleFlags : Config.scales[newScaleValue].flags;
+		newScaleValue === Config.scales.dictionary.Custom.index
+			? customScaleFlags
+			: Config.scales[newScaleValue].flags;
 	const oldScale: number[] = [];
 	const newScale: number[] = [];
 	for (let i: number = 0; i < 12; i++) {
@@ -62,7 +91,21 @@ export function generateScaleMap(oldScaleFlags: ReadonlyArray<boolean>, newScale
 	const smallerScale: number[] = largerToSmaller ? newScale : oldScale;
 	const largerScale: number[] = largerToSmaller ? oldScale : newScale;
 
-	const roles: string[] = ["root", "second", "second", "third", "third", "fourth", "tritone", "fifth", "sixth", "sixth", "seventh", "seventh", "root"];
+	const roles: string[] = [
+		"root",
+		"second",
+		"second",
+		"third",
+		"third",
+		"fourth",
+		"tritone",
+		"fifth",
+		"sixth",
+		"sixth",
+		"seventh",
+		"seventh",
+		"root",
+	];
 	let bestScore: number = Number.MAX_SAFE_INTEGER;
 	let bestIndexMap: number[] = [];
 	const stack: number[][] = [[0]]; // Root always maps to root.
@@ -98,7 +141,9 @@ export function generateScaleMap(oldScaleFlags: ReadonlyArray<boolean>, newScale
 	for (let i: number = 0; i < bestIndexMap.length; i++) {
 		const smallerScalePitch = smallerScale[i];
 		const largerScalePitch = largerScale[bestIndexMap[i]];
-		sparsePitchMap[i] = largerToSmaller ? [largerScalePitch, smallerScalePitch] : [smallerScalePitch, largerScalePitch];
+		sparsePitchMap[i] = largerToSmaller
+			? [largerScalePitch, smallerScalePitch]
+			: [smallerScalePitch, largerScalePitch];
 	}
 
 	// To make it easier to wrap around.
@@ -114,7 +159,8 @@ export function generateScaleMap(oldScaleFlags: ReadonlyArray<boolean>, newScale
 		const newHigh: number = sparsePitchMap[sparseIndex + 1][1];
 		if (i === oldHigh - 1) sparseIndex++;
 
-		const transformedPitch: number = ((i - oldLow) * (newHigh - newLow)) / (oldHigh - oldLow) + newLow;
+		const transformedPitch: number =
+			((i - oldLow) * (newHigh - newLow)) / (oldHigh - oldLow) + newLow;
 
 		let nearestPitch: number = 0;
 		let nearestPitchDistance: number = Number.MAX_SAFE_INTEGER;
@@ -151,7 +197,13 @@ export function removeRedundantPins(pins: NotePin[]): void {
 	}
 }
 
-export function projectNoteIntoBar(oldNote: Note, timeOffset: number, noteStartPart: number, noteEndPart: number, newNotes: Note[]): void {
+export function projectNoteIntoBar(
+	oldNote: Note,
+	timeOffset: number,
+	noteStartPart: number,
+	noteEndPart: number,
+	newNotes: Note[],
+): void {
 	// Create a new note from pitch bend and size events to determine pin insertion points for interval and volume.
 	const newNote: Note = new Note(-1, noteStartPart, noteEndPart, Config.noteSizeMax, false);
 	newNote.pins.length = 0;
@@ -166,7 +218,8 @@ export function projectNoteIntoBar(oldNote: Note, timeOffset: number, noteStartP
 		const pin: NotePin = oldNote.pins[pinIndex];
 		const newPinTime: number = pin.time + timeOffset;
 		if (newPinTime < 0) {
-			if (pinIndex + 1 >= oldNote.pins.length) throw new Error("Error converting pins in note overflow.");
+			if (pinIndex + 1 >= oldNote.pins.length)
+				throw new Error("Error converting pins in note overflow.");
 			const nextPin: NotePin = oldNote.pins[pinIndex + 1];
 			const nextPinTime: number = nextPin.time + timeOffset;
 			if (nextPinTime > 0) {
@@ -216,13 +269,20 @@ export function projectNoteIntoBar(oldNote: Note, timeOffset: number, noteStartP
 		newNote.continuesLastPattern = false;
 		if (newNotes.length > 0 && oldNote.continuesLastPattern) {
 			const prevNote: Note = newNotes[newNotes.length - 1];
-			if (prevNote.end === newNote.start && Synth.adjacentNotesHaveMatchingPitches(prevNote, newNote)) {
+			if (
+				prevNote.end === newNote.start &&
+				Synth.adjacentNotesHaveMatchingPitches(prevNote, newNote)
+			) {
 				joinedWithPrevNote = true;
 				const newIntervalOffset: number = prevNote.pins[prevNote.pins.length - 1].interval;
 				const newTimeOffset: number = prevNote.end - prevNote.start;
 				for (let pinIndex: number = 1; pinIndex < newNote.pins.length; pinIndex++) {
 					const tempPin: NotePin = newNote.pins[pinIndex];
-					const transformedPin: NotePin = makeNotePin(tempPin.interval + newIntervalOffset, tempPin.time + newTimeOffset, tempPin.size);
+					const transformedPin: NotePin = makeNotePin(
+						tempPin.interval + newIntervalOffset,
+						tempPin.time + newTimeOffset,
+						tempPin.size,
+					);
 					prevNote.pins.push(transformedPin);
 					prevNote.end = prevNote.start + transformedPin.time;
 				}
@@ -261,7 +321,14 @@ export function randomSineWave(wave: Float32Array): void {
 			randomRoundWave[i] = clamp(
 				-24,
 				24 + 1,
-				Math.round(mod(randomNumber3 + (Math.sin((i + randomNumber3) / randomNumber2) * 24 + i * randomNumber1), 48) - 24),
+				Math.round(
+					mod(
+						randomNumber3 +
+							(Math.sin((i + randomNumber3) / randomNumber2) * 24 +
+								i * randomNumber1),
+						48,
+					) - 24,
+				),
 			);
 		}
 	} else if (roundedWaveType === 2) {
@@ -278,7 +345,9 @@ export function randomSineWave(wave: Float32Array): void {
 						Math.abs(
 							2 *
 								Math.floor(
-									Math.sin((i / randomNumber2) * randomNumber1 + randomNumber3) * Math.cos(i * randomNumber2 * (randomNumber1 / 2)) * 24,
+									Math.sin((i / randomNumber2) * randomNumber1 + randomNumber3) *
+										Math.cos(i * randomNumber2 * (randomNumber1 / 2)) *
+										24,
 								),
 						) -
 						randomNumber4 * 24,
@@ -310,7 +379,16 @@ export function randomPulses(wave: Float32Array): void {
 	const randomNumber4 = Math.round(Math.random() * 13 + 2);
 	for (let i = 0; i < waveLength; i++) {
 		const randomNumber1 = sigma(mod(i, randomNumber2), (_i) => 1, randomNumber4);
-		randomPulse[i] = clamp(-24, 24 + 1, Math.round(mod(24 * sigma(i, (_i) => randomNumber1, Math.round(randomNumber2 / randomNumber3)), 24.0000000000001)));
+		randomPulse[i] = clamp(
+			-24,
+			24 + 1,
+			Math.round(
+				mod(
+					24 * sigma(i, (_i) => randomNumber1, Math.round(randomNumber2 / randomNumber3)),
+					24.0000000000001,
+				),
+			),
+		);
 	}
 	for (let i = 0; i < waveLength; i++) {
 		wave[i] = randomPulse[i];
@@ -346,7 +424,12 @@ export function randomChipWave(wave: Float32Array): void {
 						randomNumber4 *
 							mod(
 								(randomNumber2 / randomNumber3) * randomNumber3 +
-									sigma(i / (randomNumber1 * randomNumber1), (_i) => randomNumber3, randomNumber1 * -randomNumber2) * randomNumber4,
+									sigma(
+										i / (randomNumber1 * randomNumber1),
+										(_i) => randomNumber3,
+										randomNumber1 * -randomNumber2,
+									) *
+										randomNumber4,
 								24,
 							),
 					),

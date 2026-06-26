@@ -110,11 +110,19 @@ export class ChangeDispatcher {
 	}
 
 	public whenSetTempo = (): void => {
-		this.doc.record(new ChangeTempo(this.doc, -1, parseInt(this._host.tempoStepper.value, 10) | 0));
+		this.doc.record(
+			new ChangeTempo(this.doc, -1, parseInt(this._host.tempoStepper.value, 10) | 0),
+		);
 	};
 
 	public whenSetOctave = (): void => {
-		this.doc.record(new ChangeKeyOctave(this.doc, this.doc.song.octave, parseInt(this._host.octaveStepper.value, 10) | 0));
+		this.doc.record(
+			new ChangeKeyOctave(
+				this.doc,
+				this.doc.song.octave,
+				parseInt(this._host.octaveStepper.value, 10) | 0,
+			),
+		);
 		this._host.piano.forceRender();
 	};
 
@@ -143,7 +151,12 @@ export class ChangeDispatcher {
 			}
 			this.doc.notifier.changed();
 		} else {
-			this.doc.record(new ChangeKey(this.doc, Config.keys.length - 1 - this._host.keySelect.selectedIndex));
+			this.doc.record(
+				new ChangeKey(
+					this.doc,
+					Config.keys.length - 1 - this._host.keySelect.selectedIndex,
+				),
+			);
 		}
 	};
 
@@ -161,7 +174,9 @@ export class ChangeDispatcher {
 	};
 
 	public whenSetFeedbackType = (): void => {
-		this.doc.record(new ChangeFeedbackType(this.doc, this._host.feedbackTypeSelect.selectedIndex));
+		this.doc.record(
+			new ChangeFeedbackType(this.doc, this._host.feedbackTypeSelect.selectedIndex),
+		);
 	};
 
 	public whenSetAlgorithm = (): void => {
@@ -169,12 +184,16 @@ export class ChangeDispatcher {
 	};
 
 	public whenSet6OpFeedbackType = (): void => {
-		this.doc.record(new Change6OpFeedbackType(this.doc, this._host.feedback6OpTypeSelect.selectedIndex));
+		this.doc.record(
+			new Change6OpFeedbackType(this.doc, this._host.feedback6OpTypeSelect.selectedIndex),
+		);
 		this._host.customAlgorithmCanvas.reset();
 	};
 
 	public whenSet6OpAlgorithm = (): void => {
-		this.doc.record(new Change6OpAlgorithm(this.doc, this._host.algorithm6OpSelect.selectedIndex));
+		this.doc.record(
+			new Change6OpAlgorithm(this.doc, this._host.algorithm6OpSelect.selectedIndex),
+		);
 		this._host.customAlgorithmCanvas.reset();
 	};
 
@@ -188,10 +207,17 @@ export class ChangeDispatcher {
 			if (index !== -1) {
 				this.doc.selection.selectInstrument(index);
 			}
-			if (this.doc.channel >= this.doc.song.pitchChannelCount + this.doc.song.noiseChannelCount) {
+			if (
+				this.doc.channel >=
+				this.doc.song.pitchChannelCount + this.doc.song.noiseChannelCount
+			) {
 				this._host.piano.forceRender();
 			}
-			this._host.renderInstrumentBar(this.doc.song.channels[this.doc.channel], index, ColorConfig.getChannelColor(this.doc.song, this.doc.channel));
+			this._host.renderInstrumentBar(
+				this.doc.song.channels[this.doc.channel],
+				index,
+				ColorConfig.getChannelColor(this.doc.song, this.doc.channel),
+			);
 		}
 
 		this._host.refocusStage();
@@ -199,17 +225,25 @@ export class ChangeDispatcher {
 
 	public whenSetModChannel = (mod: number): void => {
 		const instrument: Instrument = this.doc.getCurrentInstrumentObj();
-		const previouslyUnset: boolean = instrument.modulators[mod] === 0 || Config.modulators[instrument.modulators[mod]].forSong;
+		const previouslyUnset: boolean =
+			instrument.modulators[mod] === 0 ||
+			Config.modulators[instrument.modulators[mod]].forSong;
 
 		this.doc.selection.setModChannel(mod, this._host.modChannelBoxes[mod].selectedIndex);
 
 		const modChannel: number = Math.max(0, instrument.modChannels[mod]);
 
-		if (this.doc.song.channels[modChannel].instruments.length > 1 && previouslyUnset && this._host.modChannelBoxes[mod].selectedIndex >= 2) {
+		if (
+			this.doc.song.channels[modChannel].instruments.length > 1 &&
+			previouslyUnset &&
+			this._host.modChannelBoxes[mod].selectedIndex >= 2
+		) {
 			if (this.doc.song.channels[modChannel].bars[this.doc.bar] > 0) {
 				this.doc.selection.setModInstrument(
 					mod,
-					this.doc.song.channels[modChannel].patterns[this.doc.song.channels[modChannel].bars[this.doc.bar] - 1].instruments[0],
+					this.doc.song.channels[modChannel].patterns[
+						this.doc.song.channels[modChannel].bars[this.doc.bar] - 1
+					].instruments[0],
 				);
 			}
 		}
@@ -226,10 +260,13 @@ export class ChangeDispatcher {
 	public whenSetModSetting = (mod: number, invalidIndex: boolean = false): void => {
 		let text: string = "none";
 		if (this._host.modSetBoxes[mod].selectedIndex !== -1) {
-			text = this._host.modSetBoxes[mod].children[this._host.modSetBoxes[mod].selectedIndex].textContent as string;
+			text = this._host.modSetBoxes[mod].children[this._host.modSetBoxes[mod].selectedIndex]
+				.textContent as string;
 
 			if (invalidIndex) {
-				this._host.modSetBoxes[mod].selectedOptions.item(0)!.style.setProperty("color", "red");
+				this._host.modSetBoxes[mod].selectedOptions
+					.item(0)!
+					.style.setProperty("color", "red");
 				this._host.modSetBoxes[mod].classList.add("invalidSetting");
 				this.doc.getCurrentInstrumentObj().invalidModulators[mod] = true;
 			} else {
@@ -246,7 +283,10 @@ export class ChangeDispatcher {
 
 	public whenClickModTarget = (mod: number): void => {
 		if (this._host.modChannelBoxes[mod].selectedIndex >= 2) {
-			this.doc.selection.setChannelBar(this._host.modChannelBoxes[mod].selectedIndex - 2, this.doc.bar);
+			this.doc.selection.setChannelBar(
+				this._host.modChannelBoxes[mod].selectedIndex - 2,
+				this.doc.bar,
+			);
 		}
 	};
 
@@ -255,20 +295,23 @@ export class ChangeDispatcher {
 		const instrumentIndex: number = this.doc.getCurrentInstrument();
 		if (channelIndex < this.doc.song.pitchChannelCount + this.doc.song.noiseChannelCount) {
 			for (
-				let modChannelIdx: number = this.doc.song.pitchChannelCount + this.doc.song.noiseChannelCount;
+				let modChannelIdx: number =
+					this.doc.song.pitchChannelCount + this.doc.song.noiseChannelCount;
 				modChannelIdx < this.doc.song.channels.length;
 				modChannelIdx++
 			) {
 				const modChannel: Channel = this.doc.song.channels[modChannelIdx];
 				const patternIdx = modChannel.bars[this.doc.bar];
 				if (patternIdx > 0) {
-					const modInstrumentIdx: number = modChannel.patterns[patternIdx - 1].instruments[0];
+					const modInstrumentIdx: number =
+						modChannel.patterns[patternIdx - 1].instruments[0];
 					const modInstrument: Instrument = modChannel.instruments[modInstrumentIdx];
 					for (let mod: number = 0; mod < Config.modCount; mod++) {
 						if (
 							modInstrument.modChannels[mod] === channelIndex &&
 							(modInstrument.modInstruments[mod] === instrumentIndex ||
-								modInstrument.modInstruments[mod] >= this.doc.song.channels[channelIndex].instruments.length)
+								modInstrument.modInstruments[mod] >=
+									this.doc.song.channels[channelIndex].instruments.length)
 						) {
 							this.doc.selection.setChannelBar(modChannelIdx, this.doc.bar);
 							return;
@@ -292,23 +335,42 @@ export class ChangeDispatcher {
 	};
 
 	public whenSetRingModChipWave = (): void => {
-		this.doc.record(new ChangeRingModChipWave(this.doc, this._host.ringModWaveSelect.selectedIndex));
+		this.doc.record(
+			new ChangeRingModChipWave(this.doc, this._host.ringModWaveSelect.selectedIndex),
+		);
 	};
 
 	public whenSetUseChipWaveAdvancedLoopControls = (): void => {
-		this.doc.record(new ChangeChipWaveUseAdvancedLoopControls(this.doc, !!this._host.useChipWaveAdvancedLoopControlsBox.checked));
+		this.doc.record(
+			new ChangeChipWaveUseAdvancedLoopControls(
+				this.doc,
+				!!this._host.useChipWaveAdvancedLoopControlsBox.checked,
+			),
+		);
 	};
 
 	public whenSetChipWaveLoopMode = (): void => {
-		this.doc.record(new ChangeChipWaveLoopMode(this.doc, this._host.chipWaveLoopModeSelect.selectedIndex));
+		this.doc.record(
+			new ChangeChipWaveLoopMode(this.doc, this._host.chipWaveLoopModeSelect.selectedIndex),
+		);
 	};
 
 	public whenSetChipWaveLoopStart = (): void => {
-		this.doc.record(new ChangeChipWaveLoopStart(this.doc, parseInt(this._host.chipWaveLoopStartStepper.value, 10) | 0));
+		this.doc.record(
+			new ChangeChipWaveLoopStart(
+				this.doc,
+				parseInt(this._host.chipWaveLoopStartStepper.value, 10) | 0,
+			),
+		);
 	};
 
 	public whenSetChipWaveLoopEnd = (): void => {
-		this.doc.record(new ChangeChipWaveLoopEnd(this.doc, parseInt(this._host.chipWaveLoopEndStepper.value, 10) | 0));
+		this.doc.record(
+			new ChangeChipWaveLoopEnd(
+				this.doc,
+				parseInt(this._host.chipWaveLoopEndStepper.value, 10) | 0,
+			),
+		);
 	};
 
 	public whenSetChipWaveLoopEndToEnd = (): void => {
@@ -320,11 +382,18 @@ export class ChangeDispatcher {
 	};
 
 	public whenSetChipWaveStartOffset = (): void => {
-		this.doc.record(new ChangeChipWaveStartOffset(this.doc, parseInt(this._host.chipWaveStartOffsetStepper.value, 10) | 0));
+		this.doc.record(
+			new ChangeChipWaveStartOffset(
+				this.doc,
+				parseInt(this._host.chipWaveStartOffsetStepper.value, 10) | 0,
+			),
+		);
 	};
 
 	public whenSetChipWavePlayBackwards = (): void => {
-		this.doc.record(new ChangeChipWavePlayBackwards(this.doc, this._host.chipWavePlayBackwardsBox.checked));
+		this.doc.record(
+			new ChangeChipWavePlayBackwards(this.doc, this._host.chipWavePlayBackwardsBox.checked),
+		);
 	};
 
 	public whenSetNoiseWave = (): void => {
@@ -352,7 +421,9 @@ export class ChangeDispatcher {
 	};
 
 	public whenSetVibratoType = (): void => {
-		this.doc.record(new ChangeVibratoType(this.doc, this._host.vibratoTypeSelect.selectedIndex));
+		this.doc.record(
+			new ChangeVibratoType(this.doc, this._host.vibratoTypeSelect.selectedIndex),
+		);
 	};
 
 	public whenSetUnison = (): void => {
@@ -364,7 +435,12 @@ export class ChangeDispatcher {
 	};
 
 	public whenSetMonophonicNote = (): void => {
-		this.doc.record(new ChangeMonophonicTone(this.doc, parseInt(this._host.monophonicNoteInputBox.value, 10) - 1));
+		this.doc.record(
+			new ChangeMonophonicTone(
+				this.doc,
+				parseInt(this._host.monophonicNoteInputBox.value, 10) - 1,
+			),
+		);
 	};
 
 	public addNewEnvelope = (): void => {
@@ -386,7 +462,9 @@ export class ChangeDispatcher {
 	public pasteInstrument = (): void => {
 		const channel: Channel = this.doc.song.channels[this.doc.channel];
 		const instrument: Instrument = channel.instruments[this.doc.getCurrentInstrument()];
-		const instrumentCopy: any = JSON.parse(String(window.localStorage.getItem("instrumentCopy")));
+		const instrumentCopy: any = JSON.parse(
+			String(window.localStorage.getItem("instrumentCopy")),
+		);
 		if (
 			instrumentCopy != null &&
 			instrumentCopy.isDrum === this.doc.song.getChannelIsNoise(this.doc.channel) &&
@@ -423,7 +501,10 @@ export class ChangeDispatcher {
 
 	public randomPreset(): void {
 		const isNoise: boolean = this.doc.song.getChannelIsNoise(this.doc.channel);
-		const presetValue: number = pickRandomPresetValue(isNoise, this.doc.prefs.rollNoveltyPresets);
+		const presetValue: number = pickRandomPresetValue(
+			isNoise,
+			this.doc.prefs.rollNoveltyPresets,
+		);
 
 		if (presetValue > 0) {
 			this.doc.record(new ChangePreset(this.doc, presetValue));
@@ -432,7 +513,9 @@ export class ChangeDispatcher {
 				"Either you are using incompatible tags, or you are using a tag combination that no preset has. \n\nPlease double check your tag combination.",
 			);
 		} else if (presetValue === -2) {
-			alert("One or more of the tags you entered doesn't exist. \n\nPlease double check your spelling.");
+			alert(
+				"One or more of the tags you entered doesn't exist. \n\nPlease double check your spelling.",
+			);
 		}
 	}
 
@@ -447,7 +530,9 @@ export class ChangeDispatcher {
 				"Either you are using incompatible tags, or you are using a tag combination that no preset has. \n\nPlease double check your tag combination.",
 			);
 		} else if (presetValue === -2) {
-			alert("One or more of the tags you entered doesn't exist. \n\nPlease double check your spelling.");
+			alert(
+				"One or more of the tags you entered doesn't exist. \n\nPlease double check your spelling.",
+			);
 		}
 	}
 

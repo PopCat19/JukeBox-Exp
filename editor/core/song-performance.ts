@@ -11,7 +11,15 @@
 
 import { Note, type Pattern } from "../../synth";
 import { Config } from "../../synth/synth-config";
-import { ChangeChannelBar, ChangeDeleteBars, ChangeEnsurePatternExists, ChangeInsertBars, ChangeNoteAdded, ChangeNoteLength, ChangePinTime } from "../changes";
+import {
+	ChangeChannelBar,
+	ChangeDeleteBars,
+	ChangeEnsurePatternExists,
+	ChangeInsertBars,
+	ChangeNoteAdded,
+	ChangeNoteLength,
+	ChangePinTime,
+} from "../changes";
 import { Piano } from "../components/piano";
 import type { SongDocument } from "../song-document";
 import { ChangeGroup } from "./change";
@@ -60,7 +68,10 @@ export class SongPerformance {
 		this.clearAllPitches();
 		this.clearAllBassPitches();
 		if (this._recordingChange != null) {
-			if (this._doc.song.barCount > this._songLengthWhenRecordingStarted && !this._lastBarHasPatterns()) {
+			if (
+				this._doc.song.barCount > this._songLengthWhenRecordingStarted &&
+				!this._lastBarHasPatterns()
+			) {
 				// If an extra empty bar was added in case it was needed for recording, but it didn't end up getting used, delete it now.
 				new ChangeDeleteBars(this._doc, this._doc.song.barCount - 1, 1);
 				new ChangeChannelBar(this._doc, this._doc.channel, this._doc.song.barCount - 1);
@@ -131,7 +142,13 @@ export class SongPerformance {
 		if (this._doc.channel >= this._doc.song.pitchChannelCount) {
 			return this._doc.channel;
 		}
-		return Math.max(0, Math.min(this._doc.song.pitchChannelCount - 1, this._doc.channel + this._doc.prefs.bassOffset));
+		return Math.max(
+			0,
+			Math.min(
+				this._doc.song.pitchChannelCount - 1,
+				this._doc.channel + this._doc.prefs.bassOffset,
+			),
+		);
 	}
 
 	private _getMinDivision(): number {
@@ -143,7 +160,8 @@ export class SongPerformance {
 	}
 
 	private _getCurrentPlayheadPart(): number {
-		const currentPart: number = this._doc.synth.playhead * this._doc.song.beatsPerBar * Config.partsPerBeat;
+		const currentPart: number =
+			this._doc.synth.playhead * this._doc.song.beatsPerBar * Config.partsPerBeat;
 		if (this._doc.prefs.snapRecordedNotesToRhythm) {
 			const minDivision: number = this._getMinDivision();
 			return Math.round(currentPart / minDivision) * minDivision;
@@ -152,8 +170,13 @@ export class SongPerformance {
 	}
 
 	private _lastBarHasPatterns(): boolean {
-		for (let channelIndex: number = 0; channelIndex < this._doc.song.getChannelCount(); channelIndex++) {
-			if (this._doc.song.channels[channelIndex].bars[this._doc.song.barCount - 1] !== 0) return true;
+		for (
+			let channelIndex: number = 0;
+			channelIndex < this._doc.song.getChannelCount();
+			channelIndex++
+		) {
+			if (this._doc.song.channels[channelIndex].bars[this._doc.song.barCount - 1] !== 0)
+				return true;
 		}
 		return false;
 	}
@@ -233,8 +256,21 @@ export class SongPerformance {
 			const startPart: number = bar === oldBar ? oldPart : 0;
 			const endPart: number = bar === newBar ? newPart : partsPerBar;
 			if (startPart === endPart) break;
-			if (this._lastNote != null && !this._pitchesChanged && startPart > 0 && this._doc.synth.liveInputPitches.length > 0) {
-				this._recordingChange.append(new ChangePinTime(this._doc, this._lastNote, 1, endPart, this._lastNote.continuesLastPattern));
+			if (
+				this._lastNote != null &&
+				!this._pitchesChanged &&
+				startPart > 0 &&
+				this._doc.synth.liveInputPitches.length > 0
+			) {
+				this._recordingChange.append(
+					new ChangePinTime(
+						this._doc,
+						this._lastNote,
+						1,
+						endPart,
+						this._lastNote.continuesLastPattern,
+					),
+				);
 				// Instead of updating the entire interface when extending the last note, just update the current pattern as a special case to avoid doing too much work every frame since performance is important while recording.
 				this._doc.currentPatternIsDirty = true;
 			} else {
@@ -250,11 +286,27 @@ export class SongPerformance {
 				let noteEndPart: number = endPart;
 				while (noteStartPart < endPart) {
 					let addedAlreadyReleasedPitch: boolean = false;
-					if (this._recentlyAddedPitches.length > 0 || this._doc.synth.liveInputPitches.length > 0) {
+					if (
+						this._recentlyAddedPitches.length > 0 ||
+						this._doc.synth.liveInputPitches.length > 0
+					) {
 						if (this._playheadPattern == null) {
-							this._doc.selection.erasePatternInBar(this._recordingChange, this._doc.synth.liveInputChannel, bar);
-							this._recordingChange.append(new ChangeEnsurePatternExists(this._doc, this._doc.synth.liveInputChannel, bar));
-							this._playheadPattern = this._doc.song.getPattern(this._doc.synth.liveInputChannel, bar);
+							this._doc.selection.erasePatternInBar(
+								this._recordingChange,
+								this._doc.synth.liveInputChannel,
+								bar,
+							);
+							this._recordingChange.append(
+								new ChangeEnsurePatternExists(
+									this._doc,
+									this._doc.synth.liveInputChannel,
+									bar,
+								),
+							);
+							this._playheadPattern = this._doc.song.getPattern(
+								this._doc.synth.liveInputChannel,
+								bar,
+							);
 						}
 
 						if (this._playheadPattern == null) throw new Error();
@@ -265,7 +317,8 @@ export class SongPerformance {
 							Config.noteSizeMax,
 							this._doc.song.getChannelIsNoise(this._doc.synth.liveInputChannel),
 						);
-						this._lastNote.continuesLastPattern = noteStartPart === 0 && !this._pitchesChanged;
+						this._lastNote.continuesLastPattern =
+							noteStartPart === 0 && !this._pitchesChanged;
 						this._lastNote.pitches.length = 0;
 						while (this._recentlyAddedPitches.length > 0) {
 							if (this._lastNote.pitches.length >= Config.maxChordSize) break;
@@ -279,11 +332,23 @@ export class SongPerformance {
 							if (this._lastNote.pitches.length >= Config.maxChordSize) break;
 							this._lastNote.pitches.push(this._doc.synth.liveInputPitches[i]);
 						}
-						this._recordingChange.append(new ChangeNoteAdded(this._doc, this._playheadPattern, this._lastNote, this._playheadPattern.notes.length));
+						this._recordingChange.append(
+							new ChangeNoteAdded(
+								this._doc,
+								this._playheadPattern,
+								this._lastNote,
+								this._playheadPattern.notes.length,
+							),
+						);
 						if (addedAlreadyReleasedPitch) {
 							// If this note contains pitches that were already released, shorten it and start a new note.
 							noteEndPart = noteStartPart + this._getMinDivision();
-							new ChangeNoteLength(this._doc, this._lastNote, this._lastNote.start, noteEndPart);
+							new ChangeNoteLength(
+								this._doc,
+								this._lastNote,
+								this._lastNote.start,
+								noteEndPart,
+							);
 							this._lastNote = null;
 						}
 						dirty = true;
@@ -341,8 +406,21 @@ export class SongPerformance {
 			const startPart: number = bar === oldBar ? oldPart : 0;
 			const endPart: number = bar === newBar ? newPart : partsPerBar;
 			if (startPart === endPart) break;
-			if (this._lastBassNote != null && !this._bassPitchesChanged && startPart > 0 && this._doc.synth.liveBassInputPitches.length > 0) {
-				this._recordingChange.append(new ChangePinTime(this._doc, this._lastBassNote, 1, endPart, this._lastBassNote.continuesLastPattern));
+			if (
+				this._lastBassNote != null &&
+				!this._bassPitchesChanged &&
+				startPart > 0 &&
+				this._doc.synth.liveBassInputPitches.length > 0
+			) {
+				this._recordingChange.append(
+					new ChangePinTime(
+						this._doc,
+						this._lastBassNote,
+						1,
+						endPart,
+						this._lastBassNote.continuesLastPattern,
+					),
+				);
 				// Instead of updating the entire interface when extending the last note, just update the current pattern as a special case to avoid doing too much work every frame since performance is important while recording.
 				this._doc.currentPatternIsDirty = true;
 			} else {
@@ -358,11 +436,27 @@ export class SongPerformance {
 				let noteEndPart: number = endPart;
 				while (noteStartPart < endPart) {
 					let addedAlreadyReleasedPitch: boolean = false;
-					if (this._recentlyAddedBassPitches.length > 0 || this._doc.synth.liveBassInputPitches.length > 0) {
+					if (
+						this._recentlyAddedBassPitches.length > 0 ||
+						this._doc.synth.liveBassInputPitches.length > 0
+					) {
 						if (this._bassPlayheadPattern == null) {
-							this._doc.selection.erasePatternInBar(this._recordingChange, this._doc.synth.liveBassInputChannel, bar);
-							this._recordingChange.append(new ChangeEnsurePatternExists(this._doc, this._doc.synth.liveBassInputChannel, bar));
-							this._bassPlayheadPattern = this._doc.song.getPattern(this._doc.synth.liveBassInputChannel, bar);
+							this._doc.selection.erasePatternInBar(
+								this._recordingChange,
+								this._doc.synth.liveBassInputChannel,
+								bar,
+							);
+							this._recordingChange.append(
+								new ChangeEnsurePatternExists(
+									this._doc,
+									this._doc.synth.liveBassInputChannel,
+									bar,
+								),
+							);
+							this._bassPlayheadPattern = this._doc.song.getPattern(
+								this._doc.synth.liveBassInputChannel,
+								bar,
+							);
 						}
 
 						if (this._bassPlayheadPattern == null) throw new Error();
@@ -373,7 +467,8 @@ export class SongPerformance {
 							Config.noteSizeMax,
 							this._doc.song.getChannelIsNoise(this._doc.synth.liveBassInputChannel),
 						);
-						this._lastBassNote.continuesLastPattern = noteStartPart === 0 && !this._bassPitchesChanged;
+						this._lastBassNote.continuesLastPattern =
+							noteStartPart === 0 && !this._bassPitchesChanged;
 						this._lastBassNote.pitches.length = 0;
 						while (this._recentlyAddedBassPitches.length > 0) {
 							if (this._lastBassNote.pitches.length >= Config.maxChordSize) break;
@@ -383,17 +478,33 @@ export class SongPerformance {
 								addedAlreadyReleasedPitch = true;
 							}
 						}
-						for (let i: number = 0; i < this._doc.synth.liveBassInputPitches.length; i++) {
+						for (
+							let i: number = 0;
+							i < this._doc.synth.liveBassInputPitches.length;
+							i++
+						) {
 							if (this._lastBassNote.pitches.length >= Config.maxChordSize) break;
-							this._lastBassNote.pitches.push(this._doc.synth.liveBassInputPitches[i]);
+							this._lastBassNote.pitches.push(
+								this._doc.synth.liveBassInputPitches[i],
+							);
 						}
 						this._recordingChange.append(
-							new ChangeNoteAdded(this._doc, this._bassPlayheadPattern, this._lastBassNote, this._bassPlayheadPattern.notes.length),
+							new ChangeNoteAdded(
+								this._doc,
+								this._bassPlayheadPattern,
+								this._lastBassNote,
+								this._bassPlayheadPattern.notes.length,
+							),
 						);
 						if (addedAlreadyReleasedPitch) {
 							// If this note contains pitches that were already released, shorten it and start a new note.
 							noteEndPart = noteStartPart + this._getMinDivision();
-							new ChangeNoteLength(this._doc, this._lastBassNote, this._lastBassNote.start, noteEndPart);
+							new ChangeNoteLength(
+								this._doc,
+								this._lastBassNote,
+								this._lastBassNote.start,
+								noteEndPart,
+							);
 							this._lastBassNote = null;
 						}
 						dirty = true;
@@ -442,13 +553,19 @@ export class SongPerformance {
 	public addPerformedPitch(pitch: number): void {
 		this._doc.synth.maintainLiveInput();
 
-		if (pitch > Piano.getBassCutoffPitch(this._doc) || this._getBassOffsetChannel() === this._doc.channel) {
+		if (
+			pitch > Piano.getBassCutoffPitch(this._doc) ||
+			this._getBassOffsetChannel() === this._doc.channel
+		) {
 			this._updateRecordedNotes();
 			if (this._pitchesAreTemporary) {
 				this.clearAllPitches();
 				this._pitchesAreTemporary = false;
 			}
-			if (this._doc.prefs.ignorePerformedNotesNotInScale && !Config.scales[this._doc.song.scale].flags[pitch % Config.pitchesPerOctave]) {
+			if (
+				this._doc.prefs.ignorePerformedNotesNotInScale &&
+				!Config.scales[this._doc.song.scale].flags[pitch % Config.pitchesPerOctave]
+			) {
 				return;
 			}
 			if (this._doc.synth.liveInputPitches.indexOf(pitch) === -1) {
@@ -477,7 +594,10 @@ export class SongPerformance {
 				this.clearAllBassPitches();
 				this._bassPitchesAreTemporary = false;
 			}
-			if (this._doc.prefs.ignorePerformedNotesNotInScale && !Config.scales[this._doc.song.scale].flags[pitch % Config.pitchesPerOctave]) {
+			if (
+				this._doc.prefs.ignorePerformedNotesNotInScale &&
+				!Config.scales[this._doc.song.scale].flags[pitch % Config.pitchesPerOctave]
+			) {
 				return;
 			}
 			if (this._doc.synth.liveBassInputPitches.indexOf(pitch) === -1) {
@@ -504,7 +624,10 @@ export class SongPerformance {
 	}
 
 	public removePerformedPitch(pitch: number): void {
-		if (pitch > Piano.getBassCutoffPitch(this._doc) || this._getBassOffsetChannel() === this._doc.channel) {
+		if (
+			pitch > Piano.getBassCutoffPitch(this._doc) ||
+			this._getBassOffsetChannel() === this._doc.channel
+		) {
 			this._updateRecordedNotes();
 			for (let i: number = 0; i < this._doc.synth.liveInputPitches.length; i++) {
 				if (this._doc.synth.liveInputPitches[i] === pitch) {
@@ -555,7 +678,9 @@ export class SongPerformance {
 			this.clearAllPitches();
 			this.clearAllBassPitches();
 		}
-		this._doc.synth.liveInputInstruments = this._doc.recentPatternInstruments[this._doc.channel];
-		this._doc.synth.liveBassInputInstruments = this._doc.recentPatternInstruments[this._doc.synth.liveBassInputChannel];
+		this._doc.synth.liveInputInstruments =
+			this._doc.recentPatternInstruments[this._doc.channel];
+		this._doc.synth.liveBassInputInstruments =
+			this._doc.recentPatternInstruments[this._doc.synth.liveBassInputChannel];
 	};
 }

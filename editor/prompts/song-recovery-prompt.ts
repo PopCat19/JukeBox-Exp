@@ -9,7 +9,12 @@
 // Copyright (c) 2012-2022 John Nesky and contributing authors, distributed under the MIT license, see accompanying the LICENSE.md file.
 
 import { HTML } from "imperative-html/dist/esm/elements-strict";
-import { type RecoveredSong, type RecoveredVersion, SongRecovery, versionToKey } from "../io/song-recovery";
+import {
+	type RecoveredSong,
+	type RecoveredVersion,
+	SongRecovery,
+	versionToKey,
+} from "../io/song-recovery";
 import type { SongDocument } from "../song-document";
 import { BasePrompt } from "./base-prompt";
 
@@ -42,24 +47,37 @@ export class SongRecoveryPrompt extends BasePrompt {
 		const songs: RecoveredSong[] = SongRecovery.getAllRecoveredSongs();
 
 		if (songs.length === 0) {
-			this._songContainer.appendChild(p("There are no recovered songs available yet. Try making a song!"));
+			this._songContainer.appendChild(
+				p("There are no recovered songs available yet. Try making a song!"),
+			);
 		}
 
 		for (const song of songs) {
 			const versionMenu: HTMLSelectElement = select({});
 
 			for (const version of song.versions) {
-				versionMenu.appendChild(option({ value: version.time }, `${version.name}: ${new Date(version.time).toLocaleString()}`));
+				versionMenu.appendChild(
+					option(
+						{ value: version.time },
+						`${version.name}: ${new Date(version.time).toLocaleString()}`,
+					),
+				);
 			}
 
 			const player: HTMLIFrameElement = iframe({ class: "recoveryPlayer" });
 			player.src = `player/${OFFLINE ? "index.html" : ""}#song=${window.localStorage.getItem(versionToKey(song.versions[0]))}`;
-			const container: HTMLDivElement = div({ class: "recoveryRow" }, div({ class: "selectContainer recoverySelectRow" }, versionMenu), player);
+			const container: HTMLDivElement = div(
+				{ class: "recoveryRow" },
+				div({ class: "selectContainer recoverySelectRow" }, versionMenu),
+				player,
+			);
 			this._songContainer.appendChild(container);
 
 			versionMenu.addEventListener("change", () => {
 				const version: RecoveredVersion = song.versions[versionMenu.selectedIndex];
-				player.contentWindow!.location.replace(`player/${OFFLINE ? "index.html" : ""}#song=${window.localStorage.getItem(versionToKey(version))}`);
+				player.contentWindow!.location.replace(
+					`player/${OFFLINE ? "index.html" : ""}#song=${window.localStorage.getItem(versionToKey(version))}`,
+				);
 				player.contentWindow!.dispatchEvent(new Event("hashchange"));
 			});
 		}

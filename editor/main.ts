@@ -8,7 +8,16 @@
 
 // Copyright (c) 2012-2022 John Nesky and contributing authors, distributed under the MIT license, see accompanying the LICENSE.md file.
 
-import { Chord, Config, Dictionary, DictionaryArray, Envelope, EnvelopeType, InstrumentType, Transition } from "../synth/synth-config";
+import {
+	Chord,
+	Config,
+	Dictionary,
+	DictionaryArray,
+	Envelope,
+	EnvelopeType,
+	InstrumentType,
+	Transition,
+} from "../synth/synth-config";
 import { EditorConfig, isMobile } from "./config/editor-config";
 import "./rendering/style"; // Import for the side effects, there's no exports.
 import { ColorConfig } from "../shared/color-config";
@@ -65,7 +74,9 @@ if ("scrollRestoration" in history) history.scrollRestoration = "manual";
 editor.updatePlayButton();
 
 if ("serviceWorker" in navigator) {
-	navigator.serviceWorker.register("/service_worker.js", { updateViaCache: "all", scope: "/" }).catch(() => {});
+	navigator.serviceWorker
+		.register("/service_worker.js", { updateViaCache: "all", scope: "/" })
+		.catch(() => {});
 }
 
 // When compiling synth.ts as a standalone module named "beepbox", expose these classes as members to JavaScript:

@@ -116,7 +116,14 @@ export class EffectsPanel {
 			{ class: "selectRow", style: "width:100%;" },
 			div(
 				{ style: "display:flex; flex-direction:column; align-items:center;" },
-				span({ class: "tip", style: "font-size: smaller;", onclick: () => onOpenPrompt("RingModHz") }, "Hertz: "),
+				span(
+					{
+						class: "tip",
+						style: "font-size: smaller;",
+						onclick: () => onOpenPrompt("RingModHz"),
+					},
+					"Hertz: ",
+				),
 				div({ style: `color: ${ColorConfig.secondaryText};` }, this.ringModHzNum),
 			),
 			this.ringModHzSlider.container,
@@ -129,7 +136,8 @@ export class EffectsPanel {
 
 		this.ringModPulsewidthSlider = rangeSlider(
 			doc,
-			(oldValue: number, newValue: number) => new ChangeRingModPulseWidth(doc, oldValue, newValue),
+			(oldValue: number, newValue: number) =>
+				new ChangeRingModPulseWidth(doc, oldValue, newValue),
 			0,
 			Config.pwmOperatorWaves.length - 1,
 			0,
@@ -143,10 +151,21 @@ export class EffectsPanel {
 			div({ class: "selectContainer", style: "width:40%;" }, this.ringModWaveSelect),
 		);
 
-		this.ringModContainerRow = div({ style: "display:flex; flex-direction:column;" }, this.ringModRow, this.ringModHzSliderRow, this.ringModWaveSelectRow);
+		this.ringModContainerRow = div(
+			{ style: "display:flex; flex-direction:column;" },
+			this.ringModRow,
+			this.ringModHzSliderRow,
+			this.ringModWaveSelectRow,
+		);
 
 		// Granular
-		this.granularSlider = rangeSlider(doc, (oldValue: number, newValue: number) => new ChangeGranular(doc, oldValue, newValue), 0, Config.granularRange, 0);
+		this.granularSlider = rangeSlider(
+			doc,
+			(oldValue: number, newValue: number) => new ChangeGranular(doc, oldValue, newValue),
+			0,
+			Config.granularRange,
+			0,
+		);
 
 		this.granularRow = this._createEffectRow("Granular:", "granular", this.granularSlider);
 
@@ -163,7 +182,14 @@ export class EffectsPanel {
 			{ class: "selectRow", style: "width:100%;" },
 			div(
 				{ style: "display:flex; flex-direction:column; align-items:center;" },
-				span({ class: "tip", style: "font-size: smaller;", onclick: () => onOpenPrompt("grainSize") }, "Grain: "),
+				span(
+					{
+						class: "tip",
+						style: "font-size: smaller;",
+						onclick: () => onOpenPrompt("grainSize"),
+					},
+					"Grain: ",
+				),
 				div({ style: `color: ${ColorConfig.secondaryText};` }, this.grainSizeNum),
 			),
 			this.grainSizeSlider.container,
@@ -177,7 +203,11 @@ export class EffectsPanel {
 			8,
 		);
 
-		this.grainAmountsRow = this._createEffectRow("Grain Freq:", "grainAmount", this.grainAmountsSlider);
+		this.grainAmountsRow = this._createEffectRow(
+			"Grain Freq:",
+			"grainAmount",
+			this.grainAmountsSlider,
+		);
 
 		this.grainRangeSlider = rangeSlider(
 			doc,
@@ -192,7 +222,14 @@ export class EffectsPanel {
 			{ class: "selectRow", style: "width:100%;" },
 			div(
 				{ style: "display:flex; flex-direction:column; align-items:center;" },
-				span({ class: "tip", style: "font-size: smaller;", onclick: () => onOpenPrompt("grainRange") }, "Range: "),
+				span(
+					{
+						class: "tip",
+						style: "font-size: smaller;",
+						onclick: () => onOpenPrompt("grainRange"),
+					},
+					"Range: ",
+				),
 				div({ style: `color: ${ColorConfig.secondaryText};` }, this.grainRangeNum),
 			),
 			this.grainRangeSlider.container,
@@ -246,17 +283,26 @@ export class EffectsPanel {
 			0,
 		);
 
-		this.phaserFreqRow = this._createEffectRow("Phaser Freq:", "phaserFreq", this.phaserFreqSlider);
+		this.phaserFreqRow = this._createEffectRow(
+			"Phaser Freq:",
+			"phaserFreq",
+			this.phaserFreqSlider,
+		);
 
 		this.phaserFeedbackSlider = rangeSlider(
 			doc,
-			(oldValue: number, newValue: number) => new ChangePhaserFeedback(doc, oldValue, newValue),
+			(oldValue: number, newValue: number) =>
+				new ChangePhaserFeedback(doc, oldValue, newValue),
 			0,
 			Config.phaserFeedbackRange - 1,
 			0,
 		);
 
-		this.phaserFeedbackRow = this._createEffectRow("Phaser Fdbk:", "phaserFeedback", this.phaserFeedbackSlider);
+		this.phaserFeedbackRow = this._createEffectRow(
+			"Phaser Fdbk:",
+			"phaserFeedback",
+			this.phaserFeedbackSlider,
+		);
 
 		this.phaserStagesSlider = rangeSlider(
 			doc,
@@ -266,7 +312,11 @@ export class EffectsPanel {
 			2,
 		);
 
-		this.phaserStagesRow = this._createEffectRow("Stages:", "phaserStages", this.phaserStagesSlider);
+		this.phaserStagesRow = this._createEffectRow(
+			"Stages:",
+			"phaserStages",
+			this.phaserStagesSlider,
+		);
 
 		// Main container
 		this.container = div(
@@ -283,7 +333,11 @@ export class EffectsPanel {
 	}
 
 	private _createEffectRow(label: string, prompt: string, slider: Slider): HTMLDivElement {
-		return div({ class: "selectRow" }, span({ class: "tip", onclick: () => this._onOpenPrompt(prompt) }, label), slider.container);
+		return div(
+			{ class: "selectRow" },
+			span({ class: "tip", onclick: () => this._onOpenPrompt(prompt) }, label),
+			slider.container,
+		);
 	}
 
 	public updateRingMod(value: number): void {

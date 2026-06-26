@@ -84,7 +84,9 @@ export function performIntegralOld(wave: { length: number; [index: number]: numb
 }
 
 // Pardon the messy type casting. This allows accessing array members by numerical index or string name.
-export function toNameMap<T extends BeepBoxOption>(array: Array<Pick<T, Exclude<keyof T, "index">>>): DictionaryArray<T> {
+export function toNameMap<T extends BeepBoxOption>(
+	array: Array<Pick<T, Exclude<keyof T, "index">>>,
+): DictionaryArray<T> {
 	const dictionary: Dictionary<T> = {};
 	for (let i: number = 0; i < array.length; i++) {
 		const value: any = array[i];

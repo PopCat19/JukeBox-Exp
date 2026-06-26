@@ -42,7 +42,12 @@ export function composite(bg: PMDVariable, fg: PMDVariable, alpha: number): PMDV
 	};
 }
 
-export function stack(base: PMDVariable, tint: PMDVariable, opacity: number, hueOffset?: number): PMDVariable {
+export function stack(
+	base: PMDVariable,
+	tint: PMDVariable,
+	opacity: number,
+	hueOffset?: number,
+): PMDVariable {
 	const result = composite(base, tint, opacity);
 	if (hueOffset !== undefined && tint.h !== undefined) {
 		result.h = (tint.h + hueOffset + 360) % 360;
@@ -68,7 +73,10 @@ export function getAuxHue(hue: number): number {
 	return (hue + AUX_HUE_OFFSET) % HUE_MAX;
 }
 
-export function getPMD(isDark: boolean): { pmd: PMDVariables; computed: ReturnType<typeof getComputed> } {
+export function getPMD(isDark: boolean): {
+	pmd: PMDVariables;
+	computed: ReturnType<typeof getComputed>;
+} {
 	const pmd = isDark ? PMD_DARK : PMD_LIGHT;
 	return { pmd, computed: getComputed(pmd) };
 }

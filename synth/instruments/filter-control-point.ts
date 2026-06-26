@@ -25,13 +25,25 @@ export class FilterControlPoint {
 	}
 
 	public static getHzFromSettingValue(value: number): number {
-		return Config.filterFreqReferenceHz * 2.0 ** ((value - Config.filterFreqReferenceSetting) * Config.filterFreqStep);
+		return (
+			Config.filterFreqReferenceHz *
+			2.0 ** ((value - Config.filterFreqReferenceSetting) * Config.filterFreqStep)
+		);
 	}
 	public static getSettingValueFromHz(hz: number): number {
-		return Math.log2(hz / Config.filterFreqReferenceHz) / Config.filterFreqStep + Config.filterFreqReferenceSetting;
+		return (
+			Math.log2(hz / Config.filterFreqReferenceHz) / Config.filterFreqStep +
+			Config.filterFreqReferenceSetting
+		);
 	}
 	public static getRoundedSettingValueFromHz(hz: number): number {
-		return Math.max(0, Math.min(Config.filterFreqRange - 1, Math.round(FilterControlPoint.getSettingValueFromHz(hz))));
+		return Math.max(
+			0,
+			Math.min(
+				Config.filterFreqRange - 1,
+				Math.round(FilterControlPoint.getSettingValueFromHz(hz)),
+			),
+		);
 	}
 
 	public getLinearGain(peakMult: number = 1.0): number {
@@ -41,12 +53,29 @@ export class FilterControlPoint {
 		return 2.0 ** interpolatedPower;
 	}
 	public static getRoundedSettingValueFromLinearGain(linearGain: number): number {
-		return Math.max(0, Math.min(Config.filterGainRange - 1, Math.round(Math.log2(linearGain) / Config.filterGainStep + Config.filterGainCenter)));
+		return Math.max(
+			0,
+			Math.min(
+				Config.filterGainRange - 1,
+				Math.round(Math.log2(linearGain) / Config.filterGainStep + Config.filterGainCenter),
+			),
+		);
 	}
 
-	public toCoefficients(filter: FilterCoefficients, sampleRate: number, freqMult: number = 1.0, peakMult: number = 1.0): void {
+	public toCoefficients(
+		filter: FilterCoefficients,
+		sampleRate: number,
+		freqMult: number = 1.0,
+		peakMult: number = 1.0,
+	): void {
 		const cornerRadiansPerSample: number =
-			(2.0 * Math.PI * Math.max(Config.filterFreqMinHz, Math.min(Config.filterFreqMaxHz, freqMult * this.getHz()))) / sampleRate;
+			(2.0 *
+				Math.PI *
+				Math.max(
+					Config.filterFreqMinHz,
+					Math.min(Config.filterFreqMaxHz, freqMult * this.getHz()),
+				)) /
+			sampleRate;
 		const linearGain: number = this.getLinearGain(peakMult);
 		switch (this.type) {
 			case FilterType.lowPass:
@@ -64,26 +93,47 @@ export class FilterControlPoint {
 	}
 
 	public getVolumeCompensationMult(): number {
-		const octave: number = (this.freq - Config.filterFreqReferenceSetting) * Config.filterFreqStep;
+		const octave: number =
+			(this.freq - Config.filterFreqReferenceSetting) * Config.filterFreqStep;
 		const gainPow: number = (this.gain - Config.filterGainCenter) * Config.filterGainStep;
 		switch (this.type) {
 			case FilterType.lowPass: {
-				const freqRelativeTo8khz: number = (2.0 ** octave * Config.filterFreqReferenceHz) / 8000.0;
+				const freqRelativeTo8khz: number =
+					(2.0 ** octave * Config.filterFreqReferenceHz) / 8000.0;
 				// Reverse the frequency warping from importing legacy simplified filters to imitate how the legacy filter cutoff setting affected volume.
 				const warpedFreq: number = (Math.sqrt(1.0 + 4.0 * freqRelativeTo8khz) - 1.0) / 2.0;
 				const warpedOctave: number = Math.log2(warpedFreq);
-				return 0.5 ** (0.2 * Math.max(0.0, gainPow + 1.0) + Math.min(0.0, Math.max(-3.0, 0.595 * warpedOctave + 0.35 * Math.min(0.0, gainPow + 1.0))));
+				return (
+					0.5 **
+					(0.2 * Math.max(0.0, gainPow + 1.0) +
+						Math.min(
+							0.0,
+							Math.max(
+								-3.0,
+								0.595 * warpedOctave + 0.35 * Math.min(0.0, gainPow + 1.0),
+							),
+						))
+				);
 			}
 			case FilterType.highPass:
 				return (
 					0.5 **
 					(0.125 * Math.max(0.0, gainPow + 1.0) +
-						Math.min(0.0, 0.3 * (-octave - Math.log2(Config.filterFreqReferenceHz / 125.0)) + 0.2 * Math.min(0.0, gainPow + 1.0)))
+						Math.min(
+							0.0,
+							0.3 * (-octave - Math.log2(Config.filterFreqReferenceHz / 125.0)) +
+								0.2 * Math.min(0.0, gainPow + 1.0),
+						))
 				);
 			case FilterType.peak: {
-				const distanceFromCenter: number = octave + Math.log2(Config.filterFreqReferenceHz / 2000.0);
-				const freqLoudness: number = (1.0 / (1.0 + (distanceFromCenter / 3.0) ** 2.0)) ** 2.0;
-				return 0.5 ** (0.125 * Math.max(0.0, gainPow) + 0.1 * freqLoudness * Math.min(0.0, gainPow));
+				const distanceFromCenter: number =
+					octave + Math.log2(Config.filterFreqReferenceHz / 2000.0);
+				const freqLoudness: number =
+					(1.0 / (1.0 + (distanceFromCenter / 3.0) ** 2.0)) ** 2.0;
+				return (
+					0.5 **
+					(0.125 * Math.max(0.0, gainPow) + 0.1 * freqLoudness * Math.min(0.0, gainPow))
+				);
 			}
 			default:
 				throw new Error();

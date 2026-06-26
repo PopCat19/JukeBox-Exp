@@ -13,7 +13,10 @@ export interface InfoBannerOptions {
 	fontSize?: string;
 }
 
-export function infoBanner(options?: InfoBannerOptions, ...children: (HTMLElement | string)[]): HTMLDivElement {
+export function infoBanner(
+	options?: InfoBannerOptions,
+	...children: (HTMLElement | string)[]
+): HTMLDivElement {
 	const fontSize = options?.fontSize ?? Typography.sizeSm;
 
 	const style = `display: none; padding: ${Padding.xs} ${Padding.md}; font-size: ${fontSize}; color: var(--secondary-text); border: 2px solid var(--ui-widget-background); border-radius: ${BorderRadius.md}; cursor: pointer;`;

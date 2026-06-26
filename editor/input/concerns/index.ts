@@ -6,6 +6,7 @@
 // - Provides named concern exports for consumers (help guide, staleness script)
 // - Provides byConcern helper for dynamic concern filtering
 
+export { byConcern } from "./by-concern";
 export { channelsBindings } from "./channels";
 export { editingBindings } from "./editing";
 export { fileBindings } from "./file";
@@ -20,4 +21,3 @@ export { presetsBindings } from "./presets";
 export { selectionBindings } from "./selection";
 export { trackScrollBindings } from "./track-scroll";
 export { viewsBindings } from "./views";
-export { byConcern } from "./by-concern";

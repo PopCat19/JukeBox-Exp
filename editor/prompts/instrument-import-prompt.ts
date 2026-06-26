@@ -24,7 +24,10 @@ export class InstrumentImportPrompt extends BasePrompt {
 		option({ value: "replace" }, "Replace only the selected instrument."),
 		option({ value: "all" }, "Replace all instruments in the channel."),
 	);
-	private readonly _fileInput: HTMLInputElement = input({ type: "file", accept: ".json,application/json" });
+	private readonly _fileInput: HTMLInputElement = input({
+		type: "file",
+		accept: ".json,application/json",
+	});
 
 	private readonly _strategyInfoText: HTMLDivElement = div(
 		{},
@@ -52,7 +55,9 @@ export class InstrumentImportPrompt extends BasePrompt {
 			this._importStrategySelect.value = "replace";
 			this._strategyInfoText.hidden = false;
 		} else {
-			const lastStrategy: string | null = window.localStorage.getItem("instrumentImportStrategy");
+			const lastStrategy: string | null = window.localStorage.getItem(
+				"instrumentImportStrategy",
+			);
 			if (lastStrategy != null) this._importStrategySelect.value = lastStrategy;
 			this._strategyInfoText.hidden = true;
 		}
@@ -72,7 +77,10 @@ export class InstrumentImportPrompt extends BasePrompt {
 			try {
 				const fileParsed: any = JSON.parse(String(e.target?.result));
 				if (Array.isArray(fileParsed)) {
-					if ((this._doc.song.patternInstruments || this._doc.song.layeredInstruments) === false) {
+					if (
+						(this._doc.song.patternInstruments || this._doc.song.layeredInstruments) ===
+						false
+					) {
 						alert(
 							"Instrument file contains multiple instruments! Please turn on either Simultaneous instruments per channel or Different instruments per pattern!",
 						);
@@ -126,7 +134,12 @@ export class InstrumentImportPrompt extends BasePrompt {
 				break;
 		}
 		this._doc.record(
-			new ChangeViewInstrument(this._doc, this._importStrategySelect.value === "all" ? channel.instruments.length - 1 : this._doc.getCurrentInstrument()),
+			new ChangeViewInstrument(
+				this._doc,
+				this._importStrategySelect.value === "all"
+					? channel.instruments.length - 1
+					: this._doc.getCurrentInstrument(),
+			),
 		);
 		this._doc.prompt = null;
 		this._doc.notifier.changed();
@@ -147,7 +160,9 @@ export class InstrumentImportPrompt extends BasePrompt {
 				break;
 			case "all":
 				channel.instruments.length = 1;
-				this._doc.record(new ChangePasteInstrument(this._doc, channel.instruments[0], file));
+				this._doc.record(
+					new ChangePasteInstrument(this._doc, channel.instruments[0], file),
+				);
 				this._doc.record(new ChangeViewInstrument(this._doc, 0));
 				break;
 			default:
@@ -155,7 +170,9 @@ export class InstrumentImportPrompt extends BasePrompt {
 					alert("Max instruments reached! The instrument was not imported.");
 				} else {
 					this._doc.record(new ChangeAppendInstrument(this._doc, channel, file));
-					this._doc.record(new ChangeViewInstrument(this._doc, channel.instruments.length - 1));
+					this._doc.record(
+						new ChangeViewInstrument(this._doc, channel.instruments.length - 1),
+					);
 				}
 				break;
 		}

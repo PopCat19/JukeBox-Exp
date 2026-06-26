@@ -10,7 +10,12 @@
 import { HTML } from "imperative-html/dist/esm/elements-strict";
 import { ColorConfig } from "../../shared/color-config";
 import { Config, DropdownID } from "../../synth/synth-config";
-import { ChangeOperatorAmplitude, ChangeOperatorFrequency, ChangeOperatorPulseWidth, ChangeOperatorWaveform } from "../changes";
+import {
+	ChangeOperatorAmplitude,
+	ChangeOperatorFrequency,
+	ChangeOperatorPulseWidth,
+	ChangeOperatorWaveform,
+} from "../changes";
 import type { SongDocument } from "../song-document";
 import { buildOptions, dropdownButton, Slider } from "../ui";
 
@@ -37,7 +42,10 @@ export class FmOperatorSetup {
 	constructor(host: FmOperatorSetupHost) {
 		host.phaseModGroup.appendChild(
 			div(
-				{ class: "selectRow", style: `color: ${ColorConfig.secondaryText}; height: 1em; margin-top: 0.5em;` },
+				{
+					class: "selectRow",
+					style: `color: ${ColorConfig.secondaryText}; height: 1em; margin-top: 0.5em;`,
+				},
 				div({ style: "margin-right: .1em; visibility: hidden;" }, `${1}.`),
 				div(
 					{
@@ -63,9 +71,17 @@ export class FmOperatorSetup {
 				Config.operatorFrequencies.map((freq) => freq.name),
 			);
 			const amplitudeSlider: Slider = new Slider(
-				input({ type: "range", min: "0", max: Config.operatorAmplitudeMax, value: "0", step: "1", title: "Volume" }),
+				input({
+					type: "range",
+					min: "0",
+					max: Config.operatorAmplitudeMax,
+					value: "0",
+					step: "1",
+					title: "Volume",
+				}),
 				host.doc,
-				(oldValue: number, newValue: number) => new ChangeOperatorAmplitude(host.doc, operatorIndex, oldValue, newValue),
+				(oldValue: number, newValue: number) =>
+					new ChangeOperatorAmplitude(host.doc, operatorIndex, oldValue, newValue),
 				false,
 			);
 			const waveformSelect: HTMLSelectElement = buildOptions(
@@ -95,21 +111,31 @@ export class FmOperatorSetup {
 					title: "Pulse Width",
 				}),
 				host.doc,
-				(oldValue: number, newValue: number) => new ChangeOperatorPulseWidth(host.doc, operatorIndex, oldValue, newValue),
+				(oldValue: number, newValue: number) =>
+					new ChangeOperatorPulseWidth(host.doc, operatorIndex, oldValue, newValue),
 				true,
 			);
 			const waveformDropdownRow: HTMLElement = div(
 				{ class: "selectRow" },
 				waveformDropdownHint,
 				waveformPulsewidthSlider.container,
-				div({ class: "selectContainer", style: "width: 6em; margin-left: .3em;" }, waveformSelect),
+				div(
+					{ class: "selectContainer", style: "width: 6em; margin-left: .3em;" },
+					waveformSelect,
+				),
 			);
-			const waveformDropdownGroup: HTMLDivElement = div({ class: "operatorRow" }, waveformDropdownRow);
+			const waveformDropdownGroup: HTMLDivElement = div(
+				{ class: "operatorRow" },
+				waveformDropdownRow,
+			);
 			const row: HTMLDivElement = div(
 				{ class: "selectRow" },
 				operatorNumber,
 				waveformDropdown,
-				div({ class: "selectContainer", style: "width: 3em; margin-right: .3em;" }, frequencySelect),
+				div(
+					{ class: "selectContainer", style: "width: 3em; margin-right: .3em;" },
+					frequencySelect,
+				),
 				amplitudeSlider.container,
 			);
 			host.phaseModGroup.appendChild(row);
@@ -126,11 +152,23 @@ export class FmOperatorSetup {
 			host.openOperatorDropdowns[i] = false;
 
 			waveformSelect.addEventListener("change", () => {
-				host.doc.record(new ChangeOperatorWaveform(host.doc, operatorIndex, waveformSelect.selectedIndex));
+				host.doc.record(
+					new ChangeOperatorWaveform(
+						host.doc,
+						operatorIndex,
+						waveformSelect.selectedIndex,
+					),
+				);
 			});
 
 			frequencySelect.addEventListener("change", () => {
-				host.doc.record(new ChangeOperatorFrequency(host.doc, operatorIndex, frequencySelect.selectedIndex));
+				host.doc.record(
+					new ChangeOperatorFrequency(
+						host.doc,
+						operatorIndex,
+						frequencySelect.selectedIndex,
+					),
+				);
 			});
 		}
 	}

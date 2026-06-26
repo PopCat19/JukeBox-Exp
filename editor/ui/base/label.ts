@@ -13,7 +13,11 @@ export interface LabelOptions {
 	class?: string;
 }
 
-export function createLabel(baseStyle: string, options?: LabelOptions, ...children: (HTMLElement | string)[]): HTMLLabelElement {
+export function createLabel(
+	baseStyle: string,
+	options?: LabelOptions,
+	...children: (HTMLElement | string)[]
+): HTMLLabelElement {
 	const style = options?.style ? `${baseStyle} ${options.style}` : baseStyle;
 
 	const attrs: Record<string, string> = { style };

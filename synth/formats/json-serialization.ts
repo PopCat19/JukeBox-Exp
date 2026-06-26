@@ -10,8 +10,12 @@
 import { Channel } from "../channels";
 import { Instrument } from "../instruments";
 import { Pattern } from "../notes";
-import { type SongLike, LATEST_JUKEBOX_VERSION } from "../song-serialization";
-import { clearSamples, parseAndConfigureCustomSample, restoreChipWaveListToDefault } from "../song-utilities";
+import { LATEST_JUKEBOX_VERSION, type SongLike } from "../song-serialization";
+import {
+	clearSamples,
+	parseAndConfigureCustomSample,
+	restoreChipWaveListToDefault,
+} from "../song-utilities";
 import {
 	Config,
 	Dictionary,
@@ -315,7 +319,12 @@ const legacyVeryOldToNewNames = new Map<string, string>([
 	["wackyboxtts", "paandorasbox wackyboxtts"],
 ]);
 
-export function toJsonObjectImpl(song: SongLike, enableIntro: boolean = true, loopCount: number = 1, enableOutro: boolean = true): object {
+export function toJsonObjectImpl(
+	song: SongLike,
+	enableIntro: boolean = true,
+	loopCount: number = 1,
+	enableOutro: boolean = true,
+): object {
 	const channelArray: object[] = [];
 	for (let channelIndex: number = 0; channelIndex < song.getChannelCount(); channelIndex++) {
 		const channel: Channel = song.channels[channelIndex];
@@ -404,7 +413,11 @@ export function toJsonObjectImpl(song: SongLike, enableIntro: boolean = true, lo
 	return result;
 }
 
-export function fromJsonObjectImpl(song: SongLike, jsonObject: any, jsonFormat: string = "auto"): void {
+export function fromJsonObjectImpl(
+	song: SongLike,
+	jsonObject: any,
+	jsonFormat: string = "auto",
+): void {
 	song.initScalarsOnly();
 	if (!jsonObject) return;
 
@@ -480,7 +493,13 @@ export function fromJsonObjectImpl(song: SongLike, jsonObject: any, jsonFormat: 
 					// EditorConfig.customSamples in JSON export uses new syntax.
 					// Old syntax only appears if the URL was manually modified, skip it.
 					const parseOldSyntax: boolean = false;
-					parseAndConfigureCustomSample(url, customSampleUrls, customSamplePresets, sampleLoadingState, parseOldSyntax);
+					parseAndConfigureCustomSample(
+						url,
+						customSampleUrls,
+						customSamplePresets,
+						sampleLoadingState,
+						parseOldSyntax,
+					);
 				}
 			}
 			if (customSampleUrls.length > 0) {
@@ -498,7 +517,11 @@ export function fromJsonObjectImpl(song: SongLike, jsonObject: any, jsonFormat: 
 		// No custom samples; check if legacy samples need loading.
 		let shouldLoadLegacySamples: boolean = false;
 		if (jsonObject.channels !== undefined) {
-			for (let channelIndex: number = 0; channelIndex < jsonObject.channels.length; channelIndex++) {
+			for (
+				let channelIndex: number = 0;
+				channelIndex < jsonObject.channels.length;
+				channelIndex++
+			) {
 				const channelObject: any = jsonObject.channels[channelIndex];
 				if (channelObject.type !== "pitch") {
 					// Legacy samples can only exist in pitch channels.
@@ -525,7 +548,10 @@ export function fromJsonObjectImpl(song: SongLike, jsonObject: any, jsonFormat: 
 							shouldLoadLegacySamples = true;
 							instrumentObject.wave = legacyOldToNewNames.get(waveName);
 						} else if (legacyVeryOldNames.has(waveName)) {
-							if ((waveName === "trumpet" || waveName === "flute") && format !== "paandorasbox") {
+							if (
+								(waveName === "trumpet" || waveName === "flute") &&
+								format !== "paandorasbox"
+							) {
 							} else {
 								shouldLoadLegacySamples = true;
 								instrumentObject.wave = legacyVeryOldToNewNames.get(waveName);
@@ -563,7 +589,10 @@ export function fromJsonObjectImpl(song: SongLike, jsonObject: any, jsonFormat: 
 			"dbl harmonic :(": "double harmonic :(",
 			enigma: "strange",
 		};
-		const scaleName: string = oldScaleNames[jsonObject.scale] !== undefined ? oldScaleNames[jsonObject.scale] : jsonObject.scale;
+		const scaleName: string =
+			oldScaleNames[jsonObject.scale] !== undefined
+				? oldScaleNames[jsonObject.scale]
+				: jsonObject.scale;
 		const scale: number = Config.scales.findIndex((scale) => scale.name === scaleName);
 		if (scale !== -1) song.scale = scale;
 		if (song.scale === Config.scales.dictionary.Custom.index) {
@@ -597,8 +626,21 @@ export function fromJsonObjectImpl(song: SongLike, jsonObject: any, jsonFormat: 
 			} else {
 				const letter: string = key.charAt(0).toUpperCase();
 				const symbol: string = key.charAt(1).toLowerCase();
-				const letterMap: Readonly<Dictionary<number>> = { C: 0, D: 2, E: 4, F: 5, G: 7, A: 9, B: 11 };
-				const accidentalMap: Readonly<Dictionary<number>> = { "#": 1, "♯": 1, b: -1, "♭": -1 };
+				const letterMap: Readonly<Dictionary<number>> = {
+					C: 0,
+					D: 2,
+					E: 4,
+					F: 5,
+					G: 7,
+					A: 9,
+					B: 11,
+				};
+				const accidentalMap: Readonly<Dictionary<number>> = {
+					"#": 1,
+					"♯": 1,
+					b: -1,
+					"♭": -1,
+				};
 				let index: number | undefined = letterMap[letter];
 				const offset: number | undefined = accidentalMap[symbol];
 				if (index !== undefined) {
@@ -625,13 +667,18 @@ export function fromJsonObjectImpl(song: SongLike, jsonObject: any, jsonFormat: 
 	}
 
 	if (jsonObject.beatsPerBar !== undefined) {
-		song.beatsPerBar = Math.max(Config.beatsPerBarMin, Math.min(Config.beatsPerBarMax, jsonObject.beatsPerBar | 0));
+		song.beatsPerBar = Math.max(
+			Config.beatsPerBarMin,
+			Math.min(Config.beatsPerBarMax, jsonObject.beatsPerBar | 0),
+		);
 	}
 
 	let importedPartsPerBeat: number = 4;
 	if (jsonObject.ticksPerBeat !== undefined) {
 		importedPartsPerBeat = jsonObject.ticksPerBeat | 0 || 4;
-		song.rhythm = Config.rhythms.findIndex((rhythm) => rhythm.stepsPerBeat === importedPartsPerBeat);
+		song.rhythm = Config.rhythms.findIndex(
+			(rhythm) => rhythm.stepsPerBeat === importedPartsPerBeat,
+		);
 		if (song.rhythm === -1) {
 			song.rhythm = 1; // default rhythm
 		}
@@ -652,7 +699,10 @@ export function fromJsonObjectImpl(song: SongLike, jsonObject: any, jsonFormat: 
 	}
 
 	if (jsonObject.compressionThreshold !== undefined) {
-		song.compressionThreshold = Math.max(0.0, Math.min(1.1, jsonObject.compressionThreshold || 0));
+		song.compressionThreshold = Math.max(
+			0.0,
+			Math.min(1.1, jsonObject.compressionThreshold || 0),
+		);
 	} else {
 		song.compressionThreshold = 1.0;
 	}
@@ -703,8 +753,10 @@ export function fromJsonObjectImpl(song: SongLike, jsonObject: any, jsonFormat: 
 			if (channelObject.instruments) {
 				maxInstruments = Math.max(maxInstruments, channelObject.instruments.length | 0);
 			}
-			if (channelObject.patterns) maxPatterns = Math.max(maxPatterns, channelObject.patterns.length | 0);
-			if (channelObject.sequence) maxBars = Math.max(maxBars, channelObject.sequence.length | 0);
+			if (channelObject.patterns)
+				maxPatterns = Math.max(maxPatterns, channelObject.patterns.length | 0);
+			if (channelObject.sequence)
+				maxBars = Math.max(maxBars, channelObject.sequence.length | 0);
 		}
 	}
 
@@ -732,7 +784,11 @@ export function fromJsonObjectImpl(song: SongLike, jsonObject: any, jsonFormat: 
 	const newNoiseChannels: Channel[] = [];
 	const newModChannels: Channel[] = [];
 	if (jsonObject.channels !== undefined) {
-		for (let channelIndex: number = 0; channelIndex < jsonObject.channels.length; channelIndex++) {
+		for (
+			let channelIndex: number = 0;
+			channelIndex < jsonObject.channels.length;
+			channelIndex++
+		) {
 			const channelObject: any = jsonObject.channels[channelIndex];
 
 			const channel: Channel = new Channel();
@@ -755,7 +811,11 @@ export function fromJsonObjectImpl(song: SongLike, jsonObject: any, jsonFormat: 
 			}
 
 			if (channelObject.octaveScrollBar !== undefined) {
-				channel.octave = clamp(0, song.octaveCount, (channelObject.octaveScrollBar | 0) + 1);
+				channel.octave = clamp(
+					0,
+					song.octaveCount,
+					(channelObject.octaveScrollBar | 0) + 1,
+				);
 				if (isNoiseChannel) channel.octave = 0;
 			}
 
@@ -771,7 +831,15 @@ export function fromJsonObjectImpl(song: SongLike, jsonObject: any, jsonFormat: 
 					if (i >= song.getMaxInstrumentsPerChannel()) break;
 					const instrument: Instrument = new Instrument(isNoiseChannel, isModChannel);
 					channel.instruments[i] = instrument;
-					instrument.fromJsonObject(instrumentObjects[i], isNoiseChannel, isModChannel, false, false, legacyGlobalReverb, format);
+					instrument.fromJsonObject(
+						instrumentObjects[i],
+						isNoiseChannel,
+						isModChannel,
+						false,
+						false,
+						legacyGlobalReverb,
+						format,
+					);
 				}
 			}
 
@@ -783,20 +851,34 @@ export function fromJsonObjectImpl(song: SongLike, jsonObject: any, jsonFormat: 
 				if (channelObject.patterns) patternObject = channelObject.patterns[i];
 				if (patternObject === undefined) continue;
 
-				pattern.fromJsonObject(patternObject, song as any, channel, importedPartsPerBeat, isNoiseChannel, isModChannel, format);
+				pattern.fromJsonObject(
+					patternObject,
+					song as any,
+					channel,
+					importedPartsPerBeat,
+					isNoiseChannel,
+					isModChannel,
+					format,
+				);
 			}
 			channel.patterns.length = song.patternsPerChannel;
 
 			for (let i: number = 0; i < song.barCount; i++) {
-				channel.bars[i] = channelObject.sequence !== undefined ? Math.min(song.patternsPerChannel, channelObject.sequence[i] >>> 0) : 0;
+				channel.bars[i] =
+					channelObject.sequence !== undefined
+						? Math.min(song.patternsPerChannel, channelObject.sequence[i] >>> 0)
+						: 0;
 			}
 			channel.bars.length = song.barCount;
 		}
 	}
 
-	if (newPitchChannels.length > Config.pitchChannelCountMax) newPitchChannels.length = Config.pitchChannelCountMax;
-	if (newNoiseChannels.length > Config.noiseChannelCountMax) newNoiseChannels.length = Config.noiseChannelCountMax;
-	if (newModChannels.length > Config.modChannelCountMax) newModChannels.length = Config.modChannelCountMax;
+	if (newPitchChannels.length > Config.pitchChannelCountMax)
+		newPitchChannels.length = Config.pitchChannelCountMax;
+	if (newNoiseChannels.length > Config.noiseChannelCountMax)
+		newNoiseChannels.length = Config.noiseChannelCountMax;
+	if (newModChannels.length > Config.modChannelCountMax)
+		newModChannels.length = Config.modChannelCountMax;
 	song.pitchChannelCount = newPitchChannels.length;
 	song.noiseChannelCount = newNoiseChannels.length;
 	song.modChannelCount = newModChannels.length;

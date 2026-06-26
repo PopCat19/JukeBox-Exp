@@ -6,7 +6,13 @@
 // - Applies results to DOM (style.left, style.transform, SVG lines)
 
 import { tickGroupDialogue } from "./bubbles";
-import { clearDialogue, forceEndConversation, positionDialogue, showNpcDialogue, startConversation } from "./dialogue";
+import {
+	clearDialogue,
+	forceEndConversation,
+	positionDialogue,
+	showNpcDialogue,
+	startConversation,
+} from "./dialogue";
 import { type FrameResult, type PhysEvent, PhysicsEngine } from "./physics";
 import { SHIGGY_SIZE, type SummonedShiggy } from "./types";
 
@@ -29,7 +35,8 @@ export class CursorTracker {
 
 	constructor() {
 		this._lineOverlay = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-		this._lineOverlay.style.cssText = "position:fixed;top:0;left:0;width:100vw;height:100vh;pointer-events:none;z-index:9998;";
+		this._lineOverlay.style.cssText =
+			"position:fixed;top:0;left:0;width:100vw;height:100vh;pointer-events:none;z-index:9998;";
 		document.body.appendChild(this._lineOverlay);
 
 		// Create cursor hotspot circle
@@ -90,7 +97,12 @@ export class CursorTracker {
 				this._lastMouseX = this._pendingMouseX;
 				this._lastMouseY = this._pendingMouseY;
 				this._lastMoveTime = now;
-				this._physics.setCursor(this._pendingMouseX, this._pendingMouseY, this._mouseSpeed, now);
+				this._physics.setCursor(
+					this._pendingMouseX,
+					this._pendingMouseY,
+					this._mouseSpeed,
+					now,
+				);
 				this._cursorCircle.setAttribute("cx", String(this._pendingMouseX));
 				this._cursorCircle.setAttribute("cy", String(this._pendingMouseY));
 			}
@@ -174,12 +186,26 @@ export class CursorTracker {
 			positionDialogue(s);
 
 			if (r.following) {
-				this._drawLine(r.x + SHIGGY_SIZE / 2, r.y + SHIGGY_SIZE / 2, this._lastMouseX, this._lastMouseY, r.tension, r.stressed);
+				this._drawLine(
+					r.x + SHIGGY_SIZE / 2,
+					r.y + SHIGGY_SIZE / 2,
+					this._lastMouseX,
+					this._lastMouseY,
+					r.tension,
+					r.stressed,
+				);
 			}
 		}
 	}
 
-	private _drawLine(x1: number, y1: number, x2: number, y2: number, tension: number, stressed: boolean): void {
+	private _drawLine(
+		x1: number,
+		y1: number,
+		x2: number,
+		y2: number,
+		tension: number,
+		stressed: boolean,
+	): void {
 		let line: SVGLineElement;
 		if (this._linesInUse < this._linePool.length) {
 			line = this._linePool[this._linesInUse];

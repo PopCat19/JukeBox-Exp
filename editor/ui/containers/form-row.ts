@@ -15,12 +15,21 @@ export interface FormRowOptions {
 	marginBottom?: string;
 }
 
-export function formRow(labelText: string, inputElement: HTMLElement, opts?: FormRowOptions): HTMLDivElement {
+export function formRow(
+	labelText: string,
+	inputElement: HTMLElement,
+	opts?: FormRowOptions,
+): HTMLDivElement {
 	const marginBottom = opts?.marginBottom ?? "0.5em";
 	return createDiv(
 		`width: 100%; display: flex; flex-direction: row; margin-bottom: ${marginBottom};`,
 		undefined,
-		div({ style: "flex-shrink: 0; text-align: right; color: var(--primary-text); align-self: center;" }, labelText),
+		div(
+			{
+				style: "flex-shrink: 0; text-align: right; color: var(--primary-text); align-self: center;",
+			},
+			labelText,
+		),
 		inputElement,
 	);
 }

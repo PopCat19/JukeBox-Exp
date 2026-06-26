@@ -10,7 +10,12 @@
 
 import { makeNotePin, Note, type NotePin, type Pattern } from "../../synth";
 import { Config } from "../../synth/synth-config";
-import { ChangeEnsurePatternExists, ChangeInsertBars, ChangeNoteAdded, ChangePatternNumbers } from "../changes";
+import {
+	ChangeEnsurePatternExists,
+	ChangeInsertBars,
+	ChangeNoteAdded,
+	ChangePatternNumbers,
+} from "../changes";
 import { ChangeGroup } from "../core/change";
 import type { SongDocument } from "../song-document";
 import type { Sequence } from "./euclidgen-algorithm";
@@ -59,7 +64,8 @@ export function generateAndApplyEuclideanNotes(
 			const on: number = invert ? 0 : 1;
 			const generateFadingNotes: boolean = sequence.generateFadingNotes;
 			pitchesToBeGenerated.set(pitch, true);
-			let resultingChannel: ResultingChannel | undefined = allNewNotesByChannel.get(channelIndex);
+			let resultingChannel: ResultingChannel | undefined =
+				allNewNotesByChannel.get(channelIndex);
 			if (resultingChannel === undefined) {
 				resultingChannel = [];
 				for (let i: number = 0; i < barAmount; i++) {
@@ -78,21 +84,36 @@ export function generateAndApplyEuclideanNotes(
 			for (let step: number = firstStep; step < lastStep; step++) {
 				let continuesLastPattern: boolean = false;
 				let needToAdjustPins: boolean = false;
-				const rawStepPartStart: number = Math.floor(step * partsPerBeat * stepSize) - partOffset;
-				const rawStepPartEnd: number = Math.floor((step + 1) * partsPerBeat * stepSize) - partOffset;
+				const rawStepPartStart: number =
+					Math.floor(step * partsPerBeat * stepSize) - partOffset;
+				const rawStepPartEnd: number =
+					Math.floor((step + 1) * partsPerBeat * stepSize) - partOffset;
 				if (rawStepPartStart < 0) continuesLastPattern = true;
 				if (continuesLastPattern || rawStepPartEnd > partsPerBar) needToAdjustPins = true;
 				const stepPartStart: number = Math.max(0, Math.min(partsPerBar, rawStepPartStart));
 				const stepPartEnd: number = Math.max(0, Math.min(partsPerBar, rawStepPartEnd));
 				if (generatedSequence[step % steps] === on) {
-					const note: Note = new Note(pitch, stepPartStart, stepPartEnd, Config.noteSizeMax, generateFadingNotes);
+					const note: Note = new Note(
+						pitch,
+						stepPartStart,
+						stepPartEnd,
+						Config.noteSizeMax,
+						generateFadingNotes,
+					);
 					if (continuesLastPattern) note.continuesLastPattern = true;
 					if (needToAdjustPins && generateFadingNotes) {
-						const startRatio: number = (stepPartStart - rawStepPartStart) / (rawStepPartEnd - rawStepPartStart);
-						const startPinSize: number = Math.round(Config.noteSizeMax + (0 - Config.noteSizeMax) * startRatio);
+						const startRatio: number =
+							(stepPartStart - rawStepPartStart) /
+							(rawStepPartEnd - rawStepPartStart);
+						const startPinSize: number = Math.round(
+							Config.noteSizeMax + (0 - Config.noteSizeMax) * startRatio,
+						);
 						note.pins[0].size = startPinSize;
-						const endRatio: number = (stepPartEnd - rawStepPartStart) / (rawStepPartEnd - rawStepPartStart);
-						const endPinSize: number = Math.round(Config.noteSizeMax + (0 - Config.noteSizeMax) * endRatio);
+						const endRatio: number =
+							(stepPartEnd - rawStepPartStart) / (rawStepPartEnd - rawStepPartStart);
+						const endPinSize: number = Math.round(
+							Config.noteSizeMax + (0 - Config.noteSizeMax) * endRatio,
+						);
 						note.pins[1].size = endPinSize;
 					}
 					resultingSequence.push(note);
@@ -102,7 +123,11 @@ export function generateAndApplyEuclideanNotes(
 	}
 
 	for (const [channelIndex, resultingChannel] of allNewNotesByChannel.entries()) {
-		for (let resultingBarIndex: number = 0; resultingBarIndex < resultingChannel.length; resultingBarIndex++) {
+		for (
+			let resultingBarIndex: number = 0;
+			resultingBarIndex < resultingChannel.length;
+			resultingBarIndex++
+		) {
 			const resultingBar: ResultingBar = resultingChannel[resultingBarIndex];
 			const bar: number = resultingBarIndex + firstBar;
 			let oldNotes: Note[] = [];
@@ -113,7 +138,11 @@ export function generateAndApplyEuclideanNotes(
 			const pattern: Pattern | null = doc.song.getPattern(channelIndex, bar);
 			if (pattern == null) throw new Error("Couldn't create new pattern");
 			const merged: Note[] = [];
-			for (let oldNoteIndex: number = oldNotes.length - 1; oldNoteIndex >= 0; oldNoteIndex--) {
+			for (
+				let oldNoteIndex: number = oldNotes.length - 1;
+				oldNoteIndex >= 0;
+				oldNoteIndex--
+			) {
 				const oldNote: Note = oldNotes[oldNoteIndex];
 				const newPitches: number[] = [];
 				for (const oldPitch of oldNote.pitches) {
@@ -130,13 +159,28 @@ export function generateAndApplyEuclideanNotes(
 			}
 			const timeline: MergeableEvent[] = [];
 			for (const note of oldNotes) {
-				timeline.push({ noteType: "old", eventType: "start", part: note.start, note: note });
+				timeline.push({
+					noteType: "old",
+					eventType: "start",
+					part: note.start,
+					note: note,
+				});
 				timeline.push({ noteType: "old", eventType: "end", part: note.end, note: note });
 			}
 			for (const resultingSequence of resultingBar) {
 				for (const note of resultingSequence) {
-					timeline.push({ noteType: "new", eventType: "start", part: note.start, note: note });
-					timeline.push({ noteType: "new", eventType: "end", part: note.end, note: note });
+					timeline.push({
+						noteType: "new",
+						eventType: "start",
+						part: note.start,
+						note: note,
+					});
+					timeline.push({
+						noteType: "new",
+						eventType: "end",
+						part: note.end,
+						note: note,
+					});
 				}
 			}
 			timeline.sort((a, b) => a.part - b.part);
@@ -172,25 +216,38 @@ export function generateAndApplyEuclideanNotes(
 			for (const eventGroup of eventGroups) {
 				if (heldNotes.length === 0) {
 					for (const event of eventGroup.events) {
-						if (event.eventType === "start") heldNotes.push({ noteType: event.noteType, note: event.note });
+						if (event.eventType === "start")
+							heldNotes.push({ noteType: event.noteType, note: event.note });
 					}
 					mergedStartPart = eventGroup.part;
 				} else {
 					for (const event of eventGroup.events) {
 						if (event.eventType === "end") notesToDrop.add(event.note);
-						else if (event.eventType === "start") notesToAdd.push({ noteType: event.noteType, note: event.note });
+						else if (event.eventType === "start")
+							notesToAdd.push({ noteType: event.noteType, note: event.note });
 					}
 					mergedEndPart = eventGroup.part;
-					const mergedNote: Note = new Note(0, mergedStartPart, mergedEndPart, Config.noteSizeMax, false);
+					const mergedNote: Note = new Note(
+						0,
+						mergedStartPart,
+						mergedEndPart,
+						Config.noteSizeMax,
+						false,
+					);
 					let continuesLastPattern: boolean = false;
 					let theNewNote: Note | null = null;
 					let theOldNote: Note | null = null;
 					for (const mergeableNote of heldNotes) {
 						const note: Note = mergeableNote.note;
-						for (const candidatePitch of note.pitches) setOfPitchesToCommit.add(candidatePitch);
+						for (const candidatePitch of note.pitches)
+							setOfPitchesToCommit.add(candidatePitch);
 						if (note.continuesLastPattern) continuesLastPattern = true;
 						if (mergeableNote.noteType === "new") {
-							if (theNewNote == null || mergeableNote.note.start > theNewNote.start || mergeableNote.note.end < theNewNote.end)
+							if (
+								theNewNote == null ||
+								mergeableNote.note.start > theNewNote.start ||
+								mergeableNote.note.end < theNewNote.end
+							)
 								theNewNote = mergeableNote.note;
 						} else if (mergeableNote.noteType === "old") {
 							theOldNote = mergeableNote.note;
@@ -199,26 +256,47 @@ export function generateAndApplyEuclideanNotes(
 					mergedNote.pitches = Array.from(setOfPitchesToCommit).sort((a, b) => a - b);
 					mergedNote.continuesLastPattern = continuesLastPattern;
 					if (theNewNote != null) {
-						const startRatio: number = (mergedStartPart - theNewNote.start) / (theNewNote.end - theNewNote.start);
-						const startPinSize: number = Math.round(theNewNote.pins[0].size + (theNewNote.pins[1].size - theNewNote.pins[0].size) * startRatio);
+						const startRatio: number =
+							(mergedStartPart - theNewNote.start) /
+							(theNewNote.end - theNewNote.start);
+						const startPinSize: number = Math.round(
+							theNewNote.pins[0].size +
+								(theNewNote.pins[1].size - theNewNote.pins[0].size) * startRatio,
+						);
 						mergedNote.pins[0].size = startPinSize;
-						const endRatio: number = (mergedEndPart - theNewNote.start) / (theNewNote.end - theNewNote.start);
-						const endPinSize: number = Math.round(theNewNote.pins[0].size + (theNewNote.pins[1].size - theNewNote.pins[0].size) * endRatio);
+						const endRatio: number =
+							(mergedEndPart - theNewNote.start) /
+							(theNewNote.end - theNewNote.start);
+						const endPinSize: number = Math.round(
+							theNewNote.pins[0].size +
+								(theNewNote.pins[1].size - theNewNote.pins[0].size) * endRatio,
+						);
 						mergedNote.pins[1].size = endPinSize;
 					} else if (theOldNote != null) {
 						const mergedNoteLength: number = mergedEndPart - mergedStartPart;
-						const mergedStartRelativeToOldStart: number = mergedStartPart - theOldNote.start;
-						const mergedEndRelativeToOldStart: number = mergedEndPart - theOldNote.start;
+						const mergedStartRelativeToOldStart: number =
+							mergedStartPart - theOldNote.start;
+						const mergedEndRelativeToOldStart: number =
+							mergedEndPart - theOldNote.start;
 						const newPins: NotePin[] = [];
 						let firstVisibleOldPinIndex: number = -1;
 						let lastVisibleOldPinIndex: number = -1;
 						let leftAdjacentOldPinIndex: number = 0;
 						let rightAdjacentOldPinIndex: number = theOldNote.pins.length - 1;
-						for (let oldPinIndex = 0; oldPinIndex < theOldNote.pins.length; oldPinIndex++) {
+						for (
+							let oldPinIndex = 0;
+							oldPinIndex < theOldNote.pins.length;
+							oldPinIndex++
+						) {
 							const oldPin: NotePin = theOldNote.pins[oldPinIndex];
-							if (oldPin.time < mergedStartRelativeToOldStart) leftAdjacentOldPinIndex = oldPinIndex;
-							else if (oldPin.time >= mergedStartRelativeToOldStart && oldPin.time <= mergedEndRelativeToOldStart) {
-								if (firstVisibleOldPinIndex === -1) firstVisibleOldPinIndex = oldPinIndex;
+							if (oldPin.time < mergedStartRelativeToOldStart)
+								leftAdjacentOldPinIndex = oldPinIndex;
+							else if (
+								oldPin.time >= mergedStartRelativeToOldStart &&
+								oldPin.time <= mergedEndRelativeToOldStart
+							) {
+								if (firstVisibleOldPinIndex === -1)
+									firstVisibleOldPinIndex = oldPinIndex;
 								lastVisibleOldPinIndex = oldPinIndex;
 							} else if (oldPin.time > mergedEndRelativeToOldStart) {
 								rightAdjacentOldPinIndex = oldPinIndex;
@@ -226,34 +304,70 @@ export function generateAndApplyEuclideanNotes(
 							}
 						}
 						if (firstVisibleOldPinIndex !== -1) {
-							for (let visibleOldPinIndex: number = firstVisibleOldPinIndex; visibleOldPinIndex <= lastVisibleOldPinIndex; visibleOldPinIndex++) {
+							for (
+								let visibleOldPinIndex: number = firstVisibleOldPinIndex;
+								visibleOldPinIndex <= lastVisibleOldPinIndex;
+								visibleOldPinIndex++
+							) {
 								const visibleOldPin: NotePin = theOldNote.pins[visibleOldPinIndex];
-								newPins.push(makeNotePin(0, visibleOldPin.time - mergedStartRelativeToOldStart, visibleOldPin.size));
+								newPins.push(
+									makeNotePin(
+										0,
+										visibleOldPin.time - mergedStartRelativeToOldStart,
+										visibleOldPin.size,
+									),
+								);
 							}
 							const firstNewPin: NotePin = newPins[0];
 							const lastNewPin: NotePin = newPins[newPins.length - 1];
 							if (firstNewPin.time !== 0) {
-								const leftAdjacentOldPin: NotePin = theOldNote.pins[leftAdjacentOldPinIndex];
+								const leftAdjacentOldPin: NotePin =
+									theOldNote.pins[leftAdjacentOldPinIndex];
 								const ratio: number =
 									(mergedStartRelativeToOldStart - leftAdjacentOldPin.time) /
-									(firstNewPin.time + (mergedStartRelativeToOldStart - leftAdjacentOldPin.time));
-								newPins.unshift(makeNotePin(0, 0, Math.round(leftAdjacentOldPin.size + (firstNewPin.size - leftAdjacentOldPin.size) * ratio)));
+									(firstNewPin.time +
+										(mergedStartRelativeToOldStart - leftAdjacentOldPin.time));
+								newPins.unshift(
+									makeNotePin(
+										0,
+										0,
+										Math.round(
+											leftAdjacentOldPin.size +
+												(firstNewPin.size - leftAdjacentOldPin.size) *
+													ratio,
+										),
+									),
+								);
 							}
 							if (lastNewPin.time !== mergedNoteLength) {
-								const rightAdjacentOldPin: NotePin = theOldNote.pins[rightAdjacentOldPinIndex];
+								const rightAdjacentOldPin: NotePin =
+									theOldNote.pins[rightAdjacentOldPinIndex];
 								const ratio: number =
-									(mergedEndRelativeToOldStart - (lastNewPin.time + mergedStartRelativeToOldStart)) /
+									(mergedEndRelativeToOldStart -
+										(lastNewPin.time + mergedStartRelativeToOldStart)) /
 									(rightAdjacentOldPin.time -
 										mergedEndRelativeToOldStart +
-										(mergedEndRelativeToOldStart - (lastNewPin.time + mergedStartRelativeToOldStart)));
+										(mergedEndRelativeToOldStart -
+											(lastNewPin.time + mergedStartRelativeToOldStart)));
 								newPins.push(
-									makeNotePin(0, mergedNoteLength, Math.round(lastNewPin.size + (rightAdjacentOldPin.size - lastNewPin.size) * ratio)),
+									makeNotePin(
+										0,
+										mergedNoteLength,
+										Math.round(
+											lastNewPin.size +
+												(rightAdjacentOldPin.size - lastNewPin.size) *
+													ratio,
+										),
+									),
 								);
 							}
 						} else {
-							const leftAdjacentOldPin: NotePin = theOldNote.pins[leftAdjacentOldPinIndex];
-							const rightAdjacentOldPin: NotePin = theOldNote.pins[rightAdjacentOldPinIndex];
-							const lineLength: number = rightAdjacentOldPin.time - leftAdjacentOldPin.time;
+							const leftAdjacentOldPin: NotePin =
+								theOldNote.pins[leftAdjacentOldPinIndex];
+							const rightAdjacentOldPin: NotePin =
+								theOldNote.pins[rightAdjacentOldPinIndex];
+							const lineLength: number =
+								rightAdjacentOldPin.time - leftAdjacentOldPin.time;
 							newPins.push(
 								makeNotePin(
 									0,
@@ -261,7 +375,9 @@ export function generateAndApplyEuclideanNotes(
 									Math.round(
 										leftAdjacentOldPin.size +
 											(rightAdjacentOldPin.size - leftAdjacentOldPin.size) *
-												((mergedStartRelativeToOldStart - leftAdjacentOldPin.time) / lineLength),
+												((mergedStartRelativeToOldStart -
+													leftAdjacentOldPin.time) /
+													lineLength),
 									),
 								),
 							);
@@ -272,7 +388,9 @@ export function generateAndApplyEuclideanNotes(
 									Math.round(
 										leftAdjacentOldPin.size +
 											(rightAdjacentOldPin.size - leftAdjacentOldPin.size) *
-												((mergedEndRelativeToOldStart - leftAdjacentOldPin.time) / lineLength),
+												((mergedEndRelativeToOldStart -
+													leftAdjacentOldPin.time) /
+													lineLength),
 									),
 								),
 							);
@@ -281,8 +399,13 @@ export function generateAndApplyEuclideanNotes(
 					}
 					merged.push(mergedNote);
 					for (const note of notesToDrop) {
-						for (let heldNoteIndex = heldNotes.length - 1; heldNoteIndex >= 0; heldNoteIndex--) {
-							if (note === heldNotes[heldNoteIndex].note) heldNotes.splice(heldNoteIndex, 1);
+						for (
+							let heldNoteIndex = heldNotes.length - 1;
+							heldNoteIndex >= 0;
+							heldNoteIndex--
+						) {
+							if (note === heldNotes[heldNoteIndex].note)
+								heldNotes.splice(heldNoteIndex, 1);
 						}
 					}
 					for (const note of notesToAdd) heldNotes.push(note);
@@ -293,7 +416,8 @@ export function generateAndApplyEuclideanNotes(
 				}
 			}
 			pattern.notes = [];
-			for (let noteIndex = 0; noteIndex < merged.length; noteIndex++) group.append(new ChangeNoteAdded(doc, pattern, merged[noteIndex], noteIndex));
+			for (let noteIndex = 0; noteIndex < merged.length; noteIndex++)
+				group.append(new ChangeNoteAdded(doc, pattern, merged[noteIndex], noteIndex));
 		}
 	}
 	doc.record(group);

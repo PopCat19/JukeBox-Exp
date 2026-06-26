@@ -8,9 +8,9 @@
 // - Builds a bitmask signature for cache lookup
 // - Delegates to getEffectsSynthFunction which returns a cached compiled function
 
-import { Synth } from "./synth";
 import type { InstrumentState } from "./instrument-state";
 import { getEffectsSynthFunction } from "./plugins/effects";
+import { Synth } from "./synth";
 import {
 	effectsIncludeBitcrusher,
 	effectsIncludeChorus,
@@ -42,7 +42,8 @@ export function effectsSynth(
 	const usesGranular: boolean = effectsIncludeGranular(instrumentState.effects);
 	const usesRingModulation: boolean = effectsIncludeRingModulation(instrumentState.effects);
 	const usesPhaser: boolean = effectsIncludePhaser(instrumentState.effects);
-	const usesInvertWave: boolean = effectsIncludeInvertWave(instrumentState.effects) && instrumentState.invertWave;
+	const usesInvertWave: boolean =
+		effectsIncludeInvertWave(instrumentState.effects) && instrumentState.invertWave;
 	let signature: number = 0;
 	if (usesDistortion) signature = signature | 1;
 	signature = signature << 1;

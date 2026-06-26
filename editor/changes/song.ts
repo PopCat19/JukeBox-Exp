@@ -12,10 +12,15 @@
 import { ColorConfig } from "../../shared/color-config";
 import { Channel, Instrument, type Note, type NotePin, Pattern, type Song } from "../../synth";
 import { Config, EffectType, InstrumentType } from "../../synth/synth-config";
-import { EditorConfig, fullTagList, type Preset, type PresetCategory } from "../config/editor-config";
+import {
+	EditorConfig,
+	fullTagList,
+	type Preset,
+	type PresetCategory,
+} from "../config/editor-config";
 import { Change, ChangeGroup, ChangeSequence } from "../core/change";
-import { ChangeFieldValue } from "./field-value";
 import type { SongDocument } from "../song-document";
+import { ChangeFieldValue } from "./field-value";
 import { ChangeToggleEffects } from "./instruments";
 import {
 	ChangeMoveAndOverflowNotes,
@@ -114,7 +119,10 @@ export class ChangeDeleteBars extends Change {
 		} else if (doc.song.loopStart + doc.song.loopLength > start) {
 			doc.song.loopLength -= count;
 		}
-		doc.song.loopLength = Math.max(1, Math.min(doc.song.barCount - doc.song.loopStart, doc.song.loopLength));
+		doc.song.loopLength = Math.max(
+			1,
+			Math.min(doc.song.barCount - doc.song.loopStart, doc.song.loopLength),
+		);
 
 		doc.notifier.changed();
 		this._didSomething();
@@ -155,17 +163,36 @@ export class ChangeChannelOrder extends Change {
 	constructor(doc: SongDocument, selectionMin: number, selectionMax: number, offset: number) {
 		super();
 		// Change the order of two channels by swapping.
-		doc.song.channels.splice(selectionMin + offset, 0, ...doc.song.channels.splice(selectionMin, selectionMax - selectionMin + 1));
+		doc.song.channels.splice(
+			selectionMin + offset,
+			0,
+			...doc.song.channels.splice(selectionMin, selectionMax - selectionMin + 1),
+		);
 
 		// Update mods for each channel
 		selectionMax = Math.max(selectionMax, selectionMin);
-		for (let channelIndex: number = doc.song.pitchChannelCount + doc.song.noiseChannelCount; channelIndex < doc.song.getChannelCount(); channelIndex++) {
-			for (let instrumentIdx: number = 0; instrumentIdx < doc.song.channels[channelIndex].instruments.length; instrumentIdx++) {
-				const instrument: Instrument = doc.song.channels[channelIndex].instruments[instrumentIdx];
+		for (
+			let channelIndex: number = doc.song.pitchChannelCount + doc.song.noiseChannelCount;
+			channelIndex < doc.song.getChannelCount();
+			channelIndex++
+		) {
+			for (
+				let instrumentIdx: number = 0;
+				instrumentIdx < doc.song.channels[channelIndex].instruments.length;
+				instrumentIdx++
+			) {
+				const instrument: Instrument =
+					doc.song.channels[channelIndex].instruments[instrumentIdx];
 				for (let i: number = 0; i < Config.modCount; i++) {
-					if (instrument.modChannels[i] >= selectionMin && instrument.modChannels[i] <= selectionMax) {
+					if (
+						instrument.modChannels[i] >= selectionMin &&
+						instrument.modChannels[i] <= selectionMax
+					) {
 						instrument.modChannels[i] += offset;
-					} else if (instrument.modChannels[i] >= selectionMin + offset && instrument.modChannels[i] <= selectionMax + offset) {
+					} else if (
+						instrument.modChannels[i] >= selectionMin + offset &&
+						instrument.modChannels[i] <= selectionMax + offset
+					) {
 						instrument.modChannels[i] -= offset * (selectionMax - selectionMin + 1);
 					}
 				}
@@ -191,7 +218,12 @@ export class ChangeCustomScale extends Change {
 }
 
 export class ChangeChannelCount extends Change {
-	constructor(doc: SongDocument, newPitchChannelCount: number, newNoiseChannelCount: number, newModChannelCount: number) {
+	constructor(
+		doc: SongDocument,
+		newPitchChannelCount: number,
+		newNoiseChannelCount: number,
+		newModChannelCount: number,
+	) {
 		super();
 		if (
 			doc.song.pitchChannelCount !== newPitchChannelCount ||
@@ -247,7 +279,15 @@ export class ChangeChannelCount extends Change {
 			}
 
 			changeGroup(newPitchChannelCount, doc.song.pitchChannelCount, 0, 0, 3, false, false);
-			changeGroup(newNoiseChannelCount, doc.song.noiseChannelCount, newPitchChannelCount, doc.song.pitchChannelCount, 0, true, false);
+			changeGroup(
+				newNoiseChannelCount,
+				doc.song.noiseChannelCount,
+				newPitchChannelCount,
+				doc.song.pitchChannelCount,
+				0,
+				true,
+				false,
+			);
 			changeGroup(
 				newModChannelCount,
 				doc.song.modChannelCount,
@@ -263,12 +303,19 @@ export class ChangeChannelCount extends Change {
 			doc.song.noiseChannelCount = newNoiseChannelCount;
 			doc.song.modChannelCount = newModChannelCount;
 
-			for (let channelIndex: number = 0; channelIndex < doc.song.getChannelCount(); channelIndex++) {
+			for (
+				let channelIndex: number = 0;
+				channelIndex < doc.song.getChannelCount();
+				channelIndex++
+			) {
 				doc.song.channels[channelIndex] = newChannels[channelIndex];
 			}
 			doc.song.channels.length = doc.song.getChannelCount();
 
-			doc.channel = Math.min(doc.channel, newPitchChannelCount + newNoiseChannelCount + newModChannelCount - 1);
+			doc.channel = Math.min(
+				doc.channel,
+				newPitchChannelCount + newNoiseChannelCount + newModChannelCount - 1,
+			);
 
 			// Determine if any mod instruments now refer to an invalid channel. Unset them if so
 			for (
@@ -276,14 +323,20 @@ export class ChangeChannelCount extends Change {
 				channelIndex < doc.song.getChannelCount();
 				channelIndex++
 			) {
-				for (let instrumentIdx: number = 0; instrumentIdx < doc.song.channels[channelIndex].instruments.length; instrumentIdx++) {
+				for (
+					let instrumentIdx: number = 0;
+					instrumentIdx < doc.song.channels[channelIndex].instruments.length;
+					instrumentIdx++
+				) {
 					for (let mod: number = 0; mod < Config.modCount; mod++) {
-						const instrument: Instrument = doc.song.channels[channelIndex].instruments[instrumentIdx];
+						const instrument: Instrument =
+							doc.song.channels[channelIndex].instruments[instrumentIdx];
 						const modChannel: number = instrument.modChannels[mod];
 
 						// Boundary checking
 						if (
-							(modChannel >= doc.song.pitchChannelCount && modChannel < oldPitchCount) ||
+							(modChannel >= doc.song.pitchChannelCount &&
+								modChannel < oldPitchCount) ||
 							modChannel >= doc.song.pitchChannelCount + doc.song.noiseChannelCount
 						) {
 							instrument.modulators[mod] = Config.modulators.dictionary.none.index;
@@ -309,8 +362,10 @@ export class ChangeChannelCount extends Change {
 export class ChangeAddChannel extends ChangeGroup {
 	constructor(doc: SongDocument, index: number, isNoise: boolean, isMod: boolean) {
 		super();
-		const newPitchChannelCount: number = doc.song.pitchChannelCount + (isNoise || isMod ? 0 : 1);
-		const newNoiseChannelCount: number = doc.song.noiseChannelCount + (!isNoise || isMod ? 0 : 1);
+		const newPitchChannelCount: number =
+			doc.song.pitchChannelCount + (isNoise || isMod ? 0 : 1);
+		const newNoiseChannelCount: number =
+			doc.song.noiseChannelCount + (!isNoise || isMod ? 0 : 1);
 		const newModChannelCount: number = doc.song.modChannelCount + (isNoise || !isMod ? 0 : 1);
 
 		if (
@@ -323,7 +378,14 @@ export class ChangeAddChannel extends ChangeGroup {
 				: isNoise
 					? doc.song.pitchChannelCount + doc.song.noiseChannelCount
 					: doc.song.pitchChannelCount;
-			this.append(new ChangeChannelCount(doc, newPitchChannelCount, newNoiseChannelCount, newModChannelCount));
+			this.append(
+				new ChangeChannelCount(
+					doc,
+					newPitchChannelCount,
+					newNoiseChannelCount,
+					newModChannelCount,
+				),
+			);
 			if (addedChannelIndex - 1 >= index) {
 				this.append(new ChangeChannelOrder(doc, index, addedChannelIndex - 1, 1));
 			}
@@ -341,8 +403,10 @@ export class ChangeCloneChannel extends ChangeGroup {
 		const isMod: boolean = doc.song.getChannelIsMod(sourceIndex);
 		const destIndex: number = sourceIndex + 1;
 
-		const newPitchChannelCount: number = doc.song.pitchChannelCount + (isNoise || isMod ? 0 : 1);
-		const newNoiseChannelCount: number = doc.song.noiseChannelCount + (!isNoise || isMod ? 0 : 1);
+		const newPitchChannelCount: number =
+			doc.song.pitchChannelCount + (isNoise || isMod ? 0 : 1);
+		const newNoiseChannelCount: number =
+			doc.song.noiseChannelCount + (!isNoise || isMod ? 0 : 1);
 		const newModChannelCount: number = doc.song.modChannelCount + (isNoise || !isMod ? 0 : 1);
 
 		if (
@@ -370,11 +434,20 @@ export class ChangeCloneChannel extends ChangeGroup {
 			// Deep-copy instruments via JSON roundtrip
 			dst.instruments.length = 0;
 			for (const instrument of src.instruments) {
-				const instrumentCopy: Record<string, unknown> = instrument.toJsonObject() as Record<string, unknown>;
+				const instrumentCopy: Record<string, unknown> = instrument.toJsonObject() as Record<
+					string,
+					unknown
+				>;
 				instrumentCopy.isDrum = isNoise;
 				instrumentCopy.isMod = isMod;
 				const newInstrument: Instrument = new Instrument(isNoise, isMod);
-				newInstrument.fromJsonObject(instrumentCopy, isNoise, isMod, doc.song.rhythm === 0 || doc.song.rhythm === 2, doc.song.rhythm >= 2);
+				newInstrument.fromJsonObject(
+					instrumentCopy,
+					isNoise,
+					isMod,
+					doc.song.rhythm === 0 || doc.song.rhythm === 2,
+					doc.song.rhythm >= 2,
+				);
 				dst.instruments.push(newInstrument);
 			}
 
@@ -402,14 +475,33 @@ export class ChangeRemoveChannel extends ChangeGroup {
 		const oldMax: number = maxIndex;
 
 		// Update modulators - if a higher index was removed, shift down
-		for (let modChannel: number = doc.song.pitchChannelCount + doc.song.noiseChannelCount; modChannel < doc.song.channels.length; modChannel++) {
-			for (let instrumentIndex: number = 0; instrumentIndex < doc.song.channels[modChannel].instruments.length; instrumentIndex++) {
-				const modInstrument: Instrument = doc.song.channels[modChannel].instruments[instrumentIndex];
+		for (
+			let modChannel: number = doc.song.pitchChannelCount + doc.song.noiseChannelCount;
+			modChannel < doc.song.channels.length;
+			modChannel++
+		) {
+			for (
+				let instrumentIndex: number = 0;
+				instrumentIndex < doc.song.channels[modChannel].instruments.length;
+				instrumentIndex++
+			) {
+				const modInstrument: Instrument =
+					doc.song.channels[modChannel].instruments[instrumentIndex];
 				for (let mod: number = 0; mod < Config.modCount; mod++) {
-					if (modInstrument.modChannels[mod] >= minIndex && modInstrument.modChannels[mod] <= oldMax) {
+					if (
+						modInstrument.modChannels[mod] >= minIndex &&
+						modInstrument.modChannels[mod] <= oldMax
+					) {
 						this.append(new ChangeModChannel(doc, mod, 0, modInstrument));
 					} else if (modInstrument.modChannels[mod] > oldMax) {
-						this.append(new ChangeModChannel(doc, mod, modInstrument.modChannels[mod] - (oldMax - minIndex + 1) + 2, modInstrument));
+						this.append(
+							new ChangeModChannel(
+								doc,
+								mod,
+								modInstrument.modChannels[mod] - (oldMax - minIndex + 1) + 2,
+								modInstrument,
+							),
+						);
 					}
 				}
 			}
@@ -430,7 +522,14 @@ export class ChangeRemoveChannel extends ChangeGroup {
 		}
 
 		if (doc.song.pitchChannelCount < Config.pitchChannelCountMin) {
-			this.append(new ChangeChannelCount(doc, Config.pitchChannelCountMin, doc.song.noiseChannelCount, doc.song.modChannelCount));
+			this.append(
+				new ChangeChannelCount(
+					doc,
+					Config.pitchChannelCountMin,
+					doc.song.noiseChannelCount,
+					doc.song.modChannelCount,
+				),
+			);
 		}
 
 		ColorConfig.resetColors();
@@ -581,7 +680,9 @@ export class ChangeSongTitle extends ChangeFieldValue<string> {
 			oldValue,
 			newValue,
 			maxLength: 30,
-			afterSet: () => { document.title = `${doc.song.title} - ${EditorConfig.versionDisplayName}`; },
+			afterSet: () => {
+				document.title = `${doc.song.title} - ${EditorConfig.versionDisplayName}`;
+			},
 		});
 	}
 }
@@ -594,7 +695,9 @@ export class ChangeChannelName extends ChangeFieldValue<string> {
 			oldValue,
 			newValue,
 			maxLength: 15,
-			afterSet: () => { doc.recalcChannelNames = true; },
+			afterSet: () => {
+				doc.recalcChannelNames = true;
+			},
 		});
 	}
 }
@@ -641,11 +744,19 @@ export class ChangeInstrumentsFlags extends Change {
 		super();
 		const oldLayeredInstruments: boolean = doc.song.layeredInstruments;
 		const oldPatternInstruments: boolean = doc.song.patternInstruments;
-		if (oldLayeredInstruments === newLayeredInstruments && oldPatternInstruments === newPatternInstruments) return;
+		if (
+			oldLayeredInstruments === newLayeredInstruments &&
+			oldPatternInstruments === newPatternInstruments
+		)
+			return;
 		doc.song.layeredInstruments = newLayeredInstruments;
 		doc.song.patternInstruments = newPatternInstruments;
 
-		for (let channelIndex: number = 0; channelIndex < doc.song.getChannelCount(); channelIndex++) {
+		for (
+			let channelIndex: number = 0;
+			channelIndex < doc.song.getChannelCount();
+			channelIndex++
+		) {
 			const channel: Channel = doc.song.channels[channelIndex];
 			if (channel.instruments.length > doc.song.getMaxInstrumentsPerChannel()) {
 				channel.instruments.length = doc.song.getMaxInstrumentsPerChannel();
@@ -718,20 +829,28 @@ export class ChangeModSetting extends Change {
 		let usedInstruments: Instrument[] = [];
 		if (tgtChannel >= 0) {
 			// Ignore song/none.
-			if (instrument.modInstruments[mod] === doc.song.channels[tgtChannel].instruments.length) {
+			if (
+				instrument.modInstruments[mod] === doc.song.channels[tgtChannel].instruments.length
+			) {
 				// All - Populate list of all instruments
 				usedInstruments = usedInstruments.concat(doc.song.channels[tgtChannel].instruments);
-			} else if (instrument.modInstruments[mod] > doc.song.channels[tgtChannel].instruments.length) {
+			} else if (
+				instrument.modInstruments[mod] > doc.song.channels[tgtChannel].instruments.length
+			) {
 				// Active - Populate list of only used instruments
 				const tgtPattern: Pattern | null = doc.song.getPattern(tgtChannel, doc.bar);
 				if (tgtPattern != null) {
 					for (let i: number = 0; i < tgtPattern.instruments.length; i++) {
-						usedInstruments.push(doc.song.channels[tgtChannel].instruments[tgtPattern.instruments[i]]);
+						usedInstruments.push(
+							doc.song.channels[tgtChannel].instruments[tgtPattern.instruments[i]],
+						);
 					}
 				}
 			} else {
 				// Single instrument used.
-				usedInstruments.push(doc.song.channels[tgtChannel].instruments[instrument.modInstruments[mod]]);
+				usedInstruments.push(
+					doc.song.channels[tgtChannel].instruments[instrument.modInstruments[mod]],
+				);
 			}
 		}
 
@@ -740,8 +859,19 @@ export class ChangeModSetting extends Change {
 			text = text.substr(2);
 			for (let i: number = 0; i < usedInstruments.length; i++) {
 				const tgtInstrument: Instrument = usedInstruments[i];
-				if (!(tgtInstrument.effects & (1 << Config.modulators.dictionary[text].associatedEffect))) {
-					doc.record(new ChangeToggleEffects(doc, Config.modulators.dictionary[text].associatedEffect, tgtInstrument));
+				if (
+					!(
+						tgtInstrument.effects &
+						(1 << Config.modulators.dictionary[text].associatedEffect)
+					)
+				) {
+					doc.record(
+						new ChangeToggleEffects(
+							doc,
+							Config.modulators.dictionary[text].associatedEffect,
+							tgtInstrument,
+						),
+					);
 				}
 			}
 		}
@@ -787,7 +917,11 @@ export class ChangeModFilter extends Change {
 			instrument.modFilterTypes[mod] = type;
 
 			// Go through each pattern where this instrument is set, and clean up any notes that are out of bounds
-			const cap: number = doc.song.getVolumeCapForSetting(true, instrument.modulators[mod], instrument.modFilterTypes[mod]);
+			const cap: number = doc.song.getVolumeCapForSetting(
+				true,
+				instrument.modulators[mod],
+				instrument.modFilterTypes[mod],
+			);
 
 			for (let i: number = 0; i < doc.song.patternsPerChannel; i++) {
 				const pattern: Pattern = doc.song.channels[doc.channel].patterns[i];
@@ -822,7 +956,11 @@ export class ChangeModEnvelope extends Change {
 			instrument.modEnvelopeNumbers[mod] = envelope;
 
 			// Go through each pattern where this instrument is set, and clean up any notes that are out of bounds
-			const cap: number = doc.song.getVolumeCapForSetting(true, instrument.modulators[mod], instrument.modEnvelopeNumbers[mod]);
+			const cap: number = doc.song.getVolumeCapForSetting(
+				true,
+				instrument.modulators[mod],
+				instrument.modEnvelopeNumbers[mod],
+			);
 
 			for (let i: number = 0; i < doc.song.patternsPerChannel; i++) {
 				const pattern: Pattern = doc.song.channels[doc.channel].patterns[i];
@@ -869,14 +1007,26 @@ export class ChangeAddChannelInstrument extends Change {
 		}
 
 		// Determine if any mod instruments were setting 'all' or 'active'. If so, bump indices since there is now a new instrument in the list.
-		for (let channelIndex: number = doc.song.pitchChannelCount + doc.song.noiseChannelCount; channelIndex < doc.song.getChannelCount(); channelIndex++) {
-			for (let instrumentIndex: number = 0; instrumentIndex < doc.song.channels[channelIndex].instruments.length; instrumentIndex++) {
+		for (
+			let channelIndex: number = doc.song.pitchChannelCount + doc.song.noiseChannelCount;
+			channelIndex < doc.song.getChannelCount();
+			channelIndex++
+		) {
+			for (
+				let instrumentIndex: number = 0;
+				instrumentIndex < doc.song.channels[channelIndex].instruments.length;
+				instrumentIndex++
+			) {
 				for (let mod: number = 0; mod < Config.modCount; mod++) {
-					const instrument: Instrument = doc.song.channels[channelIndex].instruments[instrumentIndex];
+					const instrument: Instrument =
+						doc.song.channels[channelIndex].instruments[instrumentIndex];
 					const modInstrument: number = instrument.modInstruments[mod];
 					const modChannel: number = instrument.modChannels[mod];
 
-					if (modChannel === doc.channel && modInstrument >= doc.song.channels[modChannel].instruments.length - 1) {
+					if (
+						modChannel === doc.channel &&
+						modInstrument >= doc.song.channels[modChannel].instruments.length - 1
+					) {
 						// BUGFIX FROM JUMMBOX
 						instrument.modInstruments[mod]++;
 					}
@@ -915,10 +1065,19 @@ export class ChangeRemoveChannelInstrument extends Change {
 		}
 
 		// Determine if any mod instruments now refer to an invalid instrument number. Unset them if so
-		for (let channelIndex: number = doc.song.pitchChannelCount + doc.song.noiseChannelCount; channelIndex < doc.song.getChannelCount(); channelIndex++) {
-			for (let instrumentIdx: number = 0; instrumentIdx < doc.song.channels[channelIndex].instruments.length; instrumentIdx++) {
+		for (
+			let channelIndex: number = doc.song.pitchChannelCount + doc.song.noiseChannelCount;
+			channelIndex < doc.song.getChannelCount();
+			channelIndex++
+		) {
+			for (
+				let instrumentIdx: number = 0;
+				instrumentIdx < doc.song.channels[channelIndex].instruments.length;
+				instrumentIdx++
+			) {
 				for (let mod: number = 0; mod < Config.modCount; mod++) {
-					const instrument: Instrument = doc.song.channels[channelIndex].instruments[instrumentIdx];
+					const instrument: Instrument =
+						doc.song.channels[channelIndex].instruments[instrumentIdx];
 					const modInstrument: number = instrument.modInstruments[mod];
 					const modChannel: number = instrument.modChannels[mod];
 
@@ -951,7 +1110,11 @@ export class ChangeBeatsPerBar extends ChangeGroup {
 						if (doc.song.beatsPerBar > newValue) {
 							const sequence: ChangeSequence = new ChangeSequence();
 							for (let i: number = 0; i < doc.song.getChannelCount(); i++) {
-								for (let j: number = 0; j < doc.song.channels[i].patterns.length; j++) {
+								for (
+									let j: number = 0;
+									j < doc.song.channels[i].patterns.length;
+									j++
+								) {
 									sequence.append(
 										new ChangeNoteTruncate(
 											doc,
@@ -969,15 +1132,33 @@ export class ChangeBeatsPerBar extends ChangeGroup {
 					break;
 				case "stretch":
 					{
-						const changeRhythm = (oldTime: number): number => Math.round((oldTime * newValue) / doc.song.beatsPerBar);
-						for (let channelIndex: number = 0; channelIndex < doc.song.getChannelCount(); channelIndex++) {
-							for (let patternIndex: number = 0; patternIndex < doc.song.channels[channelIndex].patterns.length; patternIndex++) {
-								const pattern: Pattern = doc.song.channels[channelIndex].patterns[patternIndex];
+						const changeRhythm = (oldTime: number): number =>
+							Math.round((oldTime * newValue) / doc.song.beatsPerBar);
+						for (
+							let channelIndex: number = 0;
+							channelIndex < doc.song.getChannelCount();
+							channelIndex++
+						) {
+							for (
+								let patternIndex: number = 0;
+								patternIndex < doc.song.channels[channelIndex].patterns.length;
+								patternIndex++
+							) {
+								const pattern: Pattern =
+									doc.song.channels[channelIndex].patterns[patternIndex];
 								let noteIndex: number = 0;
 								while (noteIndex < pattern.notes.length) {
 									const note: Note = pattern.notes[noteIndex];
 									if (changeRhythm(note.start) >= changeRhythm(note.end)) {
-										this.append(new ChangeNoteAdded(doc, pattern, note, noteIndex, true));
+										this.append(
+											new ChangeNoteAdded(
+												doc,
+												pattern,
+												note,
+												noteIndex,
+												true,
+											),
+										);
 									} else {
 										this.append(new ChangeRhythmNote(doc, note, changeRhythm));
 										noteIndex++;
@@ -985,7 +1166,13 @@ export class ChangeBeatsPerBar extends ChangeGroup {
 								}
 							}
 						}
-						this.append(new ChangeTempo(doc, doc.song.tempo, (doc.song.tempo * newValue) / doc.song.beatsPerBar));
+						this.append(
+							new ChangeTempo(
+								doc,
+								doc.song.tempo,
+								(doc.song.tempo * newValue) / doc.song.beatsPerBar,
+							),
+						);
 					}
 					break;
 				case "overflow":
@@ -1008,7 +1195,9 @@ export class ChangeBeatsPerBar extends ChangeGroup {
 
 export function pickRandomPresetValue(isNoise: boolean, rollNoveltyPresets: boolean): number {
 	const eligiblePresetValues: number[] = [];
-	const _presetTagsInputBox = document.getElementById("presetTagsInputBox") as HTMLInputElement | null;
+	const _presetTagsInputBox = document.getElementById(
+		"presetTagsInputBox",
+	) as HTMLInputElement | null;
 
 	const tagList: string[] = _presetTagsInputBox
 		? _presetTagsInputBox.value
@@ -1018,13 +1207,28 @@ export function pickRandomPresetValue(isNoise: boolean, rollNoveltyPresets: bool
 		: [];
 
 	// checking for valid tags
-	if (tagList.length > 0 && !tagList.every((tag) => fullTagList.includes(tag) || (tag.startsWith("!") && fullTagList.includes(tag.slice(1))))) {
+	if (
+		tagList.length > 0 &&
+		!tagList.every(
+			(tag) =>
+				fullTagList.includes(tag) ||
+				(tag.startsWith("!") && fullTagList.includes(tag.slice(1))),
+		)
+	) {
 		return -2;
 	}
 
-	for (let categoryIndex: number = 0; categoryIndex < EditorConfig.presetCategories.length; categoryIndex++) {
+	for (
+		let categoryIndex: number = 0;
+		categoryIndex < EditorConfig.presetCategories.length;
+		categoryIndex++
+	) {
 		const category: PresetCategory = EditorConfig.presetCategories[categoryIndex];
-		if ((category.name.includes("Novelty") && rollNoveltyPresets === false) || category.name === "Unmodified") continue;
+		if (
+			(category.name.includes("Novelty") && rollNoveltyPresets === false) ||
+			category.name === "Unmodified"
+		)
+			continue;
 		for (let presetIndex: number = 0; presetIndex < category.presets.length; presetIndex++) {
 			const preset: Preset = category.presets[presetIndex];
 			if (
@@ -1033,7 +1237,9 @@ export function pickRandomPresetValue(isNoise: boolean, rollNoveltyPresets: bool
 				(tagList.length === 0 ||
 					(preset.tags &&
 						tagList.every(
-							(tag) => (tag.startsWith("!") && !preset.tags.includes(tag.slice(1))) || (!tag.startsWith("!") && preset.tags.includes(tag)),
+							(tag) =>
+								(tag.startsWith("!") && !preset.tags.includes(tag.slice(1))) ||
+								(!tag.startsWith("!") && preset.tags.includes(tag)),
 						)))
 			) {
 				eligiblePresetValues.push((categoryIndex << 12) + presetIndex);
@@ -1049,9 +1255,15 @@ export function pickRandomPresetValue(isNoise: boolean, rollNoveltyPresets: bool
 
 export function pickNextPresetValue(isNoise: boolean, rollNoveltyPresets: boolean): number {
 	const eligiblePresetValues: number[] = [];
-	const _presetTagsInputBox = document.getElementById("presetTagsInputBox") as HTMLInputElement | null;
-	const _pitchedPresetSelect = document.getElementById("pitchPresetSelect") as HTMLInputElement | null;
-	const _drumPresetSelect = document.getElementById("drumPresetSelect") as HTMLInputElement | null;
+	const _presetTagsInputBox = document.getElementById(
+		"presetTagsInputBox",
+	) as HTMLInputElement | null;
+	const _pitchedPresetSelect = document.getElementById(
+		"pitchPresetSelect",
+	) as HTMLInputElement | null;
+	const _drumPresetSelect = document.getElementById(
+		"drumPresetSelect",
+	) as HTMLInputElement | null;
 
 	let currentPresetValue: string | number = 0;
 	let nextPresetIndex: string | number = 0;
@@ -1067,13 +1279,28 @@ export function pickNextPresetValue(isNoise: boolean, rollNoveltyPresets: boolea
 		: [];
 
 	// checking for valid tags
-	if (tagList.length > 0 && !tagList.every((tag) => fullTagList.includes(tag) || (tag.startsWith("!") && fullTagList.includes(tag.slice(1))))) {
+	if (
+		tagList.length > 0 &&
+		!tagList.every(
+			(tag) =>
+				fullTagList.includes(tag) ||
+				(tag.startsWith("!") && fullTagList.includes(tag.slice(1))),
+		)
+	) {
 		return -2;
 	}
 
-	for (let categoryIndex: number = 0; categoryIndex < EditorConfig.presetCategories.length; categoryIndex++) {
+	for (
+		let categoryIndex: number = 0;
+		categoryIndex < EditorConfig.presetCategories.length;
+		categoryIndex++
+	) {
 		const category: PresetCategory = EditorConfig.presetCategories[categoryIndex];
-		if ((category.name.includes("Novelty") && rollNoveltyPresets === false) || category.name === "Unmodified") continue;
+		if (
+			(category.name.includes("Novelty") && rollNoveltyPresets === false) ||
+			category.name === "Unmodified"
+		)
+			continue;
 		for (let presetIndex: number = 0; presetIndex < category.presets.length; presetIndex++) {
 			const preset: Preset = category.presets[presetIndex];
 
@@ -1083,7 +1310,9 @@ export function pickNextPresetValue(isNoise: boolean, rollNoveltyPresets: boolea
 				(tagList.length === 0 ||
 					(preset.tags &&
 						tagList.every(
-							(tag) => (tag.startsWith("!") && !preset.tags.includes(tag.slice(1))) || (!tag.startsWith("!") && preset.tags.includes(tag)),
+							(tag) =>
+								(tag.startsWith("!") && !preset.tags.includes(tag.slice(1))) ||
+								(!tag.startsWith("!") && preset.tags.includes(tag)),
 						)))
 			) {
 				eligiblePresetValues.push((categoryIndex << 12) + presetIndex);
@@ -1109,10 +1338,19 @@ export function setDefaultInstruments(song: Song): void {
 			const isMod: boolean = song.getChannelIsMod(channelIndex);
 			const presetValue: number =
 				channelIndex === song.pitchChannelCount
-					? EditorConfig.nameToPresetValue(Math.random() > 0.5 ? "chip noise" : "standard drumset")!
+					? EditorConfig.nameToPresetValue(
+							Math.random() > 0.5 ? "chip noise" : "standard drumset",
+						)!
 					: pickRandomPresetValue(isNoise, false);
 			const preset: Preset = EditorConfig.valueToPreset(presetValue)!;
-			instrument.fromJsonObject(preset.settings, isNoise, isMod, song.rhythm === 0 || song.rhythm === 2, song.rhythm >= 2, 1);
+			instrument.fromJsonObject(
+				preset.settings,
+				isNoise,
+				isMod,
+				song.rhythm === 0 || song.rhythm === 2,
+				song.rhythm >= 2,
+				1,
+			);
 			instrument.preset = presetValue;
 			instrument.effects |= 1 << EffectType.panning;
 		}

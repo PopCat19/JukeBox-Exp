@@ -86,7 +86,9 @@ function highlightText(text: string, filter: string): (string | HTMLElement)[] {
 
 /** Render text with optional highlight into a document fragment. */
 function renderHighlighted(text: string, filter: string): (Text | HTMLElement)[] {
-	return highlightText(text, filter).map((part) => (typeof part === "string" ? document.createTextNode(part) : part));
+	return highlightText(text, filter).map((part) =>
+		typeof part === "string" ? document.createTextNode(part) : part,
+	);
 }
 
 /** Render a key combination as keycap badges. */
@@ -115,7 +117,11 @@ function renderKeyCombo(keys: ShortcutKey[], filter: string): HTMLDivElement {
 }
 
 /** Render description text with optional highlight and detail sub-line. */
-function renderDescription(desc: string, detail: string | undefined, filter: string): HTMLDivElement {
+function renderDescription(
+	desc: string,
+	detail: string | undefined,
+	filter: string,
+): HTMLDivElement {
 	const descSpan = span({ class: "shortcutDescText" });
 	const hl = renderHighlighted(desc, filter);
 	for (const node of hl) descSpan.appendChild(node);
@@ -142,7 +148,11 @@ const shortcutCategories: ShortcutCategory[] = [
 			{ keys: [{ key: "Space" }], desc: "Play / Pause" },
 			{ keys: [{ key: "Space", mods: "Shift" }], desc: "Play From Cursor" },
 			{ keys: [{ key: "Space", mods: "Ctrl" }], desc: "Toggle Recording" },
-			{ keys: [{ key: "P", mods: "Ctrl" }], desc: "Toggle Recording", detail: "Also clears the loop region" },
+			{
+				keys: [{ key: "P", mods: "Ctrl" }],
+				desc: "Toggle Recording",
+				detail: "Also clears the loop region",
+			},
 			{ keys: [{ key: "Enter" }], desc: "Insert Bars / Reset Loop" },
 			{ keys: [{ key: "Enter", mods: "Shift" }], desc: "Insert Bars Before" },
 			{ keys: [{ key: "Enter", mods: "Ctrl" }], desc: "Insert Channel" },
@@ -153,8 +163,16 @@ const shortcutCategories: ShortcutCategory[] = [
 			{ keys: [{ key: "B", mods: "Ctrl" }], desc: "Loop Selected Bars / Toggle Loop" },
 			{ keys: [{ key: "F", mods: "Ctrl" }], desc: "Go To Start" },
 			{ keys: [{ key: "F", mods: "Shift" }], desc: "Go To Loop Start" },
-			{ keys: [{ key: "H", mods: "Ctrl" }], desc: "Play From Current Bar", detail: "Snaps playhead to current bar and starts playback" },
-			{ keys: [{ key: "." }], desc: "Preview Hovered Note", detail: "Hold to audition the note under the cursor" },
+			{
+				keys: [{ key: "H", mods: "Ctrl" }],
+				desc: "Play From Current Bar",
+				detail: "Snaps playhead to current bar and starts playback",
+			},
+			{
+				keys: [{ key: "." }],
+				desc: "Preview Hovered Note",
+				detail: "Hold to audition the note under the cursor",
+			},
 		],
 	},
 	{
@@ -167,7 +185,10 @@ const shortcutCategories: ShortcutCategory[] = [
 			{ keys: [{ key: "A", mods: "Shift" }], desc: "Select Channel" },
 			{ keys: [{ key: "D", mods: "Ctrl" }], desc: "Duplicate Patterns" },
 			{ keys: [{ key: "W", mods: "Ctrl" }], desc: "Move Notes Sideways" },
-			{ keys: [{ key: "0" }, { key: "1" }, { key: "..." }, { key: "9" }], desc: "Enter Pattern Digits" },
+			{
+				keys: [{ key: "0" }, { key: "1" }, { key: "..." }, { key: "9" }],
+				desc: "Enter Pattern Digits",
+			},
 			{ keys: [{ key: "Escape" }], desc: "Clear Selection" },
 		],
 	},
@@ -229,15 +250,31 @@ const shortcutCategories: ShortcutCategory[] = [
 		name: "Views & Tools",
 		entries: [
 			{ keys: [{ key: "G", mods: "Ctrl" }], desc: "Channel Volume Visualizer" },
-			{ keys: [{ key: "L", mods: "Ctrl" }], desc: "Song Duration", detail: "Adjust total bar count" },
+			{
+				keys: [{ key: "L", mods: "Ctrl" }],
+				desc: "Song Duration",
+				detail: "Adjust total bar count",
+			},
 			{ keys: [{ key: "L", mods: "Ctrl+Shift" }], desc: "Limiter Settings" },
 			{ keys: [{ key: "B", mods: "Ctrl+Shift" }], desc: "Beats Per Bar" },
 			{ keys: [{ key: "E", mods: "Ctrl" }], desc: "Song EQ Settings" },
 			{ keys: [{ key: "E", mods: "Ctrl+Shift" }], desc: "Instrument EQ Filter Settings" },
-			{ keys: [{ key: "E", mods: "Ctrl+Alt" }], desc: "Toggle Envelope Dropdowns", detail: "Expand/collapse all envelope extra settings" },
+			{
+				keys: [{ key: "E", mods: "Ctrl+Alt" }],
+				desc: "Toggle Envelope Dropdowns",
+				detail: "Expand/collapse all envelope extra settings",
+			},
 			{ keys: [{ key: "E", mods: "Ctrl+Alt+Shift" }], desc: "Generate Euclidean Rhythm" },
-			{ keys: [{ key: "F", mods: "Ctrl+Alt" }], desc: "Toggle FM Dropdowns", detail: "Expand/collapse all FM operator dropdowns" },
-			{ keys: [{ key: "/", mods: "Shift" }], desc: "Keyboard Shortcuts", detail: "Opens this dialog" },
+			{
+				keys: [{ key: "F", mods: "Ctrl+Alt" }],
+				desc: "Toggle FM Dropdowns",
+				detail: "Expand/collapse all FM operator dropdowns",
+			},
+			{
+				keys: [{ key: "/", mods: "Shift" }],
+				desc: "Keyboard Shortcuts",
+				detail: "Opens this dialog",
+			},
 		],
 	},
 	{
@@ -248,7 +285,11 @@ const shortcutCategories: ShortcutCategory[] = [
 			{ keys: [{ key: "O", mods: "Ctrl" }], desc: "Import Song" },
 			{ keys: [{ key: "O", mods: "Alt" }], desc: "Import Instrument" },
 			{ keys: [{ key: "`", mods: "Shift" }], desc: "New Blank Song" },
-			{ keys: [{ key: "`" }], desc: "Song Recovery", detail: "Restore the most recent autosaved song" },
+			{
+				keys: [{ key: "`" }],
+				desc: "Song Recovery",
+				detail: "Restore the most recent autosaved song",
+			},
 			{ keys: [{ key: "P", mods: "Shift" }], desc: "Open Song In Player" },
 			{ keys: [{ key: "U", mods: "Shift" }], desc: "Shorten URL" },
 		],
@@ -322,7 +363,10 @@ export class KeyboardShortcutsPrompt extends BasePrompt {
 
 		for (const cat of shortcutCategories) {
 			const catFiltered = cat.entries.filter(
-				(e) => formatKeys(e.keys).toLowerCase().includes(filter) || e.desc.toLowerCase().includes(filter) || e.detail?.toLowerCase().includes(filter),
+				(e) =>
+					formatKeys(e.keys).toLowerCase().includes(filter) ||
+					e.desc.toLowerCase().includes(filter) ||
+					e.detail?.toLowerCase().includes(filter),
 			);
 
 			if (catFiltered.length === 0) continue;
@@ -362,7 +406,9 @@ export class KeyboardShortcutsPrompt extends BasePrompt {
 		// ── Match count & empty state ──
 		if (filter) {
 			this._matchCountLabel.textContent =
-				visibleEntries === 0 ? `No shortcuts match "${this._searchInput.value}"` : `${visibleEntries} of ${totalEntries} shortcuts`;
+				visibleEntries === 0
+					? `No shortcuts match "${this._searchInput.value}"`
+					: `${visibleEntries} of ${totalEntries} shortcuts`;
 			this._matchCountLabel.style.display = "block";
 		} else {
 			this._matchCountLabel.style.display = "none";

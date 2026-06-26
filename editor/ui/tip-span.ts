@@ -16,7 +16,11 @@ export interface TipSpanOptions {
 	tabindex?: string;
 }
 
-export function tipSpan(label: string, onClick?: () => void, options?: TipSpanOptions): HTMLSpanElement {
+export function tipSpan(
+	label: string,
+	onClick?: () => void,
+	options?: TipSpanOptions,
+): HTMLSpanElement {
 	const attrs: Record<string, string> = { class: "tip" };
 
 	if (options?.style) attrs.style = options.style;

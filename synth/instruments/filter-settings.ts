@@ -58,12 +58,16 @@ export class FilterSettings {
 				point.type = Config.filterTypeNames.indexOf(pointObject.type);
 				if (<any>point.type === -1) point.type = FilterType.peak;
 				if (pointObject.cutoffHz !== undefined) {
-					point.freq = FilterControlPoint.getRoundedSettingValueFromHz(pointObject.cutoffHz);
+					point.freq = FilterControlPoint.getRoundedSettingValueFromHz(
+						pointObject.cutoffHz,
+					);
 				} else {
 					point.freq = 0;
 				}
 				if (pointObject.linearGain !== undefined) {
-					point.gain = FilterControlPoint.getRoundedSettingValueFromLinearGain(pointObject.linearGain);
+					point.gain = FilterControlPoint.getRoundedSettingValueFromLinearGain(
+						pointObject.linearGain,
+					);
 				} else {
 					point.gain = Config.filterGainCenter;
 				}
@@ -87,7 +91,11 @@ export class FilterSettings {
 	}
 
 	// Interpolate two FilterSettings, where pos=0 is filterA and pos=1 is filterB
-	public static lerpFilters(filterA: FilterSettings, filterB: FilterSettings, pos: number): FilterSettings {
+	public static lerpFilters(
+		filterA: FilterSettings,
+		filterB: FilterSettings,
+		pos: number,
+	): FilterSettings {
 		const lerpedFilter: FilterSettings = new FilterSettings();
 
 		// One setting or another is null, return the other.
@@ -105,8 +113,12 @@ export class FilterSettings {
 			for (let i: number = 0; i < filterA.controlPointCount; i++) {
 				lerpedFilter.controlPoints[i] = new FilterControlPoint();
 				lerpedFilter.controlPoints[i].type = filterA.controlPoints[i].type;
-				lerpedFilter.controlPoints[i].freq = filterA.controlPoints[i].freq + (filterB.controlPoints[i].freq - filterA.controlPoints[i].freq) * pos;
-				lerpedFilter.controlPoints[i].gain = filterA.controlPoints[i].gain + (filterB.controlPoints[i].gain - filterA.controlPoints[i].gain) * pos;
+				lerpedFilter.controlPoints[i].freq =
+					filterA.controlPoints[i].freq +
+					(filterB.controlPoints[i].freq - filterA.controlPoints[i].freq) * pos;
+				lerpedFilter.controlPoints[i].gain =
+					filterA.controlPoints[i].gain +
+					(filterB.controlPoints[i].gain - filterA.controlPoints[i].gain) * pos;
 			}
 
 			lerpedFilter.controlPointCount = filterA.controlPointCount;
@@ -118,7 +130,11 @@ export class FilterSettings {
 		}
 	}
 
-	public convertLegacySettings(legacyCutoffSetting: number, legacyResonanceSetting: number, legacyEnv: Envelope): void {
+	public convertLegacySettings(
+		legacyCutoffSetting: number,
+		legacyResonanceSetting: number,
+		legacyEnv: Envelope,
+	): void {
 		this.reset();
 
 		const legacyFilterCutoffMaxHz: number = 8000; // This was carefully calculated to correspond to no change in response when filtering at 48000 samples per second... when using the legacy simplified low-pass filter.
@@ -138,8 +154,13 @@ export class FilterSettings {
 			legacyEnv.type === EnvelopeType.noteSize;
 
 		const standardSampleRate: number = 48000;
-		const legacyHz: number = legacyFilterCutoffMaxHz * 2.0 ** ((legacyCutoffSetting - (legacyFilterCutoffRange - 1)) * 0.5);
-		const legacyRadians: number = Math.min(legacyFilterMaxRadians, (2 * Math.PI * legacyHz) / standardSampleRate);
+		const legacyHz: number =
+			legacyFilterCutoffMaxHz *
+			2.0 ** ((legacyCutoffSetting - (legacyFilterCutoffRange - 1)) * 0.5);
+		const legacyRadians: number = Math.min(
+			legacyFilterMaxRadians,
+			(2 * Math.PI * legacyHz) / standardSampleRate,
+		);
 
 		if (legacyEnv.type === EnvelopeType.none && !resonant && cutoffAtMax) {
 			// The response is flat and there's no envelopes, so don't even bother adding any control points.
@@ -164,20 +185,31 @@ export class FilterSettings {
 			// Decaying envelopes move the cutoff frequency back into an area where the best approximation of the first order slope requires a lower gain setting.
 			if (envDecays) logGain = Math.min(logGain, -1.0);
 			const convertedGain: number = 2.0 ** logGain;
-			const gainSetting: number = FilterControlPoint.getRoundedSettingValueFromLinearGain(convertedGain);
+			const gainSetting: number =
+				FilterControlPoint.getRoundedSettingValueFromLinearGain(convertedGain);
 
 			this.addPoint(FilterType.lowPass, freqSetting, gainSetting);
 		} else {
 			const intendedGain: number =
-				0.5 / (1.0 - legacyFilterMaxResonance * Math.sqrt(Math.max(0.0, legacyResonanceSetting - 1.0) / (legacyFilterResonanceRange - 2.0)));
+				0.5 /
+				(1.0 -
+					legacyFilterMaxResonance *
+						Math.sqrt(
+							Math.max(0.0, legacyResonanceSetting - 1.0) /
+								(legacyFilterResonanceRange - 2.0),
+						));
 			const invertedGain: number = 0.5 / intendedGain;
-			const maxRadians: number = (2.0 * Math.PI * legacyFilterCutoffMaxHz) / standardSampleRate;
+			const maxRadians: number =
+				(2.0 * Math.PI * legacyFilterCutoffMaxHz) / standardSampleRate;
 			const freqRatio: number = legacyRadians / maxRadians;
 			const targetRadians: number = legacyRadians * (freqRatio * invertedGain ** 0.9 + 1.0);
-			const curvedRadians: number = legacyRadians + (targetRadians - legacyRadians) * invertedGain;
+			const curvedRadians: number =
+				legacyRadians + (targetRadians - legacyRadians) * invertedGain;
 			let curvedHz: number;
 			if (envDecays) {
-				curvedHz = (standardSampleRate * Math.min(curvedRadians, legacyRadians * 2 ** 0.25)) / (2.0 * Math.PI);
+				curvedHz =
+					(standardSampleRate * Math.min(curvedRadians, legacyRadians * 2 ** 0.25)) /
+					(2.0 * Math.PI);
 			} else {
 				curvedHz = (standardSampleRate * curvedRadians) / (2.0 * Math.PI);
 			}
@@ -194,7 +226,8 @@ export class FilterSettings {
 				legacyFilterGain = response.magnitude();
 			}
 			if (!resonant) legacyFilterGain = Math.min(legacyFilterGain, Math.sqrt(0.5));
-			const gainSetting: number = FilterControlPoint.getRoundedSettingValueFromLinearGain(legacyFilterGain);
+			const gainSetting: number =
+				FilterControlPoint.getRoundedSettingValueFromLinearGain(legacyFilterGain);
 
 			this.addPoint(FilterType.lowPass, freqSetting, gainSetting);
 		}
@@ -204,7 +237,11 @@ export class FilterSettings {
 	}
 
 	// Similar to above, but purpose-fit for quick conversions in synth calls.
-	public convertLegacySettingsForSynth(legacyCutoffSetting: number, legacyResonanceSetting: number, allowFirstOrder: boolean = false): void {
+	public convertLegacySettingsForSynth(
+		legacyCutoffSetting: number,
+		legacyResonanceSetting: number,
+		allowFirstOrder: boolean = false,
+	): void {
 		this.reset();
 
 		const legacyFilterCutoffMaxHz: number = 8000; // This was carefully calculated to correspond to no change in response when filtering at 48000 samples per second... when using the legacy simplified low-pass filter.
@@ -216,8 +253,13 @@ export class FilterSettings {
 
 		const firstOrder: boolean = legacyResonanceSetting === 0 && allowFirstOrder;
 		const standardSampleRate: number = 48000;
-		const legacyHz: number = legacyFilterCutoffMaxHz * 2.0 ** ((legacyCutoffSetting - (legacyFilterCutoffRange - 1)) * 0.5);
-		const legacyRadians: number = Math.min(legacyFilterMaxRadians, (2 * Math.PI * legacyHz) / standardSampleRate);
+		const legacyHz: number =
+			legacyFilterCutoffMaxHz *
+			2.0 ** ((legacyCutoffSetting - (legacyFilterCutoffRange - 1)) * 0.5);
+		const legacyRadians: number = Math.min(
+			legacyFilterMaxRadians,
+			(2 * Math.PI * legacyHz) / standardSampleRate,
+		);
 
 		if (firstOrder) {
 			const extraOctaves: number = 3.5;
@@ -238,17 +280,26 @@ export class FilterSettings {
 			// Bias slightly toward 2^(-extraOctaves):
 			logGain = -extraOctaves + (logGain + extraOctaves) * 0.82;
 			const convertedGain: number = 2.0 ** logGain;
-			const gainSetting: number = FilterControlPoint.getRoundedSettingValueFromLinearGain(convertedGain);
+			const gainSetting: number =
+				FilterControlPoint.getRoundedSettingValueFromLinearGain(convertedGain);
 
 			this.addPoint(FilterType.lowPass, freqSetting, gainSetting);
 		} else {
 			const intendedGain: number =
-				0.5 / (1.0 - legacyFilterMaxResonance * Math.sqrt(Math.max(0.0, legacyResonanceSetting - 1.0) / (legacyFilterResonanceRange - 2.0)));
+				0.5 /
+				(1.0 -
+					legacyFilterMaxResonance *
+						Math.sqrt(
+							Math.max(0.0, legacyResonanceSetting - 1.0) /
+								(legacyFilterResonanceRange - 2.0),
+						));
 			const invertedGain: number = 0.5 / intendedGain;
-			const maxRadians: number = (2.0 * Math.PI * legacyFilterCutoffMaxHz) / standardSampleRate;
+			const maxRadians: number =
+				(2.0 * Math.PI * legacyFilterCutoffMaxHz) / standardSampleRate;
 			const freqRatio: number = legacyRadians / maxRadians;
 			const targetRadians: number = legacyRadians * (freqRatio * invertedGain ** 0.9 + 1.0);
-			const curvedRadians: number = legacyRadians + (targetRadians - legacyRadians) * invertedGain;
+			const curvedRadians: number =
+				legacyRadians + (targetRadians - legacyRadians) * invertedGain;
 			let curvedHz: number;
 
 			curvedHz = (standardSampleRate * curvedRadians) / (2.0 * Math.PI);
@@ -261,7 +312,8 @@ export class FilterSettings {
 			const response: FrequencyResponse = new FrequencyResponse();
 			response.analyze(legacyFilter, curvedRadians);
 			legacyFilterGain = response.magnitude();
-			const gainSetting: number = FilterControlPoint.getRoundedSettingValueFromLinearGain(legacyFilterGain);
+			const gainSetting: number =
+				FilterControlPoint.getRoundedSettingValueFromLinearGain(legacyFilterGain);
 
 			this.addPoint(FilterType.lowPass, freqSetting, gainSetting);
 		}

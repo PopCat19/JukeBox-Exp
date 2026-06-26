@@ -83,7 +83,11 @@ export function fadeInSettingToSeconds(setting: number): number {
 }
 
 export function secondsToFadeInSetting(seconds: number): number {
-	return clamp(0, Config.fadeInRange, Math.round((-0.95 + Math.sqrt(0.9025 + (0.2 * seconds) / 0.0125)) / 0.1));
+	return clamp(
+		0,
+		Config.fadeInRange,
+		Math.round((-0.95 + Math.sqrt(0.9025 + (0.2 * seconds) / 0.0125)) / 0.1),
+	);
 }
 
 export function fadeOutSettingToTicks(setting: number): number {

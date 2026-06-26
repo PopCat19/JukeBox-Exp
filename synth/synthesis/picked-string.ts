@@ -6,7 +6,8 @@
 // - Builds picked-string synthesis source strings with all-pass dispersion and sustain filters
 
 export function buildPickedStringSource(voiceCount: number): string {
-	let pickedStringSource: string = "return (synth, bufferIndex, runLength, tone, instrumentState) => {";
+	let pickedStringSource: string =
+		"return (synth, bufferIndex, runLength, tone, instrumentState) => {";
 
 	pickedStringSource += `
 				const data = synth.tempMonoInstrumentSampleBuffer;

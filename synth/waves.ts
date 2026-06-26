@@ -8,7 +8,13 @@
 // - Implements grain envelope and delay logic for granular synthesis
 
 import { inverseRealFourierTransform, scaleElementsByFactor } from "./fft";
-import { Config, drawNoiseSpectrum, getDrumWave, InstrumentType, performIntegralOld } from "./synth-config";
+import {
+	Config,
+	drawNoiseSpectrum,
+	getDrumWave,
+	InstrumentType,
+	performIntegralOld,
+} from "./synth-config";
 import { fittingPowerOfTwo } from "./util";
 
 export class SpectrumWave {
@@ -24,8 +30,19 @@ export class SpectrumWave {
 			if (isNoiseChannel) {
 				this.spectrum[i] = Math.round(Config.spectrumMax * (1 / Math.sqrt(1 + i / 3)));
 			} else {
-				const isHarmonic: boolean = i === 0 || i === 7 || i === 11 || i === 14 || i === 16 || i === 18 || i === 21 || i === 23 || i >= 25;
-				this.spectrum[i] = isHarmonic ? Math.max(0, Math.round(Config.spectrumMax * (1 - i / 30))) : 0;
+				const isHarmonic: boolean =
+					i === 0 ||
+					i === 7 ||
+					i === 11 ||
+					i === 14 ||
+					i === 16 ||
+					i === 18 ||
+					i === 21 ||
+					i === 23 ||
+					i >= 25;
+				this.spectrum[i] = isHarmonic
+					? Math.max(0, Math.round(Config.spectrumMax * (1 - i / 30)))
+					: 0;
 			}
 		}
 		this.markCustomWaveDirty();
@@ -60,25 +77,50 @@ export class SpectrumWaveState {
 		const highestOctave: number = 14;
 		const falloffRatio: number = 0.25;
 		// Nudge the 2/7 and 4/7 control points so that they form harmonic intervals.
-		const pitchTweak: number[] = [0, 1 / 7, Math.log2(5 / 4), 3 / 7, Math.log2(3 / 2), 5 / 7, 6 / 7];
+		const pitchTweak: number[] = [
+			0,
+			1 / 7,
+			Math.log2(5 / 4),
+			3 / 7,
+			Math.log2(3 / 2),
+			5 / 7,
+			6 / 7,
+		];
 		function controlPointToOctave(point: number): number {
 			return (
 				lowestOctave +
 				Math.floor(point / Config.spectrumControlPointsPerOctave) +
-				pitchTweak[(point + Config.spectrumControlPointsPerOctave) % Config.spectrumControlPointsPerOctave]
+				pitchTweak[
+					(point + Config.spectrumControlPointsPerOctave) %
+						Config.spectrumControlPointsPerOctave
+				]
 			);
 		}
 
 		let combinedAmplitude: number = 1;
 		for (let i: number = 0; i < Config.spectrumControlPoints + 1; i++) {
 			const value1: number = i <= 0 ? 0 : settings.spectrum[i - 1];
-			const value2: number = i >= Config.spectrumControlPoints ? settings.spectrum[Config.spectrumControlPoints - 1] : settings.spectrum[i];
+			const value2: number =
+				i >= Config.spectrumControlPoints
+					? settings.spectrum[Config.spectrumControlPoints - 1]
+					: settings.spectrum[i];
 			const octave1: number = controlPointToOctave(i - 1);
 			let octave2: number = controlPointToOctave(i);
-			if (i >= Config.spectrumControlPoints) octave2 = highestOctave + (octave2 - highestOctave) * falloffRatio;
+			if (i >= Config.spectrumControlPoints)
+				octave2 = highestOctave + (octave2 - highestOctave) * falloffRatio;
 			if (value1 === 0 && value2 === 0) continue;
 
-			combinedAmplitude += 0.02 * drawNoiseSpectrum(wave, waveLength, octave1, octave2, value1 / Config.spectrumMax, value2 / Config.spectrumMax, -0.5);
+			combinedAmplitude +=
+				0.02 *
+				drawNoiseSpectrum(
+					wave,
+					waveLength,
+					octave1,
+					octave2,
+					value1 / Config.spectrumMax,
+					value2 / Config.spectrumMax,
+					-0.5,
+				);
 		}
 		if (settings.spectrum[Config.spectrumControlPoints - 1] > 0) {
 			combinedAmplitude +=
@@ -86,7 +128,9 @@ export class SpectrumWaveState {
 				drawNoiseSpectrum(
 					wave,
 					waveLength,
-					highestOctave + (controlPointToOctave(Config.spectrumControlPoints) - highestOctave) * falloffRatio,
+					highestOctave +
+						(controlPointToOctave(Config.spectrumControlPoints) - highestOctave) *
+							falloffRatio,
 					highestOctave,
 					settings.spectrum[Config.spectrumControlPoints - 1] / Config.spectrumMax,
 					0,
@@ -136,11 +180,15 @@ export class HarmonicsWaveState {
 	private _generatedForType: InstrumentType;
 
 	public getCustomWave(settings: HarmonicsWave, instrumentType: InstrumentType): Float32Array {
-		if (this._hash === settings.hash && this._generatedForType === instrumentType) return this.wave!;
+		if (this._hash === settings.hash && this._generatedForType === instrumentType)
+			return this.wave!;
 		this._hash = settings.hash;
 		this._generatedForType = instrumentType;
 
-		const harmonicsRendered: number = instrumentType === InstrumentType.pickedString ? Config.harmonicsRenderedForPickedString : Config.harmonicsRendered;
+		const harmonicsRendered: number =
+			instrumentType === InstrumentType.pickedString
+				? Config.harmonicsRenderedForPickedString
+				: Config.harmonicsRendered;
 
 		const waveLength: number = Config.harmonicsWavelength;
 		const retroWave: Float32Array = getDrumWave(0, null, null);
@@ -160,12 +208,18 @@ export class HarmonicsWaveState {
 		for (let harmonicIndex: number = 0; harmonicIndex < harmonicsRendered; harmonicIndex++) {
 			const harmonicFreq: number = harmonicIndex + 1;
 			let controlValue: number =
-				harmonicIndex < Config.harmonicsControlPoints ? settings.harmonics[harmonicIndex] : settings.harmonics[Config.harmonicsControlPoints - 1];
+				harmonicIndex < Config.harmonicsControlPoints
+					? settings.harmonics[harmonicIndex]
+					: settings.harmonics[Config.harmonicsControlPoints - 1];
 			if (harmonicIndex >= Config.harmonicsControlPoints) {
-				controlValue *= 1 - (harmonicIndex - Config.harmonicsControlPoints) / (harmonicsRendered - Config.harmonicsControlPoints);
+				controlValue *=
+					1 -
+					(harmonicIndex - Config.harmonicsControlPoints) /
+						(harmonicsRendered - Config.harmonicsControlPoints);
 			}
 			const normalizedValue: number = controlValue / Config.harmonicsMax;
-			let amplitude: number = 2 ** (controlValue - Config.harmonicsMax + 1) * Math.sqrt(normalizedValue);
+			let amplitude: number =
+				2 ** (controlValue - Config.harmonicsMax + 1) * Math.sqrt(normalizedValue);
 			if (harmonicIndex < Config.harmonicsControlPoints) {
 				combinedControlPointAmplitude += amplitude;
 			}
@@ -255,11 +309,24 @@ export class Grain {
 	public updateRCBEnvelope(): void {
 		if (this.ageInSamples < this.rcbEnvelopeAttackIndex) {
 			// attack
-			this.rcbEnvelopeAmplitude = 1.0 + Math.cos(Math.PI + Math.PI * (this.ageInSamples / this.rcbEnvelopeAttackIndex) * (this.rcbEnvelopeSustain / 2.0));
+			this.rcbEnvelopeAmplitude =
+				1.0 +
+				Math.cos(
+					Math.PI +
+						Math.PI *
+							(this.ageInSamples / this.rcbEnvelopeAttackIndex) *
+							(this.rcbEnvelopeSustain / 2.0),
+				);
 		} else if (this.ageInSamples > this.rcbEnvelopeReleaseIndex) {
 			// release
 			this.rcbEnvelopeAmplitude =
-				1.0 + Math.cos(Math.PI * ((this.ageInSamples - this.rcbEnvelopeReleaseIndex) / this.rcbEnvelopeAttackIndex)) * (this.rcbEnvelopeSustain / 2.0);
+				1.0 +
+				Math.cos(
+					Math.PI *
+						((this.ageInSamples - this.rcbEnvelopeReleaseIndex) /
+							this.rcbEnvelopeAttackIndex),
+				) *
+					(this.rcbEnvelopeSustain / 2.0);
 		} // sustain covered by the end of attack
 	}
 

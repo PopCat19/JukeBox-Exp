@@ -32,7 +32,15 @@ export class MoveNotesSidewaysPrompt extends BasePrompt {
 	public readonly container: HTMLDivElement = div(
 		{ class: "prompt moveNotesSidewaysPrompt noSelection" },
 		h2("Move Notes Sideways"),
-		labelRow(div({ class: "prompt-label" }, "Beats to move:", br(), promptHint("(Negative is left, positive is right)")), this._beatsStepper),
+		labelRow(
+			div(
+				{ class: "prompt-label" },
+				"Beats to move:",
+				br(),
+				promptHint("(Negative is left, positive is right)"),
+			),
+			this._beatsStepper,
+		),
 		selectField("Conversion:", this._conversionStrategySelect),
 		this._getOkayRow(),
 		this._cancelButton,
@@ -44,7 +52,9 @@ export class MoveNotesSidewaysPrompt extends BasePrompt {
 		this._beatsStepper.min = `${-this._doc.song.beatsPerBar}`;
 		this._beatsStepper.max = `${this._doc.song.beatsPerBar}`;
 
-		const lastStrategy: string | null = window.localStorage.getItem("moveNotesSidewaysStrategy");
+		const lastStrategy: string | null = window.localStorage.getItem(
+			"moveNotesSidewaysStrategy",
+		);
 		if (lastStrategy != null) {
 			this._conversionStrategySelect.value = lastStrategy;
 		}
@@ -70,8 +80,17 @@ export class MoveNotesSidewaysPrompt extends BasePrompt {
 	}
 
 	protected override _saveChanges(): void {
-		window.localStorage.setItem("moveNotesSidewaysStrategy", this._conversionStrategySelect.value);
+		window.localStorage.setItem(
+			"moveNotesSidewaysStrategy",
+			this._conversionStrategySelect.value,
+		);
 		this._doc.prompt = null;
-		this._doc.record(new ChangeMoveNotesSideways(this._doc, +this._beatsStepper.value, this._conversionStrategySelect.value));
+		this._doc.record(
+			new ChangeMoveNotesSideways(
+				this._doc,
+				+this._beatsStepper.value,
+				this._conversionStrategySelect.value,
+			),
+		);
 	}
 }

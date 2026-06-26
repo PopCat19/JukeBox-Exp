@@ -67,14 +67,19 @@ export function installDebugTools(doc: SongDocument): void {
 		_origGroupAppend.call(this, change);
 	};
 
-	doc.record = (change: Change, replace?: boolean, newSong?: boolean): void => _origRecord(change, replace, newSong);
+	doc.record = (change: Change, replace?: boolean, newSong?: boolean): void =>
+		_origRecord(change, replace, newSong);
 
 	const _origCopy = doc.selection.copy.bind(doc.selection);
 	doc.selection.copy = (): void => {
 		_origCopy();
 		if (recording && !suppress) {
 			const payload: string | null = window.localStorage.getItem("selectionCopy");
-			ops.push({ op: "copy", args: { ...cursor(), payload: payload || undefined }, ts: Date.now() });
+			ops.push({
+				op: "copy",
+				args: { ...cursor(), payload: payload || undefined },
+				ts: Date.now(),
+			});
 		}
 	};
 
@@ -82,7 +87,11 @@ export function installDebugTools(doc: SongDocument): void {
 	doc.selection.pasteNotes = (): void => {
 		if (recording && !suppress) {
 			const payload: string | null = window.localStorage.getItem("selectionCopy");
-			ops.push({ op: "pasteNotes", args: { bar: doc.bar, ch: doc.channel, payload: payload || undefined }, ts: Date.now() });
+			ops.push({
+				op: "pasteNotes",
+				args: { bar: doc.bar, ch: doc.channel, payload: payload || undefined },
+				ts: Date.now(),
+			});
 		}
 		_origPaste();
 	};
@@ -101,7 +110,12 @@ export function installDebugTools(doc: SongDocument): void {
 
 	const _origClone = doc.selection.cloneChannel.bind(doc.selection);
 	doc.selection.cloneChannel = (): void => {
-		if (recording && !suppress) ops.push({ op: "cloneChannel", args: { src: doc.selection.boxSelectionChannel }, ts: Date.now() });
+		if (recording && !suppress)
+			ops.push({
+				op: "cloneChannel",
+				args: { src: doc.selection.boxSelectionChannel },
+				ts: Date.now(),
+			});
 		_origClone();
 	};
 
@@ -109,7 +123,9 @@ export function installDebugTools(doc: SongDocument): void {
 
 	function genScript(pretty: boolean): string {
 		const json: string = pretty ? JSON.stringify(ops, null, 2) : JSON.stringify(ops);
-		const prefix: string = pretty ? "// Replay script — paste into console on a fresh JukeBox page\n" : "";
+		const prefix: string = pretty
+			? "// Replay script — paste into console on a fresh JukeBox page\n"
+			: "";
 		return `${prefix}__jukebox__.replay(${json});`;
 	}
 
@@ -132,7 +148,9 @@ export function installDebugTools(doc: SongDocument): void {
 				try {
 					const obj: any = JSON.parse(ls);
 					console.log("── localStorage clipboard ──");
-					console.log(`channels: ${obj.channels?.length}  partDuration: ${obj.partDuration}`);
+					console.log(
+						`channels: ${obj.channels?.length}  partDuration: ${obj.partDuration}`,
+					);
 					for (let i = 0; i < (obj.channels || []).length; i++) {
 						const ch = obj.channels[i];
 						const hasDefs = ch.instrumentDefs != null;
@@ -155,10 +173,14 @@ export function installDebugTools(doc: SongDocument): void {
 							const obj: any = JSON.parse(text);
 							if (obj?.channels) {
 								console.log("── system clipboard ──");
-								console.log(`channels: ${obj.channels.length}  partDuration: ${obj.partDuration}`);
+								console.log(
+									`channels: ${obj.channels.length}  partDuration: ${obj.partDuration}`,
+								);
 								for (let i = 0; i < obj.channels.length; i++) {
 									const ch = obj.channels[i];
-									console.log(`  ch${i}: noise=${ch.isNoise} mod=${ch.isMod}  instDefs=${ch.instrumentDefs != null}`);
+									console.log(
+										`  ch${i}: noise=${ch.isNoise} mod=${ch.isMod}  instDefs=${ch.instrumentDefs != null}`,
+									);
 								}
 							} else {
 								console.log("system clipboard: not a JukeBox copy");
@@ -180,13 +202,20 @@ export function installDebugTools(doc: SongDocument): void {
 				const isMod = s.getChannelIsMod(ci);
 				for (let ii = 0; ii < ch.instruments.length; ii++) {
 					const inst: any = ch.instruments[ii];
-					if (isMod && inst.type !== 9) issues.push(`ch${ci} inst${ii}: mod channel has non-mod type ${inst.type}`);
-					if (isNoise && inst.type === 0) issues.push(`ch${ci} inst${ii}: noise channel has chip — cross-type contamination`);
+					if (isMod && inst.type !== 9)
+						issues.push(`ch${ci} inst${ii}: mod channel has non-mod type ${inst.type}`);
+					if (isNoise && inst.type === 0)
+						issues.push(
+							`ch${ci} inst${ii}: noise channel has chip — cross-type contamination`,
+						);
 				}
 				for (let pi = 0; pi < ch.patterns.length; pi++) {
 					const pat: any = ch.patterns[pi];
 					for (const idx of pat.instruments) {
-						if (idx >= ch.instruments.length) issues.push(`ch${ci} pat${pi + 1}: refs inst${idx} but only ${ch.instruments.length} exist`);
+						if (idx >= ch.instruments.length)
+							issues.push(
+								`ch${ci} pat${pi + 1}: refs inst${idx} but only ${ch.instruments.length} exist`,
+							);
 					}
 				}
 			}
@@ -203,7 +232,11 @@ export function installDebugTools(doc: SongDocument): void {
 				ops.length = 0;
 				recording = true;
 				// Capture initial song state so replay can restore it
-				ops.push({ op: "load", args: { hash: window.location.hash.slice(1) || "" }, ts: Date.now() });
+				ops.push({
+					op: "load",
+					args: { hash: window.location.hash.slice(1) || "" },
+					ts: Date.now(),
+				});
 				console.log("🔴 recording — run __jukebox__.record.stop() to get replay script");
 			},
 			stop(): string {
@@ -231,7 +264,9 @@ export function installDebugTools(doc: SongDocument): void {
 
 		pmd(hue?: number, isDark?: boolean): object {
 			const colors = applyPMDTheme(hue ?? 260, isDark ?? true);
-			console.log(`PMD theme applied: hue=${hue ?? 260}° ${(isDark ?? true) ? "dark" : "light"}`);
+			console.log(
+				`PMD theme applied: hue=${hue ?? 260}° ${(isDark ?? true) ? "dark" : "light"}`,
+			);
 			console.log(colors);
 			return colors;
 		},
@@ -247,15 +282,22 @@ export function installDebugTools(doc: SongDocument): void {
 							if (op.args?.hash) doc.record(new ChangeSong(doc, op.args.hash));
 							break;
 						case "copy":
-							if (op.args?.payload) window.localStorage.setItem("selectionCopy", op.args.payload);
+							if (op.args?.payload)
+								window.localStorage.setItem("selectionCopy", op.args.payload);
 							doc.selection.copy();
 							break;
 						case "pasteNotes":
 							// Position cursor at recorded bar/ch before paste
 							if (op.args?.bar !== undefined) doc.bar = op.args.bar;
 							if (op.args?.ch !== undefined) doc.channel = op.args.ch;
-							doc.selection.setTrackSelection(doc.bar, doc.bar, doc.channel, doc.channel);
-							if (op.args?.payload) window.localStorage.setItem("selectionCopy", op.args.payload);
+							doc.selection.setTrackSelection(
+								doc.bar,
+								doc.bar,
+								doc.channel,
+								doc.channel,
+							);
+							if (op.args?.payload)
+								window.localStorage.setItem("selectionCopy", op.args.payload);
 							doc.selection.pasteNotes();
 							break;
 						case "insertChannel":
@@ -270,7 +312,12 @@ export function installDebugTools(doc: SongDocument): void {
 						case "navigate":
 							if (op.args?.bar !== undefined) doc.bar = op.args.bar;
 							if (op.args?.ch !== undefined) doc.channel = op.args.ch;
-							doc.selection.setTrackSelection(doc.bar, doc.bar, doc.channel, doc.channel);
+							doc.selection.setTrackSelection(
+								doc.bar,
+								doc.bar,
+								doc.channel,
+								doc.channel,
+							);
 							break;
 						case "change":
 							break; // side effects only

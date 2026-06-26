@@ -25,7 +25,9 @@ export function validateNumber(event: Event): void {
 }
 
 export function validate(input: HTMLInputElement): number {
-	return Math.floor(Math.max(Number(input.min), Math.min(Number(input.max), Number(input.value))));
+	return Math.floor(
+		Math.max(Number(input.min), Math.min(Number(input.max), Number(input.value))),
+	);
 }
 
 export function updatePlayButton(btn: HTMLButtonElement, playing: boolean): void {
@@ -42,7 +44,11 @@ export function updatePlayButton(btn: HTMLButtonElement, playing: boolean): void
 	}
 }
 
-export function closePrompt(doc: SongDocument, closeCallback: ((prompt: Prompt) => void) | undefined | null, prompt: Prompt): void {
+export function closePrompt(
+	doc: SongDocument,
+	closeCallback: ((prompt: Prompt) => void) | undefined | null,
+	prompt: Prompt,
+): void {
 	if (closeCallback) {
 		closeCallback(prompt);
 	} else {

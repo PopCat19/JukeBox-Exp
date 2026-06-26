@@ -26,7 +26,12 @@ export class PatternArea {
 	public readonly zoomInButton: HTMLButtonElement;
 	public readonly zoomOutButton: HTMLButtonElement;
 
-	constructor(doc: SongDocument, _onOpenPrompt: (prompt: string) => void, onZoomIn: () => void, onZoomOut: () => void) {
+	constructor(
+		doc: SongDocument,
+		_onOpenPrompt: (prompt: string) => void,
+		onZoomIn: () => void,
+		onZoomOut: () => void,
+	) {
 		// Create Piano
 		this.piano = new Piano(doc);
 
@@ -46,7 +51,9 @@ export class PatternArea {
 
 		// Build Editor Row
 		const patternEditorRow = div(
-			{ style: "flex: 1; height: 100%; display: flex; overflow: hidden; justify-content: center;" },
+			{
+				style: "flex: 1; height: 100%; display: flex; overflow: hidden; justify-content: center;",
+			},
 			this.patternEditorPrev.container,
 			this.patternEditor.container,
 			this.patternEditorNext.container,

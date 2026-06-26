@@ -7,13 +7,16 @@
 // - Useful for stacked elements
 
 import { createDiv } from "../base/container";
-import { s, flexCenter } from "../style";
+import { flexCenter, s } from "../style";
 
 export interface FlexColumnCenterOptions {
 	marginBottom?: string;
 }
 
-export function flexColumnCenter(opts?: FlexColumnCenterOptions, ...children: (HTMLElement | string)[]): HTMLDivElement {
+export function flexColumnCenter(
+	opts?: FlexColumnCenterOptions,
+	...children: (HTMLElement | string)[]
+): HTMLDivElement {
 	const marginBottom = opts?.marginBottom ?? "";
 	const style = s(flexCenter("column"), marginBottom && `margin-bottom:${marginBottom};`);
 	return createDiv(style, undefined, ...children);

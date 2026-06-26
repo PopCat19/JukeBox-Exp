@@ -23,7 +23,9 @@ export class InstrumentExportPrompt extends BasePrompt {
 		type: "checkbox",
 	});
 	private readonly _channelName: string =
-		this._doc.song.channels[this._doc.channel].name === "" ? `${Config.jsonFormat}-Instrument` : this._doc.song.channels[this._doc.channel].name;
+		this._doc.song.channels[this._doc.channel].name === ""
+			? `${Config.jsonFormat}-Instrument`
+			: this._doc.song.channels[this._doc.channel].name;
 	private readonly _fileName: HTMLInputElement = input({
 		type: "text",
 		//

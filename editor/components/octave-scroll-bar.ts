@@ -19,7 +19,8 @@ export class OctaveScrollBar {
 	private readonly _editorHeight: number = 481;
 	private readonly _notchHeight: number = 4.0;
 	private readonly _octaveCount: number = this._doc.song.octaveCount;
-	private readonly _octaveHeight: number = (this._editorHeight - this._notchHeight) / this._octaveCount;
+	private readonly _octaveHeight: number =
+		(this._editorHeight - this._notchHeight) / this._octaveCount;
 
 	private readonly _handle: SVGRectElement = SVG.rect({
 		fill: ColorConfig.sliderTrack,
@@ -104,7 +105,10 @@ export class OctaveScrollBar {
 		const base: number = 20;
 		const tip: number = 9;
 		const arrowWidth: number = 6;
-		this._upHighlight.setAttribute("d", `M ${center} ${tip} L ${center + arrowWidth} ${base} L ${center - arrowWidth} ${base} z`);
+		this._upHighlight.setAttribute(
+			"d",
+			`M ${center} ${tip} L ${center + arrowWidth} ${base} L ${center - arrowWidth} ${base} z`,
+		);
 		this._downHighlight.setAttribute(
 			"d",
 			`M ${center} ${this._editorHeight - tip} L ${center + arrowWidth} ${this._editorHeight - base} L ${
@@ -116,7 +120,10 @@ export class OctaveScrollBar {
 		document.addEventListener("mousemove", this._whenMouseMoved);
 		document.addEventListener("mouseup", this._whenCursorReleased);
 		window.addEventListener("resize", () => (this._svgRect = null));
-		window.addEventListener("scroll", () => (this._svgRect = null), { capture: true, passive: true });
+		window.addEventListener("scroll", () => (this._svgRect = null), {
+			capture: true,
+			passive: true,
+		});
 		this.container.addEventListener("mouseover", this._whenMouseOver);
 		this.container.addEventListener("mouseout", this._whenMouseOut);
 
@@ -144,9 +151,14 @@ export class OctaveScrollBar {
 		if (!this._svgRect) this._svgRect = this._svg.getBoundingClientRect();
 		const boundingRect: DOMRect = this._svgRect;
 		// this._mouseX = (event.clientX || event.pageX) - boundingRect.left;
-		this._mouseY = (((event.clientY || event.pageY) - boundingRect.top) * this._editorHeight) / (boundingRect.bottom - boundingRect.top);
+		this._mouseY =
+			(((event.clientY || event.pageY) - boundingRect.top) * this._editorHeight) /
+			(boundingRect.bottom - boundingRect.top);
 		if (Number.isNaN(this._mouseY)) this._mouseY = 0;
-		if (this._doc.song.getChannelIsNoise(this._doc.channel) || this._doc.song.getChannelIsMod(this._doc.channel)) {
+		if (
+			this._doc.song.getChannelIsNoise(this._doc.channel) ||
+			this._doc.song.getChannelIsMod(this._doc.channel)
+		) {
 			return;
 		}
 		this._updatePreview();
@@ -164,9 +176,14 @@ export class OctaveScrollBar {
 		if (!this._svgRect) this._svgRect = this._svg.getBoundingClientRect();
 		const boundingRect: DOMRect = this._svgRect;
 		// this._mouseX = event.touches[0].clientX - boundingRect.left;
-		this._mouseY = ((event.touches[0].clientY - boundingRect.top) * this._editorHeight) / (boundingRect.bottom - boundingRect.top);
+		this._mouseY =
+			((event.touches[0].clientY - boundingRect.top) * this._editorHeight) /
+			(boundingRect.bottom - boundingRect.top);
 		if (Number.isNaN(this._mouseY)) this._mouseY = 0;
-		if (this._doc.song.getChannelIsNoise(this._doc.channel) || this._doc.song.getChannelIsMod(this._doc.channel)) {
+		if (
+			this._doc.song.getChannelIsNoise(this._doc.channel) ||
+			this._doc.song.getChannelIsMod(this._doc.channel)
+		) {
 			return;
 		}
 		this._updatePreview();
@@ -182,7 +199,9 @@ export class OctaveScrollBar {
 		if (!this._svgRect) this._svgRect = this._svg.getBoundingClientRect();
 		const boundingRect = this._svgRect;
 		// this._mouseX = (event.clientX || event.pageX) - boundingRect.left;
-		this._mouseY = (((event.clientY || event.pageY) - boundingRect.top) * this._editorHeight) / (boundingRect.bottom - boundingRect.top);
+		this._mouseY =
+			(((event.clientY || event.pageY) - boundingRect.top) * this._editorHeight) /
+			(boundingRect.bottom - boundingRect.top);
 		if (Number.isNaN(this._mouseY)) this._mouseY = 0;
 		this._whenCursorMoved();
 	};
@@ -193,20 +212,27 @@ export class OctaveScrollBar {
 		if (!this._svgRect) this._svgRect = this._svg.getBoundingClientRect();
 		const boundingRect: DOMRect = this._svgRect;
 		// this._mouseX = event.touches[0].clientX - boundingRect.left;
-		this._mouseY = ((event.touches[0].clientY - boundingRect.top) * this._editorHeight) / (boundingRect.bottom - boundingRect.top);
+		this._mouseY =
+			((event.touches[0].clientY - boundingRect.top) * this._editorHeight) /
+			(boundingRect.bottom - boundingRect.top);
 		if (Number.isNaN(this._mouseY)) this._mouseY = 0;
 		this._whenCursorMoved();
 	};
 
 	private _whenCursorMoved(): void {
-		if (this._doc.song.getChannelIsNoise(this._doc.channel) || this._doc.song.getChannelIsMod(this._doc.channel)) {
+		if (
+			this._doc.song.getChannelIsNoise(this._doc.channel) ||
+			this._doc.song.getChannelIsMod(this._doc.channel)
+		) {
 			return;
 		}
 		if (this._dragging) {
 			const visibleOctaveCount: number = this._doc.getVisibleOctaveCount();
 			const scrollableOctaves: number = this._doc.song.octaveCount - visibleOctaveCount;
 			const continuingProspectiveChange: boolean = this._doc.lastChangeWas(this._change);
-			const oldValue: number = continuingProspectiveChange ? this._change!.oldValue : this._doc.song.channels[this._doc.channel].octave;
+			const oldValue: number = continuingProspectiveChange
+				? this._change!.oldValue
+				: this._doc.song.channels[this._doc.channel].octave;
 
 			const currentOctave: number = this._doc.getBaseVisibleOctave(this._doc.channel);
 			let octave: number = currentOctave;
@@ -227,7 +253,11 @@ export class OctaveScrollBar {
 				}
 			}
 
-			this._change = new ChangeOctave(this._doc, oldValue, Math.floor(octave + visibleOctaveCount * 0.5));
+			this._change = new ChangeOctave(
+				this._doc,
+				oldValue,
+				Math.floor(octave + visibleOctaveCount * 0.5),
+			);
 			this._doc.setProspectiveChange(this._change);
 		}
 
@@ -235,24 +265,38 @@ export class OctaveScrollBar {
 	}
 
 	private _whenCursorReleased = (_event: Event): void => {
-		if (!this._doc.song.getChannelIsNoise(this._doc.channel) && !this._doc.song.getChannelIsMod(this._doc.channel) && this._mouseDown) {
+		if (
+			!this._doc.song.getChannelIsNoise(this._doc.channel) &&
+			!this._doc.song.getChannelIsMod(this._doc.channel) &&
+			this._mouseDown
+		) {
 			if (this._dragging) {
 				if (this._change != null) this._doc.record(this._change);
 			} else {
 				const visibleOctaveCount: number = this._doc.getVisibleOctaveCount();
 				const scrollableOctaves: number = this._doc.song.octaveCount - visibleOctaveCount;
 				const canReplaceLastChange: boolean = this._doc.lastChangeWas(this._change);
-				const oldValue: number = canReplaceLastChange ? this._change!.oldValue : this._doc.song.channels[this._doc.channel].octave;
+				const oldValue: number = canReplaceLastChange
+					? this._change!.oldValue
+					: this._doc.song.channels[this._doc.channel].octave;
 
 				const currentOctave: number = this._doc.getBaseVisibleOctave(this._doc.channel);
 				if (this._mouseY < this._barBottom - this._barHeight * 0.5) {
 					if (currentOctave < scrollableOctaves) {
-						this._change = new ChangeOctave(this._doc, oldValue, Math.floor(currentOctave + 1 + visibleOctaveCount * 0.5));
+						this._change = new ChangeOctave(
+							this._doc,
+							oldValue,
+							Math.floor(currentOctave + 1 + visibleOctaveCount * 0.5),
+						);
 						this._doc.record(this._change, canReplaceLastChange);
 					}
 				} else {
 					if (currentOctave > 0) {
-						this._change = new ChangeOctave(this._doc, oldValue, Math.floor(currentOctave - 1 + visibleOctaveCount * 0.5));
+						this._change = new ChangeOctave(
+							this._doc,
+							oldValue,
+							Math.floor(currentOctave - 1 + visibleOctaveCount * 0.5),
+						);
 						this._doc.record(this._change, canReplaceLastChange);
 					}
 				}
@@ -285,11 +329,19 @@ export class OctaveScrollBar {
 	}
 
 	private _documentChanged = (): void => {
-		this._barBottom = this._editorHeight - this._octaveHeight * this._doc.getBaseVisibleOctave(this._doc.channel);
+		this._barBottom =
+			this._editorHeight -
+			this._octaveHeight * this._doc.getBaseVisibleOctave(this._doc.channel);
 		this._svg.style.visibility =
-			this._doc.song.getChannelIsNoise(this._doc.channel) || this._doc.song.getChannelIsMod(this._doc.channel) ? "hidden" : "visible";
+			this._doc.song.getChannelIsNoise(this._doc.channel) ||
+			this._doc.song.getChannelIsMod(this._doc.channel)
+				? "hidden"
+				: "visible";
 		const visibleOctaveCount: number = this._doc.getVisibleOctaveCount();
-		if (this._renderedBarBottom !== this._barBottom || this._renderedVisibleOctaveCount !== visibleOctaveCount) {
+		if (
+			this._renderedBarBottom !== this._barBottom ||
+			this._renderedVisibleOctaveCount !== visibleOctaveCount
+		) {
 			this._renderedBarBottom = this._barBottom;
 			this._renderedVisibleOctaveCount = visibleOctaveCount;
 			this._barHeight = this._octaveHeight * visibleOctaveCount + this._notchHeight;

@@ -7,13 +7,18 @@
 // - Applies the palette to :root CSS custom properties
 // - Maps Base16 semantic slots to JukeBox's editor variable names
 
+import { maxOklchChroma, rgbToHex } from "./color-utils";
 import type { Base16Palette, PMDVariables } from "./pmd";
 import { generatePalette, getPMD } from "./pmd";
-import { rgbToHex, maxOklchChroma } from "./color-utils";
 import { safeOklchToRgb } from "./pmd/color";
 import { composite } from "./pmd/variables";
 
-export function pmdGenerateColors(hue: number, isDark: boolean, lockHue: boolean = false, lockValue: number = 0): Base16Palette {
+export function pmdGenerateColors(
+	hue: number,
+	isDark: boolean,
+	lockHue: boolean = false,
+	lockValue: number = 0,
+): Base16Palette {
 	const { pmd, computed } = getPMD(isDark);
 	return generatePalette(hue, pmd, computed, lockHue, lockValue);
 }
@@ -32,7 +37,11 @@ export function applyPMDToDOM(colors: Base16Palette): void {
 	};
 
 	// Pre-compute helpers for dimmed pattern-cell colors
-	const isLight = colors.base00?.rgb && (0.299 * colors.base00.rgb.r + 0.587 * colors.base00.rgb.g + 0.114 * colors.base00.rgb.b) / 255 > 0.5;
+	const isLight =
+		colors.base00?.rgb &&
+		(0.299 * colors.base00.rgb.r + 0.587 * colors.base00.rgb.g + 0.114 * colors.base00.rgb.b) /
+			255 >
+			0.5;
 	const { pmd } = getPMD(!isLight);
 	const primaryHue = colors.base0D?.hue ?? 260;
 
@@ -78,7 +87,8 @@ export function applyPMDToDOM(colors: Base16Palette): void {
 	const surface = composite(pmd["8x"], pmd["80x"], 0.08);
 	const dimL = surface.l;
 	const dimC = surface.c * 1.5;
-	const dimHex = (hueOffset: number): string => rgbToHex(safeOklchToRgb(dimL, dimC, (primaryHue + hueOffset + 360) % 360));
+	const dimHex = (hueOffset: number): string =>
+		rgbToHex(safeOklchToRgb(dimL, dimC, (primaryHue + hueOffset + 360) % 360));
 	set("--tonic", dimHex(290));
 	set("--fifth-note", dimHex(0));
 
@@ -169,7 +179,18 @@ function spreadHues(n: number, anchorHue: number): number[] {
 function applyChannelColors(root: HTMLElement, pmd: PMDVariables, palette: Base16Palette): void {
 	const set = (name: string, value: string) => root.style.setProperty(name, value);
 
-	const pitchNames = ["pitch1", "pitch2", "pitch3", "pitch4", "pitch5", "pitch6", "pitch7", "pitch8", "pitch9", "pitch10"];
+	const pitchNames = [
+		"pitch1",
+		"pitch2",
+		"pitch3",
+		"pitch4",
+		"pitch5",
+		"pitch6",
+		"pitch7",
+		"pitch8",
+		"pitch9",
+		"pitch10",
+	];
 	const noiseNames = ["noise1", "noise2", "noise3", "noise4"];
 	const modNames = ["mod1", "mod2", "mod3", "mod4"];
 

@@ -13,7 +13,14 @@ export interface SelectContainerOptions {
 	width?: string;
 }
 
-export function selectContainer(select: HTMLSelectElement, opts?: SelectContainerOptions): HTMLDivElement {
+export function selectContainer(
+	select: HTMLSelectElement,
+	opts?: SelectContainerOptions,
+): HTMLDivElement {
 	const width = opts?.width ?? "50%";
-	return createDiv(`width: ${width}; margin-left: ${Margin.lg};`, { class: "selectContainer" }, select);
+	return createDiv(
+		`width: ${width}; margin-left: ${Margin.lg};`,
+		{ class: "selectContainer" },
+		select,
+	);
 }

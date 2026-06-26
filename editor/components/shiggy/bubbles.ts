@@ -185,14 +185,22 @@ export function startConversation(a: SummonedShiggy, b: SummonedShiggy): void {
 	_playConvoTurn(a, b, exchange, 0);
 }
 
-function _playConvoTurn(speaker: SummonedShiggy, listener: SummonedShiggy, lines: [string, string], turn: number): void {
+function _playConvoTurn(
+	speaker: SummonedShiggy,
+	listener: SummonedShiggy,
+	lines: [string, string],
+	turn: number,
+): void {
 	if (!speaker.inConversation || !listener.inConversation) return;
 	if (turn >= CONVO_LINES) {
 		_endConversation(speaker);
 		return;
 	}
 
-	const text = turn < lines.length ? lines[turn % lines.length] : CONVO_RESPONSES[Math.floor(Math.random() * CONVO_RESPONSES.length)][turn % 2];
+	const text =
+		turn < lines.length
+			? lines[turn % lines.length]
+			: CONVO_RESPONSES[Math.floor(Math.random() * CONVO_RESPONSES.length)][turn % 2];
 
 	clearDialogue(speaker);
 	const bubble = makeBubble(text, CONVO_LINE_INTERVAL - 200);

@@ -327,7 +327,12 @@ export const mixedCommunityCategories: InputPresetCategory[] = [
 					feedbackType: "1→2",
 					feedbackAmplitude: 3,
 					operators: [
-						{ frequency: "0.25×", amplitude: 14, waveform: "pulse width", pulseWidth: 5 },
+						{
+							frequency: "0.25×",
+							amplitude: 14,
+							waveform: "pulse width",
+							pulseWidth: 5,
+						},
 						{ frequency: "11×", amplitude: 12, waveform: "sine", pulseWidth: 5 },
 						{ frequency: "~1×", amplitude: 14, waveform: "pulse width", pulseWidth: 5 },
 						{ frequency: "6×", amplitude: 1, waveform: "pulse width", pulseWidth: 1 },
@@ -404,7 +409,16 @@ export const mixedCommunityCategories: InputPresetCategory[] = [
 							linearGain: 0.5,
 						},
 					],
-					effects: ["panning", "pitch shift", "vibrato", "distortion", "bitcrusher", "chorus", "echo", "reverb"],
+					effects: [
+						"panning",
+						"pitch shift",
+						"vibrato",
+						"distortion",
+						"bitcrusher",
+						"chorus",
+						"echo",
+						"reverb",
+					],
 					pitchShiftSemitones: 12,
 					vibrato: "custom",
 					vibratoDepth: 0.92,
@@ -563,7 +577,10 @@ export const mixedCommunityCategories: InputPresetCategory[] = [
 					unisonExpression: 1,
 					unisonSign: 1,
 					unisonBuzzes: false,
-					spectrum: [57, 0, 14, 57, 57, 0, 29, 29, 71, 0, 14, 0, 14, 43, 71, 0, 29, 0, 29, 57, 0, 29, 29, 29, 0, 0, 0, 14, 14, 0],
+					spectrum: [
+						57, 0, 14, 57, 57, 0, 29, 29, 71, 0, 14, 0, 14, 43, 71, 0, 29, 0, 29, 57, 0,
+						29, 29, 29, 0, 0, 0, 14, 14, 0,
+					],
 					envelopes: [
 						{ target: "chorus", envelope: "swell 1" },
 						{ target: "chorus", envelope: "swell 1" },
@@ -674,9 +691,19 @@ export const mixedCommunityCategories: InputPresetCategory[] = [
 					operators: [
 						{ frequency: "0.12×", amplitude: 15, waveform: "trapezoid", pulseWidth: 5 },
 						{ frequency: "5×", amplitude: 8, waveform: "pulse width", pulseWidth: 6 },
-						{ frequency: "0.75×", amplitude: 9, waveform: "pulse width", pulseWidth: 6 },
+						{
+							frequency: "0.75×",
+							amplitude: 9,
+							waveform: "pulse width",
+							pulseWidth: 6,
+						},
 						{ frequency: "7×", amplitude: 3, waveform: "ramp", pulseWidth: 5 },
-						{ frequency: "0.75×", amplitude: 11, waveform: "quasi-sine", pulseWidth: 5 },
+						{
+							frequency: "0.75×",
+							amplitude: 11,
+							waveform: "quasi-sine",
+							pulseWidth: 5,
+						},
 						{ frequency: "~1×", amplitude: 14, waveform: "sine", pulseWidth: 5 },
 					],
 					envelopes: [
@@ -735,9 +762,19 @@ export const mixedCommunityCategories: InputPresetCategory[] = [
 					operators: [
 						{ frequency: "0.12×", amplitude: 15, waveform: "trapezoid", pulseWidth: 5 },
 						{ frequency: "5×", amplitude: 8, waveform: "pulse width", pulseWidth: 6 },
-						{ frequency: "0.75×", amplitude: 9, waveform: "pulse width", pulseWidth: 6 },
+						{
+							frequency: "0.75×",
+							amplitude: 9,
+							waveform: "pulse width",
+							pulseWidth: 6,
+						},
 						{ frequency: "7×", amplitude: 3, waveform: "ramp", pulseWidth: 5 },
-						{ frequency: "0.75×", amplitude: 11, waveform: "quasi-sine", pulseWidth: 5 },
+						{
+							frequency: "0.75×",
+							amplitude: 11,
+							waveform: "quasi-sine",
+							pulseWidth: 5,
+						},
 						{ frequency: "~1×", amplitude: 14, waveform: "sine", pulseWidth: 5 },
 					],
 					envelopes: [
@@ -764,7 +801,17 @@ export const mixedCommunityCategories: InputPresetCategory[] = [
 					eqSimplePeak: 0,
 					envelopeSpeed: 12,
 					eqSubFilters0: [],
-					effects: ["panning", "transition type", "note filter", "granular", "distortion", "bitcrusher", "chorus", "echo", "reverb"],
+					effects: [
+						"panning",
+						"transition type",
+						"note filter",
+						"granular",
+						"distortion",
+						"bitcrusher",
+						"chorus",
+						"echo",
+						"reverb",
+					],
 					transition: "normal",
 					clicklessTransition: false,
 					noteFilterType: false,
@@ -855,7 +902,10 @@ export const mixedCommunityCategories: InputPresetCategory[] = [
 					reverb: 6,
 					fadeInSeconds: 0.075,
 					fadeOutTicks: 12,
-					harmonics: [29, 14, 29, 29, 29, 29, 29, 29, 57, 43, 14, 29, 71, 14, 29, 29, 14, 86, 71, 71, 29, 43, 100, 71, 71, 86, 71, 71],
+					harmonics: [
+						29, 14, 29, 29, 29, 29, 29, 29, 57, 43, 14, 29, 71, 14, 29, 29, 14, 86, 71,
+						71, 29, 43, 100, 71, 71, 86, 71, 71,
+					],
 					unison: "none",
 					stringSustain: 7,
 					envelopes: [
@@ -913,7 +963,10 @@ export const mixedCommunityCategories: InputPresetCategory[] = [
 					reverb: 71,
 					fadeInSeconds: 0.1575,
 					fadeOutTicks: 96,
-					spectrum: [100, 29, 29, 29, 29, 29, 14, 14, 14, 14, 0, 0, 0, 0, 14, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+					spectrum: [
+						100, 29, 29, 29, 29, 29, 14, 14, 14, 14, 0, 0, 0, 0, 14, 0, 0, 0, 0, 0, 0,
+						0, 0, 0, 0, 0, 0, 0, 0, 0,
+					],
 					unison: "none",
 					envelopes: [],
 					isDrum: false,
@@ -932,7 +985,15 @@ export const mixedCommunityCategories: InputPresetCategory[] = [
 					eqSimplePeak: 0,
 					envelopeSpeed: 5,
 					eqSubFilters0: [],
-					effects: ["panning", "chord type", "pitch shift", "detune", "note filter", "distortion", "bitcrusher"],
+					effects: [
+						"panning",
+						"chord type",
+						"pitch shift",
+						"detune",
+						"note filter",
+						"distortion",
+						"bitcrusher",
+					],
 					chord: "strum",
 					fastTwoNoteArp: false,
 					arpeggioSpeed: 12,
@@ -1090,7 +1151,10 @@ export const mixedCommunityCategories: InputPresetCategory[] = [
 					reverb: 39,
 					fadeInSeconds: 0.075,
 					fadeOutTicks: -1,
-					harmonics: [100, 57, 71, 29, 14, 0, 29, 14, 0, 29, 43, 43, 0, 29, 14, 29, 14, 14, 29, 57, 0, 57, 29, 43, 14, 0, 14, 29],
+					harmonics: [
+						100, 57, 71, 29, 14, 0, 29, 14, 0, 29, 43, 43, 0, 29, 14, 29, 14, 14, 29,
+						57, 0, 57, 29, 43, 14, 0, 14, 29,
+					],
 					unison: "custom",
 					unisonVoices: 1,
 					unisonSpread: 0,
@@ -1278,7 +1342,10 @@ export const mixedCommunityCategories: InputPresetCategory[] = [
 					panDelay: 10,
 					fadeInSeconds: 0.0125,
 					fadeOutTicks: 6,
-					spectrum: [100, 14, 0, 43, 14, 0, 29, 86, 0, 0, 14, 100, 0, 0, 100, 29, 100, 29, 86, 14, 0, 86, 43, 0, 0, 43, 0, 0, 0, 0],
+					spectrum: [
+						100, 14, 0, 43, 14, 0, 29, 86, 0, 0, 14, 100, 0, 0, 100, 29, 100, 29, 86,
+						14, 0, 86, 43, 0, 0, 43, 0, 0, 0, 0,
+					],
 					unison: "none",
 					envelopes: [
 						{
@@ -1367,7 +1434,10 @@ export const mixedCommunityCategories: InputPresetCategory[] = [
 					reverb: 3,
 					fadeInSeconds: 0,
 					fadeOutTicks: -1,
-					harmonics: [0, 43, 43, 0, 100, 0, 0, 0, 0, 0, 57, 0, 0, 29, 71, 0, 29, 14, 0, 0, 0, 0, 0, 0, 71, 0, 0, 0],
+					harmonics: [
+						0, 43, 43, 0, 100, 0, 0, 0, 0, 0, 57, 0, 0, 29, 71, 0, 29, 14, 0, 0, 0, 0,
+						0, 0, 71, 0, 0, 0,
+					],
 					unison: "vibrate",
 					stringSustain: 0,
 					envelopes: [
@@ -1514,7 +1584,10 @@ export const mixedCommunityCategories: InputPresetCategory[] = [
 					reverb: 29,
 					fadeInSeconds: 0,
 					fadeOutTicks: 24,
-					spectrum: [86, 14, 14, 0, 0, 29, 0, 100, 0, 0, 0, 100, 14, 43, 57, 0, 100, 0, 86, 0, 0, 100, 14, 14, 29, 14, 0, 0, 29, 0],
+					spectrum: [
+						86, 14, 14, 0, 0, 29, 0, 100, 0, 0, 0, 100, 14, 43, 57, 0, 100, 0, 86, 0, 0,
+						100, 14, 14, 29, 14, 0, 0, 29, 0,
+					],
 					unison: "shimmer",
 					envelopes: [
 						{
@@ -1567,7 +1640,10 @@ export const mixedCommunityCategories: InputPresetCategory[] = [
 					reverb: 32,
 					fadeInSeconds: 0.0263,
 					fadeOutTicks: -6,
-					harmonics: [100, 71, 57, 43, 29, 29, 14, 14, 14, 14, 14, 14, 14, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+					harmonics: [
+						100, 71, 57, 43, 29, 29, 14, 14, 14, 14, 14, 14, 14, 0, 0, 0, 0, 0, 0, 0, 0,
+						0, 0, 0, 0, 0, 0, 0,
+					],
 					unison: "bowed",
 					envelopes: [],
 				},
@@ -1664,7 +1740,14 @@ export const mixedCommunityCategories: InputPresetCategory[] = [
 						},
 						{ type: "peak", cutoffHz: 2000, linearGain: 2 },
 					],
-					effects: ["note filter", "distortion", "bitcrusher", "chorus", "echo", "reverb"],
+					effects: [
+						"note filter",
+						"distortion",
+						"bitcrusher",
+						"chorus",
+						"echo",
+						"reverb",
+					],
 					noteFilterType: false,
 					noteSimpleCut: 10,
 					noteSimplePeak: 0,
@@ -1682,7 +1765,10 @@ export const mixedCommunityCategories: InputPresetCategory[] = [
 					reverb: 68,
 					fadeInSeconds: 0,
 					fadeOutTicks: -1,
-					harmonics: [100, 100, 71, 57, 57, 43, 43, 43, 29, 29, 14, 29, 29, 29, 14, 29, 14, 14, 29, 14, 14, 29, 29, 29, 29, 29, 29, 29],
+					harmonics: [
+						100, 100, 71, 57, 57, 43, 43, 43, 29, 29, 14, 29, 29, 29, 14, 29, 14, 14,
+						29, 14, 14, 29, 29, 29, 29, 29, 29, 29,
+					],
 					unison: "corrupt",
 					envelopes: [],
 				},
@@ -1712,8 +1798,8 @@ export const mixedCommunityCategories: InputPresetCategory[] = [
 					fadeInSeconds: 0,
 					fadeOutTicks: -1,
 					harmonics: [
-						100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100,
-						100,
+						100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100,
+						100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100,
 					],
 					unison: "none",
 					stringSustain: 71,
@@ -1748,8 +1834,8 @@ export const mixedCommunityCategories: InputPresetCategory[] = [
 					fadeInSeconds: 0,
 					fadeOutTicks: -1,
 					harmonics: [
-						100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100,
-						100,
+						100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100,
+						100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100,
 					],
 					unison: "piano",
 					stringSustain: 79,
@@ -2029,7 +2115,14 @@ export const mixedCommunityCategories: InputPresetCategory[] = [
 						{ type: "peak", cutoffHz: 3363.59, linearGain: 4 },
 						{ type: "peak", cutoffHz: 2378.41, linearGain: 0.25 },
 					],
-					effects: ["pitch shift", "detune", "vibrato", "note filter", "chorus", "reverb"],
+					effects: [
+						"pitch shift",
+						"detune",
+						"vibrato",
+						"note filter",
+						"chorus",
+						"reverb",
+					],
 					pitchShiftSemitones: 8,
 					detuneCents: -40,
 					vibrato: "heavy",
@@ -2061,7 +2154,10 @@ export const mixedCommunityCategories: InputPresetCategory[] = [
 					reverb: 68,
 					fadeInSeconds: 0,
 					fadeOutTicks: 48,
-					harmonics: [100, 100, 86, 86, 86, 71, 71, 71, 0, 71, 71, 71, 71, 57, 57, 71, 57, 14, 57, 57, 57, 57, 57, 57, 57, 57, 29, 57],
+					harmonics: [
+						100, 100, 86, 86, 86, 71, 71, 71, 0, 71, 71, 71, 71, 57, 57, 71, 57, 14, 57,
+						57, 57, 57, 57, 57, 57, 57, 29, 57,
+					],
 					unison: "honky tonk",
 					stringSustain: 86,
 					envelopes: [
@@ -2102,7 +2198,10 @@ export const mixedCommunityCategories: InputPresetCategory[] = [
 					reverb: 0,
 					fadeInSeconds: 0.0263,
 					fadeOutTicks: -3,
-					harmonics: [100, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+					harmonics: [
+						100, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+						0, 0, 0,
+					],
 					unison: "resonance",
 					envelopes: [],
 				},
@@ -2146,7 +2245,10 @@ export const mixedCommunityCategories: InputPresetCategory[] = [
 					panDelay: 0,
 					fadeInSeconds: 0,
 					fadeOutTicks: 12,
-					spectrum: [100, 0, 0, 0, 14, 14, 0, 57, 29, 0, 0, 100, 0, 14, 43, 0, 57, 0, 71, 29, 43, 86, 0, 0, 14, 29, 0, 0, 14, 0],
+					spectrum: [
+						100, 0, 0, 0, 14, 14, 0, 57, 29, 0, 0, 100, 0, 14, 43, 0, 57, 0, 71, 29, 43,
+						86, 0, 0, 14, 29, 0, 0, 14, 0,
+					],
 					unison: "hum",
 					envelopes: [
 						{
@@ -2557,7 +2659,12 @@ export const mixedCommunityCategories: InputPresetCategory[] = [
 						{ frequency: "1×", amplitude: 6, waveform: "sine", pulseWidth: 5 },
 						{ frequency: "0.12×", amplitude: 8, waveform: "triangle", pulseWidth: 5 },
 						{ frequency: "0.5×", amplitude: 14, waveform: "sine", pulseWidth: 5 },
-						{ frequency: "3.5×", amplitude: 15, waveform: "pulse width", pulseWidth: 5 },
+						{
+							frequency: "3.5×",
+							amplitude: 15,
+							waveform: "pulse width",
+							pulseWidth: 5,
+						},
 						{ frequency: "1×", amplitude: 11, waveform: "sine", pulseWidth: 5 },
 					],
 					envelopes: [
@@ -2671,7 +2778,10 @@ export const mixedCommunityCategories: InputPresetCategory[] = [
 					panDelay: 10,
 					fadeInSeconds: 0,
 					fadeOutTicks: -3,
-					harmonics: [100, 100, 86, 86, 86, 86, 71, 71, 57, 43, 43, 29, 29, 14, 14, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+					harmonics: [
+						100, 100, 86, 86, 86, 86, 71, 71, 57, 43, 43, 29, 29, 14, 14, 0, 0, 0, 0, 0,
+						0, 0, 0, 0, 0, 0, 0, 0,
+					],
 					unison: "fifth",
 					stringSustain: 64,
 					envelopes: [],
@@ -2897,7 +3007,10 @@ export const mixedCommunityCategories: InputPresetCategory[] = [
 					fadeInSeconds: 0,
 					fadeOutTicks: -3,
 					unison: "none",
-					spectrum: [100, 0, 0, 100, 0, 100, 0, 71, 0, 0, 0, 57, 0, 0, 57, 0, 43, 0, 43, 0, 0, 29, 0, 29, 0, 14, 14, 14, 0, 0],
+					spectrum: [
+						100, 0, 0, 100, 0, 100, 0, 71, 0, 0, 0, 57, 0, 0, 57, 0, 43, 0, 43, 0, 0,
+						29, 0, 29, 0, 14, 14, 14, 0, 0,
+					],
 					envelopes: [{ target: "noteVolume", envelope: "punch" }],
 				},
 			},
@@ -2929,7 +3042,16 @@ export const mixedCommunityCategories: InputPresetCategory[] = [
 						},
 						{ type: "low-pass", cutoffHz: 13454.34, linearGain: 1 },
 					],
-					effects: ["pitch shift", "detune", "vibrato", "note filter", "distortion", "chorus", "echo", "reverb"],
+					effects: [
+						"pitch shift",
+						"detune",
+						"vibrato",
+						"note filter",
+						"distortion",
+						"chorus",
+						"echo",
+						"reverb",
+					],
 					pitchShiftSemitones: 13,
 					detuneCents: 72,
 					vibrato: "custom",
@@ -3114,7 +3236,14 @@ export const mixedCommunityCategories: InputPresetCategory[] = [
 					eqSimplePeak: 0,
 					envelopeSpeed: 12,
 					eqSubFilters0: [],
-					effects: ["note filter", "distortion", "bitcrusher", "chorus", "echo", "reverb"],
+					effects: [
+						"note filter",
+						"distortion",
+						"bitcrusher",
+						"chorus",
+						"echo",
+						"reverb",
+					],
 					noteFilterType: true,
 					noteSimpleCut: 8,
 					noteSimplePeak: 2,
@@ -3131,7 +3260,10 @@ export const mixedCommunityCategories: InputPresetCategory[] = [
 					reverb: 100,
 					fadeInSeconds: 0.0263,
 					fadeOutTicks: 96,
-					spectrum: [43, 14, 14, 14, 14, 14, 14, 100, 14, 14, 14, 57, 14, 14, 100, 14, 43, 14, 43, 14, 14, 43, 14, 29, 14, 29, 14, 14, 29, 0],
+					spectrum: [
+						43, 14, 14, 14, 14, 14, 14, 100, 14, 14, 14, 57, 14, 14, 100, 14, 43, 14,
+						43, 14, 14, 43, 14, 29, 14, 29, 14, 14, 29, 0,
+					],
 					unison: "none",
 					envelopes: [
 						{
@@ -3188,7 +3320,10 @@ export const mixedCommunityCategories: InputPresetCategory[] = [
 					reverb: 3,
 					fadeInSeconds: 0,
 					fadeOutTicks: -12,
-					spectrum: [57, 14, 0, 14, 14, 0, 0, 100, 0, 0, 0, 86, 0, 0, 86, 29, 86, 0, 57, 14, 0, 100, 0, 14, 14, 0, 0, 0, 57, 43],
+					spectrum: [
+						57, 14, 0, 14, 14, 0, 0, 100, 0, 0, 0, 86, 0, 0, 86, 29, 86, 0, 57, 14, 0,
+						100, 0, 14, 14, 0, 0, 0, 57, 43,
+					],
 					unison: "none",
 					envelopes: [],
 				},
@@ -3232,8 +3367,18 @@ export const mixedCommunityCategories: InputPresetCategory[] = [
 					operators: [
 						{ frequency: "0.25×", amplitude: 15, waveform: "sine", pulseWidth: 5 },
 						{ frequency: "~2×", amplitude: 7, waveform: "trapezoid", pulseWidth: 5 },
-						{ frequency: "3.5×", amplitude: 14, waveform: "pulse width", pulseWidth: 5 },
-						{ frequency: "0.75×", amplitude: 6, waveform: "pulse width", pulseWidth: 7 },
+						{
+							frequency: "3.5×",
+							amplitude: 14,
+							waveform: "pulse width",
+							pulseWidth: 5,
+						},
+						{
+							frequency: "0.75×",
+							amplitude: 6,
+							waveform: "pulse width",
+							pulseWidth: 7,
+						},
 						{ frequency: "0.75×", amplitude: 2, waveform: "trapezoid", pulseWidth: 5 },
 						{ frequency: "1×", amplitude: 4, waveform: "ramp", pulseWidth: 5 },
 					],
@@ -3394,7 +3539,10 @@ export const mixedCommunityCategories: InputPresetCategory[] = [
 					reverb: 19,
 					fadeInSeconds: 0.0938,
 					fadeOutTicks: -24,
-					harmonics: [14, 14, 14, 29, 29, 100, 86, 100, 0, 14, 14, 14, 14, 29, 0, 0, 14, 14, 14, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+					harmonics: [
+						14, 14, 14, 29, 29, 100, 86, 100, 0, 14, 14, 14, 14, 29, 0, 0, 14, 14, 14,
+						0, 0, 0, 0, 0, 0, 0, 0, 0,
+					],
 					unison: "fifth",
 					envelopes: [
 						{
@@ -3503,7 +3651,10 @@ export const mixedCommunityCategories: InputPresetCategory[] = [
 					panDelay: 0,
 					fadeInSeconds: 0,
 					fadeOutTicks: -1,
-					spectrum: [100, 100, 100, 100, 100, 100, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 14, 29, 43, 57, 57, 71, 71, 100, 100, 100],
+					spectrum: [
+						100, 100, 100, 100, 100, 100, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 14,
+						29, 43, 57, 57, 71, 71, 100, 100, 100,
+					],
 					unison: "none",
 					envelopes: [
 						{
@@ -3847,7 +3998,10 @@ export const mixedCommunityCategories: InputPresetCategory[] = [
 					panDelay: 10,
 					fadeInSeconds: 0,
 					fadeOutTicks: -1,
-					spectrum: [43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43],
+					spectrum: [
+						43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43,
+						43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43,
+					],
 					unison: "none",
 					envelopes: [],
 				},
@@ -3877,7 +4031,10 @@ export const mixedCommunityCategories: InputPresetCategory[] = [
 					reverb: 100,
 					fadeInSeconds: 0,
 					fadeOutTicks: -24,
-					harmonics: [100, 43, 57, 43, 57, 43, 43, 43, 43, 43, 43, 43, 43, 29, 29, 29, 29, 29, 29, 29, 14, 14, 14, 14, 14, 14, 14, 100],
+					harmonics: [
+						100, 43, 57, 43, 57, 43, 43, 43, 43, 43, 43, 43, 43, 29, 29, 29, 29, 29, 29,
+						29, 14, 14, 14, 14, 14, 14, 14, 100,
+					],
 					unison: "none",
 					envelopes: [],
 				},
@@ -4218,7 +4375,12 @@ export const mixedCommunityCategories: InputPresetCategory[] = [
 						{ frequency: "0.75×", amplitude: 14, waveform: "sine", pulseWidth: 5 },
 						{ frequency: "250×", amplitude: 12, waveform: "triangle", pulseWidth: 5 },
 						{ frequency: "3×", amplitude: 1, waveform: "pulse width", pulseWidth: 0 },
-						{ frequency: "0.75×", amplitude: 10, waveform: "pulse width", pulseWidth: 7 },
+						{
+							frequency: "0.75×",
+							amplitude: 10,
+							waveform: "pulse width",
+							pulseWidth: 7,
+						},
 					],
 					envelopes: [
 						{
@@ -4285,7 +4447,10 @@ export const mixedCommunityCategories: InputPresetCategory[] = [
 					panDelay: 10,
 					fadeInSeconds: 0,
 					fadeOutTicks: 96,
-					harmonics: [86, 0, 57, 29, 14, 14, 14, 14, 0, 43, 29, 29, 14, 29, 14, 29, 14, 0, 43, 29, 29, 14, 71, 29, 57, 43, 14, 100],
+					harmonics: [
+						86, 0, 57, 29, 14, 14, 14, 14, 0, 43, 29, 29, 14, 29, 14, 29, 14, 0, 43, 29,
+						29, 14, 71, 29, 57, 43, 14, 100,
+					],
 					unison: "none",
 					stringSustain: 50,
 					envelopes: [],
@@ -4539,7 +4704,15 @@ export const mixedCommunityCategories: InputPresetCategory[] = [
 						},
 						{ type: "peak", cutoffHz: 594.6, linearGain: 4 },
 					],
-					effects: ["chord type", "pitch shift", "granular", "distortion", "bitcrusher", "chorus", "reverb"],
+					effects: [
+						"chord type",
+						"pitch shift",
+						"granular",
+						"distortion",
+						"bitcrusher",
+						"chorus",
+						"reverb",
+					],
 					chord: "strum",
 					fastTwoNoteArp: false,
 					arpeggioSpeed: 12,
@@ -4792,7 +4965,10 @@ export const mixedCommunityCategories: InputPresetCategory[] = [
 					panDelay: 10,
 					fadeInSeconds: 0.0263,
 					fadeOutTicks: 6,
-					harmonics: [100, 14, 29, 29, 29, 0, 0, 0, 43, 14, 14, 43, 43, 57, 71, 71, 14, 43, 29, 14, 14, 29, 0, 29, 0, 14, 0, 14],
+					harmonics: [
+						100, 14, 29, 29, 29, 0, 0, 0, 43, 14, 14, 43, 43, 57, 71, 71, 14, 43, 29,
+						14, 14, 29, 0, 29, 0, 14, 0, 14,
+					],
 					unison: "diminished",
 					envelopes: [
 						{
@@ -4890,7 +5066,12 @@ export const mixedCommunityCategories: InputPresetCategory[] = [
 						{ frequency: "1×", amplitude: 15, waveform: "sine", pulseWidth: 5 },
 						{ frequency: "1×", amplitude: 15, waveform: "sine", pulseWidth: 5 },
 						{ frequency: "1×", amplitude: 15, waveform: "ramp", pulseWidth: 5 },
-						{ frequency: "0.25×", amplitude: 15, waveform: "quasi-sine", pulseWidth: 5 },
+						{
+							frequency: "0.25×",
+							amplitude: 15,
+							waveform: "quasi-sine",
+							pulseWidth: 5,
+						},
 						{ frequency: "0.5×", amplitude: 9, waveform: "sharksine", pulseWidth: 5 },
 						{ frequency: "1×", amplitude: 4, waveform: "absine", pulseWidth: 5 },
 					],
@@ -5147,7 +5328,10 @@ export const mixedCommunityCategories: InputPresetCategory[] = [
 					chorus: 71,
 					fadeInSeconds: 0.075,
 					fadeOutTicks: -1,
-					harmonics: [86, 86, 100, 100, 71, 71, 86, 100, 86, 86, 71, 43, 43, 43, 43, 29, 29, 29, 29, 29, 29, 14, 29, 29, 29, 43, 43, 43],
+					harmonics: [
+						86, 86, 100, 100, 71, 71, 86, 100, 86, 86, 71, 43, 43, 43, 43, 29, 29, 29,
+						29, 29, 29, 14, 29, 29, 29, 43, 43, 43,
+					],
 					unison: "chorus",
 					envelopes: [
 						{
@@ -5443,7 +5627,10 @@ export const mixedCommunityCategories: InputPresetCategory[] = [
 					echoDelayBeats: 0.833,
 					fadeInSeconds: 0,
 					fadeOutTicks: 48,
-					spectrum: [86, 14, 0, 0, 0, 43, 43, 100, 0, 0, 0, 100, 14, 14, 86, 0, 86, 0, 71, 29, 0, 71, 43, 29, 0, 0, 0, 0, 43, 0],
+					spectrum: [
+						86, 14, 0, 0, 0, 43, 43, 100, 0, 0, 0, 100, 14, 14, 86, 0, 86, 0, 71, 29, 0,
+						71, 43, 29, 0, 0, 0, 0, 43, 0,
+					],
 					unison: "none",
 					envelopes: [
 						{
@@ -5502,53 +5689,87 @@ export const mixedCommunityCategories: InputPresetCategory[] = [
 					drums: [
 						{
 							filterEnvelope: "twang 1",
-							spectrum: [57, 71, 71, 86, 86, 86, 71, 71, 71, 71, 57, 57, 57, 57, 43, 43, 43, 43, 29, 29, 29, 29, 29, 29, 29, 29, 29, 29, 29, 29],
-						},
-						{
-							filterEnvelope: "twang 1",
-							spectrum: [0, 0, 0, 100, 71, 71, 57, 86, 57, 57, 57, 71, 43, 43, 57, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43],
-						},
-						{
-							filterEnvelope: "twang 1",
-							spectrum: [0, 0, 0, 0, 100, 57, 43, 43, 29, 57, 43, 29, 71, 43, 43, 43, 43, 57, 43, 43, 43, 43, 43, 43, 43, 43, 29, 43, 43, 43],
-						},
-						{
-							filterEnvelope: "twang 1",
-							spectrum: [0, 0, 0, 0, 0, 71, 57, 43, 43, 43, 57, 57, 43, 29, 57, 43, 43, 43, 29, 43, 57, 43, 43, 43, 43, 43, 43, 29, 43, 43],
-						},
-						{
-							filterEnvelope: "decay 2",
-							spectrum: [0, 14, 29, 43, 86, 71, 29, 43, 43, 43, 43, 29, 71, 29, 71, 29, 43, 43, 43, 43, 57, 43, 43, 57, 43, 43, 43, 57, 57, 57],
-						},
-						{
-							filterEnvelope: "decay 1",
-							spectrum: [0, 0, 14, 14, 14, 14, 29, 29, 29, 43, 43, 43, 57, 57, 57, 71, 71, 71, 71, 71, 71, 71, 71, 57, 57, 57, 57, 43, 43, 43],
-						},
-						{
-							filterEnvelope: "twang 3",
-							spectrum: [43, 43, 43, 71, 29, 29, 43, 43, 43, 29, 43, 43, 43, 29, 29, 43, 43, 29, 29, 29, 57, 14, 57, 43, 43, 57, 43, 43, 57, 57],
-						},
-						{
-							filterEnvelope: "decay 3",
-							spectrum: [29, 43, 43, 43, 43, 29, 29, 43, 29, 29, 43, 29, 14, 29, 43, 29, 43, 29, 57, 29, 43, 57, 43, 71, 43, 71, 57, 57, 71, 71],
-						},
-						{
-							filterEnvelope: "twang 3",
-							spectrum: [43, 29, 29, 43, 29, 29, 29, 57, 29, 29, 29, 57, 43, 43, 29, 29, 57, 43, 43, 43, 71, 43, 43, 71, 57, 71, 71, 71, 71, 71],
-						},
-						{
-							filterEnvelope: "decay 3",
-							spectrum: [57, 57, 57, 43, 57, 57, 43, 43, 57, 43, 43, 43, 71, 57, 43, 57, 86, 71, 57, 86, 71, 57, 86, 100, 71, 86, 86, 86, 86, 86],
-						},
-						{
-							filterEnvelope: "flare 1",
 							spectrum: [
-								0, 0, 14, 14, 14, 14, 29, 29, 29, 43, 43, 43, 57, 57, 71, 71, 86, 86, 100, 100, 100, 100, 100, 100, 100, 100, 86, 57, 29, 0,
+								57, 71, 71, 86, 86, 86, 71, 71, 71, 71, 57, 57, 57, 57, 43, 43, 43,
+								43, 29, 29, 29, 29, 29, 29, 29, 29, 29, 29, 29, 29,
+							],
+						},
+						{
+							filterEnvelope: "twang 1",
+							spectrum: [
+								0, 0, 0, 100, 71, 71, 57, 86, 57, 57, 57, 71, 43, 43, 57, 43, 43,
+								43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43,
+							],
+						},
+						{
+							filterEnvelope: "twang 1",
+							spectrum: [
+								0, 0, 0, 0, 100, 57, 43, 43, 29, 57, 43, 29, 71, 43, 43, 43, 43, 57,
+								43, 43, 43, 43, 43, 43, 43, 43, 29, 43, 43, 43,
+							],
+						},
+						{
+							filterEnvelope: "twang 1",
+							spectrum: [
+								0, 0, 0, 0, 0, 71, 57, 43, 43, 43, 57, 57, 43, 29, 57, 43, 43, 43,
+								29, 43, 57, 43, 43, 43, 43, 43, 43, 29, 43, 43,
 							],
 						},
 						{
 							filterEnvelope: "decay 2",
-							spectrum: [14, 14, 14, 14, 29, 14, 14, 29, 14, 43, 14, 43, 57, 86, 57, 57, 100, 57, 43, 43, 57, 100, 57, 43, 29, 14, 0, 0, 0, 0],
+							spectrum: [
+								0, 14, 29, 43, 86, 71, 29, 43, 43, 43, 43, 29, 71, 29, 71, 29, 43,
+								43, 43, 43, 57, 43, 43, 57, 43, 43, 43, 57, 57, 57,
+							],
+						},
+						{
+							filterEnvelope: "decay 1",
+							spectrum: [
+								0, 0, 14, 14, 14, 14, 29, 29, 29, 43, 43, 43, 57, 57, 57, 71, 71,
+								71, 71, 71, 71, 71, 71, 57, 57, 57, 57, 43, 43, 43,
+							],
+						},
+						{
+							filterEnvelope: "twang 3",
+							spectrum: [
+								43, 43, 43, 71, 29, 29, 43, 43, 43, 29, 43, 43, 43, 29, 29, 43, 43,
+								29, 29, 29, 57, 14, 57, 43, 43, 57, 43, 43, 57, 57,
+							],
+						},
+						{
+							filterEnvelope: "decay 3",
+							spectrum: [
+								29, 43, 43, 43, 43, 29, 29, 43, 29, 29, 43, 29, 14, 29, 43, 29, 43,
+								29, 57, 29, 43, 57, 43, 71, 43, 71, 57, 57, 71, 71,
+							],
+						},
+						{
+							filterEnvelope: "twang 3",
+							spectrum: [
+								43, 29, 29, 43, 29, 29, 29, 57, 29, 29, 29, 57, 43, 43, 29, 29, 57,
+								43, 43, 43, 71, 43, 43, 71, 57, 71, 71, 71, 71, 71,
+							],
+						},
+						{
+							filterEnvelope: "decay 3",
+							spectrum: [
+								57, 57, 57, 43, 57, 57, 43, 43, 57, 43, 43, 43, 71, 57, 43, 57, 86,
+								71, 57, 86, 71, 57, 86, 100, 71, 86, 86, 86, 86, 86,
+							],
+						},
+						{
+							filterEnvelope: "flare 1",
+							spectrum: [
+								0, 0, 14, 14, 14, 14, 29, 29, 29, 43, 43, 43, 57, 57, 71, 71, 86,
+								86, 100, 100, 100, 100, 100, 100, 100, 100, 86, 57, 29, 0,
+							],
+						},
+						{
+							filterEnvelope: "decay 2",
+							spectrum: [
+								14, 14, 14, 14, 29, 14, 14, 29, 14, 43, 14, 43, 57, 86, 57, 57, 100,
+								57, 43, 43, 57, 100, 57, 43, 29, 14, 0, 0, 0, 0,
+							],
 						},
 					],
 					unison: "none",
@@ -5581,53 +5802,87 @@ export const mixedCommunityCategories: InputPresetCategory[] = [
 					drums: [
 						{
 							filterEnvelope: "twang 1",
-							spectrum: [57, 71, 71, 86, 86, 86, 71, 71, 71, 71, 57, 57, 57, 57, 43, 43, 43, 43, 29, 29, 29, 29, 29, 29, 29, 29, 29, 29, 29, 29],
-						},
-						{
-							filterEnvelope: "twang 1",
-							spectrum: [0, 0, 0, 100, 71, 71, 57, 86, 57, 57, 57, 71, 43, 43, 57, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43],
-						},
-						{
-							filterEnvelope: "twang 1",
-							spectrum: [0, 0, 0, 0, 100, 57, 43, 43, 29, 57, 43, 29, 71, 43, 43, 43, 43, 57, 43, 43, 43, 43, 43, 43, 43, 43, 29, 43, 43, 43],
-						},
-						{
-							filterEnvelope: "twang 1",
-							spectrum: [0, 0, 0, 0, 0, 71, 57, 43, 43, 43, 57, 57, 43, 29, 57, 43, 43, 43, 29, 43, 57, 43, 43, 43, 43, 43, 43, 29, 43, 43],
-						},
-						{
-							filterEnvelope: "decay 2",
-							spectrum: [0, 14, 29, 43, 86, 71, 29, 43, 43, 43, 43, 29, 71, 29, 71, 29, 43, 43, 43, 43, 57, 43, 43, 57, 43, 43, 43, 57, 57, 57],
-						},
-						{
-							filterEnvelope: "decay 1",
-							spectrum: [0, 0, 14, 14, 14, 14, 29, 29, 29, 43, 43, 43, 57, 57, 57, 71, 71, 71, 71, 71, 71, 71, 71, 57, 57, 57, 57, 43, 43, 43],
-						},
-						{
-							filterEnvelope: "twang 3",
-							spectrum: [43, 43, 43, 71, 29, 29, 43, 43, 43, 29, 43, 43, 43, 29, 29, 43, 43, 29, 29, 29, 57, 14, 57, 43, 43, 57, 43, 43, 57, 57],
-						},
-						{
-							filterEnvelope: "decay 3",
-							spectrum: [29, 43, 43, 43, 43, 29, 29, 43, 29, 29, 43, 29, 14, 29, 43, 29, 43, 29, 57, 29, 43, 57, 43, 71, 43, 71, 57, 57, 71, 71],
-						},
-						{
-							filterEnvelope: "twang 3",
-							spectrum: [43, 29, 29, 43, 29, 29, 29, 57, 29, 29, 29, 57, 43, 43, 29, 29, 57, 43, 43, 43, 71, 43, 43, 71, 57, 71, 71, 71, 71, 71],
-						},
-						{
-							filterEnvelope: "decay 3",
-							spectrum: [57, 57, 57, 43, 57, 57, 43, 43, 57, 43, 43, 43, 71, 57, 43, 57, 86, 71, 57, 86, 71, 57, 86, 100, 71, 86, 86, 86, 86, 86],
-						},
-						{
-							filterEnvelope: "flare 1",
 							spectrum: [
-								0, 0, 14, 14, 14, 14, 29, 29, 29, 43, 43, 43, 57, 57, 71, 71, 86, 86, 100, 100, 100, 100, 100, 100, 100, 100, 86, 57, 29, 0,
+								57, 71, 71, 86, 86, 86, 71, 71, 71, 71, 57, 57, 57, 57, 43, 43, 43,
+								43, 29, 29, 29, 29, 29, 29, 29, 29, 29, 29, 29, 29,
+							],
+						},
+						{
+							filterEnvelope: "twang 1",
+							spectrum: [
+								0, 0, 0, 100, 71, 71, 57, 86, 57, 57, 57, 71, 43, 43, 57, 43, 43,
+								43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43,
+							],
+						},
+						{
+							filterEnvelope: "twang 1",
+							spectrum: [
+								0, 0, 0, 0, 100, 57, 43, 43, 29, 57, 43, 29, 71, 43, 43, 43, 43, 57,
+								43, 43, 43, 43, 43, 43, 43, 43, 29, 43, 43, 43,
+							],
+						},
+						{
+							filterEnvelope: "twang 1",
+							spectrum: [
+								0, 0, 0, 0, 0, 71, 57, 43, 43, 43, 57, 57, 43, 29, 57, 43, 43, 43,
+								29, 43, 57, 43, 43, 43, 43, 43, 43, 29, 43, 43,
 							],
 						},
 						{
 							filterEnvelope: "decay 2",
-							spectrum: [14, 14, 14, 14, 29, 14, 14, 29, 14, 43, 14, 43, 57, 86, 57, 57, 100, 57, 43, 43, 57, 100, 57, 43, 29, 14, 0, 0, 0, 0],
+							spectrum: [
+								0, 14, 29, 43, 86, 71, 29, 43, 43, 43, 43, 29, 71, 29, 71, 29, 43,
+								43, 43, 43, 57, 43, 43, 57, 43, 43, 43, 57, 57, 57,
+							],
+						},
+						{
+							filterEnvelope: "decay 1",
+							spectrum: [
+								0, 0, 14, 14, 14, 14, 29, 29, 29, 43, 43, 43, 57, 57, 57, 71, 71,
+								71, 71, 71, 71, 71, 71, 57, 57, 57, 57, 43, 43, 43,
+							],
+						},
+						{
+							filterEnvelope: "twang 3",
+							spectrum: [
+								43, 43, 43, 71, 29, 29, 43, 43, 43, 29, 43, 43, 43, 29, 29, 43, 43,
+								29, 29, 29, 57, 14, 57, 43, 43, 57, 43, 43, 57, 57,
+							],
+						},
+						{
+							filterEnvelope: "decay 3",
+							spectrum: [
+								29, 43, 43, 43, 43, 29, 29, 43, 29, 29, 43, 29, 14, 29, 43, 29, 43,
+								29, 57, 29, 43, 57, 43, 71, 43, 71, 57, 57, 71, 71,
+							],
+						},
+						{
+							filterEnvelope: "twang 3",
+							spectrum: [
+								43, 29, 29, 43, 29, 29, 29, 57, 29, 29, 29, 57, 43, 43, 29, 29, 57,
+								43, 43, 43, 71, 43, 43, 71, 57, 71, 71, 71, 71, 71,
+							],
+						},
+						{
+							filterEnvelope: "decay 3",
+							spectrum: [
+								57, 57, 57, 43, 57, 57, 43, 43, 57, 43, 43, 43, 71, 57, 43, 57, 86,
+								71, 57, 86, 71, 57, 86, 100, 71, 86, 86, 86, 86, 86,
+							],
+						},
+						{
+							filterEnvelope: "flare 1",
+							spectrum: [
+								0, 0, 14, 14, 14, 14, 29, 29, 29, 43, 43, 43, 57, 57, 71, 71, 86,
+								86, 100, 100, 100, 100, 100, 100, 100, 100, 86, 57, 29, 0,
+							],
+						},
+						{
+							filterEnvelope: "decay 2",
+							spectrum: [
+								14, 14, 14, 14, 29, 14, 14, 29, 14, 43, 14, 43, 57, 86, 57, 57, 100,
+								57, 43, 43, 57, 100, 57, 43, 29, 14, 0, 0, 0, 0,
+							],
 						},
 					],
 					unison: "none",
@@ -5724,53 +5979,87 @@ export const mixedCommunityCategories: InputPresetCategory[] = [
 					drums: [
 						{
 							filterEnvelope: "twang 1",
-							spectrum: [57, 71, 71, 86, 86, 86, 71, 71, 71, 71, 57, 57, 57, 57, 43, 43, 43, 43, 29, 29, 29, 29, 29, 29, 29, 29, 29, 29, 29, 29],
-						},
-						{
-							filterEnvelope: "twang 1",
-							spectrum: [0, 0, 0, 100, 71, 71, 57, 86, 57, 57, 57, 71, 43, 43, 57, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43],
-						},
-						{
-							filterEnvelope: "twang 1",
-							spectrum: [0, 0, 0, 0, 100, 57, 43, 43, 29, 57, 43, 29, 71, 43, 43, 43, 43, 57, 43, 43, 43, 43, 43, 43, 43, 43, 29, 43, 43, 43],
-						},
-						{
-							filterEnvelope: "twang 1",
-							spectrum: [0, 0, 0, 0, 0, 71, 57, 43, 43, 43, 57, 57, 43, 29, 57, 43, 43, 43, 29, 43, 57, 43, 43, 43, 43, 43, 43, 29, 43, 43],
-						},
-						{
-							filterEnvelope: "decay 2",
-							spectrum: [0, 14, 29, 43, 86, 71, 29, 43, 43, 43, 43, 29, 71, 29, 71, 29, 43, 43, 43, 43, 57, 43, 43, 57, 43, 43, 43, 57, 57, 57],
-						},
-						{
-							filterEnvelope: "decay 1",
-							spectrum: [0, 0, 14, 14, 14, 14, 29, 29, 29, 43, 43, 43, 57, 57, 57, 71, 71, 71, 71, 71, 71, 71, 71, 57, 57, 57, 57, 43, 43, 43],
-						},
-						{
-							filterEnvelope: "twang 3",
-							spectrum: [43, 43, 43, 71, 29, 29, 43, 43, 43, 29, 43, 43, 43, 29, 29, 43, 43, 29, 29, 29, 57, 14, 57, 43, 43, 57, 43, 43, 57, 57],
-						},
-						{
-							filterEnvelope: "decay 3",
-							spectrum: [29, 43, 43, 43, 43, 29, 29, 43, 29, 29, 43, 29, 14, 29, 43, 29, 43, 29, 57, 29, 43, 57, 43, 71, 43, 71, 57, 57, 71, 71],
-						},
-						{
-							filterEnvelope: "twang 3",
-							spectrum: [43, 29, 29, 43, 29, 29, 29, 57, 29, 29, 29, 57, 43, 43, 29, 29, 57, 43, 43, 43, 71, 43, 43, 71, 57, 71, 71, 71, 71, 71],
-						},
-						{
-							filterEnvelope: "decay 3",
-							spectrum: [57, 57, 57, 43, 57, 57, 43, 43, 57, 43, 43, 43, 71, 57, 43, 57, 86, 71, 57, 86, 71, 57, 86, 100, 71, 86, 86, 86, 86, 86],
-						},
-						{
-							filterEnvelope: "flare 1",
 							spectrum: [
-								0, 0, 14, 14, 14, 14, 29, 29, 29, 43, 43, 43, 57, 57, 71, 71, 86, 86, 100, 100, 100, 100, 100, 100, 100, 100, 86, 57, 29, 0,
+								57, 71, 71, 86, 86, 86, 71, 71, 71, 71, 57, 57, 57, 57, 43, 43, 43,
+								43, 29, 29, 29, 29, 29, 29, 29, 29, 29, 29, 29, 29,
+							],
+						},
+						{
+							filterEnvelope: "twang 1",
+							spectrum: [
+								0, 0, 0, 100, 71, 71, 57, 86, 57, 57, 57, 71, 43, 43, 57, 43, 43,
+								43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43,
+							],
+						},
+						{
+							filterEnvelope: "twang 1",
+							spectrum: [
+								0, 0, 0, 0, 100, 57, 43, 43, 29, 57, 43, 29, 71, 43, 43, 43, 43, 57,
+								43, 43, 43, 43, 43, 43, 43, 43, 29, 43, 43, 43,
+							],
+						},
+						{
+							filterEnvelope: "twang 1",
+							spectrum: [
+								0, 0, 0, 0, 0, 71, 57, 43, 43, 43, 57, 57, 43, 29, 57, 43, 43, 43,
+								29, 43, 57, 43, 43, 43, 43, 43, 43, 29, 43, 43,
 							],
 						},
 						{
 							filterEnvelope: "decay 2",
-							spectrum: [14, 14, 14, 14, 29, 14, 14, 29, 14, 43, 14, 43, 57, 86, 57, 57, 100, 57, 43, 43, 57, 100, 57, 43, 29, 14, 0, 0, 0, 0],
+							spectrum: [
+								0, 14, 29, 43, 86, 71, 29, 43, 43, 43, 43, 29, 71, 29, 71, 29, 43,
+								43, 43, 43, 57, 43, 43, 57, 43, 43, 43, 57, 57, 57,
+							],
+						},
+						{
+							filterEnvelope: "decay 1",
+							spectrum: [
+								0, 0, 14, 14, 14, 14, 29, 29, 29, 43, 43, 43, 57, 57, 57, 71, 71,
+								71, 71, 71, 71, 71, 71, 57, 57, 57, 57, 43, 43, 43,
+							],
+						},
+						{
+							filterEnvelope: "twang 3",
+							spectrum: [
+								43, 43, 43, 71, 29, 29, 43, 43, 43, 29, 43, 43, 43, 29, 29, 43, 43,
+								29, 29, 29, 57, 14, 57, 43, 43, 57, 43, 43, 57, 57,
+							],
+						},
+						{
+							filterEnvelope: "decay 3",
+							spectrum: [
+								29, 43, 43, 43, 43, 29, 29, 43, 29, 29, 43, 29, 14, 29, 43, 29, 43,
+								29, 57, 29, 43, 57, 43, 71, 43, 71, 57, 57, 71, 71,
+							],
+						},
+						{
+							filterEnvelope: "twang 3",
+							spectrum: [
+								43, 29, 29, 43, 29, 29, 29, 57, 29, 29, 29, 57, 43, 43, 29, 29, 57,
+								43, 43, 43, 71, 43, 43, 71, 57, 71, 71, 71, 71, 71,
+							],
+						},
+						{
+							filterEnvelope: "decay 3",
+							spectrum: [
+								57, 57, 57, 43, 57, 57, 43, 43, 57, 43, 43, 43, 71, 57, 43, 57, 86,
+								71, 57, 86, 71, 57, 86, 100, 71, 86, 86, 86, 86, 86,
+							],
+						},
+						{
+							filterEnvelope: "flare 1",
+							spectrum: [
+								0, 0, 14, 14, 14, 14, 29, 29, 29, 43, 43, 43, 57, 57, 71, 71, 86,
+								86, 100, 100, 100, 100, 100, 100, 100, 100, 86, 57, 29, 0,
+							],
+						},
+						{
+							filterEnvelope: "decay 2",
+							spectrum: [
+								14, 14, 14, 14, 29, 14, 14, 29, 14, 43, 14, 43, 57, 86, 57, 57, 100,
+								57, 43, 43, 57, 100, 57, 43, 29, 14, 0, 0, 0, 0,
+							],
 						},
 					],
 					unison: "none",
@@ -5941,53 +6230,87 @@ export const mixedCommunityCategories: InputPresetCategory[] = [
 					drums: [
 						{
 							filterEnvelope: "twang 1",
-							spectrum: [57, 71, 71, 86, 86, 86, 71, 71, 71, 71, 57, 57, 57, 57, 43, 43, 43, 43, 29, 29, 29, 29, 29, 29, 29, 29, 29, 29, 29, 29],
-						},
-						{
-							filterEnvelope: "twang 1",
-							spectrum: [0, 0, 0, 100, 71, 71, 57, 86, 57, 57, 57, 71, 43, 43, 57, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43],
-						},
-						{
-							filterEnvelope: "twang 1",
-							spectrum: [0, 0, 0, 0, 100, 57, 43, 43, 29, 57, 43, 29, 71, 43, 43, 43, 43, 57, 43, 43, 43, 43, 43, 43, 43, 43, 29, 43, 43, 43],
-						},
-						{
-							filterEnvelope: "twang 1",
-							spectrum: [0, 0, 0, 0, 0, 71, 57, 43, 43, 43, 57, 57, 43, 29, 57, 43, 43, 43, 29, 43, 57, 43, 43, 43, 43, 43, 43, 29, 43, 43],
-						},
-						{
-							filterEnvelope: "decay 2",
-							spectrum: [0, 14, 29, 43, 86, 71, 29, 43, 43, 43, 43, 29, 71, 29, 71, 29, 43, 43, 43, 43, 57, 43, 43, 57, 43, 43, 43, 57, 57, 57],
-						},
-						{
-							filterEnvelope: "decay 1",
-							spectrum: [0, 0, 14, 14, 14, 14, 29, 29, 29, 43, 43, 43, 57, 57, 57, 71, 71, 71, 71, 71, 71, 71, 71, 57, 57, 57, 57, 43, 43, 43],
-						},
-						{
-							filterEnvelope: "twang 3",
-							spectrum: [43, 43, 43, 71, 29, 29, 43, 43, 43, 29, 43, 43, 43, 29, 29, 43, 43, 29, 29, 29, 57, 14, 57, 43, 43, 57, 43, 43, 57, 57],
-						},
-						{
-							filterEnvelope: "decay 3",
-							spectrum: [29, 43, 43, 43, 43, 29, 29, 43, 29, 29, 43, 29, 14, 29, 43, 29, 43, 29, 57, 29, 43, 57, 43, 71, 43, 71, 57, 57, 71, 71],
-						},
-						{
-							filterEnvelope: "twang 3",
-							spectrum: [43, 29, 29, 43, 29, 29, 29, 57, 29, 29, 29, 57, 43, 43, 29, 29, 57, 43, 43, 43, 71, 43, 43, 71, 57, 71, 71, 71, 71, 71],
-						},
-						{
-							filterEnvelope: "decay 3",
-							spectrum: [57, 57, 57, 43, 57, 57, 43, 43, 57, 43, 43, 43, 71, 57, 43, 57, 86, 71, 57, 86, 71, 57, 86, 100, 71, 86, 86, 86, 86, 86],
-						},
-						{
-							filterEnvelope: "flare 1",
 							spectrum: [
-								0, 0, 14, 14, 14, 14, 29, 29, 29, 43, 43, 43, 57, 57, 71, 71, 86, 86, 100, 100, 100, 100, 100, 100, 100, 100, 86, 57, 29, 0,
+								57, 71, 71, 86, 86, 86, 71, 71, 71, 71, 57, 57, 57, 57, 43, 43, 43,
+								43, 29, 29, 29, 29, 29, 29, 29, 29, 29, 29, 29, 29,
+							],
+						},
+						{
+							filterEnvelope: "twang 1",
+							spectrum: [
+								0, 0, 0, 100, 71, 71, 57, 86, 57, 57, 57, 71, 43, 43, 57, 43, 43,
+								43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43,
+							],
+						},
+						{
+							filterEnvelope: "twang 1",
+							spectrum: [
+								0, 0, 0, 0, 100, 57, 43, 43, 29, 57, 43, 29, 71, 43, 43, 43, 43, 57,
+								43, 43, 43, 43, 43, 43, 43, 43, 29, 43, 43, 43,
+							],
+						},
+						{
+							filterEnvelope: "twang 1",
+							spectrum: [
+								0, 0, 0, 0, 0, 71, 57, 43, 43, 43, 57, 57, 43, 29, 57, 43, 43, 43,
+								29, 43, 57, 43, 43, 43, 43, 43, 43, 29, 43, 43,
 							],
 						},
 						{
 							filterEnvelope: "decay 2",
-							spectrum: [14, 14, 14, 14, 29, 14, 14, 29, 14, 43, 14, 43, 57, 86, 57, 57, 100, 57, 43, 43, 57, 100, 57, 43, 29, 14, 0, 0, 0, 0],
+							spectrum: [
+								0, 14, 29, 43, 86, 71, 29, 43, 43, 43, 43, 29, 71, 29, 71, 29, 43,
+								43, 43, 43, 57, 43, 43, 57, 43, 43, 43, 57, 57, 57,
+							],
+						},
+						{
+							filterEnvelope: "decay 1",
+							spectrum: [
+								0, 0, 14, 14, 14, 14, 29, 29, 29, 43, 43, 43, 57, 57, 57, 71, 71,
+								71, 71, 71, 71, 71, 71, 57, 57, 57, 57, 43, 43, 43,
+							],
+						},
+						{
+							filterEnvelope: "twang 3",
+							spectrum: [
+								43, 43, 43, 71, 29, 29, 43, 43, 43, 29, 43, 43, 43, 29, 29, 43, 43,
+								29, 29, 29, 57, 14, 57, 43, 43, 57, 43, 43, 57, 57,
+							],
+						},
+						{
+							filterEnvelope: "decay 3",
+							spectrum: [
+								29, 43, 43, 43, 43, 29, 29, 43, 29, 29, 43, 29, 14, 29, 43, 29, 43,
+								29, 57, 29, 43, 57, 43, 71, 43, 71, 57, 57, 71, 71,
+							],
+						},
+						{
+							filterEnvelope: "twang 3",
+							spectrum: [
+								43, 29, 29, 43, 29, 29, 29, 57, 29, 29, 29, 57, 43, 43, 29, 29, 57,
+								43, 43, 43, 71, 43, 43, 71, 57, 71, 71, 71, 71, 71,
+							],
+						},
+						{
+							filterEnvelope: "decay 3",
+							spectrum: [
+								57, 57, 57, 43, 57, 57, 43, 43, 57, 43, 43, 43, 71, 57, 43, 57, 86,
+								71, 57, 86, 71, 57, 86, 100, 71, 86, 86, 86, 86, 86,
+							],
+						},
+						{
+							filterEnvelope: "flare 1",
+							spectrum: [
+								0, 0, 14, 14, 14, 14, 29, 29, 29, 43, 43, 43, 57, 57, 71, 71, 86,
+								86, 100, 100, 100, 100, 100, 100, 100, 100, 86, 57, 29, 0,
+							],
+						},
+						{
+							filterEnvelope: "decay 2",
+							spectrum: [
+								14, 14, 14, 14, 29, 14, 14, 29, 14, 43, 14, 43, 57, 86, 57, 57, 100,
+								57, 43, 43, 57, 100, 57, 43, 29, 14, 0, 0, 0, 0,
+							],
 						},
 					],
 					unison: "none",
@@ -6020,7 +6343,10 @@ export const mixedCommunityCategories: InputPresetCategory[] = [
 					panDelay: 10,
 					fadeInSeconds: 0,
 					fadeOutTicks: 48,
-					spectrum: [0, 14, 29, 43, 43, 57, 86, 86, 71, 57, 57, 43, 43, 57, 86, 86, 43, 43, 71, 57, 57, 57, 57, 57, 86, 86, 71, 71, 71, 71],
+					spectrum: [
+						0, 14, 29, 43, 43, 57, 86, 86, 71, 57, 57, 43, 43, 57, 86, 86, 43, 43, 71,
+						57, 57, 57, 57, 57, 86, 86, 71, 71, 71, 71,
+					],
 					unison: "none",
 					envelopes: [
 						{
@@ -6260,7 +6586,10 @@ export const mixedCommunityCategories: InputPresetCategory[] = [
 					fadeInSeconds: 0,
 					fadeOutTicks: 24,
 					unison: "none",
-					spectrum: [57, 71, 57, 86, 86, 100, 100, 86, 57, 57, 57, 43, 43, 43, 43, 29, 29, 29, 14, 14, 14, 14, 14, 29, 29, 29, 14, 29, 14, 14],
+					spectrum: [
+						57, 71, 57, 86, 86, 100, 100, 86, 57, 57, 57, 43, 43, 43, 43, 29, 29, 29,
+						14, 14, 14, 14, 14, 29, 29, 29, 14, 29, 14, 14,
+					],
 					envelopes: [
 						{ target: "pitchShift", envelope: "twang 1" },
 						{
@@ -6314,7 +6643,10 @@ export const mixedCommunityCategories: InputPresetCategory[] = [
 					chorus: 57,
 					fadeInSeconds: 0.1575,
 					fadeOutTicks: 96,
-					spectrum: [86, 86, 100, 100, 100, 100, 100, 100, 100, 86, 86, 86, 71, 71, 71, 57, 57, 57, 43, 43, 43, 43, 43, 29, 29, 29, 29, 43, 43, 100],
+					spectrum: [
+						86, 86, 100, 100, 100, 100, 100, 100, 100, 86, 86, 86, 71, 71, 71, 57, 57,
+						57, 43, 43, 43, 43, 43, 29, 29, 29, 29, 43, 43, 100,
+					],
 					unison: "octave",
 					envelopes: [
 						{
@@ -6380,51 +6712,87 @@ export const mixedCommunityCategories: InputPresetCategory[] = [
 					drums: [
 						{
 							filterEnvelope: "none",
-							spectrum: [0, 43, 0, 71, 43, 100, 100, 29, 57, 14, 86, 29, 14, 100, 14, 29, 71, 43, 0, 29, 71, 29, 0, 29, 14, 0, 0, 0, 29, 0],
+							spectrum: [
+								0, 43, 0, 71, 43, 100, 100, 29, 57, 14, 86, 29, 14, 100, 14, 29, 71,
+								43, 0, 29, 71, 29, 0, 29, 14, 0, 0, 0, 29, 0,
+							],
 						},
 						{
 							filterEnvelope: "twang 1",
-							spectrum: [86, 29, 86, 14, 57, 57, 57, 57, 100, 100, 57, 0, 29, 71, 14, 71, 100, 0, 29, 86, 0, 29, 71, 14, 43, 14, 71, 57, 14, 86],
+							spectrum: [
+								86, 29, 86, 14, 57, 57, 57, 57, 100, 100, 57, 0, 29, 71, 14, 71,
+								100, 0, 29, 86, 0, 29, 71, 14, 43, 14, 71, 57, 14, 86,
+							],
 						},
 						{
 							filterEnvelope: "flare 2",
-							spectrum: [43, 14, 71, 29, 43, 0, 57, 29, 71, 0, 29, 29, 57, 0, 71, 0, 57, 43, 0, 14, 71, 0, 71, 29, 100, 0, 100, 57, 86, 86],
+							spectrum: [
+								43, 14, 71, 29, 43, 0, 57, 29, 71, 0, 29, 29, 57, 0, 71, 0, 57, 43,
+								0, 14, 71, 0, 71, 29, 100, 0, 100, 57, 86, 86,
+							],
 						},
 						{
 							filterEnvelope: "flutter 2",
-							spectrum: [0, 29, 14, 14, 29, 14, 0, 0, 0, 0, 100, 43, 29, 100, 0, 0, 0, 29, 0, 0, 14, 14, 14, 43, 14, 0, 100, 0, 0, 14],
+							spectrum: [
+								0, 29, 14, 14, 29, 14, 0, 0, 0, 0, 100, 43, 29, 100, 0, 0, 0, 29, 0,
+								0, 14, 14, 14, 43, 14, 0, 100, 0, 0, 14,
+							],
 						},
 						{
 							filterEnvelope: "flute 1",
-							spectrum: [29, 0, 43, 86, 14, 0, 57, 57, 86, 86, 100, 86, 14, 57, 57, 71, 71, 29, 0, 14, 100, 0, 71, 0, 71, 43, 29, 29, 14, 14],
+							spectrum: [
+								29, 0, 43, 86, 14, 0, 57, 57, 86, 86, 100, 86, 14, 57, 57, 71, 71,
+								29, 0, 14, 100, 0, 71, 0, 71, 43, 29, 29, 14, 14,
+							],
 						},
 						{
 							filterEnvelope: "flare 3",
-							spectrum: [100, 14, 86, 57, 0, 0, 14, 43, 100, 29, 29, 100, 0, 43, 57, 14, 86, 43, 86, 71, 14, 57, 14, 0, 14, 86, 0, 57, 43, 0],
+							spectrum: [
+								100, 14, 86, 57, 0, 0, 14, 43, 100, 29, 29, 100, 0, 43, 57, 14, 86,
+								43, 86, 71, 14, 57, 14, 0, 14, 86, 0, 57, 43, 0,
+							],
 						},
 						{
 							filterEnvelope: "decay 2",
-							spectrum: [29, 71, 43, 14, 43, 14, 29, 14, 14, 14, 29, 71, 86, 71, 86, 100, 86, 57, 43, 57, 29, 43, 0, 0, 0, 43, 0, 0, 0, 14],
+							spectrum: [
+								29, 71, 43, 14, 43, 14, 29, 14, 14, 14, 29, 71, 86, 71, 86, 100, 86,
+								57, 43, 57, 29, 43, 0, 0, 0, 43, 0, 0, 0, 14,
+							],
 						},
 						{
 							filterEnvelope: "tripolo5",
-							spectrum: [0, 0, 43, 0, 29, 0, 29, 0, 100, 43, 29, 29, 0, 57, 0, 0, 29, 14, 86, 71, 43, 14, 71, 14, 71, 71, 0, 57, 86, 57],
+							spectrum: [
+								0, 0, 43, 0, 29, 0, 29, 0, 100, 43, 29, 29, 0, 57, 0, 0, 29, 14, 86,
+								71, 43, 14, 71, 14, 71, 71, 0, 57, 86, 57,
+							],
 						},
 						{
 							filterEnvelope: "linear 2",
-							spectrum: [71, 29, 86, 0, 14, 0, 86, 0, 57, 57, 0, 86, 86, 29, 14, 0, 71, 29, 71, 71, 57, 0, 57, 86, 71, 57, 100, 29, 100, 71],
+							spectrum: [
+								71, 29, 86, 0, 14, 0, 86, 0, 57, 57, 0, 86, 86, 29, 14, 0, 71, 29,
+								71, 71, 57, 0, 57, 86, 71, 57, 100, 29, 100, 71,
+							],
 						},
 						{
 							filterEnvelope: "decay 2",
-							spectrum: [0, 86, 29, 14, 57, 0, 0, 86, 0, 29, 14, 29, 0, 43, 57, 100, 0, 71, 43, 57, 14, 86, 0, 57, 43, 43, 0, 29, 14, 71],
+							spectrum: [
+								0, 86, 29, 14, 57, 0, 0, 86, 0, 29, 14, 29, 0, 43, 57, 100, 0, 71,
+								43, 57, 14, 86, 0, 57, 43, 43, 0, 29, 14, 71,
+							],
 						},
 						{
 							filterEnvelope: "linear 2",
-							spectrum: [57, 0, 86, 100, 0, 43, 57, 14, 57, 14, 14, 57, 43, 71, 71, 29, 29, 14, 43, 29, 43, 14, 43, 43, 14, 57, 0, 0, 29, 57],
+							spectrum: [
+								57, 0, 86, 100, 0, 43, 57, 14, 57, 14, 14, 57, 43, 71, 71, 29, 29,
+								14, 43, 29, 43, 14, 43, 43, 14, 57, 0, 0, 29, 57,
+							],
 						},
 						{
 							filterEnvelope: "pitch",
-							spectrum: [71, 0, 29, 0, 29, 14, 71, 0, 86, 0, 43, 29, 14, 71, 29, 0, 100, 14, 14, 14, 29, 43, 43, 0, 100, 0, 14, 14, 29, 14],
+							spectrum: [
+								71, 0, 29, 0, 29, 14, 71, 0, 86, 0, 43, 29, 14, 71, 29, 0, 100, 14,
+								14, 14, 29, 43, 43, 0, 100, 0, 14, 14, 29, 14,
+							],
 						},
 					],
 					unison: "none",
@@ -6463,54 +6831,88 @@ export const mixedCommunityCategories: InputPresetCategory[] = [
 					drums: [
 						{
 							filterEnvelope: "twang 1",
-							spectrum: [0, 0, 0, 71, 100, 71, 71, 71, 71, 86, 86, 71, 57, 43, 57, 71, 71, 71, 71, 71, 71, 71, 43, 43, 43, 43, 43, 43, 43, 100],
+							spectrum: [
+								0, 0, 0, 71, 100, 71, 71, 71, 71, 86, 86, 71, 57, 43, 57, 71, 71,
+								71, 71, 71, 71, 71, 43, 43, 43, 43, 43, 43, 43, 100,
+							],
 						},
 						{
 							filterEnvelope: "rise 3",
-							spectrum: [0, 0, 0, 100, 71, 57, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+							spectrum: [
+								0, 0, 0, 100, 71, 57, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+								0, 0, 0, 0, 0, 0, 0, 0, 0,
+							],
 						},
 						{
 							filterEnvelope: "punch",
-							spectrum: [0, 0, 0, 0, 100, 57, 43, 43, 29, 0, 0, 0, 0, 0, 14, 14, 14, 14, 14, 14, 29, 29, 14, 14, 0, 0, 14, 29, 43, 57],
+							spectrum: [
+								0, 0, 0, 0, 100, 57, 43, 43, 29, 0, 0, 0, 0, 0, 14, 14, 14, 14, 14,
+								14, 29, 29, 14, 14, 0, 0, 14, 29, 43, 57,
+							],
 						},
 						{
 							filterEnvelope: "twang 2",
-							spectrum: [0, 0, 0, 0, 0, 71, 57, 43, 43, 43, 57, 57, 43, 29, 57, 43, 43, 43, 29, 43, 57, 43, 43, 43, 43, 43, 43, 29, 43, 43],
-						},
-						{
-							filterEnvelope: "decay 2",
-							spectrum: [71, 100, 100, 0, 0, 100, 100, 100, 100, 0, 100, 100, 100, 100, 0, 57, 86, 100, 100, 100, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-						},
-						{
-							filterEnvelope: "decay 1",
-							spectrum: [0, 0, 14, 14, 14, 14, 29, 29, 29, 43, 0, 0, 57, 57, 57, 71, 71, 71, 71, 71, 14, 14, 14, 14, 14, 0, 57, 43, 43, 43],
-						},
-						{
-							filterEnvelope: "punch",
-							spectrum: [43, 43, 71, 71, 71, 86, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 57, 71, 71, 71, 71, 71, 0, 0, 0],
+							spectrum: [
+								0, 0, 0, 0, 0, 71, 57, 43, 43, 43, 57, 57, 43, 29, 57, 43, 43, 43,
+								29, 43, 57, 43, 43, 43, 43, 43, 43, 29, 43, 43,
+							],
 						},
 						{
 							filterEnvelope: "decay 2",
 							spectrum: [
-								100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100,
-								100, 100, 100, 100, 100,
+								71, 100, 100, 0, 0, 100, 100, 100, 100, 0, 100, 100, 100, 100, 0,
+								57, 86, 100, 100, 100, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+							],
+						},
+						{
+							filterEnvelope: "decay 1",
+							spectrum: [
+								0, 0, 14, 14, 14, 14, 29, 29, 29, 43, 0, 0, 57, 57, 57, 71, 71, 71,
+								71, 71, 14, 14, 14, 14, 14, 0, 57, 43, 43, 43,
+							],
+						},
+						{
+							filterEnvelope: "punch",
+							spectrum: [
+								43, 43, 71, 71, 71, 86, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+								57, 71, 71, 71, 71, 71, 0, 0, 0,
+							],
+						},
+						{
+							filterEnvelope: "decay 2",
+							spectrum: [
+								100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100,
+								100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100,
+								100, 100, 100, 100,
 							],
 						},
 						{
 							filterEnvelope: "swell 1",
-							spectrum: [14, 29, 29, 29, 43, 43, 43, 57, 14, 14, 14, 14, 14, 29, 43, 57, 71, 86, 100, 0, 14, 29, 57, 0, 0, 0, 0, 0, 0, 86],
+							spectrum: [
+								14, 29, 29, 29, 43, 43, 43, 57, 14, 14, 14, 14, 14, 29, 43, 57, 71,
+								86, 100, 0, 14, 29, 57, 0, 0, 0, 0, 0, 0, 86,
+							],
 						},
 						{
 							filterEnvelope: "decay 3",
-							spectrum: [0, 0, 0, 0, 29, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 14, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+							spectrum: [
+								0, 0, 0, 0, 29, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 14, 0, 0, 0, 0,
+								0, 0, 0, 0, 0, 0, 0, 0,
+							],
 						},
 						{
 							filterEnvelope: "flare 1",
-							spectrum: [0, 0, 0, 0, 0, 0, 43, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+							spectrum: [
+								0, 0, 0, 0, 0, 0, 43, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+								0, 0, 0, 0, 0, 0, 0, 0,
+							],
 						},
 						{
 							filterEnvelope: "decay 2",
-							spectrum: [0, 0, 0, 100, 0, 0, 0, 100, 0, 100, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+							spectrum: [
+								0, 0, 0, 100, 0, 0, 0, 100, 0, 100, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+								0, 0, 0, 0, 0, 0, 0, 0, 0,
+							],
 						},
 					],
 					envelopes: [],
@@ -6542,51 +6944,87 @@ export const mixedCommunityCategories: InputPresetCategory[] = [
 					drums: [
 						{
 							filterEnvelope: "twang 1",
-							spectrum: [57, 29, 57, 0, 29, 0, 0, 57, 86, 43, 43, 14, 14, 0, 100, 0, 0, 14, 71, 0, 14, 86, 57, 71, 57, 14, 14, 43, 0, 14],
+							spectrum: [
+								57, 29, 57, 0, 29, 0, 0, 57, 86, 43, 43, 14, 14, 0, 100, 0, 0, 14,
+								71, 0, 14, 86, 57, 71, 57, 14, 14, 43, 0, 14,
+							],
 						},
 						{
 							filterEnvelope: "decay -1",
-							spectrum: [57, 29, 0, 71, 86, 0, 29, 0, 29, 100, 0, 14, 14, 71, 29, 86, 57, 43, 57, 0, 0, 57, 0, 86, 100, 71, 14, 14, 0, 71],
+							spectrum: [
+								57, 29, 0, 71, 86, 0, 29, 0, 29, 100, 0, 14, 14, 71, 29, 86, 57, 43,
+								57, 0, 0, 57, 0, 86, 100, 71, 14, 14, 0, 71,
+							],
 						},
 						{
 							filterEnvelope: "flute 2",
-							spectrum: [14, 0, 0, 0, 57, 0, 29, 0, 29, 29, 29, 29, 0, 14, 0, 29, 100, 14, 43, 29, 86, 43, 71, 0, 29, 14, 14, 86, 29, 0],
+							spectrum: [
+								14, 0, 0, 0, 57, 0, 29, 0, 29, 29, 29, 29, 0, 14, 0, 29, 100, 14,
+								43, 29, 86, 43, 71, 0, 29, 14, 14, 86, 29, 0,
+							],
 						},
 						{
 							filterEnvelope: "wibble-1",
-							spectrum: [57, 14, 57, 0, 57, 57, 57, 71, 0, 0, 86, 14, 71, 14, 43, 14, 57, 71, 43, 29, 29, 71, 100, 29, 14, 14, 29, 0, 57, 100],
+							spectrum: [
+								57, 14, 57, 0, 57, 57, 57, 71, 0, 0, 86, 14, 71, 14, 43, 14, 57, 71,
+								43, 29, 29, 71, 100, 29, 14, 14, 29, 0, 57, 100,
+							],
 						},
 						{
 							filterEnvelope: "pentolo3",
-							spectrum: [0, 57, 29, 57, 71, 100, 100, 0, 86, 14, 14, 14, 100, 57, 86, 0, 71, 14, 14, 14, 29, 57, 0, 14, 0, 86, 57, 100, 43, 86],
+							spectrum: [
+								0, 57, 29, 57, 71, 100, 100, 0, 86, 14, 14, 14, 100, 57, 86, 0, 71,
+								14, 14, 14, 29, 57, 0, 14, 0, 86, 57, 100, 43, 86,
+							],
 						},
 						{
 							filterEnvelope: "flute 2",
-							spectrum: [0, 0, 29, 29, 0, 57, 0, 0, 14, 14, 14, 57, 14, 71, 14, 86, 0, 0, 14, 14, 29, 0, 0, 57, 71, 0, 100, 29, 43, 57],
+							spectrum: [
+								0, 0, 29, 29, 0, 57, 0, 0, 14, 14, 14, 57, 14, 71, 14, 86, 0, 0, 14,
+								14, 29, 0, 0, 57, 71, 0, 100, 29, 43, 57,
+							],
 						},
 						{
 							filterEnvelope: "linear 2",
-							spectrum: [71, 0, 57, 29, 29, 57, 86, 0, 29, 29, 29, 14, 29, 100, 14, 57, 14, 14, 57, 57, 57, 14, 0, 14, 14, 0, 71, 71, 14, 0],
+							spectrum: [
+								71, 0, 57, 29, 29, 57, 86, 0, 29, 29, 29, 14, 29, 100, 14, 57, 14,
+								14, 57, 57, 57, 14, 0, 14, 14, 0, 71, 71, 14, 0,
+							],
 						},
 						{
 							filterEnvelope: "flare 1",
-							spectrum: [0, 57, 14, 14, 43, 43, 0, 57, 0, 29, 29, 86, 14, 29, 0, 0, 0, 86, 0, 57, 14, 100, 43, 0, 100, 0, 86, 0, 57, 71],
+							spectrum: [
+								0, 57, 14, 14, 43, 43, 0, 57, 0, 29, 29, 86, 14, 29, 0, 0, 0, 86, 0,
+								57, 14, 100, 43, 0, 100, 0, 86, 0, 57, 71,
+							],
 						},
 						{
 							filterEnvelope: "rise -1",
-							spectrum: [29, 14, 0, 0, 0, 71, 0, 57, 14, 14, 43, 0, 0, 86, 14, 0, 29, 29, 14, 43, 86, 43, 14, 0, 100, 43, 0, 43, 0, 0],
+							spectrum: [
+								29, 14, 0, 0, 0, 71, 0, 57, 14, 14, 43, 0, 0, 86, 14, 0, 29, 29, 14,
+								43, 86, 43, 14, 0, 100, 43, 0, 43, 0, 0,
+							],
 						},
 						{
 							filterEnvelope: "tremolo2",
-							spectrum: [0, 0, 43, 14, 0, 0, 14, 100, 57, 57, 14, 14, 0, 0, 14, 57, 0, 71, 0, 43, 0, 57, 100, 0, 0, 86, 57, 0, 29, 0],
+							spectrum: [
+								0, 0, 43, 14, 0, 0, 14, 100, 57, 57, 14, 14, 0, 0, 14, 57, 0, 71, 0,
+								43, 0, 57, 100, 0, 0, 86, 57, 0, 29, 0,
+							],
 						},
 						{
 							filterEnvelope: "tripolo5",
-							spectrum: [0, 0, 14, 0, 0, 14, 0, 86, 14, 14, 0, 0, 100, 71, 0, 71, 29, 57, 14, 14, 0, 0, 14, 0, 43, 0, 71, 14, 0, 86],
+							spectrum: [
+								0, 0, 14, 0, 0, 14, 0, 86, 14, 14, 0, 0, 100, 71, 0, 71, 29, 57, 14,
+								14, 0, 0, 14, 0, 43, 0, 71, 14, 0, 86,
+							],
 						},
 						{
 							filterEnvelope: "linear 1",
-							spectrum: [0, 14, 0, 0, 100, 57, 57, 86, 57, 0, 86, 0, 14, 14, 14, 0, 14, 29, 14, 0, 29, 71, 86, 0, 0, 0, 57, 57, 29, 57],
+							spectrum: [
+								0, 14, 0, 0, 100, 57, 57, 86, 57, 0, 86, 0, 14, 14, 14, 0, 14, 29,
+								14, 0, 29, 71, 86, 0, 0, 0, 57, 57, 29, 57,
+							],
 						},
 					],
 					envelopes: [{ target: "noteFilterAllFreqs", envelope: "punch" }],
@@ -6615,7 +7053,10 @@ export const mixedCommunityCategories: InputPresetCategory[] = [
 					panDelay: 0,
 					fadeInSeconds: 0,
 					fadeOutTicks: -3,
-					spectrum: [100, 0, 29, 57, 14, 43, 29, 14, 29, 29, 14, 0, 14, 0, 14, 14, 29, 29, 29, 0, 14, 14, 0, 14, 29, 0, 29, 14, 0, 14],
+					spectrum: [
+						100, 0, 29, 57, 14, 43, 29, 14, 29, 29, 14, 0, 14, 0, 14, 14, 29, 29, 29, 0,
+						14, 14, 0, 14, 29, 0, 29, 14, 0, 14,
+					],
 					unison: "none",
 					envelopes: [{ target: "noteFilterAllFreqs", envelope: "linear 3" }],
 				},
@@ -6668,55 +7109,87 @@ export const mixedCommunityCategories: InputPresetCategory[] = [
 					drums: [
 						{
 							filterEnvelope: "twang 1",
-							spectrum: [43, 57, 71, 86, 100, 100, 100, 100, 100, 100, 86, 86, 86, 71, 71, 57, 57, 43, 43, 29, 29, 14, 14, 0, 0, 0, 0, 0, 0, 0],
-						},
-						{
-							filterEnvelope: "twang 1",
 							spectrum: [
-								0, 0, 0, 100, 43, 86, 86, 100, 100, 100, 100, 100, 86, 86, 86, 71, 71, 57, 57, 57, 57, 57, 57, 57, 57, 57, 57, 43, 43, 43,
+								43, 57, 71, 86, 100, 100, 100, 100, 100, 100, 86, 86, 86, 71, 71,
+								57, 57, 43, 43, 29, 29, 14, 14, 0, 0, 0, 0, 0, 0, 0,
 							],
 						},
 						{
 							filterEnvelope: "twang 1",
-							spectrum: [0, 0, 0, 43, 71, 86, 86, 86, 86, 71, 57, 57, 57, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 29, 29, 14],
+							spectrum: [
+								0, 0, 0, 100, 43, 86, 86, 100, 100, 100, 100, 100, 86, 86, 86, 71,
+								71, 57, 57, 57, 57, 57, 57, 57, 57, 57, 57, 43, 43, 43,
+							],
 						},
 						{
 							filterEnvelope: "twang 1",
-							spectrum: [0, 0, 0, 0, 14, 29, 57, 57, 71, 86, 86, 86, 86, 86, 86, 86, 86, 71, 71, 71, 57, 57, 43, 43, 29, 14, 0, 0, 0, 0],
+							spectrum: [
+								0, 0, 0, 43, 71, 86, 86, 86, 86, 71, 57, 57, 57, 43, 43, 43, 43, 43,
+								43, 43, 43, 43, 43, 43, 43, 43, 43, 29, 29, 14,
+							],
+						},
+						{
+							filterEnvelope: "twang 1",
+							spectrum: [
+								0, 0, 0, 0, 14, 29, 57, 57, 71, 86, 86, 86, 86, 86, 86, 86, 86, 71,
+								71, 71, 57, 57, 43, 43, 29, 14, 0, 0, 0, 0,
+							],
 						},
 						{
 							filterEnvelope: "decay 2",
-							spectrum: [0, 14, 57, 71, 86, 86, 86, 86, 71, 71, 43, 43, 29, 43, 57, 57, 71, 71, 71, 71, 57, 57, 43, 43, 43, 43, 43, 43, 43, 71],
+							spectrum: [
+								0, 14, 57, 71, 86, 86, 86, 86, 71, 71, 43, 43, 29, 43, 57, 57, 71,
+								71, 71, 71, 57, 57, 43, 43, 43, 43, 43, 43, 43, 71,
+							],
 						},
 						{
 							filterEnvelope: "decay 1",
-							spectrum: [0, 0, 14, 0, 0, 14, 14, 29, 43, 43, 43, 57, 57, 71, 71, 71, 71, 71, 71, 71, 57, 57, 57, 43, 43, 43, 43, 43, 29, 0],
+							spectrum: [
+								0, 0, 14, 0, 0, 14, 14, 29, 43, 43, 43, 57, 57, 71, 71, 71, 71, 71,
+								71, 71, 57, 57, 57, 43, 43, 43, 43, 43, 29, 0,
+							],
 						},
 						{
 							filterEnvelope: "twang 3",
-							spectrum: [29, 43, 43, 43, 43, 57, 57, 57, 57, 57, 43, 43, 43, 43, 43, 29, 29, 29, 29, 29, 29, 29, 43, 43, 43, 43, 43, 43, 57, 57],
+							spectrum: [
+								29, 43, 43, 43, 43, 57, 57, 57, 57, 57, 43, 43, 43, 43, 43, 29, 29,
+								29, 29, 29, 29, 29, 43, 43, 43, 43, 43, 43, 57, 57,
+							],
 						},
 						{
 							filterEnvelope: "decay 3",
-							spectrum: [0, 14, 43, 43, 43, 43, 43, 43, 43, 29, 43, 43, 71, 71, 57, 57, 57, 57, 57, 57, 57, 57, 43, 43, 43, 57, 71, 71, 86, 100],
+							spectrum: [
+								0, 14, 43, 43, 43, 43, 43, 43, 43, 29, 43, 43, 71, 71, 57, 57, 57,
+								57, 57, 57, 57, 57, 43, 43, 43, 57, 71, 71, 86, 100,
+							],
 						},
 						{
 							filterEnvelope: "twang 3",
-							spectrum: [43, 43, 43, 57, 57, 57, 57, 57, 57, 57, 57, 57, 57, 57, 57, 57, 57, 57, 57, 57, 57, 57, 71, 71, 86, 86, 86, 86, 86, 57],
+							spectrum: [
+								43, 43, 43, 57, 57, 57, 57, 57, 57, 57, 57, 57, 57, 57, 57, 57, 57,
+								57, 57, 57, 57, 57, 71, 71, 86, 86, 86, 86, 86, 57,
+							],
 						},
 						{
 							filterEnvelope: "decay 3",
-							spectrum: [29, 43, 43, 43, 43, 43, 43, 43, 43, 43, 71, 71, 71, 71, 57, 57, 43, 71, 71, 71, 71, 71, 57, 57, 57, 57, 57, 57, 57, 86],
+							spectrum: [
+								29, 43, 43, 43, 43, 43, 43, 43, 43, 43, 71, 71, 71, 71, 57, 57, 43,
+								71, 71, 71, 71, 71, 57, 57, 57, 57, 57, 57, 57, 86,
+							],
 						},
 						{
 							filterEnvelope: "flare 1",
 							spectrum: [
-								0, 0, 14, 29, 43, 43, 57, 57, 71, 71, 71, 71, 86, 86, 86, 86, 100, 100, 100, 100, 100, 100, 86, 86, 71, 57, 43, 43, 29, 14,
+								0, 0, 14, 29, 43, 43, 57, 57, 71, 71, 71, 71, 86, 86, 86, 86, 100,
+								100, 100, 100, 100, 100, 86, 86, 71, 57, 43, 43, 29, 14,
 							],
 						},
 						{
 							filterEnvelope: "decay 2",
-							spectrum: [14, 14, 14, 29, 43, 43, 57, 71, 71, 71, 71, 71, 86, 86, 86, 86, 86, 86, 86, 86, 86, 86, 71, 57, 43, 29, 14, 14, 0, 0],
+							spectrum: [
+								14, 14, 14, 29, 43, 43, 57, 71, 71, 71, 71, 71, 86, 86, 86, 86, 86,
+								86, 86, 86, 86, 86, 71, 57, 43, 29, 14, 14, 0, 0,
+							],
 						},
 					],
 					unison: "none",
@@ -6750,7 +7223,10 @@ export const mixedCommunityCategories: InputPresetCategory[] = [
 					reverb: 0,
 					fadeInSeconds: 0,
 					fadeOutTicks: 48,
-					spectrum: [0, 0, 0, 14, 71, 71, 71, 14, 29, 43, 100, 100, 43, 0, 14, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+					spectrum: [
+						0, 0, 0, 14, 71, 71, 71, 14, 29, 43, 100, 100, 43, 0, 14, 0, 0, 0, 0, 0, 0,
+						0, 0, 0, 0, 0, 0, 0, 0, 0,
+					],
 					unison: "none",
 					envelopes: [
 						{
@@ -6788,59 +7264,86 @@ export const mixedCommunityCategories: InputPresetCategory[] = [
 					drums: [
 						{
 							filterEnvelope: "twang 1",
-							spectrum: [100, 86, 86, 86, 71, 71, 71, 71, 57, 57, 57, 57, 57, 43, 43, 43, 43, 43, 43, 29, 29, 29, 29, 29, 29, 29, 14, 14, 14, 0],
-						},
-						{
-							filterEnvelope: "twang 1",
-							spectrum: [71, 71, 71, 71, 71, 71, 71, 71, 71, 71, 71, 71, 71, 71, 71, 71, 71, 71, 57, 57, 57, 57, 57, 57, 57, 57, 57, 57, 57, 57],
-						},
-						{
-							filterEnvelope: "twang 1",
 							spectrum: [
-								0, 0, 57, 57, 57, 57, 71, 71, 71, 71, 71, 86, 86, 86, 86, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100,
-								100,
+								100, 86, 86, 86, 71, 71, 71, 71, 57, 57, 57, 57, 57, 43, 43, 43, 43,
+								43, 43, 29, 29, 29, 29, 29, 29, 29, 14, 14, 14, 0,
 							],
 						},
 						{
 							filterEnvelope: "twang 1",
 							spectrum: [
-								43, 43, 43, 57, 57, 57, 57, 57, 71, 71, 71, 71, 86, 86, 86, 86, 86, 100, 100, 71, 71, 71, 71, 57, 57, 57, 57, 57, 43, 43,
+								71, 71, 71, 71, 71, 71, 71, 71, 71, 71, 71, 71, 71, 71, 71, 71, 71,
+								71, 57, 57, 57, 57, 57, 57, 57, 57, 57, 57, 57, 57,
+							],
+						},
+						{
+							filterEnvelope: "twang 1",
+							spectrum: [
+								0, 0, 57, 57, 57, 57, 71, 71, 71, 71, 71, 86, 86, 86, 86, 100, 100,
+								100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100,
+							],
+						},
+						{
+							filterEnvelope: "twang 1",
+							spectrum: [
+								43, 43, 43, 57, 57, 57, 57, 57, 71, 71, 71, 71, 86, 86, 86, 86, 86,
+								100, 100, 71, 71, 71, 71, 57, 57, 57, 57, 57, 43, 43,
 							],
 						},
 						{
 							filterEnvelope: "decay 2",
-							spectrum: [57, 57, 57, 57, 57, 57, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 29, 29, 29, 29, 29, 29, 29, 29, 29, 29, 29, 0],
+							spectrum: [
+								57, 57, 57, 57, 57, 57, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43,
+								43, 29, 29, 29, 29, 29, 29, 29, 29, 29, 29, 29, 0,
+							],
 						},
 						{
 							filterEnvelope: "decay 1",
 							spectrum: [
-								43, 57, 57, 57, 57, 57, 57, 57, 57, 71, 71, 71, 71, 71, 71, 71, 71, 71, 71, 86, 86, 86, 86, 86, 86, 86, 86, 86, 100, 100,
+								43, 57, 57, 57, 57, 57, 57, 57, 57, 71, 71, 71, 71, 71, 71, 71, 71,
+								71, 71, 86, 86, 86, 86, 86, 86, 86, 86, 86, 100, 100,
 							],
 						},
 						{
 							filterEnvelope: "twang 3",
-							spectrum: [43, 43, 14, 43, 43, 0, 43, 43, 71, 71, 100, 43, 43, 14, 71, 43, 43, 0, 71, 86, 57, 57, 14, 57, 14, 57, 57, 86, 14, 57],
+							spectrum: [
+								43, 43, 14, 43, 43, 0, 43, 43, 71, 71, 100, 43, 43, 14, 71, 43, 43,
+								0, 71, 86, 57, 57, 14, 57, 14, 57, 57, 86, 14, 57,
+							],
 						},
 						{
 							filterEnvelope: "decay 3",
-							spectrum: [29, 29, 29, 29, 43, 43, 43, 57, 57, 57, 57, 57, 57, 57, 43, 29, 43, 29, 57, 29, 43, 57, 43, 71, 43, 71, 57, 57, 71, 71],
+							spectrum: [
+								29, 29, 29, 29, 43, 43, 43, 57, 57, 57, 57, 57, 57, 57, 43, 29, 43,
+								29, 57, 29, 43, 57, 43, 71, 43, 71, 57, 57, 71, 71,
+							],
 						},
 						{
 							filterEnvelope: "twang 3",
-							spectrum: [0, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 29, 29, 29, 29, 43, 43, 43, 57, 57, 57, 57, 57, 57, 57, 71],
+							spectrum: [
+								0, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 29, 29,
+								29, 29, 43, 43, 43, 57, 57, 57, 57, 57, 57, 57, 71,
+							],
 						},
 						{
 							filterEnvelope: "decay 3",
-							spectrum: [57, 43, 43, 43, 57, 57, 57, 57, 71, 71, 71, 0, 0, 29, 43, 57, 86, 71, 57, 86, 71, 57, 86, 100, 71, 86, 86, 86, 86, 86],
+							spectrum: [
+								57, 43, 43, 43, 57, 57, 57, 57, 71, 71, 71, 0, 0, 29, 43, 57, 86,
+								71, 57, 86, 71, 57, 86, 100, 71, 86, 86, 86, 86, 86,
+							],
 						},
 						{
 							filterEnvelope: "fall 2",
-							spectrum: [29, 57, 57, 57, 57, 57, 57, 57, 57, 57, 57, 57, 57, 57, 57, 57, 57, 57, 57, 57, 57, 57, 57, 57, 57, 57, 57, 57, 43, 86],
+							spectrum: [
+								29, 57, 57, 57, 57, 57, 57, 57, 57, 57, 57, 57, 57, 57, 57, 57, 57,
+								57, 57, 57, 57, 57, 57, 57, 57, 57, 57, 57, 43, 86,
+							],
 						},
 						{
 							filterEnvelope: "decay 2",
 							spectrum: [
-								14, 14, 14, 14, 29, 14, 43, 57, 57, 57, 57, 71, 71, 71, 71, 71, 71, 71, 86, 86, 86, 86, 86, 86, 86, 86, 100, 100, 100, 100,
+								14, 14, 14, 14, 29, 14, 43, 57, 57, 57, 57, 71, 71, 71, 71, 71, 71,
+								71, 86, 86, 86, 86, 86, 86, 86, 86, 100, 100, 100, 100,
 							],
 						},
 					],
@@ -6973,7 +7476,10 @@ export const mixedCommunityCategories: InputPresetCategory[] = [
 					reverb: 0,
 					fadeInSeconds: 0,
 					fadeOutTicks: 48,
-					spectrum: [43, 57, 29, 14, 43, 29, 29, 29, 29, 29, 29, 29, 29, 29, 29, 29, 29, 14, 14, 14, 14, 14, 14, 14, 14, 0, 0, 0, 0, 0],
+					spectrum: [
+						43, 57, 29, 14, 43, 29, 29, 29, 29, 29, 29, 29, 29, 29, 29, 29, 29, 14, 14,
+						14, 14, 14, 14, 14, 14, 0, 0, 0, 0, 0,
+					],
 					unison: "none",
 					envelopes: [
 						{
@@ -7015,7 +7521,10 @@ export const mixedCommunityCategories: InputPresetCategory[] = [
 					reverb: 0,
 					fadeInSeconds: 0,
 					fadeOutTicks: 48,
-					spectrum: [43, 43, 57, 71, 86, 86, 100, 100, 100, 86, 86, 86, 71, 71, 71, 57, 57, 57, 43, 43, 43, 29, 29, 29, 14, 14, 14, 43, 43, 57],
+					spectrum: [
+						43, 43, 57, 71, 86, 86, 100, 100, 100, 86, 86, 86, 71, 71, 71, 57, 57, 57,
+						43, 43, 43, 29, 29, 29, 14, 14, 14, 43, 43, 57,
+					],
 					unison: "none",
 					envelopes: [
 						{
@@ -7054,8 +7563,8 @@ export const mixedCommunityCategories: InputPresetCategory[] = [
 					fadeInSeconds: 0,
 					fadeOutTicks: 96,
 					spectrum: [
-						100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100,
-						100, 100, 100,
+						100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100,
+						100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100,
 					],
 					unison: "block",
 					envelopes: [],
@@ -7107,65 +7616,87 @@ export const mixedCommunityCategories: InputPresetCategory[] = [
 					drums: [
 						{
 							filterEnvelope: "twang 1",
-							spectrum: [57, 57, 57, 57, 57, 57, 57, 57, 57, 57, 57, 57, 57, 57, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+							spectrum: [
+								57, 57, 57, 57, 57, 57, 57, 57, 57, 57, 57, 57, 57, 57, 0, 0, 0, 0,
+								0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+							],
 						},
 						{
 							filterEnvelope: "twang 1",
-							spectrum: [29, 29, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 29, 29, 14, 14, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+							spectrum: [
+								29, 29, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 29, 29, 14, 14, 0,
+								0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+							],
 						},
 						{
 							filterEnvelope: "twang 1",
-							spectrum: [29, 43, 43, 43, 43, 43, 43, 43, 43, 43, 29, 29, 29, 14, 14, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+							spectrum: [
+								29, 43, 43, 43, 43, 43, 43, 43, 43, 43, 29, 29, 29, 14, 14, 0, 0, 0,
+								0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+							],
 						},
 						{
 							filterEnvelope: "twang 1",
-							spectrum: [43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 29, 29, 29, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+							spectrum: [
+								43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 29, 29, 29, 0, 0, 0, 0,
+								0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+							],
 						},
 						{
 							filterEnvelope: "decay 2",
-							spectrum: [71, 71, 71, 71, 71, 71, 71, 71, 71, 71, 71, 71, 71, 71, 71, 71, 71, 71, 71, 71, 71, 71, 71, 71, 71, 71, 71, 71, 71, 71],
+							spectrum: [
+								71, 71, 71, 71, 71, 71, 71, 71, 71, 71, 71, 71, 71, 71, 71, 71, 71,
+								71, 71, 71, 71, 71, 71, 71, 71, 71, 71, 71, 71, 71,
+							],
 						},
 						{
 							filterEnvelope: "decay 1",
 							spectrum: [
-								100, 29, 14, 29, 29, 29, 29, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 100, 100, 100, 100, 100, 100, 100, 100,
-								100,
+								100, 29, 14, 29, 29, 29, 29, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43,
+								43, 43, 43, 43, 100, 100, 100, 100, 100, 100, 100, 100, 100,
 							],
 						},
 						{
 							filterEnvelope: "twang 3",
 							spectrum: [
-								14, 14, 29, 29, 29, 29, 29, 29, 29, 43, 43, 57, 57, 57, 71, 71, 71, 71, 71, 71, 86, 100, 100, 100, 100, 100, 100, 86, 100, 100,
+								14, 14, 29, 29, 29, 29, 29, 29, 29, 43, 43, 57, 57, 57, 71, 71, 71,
+								71, 71, 71, 86, 100, 100, 100, 100, 100, 100, 86, 100, 100,
 							],
 						},
 						{
 							filterEnvelope: "decay 3",
 							spectrum: [
-								0, 29, 29, 29, 29, 29, 29, 43, 43, 43, 43, 57, 57, 57, 71, 71, 71, 71, 71, 71, 71, 100, 100, 100, 100, 100, 100, 100, 100, 100,
+								0, 29, 29, 29, 29, 29, 29, 43, 43, 43, 43, 57, 57, 57, 71, 71, 71,
+								71, 71, 71, 71, 100, 100, 100, 100, 100, 100, 100, 100, 100,
 							],
 						},
 						{
 							filterEnvelope: "twang 3",
 							spectrum: [
-								0, 14, 57, 43, 29, 43, 29, 29, 29, 43, 43, 43, 43, 43, 43, 43, 43, 57, 57, 86, 86, 86, 100, 100, 100, 100, 100, 100, 100, 100,
+								0, 14, 57, 43, 29, 43, 29, 29, 29, 43, 43, 43, 43, 43, 43, 43, 43,
+								57, 57, 86, 86, 86, 100, 100, 100, 100, 100, 100, 100, 100,
 							],
 						},
 						{
 							filterEnvelope: "decay 3",
 							spectrum: [
-								0, 29, 29, 29, 29, 43, 43, 43, 43, 43, 57, 57, 57, 71, 71, 86, 86, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100,
-								14,
+								0, 29, 29, 29, 29, 43, 43, 43, 43, 43, 57, 57, 57, 71, 71, 86, 86,
+								100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 14,
 							],
 						},
 						{
 							filterEnvelope: "flare 1",
 							spectrum: [
-								0, 0, 14, 14, 14, 14, 29, 29, 29, 43, 43, 43, 57, 57, 71, 71, 86, 86, 100, 100, 100, 100, 100, 100, 100, 100, 86, 57, 29, 0,
+								0, 0, 14, 14, 14, 14, 29, 29, 29, 43, 43, 43, 57, 57, 71, 71, 86,
+								86, 100, 100, 100, 100, 100, 100, 100, 100, 86, 57, 29, 0,
 							],
 						},
 						{
 							filterEnvelope: "decay 2",
-							spectrum: [14, 0, 0, 43, 29, 29, 29, 29, 29, 43, 43, 57, 57, 57, 57, 71, 71, 71, 86, 86, 86, 86, 86, 86, 86, 86, 71, 43, 29, 14],
+							spectrum: [
+								14, 0, 0, 43, 29, 29, 29, 29, 29, 43, 43, 57, 57, 57, 57, 71, 71,
+								71, 86, 86, 86, 86, 86, 86, 86, 86, 71, 43, 29, 14,
+							],
 						},
 					],
 					unison: "none",
@@ -7191,51 +7722,87 @@ export const mixedCommunityCategories: InputPresetCategory[] = [
 					drums: [
 						{
 							filterEnvelope: "flutter 1",
-							spectrum: [0, 0, 0, 0, 14, 100, 86, 0, 43, 14, 43, 0, 43, 0, 14, 29, 86, 29, 29, 14, 86, 100, 14, 57, 0, 29, 71, 0, 43, 14],
+							spectrum: [
+								0, 0, 0, 0, 14, 100, 86, 0, 43, 14, 43, 0, 43, 0, 14, 29, 86, 29,
+								29, 14, 86, 100, 14, 57, 0, 29, 71, 0, 43, 14,
+							],
 						},
 						{
 							filterEnvelope: "twang 2",
-							spectrum: [71, 14, 100, 0, 0, 0, 0, 0, 0, 14, 14, 100, 57, 0, 14, 14, 14, 43, 14, 14, 0, 14, 43, 0, 57, 14, 43, 0, 100, 71],
+							spectrum: [
+								71, 14, 100, 0, 0, 0, 0, 0, 0, 14, 14, 100, 57, 0, 14, 14, 14, 43,
+								14, 14, 0, 14, 43, 0, 57, 14, 43, 0, 100, 71,
+							],
 						},
 						{
 							filterEnvelope: "tremolo1",
-							spectrum: [29, 29, 0, 43, 0, 14, 29, 14, 71, 71, 0, 29, 100, 0, 0, 71, 14, 57, 14, 29, 0, 71, 14, 43, 100, 71, 86, 100, 57, 71],
+							spectrum: [
+								29, 29, 0, 43, 0, 14, 29, 14, 71, 71, 0, 29, 100, 0, 0, 71, 14, 57,
+								14, 29, 0, 71, 14, 43, 100, 71, 86, 100, 57, 71,
+							],
 						},
 						{
 							filterEnvelope: "tremolo2",
-							spectrum: [43, 57, 100, 0, 43, 14, 100, 57, 0, 100, 14, 57, 0, 14, 14, 14, 29, 0, 71, 86, 0, 57, 0, 0, 29, 0, 71, 0, 29, 43],
+							spectrum: [
+								43, 57, 100, 0, 43, 14, 100, 57, 0, 100, 14, 57, 0, 14, 14, 14, 29,
+								0, 71, 86, 0, 57, 0, 0, 29, 0, 71, 0, 29, 43,
+							],
 						},
 						{
 							filterEnvelope: "punch",
-							spectrum: [14, 43, 43, 71, 14, 57, 0, 0, 86, 0, 86, 100, 29, 86, 0, 57, 71, 57, 86, 43, 100, 14, 43, 29, 0, 43, 43, 29, 86, 0],
+							spectrum: [
+								14, 43, 43, 71, 14, 57, 0, 0, 86, 0, 86, 100, 29, 86, 0, 57, 71, 57,
+								86, 43, 100, 14, 43, 29, 0, 43, 43, 29, 86, 0,
+							],
 						},
 						{
 							filterEnvelope: "twang -1",
-							spectrum: [57, 29, 86, 14, 29, 0, 14, 71, 14, 0, 14, 57, 57, 14, 71, 86, 43, 100, 71, 57, 14, 43, 29, 43, 14, 86, 29, 29, 0, 71],
+							spectrum: [
+								57, 29, 86, 14, 29, 0, 14, 71, 14, 0, 14, 57, 57, 14, 71, 86, 43,
+								100, 71, 57, 14, 43, 29, 43, 14, 86, 29, 29, 0, 71,
+							],
 						},
 						{
 							filterEnvelope: "rise 1",
-							spectrum: [0, 100, 43, 43, 86, 86, 71, 29, 100, 86, 14, 57, 14, 0, 0, 14, 14, 29, 0, 86, 0, 57, 29, 71, 0, 71, 57, 14, 57, 71],
+							spectrum: [
+								0, 100, 43, 43, 86, 86, 71, 29, 100, 86, 14, 57, 14, 0, 0, 14, 14,
+								29, 0, 86, 0, 57, 29, 71, 0, 71, 57, 14, 57, 71,
+							],
 						},
 						{
 							filterEnvelope: "pentolo2",
-							spectrum: [0, 43, 86, 0, 14, 29, 14, 0, 43, 0, 29, 0, 43, 43, 0, 14, 57, 0, 71, 71, 0, 100, 29, 29, 0, 0, 86, 100, 14, 100],
+							spectrum: [
+								0, 43, 86, 0, 14, 29, 14, 0, 43, 0, 29, 0, 43, 43, 0, 14, 57, 0, 71,
+								71, 0, 100, 29, 29, 0, 0, 86, 100, 14, 100,
+							],
 						},
 						{
 							filterEnvelope: "flutter 1",
-							spectrum: [14, 86, 57, 14, 0, 0, 14, 43, 0, 14, 43, 14, 14, 86, 0, 29, 57, 29, 43, 0, 57, 86, 14, 100, 71, 86, 43, 0, 0, 0],
+							spectrum: [
+								14, 86, 57, 14, 0, 0, 14, 43, 0, 14, 43, 14, 14, 86, 0, 29, 57, 29,
+								43, 0, 57, 86, 14, 100, 71, 86, 43, 0, 0, 0,
+							],
 						},
 						{
 							filterEnvelope: "wibble 3",
-							spectrum: [100, 0, 0, 43, 57, 43, 43, 57, 0, 57, 0, 0, 14, 71, 0, 43, 86, 71, 14, 71, 57, 57, 14, 43, 0, 0, 100, 0, 0, 0],
+							spectrum: [
+								100, 0, 0, 43, 57, 43, 43, 57, 0, 57, 0, 0, 14, 71, 0, 43, 86, 71,
+								14, 71, 57, 57, 14, 43, 0, 0, 100, 0, 0, 0,
+							],
 						},
 						{
 							filterEnvelope: "rise 2",
-							spectrum: [14, 0, 0, 14, 43, 14, 0, 100, 86, 86, 57, 29, 43, 29, 0, 43, 86, 14, 43, 57, 86, 29, 0, 71, 0, 0, 0, 14, 86, 71],
+							spectrum: [
+								14, 0, 0, 14, 43, 14, 0, 100, 86, 86, 57, 29, 43, 29, 0, 43, 86, 14,
+								43, 57, 86, 29, 0, 71, 0, 0, 0, 14, 86, 71,
+							],
 						},
 						{
 							filterEnvelope: "rise 3",
-							spectrum: [100, 14, 14, 14, 29, 14, 57, 29, 57, 29, 57, 57, 0, 86, 14, 71, 57, 0, 0, 14, 0, 0, 14, 0, 14, 29, 43, 14, 29, 100],
+							spectrum: [
+								100, 14, 14, 14, 29, 14, 57, 29, 57, 29, 57, 57, 0, 86, 14, 71, 57,
+								0, 0, 14, 0, 0, 14, 0, 14, 29, 43, 14, 29, 100,
+							],
 						},
 					],
 					unison: "none",
@@ -7265,7 +7832,10 @@ export const mixedCommunityCategories: InputPresetCategory[] = [
 					reverb: 16,
 					fadeInSeconds: 0,
 					fadeOutTicks: -1,
-					spectrum: [43, 14, 71, 29, 43, 0, 57, 29, 71, 0, 29, 29, 57, 0, 71, 0, 57, 43, 0, 14, 71, 0, 71, 29, 100, 0, 100, 57, 86, 86],
+					spectrum: [
+						43, 14, 71, 29, 43, 0, 57, 29, 71, 0, 29, 29, 57, 0, 71, 0, 57, 43, 0, 14,
+						71, 0, 71, 29, 100, 0, 100, 57, 86, 86,
+					],
 					unison: "none",
 					envelopes: [
 						{
@@ -7297,7 +7867,10 @@ export const mixedCommunityCategories: InputPresetCategory[] = [
 					panDelay: 0,
 					fadeInSeconds: 0,
 					fadeOutTicks: -24,
-					spectrum: [0, 0, 29, 43, 86, 71, 29, 43, 43, 43, 43, 29, 71, 29, 71, 29, 43, 43, 43, 43, 43, 43, 0, 29, 0, 43, 43, 57, 57, 57],
+					spectrum: [
+						0, 0, 29, 43, 86, 71, 29, 43, 43, 43, 43, 29, 71, 29, 71, 29, 43, 43, 43,
+						43, 43, 43, 0, 29, 0, 43, 43, 57, 57, 57,
+					],
 					unison: "none",
 					envelopes: [
 						{
@@ -7352,7 +7925,10 @@ export const mixedCommunityCategories: InputPresetCategory[] = [
 					reverb: 13,
 					fadeInSeconds: 0.1575,
 					fadeOutTicks: 96,
-					spectrum: [100, 71, 71, 57, 43, 43, 43, 29, 57, 29, 71, 29, 86, 86, 29, 57, 29, 29, 86, 14, 14, 14, 29, 29, 43, 43, 43, 86, 57, 57],
+					spectrum: [
+						100, 71, 71, 57, 43, 43, 43, 29, 57, 29, 71, 29, 86, 86, 29, 57, 29, 29, 86,
+						14, 14, 14, 29, 29, 43, 43, 43, 86, 57, 57,
+					],
 					unison: "inject",
 					envelopes: [
 						{
@@ -7439,7 +8015,10 @@ export const mixedCommunityCategories: InputPresetCategory[] = [
 					panDelay: 0,
 					fadeInSeconds: 0,
 					fadeOutTicks: 48,
-					spectrum: [0, 43, 57, 86, 86, 100, 57, 71, 71, 71, 86, 86, 86, 86, 86, 86, 86, 86, 86, 86, 86, 71, 71, 71, 71, 14, 86, 57, 29, 0],
+					spectrum: [
+						0, 43, 57, 86, 86, 100, 57, 71, 71, 71, 86, 86, 86, 86, 86, 86, 86, 86, 86,
+						86, 86, 71, 71, 71, 71, 14, 86, 57, 29, 0,
+					],
 					unison: "shimmer",
 					envelopes: [
 						{
@@ -7478,7 +8057,10 @@ export const mixedCommunityCategories: InputPresetCategory[] = [
 					fadeInSeconds: 0.0413,
 					fadeOutTicks: -1,
 					unison: "none",
-					spectrum: [71, 57, 57, 57, 86, 71, 57, 43, 43, 43, 43, 43, 43, 71, 71, 57, 86, 100, 71, 86, 71, 43, 43, 43, 43, 43, 29, 29, 29, 14],
+					spectrum: [
+						71, 57, 57, 57, 86, 71, 57, 43, 43, 43, 43, 43, 43, 71, 71, 57, 86, 100, 71,
+						86, 71, 43, 43, 43, 43, 43, 29, 29, 29, 14,
+					],
 					envelopes: [{ target: "noteFilterAllFreqs", envelope: "tremolo2" }],
 				},
 			},
@@ -7636,7 +8218,10 @@ export const mixedCommunityCategories: InputPresetCategory[] = [
 					reverb: 0,
 					fadeInSeconds: 0,
 					fadeOutTicks: -1,
-					spectrum: [43, 43, 43, 71, 29, 29, 43, 43, 43, 29, 43, 43, 43, 29, 29, 43, 43, 29, 29, 29, 57, 14, 57, 43, 43, 57, 43, 43, 57, 57],
+					spectrum: [
+						43, 43, 43, 71, 29, 29, 43, 43, 43, 29, 43, 43, 43, 29, 29, 43, 43, 29, 29,
+						29, 57, 14, 57, 43, 43, 57, 43, 43, 57, 57,
+					],
 					unison: "custom",
 					unisonVoices: 2,
 					unisonSpread: 2,
@@ -7676,7 +8261,14 @@ export const mixedCommunityCategories: InputPresetCategory[] = [
 						{ type: "peak", cutoffHz: 500, linearGain: 0.25 },
 					],
 					eqSubFilters1: [],
-					effects: ["transition type", "note filter", "distortion", "bitcrusher", "reverb", "ring mod"],
+					effects: [
+						"transition type",
+						"note filter",
+						"distortion",
+						"bitcrusher",
+						"reverb",
+						"ring mod",
+					],
 					transition: "interrupt",
 					clicklessTransition: false,
 					noteFilterType: false,
@@ -7713,57 +8305,87 @@ export const mixedCommunityCategories: InputPresetCategory[] = [
 					drums: [
 						{
 							filterEnvelope: "linear-2",
-							spectrum: [100, 100, 43, 29, 0, 0, 14, 29, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14],
-						},
-						{
-							filterEnvelope: "linear-1",
-							spectrum: [100, 100, 14, 14, 14, 14, 14, 14, 0, 0, 0, 0, 0, 14, 43, 29, 29, 29, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 43, 43],
-						},
-						{
-							filterEnvelope: "blip 2",
-							spectrum: [100, 71, 14, 14, 14, 29, 43, 29, 29, 29, 29, 29, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 14, 14, 0, 0, 14],
-						},
-						{
-							filterEnvelope: "blip 1",
 							spectrum: [
-								100, 86, 100, 100, 86, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43,
+								100, 100, 43, 29, 0, 0, 14, 29, 14, 14, 14, 14, 14, 14, 14, 14, 14,
+								14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14,
 							],
 						},
 						{
 							filterEnvelope: "linear-1",
 							spectrum: [
-								100, 100, 0, 0, 0, 0, 0, 0, 43, 43, 29, 29, 29, 29, 29, 29, 29, 100, 100, 100, 100, 100, 100, 100, 71, 71, 71, 71, 71, 71,
-							],
-						},
-						{
-							filterEnvelope: "linear-1",
-							spectrum: [
-								100, 100, 100, 100, 100, 100, 100, 86, 86, 29, 29, 29, 29, 29, 43, 29, 29, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 43, 43,
+								100, 100, 14, 14, 14, 14, 14, 14, 0, 0, 0, 0, 0, 14, 43, 29, 29, 29,
+								0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 43, 43,
 							],
 						},
 						{
 							filterEnvelope: "blip 2",
-							spectrum: [71, 71, 71, 71, 71, 29, 14, 14, 0, 0, 0, 0, 0, 0, 0, 0, 0, 57, 57, 43, 43, 43, 43, 43, 86, 86, 29, 43, 57, 57],
+							spectrum: [
+								100, 71, 14, 14, 14, 29, 43, 29, 29, 29, 29, 29, 0, 0, 0, 0, 0, 0,
+								0, 0, 0, 0, 0, 0, 0, 14, 14, 0, 0, 14,
+							],
 						},
 						{
 							filterEnvelope: "blip 1",
-							spectrum: [57, 43, 43, 43, 43, 43, 0, 0, 0, 0, 0, 0, 0, 0, 0, 14, 29, 29, 29, 29, 29, 100, 43, 29, 43, 43, 29, 29, 29, 29],
+							spectrum: [
+								100, 86, 100, 100, 86, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43,
+								43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43,
+							],
+						},
+						{
+							filterEnvelope: "linear-1",
+							spectrum: [
+								100, 100, 0, 0, 0, 0, 0, 0, 43, 43, 29, 29, 29, 29, 29, 29, 29, 100,
+								100, 100, 100, 100, 100, 100, 71, 71, 71, 71, 71, 71,
+							],
+						},
+						{
+							filterEnvelope: "linear-1",
+							spectrum: [
+								100, 100, 100, 100, 100, 100, 100, 86, 86, 29, 29, 29, 29, 29, 43,
+								29, 29, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 43, 43,
+							],
+						},
+						{
+							filterEnvelope: "blip 2",
+							spectrum: [
+								71, 71, 71, 71, 71, 29, 14, 14, 0, 0, 0, 0, 0, 0, 0, 0, 0, 57, 57,
+								43, 43, 43, 43, 43, 86, 86, 29, 43, 57, 57,
+							],
+						},
+						{
+							filterEnvelope: "blip 1",
+							spectrum: [
+								57, 43, 43, 43, 43, 43, 0, 0, 0, 0, 0, 0, 0, 0, 0, 14, 29, 29, 29,
+								29, 29, 100, 43, 29, 43, 43, 29, 29, 29, 29,
+							],
 						},
 						{
 							filterEnvelope: "blip 3",
-							spectrum: [14, 86, 86, 86, 86, 86, 86, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 43, 71, 43, 29, 14, 14, 57, 71, 29, 29, 43],
+							spectrum: [
+								14, 86, 86, 86, 86, 86, 86, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 43,
+								71, 43, 29, 14, 14, 57, 71, 29, 29, 43,
+							],
 						},
 						{
 							filterEnvelope: "blip 2",
-							spectrum: [57, 43, 0, 0, 0, 0, 0, 0, 14, 14, 43, 43, 71, 57, 43, 14, 14, 14, 14, 14, 14, 0, 0, 0, 0, 14, 29, 43, 29, 43],
+							spectrum: [
+								57, 43, 0, 0, 0, 0, 0, 0, 14, 14, 43, 43, 71, 57, 43, 14, 14, 14,
+								14, 14, 14, 0, 0, 0, 0, 14, 29, 43, 29, 43,
+							],
 						},
 						{
 							filterEnvelope: "flare -1",
-							spectrum: [0, 29, 14, 14, 14, 14, 0, 0, 0, 0, 0, 0, 0, 0, 0, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 86, 57, 29, 0],
+							spectrum: [
+								0, 29, 14, 14, 14, 14, 0, 0, 0, 0, 0, 0, 0, 0, 0, 100, 100, 100,
+								100, 100, 100, 100, 100, 100, 100, 100, 86, 57, 29, 0,
+							],
 						},
 						{
 							filterEnvelope: "fall 2",
-							spectrum: [14, 14, 14, 14, 29, 14, 14, 29, 14, 43, 14, 43, 57, 86, 57, 57, 100, 57, 43, 43, 57, 100, 57, 71, 71, 71, 71, 71, 71, 0],
+							spectrum: [
+								14, 14, 14, 14, 29, 14, 14, 29, 14, 43, 14, 43, 57, 86, 57, 57, 100,
+								57, 43, 43, 57, 100, 57, 71, 71, 71, 71, 71, 71, 0,
+							],
 						},
 					],
 					unison: "double octave",
@@ -7808,51 +8430,87 @@ export const mixedCommunityCategories: InputPresetCategory[] = [
 					drums: [
 						{
 							filterEnvelope: "swell 2",
-							spectrum: [0, 14, 0, 43, 29, 0, 29, 0, 0, 0, 100, 0, 0, 71, 71, 71, 0, 71, 14, 0, 57, 0, 43, 0, 14, 57, 0, 0, 71, 0],
+							spectrum: [
+								0, 14, 0, 43, 29, 0, 29, 0, 0, 0, 100, 0, 0, 71, 71, 71, 0, 71, 14,
+								0, 57, 0, 43, 0, 14, 57, 0, 0, 71, 0,
+							],
 						},
 						{
 							filterEnvelope: "tremolo3",
-							spectrum: [71, 29, 86, 0, 29, 0, 86, 14, 100, 71, 57, 57, 0, 14, 14, 57, 29, 29, 0, 71, 0, 29, 29, 43, 43, 29, 14, 71, 0, 71],
+							spectrum: [
+								71, 29, 86, 0, 29, 0, 86, 14, 100, 71, 57, 57, 0, 14, 14, 57, 29,
+								29, 0, 71, 0, 29, 29, 43, 43, 29, 14, 71, 0, 71,
+							],
 						},
 						{
 							filterEnvelope: "decay -1",
-							spectrum: [0, 71, 14, 100, 29, 0, 14, 29, 29, 100, 0, 57, 0, 14, 0, 14, 14, 43, 14, 0, 29, 86, 43, 57, 43, 0, 0, 0, 14, 86],
+							spectrum: [
+								0, 71, 14, 100, 29, 0, 14, 29, 29, 100, 0, 57, 0, 14, 0, 14, 14, 43,
+								14, 0, 29, 86, 43, 57, 43, 0, 0, 0, 14, 86,
+							],
 						},
 						{
 							filterEnvelope: "none",
-							spectrum: [0, 14, 100, 86, 86, 0, 29, 0, 0, 29, 100, 71, 14, 0, 14, 100, 0, 100, 0, 14, 86, 0, 0, 71, 71, 29, 14, 14, 14, 100],
+							spectrum: [
+								0, 14, 100, 86, 86, 0, 29, 0, 0, 29, 100, 71, 14, 0, 14, 100, 0,
+								100, 0, 14, 86, 0, 0, 71, 71, 29, 14, 14, 14, 100,
+							],
 						},
 						{
 							filterEnvelope: "flare -1",
-							spectrum: [43, 0, 57, 57, 29, 0, 0, 71, 0, 100, 0, 57, 86, 100, 43, 100, 29, 0, 0, 0, 86, 0, 0, 14, 86, 0, 43, 0, 71, 86],
+							spectrum: [
+								43, 0, 57, 57, 29, 0, 0, 71, 0, 100, 0, 57, 86, 100, 43, 100, 29, 0,
+								0, 0, 86, 0, 0, 14, 86, 0, 43, 0, 71, 86,
+							],
 						},
 						{
 							filterEnvelope: "twang 2",
-							spectrum: [14, 0, 14, 29, 0, 14, 57, 0, 14, 0, 14, 0, 57, 0, 100, 29, 14, 29, 0, 14, 0, 0, 57, 14, 14, 0, 71, 43, 0, 14],
+							spectrum: [
+								14, 0, 14, 29, 0, 14, 57, 0, 14, 0, 14, 0, 57, 0, 100, 29, 14, 29,
+								0, 14, 0, 0, 57, 14, 14, 0, 71, 43, 0, 14,
+							],
 						},
 						{
 							filterEnvelope: "none",
-							spectrum: [57, 57, 0, 86, 14, 43, 71, 14, 14, 43, 0, 14, 0, 57, 29, 29, 0, 29, 14, 57, 29, 0, 43, 71, 29, 29, 100, 14, 71, 43],
+							spectrum: [
+								57, 57, 0, 86, 14, 43, 71, 14, 14, 43, 0, 14, 0, 57, 29, 29, 0, 29,
+								14, 57, 29, 0, 43, 71, 29, 29, 100, 14, 71, 43,
+							],
 						},
 						{
 							filterEnvelope: "tripolo3",
-							spectrum: [43, 43, 14, 71, 14, 100, 14, 0, 29, 14, 57, 0, 57, 43, 14, 0, 0, 0, 0, 43, 14, 29, 0, 100, 43, 14, 86, 71, 29, 0],
+							spectrum: [
+								43, 43, 14, 71, 14, 100, 14, 0, 29, 14, 57, 0, 57, 43, 14, 0, 0, 0,
+								0, 43, 14, 29, 0, 100, 43, 14, 86, 71, 29, 0,
+							],
 						},
 						{
 							filterEnvelope: "blip 1",
-							spectrum: [57, 43, 0, 14, 57, 14, 0, 29, 29, 0, 29, 0, 100, 43, 43, 0, 0, 29, 43, 29, 0, 71, 14, 0, 86, 0, 43, 57, 57, 29],
+							spectrum: [
+								57, 43, 0, 14, 57, 14, 0, 29, 29, 0, 29, 0, 100, 43, 43, 0, 0, 29,
+								43, 29, 0, 71, 14, 0, 86, 0, 43, 57, 57, 29,
+							],
 						},
 						{
 							filterEnvelope: "blip 2",
-							spectrum: [0, 14, 0, 57, 43, 0, 100, 57, 29, 71, 0, 43, 14, 29, 0, 100, 14, 43, 0, 86, 100, 0, 0, 57, 29, 0, 57, 14, 14, 14],
+							spectrum: [
+								0, 14, 0, 57, 43, 0, 100, 57, 29, 71, 0, 43, 14, 29, 0, 100, 14, 43,
+								0, 86, 100, 0, 0, 57, 29, 0, 57, 14, 14, 14,
+							],
 						},
 						{
 							filterEnvelope: "linear-2",
-							spectrum: [43, 29, 14, 71, 71, 71, 43, 43, 57, 0, 29, 71, 71, 0, 43, 0, 14, 0, 100, 43, 86, 0, 43, 57, 100, 43, 43, 0, 14, 0],
+							spectrum: [
+								43, 29, 14, 71, 71, 71, 43, 43, 57, 0, 29, 71, 71, 0, 43, 0, 14, 0,
+								100, 43, 86, 0, 43, 57, 100, 43, 43, 0, 14, 0,
+							],
 						},
 						{
 							filterEnvelope: "flutter 2",
-							spectrum: [0, 14, 29, 71, 14, 0, 71, 14, 86, 86, 43, 100, 14, 57, 71, 14, 0, 0, 86, 0, 57, 57, 57, 43, 0, 0, 0, 29, 0, 14],
+							spectrum: [
+								0, 14, 29, 71, 14, 0, 71, 14, 86, 86, 43, 100, 14, 57, 71, 14, 0, 0,
+								86, 0, 57, 57, 57, 43, 0, 0, 0, 29, 0, 14,
+							],
 						},
 					],
 					envelopes: [{ target: "noteFilterAllFreqs", envelope: "tremolo6" }],
@@ -7877,51 +8535,87 @@ export const mixedCommunityCategories: InputPresetCategory[] = [
 					drums: [
 						{
 							filterEnvelope: "decay 1",
-							spectrum: [0, 0, 14, 14, 14, 14, 29, 29, 29, 43, 43, 43, 57, 57, 57, 71, 71, 71, 71, 71, 71, 71, 71, 57, 57, 57, 57, 43, 43, 43],
+							spectrum: [
+								0, 0, 14, 14, 14, 14, 29, 29, 29, 43, 43, 43, 57, 57, 57, 71, 71,
+								71, 71, 71, 71, 71, 71, 57, 57, 57, 57, 43, 43, 43,
+							],
 						},
 						{
 							filterEnvelope: "decay 1",
-							spectrum: [0, 0, 14, 14, 14, 14, 29, 29, 29, 43, 43, 43, 57, 57, 57, 71, 71, 71, 71, 71, 71, 71, 71, 57, 57, 57, 57, 43, 43, 43],
+							spectrum: [
+								0, 0, 14, 14, 14, 14, 29, 29, 29, 43, 43, 43, 57, 57, 57, 71, 71,
+								71, 71, 71, 71, 71, 71, 57, 57, 57, 57, 43, 43, 43,
+							],
 						},
 						{
 							filterEnvelope: "decay 1",
-							spectrum: [0, 0, 14, 14, 14, 14, 29, 29, 29, 43, 43, 43, 57, 57, 57, 71, 71, 71, 71, 71, 71, 71, 71, 57, 57, 57, 57, 43, 43, 43],
+							spectrum: [
+								0, 0, 14, 14, 14, 14, 29, 29, 29, 43, 43, 43, 57, 57, 57, 71, 71,
+								71, 71, 71, 71, 71, 71, 57, 57, 57, 57, 43, 43, 43,
+							],
 						},
 						{
 							filterEnvelope: "decay 1",
-							spectrum: [0, 0, 14, 14, 14, 14, 29, 29, 29, 43, 43, 43, 57, 57, 57, 71, 71, 71, 71, 71, 71, 71, 71, 57, 57, 57, 57, 43, 43, 43],
+							spectrum: [
+								0, 0, 14, 14, 14, 14, 29, 29, 29, 43, 43, 43, 57, 57, 57, 71, 71,
+								71, 71, 71, 71, 71, 71, 57, 57, 57, 57, 43, 43, 43,
+							],
 						},
 						{
 							filterEnvelope: "decay 1",
-							spectrum: [0, 0, 14, 14, 14, 14, 29, 29, 29, 43, 43, 43, 57, 57, 57, 71, 71, 71, 71, 71, 71, 71, 71, 57, 57, 57, 57, 43, 43, 43],
+							spectrum: [
+								0, 0, 14, 14, 14, 14, 29, 29, 29, 43, 43, 43, 57, 57, 57, 71, 71,
+								71, 71, 71, 71, 71, 71, 57, 57, 57, 57, 43, 43, 43,
+							],
 						},
 						{
 							filterEnvelope: "decay 1",
-							spectrum: [0, 0, 14, 14, 14, 14, 29, 29, 29, 43, 43, 43, 57, 57, 57, 71, 71, 71, 71, 71, 71, 71, 71, 57, 57, 57, 57, 43, 43, 43],
+							spectrum: [
+								0, 0, 14, 14, 14, 14, 29, 29, 29, 43, 43, 43, 57, 57, 57, 71, 71,
+								71, 71, 71, 71, 71, 71, 57, 57, 57, 57, 43, 43, 43,
+							],
 						},
 						{
 							filterEnvelope: "decay 1",
-							spectrum: [0, 0, 14, 14, 14, 14, 29, 29, 29, 43, 43, 43, 57, 57, 57, 71, 71, 71, 71, 71, 71, 71, 71, 57, 57, 57, 57, 43, 43, 43],
+							spectrum: [
+								0, 0, 14, 14, 14, 14, 29, 29, 29, 43, 43, 43, 57, 57, 57, 71, 71,
+								71, 71, 71, 71, 71, 71, 57, 57, 57, 57, 43, 43, 43,
+							],
 						},
 						{
 							filterEnvelope: "decay 1",
-							spectrum: [0, 0, 14, 14, 14, 14, 29, 29, 29, 43, 43, 43, 57, 57, 57, 71, 71, 71, 71, 71, 71, 71, 71, 57, 57, 57, 57, 43, 43, 43],
+							spectrum: [
+								0, 0, 14, 14, 14, 14, 29, 29, 29, 43, 43, 43, 57, 57, 57, 71, 71,
+								71, 71, 71, 71, 71, 71, 57, 57, 57, 57, 43, 43, 43,
+							],
 						},
 						{
 							filterEnvelope: "decay 1",
-							spectrum: [0, 0, 14, 14, 14, 14, 29, 29, 29, 43, 43, 43, 57, 57, 57, 71, 71, 71, 71, 71, 71, 71, 71, 57, 57, 57, 57, 43, 43, 43],
+							spectrum: [
+								0, 0, 14, 14, 14, 14, 29, 29, 29, 43, 43, 43, 57, 57, 57, 71, 71,
+								71, 71, 71, 71, 71, 71, 57, 57, 57, 57, 43, 43, 43,
+							],
 						},
 						{
 							filterEnvelope: "decay 1",
-							spectrum: [0, 0, 14, 14, 14, 14, 29, 29, 29, 43, 43, 43, 57, 57, 57, 71, 71, 71, 71, 71, 71, 71, 71, 57, 57, 57, 57, 43, 43, 43],
+							spectrum: [
+								0, 0, 14, 14, 14, 14, 29, 29, 29, 43, 43, 43, 57, 57, 57, 71, 71,
+								71, 71, 71, 71, 71, 71, 57, 57, 57, 57, 43, 43, 43,
+							],
 						},
 						{
 							filterEnvelope: "decay 1",
-							spectrum: [0, 0, 14, 14, 14, 14, 29, 29, 29, 43, 43, 43, 57, 57, 57, 71, 71, 71, 71, 71, 71, 71, 71, 57, 57, 57, 57, 43, 43, 43],
+							spectrum: [
+								0, 0, 14, 14, 14, 14, 29, 29, 29, 43, 43, 43, 57, 57, 57, 71, 71,
+								71, 71, 71, 71, 71, 71, 57, 57, 57, 57, 43, 43, 43,
+							],
 						},
 						{
 							filterEnvelope: "decay 1",
-							spectrum: [0, 0, 14, 14, 14, 14, 29, 29, 29, 43, 43, 43, 57, 57, 57, 71, 71, 71, 71, 71, 71, 71, 71, 57, 57, 57, 57, 43, 43, 43],
+							spectrum: [
+								0, 0, 14, 14, 14, 14, 29, 29, 29, 43, 43, 43, 57, 57, 57, 71, 71,
+								71, 71, 71, 71, 71, 71, 57, 57, 57, 57, 43, 43, 43,
+							],
 						},
 					],
 					unison: "none",
@@ -7951,7 +8645,10 @@ export const mixedCommunityCategories: InputPresetCategory[] = [
 					chorus: 100,
 					fadeInSeconds: 0.1575,
 					fadeOutTicks: 96,
-					spectrum: [100, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14],
+					spectrum: [
+						100, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14,
+						14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14,
+					],
 					unison: "bass",
 					envelopes: [],
 				},
@@ -7983,7 +8680,10 @@ export const mixedCommunityCategories: InputPresetCategory[] = [
 					reverb: 48,
 					fadeInSeconds: 0.0575,
 					fadeOutTicks: 96,
-					spectrum: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 43],
+					spectrum: [
+						0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+						0, 0, 0, 0, 43,
+					],
 					unison: "deep shift",
 					envelopes: [
 						{
@@ -8025,7 +8725,10 @@ export const mixedCommunityCategories: InputPresetCategory[] = [
 					reverb: 0,
 					fadeInSeconds: 0,
 					fadeOutTicks: 48,
-					spectrum: [14, 14, 29, 29, 43, 43, 57, 71, 71, 71, 86, 86, 100, 71, 43, 0, 14, 29, 29, 43, 57, 57, 71, 86, 100, 100, 86, 86, 71, 0],
+					spectrum: [
+						14, 14, 29, 29, 43, 43, 57, 71, 71, 71, 86, 86, 100, 71, 43, 0, 14, 29, 29,
+						43, 57, 57, 71, 86, 100, 100, 86, 86, 71, 0,
+					],
 					unison: "none",
 					envelopes: [
 						{
@@ -8064,8 +8767,8 @@ export const mixedCommunityCategories: InputPresetCategory[] = [
 					fadeInSeconds: 0,
 					fadeOutTicks: 96,
 					spectrum: [
-						100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100,
-						100, 100, 100,
+						100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100,
+						100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100,
 					],
 					unison: "block",
 					envelopes: [],
@@ -8364,7 +9067,15 @@ export const mixedCommunityCategories: InputPresetCategory[] = [
 					eqSimplePeak: 0,
 					envelopeSpeed: 12,
 					eqSubFilters0: [],
-					effects: ["pitch shift", "detune", "vibrato", "note filter", "distortion", "chorus", "reverb"],
+					effects: [
+						"pitch shift",
+						"detune",
+						"vibrato",
+						"note filter",
+						"distortion",
+						"chorus",
+						"reverb",
+					],
 					pitchShiftSemitones: 0,
 					detuneCents: -148,
 					vibrato: "shaky",
@@ -8427,7 +9138,10 @@ export const mixedCommunityCategories: InputPresetCategory[] = [
 					reverb: 71,
 					fadeInSeconds: 0,
 					fadeOutTicks: -3,
-					spectrum: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 14, 29, 29, 43, 43, 57, 43, 29, 14, 0, 0, 0, 0, 0, 0, 0, 0, 0, 86],
+					spectrum: [
+						0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 14, 29, 29, 43, 43, 57, 43, 29, 14, 0, 0,
+						0, 0, 0, 0, 0, 0, 0, 86,
+					],
 					unison: "hum",
 					envelopes: [],
 				},
@@ -8457,7 +9171,10 @@ export const mixedCommunityCategories: InputPresetCategory[] = [
 					fadeInSeconds: 0,
 					fadeOutTicks: -12,
 					unison: "spinner",
-					spectrum: [0, 0, 0, 0, 71, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 86, 71, 0, 0, 0, 0, 0, 43, 0, 0, 0, 86, 0, 57, 86],
+					spectrum: [
+						0, 0, 0, 0, 71, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 86, 71, 0, 0, 0, 0, 0, 43,
+						0, 0, 0, 86, 0, 57, 86,
+					],
 					envelopes: [
 						{ target: "noteFilterAllFreqs", envelope: "linear 2" },
 						{

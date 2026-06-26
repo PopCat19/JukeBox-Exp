@@ -28,7 +28,8 @@ export function buildFm6Source(instrument: Instrument): string {
 							modulators += ` + operator${modulatorNumber - 1}Scaled`;
 						}
 
-						const feedbackIndices: ReadonlyArray<number> = instrument.customFeedbackType.indices[j];
+						const feedbackIndices: ReadonlyArray<number> =
+							instrument.customFeedbackType.indices[j];
 						if (feedbackIndices.length > 0) {
 							modulators += " + feedbackMult * (";
 							const feedbacks: string[] = [];
@@ -37,7 +38,11 @@ export function buildFm6Source(instrument: Instrument): string {
 							}
 							modulators += `${feedbacks.join(" + ")})`;
 						}
-						synthSource.push(operatorLine.replace(/#/g, `${j}`).replace("/* + operator@Scaled*/", modulators));
+						synthSource.push(
+							operatorLine
+								.replace(/#/g, `${j}`)
+								.replace("/* + operator@Scaled*/", modulators),
+						);
 					} else {
 						synthSource.push(operatorLine.replace(/#/g, `${j}`));
 					}

@@ -6,17 +6,23 @@
 // - Embeds private-scale build/compile/cache per unison voice
 // - Registers via plugin registry on module load
 
+import { InstrumentState } from "../instrument-state";
 import type { Instrument } from "../instruments";
 import { Synth } from "../synth";
 import { Config, InstrumentType } from "../synth-config";
-import { InstrumentState } from "../instrument-state";
-import type { Tone } from "../tone";
 import { buildSupersawSource } from "../synthesis/supersaw";
+import type { Tone } from "../tone";
 import { registerPlugin } from "./registry";
 
 const functionCache: Function[] = Array(1).fill(undefined);
 
-function supersawSynth(synth: Synth, bufferIndex: number, runLength: number, tone: Tone, instrumentState: InstrumentState): void {
+function supersawSynth(
+	synth: Synth,
+	bufferIndex: number,
+	runLength: number,
+	tone: Tone,
+	instrumentState: InstrumentState,
+): void {
 	const voiceCount: number = Config.supersawVoiceCount | 0;
 	let fn: Function = functionCache[0];
 	if (fn === undefined) {
@@ -41,5 +47,6 @@ registerPlugin({
 		instrument.decimalOffset = 0;
 	},
 	getSynthFunction: (_instrument: Instrument, _synth: typeof Synth) => supersawSynth,
-	buildSource: (_instrument: Instrument, voiceCount?: number) => buildSupersawSource(voiceCount ?? 0),
+	buildSource: (_instrument: Instrument, voiceCount?: number) =>
+		buildSupersawSource(voiceCount ?? 0),
 });

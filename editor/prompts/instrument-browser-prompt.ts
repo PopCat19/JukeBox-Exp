@@ -11,7 +11,12 @@ import { BorderRadius, BorderWidth, Typography } from "../ui/style-constants";
 
 import { HTML } from "imperative-html/dist/esm/elements-strict";
 import { ChangePreset } from "../changes";
-import { EditorConfig, fullTagList, type Preset, type PresetCategory } from "../config/editor-config";
+import {
+	EditorConfig,
+	fullTagList,
+	type Preset,
+	type PresetCategory,
+} from "../config/editor-config";
 import type { SongDocument } from "../song-document";
 import { flexPane, inputRow, instructions, paneContainer, searchInput, tagChip } from "../ui";
 import { tabButton } from "../ui/buttons/tab-button";
@@ -152,16 +157,25 @@ export class InstrumentBrowserPrompt extends BasePrompt {
 			}
 		});
 
-		this._infoPanel = div({ style: "display: flex; flex-direction: column; gap: 8px; font-size: 12px; color: var(--secondary-text);" });
+		this._infoPanel = div({
+			style: "display: flex; flex-direction: column; gap: 8px; font-size: 12px; color: var(--secondary-text);",
+		});
 		this._infoPanel.className = "infoPanelPane";
 
-		const paneContainerEl = paneContainer({ height: "400px", gap: "8px", overflow: "visible", border: "none" }, this._categoryList, this._presetList);
+		const paneContainerEl = paneContainer(
+			{ height: "400px", gap: "8px", overflow: "visible", border: "none" },
+			this._categoryList,
+			this._presetList,
+		);
 		paneContainerEl.classList.add("presetPaneContainer");
 
-		const instructionsDiv = instructions("Arrow keys: navigate | Enter / Double click: commit | Tab: switch pane | #: tags | ESC: close", {
-			fontSize: Typography.sizeSm,
-			marginTop: "0",
-		});
+		const instructionsDiv = instructions(
+			"Arrow keys: navigate | Enter / Double click: commit | Tab: switch pane | #: tags | ESC: close",
+			{
+				fontSize: Typography.sizeSm,
+				marginTop: "0",
+			},
+		);
 
 		this._presetsTabContent = div(
 			{ class: "tabContent presetsTabContent" },
@@ -189,7 +203,9 @@ export class InstrumentBrowserPrompt extends BasePrompt {
 			inputRow({}, this._tagSearchInput, this._tagClearButton),
 			this._tagContainer,
 			div(
-				{ style: `font-size: ${Typography.sizeSm}; color: var(--secondary-text); text-align: center;` },
+				{
+					style: `font-size: ${Typography.sizeSm}; color: var(--secondary-text); text-align: center;`,
+				},
 				"Click or Enter to toggle | Arrow keys to navigate | ESC to close",
 			),
 		);
@@ -199,7 +215,9 @@ export class InstrumentBrowserPrompt extends BasePrompt {
 			inputRow({}, this._tagSearchInput, this._tagClearButton),
 			this._tagContainer,
 			div(
-				{ style: `font-size: ${Typography.sizeSm}; color: var(--secondary-text); text-align: center;` },
+				{
+					style: `font-size: ${Typography.sizeSm}; color: var(--secondary-text); text-align: center;`,
+				},
 				"Click or Enter to toggle | Arrow keys to navigate | ESC to close",
 			),
 		);
@@ -235,8 +253,16 @@ export class InstrumentBrowserPrompt extends BasePrompt {
 			this._activePane = "presets";
 			this._updateHighlight();
 			setTimeout(() => {
-				this._scrollItemIntoView(this._categoryItems, this._selectedCategoryIndex, this._categoryList);
-				this._scrollItemIntoView(this._presetItems, this._selectedPresetIndex, this._presetList);
+				this._scrollItemIntoView(
+					this._categoryItems,
+					this._selectedCategoryIndex,
+					this._categoryList,
+				);
+				this._scrollItemIntoView(
+					this._presetItems,
+					this._selectedPresetIndex,
+					this._presetList,
+				);
 			}, 100);
 		}
 
@@ -250,7 +276,9 @@ export class InstrumentBrowserPrompt extends BasePrompt {
 			this._highlightTagSelected();
 			this._updateTagClearButton();
 		};
-		const externalInput = document.getElementById("presetTagsInputBox") as HTMLInputElement | null;
+		const externalInput = document.getElementById(
+			"presetTagsInputBox",
+		) as HTMLInputElement | null;
 		if (externalInput) {
 			externalInput.addEventListener("input", this._externalTagHandler);
 		}
@@ -360,7 +388,9 @@ export class InstrumentBrowserPrompt extends BasePrompt {
 		// When tags are active, find the committed preset in
 		// filtered results rather than resetting to 0.
 		if (this._filteredPresets.length > 0) {
-			const committedIdx = this._filteredPresets.findIndex((p) => p.value === this._committedPreset);
+			const committedIdx = this._filteredPresets.findIndex(
+				(p) => p.value === this._committedPreset,
+			);
 			this._selectedPresetIndex = committedIdx >= 0 ? committedIdx : 0;
 		} else {
 			this._selectedPresetIndex = 0;
@@ -374,7 +404,9 @@ export class InstrumentBrowserPrompt extends BasePrompt {
 	private _updateCategoryDim(): void {
 		const hasTags = this._activeTags.length > 0;
 		this._categoryList.style.pointerEvents = hasTags ? "none" : "";
-		this._categoryList.title = hasTags ? "Category navigation disabled while tag filter is active" : "";
+		this._categoryList.title = hasTags
+			? "Category navigation disabled while tag filter is active"
+			: "";
 	}
 
 	private _clearTagFilters(): void {
@@ -386,7 +418,9 @@ export class InstrumentBrowserPrompt extends BasePrompt {
 		if (this._activeTags.length === 0) return true;
 		const preset = EditorConfig.valueToPreset(presetValue);
 		if (!preset?.tags) return false;
-		return this._activeTags.every((tag) => (tag.startsWith("!") ? !preset.tags.includes(tag.slice(1)) : preset.tags.includes(tag)));
+		return this._activeTags.every((tag) =>
+			tag.startsWith("!") ? !preset.tags.includes(tag.slice(1)) : preset.tags.includes(tag),
+		);
 	}
 
 	private _handleItemClick(target: "cat" | "preset", index: number): void {
@@ -460,7 +494,11 @@ export class InstrumentBrowserPrompt extends BasePrompt {
 					class: "categoryItem",
 					title: `${cat.name} (${cat.presets.length})`,
 				},
-				div({}, cat.name, div({ style: STYLES.smallText }, `Presets: ${cat.presets.length}`)),
+				div(
+					{},
+					cat.name,
+					div({ style: STYLES.smallText }, `Presets: ${cat.presets.length}`),
+				),
 			);
 			const idx = i;
 			item.addEventListener("mousedown", (event: MouseEvent) => {
@@ -476,10 +514,15 @@ export class InstrumentBrowserPrompt extends BasePrompt {
 		this._presetList.innerHTML = "";
 		this._presetItems = [];
 
-		const presets = this._isSearchMode ? this._filteredPresets : (this._categories[this._selectedCategoryIndex]?.presets ?? []);
+		const presets = this._isSearchMode
+			? this._filteredPresets
+			: (this._categories[this._selectedCategoryIndex]?.presets ?? []);
 
 		if (presets.length === 0) {
-			const emptyMsg = div({ class: "presetListEmpty" }, this._isSearchMode ? "No matching presets" : "No presets");
+			const emptyMsg = div(
+				{ class: "presetListEmpty" },
+				this._isSearchMode ? "No matching presets" : "No presets",
+			);
 			this._presetList.appendChild(emptyMsg);
 			return;
 		}
@@ -515,7 +558,9 @@ export class InstrumentBrowserPrompt extends BasePrompt {
 	}
 
 	private _syncCategoryToPreset(): void {
-		const presets = this._isSearchMode ? this._filteredPresets : (this._categories[this._selectedCategoryIndex]?.presets ?? []);
+		const presets = this._isSearchMode
+			? this._filteredPresets
+			: (this._categories[this._selectedCategoryIndex]?.presets ?? []);
 		const preset = presets[this._selectedPresetIndex];
 		if (!preset) return;
 		for (let ci = 0; ci < this._categories.length; ci++) {
@@ -535,14 +580,18 @@ export class InstrumentBrowserPrompt extends BasePrompt {
 			this._categoryList.style.borderColor = "var(--ui-widget-background)";
 			this._presetList.style.borderColor = "var(--ui-widget-background)";
 			for (let i = 0; i < this._categoryItems.length; i++) {
-				const isCommitted = this._categories[i].presets.some((p) => p.value === this._committedPreset);
+				const isCommitted = this._categories[i].presets.some(
+					(p) => p.value === this._committedPreset,
+				);
 				const isActive = i === this._selectedCategoryIndex;
 				this._categoryItems[i].classList.toggle("focused", false);
 				this._categoryItems[i].classList.toggle("active", isActive);
 				this._categoryItems[i].classList.toggle("committed", isCommitted);
 			}
 			for (let i = 0; i < this._presetItems.length; i++) {
-				const preset = this._isSearchMode ? this._filteredPresets[i] : this._categories[this._selectedCategoryIndex]?.presets[i];
+				const preset = this._isSearchMode
+					? this._filteredPresets[i]
+					: this._categories[this._selectedCategoryIndex]?.presets[i];
 				const isCommitted = preset && preset.value === this._committedPreset;
 				const isFocused = i === this._selectedPresetIndex && this._activePane === "presets";
 				const isActive = isFocused && !isCommitted;
@@ -552,22 +601,29 @@ export class InstrumentBrowserPrompt extends BasePrompt {
 			}
 			return;
 		}
-		const effectivePane = this._lastInteraction === "hover" ? this._hoveredPane : this._activePane;
+		const effectivePane =
+			this._lastInteraction === "hover" ? this._hoveredPane : this._activePane;
 		const focusedPane = effectivePane === "categories" ? this._categoryList : this._presetList;
-		const unfocusedPane = effectivePane === "categories" ? this._presetList : this._categoryList;
+		const unfocusedPane =
+			effectivePane === "categories" ? this._presetList : this._categoryList;
 		focusedPane.style.borderColor = "var(--indicator-primary, #4444ff)";
 		unfocusedPane.style.borderColor = "var(--ui-widget-background)";
 		for (let i = 0; i < this._categoryItems.length; i++) {
-			const isFocused = i === this._selectedCategoryIndex && this._activePane === "categories";
+			const isFocused =
+				i === this._selectedCategoryIndex && this._activePane === "categories";
 			const isActive = i === this._selectedCategoryIndex;
-			const isCommitted = this._categories[i].presets.some((p) => p.value === this._committedPreset);
+			const isCommitted = this._categories[i].presets.some(
+				(p) => p.value === this._committedPreset,
+			);
 			this._categoryItems[i].classList.toggle("focused", isFocused);
 			this._categoryItems[i].classList.toggle("active", isActive);
 			this._categoryItems[i].classList.toggle("committed", isCommitted);
 		}
 		for (let i = 0; i < this._presetItems.length; i++) {
 			const isFocused = i === this._selectedPresetIndex && this._activePane === "presets";
-			const preset = this._isSearchMode ? this._filteredPresets[i] : this._categories[this._selectedCategoryIndex]?.presets[i];
+			const preset = this._isSearchMode
+				? this._filteredPresets[i]
+				: this._categories[this._selectedCategoryIndex]?.presets[i];
 			const isCommitted = preset && preset.value === this._committedPreset;
 			const isActive = isFocused && !isCommitted;
 			this._presetItems[i].classList.toggle("focused", isFocused && !isActive);
@@ -586,7 +642,10 @@ export class InstrumentBrowserPrompt extends BasePrompt {
 	}
 
 	private _updateInfoPanel(): void {
-		const useHover = this._lastInteraction === "hover" && this._hoveredPane === "presets" && this._hoveredPresetIndex !== null;
+		const useHover =
+			this._lastInteraction === "hover" &&
+			this._hoveredPane === "presets" &&
+			this._hoveredPresetIndex !== null;
 		const displayPresetIndex = useHover ? this._hoveredPresetIndex! : this._selectedPresetIndex;
 		const cat = this._categories[this._selectedCategoryIndex];
 		const presets = this._isSearchMode ? this._filteredPresets : (cat?.presets ?? []);
@@ -614,11 +673,23 @@ export class InstrumentBrowserPrompt extends BasePrompt {
 		);
 		const cell = (content: HTMLElement) =>
 			div(
-				{ style: "flex: 1; display: flex; align-items: center; gap: 4px; padding: 8px; border-right: 2px solid var(--ui-widget-background);" },
+				{
+					style: "flex: 1; display: flex; align-items: center; gap: 4px; padding: 8px; border-right: 2px solid var(--ui-widget-background);",
+				},
 				content,
 			);
-		const lastCell = (content: HTMLElement) => div({ style: "flex: 1; display: flex; align-items: center; gap: 4px; padding: 8px;" }, content);
-		const smallCell = (content: HTMLElement) => div({ style: "flex: 0 0 auto; display: flex; align-items: center; gap: 4px; padding: 8px;" }, content);
+		const lastCell = (content: HTMLElement) =>
+			div(
+				{ style: "flex: 1; display: flex; align-items: center; gap: 4px; padding: 8px;" },
+				content,
+			);
+		const smallCell = (content: HTMLElement) =>
+			div(
+				{
+					style: "flex: 0 0 auto; display: flex; align-items: center; gap: 4px; padding: 8px;",
+				},
+				content,
+			);
 
 		const catCell = div({
 			style: "flex: 1; display: flex; flex-direction: row; align-items: center; gap: 4px; padding: 8px; border-right: 2px solid var(--ui-widget-background); min-width: 0;",
@@ -666,7 +737,9 @@ export class InstrumentBrowserPrompt extends BasePrompt {
 		if (this._activeTags.length > 0) {
 			this._tagBanner.style.display = "flex";
 			this._tagBanner.textContent = "";
-			const headerRow = div({ style: "display: flex; justify-content: space-between; align-items: center; gap: 4px;" });
+			const headerRow = div({
+				style: "display: flex; justify-content: space-between; align-items: center; gap: 4px;",
+			});
 			headerRow.appendChild(span({}, "Active Tags"));
 			const clearBtn = span(
 				{
@@ -710,18 +783,26 @@ export class InstrumentBrowserPrompt extends BasePrompt {
 		}
 	}
 
-	private _scrollItemIntoView(items: HTMLDivElement[], index: number, container: HTMLDivElement): void {
+	private _scrollItemIntoView(
+		items: HTMLDivElement[],
+		index: number,
+		container: HTMLDivElement,
+	): void {
 		const item = items[index];
 		if (!item) return;
 		const itemRect = item.getBoundingClientRect();
 		const containerRect = container.getBoundingClientRect();
 		const margin = 8;
-		if (itemRect.top < containerRect.top + margin) container.scrollTop -= containerRect.top - itemRect.top + margin;
-		else if (itemRect.bottom > containerRect.bottom - margin) container.scrollTop += itemRect.bottom - containerRect.bottom + margin;
+		if (itemRect.top < containerRect.top + margin)
+			container.scrollTop -= containerRect.top - itemRect.top + margin;
+		else if (itemRect.bottom > containerRect.bottom - margin)
+			container.scrollTop += itemRect.bottom - containerRect.bottom + margin;
 	}
 
 	private _applySelection(): void {
-		const presets = this._isSearchMode ? this._filteredPresets : (this._categories[this._selectedCategoryIndex]?.presets ?? []);
+		const presets = this._isSearchMode
+			? this._filteredPresets
+			: (this._categories[this._selectedCategoryIndex]?.presets ?? []);
 		const preset = presets[this._selectedPresetIndex];
 		if (preset) {
 			this._close();
@@ -784,8 +865,16 @@ export class InstrumentBrowserPrompt extends BasePrompt {
 			if (next <= maxIdx) {
 				this._selectedPresetIndex = next;
 				this._updateHighlight();
-				this._scrollItemIntoView(this._presetItems, this._selectedPresetIndex, this._presetList);
-				this._scrollItemIntoView(this._categoryItems, this._selectedCategoryIndex, this._categoryList);
+				this._scrollItemIntoView(
+					this._presetItems,
+					this._selectedPresetIndex,
+					this._presetList,
+				);
+				this._scrollItemIntoView(
+					this._categoryItems,
+					this._selectedCategoryIndex,
+					this._categoryList,
+				);
 			}
 			event.preventDefault();
 		} else if (event.keyCode === 38) {
@@ -794,8 +883,16 @@ export class InstrumentBrowserPrompt extends BasePrompt {
 			if (prev >= 0) {
 				this._selectedPresetIndex = prev;
 				this._updateHighlight();
-				this._scrollItemIntoView(this._presetItems, this._selectedPresetIndex, this._presetList);
-				this._scrollItemIntoView(this._categoryItems, this._selectedCategoryIndex, this._categoryList);
+				this._scrollItemIntoView(
+					this._presetItems,
+					this._selectedPresetIndex,
+					this._presetList,
+				);
+				this._scrollItemIntoView(
+					this._categoryItems,
+					this._selectedCategoryIndex,
+					this._categoryList,
+				);
 			}
 			event.preventDefault();
 		} else if (event.keyCode === 9) {
@@ -806,7 +903,10 @@ export class InstrumentBrowserPrompt extends BasePrompt {
 			event.preventDefault();
 		} else if (event.keyCode === 37 && this._searchInput.selectionStart === 0) {
 			event.preventDefault();
-		} else if (event.keyCode === 39 && this._searchInput.selectionStart === this._searchInput.value.length) {
+		} else if (
+			event.keyCode === 39 &&
+			this._searchInput.selectionStart === this._searchInput.value.length
+		) {
 			event.preventDefault();
 		}
 	};
@@ -832,14 +932,22 @@ export class InstrumentBrowserPrompt extends BasePrompt {
 						this._selectedPresetIndex = 0;
 						this._renderPresets();
 						this._updateHighlight();
-						this._scrollItemIntoView(this._categoryItems, this._selectedCategoryIndex, this._categoryList);
+						this._scrollItemIntoView(
+							this._categoryItems,
+							this._selectedCategoryIndex,
+							this._categoryList,
+						);
 					}
 				} else {
 					const prev = this._selectedPresetIndex - cols;
 					if (prev >= 0) {
 						this._selectedPresetIndex = prev;
 						this._updateHighlight();
-						this._scrollItemIntoView(this._presetItems, this._selectedPresetIndex, this._presetList);
+						this._scrollItemIntoView(
+							this._presetItems,
+							this._selectedPresetIndex,
+							this._presetList,
+						);
 					}
 				}
 				event.preventDefault();
@@ -852,14 +960,22 @@ export class InstrumentBrowserPrompt extends BasePrompt {
 						this._selectedPresetIndex = 0;
 						this._renderPresets();
 						this._updateHighlight();
-						this._scrollItemIntoView(this._categoryItems, this._selectedCategoryIndex, this._categoryList);
+						this._scrollItemIntoView(
+							this._categoryItems,
+							this._selectedCategoryIndex,
+							this._categoryList,
+						);
 					}
 				} else {
 					const next = this._selectedPresetIndex + cols;
 					if (next < presetCount) {
 						this._selectedPresetIndex = next;
 						this._updateHighlight();
-						this._scrollItemIntoView(this._presetItems, this._selectedPresetIndex, this._presetList);
+						this._scrollItemIntoView(
+							this._presetItems,
+							this._selectedPresetIndex,
+							this._presetList,
+						);
 					}
 				}
 				event.preventDefault();
@@ -867,22 +983,40 @@ export class InstrumentBrowserPrompt extends BasePrompt {
 			case 39:
 				if (this._activePane === "categories") {
 					const right = this._selectedCategoryIndex + 1;
-					if (right < categoryCount && Math.floor(right / cols) === Math.floor(this._selectedCategoryIndex / cols)) {
+					if (
+						right < categoryCount &&
+						Math.floor(right / cols) === Math.floor(this._selectedCategoryIndex / cols)
+					) {
 						this._selectedCategoryIndex = right;
 						this._updateHighlight();
-						this._scrollItemIntoView(this._categoryItems, this._selectedCategoryIndex, this._categoryList);
+						this._scrollItemIntoView(
+							this._categoryItems,
+							this._selectedCategoryIndex,
+							this._categoryList,
+						);
 					} else {
 						this._activePane = "presets";
 						this._selectedPresetIndex = 0;
 						this._updateHighlight();
-						this._scrollItemIntoView(this._presetItems, this._selectedPresetIndex, this._presetList);
+						this._scrollItemIntoView(
+							this._presetItems,
+							this._selectedPresetIndex,
+							this._presetList,
+						);
 					}
 				} else {
 					const right = this._selectedPresetIndex + 1;
-					if (right < presetCount && Math.floor(right / cols) === Math.floor(this._selectedPresetIndex / cols)) {
+					if (
+						right < presetCount &&
+						Math.floor(right / cols) === Math.floor(this._selectedPresetIndex / cols)
+					) {
 						this._selectedPresetIndex = right;
 						this._updateHighlight();
-						this._scrollItemIntoView(this._presetItems, this._selectedPresetIndex, this._presetList);
+						this._scrollItemIntoView(
+							this._presetItems,
+							this._selectedPresetIndex,
+							this._presetList,
+						);
 					}
 				}
 				event.preventDefault();
@@ -890,19 +1024,33 @@ export class InstrumentBrowserPrompt extends BasePrompt {
 			case 37:
 				if (this._activePane === "categories") {
 					const left = this._selectedCategoryIndex - 1;
-					if (left >= 0 && Math.floor(left / cols) === Math.floor(this._selectedCategoryIndex / cols)) {
+					if (
+						left >= 0 &&
+						Math.floor(left / cols) === Math.floor(this._selectedCategoryIndex / cols)
+					) {
 						this._selectedCategoryIndex = left;
 						this._selectedPresetIndex = 0;
 						this._renderPresets();
 						this._updateHighlight();
-						this._scrollItemIntoView(this._categoryItems, this._selectedCategoryIndex, this._categoryList);
+						this._scrollItemIntoView(
+							this._categoryItems,
+							this._selectedCategoryIndex,
+							this._categoryList,
+						);
 					}
 				} else {
 					const left = this._selectedPresetIndex - 1;
-					if (left >= 0 && Math.floor(left / cols) === Math.floor(this._selectedPresetIndex / cols)) {
+					if (
+						left >= 0 &&
+						Math.floor(left / cols) === Math.floor(this._selectedPresetIndex / cols)
+					) {
 						this._selectedPresetIndex = left;
 						this._updateHighlight();
-						this._scrollItemIntoView(this._presetItems, this._selectedPresetIndex, this._presetList);
+						this._scrollItemIntoView(
+							this._presetItems,
+							this._selectedPresetIndex,
+							this._presetList,
+						);
 					} else {
 						this._activePane = "categories";
 						this._updateHighlight();
@@ -922,7 +1070,11 @@ export class InstrumentBrowserPrompt extends BasePrompt {
 					this._activePane = "presets";
 					this._selectedPresetIndex = 0;
 					this._updateHighlight();
-					this._scrollItemIntoView(this._presetItems, this._selectedPresetIndex, this._presetList);
+					this._scrollItemIntoView(
+						this._presetItems,
+						this._selectedPresetIndex,
+						this._presetList,
+					);
 				} else {
 					this._applySelection();
 				}
@@ -937,7 +1089,13 @@ export class InstrumentBrowserPrompt extends BasePrompt {
 				if (event.key === "#") {
 					this._switchToTab("tags");
 					event.preventDefault();
-				} else if (event.key && event.key.length === 1 && !event.ctrlKey && !event.metaKey && !event.altKey) {
+				} else if (
+					event.key &&
+					event.key.length === 1 &&
+					!event.ctrlKey &&
+					!event.metaKey &&
+					!event.altKey
+				) {
 					this._searchInput.focus();
 				}
 				break;
@@ -1108,7 +1266,13 @@ export class InstrumentBrowserPrompt extends BasePrompt {
 				if (event.key === "`") {
 					this._switchToTab("presets");
 					event.preventDefault();
-				} else if (event.key && event.key.length === 1 && !event.ctrlKey && !event.metaKey && !event.altKey) {
+				} else if (
+					event.key &&
+					event.key.length === 1 &&
+					!event.ctrlKey &&
+					!event.metaKey &&
+					!event.altKey
+				) {
 					this._tagSearchInput.focus();
 				}
 				break;
@@ -1121,8 +1285,10 @@ export class InstrumentBrowserPrompt extends BasePrompt {
 		const container = this._tagContainer;
 		const itemRect = item.element.getBoundingClientRect();
 		const containerRect = container.getBoundingClientRect();
-		if (itemRect.top < containerRect.top) container.scrollTop -= containerRect.top - itemRect.top;
-		else if (itemRect.bottom > containerRect.bottom) container.scrollTop += itemRect.bottom - containerRect.bottom;
+		if (itemRect.top < containerRect.top)
+			container.scrollTop -= containerRect.top - itemRect.top;
+		else if (itemRect.bottom > containerRect.bottom)
+			container.scrollTop += itemRect.bottom - containerRect.bottom;
 	}
 
 	public override cleanUp = (): void => {
@@ -1135,7 +1301,9 @@ export class InstrumentBrowserPrompt extends BasePrompt {
 		this._tagSearchInput.removeEventListener("keydown", this._onTagSearchKeyDown);
 		this._tagClearButton.removeEventListener("click", this._onTagClear);
 		this.container.removeEventListener("keydown", this._onContainerKeyDown);
-		const externalInput = document.getElementById("presetTagsInputBox") as HTMLInputElement | null;
+		const externalInput = document.getElementById(
+			"presetTagsInputBox",
+		) as HTMLInputElement | null;
 		if (externalInput) {
 			externalInput.removeEventListener("input", this._externalTagHandler);
 		}
@@ -1147,7 +1315,12 @@ export class InstrumentBrowserPrompt extends BasePrompt {
 		this._lastChannel = this._doc.channel;
 		if (instrument.preset !== this._committedPreset || channelChanged) {
 			const isNoise = this._doc.song.getChannelIsNoise(this._doc.channel);
-			if (isNoise !== (this._categories[0]?.presets.some((p) => EditorConfig.valueToPreset(p.value)?.isNoise) ?? false)) {
+			if (
+				isNoise !==
+				(this._categories[0]?.presets.some(
+					(p) => EditorConfig.valueToPreset(p.value)?.isNoise,
+				) ?? false)
+			) {
 				this._buildCategories(isNoise);
 			}
 			this._committedPreset = instrument.preset;
@@ -1155,14 +1328,24 @@ export class InstrumentBrowserPrompt extends BasePrompt {
 			this._renderCategories();
 			this._renderPresets();
 			this._updateHighlight();
-			this._scrollItemIntoView(this._categoryItems, this._selectedCategoryIndex, this._categoryList);
-			this._scrollItemIntoView(this._presetItems, this._selectedPresetIndex, this._presetList);
+			this._scrollItemIntoView(
+				this._categoryItems,
+				this._selectedCategoryIndex,
+				this._categoryList,
+			);
+			this._scrollItemIntoView(
+				this._presetItems,
+				this._selectedPresetIndex,
+				this._presetList,
+			);
 		}
 	};
 
 	private _syncSelectionToCommittedPreset(): void {
 		for (let ci = 0; ci < this._categories.length; ci++) {
-			const pi = this._categories[ci].presets.findIndex((p) => p.value === this._committedPreset);
+			const pi = this._categories[ci].presets.findIndex(
+				(p) => p.value === this._committedPreset,
+			);
 			if (pi !== -1) {
 				this._selectedCategoryIndex = ci;
 				this._selectedPresetIndex = pi;

@@ -32,7 +32,13 @@ export interface SongSettingsRefs {
 	rhythmSelect: HTMLSelectElement;
 }
 
-export function renderSongSettings(refs: SongSettingsRefs, doc: SongDocument, colors: ChannelColors, ctrlHeld: boolean, shiftHeld: boolean): void {
+export function renderSongSettings(
+	refs: SongSettingsRefs,
+	doc: SongDocument,
+	colors: ChannelColors,
+	ctrlHeld: boolean,
+	shiftHeld: boolean,
+): void {
 	setSelectedValue(refs.scaleSelect, doc.song.scale);
 	refs.scaleSelect.title = Config.scales[doc.song.scale].realName;
 	setSelectedValue(refs.keySelect, Config.keys.length - 1 - doc.song.key);

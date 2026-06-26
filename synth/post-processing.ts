@@ -7,8 +7,8 @@
 // - Applies compressor/limiter to the output buffer
 // - Manages filter history and limiter state across synthesize calls
 
-import { DynamicBiquadFilter } from "./filtering";
 import { applyFilters } from "./dsp-utils";
+import { DynamicBiquadFilter } from "./filtering";
 import { epsilon } from "./util";
 
 /** Per-call parameters for the post-processing pipeline. */
@@ -73,14 +73,26 @@ export class PostProcessingState {
 				const eqFilterVolumeDelta = +this.songEqFilterVolumeDelta;
 				const inputSampleL = outputDataL[i];
 				let sampleL = inputSampleL;
-				sampleL = applyFilters(sampleL, initialFilterInput1L, initialFilterInput2L, filterCount, filtersL);
+				sampleL = applyFilters(
+					sampleL,
+					initialFilterInput1L,
+					initialFilterInput2L,
+					filterCount,
+					filtersL,
+				);
 				initialFilterInput2L = initialFilterInput1L;
 				initialFilterInput1L = inputSampleL;
 				sampleL *= eqFilterVolume;
 				outputDataL[i] = sampleL;
 				const inputSampleR = outputDataR[i];
 				let sampleR = inputSampleR;
-				sampleR = applyFilters(sampleR, initialFilterInput1R, initialFilterInput2R, filterCount, filtersR);
+				sampleR = applyFilters(
+					sampleR,
+					initialFilterInput1R,
+					initialFilterInput2R,
+					filterCount,
+					filtersR,
+				);
 				initialFilterInput2R = initialFilterInput1R;
 				initialFilterInput1R = inputSampleR;
 				sampleR *= eqFilterVolume;
@@ -107,19 +119,30 @@ export class PostProcessingState {
 			}
 
 			// Compressor/limiter.
-			const sampleL = (outputDataL[i] + outputDataLUnfiltered[i]) * params.masterGain * params.masterGain;
-			const sampleR = (outputDataR[i] + outputDataRUnfiltered[i]) * params.masterGain * params.masterGain;
+			const sampleL =
+				(outputDataL[i] + outputDataLUnfiltered[i]) * params.masterGain * params.masterGain;
+			const sampleR =
+				(outputDataR[i] + outputDataRUnfiltered[i]) * params.masterGain * params.masterGain;
 			const absL: number = sampleL < 0.0 ? -sampleL : sampleL;
 			const absR: number = sampleR < 0.0 ? -sampleR : sampleR;
 			const abs: number = absL > absR ? absL : absR;
 			if (abs > inOutVolumeCap.in) inOutVolumeCap.in = abs;
-			const limitRange: number = +(abs > params.compressionThreshold) + +(abs > params.limitThreshold);
+			const limitRange: number =
+				+(abs > params.compressionThreshold) + +(abs > params.limitThreshold);
 			const limitTarget: number =
-				+(limitRange === 0) * (((abs + 1 - params.compressionThreshold) * 0.8 + 0.25) * params.compressionRatio + 1.05 * (1 - params.compressionRatio)) +
+				+(limitRange === 0) *
+					(((abs + 1 - params.compressionThreshold) * 0.8 + 0.25) *
+						params.compressionRatio +
+						1.05 * (1 - params.compressionRatio)) +
 				+(limitRange === 1) * 1.05 +
-				+(limitRange === 2) * (1.05 * ((abs + 1 - params.limitThreshold) * params.limitRatio + (1 - params.limitThreshold)));
-			this.limit += (limitTarget - this.limit) * (this.limit < limitTarget ? limitRise : limitDecay);
-			const limitedVolume = volume / (this.limit >= 1 ? this.limit * 1.05 : this.limit * 0.8 + 0.25);
+				+(limitRange === 2) *
+					(1.05 *
+						((abs + 1 - params.limitThreshold) * params.limitRatio +
+							(1 - params.limitThreshold)));
+			this.limit +=
+				(limitTarget - this.limit) * (this.limit < limitTarget ? limitRise : limitDecay);
+			const limitedVolume =
+				volume / (this.limit >= 1 ? this.limit * 1.05 : this.limit * 0.8 + 0.25);
 			outputDataL[i] = sampleL * limitedVolume;
 			outputDataR[i] = sampleR * limitedVolume;
 			const limitedAbs = abs * limitedVolume;

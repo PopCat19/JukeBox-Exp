@@ -25,7 +25,10 @@ import { selectorButton } from "../ui";
 export class SpectrumEditor {
 	private readonly _editorWidth: number = 120;
 	private readonly _editorHeight: number = 26;
-	private readonly _fill: SVGPathElement = SVG.path({ fill: ColorConfig.uiWidgetBackground, "pointer-events": "none" });
+	private readonly _fill: SVGPathElement = SVG.path({
+		fill: ColorConfig.uiWidgetBackground,
+		"pointer-events": "none",
+	});
 	private readonly _octaves: SVGSVGElement = SVG.svg({ "pointer-events": "none" });
 	private readonly _fifths: SVGSVGElement = SVG.svg({ "pointer-events": "none" });
 	private readonly _curve: SVGPathElement = SVG.path({
@@ -34,7 +37,10 @@ export class SpectrumEditor {
 		"stroke-width": 2,
 		"pointer-events": "none",
 	});
-	private readonly _arrow: SVGPathElement = SVG.path({ fill: "currentColor", "pointer-events": "none" });
+	private readonly _arrow: SVGPathElement = SVG.path({
+		fill: "currentColor",
+		"pointer-events": "none",
+	});
 	private readonly _svg: SVGSVGElement = SVG.svg(
 		{
 			style: `background-color: ${ColorConfig.editorBackground}; touch-action: none; cursor: crosshair;`,
@@ -50,7 +56,10 @@ export class SpectrumEditor {
 		this._arrow,
 	);
 
-	public readonly container: HTMLElement = HTML.div({ class: "spectrum", style: "height: 100%;" }, this._svg);
+	public readonly container: HTMLElement = HTML.div(
+		{ class: "spectrum", style: "height: 100%;" },
+		this._svg,
+	);
 
 	private _mouseX: number = 0;
 	private _mouseY: number = 0;
@@ -77,7 +86,11 @@ export class SpectrumEditor {
 		this._doc = _doc;
 		this.instrument = this._doc.getCurrentInstrumentObj();
 		// this._initial.spectrum = this._spectrumIndex == null ? this.instrument.spectrumWave.spectrum.slice() : this.instrument.drumsetSpectrumWaves[this._spectrumIndex].spectrum.slice();
-		for (let i: number = 0; i < Config.spectrumControlPoints; i += Config.spectrumControlPointsPerOctave) {
+		for (
+			let i: number = 0;
+			i < Config.spectrumControlPoints;
+			i += Config.spectrumControlPointsPerOctave
+		) {
 			this._octaves.appendChild(
 				SVG.rect({
 					fill: ColorConfig.tonic,
@@ -88,7 +101,11 @@ export class SpectrumEditor {
 				}),
 			);
 		}
-		for (let i: number = 4; i <= Config.spectrumControlPoints; i += Config.spectrumControlPointsPerOctave) {
+		for (
+			let i: number = 4;
+			i <= Config.spectrumControlPoints;
+			i += Config.spectrumControlPointsPerOctave
+		) {
 			this._fifths.appendChild(
 				SVG.rect({
 					fill: ColorConfig.fifthNote,
@@ -106,7 +123,10 @@ export class SpectrumEditor {
 		document.addEventListener("mousemove", this._whenMouseMoved);
 		document.addEventListener("mouseup", this._whenCursorReleased);
 		window.addEventListener("resize", () => (this._svgRect = null));
-		window.addEventListener("scroll", () => (this._svgRect = null), { capture: true, passive: true });
+		window.addEventListener("scroll", () => (this._svgRect = null), {
+			capture: true,
+			passive: true,
+		});
 
 		this.container.addEventListener("touchstart", this._whenTouchPressed);
 		this.container.addEventListener("touchmove", this._whenTouchMoved);
@@ -119,7 +139,10 @@ export class SpectrumEditor {
 		let sameCheck = true;
 		if (this._changeQueue.length > 0) {
 			for (let i = 0; i < Config.spectrumControlPoints; i++) {
-				if (this._changeQueue[this._undoHistoryState][i] !== this.instrument.spectrumWave.spectrum[i]) {
+				if (
+					this._changeQueue[this._undoHistoryState][i] !==
+					this.instrument.spectrumWave.spectrum[i]
+				) {
 					sameCheck = false;
 					i = Config.spectrumControlPoints;
 				}
@@ -172,8 +195,12 @@ export class SpectrumEditor {
 		this._mouseDown = true;
 		if (!this._svgRect) this._svgRect = this._svg.getBoundingClientRect();
 		const boundingRect: DOMRect = this._svgRect;
-		this._mouseX = (((event.clientX || event.pageX) - boundingRect.left) * this._editorWidth) / (boundingRect.right - boundingRect.left);
-		this._mouseY = (((event.clientY || event.pageY) - boundingRect.top) * this._editorHeight) / (boundingRect.bottom - boundingRect.top);
+		this._mouseX =
+			(((event.clientX || event.pageX) - boundingRect.left) * this._editorWidth) /
+			(boundingRect.right - boundingRect.left);
+		this._mouseY =
+			(((event.clientY || event.pageY) - boundingRect.top) * this._editorHeight) /
+			(boundingRect.bottom - boundingRect.top);
 		if (Number.isNaN(this._mouseX)) this._mouseX = 0;
 		if (Number.isNaN(this._mouseY)) this._mouseY = 0;
 
@@ -187,8 +214,12 @@ export class SpectrumEditor {
 		this._mouseDown = true;
 		if (!this._svgRect) this._svgRect = this._svg.getBoundingClientRect();
 		const boundingRect: DOMRect = this._svgRect;
-		this._mouseX = ((event.touches[0].clientX - boundingRect.left) * this._editorWidth) / (boundingRect.right - boundingRect.left);
-		this._mouseY = ((event.touches[0].clientY - boundingRect.top) * this._editorHeight) / (boundingRect.bottom - boundingRect.top);
+		this._mouseX =
+			((event.touches[0].clientX - boundingRect.left) * this._editorWidth) /
+			(boundingRect.right - boundingRect.left);
+		this._mouseY =
+			((event.touches[0].clientY - boundingRect.top) * this._editorHeight) /
+			(boundingRect.bottom - boundingRect.top);
 		if (Number.isNaN(this._mouseX)) this._mouseX = 0;
 		if (Number.isNaN(this._mouseY)) this._mouseY = 0;
 
@@ -201,8 +232,12 @@ export class SpectrumEditor {
 		if (this.container.offsetParent == null) return;
 		if (!this._svgRect) this._svgRect = this._svg.getBoundingClientRect();
 		const boundingRect = this._svgRect;
-		this._mouseX = (((event.clientX || event.pageX) - boundingRect.left) * this._editorWidth) / (boundingRect.right - boundingRect.left);
-		this._mouseY = (((event.clientY || event.pageY) - boundingRect.top) * this._editorHeight) / (boundingRect.bottom - boundingRect.top);
+		this._mouseX =
+			(((event.clientX || event.pageX) - boundingRect.left) * this._editorWidth) /
+			(boundingRect.right - boundingRect.left);
+		this._mouseY =
+			(((event.clientY || event.pageY) - boundingRect.top) * this._editorHeight) /
+			(boundingRect.bottom - boundingRect.top);
 		if (Number.isNaN(this._mouseX)) this._mouseX = 0;
 		if (Number.isNaN(this._mouseY)) this._mouseY = 0;
 		this._whenCursorMoved();
@@ -214,8 +249,12 @@ export class SpectrumEditor {
 		event.preventDefault();
 		if (!this._svgRect) this._svgRect = this._svg.getBoundingClientRect();
 		const boundingRect: DOMRect = this._svgRect;
-		this._mouseX = ((event.touches[0].clientX - boundingRect.left) * this._editorWidth) / (boundingRect.right - boundingRect.left);
-		this._mouseY = ((event.touches[0].clientY - boundingRect.top) * this._editorHeight) / (boundingRect.bottom - boundingRect.top);
+		this._mouseX =
+			((event.touches[0].clientX - boundingRect.left) * this._editorWidth) /
+			(boundingRect.right - boundingRect.left);
+		this._mouseY =
+			((event.touches[0].clientY - boundingRect.top) * this._editorHeight) /
+			(boundingRect.bottom - boundingRect.top);
 		if (Number.isNaN(this._mouseX)) this._mouseX = 0;
 		if (Number.isNaN(this._mouseY)) this._mouseY = 0;
 		this._whenCursorMoved();
@@ -228,7 +267,10 @@ export class SpectrumEditor {
 			const amp: number = this._yToAmp(this._mouseY);
 
 			const instrument: Instrument = this._doc.getCurrentInstrumentObj();
-			const spectrumWave: SpectrumWave = this._spectrumIndex == null ? instrument.spectrumWave : instrument.drumsetSpectrumWaves[this._spectrumIndex];
+			const spectrumWave: SpectrumWave =
+				this._spectrumIndex == null
+					? instrument.spectrumWave
+					: instrument.drumsetSpectrumWaves[this._spectrumIndex];
 
 			if (freq !== this._freqPrev) {
 				const slope: number = (amp - this._ampPrev) / (freq - this._freqPrev);
@@ -237,14 +279,16 @@ export class SpectrumEditor {
 				const upperFreq: number = Math.floor(Math.max(this._freqPrev, freq));
 				for (let i: number = lowerFreq; i <= upperFreq; i++) {
 					if (i < 0 || i >= Config.spectrumControlPoints) continue;
-					spectrumWave.spectrum[i] = Math.max(0, Math.min(Config.spectrumMax, Math.round(i * slope + offset)));
+					spectrumWave.spectrum[i] = Math.max(
+						0,
+						Math.min(Config.spectrumMax, Math.round(i * slope + offset)),
+					);
 				}
 			}
 
-			spectrumWave.spectrum[Math.max(0, Math.min(Config.spectrumControlPoints - 1, Math.round(freq)))] = Math.max(
-				0,
-				Math.min(Config.spectrumMax, Math.round(amp)),
-			);
+			spectrumWave.spectrum[
+				Math.max(0, Math.min(Config.spectrumControlPoints - 1, Math.round(freq)))
+			] = Math.max(0, Math.min(Config.spectrumMax, Math.round(amp)));
 
 			this._freqPrev = freq;
 			this._ampPrev = amp;
@@ -280,7 +324,11 @@ export class SpectrumEditor {
 			for (let i = 0; i < Config.spectrumControlPoints; i++) {
 				instrument.spectrumWave.spectrum[i] = spectrum[i];
 			}
-			const spectrumChange: ChangeSpectrum = new ChangeSpectrum(this._doc, instrument, instrument.spectrumWave);
+			const spectrumChange: ChangeSpectrum = new ChangeSpectrum(
+				this._doc,
+				instrument,
+				instrument.spectrumWave,
+			);
 			if (saveHistory) {
 				this._doc.record(spectrumChange);
 			}
@@ -288,7 +336,11 @@ export class SpectrumEditor {
 			for (let i = 0; i < Config.spectrumControlPoints; i++) {
 				instrument.drumsetSpectrumWaves[this._spectrumIndex].spectrum[i] = spectrum[i];
 			}
-			const spectrumChange: ChangeSpectrum = new ChangeSpectrum(this._doc, instrument, instrument.drumsetSpectrumWaves[this._spectrumIndex]);
+			const spectrumChange: ChangeSpectrum = new ChangeSpectrum(
+				this._doc,
+				instrument,
+				instrument.drumsetSpectrumWaves[this._spectrumIndex],
+			);
 			if (saveHistory) {
 				this._doc.record(spectrumChange);
 			}
@@ -301,7 +353,11 @@ export class SpectrumEditor {
 		if (this._spectrumIndex == null || this._spectrumIndex === undefined) {
 			return new ChangeSpectrum(this._doc, instrument, instrument.spectrumWave);
 		} else {
-			return new ChangeSpectrum(this._doc, instrument, instrument.drumsetSpectrumWaves[this._spectrumIndex]);
+			return new ChangeSpectrum(
+				this._doc,
+				instrument,
+				instrument.drumsetSpectrumWaves[this._spectrumIndex],
+			);
 		}
 	}
 
@@ -312,7 +368,10 @@ export class SpectrumEditor {
 
 	public render(): void {
 		const instrument: Instrument = this._doc.getCurrentInstrumentObj();
-		const spectrumWave: SpectrumWave = this._spectrumIndex == null ? instrument.spectrumWave : instrument.drumsetSpectrumWaves[this._spectrumIndex];
+		const spectrumWave: SpectrumWave =
+			this._spectrumIndex == null
+				? instrument.spectrumWave
+				: instrument.drumsetSpectrumWaves[this._spectrumIndex];
 		const controlPointToHeight = (point: number): number => {
 			return (1 - point / Config.spectrumMax) * (this._editorHeight - 1) + 1;
 		};
@@ -393,7 +452,10 @@ export class SpectrumEditorPrompt implements Prompt {
 
 	private _drumsetSpectrumIndex: number = 0;
 
-	public readonly _playButton: HTMLButtonElement = HTML.button({ style: "width: 55%;", type: "button" });
+	public readonly _playButton: HTMLButtonElement = HTML.button({
+		style: "width: 55%;",
+		type: "button",
+	});
 
 	public readonly _drumsetButtons: HTMLButtonElement[] = [];
 	public readonly _drumsetButtonContainer: HTMLDivElement = HTML.div({
@@ -402,7 +464,10 @@ export class SpectrumEditorPrompt implements Prompt {
 	});
 
 	private readonly _cancelButton: HTMLButtonElement = HTML.button({ class: "cancelButton" });
-	private readonly _okayButton: HTMLButtonElement = HTML.button({ class: "okayButton", style: "width:45%;" }, "Okay");
+	private readonly _okayButton: HTMLButtonElement = HTML.button(
+		{ class: "okayButton", style: "width:45%;" },
+		"Okay",
+	);
 
 	private readonly copyButton: HTMLButtonElement = HTML.button(
 		{
@@ -428,27 +493,37 @@ export class SpectrumEditorPrompt implements Prompt {
 			),
 		],
 	);
-	private readonly pasteButton: HTMLButtonElement = HTML.button({ style: `width:${Sizing.inputSm};`, class: "pasteButton" }, [
-		"Paste",
-		// Paste icon:
-		SVG.svg(
-			{
-				style: "flex-shrink: 0; position: absolute; left: 0; top: 50%; margin-top: -1em; pointer-events: none;",
-				width: "2em",
-				height: "2em",
-				viewBox: "0 0 26 26",
-			},
-			[
-				SVG.path({
-					d: "M 8 18 L 6 18 L 6 5 L 17 5 L 17 7 M 9 8 L 16 8 L 20 12 L 20 22 L 9 22 z",
-					stroke: "currentColor",
-					fill: "none",
-				}),
-				SVG.path({ d: "M 9 3 L 14 3 L 14 6 L 9 6 L 9 3 z M 16 8 L 20 12 L 16 12 L 16 8 z", fill: "currentColor" }),
-			],
-		),
-	]);
-	private readonly copyPasteContainer: HTMLDivElement = HTML.div({ style: "width: 185px;" }, this.copyButton, this.pasteButton);
+	private readonly pasteButton: HTMLButtonElement = HTML.button(
+		{ style: `width:${Sizing.inputSm};`, class: "pasteButton" },
+		[
+			"Paste",
+			// Paste icon:
+			SVG.svg(
+				{
+					style: "flex-shrink: 0; position: absolute; left: 0; top: 50%; margin-top: -1em; pointer-events: none;",
+					width: "2em",
+					height: "2em",
+					viewBox: "0 0 26 26",
+				},
+				[
+					SVG.path({
+						d: "M 8 18 L 6 18 L 6 5 L 17 5 L 17 7 M 9 8 L 16 8 L 20 12 L 20 22 L 9 22 z",
+						stroke: "currentColor",
+						fill: "none",
+					}),
+					SVG.path({
+						d: "M 9 3 L 14 3 L 14 6 L 9 6 L 9 3 z M 16 8 L 20 12 L 16 12 L 16 8 z",
+						fill: "currentColor",
+					}),
+				],
+			),
+		],
+	);
+	private readonly copyPasteContainer: HTMLDivElement = HTML.div(
+		{ style: "width: 185px;" },
+		this.copyButton,
+		this.pasteButton,
+	);
 	public readonly container: HTMLDivElement = HTML.div(
 		{ class: "prompt noSelection", style: "width: 500px;" },
 		HTML.h2("Edit Spectrum Instrument"),
@@ -459,8 +534,19 @@ export class SpectrumEditorPrompt implements Prompt {
 			this._playButton,
 		),
 		this._drumsetButtonContainer,
-		HTML.div({ style: "display: flex; flex-direction: row; align-items: center; justify-content: center; height: 80%" }, this.spectrumEditor.container),
-		HTML.div({ style: "display: flex; flex-direction: row-reverse; justify-content: space-between;" }, this._okayButton, this.copyPasteContainer),
+		HTML.div(
+			{
+				style: "display: flex; flex-direction: row; align-items: center; justify-content: center; height: 80%",
+			},
+			this.spectrumEditor.container,
+		),
+		HTML.div(
+			{
+				style: "display: flex; flex-direction: row-reverse; justify-content: space-between;",
+			},
+			this._okayButton,
+			this.copyPasteContainer,
+		),
 		this._cancelButton,
 	);
 
@@ -477,12 +563,16 @@ export class SpectrumEditorPrompt implements Prompt {
 		this._playButton.addEventListener("click", this._togglePlay);
 		this.container.addEventListener("mousemove", () => {
 			this.spectrumEditor.render();
-			this.spectrumEditors[this._drumsetSpectrumIndex].setSpectrumWave(this.spectrumEditor.getSpectrumWave().spectrum);
+			this.spectrumEditors[this._drumsetSpectrumIndex].setSpectrumWave(
+				this.spectrumEditor.getSpectrumWave().spectrum,
+			);
 		});
 		this.container.addEventListener("mousedown", this.spectrumEditor.render);
 		this.spectrumEditor.container.addEventListener("mousemove", () => {
 			this.spectrumEditor.render();
-			this.spectrumEditors[this._drumsetSpectrumIndex].setSpectrumWave(this.spectrumEditor.getSpectrumWave().spectrum);
+			this.spectrumEditors[this._drumsetSpectrumIndex].setSpectrumWave(
+				this.spectrumEditor.getSpectrumWave().spectrum,
+			);
 		});
 		this.spectrumEditor.container.addEventListener("mousedown", this.spectrumEditor.render);
 		this.updatePlayButton();
@@ -490,12 +580,22 @@ export class SpectrumEditorPrompt implements Prompt {
 
 		if (this._isDrumset) {
 			for (let i: number = Config.drumCount - 1; i >= 0; i--) {
-				this.spectrumEditors[i] = new SpectrumEditor(this._doc, Config.drumCount - 1 - i, true);
-				this.spectrumEditors[i].setSpectrumWave(this._songEditor.drumsetSpectrumEditors[Config.drumCount - 1 - i].getSpectrumWave().spectrum);
+				this.spectrumEditors[i] = new SpectrumEditor(
+					this._doc,
+					Config.drumCount - 1 - i,
+					true,
+				);
+				this.spectrumEditors[i].setSpectrumWave(
+					this._songEditor.drumsetSpectrumEditors[
+						Config.drumCount - 1 - i
+					].getSpectrumWave().spectrum,
+				);
 			}
 			const colors = ColorConfig.getChannelColor(this._doc.song, this._doc.channel);
 			for (let i: number = 0; i < Config.drumCount; i++) {
-				const newSpectrumButton: HTMLButtonElement = selectorButton(`${i + 1}`, { style: "max-width: 2em;" });
+				const newSpectrumButton: HTMLButtonElement = selectorButton(`${i + 1}`, {
+					style: "max-width: 2em;",
+				});
 				this._drumsetButtons.push(newSpectrumButton);
 				this._drumsetButtonContainer.appendChild(newSpectrumButton);
 				newSpectrumButton.addEventListener("click", () => {
@@ -506,12 +606,23 @@ export class SpectrumEditorPrompt implements Prompt {
 			this._drumsetButtons[0].classList.add("selected-instrument");
 
 			this._drumsetButtonContainer.style.setProperty("--text-color-lit", colors.primaryNote);
-			this._drumsetButtonContainer.style.setProperty("--text-color-dim", colors.secondaryNote);
-			this._drumsetButtonContainer.style.setProperty("--background-color-lit", colors.primaryChannel);
-			this._drumsetButtonContainer.style.setProperty("--background-color-dim", colors.secondaryChannel);
+			this._drumsetButtonContainer.style.setProperty(
+				"--text-color-dim",
+				colors.secondaryNote,
+			);
+			this._drumsetButtonContainer.style.setProperty(
+				"--background-color-lit",
+				colors.primaryChannel,
+			);
+			this._drumsetButtonContainer.style.setProperty(
+				"--background-color-dim",
+				colors.secondaryChannel,
+			);
 			this._drumsetButtonContainer.style.display = "";
 			this.spectrumEditor.container.style.display = "";
-			this.spectrumEditor.setSpectrumWave(this.spectrumEditors[this._drumsetSpectrumIndex].getSpectrumWave().spectrum);
+			this.spectrumEditor.setSpectrumWave(
+				this.spectrumEditors[this._drumsetSpectrumIndex].getSpectrumWave().spectrum,
+			);
 		} else {
 			this._drumsetButtonContainer.style.display = "none";
 			this.spectrumEditors[0] = this.spectrumEditor;
@@ -523,11 +634,15 @@ export class SpectrumEditorPrompt implements Prompt {
 
 	private _setDrumSpectrum = (index: number): void => {
 		this._drumsetButtons[this._drumsetSpectrumIndex].classList.remove("selected-instrument");
-		this.spectrumEditors[this._drumsetSpectrumIndex].setSpectrumWave(this.spectrumEditor.getSpectrumWave().spectrum);
+		this.spectrumEditors[this._drumsetSpectrumIndex].setSpectrumWave(
+			this.spectrumEditor.getSpectrumWave().spectrum,
+		);
 
 		this._drumsetSpectrumIndex = index;
 		this._drumsetButtons[index].classList.add("selected-instrument");
-		this.spectrumEditor.setSpectrumWave(this.spectrumEditors[this._drumsetSpectrumIndex].getSpectrumWave().spectrum);
+		this.spectrumEditor.setSpectrumWave(
+			this.spectrumEditors[this._drumsetSpectrumIndex].getSpectrumWave().spectrum,
+		);
 		this.spectrumEditor.render();
 	};
 
@@ -614,7 +729,9 @@ export class SpectrumEditorPrompt implements Prompt {
 		this._okayButton.removeEventListener("click", this._saveChanges);
 		this._cancelButton.removeEventListener("click", this._close);
 		this.container.removeEventListener("keydown", this.whenKeyPressed);
-		this.spectrumEditor.container.removeEventListener("mousemove", () => this.spectrumEditor.render());
+		this.spectrumEditor.container.removeEventListener("mousemove", () =>
+			this.spectrumEditor.render(),
+		);
 		this._playButton.removeEventListener("click", this._togglePlay);
 	};
 
@@ -624,7 +741,9 @@ export class SpectrumEditorPrompt implements Prompt {
 	};
 
 	private _pasteSettings = (): void => {
-		const storedSpectrumWave: any = JSON.parse(String(window.localStorage.getItem("spectrumCopy")));
+		const storedSpectrumWave: any = JSON.parse(
+			String(window.localStorage.getItem("spectrumCopy")),
+		);
 		this.spectrumEditor.setSpectrumWave(storedSpectrumWave);
 	};
 

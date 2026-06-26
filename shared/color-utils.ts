@@ -46,7 +46,9 @@ export function parseCssColor(value: string): Rgba {
 	}
 
 	// rgb/rgba
-	const rgbMatch = trimmed.match(/^rgba?\s*\(\s*(\d+\.?\d*)\s*[, ]\s*(\d+\.?\d*)\s*[, ]\s*(\d+\.?\d*)\s*(?:[,/]\s*(\d+\.?\d*%?)\s*)?\)$/);
+	const rgbMatch = trimmed.match(
+		/^rgba?\s*\(\s*(\d+\.?\d*)\s*[, ]\s*(\d+\.?\d*)\s*[, ]\s*(\d+\.?\d*)\s*(?:[,/]\s*(\d+\.?\d*%?)\s*)?\)$/,
+	);
 	if (rgbMatch) {
 		let a = 1;
 		if (rgbMatch[4] !== undefined) {
@@ -61,23 +63,39 @@ export function parseCssColor(value: string): Rgba {
 	}
 
 	// hsl/hsla
-	const hslMatch = trimmed.match(/^hsla?\s*\(\s*(\d+\.?\d*)\s*[, ]\s*(\d+\.?\d*)%\s*[, ]\s*(\d+\.?\d*)%\s*(?:[,/]\s*(\d+\.?\d*%?)\s*)?\)$/);
+	const hslMatch = trimmed.match(
+		/^hsla?\s*\(\s*(\d+\.?\d*)\s*[, ]\s*(\d+\.?\d*)%\s*[, ]\s*(\d+\.?\d*)%\s*(?:[,/]\s*(\d+\.?\d*%?)\s*)?\)$/,
+	);
 	if (hslMatch) {
 		let a = 1;
 		if (hslMatch[4] !== undefined) {
 			a = hslMatch[4].endsWith("%") ? parseFloat(hslMatch[4]) / 100 : parseFloat(hslMatch[4]);
 		}
-		return { ...hslToRgb(parseFloat(hslMatch[1]), parseFloat(hslMatch[2]), parseFloat(hslMatch[3])), a: Math.max(0, Math.min(1, a)) };
+		return {
+			...hslToRgb(parseFloat(hslMatch[1]), parseFloat(hslMatch[2]), parseFloat(hslMatch[3])),
+			a: Math.max(0, Math.min(1, a)),
+		};
 	}
 
 	// oklch
-	const oklchMatch = trimmed.match(/^oklch\s*\(\s*(\d+\.?\d*)\s+(\d+\.?\d*)\s+(\d+\.?\d*)\s*(?:\/\s*(\d+\.?\d*%?)\s*)?\)$/);
+	const oklchMatch = trimmed.match(
+		/^oklch\s*\(\s*(\d+\.?\d*)\s+(\d+\.?\d*)\s+(\d+\.?\d*)\s*(?:\/\s*(\d+\.?\d*%?)\s*)?\)$/,
+	);
 	if (oklchMatch) {
 		let a = 1;
 		if (oklchMatch[4] !== undefined) {
-			a = oklchMatch[4].endsWith("%") ? parseFloat(oklchMatch[4]) / 100 : parseFloat(oklchMatch[4]);
+			a = oklchMatch[4].endsWith("%")
+				? parseFloat(oklchMatch[4]) / 100
+				: parseFloat(oklchMatch[4]);
 		}
-		return { ...oklchToRgb(parseFloat(oklchMatch[1]), parseFloat(oklchMatch[2]), parseFloat(oklchMatch[3])), a: Math.max(0, Math.min(1, a)) };
+		return {
+			...oklchToRgb(
+				parseFloat(oklchMatch[1]),
+				parseFloat(oklchMatch[2]),
+				parseFloat(oklchMatch[3]),
+			),
+			a: Math.max(0, Math.min(1, a)),
+		};
 	}
 
 	// named colors — browser parse
@@ -125,7 +143,12 @@ export function rgbaToHsl(c: Rgba): Hsla {
 	}
 	const l = (max + min) / 2;
 	const s = d === 0 ? 0 : d / (1 - Math.abs(2 * l - 1));
-	return { h: Math.round(h * 100) / 100, s: Math.round(s * 1000) / 10, l: Math.round(l * 1000) / 10, a: c.a };
+	return {
+		h: Math.round(h * 100) / 100,
+		s: Math.round(s * 1000) / 10,
+		l: Math.round(l * 1000) / 10,
+		a: c.a,
+	};
 }
 
 export function hslToRgb(h: number, s: number, l: number): Rgba {
@@ -178,12 +201,20 @@ function linearToSrgb(v: number): number {
 
 // sRGB linear → XYZ (D65)
 function linearRgbToXyz(r: number, g: number, b: number): [number, number, number] {
-	return [r * 0.4124564 + g * 0.3575761 + b * 0.1804375, r * 0.2126729 + g * 0.7151522 + b * 0.072175, r * 0.0193339 + g * 0.119192 + b * 0.9503041];
+	return [
+		r * 0.4124564 + g * 0.3575761 + b * 0.1804375,
+		r * 0.2126729 + g * 0.7151522 + b * 0.072175,
+		r * 0.0193339 + g * 0.119192 + b * 0.9503041,
+	];
 }
 
 // XYZ (D65) → linear sRGB
 function xyzToLinearRgb(x: number, y: number, z: number): [number, number, number] {
-	return [x * 3.2404542 + y * -1.5371385 + z * -0.4985314, x * -0.969266 + y * 1.8760108 + z * 0.041556, x * 0.0556434 + y * -0.2040259 + z * 1.0572252];
+	return [
+		x * 3.2404542 + y * -1.5371385 + z * -0.4985314,
+		x * -0.969266 + y * 1.8760108 + z * 0.041556,
+		x * 0.0556434 + y * -0.2040259 + z * 1.0572252,
+	];
 }
 
 // XYZ → OKLab
@@ -280,7 +311,8 @@ export function formatColorForTab(value: string, tab: string): string {
 	switch (tab) {
 		case "hsl": {
 			const hsla = rgbaToHsl(rgba);
-			if (a < 1) return `hsla(${Math.round(hsla.h)}, ${Math.round(hsla.s)}%, ${Math.round(hsla.l)}%, ${+a.toFixed(2)})`;
+			if (a < 1)
+				return `hsla(${Math.round(hsla.h)}, ${Math.round(hsla.s)}%, ${Math.round(hsla.l)}%, ${+a.toFixed(2)})`;
 			return `hsl(${Math.round(hsla.h)}, ${Math.round(hsla.s)}%, ${Math.round(hsla.l)}%)`;
 		}
 		case "oklch": {
@@ -322,7 +354,14 @@ function oklchIsInGamut(l: number, c: number, h: number): boolean {
 	const rLin = 4.0767416621 * lCubed - 3.3077115913 * mCubed + 0.2309699292 * sCubed;
 	const gLin = -1.2684380046 * lCubed + 2.6097574011 * mCubed - 0.3413193965 * sCubed;
 	const bLin = -0.0041960863 * lCubed - 0.7034186147 * mCubed + 1.707614701 * sCubed;
-	return rLin >= -1e-9 && rLin <= 1 + 1e-9 && gLin >= -1e-9 && gLin <= 1 + 1e-9 && bLin >= -1e-9 && bLin <= 1 + 1e-9;
+	return (
+		rLin >= -1e-9 &&
+		rLin <= 1 + 1e-9 &&
+		gLin >= -1e-9 &&
+		gLin <= 1 + 1e-9 &&
+		bLin >= -1e-9 &&
+		bLin <= 1 + 1e-9
+	);
 }
 
 export function maxOklchChroma(l: number, h: number): number {

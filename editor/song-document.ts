@@ -13,20 +13,27 @@ import { ColorConfig } from "../shared/color-config";
 import { events } from "../shared/events";
 import { type Channel, type Instrument, type Pattern, Song, Synth } from "../synth";
 import { Config } from "../synth/synth-config";
-import { type ChangeHoldingModRecording, ChangeSong, discardInvalidPatternInstruments, setDefaultInstruments } from "./changes";
+import {
+	type ChangeHoldingModRecording,
+	ChangeSong,
+	discardInvalidPatternInstruments,
+	setDefaultInstruments,
+} from "./changes";
 import { isMobile } from "./config/editor-config";
 import type { Change } from "./core/change";
 import { ChangeNotifier } from "./core/change-notifier";
-import { BrowserHistoryManager, type HistoryManager, type HistoryState } from "./core/history-manager";
-import { errorAlert, generateUid } from "./io/song-recovery";
+import {
+	BrowserHistoryManager,
+	type HistoryManager,
+	type HistoryState,
+} from "./core/history-manager";
 import { Preferences } from "./core/preferences";
 import { Selection } from "./core/selection";
 import { SongPerformance } from "./core/song-performance";
+import { errorAlert, generateUid } from "./io/song-recovery";
 
 import { createCustomSampleHandler } from "./song-custom-samples";
 import { Layout } from "./ui";
-
-
 
 export class SongDocument {
 	public colorTheme: string;
@@ -137,7 +144,8 @@ export class SongDocument {
 				this.bar = Number(savedBar);
 				state.bar = this.bar;
 			}
-			const savedChannel: string | null = window.sessionStorage.getItem("jukeboxCurrentChannel");
+			const savedChannel: string | null =
+				window.sessionStorage.getItem("jukeboxCurrentChannel");
 			if (savedChannel != null) {
 				this.channel = Number(savedChannel);
 			}
@@ -154,7 +162,17 @@ export class SongDocument {
 		// presumably after all handlers are done updating the model, then update the
 		// view before the screen renders. mouseenter and mouseleave do not bubble,
 		// but they are immediately followed by mousemove which does.
-		for (const eventName of ["change", "click", "keyup", "mousedown", "mouseup", "touchstart", "touchmove", "touchend", "touchcancel"]) {
+		for (const eventName of [
+			"change",
+			"click",
+			"keyup",
+			"mousedown",
+			"mouseup",
+			"touchstart",
+			"touchmove",
+			"touchend",
+			"touchcancel",
+		]) {
 			window.addEventListener(eventName, this._cleanDocument);
 		}
 		window.addEventListener("keydown", this._cleanDocumentIfNotRecordingMods);
@@ -171,8 +189,6 @@ export class SongDocument {
 		this.prefs.displayBrowserUrl = !this.prefs.displayBrowserUrl;
 		this._history.replaceState(state, this.song.toBase64String());
 	}
-
-	
 
 	public hasRedoHistory(): boolean {
 		return this._history.canRedo;
@@ -306,13 +322,20 @@ export class SongDocument {
 		}
 		this.viewedInstrument.length = channelCount;
 		for (let i: number = 0; i < channelCount; i++) {
-			if (this.song.patternInstruments && !this.song.layeredInstruments && i === this.channel) {
+			if (
+				this.song.patternInstruments &&
+				!this.song.layeredInstruments &&
+				i === this.channel
+			) {
 				const pattern: Pattern | null = this.song.getPattern(this.channel, this.bar);
 				if (pattern != null) {
 					this.viewedInstrument[i] = pattern.instruments[0];
 				}
 			}
-			this.viewedInstrument[i] = Math.min(this.viewedInstrument[i] | 0, this.song.channels[i].instruments.length - 1);
+			this.viewedInstrument[i] = Math.min(
+				this.viewedInstrument[i] | 0,
+				this.song.channels[i].instruments.length - 1,
+			);
 		}
 
 		const highlightedPattern: Pattern | null = this.getCurrentPattern();
@@ -326,18 +349,31 @@ export class SongDocument {
 		// be annoying to lose your selection just because the song is playing.
 		if (
 			(!this.synth.playing &&
-				(this.bar < this.selection.boxSelectionBar || this.selection.boxSelectionBar + this.selection.boxSelectionWidth <= this.bar)) ||
+				(this.bar < this.selection.boxSelectionBar ||
+					this.selection.boxSelectionBar + this.selection.boxSelectionWidth <=
+						this.bar)) ||
 			this.channel < this.selection.boxSelectionChannel ||
-			this.selection.boxSelectionChannel + this.selection.boxSelectionHeight <= this.channel ||
-			this.song.barCount < this.selection.boxSelectionBar + this.selection.boxSelectionWidth ||
+			this.selection.boxSelectionChannel + this.selection.boxSelectionHeight <=
+				this.channel ||
+			this.song.barCount <
+				this.selection.boxSelectionBar + this.selection.boxSelectionWidth ||
 			channelCount < this.selection.boxSelectionChannel + this.selection.boxSelectionHeight ||
 			(this.selection.boxSelectionWidth === 1 && this.selection.boxSelectionHeight === 1)
 		) {
 			this.selection.resetBoxSelection();
 		}
 
-		this.barScrollPos = Math.max(0, Math.min(this.song.barCount - this.trackVisibleBars, this.barScrollPos));
-		this.channelScrollPos = Math.max(0, Math.min(this.song.getChannelCount() - this.trackVisibleChannels, this.channelScrollPos));
+		this.barScrollPos = Math.max(
+			0,
+			Math.min(this.song.barCount - this.trackVisibleBars, this.barScrollPos),
+		);
+		this.channelScrollPos = Math.max(
+			0,
+			Math.min(
+				this.song.getChannelCount() - this.trackVisibleChannels,
+				this.channelScrollPos,
+			),
+		);
 	};
 
 	private _updateHistoryState = (): void => {
@@ -378,7 +414,9 @@ export class SongDocument {
 		try {
 			window.sessionStorage.setItem("jukeboxCurrentBar", String(this.bar));
 			window.sessionStorage.setItem("jukeboxCurrentChannel", String(this.channel));
-		} catch { /* sessionStorage may be unavailable */ }
+		} catch {
+			/* sessionStorage may be unavailable */
+		}
 	};
 
 	public record(change: Change, replace: boolean = false, newSong: boolean = false): void {
@@ -449,7 +487,10 @@ export class SongDocument {
 	}
 
 	private _calcVolume(): number {
-		return Math.min(1.0, (this.prefs.volume / 50.0) ** 0.5) * 2.0 ** ((this.prefs.volume - 75.0) / 25.0);
+		return (
+			Math.min(1.0, (this.prefs.volume / 50.0) ** 0.5) *
+			2.0 ** ((this.prefs.volume - 75.0) / 25.0)
+		);
 	}
 
 	public getCurrentPattern(barOffset: number = 0): Pattern | null {
@@ -475,15 +516,23 @@ export class SongDocument {
 
 	public getBarWidth(): number {
 		// Bugfix: In wide fullscreen, the 32 pixel display doesn't work as the trackEditor is still horizontally constrained
-		return !this.getMobileLayout() && this.prefs.enableChannelMuting && (!this.getFullScreen() || this.prefs.layout === "wide") ? 30 : 32;
+		return !this.getMobileLayout() &&
+			this.prefs.enableChannelMuting &&
+			(!this.getFullScreen() || this.prefs.layout === "wide")
+			? 30
+			: 32;
 	}
 
 	public getChannelHeight(): number {
 		const squashed: boolean =
-			this.getMobileLayout() || this.song.getChannelCount() > 4 || (this.song.barCount > this.trackVisibleBars && this.song.getChannelCount() > 3);
+			this.getMobileLayout() ||
+			this.song.getChannelCount() > 4 ||
+			(this.song.barCount > this.trackVisibleBars && this.song.getChannelCount() > 3);
 		// TODO: Jummbox widescreen should allow more channels before squashing or megasquashing
 		const megaSquashed: boolean =
-			!this.getMobileLayout() && ((this.prefs.layout !== "wide" && this.song.getChannelCount() > 11) || this.song.getChannelCount() > 22);
+			!this.getMobileLayout() &&
+			((this.prefs.layout !== "wide" && this.song.getChannelCount() > 11) ||
+				this.song.getChannelCount() > 22);
 		return megaSquashed ? 23 : squashed ? 27 : 32;
 	}
 
@@ -501,6 +550,12 @@ export class SongDocument {
 
 	public getBaseVisibleOctave(channel: number): number {
 		const visibleOctaveCount: number = this.getVisibleOctaveCount();
-		return Math.max(0, Math.min(this.song.octaveCount - visibleOctaveCount, Math.ceil(this.song.channels[channel].octave - visibleOctaveCount * 0.5)));
+		return Math.max(
+			0,
+			Math.min(
+				this.song.octaveCount - visibleOctaveCount,
+				Math.ceil(this.song.channels[channel].octave - visibleOctaveCount * 0.5),
+			),
+		);
 	}
 }

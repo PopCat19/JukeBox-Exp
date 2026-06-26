@@ -95,7 +95,11 @@ export class ThemePrompt extends BasePrompt {
 			option({ value: "death" }, "D's Quick Box Mod"),
 			option({ value: "fmbox" }, "FMBox"),
 		),
-		optgroup({ label: "Misc" }, option({ value: "azur lane" }, "Azur Lane"), option({ value: "custom" }, "Custom")),
+		optgroup(
+			{ label: "Misc" },
+			option({ value: "azur lane" }, "Azur Lane"),
+			option({ value: "custom" }, "Custom"),
+		),
 	);
 
 	private readonly _pmdHueInput: HTMLInputElement = input({
@@ -107,7 +111,10 @@ export class ThemePrompt extends BasePrompt {
 		oninput: () => this._onPMDChange(),
 	});
 
-	private readonly _pmdHueLabel: HTMLSpanElement = span({ class: "pmdHueLabel" }, `Hue: ${ColorConfig.pmdHue}°`);
+	private readonly _pmdHueLabel: HTMLSpanElement = span(
+		{ class: "pmdHueLabel" },
+		`Hue: ${ColorConfig.pmdHue}°`,
+	);
 
 	private readonly _pmdHueNum: HTMLInputElement = createInput("number", "", {
 		min: "0",
@@ -117,7 +124,11 @@ export class ThemePrompt extends BasePrompt {
 
 	private readonly _pmdControls: HTMLDivElement = div(
 		{ class: "pmdControls" },
-		div({ class: "pmdControlGroup" }, div({ class: "pmdHueRow" }, this._pmdHueLabel, this._pmdHueNum), this._pmdHueInput),
+		div(
+			{ class: "pmdControlGroup" },
+			div({ class: "pmdHueRow" }, this._pmdHueLabel, this._pmdHueNum),
+			this._pmdHueInput,
+		),
 	);
 
 	public readonly container: HTMLDivElement = div(

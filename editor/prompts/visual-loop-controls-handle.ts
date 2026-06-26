@@ -14,7 +14,14 @@ const { canvas } = HTML;
 
 type HandleValueValidator = (value: number) => number;
 type HandleValueChangeHandler = (value: number) => void;
-type ShapeFunction = (canvas: HTMLCanvasElement, context: CanvasRenderingContext2D, x: number, y: number, w: number, h: number) => void;
+type ShapeFunction = (
+	canvas: HTMLCanvasElement,
+	context: CanvasRenderingContext2D,
+	x: number,
+	y: number,
+	w: number,
+	h: number,
+) => void;
 
 const defaultShapeFunction: ShapeFunction = (_cnv, ctx, x, y, w, h) => {
 	ctx.fillRect(x, y, w, h);
@@ -107,7 +114,9 @@ export class VisualLoopControlsHandle {
 		const canvasXScale: number = w / bounds.width;
 		const mx: number = ((event.clientX || event.pageX) - bounds.left) * canvasXScale;
 		const wmx: number = vx0 + (mx * (vx1 - vx0)) / w;
-		this._value = this._validator(wmx - (this._handleDragOffset != null ? this._handleDragOffset : 0));
+		this._value = this._validator(
+			wmx - (this._handleDragOffset != null ? this._handleDragOffset : 0),
+		);
 		this.render();
 		if (this._whenValueChanges) this._whenValueChanges(this._value);
 	};
@@ -127,7 +136,9 @@ export class VisualLoopControlsHandle {
 			this._handleDragOffset = ((mx - (bx0 + bw / 2)) * (vx1 - vx0)) / w;
 		}
 		const wmx: number = vx0 + (mx * (vx1 - vx0)) / w;
-		this._value = this._validator(wmx - (this._handleDragOffset != null ? this._handleDragOffset : 0));
+		this._value = this._validator(
+			wmx - (this._handleDragOffset != null ? this._handleDragOffset : 0),
+		);
 		this.render();
 		if (this._whenValueChanges) this._whenValueChanges(this._value);
 	};
@@ -149,7 +160,9 @@ export class VisualLoopControlsHandle {
 		const canvasXScale: number = w / bounds.width;
 		const mx: number = (event.touches[0].clientX - bounds.left) * canvasXScale;
 		const wmx: number = vx0 + (mx * (vx1 - vx0)) / w;
-		this._value = this._validator(wmx - (this._handleDragOffset != null ? this._handleDragOffset : 0));
+		this._value = this._validator(
+			wmx - (this._handleDragOffset != null ? this._handleDragOffset : 0),
+		);
 		this.render();
 		if (this._whenValueChanges) this._whenValueChanges(this._value);
 	};
@@ -170,7 +183,9 @@ export class VisualLoopControlsHandle {
 			this._handleDragOffset = ((mx - (bx0 + bw / 2)) * (vx1 - vx0)) / w;
 		}
 		const wmx: number = vx0 + (mx * (vx1 - vx0)) / w;
-		this._value = this._validator(wmx - (this._handleDragOffset != null ? this._handleDragOffset : 0));
+		this._value = this._validator(
+			wmx - (this._handleDragOffset != null ? this._handleDragOffset : 0),
+		);
 		this.render();
 		if (this._whenValueChanges) this._whenValueChanges(this._value);
 	};

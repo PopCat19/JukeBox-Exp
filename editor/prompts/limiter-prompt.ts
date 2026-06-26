@@ -24,40 +24,109 @@ const { button, div, h2, input } = HTML;
 export class LimiterCanvas {
 	private readonly _editorWidth: number = 200;
 	private readonly _editorHeight: number = 52;
-	private readonly _fill: SVGPathElement = SVG.path({ fill: ColorConfig.uiWidgetBackground, "pointer-events": "none" });
+	private readonly _fill: SVGPathElement = SVG.path({
+		fill: ColorConfig.uiWidgetBackground,
+		"pointer-events": "none",
+	});
 	private readonly _ticks: SVGSVGElement = SVG.svg({ "pointer-events": "none" });
 	private readonly _subticks: SVGSVGElement = SVG.svg({ "pointer-events": "none" });
-	private readonly _boostCurve: SVGPathElement = SVG.path({ fill: "none", stroke: ColorConfig.textSelection, "stroke-width": 2, "pointer-events": "none" });
-	private readonly _boostDot: SVGCircleElement = SVG.circle({ fill: ColorConfig.textSelection, stroke: "none", r: "3" });
-	private readonly _midCurve: SVGPathElement = SVG.path({ fill: "none", stroke: ColorConfig.primaryText, "stroke-width": 2, "pointer-events": "none" });
-	private readonly _limitCurve: SVGPathElement = SVG.path({ fill: "none", stroke: ColorConfig.linkAccent, "stroke-width": 2, "pointer-events": "none" });
-	private readonly _limitDot: SVGCircleElement = SVG.circle({ fill: ColorConfig.linkAccent, stroke: "none", r: "3" });
+	private readonly _boostCurve: SVGPathElement = SVG.path({
+		fill: "none",
+		stroke: ColorConfig.textSelection,
+		"stroke-width": 2,
+		"pointer-events": "none",
+	});
+	private readonly _boostDot: SVGCircleElement = SVG.circle({
+		fill: ColorConfig.textSelection,
+		stroke: "none",
+		r: "3",
+	});
+	private readonly _midCurve: SVGPathElement = SVG.path({
+		fill: "none",
+		stroke: ColorConfig.primaryText,
+		"stroke-width": 2,
+		"pointer-events": "none",
+	});
+	private readonly _limitCurve: SVGPathElement = SVG.path({
+		fill: "none",
+		stroke: ColorConfig.linkAccent,
+		"stroke-width": 2,
+		"pointer-events": "none",
+	});
+	private readonly _limitDot: SVGCircleElement = SVG.circle({
+		fill: ColorConfig.linkAccent,
+		stroke: "none",
+		r: "3",
+	});
 	private readonly _label0: SVGTextElement = SVG.text(
-		{ x: "-1.5%", y: "148.5%", "pointer-events": "none", "font-size": "7pt", fill: "var(--secondary-text)" },
+		{
+			x: "-1.5%",
+			y: "148.5%",
+			"pointer-events": "none",
+			"font-size": "7pt",
+			fill: "var(--secondary-text)",
+		},
 		"0",
 	);
 	private readonly _label1: SVGTextElement = SVG.text(
-		{ x: "48.2%", y: "148.5%", "pointer-events": "none", "font-size": "7pt", fill: "var(--secondary-text)" },
+		{
+			x: "48.2%",
+			y: "148.5%",
+			"pointer-events": "none",
+			"font-size": "7pt",
+			fill: "var(--secondary-text)",
+		},
 		"1",
 	);
 	private readonly _label2: SVGTextElement = SVG.text(
-		{ x: "98.2%", y: "148.5%", "pointer-events": "none", "font-size": "7pt", fill: "var(--secondary-text)" },
+		{
+			x: "98.2%",
+			y: "148.5%",
+			"pointer-events": "none",
+			"font-size": "7pt",
+			fill: "var(--secondary-text)",
+		},
 		"2",
 	);
 	private readonly _inLabel: SVGTextElement = SVG.text(
-		{ x: "-5%", y: "113.5%", "pointer-events": "none", "font-size": "6pt", fill: "var(--secondary-text)" },
+		{
+			x: "-5%",
+			y: "113.5%",
+			"pointer-events": "none",
+			"font-size": "6pt",
+			fill: "var(--secondary-text)",
+		},
 		"In",
 	);
 	private readonly _outLabel: SVGTextElement = SVG.text(
-		{ x: "-9%", y: "131%", "pointer-events": "none", "font-size": "6pt", fill: "var(--secondary-text)" },
+		{
+			x: "-9%",
+			y: "131%",
+			"pointer-events": "none",
+			"font-size": "6pt",
+			fill: "var(--secondary-text)",
+		},
 		"Out",
 	);
 	private readonly _xAxisLabel: SVGTextElement = SVG.text(
-		{ x: "42%", y: "172%", "pointer-events": "none", "font-size": "7pt", fill: "var(--primary-text)" },
+		{
+			x: "42%",
+			y: "172%",
+			"pointer-events": "none",
+			"font-size": "7pt",
+			fill: "var(--primary-text)",
+		},
 		"Volume",
 	);
 	private readonly _yAxisLabel: SVGTextElement = SVG.text(
-		{ x: "55.2%", y: "160%", "pointer-events": "none", "font-size": "7pt", transform: "rotate(-90 30,120)", fill: "var(--primary-text)" },
+		{
+			x: "55.2%",
+			y: "160%",
+			"pointer-events": "none",
+			"font-size": "7pt",
+			transform: "rotate(-90 30,120)",
+			fill: "var(--primary-text)",
+		},
 		"Gain",
 	);
 	private readonly _inVolumeBg: SVGRectElement = SVG.rect({
@@ -78,7 +147,14 @@ export class LimiterCanvas {
 		fill: ColorConfig.uiWidgetBackground,
 		rx: "3",
 	});
-	private readonly _inVolumeBar: SVGRectElement = SVG.rect({ "pointer-events": "none", height: "6px", x: "0%", y: "105%", fill: "url('#volumeGrad')", rx: "3" });
+	private readonly _inVolumeBar: SVGRectElement = SVG.rect({
+		"pointer-events": "none",
+		height: "6px",
+		x: "0%",
+		y: "105%",
+		fill: "url('#volumeGrad')",
+		rx: "3",
+	});
 	private readonly _inVolumeCap: SVGRectElement = SVG.rect({
 		"pointer-events": "none",
 		width: BorderWidth.default,
@@ -87,7 +163,14 @@ export class LimiterCanvas {
 		fill: ColorConfig.uiWidgetFocus,
 		rx: "3",
 	});
-	private readonly _outVolumeBar: SVGRectElement = SVG.rect({ "pointer-events": "none", height: "6px", x: "0%", y: "120%", fill: "url('#volumeGrad')", rx: "3" });
+	private readonly _outVolumeBar: SVGRectElement = SVG.rect({
+		"pointer-events": "none",
+		height: "6px",
+		x: "0%",
+		y: "120%",
+		fill: "url('#volumeGrad')",
+		rx: "3",
+	});
 	private readonly _outVolumeCap: SVGRectElement = SVG.rect({
 		"pointer-events": "none",
 		width: BorderWidth.default,
@@ -138,27 +221,61 @@ export class LimiterCanvas {
 		this._outVolumeCap,
 	);
 
-	public readonly container: HTMLElement = HTML.div({ class: "", style: "width: 100%; aspect-ratio: 200 / 52; padding-bottom: 1.5em;" }, this._svg);
+	public readonly container: HTMLElement = HTML.div(
+		{ class: "", style: "width: 100%; aspect-ratio: 200 / 52; padding-bottom: 1.5em;" },
+		this._svg,
+	);
 
 	private _limiterPrompt: LimiterPrompt;
 
 	constructor(lim: LimiterPrompt) {
 		for (let i: number = 0; i <= 2; i++) {
-			this._ticks.appendChild(SVG.rect({ fill: ColorConfig.tonic, x: (i * this._editorWidth) / 2 - 1, y: 0, width: 2, height: this._editorHeight }));
+			this._ticks.appendChild(
+				SVG.rect({
+					fill: ColorConfig.tonic,
+					x: (i * this._editorWidth) / 2 - 1,
+					y: 0,
+					width: 2,
+					height: this._editorHeight,
+				}),
+			);
 		}
 		for (let i: number = 1; i <= 3; i += 2) {
 			this._subticks.appendChild(
-				SVG.rect({ fill: ColorConfig.fifthNote, x: (i * this._editorWidth) / 4 - 1, y: 0, width: 1, height: this._editorHeight }),
+				SVG.rect({
+					fill: ColorConfig.fifthNote,
+					x: (i * this._editorWidth) / 4 - 1,
+					y: 0,
+					width: 1,
+					height: this._editorHeight,
+				}),
 			);
 		}
 		this._limiterPrompt = lim;
 	}
 
-	public animateVolume(inVolumeCap: number, historicInCap: number, outVolumeCap: number, historicOutCap: number): void {
-		this._inVolumeBar.setAttribute("width", `${Math.min(this._editorWidth, inVolumeCap * (this._editorWidth / 2.0))}`);
-		this._inVolumeCap.setAttribute("x", `${Math.min(this._editorWidth, historicInCap * (this._editorWidth / 2.0))}`);
-		this._outVolumeBar.setAttribute("width", `${Math.min(this._editorWidth, outVolumeCap * (this._editorWidth / 2.0))}`);
-		this._outVolumeCap.setAttribute("x", `${Math.min(this._editorWidth, historicOutCap * (this._editorWidth / 2.0))}`);
+	public animateVolume(
+		inVolumeCap: number,
+		historicInCap: number,
+		outVolumeCap: number,
+		historicOutCap: number,
+	): void {
+		this._inVolumeBar.setAttribute(
+			"width",
+			`${Math.min(this._editorWidth, inVolumeCap * (this._editorWidth / 2.0))}`,
+		);
+		this._inVolumeCap.setAttribute(
+			"x",
+			`${Math.min(this._editorWidth, historicInCap * (this._editorWidth / 2.0))}`,
+		);
+		this._outVolumeBar.setAttribute(
+			"width",
+			`${Math.min(this._editorWidth, outVolumeCap * (this._editorWidth / 2.0))}`,
+		);
+		this._outVolumeCap.setAttribute(
+			"x",
+			`${Math.min(this._editorWidth, historicOutCap * (this._editorWidth / 2.0))}`,
+		);
 	}
 
 	public render(): void {
@@ -175,15 +292,22 @@ export class LimiterCanvas {
 			let limiterRatio: number = +this._limiterPrompt.limitRatioSlider.value;
 			limiterRatio = limiterRatio < 10 ? limiterRatio / 10 : limiterRatio - 9;
 			let compressorRatio: number = +this._limiterPrompt.compressionRatioSlider.value;
-			compressorRatio = compressorRatio < 10 ? compressorRatio / 10 : 1 + (compressorRatio - 10) / 60;
+			compressorRatio =
+				compressorRatio < 10 ? compressorRatio / 10 : 1 + (compressorRatio - 10) / 60;
 			const limiterThreshold: number = +this._limiterPrompt.limitThresholdSlider.value;
-			const compressorThreshold: number = +this._limiterPrompt.compressionThresholdSlider.value;
+			const compressorThreshold: number =
+				+this._limiterPrompt.compressionThresholdSlider.value;
 			const useVol: number = (i * 2.0) / 64.0;
 			let nextValue: number = 1 / 1.05;
 			if (useVol >= limiterThreshold) {
-				nextValue = 1 / (1.05 * (useVol + 1 - limiterThreshold) * limiterRatio + (1 - limiterRatio));
+				nextValue =
+					1 /
+					(1.05 * (useVol + 1 - limiterThreshold) * limiterRatio + (1 - limiterRatio));
 			} else if (useVol < compressorThreshold) {
-				nextValue = 1 / (((useVol + 1 - compressorThreshold) * 0.8 + 0.25) * compressorRatio + 1.05 * (1 - compressorRatio));
+				nextValue =
+					1 /
+					(((useVol + 1 - compressorThreshold) * 0.8 + 0.25) * compressorRatio +
+						1.05 * (1 - compressorRatio));
 			}
 
 			if (i === 0) {
@@ -192,17 +316,25 @@ export class LimiterCanvas {
 
 			if (currentSubpathIdx > lastSubpathIdx) {
 				if (lastSubpathIdx >= 0) {
-					subPaths[lastSubpathIdx] += `L ${prettyNumber((i * this._editorWidth) / 64)} ${prettyNumber(controlPointToHeight(nextValue))} `;
+					subPaths[lastSubpathIdx] +=
+						`L ${prettyNumber((i * this._editorWidth) / 64)} ${prettyNumber(controlPointToHeight(nextValue))} `;
 				}
-				subPaths[currentSubpathIdx] += `M ${prettyNumber((i * this._editorWidth) / 64)} ${prettyNumber(controlPointToHeight(nextValue))} `;
+				subPaths[currentSubpathIdx] +=
+					`M ${prettyNumber((i * this._editorWidth) / 64)} ${prettyNumber(controlPointToHeight(nextValue))} `;
 
 				if (currentSubpathIdx === 1 || (lastSubpathIdx === 0 && currentSubpathIdx === 2)) {
 					this._boostDot.setAttribute("cx", prettyNumber((i * this._editorWidth) / 64));
-					this._boostDot.setAttribute("cy", prettyNumber(controlPointToHeight(nextValue)));
+					this._boostDot.setAttribute(
+						"cy",
+						prettyNumber(controlPointToHeight(nextValue)),
+					);
 				}
 				if (currentSubpathIdx === 2) {
 					this._limitDot.setAttribute("cx", prettyNumber((i * this._editorWidth) / 64));
-					this._limitDot.setAttribute("cy", prettyNumber(controlPointToHeight(nextValue)));
+					this._limitDot.setAttribute(
+						"cy",
+						prettyNumber(controlPointToHeight(nextValue)),
+					);
 				}
 
 				lastSubpathIdx = currentSubpathIdx;
@@ -216,7 +348,8 @@ export class LimiterCanvas {
 				subPaths[currentSubpathIdx] += "M ";
 			}
 			path += `${prettyNumber((i * this._editorWidth) / 64)} ${prettyNumber(controlPointToHeight(nextValue))} `;
-			subPaths[currentSubpathIdx] += `${prettyNumber((i * this._editorWidth) / 64)} ${prettyNumber(controlPointToHeight(nextValue))} `;
+			subPaths[currentSubpathIdx] +=
+				`${prettyNumber((i * this._editorWidth) / 64)} ${prettyNumber(controlPointToHeight(nextValue))} `;
 			lastValue = nextValue;
 
 			if (currentSubpathIdx === 0 && i >= compressorThreshold * 32 - 2) {
@@ -230,7 +363,8 @@ export class LimiterCanvas {
 		const lastHeight: number = controlPointToHeight(lastValue);
 		if (lastValue > 0) {
 			path += `L ${this._editorWidth - 1} ${prettyNumber(lastHeight)} `;
-			subPaths[currentSubpathIdx] += `L ${this._editorWidth - 1} ${prettyNumber(lastHeight)} `;
+			subPaths[currentSubpathIdx] +=
+				`L ${this._editorWidth - 1} ${prettyNumber(lastHeight)} `;
 		}
 
 		this._boostCurve.setAttribute("d", subPaths[0]);
@@ -341,32 +475,80 @@ export class LimiterPrompt extends BasePrompt {
 	public readonly container: HTMLDivElement = div(
 		{ class: "prompt noSelection fill-x", style: w("250px") },
 		h2("Limiter Options"),
-		div({ style: "display: flex; width: 55%; align-self: center; flex-direction: row; align-items: center; justify-content: center;" }, this._playButton),
+		div(
+			{
+				style: "display: flex; width: 55%; align-self: center; flex-direction: row; align-items: center; justify-content: center;",
+			},
+			this._playButton,
+		),
 		flexRowCenter(undefined, this.limiterCanvas.container),
 		labelRow(
 			{ marginTop: "1.5em" },
-			div({ style: `text-align: right; width: 25%; margin-right: 4.5%; color: ${ColorConfig.primaryText};` }, ""),
-			div({ style: `text-align: center; width: 33%; margin-right: 4.5%; color: ${ColorConfig.textSelection};` }, "Boost"),
-			div({ style: `text-align: center; width: 33%; margin-right: 0%; color: ${ColorConfig.linkAccent};` }, "Cutoff"),
+			div(
+				{
+					style: `text-align: right; width: 25%; margin-right: 4.5%; color: ${ColorConfig.primaryText};`,
+				},
+				"",
+			),
+			div(
+				{
+					style: `text-align: center; width: 33%; margin-right: 4.5%; color: ${ColorConfig.textSelection};`,
+				},
+				"Boost",
+			),
+			div(
+				{
+					style: `text-align: center; width: 33%; margin-right: 0%; color: ${ColorConfig.linkAccent};`,
+				},
+				"Cutoff",
+			),
 		),
 		labelRow(
 			{ marginTop: "0.5em" },
-			div({ style: `text-align: right; width: 25%; margin-right: 4.5%; color: ${ColorConfig.primaryText};` }, "Threshold:"),
+			div(
+				{
+					style: `text-align: right; width: 25%; margin-right: 4.5%; color: ${ColorConfig.primaryText};`,
+				},
+				"Threshold:",
+			),
 			div({ style: `width: 33%; margin-right: 4.5%;` }, this.compressionThresholdSlider),
 			div({ style: `width: 33%; margin-right: 0%;` }, this.limitThresholdSlider),
 		),
 		labelRow(
-			div({ style: `text-align: right; width: 25%; margin-right: 4.5%; color: ${ColorConfig.primaryText};` }, "Ratio:"),
+			div(
+				{
+					style: `text-align: right; width: 25%; margin-right: 4.5%; color: ${ColorConfig.primaryText};`,
+				},
+				"Ratio:",
+			),
 			div({ style: `width: 33%; margin-right: 4.5%;` }, this.compressionRatioSlider),
 			div({ style: `width: 33%; margin-right: 0%;` }, this.limitRatioSlider),
 		),
 		labelRow(
-			div({ style: `text-align: right; width: 8.5em; margin-right: 1em; color: ${ColorConfig.primaryText};` }, "Limit Decay:"),
+			div(
+				{
+					style: `text-align: right; width: 8.5em; margin-right: 1em; color: ${ColorConfig.primaryText};`,
+				},
+				"Limit Decay:",
+			),
 			this.limitDecaySlider,
 		),
-		labelRow(div({ style: `text-align: right; width: 8.5em; margin-right: 1em; color: ${ColorConfig.primaryText};` }, "Limit Rise:"), this.limitRiseSlider),
 		labelRow(
-			div({ style: `text-align: right; width: 8.5em; margin-right: 1em; color: ${ColorConfig.primaryText};` }, "Master Gain:"),
+			div(
+				{
+					style: `text-align: right; width: 8.5em; margin-right: 1em; color: ${ColorConfig.primaryText};`,
+				},
+				"Limit Rise:",
+			),
+			this.limitRiseSlider,
+		),
+		labelRow(
+			div(
+				{
+					style: `text-align: right; width: 8.5em; margin-right: 1em; color: ${ColorConfig.primaryText};`,
+				},
+				"Master Gain:",
+			),
 			this.masterGainSlider,
 		),
 		this._getOkayRow(this._resetButton),
@@ -437,7 +619,12 @@ export class LimiterPrompt extends BasePrompt {
 			this.outVolumeHistoricTimer = 50;
 		}
 
-		this.limiterCanvas.animateVolume(this._doc.song.inVolumeCap, this.inVolumeHistoricCap, this._doc.song.outVolumeCap, this.outVolumeHistoricCap);
+		this.limiterCanvas.animateVolume(
+			this._doc.song.inVolumeCap,
+			this.inVolumeHistoricCap,
+			this._doc.song.outVolumeCap,
+			this.outVolumeHistoricCap,
+		);
 		window.requestAnimationFrame(this._volumeUpdate);
 	};
 
@@ -448,7 +635,10 @@ export class LimiterPrompt extends BasePrompt {
 
 	private _whenInput = (): void => {
 		if (+this.limitThresholdSlider.value < +this.compressionThresholdSlider.value) {
-			this.limitThresholdSlider.removeEventListener("input", this._whenInputFavorLimitThreshold);
+			this.limitThresholdSlider.removeEventListener(
+				"input",
+				this._whenInputFavorLimitThreshold,
+			);
 			this.limitThresholdSlider.value = this.compressionThresholdSlider.value;
 			this.limitThresholdSlider.addEventListener("input", this._whenInputFavorLimitThreshold);
 		}
@@ -526,8 +716,12 @@ export class LimiterPrompt extends BasePrompt {
 		this._doc.record(
 			new ChangeLimiterSettings(
 				this._doc,
-				+this.limitRatioSlider.value < 10 ? +this.limitRatioSlider.value / 10 : +this.limitRatioSlider.value - 9,
-				+this.compressionRatioSlider.value < 10 ? +this.compressionRatioSlider.value / 10 : 1 + (+this.compressionRatioSlider.value - 10) / 60,
+				+this.limitRatioSlider.value < 10
+					? +this.limitRatioSlider.value / 10
+					: +this.limitRatioSlider.value - 9,
+				+this.compressionRatioSlider.value < 10
+					? +this.compressionRatioSlider.value / 10
+					: 1 + (+this.compressionRatioSlider.value - 10) / 60,
 				+this.limitThresholdSlider.value,
 				+this.compressionThresholdSlider.value,
 				+this.limitRiseSlider.value,

@@ -48,7 +48,12 @@ export class EditorLayout {
 			() => songEditor.zoomOut(),
 		);
 		this.trackArea = new TrackArea(doc, songEditor);
-		this.settingsArea = new SettingsArea(doc, onOpenPrompt, switchEQFilterType, switchNoteFilterType);
+		this.settingsArea = new SettingsArea(
+			doc,
+			onOpenPrompt,
+			switchEQFilterType,
+			switchNoteFilterType,
+		);
 
 		// Create Shiggy (easter egg)
 		this.shiggy = new Shiggy();
@@ -67,8 +72,16 @@ export class EditorLayout {
 
 		this._sampleLoadingStatusContainer = div(
 			{ style: "cursor: pointer;" },
-			div({ style: `margin-top: 0.5em; text-align: center; color: ${ColorConfig.secondaryText};` }, "Sample Loading Status"),
-			div({ class: "selectRow", style: "height: 6px; margin-bottom: 0.5em;" }, sampleLoadingBarContainer),
+			div(
+				{
+					style: `margin-top: 0.5em; text-align: center; color: ${ColorConfig.secondaryText};`,
+				},
+				"Sample Loading Status",
+			),
+			div(
+				{ class: "selectRow", style: "height: 6px; margin-bottom: 0.5em;" },
+				sampleLoadingBarContainer,
+			),
 		);
 
 		// Track visible area (placeholder for calculation)
@@ -80,9 +93,15 @@ export class EditorLayout {
 		this._trackAndMuteContainer = div({ class: "trackAndMuteContainer" });
 
 		// Layout containers
-		this._patternAreaContainer = div({ class: "pattern-area-container" }, this.patternArea.container);
+		this._patternAreaContainer = div(
+			{ class: "pattern-area-container" },
+			this.patternArea.container,
+		);
 		this._trackAreaContainer = div({ class: "track-area-container" }, this.trackArea.container);
-		this._settingsAreaContainer = div({ class: "settings-area-container" }, this.settingsArea.container);
+		this._settingsAreaContainer = div(
+			{ class: "settings-area-container" },
+			this.settingsArea.container,
+		);
 
 		// Main Layout
 		this.container = div(
@@ -101,7 +120,12 @@ export class EditorLayout {
 	}
 
 	public setLayoutMode(mode: string): void {
-		this.container.classList.remove("layout-long", "layout-tall", "layout-wide", "layout-small");
+		this.container.classList.remove(
+			"layout-long",
+			"layout-tall",
+			"layout-wide",
+			"layout-small",
+		);
 		if (mode && mode !== "small") {
 			this.container.classList.add(`layout-${mode}`);
 		}

@@ -106,7 +106,13 @@ export interface ModSettingsCallbacks {
 	whenSetModSetting(mod: number, invalid?: boolean): void;
 }
 
-export function renderModSettings(doc: SongDocument, colors: ChannelColors, prefs: Preferences, refs: ModSettingsRefs, callbacks: ModSettingsCallbacks): void {
+export function renderModSettings(
+	doc: SongDocument,
+	colors: ChannelColors,
+	prefs: Preferences,
+	refs: ModSettingsRefs,
+	callbacks: ModSettingsCallbacks,
+): void {
 	const channel: Channel = doc.song.channels[doc.channel];
 	const instrument: Instrument = channel.instruments[doc.getCurrentInstrument()];
 	const instrumentIndex: number = doc.getCurrentInstrument();
@@ -116,7 +122,10 @@ export function renderModSettings(doc: SongDocument, colors: ChannelColors, pref
 	refs.pitchedPresetSelect.style.display = "none";
 	refs.drumPresetSelect.style.display = "none";
 	if (prefs.instrumentButtonsAtTop) {
-		refs.modulatorGroup.insertBefore(refs.instrumentExportGroup, refs.modulatorGroup.firstChild);
+		refs.modulatorGroup.insertBefore(
+			refs.instrumentExportGroup,
+			refs.modulatorGroup.firstChild,
+		);
 		refs.modulatorGroup.insertBefore(refs.instrumentCopyGroup, refs.modulatorGroup.firstChild);
 	} else {
 		refs.modulatorGroup.appendChild(refs.instrumentCopyGroup);
@@ -124,7 +133,10 @@ export function renderModSettings(doc: SongDocument, colors: ChannelColors, pref
 	}
 
 	refs.modulatorGroup.insertBefore(refs.instrumentsButtonRow, refs.modulatorGroup.firstChild);
-	refs.modulatorGroup.insertBefore(refs.instrumentSettingsTextRow, refs.modulatorGroup.firstChild);
+	refs.modulatorGroup.insertBefore(
+		refs.instrumentSettingsTextRow,
+		refs.modulatorGroup.firstChild,
+	);
 	if (doc.song.channels[doc.channel].name === "") {
 		refs.instrumentSettingsTextRow.textContent = "Modulator Settings";
 	} else {
@@ -172,7 +184,10 @@ export function renderModSettings(doc: SongDocument, colors: ChannelColors, pref
 	refs.unisonDropdownGroup.style.display = "none";
 
 	refs.modulatorGroup.style.display = "";
-	refs.modulatorGroup.style.color = ColorConfig.getChannelColor(doc.song, doc.channel).primaryNote;
+	refs.modulatorGroup.style.color = ColorConfig.getChannelColor(
+		doc.song,
+		doc.channel,
+	).primaryNote;
 
 	for (let mod: number = 0; mod < Config.modCount; mod++) {
 		const modChannel: number = Math.max(0, instrument.modChannels[mod]);
@@ -192,7 +207,11 @@ export function renderModSettings(doc: SongDocument, colors: ChannelColors, pref
 		}
 
 		// Build options for modulator channels (make sure it has the right number).
-		if (doc.recalcChannelNames || refs.modChannelBoxes[mod].children.length !== 2 + doc.song.pitchChannelCount + doc.song.noiseChannelCount) {
+		if (
+			doc.recalcChannelNames ||
+			refs.modChannelBoxes[mod].children.length !==
+				2 + doc.song.pitchChannelCount + doc.song.noiseChannelCount
+		) {
 			while (refs.modChannelBoxes[mod].firstChild) refs.modChannelBoxes[mod].remove(0);
 			const channelList: string[] = [];
 			channelList.push("none");
@@ -234,7 +253,8 @@ export function renderModSettings(doc: SongDocument, colors: ChannelColors, pref
 
 		// If non-zero pattern, point to which instrument(s) is/are the current
 		if (channel.bars[doc.bar] > 0) {
-			const usedInstruments: number[] = channel.patterns[channel.bars[doc.bar] - 1].instruments;
+			const usedInstruments: number[] =
+				channel.patterns[channel.bars[doc.bar] - 1].instruments;
 
 			for (let i: number = 0; i < channel.instruments.length; i++) {
 				if (usedInstruments.includes(i)) {
@@ -331,7 +351,10 @@ export function renderModSettings(doc: SongDocument, colors: ChannelColors, pref
 					} else {
 						anyInstrumentAdvancedEQ = true;
 					}
-					if (effectsIncludeChord(channel.instruments[instrumentIndex].effects) && channel.instruments[instrumentIndex].getChord().arpeggiates) {
+					if (
+						effectsIncludeChord(channel.instruments[instrumentIndex].effects) &&
+						channel.instruments[instrumentIndex].getChord().arpeggiates
+					) {
 						anyInstrumentArps = true;
 					}
 					if (effectsIncludePitchShift(channel.instruments[instrumentIndex].effects)) {
@@ -389,7 +412,9 @@ export function renderModSettings(doc: SongDocument, colors: ChannelColors, pref
 					} else {
 						allInstrumentReverbs = false;
 					}
-					if (effectsIncludeRingModulation(channel.instruments[instrumentIndex].effects)) {
+					if (
+						effectsIncludeRingModulation(channel.instruments[instrumentIndex].effects)
+					) {
 						anyInstrumentRingMods = true;
 					} else {
 						allInstrumentRingMods = false;
@@ -436,7 +461,10 @@ export function renderModSettings(doc: SongDocument, colors: ChannelColors, pref
 					settingList.push("fm slider 6");
 					settingList.push("fm feedback");
 				}
-				if (tgtInstrumentTypes.includes(InstrumentType.pwm) || tgtInstrumentTypes.includes(InstrumentType.supersaw)) {
+				if (
+					tgtInstrumentTypes.includes(InstrumentType.pwm) ||
+					tgtInstrumentTypes.includes(InstrumentType.supersaw)
+				) {
 					settingList.push("pulse width");
 					settingList.push("decimal offset");
 				}
@@ -572,17 +600,24 @@ export function renderModSettings(doc: SongDocument, colors: ChannelColors, pref
 
 			buildOptions(refs.modSetBoxes[mod], settingList);
 			if (unusedSettingList.length > 0) {
-				refs.modSetBoxes[mod].appendChild(option({ selected: false, disabled: true, value: "Add Effect" }, "Add Effect"));
+				refs.modSetBoxes[mod].appendChild(
+					option({ selected: false, disabled: true, value: "Add Effect" }, "Add Effect"),
+				);
 				buildOptions(refs.modSetBoxes[mod], unusedSettingList);
 			}
 
-			const setIndex: number = settingList.indexOf(Config.modulators[instrument.modulators[mod]].name);
+			const setIndex: number = settingList.indexOf(
+				Config.modulators[instrument.modulators[mod]].name,
+			);
 
 			// Catch instances where invalid set forced setting to "none"
 			if (setIndex === -1) {
 				refs.modSetBoxes[mod].insertBefore(
 					option(
-						{ value: Config.modulators[instrument.modulators[mod]].name, style: "color: red;" },
+						{
+							value: Config.modulators[instrument.modulators[mod]].name,
+							style: "color: red;",
+						},
 						Config.modulators[instrument.modulators[mod]].name,
 					),
 					refs.modSetBoxes[mod].children[0],
@@ -618,9 +653,12 @@ export function renderModSettings(doc: SongDocument, colors: ChannelColors, pref
 			refs.modTargetIndicators[mod].style.setProperty("fill", ColorConfig.uiWidgetFocus);
 			refs.modTargetIndicators[mod].classList.remove("modTarget");
 		} else {
-			(refs.modInstrumentBoxes[mod].parentElement as HTMLDivElement).style.display = channel.instruments.length > 1 ? "" : "none";
-			$(`#modInstrumentText${mod}`).get(0)!.style.display = channel.instruments.length > 1 ? "" : "none";
-			$(`#modChannelText${mod}`).get(0)!.innerText = channel.instruments.length > 1 ? "Ch:" : "Channel:";
+			(refs.modInstrumentBoxes[mod].parentElement as HTMLDivElement).style.display =
+				channel.instruments.length > 1 ? "" : "none";
+			$(`#modInstrumentText${mod}`).get(0)!.style.display =
+				channel.instruments.length > 1 ? "" : "none";
+			$(`#modChannelText${mod}`).get(0)!.innerText =
+				channel.instruments.length > 1 ? "Ch:" : "Channel:";
 			$(`#modSettingText${mod}`).get(0)!.style.display = "";
 			(refs.modSetBoxes[mod].parentElement as HTMLDivElement).style.display = "";
 
@@ -705,7 +743,10 @@ export function renderModSettings(doc: SongDocument, colors: ChannelColors, pref
 				if (instrument.modFilterTypes[mod] === 0) {
 					useName = "morph";
 				}
-				refs.modFilterBoxes[mod].insertBefore(option({ value: useName, style: "color: red;" }, useName), refs.modFilterBoxes[mod].children[0]);
+				refs.modFilterBoxes[mod].insertBefore(
+					option({ value: useName, style: "color: red;" }, useName),
+					refs.modFilterBoxes[mod].children[0],
+				);
 				refs.modFilterBoxes[mod].selectedIndex = 0;
 			} else {
 				refs.modFilterBoxes[mod].classList.remove("invalidSetting");
@@ -749,7 +790,10 @@ export function renderModSettings(doc: SongDocument, colors: ChannelColors, pref
 				refs.modEnvelopeBoxes[mod].classList.add("invalidSetting");
 				instrument.invalidModulators[mod] = true;
 				const useName: string = `envelope ${instrument.modEnvelopeNumbers[mod]}`;
-				refs.modEnvelopeBoxes[mod].insertBefore(option({ value: useName, style: "color: red;" }, useName), refs.modEnvelopeBoxes[mod].children[0]);
+				refs.modEnvelopeBoxes[mod].insertBefore(
+					option({ value: useName, style: "color: red;" }, useName),
+					refs.modEnvelopeBoxes[mod].children[0],
+				);
 				refs.modEnvelopeBoxes[mod].selectedIndex = 0;
 			} else {
 				refs.modEnvelopeBoxes[mod].classList.remove("invalidSetting");
@@ -782,7 +826,10 @@ export function renderModSettings(doc: SongDocument, colors: ChannelColors, pref
 	refs.instrumentVolumeSliderRow.style.display = "none";
 	refs.instrumentTypeSelectRow.style.setProperty("display", "none");
 
-	refs.instrumentSettingsGroup.style.color = ColorConfig.getChannelColor(doc.song, doc.channel).primaryNote;
+	refs.instrumentSettingsGroup.style.color = ColorConfig.getChannelColor(
+		doc.song,
+		doc.channel,
+	).primaryNote;
 
 	// Force piano to re-show, if channel is modulator
 	if (doc.channel >= doc.song.pitchChannelCount + doc.song.noiseChannelCount) {

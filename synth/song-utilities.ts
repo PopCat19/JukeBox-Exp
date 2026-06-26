@@ -62,9 +62,15 @@ export function isProperUrl(string: string): boolean {
 }
 
 export function restoreChipWaveListToDefault(): void {
-	Config.chipWaves = toNameMap(Config.chipWaves.slice(0, Config.firstIndexForSamplesInChipWaveList));
-	Config.rawChipWaves = toNameMap(Config.rawChipWaves.slice(0, Config.firstIndexForSamplesInChipWaveList));
-	Config.rawRawChipWaves = toNameMap(Config.rawRawChipWaves.slice(0, Config.firstIndexForSamplesInChipWaveList));
+	Config.chipWaves = toNameMap(
+		Config.chipWaves.slice(0, Config.firstIndexForSamplesInChipWaveList),
+	);
+	Config.rawChipWaves = toNameMap(
+		Config.rawChipWaves.slice(0, Config.firstIndexForSamplesInChipWaveList),
+	);
+	Config.rawRawChipWaves = toNameMap(
+		Config.rawRawChipWaves.slice(0, Config.firstIndexForSamplesInChipWaveList),
+	);
 }
 
 export function clearSamples(handler: CustomSampleHandler | null): void {
@@ -76,7 +82,9 @@ export function clearSamples(handler: CustomSampleHandler | null): void {
 	sampleLoadingState.urlTable = {};
 	sampleLoadingState.totalSamples = 0;
 	sampleLoadingState.samplesLoaded = 0;
-	sampleLoadEvents.dispatchEvent(new SampleLoadedEvent(sampleLoadingState.totalSamples, sampleLoadingState.samplesLoaded));
+	sampleLoadEvents.dispatchEvent(
+		new SampleLoadedEvent(sampleLoadingState.totalSamples, sampleLoadingState.samplesLoaded),
+	);
 }
 
 // @TODO: Share more of this code with AddSamplesPrompt.
@@ -115,12 +123,18 @@ export function parseAndConfigureCustomSample(
 	if (optionsStartIndex === 0) {
 		optionsEndIndex = url.indexOf("!", optionsStartIndex + 1);
 		if (optionsEndIndex !== -1) {
-			const rawOptions: string[] = url.slice(optionsStartIndex + 1, optionsEndIndex).split(",");
+			const rawOptions: string[] = url
+				.slice(optionsStartIndex + 1, optionsEndIndex)
+				.split(",");
 			for (const rawOption of rawOptions) {
 				const optionCode: string = rawOption.charAt(0);
 				const optionData: string = rawOption.slice(1, rawOption.length);
 				if (optionCode === "s") {
-					customSampleRate = clamp(Config.minSampleRate, Config.maxSampleRate + 1, parseFloatWithDefault(optionData, Config.defaultSampleRate));
+					customSampleRate = clamp(
+						Config.minSampleRate,
+						Config.maxSampleRate + 1,
+						parseFloatWithDefault(optionData, Config.defaultSampleRate),
+					);
 				} else if (optionCode === "r") {
 					customRootKey = parseFloatWithDefault(optionData, 60);
 				} else if (optionCode === "p") {
@@ -192,7 +206,10 @@ export function parseAndConfigureCustomSample(
 				customSampleRate = clamp(
 					Config.minSampleRate,
 					Config.maxSampleRate + 1,
-					parseFloatWithDefault(url.slice(url.indexOf(",") + 1), Config.defaultSampleRate),
+					parseFloatWithDefault(
+						url.slice(url.indexOf(",") + 1),
+						Config.defaultSampleRate,
+					),
 				);
 				// should this be parseFloat or parseInt?
 				// ig floats let you do decimals and such, but idk where that would be useful
@@ -231,13 +248,15 @@ export function parseAndConfigureCustomSample(
 		// Store in the new format.
 		let urlWithNamedOptions = urlSliced;
 		const namedOptions: string[] = [];
-		if (customSampleRate !== Config.defaultSampleRate) namedOptions.push(`s${customSampleRate}`);
+		if (customSampleRate !== Config.defaultSampleRate)
+			namedOptions.push(`s${customSampleRate}`);
 		if (customRootKey !== 60) namedOptions.push(`r${customRootKey}`);
 		if (isCustomPercussive) namedOptions.push("p");
 		if (presetIsUsingAdvancedLoopControls) {
 			if (presetChipWaveLoopStart != null) namedOptions.push(`a${presetChipWaveLoopStart}`);
 			if (presetChipWaveLoopEnd != null) namedOptions.push(`b${presetChipWaveLoopEnd}`);
-			if (presetChipWaveStartOffset != null) namedOptions.push(`c${presetChipWaveStartOffset}`);
+			if (presetChipWaveStartOffset != null)
+				namedOptions.push(`c${presetChipWaveStartOffset}`);
 			if (presetChipWaveLoopMode != null) namedOptions.push(`d${presetChipWaveLoopMode}`);
 			if (presetChipWavePlayBackwards) namedOptions.push("e");
 		}
@@ -309,11 +328,15 @@ export function parseAndConfigureCustomSample(
 		};
 		if (presetIsUsingAdvancedLoopControls) {
 			customSamplePresetSettings.isUsingAdvancedLoopControls = true;
-			customSamplePresetSettings.chipWaveLoopStart = presetChipWaveLoopStart != null ? presetChipWaveLoopStart : 0;
-			customSamplePresetSettings.chipWaveLoopEnd = presetChipWaveLoopEnd != null ? presetChipWaveLoopEnd : 2;
-			customSamplePresetSettings.chipWaveLoopMode = presetChipWaveLoopMode != null ? presetChipWaveLoopMode : 0;
+			customSamplePresetSettings.chipWaveLoopStart =
+				presetChipWaveLoopStart != null ? presetChipWaveLoopStart : 0;
+			customSamplePresetSettings.chipWaveLoopEnd =
+				presetChipWaveLoopEnd != null ? presetChipWaveLoopEnd : 2;
+			customSamplePresetSettings.chipWaveLoopMode =
+				presetChipWaveLoopMode != null ? presetChipWaveLoopMode : 0;
 			customSamplePresetSettings.chipWavePlayBackwards = presetChipWavePlayBackwards;
-			customSamplePresetSettings.chipWaveStartOffset = presetChipWaveStartOffset != null ? presetChipWaveStartOffset : 0;
+			customSamplePresetSettings.chipWaveStartOffset =
+				presetChipWaveStartOffset != null ? presetChipWaveStartOffset : 0;
 		}
 		const customSamplePreset: PresetLike = {
 			index: 0, // Overwritten by toNameMap in the caller.
@@ -331,7 +354,13 @@ export function parseAndConfigureCustomSample(
 				chipWavePlayBackwards: presetChipWavePlayBackwards,
 				chipWaveStartOffset: presetChipWaveStartOffset,
 			};
-			startLoadingSample(urlSliced, chipWaveIndex, customSamplePresetSettings, rawLoopOptions, customSampleRate);
+			startLoadingSample(
+				urlSliced,
+				chipWaveIndex,
+				customSamplePresetSettings,
+				rawLoopOptions,
+				customSampleRate,
+			);
 		}
 		loadingState.statusTable[chipWaveIndex] = SampleLoadingStatus.loading;
 		loadingState.urlTable[chipWaveIndex] = urlSliced;

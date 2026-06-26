@@ -15,7 +15,11 @@ export interface ButtonOptions {
 	type?: string | undefined;
 }
 
-export function createButton(baseStyle: string, options?: ButtonOptions, ...children: (HTMLElement | string)[]): HTMLButtonElement {
+export function createButton(
+	baseStyle: string,
+	options?: ButtonOptions,
+	...children: (HTMLElement | string)[]
+): HTMLButtonElement {
 	const style = options?.style ? `${baseStyle} ${options.style}` : baseStyle;
 
 	const attrs: Record<string, string> = { style };

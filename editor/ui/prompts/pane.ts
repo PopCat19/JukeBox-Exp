@@ -30,10 +30,17 @@ export function pane(options?: PaneOptions, ...children: (HTMLElement | string)[
 	return createDiv(style, undefined, ...children);
 }
 
-export function fixedPane(width: string, options?: Omit<PaneOptions, "width" | "flex">, ...children: (HTMLElement | string)[]): HTMLDivElement {
+export function fixedPane(
+	width: string,
+	options?: Omit<PaneOptions, "width" | "flex">,
+	...children: (HTMLElement | string)[]
+): HTMLDivElement {
 	return pane({ ...options, width }, ...children);
 }
 
-export function flexPane(options?: PaneOptions, ...children: (HTMLElement | string)[]): HTMLDivElement {
+export function flexPane(
+	options?: PaneOptions,
+	...children: (HTMLElement | string)[]
+): HTMLDivElement {
 	return pane(options, ...children);
 }

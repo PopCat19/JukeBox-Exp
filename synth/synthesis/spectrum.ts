@@ -8,7 +8,8 @@
 import { Config } from "../synth-config";
 
 export function buildSpectrumSource(voiceCount: number): string {
-	let spectrumSource: string = "return (synth, bufferIndex, runLength, tone, instrumentState) => {";
+	let spectrumSource: string =
+		"return (synth, bufferIndex, runLength, tone, instrumentState) => {";
 
 	spectrumSource += `
         const data = synth.tempMonoInstrumentSampleBuffer;
@@ -42,7 +43,8 @@ export function buildSpectrumSource(voiceCount: number): string {
         const phaseMask = Config.spectrumNoiseLength - 1;
         `;
 	for (let i: number = 0; i < voiceCount; i++) {
-		spectrumSource += `let phase# = (tone.phases[#] - (tone.phases[#] | 0)) * Config.spectrumNoiseLength;
+		spectrumSource +=
+			`let phase# = (tone.phases[#] - (tone.phases[#] | 0)) * Config.spectrumNoiseLength;
                 `.replaceAll("#", `${i}`);
 	}
 	spectrumSource += `

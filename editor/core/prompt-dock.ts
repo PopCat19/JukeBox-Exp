@@ -42,7 +42,10 @@ export class PromptDock {
 	private readonly _dividerEls: Map<DockSide, HTMLDivElement> = new Map();
 	private readonly _slotDividerEls: Map<DockSide, HTMLDivElement[]> = new Map();
 	private readonly _widths: Map<DockSide, number> = new Map();
-	private readonly _savedPositions: Map<Prompt, { x: number; y: number; styles: Record<string, string> }> = new Map();
+	private readonly _savedPositions: Map<
+		Prompt,
+		{ x: number; y: number; styles: Record<string, string> }
+	> = new Map();
 
 	constructor(host: PromptDockHost) {
 		this._editor = host.editor;
@@ -79,7 +82,8 @@ export class PromptDock {
 		const promptLeftVp = r.left + promptX;
 		const promptRightVp = promptLeftVp + promptWidth;
 		if (promptLeftVp <= r.left + SNAP_THRESHOLD || pointerX <= SNAP_THRESHOLD) return "left";
-		if (promptRightVp >= r.right - SNAP_THRESHOLD || pointerX >= vw - SNAP_THRESHOLD) return "right";
+		if (promptRightVp >= r.right - SNAP_THRESHOLD || pointerX >= vw - SNAP_THRESHOLD)
+			return "right";
 		return null;
 	}
 
@@ -221,7 +225,19 @@ export class PromptDock {
 	}
 
 	private _snapshotStyles(c: HTMLElement): Record<string, string> {
-		const props = ["margin", "border-radius", "transform", "width", "max-width", "height", "max-height", "top", "bottom", "left", "right"];
+		const props = [
+			"margin",
+			"border-radius",
+			"transform",
+			"width",
+			"max-width",
+			"height",
+			"max-height",
+			"top",
+			"bottom",
+			"left",
+			"right",
+		];
 		const out: Record<string, string> = {};
 		for (const p of props) out[p] = c.style.getPropertyValue(p);
 		return out;
@@ -293,7 +309,13 @@ export class PromptDock {
 		this._slotDividerEls.set(side, newSlotDivs);
 	}
 
-	private _pinPrompt(prompt: Prompt, leftPx: number, topPx: number, width: number, height: number): void {
+	private _pinPrompt(
+		prompt: Prompt,
+		leftPx: number,
+		topPx: number,
+		width: number,
+		height: number,
+	): void {
 		const c = prompt.container;
 		const fillY = c.classList.contains("fill-y");
 		const fillX = c.classList.contains("fill-x");
@@ -373,8 +395,14 @@ export class PromptDock {
 	}
 
 	private _applyEditorPadding(): void {
-		const leftOverlap = this._docked.has("left") && (this._docked.get("left") as SlotEntry[]).length > 0 ? this._overlap("left", this._widths.get("left") as number) : 0;
-		const rightOverlap = this._docked.has("right") && (this._docked.get("right") as SlotEntry[]).length > 0 ? this._overlap("right", this._widths.get("right") as number) : 0;
+		const leftOverlap =
+			this._docked.has("left") && (this._docked.get("left") as SlotEntry[]).length > 0
+				? this._overlap("left", this._widths.get("left") as number)
+				: 0;
+		const rightOverlap =
+			this._docked.has("right") && (this._docked.get("right") as SlotEntry[]).length > 0
+				? this._overlap("right", this._widths.get("right") as number)
+				: 0;
 		this._editor.style.paddingLeft = leftOverlap ? `${leftOverlap}px` : "";
 		this._editor.style.paddingRight = rightOverlap ? `${rightOverlap}px` : "";
 	}
@@ -393,7 +421,7 @@ export class PromptDock {
 			const startX = e.clientX;
 			const startWidth = this._widths.get(side) ?? DEFAULT_WIDTH;
 			const onMove = (me: MouseEvent): void => {
-				if (!(this._docked.get(side)?.length)) return;
+				if (!this._docked.get(side)?.length) return;
 				const delta = side === "left" ? me.clientX - startX : startX - me.clientX;
 				const maxW = this._maxWidth();
 				const w = Math.max(MIN_WIDTH, Math.min(maxW, startWidth + delta));

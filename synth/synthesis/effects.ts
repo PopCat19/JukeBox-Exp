@@ -21,7 +21,8 @@ export function buildEffectsSource(
 	usesPhaser: boolean,
 	usesInvertWave: boolean,
 ): string {
-	let effectsSource: string = "return (synth, outputDataL, outputDataR, bufferIndex, runLength, instrumentState) => {";
+	let effectsSource: string =
+		"return (synth, outputDataL, outputDataR, bufferIndex, runLength, instrumentState) => {";
 
 	const usesDelays: boolean = usesChorus || usesReverb || usesEcho || usesGranular;
 

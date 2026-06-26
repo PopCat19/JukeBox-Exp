@@ -31,8 +31,14 @@ export class DrumsetSetup {
 		host.drumsetGroup.appendChild(
 			div(
 				{ class: "selectRow" },
-				span({ class: "tip", onclick: () => host.openPrompt("drumsetEnvelope") }, "Envelope:"),
-				span({ class: "tip", onclick: () => host.openPrompt("drumsetSpectrum") }, "Spectrum:"),
+				span(
+					{ class: "tip", onclick: () => host.openPrompt("drumsetEnvelope") },
+					"Envelope:",
+				),
+				span(
+					{ class: "tip", onclick: () => host.openPrompt("drumsetSpectrum") },
+					"Spectrum:",
+				),
 				host.drumsetZoom,
 			),
 		);
@@ -48,12 +54,17 @@ export class DrumsetSetup {
 			);
 			host.drumsetEnvelopeSelects[i] = envelopeSelect;
 			envelopeSelect.addEventListener("change", () => {
-				host.doc.record(new ChangeDrumsetEnvelope(host.doc, drumIndex, envelopeSelect.selectedIndex));
+				host.doc.record(
+					new ChangeDrumsetEnvelope(host.doc, drumIndex, envelopeSelect.selectedIndex),
+				);
 			});
 
 			const row: HTMLDivElement = div(
 				{ class: "selectRow" },
-				div({ class: "selectContainer", style: "width: 5em; margin-right: .3em;" }, envelopeSelect),
+				div(
+					{ class: "selectContainer", style: "width: 5em; margin-right: .3em;" },
+					envelopeSelect,
+				),
 				host.drumsetSpectrumEditors[i].container,
 			);
 			host.drumsetGroup.appendChild(row);

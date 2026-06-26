@@ -162,7 +162,10 @@ export class PlayerControls {
 				setLocalStorage("playerId", this.id);
 				this.animate();
 				clearInterval(this.pauseIfAnotherPlayerStartsHandle!);
-				this.pauseIfAnotherPlayerStartsHandle = setInterval(() => this.pauseIfAnotherPlayerStarts(), 100);
+				this.pauseIfAnotherPlayerStartsHandle = setInterval(
+					() => this.pauseIfAnotherPlayerStarts(),
+					100,
+				);
 			}
 		}
 		this.renderPlayButton();
@@ -211,7 +214,9 @@ export class PlayerControls {
 	private onTimelineCursorMove(mouseX: number): void {
 		if (this.draggingPlayhead && this.ui.synth.song != null) {
 			const boundingRect: ClientRect = this.ui.visualizationContainer.getBoundingClientRect();
-			this.ui.synth.playhead = (this.ui.synth.song.barCount * (mouseX - boundingRect.left)) / (boundingRect.right - boundingRect.left);
+			this.ui.synth.playhead =
+				(this.ui.synth.song.barCount * (mouseX - boundingRect.left)) /
+				(boundingRect.right - boundingRect.left);
 			this.ui.synth.computeLatestModValues();
 			this.renderPlayhead();
 		}
@@ -223,7 +228,8 @@ export class PlayerControls {
 
 	private setSynthVolume(): void {
 		const volume: number = +this.ui.volumeSlider.value;
-		this.ui.synth.volume = Math.min(1.0, (volume / 50.0) ** 0.5) * 2.0 ** ((volume - 75.0) / 25.0);
+		this.ui.synth.volume =
+			Math.min(1.0, (volume / 50.0) ** 0.5) * 2.0 ** ((volume - 75.0) / 25.0);
 	}
 
 	public renderPlayhead(): void {
@@ -250,22 +256,36 @@ export class PlayerControls {
 	}
 
 	private renderLoopIcon(): void {
-		this.ui.loopIcon.setAttribute("fill", this.ui.synth.loopRepeatCount === -1 ? ColorConfig.linkAccent : ColorConfig.uiWidgetBackground);
+		this.ui.loopIcon.setAttribute(
+			"fill",
+			this.ui.synth.loopRepeatCount === -1
+				? ColorConfig.linkAccent
+				: ColorConfig.uiWidgetBackground,
+		);
 	}
 
 	private renderZoomIcon(): void {
-		this.ui.zoomIcon.style.color = this.zoomEnabled ? ColorConfig.linkAccent : ColorConfig.uiWidgetBackground;
+		this.ui.zoomIcon.style.color = this.zoomEnabled
+			? ColorConfig.linkAccent
+			: ColorConfig.uiWidgetBackground;
 	}
 
 	public shortenUrl() {
 		this.hashUpdatedExternally();
 		let shortenerStrategy: string = "https://tinyurl.com/api-create.php?url=";
-		const localShortenerStrategy: string | null = window.localStorage.getItem("shortenerStrategySelect");
+		const localShortenerStrategy: string | null =
+			window.localStorage.getItem("shortenerStrategySelect");
 
 		// if (localShortenerStrategy == "beepboxnet") shortenerStrategy = "https://www.beepbox.net/api-create.php?url=";
-		if (localShortenerStrategy === "isgd") shortenerStrategy = "https://is.gd/create.php?format=simple&url=";
+		if (localShortenerStrategy === "isgd")
+			shortenerStrategy = "https://is.gd/create.php?format=simple&url=";
 
-		window.open(shortenerStrategy + encodeURIComponent(new URL(`#${this.ui.synth.song!.toBase64String()}`, location.href).href));
+		window.open(
+			shortenerStrategy +
+				encodeURIComponent(
+					new URL(`#${this.ui.synth.song!.toBase64String()}`, location.href).href,
+				),
+		);
 	}
 
 	public onCopyClicked(): void {
@@ -293,13 +313,15 @@ export class PlayerControls {
 	}
 
 	private updateSampleLoadingBar(e: SampleLoadedEvent): void {
-		const percent: number = e.totalSamples === 0 ? 0 : Math.floor((e.samplesLoaded / e.totalSamples) * 100);
+		const percent: number =
+			e.totalSamples === 0 ? 0 : Math.floor((e.samplesLoaded / e.totalSamples) * 100);
 		this.ui.sampleLoadingBarContainer.title = `Total Samples: ${String(e.totalSamples)}; Loaded Samples: ${String(e.samplesLoaded)}; `;
 		this.ui.sampleLoadingBar.style.width = `${percent}%`;
 		if (e.totalSamples !== 0) {
 			this.ui.sampleLoadingBarContainer.style.backgroundColor = "var(--indicator-secondary)";
 		} else {
-			this.ui.sampleLoadingBarContainer.style.backgroundColor = "var(--empty-sample-bar, var(--indicator-secondary))";
+			this.ui.sampleLoadingBarContainer.style.backgroundColor =
+				"var(--empty-sample-bar, var(--indicator-secondary))";
 		}
 	}
 
@@ -346,7 +368,9 @@ export class PlayerControls {
 			this.onShareClicked();
 		});
 		window.addEventListener("hashchange", () => this.hashUpdatedExternally());
-		sampleLoadEvents.addEventListener("sampleloaded", (e) => this.updateSampleLoadingBar(e as SampleLoadedEvent));
+		sampleLoadEvents.addEventListener("sampleloaded", (e) =>
+			this.updateSampleLoadingBar(e as SampleLoadedEvent),
+		);
 
 		this.hashUpdatedExternally();
 		this.renderLoopIcon();

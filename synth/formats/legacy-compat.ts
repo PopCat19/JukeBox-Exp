@@ -8,8 +8,8 @@
 // - Converts newEnvelopes names to legacy envelopes names for downstream compat
 // - Targets JukeBox format at current stable version for downstream compat
 
-import { fromJsonObjectImpl } from "./json-serialization";
 import type { SongLike } from "../song-serialization";
+import { fromJsonObjectImpl } from "./json-serialization";
 import type { JukeboxExpObject, LegacyCompatObject } from "./schema-types";
 
 // Target version must stay in sync with LATEST_JUKEBOX_VERSION in song-serialization.ts.

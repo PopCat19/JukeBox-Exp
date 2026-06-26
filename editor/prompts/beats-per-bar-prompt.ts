@@ -14,7 +14,14 @@ import { HTML } from "imperative-html/dist/esm/elements-strict";
 import { Config } from "../../synth/synth-config";
 import { ChangeBeatsPerBar } from "../changes";
 import { SongDocument } from "../song-document";
-import { addWheelSupport, promptHint, promptLabel, promptRowBetween, promptValue, selectField } from "../ui";
+import {
+	addWheelSupport,
+	promptHint,
+	promptLabel,
+	promptRowBetween,
+	promptValue,
+	selectField,
+} from "../ui";
 import { BasePrompt } from "./base-prompt";
 import { ExportPrompt } from "./export-prompt";
 import { validate, validateKey, validateNumber } from "./input-helpers";
@@ -63,12 +70,17 @@ export class BeatsPerBarPrompt extends BasePrompt {
 		this._beatsStepper.addEventListener("keypress", validateKey);
 		this._beatsStepper.addEventListener("blur", validateNumber);
 		this._beatsStepper.addEventListener("input", () => {
-			(this._computedSamplesLabel.firstChild as Text).textContent = this._predictFutureLength();
+			(this._computedSamplesLabel.firstChild as Text).textContent =
+				this._predictFutureLength();
 		});
 		this._conversionStrategySelect.addEventListener("change", () => {
-			(this._computedSamplesLabel.firstChild as Text).textContent = this._predictFutureLength();
+			(this._computedSamplesLabel.firstChild as Text).textContent =
+				this._predictFutureLength();
 		});
-		(this._computedSamplesLabel.firstChild as Text).textContent = ExportPrompt.samplesToTime(this._doc, this._doc.synth.getTotalSamples(true, true, 0));
+		(this._computedSamplesLabel.firstChild as Text).textContent = ExportPrompt.samplesToTime(
+			this._doc,
+			this._doc.synth.getTotalSamples(true, true, 0),
+		);
 		addWheelSupport(this._beatsStepper);
 	}
 
@@ -80,14 +92,29 @@ export class BeatsPerBarPrompt extends BasePrompt {
 
 	private _predictFutureLength(): string {
 		const futureDoc: SongDocument = new SongDocument();
-		futureDoc.synth.song?.fromBase64String(this._doc.synth.song?.toBase64String() ? this._doc.synth.song?.toBase64String() : "");
-		new ChangeBeatsPerBar(futureDoc, validate(this._beatsStepper), this._conversionStrategySelect.value);
-		return ExportPrompt.samplesToTime(futureDoc, futureDoc.synth.getTotalSamples(true, true, 0));
+		futureDoc.synth.song?.fromBase64String(
+			this._doc.synth.song?.toBase64String() ? this._doc.synth.song?.toBase64String() : "",
+		);
+		new ChangeBeatsPerBar(
+			futureDoc,
+			validate(this._beatsStepper),
+			this._conversionStrategySelect.value,
+		);
+		return ExportPrompt.samplesToTime(
+			futureDoc,
+			futureDoc.synth.getTotalSamples(true, true, 0),
+		);
 	}
 
 	protected override _saveChanges = (): void => {
 		window.localStorage.setItem("beatCountStrategy", this._conversionStrategySelect.value);
 		this._doc.prompt = null;
-		this._doc.record(new ChangeBeatsPerBar(this._doc, validate(this._beatsStepper), this._conversionStrategySelect.value));
+		this._doc.record(
+			new ChangeBeatsPerBar(
+				this._doc,
+				validate(this._beatsStepper),
+				this._conversionStrategySelect.value,
+			),
+		);
 	};
 }

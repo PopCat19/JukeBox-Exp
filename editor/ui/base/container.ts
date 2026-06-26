@@ -31,10 +31,18 @@ export function createContainer(
 	return HTML.span(attrs, ...children);
 }
 
-export function createDiv(baseStyle: string, options?: ContainerOptions, ...children: (HTMLElement | string)[]): HTMLDivElement {
+export function createDiv(
+	baseStyle: string,
+	options?: ContainerOptions,
+	...children: (HTMLElement | string)[]
+): HTMLDivElement {
 	return createContainer("div", baseStyle, options, ...children) as HTMLDivElement;
 }
 
-export function createSpan(baseStyle: string, options?: ContainerOptions, ...children: (HTMLElement | string)[]): HTMLSpanElement {
+export function createSpan(
+	baseStyle: string,
+	options?: ContainerOptions,
+	...children: (HTMLElement | string)[]
+): HTMLSpanElement {
 	return createContainer("span", baseStyle, options, ...children) as HTMLSpanElement;
 }

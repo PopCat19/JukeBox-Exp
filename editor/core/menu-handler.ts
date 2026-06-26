@@ -27,7 +27,12 @@ export class MenuHandler {
 	private readonly _editMenu: HTMLSelectElement;
 	private readonly _optionsMenu: HTMLSelectElement;
 
-	constructor(host: MenuHandlerHost, fileMenu: HTMLSelectElement, editMenu: HTMLSelectElement, optionsMenu: HTMLSelectElement) {
+	constructor(
+		host: MenuHandlerHost,
+		fileMenu: HTMLSelectElement,
+		editMenu: HTMLSelectElement,
+		optionsMenu: HTMLSelectElement,
+	) {
 		this._host = host;
 		this._fileMenu = fileMenu;
 		this._editMenu = editMenu;
@@ -60,18 +65,29 @@ export class MenuHandler {
 				this._host.openPrompt("import");
 				break;
 			case "copyUrl":
-				this._host.copyTextToClipboard(new URL(`#${this._host.doc.song.toBase64String()}`, location.href).href);
+				this._host.copyTextToClipboard(
+					new URL(`#${this._host.doc.song.toBase64String()}`, location.href).href,
+				);
 				break;
 			case "shareUrl":
-				(<any>navigator).share({ url: new URL(`#${this._host.doc.song.toBase64String()}`, location.href).href });
+				(<any>navigator).share({
+					url: new URL(`#${this._host.doc.song.toBase64String()}`, location.href).href,
+				});
 				break;
 			case "shortenUrl": {
 				let shortenerStrategy: string = "https://tinyurl.com/api-create.php?url=";
-				const localShortenerStrategy: string | null = window.localStorage.getItem("shortenerStrategySelect");
+				const localShortenerStrategy: string | null =
+					window.localStorage.getItem("shortenerStrategySelect");
 
-				if (localShortenerStrategy === "isgd") shortenerStrategy = "https://is.gd/create.php?format=simple&url=";
+				if (localShortenerStrategy === "isgd")
+					shortenerStrategy = "https://is.gd/create.php?format=simple&url=";
 
-				window.open(shortenerStrategy + encodeURIComponent(new URL(`#${this._host.doc.song.toBase64String()}`, location.href).href));
+				window.open(
+					shortenerStrategy +
+						encodeURIComponent(
+							new URL(`#${this._host.doc.song.toBase64String()}`, location.href).href,
+						),
+				);
 				break;
 			}
 			case "configureShortener":
@@ -83,7 +99,10 @@ export class MenuHandler {
 			case "copyEmbed":
 				this._host.copyTextToClipboard(
 					`<iframe width="384" height="60" style="border: none;" src="${
-						new URL(`player/#song=${this._host.doc.song.toBase64String()}`, location.href).href
+						new URL(
+							`player/#song=${this._host.doc.song.toBase64String()}`,
+							location.href,
+						).href
 					}"></iframe>`,
 				);
 				break;
@@ -218,7 +237,8 @@ export class MenuHandler {
 				this._host.doc.prefs.alwaysFineNoteVol = !this._host.doc.prefs.alwaysFineNoteVol;
 				break;
 			case "enableChannelMuting":
-				this._host.doc.prefs.enableChannelMuting = !this._host.doc.prefs.enableChannelMuting;
+				this._host.doc.prefs.enableChannelMuting =
+					!this._host.doc.prefs.enableChannelMuting;
 				for (const channel of this._host.doc.song.channels) channel.muted = false;
 				break;
 			case "displayBrowserUrl":
@@ -228,7 +248,8 @@ export class MenuHandler {
 				this._host.doc.prefs.displayVolumeBar = !this._host.doc.prefs.displayVolumeBar;
 				break;
 			case "notesFlashWhenPlayed":
-				this._host.doc.prefs.notesFlashWhenPlayed = !this._host.doc.prefs.notesFlashWhenPlayed;
+				this._host.doc.prefs.notesFlashWhenPlayed =
+					!this._host.doc.prefs.notesFlashWhenPlayed;
 				break;
 			case "layout":
 				this._host.openPrompt("layout");
@@ -246,31 +267,39 @@ export class MenuHandler {
 				this._host.doc.prefs.showSpectrum = !this._host.doc.prefs.showSpectrum;
 				break;
 			case "showSpectrumOverlay":
-				this._host.doc.prefs.showSpectrumOverlay = !this._host.doc.prefs.showSpectrumOverlay;
+				this._host.doc.prefs.showSpectrumOverlay =
+					!this._host.doc.prefs.showSpectrumOverlay;
 				break;
 			case "showSpectrumParticles":
-				this._host.doc.prefs.showSpectrumParticles = !this._host.doc.prefs.showSpectrumParticles;
+				this._host.doc.prefs.showSpectrumParticles =
+					!this._host.doc.prefs.showSpectrumParticles;
 				break;
 			case "showDescription":
 				this._host.doc.prefs.showDescription = !this._host.doc.prefs.showDescription;
 				break;
 			case "showInstrumentScrollbars":
-				this._host.doc.prefs.showInstrumentScrollbars = !this._host.doc.prefs.showInstrumentScrollbars;
+				this._host.doc.prefs.showInstrumentScrollbars =
+					!this._host.doc.prefs.showInstrumentScrollbars;
 				break;
 			case "showSampleLoadingStatus":
-				this._host.doc.prefs.showSampleLoadingStatus = !this._host.doc.prefs.showSampleLoadingStatus;
+				this._host.doc.prefs.showSampleLoadingStatus =
+					!this._host.doc.prefs.showSampleLoadingStatus;
 				break;
 			case "closePromptByClickoff":
-				this._host.doc.prefs.closePromptByClickoff = !this._host.doc.prefs.closePromptByClickoff;
+				this._host.doc.prefs.closePromptByClickoff =
+					!this._host.doc.prefs.closePromptByClickoff;
 				break;
 			case "instrumentCopyPaste":
-				this._host.doc.prefs.instrumentCopyPaste = !this._host.doc.prefs.instrumentCopyPaste;
+				this._host.doc.prefs.instrumentCopyPaste =
+					!this._host.doc.prefs.instrumentCopyPaste;
 				break;
 			case "instrumentImportExport":
-				this._host.doc.prefs.instrumentImportExport = !this._host.doc.prefs.instrumentImportExport;
+				this._host.doc.prefs.instrumentImportExport =
+					!this._host.doc.prefs.instrumentImportExport;
 				break;
 			case "instrumentButtonsAtTop":
-				this._host.doc.prefs.instrumentButtonsAtTop = !this._host.doc.prefs.instrumentButtonsAtTop;
+				this._host.doc.prefs.instrumentButtonsAtTop =
+					!this._host.doc.prefs.instrumentButtonsAtTop;
 				break;
 			case "showPromptBackdrop":
 				this._host.doc.prefs.showPromptBackdrop = !this._host.doc.prefs.showPromptBackdrop;
@@ -286,7 +315,8 @@ export class MenuHandler {
 				this._host.doc.prefs.enableScrollStep = !this._host.doc.prefs.enableScrollStep;
 				break;
 			case "doubleClickSliderReset":
-				this._host.doc.prefs.doubleClickSliderReset = !this._host.doc.prefs.doubleClickSliderReset;
+				this._host.doc.prefs.doubleClickSliderReset =
+					!this._host.doc.prefs.doubleClickSliderReset;
 				break;
 			case "debugPrompts":
 				this._host.doc.prefs.debugPrompts = !this._host.doc.prefs.debugPrompts;

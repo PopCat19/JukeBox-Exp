@@ -108,7 +108,11 @@ function findSvgChildAtPoint(x: number, y: number, svg: SVGSVGElement): Element 
 				if (x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom) {
 					const area = rect.width * rect.height;
 					const isContainer = CONTAINER_TAGS.includes(el.tagName.toLowerCase());
-					if (!best || (isContainer && !bestIsContainer) || (isContainer === bestIsContainer && area < bestArea)) {
+					if (
+						!best ||
+						(isContainer && !bestIsContainer) ||
+						(isContainer === bestIsContainer && area < bestArea)
+					) {
 						best = el;
 						bestArea = area;
 						bestIsContainer = isContainer;
@@ -150,7 +154,11 @@ function deepestElementAtPoint(x: number, y: number): Element | null {
 			const child = findSvgChildAtPoint(x, y, el);
 			if (child && child !== el) return child;
 			for (let j = i + 1; j < filtered.length; j++) {
-				if (!(filtered[j] instanceof SVGElement) && filtered[j] !== document.body && filtered[j] !== document.documentElement) {
+				if (
+					!(filtered[j] instanceof SVGElement) &&
+					filtered[j] !== document.body &&
+					filtered[j] !== document.documentElement
+				) {
 					return filtered[j];
 				}
 			}
@@ -213,7 +221,8 @@ function elementId(el: Element): string {
 	const classList = Array.from(el.classList);
 	const semanticClasses = classList.filter((c) => {
 		if (/^hsl\(|^\d+$/.test(c)) return false;
-		if (["no-underline", "active", "selected", "last-button", "midTick"].includes(c)) return false;
+		if (["no-underline", "active", "selected", "last-button", "midTick"].includes(c))
+			return false;
 		return c.length > 2;
 	});
 
@@ -277,7 +286,8 @@ function addStrip(
 			fontWeight: "700",
 			fontFamily: "monospace",
 			color: color,
-			textShadow: "-1px -1px 0 rgba(0,0,0,0.9), 1px -1px 0 rgba(0,0,0,0.9), -1px 1px 0 rgba(0,0,0,0.9), 1px 1px 0 rgba(0,0,0,0.9)",
+			textShadow:
+				"-1px -1px 0 rgba(0,0,0,0.9), 1px -1px 0 rgba(0,0,0,0.9), -1px 1px 0 rgba(0,0,0,0.9), 1px 1px 0 rgba(0,0,0,0.9)",
 			whiteSpace: "nowrap",
 			lineHeight: "1",
 		});
@@ -302,16 +312,88 @@ function showBoxModel(el: Element, cs: CSSStyleDeclaration): void {
 	const pb = parseFloat(cs.paddingBottom) || 0;
 	const pl = parseFloat(cs.paddingLeft) || 0;
 
-	if (mt) addStrip(document.body, rect.top - mt, rect.left - ml, rect.width + ml + mr, mt, COLORS.margin, `↑${mt.toFixed(0)}`);
-	if (mb) addStrip(document.body, rect.bottom, rect.left - ml, rect.width + ml + mr, mb, COLORS.margin, `↓${mb.toFixed(0)}`);
-	if (ml) addStrip(document.body, rect.top - mt, rect.left - ml, ml, rect.height + mt + mb, COLORS.margin, `←${ml.toFixed(0)}`);
-	if (mr) addStrip(document.body, rect.top - mt, rect.right, mr, rect.height + mt + mb, COLORS.margin, `→${mr.toFixed(0)}`);
+	if (mt)
+		addStrip(
+			document.body,
+			rect.top - mt,
+			rect.left - ml,
+			rect.width + ml + mr,
+			mt,
+			COLORS.margin,
+			`↑${mt.toFixed(0)}`,
+		);
+	if (mb)
+		addStrip(
+			document.body,
+			rect.bottom,
+			rect.left - ml,
+			rect.width + ml + mr,
+			mb,
+			COLORS.margin,
+			`↓${mb.toFixed(0)}`,
+		);
+	if (ml)
+		addStrip(
+			document.body,
+			rect.top - mt,
+			rect.left - ml,
+			ml,
+			rect.height + mt + mb,
+			COLORS.margin,
+			`←${ml.toFixed(0)}`,
+		);
+	if (mr)
+		addStrip(
+			document.body,
+			rect.top - mt,
+			rect.right,
+			mr,
+			rect.height + mt + mb,
+			COLORS.margin,
+			`→${mr.toFixed(0)}`,
+		);
 
 	if (pt || pr || pb || pl) {
-		if (pt) addStrip(document.body, rect.top, rect.left, rect.width, pt, COLORS.padding, `↑${pt.toFixed(0)}`);
-		if (pb) addStrip(document.body, rect.bottom - pb, rect.left, rect.width, pb, COLORS.padding, `↓${pb.toFixed(0)}`);
-		if (pl) addStrip(document.body, rect.top, rect.left, pl, rect.height, COLORS.padding, `←${pl.toFixed(0)}`);
-		if (pr) addStrip(document.body, rect.top, rect.right - pr, pr, rect.height, COLORS.padding, `→${pr.toFixed(0)}`);
+		if (pt)
+			addStrip(
+				document.body,
+				rect.top,
+				rect.left,
+				rect.width,
+				pt,
+				COLORS.padding,
+				`↑${pt.toFixed(0)}`,
+			);
+		if (pb)
+			addStrip(
+				document.body,
+				rect.bottom - pb,
+				rect.left,
+				rect.width,
+				pb,
+				COLORS.padding,
+				`↓${pb.toFixed(0)}`,
+			);
+		if (pl)
+			addStrip(
+				document.body,
+				rect.top,
+				rect.left,
+				pl,
+				rect.height,
+				COLORS.padding,
+				`←${pl.toFixed(0)}`,
+			);
+		if (pr)
+			addStrip(
+				document.body,
+				rect.top,
+				rect.right - pr,
+				pr,
+				rect.height,
+				COLORS.padding,
+				`→${pr.toFixed(0)}`,
+			);
 	}
 
 	const brtl = parseFloat(cs.borderTopLeftRadius) || 0;
@@ -321,14 +403,40 @@ function showBoxModel(el: Element, cs: CSSStyleDeclaration): void {
 	const radiusVals = [brtl, brtr, brbr, brbl].map((v) => Math.round(v));
 	const allSameRadius = radiusVals.every((v) => v === radiusVals[0]);
 	if (allSameRadius && brtl) {
-		addStrip(document.body, rect.top, rect.left, RADIUS_OVERLAY, RADIUS_OVERLAY, COLORS.radius, `○${brtl.toFixed(0)}`);
+		addStrip(
+			document.body,
+			rect.top,
+			rect.left,
+			RADIUS_OVERLAY,
+			RADIUS_OVERLAY,
+			COLORS.radius,
+			`○${brtl.toFixed(0)}`,
+		);
 	} else {
 		const counts = new Map<number, number>();
 		for (const v of radiusVals) counts.set(v, (counts.get(v) || 0) + 1);
-		const common = radiusVals.length > 0 ? [...counts.entries()].sort((a, b) => b[1] - a[1])[0][0] : 0;
-		if (brtl !== common) addStrip(document.body, rect.top, rect.left, RADIUS_OVERLAY, RADIUS_OVERLAY, COLORS.radius, `↱${brtl.toFixed(0)}`);
+		const common =
+			radiusVals.length > 0 ? [...counts.entries()].sort((a, b) => b[1] - a[1])[0][0] : 0;
+		if (brtl !== common)
+			addStrip(
+				document.body,
+				rect.top,
+				rect.left,
+				RADIUS_OVERLAY,
+				RADIUS_OVERLAY,
+				COLORS.radius,
+				`↱${brtl.toFixed(0)}`,
+			);
 		if (brtr !== common)
-			addStrip(document.body, rect.top, rect.right - RADIUS_OVERLAY, RADIUS_OVERLAY, RADIUS_OVERLAY, COLORS.radius, `↰${brtr.toFixed(0)}`);
+			addStrip(
+				document.body,
+				rect.top,
+				rect.right - RADIUS_OVERLAY,
+				RADIUS_OVERLAY,
+				RADIUS_OVERLAY,
+				COLORS.radius,
+				`↰${brtr.toFixed(0)}`,
+			);
 		if (brbr !== common)
 			addStrip(
 				document.body,
@@ -340,7 +448,15 @@ function showBoxModel(el: Element, cs: CSSStyleDeclaration): void {
 				`↲${brbr.toFixed(0)}`,
 			);
 		if (brbl !== common)
-			addStrip(document.body, rect.bottom - RADIUS_OVERLAY, rect.left, RADIUS_OVERLAY, RADIUS_OVERLAY, COLORS.radius, `↳${brbl.toFixed(0)}`);
+			addStrip(
+				document.body,
+				rect.bottom - RADIUS_OVERLAY,
+				rect.left,
+				RADIUS_OVERLAY,
+				RADIUS_OVERLAY,
+				COLORS.radius,
+				`↳${brbl.toFixed(0)}`,
+			);
 	}
 
 	const bt = parseFloat(cs.borderTopWidth) || 0;
@@ -352,19 +468,67 @@ function showBoxModel(el: Element, cs: CSSStyleDeclaration): void {
 	if (allSame && bt) {
 		const topOffset = brtl > 0 ? LABEL_SIZE.height + 2 : 0;
 		const align = brtl > 0 ? "left" : "center";
-		addStrip(document.body, rect.top, rect.left, rect.width, bt, COLORS.border, `b${bt.toFixed(0)}`, topOffset, align);
+		addStrip(
+			document.body,
+			rect.top,
+			rect.left,
+			rect.width,
+			bt,
+			COLORS.border,
+			`b${bt.toFixed(0)}`,
+			topOffset,
+			align,
+		);
 	} else {
 		const counts = new Map<number, number>();
 		for (const v of borderVals) counts.set(v, (counts.get(v) || 0) + 1);
-		const common = borderVals.length > 0 ? [...counts.entries()].sort((a, b) => b[1] - a[1])[0][0] : 0;
+		const common =
+			borderVals.length > 0 ? [...counts.entries()].sort((a, b) => b[1] - a[1])[0][0] : 0;
 		if (bt !== common) {
 			const topOffset = brtl > 0 ? LABEL_SIZE.height + 2 : 0;
 			const align = brtl > 0 ? "left" : "center";
-			addStrip(document.body, rect.top, rect.left, rect.width, bt, COLORS.border, `↑b${bt.toFixed(0)}`, topOffset, align);
+			addStrip(
+				document.body,
+				rect.top,
+				rect.left,
+				rect.width,
+				bt,
+				COLORS.border,
+				`↑b${bt.toFixed(0)}`,
+				topOffset,
+				align,
+			);
 		}
-		if (bb !== common) addStrip(document.body, rect.bottom - bb, rect.left, rect.width, bb, COLORS.border, `↓b${bb.toFixed(0)}`);
-		if (bl !== common) addStrip(document.body, rect.top, rect.left, bl, rect.height, COLORS.border, `←b${bl.toFixed(0)}`);
-		if (br !== common) addStrip(document.body, rect.top, rect.right - br, br, rect.height, COLORS.border, `→b${br.toFixed(0)}`);
+		if (bb !== common)
+			addStrip(
+				document.body,
+				rect.bottom - bb,
+				rect.left,
+				rect.width,
+				bb,
+				COLORS.border,
+				`↓b${bb.toFixed(0)}`,
+			);
+		if (bl !== common)
+			addStrip(
+				document.body,
+				rect.top,
+				rect.left,
+				bl,
+				rect.height,
+				COLORS.border,
+				`←b${bl.toFixed(0)}`,
+			);
+		if (br !== common)
+			addStrip(
+				document.body,
+				rect.top,
+				rect.right - br,
+				br,
+				rect.height,
+				COLORS.border,
+				`→b${br.toFixed(0)}`,
+			);
 	}
 
 	const isFlex = cs.display === "flex" || cs.display === "inline-flex";
@@ -393,14 +557,32 @@ function showBoxModel(el: Element, cs: CSSStyleDeclaration): void {
 		const gapVal = parseFloat(cs.gap) || 0;
 		if (gapVal > 0 && childRects.length > 1) {
 			const isColumn = cs.flexDirection === "column" || cs.flexDirection === "column-reverse";
-			const sorted = [...childRects].sort((a, b) => (isColumn ? a.top - b.top : a.left - b.left));
+			const sorted = [...childRects].sort((a, b) =>
+				isColumn ? a.top - b.top : a.left - b.left,
+			);
 			for (let i = 0; i < sorted.length - 1; i++) {
 				const a = sorted[i];
 				const gapLabel = isColumn ? `↕${gapVal.toFixed(0)}` : `←→${gapVal.toFixed(0)}`;
 				if (isColumn) {
-					addStrip(document.body, a.bottom, rect.left + pl, rect.width - pl - pr, gapVal, COLORS.gap, gapLabel);
+					addStrip(
+						document.body,
+						a.bottom,
+						rect.left + pl,
+						rect.width - pl - pr,
+						gapVal,
+						COLORS.gap,
+						gapLabel,
+					);
 				} else {
-					addStrip(document.body, rect.top + pt, a.right, gapVal, rect.height - pt - pb, COLORS.gap, gapLabel);
+					addStrip(
+						document.body,
+						rect.top + pt,
+						a.right,
+						gapVal,
+						rect.height - pt - pb,
+						COLORS.gap,
+						gapLabel,
+					);
 				}
 			}
 		}
@@ -427,7 +609,12 @@ function reconcileLabels(): void {
 				for (let j = i + 1; j < items.length; j++) {
 					const a = items[i];
 					const b = items[j];
-					const overlap = !(a.rect.right <= b.rect.left || b.rect.right <= a.rect.left || a.rect.bottom <= b.rect.top || b.rect.bottom <= a.rect.top);
+					const overlap = !(
+						a.rect.right <= b.rect.left ||
+						b.rect.right <= a.rect.left ||
+						a.rect.bottom <= b.rect.top ||
+						b.rect.bottom <= a.rect.top
+					);
 					if (overlap) {
 						const pushDown = a.rect.bottom - b.rect.top + 2;
 						const pushUp = b.rect.bottom - a.rect.top + 2;
@@ -479,7 +666,8 @@ function buildLegend(cs: CSSStyleDeclaration): LegendEntry[] {
 	if (marg !== "0 0 0 0") entries.push({ label: "margin", color: "#ffa500" });
 	if (pad !== "0 0 0 0") entries.push({ label: "padding", color: "#00c800" });
 	if (bw > 0) entries.push({ label: "border", color: "#00c8ff" });
-	if (cs.display === "flex" || cs.display === "inline-flex") entries.push({ label: "flex children", color: "#6495ed" });
+	if (cs.display === "flex" || cs.display === "inline-flex")
+		entries.push({ label: "flex children", color: "#6495ed" });
 	if (gapVal > 0) entries.push({ label: "gap", color: "#c864ff" });
 	entries.push({ label: "() depth", color: "#888" });
 	return entries;
@@ -507,9 +695,11 @@ function figmaSummary(el: Element, cs: CSSStyleDeclaration): SummaryResult {
 	const props: { label: string; color?: string }[] = [];
 	props.push({ label: `W: ${px(cs.width)}  H: ${px(cs.height)}` });
 	const bg = cs.backgroundColor;
-	if (bg && bg !== "transparent" && bg !== "rgba(0, 0, 0, 0)") props.push({ label: `Fill: ${hexColor(bg)}` });
+	if (bg && bg !== "transparent" && bg !== "rgba(0, 0, 0, 0)")
+		props.push({ label: `Fill: ${hexColor(bg)}` });
 	const border = cs.border;
-	if (border && border !== "0px none rgb(0, 0, 0)") props.push({ label: `Stroke: ${border.replace(/rgb\([^)]+\)/g, hexColor)}` });
+	if (border && border !== "0px none rgb(0, 0, 0)")
+		props.push({ label: `Stroke: ${border.replace(/rgb\([^)]+\)/g, hexColor)}` });
 	const br = cs.borderRadius;
 	if (br && br !== "0px") props.push({ label: `Radius: ${px(br)}` });
 	const pad = `${px(cs.paddingTop)} ${px(cs.paddingRight)} ${px(cs.paddingBottom)} ${px(cs.paddingLeft)}`;
@@ -517,7 +707,10 @@ function figmaSummary(el: Element, cs: CSSStyleDeclaration): SummaryResult {
 	const marg = `${px(cs.marginTop)} ${px(cs.marginRight)} ${px(cs.marginBottom)} ${px(cs.marginLeft)}`;
 	if (marg !== "0 0 0 0") props.push({ label: `Margin: ${marg}`, color: "#ffa500" });
 	const fs = cs.fontSize;
-	if (fs && fs !== "0px") props.push({ label: `Font: ${cs.fontFamily.split(",")[0].replace(/"/g, "")}, ${px(fs)}, ${cs.fontWeight}` });
+	if (fs && fs !== "0px")
+		props.push({
+			label: `Font: ${cs.fontFamily.split(",")[0].replace(/"/g, "")}, ${px(fs)}, ${cs.fontWeight}`,
+		});
 	const lh = cs.lineHeight;
 	if (lh !== "normal") props.push({ label: `Line height: ${px(lh)}` });
 	const ls = cs.letterSpacing;
@@ -525,7 +718,10 @@ function figmaSummary(el: Element, cs: CSSStyleDeclaration): SummaryResult {
 	const color = cs.color;
 	if (color && color !== "rgb(0, 0, 0)") props.push({ label: `Text: ${hexColor(color)}` });
 	if (cs.display === "flex") {
-		props.push({ label: `Auto: ${cs.flexDirection}, ${cs.alignItems}, ${cs.justifyContent}`, color: "#6495ed" });
+		props.push({
+			label: `Auto: ${cs.flexDirection}, ${cs.alignItems}, ${cs.justifyContent}`,
+			color: "#6495ed",
+		});
 		if (cs.gap !== "normal") props.push({ label: `Gap: ${px(cs.gap)}`, color: "#c864ff" });
 	}
 	if (cs.position !== "static") props.push({ label: `Position: ${cs.position}` });
@@ -555,7 +751,10 @@ function figmaSummary(el: Element, cs: CSSStyleDeclaration): SummaryResult {
 		const isLast = i === props.length - 1;
 		const prefix = isLast ? "└─ " : "├─ ";
 		segments.push(`%c${prefix}${props[i].label}%c`);
-		styles.push(props[i].color ? `color: ${props[i].color}` : "color: inherit", "color: inherit");
+		styles.push(
+			props[i].color ? `color: ${props[i].color}` : "color: inherit",
+			"color: inherit",
+		);
 	}
 	return { text: segments.join("\n"), styles };
 }
@@ -631,7 +830,12 @@ function highlight(el: Element): void {
 		const idPath = elementId(el);
 		const html = elementHtml(el);
 		const treePrefix = `%c${idPath}%c\n%c${html}%c`;
-		const treeStyles = [`color: ${depthColor(currentDepth)}`, "color: inherit", "color: #888", "color: inherit"];
+		const treeStyles = [
+			`color: ${depthColor(currentDepth)}`,
+			"color: inherit",
+			"color: #888",
+			"color: inherit",
+		];
 		console.log(
 			`%c[inspector] #${++logSeq}%c\n${treePrefix}\n%c${summary.text}`,
 			`color: ${depthColor(currentDepth)}`,
@@ -652,8 +856,12 @@ function captureStyles(): void {
 	const html = el.outerHTML.replace(/\s*outline:\s*[^;"]+;?\s*/gi, "");
 
 	const parent = el.parentElement;
-	const parentInfo = parent ? { tag: parent.tagName.toLowerCase(), classes: Array.from(parent.classList) } : null;
-	const siblings = parent ? Array.from(parent.children).filter((c) => c.tagName === el.tagName) : [];
+	const parentInfo = parent
+		? { tag: parent.tagName.toLowerCase(), classes: Array.from(parent.classList) }
+		: null;
+	const siblings = parent
+		? Array.from(parent.children).filter((c) => c.tagName === el.tagName)
+		: [];
 	const siblingIndex = siblings.indexOf(el);
 
 	let inputInfo: Record<string, unknown> | undefined;
@@ -765,22 +973,32 @@ export function activate(): void {
 	document.body.appendChild(overlay);
 
 	keyHandler = (e: KeyboardEvent) => {
-		if (!["Enter", "Escape", "ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"].includes(e.key)) return;
+		if (!["Enter", "Escape", "ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"].includes(e.key))
+			return;
 		e.preventDefault();
 		e.stopPropagation();
 		e.stopImmediatePropagation();
 		if (e.key === "Enter") captureStyles();
 		else if (e.key === "Escape") deactivate();
-		else if (e.key === "ArrowUp" && current?.parentElement && current.parentElement !== document.body) {
+		else if (
+			e.key === "ArrowUp" &&
+			current?.parentElement &&
+			current.parentElement !== document.body
+		) {
 			navStack.push(current);
 			highlight(current.parentElement);
 		} else if (e.key === "ArrowDown") {
 			if (current?.tagName.toLowerCase() === "select") {
 				const sel = current as HTMLSelectElement;
 				const opts = Array.from(sel.options)
-					.map((o, i) => `${i === sel.selectedIndex ? "▸" : " "} [${i}] ${o.value} (${o.textContent})`)
+					.map(
+						(o, i) =>
+							`${i === sel.selectedIndex ? "▸" : " "} [${i}] ${o.value} (${o.textContent})`,
+					)
 					.join("\n");
-				console.log(`[inspector] #${++logSeq} <select> options (value="${sel.value}", selectedIndex=${sel.selectedIndex}):\n${opts}`);
+				console.log(
+					`[inspector] #${++logSeq} <select> options (value="${sel.value}", selectedIndex=${sel.selectedIndex}):\n${opts}`,
+				);
 			} else if (navStack.length > 0) {
 				highlight(navStack.pop()!);
 			} else if (current?.children?.length) {
@@ -789,11 +1007,19 @@ export function activate(): void {
 		} else if (current?.tagName.toLowerCase() === "select") {
 			const sel = current as HTMLSelectElement;
 			const delta = e.key === "ArrowRight" ? 1 : -1;
-			sel.selectedIndex = Math.max(0, Math.min(sel.options.length - 1, sel.selectedIndex + delta));
+			sel.selectedIndex = Math.max(
+				0,
+				Math.min(sel.options.length - 1, sel.selectedIndex + delta),
+			);
 			const opts = Array.from(sel.options)
-				.map((o, i) => `${i === sel.selectedIndex ? "▸" : " "} [${i}] ${o.value} (${o.textContent})`)
+				.map(
+					(o, i) =>
+						`${i === sel.selectedIndex ? "▸" : " "} [${i}] ${o.value} (${o.textContent})`,
+				)
 				.join("\n");
-			console.log(`[inspector] #${++logSeq} <select> options (value="${sel.value}", selectedIndex=${sel.selectedIndex}):\n${opts}`);
+			console.log(
+				`[inspector] #${++logSeq} <select> options (value="${sel.value}", selectedIndex=${sel.selectedIndex}):\n${opts}`,
+			);
 		}
 	};
 	document.addEventListener("keydown", keyHandler, true);

@@ -11,5 +11,8 @@
 import { HTML } from "imperative-html/dist/esm/elements-strict";
 
 export function valueLabel(inputElement: HTMLInputElement): HTMLDivElement {
-	return HTML.div({ style: "color: var(--secondary-text, #999); margin-top: -3px;" }, inputElement);
+	return HTML.div(
+		{ style: "color: var(--secondary-text, #999); margin-top: -3px;" },
+		inputElement,
+	);
 }

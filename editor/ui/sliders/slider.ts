@@ -69,8 +69,16 @@ export class Slider {
 		}
 
 		this.container = midTick
-			? span({ style: "position: sticky; display: flex; width: 61.5%; flex-shrink: 0;" }, input, this._wrapperDiv)
-			: span({ style: "position: sticky; display: flex; width: 62.5%; flex-shrink: 0;" }, input, this._wrapperDiv);
+			? span(
+					{ style: "position: sticky; display: flex; width: 61.5%; flex-shrink: 0;" },
+					input,
+					this._wrapperDiv,
+				)
+			: span(
+					{ style: "position: sticky; display: flex; width: 62.5%; flex-shrink: 0;" },
+					input,
+					this._wrapperDiv,
+				);
 
 		input.addEventListener("input", this._whenInput);
 		input.addEventListener("change", this._whenChange);
@@ -92,7 +100,9 @@ export class Slider {
 				style: "position: absolute; top: 5px; left: 0; right: 0; height: 6px; overflow: hidden; border-radius: 999px;",
 			},
 			// Inactive track (fills entire track)
-			div({ style: "position: absolute; inset: 0; background: var(--slider-track, var(--ui-widget-background, #444));" }),
+			div({
+				style: "position: absolute; inset: 0; background: var(--slider-track, var(--ui-widget-background, #444));",
+			}),
 			// Fill: always 100% wide, scaled via transform
 			(this._fillDiv = div({
 				style: "position: absolute; left: 0; top: 0; width: 100%; height: 100%; background: var(--cta-bg); transform-origin: left; transform: scaleX(0);",
@@ -234,18 +244,22 @@ export class Slider {
 				// Active = left side: track 0→farGap, fill nearGap→center
 				if (this._leftTrackDiv) this._leftTrackDiv.style.width = `${farGap}%`;
 				if (this._rightTrackDiv) this._rightTrackDiv.style.width = "50%";
-				if (this._leftFillDiv) this._leftFillDiv.style.width = `${Math.max(0, 50 - nearGap)}%`;
+				if (this._leftFillDiv)
+					this._leftFillDiv.style.width = `${Math.max(0, 50 - nearGap)}%`;
 				if (this._rightFillDiv) this._rightFillDiv.style.width = "0";
 			} else if (kClamped > 50) {
 				// Active = right side: track farGap→edge, fill center→farGap
 				if (this._leftTrackDiv) this._leftTrackDiv.style.width = "50%";
-				if (this._rightTrackDiv) this._rightTrackDiv.style.width = `${Math.max(0, 100 - nearGap)}%`;
+				if (this._rightTrackDiv)
+					this._rightTrackDiv.style.width = `${Math.max(0, 100 - nearGap)}%`;
 				if (this._leftFillDiv) this._leftFillDiv.style.width = "0";
-				if (this._rightFillDiv) this._rightFillDiv.style.width = `${Math.max(0, farGap - 50)}%`;
+				if (this._rightFillDiv)
+					this._rightFillDiv.style.width = `${Math.max(0, farGap - 50)}%`;
 			} else {
 				// Center: both tracks stop at gap edges, no fill
 				if (this._leftTrackDiv) this._leftTrackDiv.style.width = `${farGap}%`;
-				if (this._rightTrackDiv) this._rightTrackDiv.style.width = `${Math.max(0, 100 - nearGap)}%`;
+				if (this._rightTrackDiv)
+					this._rightTrackDiv.style.width = `${Math.max(0, 100 - nearGap)}%`;
 				if (this._leftFillDiv) this._leftFillDiv.style.width = "0";
 				if (this._rightFillDiv) this._rightFillDiv.style.width = "0";
 			}
@@ -255,7 +269,8 @@ export class Slider {
 			// Gap from knob: fill stops at kClamped - gapPct.
 			const gapPct = (4 / w) * 100;
 			const fillPct = Math.max(0, kClamped - gapPct);
-			if (this._fillDiv) this._fillDiv.style.transform = `scaleX(${Math.min(1, fillPct / 100)})`;
+			if (this._fillDiv)
+				this._fillDiv.style.transform = `scaleX(${Math.min(1, fillPct / 100)})`;
 			if (this._knobDiv) this._knobDiv.style.left = `${kClamped}%`;
 		}
 	}

@@ -174,7 +174,12 @@ function buildColorSlots(): ColorSlot[] {
 		["--mute-button-mod", "Mute Button (mod)"],
 	];
 	for (const [name, label] of coreVars) {
-		slots.push({ varName: name, label, defaultValue: extractDefault(name), section: "Core UI" });
+		slots.push({
+			varName: name,
+			label,
+			defaultValue: extractDefault(name),
+			section: "Core UI",
+		});
 	}
 
 	const trackVars: [string, string][] = [
@@ -186,7 +191,12 @@ function buildColorSlots(): ColorSlot[] {
 		["--track-editor-bg-mod-dim", "Track BG Mod Dim"],
 	];
 	for (const [name, label] of trackVars) {
-		slots.push({ varName: name, label, defaultValue: extractDefault(name), section: "Track Editor" });
+		slots.push({
+			varName: name,
+			label,
+			defaultValue: extractDefault(name),
+			section: "Track Editor",
+		});
 	}
 
 	const modLabelVars: [string, string][] = [
@@ -195,7 +205,12 @@ function buildColorSlots(): ColorSlot[] {
 		["--mod-label-primary-text", "Mod Label Primary Text"],
 	];
 	for (const [name, label] of modLabelVars) {
-		slots.push({ varName: name, label, defaultValue: extractDefault(name), section: "Mod Labels" });
+		slots.push({
+			varName: name,
+			label,
+			defaultValue: extractDefault(name),
+			section: "Mod Labels",
+		});
 	}
 
 	slots.push({
@@ -232,14 +247,24 @@ function buildColorSlots(): ColorSlot[] {
 			defaultValue: extractDefault(`--pitch${i}-secondary-channel`),
 			section,
 		});
-		slots.push({ varName: `--pitch${i}-primary-channel`, label: `P${i} Primary Ch`, defaultValue: extractDefault(`--pitch${i}-primary-channel`), section });
+		slots.push({
+			varName: `--pitch${i}-primary-channel`,
+			label: `P${i} Primary Ch`,
+			defaultValue: extractDefault(`--pitch${i}-primary-channel`),
+			section,
+		});
 		slots.push({
 			varName: `--pitch${i}-secondary-note`,
 			label: `P${i} Secondary Note`,
 			defaultValue: extractDefault(`--pitch${i}-secondary-note`),
 			section,
 		});
-		slots.push({ varName: `--pitch${i}-primary-note`, label: `P${i} Primary Note`, defaultValue: extractDefault(`--pitch${i}-primary-note`), section });
+		slots.push({
+			varName: `--pitch${i}-primary-note`,
+			label: `P${i} Primary Note`,
+			defaultValue: extractDefault(`--pitch${i}-primary-note`),
+			section,
+		});
 	}
 
 	for (let i = 1; i <= 5; i++) {
@@ -250,14 +275,24 @@ function buildColorSlots(): ColorSlot[] {
 			defaultValue: extractDefault(`--noise${i}-secondary-channel`),
 			section,
 		});
-		slots.push({ varName: `--noise${i}-primary-channel`, label: `N${i} Primary Ch`, defaultValue: extractDefault(`--noise${i}-primary-channel`), section });
+		slots.push({
+			varName: `--noise${i}-primary-channel`,
+			label: `N${i} Primary Ch`,
+			defaultValue: extractDefault(`--noise${i}-primary-channel`),
+			section,
+		});
 		slots.push({
 			varName: `--noise${i}-secondary-note`,
 			label: `N${i} Secondary Note`,
 			defaultValue: extractDefault(`--noise${i}-secondary-note`),
 			section,
 		});
-		slots.push({ varName: `--noise${i}-primary-note`, label: `N${i} Primary Note`, defaultValue: extractDefault(`--noise${i}-primary-note`), section });
+		slots.push({
+			varName: `--noise${i}-primary-note`,
+			label: `N${i} Primary Note`,
+			defaultValue: extractDefault(`--noise${i}-primary-note`),
+			section,
+		});
 	}
 
 	for (let i = 1; i <= 4; i++) {
@@ -268,9 +303,24 @@ function buildColorSlots(): ColorSlot[] {
 			defaultValue: extractDefault(`--mod${i}-secondary-channel`),
 			section,
 		});
-		slots.push({ varName: `--mod${i}-primary-channel`, label: `M${i} Primary Ch`, defaultValue: extractDefault(`--mod${i}-primary-channel`), section });
-		slots.push({ varName: `--mod${i}-secondary-note`, label: `M${i} Secondary Note`, defaultValue: extractDefault(`--mod${i}-secondary-note`), section });
-		slots.push({ varName: `--mod${i}-primary-note`, label: `M${i} Primary Note`, defaultValue: extractDefault(`--mod${i}-primary-note`), section });
+		slots.push({
+			varName: `--mod${i}-primary-channel`,
+			label: `M${i} Primary Ch`,
+			defaultValue: extractDefault(`--mod${i}-primary-channel`),
+			section,
+		});
+		slots.push({
+			varName: `--mod${i}-secondary-note`,
+			label: `M${i} Secondary Note`,
+			defaultValue: extractDefault(`--mod${i}-secondary-note`),
+			section,
+		});
+		slots.push({
+			varName: `--mod${i}-primary-note`,
+			label: `M${i} Primary Note`,
+			defaultValue: extractDefault(`--mod${i}-primary-note`),
+			section,
+		});
 	}
 
 	return slots;
@@ -326,7 +376,8 @@ function removePreviewCss(): void {
 	if (el) el.remove();
 }
 
-const ROW_STYLE = "display: flex; align-items: center; gap: 4px; padding: 4px 8px; border-radius: var(--border-radius-medium);";
+const ROW_STYLE =
+	"display: flex; align-items: center; gap: 4px; padding: 4px 8px; border-radius: var(--border-radius-medium);";
 const SWATCH_STYLE = `width: 22px; height: 22px; border-radius: var(--border-radius-medium); border: 1px solid var(--ui-widget-background); flex-shrink: 0; cursor: pointer;`;
 const LABEL_STYLE =
 	"width: 130px; flex-shrink: 0; font-size: 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--primary-text, #ccc); text-align: left;";
@@ -340,18 +391,37 @@ export class PalettePrompt extends BasePrompt {
 	private readonly _values: Map<string, string>;
 	private _activePicker: HTMLElement | null = null;
 
-	private readonly _scrollArea: HTMLDivElement = div({ style: "max-height: 55vh; overflow-y: auto; padding-right: 4px;" });
-	private readonly _exportCssBtn: HTMLButtonElement = actionButton("Copy CSS", { style: "width: auto; font-size: 10px;" });
-	private readonly _downloadCssBtn: HTMLButtonElement = actionButton("↓ CSS", { style: "width: auto; font-size: 10px;" });
-	private readonly _downloadJsonBtn: HTMLButtonElement = actionButton("↓ JSON", { style: "width: auto; font-size: 10px;" });
-	private readonly _rawCssBtn: HTMLButtonElement = actionButton("Raw CSS", { style: "width: auto; font-size: 10px;" });
-	private readonly _resetBtn: HTMLButtonElement = actionButton("Reset", { style: "width: auto; font-size: 10px;" });
+	private readonly _scrollArea: HTMLDivElement = div({
+		style: "max-height: 55vh; overflow-y: auto; padding-right: 4px;",
+	});
+	private readonly _exportCssBtn: HTMLButtonElement = actionButton("Copy CSS", {
+		style: "width: auto; font-size: 10px;",
+	});
+	private readonly _downloadCssBtn: HTMLButtonElement = actionButton("↓ CSS", {
+		style: "width: auto; font-size: 10px;",
+	});
+	private readonly _downloadJsonBtn: HTMLButtonElement = actionButton("↓ JSON", {
+		style: "width: auto; font-size: 10px;",
+	});
+	private readonly _rawCssBtn: HTMLButtonElement = actionButton("Raw CSS", {
+		style: "width: auto; font-size: 10px;",
+	});
+	private readonly _resetBtn: HTMLButtonElement = actionButton("Reset", {
+		style: "width: auto; font-size: 10px;",
+	});
 
 	public readonly container: HTMLDivElement = div(
 		{ class: "prompt palettePrompt noSelection" },
 		h2("Color Palette"),
 		this._scrollArea,
-		div({ class: "ppButtonRow" }, this._exportCssBtn, this._downloadCssBtn, this._downloadJsonBtn, this._rawCssBtn, this._resetBtn),
+		div(
+			{ class: "ppButtonRow" },
+			this._exportCssBtn,
+			this._downloadCssBtn,
+			this._downloadJsonBtn,
+			this._rawCssBtn,
+			this._resetBtn,
+		),
 		div({ class: "ppFooter" }, this._getOkayRow(), this._cancelButton),
 	);
 
@@ -462,15 +532,28 @@ export class PalettePrompt extends BasePrompt {
 
 	private _buildRow(slot: ColorSlot, colorVal: string): HTMLElement {
 		const parsed = parseCssColor(colorVal);
-		const displayColor = parsed.a < 1 ? `rgba(${parsed.r}, ${parsed.g}, ${parsed.b}, ${parsed.a.toFixed(2)})` : rgbaToHex(parsed);
+		const displayColor =
+			parsed.a < 1
+				? `rgba(${parsed.r}, ${parsed.g}, ${parsed.b}, ${parsed.a.toFixed(2)})`
+				: rgbaToHex(parsed);
 
 		const tab = getLastColorTab();
 		const formatted = formatColorForTab(colorVal, tab);
 
-		const swatch = div({ style: `${SWATCH_STYLE} background: ${displayColor};`, tabindex: "-1" });
+		const swatch = div({
+			style: `${SWATCH_STYLE} background: ${displayColor};`,
+			tabindex: "-1",
+		});
 		const label = div({ style: LABEL_STYLE }, slot.label);
-		const valueInput: HTMLInputElement = input({ type: "text", value: formatted, style: INPUT_STYLE });
-		const pickerBtn: HTMLButtonElement = button({ type: "button", style: PICKER_BTN_STYLE, tabindex: "-1" }, "[...]");
+		const valueInput: HTMLInputElement = input({
+			type: "text",
+			value: formatted,
+			style: INPUT_STYLE,
+		});
+		const pickerBtn: HTMLButtonElement = button(
+			{ type: "button", style: PICKER_BTN_STYLE, tabindex: "-1" },
+			"[...]",
+		);
 
 		const row = div({ style: ROW_STYLE }, swatch, label, valueInput, pickerBtn);
 
@@ -507,7 +590,12 @@ export class PalettePrompt extends BasePrompt {
 		return row;
 	}
 
-	private _openPicker(anchor: HTMLElement, slot: ColorSlot, swatch: HTMLElement, valueInput: HTMLInputElement): void {
+	private _openPicker(
+		anchor: HTMLElement,
+		slot: ColorSlot,
+		swatch: HTMLElement,
+		valueInput: HTMLInputElement,
+	): void {
 		this._closePicker();
 		const currentVal = this._values.get(slot.varName) || slot.defaultValue;
 
@@ -516,7 +604,10 @@ export class PalettePrompt extends BasePrompt {
 			onChange: (val: string) => {
 				this._values.set(slot.varName, val);
 				const parsed = parseCssColor(val);
-				const displayColor = parsed.a < 1 ? `rgba(${parsed.r}, ${parsed.g}, ${parsed.b}, ${parsed.a.toFixed(2)})` : rgbaToHex(parsed);
+				const displayColor =
+					parsed.a < 1
+						? `rgba(${parsed.r}, ${parsed.g}, ${parsed.b}, ${parsed.a.toFixed(2)})`
+						: rgbaToHex(parsed);
 				swatch.style.background = displayColor;
 				const currentTab = getLastColorTab();
 				valueInput.value = formatColorForTab(val, currentTab);

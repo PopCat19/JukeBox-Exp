@@ -8,7 +8,14 @@
 // - Supports alpha channel via a range slider
 
 import { HTML } from "imperative-html/dist/esm/elements-strict";
-import { hexToHsla, hexToOklcha, hslaToHex, oklchToHex, parseCssColor, rgbaToHex } from "../../../shared/color-utils";
+import {
+	hexToHsla,
+	hexToOklcha,
+	hslaToHex,
+	oklchToHex,
+	parseCssColor,
+	rgbaToHex,
+} from "../../../shared/color-utils";
 
 const { div, input, span } = HTML;
 
@@ -38,15 +45,40 @@ export function createColorPicker(parent: HTMLElement, options: ColorPickerOptio
 		style: "width: 100%; height: 32px; border: none; cursor: pointer; padding: 0; background: none;",
 	});
 
-	const hexInput: HTMLInputElement = input({ type: "text", value: initHex, style: "width: 100%; font-family: monospace; font-size: 12px;" });
-	const alphaSlider: HTMLInputElement = input({ type: "range", min: "0", max: "100", value: String(alpha), style: "width: 100%;" });
+	const hexInput: HTMLInputElement = input({
+		type: "text",
+		value: initHex,
+		style: "width: 100%; font-family: monospace; font-size: 12px;",
+	});
+	const alphaSlider: HTMLInputElement = input({
+		type: "range",
+		min: "0",
+		max: "100",
+		value: String(alpha),
+		style: "width: 100%;",
+	});
 
 	const hsl = hexToHsla(initHex);
 	const oklch = hexToOklcha(initHex);
 
-	const hInput: HTMLInputElement = input({ type: "number", value: String(Math.round(hsl.h)), style: "width: 48px; font-size: 11px;", step: "1" });
-	const sInput: HTMLInputElement = input({ type: "number", value: String(Math.round(hsl.s)), style: "width: 48px; font-size: 11px;", step: "0.1" });
-	const lInput: HTMLInputElement = input({ type: "number", value: String(Math.round(hsl.l)), style: "width: 48px; font-size: 11px;", step: "0.1" });
+	const hInput: HTMLInputElement = input({
+		type: "number",
+		value: String(Math.round(hsl.h)),
+		style: "width: 48px; font-size: 11px;",
+		step: "1",
+	});
+	const sInput: HTMLInputElement = input({
+		type: "number",
+		value: String(Math.round(hsl.s)),
+		style: "width: 48px; font-size: 11px;",
+		step: "0.1",
+	});
+	const lInput: HTMLInputElement = input({
+		type: "number",
+		value: String(Math.round(hsl.l)),
+		style: "width: 48px; font-size: 11px;",
+		step: "0.1",
+	});
 
 	const oklInput: HTMLInputElement = input({
 		type: "number",
@@ -70,7 +102,9 @@ export function createColorPicker(parent: HTMLElement, options: ColorPickerOptio
 	let syncing = false;
 	let alphaDisplay!: HTMLSpanElement;
 
-	const preview: HTMLDivElement = div({ style: `width: 100%; height: 24px; border-radius: 4px; background: ${formatOutput()}; border: 1px solid #555;` });
+	const preview: HTMLDivElement = div({
+		style: `width: 100%; height: 24px; border-radius: 4px; background: ${formatOutput()}; border: 1px solid #555;`,
+	});
 
 	const hexTab = div(
 		{ style: `padding: 4px 0; display: ${initialTab === "hex" ? "flex" : "none"}; gap: 4px;` },
@@ -78,8 +112,14 @@ export function createColorPicker(parent: HTMLElement, options: ColorPickerOptio
 		hexInput,
 	);
 	const hslTab = div(
-		{ style: `padding: 4px 0; display: ${initialTab === "hsl" ? "flex" : "none"}; flex-direction: column; gap: 3px;` },
-		div({ style: "display: flex; gap: 4px; align-items: center;" }, span({ style: "font-size: 10px; width: 16px;" }, "H"), hInput),
+		{
+			style: `padding: 4px 0; display: ${initialTab === "hsl" ? "flex" : "none"}; flex-direction: column; gap: 3px;`,
+		},
+		div(
+			{ style: "display: flex; gap: 4px; align-items: center;" },
+			span({ style: "font-size: 10px; width: 16px;" }, "H"),
+			hInput,
+		),
 		div(
 			{ style: "display: flex; gap: 4px; align-items: center;" },
 			span({ style: "font-size: 10px; width: 16px;" }, "S"),
@@ -94,19 +134,40 @@ export function createColorPicker(parent: HTMLElement, options: ColorPickerOptio
 		),
 	);
 	const oklchTab = div(
-		{ style: `padding: 4px 0; display: ${initialTab === "oklch" ? "flex" : "none"}; flex-direction: column; gap: 3px;` },
-		div({ style: "display: flex; gap: 4px; align-items: center;" }, span({ style: "font-size: 10px; width: 16px;" }, "L"), oklInput),
-		div({ style: "display: flex; gap: 4px; align-items: center;" }, span({ style: "font-size: 10px; width: 16px;" }, "C"), okcInput),
-		div({ style: "display: flex; gap: 4px; align-items: center;" }, span({ style: "font-size: 10px; width: 16px;" }, "H"), okhInput),
+		{
+			style: `padding: 4px 0; display: ${initialTab === "oklch" ? "flex" : "none"}; flex-direction: column; gap: 3px;`,
+		},
+		div(
+			{ style: "display: flex; gap: 4px; align-items: center;" },
+			span({ style: "font-size: 10px; width: 16px;" }, "L"),
+			oklInput,
+		),
+		div(
+			{ style: "display: flex; gap: 4px; align-items: center;" },
+			span({ style: "font-size: 10px; width: 16px;" }, "C"),
+			okcInput,
+		),
+		div(
+			{ style: "display: flex; gap: 4px; align-items: center;" },
+			span({ style: "font-size: 10px; width: 16px;" }, "H"),
+			okhInput,
+		),
 	);
 
 	const tabs = div(
 		{ style: "display: flex; gap: 0; margin-bottom: 2px;" },
 		div(
-			{ style: `padding: 2px 8px; font-size: 11px; cursor: pointer; background: ${initialTab === "hex" ? "#555" : "#333"}; border-radius: 3px 0 0 3px;` },
+			{
+				style: `padding: 2px 8px; font-size: 11px; cursor: pointer; background: ${initialTab === "hex" ? "#555" : "#333"}; border-radius: 3px 0 0 3px;`,
+			},
 			"Hex",
 		),
-		div({ style: `padding: 2px 8px; font-size: 11px; cursor: pointer; background: ${initialTab === "hsl" ? "#555" : "#333"};` }, "HSL"),
+		div(
+			{
+				style: `padding: 2px 8px; font-size: 11px; cursor: pointer; background: ${initialTab === "hsl" ? "#555" : "#333"};`,
+			},
+			"HSL",
+		),
 		div(
 			{
 				style: `padding: 2px 8px; font-size: 11px; cursor: pointer; background: ${initialTab === "oklch" ? "#555" : "#333"}; border-radius: 0 3px 3px 0;`,
@@ -150,7 +211,12 @@ export function createColorPicker(parent: HTMLElement, options: ColorPickerOptio
 		const h = parseFloat(hInput.value) || 0;
 		const s = parseFloat(sInput.value) || 0;
 		const l = parseFloat(lInput.value) || 0;
-		hex = hslaToHex({ h, s: Math.min(100, Math.max(0, s)), l: Math.min(100, Math.max(0, l)), a: alpha / 100 });
+		hex = hslaToHex({
+			h,
+			s: Math.min(100, Math.max(0, s)),
+			l: Math.min(100, Math.max(0, l)),
+			a: alpha / 100,
+		});
 		hexInput.value = hex;
 		nativeInput.value = hex.substring(0, 7);
 		const ok = hexToOklcha(hex);

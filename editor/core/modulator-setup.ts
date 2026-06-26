@@ -37,7 +37,9 @@ export class ModulatorSetup {
 			const modChannelBox: HTMLSelectElement = select({
 				style: "width: 100%; color: currentColor; text-overflow:ellipsis;",
 			});
-			const modInstrumentBox: HTMLSelectElement = select({ style: "width: 100%; color: currentColor;" });
+			const modInstrumentBox: HTMLSelectElement = select({
+				style: "width: 100%; color: currentColor;",
+			});
 
 			const modNameRow: HTMLDivElement = div(
 				{ class: "operatorRow", style: "height: 1em; margin-bottom: 0.65em;" },
@@ -67,7 +69,11 @@ export class ModulatorSetup {
 			const modFilterBox: HTMLSelectElement = select();
 			const modEnvelopeBox: HTMLSelectElement = select();
 			const modSetRow: HTMLDivElement = div(
-				{ class: "selectRow", id: `modSettingText${mod}`, style: "margin-bottom: 0.9em; color: currentColor;" },
+				{
+					class: "selectRow",
+					id: `modSettingText${mod}`,
+					style: "margin-bottom: 0.9em; color: currentColor;",
+				},
 				span(
 					{
 						class: "tip",
@@ -75,11 +81,22 @@ export class ModulatorSetup {
 					},
 					"Setting: ",
 				),
-				span({ class: "tip", style: "font-size:x-small;", onclick: () => host.openPrompt(`modSetInfo${mod}`) }, "?"),
+				span(
+					{
+						class: "tip",
+						style: "font-size:x-small;",
+						onclick: () => host.openPrompt(`modSetInfo${mod}`),
+					},
+					"?",
+				),
 				div({ class: "selectContainer" }, modSetBox),
 			);
 			const modFilterRow: HTMLDivElement = div(
-				{ class: "selectRow", id: `modFilterText${mod}`, style: "margin-bottom: 0.9em; color: currentColor;" },
+				{
+					class: "selectRow",
+					id: `modFilterText${mod}`,
+					style: "margin-bottom: 0.9em; color: currentColor;",
+				},
 				span(
 					{
 						class: "tip",
@@ -90,7 +107,11 @@ export class ModulatorSetup {
 				div({ class: "selectContainer" }, modFilterBox),
 			);
 			const modEnvelopeRow: HTMLDivElement = div(
-				{ class: "selectRow", id: `modEnvelopeText${mod}`, style: "margin-bottom: 0.9em; color: currentColor;" },
+				{
+					class: "selectRow",
+					id: `modEnvelopeText${mod}`,
+					style: "margin-bottom: 0.9em; color: currentColor;",
+				},
 				span(
 					{
 						class: "tip",

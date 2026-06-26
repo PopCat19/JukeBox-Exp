@@ -8,7 +8,12 @@
 
 import { createInput } from "../base/input";
 
-export function stepperInput(min: number | string, max: number | string, value: number | string, step?: string): HTMLInputElement {
+export function stepperInput(
+	min: number | string,
+	max: number | string,
+	value: number | string,
+	step?: string,
+): HTMLInputElement {
 	return createInput("number", "width: 4em; margin-left: 1em;", {
 		min: String(min),
 		max: String(max),

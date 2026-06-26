@@ -19,7 +19,8 @@ export class ChangeChipWave extends Change {
 			// advloop addition
 			instrument.isUsingAdvancedLoopControls = false;
 			instrument.chipWaveLoopStart = 0;
-			instrument.chipWaveLoopEnd = Config.rawRawChipWaves[instrument.chipWave].samples.length - 1;
+			instrument.chipWaveLoopEnd =
+				Config.rawRawChipWaves[instrument.chipWave].samples.length - 1;
 			instrument.chipWaveLoopMode = 0;
 			instrument.chipWavePlayBackwards = false;
 			instrument.chipWaveStartOffset = 0;
@@ -38,7 +39,8 @@ export class ChangeChipWaveUseAdvancedLoopControls extends Change {
 		if (instrument.isUsingAdvancedLoopControls !== newValue) {
 			instrument.isUsingAdvancedLoopControls = newValue;
 			instrument.chipWaveLoopStart = 0;
-			instrument.chipWaveLoopEnd = Config.rawRawChipWaves[instrument.chipWave].samples.length - 1;
+			instrument.chipWaveLoopEnd =
+				Config.rawRawChipWaves[instrument.chipWave].samples.length - 1;
 			instrument.chipWaveLoopMode = 0;
 			instrument.chipWavePlayBackwards = false;
 			instrument.chipWaveStartOffset = 0;
@@ -84,7 +86,10 @@ export class ChangeChipWaveLoopEnd extends Change {
 		if (instrument.chipWaveLoopEnd !== newValue) {
 			instrument.isUsingAdvancedLoopControls = true;
 			instrument.chipWaveLoopEnd = newValue;
-			instrument.chipWaveLoopStart = Math.max(0, Math.min(newValue - 1, instrument.chipWaveLoopStart));
+			instrument.chipWaveLoopStart = Math.max(
+				0,
+				Math.min(newValue - 1, instrument.chipWaveLoopStart),
+			);
 			instrument.preset = instrument.type;
 			doc.notifier.changed();
 			this._didSomething();

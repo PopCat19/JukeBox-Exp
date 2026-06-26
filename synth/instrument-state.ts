@@ -34,7 +34,11 @@ import {
 	InstrumentType,
 	type Unison,
 } from "./synth-config";
-import { instrumentVolumeToVolumeMult, tempFilterEndCoefficients, tempFilterStartCoefficients } from "./synth-shared";
+import {
+	instrumentVolumeToVolumeMult,
+	tempFilterEndCoefficients,
+	tempFilterStartCoefficients,
+} from "./synth-shared";
 import type { Tone } from "./tone";
 import { fittingPowerOfTwo } from "./util";
 import { Grain, HarmonicsWaveState, SpectrumWaveState } from "./waves";
@@ -225,17 +229,30 @@ export class InstrumentState {
 
 	public readonly envelopeComputer: EnvelopeComputer = new EnvelopeComputer();
 
-	public allocateNecessaryBuffers(synth: Synth, instrument: Instrument, samplesPerTick: number): void {
+	public allocateNecessaryBuffers(
+		synth: Synth,
+		instrument: Instrument,
+		samplesPerTick: number,
+	): void {
 		if (effectsIncludePanning(instrument.effects)) {
-			if (this.panningDelayLine == null || this.panningDelayLine.length < synth.panningDelayBufferSize) {
+			if (
+				this.panningDelayLine == null ||
+				this.panningDelayLine.length < synth.panningDelayBufferSize
+			) {
 				this.panningDelayLine = new Float32Array(synth.panningDelayBufferSize);
 			}
 		}
 		if (effectsIncludeChorus(instrument.effects)) {
-			if (this.chorusDelayLineL == null || this.chorusDelayLineL.length < synth.chorusDelayBufferSize) {
+			if (
+				this.chorusDelayLineL == null ||
+				this.chorusDelayLineL.length < synth.chorusDelayBufferSize
+			) {
 				this.chorusDelayLineL = new Float32Array(synth.chorusDelayBufferSize);
 			}
-			if (this.chorusDelayLineR == null || this.chorusDelayLineR.length < synth.chorusDelayBufferSize) {
+			if (
+				this.chorusDelayLineR == null ||
+				this.chorusDelayLineR.length < synth.chorusDelayBufferSize
+			) {
 				this.chorusDelayLineR = new Float32Array(synth.chorusDelayBufferSize);
 			}
 		}
@@ -255,10 +272,16 @@ export class InstrumentState {
 		}
 		if (effectsIncludeGranular(instrument.effects)) {
 			const granularDelayLineSizeInMilliseconds: number = 2500;
-			const granularDelayLineSizeInSeconds: number = granularDelayLineSizeInMilliseconds / 1000; // Maximum possible delay time
+			const granularDelayLineSizeInSeconds: number =
+				granularDelayLineSizeInMilliseconds / 1000; // Maximum possible delay time
 			this.granularMaximumDelayTimeInSeconds = granularDelayLineSizeInSeconds;
-			const granularDelayLineSizeInSamples: number = fittingPowerOfTwo(Math.floor(granularDelayLineSizeInSeconds * synth.samplesPerSecond));
-			if (this.granularDelayLine == null || this.granularDelayLine.length !== granularDelayLineSizeInSamples) {
+			const granularDelayLineSizeInSamples: number = fittingPowerOfTwo(
+				Math.floor(granularDelayLineSizeInSeconds * synth.samplesPerSecond),
+			);
+			if (
+				this.granularDelayLine == null ||
+				this.granularDelayLine.length !== granularDelayLineSizeInSamples
+			) {
 				this.granularDelayLine = new Float32Array(granularDelayLineSizeInSamples);
 				this.granularDelayLineIndex = 0;
 			}
@@ -278,13 +301,18 @@ export class InstrumentState {
 	public allocateEchoBuffers(samplesPerTick: number, echoDelay: number) {
 		// account for tempo and delay automation changing delay length during a tick?
 		const safeEchoDelaySteps: number = Math.max(Config.echoDelayRange >> 1, echoDelay + 1); // Buffer for potential delay increase mid-tick.
-		const baseEchoDelayBufferSize: number = fittingPowerOfTwo(safeEchoDelaySteps * Config.echoDelayStepTicks * samplesPerTick);
+		const baseEchoDelayBufferSize: number = fittingPowerOfTwo(
+			safeEchoDelaySteps * Config.echoDelayStepTicks * samplesPerTick,
+		);
 		const safeEchoDelayBufferSize: number = baseEchoDelayBufferSize * 2; // Double buffer for tempo/delay automation extending delay length.
 
 		if (this.echoDelayLineL == null || this.echoDelayLineR == null) {
 			this.echoDelayLineL = new Float32Array(safeEchoDelayBufferSize);
 			this.echoDelayLineR = new Float32Array(safeEchoDelayBufferSize);
-		} else if (this.echoDelayLineL.length < safeEchoDelayBufferSize || this.echoDelayLineR.length < safeEchoDelayBufferSize) {
+		} else if (
+			this.echoDelayLineL.length < safeEchoDelayBufferSize ||
+			this.echoDelayLineR.length < safeEchoDelayBufferSize
+		) {
 			// Reallocate echo buffers on tempo change, preserving existing echo contents.
 			const newDelayLineL: Float32Array = new Float32Array(safeEchoDelayBufferSize);
 			const newDelayLineR: Float32Array = new Float32Array(safeEchoDelayBufferSize);
@@ -318,7 +346,8 @@ export class InstrumentState {
 		this.distortionNextOutput = 0.0;
 		this.panningDelayPos = 0;
 		if (this.panningDelayLine != null) {
-			for (let i: number = 0; i < this.panningDelayLine.length; i++) this.panningDelayLine[i] = 0.0;
+			for (let i: number = 0; i < this.panningDelayLine.length; i++)
+				this.panningDelayLine[i] = 0.0;
 		}
 		this.echoDelayOffsetEnd = null;
 		this.echoShelfSampleL = 0.0;
@@ -337,7 +366,8 @@ export class InstrumentState {
 			for (let i: number = 0; i < this.phaserSamples.length; i++) this.phaserSamples[i] = 0.0;
 		}
 		if (this.phaserPrevInputs != null) {
-			for (let i: number = 0; i < this.phaserPrevInputs.length; i++) this.phaserPrevInputs[i] = 0.0;
+			for (let i: number = 0; i < this.phaserPrevInputs.length; i++)
+				this.phaserPrevInputs[i] = 0.0;
 		}
 
 		this.volumeScale = 1.0;
@@ -358,24 +388,34 @@ export class InstrumentState {
 		this.vibratoTime = 0;
 		this.nextVibratoTime = 0;
 		this.arpTime = 0;
-		for (let envelopeIndex: number = 0; envelopeIndex < Config.maxEnvelopeCount + 1; envelopeIndex++) {
+		for (
+			let envelopeIndex: number = 0;
+			envelopeIndex < Config.maxEnvelopeCount + 1;
+			envelopeIndex++
+		) {
 			this.envelopeTime[envelopeIndex] = 0;
 		}
 		this.envelopeComputer.reset();
 
 		if (this.chorusDelayLineDirty) {
-			for (let i: number = 0; i < this.chorusDelayLineL!.length; i++) this.chorusDelayLineL![i] = 0.0;
-			for (let i: number = 0; i < this.chorusDelayLineR!.length; i++) this.chorusDelayLineR![i] = 0.0;
+			for (let i: number = 0; i < this.chorusDelayLineL!.length; i++)
+				this.chorusDelayLineL![i] = 0.0;
+			for (let i: number = 0; i < this.chorusDelayLineR!.length; i++)
+				this.chorusDelayLineR![i] = 0.0;
 		}
 		if (this.echoDelayLineDirty) {
-			for (let i: number = 0; i < this.echoDelayLineL!.length; i++) this.echoDelayLineL![i] = 0.0;
-			for (let i: number = 0; i < this.echoDelayLineR!.length; i++) this.echoDelayLineR![i] = 0.0;
+			for (let i: number = 0; i < this.echoDelayLineL!.length; i++)
+				this.echoDelayLineL![i] = 0.0;
+			for (let i: number = 0; i < this.echoDelayLineR!.length; i++)
+				this.echoDelayLineR![i] = 0.0;
 		}
 		if (this.reverbDelayLineDirty) {
-			for (let i: number = 0; i < this.reverbDelayLine!.length; i++) this.reverbDelayLine![i] = 0.0;
+			for (let i: number = 0; i < this.reverbDelayLine!.length; i++)
+				this.reverbDelayLine![i] = 0.0;
 		}
 		if (this.granularDelayLineDirty) {
-			for (let i: number = 0; i < this.granularDelayLine!.length; i++) this.granularDelayLine![i] = 0.0;
+			for (let i: number = 0; i < this.granularDelayLine!.length; i++)
+				this.granularDelayLine![i] = 0.0;
 		}
 
 		this.chorusPhase = 0.0;
@@ -406,9 +446,22 @@ export class InstrumentState {
 		const usesInvertWave: boolean = effectsIncludeInvertWave(this.effects);
 
 		if (usesInvertWave) {
-			if (synth.isModActive(Config.modulators.dictionary["invert wave"].index, channelIndex, instrumentIndex)) {
+			if (
+				synth.isModActive(
+					Config.modulators.dictionary["invert wave"].index,
+					channelIndex,
+					instrumentIndex,
+				)
+			) {
 				this.invertWave = Boolean(
-					Math.floor(synth.getModValue(Config.modulators.dictionary["invert wave"].index, channelIndex, instrumentIndex, false)),
+					Math.floor(
+						synth.getModValue(
+							Config.modulators.dictionary["invert wave"].index,
+							channelIndex,
+							instrumentIndex,
+							false,
+						),
+					),
 				);
 			}
 		}
@@ -440,12 +493,23 @@ export class InstrumentState {
 			envelopeSpeeds[i] = 0;
 		}
 		let useEnvelopeSpeed: number = Config.arpSpeedScale[instrument.envelopeSpeed];
-		if (synth.isModActive(Config.modulators.dictionary["envelope speed"].index, channelIndex, instrumentIndex)) {
+		if (
+			synth.isModActive(
+				Config.modulators.dictionary["envelope speed"].index,
+				channelIndex,
+				instrumentIndex,
+			)
+		) {
 			useEnvelopeSpeed = Math.max(
 				0,
 				Math.min(
 					Config.arpSpeedScale.length - 1,
-					synth.getModValue(Config.modulators.dictionary["envelope speed"].index, channelIndex, instrumentIndex, false),
+					synth.getModValue(
+						Config.modulators.dictionary["envelope speed"].index,
+						channelIndex,
+						instrumentIndex,
+						false,
+					),
 				),
 			);
 			if (Number.isInteger(useEnvelopeSpeed)) {
@@ -453,14 +517,23 @@ export class InstrumentState {
 			} else {
 				// Linear interpolate envelope values
 				useEnvelopeSpeed =
-					(1 - (useEnvelopeSpeed % 1)) * Config.arpSpeedScale[Math.floor(useEnvelopeSpeed)] +
+					(1 - (useEnvelopeSpeed % 1)) *
+						Config.arpSpeedScale[Math.floor(useEnvelopeSpeed)] +
 					(useEnvelopeSpeed % 1) * Config.arpSpeedScale[Math.ceil(useEnvelopeSpeed)];
 			}
 		}
-		for (let envelopeIndex: number = 0; envelopeIndex < instrument.envelopeCount; envelopeIndex++) {
+		for (
+			let envelopeIndex: number = 0;
+			envelopeIndex < instrument.envelopeCount;
+			envelopeIndex++
+		) {
 			let perEnvelopeSpeed: number = instrument.envelopes[envelopeIndex].perEnvelopeSpeed;
 			if (
-				synth.isModActive(Config.modulators.dictionary["individual envelope speed"].index, channelIndex, instrumentIndex) &&
+				synth.isModActive(
+					Config.modulators.dictionary["individual envelope speed"].index,
+					channelIndex,
+					instrumentIndex,
+				) &&
 				instrument.envelopes[envelopeIndex].tempEnvelopeSpeed != null
 			) {
 				perEnvelopeSpeed = instrument.envelopes[envelopeIndex].tempEnvelopeSpeed!;
@@ -499,11 +572,31 @@ export class InstrumentState {
 			// has to happen before buffer allocation
 			granularChance = instrument.grainAmounts + 1;
 			this.granularMaximumGrains = instrument.grainAmounts;
-			if (synth.isModActive(Config.modulators.dictionary["grain freq"].index, channelIndex, instrumentIndex)) {
-				this.granularMaximumGrains = synth.getModValue(Config.modulators.dictionary["grain freq"].index, channelIndex, instrumentIndex, false);
-				granularChance = synth.getModValue(Config.modulators.dictionary["grain freq"].index, channelIndex, instrumentIndex, false) + 1;
+			if (
+				synth.isModActive(
+					Config.modulators.dictionary["grain freq"].index,
+					channelIndex,
+					instrumentIndex,
+				)
+			) {
+				this.granularMaximumGrains = synth.getModValue(
+					Config.modulators.dictionary["grain freq"].index,
+					channelIndex,
+					instrumentIndex,
+					false,
+				);
+				granularChance =
+					synth.getModValue(
+						Config.modulators.dictionary["grain freq"].index,
+						channelIndex,
+						instrumentIndex,
+						false,
+					) + 1;
 			}
-			this.granularMaximumGrains = Math.floor(2 ** (this.granularMaximumGrains * envelopeStarts[EnvelopeComputeIndex.grainAmount]));
+			this.granularMaximumGrains = Math.floor(
+				2 **
+					(this.granularMaximumGrains * envelopeStarts[EnvelopeComputeIndex.grainAmount]),
+			);
 			granularChance = granularChance * envelopeStarts[EnvelopeComputeIndex.grainAmount];
 		}
 
@@ -513,20 +606,51 @@ export class InstrumentState {
 			this.granularMix = instrument.granular / Config.granularRange;
 			this.computeGrains = true;
 			let granularMixEnd = this.granularMix;
-			if (synth.isModActive(Config.modulators.dictionary.granular.index, channelIndex, instrumentIndex)) {
-				this.granularMix = synth.getModValue(Config.modulators.dictionary.granular.index, channelIndex, instrumentIndex, false) / Config.granularRange;
-				granularMixEnd = synth.getModValue(Config.modulators.dictionary.granular.index, channelIndex, instrumentIndex, true) / Config.granularRange;
+			if (
+				synth.isModActive(
+					Config.modulators.dictionary.granular.index,
+					channelIndex,
+					instrumentIndex,
+				)
+			) {
+				this.granularMix =
+					synth.getModValue(
+						Config.modulators.dictionary.granular.index,
+						channelIndex,
+						instrumentIndex,
+						false,
+					) / Config.granularRange;
+				granularMixEnd =
+					synth.getModValue(
+						Config.modulators.dictionary.granular.index,
+						channelIndex,
+						instrumentIndex,
+						true,
+					) / Config.granularRange;
 			}
 			this.granularMix *= envelopeStarts[EnvelopeComputeIndex.granular];
 			granularMixEnd *= envelopeEnds[EnvelopeComputeIndex.granular];
 			this.granularMixDelta = (granularMixEnd - this.granularMix) / roundedSamplesPerTick;
-			for (let iterations: number = 0; iterations < Math.ceil(Math.random() * Math.random() * 10); iterations++) {
+			for (
+				let iterations: number = 0;
+				iterations < Math.ceil(Math.random() * Math.random() * 10);
+				iterations++
+			) {
 				// dirty weighting toward lower numbers
 				// create a grain
-				if (this.granularGrainsLength < this.granularMaximumGrains && Math.random() <= granularChance) {
+				if (
+					this.granularGrainsLength < this.granularMaximumGrains &&
+					Math.random() <= granularChance
+				) {
 					// only create a grain if there's room and based on grainFreq
 					let granularMinGrainSizeInMilliseconds: number = instrument.grainSize;
-					if (synth.isModActive(Config.modulators.dictionary["grain size"].index, channelIndex, instrumentIndex)) {
+					if (
+						synth.isModActive(
+							Config.modulators.dictionary["grain size"].index,
+							channelIndex,
+							instrumentIndex,
+						)
+					) {
 						granularMinGrainSizeInMilliseconds = synth.getModValue(
 							Config.modulators.dictionary["grain size"].index,
 							channelIndex,
@@ -534,17 +658,35 @@ export class InstrumentState {
 							false,
 						);
 					}
-					granularMinGrainSizeInMilliseconds *= envelopeStarts[EnvelopeComputeIndex.grainSize];
+					granularMinGrainSizeInMilliseconds *=
+						envelopeStarts[EnvelopeComputeIndex.grainSize];
 					let grainRange = instrument.grainRange;
-					if (synth.isModActive(Config.modulators.dictionary["grain range"].index, channelIndex, instrumentIndex)) {
-						grainRange = synth.getModValue(Config.modulators.dictionary["grain range"].index, channelIndex, instrumentIndex, false);
+					if (
+						synth.isModActive(
+							Config.modulators.dictionary["grain range"].index,
+							channelIndex,
+							instrumentIndex,
+						)
+					) {
+						grainRange = synth.getModValue(
+							Config.modulators.dictionary["grain range"].index,
+							channelIndex,
+							instrumentIndex,
+							false,
+						);
 					}
 					grainRange *= envelopeStarts[EnvelopeComputeIndex.grainRange];
-					const granularMaxGrainSizeInMilliseconds: number = granularMinGrainSizeInMilliseconds + grainRange;
+					const granularMaxGrainSizeInMilliseconds: number =
+						granularMinGrainSizeInMilliseconds + grainRange;
 					const granularGrainSizeInMilliseconds: number =
-						granularMinGrainSizeInMilliseconds + (granularMaxGrainSizeInMilliseconds - granularMinGrainSizeInMilliseconds) * Math.random();
-					const granularGrainSizeInSeconds: number = granularGrainSizeInMilliseconds / 1000.0;
-					const granularGrainSizeInSamples: number = Math.floor(granularGrainSizeInSeconds * samplesPerSecond);
+						granularMinGrainSizeInMilliseconds +
+						(granularMaxGrainSizeInMilliseconds - granularMinGrainSizeInMilliseconds) *
+							Math.random();
+					const granularGrainSizeInSeconds: number =
+						granularGrainSizeInMilliseconds / 1000.0;
+					const granularGrainSizeInSamples: number = Math.floor(
+						granularGrainSizeInSeconds * samplesPerSecond,
+					);
 					const granularDelayLineLength: number = this.granularDelayLine!.length;
 					const grainIndex: number = this.granularGrainsLength;
 
@@ -558,12 +700,18 @@ export class InstrumentState {
 					// const maxDelayTimeInSeconds: number = this.granularMaximumDelayTimeInSeconds;
 					const maxDelayTimeInSeconds: number = 2.4;
 					grain.delayLinePosition = this.usesRandomGrainLocation
-						? (minDelayTimeInSeconds + (maxDelayTimeInSeconds - minDelayTimeInSeconds) * Math.random() * Math.random() * samplesPerSecond) %
+						? (minDelayTimeInSeconds +
+								(maxDelayTimeInSeconds - minDelayTimeInSeconds) *
+									Math.random() *
+									Math.random() *
+									samplesPerSecond) %
 							(granularDelayLineLength - 1)
 						: minDelayTimeInSeconds; // Weight toward lower numbers using squared random, modulo instead of clamp to avoid end-clumping.
 					if (Config.granularEnvelopeType === GranularEnvelopeType.parabolic) {
 						grain.initializeParabolicEnvelope(grain.maxAgeInSamples, 1.0);
-					} else if (Config.granularEnvelopeType === GranularEnvelopeType.raisedCosineBell) {
+					} else if (
+						Config.granularEnvelopeType === GranularEnvelopeType.raisedCosineBell
+					) {
 						grain.initializeRCBEnvelope(grain.maxAgeInSamples, 1.0);
 					}
 					// if (this.usesRandomGrainLocation) {
@@ -578,71 +726,164 @@ export class InstrumentState {
 			let useDistortionEnd: number = instrument.distortion;
 
 			// Check for distortion mods
-			if (synth.isModActive(Config.modulators.dictionary.distortion.index, channelIndex, instrumentIndex)) {
-				useDistortionStart = synth.getModValue(Config.modulators.dictionary.distortion.index, channelIndex, instrumentIndex, false);
-				useDistortionEnd = synth.getModValue(Config.modulators.dictionary.distortion.index, channelIndex, instrumentIndex, true);
+			if (
+				synth.isModActive(
+					Config.modulators.dictionary.distortion.index,
+					channelIndex,
+					instrumentIndex,
+				)
+			) {
+				useDistortionStart = synth.getModValue(
+					Config.modulators.dictionary.distortion.index,
+					channelIndex,
+					instrumentIndex,
+					false,
+				);
+				useDistortionEnd = synth.getModValue(
+					Config.modulators.dictionary.distortion.index,
+					channelIndex,
+					instrumentIndex,
+					true,
+				);
 			}
 
-			const distortionSliderStart = Math.min(1.0, (envelopeStarts[EnvelopeComputeIndex.distortion] * useDistortionStart) / (Config.distortionRange - 1));
-			const distortionSliderEnd = Math.min(1.0, (envelopeEnds[EnvelopeComputeIndex.distortion] * useDistortionEnd) / (Config.distortionRange - 1));
-			const distortionStart: number = (1.0 - (0.895 * (20.0 ** distortionSliderStart - 1.0)) / 19.0) ** 2.0;
-			const distortionEnd: number = (1.0 - (0.895 * (20.0 ** distortionSliderEnd - 1.0)) / 19.0) ** 2.0;
-			const distortionDriveStart: number = (1.0 + 2.0 * distortionSliderStart) / Config.distortionBaseVolume;
-			const distortionDriveEnd: number = (1.0 + 2.0 * distortionSliderEnd) / Config.distortionBaseVolume;
+			const distortionSliderStart = Math.min(
+				1.0,
+				(envelopeStarts[EnvelopeComputeIndex.distortion] * useDistortionStart) /
+					(Config.distortionRange - 1),
+			);
+			const distortionSliderEnd = Math.min(
+				1.0,
+				(envelopeEnds[EnvelopeComputeIndex.distortion] * useDistortionEnd) /
+					(Config.distortionRange - 1),
+			);
+			const distortionStart: number =
+				(1.0 - (0.895 * (20.0 ** distortionSliderStart - 1.0)) / 19.0) ** 2.0;
+			const distortionEnd: number =
+				(1.0 - (0.895 * (20.0 ** distortionSliderEnd - 1.0)) / 19.0) ** 2.0;
+			const distortionDriveStart: number =
+				(1.0 + 2.0 * distortionSliderStart) / Config.distortionBaseVolume;
+			const distortionDriveEnd: number =
+				(1.0 + 2.0 * distortionSliderEnd) / Config.distortionBaseVolume;
 			this.distortion = distortionStart;
 			this.distortionDelta = (distortionEnd - distortionStart) / roundedSamplesPerTick;
 			this.distortionDrive = distortionDriveStart;
-			this.distortionDriveDelta = (distortionDriveEnd - distortionDriveStart) / roundedSamplesPerTick;
+			this.distortionDriveDelta =
+				(distortionDriveEnd - distortionDriveStart) / roundedSamplesPerTick;
 		}
 
 		if (usesBitcrusher) {
-			let freqSettingStart: number = instrument.bitcrusherFreq * Math.sqrt(envelopeStarts[EnvelopeComputeIndex.bitcrusherFrequency]);
-			let freqSettingEnd: number = instrument.bitcrusherFreq * Math.sqrt(envelopeEnds[EnvelopeComputeIndex.bitcrusherFrequency]);
+			let freqSettingStart: number =
+				instrument.bitcrusherFreq *
+				Math.sqrt(envelopeStarts[EnvelopeComputeIndex.bitcrusherFrequency]);
+			let freqSettingEnd: number =
+				instrument.bitcrusherFreq *
+				Math.sqrt(envelopeEnds[EnvelopeComputeIndex.bitcrusherFrequency]);
 
 			// Check for freq crush mods
-			if (synth.isModActive(Config.modulators.dictionary["freq crush"].index, channelIndex, instrumentIndex)) {
+			if (
+				synth.isModActive(
+					Config.modulators.dictionary["freq crush"].index,
+					channelIndex,
+					instrumentIndex,
+				)
+			) {
 				freqSettingStart =
-					synth.getModValue(Config.modulators.dictionary["freq crush"].index, channelIndex, instrumentIndex, false) *
-					Math.sqrt(envelopeStarts[EnvelopeComputeIndex.bitcrusherFrequency]);
+					synth.getModValue(
+						Config.modulators.dictionary["freq crush"].index,
+						channelIndex,
+						instrumentIndex,
+						false,
+					) * Math.sqrt(envelopeStarts[EnvelopeComputeIndex.bitcrusherFrequency]);
 				freqSettingEnd =
-					synth.getModValue(Config.modulators.dictionary["freq crush"].index, channelIndex, instrumentIndex, true) *
-					Math.sqrt(envelopeEnds[EnvelopeComputeIndex.bitcrusherFrequency]);
+					synth.getModValue(
+						Config.modulators.dictionary["freq crush"].index,
+						channelIndex,
+						instrumentIndex,
+						true,
+					) * Math.sqrt(envelopeEnds[EnvelopeComputeIndex.bitcrusherFrequency]);
 			}
 
-			let quantizationSettingStart: number = instrument.bitcrusherQuantization * Math.sqrt(envelopeStarts[EnvelopeComputeIndex.bitcrusherQuantization]);
-			let quantizationSettingEnd: number = instrument.bitcrusherQuantization * Math.sqrt(envelopeEnds[EnvelopeComputeIndex.bitcrusherQuantization]);
+			let quantizationSettingStart: number =
+				instrument.bitcrusherQuantization *
+				Math.sqrt(envelopeStarts[EnvelopeComputeIndex.bitcrusherQuantization]);
+			let quantizationSettingEnd: number =
+				instrument.bitcrusherQuantization *
+				Math.sqrt(envelopeEnds[EnvelopeComputeIndex.bitcrusherQuantization]);
 
 			// Check for bitcrush mods
-			if (synth.isModActive(Config.modulators.dictionary["bit crush"].index, channelIndex, instrumentIndex)) {
+			if (
+				synth.isModActive(
+					Config.modulators.dictionary["bit crush"].index,
+					channelIndex,
+					instrumentIndex,
+				)
+			) {
 				quantizationSettingStart =
-					synth.getModValue(Config.modulators.dictionary["bit crush"].index, channelIndex, instrumentIndex, false) *
-					Math.sqrt(envelopeStarts[EnvelopeComputeIndex.bitcrusherQuantization]);
+					synth.getModValue(
+						Config.modulators.dictionary["bit crush"].index,
+						channelIndex,
+						instrumentIndex,
+						false,
+					) * Math.sqrt(envelopeStarts[EnvelopeComputeIndex.bitcrusherQuantization]);
 				quantizationSettingEnd =
-					synth.getModValue(Config.modulators.dictionary["bit crush"].index, channelIndex, instrumentIndex, true) *
-					Math.sqrt(envelopeEnds[EnvelopeComputeIndex.bitcrusherQuantization]);
+					synth.getModValue(
+						Config.modulators.dictionary["bit crush"].index,
+						channelIndex,
+						instrumentIndex,
+						true,
+					) * Math.sqrt(envelopeEnds[EnvelopeComputeIndex.bitcrusherQuantization]);
 			}
 
-			const basePitch: number = Config.keys[synth.song!.key].basePitch + Config.pitchesPerOctave * synth.song!.octave; // TODO: What if there's a key change mid-song?
+			const basePitch: number =
+				Config.keys[synth.song!.key].basePitch +
+				Config.pitchesPerOctave * synth.song!.octave; // TODO: What if there's a key change mid-song?
 			const freqStart: number =
-				Instrument.frequencyFromPitch(basePitch + 60) * 2.0 ** ((Config.bitcrusherFreqRange - 1 - freqSettingStart) * Config.bitcrusherOctaveStep);
+				Instrument.frequencyFromPitch(basePitch + 60) *
+				2.0 **
+					((Config.bitcrusherFreqRange - 1 - freqSettingStart) *
+						Config.bitcrusherOctaveStep);
 			const freqEnd: number =
-				Instrument.frequencyFromPitch(basePitch + 60) * 2.0 ** ((Config.bitcrusherFreqRange - 1 - freqSettingEnd) * Config.bitcrusherOctaveStep);
+				Instrument.frequencyFromPitch(basePitch + 60) *
+				2.0 **
+					((Config.bitcrusherFreqRange - 1 - freqSettingEnd) *
+						Config.bitcrusherOctaveStep);
 			const phaseDeltaStart: number = Math.min(1.0, freqStart / samplesPerSecond);
 			const phaseDeltaEnd: number = Math.min(1.0, freqEnd / samplesPerSecond);
 			this.bitcrusherPhaseDelta = phaseDeltaStart;
-			this.bitcrusherPhaseDeltaScale = (phaseDeltaEnd / phaseDeltaStart) ** (1.0 / roundedSamplesPerTick);
+			this.bitcrusherPhaseDeltaScale =
+				(phaseDeltaEnd / phaseDeltaStart) ** (1.0 / roundedSamplesPerTick);
 
 			const scaleStart: number =
-				2.0 * Config.bitcrusherBaseVolume * 2.0 ** (1.0 - 2.0 ** ((Config.bitcrusherQuantizationRange - 1 - quantizationSettingStart) * 0.5));
+				2.0 *
+				Config.bitcrusherBaseVolume *
+				2.0 **
+					(1.0 -
+						2.0 **
+							((Config.bitcrusherQuantizationRange - 1 - quantizationSettingStart) *
+								0.5));
 			const scaleEnd: number =
-				2.0 * Config.bitcrusherBaseVolume * 2.0 ** (1.0 - 2.0 ** ((Config.bitcrusherQuantizationRange - 1 - quantizationSettingEnd) * 0.5));
+				2.0 *
+				Config.bitcrusherBaseVolume *
+				2.0 **
+					(1.0 -
+						2.0 **
+							((Config.bitcrusherQuantizationRange - 1 - quantizationSettingEnd) *
+								0.5));
 			this.bitcrusherScale = scaleStart;
 			this.bitcrusherScaleScale = (scaleEnd / scaleStart) ** (1.0 / roundedSamplesPerTick);
 
-			const foldLevelStart: number = 2.0 * Config.bitcrusherBaseVolume * 1.5 ** (Config.bitcrusherQuantizationRange - 1 - quantizationSettingStart);
-			const foldLevelEnd: number = 2.0 * Config.bitcrusherBaseVolume * 1.5 ** (Config.bitcrusherQuantizationRange - 1 - quantizationSettingEnd);
+			const foldLevelStart: number =
+				2.0 *
+				Config.bitcrusherBaseVolume *
+				1.5 ** (Config.bitcrusherQuantizationRange - 1 - quantizationSettingStart);
+			const foldLevelEnd: number =
+				2.0 *
+				Config.bitcrusherBaseVolume *
+				1.5 ** (Config.bitcrusherQuantizationRange - 1 - quantizationSettingEnd);
 			this.bitcrusherFoldLevel = foldLevelStart;
-			this.bitcrusherFoldLevelScale = (foldLevelEnd / foldLevelStart) ** (1.0 / roundedSamplesPerTick);
+			this.bitcrusherFoldLevelScale =
+				(foldLevelEnd / foldLevelStart) ** (1.0 / roundedSamplesPerTick);
 		}
 
 		let eqFilterVolume: number = 1.0; // this.envelopeComputer.lowpassCutoffDecayVolumeCompensation;
@@ -662,21 +903,56 @@ export class InstrumentState {
 
 			let filterChanges: boolean = false;
 
-			if (synth.isModActive(Config.modulators.dictionary["eq filt cut"].index, channelIndex, instrumentIndex)) {
-				startSimpleFreq = synth.getModValue(Config.modulators.dictionary["eq filt cut"].index, channelIndex, instrumentIndex, false);
-				endSimpleFreq = synth.getModValue(Config.modulators.dictionary["eq filt cut"].index, channelIndex, instrumentIndex, true);
+			if (
+				synth.isModActive(
+					Config.modulators.dictionary["eq filt cut"].index,
+					channelIndex,
+					instrumentIndex,
+				)
+			) {
+				startSimpleFreq = synth.getModValue(
+					Config.modulators.dictionary["eq filt cut"].index,
+					channelIndex,
+					instrumentIndex,
+					false,
+				);
+				endSimpleFreq = synth.getModValue(
+					Config.modulators.dictionary["eq filt cut"].index,
+					channelIndex,
+					instrumentIndex,
+					true,
+				);
 				filterChanges = true;
 			}
-			if (synth.isModActive(Config.modulators.dictionary["eq filt peak"].index, channelIndex, instrumentIndex)) {
-				startSimpleGain = synth.getModValue(Config.modulators.dictionary["eq filt peak"].index, channelIndex, instrumentIndex, false);
-				endSimpleGain = synth.getModValue(Config.modulators.dictionary["eq filt peak"].index, channelIndex, instrumentIndex, true);
+			if (
+				synth.isModActive(
+					Config.modulators.dictionary["eq filt peak"].index,
+					channelIndex,
+					instrumentIndex,
+				)
+			) {
+				startSimpleGain = synth.getModValue(
+					Config.modulators.dictionary["eq filt peak"].index,
+					channelIndex,
+					instrumentIndex,
+					false,
+				);
+				endSimpleGain = synth.getModValue(
+					Config.modulators.dictionary["eq filt peak"].index,
+					channelIndex,
+					instrumentIndex,
+					true,
+				);
 				filterChanges = true;
 			}
 
 			let startPoint: FilterControlPoint;
 
 			if (filterChanges) {
-				eqFilterSettingsStart.convertLegacySettingsForSynth(startSimpleFreq, startSimpleGain);
+				eqFilterSettingsStart.convertLegacySettingsForSynth(
+					startSimpleFreq,
+					startSimpleGain,
+				);
 				eqFilterSettingsEnd.convertLegacySettingsForSynth(endSimpleFreq, endSimpleGain);
 
 				startPoint = eqFilterSettingsStart.controlPoints[0];
@@ -693,7 +969,11 @@ export class InstrumentState {
 					startPoint.type === FilterType.lowPass,
 				);
 			} else {
-				eqFilterSettingsStart.convertLegacySettingsForSynth(startSimpleFreq, startSimpleGain, true);
+				eqFilterSettingsStart.convertLegacySettingsForSynth(
+					startSimpleFreq,
+					startSimpleGain,
+					true,
+				);
 
 				startPoint = eqFilterSettingsStart.controlPoints[0];
 
@@ -713,7 +993,10 @@ export class InstrumentState {
 			this.eqFilterCount = 1;
 			eqFilterVolume = Math.min(3.0, eqFilterVolume);
 		} else {
-			const eqFilterSettings: FilterSettings = instrument.tmpEqFilterStart != null ? instrument.tmpEqFilterStart : instrument.eqFilter;
+			const eqFilterSettings: FilterSettings =
+				instrument.tmpEqFilterStart != null
+					? instrument.tmpEqFilterStart
+					: instrument.eqFilter;
 			// const eqAllFreqsEnvelopeStart: number = envelopeStarts[InstrumentAutomationIndex.eqFilterAllFreqs];
 			// const eqAllFreqsEnvelopeEnd:   number = envelopeEnds[  InstrumentAutomationIndex.eqFilterAllFreqs];
 			for (let i: number = 0; i < eqFilterSettings.controlPointCount; i++) {
@@ -723,7 +1006,8 @@ export class InstrumentState {
 				// const eqPeakEnvelopeEnd:   number = envelopeEnds[  InstrumentAutomationIndex.eqFilterGain0 + i];
 				let startPoint: FilterControlPoint = eqFilterSettings.controlPoints[i];
 				const endPoint: FilterControlPoint =
-					instrument.tmpEqFilterEnd != null && instrument.tmpEqFilterEnd.controlPoints[i] != null
+					instrument.tmpEqFilterEnd != null &&
+					instrument.tmpEqFilterEnd.controlPoints[i] != null
 						? instrument.tmpEqFilterEnd.controlPoints[i]
 						: eqFilterSettings.controlPoints[i];
 
@@ -758,22 +1042,58 @@ export class InstrumentState {
 		}
 
 		const mainInstrumentVolume: number = instrumentVolumeToVolumeMult(instrument.volume);
-		this.mixVolume = mainInstrumentVolume /** envelopeStarts[InstrumentAutomationIndex.mixVolume]*/;
-		let mixVolumeEnd: number = mainInstrumentVolume /** envelopeEnds[  InstrumentAutomationIndex.mixVolume]*/;
+		this.mixVolume =
+			mainInstrumentVolume /** envelopeStarts[InstrumentAutomationIndex.mixVolume]*/;
+		let mixVolumeEnd: number =
+			mainInstrumentVolume /** envelopeEnds[  InstrumentAutomationIndex.mixVolume]*/;
 
 		// Check for mod-related volume delta
-		if (synth.isModActive(Config.modulators.dictionary["mix volume"].index, channelIndex, instrumentIndex)) {
+		if (
+			synth.isModActive(
+				Config.modulators.dictionary["mix volume"].index,
+				channelIndex,
+				instrumentIndex,
+			)
+		) {
 			// Linear falloff below 0, normal volume formula above 0. Seems to work best for scaling since the normal volume mult formula has a big gap from -25 to -24.
-			const startVal: number = synth.getModValue(Config.modulators.dictionary["mix volume"].index, channelIndex, instrumentIndex, false);
-			const endVal: number = synth.getModValue(Config.modulators.dictionary["mix volume"].index, channelIndex, instrumentIndex, true);
-			this.mixVolume *= startVal <= 0 ? (startVal + Config.volumeRange / 2) / (Config.volumeRange / 2) : instrumentVolumeToVolumeMult(startVal);
-			mixVolumeEnd *= endVal <= 0 ? (endVal + Config.volumeRange / 2) / (Config.volumeRange / 2) : instrumentVolumeToVolumeMult(endVal);
+			const startVal: number = synth.getModValue(
+				Config.modulators.dictionary["mix volume"].index,
+				channelIndex,
+				instrumentIndex,
+				false,
+			);
+			const endVal: number = synth.getModValue(
+				Config.modulators.dictionary["mix volume"].index,
+				channelIndex,
+				instrumentIndex,
+				true,
+			);
+			this.mixVolume *=
+				startVal <= 0
+					? (startVal + Config.volumeRange / 2) / (Config.volumeRange / 2)
+					: instrumentVolumeToVolumeMult(startVal);
+			mixVolumeEnd *=
+				endVal <= 0
+					? (endVal + Config.volumeRange / 2) / (Config.volumeRange / 2)
+					: instrumentVolumeToVolumeMult(endVal);
 		}
 
 		// Check for SONG mod-related volume delta
 		if (synth.isModActive(Config.modulators.dictionary["song volume"].index)) {
-			this.mixVolume *= synth.getModValue(Config.modulators.dictionary["song volume"].index, undefined, undefined, false) / 100.0;
-			mixVolumeEnd *= synth.getModValue(Config.modulators.dictionary["song volume"].index, undefined, undefined, true) / 100.0;
+			this.mixVolume *=
+				synth.getModValue(
+					Config.modulators.dictionary["song volume"].index,
+					undefined,
+					undefined,
+					false,
+				) / 100.0;
+			mixVolumeEnd *=
+				synth.getModValue(
+					Config.modulators.dictionary["song volume"].index,
+					undefined,
+					undefined,
+					true,
+				) / 100.0;
 		}
 
 		this.mixVolumeDelta = (mixVolumeEnd - this.mixVolume) / roundedSamplesPerTick;
@@ -784,19 +1104,45 @@ export class InstrumentState {
 		let delayInputMultEnd: number = 1.0;
 
 		if (usesPanning) {
-			const panEnvelopeStart: number = envelopeStarts[EnvelopeComputeIndex.panning] * 2.0 - 1.0;
+			const panEnvelopeStart: number =
+				envelopeStarts[EnvelopeComputeIndex.panning] * 2.0 - 1.0;
 			const panEnvelopeEnd: number = envelopeEnds[EnvelopeComputeIndex.panning] * 2.0 - 1.0;
 
 			let usePanStart: number = instrument.pan;
 			let usePanEnd: number = instrument.pan;
 			// Check for pan mods
-			if (synth.isModActive(Config.modulators.dictionary.pan.index, channelIndex, instrumentIndex)) {
-				usePanStart = synth.getModValue(Config.modulators.dictionary.pan.index, channelIndex, instrumentIndex, false);
-				usePanEnd = synth.getModValue(Config.modulators.dictionary.pan.index, channelIndex, instrumentIndex, true);
+			if (
+				synth.isModActive(
+					Config.modulators.dictionary.pan.index,
+					channelIndex,
+					instrumentIndex,
+				)
+			) {
+				usePanStart = synth.getModValue(
+					Config.modulators.dictionary.pan.index,
+					channelIndex,
+					instrumentIndex,
+					false,
+				);
+				usePanEnd = synth.getModValue(
+					Config.modulators.dictionary.pan.index,
+					channelIndex,
+					instrumentIndex,
+					true,
+				);
 			}
 
-			const panStart: number = Math.max(-1.0, Math.min(1.0, ((usePanStart - Config.panCenter) / Config.panCenter) * panEnvelopeStart));
-			const panEnd: number = Math.max(-1.0, Math.min(1.0, ((usePanEnd - Config.panCenter) / Config.panCenter) * panEnvelopeEnd));
+			const panStart: number = Math.max(
+				-1.0,
+				Math.min(
+					1.0,
+					((usePanStart - Config.panCenter) / Config.panCenter) * panEnvelopeStart,
+				),
+			);
+			const panEnd: number = Math.max(
+				-1.0,
+				Math.min(1.0, ((usePanEnd - Config.panCenter) / Config.panCenter) * panEnvelopeEnd),
+			);
 
 			const volumeStartL: number = Math.cos((1 + panStart) * Math.PI * 0.25) * 1.414;
 			const volumeStartR: number = Math.cos((1 - panStart) * Math.PI * 0.25) * 1.414;
@@ -807,9 +1153,25 @@ export class InstrumentState {
 			let usePanDelayStart: number = instrument.panDelay;
 			let usePanDelayEnd: number = instrument.panDelay;
 			// Check for pan delay mods
-			if (synth.isModActive(Config.modulators.dictionary["pan delay"].index, channelIndex, instrumentIndex)) {
-				usePanDelayStart = synth.getModValue(Config.modulators.dictionary["pan delay"].index, channelIndex, instrumentIndex, false);
-				usePanDelayEnd = synth.getModValue(Config.modulators.dictionary["pan delay"].index, channelIndex, instrumentIndex, true);
+			if (
+				synth.isModActive(
+					Config.modulators.dictionary["pan delay"].index,
+					channelIndex,
+					instrumentIndex,
+				)
+			) {
+				usePanDelayStart = synth.getModValue(
+					Config.modulators.dictionary["pan delay"].index,
+					channelIndex,
+					instrumentIndex,
+					false,
+				);
+				usePanDelayEnd = synth.getModValue(
+					Config.modulators.dictionary["pan delay"].index,
+					channelIndex,
+					instrumentIndex,
+					true,
+				);
 			}
 
 			const delayStart: number = (panStart * usePanDelayStart * maxDelaySamples) / 10;
@@ -835,13 +1197,35 @@ export class InstrumentState {
 			let useChorusStart: number = instrument.chorus;
 			let useChorusEnd: number = instrument.chorus;
 			// Check for chorus mods
-			if (synth.isModActive(Config.modulators.dictionary.chorus.index, channelIndex, instrumentIndex)) {
-				useChorusStart = synth.getModValue(Config.modulators.dictionary.chorus.index, channelIndex, instrumentIndex, false);
-				useChorusEnd = synth.getModValue(Config.modulators.dictionary.chorus.index, channelIndex, instrumentIndex, true);
+			if (
+				synth.isModActive(
+					Config.modulators.dictionary.chorus.index,
+					channelIndex,
+					instrumentIndex,
+				)
+			) {
+				useChorusStart = synth.getModValue(
+					Config.modulators.dictionary.chorus.index,
+					channelIndex,
+					instrumentIndex,
+					false,
+				);
+				useChorusEnd = synth.getModValue(
+					Config.modulators.dictionary.chorus.index,
+					channelIndex,
+					instrumentIndex,
+					true,
+				);
 			}
 
-			let chorusStart: number = Math.min(1.0, (chorusEnvelopeStart * useChorusStart) / (Config.chorusRange - 1));
-			let chorusEnd: number = Math.min(1.0, (chorusEnvelopeEnd * useChorusEnd) / (Config.chorusRange - 1));
+			let chorusStart: number = Math.min(
+				1.0,
+				(chorusEnvelopeStart * useChorusStart) / (Config.chorusRange - 1),
+			);
+			let chorusEnd: number = Math.min(
+				1.0,
+				(chorusEnvelopeEnd * useChorusEnd) / (Config.chorusRange - 1),
+			);
 			chorusStart = chorusStart * 0.6 + chorusStart ** 6.0 * 0.4;
 			chorusEnd = chorusEnd * 0.6 + chorusEnd ** 6.0 * 0.4;
 			const chorusCombinedMultStart = 1.0 / Math.sqrt(3.0 * chorusStart * chorusStart + 1.0);
@@ -849,31 +1233,68 @@ export class InstrumentState {
 			this.chorusVoiceMult = chorusStart;
 			this.chorusVoiceMultDelta = (chorusEnd - chorusStart) / roundedSamplesPerTick;
 			this.chorusCombinedMult = chorusCombinedMultStart;
-			this.chorusCombinedMultDelta = (chorusCombinedMultEnd - chorusCombinedMultStart) / roundedSamplesPerTick;
+			this.chorusCombinedMultDelta =
+				(chorusCombinedMultEnd - chorusCombinedMultStart) / roundedSamplesPerTick;
 		}
 
 		if (usesRingModulation) {
 			let useRingModStart: number = instrument.ringModulation;
 			let useRingModEnd: number = instrument.ringModulation;
 
-			const useRingModEnvelopeStart: number = envelopeStarts[EnvelopeComputeIndex.ringModulation];
+			const useRingModEnvelopeStart: number =
+				envelopeStarts[EnvelopeComputeIndex.ringModulation];
 			const useRingModEnvelopeEnd: number = envelopeEnds[EnvelopeComputeIndex.ringModulation];
 
-			let useRingModHzStart: number = Math.min(1.0, instrument.ringModulationHz / (Config.ringModHzRange - 1));
-			let useRingModHzEnd: number = Math.min(1.0, instrument.ringModulationHz / (Config.ringModHzRange - 1));
-			const useRingModHzEnvelopeStart: number = envelopeStarts[EnvelopeComputeIndex.ringModulationHz];
-			const useRingModHzEnvelopeEnd: number = envelopeEnds[EnvelopeComputeIndex.ringModulationHz];
+			let useRingModHzStart: number = Math.min(
+				1.0,
+				instrument.ringModulationHz / (Config.ringModHzRange - 1),
+			);
+			let useRingModHzEnd: number = Math.min(
+				1.0,
+				instrument.ringModulationHz / (Config.ringModHzRange - 1),
+			);
+			const useRingModHzEnvelopeStart: number =
+				envelopeStarts[EnvelopeComputeIndex.ringModulationHz];
+			const useRingModHzEnvelopeEnd: number =
+				envelopeEnds[EnvelopeComputeIndex.ringModulationHz];
 
-			if (synth.isModActive(Config.modulators.dictionary["ring modulation"].index, channelIndex, instrumentIndex)) {
-				useRingModStart = synth.getModValue(Config.modulators.dictionary["ring modulation"].index, channelIndex, instrumentIndex, false);
-				useRingModEnd = synth.getModValue(Config.modulators.dictionary["ring modulation"].index, channelIndex, instrumentIndex, true);
+			if (
+				synth.isModActive(
+					Config.modulators.dictionary["ring modulation"].index,
+					channelIndex,
+					instrumentIndex,
+				)
+			) {
+				useRingModStart = synth.getModValue(
+					Config.modulators.dictionary["ring modulation"].index,
+					channelIndex,
+					instrumentIndex,
+					false,
+				);
+				useRingModEnd = synth.getModValue(
+					Config.modulators.dictionary["ring modulation"].index,
+					channelIndex,
+					instrumentIndex,
+					true,
+				);
 			}
-			if (synth.isModActive(Config.modulators.dictionary["ring mod hertz"].index, channelIndex, instrumentIndex)) {
+			if (
+				synth.isModActive(
+					Config.modulators.dictionary["ring mod hertz"].index,
+					channelIndex,
+					instrumentIndex,
+				)
+			) {
 				useRingModHzStart = Math.min(
 					1.0,
 					Math.max(
 						0.0,
-						synth.getModValue(Config.modulators.dictionary["ring mod hertz"].index, channelIndex, instrumentIndex, false) /
+						synth.getModValue(
+							Config.modulators.dictionary["ring mod hertz"].index,
+							channelIndex,
+							instrumentIndex,
+							false,
+						) /
 							(Config.ringModHzRange - 1),
 					),
 				);
@@ -881,39 +1302,63 @@ export class InstrumentState {
 					1.0,
 					Math.max(
 						0.0,
-						synth.getModValue(Config.modulators.dictionary["ring mod hertz"].index, channelIndex, instrumentIndex, false) /
+						synth.getModValue(
+							Config.modulators.dictionary["ring mod hertz"].index,
+							channelIndex,
+							instrumentIndex,
+							false,
+						) /
 							(Config.ringModHzRange - 1),
 					),
 				);
 			}
 			useRingModHzStart *= useRingModHzEnvelopeStart;
 			useRingModHzEnd *= useRingModHzEnvelopeEnd;
-			const ringModStart: number = Math.min(1.0, (useRingModStart * useRingModEnvelopeStart) / (Config.ringModRange - 1));
-			const ringModEnd: number = Math.min(1.0, (useRingModEnd * useRingModEnvelopeEnd) / (Config.ringModRange - 1));
+			const ringModStart: number = Math.min(
+				1.0,
+				(useRingModStart * useRingModEnvelopeStart) / (Config.ringModRange - 1),
+			);
+			const ringModEnd: number = Math.min(
+				1.0,
+				(useRingModEnd * useRingModEnvelopeEnd) / (Config.ringModRange - 1),
+			);
 
 			this.ringModMix = ringModStart;
 			this.ringModMixDelta = (ringModEnd - ringModStart) / roundedSamplesPerTick;
 
 			this.ringModHzOffset = instrument.ringModHzOffset;
 
-			let ringModPhaseDeltaStart = Math.max(0, calculateRingModHertz(useRingModHzStart)) / synth.samplesPerSecond;
-			let ringModPhaseDeltaEnd = Math.max(0, calculateRingModHertz(useRingModHzEnd)) / synth.samplesPerSecond;
+			let ringModPhaseDeltaStart =
+				Math.max(0, calculateRingModHertz(useRingModHzStart)) / synth.samplesPerSecond;
+			let ringModPhaseDeltaEnd =
+				Math.max(0, calculateRingModHertz(useRingModHzEnd)) / synth.samplesPerSecond;
 
-			if (useRingModHzStart < 1 / (Config.ringModHzRange - 1) || useRingModHzEnd < 1 / (Config.ringModHzRange - 1)) {
+			if (
+				useRingModHzStart < 1 / (Config.ringModHzRange - 1) ||
+				useRingModHzEnd < 1 / (Config.ringModHzRange - 1)
+			) {
 				ringModPhaseDeltaStart *= useRingModHzStart * (Config.ringModHzRange - 1);
 				ringModPhaseDeltaEnd *= useRingModHzEnd * (Config.ringModHzRange - 1);
 			}
 
 			this.ringModMixFadeDelta = 0;
 			if (this.ringModMixFade < 0) this.ringModMixFade = 0;
-			if (ringModPhaseDeltaStart <= 0 && ringModPhaseDeltaEnd <= 0 && this.ringModMixFade !== 0) {
+			if (
+				ringModPhaseDeltaStart <= 0 &&
+				ringModPhaseDeltaEnd <= 0 &&
+				this.ringModMixFade !== 0
+			) {
 				this.ringModMixFadeDelta = this.ringModMixFade / -40;
 			} else if (ringModPhaseDeltaStart > 0 && ringModPhaseDeltaEnd > 0) {
 				this.ringModMixFade = 1.0;
 			}
 
 			this.ringModPhaseDelta = ringModPhaseDeltaStart;
-			this.ringModPhaseDeltaScale = ringModPhaseDeltaStart === 0 ? 1 : (ringModPhaseDeltaEnd / ringModPhaseDeltaStart) ** (1.0 / roundedSamplesPerTick);
+			this.ringModPhaseDeltaScale =
+				ringModPhaseDeltaStart === 0
+					? 1
+					: (ringModPhaseDeltaEnd / ringModPhaseDeltaStart) **
+						(1.0 / roundedSamplesPerTick);
 
 			this.ringModWaveformIndex = instrument.ringModWaveformIndex;
 			this.ringModPulseWidth = instrument.ringModPulseWidth;
@@ -922,19 +1367,54 @@ export class InstrumentState {
 		let maxEchoMult = 0.0;
 		let averageEchoDelaySeconds: number = 0.0;
 		if (usesEcho) {
-			const echoSustainEnvelopeStart: number = envelopeStarts[EnvelopeComputeIndex.echoSustain];
+			const echoSustainEnvelopeStart: number =
+				envelopeStarts[EnvelopeComputeIndex.echoSustain];
 			const echoSustainEnvelopeEnd: number = envelopeEnds[EnvelopeComputeIndex.echoSustain];
 			let useEchoSustainStart: number = instrument.echoSustain;
 			let useEchoSustainEnd: number = instrument.echoSustain;
 			// Check for echo mods
-			if (synth.isModActive(Config.modulators.dictionary.echo.index, channelIndex, instrumentIndex)) {
-				useEchoSustainStart = Math.max(0.0, synth.getModValue(Config.modulators.dictionary.echo.index, channelIndex, instrumentIndex, false));
-				useEchoSustainEnd = Math.max(0.0, synth.getModValue(Config.modulators.dictionary.echo.index, channelIndex, instrumentIndex, true));
+			if (
+				synth.isModActive(
+					Config.modulators.dictionary.echo.index,
+					channelIndex,
+					instrumentIndex,
+				)
+			) {
+				useEchoSustainStart = Math.max(
+					0.0,
+					synth.getModValue(
+						Config.modulators.dictionary.echo.index,
+						channelIndex,
+						instrumentIndex,
+						false,
+					),
+				);
+				useEchoSustainEnd = Math.max(
+					0.0,
+					synth.getModValue(
+						Config.modulators.dictionary.echo.index,
+						channelIndex,
+						instrumentIndex,
+						true,
+					),
+				);
 			}
-			const echoMultStart: number = Math.min(1.0, ((echoSustainEnvelopeStart * useEchoSustainStart) / Config.echoSustainRange) ** 1.1) * 0.9;
-			const echoMultEnd: number = Math.min(1.0, ((echoSustainEnvelopeEnd * useEchoSustainEnd) / Config.echoSustainRange) ** 1.1) * 0.9;
+			const echoMultStart: number =
+				Math.min(
+					1.0,
+					((echoSustainEnvelopeStart * useEchoSustainStart) / Config.echoSustainRange) **
+						1.1,
+				) * 0.9;
+			const echoMultEnd: number =
+				Math.min(
+					1.0,
+					((echoSustainEnvelopeEnd * useEchoSustainEnd) / Config.echoSustainRange) ** 1.1,
+				) * 0.9;
 			this.echoMult = echoMultStart;
-			this.echoMultDelta = Math.max(0.0, (echoMultEnd - echoMultStart) / roundedSamplesPerTick);
+			this.echoMultDelta = Math.max(
+				0.0,
+				(echoMultEnd - echoMultStart) / roundedSamplesPerTick,
+			);
 			maxEchoMult = Math.max(echoMultStart, echoMultEnd);
 
 			// TODO: After computing a tick's settings once for multiple run lengths (which is
@@ -948,14 +1428,34 @@ export class InstrumentState {
 			let useEchoDelayEnd: number = instrument.echoDelay * echoDelayEnvelopeEnd;
 
 			// Check for echo delay mods
-			if (synth.isModActive(Config.modulators.dictionary["echo delay"].index, channelIndex, instrumentIndex)) {
+			if (
+				synth.isModActive(
+					Config.modulators.dictionary["echo delay"].index,
+					channelIndex,
+					instrumentIndex,
+				)
+			) {
 				useEchoDelayStart =
-					synth.getModValue(Config.modulators.dictionary["echo delay"].index, channelIndex, instrumentIndex, false) * echoDelayEnvelopeStart;
+					synth.getModValue(
+						Config.modulators.dictionary["echo delay"].index,
+						channelIndex,
+						instrumentIndex,
+						false,
+					) * echoDelayEnvelopeStart;
 				useEchoDelayEnd =
-					synth.getModValue(Config.modulators.dictionary["echo delay"].index, channelIndex, instrumentIndex, true) * echoDelayEnvelopeEnd;
+					synth.getModValue(
+						Config.modulators.dictionary["echo delay"].index,
+						channelIndex,
+						instrumentIndex,
+						true,
+					) * echoDelayEnvelopeEnd;
 			}
-			const tmpEchoDelayOffsetStart: number = Math.round((useEchoDelayStart + 1) * Config.echoDelayStepTicks * samplesPerTick);
-			const tmpEchoDelayOffsetEnd: number = Math.round((useEchoDelayEnd + 1) * Config.echoDelayStepTicks * samplesPerTick);
+			const tmpEchoDelayOffsetStart: number = Math.round(
+				(useEchoDelayStart + 1) * Config.echoDelayStepTicks * samplesPerTick,
+			);
+			const tmpEchoDelayOffsetEnd: number = Math.round(
+				(useEchoDelayEnd + 1) * Config.echoDelayStepTicks * samplesPerTick,
+			);
 			if (this.echoDelayOffsetEnd != null) {
 				this.echoDelayOffsetStart = this.echoDelayOffsetEnd;
 			} else {
@@ -963,12 +1463,14 @@ export class InstrumentState {
 			}
 
 			this.echoDelayOffsetEnd = tmpEchoDelayOffsetEnd;
-			averageEchoDelaySeconds = ((this.echoDelayOffsetStart + this.echoDelayOffsetEnd) * 0.5) / samplesPerSecond;
+			averageEchoDelaySeconds =
+				((this.echoDelayOffsetStart + this.echoDelayOffsetEnd) * 0.5) / samplesPerSecond;
 
 			this.echoDelayOffsetRatio = 0.0;
 			this.echoDelayOffsetRatioDelta = 1.0 / roundedSamplesPerTick;
 
-			const shelfRadians: number = (2.0 * Math.PI * Config.echoShelfHz) / synth.samplesPerSecond;
+			const shelfRadians: number =
+				(2.0 * Math.PI * Config.echoShelfHz) / synth.samplesPerSecond;
 			tempFilterStartCoefficients.highShelf1stOrder(shelfRadians, Config.echoShelfGain);
 			this.echoShelfA1 = tempFilterStartCoefficients.a[1];
 			this.echoShelfB0 = tempFilterStartCoefficients.b[0];
@@ -980,21 +1482,49 @@ export class InstrumentState {
 		if (usesPhaser) {
 			const phaserMinFeedback: number = 0.0;
 			const phaserMaxFeedback: number = 0.95;
-			const phaserFeedbackMultSlider: number = instrument.phaserFeedback / Config.phaserFeedbackRange;
-			const phaserFeedbackMultEnvelopeStart: number = envelopeStarts[EnvelopeComputeIndex.phaserFeedback];
-			const phaserFeedbackMultEnvelopeEnd: number = envelopeEnds[EnvelopeComputeIndex.phaserFeedback];
-			let phaserFeedbackMultRawStart: number = phaserFeedbackMultSlider * phaserFeedbackMultEnvelopeStart;
-			let phaserFeedbackMultRawEnd: number = phaserFeedbackMultSlider * phaserFeedbackMultEnvelopeEnd;
-			if (synth.isModActive(Config.modulators.dictionary["phaser feedback"].index, channelIndex, instrumentIndex)) {
+			const phaserFeedbackMultSlider: number =
+				instrument.phaserFeedback / Config.phaserFeedbackRange;
+			const phaserFeedbackMultEnvelopeStart: number =
+				envelopeStarts[EnvelopeComputeIndex.phaserFeedback];
+			const phaserFeedbackMultEnvelopeEnd: number =
+				envelopeEnds[EnvelopeComputeIndex.phaserFeedback];
+			let phaserFeedbackMultRawStart: number =
+				phaserFeedbackMultSlider * phaserFeedbackMultEnvelopeStart;
+			let phaserFeedbackMultRawEnd: number =
+				phaserFeedbackMultSlider * phaserFeedbackMultEnvelopeEnd;
+			if (
+				synth.isModActive(
+					Config.modulators.dictionary["phaser feedback"].index,
+					channelIndex,
+					instrumentIndex,
+				)
+			) {
 				phaserFeedbackMultRawStart =
-					synth.getModValue(Config.modulators.dictionary["phaser feedback"].index, channelIndex, instrumentIndex, false) / Config.phaserFeedbackRange;
+					synth.getModValue(
+						Config.modulators.dictionary["phaser feedback"].index,
+						channelIndex,
+						instrumentIndex,
+						false,
+					) / Config.phaserFeedbackRange;
 				phaserFeedbackMultRawEnd =
-					synth.getModValue(Config.modulators.dictionary["phaser feedback"].index, channelIndex, instrumentIndex, true) / Config.phaserFeedbackRange;
+					synth.getModValue(
+						Config.modulators.dictionary["phaser feedback"].index,
+						channelIndex,
+						instrumentIndex,
+						true,
+					) / Config.phaserFeedbackRange;
 			}
-			const phaserFeedbackMultStart: number = Math.max(phaserMinFeedback, Math.min(phaserMaxFeedback, phaserFeedbackMultRawStart));
-			const phaserFeedbackMultEnd: number = Math.max(phaserMinFeedback, Math.min(phaserMaxFeedback, phaserFeedbackMultRawEnd));
+			const phaserFeedbackMultStart: number = Math.max(
+				phaserMinFeedback,
+				Math.min(phaserMaxFeedback, phaserFeedbackMultRawStart),
+			);
+			const phaserFeedbackMultEnd: number = Math.max(
+				phaserMinFeedback,
+				Math.min(phaserMaxFeedback, phaserFeedbackMultRawEnd),
+			);
 			this.phaserFeedbackMult = phaserFeedbackMultStart;
-			this.phaserFeedbackMultDelta = (phaserFeedbackMultEnd - phaserFeedbackMultStart) / roundedSamplesPerTick;
+			this.phaserFeedbackMultDelta =
+				(phaserFeedbackMultEnd - phaserFeedbackMultStart) / roundedSamplesPerTick;
 			const phaserMixSlider: number = instrument.phaserMix / (Config.phaserMixRange - 1);
 
 			const phaserMixEnvelopeStart: number = envelopeStarts[EnvelopeComputeIndex.phaserMix];
@@ -1002,17 +1532,39 @@ export class InstrumentState {
 			let phaserMixStart: number = phaserMixSlider * phaserMixEnvelopeStart;
 			let phaserMixEnd: number = phaserMixSlider * phaserMixEnvelopeEnd;
 
-			if (synth.isModActive(Config.modulators.dictionary.phaser.index, channelIndex, instrumentIndex)) {
+			if (
+				synth.isModActive(
+					Config.modulators.dictionary.phaser.index,
+					channelIndex,
+					instrumentIndex,
+				)
+			) {
 				phaserMixStart =
 					Math.max(
 						0,
-						Math.min(Config.phaserMixRange - 1, synth.getModValue(Config.modulators.dictionary.phaser.index, channelIndex, instrumentIndex, false)),
+						Math.min(
+							Config.phaserMixRange - 1,
+							synth.getModValue(
+								Config.modulators.dictionary.phaser.index,
+								channelIndex,
+								instrumentIndex,
+								false,
+							),
+						),
 					) /
 					(Config.phaserMixRange - 1);
 				phaserMixEnd =
 					Math.max(
 						0,
-						Math.min(Config.phaserMixRange - 1, synth.getModValue(Config.modulators.dictionary.phaser.index, channelIndex, instrumentIndex, true)),
+						Math.min(
+							Config.phaserMixRange - 1,
+							synth.getModValue(
+								Config.modulators.dictionary.phaser.index,
+								channelIndex,
+								instrumentIndex,
+								true,
+							),
+						),
 					) /
 					(Config.phaserMixRange - 1);
 			}
@@ -1020,38 +1572,102 @@ export class InstrumentState {
 			this.phaserMixDelta = (phaserMixEnd - phaserMixStart) / roundedSamplesPerTick;
 
 			// @TODO: Use filtering.ts
-			const phaserBreakFreqSlider: number = instrument.phaserFreq / (Config.phaserFreqRange - 1);
-			const phaserBreakFreqEnvelopeStart: number = envelopeStarts[EnvelopeComputeIndex.phaserFreq];
-			const phaserBreakFreqEnvelopeEnd: number = envelopeEnds[EnvelopeComputeIndex.phaserFreq];
-			let phaserBreakFreqRawStart: number = phaserBreakFreqSlider * phaserBreakFreqEnvelopeStart;
+			const phaserBreakFreqSlider: number =
+				instrument.phaserFreq / (Config.phaserFreqRange - 1);
+			const phaserBreakFreqEnvelopeStart: number =
+				envelopeStarts[EnvelopeComputeIndex.phaserFreq];
+			const phaserBreakFreqEnvelopeEnd: number =
+				envelopeEnds[EnvelopeComputeIndex.phaserFreq];
+			let phaserBreakFreqRawStart: number =
+				phaserBreakFreqSlider * phaserBreakFreqEnvelopeStart;
 			let phaserBreakFreqRawEnd: number = phaserBreakFreqSlider * phaserBreakFreqEnvelopeEnd;
-			if (synth.isModActive(Config.modulators.dictionary["phaser frequency"].index, channelIndex, instrumentIndex)) {
+			if (
+				synth.isModActive(
+					Config.modulators.dictionary["phaser frequency"].index,
+					channelIndex,
+					instrumentIndex,
+				)
+			) {
 				phaserBreakFreqRawStart =
-					synth.getModValue(Config.modulators.dictionary["phaser frequency"].index, channelIndex, instrumentIndex, false) / Config.phaserFreqRange;
+					synth.getModValue(
+						Config.modulators.dictionary["phaser frequency"].index,
+						channelIndex,
+						instrumentIndex,
+						false,
+					) / Config.phaserFreqRange;
 				phaserBreakFreqRawEnd =
-					synth.getModValue(Config.modulators.dictionary["phaser frequency"].index, channelIndex, instrumentIndex, true) / Config.phaserFreqRange;
+					synth.getModValue(
+						Config.modulators.dictionary["phaser frequency"].index,
+						channelIndex,
+						instrumentIndex,
+						true,
+					) / Config.phaserFreqRange;
 			}
-			const phaserBreakFreqRemappedStart: number = Config.phaserMinFreq * (Config.phaserMaxFreq / Config.phaserMinFreq) ** phaserBreakFreqRawStart;
-			const phaserBreakFreqRemappedEnd: number = Config.phaserMinFreq * (Config.phaserMaxFreq / Config.phaserMinFreq) ** phaserBreakFreqRawEnd;
-			const phaserBreakFreqStart: number = Math.max(Config.phaserMinFreq, Math.min(Config.phaserMaxFreq, phaserBreakFreqRemappedStart));
-			const phaserBreakFreqStartT: number = Math.tan((Math.PI * phaserBreakFreqStart) / samplesPerSecond);
-			const phaserBreakCoefStart: number = (phaserBreakFreqStartT - 1) / (phaserBreakFreqStartT + 1);
-			const phaserBreakFreqEnd: number = Math.max(Config.phaserMinFreq, Math.min(Config.phaserMaxFreq, phaserBreakFreqRemappedEnd));
-			const phaserBreakFreqEndT: number = Math.tan((Math.PI * phaserBreakFreqEnd) / samplesPerSecond);
-			const phaserBreakCoefEnd: number = (phaserBreakFreqEndT - 1) / (phaserBreakFreqEndT + 1);
+			const phaserBreakFreqRemappedStart: number =
+				Config.phaserMinFreq *
+				(Config.phaserMaxFreq / Config.phaserMinFreq) ** phaserBreakFreqRawStart;
+			const phaserBreakFreqRemappedEnd: number =
+				Config.phaserMinFreq *
+				(Config.phaserMaxFreq / Config.phaserMinFreq) ** phaserBreakFreqRawEnd;
+			const phaserBreakFreqStart: number = Math.max(
+				Config.phaserMinFreq,
+				Math.min(Config.phaserMaxFreq, phaserBreakFreqRemappedStart),
+			);
+			const phaserBreakFreqStartT: number = Math.tan(
+				(Math.PI * phaserBreakFreqStart) / samplesPerSecond,
+			);
+			const phaserBreakCoefStart: number =
+				(phaserBreakFreqStartT - 1) / (phaserBreakFreqStartT + 1);
+			const phaserBreakFreqEnd: number = Math.max(
+				Config.phaserMinFreq,
+				Math.min(Config.phaserMaxFreq, phaserBreakFreqRemappedEnd),
+			);
+			const phaserBreakFreqEndT: number = Math.tan(
+				(Math.PI * phaserBreakFreqEnd) / samplesPerSecond,
+			);
+			const phaserBreakCoefEnd: number =
+				(phaserBreakFreqEndT - 1) / (phaserBreakFreqEndT + 1);
 
 			this.phaserBreakCoef = phaserBreakCoefStart;
-			this.phaserBreakCoefDelta = (phaserBreakCoefEnd - phaserBreakCoefStart) / roundedSamplesPerTick;
-			const phaserStagesEnvelopeStart: number = envelopeStarts[EnvelopeComputeIndex.phaserStages];
+			this.phaserBreakCoefDelta =
+				(phaserBreakCoefEnd - phaserBreakCoefStart) / roundedSamplesPerTick;
+			const phaserStagesEnvelopeStart: number =
+				envelopeStarts[EnvelopeComputeIndex.phaserStages];
 			const phaserStagesEnvelopeEnd: number = envelopeEnds[EnvelopeComputeIndex.phaserStages];
 			const phaserStagesSlider: number = instrument.phaserStages;
 
-			let phaserStagesStart = Math.max(Config.phaserMinStages, Math.min(Config.phaserMaxStages, phaserStagesSlider * phaserStagesEnvelopeStart));
-			let phaserStagesEnd = Math.max(Config.phaserMinStages, Math.min(Config.phaserMaxStages, phaserStagesSlider * phaserStagesEnvelopeEnd));
+			let phaserStagesStart = Math.max(
+				Config.phaserMinStages,
+				Math.min(Config.phaserMaxStages, phaserStagesSlider * phaserStagesEnvelopeStart),
+			);
+			let phaserStagesEnd = Math.max(
+				Config.phaserMinStages,
+				Math.min(Config.phaserMaxStages, phaserStagesSlider * phaserStagesEnvelopeEnd),
+			);
 
-			if (synth.isModActive(Config.modulators.dictionary["phaser stages"].index, channelIndex, instrumentIndex)) {
-				phaserStagesStart = Math.round(synth.getModValue(Config.modulators.dictionary["phaser stages"].index, channelIndex, instrumentIndex, false));
-				phaserStagesEnd = Math.round(synth.getModValue(Config.modulators.dictionary["phaser stages"].index, channelIndex, instrumentIndex, false));
+			if (
+				synth.isModActive(
+					Config.modulators.dictionary["phaser stages"].index,
+					channelIndex,
+					instrumentIndex,
+				)
+			) {
+				phaserStagesStart = Math.round(
+					synth.getModValue(
+						Config.modulators.dictionary["phaser stages"].index,
+						channelIndex,
+						instrumentIndex,
+						false,
+					),
+				);
+				phaserStagesEnd = Math.round(
+					synth.getModValue(
+						Config.modulators.dictionary["phaser stages"].index,
+						channelIndex,
+						instrumentIndex,
+						false,
+					),
+				);
 			}
 
 			this.phaserStages = phaserStagesStart;
@@ -1066,30 +1682,69 @@ export class InstrumentState {
 			let useReverbEnd: number = instrument.reverb;
 
 			// Check for mod reverb, instrument level
-			if (synth.isModActive(Config.modulators.dictionary.reverb.index, channelIndex, instrumentIndex)) {
-				useReverbStart = synth.getModValue(Config.modulators.dictionary.reverb.index, channelIndex, instrumentIndex, false);
-				useReverbEnd = synth.getModValue(Config.modulators.dictionary.reverb.index, channelIndex, instrumentIndex, true);
+			if (
+				synth.isModActive(
+					Config.modulators.dictionary.reverb.index,
+					channelIndex,
+					instrumentIndex,
+				)
+			) {
+				useReverbStart = synth.getModValue(
+					Config.modulators.dictionary.reverb.index,
+					channelIndex,
+					instrumentIndex,
+					false,
+				);
+				useReverbEnd = synth.getModValue(
+					Config.modulators.dictionary.reverb.index,
+					channelIndex,
+					instrumentIndex,
+					true,
+				);
 			}
 			// Check for mod reverb, song scalar
-			if (synth.isModActive(Config.modulators.dictionary["song reverb"].index, channelIndex, instrumentIndex)) {
+			if (
+				synth.isModActive(
+					Config.modulators.dictionary["song reverb"].index,
+					channelIndex,
+					instrumentIndex,
+				)
+			) {
 				useReverbStart *=
-					(synth.getModValue(Config.modulators.dictionary["song reverb"].index, undefined, undefined, false) -
+					(synth.getModValue(
+						Config.modulators.dictionary["song reverb"].index,
+						undefined,
+						undefined,
+						false,
+					) -
 						Config.modulators.dictionary["song reverb"].convertRealFactor) /
 					Config.reverbRange;
 				useReverbEnd *=
-					(synth.getModValue(Config.modulators.dictionary["song reverb"].index, undefined, undefined, true) -
+					(synth.getModValue(
+						Config.modulators.dictionary["song reverb"].index,
+						undefined,
+						undefined,
+						true,
+					) -
 						Config.modulators.dictionary["song reverb"].convertRealFactor) /
 					Config.reverbRange;
 			}
 
-			const reverbStart: number = Math.min(1.0, ((reverbEnvelopeStart * useReverbStart) / Config.reverbRange) ** 0.667) * 0.425;
-			const reverbEnd: number = Math.min(1.0, ((reverbEnvelopeEnd * useReverbEnd) / Config.reverbRange) ** 0.667) * 0.425;
+			const reverbStart: number =
+				Math.min(
+					1.0,
+					((reverbEnvelopeStart * useReverbStart) / Config.reverbRange) ** 0.667,
+				) * 0.425;
+			const reverbEnd: number =
+				Math.min(1.0, ((reverbEnvelopeEnd * useReverbEnd) / Config.reverbRange) ** 0.667) *
+				0.425;
 
 			this.reverbMult = reverbStart;
 			this.reverbMultDelta = (reverbEnd - reverbStart) / roundedSamplesPerTick;
 			maxReverbMult = Math.max(reverbStart, reverbEnd);
 
-			const shelfRadians: number = (2.0 * Math.PI * Config.reverbShelfHz) / synth.samplesPerSecond;
+			const shelfRadians: number =
+				(2.0 * Math.PI * Config.reverbShelfHz) / synth.samplesPerSecond;
 			tempFilterStartCoefficients.highShelf1stOrder(shelfRadians, Config.reverbShelfGain);
 			this.reverbShelfA1 = tempFilterStartCoefficients.a[1];
 			this.reverbShelfB0 = tempFilterStartCoefficients.b[0];
@@ -1129,8 +1784,10 @@ export class InstrumentState {
 
 			if (usesReverb) {
 				const averageMult: number = maxReverbMult * 2.0;
-				const averageReverbDelaySeconds: number = Config.reverbDelayBufferSize / 4.0 / samplesPerSecond;
-				const attenuationPerSecond: number = averageMult ** (1.0 / averageReverbDelaySeconds);
+				const averageReverbDelaySeconds: number =
+					Config.reverbDelayBufferSize / 4.0 / samplesPerSecond;
+				const attenuationPerSecond: number =
+					averageMult ** (1.0 / averageReverbDelaySeconds);
 				const halfLife: number = -1.0 / Math.log2(attenuationPerSecond);
 				const reverbDuration: number = halfLife * halfLifeMult;
 				delayDuration += reverbDuration;
@@ -1171,9 +1828,11 @@ export class InstrumentState {
 		}
 
 		this.eqFilterVolume = eqFilterVolumeStart;
-		this.eqFilterVolumeDelta = (eqFilterVolumeEnd - eqFilterVolumeStart) / roundedSamplesPerTick;
+		this.eqFilterVolumeDelta =
+			(eqFilterVolumeEnd - eqFilterVolumeStart) / roundedSamplesPerTick;
 		this.delayInputMult = delayInputMultStart;
-		this.delayInputMultDelta = (delayInputMultEnd - delayInputMultStart) / roundedSamplesPerTick;
+		this.delayInputMultDelta =
+			(delayInputMultEnd - delayInputMultStart) / roundedSamplesPerTick;
 
 		this.envelopeComputer.clearEnvelopes();
 	}
@@ -1181,7 +1840,9 @@ export class InstrumentState {
 	public updateWaves(instrument: Instrument, _samplesPerSecond: number): void {
 		this.volumeScale = 1.0;
 		if (instrument.type === InstrumentType.chip) {
-			this.wave = this.aliases ? Config.rawChipWaves[instrument.chipWave].samples : Config.chipWaves[instrument.chipWave].samples;
+			this.wave = this.aliases
+				? Config.rawChipWaves[instrument.chipWave].samples
+				: Config.chipWaves[instrument.chipWave].samples;
 			// advloop addition
 			this.isUsingAdvancedLoopControls = instrument.isUsingAdvancedLoopControls;
 			this.chipWaveLoopStart = instrument.chipWaveLoopStart;
@@ -1203,7 +1864,9 @@ export class InstrumentState {
 			this.unisonExpression = instrument.unisonExpression;
 			this.unisonSign = instrument.unisonSign;
 		} else if (instrument.type === InstrumentType.customChipWave) {
-			this.wave = this.aliases ? instrument.customChipWave! : instrument.customChipWaveIntegral!;
+			this.wave = this.aliases
+				? instrument.customChipWave!
+				: instrument.customChipWaveIntegral!;
 			this.volumeScale = 0.05;
 			this.unisonVoices = instrument.unisonVoices;
 			this.unisonSpread = instrument.unisonSpread;
@@ -1211,7 +1874,11 @@ export class InstrumentState {
 			this.unisonExpression = instrument.unisonExpression;
 			this.unisonSign = instrument.unisonSign;
 		} else if (instrument.type === InstrumentType.noise) {
-			this.wave = getDrumWave(instrument.chipNoise, inverseRealFourierTransform, scaleElementsByFactor);
+			this.wave = getDrumWave(
+				instrument.chipNoise,
+				inverseRealFourierTransform,
+				scaleElementsByFactor,
+			);
 			this.unisonVoices = instrument.unisonVoices;
 			this.unisonSpread = instrument.unisonSpread;
 			this.unisonOffset = instrument.unisonOffset;
@@ -1240,7 +1907,10 @@ export class InstrumentState {
 			this.unisonSign = instrument.unisonSign;
 		} else if (instrument.type === InstrumentType.drumset) {
 			for (let i: number = 0; i < Config.drumCount; i++) {
-				this.drumsetSpectrumWaves[i].getCustomWave(instrument.drumsetSpectrumWaves[i], InstrumentState._drumsetIndexToSpectrumOctave(i));
+				this.drumsetSpectrumWaves[i].getCustomWave(
+					instrument.drumsetSpectrumWaves[i],
+					InstrumentState._drumsetIndexToSpectrumOctave(i),
+				);
 			}
 			this.wave = null;
 			this.unisonVoices = instrument.unisonVoices;
@@ -1268,7 +1938,10 @@ export class InstrumentState {
 	}
 
 	public static drumsetIndexReferenceDelta(index: number): number {
-		return Instrument.frequencyFromPitch(Config.spectrumBasePitch + index * 6) / Config.defaultSampleRate;
+		return (
+			Instrument.frequencyFromPitch(Config.spectrumBasePitch + index * 6) /
+			Config.defaultSampleRate
+		);
 	}
 
 	private static _drumsetIndexToSpectrumOctave(index: number): number {

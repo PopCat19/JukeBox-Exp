@@ -42,7 +42,10 @@ export class InputBox {
 	};
 }
 
-export function createInputBox(doc: SongDocument, getChange: (oldValue: string, newValue: string) => Change): { inputBox: InputBox; input: HTMLInputElement } {
+export function createInputBox(
+	doc: SongDocument,
+	getChange: (oldValue: string, newValue: string) => Change,
+): { inputBox: InputBox; input: HTMLInputElement } {
 	const input = HTML.input({ type: "text" });
 	const inputBox = new InputBox(input, doc, getChange);
 	return { inputBox, input };

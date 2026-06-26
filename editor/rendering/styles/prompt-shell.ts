@@ -6,9 +6,9 @@
 // Extracted from style.ts. Variant-specific prompt classes
 // (compactSearch, cleanChannel, export, etc.) remain in style.ts.
 
+import { ColorConfig } from "../../../shared/color-config";
 import { Animation, Typography } from "../../ui/style-constants";
 import { buildAnimationsCSS } from "./animations";
-import { ColorConfig } from "../../../shared/color-config";
 
 export function buildPromptShellCSS(): string {
 	return `\

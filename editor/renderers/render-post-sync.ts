@@ -81,8 +81,14 @@ export function renderPostBranchSync(
 		const envButtonRect: DOMRect = refs.addEnvelopeButton.getBoundingClientRect();
 		const instSettingsRect: DOMRect = refs.instrumentSettingsArea.getBoundingClientRect();
 		const settingsRect: DOMRect = refs.settingsArea.getBoundingClientRect();
-		refs.instrumentSettingsArea.scrollTop += Math.max(0, envButtonRect.top - (instSettingsRect.top + instSettingsRect.height));
-		refs.settingsArea.scrollTop += Math.max(0, envButtonRect.top - (settingsRect.top + settingsRect.height));
+		refs.instrumentSettingsArea.scrollTop += Math.max(
+			0,
+			envButtonRect.top - (instSettingsRect.top + instSettingsRect.height),
+		);
+		refs.settingsArea.scrollTop += Math.max(
+			0,
+			envButtonRect.top - (settingsRect.top + settingsRect.height),
+		);
 		doc.addedEffect = false;
 	}
 	if (doc.addedEnvelope) {
@@ -91,7 +97,10 @@ export function renderPostBranchSync(
 		doc.addedEnvelope = false;
 	}
 
-	if (refs.ringModWaveSelect.selectedIndex === Config.operatorWaves.dictionary["pulse width"].index) {
+	if (
+		refs.ringModWaveSelect.selectedIndex ===
+		Config.operatorWaves.dictionary["pulse width"].index
+	) {
 		refs.ringModPulsewidthSlider.container.style.display = "";
 		refs.ringModWaveText.style.display = "none";
 	} else {

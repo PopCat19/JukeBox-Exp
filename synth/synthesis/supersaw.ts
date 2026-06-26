@@ -6,7 +6,8 @@
 // - Builds supersaw synthesis source strings with PolyBLEP anti-aliasing and comb filtering
 
 export function buildSupersawSource(voiceCount: number): string {
-	let supersawSource: string = "return (synth, bufferIndex, runLength, tone, instrumentState) => {";
+	let supersawSource: string =
+		"return (synth, bufferIndex, runLength, tone, instrumentState) => {";
 
 	supersawSource += `
         const data = synth.tempMonoInstrumentSampleBuffer;

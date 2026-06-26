@@ -37,14 +37,27 @@ export class TrackArea {
 		this.barScrollBar = new BarScrollBar(doc);
 
 		// Build Container
-		const trackContainer = div({ class: "trackContainer" }, this.trackEditor.container, this.loopEditor.container);
+		const trackContainer = div(
+			{ class: "trackContainer" },
+			this.trackEditor.container,
+			this.loopEditor.container,
+		);
 
 		const trackVisibleArea = div({
 			style: "position: absolute; width: 100%; height: 100%; pointer-events: none;",
 		});
 
-		const trackAndMuteContainer = div({ class: "trackAndMuteContainer" }, this.muteEditor.container, trackContainer, trackVisibleArea);
+		const trackAndMuteContainer = div(
+			{ class: "trackAndMuteContainer" },
+			this.muteEditor.container,
+			trackContainer,
+			trackVisibleArea,
+		);
 
-		this.container = div({ class: "track-area" }, trackAndMuteContainer, this.barScrollBar.container);
+		this.container = div(
+			{ class: "track-area" },
+			trackAndMuteContainer,
+			this.barScrollBar.container,
+		);
 	}
 }

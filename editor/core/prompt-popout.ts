@@ -51,7 +51,11 @@ export class PromptPopout {
 		// explicitly close popouts before it unloads.
 		window.addEventListener("beforeunload", () => {
 			for (const win of this._windows.values()) {
-				try { win.close(); } catch { /* already closed */ }
+				try {
+					win.close();
+				} catch {
+					/* already closed */
+				}
 			}
 		});
 	}
@@ -73,7 +77,7 @@ export class PromptPopout {
 		// Use the song title from the main window (format: "Title - AppName").
 		const mainTitle = document.title;
 		const sep = mainTitle.lastIndexOf(" - ");
-		doc.title = sep > 0 ? mainTitle.slice(0, sep) : (mainTitle || prompt.name || "Popout");
+		doc.title = sep > 0 ? mainTitle.slice(0, sep) : mainTitle || prompt.name || "Popout";
 
 		// Base reset: the popout body is the editor-background stage with a PMD
 		// --padding-12 margin on both axes. body gets .beepboxEditor so the scoped
@@ -81,7 +85,9 @@ export class PromptPopout {
 		// the scroll inside the channels pane rather than the body.
 		const base = doc.createElement("style");
 		base.setAttribute(POPOUT_STYLE_ATTR, "");
-		base.textContent = "html,body{margin:0;padding:0;height:100%;}" + "body{padding:var(--padding-12);overflow:hidden;box-sizing:border-box;}";
+		base.textContent =
+			"html,body{margin:0;padding:0;height:100%;}" +
+			"body{padding:var(--padding-12);overflow:hidden;box-sizing:border-box;}";
 		doc.head.appendChild(base);
 		doc.body.classList.add("beepboxEditor");
 

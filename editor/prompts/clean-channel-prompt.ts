@@ -12,7 +12,12 @@
 import { HTML } from "imperative-html/dist/esm/elements-strict";
 import type { Channel, Pattern } from "../../synth";
 import { Config } from "../../synth/synth-config";
-import { ChangeCleanChannelInstruments, ChangeCleanChannelPatterns, comparePatternNotes, patternsContainSameInstruments } from "../changes";
+import {
+	ChangeCleanChannelInstruments,
+	ChangeCleanChannelPatterns,
+	comparePatternNotes,
+	patternsContainSameInstruments,
+} from "../changes";
 import { ChangeGroup } from "../core/change";
 import type { SongDocument } from "../song-document";
 import { actionButton, flexPane, paneContainer } from "../ui";
@@ -47,7 +52,8 @@ function channelLabel(doc: SongDocument, index: number): string {
 	const name = doc.song.channels[index].name;
 	if (name) return `${name} (ch ${index + 1})`;
 	if (index < doc.song.pitchChannelCount) return `Pitch ${index + 1}`;
-	if (index < doc.song.pitchChannelCount + doc.song.noiseChannelCount) return `Noise ${index - doc.song.pitchChannelCount + 1}`;
+	if (index < doc.song.pitchChannelCount + doc.song.noiseChannelCount)
+		return `Noise ${index - doc.song.pitchChannelCount + 1}`;
 	return `Mod ${index - doc.song.pitchChannelCount - doc.song.noiseChannelCount + 1}`;
 }
 
@@ -68,7 +74,10 @@ function computePatternDiff(doc: SongDocument, channelIndex: number): PatternDif
 		let foundMatching = false;
 		for (let newIdx = 0; newIdx < newPatterns.length; newIdx++) {
 			const newPattern = newPatterns[newIdx];
-			if (!patternsContainSameInstruments(oldPattern.instruments, newPattern.instruments) || newPattern.notes.length !== oldPattern.notes.length)
+			if (
+				!patternsContainSameInstruments(oldPattern.instruments, newPattern.instruments) ||
+				newPattern.notes.length !== oldPattern.notes.length
+			)
 				continue;
 			if (comparePatternNotes(oldPattern.notes, newPattern.notes)) {
 				foundMatching = true;
@@ -131,7 +140,11 @@ function computeInstrumentDiff(doc: SongDocument, channelIndex: number): Instrum
 			channelLabel: channelLabel(doc, channelIndex),
 			instrumentsBefore: instruments.length,
 			instrumentsAfter: 1,
-			remap: instruments.map((_inst, i) => ({ oldIndex: i, newIndex: 0, fingerprint: "dropped" })),
+			remap: instruments.map((_inst, i) => ({
+				oldIndex: i,
+				newIndex: 0,
+				fingerprint: "dropped",
+			})),
 			dropped: instruments.map((_inst, i) => i).slice(1),
 		};
 	}
@@ -150,7 +163,10 @@ function computeInstrumentDiff(doc: SongDocument, channelIndex: number): Instrum
 		oldToNew[oldIdx] = newIdx;
 	}
 
-	const finalCount = Math.max(Config.instrumentCountMin, Math.min(doc.song.getMaxInstrumentsPerChannel(), fingerprintToNew.size));
+	const finalCount = Math.max(
+		Config.instrumentCountMin,
+		Math.min(doc.song.getMaxInstrumentsPerChannel(), fingerprintToNew.size),
+	);
 
 	const remap: { oldIndex: number; newIndex: number; fingerprint: string }[] = [];
 	const dropped: number[] = [];
@@ -225,7 +241,10 @@ export class CleanChannelPrompt extends BasePrompt {
 		padding: "var(--padding-8)",
 	});
 	private readonly _leftPane: HTMLDivElement;
-	private readonly _cleanOneButton: HTMLButtonElement = button({ class: "sbpCardActionBtn" }, "Clean selected");
+	private readonly _cleanOneButton: HTMLButtonElement = button(
+		{ class: "sbpCardActionBtn" },
+		"Clean selected",
+	);
 	private readonly _cleanAllButton: HTMLButtonElement = actionButton("Clean all and Commit");
 
 	private readonly _tabPatterns: HTMLButtonElement;
@@ -242,7 +261,11 @@ export class CleanChannelPrompt extends BasePrompt {
 
 		this._tabPatterns = tabButton("Patterns", true);
 		this._tabInstruments = tabButton("Instruments", false);
-		this._tabBar = div({ class: "tabBar toggle-group" }, this._tabPatterns, this._tabInstruments);
+		this._tabBar = div(
+			{ class: "tabBar toggle-group" },
+			this._tabPatterns,
+			this._tabInstruments,
+		);
 
 		this._tabPatterns.addEventListener("click", () => this._switchTab("patterns"));
 		this._tabInstruments.addEventListener("click", () => this._switchTab("instruments"));
@@ -283,8 +306,17 @@ export class CleanChannelPrompt extends BasePrompt {
 			{ class: "prompt cleanChannelPrompt noSelection" },
 			h2({}, "Clean (LSDj)"),
 			this._tabBar,
-			paneContainer({ height: "400px", gap: "8px", overflow: "hidden", border: "none" }, this._leftPane, this._detailPane),
-			div({ class: "ccpBottomBar" }, this._cleanOneButton, this._cleanAllButton, this._cancelButton),
+			paneContainer(
+				{ height: "400px", gap: "8px", overflow: "hidden", border: "none" },
+				this._leftPane,
+				this._detailPane,
+			),
+			div(
+				{ class: "ccpBottomBar" },
+				this._cleanOneButton,
+				this._cleanAllButton,
+				this._cancelButton,
+			),
 		);
 
 		this.buildTitlebar();
@@ -311,7 +343,8 @@ export class CleanChannelPrompt extends BasePrompt {
 			this._detailPane.style.borderColor = "var(--ui-widget-background)";
 			return;
 		}
-		const effectivePane = this._lastInteraction === "hover" ? this._hoveredPane : this._activePane;
+		const effectivePane =
+			this._lastInteraction === "hover" ? this._hoveredPane : this._activePane;
 		const focusedPane = effectivePane === "list" ? this._leftPane : this._detailPane;
 		const unfocusedPane = effectivePane === "list" ? this._detailPane : this._leftPane;
 		focusedPane.style.borderColor = "var(--indicator-primary, #4444ff)";
@@ -334,7 +367,8 @@ export class CleanChannelPrompt extends BasePrompt {
 			this._renderDetail();
 		} else {
 			this._renderEmpty();
-			while (this._channelList.firstChild) this._channelList.removeChild(this._channelList.firstChild);
+			while (this._channelList.firstChild)
+				this._channelList.removeChild(this._channelList.firstChild);
 		}
 	}
 
@@ -343,7 +377,8 @@ export class CleanChannelPrompt extends BasePrompt {
 	}
 
 	private _renderList(): void {
-		while (this._channelList.firstChild) this._channelList.removeChild(this._channelList.firstChild);
+		while (this._channelList.firstChild)
+			this._channelList.removeChild(this._channelList.firstChild);
 
 		const filtered = this._getFilteredIndices();
 
@@ -376,10 +411,13 @@ export class CleanChannelPrompt extends BasePrompt {
 	}
 
 	private _renderDetail(): void {
-		while (this._detailPane.firstChild) this._detailPane.removeChild(this._detailPane.firstChild);
+		while (this._detailPane.firstChild)
+			this._detailPane.removeChild(this._detailPane.firstChild);
 
 		if (this._selectedIndex < 0 || this._selectedIndex >= this._diffs.length) {
-			this._detailPane.appendChild(div({ class: "ccpEmptyDetail" }, "Select a channel to view its diff."));
+			this._detailPane.appendChild(
+				div({ class: "ccpEmptyDetail" }, "Select a channel to view its diff."),
+			);
 			return;
 		}
 
@@ -396,25 +434,56 @@ export class CleanChannelPrompt extends BasePrompt {
 		this._detailPane.appendChild(
 			div(
 				{ class: "ccpDetailSummary" },
-				span({ class: "ccpDetailCount" }, `Patterns: ${diff.patternsBefore} → ${diff.patternsAfter}`),
-				span({ class: "ccpDetailMeta" }, `${diff.mergedPatterns.length} duplicate${diff.mergedPatterns.length !== 1 ? "s" : ""} removed`),
+				span(
+					{ class: "ccpDetailCount" },
+					`Patterns: ${diff.patternsBefore} → ${diff.patternsAfter}`,
+				),
+				span(
+					{ class: "ccpDetailMeta" },
+					`${diff.mergedPatterns.length} duplicate${diff.mergedPatterns.length !== 1 ? "s" : ""} removed`,
+				),
 			),
 		);
 
 		if (diff.barRemaps.length > 0) {
-			const rows: HTMLTableRowElement[] = [tr(th("Bar"), th("Before"), th({ class: "ccpArrow" }, "→"), th("After"))];
+			const rows: HTMLTableRowElement[] = [
+				tr(th("Bar"), th("Before"), th({ class: "ccpArrow" }, "→"), th("After")),
+			];
 			for (const r of diff.barRemaps) {
-				rows.push(tr(td(`${r.bar + 1}`), td(`${r.from}`), td({ class: "ccpArrow" }, "→"), td(`${r.to}`)));
+				rows.push(
+					tr(
+						td(`${r.bar + 1}`),
+						td(`${r.from}`),
+						td({ class: "ccpArrow" }, "→"),
+						td(`${r.to}`),
+					),
+				);
 			}
-			this._detailPane.appendChild(div({ class: "ccpTableWrap" }, p({ class: "ccpTableLabel" }, "Bar remap"), table(tbody(...rows))));
+			this._detailPane.appendChild(
+				div(
+					{ class: "ccpTableWrap" },
+					p({ class: "ccpTableLabel" }, "Bar remap"),
+					table(tbody(...rows)),
+				),
+			);
 		}
 
 		if (diff.mergedPatterns.length > 0) {
-			const rows: HTMLTableRowElement[] = [tr(th("Old pattern"), th({ class: "ccpArrow" }, "→"), th("Merged into"))];
+			const rows: HTMLTableRowElement[] = [
+				tr(th("Old pattern"), th({ class: "ccpArrow" }, "→"), th("Merged into")),
+			];
 			for (const m of diff.mergedPatterns) {
-				rows.push(tr(td(`${m.oldIndex}`), td({ class: "ccpArrow" }, "→"), td(`${m.intoIndex}`)));
+				rows.push(
+					tr(td(`${m.oldIndex}`), td({ class: "ccpArrow" }, "→"), td(`${m.intoIndex}`)),
+				);
 			}
-			this._detailPane.appendChild(div({ class: "ccpTableWrap" }, p({ class: "ccpTableLabel" }, "Merged patterns"), table(tbody(...rows))));
+			this._detailPane.appendChild(
+				div(
+					{ class: "ccpTableWrap" },
+					p({ class: "ccpTableLabel" }, "Merged patterns"),
+					table(tbody(...rows)),
+				),
+			);
 		}
 	}
 
@@ -422,13 +491,24 @@ export class CleanChannelPrompt extends BasePrompt {
 		this._detailPane.appendChild(
 			div(
 				{ class: "ccpDetailSummary" },
-				span({ class: "ccpDetailCount" }, `Instruments: ${diff.instrumentsBefore} → ${diff.instrumentsAfter}`),
-				span({ class: "ccpDetailMeta" }, `${diff.dropped.length} unused instrument${diff.dropped.length !== 1 ? "s" : ""} dropped`),
+				span(
+					{ class: "ccpDetailCount" },
+					`Instruments: ${diff.instrumentsBefore} → ${diff.instrumentsAfter}`,
+				),
+				span(
+					{ class: "ccpDetailMeta" },
+					`${diff.dropped.length} unused instrument${diff.dropped.length !== 1 ? "s" : ""} dropped`,
+				),
 			),
 		);
 
 		const rows: HTMLTableRowElement[] = [
-			tr(th("Old inst"), th({ class: "ccpArrow" }, "→"), th("New inst"), th({ class: "ccpFingerprint" }, "Fingerprint")),
+			tr(
+				th("Old inst"),
+				th({ class: "ccpArrow" }, "→"),
+				th("New inst"),
+				th({ class: "ccpFingerprint" }, "Fingerprint"),
+			),
 		];
 		for (const r of diff.remap) {
 			rows.push(
@@ -436,20 +516,40 @@ export class CleanChannelPrompt extends BasePrompt {
 					td(`${r.oldIndex + 1}`),
 					td({ class: "ccpArrow" }, "→"),
 					td(r.newIndex >= 0 ? `${r.newIndex + 1}` : "dropped"),
-					td({ class: "ccpFingerprint" }, r.fingerprint === "dropped" ? "(unused)" : r.fingerprint),
+					td(
+						{ class: "ccpFingerprint" },
+						r.fingerprint === "dropped" ? "(unused)" : r.fingerprint,
+					),
 				),
 			);
 		}
-		this._detailPane.appendChild(div({ class: "ccpTableWrap" }, p({ class: "ccpTableLabel" }, "Instrument remap"), table(tbody(...rows))));
+		this._detailPane.appendChild(
+			div(
+				{ class: "ccpTableWrap" },
+				p({ class: "ccpTableLabel" }, "Instrument remap"),
+				table(tbody(...rows)),
+			),
+		);
 
 		if (diff.dropped.length > 0) {
-			this._detailPane.appendChild(p({ class: "ccpDropped" }, `Dropped instruments: ${diff.dropped.map((i) => i + 1).join(", ")}`));
+			this._detailPane.appendChild(
+				p(
+					{ class: "ccpDropped" },
+					`Dropped instruments: ${diff.dropped.map((i) => i + 1).join(", ")}`,
+				),
+			);
 		}
 	}
 
 	private _renderEmpty(): void {
-		while (this._detailPane.firstChild) this._detailPane.removeChild(this._detailPane.firstChild);
-		this._detailPane.appendChild(p({ class: "ccpEmptyDetail" }, "No duplicate patterns or instruments found. Nothing to clean."));
+		while (this._detailPane.firstChild)
+			this._detailPane.removeChild(this._detailPane.firstChild);
+		this._detailPane.appendChild(
+			p(
+				{ class: "ccpEmptyDetail" },
+				"No duplicate patterns or instruments found. Nothing to clean.",
+			),
+		);
 	}
 
 	private _onCleanAll = (): void => {
@@ -472,7 +572,8 @@ export class CleanChannelPrompt extends BasePrompt {
 
 		if (this._diffs.length === 0) {
 			this._renderEmpty();
-			while (this._channelList.firstChild) this._channelList.removeChild(this._channelList.firstChild);
+			while (this._channelList.firstChild)
+				this._channelList.removeChild(this._channelList.firstChild);
 			return;
 		}
 

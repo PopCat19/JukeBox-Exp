@@ -87,7 +87,10 @@ export function restartGif(img: HTMLImageElement): void {
 	preloader.src = url;
 }
 
-export function startGifRestart(mainImg: HTMLImageElement, summoned: SummonedShiggy[]): ReturnType<typeof setInterval> {
+export function startGifRestart(
+	mainImg: HTMLImageElement,
+	summoned: SummonedShiggy[],
+): ReturnType<typeof setInterval> {
 	return setInterval(() => {
 		restartGif(mainImg);
 		for (const s of summoned) {

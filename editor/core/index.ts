@@ -8,7 +8,10 @@
 export { Change, ChangeGroup, ChangeSequence, UndoableChange } from "./change";
 export { ChangeDispatcher } from "./change-dispatcher";
 export { ChangeNotifier } from "./change-notifier";
-export { activate as devInspectorActivate, isActive as devInspectorIsActive } from "./dev-inspector";
+export {
+	activate as devInspectorActivate,
+	isActive as devInspectorIsActive,
+} from "./dev-inspector";
 export { DrumsetSetup, DrumsetSetupHost } from "./drumset-setup";
 export { EventListenerSetup, EventListenerSetupHost } from "./event-listener-setup";
 export { FmOperatorSetup, FmOperatorSetupHost } from "./fm-operator-setup";

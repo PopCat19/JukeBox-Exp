@@ -10,9 +10,10 @@
 import { Channel } from "../../synth/channels";
 import { Instrument } from "../../synth/instruments";
 import { makeNotePin, Note, NotePin, Pattern } from "../../synth/notes";
-import { Config, InstrumentType } from "../../synth/synth-config";
 import { Synth } from "../../synth/synth";
+import { Config, InstrumentType } from "../../synth/synth-config";
 import { EditorConfig, type Preset } from "../config/editor-config";
+import { ArrayBufferReader } from "../ui/array-buffer-reader";
 import {
 	type AnalogousDrum,
 	analogousDrumMap,
@@ -26,7 +27,6 @@ import {
 	midiExpressionToVolumeMult,
 	midiVolumeToVolumeMult,
 } from "./midi";
-import { ArrayBufferReader } from "../ui/array-buffer-reader";
 
 export interface ParsedMidiResult {
 	pitchChannels: Channel[];
@@ -115,16 +115,77 @@ export function parseMidiFile(buffer: ArrayBuffer, fileName?: string): ParsedMid
 		microsecondsPerBeat: number;
 	}
 
-	const channelRPNMSB: number[] = [0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff];
-	const channelRPNLSB: number[] = [0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff];
+	const channelRPNMSB: number[] = [
+		0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
+		0xff,
+	];
+	const channelRPNLSB: number[] = [
+		0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
+		0xff,
+	];
 	const pitchBendRangeMSB: number[] = [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2];
 	const pitchBendRangeLSB: number[] = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
 	const currentInstrumentProgram: number[] = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
-	const currentInstrumentVolumes: number[] = [100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100];
-	const currentInstrumentPans: number[] = [64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64];
-	const noteEvents: NoteEvent[][] = [[], [], [], [], [], [], [], [], [], [], [], [], [], [], [], []];
-	const pitchBendEvents: PitchBendEvent[][] = [[], [], [], [], [], [], [], [], [], [], [], [], [], [], [], []];
-	const noteSizeEvents: NoteSizeEvent[][] = [[], [], [], [], [], [], [], [], [], [], [], [], [], [], [], []];
+	const currentInstrumentVolumes: number[] = [
+		100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100,
+	];
+	const currentInstrumentPans: number[] = [
+		64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64,
+	];
+	const noteEvents: NoteEvent[][] = [
+		[],
+		[],
+		[],
+		[],
+		[],
+		[],
+		[],
+		[],
+		[],
+		[],
+		[],
+		[],
+		[],
+		[],
+		[],
+		[],
+	];
+	const pitchBendEvents: PitchBendEvent[][] = [
+		[],
+		[],
+		[],
+		[],
+		[],
+		[],
+		[],
+		[],
+		[],
+		[],
+		[],
+		[],
+		[],
+		[],
+		[],
+		[],
+	];
+	const noteSizeEvents: NoteSizeEvent[][] = [
+		[],
+		[],
+		[],
+		[],
+		[],
+		[],
+		[],
+		[],
+		[],
+		[],
+		[],
+		[],
+		[],
+		[],
+		[],
+		[],
+	];
 	interface SustainEvent {
 		midiTick: number;
 		channel: number;
@@ -159,7 +220,8 @@ export function parseMidiFile(buffer: ArrayBuffer, fileName?: string): ParsedMid
 					if (!track.reader.hasMore()) {
 						track.ended = true;
 					} else {
-						track.nextEventMidiTick = currentMidiTick + track.reader.readMidiVariableLength();
+						track.nextEventMidiTick =
+							currentMidiTick + track.reader.readMidiVariableLength();
 					}
 					continue;
 				} else {
@@ -208,12 +270,24 @@ export function parseMidiFile(buffer: ArrayBuffer, fileName?: string): ParsedMid
 									0,
 									Math.min(
 										Config.volumeRange - 1,
-										Math.round(Synth.volumeMultToInstrumentVolume(midiVolumeToVolumeMult(currentInstrumentVolumes[eventChannel]))),
+										Math.round(
+											Synth.volumeMultToInstrumentVolume(
+												midiVolumeToVolumeMult(
+													currentInstrumentVolumes[eventChannel],
+												),
+											),
+										),
 									),
 								);
 								const pan: number = Math.max(
 									0,
-									Math.min(Config.panMax, Math.round(((currentInstrumentPans[eventChannel] - 64) / 63 + 1) * Config.panCenter)),
+									Math.min(
+										Config.panMax,
+										Math.round(
+											((currentInstrumentPans[eventChannel] - 64) / 63 + 1) *
+												Config.panCenter,
+										),
+									),
 								);
 								noteEvents[eventChannel].push({
 									midiTick: currentMidiTick,
@@ -240,8 +314,10 @@ export function parseMidiFile(buffer: ArrayBuffer, fileName?: string): ParsedMid
 							switch (message) {
 								case MidiControlEventMessage.setParameterMSB:
 									if (
-										channelRPNMSB[eventChannel] === MidiRegisteredParameterNumberMSB.pitchBendRange &&
-										channelRPNLSB[eventChannel] === MidiRegisteredParameterNumberLSB.pitchBendRange
+										channelRPNMSB[eventChannel] ===
+											MidiRegisteredParameterNumberMSB.pitchBendRange &&
+										channelRPNLSB[eventChannel] ===
+											MidiRegisteredParameterNumberLSB.pitchBendRange
 									) {
 										pitchBendRangeMSB[eventChannel] = value;
 									}
@@ -255,16 +331,24 @@ export function parseMidiFile(buffer: ArrayBuffer, fileName?: string): ParsedMid
 								case MidiControlEventMessage.expressionMSB:
 									noteSizeEvents[eventChannel].push({
 										midiTick: currentMidiTick,
-										size: Synth.volumeMultToNoteSize(midiExpressionToVolumeMult(value)),
+										size: Synth.volumeMultToNoteSize(
+											midiExpressionToVolumeMult(value),
+										),
 									});
 									break;
 								case MidiControlEventMessage.sustainPedal:
-									sustainEvents.push({ midiTick: currentMidiTick, channel: eventChannel, value: value });
+									sustainEvents.push({
+										midiTick: currentMidiTick,
+										channel: eventChannel,
+										value: value,
+									});
 									break;
 								case MidiControlEventMessage.setParameterLSB:
 									if (
-										channelRPNMSB[eventChannel] === MidiRegisteredParameterNumberMSB.pitchBendRange &&
-										channelRPNLSB[eventChannel] === MidiRegisteredParameterNumberLSB.pitchBendRange
+										channelRPNMSB[eventChannel] ===
+											MidiRegisteredParameterNumberMSB.pitchBendRange &&
+										channelRPNLSB[eventChannel] ===
+											MidiRegisteredParameterNumberLSB.pitchBendRange
 									) {
 										pitchBendRangeLSB[eventChannel] = value;
 									}
@@ -294,9 +378,14 @@ export function parseMidiFile(buffer: ArrayBuffer, fileName?: string): ParsedMid
 							const lsb: number = track.reader.readMidi7Bits();
 							const msb: number = track.reader.readMidi7Bits();
 							const pitchBend: number = ((msb << 7) | lsb) / 0x2000 - 1.0;
-							const pitchBendRange: number = pitchBendRangeMSB[eventChannel] + pitchBendRangeLSB[eventChannel] * 0.01;
+							const pitchBendRange: number =
+								pitchBendRangeMSB[eventChannel] +
+								pitchBendRangeLSB[eventChannel] * 0.01;
 							const interval: number = pitchBend * pitchBendRange;
-							pitchBendEvents[eventChannel].push({ midiTick: currentMidiTick, interval: interval });
+							pitchBendEvents[eventChannel].push({
+								midiTick: currentMidiTick,
+								interval: interval,
+							});
 						}
 						break;
 					case MidiEventType.metaAndSysex:
@@ -309,7 +398,10 @@ export function parseMidiFile(buffer: ArrayBuffer, fileName?: string): ParsedMid
 									track.reader.skipBytes(length);
 								} else if (message === MidiMetaEventMessage.tempo) {
 									const uspb = track.reader.readUint24();
-									tempoChanges.push({ midiTick: currentMidiTick, microsecondsPerBeat: uspb });
+									tempoChanges.push({
+										midiTick: currentMidiTick,
+										microsecondsPerBeat: uspb,
+									});
 									track.reader.skipBytes(length - 3);
 								} else if (message === MidiMetaEventMessage.timeSignature) {
 									const numerator: number = track.reader.readUint8();
@@ -318,14 +410,21 @@ export function parseMidiFile(buffer: ArrayBuffer, fileName?: string): ParsedMid
 									beatsPerBar = numerator * 4;
 									while (
 										(beatsPerBar & 1) === 0 &&
-										(denominatorExponent > 0 || beatsPerBar > Config.beatsPerBarMax) &&
+										(denominatorExponent > 0 ||
+											beatsPerBar > Config.beatsPerBarMax) &&
 										beatsPerBar >= Config.beatsPerBarMin * 2
 									) {
 										beatsPerBar = beatsPerBar >> 1;
 										denominatorExponent = denominatorExponent - 1;
 									}
-									beatsPerBar = Math.max(Config.beatsPerBarMin, Math.min(Config.beatsPerBarMax, beatsPerBar));
-									timeSigChanges.push({ midiTick: currentMidiTick, beatsPerBar: beatsPerBar });
+									beatsPerBar = Math.max(
+										Config.beatsPerBarMin,
+										Math.min(Config.beatsPerBarMax, beatsPerBar),
+									);
+									timeSigChanges.push({
+										midiTick: currentMidiTick,
+										beatsPerBar: beatsPerBar,
+									});
 								} else if (message === MidiMetaEventMessage.keySignature) {
 									numSharps = track.reader.readInt8();
 									isMinor = track.reader.readUint8() === 1;
@@ -351,15 +450,20 @@ export function parseMidiFile(buffer: ArrayBuffer, fileName?: string): ParsedMid
 				}
 
 				if (!foundTrackEndEvent && track.reader.hasMore()) {
-					track.nextEventMidiTick = currentMidiTick + track.reader.readMidiVariableLength();
+					track.nextEventMidiTick =
+						currentMidiTick + track.reader.readMidiVariableLength();
 				} else {
 					track.ended = true;
 					if (independentTracks) {
 						currentIndependentTrackIndex++;
 						if (currentIndependentTrackIndex < tracks.length) {
 							currentTrackIndices[0] = currentIndependentTrackIndex;
-							tracks[currentIndependentTrackIndex].nextEventMidiTick += currentMidiTick;
-							nextEventMidiTick = Math.min(nextEventMidiTick, tracks[currentIndependentTrackIndex].nextEventMidiTick);
+							tracks[currentIndependentTrackIndex].nextEventMidiTick +=
+								currentMidiTick;
+							nextEventMidiTick = Math.min(
+								nextEventMidiTick,
+								tracks[currentIndependentTrackIndex].nextEventMidiTick,
+							);
 							anyTrackHasMore = true;
 						}
 					}
@@ -381,7 +485,10 @@ export function parseMidiFile(buffer: ArrayBuffer, fileName?: string): ParsedMid
 		break;
 	}
 	const microsecondsPerMinute: number = 60 * 1000 * 1000;
-	const beatsPerMinute: number = Math.max(Config.tempoMin, Math.min(Config.tempoMax, Math.round(microsecondsPerMinute / mspb)));
+	const beatsPerMinute: number = Math.max(
+		Config.tempoMin,
+		Math.min(Config.tempoMax, Math.round(microsecondsPerMinute / mspb)),
+	);
 	const midiTicksPerPart: number = midiTicksPerBeat / Config.partsPerBeat;
 	if (timeSigChanges.length > 0) {
 		beatsPerBar = timeSigChanges[0].beatsPerBar;
@@ -454,7 +561,10 @@ export function parseMidiFile(buffer: ArrayBuffer, fileName?: string): ParsedMid
 		}
 		return Math.round(part * midiTicksPerPart);
 	};
-	const songTotalBars: number = Math.min(Config.barCountMax, Math.ceil(quantizeMidiTickToPart(currentMidiTick) / partsPerBar));
+	const songTotalBars: number = Math.min(
+		Config.barCountMax,
+		Math.ceil(quantizeMidiTickToPart(currentMidiTick) / partsPerBar),
+	);
 
 	let key: number = numSharps;
 	if (isMinor) key += 3;
@@ -587,11 +697,18 @@ export function parseMidiFile(buffer: ArrayBuffer, fileName?: string): ParsedMid
 		maxChordSize: number;
 	}
 	function groupChords(notes: DiscreteNote[], stats?: ChordGroupStats): DiscreteNote[] {
-		const sorted: DiscreteNote[] = notes.slice().sort((a, b) => a.startMidiTick - b.startMidiTick || a.endMidiTick - b.endMidiTick);
+		const sorted: DiscreteNote[] = notes
+			.slice()
+			.sort((a, b) => a.startMidiTick - b.startMidiTick || a.endMidiTick - b.endMidiTick);
 		const grouped: DiscreteNote[] = [];
 		for (const note of sorted) {
 			const last: DiscreteNote | undefined = grouped[grouped.length - 1];
-			if (last && last.startMidiTick === note.startMidiTick && last.endMidiTick === note.endMidiTick && last.pitches.length < Config.maxChordSize) {
+			if (
+				last &&
+				last.startMidiTick === note.startMidiTick &&
+				last.endMidiTick === note.endMidiTick &&
+				last.pitches.length < Config.maxChordSize
+			) {
 				for (const p of note.pitches) {
 					if (last.pitches.indexOf(p) === -1) last.pitches.push(p);
 				}
@@ -620,7 +737,9 @@ export function parseMidiFile(buffer: ArrayBuffer, fileName?: string): ParsedMid
 	}
 
 	function assignTracks(notes: DiscreteNote[]): DiscreteNote[][] {
-		const sorted: DiscreteNote[] = notes.slice().sort((a, b) => a.startMidiTick - b.startMidiTick || a.endMidiTick - b.endMidiTick);
+		const sorted: DiscreteNote[] = notes
+			.slice()
+			.sort((a, b) => a.startMidiTick - b.startMidiTick || a.endMidiTick - b.endMidiTick);
 		const tracks: DiscreteNote[][] = [];
 		for (const note of sorted) {
 			let assigned: boolean = false;
@@ -660,12 +779,18 @@ export function parseMidiFile(buffer: ArrayBuffer, fileName?: string): ParsedMid
 	for (let midiChannel: number = 0; midiChannel < 16; midiChannel++) {
 		if (noteEvents[midiChannel].length === 0) continue;
 
-		const channelPresetValue: number | null = EditorConfig.midiProgramToPresetValue(noteEvents[midiChannel][0].program);
-		const channelPreset: Preset | null = channelPresetValue == null ? null : EditorConfig.valueToPreset(channelPresetValue);
+		const channelPresetValue: number | null = EditorConfig.midiProgramToPresetValue(
+			noteEvents[midiChannel][0].program,
+		);
+		const channelPreset: Preset | null =
+			channelPresetValue == null ? null : EditorConfig.valueToPreset(channelPresetValue);
 		const isDrumsetChannel: boolean = midiChannel === 9;
-		const isNoiseChannel: boolean = isDrumsetChannel || (channelPreset != null && channelPreset.isNoise === true);
+		const isNoiseChannel: boolean =
+			isDrumsetChannel || (channelPreset != null && channelPreset.isNoise === true);
 		const isModChannel: boolean = channelPreset != null && channelPreset.isMod === true;
-		const channelBasePitch: number = isNoiseChannel ? Config.spectrumBasePitch : Config.keys[key].basePitch;
+		const channelBasePitch: number = isNoiseChannel
+			? Config.spectrumBasePitch
+			: Config.keys[key].basePitch;
 		const intervalScale: number = isNoiseChannel ? Config.noiseInterval : 1;
 		const midiIntervalScale: number = isNoiseChannel ? 0.5 : 1;
 		const channelMaxPitch: number = isNoiseChannel ? Config.drumCount - 1 : Config.maxPitch;
@@ -689,12 +814,28 @@ export function parseMidiFile(buffer: ArrayBuffer, fileName?: string): ParsedMid
 			instrument.preset = presetValue;
 			channel.instruments.push(instrument);
 
-			for (let noteEventIndex: number = 0; noteEventIndex <= noteEvents[midiChannel].length; noteEventIndex++) {
+			for (
+				let noteEventIndex: number = 0;
+				noteEventIndex <= noteEvents[midiChannel].length;
+				noteEventIndex++
+			) {
 				const noMoreNotes: boolean = noteEventIndex === noteEvents[midiChannel].length;
-				const noteEvent: NoteEvent | null = noMoreNotes ? null : noteEvents[midiChannel][noteEventIndex];
-				const rawEventPart: number = noteEvent == null ? Number.MAX_SAFE_INTEGER : quantizeMidiTickToPart(noteEvent.midiTick);
-				const nextEventPart: number = noteEvent == null ? Number.MAX_SAFE_INTEGER : snapPartToRhythm(rawEventPart, detectedRhythm);
-				if (heldPitches.length > 0 && nextEventPart > prevEventPart && (noteEvent == null || noteEvent.on)) {
+				const noteEvent: NoteEvent | null = noMoreNotes
+					? null
+					: noteEvents[midiChannel][noteEventIndex];
+				const rawEventPart: number =
+					noteEvent == null
+						? Number.MAX_SAFE_INTEGER
+						: quantizeMidiTickToPart(noteEvent.midiTick);
+				const nextEventPart: number =
+					noteEvent == null
+						? Number.MAX_SAFE_INTEGER
+						: snapPartToRhythm(rawEventPart, detectedRhythm);
+				if (
+					heldPitches.length > 0 &&
+					nextEventPart > prevEventPart &&
+					(noteEvent == null || noteEvent.on)
+				) {
 					const bar: number = Math.floor(prevEventPart / partsPerBar);
 					const barStartPart: number = bar * partsPerBar;
 					if (currentBar !== bar || pattern == null) {
@@ -721,21 +862,34 @@ export function parseMidiFile(buffer: ArrayBuffer, fileName?: string): ParsedMid
 					let noteSize: number = 1;
 					for (const pitch of heldPitches) {
 						const drum: AnalogousDrum = findClosestDrum(pitch);
-						if (drumFreqs.indexOf(drum.frequency) === -1) drumFreqs.push(drum.frequency);
+						if (drumFreqs.indexOf(drum.frequency) === -1)
+							drumFreqs.push(drum.frequency);
 						noteSize = Math.max(noteSize, Math.round(drum.volume * currentVelocity));
 						minDuration = Math.min(minDuration, drum.duration);
 						maxDuration = Math.max(maxDuration, drum.duration);
 					}
 					const duration: number = Math.min(maxDuration, Math.max(minDuration, 2));
 					const noteStartPart: number = prevEventPart - barStartPart;
-					let noteEndPart: number = Math.min(partsPerBar, Math.min(nextEventPart - barStartPart, noteStartPart + duration * 6));
-					if (noteEndPart <= noteStartPart) noteEndPart = Math.min(partsPerBar, noteStartPart + 1);
+					let noteEndPart: number = Math.min(
+						partsPerBar,
+						Math.min(nextEventPart - barStartPart, noteStartPart + duration * 6),
+					);
+					if (noteEndPart <= noteStartPart)
+						noteEndPart = Math.min(partsPerBar, noteStartPart + 1);
 					if (noteStartPart < noteEndPart) {
 						const note: Note = new Note(-1, noteStartPart, noteEndPart, noteSize, true);
 						note.pitches.length = 0;
-						for (let pitchIndex: number = 0; pitchIndex < Math.min(Config.maxChordSize, drumFreqs.length); pitchIndex++) {
-							const heldPitch: number = drumFreqs[pitchIndex + Math.max(0, drumFreqs.length - Config.maxChordSize)];
-							if (note.pitches.indexOf(heldPitch) === -1) note.pitches.push(heldPitch);
+						for (
+							let pitchIndex: number = 0;
+							pitchIndex < Math.min(Config.maxChordSize, drumFreqs.length);
+							pitchIndex++
+						) {
+							const heldPitch: number =
+								drumFreqs[
+									pitchIndex + Math.max(0, drumFreqs.length - Config.maxChordSize)
+								];
+							if (note.pitches.indexOf(heldPitch) === -1)
+								note.pitches.push(heldPitch);
 						}
 						pattern.notes.push(note);
 					}
@@ -752,7 +906,12 @@ export function parseMidiFile(buffer: ArrayBuffer, fileName?: string): ParsedMid
 			while (channel.bars.length < songTotalBars) channel.bars.push(0);
 		} else {
 			const discreteNotes: DiscreteNote[] = parseDiscreteNotes(noteEvents[midiChannel]);
-			const chordStats: ChordGroupStats = { inputNotes: 0, outputChords: 0, merges: 0, maxChordSize: 0 };
+			const chordStats: ChordGroupStats = {
+				inputNotes: 0,
+				outputChords: 0,
+				merges: 0,
+				maxChordSize: 0,
+			};
 			const grouped: DiscreteNote[] = groupChords(discreteNotes, chordStats);
 			const tracks: DiscreteNote[][] = assignTracks(grouped);
 
@@ -793,7 +952,8 @@ export function parseMidiFile(buffer: ArrayBuffer, fileName?: string): ParsedMid
 						pitchBendEventIndex < pitchBendEvents[midiChannel].length &&
 						pitchBendEvents[midiChannel][pitchBendEventIndex].midiTick <= midiTick
 					) {
-						currentMidiInterval = pitchBendEvents[midiChannel][pitchBendEventIndex].interval;
+						currentMidiInterval =
+							pitchBendEvents[midiChannel][pitchBendEventIndex].interval;
 						pitchBendEventIndex++;
 					}
 				}
@@ -808,17 +968,27 @@ export function parseMidiFile(buffer: ArrayBuffer, fileName?: string): ParsedMid
 				}
 
 				for (const dnote of track) {
-					const startPart: number = snapPartToRhythm(quantizeMidiTickToPart(dnote.startMidiTick), detectedRhythm);
-					let endPart: number = snapPartToRhythm(quantizeMidiTickToPart(dnote.endMidiTick), detectedRhythm);
-					const rhythmMinDivision: number = Config.partsPerBeat / Config.rhythms[detectedRhythm].stepsPerBeat;
+					const startPart: number = snapPartToRhythm(
+						quantizeMidiTickToPart(dnote.startMidiTick),
+						detectedRhythm,
+					);
+					let endPart: number = snapPartToRhythm(
+						quantizeMidiTickToPart(dnote.endMidiTick),
+						detectedRhythm,
+					);
+					const rhythmMinDivision: number =
+						Config.partsPerBeat / Config.rhythms[detectedRhythm].stepsPerBeat;
 					if (endPart <= startPart) endPart = startPart + Math.max(rhythmMinDivision, 3);
 
 					const startBar: number = Math.floor(startPart / partsPerBar);
 					const endBar: number = Math.ceil(endPart / partsPerBar);
 					let createdNote: boolean = false;
 
-					const presetValue: number | null = EditorConfig.midiProgramToPresetValue(dnote.program);
-					const preset: Preset | null = presetValue == null ? null : EditorConfig.valueToPreset(presetValue);
+					const presetValue: number | null = EditorConfig.midiProgramToPresetValue(
+						dnote.program,
+					);
+					const preset: Preset | null =
+						presetValue == null ? null : EditorConfig.valueToPreset(presetValue);
 
 					for (let bar: number = startBar; bar < endBar; bar++) {
 						const barStartPart: number = bar * partsPerBar;
@@ -826,20 +996,41 @@ export function parseMidiFile(buffer: ArrayBuffer, fileName?: string): ParsedMid
 						const barEndMidiTick: number = partToMidiTick(barStartPart + partsPerBar);
 						const noteStartPart: number = Math.max(0, startPart - barStartPart);
 						const noteEndPart: number = Math.min(partsPerBar, endPart - barStartPart);
-						const noteStartMidiTick: number = Math.max(barStartMidiTick, dnote.startMidiTick);
+						const noteStartMidiTick: number = Math.max(
+							barStartMidiTick,
+							dnote.startMidiTick,
+						);
 						const noteEndMidiTick: number = Math.min(barEndMidiTick, dnote.endMidiTick);
 
 						if (noteStartPart >= noteEndPart) continue;
 
 						if (instrumentByProgram[dnote.program] === undefined) {
-							const instrument: Instrument = new Instrument(isNoiseChannel, isModChannel);
+							const instrument: Instrument = new Instrument(
+								isNoiseChannel,
+								isModChannel,
+							);
 							instrumentByProgram[dnote.program] = instrument;
-							if (presetValue != null && preset != null && (preset.isNoise === true) === isNoiseChannel) {
-								instrument.fromJsonObject(preset.settings, isNoiseChannel, isModChannel, false, false, 1);
+							if (
+								presetValue != null &&
+								preset != null &&
+								(preset.isNoise === true) === isNoiseChannel
+							) {
+								instrument.fromJsonObject(
+									preset.settings,
+									isNoiseChannel,
+									isModChannel,
+									false,
+									false,
+									1,
+								);
 								instrument.preset = presetValue;
 							} else {
 								instrument.setTypeAndReset(
-									isModChannel ? InstrumentType.mod : isNoiseChannel ? InstrumentType.noise : InstrumentType.chip,
+									isModChannel
+										? InstrumentType.mod
+										: isNoiseChannel
+											? InstrumentType.noise
+											: InstrumentType.chip,
 									isNoiseChannel,
 									isModChannel,
 								);
@@ -861,15 +1052,29 @@ export function parseMidiFile(buffer: ArrayBuffer, fileName?: string): ParsedMid
 							channel.patterns.push(pattern);
 							channel.bars[currentBar] = channel.patterns.length;
 						}
-						pattern.instruments[0] = channel.instruments.indexOf(instrumentByProgram[dnote.program]);
+						pattern.instruments[0] = channel.instruments.indexOf(
+							instrumentByProgram[dnote.program],
+						);
 						pattern.instruments.length = 1;
 
 						if (instrumentByProgram[dnote.program] !== undefined) {
-							instrumentByProgram[dnote.program].volume = Math.min(instrumentByProgram[dnote.program].volume, dnote.instrumentVolume);
-							instrumentByProgram[dnote.program].pan = Math.min(instrumentByProgram[dnote.program].pan, dnote.instrumentPan);
+							instrumentByProgram[dnote.program].volume = Math.min(
+								instrumentByProgram[dnote.program].volume,
+								dnote.instrumentVolume,
+							);
+							instrumentByProgram[dnote.program].pan = Math.min(
+								instrumentByProgram[dnote.program].pan,
+								dnote.instrumentPan,
+							);
 						}
 
-						const note: Note = new Note(-1, noteStartPart, noteEndPart, Config.noteSizeMax, false);
+						const note: Note = new Note(
+							-1,
+							noteStartPart,
+							noteEndPart,
+							Config.noteSizeMax,
+							false,
+						);
 						note.pins.length = 0;
 						note.continuesLastPattern = createdNote && noteStartPart === 0;
 						if (!createdNote) {
@@ -882,10 +1087,19 @@ export function parseMidiFile(buffer: ArrayBuffer, fileName?: string): ParsedMid
 						createdNote = true;
 						updateCurrentMidiInterval(noteStartMidiTick);
 						updateCurrentMidiNoteSize(noteStartMidiTick);
-						const shiftedHeldPitch: number = dnote.pitches[0] * midiIntervalScale - channelBasePitch;
-						const initialBeepBoxPitch: number = Math.round((shiftedHeldPitch + currentMidiInterval) / intervalScale);
-						const heldPitchOffset: number = Math.round(currentMidiInterval - channelBasePitch);
-						const firstPin: NotePin = makeNotePin(0, 0, Math.round(dnote.velocity * currentMidiNoteSize));
+						const shiftedHeldPitch: number =
+							dnote.pitches[0] * midiIntervalScale - channelBasePitch;
+						const initialBeepBoxPitch: number = Math.round(
+							(shiftedHeldPitch + currentMidiInterval) / intervalScale,
+						);
+						const heldPitchOffset: number = Math.round(
+							currentMidiInterval - channelBasePitch,
+						);
+						const firstPin: NotePin = makeNotePin(
+							0,
+							0,
+							Math.round(dnote.velocity * currentMidiNoteSize),
+						);
 						note.pins.push(firstPin);
 						interface PotentialPin {
 							part: number;
@@ -895,29 +1109,44 @@ export function parseMidiFile(buffer: ArrayBuffer, fileName?: string): ParsedMid
 							keySize: boolean;
 						}
 						const potentialPins: PotentialPin[] = [
-							{ part: 0, pitch: initialBeepBoxPitch, size: firstPin.size, keyPitch: false, keySize: false },
+							{
+								part: 0,
+								pitch: initialBeepBoxPitch,
+								size: firstPin.size,
+								keyPitch: false,
+								keySize: false,
+							},
 						];
 						let prevPinIndex: number = 0;
-						let prevPartPitch: number = (shiftedHeldPitch + currentMidiInterval) / intervalScale;
+						let prevPartPitch: number =
+							(shiftedHeldPitch + currentMidiInterval) / intervalScale;
 						let prevPartSize: number = dnote.velocity * currentMidiNoteSize;
 						for (let part: number = noteStartPart + 1; part <= noteEndPart; part++) {
-							const midiTick: number = Math.max(noteStartMidiTick, Math.min(noteEndMidiTick - 1, partToMidiTick(part + barStartPart)));
+							const midiTick: number = Math.max(
+								noteStartMidiTick,
+								Math.min(noteEndMidiTick - 1, partToMidiTick(part + barStartPart)),
+							);
 							const noteRelativePart: number = part - noteStartPart;
 							const lastPart: boolean = part === noteEndPart;
 							updateCurrentMidiInterval(midiTick);
 							updateCurrentMidiNoteSize(midiTick);
-							const partPitch: number = (currentMidiInterval + shiftedHeldPitch) / intervalScale;
+							const partPitch: number =
+								(currentMidiInterval + shiftedHeldPitch) / intervalScale;
 							const partSize: number = dnote.velocity * currentMidiNoteSize;
 							const nearestPitch: number = Math.round(partPitch);
-							const pitchIsNearInteger: boolean = Math.abs(partPitch - nearestPitch) < 0.01;
+							const pitchIsNearInteger: boolean =
+								Math.abs(partPitch - nearestPitch) < 0.01;
 							const pitchCrossedInteger: boolean =
 								Math.abs(prevPartPitch - Math.round(prevPartPitch)) < 0.01
 									? Math.abs(partPitch - prevPartPitch) >= 1.0
 									: Math.floor(partPitch) !== Math.floor(prevPartPitch);
 							const keyPitch: boolean = pitchIsNearInteger || pitchCrossedInteger;
 							const nearestSize: number = Math.round(partSize);
-							const sizeIsNearInteger: boolean = Math.abs(partSize - nearestSize) < 0.01;
-							const sizeCrossedInteger: boolean = Math.abs(prevPartSize - Math.round(prevPartSize))
+							const sizeIsNearInteger: boolean =
+								Math.abs(partSize - nearestSize) < 0.01;
+							const sizeCrossedInteger: boolean = Math.abs(
+								prevPartSize - Math.round(prevPartSize),
+							)
 								? Math.abs(partSize - prevPartSize) >= 1.0
 								: Math.floor(partSize) !== Math.floor(prevPartSize);
 							const keySize: boolean = sizeIsNearInteger || sizeCrossedInteger;
@@ -935,15 +1164,26 @@ export function parseMidiFile(buffer: ArrayBuffer, fileName?: string): ParsedMid
 								let addPin: boolean = false;
 								let addPinAtIndex: number = Number.MAX_VALUE;
 								if (currentPin.keyPitch) {
-									const slope: number = (currentPin.pitch - prevPin.pitch) / (currentPin.part - prevPin.part);
+									const slope: number =
+										(currentPin.pitch - prevPin.pitch) /
+										(currentPin.part - prevPin.part);
 									let furthestIntervalDistance: number = Math.abs(slope);
 									let addIntervalPin: boolean = false;
 									let addIntervalPinAtIndex: number = Number.MAX_VALUE;
-									for (let potentialIndex: number = prevPinIndex + 1; potentialIndex < potentialPins.length; potentialIndex++) {
-										const potentialPin: PotentialPin = potentialPins[potentialIndex];
+									for (
+										let potentialIndex: number = prevPinIndex + 1;
+										potentialIndex < potentialPins.length;
+										potentialIndex++
+									) {
+										const potentialPin: PotentialPin =
+											potentialPins[potentialIndex];
 										if (potentialPin.keyPitch) {
-											const interpolatedInterval: number = prevPin.pitch + slope * (potentialPin.part - prevPin.part);
-											const distance: number = Math.abs(interpolatedInterval - potentialPin.pitch);
+											const interpolatedInterval: number =
+												prevPin.pitch +
+												slope * (potentialPin.part - prevPin.part);
+											const distance: number = Math.abs(
+												interpolatedInterval - potentialPin.pitch,
+											);
 											if (furthestIntervalDistance < distance) {
 												furthestIntervalDistance = distance;
 												addIntervalPin = true;
@@ -953,19 +1193,33 @@ export function parseMidiFile(buffer: ArrayBuffer, fileName?: string): ParsedMid
 									}
 									if (addIntervalPin) {
 										addPin = true;
-										addPinAtIndex = Math.min(addPinAtIndex, addIntervalPinAtIndex);
+										addPinAtIndex = Math.min(
+											addPinAtIndex,
+											addIntervalPinAtIndex,
+										);
 									}
 								}
 								if (currentPin.keySize) {
-									const slope: number = (currentPin.size - prevPin.size) / (currentPin.part - prevPin.part);
+									const slope: number =
+										(currentPin.size - prevPin.size) /
+										(currentPin.part - prevPin.part);
 									let furthestSizeDistance: number = Math.abs(slope);
 									let addSizePin: boolean = false;
 									let addSizePinAtIndex: number = Number.MAX_VALUE;
-									for (let potentialIndex: number = prevPinIndex + 1; potentialIndex < potentialPins.length; potentialIndex++) {
-										const potentialPin: PotentialPin = potentialPins[potentialIndex];
+									for (
+										let potentialIndex: number = prevPinIndex + 1;
+										potentialIndex < potentialPins.length;
+										potentialIndex++
+									) {
+										const potentialPin: PotentialPin =
+											potentialPins[potentialIndex];
 										if (potentialPin.keySize) {
-											const interpolatedSize: number = prevPin.size + slope * (potentialPin.part - prevPin.part);
-											const distance: number = Math.abs(interpolatedSize - potentialPin.size);
+											const interpolatedSize: number =
+												prevPin.size +
+												slope * (potentialPin.part - prevPin.part);
+											const distance: number = Math.abs(
+												interpolatedSize - potentialPin.size,
+											);
 											if (furthestSizeDistance < distance) {
 												furthestSizeDistance = distance;
 												addSizePin = true;
@@ -980,14 +1234,27 @@ export function parseMidiFile(buffer: ArrayBuffer, fileName?: string): ParsedMid
 								}
 								if (addPin) {
 									const toBePinned: PotentialPin = potentialPins[addPinAtIndex];
-									note.pins.push(makeNotePin(toBePinned.pitch - initialBeepBoxPitch, toBePinned.part, toBePinned.size));
+									note.pins.push(
+										makeNotePin(
+											toBePinned.pitch - initialBeepBoxPitch,
+											toBePinned.part,
+											toBePinned.size,
+										),
+									);
 									prevPinIndex = addPinAtIndex;
 								}
 								potentialPins.push(currentPin);
 							}
 						}
-						const lastToBePinned: PotentialPin = potentialPins[potentialPins.length - 1];
-						note.pins.push(makeNotePin(lastToBePinned.pitch - initialBeepBoxPitch, lastToBePinned.part, lastToBePinned.size));
+						const lastToBePinned: PotentialPin =
+							potentialPins[potentialPins.length - 1];
+						note.pins.push(
+							makeNotePin(
+								lastToBePinned.pitch - initialBeepBoxPitch,
+								lastToBePinned.part,
+								lastToBePinned.size,
+							),
+						);
 						let maxPitch: number = channelMaxPitch;
 						let minPitch: number = 0;
 						for (const notePin of note.pins) {
@@ -995,10 +1262,25 @@ export function parseMidiFile(buffer: ArrayBuffer, fileName?: string): ParsedMid
 							minPitch = Math.min(minPitch, -notePin.interval);
 						}
 						note.pitches.length = 0;
-						for (let pitchIndex: number = 0; pitchIndex < Math.min(Config.maxChordSize, dnote.pitches.length); pitchIndex++) {
-							let heldPitch: number = dnote.pitches[pitchIndex + Math.max(0, dnote.pitches.length - Config.maxChordSize)] * midiIntervalScale;
-							if (preset != null && preset.midiSubharmonicOctaves !== undefined) heldPitch -= 12 * preset.midiSubharmonicOctaves;
-							const shiftedPitch: number = Math.max(minPitch, Math.min(maxPitch, Math.round((heldPitch + heldPitchOffset) / intervalScale)));
+						for (
+							let pitchIndex: number = 0;
+							pitchIndex < Math.min(Config.maxChordSize, dnote.pitches.length);
+							pitchIndex++
+						) {
+							let heldPitch: number =
+								dnote.pitches[
+									pitchIndex +
+										Math.max(0, dnote.pitches.length - Config.maxChordSize)
+								] * midiIntervalScale;
+							if (preset != null && preset.midiSubharmonicOctaves !== undefined)
+								heldPitch -= 12 * preset.midiSubharmonicOctaves;
+							const shiftedPitch: number = Math.max(
+								minPitch,
+								Math.min(
+									maxPitch,
+									Math.round((heldPitch + heldPitchOffset) / intervalScale),
+								),
+							);
 							if (note.pitches.indexOf(shiftedPitch) === -1) {
 								note.pitches.push(shiftedPitch);
 								const weight: number = note.end - note.start;
@@ -1012,7 +1294,16 @@ export function parseMidiFile(buffer: ArrayBuffer, fileName?: string): ParsedMid
 				while (channel.bars.length < songTotalBars) channel.bars.push(0);
 				if (pitchCount > 0) {
 					const averagePitch: number = pitchSum / pitchCount;
-					channel.octave = isNoiseChannel || isModChannel ? 0 : Math.max(0, Math.min(Config.pitchOctaves - 1, Math.floor(averagePitch / 12)));
+					channel.octave =
+						isNoiseChannel || isModChannel
+							? 0
+							: Math.max(
+									0,
+									Math.min(
+										Config.pitchOctaves - 1,
+										Math.floor(averagePitch / 12),
+									),
+								);
 				}
 				console.log(
 					`[MIDI Import]   track: real=${trackRealNotes} multiBarSource=${trackMultiBarSource} ` +
@@ -1067,9 +1358,19 @@ export function parseMidiFile(buffer: ArrayBuffer, fileName?: string): ParsedMid
 						pattern.instruments[0] = 0;
 						pattern.instruments.length = 1;
 					}
-					const realBPM: number = Math.round(microsecondsPerMinute / change.microsecondsPerBeat);
-					const newBPM = Math.max(Config.tempoMin, Math.min(Config.tempoMax, realBPM - Config.modulators.dictionary.tempo.convertRealFactor));
-					pattern.notes.push(new Note(tempoModPitch, noteStartPart, noteEndPart, newBPM, false));
+					const realBPM: number = Math.round(
+						microsecondsPerMinute / change.microsecondsPerBeat,
+					);
+					const newBPM = Math.max(
+						Config.tempoMin,
+						Math.min(
+							Config.tempoMax,
+							realBPM - Config.modulators.dictionary.tempo.convertRealFactor,
+						),
+					);
+					pattern.notes.push(
+						new Note(tempoModPitch, noteStartPart, noteEndPart, newBPM, false),
+					);
 				}
 			}
 			prevChangeEndPart = changeEndPart;
@@ -1109,7 +1410,12 @@ export function parseMidiFile(buffer: ArrayBuffer, fileName?: string): ParsedMid
 	noiseChannels.sort((a: Channel, b: Channel): number => firstContentBar(a) - firstContentBar(b));
 	modChannels.sort((a: Channel, b: Channel): number => firstContentBar(a) - firstContentBar(b));
 
-	function validateChannelNotes(channels: Channel[], pitchMax: number, maxSize: number, label: string): void {
+	function validateChannelNotes(
+		channels: Channel[],
+		pitchMax: number,
+		maxSize: number,
+		label: string,
+	): void {
 		let totalNotes: number = 0;
 		let skippedNotes: number = 0;
 		let clampedNotes: number = 0;
@@ -1153,7 +1459,9 @@ export function parseMidiFile(buffer: ArrayBuffer, fileName?: string): ParsedMid
 				for (const note of validNotes) pattern.notes.push(note);
 			}
 		}
-		console.log(`[MIDI Import] ${label}: ${totalNotes} notes valid, ${clampedNotes} clamped, ${skippedNotes} skipped`);
+		console.log(
+			`[MIDI Import] ${label}: ${totalNotes} notes valid, ${clampedNotes} clamped, ${skippedNotes} skipped`,
+		);
 	}
 	validateChannelNotes(pitchChannels, Config.maxPitch, Config.noteSizeMax, "pitch channels");
 	validateChannelNotes(noiseChannels, Config.drumCount - 1, Config.noteSizeMax, "noise channels");
@@ -1162,13 +1470,18 @@ export function parseMidiFile(buffer: ArrayBuffer, fileName?: string): ParsedMid
 	console.log(
 		`[MIDI Import] key=${key} scale=${scale} (${Config.scales[scale].name}) rhythm=${detectedRhythm} (${Config.rhythms[detectedRhythm].name}) beatsPerBar=${beatsPerBar} tempo=${beatsPerMinute} BPM`,
 	);
-	console.log(`[MIDI Import] midiTicksPerBeat=${midiTicksPerBeat} midiTicksPerPart=${midiTicksPerPart} partsPerBar=${partsPerBar}`);
+	console.log(
+		`[MIDI Import] midiTicksPerBeat=${midiTicksPerBeat} midiTicksPerPart=${midiTicksPerPart} partsPerBar=${partsPerBar}`,
+	);
 	console.log(
 		`[MIDI Import] ${pitchChannels.length} pitch channels, ${noiseChannels.length} noise channels, ${modChannels.length} mod channels, ${songTotalBars} bars`,
 	);
-	if (tempoChanges.length > 1) console.log(`[MIDI Import] ${tempoChanges.length} tempo changes detected`);
+	if (tempoChanges.length > 1)
+		console.log(`[MIDI Import] ${tempoChanges.length} tempo changes detected`);
 	if (timeSigChanges.length > 0) {
-		const sigList: string = timeSigChanges.map((c) => `${c.beatsPerBar}@tick${c.midiTick}`).join(", ");
+		const sigList: string = timeSigChanges
+			.map((c) => `${c.beatsPerBar}@tick${c.midiTick}`)
+			.join(", ");
 		console.log(
 			`[MIDI Import] time sig changes: ${timeSigChanges.length} (${sigList}) -> flattened to beatsPerBar=${beatsPerBar}, ` +
 				`${nextBarModParts.length} next-bar mod note(s) at flattened parts [${nextBarModParts.join(", ")}]`,
@@ -1178,7 +1491,8 @@ export function parseMidiFile(buffer: ArrayBuffer, fileName?: string): ParsedMid
 	}
 	if (sustainEvents.length > 0) {
 		const sustainByChannel: { [channel: number]: number } = {};
-		for (const ev of sustainEvents) sustainByChannel[ev.channel] = (sustainByChannel[ev.channel] ?? 0) + 1;
+		for (const ev of sustainEvents)
+			sustainByChannel[ev.channel] = (sustainByChannel[ev.channel] ?? 0) + 1;
 		const holds: number = sustainEvents.filter((ev) => ev.value >= 64).length;
 		const releases: number = sustainEvents.length - holds;
 		console.log(

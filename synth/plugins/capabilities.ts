@@ -65,7 +65,11 @@ export function getCapabilities(type: number): InstrumentCapabilities {
 
 registerCapabilities(InstrumentType.fm, { isFm: true });
 registerCapabilities(InstrumentType.fm6op, { isFm: true, isFm6: true });
-registerCapabilities(InstrumentType.chip, { hasWaveSelect: true, hasLoopControls: true, hasAliasableWaveform: true });
+registerCapabilities(InstrumentType.chip, {
+	hasWaveSelect: true,
+	hasLoopControls: true,
+	hasAliasableWaveform: true,
+});
 registerCapabilities(InstrumentType.customChipWave, {
 	hasWaveSelect: true,
 	hasAliasableWaveform: true,
@@ -76,7 +80,11 @@ registerCapabilities(InstrumentType.spectrum, { hasSpectrum: true });
 registerCapabilities(InstrumentType.noise, { isNoise: true });
 registerCapabilities(InstrumentType.drumset, { isDrumset: true });
 registerCapabilities(InstrumentType.pickedString, { hasStringSustain: true, hasHarmonics: true });
-registerCapabilities(InstrumentType.supersaw, { hasSupersaw: true, hasPulseWidth: true, hasAliasableWaveform: true });
+registerCapabilities(InstrumentType.supersaw, {
+	hasSupersaw: true,
+	hasPulseWidth: true,
+	hasAliasableWaveform: true,
+});
 registerCapabilities(InstrumentType.pwm, { hasPulseWidth: true, hasAliasableWaveform: true });
 registerCapabilities(InstrumentType.mod, {
 	isMod: true,

@@ -33,7 +33,9 @@ interface DictionaryArray<T> extends Array<T> {
 	dictionary: Dictionary<T>;
 }
 
-function toNameMap<T extends BeepBoxOption>(array: Array<Pick<T, Exclude<keyof T, "index">>>): DictionaryArray<T> {
+function toNameMap<T extends BeepBoxOption>(
+	array: Array<Pick<T, Exclude<keyof T, "index">>>,
+): DictionaryArray<T> {
 	const dictionary: Dictionary<T> = {};
 	for (let i = 0; i < array.length; i++) {
 		const value: any = array[i];
@@ -57,8 +59,14 @@ export class ColorConfig {
 	public static usesColorFormula: boolean = false;
 	public static readonly defaultTheme: string = "pmd-dynamic";
 	public static readonly PMD_THEME: string = "pmd-dynamic";
-	public static pmdHue: number = typeof window !== "undefined" ? parseInt(window.localStorage.getItem("pmdHue") ?? "345", 10) : 345;
-	public static pmdDark: boolean = typeof window !== "undefined" ? (window.localStorage.getItem("pmdDark") ?? "1") === "1" : true;
+	public static pmdHue: number =
+		typeof window !== "undefined"
+			? parseInt(window.localStorage.getItem("pmdHue") ?? "345", 10)
+			: 345;
+	public static pmdDark: boolean =
+		typeof window !== "undefined"
+			? (window.localStorage.getItem("pmdDark") ?? "1") === "1"
+			: true;
 	public static readonly themes: { [name: string]: string } = themes;
 	public static readonly pageMargin: string = "var(--page-margin, black)";
 	public static readonly editorBackground: string = "var(--editor-background, black)";
@@ -68,7 +76,8 @@ export class ColorConfig {
 	public static readonly secondaryText: string = "var(--secondary-text, #999)";
 	public static readonly invertedText: string = "var(--inverted-text, black)";
 	public static readonly textSelection: string = "var(--text-selection, rgba(119,68,255,0.99))";
-	public static readonly boxSelectionFill: string = "var(--box-selection-fill, rgba(255,255,255,0.2))";
+	public static readonly boxSelectionFill: string =
+		"var(--box-selection-fill, rgba(255,255,255,0.2))";
 	public static readonly loopAccent: string = "var(--loop-accent, #74f)";
 	public static readonly linkAccent: string = "var(--link-accent, #98f)";
 	public static readonly uiWidgetBackground: string = "var(--ui-widget-background, #444)";
@@ -82,23 +91,32 @@ export class ColorConfig {
 	public static readonly blackPianoKeyText: string = "var(--black-piano-key-text, #fff)";
 	public static readonly useColorFormula: string = "var(--use-color-formula, false)";
 	public static readonly pitchSecondaryChannelHue: string = "var(--pitch-secondary-channel-hue)";
-	public static readonly pitchSecondaryChannelHueScale: string = "var(--pitch-secondary-channel-hue-scale)";
+	public static readonly pitchSecondaryChannelHueScale: string =
+		"var(--pitch-secondary-channel-hue-scale)";
 	public static readonly pitchSecondaryChannelSat: string = "var(--pitch-secondary-channel-sat)";
-	public static readonly pitchSecondaryChannelSatScale: string = "var(--pitch-secondary-channel-sat-scale)";
+	public static readonly pitchSecondaryChannelSatScale: string =
+		"var(--pitch-secondary-channel-sat-scale)";
 	public static readonly pitchSecondaryChannelLum: string = "var(--pitch-secondary-channel-lum)";
-	public static readonly pitchSecondaryChannelLumScale: string = "var(--pitch-secondary-channel-lum-scale)";
+	public static readonly pitchSecondaryChannelLumScale: string =
+		"var(--pitch-secondary-channel-lum-scale)";
 	public static readonly pitchPrimaryChannelHue: string = "var(--pitch-primary-channel-hue)";
-	public static readonly pitchPrimaryChannelHueScale: string = "var(--pitch-primary-channel-hue-scale)";
+	public static readonly pitchPrimaryChannelHueScale: string =
+		"var(--pitch-primary-channel-hue-scale)";
 	public static readonly pitchPrimaryChannelSat: string = "var(--pitch-primary-channel-sat)";
-	public static readonly pitchPrimaryChannelSatScale: string = "var(--pitch-primary-channel-sat-scale)";
+	public static readonly pitchPrimaryChannelSatScale: string =
+		"var(--pitch-primary-channel-sat-scale)";
 	public static readonly pitchPrimaryChannelLum: string = "var(--pitch-primary-channel-lum)";
-	public static readonly pitchPrimaryChannelLumScale: string = "var(--pitch-primary-channel-lum-scale)";
+	public static readonly pitchPrimaryChannelLumScale: string =
+		"var(--pitch-primary-channel-lum-scale)";
 	public static readonly pitchSecondaryNoteHue: string = "var(--pitch-secondary-note-hue)";
-	public static readonly pitchSecondaryNoteHueScale: string = "var(--pitch-secondary-note-hue-scale)";
+	public static readonly pitchSecondaryNoteHueScale: string =
+		"var(--pitch-secondary-note-hue-scale)";
 	public static readonly pitchSecondaryNoteSat: string = "var(--pitch-secondary-note-sat)";
-	public static readonly pitchSecondaryNoteSatScale: string = "var(--pitch-secondary-note-sat-scale)";
+	public static readonly pitchSecondaryNoteSatScale: string =
+		"var(--pitch-secondary-note-sat-scale)";
 	public static readonly pitchSecondaryNoteLum: string = "var(--pitch-secondary-note-lum)";
-	public static readonly pitchSecondaryNoteLumScale: string = "var(--pitch-secondary-note-lum-scale)";
+	public static readonly pitchSecondaryNoteLumScale: string =
+		"var(--pitch-secondary-note-lum-scale)";
 	public static readonly pitchPrimaryNoteHue: string = "var(--pitch-primary-note-hue)";
 	public static readonly pitchPrimaryNoteHueScale: string = "var(--pitch-primary-note-hue-scale)";
 	public static readonly pitchPrimaryNoteSat: string = "var(--pitch-primary-note-sat)";
@@ -106,17 +124,23 @@ export class ColorConfig {
 	public static readonly pitchPrimaryNoteLum: string = "var(--pitch-primary-note-lum)";
 	public static readonly pitchPrimaryNoteLumScale: string = "var(--pitch-primary-note-lum-scale)";
 	public static readonly modSecondaryChannelHue: string = "var(--mod-secondary-channel-hue)";
-	public static readonly modSecondaryChannelHueScale: string = "var(--mod-secondary-channel-hue-scale)";
+	public static readonly modSecondaryChannelHueScale: string =
+		"var(--mod-secondary-channel-hue-scale)";
 	public static readonly modSecondaryChannelSat: string = "var(--mod-secondary-channel-sat)";
-	public static readonly modSecondaryChannelSatScale: string = "var(--mod-secondary-channel-sat-scale)";
+	public static readonly modSecondaryChannelSatScale: string =
+		"var(--mod-secondary-channel-sat-scale)";
 	public static readonly modSecondaryChannelLum: string = "var(--mod-secondary-channel-lum)";
-	public static readonly modSecondaryChannelLumScale: string = "var(--mod-secondary-channel-lum-scale)";
+	public static readonly modSecondaryChannelLumScale: string =
+		"var(--mod-secondary-channel-lum-scale)";
 	public static readonly modPrimaryChannelHue: string = "var(--mod-primary-channel-hue)";
-	public static readonly modPrimaryChannelHueScale: string = "var(--mod-primary-channel-hue-scale)";
+	public static readonly modPrimaryChannelHueScale: string =
+		"var(--mod-primary-channel-hue-scale)";
 	public static readonly modPrimaryChannelSat: string = "var(--mod-primary-channel-sat)";
-	public static readonly modPrimaryChannelSatScale: string = "var(--mod-primary-channel-sat-scale)";
+	public static readonly modPrimaryChannelSatScale: string =
+		"var(--mod-primary-channel-sat-scale)";
 	public static readonly modPrimaryChannelLum: string = "var(--mod-primary-channel-lum)";
-	public static readonly modPrimaryChannelLumScale: string = "var(--mod-primary-channel-lum-scale)";
+	public static readonly modPrimaryChannelLumScale: string =
+		"var(--mod-primary-channel-lum-scale)";
 	public static readonly modSecondaryNoteHue: string = "var(--mod-secondary-note-hue)";
 	public static readonly modSecondaryNoteHueScale: string = "var(--mod-secondary-note-hue-scale)";
 	public static readonly modSecondaryNoteSat: string = "var(--mod-secondary-note-sat)";
@@ -130,23 +154,32 @@ export class ColorConfig {
 	public static readonly modPrimaryNoteLum: string = "var(--mod-primary-note-lum)";
 	public static readonly modPrimaryNoteLumScale: string = "var(--mod-primary-note-lum-scale)";
 	public static readonly noiseSecondaryChannelHue: string = "var(--noise-secondary-channel-hue)";
-	public static readonly noiseSecondaryChannelHueScale: string = "var(--noise-secondary-channel-hue-scale)";
+	public static readonly noiseSecondaryChannelHueScale: string =
+		"var(--noise-secondary-channel-hue-scale)";
 	public static readonly noiseSecondaryChannelSat: string = "var(--noise-secondary-channel-sat)";
-	public static readonly noiseSecondaryChannelSatScale: string = "var(--noise-secondary-channel-sat-scale)";
+	public static readonly noiseSecondaryChannelSatScale: string =
+		"var(--noise-secondary-channel-sat-scale)";
 	public static readonly noiseSecondaryChannelLum: string = "var(--noise-secondary-channel-lum)";
-	public static readonly noiseSecondaryChannelLumScale: string = "var(--noise-secondary-channel-lum-scale)";
+	public static readonly noiseSecondaryChannelLumScale: string =
+		"var(--noise-secondary-channel-lum-scale)";
 	public static readonly noisePrimaryChannelHue: string = "var(--noise-primary-channel-hue)";
-	public static readonly noisePrimaryChannelHueScale: string = "var(--noise-primary-channel-hue-scale)";
+	public static readonly noisePrimaryChannelHueScale: string =
+		"var(--noise-primary-channel-hue-scale)";
 	public static readonly noisePrimaryChannelSat: string = "var(--noise-primary-channel-sat)";
-	public static readonly noisePrimaryChannelSatScale: string = "var(--noise-primary-channel-sat-scale)";
+	public static readonly noisePrimaryChannelSatScale: string =
+		"var(--noise-primary-channel-sat-scale)";
 	public static readonly noisePrimaryChannelLum: string = "var(--noise-primary-channel-lum)";
-	public static readonly noisePrimaryChannelLumScale: string = "var(--noise-primary-channel-lum-scale)";
+	public static readonly noisePrimaryChannelLumScale: string =
+		"var(--noise-primary-channel-lum-scale)";
 	public static readonly noiseSecondaryNoteHue: string = "var(--noise-secondary-note-hue)";
-	public static readonly noiseSecondaryNoteHueScale: string = "var(--noise-secondary-note-hue-scale)";
+	public static readonly noiseSecondaryNoteHueScale: string =
+		"var(--noise-secondary-note-hue-scale)";
 	public static readonly noiseSecondaryNoteSat: string = "var(--noise-secondary-note-sat)";
-	public static readonly noiseSecondaryNoteSatScale: string = "var(--noise-secondary-note-sat-scale)";
+	public static readonly noiseSecondaryNoteSatScale: string =
+		"var(--noise-secondary-note-sat-scale)";
 	public static readonly noiseSecondaryNoteLum: string = "var(--noise-secondary-note-lum)";
-	public static readonly noiseSecondaryNoteLumScale: string = "var(--noise-secondary-note-lum-scale)";
+	public static readonly noiseSecondaryNoteLumScale: string =
+		"var(--noise-secondary-note-lum-scale)";
 	public static readonly noisePrimaryNoteHue: string = "var(--noise-primary-note-hue)";
 	public static readonly noisePrimaryNoteHueScale: string = "var(--noise-primary-note-hue-scale)";
 	public static readonly noisePrimaryNoteSat: string = "var(--noise-primary-note-sat)";
@@ -159,8 +192,10 @@ export class ColorConfig {
 	public static readonly trackEditorBgNoiseDim: string = "var(--track-editor-bg-noise-dim, #333)";
 	public static readonly trackEditorBgMod: string = "var(--track-editor-bg-mod, #234)";
 	public static readonly trackEditorBgModDim: string = "var(--track-editor-bg-mod-dim, #123)";
-	public static readonly multiplicativeModSlider: string = "var(--multiplicative-mod-slider, #456;)";
-	public static readonly sliderTrack: string = "var(--slider-track, var(--ui-widget-background, #444))";
+	public static readonly multiplicativeModSlider: string =
+		"var(--multiplicative-mod-slider, #456;)";
+	public static readonly sliderTrack: string =
+		"var(--slider-track, var(--ui-widget-background, #444))";
 	public static readonly overwritingModSlider: string = "var(--overwriting-mod-slider, #654)";
 	public static readonly indicatorPrimary: string = "var(--indicator-primary, #74f)";
 	public static readonly indicatorSecondary: string = "var(--indicator-secondary, #444)";
@@ -173,8 +208,10 @@ export class ColorConfig {
 	public static readonly modLabelPrimaryText: string = "var(--mod-label-primary-text, black)";
 	public static readonly muteEditorTextDim: string = "var(--mute-editor-text-dim, #999)";
 	public static readonly tipText: string = "var(--tip-text, var(--secondary-text, #999))";
-	public static readonly settingsHeaderText: string = "var(--settings-header-text, var(--secondary-text, #999))";
-	public static readonly promptTitlebarText: string = "var(--prompt-titlebar-text, var(--primary-text, white))";
+	public static readonly settingsHeaderText: string =
+		"var(--settings-header-text, var(--secondary-text, #999))";
+	public static readonly promptTitlebarText: string =
+		"var(--prompt-titlebar-text, var(--primary-text, white))";
 	public static readonly disabledNotePrimary: string = "var(--disabled-note-primary, #999)";
 	public static readonly disabledNoteSecondary: string = "var(--disabled-note-secondary, #666)";
 
@@ -422,23 +459,40 @@ export class ColorConfig {
 			let base: ChannelColors;
 			switch (type) {
 				case "noise": {
-					base = ColorConfig.noiseChannels[(channel % ColorConfig.c_noiseLimit) % ColorConfig.noiseChannels.length];
+					base =
+						ColorConfig.noiseChannels[
+							(channel % ColorConfig.c_noiseLimit) % ColorConfig.noiseChannels.length
+						];
 					break;
 				}
 				case "mod": {
-					base = ColorConfig.modChannels[(channel % ColorConfig.c_modLimit) % ColorConfig.modChannels.length];
+					base =
+						ColorConfig.modChannels[
+							(channel % ColorConfig.c_modLimit) % ColorConfig.modChannels.length
+						];
 					break;
 				}
 				default: {
-					base = ColorConfig.pitchChannels[(channel % ColorConfig.c_pitchLimit) % ColorConfig.pitchChannels.length];
+					base =
+						ColorConfig.pitchChannels[
+							(channel % ColorConfig.c_pitchLimit) % ColorConfig.pitchChannels.length
+						];
 					break;
 				}
 			}
 			const regex = /\(([^,)]+)/;
-			const newChannelSecondary: string = ColorConfig.getComputed((regex.exec(base.secondaryChannel) as RegExpExecArray)[1] as string);
-			const newChannelPrimary: string = ColorConfig.getComputed((regex.exec(base.primaryChannel) as RegExpExecArray)[1] as string);
-			const newNoteSecondary: string = ColorConfig.getComputed((regex.exec(base.secondaryNote) as RegExpExecArray)[1] as string);
-			const newNotePrimary: string = ColorConfig.getComputed((regex.exec(base.primaryNote) as RegExpExecArray)[1] as string);
+			const newChannelSecondary: string = ColorConfig.getComputed(
+				(regex.exec(base.secondaryChannel) as RegExpExecArray)[1] as string,
+			);
+			const newChannelPrimary: string = ColorConfig.getComputed(
+				(regex.exec(base.primaryChannel) as RegExpExecArray)[1] as string,
+			);
+			const newNoteSecondary: string = ColorConfig.getComputed(
+				(regex.exec(base.secondaryNote) as RegExpExecArray)[1] as string,
+			);
+			const newNotePrimary: string = ColorConfig.getComputed(
+				(regex.exec(base.primaryNote) as RegExpExecArray)[1] as string,
+			);
 			return <ChannelColors>{
 				secondaryChannel: newChannelSecondary,
 				primaryChannel: newChannelPrimary,
@@ -456,42 +510,58 @@ export class ColorConfig {
 				const newChannelSecondary: string =
 					"hsl(" +
 					((ColorConfig.c_noiseSecondaryChannelHue +
-						((channel * ColorConfig.c_noiseSecondaryChannelHueScale) / ColorConfig.c_noiseChannelCountOverride) * 256) %
+						((channel * ColorConfig.c_noiseSecondaryChannelHueScale) /
+							ColorConfig.c_noiseChannelCountOverride) *
+							256) %
 						colorFormulaNoiseLimit) +
 					"," +
-					(ColorConfig.c_noiseSecondaryChannelSat + channel * ColorConfig.c_noiseSecondaryChannelSatScale) +
+					(ColorConfig.c_noiseSecondaryChannelSat +
+						channel * ColorConfig.c_noiseSecondaryChannelSatScale) +
 					"%," +
-					(ColorConfig.c_noiseSecondaryChannelLum + channel * ColorConfig.c_noiseSecondaryChannelLumScale) +
+					(ColorConfig.c_noiseSecondaryChannelLum +
+						channel * ColorConfig.c_noiseSecondaryChannelLumScale) +
 					"%)";
 				const newChannelPrimary: string =
 					"hsl(" +
 					((ColorConfig.c_noisePrimaryChannelHue +
-						((channel * ColorConfig.c_noisePrimaryChannelHueScale) / ColorConfig.c_noiseChannelCountOverride) * 256) %
+						((channel * ColorConfig.c_noisePrimaryChannelHueScale) /
+							ColorConfig.c_noiseChannelCountOverride) *
+							256) %
 						colorFormulaNoiseLimit) +
 					"," +
-					(ColorConfig.c_noisePrimaryChannelSat + channel * ColorConfig.c_noisePrimaryChannelSatScale) +
+					(ColorConfig.c_noisePrimaryChannelSat +
+						channel * ColorConfig.c_noisePrimaryChannelSatScale) +
 					"%," +
-					(ColorConfig.c_noisePrimaryChannelLum + channel * ColorConfig.c_noisePrimaryChannelLumScale) +
+					(ColorConfig.c_noisePrimaryChannelLum +
+						channel * ColorConfig.c_noisePrimaryChannelLumScale) +
 					"%)";
 				const newNoteSecondary: string =
 					"hsl(" +
 					((ColorConfig.c_noiseSecondaryNoteHue +
-						((channel * ColorConfig.c_noiseSecondaryNoteHueScale) / ColorConfig.c_noiseChannelCountOverride) * 256) %
+						((channel * ColorConfig.c_noiseSecondaryNoteHueScale) /
+							ColorConfig.c_noiseChannelCountOverride) *
+							256) %
 						colorFormulaNoiseLimit) +
 					"," +
-					(ColorConfig.c_noiseSecondaryNoteSat + channel * ColorConfig.c_noiseSecondaryNoteSatScale) +
+					(ColorConfig.c_noiseSecondaryNoteSat +
+						channel * ColorConfig.c_noiseSecondaryNoteSatScale) +
 					"%," +
-					(ColorConfig.c_noiseSecondaryNoteLum + channel * ColorConfig.c_noiseSecondaryNoteLumScale) +
+					(ColorConfig.c_noiseSecondaryNoteLum +
+						channel * ColorConfig.c_noiseSecondaryNoteLumScale) +
 					"%)";
 				const newNotePrimary: string =
 					"hsl(" +
 					((ColorConfig.c_noisePrimaryNoteHue +
-						((channel * ColorConfig.c_noisePrimaryNoteHueScale) / ColorConfig.c_noiseChannelCountOverride) * 256) %
+						((channel * ColorConfig.c_noisePrimaryNoteHueScale) /
+							ColorConfig.c_noiseChannelCountOverride) *
+							256) %
 						colorFormulaNoiseLimit) +
 					"," +
-					(ColorConfig.c_noisePrimaryNoteSat + channel * ColorConfig.c_noisePrimaryNoteSatScale) +
+					(ColorConfig.c_noisePrimaryNoteSat +
+						channel * ColorConfig.c_noisePrimaryNoteSatScale) +
 					"%," +
-					(ColorConfig.c_noisePrimaryNoteLum + channel * ColorConfig.c_noisePrimaryNoteLumScale) +
+					(ColorConfig.c_noisePrimaryNoteLum +
+						channel * ColorConfig.c_noisePrimaryNoteLumScale) +
 					"%)";
 
 				const newChannelColors = <ChannelColors>{
@@ -508,40 +578,58 @@ export class ColorConfig {
 				const newChannelSecondary: string =
 					"hsl(" +
 					((ColorConfig.c_modSecondaryChannelHue +
-						((channel * ColorConfig.c_modSecondaryChannelHueScale) / ColorConfig.c_modChannelCountOverride) * 256) %
+						((channel * ColorConfig.c_modSecondaryChannelHueScale) /
+							ColorConfig.c_modChannelCountOverride) *
+							256) %
 						colorFormulaModLimit) +
 					"," +
-					(ColorConfig.c_modSecondaryChannelSat + channel * ColorConfig.c_modSecondaryChannelSatScale) +
+					(ColorConfig.c_modSecondaryChannelSat +
+						channel * ColorConfig.c_modSecondaryChannelSatScale) +
 					"%," +
-					(ColorConfig.c_modSecondaryChannelLum + channel * ColorConfig.c_modSecondaryChannelLumScale) +
+					(ColorConfig.c_modSecondaryChannelLum +
+						channel * ColorConfig.c_modSecondaryChannelLumScale) +
 					"%)";
 				const newChannelPrimary: string =
 					"hsl(" +
 					((ColorConfig.c_modPrimaryChannelHue +
-						((channel * ColorConfig.c_modPrimaryChannelHueScale) / ColorConfig.c_modChannelCountOverride) * 256) %
+						((channel * ColorConfig.c_modPrimaryChannelHueScale) /
+							ColorConfig.c_modChannelCountOverride) *
+							256) %
 						colorFormulaModLimit) +
 					"," +
-					(ColorConfig.c_modPrimaryChannelSat + channel * ColorConfig.c_modPrimaryChannelSatScale) +
+					(ColorConfig.c_modPrimaryChannelSat +
+						channel * ColorConfig.c_modPrimaryChannelSatScale) +
 					"%," +
-					(ColorConfig.c_modPrimaryChannelLum + channel * ColorConfig.c_modPrimaryChannelLumScale) +
+					(ColorConfig.c_modPrimaryChannelLum +
+						channel * ColorConfig.c_modPrimaryChannelLumScale) +
 					"%)";
 				const newNoteSecondary: string =
 					"hsl(" +
-					((ColorConfig.c_modSecondaryNoteHue + ((channel * ColorConfig.c_modSecondaryNoteHueScale) / ColorConfig.c_modChannelCountOverride) * 256) %
+					((ColorConfig.c_modSecondaryNoteHue +
+						((channel * ColorConfig.c_modSecondaryNoteHueScale) /
+							ColorConfig.c_modChannelCountOverride) *
+							256) %
 						colorFormulaModLimit) +
 					"," +
-					(ColorConfig.c_modSecondaryNoteSat + channel * ColorConfig.c_modSecondaryNoteSatScale) +
+					(ColorConfig.c_modSecondaryNoteSat +
+						channel * ColorConfig.c_modSecondaryNoteSatScale) +
 					"%," +
-					(ColorConfig.c_modSecondaryNoteLum + channel * ColorConfig.c_modSecondaryNoteLumScale) +
+					(ColorConfig.c_modSecondaryNoteLum +
+						channel * ColorConfig.c_modSecondaryNoteLumScale) +
 					"%)";
 				const newNotePrimary: string =
 					"hsl(" +
-					((ColorConfig.c_modPrimaryNoteHue + ((channel * ColorConfig.c_modPrimaryNoteHueScale) / ColorConfig.c_modChannelCountOverride) * 256) %
+					((ColorConfig.c_modPrimaryNoteHue +
+						((channel * ColorConfig.c_modPrimaryNoteHueScale) /
+							ColorConfig.c_modChannelCountOverride) *
+							256) %
 						colorFormulaModLimit) +
 					"," +
-					(ColorConfig.c_modPrimaryNoteSat + channel * ColorConfig.c_modPrimaryNoteSatScale) +
+					(ColorConfig.c_modPrimaryNoteSat +
+						channel * ColorConfig.c_modPrimaryNoteSatScale) +
 					"%," +
-					(ColorConfig.c_modPrimaryNoteLum + channel * ColorConfig.c_modPrimaryNoteLumScale) +
+					(ColorConfig.c_modPrimaryNoteLum +
+						channel * ColorConfig.c_modPrimaryNoteLumScale) +
 					"%)";
 
 				const newChannelColors = <ChannelColors>{
@@ -558,42 +646,60 @@ export class ColorConfig {
 				const newChannelSecondary: string =
 					"hsl(" +
 					((ColorConfig.c_pitchSecondaryChannelHue +
-						((channel * ColorConfig.c_pitchSecondaryChannelHueScale) / ColorConfig.c_pitchChannelCountOverride) * 256) %
+						((channel * ColorConfig.c_pitchSecondaryChannelHueScale) /
+							ColorConfig.c_pitchChannelCountOverride) *
+							256) %
 						colorFormulaPitchLimit) +
 					"," +
-					ColorConfig.c_pitchSecondaryChannelSat * (1 - ColorConfig.c_pitchSecondaryChannelSatScale * Math.floor(channel / 7)) +
+					ColorConfig.c_pitchSecondaryChannelSat *
+						(1 -
+							ColorConfig.c_pitchSecondaryChannelSatScale * Math.floor(channel / 7)) +
 					"%," +
-					ColorConfig.c_pitchSecondaryChannelLum * (1 - ColorConfig.c_pitchSecondaryChannelLumScale * Math.floor(channel / 7)) +
+					ColorConfig.c_pitchSecondaryChannelLum *
+						(1 -
+							ColorConfig.c_pitchSecondaryChannelLumScale * Math.floor(channel / 7)) +
 					"%)";
 				const newChannelPrimary: string =
 					"hsl(" +
 					((ColorConfig.c_pitchPrimaryChannelHue +
-						((channel * ColorConfig.c_pitchPrimaryChannelHueScale) / ColorConfig.c_pitchChannelCountOverride) * 256) %
+						((channel * ColorConfig.c_pitchPrimaryChannelHueScale) /
+							ColorConfig.c_pitchChannelCountOverride) *
+							256) %
 						colorFormulaPitchLimit) +
 					"," +
-					ColorConfig.c_pitchPrimaryChannelSat * (1 - ColorConfig.c_pitchPrimaryChannelSatScale * Math.floor(channel / 7)) +
+					ColorConfig.c_pitchPrimaryChannelSat *
+						(1 - ColorConfig.c_pitchPrimaryChannelSatScale * Math.floor(channel / 7)) +
 					"%," +
-					ColorConfig.c_pitchPrimaryChannelLum * (1 - ColorConfig.c_pitchPrimaryChannelLumScale * Math.floor(channel / 7)) +
+					ColorConfig.c_pitchPrimaryChannelLum *
+						(1 - ColorConfig.c_pitchPrimaryChannelLumScale * Math.floor(channel / 7)) +
 					"%)";
 				const newNoteSecondary: string =
 					"hsl(" +
 					((ColorConfig.c_pitchSecondaryNoteHue +
-						((channel * ColorConfig.c_pitchSecondaryNoteHueScale) / ColorConfig.c_pitchChannelCountOverride) * 256) %
+						((channel * ColorConfig.c_pitchSecondaryNoteHueScale) /
+							ColorConfig.c_pitchChannelCountOverride) *
+							256) %
 						colorFormulaPitchLimit) +
 					"," +
-					ColorConfig.c_pitchSecondaryNoteSat * (1 - ColorConfig.c_pitchSecondaryNoteSatScale * Math.floor(channel / 7)) +
+					ColorConfig.c_pitchSecondaryNoteSat *
+						(1 - ColorConfig.c_pitchSecondaryNoteSatScale * Math.floor(channel / 7)) +
 					"%," +
-					ColorConfig.c_pitchSecondaryNoteLum * (1 - ColorConfig.c_pitchSecondaryNoteLumScale * Math.floor(channel / 7)) +
+					ColorConfig.c_pitchSecondaryNoteLum *
+						(1 - ColorConfig.c_pitchSecondaryNoteLumScale * Math.floor(channel / 7)) +
 					"%)";
 				const newNotePrimary: string =
 					"hsl(" +
 					((ColorConfig.c_pitchPrimaryNoteHue +
-						((channel * ColorConfig.c_pitchPrimaryNoteHueScale) / ColorConfig.c_pitchChannelCountOverride) * 256) %
+						((channel * ColorConfig.c_pitchPrimaryNoteHueScale) /
+							ColorConfig.c_pitchChannelCountOverride) *
+							256) %
 						colorFormulaPitchLimit) +
 					"," +
-					ColorConfig.c_pitchPrimaryNoteSat * (1 - ColorConfig.c_pitchPrimaryNoteSatScale * Math.floor(channel / 7)) +
+					ColorConfig.c_pitchPrimaryNoteSat *
+						(1 - ColorConfig.c_pitchPrimaryNoteSatScale * Math.floor(channel / 7)) +
 					"%," +
-					ColorConfig.c_pitchPrimaryNoteLum * (1 - ColorConfig.c_pitchPrimaryNoteLumScale * Math.floor(channel / 7)) +
+					ColorConfig.c_pitchPrimaryNoteLum *
+						(1 - ColorConfig.c_pitchPrimaryNoteLumScale * Math.floor(channel / 7)) +
 					"%)";
 
 				const newChannelColors = <ChannelColors>{
@@ -613,10 +719,18 @@ export class ColorConfig {
 			const base: ChannelColors = ColorConfig.getChannelColor(song, channel);
 			// Trim away "var(...)"
 			const regex = /\(([^,)]+)/;
-			const newChannelSecondary: string = ColorConfig.getComputed((regex.exec(base.secondaryChannel) as RegExpExecArray)[1] as string);
-			const newChannelPrimary: string = ColorConfig.getComputed((regex.exec(base.primaryChannel) as RegExpExecArray)[1] as string);
-			const newNoteSecondary: string = ColorConfig.getComputed((regex.exec(base.secondaryNote) as RegExpExecArray)[1] as string);
-			const newNotePrimary: string = ColorConfig.getComputed((regex.exec(base.primaryNote) as RegExpExecArray)[1] as string);
+			const newChannelSecondary: string = ColorConfig.getComputed(
+				(regex.exec(base.secondaryChannel) as RegExpExecArray)[1] as string,
+			);
+			const newChannelPrimary: string = ColorConfig.getComputed(
+				(regex.exec(base.primaryChannel) as RegExpExecArray)[1] as string,
+			);
+			const newNoteSecondary: string = ColorConfig.getComputed(
+				(regex.exec(base.secondaryNote) as RegExpExecArray)[1] as string,
+			);
+			const newNotePrimary: string = ColorConfig.getComputed(
+				(regex.exec(base.primaryNote) as RegExpExecArray)[1] as string,
+			);
 			return <ChannelColors>{
 				secondaryChannel: newChannelSecondary,
 				primaryChannel: newChannelPrimary,
@@ -632,12 +746,19 @@ export class ColorConfig {
 		if (!ColorConfig.usesColorFormula) {
 			// Set colors, not defined by formula
 			if (channel < song.pitchChannelCount) {
-				return ColorConfig.pitchChannels[(channel % ColorConfig.c_pitchLimit) % ColorConfig.pitchChannels.length];
+				return ColorConfig.pitchChannels[
+					(channel % ColorConfig.c_pitchLimit) % ColorConfig.pitchChannels.length
+				];
 			} else if (channel < song.pitchChannelCount + song.noiseChannelCount) {
-				return ColorConfig.noiseChannels[((channel - song.pitchChannelCount) % ColorConfig.c_noiseLimit) % ColorConfig.noiseChannels.length];
+				return ColorConfig.noiseChannels[
+					((channel - song.pitchChannelCount) % ColorConfig.c_noiseLimit) %
+						ColorConfig.noiseChannels.length
+				];
 			} else {
 				return ColorConfig.modChannels[
-					((channel - song.pitchChannelCount - song.noiseChannelCount) % ColorConfig.c_modLimit) % ColorConfig.modChannels.length
+					((channel - song.pitchChannelCount - song.noiseChannelCount) %
+						ColorConfig.c_modLimit) %
+						ColorConfig.modChannels.length
 				];
 			}
 		} else {
@@ -655,42 +776,70 @@ export class ColorConfig {
 					const newChannelSecondary: string =
 						"hsl(" +
 						((ColorConfig.c_pitchSecondaryChannelHue +
-							((channel * ColorConfig.c_pitchSecondaryChannelHueScale) / ColorConfig.c_pitchChannelCountOverride) * 256) %
+							((channel * ColorConfig.c_pitchSecondaryChannelHueScale) /
+								ColorConfig.c_pitchChannelCountOverride) *
+								256) %
 							colorFormulaPitchLimit) +
 						"," +
-						ColorConfig.c_pitchSecondaryChannelSat * (1 - ColorConfig.c_pitchSecondaryChannelSatScale * Math.floor(channel / 9)) +
+						ColorConfig.c_pitchSecondaryChannelSat *
+							(1 -
+								ColorConfig.c_pitchSecondaryChannelSatScale *
+									Math.floor(channel / 9)) +
 						"%," +
-						ColorConfig.c_pitchSecondaryChannelLum * (1 - ColorConfig.c_pitchSecondaryChannelLumScale * Math.floor(channel / 9)) +
+						ColorConfig.c_pitchSecondaryChannelLum *
+							(1 -
+								ColorConfig.c_pitchSecondaryChannelLumScale *
+									Math.floor(channel / 9)) +
 						"%)";
 					const newChannelPrimary: string =
 						"hsl(" +
 						((ColorConfig.c_pitchPrimaryChannelHue +
-							((channel * ColorConfig.c_pitchPrimaryChannelHueScale) / ColorConfig.c_pitchChannelCountOverride) * 256) %
+							((channel * ColorConfig.c_pitchPrimaryChannelHueScale) /
+								ColorConfig.c_pitchChannelCountOverride) *
+								256) %
 							colorFormulaPitchLimit) +
 						"," +
-						ColorConfig.c_pitchPrimaryChannelSat * (1 - ColorConfig.c_pitchPrimaryChannelSatScale * Math.floor(channel / 9)) +
+						ColorConfig.c_pitchPrimaryChannelSat *
+							(1 -
+								ColorConfig.c_pitchPrimaryChannelSatScale *
+									Math.floor(channel / 9)) +
 						"%," +
-						ColorConfig.c_pitchPrimaryChannelLum * (1 - ColorConfig.c_pitchPrimaryChannelLumScale * Math.floor(channel / 9)) +
+						ColorConfig.c_pitchPrimaryChannelLum *
+							(1 -
+								ColorConfig.c_pitchPrimaryChannelLumScale *
+									Math.floor(channel / 9)) +
 						"%)";
 					const newNoteSecondary: string =
 						"hsl(" +
 						((ColorConfig.c_pitchSecondaryNoteHue +
-							((channel * ColorConfig.c_pitchSecondaryNoteHueScale) / ColorConfig.c_pitchChannelCountOverride) * 256) %
+							((channel * ColorConfig.c_pitchSecondaryNoteHueScale) /
+								ColorConfig.c_pitchChannelCountOverride) *
+								256) %
 							colorFormulaPitchLimit) +
 						"," +
-						ColorConfig.c_pitchSecondaryNoteSat * (1 - ColorConfig.c_pitchSecondaryNoteSatScale * Math.floor(channel / 9)) +
+						ColorConfig.c_pitchSecondaryNoteSat *
+							(1 -
+								ColorConfig.c_pitchSecondaryNoteSatScale *
+									Math.floor(channel / 9)) +
 						"%," +
-						ColorConfig.c_pitchSecondaryNoteLum * (1 - ColorConfig.c_pitchSecondaryNoteLumScale * Math.floor(channel / 9)) +
+						ColorConfig.c_pitchSecondaryNoteLum *
+							(1 -
+								ColorConfig.c_pitchSecondaryNoteLumScale *
+									Math.floor(channel / 9)) +
 						"%)";
 					const newNotePrimary: string =
 						"hsl(" +
 						((ColorConfig.c_pitchPrimaryNoteHue +
-							((channel * ColorConfig.c_pitchPrimaryNoteHueScale) / ColorConfig.c_pitchChannelCountOverride) * 256) %
+							((channel * ColorConfig.c_pitchPrimaryNoteHueScale) /
+								ColorConfig.c_pitchChannelCountOverride) *
+								256) %
 							colorFormulaPitchLimit) +
 						"," +
-						ColorConfig.c_pitchPrimaryNoteSat * (1 - ColorConfig.c_pitchPrimaryNoteSatScale * Math.floor(channel / 9)) +
+						ColorConfig.c_pitchPrimaryNoteSat *
+							(1 - ColorConfig.c_pitchPrimaryNoteSatScale * Math.floor(channel / 9)) +
 						"%," +
-						ColorConfig.c_pitchPrimaryNoteLum * (1 - ColorConfig.c_pitchPrimaryNoteLumScale * Math.floor(channel / 9)) +
+						ColorConfig.c_pitchPrimaryNoteLum *
+							(1 - ColorConfig.c_pitchPrimaryNoteLumScale * Math.floor(channel / 9)) +
 						"%)";
 
 					const newChannelColors = <ChannelColors>{
@@ -707,44 +856,62 @@ export class ColorConfig {
 					const newChannelSecondary: string =
 						"hsl(" +
 						((ColorConfig.c_noiseSecondaryChannelHue +
-							(((channel - song.pitchChannelCount) * ColorConfig.c_noiseSecondaryChannelHueScale) / ColorConfig.c_noiseChannelCountOverride) *
+							(((channel - song.pitchChannelCount) *
+								ColorConfig.c_noiseSecondaryChannelHueScale) /
+								ColorConfig.c_noiseChannelCountOverride) *
 								256) %
 							colorFormulaNoiseLimit) +
 						"," +
-						(ColorConfig.c_noiseSecondaryChannelSat + channel * ColorConfig.c_noiseSecondaryChannelSatScale) +
+						(ColorConfig.c_noiseSecondaryChannelSat +
+							channel * ColorConfig.c_noiseSecondaryChannelSatScale) +
 						"%," +
-						(ColorConfig.c_noiseSecondaryChannelLum + channel * ColorConfig.c_noiseSecondaryChannelLumScale) +
+						(ColorConfig.c_noiseSecondaryChannelLum +
+							channel * ColorConfig.c_noiseSecondaryChannelLumScale) +
 						"%)";
 					const newChannelPrimary: string =
 						"hsl(" +
 						((ColorConfig.c_noisePrimaryChannelHue +
-							(((channel - song.pitchChannelCount) * ColorConfig.c_noisePrimaryChannelHueScale) / ColorConfig.c_noiseChannelCountOverride) *
+							(((channel - song.pitchChannelCount) *
+								ColorConfig.c_noisePrimaryChannelHueScale) /
+								ColorConfig.c_noiseChannelCountOverride) *
 								256) %
 							colorFormulaNoiseLimit) +
 						"," +
-						(ColorConfig.c_noisePrimaryChannelSat + channel * ColorConfig.c_noisePrimaryChannelSatScale) +
+						(ColorConfig.c_noisePrimaryChannelSat +
+							channel * ColorConfig.c_noisePrimaryChannelSatScale) +
 						"%," +
-						(ColorConfig.c_noisePrimaryChannelLum + channel * ColorConfig.c_noisePrimaryChannelLumScale) +
+						(ColorConfig.c_noisePrimaryChannelLum +
+							channel * ColorConfig.c_noisePrimaryChannelLumScale) +
 						"%)";
 					const newNoteSecondary: string =
 						"hsl(" +
 						((ColorConfig.c_noiseSecondaryNoteHue +
-							(((channel - song.pitchChannelCount) * ColorConfig.c_noiseSecondaryNoteHueScale) / ColorConfig.c_noiseChannelCountOverride) * 256) %
+							(((channel - song.pitchChannelCount) *
+								ColorConfig.c_noiseSecondaryNoteHueScale) /
+								ColorConfig.c_noiseChannelCountOverride) *
+								256) %
 							colorFormulaNoiseLimit) +
 						"," +
-						(ColorConfig.c_noiseSecondaryNoteSat + channel * ColorConfig.c_noiseSecondaryNoteSatScale) +
+						(ColorConfig.c_noiseSecondaryNoteSat +
+							channel * ColorConfig.c_noiseSecondaryNoteSatScale) +
 						"%," +
-						(ColorConfig.c_noiseSecondaryNoteLum + channel * ColorConfig.c_noiseSecondaryNoteLumScale) +
+						(ColorConfig.c_noiseSecondaryNoteLum +
+							channel * ColorConfig.c_noiseSecondaryNoteLumScale) +
 						"%)";
 					const newNotePrimary: string =
 						"hsl(" +
 						((ColorConfig.c_noisePrimaryNoteHue +
-							(((channel - song.pitchChannelCount) * ColorConfig.c_noisePrimaryNoteHueScale) / ColorConfig.c_noiseChannelCountOverride) * 256) %
+							(((channel - song.pitchChannelCount) *
+								ColorConfig.c_noisePrimaryNoteHueScale) /
+								ColorConfig.c_noiseChannelCountOverride) *
+								256) %
 							colorFormulaNoiseLimit) +
 						"," +
-						(ColorConfig.c_noisePrimaryNoteSat + channel * ColorConfig.c_noisePrimaryNoteSatScale) +
+						(ColorConfig.c_noisePrimaryNoteSat +
+							channel * ColorConfig.c_noisePrimaryNoteSatScale) +
 						"%," +
-						(ColorConfig.c_noisePrimaryNoteLum + channel * ColorConfig.c_noisePrimaryNoteLumScale) +
+						(ColorConfig.c_noisePrimaryNoteLum +
+							channel * ColorConfig.c_noisePrimaryNoteLumScale) +
 						"%)";
 
 					const newChannelColors = <ChannelColors>{
@@ -761,50 +928,62 @@ export class ColorConfig {
 					const newChannelSecondary: string =
 						"hsl(" +
 						((ColorConfig.c_modSecondaryChannelHue +
-							(((channel - song.pitchChannelCount - song.noiseChannelCount) * ColorConfig.c_modSecondaryChannelHueScale) /
+							(((channel - song.pitchChannelCount - song.noiseChannelCount) *
+								ColorConfig.c_modSecondaryChannelHueScale) /
 								ColorConfig.c_modChannelCountOverride) *
 								256) %
 							colorFormulaModLimit) +
 						"," +
-						(ColorConfig.c_modSecondaryChannelSat + channel * ColorConfig.c_modSecondaryChannelSatScale) +
+						(ColorConfig.c_modSecondaryChannelSat +
+							channel * ColorConfig.c_modSecondaryChannelSatScale) +
 						"%," +
-						(ColorConfig.c_modSecondaryChannelLum + channel * ColorConfig.c_modSecondaryChannelLumScale) +
+						(ColorConfig.c_modSecondaryChannelLum +
+							channel * ColorConfig.c_modSecondaryChannelLumScale) +
 						"%)";
 					const newChannelPrimary: string =
 						"hsl(" +
 						((ColorConfig.c_modPrimaryChannelHue +
-							(((channel - song.pitchChannelCount - song.noiseChannelCount) * ColorConfig.c_modPrimaryChannelHueScale) /
+							(((channel - song.pitchChannelCount - song.noiseChannelCount) *
+								ColorConfig.c_modPrimaryChannelHueScale) /
 								ColorConfig.c_modChannelCountOverride) *
 								256) %
 							colorFormulaModLimit) +
 						"," +
-						(ColorConfig.c_modPrimaryChannelSat + channel * ColorConfig.c_modPrimaryChannelSatScale) +
+						(ColorConfig.c_modPrimaryChannelSat +
+							channel * ColorConfig.c_modPrimaryChannelSatScale) +
 						"%," +
-						(ColorConfig.c_modPrimaryChannelLum + channel * ColorConfig.c_modPrimaryChannelLumScale) +
+						(ColorConfig.c_modPrimaryChannelLum +
+							channel * ColorConfig.c_modPrimaryChannelLumScale) +
 						"%)";
 					const newNoteSecondary: string =
 						"hsl(" +
 						((ColorConfig.c_modSecondaryNoteHue +
-							(((channel - song.pitchChannelCount - song.noiseChannelCount) * ColorConfig.c_modSecondaryNoteHueScale) /
+							(((channel - song.pitchChannelCount - song.noiseChannelCount) *
+								ColorConfig.c_modSecondaryNoteHueScale) /
 								ColorConfig.c_modChannelCountOverride) *
 								256) %
 							colorFormulaModLimit) +
 						"," +
-						(ColorConfig.c_modSecondaryNoteSat + channel * ColorConfig.c_modSecondaryNoteSatScale) +
+						(ColorConfig.c_modSecondaryNoteSat +
+							channel * ColorConfig.c_modSecondaryNoteSatScale) +
 						"%," +
-						(ColorConfig.c_modSecondaryNoteLum + channel * ColorConfig.c_modSecondaryNoteLumScale) +
+						(ColorConfig.c_modSecondaryNoteLum +
+							channel * ColorConfig.c_modSecondaryNoteLumScale) +
 						"%)";
 					const newNotePrimary: string =
 						"hsl(" +
 						((ColorConfig.c_modPrimaryNoteHue +
-							(((channel - song.pitchChannelCount - song.noiseChannelCount) * ColorConfig.c_modPrimaryNoteHueScale) /
+							(((channel - song.pitchChannelCount - song.noiseChannelCount) *
+								ColorConfig.c_modPrimaryNoteHueScale) /
 								ColorConfig.c_modChannelCountOverride) *
 								256) %
 							colorFormulaModLimit) +
 						"," +
-						(ColorConfig.c_modPrimaryNoteSat + channel * ColorConfig.c_modPrimaryNoteSatScale) +
+						(ColorConfig.c_modPrimaryNoteSat +
+							channel * ColorConfig.c_modPrimaryNoteSatScale) +
 						"%," +
-						(ColorConfig.c_modPrimaryNoteLum + channel * ColorConfig.c_modPrimaryNoteLumScale) +
+						(ColorConfig.c_modPrimaryNoteLum +
+							channel * ColorConfig.c_modPrimaryNoteLumScale) +
 						"%)";
 
 					const newChannelColors = <ChannelColors>{
@@ -843,316 +1022,697 @@ export class ColorConfig {
 		// for getComputed — fill any variables still unset
 		let valuesToAdd: string = ":root{";
 
-		if (getComputedStyle(ColorConfig._styleElement).getPropertyValue("--spectrum-line-L") === "") {
+		if (
+			getComputedStyle(ColorConfig._styleElement).getPropertyValue("--spectrum-line-L") === ""
+		) {
 			valuesToAdd += "--spectrum-line-L:var(--primary-text,white);";
 		}
-		if (getComputedStyle(ColorConfig._styleElement).getPropertyValue("--spectrum-line-R") === "") {
+		if (
+			getComputedStyle(ColorConfig._styleElement).getPropertyValue("--spectrum-line-R") === ""
+		) {
 			valuesToAdd += "--spectrum-line-R:var(--text-selection,rgba(119,68,255,0.99));";
 		}
-		if (getComputedStyle(ColorConfig._styleElement).getPropertyValue("--text-enabled-icon") === "") {
+		if (
+			getComputedStyle(ColorConfig._styleElement).getPropertyValue("--text-enabled-icon") ===
+			""
+		) {
 			valuesToAdd += "--text-enabled-icon:✓ ;";
 		}
-		if (getComputedStyle(ColorConfig._styleElement).getPropertyValue("--text-disabled-icon") === "") {
+		if (
+			getComputedStyle(ColorConfig._styleElement).getPropertyValue("--text-disabled-icon") ===
+			""
+		) {
 			valuesToAdd += "--text-disabled-icon:　;";
 		}
-		if (getComputedStyle(ColorConfig._styleElement).getPropertyValue("--text-spacing-icon") === "") {
+		if (
+			getComputedStyle(ColorConfig._styleElement).getPropertyValue("--text-spacing-icon") ===
+			""
+		) {
 			valuesToAdd += "--text-spacing-icon:　;";
 		}
 		if (getComputedStyle(ColorConfig._styleElement).getPropertyValue("--note-flash") === "") {
 			valuesToAdd += "--note-flash:#ffffff;";
 		}
-		if (getComputedStyle(ColorConfig._styleElement).getPropertyValue("--note-flash-secondary") === "") {
+		if (
+			getComputedStyle(ColorConfig._styleElement).getPropertyValue(
+				"--note-flash-secondary",
+			) === ""
+		) {
 			valuesToAdd += "--note-flash-secondary:#ffffff77;";
 		}
-		if (getComputedStyle(ColorConfig._styleElement).getPropertyValue("--pitch-channel-limit") === "") {
+		if (
+			getComputedStyle(ColorConfig._styleElement).getPropertyValue(
+				"--pitch-channel-limit",
+			) === ""
+		) {
 			valuesToAdd += "--pitch-channel-limit:60;";
 		}
-		if (getComputedStyle(ColorConfig._styleElement).getPropertyValue("--noise-channel-limit") === "") {
+		if (
+			getComputedStyle(ColorConfig._styleElement).getPropertyValue(
+				"--noise-channel-limit",
+			) === ""
+		) {
 			valuesToAdd += "--noise-channel-limit:60;";
 		}
-		if (getComputedStyle(ColorConfig._styleElement).getPropertyValue("--mod-channel-limit") === "") {
+		if (
+			getComputedStyle(ColorConfig._styleElement).getPropertyValue("--mod-channel-limit") ===
+			""
+		) {
 			valuesToAdd += "--mod-channel-limit:60;";
 		}
-		if (getComputedStyle(ColorConfig._styleElement).getPropertyValue("--formula-pitch-channel-limit") === "") {
+		if (
+			getComputedStyle(ColorConfig._styleElement).getPropertyValue(
+				"--formula-pitch-channel-limit",
+			) === ""
+		) {
 			valuesToAdd += "--formula-pitch-channel-limit:360;";
 		}
-		if (getComputedStyle(ColorConfig._styleElement).getPropertyValue("--formula-noise-channel-limit") === "") {
+		if (
+			getComputedStyle(ColorConfig._styleElement).getPropertyValue(
+				"--formula-noise-channel-limit",
+			) === ""
+		) {
 			valuesToAdd += "--formula-noise-channel-limit:360;";
 		}
-		if (getComputedStyle(ColorConfig._styleElement).getPropertyValue("--formula-mod-channel-limit") === "") {
+		if (
+			getComputedStyle(ColorConfig._styleElement).getPropertyValue(
+				"--formula-mod-channel-limit",
+			) === ""
+		) {
 			valuesToAdd += "--formula-mod-channel-limit:360;";
 		}
-		if (getComputedStyle(ColorConfig._styleElement).getPropertyValue("--editor-background") === "") {
+		if (
+			getComputedStyle(ColorConfig._styleElement).getPropertyValue("--editor-background") ===
+			""
+		) {
 			valuesToAdd += "--editor-background:black;";
 		}
-		if (getComputedStyle(ColorConfig._styleElement).getPropertyValue("--ui-widget-background") === "") {
+		if (
+			getComputedStyle(ColorConfig._styleElement).getPropertyValue(
+				"--ui-widget-background",
+			) === ""
+		) {
 			valuesToAdd += "--ui-widget-background:#444;";
 		}
 		if (getComputedStyle(ColorConfig._styleElement).getPropertyValue("--loop-accent") === "") {
 			valuesToAdd += "--loop-accent:#74f;";
 		}
-		if (getComputedStyle(ColorConfig._styleElement).getPropertyValue("--box-selection-fill") === "") {
+		if (
+			getComputedStyle(ColorConfig._styleElement).getPropertyValue("--box-selection-fill") ===
+			""
+		) {
 			valuesToAdd += "--box-selection-fill:rgba(255,255,255,0.2);";
 		}
 		if (getComputedStyle(ColorConfig._styleElement).getPropertyValue("--primary-text") === "") {
 			valuesToAdd += "--primary-text:white;";
 		}
-		if (getComputedStyle(ColorConfig._styleElement).getPropertyValue("--inverted-text") === "") {
+		if (
+			getComputedStyle(ColorConfig._styleElement).getPropertyValue("--inverted-text") === ""
+		) {
 			valuesToAdd += "--inverted-text:black;";
 		}
-		if (getComputedStyle(ColorConfig._styleElement).getPropertyValue("--track-editor-bg-pitch") === "") {
+		if (
+			getComputedStyle(ColorConfig._styleElement).getPropertyValue(
+				"--track-editor-bg-pitch",
+			) === ""
+		) {
 			valuesToAdd += "--track-editor-bg-pitch:#444;";
 		}
-		if (getComputedStyle(ColorConfig._styleElement).getPropertyValue("--track-editor-bg-pitch-dim") === "") {
+		if (
+			getComputedStyle(ColorConfig._styleElement).getPropertyValue(
+				"--track-editor-bg-pitch-dim",
+			) === ""
+		) {
 			valuesToAdd += "--track-editor-bg-pitch-dim:#333;";
 		}
-		if (getComputedStyle(ColorConfig._styleElement).getPropertyValue("--track-editor-bg-noise") === "") {
+		if (
+			getComputedStyle(ColorConfig._styleElement).getPropertyValue(
+				"--track-editor-bg-noise",
+			) === ""
+		) {
 			valuesToAdd += "--track-editor-bg-noise:#444;";
 		}
-		if (getComputedStyle(ColorConfig._styleElement).getPropertyValue("--track-editor-bg-noise-dim") === "") {
+		if (
+			getComputedStyle(ColorConfig._styleElement).getPropertyValue(
+				"--track-editor-bg-noise-dim",
+			) === ""
+		) {
 			valuesToAdd += "--track-editor-bg-noise-dim:#333;";
 		}
-		if (getComputedStyle(ColorConfig._styleElement).getPropertyValue("--track-editor-bg-mod") === "") {
+		if (
+			getComputedStyle(ColorConfig._styleElement).getPropertyValue(
+				"--track-editor-bg-mod",
+			) === ""
+		) {
 			valuesToAdd += "--track-editor-bg-mod:#234;";
 		}
-		if (getComputedStyle(ColorConfig._styleElement).getPropertyValue("--track-editor-bg-mod-dim") === "") {
+		if (
+			getComputedStyle(ColorConfig._styleElement).getPropertyValue(
+				"--track-editor-bg-mod-dim",
+			) === ""
+		) {
 			valuesToAdd += "--track-editor-bg-mod-dim:#123;";
 		}
-		if (getComputedStyle(ColorConfig._styleElement).getPropertyValue("--mute-button-normal") === "") {
+		if (
+			getComputedStyle(ColorConfig._styleElement).getPropertyValue("--mute-button-normal") ===
+			""
+		) {
 			valuesToAdd += "--mute-button-normal:#ffa033;";
 		}
-		if (getComputedStyle(ColorConfig._styleElement).getPropertyValue("--mute-button-mod") === "") {
+		if (
+			getComputedStyle(ColorConfig._styleElement).getPropertyValue("--mute-button-mod") === ""
+		) {
 			valuesToAdd += "--mute-button-mod:#9a6bff;";
 		}
 
-		if (getComputedStyle(ColorConfig._styleElement).getPropertyValue("--pitch1-secondary-channel") === "") {
+		if (
+			getComputedStyle(ColorConfig._styleElement).getPropertyValue(
+				"--pitch1-secondary-channel",
+			) === ""
+		) {
 			valuesToAdd += "--pitch1-secondary-channel:#0099A1;";
 		}
-		if (getComputedStyle(ColorConfig._styleElement).getPropertyValue("--pitch1-primary-channel") === "") {
+		if (
+			getComputedStyle(ColorConfig._styleElement).getPropertyValue(
+				"--pitch1-primary-channel",
+			) === ""
+		) {
 			valuesToAdd += "--pitch1-primary-channel:#25F3FF;";
 		}
-		if (getComputedStyle(ColorConfig._styleElement).getPropertyValue("--pitch1-secondary-note") === "") {
+		if (
+			getComputedStyle(ColorConfig._styleElement).getPropertyValue(
+				"--pitch1-secondary-note",
+			) === ""
+		) {
 			valuesToAdd += "--pitch1-secondary-note:#00BDC7;";
 		}
-		if (getComputedStyle(ColorConfig._styleElement).getPropertyValue("--pitch1-primary-note") === "") {
+		if (
+			getComputedStyle(ColorConfig._styleElement).getPropertyValue(
+				"--pitch1-primary-note",
+			) === ""
+		) {
 			valuesToAdd += "--pitch1-primary-note:#92F9FF;";
 		}
-		if (getComputedStyle(ColorConfig._styleElement).getPropertyValue("--pitch2-secondary-channel") === "") {
+		if (
+			getComputedStyle(ColorConfig._styleElement).getPropertyValue(
+				"--pitch2-secondary-channel",
+			) === ""
+		) {
 			valuesToAdd += "--pitch2-secondary-channel:#A1A100;";
 		}
-		if (getComputedStyle(ColorConfig._styleElement).getPropertyValue("--pitch2-primary-channel") === "") {
+		if (
+			getComputedStyle(ColorConfig._styleElement).getPropertyValue(
+				"--pitch2-primary-channel",
+			) === ""
+		) {
 			valuesToAdd += "--pitch2-primary-channel:#FFFF25;";
 		}
-		if (getComputedStyle(ColorConfig._styleElement).getPropertyValue("--pitch2-secondary-note") === "") {
+		if (
+			getComputedStyle(ColorConfig._styleElement).getPropertyValue(
+				"--pitch2-secondary-note",
+			) === ""
+		) {
 			valuesToAdd += "--pitch2-secondary-note:#C7C700;";
 		}
-		if (getComputedStyle(ColorConfig._styleElement).getPropertyValue("--pitch2-primary-note") === "") {
+		if (
+			getComputedStyle(ColorConfig._styleElement).getPropertyValue(
+				"--pitch2-primary-note",
+			) === ""
+		) {
 			valuesToAdd += "--pitch2-primary-note:#FFFF92;";
 		}
-		if (getComputedStyle(ColorConfig._styleElement).getPropertyValue("--pitch3-secondary-channel") === "") {
+		if (
+			getComputedStyle(ColorConfig._styleElement).getPropertyValue(
+				"--pitch3-secondary-channel",
+			) === ""
+		) {
 			valuesToAdd += "--pitch3-secondary-channel:#C75000;";
 		}
-		if (getComputedStyle(ColorConfig._styleElement).getPropertyValue("--pitch3-primary-channel") === "") {
+		if (
+			getComputedStyle(ColorConfig._styleElement).getPropertyValue(
+				"--pitch3-primary-channel",
+			) === ""
+		) {
 			valuesToAdd += "--pitch3-primary-channel:#FF9752;";
 		}
-		if (getComputedStyle(ColorConfig._styleElement).getPropertyValue("--pitch3-secondary-note") === "") {
+		if (
+			getComputedStyle(ColorConfig._styleElement).getPropertyValue(
+				"--pitch3-secondary-note",
+			) === ""
+		) {
 			valuesToAdd += "--pitch3-secondary-note:#FF771C;";
 		}
-		if (getComputedStyle(ColorConfig._styleElement).getPropertyValue("--pitch3-primary-note") === "") {
+		if (
+			getComputedStyle(ColorConfig._styleElement).getPropertyValue(
+				"--pitch3-primary-note",
+			) === ""
+		) {
 			valuesToAdd += "--pitch3-primary-note:#FFCDAB;";
 		}
-		if (getComputedStyle(ColorConfig._styleElement).getPropertyValue("--pitch4-secondary-channel") === "") {
+		if (
+			getComputedStyle(ColorConfig._styleElement).getPropertyValue(
+				"--pitch4-secondary-channel",
+			) === ""
+		) {
 			valuesToAdd += "--pitch4-secondary-channel:#00A100;";
 		}
-		if (getComputedStyle(ColorConfig._styleElement).getPropertyValue("--pitch4-primary-channel") === "") {
+		if (
+			getComputedStyle(ColorConfig._styleElement).getPropertyValue(
+				"--pitch4-primary-channel",
+			) === ""
+		) {
 			valuesToAdd += "--pitch4-primary-channel:#50FF50;";
 		}
-		if (getComputedStyle(ColorConfig._styleElement).getPropertyValue("--pitch4-secondary-note") === "") {
+		if (
+			getComputedStyle(ColorConfig._styleElement).getPropertyValue(
+				"--pitch4-secondary-note",
+			) === ""
+		) {
 			valuesToAdd += "--pitch4-secondary-note:#00C700;";
 		}
-		if (getComputedStyle(ColorConfig._styleElement).getPropertyValue("--pitch4-primary-note") === "") {
+		if (
+			getComputedStyle(ColorConfig._styleElement).getPropertyValue(
+				"--pitch4-primary-note",
+			) === ""
+		) {
 			valuesToAdd += "--pitch4-primary-note:#A0FFA0;";
 		}
-		if (getComputedStyle(ColorConfig._styleElement).getPropertyValue("--pitch5-secondary-channel") === "") {
+		if (
+			getComputedStyle(ColorConfig._styleElement).getPropertyValue(
+				"--pitch5-secondary-channel",
+			) === ""
+		) {
 			valuesToAdd += "--pitch5-secondary-channel:#D020D0;";
 		}
-		if (getComputedStyle(ColorConfig._styleElement).getPropertyValue("--pitch5-primary-channel") === "") {
+		if (
+			getComputedStyle(ColorConfig._styleElement).getPropertyValue(
+				"--pitch5-primary-channel",
+			) === ""
+		) {
 			valuesToAdd += "--pitch5-primary-channel:#FF90FF;";
 		}
-		if (getComputedStyle(ColorConfig._styleElement).getPropertyValue("--pitch5-secondary-note") === "") {
+		if (
+			getComputedStyle(ColorConfig._styleElement).getPropertyValue(
+				"--pitch5-secondary-note",
+			) === ""
+		) {
 			valuesToAdd += "--pitch5-secondary-note:#E040E0;";
 		}
-		if (getComputedStyle(ColorConfig._styleElement).getPropertyValue("--pitch5-primary-note") === "") {
+		if (
+			getComputedStyle(ColorConfig._styleElement).getPropertyValue(
+				"--pitch5-primary-note",
+			) === ""
+		) {
 			valuesToAdd += "--pitch5-primary-note:#FFC0FF;";
 		}
-		if (getComputedStyle(ColorConfig._styleElement).getPropertyValue("--pitch6-secondary-channel") === "") {
+		if (
+			getComputedStyle(ColorConfig._styleElement).getPropertyValue(
+				"--pitch6-secondary-channel",
+			) === ""
+		) {
 			valuesToAdd += "--pitch6-secondary-channel:#7777B0;";
 		}
-		if (getComputedStyle(ColorConfig._styleElement).getPropertyValue("--pitch6-primary-channel") === "") {
+		if (
+			getComputedStyle(ColorConfig._styleElement).getPropertyValue(
+				"--pitch6-primary-channel",
+			) === ""
+		) {
 			valuesToAdd += "--pitch6-primary-channel:#A0A0FF;";
 		}
-		if (getComputedStyle(ColorConfig._styleElement).getPropertyValue("--pitch6-secondary-note") === "") {
+		if (
+			getComputedStyle(ColorConfig._styleElement).getPropertyValue(
+				"--pitch6-secondary-note",
+			) === ""
+		) {
 			valuesToAdd += "--pitch6-secondary-note:#8888D0;";
 		}
-		if (getComputedStyle(ColorConfig._styleElement).getPropertyValue("--pitch6-primary-note") === "") {
+		if (
+			getComputedStyle(ColorConfig._styleElement).getPropertyValue(
+				"--pitch6-primary-note",
+			) === ""
+		) {
 			valuesToAdd += "--pitch6-primary-note:#D0D0FF;";
 		}
-		if (getComputedStyle(ColorConfig._styleElement).getPropertyValue("--pitch7-secondary-channel") === "") {
+		if (
+			getComputedStyle(ColorConfig._styleElement).getPropertyValue(
+				"--pitch7-secondary-channel",
+			) === ""
+		) {
 			valuesToAdd += "--pitch7-secondary-channel:#8AA100;";
 		}
-		if (getComputedStyle(ColorConfig._styleElement).getPropertyValue("--pitch7-primary-channel") === "") {
+		if (
+			getComputedStyle(ColorConfig._styleElement).getPropertyValue(
+				"--pitch7-primary-channel",
+			) === ""
+		) {
 			valuesToAdd += "--pitch7-primary-channel:#DEFF25;";
 		}
-		if (getComputedStyle(ColorConfig._styleElement).getPropertyValue("--pitch7-secondary-note") === "") {
+		if (
+			getComputedStyle(ColorConfig._styleElement).getPropertyValue(
+				"--pitch7-secondary-note",
+			) === ""
+		) {
 			valuesToAdd += "--pitch7-secondary-note:#AAC700;";
 		}
-		if (getComputedStyle(ColorConfig._styleElement).getPropertyValue("--pitch7-primary-note") === "") {
+		if (
+			getComputedStyle(ColorConfig._styleElement).getPropertyValue(
+				"--pitch7-primary-note",
+			) === ""
+		) {
 			valuesToAdd += "--pitch7-primary-note:#E6FF92;";
 		}
-		if (getComputedStyle(ColorConfig._styleElement).getPropertyValue("--pitch8-secondary-channel") === "") {
+		if (
+			getComputedStyle(ColorConfig._styleElement).getPropertyValue(
+				"--pitch8-secondary-channel",
+			) === ""
+		) {
 			valuesToAdd += "--pitch8-secondary-channel:#DF0019;";
 		}
-		if (getComputedStyle(ColorConfig._styleElement).getPropertyValue("--pitch8-primary-channel") === "") {
+		if (
+			getComputedStyle(ColorConfig._styleElement).getPropertyValue(
+				"--pitch8-primary-channel",
+			) === ""
+		) {
 			valuesToAdd += "--pitch8-primary-channel:#FF98A4;";
 		}
-		if (getComputedStyle(ColorConfig._styleElement).getPropertyValue("--pitch8-secondary-note") === "") {
+		if (
+			getComputedStyle(ColorConfig._styleElement).getPropertyValue(
+				"--pitch8-secondary-note",
+			) === ""
+		) {
 			valuesToAdd += "--pitch8-secondary-note:#FF4E63;";
 		}
-		if (getComputedStyle(ColorConfig._styleElement).getPropertyValue("--pitch8-primary-note") === "") {
+		if (
+			getComputedStyle(ColorConfig._styleElement).getPropertyValue(
+				"--pitch8-primary-note",
+			) === ""
+		) {
 			valuesToAdd += "--pitch8-primary-note:#FFB2BB;";
 		}
-		if (getComputedStyle(ColorConfig._styleElement).getPropertyValue("--pitch9-secondary-channel") === "") {
+		if (
+			getComputedStyle(ColorConfig._styleElement).getPropertyValue(
+				"--pitch9-secondary-channel",
+			) === ""
+		) {
 			valuesToAdd += "--pitch9-secondary-channel:#00A170;";
 		}
-		if (getComputedStyle(ColorConfig._styleElement).getPropertyValue("--pitch9-primary-channel") === "") {
+		if (
+			getComputedStyle(ColorConfig._styleElement).getPropertyValue(
+				"--pitch9-primary-channel",
+			) === ""
+		) {
 			valuesToAdd += "--pitch9-primary-channel:#50FFC9;";
 		}
-		if (getComputedStyle(ColorConfig._styleElement).getPropertyValue("--pitch9-secondary-note") === "") {
+		if (
+			getComputedStyle(ColorConfig._styleElement).getPropertyValue(
+				"--pitch9-secondary-note",
+			) === ""
+		) {
 			valuesToAdd += "--pitch9-secondary-note:#00C78A;";
 		}
-		if (getComputedStyle(ColorConfig._styleElement).getPropertyValue("--pitch9-primary-note") === "") {
+		if (
+			getComputedStyle(ColorConfig._styleElement).getPropertyValue(
+				"--pitch9-primary-note",
+			) === ""
+		) {
 			valuesToAdd += "--pitch9-primary-note:#83FFD9;";
 		}
-		if (getComputedStyle(ColorConfig._styleElement).getPropertyValue("--pitch10-secondary-channel") === "") {
+		if (
+			getComputedStyle(ColorConfig._styleElement).getPropertyValue(
+				"--pitch10-secondary-channel",
+			) === ""
+		) {
 			valuesToAdd += "--pitch10-secondary-channel:#A11FFF;";
 		}
-		if (getComputedStyle(ColorConfig._styleElement).getPropertyValue("--pitch10-primary-channel") === "") {
+		if (
+			getComputedStyle(ColorConfig._styleElement).getPropertyValue(
+				"--pitch10-primary-channel",
+			) === ""
+		) {
 			valuesToAdd += "--pitch10-primary-channel:#CE8BFF;";
 		}
-		if (getComputedStyle(ColorConfig._styleElement).getPropertyValue("--pitch10-secondary-note") === "") {
+		if (
+			getComputedStyle(ColorConfig._styleElement).getPropertyValue(
+				"--pitch10-secondary-note",
+			) === ""
+		) {
 			valuesToAdd += "--pitch10-secondary-note:#B757FF;";
 		}
-		if (getComputedStyle(ColorConfig._styleElement).getPropertyValue("--pitch10-primary-note") === "") {
+		if (
+			getComputedStyle(ColorConfig._styleElement).getPropertyValue(
+				"--pitch10-primary-note",
+			) === ""
+		) {
 			valuesToAdd += "--pitch10-primary-note:#DFACFF;";
 		}
 
-		if (getComputedStyle(ColorConfig._styleElement).getPropertyValue("--noise1-secondary-channel") === "") {
+		if (
+			getComputedStyle(ColorConfig._styleElement).getPropertyValue(
+				"--noise1-secondary-channel",
+			) === ""
+		) {
 			valuesToAdd += "--noise1-secondary-channel:#6F6F6F;";
 		}
-		if (getComputedStyle(ColorConfig._styleElement).getPropertyValue("--noise1-primary-channel") === "") {
+		if (
+			getComputedStyle(ColorConfig._styleElement).getPropertyValue(
+				"--noise1-primary-channel",
+			) === ""
+		) {
 			valuesToAdd += "--noise1-primary-channel:#AAAAAA;";
 		}
-		if (getComputedStyle(ColorConfig._styleElement).getPropertyValue("--noise1-secondary-note") === "") {
+		if (
+			getComputedStyle(ColorConfig._styleElement).getPropertyValue(
+				"--noise1-secondary-note",
+			) === ""
+		) {
 			valuesToAdd += "--noise1-secondary-note:#A7A7A7;";
 		}
-		if (getComputedStyle(ColorConfig._styleElement).getPropertyValue("--noise1-primary-note") === "") {
+		if (
+			getComputedStyle(ColorConfig._styleElement).getPropertyValue(
+				"--noise1-primary-note",
+			) === ""
+		) {
 			valuesToAdd += "--noise1-primary-note:#E0E0E0;";
 		}
-		if (getComputedStyle(ColorConfig._styleElement).getPropertyValue("--noise2-secondary-channel") === "") {
+		if (
+			getComputedStyle(ColorConfig._styleElement).getPropertyValue(
+				"--noise2-secondary-channel",
+			) === ""
+		) {
 			valuesToAdd += "--noise2-secondary-channel:#996633;";
 		}
-		if (getComputedStyle(ColorConfig._styleElement).getPropertyValue("--noise2-primary-channel") === "") {
+		if (
+			getComputedStyle(ColorConfig._styleElement).getPropertyValue(
+				"--noise2-primary-channel",
+			) === ""
+		) {
 			valuesToAdd += "--noise2-primary-channel:#DDAA77;";
 		}
-		if (getComputedStyle(ColorConfig._styleElement).getPropertyValue("--noise2-secondary-note") === "") {
+		if (
+			getComputedStyle(ColorConfig._styleElement).getPropertyValue(
+				"--noise2-secondary-note",
+			) === ""
+		) {
 			valuesToAdd += "--noise2-secondary-note:#CC9966;";
 		}
-		if (getComputedStyle(ColorConfig._styleElement).getPropertyValue("--noise2-primary-note") === "") {
+		if (
+			getComputedStyle(ColorConfig._styleElement).getPropertyValue(
+				"--noise2-primary-note",
+			) === ""
+		) {
 			valuesToAdd += "--noise2-primary-note:#F0D0BB;";
 		}
-		if (getComputedStyle(ColorConfig._styleElement).getPropertyValue("--noise3-secondary-channel") === "") {
+		if (
+			getComputedStyle(ColorConfig._styleElement).getPropertyValue(
+				"--noise3-secondary-channel",
+			) === ""
+		) {
 			valuesToAdd += "--noise3-secondary-channel:#4A6D8F;";
 		}
-		if (getComputedStyle(ColorConfig._styleElement).getPropertyValue("--noise3-primary-channel") === "") {
+		if (
+			getComputedStyle(ColorConfig._styleElement).getPropertyValue(
+				"--noise3-primary-channel",
+			) === ""
+		) {
 			valuesToAdd += "--noise3-primary-channel:#77AADD;";
 		}
-		if (getComputedStyle(ColorConfig._styleElement).getPropertyValue("--noise3-secondary-note") === "") {
+		if (
+			getComputedStyle(ColorConfig._styleElement).getPropertyValue(
+				"--noise3-secondary-note",
+			) === ""
+		) {
 			valuesToAdd += "--noise3-secondary-note:#6F9FCF;";
 		}
-		if (getComputedStyle(ColorConfig._styleElement).getPropertyValue("--noise3-primary-note") === "") {
+		if (
+			getComputedStyle(ColorConfig._styleElement).getPropertyValue(
+				"--noise3-primary-note",
+			) === ""
+		) {
 			valuesToAdd += "--noise3-primary-note:#BBD7FF;";
 		}
-		if (getComputedStyle(ColorConfig._styleElement).getPropertyValue("--noise4-secondary-channel") === "") {
+		if (
+			getComputedStyle(ColorConfig._styleElement).getPropertyValue(
+				"--noise4-secondary-channel",
+			) === ""
+		) {
 			valuesToAdd += "--noise4-secondary-channel:#7A4F9A;";
 		}
-		if (getComputedStyle(ColorConfig._styleElement).getPropertyValue("--noise4-primary-channel") === "") {
+		if (
+			getComputedStyle(ColorConfig._styleElement).getPropertyValue(
+				"--noise4-primary-channel",
+			) === ""
+		) {
 			valuesToAdd += "--noise4-primary-channel:#AF82D2;";
 		}
-		if (getComputedStyle(ColorConfig._styleElement).getPropertyValue("--noise4-secondary-note") === "") {
+		if (
+			getComputedStyle(ColorConfig._styleElement).getPropertyValue(
+				"--noise4-secondary-note",
+			) === ""
+		) {
 			valuesToAdd += "--noise4-secondary-note:#9E71C1;";
 		}
-		if (getComputedStyle(ColorConfig._styleElement).getPropertyValue("--noise4-primary-note") === "") {
+		if (
+			getComputedStyle(ColorConfig._styleElement).getPropertyValue(
+				"--noise4-primary-note",
+			) === ""
+		) {
 			valuesToAdd += "--noise4-primary-note:#D4C1EA;";
 		}
-		if (getComputedStyle(ColorConfig._styleElement).getPropertyValue("--noise5-secondary-channel") === "") {
+		if (
+			getComputedStyle(ColorConfig._styleElement).getPropertyValue(
+				"--noise5-secondary-channel",
+			) === ""
+		) {
 			valuesToAdd += "--noise5-secondary-channel:#607837;";
 		}
-		if (getComputedStyle(ColorConfig._styleElement).getPropertyValue("--noise5-primary-channel") === "") {
+		if (
+			getComputedStyle(ColorConfig._styleElement).getPropertyValue(
+				"--noise5-primary-channel",
+			) === ""
+		) {
 			valuesToAdd += "--noise5-primary-channel:#A2BB77;";
 		}
-		if (getComputedStyle(ColorConfig._styleElement).getPropertyValue("--noise5-secondary-note") === "") {
+		if (
+			getComputedStyle(ColorConfig._styleElement).getPropertyValue(
+				"--noise5-secondary-note",
+			) === ""
+		) {
 			valuesToAdd += "--noise5-secondary-note:#91AA66;";
 		}
-		if (getComputedStyle(ColorConfig._styleElement).getPropertyValue("--noise5-primary-note") === "") {
+		if (
+			getComputedStyle(ColorConfig._styleElement).getPropertyValue(
+				"--noise5-primary-note",
+			) === ""
+		) {
 			valuesToAdd += "--noise5-primary-note:#C5E2B2;";
 		}
 
-		if (getComputedStyle(ColorConfig._styleElement).getPropertyValue("--mod1-secondary-channel") === "") {
+		if (
+			getComputedStyle(ColorConfig._styleElement).getPropertyValue(
+				"--mod1-secondary-channel",
+			) === ""
+		) {
 			valuesToAdd += "--mod1-secondary-channel:#339955;";
 		}
-		if (getComputedStyle(ColorConfig._styleElement).getPropertyValue("--mod1-primary-channel") === "") {
+		if (
+			getComputedStyle(ColorConfig._styleElement).getPropertyValue(
+				"--mod1-primary-channel",
+			) === ""
+		) {
 			valuesToAdd += "--mod1-primary-channel:#77fc55;";
 		}
-		if (getComputedStyle(ColorConfig._styleElement).getPropertyValue("--mod1-secondary-note") === "") {
+		if (
+			getComputedStyle(ColorConfig._styleElement).getPropertyValue(
+				"--mod1-secondary-note",
+			) === ""
+		) {
 			valuesToAdd += "--mod1-secondary-note:#77ff8a;";
 		}
-		if (getComputedStyle(ColorConfig._styleElement).getPropertyValue("--mod1-primary-note") === "") {
+		if (
+			getComputedStyle(ColorConfig._styleElement).getPropertyValue("--mod1-primary-note") ===
+			""
+		) {
 			valuesToAdd += "--mod1-primary-note:#cdffee;";
 		}
-		if (getComputedStyle(ColorConfig._styleElement).getPropertyValue("--mod2-secondary-channel") === "") {
+		if (
+			getComputedStyle(ColorConfig._styleElement).getPropertyValue(
+				"--mod2-secondary-channel",
+			) === ""
+		) {
 			valuesToAdd += "--mod2-secondary-channel:#993355;";
 		}
-		if (getComputedStyle(ColorConfig._styleElement).getPropertyValue("--mod2-primary-channel") === "") {
+		if (
+			getComputedStyle(ColorConfig._styleElement).getPropertyValue(
+				"--mod2-primary-channel",
+			) === ""
+		) {
 			valuesToAdd += "--mod2-primary-channel:#f04960;";
 		}
-		if (getComputedStyle(ColorConfig._styleElement).getPropertyValue("--mod2-secondary-note") === "") {
+		if (
+			getComputedStyle(ColorConfig._styleElement).getPropertyValue(
+				"--mod2-secondary-note",
+			) === ""
+		) {
 			valuesToAdd += "--mod2-secondary-note:#f057a0;";
 		}
-		if (getComputedStyle(ColorConfig._styleElement).getPropertyValue("--mod2-primary-note") === "") {
+		if (
+			getComputedStyle(ColorConfig._styleElement).getPropertyValue("--mod2-primary-note") ===
+			""
+		) {
 			valuesToAdd += "--mod2-primary-note:#ffb8de;";
 		}
-		if (getComputedStyle(ColorConfig._styleElement).getPropertyValue("--mod3-secondary-channel") === "") {
+		if (
+			getComputedStyle(ColorConfig._styleElement).getPropertyValue(
+				"--mod3-secondary-channel",
+			) === ""
+		) {
 			valuesToAdd += "--mod3-secondary-channel:#553399;";
 		}
-		if (getComputedStyle(ColorConfig._styleElement).getPropertyValue("--mod3-primary-channel") === "") {
+		if (
+			getComputedStyle(ColorConfig._styleElement).getPropertyValue(
+				"--mod3-primary-channel",
+			) === ""
+		) {
 			valuesToAdd += "--mod3-primary-channel:#8855fc;";
 		}
-		if (getComputedStyle(ColorConfig._styleElement).getPropertyValue("--mod3-secondary-note") === "") {
+		if (
+			getComputedStyle(ColorConfig._styleElement).getPropertyValue(
+				"--mod3-secondary-note",
+			) === ""
+		) {
 			valuesToAdd += "--mod3-secondary-note:#aa64ff;";
 		}
-		if (getComputedStyle(ColorConfig._styleElement).getPropertyValue("--mod3-primary-note") === "") {
+		if (
+			getComputedStyle(ColorConfig._styleElement).getPropertyValue("--mod3-primary-note") ===
+			""
+		) {
 			valuesToAdd += "--mod3-primary-note:#f8ddff;";
 		}
-		if (getComputedStyle(ColorConfig._styleElement).getPropertyValue("--mod4-secondary-channel") === "") {
+		if (
+			getComputedStyle(ColorConfig._styleElement).getPropertyValue(
+				"--mod4-secondary-channel",
+			) === ""
+		) {
 			valuesToAdd += "--mod4-secondary-channel:#a86436;";
 		}
-		if (getComputedStyle(ColorConfig._styleElement).getPropertyValue("--mod4-primary-channel") === "") {
+		if (
+			getComputedStyle(ColorConfig._styleElement).getPropertyValue(
+				"--mod4-primary-channel",
+			) === ""
+		) {
 			valuesToAdd += "--mod4-primary-channel:#c8a825;";
 		}
-		if (getComputedStyle(ColorConfig._styleElement).getPropertyValue("--mod4-secondary-note") === "") {
+		if (
+			getComputedStyle(ColorConfig._styleElement).getPropertyValue(
+				"--mod4-secondary-note",
+			) === ""
+		) {
 			valuesToAdd += "--mod4-secondary-note:#e8ba46;";
 		}
-		if (getComputedStyle(ColorConfig._styleElement).getPropertyValue("--mod4-primary-note") === "") {
+		if (
+			getComputedStyle(ColorConfig._styleElement).getPropertyValue("--mod4-primary-note") ===
+			""
+		) {
 			valuesToAdd += "--mod4-primary-note:#fff6d3;";
 		}
 
@@ -1161,7 +1721,12 @@ export class ColorConfig {
 
 		const themeColor = <HTMLMetaElement>document.querySelector("meta[name='theme-color']");
 		if (themeColor != null) {
-			themeColor.setAttribute("content", getComputedStyle(document.documentElement).getPropertyValue("--ui-widget-background"));
+			themeColor.setAttribute(
+				"content",
+				getComputedStyle(document.documentElement).getPropertyValue(
+					"--ui-widget-background",
+				),
+			);
 		}
 
 		ColorConfig.resetColors();
@@ -1169,111 +1734,298 @@ export class ColorConfig {
 		// Dispatch theme change event for spectrum and other listeners
 		events.raise("themeChange", name);
 
-		ColorConfig.usesColorFormula = getComputedStyle(ColorConfig._styleElement).getPropertyValue("--use-color-formula").trim() === "true";
+		ColorConfig.usesColorFormula =
+			getComputedStyle(ColorConfig._styleElement)
+				.getPropertyValue("--use-color-formula")
+				.trim() === "true";
 
-		ColorConfig.c_pitchLimit = +getComputedStyle(ColorConfig._styleElement).getPropertyValue("--pitch-channel-limit");
-		ColorConfig.c_noiseLimit = +getComputedStyle(ColorConfig._styleElement).getPropertyValue("--noise-channel-limit");
-		ColorConfig.c_modLimit = +getComputedStyle(ColorConfig._styleElement).getPropertyValue("--mod-channel-limit");
-		ColorConfig.c_colorFormulaPitchLimit = +getComputedStyle(ColorConfig._styleElement).getPropertyValue("--formula-pitch-channel-limit");
-		ColorConfig.c_colorFormulaNoiseLimit = +getComputedStyle(ColorConfig._styleElement).getPropertyValue("--formula-noise-channel-limit");
-		ColorConfig.c_colorFormulaModLimit = +getComputedStyle(ColorConfig._styleElement).getPropertyValue("--formula-mod-channel-limit");
+		ColorConfig.c_pitchLimit = +getComputedStyle(ColorConfig._styleElement).getPropertyValue(
+			"--pitch-channel-limit",
+		);
+		ColorConfig.c_noiseLimit = +getComputedStyle(ColorConfig._styleElement).getPropertyValue(
+			"--noise-channel-limit",
+		);
+		ColorConfig.c_modLimit = +getComputedStyle(ColorConfig._styleElement).getPropertyValue(
+			"--mod-channel-limit",
+		);
+		ColorConfig.c_colorFormulaPitchLimit = +getComputedStyle(
+			ColorConfig._styleElement,
+		).getPropertyValue("--formula-pitch-channel-limit");
+		ColorConfig.c_colorFormulaNoiseLimit = +getComputedStyle(
+			ColorConfig._styleElement,
+		).getPropertyValue("--formula-noise-channel-limit");
+		ColorConfig.c_colorFormulaModLimit = +getComputedStyle(
+			ColorConfig._styleElement,
+		).getPropertyValue("--formula-mod-channel-limit");
 
-		ColorConfig.c_invertedText = getComputedStyle(ColorConfig._styleElement).getPropertyValue("--inverted-text");
-		ColorConfig.c_trackEditorBgNoiseDim = getComputedStyle(ColorConfig._styleElement).getPropertyValue("--track-editor-bg-noise-dim");
-		ColorConfig.c_trackEditorBgNoise = getComputedStyle(ColorConfig._styleElement).getPropertyValue("--track-editor-bg-noise");
-		ColorConfig.c_trackEditorBgModDim = getComputedStyle(ColorConfig._styleElement).getPropertyValue("--track-editor-bg-mod-dim");
-		ColorConfig.c_trackEditorBgMod = getComputedStyle(ColorConfig._styleElement).getPropertyValue("--track-editor-bg-mod");
-		ColorConfig.c_trackEditorBgPitchDim = getComputedStyle(ColorConfig._styleElement).getPropertyValue("--track-editor-bg-pitch-dim");
-		ColorConfig.c_trackEditorBgPitch = getComputedStyle(ColorConfig._styleElement).getPropertyValue("--track-editor-bg-pitch");
+		ColorConfig.c_invertedText = getComputedStyle(ColorConfig._styleElement).getPropertyValue(
+			"--inverted-text",
+		);
+		ColorConfig.c_trackEditorBgNoiseDim = getComputedStyle(
+			ColorConfig._styleElement,
+		).getPropertyValue("--track-editor-bg-noise-dim");
+		ColorConfig.c_trackEditorBgNoise = getComputedStyle(
+			ColorConfig._styleElement,
+		).getPropertyValue("--track-editor-bg-noise");
+		ColorConfig.c_trackEditorBgModDim = getComputedStyle(
+			ColorConfig._styleElement,
+		).getPropertyValue("--track-editor-bg-mod-dim");
+		ColorConfig.c_trackEditorBgMod = getComputedStyle(
+			ColorConfig._styleElement,
+		).getPropertyValue("--track-editor-bg-mod");
+		ColorConfig.c_trackEditorBgPitchDim = getComputedStyle(
+			ColorConfig._styleElement,
+		).getPropertyValue("--track-editor-bg-pitch-dim");
+		ColorConfig.c_trackEditorBgPitch = getComputedStyle(
+			ColorConfig._styleElement,
+		).getPropertyValue("--track-editor-bg-pitch");
 
 		if (ColorConfig.usesColorFormula) {
-			ColorConfig.c_pitchSecondaryChannelHue = +getComputedStyle(ColorConfig._styleElement).getPropertyValue("--pitch-secondary-channel-hue");
-			ColorConfig.c_pitchSecondaryChannelHueScale = +getComputedStyle(ColorConfig._styleElement).getPropertyValue("--pitch-secondary-channel-hue-scale");
-			ColorConfig.c_pitchSecondaryChannelSat = +getComputedStyle(ColorConfig._styleElement).getPropertyValue("--pitch-secondary-channel-sat");
-			ColorConfig.c_pitchSecondaryChannelSatScale = +getComputedStyle(ColorConfig._styleElement).getPropertyValue("--pitch-secondary-channel-sat-scale");
-			ColorConfig.c_pitchSecondaryChannelLum = +getComputedStyle(ColorConfig._styleElement).getPropertyValue("--pitch-secondary-channel-lum");
-			ColorConfig.c_pitchSecondaryChannelLumScale = +getComputedStyle(ColorConfig._styleElement).getPropertyValue("--pitch-secondary-channel-lum-scale");
-			ColorConfig.c_pitchPrimaryChannelHue = +getComputedStyle(ColorConfig._styleElement).getPropertyValue("--pitch-primary-channel-hue");
-			ColorConfig.c_pitchPrimaryChannelHueScale = +getComputedStyle(ColorConfig._styleElement).getPropertyValue("--pitch-primary-channel-hue-scale");
-			ColorConfig.c_pitchPrimaryChannelSat = +getComputedStyle(ColorConfig._styleElement).getPropertyValue("--pitch-primary-channel-sat");
-			ColorConfig.c_pitchPrimaryChannelSatScale = +getComputedStyle(ColorConfig._styleElement).getPropertyValue("--pitch-primary-channel-sat-scale");
-			ColorConfig.c_pitchPrimaryChannelLum = +getComputedStyle(ColorConfig._styleElement).getPropertyValue("--pitch-primary-channel-lum");
-			ColorConfig.c_pitchPrimaryChannelLumScale = +getComputedStyle(ColorConfig._styleElement).getPropertyValue("--pitch-primary-channel-lum-scale");
-			ColorConfig.c_pitchSecondaryNoteHue = +getComputedStyle(ColorConfig._styleElement).getPropertyValue("--pitch-secondary-note-hue");
-			ColorConfig.c_pitchSecondaryNoteHueScale = +getComputedStyle(ColorConfig._styleElement).getPropertyValue("--pitch-secondary-note-hue-scale");
-			ColorConfig.c_pitchSecondaryNoteSat = +getComputedStyle(ColorConfig._styleElement).getPropertyValue("--pitch-secondary-note-sat");
-			ColorConfig.c_pitchSecondaryNoteSatScale = +getComputedStyle(ColorConfig._styleElement).getPropertyValue("--pitch-secondary-note-sat-scale");
-			ColorConfig.c_pitchSecondaryNoteLum = +getComputedStyle(ColorConfig._styleElement).getPropertyValue("--pitch-secondary-note-lum");
-			ColorConfig.c_pitchSecondaryNoteLumScale = +getComputedStyle(ColorConfig._styleElement).getPropertyValue("--pitch-secondary-note-lum-scale");
-			ColorConfig.c_pitchPrimaryNoteHue = +getComputedStyle(ColorConfig._styleElement).getPropertyValue("--pitch-primary-note-hue");
-			ColorConfig.c_pitchPrimaryNoteHueScale = +getComputedStyle(ColorConfig._styleElement).getPropertyValue("--pitch-primary-note-hue-scale");
-			ColorConfig.c_pitchPrimaryNoteSat = +getComputedStyle(ColorConfig._styleElement).getPropertyValue("--pitch-primary-note-sat");
-			ColorConfig.c_pitchPrimaryNoteSatScale = +getComputedStyle(ColorConfig._styleElement).getPropertyValue("--pitch-primary-note-sat-scale");
-			ColorConfig.c_pitchPrimaryNoteLum = +getComputedStyle(ColorConfig._styleElement).getPropertyValue("--pitch-primary-note-lum");
-			ColorConfig.c_pitchPrimaryNoteLumScale = +getComputedStyle(ColorConfig._styleElement).getPropertyValue("--pitch-primary-note-lum-scale");
+			ColorConfig.c_pitchSecondaryChannelHue = +getComputedStyle(
+				ColorConfig._styleElement,
+			).getPropertyValue("--pitch-secondary-channel-hue");
+			ColorConfig.c_pitchSecondaryChannelHueScale = +getComputedStyle(
+				ColorConfig._styleElement,
+			).getPropertyValue("--pitch-secondary-channel-hue-scale");
+			ColorConfig.c_pitchSecondaryChannelSat = +getComputedStyle(
+				ColorConfig._styleElement,
+			).getPropertyValue("--pitch-secondary-channel-sat");
+			ColorConfig.c_pitchSecondaryChannelSatScale = +getComputedStyle(
+				ColorConfig._styleElement,
+			).getPropertyValue("--pitch-secondary-channel-sat-scale");
+			ColorConfig.c_pitchSecondaryChannelLum = +getComputedStyle(
+				ColorConfig._styleElement,
+			).getPropertyValue("--pitch-secondary-channel-lum");
+			ColorConfig.c_pitchSecondaryChannelLumScale = +getComputedStyle(
+				ColorConfig._styleElement,
+			).getPropertyValue("--pitch-secondary-channel-lum-scale");
+			ColorConfig.c_pitchPrimaryChannelHue = +getComputedStyle(
+				ColorConfig._styleElement,
+			).getPropertyValue("--pitch-primary-channel-hue");
+			ColorConfig.c_pitchPrimaryChannelHueScale = +getComputedStyle(
+				ColorConfig._styleElement,
+			).getPropertyValue("--pitch-primary-channel-hue-scale");
+			ColorConfig.c_pitchPrimaryChannelSat = +getComputedStyle(
+				ColorConfig._styleElement,
+			).getPropertyValue("--pitch-primary-channel-sat");
+			ColorConfig.c_pitchPrimaryChannelSatScale = +getComputedStyle(
+				ColorConfig._styleElement,
+			).getPropertyValue("--pitch-primary-channel-sat-scale");
+			ColorConfig.c_pitchPrimaryChannelLum = +getComputedStyle(
+				ColorConfig._styleElement,
+			).getPropertyValue("--pitch-primary-channel-lum");
+			ColorConfig.c_pitchPrimaryChannelLumScale = +getComputedStyle(
+				ColorConfig._styleElement,
+			).getPropertyValue("--pitch-primary-channel-lum-scale");
+			ColorConfig.c_pitchSecondaryNoteHue = +getComputedStyle(
+				ColorConfig._styleElement,
+			).getPropertyValue("--pitch-secondary-note-hue");
+			ColorConfig.c_pitchSecondaryNoteHueScale = +getComputedStyle(
+				ColorConfig._styleElement,
+			).getPropertyValue("--pitch-secondary-note-hue-scale");
+			ColorConfig.c_pitchSecondaryNoteSat = +getComputedStyle(
+				ColorConfig._styleElement,
+			).getPropertyValue("--pitch-secondary-note-sat");
+			ColorConfig.c_pitchSecondaryNoteSatScale = +getComputedStyle(
+				ColorConfig._styleElement,
+			).getPropertyValue("--pitch-secondary-note-sat-scale");
+			ColorConfig.c_pitchSecondaryNoteLum = +getComputedStyle(
+				ColorConfig._styleElement,
+			).getPropertyValue("--pitch-secondary-note-lum");
+			ColorConfig.c_pitchSecondaryNoteLumScale = +getComputedStyle(
+				ColorConfig._styleElement,
+			).getPropertyValue("--pitch-secondary-note-lum-scale");
+			ColorConfig.c_pitchPrimaryNoteHue = +getComputedStyle(
+				ColorConfig._styleElement,
+			).getPropertyValue("--pitch-primary-note-hue");
+			ColorConfig.c_pitchPrimaryNoteHueScale = +getComputedStyle(
+				ColorConfig._styleElement,
+			).getPropertyValue("--pitch-primary-note-hue-scale");
+			ColorConfig.c_pitchPrimaryNoteSat = +getComputedStyle(
+				ColorConfig._styleElement,
+			).getPropertyValue("--pitch-primary-note-sat");
+			ColorConfig.c_pitchPrimaryNoteSatScale = +getComputedStyle(
+				ColorConfig._styleElement,
+			).getPropertyValue("--pitch-primary-note-sat-scale");
+			ColorConfig.c_pitchPrimaryNoteLum = +getComputedStyle(
+				ColorConfig._styleElement,
+			).getPropertyValue("--pitch-primary-note-lum");
+			ColorConfig.c_pitchPrimaryNoteLumScale = +getComputedStyle(
+				ColorConfig._styleElement,
+			).getPropertyValue("--pitch-primary-note-lum-scale");
 
-			ColorConfig.c_noiseSecondaryChannelHue = +getComputedStyle(ColorConfig._styleElement).getPropertyValue("--noise-secondary-channel-hue");
-			ColorConfig.c_noiseSecondaryChannelHueScale = +getComputedStyle(ColorConfig._styleElement).getPropertyValue("--noise-secondary-channel-hue-scale");
-			ColorConfig.c_noiseSecondaryChannelSat = +getComputedStyle(ColorConfig._styleElement).getPropertyValue("--noise-secondary-channel-sat");
-			ColorConfig.c_noiseSecondaryChannelSatScale = +getComputedStyle(ColorConfig._styleElement).getPropertyValue("--noise-secondary-channel-sat-scale");
-			ColorConfig.c_noiseSecondaryChannelLum = +getComputedStyle(ColorConfig._styleElement).getPropertyValue("--noise-secondary-channel-lum");
-			ColorConfig.c_noiseSecondaryChannelLumScale = +getComputedStyle(ColorConfig._styleElement).getPropertyValue("--noise-secondary-channel-lum-scale");
-			ColorConfig.c_noisePrimaryChannelHue = +getComputedStyle(ColorConfig._styleElement).getPropertyValue("--noise-primary-channel-hue");
-			ColorConfig.c_noisePrimaryChannelHueScale = +getComputedStyle(ColorConfig._styleElement).getPropertyValue("--noise-primary-channel-hue-scale");
-			ColorConfig.c_noisePrimaryChannelSat = +getComputedStyle(ColorConfig._styleElement).getPropertyValue("--noise-primary-channel-sat");
-			ColorConfig.c_noisePrimaryChannelSatScale = +getComputedStyle(ColorConfig._styleElement).getPropertyValue("--noise-primary-channel-sat-scale");
-			ColorConfig.c_noisePrimaryChannelLum = +getComputedStyle(ColorConfig._styleElement).getPropertyValue("--noise-primary-channel-lum");
-			ColorConfig.c_noisePrimaryChannelLumScale = +getComputedStyle(ColorConfig._styleElement).getPropertyValue("--noise-primary-channel-lum-scale");
-			ColorConfig.c_noiseSecondaryNoteHue = +getComputedStyle(ColorConfig._styleElement).getPropertyValue("--noise-secondary-note-hue");
-			ColorConfig.c_noiseSecondaryNoteHueScale = +getComputedStyle(ColorConfig._styleElement).getPropertyValue("--noise-secondary-note-hue-scale");
-			ColorConfig.c_noiseSecondaryNoteSat = +getComputedStyle(ColorConfig._styleElement).getPropertyValue("--noise-secondary-note-sat");
-			ColorConfig.c_noiseSecondaryNoteSatScale = +getComputedStyle(ColorConfig._styleElement).getPropertyValue("--noise-secondary-note-sat-scale");
-			ColorConfig.c_noiseSecondaryNoteLum = +getComputedStyle(ColorConfig._styleElement).getPropertyValue("--noise-secondary-note-lum");
-			ColorConfig.c_noiseSecondaryNoteLumScale = +getComputedStyle(ColorConfig._styleElement).getPropertyValue("--noise-secondary-note-lum-scale");
-			ColorConfig.c_noisePrimaryNoteHue = +getComputedStyle(ColorConfig._styleElement).getPropertyValue("--noise-primary-note-hue");
-			ColorConfig.c_noisePrimaryNoteHueScale = +getComputedStyle(ColorConfig._styleElement).getPropertyValue("--noise-primary-note-hue-scale");
-			ColorConfig.c_noisePrimaryNoteSat = +getComputedStyle(ColorConfig._styleElement).getPropertyValue("--noise-primary-note-sat");
-			ColorConfig.c_noisePrimaryNoteSatScale = +getComputedStyle(ColorConfig._styleElement).getPropertyValue("--noise-primary-note-sat-scale");
-			ColorConfig.c_noisePrimaryNoteLum = +getComputedStyle(ColorConfig._styleElement).getPropertyValue("--noise-primary-note-lum");
-			ColorConfig.c_noisePrimaryNoteLumScale = +getComputedStyle(ColorConfig._styleElement).getPropertyValue("--noise-primary-note-lum-scale");
+			ColorConfig.c_noiseSecondaryChannelHue = +getComputedStyle(
+				ColorConfig._styleElement,
+			).getPropertyValue("--noise-secondary-channel-hue");
+			ColorConfig.c_noiseSecondaryChannelHueScale = +getComputedStyle(
+				ColorConfig._styleElement,
+			).getPropertyValue("--noise-secondary-channel-hue-scale");
+			ColorConfig.c_noiseSecondaryChannelSat = +getComputedStyle(
+				ColorConfig._styleElement,
+			).getPropertyValue("--noise-secondary-channel-sat");
+			ColorConfig.c_noiseSecondaryChannelSatScale = +getComputedStyle(
+				ColorConfig._styleElement,
+			).getPropertyValue("--noise-secondary-channel-sat-scale");
+			ColorConfig.c_noiseSecondaryChannelLum = +getComputedStyle(
+				ColorConfig._styleElement,
+			).getPropertyValue("--noise-secondary-channel-lum");
+			ColorConfig.c_noiseSecondaryChannelLumScale = +getComputedStyle(
+				ColorConfig._styleElement,
+			).getPropertyValue("--noise-secondary-channel-lum-scale");
+			ColorConfig.c_noisePrimaryChannelHue = +getComputedStyle(
+				ColorConfig._styleElement,
+			).getPropertyValue("--noise-primary-channel-hue");
+			ColorConfig.c_noisePrimaryChannelHueScale = +getComputedStyle(
+				ColorConfig._styleElement,
+			).getPropertyValue("--noise-primary-channel-hue-scale");
+			ColorConfig.c_noisePrimaryChannelSat = +getComputedStyle(
+				ColorConfig._styleElement,
+			).getPropertyValue("--noise-primary-channel-sat");
+			ColorConfig.c_noisePrimaryChannelSatScale = +getComputedStyle(
+				ColorConfig._styleElement,
+			).getPropertyValue("--noise-primary-channel-sat-scale");
+			ColorConfig.c_noisePrimaryChannelLum = +getComputedStyle(
+				ColorConfig._styleElement,
+			).getPropertyValue("--noise-primary-channel-lum");
+			ColorConfig.c_noisePrimaryChannelLumScale = +getComputedStyle(
+				ColorConfig._styleElement,
+			).getPropertyValue("--noise-primary-channel-lum-scale");
+			ColorConfig.c_noiseSecondaryNoteHue = +getComputedStyle(
+				ColorConfig._styleElement,
+			).getPropertyValue("--noise-secondary-note-hue");
+			ColorConfig.c_noiseSecondaryNoteHueScale = +getComputedStyle(
+				ColorConfig._styleElement,
+			).getPropertyValue("--noise-secondary-note-hue-scale");
+			ColorConfig.c_noiseSecondaryNoteSat = +getComputedStyle(
+				ColorConfig._styleElement,
+			).getPropertyValue("--noise-secondary-note-sat");
+			ColorConfig.c_noiseSecondaryNoteSatScale = +getComputedStyle(
+				ColorConfig._styleElement,
+			).getPropertyValue("--noise-secondary-note-sat-scale");
+			ColorConfig.c_noiseSecondaryNoteLum = +getComputedStyle(
+				ColorConfig._styleElement,
+			).getPropertyValue("--noise-secondary-note-lum");
+			ColorConfig.c_noiseSecondaryNoteLumScale = +getComputedStyle(
+				ColorConfig._styleElement,
+			).getPropertyValue("--noise-secondary-note-lum-scale");
+			ColorConfig.c_noisePrimaryNoteHue = +getComputedStyle(
+				ColorConfig._styleElement,
+			).getPropertyValue("--noise-primary-note-hue");
+			ColorConfig.c_noisePrimaryNoteHueScale = +getComputedStyle(
+				ColorConfig._styleElement,
+			).getPropertyValue("--noise-primary-note-hue-scale");
+			ColorConfig.c_noisePrimaryNoteSat = +getComputedStyle(
+				ColorConfig._styleElement,
+			).getPropertyValue("--noise-primary-note-sat");
+			ColorConfig.c_noisePrimaryNoteSatScale = +getComputedStyle(
+				ColorConfig._styleElement,
+			).getPropertyValue("--noise-primary-note-sat-scale");
+			ColorConfig.c_noisePrimaryNoteLum = +getComputedStyle(
+				ColorConfig._styleElement,
+			).getPropertyValue("--noise-primary-note-lum");
+			ColorConfig.c_noisePrimaryNoteLumScale = +getComputedStyle(
+				ColorConfig._styleElement,
+			).getPropertyValue("--noise-primary-note-lum-scale");
 
-			ColorConfig.c_modSecondaryChannelHue = +getComputedStyle(ColorConfig._styleElement).getPropertyValue("--mod-secondary-channel-hue");
-			ColorConfig.c_modSecondaryChannelHueScale = +getComputedStyle(ColorConfig._styleElement).getPropertyValue("--mod-secondary-channel-hue-scale");
-			ColorConfig.c_modSecondaryChannelSat = +getComputedStyle(ColorConfig._styleElement).getPropertyValue("--mod-secondary-channel-sat");
-			ColorConfig.c_modSecondaryChannelSatScale = +getComputedStyle(ColorConfig._styleElement).getPropertyValue("--mod-secondary-channel-sat-scale");
-			ColorConfig.c_modSecondaryChannelLum = +getComputedStyle(ColorConfig._styleElement).getPropertyValue("--mod-secondary-channel-lum");
-			ColorConfig.c_modSecondaryChannelLumScale = +getComputedStyle(ColorConfig._styleElement).getPropertyValue("--mod-secondary-channel-lum-scale");
-			ColorConfig.c_modPrimaryChannelHue = +getComputedStyle(ColorConfig._styleElement).getPropertyValue("--mod-primary-channel-hue");
-			ColorConfig.c_modPrimaryChannelHueScale = +getComputedStyle(ColorConfig._styleElement).getPropertyValue("--mod-primary-channel-hue-scale");
-			ColorConfig.c_modPrimaryChannelSat = +getComputedStyle(ColorConfig._styleElement).getPropertyValue("--mod-primary-channel-sat");
-			ColorConfig.c_modPrimaryChannelSatScale = +getComputedStyle(ColorConfig._styleElement).getPropertyValue("--mod-primary-channel-sat-scale");
-			ColorConfig.c_modPrimaryChannelLum = +getComputedStyle(ColorConfig._styleElement).getPropertyValue("--mod-primary-channel-lum");
-			ColorConfig.c_modPrimaryChannelLumScale = +getComputedStyle(ColorConfig._styleElement).getPropertyValue("--mod-primary-channel-lum-scale");
-			ColorConfig.c_modSecondaryNoteHue = +getComputedStyle(ColorConfig._styleElement).getPropertyValue("--mod-secondary-note-hue");
-			ColorConfig.c_modSecondaryNoteHueScale = +getComputedStyle(ColorConfig._styleElement).getPropertyValue("--mod-secondary-note-hue-scale");
-			ColorConfig.c_modSecondaryNoteSat = +getComputedStyle(ColorConfig._styleElement).getPropertyValue("--mod-secondary-note-sat");
-			ColorConfig.c_modSecondaryNoteSatScale = +getComputedStyle(ColorConfig._styleElement).getPropertyValue("--mod-secondary-note-sat-scale");
-			ColorConfig.c_modSecondaryNoteLum = +getComputedStyle(ColorConfig._styleElement).getPropertyValue("--mod-secondary-note-lum");
-			ColorConfig.c_modSecondaryNoteLumScale = +getComputedStyle(ColorConfig._styleElement).getPropertyValue("--mod-secondary-note-lum-scale");
-			ColorConfig.c_modPrimaryNoteHue = +getComputedStyle(ColorConfig._styleElement).getPropertyValue("--mod-primary-note-hue");
-			ColorConfig.c_modPrimaryNoteHueScale = +getComputedStyle(ColorConfig._styleElement).getPropertyValue("--mod-primary-note-hue-scale");
-			ColorConfig.c_modPrimaryNoteSat = +getComputedStyle(ColorConfig._styleElement).getPropertyValue("--mod-primary-note-sat");
-			ColorConfig.c_modPrimaryNoteSatScale = +getComputedStyle(ColorConfig._styleElement).getPropertyValue("--mod-primary-note-sat-scale");
-			ColorConfig.c_modPrimaryNoteLum = +getComputedStyle(ColorConfig._styleElement).getPropertyValue("--mod-primary-note-lum");
-			ColorConfig.c_modPrimaryNoteLumScale = +getComputedStyle(ColorConfig._styleElement).getPropertyValue("--mod-primary-note-lum-scale");
+			ColorConfig.c_modSecondaryChannelHue = +getComputedStyle(
+				ColorConfig._styleElement,
+			).getPropertyValue("--mod-secondary-channel-hue");
+			ColorConfig.c_modSecondaryChannelHueScale = +getComputedStyle(
+				ColorConfig._styleElement,
+			).getPropertyValue("--mod-secondary-channel-hue-scale");
+			ColorConfig.c_modSecondaryChannelSat = +getComputedStyle(
+				ColorConfig._styleElement,
+			).getPropertyValue("--mod-secondary-channel-sat");
+			ColorConfig.c_modSecondaryChannelSatScale = +getComputedStyle(
+				ColorConfig._styleElement,
+			).getPropertyValue("--mod-secondary-channel-sat-scale");
+			ColorConfig.c_modSecondaryChannelLum = +getComputedStyle(
+				ColorConfig._styleElement,
+			).getPropertyValue("--mod-secondary-channel-lum");
+			ColorConfig.c_modSecondaryChannelLumScale = +getComputedStyle(
+				ColorConfig._styleElement,
+			).getPropertyValue("--mod-secondary-channel-lum-scale");
+			ColorConfig.c_modPrimaryChannelHue = +getComputedStyle(
+				ColorConfig._styleElement,
+			).getPropertyValue("--mod-primary-channel-hue");
+			ColorConfig.c_modPrimaryChannelHueScale = +getComputedStyle(
+				ColorConfig._styleElement,
+			).getPropertyValue("--mod-primary-channel-hue-scale");
+			ColorConfig.c_modPrimaryChannelSat = +getComputedStyle(
+				ColorConfig._styleElement,
+			).getPropertyValue("--mod-primary-channel-sat");
+			ColorConfig.c_modPrimaryChannelSatScale = +getComputedStyle(
+				ColorConfig._styleElement,
+			).getPropertyValue("--mod-primary-channel-sat-scale");
+			ColorConfig.c_modPrimaryChannelLum = +getComputedStyle(
+				ColorConfig._styleElement,
+			).getPropertyValue("--mod-primary-channel-lum");
+			ColorConfig.c_modPrimaryChannelLumScale = +getComputedStyle(
+				ColorConfig._styleElement,
+			).getPropertyValue("--mod-primary-channel-lum-scale");
+			ColorConfig.c_modSecondaryNoteHue = +getComputedStyle(
+				ColorConfig._styleElement,
+			).getPropertyValue("--mod-secondary-note-hue");
+			ColorConfig.c_modSecondaryNoteHueScale = +getComputedStyle(
+				ColorConfig._styleElement,
+			).getPropertyValue("--mod-secondary-note-hue-scale");
+			ColorConfig.c_modSecondaryNoteSat = +getComputedStyle(
+				ColorConfig._styleElement,
+			).getPropertyValue("--mod-secondary-note-sat");
+			ColorConfig.c_modSecondaryNoteSatScale = +getComputedStyle(
+				ColorConfig._styleElement,
+			).getPropertyValue("--mod-secondary-note-sat-scale");
+			ColorConfig.c_modSecondaryNoteLum = +getComputedStyle(
+				ColorConfig._styleElement,
+			).getPropertyValue("--mod-secondary-note-lum");
+			ColorConfig.c_modSecondaryNoteLumScale = +getComputedStyle(
+				ColorConfig._styleElement,
+			).getPropertyValue("--mod-secondary-note-lum-scale");
+			ColorConfig.c_modPrimaryNoteHue = +getComputedStyle(
+				ColorConfig._styleElement,
+			).getPropertyValue("--mod-primary-note-hue");
+			ColorConfig.c_modPrimaryNoteHueScale = +getComputedStyle(
+				ColorConfig._styleElement,
+			).getPropertyValue("--mod-primary-note-hue-scale");
+			ColorConfig.c_modPrimaryNoteSat = +getComputedStyle(
+				ColorConfig._styleElement,
+			).getPropertyValue("--mod-primary-note-sat");
+			ColorConfig.c_modPrimaryNoteSatScale = +getComputedStyle(
+				ColorConfig._styleElement,
+			).getPropertyValue("--mod-primary-note-sat-scale");
+			ColorConfig.c_modPrimaryNoteLum = +getComputedStyle(
+				ColorConfig._styleElement,
+			).getPropertyValue("--mod-primary-note-lum");
+			ColorConfig.c_modPrimaryNoteLumScale = +getComputedStyle(
+				ColorConfig._styleElement,
+			).getPropertyValue("--mod-primary-note-lum-scale");
 
-			if (getComputedStyle(ColorConfig._styleElement).getPropertyValue("--formula-pitch-channel-count-override") !== "") {
-				ColorConfig.c_pitchChannelCountOverride = +getComputedStyle(ColorConfig._styleElement).getPropertyValue(
+			if (
+				getComputedStyle(ColorConfig._styleElement).getPropertyValue(
 					"--formula-pitch-channel-count-override",
-				);
+				) !== ""
+			) {
+				ColorConfig.c_pitchChannelCountOverride = +getComputedStyle(
+					ColorConfig._styleElement,
+				).getPropertyValue("--formula-pitch-channel-count-override");
 			}
-			if (getComputedStyle(ColorConfig._styleElement).getPropertyValue("--formula-noise-channel-count-override") !== "") {
-				ColorConfig.c_noiseChannelCountOverride = +getComputedStyle(ColorConfig._styleElement).getPropertyValue(
+			if (
+				getComputedStyle(ColorConfig._styleElement).getPropertyValue(
 					"--formula-noise-channel-count-override",
-				);
+				) !== ""
+			) {
+				ColorConfig.c_noiseChannelCountOverride = +getComputedStyle(
+					ColorConfig._styleElement,
+				).getPropertyValue("--formula-noise-channel-count-override");
 			}
-			if (getComputedStyle(ColorConfig._styleElement).getPropertyValue("--formula-mod-channel-count-override") !== "") {
-				ColorConfig.c_modChannelCountOverride = +getComputedStyle(ColorConfig._styleElement).getPropertyValue("--formula-mod-channel-count-override");
+			if (
+				getComputedStyle(ColorConfig._styleElement).getPropertyValue(
+					"--formula-mod-channel-count-override",
+				) !== ""
+			) {
+				ColorConfig.c_modChannelCountOverride = +getComputedStyle(
+					ColorConfig._styleElement,
+				).getPropertyValue("--formula-mod-channel-count-override");
 			}
 		}
 	}
@@ -1288,13 +2040,27 @@ export class ColorConfig {
 
 		// Refresh cached computed values so non-var() consumers pick up new hues
 		ColorConfig.resetColors();
-		ColorConfig.c_invertedText = getComputedStyle(ColorConfig._styleElement).getPropertyValue("--inverted-text");
-		ColorConfig.c_trackEditorBgNoiseDim = getComputedStyle(ColorConfig._styleElement).getPropertyValue("--track-editor-bg-noise-dim");
-		ColorConfig.c_trackEditorBgNoise = getComputedStyle(ColorConfig._styleElement).getPropertyValue("--track-editor-bg-noise");
-		ColorConfig.c_trackEditorBgModDim = getComputedStyle(ColorConfig._styleElement).getPropertyValue("--track-editor-bg-mod-dim");
-		ColorConfig.c_trackEditorBgMod = getComputedStyle(ColorConfig._styleElement).getPropertyValue("--track-editor-bg-mod");
-		ColorConfig.c_trackEditorBgPitchDim = getComputedStyle(ColorConfig._styleElement).getPropertyValue("--track-editor-bg-pitch-dim");
-		ColorConfig.c_trackEditorBgPitch = getComputedStyle(ColorConfig._styleElement).getPropertyValue("--track-editor-bg-pitch");
+		ColorConfig.c_invertedText = getComputedStyle(ColorConfig._styleElement).getPropertyValue(
+			"--inverted-text",
+		);
+		ColorConfig.c_trackEditorBgNoiseDim = getComputedStyle(
+			ColorConfig._styleElement,
+		).getPropertyValue("--track-editor-bg-noise-dim");
+		ColorConfig.c_trackEditorBgNoise = getComputedStyle(
+			ColorConfig._styleElement,
+		).getPropertyValue("--track-editor-bg-noise");
+		ColorConfig.c_trackEditorBgModDim = getComputedStyle(
+			ColorConfig._styleElement,
+		).getPropertyValue("--track-editor-bg-mod-dim");
+		ColorConfig.c_trackEditorBgMod = getComputedStyle(
+			ColorConfig._styleElement,
+		).getPropertyValue("--track-editor-bg-mod");
+		ColorConfig.c_trackEditorBgPitchDim = getComputedStyle(
+			ColorConfig._styleElement,
+		).getPropertyValue("--track-editor-bg-pitch-dim");
+		ColorConfig.c_trackEditorBgPitch = getComputedStyle(
+			ColorConfig._styleElement,
+		).getPropertyValue("--track-editor-bg-pitch");
 	}
 
 	public static getComputed(name: string): string {

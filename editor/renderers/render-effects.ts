@@ -12,7 +12,12 @@ import { Config } from "../../synth/synth-config";
 
 const { option } = HTML;
 
-export function renderEffectsSelect(effectsSelect: HTMLSelectElement, instrument: Instrument, textOnIcon: string, textOffIcon: string): void {
+export function renderEffectsSelect(
+	effectsSelect: HTMLSelectElement,
+	instrument: Instrument,
+	textOnIcon: string,
+	textOffIcon: string,
+): void {
 	for (let i: number = effectsSelect.childElementCount - 1; i < Config.effectOrder.length; i++) {
 		effectsSelect.appendChild(option({ value: i }));
 	}
@@ -20,7 +25,8 @@ export function renderEffectsSelect(effectsSelect: HTMLSelectElement, instrument
 	for (let i: number = 0; i < Config.effectOrder.length; i++) {
 		const effectFlag: number = Config.effectOrder[i];
 		const selected: boolean = (instrument.effects & (1 << effectFlag)) !== 0;
-		const label: string = (selected ? textOnIcon : textOffIcon) + Config.effectNames[effectFlag];
+		const label: string =
+			(selected ? textOnIcon : textOffIcon) + Config.effectNames[effectFlag];
 		const opt: HTMLOptionElement = <HTMLOptionElement>effectsSelect.children[i + 1];
 		if (opt.textContent !== label) opt.textContent = label;
 	}

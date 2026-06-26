@@ -11,29 +11,32 @@
 
 import { HTML } from "imperative-html/dist/esm/elements-strict";
 import { ColorConfig } from "../../shared/color-config";
+import { buildDesignTokensCSS } from "../../shared/styles/design-tokens";
 import { getLocalStorageItem } from "../../synth/synth-config";
 import { Animation, BorderRadius, Gap, Sizing, Typography } from "../ui/style-constants";
-import { buildDesignTokensCSS } from "../../shared/styles/design-tokens";
-import { buildIconSymbolsCSS } from "./styles/icon-symbols";
-import { buildPromptShellCSS } from "./styles/prompt-shell";
-import { buildIconButtonsCSS } from "./styles/icon-buttons";
-import { buildPromptCompactSearchCSS } from "./styles/prompt-compact-search";
-import { buildKeyboardShortcutsCSS } from "./styles/prompt-keyboard-shortcuts";
-import { buildCleanChannelCSS } from "./styles/prompt-clean-channel";
-import { buildPromptSmallCSS } from "./styles/prompt-small";
-import { buildSampleBrowserCSS } from "./styles/prompt-sample-browser";
-import { buildPromptMiscCSS } from "./styles/prompt-misc";
 import { buildBaseWidgetsCSS } from "./styles/base-widgets";
-import { buildFormInputsCSS } from "./styles/form-inputs";
 import { buildEditorLayoutCSS } from "./styles/editor-layout";
 import { buildFilterEditorsCSS } from "./styles/filter-editors";
+import { buildFormInputsCSS } from "./styles/form-inputs";
+import { buildIconButtonsCSS } from "./styles/icon-buttons";
+import { buildIconSymbolsCSS } from "./styles/icon-symbols";
+import { buildCleanChannelCSS } from "./styles/prompt-clean-channel";
+import { buildPromptCompactSearchCSS } from "./styles/prompt-compact-search";
+import { buildKeyboardShortcutsCSS } from "./styles/prompt-keyboard-shortcuts";
+import { buildPromptMiscCSS } from "./styles/prompt-misc";
+import { buildSampleBrowserCSS } from "./styles/prompt-sample-browser";
+import { buildPromptShellCSS } from "./styles/prompt-shell";
+import { buildPromptSmallCSS } from "./styles/prompt-small";
 import { buildResponsiveCSS } from "./styles/responsive";
 import { buildSharedUICSS } from "./styles/shared-ui";
 
 // Determine if the user's browser/OS adds scrollbars that occupy space.
 // See: https://www.filamentgroup.com/lab/scrollbars/
 const scrollBarTest: HTMLDivElement = document.body.appendChild(
-	HTML.div({ style: "width:30px; height:30px; overflow: auto;" }, HTML.div({ style: "width:100%;height:40px" })),
+	HTML.div(
+		{ style: "width:30px; height:30px; overflow: auto;" },
+		HTML.div({ style: "width:100%;height:40px" }),
+	),
 );
 if ((<any>scrollBarTest).firstChild.clientWidth < 30) {
 	document.documentElement.classList.add("obtrusive-scrollbars");

@@ -6,7 +6,7 @@
 // - Provides a reusable function to get bindings for a specific concern
 // - Eliminates duplicate filter calls across concern files
 
-import { inputBindings, type InputConcern } from "../inventory";
+import { type InputConcern, inputBindings } from "../inventory";
 
 /**
  * Returns all input bindings for the specified concern.

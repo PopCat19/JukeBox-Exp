@@ -20,10 +20,26 @@ import { validate, validateKey, validateNumber } from "./input-helpers";
 const { div, br, h2 } = HTML;
 
 export class ChannelSettingsPrompt extends BasePrompt {
-	private readonly _patternsStepper: HTMLInputElement = stepperInput("1", `${Config.barCountMax}`, "1");
-	private readonly _pitchChannelStepper: HTMLInputElement = stepperInput(`${Config.pitchChannelCountMin}`, `${Config.pitchChannelCountMax}`, "1");
-	private readonly _drumChannelStepper: HTMLInputElement = stepperInput(`${Config.noiseChannelCountMin}`, `${Config.noiseChannelCountMax}`, "1");
-	private readonly _modChannelStepper: HTMLInputElement = stepperInput(`${Config.modChannelCountMin}`, `${Config.modChannelCountMax}`, "1");
+	private readonly _patternsStepper: HTMLInputElement = stepperInput(
+		"1",
+		`${Config.barCountMax}`,
+		"1",
+	);
+	private readonly _pitchChannelStepper: HTMLInputElement = stepperInput(
+		`${Config.pitchChannelCountMin}`,
+		`${Config.pitchChannelCountMax}`,
+		"1",
+	);
+	private readonly _drumChannelStepper: HTMLInputElement = stepperInput(
+		`${Config.noiseChannelCountMin}`,
+		`${Config.noiseChannelCountMax}`,
+		"1",
+	);
+	private readonly _modChannelStepper: HTMLInputElement = stepperInput(
+		`${Config.modChannelCountMin}`,
+		`${Config.modChannelCountMax}`,
+		"1",
+	);
 	private readonly _layeredInstrumentsBox: HTMLInputElement = checkboxInput();
 	private readonly _patternInstrumentsBox: HTMLInputElement = checkboxInput();
 
@@ -88,10 +104,21 @@ export class ChannelSettingsPrompt extends BasePrompt {
 
 	protected override _saveChanges(): void {
 		const group: ChangeGroup = new ChangeGroup();
-		group.append(new ChangeInstrumentsFlags(this._doc, this._layeredInstrumentsBox.checked, this._patternInstrumentsBox.checked));
+		group.append(
+			new ChangeInstrumentsFlags(
+				this._doc,
+				this._layeredInstrumentsBox.checked,
+				this._patternInstrumentsBox.checked,
+			),
+		);
 		group.append(new ChangePatternsPerChannel(this._doc, validate(this._patternsStepper)));
 		group.append(
-			new ChangeChannelCount(this._doc, validate(this._pitchChannelStepper), validate(this._drumChannelStepper), validate(this._modChannelStepper)),
+			new ChangeChannelCount(
+				this._doc,
+				validate(this._pitchChannelStepper),
+				validate(this._drumChannelStepper),
+				validate(this._modChannelStepper),
+			),
 		);
 		this._doc.prompt = null;
 		this._doc.record(group);

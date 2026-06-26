@@ -7,17 +7,23 @@
 // - Uses Karpluss-Strong algorithm with all-pass filter for dispersion
 // - Registers via plugin registry on module load
 
+import { InstrumentState } from "../instrument-state";
 import type { Instrument } from "../instruments";
 import { Synth } from "../synth";
 import { Config, InstrumentType } from "../synth-config";
-import { InstrumentState } from "../instrument-state";
-import type { Tone } from "../tone";
 import { buildPickedStringSource } from "../synthesis/picked-string";
+import type { Tone } from "../tone";
 import { registerPlugin } from "./registry";
 
 const functionCache: Function[] = Array(3).fill(undefined); // keep in sync with the number of unison voices.
 
-function pickedStringSynth(synth: Synth, bufferIndex: number, roundedSamplesPerTick: number, tone: Tone, instrumentState: InstrumentState): void {
+function pickedStringSynth(
+	synth: Synth,
+	bufferIndex: number,
+	roundedSamplesPerTick: number,
+	tone: Tone,
+	instrumentState: InstrumentState,
+): void {
 	const voiceCount: number = instrumentState.unisonVoices;
 	let fn: Function = functionCache[voiceCount];
 	if (fn === undefined) {
@@ -38,5 +44,6 @@ registerPlugin({
 		instrument.harmonicsWave.reset();
 	},
 	getSynthFunction: (_instrument: Instrument, _synth: typeof Synth) => pickedStringSynth,
-	buildSource: (_instrument: Instrument, voiceCount?: number) => buildPickedStringSource(voiceCount ?? 0),
+	buildSource: (_instrument: Instrument, voiceCount?: number) =>
+		buildPickedStringSource(voiceCount ?? 0),
 });

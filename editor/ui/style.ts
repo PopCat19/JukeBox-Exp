@@ -8,7 +8,21 @@
 // - Reduces inline string literal CSS scattered across components
 
 import { HTML } from "imperative-html/dist/esm/elements-strict";
-import { Animation, BorderRadius, BorderWidth, Gap, Icon, Margin, Opacity, Padding, Shadows, Sizing, Spacing, Typography, ZIndex } from "./style-constants";
+import {
+	Animation,
+	BorderRadius,
+	BorderWidth,
+	Gap,
+	Icon,
+	Margin,
+	Opacity,
+	Padding,
+	Shadows,
+	Sizing,
+	Spacing,
+	Typography,
+	ZIndex,
+} from "./style-constants";
 
 const { div } = HTML;
 
@@ -42,11 +56,19 @@ export const pos = (v: string) => `position:${v};`;
 
 /** Flex row with centered children */
 export const flexRow = (opts?: { gap?: string; align?: "center" | "start" | "end" }) =>
-	s(flex("row"), opts?.gap ? gap(opts.gap) : null, opts?.align ? `align-items:${opts.align};` : null);
+	s(
+		flex("row"),
+		opts?.gap ? gap(opts.gap) : null,
+		opts?.align ? `align-items:${opts.align};` : null,
+	);
 
 /** Flex column with centered children */
 export const flexCol = (opts?: { gap?: string; align?: "center" | "start" | "end" }) =>
-	s(flex("column"), opts?.gap ? gap(opts.gap) : null, opts?.align ? `align-items:${opts.align};` : null);
+	s(
+		flex("column"),
+		opts?.gap ? gap(opts.gap) : null,
+		opts?.align ? `align-items:${opts.align};` : null,
+	);
 
 /** Flex row with space-between alignment (row of items spread apart) */
 export const flexBetween = (...children: (string | false | null | undefined)[]) =>
@@ -57,10 +79,12 @@ export const flexCenter = (dir: "row" | "column" = "row", opts?: { gap?: string 
 	s(flex(dir), "align-items:center;justify-content:center;", opts?.gap ? gap(opts.gap) : null);
 
 /** Form row: label on left, input filling remaining space */
-export const formRow = (opts?: { gap?: string }) => s(flex("row"), `align-items:center;`, opts?.gap ? gap(opts.gap) : gap(Gap.md));
+export const formRow = (opts?: { gap?: string }) =>
+	s(flex("row"), `align-items:center;`, opts?.gap ? gap(opts.gap) : gap(Gap.md));
 
 /** Standard prompt panel sizing */
-export const promptPanel = (width: string, textAlignDir: "left" | "right" | "center" = "center") => s(`width:${width};`, textAlign(textAlignDir));
+export const promptPanel = (width: string, textAlignDir: "left" | "right" | "center" = "center") =>
+	s(`width:${width};`, textAlign(textAlignDir));
 
 /**
  * Creates a prompt container element.
@@ -70,11 +94,27 @@ export const promptPanel = (width: string, textAlignDir: "left" | "right" | "cen
  *   promptFrame("300px", children)          — fixed width
  *   promptFrame(Sizing.promptSm, children)  — Sizing.promptSm = "250px"
  */
-export const promptFrame = (width: string, ...children: (HTMLElement | string)[]) => div({ class: "prompt noSelection", style: w(width) }, ...children);
+export const promptFrame = (width: string, ...children: (HTMLElement | string)[]) =>
+	div({ class: "prompt noSelection", style: w(width) }, ...children);
 
 /** Inline-flex with gap, used for rows of small elements */
-export const flexInline = (opts?: { gap?: string }) => s("display:inline-flex;align-items:center;", opts?.gap ? gap(opts.gap) : null);
+export const flexInline = (opts?: { gap?: string }) =>
+	s("display:inline-flex;align-items:center;", opts?.gap ? gap(opts.gap) : null);
 
 // ── Export all tokens for convenience ──────────────────────
 
-export { Animation, BorderRadius, BorderWidth, Gap, Icon, Margin, Opacity, Padding, Shadows, Sizing, Spacing, Typography, ZIndex };
+export {
+	Animation,
+	BorderRadius,
+	BorderWidth,
+	Gap,
+	Icon,
+	Margin,
+	Opacity,
+	Padding,
+	Shadows,
+	Sizing,
+	Spacing,
+	Typography,
+	ZIndex,
+};

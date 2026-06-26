@@ -42,7 +42,14 @@ export class Box {
 		this.container.style.height = `${height - 2}px`; // there's a 1 pixel margin on either side.
 	}
 
-	public setIndex(index: number, selected: boolean, dim: boolean, color: string, isNoise: boolean, isMod: boolean): void {
+	public setIndex(
+		index: number,
+		selected: boolean,
+		dim: boolean,
+		color: string,
+		isNoise: boolean,
+		isMod: boolean,
+	): void {
 		if (this._renderedIndex !== index) {
 			if (index >= 100) {
 				this._label.setAttribute("font-size", "14");
@@ -62,11 +69,15 @@ export class Box {
 		}
 		if (!selected) {
 			if (isNoise) {
-				color = dim ? ColorConfig.c_trackEditorBgNoiseDim : ColorConfig.c_trackEditorBgNoise;
+				color = dim
+					? ColorConfig.c_trackEditorBgNoiseDim
+					: ColorConfig.c_trackEditorBgNoise;
 			} else if (isMod) {
 				color = dim ? ColorConfig.c_trackEditorBgModDim : ColorConfig.c_trackEditorBgMod;
 			} else {
-				color = dim ? ColorConfig.c_trackEditorBgPitchDim : ColorConfig.c_trackEditorBgPitch;
+				color = dim
+					? ColorConfig.c_trackEditorBgPitchDim
+					: ColorConfig.c_trackEditorBgPitch;
 			}
 		}
 		color = selected ? color : index === 0 ? "none" : color;
@@ -117,7 +128,10 @@ export class ChannelRow {
 		const barWidth: number = this._doc.getBarWidth();
 		if (this._boxes.length !== this._doc.song.barCount) {
 			for (let x: number = this._boxes.length; x < this._doc.song.barCount; x++) {
-				const box: Box = new Box(this.index, ColorConfig.getChannelColor(this._doc.song, this.index).secondaryChannel);
+				const box: Box = new Box(
+					this.index,
+					ColorConfig.getChannelColor(this._doc.song, this.index).secondaryChannel,
+				);
 				box.setWidth(barWidth);
 				this.container.appendChild(box.container);
 				this._boxes[x] = box;
@@ -149,14 +163,20 @@ export class ChannelRow {
 
 			const box: Box = this._boxes[i];
 			if (i < this._doc.song.barCount) {
-				const colors: ChannelColors = ColorConfig.getChannelColor(this._doc.song, this.index);
+				const colors: ChannelColors = ColorConfig.getChannelColor(
+					this._doc.song,
+					this.index,
+				);
 				box.setIndex(
 					this._doc.song.channels[this.index].bars[i],
 					selected,
 					dim,
 					dim && !selected ? colors.secondaryChannel : colors.primaryChannel,
-					this.index >= this._doc.song.pitchChannelCount && this.index < this._doc.song.pitchChannelCount + this._doc.song.noiseChannelCount,
-					this.index >= this._doc.song.pitchChannelCount + this._doc.song.noiseChannelCount,
+					this.index >= this._doc.song.pitchChannelCount &&
+						this.index <
+							this._doc.song.pitchChannelCount + this._doc.song.noiseChannelCount,
+					this.index >=
+						this._doc.song.pitchChannelCount + this._doc.song.noiseChannelCount,
 				);
 				box.setVisibility("visible");
 			} else {

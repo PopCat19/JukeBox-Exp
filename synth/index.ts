@@ -11,6 +11,8 @@
 export { ChannelState } from "./channel-state";
 // Layer 5: Channels
 export { Channel } from "./channels";
+// Layer 7d: Pure DSP utilities
+export { applyFilters, findRandomZeroCrossing, sanitizeDelayLine } from "./dsp-utils";
 export { EnvelopeComputer } from "./envelope-computer";
 export type {
 	FormatId,
@@ -40,9 +42,9 @@ export {
 	Instrument,
 	Operator,
 } from "./instruments";
+export type { NotePin } from "./notes";
 // Layer 2: Notes
 export { makeNotePin, Note, Pattern } from "./notes";
-export type { NotePin } from "./notes";
 export { PickedString } from "./picked-string";
 export type { InstrumentCapabilities } from "./plugins/capabilities";
 // Plugin registry
@@ -67,12 +69,9 @@ export { getNeededBits } from "./song-serialization";
 export type { CustomSampleHandler } from "./song-utilities";
 // Layer 7: Synth
 export { Synth } from "./synth";
+export type { Chord, Dictionary, DictionaryArray, Envelope, Transition } from "./synth-config";
 // Re-export types from SynthConfig that consumers expect from synth module
 export { Config, EnvelopeType, FilterType, InstrumentType } from "./synth-config";
-export type { Chord, Dictionary, DictionaryArray, Envelope, Transition } from "./synth-config";
-export { Tone } from "./tone";
-// Layer 7d: Pure DSP utilities
-export { applyFilters, findRandomZeroCrossing, sanitizeDelayLine } from "./dsp-utils";
 // Layer 7e: Synth math utilities
 export {
 	adjacentNotesHaveMatchingPitches,
@@ -82,6 +81,7 @@ export {
 	volumeMultToInstrumentVolume,
 	volumeMultToNoteSize,
 } from "./synth-math";
+export { Tone } from "./tone";
 // Stratified Module Hierarchy - barrel re-export
 // Layer 0: Utilities
 export {

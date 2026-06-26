@@ -8,12 +8,26 @@
 // - Strips exp fields and delegates to base deserializer on read
 // - Guards format identity via isJukeboxExpObject
 
-import { fromJsonObjectImpl, toJsonObjectImpl } from "./json-serialization";
 import type { SongLike } from "../song-serialization";
-import { JUKEBOX_EXP_FORMAT, JUKEBOX_EXP_LATEST_VERSION, JUKEBOX_EXP_OLDEST_VERSION, type JukeboxExpFields, type JukeboxExpObject } from "./schema-types";
+import { fromJsonObjectImpl, toJsonObjectImpl } from "./json-serialization";
+import {
+	JUKEBOX_EXP_FORMAT,
+	JUKEBOX_EXP_LATEST_VERSION,
+	JUKEBOX_EXP_OLDEST_VERSION,
+	type JukeboxExpFields,
+	type JukeboxExpObject,
+} from "./schema-types";
 
-export function toJukeboxExpJson(song: SongLike, enableIntro = true, loopCount = 1, enableOutro = true): JukeboxExpObject {
-	const base = toJsonObjectImpl(song, enableIntro, loopCount, enableOutro) as Record<string, unknown>;
+export function toJukeboxExpJson(
+	song: SongLike,
+	enableIntro = true,
+	loopCount = 1,
+	enableOutro = true,
+): JukeboxExpObject {
+	const base = toJsonObjectImpl(song, enableIntro, loopCount, enableOutro) as Record<
+		string,
+		unknown
+	>;
 
 	const expFields: JukeboxExpFields = {
 		_expVersion: JUKEBOX_EXP_LATEST_VERSION,
@@ -43,5 +57,9 @@ export function fromJukeboxExpJson(song: SongLike, obj: JukeboxExpObject): void 
 }
 
 export function isJukeboxExpObject(obj: unknown): obj is JukeboxExpObject {
-	return typeof obj === "object" && obj !== null && (obj as Record<string, unknown>).format === JUKEBOX_EXP_FORMAT;
+	return (
+		typeof obj === "object" &&
+		obj !== null &&
+		(obj as Record<string, unknown>).format === JUKEBOX_EXP_FORMAT
+	);
 }

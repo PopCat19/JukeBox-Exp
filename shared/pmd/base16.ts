@@ -52,7 +52,13 @@ export function getBase16Defs(
 			{ id: "base00", pmd: "4x", desc: "Background", ...pmd["4x"] },
 			{ id: "base01", pmd: "8x", desc: "Base Container", ...pmd["8x"] },
 			{ id: "base02", pmd: "80×8%", desc: "Surface", ...computed.surface },
-			{ id: "base03", pmd: "80×48%", desc: "Muted", l: computed.muted.l, c: computed.muted.c },
+			{
+				id: "base03",
+				pmd: "80×48%",
+				desc: "Muted",
+				l: computed.muted.l,
+				c: computed.muted.c,
+			},
 		],
 		fg: [
 			{ id: "base04", pmd: "64x", desc: "Subtext", ...pmd["64x"] },
@@ -62,12 +68,40 @@ export function getBase16Defs(
 		],
 		accent: [
 			{ id: "base08", pmd: "88x", l: pmd["88x"].l, c: pmd["88x"].c, desc: "Danger" },
-			{ id: "base09", pmd: "64x+290", l: pmd["64x"].l, c: pmd["64x"].c, offset: 290, desc: "Constants" },
+			{
+				id: "base09",
+				pmd: "64x+290",
+				l: pmd["64x"].l,
+				c: pmd["64x"].c,
+				offset: 290,
+				desc: "Constants",
+			},
 			{ id: "base0A", pmd: "80x", l: pmd["80x"].l, c: pmd["80x"].c, desc: "Warning" },
 			{ id: "base0B", pmd: "64x", l: pmd["64x"].l, c: pmd["64x"].c, desc: "Strings" },
-			{ id: "base0C", pmd: "80x+140", l: pmd["80x"].l, c: pmd["80x"].c, offset: 140, desc: "Support" },
-			{ id: "base0D", pmd: "80x+30", l: pmd["80x"].l, c: pmd["80x"].c, offset: 30, desc: "Functions" },
-			{ id: "base0E", pmd: "64x-30", l: pmd["64x"].l, c: pmd["64x"].c, offset: -30, desc: "Keywords" },
+			{
+				id: "base0C",
+				pmd: "80x+140",
+				l: pmd["80x"].l,
+				c: pmd["80x"].c,
+				offset: 140,
+				desc: "Support",
+			},
+			{
+				id: "base0D",
+				pmd: "80x+30",
+				l: pmd["80x"].l,
+				c: pmd["80x"].c,
+				offset: 30,
+				desc: "Functions",
+			},
+			{
+				id: "base0E",
+				pmd: "64x-30",
+				l: pmd["64x"].l,
+				c: pmd["64x"].c,
+				offset: -30,
+				desc: "Keywords",
+			},
 			{ id: "base0F", pmd: "80×48%", l: computed.muted.l, c: computed.muted.c, desc: "Meta" },
 		],
 	};
@@ -106,7 +140,13 @@ export function generatePalette(
 		} else {
 			h = accentHue;
 		}
-		const useAccent = !(def.id === "base0F" || def.pmd === "88x" || def.pmd === "80x" || def.pmd === "80x+30" || def.pmd === "80x+140");
+		const useAccent = !(
+			def.id === "base0F" ||
+			def.pmd === "88x" ||
+			def.pmd === "80x" ||
+			def.pmd === "80x+30" ||
+			def.pmd === "80x+140"
+		);
 		const l = useAccent ? accentL : def.l;
 		const c = useAccent ? accentC : def.c;
 		const rgb = safeOklchToRgb(l, c, h);

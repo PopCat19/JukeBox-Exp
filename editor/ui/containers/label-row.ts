@@ -14,8 +14,14 @@ export interface LabelRowOptions {
 }
 
 export function labelRow(...children: (HTMLElement | string)[]): HTMLDivElement;
-export function labelRow(opts: LabelRowOptions, ...children: (HTMLElement | string)[]): HTMLDivElement;
-export function labelRow(optsOrChild?: LabelRowOptions | HTMLElement | string, ...restChildren: (HTMLElement | string)[]): HTMLDivElement {
+export function labelRow(
+	opts: LabelRowOptions,
+	...children: (HTMLElement | string)[]
+): HTMLDivElement;
+export function labelRow(
+	optsOrChild?: LabelRowOptions | HTMLElement | string,
+	...restChildren: (HTMLElement | string)[]
+): HTMLDivElement {
 	let opts: LabelRowOptions = {};
 	let children: (HTMLElement | string)[];
 

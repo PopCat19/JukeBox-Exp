@@ -105,7 +105,10 @@ export const fullTagList: string[] = [
 	"literally_luigi_irl",
 ];
 
-export const isMobile: boolean = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini|android|ipad|playbook|silk/i.test(navigator.userAgent);
+export const isMobile: boolean =
+	/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini|android|ipad|playbook|silk/i.test(
+		navigator.userAgent,
+	);
 
 export function prettyNumber(value: number): string {
 	return value.toFixed(2).replace(/\.?0*$/, "");
@@ -135,20 +138,37 @@ export class EditorConfig {
 	}
 
 	public static midiProgramToPresetValue(program: number): number | null {
-		for (let categoryIndex: number = 0; categoryIndex < EditorConfig.presetCategories.length; categoryIndex++) {
+		for (
+			let categoryIndex: number = 0;
+			categoryIndex < EditorConfig.presetCategories.length;
+			categoryIndex++
+		) {
 			const category: PresetCategory = EditorConfig.presetCategories[categoryIndex];
-			for (let presetIndex: number = 0; presetIndex < category.presets.length; presetIndex++) {
+			for (
+				let presetIndex: number = 0;
+				presetIndex < category.presets.length;
+				presetIndex++
+			) {
 				const preset: Preset = category.presets[presetIndex];
-				if (preset.generalMidi && preset.midiProgram === program) return (categoryIndex << 12) + presetIndex;
+				if (preset.generalMidi && preset.midiProgram === program)
+					return (categoryIndex << 12) + presetIndex;
 			}
 		}
 		return null;
 	}
 
 	public static nameToPresetValue(presetName: string): number | null {
-		for (let categoryIndex: number = 0; categoryIndex < EditorConfig.presetCategories.length; categoryIndex++) {
+		for (
+			let categoryIndex: number = 0;
+			categoryIndex < EditorConfig.presetCategories.length;
+			categoryIndex++
+		) {
 			const category: PresetCategory = EditorConfig.presetCategories[categoryIndex];
-			for (let presetIndex: number = 0; presetIndex < category.presets.length; presetIndex++) {
+			for (
+				let presetIndex: number = 0;
+				presetIndex < category.presets.length;
+				presetIndex++
+			) {
 				const preset: Preset = category.presets[presetIndex];
 				if (preset.name === presetName) return (categoryIndex << 12) + presetIndex;
 			}

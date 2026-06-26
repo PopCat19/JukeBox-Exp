@@ -33,7 +33,9 @@ export class HarmonicsEditor {
 		"pointer-events": "none",
 	});
 	private readonly _lastControlPoints: SVGRectElement[] = [];
-	private readonly _lastControlPointContainer: SVGSVGElement = SVG.svg({ "pointer-events": "none" });
+	private readonly _lastControlPointContainer: SVGSVGElement = SVG.svg({
+		"pointer-events": "none",
+	});
 	private readonly _svg: SVGSVGElement = SVG.svg(
 		{
 			style: `background-color: ${ColorConfig.editorBackground}; touch-action: none; cursor: crosshair;`,
@@ -48,7 +50,10 @@ export class HarmonicsEditor {
 		this._lastControlPointContainer,
 	);
 
-	public readonly container: HTMLElement = HTML.div({ class: "harmonics", style: "height: 100%;" }, this._svg);
+	public readonly container: HTMLElement = HTML.div(
+		{ class: "harmonics", style: "height: 100%;" },
+		this._svg,
+	);
 
 	private _mouseX: number = 0;
 	private _mouseY: number = 0;
@@ -74,7 +79,10 @@ export class HarmonicsEditor {
 			this._octaves.appendChild(
 				SVG.rect({
 					fill: ColorConfig.tonic,
-					x: ((i - 0.5) * (this._editorWidth - 8)) / (Config.harmonicsControlPoints - 1) - 1,
+					x:
+						((i - 0.5) * (this._editorWidth - 8)) /
+							(Config.harmonicsControlPoints - 1) -
+						1,
 					y: 0,
 					width: 2,
 					height: this._editorHeight,
@@ -85,7 +93,10 @@ export class HarmonicsEditor {
 			this._fifths.appendChild(
 				SVG.rect({
 					fill: ColorConfig.fifthNote,
-					x: ((i - 0.5) * (this._editorWidth - 8)) / (Config.harmonicsControlPoints - 1) - 1,
+					x:
+						((i - 0.5) * (this._editorWidth - 8)) /
+							(Config.harmonicsControlPoints - 1) -
+						1,
 					y: 0,
 					width: 2,
 					height: this._editorHeight,
@@ -110,7 +121,10 @@ export class HarmonicsEditor {
 		document.addEventListener("mousemove", this._whenMouseMoved);
 		document.addEventListener("mouseup", this._whenCursorReleased);
 		window.addEventListener("resize", () => (this._svgRect = null));
-		window.addEventListener("scroll", () => (this._svgRect = null), { capture: true, passive: true });
+		window.addEventListener("scroll", () => (this._svgRect = null), {
+			capture: true,
+			passive: true,
+		});
 
 		this.container.addEventListener("touchstart", this._whenTouchPressed);
 		this.container.addEventListener("touchmove", this._whenTouchMoved);
@@ -123,7 +137,10 @@ export class HarmonicsEditor {
 		let sameCheck = true;
 		if (this._changeQueue.length > 0) {
 			for (let i = 0; i < Config.harmonicsControlPoints; i++) {
-				if (this._changeQueue[this._undoHistoryState][i] !== this.instrument.harmonicsWave.harmonics[i]) {
+				if (
+					this._changeQueue[this._undoHistoryState][i] !==
+					this.instrument.harmonicsWave.harmonics[i]
+				) {
 					sameCheck = false;
 					i = Config.harmonicsControlPoints;
 				}
@@ -176,8 +193,12 @@ export class HarmonicsEditor {
 		this._mouseDown = true;
 		if (!this._svgRect) this._svgRect = this._svg.getBoundingClientRect();
 		const boundingRect: DOMRect = this._svgRect;
-		this._mouseX = (((event.clientX || event.pageX) - boundingRect.left) * this._editorWidth) / (boundingRect.right - boundingRect.left);
-		this._mouseY = (((event.clientY || event.pageY) - boundingRect.top) * this._editorHeight) / (boundingRect.bottom - boundingRect.top);
+		this._mouseX =
+			(((event.clientX || event.pageX) - boundingRect.left) * this._editorWidth) /
+			(boundingRect.right - boundingRect.left);
+		this._mouseY =
+			(((event.clientY || event.pageY) - boundingRect.top) * this._editorHeight) /
+			(boundingRect.bottom - boundingRect.top);
 		if (Number.isNaN(this._mouseX)) this._mouseX = 0;
 		if (Number.isNaN(this._mouseY)) this._mouseY = 0;
 
@@ -191,8 +212,12 @@ export class HarmonicsEditor {
 		this._mouseDown = true;
 		if (!this._svgRect) this._svgRect = this._svg.getBoundingClientRect();
 		const boundingRect: DOMRect = this._svgRect;
-		this._mouseX = ((event.touches[0].clientX - boundingRect.left) * this._editorWidth) / (boundingRect.right - boundingRect.left);
-		this._mouseY = ((event.touches[0].clientY - boundingRect.top) * this._editorHeight) / (boundingRect.bottom - boundingRect.top);
+		this._mouseX =
+			((event.touches[0].clientX - boundingRect.left) * this._editorWidth) /
+			(boundingRect.right - boundingRect.left);
+		this._mouseY =
+			((event.touches[0].clientY - boundingRect.top) * this._editorHeight) /
+			(boundingRect.bottom - boundingRect.top);
 		if (Number.isNaN(this._mouseX)) this._mouseX = 0;
 		if (Number.isNaN(this._mouseY)) this._mouseY = 0;
 
@@ -205,8 +230,12 @@ export class HarmonicsEditor {
 		if (this.container.offsetParent == null) return;
 		if (!this._svgRect) this._svgRect = this._svg.getBoundingClientRect();
 		const boundingRect = this._svgRect;
-		this._mouseX = (((event.clientX || event.pageX) - boundingRect.left) * this._editorWidth) / (boundingRect.right - boundingRect.left);
-		this._mouseY = (((event.clientY || event.pageY) - boundingRect.top) * this._editorHeight) / (boundingRect.bottom - boundingRect.top);
+		this._mouseX =
+			(((event.clientX || event.pageX) - boundingRect.left) * this._editorWidth) /
+			(boundingRect.right - boundingRect.left);
+		this._mouseY =
+			(((event.clientY || event.pageY) - boundingRect.top) * this._editorHeight) /
+			(boundingRect.bottom - boundingRect.top);
 		if (Number.isNaN(this._mouseX)) this._mouseX = 0;
 		if (Number.isNaN(this._mouseY)) this._mouseY = 0;
 		this._whenCursorMoved();
@@ -218,8 +247,12 @@ export class HarmonicsEditor {
 		event.preventDefault();
 		if (!this._svgRect) this._svgRect = this._svg.getBoundingClientRect();
 		const boundingRect: DOMRect = this._svgRect;
-		this._mouseX = ((event.touches[0].clientX - boundingRect.left) * this._editorWidth) / (boundingRect.right - boundingRect.left);
-		this._mouseY = ((event.touches[0].clientY - boundingRect.top) * this._editorHeight) / (boundingRect.bottom - boundingRect.top);
+		this._mouseX =
+			((event.touches[0].clientX - boundingRect.left) * this._editorWidth) /
+			(boundingRect.right - boundingRect.left);
+		this._mouseY =
+			((event.touches[0].clientY - boundingRect.top) * this._editorHeight) /
+			(boundingRect.bottom - boundingRect.top);
 		if (Number.isNaN(this._mouseX)) this._mouseX = 0;
 		if (Number.isNaN(this._mouseY)) this._mouseY = 0;
 		this._whenCursorMoved();
@@ -241,14 +274,16 @@ export class HarmonicsEditor {
 				const upperFreq: number = Math.floor(Math.max(this._freqPrev, freq));
 				for (let i: number = lowerFreq; i <= upperFreq; i++) {
 					if (i < 0 || i >= Config.harmonicsControlPoints) continue;
-					harmonicsWave.harmonics[i] = Math.max(0, Math.min(Config.harmonicsMax, Math.round(i * slope + offset)));
+					harmonicsWave.harmonics[i] = Math.max(
+						0,
+						Math.min(Config.harmonicsMax, Math.round(i * slope + offset)),
+					);
 				}
 			}
 
-			harmonicsWave.harmonics[Math.max(0, Math.min(Config.harmonicsControlPoints - 1, Math.round(freq)))] = Math.max(
-				0,
-				Math.min(Config.harmonicsMax, Math.round(amp)),
-			);
+			harmonicsWave.harmonics[
+				Math.max(0, Math.min(Config.harmonicsControlPoints - 1, Math.round(freq)))
+			] = Math.max(0, Math.min(Config.harmonicsMax, Math.round(amp)));
 
 			this._freqPrev = freq;
 			this._ampPrev = amp;
@@ -279,7 +314,11 @@ export class HarmonicsEditor {
 		for (let i = 0; i < Config.harmonicsControlPoints; i++) {
 			instrument.harmonicsWave.harmonics[i] = harmonics[i];
 		}
-		const harmonicsChange = new ChangeHarmonics(this._doc, instrument, instrument.harmonicsWave);
+		const harmonicsChange = new ChangeHarmonics(
+			this._doc,
+			instrument,
+			instrument.harmonicsWave,
+		);
 		if (saveHistory || !this._isPrompt) {
 			this._doc.record(harmonicsChange);
 		}
@@ -307,12 +346,16 @@ export class HarmonicsEditor {
 		let path: string = "";
 		for (let i: number = 0; i < Config.harmonicsControlPoints - 1; i++) {
 			if (harmonicsWave.harmonics[i] === 0) continue;
-			const xPos: string = prettyNumber(((i + 0.5) * (this._editorWidth - 8)) / (Config.harmonicsControlPoints - 1));
+			const xPos: string = prettyNumber(
+				((i + 0.5) * (this._editorWidth - 8)) / (Config.harmonicsControlPoints - 1),
+			);
 			path += `M ${xPos} ${bottom} `;
 			path += `L ${xPos} ${prettyNumber(controlPointToHeight(harmonicsWave.harmonics[i]))} `;
 		}
 
-		const lastHeight: number = controlPointToHeight(harmonicsWave.harmonics[Config.harmonicsControlPoints - 1]);
+		const lastHeight: number = controlPointToHeight(
+			harmonicsWave.harmonics[Config.harmonicsControlPoints - 1],
+		);
 		for (let i: number = 0; i < 4; i++) {
 			const rect: SVGRectElement = this._lastControlPoints[i];
 			rect.setAttribute("y", prettyNumber(lastHeight));
@@ -336,10 +379,16 @@ export class HarmonicsEditorPrompt implements Prompt {
 	public closeCallback: ((prompt: Prompt) => void) | undefined = undefined;
 	public readonly harmonicsEditor: HarmonicsEditor = new HarmonicsEditor(this._doc, true);
 
-	public readonly _playButton: HTMLButtonElement = HTML.button({ style: "width: 55%;", type: "button" });
+	public readonly _playButton: HTMLButtonElement = HTML.button({
+		style: "width: 55%;",
+		type: "button",
+	});
 
 	private readonly _cancelButton: HTMLButtonElement = HTML.button({ class: "cancelButton" });
-	private readonly _okayButton: HTMLButtonElement = HTML.button({ class: "okayButton", style: "width:45%;" }, "Okay");
+	private readonly _okayButton: HTMLButtonElement = HTML.button(
+		{ class: "okayButton", style: "width:45%;" },
+		"Okay",
+	);
 
 	private readonly copyButton: HTMLButtonElement = HTML.button(
 		{
@@ -365,27 +414,37 @@ export class HarmonicsEditorPrompt implements Prompt {
 			),
 		],
 	);
-	private readonly pasteButton: HTMLButtonElement = HTML.button({ style: `width:${Sizing.inputSm};`, class: "pasteButton" }, [
-		"Paste",
-		// Paste icon:
-		SVG.svg(
-			{
-				style: "flex-shrink: 0; position: absolute; left: 0; top: 50%; margin-top: -1em; pointer-events: none;",
-				width: "2em",
-				height: "2em",
-				viewBox: "0 0 26 26",
-			},
-			[
-				SVG.path({
-					d: "M 8 18 L 6 18 L 6 5 L 17 5 L 17 7 M 9 8 L 16 8 L 20 12 L 20 22 L 9 22 z",
-					stroke: "currentColor",
-					fill: "none",
-				}),
-				SVG.path({ d: "M 9 3 L 14 3 L 14 6 L 9 6 L 9 3 z M 16 8 L 20 12 L 16 12 L 16 8 z", fill: "currentColor" }),
-			],
-		),
-	]);
-	private readonly copyPasteContainer: HTMLDivElement = HTML.div({ style: "width: 185px;" }, this.copyButton, this.pasteButton);
+	private readonly pasteButton: HTMLButtonElement = HTML.button(
+		{ style: `width:${Sizing.inputSm};`, class: "pasteButton" },
+		[
+			"Paste",
+			// Paste icon:
+			SVG.svg(
+				{
+					style: "flex-shrink: 0; position: absolute; left: 0; top: 50%; margin-top: -1em; pointer-events: none;",
+					width: "2em",
+					height: "2em",
+					viewBox: "0 0 26 26",
+				},
+				[
+					SVG.path({
+						d: "M 8 18 L 6 18 L 6 5 L 17 5 L 17 7 M 9 8 L 16 8 L 20 12 L 20 22 L 9 22 z",
+						stroke: "currentColor",
+						fill: "none",
+					}),
+					SVG.path({
+						d: "M 9 3 L 14 3 L 14 6 L 9 6 L 9 3 z M 16 8 L 20 12 L 16 12 L 16 8 z",
+						fill: "currentColor",
+					}),
+				],
+			),
+		],
+	);
+	private readonly copyPasteContainer: HTMLDivElement = HTML.div(
+		{ style: "width: 185px;" },
+		this.copyButton,
+		this.pasteButton,
+	);
 	public readonly container: HTMLDivElement = HTML.div(
 		{ class: "prompt noSelection", style: "width: 500px;" },
 		HTML.h2("Edit Harmonics Instrument"),
@@ -396,7 +455,13 @@ export class HarmonicsEditorPrompt implements Prompt {
 			this._playButton,
 		),
 		flexRowCenter(undefined, this.harmonicsEditor.container),
-		HTML.div({ style: "display: flex; flex-direction: row-reverse; justify-content: space-between;" }, this._okayButton, this.copyPasteContainer),
+		HTML.div(
+			{
+				style: "display: flex; flex-direction: row-reverse; justify-content: space-between;",
+			},
+			this._okayButton,
+			this.copyPasteContainer,
+		),
 		this._cancelButton,
 	);
 
@@ -410,8 +475,12 @@ export class HarmonicsEditorPrompt implements Prompt {
 		this.copyButton.addEventListener("click", this._copySettings);
 		this.pasteButton.addEventListener("click", this._pasteSettings);
 		this._playButton.addEventListener("click", this._togglePlay);
-		this.harmonicsEditor.container.addEventListener("mousemove", () => this.harmonicsEditor.render());
-		this.harmonicsEditor.container.addEventListener("mousedown", () => this.harmonicsEditor.render());
+		this.harmonicsEditor.container.addEventListener("mousemove", () =>
+			this.harmonicsEditor.render(),
+		);
+		this.harmonicsEditor.container.addEventListener("mousedown", () =>
+			this.harmonicsEditor.render(),
+		);
 		this.container.addEventListener("mousemove", () => this.harmonicsEditor.render());
 
 		this.updatePlayButton();
@@ -480,7 +549,9 @@ export class HarmonicsEditorPrompt implements Prompt {
 		this._okayButton.removeEventListener("click", this._saveChanges);
 		this._cancelButton.removeEventListener("click", this._close);
 		this.container.removeEventListener("keydown", this.whenKeyPressed);
-		this.harmonicsEditor.container.removeEventListener("mousemove", () => this.harmonicsEditor.render());
+		this.harmonicsEditor.container.removeEventListener("mousemove", () =>
+			this.harmonicsEditor.render(),
+		);
 		this._playButton.removeEventListener("click", this._togglePlay);
 	};
 
@@ -490,7 +561,9 @@ export class HarmonicsEditorPrompt implements Prompt {
 	};
 
 	private _pasteSettings = (): void => {
-		const storedHarmonicsWave: any = JSON.parse(String(window.localStorage.getItem("harmonicsCopy")));
+		const storedHarmonicsWave: any = JSON.parse(
+			String(window.localStorage.getItem("harmonicsCopy")),
+		);
 		this.harmonicsEditor.setHarmonicsWave(storedHarmonicsWave);
 		this.harmonicsEditor.storeChange();
 	};

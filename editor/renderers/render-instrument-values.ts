@@ -46,7 +46,11 @@ export interface InstrumentValueRefs {
 	lowerNoteLimitRow: HTMLElement;
 }
 
-export function renderInstrumentValues(refs: InstrumentValueRefs, doc: SongDocument, instrument: Instrument): void {
+export function renderInstrumentValues(
+	refs: InstrumentValueRefs,
+	doc: SongDocument,
+	instrument: Instrument,
+): void {
 	setSelectedValue(refs.transitionSelect, instrument.transition);
 	setSelectedValue(refs.vibratoSelect, instrument.vibrato);
 	setSelectedValue(refs.vibratoTypeSelect, instrument.vibratoType);
@@ -83,7 +87,8 @@ export function renderInstrumentValues(refs: InstrumentValueRefs, doc: SongDocum
 	refs.upperNoteLimitRow.firstChild!.textContent =
 		"Upper Note Limit [" +
 		Piano.getPitchNameAlwaysOctave(
-			(instrument.upperNoteLimit + Config.keys[doc.song.key].basePitch) % Config.pitchesPerOctave,
+			(instrument.upperNoteLimit + Config.keys[doc.song.key].basePitch) %
+				Config.pitchesPerOctave,
 			instrument.upperNoteLimit,
 			doc.song.octave,
 		) +
@@ -91,7 +96,8 @@ export function renderInstrumentValues(refs: InstrumentValueRefs, doc: SongDocum
 	refs.lowerNoteLimitRow.firstChild!.textContent =
 		"Lower Note Limit [" +
 		Piano.getPitchNameAlwaysOctave(
-			(instrument.lowerNoteLimit + Config.keys[doc.song.key].basePitch) % Config.pitchesPerOctave,
+			(instrument.lowerNoteLimit + Config.keys[doc.song.key].basePitch) %
+				Config.pitchesPerOctave,
 			instrument.lowerNoteLimit,
 			doc.song.octave,
 		) +

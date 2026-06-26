@@ -7,8 +7,8 @@
 // - Used by PresetSelectorPrompt, ChannelVolumeVisualizerPrompt
 
 import { createDiv } from "../base/container";
+import { flex, s } from "../style";
 import { BorderRadius, Sizing } from "../style-constants";
-import { s, flex } from "../style";
 
 export interface PaneContainerOptions {
 	height?: string;
@@ -20,7 +20,10 @@ export interface PaneContainerOptions {
 	border?: string;
 }
 
-export function paneContainer(options?: PaneContainerOptions, ...panes: (HTMLElement | string)[]): HTMLDivElement {
+export function paneContainer(
+	options?: PaneContainerOptions,
+	...panes: (HTMLElement | string)[]
+): HTMLDivElement {
 	const height = options?.height ?? Sizing.promptLg;
 	const borderRadius = options?.borderRadius ?? BorderRadius.md;
 	const borderWidth = options?.borderWidth ?? "2px";
@@ -29,7 +32,14 @@ export function paneContainer(options?: PaneContainerOptions, ...panes: (HTMLEle
 	const border = options?.border;
 	const showDivider = border !== "none" && borderWidth !== "0";
 
-	let style = s(flex("row"), `height:${height};`, `border:${border ?? `${borderWidth} solid var(--ui-widget-background)`};`, `border-radius:${borderRadius};`, `overflow:${overflow};`, `gap:${gap};`);
+	let style = s(
+		flex("row"),
+		`height:${height};`,
+		`border:${border ?? `${borderWidth} solid var(--ui-widget-background)`};`,
+		`border-radius:${borderRadius};`,
+		`overflow:${overflow};`,
+		`gap:${gap};`,
+	);
 
 	if (options?.marginTop) {
 		style += ` margin-top: ${options.marginTop};`;
@@ -38,7 +48,11 @@ export function paneContainer(options?: PaneContainerOptions, ...panes: (HTMLEle
 	const children: (HTMLElement | string)[] = [];
 	for (let i = 0; i < panes.length; i++) {
 		if (i > 0 && showDivider) {
-			children.push(createDiv(`width: ${borderWidth}; background: var(--ui-widget-background); flex-shrink: 0;`));
+			children.push(
+				createDiv(
+					`width: ${borderWidth}; background: var(--ui-widget-background); flex-shrink: 0;`,
+				),
+			);
 		}
 		children.push(panes[i]);
 	}

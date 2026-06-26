@@ -29,7 +29,13 @@ interface Particle {
 
 const MAX_PARTICLES = 300;
 
-function spawnParticle(x: number, y: number, mag: number, impulse: number, color: string): Particle {
+function spawnParticle(
+	x: number,
+	y: number,
+	mag: number,
+	impulse: number,
+	color: string,
+): Particle {
 	const maxLife = 80 + Math.random() * 120;
 	const speed = 0.3 + impulse * 1.0 + mag * 0.6;
 	return {
@@ -269,10 +275,30 @@ export class spectrumCanvas {
 			this._computeYPositions(h, this._fgSmoothMags, fgRef, FG_BANDS, this._fgYs, 1.0);
 
 			// Draw background bass layer (R color, low opacity)
-			this._drawSmooth(ctx, w, h, this._bgSmoothMags, bgRef, BG_BANDS, this._cachedRColor, 0.4, 1.0);
+			this._drawSmooth(
+				ctx,
+				w,
+				h,
+				this._bgSmoothMags,
+				bgRef,
+				BG_BANDS,
+				this._cachedRColor,
+				0.4,
+				1.0,
+			);
 
 			// Draw foreground main layer (L color, full opacity)
-			this._drawSmooth(ctx, w, h, this._fgSmoothMags, fgRef, FG_BANDS, this._cachedLColor, 1.0, 1.0);
+			this._drawSmooth(
+				ctx,
+				w,
+				h,
+				this._fgSmoothMags,
+				fgRef,
+				FG_BANDS,
+				this._cachedLColor,
+				1.0,
+				1.0,
+			);
 
 			// Update and draw particles
 			if (this.showParticles) {
@@ -289,7 +315,14 @@ export class spectrumCanvas {
 		events.listen("themeChange", () => this._updateCachedColors());
 	}
 
-	private _computeYPositions(h: number, mags: Float32Array, maxMag: number, bandCount: number, out: Float64Array, heightScale: number): void {
+	private _computeYPositions(
+		h: number,
+		mags: Float32Array,
+		maxMag: number,
+		bandCount: number,
+		out: Float64Array,
+		heightScale: number,
+	): void {
 		for (let b = 0; b < bandCount; b++) {
 			out[b] = h - Math.min(1, (2 * mags[b]) / (mags[b] + maxMag)) * h * heightScale;
 		}
@@ -436,6 +469,7 @@ export class spectrumCanvas {
 	private _updateCachedColors(): void {
 		this._cachedBgColor = ColorConfig.getComputed("--editor-background") || "black";
 		this._cachedLColor = ColorConfig.getComputed("--spectrum-line-L") || "white";
-		this._cachedRColor = ColorConfig.getComputed("--spectrum-line-R") || "rgba(119,68,255,0.99)";
+		this._cachedRColor =
+			ColorConfig.getComputed("--spectrum-line-R") || "rgba(119,68,255,0.99)";
 	}
 }

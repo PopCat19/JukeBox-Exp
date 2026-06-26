@@ -50,14 +50,26 @@ export function renderPresetSetup(
 	refs.instrumentVolumeSliderRow.style.display = "";
 	refs.instrumentTypeSelectRow.style.setProperty("display", "");
 	if (prefs.instrumentButtonsAtTop) {
-		refs.instrumentSettingsGroup.insertBefore(refs.instrumentExportGroup, refs.instrumentSettingsGroup.firstChild);
-		refs.instrumentSettingsGroup.insertBefore(refs.instrumentCopyGroup, refs.instrumentSettingsGroup.firstChild);
+		refs.instrumentSettingsGroup.insertBefore(
+			refs.instrumentExportGroup,
+			refs.instrumentSettingsGroup.firstChild,
+		);
+		refs.instrumentSettingsGroup.insertBefore(
+			refs.instrumentCopyGroup,
+			refs.instrumentSettingsGroup.firstChild,
+		);
 	} else {
 		refs.instrumentSettingsGroup.appendChild(refs.instrumentCopyGroup);
 		refs.instrumentSettingsGroup.appendChild(refs.instrumentExportGroup);
 	}
-	refs.instrumentSettingsGroup.insertBefore(refs.instrumentsButtonRow, refs.instrumentSettingsGroup.firstChild);
-	refs.instrumentSettingsGroup.insertBefore(refs.instrumentSettingsTextRow, refs.instrumentSettingsGroup.firstChild);
+	refs.instrumentSettingsGroup.insertBefore(
+		refs.instrumentsButtonRow,
+		refs.instrumentSettingsGroup.firstChild,
+	);
+	refs.instrumentSettingsGroup.insertBefore(
+		refs.instrumentSettingsTextRow,
+		refs.instrumentSettingsGroup.firstChild,
+	);
 
 	if (doc.song.channels[doc.channel].name === "") {
 		refs.instrumentSettingsTextRow.textContent = "Instrument Settings";
@@ -73,7 +85,8 @@ export function renderPresetSetup(
 		refs.drumPresetSelect.style.display = "";
 		if (refs.drumPresetSelect instanceof HTMLButtonElement) {
 			const preset = EditorConfig.valueToPreset(instrument.preset);
-			refs.drumPresetSelect.textContent = preset?.name ?? getInstrumentTypeName(instrument.type);
+			refs.drumPresetSelect.textContent =
+				preset?.name ?? getInstrumentTypeName(instrument.type);
 		} else {
 			setSelectedValue(refs.drumPresetSelect, instrument.preset, true);
 		}
@@ -82,7 +95,8 @@ export function renderPresetSetup(
 		refs.drumPresetSelect.style.display = "none";
 		if (refs.pitchedPresetSelect instanceof HTMLButtonElement) {
 			const preset = EditorConfig.valueToPreset(instrument.preset);
-			refs.pitchedPresetSelect.textContent = preset?.name ?? getInstrumentTypeName(instrument.type);
+			refs.pitchedPresetSelect.textContent =
+				preset?.name ?? getInstrumentTypeName(instrument.type);
 		} else {
 			setSelectedValue(refs.pitchedPresetSelect, instrument.preset, true);
 		}

@@ -43,7 +43,8 @@ export function buildNoiseSource(voiceCount: number): string {
 
         `;
 	for (let i: number = 0; i < voiceCount; i++) {
-		noiseSource += `let phase# = (tone.phases[#] - (tone.phases[#] | 0)) * Config.chipNoiseLength;
+		noiseSource +=
+			`let phase# = (tone.phases[#] - (tone.phases[#] | 0)) * Config.chipNoiseLength;
                 `.replaceAll("#", `${i}`);
 	}
 	noiseSource += "let test = true;";

@@ -7,7 +7,7 @@
 // - Centered horizontally
 
 import { createLabel } from "../base/label";
-import { s, h, flexCenter } from "../style";
+import { flexCenter, h, s } from "../style";
 
 export interface CheckboxRowOptions {
 	marginTop?: string;
@@ -15,11 +15,20 @@ export interface CheckboxRowOptions {
 	height?: string;
 }
 
-export function checkboxRow(text: string, checkbox: HTMLInputElement, opts?: CheckboxRowOptions): HTMLLabelElement {
+export function checkboxRow(
+	text: string,
+	checkbox: HTMLInputElement,
+	opts?: CheckboxRowOptions,
+): HTMLLabelElement {
 	const height = opts?.height ?? "2em";
 	const marginTop = opts?.marginTop ?? "";
 	const marginBottom = opts?.marginBottom ?? "";
-	const style = s(flexCenter("row"), h(height), marginTop && `margin-top:${marginTop};`, marginBottom && `margin-bottom:${marginBottom};`);
+	const style = s(
+		flexCenter("row"),
+		h(height),
+		marginTop && `margin-top:${marginTop};`,
+		marginBottom && `margin-bottom:${marginBottom};`,
+	);
 
 	return createLabel(style, undefined, text, checkbox);
 }

@@ -98,7 +98,8 @@ export class FilterCoefficients {
 	}
 
 	public allPass1stOrderInvertPhaseAbove(cornerRadiansPerSample: number): void {
-		const g: number = (Math.sin(cornerRadiansPerSample) - 1.0) / Math.cos(cornerRadiansPerSample);
+		const g: number =
+			(Math.sin(cornerRadiansPerSample) - 1.0) / Math.cos(cornerRadiansPerSample);
 		this.a[1] = g;
 		this.b[0] = g;
 		this.b[1] = 1.0;
@@ -128,7 +129,10 @@ export class FilterCoefficients {
 		this.order = 1;
 	}
 
-	public lowPass2ndOrderButterworth(cornerRadiansPerSample: number, peakLinearGain: number): void {
+	public lowPass2ndOrderButterworth(
+		cornerRadiansPerSample: number,
+		peakLinearGain: number,
+	): void {
 		// This is Butterworth if peakLinearGain=1/√2 according to:
 		// http://web.archive.org/web/20191213120120/https://crypto.stanford.edu/~blynn/sound/analog.html
 		// An interesting property is that if peakLinearGain=1/16 then the
@@ -162,7 +166,10 @@ export class FilterCoefficients {
 		this.order = 2;
 	}
 
-	public highPass2ndOrderButterworth(cornerRadiansPerSample: number, peakLinearGain: number): void {
+	public highPass2ndOrderButterworth(
+		cornerRadiansPerSample: number,
+		peakLinearGain: number,
+	): void {
 		const alpha: number = Math.sin(cornerRadiansPerSample) / (2 * peakLinearGain);
 		const cos: number = Math.cos(cornerRadiansPerSample);
 		const a0: number = 1.0 + alpha;
@@ -185,12 +192,19 @@ export class FilterCoefficients {
 		this.order = 2;
 	}
 	*/
-	public highShelf2ndOrder(cornerRadiansPerSample: number, shelfLinearGain: number, slope: number): void {
+	public highShelf2ndOrder(
+		cornerRadiansPerSample: number,
+		shelfLinearGain: number,
+		slope: number,
+	): void {
 		const A: number = Math.sqrt(shelfLinearGain);
 		const c: number = Math.cos(cornerRadiansPerSample);
 		const Aplus: number = A + 1.0;
 		const Aminus: number = A - 1.0;
-		const alpha: number = Math.sin(cornerRadiansPerSample) * 0.5 * Math.sqrt((Aplus / A) * (1.0 / slope - 1.0) + 2.0);
+		const alpha: number =
+			Math.sin(cornerRadiansPerSample) *
+			0.5 *
+			Math.sqrt((Aplus / A) * (1.0 / slope - 1.0) + 2.0);
 		const sqrtA2Alpha: number = 2.0 * Math.sqrt(A) * alpha;
 		const a0: number = Aplus - Aminus * c + sqrtA2Alpha;
 		this.a[1] = (2 * (Aminus - Aplus * c)) / a0;
@@ -201,9 +215,14 @@ export class FilterCoefficients {
 		this.order = 2;
 	}
 
-	public peak2ndOrder(cornerRadiansPerSample: number, peakLinearGain: number, bandWidthScale: number): void {
+	public peak2ndOrder(
+		cornerRadiansPerSample: number,
+		peakLinearGain: number,
+		bandWidthScale: number,
+	): void {
 		const sqrtGain: number = Math.sqrt(peakLinearGain);
-		const bandWidth: number = (bandWidthScale * cornerRadiansPerSample) / (sqrtGain >= 1 ? sqrtGain : 1 / sqrtGain);
+		const bandWidth: number =
+			(bandWidthScale * cornerRadiansPerSample) / (sqrtGain >= 1 ? sqrtGain : 1 / sqrtGain);
 		// const bandWidth: number = bandWidthScale * cornerRadiansPerSample / Math.max(sqrtGain, 1.0);
 		const alpha: number = Math.tan(bandWidth * 0.5);
 		const a0: number = 1.0 + alpha / sqrtGain;

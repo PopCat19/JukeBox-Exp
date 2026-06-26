@@ -9,8 +9,8 @@
 
 // Copyright (c) 2012-2022 John Nesky and contributing authors, distributed under the MIT license, see accompanying the LICENSE.md file.
 
-import type { SongDocument } from "../song-document";
 import { Change } from "../core/change";
+import type { SongDocument } from "../song-document";
 
 export interface FieldValueOptions<T> {
 	/** Target object to set property on (e.g., doc.song, doc.getCurrentInstrumentObj()) */
@@ -39,34 +39,37 @@ export class ChangeFieldValue<T> extends Change {
 	constructor(doc: SongDocument, options: FieldValueOptions<T>) {
 		super();
 		let value = options.newValue;
-		
+
 		// Apply clamp for numbers
 		if (options.clamp && typeof value === "number") {
-			value = Math.max(options.clamp.min, Math.min(options.clamp.max, Math.round(value))) as T;
+			value = Math.max(
+				options.clamp.min,
+				Math.min(options.clamp.max, Math.round(value)),
+			) as T;
 		}
-		
+
 		// Apply max length for strings
 		if (options.maxLength && typeof value === "string") {
 			if (value.length > options.maxLength) {
 				value = value.substring(0, options.maxLength) as T;
 			}
 		}
-		
+
 		// Set the property
 		options.target[options.property] = value;
-		
+
 		// Unset modulator if specified
 		if (options.unsetModKey !== undefined) {
 			const channel = options.unsetModChannel ?? doc.channel;
 			const instrument = options.unsetModInstrument ?? doc.getCurrentInstrument();
 			doc.synth.unsetMod(options.unsetModKey, channel, instrument);
 		}
-		
+
 		// Execute afterSet callback
 		if (options.afterSet) {
 			options.afterSet();
 		}
-		
+
 		doc.notifier.changed();
 		if (options.oldValue !== value) this._didSomething();
 	}

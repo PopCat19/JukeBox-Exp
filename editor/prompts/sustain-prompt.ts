@@ -20,7 +20,11 @@ import { BasePrompt } from "./base-prompt";
 const { div, h2, p, select, option } = HTML;
 
 export class SustainPrompt extends BasePrompt {
-	private readonly _typeSelect: HTMLSelectElement = select({}, option({ value: "acoustic" }, "(A) Acoustic"), option({ value: "bright" }, "(B) Bright"));
+	private readonly _typeSelect: HTMLSelectElement = select(
+		{},
+		option({ value: "acoustic" }, "(A) Acoustic"),
+		option({ value: "bright" }, "(B) Bright"),
+	);
 
 	public readonly container: HTMLDivElement = div(
 		{ class: "prompt sustainPrompt" },
@@ -33,7 +37,9 @@ export class SustainPrompt extends BasePrompt {
 		),
 		div(
 			{ style: `display: ${Config.enableAcousticSustain ? "" : "none"};` },
-			p('BeepBox comes with two slightly different sustain designs. You can select one here and press "Okay" to confirm it.'),
+			p(
+				'BeepBox comes with two slightly different sustain designs. You can select one here and press "Okay" to confirm it.',
+			),
 			selectField("Type:", this._typeSelect),
 		),
 		div(
@@ -57,7 +63,12 @@ export class SustainPrompt extends BasePrompt {
 	protected override _saveChanges(): void {
 		if (Config.enableAcousticSustain) {
 			const group: ChangeGroup = new ChangeGroup();
-			group.append(new ChangeStringSustainType(this._doc, <any>Config.sustainTypeNames.indexOf(this._typeSelect.value)));
+			group.append(
+				new ChangeStringSustainType(
+					this._doc,
+					<any>Config.sustainTypeNames.indexOf(this._typeSelect.value),
+				),
+			);
 			this._doc.prompt = null;
 			this._doc.record(group);
 		} else {

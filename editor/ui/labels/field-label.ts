@@ -9,5 +9,9 @@
 import { createDiv } from "../base/container";
 
 export function fieldLabel(text: string): HTMLDivElement {
-	return createDiv("text-align: right; flex-grow: 1; color: var(--primary-text);", undefined, text);
+	return createDiv(
+		"text-align: right; flex-grow: 1; color: var(--primary-text);",
+		undefined,
+		text,
+	);
 }

@@ -40,7 +40,15 @@ import {
 import { EditorConfig } from "../config/editor-config";
 import type { InstrumentValueRefs } from "../renderers/render-instrument-values";
 import type { SongDocument } from "../song-document";
-import { buildOptions, buildPresetButton, dropdownButton, numberInput, rangeSlider, type Slider, toggleButton } from "../ui";
+import {
+	buildOptions,
+	buildPresetButton,
+	dropdownButton,
+	numberInput,
+	rangeSlider,
+	type Slider,
+	toggleButton,
+} from "../ui";
 import { FilterEditor } from "./filter-editor";
 
 const { button, div, input, option, select, span } = HTML;
@@ -196,23 +204,43 @@ export class InstrumentSettingsPanel {
 
 		const volumeSliderTip = div(
 			{ class: "selectRow", style: "height: 1em" },
-			span({ class: "tip", style: "font-size: smaller;", onclick: () => onOpenPrompt("instrumentVolume") }, "Volume: "),
+			span(
+				{
+					class: "tip",
+					style: "font-size: smaller;",
+					onclick: () => onOpenPrompt("instrumentVolume"),
+				},
+				"Volume: ",
+			),
 		);
 
 		this.volumeSliderRow = div(
 			{ class: "selectRow" },
 			div(
 				{},
-				div({ style: `color: ${ColorConfig.secondaryText};` }, span({ class: "tip" }, volumeSliderTip)),
-				div({ style: `color: ${ColorConfig.secondaryText}; margin-top: -3px;` }, this.volumeSliderInputBox),
+				div(
+					{ style: `color: ${ColorConfig.secondaryText};` },
+					span({ class: "tip" }, volumeSliderTip),
+				),
+				div(
+					{ style: `color: ${ColorConfig.secondaryText}; margin-top: -3px;` },
+					this.volumeSliderInputBox,
+				),
 			),
 			this.volumeSlider.container,
 		);
 
 		// Pan
-		this.panSlider = rangeSlider(doc, (oldValue: number, newValue: number) => new ChangePan(doc, oldValue, newValue), 0, Config.panMax, Config.panCenter, {
-			midTick: true,
-		});
+		this.panSlider = rangeSlider(
+			doc,
+			(oldValue: number, newValue: number) => new ChangePan(doc, oldValue, newValue),
+			0,
+			Config.panMax,
+			Config.panCenter,
+			{
+				midTick: true,
+			},
+		);
 
 		this.panDropdown = dropdownButton({
 			onclick: () => {}, // Will be wired up by song-editor.ts
@@ -241,7 +269,10 @@ export class InstrumentSettingsPanel {
 					},
 					"Pan: ",
 				),
-				div({ style: `color: ${ColorConfig.secondaryText}; margin-top: -3px;` }, this.panSliderInputBox),
+				div(
+					{ style: `color: ${ColorConfig.secondaryText}; margin-top: -3px;` },
+					this.panSliderInputBox,
+				),
 			),
 			this.panDropdown,
 			this.panSlider.container,
@@ -261,7 +292,10 @@ export class InstrumentSettingsPanel {
 			this.panDelaySlider.container,
 		);
 
-		this.panDropdownGroup = div({ class: "editor-controls", style: "display: none;" }, this.panDelayRow);
+		this.panDropdownGroup = div(
+			{ class: "editor-controls", style: "display: none;" },
+			this.panDelayRow,
+		);
 
 		// Type Selection
 		this.pitchedPresetSelect = buildPresetButton("pitchPresetSelect");
@@ -270,14 +304,19 @@ export class InstrumentSettingsPanel {
 		this.instrumentTypeSelectRow = div(
 			{ class: "selectRow", id: "typeSelectRow" },
 			span({ class: "tip" }, "Type:"),
-			div(div({ class: "pitchSelect" }, this.pitchedPresetSelect), div({ class: "drumSelect" }, this.drumPresetSelect)),
+			div(
+				div({ class: "pitchSelect" }, this.pitchedPresetSelect),
+				div({ class: "drumSelect" }, this.drumPresetSelect),
+			),
 		);
 
 		// Effects
 		this.effectsSelect = select(option({ selected: true, disabled: true, hidden: false }));
 
 		// EQ Filter
-		const eqFilterToggle = toggleButton(["simple", "advanced"], (index: 0 | 1) => _switchEQFilterType(index === 0));
+		const eqFilterToggle = toggleButton(["simple", "advanced"], (index: 0 | 1) =>
+			_switchEQFilterType(index === 0),
+		);
 		this.eqFilterSimpleButton = eqFilterToggle.buttons[0];
 		this.eqFilterAdvancedButton = eqFilterToggle.buttons[1];
 
@@ -313,7 +352,8 @@ export class InstrumentSettingsPanel {
 
 		this.eqFilterSimpleCutSlider = rangeSlider(
 			doc,
-			(oldValue: number, newValue: number) => new ChangeEQFilterSimpleCut(doc, oldValue, newValue),
+			(oldValue: number, newValue: number) =>
+				new ChangeEQFilterSimpleCut(doc, oldValue, newValue),
 			0,
 			Config.filterSimpleCutRange - 1,
 			6,
@@ -327,7 +367,8 @@ export class InstrumentSettingsPanel {
 
 		this.eqFilterSimplePeakSlider = rangeSlider(
 			doc,
-			(oldValue: number, newValue: number) => new ChangeEQFilterSimplePeak(doc, oldValue, newValue),
+			(oldValue: number, newValue: number) =>
+				new ChangeEQFilterSimplePeak(doc, oldValue, newValue),
 			0,
 			Config.filterSimplePeakRange - 1,
 			6,
@@ -340,7 +381,9 @@ export class InstrumentSettingsPanel {
 		);
 
 		// Note Filter
-		const noteFilterToggle = toggleButton(["simple", "advanced"], (index: 0 | 1) => _switchNoteFilterType(index === 0));
+		const noteFilterToggle = toggleButton(["simple", "advanced"], (index: 0 | 1) =>
+			_switchNoteFilterType(index === 0),
+		);
 		this.noteFilterSimpleButton = noteFilterToggle.buttons[0];
 		this.noteFilterAdvancedButton = noteFilterToggle.buttons[1];
 
@@ -376,7 +419,8 @@ export class InstrumentSettingsPanel {
 
 		this.noteFilterSimpleCutSlider = rangeSlider(
 			doc,
-			(oldValue: number, newValue: number) => new ChangeNoteFilterSimpleCut(doc, oldValue, newValue),
+			(oldValue: number, newValue: number) =>
+				new ChangeNoteFilterSimpleCut(doc, oldValue, newValue),
 			0,
 			Config.filterSimpleCutRange - 1,
 			6,
@@ -390,7 +434,8 @@ export class InstrumentSettingsPanel {
 
 		this.noteFilterSimplePeakSlider = rangeSlider(
 			doc,
-			(oldValue: number, newValue: number) => new ChangeNoteFilterSimplePeak(doc, oldValue, newValue),
+			(oldValue: number, newValue: number) =>
+				new ChangeNoteFilterSimplePeak(doc, oldValue, newValue),
 			0,
 			Config.filterSimplePeakRange - 1,
 			6,
@@ -421,11 +466,21 @@ export class InstrumentSettingsPanel {
 
 		this.clicklessTransitionRow = div(
 			{ class: "selectRow" },
-			span({ class: "tip", style: "margin-left:10px;", onclick: () => onOpenPrompt("clicklessTransition") }, "Seamless:"),
+			span(
+				{
+					class: "tip",
+					style: "margin-left:10px;",
+					onclick: () => onOpenPrompt("clicklessTransition"),
+				},
+				"Seamless:",
+			),
 			this.clicklessTransitionBox,
 		);
 
-		this.transitionDropdownGroup = div({ class: "editor-controls", style: "display: none;" }, this.clicklessTransitionRow);
+		this.transitionDropdownGroup = div(
+			{ class: "editor-controls", style: "display: none;" },
+			this.clicklessTransitionRow,
+		);
 
 		// Chord
 		this.chordSelect = buildOptions(
@@ -441,7 +496,8 @@ export class InstrumentSettingsPanel {
 
 		this.arpeggioSpeedSlider = rangeSlider(
 			doc,
-			(oldValue: number, newValue: number) => new ChangeArpeggioSpeed(doc, oldValue, newValue),
+			(oldValue: number, newValue: number) =>
+				new ChangeArpeggioSpeed(doc, oldValue, newValue),
 			0,
 			Config.modulators.dictionary["arp speed"].maxRawVol,
 			0,
@@ -460,11 +516,22 @@ export class InstrumentSettingsPanel {
 
 		this.twoNoteArpRow = div(
 			{ class: "selectRow" },
-			span({ class: "tip", style: "margin-left:10px;", onclick: () => onOpenPrompt("twoNoteArp") }, "Two-Note:"),
+			span(
+				{
+					class: "tip",
+					style: "margin-left:10px;",
+					onclick: () => onOpenPrompt("twoNoteArp"),
+				},
+				"Two-Note:",
+			),
 			this.twoNoteArpBox,
 		);
 
-		this.chordDropdownGroup = div({ class: "editor-controls", style: "display: none;" }, this.arpeggioSpeedRow, this.twoNoteArpRow);
+		this.chordDropdownGroup = div(
+			{ class: "editor-controls", style: "display: none;" },
+			this.arpeggioSpeedRow,
+			this.twoNoteArpRow,
+		);
 
 		// Vibrato
 		this.vibratoSelect = buildOptions(
@@ -528,14 +595,34 @@ export class InstrumentSettingsPanel {
 		);
 
 		// Chorus
-		this.chorusSlider = rangeSlider(doc, (oldValue: number, newValue: number) => new ChangeChorus(doc, oldValue, newValue), 0, Config.chorusRange - 1, 0);
+		this.chorusSlider = rangeSlider(
+			doc,
+			(oldValue: number, newValue: number) => new ChangeChorus(doc, oldValue, newValue),
+			0,
+			Config.chorusRange - 1,
+			0,
+		);
 
-		this.chorusRow = div({ class: "selectRow" }, span({ class: "tip", onclick: () => onOpenPrompt("chorus") }, "Chorus:"), this.chorusSlider.container);
+		this.chorusRow = div(
+			{ class: "selectRow" },
+			span({ class: "tip", onclick: () => onOpenPrompt("chorus") }, "Chorus:"),
+			this.chorusSlider.container,
+		);
 
 		// Reverb
-		this.reverbSlider = rangeSlider(doc, (oldValue: number, newValue: number) => new ChangeReverb(doc, oldValue, newValue), 0, Config.reverbRange - 1, 0);
+		this.reverbSlider = rangeSlider(
+			doc,
+			(oldValue: number, newValue: number) => new ChangeReverb(doc, oldValue, newValue),
+			0,
+			Config.reverbRange - 1,
+			0,
+		);
 
-		this.reverbRow = div({ class: "selectRow" }, span({ class: "tip", onclick: () => onOpenPrompt("reverb") }, "Reverb:"), this.reverbSlider.container);
+		this.reverbRow = div(
+			{ class: "selectRow" },
+			span({ class: "tip", onclick: () => onOpenPrompt("reverb") }, "Reverb:"),
+			this.reverbSlider.container,
+		);
 
 		// Echo
 		this.echoSustainSlider = rangeSlider(
@@ -584,7 +671,8 @@ export class InstrumentSettingsPanel {
 		// Bitcrusher
 		this.bitcrusherQuantizationSlider = rangeSlider(
 			doc,
-			(oldValue: number, newValue: number) => new ChangeBitcrusherQuantization(doc, oldValue, newValue),
+			(oldValue: number, newValue: number) =>
+				new ChangeBitcrusherQuantization(doc, oldValue, newValue),
 			0,
 			Config.bitcrusherQuantizationRange - 1,
 			0,
@@ -598,7 +686,8 @@ export class InstrumentSettingsPanel {
 
 		this.bitcrusherFreqSlider = rangeSlider(
 			doc,
-			(oldValue: number, newValue: number) => new ChangeBitcrusherFreq(doc, oldValue, newValue),
+			(oldValue: number, newValue: number) =>
+				new ChangeBitcrusherFreq(doc, oldValue, newValue),
 			0,
 			Config.bitcrusherFreqRange - 1,
 			0,
@@ -613,7 +702,8 @@ export class InstrumentSettingsPanel {
 		// Feedback
 		this.feedbackAmplitudeSlider = rangeSlider(
 			doc,
-			(oldValue: number, newValue: number) => new ChangeFeedbackAmplitude(doc, oldValue, newValue),
+			(oldValue: number, newValue: number) =>
+				new ChangeFeedbackAmplitude(doc, oldValue, newValue),
 			0,
 			Config.operatorAmplitudeMax,
 			0,
@@ -628,7 +718,8 @@ export class InstrumentSettingsPanel {
 		// Supersaw
 		this.supersawDynamismSlider = rangeSlider(
 			doc,
-			(oldValue: number, newValue: number) => new ChangeSupersawDynamism(doc, oldValue, newValue),
+			(oldValue: number, newValue: number) =>
+				new ChangeSupersawDynamism(doc, oldValue, newValue),
 			0,
 			Config.supersawDynamismMax,
 			0,
@@ -642,7 +733,8 @@ export class InstrumentSettingsPanel {
 
 		this.supersawSpreadSlider = rangeSlider(
 			doc,
-			(oldValue: number, newValue: number) => new ChangeSupersawSpread(doc, oldValue, newValue),
+			(oldValue: number, newValue: number) =>
+				new ChangeSupersawSpread(doc, oldValue, newValue),
 			0,
 			Config.supersawSpreadMax,
 			0,
@@ -656,7 +748,8 @@ export class InstrumentSettingsPanel {
 
 		this.supersawShapeSlider = rangeSlider(
 			doc,
-			(oldValue: number, newValue: number) => new ChangeSupersawShape(doc, oldValue, newValue),
+			(oldValue: number, newValue: number) =>
+				new ChangeSupersawShape(doc, oldValue, newValue),
 			0,
 			Config.supersawShapeMax,
 			0,
@@ -686,7 +779,8 @@ export class InstrumentSettingsPanel {
 		// String Sustain
 		this.stringSustainSlider = rangeSlider(
 			doc,
-			(oldValue: number, newValue: number) => new ChangeStringSustain(doc, oldValue, newValue),
+			(oldValue: number, newValue: number) =>
+				new ChangeStringSustain(doc, oldValue, newValue),
 			0,
 			Config.stringSustainRange - 1,
 			Config.stringSustainRange - 1,
@@ -720,13 +814,32 @@ export class InstrumentSettingsPanel {
 
 		this.invertWaveRow = div(
 			{ class: "selectRow" },
-			span({ class: "tip", style: "margin-left:10px;", onclick: () => onOpenPrompt("invertWave") }, "Invert Wave:"),
+			span(
+				{
+					class: "tip",
+					style: "margin-left:10px;",
+					onclick: () => onOpenPrompt("invertWave"),
+				},
+				"Invert Wave:",
+			),
 			this.invertWaveBox,
 		);
 
 		// Display-only elements for valueRefs (used by renderInstrumentValues)
-		this.pwmSliderInputBox = numberInput({ style: "width: 4em; font-size: 80%;", id: "pwmSliderInputBox", type: "number", step: "1", value: "0" });
-		this.detuneSliderInputBox = numberInput({ style: "width: 4em; font-size: 80%;", id: "detuneSliderInputBox", type: "number", step: "1", value: "0" });
+		this.pwmSliderInputBox = numberInput({
+			style: "width: 4em; font-size: 80%;",
+			id: "pwmSliderInputBox",
+			type: "number",
+			step: "1",
+			value: "0",
+		});
+		this.detuneSliderInputBox = numberInput({
+			style: "width: 4em; font-size: 80%;",
+			id: "detuneSliderInputBox",
+			type: "number",
+			step: "1",
+			value: "0",
+		});
 		this.ringModHzNum = span();
 		this.grainSizeNum = span();
 		this.grainRangeNum = span();
@@ -734,7 +847,8 @@ export class InstrumentSettingsPanel {
 		this.arpeggioSpeedDisplay = span();
 		this.envelopeSpeedSlider = rangeSlider(
 			doc,
-			(oldValue: number, newValue: number) => new ChangeEnvelopeSpeed(doc, oldValue, newValue),
+			(oldValue: number, newValue: number) =>
+				new ChangeEnvelopeSpeed(doc, oldValue, newValue),
 			0,
 			Config.modulators.dictionary["envelope speed"].maxRawVol,
 			0,
@@ -766,7 +880,10 @@ export class InstrumentSettingsPanel {
 			this.unisonDropdownGroup,
 			div(
 				{ style: "padding: 2px 0; margin-left: 2em; display: flex; align-items: center;" },
-				span({ style: "flex-grow: 1; text-align: center;" }, span({ class: "tip", onclick: () => onOpenPrompt("effects") }, "Effects")),
+				span(
+					{ style: "flex-grow: 1; text-align: center;" },
+					span({ class: "tip", onclick: () => onOpenPrompt("effects") }, "Effects"),
+				),
 				div({ class: "effects-menu" }, this.effectsSelect),
 			),
 			this.distortionRow,
@@ -787,7 +904,12 @@ export class InstrumentSettingsPanel {
 
 		this.settingsGroup = div(
 			{ class: "editor-controls" },
-			div({ style: `padding: 3px 0; max-width: 15em; text-align: center; color: ${ColorConfig.secondaryText};` }, "Instrument Settings"),
+			div(
+				{
+					style: `padding: 3px 0; max-width: 15em; text-align: center; color: ${ColorConfig.secondaryText};`,
+				},
+				"Instrument Settings",
+			),
 			this.instrumentTypeSelectRow,
 			this.volumeSliderRow,
 			this.customSettingsGroup,

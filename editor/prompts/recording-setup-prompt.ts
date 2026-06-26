@@ -24,7 +24,10 @@ export class RecordingSetupPrompt extends BasePrompt {
 	private readonly _keyboardMode: HTMLSelectElement = select(
 		{},
 		option({ value: "useCapsLockForNotes" }, "simple shortcuts, use caps lock to play notes"),
-		option({ value: "pressControlForShortcuts" }, `simple notes, press ${EditorConfig.ctrlName} for shortcuts`),
+		option(
+			{ value: "pressControlForShortcuts" },
+			`simple notes, press ${EditorConfig.ctrlName} for shortcuts`,
+		),
 	);
 	private readonly _keyboardLayout: HTMLSelectElement = select(
 		{},
@@ -42,7 +45,10 @@ export class RecordingSetupPrompt extends BasePrompt {
 		option({ value: "1" }, "after"),
 	);
 	private readonly _keyboardLayoutPreview: HTMLDivElement = div({ class: "rsPreview" });
-	private readonly _enableMidi: HTMLInputElement = input({ class: "rsCheckbox", type: "checkbox" });
+	private readonly _enableMidi: HTMLInputElement = input({
+		class: "rsCheckbox",
+		type: "checkbox",
+	});
 	private readonly _showRecordButton: HTMLInputElement = input({
 		class: "rsCheckbox",
 		type: "checkbox",
@@ -69,18 +75,34 @@ export class RecordingSetupPrompt extends BasePrompt {
 		h2({}, "Note Recording Setup"),
 		div(
 			{ class: "rsGrid" },
-			p(`JukeBox can record notes as you perform them. You can start recording by pressing Ctrl+Space (or ${EditorConfig.ctrlSymbol}P).`),
+			p(
+				`JukeBox can record notes as you perform them. You can start recording by pressing Ctrl+Space (or ${EditorConfig.ctrlSymbol}P).`,
+			),
 			checkboxRow("Add ● record button next to ▶ play button:", this._showRecordButton),
-			checkboxRow("Snap recorded notes to the song's rhythm:", this._snapRecordedNotesToRhythm),
-			checkboxRow("Ignore notes not in the song's scale:", this._ignorePerformedNotesNotInScale),
+			checkboxRow(
+				"Snap recorded notes to the song's rhythm:",
+				this._snapRecordedNotesToRhythm,
+			),
+			checkboxRow(
+				"Ignore notes not in the song's scale:",
+				this._ignorePerformedNotesNotInScale,
+			),
 			p("While recording, you can perform notes on your keyboard!"),
-			selectRow("Keyboard layout:", this._keyboardLayout, { marginTop: "0.5em", marginBottom: "0.5em" }),
+			selectRow("Keyboard layout:", this._keyboardLayout, {
+				marginTop: "0.5em",
+				marginBottom: "0.5em",
+			}),
 			this._keyboardLayoutPreview,
 			p(
 				"When not recording, you can use the computer keyboard either for shortcuts (like C and V for copy and paste) or for performing notes, depending on this mode:",
 			),
-			div({ class: "rsModeRow" }, div({ class: "selectContainer", style: w("50%") }, this._keyboardMode)),
-			p("Performing music takes practice! Try slowing the tempo and using this metronome to help you keep a rhythm."),
+			div(
+				{ class: "rsModeRow" },
+				div({ class: "selectContainer", style: w("50%") }, this._keyboardMode),
+			),
+			p(
+				"Performing music takes practice! Try slowing the tempo and using this metronome to help you keep a rhythm.",
+			),
 			checkboxRow("Hear metronome while recording:", this._metronomeWhileRecording),
 			checkboxRow("Count-in 1 bar of metronome before recording:", this._metronomeCountIn),
 			p(
@@ -93,11 +115,16 @@ export class RecordingSetupPrompt extends BasePrompt {
 				" to hum notes into a microphone while wearing headphones!)",
 			),
 			checkboxRow("Enable MIDI performance:", this._enableMidi, { marginTop: "0.5em" }),
-			p("The range of pitches available to play via your computer keyboard is affected by the octave scrollbar of the currently selected channel."),
+			p(
+				"The range of pitches available to play via your computer keyboard is affected by the octave scrollbar of the currently selected channel.",
+			),
 			p(
 				"If you set the channel offset below to 'before' or 'after', notes below the middle octave in the view will be 'bass' notes, and placed in the channel before or after the viewed one. Using this, you can play bass and lead at the same time!",
 			),
-			selectRow("Bass Offset:", this._bassOffset, { marginTop: "0.5em", marginBottom: "0.5em" }),
+			selectRow("Bass Offset:", this._bassOffset, {
+				marginTop: "0.5em",
+				marginBottom: "0.5em",
+			}),
 			p(
 				"Once you enable the setting, the keyboard layout above will darken to denote the new bass notes. The notes will be recorded with independent timing and this works with MIDI devices, too. Be aware that the octave offset of both used channels will impact how high/low the bass/lead are relative to one another.",
 			),
@@ -115,13 +142,16 @@ export class RecordingSetupPrompt extends BasePrompt {
 	constructor(doc: SongDocument) {
 		super(doc);
 		this.buildTitlebar();
-		this._keyboardMode.value = this._doc.prefs.pressControlForShortcuts ? "pressControlForShortcuts" : "useCapsLockForNotes";
+		this._keyboardMode.value = this._doc.prefs.pressControlForShortcuts
+			? "pressControlForShortcuts"
+			: "useCapsLockForNotes";
 		this._keyboardLayout.value = this._doc.prefs.keyboardLayout;
 		this._bassOffset.value = String(this._doc.prefs.bassOffset);
 		this._enableMidi.checked = this._doc.prefs.enableMidi;
 		this._showRecordButton.checked = this._doc.prefs.showRecordButton;
 		this._snapRecordedNotesToRhythm.checked = this._doc.prefs.snapRecordedNotesToRhythm;
-		this._ignorePerformedNotesNotInScale.checked = this._doc.prefs.ignorePerformedNotesNotInScale;
+		this._ignorePerformedNotesNotInScale.checked =
+			this._doc.prefs.ignorePerformedNotesNotInScale;
 		this._metronomeCountIn.checked = this._doc.prefs.metronomeCountIn;
 		this._metronomeWhileRecording.checked = this._doc.prefs.metronomeWhileRecording;
 
@@ -139,13 +169,15 @@ export class RecordingSetupPrompt extends BasePrompt {
 	}
 
 	protected override _saveChanges(): void {
-		this._doc.prefs.pressControlForShortcuts = this._keyboardMode.value === "pressControlForShortcuts";
+		this._doc.prefs.pressControlForShortcuts =
+			this._keyboardMode.value === "pressControlForShortcuts";
 		this._doc.prefs.keyboardLayout = this._keyboardLayout.value;
 		this._doc.prefs.bassOffset = Number(this._bassOffset.value);
 		this._doc.prefs.enableMidi = this._enableMidi.checked;
 		this._doc.prefs.showRecordButton = this._showRecordButton.checked;
 		this._doc.prefs.snapRecordedNotesToRhythm = this._snapRecordedNotesToRhythm.checked;
-		this._doc.prefs.ignorePerformedNotesNotInScale = this._ignorePerformedNotesNotInScale.checked;
+		this._doc.prefs.ignorePerformedNotesNotInScale =
+			this._ignorePerformedNotesNotInScale.checked;
 		this._doc.prefs.metronomeCountIn = this._metronomeCountIn.checked;
 		this._doc.prefs.metronomeWhileRecording = this._metronomeWhileRecording.checked;
 		this._doc.prefs.save();
@@ -158,18 +190,27 @@ export class RecordingSetupPrompt extends BasePrompt {
 		}
 		const rowLengths: number[] = [12, 12, 11, 10];
 		const scale: ReadonlyArray<boolean> =
-			this._doc.song.scale === Config.scales.dictionary.Custom.index ? this._doc.song.scaleCustom : Config.scales[this._doc.song.scale].flags;
+			this._doc.song.scale === Config.scales.dictionary.Custom.index
+				? this._doc.song.scaleCustom
+				: Config.scales[this._doc.song.scale].flags;
 		for (let rowIndex: number = 0; rowIndex < 4; rowIndex++) {
 			const row: HTMLDivElement = div({ style: "display: flex;" });
 			this._keyboardLayoutPreview.appendChild(row);
-			const spacer: HTMLDivElement = div({ style: `width: ${rowIndex * 12}px; height: 20px; flex-shrink: 0;` });
+			const spacer: HTMLDivElement = div({
+				style: `width: ${rowIndex * 12}px; height: 20px; flex-shrink: 0;`,
+			});
 			row.appendChild(spacer);
 			for (let colIndex: number = 0; colIndex < rowLengths[rowIndex]; colIndex++) {
 				const key: HTMLDivElement = div({
 					style: `width: 20px; height: 20px; margin: 0 2px; box-sizing: border-box; flex-shrink: 0; display: flex; justify-content: center; align-items: center;`,
 				});
 				row.appendChild(key);
-				const pitch: number | null = KeyboardLayout.keyPosToPitch(this._doc, colIndex, 3 - rowIndex, this._keyboardLayout.value);
+				const pitch: number | null = KeyboardLayout.keyPosToPitch(
+					this._doc,
+					colIndex,
+					3 - rowIndex,
+					this._keyboardLayout.value,
+				);
 				if (pitch != null) {
 					const scalePitch: number = pitch % 12;
 					if (scale[scalePitch]) {
@@ -184,14 +225,23 @@ export class RecordingSetupPrompt extends BasePrompt {
 						key.style.border = `2px solid ${ColorConfig.pitchBackground}`;
 					}
 
-					if (this._bassOffset.selectedIndex !== 0 && pitch <= Piano.getBassCutoffPitch(this._doc)) {
+					if (
+						this._bassOffset.selectedIndex !== 0 &&
+						pitch <= Piano.getBassCutoffPitch(this._doc)
+					) {
 						key.style.setProperty("filter", "hue-rotate(60deg) brightness(0.5)");
 					} else {
 						key.style.setProperty("filter", "");
 					}
 
-					const pitchNameIndex: number = (scalePitch + Config.keys[this._doc.song.key].basePitch) % Config.pitchesPerOctave;
-					key.textContent = Piano.getPitchName(pitchNameIndex, scalePitch, Math.floor(pitch / 12));
+					const pitchNameIndex: number =
+						(scalePitch + Config.keys[this._doc.song.key].basePitch) %
+						Config.pitchesPerOctave;
+					key.textContent = Piano.getPitchName(
+						pitchNameIndex,
+						scalePitch,
+						Math.floor(pitch / 12),
+					);
 				}
 			}
 		}

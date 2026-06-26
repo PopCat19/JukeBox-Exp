@@ -12,7 +12,12 @@ import { AUDIO_WORKLET_PROCESSOR_CODE } from "./audio-worklet-processor";
 
 /** Interface for the host object that owns the audio backend. */
 export interface AudioBackendHost {
-	synthesize(outputDataL: Float32Array, outputDataR: Float32Array, outputBufferLength: number, playSong: boolean): void;
+	synthesize(
+		outputDataL: Float32Array,
+		outputDataR: Float32Array,
+		outputBufferLength: number,
+		playSong: boolean,
+	): void;
 	/** Live-read — always returns the caller's current value. */
 	isPlayingSong(): boolean;
 	/** Live-read — always returns the caller's current value. */
@@ -85,20 +90,39 @@ export class AudioBackend {
 
 	private async _doActivate(host: AudioBackendHost): Promise<void> {
 		const bufferSize: number = host.anticipatePoorPerformance
-			? host.preferLowerLatency ? 2048 : 4096
-			: host.preferLowerLatency ? 512 : 2048;
-		if (this.audioCtx != null && this._workletNode != null && this._currentBufferSize === bufferSize) {
+			? host.preferLowerLatency
+				? 2048
+				: 4096
+			: host.preferLowerLatency
+				? 512
+				: 2048;
+		if (
+			this.audioCtx != null &&
+			this._workletNode != null &&
+			this._currentBufferSize === bufferSize
+		) {
 			this._activateAudioPromise = null;
 			return;
 		}
-		this._dbg("_doActivate, bufferSize:", bufferSize, "currentBufferSize:", this._currentBufferSize);
+		this._dbg(
+			"_doActivate, bufferSize:",
+			bufferSize,
+			"currentBufferSize:",
+			this._currentBufferSize,
+		);
 		try {
 			if (this._workletNode != null) this.deactivate();
 			const latencyHint: string = host.anticipatePoorPerformance
-				? host.preferLowerLatency ? "balanced" : "playback"
-				: host.preferLowerLatency ? "interactive" : "balanced";
+				? host.preferLowerLatency
+					? "balanced"
+					: "playback"
+				: host.preferLowerLatency
+					? "interactive"
+					: "balanced";
 			this._dbg("Creating AudioContext, latencyHint:", latencyHint);
-			this.audioCtx = this.audioCtx || new (window.AudioContext || window.webkitAudioContext)({ latencyHint });
+			this.audioCtx =
+				this.audioCtx ||
+				new (window.AudioContext || window.webkitAudioContext)({ latencyHint });
 			const ctx = this.audioCtx!;
 			this._dbg("AudioContext sampleRate:", ctx.sampleRate);
 
@@ -117,7 +141,9 @@ export class AudioBackend {
 			}
 
 			if (this._workletModuleUrl == null) {
-				const blob = new Blob([AUDIO_WORKLET_PROCESSOR_CODE], { type: "application/javascript" });
+				const blob = new Blob([AUDIO_WORKLET_PROCESSOR_CODE], {
+					type: "application/javascript",
+				});
 				this._workletModuleUrl = URL.createObjectURL(blob);
 				this._dbg("Created worklet module blob URL");
 			}
@@ -167,7 +193,12 @@ export class AudioBackend {
 	}
 
 	public deactivate(): void {
-		this._dbg("deactivate called, audioCtx:", !!this.audioCtx, "workletNode:", !!this._workletNode);
+		this._dbg(
+			"deactivate called, audioCtx:",
+			!!this.audioCtx,
+			"workletNode:",
+			!!this._workletNode,
+		);
 		if (this._workletNode != null && this.audioCtx != null) {
 			this._dbg("Disconnecting worklet node...");
 			this._workletNode.port.postMessage({ type: "stop" });
@@ -203,8 +234,12 @@ export class AudioBackend {
 		const isPlayingSong: boolean = host.isPlayingSong();
 		if (this._logNeedDataCount <= 5 || this._logNeedDataCount % 100 === 0) {
 			this._dbg(
-				`need-data #${this._logNeedDataCount}, isPlayingSong:`, isPlayingSong,
-				"liveInputEndTime:", host.liveInputEndTime(), "now:", performance.now(),
+				`need-data #${this._logNeedDataCount}, isPlayingSong:`,
+				isPlayingSong,
+				"liveInputEndTime:",
+				host.liveInputEndTime(),
+				"now:",
+				performance.now(),
 			);
 		}
 
@@ -227,7 +262,10 @@ export class AudioBackend {
 		}
 
 		if (this._workletNode != null) {
-			this._workletNode.port.postMessage({ type: "audio", left, right }, [left.buffer, right.buffer] as any);
+			this._workletNode.port.postMessage({ type: "audio", left, right }, [
+				left.buffer,
+				right.buffer,
+			] as any);
 		} else {
 			this._dbgWarn("Worklet node is null after synthesize, audio data lost");
 		}
@@ -242,7 +280,10 @@ export class AudioBackend {
 			const right = new Float32Array(this._currentBufferSize);
 			host.synthesize(left, right, this._currentBufferSize, isPlayingSong);
 			if (this._workletNode != null) {
-				this._workletNode.port.postMessage({ type: "audio", left, right }, [left.buffer, right.buffer] as any);
+				this._workletNode.port.postMessage({ type: "audio", left, right }, [
+					left.buffer,
+					right.buffer,
+				] as any);
 			}
 		}
 		this._workletPrimed = true;

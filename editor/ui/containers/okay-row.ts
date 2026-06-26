@@ -6,8 +6,8 @@
 // - Creates a flex row for dialog action buttons
 // - Right-aligned with space for additional controls
 
-import { s, flex, Margin } from "../style";
 import { createDiv } from "../base/container";
+import { flex, Margin, s } from "../style";
 
 export function okayRow(okayButton: HTMLButtonElement, ...extra: HTMLElement[]): HTMLDivElement {
 	return createDiv(

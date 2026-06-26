@@ -76,8 +76,18 @@ const prefSchema: PrefEntry[] = [
 	{ key: "visibleOctaves", default: 4, parse: (raw) => Number(raw) >>> 0 || 4 },
 	{ key: "bassOffset", default: 0, parse: (raw) => +raw || 0 },
 	// --- Debug (stored as "1"/"0", not "true"/"false") ---
-	{ key: "debugPrompts", default: false, parse: (raw) => raw === "1", serialize: (v) => v ? "1" : "0" },
-	{ key: "debugSynth", default: false, parse: (raw) => raw === "1", serialize: (v) => v ? "1" : "0" },
+	{
+		key: "debugPrompts",
+		default: false,
+		parse: (raw) => raw === "1",
+		serialize: (v) => (v ? "1" : "0"),
+	},
+	{
+		key: "debugSynth",
+		default: false,
+		parse: (raw) => raw === "1",
+		serialize: (v) => (v ? "1" : "0"),
+	},
 ];
 
 function parsePref(entry: PrefEntry, raw: string | null): any {
@@ -162,7 +172,8 @@ export class Preferences {
 		}
 
 		// Scale: stored as name, not index
-		const defaultScale: Scale | undefined = Config.scales.dictionary[window.localStorage.getItem("defaultScale")!];
+		const defaultScale: Scale | undefined =
+			Config.scales.dictionary[window.localStorage.getItem("defaultScale")!];
 		this.defaultScale = defaultScale !== undefined ? defaultScale.index : 0;
 
 		// fullScreen migration

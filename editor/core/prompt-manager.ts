@@ -242,7 +242,11 @@ export class PromptManager {
 
 	public close(prompt: Prompt | null): void {
 		const targetName = prompt?.name ?? this._focusedPrompt?.name ?? null;
-		log.log("close", { arg: prompt?.name ?? null, willClose: targetName, stack: this._prompts.map((p) => p.name) });
+		log.log("close", {
+			arg: prompt?.name ?? null,
+			willClose: targetName,
+			stack: this._prompts.map((p) => p.name),
+		});
 		if (prompt == null) {
 			prompt = this._focusedPrompt || this._prompts[this._prompts.length - 1];
 		}
@@ -252,7 +256,10 @@ export class PromptManager {
 				this._prompts.splice(index, 1);
 				this._dock.remove(prompt);
 				this._popout.closeWindow(prompt);
-				log.log("spliced", prompt.name, { stack: this._prompts.map((p) => p.name), remaining: this._prompts.length });
+				log.log("spliced", prompt.name, {
+					stack: this._prompts.map((p) => p.name),
+					remaining: this._prompts.length,
+				});
 				const target = prompt;
 				const doRemove = (): void => {
 					// Remove from the exiting list so the entry is GC-able.
@@ -343,7 +350,10 @@ export class PromptManager {
 				p.container.style.background = "";
 				p.container.style.opacity = "";
 			} else if (this._host.doc.prefs.showPromptBackdrop) {
-				p.container.style.setProperty("--prompt-backdrop-filter", "blur(14px) brightness(0.9)");
+				p.container.style.setProperty(
+					"--prompt-backdrop-filter",
+					"blur(14px) brightness(0.9)",
+				);
 				p.container.style.background = "rgba(0, 0, 0, 0.4)";
 			} else {
 				p.container.style.removeProperty("--prompt-backdrop-filter");
@@ -353,14 +363,22 @@ export class PromptManager {
 			}
 			if (p === this._focusedPrompt) {
 				p.container.classList.add("focused");
-				if (!docked && !popped && this._host.promptContainer.lastElementChild !== p.container) {
+				if (
+					!docked &&
+					!popped &&
+					this._host.promptContainer.lastElementChild !== p.container
+				) {
 					this._host.promptContainer.appendChild(p.container);
 				}
 			} else {
 				p.container.classList.remove("focused");
 			}
 		}
-		if (wasInPrompt && activeEl instanceof HTMLElement && !this._host.promptContainer.contains(document.activeElement)) {
+		if (
+			wasInPrompt &&
+			activeEl instanceof HTMLElement &&
+			!this._host.promptContainer.contains(document.activeElement)
+		) {
 			activeEl.focus({ preventScroll: true });
 		}
 	}
@@ -372,7 +390,9 @@ export class PromptManager {
 		}
 		const existing = this._prompts.find((p) => p.name === promptName);
 		if (existing) {
-			log.log("_setPrompt: existing found, refocusing", promptName, { stack: this._prompts.map((p) => p.name) });
+			log.log("_setPrompt: existing found, refocusing", promptName, {
+				stack: this._prompts.map((p) => p.name),
+			});
 			this._focusedPrompt = existing;
 			this._updatePromptFocus();
 			// Flash 88x outline only on user-initiated reopens of an
@@ -483,7 +503,12 @@ export class PromptManager {
 				newPrompt = new PalettePrompt(doc);
 				break;
 			case "customThemeRaw":
-				newPrompt = new CustomThemePrompt(doc, refs.patternEditor, refs.trackArea, document.getElementById("beepboxEditorContainer")!);
+				newPrompt = new CustomThemePrompt(
+					doc,
+					refs.patternEditor,
+					refs.trackArea,
+					document.getElementById("beepboxEditorContainer")!,
+				);
 				break;
 			case "visualLoopControls":
 				newPrompt = new VisualLoopControlsPrompt(doc, refs);
@@ -525,7 +550,10 @@ export class PromptManager {
 		newPrompt.openCount = 1; // first spawn
 
 		this._prompts.push(newPrompt);
-		log.log("pushed", promptName, { stack: this._prompts.map((p) => p.name), total: this._prompts.length });
+		log.log("pushed", promptName, {
+			stack: this._prompts.map((p) => p.name),
+			total: this._prompts.length,
+		});
 		this._focusedPrompt = newPrompt;
 		this._updatePromptFocus();
 
@@ -618,7 +646,10 @@ export class PromptManager {
 	private _addPopoutButton(prompt: Prompt): void {
 		const titlebar = prompt.container.querySelector(".prompt-titlebar");
 		if (!titlebar || titlebar.querySelector(".popoutButton")) return;
-		const btn = iconButton("popoutButton", { type: "button", title: "Pop out into separate window" });
+		const btn = iconButton("popoutButton", {
+			type: "button",
+			title: "Pop out into separate window",
+		});
 		btn.addEventListener("click", (e: Event) => {
 			e.stopPropagation();
 			if (this._popout.isOpen(prompt)) {
@@ -655,7 +686,11 @@ export class PromptManager {
 		this._promptPositions.set(name, { x, y });
 	}
 
-	private _spawnNearCursor(prompt: Prompt, name: string, info: { clientX: number; clientY: number; elRect: DOMRect }): void {
+	private _spawnNearCursor(
+		prompt: Prompt,
+		name: string,
+		info: { clientX: number; clientY: number; elRect: DOMRect },
+	): void {
 		if (!this._prompts.includes(prompt)) return;
 		if (this._popout.isOpen(prompt)) return;
 		// Use offsetWidth/offsetHeight (forces synchronous layout) instead of
@@ -673,7 +708,10 @@ export class PromptManager {
 		const vh = this._host.mainLayer.clientHeight;
 		const pad = this._editorPadding();
 		const gap = 8;
-		const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini|android|ipad|playbook|silk/i.test(navigator.userAgent);
+		const isMobile =
+			/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini|android|ipad|playbook|silk/i.test(
+				navigator.userAgent,
+			);
 
 		let x: number;
 		let y: number;
@@ -725,11 +763,14 @@ export class PromptManager {
 			while (el && el !== container) {
 				const sty = getComputedStyle(el);
 				const overflowY = sty.overflowY;
-				const canScroll = (overflowY === "auto" || overflowY === "scroll") && el.scrollHeight > el.clientHeight;
+				const canScroll =
+					(overflowY === "auto" || overflowY === "scroll") &&
+					el.scrollHeight > el.clientHeight;
 				if (canScroll) {
 					const delta = e.deltaY;
 					const atTop = delta < 0 && el.scrollTop <= 0;
-					const atBottom = delta > 0 && el.scrollTop + el.clientHeight >= el.scrollHeight - 1;
+					const atBottom =
+						delta > 0 && el.scrollTop + el.clientHeight >= el.scrollHeight - 1;
 					if (atTop || atBottom) e.preventDefault();
 					return;
 				}
@@ -790,8 +831,14 @@ export class PromptManager {
 				const w = this._host.mainLayer.clientWidth;
 				const h = this._host.mainLayer.clientHeight;
 				const pad = this._editorPadding();
-				const x = Math.max(pad.left, Math.min(me.clientX - startX, pad.left + w - rect.width));
-				const y = Math.max(pad.top, Math.min(me.clientY - startY, pad.top + h - rect.height));
+				const x = Math.max(
+					pad.left,
+					Math.min(me.clientX - startX, pad.left + w - rect.width),
+				);
+				const y = Math.max(
+					pad.top,
+					Math.min(me.clientY - startY, pad.top + h - rect.height),
+				);
 				const side = this._dock.getSnapSide(x, rect.width, me.clientX) as DockSide | null;
 				if (side && !suppressSnap) {
 					this._dock.snap(prompt, side);

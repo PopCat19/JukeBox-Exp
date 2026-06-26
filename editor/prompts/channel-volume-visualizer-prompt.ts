@@ -9,7 +9,12 @@ import { Sizing, Typography } from "../ui/style-constants";
 // - Updates in real-time during playback
 
 import { HTML, SVG } from "imperative-html/dist/esm/elements-strict";
-import { getTimelineWidth, invalidateVizWidthCache, renderPlayhead, renderTimeline } from "../../player/player-timeline";
+import {
+	getTimelineWidth,
+	invalidateVizWidthCache,
+	renderPlayhead,
+	renderTimeline,
+} from "../../player/player-timeline";
 import type { PlayerUI } from "../../player/player-ui";
 import { ColorConfig } from "../../shared/color-config";
 import { hexToRgb } from "../../shared/color-utils";
@@ -118,7 +123,9 @@ function ChannelVolumeVisualizerPrompt_initBgBlurKernel(): number[] {
 	return kernel;
 }
 
-function getInstrumentDisplayName(instrument: import("../../synth/instruments").Instrument): string {
+function getInstrumentDisplayName(
+	instrument: import("../../synth/instruments").Instrument,
+): string {
 	// Prefer preset name if instrument has one.
 	const preset = EditorConfig.valueToPreset(instrument.preset);
 	if (preset) return preset.name;
@@ -170,7 +177,8 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 	private readonly _instrumentSpans: Map<string, HTMLSpanElement> = new Map();
 	// Per-channel pitch spectrum overlay canvases
 	private readonly _channelSpectrumCanvases: Map<number, HTMLCanvasElement> = new Map();
-	private readonly _channelSpectrumCanvas2ds: Map<number, CanvasRenderingContext2D | null> = new Map();
+	private readonly _channelSpectrumCanvas2ds: Map<number, CanvasRenderingContext2D | null> =
+		new Map();
 	private readonly _spectrumSmooth: Map<number, Float32Array> = new Map();
 	private readonly _bgSpectrumSmooth: Map<number, Float32Array> = new Map();
 	// Reusable FFT scratch buffers (avoid per-frame allocation across channels).
@@ -249,7 +257,9 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 	);
 	// Progress / scrub bar: a pill-shaped track div with a child
 	// fill div whose width (as %) tracks the playhead.
-	private readonly _scrubFill: HTMLDivElement = div({ style: "width: 0; height: 100%; background: var(--cta-bg); border-radius: 6px;" });
+	private readonly _scrubFill: HTMLDivElement = div({
+		style: "width: 0; height: 100%; background: var(--cta-bg); border-radius: 6px;",
+	});
 	private readonly _scrubTrack: HTMLDivElement = div(
 		{
 			style: "width: calc(100% - 24px); height: 12px; display: block; margin: 4px 12px 0px 12px; cursor: pointer; touch-action: none; position: relative; background: var(--secondary-text); border-radius: 6px; overflow: hidden;",
@@ -347,15 +357,25 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 	private readonly _keyLastRender: Map<number, string> = new Map();
 	// Reusable pitch blend accumulator for piano keys, cleared per frame
 	// instead of allocating a new Map every rAF (eliminates GC pressure).
-	private readonly _pitchBlend: Map<number, { r: number; g: number; b: number; w: number; maxPeak: number }> = new Map();
+	private readonly _pitchBlend: Map<
+		number,
+		{ r: number; g: number; b: number; w: number; maxPeak: number }
+	> = new Map();
 	// Object pool for pitch blend entries. Recycles {r,g,b,w,maxPeak}
 	// objects across frames so Map misses hit the pool instead of
 	// allocating fresh objects (eliminates nursery GC pressure). The
 	// pool grows to peak active-pitch count and never shrinks.
-	private readonly _pitchBlendPool: { r: number; g: number; b: number; w: number; maxPeak: number }[] = [];
+	private readonly _pitchBlendPool: {
+		r: number;
+		g: number;
+		b: number;
+		w: number;
+		maxPeak: number;
+	}[] = [];
 	// Per-channel pre-parsed RGB values cached from hex, avoiding
 	// hex.slice() + parseInt() allocations every frame per active instrument.
-	private readonly _cachedChannelRGB: Map<number, { r: number; g: number; b: number }> = new Map();
+	private readonly _cachedChannelRGB: Map<number, { r: number; g: number; b: number }> =
+		new Map();
 	// Last rendered style signature per instrument key, so style writes
 	// only fire when the value actually changes (avoid forced style recalc).
 	private readonly _cachedInstrStyle: Map<string, string> = new Map();
@@ -379,7 +399,9 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 	// standalone player. renderTimeline is called only on song change or
 	// resize (procedural); renderPlayhead runs per frame to follow the
 	// playhead, keeping rAF cost low.
-	private readonly _playerTimelineSvg: SVGSVGElement = svg({ style: "min-width: 0; min-height: 0; touch-action: pan-y pinch-zoom;" });
+	private readonly _playerTimelineSvg: SVGSVGElement = svg({
+		style: "min-width: 0; min-height: 0; touch-action: pan-y pinch-zoom;",
+	});
 	private readonly _playerPlayhead: HTMLDivElement = div({
 		style: `position: absolute; left: 0; top: 0; width: 2px; height: 100%; background: ${ColorConfig.playhead}; pointer-events: none;`,
 	});
@@ -389,15 +411,21 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 		this._playerPlayhead,
 	);
 	private readonly _playerVizContainer: HTMLDivElement = div(
-		{ style: "display: flex; flex-grow: 1; flex-shrink: 1; height: 100%; position: relative; align-items: center; overflow: hidden;" },
+		{
+			style: "display: flex; flex-grow: 1; flex-shrink: 1; height: 100%; position: relative; align-items: center; overflow: hidden;",
+		},
 		this._playerTimelineContainer,
 	);
 	private readonly _playerOverlay: HTMLDivElement = div(
-		{ style: "position: absolute; inset: 0; z-index: 2; opacity: 0.16; pointer-events: none; display: none;" },
+		{
+			style: "position: absolute; inset: 0; z-index: 2; opacity: 0.16; pointer-events: none; display: none;",
+		},
 		this._playerVizContainer,
 	);
 	private readonly _channelsWrapper: HTMLDivElement = div(
-		{ style: "position: relative; flex: 1 1 auto; display: flex; min-height: 0; overflow: hidden;" },
+		{
+			style: "position: relative; flex: 1 1 auto; display: flex; min-height: 0; overflow: hidden;",
+		},
 		this._playerOverlay,
 		this._channelsPane,
 	);
@@ -440,7 +468,10 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 			style: "width: 720px; height: auto; max-height: 80vh; display: flex; flex-direction: column;",
 			tabindex: "0",
 		},
-		h2({ style: "margin: 12px 12px 0px 12px; text-align: center;" }, "Channel Volume Visualizer"),
+		h2(
+			{ style: "margin: 12px 12px 0px 12px; text-align: center;" },
+			"Channel Volume Visualizer",
+		),
 		// Top bar — play/pause, volume meter, stats
 		div(
 			{
@@ -451,7 +482,12 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 			this._loopButton,
 			this._barPosLabel,
 			this._tempoLabel,
-			span({ style: `display: inline-flex; gap: 10px; flex-wrap: nowrap;` }, this._masterDbPeakLabel, this._masterDbAvgLabel, this._masterDbMinMaxLabel),
+			span(
+				{ style: `display: inline-flex; gap: 10px; flex-wrap: nowrap;` },
+				this._masterDbPeakLabel,
+				this._masterDbAvgLabel,
+				this._masterDbMinMaxLabel,
+			),
 		),
 		// Progress / scrub bar
 		this._scrubTrack,
@@ -521,7 +557,8 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 				// deferred ChangeSong runs on the visible popup rAF, not the
 				// backgrounded main editor rAF (which is throttled and would
 				// defer the load until the editor regains visibility).
-				const rafWin: Window = (this.container.ownerDocument.defaultView as Window | null) ?? window;
+				const rafWin: Window =
+					(this.container.ownerDocument.defaultView as Window | null) ?? window;
 				this._songEditor.handleImportFile(file, rafWin);
 			}
 		};
@@ -534,7 +571,10 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 		this._dockClassObserver = new MutationObserver(() => {
 			this._applyChannelsPaneScroll(this._channelDivs.size);
 		});
-		this._dockClassObserver.observe(this.container, { attributes: true, attributeFilter: ["class"] });
+		this._dockClassObserver.observe(this.container, {
+			attributes: true,
+			attributeFilter: ["class"],
+		});
 	}
 
 	private _onThemeChange!: (name: string) => void;
@@ -606,9 +646,14 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 		const bar = Math.floor(this._doc.synth.playhead) + 1;
 		const total = this._doc.song.barCount;
 		const generation = this._doc.notifier.generation;
-		if (this._cachedDuration < 0 || this._doc.song.barCount !== this._cachedBarCount || generation !== this._cachedGeneration) {
+		if (
+			this._cachedDuration < 0 ||
+			this._doc.song.barCount !== this._cachedBarCount ||
+			generation !== this._cachedGeneration
+		) {
 			const totalSamples = this._doc.synth.getTotalSamples(true, true, 0);
-			this._cachedDuration = totalSamples > 0 ? totalSamples / this._doc.synth.samplesPerSecond : 0;
+			this._cachedDuration =
+				totalSamples > 0 ? totalSamples / this._doc.synth.samplesPerSecond : 0;
 			this._cachedBarCount = this._doc.song.barCount;
 			this._cachedGeneration = generation;
 		}
@@ -760,7 +805,13 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 		// Rect with rounded bottom-left + bottom-right corners, sharp top.
 		// x/y is top-left; w/h the size; r the bottom radius (clamped to
 		// half width/height so it never inverts).
-		const roundedBottomKey = (x: number, y: number, w: number, h: number, r: number): string => {
+		const roundedBottomKey = (
+			x: number,
+			y: number,
+			w: number,
+			h: number,
+			r: number,
+		): string => {
 			const rr = Math.min(r, w / 2, h / 2);
 			const x1 = x + w;
 			const y1 = y + h;
@@ -775,7 +826,12 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 		this._blackKeyRects.clear();
 		this._keyLastRender.clear();
 
-		const buildRow = (svgEl: SVGSVGElement, startOctave: number, endOctave: number, viewBaseOctave: number): void => {
+		const buildRow = (
+			svgEl: SVGSVGElement,
+			startOctave: number,
+			endOctave: number,
+			viewBaseOctave: number,
+		): void => {
 			for (let oct = startOctave; oct <= endOctave; oct++) {
 				const octX = (oct - viewBaseOctave) * 7;
 				// White keys
@@ -794,7 +850,13 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 					const note = parseInt(noteStr, 10);
 					const pitch = (oct + 1) * 12 + note;
 					const r = path({
-						d: roundedBottomKey(octX + BLACK_X[note], 0, BLACK_KEY_W, BLACK_KEY_H, BLACK_R),
+						d: roundedBottomKey(
+							octX + BLACK_X[note],
+							0,
+							BLACK_KEY_W,
+							BLACK_KEY_H,
+							BLACK_R,
+						),
 						fill: "var(--base02-surface)",
 						opacity: "1",
 					});
@@ -913,12 +975,26 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 				// SVG rebuild per bar of playback (the 100-300ms spikes).
 				const renderedStart = this._playerRenderedStart;
 				const renderedEnd = this._playerRenderedEnd;
-				const exitedWindow = renderedStart < 0 || visStart < renderedStart || visEnd > renderedEnd;
+				const exitedWindow =
+					renderedStart < 0 || visStart < renderedStart || visEnd > renderedEnd;
 				if ((this._playerTimelineDirty || exitedWindow) && tlW > 0) {
-					const desStart = Math.max(0, visStart - ChannelVolumeVisualizerPrompt.PLAYER_OVERSCAN);
-					const desEnd = Math.min(barCount, visEnd + ChannelVolumeVisualizerPrompt.PLAYER_OVERSCAN);
+					const desStart = Math.max(
+						0,
+						visStart - ChannelVolumeVisualizerPrompt.PLAYER_OVERSCAN,
+					);
+					const desEnd = Math.min(
+						barCount,
+						visEnd + ChannelVolumeVisualizerPrompt.PLAYER_OVERSCAN,
+					);
 					const ui = this._playerUI();
-					renderTimeline(ui, true, ChannelVolumeVisualizerPrompt._removeAt, desStart, desEnd, true);
+					renderTimeline(
+						ui,
+						true,
+						ChannelVolumeVisualizerPrompt._removeAt,
+						desStart,
+						desEnd,
+						true,
+					);
 					this._playerTimelineDirty = false;
 					this._playerLastW = vw;
 					this._playerLastH = vh;
@@ -926,7 +1002,11 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 					this._playerRenderedEnd = desEnd;
 				}
 				// Throttle the playhead follow to every 2nd frame (30fps).
-				if (!this._playerTimelineDirty && this._playerRenderedStart >= 0 && this._playerFrameToggle) {
+				if (
+					!this._playerTimelineDirty &&
+					this._playerRenderedStart >= 0 &&
+					this._playerFrameToggle
+				) {
 					renderPlayhead(this._playerUI(), ChannelVolumeVisualizerPrompt._removeAt);
 				}
 			}
@@ -935,7 +1015,10 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 
 		// Show song title in the prompt titlebar when popped out.
 		const h2 = this.container.querySelector<HTMLHeadingElement>(".prompt-titlebar h2");
-		if (h2) h2.textContent = isPopout ? this._doc.song.title || "Untitled" : "Channel Volume Visualizer";
+		if (h2)
+			h2.textContent = isPopout
+				? this._doc.song.title || "Untitled"
+				: "Channel Volume Visualizer";
 
 		// Update play/pause button state
 		this._updatePlayPauseButton();
@@ -944,7 +1027,8 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 		// Update scrub bar: progress fill width as percentage of track.
 		{
 			const barCount = this._doc.song.barCount;
-			const frac = barCount > 0 ? Math.max(0, Math.min(1, this._doc.synth.playhead / barCount)) : 0;
+			const frac =
+				barCount > 0 ? Math.max(0, Math.min(1, this._doc.synth.playhead / barCount)) : 0;
 			this._scrubFill.style.width = `${frac * 100}%`;
 		}
 
@@ -974,8 +1058,11 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 		}
 
 		// Update master dB labels (dBFS peak: full-scale = 0 dB)
-		const masterPeakDb = this._historicVolumeCap > 0 ? 20 * Math.log10(this._historicVolumeCap) : -Infinity;
-		this._masterDbPeakLabel.textContent = Number.isFinite(masterPeakDb) ? `Peak: ${masterPeakDb.toFixed(1)} dB` : "Peak: -inf dB";
+		const masterPeakDb =
+			this._historicVolumeCap > 0 ? 20 * Math.log10(this._historicVolumeCap) : -Infinity;
+		this._masterDbPeakLabel.textContent = Number.isFinite(masterPeakDb)
+			? `Peak: ${masterPeakDb.toFixed(1)} dB`
+			: "Peak: -inf dB";
 
 		// Update average, min, max
 		if (masterLevel > 0) {
@@ -991,10 +1078,16 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 		if (this._masterSampleCount > 0) {
 			const avg = this._masterVolumeSum / this._masterSampleCount;
 			const avgDb = avg > 0 ? 20 * Math.log10(avg) : -Infinity;
-			this._masterDbAvgLabel.textContent = Number.isFinite(avgDb) ? `Avg: ${avgDb.toFixed(1)} dB` : "Avg: -inf dB";
+			this._masterDbAvgLabel.textContent = Number.isFinite(avgDb)
+				? `Avg: ${avgDb.toFixed(1)} dB`
+				: "Avg: -inf dB";
 
-			const minDb = Number.isFinite(this._masterMinDb) ? this._masterMinDb.toFixed(1) : "-inf";
-			const maxDb = Number.isFinite(this._masterMaxDb) ? this._masterMaxDb.toFixed(1) : "-inf";
+			const minDb = Number.isFinite(this._masterMinDb)
+				? this._masterMinDb.toFixed(1)
+				: "-inf";
+			const maxDb = Number.isFinite(this._masterMaxDb)
+				? this._masterMaxDb.toFixed(1)
+				: "-inf";
 			this._masterDbMinMaxLabel.textContent = `${minDb}/${maxDb} dB`;
 		}
 
@@ -1066,7 +1159,10 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 			if (dbLabel) {
 				const peakDb = historic.cap > 0 ? 20 * Math.log10(historic.cap) : -Infinity;
 				const sampleCount = this._channelSampleCounts.get(channelIndex) ?? 0;
-				const avg = sampleCount > 0 ? (this._channelVolumeSums.get(channelIndex) ?? 0) / sampleCount : -Infinity;
+				const avg =
+					sampleCount > 0
+						? (this._channelVolumeSums.get(channelIndex) ?? 0) / sampleCount
+						: -Infinity;
 				const avgDb = avg > 0 ? 20 * Math.log10(avg) : -Infinity;
 				const minDb = this._channelMinDb.get(channelIndex) ?? Infinity;
 				const maxDb = this._channelMaxDb.get(channelIndex) ?? -Infinity;
@@ -1085,7 +1181,10 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 			// distributes work evenly. Metering above reads the cached peak
 			// (at most 1 frame stale on FFT frames, imperceptible).
 			if (!this._spectrumFrameToggle) {
-				this._channelPeak.set(channelIndex, this._computeChannelPeak(channelState, this._smoothedMasterScale));
+				this._channelPeak.set(
+					channelIndex,
+					this._computeChannelPeak(channelState, this._smoothedMasterScale),
+				);
 				continue;
 			}
 
@@ -1264,9 +1363,35 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 						const ms = this._smoothedMasterScale;
 
 						// BG layer (low frequencies) drawn first
-						drawSpectrumBars(spectrumCtx, col, h, barOuter, barW, radius, gap, BG_BANDS, bgSmooth, FG_REF, 0.24, ms);
+						drawSpectrumBars(
+							spectrumCtx,
+							col,
+							h,
+							barOuter,
+							barW,
+							radius,
+							gap,
+							BG_BANDS,
+							bgSmooth,
+							FG_REF,
+							0.24,
+							ms,
+						);
 						// FG layer (mid-high frequencies) drawn on top
-						drawSpectrumBars(spectrumCtx, col, h, barOuter, barW, radius, gap, FG_BANDS, smooth, FG_REF, 0.48, ms);
+						drawSpectrumBars(
+							spectrumCtx,
+							col,
+							h,
+							barOuter,
+							barW,
+							radius,
+							gap,
+							FG_BANDS,
+							smooth,
+							FG_REF,
+							0.48,
+							ms,
+						);
 					}
 				}
 			}
@@ -1298,7 +1423,11 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 				const v = chanPeak * 3.16;
 				const peakScaled = (2 * v) / (v + 1.0);
 				const volBrightness = 0.3 + Math.min(1, peakScaled) * 0.7;
-				const rgb = this._cachedChannelRGB.get(channelIndex) ?? { r: 0x88, g: 0x88, b: 0x88 };
+				const rgb = this._cachedChannelRGB.get(channelIndex) ?? {
+					r: 0x88,
+					g: 0x88,
+					b: 0x88,
+				};
 				const t = Math.min(1, Math.max(0, (volBrightness - 0.3) / 0.7));
 				const br = Math.round(rgb.r + (255 - rgb.r) * t);
 				const bg = Math.round(rgb.g + (255 - rgb.g) * t);
@@ -1306,7 +1435,8 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 				const activeBg = `rgb(${br},${bg},${bb})`;
 				const activeColor = t > 0.5 ? "black" : "var(--editor-background)";
 				const activeOpacity = String(volBrightness);
-				const spectrumColor = this._channelSpectrumColors.get(channelIndex) ?? "var(--primary-text)";
+				const spectrumColor =
+					this._channelSpectrumColors.get(channelIndex) ?? "var(--primary-text)";
 				const inactiveBg = "var(--ui-widget-background)";
 				const inactiveOpacity = "0.5";
 				// Pre-compute sig strings for this channel so the
@@ -1322,7 +1452,10 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 					const instrState = channelState.instruments[j];
 					if (!instrState || !instrSpan) continue;
 
-					const isPlaying = (instrState.activeTones.count() > 0 || instrState.liveInputTones.count() > 0) && chanPeak > 0.001;
+					const isPlaying =
+						(instrState.activeTones.count() > 0 ||
+							instrState.liveInputTones.count() > 0) &&
+						chanPeak > 0.001;
 					if (isPlaying) {
 						this._instrActiveDecay.set(key, 4);
 					}
@@ -1387,7 +1520,13 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 						let b = pitchBlend.get(p);
 						if (!b) {
 							// Reuse from pool if available, else allocate once.
-							b = this._pitchBlendPool.pop() ?? { r: 0, g: 0, b: 0, w: 0, maxPeak: 0 };
+							b = this._pitchBlendPool.pop() ?? {
+								r: 0,
+								g: 0,
+								b: 0,
+								w: 0,
+								maxPeak: 0,
+							};
 							b.r = 0;
 							b.g = 0;
 							b.b = 0;
@@ -1618,7 +1757,9 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 				);
 			}
 
-			const contentWrap = div({ style: "display: flex; flex-direction: column; flex: 1; min-height: 0; position: relative; z-index: 1;" });
+			const contentWrap = div({
+				style: "display: flex; flex-direction: column; flex: 1; min-height: 0; position: relative; z-index: 1;",
+			});
 			channelDiv.appendChild(contentWrap);
 			contentWrap.appendChild(headerDiv);
 			contentWrap.appendChild(volBarContainer);
@@ -1628,7 +1769,8 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 			const spectrumCanvas = document.createElement("canvas");
 			spectrumCanvas.width = 128;
 			spectrumCanvas.height = 16;
-			spectrumCanvas.style.cssText = "position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; border-radius: inherit;";
+			spectrumCanvas.style.cssText =
+				"position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; border-radius: inherit;";
 			channelDiv.insertBefore(spectrumCanvas, contentWrap);
 			this._channelSpectrumCanvases.set(i, spectrumCanvas);
 			this._channelSpectrumCanvas2ds.set(i, spectrumCanvas.getContext("2d"));
@@ -1658,7 +1800,10 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 				for (let j = 0; j < channel.instruments.length; j++) {
 					const inPattern = patternInstruments.includes(j);
 					const instrState = channelState ? channelState.instruments[j] : null;
-					const isPlaying = instrState ? instrState.activeTones.count() > 0 || instrState.liveInputTones.count() > 0 : false;
+					const isPlaying = instrState
+						? instrState.activeTones.count() > 0 ||
+							instrState.liveInputTones.count() > 0
+						: false;
 					const instrument = channel.instruments[j];
 					const typeName = instrument ? getInstrumentDisplayName(instrument) : "?";
 					const total = typeCounts.get(typeName) || 1;
@@ -1668,7 +1813,11 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 					const instrSpan = span(
 						{
 							style: `font-size: 10px; font-weight: 600; padding: 1px 4px; border-radius: var(--border-radius-medium); max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; background: ${
-								isPlaying ? "white" : inPattern ? channelColors.primaryChannel : "var(--ui-widget-background)"
+								isPlaying
+									? "white"
+									: inPattern
+										? channelColors.primaryChannel
+										: "var(--ui-widget-background)"
 							}; color: ${isPlaying ? "black" : inPattern ? "var(--editor-background)" : channelColors.primaryChannel}; opacity: ${
 								inPattern || isPlaying ? "1" : "0.5"
 							};`,
@@ -1712,7 +1861,9 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 			this._channelsPane.style.display = "flex";
 			this._channelsPane.style.flex = "1";
 			this._channelsPane.style.overflowY = "auto";
-			this._channelsPane.style.maxHeight = this.container.classList.contains("docked") ? "" : "600px";
+			this._channelsPane.style.maxHeight = this.container.classList.contains("docked")
+				? ""
+				: "600px";
 			this._channelsPane.style.minHeight = "";
 			this._channelsPane.style.height = "";
 		} else {

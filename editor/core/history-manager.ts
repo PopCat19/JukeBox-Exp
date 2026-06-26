@@ -63,7 +63,9 @@ export class BrowserHistoryManager implements HistoryManager {
 		if (this._displayBrowserUrl()) {
 			return window.history.state;
 		}
-		const json: any = JSON.parse(window.sessionStorage.getItem(window.sessionStorage.getItem("currentUndoIndex")!)!);
+		const json: any = JSON.parse(
+			window.sessionStorage.getItem(window.sessionStorage.getItem("currentUndoIndex")!)!,
+		);
 		return json == null ? null : json.state;
 	}
 
@@ -71,7 +73,9 @@ export class BrowserHistoryManager implements HistoryManager {
 		if (this._displayBrowserUrl()) {
 			return window.location.hash;
 		}
-		const json: any = JSON.parse(window.sessionStorage.getItem(window.sessionStorage.getItem("currentUndoIndex")!)!);
+		const json: any = JSON.parse(
+			window.sessionStorage.getItem(window.sessionStorage.getItem("currentUndoIndex")!)!,
+		);
 		return json == null ? "" : json.hash;
 	}
 
@@ -79,7 +83,10 @@ export class BrowserHistoryManager implements HistoryManager {
 		if (this._displayBrowserUrl()) {
 			window.history.replaceState(state, "", `#${hash}`);
 		} else {
-			window.sessionStorage.setItem(window.sessionStorage.getItem("currentUndoIndex") || "0", JSON.stringify({ state, hash }));
+			window.sessionStorage.setItem(
+				window.sessionStorage.getItem("currentUndoIndex") || "0",
+				JSON.stringify({ state, hash }),
+			);
 			window.history.replaceState(null, "", location.pathname);
 		}
 	}

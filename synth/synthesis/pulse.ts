@@ -6,7 +6,8 @@
 // - Builds pulse width synthesis source strings with PolyBLEP anti-aliasing
 
 export function buildPulseWidthSource(voiceCount: number): string {
-	let pulseSource: string = "return (synth, bufferIndex, roundedSamplesPerTick, tone, instrumentState) => {";
+	let pulseSource: string =
+		"return (synth, bufferIndex, roundedSamplesPerTick, tone, instrumentState) => {";
 
 	pulseSource += `
         const data = synth.tempMonoInstrumentSampleBuffer;

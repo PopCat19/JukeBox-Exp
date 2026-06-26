@@ -384,7 +384,10 @@ export function applyInstrumentVisibility(
 		showRow(refs.pulseWidthRow, true);
 		refs.pulseWidthSlider.input.title = `${prettyNumber(instrument.pulseWidth)}%`;
 		refs.pulseWidthSlider.updateValue(instrument.pulseWidth);
-		refs.decimalOffsetSlider.input.title = instrument.decimalOffset / 100 <= 0 ? "none" : `-${prettyNumber(instrument.decimalOffset / 100)}%`;
+		refs.decimalOffsetSlider.input.title =
+			instrument.decimalOffset / 100 <= 0
+				? "none"
+				: `-${prettyNumber(instrument.decimalOffset / 100)}%`;
 		refs.decimalOffsetSlider.updateValue(99 - instrument.decimalOffset);
 		showRow(refs.pulseWidthDropdownGroup, dropdownState.openPulseWidthDropdown);
 	}
@@ -399,18 +402,26 @@ export function applyInstrumentVisibility(
 		const opCount = rows.has("fm6") ? Config.operatorCount + 2 : Config.operatorCount;
 		for (let i: number = 0; i < opCount; i++) {
 			showRow(refs.operatorRows[i], true);
-			const isCarrier: boolean = rows.has("fm6") ? i < instrument.customAlgorithm.carrierCount : i < Config.algorithms[instrument.algorithm].carrierCount;
+			const isCarrier: boolean = rows.has("fm6")
+				? i < instrument.customAlgorithm.carrierCount
+				: i < Config.algorithms[instrument.algorithm].carrierCount;
 			refs.operatorRows[i].style.color = isCarrier ? ColorConfig.primaryText : "";
 			setSelectedValue(refs.operatorFrequencySelects[i], instrument.operators[i].frequency);
 			refs.operatorAmplitudeSliders[i].updateValue(instrument.operators[i].amplitude);
 			setSelectedValue(refs.operatorWaveformSelects[i], instrument.operators[i].waveform);
-			refs.operatorWaveformPulsewidthSliders[i].updateValue(instrument.operators[i].pulseWidth);
-			refs.operatorWaveformPulsewidthSliders[i].input.title = `${Config.pwmOperatorWaves[instrument.operators[i].pulseWidth].name}`;
+			refs.operatorWaveformPulsewidthSliders[i].updateValue(
+				instrument.operators[i].pulseWidth,
+			);
+			refs.operatorWaveformPulsewidthSliders[i].input.title =
+				`${Config.pwmOperatorWaves[instrument.operators[i].pulseWidth].name}`;
 			refs.operatorDropdownGroups[i].style.color = isCarrier ? ColorConfig.primaryText : "";
 			const operatorName: string = (isCarrier ? "Voice " : "Modulator ") + (i + 1);
 			refs.operatorFrequencySelects[i].title = `${operatorName} Frequency`;
-			refs.operatorAmplitudeSliders[i].input.title = operatorName + (isCarrier ? " Volume" : " Amplitude");
-			refs.operatorDropdownGroups[i].style.display = dropdownState.openOperatorDropdowns[i] ? "" : "none";
+			refs.operatorAmplitudeSliders[i].input.title =
+				operatorName + (isCarrier ? " Volume" : " Amplitude");
+			refs.operatorDropdownGroups[i].style.display = dropdownState.openOperatorDropdowns[i]
+				? ""
+				: "none";
 			if (instrument.operators[i].waveform === 2) {
 				refs.operatorWaveformPulsewidthSliders[i].container.style.display = "";
 				refs.operatorWaveformHints[i].style.display = "none";
@@ -429,8 +440,12 @@ export function applyInstrumentVisibility(
 			showRow(refs.feedback6OpRow1, true);
 			showRow(refs.operatorRows[4], true);
 			showRow(refs.operatorRows[5], true);
-			refs.operatorDropdownGroups[4].style.display = dropdownState.openOperatorDropdowns[4] ? "" : "none";
-			refs.operatorDropdownGroups[5].style.display = dropdownState.openOperatorDropdowns[5] ? "" : "none";
+			refs.operatorDropdownGroups[4].style.display = dropdownState.openOperatorDropdowns[4]
+				? ""
+				: "none";
+			refs.operatorDropdownGroups[5].style.display = dropdownState.openOperatorDropdowns[5]
+				? ""
+				: "none";
 		} else {
 			showRow(refs.algorithmSelectRow, true);
 			showRow(refs.feedbackRow1, true);
@@ -452,7 +467,8 @@ export function applyInstrumentVisibility(
 
 	if (effectsIncludeChord(instrument.effects)) {
 		refs.chordSelectRow.style.display = "flex";
-		refs.chordDropdown.style.display = instrument.chord === Config.chords.dictionary.arpeggio.index ? "" : "none";
+		refs.chordDropdown.style.display =
+			instrument.chord === Config.chords.dictionary.arpeggio.index ? "" : "none";
 		if (dropdownState.openChordDropdown) {
 			if (instrument.chord === Config.chords.dictionary.arpeggio.index) {
 				refs.chordDropdownGroup.style.display = "";
@@ -675,7 +691,9 @@ export function applyInstrumentVisibility(
 	refs.envelopeEditor.rerenderExtraSettings();
 
 	for (let chordIndex: number = 0; chordIndex < Config.chords.length; chordIndex++) {
-		const hidden: boolean = !Config.instrumentTypeHasSpecialInterval[instrument.type] && Config.chords[chordIndex].customInterval;
+		const hidden: boolean =
+			!Config.instrumentTypeHasSpecialInterval[instrument.type] &&
+			Config.chords[chordIndex].customInterval;
 		const option: Element = refs.chordSelect.children[chordIndex];
 		if (hidden) {
 			if (!option.hasAttribute("hidden")) {
@@ -686,5 +704,8 @@ export function applyInstrumentVisibility(
 		}
 	}
 
-	refs.instrumentSettingsGroup.style.color = ColorConfig.getChannelColor(doc.song, doc.channel).primaryNote;
+	refs.instrumentSettingsGroup.style.color = ColorConfig.getChannelColor(
+		doc.song,
+		doc.channel,
+	).primaryNote;
 }

@@ -6,17 +6,23 @@
 // - Embeds private-scale build/compile/cache per unison voice
 // - Registers via plugin registry on module load
 
+import { InstrumentState } from "../instrument-state";
 import type { Instrument } from "../instruments";
 import { Synth } from "../synth";
 import { Config, InstrumentType } from "../synth-config";
-import { InstrumentState } from "../instrument-state";
-import type { Tone } from "../tone";
 import { buildHarmonicsSource } from "../synthesis/harmonics";
+import type { Tone } from "../tone";
 import { registerPlugin } from "./registry";
 
 const functionCache: Function[] = [];
 
-function harmonicsSynth(synth: Synth, bufferIndex: number, roundedSamplesPerTick: number, tone: Tone, instrumentState: InstrumentState): void {
+function harmonicsSynth(
+	synth: Synth,
+	bufferIndex: number,
+	roundedSamplesPerTick: number,
+	tone: Tone,
+	instrumentState: InstrumentState,
+): void {
 	const voiceCount: number = Math.max(2, instrumentState.unisonVoices);
 	let fn: Function = functionCache[instrumentState.unisonVoices];
 	if (fn === undefined) {
@@ -37,5 +43,6 @@ registerPlugin({
 		instrument.harmonicsWave.reset();
 	},
 	getSynthFunction: (_instrument: Instrument, _synth: typeof Synth) => harmonicsSynth,
-	buildSource: (_instrument: Instrument, voiceCount?: number) => buildHarmonicsSource(voiceCount ?? 0),
+	buildSource: (_instrument: Instrument, voiceCount?: number) =>
+		buildHarmonicsSource(voiceCount ?? 0),
 });

@@ -11,7 +11,14 @@ export const JUKEBOX_EXP_FORMAT = "JukeboxExp" as const;
 export const JUKEBOX_EXP_OLDEST_VERSION = 1;
 export const JUKEBOX_EXP_LATEST_VERSION = 1;
 
-export type FormatId = "JukeBox" | "SlarmoosBox" | "UltraBox" | "GoldBox" | "JummBox" | "BeepBox" | typeof JUKEBOX_EXP_FORMAT;
+export type FormatId =
+	| "JukeBox"
+	| "SlarmoosBox"
+	| "UltraBox"
+	| "GoldBox"
+	| "JummBox"
+	| "BeepBox"
+	| typeof JUKEBOX_EXP_FORMAT;
 
 // Extend this interface as exp features are added.
 // Each field group should have an inline comment referencing the feature it belongs to.

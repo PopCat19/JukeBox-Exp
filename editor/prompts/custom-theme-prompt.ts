@@ -148,7 +148,10 @@ export class CustomThemePrompt extends BasePrompt {
 	--disabled-note-primary:    #999;
 	--disabled-note-secondary:  #666; }`,
 	});
-	private readonly _resetButton: HTMLButtonElement = button({ class: "ctResetButton" }, "Reset to defaults");
+	private readonly _resetButton: HTMLButtonElement = button(
+		{ class: "ctResetButton" },
+		"Reset to defaults",
+	);
 
 	public readonly container: HTMLDivElement = div(
 		{ class: "prompt customThemePrompt noSelection" },

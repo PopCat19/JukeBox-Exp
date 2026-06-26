@@ -8,7 +8,10 @@
 
 import { createDiv } from "../base/container";
 
-export function scrollableContainer(extraStyle?: string, ...children: (HTMLElement | string)[]): HTMLDivElement {
+export function scrollableContainer(
+	extraStyle?: string,
+	...children: (HTMLElement | string)[]
+): HTMLDivElement {
 	const baseStyle =
 		"overflow-y: auto; scrollbar-gutter: stable; scrollbar-width: auto; scrollbar-color: var(--scrollbar-color, var(--ui-widget-background)) transparent;";
 	const style = extraStyle ? `${baseStyle} ${extraStyle}` : baseStyle;

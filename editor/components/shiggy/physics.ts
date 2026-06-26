@@ -510,7 +510,10 @@ export class PhysicsEngine {
 						b.vx += dot * nx * 0.5;
 						b.vy += dot * ny * 0.5;
 						if (dot > 1.5 && Math.random() < 0.4) {
-							this._events.push({ type: "collision", index: Math.random() < 0.5 ? i : j });
+							this._events.push({
+								type: "collision",
+								index: Math.random() < 0.5 ? i : j,
+							});
 						}
 					}
 				} else if (dist >= minDist) {
@@ -526,7 +529,10 @@ export class PhysicsEngine {
 							toBy = by - ay;
 
 						// Project b onto relative velocity path
-						const t = Math.max(0, Math.min(1, (toBx * relVx + toBy * relVy) / relSpeedSq));
+						const t = Math.max(
+							0,
+							Math.min(1, (toBx * relVx + toBy * relVy) / relSpeedSq),
+						);
 
 						// Closest point on relative path to b
 						const closestX = ax + relVx * t;
@@ -535,7 +541,9 @@ export class PhysicsEngine {
 						// Distance from closest point to b
 						const closestDx = bx - closestX;
 						const closestDy = by - closestY;
-						const closestDist = Math.sqrt(closestDx * closestDx + closestDy * closestDy);
+						const closestDist = Math.sqrt(
+							closestDx * closestDx + closestDy * closestDy,
+						);
 
 						if (closestDist < minDist && closestDist > 0.01) {
 							// Collision detected along the path
@@ -554,7 +562,10 @@ export class PhysicsEngine {
 								b.vx += dot * nx * 0.5;
 								b.vy += dot * ny * 0.5;
 								if (dot > 1.5 && Math.random() < 0.4) {
-									this._events.push({ type: "collision", index: Math.random() < 0.5 ? i : j });
+									this._events.push({
+										type: "collision",
+										index: Math.random() < 0.5 ? i : j,
+									});
 								}
 							}
 						}
@@ -564,7 +575,11 @@ export class PhysicsEngine {
 		}
 	}
 
-	private _collideCursor(tickStartCursorX: number, tickStartCursorY: number, startPositions: { x: number; y: number }[]): void {
+	private _collideCursor(
+		tickStartCursorX: number,
+		tickStartCursorY: number,
+		startPositions: { x: number; y: number }[],
+	): void {
 		for (let i = 0; i < this._states.length; i++) {
 			const s = this._states[i];
 			if (s.following || s.approaching) continue;
@@ -598,14 +613,20 @@ export class PhysicsEngine {
 
 				// Also check combined displacement for safety margin
 				const shiggyDisp = Math.sqrt((sx - s0x) ** 2 + (sy - s0y) ** 2);
-				const cursorDisp = Math.sqrt((this._cursorX - tickStartCursorX) ** 2 + (this._cursorY - tickStartCursorY) ** 2);
+				const cursorDisp = Math.sqrt(
+					(this._cursorX - tickStartCursorX) ** 2 +
+						(this._cursorY - tickStartCursorY) ** 2,
+				);
 				const speedMargin = Math.max(shiggyDisp, cursorDisp) * 0.5;
 				const expandedMinDist = minDist + speedMargin;
 
 				if (relPathLenSq > 0.01) {
 					const toS0x = s0x - tickStartCursorX;
 					const toS0y = s0y - tickStartCursorY;
-					const t = Math.max(0, Math.min(1, (toS0x * relPathDx + toS0y * relPathDy) / relPathLenSq));
+					const t = Math.max(
+						0,
+						Math.min(1, (toS0x * relPathDx + toS0y * relPathDy) / relPathLenSq),
+					);
 					const closestX = tickStartCursorX + relPathDx * t;
 					const closestY = tickStartCursorY + relPathDy * t;
 					const cdx = s0x - closestX;
