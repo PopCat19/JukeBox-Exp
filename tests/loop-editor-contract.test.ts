@@ -97,9 +97,11 @@ describe("loop-editor UI contract / song-editor focus-steal contract", () => {
 		expect(captureLines.length).toBeGreaterThan(0);
 	});
 
-	test("capture listener checks closest(\"select\") on Space keyCode 32", () => {
+	test("capture listener checks closest(\"select\") or activeElement === body", () => {
 		const hasClosestSelect = songLines.some((l) => l.includes("closest(\"select\")"));
 		expect(hasClosestSelect).toBeTrue();
+		const hasBodyCheck = songLines.some((l) => l.includes("activeElement === document.body"));
+		expect(hasBodyCheck).toBeTrue();
 	});
 
 	test("capture listener prevents default on Space for selects", () => {
