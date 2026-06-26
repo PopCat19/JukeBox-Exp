@@ -120,7 +120,7 @@ export function renderLayout(refs: LayoutRefs, doc: SongDocument): void {
 		const beepboxEditorContainer: HTMLElement =
 			document.getElementById("beepboxEditorContainer")!;
 
-		if (doc.prefs.showDescription === false) {
+		if (!doc.prefs.showDescription) {
 			beepboxEditorContainer.style.paddingBottom = "0";
 			beepboxEditorContainer.style.borderStyle = "none";
 		} else {

@@ -66,7 +66,7 @@ import { zefbox } from "./zefbox";
 
 const customTheme: string =
 	typeof localStorage !== "undefined"
-		? `${localStorage.getItem("customColors") || `:root {  }`}`
+		? (localStorage.getItem("customColors") || `:root {  }`)
 		: ":root {  }";
 
 export const themes: { [name: string]: string } = {

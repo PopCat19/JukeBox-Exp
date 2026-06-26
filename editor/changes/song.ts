@@ -556,7 +556,7 @@ export class ChangeChannelBar extends Change {
 		}
 		// Mod channels always jump to viewing the active instrument for the mod.
 		if (doc.song.getChannelIsMod(doc.channel)) {
-			const pattern: Pattern | null = doc.song!.getPattern(doc.channel, doc.bar);
+			const pattern: Pattern | null = doc.song.getPattern(doc.channel, doc.bar);
 			if (pattern != null) {
 				doc.viewedInstrument[doc.channel] = pattern.instruments[0];
 			}
@@ -1225,7 +1225,7 @@ export function pickRandomPresetValue(isNoise: boolean, rollNoveltyPresets: bool
 	) {
 		const category: PresetCategory = EditorConfig.presetCategories[categoryIndex];
 		if (
-			(category.name.includes("Novelty") && rollNoveltyPresets === false) ||
+			(category.name.includes("Novelty") && !rollNoveltyPresets) ||
 			category.name === "Unmodified"
 		)
 			continue;
@@ -1297,7 +1297,7 @@ export function pickNextPresetValue(isNoise: boolean, rollNoveltyPresets: boolea
 	) {
 		const category: PresetCategory = EditorConfig.presetCategories[categoryIndex];
 		if (
-			(category.name.includes("Novelty") && rollNoveltyPresets === false) ||
+			(category.name.includes("Novelty") && !rollNoveltyPresets) ||
 			category.name === "Unmodified"
 		)
 			continue;

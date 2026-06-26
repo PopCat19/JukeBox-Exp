@@ -165,7 +165,7 @@ export class CustomChipPromptCanvas {
 			}
 		}
 
-		if (sameCheck === false || this._changeQueue.length === 0) {
+		if (!sameCheck || this._changeQueue.length === 0) {
 			this._changeQueue.splice(0, this._undoHistoryState);
 			this._undoHistoryState = 0;
 			this._changeQueue.unshift(this.chipData.slice());
@@ -409,7 +409,7 @@ export class CustomChipPrompt extends BasePrompt {
 		this._playButton.addEventListener("click", this._togglePlay);
 		updatePlayButton(this._playButton, this._doc.synth.playing);
 
-		setTimeout(() => this._playButton.focus());
+		setTimeout(() => { this._playButton.focus(); });
 
 		this.customChipCanvas.render();
 	}
@@ -443,9 +443,9 @@ export class CustomChipPrompt extends BasePrompt {
 
 	public override whenKeyPressed = (event: KeyboardEvent): void => {
 		this._handleCommonKeys(event, {
-			togglePlay: () => this._togglePlay(),
-			undo: () => this.customChipCanvas.undo(),
-			redo: () => this.customChipCanvas.redo(),
+			togglePlay: () => { this._togglePlay(); },
+			undo: () => { this.customChipCanvas.undo(); },
+			redo: () => { this.customChipCanvas.redo(); },
 		});
 	};
 

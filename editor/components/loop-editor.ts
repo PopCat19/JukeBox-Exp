@@ -345,11 +345,11 @@ export class LoopEditor {
 			} else {
 				this._highlight.setAttribute(
 					"d",
-					`M ${highlightStart + radius} ${4} ` +
-						`L ${highlightStop - radius} ${4} ` +
-						`A ${radius - 4} ${radius - 4} ${0} ${0} ${1} ${highlightStop - radius} ${this._editorHeight - 4} ` +
+					`M ${highlightStart + radius} 4 ` +
+						`L ${highlightStop - radius} 4 ` +
+						`A ${radius - 4} ${radius - 4} 0 0 1 ${highlightStop - radius} ${this._editorHeight - 4} ` +
 						`L ${highlightStart + radius} ${this._editorHeight - 4} ` +
-						`A ${radius - 4} ${radius - 4} ${0} ${0} ${1} ${highlightStart + radius} ${4} ` +
+						`A ${radius - 4} ${radius - 4} 0 0 1 ${highlightStart + radius} 4 ` +
 						`z`,
 				);
 			}
@@ -391,11 +391,11 @@ export class LoopEditor {
 			this._renderedLoopStop = loopStop;
 			this._loop.setAttribute(
 				"d",
-				`M ${loopStart + radius} ${2} ` +
-					`L ${loopStop - radius} ${2} ` +
-					`A ${radius - 2} ${radius - 2} ${0} ${0} ${1} ${loopStop - radius} ${this._editorHeight - 2} ` +
+				`M ${loopStart + radius} 2 ` +
+					`L ${loopStop - radius} 2 ` +
+					`A ${radius - 2} ${radius - 2} 0 0 1 ${loopStop - radius} ${this._editorHeight - 2} ` +
 					`L ${loopStart + radius} ${this._editorHeight - 2} ` +
-					`A ${radius - 2} ${radius - 2} ${0} ${0} ${1} ${loopStart + radius} ${2} ` +
+					`A ${radius - 2} ${radius - 2} 0 0 1 ${loopStart + radius} 2 ` +
 					`z`,
 			);
 		}

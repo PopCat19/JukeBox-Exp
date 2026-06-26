@@ -251,7 +251,7 @@ export class Synth {
 	}
 
 	// Redundant with inferred type but kept for self-documenting field declaration
-	// eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
+	 
 	private _audio: AudioBackend = new AudioBackend();
 	private _logSynthCallCount: number = 0;
 	// _logNeedDataCount moved to AudioBackend
@@ -519,14 +519,14 @@ export class Synth {
 						channel >= this.song.pitchChannelCount + this.song.noiseChannelCount;
 						channel--
 					) {
-						if (foundMod === false) {
+						if (!foundMod) {
 							const pattern: Pattern | null = this.song.getPattern(channel, bar);
 							if (pattern != null) {
 								const instrument: Instrument =
 									this.song.channels[channel].instruments[pattern.instruments[0]];
 								for (let mod: number = 0; mod < Config.modCount; mod++) {
 									if (
-										foundMod === false &&
+										!foundMod &&
 										instrument.modulators[mod] ===
 											Config.modulators.dictionary.tempo.index &&
 										pattern.notes.find(
@@ -731,7 +731,7 @@ export class Synth {
 
 	private _toAudioHost(): AudioBackendHost {
 		return {
-			synthesize: (l, r, len, play) => this.synthesize(l, r, len, play),
+			synthesize: (l, r, len, play) => { this.synthesize(l, r, len, play); },
 			isPlayingSong: () => this.isPlayingSong,
 			isFadingOut: () => this._stopFadeSamplesRemaining > 0,
 			liveInputEndTime: () => this.liveInputEndTime,
@@ -1762,7 +1762,7 @@ export class Synth {
 						);
 						this.metronomeSamplesRemaining -= stopIndex - bufferIndex;
 						for (let i: number = bufferIndex; i < stopIndex; i++) {
-							this.outputDataLUnfiltered![i] += this.metronomeAmplitude;
+							this.outputDataLUnfiltered[i] += this.metronomeAmplitude;
 							this.outputDataRUnfiltered![i] += this.metronomeAmplitude;
 							const tempAmplitude: number =
 								this.metronomeFilter * this.metronomeAmplitude -
@@ -1781,7 +1781,7 @@ export class Synth {
 			this._postProc.processBlock(
 				outputDataL,
 				outputDataR,
-				this.outputDataLUnfiltered!,
+				this.outputDataLUnfiltered,
 				this.outputDataRUnfiltered!,
 				bufferIndex,
 				runEnd,
@@ -2606,7 +2606,7 @@ export class Synth {
 
 			let modToneCount: number = 0;
 			const newInstrumentIndex: number =
-				song.patternInstruments && pattern != null ? pattern!.instruments[0] : 0;
+				song.patternInstruments && pattern != null ? pattern.instruments[0] : 0;
 			const instrumentState: InstrumentState = channelState.instruments[newInstrumentIndex];
 			const toneList: Deque<Tone> = instrumentState.activeModTones;
 			for (let mod: number = 0; mod < Config.modCount; mod++) {
@@ -3162,7 +3162,7 @@ export class Synth {
 		const instrumentState: InstrumentState = channelState.instruments[tone.instrumentIndex];
 
 		if (instrumentState.synthesizer != null) {
-			instrumentState.synthesizer!(this, bufferIndex, runLength, tone, instrumentState);
+			instrumentState.synthesizer(this, bufferIndex, runLength, tone, instrumentState);
 		}
 		tone.envelopeComputer.clearEnvelopes();
 		instrumentState.envelopeComputer.clearEnvelopes();
@@ -5565,7 +5565,7 @@ export class Synth {
 	}
 
 	public sanitizeFilters(filters: DynamicBiquadFilter[]): void {
-		return this._postProc.sanitizeFilters(filters);
+		this._postProc.sanitizeFilters(filters);
 	}
 
 	public static sanitizeDelayLine(

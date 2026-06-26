@@ -345,7 +345,7 @@ export function createColorPicker(parent: HTMLElement, options: ColorPickerOptio
 			options.onClose();
 		}
 	};
-	setTimeout(() => document.addEventListener("mousedown", closeOnOutside), 0);
+	setTimeout(() => { document.addEventListener("mousedown", closeOnOutside); }, 0);
 
 	return container;
 }

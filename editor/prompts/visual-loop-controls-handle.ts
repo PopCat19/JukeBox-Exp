@@ -70,12 +70,12 @@ export class VisualLoopControlsHandle {
 		});
 		this._context = this.canvas.getContext("2d");
 		window.addEventListener("mousemove", this._whenMouseMoves);
-		this.canvas!.addEventListener("mousedown", this._whenMouseIsDown);
+		this.canvas.addEventListener("mousedown", this._whenMouseIsDown);
 		window.addEventListener("mouseup", this._whenMouseIsUp);
-		this.canvas!.addEventListener("touchstart", this._whenTouchIsDown);
-		this.canvas!.addEventListener("touchmove", this._whenTouchMoves);
-		this.canvas!.addEventListener("touchend", this._whenTouchIsUp);
-		this.canvas!.addEventListener("touchcancel", this._whenTouchIsUp);
+		this.canvas.addEventListener("touchstart", this._whenTouchIsDown);
+		this.canvas.addEventListener("touchmove", this._whenTouchMoves);
+		this.canvas.addEventListener("touchend", this._whenTouchIsUp);
+		this.canvas.addEventListener("touchcancel", this._whenTouchIsUp);
 	}
 
 	public update = (newValue: number): void => {

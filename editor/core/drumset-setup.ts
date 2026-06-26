@@ -32,11 +32,11 @@ export class DrumsetSetup {
 			div(
 				{ class: "selectRow" },
 				span(
-					{ class: "tip", onclick: () => host.openPrompt("drumsetEnvelope") },
+					{ class: "tip", onclick: () => { host.openPrompt("drumsetEnvelope"); } },
 					"Envelope:",
 				),
 				span(
-					{ class: "tip", onclick: () => host.openPrompt("drumsetSpectrum") },
+					{ class: "tip", onclick: () => { host.openPrompt("drumsetSpectrum"); } },
 					"Spectrum:",
 				),
 				host.drumsetZoom,

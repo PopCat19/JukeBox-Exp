@@ -244,7 +244,7 @@ export function renderModSettings(
 			while (refs.modInstrumentBoxes[mod].firstChild) refs.modInstrumentBoxes[mod].remove(0);
 			const instrumentList: string[] = [];
 			for (let i: number = 0; i < channel.instruments.length; i++) {
-				instrumentList.push(`${i}${1}`);
+				instrumentList.push(`${i}1`);
 			}
 			instrumentList.push("all");
 			instrumentList.push("active");

@@ -44,7 +44,7 @@ export class SampleLoadingStatusPrompt extends BasePrompt {
 
 	constructor(doc: SongDocument) {
 		super(doc);
-		this._interval = setInterval(() => this._render(), this._intervalDuration);
+		this._interval = setInterval(() => { this._render(); }, this._intervalDuration);
 		this._render();
 	}
 

@@ -149,7 +149,7 @@ export class SpectrumEditor {
 			}
 		}
 
-		if (sameCheck === false || this._changeQueue.length === 0) {
+		if (!sameCheck || this._changeQueue.length === 0) {
 			// Create new branch in history, removing all after this in time
 			this._changeQueue.splice(0, this._undoHistoryState);
 
@@ -628,7 +628,7 @@ export class SpectrumEditorPrompt implements Prompt {
 			this.spectrumEditors[0] = this.spectrumEditor;
 		}
 
-		setTimeout(() => this._playButton.focus());
+		setTimeout(() => { this._playButton.focus(); });
 		this.spectrumEditor.render();
 	}
 
@@ -730,7 +730,7 @@ export class SpectrumEditorPrompt implements Prompt {
 		this._cancelButton.removeEventListener("click", this._close);
 		this.container.removeEventListener("keydown", this.whenKeyPressed);
 		this.spectrumEditor.container.removeEventListener("mousemove", () =>
-			this.spectrumEditor.render(),
+			{ this.spectrumEditor.render(); },
 		);
 		this._playButton.removeEventListener("click", this._togglePlay);
 	};
@@ -750,8 +750,8 @@ export class SpectrumEditorPrompt implements Prompt {
 	public whenKeyPressed = (event: KeyboardEvent): void => {
 		this._handleCommonKeys(event, {
 			togglePlay: this._togglePlay,
-			undo: () => this.spectrumEditor.undo(),
-			redo: () => this.spectrumEditor.redo(),
+			undo: () => { this.spectrumEditor.undo(); },
+			redo: () => { this.spectrumEditor.redo(); },
 		});
 	};
 

@@ -68,7 +68,7 @@ export function installDebugTools(doc: SongDocument): void {
 	};
 
 	doc.record = (change: Change, replace?: boolean, newSong?: boolean): void =>
-		_origRecord(change, replace, newSong);
+		{ _origRecord(change, replace, newSong); };
 
 	const _origCopy = doc.selection.copy.bind(doc.selection);
 	doc.selection.copy = (): void => {
@@ -189,7 +189,7 @@ export function installDebugTools(doc: SongDocument): void {
 							console.log("system clipboard: not JSON");
 						}
 					})
-					.catch(() => console.log("system clipboard: read denied"));
+					.catch(() => { console.log("system clipboard: read denied"); });
 			}
 		},
 
@@ -222,7 +222,7 @@ export function installDebugTools(doc: SongDocument): void {
 			if (issues.length === 0) console.log("✓ consistent");
 			else {
 				console.warn(`✗ ${issues.length} issues:`);
-				issues.forEach((i) => console.warn("  -", i));
+				issues.forEach((i) => { console.warn("  -", i); });
 			}
 			return issues;
 		},
@@ -248,7 +248,7 @@ export function installDebugTools(doc: SongDocument): void {
 				if (navigator.clipboard?.writeText) {
 					navigator.clipboard
 						.writeText(minified)
-						.then(() => console.log("📋 replay script copied to clipboard"))
+						.then(() => { console.log("📋 replay script copied to clipboard"); })
 						.catch(() => {});
 				}
 				return readable;
@@ -258,7 +258,7 @@ export function installDebugTools(doc: SongDocument): void {
 			},
 			dump(): void {
 				console.log(`── recording (${ops.length} ops) ──`);
-				ops.forEach((o) => console.log(`  ${o.op}`, o.args ?? ""));
+				ops.forEach((o) => { console.log(`  ${o.op}`, o.args ?? ""); });
 			},
 		},
 

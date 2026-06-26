@@ -51,7 +51,7 @@ export class ChangeCustomWave extends Change {
 				i = oldArray.length;
 			}
 		}
-		if (comparisonResult === false) {
+		if (!comparisonResult) {
 			const instrument: Instrument = doc.getCurrentInstrumentObj();
 			for (let i: number = 0; i < newArray.length; i++) {
 				instrument.customChipWave[i] = newArray[i];
@@ -105,7 +105,7 @@ export class ChangeCustomAlgorythmorFeedback extends Change {
 					}
 				}
 			}
-			if (comparisonResult === false) {
+			if (!comparisonResult) {
 				const instrument: Instrument = doc.getCurrentInstrumentObj();
 
 				instrument.customAlgorithm.set(carry, newArray);

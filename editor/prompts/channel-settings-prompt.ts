@@ -78,7 +78,7 @@ export class ChannelSettingsPrompt extends BasePrompt {
 		this._layeredInstrumentsBox.checked = this._doc.song.layeredInstruments;
 		this._patternInstrumentsBox.checked = this._doc.song.patternInstruments;
 		this._pitchChannelStepper.select();
-		setTimeout(() => this._pitchChannelStepper.focus());
+		setTimeout(() => { this._pitchChannelStepper.focus(); });
 
 		this._patternsStepper.addEventListener("keypress", validateKey);
 		this._pitchChannelStepper.addEventListener("keypress", validateKey);

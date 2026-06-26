@@ -22,7 +22,7 @@ export class ChangeEQFilterType extends Change {
 	constructor(doc: SongDocument, instrument: Instrument, newValue: boolean) {
 		super();
 		instrument.eqFilterType = newValue;
-		if (newValue === true) {
+		if (newValue) {
 			// To Simple - clear eq filter
 			instrument.eqFilter.reset();
 			instrument.tmpEqFilterStart = instrument.eqFilter;
@@ -48,7 +48,7 @@ export class ChangeNoteFilterType extends Change {
 	constructor(doc: SongDocument, instrument: Instrument, newValue: boolean) {
 		super();
 		instrument.noteFilterType = newValue;
-		if (newValue === true) {
+		if (newValue) {
 			// To Simple - clear note filter, kill modulators
 			instrument.noteFilter.reset();
 			instrument.tmpNoteFilterStart = instrument.noteFilter;

@@ -147,7 +147,7 @@ export class HarmonicsEditor {
 			}
 		}
 
-		if (sameCheck === false || this._changeQueue.length === 0) {
+		if (!sameCheck || this._changeQueue.length === 0) {
 			// Create new branch in history, removing all after this in time
 			this._changeQueue.splice(0, this._undoHistoryState);
 
@@ -476,16 +476,16 @@ export class HarmonicsEditorPrompt implements Prompt {
 		this.pasteButton.addEventListener("click", this._pasteSettings);
 		this._playButton.addEventListener("click", this._togglePlay);
 		this.harmonicsEditor.container.addEventListener("mousemove", () =>
-			this.harmonicsEditor.render(),
+			{ this.harmonicsEditor.render(); },
 		);
 		this.harmonicsEditor.container.addEventListener("mousedown", () =>
-			this.harmonicsEditor.render(),
+			{ this.harmonicsEditor.render(); },
 		);
-		this.container.addEventListener("mousemove", () => this.harmonicsEditor.render());
+		this.container.addEventListener("mousemove", () => { this.harmonicsEditor.render(); });
 
 		this.updatePlayButton();
 
-		setTimeout(() => this._playButton.focus());
+		setTimeout(() => { this._playButton.focus(); });
 
 		this.harmonicsEditor.render();
 	}
@@ -550,7 +550,7 @@ export class HarmonicsEditorPrompt implements Prompt {
 		this._cancelButton.removeEventListener("click", this._close);
 		this.container.removeEventListener("keydown", this.whenKeyPressed);
 		this.harmonicsEditor.container.removeEventListener("mousemove", () =>
-			this.harmonicsEditor.render(),
+			{ this.harmonicsEditor.render(); },
 		);
 		this._playButton.removeEventListener("click", this._togglePlay);
 	};
@@ -571,8 +571,8 @@ export class HarmonicsEditorPrompt implements Prompt {
 	public whenKeyPressed = (event: KeyboardEvent): void => {
 		this._handleCommonKeys(event, {
 			togglePlay: this._togglePlay,
-			undo: () => this.harmonicsEditor.undo(),
-			redo: () => this.harmonicsEditor.redo(),
+			undo: () => { this.harmonicsEditor.undo(); },
+			redo: () => { this.harmonicsEditor.redo(); },
 		});
 	};
 

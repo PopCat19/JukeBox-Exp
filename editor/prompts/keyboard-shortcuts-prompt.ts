@@ -324,7 +324,7 @@ export class KeyboardShortcutsPrompt extends BasePrompt {
 		this.buildTitlebar();
 		this._searchInput.addEventListener("input", this._onSearch);
 		this._render();
-		setTimeout(() => this._searchInput.focus());
+		setTimeout(() => { this._searchInput.focus(); });
 	}
 
 	public override cleanUp(): void {
@@ -385,7 +385,7 @@ export class KeyboardShortcutsPrompt extends BasePrompt {
 			header.appendChild(toggleIcon);
 			const heading = h2({}, cat.name);
 			header.appendChild(heading);
-			header.addEventListener("click", () => this._toggleCategory(cat.name));
+			header.addEventListener("click", () => { this._toggleCategory(cat.name); });
 			section.appendChild(header);
 
 			// ── Body ──

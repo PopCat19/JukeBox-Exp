@@ -4738,7 +4738,7 @@ export function getArpeggioPitchIndex(
 ): number {
 	let arpeggioPattern: ReadonlyArray<number> = Config.arpeggioPatterns[pitchCount - 1];
 	if (arpeggioPattern != null) {
-		if (pitchCount === 2 && useFastTwoNoteArp === false) {
+		if (pitchCount === 2 && !useFastTwoNoteArp) {
 			arpeggioPattern = [0, 0, 1, 1];
 		}
 		return arpeggioPattern[arpeggio % arpeggioPattern.length];

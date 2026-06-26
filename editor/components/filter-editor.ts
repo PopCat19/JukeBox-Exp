@@ -406,7 +406,7 @@ export class FilterEditor {
 					this._dragChange.checkFirst() instanceof ChangeFilterMovePoint
 				) {
 					const data: FilterMoveData = (
-						(this._dragChange as ChangeSequence).checkFirst() as ChangeFilterMovePoint
+						(this._dragChange).checkFirst() as ChangeFilterMovePoint
 					).getMoveData(true);
 					const newPoint: FilterControlPoint | null =
 						this._useFilterSettings.controlPoints[this._selectedIndex];
@@ -426,7 +426,7 @@ export class FilterEditor {
 				) {
 					const data: FilterMoveData = (
 						(
-							this._dragChange as ChangeSequence
+							this._dragChange
 						).checkFirst() as ChangeSongFilterMovePoint
 					).getMoveData(true);
 					const newPoint: FilterControlPoint | null =
@@ -746,7 +746,7 @@ export class FilterEditor {
 			controlPointPath += FilterEditor._circlePath(pointX, pointY, this._pointRadius);
 
 			if (point.type === FilterType.highPass) {
-				dottedLinePath += `M ${0} ${pointY} L ${pointX} ${pointY} `;
+				dottedLinePath += `M 0 ${pointY} L ${pointX} ${pointY} `;
 			} else if (point.type === FilterType.lowPass) {
 				dottedLinePath += `M ${this._editorWidth} ${pointY} L ${pointX} ${pointY} `;
 			}
@@ -1030,7 +1030,7 @@ export class FilterEditor {
 			(forceModRender || (!this._mouseOver && !this._mouseDragging && !this._mouseDown)) &&
 			this._doc.synth.playing;
 		if (displayMods) {
-			this._controlPointPath.style.setProperty("fill", `${ColorConfig.overwritingModSlider}`);
+			this._controlPointPath.style.setProperty("fill", ColorConfig.overwritingModSlider);
 		} else if (!this._larger) {
 			this._controlPointPath.style.setProperty("fill", "currentColor");
 		}

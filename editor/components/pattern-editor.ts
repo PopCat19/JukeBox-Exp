@@ -1279,7 +1279,7 @@ export class PatternEditor {
 			}
 			this._svgPlayhead.setAttribute(
 				"x",
-				`${prettyNumber(this._playheadX * this._editorWidth - 2)}`,
+				prettyNumber(this._playheadX * this._editorWidth - 2),
 			);
 		} else {
 			this._svgPlayhead.setAttribute("visibility", "hidden");
@@ -2494,7 +2494,7 @@ export class PatternEditor {
 					Config.partsPerBeat * this._doc.song.beatsPerBar,
 				);
 
-				const continuous: boolean = toApply === false;
+				const continuous: boolean = !toApply;
 
 				// Make a new note if enough time has elapsed since the prior note.
 				if (latestNote == null || currentPart - latestNote.end >= newNoteDist) {
@@ -3068,7 +3068,7 @@ export class PatternEditor {
 			} else if (this._draggingSelectionContents) {
 				const pattern: Pattern | null = this._doc.getCurrentPattern(this._barOffset);
 				if (this._mouseDragging && pattern != null) {
-					this._dragChange!.undo();
+					this._dragChange.undo();
 					const sequence: ChangeSequence = new ChangeSequence();
 					this._dragChange = sequence;
 					this._doc.setProspectiveChange(this._dragChange);
@@ -4815,11 +4815,11 @@ export class PatternEditor {
 							const oscillatorLabel: SVGTextElement = SVG.text();
 							oscillatorLabel.setAttribute(
 								"x",
-								`${prettyNumber(this._partWidth * note.start + indicatorOffset)}`,
+								prettyNumber(this._partWidth * note.start + indicatorOffset),
 							);
 							oscillatorLabel.setAttribute(
 								"y",
-								`${prettyNumber(this._pitchToPixelHeight(pitch - this._octaveOffset))}`,
+								prettyNumber(this._pitchToPixelHeight(pitch - this._octaveOffset)),
 							);
 							oscillatorLabel.setAttribute("width", "30");
 							oscillatorLabel.setAttribute("fill", ColorConfig.invertedText);

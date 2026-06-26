@@ -42,7 +42,7 @@ export class PromptPopout {
 	private readonly _onThemeChange: (name: string) => void;
 
 	constructor(private readonly _host: PromptPopoutHost) {
-		this._onThemeChange = (): void => this._resyncAllThemes();
+		this._onThemeChange = (): void => { this._resyncAllThemes(); };
 		events.listen("themeChange", this._onThemeChange);
 
 		// Close all popouts when the editor tab refreshes or closes.
@@ -163,7 +163,7 @@ export class PromptPopout {
 
 		// pagehide fires for both the X-button close and any navigation; either
 		// way the popout is gone and the manager must clean up its stack.
-		const onUnload = (): void => this._handleClosed(prompt);
+		const onUnload = (): void => { this._handleClosed(prompt); };
 		win.addEventListener("pagehide", onUnload);
 
 		this._cleanupOnClose.set(prompt, (): void => {

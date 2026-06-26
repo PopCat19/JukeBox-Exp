@@ -171,7 +171,7 @@ export class CustomFilterPrompt extends BasePrompt {
 			colors.secondaryChannel,
 		);
 
-		setTimeout(() => this._playButton.focus());
+		setTimeout(() => { this._playButton.focus(); });
 
 		this.filterEditor.render();
 	}
@@ -224,7 +224,7 @@ export class CustomFilterPrompt extends BasePrompt {
 
 	public override whenKeyPressed = (event: KeyboardEvent): void => {
 		this._handleCommonKeys(event, {
-			togglePlay: () => this._togglePlay(),
+			togglePlay: () => { this._togglePlay(); },
 			undo: () => {
 				const newIdx = this.filterEditor.undo();
 				if (newIdx >= 0) this._setSubfilter(newIdx, false, false);

@@ -441,7 +441,7 @@ export class EnvelopeComputer {
 					envelopeStart += (other - envelopeStart) * nextSlideRatioStart;
 				}
 				let envelopeEnd: number = envelopeStart;
-				if (isDiscrete === false) {
+				if (!isDiscrete) {
 					envelopeEnd = EnvelopeComputer.computeEnvelope(
 						envelope,
 						envelopeSpeed,

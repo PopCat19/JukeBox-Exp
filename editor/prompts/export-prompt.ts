@@ -155,7 +155,7 @@ export class ExportPrompt extends BasePrompt {
 		this._updateWarnings();
 
 		this._fileName.select();
-		setTimeout(() => this._fileName.focus());
+		setTimeout(() => { this._fileName.focus(); });
 
 		this._fileName.addEventListener("input", ExportPrompt._validateFileName);
 		this._loopDropDown.addEventListener("blur", ExportPrompt._validateNumber);
@@ -228,7 +228,7 @@ export class ExportPrompt extends BasePrompt {
 	}
 
 	private _export = (): void => {
-		if (this.outputStarted === true) return;
+		if (this.outputStarted) return;
 		window.localStorage.setItem("exportFormat", this._formatSelect.value);
 		window.localStorage.setItem("exportWhitespace", String(this._removeWhitespace.checked));
 		switch (this._formatSelect.value) {
@@ -271,7 +271,7 @@ export class ExportPrompt extends BasePrompt {
 	};
 
 	private _synthesize(): void {
-		if (this.outputStarted === false) return;
+		if (!this.outputStarted) return;
 		const samplesPerChunk: number = this.synth.samplesPerSecond * 5;
 		const currentFrame: number = this.currentChunk * samplesPerChunk;
 		const samplesInChunk: number = Math.min(samplesPerChunk, this.sampleFrames - currentFrame);
@@ -295,7 +295,7 @@ export class ExportPrompt extends BasePrompt {
 			else if (this.thenExportTo === "ogg") this._exportToOggFinish();
 			else if (this.thenExportTo === "opus") this._exportToOpusFinish();
 		} else {
-			setTimeout(() => this._synthesize());
+			setTimeout(() => { this._synthesize(); });
 		}
 	}
 
@@ -323,7 +323,7 @@ export class ExportPrompt extends BasePrompt {
 		this.totalChunks = Math.ceil(this.sampleFrames / (this.synth.samplesPerSecond * 5));
 		this.recordedSamplesL = new Float32Array(this.sampleFrames);
 		this.recordedSamplesR = new Float32Array(this.sampleFrames);
-		setTimeout(() => this._synthesize());
+		setTimeout(() => { this._synthesize(); });
 	}
 
 	private _exportToWavFinish(): void {

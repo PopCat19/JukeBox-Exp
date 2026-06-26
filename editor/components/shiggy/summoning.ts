@@ -73,7 +73,7 @@ export function clearAllSummoned(summoned: SummonedShiggy[]): void {
 		s.img.style.animation = "shiggy-summon-exit 0.4s ease-in forwards";
 		s.img.style.pointerEvents = "none";
 		const img = s.img;
-		setTimeout(() => img.remove(), 450);
+		setTimeout(() => { img.remove(); }, 450);
 	}
 	summoned.length = 0;
 }

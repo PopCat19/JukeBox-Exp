@@ -837,7 +837,7 @@ export class VisualLoopControlsPrompt extends BasePrompt {
 		const mx: number = ((event.clientX || event.pageX) - bounds.left) * canvasXScale;
 		this._overlaySelectionX1 = mx;
 		let x0 = Math.max(0, Math.min(w, this._overlaySelectionX0!));
-		let x1 = Math.max(0, Math.min(w, this._overlaySelectionX1!));
+		let x1 = Math.max(0, Math.min(w, this._overlaySelectionX1));
 		if (x0 > x1) {
 			const t = x0;
 			x0 = x1;

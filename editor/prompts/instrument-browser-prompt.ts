@@ -227,8 +227,8 @@ export class InstrumentBrowserPrompt extends BasePrompt {
 
 		this._tabBar = div({ class: "tabBar toggle-group" }, this._tabPresets, this._tabTags);
 
-		this._tabPresets.addEventListener("click", () => this._switchToTab("presets"));
-		this._tabTags.addEventListener("click", () => this._switchToTab("tags"));
+		this._tabPresets.addEventListener("click", () => { this._switchToTab("presets"); });
+		this._tabTags.addEventListener("click", () => { this._switchToTab("tags"); });
 
 		this.container = div(
 			{
@@ -325,9 +325,9 @@ export class InstrumentBrowserPrompt extends BasePrompt {
 		this._tagsTabContent.style.display = tab === "tags" ? "" : "none";
 		if (focusSearch) {
 			if (tab === "presets") {
-				setTimeout(() => this._searchInput.focus());
+				setTimeout(() => { this._searchInput.focus(); });
 			} else {
-				setTimeout(() => this._tagSearchInput.focus());
+				setTimeout(() => { this._tagSearchInput.focus(); });
 			}
 		}
 	}

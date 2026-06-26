@@ -768,7 +768,7 @@ export function toBase64StringImpl(song: SongLike): string {
 				buffer.push(SongTagCode.customChipWave);
 				// Push custom wave values
 				for (let j: number = 0; j < 64; j++) {
-					buffer.push(base64IntToCharCode[(instrument.customChipWave[j] + 24) as number]);
+					buffer.push(base64IntToCharCode[(instrument.customChipWave[j] + 24)]);
 				}
 			} else if (instrument.type === InstrumentType.noise) {
 				buffer.push(SongTagCode.wave, base64IntToCharCode[instrument.chipNoise]);

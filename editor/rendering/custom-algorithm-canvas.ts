@@ -438,7 +438,7 @@ export class CustomAlgorithmCanvas {
 			this.mode,
 		);
 
-		this._doc.record(this._change!);
+		this._doc.record(this._change);
 
 		this._change = null;
 	};

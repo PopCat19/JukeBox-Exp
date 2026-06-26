@@ -48,7 +48,7 @@ export class ModulatorSetup {
 						class: "tip",
 						style: "width: 10%; max-width: 5.4em;",
 						id: `modChannelText${mod}`,
-						onclick: () => host.openPrompt("modChannel"),
+						onclick: () => { host.openPrompt("modChannel"); },
 					},
 					"Ch:",
 				),
@@ -58,7 +58,7 @@ export class ModulatorSetup {
 						class: "tip",
 						style: "width: 1.2em; margin-left: 0.8em;",
 						id: `modInstrumentText${mod}`,
-						onclick: () => host.openPrompt("modInstrument"),
+						onclick: () => { host.openPrompt("modInstrument"); },
 					},
 					"Ins:",
 				),
@@ -77,7 +77,7 @@ export class ModulatorSetup {
 				span(
 					{
 						class: "tip",
-						onclick: () => host.openPrompt("modSet"),
+						onclick: () => { host.openPrompt("modSet"); },
 					},
 					"Setting: ",
 				),
@@ -85,7 +85,7 @@ export class ModulatorSetup {
 					{
 						class: "tip",
 						style: "font-size:x-small;",
-						onclick: () => host.openPrompt(`modSetInfo${mod}`),
+						onclick: () => { host.openPrompt(`modSetInfo${mod}`); },
 					},
 					"?",
 				),
@@ -100,7 +100,7 @@ export class ModulatorSetup {
 				span(
 					{
 						class: "tip",
-						onclick: () => host.openPrompt(`modFilter${mod}`),
+						onclick: () => { host.openPrompt(`modFilter${mod}`); },
 					},
 					"Target: ",
 				),
@@ -115,7 +115,7 @@ export class ModulatorSetup {
 				span(
 					{
 						class: "tip",
-						onclick: () => host.openPrompt("modEnvelope"),
+						onclick: () => { host.openPrompt("modEnvelope"); },
 					},
 					"Envelope: ",
 				),

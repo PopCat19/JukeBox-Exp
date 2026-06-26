@@ -152,7 +152,7 @@ export class KeyboardHandler {
 			const isEditingTextInput =
 				document.activeElement === host.songTitleInputBox ||
 				isEditingModLabel ||
-				document.activeElement === (host.muteEditor as MuteEditor)._channelNameInput?.input;
+				document.activeElement === (host.muteEditor)._channelNameInput?.input;
 			const isEditingNumberInput =
 				document.activeElement === host.panSliderInputBox ||
 				document.activeElement === host.pwmSliderInputBox ||
@@ -499,7 +499,7 @@ export class KeyboardHandler {
 					const instrument: Instrument = doc.getCurrentInstrumentObj();
 					const isAllOpen: boolean = host.envelopeEditor.openExtraSettingsDropdowns.every(
 						(x: boolean) => {
-							return x === true;
+							return x;
 						},
 					);
 					for (let i = 0; i < instrument.envelopeCount; i++) {
@@ -539,7 +539,7 @@ export class KeyboardHandler {
 						if (!host.openOperatorDropdowns[i]) isAllOpen = false;
 					}
 					for (let i = 0; i < operatorCount; i++) {
-						if ((host.openOperatorDropdowns[i] === false && !isAllOpen) || isAllOpen) {
+						if ((!host.openOperatorDropdowns[i] && !isAllOpen) || isAllOpen) {
 							host.toggleDropdownMenu(DropdownID.FM, i);
 						}
 					}

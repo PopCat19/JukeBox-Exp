@@ -482,16 +482,16 @@ export class ColorConfig {
 			}
 			const regex = /\(([^,)]+)/;
 			const newChannelSecondary: string = ColorConfig.getComputed(
-				(regex.exec(base.secondaryChannel) as RegExpExecArray)[1] as string,
+				(regex.exec(base.secondaryChannel) as RegExpExecArray)[1],
 			);
 			const newChannelPrimary: string = ColorConfig.getComputed(
-				(regex.exec(base.primaryChannel) as RegExpExecArray)[1] as string,
+				(regex.exec(base.primaryChannel) as RegExpExecArray)[1],
 			);
 			const newNoteSecondary: string = ColorConfig.getComputed(
-				(regex.exec(base.secondaryNote) as RegExpExecArray)[1] as string,
+				(regex.exec(base.secondaryNote) as RegExpExecArray)[1],
 			);
 			const newNotePrimary: string = ColorConfig.getComputed(
-				(regex.exec(base.primaryNote) as RegExpExecArray)[1] as string,
+				(regex.exec(base.primaryNote) as RegExpExecArray)[1],
 			);
 			return <ChannelColors>{
 				secondaryChannel: newChannelSecondary,
@@ -720,16 +720,16 @@ export class ColorConfig {
 			// Trim away "var(...)"
 			const regex = /\(([^,)]+)/;
 			const newChannelSecondary: string = ColorConfig.getComputed(
-				(regex.exec(base.secondaryChannel) as RegExpExecArray)[1] as string,
+				(regex.exec(base.secondaryChannel) as RegExpExecArray)[1],
 			);
 			const newChannelPrimary: string = ColorConfig.getComputed(
-				(regex.exec(base.primaryChannel) as RegExpExecArray)[1] as string,
+				(regex.exec(base.primaryChannel) as RegExpExecArray)[1],
 			);
 			const newNoteSecondary: string = ColorConfig.getComputed(
-				(regex.exec(base.secondaryNote) as RegExpExecArray)[1] as string,
+				(regex.exec(base.secondaryNote) as RegExpExecArray)[1],
 			);
 			const newNotePrimary: string = ColorConfig.getComputed(
-				(regex.exec(base.primaryNote) as RegExpExecArray)[1] as string,
+				(regex.exec(base.primaryNote) as RegExpExecArray)[1],
 			);
 			return <ChannelColors>{
 				secondaryChannel: newChannelSecondary,

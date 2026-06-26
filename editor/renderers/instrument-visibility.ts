@@ -413,7 +413,7 @@ export function applyInstrumentVisibility(
 				instrument.operators[i].pulseWidth,
 			);
 			refs.operatorWaveformPulsewidthSliders[i].input.title =
-				`${Config.pwmOperatorWaves[instrument.operators[i].pulseWidth].name}`;
+				Config.pwmOperatorWaves[instrument.operators[i].pulseWidth].name;
 			refs.operatorDropdownGroups[i].style.color = isCarrier ? ColorConfig.primaryText : "";
 			const operatorName: string = (isCarrier ? "Voice " : "Modulator ") + (i + 1);
 			refs.operatorFrequencySelects[i].title = `${operatorName} Frequency`;

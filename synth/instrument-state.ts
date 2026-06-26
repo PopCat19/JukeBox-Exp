@@ -1865,8 +1865,8 @@ export class InstrumentState {
 			this.unisonSign = instrument.unisonSign;
 		} else if (instrument.type === InstrumentType.customChipWave) {
 			this.wave = this.aliases
-				? instrument.customChipWave!
-				: instrument.customChipWaveIntegral!;
+				? instrument.customChipWave
+				: instrument.customChipWaveIntegral;
 			this.volumeScale = 0.05;
 			this.unisonVoices = instrument.unisonVoices;
 			this.unisonSpread = instrument.unisonSpread;

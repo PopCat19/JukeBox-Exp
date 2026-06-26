@@ -311,8 +311,8 @@ export class spectrumCanvas {
 		};
 
 		events.listen("spectrumUpdate", this._EventUpdateCanvas);
-		events.listen("spectrumReset", () => this.reset());
-		events.listen("themeChange", () => this._updateCachedColors());
+		events.listen("spectrumReset", () => { this.reset(); });
+		events.listen("themeChange", () => { this._updateCachedColors(); });
 	}
 
 	private _computeYPositions(

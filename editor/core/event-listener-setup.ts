@@ -187,70 +187,70 @@ export class EventListenerSetup {
 
 		// Basic control event listeners
 		host.customWavePresetDrop.addEventListener("change", (event) =>
-			host.customWavePresetHandler(event),
+			{ host.customWavePresetHandler(event); },
 		);
-		host.tempoStepper.addEventListener("change", () => host.dispatch.whenSetTempo());
-		host.scaleSelect.addEventListener("change", () => host.dispatch.whenSetScale());
-		host.keySelect.addEventListener("change", () => host.dispatch.whenSetKey());
-		host.octaveStepper.addEventListener("change", () => host.dispatch.whenSetOctave());
-		host.rhythmSelect.addEventListener("change", () => host.dispatch.whenSetRhythm());
-		host.algorithmSelect.addEventListener("change", () => host.dispatch.whenSetAlgorithm());
+		host.tempoStepper.addEventListener("change", () => { host.dispatch.whenSetTempo(); });
+		host.scaleSelect.addEventListener("change", () => { host.dispatch.whenSetScale(); });
+		host.keySelect.addEventListener("change", () => { host.dispatch.whenSetKey(); });
+		host.octaveStepper.addEventListener("change", () => { host.dispatch.whenSetOctave(); });
+		host.rhythmSelect.addEventListener("change", () => { host.dispatch.whenSetRhythm(); });
+		host.algorithmSelect.addEventListener("change", () => { host.dispatch.whenSetAlgorithm(); });
 		host.instrumentsButtonBar.addEventListener("click", (event) =>
-			host.dispatch.whenSelectInstrument(event as MouseEvent),
+			{ host.dispatch.whenSelectInstrument(event); },
 		);
 		host.feedbackTypeSelect.addEventListener("change", () =>
-			host.dispatch.whenSetFeedbackType(),
+			{ host.dispatch.whenSetFeedbackType(); },
 		);
 		host.algorithm6OpSelect.addEventListener("change", () =>
-			host.dispatch.whenSet6OpAlgorithm(),
+			{ host.dispatch.whenSet6OpAlgorithm(); },
 		);
 		host.feedback6OpTypeSelect.addEventListener("change", () =>
-			host.dispatch.whenSet6OpFeedbackType(),
+			{ host.dispatch.whenSet6OpFeedbackType(); },
 		);
-		host.chipWaveSelect.addEventListener("change", () => host.dispatch.whenSetChipWave());
+		host.chipWaveSelect.addEventListener("change", () => { host.dispatch.whenSetChipWave(); });
 		host.ringModWaveSelect.addEventListener("change", () =>
-			host.dispatch.whenSetRingModChipWave(),
+			{ host.dispatch.whenSetRingModChipWave(); },
 		);
 		host.useChipWaveAdvancedLoopControlsBox.addEventListener("input", () =>
-			host.dispatch.whenSetUseChipWaveAdvancedLoopControls(),
+			{ host.dispatch.whenSetUseChipWaveAdvancedLoopControls(); },
 		);
 		host.chipWaveLoopModeSelect.addEventListener("change", () =>
-			host.dispatch.whenSetChipWaveLoopMode(),
+			{ host.dispatch.whenSetChipWaveLoopMode(); },
 		);
 		host.chipWaveLoopStartStepper.addEventListener("change", () =>
-			host.dispatch.whenSetChipWaveLoopStart(),
+			{ host.dispatch.whenSetChipWaveLoopStart(); },
 		);
 		host.chipWaveLoopEndStepper.addEventListener("change", () =>
-			host.dispatch.whenSetChipWaveLoopEnd(),
+			{ host.dispatch.whenSetChipWaveLoopEnd(); },
 		);
 		host.setChipWaveLoopEndToEndButton.addEventListener("click", () =>
-			host.dispatch.whenSetChipWaveLoopEndToEnd(),
+			{ host.dispatch.whenSetChipWaveLoopEndToEnd(); },
 		);
 		host.chipWaveStartOffsetStepper.addEventListener("change", () =>
-			host.dispatch.whenSetChipWaveStartOffset(),
+			{ host.dispatch.whenSetChipWaveStartOffset(); },
 		);
 		host.chipWavePlayBackwardsBox.addEventListener("input", () =>
-			host.dispatch.whenSetChipWavePlayBackwards(),
+			{ host.dispatch.whenSetChipWavePlayBackwards(); },
 		);
 		host.sampleLoadingStatusContainer.addEventListener("click", () =>
-			host.openPrompt("sampleLoadingStatus"),
+			{ host.openPrompt("sampleLoadingStatus"); },
 		);
-		host.chipNoiseSelect.addEventListener("change", () => host.dispatch.whenSetNoiseWave());
-		host.transitionSelect.addEventListener("change", () => host.dispatch.whenSetTransition());
-		host.effectsSelect.addEventListener("change", () => host.dispatch.whenSetEffects());
-		host.unisonSelect.addEventListener("change", () => host.dispatch.whenSetUnison());
-		host.chordSelect.addEventListener("change", () => host.dispatch.whenSetChord());
+		host.chipNoiseSelect.addEventListener("change", () => { host.dispatch.whenSetNoiseWave(); });
+		host.transitionSelect.addEventListener("change", () => { host.dispatch.whenSetTransition(); });
+		host.effectsSelect.addEventListener("change", () => { host.dispatch.whenSetEffects(); });
+		host.unisonSelect.addEventListener("change", () => { host.dispatch.whenSetUnison(); });
+		host.chordSelect.addEventListener("change", () => { host.dispatch.whenSetChord(); });
 		host.monophonicNoteInputBox.addEventListener("input", () =>
-			host.dispatch.whenSetMonophonicNote(),
+			{ host.dispatch.whenSetMonophonicNote(); },
 		);
-		host.vibratoSelect.addEventListener("change", () => host.dispatch.whenSetVibrato());
-		host.vibratoTypeSelect.addEventListener("change", () => host.dispatch.whenSetVibratoType());
+		host.vibratoSelect.addEventListener("change", () => { host.dispatch.whenSetVibrato(); });
+		host.vibratoTypeSelect.addEventListener("change", () => { host.dispatch.whenSetVibratoType(); });
 
 		// Playback controls
-		host.playButton.addEventListener("click", () => host.togglePlay());
-		host.pauseButton.addEventListener("click", () => host.togglePlay());
-		host.recordButton.addEventListener("click", () => host.toggleRecord());
-		host.stopButton.addEventListener("click", () => host.toggleRecord());
+		host.playButton.addEventListener("click", () => { host.togglePlay(); });
+		host.pauseButton.addEventListener("click", () => { host.togglePlay(); });
+		host.recordButton.addEventListener("click", () => { host.toggleRecord(); });
+		host.stopButton.addEventListener("click", () => { host.toggleRecord(); });
 		// Start recording instead of opening context menu when control-clicking the record button on a Mac.
 		host.recordButton.addEventListener("contextmenu", (event: MouseEvent) => {
 			if (event.ctrlKey) {
@@ -264,15 +264,15 @@ export class EventListenerSetup {
 				host.toggleRecord();
 			}
 		});
-		host.prevBarButton.addEventListener("click", () => host.whenPrevBarPressed());
-		host.nextBarButton.addEventListener("click", () => host.whenNextBarPressed());
-		host.volumeSlider.input.addEventListener("input", () => host.setVolumeSlider());
+		host.prevBarButton.addEventListener("click", () => { host.whenPrevBarPressed(); });
+		host.nextBarButton.addEventListener("click", () => { host.whenNextBarPressed(); });
+		host.volumeSlider.input.addEventListener("input", () => { host.setVolumeSlider(); });
 
 		// Navigation and focus
 		host.patternArea.addEventListener("mousedown", (event) =>
-			host.refocusStageNotEditing(event as MouseEvent),
+			{ host.refocusStageNotEditing(event); },
 		);
-		host.trackArea.addEventListener("mousedown", () => host.refocusStage());
+		host.trackArea.addEventListener("mousedown", () => { host.refocusStage(); });
 
 		// The song volume slider is styled slightly different than the class' default.
 		host.volumeSlider.container.style.setProperty("flex-grow", "1");
@@ -281,7 +281,7 @@ export class EventListenerSetup {
 		host.volumeBarContainer.style.setProperty("flex-grow", "1");
 		host.volumeBarContainer.style.setProperty("display", "flex");
 		host.volumeBarContainer.addEventListener("click", () =>
-			host.openPrompt("channelVolumeVisualizer"),
+			{ host.openPrompt("channelVolumeVisualizer"); },
 		);
 
 		// Also, any slider with a multiplicative effect instead of a replacement effect gets a different mod color, and a round slider.
@@ -339,49 +339,49 @@ export class EventListenerSetup {
 		});
 
 		// Focus handlers for editors
-		host.patternArea.addEventListener("mousedown", () => host.refocusStage());
-		host.fadeInOutEditor.container.addEventListener("mousedown", () => host.refocusStage());
-		host.spectrumEditor.container.addEventListener("mousedown", () => host.refocusStage());
-		host.eqFilterEditor.container.addEventListener("mousedown", () => host.refocusStage());
-		host.noteFilterEditor.container.addEventListener("mousedown", () => host.refocusStage());
-		host.songEqFilterEditor.container.addEventListener("mousedown", () => host.refocusStage());
-		host.harmonicsEditor.container.addEventListener("mousedown", () => host.refocusStage());
+		host.patternArea.addEventListener("mousedown", () => { host.refocusStage(); });
+		host.fadeInOutEditor.container.addEventListener("mousedown", () => { host.refocusStage(); });
+		host.spectrumEditor.container.addEventListener("mousedown", () => { host.refocusStage(); });
+		host.eqFilterEditor.container.addEventListener("mousedown", () => { host.refocusStage(); });
+		host.noteFilterEditor.container.addEventListener("mousedown", () => { host.refocusStage(); });
+		host.songEqFilterEditor.container.addEventListener("mousedown", () => { host.refocusStage(); });
+		host.harmonicsEditor.container.addEventListener("mousedown", () => { host.refocusStage(); });
 		host.tempoStepper.addEventListener(
 			"keydown",
-			(event) => host.tempoStepperCaptureNumberKeys(event as KeyboardEvent),
+			(event) => { host.tempoStepperCaptureNumberKeys(event); },
 			false,
 		);
-		host.addEnvelopeButton.addEventListener("click", () => host.dispatch.addNewEnvelope());
+		host.addEnvelopeButton.addEventListener("click", () => { host.dispatch.addNewEnvelope(); });
 		host.patternArea.addEventListener("contextmenu", (event) =>
-			host.disableCtrlContextMenu(event as MouseEvent),
+			host.disableCtrlContextMenu(event),
 		);
 		host.trackArea.addEventListener("contextmenu", (event) =>
-			host.disableCtrlContextMenu(event as MouseEvent),
+			host.disableCtrlContextMenu(event),
 		);
 		host.mainLayer.addEventListener("keydown", (event) =>
-			host.keyboardHandler.handleKeyDown(event as KeyboardEvent),
+			{ host.keyboardHandler.handleKeyDown(event); },
 		);
 		host.mainLayer.addEventListener("keyup", (event) =>
-			host.keyboardHandler.handleKeyUp(event as KeyboardEvent),
+			{ host.keyboardHandler.handleKeyUp(event); },
 		);
-		host.mainLayer.addEventListener("focusin", (event) => host.onFocusIn(event));
+		host.mainLayer.addEventListener("focusin", (event) => { host.onFocusIn(event); });
 		document.addEventListener("keydown", (event) =>
-			host.handleGlobalKeyDown(event as KeyboardEvent),
+			{ host.handleGlobalKeyDown(event); },
 		);
 
 		// Instrument buttons
-		host.instrumentCopyButton.addEventListener("click", () => host.dispatch.copyInstrument());
-		host.instrumentPasteButton.addEventListener("click", () => host.dispatch.pasteInstrument());
+		host.instrumentCopyButton.addEventListener("click", () => { host.dispatch.copyInstrument(); });
+		host.instrumentPasteButton.addEventListener("click", () => { host.dispatch.pasteInstrument(); });
 		host.instrumentExportButton.addEventListener("click", () =>
-			host.dispatch.exportInstruments(),
+			{ host.dispatch.exportInstruments(); },
 		);
 		host.instrumentImportButton.addEventListener("click", () =>
-			host.dispatch.importInstruments(),
+			{ host.dispatch.importInstruments(); },
 		);
 
 		// Sample loading event
 		sampleLoadEvents.addEventListener("sampleloaded", (e: Event) =>
-			host.updateSampleLoadingBar(e as SampleLoadedEvent),
+			{ host.updateSampleLoadingBar(e as SampleLoadedEvent); },
 		);
 
 		// Slider input boxes with direct change handlers
@@ -569,7 +569,7 @@ export class EventListenerSetup {
 		});
 		host.presetTagsInputBox.addEventListener("blur", () => {
 			// Delay hiding so click on suggestion registers first
-			setTimeout(() => host.hideTagAutocomplete(), 150);
+			setTimeout(() => { host.hideTagAutocomplete(); }, 150);
 		});
 		host.clearTagsButton.addEventListener("click", () => {
 			host.presetTagsInputBox.value = "";
@@ -578,7 +578,7 @@ export class EventListenerSetup {
 
 		// Prompt container click handler
 		host.promptContainer.addEventListener("click", (event) => {
-			if (host.doc.prefs.closePromptByClickoff === true) {
+			if (host.doc.prefs.closePromptByClickoff) {
 				// Note: prompts.some check needs to be accessed differently
 				// if (host.prompts.some((p) => p.gotMouseUp === true)) return;
 				if (event.target === host.promptContainer) {
@@ -591,7 +591,7 @@ export class EventListenerSetup {
 		// Bypassing typescript type safety here to use the new "passive" option.
 		(<Function>host.trackAndMuteContainer.addEventListener)(
 			"scroll",
-			(event: Event) => host.onTrackAreaScroll(event),
+			(event: Event) => { host.onTrackAreaScroll(event); },
 			{
 				capture: false,
 				passive: true,

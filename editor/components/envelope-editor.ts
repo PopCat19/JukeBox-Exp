@@ -544,7 +544,7 @@ export class EnvelopeEditor {
 				this.perEnvelopeUpperBoundSliders[i].updateValue(
 					instrument.envelopes[i].perEnvelopeUpperBound,
 				);
-			} else if (this.openExtraSettingsDropdowns[i] === false) {
+			} else if (!this.openExtraSettingsDropdowns[i]) {
 				this.extraSettingsDropdownGroups[i].style.display = "none";
 				this.extraPitchSettingsGroups[i].style.display = "none";
 				this.extraSettingsDropdowns[i].style.display = "flex";
@@ -939,7 +939,7 @@ export class EnvelopeEditor {
 			// speed settings
 			const perEnvelopeSpeedSlider: Slider = new Slider(
 				HTML.input({
-					oninput: () => this.updateSpeedDisplay(envelopeIndex),
+					oninput: () => { this.updateSpeedDisplay(envelopeIndex); },
 					style: `margin: 0; width:${Sizing.inputMd}`,
 					type: "range",
 					min: 0,

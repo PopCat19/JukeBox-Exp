@@ -108,7 +108,7 @@ export class CustomChipCanvas {
 
 			const ctx = this.canvas.getContext("2d") as CanvasRenderingContext2D;
 
-			if (this.continuousEdit === true && Math.abs(this.lastX - x) < 40) {
+			if (this.continuousEdit && Math.abs(this.lastX - x) < 40) {
 				const lowerBound = x < this.lastX ? x : this.lastX;
 				const upperBound = x < this.lastX ? this.lastX : x;
 
@@ -197,7 +197,7 @@ export class CustomChipCanvas {
 	private _whenChange = (): void => {
 		this._change = this._getChange(this.newArray);
 
-		this._doc.record(this._change!);
+		this._doc.record(this._change);
 
 		this._change = null;
 	};

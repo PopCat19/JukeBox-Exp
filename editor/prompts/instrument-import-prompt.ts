@@ -50,7 +50,7 @@ export class InstrumentImportPrompt extends BasePrompt {
 	constructor(doc: SongDocument) {
 		super(doc);
 		this.buildTitlebar();
-		if ((doc.song.patternInstruments || doc.song.layeredInstruments) === false) {
+		if (!(doc.song.patternInstruments || doc.song.layeredInstruments)) {
 			this._importStrategySelect.disabled = true;
 			this._importStrategySelect.value = "replace";
 			this._strategyInfoText.hidden = false;
@@ -78,8 +78,7 @@ export class InstrumentImportPrompt extends BasePrompt {
 				const fileParsed: any = JSON.parse(String(e.target?.result));
 				if (Array.isArray(fileParsed)) {
 					if (
-						(this._doc.song.patternInstruments || this._doc.song.layeredInstruments) ===
-						false
+						!(this._doc.song.patternInstruments || this._doc.song.layeredInstruments)
 					) {
 						alert(
 							"Instrument file contains multiple instruments! Please turn on either Simultaneous instruments per channel or Different instruments per pattern!",

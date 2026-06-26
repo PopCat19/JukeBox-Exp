@@ -108,7 +108,7 @@ export class ThemePrompt extends BasePrompt {
 		min: "0",
 		max: "360",
 		value: String(ColorConfig.pmdHue),
-		oninput: () => this._onPMDChange(),
+		oninput: () => { this._onPMDChange(); },
 	});
 
 	private readonly _pmdHueLabel: HTMLSpanElement = span(

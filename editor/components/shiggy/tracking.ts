@@ -71,7 +71,7 @@ export class CursorTracker {
 		clearDialogue(s);
 		s.img.style.animation = "shiggy-summon-exit 0.4s ease-in forwards";
 		const img = s.img;
-		setTimeout(() => img.remove(), 450);
+		setTimeout(() => { img.remove(); }, 450);
 		summoned.splice(index, 1);
 		this._physics.removeShiggy(index);
 	}

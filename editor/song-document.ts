@@ -105,8 +105,8 @@ export class SongDocument {
 		}
 		songString = this.song.toBase64String();
 		this.synth = new Synth(this.song);
-		this.synth.onSpectrumUpdate = (l, r) => events.raise("spectrumUpdate", l, r);
-		this.synth.onSpectrumReset = () => events.raise("spectrumReset");
+		this.synth.onSpectrumUpdate = (l, r) => { events.raise("spectrumUpdate", l, r); };
+		this.synth.onSpectrumReset = () => { events.raise("spectrumReset"); };
 		this.synth.volume = this._calcVolume();
 		this.synth.anticipatePoorPerformance = isMobile;
 		if (!this.prefs.loopEnabled) this.synth.loopRepeatCount = 0;

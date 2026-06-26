@@ -65,7 +65,7 @@ export class BeatsPerBarPrompt extends BasePrompt {
 		}
 
 		this._beatsStepper.select();
-		setTimeout(() => this._beatsStepper.focus());
+		setTimeout(() => { this._beatsStepper.focus(); });
 
 		this._beatsStepper.addEventListener("keypress", validateKey);
 		this._beatsStepper.addEventListener("blur", validateNumber);
