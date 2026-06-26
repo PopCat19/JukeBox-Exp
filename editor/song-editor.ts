@@ -2571,15 +2571,16 @@ export class SongEditor
 		// a select dropdown) instead of toggling playback.
 		// Blur buttons after mouseup so Space toggles playback.
 		// For selects, intercept Space at keydown (native opens dropdown).
-		// Blur buttons on mouseup; refocus mainLayer on any click outside it
-		// (catches off-click to close a select where focus lands on <body>).
-		document.addEventListener("mouseup", (e: Event) => {
-			const target = e.target as HTMLElement;
-			if (target.closest("button")) {
-				setTimeout(() => this.mainLayer.focus({ preventScroll: true }), 0);
-			} else if (!this.mainLayer.contains(target) && document.activeElement !== this.mainLayer) {
-				setTimeout(() => this.mainLayer.focus({ preventScroll: true }), 0);
-			}
+		// After a select's dropdown closes via off-click, the browser
+		// transfers focus to <body> asynchronously (after mouseup
+		// returns). Use rAF to check after the transfer completes.
+		// If <body> is focused, restore mainLayer focus.
+		document.addEventListener("mouseup", () => {
+			requestAnimationFrame(() => {
+				if (document.activeElement === document.body) {
+					this.mainLayer.focus({ preventScroll: true });
+				}
+			});
 		});
 		// Capture-phase Space interceptor. Cases:
 		// 1. Space on <select>: preventDefault prevents native dropdown.

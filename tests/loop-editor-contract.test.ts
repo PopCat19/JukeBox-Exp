@@ -87,9 +87,11 @@ describe("loop-editor UI contract / song-editor focus-steal contract", () => {
 	// -------------------------------------------------------------------
 	// Category C: SongEditor constructor registers focus-steal listeners
 	// -------------------------------------------------------------------
-	test("registers mouseup listener for buttons", () => {
-		const hasClosestButton = songLines.some((l) => l.includes("closest(\"button\")"));
-		expect(hasClosestButton).toBeTrue();
+	test("registers mousedown listener restoring mainLayer focus when body focused", () => {
+		const hasBodyCheck = songLines.some((l) => l.includes("activeElement === document.body"));
+		expect(hasBodyCheck).toBeTrue();
+		const hasMainLayerFocus = songLines.some((l) => l.includes("mainLayer.focus"));
+		expect(hasMainLayerFocus).toBeTrue();
 	});
 
 	test("registers capture-phase keydown listener for Space on select", () => {
