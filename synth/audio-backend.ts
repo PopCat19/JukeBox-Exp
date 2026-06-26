@@ -227,7 +227,7 @@ export class AudioBackend {
 		}
 
 		if (this._workletNode != null) {
-			this._workletNode.port.postMessage({ type: "audio", left, right }, [left.buffer, right.buffer]);
+			this._workletNode.port.postMessage({ type: "audio", left, right }, [left.buffer, right.buffer] as any);
 		} else {
 			this._dbgWarn("Worklet node is null after synthesize, audio data lost");
 		}
@@ -242,7 +242,7 @@ export class AudioBackend {
 			const right = new Float32Array(this._currentBufferSize);
 			host.synthesize(left, right, this._currentBufferSize, isPlayingSong);
 			if (this._workletNode != null) {
-				this._workletNode.port.postMessage({ type: "audio", left, right }, [left.buffer, right.buffer]);
+				this._workletNode.port.postMessage({ type: "audio", left, right }, [left.buffer, right.buffer] as any);
 			}
 		}
 		this._workletPrimed = true;

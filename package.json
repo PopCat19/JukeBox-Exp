@@ -21,7 +21,7 @@
 		"typecheck": "tsc --noEmit -p tsconfig_editor.json",
 		"typecheck:synth": "tsc --noEmit -p tsconfig_synth.json",
 		"typecheck:player": "tsc --noEmit -p tsconfig_player.json",
-		"typecheck:all": "npm run typecheck && npm run typecheck:synth && npm run typecheck:player",
+		"typecheck:all": "bun run typecheck && bun run typecheck:synth && bun run typecheck:player",
 		"dev": "bash ./scripts/live-editor.sh",
 		"dev:static": "bash ./scripts/live-editor-static.sh",
 		"lint": "bash ./scripts/lint.sh",
