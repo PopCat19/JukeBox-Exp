@@ -47,11 +47,18 @@ an uncovered module.
 | `synth/config/` | `tests/barrel-exports.test.ts` | Config, types, utils barrel |
 | `synth/formats/` | `tests/barrel-exports.test.ts` | JukeboxExp + legacy compat barrel |
 | `synth/synth.ts` | `tests/synth-contract.test.ts` | Public API surface after extraction (sanitizeFilters delegation, removed legacy fields) |
+| `synth/tone.ts` | `tests/tone.test.ts` | Constructor, reset, state defaults |
+| `synth/channels.ts` | `tests/channels.test.ts` | Channel defaults, array initialization |
+| `synth/channel-state.ts` | `tests/channels.test.ts` | ChannelState defaults, audio buffer sizing |
+| `synth/deque.ts` | `tests/deque.test.ts` | FIFO/LIFO order, capacity expansion, index get/set/remove, empty errors |
+| `synth/fft.ts` | `tests/fft.test.ts` | scaleElementsByFactor, discreteFourierTransform, fastFourierTransform, forwardRealFourierTransform, inverseRealFourierTransform |
+| `synth/waves.ts` | `tests/waves.test.ts` | SpectrumWave constructor/reset/hash, SpectrumWaveState getCustomWave caching |
+| `synth/envelope-computer.ts` | `tests/envelope-computer.test.ts` | Constructor, reset, clearEnvelopes, computeEnvelope static (none, twang, lfo, decay, blip, linear, fall, punch, inverse, bounds), computePitchEnvelope, getLowpassCutoffDecayVolumeCompensation |
+| `synth/picked-string.ts` | `tests/picked-string.test.ts` | Constructor, reset, coefficient defaults |
+| `synth/instrument-state.ts` | `tests/instrument-state.test.ts` | Constructor, tone pool defaults, flag defaults, type/unison/effect defaults |
+| `synth/song-utilities.ts` | `tests/song-utilities.test.ts` | envelopeFromLegacyIndex, isProperUrl, restoreChipWaveListToDefault, clearSamples |
 
-**Untested synth modules:** `tone.ts`, `channels.ts`, `channel-state.ts`,
-`envelope-computer.ts`, `mod-state.ts`, `fft.ts`, `waves.ts`, `deque.ts`,
-`picked-string.ts`, `song-utilities.ts`, `instrument-state.ts`,
-`config/sample-loader.ts` (barrel verified),
+**Untested synth modules:** `mod-state.ts`, `config/sample-loader.ts` (barrel verified),
 `formats/legacy-compat.ts` (barrel verified).
 
 **Instrument type round-trips (tested):** chip, fm, noise, spectrum, drumset,
@@ -80,6 +87,9 @@ All 12 types verified via encode→decode→type-preservation.
 | Source | Test file | Scope |
 |--------|-----------|-------|
 | `shared/color-utils.ts` | `tests/shared-utilities.test.ts` | parseCssColor, hslToRgb, oklchToHex, formatColorForTab, hexToRgb, rgbToHex, etc. |
+| `shared/pmd/color.ts` | `tests/shared-utilities.test.ts` | safeOklchToRgb, oklchToRgb |
+| `shared/color-config.ts` | `tests/shared-utilities.test.ts` | colorConfig (indirect through color utils) |
+| `shared/events.ts` | `tests/barrel-exports.test.ts` | events (indirect) |
 | `shared/pmd/color.ts` | `tests/shared-utilities.test.ts` | safeOklchToRgb, oklchToRgb |
 | `shared/color-config.ts` | `tests/shared-utilities.test.ts` | colorConfig (indirect through color utils) |
 | `shared/events.ts` | `tests/barrel-exports.test.ts` | events (indirect) |

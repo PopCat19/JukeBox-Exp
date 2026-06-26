@@ -20,8 +20,15 @@ Purpose: bun:test test files covering editor, synth, and shared modules.
 - `song-serialization.test.ts`, Unit tests for song serialization API and failure resilience
 - `synthesis.test.ts`, Unit tests for synthesis source string builders (chip, drum, effects, FM, FM6, harmonics, noise, picked-string, pulse, spectrum, supersaw)
 - `synth-contract.test.ts`, Systematic contract tests for extraction safety: generated-source drift (Category A), host interface snapshot rot (Category B), cross-field contamination (Category C), barrel export erosion (Category D)
-- `synth-math.test.ts`, Unit tests for pure synth math utilities, Unit tests for pure synth math utilities (getLFOAmplitude, computeChordExpression, operatorAmplitudeCurve, adjacentNotesHaveMatchingPitches, volume conversion round-trips)
-- `synth-utilities.test.ts`, Unit tests for synth utility functions
+- `deque.test.ts`, Unit tests for Deque<T> — FIFO/LIFO order, capacity expansion, index get/set/remove, empty errors
+- `fft.test.ts`, Unit tests for FFT module — scaleElementsByFactor, discreteFourierTransform, fastFourierTransform, forward/inverse real FFT round-trip
+- `tone.test.ts`, Unit tests for Tone — constructor, reset, state defaults
+- `channels.test.ts`, Unit tests for Channel and ChannelState — defaults, arrays, audio buffer sizing
+- `waves.test.ts`, Unit tests for waves module — SpectrumWave constructor/reset/hash, SpectrumWaveState caching
+- `envelope-computer.test.ts`, Unit tests for EnvelopeComputer — constructor, reset, computeEnvelope static (all envelope types), computePitchEnvelope, getLowpassCutoffDecayVolumeCompensation
+- `picked-string.test.ts`, Unit tests for PickedString — constructor, reset, coefficient defaults
+- `instrument-state.test.ts`, Unit tests for InstrumentState — constructor, tone pools, flag defaults, type/unison/effect defaults
+- `song-utilities.test.ts`, Unit tests for song-utilities — envelopeFromLegacyIndex, isProperUrl, restoreChipWaveListToDefault, clearSamples
 
 ## Source-to-test cross-reference
 
