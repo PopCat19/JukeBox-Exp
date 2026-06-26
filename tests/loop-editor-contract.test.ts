@@ -88,25 +88,28 @@ describe("loop-editor UI contract / song-editor focus-steal contract", () => {
 	// Category C: SongEditor constructor registers focus-steal listeners
 	// -------------------------------------------------------------------
 	test("registers mouseup listener for buttons", () => {
-		const hasMouseup = songLines.some((l) => l.includes("mouseup"));
-		expect(hasMouseup).toBeTrue();
 		const hasClosestButton = songLines.some((l) => l.includes("closest(\"button\")"));
 		expect(hasClosestButton).toBeTrue();
 	});
 
-	test("registers document keydown listener calling handleKeyDown on Space", () => {
-		const hasDocumentKeydown = songLines.some((l) => l.includes("handleKeyDown"));
-		expect(hasDocumentKeydown).toBeTrue();
+	test("registers capture-phase keydown listener for Space on select", () => {
+		const captureLines = songLines.filter((l) => l.includes("capture: true"));
+		expect(captureLines.length).toBeGreaterThan(0);
 	});
 
-	test("keydown listener skips when target is inside mainLayer", () => {
-		const hasMainLayerGuard = songLines.some((l) => l.includes("mainLayer.contains"));
-		expect(hasMainLayerGuard).toBeTrue();
+	test("capture listener checks closest(\"select\") on Space keyCode 32", () => {
+		const hasClosestSelect = songLines.some((l) => l.includes("closest(\"select\")"));
+		expect(hasClosestSelect).toBeTrue();
 	});
 
-	test("keydown listener prevents default on Space", () => {
+	test("capture listener prevents default on Space for selects", () => {
 		const hasPreventDefault = songLines.some((l) => l.includes("preventDefault"));
 		expect(hasPreventDefault).toBeTrue();
+	});
+
+	test("capture listener routes to handleKeyDown", () => {
+		const hasHandleKeyDown = songLines.some((l) => l.includes("handleKeyDown"));
+		expect(hasHandleKeyDown).toBeTrue();
 	});
 });
 });

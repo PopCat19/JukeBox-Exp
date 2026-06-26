@@ -2577,15 +2577,19 @@ export class SongEditor
 				setTimeout(() => this.mainLayer.focus({ preventScroll: true }), 0);
 			}
 		});
-		document.addEventListener("keydown", (e: KeyboardEvent) => {
-			if (!e.keyCode || e.keyCode !== 32) return;
-			// Only intercept when focus is outside mainLayer (e.g. on a
-			// button, select, or <body> after select off-click). When
-			// mainLayer has focus its own handler already toggles playback.
-			if (this.mainLayer.contains(e.target as Node)) return;
-			e.preventDefault();
-			this._keyboardHandler.handleKeyDown(e);
-		});
+		// Capture-phase Space on <select>: prevent native dropdown.
+		// preventDefault at bubble phase is ignored by browsers for
+		// native select keyboard behavior.
+		document.addEventListener(
+			"keydown",
+			(e: KeyboardEvent) => {
+				if (e.keyCode === 32 && (e.target as HTMLElement).closest("select")) {
+					e.preventDefault();
+					this._keyboardHandler.handleKeyDown(e);
+				}
+			},
+			{ capture: true },
+		);
 		this._animator = new PlayerAnimator(this.doc, {
 			modSliderUpdate: () => this._modSliderUpdate(),
 			getCtrlHeld: () => this._ctrlHeld,
