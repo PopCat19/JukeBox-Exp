@@ -621,8 +621,6 @@ html {
 }
 
 
-${buildPromptShellCSS()}
-
 .beepboxEditor .prompt.compactSearchPrompt > *:not(:first-child):not(.cancelButton) {
 	margin-top: 0;
 }
@@ -2334,6 +2332,8 @@ ${buildPromptShellCSS()}
 	-webkit-mask-repeat: no-repeat;
 	-webkit-mask-position: center;
 }
+
+${buildPromptShellCSS()}
 
 .beepboxEditor .instrument-bar {
 	display: flex;
