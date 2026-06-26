@@ -201,6 +201,9 @@ export class Synth {
 	private _stopFadeSamplesRemaining: number = 0;
 	private _stopFadeSamplesTotal: number = 0;
 	private _stopFadeCleanupDone: boolean = false;
+	// Set by song-ended path to reset bar to 0 after the fade completes.
+	// Manual pause (Space, pause button) leaves bar at the current position.
+	private _resetBarAfterFade: boolean = false;
 	private static readonly STOP_FADE_DURATION_MS: number = 800;
 
 	public readonly channels: ChannelState[] = [];
@@ -647,9 +650,13 @@ export class Synth {
 		this._audio.cancelSpectrumDecay();
 
 		// Cancel any pending stop fade and clean up immediately
+		// Also reset the song-end flag so it doesn't leak across
+		// play sessions and cause an unwanted bar reset on the
+		// next manual pause.
 		if (this._stopFadeSamplesRemaining > 0) {
 			this._stopFadeSamplesRemaining = 0;
 			this.freeAllTones();
+			this._resetBarAfterFade = false;
 		}
 
 		if (this.isPlayingSong) return;
@@ -1139,11 +1146,8 @@ export class Synth {
 					// and the fade logic at the bottom of the loop handles the transition.
 					// If we exit the loop early, this entire buffer is zeroed, creating
 					// a discontinuity from the last full-gain tick.
-					// Don't reset bar/totalSamplesRendered either — pause() starts
-					// a stop fade and synthesize() continues during the fade.
-					// Fresh notes from bar 0 mixing with the fading tail cause
-					// clicks (especially on reverb/delay instruments). Wait until
-					// fade cleanup to reset.
+					// Signal fade cleanup to reset bar to 0 after fade completes.
+					this._resetBarAfterFade = true;
 					this.pause();
 				} else {
 					// Infinite end-wrap (no user loop points, loopRepeatCount === -1):
@@ -1500,10 +1504,14 @@ export class Synth {
 						}
 					}
 					this._dbg("Stop fade complete, tones freed, effects reset, unfiltered buffers cleared");
-					// Reset bar position after fade so fresh notes from bar 0
-					// don't mix with the fading tail.
-					this.bar = 0;
-					this.totalSamplesRendered = 0;
+					// Reset bar position after song-end fade so fresh notes
+					// from bar 0 don't mix with the fading tail. Manual pause
+					// (Space, pause button) leaves bar at the current position.
+					if (this._resetBarAfterFade) {
+						this.bar = 0;
+						this.totalSamplesRendered = 0;
+						this._resetBarAfterFade = false;
+					}
 				}
 			}
 
@@ -1706,7 +1714,8 @@ export class Synth {
 											// logic at the bottom handles the transition.
 											// If we exit the loop early, this entire buffer is zeroed,
 											// creating a discontinuity from the last full-gain tick.
-											// Wait until fade cleanup to reset bar.
+											// Signal fade cleanup to reset bar to 0 after the fade.
+											this._resetBarAfterFade = true;
 											this.pause();
 										} else {
 											// Infinite end-wrap (no user loop points, loopRepeatCount === -1):
