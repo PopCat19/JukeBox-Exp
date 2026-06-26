@@ -45,7 +45,7 @@ function functionBody(lines: string[], openIdx: number): string[] {
 	return body;
 }
 
-describe("loop-editor UI contract", () => {
+describe("loop-editor UI contract / song-editor focus-steal contract", () => {
 	const loopLines = sourceLines("../editor/components/loop-editor.ts");
 	const songLines = sourceLines("../editor/song-editor.ts");
 
@@ -82,4 +82,28 @@ describe("loop-editor UI contract", () => {
 		const classRemovals = songLines.filter((l) => l.includes("classList.remove") && l.includes("loopDisabled"));
 		expect(classRemovals.length).toBe(0);
 	});
+
+	describe("focus-steal contract", () => {
+	// -------------------------------------------------------------------
+	// Category C: SongEditor constructor registers focus-steal listeners
+	// -------------------------------------------------------------------
+	test("registers mouseup listener for buttons", () => {
+		const hasMouseup = songLines.some((l) => l.includes("mouseup"));
+		expect(hasMouseup).toBeTrue();
+		const hasClosestButton = songLines.some((l) => l.includes("closest(\"button\")"));
+		expect(hasClosestButton).toBeTrue();
+	});
+
+	test("registers keydown listener calling handleKeyDown", () => {
+		const hasKeydown = songLines.some((l) => l.includes("handleKeyDown"));
+		expect(hasKeydown).toBeTrue();
+	});
+
+	test("keydown intercept prevents default on Space for select/button", () => {
+		const hasPreventDefault = songLines.some((l) => l.includes("preventDefault"));
+		expect(hasPreventDefault).toBeTrue();
+		const hasSelectButton = songLines.some((l) => l.includes("select, button"));
+		expect(hasSelectButton).toBeTrue();
+	});
+});
 });

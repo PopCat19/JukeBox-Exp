@@ -66,12 +66,13 @@ All 12 types verified via encode→decode→type-preservation.
 | `editor/components/pattern-editor.ts` | `tests/pattern-editor-contract.test.ts` | Stale canvas path guard, SVG/canvas y-center alignment |
 | `editor/components/loop-editor.ts` | `tests/loop-editor-contract.test.ts` | CSS class for disabled state, no inline opacity conflict |
 | `editor/ui/index.ts` (barrel) | `tests/barrel-exports.test.ts` | buildOptions, numberInput, Slider, Layout, createDiv, etc. |
+| `editor/song-editor.ts` | `tests/loop-editor-contract.test.ts` | Focus-steal listeners for buttons/selects |
 
 **Untested editor modules:** All `editor/core/`, `editor/changes/`,
 `editor/prompts/`, `editor/renderers/`,
 `editor/rendering/`, `editor/io/`, `editor/config/`,
 `editor/ui/*` subdirectories (except barrel), `editor/main.ts`,
-`editor/song-document.ts`, `editor/song-editor.ts`,
+`editor/song-document.ts`,
 `editor/song-custom-samples.ts`, `editor/components/mute-editor.ts`.
 
 ### shared/
