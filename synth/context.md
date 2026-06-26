@@ -7,8 +7,9 @@
 - `synth.ts`, Core synthesis engine, tick/bar orchestration, tone lifecycle, computeTone (phase, expression, interval, mod resolution), audio buffer rendering, modulator synthesis dispatch (modSynth)
 - `synth-effects.ts`, Effects processing dispatch — determines active effects and invokes cached generated effects function
 - `song.ts`, Manages song data model, fields, and initialization
-- `song-serialization.ts`, Shared song types (SongLike), version constants, fromBase64StringImpl (deserialize). Delegate toBase64StringImpl to synth-serialize.ts
+- `song-serialization.ts`, Shared song types (SongLike), version constants, getNeededBits. Re-exports toBase64StringImpl/fromBase64StringImpl
 - `synth-serialize.ts`, URL hash encoding for songs (toBase64StringImpl) — packs instrument, pattern, envelope, and effect data into a bit stream
+- `synth-deserialize.ts`, URL hash decoding for songs (fromBase64StringImpl) — reads bit stream, handles multi-format version compatibility
 - `song-serialization-shared.ts`, Shared module-level constants for song serialization (ENV_* indices, version range consts, format variant byte)
 - `song-utilities.ts`, Helper functions for song serialization and sample management
 - `serialization.ts`, Provides base64 encoding/decoding and bitfield read/write utilities for song data
