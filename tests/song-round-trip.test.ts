@@ -123,3 +123,68 @@ describe("toJsonObject / fromJsonObject round-trip", () => {
 		expect(decoded.getChannelCount()).toBe(4);
 	});
 });
+
+describe("effects and envelope round-trip", () => {
+	test("round-trip preserves effects bitmask", () => {
+		const song = createTestSong();
+		const instr = song.channels[0].instruments[0];
+		instr.effects = 0x2400;
+		const encoded = song.toBase64String();
+
+		const decoded = createTestSong();
+		decoded.fromBase64String(encoded);
+		const decodedInstr = decoded.channels[0].instruments[0];
+
+		expect(decodedInstr.effects).toBe(0x2400);
+	});
+
+	test("round-trip preserves loop bounds", () => {
+		const song = createTestSong();
+		song.loopStart = 2;
+		song.loopLength = 4;
+
+		const encoded = song.toBase64String();
+		const decoded = createTestSong();
+		decoded.fromBase64String(encoded);
+
+		expect(decoded.loopStart).toBe(2);
+		expect(decoded.loopLength).toBe(4);
+	});
+
+	test("round-trip preserves non-default limiter settings", () => {
+		const song = createTestSong();
+		song.limitDecay = 10;
+		song.limitRise = 5000;
+		song.compressionThreshold = 0.5;
+		song.limitThreshold = 0.8;
+		song.compressionRatio = 0.5;
+		song.limitRatio = 0.5;
+		song.masterGain = 0.8;
+
+		const encoded = song.toBase64String();
+		const decoded = createTestSong();
+		decoded.fromBase64String(encoded);
+
+		expect(decoded.limitDecay).toBeCloseTo(10, 0);
+		expect(decoded.limitRise).toBeCloseTo(5000, -2);
+		expect(decoded.compressionThreshold).toBeCloseTo(0.5, 1);
+		expect(decoded.limitThreshold).toBeCloseTo(0.8, 1);
+	});
+});
+
+describe("JukeboxExp JSON round-trip", () => {
+	test("round-trip through JukeboxExp JSON preserves properties", () => {
+		const { toJukeboxExpJson, fromJukeboxExpJson } = require("../synth/formats/jukebox-exp");
+		const song = createTestSong();
+		song.tempo = 180;
+		song.title = "JukeboxExp Test";
+
+		const json = toJukeboxExpJson(song as any);
+		const decoded = createTestSong();
+		fromJukeboxExpJson(decoded as any, json);
+
+		expect(decoded.tempo).toBe(180);
+		expect(decoded.title).toBe("JukeboxExp Test");
+		expect(decoded.getChannelCount()).toBe(song.getChannelCount());
+	});
+});
