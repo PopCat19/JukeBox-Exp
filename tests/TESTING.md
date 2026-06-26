@@ -19,7 +19,7 @@ an uncovered module.
 | `synth/synth-config.ts` | `tests/synth-utilities.test.ts` | performIntegral, getPulseWidthRatio, getArpeggioPitchIndex, effects helpers, EffectType, Config |
 | `synth/synth-config.ts` | `tests/song-document-integration.test.ts` | hasEffect, effectsIncludeTransition, effectsIncludeChord |
 | `synth/synth-math.ts` | `tests/synth-math.test.ts` | getLFOAmplitude, computeChordExpression, operatorAmplitudeCurve, adjacentNotesHaveMatchingPitches, volume conversion |
-| `synth/synth-shared.ts` | `tests/synth-math.test.ts` | instrumentVolumeToVolumeMult, noteSizeToVolumeMult |
+| `synth/synth-shared.ts` | `tests/synth-shared.test.ts` | instrumentVolumeToVolumeMult, noteSizeToVolumeMult |
 | `synth/dsp-utils.ts` | `tests/dsp-utils.test.ts` | applyFilters, sanitizeDelayLine, findRandomZeroCrossing |
 | `synth/filtering.ts` | `tests/filtering.test.ts` | FilterCoefficients, FrequencyResponse, DynamicBiquadFilter, warp functions |
 | `synth/notes.ts` | `tests/notes.test.ts` | Note, Pattern, makeNotePin |
@@ -59,8 +59,12 @@ an uncovered module.
 | `synth/song-utilities.ts` | `tests/song-utilities.test.ts` | envelopeFromLegacyIndex, isProperUrl, restoreChipWaveListToDefault, clearSamples |
 | `synth/mod-state.ts` | `tests/mod-state.test.ts` | init, setModValue/getModValue, isModActive/isAnyModActive, unset, forceHoldMods, advanceNextToValues, initModFilters |
 
+| `synth/instruments/filter-control-point.ts` | `tests/filter-control-point.test.ts` | Hz conversion roundtrip, linear gain, volume compensation for low-pass/high-pass/peak |
+| `synth/synth-shared.ts` | `tests/synth-shared.test.ts` | instrumentVolumeToVolumeMult and noteSizeToVolumeMult edge cases (zero, max, monotonicity) |
+| `synth/post-processing.ts` | `tests/post-processing.test.ts` | sanitizeFilters — overflow reset, epsilon clamping, empty array, normal value preservation |
+| `synth/synth-effects.ts` | `tests/synth-effects.test.ts` | Module import and export shape |
+
 **Untested synth modules:** `config/sample-loader.ts` (barrel verified),
-`formats/legacy-compat.ts` (barrel verified).
 
 **Instrument type round-trips (tested):** chip, fm, noise, spectrum, drumset,
 harmonics, pwm, pickedString, supersaw, customChipWave, mod, fm6op.

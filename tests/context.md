@@ -30,6 +30,10 @@ Purpose: bun:test test files covering editor, synth, and shared modules.
 - `instrument-state.test.ts`, Unit tests for InstrumentState — constructor, tone pools, flag defaults, type/unison/effect defaults
 - `mod-state.test.ts`, Unit tests for SynthModState — init, setModValue/getModValue, isModActive/isAnyModActive, unset, forceHoldMods, advanceNextToValues, initModFilters
 - `song-utilities.test.ts`, Unit tests for song-utilities — envelopeFromLegacyIndex, isProperUrl, restoreChipWaveListToDefault, clearSamples
+- `synth-shared.test.ts`, Unit tests for synth-shared — instrumentVolumeToVolumeMult edge cases (zero, max, monotonic), noteSizeToVolumeMult edge cases (zero, max, monotonic)
+- `post-processing.test.ts`, Unit tests for PostProcessingState — sanitizeFilters overflow reset, epsilon clamping, empty array, normal value preservation, large negative values
+- `filter-control-point.test.ts`, Unit tests for FilterControlPoint — Hz conversion roundtrip, linear gain, volume compensation for low-pass/high-pass/peak, unknown type error
+- `synth-effects.test.ts`, Unit tests for synth-effects — module import and export shape
 
 ## Source-to-test cross-reference
 
