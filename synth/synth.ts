@@ -21,25 +21,15 @@ import { InstrumentState } from "./instrument-state";
 import { FilterControlPoint, FilterSettings, type HeldMod, Instrument } from "./instruments";
 import type { Note, NotePin, Pattern } from "./notes";
 import { PickedString } from "./picked-string";
-import { getCapabilities, getEffectsSynthFunction, getPlugin } from "./plugins";
+import { getCapabilities, getPlugin } from "./plugins";
 import { Song } from "./song";
 import {
 	Config,
 	EnvelopeComputeIndex,
-	effectsIncludeBitcrusher,
-	effectsIncludeChorus,
 	effectsIncludeDetune,
-	effectsIncludeDistortion,
-	effectsIncludeEcho,
-	effectsIncludeGranular,
-	effectsIncludeInvertWave,
 	effectsIncludeNoteFilter,
 	effectsIncludeNoteRange,
-	effectsIncludePanning,
-	effectsIncludePhaser,
 	effectsIncludePitchShift,
-	effectsIncludeReverb,
-	effectsIncludeRingModulation,
 	effectsIncludeVibrato,
 	FilterType,
 	getArpeggioPitchIndex,
@@ -49,6 +39,7 @@ import {
 import type { Chord, Envelope, Transition } from "./synth-config";
 import { instrumentVolumeToVolumeMult, noteSizeToVolumeMult, tempFilterEndCoefficients, tempFilterStartCoefficients } from "./synth-shared";
 import { SynthModState } from "./mod-state";
+import { effectsSynth } from "./synth-effects";
 import { Tone } from "./tone";
 import { clamp, detuneToCents, epsilon, fittingPowerOfTwo, getOperatorWave, wrap } from "./util";
 import { applyFilters, findRandomZeroCrossing, sanitizeDelayLine } from "./dsp-utils";
@@ -1341,7 +1332,7 @@ export class Synth {
 					}
 
 					if (instrumentState.awake) {
-						Synth.effectsSynth(this, outputDataL, outputDataR, bufferIndex, runLength, instrumentState);
+						effectsSynth(this, outputDataL, outputDataR, bufferIndex, runLength, instrumentState);
 					}
 
 					// Update LFO time for instruments (used to be deterministic based on bar position but now vibrato/arp speed messes that up!)
@@ -3770,7 +3761,6 @@ export class Synth {
 	static wrap(x: number, b: number): number {
 		return wrap(x, b);
 	}
-
 	public static getInstrumentSynthFunction(instrument: Instrument): Function {
 		const plugin = getPlugin(instrument.type);
 		if (plugin) {
@@ -3779,75 +3769,10 @@ export class Synth {
 		throw new Error(`Unrecognized instrument type: ${instrument.type}`);
 	}
 
-
-
-
-
-	private static effectsSynth(
-		synth: Synth,
-		outputDataL: Float32Array,
-		outputDataR: Float32Array,
-		bufferIndex: number,
-		runLength: number,
-		instrumentState: InstrumentState,
-	): void {
-		// TODO: If automation is involved, don't assume sliders will stay at zero.
-		// @jummbus - ^ Correct, removed the non-zero checks as modulation can change them.
-
-		const usesDistortion: boolean = effectsIncludeDistortion(instrumentState.effects);
-		const usesBitcrusher: boolean = effectsIncludeBitcrusher(instrumentState.effects);
-		const usesEqFilter: boolean = instrumentState.eqFilterCount > 0;
-		const usesPanning: boolean = effectsIncludePanning(instrumentState.effects);
-		const usesChorus: boolean = effectsIncludeChorus(instrumentState.effects);
-		const usesEcho: boolean = effectsIncludeEcho(instrumentState.effects);
-		const usesReverb: boolean = effectsIncludeReverb(instrumentState.effects);
-		const usesGranular: boolean = effectsIncludeGranular(instrumentState.effects);
-		const usesRingModulation: boolean = effectsIncludeRingModulation(instrumentState.effects);
-		const usesPhaser: boolean = effectsIncludePhaser(instrumentState.effects);
-		const usesInvertWave: boolean = effectsIncludeInvertWave(instrumentState.effects) && instrumentState.invertWave;
-		let signature: number = 0;
-		if (usesDistortion) signature = signature | 1;
-		signature = signature << 1;
-		if (usesBitcrusher) signature = signature | 1;
-		signature = signature << 1;
-		if (usesEqFilter) signature = signature | 1;
-		signature = signature << 1;
-		if (usesPanning) signature = signature | 1;
-		signature = signature << 1;
-		if (usesChorus) signature = signature | 1;
-		signature = signature << 1;
-		if (usesEcho) signature = signature | 1;
-		signature = signature << 1;
-		if (usesReverb) signature = signature | 1;
-		signature = signature << 1;
-		if (usesGranular) signature = signature | 1;
-		signature = signature << 1;
-		if (usesRingModulation) signature = signature | 1;
-		signature = signature << 1;
-		if (usesPhaser) signature = signature | 1;
-		signature = signature << 1;
-		if (usesInvertWave) signature = signature | 1;
-
-		const effectsFunction: Function = getEffectsSynthFunction(
-			usesDistortion,
-			usesBitcrusher,
-			usesEqFilter,
-			usesPanning,
-			usesChorus,
-			usesEcho,
-			usesReverb,
-			usesGranular,
-			usesRingModulation,
-			usesPhaser,
-			usesInvertWave,
-			signature,
-			Synth,
-		);
-
-		effectsFunction(synth, outputDataL, outputDataR, bufferIndex, runLength, instrumentState);
+	// Public bridge for mod plugin — modSynth needs private Synth state
+	public static runModSynth(synth: Synth, bufferIndex: number, roundedSamplesPerTick: number, tone: Tone, instrument: Instrument): void {
+		Synth.modSynth(synth, bufferIndex, roundedSamplesPerTick, tone, instrument);
 	}
-
-
 
 	private static modSynth(synth: Synth, _stereoBufferIndex: number, roundedSamplesPerTick: number, tone: Tone, instrument: Instrument): void {
 		// Note: present modulator value is tone.expressionStarts[0].
@@ -4145,11 +4070,6 @@ export class Synth {
 				}
 			}
 		}
-	}
-
-	// Public bridge for mod plugin — modSynth needs private Synth state
-	public static runModSynth(synth: Synth, bufferIndex: number, roundedSamplesPerTick: number, tone: Tone, instrument: Instrument): void {
-		Synth.modSynth(synth, bufferIndex, roundedSamplesPerTick, tone, instrument);
 	}
 
 	public static findRandomZeroCrossing(wave: Float32Array, waveLength: number): number {

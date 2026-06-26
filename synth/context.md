@@ -4,7 +4,8 @@
 - `dsp-utils.ts`, Pure DSP utility functions — filter application, delay line sanitization, zero-crossing detection
 - `synth-math.ts`, Pure math utility functions — volume conversion, amplitude curves, chord expression, LFO, note pitch matching
 - `mod-state.ts`, Modulator state container — values, accessors, and resolution logic
-- `synth.ts`, Core synthesis engine, tick/bar orchestration, tone lifecycle, computeTone (phase, expression, interval, mod resolution), and audio buffer rendering
+- `synth.ts`, Core synthesis engine, tick/bar orchestration, tone lifecycle, computeTone (phase, expression, interval, mod resolution), audio buffer rendering, modulator synthesis dispatch (modSynth)
+- `synth-effects.ts`, Effects processing dispatch — determines active effects and invokes cached generated effects function
 - `song.ts`, Manages song data model, fields, and initialization
 - `song-serialization.ts`, URL hash serialization for songs (toBase64String, fromBase64String)
 - `song-utilities.ts`, Helper functions for song serialization and sample management
