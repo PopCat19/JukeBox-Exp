@@ -57,8 +57,9 @@ an uncovered module.
 | `synth/picked-string.ts` | `tests/picked-string.test.ts` | Constructor, reset, coefficient defaults |
 | `synth/instrument-state.ts` | `tests/instrument-state.test.ts` | Constructor, tone pool defaults, flag defaults, type/unison/effect defaults |
 | `synth/song-utilities.ts` | `tests/song-utilities.test.ts` | envelopeFromLegacyIndex, isProperUrl, restoreChipWaveListToDefault, clearSamples |
+| `synth/mod-state.ts` | `tests/mod-state.test.ts` | init, setModValue/getModValue, isModActive/isAnyModActive, unset, forceHoldMods, advanceNextToValues, initModFilters |
 
-**Untested synth modules:** `mod-state.ts`, `config/sample-loader.ts` (barrel verified),
+**Untested synth modules:** `config/sample-loader.ts` (barrel verified),
 `formats/legacy-compat.ts` (barrel verified).
 
 **Instrument type round-trips (tested):** chip, fm, noise, spectrum, drumset,

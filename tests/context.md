@@ -28,6 +28,7 @@ Purpose: bun:test test files covering editor, synth, and shared modules.
 - `envelope-computer.test.ts`, Unit tests for EnvelopeComputer — constructor, reset, computeEnvelope static (all envelope types), computePitchEnvelope, getLowpassCutoffDecayVolumeCompensation
 - `picked-string.test.ts`, Unit tests for PickedString — constructor, reset, coefficient defaults
 - `instrument-state.test.ts`, Unit tests for InstrumentState — constructor, tone pools, flag defaults, type/unison/effect defaults
+- `mod-state.test.ts`, Unit tests for SynthModState — init, setModValue/getModValue, isModActive/isAnyModActive, unset, forceHoldMods, advanceNextToValues, initModFilters
 - `song-utilities.test.ts`, Unit tests for song-utilities — envelopeFromLegacyIndex, isProperUrl, restoreChipWaveListToDefault, clearSamples
 
 ## Source-to-test cross-reference
