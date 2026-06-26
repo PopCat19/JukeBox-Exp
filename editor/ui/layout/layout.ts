@@ -28,27 +28,43 @@ export class Layout {
 	background-color: ${ColorConfig.editorBackground};
 }`;
 
+	// CSS rules shared by all non-small layout variants — injected into each @media block.
+	private static readonly _baseLayoutCSS: string = `\
+#beepboxEditorContainer {
+	max-width: initial;
+	height: 100vh;
+	padding-top: 0px !important;
+}
+.beepboxEditor {
+	width: 100%;
+	height: 100vh;
+}
+.beepboxEditor .pattern-area {
+	width: 100%;
+	height: 100%;
+}
+.beepboxEditor .instrument-settings-area > .editor-controls {
+	position: absolute;
+	width: 100%;
+}
+.beepboxEditor .trackContainer {
+	overflow: visible;
+}`;
+
 	private static readonly _layoutMap: { [K: string]: string } = {
 		small: "",
 		long: `\
 
 			/* long layout */
 			@media (min-width: 711px) {
-				#beepboxEditorContainer {
-					max-width: initial;
-					height: 100vh;
-					padding-top: 0px !important;
+				${Layout._baseLayoutCSS}
+				.beepboxEditor .barScrollBar {
+					display: none;
 				}
 				.beepboxEditor {
-					width: 100%;
-					height: 100vh;
-					grid-template-columns: minmax(0, 1fr) 390px; /* minmax(0, 1fr) min-content; Chrome 80 grid layout regression. https://bugs.chromium.org/p/chromium/issues/detail?id=1050307 */
+					grid-template-columns: minmax(0, 1fr) 390px;
 					grid-template-rows: minmax(481px, 1fr) minmax(0, min-content);
 					grid-template-areas: "pattern-area settings-area" "track-area track-area";
-				}
-				.beepboxEditor .pattern-area {
-					width: 100%;
-					height: 100%;
 				}
 				.beepboxEditor .track-area {
 					width: 100%;
@@ -66,14 +82,9 @@ export class Layout {
 					overflow-y: auto;
 					position: relative;
 				}
-				.beepboxEditor .instrument-settings-area > .editor-controls {
-					position: absolute;
-					width: 100%;
-				}
 				.beepboxEditor .song-settings-area {
 					overflow-y: auto;
 				}
-				
 				.beepboxEditor .settings-area {
 					width: 390px;
 					grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
@@ -84,107 +95,80 @@ export class Layout {
 						"instrument-settings-area menu-area"
 						"instrument-settings-area song-settings-area";
 				}
-				
-				.beepboxEditor .barScrollBar {
-					display: none;
-				}
 				.beepboxEditor.selectRow {
 					height: 2em;
 				}
 				.beepboxEditor .operatorRow {
-					heiht: 2em;
+					height: 2em;
 				}
 				.beepboxEditor .trackAndMuteContainer {
 					max-height: 446px;
 				}
-
-				.beepboxEditor .trackContainer {
-					overflow: visible;
+				.beepboxEditor .trackAndMuteContainer {
+					scrollbar-width: auto;
 				}
-			.beepboxEditor .trackAndMuteContainer {
-				scrollbar-width: auto;
+				${Layout._webkitScrollbarCSS}
 			}
-			${Layout._webkitScrollbarCSS}
-		}
-	`,
+		`,
 		tall: `\
 		/* tall layout */
 		@media (min-width: 711px) {
-				#beepboxEditorContainer {
-					max-width: initial;
-					height: 100vh;
-					padding-top: 0px !important;
-				}
-				.beepboxEditor {
-					width: 100%;
-					height: 100vh;
-					grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 192px;
-					grid-template-rows: 1fr;
-					grid-template-areas: "track-area pattern-area settings-area";
-				}
-				.beepboxEditor .pattern-area {
-					width: 100%;
-					height: 100%;
-				}
-				.beepboxEditor .track-area {
-					width: 100%;
-					height: 100%;
-					display: flex;
-					flex-direction: column;
-					justify-content: center;
-				}
-				.beepboxEditor .trackAndMuteContainer {
-					width: 100%;
-					min-height: 0;
-					flex: 0;
-					overflow: auto;
-					flex-basis: initial;
-					flex-grow: 0;
-					max-height: 97.5vh;
-				}
-				.beepboxEditor .instrument-settings-area > .editor-controls {
-					position: absolute;
-					width: 100%;
-				}
-				
-				.beepboxEditor .settings-area {
-					width: 192px;
-					position: relative;
-					overflow-y: auto;
-					grid-template-columns: minmax(0, 1fr);
-					grid-template-rows: auto auto auto auto minmax(0, 1fr);
-					grid-template-areas:
-						"version-area"
-						"play-pause-area"
-						"menu-area"
-						"song-settings-area"
-						"instrument-settings-area";
-				}
-				.beepboxEditor .version-area {
-					position: sticky;
-					top: 0;
-					z-index: 1;
-					background: ${ColorConfig.editorBackground};
-				}
-				.beepboxEditor .play-pause-area {
-					position: sticky;
-					top: 22px;
-					z-index: 1;
-					background: ${ColorConfig.editorBackground};
-				}
-				.beepboxEditor .menu-area {
-					position: sticky;
-					top: 82px;
-					z-index: 1;
-					background: ${ColorConfig.editorBackground};
-				}
-				
-				.beepboxEditor .barScrollBar {
-					display: none;
-				}
-				.beepboxEditor .trackContainer {
-					overflow: visible;
-				}
+			${Layout._baseLayoutCSS}
+			.beepboxEditor .barScrollBar {
+				display: none;
+			}
+			.beepboxEditor {
+				grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 192px;
+				grid-template-rows: 1fr;
+				grid-template-areas: "track-area pattern-area settings-area";
+			}
+			.beepboxEditor .track-area {
+				width: 100%;
+				height: 100%;
+				display: flex;
+				flex-direction: column;
+				justify-content: center;
+			}
+			.beepboxEditor .trackAndMuteContainer {
+				width: 100%;
+				min-height: 0;
+				flex: 0;
+				overflow: auto;
+				flex-basis: initial;
+				flex-grow: 0;
+				max-height: 97.5vh;
+			}
+			.beepboxEditor .settings-area {
+				width: 192px;
+				position: relative;
+				overflow-y: auto;
+				grid-template-columns: minmax(0, 1fr);
+				grid-template-rows: auto auto auto auto minmax(0, 1fr);
+				grid-template-areas:
+					"version-area"
+					"play-pause-area"
+					"menu-area"
+					"song-settings-area"
+					"instrument-settings-area";
+			}
+			.beepboxEditor .version-area {
+				position: sticky;
+				top: 0;
+				z-index: 1;
+				background: ${ColorConfig.editorBackground};
+			}
+			.beepboxEditor .play-pause-area {
+				position: sticky;
+				top: 22px;
+				z-index: 1;
+				background: ${ColorConfig.editorBackground};
+			}
+			.beepboxEditor .menu-area {
+				position: sticky;
+				top: 82px;
+				z-index: 1;
+				background: ${ColorConfig.editorBackground};
+			}
 			.beepboxEditor .trackAndMuteContainer {
 				scrollbar-width: auto;
 			}
@@ -194,21 +178,11 @@ export class Layout {
 		wide: `\
 			/* wide (JB) layout */
 			@media (min-width: 1001px) {
-				#beepboxEditorContainer {
-					max-width: initial;
-					height: 100vh;
-					padding-top: 0px !important;
-				}
+				${Layout._baseLayoutCSS}
 				.beepboxEditor {
-					width: 100%;
-					height: 100vh;
 					grid-template-columns: 512px minmax(0, 1fr) 30em;
 					grid-template-rows: minmax(481px, 1fr) min-content;
 					grid-template-areas: "track-area pattern-area settings-area";
-				}
-				.beepboxEditor .pattern-area {
-					width: 100%;
-					height: 100%;
 				}
 				.beepboxEditor .track-area {
 					width: 100%;
@@ -230,15 +204,9 @@ export class Layout {
 					overflow-y: auto;
 					position: relative;
 				}
-				.beepboxEditor .instrument-settings-area > .editor-controls {
-					position: absolute;
-					width: 100%;
-				}
-				
 				.beepboxEditor .song-settings-area {
 					overflow-y: auto;
 				}
-				
 				.beepboxEditor .settings-area {
 					width: 30em;
 					grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
@@ -267,31 +235,20 @@ export class Layout {
 					z-index: 1;
 					background: ${ColorConfig.editorBackground};
 				}
-				
-				.beepboxEditor .trackContainer {
-					overflow: visible;
-				}
 			}
 		`,
 		"AbyssBox Special": `\
 
             	/* AB Special layout */
 			@media (min-width: 711px) {
-				#beepboxEditorContainer {
-					max-width: initial;
-					height: 100vh;
-					padding-top: 0px !important;
+				${Layout._baseLayoutCSS}
+				.beepboxEditor .barScrollBar {
+					display: none;
 				}
 				.beepboxEditor {
-					width: 100%;
-					height: 100vh;
 					grid-template-columns: 390px minmax(0, 1fr);
 					grid-template-rows: minmax(481px, 1fr) minmax(0, min-content);
 					grid-template-areas: "settings-area pattern-area" "track-area track-area";
-				}
-				.beepboxEditor .pattern-area {
-					width: 100%;
-					height: 100%;
 				}
 				.beepboxEditor .track-area {
 					width: 100%;
@@ -309,14 +266,9 @@ export class Layout {
 					overflow-y: auto;
 					position: relative;
 				}
-				.beepboxEditor .instrument-settings-area > .editor-controls {
-					position: absolute;
-					width: 100%;
-				}
 				.beepboxEditor .song-settings-area {
 					overflow-y: auto;
 				}
-				
 				.beepboxEditor .settings-area {
 					width: 30em;
 					grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
@@ -327,49 +279,34 @@ export class Layout {
 						"menu-area instrument-settings-area"
 						"song-settings-area instrument-settings-area";
 				}
-				
-				.beepboxEditor .barScrollBar {
-					display: none;
-				}
 				.beepboxEditor.selectRow {
 					height: 2em;
 				}
 				.beepboxEditor .operatorRow {
-					heiht: 2em;
+					height: 2em;
 				}
 				.beepboxEditor .trackAndMuteContainer {
 					max-height: 446px;
 				}
-
-				.beepboxEditor .trackContainer {
-					overflow: visible;
+				.beepboxEditor .trackAndMuteContainer {
+					scrollbar-width: auto;
+					scrollbar-color: ${ColorConfig.scrollbarColor} ${ColorConfig.uiWidgetBackground} ${ColorConfig.editorBackground};
 				}
-			.beepboxEditor .trackAndMuteContainer {
-				scrollbar-width: auto;
-				scrollbar-color: ${ColorConfig.scrollbarColor} ${ColorConfig.uiWidgetBackground} ${ColorConfig.editorBackground};
+				${Layout._webkitScrollbarCSS}
 			}
-			${Layout._webkitScrollbarCSS}
-		}
-	`,
+		`,
 		"long (AB)": `\
 
 			/* focus layout */
 			@media (min-width: 711px) {
-				#beepboxEditorContainer {
-					max-width: initial;
-					height: 100vh;
-					padding-top: 0px !important;
+				${Layout._baseLayoutCSS}
+				.beepboxEditor .barScrollBar {
+					display: none;
 				}
 				.beepboxEditor {
-					width: 100%;
-					height: 100vh;
-					grid-template-columns: minmax(0, 1fr) 390px; /* minmax(0, 1fr) min-content; Chrome 80 grid layout regression. https://bugs.chromium.org/p/chromium/issues/detail?id=1050307 */
+					grid-template-columns: minmax(0, 1fr) 390px;
 					grid-template-rows: minmax(481px, 1fr) minmax(0, min-content);
 					grid-template-areas: "pattern-area settings-area" "track-area";
-				}
-				.beepboxEditor .pattern-area {
-					width: 100%;
-					height: 100%;
 				}
 				.beepboxEditor .trackAndMuteContainer {
 					width: 100%;
@@ -382,15 +319,9 @@ export class Layout {
 					overflow-y: auto;
 					position: relative;
 				}
-				.beepboxEditor .instrument-settings-area > .editor-controls {
-					position: absolute;
-					width: 100%;
-				}
-				
 				.beepboxEditor .song-settings-area {
 					overflow-y: auto;
 				}
-				
 				.beepboxEditor .settings-area {
 					width: 30em;
 					grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
@@ -400,22 +331,15 @@ export class Layout {
 						"instrument-settings-area play-pause-area"
 						"instrument-settings-area menu-area"
 						"instrument-settings-area song-settings-area";
-				}				
-				.beepboxEditor .barScrollBar {
-					display: none;
 				}
 				.beepboxEditor.selectRow {
 					height: 2em;
 				}
 				.beepboxEditor .operatorRow {
-					heiht: 2em;
+					height: 2em;
 				}
 				.beepboxEditor .trackAndMuteContainer {
 					max-height: 446px;
-				}
-
-				.beepboxEditor .trackContainer {
-					overflow: visible;
 				}
 				.beepboxEditor .trackAndMuteContainer {
 					scrollbar-width: auto;
@@ -423,7 +347,7 @@ export class Layout {
 				}
 				${Layout._webkitScrollbarCSS}
 				div.track-area {
-				display: flex;
+					display: flex;
 				}
 			}
 		`,
@@ -431,21 +355,14 @@ export class Layout {
 
 			/* focus layout */
 			@media (min-width: 711px) {
-				#beepboxEditorContainer {
-					max-width: initial;
-					height: 100vh;
-					padding-top: 0px !important;
+				${Layout._baseLayoutCSS}
+				.beepboxEditor .barScrollBar {
+					display: none;
 				}
 				.beepboxEditor {
-					width: 100%;
-					height: 100vh;
-					grid-template-columns: minmax(0, 1fr) 190px; 
+					grid-template-columns: minmax(0, 1fr) 190px;
 					grid-template-rows: minmax(481px, 1fr) minmax(0, min-content);
 					grid-template-areas: "pattern-area settings-area" "track-area";
-				}
-				.beepboxEditor .pattern-area {
-					width: 100%;
-					height: 100%;
 				}
 				.beepboxEditor .trackAndMuteContainer {
 					width: 100%;
@@ -458,16 +375,6 @@ export class Layout {
 					overflow-y: auto;
 					position: relative;
 				}
-				.beepboxEditor .instrument-settings-area > .editor-controls {
-					position: absolute;
-					width: 100%;
-				}
-				
-				.beepboxEditor .instrument-settings-area > .editor-controls {
-					position: absolute;
-					width: 100%;
-				}
-				
 				.beepboxEditor .settings-area {
 					width: 100%;
 					position: relative;
@@ -481,21 +388,14 @@ export class Layout {
 						"song-settings-area"
 						"instrument-settings-area";
 				}
-				.beepboxEditor .barScrollBar {
-					display: none;
-				}
 				.beepboxEditor.selectRow {
 					height: 2em;
 				}
 				.beepboxEditor .operatorRow {
-					heiht: 2em;
+					height: 2em;
 				}
 				.beepboxEditor .trackAndMuteContainer {
 					max-height: 446px;
-				}
-
-				.beepboxEditor .trackContainer {
-					overflow: visible;
 				}
 				.beepboxEditor .trackAndMuteContainer {
 					scrollbar-width: auto;
@@ -503,7 +403,7 @@ export class Layout {
 				}
 				${Layout._webkitScrollbarCSS}
 				div.track-area {
-				display: flex;
+					display: flex;
 				}
 			}
 		`,
@@ -511,24 +411,18 @@ export class Layout {
 
 		/* Theatre layout */
 		@media (min-width: 711px) {
-			#beepboxEditorContainer {
-				max-width: initial;
-				height: 100vh;
-				padding-top: 0px !important;
+			${Layout._baseLayoutCSS}
+			.beepboxEditor .barScrollBar {
+				display: none;
 			}
 			.beepboxEditor {
-				width: 100%;
 				height: 200vh;
 				grid-template-columns: minmax(0, 1fr) 390px;
 				grid-template-rows: minmax(480px, 50%) minmax(0, 50%);
 				grid-template-areas:
-			"pattern-area pattern-area " 
+			"pattern-area pattern-area "
 			"track-area settings-area";
-			  }			
-			.beepboxEditor .pattern-area {
-				width: 100%;
-				height: 100%;
-			}
+			  }
 			.beepboxEditor .track-area {
 				width: 100%;
 				display: flex;
@@ -545,14 +439,9 @@ export class Layout {
 				overflow-y: auto;
 				position: relative;
 			}
-			.beepboxEditor .instrument-settings-area > .editor-controls {
-				position: absolute;
-				width: 100%;
-			}
 			.beepboxEditor .song-settings-area {
 				overflow-y: auto;
 			}
-			
 			.beepboxEditor .settings-area {
 				width: 390px;
 				grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
@@ -563,22 +452,14 @@ export class Layout {
 					"instrument-settings-area menu-area"
 					"instrument-settings-area song-settings-area";
 			}
-			
-			.beepboxEditor .barScrollBar {
-				display: none;
-			}
 			.beepboxEditor.selectRow {
 				height: 2em;
 			}
 			.beepboxEditor .operatorRow {
-				heiht: 2em;
+				height: 2em;
 			}
 			.beepboxEditor .trackAndMuteContainer {
 				max-height: 100%;
-			}
-
-			.beepboxEditor .trackContainer {
-				overflow: visible;
 			}
 			.beepboxEditor .trackAndMuteContainer {
 				scrollbar-width: auto;
@@ -591,21 +472,14 @@ export class Layout {
 
 				/* Upside Down */
 			@media (min-width: 711px) {
-				#beepboxEditorContainer {
-					max-width: initial;
-					height: 100vh;
-					padding-top: 0px !important;
+				${Layout._baseLayoutCSS}
+				.beepboxEditor .barScrollBar {
+					display: none;
 				}
 				.beepboxEditor {
-					width: 100%;
-					height: 100vh;
 					grid-template-columns: 195px minmax(0, 1fr);
 					grid-template-rows: minmax(0, min-content) minmax(481px, 1fr);
 					grid-template-areas: "settings-area track-area" "settings-area pattern-area";
-				}
-				.beepboxEditor .pattern-area {
-					width: 100%;
-					height: 100%;
 				}
 				.beepboxEditor .track-area {
 					width: 100%;
@@ -623,14 +497,9 @@ export class Layout {
 					overflow-y: auto;
 					position: relative;
 				}
-				.beepboxEditor .instrument-settings-area > .editor-controls {
-					position: absolute;
-					width: 100%;
-				}
 				.beepboxEditor .song-settings-area {
 					overflow-y: auto;
 				}
-				
 				.beepboxEditor .settings-area {
 					width: 100%;
 					position: relative;
@@ -644,22 +513,14 @@ export class Layout {
 						"song-settings-area"
 						"instrument-settings-area";
 				}
-				
-				.beepboxEditor .barScrollBar {
-					display: none;
-				}
 				.beepboxEditor.selectRow {
 					height: 2em;
 				}
 				.beepboxEditor .operatorRow {
-					heiht: 2em;
+					height: 2em;
 				}
 				.beepboxEditor .trackAndMuteContainer {
 					max-height: 446px;
-				}
-
-				.beepboxEditor .trackContainer {
-					overflow: visible;
 				}
 				.beepboxEditor .trackAndMuteContainer {
 					scrollbar-width: auto;

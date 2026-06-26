@@ -8,13 +8,14 @@
 
 import { HTML } from "imperative-html/dist/esm/elements-strict";
 import { Animation } from "../style-constants";
+import { s, flexCenter } from "../style";
 
 export interface DropdownButtonOptions {
 	style?: string;
 	onclick?: () => void;
 }
 
-const baseStyle = `margin-left:0em; height:1.5em; width: auto; padding: 8px 2px; font-size: 0.5rem; display: flex; align-items: center; justify-content: center; transition: opacity ${Animation.durationFast}; opacity: 0.7;`;
+const baseStyle = s(`margin-left:0em; height:1.5em; width:auto; padding:8px 2px; font-size:0.5rem;`, flexCenter("row"), `transition:opacity ${Animation.durationFast}; opacity:0.7;`);
 
 export function dropdownButton(options?: DropdownButtonOptions): HTMLButtonElement {
 	const style = options?.style ? `${baseStyle}; ${options.style}` : baseStyle;

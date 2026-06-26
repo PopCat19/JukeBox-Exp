@@ -7,6 +7,7 @@
 // - Centered horizontally
 
 import { createLabel } from "../base/label";
+import { s, h, flexCenter } from "../style";
 
 export interface CheckboxRowOptions {
 	marginTop?: string;
@@ -18,7 +19,7 @@ export function checkboxRow(text: string, checkbox: HTMLInputElement, opts?: Che
 	const height = opts?.height ?? "2em";
 	const marginTop = opts?.marginTop ?? "";
 	const marginBottom = opts?.marginBottom ?? "";
-	const style = `display: flex; flex-direction: row; align-items: center; height: ${height}; justify-content: center;${marginTop ? ` margin-top: ${marginTop};` : ""}${marginBottom ? ` margin-bottom: ${marginBottom};` : ""}`;
+	const style = s(flexCenter("row"), h(height), marginTop && `margin-top:${marginTop};`, marginBottom && `margin-bottom:${marginBottom};`);
 
 	return createLabel(style, undefined, text, checkbox);
 }

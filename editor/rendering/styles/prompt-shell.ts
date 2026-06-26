@@ -300,26 +300,5 @@ ${buildAnimationsCSS()}
 	line-height: 1.2;
 }
 
-.beepboxEditor .prompt.shaded {
-	padding: var(--padding-6) 14px;
-	min-width: 0;
-	max-width: max-content;
-	overflow: hidden;
-	display: flex;
-	align-items: center;
-	border-radius: var(--border-radius-large);
-}
-
-.beepboxEditor .prompt.shaded > *:not(.prompt-titlebar) {
-	display: none !important;
-}
-
-.beepboxEditor .prompt.shaded .prompt-titlebar h2 {
-	margin: 0 !important;
-	font-size: ${Typography.sizeLg} !important;
-	color: ${ColorConfig.promptTitlebarText};
-	cursor: pointer;
-	white-space: nowrap;
-	line-height: 1.2;
-}`;
+`;
 }

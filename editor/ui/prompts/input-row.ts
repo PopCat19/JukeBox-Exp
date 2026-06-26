@@ -8,6 +8,7 @@
 
 import { createDiv } from "../base/container";
 import { Gap } from "../style-constants";
+import { s, flex } from "../style";
 
 export interface InputRowOptions {
 	gap?: string;
@@ -17,7 +18,7 @@ export interface InputRowOptions {
 
 export function inputRow(options?: InputRowOptions, ...children: (HTMLElement | string)[]): HTMLDivElement {
 	const gap = options?.gap ?? Gap.normal;
-	let style = `display: flex; gap: ${gap}; height: 32px;`;
+	let style = s(flex("row"), `gap:${gap};`, `height:32px;`);
 
 	if (options?.marginTop) {
 		style += ` margin-top: ${options.marginTop};`;

@@ -6,12 +6,12 @@
 // - Creates a flex row for dialog action buttons
 // - Right-aligned with space for additional controls
 
+import { s, flex, Margin } from "../style";
 import { createDiv } from "../base/container";
-import { Margin } from "../style-constants";
 
 export function okayRow(okayButton: HTMLButtonElement, ...extra: HTMLElement[]): HTMLDivElement {
 	return createDiv(
-		`display: flex; flex-direction: row; align-items: center; justify-content: flex-end; margin-top: ${Margin.xxl};`,
+		s(flex("row"), "align-items:center;justify-content:flex-end;", `margin-top:${Margin.xxl};`),
 		undefined,
 		...extra,
 		okayButton,

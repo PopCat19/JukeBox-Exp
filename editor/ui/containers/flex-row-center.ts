@@ -7,6 +7,7 @@
 /// - Useful for button groups and dialog actions
 
 import { createDiv } from "../base/container";
+import { s, flexCenter } from "../style";
 
 export interface FlexRowCenterOptions {
 	marginBottom?: string;
@@ -14,6 +15,6 @@ export interface FlexRowCenterOptions {
 
 export function flexRowCenter(opts?: FlexRowCenterOptions, ...children: (HTMLElement | string)[]): HTMLDivElement {
 	const marginBottom = opts?.marginBottom ?? "";
-	const style = `display: flex; flex-direction: row; align-items: center; justify-content: center;${marginBottom ? ` margin-bottom: ${marginBottom};` : ""}`;
+	const style = s(flexCenter("row"), marginBottom && `margin-bottom:${marginBottom};`);
 	return createDiv(style, undefined, ...children);
 }

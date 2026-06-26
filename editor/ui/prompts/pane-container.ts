@@ -8,6 +8,7 @@
 
 import { createDiv } from "../base/container";
 import { BorderRadius, Sizing } from "../style-constants";
+import { s, flex } from "../style";
 
 export interface PaneContainerOptions {
 	height?: string;
@@ -28,7 +29,7 @@ export function paneContainer(options?: PaneContainerOptions, ...panes: (HTMLEle
 	const border = options?.border;
 	const showDivider = border !== "none" && borderWidth !== "0";
 
-	let style = `display: flex; flex-direction: row; height: ${height}; border: ${border ?? `${borderWidth} solid var(--ui-widget-background)`}; border-radius: ${borderRadius}; overflow: ${overflow}; gap: ${gap};`;
+	let style = s(flex("row"), `height:${height};`, `border:${border ?? `${borderWidth} solid var(--ui-widget-background)`};`, `border-radius:${borderRadius};`, `overflow:${overflow};`, `gap:${gap};`);
 
 	if (options?.marginTop) {
 		style += ` margin-top: ${options.marginTop};`;
