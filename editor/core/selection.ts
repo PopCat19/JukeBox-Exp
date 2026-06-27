@@ -602,7 +602,7 @@ export class Selection {
 		// Fire-and-forget — clipboard write requires a user gesture, which
 		// the C key provides.
 		if (navigator.clipboard?.writeText) {
-			navigator.clipboard.writeText(JSON.stringify(selectionCopy)).catch(() => {});
+			navigator.clipboard.writeText(JSON.stringify(selectionCopy)).catch(() => { console.warn("clipboard write failed"); });
 		}
 
 		// Clear selection after copy
@@ -706,9 +706,9 @@ export class Selection {
 							this._doPasteNotes(parsed as SelectionCopy);
 							return;
 						}
-					} catch (_) {}
+					} catch (_) { /* localStorage unsupported or full */ }
 				})
-				.catch(() => {});
+				.catch(() => { console.warn("clipboard read failed"); });
 			return;
 		}
 
@@ -1111,9 +1111,9 @@ export class Selection {
 							window.localStorage.setItem("selectionCopy", text);
 							this.pasteNumbers();
 						}
-					} catch (_) {}
+					} catch (_) { /* localStorage unsupported or full */ }
 				})
-				.catch(() => {});
+				.catch(() => { console.warn("clipboard read failed (pasteNumbers)"); });
 			return;
 		}
 
