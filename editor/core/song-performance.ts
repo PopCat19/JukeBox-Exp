@@ -550,7 +550,7 @@ export class SongPerformance {
 		this._bassPitchesChanged = true;
 	}
 
-	public addPerformedPitch(pitch: number): void {
+	public addPerformedPitch(pitch: number, velocity: number = 64): void {
 		this._doc.synth.maintainLiveInput();
 
 		if (
@@ -570,9 +570,11 @@ export class SongPerformance {
 			}
 			if (this._doc.synth.liveInputPitches.indexOf(pitch) === -1) {
 				this._doc.synth.liveInputPitches.push(pitch);
+				this._doc.synth.liveInputVelocities.push(velocity);
 				this._pitchesChanged = true;
 				while (this._doc.synth.liveInputPitches.length > Config.maxChordSize) {
 					this._doc.synth.liveInputPitches.shift();
+					this._doc.synth.liveInputVelocities.shift();
 				}
 				this._doc.synth.liveInputDuration = Number.MAX_SAFE_INTEGER;
 
@@ -632,6 +634,7 @@ export class SongPerformance {
 			for (let i: number = 0; i < this._doc.synth.liveInputPitches.length; i++) {
 				if (this._doc.synth.liveInputPitches[i] === pitch) {
 					this._doc.synth.liveInputPitches.splice(i, 1);
+					this._doc.synth.liveInputVelocities.splice(i, 1);
 					this._pitchesChanged = true;
 					i--;
 				}
@@ -641,6 +644,7 @@ export class SongPerformance {
 			for (let i: number = 0; i < this._doc.synth.liveBassInputPitches.length; i++) {
 				if (this._doc.synth.liveBassInputPitches[i] === pitch) {
 					this._doc.synth.liveBassInputPitches.splice(i, 1);
+					this._doc.synth.liveBassInputVelocities.splice(i, 1);
 					this._bassPitchesChanged = true;
 					i--;
 				}
@@ -651,12 +655,14 @@ export class SongPerformance {
 	public clearAllPitches(): void {
 		this._updateRecordedNotes();
 		this._doc.synth.liveInputPitches.length = 0;
+		this._doc.synth.liveInputVelocities.length = 0;
 		this._pitchesChanged = true;
 	}
 
 	public clearAllBassPitches(): void {
 		this._updateRecordedBassNotes();
 		this._doc.synth.liveBassInputPitches.length = 0;
+		this._doc.synth.liveBassInputVelocities.length = 0;
 		this._bassPitchesChanged = true;
 	}
 

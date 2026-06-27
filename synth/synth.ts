@@ -177,7 +177,9 @@ export class Synth {
 	public liveInputStarted: boolean = false;
 	public liveBassInputStarted: boolean = false;
 	public liveInputPitches: number[] = [];
+	public liveInputVelocities: number[] = [];
 	public liveBassInputPitches: number[] = [];
+	public liveBassInputVelocities: number[] = [];
 	public liveInputChannel: number = 0;
 	public liveBassInputChannel: number = 0;
 	public liveInputInstruments: number[] = [];
@@ -248,6 +250,26 @@ export class Synth {
 		out.length = 0;
 		for (let i: number = 0; i < source.length; i++) {
 			if (source[i] >= lower && source[i] <= upper) out.push(source[i]);
+		}
+		return out;
+	}
+
+	private _fillFilteredPitchesAndVelocities(
+		sourcePitches: number[],
+		sourceVelocities: number[],
+		lowerPitch: number,
+		upperPitch: number,
+		lowerVel: number,
+		upperVel: number,
+	): number[] {
+		const out: number[] = this._reusableFilteredPitches;
+		out.length = 0;
+		for (let i: number = 0; i < sourcePitches.length; i++) {
+			const pitch: number = sourcePitches[i];
+			if (pitch < lowerPitch || pitch > upperPitch) continue;
+			const vel: number = i < sourceVelocities.length ? sourceVelocities[i] : 64;
+			if (vel < lowerVel || vel > upperVel) continue;
+			out.push(pitch);
 		}
 		return out;
 	}
@@ -2289,7 +2311,9 @@ export class Synth {
 		const channel: Channel = song.channels[channelIndex];
 		const channelState: ChannelState = this.channels[channelIndex];
 		const pitches: number[] = this.liveInputPitches;
+		const velocities: number[] = this.liveInputVelocities;
 		const bassPitches: number[] = this.liveBassInputPitches;
+		const bassVelocities: number[] = this.liveBassInputVelocities;
 
 		for (
 			let instrumentIndex: number = 0;
@@ -2302,18 +2326,24 @@ export class Synth {
 			const instrument: Instrument = channel.instruments[instrumentIndex];
 			let filteredPitches = pitches;
 			if (effectsIncludeNoteRange(instrument.effects)) {
-				filteredPitches = this._fillFilteredPitches(
+				filteredPitches = this._fillFilteredPitchesAndVelocities(
 					pitches,
+					velocities,
 					instrument.lowerNoteLimit,
 					instrument.upperNoteLimit,
+					instrument.lowerVelocityLimit,
+					instrument.upperVelocityLimit,
 				);
 			}
 			let filteredBassPitches: number[] = bassPitches;
 			if (effectsIncludeNoteRange(instrument.effects)) {
-				filteredBassPitches = this._fillFilteredPitches(
+				filteredBassPitches = this._fillFilteredPitchesAndVelocities(
 					bassPitches,
+					bassVelocities,
 					instrument.lowerNoteLimit,
 					instrument.upperNoteLimit,
+					instrument.lowerVelocityLimit,
+					instrument.upperVelocityLimit,
 				);
 			}
 			if (

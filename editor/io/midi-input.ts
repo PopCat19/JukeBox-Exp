@@ -112,7 +112,7 @@ export class MidiInputHandler {
 		switch (eventType) {
 			case MidiEventType.noteOn:
 				this._doc.synth.preferLowerLatency = true;
-				this._doc.performance.addPerformedPitch(key);
+				this._doc.performance.addPerformedPitch(key, velocity);
 				break;
 			case MidiEventType.noteOff:
 				this._doc.performance.removePerformedPitch(key);

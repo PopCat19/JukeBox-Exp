@@ -186,6 +186,9 @@ export class Instrument {
 	public invalidModulators: boolean[] = [];
 	public upperNoteLimit: number = Config.maxPitch;
 	public lowerNoteLimit: number = 0;
+	public readonly maxVelocity: number = 127;
+	public upperVelocityLimit: number = 127;
+	public lowerVelocityLimit: number = 1;
 
 	// Literally just for pitch envelopes.
 	public isNoiseInstrument: boolean = false;
@@ -323,6 +326,8 @@ export class Instrument {
 		this.envelopeCount = 0;
 		this.upperNoteLimit = Config.maxPitch;
 		this.lowerNoteLimit = 0;
+		this.upperVelocityLimit = 127;
+		this.lowerVelocityLimit = 1;
 		this.isNoiseInstrument = isNoiseChannel;
 
 		const plugin = getPlugin(type);
@@ -634,6 +639,8 @@ export class Instrument {
 		if (effectsIncludeNoteRange(this.effects)) {
 			instrumentObject.upperNoteLimit = this.upperNoteLimit;
 			instrumentObject.lowerNoteLimit = this.lowerNoteLimit;
+			instrumentObject.upperVelocityLimit = this.upperVelocityLimit;
+			instrumentObject.lowerVelocityLimit = this.lowerVelocityLimit;
 		}
 
 		if (this.type !== InstrumentType.drumset) {
@@ -1349,6 +1356,16 @@ export class Instrument {
 		}
 		if (instrumentObject.lowerNoteLimit !== undefined) {
 			this.lowerNoteLimit = instrumentObject.lowerNoteLimit;
+		}
+		if (instrumentObject.upperVelocityLimit !== undefined) {
+			this.upperVelocityLimit = clamp(
+				0, this.maxVelocity, instrumentObject.upperVelocityLimit | 0
+			);
+		}
+		if (instrumentObject.lowerVelocityLimit !== undefined) {
+			this.lowerVelocityLimit = clamp(
+				0, this.maxVelocity, instrumentObject.lowerVelocityLimit | 0
+			);
 		}
 
 		if (instrumentObject.pulseWidth !== undefined) {
