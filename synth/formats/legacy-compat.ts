@@ -74,11 +74,39 @@ function convertEnvelopeNames(draft: Record<string, unknown>): void {
 	}
 }
 
+// Inverse of Instrument.fromJsonObject's legacy BeepBox formula:
+//   pre = clamp(0, 8, round(5 - beepboxVol / 20))
+//   jukeboxVol = round(-pre * 25 / 7)
+//
+// Converts JukeBox volume (-25..+25, 0=neutral) to BeepBox JSON volume
+// (0-100, 100=neutral) so downstream mods using the legacy formula get
+// the correct volume back instead of mistaking 0 (JukeBox neutral) for
+// 0 (BeepBox max/mute) which maps to -18.
+function convertVolume(draft: Record<string, unknown>): void {
+	const channels = draft.channels;
+	if (!Array.isArray(channels)) return;
+	for (const channel of channels) {
+		const instruments = channel?.instruments;
+		if (!Array.isArray(instruments)) continue;
+		for (const instrument of instruments) {
+			if (instrument == null || typeof instrument !== "object") continue;
+			const vol = instrument.volume;
+			if (typeof vol !== "number") continue;
+			// Inverse: given jukeboxVol V, solve for the BeepBox volume B
+			// that the legacy formula would map back to V.
+			// pre = -round(V * 7 / 25),  B = clamp(0, 100, (5 - pre) * 20)
+			const pre = -Math.round(vol * 7 / 25);
+			instrument.volume = Math.max(0, Math.min(100, (5 - pre) * 20));
+		}
+	}
+}
+
 export function toLegacyCompatJson(expObj: JukeboxExpObject): LegacyCompatObject {
 	const draft: Record<string, unknown> = structuredClone(expObj);
 
-	// Apply strip policies, one per exp feature group.
+	// Apply strip/conversion policies, one per exp feature group.
 	stripExpMeta(draft);
+	convertVolume(draft);
 	convertEnvelopeNames(draft);
 	// stripGranularSynth(draft);
 
