@@ -6,6 +6,8 @@
 - `change-notifier.ts`, Implements observer pattern for notifying editor components of state changes
 - `change-dispatcher.ts`, Dispatches UI change events for instrument and song settings
 - `dev-inspector.ts`, Injects a hover-based DOM inspector that copies computed styles to clipboard
+- `debug-log.ts`, Lightweight conditional logger for diagnosing editor behavior
+- `debug-tools.ts`, Exposes window.__jukebox__ with dev inspection utilities
 - `drumset-setup.ts`, Sets up drumset UI rows with envelope and spectrum controls
 - `event-listener-setup.ts`, Sets up all event listeners for UI controls and interactions
 - `fm-operator-setup.ts`, Sets up FM operator UI rows with frequency, amplitude, and waveform controls
@@ -21,3 +23,4 @@
 - `prompt-popout.ts`, detaches a prompt into a separate OS window via window.open, cloning editor styles and syncing theme changes
 - `selection.ts`, Manages note and bar selection state with clipboard copy/paste support
 - `song-performance.ts`, Manages live performance mode with real-time note input and recording
+- `tag-autocomplete.ts`, Tag autocomplete suggestion UI for preset tag input

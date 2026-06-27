@@ -11,6 +11,7 @@
 - `channel-volume-visualizer-prompt.ts`, Modal popup displaying per-channel gain information with live updates
 - `custom-chip-prompt.ts`, Provides dialog for editing custom chip wave sample data
 - `custom-filter-prompt.ts`, Provides dialog for configuring custom EQ and note filter curves
+- `palette-prompt.ts`, Visual color palette builder for custom themes
 - `custom-scale-prompt.ts`, Provides dialog for defining custom musical scale intervals
 - `custom-theme-prompt.ts`, Provides dialog for editing and applying custom color themes
 - `euclidgen-algorithm.ts`, Pure math functions for Euclidean rhythm generation and fraction arithmetic
@@ -33,6 +34,7 @@
 - `shortener-config-prompt.ts`, Provides dialog for configuring URL shortener settings
 - `song-duration-prompt.ts`, Provides dialog for adjusting song length and loop end bar
 - `song-recovery-prompt.ts`, Provides dialog for browsing and restoring song recovery snapshots
+- `clean-channel-prompt.ts`, Preview and apply LSDj-style pattern/instrument cleaning with diff
 - `sustain-prompt.ts`, Provides dialog for configuring string sustain type and level
 - `save.ts`, Triggers a browser file download from a Blob
 - `theme-prompt.ts`, Provides dialog for selecting editor color theme
