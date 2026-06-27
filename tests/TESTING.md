@@ -76,8 +76,10 @@ an uncovered module.
 | `synth/instruments/custom-algorithm.ts` | `tests/custom-algorithm.test.ts` | Constructor, set, copy, fromPreset |
 | `synth/instruments/custom-feedback.ts` | `tests/custom-feedback.test.ts` | Constructor, set, copy, fromPreset, reset bugfix |
 | `synth/song-serialization-shared.ts` | `tests/song-serialization-shared.test.ts` | ENV_* constants, version ranges, VARIANT |
+| `synth/deserialize/decode-variant.ts` | `tests/decode-variant.test.ts` | Variant detection, version validation, compatibility booleans (beforeTwo..beforeNine, forceSimpleFilter) |
+| `synth/deserialize/load-custom-samples.ts` | `tests/load-custom-samples.test.ts` | Pipe-split extraction, %7C encoding, null handler safety |
 
-**Untested synth modules:** `config/sample-loader.ts` (barrel verified), `synth-deserialize.ts`, `synth-serialize.ts`, `config/config-class.ts`, `audio-backend.ts`
+**Untested synth modules:** `config/sample-loader.ts` (barrel verified), `synth-deserialize.ts` (remaining switch body), `synth-serialize.ts`, `config/config-class.ts`, `audio-backend.ts`
 
 **Instrument type round-trips (tested):** chip, fm, noise, spectrum, drumset,
 harmonics, pwm, pickedString, supersaw, customChipWave, mod, fm6op.
