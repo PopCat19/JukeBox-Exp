@@ -19,7 +19,7 @@ import {
 	decode32BitNumber,
 	SongTagCode,
 } from "./serialization";
-import { getNeededBits, LATEST_JUKEBOX_VERSION, type SongLike } from "./song-serialization";
+import { getNeededBits, type SongLike } from "./song-serialization";
 import {
 	ENV_LFO,
 	ENV_NONE,
@@ -27,18 +27,8 @@ import {
 	ENV_PITCH,
 	ENV_PUNCH,
 	ENV_RANDOM,
-	LATEST_BEEPBOX_VERSION,
-	LATEST_GOLDBOX_VERSION,
-	LATEST_JUMMBOX_VERSION,
-	LATEST_SLARMOOSBOX_VERSION,
-	LATEST_ULTRABOX_VERSION,
-	OLDEST_BEEPBOX_VERSION,
-	OLDEST_GOLDBOX_VERSION,
-	OLDEST_JUKEBOX_VERSION,
-	OLDEST_JUMMBOX_VERSION,
-	OLDEST_SLARMOOSBOX_VERSION,
-	OLDEST_ULTRABOX_VERSION,
 } from "./song-serialization-shared";
+import { decodeVariant } from "./deserialize/decode-variant";
 import {
 	clearSamples,
 	envelopeFromLegacyIndex,
@@ -98,6 +88,7 @@ export function fromBase64StringImpl(
 		song.initToDefault(true);
 		return;
 	}
+
 	let charIndex: number = 0;
 	// skip whitespace.
 	while (compressed.charCodeAt(charIndex) <= CharCode.SPACE) charIndex++;
@@ -111,97 +102,33 @@ export function fromBase64StringImpl(
 		);
 		return;
 	}
-	const variantTest: number = compressed.charCodeAt(charIndex);
-	// Boolean setters were cleaned up with an initial value. It's unclear why this wasn't done earlier.
-	let fromBeepBox: boolean = false;
-	let fromJummBox: boolean = false;
-	let fromGoldBox: boolean = false;
-	let fromUltraBox: boolean = false;
-	let fromSlarmoosBox: boolean = false;
-	let fromJukeBox: boolean = false;
-	// let fromMidbox: boolean;
-	// let fromDogebox2: boolean;
-	// let fromAbyssBox: boolean;
 
-	// Detect variant here. If version doesn't match known variant, assume it is a vanilla string which does not report variant.
-	if (variantTest === 0x6a) {
-		// "j"
-		fromJummBox = true;
-		charIndex++;
-	} else if (variantTest === 0x67) {
-		// "g"
-		fromGoldBox = true;
-		charIndex++;
-	} else if (variantTest === 0x75) {
-		// "u"
-		fromUltraBox = true;
-		charIndex++;
-	} else if (variantTest === 0x64) {
-		// "d"
-		fromJummBox = true;
-		// to-do: add explicit dogebox2 support
-		// fromDogeBox2 = true;
-		charIndex++;
-	} else if (variantTest === 0x61) {
-		// "a" Abyssbox does urls the same as ultrabox //not quite anymore, but oh well
-		fromUltraBox = true;
-		charIndex++;
-	} else if (variantTest === 0x73) {
-		// "s"
-		fromSlarmoosBox = true;
-		charIndex++;
-	} else if (variantTest === 0x4a) {
-		// "J"
-		fromJukeBox = true;
-		charIndex++;
-	} else {
-		fromBeepBox = true;
+	const result = decodeVariant(compressed, charIndex);
+	if (result === null) {
+		return;
 	}
-	const version: number = base64CharCodeToInt[compressed.charCodeAt(charIndex++)];
-	if (
-		fromBeepBox &&
-		(version === -1 || version > LATEST_BEEPBOX_VERSION || version < OLDEST_BEEPBOX_VERSION)
-	)
-		return;
-	if (
-		fromJummBox &&
-		(version === -1 || version > LATEST_JUMMBOX_VERSION || version < OLDEST_JUMMBOX_VERSION)
-	)
-		return;
-	if (
-		fromGoldBox &&
-		(version === -1 || version > LATEST_GOLDBOX_VERSION || version < OLDEST_GOLDBOX_VERSION)
-	)
-		return;
-	if (
-		fromUltraBox &&
-		(version === -1 || version > LATEST_ULTRABOX_VERSION || version < OLDEST_ULTRABOX_VERSION)
-	)
-		return;
-	if (
-		fromSlarmoosBox &&
-		(version === -1 ||
-			version > LATEST_SLARMOOSBOX_VERSION ||
-			version < OLDEST_SLARMOOSBOX_VERSION)
-	)
-		return;
-	if (
-		fromJukeBox &&
-		(version === -1 || version > LATEST_JUKEBOX_VERSION || version < OLDEST_JUKEBOX_VERSION)
-	)
-		return;
-	const beforeTwo: boolean = version < 2;
-	const beforeThree: boolean = version < 3;
-	const beforeFour: boolean = version < 4;
-	const beforeFive: boolean = version < 5;
-	const beforeSix: boolean = version < 6;
-	const beforeSeven: boolean = version < 7;
-	const beforeEight: boolean = version < 8;
-	const beforeNine: boolean = version < 9;
+	charIndex = result.charIndex;
+	let {
+		fromBeepBox,
+		fromJummBox,
+		fromGoldBox,
+		fromUltraBox,
+		fromSlarmoosBox,
+		fromJukeBox,
+		beforeTwo,
+		beforeThree,
+		beforeFour,
+		beforeFive,
+		beforeSix,
+		beforeSeven,
+		beforeEight,
+		beforeNine,
+		forceSimpleFilter,
+	} = result;
+
 	song.initToDefault(
 		(fromBeepBox && beforeNine) || (fromJummBox && beforeFive) || (beforeFour && fromGoldBox),
 	);
-	const forceSimpleFilter: boolean = (fromBeepBox && beforeNine) || (fromJummBox && beforeFive);
 	let willLoadLegacySamplesForOldSongs: boolean = false;
 
 	if (fromJukeBox || fromSlarmoosBox || fromUltraBox || fromGoldBox) {
@@ -273,11 +200,6 @@ export function fromBase64StringImpl(
 					name: "Custom Sample Presets",
 					presets: customSamplePresetsMap,
 				});
-				// EditorConfig.presetCategories.splice(1, 0, {
-				// name: "Custom Sample Presets",
-				// presets: customSamplePresets,
-				// index: EditorConfig.presetCategories.length,
-				// });
 			}
 		}
 		// samplemark
@@ -294,12 +216,6 @@ export function fromBase64StringImpl(
 
 	let legacySettingsCache: LegacySettings[][] | null = null;
 	if ((fromBeepBox && beforeNine) || (fromJummBox && beforeFive) || (beforeFour && fromGoldBox)) {
-		// Unfortunately, old versions of BeepBox had a variety of different ways of saving
-		// filter-and-envelope-related parameters in the URL, and none of them directly
-		// correspond to the new way of saving these parameters. We can approximate the old
-		// settings by collecting all the old settings for an instrument and passing them to
-		// convertLegacySettings(), so this data structure is used to collect the settings
-		// for each instrument if necessary.
 		legacySettingsCache = [];
 		for (let i: number = legacySettingsCache.length; i < song.getChannelCount(); i++) {
 			legacySettingsCache[i] = [];
@@ -308,7 +224,7 @@ export function fromBase64StringImpl(
 		}
 	}
 
-	let legacyGlobalReverb: number = 0; // beforeNine reverb was song-global, record that reverb here and adapt it to instruments as needed.
+	let legacyGlobalReverb: number = 0;
 
 	let instrumentChannelIterator: number = 0;
 	let instrumentIndexIterator: number = -1;
