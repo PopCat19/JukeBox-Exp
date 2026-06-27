@@ -244,8 +244,12 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 	);
 	// Loop toggle icon (mirrors the standalone player's loopButton).
 	private readonly _loopIcon: SVGPathElement = path({
-		d: "M 4 2 L 4 0 L 7 3 L 4 6 L 4 4 Q 2 4 2 6 Q 2 8 4 8 L 4 10 Q 0 10 0 6 Q 0 2 4 2 M 8 10 L 8 12 L 5 9 L 8 6 L 8 8 Q 10 8 10 6 Q 10 4 8 4 L 8 2 Q 12 2 12 6 Q 12 10 8 10 z",
-		fill: "currentColor",
+		d: "M4 12v-3a3 3 0 0 1 3 -3h13m-3 -3l3 3l-3 3 M20 12v3a3 3 0 0 1 -3 3h-13m3 3l-3 -3l3 -3",
+		"stroke": "currentColor",
+		"stroke-width": "2",
+		"stroke-linecap": "round",
+		"stroke-linejoin": "round",
+		fill: "none",
 	});
 	private readonly _loopButton: HTMLButtonElement = button(
 		{
@@ -253,7 +257,7 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 			class: "cvv-loop-btn",
 			title: "Toggle loop",
 		},
-		svg({ width: 12, height: 12, viewBox: "0 0 12 12" }, this._loopIcon),
+		svg({ width: 12, height: 12, viewBox: "0 0 24 24" }, this._loopIcon),
 	);
 	// Progress / scrub bar: a pill-shaped track div with a child
 	// fill div whose width (as %) tracks the playhead.

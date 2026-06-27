@@ -430,12 +430,12 @@ export class SongEditor
 			{
 				width: "16",
 				height: "16",
-				viewBox: "-13 -14 26 26",
+				viewBox: "0 0 24 24",
 				"pointer-events": "none",
 				style: "width: 100%; height: 100%;",
 			},
-			SVG.rect({ x: "4", y: "-6", width: "2", height: "12", fill: ColorConfig.primaryText }),
-			SVG.path({ d: "M -6 -6 L -6 6 L 3 0 z", fill: ColorConfig.primaryText }),
+			SVG.path({ d: "M3 5v14a1 1 0 0 0 1.504 .864l12 -7a1 1 0 0 0 0 -1.728l-12 -7a1 1 0 0 0 -1.504 .864z", fill: ColorConfig.primaryText }),
+			SVG.path({ d: "M20 4a1 1 0 0 1 .993 .883l.007 .117v14a1 1 0 0 1 -1.993 .117l-.007 -.117v-14a1 1 0 0 1 1 -1z", fill: ColorConfig.primaryText }),
 		),
 	);
 	private readonly _chipWaveStartOffsetStepper = numberInput({
@@ -1615,15 +1615,27 @@ export class SongEditor
 			// Copy icon:
 			SVG.svg(
 				{
-					style: "flex-shrink: 0; position: absolute; left: 0; top: 50%; margin-top: -1em; pointer-events: none;",
-					width: "2em",
-					height: "2em",
-					viewBox: "-5 -21 26 26",
+					style: "flex-shrink: 0; position: absolute; left: 3px; top: 50%; margin-top: -10px; pointer-events: none;",
+					width: Sizing.iconMd,
+					height: Sizing.iconMd,
+					viewBox: "0 0 24 24",
 				},
 				[
 					SVG.path({
-						d: "M 0 -15 L 1 -15 L 1 0 L 13 0 L 13 1 L 0 1 L 0 -15 z M 2 -1 L 2 -17 L 10 -17 L 14 -13 L 14 -1 z M 3 -2 L 13 -2 L 13 -12 L 9 -12 L 9 -16 L 3 -16 z",
-						fill: "currentColor",
+						d: "M7 9.667a2.667 2.667 0 0 1 2.667 -2.667h8.666a2.667 2.667 0 0 1 2.667 2.667v8.666a2.667 2.667 0 0 1 -2.667 2.667h-8.666a2.667 2.667 0 0 1 -2.667 -2.667l0 -8.666",
+						"stroke": "currentColor",
+						"stroke-width": "2",
+						"stroke-linecap": "round",
+						"stroke-linejoin": "round",
+						fill: "none",
+					}),
+					SVG.path({
+						d: "M4.012 16.737a2.005 2.005 0 0 1 -1.012 -1.737v-10c0 -1.1 .9 -2 2 -2h10c.75 0 1.158 .385 1.5 1",
+						"stroke": "currentColor",
+						"stroke-width": "2",
+						"stroke-linecap": "round",
+						"stroke-linejoin": "round",
+						fill: "none",
 					}),
 				],
 			),
@@ -1640,20 +1652,35 @@ export class SongEditor
 			// Paste icon:
 			SVG.svg(
 				{
-					style: "flex-shrink: 0; position: absolute; left: 0; top: 50%; margin-top: -1em; pointer-events: none;",
-					width: "2em",
-					height: "2em",
-					viewBox: "0 0 26 26",
+					style: "flex-shrink: 0; position: absolute; left: 3px; top: 50%; margin-top: -10px; pointer-events: none;",
+					width: Sizing.iconMd,
+					height: Sizing.iconMd,
+					viewBox: "0 0 24 24",
 				},
 				[
 					SVG.path({
-						d: "M 8 18 L 6 18 L 6 5 L 17 5 L 17 7 M 9 8 L 16 8 L 20 12 L 20 22 L 9 22 z",
-						stroke: "currentColor",
+						d: "M9 5h-2a2 2 0 0 0 -2 2v12a2 2 0 0 0 2 2h3m9 -9v-5a2 2 0 0 0 -2 -2h-2",
+						"stroke": "currentColor",
+						"stroke-width": "2",
+						"stroke-linecap": "round",
+						"stroke-linejoin": "round",
 						fill: "none",
 					}),
 					SVG.path({
-						d: "M 9 3 L 14 3 L 14 6 L 9 6 L 9 3 z M 16 8 L 20 12 L 16 12 L 16 8 z",
-						fill: "currentColor",
+						d: "M13 17v-1a1 1 0 0 1 1 -1h1m3 0h1a1 1 0 0 1 1 1v1m0 3v1a1 1 0 0 1 -1 1h-1m-3 0h-1a1 1 0 0 1 -1 -1v-1",
+						"stroke": "currentColor",
+						"stroke-width": "2",
+						"stroke-linecap": "round",
+						"stroke-linejoin": "round",
+						fill: "none",
+					}),
+					SVG.path({
+						d: "M9 5a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2a2 2 0 0 1 -2 2h-2a2 2 0 0 1 -2 -2",
+						"stroke": "currentColor",
+						"stroke-width": "2",
+						"stroke-linecap": "round",
+						"stroke-linejoin": "round",
+						fill: "none",
 					}),
 				],
 			),
@@ -1670,15 +1697,19 @@ export class SongEditor
 			// Export icon:
 			SVG.svg(
 				{
-					style: "flex-shrink: 0; position: absolute; left: 0; top: 50%; margin-top: -1em; pointer-events: none;",
-					width: "2em",
-					height: "2em",
-					viewBox: "0 -960 960 960",
+					style: "flex-shrink: 0; position: absolute; left: 3px; top: 50%; margin-top: -10px; pointer-events: none;",
+					width: Sizing.iconMd,
+					height: Sizing.iconMd,
+					viewBox: "0 0 24 24",
 				},
 				[
 					SVG.path({
-						d: "M200-120v-40h560v40H200Zm279.231-150.769L254.615-568.462h130.769V-840h188.462v271.538h130.77L479.231-270.769Zm0-65.385 142.923-191.538h-88.308V-800H425.385v272.308h-88.308l142.154 191.538ZM480-527.692Z",
-						fill: "currentColor",
+						d: "M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2 -2v-2 M7 11l5 5l5 -5 M12 4l0 12",
+						"stroke": "currentColor",
+						"stroke-width": "2",
+						"stroke-linecap": "round",
+						"stroke-linejoin": "round",
+						fill: "none",
 					}),
 				],
 			),
@@ -1694,15 +1725,19 @@ export class SongEditor
 			// Import icon:
 			SVG.svg(
 				{
-					style: "flex-shrink: 0; position: absolute; left: 0; top: 50%; margin-top: -1em; pointer-events: none;",
-					width: "2em",
-					height: "2em",
-					viewBox: "0 -960 960 960",
+					style: "flex-shrink: 0; position: absolute; left: 3px; top: 50%; margin-top: -10px; pointer-events: none;",
+					width: Sizing.iconMd,
+					height: Sizing.iconMd,
+					viewBox: "0 0 24 24",
 				},
 				[
 					SVG.path({
-						d: "M200-120v-40h560v40H200Zm185.384-150.769v-271.539H254.615L480-840l224.616 297.692h-130.77v271.539H385.384Zm40.001-40h108.461v-272.308h88.308L480-774.615 337.077-583.077h88.308v272.308ZM480-583.077Z",
-						fill: "currentColor",
+						d: "M14 3v4a1 1 0 0 0 1 1h4 M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2 M12 11v6 M9 14l3 3l3 -3",
+						"stroke": "currentColor",
+						"stroke-width": "2",
+						"stroke-linecap": "round",
+						"stroke-linejoin": "round",
+						fill: "none",
 					}),
 				],
 			),
@@ -3497,9 +3532,18 @@ export class SongEditor
 				break;
 		}
 
-		if (target.textContent === "▼") {
+		if (target.classList.contains("dropdown-open")) {
+			// Close: group is visible → hide it
+			for (let i: number = 0; i < group.children.length; i++) {
+				(group.children[i] as HTMLElement).style.animationDelay = "0s";
+				(group.children[i] as HTMLElement).style.opacity = "0";
+			}
+			target.classList.remove("dropdown-open");
+			group.style.display = "none";
+		} else {
+			// Open: group is hidden → show it
 			const instrument: Instrument = this.doc.getCurrentInstrumentObj();
-			target.textContent = "▲";
+			target.classList.add("dropdown-open");
 			if (dropdown === DropdownID.EnvelopeSettings) {
 				group.style.display = "flex";
 				this.envelopeEditor.rerenderExtraSettings();
@@ -3522,13 +3566,6 @@ export class SongEditor
 					(group.children[i] as HTMLElement).style.opacity = "1";
 				});
 			}
-		} else {
-			for (let i: number = 0; i < group.children.length; i++) {
-				(group.children[i] as HTMLElement).style.animationDelay = "0s";
-				(group.children[i] as HTMLElement).style.opacity = "0";
-			}
-			target.textContent = "▼";
-			group.style.display = "none";
 		}
 		setTimeout(() => {
 			window.dispatchEvent(new Event("resize"));

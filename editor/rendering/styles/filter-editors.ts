@@ -46,9 +46,9 @@ export function buildFilterEditorsCSS(): string {
 .beepboxEditor .iconBtnSvgOverlay {
 	flex-shrink: 0;
 	position: absolute;
-	left: 0;
+	left: 3px;
 	top: 50%;
-	margin-top: -1em;
+	margin-top: -10px;
 	pointer-events: none;
 }
 

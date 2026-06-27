@@ -142,6 +142,10 @@ export const Sizing = {
 	inputSm: "86px",
 	inputMd: "113px",
 	inputLg: "115px",
+	// Icon sizes
+	iconSm: "16px",
+	iconMd: "20px",
+	iconLg: "26px",
 } as const;
 
 export const Icon = {

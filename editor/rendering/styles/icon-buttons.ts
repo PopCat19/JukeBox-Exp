@@ -31,9 +31,11 @@ export function buildIconButtonsCSS(): string {
 	height: var(--button-size);
 	background: ${ColorConfig.secondaryText};
 	-webkit-mask-image: var(--internal-volume-symbol);
+	-webkit-mask-size: 20px;
 	-webkit-mask-repeat: no-repeat;
 	-webkit-mask-position: center;
 	mask-image: var(--internal-volume-symbol);
+	mask-size: 20px;
 	mask-repeat: no-repeat;
 	mask-position: center;
 }
@@ -121,9 +123,11 @@ export function buildIconButtonsCSS(): string {
 	height: var(--button-size);
 	background: currentColor;
 	-webkit-mask-image: var(--internal-customize-dial-symbol);
+	-webkit-mask-size: 20px;
 	-webkit-mask-repeat: no-repeat;
 	-webkit-mask-position: center;
 	mask-image: var(--internal-customize-dial-symbol);
+	mask-size: 20px;
 	mask-repeat: no-repeat;
 	mask-position: center;
 }
@@ -148,9 +152,11 @@ export function buildIconButtonsCSS(): string {
 	height: var(--button-size);
 	background: currentColor;
 	-webkit-mask-image: var(--internal-instrument-copy-symbol);
+	-webkit-mask-size: 20px;
 	-webkit-mask-repeat: no-repeat;
 	-webkit-mask-position: center;
 	mask-image: var(--internal-instrument-copy-symbol);
+	mask-size: 20px;
 	mask-repeat: no-repeat;
 	mask-position: center;
 }
@@ -171,9 +177,11 @@ export function buildIconButtonsCSS(): string {
 	height: var(--button-size);
 	background: currentColor;
 	-webkit-mask-image: var(--internal-instrument-paste-symbol);
+	-webkit-mask-size: 20px;
 	-webkit-mask-repeat: no-repeat;
 	-webkit-mask-position: center;
 	mask-image: var(--internal-instrument-paste-symbol);
+	mask-size: 20px;
 	mask-repeat: no-repeat;
 	mask-position: center;
 }
@@ -203,9 +211,11 @@ export function buildIconButtonsCSS(): string {
 	pointer-events: none;
 	background: currentColor;
 	mask-image: var(--internal-add-symbol);
+	mask-size: 20px;
 	mask-repeat: no-repeat;
 	mask-position: center;
 	-webkit-mask-image: var(--internal-add-symbol);
+	-webkit-mask-size: 20px;
 	-webkit-mask-repeat: no-repeat;
 	-webkit-mask-position: center;
 }
@@ -227,9 +237,11 @@ export function buildIconButtonsCSS(): string {
 	pointer-events: none;
 	background: currentColor;
 	mask-image: var(--internal-menu-down-symbol);
+	mask-size: 20px;
 	mask-repeat: no-repeat;
 	mask-position: center;
 	-webkit-mask-image: var(--internal-menu-down-symbol);
+	-webkit-mask-size: 20px;
 	-webkit-mask-repeat: no-repeat;
 	-webkit-mask-position: center;
 }
@@ -255,9 +267,11 @@ export function buildIconButtonsCSS(): string {
 	pointer-events: none;
 	background: currentColor;
 	mask-image: var(--internal-zoom-in-symbol);
+	mask-size: 20px;
 	mask-repeat: no-repeat;
 	mask-position: center;
 	-webkit-mask-image: var(--internal-zoom-in-symbol);
+	-webkit-mask-size: 20px;
 	-webkit-mask-repeat: no-repeat;
 	-webkit-mask-position: center;
 }
@@ -271,9 +285,11 @@ export function buildIconButtonsCSS(): string {
 	pointer-events: none;
 	background: currentColor;
 	mask-image: var(--internal-zoom-out-symbol);
+	mask-size: 20px;
 	mask-repeat: no-repeat;
 	mask-position: center;
 	-webkit-mask-image: var(--internal-zoom-out-symbol);
+	-webkit-mask-size: 20px;
 	-webkit-mask-repeat: no-repeat;
 	-webkit-mask-position: center;
 }
@@ -293,9 +309,11 @@ export function buildIconButtonsCSS(): string {
 	pointer-events: none;
 	background: currentColor;
 	mask-image: var(--internal-close-symbol);
+	mask-size: 20px;
 	mask-repeat: no-repeat;
 	mask-position: center;
 	-webkit-mask-image: var(--internal-close-symbol);
+	-webkit-mask-size: 20px;
 	-webkit-mask-repeat: no-repeat;
 	-webkit-mask-position: center;
 }
@@ -318,9 +336,11 @@ export function buildIconButtonsCSS(): string {
 	pointer-events: none;
 	background: currentColor;
 	mask-image: var(--internal-add-symbol);
+	mask-size: 20px;
 	mask-repeat: no-repeat;
 	mask-position: center;
 	-webkit-mask-image: var(--internal-add-symbol);
+	-webkit-mask-size: 20px;
 	-webkit-mask-repeat: no-repeat;
 	-webkit-mask-position: center;
 }
@@ -340,9 +360,11 @@ export function buildIconButtonsCSS(): string {
 	height: var(--button-size);
 	background: currentColor;
 	-webkit-mask-image: var(--internal-file-page-symbol);
+	-webkit-mask-size: 20px;
 	-webkit-mask-repeat: no-repeat;
 	-webkit-mask-position: center;
 	mask-image: var(--internal-file-page-symbol);
+	mask-size: 20px;
 	mask-repeat: no-repeat;
 	mask-position: center;
 }
@@ -359,9 +381,11 @@ export function buildIconButtonsCSS(): string {
 	height: var(--button-size);
 	background: currentColor;
 	-webkit-mask-image: var(--internal-edit-pencil-symbol);
+	-webkit-mask-size: 20px;
 	-webkit-mask-repeat: no-repeat;
 	-webkit-mask-position: center;
 	mask-image: var(--internal-edit-pencil-symbol);
+	mask-size: 20px;
 	mask-repeat: no-repeat;
 	mask-position: center;
 }
@@ -378,9 +402,11 @@ export function buildIconButtonsCSS(): string {
 	height: var(--button-size);
 	background: currentColor;
 	-webkit-mask-image: var(--internal-preferences-gear-symbol);
+	-webkit-mask-size: 20px;
 	-webkit-mask-repeat: no-repeat;
 	-webkit-mask-position: center;
 	mask-image: var(--internal-preferences-gear-symbol);
+	mask-size: 20px;
 	mask-repeat: no-repeat;
 	mask-position: center;
 }
@@ -418,13 +444,25 @@ export function buildIconButtonsCSS(): string {
 .beepboxEditor .mute-button.muted::before {
   background: var(--ui-widget-background);
 	-webkit-mask-image: var(--internal-muted-symbol);
+	-webkit-mask-repeat: no-repeat;
+	-webkit-mask-position: center;
+	-webkit-mask-size: cover;
   mask-image: var(--internal-muted-symbol);
+  mask-repeat: no-repeat;
+	mask-position: center;
+	mask-size: cover;
 }
 
 .beepboxEditor .mute-button.modMute.muted::before {
   background: var(--ui-widget-background);
 	-webkit-mask-image: var(--internal-muted-symbol);
+	-webkit-mask-repeat: no-repeat;
+	-webkit-mask-position: center;
+	-webkit-mask-size: cover;
   mask-image: var(--internal-muted-symbol);
+  mask-repeat: no-repeat;
+	mask-position: center;
+	mask-size: cover;
 }
 
 .beepboxEditor .mute-button.modMute::before {

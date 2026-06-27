@@ -49,6 +49,7 @@
 		"typescript-eslint": "^8.57.1"
 	},
 	"dependencies": {
+		"@tabler/icons": "^3.44.0",
 		"imperative-html": "^0.1.1",
 		"js-xxhash": "^4.0.0",
 		"select2": "^4.0.13"

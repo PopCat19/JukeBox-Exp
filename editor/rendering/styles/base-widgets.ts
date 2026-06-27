@@ -50,9 +50,11 @@ export function buildBaseWidgetsCSS(): string {
 	height: var(--button-size);
 	background: currentColor;
 	-webkit-mask-image: var(--internal-menu-down-symbol);
+	-webkit-mask-size: 20px;
 	-webkit-mask-repeat: no-repeat;
 	-webkit-mask-position: center;
 	mask-image: var(--internal-menu-down-symbol);
+	mask-size: 20px;
 	mask-repeat: no-repeat;
 	mask-position: center;
 }
@@ -192,9 +194,11 @@ export function buildBaseWidgetsCSS(): string {
 	pointer-events: none;
 	background: currentColor;
 	mask-image: var(--internal-minimize-symbol);
+	mask-size: 20px;
 	mask-repeat: no-repeat;
 	mask-position: center;
 	-webkit-mask-image: var(--internal-minimize-symbol);
+	-webkit-mask-size: 20px;
 	-webkit-mask-repeat: no-repeat;
 	-webkit-mask-position: center;
 }
@@ -213,9 +217,11 @@ export function buildBaseWidgetsCSS(): string {
 	pointer-events: none;
 	background: currentColor;
 	mask-image: var(--internal-popout-symbol);
+	mask-size: 20px;
 	mask-repeat: no-repeat;
 	mask-position: center;
 	-webkit-mask-image: var(--internal-popout-symbol);
+	-webkit-mask-size: 20px;
 	-webkit-mask-repeat: no-repeat;
 	-webkit-mask-position: center;
 }
@@ -255,9 +261,11 @@ export function buildBaseWidgetsCSS(): string {
 	height: var(--button-size);
 	background: currentColor;
 	-webkit-mask-image: var(--internal-play-symbol);
+	-webkit-mask-size: 20px;
 	-webkit-mask-repeat: no-repeat;
 	-webkit-mask-position: center;
 	mask-image: var(--internal-play-symbol);
+	mask-size: 20px;
 	mask-repeat: no-repeat;
 	mask-position: center;
 }
@@ -273,9 +281,11 @@ export function buildBaseWidgetsCSS(): string {
 	height: var(--button-size);
 	background: currentColor;
 	-webkit-mask-image: var(--internal-pause-symbol);
+	-webkit-mask-size: 20px;
 	-webkit-mask-repeat: no-repeat;
 	-webkit-mask-position: center;
 	mask-image: var(--internal-pause-symbol);
+	mask-size: 20px;
 	mask-repeat: no-repeat;
 	mask-position: center;
 }
@@ -291,9 +301,11 @@ export function buildBaseWidgetsCSS(): string {
 	height: var(--button-size);
 	background: currentColor;
 	-webkit-mask-image: var(--internal-record-symbol);
+	-webkit-mask-size: 20px;
 	-webkit-mask-repeat: no-repeat;
 	-webkit-mask-position: center;
 	mask-image: var(--internal-record-symbol);
+	mask-size: 20px;
 	mask-repeat: no-repeat;
 	mask-position: center;
 }
@@ -309,9 +321,11 @@ export function buildBaseWidgetsCSS(): string {
 	height: var(--button-size);
 	background: currentColor;
 	-webkit-mask-image: var(--internal-stop-symbol);
+	-webkit-mask-size: 20px;
 	-webkit-mask-repeat: no-repeat;
 	-webkit-mask-position: center;
 	mask-image: var(--internal-stop-symbol);
+	mask-size: 20px;
 	mask-repeat: no-repeat;
 	mask-position: center;
 }
@@ -328,9 +342,11 @@ export function buildBaseWidgetsCSS(): string {
 	height: var(--button-size);
 	background: currentColor;
 	-webkit-mask-image: var(--internal-prev-bar-symbol);
+	-webkit-mask-size: 20px;
 	-webkit-mask-repeat: no-repeat;
 	-webkit-mask-position: center;
 	mask-image: var(--internal-prev-bar-symbol);
+	mask-size: 20px;
 	mask-repeat: no-repeat;
 	mask-position: center;
 }
@@ -347,9 +363,11 @@ export function buildBaseWidgetsCSS(): string {
 	height: var(--button-size);
 	background: currentColor;
 	-webkit-mask-image: var(--internal-next-bar-symbol);
+	-webkit-mask-size: 20px;
 	-webkit-mask-repeat: no-repeat;
 	-webkit-mask-position: center;
 	mask-image: var(--internal-next-bar-symbol);
+	mask-size: 20px;
 	mask-repeat: no-repeat;
 	mask-position: center;
 }
@@ -405,9 +423,11 @@ export function buildBaseWidgetsCSS(): string {
 	pointer-events: none;
 	background: currentColor;
 	mask-image: var(--internal-close-symbol);
+	mask-size: 20px;
 	mask-repeat: no-repeat;
 	mask-position: center;
 	-webkit-mask-image: var(--internal-close-symbol);
+	-webkit-mask-size: 20px;
 	-webkit-mask-repeat: no-repeat;
 	-webkit-mask-position: center;
 }
@@ -422,9 +442,11 @@ export function buildBaseWidgetsCSS(): string {
 	pointer-events: none;
 	background: currentColor;
 	-webkit-mask-image: var(--internal-checkmark-symbol);
+	-webkit-mask-size: 20px;
 	-webkit-mask-repeat: no-repeat;
 	-webkit-mask-position: center;
 	mask-image: var(--internal-checkmark-symbol);
+	mask-size: 20px;
 	mask-repeat: no-repeat;
 	mask-position: center;
 }
@@ -439,11 +461,46 @@ export function buildBaseWidgetsCSS(): string {
 	pointer-events: none;
 	background: currentColor;
 	mask-image: var(--internal-export-symbol);
+	mask-size: 20px;
 	mask-repeat: no-repeat;
 	mask-position: center;
 	-webkit-mask-image: var(--internal-export-symbol);
+	-webkit-mask-size: 20px;
 	-webkit-mask-repeat: no-repeat;
 	-webkit-mask-position: center;
+}
+
+/* Tabler dropdown button — circle with chevron */
+.beepboxEditor button.dropdown-button-tabler {
+	position: relative;
+	width: 16px;
+	height: 22px;
+	border-radius: 11px;
+	padding: 0;
+	min-width: 0;
+}
+.beepboxEditor button.dropdown-button-tabler::before {
+	content: "";
+	position: absolute;
+	left: 50%;
+	top: 50%;
+	transform: translate(-50%, -50%);
+	width: 12px;
+	height: 8px;
+	pointer-events: none;
+	background: currentColor;
+	-webkit-mask-image: url("data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2224%22 height=%2224%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22currentColor%22 stroke-width=%224%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22 > <path stroke=%22none%22 d=%22M0 0h24v24H0z%22 fill=%22none%22 /> <path d=%22M6 9l6 6l6 -6%22 /> </svg>");
+	-webkit-mask-repeat: no-repeat;
+	-webkit-mask-position: center;
+	-webkit-mask-size: contain;
+	mask-image: url("data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2224%22 height=%2224%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22currentColor%22 stroke-width=%224%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22 > <path stroke=%22none%22 d=%22M0 0h24v24H0z%22 fill=%22none%22 /> <path d=%22M6 9l6 6l6 -6%22 /> </svg>");
+	mask-repeat: no-repeat;
+	mask-position: center;
+	mask-size: contain;
+	transition: transform 0.15s ease;
+}
+.beepboxEditor button.dropdown-button-tabler.dropdown-open::before {
+	transform: translate(-50%, -50%) rotate(180deg);
 }
 `;
 }

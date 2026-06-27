@@ -16,15 +16,15 @@ export interface DropdownButtonOptions {
 }
 
 const baseStyle = s(
-	`margin-left:0em; height:1.5em; width:auto; padding:8px 2px; font-size:0.5rem;`,
+	`margin-left:0em;`,
 	flexCenter("row"),
 	`transition:opacity ${Animation.durationFast}; opacity:0.7;`,
 );
 
 export function dropdownButton(options?: DropdownButtonOptions): HTMLButtonElement {
 	const style = options?.style ? `${baseStyle}; ${options.style}` : baseStyle;
-	const attrs: Record<string, string> = { style, type: "button" };
-	const btn = HTML.button(attrs, "▼");
+	const attrs: Record<string, string> = { style, type: "button", class: "dropdown-button-tabler" };
+	const btn = HTML.button(attrs, "");
 	if (options?.onclick) {
 		btn.addEventListener("click", options.onclick);
 	}

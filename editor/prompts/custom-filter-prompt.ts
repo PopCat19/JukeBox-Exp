@@ -10,6 +10,7 @@
 
 import { HTML, SVG } from "imperative-html/dist/esm/elements-strict";
 import { ColorConfig } from "../../shared/color-config";
+import { Sizing } from "../ui/style-constants";
 import { FilterSettings } from "../../synth";
 import { Config } from "../../synth/synth-config";
 import { FilterEditor } from "../components/filter-editor";
@@ -43,14 +44,26 @@ export class CustomFilterPrompt extends BasePrompt {
 			SVG.svg(
 				{
 					class: "iconBtnSvgOverlay",
-					width: "2em",
-					height: "2em",
-					viewBox: "-5 -21 26 26",
+					width: Sizing.iconMd,
+					height: Sizing.iconMd,
+					viewBox: "0 0 24 24",
 				},
 				[
 					SVG.path({
-						d: "M 0 -15 L 1 -15 L 1 0 L 13 0 L 13 1 L 0 1 L 0 -15 z M 2 -1 L 2 -17 L 10 -17 L 14 -13 L 14 -1 z M 3 -2 L 13 -2 L 13 -12 L 9 -12 L 9 -16 L 3 -16 z",
-						fill: "currentColor",
+						d: "M7 9.667a2.667 2.667 0 0 1 2.667 -2.667h8.666a2.667 2.667 0 0 1 2.667 2.667v8.666a2.667 2.667 0 0 1 -2.667 2.667h-8.666a2.667 2.667 0 0 1 -2.667 -2.667l0 -8.666",
+						"stroke": "currentColor",
+						"stroke-width": "2",
+						"stroke-linecap": "round",
+						"stroke-linejoin": "round",
+						fill: "none",
+					}),
+					SVG.path({
+						d: "M4.012 16.737a2.005 2.005 0 0 1 -1.012 -1.737v-10c0 -1.1 .9 -2 2 -2h10c.75 0 1.158 .385 1.5 1",
+						"stroke": "currentColor",
+						"stroke-width": "2",
+						"stroke-linecap": "round",
+						"stroke-linejoin": "round",
+						fill: "none",
 					}),
 				],
 			),
@@ -63,19 +76,34 @@ export class CustomFilterPrompt extends BasePrompt {
 			SVG.svg(
 				{
 					class: "iconBtnSvgOverlay",
-					width: "2em",
-					height: "2em",
-					viewBox: "0 0 26 26",
+					width: Sizing.iconMd,
+					height: Sizing.iconMd,
+					viewBox: "0 0 24 24",
 				},
 				[
 					SVG.path({
-						d: "M 8 18 L 6 18 L 6 5 L 17 5 L 17 7 M 9 8 L 16 8 L 20 12 L 20 22 L 9 22 z",
-						stroke: "currentColor",
+						d: "M9 5h-2a2 2 0 0 0 -2 2v12a2 2 0 0 0 2 2h3m9 -9v-5a2 2 0 0 0 -2 -2h-2",
+						"stroke": "currentColor",
+						"stroke-width": "2",
+						"stroke-linecap": "round",
+						"stroke-linejoin": "round",
 						fill: "none",
 					}),
 					SVG.path({
-						d: "M 9 3 L 14 3 L 14 6 L 9 6 L 9 3 z M 16 8 L 20 12 L 16 12 L 16 8 z",
-						fill: "currentColor",
+						d: "M13 17v-1a1 1 0 0 1 1 -1h1m3 0h1a1 1 0 0 1 1 1v1m0 3v1a1 1 0 0 1 -1 1h-1m-3 0h-1a1 1 0 0 1 -1 -1v-1",
+						"stroke": "currentColor",
+						"stroke-width": "2",
+						"stroke-linecap": "round",
+						"stroke-linejoin": "round",
+						fill: "none",
+					}),
+					SVG.path({
+						d: "M9 5a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2a2 2 0 0 1 -2 2h-2a2 2 0 0 1 -2 -2",
+						"stroke": "currentColor",
+						"stroke-width": "2",
+						"stroke-linecap": "round",
+						"stroke-linejoin": "round",
+						fill: "none",
 					}),
 				],
 			),

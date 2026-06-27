@@ -118,12 +118,14 @@ export function injectPlayerStyles(): void {
 		height: 12px;
 		pointer-events: none;
 		background: ${ColorConfig.primaryText};
-		-webkit-mask-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="-6 -6 12 12"><path d="M 6 0 L -5 6 L -5 -6 z" fill="gray"/></svg>');
+		-webkit-mask-image: url("data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2224%22 height=%2224%22 viewBox=%220 0 24 24%22 fill=%22currentColor%22 > <path stroke=%22none%22 d=%22M0 0h24v24H0z%22 fill=%22none%22 /> <path d=%22M6 4v16a1 1 0 0 0 1.524 .852l13 -8a1 1 0 0 0 0 -1.704l-13 -8a1 1 0 0 0 -1.524 .852z%22 /> </svg>");
 		-webkit-mask-repeat: no-repeat;
 		-webkit-mask-position: center;
-		mask-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="-6 -6 12 12"><path d="M 6 0 L -5 6 L -5 -6 z" fill="gray"/></svg>');
+		-webkit-mask-size: 12px 12px;
+		mask-image: url("data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2224%22 height=%2224%22 viewBox=%220 0 24 24%22 fill=%22currentColor%22 > <path stroke=%22none%22 d=%22M0 0h24v24H0z%22 fill=%22none%22 /> <path d=%22M6 4v16a1 1 0 0 0 1.524 .852l13 -8a1 1 0 0 0 0 -1.704l-13 -8a1 1 0 0 0 -1.524 .852z%22 /> </svg>");
 		mask-repeat: no-repeat;
 		mask-position: center;
+		mask-size: 12px 12px;
 	}
 	.pauseButton::before {
 		content: "";
@@ -135,12 +137,14 @@ export function injectPlayerStyles(): void {
 		height: 12px;
 		pointer-events: none;
 		background: ${ColorConfig.primaryText};
-		-webkit-mask-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="-6 -6 12 12"><rect x="-5" y="-6" width="3" height="12" fill="gray"/><rect x="2"  y="-6" width="3" height="12" fill="gray"/></svg>');
+		-webkit-mask-image: url("data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2224%22 height=%2224%22 viewBox=%220 0 24 24%22 fill=%22currentColor%22 > <path stroke=%22none%22 d=%22M0 0h24v24H0z%22 fill=%22none%22 /> <path d=%22M9 4h-2a2 2 0 0 0 -2 2v12a2 2 0 0 0 2 2h2a2 2 0 0 0 2 -2v-12a2 2 0 0 0 -2 -2z%22 /> <path d=%22M17 4h-2a2 2 0 0 0 -2 2v12a2 2 0 0 0 2 2h2a2 2 0 0 0 2 -2v-12a2 2 0 0 0 -2 -2z%22 /> </svg>");
 		-webkit-mask-repeat: no-repeat;
 		-webkit-mask-position: center;
-		mask-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="-6 -6 12 12"><rect x="-5" y="-6" width="3" height="12" fill="gray"/><rect x="2"  y="-6" width="3" height="12" fill="gray"/></svg>');
+		-webkit-mask-size: 12px 12px;
+		mask-image: url("data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2224%22 height=%2224%22 viewBox=%220 0 24 24%22 fill=%22currentColor%22 > <path stroke=%22none%22 d=%22M0 0h24v24H0z%22 fill=%22none%22 /> <path d=%22M9 4h-2a2 2 0 0 0 -2 2v12a2 2 0 0 0 2 2h2a2 2 0 0 0 2 -2v-12a2 2 0 0 0 -2 -2z%22 /> <path d=%22M17 4h-2a2 2 0 0 0 -2 2v12a2 2 0 0 0 2 2h2a2 2 0 0 0 2 -2v-12a2 2 0 0 0 -2 -2z%22 /> </svg>");
 		mask-repeat: no-repeat;
 		mask-position: center;
+		mask-size: 12px 12px;
 	}
 	
 	input[type=range] {
@@ -238,12 +242,12 @@ export function buildPlayerUI(): PlayerUI {
 		},
 		"",
 	);
-	const editLink: HTMLAnchorElement = a({ target: "_top", style: "margin: 0 4px;" }, "✎ Edit");
-	const copyLink: HTMLAnchorElement = a({ href: "#", style: "margin: 0 4px;" }, "⎘ Copy URL");
-	const shareLink: HTMLAnchorElement = a({ href: "#", style: "margin: 0 4px;" }, "⤳ Share");
+	const editLink: HTMLAnchorElement = a({ target: "_top", style: "margin: 0 4px;" }, "Edit");
+	const copyLink: HTMLAnchorElement = a({ href: "#", style: "margin: 0 4px;" }, "Copy URL");
+	const shareLink: HTMLAnchorElement = a({ href: "#", style: "margin: 0 4px;" }, "Share");
 	const fullscreenLink: HTMLAnchorElement = a(
 		{ target: "_top", style: "margin: 0 4px;" },
-		"⇱ Fullscreen",
+		"Fullscreen",
 	);
 
 	const playButton: HTMLButtonElement = button({
@@ -256,24 +260,33 @@ export function buildPlayerUI(): PlayerUI {
 		playButton,
 	);
 	const loopIcon: SVGPathElement = path({
-		d: "M 4 2 L 4 0 L 7 3 L 4 6 L 4 4 Q 2 4 2 6 Q 2 8 4 8 L 4 10 Q 0 10 0 6 Q 0 2 4 2 M 8 10 L 8 12 L 5 9 L 8 6 L 8 8 Q 10 8 10 6 Q 10 4 8 4 L 8 2 Q 12 2 12 6 Q 12 10 8 10 z",
+		d: "M4 12v-3a3 3 0 0 1 3 -3h13m-3 -3l3 3l-3 3 M20 12v3a3 3 0 0 1 -3 3h-13m3 3l-3 -3l3 -3",
+		"stroke": "currentColor",
+		"stroke-width": "2",
+		"stroke-linecap": "round",
+		"stroke-linejoin": "round",
+		fill: "none",
 	});
 	const loopButton: HTMLButtonElement = button(
 		{
 			title: "loop",
 			style: "background: none; flex: 0 0 12px; margin: 0 3px; width: 12px; height: 12px; display: flex;",
 		},
-		svg({ width: 12, height: 12, viewBox: "0 0 12 12" }, loopIcon),
+		svg({ width: 12, height: 12, viewBox: "0 0 24 24" }, loopIcon),
 	);
 
 	const volumeIcon: SVGSVGElement = svg(
 		{
 			style: "flex: 0 0 12px; margin: 0 1px; width: 12px; height: 12px;",
-			viewBox: "0 0 12 12",
+			viewBox: "0 0 24 24",
 		},
 		path({
-			fill: ColorConfig.uiWidgetBackground,
-			d: "M 1 9 L 1 3 L 4 3 L 7 0 L 7 12 L 4 9 L 1 9 M 9 3 Q 12 6 9 9 L 8 8 Q 10.5 6 8 4 L 9 3 z",
+			d: "M15 8a5 5 0 0 1 0 8 M17.7 5a9 9 0 0 1 0 14 M6 15h-2a1 1 0 0 1 -1 -1v-4a1 1 0 0 1 1 -1h2l3.5 -4.5a.8 .8 0 0 1 1.5 .5v14a.8 .8 0 0 1 -1.5 .5l-3.5 -4.5",
+			"stroke": "currentColor",
+			"stroke-width": "2",
+			"stroke-linecap": "round",
+			"stroke-linejoin": "round",
+			fill: "none",
 		}),
 	);
 	const volumeSlider: HTMLInputElement = input({
@@ -287,19 +300,20 @@ export function buildPlayerUI(): PlayerUI {
 	});
 
 	const zoomIcon: SVGSVGElement = svg(
-		{ width: 12, height: 12, viewBox: "0 0 12 12" },
+		{ width: 12, height: 12, viewBox: "0 0 24 24" },
 		circle({
-			cx: "5",
-			cy: "5",
-			r: "4.5",
-			"stroke-width": "1",
+			cx: "10",
+			cy: "10",
+			r: "7",
+			"stroke-width": "2",
 			stroke: "currentColor",
 			fill: "none",
 		}),
 		path({
 			stroke: "currentColor",
 			"stroke-width": "2",
-			d: "M 8 8 L 11 11 M 5 2 L 5 8 M 2 5 L 8 5",
+			"stroke-linecap": "round",
+			d: "M 15 15 L 21 21 M 7 10 L 13 10 M 10 7 L 10 13",
 			fill: "none",
 		}),
 	);
