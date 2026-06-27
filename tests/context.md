@@ -34,6 +34,14 @@ Purpose: bun:test test files covering editor, synth, and shared modules.
 - `post-processing.test.ts`, Unit tests for PostProcessingState — sanitizeFilters overflow reset, epsilon clamping, empty array, normal value preservation, large negative values
 - `filter-control-point.test.ts`, Unit tests for FilterControlPoint — Hz conversion roundtrip, linear gain, volume compensation for low-pass/high-pass/peak, unknown type error
 - `synth-effects.test.ts`, Unit tests for synth-effects — module import and export shape
+- `enums.test.ts`, Unit tests for synth config enumeration type constants
+- `instrument-registry.test.ts`, Unit tests for dynamic instrument type registration
+- `synth-math-utils.test.ts`, Unit tests for Config-dependent utility functions (getPulseWidthRatio, getDrumWave, getArpeggioPitchIndex, calculateRingModHertz)
+- `envelope-settings.test.ts`, Unit tests for EnvelopeSettings — serialization and tremolo2→LFO migration
+- `filter-settings.test.ts`, Unit tests for FilterSettings — control points, morph, lerp
+- `song-serialization-shared.test.ts`, Unit tests for shared serialization constants and version ranges
+- `custom-algorithm.test.ts`, Unit tests for CustomAlgorithm — FM operator routing
+- `custom-feedback.test.ts`, Unit tests for CustomFeedBack — FM feedback routing
 
 ## Source-to-test cross-reference
 

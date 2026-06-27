@@ -64,7 +64,20 @@ an uncovered module.
 | `synth/post-processing.ts` | `tests/post-processing.test.ts` | sanitizeFilters — overflow reset, epsilon clamping, empty array, normal value preservation |
 | `synth/synth-effects.ts` | `tests/synth-effects.test.ts` | Module import and export shape |
 
-**Untested synth modules:** `config/sample-loader.ts` (barrel verified),
+**Recently added test coverage:**
+
+| Source | Test file | Scope |
+|--------|-----------|-------|
+| `synth/config/enums.ts` | `tests/enums.test.ts` | Enum value constants |
+| `synth/config/instrument-registry.ts` | `tests/instrument-registry.test.ts` | Registration, name↔id, duplicates |
+| `synth/config/synth-math-utils.ts` | `tests/synth-math-utils.test.ts` | getPulseWidthRatio, getDrumWave, getArpeggioPitchIndex, calculateRingModHertz |
+| `synth/instruments/envelope-settings.ts` | `tests/envelope-settings.test.ts` | Serialization, tremolo2→LFO migration |
+| `synth/instruments/filter-settings.ts` | `tests/filter-settings.test.ts` | Control points, morph, lerp |
+| `synth/instruments/custom-algorithm.ts` | `tests/custom-algorithm.test.ts` | Constructor, set, copy, fromPreset |
+| `synth/instruments/custom-feedback.ts` | `tests/custom-feedback.test.ts` | Constructor, set, copy, fromPreset, reset bugfix |
+| `synth/song-serialization-shared.ts` | `tests/song-serialization-shared.test.ts` | ENV_* constants, version ranges, VARIANT |
+
+**Untested synth modules:** `config/sample-loader.ts` (barrel verified), `synth-deserialize.ts`, `synth-serialize.ts`, `config/config-class.ts`, `audio-backend.ts`
 
 **Instrument type round-trips (tested):** chip, fm, noise, spectrum, drumset,
 harmonics, pwm, pickedString, supersaw, customChipWave, mod, fm6op.

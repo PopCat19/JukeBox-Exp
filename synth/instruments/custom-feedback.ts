@@ -31,7 +31,6 @@ export class CustomFeedBack {
 	}
 
 	public reset(): void {
-		this.reset;
 		this.name = "";
 		this.indices = [[1], [], [], [], [], []];
 	}
