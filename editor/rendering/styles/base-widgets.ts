@@ -194,11 +194,11 @@ export function buildBaseWidgetsCSS(): string {
 	pointer-events: none;
 	background: currentColor;
 	mask-image: var(--internal-minimize-symbol);
-	mask-size: 20px;
+	mask-size: 16px;
 	mask-repeat: no-repeat;
 	mask-position: center;
 	-webkit-mask-image: var(--internal-minimize-symbol);
-	-webkit-mask-size: 20px;
+	-webkit-mask-size: 16px;
 	-webkit-mask-repeat: no-repeat;
 	-webkit-mask-position: center;
 }
@@ -217,11 +217,11 @@ export function buildBaseWidgetsCSS(): string {
 	pointer-events: none;
 	background: currentColor;
 	mask-image: var(--internal-popout-symbol);
-	mask-size: 20px;
+	mask-size: 16px;
 	mask-repeat: no-repeat;
 	mask-position: center;
 	-webkit-mask-image: var(--internal-popout-symbol);
-	-webkit-mask-size: 20px;
+	-webkit-mask-size: 16px;
 	-webkit-mask-repeat: no-repeat;
 	-webkit-mask-position: center;
 }
@@ -261,11 +261,11 @@ export function buildBaseWidgetsCSS(): string {
 	height: var(--button-size);
 	background: currentColor;
 	-webkit-mask-image: var(--internal-play-symbol);
-	-webkit-mask-size: 20px;
+	-webkit-mask-size: 16px;
 	-webkit-mask-repeat: no-repeat;
 	-webkit-mask-position: center;
 	mask-image: var(--internal-play-symbol);
-	mask-size: 20px;
+	mask-size: 16px;
 	mask-repeat: no-repeat;
 	mask-position: center;
 }
@@ -281,11 +281,11 @@ export function buildBaseWidgetsCSS(): string {
 	height: var(--button-size);
 	background: currentColor;
 	-webkit-mask-image: var(--internal-pause-symbol);
-	-webkit-mask-size: 20px;
+	-webkit-mask-size: 16px;
 	-webkit-mask-repeat: no-repeat;
 	-webkit-mask-position: center;
 	mask-image: var(--internal-pause-symbol);
-	mask-size: 20px;
+	mask-size: 16px;
 	mask-repeat: no-repeat;
 	mask-position: center;
 }
@@ -301,11 +301,11 @@ export function buildBaseWidgetsCSS(): string {
 	height: var(--button-size);
 	background: currentColor;
 	-webkit-mask-image: var(--internal-record-symbol);
-	-webkit-mask-size: 20px;
+	-webkit-mask-size: 16px;
 	-webkit-mask-repeat: no-repeat;
 	-webkit-mask-position: center;
 	mask-image: var(--internal-record-symbol);
-	mask-size: 20px;
+	mask-size: 16px;
 	mask-repeat: no-repeat;
 	mask-position: center;
 }
@@ -321,11 +321,11 @@ export function buildBaseWidgetsCSS(): string {
 	height: var(--button-size);
 	background: currentColor;
 	-webkit-mask-image: var(--internal-stop-symbol);
-	-webkit-mask-size: 20px;
+	-webkit-mask-size: 16px;
 	-webkit-mask-repeat: no-repeat;
 	-webkit-mask-position: center;
 	mask-image: var(--internal-stop-symbol);
-	mask-size: 20px;
+	mask-size: 16px;
 	mask-repeat: no-repeat;
 	mask-position: center;
 }
@@ -342,11 +342,11 @@ export function buildBaseWidgetsCSS(): string {
 	height: var(--button-size);
 	background: currentColor;
 	-webkit-mask-image: var(--internal-prev-bar-symbol);
-	-webkit-mask-size: 20px;
+	-webkit-mask-size: 16px;
 	-webkit-mask-repeat: no-repeat;
 	-webkit-mask-position: center;
 	mask-image: var(--internal-prev-bar-symbol);
-	mask-size: 20px;
+	mask-size: 16px;
 	mask-repeat: no-repeat;
 	mask-position: center;
 }
@@ -363,18 +363,24 @@ export function buildBaseWidgetsCSS(): string {
 	height: var(--button-size);
 	background: currentColor;
 	-webkit-mask-image: var(--internal-next-bar-symbol);
-	-webkit-mask-size: 20px;
+	-webkit-mask-size: 16px;
 	-webkit-mask-repeat: no-repeat;
 	-webkit-mask-position: center;
 	mask-image: var(--internal-next-bar-symbol);
-	mask-size: 20px;
+	mask-size: 16px;
 	mask-repeat: no-repeat;
 	mask-position: center;
 }
 
-.beepboxEditor button.playButton, .beepboxEditor button.pauseButton, .beepboxEditor button.recordButton, .beepboxEditor button.stopButton, .beepboxEditor button.okayButton, .beepboxEditor button.exportButton,
-.beepboxEditor button.copyButton, .beepboxEditor button.pasteButton, .beepboxEditor button.exportInstrumentButton, .beepboxEditor button.importInstrumentButton {
+.beepboxEditor button.playButton, .beepboxEditor button.pauseButton, .beepboxEditor button.recordButton, .beepboxEditor button.stopButton, .beepboxEditor button.okayButton, .beepboxEditor button.exportButton {
 	padding-left: var(--button-size);
+}
+.beepboxEditor button.copyButton, .beepboxEditor button.pasteButton, .beepboxEditor button.exportInstrumentButton, .beepboxEditor button.importInstrumentButton {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	gap: 4px;
+	padding-left: 4px;
 }
 .beepboxEditor button.playButton, .beepboxEditor button.pauseButton, .beepboxEditor button.recordButton {
 	grid-column-start: 1;
@@ -423,11 +429,11 @@ export function buildBaseWidgetsCSS(): string {
 	pointer-events: none;
 	background: currentColor;
 	mask-image: var(--internal-close-symbol);
-	mask-size: 20px;
+	mask-size: 16px;
 	mask-repeat: no-repeat;
 	mask-position: center;
 	-webkit-mask-image: var(--internal-close-symbol);
-	-webkit-mask-size: 20px;
+	-webkit-mask-size: 16px;
 	-webkit-mask-repeat: no-repeat;
 	-webkit-mask-position: center;
 }
@@ -442,11 +448,11 @@ export function buildBaseWidgetsCSS(): string {
 	pointer-events: none;
 	background: currentColor;
 	-webkit-mask-image: var(--internal-checkmark-symbol);
-	-webkit-mask-size: 20px;
+	-webkit-mask-size: 16px;
 	-webkit-mask-repeat: no-repeat;
 	-webkit-mask-position: center;
 	mask-image: var(--internal-checkmark-symbol);
-	mask-size: 20px;
+	mask-size: 16px;
 	mask-repeat: no-repeat;
 	mask-position: center;
 }
@@ -461,11 +467,11 @@ export function buildBaseWidgetsCSS(): string {
 	pointer-events: none;
 	background: currentColor;
 	mask-image: var(--internal-export-symbol);
-	mask-size: 20px;
+	mask-size: 16px;
 	mask-repeat: no-repeat;
 	mask-position: center;
 	-webkit-mask-image: var(--internal-export-symbol);
-	-webkit-mask-size: 20px;
+	-webkit-mask-size: 16px;
 	-webkit-mask-repeat: no-repeat;
 	-webkit-mask-position: center;
 }

@@ -144,7 +144,7 @@ export const Sizing = {
 	inputLg: "115px",
 	// Icon sizes
 	iconSm: "16px",
-	iconMd: "20px",
+	iconMd: "16px",
 	iconLg: "26px",
 } as const;
 

@@ -92,11 +92,11 @@ export function buildEditorLayoutCSS(): string {
 	pointer-events: none;
 	background: currentColor;
 	mask-image: var(--internal-close-symbol);
-	mask-size: 20px;
+	mask-size: 16px;
 	mask-repeat: no-repeat;
 	mask-position: center;
 	-webkit-mask-image: var(--internal-close-symbol);
-	-webkit-mask-size: 20px;
+	-webkit-mask-size: 16px;
 	-webkit-mask-repeat: no-repeat;
 	-webkit-mask-position: center;
 }
@@ -119,11 +119,11 @@ export function buildEditorLayoutCSS(): string {
 	pointer-events: none;
 	background: currentColor;
 	mask-image: var(--internal-add-symbol);
-	mask-size: 20px;
+	mask-size: 16px;
 	mask-repeat: no-repeat;
 	mask-position: center;
 	-webkit-mask-image: var(--internal-add-symbol);
-	-webkit-mask-size: 20px;
+	-webkit-mask-size: 16px;
 	-webkit-mask-repeat: no-repeat;
 	-webkit-mask-position: center;
 }

@@ -1611,11 +1611,10 @@ export class SongEditor
 			title: "Copy Instrument (⇧C)",
 		},
 		[
-			"Copy",
 			// Copy icon:
 			SVG.svg(
 				{
-					style: "flex-shrink: 0; position: absolute; left: 3px; top: 50%; margin-top: -10px; pointer-events: none;",
+					style: "flex-shrink: 0; pointer-events: none;",
 					width: Sizing.iconMd,
 					height: Sizing.iconMd,
 					viewBox: "0 0 24 24",
@@ -1639,6 +1638,7 @@ export class SongEditor
 					}),
 				],
 			),
+			"Copy",
 		],
 	);
 	private readonly _instrumentPasteButton: HTMLButtonElement = button(
@@ -1648,11 +1648,10 @@ export class SongEditor
 			title: "Paste Instrument (⇧V)",
 		},
 		[
-			"Paste",
 			// Paste icon:
 			SVG.svg(
 				{
-					style: "flex-shrink: 0; position: absolute; left: 3px; top: 50%; margin-top: -10px; pointer-events: none;",
+					style: "flex-shrink: 0; pointer-events: none;",
 					width: Sizing.iconMd,
 					height: Sizing.iconMd,
 					viewBox: "0 0 24 24",
@@ -1684,6 +1683,7 @@ export class SongEditor
 					}),
 				],
 			),
+			"Paste",
 		],
 	);
 
@@ -1693,11 +1693,10 @@ export class SongEditor
 			class: "exportInstrumentButton",
 		},
 		[
-			"Export",
 			// Export icon:
 			SVG.svg(
 				{
-					style: "flex-shrink: 0; position: absolute; left: 3px; top: 50%; margin-top: -10px; pointer-events: none;",
+					style: "flex-shrink: 0; pointer-events: none;",
 					width: Sizing.iconMd,
 					height: Sizing.iconMd,
 					viewBox: "0 0 24 24",
@@ -1713,6 +1712,7 @@ export class SongEditor
 					}),
 				],
 			),
+			"Export",
 		],
 	);
 	private readonly _instrumentImportButton: HTMLButtonElement = button(
@@ -1721,11 +1721,10 @@ export class SongEditor
 			class: "importInstrumentButton",
 		},
 		[
-			"Import",
 			// Import icon:
 			SVG.svg(
 				{
-					style: "flex-shrink: 0; position: absolute; left: 3px; top: 50%; margin-top: -10px; pointer-events: none;",
+					style: "flex-shrink: 0; pointer-events: none;",
 					width: Sizing.iconMd,
 					height: Sizing.iconMd,
 					viewBox: "0 0 24 24",
@@ -1741,6 +1740,7 @@ export class SongEditor
 					}),
 				],
 			),
+			"Import",
 		],
 	);
 

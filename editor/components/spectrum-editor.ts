@@ -475,11 +475,10 @@ export class SpectrumEditorPrompt implements Prompt {
 			class: "copyButton",
 		},
 		[
-			"Copy",
 			// Copy icon:
 			SVG.svg(
 				{
-					style: "flex-shrink: 0; position: absolute; left: 3px; top: 50%; margin-top: -10px; pointer-events: none;",
+					style: "flex-shrink: 0; pointer-events: none;",
 					width: Sizing.iconMd,
 					height: Sizing.iconMd,
 					viewBox: "0 0 24 24",
@@ -503,16 +502,16 @@ export class SpectrumEditorPrompt implements Prompt {
 					}),
 				],
 			),
+			"Copy",
 		],
 	);
 	private readonly pasteButton: HTMLButtonElement = HTML.button(
 		{ style: `width:${Sizing.inputSm};`, class: "pasteButton" },
 		[
-			"Paste",
 			// Paste icon:
 			SVG.svg(
 				{
-					style: "flex-shrink: 0; position: absolute; left: 3px; top: 50%; margin-top: -10px; pointer-events: none;",
+					style: "flex-shrink: 0; pointer-events: none;",
 					width: Sizing.iconMd,
 					height: Sizing.iconMd,
 					viewBox: "0 0 24 24",
@@ -544,6 +543,7 @@ export class SpectrumEditorPrompt implements Prompt {
 					}),
 				],
 			),
+			"Paste",
 		],
 	);
 	private readonly copyPasteContainer: HTMLDivElement = HTML.div(

@@ -1113,16 +1113,15 @@ export class EnvelopeEditor {
 			// copy paste buttons
 			const envelopeCopyButton: HTMLButtonElement = HTML.button(
 				{
-					style: `margin-left:0px; max-width:${Sizing.inputSm}; width:${Sizing.inputSm}; height: 26px; padding-left: 22px`,
+					style: `margin-left:0px; max-width:${Sizing.inputSm}; width:${Sizing.inputSm}; height: 26px;`,
 					class: "copyButton",
 					title: "Copy Envelope",
 				},
 				[
-					"Copy Env",
 					// Copy icon:
 					SVG.svg(
 						{
-							style: "flex-shrink: 0; position: absolute; left: 3px; top: 50%; margin-top: -10px; pointer-events: none;",
+							style: "flex-shrink: 0; pointer-events: none;",
 							width: Sizing.iconMd,
 							height: Sizing.iconMd,
 							viewBox: "0 0 24 24",
@@ -1146,20 +1145,20 @@ export class EnvelopeEditor {
 							}),
 						],
 					),
+					"Copy Env",
 				],
 			);
 			const envelopePasteButton: HTMLButtonElement = HTML.button(
 				{
-					style: "margin-left:2px; max-width:89px; width: 89px; height: 26px; padding-left: 22px",
+					style: "margin-left:2px; max-width:89px; width: 89px; height: 26px;",
 					class: "pasteButton",
 					title: "Paste Envelope",
 				},
 				[
-					"Paste Env",
 					// Paste icon:
 					SVG.svg(
 						{
-							style: "flex-shrink: 0; position: absolute; left: 3px; top: 50%; margin-top: -10px; pointer-events: none;",
+							style: "flex-shrink: 0; pointer-events: none;",
 							width: Sizing.iconMd,
 							height: Sizing.iconMd,
 							viewBox: "0 0 24 24",
@@ -1191,6 +1190,7 @@ export class EnvelopeEditor {
 							}),
 						],
 					),
+					"Paste Env",
 				],
 			);
 
