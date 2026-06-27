@@ -604,9 +604,11 @@ export class SongPerformance {
 			}
 			if (this._doc.synth.liveBassInputPitches.indexOf(pitch) === -1) {
 				this._doc.synth.liveBassInputPitches.push(pitch);
+				this._doc.synth.liveBassInputVelocities.push(velocity);
 				this._bassPitchesChanged = true;
 				while (this._doc.synth.liveBassInputPitches.length > Config.maxChordSize) {
 					this._doc.synth.liveBassInputPitches.shift();
+					this._doc.synth.liveBassInputVelocities.shift();
 				}
 				this._doc.synth.liveBassInputDuration = Number.MAX_SAFE_INTEGER;
 

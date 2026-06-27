@@ -2279,6 +2279,101 @@ export const presetsNgCategories: InputPresetCategory[] = [
 			},
 			{
 
+				name: "zone grand piano NG",
+
+				midiProgram: 0,
+
+				generalMidi: true,
+
+				tags: ["pickedstring", "beepbox", "keys", "zones"],
+
+				zones: [
+					// Zone 0: bass register (C2-B3) — warmer, more body, softer attack
+					{
+						settings: {
+							type: "Picked String",
+							eqFilter: [
+								{ type: "high-pass", cutoffHz: 80, linearGain: 0.7071 },
+								{ type: "peak", cutoffHz: 400, linearGain: 2.0 },
+								{ type: "low-pass", cutoffHz: 4000, linearGain: 0.25 },
+							],
+							effects: ["note filter", "reverb"],
+							noteFilter: [{ type: "low-pass", cutoffHz: 6000, linearGain: 0.125 }],
+							reverb: 70,
+							transition: "normal",
+							fadeInSeconds: 0,
+							fadeOutTicks: 60,
+							chord: "simultaneous",
+							harmonics: [
+								100, 100, 86, 86, 86, 71, 71, 71, 0, 86, 71, 71, 71, 57, 57, 71, 57, 0, 43,
+								43, 57, 57, 57, 57, 57, 43, 29, 43,
+							],
+							unison: "piano",
+							stringSustain: 85,
+							envelopes: [{ target: "noteFilterAllFreqs", envelope: "note size" }],
+						},
+						lowerNoteLimit: 24,
+						upperNoteLimit: 59,
+					},
+					// Zone 1: mid register (C4-B5) — balanced harmonics, full sustain
+					{
+						settings: {
+							type: "Picked String",
+							eqFilter: [
+								{ type: "high-pass", cutoffHz: 148.65, linearGain: 0.7071 },
+								{ type: "peak", cutoffHz: 2000, linearGain: 2.8284 },
+								{ type: "low-pass", cutoffHz: 8000, linearGain: 0.1768 },
+							],
+							effects: ["note filter", "reverb"],
+							noteFilter: [{ type: "low-pass", cutoffHz: 8000, linearGain: 0.125 }],
+							reverb: 67,
+							transition: "normal",
+							fadeInSeconds: 0,
+							fadeOutTicks: 48,
+							chord: "simultaneous",
+							harmonics: [
+								100, 100, 86, 86, 86, 71, 71, 71, 0, 86, 71, 71, 71, 57, 57, 71, 57, 14, 57,
+								57, 57, 57, 57, 57, 57, 57, 29, 57,
+							],
+							unison: "piano",
+							stringSustain: 79,
+							envelopes: [{ target: "noteFilterAllFreqs", envelope: "note size" }],
+						},
+						lowerNoteLimit: 60,
+						upperNoteLimit: 95,
+					},
+					// Zone 2: treble register (C6-C8) — brighter, less body, faster decay
+					{
+						settings: {
+							type: "Picked String",
+							eqFilter: [
+								{ type: "high-pass", cutoffHz: 500, linearGain: 0.5 },
+								{ type: "peak", cutoffHz: 4000, linearGain: 4.0 },
+								{ type: "low-pass", cutoffHz: 14000, linearGain: 0.3536 },
+							],
+							effects: ["note filter", "reverb"],
+							noteFilter: [{ type: "high-pass", cutoffHz: 1000, linearGain: 0.0625 }],
+							reverb: 60,
+							transition: "normal",
+							fadeInSeconds: 0,
+							fadeOutTicks: 36,
+							chord: "simultaneous",
+							harmonics: [
+								100, 86, 86, 86, 86, 71, 71, 57, 0, 71, 57, 57, 57, 43, 43, 57, 43, 0, 29,
+								43, 43, 43, 43, 43, 43, 29, 14, 29,
+							],
+							unison: "piano",
+							stringSustain: 65,
+							envelopes: [{ target: "noteFilterAllFreqs", envelope: "note size" }],
+						},
+						lowerNoteLimit: 96,
+						upperNoteLimit: 120,
+					},
+				],
+
+			},
+			{
+
 				name: "celesta NG",
 
 				midiProgram: 8,

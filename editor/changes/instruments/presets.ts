@@ -153,6 +153,11 @@ export class ChangePreset extends Change {
 			const preset1: Preset | null = EditorConfig.instrumentToPreset(newValue);
 			const preset: Preset | null = preset1 ?? EditorConfig.valueToPreset(newValue);
 			if (preset != null) {
+				// For zone presets, settings come from zone 0 (first zone).
+				// Regular presets use preset.settings directly.
+				const applySettings: any = preset.zones != null && preset.zones.length > 0
+					? preset.zones[0].settings
+					: preset.settings;
 				if (preset.customType !== undefined) {
 					instrument.type = preset.customType;
 					if (
@@ -162,13 +167,13 @@ export class ChangePreset extends Change {
 						instrument.chord = 0;
 					}
 					instrument.clearInvalidEnvelopeTargets();
-				} else if (preset.settings !== undefined) {
+				} else if (applySettings !== undefined) {
 					const tempVolume: number = instrument.volume;
 					const tempPan: number = instrument.pan;
 					const tempPanDelay = instrument.panDelay;
 					// const usesPanning: boolean = effectsIncludePanning(instrument.effects);
 					instrument.fromJsonObject(
-						preset.settings,
+						applySettings,
 						doc.song.getChannelIsNoise(doc.channel),
 						doc.song.getChannelIsMod(doc.channel),
 						doc.song.rhythm === 0 || doc.song.rhythm === 2,
