@@ -11,6 +11,15 @@ export interface PresetCategory extends BeepBoxOption {
 	readonly presets: DictionaryArray<Preset>;
 }
 
+export interface PresetZone {
+	// biome-ignore lint/suspicious/noExplicitAny: arbitrary settings object
+	readonly settings: any;
+	readonly lowerNoteLimit?: number;
+	readonly upperNoteLimit?: number;
+	readonly lowerVelocityLimit?: number;
+	readonly upperVelocityLimit?: number;
+}
+
 export interface Preset extends BeepBoxOption {
 	readonly isNoise?: boolean;
 	readonly isMod?: boolean;
@@ -18,8 +27,11 @@ export interface Preset extends BeepBoxOption {
 	readonly midiProgram?: number;
 	readonly midiSubharmonicOctaves?: number;
 	readonly customType?: InstrumentType;
+	// Single-instrument settings (mutually exclusive with zones)
 	// biome-ignore lint/suspicious/noExplicitAny: arbitrary settings object
 	readonly settings?: any;
+	// Multi-zone preset: each zone has its own settings and key/velocity range
+	readonly zones?: PresetZone[];
 	// Tags curated by the JukeBox community (https://github.com/JohnnesN/JukeBox)
 	// biome-ignore lint/suspicious/noExplicitAny: arbitrary tag data
 	readonly tags?: any;

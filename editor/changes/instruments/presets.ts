@@ -6,7 +6,7 @@
 // - Handles instrument type switching and preset application
 // - Generates random instruments
 
-import { FilterControlPoint, type FilterSettings, type Instrument } from "../../../synth";
+import { Channel, FilterControlPoint, type FilterSettings, Instrument } from "../../../synth";
 import {
 	type Algorithm,
 	Config,
@@ -184,9 +184,82 @@ export class ChangePreset extends Change {
 				}
 			}
 			instrument.preset = newValue;
+			// Expand zone presets: each zone becomes a separate instrument
+			if (preset != null && preset.zones != null && preset.zones.length > 1) {
+				this._expandZones(doc, instrument, preset, newValue);
+			}
 			doc.notifier.changed();
 			this._didSomething();
 		}
+	}
+
+	private _expandZones(doc: SongDocument, curInst: Instrument, preset: Preset, presetValue: number): void {
+		const channel: Channel = doc.song.channels[doc.channel];
+		const isNoise: boolean = doc.song.getChannelIsNoise(doc.channel);
+		const isMod: boolean = doc.song.getChannelIsMod(doc.channel);
+
+		// Enable layered instruments to support multiple instruments per channel
+		if (!doc.song.layeredInstruments) {
+			doc.song.layeredInstruments = true;
+			for (let ci: number = 0; ci < doc.song.getChannelCount(); ci++) {
+				const ch: Channel = doc.song.channels[ci];
+				if (ch.instruments.length > doc.song.getMaxInstrumentsPerChannel()) {
+					ch.instruments.length = doc.song.getMaxInstrumentsPerChannel();
+				}
+			}
+		}
+
+		const maxInstruments: number = doc.song.getMaxInstrumentsPerChannel();
+		const zoneCount: number = Math.min(preset.zones!.length, maxInstruments);
+
+		// Apply first zone limits to current instrument
+		const zone0: any = preset.zones![0];
+		if (zone0.lowerNoteLimit !== undefined) curInst.lowerNoteLimit = zone0.lowerNoteLimit;
+		if (zone0.upperNoteLimit !== undefined) curInst.upperNoteLimit = zone0.upperNoteLimit;
+		if (zone0.lowerVelocityLimit !== undefined) curInst.lowerVelocityLimit = zone0.lowerVelocityLimit;
+		if (zone0.upperVelocityLimit !== undefined) curInst.upperVelocityLimit = zone0.upperVelocityLimit;
+		if (zone0.lowerNoteLimit !== undefined || zone0.upperNoteLimit !== undefined ||
+			zone0.lowerVelocityLimit !== undefined || zone0.upperVelocityLimit !== undefined) {
+			curInst.effects |= 1 << EffectType.noteRange;
+		}
+
+		// Create remaining zones as new instruments
+		for (let zi: number = 1; zi < zoneCount; zi++) {
+			const zone: any = preset.zones![zi];
+			if (channel.instruments.length >= maxInstruments) break;
+
+			const zoneInst: Instrument = new Instrument(isNoise, isMod);
+			if (zone.settings) {
+				zoneInst.fromJsonObject(zone.settings, isNoise, isMod, false, false, 1);
+			}
+			zoneInst.preset = presetValue;
+			zoneInst.effects |= 1 << EffectType.panning;
+
+			if (zone.lowerNoteLimit !== undefined) zoneInst.lowerNoteLimit = zone.lowerNoteLimit;
+			if (zone.upperNoteLimit !== undefined) zoneInst.upperNoteLimit = zone.upperNoteLimit;
+			if (zone.lowerVelocityLimit !== undefined) zoneInst.lowerVelocityLimit = zone.lowerVelocityLimit;
+			if (zone.upperVelocityLimit !== undefined) zoneInst.upperVelocityLimit = zone.upperVelocityLimit;
+			if (zone.lowerNoteLimit !== undefined || zone.upperNoteLimit !== undefined ||
+				zone.lowerVelocityLimit !== undefined || zone.upperVelocityLimit !== undefined) {
+				zoneInst.effects |= 1 << EffectType.noteRange;
+			}
+
+			channel.instruments.push(zoneInst);
+		}
+
+		// Update pattern instruments
+		if (doc.song.patternInstruments) {
+			for (const pattern of channel.patterns) {
+				for (let zi: number = 0; zi < zoneCount; zi++) {
+					if (pattern.instruments.indexOf(zi) === -1) {
+						pattern.instruments.push(zi);
+					}
+				}
+			}
+		}
+
+		doc.viewedInstrument[doc.channel] = 0;
+		doc.synth.computeLatestModValues();
 	}
 }
 
