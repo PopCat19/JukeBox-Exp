@@ -2920,6 +2920,16 @@ export class Synth {
 							instrument.lowerNoteLimit,
 							instrument.upperNoteLimit,
 						);
+						// Gate by note velocity: if outside instrument velocity range, silence this note
+						if (filteredPitches.length > 0) {
+							const vel: number = note.velocity;
+							if (
+								vel < instrument.lowerVelocityLimit ||
+								vel > instrument.upperVelocityLimit
+							) {
+								filteredPitches = [];
+							}
+						}
 					}
 					if (chord.singleTone && !(filteredPitches.length <= 0)) {
 						const atNoteStart: boolean =
@@ -3038,6 +3048,15 @@ export class Synth {
 											instrument.lowerNoteLimit,
 											instrument.upperNoteLimit,
 										);
+										if (pitchesForThisTone.length > 0) {
+											const vel: number = noteForThisTone.velocity;
+											if (
+												vel < instrument.lowerVelocityLimit ||
+												vel > instrument.upperVelocityLimit
+											) {
+												pitchesForThisTone = [];
+											}
+										}
 									}
 									prevNoteForThisTone = null;
 									noteStartPart = noteForThisTone.start + strumOffsetParts;

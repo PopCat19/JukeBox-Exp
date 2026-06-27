@@ -29,6 +29,7 @@ export class Note {
 	public start: number;
 	public end: number;
 	public continuesLastPattern: boolean;
+	public velocity: number = 64;
 
 	public constructor(
 		pitch: number,
@@ -42,6 +43,7 @@ export class Note {
 		this.start = start;
 		this.end = end;
 		this.continuesLastPattern = false;
+		this.velocity = 64;
 	}
 
 	public pickMainInterval(): number {
@@ -79,6 +81,7 @@ export class Note {
 			newNote.pins.push(makeNotePin(pin.interval, pin.time, pin.size));
 		}
 		newNote.continuesLastPattern = this.continuesLastPattern;
+		newNote.velocity = this.velocity;
 		return newNote;
 	}
 
@@ -139,6 +142,9 @@ export class Pattern {
 				pitches: note.pitches,
 				points: pointArray,
 			};
+			if (note.velocity !== 64) {
+				noteObject.velocity = note.velocity;
+			}
 			if (note.start === 0) {
 				noteObject.continuesLastPattern = note.continuesLastPattern;
 			}
@@ -287,6 +293,9 @@ export class Pattern {
 				}
 				if (note.pins.length < 2) continue;
 
+				if (noteObject.velocity !== undefined) {
+					note.velocity = Math.max(1, Math.min(127, noteObject.velocity | 0));
+				}
 				note.end = note.pins[note.pins.length - 1].time + note.start;
 
 				const maxPitch: number = isNoiseChannel ? Config.drumCount - 1 : Config.maxPitch;

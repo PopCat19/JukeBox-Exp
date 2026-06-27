@@ -1076,6 +1076,7 @@ export function parseMidiFile(buffer: ArrayBuffer, fileName?: string): ParsedMid
 							false,
 						);
 						note.pins.length = 0;
+						note.velocity = Math.max(1, Math.min(127, Math.round(dnote.velocity * 127)));
 						note.continuesLastPattern = createdNote && noteStartPart === 0;
 						if (!createdNote) {
 							trackRealNotes++;
