@@ -32,12 +32,10 @@ import { decodeVariant } from "./deserialize/decode-variant";
 import {
 	clearSamples,
 	envelopeFromLegacyIndex,
-	parseAndConfigureCustomSample,
-	restoreChipWaveListToDefault,
 } from "./song-utilities";
+import { loadCustomSamples } from "./deserialize/load-custom-samples";
 import {
 	Config,
-	DictionaryArray,
 	EffectType,
 	EnvelopeType,
 	effectsIncludeBitcrusher,
@@ -63,11 +61,7 @@ import {
 	LFOEnvelopeTypes,
 	loadBuiltInSamples,
 	RandomEnvelopeTypes,
-	SampleLoadedEvent,
 	SustainType,
-	sampleLoadEvents,
-	sampleLoadingState,
-	toNameMap,
 } from "./synth-config";
 import {
 	clamp,
@@ -132,81 +126,10 @@ export function fromBase64StringImpl(
 	let willLoadLegacySamplesForOldSongs: boolean = false;
 
 	if (fromJukeBox || fromSlarmoosBox || fromUltraBox || fromGoldBox) {
-		compressed = compressed.replaceAll("%7C", "|");
-		const compressed_array = compressed.split("|");
-		compressed = compressed_array.shift()!;
-		const currentSamples = song.customSampleHandler?.getCustomSamples();
-		if (currentSamples == null || currentSamples.join(", ") !== compressed_array.join(", ")) {
-			restoreChipWaveListToDefault();
-
-			let willLoadLegacySamples = false;
-			let willLoadNintariboxSamples = false;
-			let willLoadMarioPaintboxSamples = false;
-			const customSampleUrls: string[] = [];
-			const customSamplePresets: any[] = [];
-			sampleLoadingState.statusTable = {};
-			sampleLoadingState.urlTable = {};
-			sampleLoadingState.totalSamples = 0;
-			sampleLoadingState.samplesLoaded = 0;
-			sampleLoadEvents.dispatchEvent(
-				new SampleLoadedEvent(
-					sampleLoadingState.totalSamples,
-					sampleLoadingState.samplesLoaded,
-				),
-			);
-			for (const url of compressed_array) {
-				if (url.toLowerCase() === "legacysamples") {
-					if (!willLoadLegacySamples) {
-						willLoadLegacySamples = true;
-						customSampleUrls.push(url);
-						loadBuiltInSamples(0);
-					}
-				} else if (url.toLowerCase() === "nintariboxsamples") {
-					if (!willLoadNintariboxSamples) {
-						willLoadNintariboxSamples = true;
-						customSampleUrls.push(url);
-						loadBuiltInSamples(1);
-					}
-				} else if (url.toLowerCase() === "mariopaintboxsamples") {
-					if (!willLoadMarioPaintboxSamples) {
-						willLoadMarioPaintboxSamples = true;
-						customSampleUrls.push(url);
-						loadBuiltInSamples(2);
-					}
-				} else {
-					// UB version 2 URLs and below use the old syntax, so parsing is still required in that case.
-					// UB version 3 URLs should only have the new syntax, though, unless the user has edited the URL manually.
-					const parseOldSyntax: boolean = beforeThree;
-					const ok: boolean = parseAndConfigureCustomSample(
-						url,
-						customSampleUrls,
-						customSamplePresets,
-						sampleLoadingState,
-						parseOldSyntax,
-					);
-					if (!ok) {
-						/* parse fell through — skip */
-					}
-				}
-			}
-			if (customSampleUrls.length > 0) {
-				song.customSampleHandler?.setCustomSamples(customSampleUrls);
-			} else if (compressed_array.length === 0) {
-				clearSamples(song.customSampleHandler);
-			}
-			if (customSamplePresets.length > 0) {
-				const customSamplePresetsMap: DictionaryArray<any> = toNameMap(customSamplePresets);
-				song.customSampleHandler?.addPresetCategory({
-					name: "Custom Sample Presets",
-					presets: customSamplePresetsMap,
-				});
-			}
-		}
-		// samplemark
+		compressed = loadCustomSamples(compressed, beforeThree, song);
 	}
 
 	if (beforeThree && fromBeepBox) {
-		// Originally, the only instrument transition was "instant" and the only drum wave was "retro".
 		for (const channel of song.channels) {
 			channel.instruments[0].transition = Config.transitions.dictionary.interrupt.index;
 			channel.instruments[0].effects |= 1 << EffectType.transition;
