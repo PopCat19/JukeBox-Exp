@@ -31,7 +31,7 @@ export class MuteEditor {
 	private readonly _loopIcon: SVGPathElement = SVG.path({
 		d: MuteEditor._loopIconPath,
 		"stroke": "currentColor",
-		"stroke-width": "2",
+		"stroke-width": "4",
 		"stroke-linecap": "round",
 		"stroke-linejoin": "round",
 		fill: "none",

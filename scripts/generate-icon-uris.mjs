@@ -24,6 +24,7 @@ function tablerIcon(subdir, name) {
     .trim();
   // Remove class attribute — not needed in data URI
   svg = svg.replace(/ class="[^"]*"/g, "");
+
   // URL-encode for data URI
   // Use %22 for double quotes so CSS url("...") is safe
   const encoded = svg

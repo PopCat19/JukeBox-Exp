@@ -50,11 +50,11 @@ export function buildBaseWidgetsCSS(): string {
 	height: var(--button-size);
 	background: currentColor;
 	-webkit-mask-image: var(--internal-menu-down-symbol);
-	-webkit-mask-size: 20px;
+	-webkit-mask-size: 12px;
 	-webkit-mask-repeat: no-repeat;
 	-webkit-mask-position: center;
 	mask-image: var(--internal-menu-down-symbol);
-	mask-size: 20px;
+	mask-size: 12px;
 	mask-repeat: no-repeat;
 	mask-position: center;
 }
@@ -486,17 +486,17 @@ export function buildBaseWidgetsCSS(): string {
 	top: 50%;
 	transform: translate(-50%, -50%);
 	width: 12px;
-	height: 8px;
+	height: 10px;
 	pointer-events: none;
 	background: currentColor;
 	-webkit-mask-image: url("data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2224%22 height=%2224%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22currentColor%22 stroke-width=%224%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22 > <path stroke=%22none%22 d=%22M0 0h24v24H0z%22 fill=%22none%22 /> <path d=%22M6 9l6 6l6 -6%22 /> </svg>");
 	-webkit-mask-repeat: no-repeat;
 	-webkit-mask-position: center;
-	-webkit-mask-size: contain;
+	-webkit-mask-size: 12px;
 	mask-image: url("data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2224%22 height=%2224%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22currentColor%22 stroke-width=%224%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22 > <path stroke=%22none%22 d=%22M0 0h24v24H0z%22 fill=%22none%22 /> <path d=%22M6 9l6 6l6 -6%22 /> </svg>");
 	mask-repeat: no-repeat;
 	mask-position: center;
-	mask-size: contain;
+	mask-size: 12px;
 	transition: transform 0.15s ease;
 }
 .beepboxEditor button.dropdown-button-tabler.dropdown-open::before {
