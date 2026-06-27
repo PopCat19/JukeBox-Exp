@@ -59,7 +59,9 @@ import { clamp, detuneToCents, epsilon, fittingPowerOfTwo, getOperatorWave, wrap
 
 declare global {
 	interface Window {
+		// biome-ignore lint/suspicious/noExplicitAny: browser API type missing
 		AudioContext: any;
+		// biome-ignore lint/suspicious/noExplicitAny: browser API type missing
 		webkitAudioContext: any;
 	}
 }
@@ -251,7 +253,7 @@ export class Synth {
 	}
 
 	// Redundant with inferred type but kept for self-documenting field declaration
-	 
+
 	private _audio: AudioBackend = new AudioBackend();
 	private _logSynthCallCount: number = 0;
 	// _logNeedDataCount moved to AudioBackend
@@ -259,6 +261,7 @@ export class Synth {
 	private static _debugSynthEnabled(): boolean {
 		try {
 			if (typeof window === "undefined") return false;
+			// biome-ignore lint/suspicious/noExplicitAny: dynamic property access
 			const w = window as any;
 			if (w.debugSynth === "1" || w.debugSynth === "true") return true;
 			if (window.localStorage) {
@@ -731,7 +734,9 @@ export class Synth {
 
 	private _toAudioHost(): AudioBackendHost {
 		return {
-			synthesize: (l, r, len, play) => { this.synthesize(l, r, len, play); },
+			synthesize: (l, r, len, play) => {
+				this.synthesize(l, r, len, play);
+			},
 			isPlayingSong: () => this.isPlayingSong,
 			isFadingOut: () => this._stopFadeSamplesRemaining > 0,
 			liveInputEndTime: () => this.liveInputEndTime,
@@ -5103,6 +5108,7 @@ export class Synth {
 	static wrap(x: number, b: number): number {
 		return wrap(x, b);
 	}
+	// biome-ignore lint/complexity/noBannedTypes: callback return type
 	public static getInstrumentSynthFunction(instrument: Instrument): Function {
 		const plugin = getPlugin(instrument.type);
 		if (plugin) {

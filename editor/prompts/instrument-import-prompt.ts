@@ -77,9 +77,7 @@ export class InstrumentImportPrompt extends BasePrompt {
 			try {
 				const fileParsed: any = JSON.parse(String(e.target?.result));
 				if (Array.isArray(fileParsed)) {
-					if (
-						!(this._doc.song.patternInstruments || this._doc.song.layeredInstruments)
-					) {
+					if (!(this._doc.song.patternInstruments || this._doc.song.layeredInstruments)) {
 						alert(
 							"Instrument file contains multiple instruments! Please turn on either Simultaneous instruments per channel or Different instruments per pattern!",
 						);

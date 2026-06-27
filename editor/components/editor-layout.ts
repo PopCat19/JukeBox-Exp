@@ -35,6 +35,7 @@ export class EditorLayout {
 
 	constructor(
 		doc: SongDocument,
+		// biome-ignore lint/suspicious/noExplicitAny: songEditor cross-ref
 		songEditor: any,
 		onOpenPrompt: (prompt: string) => void,
 		switchEQFilterType: (simple: boolean) => void,

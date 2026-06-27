@@ -70,6 +70,7 @@ export class MenuHandler {
 				);
 				break;
 			case "shareUrl":
+				// biome-ignore lint/suspicious/noExplicitAny: navigator.share not in all TS libs
 				(<any>navigator).share({
 					url: new URL(`#${this._host.doc.song.toBase64String()}`, location.href).href,
 				});

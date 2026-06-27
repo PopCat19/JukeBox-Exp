@@ -12,7 +12,15 @@ import type { FilterControlPoint } from "./instruments";
 import { Instrument } from "./instruments";
 import { NotePin } from "./notes";
 import { getPlugin } from "./plugins";
-import { BitFieldWriter, SongTagCode, base64IntToCharCode, encode32BitNumber, encodeUnisonSettings } from "./serialization";
+import {
+	BitFieldWriter,
+	base64IntToCharCode,
+	encode32BitNumber,
+	encodeUnisonSettings,
+	SongTagCode,
+} from "./serialization";
+import type { SongLike } from "./song-serialization";
+import { getNeededBits, LATEST_JUKEBOX_VERSION } from "./song-serialization";
 import {
 	ENV_LFO,
 	ENV_NONE,
@@ -22,14 +30,8 @@ import {
 	ENV_RANDOM,
 	VARIANT,
 } from "./song-serialization-shared";
-import { LATEST_JUKEBOX_VERSION, getNeededBits } from "./song-serialization";
-import { clamp, validateRange } from "./util";
-import type { SongLike } from "./song-serialization";
 import {
 	Config,
-	InstrumentType,
-	LFOEnvelopeTypes,
-	SustainType,
 	effectsIncludeBitcrusher,
 	effectsIncludeChord,
 	effectsIncludeChorus,
@@ -47,8 +49,11 @@ import {
 	effectsIncludeRingModulation,
 	effectsIncludeTransition,
 	effectsIncludeVibrato,
+	InstrumentType,
+	LFOEnvelopeTypes,
+	SustainType,
 } from "./synth-config";
-
+import { clamp, validateRange } from "./util";
 
 export function toBase64StringImpl(song: SongLike): string {
 	let bits: BitFieldWriter;
@@ -213,6 +218,7 @@ export function toBase64StringImpl(song: SongLike): string {
 
 	buffer.push(
 		SongTagCode.instrumentCount,
+		// biome-ignore lint/suspicious/noExplicitAny: boolean-to-bit coercion
 		base64IntToCharCode[((<any>song.layeredInstruments) << 1) | <any>song.patternInstruments],
 	);
 	if (song.layeredInstruments || song.patternInstruments) {
@@ -673,7 +679,7 @@ export function toBase64StringImpl(song: SongLike): string {
 				buffer.push(SongTagCode.customChipWave);
 				// Push custom wave values
 				for (let j: number = 0; j < 64; j++) {
-					buffer.push(base64IntToCharCode[(instrument.customChipWave[j] + 24)]);
+					buffer.push(base64IntToCharCode[instrument.customChipWave[j] + 24]);
 				}
 			} else if (instrument.type === InstrumentType.noise) {
 				buffer.push(SongTagCode.wave, base64IntToCharCode[instrument.chipNoise]);
@@ -820,6 +826,7 @@ export function toBase64StringImpl(song: SongLike): string {
 
 			const plugin = getPlugin(instrument.type);
 			if (plugin?.serialize) {
+				// biome-ignore lint/suspicious/noExplicitAny: arbitrary JSON fields
 				const pluginJson: Record<string, any> = {};
 				plugin.serialize(instrument, pluginJson);
 				if (Object.keys(pluginJson).length > 0) {

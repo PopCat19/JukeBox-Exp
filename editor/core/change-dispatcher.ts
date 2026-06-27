@@ -203,7 +203,9 @@ export class ChangeDispatcher {
 		} else if (event.target === this._host.instrumentRemoveButton) {
 			this.doc.record(new ChangeRemoveChannelInstrument(this.doc));
 		} else {
-			const index: number = this._host.instrumentButtons.indexOf(<any>event.target);
+			// biome-ignore lint/suspicious/noExplicitAny: mixed element types
+			const target: any = event.target;
+			const index: number = this._host.instrumentButtons.indexOf(target);
 			if (index !== -1) {
 				this.doc.selection.selectInstrument(index);
 			}
@@ -452,6 +454,7 @@ export class ChangeDispatcher {
 	public copyInstrument = (): void => {
 		const channel: Channel = this.doc.song.channels[this.doc.channel];
 		const instrument: Instrument = channel.instruments[this.doc.getCurrentInstrument()];
+		// biome-ignore lint/suspicious/noExplicitAny: JSON object with runtime fields
 		const instrumentCopy: any = instrument.toJsonObject();
 		instrumentCopy.isDrum = this.doc.song.getChannelIsNoise(this.doc.channel);
 		instrumentCopy.isMod = this.doc.song.getChannelIsMod(this.doc.channel);
@@ -462,6 +465,7 @@ export class ChangeDispatcher {
 	public pasteInstrument = (): void => {
 		const channel: Channel = this.doc.song.channels[this.doc.channel];
 		const instrument: Instrument = channel.instruments[this.doc.getCurrentInstrument()];
+		// biome-ignore lint/suspicious/noExplicitAny: JSON parse result
 		const instrumentCopy: any = JSON.parse(
 			String(window.localStorage.getItem("instrumentCopy")),
 		);

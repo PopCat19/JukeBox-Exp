@@ -14,6 +14,7 @@ import type { SongDocument } from "../song-document";
 
 export interface FieldValueOptions<T> {
 	/** Target object to set property on (e.g., doc.song, doc.getCurrentInstrumentObj()) */
+	// biome-ignore lint/suspicious/noExplicitAny: target varies (Song, Channel, Instrument)
 	target: any;
 	/** Property name to set */
 	property: string;

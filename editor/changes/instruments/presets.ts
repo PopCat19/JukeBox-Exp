@@ -550,7 +550,7 @@ export class ChangeRandomGeneratedInstrument extends Change {
 					break;
 				case InstrumentType.spectrum:
 					{
-						const spectrumGenerators: Function[] = [
+						const spectrumGenerators: (() => number[])[] = [
 							(): number[] => {
 								const spectrum: number[] = [];
 								for (let i: number = 0; i < Config.spectrumControlPoints; i++) {
@@ -1689,7 +1689,7 @@ export class ChangeRandomGeneratedInstrument extends Change {
 								(Math.random() * Config.stringSustainRange) | 0;
 						}
 
-						const harmonicGenerators: Function[] = [
+						const harmonicGenerators: (() => number[])[] = [
 							(): number[] => {
 								const harmonics: number[] = [];
 								for (let i: number = 0; i < Config.harmonicsControlPoints; i++) {

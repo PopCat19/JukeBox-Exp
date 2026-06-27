@@ -19,7 +19,9 @@ export class Change {
 		return this._noop;
 	}
 
-	public commit(): void {}
+	public commit(): void {
+		/* no-op for abstract base */
+	}
 }
 
 export class UndoableChange extends Change {

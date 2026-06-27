@@ -31,6 +31,7 @@ function readQueryString(): string | null {
 function isEnabled(): boolean {
 	try {
 		if (typeof window === "undefined") return false;
+		// biome-ignore lint/suspicious/noExplicitAny: dynamic property access
 		const w = window as any;
 		if (w[STORAGE_KEY] === "1" || w[STORAGE_KEY] === "true") return true;
 		const q = readQueryString();
@@ -61,6 +62,7 @@ interface DebugGlobal {
 
 let bannerPrinted = false;
 const debugGlobal: DebugGlobal = ((): DebugGlobal => {
+	// biome-ignore lint/suspicious/noExplicitAny: dynamic property access
 	const g: any = typeof window !== "undefined" ? (window as any) : {};
 	if (!g.__jukebox_debug) {
 		g.__jukebox_debug = {
@@ -72,6 +74,7 @@ const debugGlobal: DebugGlobal = ((): DebugGlobal => {
 				} catch {
 					// ignore
 				}
+				// biome-ignore lint/suspicious/noExplicitAny: dynamic property access
 				(window as any)[STORAGE_KEY] = "1";
 				g.__jukebox_debug.enabled = true;
 				bannerPrinted = false; // force banner reprint
@@ -82,6 +85,7 @@ const debugGlobal: DebugGlobal = ((): DebugGlobal => {
 				} catch {
 					// ignore
 				}
+				// biome-ignore lint/suspicious/noExplicitAny: dynamic property access
 				(window as any)[STORAGE_KEY] = "0";
 				g.__jukebox_debug.enabled = false;
 			},

@@ -409,7 +409,9 @@ export class CustomChipPrompt extends BasePrompt {
 		this._playButton.addEventListener("click", this._togglePlay);
 		updatePlayButton(this._playButton, this._doc.synth.playing);
 
-		setTimeout(() => { this._playButton.focus(); });
+		setTimeout(() => {
+			this._playButton.focus();
+		});
 
 		this.customChipCanvas.render();
 	}
@@ -443,9 +445,15 @@ export class CustomChipPrompt extends BasePrompt {
 
 	public override whenKeyPressed = (event: KeyboardEvent): void => {
 		this._handleCommonKeys(event, {
-			togglePlay: () => { this._togglePlay(); },
-			undo: () => { this.customChipCanvas.undo(); },
-			redo: () => { this.customChipCanvas.redo(); },
+			togglePlay: () => {
+				this._togglePlay();
+			},
+			undo: () => {
+				this.customChipCanvas.undo();
+			},
+			redo: () => {
+				this.customChipCanvas.redo();
+			},
 		});
 	};
 

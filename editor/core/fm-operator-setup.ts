@@ -51,11 +51,21 @@ export class FmOperatorSetup {
 					{
 						style: "width: 3em; margin-right: .3em;",
 						class: "tip",
-						onclick: () => { host.openPrompt("operatorFrequency"); },
+						onclick: () => {
+							host.openPrompt("operatorFrequency");
+						},
 					},
 					"Freq:",
 				),
-				div({ class: "tip", onclick: () => { host.openPrompt("operatorVolume"); } }, "Volume:"),
+				div(
+					{
+						class: "tip",
+						onclick: () => {
+							host.openPrompt("operatorVolume");
+						},
+					},
+					"Volume:",
+				),
 			),
 		);
 		for (let i: number = 0; i < Config.operatorCount + 2; i++) {
@@ -90,13 +100,17 @@ export class FmOperatorSetup {
 			);
 			const waveformDropdown: HTMLButtonElement = dropdownButton({
 				style: "margin-right: 2px;",
-				onclick: () => { host.toggleDropdownMenu(DropdownID.FM, i); },
+				onclick: () => {
+					host.toggleDropdownMenu(DropdownID.FM, i);
+				},
 			});
 			const waveformDropdownHint: HTMLSpanElement = span(
 				{
 					class: "tip",
 					style: "margin-left: 10px;",
-					onclick: () => { host.openPrompt("operatorWaveform"); },
+					onclick: () => {
+						host.openPrompt("operatorWaveform");
+					},
 				},
 				"Wave:",
 			);

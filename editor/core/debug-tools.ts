@@ -19,6 +19,7 @@ const log = makeLogger("startup");
 
 interface ReplayOp {
 	op: string;
+	// biome-ignore lint/suspicious/noExplicitAny: varied arg types across ops
 	args?: any;
 	ts: number;
 }
@@ -67,8 +68,9 @@ export function installDebugTools(doc: SongDocument): void {
 		_origGroupAppend.call(this, change);
 	};
 
-	doc.record = (change: Change, replace?: boolean, newSong?: boolean): void =>
-		{ _origRecord(change, replace, newSong); };
+	doc.record = (change: Change, replace?: boolean, newSong?: boolean): void => {
+		_origRecord(change, replace, newSong);
+	};
 
 	const _origCopy = doc.selection.copy.bind(doc.selection);
 	doc.selection.copy = (): void => {
@@ -134,6 +136,7 @@ export function installDebugTools(doc: SongDocument): void {
 			try {
 				const h: string = window.location.hash.slice(1);
 				if (!h) return null;
+				// biome-ignore lint/suspicious/noExplicitAny: dynamic constructor call
 				const song: Song = new (doc.song.constructor as any)(h);
 				return song.toJsonObject();
 			} catch (e) {
@@ -189,7 +192,9 @@ export function installDebugTools(doc: SongDocument): void {
 							console.log("system clipboard: not JSON");
 						}
 					})
-					.catch(() => { console.log("system clipboard: read denied"); });
+					.catch(() => {
+						console.log("system clipboard: read denied");
+					});
 			}
 		},
 
@@ -222,7 +227,9 @@ export function installDebugTools(doc: SongDocument): void {
 			if (issues.length === 0) console.log("✓ consistent");
 			else {
 				console.warn(`✗ ${issues.length} issues:`);
-				issues.forEach((i) => { console.warn("  -", i); });
+				issues.forEach((i) => {
+					console.warn("  -", i);
+				});
 			}
 			return issues;
 		},
@@ -248,8 +255,12 @@ export function installDebugTools(doc: SongDocument): void {
 				if (navigator.clipboard?.writeText) {
 					navigator.clipboard
 						.writeText(minified)
-						.then(() => { console.log("📋 replay script copied to clipboard"); })
-						.catch(() => {});
+						.then(() => {
+							console.log("📋 replay script copied to clipboard");
+						})
+						.catch(() => {
+							/* clipboard write may fail in non-secure contexts */
+						});
 				}
 				return readable;
 			},
@@ -258,7 +269,9 @@ export function installDebugTools(doc: SongDocument): void {
 			},
 			dump(): void {
 				console.log(`── recording (${ops.length} ops) ──`);
-				ops.forEach((o) => { console.log(`  ${o.op}`, o.args ?? ""); });
+				ops.forEach((o) => {
+					console.log(`  ${o.op}`, o.args ?? "");
+				});
 			},
 		},
 

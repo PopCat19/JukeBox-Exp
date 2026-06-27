@@ -11,25 +11,27 @@ import { Channel } from "./channels";
 import { fromJsonObjectImpl, toJsonObjectImpl } from "./formats/json-serialization";
 import { FilterSettings, Instrument } from "./instruments";
 import { Pattern } from "./notes";
-import { toBase64StringImpl } from "./synth-serialize";
-import { fromBase64StringImpl } from "./synth-deserialize";
 import type { CustomSampleHandler } from "./song-utilities";
 import { Config, InstrumentType } from "./synth-config";
+import { fromBase64StringImpl } from "./synth-deserialize";
+import { toBase64StringImpl } from "./synth-serialize";
 
 export type { CustomSampleHandler } from "./song-utilities";
 
 export class Song {
 	// Serialization delegates — arrow properties pass `this` as song
 	public toBase64String = (): string => toBase64StringImpl(this as any);
-	public fromBase64String = (compressed: string, jsonFormat?: string): void =>
-		{ fromBase64StringImpl(this as any, compressed, jsonFormat); };
+	public fromBase64String = (compressed: string, jsonFormat?: string): void => {
+		fromBase64StringImpl(this as any, compressed, jsonFormat);
+	};
 	public toJsonObject = (
 		enableIntro?: boolean,
 		loopCount?: number,
 		enableOutro?: boolean,
 	): object => toJsonObjectImpl(this as any, enableIntro, loopCount, enableOutro);
-	public fromJsonObject = (jsonObject: any, jsonFormat?: string): void =>
-		{ fromJsonObjectImpl(this as any, jsonObject, jsonFormat); };
+	public fromJsonObject = (jsonObject: any, jsonFormat?: string): void => {
+		fromJsonObjectImpl(this as any, jsonObject, jsonFormat);
+	};
 
 	public customSampleHandler: CustomSampleHandler | null = null;
 

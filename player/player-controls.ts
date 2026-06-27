@@ -112,7 +112,9 @@ export class PlayerControls {
 
 	private animate(): void {
 		if (this.ui.synth.playing) {
-			this.animationRequest = requestAnimationFrame(() => { this.animate(); });
+			this.animationRequest = requestAnimationFrame(() => {
+				this.animate();
+			});
 			this.renderPlayhead();
 
 			this.volumeUpdate();
@@ -162,10 +164,9 @@ export class PlayerControls {
 				setLocalStorage("playerId", this.id);
 				this.animate();
 				clearInterval(this.pauseIfAnotherPlayerStartsHandle!);
-				this.pauseIfAnotherPlayerStartsHandle = setInterval(
-					() => { this.pauseIfAnotherPlayerStarts(); },
-					100,
-				);
+				this.pauseIfAnotherPlayerStartsHandle = setInterval(() => {
+					this.pauseIfAnotherPlayerStarts();
+				}, 100);
 			}
 		}
 		this.renderPlayButton();
@@ -341,15 +342,31 @@ export class PlayerControls {
 		}
 		this.setSynthVolume();
 
-		window.addEventListener("resize", () => { this.onWindowResize(); });
+		window.addEventListener("resize", () => {
+			this.onWindowResize();
+		});
 
-		this.ui.timeline.addEventListener("mousedown", (e) => { this.onTimelineMouseDown(e); });
-		window.addEventListener("mousemove", (e) => { this.onTimelineMouseMove(e); });
-		window.addEventListener("mouseup", () => { this.onTimelineCursorUp(); });
-		this.ui.timeline.addEventListener("touchstart", (e) => { this.onTimelineTouchDown(e); });
-		this.ui.timeline.addEventListener("touchmove", (e) => { this.onTimelineTouchMove(e); });
-		this.ui.timeline.addEventListener("touchend", () => { this.onTimelineCursorUp(); });
-		this.ui.timeline.addEventListener("touchcancel", () => { this.onTimelineCursorUp(); });
+		this.ui.timeline.addEventListener("mousedown", (e) => {
+			this.onTimelineMouseDown(e);
+		});
+		window.addEventListener("mousemove", (e) => {
+			this.onTimelineMouseMove(e);
+		});
+		window.addEventListener("mouseup", () => {
+			this.onTimelineCursorUp();
+		});
+		this.ui.timeline.addEventListener("touchstart", (e) => {
+			this.onTimelineTouchDown(e);
+		});
+		this.ui.timeline.addEventListener("touchmove", (e) => {
+			this.onTimelineTouchMove(e);
+		});
+		this.ui.timeline.addEventListener("touchend", () => {
+			this.onTimelineCursorUp();
+		});
+		this.ui.timeline.addEventListener("touchcancel", () => {
+			this.onTimelineCursorUp();
+		});
 
 		this.ui.playButton.addEventListener("click", () => {
 			void this.onTogglePlay();
@@ -357,8 +374,12 @@ export class PlayerControls {
 		this.ui.loopButton.addEventListener("click", () => {
 			this.onToggleLoop();
 		});
-		this.ui.volumeSlider.addEventListener("input", () => { this.onVolumeChange(); });
-		this.ui.zoomButton.addEventListener("click", () => { this.onToggleZoom(); });
+		this.ui.volumeSlider.addEventListener("input", () => {
+			this.onVolumeChange();
+		});
+		this.ui.zoomButton.addEventListener("click", () => {
+			this.onToggleZoom();
+		});
 		this.ui.copyLink.addEventListener("click", (e) => {
 			e.preventDefault();
 			this.onCopyClicked();
@@ -367,10 +388,12 @@ export class PlayerControls {
 			e.preventDefault();
 			this.onShareClicked();
 		});
-		window.addEventListener("hashchange", () => { this.hashUpdatedExternally(); });
-		sampleLoadEvents.addEventListener("sampleloaded", (e) =>
-			{ this.updateSampleLoadingBar(e as SampleLoadedEvent); },
-		);
+		window.addEventListener("hashchange", () => {
+			this.hashUpdatedExternally();
+		});
+		sampleLoadEvents.addEventListener("sampleloaded", (e) => {
+			this.updateSampleLoadingBar(e as SampleLoadedEvent);
+		});
 
 		this.hashUpdatedExternally();
 		this.renderLoopIcon();

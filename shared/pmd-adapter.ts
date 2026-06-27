@@ -26,7 +26,9 @@ export function pmdGenerateColors(
 export function applyPMDToDOM(colors: Base16Palette): void {
 	const root = document.documentElement;
 
-	const set = (name: string, value: string) => { root.style.setProperty(name, value); };
+	const set = (name: string, value: string) => {
+		root.style.setProperty(name, value);
+	};
 
 	const c = (id: string): string => colors[id]?.hex ?? "#000";
 
@@ -177,7 +179,9 @@ function spreadHues(n: number, anchorHue: number): number[] {
 }
 
 function applyChannelColors(root: HTMLElement, pmd: PMDVariables, palette: Base16Palette): void {
-	const set = (name: string, value: string) => { root.style.setProperty(name, value); };
+	const set = (name: string, value: string) => {
+		root.style.setProperty(name, value);
+	};
 
 	const pitchNames = [
 		"pitch1",

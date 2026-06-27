@@ -37,8 +37,12 @@ export function toggleButton(
 		labels[1],
 	);
 
-	button0.addEventListener("click", () => { onToggle(0); });
-	button1.addEventListener("click", () => { onToggle(1); });
+	button0.addEventListener("click", () => {
+		onToggle(0);
+	});
+	button1.addEventListener("click", () => {
+		onToggle(1);
+	});
 
 	const container = HTML.div({ class: "instrument-bar toggle-group" }, button0, button1);
 

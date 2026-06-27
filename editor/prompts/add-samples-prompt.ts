@@ -168,13 +168,17 @@ export class AddSamplesPrompt extends BasePrompt {
 		this._detailSrStepper.addEventListener("change", this._onDetailSrChange);
 		this._detailRkStepper.addEventListener("change", this._onDetailRkChange);
 		this._detailPercBox.addEventListener("change", this._onDetailPercChange);
-		this._detailPercBox.addEventListener("change", () => { this._detailPercBox.blur(); });
+		this._detailPercBox.addEventListener("change", () => {
+			this._detailPercBox.blur();
+		});
 		this._detailLsStepper.addEventListener("change", this._onDetailLsChange);
 		this._detailLeStepper.addEventListener("change", this._onDetailLeChange);
 		this._detailSoStepper.addEventListener("change", this._onDetailSoChange);
 		this._detailModeSelect.addEventListener("change", this._onDetailModeChange);
 		this._detailBwBox.addEventListener("change", this._onDetailBwChange);
-		this._detailBwBox.addEventListener("change", () => { this._detailBwBox.blur(); });
+		this._detailBwBox.addEventListener("change", () => {
+			this._detailBwBox.blur();
+		});
 
 		[
 			this._detailSrStepper,
@@ -182,7 +186,9 @@ export class AddSamplesPrompt extends BasePrompt {
 			this._detailLsStepper,
 			this._detailLeStepper,
 			this._detailSoStepper,
-		].forEach((el) => { addWheelSupport(el); });
+		].forEach((el) => {
+			addWheelSupport(el);
+		});
 
 		this._detailCard = div({ class: "sbpCard" });
 
@@ -294,7 +300,9 @@ export class AddSamplesPrompt extends BasePrompt {
 		this._reconfigureAddButton();
 		this._render();
 
-		setTimeout(() => { this._searchInput.focus(); }, 100);
+		setTimeout(() => {
+			this._searchInput.focus();
+		}, 100);
 	}
 
 	public override cleanUp(): void {
@@ -318,7 +326,9 @@ export class AddSamplesPrompt extends BasePrompt {
 		EditorConfig.customSamples = urlData.split("|").filter((x) => x !== "");
 		Config.willReloadForCustomSamples = true;
 		window.location.hash = this._doc.song.toBase64String();
-		setTimeout(() => { location.reload(); }, 50);
+		setTimeout(() => {
+			location.reload();
+		}, 50);
 	};
 
 	// ── Helpers ──
@@ -607,7 +617,9 @@ export class AddSamplesPrompt extends BasePrompt {
 		(this._leftPane.querySelector(".sbpBtnRow") as HTMLElement).style.display = "none";
 		(this._leftPane.querySelector(".sbpBulkOverlay") as HTMLElement).style.display = "flex";
 		this._bulkTextarea.value = "";
-		setTimeout(() => { this._bulkTextarea.focus(); });
+		setTimeout(() => {
+			this._bulkTextarea.focus();
+		});
 	};
 
 	private _exitBulkMode = (): void => {
@@ -642,7 +654,9 @@ export class AddSamplesPrompt extends BasePrompt {
 		this._scrollToSelected();
 	};
 
-	private _onBulkCancel = (): void => { this._exitBulkMode(); };
+	private _onBulkCancel = (): void => {
+		this._exitBulkMode();
+	};
 
 	// ── Event handlers: search ──
 
@@ -777,7 +791,9 @@ export class AddSamplesPrompt extends BasePrompt {
 	}
 
 	private _scrollToSelected(): void {
-		requestAnimationFrame(() => { this._scrollItemIntoView(this._selectedIndex); });
+		requestAnimationFrame(() => {
+			this._scrollItemIntoView(this._selectedIndex);
+		});
 	}
 
 	private _updateHighlight = (): void => {

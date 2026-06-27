@@ -4512,6 +4512,11 @@ export class Config {
 	]);
 }
 
+export {
+	calculateRingModHertz,
+	drawNoiseSpectrum,
+	getArpeggioPitchIndex,
+	getDrumWave,
+	getPulseWidthRatio,
+} from "./synth-math-utils";
 export { centerAndNormalizeWave, centerWave } from "./utils";
-export { getPulseWidthRatio, getDrumWave, drawNoiseSpectrum, getArpeggioPitchIndex, calculateRingModHertz } from "./synth-math-utils";
-

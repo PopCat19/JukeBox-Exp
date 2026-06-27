@@ -23,6 +23,7 @@ export class TrackArea {
 	public readonly loopEditor: LoopEditor;
 	public readonly barScrollBar: BarScrollBar;
 
+	// biome-ignore lint/suspicious/noExplicitAny: songEditor cross-ref
 	constructor(doc: SongDocument, songEditor: any) {
 		// Create Track Editor
 		this.trackEditor = new TrackEditor(doc, songEditor);

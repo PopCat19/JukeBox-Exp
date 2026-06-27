@@ -1867,7 +1867,7 @@ export class PatternEditor {
 			const preMoveData: FilterMoveData = useChange.getMoveData(true);
 			const postMoveData: FilterMoveData = useChange.getMoveData(false);
 			let useFilter: FilterSettings = instrument.eqFilter;
-			let modulatorIndex;
+			let modulatorIndex: number | undefined;
 
 			if (useChange.useNoteFilter) {
 				modulatorIndex = Config.modulators.dictionary["note filter"].index;
@@ -2159,7 +2159,7 @@ export class PatternEditor {
 
 				if (pattern == null) {
 					// Hunt for instrument matching this setting and swap to it.
-					let rtn;
+					let rtn: ReturnType<typeof getMatchingInstrumentAndMod> | undefined;
 					if (applyToFilterTargets.length > applyIndex) {
 						rtn = getMatchingInstrumentAndMod(
 							applyToMods[applyIndex],
@@ -2202,7 +2202,7 @@ export class PatternEditor {
 						changedPatterns = true;
 					}
 				} else {
-					let rtn;
+					let rtn: ReturnType<typeof getMatchingInstrumentAndMod> | undefined;
 					if (applyToFilterTargets.length > applyIndex) {
 						rtn = getMatchingInstrumentAndMod(
 							applyToMods[applyIndex],

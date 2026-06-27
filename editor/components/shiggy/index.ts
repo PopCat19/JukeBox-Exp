@@ -86,20 +86,22 @@ export class Shiggy {
 		const label = document.createElement("div");
 		label.style.cssText = `font-size: ${Typography.sizeSm}; color: var(--secondary-text); cursor: pointer;`;
 		label.textContent = "summon shiggy";
-		label.onclick = () => { this.toggle(); };
+		label.onclick = () => {
+			this.toggle();
+		};
 
 		this._petDisplay = document.createElement("div");
-		this._petDisplay.style.cssText =
-			"font-size: ${Typography.sizeXs}; color: var(--secondary-text); min-height: 1.2em; text-align: center; margin-top: 2px; word-wrap: break-word; overflow-wrap: break-word; white-space: normal;";
+		this._petDisplay.style.cssText = `font-size: ${Typography.sizeXs}; color: var(--secondary-text); min-height: 1.2em; text-align: center; margin-top: 2px; word-wrap: break-word; overflow-wrap: break-word; white-space: normal;`;
 
 		this._counter = document.createElement("div");
 		this._counter.style.cssText = `font-size: ${Typography.sizeXs}; color: var(--secondary-text); opacity: 0; transition: opacity 0.3s; min-height: 1.2em;`;
 
 		this._releaseBtn = document.createElement("div");
 		this._releaseBtn.textContent = "release one";
-		this._releaseBtn.style.cssText =
-			"font-size: ${Typography.sizeXs}; color: var(--secondary-text); cursor: pointer; opacity: 0; pointer-events: none; transition: opacity 0.3s, pointer-events 0s 0.3s; margin-top: 2px; user-select: none;";
-		this._releaseBtn.onclick = () => { this._releaseOne(); };
+		this._releaseBtn.style.cssText = `font-size: ${Typography.sizeXs}; color: var(--secondary-text); cursor: pointer; opacity: 0; pointer-events: none; transition: opacity 0.3s, pointer-events 0s 0.3s; margin-top: 2px; user-select: none;`;
+		this._releaseBtn.onclick = () => {
+			this._releaseOne();
+		};
 
 		this._toggle.appendChild(label);
 		this._toggle.appendChild(this._img);
@@ -187,7 +189,9 @@ export class Shiggy {
 	}
 
 	private _spawnOne(): void {
-		const s = spawnShiggy(() => { this._audio.playSfx("shiggy-pop"); });
+		const s = spawnShiggy(() => {
+			this._audio.playSfx("shiggy-pop");
+		});
 		this._summoned.push(s);
 		this._tracker.addShiggy(s);
 		this._releaseBtn.style.opacity = this._summoned.length > 0 ? "1" : "0";

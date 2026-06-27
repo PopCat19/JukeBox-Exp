@@ -104,6 +104,7 @@ export class Slider {
 				style: "position: absolute; inset: 0; background: var(--slider-track, var(--ui-widget-background, #444));",
 			}),
 			// Fill: always 100% wide, scaled via transform
+			// biome-ignore lint/suspicious/noAssignInExpressions: intentional — capture ref during DOM build
 			(this._fillDiv = div({
 				style: "position: absolute; left: 0; top: 0; width: 100%; height: 100%; background: var(--cta-bg); transform-origin: left; transform: scaleX(0);",
 			})),

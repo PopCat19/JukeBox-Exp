@@ -475,17 +475,21 @@ export class HarmonicsEditorPrompt implements Prompt {
 		this.copyButton.addEventListener("click", this._copySettings);
 		this.pasteButton.addEventListener("click", this._pasteSettings);
 		this._playButton.addEventListener("click", this._togglePlay);
-		this.harmonicsEditor.container.addEventListener("mousemove", () =>
-			{ this.harmonicsEditor.render(); },
-		);
-		this.harmonicsEditor.container.addEventListener("mousedown", () =>
-			{ this.harmonicsEditor.render(); },
-		);
-		this.container.addEventListener("mousemove", () => { this.harmonicsEditor.render(); });
+		this.harmonicsEditor.container.addEventListener("mousemove", () => {
+			this.harmonicsEditor.render();
+		});
+		this.harmonicsEditor.container.addEventListener("mousedown", () => {
+			this.harmonicsEditor.render();
+		});
+		this.container.addEventListener("mousemove", () => {
+			this.harmonicsEditor.render();
+		});
 
 		this.updatePlayButton();
 
-		setTimeout(() => { this._playButton.focus(); });
+		setTimeout(() => {
+			this._playButton.focus();
+		});
 
 		this.harmonicsEditor.render();
 	}
@@ -549,9 +553,9 @@ export class HarmonicsEditorPrompt implements Prompt {
 		this._okayButton.removeEventListener("click", this._saveChanges);
 		this._cancelButton.removeEventListener("click", this._close);
 		this.container.removeEventListener("keydown", this.whenKeyPressed);
-		this.harmonicsEditor.container.removeEventListener("mousemove", () =>
-			{ this.harmonicsEditor.render(); },
-		);
+		this.harmonicsEditor.container.removeEventListener("mousemove", () => {
+			this.harmonicsEditor.render();
+		});
 		this._playButton.removeEventListener("click", this._togglePlay);
 	};
 
@@ -561,7 +565,7 @@ export class HarmonicsEditorPrompt implements Prompt {
 	};
 
 	private _pasteSettings = (): void => {
-		const storedHarmonicsWave: any = JSON.parse(
+		const storedHarmonicsWave: number[] = JSON.parse(
 			String(window.localStorage.getItem("harmonicsCopy")),
 		);
 		this.harmonicsEditor.setHarmonicsWave(storedHarmonicsWave);
@@ -571,8 +575,12 @@ export class HarmonicsEditorPrompt implements Prompt {
 	public whenKeyPressed = (event: KeyboardEvent): void => {
 		this._handleCommonKeys(event, {
 			togglePlay: this._togglePlay,
-			undo: () => { this.harmonicsEditor.undo(); },
-			redo: () => { this.harmonicsEditor.redo(); },
+			undo: () => {
+				this.harmonicsEditor.undo();
+			},
+			redo: () => {
+				this.harmonicsEditor.redo();
+			},
 		});
 	};
 

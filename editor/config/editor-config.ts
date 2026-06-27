@@ -114,6 +114,7 @@ export function prettyNumber(value: number): string {
 	return value.toFixed(2).replace(/\.?0*$/, "");
 }
 
+// biome-ignore lint/complexity/noStaticOnlyClass: acts as namespace for static config values
 export class EditorConfig {
 	public static readonly version: string = "1.0.0"; // Currently using patch versions in display (unlike JB)
 	public static readonly versionDisplayName: string = `JukeBox ${EditorConfig.version}`;

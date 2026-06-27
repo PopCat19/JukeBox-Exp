@@ -41,7 +41,9 @@ export class OctaveCountPrompt extends BasePrompt {
 		this._octaves.max = "16";
 
 		this._octaves.select();
-		setTimeout(() => { this._octaves.focus(); });
+		setTimeout(() => {
+			this._octaves.focus();
+		});
 
 		this._octaves.addEventListener("keypress", validateKey);
 		this._octaves.addEventListener("blur", validateNumber);

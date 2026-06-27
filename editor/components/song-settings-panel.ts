@@ -131,9 +131,9 @@ export class SongSettingsPanel {
 		// Song EQ Filter
 		this.songEqFilterEditor = new FilterEditor(doc, false, false, true);
 
-		const eqFilterToggle = toggleButton(["simple", "advanced"], (index: 0 | 1) =>
-			{ _switchEqFilterType(index === 0); },
-		);
+		const eqFilterToggle = toggleButton(["simple", "advanced"], (index: 0 | 1) => {
+			_switchEqFilterType(index === 0);
+		});
 		this.eqFilterSimpleButton = eqFilterToggle.buttons[0];
 		this.eqFilterAdvancedButton = eqFilterToggle.buttons[1];
 
@@ -143,7 +143,9 @@ export class SongSettingsPanel {
 				{
 					style: "font-size: x-small;",
 					class: "tip",
-					onclick: () => { onOpenPrompt("filterType"); },
+					onclick: () => {
+						onOpenPrompt("filterType");
+					},
 				},
 				"EQ Filt.Type:",
 			),
@@ -153,14 +155,24 @@ export class SongSettingsPanel {
 		const eqFilterZoom = button(
 			{
 				style: "margin-left:0em; padding-left:0.2em; height:1.5em; max-width: 12px;",
-				onclick: () => { onOpenPrompt("customSongEQFilterSettings"); },
+				onclick: () => {
+					onOpenPrompt("customSongEQFilterSettings");
+				},
 			},
 			"+",
 		);
 
 		this.eqFilterRow = div(
 			{ class: "selectRow" },
-			span({ class: "tip", onclick: () => { onOpenPrompt("eqFilter"); } }, "EQ Filt:"),
+			span(
+				{
+					class: "tip",
+					onclick: () => {
+						onOpenPrompt("eqFilter");
+					},
+				},
+				"EQ Filt:",
+			),
 			eqFilterZoom,
 			this.songEqFilterEditor.container,
 		);
@@ -176,7 +188,15 @@ export class SongSettingsPanel {
 
 		this.eqFilterSimpleCutRow = div(
 			{ class: "selectRow", title: "Low-pass Filter Cutoff Frequency" },
-			span({ class: "tip", onclick: () => { onOpenPrompt("filterCutoff"); } }, "Filter Cut:"),
+			span(
+				{
+					class: "tip",
+					onclick: () => {
+						onOpenPrompt("filterCutoff");
+					},
+				},
+				"Filter Cut:",
+			),
 			eqFilterSimpleCutSlider.container,
 		);
 
@@ -191,7 +211,15 @@ export class SongSettingsPanel {
 
 		this.eqFilterSimplePeakRow = div(
 			{ class: "selectRow", title: "Low-pass Filter Peak Resonance" },
-			span({ class: "tip", onclick: () => { onOpenPrompt("filterResonance"); } }, "Filter Peak:"),
+			span(
+				{
+					class: "tip",
+					onclick: () => {
+						onOpenPrompt("filterResonance");
+					},
+				},
+				"Filter Peak:",
+			),
 			eqFilterSimplePeakSlider.container,
 		);
 
@@ -206,7 +234,15 @@ export class SongSettingsPanel {
 
 		this.chorusRow = div(
 			{ class: "selectRow" },
-			span({ class: "tip", onclick: () => { onOpenPrompt("chorus"); } }, "Chorus:"),
+			span(
+				{
+					class: "tip",
+					onclick: () => {
+						onOpenPrompt("chorus");
+					},
+				},
+				"Chorus:",
+			),
 			this.chorusSlider.container,
 		);
 
@@ -221,7 +257,15 @@ export class SongSettingsPanel {
 
 		this.reverbRow = div(
 			{ class: "selectRow" },
-			span({ class: "tip", onclick: () => { onOpenPrompt("reverb"); } }, "Reverb:"),
+			span(
+				{
+					class: "tip",
+					onclick: () => {
+						onOpenPrompt("reverb");
+					},
+				},
+				"Reverb:",
+			),
 			this.reverbSlider.container,
 		);
 
@@ -253,7 +297,15 @@ export class SongSettingsPanel {
 	private _createScaleRow(): HTMLDivElement {
 		return div(
 			{ class: "selectRow" },
-			span({ class: "tip", onclick: () => { this._onOpenPrompt("scale"); } }, "Scale:"),
+			span(
+				{
+					class: "tip",
+					onclick: () => {
+						this._onOpenPrompt("scale");
+					},
+				},
+				"Scale:",
+			),
 			this.scaleSelect,
 		);
 	}
@@ -261,7 +313,15 @@ export class SongSettingsPanel {
 	private _createKeyRow(): HTMLDivElement {
 		return div(
 			{ class: "selectRow" },
-			span({ class: "tip", onclick: () => { this._onOpenPrompt("key"); } }, "Key:"),
+			span(
+				{
+					class: "tip",
+					onclick: () => {
+						this._onOpenPrompt("key");
+					},
+				},
+				"Key:",
+			),
 			this.keySelect,
 		);
 	}
@@ -269,7 +329,15 @@ export class SongSettingsPanel {
 	private _createTempoRow(): HTMLDivElement {
 		return div(
 			{ class: "selectRow" },
-			span({ class: "tip", onclick: () => { this._onOpenPrompt("tempo"); } }, "Tempo:"),
+			span(
+				{
+					class: "tip",
+					onclick: () => {
+						this._onOpenPrompt("tempo");
+					},
+				},
+				"Tempo:",
+			),
 			this.tempoSlider.container,
 			this.tempoStepper,
 		);
@@ -278,7 +346,15 @@ export class SongSettingsPanel {
 	private _createRhythmRow(): HTMLDivElement {
 		return div(
 			{ class: "selectRow" },
-			span({ class: "tip", onclick: () => { this._onOpenPrompt("rhythm"); } }, "Rhythm:"),
+			span(
+				{
+					class: "tip",
+					onclick: () => {
+						this._onOpenPrompt("rhythm");
+					},
+				},
+				"Rhythm:",
+			),
 			this.rhythmSelect,
 		);
 	}

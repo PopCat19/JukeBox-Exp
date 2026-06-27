@@ -57,7 +57,9 @@ export class SustainPrompt extends BasePrompt {
 		const instrument: Instrument = this._doc.getCurrentInstrumentObj();
 		this._typeSelect.value = Config.sustainTypeNames[instrument.stringSustainType];
 
-		setTimeout(() => { this._cancelButton.focus(); });
+		setTimeout(() => {
+			this._cancelButton.focus();
+		});
 	}
 
 	protected override _saveChanges(): void {

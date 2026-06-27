@@ -155,7 +155,9 @@ export class RecordingSetupPrompt extends BasePrompt {
 		this._metronomeCountIn.checked = this._doc.prefs.metronomeCountIn;
 		this._metronomeWhileRecording.checked = this._doc.prefs.metronomeWhileRecording;
 
-		setTimeout(() => { this._showRecordButton.focus(); });
+		setTimeout(() => {
+			this._showRecordButton.focus();
+		});
 
 		this._renderKeyboardLayoutPreview();
 		this._keyboardLayout.addEventListener("change", this._renderKeyboardLayoutPreview);

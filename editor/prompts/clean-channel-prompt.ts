@@ -267,8 +267,12 @@ export class CleanChannelPrompt extends BasePrompt {
 			this._tabInstruments,
 		);
 
-		this._tabPatterns.addEventListener("click", () => { this._switchTab("patterns"); });
-		this._tabInstruments.addEventListener("click", () => { this._switchTab("instruments"); });
+		this._tabPatterns.addEventListener("click", () => {
+			this._switchTab("patterns");
+		});
+		this._tabInstruments.addEventListener("click", () => {
+			this._switchTab("instruments");
+		});
 
 		this._cleanOneButton.addEventListener("click", this._onCleanOne);
 		this._cleanAllButton.addEventListener("click", this._onCleanAll);

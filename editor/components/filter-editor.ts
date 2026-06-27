@@ -406,7 +406,7 @@ export class FilterEditor {
 					this._dragChange.checkFirst() instanceof ChangeFilterMovePoint
 				) {
 					const data: FilterMoveData = (
-						(this._dragChange).checkFirst() as ChangeFilterMovePoint
+						this._dragChange.checkFirst() as ChangeFilterMovePoint
 					).getMoveData(true);
 					const newPoint: FilterControlPoint | null =
 						this._useFilterSettings.controlPoints[this._selectedIndex];
@@ -425,9 +425,7 @@ export class FilterEditor {
 					this._dragChange.checkFirst() instanceof ChangeSongFilterMovePoint
 				) {
 					const data: FilterMoveData = (
-						(
-							this._dragChange
-						).checkFirst() as ChangeSongFilterMovePoint
+						this._dragChange.checkFirst() as ChangeSongFilterMovePoint
 					).getMoveData(true);
 					const newPoint: FilterControlPoint | null =
 						this._useFilterSettings.controlPoints[this._selectedIndex];

@@ -1596,7 +1596,7 @@ export class ChangeDragSelectedNotes extends ChangeSequence {
 		}
 
 		this.append(new ChangePatternSelection(doc, newStart, newEnd));
-		const draggedNotes = [];
+		const draggedNotes: Note[] = [];
 		let noteInsertionIndex: number = 0;
 		let i: number = 0;
 		while (i < pattern.notes.length) {
@@ -1881,6 +1881,7 @@ export class ChangePaste extends ChangeGroup {
 	constructor(
 		doc: SongDocument,
 		pattern: Pattern,
+		// biome-ignore lint/suspicious/noExplicitAny: notes from clipboard data
 		notes: any[],
 		selectionStart: number,
 		selectionEnd: number,
@@ -1951,6 +1952,7 @@ export class ChangePaste extends ChangeGroup {
 }
 
 export class ChangePasteInstrument extends ChangeGroup {
+	// biome-ignore lint/suspicious/noExplicitAny: instrumentCopy is JSON object
 	constructor(doc: SongDocument, instrument: Instrument, instrumentCopy: any) {
 		super();
 		instrument.fromJsonObject(
@@ -1966,6 +1968,7 @@ export class ChangePasteInstrument extends ChangeGroup {
 }
 
 export class ChangeAppendInstrument extends ChangeGroup {
+	// biome-ignore lint/suspicious/noExplicitAny: instrument is JSON data
 	constructor(doc: SongDocument, channel: Channel, instrument: any) {
 		super();
 		const newInstrument: Instrument = new Instrument(instrument.isDrum, instrument.isMod);

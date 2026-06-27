@@ -628,7 +628,9 @@ export class SpectrumEditorPrompt implements Prompt {
 			this.spectrumEditors[0] = this.spectrumEditor;
 		}
 
-		setTimeout(() => { this._playButton.focus(); });
+		setTimeout(() => {
+			this._playButton.focus();
+		});
 		this.spectrumEditor.render();
 	}
 
@@ -729,9 +731,9 @@ export class SpectrumEditorPrompt implements Prompt {
 		this._okayButton.removeEventListener("click", this._saveChanges);
 		this._cancelButton.removeEventListener("click", this._close);
 		this.container.removeEventListener("keydown", this.whenKeyPressed);
-		this.spectrumEditor.container.removeEventListener("mousemove", () =>
-			{ this.spectrumEditor.render(); },
-		);
+		this.spectrumEditor.container.removeEventListener("mousemove", () => {
+			this.spectrumEditor.render();
+		});
 		this._playButton.removeEventListener("click", this._togglePlay);
 	};
 
@@ -741,7 +743,7 @@ export class SpectrumEditorPrompt implements Prompt {
 	};
 
 	private _pasteSettings = (): void => {
-		const storedSpectrumWave: any = JSON.parse(
+		const storedSpectrumWave: number[] = JSON.parse(
 			String(window.localStorage.getItem("spectrumCopy")),
 		);
 		this.spectrumEditor.setSpectrumWave(storedSpectrumWave);
@@ -750,8 +752,12 @@ export class SpectrumEditorPrompt implements Prompt {
 	public whenKeyPressed = (event: KeyboardEvent): void => {
 		this._handleCommonKeys(event, {
 			togglePlay: this._togglePlay,
-			undo: () => { this.spectrumEditor.undo(); },
-			redo: () => { this.spectrumEditor.redo(); },
+			undo: () => {
+				this.spectrumEditor.undo();
+			},
+			redo: () => {
+				this.spectrumEditor.redo();
+			},
 		});
 	};
 

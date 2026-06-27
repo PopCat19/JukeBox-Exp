@@ -100,8 +100,9 @@ export class EnvelopeEditor {
 
 	constructor(
 		private _doc: SongDocument,
-		private _extraSettingsDropdown: Function,
-		private _openPrompt: Function,
+		// biome-ignore lint/suspicious/noExplicitAny: called with variable arity (id, submenu, subtype)
+		private _extraSettingsDropdown: any,
+		private _openPrompt: (prompt: string) => void,
 	) {
 		this.container.addEventListener("change", this._onChange);
 		this.container.addEventListener("click", this._onClick);
@@ -109,30 +110,34 @@ export class EnvelopeEditor {
 	}
 
 	private _onChange = (event: Event): void => {
-		const targetSelectIndex: number = this._targetSelects.indexOf(<any>event.target);
-		const envelopeSelectIndex: number = this._envelopeSelects.indexOf(<any>event.target);
-		const inverterIndex: number = this._inverters.indexOf(<any>event.target);
-		const discreterIndex: number = this._discreters.indexOf(<any>event.target);
-		const startBoxIndex: number = this.pitchStartBoxes.indexOf(<any>event.target);
-		const endBoxIndex: number = this.pitchEndBoxes.indexOf(<any>event.target);
-		const startSliderIndex: number = this._pitchStartSliders.indexOf(<any>event.target);
-		const endSliderIndex: number = this._pitchEndSliders.indexOf(<any>event.target);
-		const lowerBoundBoxIndex: number = this.perEnvelopeLowerBoundBoxes.indexOf(
-			<any>event.target,
-		);
-		const upperBoundBoxIndex: number = this.perEnvelopeUpperBoundBoxes.indexOf(
-			<any>event.target,
-		);
-		const randomStepsBoxIndex: number = this.randomStepsBoxes.indexOf(<any>event.target);
-		const randomSeedBoxIndex: number = this.randomSeedBoxes.indexOf(<any>event.target);
-		const randomStepsSliderIndex: number = this._randomStepsSliders.indexOf(<any>event.target);
-		const randomSeedSliderIndex: number = this._randomSeedSliders.indexOf(<any>event.target);
-		const waveformSelectIndex: number = this._waveformSelects.indexOf(<any>event.target);
-		const randomTypeSelectIndex: number = this._randomEnvelopeTypeSelects.indexOf(
-			<any>event.target,
-		);
-		const LFOStepsBoxIndex: number = this.LFOStepsBoxes.indexOf(<any>event.target);
-		const LFOStepsSliderIndex: number = this._LFOStepsSliders.indexOf(<any>event.target);
+		// biome-ignore lint/suspicious/noExplicitAny: mixed element types in indexOf arrays
+		const target: any = event.target;
+		const targetSelectIndex: number = this._targetSelects.indexOf(target);
+		const envelopeSelectIndex: number = this._envelopeSelects.indexOf(target);
+		const inverterIndex: number = this._inverters.indexOf(target);
+		const discreterIndex: number = this._discreters.indexOf(target);
+		const startBoxIndex: number = target ? this.pitchStartBoxes.indexOf(target) : -1;
+		const endBoxIndex: number = target ? this.pitchEndBoxes.indexOf(target) : -1;
+		const startSliderIndex: number = target ? this._pitchStartSliders.indexOf(target) : -1;
+		const endSliderIndex: number = target ? this._pitchEndSliders.indexOf(target) : -1;
+		const lowerBoundBoxIndex: number = target
+			? this.perEnvelopeLowerBoundBoxes.indexOf(target)
+			: -1;
+		const upperBoundBoxIndex: number = target
+			? this.perEnvelopeUpperBoundBoxes.indexOf(target)
+			: -1;
+		const randomStepsBoxIndex: number = target ? this.randomStepsBoxes.indexOf(target) : -1;
+		const randomSeedBoxIndex: number = target ? this.randomSeedBoxes.indexOf(target) : -1;
+		const randomStepsSliderIndex: number = target
+			? this._randomStepsSliders.indexOf(target)
+			: -1;
+		const randomSeedSliderIndex: number = target ? this._randomSeedSliders.indexOf(target) : -1;
+		const waveformSelectIndex: number = target ? this._waveformSelects.indexOf(target) : -1;
+		const randomTypeSelectIndex: number = target
+			? this._randomEnvelopeTypeSelects.indexOf(target)
+			: -1;
+		const LFOStepsBoxIndex: number = target ? this.LFOStepsBoxes.indexOf(target) : -1;
+		const LFOStepsSliderIndex: number = target ? this._LFOStepsSliders.indexOf(target) : -1;
 		if (targetSelectIndex !== -1) {
 			const combinedValue: number = parseInt(
 				this._targetSelects[targetSelectIndex].value,
@@ -144,7 +149,7 @@ export class EnvelopeEditor {
 				new ChangeSetEnvelopeTarget(this._doc, targetSelectIndex, target, index),
 			);
 		} else if (envelopeSelectIndex !== -1) {
-			const envelopeIndex: number = this._envelopeSelects.indexOf(<any>event.target);
+			const envelopeIndex: number = this._envelopeSelects.indexOf(target);
 
 			this._doc.record(
 				new ChangeSetEnvelopeType(
@@ -161,7 +166,7 @@ export class EnvelopeEditor {
 			this._doc.record(
 				new ChangeSetEnvelopeWaveform(
 					this._doc,
-					this._waveformSelects[waveformSelectIndex].value,
+					parseInt(this._waveformSelects[waveformSelectIndex].value, 10),
 					waveformSelectIndex,
 				),
 			);
@@ -169,7 +174,7 @@ export class EnvelopeEditor {
 			this._doc.record(
 				new ChangeSetEnvelopeWaveform(
 					this._doc,
-					this._randomEnvelopeTypeSelects[randomTypeSelectIndex].value,
+					parseInt(this._randomEnvelopeTypeSelects[randomTypeSelectIndex].value, 10),
 					randomTypeSelectIndex,
 				),
 			);
@@ -211,13 +216,11 @@ export class EnvelopeEditor {
 	};
 
 	private _onClick = (event: MouseEvent): void => {
-		const deleteButtonIndex: number = this._deleteButtons.indexOf(<any>event.target);
-		const envelopeCopyButtonIndex: number = this._envelopeCopyButtons.indexOf(
-			<any>event.target,
-		);
-		const envelopePasteButtonIndex: number = this._envelopePasteButtons.indexOf(
-			<any>event.target,
-		);
+		// biome-ignore lint/suspicious/noExplicitAny: mixed element types
+		const target: any = event.target;
+		const deleteButtonIndex: number = this._deleteButtons.indexOf(target);
+		const envelopeCopyButtonIndex: number = this._envelopeCopyButtons.indexOf(target);
+		const envelopePasteButtonIndex: number = this._envelopePasteButtons.indexOf(target);
 		if (deleteButtonIndex !== -1) {
 			this._doc.record(new ChangeRemoveEnvelope(this._doc, deleteButtonIndex));
 			this.extraSettingsDropdownGroups[deleteButtonIndex].style.display = "none";
@@ -228,6 +231,7 @@ export class EnvelopeEditor {
 				JSON.stringify(instrument.envelopes[envelopeCopyButtonIndex].toJsonObject()),
 			);
 		} else if (envelopePasteButtonIndex !== -1) {
+			// biome-ignore lint/suspicious/noExplicitAny: JSON parse result
 			const envelopeCopy: any = window.localStorage.getItem("envelopeCopy");
 			this._doc.record(
 				new PasteEnvelope(
@@ -240,22 +244,26 @@ export class EnvelopeEditor {
 	};
 
 	private _onInput = (event: Event): void => {
-		const startBoxIndex: number = this.pitchStartBoxes.indexOf(<any>event.target);
-		const endBoxIndex: number = this.pitchEndBoxes.indexOf(<any>event.target);
-		const startSliderIndex: number = this._pitchStartSliders.indexOf(<any>event.target);
-		const endSliderIndex: number = this._pitchEndSliders.indexOf(<any>event.target);
-		const lowerBoundBoxIndex: number = this.perEnvelopeLowerBoundBoxes.indexOf(
-			<any>event.target,
-		);
-		const upperBoundBoxIndex: number = this.perEnvelopeUpperBoundBoxes.indexOf(
-			<any>event.target,
-		);
-		const randomStepsBoxIndex: number = this.randomStepsBoxes.indexOf(<any>event.target);
-		const randomSeedBoxIndex: number = this.randomSeedBoxes.indexOf(<any>event.target);
-		const randomStepsSliderIndex: number = this._randomStepsSliders.indexOf(<any>event.target);
-		const randomSeedSliderIndex: number = this._randomSeedSliders.indexOf(<any>event.target);
-		const LFOStepsBoxIndex: number = this.LFOStepsBoxes.indexOf(<any>event.target);
-		const LFOStepsSliderIndex: number = this._LFOStepsSliders.indexOf(<any>event.target);
+		// biome-ignore lint/suspicious/noExplicitAny: mixed element types
+		const target: any = event.target;
+		const startBoxIndex: number = target ? this.pitchStartBoxes.indexOf(target) : -1;
+		const endBoxIndex: number = target ? this.pitchEndBoxes.indexOf(target) : -1;
+		const startSliderIndex: number = target ? this._pitchStartSliders.indexOf(target) : -1;
+		const endSliderIndex: number = target ? this._pitchEndSliders.indexOf(target) : -1;
+		const lowerBoundBoxIndex: number = target
+			? this.perEnvelopeLowerBoundBoxes.indexOf(target)
+			: -1;
+		const upperBoundBoxIndex: number = target
+			? this.perEnvelopeUpperBoundBoxes.indexOf(target)
+			: -1;
+		const randomStepsBoxIndex: number = target ? this.randomStepsBoxes.indexOf(target) : -1;
+		const randomSeedBoxIndex: number = target ? this.randomSeedBoxes.indexOf(target) : -1;
+		const randomStepsSliderIndex: number = target
+			? this._randomStepsSliders.indexOf(target)
+			: -1;
+		const randomSeedSliderIndex: number = target ? this._randomSeedSliders.indexOf(target) : -1;
+		const LFOStepsBoxIndex: number = target ? this.LFOStepsBoxes.indexOf(target) : -1;
+		const LFOStepsSliderIndex: number = target ? this._LFOStepsSliders.indexOf(target) : -1;
 		const instrument: Instrument = this._doc.getCurrentInstrumentObj();
 		if (startBoxIndex !== -1) {
 			this._lastChange = new ChangeEnvelopePitchStart(
@@ -939,7 +947,9 @@ export class EnvelopeEditor {
 			// speed settings
 			const perEnvelopeSpeedSlider: Slider = new Slider(
 				HTML.input({
-					oninput: () => { this.updateSpeedDisplay(envelopeIndex); },
+					oninput: () => {
+						this.updateSpeedDisplay(envelopeIndex);
+					},
 					style: `margin: 0; width:${Sizing.inputMd}`,
 					type: "range",
 					min: 0,

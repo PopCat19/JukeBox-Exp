@@ -120,7 +120,9 @@ export class EffectsPanel {
 					{
 						class: "tip",
 						style: "font-size: smaller;",
-						onclick: () => { onOpenPrompt("RingModHz"); },
+						onclick: () => {
+							onOpenPrompt("RingModHz");
+						},
 					},
 					"Hertz: ",
 				),
@@ -146,7 +148,15 @@ export class EffectsPanel {
 
 		this.ringModWaveSelectRow = div(
 			{ class: "selectRow", style: "width: 100%;" },
-			span({ class: "tip", onclick: () => { onOpenPrompt("ringModChipWave"); } }, "Wave: "),
+			span(
+				{
+					class: "tip",
+					onclick: () => {
+						onOpenPrompt("ringModChipWave");
+					},
+				},
+				"Wave: ",
+			),
 			this.ringModPulsewidthSlider.container,
 			div({ class: "selectContainer", style: "width:40%;" }, this.ringModWaveSelect),
 		);
@@ -186,7 +196,9 @@ export class EffectsPanel {
 					{
 						class: "tip",
 						style: "font-size: smaller;",
-						onclick: () => { onOpenPrompt("grainSize"); },
+						onclick: () => {
+							onOpenPrompt("grainSize");
+						},
 					},
 					"Grain: ",
 				),
@@ -226,7 +238,9 @@ export class EffectsPanel {
 					{
 						class: "tip",
 						style: "font-size: smaller;",
-						onclick: () => { onOpenPrompt("grainRange"); },
+						onclick: () => {
+							onOpenPrompt("grainRange");
+						},
 					},
 					"Range: ",
 				),
@@ -335,7 +349,15 @@ export class EffectsPanel {
 	private _createEffectRow(label: string, prompt: string, slider: Slider): HTMLDivElement {
 		return div(
 			{ class: "selectRow" },
-			span({ class: "tip", onclick: () => { this._onOpenPrompt(prompt); } }, label),
+			span(
+				{
+					class: "tip",
+					onclick: () => {
+						this._onOpenPrompt(prompt);
+					},
+				},
+				label,
+			),
 			slider.container,
 		);
 	}

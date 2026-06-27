@@ -595,7 +595,9 @@ export class LimiterPrompt extends BasePrompt {
 
 		updatePlayButton(this._playButton, this._doc.synth.playing);
 
-		setTimeout(() => { this._playButton.focus(); });
+		setTimeout(() => {
+			this._playButton.focus();
+		});
 
 		this.limiterCanvas.render();
 	}

@@ -208,7 +208,9 @@ export class InstrumentSettingsPanel {
 				{
 					class: "tip",
 					style: "font-size: smaller;",
-					onclick: () => { onOpenPrompt("instrumentVolume"); },
+					onclick: () => {
+						onOpenPrompt("instrumentVolume");
+					},
 				},
 				"Volume: ",
 			),
@@ -243,7 +245,9 @@ export class InstrumentSettingsPanel {
 		);
 
 		this.panDropdown = dropdownButton({
-			onclick: () => {}, // Will be wired up by song-editor.ts
+			onclick: () => {
+				/* wired up by song-editor.ts */
+			},
 		});
 
 		this.panSliderInputBox = numberInput({
@@ -265,7 +269,9 @@ export class InstrumentSettingsPanel {
 						class: "tip",
 						tabindex: "0",
 						style: "height:1em; font-size: smaller;",
-						onclick: () => { onOpenPrompt("pan"); },
+						onclick: () => {
+							onOpenPrompt("pan");
+						},
 					},
 					"Pan: ",
 				),
@@ -288,7 +294,15 @@ export class InstrumentSettingsPanel {
 
 		this.panDelayRow = div(
 			{ class: "selectRow dropFader" },
-			span({ class: "tip", onclick: () => { onOpenPrompt("panDelay"); } }, "Delay:"),
+			span(
+				{
+					class: "tip",
+					onclick: () => {
+						onOpenPrompt("panDelay");
+					},
+				},
+				"Delay:",
+			),
 			this.panDelaySlider.container,
 		);
 
@@ -314,9 +328,9 @@ export class InstrumentSettingsPanel {
 		this.effectsSelect = select(option({ selected: true, disabled: true, hidden: false }));
 
 		// EQ Filter
-		const eqFilterToggle = toggleButton(["simple", "advanced"], (index: 0 | 1) =>
-			{ _switchEQFilterType(index === 0); },
-		);
+		const eqFilterToggle = toggleButton(["simple", "advanced"], (index: 0 | 1) => {
+			_switchEQFilterType(index === 0);
+		});
 		this.eqFilterSimpleButton = eqFilterToggle.buttons[0];
 		this.eqFilterAdvancedButton = eqFilterToggle.buttons[1];
 
@@ -326,7 +340,9 @@ export class InstrumentSettingsPanel {
 				{
 					style: "font-size: x-small;",
 					class: "tip",
-					onclick: () => { onOpenPrompt("filterType"); },
+					onclick: () => {
+						onOpenPrompt("filterType");
+					},
 				},
 				"EQ Filt.Type:",
 			),
@@ -338,14 +354,24 @@ export class InstrumentSettingsPanel {
 		this.eqFilterZoom = button(
 			{
 				style: "margin-left:0em; padding-left:0.2em; height:1.5em; max-width: 12px;",
-				onclick: () => { onOpenPrompt("customEQFilterSettings"); },
+				onclick: () => {
+					onOpenPrompt("customEQFilterSettings");
+				},
 			},
 			"+",
 		);
 
 		this.eqFilterRow = div(
 			{ class: "selectRow" },
-			span({ class: "tip", onclick: () => { onOpenPrompt("eqFilter"); } }, "EQ Filt:"),
+			span(
+				{
+					class: "tip",
+					onclick: () => {
+						onOpenPrompt("eqFilter");
+					},
+				},
+				"EQ Filt:",
+			),
 			this.eqFilterZoom,
 			this.eqFilterEditor.container,
 		);
@@ -361,7 +387,15 @@ export class InstrumentSettingsPanel {
 
 		this.eqFilterSimpleCutRow = div(
 			{ class: "selectRow", title: "Low-pass Filter Cutoff Frequency" },
-			span({ class: "tip", onclick: () => { onOpenPrompt("filterCutoff"); } }, "Filter Cut:"),
+			span(
+				{
+					class: "tip",
+					onclick: () => {
+						onOpenPrompt("filterCutoff");
+					},
+				},
+				"Filter Cut:",
+			),
 			this.eqFilterSimpleCutSlider.container,
 		);
 
@@ -376,14 +410,22 @@ export class InstrumentSettingsPanel {
 
 		this.eqFilterSimplePeakRow = div(
 			{ class: "selectRow", title: "Low-pass Filter Peak Resonance" },
-			span({ class: "tip", onclick: () => { onOpenPrompt("filterResonance"); } }, "Filter Peak:"),
+			span(
+				{
+					class: "tip",
+					onclick: () => {
+						onOpenPrompt("filterResonance");
+					},
+				},
+				"Filter Peak:",
+			),
 			this.eqFilterSimplePeakSlider.container,
 		);
 
 		// Note Filter
-		const noteFilterToggle = toggleButton(["simple", "advanced"], (index: 0 | 1) =>
-			{ _switchNoteFilterType(index === 0); },
-		);
+		const noteFilterToggle = toggleButton(["simple", "advanced"], (index: 0 | 1) => {
+			_switchNoteFilterType(index === 0);
+		});
 		this.noteFilterSimpleButton = noteFilterToggle.buttons[0];
 		this.noteFilterAdvancedButton = noteFilterToggle.buttons[1];
 
@@ -393,7 +435,9 @@ export class InstrumentSettingsPanel {
 				{
 					style: "font-size: x-small;",
 					class: "tip",
-					onclick: () => { onOpenPrompt("filterType"); },
+					onclick: () => {
+						onOpenPrompt("filterType");
+					},
 				},
 				"Note Filt.Type:",
 			),
@@ -405,14 +449,24 @@ export class InstrumentSettingsPanel {
 		this.noteFilterZoom = button(
 			{
 				style: "margin-left:0em; padding-left:0.2em; height:1.5em; max-width: 12px;",
-				onclick: () => { onOpenPrompt("customNoteFilterSettings"); },
+				onclick: () => {
+					onOpenPrompt("customNoteFilterSettings");
+				},
 			},
 			"+",
 		);
 
 		this.noteFilterRow = div(
 			{ class: "selectRow" },
-			span({ class: "tip", onclick: () => { onOpenPrompt("noteFilter"); } }, "Note Filt:"),
+			span(
+				{
+					class: "tip",
+					onclick: () => {
+						onOpenPrompt("noteFilter");
+					},
+				},
+				"Note Filt:",
+			),
 			this.noteFilterZoom,
 			this.noteFilterEditor.container,
 		);
@@ -428,7 +482,15 @@ export class InstrumentSettingsPanel {
 
 		this.noteFilterSimpleCutRow = div(
 			{ class: "selectRow", title: "Low-pass Filter Cutoff Frequency" },
-			span({ class: "tip", onclick: () => { onOpenPrompt("filterCutoff"); } }, "Filter Cut:"),
+			span(
+				{
+					class: "tip",
+					onclick: () => {
+						onOpenPrompt("filterCutoff");
+					},
+				},
+				"Filter Cut:",
+			),
 			this.noteFilterSimpleCutSlider.container,
 		);
 
@@ -443,7 +505,15 @@ export class InstrumentSettingsPanel {
 
 		this.noteFilterSimplePeakRow = div(
 			{ class: "selectRow", title: "Low-pass Filter Peak Resonance" },
-			span({ class: "tip", onclick: () => { onOpenPrompt("filterResonance"); } }, "Filter Peak:"),
+			span(
+				{
+					class: "tip",
+					onclick: () => {
+						onOpenPrompt("filterResonance");
+					},
+				},
+				"Filter Peak:",
+			),
 			this.noteFilterSimplePeakSlider.container,
 		);
 
@@ -455,7 +525,15 @@ export class InstrumentSettingsPanel {
 
 		this.transitionRow = div(
 			{ class: "selectRow" },
-			span({ class: "tip", onclick: () => { onOpenPrompt("transition"); } }, "Transition:"),
+			span(
+				{
+					class: "tip",
+					onclick: () => {
+						onOpenPrompt("transition");
+					},
+				},
+				"Transition:",
+			),
 			div({ class: "selectContainer", style: "width: 52.5%;" }, this.transitionSelect),
 		);
 
@@ -470,7 +548,9 @@ export class InstrumentSettingsPanel {
 				{
 					class: "tip",
 					style: "margin-left:10px;",
-					onclick: () => { onOpenPrompt("clicklessTransition"); },
+					onclick: () => {
+						onOpenPrompt("clicklessTransition");
+					},
 				},
 				"Seamless:",
 			),
@@ -490,7 +570,15 @@ export class InstrumentSettingsPanel {
 
 		this.chordSelectRow = div(
 			{ class: "selectRow" },
-			span({ class: "tip", onclick: () => { onOpenPrompt("chord"); } }, "Chord:"),
+			span(
+				{
+					class: "tip",
+					onclick: () => {
+						onOpenPrompt("chord");
+					},
+				},
+				"Chord:",
+			),
 			div({ class: "selectContainer", style: "width: 100%;" }, this.chordSelect),
 		);
 
@@ -505,7 +593,15 @@ export class InstrumentSettingsPanel {
 
 		this.arpeggioSpeedRow = div(
 			{ class: "selectRow" },
-			span({ class: "tip", onclick: () => { onOpenPrompt("arpeggioSpeed"); } }, "Arp Speed:"),
+			span(
+				{
+					class: "tip",
+					onclick: () => {
+						onOpenPrompt("arpeggioSpeed");
+					},
+				},
+				"Arp Speed:",
+			),
 			this.arpeggioSpeedSlider.container,
 		);
 
@@ -520,7 +616,9 @@ export class InstrumentSettingsPanel {
 				{
 					class: "tip",
 					style: "margin-left:10px;",
-					onclick: () => { onOpenPrompt("twoNoteArp"); },
+					onclick: () => {
+						onOpenPrompt("twoNoteArp");
+					},
 				},
 				"Two-Note:",
 			),
@@ -541,7 +639,15 @@ export class InstrumentSettingsPanel {
 
 		this.vibratoSelectRow = div(
 			{ class: "selectRow" },
-			span({ class: "tip", onclick: () => { onOpenPrompt("vibrato"); } }, "Vibrato:"),
+			span(
+				{
+					class: "tip",
+					onclick: () => {
+						onOpenPrompt("vibrato");
+					},
+				},
+				"Vibrato:",
+			),
 			div({ class: "selectContainer", style: "width: 52.5%;" }, this.vibratoSelect),
 		);
 
@@ -555,7 +661,15 @@ export class InstrumentSettingsPanel {
 
 		this.vibratoSpeedRow = div(
 			{ class: "selectRow" },
-			span({ class: "tip", onclick: () => { onOpenPrompt("vibratoSpeed"); } }, "Speed:"),
+			span(
+				{
+					class: "tip",
+					onclick: () => {
+						onOpenPrompt("vibratoSpeed");
+					},
+				},
+				"Speed:",
+			),
 			this.vibratoSpeedSlider.container,
 		);
 
@@ -569,7 +683,15 @@ export class InstrumentSettingsPanel {
 
 		this.vibratoDelayRow = div(
 			{ class: "selectRow" },
-			span({ class: "tip", onclick: () => { onOpenPrompt("vibratoDelay"); } }, "Delay:"),
+			span(
+				{
+					class: "tip",
+					onclick: () => {
+						onOpenPrompt("vibratoDelay");
+					},
+				},
+				"Delay:",
+			),
 			this.vibratoDelaySlider.container,
 		);
 
@@ -583,7 +705,15 @@ export class InstrumentSettingsPanel {
 
 		this.vibratoDepthRow = div(
 			{ class: "selectRow" },
-			span({ class: "tip", onclick: () => { onOpenPrompt("vibratoDepth"); } }, "Depth:"),
+			span(
+				{
+					class: "tip",
+					onclick: () => {
+						onOpenPrompt("vibratoDepth");
+					},
+				},
+				"Depth:",
+			),
 			this.vibratoDepthSlider.container,
 		);
 
@@ -605,7 +735,15 @@ export class InstrumentSettingsPanel {
 
 		this.chorusRow = div(
 			{ class: "selectRow" },
-			span({ class: "tip", onclick: () => { onOpenPrompt("chorus"); } }, "Chorus:"),
+			span(
+				{
+					class: "tip",
+					onclick: () => {
+						onOpenPrompt("chorus");
+					},
+				},
+				"Chorus:",
+			),
 			this.chorusSlider.container,
 		);
 
@@ -620,7 +758,15 @@ export class InstrumentSettingsPanel {
 
 		this.reverbRow = div(
 			{ class: "selectRow" },
-			span({ class: "tip", onclick: () => { onOpenPrompt("reverb"); } }, "Reverb:"),
+			span(
+				{
+					class: "tip",
+					onclick: () => {
+						onOpenPrompt("reverb");
+					},
+				},
+				"Reverb:",
+			),
 			this.reverbSlider.container,
 		);
 
@@ -635,7 +781,15 @@ export class InstrumentSettingsPanel {
 
 		this.echoSustainRow = div(
 			{ class: "selectRow" },
-			span({ class: "tip", onclick: () => { onOpenPrompt("echoSustain"); } }, "Echo:"),
+			span(
+				{
+					class: "tip",
+					onclick: () => {
+						onOpenPrompt("echoSustain");
+					},
+				},
+				"Echo:",
+			),
 			this.echoSustainSlider.container,
 		);
 
@@ -649,7 +803,15 @@ export class InstrumentSettingsPanel {
 
 		this.echoDelayRow = div(
 			{ class: "selectRow" },
-			span({ class: "tip", onclick: () => { onOpenPrompt("echoDelay"); } }, "Echo Delay:"),
+			span(
+				{
+					class: "tip",
+					onclick: () => {
+						onOpenPrompt("echoDelay");
+					},
+				},
+				"Echo Delay:",
+			),
 			this.echoDelaySlider.container,
 		);
 
@@ -664,7 +826,15 @@ export class InstrumentSettingsPanel {
 
 		this.distortionRow = div(
 			{ class: "selectRow" },
-			span({ class: "tip", onclick: () => { onOpenPrompt("distortion"); } }, "Distortion:"),
+			span(
+				{
+					class: "tip",
+					onclick: () => {
+						onOpenPrompt("distortion");
+					},
+				},
+				"Distortion:",
+			),
 			this.distortionSlider.container,
 		);
 
@@ -680,7 +850,15 @@ export class InstrumentSettingsPanel {
 
 		this.bitcrusherQuantizationRow = div(
 			{ class: "selectRow" },
-			span({ class: "tip", onclick: () => { onOpenPrompt("bitcrusherQuantization"); } }, "Crush:"),
+			span(
+				{
+					class: "tip",
+					onclick: () => {
+						onOpenPrompt("bitcrusherQuantization");
+					},
+				},
+				"Crush:",
+			),
 			this.bitcrusherQuantizationSlider.container,
 		);
 
@@ -695,7 +873,15 @@ export class InstrumentSettingsPanel {
 
 		this.bitcrusherFreqRow = div(
 			{ class: "selectRow" },
-			span({ class: "tip", onclick: () => { onOpenPrompt("bitcrusherFreq"); } }, "Bit Freq:"),
+			span(
+				{
+					class: "tip",
+					onclick: () => {
+						onOpenPrompt("bitcrusherFreq");
+					},
+				},
+				"Bit Freq:",
+			),
 			this.bitcrusherFreqSlider.container,
 		);
 
@@ -711,7 +897,15 @@ export class InstrumentSettingsPanel {
 
 		this.feedbackAmplitudeRow = div(
 			{ class: "selectRow" },
-			span({ class: "tip", onclick: () => { onOpenPrompt("feedbackAmplitude"); } }, "Feedback:"),
+			span(
+				{
+					class: "tip",
+					onclick: () => {
+						onOpenPrompt("feedbackAmplitude");
+					},
+				},
+				"Feedback:",
+			),
 			this.feedbackAmplitudeSlider.container,
 		);
 
@@ -727,7 +921,15 @@ export class InstrumentSettingsPanel {
 
 		this.supersawDynamismRow = div(
 			{ class: "selectRow" },
-			span({ class: "tip", onclick: () => { onOpenPrompt("supersawDynamism"); } }, "Dynamism:"),
+			span(
+				{
+					class: "tip",
+					onclick: () => {
+						onOpenPrompt("supersawDynamism");
+					},
+				},
+				"Dynamism:",
+			),
 			this.supersawDynamismSlider.container,
 		);
 
@@ -742,7 +944,15 @@ export class InstrumentSettingsPanel {
 
 		this.supersawSpreadRow = div(
 			{ class: "selectRow" },
-			span({ class: "tip", onclick: () => { onOpenPrompt("supersawSpread"); } }, "Spread:"),
+			span(
+				{
+					class: "tip",
+					onclick: () => {
+						onOpenPrompt("supersawSpread");
+					},
+				},
+				"Spread:",
+			),
 			this.supersawSpreadSlider.container,
 		);
 
@@ -757,7 +967,15 @@ export class InstrumentSettingsPanel {
 
 		this.supersawShapeRow = div(
 			{ class: "selectRow" },
-			span({ class: "tip", onclick: () => { onOpenPrompt("supersawShape"); } }, "Saw/Pulse:"),
+			span(
+				{
+					class: "tip",
+					onclick: () => {
+						onOpenPrompt("supersawShape");
+					},
+				},
+				"Saw/Pulse:",
+			),
 			this.supersawShapeSlider.container,
 		);
 
@@ -772,7 +990,15 @@ export class InstrumentSettingsPanel {
 
 		this.pulseWidthRow = div(
 			{ class: "selectRow" },
-			span({ class: "tip", onclick: () => { onOpenPrompt("pulseWidth"); } }, "Pulse Width:"),
+			span(
+				{
+					class: "tip",
+					onclick: () => {
+						onOpenPrompt("pulseWidth");
+					},
+				},
+				"Pulse Width:",
+			),
 			this.pulseWidthSlider.container,
 		);
 
@@ -788,7 +1014,15 @@ export class InstrumentSettingsPanel {
 
 		this.stringSustainRow = div(
 			{ class: "selectRow" },
-			span({ class: "tip", onclick: () => { onOpenPrompt("stringSustain"); } }, "Sustain:"),
+			span(
+				{
+					class: "tip",
+					onclick: () => {
+						onOpenPrompt("stringSustain");
+					},
+				},
+				"Sustain:",
+			),
 			this.stringSustainSlider.container,
 		);
 
@@ -800,7 +1034,15 @@ export class InstrumentSettingsPanel {
 
 		this.unisonSelectRow = div(
 			{ class: "selectRow" },
-			span({ class: "tip", onclick: () => { onOpenPrompt("unison"); } }, "Unison:"),
+			span(
+				{
+					class: "tip",
+					onclick: () => {
+						onOpenPrompt("unison");
+					},
+				},
+				"Unison:",
+			),
 			div({ class: "selectContainer", style: "width: 61.5%;" }, this.unisonSelect),
 		);
 
@@ -818,7 +1060,9 @@ export class InstrumentSettingsPanel {
 				{
 					class: "tip",
 					style: "margin-left:10px;",
-					onclick: () => { onOpenPrompt("invertWave"); },
+					onclick: () => {
+						onOpenPrompt("invertWave");
+					},
 				},
 				"Invert Wave:",
 			),
@@ -882,7 +1126,15 @@ export class InstrumentSettingsPanel {
 				{ style: "padding: 2px 0; margin-left: 2em; display: flex; align-items: center;" },
 				span(
 					{ style: "flex-grow: 1; text-align: center;" },
-					span({ class: "tip", onclick: () => { onOpenPrompt("effects"); } }, "Effects"),
+					span(
+						{
+							class: "tip",
+							onclick: () => {
+								onOpenPrompt("effects");
+							},
+						},
+						"Effects",
+					),
 				),
 				div({ class: "effects-menu" }, this.effectsSelect),
 			),

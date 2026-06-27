@@ -193,7 +193,7 @@ export class ChangeRandomEnvelopeSeed extends Change {
 }
 
 export class PasteEnvelope extends Change {
-	constructor(doc: SongDocument, envelope: any, index: number) {
+	constructor(doc: SongDocument, envelope: Record<string, unknown>, index: number) {
 		super();
 		const instrument: Instrument = doc.getCurrentInstrumentObj();
 		instrument.envelopes[index].fromJsonObject(envelope, "slarmoosbox");
@@ -205,7 +205,7 @@ export class PasteEnvelope extends Change {
 }
 
 export class ChangeSetEnvelopeWaveform extends Change {
-	constructor(doc: SongDocument, waveform: any, index: number) {
+	constructor(doc: SongDocument, waveform: number, index: number) {
 		super();
 		const instrument: Instrument = doc.getCurrentInstrumentObj();
 		const oldWaveform: number = instrument.envelopes[index].waveform;

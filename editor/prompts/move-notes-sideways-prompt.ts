@@ -60,7 +60,9 @@ export class MoveNotesSidewaysPrompt extends BasePrompt {
 		}
 
 		this._beatsStepper.select();
-		setTimeout(() => { this._beatsStepper.focus(); }, 100); // Add 100ms because the key macro (W) gets captured by the stepper...
+		setTimeout(() => {
+			this._beatsStepper.focus();
+		}, 100); // Add 100ms because the key macro (W) gets captured by the stepper...
 
 		this._beatsStepper.addEventListener("blur", MoveNotesSidewaysPrompt._validateNumber);
 		addWheelSupport(this._beatsStepper);

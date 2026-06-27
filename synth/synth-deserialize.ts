@@ -19,6 +19,26 @@ import {
 	decode32BitNumber,
 	SongTagCode,
 } from "./serialization";
+import { getNeededBits, LATEST_JUKEBOX_VERSION, type SongLike } from "./song-serialization";
+import {
+	ENV_LFO,
+	ENV_NONE,
+	ENV_NOTESIZE,
+	ENV_PITCH,
+	ENV_PUNCH,
+	ENV_RANDOM,
+	LATEST_BEEPBOX_VERSION,
+	LATEST_GOLDBOX_VERSION,
+	LATEST_JUMMBOX_VERSION,
+	LATEST_SLARMOOSBOX_VERSION,
+	LATEST_ULTRABOX_VERSION,
+	OLDEST_BEEPBOX_VERSION,
+	OLDEST_GOLDBOX_VERSION,
+	OLDEST_JUKEBOX_VERSION,
+	OLDEST_JUMMBOX_VERSION,
+	OLDEST_SLARMOOSBOX_VERSION,
+	OLDEST_ULTRABOX_VERSION,
+} from "./song-serialization-shared";
 import {
 	clearSamples,
 	envelopeFromLegacyIndex,
@@ -66,26 +86,6 @@ import {
 	ticksToFadeOutSetting,
 	validateRange,
 } from "./util";
-import {
-	ENV_LFO,
-	ENV_NONE,
-	ENV_NOTESIZE,
-	ENV_PITCH,
-	ENV_PUNCH,
-	ENV_RANDOM,
-	LATEST_BEEPBOX_VERSION,
-	LATEST_GOLDBOX_VERSION,
-	LATEST_JUMMBOX_VERSION,
-	LATEST_SLARMOOSBOX_VERSION,
-	LATEST_ULTRABOX_VERSION,
-	OLDEST_BEEPBOX_VERSION,
-	OLDEST_GOLDBOX_VERSION,
-	OLDEST_JUKEBOX_VERSION,
-	OLDEST_JUMMBOX_VERSION,
-	OLDEST_SLARMOOSBOX_VERSION,
-	OLDEST_ULTRABOX_VERSION,
-} from "./song-serialization-shared";
-import { getNeededBits, LATEST_JUKEBOX_VERSION, type SongLike } from "./song-serialization";
 
 export function fromBase64StringImpl(
 	song: SongLike,
@@ -258,6 +258,7 @@ export function fromBase64StringImpl(
 						parseOldSyntax,
 					);
 					if (!ok) {
+						/* parse fell through — skip */
 					}
 				}
 			}
@@ -1483,6 +1484,7 @@ export function fromBase64StringImpl(
 							(beforeTwo && fromGoldBox) ||
 							(!fromGoldBox && !fromUltraBox && !fromSlarmoosBox && !fromJukeBox)
 						) {
+							/* version gate — no-op fallthrough */
 						}
 						if (instrument.type === InstrumentType.drumset) {
 							for (let i: number = 0; i < Config.drumCount; i++) {
@@ -2993,7 +2995,7 @@ export function fromBase64StringImpl(
 				{
 					for (let channel: number = 0; channel < song.getChannelCount(); channel++) {
 						// Length of channel name string. Due to some crazy Unicode characters this needs to be 2 bytes...
-						let channelNameLength;
+						let channelNameLength: number;
 						if (
 							beforeFour &&
 							!fromGoldBox &&

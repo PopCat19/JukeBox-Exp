@@ -18,8 +18,10 @@ export interface Preset extends BeepBoxOption {
 	readonly midiProgram?: number;
 	readonly midiSubharmonicOctaves?: number;
 	readonly customType?: InstrumentType;
+	// biome-ignore lint/suspicious/noExplicitAny: arbitrary settings object
 	readonly settings?: any;
 	// Tags curated by the JukeBox community (https://github.com/JohnnesN/JukeBox)
+	// biome-ignore lint/suspicious/noExplicitAny: arbitrary tag data
 	readonly tags?: any;
 }
 

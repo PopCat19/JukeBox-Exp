@@ -66,6 +66,6 @@ export function getNeededBits(maxValue: number): number {
 	return 32 - Math.clz32(Math.ceil(maxValue + 1) - 1);
 }
 
+export { fromBase64StringImpl } from "./synth-deserialize";
 // Serialization delegates
 export { toBase64StringImpl } from "./synth-serialize";
-export { fromBase64StringImpl } from "./synth-deserialize";

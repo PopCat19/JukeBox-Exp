@@ -73,7 +73,9 @@ export class PromptFocusController {
 			document.removeEventListener("mousemove", onFirstMouseMove);
 		};
 		document.addEventListener("mousemove", onFirstMouseMove);
-		this.cleanupFns.push(() => { document.removeEventListener("mousemove", onFirstMouseMove); });
+		this.cleanupFns.push(() => {
+			document.removeEventListener("mousemove", onFirstMouseMove);
+		});
 
 		const onMouseEnter = (): void => {
 			if (this.host.isDraggingPrompt()) return;
@@ -92,9 +94,9 @@ export class PromptFocusController {
 			}
 		};
 		prompt.container.addEventListener("mouseenter", onMouseEnter);
-		this.cleanupFns.push(() =>
-			{ prompt.container.removeEventListener("mouseenter", onMouseEnter); },
-		);
+		this.cleanupFns.push(() => {
+			prompt.container.removeEventListener("mouseenter", onMouseEnter);
+		});
 
 		const onFocusIn = (): void => {
 			if (!this.cursorMoved || !this.mouseInPrompt) return;
@@ -104,7 +106,9 @@ export class PromptFocusController {
 			}
 		};
 		prompt.container.addEventListener("focusin", onFocusIn);
-		this.cleanupFns.push(() => { prompt.container.removeEventListener("focusin", onFocusIn); });
+		this.cleanupFns.push(() => {
+			prompt.container.removeEventListener("focusin", onFocusIn);
+		});
 
 		const onMouseLeave = (e: Event): void => {
 			if (this.host.isDraggingPrompt()) return;
@@ -118,9 +122,9 @@ export class PromptFocusController {
 			refocusSongEditor();
 		};
 		prompt.container.addEventListener("mouseleave", onMouseLeave);
-		this.cleanupFns.push(() =>
-			{ prompt.container.removeEventListener("mouseleave", onMouseLeave); },
-		);
+		this.cleanupFns.push(() => {
+			prompt.container.removeEventListener("mouseleave", onMouseLeave);
+		});
 
 		const onMouseDown = (e: Event): void => {
 			if (this.host.getFocusedPrompt() !== prompt) {
@@ -138,7 +142,9 @@ export class PromptFocusController {
 			}
 		};
 		prompt.container.addEventListener("mousedown", onMouseDown);
-		this.cleanupFns.push(() => { prompt.container.removeEventListener("mousedown", onMouseDown); });
+		this.cleanupFns.push(() => {
+			prompt.container.removeEventListener("mousedown", onMouseDown);
+		});
 	}
 
 	detachAll(): void {

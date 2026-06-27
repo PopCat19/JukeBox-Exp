@@ -535,7 +535,9 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 			}
 		});
 		this._scrubTrack.addEventListener("pointerdown", this._onScrubPointerDown);
-		setTimeout(() => { this.container.focus(); });
+		setTimeout(() => {
+			this.container.focus();
+		});
 
 		// Drag-and-drop file import for .json, .mid, .midi files.
 		// Attach to the container so it works in both main-window and popped-out
@@ -1892,7 +1894,9 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 				}
 			}
 		};
-		const observer = new ResizeObserver((): void => { measure(); });
+		const observer = new ResizeObserver((): void => {
+			measure();
+		});
 		observer.observe(this._contentContainer);
 		this._resizeObserver = observer;
 		// ResizeObserver fires once asynchronously on observe; also measure now in

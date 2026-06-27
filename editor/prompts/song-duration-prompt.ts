@@ -70,7 +70,9 @@ export class SongDurationPrompt extends BasePrompt {
 		}
 
 		this._barsStepper.select();
-		setTimeout(() => { this._barsStepper.focus(); });
+		setTimeout(() => {
+			this._barsStepper.focus();
+		});
 
 		this._barsStepper.addEventListener("keypress", validateKey);
 		this._barsStepper.addEventListener("blur", validateNumber);

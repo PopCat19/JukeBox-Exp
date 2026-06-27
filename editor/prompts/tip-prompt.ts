@@ -146,7 +146,9 @@ export class TipPrompt extends BasePrompt {
 	) {
 		super(doc);
 		this.buildTitlebar();
-		setTimeout(() => { this._cancelButton.focus(); });
+		setTimeout(() => {
+			this._cancelButton.focus();
+		});
 	}
 
 	protected override _saveChanges(): void {

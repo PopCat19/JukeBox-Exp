@@ -152,7 +152,7 @@ export class KeyboardHandler {
 			const isEditingTextInput =
 				document.activeElement === host.songTitleInputBox ||
 				isEditingModLabel ||
-				document.activeElement === (host.muteEditor)._channelNameInput?.input;
+				document.activeElement === host.muteEditor._channelNameInput?.input;
 			const isEditingNumberInput =
 				document.activeElement === host.panSliderInputBox ||
 				document.activeElement === host.pwmSliderInputBox ||
@@ -477,6 +477,7 @@ export class KeyboardHandler {
 				break;
 			case 68: // d
 				if (event.shiftKey) {
+					/* shift+D reserved */
 				} else {
 					if (canPlayNotes) break;
 					if (needControlForShortcuts === (event.ctrlKey || event.metaKey)) {

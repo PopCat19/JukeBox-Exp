@@ -29,7 +29,9 @@ export class ShiggyAudio {
 			this._sfxCache.set(name, audio);
 		}
 		audio.currentTime = 0;
-		audio.play().catch(() => {});
+		audio.play().catch(() => {
+			console.warn("shiggy sfx play blocked");
+		});
 	}
 
 	public playBgm(): void {
@@ -37,7 +39,9 @@ export class ShiggyAudio {
 		this._bgm = new Audio(BGM_PATH);
 		this._bgm.loop = true;
 		this._bgm.volume = 0.4;
-		this._bgm.play().catch(() => {});
+		this._bgm.play().catch(() => {
+			console.warn("shiggy bgm play blocked");
+		});
 	}
 
 	public stopBgm(): void {
