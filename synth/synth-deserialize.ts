@@ -9,6 +9,8 @@
 
 import { Channel } from "./channels";
 import { Deque } from "./deque";
+import { decodeVariant } from "./deserialize/decode-variant";
+import { loadCustomSamples } from "./deserialize/load-custom-samples";
 import { FilterControlPoint, FilterSettings, Instrument, LegacySettings } from "./instruments";
 import { makeNotePin, Note, NotePin, Pattern } from "./notes";
 import { getPlugin } from "./plugins";
@@ -28,12 +30,7 @@ import {
 	ENV_PUNCH,
 	ENV_RANDOM,
 } from "./song-serialization-shared";
-import { decodeVariant } from "./deserialize/decode-variant";
-import {
-	clearSamples,
-	envelopeFromLegacyIndex,
-} from "./song-utilities";
-import { loadCustomSamples } from "./deserialize/load-custom-samples";
+import { clearSamples, envelopeFromLegacyIndex } from "./song-utilities";
 import {
 	Config,
 	EffectType,
@@ -102,7 +99,7 @@ export function fromBase64StringImpl(
 		return;
 	}
 	charIndex = result.charIndex;
-	let {
+	const {
 		fromBeepBox,
 		fromJummBox,
 		fromGoldBox,

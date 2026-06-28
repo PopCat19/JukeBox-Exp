@@ -152,13 +152,21 @@ export class ChangePreset extends Change {
 		if (oldValue !== newValue) {
 			const preset1: Preset | null = EditorConfig.instrumentToPreset(newValue);
 			const preset: Preset | null = preset1 ?? EditorConfig.valueToPreset(newValue);
-			console.log("[ChangePreset] newValue=", newValue, "found preset=", preset?.name, "zones=", preset?.zones?.length);
+			console.log(
+				"[ChangePreset] newValue=",
+				newValue,
+				"found preset=",
+				preset?.name,
+				"zones=",
+				preset?.zones?.length,
+			);
 			if (preset != null) {
 				// For zone presets, settings come from zone 0 (first zone).
 				// Regular presets use preset.settings directly.
-				const applySettings: any = preset.zones != null && preset.zones.length > 0
-					? preset.zones[0].settings
-					: preset.settings;
+				const applySettings: any =
+					preset.zones != null && preset.zones.length > 0
+						? preset.zones[0].settings
+						: preset.settings;
 				if (preset.customType !== undefined) {
 					instrument.type = preset.customType;
 					if (
@@ -202,11 +210,21 @@ export class ChangePreset extends Change {
 		}
 	}
 
-	private _expandZones(doc: SongDocument, curInst: Instrument, preset: Preset, presetValue: number): void {
+	private _expandZones(
+		doc: SongDocument,
+		curInst: Instrument,
+		preset: Preset,
+		presetValue: number,
+	): void {
 		const channel: Channel = doc.song.channels[doc.channel];
 		const isNoise: boolean = doc.song.getChannelIsNoise(doc.channel);
 		const isMod: boolean = doc.song.getChannelIsMod(doc.channel);
-		console.log("[_expandZones] channel=", doc.channel, "current instruments=", channel.instruments.length);
+		console.log(
+			"[_expandZones] channel=",
+			doc.channel,
+			"current instruments=",
+			channel.instruments.length,
+		);
 
 		// Enable layered instruments to support multiple instruments per channel
 		if (!doc.song.layeredInstruments) {
@@ -226,18 +244,40 @@ export class ChangePreset extends Change {
 		const zone0: any = preset.zones![0];
 		if (zone0.lowerNoteLimit !== undefined) curInst.lowerNoteLimit = zone0.lowerNoteLimit;
 		if (zone0.upperNoteLimit !== undefined) curInst.upperNoteLimit = zone0.upperNoteLimit;
-		if (zone0.lowerVelocityLimit !== undefined) curInst.lowerVelocityLimit = zone0.lowerVelocityLimit;
-		if (zone0.upperVelocityLimit !== undefined) curInst.upperVelocityLimit = zone0.upperVelocityLimit;
-		if (zone0.lowerNoteLimit !== undefined || zone0.upperNoteLimit !== undefined ||
-			zone0.lowerVelocityLimit !== undefined || zone0.upperVelocityLimit !== undefined) {
+		if (zone0.lowerVelocityLimit !== undefined)
+			curInst.lowerVelocityLimit = zone0.lowerVelocityLimit;
+		if (zone0.upperVelocityLimit !== undefined)
+			curInst.upperVelocityLimit = zone0.upperVelocityLimit;
+		if (
+			zone0.lowerNoteLimit !== undefined ||
+			zone0.upperNoteLimit !== undefined ||
+			zone0.lowerVelocityLimit !== undefined ||
+			zone0.upperVelocityLimit !== undefined
+		) {
 			curInst.effects |= 1 << EffectType.noteRange;
 		}
 
 		// Create remaining zones as new instruments
-		console.log("[_expandZones] zoneCount=", zoneCount, "maxInstruments=", maxInstruments, "current=", channel.instruments.length);
+		console.log(
+			"[_expandZones] zoneCount=",
+			zoneCount,
+			"maxInstruments=",
+			maxInstruments,
+			"current=",
+			channel.instruments.length,
+		);
 		for (let zi: number = 1; zi < zoneCount; zi++) {
 			const zone: any = preset.zones![zi];
-			console.log("[_expandZones] zone", zi, "lowerNote=", zone.lowerNoteLimit, "upperNote=", zone.upperNoteLimit, "hasSettings=", !!zone.settings);
+			console.log(
+				"[_expandZones] zone",
+				zi,
+				"lowerNote=",
+				zone.lowerNoteLimit,
+				"upperNote=",
+				zone.upperNoteLimit,
+				"hasSettings=",
+				!!zone.settings,
+			);
 			if (channel.instruments.length >= maxInstruments) break;
 
 			const zoneInst: Instrument = new Instrument(isNoise, isMod);
@@ -249,15 +289,26 @@ export class ChangePreset extends Change {
 
 			if (zone.lowerNoteLimit !== undefined) zoneInst.lowerNoteLimit = zone.lowerNoteLimit;
 			if (zone.upperNoteLimit !== undefined) zoneInst.upperNoteLimit = zone.upperNoteLimit;
-			if (zone.lowerVelocityLimit !== undefined) zoneInst.lowerVelocityLimit = zone.lowerVelocityLimit;
-			if (zone.upperVelocityLimit !== undefined) zoneInst.upperVelocityLimit = zone.upperVelocityLimit;
-			if (zone.lowerNoteLimit !== undefined || zone.upperNoteLimit !== undefined ||
-				zone.lowerVelocityLimit !== undefined || zone.upperVelocityLimit !== undefined) {
+			if (zone.lowerVelocityLimit !== undefined)
+				zoneInst.lowerVelocityLimit = zone.lowerVelocityLimit;
+			if (zone.upperVelocityLimit !== undefined)
+				zoneInst.upperVelocityLimit = zone.upperVelocityLimit;
+			if (
+				zone.lowerNoteLimit !== undefined ||
+				zone.upperNoteLimit !== undefined ||
+				zone.lowerVelocityLimit !== undefined ||
+				zone.upperVelocityLimit !== undefined
+			) {
 				zoneInst.effects |= 1 << EffectType.noteRange;
 			}
 
 			channel.instruments.push(zoneInst);
-			console.log("[_expandZones] pushed zone", zi, "total instruments now:", channel.instruments.length);
+			console.log(
+				"[_expandZones] pushed zone",
+				zi,
+				"total instruments now:",
+				channel.instruments.length,
+			);
 		}
 
 		console.log("[_expandZones] final instrument count:", channel.instruments.length);

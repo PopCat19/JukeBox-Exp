@@ -8,9 +8,20 @@
 // - Parses legacy ("old syntax") sample URLs and built-in sample pack references
 // - Dispatches sample loading events and populates custom sample presets
 
-import { DictionaryArray, SampleLoadedEvent, loadBuiltInSamples, sampleLoadEvents, sampleLoadingState, toNameMap } from "../synth-config";
-import { clearSamples, parseAndConfigureCustomSample, restoreChipWaveListToDefault } from "../song-utilities";
 import type { SongLike } from "../song-serialization";
+import {
+	clearSamples,
+	parseAndConfigureCustomSample,
+	restoreChipWaveListToDefault,
+} from "../song-utilities";
+import {
+	DictionaryArray,
+	loadBuiltInSamples,
+	SampleLoadedEvent,
+	sampleLoadEvents,
+	sampleLoadingState,
+	toNameMap,
+} from "../synth-config";
 
 export function loadCustomSamples(
 	compressed: string,

@@ -141,16 +141,11 @@ export class EditorConfig {
 	public static midiProgramToPresetValue(program: number): number | null {
 		// Scan Presets NG (index 2) first so its presets take priority
 		const scanOrder: number[] = [2];
-		for (
-			let i: number = 0;
-			i < EditorConfig.presetCategories.length;
-			i++
-		) {
+		for (let i: number = 0; i < EditorConfig.presetCategories.length; i++) {
 			if (i !== 2) scanOrder.push(i);
 		}
 		for (const categoryIndex of scanOrder) {
-			const category: PresetCategory =
-				EditorConfig.presetCategories[categoryIndex];
+			const category: PresetCategory = EditorConfig.presetCategories[categoryIndex];
 			for (
 				let presetIndex: number = 0;
 				presetIndex < category.presets.length;

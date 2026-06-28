@@ -23,7 +23,11 @@ const baseStyle = s(
 
 export function dropdownButton(options?: DropdownButtonOptions): HTMLButtonElement {
 	const style = options?.style ? `${baseStyle}; ${options.style}` : baseStyle;
-	const attrs: Record<string, string> = { style, type: "button", class: "dropdown-button-tabler" };
+	const attrs: Record<string, string> = {
+		style,
+		type: "button",
+		class: "dropdown-button-tabler",
+	};
 	const btn = HTML.button(attrs, "");
 	if (options?.onclick) {
 		btn.addEventListener("click", options.onclick);

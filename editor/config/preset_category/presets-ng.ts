@@ -15,13 +15,11 @@ export const presetsNgCategories: InputPresetCategory[] = [
 		name: "Presets NG",
 		presets: <DictionaryArray<Preset>>toNameMap([
 			{
-
 				name: "chip NG",
 
 				generalMidi: false,
 
 				settings: {
-
 					type: "chip",
 
 					eqFilter: [],
@@ -39,18 +37,14 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					unison: "none",
 
 					envelopes: [],
-
 				},
-
 			},
 			{
-
 				name: "chip (custom) NG",
 
 				generalMidi: false,
 
 				settings: {
-
 					type: "custom chip",
 
 					eqFilter: [],
@@ -78,7 +72,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					unison: "none",
 
 					customChipWave: {
-
 						"0": -24,
 
 						"1": -24,
@@ -206,11 +199,9 @@ export const presetsNgCategories: InputPresetCategory[] = [
 						"62": 24,
 
 						"63": 24,
-
 					},
 
 					customChipWaveIntegral: {
-
 						"0": 0,
 
 						"1": 0,
@@ -340,22 +331,17 @@ export const presetsNgCategories: InputPresetCategory[] = [
 						"63": 0,
 
 						"64": 0,
-
 					},
 
 					envelopes: [],
-
 				},
-
 			},
 			{
-
 				name: "pulse width NG",
 
 				generalMidi: false,
 
 				settings: {
-
 					type: "PWM",
 
 					volume: 0,
@@ -391,18 +377,14 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					envelopes: [],
 
 					isDrum: false,
-
 				},
-
 			},
 			{
-
 				name: "supersaw NG",
 
 				generalMidi: false,
 
 				settings: {
-
 					type: "supersaw",
 
 					volume: 0,
@@ -442,18 +424,14 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					envelopes: [],
 
 					isDrum: false,
-
 				},
-
 			},
 			{
-
 				name: "FM NG",
 
 				generalMidi: false,
 
 				settings: {
-
 					type: "FM",
 
 					eqFilter: [],
@@ -481,7 +459,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					feedbackAmplitude: 0,
 
 					operators: [
-
 						{ frequency: "1×", amplitude: 15, waveform: "sine", pulseWidth: 5 },
 
 						{ frequency: "1×", amplitude: 0, waveform: "sine", pulseWidth: 5 },
@@ -493,22 +470,17 @@ export const presetsNgCategories: InputPresetCategory[] = [
 						{ frequency: "1×", amplitude: 0, waveform: "sine", pulseWidth: 5 },
 
 						{ frequency: "1×", amplitude: 0, waveform: "sine", pulseWidth: 5 },
-
 					],
 
 					envelopes: [],
-
 				},
-
 			},
 			{
-
 				name: "FM (6-op) NG",
 
 				generalMidi: false,
 
 				settings: {
-
 					type: "FM6op",
 
 					eqFilter: [],
@@ -538,7 +510,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					feedbackAmplitude: 0,
 
 					operators: [
-
 						{ frequency: "1×", amplitude: 15, waveform: "sine", pulseWidth: 5 },
 
 						{ frequency: "1×", amplitude: 0, waveform: "sine", pulseWidth: 5 },
@@ -550,22 +521,17 @@ export const presetsNgCategories: InputPresetCategory[] = [
 						{ frequency: "1×", amplitude: 0, waveform: "sine", pulseWidth: 5 },
 
 						{ frequency: "1×", amplitude: 0, waveform: "sine", pulseWidth: 5 },
-
 					],
 
 					envelopes: [],
-
 				},
-
 			},
 			{
-
 				name: "noise NG",
 
 				generalMidi: false,
 
 				settings: {
-
 					type: "noise",
 
 					volume: 0,
@@ -599,18 +565,14 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					envelopes: [],
 
 					isDrum: false,
-
 				},
-
 			},
 			{
-
 				name: "harmonics NG",
 
 				generalMidi: false,
 
 				settings: {
-
 					type: "harmonics",
 
 					volume: 0,
@@ -638,11 +600,9 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					fadeOutTicks: -1,
 
 					harmonics: [
-
 						100, 0, 0, 100, 0, 0, 100, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 
 						0, 0, 0, 0, 0,
-
 					],
 
 					unison: "none",
@@ -650,18 +610,14 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					envelopes: [],
 
 					isDrum: false,
-
 				},
-
 			},
 			{
-
 				name: "picked string NG",
 
 				generalMidi: false,
 
 				settings: {
-
 					type: "Picked String",
 
 					volume: 0,
@@ -689,11 +645,9 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					fadeOutTicks: -1,
 
 					harmonics: [
-
 						100, 0, 0, 100, 0, 0, 100, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 
 						0, 0, 0, 0, 0,
-
 					],
 
 					unison: "none",
@@ -703,18 +657,14 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					envelopes: [],
 
 					isDrum: false,
-
 				},
-
 			},
 			{
-
 				name: "spectrum NG",
 
 				generalMidi: false,
 
 				settings: {
-
 					type: "spectrum",
 
 					volume: 0,
@@ -742,11 +692,9 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					fadeOutTicks: -1,
 
 					spectrum: [
-
 						100, 0, 0, 0, 0, 0, 0, 71, 0, 0, 0, 57, 0, 0, 57, 0, 43, 0, 43, 0, 0, 29, 0,
 
 						29, 0, 14, 14, 14, 0, 0,
-
 					],
 
 					unison: "none",
@@ -754,12 +702,9 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					envelopes: [],
 
 					isDrum: false,
-
 				},
-
 			},
 			{
-
 				name: "noise (noise channel) NG",
 
 				generalMidi: false,
@@ -767,7 +712,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 				isNoise: true,
 
 				settings: {
-
 					type: "noise",
 
 					volume: 0,
@@ -801,12 +745,9 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					envelopes: [],
 
 					isDrum: false,
-
 				},
-
 			},
 			{
-
 				name: "spectrum (noise channel) NG",
 
 				generalMidi: false,
@@ -814,7 +755,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 				isNoise: true,
 
 				settings: {
-
 					type: "spectrum",
 
 					eqFilter: [],
@@ -838,19 +778,15 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					fadeOutTicks: -1,
 
 					spectrum: [
-
 						100, 86, 71, 71, 71, 57, 57, 57, 57, 57, 43, 43, 43, 43, 43, 43, 43, 43, 43,
 
 						43, 43, 29, 29, 29, 29, 29, 29, 29, 29, 29,
-
 					],
 
 					unison: "none",
 
 					envelopes: [],
-
 				},
-
 			},
 
 			{
@@ -861,7 +797,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 				tags: ["chip", "chipwave", "beepbox", "chiptune", "retro"],
 
 				settings: {
-
 					type: "chip",
 
 					eqFilter: [],
@@ -881,12 +816,9 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					unison: "none",
 
 					envelopes: [],
-
 				},
-
 			},
 			{
-
 				name: "triangle wave NG",
 
 				midiProgram: 71,
@@ -894,7 +826,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 				tags: ["chip", "chipwave", "beepbox", "chiptune", "retro"],
 
 				settings: {
-
 					type: "chip",
 
 					eqFilter: [],
@@ -914,12 +845,9 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					unison: "none",
 
 					envelopes: [],
-
 				},
-
 			},
 			{
-
 				name: "square lead NG",
 
 				midiProgram: 80,
@@ -929,7 +857,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 				tags: ["chip", "chipwave", "beepbox", "chiptune", "retro"],
 
 				settings: {
-
 					type: "chip",
 
 					eqFilter: [{ type: "low-pass", cutoffHz: 8000, linearGain: 0.3536 }],
@@ -949,12 +876,9 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					unison: "hum",
 
 					envelopes: [],
-
 				},
-
 			},
 			{
-
 				name: "sawtooth lead 1 NG",
 
 				midiProgram: 81,
@@ -964,7 +888,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 				tags: ["chip", "chipwave", "beepbox", "chiptune", "retro"],
 
 				settings: {
-
 					type: "chip",
 
 					eqFilter: [{ type: "low-pass", cutoffHz: 4000, linearGain: 0.5 }],
@@ -984,12 +907,9 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					unison: "shimmer",
 
 					envelopes: [],
-
 				},
-
 			},
 			{
-
 				name: "sawtooth lead 2 NG",
 
 				midiProgram: 81,
@@ -997,7 +917,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 				tags: ["chip", "chipwave", "beepbox", "chiptune", "retro"],
 
 				settings: {
-
 					type: "chip",
 
 					eqFilter: [{ type: "low-pass", cutoffHz: 6727.17, linearGain: 1 }],
@@ -1019,12 +938,9 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					unison: "hum",
 
 					envelopes: [],
-
 				},
-
 			},
 			{
-
 				name: "chip noise NG",
 
 				midiProgram: 116,
@@ -1034,7 +950,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 				tags: ["noise", "beepbox", "chiptune", "retro"],
 
 				settings: {
-
 					type: "noise",
 
 					transition: "hard",
@@ -1050,12 +965,9 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					filterEnvelope: "steady",
 
 					wave: "retro",
-
 				},
-
 			},
 			{
-
 				name: "supersaw lead NG",
 
 				midiProgram: 81,
@@ -1063,7 +975,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 				tags: ["supersaw", "beepbox", "retro", "lead"],
 
 				settings: {
-
 					type: "supersaw",
 
 					eqFilter: [{ type: "low-pass", cutoffHz: 6727.17, linearGain: 2 }],
@@ -1085,12 +996,9 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					shape: 0,
 
 					envelopes: [],
-
 				},
-
 			},
 			{
-
 				name: "FM twang NG",
 
 				midiProgram: 32,
@@ -1098,7 +1006,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 				tags: ["fm", "fm4op", "beepbox", "retro"],
 
 				settings: {
-
 					type: "FM",
 
 					eqFilter: [],
@@ -1120,30 +1027,23 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					feedbackAmplitude: 0,
 
 					operators: [
-
 						{ frequency: "1×", amplitude: 15 },
 
 						{ frequency: "1×", amplitude: 15 },
 
 						{
-
 							frequency: "1×",
 
 							amplitude: 0,
-
 						},
 
 						{ frequency: "1×", amplitude: 0 },
-
 					],
 
 					envelopes: [{ target: "operatorAmplitude", envelope: "twang 2", index: 1 }],
-
 				},
-
 			},
 			{
-
 				name: "FM bass NG",
 
 				midiProgram: 36,
@@ -1151,7 +1051,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 				tags: ["fm", "fm4op", "beepbox", "retro", "bass"],
 
 				settings: {
-
 					type: "FM",
 
 					eqFilter: [],
@@ -1173,46 +1072,35 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					feedbackAmplitude: 0,
 
 					operators: [
-
 						{ frequency: "2×", amplitude: 11 },
 
 						{ frequency: "1×", amplitude: 7 },
 
 						{
-
 							frequency: "1×",
 
 							amplitude: 9,
-
 						},
 
 						{ frequency: "20×", amplitude: 3 },
-
 					],
 
 					envelopes: [
-
 						{ target: "operatorAmplitude", envelope: "twang 2", index: 1 },
 
 						{
-
 							target: "operatorAmplitude",
 
 							envelope: "twang 3",
 
 							index: 2,
-
 						},
 
 						{ target: "operatorAmplitude", envelope: "twang 2", index: 3 },
-
 					],
-
 				},
-
 			},
 			{
-
 				name: "FM flute NG",
 
 				midiProgram: 73,
@@ -1220,7 +1108,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 				tags: ["fm", "fm4op", "beepbox", "retro", "flute"],
 
 				settings: {
-
 					type: "FM",
 
 					eqFilter: [],
@@ -1242,30 +1129,23 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					feedbackAmplitude: 0,
 
 					operators: [
-
 						{ frequency: "1×", amplitude: 15 },
 
 						{ frequency: "1×", amplitude: 6 },
 
 						{
-
 							frequency: "1×",
 
 							amplitude: 0,
-
 						},
 
 						{ frequency: "1×", amplitude: 0 },
-
 					],
 
 					envelopes: [{ target: "operatorAmplitude", envelope: "twang 2", index: 1 }],
-
 				},
-
 			},
 			{
-
 				name: "FM organ NG",
 
 				midiProgram: 16,
@@ -1273,7 +1153,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 				tags: ["fm", "fm4op", "beepbox", "retro", "bellows"],
 
 				settings: {
-
 					type: "FM",
 
 					eqFilter: [],
@@ -1297,30 +1176,23 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					feedbackAmplitude: 0,
 
 					operators: [
-
 						{ frequency: "1×", amplitude: 14 },
 
 						{ frequency: "2×", amplitude: 14 },
 
 						{
-
 							frequency: "1×",
 
 							amplitude: 11,
-
 						},
 
 						{ frequency: "2×", amplitude: 11 },
-
 					],
 
 					envelopes: [],
-
 				},
-
 			},
 			{
-
 				name: "FM sine NG",
 
 				midiProgram: 55,
@@ -1328,7 +1200,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 				tags: ["fm", "fm4op", "beepbox", "retro"],
 
 				settings: {
-
 					type: "FM",
 
 					eqFilter: [],
@@ -1358,7 +1229,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					feedbackAmplitude: 0,
 
 					operators: [
-
 						{ frequency: "1×", amplitude: 15, waveform: "sine", pulseWidth: 5 },
 
 						{ frequency: "1×", amplitude: 0, waveform: "sine", pulseWidth: 5 },
@@ -1370,16 +1240,12 @@ export const presetsNgCategories: InputPresetCategory[] = [
 						{ frequency: "1×", amplitude: 0, waveform: "sine" },
 
 						{ frequency: "1×", amplitude: 0, waveform: "sine" },
-
 					],
 
 					envelopes: [],
-
 				},
-
 			},
 			{
-
 				name: "NES Pulse NG",
 
 				midiProgram: 80,
@@ -1387,7 +1253,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 				tags: ["chip", "customchip", "beepbox", "chiptune", "retro"],
 
 				settings: {
-
 					type: "custom chip",
 
 					effects: ["aliasing"],
@@ -1409,7 +1274,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					envelopes: [],
 
 					customChipWave: [
-
 						-24, -24, -24, -24, -23, -23, -23, -23, -22, -22, -22, -22, -21, -21, -21,
 
 						-21, -20, -20, -20, -20, -19, -19, -19, -19, -18, -18, -18, -18, -17, -17,
@@ -1417,14 +1281,10 @@ export const presetsNgCategories: InputPresetCategory[] = [
 						-17, -17, 24, 24, 24, 24, 23, 23, 23, 23, 22, 22, 22, 22, 21, 21, 21, 21,
 
 						20, 20, 20, 20, 19, 19, 19, 19, 18, 18, 18, 18, 17, 17, 17, 17,
-
 					],
-
 				},
-
 			},
 			{
-
 				name: "Gameboy Pulse NG",
 
 				midiProgram: 80,
@@ -1432,7 +1292,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 				tags: ["chip", "customchip", "jummbox", "chiptune", "retro"],
 
 				settings: {
-
 					type: "custom chip",
 
 					effects: ["aliasing"],
@@ -1452,7 +1311,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					envelopes: [],
 
 					customChipWave: [
-
 						-24, -20, -17, -15, -13, -13, -11, -11, -11, -9, -9, -9, -9, -7, -7, -7, -7,
 
 						-7, -5, -5, -5, -5, -5, -5, -3, -3, -3, -3, -3, -3, -3, -3, 24, 20, 17, 15,
@@ -1460,14 +1318,10 @@ export const presetsNgCategories: InputPresetCategory[] = [
 						13, 13, 11, 11, 11, 9, 9, 9, 9, 7, 7, 7, 7, 7, 5, 5, 5, 5, 5, 5, 3, 3, 3, 3,
 
 						3, 3, 3, 3,
-
 					],
-
 				},
-
 			},
 			{
-
 				name: "VRC6 Sawtooth NG",
 
 				midiProgram: 81,
@@ -1475,7 +1329,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 				tags: ["chip", "customchip", "jummbox", "chiptune", "retro"],
 
 				settings: {
-
 					type: "custom chip",
 
 					effects: ["aliasing"],
@@ -1495,7 +1348,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					envelopes: [],
 
 					customChipWave: [
-
 						-24, -20, -16, -13, -10, -8, -6, -5, -4, -4, 0, 0, 0, 0, 4, 4, 4, 4, 4, 4,
 
 						8, 8, 8, 8, 8, 8, 8, 8, 12, 12, 12, 12, 12, 12, 12, 12, 16, 16, 16, 16, 16,
@@ -1503,14 +1355,10 @@ export const presetsNgCategories: InputPresetCategory[] = [
 						16, 16, 16, 20, 20, 20, 20, 20, 20, 20, 20, 24, 24, 24, 24, 24, 24, 24, 24,
 
 						24, 24, 24, 24,
-
 					],
-
 				},
-
 			},
 			{
-
 				name: "Atari Square NG",
 
 				midiProgram: 80,
@@ -1518,7 +1366,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 				tags: ["chip", "customchip", "jummbox", "chiptune", "retro"],
 
 				settings: {
-
 					type: "custom chip",
 
 					effects: ["aliasing"],
@@ -1538,7 +1385,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					envelopes: [],
 
 					customChipWave: [
-
 						-24, -24, -24, -23, -23, -23, -22, -22, -22, -21, -21, -21, -20, -20, -20,
 
 						-19, -19, -19, -18, -18, -18, -17, -17, -17, -16, -16, -16, -15, -15, -15,
@@ -1546,14 +1392,10 @@ export const presetsNgCategories: InputPresetCategory[] = [
 						-14, -14, -14, -13, -13, -13, 24, 24, 24, 23, 23, 23, 22, 22, 22, 21, 21,
 
 						21, 20, 20, 20, 19, 19, 19, 18, 18, 18, 17, 17, 17, 16, 16, 15, 15,
-
 					],
-
 				},
-
 			},
 			{
-
 				name: "Atari Bass NG",
 
 				midiProgram: 36,
@@ -1561,7 +1403,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 				tags: ["chip", "customchip", "jummbox", "chiptune", "retro", "bass"],
 
 				settings: {
-
 					type: "custom chip",
 
 					effects: ["aliasing"],
@@ -1581,7 +1422,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					envelopes: [],
 
 					customChipWave: [
-
 						-24, -24, -24, -24, -24, -24, -24, -24, -24, 24, 24, 24, 24, 24, 24, -24,
 
 						-24, -24, 24, 24, 24, -24, -24, -24, 24, 24, 24, -24, -24, -24, 24, 24, -24,
@@ -1589,14 +1429,10 @@ export const presetsNgCategories: InputPresetCategory[] = [
 						-24, -24, -24, -24, -24, -24, -24, -24, 24, 24, 24, 24, 24, 24, -24, -24,
 
 						24, 24, 24, 24, 24, -24, -24, -24, -24, 24, 24, -24, -24, 24, 24,
-
 					],
-
 				},
-
 			},
 			{
-
 				name: "Sunsoft Bass NG",
 
 				midiProgram: 36,
@@ -1604,7 +1440,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 				tags: ["chip", "customchip", "jummbox", "chiptune", "retro", "bass"],
 
 				settings: {
-
 					type: "custom chip",
 
 					effects: ["aliasing"],
@@ -1624,7 +1459,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					envelopes: [],
 
 					customChipWave: [
-
 						24, 24, 15, 15, 9, 9, -4, -4, 0, 0, -13, -13, -19, -19, -24, -24, -24, -24,
 
 						-10, -10, 0, 0, -7, -7, -7, -7, 0, 0, 6, 6, -4, -4, 3, 3, -4, -4, 3, 3, 3,
@@ -1632,14 +1466,10 @@ export const presetsNgCategories: InputPresetCategory[] = [
 						3, 9, 9, 15, 15, 15, 15, 6, 6, -4, -4, -4, -4, -4, -4, -4, -4, -4, -4, 3, 3,
 
 						12, 12, 24, 24,
-
 					],
-
 				},
-
 			},
 			{
-
 				name: "grand piano 1 NG",
 
 				midiProgram: 0,
@@ -1649,23 +1479,18 @@ export const presetsNgCategories: InputPresetCategory[] = [
 				tags: ["pickedstring", "beepbox", "keys"],
 
 				settings: {
-
 					type: "Picked String",
 
 					eqFilter: [
-
 						{ type: "high-pass", cutoffHz: 148.65, linearGain: 0.7071 },
 
 						{
-
 							type: "peak",
 
 							cutoffHz: 2000,
 
 							linearGain: 2.8284,
-
 						},
-
 					],
 
 					effects: ["note filter", "reverb"],
@@ -1683,11 +1508,9 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					chord: "simultaneous",
 
 					harmonics: [
-
 						100, 100, 86, 86, 86, 71, 71, 71, 0, 86, 71, 71, 71, 57, 57, 71, 57, 14, 57,
 
 						57, 57, 57, 57, 57, 57, 57, 29, 57,
-
 					],
 
 					unison: "piano",
@@ -1695,12 +1518,9 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					stringSustain: 79,
 
 					envelopes: [{ target: "noteFilterAllFreqs", envelope: "note size" }],
-
 				},
-
 			},
 			{
-
 				name: "bright piano NG",
 
 				midiProgram: 1,
@@ -1710,25 +1530,20 @@ export const presetsNgCategories: InputPresetCategory[] = [
 				tags: ["pickedstring", "beepbox", "keys"],
 
 				settings: {
-
 					type: "Picked String",
 
 					eqFilter: [
-
 						{ type: "low-pass", cutoffHz: 1681.79, linearGain: 0.7071 },
 
 						{
-
 							type: "high-pass",
 
 							cutoffHz: 148.65,
 
 							linearGain: 0.5,
-
 						},
 
 						{ type: "peak", cutoffHz: 3363.59, linearGain: 1.4142 },
-
 					],
 
 					effects: ["reverb"],
@@ -1744,11 +1559,9 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					chord: "simultaneous",
 
 					harmonics: [
-
 						100, 100, 86, 86, 71, 71, 0, 71, 71, 71, 71, 71, 71, 14, 57, 57, 57, 57, 57,
 
 						57, 29, 57, 57, 57, 57, 57, 57, 57,
-
 					],
 
 					unison: "piano",
@@ -1756,12 +1569,9 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					stringSustain: 86,
 
 					envelopes: [],
-
 				},
-
 			},
 			{
-
 				name: "electric grand NG",
 
 				midiProgram: 2,
@@ -1771,7 +1581,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 				tags: ["chip", "chipwave", "beepbox", "keys"],
 
 				settings: {
-
 					type: "chip",
 
 					eqFilter: [],
@@ -1793,12 +1602,9 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					unison: "shimmer",
 
 					envelopes: [{ target: "noteFilterAllFreqs", envelope: "twang 3" }],
-
 				},
-
 			},
 			{
-
 				name: "honky-tonk piano NG",
 
 				midiProgram: 3,
@@ -1808,7 +1614,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 				tags: ["pickedstring", "beepbox", "keys"],
 
 				settings: {
-
 					type: "Picked String",
 
 					eqFilter: [{ type: "low-pass", cutoffHz: 5656.85, linearGain: 0.3536 }],
@@ -1826,11 +1631,9 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					chord: "simultaneous",
 
 					harmonics: [
-
 						100, 100, 86, 71, 86, 71, 43, 71, 43, 43, 57, 57, 57, 29, 57, 57, 57, 57,
 
 						57, 57, 43, 57, 57, 57, 43, 43, 43, 43,
-
 					],
 
 					unison: "honky tonk",
@@ -1838,12 +1641,9 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					stringSustain: 71,
 
 					envelopes: [],
-
 				},
-
 			},
 			{
-
 				name: "electric piano 1 NG",
 
 				midiProgram: 4,
@@ -1853,7 +1653,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 				tags: ["harmonics", "beepbox", "keys"],
 
 				settings: {
-
 					type: "harmonics",
 
 					eqFilter: [],
@@ -1871,22 +1670,17 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					chord: "simultaneous",
 
 					harmonics: [
-
 						86, 100, 100, 71, 71, 57, 57, 43, 43, 43, 29, 29, 29, 14, 14, 14, 0, 0, 0,
 
 						0, 0, 57, 0, 0, 0, 0, 0, 0,
-
 					],
 
 					unison: "none",
 
 					envelopes: [{ target: "noteFilterAllFreqs", envelope: "twang 2" }],
-
 				},
-
 			},
 			{
-
 				name: "electric piano 2 NG",
 
 				midiProgram: 5,
@@ -1896,7 +1690,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 				tags: ["fm", "fm4op", "beepbox", "keys"],
 
 				settings: {
-
 					type: "FM",
 
 					eqFilter: [],
@@ -1920,44 +1713,33 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					feedbackAmplitude: 0,
 
 					operators: [
-
 						{ frequency: "1×", amplitude: 12 },
 
 						{ frequency: "1×", amplitude: 6 },
 
 						{
-
 							frequency: "1×",
 
 							amplitude: 9,
-
 						},
 
 						{ frequency: "16×", amplitude: 6 },
-
 					],
 
 					envelopes: [
-
 						{ target: "noteFilterAllFreqs", envelope: "twang 3" },
 
 						{
-
 							target: "operatorAmplitude",
 
 							envelope: "twang 3",
 
 							index: 3,
-
 						},
-
 					],
-
 				},
-
 			},
 			{
-
 				name: "harpsichord NG",
 
 				midiProgram: 6,
@@ -1967,23 +1749,18 @@ export const presetsNgCategories: InputPresetCategory[] = [
 				tags: ["pickedstring", "beepbox", "keys"],
 
 				settings: {
-
 					type: "Picked String",
 
 					eqFilter: [
-
 						{ type: "high-pass", cutoffHz: 250, linearGain: 0.3536 },
 
 						{
-
 							type: "peak",
 
 							cutoffHz: 11313.71,
 
 							linearGain: 2.8284,
-
 						},
-
 					],
 
 					effects: ["reverb"],
@@ -1999,11 +1776,9 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					chord: "simultaneous",
 
 					harmonics: [
-
 						100, 100, 100, 86, 57, 86, 86, 86, 86, 57, 57, 71, 71, 86, 86, 71, 71, 86,
 
 						86, 71, 71, 71, 71, 71, 71, 71, 71, 71,
-
 					],
 
 					unison: "none",
@@ -2011,12 +1786,9 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					stringSustain: 79,
 
 					envelopes: [],
-
 				},
-
 			},
 			{
-
 				name: "clavinet NG",
 
 				midiProgram: 7,
@@ -2026,7 +1798,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 				tags: ["fm", "fm4op", "beepbox", "keys"],
 
 				settings: {
-
 					type: "FM",
 
 					eqFilter: [],
@@ -2050,42 +1821,31 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					feedbackAmplitude: 6,
 
 					operators: [
-
 						{ frequency: "3×", amplitude: 15 },
 
 						{ frequency: "~1×", amplitude: 6 },
 
 						{
-
 							frequency: "8×",
 
 							amplitude: 4,
-
 						},
 
 						{ frequency: "1×", amplitude: 0 },
-
 					],
 
 					envelopes: [
-
 						{ target: "noteFilterAllFreqs", envelope: "twang 2" },
 
 						{
-
 							target: "feedbackAmplitude",
 
 							envelope: "twang 2",
-
 						},
-
 					],
-
 				},
-
 			},
 			{
-
 				name: "dulcimer NG",
 
 				midiProgram: 15,
@@ -2095,7 +1855,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 				tags: ["pickedstring", "beepbox", "keys"],
 
 				settings: {
-
 					type: "Picked String",
 
 					eqFilter: [{ type: "low-pass", cutoffHz: 8000, linearGain: 0.3536 }],
@@ -2113,11 +1872,9 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					chord: "strum",
 
 					harmonics: [
-
 						100, 100, 100, 86, 100, 86, 57, 100, 100, 86, 100, 86, 100, 86, 100, 71, 57,
 
 						71, 71, 100, 86, 71, 86, 86, 100, 86, 86, 86,
-
 					],
 
 					unison: "piano",
@@ -2125,34 +1882,26 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					stringSustain: 79,
 
 					envelopes: [],
-
 				},
-
 			},
 			{
-
 				name: "grand piano 2 NG",
 
 				tags: ["harmonics", "jummbox", "keys"],
 
 				settings: {
-
 					type: "harmonics",
 
 					eqFilter: [
-
 						{ type: "high-pass", cutoffHz: 148.65, linearGain: 0.7071 },
 
 						{
-
 							type: "peak",
 
 							cutoffHz: 2000,
 
 							linearGain: 2.8284,
-
 						},
-
 					],
 
 					effects: ["note filter", "reverb"],
@@ -2170,11 +1919,9 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					chord: "simultaneous",
 
 					harmonics: [
-
 						100, 86, 86, 86, 86, 71, 71, 57, 0, 57, 29, 43, 57, 57, 57, 43, 43, 0, 29,
 
 						43, 43, 43, 43, 43, 43, 29, 0, 29,
-
 					],
 
 					unison: "piano",
@@ -2182,22 +1929,17 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					stringSustain: 79,
 
 					envelopes: [{ target: "noteFilterAllFreqs", envelope: "note size" }],
-
 				},
-
 			},
 			{
-
 				name: "grand piano 3 NG",
 
 				tags: ["pickedstring", "jummbox", "keys"],
 
 				settings: {
-
 					type: "Picked String",
 
 					eqFilter: [
-
 						{ type: "high-pass", cutoffHz: 148.65, linearGain: 0.7071 },
 
 						{ type: "peak", cutoffHz: 1681.79, linearGain: 4 },
@@ -2207,25 +1949,20 @@ export const presetsNgCategories: InputPresetCategory[] = [
 						{ type: "peak", cutoffHz: 3363.59, linearGain: 4 },
 
 						{ type: "peak", cutoffHz: 2378.41, linearGain: 0.25 },
-
 					],
 
 					effects: ["note filter", "reverb"],
 
 					noteFilter: [
-
 						{ type: "low-pass", cutoffHz: 4756.83, linearGain: 0.3536 },
 
 						{
-
 							type: "high-pass",
 
 							cutoffHz: 125,
 
 							linearGain: 0.0884,
-
 						},
-
 					],
 
 					reverb: 67,
@@ -2235,11 +1972,9 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					fadeOutTicks: 48,
 
 					harmonics: [
-
 						100, 100, 86, 86, 86, 71, 71, 71, 0, 71, 71, 71, 71, 57, 57, 71, 57, 14, 57,
 
 						57, 57, 57, 57, 57, 57, 57, 29, 57,
-
 					],
 
 					unison: "piano",
@@ -2249,28 +1984,21 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					stringSustainType: "acoustic",
 
 					envelopes: [
-
 						{ target: "noteFilterFreq", envelope: "note size", index: 0 },
 
 						{
-
 							target: "noteFilterFreq",
 
 							envelope: "twang 1",
 
 							index: 1,
-
 						},
 
 						{ target: "noteFilterFreq", envelope: "twang 1", index: 1 },
-
 					],
-
 				},
-
 			},
 			{
-
 				name: "celesta NG",
 
 				midiProgram: 8,
@@ -2280,7 +2008,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 				tags: ["fm", "fm4op", "beepbox", "idiophone"],
 
 				settings: {
-
 					type: "FM",
 
 					effects: "reverb",
@@ -2306,7 +2033,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					feedbackEnvelope: "steady",
 
 					operators: [
-
 						{ frequency: "~1×", amplitude: 11, envelope: "custom" },
 
 						{ frequency: "8×", amplitude: 6, envelope: "custom" },
@@ -2314,14 +2040,10 @@ export const presetsNgCategories: InputPresetCategory[] = [
 						{ frequency: "20×", amplitude: 3, envelope: "twang 1" },
 
 						{ frequency: "3×", amplitude: 1, envelope: "twang 2" },
-
 					],
-
 				},
-
 			},
 			{
-
 				name: "glockenspiel NG",
 
 				midiProgram: 9,
@@ -2331,7 +2053,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 				tags: ["fm", "fm4op", "beepbox", "idiophone"],
 
 				settings: {
-
 					type: "FM",
 
 					volume: 0,
@@ -2379,7 +2100,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					feedbackAmplitude: 2,
 
 					operators: [
-
 						{ frequency: "1×", amplitude: 7, waveform: "sine", pulseWidth: 5 },
 
 						{ frequency: "5×", amplitude: 11, waveform: "sine", pulseWidth: 5 },
@@ -2391,13 +2111,10 @@ export const presetsNgCategories: InputPresetCategory[] = [
 						{ frequency: "1×", amplitude: 0, waveform: "sine", pulseWidth: 5 },
 
 						{ frequency: "1×", amplitude: 0, waveform: "sine", pulseWidth: 5 },
-
 					],
 
 					envelopes: [
-
 						{
-
 							target: "noteFilterAllFreqs",
 
 							envelope: "twang",
@@ -2413,11 +2130,9 @@ export const presetsNgCategories: InputPresetCategory[] = [
 							perEnvelopeLowerBound: 0,
 
 							perEnvelopeUpperBound: 1,
-
 						},
 
 						{
-
 							target: "operatorAmplitude",
 
 							envelope: "twang",
@@ -2435,11 +2150,9 @@ export const presetsNgCategories: InputPresetCategory[] = [
 							perEnvelopeUpperBound: 1,
 
 							index: 3,
-
 						},
 
 						{
-
 							target: "feedbackAmplitude",
 
 							envelope: "decay",
@@ -2455,18 +2168,13 @@ export const presetsNgCategories: InputPresetCategory[] = [
 							perEnvelopeLowerBound: 0,
 
 							perEnvelopeUpperBound: 1,
-
 						},
-
 					],
 
 					isDrum: false,
-
 				},
-
 			},
 			{
-
 				name: "music box 1 NG",
 
 				midiProgram: 10,
@@ -2476,7 +2184,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 				tags: ["pickedstring", "beepbox", "idiophone"],
 
 				settings: {
-
 					type: "Picked String",
 
 					eqFilter: [{ type: "low-pass", cutoffHz: 4756.83, linearGain: 0.5 }],
@@ -2494,11 +2201,9 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					chord: "strum",
 
 					harmonics: [
-
 						100, 0, 0, 100, 0, 0, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 0, 0, 0, 86, 0, 0, 0,
 
 						0, 0, 0, 71, 0,
-
 					],
 
 					unison: "none",
@@ -2506,12 +2211,9 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					stringSustain: 64,
 
 					envelopes: [],
-
 				},
-
 			},
 			{
-
 				name: "music box 2 NG",
 
 				midiProgram: 10,
@@ -2519,7 +2221,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 				tags: ["pickedstring", "beepbox", "idiophone"],
 
 				settings: {
-
 					type: "Picked String",
 
 					eqFilter: [{ type: "low-pass", cutoffHz: 2828.43, linearGain: 0.7071 }],
@@ -2537,11 +2238,9 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					chord: "strum",
 
 					harmonics: [
-
 						100, 57, 57, 0, 0, 0, 0, 0, 0, 57, 0, 0, 0, 0, 0, 0, 0, 0, 0, 43, 0, 0, 0,
 
 						0, 0, 0, 0, 0,
-
 					],
 
 					unison: "none",
@@ -2549,12 +2248,9 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					stringSustain: 29,
 
 					envelopes: [],
-
 				},
-
 			},
 			{
-
 				name: "vibraphone NG",
 
 				midiProgram: 11,
@@ -2564,7 +2260,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 				tags: ["fm", "fm4op", "beepbox", "idiophone"],
 
 				settings: {
-
 					type: "FM",
 
 					effects: "reverb",
@@ -2590,7 +2285,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					feedbackEnvelope: "twang 1",
 
 					operators: [
-
 						{ frequency: "1×", amplitude: 9, envelope: "custom" },
 
 						{ frequency: "~1×", amplitude: 9, envelope: "custom" },
@@ -2598,14 +2292,10 @@ export const presetsNgCategories: InputPresetCategory[] = [
 						{ frequency: "9×", amplitude: 3, envelope: "custom" },
 
 						{ frequency: "4×", amplitude: 9, envelope: "custom" },
-
 					],
-
 				},
-
 			},
 			{
-
 				name: "marimba NG",
 
 				midiProgram: 12,
@@ -2615,7 +2305,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 				tags: ["fm", "fm4op", "beepbox", "idiophone"],
 
 				settings: {
-
 					type: "FM",
 
 					volume: 0,
@@ -2663,7 +2352,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					feedbackAmplitude: 0,
 
 					operators: [
-
 						{ frequency: "1×", amplitude: 10, waveform: "sine", pulseWidth: 5 },
 
 						{ frequency: "4×", amplitude: 6, waveform: "sine", pulseWidth: 5 },
@@ -2675,13 +2363,10 @@ export const presetsNgCategories: InputPresetCategory[] = [
 						{ frequency: "1×", amplitude: 0, waveform: "sine", pulseWidth: 5 },
 
 						{ frequency: "1×", amplitude: 0, waveform: "sine", pulseWidth: 5 },
-
 					],
 
 					envelopes: [
-
 						{
-
 							target: "noteFilterAllFreqs",
 
 							envelope: "decay",
@@ -2697,11 +2382,9 @@ export const presetsNgCategories: InputPresetCategory[] = [
 							perEnvelopeLowerBound: 0,
 
 							perEnvelopeUpperBound: 1,
-
 						},
 
 						{
-
 							target: "operatorAmplitude",
 
 							envelope: "twang",
@@ -2719,18 +2402,13 @@ export const presetsNgCategories: InputPresetCategory[] = [
 							perEnvelopeUpperBound: 1,
 
 							index: 2,
-
 						},
-
 					],
 
 					isDrum: false,
-
 				},
-
 			},
 			{
-
 				name: "kalimba NG",
 
 				midiProgram: 108,
@@ -2740,7 +2418,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 				tags: ["fm", "fm4op", "beepbox", "idiophone"],
 
 				settings: {
-
 					type: "FM",
 
 					volume: 0,
@@ -2788,7 +2465,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					feedbackAmplitude: 0,
 
 					operators: [
-
 						{ frequency: "1×", amplitude: 11, waveform: "sine", pulseWidth: 5 },
 
 						{ frequency: "5×", amplitude: 3, waveform: "sine", pulseWidth: 5 },
@@ -2800,13 +2476,10 @@ export const presetsNgCategories: InputPresetCategory[] = [
 						{ frequency: "1×", amplitude: 0, waveform: "sine", pulseWidth: 5 },
 
 						{ frequency: "1×", amplitude: 0, waveform: "sine", pulseWidth: 5 },
-
 					],
 
 					envelopes: [
-
 						{
-
 							target: "noteFilterAllFreqs",
 
 							envelope: "decay",
@@ -2822,11 +2495,9 @@ export const presetsNgCategories: InputPresetCategory[] = [
 							perEnvelopeLowerBound: 0,
 
 							perEnvelopeUpperBound: 1,
-
 						},
 
 						{
-
 							target: "operatorAmplitude",
 
 							envelope: "twang",
@@ -2844,11 +2515,9 @@ export const presetsNgCategories: InputPresetCategory[] = [
 							perEnvelopeUpperBound: 1,
 
 							index: 1,
-
 						},
 
 						{
-
 							target: "operatorAmplitude",
 
 							envelope: "twang",
@@ -2866,18 +2535,13 @@ export const presetsNgCategories: InputPresetCategory[] = [
 							perEnvelopeUpperBound: 1,
 
 							index: 2,
-
 						},
-
 					],
 
 					isDrum: false,
-
 				},
-
 			},
 			{
-
 				name: "xylophone NG",
 
 				midiProgram: 13,
@@ -2887,7 +2551,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 				tags: ["fm", "fm4op", "beepbox", "idiophone"],
 
 				settings: {
-
 					type: "FM",
 
 					effects: "reverb",
@@ -2913,7 +2576,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					feedbackEnvelope: "steady",
 
 					operators: [
-
 						{ frequency: "1×", amplitude: 9, envelope: "custom" },
 
 						{ frequency: "6×", amplitude: 9, envelope: "custom" },
@@ -2921,14 +2583,10 @@ export const presetsNgCategories: InputPresetCategory[] = [
 						{ frequency: "11×", amplitude: 9, envelope: "custom" },
 
 						{ frequency: "20×", amplitude: 6, envelope: "twang 1" },
-
 					],
-
 				},
-
 			},
 			{
-
 				name: "tubular bell NG",
 
 				midiProgram: 14,
@@ -2940,23 +2598,18 @@ export const presetsNgCategories: InputPresetCategory[] = [
 				tags: ["pickedstring", "beepbox", "idiophone"],
 
 				settings: {
-
 					type: "Picked String",
 
 					eqFilter: [
-
 						{ type: "low-pass", cutoffHz: 4000, linearGain: 0.5 },
 
 						{
-
 							type: "high-pass",
 
 							cutoffHz: 105.11,
 
 							linearGain: 0.3536,
-
 						},
-
 					],
 
 					effects: ["reverb"],
@@ -2972,11 +2625,9 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					chord: "strum",
 
 					harmonics: [
-
 						43, 71, 0, 100, 0, 100, 0, 86, 0, 0, 86, 0, 14, 71, 14, 14, 57, 14, 14, 43,
 
 						14, 14, 43, 14, 14, 43, 14, 14,
-
 					],
 
 					unison: "shimmer",
@@ -2984,12 +2635,9 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					stringSustain: 86,
 
 					envelopes: [],
-
 				},
-
 			},
 			{
-
 				name: "bell synth NG",
 
 				midiProgram: 14,
@@ -2997,7 +2645,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 				tags: ["fm", "fm4op", "beepbox", "idiophone"],
 
 				settings: {
-
 					type: "FM",
 
 					effects: "reverb",
@@ -3023,7 +2670,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					feedbackEnvelope: "steady",
 
 					operators: [
-
 						{ frequency: "~2×", amplitude: 10, envelope: "custom" },
 
 						{ frequency: "7×", amplitude: 6, envelope: "twang 3" },
@@ -3031,14 +2677,10 @@ export const presetsNgCategories: InputPresetCategory[] = [
 						{ frequency: "20×", amplitude: 1, envelope: "twang 1" },
 
 						{ frequency: "1×", amplitude: 0, envelope: "steady" },
-
 					],
-
 				},
-
 			},
 			{
-
 				name: "rain drop NG",
 
 				midiProgram: 96,
@@ -3048,7 +2690,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 				tags: ["fm", "fm4op", "beepbox", "idiophone"],
 
 				settings: {
-
 					type: "FM",
 
 					effects: "reverb",
@@ -3074,7 +2715,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					feedbackEnvelope: "steady",
 
 					operators: [
-
 						{ frequency: "1×", amplitude: 12, envelope: "custom" },
 
 						{ frequency: "6×", amplitude: 4, envelope: "custom" },
@@ -3082,14 +2722,10 @@ export const presetsNgCategories: InputPresetCategory[] = [
 						{ frequency: "20×", amplitude: 3, envelope: "twang 1" },
 
 						{ frequency: "1×", amplitude: 6, envelope: "tremolo1" },
-
 					],
-
 				},
-
 			},
 			{
-
 				name: "crystal NG",
 
 				midiProgram: 98,
@@ -3099,7 +2735,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 				tags: ["fm", "fm4op", "beepbox", "idiophone"],
 
 				settings: {
-
 					type: "FM",
 
 					effects: "reverb",
@@ -3125,7 +2760,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					feedbackEnvelope: "twang 1",
 
 					operators: [
-
 						{ frequency: "1×", amplitude: 10, envelope: "custom" },
 
 						{ frequency: "3×", amplitude: 7, envelope: "custom" },
@@ -3133,14 +2767,10 @@ export const presetsNgCategories: InputPresetCategory[] = [
 						{ frequency: "6×", amplitude: 4, envelope: "custom" },
 
 						{ frequency: "13×", amplitude: 4, envelope: "custom" },
-
 					],
-
 				},
-
 			},
 			{
-
 				name: "tinkle bell NG",
 
 				midiProgram: 112,
@@ -3150,7 +2780,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 				tags: ["fm", "fm4op", "beepbox", "idiophone"],
 
 				settings: {
-
 					type: "FM",
 
 					effects: "reverb",
@@ -3176,7 +2805,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					feedbackEnvelope: "twang 3",
 
 					operators: [
-
 						{ frequency: "~2×", amplitude: 7, envelope: "custom" },
 
 						{ frequency: "5×", amplitude: 7, envelope: "custom" },
@@ -3184,14 +2812,10 @@ export const presetsNgCategories: InputPresetCategory[] = [
 						{ frequency: "7×", amplitude: 7, envelope: "custom" },
 
 						{ frequency: "16×", amplitude: 7, envelope: "custom" },
-
 					],
-
 				},
-
 			},
 			{
-
 				name: "agogo NG",
 
 				midiProgram: 113,
@@ -3201,7 +2825,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 				tags: ["fm", "fm4op", "beepbox", "idiophone"],
 
 				settings: {
-
 					type: "FM",
 
 					volume: 0,
@@ -3249,7 +2872,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					feedbackAmplitude: 15,
 
 					operators: [
-
 						{ frequency: "2×", amplitude: 9, waveform: "sine", pulseWidth: 5 },
 
 						{ frequency: "5×", amplitude: 6, waveform: "sine", pulseWidth: 5 },
@@ -3261,13 +2883,10 @@ export const presetsNgCategories: InputPresetCategory[] = [
 						{ frequency: "1×", amplitude: 0, waveform: "sine", pulseWidth: 5 },
 
 						{ frequency: "1×", amplitude: 0, waveform: "sine", pulseWidth: 5 },
-
 					],
 
 					envelopes: [
-
 						{
-
 							target: "noteFilterAllFreqs",
 
 							envelope: "decay",
@@ -3283,11 +2902,9 @@ export const presetsNgCategories: InputPresetCategory[] = [
 							perEnvelopeLowerBound: 0,
 
 							perEnvelopeUpperBound: 1,
-
 						},
 
 						{
-
 							target: "feedbackAmplitude",
 
 							envelope: "decay",
@@ -3303,18 +2920,13 @@ export const presetsNgCategories: InputPresetCategory[] = [
 							perEnvelopeLowerBound: 0,
 
 							perEnvelopeUpperBound: 1,
-
 						},
-
 					],
 
 					isDrum: false,
-
 				},
-
 			},
 			{
-
 				name: "nylon guitar NG",
 
 				midiProgram: 24,
@@ -3324,7 +2936,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 				tags: ["fm", "fm4op", "beepbox", "guitar"],
 
 				settings: {
-
 					type: "FM",
 
 					effects: "reverb",
@@ -3350,7 +2961,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					feedbackEnvelope: "twang 1",
 
 					operators: [
-
 						{ frequency: "1×", amplitude: 15, envelope: "custom" },
 
 						{ frequency: "1×", amplitude: 6, envelope: "steady" },
@@ -3358,14 +2968,10 @@ export const presetsNgCategories: InputPresetCategory[] = [
 						{ frequency: "5×", amplitude: 2, envelope: "steady" },
 
 						{ frequency: "7×", amplitude: 4, envelope: "steady" },
-
 					],
-
 				},
-
 			},
 			{
-
 				name: "steel guitar NG",
 
 				midiProgram: 25,
@@ -3375,7 +2981,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 				tags: ["pickedstring", "beepbox", "guitar"],
 
 				settings: {
-
 					type: "Picked String",
 
 					eqFilter: [],
@@ -3393,11 +2998,9 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					chord: "strum",
 
 					harmonics: [
-
 						100, 100, 86, 71, 71, 71, 86, 86, 71, 57, 43, 43, 43, 57, 57, 57, 57, 57,
 
 						43, 43, 43, 43, 43, 43, 43, 43, 43, 43,
-
 					],
 
 					unison: "none",
@@ -3405,12 +3008,9 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					stringSustain: 71,
 
 					envelopes: [],
-
 				},
-
 			},
 			{
-
 				name: "jazz guitar NG",
 
 				midiProgram: 26,
@@ -3420,7 +3020,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 				tags: ["harmonics", "beepbox", "guitar"],
 
 				settings: {
-
 					type: "harmonics",
 
 					effects: "reverb",
@@ -3440,18 +3039,13 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					vibrato: "none",
 
 					harmonics: [
-
 						100, 100, 86, 71, 57, 71, 71, 43, 57, 71, 57, 43, 29, 29, 29, 29, 29, 29,
 
 						29, 29, 14, 14, 14, 14, 14, 14, 14, 0,
-
 					],
-
 				},
-
 			},
 			{
-
 				name: "clean guitar NG",
 
 				midiProgram: 27,
@@ -3461,7 +3055,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 				tags: ["harmonics", "beepbox", "guitar"],
 
 				settings: {
-
 					type: "harmonics",
 
 					effects: "reverb",
@@ -3481,18 +3074,13 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					vibrato: "none",
 
 					harmonics: [
-
 						86, 100, 100, 100, 86, 57, 86, 100, 100, 100, 71, 57, 43, 71, 86, 71, 57,
 
 						57, 71, 71, 71, 71, 57, 57, 57, 57, 57, 43,
-
 					],
-
 				},
-
 			},
 			{
-
 				name: "muted guitar NG",
 
 				midiProgram: 28,
@@ -3502,7 +3090,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 				tags: ["fm", "fm4op", "beepbox", "guitar"],
 
 				settings: {
-
 					type: "FM",
 
 					effects: "reverb",
@@ -3528,7 +3115,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					feedbackEnvelope: "twang 2",
 
 					operators: [
-
 						{ frequency: "1×", amplitude: 13, envelope: "custom" },
 
 						{ frequency: "1×", amplitude: 4, envelope: "twang 3" },
@@ -3536,14 +3122,10 @@ export const presetsNgCategories: InputPresetCategory[] = [
 						{ frequency: "4×", amplitude: 4, envelope: "twang 2" },
 
 						{ frequency: "16×", amplitude: 4, envelope: "twang 1" },
-
 					],
-
 				},
-
 			},
 			{
-
 				name: "acoustic bass NG",
 
 				midiProgram: 32,
@@ -3553,7 +3135,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 				tags: ["harmonics", "beepbox", "picked", "bass"],
 
 				settings: {
-
 					type: "harmonics",
 
 					effects: "reverb",
@@ -3573,18 +3154,13 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					vibrato: "none",
 
 					harmonics: [
-
 						100, 86, 71, 71, 71, 71, 57, 57, 57, 57, 43, 43, 43, 43, 43, 29, 29, 29, 29,
 
 						29, 29, 14, 14, 14, 14, 14, 14, 14,
-
 					],
-
 				},
-
 			},
 			{
-
 				name: "fingered bass NG",
 
 				midiProgram: 33,
@@ -3594,7 +3170,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 				tags: ["harmonics", "beepbox", "picked", "bass"],
 
 				settings: {
-
 					type: "harmonics",
 
 					effects: "reverb",
@@ -3614,18 +3189,13 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					vibrato: "none",
 
 					harmonics: [
-
 						100, 86, 71, 57, 71, 43, 57, 29, 29, 29, 29, 29, 29, 14, 14, 14, 14, 14, 14,
 
 						14, 14, 14, 14, 14, 14, 14, 14, 0,
-
 					],
-
 				},
-
 			},
 			{
-
 				name: "picked bass NG",
 
 				midiProgram: 34,
@@ -3635,7 +3205,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 				tags: ["fm", "fm4op", "beepbox", "picked", "bass"],
 
 				settings: {
-
 					type: "FM",
 
 					effects: "reverb",
@@ -3661,7 +3230,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					feedbackEnvelope: "twang 1",
 
 					operators: [
-
 						{ frequency: "1×", amplitude: 15, envelope: "custom" },
 
 						{ frequency: "1×", amplitude: 5, envelope: "steady" },
@@ -3669,14 +3237,10 @@ export const presetsNgCategories: InputPresetCategory[] = [
 						{ frequency: "11×", amplitude: 1, envelope: "twang 3" },
 
 						{ frequency: "1×", amplitude: 9, envelope: "steady" },
-
 					],
-
 				},
-
 			},
 			{
-
 				name: "fretless bass NG",
 
 				midiProgram: 35,
@@ -3686,7 +3250,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 				tags: ["harmonics", "beepbox", "picked", "bass"],
 
 				settings: {
-
 					type: "harmonics",
 
 					effects: "reverb",
@@ -3706,18 +3269,13 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					vibrato: "none",
 
 					harmonics: [
-
 						100, 100, 86, 71, 71, 57, 57, 71, 71, 71, 57, 57, 57, 57, 57, 57, 57, 43,
 
 						43, 43, 43, 43, 43, 43, 43, 29, 29, 14,
-
 					],
-
 				},
-
 			},
 			{
-
 				name: "slap bass 1 NG",
 
 				midiProgram: 36,
@@ -3727,7 +3285,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 				tags: ["harmonics", "beepbox", "picked", "bass"],
 
 				settings: {
-
 					type: "harmonics",
 
 					effects: "reverb",
@@ -3747,18 +3304,13 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					vibrato: "none",
 
 					harmonics: [
-
 						100, 100, 100, 100, 86, 71, 57, 29, 29, 43, 43, 57, 71, 57, 29, 29, 43, 57,
 
 						57, 57, 43, 43, 43, 57, 71, 71, 71, 71,
-
 					],
-
 				},
-
 			},
 			{
-
 				name: "slap bass 2 NG",
 
 				midiProgram: 37,
@@ -3768,7 +3320,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 				tags: ["fm", "fm4op", "beepbox", "picked", "bass"],
 
 				settings: {
-
 					type: "FM",
 
 					effects: "reverb",
@@ -3794,7 +3345,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					feedbackEnvelope: "steady",
 
 					operators: [
-
 						{ frequency: "3×", amplitude: 13, envelope: "custom" },
 
 						{ frequency: "1×", amplitude: 7, envelope: "steady" },
@@ -3802,14 +3352,10 @@ export const presetsNgCategories: InputPresetCategory[] = [
 						{ frequency: "13×", amplitude: 3, envelope: "steady" },
 
 						{ frequency: "1×", amplitude: 11, envelope: "steady" },
-
 					],
-
 				},
-
 			},
 			{
-
 				name: "bass synth 1 NG",
 
 				midiProgram: 38,
@@ -3819,7 +3365,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 				tags: ["fm", "fm4op", "beepbox", "picked", "bass"],
 
 				settings: {
-
 					type: "FM",
 
 					effects: "reverb",
@@ -3845,7 +3390,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					feedbackEnvelope: "twang 2",
 
 					operators: [
-
 						{ frequency: "1×", amplitude: 15, envelope: "custom" },
 
 						{ frequency: "1×", amplitude: 10, envelope: "custom" },
@@ -3853,14 +3397,10 @@ export const presetsNgCategories: InputPresetCategory[] = [
 						{ frequency: "1×", amplitude: 14, envelope: "twang 1" },
 
 						{ frequency: "~1×", amplitude: 13, envelope: "twang 2" },
-
 					],
-
 				},
-
 			},
 			{
-
 				name: "bass synth 2 NG",
 
 				midiProgram: 39,
@@ -3870,7 +3410,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 				tags: ["fm", "fm4op", "beepbox", "picked", "bass"],
 
 				settings: {
-
 					type: "FM",
 
 					effects: "reverb",
@@ -3896,7 +3435,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					feedbackEnvelope: "twang 3",
 
 					operators: [
-
 						{ frequency: "1×", amplitude: 9, envelope: "custom" },
 
 						{ frequency: "1×", amplitude: 9, envelope: "steady" },
@@ -3904,14 +3442,10 @@ export const presetsNgCategories: InputPresetCategory[] = [
 						{ frequency: "3×", amplitude: 0, envelope: "steady" },
 
 						{ frequency: "1×", amplitude: 0, envelope: "steady" },
-
 					],
-
 				},
-
 			},
 			{
-
 				name: "bass & lead NG",
 
 				midiProgram: 87,
@@ -3921,7 +3455,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 				tags: ["chip", "chipwave", "beepbox", "picked", "bass", "lead"],
 
 				settings: {
-
 					type: "chip",
 
 					transition: "hard",
@@ -3941,12 +3474,9 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					interval: "shimmer",
 
 					vibrato: "none",
-
 				},
-
 			},
 			{
-
 				name: "dubstep yoi yoi NG",
 
 				midiProgram: 87,
@@ -3954,7 +3484,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 				tags: ["chip", "chipwave", "beepbox", "dubstep", "bass"],
 
 				settings: {
-
 					type: "chip",
 
 					eqFilter: [{ type: "low-pass", cutoffHz: 6727.17, linearGain: 0.7071 }],
@@ -3980,12 +3509,9 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					unison: "none",
 
 					envelopes: [{ target: "noteFilterFreq", envelope: "flare 2", index: 0 }],
-
 				},
-
 			},
 			{
-
 				name: "pizzicato strings NG",
 
 				midiProgram: 45,
@@ -3995,7 +3521,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 				tags: ["fm", "fm4op", "beepbox", "picked"],
 
 				settings: {
-
 					type: "FM",
 
 					effects: "reverb",
@@ -4021,7 +3546,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					feedbackEnvelope: "twang 1",
 
 					operators: [
-
 						{ frequency: "1×", amplitude: 14, envelope: "custom" },
 
 						{ frequency: "3×", amplitude: 11, envelope: "custom" },
@@ -4029,14 +3553,10 @@ export const presetsNgCategories: InputPresetCategory[] = [
 						{ frequency: "6×", amplitude: 9, envelope: "custom" },
 
 						{ frequency: "~1×", amplitude: 10, envelope: "steady" },
-
 					],
-
 				},
-
 			},
 			{
-
 				name: "harp NG",
 
 				midiProgram: 46,
@@ -4046,7 +3566,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 				tags: ["fm", "fm4op", "beepbox", "picked"],
 
 				settings: {
-
 					type: "FM",
 
 					transition: "hard fade",
@@ -4072,7 +3591,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					feedbackEnvelope: "twang 2",
 
 					operators: [
-
 						{ frequency: "1×", amplitude: 15, envelope: "custom" },
 
 						{ frequency: "4×", amplitude: 6, envelope: "custom" },
@@ -4080,14 +3598,10 @@ export const presetsNgCategories: InputPresetCategory[] = [
 						{ frequency: "~2×", amplitude: 3, envelope: "steady" },
 
 						{ frequency: "1×", amplitude: 6, envelope: "steady" },
-
 					],
-
 				},
-
 			},
 			{
-
 				name: "sitar NG",
 
 				midiProgram: 104,
@@ -4097,7 +3611,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 				tags: ["fm", "fm4op", "beepbox", "picked"],
 
 				settings: {
-
 					type: "FM",
 
 					transition: "hard fade",
@@ -4123,7 +3636,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					feedbackEnvelope: "steady",
 
 					operators: [
-
 						{ frequency: "1×", amplitude: 15, envelope: "custom" },
 
 						{ frequency: "1×", amplitude: 14, envelope: "twang 3" },
@@ -4131,14 +3643,10 @@ export const presetsNgCategories: InputPresetCategory[] = [
 						{ frequency: "9×", amplitude: 3, envelope: "twang 3" },
 
 						{ frequency: "16×", amplitude: 9, envelope: "swell 3" },
-
 					],
-
 				},
-
 			},
 			{
-
 				name: "banjo NG",
 
 				midiProgram: 105,
@@ -4148,7 +3656,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 				tags: ["fm", "fm4op", "beepbox", "picked"],
 
 				settings: {
-
 					type: "FM",
 
 					effects: "reverb",
@@ -4174,7 +3681,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					feedbackEnvelope: "steady",
 
 					operators: [
-
 						{ frequency: "4×", amplitude: 14, envelope: "custom" },
 
 						{ frequency: "1×", amplitude: 10, envelope: "steady" },
@@ -4182,14 +3688,10 @@ export const presetsNgCategories: InputPresetCategory[] = [
 						{ frequency: "11×", amplitude: 3, envelope: "twang 3" },
 
 						{ frequency: "1×", amplitude: 11, envelope: "steady" },
-
 					],
-
 				},
-
 			},
 			{
-
 				name: "ukulele NG",
 
 				midiProgram: 105,
@@ -4197,7 +3699,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 				tags: ["fm", "fm4op", "beepbox", "picked"],
 
 				settings: {
-
 					type: "FM",
 
 					effects: "reverb",
@@ -4223,7 +3724,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					feedbackEnvelope: "twang 1",
 
 					operators: [
-
 						{ frequency: "2×", amplitude: 14, envelope: "custom" },
 
 						{ frequency: "1×", amplitude: 6, envelope: "steady" },
@@ -4231,14 +3731,10 @@ export const presetsNgCategories: InputPresetCategory[] = [
 						{ frequency: "9×", amplitude: 4, envelope: "twang 2" },
 
 						{ frequency: "1×", amplitude: 11, envelope: "steady" },
-
 					],
-
 				},
-
 			},
 			{
-
 				name: "shamisen NG",
 
 				midiProgram: 106,
@@ -4248,7 +3744,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 				tags: ["fm", "fm4op", "beepbox", "picked"],
 
 				settings: {
-
 					type: "FM",
 
 					effects: "reverb",
@@ -4274,7 +3769,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					feedbackEnvelope: "twang 3",
 
 					operators: [
-
 						{ frequency: "1×", amplitude: 15, envelope: "custom" },
 
 						{ frequency: "1×", amplitude: 12, envelope: "steady" },
@@ -4282,14 +3776,10 @@ export const presetsNgCategories: InputPresetCategory[] = [
 						{ frequency: "16×", amplitude: 4, envelope: "twang 3" },
 
 						{ frequency: "1×", amplitude: 7, envelope: "steady" },
-
 					],
-
 				},
-
 			},
 			{
-
 				name: "koto NG",
 
 				midiProgram: 107,
@@ -4299,7 +3789,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 				tags: ["fm", "fm4op", "beepbox", "picked"],
 
 				settings: {
-
 					type: "FM",
 
 					effects: "reverb",
@@ -4325,7 +3814,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					feedbackEnvelope: "twang 2",
 
 					operators: [
-
 						{ frequency: "~1×", amplitude: 12, envelope: "custom" },
 
 						{ frequency: "6×", amplitude: 10, envelope: "custom" },
@@ -4333,14 +3821,10 @@ export const presetsNgCategories: InputPresetCategory[] = [
 						{ frequency: "4×", amplitude: 8, envelope: "twang 3" },
 
 						{ frequency: "~2×", amplitude: 8, envelope: "twang 3" },
-
 					],
-
 				},
-
 			},
 			{
-
 				name: "overdrive guitar NG",
 
 				midiProgram: 29,
@@ -4350,11 +3834,9 @@ export const presetsNgCategories: InputPresetCategory[] = [
 				tags: ["pickedstring", "beepbox", "distortion", "guitar"],
 
 				settings: {
-
 					type: "Picked String",
 
 					eqFilter: [
-
 						{ type: "low-pass", cutoffHz: 4756.83, linearGain: 0.7071 },
 
 						{ type: "high-pass", cutoffHz: 210.22, linearGain: 1 },
@@ -4362,25 +3844,20 @@ export const presetsNgCategories: InputPresetCategory[] = [
 						{ type: "low-pass", cutoffHz: 5656.85, linearGain: 1 },
 
 						{ type: "peak", cutoffHz: 840.9, linearGain: 0.5 },
-
 					],
 
 					effects: ["note filter", "distortion"],
 
 					noteFilter: [
-
 						{ type: "high-pass", cutoffHz: 297.3, linearGain: 2 },
 
 						{
-
 							type: "low-pass",
 
 							cutoffHz: 2378.41,
 
 							linearGain: 0.7071,
-
 						},
-
 					],
 
 					distortion: 71,
@@ -4394,11 +3871,9 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					chord: "strum",
 
 					harmonics: [
-
 						86, 100, 100, 86, 86, 86, 86, 71, 71, 71, 71, 71, 71, 71, 71, 71, 71, 57,
 
 						57, 57, 57, 57, 57, 57, 57, 57, 57, 57,
-
 					],
 
 					unison: "none",
@@ -4406,12 +3881,9 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					stringSustain: 71,
 
 					envelopes: [{ target: "noteFilterFreq", envelope: "note size", index: 1 }],
-
 				},
-
 			},
 			{
-
 				name: "distortion guitar NG",
 
 				midiProgram: 30,
@@ -4421,11 +3893,9 @@ export const presetsNgCategories: InputPresetCategory[] = [
 				tags: ["pickedstring", "beepbox", "distortion", "guitar"],
 
 				settings: {
-
 					type: "Picked String",
 
 					eqFilter: [
-
 						{ type: "low-pass", cutoffHz: 4756.83, linearGain: 0.7071 },
 
 						{ type: "high-pass", cutoffHz: 210.22, linearGain: 1 },
@@ -4435,25 +3905,20 @@ export const presetsNgCategories: InputPresetCategory[] = [
 						{ type: "peak", cutoffHz: 594.6, linearGain: 0.3536 },
 
 						{ type: "peak", cutoffHz: 1000, linearGain: 0.25 },
-
 					],
 
 					effects: ["note filter", "distortion", "reverb"],
 
 					noteFilter: [
-
 						{ type: "high-pass", cutoffHz: 353.55, linearGain: 2 },
 
 						{
-
 							type: "low-pass",
 
 							cutoffHz: 2000,
 
 							linearGain: 1,
-
 						},
-
 					],
 
 					distortion: 86,
@@ -4469,11 +3934,9 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					chord: "strum",
 
 					harmonics: [
-
 						86, 100, 100, 86, 86, 86, 86, 71, 71, 71, 71, 71, 71, 71, 71, 71, 71, 57,
 
 						57, 57, 57, 57, 57, 57, 57, 57, 57, 57,
-
 					],
 
 					unison: "none",
@@ -4481,12 +3944,9 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					stringSustain: 71,
 
 					envelopes: [{ target: "noteFilterFreq", envelope: "note size", index: 1 }],
-
 				},
-
 			},
 			{
-
 				name: "charango synth NG",
 
 				midiProgram: 84,
@@ -4496,7 +3956,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 				tags: ["fm", "fm4op", "beepbox", "distortion"],
 
 				settings: {
-
 					type: "FM",
 
 					eqFilter: [{ type: "low-pass", cutoffHz: 11313.71, linearGain: 1 }],
@@ -4518,30 +3977,23 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					feedbackAmplitude: 8,
 
 					operators: [
-
 						{ frequency: "3×", amplitude: 13 },
 
 						{ frequency: "~1×", amplitude: 5 },
 
 						{
-
 							frequency: "4×",
 
 							amplitude: 6,
-
 						},
 
 						{ frequency: "3×", amplitude: 7 },
-
 					],
 
 					envelopes: [{ target: "feedbackAmplitude", envelope: "twang 3" }],
-
 				},
-
 			},
 			{
-
 				name: "guitar harmonics NG",
 
 				midiProgram: 31,
@@ -4551,7 +4003,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 				tags: ["fm", "fm4op", "beepbox", "distortion", "guitar"],
 
 				settings: {
-
 					type: "FM",
 
 					eqFilter: [{ type: "low-pass", cutoffHz: 4000, linearGain: 2 }],
@@ -4575,46 +4026,35 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					feedbackAmplitude: 2,
 
 					operators: [
-
 						{ frequency: "4×", amplitude: 12 },
 
 						{ frequency: "16×", amplitude: 5 },
 
 						{
-
 							frequency: "1×",
 
 							amplitude: 2,
-
 						},
 
 						{ frequency: "~1×", amplitude: 12 },
-
 					],
 
 					envelopes: [
-
 						{ target: "operatorAmplitude", envelope: "swell 1", index: 1 },
 
 						{
-
 							target: "operatorAmplitude",
 
 							envelope: "punch",
 
 							index: 2,
-
 						},
 
 						{ target: "operatorAmplitude", envelope: "twang 1", index: 3 },
-
 					],
-
 				},
-
 			},
 			{
-
 				name: "PWM overdrive NG",
 
 				midiProgram: 29,
@@ -4622,7 +4062,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 				tags: ["pwm", "beepbox", "distortion"],
 
 				settings: {
-
 					type: "PWM",
 
 					eqFilter: [{ type: "low-pass", cutoffHz: 5656.85, linearGain: 1.4142 }],
@@ -4640,12 +4079,9 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					pulseWidth: 17.67767,
 
 					envelopes: [{ target: "pulseWidth", envelope: "punch" }],
-
 				},
-
 			},
 			{
-
 				name: "PWM distortion NG",
 
 				midiProgram: 30,
@@ -4653,7 +4089,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 				tags: ["pwm", "beepbox", "distortion"],
 
 				settings: {
-
 					type: "PWM",
 
 					eqFilter: [{ type: "low-pass", cutoffHz: 3363.59, linearGain: 2 }],
@@ -4673,12 +4108,9 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					pulseWidth: 50,
 
 					envelopes: [{ target: "pulseWidth", envelope: "swell 1" }],
-
 				},
-
 			},
 			{
-
 				name: "FM overdrive NG",
 
 				midiProgram: 29,
@@ -4686,7 +4118,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 				tags: ["fm", "fm4op", "beepbox", "distortion"],
 
 				settings: {
-
 					type: "FM",
 
 					eqFilter: [{ type: "low-pass", cutoffHz: 4756.83, linearGain: 1 }],
@@ -4710,46 +4141,35 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					feedbackAmplitude: 2,
 
 					operators: [
-
 						{ frequency: "~1×", amplitude: 15 },
 
 						{ frequency: "1×", amplitude: 12 },
 
 						{
-
 							frequency: "~2×",
 
 							amplitude: 6,
-
 						},
 
 						{ frequency: "1×", amplitude: 12 },
-
 					],
 
 					envelopes: [
-
 						{ target: "operatorAmplitude", envelope: "twang 1", index: 2 },
 
 						{
-
 							target: "operatorAmplitude",
 
 							envelope: "swell 3",
 
 							index: 3,
-
 						},
 
 						{ target: "feedbackAmplitude", envelope: "punch" },
-
 					],
-
 				},
-
 			},
 			{
-
 				name: "FM distortion NG",
 
 				midiProgram: 30,
@@ -4757,7 +4177,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 				tags: ["fm", "fm4op", "beepbox", "distortion"],
 
 				settings: {
-
 					type: "FM",
 
 					eqFilter: [{ type: "low-pass", cutoffHz: 4000, linearGain: 2 }],
@@ -4781,44 +4200,33 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					feedbackAmplitude: 4,
 
 					operators: [
-
 						{ frequency: "~1×", amplitude: 15 },
 
 						{ frequency: "1×", amplitude: 11 },
 
 						{
-
 							frequency: "1×",
 
 							amplitude: 9,
-
 						},
 
 						{ frequency: "~2×", amplitude: 4 },
-
 					],
 
 					envelopes: [
-
 						{ target: "operatorAmplitude", envelope: "swell 1", index: 2 },
 
 						{
-
 							target: "operatorAmplitude",
 
 							envelope: "swell 3",
 
 							index: 3,
-
 						},
-
 					],
-
 				},
-
 			},
 			{
-
 				name: "drawbar organ 1 NG",
 
 				midiProgram: 16,
@@ -4830,7 +4238,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 				tags: ["harmonics", "beepbox", "bellows"],
 
 				settings: {
-
 					type: "harmonics",
 
 					effects: "reverb",
@@ -4850,18 +4257,13 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					vibrato: "none",
 
 					harmonics: [
-
 						86, 86, 0, 86, 0, 0, 0, 86, 0, 0, 0, 0, 0, 0, 0, 86, 0, 0, 0, 0, 0, 0, 0, 0,
 
 						0, 0, 0, 0,
-
 					],
-
 				},
-
 			},
 			{
-
 				name: "drawbar organ 2 NG",
 
 				midiProgram: 16,
@@ -4871,7 +4273,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 				tags: ["harmonics", "beepbox", "bellows"],
 
 				settings: {
-
 					type: "harmonics",
 
 					effects: "reverb",
@@ -4891,18 +4292,13 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					vibrato: "none",
 
 					harmonics: [
-
 						86, 29, 71, 86, 71, 14, 0, 100, 0, 0, 0, 86, 0, 0, 0, 71, 0, 0, 0, 57, 0, 0,
 
 						0, 29, 0, 0, 0, 0,
-
 					],
-
 				},
-
 			},
 			{
-
 				name: "percussive organ NG",
 
 				midiProgram: 17,
@@ -4914,7 +4310,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 				tags: ["fm", "fm4op", "beepbox", "bellows"],
 
 				settings: {
-
 					type: "FM",
 
 					volume: 0,
@@ -4968,7 +4363,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					feedbackAmplitude: 2,
 
 					operators: [
-
 						{ frequency: "1×", amplitude: 9, waveform: "sine", pulseWidth: 5 },
 
 						{ frequency: "4×", amplitude: 9, waveform: "sine", pulseWidth: 5 },
@@ -4980,13 +4374,10 @@ export const presetsNgCategories: InputPresetCategory[] = [
 						{ frequency: "1×", amplitude: 0, waveform: "sine", pulseWidth: 5 },
 
 						{ frequency: "1×", amplitude: 0, waveform: "sine", pulseWidth: 5 },
-
 					],
 
 					envelopes: [
-
 						{
-
 							target: "noteFilterAllFreqs",
 
 							envelope: "punch",
@@ -5002,11 +4393,9 @@ export const presetsNgCategories: InputPresetCategory[] = [
 							perEnvelopeLowerBound: 0,
 
 							perEnvelopeUpperBound: 1,
-
 						},
 
 						{
-
 							target: "feedbackAmplitude",
 
 							envelope: "flare",
@@ -5022,18 +4411,13 @@ export const presetsNgCategories: InputPresetCategory[] = [
 							perEnvelopeLowerBound: 0,
 
 							perEnvelopeUpperBound: 1,
-
 						},
-
 					],
 
 					isDrum: false,
-
 				},
-
 			},
 			{
-
 				name: "rock organ NG",
 
 				midiProgram: 18,
@@ -5045,7 +4429,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 				tags: ["fm", "fm4op", "beepbox", "bellows"],
 
 				settings: {
-
 					type: "FM",
 
 					effects: "chorus & reverb",
@@ -5071,7 +4454,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					feedbackEnvelope: "flare 1",
 
 					operators: [
-
 						{ frequency: "1×", amplitude: 9, envelope: "custom" },
 
 						{ frequency: "4×", amplitude: 9, envelope: "custom" },
@@ -5079,14 +4461,10 @@ export const presetsNgCategories: InputPresetCategory[] = [
 						{ frequency: "6×", amplitude: 9, envelope: "custom" },
 
 						{ frequency: "2×", amplitude: 5, envelope: "steady" },
-
 					],
-
 				},
-
 			},
 			{
-
 				name: "pipe organ NG",
 
 				midiProgram: 19,
@@ -5098,7 +4476,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 				tags: ["fm", "fm4op", "beepbox", "bellows"],
 
 				settings: {
-
 					type: "FM",
 
 					transition: "cross fade",
@@ -5124,7 +4501,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					feedbackEnvelope: "steady",
 
 					operators: [
-
 						{ frequency: "1×", amplitude: 8, envelope: "custom" },
 
 						{ frequency: "2×", amplitude: 9, envelope: "custom" },
@@ -5132,14 +4508,10 @@ export const presetsNgCategories: InputPresetCategory[] = [
 						{ frequency: "4×", amplitude: 9, envelope: "custom" },
 
 						{ frequency: "8×", amplitude: 8, envelope: "custom" },
-
 					],
-
 				},
-
 			},
 			{
-
 				name: "reed organ NG",
 
 				midiProgram: 20,
@@ -5149,7 +4521,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 				tags: ["harmonics", "beepbox", "bellows"],
 
 				settings: {
-
 					type: "harmonics",
 
 					effects: "reverb",
@@ -5169,18 +4540,13 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					vibrato: "none",
 
 					harmonics: [
-
 						71, 86, 100, 86, 71, 100, 57, 71, 71, 71, 43, 43, 43, 71, 43, 71, 57, 57,
 
 						57, 57, 57, 57, 57, 29, 43, 29, 29, 14,
-
 					],
-
 				},
-
 			},
 			{
-
 				name: "accordion NG",
 
 				midiProgram: 21,
@@ -5190,7 +4556,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 				tags: ["chip", "chipwave", "beepbox", "bellows"],
 
 				settings: {
-
 					type: "chip",
 
 					effects: "reverb",
@@ -5210,12 +4575,9 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					interval: "honky tonk",
 
 					vibrato: "none",
-
 				},
-
 			},
 			{
-
 				name: "bandoneon NG",
 
 				midiProgram: 23,
@@ -5225,7 +4587,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 				tags: ["harmonics", "beepbox", "bellows"],
 
 				settings: {
-
 					type: "harmonics",
 
 					effects: "reverb",
@@ -5245,18 +4606,13 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					vibrato: "none",
 
 					harmonics: [
-
 						86, 86, 86, 57, 71, 86, 57, 71, 71, 71, 57, 43, 57, 43, 71, 43, 71, 57, 57,
 
 						43, 43, 43, 57, 43, 43, 29, 29, 29,
-
 					],
-
 				},
-
 			},
 			{
-
 				name: "bagpipe NG",
 
 				midiProgram: 109,
@@ -5266,7 +4622,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 				tags: ["harmonics", "beepbox", "bellows"],
 
 				settings: {
-
 					type: "harmonics",
 
 					effects: "reverb",
@@ -5286,18 +4641,13 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					vibrato: "none",
 
 					harmonics: [
-
 						71, 86, 86, 100, 100, 86, 57, 100, 86, 71, 71, 71, 57, 57, 57, 71, 57, 71,
 
 						57, 71, 43, 57, 57, 43, 43, 43, 43, 43,
-
 					],
-
 				},
-
 			},
 			{
-
 				name: "violin 1 NG",
 
 				midiProgram: 40,
@@ -5307,23 +4657,18 @@ export const presetsNgCategories: InputPresetCategory[] = [
 				tags: ["fm", "fm4op", "beepbox", "string"],
 
 				settings: {
-
 					type: "FM",
 
 					eqFilter: [
-
 						{ type: "low-pass", cutoffHz: 4000, linearGain: 1.4142 },
 
 						{
-
 							type: "high-pass",
 
 							cutoffHz: 105.11,
 
 							linearGain: 0.3536,
-
 						},
-
 					],
 
 					effects: ["vibrato", "reverb"],
@@ -5347,42 +4692,31 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					feedbackAmplitude: 5,
 
 					operators: [
-
 						{ frequency: "4×", amplitude: 9 },
 
 						{ frequency: "3×", amplitude: 9 },
 
 						{
-
 							frequency: "2×",
 
 							amplitude: 7,
-
 						},
 
 						{ frequency: "7×", amplitude: 5 },
-
 					],
 
 					envelopes: [
-
 						{ target: "operatorAmplitude", envelope: "swell 1", index: 3 },
 
 						{
-
 							target: "feedbackAmplitude",
 
 							envelope: "twang 3",
-
 						},
-
 					],
-
 				},
-
 			},
 			{
-
 				name: "viola NG",
 
 				midiProgram: 41,
@@ -5392,7 +4726,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 				tags: ["fm", "fm4op", "beepbox", "string"],
 
 				settings: {
-
 					type: "FM",
 
 					effects: "reverb",
@@ -5418,7 +4751,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					feedbackEnvelope: "swell 1",
 
 					operators: [
-
 						{ frequency: "2×", amplitude: 11, envelope: "custom" },
 
 						{ frequency: "7×", amplitude: 7, envelope: "custom" },
@@ -5426,14 +4758,10 @@ export const presetsNgCategories: InputPresetCategory[] = [
 						{ frequency: "13×", amplitude: 4, envelope: "custom" },
 
 						{ frequency: "1×", amplitude: 5, envelope: "steady" },
-
 					],
-
 				},
-
 			},
 			{
-
 				name: "cello NG",
 
 				midiProgram: 42,
@@ -5443,25 +4771,20 @@ export const presetsNgCategories: InputPresetCategory[] = [
 				tags: ["fm", "fm4op", "beepbox", "string", "bass"],
 
 				settings: {
-
 					type: "FM",
 
 					eqFilter: [
-
 						{ type: "low-pass", cutoffHz: 4000, linearGain: 0.1768 },
 
 						{
-
 							type: "high-pass",
 
 							cutoffHz: 297.3,
 
 							linearGain: 0.7071,
-
 						},
 
 						{ type: "peak", cutoffHz: 4756.83, linearGain: 5.6569 },
-
 					],
 
 					effects: ["note filter", "reverb"],
@@ -5485,44 +4808,33 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					feedbackAmplitude: 3,
 
 					operators: [
-
 						{ frequency: "16×", amplitude: 5 },
 
 						{ frequency: "~1×", amplitude: 10 },
 
 						{
-
 							frequency: "1×",
 
 							amplitude: 9,
-
 						},
 
 						{ frequency: "6×", amplitude: 3 },
-
 					],
 
 					envelopes: [
-
 						{ target: "noteFilterAllFreqs", envelope: "swell 1" },
 
 						{
-
 							target: "operatorAmplitude",
 
 							envelope: "swell 1",
 
 							index: 3,
-
 						},
-
 					],
-
 				},
-
 			},
 			{
-
 				name: "contrabass NG",
 
 				midiProgram: 43,
@@ -5532,7 +4844,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 				tags: ["fm", "fm4op", "beepbox", "string", "bass"],
 
 				settings: {
-
 					type: "FM",
 
 					effects: "reverb",
@@ -5558,7 +4869,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					feedbackEnvelope: "steady",
 
 					operators: [
-
 						{ frequency: "16×", amplitude: 5, envelope: "custom" },
 
 						{ frequency: "1×", amplitude: 10, envelope: "custom" },
@@ -5566,14 +4876,10 @@ export const presetsNgCategories: InputPresetCategory[] = [
 						{ frequency: "1×", amplitude: 10, envelope: "steady" },
 
 						{ frequency: "6×", amplitude: 3, envelope: "swell 1" },
-
 					],
-
 				},
-
 			},
 			{
-
 				name: "fiddle NG",
 
 				midiProgram: 110,
@@ -5583,7 +4889,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 				tags: ["fm", "fm4op", "beepbox", "string"],
 
 				settings: {
-
 					type: "FM",
 
 					effects: "reverb",
@@ -5609,7 +4914,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					feedbackEnvelope: "twang 1",
 
 					operators: [
-
 						{ frequency: "2×", amplitude: 10, envelope: "custom" },
 
 						{ frequency: "8×", amplitude: 8, envelope: "custom" },
@@ -5617,14 +4921,10 @@ export const presetsNgCategories: InputPresetCategory[] = [
 						{ frequency: "1×", amplitude: 8, envelope: "steady" },
 
 						{ frequency: "16×", amplitude: 3, envelope: "steady" },
-
 					],
-
 				},
-
 			},
 			{
-
 				name: "tremolo strings NG",
 
 				midiProgram: 44,
@@ -5634,7 +4934,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 				tags: ["fm", "fm4op", "beepbox", "string"],
 
 				settings: {
-
 					type: "FM",
 
 					volume: 0,
@@ -5676,7 +4975,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					feedbackAmplitude: 12,
 
 					operators: [
-
 						{ frequency: "1×", amplitude: 8, waveform: "sine", pulseWidth: 5 },
 
 						{ frequency: "~2×", amplitude: 8, waveform: "sine", pulseWidth: 5 },
@@ -5688,13 +4986,10 @@ export const presetsNgCategories: InputPresetCategory[] = [
 						{ frequency: "1×", amplitude: 0, waveform: "sine", pulseWidth: 5 },
 
 						{ frequency: "1×", amplitude: 0, waveform: "sine", pulseWidth: 5 },
-
 					],
 
 					envelopes: [
-
 						{
-
 							target: "noteFilterAllFreqs",
 
 							envelope: "tremolo",
@@ -5710,18 +5005,13 @@ export const presetsNgCategories: InputPresetCategory[] = [
 							perEnvelopeLowerBound: 0.5,
 
 							perEnvelopeUpperBound: 1,
-
 						},
-
 					],
 
 					isDrum: false,
-
 				},
-
 			},
 			{
-
 				name: "strings NG",
 
 				midiProgram: 48,
@@ -5731,7 +5021,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 				tags: ["fm", "fm4op", "beepbox", "string"],
 
 				settings: {
-
 					type: "FM",
 
 					effects: "chorus & reverb",
@@ -5757,7 +5046,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					feedbackEnvelope: "twang 3",
 
 					operators: [
-
 						{ frequency: "4×", amplitude: 9, envelope: "custom" },
 
 						{ frequency: "3×", amplitude: 9, envelope: "custom" },
@@ -5765,14 +5053,10 @@ export const presetsNgCategories: InputPresetCategory[] = [
 						{ frequency: "2×", amplitude: 7, envelope: "steady" },
 
 						{ frequency: "7×", amplitude: 3, envelope: "swell 1" },
-
 					],
-
 				},
-
 			},
 			{
-
 				name: "slow strings NG",
 
 				midiProgram: 49,
@@ -5782,7 +5066,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 				tags: ["fm", "fm4op", "beepbox", "string"],
 
 				settings: {
-
 					type: "FM",
 
 					effects: "chorus & reverb",
@@ -5808,7 +5091,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					feedbackEnvelope: "flare 3",
 
 					operators: [
-
 						{ frequency: "4×", amplitude: 10, envelope: "custom" },
 
 						{ frequency: "3×", amplitude: 10, envelope: "custom" },
@@ -5816,14 +5098,10 @@ export const presetsNgCategories: InputPresetCategory[] = [
 						{ frequency: "2×", amplitude: 7, envelope: "steady" },
 
 						{ frequency: "7×", amplitude: 4, envelope: "swell 1" },
-
 					],
-
 				},
-
 			},
 			{
-
 				name: "strings synth 1 NG",
 
 				midiProgram: 50,
@@ -5833,7 +5111,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 				tags: ["chip", "chipwave", "beepbox", "string"],
 
 				settings: {
-
 					type: "chip",
 
 					transition: "soft fade",
@@ -5853,12 +5130,9 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					interval: "hum",
 
 					vibrato: "delayed",
-
 				},
-
 			},
 			{
-
 				name: "strings synth 2 NG",
 
 				midiProgram: 51,
@@ -5868,7 +5142,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 				tags: ["fm", "fm4op", "beepbox", "string"],
 
 				settings: {
-
 					type: "FM",
 
 					effects: "chorus & reverb",
@@ -5894,7 +5167,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					feedbackEnvelope: "swell 1",
 
 					operators: [
-
 						{ frequency: "3×", amplitude: 6, envelope: "custom" },
 
 						{ frequency: "2×", amplitude: 7, envelope: "custom" },
@@ -5902,14 +5174,10 @@ export const presetsNgCategories: InputPresetCategory[] = [
 						{ frequency: "1×", amplitude: 8, envelope: "custom" },
 
 						{ frequency: "1×", amplitude: 9, envelope: "custom" },
-
 					],
-
 				},
-
 			},
 			{
-
 				name: "orchestra hit 1 NG",
 
 				midiProgram: 55,
@@ -5921,7 +5189,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 				tags: ["fm", "fm4op", "beepbox", "string"],
 
 				settings: {
-
 					type: "FM",
 
 					effects: "chorus & reverb",
@@ -5947,7 +5214,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					feedbackEnvelope: "twang 3",
 
 					operators: [
-
 						{ frequency: "1×", amplitude: 15, envelope: "twang 3" },
 
 						{ frequency: "2×", amplitude: 15, envelope: "flare 3" },
@@ -5955,14 +5221,10 @@ export const presetsNgCategories: InputPresetCategory[] = [
 						{ frequency: "4×", amplitude: 15, envelope: "flare 2" },
 
 						{ frequency: "8×", amplitude: 15, envelope: "flare 1" },
-
 					],
-
 				},
-
 			},
 			{
-
 				name: "violin 2 NG",
 
 				midiProgram: 40,
@@ -5972,23 +5234,18 @@ export const presetsNgCategories: InputPresetCategory[] = [
 				tags: ["fm", "fm4op", "jummbox", "string"],
 
 				settings: {
-
 					type: "FM",
 
 					eqFilter: [
-
 						{ type: "low-pass", cutoffHz: 2828, linearGain: 1.4142 },
 
 						{
-
 							type: "high-pass",
 
 							cutoffHz: 105.11,
 
 							linearGain: 0.3536,
-
 						},
-
 					],
 
 					effects: ["vibrato", "reverb"],
@@ -6014,7 +5271,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					feedbackEnvelope: "twang 3",
 
 					operators: [
-
 						{ frequency: "4×", amplitude: 15, envelope: "custom" },
 
 						{ frequency: "3×", amplitude: 13, envelope: "custom" },
@@ -6022,14 +5278,10 @@ export const presetsNgCategories: InputPresetCategory[] = [
 						{ frequency: "2×", amplitude: 7, envelope: "steady" },
 
 						{ frequency: "7×", amplitude: 8, envelope: "swell 1" },
-
 					],
-
 				},
-
 			},
 			{
-
 				name: "orchestra hit 2 NG",
 
 				midiProgram: 55,
@@ -6039,7 +5291,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 				tags: ["fm", "fm4op", "beepbox", "string"],
 
 				settings: {
-
 					type: "FM",
 
 					volume: 0,
@@ -6093,7 +5344,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					feedbackAmplitude: 14,
 
 					operators: [
-
 						{ frequency: "1×", amplitude: 12, waveform: "sine", pulseWidth: 5 },
 
 						{ frequency: "2×", amplitude: 14, waveform: "sine", pulseWidth: 5 },
@@ -6105,13 +5355,10 @@ export const presetsNgCategories: InputPresetCategory[] = [
 						{ frequency: "1×", amplitude: 0, waveform: "sine", pulseWidth: 5 },
 
 						{ frequency: "1×", amplitude: 0, waveform: "sine", pulseWidth: 5 },
-
 					],
 
 					envelopes: [
-
 						{
-
 							target: "noteFilterAllFreqs",
 
 							envelope: "decay",
@@ -6127,18 +5374,13 @@ export const presetsNgCategories: InputPresetCategory[] = [
 							perEnvelopeLowerBound: 0,
 
 							perEnvelopeUpperBound: 1,
-
 						},
-
 					],
 
 					isDrum: false,
-
 				},
-
 			},
 			{
-
 				name: "supersaw string NG",
 
 				midiProgram: 41,
@@ -6146,23 +5388,18 @@ export const presetsNgCategories: InputPresetCategory[] = [
 				tags: ["supersaw", "beepbox", "string"],
 
 				settings: {
-
 					type: "supersaw",
 
 					eqFilter: [
-
 						{ type: "low-pass", cutoffHz: 2828.43, linearGain: 1.4142 },
 
 						{
-
 							type: "low-pass",
 
 							cutoffHz: 3363.59,
 
 							linearGain: 0.1768,
-
 						},
-
 					],
 
 					effects: ["note filter", "reverb"],
@@ -6184,12 +5421,9 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					shape: 50,
 
 					envelopes: [{ target: "noteFilterFreq", envelope: "twang 1", index: 0 }],
-
 				},
-
 			},
 			{
-
 				name: "supersaw string 2 NG",
 
 				midiProgram: 41,
@@ -6197,11 +5431,9 @@ export const presetsNgCategories: InputPresetCategory[] = [
 				tags: ["supersaw", "jummbox", "string"],
 
 				settings: {
-
 					type: "supersaw",
 
 					eqFilter: [
-
 						{ type: "low-pass", cutoffHz: 2378.41, linearGain: 0.5 },
 
 						{ type: "high-pass", cutoffHz: 594.6, linearGain: 0.25 },
@@ -6209,7 +5441,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 						{ type: "peak", cutoffHz: 2000, linearGain: 2.8284 },
 
 						{ type: "peak", cutoffHz: 4756.83, linearGain: 2 },
-
 					],
 
 					eqFilterType: false,
@@ -6223,7 +5454,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					discreteEnvelope: false,
 
 					eqSubFilters0: [
-
 						{ type: "low-pass", cutoffHz: 2378.41, linearGain: 0.5 },
 
 						{ type: "high-pass", cutoffHz: 594.6, linearGain: 0.25 },
@@ -6231,7 +5461,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 						{ type: "peak", cutoffHz: 2000, linearGain: 2.8284 },
 
 						{ type: "peak", cutoffHz: 4756.83, linearGain: 2 },
-
 					],
 
 					effects: ["note filter", "chorus", "reverb"],
@@ -6263,24 +5492,17 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					shape: 0,
 
 					envelopes: [
-
 						{ target: "noteFilterAllFreqs", envelope: "punch" },
 
 						{
-
 							target: "pulseWidth",
 
 							envelope: "flare 2",
-
 						},
-
 					],
-
 				},
-
 			},
 			{
-
 				name: "choir soprano NG",
 
 				midiProgram: 94,
@@ -6290,11 +5512,9 @@ export const presetsNgCategories: InputPresetCategory[] = [
 				tags: ["harmonics", "beepbox", "vocal"],
 
 				settings: {
-
 					type: "harmonics",
 
 					eqFilter: [
-
 						{ type: "low-pass", cutoffHz: 2828.43, linearGain: 2 },
 
 						{ type: "peak", cutoffHz: 1189.21, linearGain: 5.6569 },
@@ -6306,7 +5526,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 						{ type: "peak", cutoffHz: 840.9, linearGain: 0.25 },
 
 						{ type: "low-pass", cutoffHz: 6727.17, linearGain: 11.3137 },
-
 					],
 
 					effects: ["vibrato", "chorus", "reverb"],
@@ -6322,22 +5541,17 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					fadeOutTicks: 24,
 
 					harmonics: [
-
 						100, 100, 86, 57, 29, 29, 57, 71, 57, 29, 14, 14, 14, 29, 43, 57, 43, 29,
 
 						14, 14, 14, 14, 14, 14, 0, 0, 0, 0,
-
 					],
 
 					unison: "none",
 
 					envelopes: [],
-
 				},
-
 			},
 			{
-
 				name: "choir tenor NG",
 
 				midiProgram: 52,
@@ -6347,11 +5561,9 @@ export const presetsNgCategories: InputPresetCategory[] = [
 				tags: ["harmonics", "beepbox", "vocal"],
 
 				settings: {
-
 					type: "harmonics",
 
 					eqFilter: [
-
 						{ type: "peak", cutoffHz: 1000, linearGain: 11.3137 },
 
 						{ type: "peak", cutoffHz: 707.11, linearGain: 5.6569 },
@@ -6363,7 +5575,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 						{ type: "high-pass", cutoffHz: 297.3, linearGain: 0.7071 },
 
 						{ type: "low-pass", cutoffHz: 2828.43, linearGain: 11.3137 },
-
 					],
 
 					effects: ["vibrato", "chorus", "reverb"],
@@ -6383,22 +5594,17 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					chord: "simultaneous",
 
 					harmonics: [
-
 						86, 100, 100, 86, 71, 57, 43, 29, 29, 29, 29, 43, 43, 43, 29, 29, 29, 29,
 
 						29, 29, 29, 29, 29, 14, 14, 14, 14, 14,
-
 					],
 
 					unison: "none",
 
 					envelopes: [],
-
 				},
-
 			},
 			{
-
 				name: "choir bass NG",
 
 				midiProgram: 52,
@@ -6406,11 +5612,9 @@ export const presetsNgCategories: InputPresetCategory[] = [
 				tags: ["harmonics", "beepbox", "vocal", "bass"],
 
 				settings: {
-
 					type: "harmonics",
 
 					eqFilter: [
-
 						{ type: "low-pass", cutoffHz: 2378.41, linearGain: 11.3137 },
 
 						{ type: "peak", cutoffHz: 594.6, linearGain: 5.6569 },
@@ -6420,7 +5624,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 						{ type: "peak", cutoffHz: 707.11, linearGain: 0.0884 },
 
 						{ type: "peak", cutoffHz: 840.9, linearGain: 11.3137 },
-
 					],
 
 					effects: ["vibrato", "chorus", "reverb"],
@@ -6440,22 +5643,17 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					chord: "simultaneous",
 
 					harmonics: [
-
 						71, 86, 100, 100, 86, 86, 57, 43, 29, 29, 29, 29, 29, 29, 43, 43, 43, 43,
 
 						43, 29, 29, 29, 29, 14, 14, 14, 14, 14,
-
 					],
 
 					unison: "none",
 
 					envelopes: [],
-
 				},
-
 			},
 			{
-
 				name: "solo soprano NG",
 
 				midiProgram: 85,
@@ -6463,11 +5661,9 @@ export const presetsNgCategories: InputPresetCategory[] = [
 				tags: ["harmonics", "beepbox", "vocal"],
 
 				settings: {
-
 					type: "harmonics",
 
 					eqFilter: [
-
 						{ type: "low-pass", cutoffHz: 2828.43, linearGain: 2 },
 
 						{ type: "peak", cutoffHz: 1189.21, linearGain: 5.6569 },
@@ -6477,7 +5673,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 						{ type: "peak", cutoffHz: 2000, linearGain: 0.0884 },
 
 						{ type: "peak", cutoffHz: 840.9, linearGain: 0.25 },
-
 					],
 
 					effects: ["vibrato", "reverb"],
@@ -6491,22 +5686,17 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					fadeOutTicks: 12,
 
 					harmonics: [
-
 						86, 100, 86, 43, 14, 14, 57, 71, 57, 14, 14, 14, 14, 14, 43, 57, 43, 14, 14,
 
 						14, 14, 14, 14, 14, 0, 0, 0, 0,
-
 					],
 
 					unison: "none",
 
 					envelopes: [],
-
 				},
-
 			},
 			{
-
 				name: "solo tenor NG",
 
 				midiProgram: 85,
@@ -6514,11 +5704,9 @@ export const presetsNgCategories: InputPresetCategory[] = [
 				tags: ["harmonics", "beepbox", "vocal"],
 
 				settings: {
-
 					type: "harmonics",
 
 					eqFilter: [
-
 						{ type: "peak", cutoffHz: 1000, linearGain: 11.3137 },
 
 						{ type: "peak", cutoffHz: 707.11, linearGain: 5.6569 },
@@ -6530,7 +5718,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 						{ type: "high-pass", cutoffHz: 297.3, linearGain: 0.7071 },
 
 						{ type: "low-pass", cutoffHz: 2828.43, linearGain: 11.3137 },
-
 					],
 
 					effects: ["vibrato", "reverb"],
@@ -6544,22 +5731,17 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					fadeOutTicks: 12,
 
 					harmonics: [
-
 						86, 100, 100, 86, 71, 57, 43, 29, 29, 29, 29, 43, 43, 43, 29, 29, 29, 29,
 
 						29, 29, 29, 29, 29, 14, 14, 14, 14, 14,
-
 					],
 
 					unison: "none",
 
 					envelopes: [],
-
 				},
-
 			},
 			{
-
 				name: "solo bass NG",
 
 				midiProgram: 85,
@@ -6567,11 +5749,9 @@ export const presetsNgCategories: InputPresetCategory[] = [
 				tags: ["harmonics", "beepbox", "vocal", "bass"],
 
 				settings: {
-
 					type: "harmonics",
 
 					eqFilter: [
-
 						{ type: "low-pass", cutoffHz: 2378.41, linearGain: 5.6569 },
 
 						{ type: "peak", cutoffHz: 594.6, linearGain: 8 },
@@ -6583,7 +5763,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 						{ type: "peak", cutoffHz: 840.9, linearGain: 8 },
 
 						{ type: "high-pass", cutoffHz: 210.22, linearGain: 1.4142 },
-
 					],
 
 					effects: ["vibrato", "reverb"],
@@ -6601,22 +5780,17 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					chord: "simultaneous",
 
 					harmonics: [
-
 						71, 86, 100, 100, 86, 86, 57, 43, 29, 29, 29, 29, 29, 29, 43, 43, 43, 43,
 
 						43, 29, 29, 29, 29, 14, 14, 14, 14, 14,
-
 					],
 
 					unison: "none",
 
 					envelopes: [],
-
 				},
-
 			},
 			{
-
 				name: "voice ooh NG",
 
 				midiProgram: 53,
@@ -6626,7 +5800,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 				tags: ["harmonics", "beepbox", "vocal"],
 
 				settings: {
-
 					type: "harmonics",
 
 					effects: "reverb",
@@ -6646,18 +5819,13 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					vibrato: "shaky",
 
 					harmonics: [
-
 						100, 57, 43, 43, 14, 14, 0, 0, 0, 14, 29, 29, 14, 0, 14, 29, 29, 14, 0, 0,
 
 						0, 0, 0, 0, 0, 0, 0, 0,
-
 					],
-
 				},
-
 			},
 			{
-
 				name: "voice synth NG",
 
 				midiProgram: 54,
@@ -6667,7 +5835,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 				tags: ["chip", "chipwave", "beepbox", "vocal"],
 
 				settings: {
-
 					type: "chip",
 
 					transition: "medium fade",
@@ -6687,12 +5854,9 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					interval: "union",
 
 					vibrato: "light",
-
 				},
-
 			},
 			{
-
 				name: "vox synth lead NG",
 
 				midiProgram: 85,
@@ -6702,7 +5866,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 				tags: ["fm", "fm4op", "beepbox", "vocal", "lead"],
 
 				settings: {
-
 					type: "FM",
 
 					effects: "chorus & reverb",
@@ -6728,7 +5891,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					feedbackEnvelope: "punch",
 
 					operators: [
-
 						{ frequency: "2×", amplitude: 10, envelope: "custom" },
 
 						{ frequency: "9×", amplitude: 5, envelope: "custom" },
@@ -6736,14 +5898,10 @@ export const presetsNgCategories: InputPresetCategory[] = [
 						{ frequency: "20×", amplitude: 1, envelope: "custom" },
 
 						{ frequency: "~1×", amplitude: 4, envelope: "steady" },
-
 					],
-
 				},
-
 			},
 			{
-
 				name: "tiny robot NG",
 
 				midiProgram: 85,
@@ -6751,7 +5909,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 				tags: ["fm", "fm4op", "beepbox", "vocal"],
 
 				settings: {
-
 					type: "FM",
 
 					eqFilter: [],
@@ -6777,42 +5934,31 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					feedbackAmplitude: 2,
 
 					operators: [
-
 						{ frequency: "2×", amplitude: 15 },
 
 						{ frequency: "1×", amplitude: 7 },
 
 						{
-
 							frequency: "~1×",
 
 							amplitude: 7,
-
 						},
 
 						{ frequency: "1×", amplitude: 0 },
-
 					],
 
 					envelopes: [
-
 						{ target: "operatorAmplitude", envelope: "punch", index: 1 },
 
 						{
-
 							target: "feedbackAmplitude",
 
 							envelope: "twang 3",
-
 						},
-
 					],
-
 				},
-
 			},
 			{
-
 				name: "yowie NG",
 
 				midiProgram: 85,
@@ -6820,7 +5966,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 				tags: ["fm", "fm4op", "beepbox", "vocal"],
 
 				settings: {
-
 					type: "FM",
 
 					volume: 0,
@@ -6860,7 +6005,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					feedbackAmplitude: 12,
 
 					operators: [
-
 						{ frequency: "2×", amplitude: 12, waveform: "sine", pulseWidth: 5 },
 
 						{ frequency: "16×", amplitude: 5, waveform: "sine", pulseWidth: 5 },
@@ -6872,13 +6016,10 @@ export const presetsNgCategories: InputPresetCategory[] = [
 						{ frequency: "1×", amplitude: 0, waveform: "sine", pulseWidth: 5 },
 
 						{ frequency: "1×", amplitude: 0, waveform: "sine", pulseWidth: 5 },
-
 					],
 
 					envelopes: [
-
 						{
-
 							target: "noteFilterAllFreqs",
 
 							envelope: "tremolo",
@@ -6894,11 +6035,9 @@ export const presetsNgCategories: InputPresetCategory[] = [
 							perEnvelopeLowerBound: 0.5,
 
 							perEnvelopeUpperBound: 1,
-
 						},
 
 						{
-
 							target: "feedbackAmplitude",
 
 							envelope: "tremolo",
@@ -6914,18 +6053,13 @@ export const presetsNgCategories: InputPresetCategory[] = [
 							perEnvelopeLowerBound: 0,
 
 							perEnvelopeUpperBound: 1,
-
 						},
-
 					],
 
 					isDrum: false,
-
 				},
-
 			},
 			{
-
 				name: "mouse NG",
 
 				midiProgram: 85,
@@ -6933,7 +6067,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 				tags: ["fm", "fm4op", "beepbox", "vocal"],
 
 				settings: {
-
 					type: "FM",
 
 					eqFilter: [],
@@ -6959,42 +6092,31 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					feedbackAmplitude: 5,
 
 					operators: [
-
 						{ frequency: "2×", amplitude: 13 },
 
 						{ frequency: "5×", amplitude: 12 },
 
 						{
-
 							frequency: "1×",
 
 							amplitude: 0,
-
 						},
 
 						{ frequency: "1×", amplitude: 0 },
-
 					],
 
 					envelopes: [
-
 						{ target: "noteVolume", envelope: "note size" },
 
 						{
-
 							target: "feedbackAmplitude",
 
 							envelope: "flare 2",
-
 						},
-
 					],
-
 				},
-
 			},
 			{
-
 				name: "gumdrop NG",
 
 				midiProgram: 85,
@@ -7002,7 +6124,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 				tags: ["fm", "fm4op", "beepbox", "vocal"],
 
 				settings: {
-
 					type: "FM",
 
 					effects: "reverb",
@@ -7028,7 +6149,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					feedbackEnvelope: "steady",
 
 					operators: [
-
 						{ frequency: "2×", amplitude: 15, envelope: "punch" },
 
 						{ frequency: "4×", amplitude: 15, envelope: "punch" },
@@ -7036,14 +6156,10 @@ export const presetsNgCategories: InputPresetCategory[] = [
 						{ frequency: "7×", amplitude: 15, envelope: "punch" },
 
 						{ frequency: "1×", amplitude: 10, envelope: "twang 1" },
-
 					],
-
 				},
-
 			},
 			{
-
 				name: "echo drop NG",
 
 				midiProgram: 102,
@@ -7053,7 +6169,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 				tags: ["fm", "fm4op", "beepbox", "vocal"],
 
 				settings: {
-
 					type: "FM",
 
 					effects: "chorus & reverb",
@@ -7079,7 +6194,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					feedbackEnvelope: "steady",
 
 					operators: [
-
 						{ frequency: "~2×", amplitude: 11, envelope: "custom" },
 
 						{ frequency: "~1×", amplitude: 5, envelope: "steady" },
@@ -7087,14 +6201,10 @@ export const presetsNgCategories: InputPresetCategory[] = [
 						{ frequency: "11×", amplitude: 2, envelope: "steady" },
 
 						{ frequency: "16×", amplitude: 5, envelope: "swell 3" },
-
 					],
-
 				},
-
 			},
 			{
-
 				name: "dark choir NG",
 
 				midiProgram: 85,
@@ -7102,7 +6212,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 				tags: ["spectrum", "beepbox", "vocal"],
 
 				settings: {
-
 					type: "spectrum",
 
 					effects: "reverb",
@@ -7118,18 +6227,13 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					filterEnvelope: "swell 1",
 
 					spectrum: [
-
 						43, 14, 14, 14, 14, 14, 14, 100, 14, 14, 14, 57, 14, 14, 100, 14, 43, 14,
 
 						43, 14, 14, 43, 14, 29, 14, 29, 14, 14, 29, 0,
-
 					],
-
 				},
-
 			},
 			{
-
 				name: "trumpet NG",
 
 				midiProgram: 56,
@@ -7139,7 +6243,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 				tags: ["fm", "fm4op", "beepbox", "brass"],
 
 				settings: {
-
 					type: "FM",
 
 					effects: "reverb",
@@ -7165,7 +6268,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					feedbackEnvelope: "swell 1",
 
 					operators: [
-
 						{ frequency: "1×", amplitude: 14, envelope: "custom" },
 
 						{ frequency: "1×", amplitude: 8, envelope: "steady" },
@@ -7173,14 +6275,10 @@ export const presetsNgCategories: InputPresetCategory[] = [
 						{ frequency: "1×", amplitude: 5, envelope: "flare 2" },
 
 						{ frequency: "1×", amplitude: 0, envelope: "steady" },
-
 					],
-
 				},
-
 			},
 			{
-
 				name: "trombone NG",
 
 				midiProgram: 57,
@@ -7190,7 +6288,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 				tags: ["fm", "fm4op", "beepbox", "brass"],
 
 				settings: {
-
 					type: "FM",
 
 					effects: "reverb",
@@ -7216,7 +6313,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					feedbackEnvelope: "swell 1",
 
 					operators: [
-
 						{ frequency: "1×", amplitude: 14, envelope: "custom" },
 
 						{ frequency: "1×", amplitude: 8, envelope: "steady" },
@@ -7224,14 +6320,10 @@ export const presetsNgCategories: InputPresetCategory[] = [
 						{ frequency: "1×", amplitude: 0, envelope: "steady" },
 
 						{ frequency: "1×", amplitude: 0, envelope: "steady" },
-
 					],
-
 				},
-
 			},
 			{
-
 				name: "tuba NG",
 
 				midiProgram: 58,
@@ -7241,7 +6333,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 				tags: ["fm", "fm4op", "beepbox", "brass"],
 
 				settings: {
-
 					type: "FM",
 
 					effects: "reverb",
@@ -7267,7 +6358,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					feedbackEnvelope: "swell 1",
 
 					operators: [
-
 						{ frequency: "1×", amplitude: 14, envelope: "custom" },
 
 						{ frequency: "1×", amplitude: 6, envelope: "steady" },
@@ -7275,14 +6365,10 @@ export const presetsNgCategories: InputPresetCategory[] = [
 						{ frequency: "1×", amplitude: 0, envelope: "steady" },
 
 						{ frequency: "1×", amplitude: 0, envelope: "steady" },
-
 					],
-
 				},
-
 			},
 			{
-
 				name: "muted trumpet NG",
 
 				midiProgram: 59,
@@ -7292,23 +6378,18 @@ export const presetsNgCategories: InputPresetCategory[] = [
 				tags: ["fm", "fm4op", "beepbox", "brass"],
 
 				settings: {
-
 					type: "FM",
 
 					eqFilter: [
-
 						{ type: "low-pass", cutoffHz: 8000, linearGain: 2.8284 },
 
 						{
-
 							type: "peak",
 
 							cutoffHz: 4000,
 
 							linearGain: 2.8284,
-
 						},
-
 					],
 
 					effects: ["note filter", "reverb"],
@@ -7328,46 +6409,35 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					feedbackAmplitude: 5,
 
 					operators: [
-
 						{ frequency: "1×", amplitude: 13 },
 
 						{ frequency: "1×", amplitude: 5 },
 
 						{
-
 							frequency: "9×",
 
 							amplitude: 5,
-
 						},
 
 						{ frequency: "13×", amplitude: 7 },
-
 					],
 
 					envelopes: [
-
 						{ target: "noteFilterAllFreqs", envelope: "swell 1" },
 
 						{
-
 							target: "operatorAmplitude",
 
 							envelope: "swell 1",
 
 							index: 3,
-
 						},
 
 						{ target: "feedbackAmplitude", envelope: "flare 2" },
-
 					],
-
 				},
-
 			},
 			{
-
 				name: "french horn NG",
 
 				midiProgram: 60,
@@ -7377,23 +6447,18 @@ export const presetsNgCategories: InputPresetCategory[] = [
 				tags: ["fm", "fm4op", "beepbox", "brass"],
 
 				settings: {
-
 					type: "FM",
 
 					eqFilter: [
-
 						{ type: "low-pass", cutoffHz: 4000, linearGain: 1 },
 
 						{
-
 							type: "peak",
 
 							cutoffHz: 2378.41,
 
 							linearGain: 2.8284,
-
 						},
-
 					],
 
 					effects: ["reverb"],
@@ -7411,46 +6476,35 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					feedbackAmplitude: 3,
 
 					operators: [
-
 						{ frequency: "1×", amplitude: 15 },
 
 						{ frequency: "1×", amplitude: 12 },
 
 						{
-
 							frequency: "1×",
 
 							amplitude: 10,
-
 						},
 
 						{ frequency: "~1×", amplitude: 8 },
-
 					],
 
 					envelopes: [
-
 						{ target: "operatorAmplitude", envelope: "swell 1", index: 2 },
 
 						{
-
 							target: "operatorAmplitude",
 
 							envelope: "flare 2",
 
 							index: 3,
-
 						},
 
 						{ target: "feedbackAmplitude", envelope: "swell 1" },
-
 					],
-
 				},
-
 			},
 			{
-
 				name: "brass section NG",
 
 				midiProgram: 61,
@@ -7460,7 +6514,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 				tags: ["fm", "fm4op", "beepbox", "brass"],
 
 				settings: {
-
 					type: "FM",
 
 					effects: "reverb",
@@ -7486,7 +6539,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					feedbackEnvelope: "swell 1",
 
 					operators: [
-
 						{ frequency: "1×", amplitude: 14, envelope: "custom" },
 
 						{ frequency: "1×", amplitude: 12, envelope: "custom" },
@@ -7494,14 +6546,10 @@ export const presetsNgCategories: InputPresetCategory[] = [
 						{ frequency: "1×", amplitude: 10, envelope: "swell 1" },
 
 						{ frequency: "~1×", amplitude: 10, envelope: "swell 1" },
-
 					],
-
 				},
-
 			},
 			{
-
 				name: "brass synth 1 NG",
 
 				midiProgram: 62,
@@ -7511,7 +6559,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 				tags: ["fm", "fm4op", "beepbox", "brass"],
 
 				settings: {
-
 					type: "FM",
 
 					effects: "reverb",
@@ -7537,7 +6584,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					feedbackEnvelope: "swell 1",
 
 					operators: [
-
 						{ frequency: "1×", amplitude: 14, envelope: "custom" },
 
 						{ frequency: "1×", amplitude: 14, envelope: "custom" },
@@ -7545,14 +6591,10 @@ export const presetsNgCategories: InputPresetCategory[] = [
 						{ frequency: "1×", amplitude: 12, envelope: "flare 1" },
 
 						{ frequency: "~1×", amplitude: 8, envelope: "flare 2" },
-
 					],
-
 				},
-
 			},
 			{
-
 				name: "brass synth 2 NG",
 
 				midiProgram: 63,
@@ -7562,7 +6604,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 				tags: ["fm", "fm4op", "beepbox", "brass"],
 
 				settings: {
-
 					type: "FM",
 
 					transition: "soft",
@@ -7588,7 +6629,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					feedbackEnvelope: "swell 1",
 
 					operators: [
-
 						{ frequency: "1×", amplitude: 15, envelope: "custom" },
 
 						{ frequency: "1×", amplitude: 15, envelope: "custom" },
@@ -7596,14 +6636,10 @@ export const presetsNgCategories: InputPresetCategory[] = [
 						{ frequency: "1×", amplitude: 10, envelope: "flare 1" },
 
 						{ frequency: "~1×", amplitude: 7, envelope: "flare 1" },
-
 					],
-
 				},
-
 			},
 			{
-
 				name: "pulse brass NG",
 
 				midiProgram: 62,
@@ -7611,7 +6647,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 				tags: ["pwm", "beepbox", "brass"],
 
 				settings: {
-
 					type: "PWM",
 
 					effects: "reverb",
@@ -7631,12 +6666,9 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					pulseEnvelope: "flare 3",
 
 					vibrato: "none",
-
 				},
-
 			},
 			{
-
 				name: "soprano sax NG",
 
 				midiProgram: 64,
@@ -7646,7 +6678,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 				tags: ["fm", "fm4op", "beepbox", "reed"],
 
 				settings: {
-
 					type: "FM",
 
 					effects: "reverb",
@@ -7672,7 +6703,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					feedbackEnvelope: "swell 1",
 
 					operators: [
-
 						{ frequency: "1×", amplitude: 13, envelope: "custom" },
 
 						{ frequency: "4×", amplitude: 4, envelope: "swell 1" },
@@ -7680,14 +6710,10 @@ export const presetsNgCategories: InputPresetCategory[] = [
 						{ frequency: "1×", amplitude: 7, envelope: "steady" },
 
 						{ frequency: "5×", amplitude: 4, envelope: "punch" },
-
 					],
-
 				},
-
 			},
 			{
-
 				name: "alto sax NG",
 
 				midiProgram: 65,
@@ -7697,7 +6723,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 				tags: ["fm", "fm4op", "beepbox", "reed"],
 
 				settings: {
-
 					type: "FM",
 
 					effects: "reverb",
@@ -7723,7 +6748,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					feedbackEnvelope: "punch",
 
 					operators: [
-
 						{ frequency: "1×", amplitude: 13, envelope: "custom" },
 
 						{ frequency: "1×", amplitude: 6, envelope: "steady" },
@@ -7731,14 +6755,10 @@ export const presetsNgCategories: InputPresetCategory[] = [
 						{ frequency: "4×", amplitude: 6, envelope: "swell 1" },
 
 						{ frequency: "1×", amplitude: 12, envelope: "steady" },
-
 					],
-
 				},
-
 			},
 			{
-
 				name: "tenor sax NG",
 
 				midiProgram: 66,
@@ -7748,7 +6768,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 				tags: ["fm", "fm4op", "beepbox", "reed"],
 
 				settings: {
-
 					type: "FM",
 
 					effects: "reverb",
@@ -7774,7 +6793,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					feedbackEnvelope: "swell 1",
 
 					operators: [
-
 						{ frequency: "2×", amplitude: 12, envelope: "custom" },
 
 						{ frequency: "3×", amplitude: 7, envelope: "steady" },
@@ -7782,14 +6800,10 @@ export const presetsNgCategories: InputPresetCategory[] = [
 						{ frequency: "1×", amplitude: 3, envelope: "steady" },
 
 						{ frequency: "8×", amplitude: 3, envelope: "steady" },
-
 					],
-
 				},
-
 			},
 			{
-
 				name: "baritone sax NG",
 
 				midiProgram: 67,
@@ -7799,7 +6813,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 				tags: ["fm", "fm4op", "beepbox", "reed"],
 
 				settings: {
-
 					type: "FM",
 
 					effects: "reverb",
@@ -7825,7 +6838,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					feedbackEnvelope: "swell 2",
 
 					operators: [
-
 						{ frequency: "1×", amplitude: 12, envelope: "custom" },
 
 						{ frequency: "8×", amplitude: 4, envelope: "steady" },
@@ -7833,14 +6845,10 @@ export const presetsNgCategories: InputPresetCategory[] = [
 						{ frequency: "4×", amplitude: 5, envelope: "steady" },
 
 						{ frequency: "1×", amplitude: 4, envelope: "punch" },
-
 					],
-
 				},
-
 			},
 			{
-
 				name: "sax synth NG",
 
 				midiProgram: 64,
@@ -7848,7 +6856,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 				tags: ["fm", "fm4op", "beepbox", "reed"],
 
 				settings: {
-
 					type: "FM",
 
 					effects: "reverb",
@@ -7874,7 +6881,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					feedbackEnvelope: "steady",
 
 					operators: [
-
 						{ frequency: "4×", amplitude: 15, envelope: "custom" },
 
 						{ frequency: "1×", amplitude: 15, envelope: "steady" },
@@ -7882,14 +6888,10 @@ export const presetsNgCategories: InputPresetCategory[] = [
 						{ frequency: "1×", amplitude: 0, envelope: "steady" },
 
 						{ frequency: "1×", amplitude: 0, envelope: "steady" },
-
 					],
-
 				},
-
 			},
 			{
-
 				name: "shehnai NG",
 
 				midiProgram: 111,
@@ -7899,7 +6901,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 				tags: ["fm", "fm4op", "beepbox", "reed"],
 
 				settings: {
-
 					type: "FM",
 
 					effects: "reverb",
@@ -7925,7 +6926,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					feedbackEnvelope: "steady",
 
 					operators: [
-
 						{ frequency: "4×", amplitude: 15, envelope: "custom" },
 
 						{ frequency: "1×", amplitude: 8, envelope: "steady" },
@@ -7933,14 +6933,10 @@ export const presetsNgCategories: InputPresetCategory[] = [
 						{ frequency: "1×", amplitude: 0, envelope: "steady" },
 
 						{ frequency: "1×", amplitude: 0, envelope: "steady" },
-
 					],
-
 				},
-
 			},
 			{
-
 				name: "oboe NG",
 
 				midiProgram: 68,
@@ -7950,7 +6946,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 				tags: ["fm", "fm4op", "beepbox", "reed"],
 
 				settings: {
-
 					type: "FM",
 
 					effects: "reverb",
@@ -7976,7 +6971,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					feedbackEnvelope: "tremolo5",
 
 					operators: [
-
 						{ frequency: "1×", amplitude: 7, envelope: "custom" },
 
 						{ frequency: "4×", amplitude: 12, envelope: "custom" },
@@ -7984,14 +6978,10 @@ export const presetsNgCategories: InputPresetCategory[] = [
 						{ frequency: "1×", amplitude: 6, envelope: "steady" },
 
 						{ frequency: "6×", amplitude: 2, envelope: "steady" },
-
 					],
-
 				},
-
 			},
 			{
-
 				name: "english horn NG",
 
 				midiProgram: 69,
@@ -8001,7 +6991,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 				tags: ["fm", "fm4op", "beepbox", "reed"],
 
 				settings: {
-
 					type: "FM",
 
 					effects: "reverb",
@@ -8027,7 +7016,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					feedbackEnvelope: "steady",
 
 					operators: [
-
 						{ frequency: "4×", amplitude: 12, envelope: "custom" },
 
 						{ frequency: "2×", amplitude: 10, envelope: "custom" },
@@ -8035,14 +7023,10 @@ export const presetsNgCategories: InputPresetCategory[] = [
 						{ frequency: "1×", amplitude: 8, envelope: "punch" },
 
 						{ frequency: "8×", amplitude: 4, envelope: "steady" },
-
 					],
-
 				},
-
 			},
 			{
-
 				name: "bassoon NG",
 
 				midiProgram: 70,
@@ -8052,7 +7036,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 				tags: ["fm", "fm4op", "beepbox", "reed"],
 
 				settings: {
-
 					type: "FM",
 
 					effects: "reverb",
@@ -8078,7 +7061,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					feedbackEnvelope: "steady",
 
 					operators: [
-
 						{ frequency: "2×", amplitude: 11, envelope: "custom" },
 
 						{ frequency: "1×", amplitude: 6, envelope: "steady" },
@@ -8086,14 +7068,10 @@ export const presetsNgCategories: InputPresetCategory[] = [
 						{ frequency: "6×", amplitude: 6, envelope: "swell 1" },
 
 						{ frequency: "1×", amplitude: 0, envelope: "steady" },
-
 					],
-
 				},
-
 			},
 			{
-
 				name: "clarinet NG",
 
 				midiProgram: 71,
@@ -8103,7 +7081,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 				tags: ["harmonics", "beepbox", "reed"],
 
 				settings: {
-
 					type: "harmonics",
 
 					effects: "reverb",
@@ -8123,18 +7100,13 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					vibrato: "none",
 
 					harmonics: [
-
 						100, 43, 86, 57, 86, 71, 86, 71, 71, 71, 71, 71, 71, 43, 71, 71, 57, 57, 57,
 
 						57, 57, 57, 43, 43, 43, 29, 14, 0,
-
 					],
-
 				},
-
 			},
 			{
-
 				name: "harmonica NG",
 
 				midiProgram: 22,
@@ -8144,7 +7116,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 				tags: ["fm", "fm4op", "beepbox", "reed"],
 
 				settings: {
-
 					type: "FM",
 
 					volume: 0,
@@ -8188,7 +7159,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					feedbackAmplitude: 9,
 
 					operators: [
-
 						{ frequency: "2×", amplitude: 14, waveform: "sine", pulseWidth: 5 },
 
 						{ frequency: "1×", amplitude: 15, waveform: "sine", pulseWidth: 5 },
@@ -8200,13 +7170,10 @@ export const presetsNgCategories: InputPresetCategory[] = [
 						{ frequency: "1×", amplitude: 0, waveform: "sine", pulseWidth: 5 },
 
 						{ frequency: "1×", amplitude: 0, waveform: "sine", pulseWidth: 5 },
-
 					],
 
 					envelopes: [
-
 						{
-
 							target: "noteFilterAllFreqs",
 
 							envelope: "swell",
@@ -8222,11 +7189,9 @@ export const presetsNgCategories: InputPresetCategory[] = [
 							perEnvelopeLowerBound: 0,
 
 							perEnvelopeUpperBound: 1,
-
 						},
 
 						{
-
 							target: "operatorAmplitude",
 
 							envelope: "twang",
@@ -8244,11 +7209,9 @@ export const presetsNgCategories: InputPresetCategory[] = [
 							perEnvelopeUpperBound: 1,
 
 							index: 2,
-
 						},
 
 						{
-
 							target: "feedbackAmplitude",
 
 							envelope: "tremolo2",
@@ -8264,18 +7227,13 @@ export const presetsNgCategories: InputPresetCategory[] = [
 							perEnvelopeLowerBound: 0,
 
 							perEnvelopeUpperBound: 1,
-
 						},
-
 					],
 
 					isDrum: false,
-
 				},
-
 			},
 			{
-
 				name: "flute 1 NG",
 
 				midiProgram: 73,
@@ -8285,7 +7243,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 				tags: ["fm", "fm4op", "beepbox", "flute"],
 
 				settings: {
-
 					type: "FM",
 
 					volume: 0,
@@ -8321,7 +7278,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					feedbackAmplitude: 7,
 
 					operators: [
-
 						{ frequency: "1×", amplitude: 15, waveform: "sine", pulseWidth: 5 },
 
 						{ frequency: "2×", amplitude: 4, waveform: "sine", pulseWidth: 5 },
@@ -8333,13 +7289,10 @@ export const presetsNgCategories: InputPresetCategory[] = [
 						{ frequency: "1×", amplitude: 0, waveform: "sine", pulseWidth: 5 },
 
 						{ frequency: "1×", amplitude: 0, waveform: "sine", pulseWidth: 5 },
-
 					],
 
 					envelopes: [
-
 						{
-
 							target: "operatorAmplitude",
 
 							envelope: "punch",
@@ -8357,11 +7310,9 @@ export const presetsNgCategories: InputPresetCategory[] = [
 							perEnvelopeUpperBound: 1,
 
 							index: 3,
-
 						},
 
 						{
-
 							target: "feedbackAmplitude",
 
 							envelope: "decay",
@@ -8377,18 +7328,13 @@ export const presetsNgCategories: InputPresetCategory[] = [
 							perEnvelopeLowerBound: 0,
 
 							perEnvelopeUpperBound: 1,
-
 						},
-
 					],
 
 					isDrum: false,
-
 				},
-
 			},
 			{
-
 				name: "recorder NG",
 
 				midiProgram: 74,
@@ -8398,7 +7344,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 				tags: ["harmonics", "beepbox", "flute"],
 
 				settings: {
-
 					type: "harmonics",
 
 					effects: "reverb",
@@ -8418,18 +7363,13 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					vibrato: "none",
 
 					harmonics: [
-
 						100, 43, 57, 43, 57, 43, 43, 43, 43, 43, 43, 43, 43, 29, 29, 29, 29, 29, 29,
 
 						29, 14, 14, 14, 14, 14, 14, 14, 0,
-
 					],
-
 				},
-
 			},
 			{
-
 				name: "whistle NG",
 
 				midiProgram: 78,
@@ -8439,7 +7379,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 				tags: ["harmonics", "beepbox", "flute"],
 
 				settings: {
-
 					type: "harmonics",
 
 					effects: "chorus & reverb",
@@ -8459,18 +7398,13 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					vibrato: "delayed",
 
 					harmonics: [
-
 						100, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 
 						0, 0, 0,
-
 					],
-
 				},
-
 			},
 			{
-
 				name: "ocarina NG",
 
 				midiProgram: 79,
@@ -8480,7 +7414,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 				tags: ["harmonics", "beepbox", "flute"],
 
 				settings: {
-
 					type: "harmonics",
 
 					effects: "reverb",
@@ -8500,18 +7433,13 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					vibrato: "none",
 
 					harmonics: [
-
 						100, 14, 57, 14, 29, 14, 14, 14, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 
 						0, 0, 0, 0, 0, 0,
-
 					],
-
 				},
-
 			},
 			{
-
 				name: "piccolo NG",
 
 				midiProgram: 72,
@@ -8521,7 +7449,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 				tags: ["fm", "fm4op", "beepbox", "flute"],
 
 				settings: {
-
 					type: "FM",
 
 					effects: "reverb",
@@ -8547,7 +7474,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					feedbackEnvelope: "twang 1",
 
 					operators: [
-
 						{ frequency: "1×", amplitude: 15, envelope: "custom" },
 
 						{ frequency: "1×", amplitude: 10, envelope: "custom" },
@@ -8555,14 +7481,10 @@ export const presetsNgCategories: InputPresetCategory[] = [
 						{ frequency: "~2×", amplitude: 3, envelope: "punch" },
 
 						{ frequency: "~1×", amplitude: 5, envelope: "punch" },
-
 					],
-
 				},
-
 			},
 			{
-
 				name: "shakuhachi NG",
 
 				midiProgram: 77,
@@ -8572,7 +7494,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 				tags: ["fm", "fm4op", "beepbox", "flute"],
 
 				settings: {
-
 					type: "FM",
 
 					effects: "chorus & reverb",
@@ -8598,7 +7519,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					feedbackEnvelope: "steady",
 
 					operators: [
-
 						{ frequency: "1×", amplitude: 15, envelope: "custom" },
 
 						{ frequency: "2×", amplitude: 3, envelope: "punch" },
@@ -8606,14 +7526,10 @@ export const presetsNgCategories: InputPresetCategory[] = [
 						{ frequency: "~1×", amplitude: 4, envelope: "twang 1" },
 
 						{ frequency: "20×", amplitude: 15, envelope: "steady" },
-
 					],
-
 				},
-
 			},
 			{
-
 				name: "pan flute NG",
 
 				midiProgram: 75,
@@ -8623,7 +7539,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 				tags: ["spectrum", "beepbox", "flute"],
 
 				settings: {
-
 					type: "spectrum",
 
 					eqFilter: [{ type: "low-pass", cutoffHz: 9513.66, linearGain: 5.6569 }],
@@ -8639,32 +7554,23 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					fadeOutTicks: -3,
 
 					spectrum: [
-
 						100, 0, 0, 0, 0, 0, 0, 14, 0, 0, 0, 71, 0, 0, 14, 0, 57, 0, 29, 14, 29, 14,
 
 						14, 29, 14, 29, 14, 14, 29, 14,
-
 					],
 
 					envelopes: [
-
 						{ target: "noteFilterFreq", envelope: "twang 1", index: 0 },
 
 						{
-
 							target: "noteVolume",
 
 							envelope: "punch",
-
 						},
-
 					],
-
 				},
-
 			},
 			{
-
 				name: "blown bottle NG",
 
 				midiProgram: 76,
@@ -8674,7 +7580,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 				tags: ["fm", "fm4op", "beepbox", "flute"],
 
 				settings: {
-
 					type: "FM",
 
 					effects: "chorus & reverb",
@@ -8700,7 +7605,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					feedbackEnvelope: "twang 1",
 
 					operators: [
-
 						{ frequency: "1×", amplitude: 15, envelope: "custom" },
 
 						{ frequency: "3×", amplitude: 4, envelope: "custom" },
@@ -8708,14 +7612,10 @@ export const presetsNgCategories: InputPresetCategory[] = [
 						{ frequency: "6×", amplitude: 2, envelope: "custom" },
 
 						{ frequency: "11×", amplitude: 2, envelope: "custom" },
-
 					],
-
 				},
-
 			},
 			{
-
 				name: "calliope NG",
 
 				midiProgram: 82,
@@ -8725,7 +7625,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 				tags: ["spectrum", "beepbox", "flute"],
 
 				settings: {
-
 					type: "spectrum",
 
 					transition: "cross fade",
@@ -8741,18 +7640,13 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					filterEnvelope: "steady",
 
 					spectrum: [
-
 						100, 0, 0, 0, 0, 0, 0, 86, 0, 0, 0, 71, 0, 0, 57, 0, 43, 0, 29, 14, 14, 29,
 
 						14, 14, 14, 14, 14, 14, 14, 14,
-
 					],
-
 				},
-
 			},
 			{
-
 				name: "chiffer NG",
 
 				midiProgram: 83,
@@ -8762,7 +7656,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 				tags: ["spectrum", "beepbox", "flute"],
 
 				settings: {
-
 					type: "spectrum",
 
 					effects: "reverb",
@@ -8778,18 +7671,13 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					filterEnvelope: "punch",
 
 					spectrum: [
-
 						86, 0, 0, 0, 0, 0, 0, 71, 0, 0, 0, 71, 0, 0, 57, 0, 57, 0, 43, 14, 14, 43,
 
 						14, 29, 14, 29, 29, 29, 29, 14,
-
 					],
-
 				},
-
 			},
 			{
-
 				name: "breath noise NG",
 
 				midiProgram: 121,
@@ -8799,7 +7687,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 				tags: ["spectrum", "beepbox", "flute"],
 
 				settings: {
-
 					type: "spectrum",
 
 					eqFilter: [],
@@ -8809,19 +7696,15 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					chord: "strum",
 
 					noteFilter: [
-
 						{ type: "high-pass", cutoffHz: 840.9, linearGain: 0.3536 },
 
 						{
-
 							type: "low-pass",
 
 							cutoffHz: 16000,
 
 							linearGain: 0.3536,
-
 						},
-
 					],
 
 					reverb: 33,
@@ -8831,20 +7714,15 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					fadeOutTicks: 12,
 
 					spectrum: [
-
 						71, 0, 0, 0, 0, 0, 0, 29, 0, 0, 0, 71, 0, 0, 29, 0, 100, 29, 14, 29, 100,
 
 						29, 100, 14, 14, 71, 0, 29, 0, 0,
-
 					],
 
 					envelopes: [{ target: "noteFilterAllFreqs", envelope: "twang 1" }],
-
 				},
-
 			},
 			{
-
 				name: "flute 2 NG",
 
 				midiProgram: 73,
@@ -8854,7 +7732,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 				tags: ["harmonics", "jummbox", "flute"],
 
 				settings: {
-
 					type: "harmonics",
 
 					effects: "reverb",
@@ -8874,18 +7751,13 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					vibrato: "delayed",
 
 					harmonics: [
-
 						100, 43, 86, 57, 86, 71, 86, 71, 71, 71, 71, 71, 71, 43, 71, 71, 57, 57, 57,
 
 						57, 57, 57, 43, 43, 43, 29, 14, 0,
-
 					],
-
 				},
-
 			},
 			{
-
 				name: "new age pad NG",
 
 				midiProgram: 88,
@@ -8895,7 +7767,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 				tags: ["fm", "fm4op", "beepbox", "pad"],
 
 				settings: {
-
 					type: "FM",
 
 					eqFilter: [],
@@ -8919,46 +7790,35 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					feedbackAmplitude: 3,
 
 					operators: [
-
 						{ frequency: "2×", amplitude: 14 },
 
 						{ frequency: "~1×", amplitude: 4 },
 
 						{
-
 							frequency: "6×",
 
 							amplitude: 3,
-
 						},
 
 						{ frequency: "13×", amplitude: 3 },
-
 					],
 
 					envelopes: [
-
 						{ target: "operatorAmplitude", envelope: "swell 2", index: 1 },
 
 						{
-
 							target: "operatorAmplitude",
 
 							envelope: "twang 3",
 
 							index: 2,
-
 						},
 
 						{ target: "feedbackAmplitude", envelope: "swell 3" },
-
 					],
-
 				},
-
 			},
 			{
-
 				name: "warm pad NG",
 
 				midiProgram: 89,
@@ -8968,7 +7828,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 				tags: ["fm", "fm4op", "beepbox", "pad"],
 
 				settings: {
-
 					type: "FM",
 
 					eqFilter: [],
@@ -8994,44 +7853,33 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					feedbackAmplitude: 7,
 
 					operators: [
-
 						{ frequency: "1×", amplitude: 14 },
 
 						{ frequency: "1×", amplitude: 6 },
 
 						{
-
 							frequency: "1×",
 
 							amplitude: 0,
-
 						},
 
 						{ frequency: "1×", amplitude: 0 },
-
 					],
 
 					envelopes: [
-
 						{ target: "noteFilterAllFreqs", envelope: "swell 3" },
 
 						{
-
 							target: "operatorAmplitude",
 
 							envelope: "swell 1",
 
 							index: 1,
-
 						},
-
 					],
-
 				},
-
 			},
 			{
-
 				name: "polysynth pad NG",
 
 				midiProgram: 90,
@@ -9041,7 +7889,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 				tags: ["chip", "chipwave", "beepbox", "pad"],
 
 				settings: {
-
 					type: "chip",
 
 					eqFilter: [],
@@ -9067,12 +7914,9 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					unison: "honky tonk",
 
 					envelopes: [{ target: "noteFilterAllFreqs", envelope: "twang 3" }],
-
 				},
-
 			},
 			{
-
 				name: "space voice pad NG",
 
 				midiProgram: 91,
@@ -9082,25 +7926,20 @@ export const presetsNgCategories: InputPresetCategory[] = [
 				tags: ["fm", "fm4op", "beepbox", "pad"],
 
 				settings: {
-
 					type: "FM",
 
 					eqFilter: [
-
 						{ type: "low-pass", cutoffHz: 6727.17, linearGain: 5.6569 },
 
 						{
-
 							type: "peak",
 
 							cutoffHz: 2828.43,
 
 							linearGain: 5.6569,
-
 						},
 
 						{ type: "peak", cutoffHz: 1414.21, linearGain: 0.1768 },
-
 					],
 
 					effects: ["chorus"],
@@ -9122,42 +7961,31 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					feedbackAmplitude: 5,
 
 					operators: [
-
 						{ frequency: "1×", amplitude: 10 },
 
 						{ frequency: "2×", amplitude: 8 },
 
 						{
-
 							frequency: "3×",
 
 							amplitude: 7,
-
 						},
 
 						{ frequency: "11×", amplitude: 2 },
-
 					],
 
 					envelopes: [
-
 						{ target: "operatorAmplitude", envelope: "punch", index: 3 },
 
 						{
-
 							target: "feedbackAmplitude",
 
 							envelope: "swell 2",
-
 						},
-
 					],
-
 				},
-
 			},
 			{
-
 				name: "bowed glass pad NG",
 
 				midiProgram: 92,
@@ -9167,7 +7995,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 				tags: ["fm", "fm4op", "beepbox", "pad"],
 
 				settings: {
-
 					type: "FM",
 
 					eqFilter: [],
@@ -9191,46 +8018,35 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					feedbackAmplitude: 0,
 
 					operators: [
-
 						{ frequency: "1×", amplitude: 10 },
 
 						{ frequency: "2×", amplitude: 12 },
 
 						{
-
 							frequency: "3×",
 
 							amplitude: 7,
-
 						},
 
 						{ frequency: "7×", amplitude: 4 },
-
 					],
 
 					envelopes: [
-
 						{ target: "noteFilterAllFreqs", envelope: "twang 3" },
 
 						{
-
 							target: "operatorAmplitude",
 
 							envelope: "twang 3",
 
 							index: 2,
-
 						},
 
 						{ target: "operatorAmplitude", envelope: "flare 3", index: 3 },
-
 					],
-
 				},
-
 			},
 			{
-
 				name: "metallic pad NG",
 
 				midiProgram: 93,
@@ -9240,7 +8056,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 				tags: ["fm", "fm4op", "beepbox", "pad"],
 
 				settings: {
-
 					type: "FM",
 
 					eqFilter: [],
@@ -9264,46 +8079,35 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					feedbackAmplitude: 13,
 
 					operators: [
-
 						{ frequency: "1×", amplitude: 15 },
 
 						{ frequency: "~1×", amplitude: 9 },
 
 						{
-
 							frequency: "1×",
 
 							amplitude: 7,
-
 						},
 
 						{ frequency: "11×", amplitude: 7 },
-
 					],
 
 					envelopes: [
-
 						{ target: "noteFilterAllFreqs", envelope: "twang 3" },
 
 						{
-
 							target: "operatorAmplitude",
 
 							envelope: "swell 2",
 
 							index: 2,
-
 						},
 
 						{ target: "feedbackAmplitude", envelope: "twang 3" },
-
 					],
-
 				},
-
 			},
 			{
-
 				name: "sweep pad NG",
 
 				midiProgram: 95,
@@ -9313,7 +8117,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 				tags: ["chip", "chipwave", "beepbox", "pad"],
 
 				settings: {
-
 					type: "chip",
 
 					eqFilter: [],
@@ -9337,12 +8140,9 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					unison: "hum",
 
 					envelopes: [{ target: "noteFilterAllFreqs", envelope: "flare 3" }],
-
 				},
-
 			},
 			{
-
 				name: "atmosphere NG",
 
 				midiProgram: 99,
@@ -9352,7 +8152,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 				tags: ["fm", "fm4op", "beepbox", "pad"],
 
 				settings: {
-
 					type: "FM",
 
 					eqFilter: [{ type: "low-pass", cutoffHz: 4756.83, linearGain: 1 }],
@@ -9378,46 +8177,35 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					feedbackAmplitude: 3,
 
 					operators: [
-
 						{ frequency: "1×", amplitude: 14 },
 
 						{ frequency: "~1×", amplitude: 10 },
 
 						{
-
 							frequency: "3×",
 
 							amplitude: 7,
-
 						},
 
 						{ frequency: "1×", amplitude: 7 },
-
 					],
 
 					envelopes: [
-
 						{ target: "operatorAmplitude", envelope: "swell 3", index: 1 },
 
 						{
-
 							target: "operatorAmplitude",
 
 							envelope: "twang 2",
 
 							index: 2,
-
 						},
 
 						{ target: "operatorAmplitude", envelope: "twang 3", index: 3 },
-
 					],
-
 				},
-
 			},
 			{
-
 				name: "brightness NG",
 
 				midiProgram: 100,
@@ -9427,7 +8215,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 				tags: ["pickedstring", "beepbox", "pad"],
 
 				settings: {
-
 					type: "Picked String",
 
 					eqFilter: [{ type: "low-pass", cutoffHz: 4756.83, linearGain: 2 }],
@@ -9445,11 +8232,9 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					chord: "simultaneous",
 
 					harmonics: [
-
 						100, 86, 86, 86, 43, 57, 43, 71, 43, 43, 43, 57, 43, 43, 57, 71, 57, 43, 29,
 
 						43, 57, 57, 43, 29, 29, 29, 29, 14,
-
 					],
 
 					unison: "octave",
@@ -9457,12 +8242,9 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					stringSustain: 86,
 
 					envelopes: [],
-
 				},
-
 			},
 			{
-
 				name: "goblins NG",
 
 				midiProgram: 101,
@@ -9472,7 +8254,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 				tags: ["fm", "fm4op", "beepbox", "pad"],
 
 				settings: {
-
 					type: "FM",
 
 					eqFilter: [{ type: "peak", cutoffHz: 2828.43, linearGain: 11.3137 }],
@@ -9498,25 +8279,20 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					feedbackAmplitude: 10,
 
 					operators: [
-
 						{ frequency: "1×", amplitude: 15 },
 
 						{ frequency: "4×", amplitude: 5 },
 
 						{
-
 							frequency: "1×",
 
 							amplitude: 10,
-
 						},
 
 						{ frequency: "1×", amplitude: 0 },
-
 					],
 
 					envelopes: [
-
 						{ target: "noteFilterAllFreqs", envelope: "swell 2" },
 
 						{ target: "operatorAmplitude", envelope: "swell 3", index: 1 },
@@ -9524,14 +8300,10 @@ export const presetsNgCategories: InputPresetCategory[] = [
 						{ target: "operatorAmplitude", envelope: "tremolo1", index: 2 },
 
 						{ target: "feedbackAmplitude", envelope: "flare 3" },
-
 					],
-
 				},
-
 			},
 			{
-
 				name: "sci-fi NG",
 
 				midiProgram: 103,
@@ -9541,7 +8313,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 				tags: ["fm", "fm4op", "beepbox", "pad"],
 
 				settings: {
-
 					type: "FM",
 
 					eqFilter: [{ type: "peak", cutoffHz: 9513.66, linearGain: 2.8284 }],
@@ -9567,25 +8338,20 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					feedbackAmplitude: 8,
 
 					operators: [
-
 						{ frequency: "~1×", amplitude: 13 },
 
 						{ frequency: "2×", amplitude: 10 },
 
 						{
-
 							frequency: "5×",
 
 							amplitude: 5,
-
 						},
 
 						{ frequency: "11×", amplitude: 8 },
-
 					],
 
 					envelopes: [
-
 						{ target: "noteFilterAllFreqs", envelope: "twang 3" },
 
 						{ target: "operatorAmplitude", envelope: "twang 3", index: 2 },
@@ -9593,14 +8359,10 @@ export const presetsNgCategories: InputPresetCategory[] = [
 						{ target: "operatorAmplitude", envelope: "tremolo5", index: 3 },
 
 						{ target: "feedbackAmplitude", envelope: "twang 3" },
-
 					],
-
 				},
-
 			},
 			{
-
 				name: "flutter pad NG",
 
 				midiProgram: 90,
@@ -9608,7 +8370,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 				tags: ["fm", "fm4op", "beepbox", "pad"],
 
 				settings: {
-
 					type: "FM",
 
 					eqFilter: [],
@@ -9636,46 +8397,35 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					feedbackAmplitude: 9,
 
 					operators: [
-
 						{ frequency: "1×", amplitude: 13 },
 
 						{ frequency: "5×", amplitude: 7 },
 
 						{
-
 							frequency: "7×",
 
 							amplitude: 5,
-
 						},
 
 						{ frequency: "~1×", amplitude: 6 },
-
 					],
 
 					envelopes: [
-
 						{ target: "noteFilterAllFreqs", envelope: "twang 3" },
 
 						{
-
 							target: "operatorAmplitude",
 
 							envelope: "tremolo1",
 
 							index: 2,
-
 						},
 
 						{ target: "operatorAmplitude", envelope: "punch", index: 3 },
-
 					],
-
 				},
-
 			},
 			{
-
 				name: "feedback pad NG",
 
 				midiProgram: 89,
@@ -9683,7 +8433,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 				tags: ["fm", "fm4op", "beepbox", "pad"],
 
 				settings: {
-
 					type: "FM",
 
 					eqFilter: [{ type: "peak", cutoffHz: 2378.41, linearGain: 8 }],
@@ -9705,30 +8454,23 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					feedbackAmplitude: 8,
 
 					operators: [
-
 						{ frequency: "1×", amplitude: 15 },
 
 						{ frequency: "1×", amplitude: 15 },
 
 						{
-
 							frequency: "1×",
 
 							amplitude: 15,
-
 						},
 
 						{ frequency: "~1×", amplitude: 15 },
-
 					],
 
 					envelopes: [{ target: "feedbackAmplitude", envelope: "swell 2" }],
-
 				},
-
 			},
 			{
-
 				name: "supersaw pad NG",
 
 				midiProgram: 93,
@@ -9736,7 +8478,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 				tags: ["supersaw", "beepbox", "pad"],
 
 				settings: {
-
 					type: "supersaw",
 
 					eqFilter: [{ type: "low-pass", cutoffHz: 8000, linearGain: 0.1768 }],
@@ -9758,12 +8499,9 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					shape: 0,
 
 					envelopes: [],
-
 				},
-
 			},
 			{
-
 				name: "standard drumset NG",
 
 				midiProgram: 116,
@@ -9773,188 +8511,134 @@ export const presetsNgCategories: InputPresetCategory[] = [
 				tags: ["drumset", "beepbox", "drum"],
 
 				settings: {
-
 					type: "drumset",
 
 					effects: "reverb",
 
 					drums: [
-
 						{
-
 							filterEnvelope: "twang 1",
 
 							spectrum: [
-
 								57, 71, 71, 86, 86, 86, 71, 71, 71, 71, 57, 57, 57, 57, 43, 43, 43,
 
 								43, 29, 29, 29, 29, 29, 29, 29, 29, 29, 29, 29, 29,
-
 							],
-
 						},
 
 						{
-
 							filterEnvelope: "twang 1",
 
 							spectrum: [
-
 								0, 0, 0, 100, 71, 71, 57, 86, 57, 57, 57, 71, 43, 43, 57, 43, 43,
 
 								43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43,
-
 							],
-
 						},
 
 						{
-
 							filterEnvelope: "twang 1",
 
 							spectrum: [
-
 								0, 0, 0, 0, 100, 57, 43, 43, 29, 57, 43, 29, 71, 43, 43, 43, 43, 57,
 
 								43, 43, 43, 43, 43, 43, 43, 43, 29, 43, 43, 43,
-
 							],
-
 						},
 
 						{
-
 							filterEnvelope: "twang 1",
 
 							spectrum: [
-
 								0, 0, 0, 0, 0, 71, 57, 43, 43, 43, 57, 57, 43, 29, 57, 43, 43, 43,
 
 								29, 43, 57, 43, 43, 43, 43, 43, 43, 29, 43, 43,
-
 							],
-
 						},
 
 						{
-
 							filterEnvelope: "decay 2",
 
 							spectrum: [
-
 								0, 14, 29, 43, 86, 71, 29, 43, 43, 43, 43, 29, 71, 29, 71, 29, 43,
 
 								43, 43, 43, 57, 43, 43, 57, 43, 43, 43, 57, 57, 57,
-
 							],
-
 						},
 
 						{
-
 							filterEnvelope: "decay 1",
 
 							spectrum: [
-
 								0, 0, 14, 14, 14, 14, 29, 29, 29, 43, 43, 43, 57, 57, 57, 71, 71,
 
 								71, 71, 71, 71, 71, 71, 57, 57, 57, 57, 43, 43, 43,
-
 							],
-
 						},
 
 						{
-
 							filterEnvelope: "twang 3",
 
 							spectrum: [
-
 								43, 43, 43, 71, 29, 29, 43, 43, 43, 29, 43, 43, 43, 29, 29, 43, 43,
 
 								29, 29, 29, 57, 14, 57, 43, 43, 57, 43, 43, 57, 57,
-
 							],
-
 						},
 
 						{
-
 							filterEnvelope: "decay 3",
 
 							spectrum: [
-
 								29, 43, 43, 43, 43, 29, 29, 43, 29, 29, 43, 29, 14, 29, 43, 29, 43,
 
 								29, 57, 29, 43, 57, 43, 71, 43, 71, 57, 57, 71, 71,
-
 							],
-
 						},
 
 						{
-
 							filterEnvelope: "twang 3",
 
 							spectrum: [
-
 								43, 29, 29, 43, 29, 29, 29, 57, 29, 29, 29, 57, 43, 43, 29, 29, 57,
 
 								43, 43, 43, 71, 43, 43, 71, 57, 71, 71, 71, 71, 71,
-
 							],
-
 						},
 
 						{
-
 							filterEnvelope: "decay 3",
 
 							spectrum: [
-
 								57, 57, 57, 43, 57, 57, 43, 43, 57, 43, 43, 43, 71, 57, 43, 57, 86,
 
 								71, 57, 86, 71, 57, 86, 100, 71, 86, 86, 86, 86, 86,
-
 							],
-
 						},
 
 						{
-
 							filterEnvelope: "flare 1",
 
 							spectrum: [
-
 								0, 0, 14, 14, 14, 14, 29, 29, 29, 43, 43, 43, 57, 57, 71, 71, 86,
 
 								86, 100, 100, 100, 100, 100, 100, 100, 100, 86, 57, 29, 0,
-
 							],
-
 						},
 
 						{
-
 							filterEnvelope: "decay 2",
 
 							spectrum: [
-
 								14, 14, 14, 14, 29, 14, 14, 29, 14, 43, 14, 43, 57, 86, 57, 57, 100,
 
 								57, 43, 43, 57, 100, 57, 43, 29, 14, 0, 0, 0, 0,
-
 							],
-
 						},
-
 					],
-
 				},
-
 			},
 			{
-
 				name: "steel pan NG",
 
 				midiProgram: 114,
@@ -9964,7 +8648,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 				tags: ["fm", "fm4op", "beepbox", "idiophone"],
 
 				settings: {
-
 					type: "FM",
 
 					eqFilter: [{ type: "high-pass", cutoffHz: 62.5, linearGain: 0.1768 }],
@@ -9992,25 +8675,20 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					feedbackAmplitude: 0,
 
 					operators: [
-
 						{ frequency: "~1×", amplitude: 14 },
 
 						{ frequency: "7×", amplitude: 3 },
 
 						{
-
 							frequency: "3×",
 
 							amplitude: 5,
-
 						},
 
 						{ frequency: "4×", amplitude: 4 },
-
 					],
 
 					envelopes: [
-
 						{ target: "noteFilterAllFreqs", envelope: "decay 2" },
 
 						{ target: "operatorAmplitude", envelope: "flare 1", index: 1 },
@@ -10018,14 +8696,10 @@ export const presetsNgCategories: InputPresetCategory[] = [
 						{ target: "operatorAmplitude", envelope: "flare 2", index: 2 },
 
 						{ target: "operatorAmplitude", envelope: "swell 2", index: 3 },
-
 					],
-
 				},
-
 			},
 			{
-
 				name: "steel pan synth NG",
 
 				midiProgram: 114,
@@ -10033,7 +8707,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 				tags: ["fm", "fm4op", "beepbox", "idiophone"],
 
 				settings: {
-
 					type: "FM",
 
 					eqFilter: [],
@@ -10057,25 +8730,20 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					feedbackAmplitude: 5,
 
 					operators: [
-
 						{ frequency: "~1×", amplitude: 12 },
 
 						{ frequency: "2×", amplitude: 15 },
 
 						{
-
 							frequency: "4×",
 
 							amplitude: 14,
-
 						},
 
 						{ frequency: "~1×", amplitude: 3 },
-
 					],
 
 					envelopes: [
-
 						{ target: "noteFilterAllFreqs", envelope: "twang 1" },
 
 						{ target: "operatorAmplitude", envelope: "note size", index: 0 },
@@ -10087,14 +8755,10 @@ export const presetsNgCategories: InputPresetCategory[] = [
 						{ target: "operatorAmplitude", envelope: "flare 2", index: 3 },
 
 						{ target: "feedbackAmplitude", envelope: "flare 1" },
-
 					],
-
 				},
-
 			},
 			{
-
 				name: "timpani NG",
 
 				midiProgram: 47,
@@ -10104,7 +8768,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 				tags: ["spectrum", "beepbox", "drum"],
 
 				settings: {
-
 					type: "spectrum",
 
 					eqFilter: [{ type: "peak", cutoffHz: 6727.17, linearGain: 5.6569 }],
@@ -10126,32 +8789,23 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					chord: "simultaneous",
 
 					spectrum: [
-
 						100, 0, 0, 0, 86, 0, 0, 71, 0, 14, 43, 14, 43, 43, 0, 29, 43, 29, 29, 29,
 
 						43, 29, 43, 29, 43, 43, 43, 43, 43, 43,
-
 					],
 
 					envelopes: [
-
 						{ target: "noteFilterAllFreqs", envelope: "twang 1" },
 
 						{
-
 							target: "pitchShift",
 
 							envelope: "twang 1",
-
 						},
-
 					],
-
 				},
-
 			},
 			{
-
 				name: "dark strike NG",
 
 				midiProgram: 47,
@@ -10159,7 +8813,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 				tags: ["spectrum", "beepbox", "drum"],
 
 				settings: {
-
 					type: "spectrum",
 
 					eqFilter: [],
@@ -10179,20 +8832,15 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					chord: "simultaneous",
 
 					spectrum: [
-
 						0, 0, 14, 14, 14, 29, 29, 43, 43, 86, 43, 43, 43, 29, 86, 29, 29, 29, 86,
 
 						29, 14, 14, 14, 14, 0, 0, 0, 0, 0, 0,
-
 					],
 
 					envelopes: [{ target: "noteFilterAllFreqs", envelope: "twang 2" }],
-
 				},
-
 			},
 			{
-
 				name: "woodblock NG",
 
 				midiProgram: 115,
@@ -10206,7 +8854,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 				tags: ["spectrum", "beepbox", "drum"],
 
 				settings: {
-
 					type: "spectrum",
 
 					effects: "reverb",
@@ -10222,18 +8869,13 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					filterEnvelope: "twang 1",
 
 					spectrum: [
-
 						0, 14, 29, 43, 43, 57, 86, 86, 71, 57, 57, 43, 43, 57, 86, 86, 43, 43, 71,
 
 						57, 57, 57, 57, 57, 86, 86, 71, 71, 71, 71,
-
 					],
-
 				},
-
 			},
 			{
-
 				name: "taiko drum NG",
 
 				midiProgram: 116,
@@ -10247,7 +8889,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 				tags: ["spectrum", "beepbox", "drum"],
 
 				settings: {
-
 					type: "spectrum",
 
 					effects: "reverb",
@@ -10263,18 +8904,13 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					filterEnvelope: "twang 1",
 
 					spectrum: [
-
 						71, 100, 100, 43, 43, 71, 71, 43, 43, 43, 43, 43, 43, 57, 29, 57, 43, 57,
 
 						43, 43, 57, 43, 43, 43, 43, 43, 43, 43, 43, 43,
-
 					],
-
 				},
-
 			},
 			{
-
 				name: "melodic drum NG",
 
 				midiProgram: 117,
@@ -10288,7 +8924,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 				tags: ["spectrum", "beepbox", "drum"],
 
 				settings: {
-
 					type: "spectrum",
 
 					effects: "reverb",
@@ -10304,18 +8939,13 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					filterEnvelope: "twang 1",
 
 					spectrum: [
-
 						100, 71, 71, 57, 57, 43, 43, 71, 43, 43, 43, 57, 43, 43, 57, 43, 43, 43, 43,
 
 						29, 29, 29, 29, 29, 29, 29, 29, 29, 29, 29,
-
 					],
-
 				},
-
 			},
 			{
-
 				name: "drum synth NG",
 
 				midiProgram: 118,
@@ -10329,7 +8959,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 				tags: ["spectrum", "beepbox", "drum"],
 
 				settings: {
-
 					type: "spectrum",
 
 					effects: "reverb",
@@ -10345,18 +8974,13 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					filterEnvelope: "decay 1",
 
 					spectrum: [
-
 						100, 86, 71, 57, 43, 29, 29, 29, 29, 29, 29, 29, 29, 29, 29, 29, 29, 29, 29,
 
 						29, 29, 29, 29, 29, 29, 29, 29, 29, 29, 29,
-
 					],
-
 				},
-
 			},
 			{
-
 				name: "tom-tom NG",
 
 				midiProgram: 116,
@@ -10368,7 +8992,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 				tags: ["spectrum", "beepbox", "drum"],
 
 				settings: {
-
 					type: "spectrum",
 
 					effects: "reverb",
@@ -10384,18 +9007,13 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					filterEnvelope: "twang 1",
 
 					spectrum: [
-
 						100, 29, 14, 0, 0, 86, 14, 43, 29, 86, 29, 14, 29, 57, 43, 43, 43, 43, 57,
 
 						43, 43, 43, 29, 57, 43, 43, 43, 43, 43, 43,
-
 					],
-
 				},
-
 			},
 			{
-
 				name: "metal pipe NG",
 
 				midiProgram: 117,
@@ -10407,7 +9025,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 				tags: ["spectrum", "beepbox", "idiophone"],
 
 				settings: {
-
 					type: "spectrum",
 
 					effects: "reverb",
@@ -10423,18 +9040,13 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					filterEnvelope: "twang 2",
 
 					spectrum: [
-
 						29, 43, 86, 43, 43, 43, 43, 43, 100, 29, 14, 14, 100, 14, 14, 0, 0, 0, 0, 0,
 
 						14, 29, 29, 14, 0, 0, 14, 29, 0, 0,
-
 					],
-
 				},
-
 			},
 			{
-
 				name: "synth kick NG",
 
 				midiProgram: 47,
@@ -10442,7 +9054,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 				tags: ["fm", "fm4op", "beepbox", "kick"],
 
 				settings: {
-
 					type: "FM",
 
 					eqFilter: [],
@@ -10464,42 +9075,31 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					feedbackAmplitude: 0,
 
 					operators: [
-
 						{ frequency: "8×", amplitude: 15 },
 
 						{ frequency: "1×", amplitude: 0 },
 
 						{
-
 							frequency: "1×",
 
 							amplitude: 0,
-
 						},
 
 						{ frequency: "1×", amplitude: 0 },
-
 					],
 
 					envelopes: [
-
 						{ target: "operatorFrequency", envelope: "twang 1", index: 0 },
 
 						{
-
 							target: "noteVolume",
 
 							envelope: "twang 2",
-
 						},
-
 					],
-
 				},
-
 			},
 			{
-
 				name: "guitar fret noise NG",
 
 				midiProgram: 120,
@@ -10509,7 +9109,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 				tags: ["spectrum", "beepbox", "novelty"],
 
 				settings: {
-
 					type: "spectrum",
 
 					eqFilter: [{ type: "high-pass", cutoffHz: 1000, linearGain: 0.1768 }],
@@ -10527,32 +9126,23 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					chord: "simultaneous",
 
 					spectrum: [
-
 						0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 14, 0, 0, 0, 29, 14, 0, 0, 43, 0, 43,
 
 						0, 71, 43, 0, 57, 0,
-
 					],
 
 					envelopes: [
-
 						{ target: "noteFilterAllFreqs", envelope: "flare 1" },
 
 						{
-
 							target: "noteVolume",
 
 							envelope: "twang 2",
-
 						},
-
 					],
-
 				},
-
 			},
 			{
-
 				name: "fifth saw lead NG",
 
 				midiProgram: 86,
@@ -10564,7 +9154,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 				tags: ["chip", "chipwave", "beepbox", "novelty"],
 
 				settings: {
-
 					type: "chip",
 
 					eqFilter: [],
@@ -10588,12 +9177,9 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					unison: "fifth",
 
 					envelopes: [{ target: "noteFilterAllFreqs", envelope: "twang 3" }],
-
 				},
-
 			},
 			{
-
 				name: "fifth swell NG",
 
 				midiProgram: 86,
@@ -10603,7 +9189,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 				tags: ["chip", "chipwave", "beepbox", "novelty"],
 
 				settings: {
-
 					type: "chip",
 
 					eqFilter: [],
@@ -10627,12 +9212,9 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					unison: "fifth",
 
 					envelopes: [{ target: "noteFilterAllFreqs", envelope: "swell 3" }],
-
 				},
-
 			},
 			{
-
 				name: "soundtrack NG",
 
 				midiProgram: 97,
@@ -10642,7 +9224,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 				tags: ["chip", "chipwave", "beepbox", "novelty"],
 
 				settings: {
-
 					type: "chip",
 
 					eqFilter: [],
@@ -10666,12 +9247,9 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					unison: "fifth",
 
 					envelopes: [{ target: "noteFilterAllFreqs", envelope: "flare 3" }],
-
 				},
-
 			},
 			{
-
 				name: "reverse cymbal NG",
 
 				midiProgram: 119,
@@ -10685,7 +9263,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 				tags: ["spectrum", "beepbox", "novelty"],
 
 				settings: {
-
 					type: "spectrum",
 
 					effects: "none",
@@ -10701,18 +9278,13 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					filterEnvelope: "swell 3",
 
 					spectrum: [
-
 						29, 57, 57, 29, 57, 57, 29, 29, 43, 29, 29, 43, 29, 29, 57, 57, 14, 57, 14,
 
 						57, 71, 71, 57, 86, 57, 100, 86, 86, 86, 86,
-
 					],
-
 				},
-
 			},
 			{
-
 				name: "seashore NG",
 
 				midiProgram: 122,
@@ -10726,7 +9298,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 				tags: ["spectrum", "beepbox", "novelty"],
 
 				settings: {
-
 					type: "spectrum",
 
 					transition: "soft fade",
@@ -10742,18 +9313,13 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					filterEnvelope: "swell 3",
 
 					spectrum: [
-
 						14, 14, 29, 29, 43, 43, 43, 57, 57, 57, 57, 57, 57, 71, 71, 71, 71, 71, 71,
 
 						71, 71, 71, 71, 71, 71, 71, 71, 71, 71, 57,
-
 					],
-
 				},
-
 			},
 			{
-
 				name: "bird tweet NG",
 
 				midiProgram: 123,
@@ -10763,7 +9329,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 				tags: ["harmonics", "beepbox", "novelty"],
 
 				settings: {
-
 					type: "harmonics",
 
 					eqFilter: [],
@@ -10781,22 +9346,17 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					fadeOutTicks: -6,
 
 					harmonics: [
-
 						0, 0, 0, 100, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 
 						0, 0, 0,
-
 					],
 
 					unison: "hum",
 
 					envelopes: [{ target: "noteVolume", envelope: "decay 1" }],
-
 				},
-
 			},
 			{
-
 				name: "telephone ring NG",
 
 				midiProgram: 124,
@@ -10806,7 +9366,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 				tags: ["fm", "fm4op", "beepbox", "novelty"],
 
 				settings: {
-
 					type: "FM",
 
 					eqFilter: [],
@@ -10830,44 +9389,33 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					feedbackAmplitude: 0,
 
 					operators: [
-
 						{ frequency: "2×", amplitude: 12 },
 
 						{ frequency: "1×", amplitude: 4 },
 
 						{
-
 							frequency: "20×",
 
 							amplitude: 1,
-
 						},
 
 						{ frequency: "1×", amplitude: 0 },
-
 					],
 
 					envelopes: [
-
 						{ target: "noteFilterAllFreqs", envelope: "tremolo4" },
 
 						{
-
 							target: "operatorAmplitude",
 
 							envelope: "tremolo1",
 
 							index: 1,
-
 						},
-
 					],
-
 				},
-
 			},
 			{
-
 				name: "helicopter NG",
 
 				midiProgram: 125,
@@ -10881,7 +9429,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 				tags: ["spectrum", "beepbox", "novelty"],
 
 				settings: {
-
 					type: "spectrum",
 
 					effects: "reverb",
@@ -10897,18 +9444,13 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					filterEnvelope: "tremolo4",
 
 					spectrum: [
-
 						14, 43, 43, 57, 57, 57, 71, 71, 71, 71, 86, 86, 86, 86, 86, 86, 86, 86, 86,
 
 						86, 86, 71, 71, 71, 71, 71, 71, 71, 57, 57,
-
 					],
-
 				},
-
 			},
 			{
-
 				name: "applause NG",
 
 				midiProgram: 126,
@@ -10922,7 +9464,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 				tags: ["spectrum", "beepbox", "novelty"],
 
 				settings: {
-
 					type: "spectrum",
 
 					effects: "reverb",
@@ -10938,18 +9479,13 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					filterEnvelope: "swell 3",
 
 					spectrum: [
-
 						14, 14, 29, 29, 29, 43, 43, 57, 71, 71, 86, 86, 86, 71, 71, 57, 57, 57, 71,
 
 						86, 86, 86, 86, 86, 71, 71, 57, 57, 57, 57,
-
 					],
-
 				},
-
 			},
 			{
-
 				name: "gunshot NG",
 
 				midiProgram: 127,
@@ -10963,7 +9499,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 				tags: ["spectrum", "beepbox", "novelty"],
 
 				settings: {
-
 					type: "spectrum",
 
 					effects: "reverb",
@@ -10979,18 +9514,13 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					filterEnvelope: "twang 1",
 
 					spectrum: [
-
 						14, 29, 43, 43, 57, 57, 57, 71, 71, 71, 86, 86, 86, 86, 86, 86, 86, 86, 86,
 
 						86, 86, 71, 71, 71, 71, 57, 57, 57, 57, 43,
-
 					],
-
 				},
-
 			},
 			{
-
 				name: "scoot NG",
 
 				midiProgram: 92,
@@ -10998,7 +9528,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 				tags: ["chip", "chipwave", "beepbox", "novelty"],
 
 				settings: {
-
 					type: "chip",
 
 					eqFilter: [],
@@ -11020,12 +9549,9 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					unison: "shimmer",
 
 					envelopes: [{ target: "noteFilterAllFreqs", envelope: "flare 1" }],
-
 				},
-
 			},
 			{
-
 				name: "buzz saw NG",
 
 				midiProgram: 30,
@@ -11033,7 +9559,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 				tags: ["fm", "fm4op", "beepbox", "novelty"],
 
 				settings: {
-
 					type: "FM",
 
 					eqFilter: [{ type: "low-pass", cutoffHz: 9513.66, linearGain: 0.5 }],
@@ -11055,30 +9580,23 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					feedbackAmplitude: 4,
 
 					operators: [
-
 						{ frequency: "5×", amplitude: 13 },
 
 						{ frequency: "1×", amplitude: 10 },
 
 						{
-
 							frequency: "~1×",
 
 							amplitude: 6,
-
 						},
 
 						{ frequency: "11×", amplitude: 12 },
-
 					],
 
 					envelopes: [],
-
 				},
-
 			},
 			{
-
 				name: "mosquito NG",
 
 				midiProgram: 93,
@@ -11086,7 +9604,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 				tags: ["pwm", "beepbox", "novelty"],
 
 				settings: {
-
 					type: "PWM",
 
 					eqFilter: [{ type: "low-pass", cutoffHz: 2828.43, linearGain: 2 }],
@@ -11106,12 +9623,9 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					pulseWidth: 4.41942,
 
 					envelopes: [{ target: "pulseWidth", envelope: "tremolo6" }],
-
 				},
-
 			},
 			{
-
 				name: "breathing NG",
 
 				midiProgram: 126,
@@ -11123,7 +9637,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 				tags: ["spectrum", "beepbox", "novelty"],
 
 				settings: {
-
 					type: "spectrum",
 
 					effects: "reverb",
@@ -11139,18 +9652,13 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					filterEnvelope: "swell 2",
 
 					spectrum: [
-
 						14, 14, 14, 29, 29, 29, 29, 29, 43, 29, 29, 43, 43, 43, 29, 29, 71, 43, 86,
 
 						86, 57, 100, 86, 86, 86, 86, 71, 86, 71, 57,
-
 					],
-
 				},
-
 			},
 			{
-
 				name: "klaxon synth NG",
 
 				midiProgram: 125,
@@ -11162,7 +9670,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 				tags: ["noise", "beepbox", "novelty"],
 
 				settings: {
-
 					type: "noise",
 
 					effects: "reverb",
@@ -11178,12 +9685,9 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					filterEnvelope: "steady",
 
 					wave: "buzz",
-
 				},
-
 			},
 			{
-
 				name: "theremin NG",
 
 				midiProgram: 40,
@@ -11191,7 +9695,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 				tags: ["harmonics", "beepbox", "novelty"],
 
 				settings: {
-
 					type: "harmonics",
 
 					eqFilter: [{ type: "low-pass", cutoffHz: 8000, linearGain: 0.7071 }],
@@ -11211,22 +9714,17 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					chord: "simultaneous",
 
 					harmonics: [
-
 						100, 71, 57, 43, 29, 29, 14, 14, 14, 14, 14, 14, 14, 0, 0, 0, 0, 0, 0, 0, 0,
 
 						0, 0, 0, 0, 0, 0, 0,
-
 					],
 
 					unison: "none",
 
 					envelopes: [],
-
 				},
-
 			},
 			{
-
 				name: "sonar ping NG",
 
 				midiProgram: 121,
@@ -11234,7 +9732,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 				tags: ["spectrum", "beepbox", "novelty"],
 
 				settings: {
-
 					type: "spectrum",
 
 					eqFilter: [],
@@ -11254,19 +9751,14 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					chord: "simultaneous",
 
 					spectrum: [
-
 						100, 43, 29, 29, 14, 14, 14, 14, 14, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 
 						0, 0, 0, 0, 0, 0, 0, 0,
-
 					],
 
 					envelopes: [{ target: "noteFilterAllFreqs", envelope: "twang 2" }],
-
 				},
-
 			},
 		]),
 	},
 ];
-

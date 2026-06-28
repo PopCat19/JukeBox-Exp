@@ -452,7 +452,9 @@ export class PalettePrompt extends BasePrompt {
 						this._exportCssBtn.textContent = orig;
 					}, 1200);
 				})
-				.catch(() => { console.warn("image load failed"); });
+				.catch(() => {
+					console.warn("image load failed");
+				});
 		});
 
 		this._downloadCssBtn.addEventListener("click", () => {

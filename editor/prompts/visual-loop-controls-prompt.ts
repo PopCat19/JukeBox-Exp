@@ -238,8 +238,21 @@ export class VisualLoopControlsPrompt extends BasePrompt {
 				"pointer-events": "none",
 				style: "width: 100%; height: 100%;",
 			},
-			SVG.circle({ cx: 10, cy: 10, r: 7, "stroke-width": 2, stroke: ColorConfig.primaryText, fill: "none" }),
-			SVG.path({ d: "M15 15 L21 21 M7 10 L13 10 M10 7 L10 13", stroke: ColorConfig.primaryText, "stroke-width": 2, "stroke-linecap": "round", fill: "none" }),
+			SVG.circle({
+				cx: 10,
+				cy: 10,
+				r: 7,
+				"stroke-width": 2,
+				stroke: ColorConfig.primaryText,
+				fill: "none",
+			}),
+			SVG.path({
+				d: "M15 15 L21 21 M7 10 L13 10 M10 7 L10 13",
+				stroke: ColorConfig.primaryText,
+				"stroke-width": 2,
+				"stroke-linecap": "round",
+				fill: "none",
+			}),
 		),
 	);
 	private _zoomOutButton: HTMLButtonElement = button(
@@ -256,8 +269,21 @@ export class VisualLoopControlsPrompt extends BasePrompt {
 				"pointer-events": "none",
 				style: "width: 100%; height: 100%;",
 			},
-			SVG.circle({ cx: 10, cy: 10, r: 7, "stroke-width": 2, stroke: ColorConfig.primaryText, fill: "none" }),
-			SVG.path({ d: "M15 15 L21 21 M7 10 L13 10", stroke: ColorConfig.primaryText, "stroke-width": 2, "stroke-linecap": "round", fill: "none" }),
+			SVG.circle({
+				cx: 10,
+				cy: 10,
+				r: 7,
+				"stroke-width": 2,
+				stroke: ColorConfig.primaryText,
+				fill: "none",
+			}),
+			SVG.path({
+				d: "M15 15 L21 21 M7 10 L13 10",
+				stroke: ColorConfig.primaryText,
+				"stroke-width": 2,
+				"stroke-linecap": "round",
+				fill: "none",
+			}),
 		),
 	);
 	private _zoom100Button: HTMLButtonElement = button(

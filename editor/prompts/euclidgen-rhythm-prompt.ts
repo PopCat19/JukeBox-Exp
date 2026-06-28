@@ -53,16 +53,40 @@ export class EuclidgenRhythmPrompt extends BasePrompt {
 		{ class: "no-underline", style: "flex-grow: 0; flex-basis: 30px;" },
 		SVG.svg(
 			{ width: "24", height: "24", viewBox: "0 0 24 24", "pointer-events": "none" },
-			SVG.path({ d: "M18 6l-12 12", stroke: ColorConfig.primaryText, "stroke-width": "2", "stroke-linecap": "round", fill: "none" }),
-			SVG.path({ d: "M6 6l12 12", stroke: ColorConfig.primaryText, "stroke-width": "2", "stroke-linecap": "round", fill: "none" }),
+			SVG.path({
+				d: "M18 6l-12 12",
+				stroke: ColorConfig.primaryText,
+				"stroke-width": "2",
+				"stroke-linecap": "round",
+				fill: "none",
+			}),
+			SVG.path({
+				d: "M6 6l12 12",
+				stroke: ColorConfig.primaryText,
+				"stroke-width": "2",
+				"stroke-linecap": "round",
+				fill: "none",
+			}),
 		),
 	);
 	private readonly _sequenceAddButton: HTMLButtonElement = button(
 		{ class: "no-underline last-button", style: "flex-grow: 0; flex-basis: 30px;" },
 		SVG.svg(
 			{ width: "24", height: "24", viewBox: "0 0 24 24", "pointer-events": "none" },
-			SVG.path({ d: "M12 5l0 14", stroke: ColorConfig.primaryText, "stroke-width": "2", "stroke-linecap": "round", fill: "none" }),
-			SVG.path({ d: "M5 12l14 0", stroke: ColorConfig.primaryText, "stroke-width": "2", "stroke-linecap": "round", fill: "none" }),
+			SVG.path({
+				d: "M12 5l0 14",
+				stroke: ColorConfig.primaryText,
+				"stroke-width": "2",
+				"stroke-linecap": "round",
+				fill: "none",
+			}),
+			SVG.path({
+				d: "M5 12l14 0",
+				stroke: ColorConfig.primaryText,
+				"stroke-width": "2",
+				"stroke-linecap": "round",
+				fill: "none",
+			}),
 		),
 	);
 	private readonly _sequenceButtonContainer: HTMLDivElement = div(
@@ -79,30 +103,48 @@ export class EuclidgenRhythmPrompt extends BasePrompt {
 		{ style: "height: auto; min-height: var(--button-size);" },
 		SVG.svg(
 			{ width: "24", height: "24", viewBox: "0 0 24 24", "pointer-events": "none" },
-			SVG.path({ d: "M19.496 4.136l-12 7a1 1 0 0 0 0 1.728l12 7a1 1 0 0 0 1.504 -.864v-14a1 1 0 0 0 -1.504 -.864z", fill: ColorConfig.primaryText }),
-			SVG.path({ d: "M4 4a1 1 0 0 1 .993 .883l.007 .117v14a1 1 0 0 1 -1.993 .117l-.007 -.117v-14a1 1 0 0 1 1 -1z", fill: ColorConfig.primaryText }),
+			SVG.path({
+				d: "M19.496 4.136l-12 7a1 1 0 0 0 0 1.728l12 7a1 1 0 0 0 1.504 -.864v-14a1 1 0 0 0 -1.504 -.864z",
+				fill: ColorConfig.primaryText,
+			}),
+			SVG.path({
+				d: "M4 4a1 1 0 0 1 .993 .883l.007 .117v14a1 1 0 0 1 -1.993 .117l-.007 -.117v-14a1 1 0 0 1 1 -1z",
+				fill: ColorConfig.primaryText,
+			}),
 		),
 	);
 	private readonly _barPreviewGoBackButton: HTMLButtonElement = button(
 		{ style: "height: auto; min-height: var(--button-size); margin-left: 1em;" },
 		SVG.svg(
 			{ width: "24", height: "24", viewBox: "0 0 24 24", "pointer-events": "none" },
-			SVG.path({ d: "M19.496 4.136l-12 7a1 1 0 0 0 0 1.728l12 7a1 1 0 0 0 1.504 -.864v-14a1 1 0 0 0 -1.504 -.864z", fill: ColorConfig.primaryText }),
+			SVG.path({
+				d: "M19.496 4.136l-12 7a1 1 0 0 0 0 1.728l12 7a1 1 0 0 0 1.504 -.864v-14a1 1 0 0 0 -1.504 -.864z",
+				fill: ColorConfig.primaryText,
+			}),
 		),
 	);
 	private readonly _barPreviewGoForwardButton: HTMLButtonElement = button(
 		{ style: "height: auto; min-height: var(--button-size);" },
 		SVG.svg(
 			{ width: "24", height: "24", viewBox: "0 0 24 24", "pointer-events": "none" },
-			SVG.path({ d: "M3 5v14a1 1 0 0 0 1.504 .864l12 -7a1 1 0 0 0 0 -1.728l-12 -7a1 1 0 0 0 -1.504 .864z", fill: ColorConfig.primaryText }),
+			SVG.path({
+				d: "M3 5v14a1 1 0 0 0 1.504 .864l12 -7a1 1 0 0 0 0 -1.728l-12 -7a1 1 0 0 0 -1.504 .864z",
+				fill: ColorConfig.primaryText,
+			}),
 		),
 	);
 	private readonly _barPreviewGoToLastButton: HTMLButtonElement = button(
 		{ style: "height: auto; min-height: var(--button-size); margin-left: 1em;" },
 		SVG.svg(
 			{ width: "24", height: "24", viewBox: "0 0 24 24", "pointer-events": "none" },
-			SVG.path({ d: "M3 5v14a1 1 0 0 0 1.504 .864l12 -7a1 1 0 0 0 0 -1.728l-12 -7a1 1 0 0 0 -1.504 .864z", fill: ColorConfig.primaryText }),
-			SVG.path({ d: "M20 4a1 1 0 0 1 .993 .883l.007 .117v14a1 1 0 0 1 -1.993 .117l-.007 -.117v-14a1 1 0 0 1 1 -1z", fill: ColorConfig.primaryText }),
+			SVG.path({
+				d: "M3 5v14a1 1 0 0 0 1.504 .864l12 -7a1 1 0 0 0 0 -1.728l-12 -7a1 1 0 0 0 -1.504 .864z",
+				fill: ColorConfig.primaryText,
+			}),
+			SVG.path({
+				d: "M20 4a1 1 0 0 1 .993 .883l.007 .117v14a1 1 0 0 1 -1.993 .117l-.007 -.117v-14a1 1 0 0 1 1 -1z",
+				fill: ColorConfig.primaryText,
+			}),
 		),
 	);
 	private readonly _clockWire: SVGCircleElement = SVG.circle({

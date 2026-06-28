@@ -2355,7 +2355,6 @@ export class Synth {
 				pitches.length > 0 &&
 				this.liveInputInstruments.indexOf(instrumentIndex) !== -1
 			) {
-
 				const instrument: Instrument = channel.instruments[instrumentIndex];
 
 				if (instrument.getChord().singleTone) {
@@ -2940,7 +2939,6 @@ export class Synth {
 								filteredPitches = [];
 							}
 						}
-
 					}
 					if (chord.singleTone && !(filteredPitches.length <= 0)) {
 						const atNoteStart: boolean =
@@ -3068,7 +3066,6 @@ export class Synth {
 												pitchesForThisTone = [];
 											}
 										}
-
 									}
 									prevNoteForThisTone = null;
 									noteStartPart = noteForThisTone.start + strumOffsetParts;

@@ -137,7 +137,9 @@ export function exportToMidi(
 			writer.writeUint8(MidiEventType.meta);
 			writer.writeMidi7Bits(MidiMetaEventMessage.timeSignature);
 			writer.writeMidiVariableLength(4);
-			writer.writeUint8(song.beatsPerBar === 8 ? 4 : song.beatsPerBar === 6 ? 3 : song.beatsPerBar);
+			writer.writeUint8(
+				song.beatsPerBar === 8 ? 4 : song.beatsPerBar === 6 ? 3 : song.beatsPerBar,
+			);
 			writer.writeUint8(2);
 			writer.writeUint8(24);
 			writer.writeUint8(8);

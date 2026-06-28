@@ -9,6 +9,7 @@
 // - Returns a DecodeVariantResult with charIndex, variant flags, and version booleans
 
 import { base64CharCodeToInt } from "../serialization";
+import { LATEST_JUKEBOX_VERSION } from "../song-serialization";
 import {
 	LATEST_BEEPBOX_VERSION,
 	LATEST_GOLDBOX_VERSION,
@@ -17,12 +18,11 @@ import {
 	LATEST_ULTRABOX_VERSION,
 	OLDEST_BEEPBOX_VERSION,
 	OLDEST_GOLDBOX_VERSION,
+	OLDEST_JUKEBOX_VERSION,
 	OLDEST_JUMMBOX_VERSION,
 	OLDEST_SLARMOOSBOX_VERSION,
 	OLDEST_ULTRABOX_VERSION,
-	OLDEST_JUKEBOX_VERSION,
 } from "../song-serialization-shared";
-import { LATEST_JUKEBOX_VERSION } from "../song-serialization";
 
 export interface DecodeVariantResult {
 	charIndex: number;

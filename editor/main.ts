@@ -76,7 +76,9 @@ editor.updatePlayButton();
 if ("serviceWorker" in navigator) {
 	navigator.serviceWorker
 		.register("/service_worker.js", { updateViaCache: "all", scope: "/" })
-		.catch(() => { console.warn("service worker registration failed"); });
+		.catch(() => {
+			console.warn("service worker registration failed");
+		});
 }
 
 // When compiling synth.ts as a standalone module named "beepbox", expose these classes as members to JavaScript:

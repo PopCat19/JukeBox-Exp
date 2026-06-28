@@ -1365,12 +1365,16 @@ export class Instrument {
 		}
 		if (instrumentObject.upperVelocityLimit !== undefined) {
 			this.upperVelocityLimit = clamp(
-				0, this.maxVelocity, instrumentObject.upperVelocityLimit | 0
+				0,
+				this.maxVelocity,
+				instrumentObject.upperVelocityLimit | 0,
 			);
 		}
 		if (instrumentObject.lowerVelocityLimit !== undefined) {
 			this.lowerVelocityLimit = clamp(
-				0, this.maxVelocity, instrumentObject.lowerVelocityLimit | 0
+				0,
+				this.maxVelocity,
+				instrumentObject.lowerVelocityLimit | 0,
 			);
 		}
 		if (instrumentObject.velocityTracking !== undefined) {

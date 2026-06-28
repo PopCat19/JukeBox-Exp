@@ -95,7 +95,7 @@ function convertVolume(draft: Record<string, unknown>): void {
 			// Inverse: given jukeboxVol V, solve for the BeepBox volume B
 			// that the legacy formula would map back to V.
 			// pre = -round(V * 7 / 25),  B = clamp(0, 100, (5 - pre) * 20)
-			const pre = -Math.round(vol * 7 / 25);
+			const pre = -Math.round((vol * 7) / 25);
 			instrument.volume = Math.max(0, Math.min(100, (5 - pre) * 20));
 		}
 	}
