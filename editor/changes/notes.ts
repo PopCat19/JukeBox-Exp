@@ -905,7 +905,9 @@ export function comparePatternNotes(a: Note[], b: Note[]): boolean {
 			newNote.start !== oldNote.start ||
 			newNote.end !== oldNote.end ||
 			newNote.pitches.length !== oldNote.pitches.length ||
-			newNote.pins.length !== oldNote.pins.length
+			newNote.pins.length !== oldNote.pins.length ||
+			newNote.velocity !== oldNote.velocity ||
+			newNote.continuesLastPattern !== oldNote.continuesLastPattern
 		) {
 			return false;
 		}
