@@ -1236,12 +1236,6 @@ export function parseMidiFile(buffer: ArrayBuffer, fileName?: string): ParsedMid
 						);
 						note.continuesLastPattern =
 							createdNote && noteStartPart === 0;
-						// Continuation notes must fill the entire bar regardless of
-						// where the sustain-off falls.  Truncation at a mid-bar beat
-						// creates a gap that disconnects the sustained voice.
-						if (note.continuesLastPattern && note.end < partsPerBar) {
-							note.end = partsPerBar;
-						}
 						if (!createdNote) {
 							trackRealNotes++;
 							if (endBar - startBar > 1) trackMultiBarSource++;
