@@ -412,7 +412,7 @@ export function parseMidiFile(buffer: ArrayBuffer, fileName?: string): ParsedMid
 									beatsPerBar = numerator * 4;
 									while (
 										(beatsPerBar & 1) === 0 &&
-										(denominatorExponent > 0 ||
+										(denominatorExponent > 1 ||
 											beatsPerBar > Config.beatsPerBarMax) &&
 										beatsPerBar >= Config.beatsPerBarMin * 2
 									) {
