@@ -563,6 +563,79 @@ export function parseMidiFile(buffer: ArrayBuffer, fileName?: string): ParsedMid
 		}
 		return Math.round(part * midiTicksPerPart);
 	};
+
+	// Trim leading silence up to half a bar: find the earliest note-on across
+	// all channels, then offset to remove the gap if it fits within half a bar.
+	{
+		let earliestNoteTick: number = Number.MAX_SAFE_INTEGER;
+		for (let ch: number = 0; ch < 16; ch++) {
+			for (const ev of noteEvents[ch]) {
+				if (ev.on && ev.midiTick < earliestNoteTick) {
+					earliestNoteTick = ev.midiTick;
+				}
+			}
+		}
+		if (earliestNoteTick < Number.MAX_SAFE_INTEGER && earliestNoteTick > 0) {
+			const silenceParts: number = Math.round(earliestNoteTick / midiTicksPerPart);
+			const halfBarParts: number = Math.floor(partsPerBar / 2);
+			if (silenceParts <= halfBarParts) {
+				tickOffset = earliestNoteTick;
+				console.log(
+					`[MIDI Import] Leading silence trimmed: ${silenceParts} parts (${(earliestNoteTick / midiTicksPerBeat).toFixed(2)} beats)`,
+				);
+			}
+		}
+	}
+
+	// Detect if offsetting by half a bar reduces cross-bar note splits.
+	// A note splits when startBar !== endBar; the continuation at part 0
+	// triggers continuesLastPattern.  We trial both offsets on the raw
+	// note-on/off events and pick whichever produces fewer splits.
+	if (tickOffset === 0) {
+		const halfBarParts: number = Math.floor(partsPerBar / 2);
+		const halfBarTicks: number = Math.round(halfBarParts * midiTicksPerPart);
+
+		function countBarSpans(offsetTicks: number): number {
+			let spans: number = 0;
+			for (let ch: number = 0; ch < 16; ch++) {
+				const held: { [pitch: number]: number } = {};
+				for (const ev of noteEvents[ch]) {
+					const adj: number = ev.midiTick + offsetTicks;
+					let part: number = 0;
+					for (const seg of timeSigSegs) {
+						if (adj >= seg.startTick && adj < seg.endTick) {
+							part = seg.startPart + Math.round((adj - seg.startTick) / midiTicksPerPart);
+							break;
+						}
+					}
+					if (part < 0) part = Math.round(adj / midiTicksPerPart);
+					const bar: number = Math.floor(part / partsPerBar);
+					if (ev.on) {
+						held[ev.pitch] = bar;
+					} else if (held[ev.pitch] !== undefined) {
+						if (held[ev.pitch] !== bar) spans++;
+						delete held[ev.pitch];
+					}
+				}
+			}
+			return spans;
+		}
+
+		const splitsNoOffset: number = countBarSpans(0);
+		const splitsHalfOffset: number = countBarSpans(halfBarTicks);
+
+		if (splitsHalfOffset < splitsNoOffset && splitsNoOffset > 0) {
+			tickOffset = halfBarTicks;
+			console.log(
+				`[MIDI Import] Half-bar offset applied: ${splitsNoOffset} -> ${splitsHalfOffset} cross-bar splits`,
+			);
+		} else {
+			console.log(
+				`[MIDI Import] No half-bar offset: ${splitsNoOffset} vs ${splitsHalfOffset} cross-bar splits`,
+			);
+		}
+	}
+
 	const songTotalBars: number = Math.min(
 		Config.barCountMax,
 		Math.ceil(quantizeMidiTickToPart(currentMidiTick) / partsPerBar),
