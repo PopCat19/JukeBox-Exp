@@ -1681,8 +1681,11 @@ export function parseMidiFile(buffer: ArrayBuffer, fileName?: string): ParsedMid
 
 	// Post-processing: fix up continuesLastPattern for notes that span
 	// consecutive bars but whose flag wasn't set by the track-level
-	// bar-splitting (e.g. mid-bar start in first bar, or sustained
-	// patterns that repeat at the same position across bars).
+	// bar-splitting (e.g. mid-bar start in first bar).
+	// Only links notes when a note in the previous bar actually ends at
+	// the bar boundary (partsPerBar) — this ensures only genuine sustain/
+	// tie continuations are linked, not repeated rhythmic patterns whose
+	// attack would be incorrectly suppressed by forceContinueAtStart.
 	function fixupContinuesLastPattern(channels: Channel[]): void {
 		for (const channel of channels) {
 			for (let bar: number = 1; bar < channel.bars.length; bar++) {
@@ -1692,11 +1695,8 @@ export function parseMidiFile(buffer: ArrayBuffer, fileName?: string): ParsedMid
 				const prevPat: Pattern = channel.patterns[prevPi];
 				const thisPat: Pattern = channel.patterns[thisPi];
 				if (!prevPat || !thisPat) continue;
-				// Find notes in the previous bar that could connect to this bar.
-				// Two cases:
-				//   1. Note ends at partsPerBar (crosses bar boundary).
-				//   2. Note has the same pitch AND same start position as a note
-				//      in this bar (pattern reused at same position).
+				// Only link when a note in the previous bar ends at the bar
+				// boundary (genuine sustain/tie cross-bar continuation).
 				const prevCandidates: Note[] = prevPat.notes.filter(
 					(n: Note) => n.end === partsPerBar,
 				);
@@ -1709,24 +1709,6 @@ export function parseMidiFile(buffer: ArrayBuffer, fileName?: string): ParsedMid
 						if (pitchMatch) {
 							thisNote.continuesLastPattern = true;
 							break;
-						}
-					}
-				}
-				// Also check: if notes in consecutive bars share the same pitch
-				// AND same start position, they're part of a repeating sustain
-				// pattern that should be linked (e.g. [8-16] p=[32] at every bar).
-				if (prevCandidates.length === 0) {
-					for (const thisNote of thisPat.notes) {
-						if (thisNote.continuesLastPattern) continue;
-						for (const prevNote of prevPat.notes) {
-							if (prevNote.start !== thisNote.start) continue;
-							const pitchMatch: boolean = thisNote.pitches.some(
-								(p: number) => prevNote.pitches.indexOf(p) >= 0,
-							);
-							if (pitchMatch) {
-								thisNote.continuesLastPattern = true;
-								break;
-							}
 						}
 					}
 				}
