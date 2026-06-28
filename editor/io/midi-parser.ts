@@ -1684,6 +1684,44 @@ export function parseMidiFile(buffer: ArrayBuffer, fileName?: string): ParsedMid
 	validateChannelNotes(noiseChannels, Config.drumCount - 1, Config.noteSizeMax, "noise channels");
 	validateChannelNotes(modChannels, Config.modCount - 1, Config.tempoMax, "mod channels");
 
+	// Post-processing: fix up continuesLastPattern for notes that span
+	// consecutive bars via pattern reuse but whose flag wasn't set by
+	// the track-level bar-splitting (e.g. mid-bar start in first bar).
+	function fixupContinuesLastPattern(channels: Channel[]): void {
+		for (const channel of channels) {
+			for (let bar: number = 1; bar < channel.bars.length; bar++) {
+				const prevPi: number = channel.bars[bar - 1] - 1;
+				const thisPi: number = channel.bars[bar] - 1;
+				if (prevPi < 0 || thisPi < 0) continue;
+				const prevPat: Pattern = channel.patterns[prevPi];
+				const thisPat: Pattern = channel.patterns[thisPi];
+				if (!prevPat || !thisPat) continue;
+				const prevEndNotes: Note[] = prevPat.notes.filter(
+					(n: Note) => n.end === partsPerBar,
+				);
+				if (prevEndNotes.length === 0) continue;
+				for (const thisNote of thisPat.notes) {
+					if (thisNote.continuesLastPattern) continue;
+					// Skip notes that start before the prev bar's last note ends.
+					// Only connect notes that start at or after the prev bar boundary.
+					if (thisNote.start < 0) continue;
+					for (const prevNote of prevEndNotes) {
+						const pitchMatch: boolean = thisNote.pitches.some(
+							(p: number) => prevNote.pitches.indexOf(p) >= 0,
+						);
+						if (pitchMatch) {
+							thisNote.continuesLastPattern = true;
+							break;
+						}
+					}
+				}
+			}
+		}
+	}
+	fixupContinuesLastPattern(pitchChannels);
+	fixupContinuesLastPattern(noiseChannels);
+	fixupContinuesLastPattern(modChannels);
+
 	console.log(
 		`[MIDI Import] key=${key} scale=${scale} (${Config.scales[scale].name}) rhythm=${detectedRhythm} (${Config.rhythms[detectedRhythm].name}) beatsPerBar=${beatsPerBar} tempo=${beatsPerMinute} BPM`,
 	);
