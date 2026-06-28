@@ -1685,8 +1685,9 @@ export function parseMidiFile(buffer: ArrayBuffer, fileName?: string): ParsedMid
 	validateChannelNotes(modChannels, Config.modCount - 1, Config.tempoMax, "mod channels");
 
 	// Post-processing: fix up continuesLastPattern for notes that span
-	// consecutive bars via pattern reuse but whose flag wasn't set by
-	// the track-level bar-splitting (e.g. mid-bar start in first bar).
+	// consecutive bars but whose flag wasn't set by the track-level
+	// bar-splitting (e.g. mid-bar start in first bar, or sustained
+	// patterns that repeat at the same position across bars).
 	function fixupContinuesLastPattern(channels: Channel[]): void {
 		for (const channel of channels) {
 			for (let bar: number = 1; bar < channel.bars.length; bar++) {
@@ -1696,22 +1697,41 @@ export function parseMidiFile(buffer: ArrayBuffer, fileName?: string): ParsedMid
 				const prevPat: Pattern = channel.patterns[prevPi];
 				const thisPat: Pattern = channel.patterns[thisPi];
 				if (!prevPat || !thisPat) continue;
-				const prevEndNotes: Note[] = prevPat.notes.filter(
+				// Find notes in the previous bar that could connect to this bar.
+				// Two cases:
+				//   1. Note ends at partsPerBar (crosses bar boundary).
+				//   2. Note has the same pitch AND same start position as a note
+				//      in this bar (pattern reused at same position).
+				const prevCandidates: Note[] = prevPat.notes.filter(
 					(n: Note) => n.end === partsPerBar,
 				);
-				if (prevEndNotes.length === 0) continue;
 				for (const thisNote of thisPat.notes) {
 					if (thisNote.continuesLastPattern) continue;
-					// Skip notes that start before the prev bar's last note ends.
-					// Only connect notes that start at or after the prev bar boundary.
-					if (thisNote.start < 0) continue;
-					for (const prevNote of prevEndNotes) {
+					for (const prevNote of prevCandidates) {
 						const pitchMatch: boolean = thisNote.pitches.some(
 							(p: number) => prevNote.pitches.indexOf(p) >= 0,
 						);
 						if (pitchMatch) {
 							thisNote.continuesLastPattern = true;
 							break;
+						}
+					}
+				}
+				// Also check: if notes in consecutive bars share the same pitch
+				// AND same start position, they're part of a repeating sustain
+				// pattern that should be linked (e.g. [8-16] p=[32] at every bar).
+				if (prevCandidates.length === 0) {
+					for (const thisNote of thisPat.notes) {
+						if (thisNote.continuesLastPattern) continue;
+						for (const prevNote of prevPat.notes) {
+							if (prevNote.start !== thisNote.start) continue;
+							const pitchMatch: boolean = thisNote.pitches.some(
+								(p: number) => prevNote.pitches.indexOf(p) >= 0,
+							);
+							if (pitchMatch) {
+								thisNote.continuesLastPattern = true;
+								break;
+							}
 						}
 					}
 				}
