@@ -1672,7 +1672,7 @@ export const presetsNgCategories: InputPresetCategory[] = [
 
 					noteFilter: [{ type: "low-pass", cutoffHz: 8000, linearGain: 0.125 }],
 
-					reverb: 67,
+					reverb: 33,
 
 					transition: "normal",
 
