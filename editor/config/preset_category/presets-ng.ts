@@ -1642,6 +1642,10 @@ export const presetsNgCategories: InputPresetCategory[] = [
 
 				name: "grand piano 1 NG",
 
+				midiProgram: 0,
+
+				generalMidi: true,
+
 				tags: ["pickedstring", "beepbox", "keys"],
 
 				settings: {
@@ -2263,44 +2267,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 					],
 
 				},
-
-			},
-			{
-
-				name: "zone grand piano NG",
-
-				midiProgram: 0,
-
-				generalMidi: true,
-
-				tags: ["pickedstring", "beepbox", "keys", "zones"],
-
-				zones: [
-					{
-						settings: {
-							type: "Picked String",
-							eqFilter: [
-								{ type: "high-pass", cutoffHz: 62.5, linearGain: 0.5 },
-								{ type: "peak", cutoffHz: 210.22, linearGain: 1.4142 },
-								{ type: "low-pass", cutoffHz: 4000, linearGain: 0.7071 },
-							],
-							effects: ["reverb", "note range"],
-							reverb: 26,
-							transition: "normal",
-							fadeInSeconds: 0,
-							fadeOutTicks: 72,
-							chord: "simultaneous",
-							harmonics: [
-								100, 100, 86, 86, 86, 71, 57, 43, 0, 0, 86, 86, 71, 71, 71, 71, 86,
-								0, 43, 71, 71, 71, 71, 71, 71, 57, 43, 29,
-							],
-							unison: "piano",
-							stringSustain: 100,
-						},
-						lowerNoteLimit: 0,
-						upperNoteLimit: 96,
-					},
-				],
 
 			},
 			{
