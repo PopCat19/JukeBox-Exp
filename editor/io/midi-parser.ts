@@ -192,7 +192,6 @@ export function parseMidiFile(buffer: ArrayBuffer, fileName?: string): ParsedMid
 		value: number;
 	}
 	const sustainEvents: SustainEvent[] = [];
-	const channelSustainActive: boolean[] = [false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false];
 	const tempoChanges: TempoChange[] = [];
 	interface TimeSigChange {
 		midiTick: number;
@@ -343,7 +342,7 @@ export function parseMidiFile(buffer: ArrayBuffer, fileName?: string): ParsedMid
 										channel: eventChannel,
 										value: value,
 									});
-									channelSustainActive[eventChannel] = value >= 64;
+									// sustain state is tracked per-channel inside parseDiscreteNotes
 									break;
 								case MidiControlEventMessage.setParameterLSB:
 									if (
@@ -606,7 +605,9 @@ export function parseMidiFile(buffer: ArrayBuffer, fileName?: string): ParsedMid
 					let part: number = 0;
 					for (const seg of timeSigSegs) {
 						if (adj >= seg.startTick && adj < seg.endTick) {
-							part = seg.startPart + Math.round((adj - seg.startTick) / midiTicksPerPart);
+							part =
+								seg.startPart +
+								Math.round((adj - seg.startTick) / midiTicksPerPart);
 							break;
 						}
 					}
@@ -737,6 +738,12 @@ export function parseMidiFile(buffer: ArrayBuffer, fileName?: string): ParsedMid
 		const sustained: { [pitch: number]: boolean } = {};
 		let sustainActive: boolean = false;
 		let sustainReleaseTick: number = -1;
+		const trackEndTick: number = Math.max(
+			events.length > 0 ? events[events.length - 1].midiTick : 0,
+			sustainEventsForChannel.length > 0
+				? sustainEventsForChannel[sustainEventsForChannel.length - 1].midiTick
+				: 0,
+		);
 		let eventIndex: number = 0;
 		let sustainIndex: number = 0;
 		while (eventIndex < events.length || sustainIndex < sustainEventsForChannel.length) {
@@ -746,14 +753,15 @@ export function parseMidiFile(buffer: ArrayBuffer, fileName?: string): ParsedMid
 					: Number.MAX_VALUE;
 			const nextNoteTick: number =
 				eventIndex < events.length ? events[eventIndex].midiTick : Number.MAX_VALUE;
-			if (nextSustainTick <= nextNoteTick && sustainIndex < sustainEventsForChannel.length) {
+			if (nextSustainTick < nextNoteTick && sustainIndex < sustainEventsForChannel.length) {
 				const sustainEvent: SustainEvent = sustainEventsForChannel[sustainIndex];
 				const wasActive: boolean = sustainActive;
 				sustainActive = sustainEvent.value >= 64;
 				if (wasActive && !sustainActive) {
 					sustainReleaseTick = sustainEvent.midiTick;
-					for (const pitch in sustained) {
-						if (sustained[pitch] && held[pitch] !== undefined) {
+					for (const pitchStr of Object.keys(sustained)) {
+						const pitch: number = Number(pitchStr);
+						if (held[pitch] !== undefined) {
 							const note: DiscreteNote = held[pitch];
 							note.endMidiTick = sustainReleaseTick;
 							notes.push(note);
@@ -802,7 +810,11 @@ export function parseMidiFile(buffer: ArrayBuffer, fileName?: string): ParsedMid
 		for (const pitch in held) {
 			const note: DiscreteNote = held[pitch];
 			if (note.endMidiTick === -1) {
-				note.endMidiTick = note.startMidiTick + midiTicksPerPart;
+				if (sustained[pitch]) {
+					note.endMidiTick = trackEndTick;
+				} else {
+					note.endMidiTick = note.startMidiTick + midiTicksPerPart;
+				}
 			}
 			notes.push(note);
 		}
@@ -930,9 +942,13 @@ export function parseMidiFile(buffer: ArrayBuffer, fileName?: string): ParsedMid
 			const preset: Preset = EditorConfig.valueToPreset(presetValue)!;
 			const instrument: Instrument = new Instrument(false, false);
 			instrument.fromJsonObject(
-							preset.settings ?? preset.zones?.[0]?.settings,
-							false, false, false, false, 1,
-						);
+				preset.settings ?? preset.zones?.[0]?.settings,
+				false,
+				false,
+				false,
+				false,
+				1,
+			);
 			instrument.preset = presetValue;
 			channel.instruments.push(instrument);
 
@@ -1071,7 +1087,6 @@ export function parseMidiFile(buffer: ArrayBuffer, fileName?: string): ParsedMid
 				let pitchCount: number = 0;
 				let prevNoteTruncatedAtBarBoundary: boolean = false;
 
-
 				let currentMidiInterval: number = 0.0;
 				let currentMidiNoteSize: number = Config.noteSizeMax;
 				let pitchBendEventIndex: number = 0;
@@ -1207,7 +1222,10 @@ export function parseMidiFile(buffer: ArrayBuffer, fileName?: string): ParsedMid
 							false,
 						);
 						note.pins.length = 0;
-						note.velocity = Math.max(1, Math.min(127, Math.round(dnote.velocity * 127)));
+						note.velocity = Math.max(
+							1,
+							Math.min(127, Math.round(dnote.velocity * 127)),
+						);
 						note.continuesLastPattern =
 							(createdNote && noteStartPart === 0) ||
 							(prevNoteTruncatedAtBarBoundary && noteStartPart === 0);
