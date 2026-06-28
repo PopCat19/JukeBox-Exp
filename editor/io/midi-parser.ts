@@ -564,6 +564,8 @@ export function parseMidiFile(buffer: ArrayBuffer, fileName?: string): ParsedMid
 		return Math.round(part * midiTicksPerPart);
 	};
 
+	let tickOffset: number = 0;
+
 	// Trim leading silence up to half a bar: find the earliest note-on across
 	// all channels, then offset to remove the gap if it fits within half a bar.
 	{
