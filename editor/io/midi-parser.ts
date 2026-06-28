@@ -192,6 +192,7 @@ export function parseMidiFile(buffer: ArrayBuffer, fileName?: string): ParsedMid
 		value: number;
 	}
 	const sustainEvents: SustainEvent[] = [];
+	const channelSustainActive: boolean[] = [false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false];
 	const tempoChanges: TempoChange[] = [];
 	interface TimeSigChange {
 		midiTick: number;
@@ -342,6 +343,7 @@ export function parseMidiFile(buffer: ArrayBuffer, fileName?: string): ParsedMid
 										channel: eventChannel,
 										value: value,
 									});
+									channelSustainActive[eventChannel] = value >= 64;
 									break;
 								case MidiControlEventMessage.setParameterLSB:
 									if (
@@ -651,41 +653,83 @@ export function parseMidiFile(buffer: ArrayBuffer, fileName?: string): ParsedMid
 		instrumentPan: number;
 	}
 
-	function parseDiscreteNotes(events: NoteEvent[]): DiscreteNote[] {
+	function parseDiscreteNotes(
+		events: NoteEvent[],
+		sustainEventsForChannel: SustainEvent[],
+	): DiscreteNote[] {
 		const notes: DiscreteNote[] = [];
 		const held: { [pitch: number]: DiscreteNote } = {};
-		for (const event of events) {
-			if (event.on) {
-				if (held[event.pitch] !== undefined) {
-					const prev: DiscreteNote = held[event.pitch];
-					prev.endMidiTick = event.midiTick;
-					notes.push(prev);
-					delete held[event.pitch];
+		const sustained: { [pitch: number]: boolean } = {};
+		let sustainActive: boolean = false;
+		let sustainReleaseTick: number = -1;
+		let eventIndex: number = 0;
+		let sustainIndex: number = 0;
+		while (eventIndex < events.length || sustainIndex < sustainEventsForChannel.length) {
+			const nextSustainTick: number =
+				sustainIndex < sustainEventsForChannel.length
+					? sustainEventsForChannel[sustainIndex].midiTick
+					: Number.MAX_VALUE;
+			const nextNoteTick: number =
+				eventIndex < events.length ? events[eventIndex].midiTick : Number.MAX_VALUE;
+			if (nextSustainTick <= nextNoteTick && sustainIndex < sustainEventsForChannel.length) {
+				const sustainEvent: SustainEvent = sustainEventsForChannel[sustainIndex];
+				const wasActive: boolean = sustainActive;
+				sustainActive = sustainEvent.value >= 64;
+				if (wasActive && !sustainActive) {
+					sustainReleaseTick = sustainEvent.midiTick;
+					for (const pitch in sustained) {
+						if (sustained[pitch] && held[pitch] !== undefined) {
+							const note: DiscreteNote = held[pitch];
+							note.endMidiTick = sustainReleaseTick;
+							notes.push(note);
+							delete held[pitch];
+						}
+						delete sustained[pitch];
+					}
 				}
-				held[event.pitch] = {
-					startMidiTick: event.midiTick,
-					endMidiTick: -1,
-					pitches: [event.pitch],
-					velocity: event.velocity,
-					program: event.program,
-					instrumentVolume: event.instrumentVolume,
-					instrumentPan: event.instrumentPan,
-				};
+				sustainIndex++;
+			} else if (eventIndex < events.length) {
+				const event: NoteEvent = events[eventIndex];
+				if (event.on) {
+					if (held[event.pitch] !== undefined) {
+						const prev: DiscreteNote = held[event.pitch];
+						prev.endMidiTick = event.midiTick;
+						notes.push(prev);
+						delete held[event.pitch];
+					}
+					held[event.pitch] = {
+						startMidiTick: event.midiTick,
+						endMidiTick: -1,
+						pitches: [event.pitch],
+						velocity: event.velocity,
+						program: event.program,
+						instrumentVolume: event.instrumentVolume,
+						instrumentPan: event.instrumentPan,
+					};
+					delete sustained[event.pitch];
+				} else {
+					if (held[event.pitch] !== undefined) {
+						if (sustainActive) {
+							sustained[event.pitch] = true;
+						} else {
+							const note: DiscreteNote = held[event.pitch];
+							note.endMidiTick = event.midiTick;
+							notes.push(note);
+							delete held[event.pitch];
+						}
+					}
+				}
+				eventIndex++;
 			} else {
-				if (held[event.pitch] !== undefined) {
-					const note: DiscreteNote = held[event.pitch];
-					note.endMidiTick = event.midiTick;
-					notes.push(note);
-					delete held[event.pitch];
-				}
+				break;
 			}
 		}
 		for (const pitch in held) {
 			const note: DiscreteNote = held[pitch];
 			if (note.endMidiTick === -1) {
 				note.endMidiTick = note.startMidiTick + midiTicksPerPart;
-				notes.push(note);
 			}
+			notes.push(note);
 		}
 		return notes;
 	}
@@ -908,7 +952,13 @@ export function parseMidiFile(buffer: ArrayBuffer, fileName?: string): ParsedMid
 			}
 			while (channel.bars.length < songTotalBars) channel.bars.push(0);
 		} else {
-			const discreteNotes: DiscreteNote[] = parseDiscreteNotes(noteEvents[midiChannel]);
+			const channelSustainEvents: SustainEvent[] = sustainEvents.filter(
+				(ev: SustainEvent): boolean => ev.channel === midiChannel,
+			);
+			const discreteNotes: DiscreteNote[] = parseDiscreteNotes(
+				noteEvents[midiChannel],
+				channelSustainEvents,
+			);
 			const chordStats: ChordGroupStats = {
 				inputNotes: 0,
 				outputChords: 0,
@@ -944,6 +994,7 @@ export function parseMidiFile(buffer: ArrayBuffer, fileName?: string): ParsedMid
 				let trackRealNotes: number = 0;
 				let trackMultiBarSource: number = 0;
 				let pitchCount: number = 0;
+				let prevNoteSustainedAcrossBars: boolean = false;
 
 				let currentMidiInterval: number = 0.0;
 				let currentMidiNoteSize: number = Config.noteSizeMax;
@@ -986,6 +1037,7 @@ export function parseMidiFile(buffer: ArrayBuffer, fileName?: string): ParsedMid
 					const startBar: number = Math.floor(startPart / partsPerBar);
 					const endBar: number = Math.ceil(endPart / partsPerBar);
 					let createdNote: boolean = false;
+					let noteSpansMultipleBars: boolean = false;
 
 					const presetValue: number | null = EditorConfig.midiProgramToPresetValue(
 						dnote.program,
@@ -1080,7 +1132,9 @@ export function parseMidiFile(buffer: ArrayBuffer, fileName?: string): ParsedMid
 						);
 						note.pins.length = 0;
 						note.velocity = Math.max(1, Math.min(127, Math.round(dnote.velocity * 127)));
-						note.continuesLastPattern = createdNote && noteStartPart === 0;
+						note.continuesLastPattern =
+						(createdNote && noteStartPart === 0) ||
+						(prevNoteSustainedAcrossBars && noteStartPart === 0);
 						if (!createdNote) {
 							trackRealNotes++;
 							if (endBar - startBar > 1) trackMultiBarSource++;
@@ -1294,6 +1348,8 @@ export function parseMidiFile(buffer: ArrayBuffer, fileName?: string): ParsedMid
 						}
 						pattern.notes.push(note);
 					}
+					noteSpansMultipleBars = noteSpansMultipleBars || (endBar - startBar > 1);
+					prevNoteSustainedAcrossBars = noteSpansMultipleBars;
 				}
 				while (channel.bars.length < songTotalBars) channel.bars.push(0);
 				if (pitchCount > 0) {
@@ -1501,7 +1557,7 @@ export function parseMidiFile(buffer: ArrayBuffer, fileName?: string): ParsedMid
 		const releases: number = sustainEvents.length - holds;
 		console.log(
 			`[MIDI Import] CC 64 sustain: ${sustainEvents.length} events (${holds} hold / ${releases} release) ` +
-				`per-channel=${JSON.stringify(sustainByChannel)} -- currently IGNORED, notes keep written duration`,
+				`per-channel=${JSON.stringify(sustainByChannel)} -- extending note durations on pedal hold`,
 		);
 		const firstTick: number = sustainEvents[0].midiTick;
 		const lastTick: number = sustainEvents[sustainEvents.length - 1].midiTick;
