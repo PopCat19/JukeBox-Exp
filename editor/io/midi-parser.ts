@@ -735,7 +735,9 @@ export function parseMidiFile(buffer: ArrayBuffer, fileName?: string): ParsedMid
 	): DiscreteNote[] {
 		const notes: DiscreteNote[] = [];
 		const held: { [pitch: number]: DiscreteNote } = {};
-		const sustained: { [pitch: number]: boolean } = {};
+		// sustained tracks the note-off tick for notes captured by sustain pedal.
+		// Stored as a number (note-off tick) so we can compute hold ratio for decay.
+		const sustained: { [pitch: number]: number } = {};
 		let sustainActive: boolean = false;
 		let sustainReleaseTick: number = -1;
 		const trackEndTick: number = Math.max(
@@ -764,6 +766,19 @@ export function parseMidiFile(buffer: ArrayBuffer, fileName?: string): ParsedMid
 						if (held[pitch] !== undefined) {
 							const note: DiscreteNote = held[pitch];
 							note.endMidiTick = sustainReleaseTick;
+							// Sustain decay: velocity drops exponentially with the
+							// duration the pedal held the note past its natural off.
+							const noteOffTick: number = sustained[pitch];
+							if (sustainReleaseTick > noteOffTick) {
+								const sustainHoldBeats: number =
+									(sustainReleaseTick - noteOffTick) /
+									midiTicksPerBeat;
+								const decay: number = Math.max(
+									0.05,
+									Math.pow(0.5, sustainHoldBeats / 2.0),
+								);
+								note.velocity *= decay;
+							}
 							notes.push(note);
 							delete held[pitch];
 						}
@@ -777,6 +792,24 @@ export function parseMidiFile(buffer: ArrayBuffer, fileName?: string): ParsedMid
 					if (held[event.pitch] !== undefined) {
 						const prev: DiscreteNote = held[event.pitch];
 						prev.endMidiTick = event.midiTick;
+						// Sustain decay: when a new note-on replaces a sustained note,
+						// the sustained note's velocity decays based on how long the
+						// pedal held it past its natural release.
+						const noteOffTick: number | undefined =
+							sustained[event.pitch];
+						if (
+							noteOffTick !== undefined &&
+							event.midiTick > noteOffTick
+						) {
+							const sustainHoldBeats: number =
+								(event.midiTick - noteOffTick) /
+								midiTicksPerBeat;
+							const decay: number = Math.max(
+								0.05,
+								Math.pow(0.5, sustainHoldBeats / 2.0),
+							);
+							prev.velocity *= decay;
+						}
 						notes.push(prev);
 						delete held[event.pitch];
 					}
@@ -793,7 +826,8 @@ export function parseMidiFile(buffer: ArrayBuffer, fileName?: string): ParsedMid
 				} else {
 					if (held[event.pitch] !== undefined) {
 						if (sustainActive) {
-							sustained[event.pitch] = true;
+							// Record the note-off tick so we can compute sustain decay later.
+							sustained[event.pitch] = event.midiTick;
 						} else {
 							const note: DiscreteNote = held[event.pitch];
 							note.endMidiTick = event.midiTick;
@@ -810,8 +844,22 @@ export function parseMidiFile(buffer: ArrayBuffer, fileName?: string): ParsedMid
 		for (const pitch in held) {
 			const note: DiscreteNote = held[pitch];
 			if (note.endMidiTick === -1) {
-				if (sustained[pitch]) {
+				if (sustained[pitch] !== undefined) {
 					note.endMidiTick = trackEndTick;
+					// Sustain decay for unreleased pedal at track end:
+					// decay based on how long the sustain held the note
+					// past its natural release.
+					const noteOffTick: number = sustained[pitch];
+					if (trackEndTick > noteOffTick) {
+						const sustainHoldBeats: number =
+							(trackEndTick - noteOffTick) /
+							midiTicksPerBeat;
+						const decay: number = Math.max(
+							0.05,
+							Math.pow(0.5, sustainHoldBeats / 2.0),
+						);
+						note.velocity *= decay;
+					}
 				} else {
 					note.endMidiTick = note.startMidiTick + midiTicksPerPart;
 				}
