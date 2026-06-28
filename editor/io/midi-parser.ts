@@ -1069,7 +1069,8 @@ export function parseMidiFile(buffer: ArrayBuffer, fileName?: string): ParsedMid
 				let trackRealNotes: number = 0;
 				let trackMultiBarSource: number = 0;
 				let pitchCount: number = 0;
-				let prevNoteSustainedAcrossBars: boolean = false;
+				let prevNoteTruncatedAtBarBoundary: boolean = false;
+
 
 				let currentMidiInterval: number = 0.0;
 				let currentMidiNoteSize: number = Config.noteSizeMax;
@@ -1112,7 +1113,7 @@ export function parseMidiFile(buffer: ArrayBuffer, fileName?: string): ParsedMid
 					const startBar: number = Math.floor(startPart / partsPerBar);
 					const endBar: number = Math.ceil(endPart / partsPerBar);
 					let createdNote: boolean = false;
-					let noteSpansMultipleBars: boolean = false;
+					let noteTruncatedAtBarBoundary: boolean = false;
 
 					const presetValue: number | null = EditorConfig.midiProgramToPresetValue(
 						dnote.program,
@@ -1208,8 +1209,8 @@ export function parseMidiFile(buffer: ArrayBuffer, fileName?: string): ParsedMid
 						note.pins.length = 0;
 						note.velocity = Math.max(1, Math.min(127, Math.round(dnote.velocity * 127)));
 						note.continuesLastPattern =
-						(createdNote && noteStartPart === 0) ||
-						(prevNoteSustainedAcrossBars && noteStartPart === 0);
+							(createdNote && noteStartPart === 0) ||
+							(prevNoteTruncatedAtBarBoundary && noteStartPart === 0);
 						if (!createdNote) {
 							trackRealNotes++;
 							if (endBar - startBar > 1) trackMultiBarSource++;
@@ -1422,9 +1423,11 @@ export function parseMidiFile(buffer: ArrayBuffer, fileName?: string): ParsedMid
 							}
 						}
 						pattern.notes.push(note);
+						if (noteEndPart === partsPerBar) {
+							noteTruncatedAtBarBoundary = true;
+						}
 					}
-					noteSpansMultipleBars = noteSpansMultipleBars || (endBar - startBar > 1);
-					prevNoteSustainedAcrossBars = noteSpansMultipleBars;
+					prevNoteTruncatedAtBarBoundary = noteTruncatedAtBarBoundary;
 				}
 				while (channel.bars.length < songTotalBars) channel.bars.push(0);
 				if (pitchCount > 0) {
