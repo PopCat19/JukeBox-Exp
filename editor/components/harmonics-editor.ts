@@ -228,7 +228,8 @@ export class HarmonicsEditor {
 
 	private _whenMouseMoved = (event: MouseEvent): void => {
 		if (this.container.offsetParent == null) return;
-		if (!this._svgRect) this._svgRect = this._svg.getBoundingClientRect();
+		if (!this._mouseDown) return;
+		this._svgRect = this._svg.getBoundingClientRect();
 		const boundingRect = this._svgRect;
 		this._mouseX =
 			(((event.clientX || event.pageX) - boundingRect.left) * this._editorWidth) /
@@ -239,13 +240,14 @@ export class HarmonicsEditor {
 		if (Number.isNaN(this._mouseX)) this._mouseX = 0;
 		if (Number.isNaN(this._mouseY)) this._mouseY = 0;
 		this._whenCursorMoved();
+		this.render();
 	};
 
 	private _whenTouchMoved = (event: TouchEvent): void => {
 		if (this.container.offsetParent == null) return;
 		if (!this._mouseDown) return;
-		event.preventDefault();
-		if (!this._svgRect) this._svgRect = this._svg.getBoundingClientRect();
+		if (event.cancelable) event.preventDefault();
+		this._svgRect = this._svg.getBoundingClientRect();
 		const boundingRect: DOMRect = this._svgRect;
 		this._mouseX =
 			((event.touches[0].clientX - boundingRect.left) * this._editorWidth) /
@@ -502,15 +504,7 @@ export class HarmonicsEditorPrompt implements Prompt {
 		this.copyButton.addEventListener("click", this._copySettings);
 		this.pasteButton.addEventListener("click", this._pasteSettings);
 		this._playButton.addEventListener("click", this._togglePlay);
-		this.harmonicsEditor.container.addEventListener("mousemove", () => {
-			this.harmonicsEditor.render();
-		});
-		this.harmonicsEditor.container.addEventListener("mousedown", () => {
-			this.harmonicsEditor.render();
-		});
-		this.container.addEventListener("mousemove", () => {
-			this.harmonicsEditor.render();
-		});
+
 
 		this.updatePlayButton();
 
