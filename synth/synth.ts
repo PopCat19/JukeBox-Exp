@@ -2920,7 +2920,6 @@ export class Synth {
 							instrument.lowerNoteLimit,
 							instrument.upperNoteLimit,
 						);
-						// Gate by note velocity: if outside instrument velocity range, silence this note
 						if (filteredPitches.length > 0) {
 							const vel: number = note.velocity;
 							if (
@@ -2929,6 +2928,9 @@ export class Synth {
 							) {
 								filteredPitches = [];
 							}
+						}
+						if (filteredPitches.length === 0 && note.pitches.length > 0) {
+							console.log("[synth] zone filtered " + instrument.preset + ": pitch=" + note.pitches[0] + " in [" + instrument.lowerNoteLimit + "-" + instrument.upperNoteLimit + "], vel=" + note.velocity + " in [" + instrument.lowerVelocityLimit + "-" + instrument.upperVelocityLimit + "]");
 						}
 					}
 					if (chord.singleTone && !(filteredPitches.length <= 0)) {
@@ -3056,6 +3058,9 @@ export class Synth {
 											) {
 												pitchesForThisTone = [];
 											}
+										}
+										if (pitchesForThisTone.length === 0 && noteForThisTone.pitches.length > 0) {
+											console.log("[synth2] zone filtered " + instrument.preset + ": pitch=" + noteForThisTone.pitches[0] + " in [" + instrument.lowerNoteLimit + "-" + instrument.upperNoteLimit + "], vel=" + noteForThisTone.velocity + " in [" + instrument.lowerVelocityLimit + "-" + instrument.upperVelocityLimit + "]");
 										}
 									}
 									prevNoteForThisTone = null;

@@ -152,6 +152,7 @@ export class ChangePreset extends Change {
 		if (oldValue !== newValue) {
 			const preset1: Preset | null = EditorConfig.instrumentToPreset(newValue);
 			const preset: Preset | null = preset1 ?? EditorConfig.valueToPreset(newValue);
+			console.log("[ChangePreset] newValue=", newValue, "found preset=", preset?.name, "zones=", preset?.zones?.length);
 			if (preset != null) {
 				// For zone presets, settings come from zone 0 (first zone).
 				// Regular presets use preset.settings directly.
@@ -191,7 +192,10 @@ export class ChangePreset extends Change {
 			instrument.preset = newValue;
 			// Expand zone presets: each zone becomes a separate instrument
 			if (preset != null && preset.zones != null && preset.zones.length > 1) {
+				console.log("[ChangePreset] expanding", preset.zones.length, "zones");
 				this._expandZones(doc, instrument, preset, newValue);
+			} else {
+				console.log("[ChangePreset] no zone expansion (zones=", preset?.zones?.length, ")");
 			}
 			doc.notifier.changed();
 			this._didSomething();
@@ -202,6 +206,7 @@ export class ChangePreset extends Change {
 		const channel: Channel = doc.song.channels[doc.channel];
 		const isNoise: boolean = doc.song.getChannelIsNoise(doc.channel);
 		const isMod: boolean = doc.song.getChannelIsMod(doc.channel);
+		console.log("[_expandZones] channel=", doc.channel, "current instruments=", channel.instruments.length);
 
 		// Enable layered instruments to support multiple instruments per channel
 		if (!doc.song.layeredInstruments) {
@@ -229,8 +234,10 @@ export class ChangePreset extends Change {
 		}
 
 		// Create remaining zones as new instruments
+		console.log("[_expandZones] zoneCount=", zoneCount, "maxInstruments=", maxInstruments, "current=", channel.instruments.length);
 		for (let zi: number = 1; zi < zoneCount; zi++) {
 			const zone: any = preset.zones![zi];
+			console.log("[_expandZones] zone", zi, "lowerNote=", zone.lowerNoteLimit, "upperNote=", zone.upperNoteLimit, "hasSettings=", !!zone.settings);
 			if (channel.instruments.length >= maxInstruments) break;
 
 			const zoneInst: Instrument = new Instrument(isNoise, isMod);
@@ -250,8 +257,10 @@ export class ChangePreset extends Change {
 			}
 
 			channel.instruments.push(zoneInst);
+			console.log("[_expandZones] pushed zone", zi, "total instruments now:", channel.instruments.length);
 		}
 
+		console.log("[_expandZones] final instrument count:", channel.instruments.length);
 		// Update pattern instruments
 		if (doc.song.patternInstruments) {
 			for (const pattern of channel.patterns) {
