@@ -3601,9 +3601,8 @@ export class SongEditor
 				}
 			}
 
-			// Reset tempo stepper and slider to base value
+			// Reset tempo stepper to base value
 			const baseTempo: number = Math.max(0, Math.round(this.doc.song.tempo));
-			this._tempoSlider.updateValue(baseTempo);
 			this._tempoStepper.value = baseTempo.toString();
 			this._tempoStepper.classList.remove("modActive");
 			this._tempoStepper.style.removeProperty("--mod-color");
@@ -3768,7 +3767,6 @@ export class SongEditor
 						this.doc.synth.getModValue(Config.modulators.dictionary.tempo.index),
 					))
 				: Math.max(0, Math.round(this.doc.song.tempo));
-			this._tempoSlider.updateValue(displayTempo);
 			this._tempoStepper.value = displayTempo.toString();
 			this._tempoStepper.classList.toggle("modActive", tempoModActive);
 			if (tempoModActive) {

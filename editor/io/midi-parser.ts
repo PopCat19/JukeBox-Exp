@@ -1234,8 +1234,7 @@ export function parseMidiFile(buffer: ArrayBuffer, fileName?: string): ParsedMid
 							1,
 							Math.min(127, Math.round(dnote.velocity * 127)),
 						);
-						note.continuesLastPattern =
-							createdNote && noteStartPart === 0;
+						note.continuesLastPattern = createdNote && noteStartPart === 0;
 						if (!createdNote) {
 							trackRealNotes++;
 							if (endBar - startBar > 1) trackMultiBarSource++;
@@ -1247,14 +1246,8 @@ export function parseMidiFile(buffer: ArrayBuffer, fileName?: string): ParsedMid
 						// Per-bar sustain decay: continuation bars (second bar onward)
 						// get progressively quieter.  First bar keeps full velocity.
 						if (continuationCount > 0) {
-							const perBarDecay: number = Math.max(
-								0.1,
-								Math.pow(0.7, continuationCount),
-							);
-							note.velocity = Math.max(
-								1,
-								Math.round(note.velocity * perBarDecay),
-							);
+							const perBarDecay: number = Math.max(0.1, 0.7 ** continuationCount);
+							note.velocity = Math.max(1, Math.round(note.velocity * perBarDecay));
 						}
 						continuationCount++;
 						updateCurrentMidiInterval(noteStartMidiTick);
@@ -1481,7 +1474,11 @@ export function parseMidiFile(buffer: ArrayBuffer, fileName?: string): ParsedMid
 								// Split: emit continuing pitches as a separate note, then
 								// modify current note to only carry the new pitches.
 								const continuingNote: Note = new Note(
-									-1, noteStartPart, noteEndPart, Config.noteSizeMax, false,
+									-1,
+									noteStartPart,
+									noteEndPart,
+									Config.noteSizeMax,
+									false,
 								);
 								continuingNote.pitches = matchingPitches;
 								continuingNote.pins = note.pins.slice();
