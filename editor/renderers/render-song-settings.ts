@@ -44,7 +44,9 @@ export function renderSongSettings(
 	setSelectedValue(refs.keySelect, Config.keys.length - 1 - doc.song.key);
 	refs.octaveStepper.value = Math.round(doc.song.octave).toString();
 	refs.tempoSlider.updateValue(Math.max(0, Math.round(doc.song.tempo)));
-	refs.tempoStepper.value = Math.round(doc.song.tempo).toString();
+	refs.tempoStepper.value = Math.max(0, Math.round(doc.song.tempo)).toString();
+	refs.tempoStepper.classList.remove("modActive");
+	refs.tempoStepper.style.removeProperty("--mod-color");
 	refs.songTitleInputBox.updateValue(doc.song.title);
 	if (doc.synth.isFilterModActive(false, 0, 0, true)) {
 		refs.songEqFilterEditor.render(true, ctrlHeld || shiftHeld);

@@ -124,6 +124,11 @@ export function buildFormInputsCSS(): string {
 /* Show mod indicator only when the container has .modSlider class */
 .beepboxEditor .slider-mod-indicator { display: none; }
 .beepboxEditor span.modSlider .slider-mod-indicator { display: block; }
+
+/* modActive class on number steppers — used when a song-level mod modifies the value */
+.beepboxEditor input[type=number].modActive {
+	border-color: var(--mod-color, var(--subtext, var(--indicator-primary, #4444ff)));
+}
 .beepboxEditor input[type=range]::-webkit-slider-thumb {
 	height: 20px;
 	width: 4px;

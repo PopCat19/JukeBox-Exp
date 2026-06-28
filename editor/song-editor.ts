@@ -3600,6 +3600,13 @@ export class SongEditor
 					}
 				}
 			}
+
+			// Reset tempo stepper and slider to base value
+			const baseTempo: number = Math.max(0, Math.round(this.doc.song.tempo));
+			this._tempoSlider.updateValue(baseTempo);
+			this._tempoStepper.value = baseTempo.toString();
+			this._tempoStepper.classList.remove("modActive");
+			this._tempoStepper.style.removeProperty("--mod-color");
 		} else {
 			const instrument: number = this.doc.getCurrentInstrument();
 			const anyModActive: boolean = this.doc.synth.isAnyModActive(
@@ -3750,6 +3757,24 @@ export class SongEditor
 				}
 
 				this._hasActiveModSliders = anySliderActive;
+			}
+
+			// Update tempo stepper with modded value every rAF frame
+			const tempoModActive: boolean = this.doc.synth.isModActive(
+				Config.modulators.dictionary.tempo.index,
+			);
+			const displayTempo: number = tempoModActive
+				? Math.max(0, Math.round(
+						this.doc.synth.getModValue(Config.modulators.dictionary.tempo.index),
+					))
+				: Math.max(0, Math.round(this.doc.song.tempo));
+			this._tempoSlider.updateValue(displayTempo);
+			this._tempoStepper.value = displayTempo.toString();
+			this._tempoStepper.classList.toggle("modActive", tempoModActive);
+			if (tempoModActive) {
+				this._tempoStepper.style.setProperty("--mod-color", "var(--subtext)");
+			} else {
+				this._tempoStepper.style.removeProperty("--mod-color");
 			}
 		}
 	}
