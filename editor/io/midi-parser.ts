@@ -776,27 +776,22 @@ export function parseMidiFile(buffer: ArrayBuffer, fileName?: string): ParsedMid
 			} else if (eventIndex < events.length) {
 				const event: NoteEvent = events[eventIndex];
 				if (event.on) {
-					// Don't interrupt a note held by sustain with a same-pitch
-					// retrigger.  The pedal already holds the note; a new note-on
-					// for the same pitch should merge into the existing sustain.
-					if (held[event.pitch] !== undefined && sustained[event.pitch] === undefined) {
+					if (held[event.pitch] !== undefined) {
 						const prev: DiscreteNote = held[event.pitch];
 						prev.endMidiTick = event.midiTick;
 						notes.push(prev);
 						delete held[event.pitch];
 					}
-					if (held[event.pitch] === undefined) {
-						held[event.pitch] = {
-							startMidiTick: event.midiTick,
-							endMidiTick: -1,
-							pitches: [event.pitch],
-							velocity: event.velocity,
-							program: event.program,
-							instrumentVolume: event.instrumentVolume,
-							instrumentPan: event.instrumentPan,
-						};
-						delete sustained[event.pitch];
-					}
+					held[event.pitch] = {
+						startMidiTick: event.midiTick,
+						endMidiTick: -1,
+						pitches: [event.pitch],
+						velocity: event.velocity,
+						program: event.program,
+						instrumentVolume: event.instrumentVolume,
+						instrumentPan: event.instrumentPan,
+					};
+					delete sustained[event.pitch];
 				} else {
 					if (held[event.pitch] !== undefined) {
 						if (sustainActive) {
