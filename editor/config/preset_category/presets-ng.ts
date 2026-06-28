@@ -2281,12 +2281,12 @@ export const presetsNgCategories: InputPresetCategory[] = [
 						settings: {
 							type: "Picked String",
 							eqFilter: [
-								{ type: "high-pass", cutoffHz: 80, linearGain: 0.7071 },
-								{ type: "peak", cutoffHz: 400, linearGain: 2.0 },
-								{ type: "low-pass", cutoffHz: 4000, linearGain: 0.25 },
+								{ type: "high-pass", cutoffHz: 50, linearGain: 0.7071 },
+								{ type: "peak", cutoffHz: 800, linearGain: 1.4142 },
+								{ type: "low-pass", cutoffHz: 10000, linearGain: 0.5 },
 							],
 							effects: ["note filter"],
-							noteFilter: [{ type: "low-pass", cutoffHz: 6000, linearGain: 0.125 }],
+							noteFilter: [{ type: "low-pass", cutoffHz: 10000, linearGain: 0.1768 }],
 							transition: "normal",
 							fadeInSeconds: 0,
 							fadeOutTicks: 60,
