@@ -810,7 +810,10 @@ export function parseMidiFile(buffer: ArrayBuffer, fileName?: string): ParsedMid
 			const presetValue: number = EditorConfig.nameToPresetValue("standard drumset")!;
 			const preset: Preset = EditorConfig.valueToPreset(presetValue)!;
 			const instrument: Instrument = new Instrument(false, false);
-			instrument.fromJsonObject(preset.settings, false, false, false, false, 1);
+			instrument.fromJsonObject(
+							preset.settings ?? preset.zones?.[0]?.settings,
+							false, false, false, false, 1,
+						);
 			instrument.preset = presetValue;
 			channel.instruments.push(instrument);
 
@@ -1016,7 +1019,7 @@ export function parseMidiFile(buffer: ArrayBuffer, fileName?: string): ParsedMid
 								(preset.isNoise === true) === isNoiseChannel
 							) {
 								instrument.fromJsonObject(
-									preset.settings,
+									preset.settings ?? preset.zones?.[0]?.settings,
 									isNoiseChannel,
 									isModChannel,
 									false,

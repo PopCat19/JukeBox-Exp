@@ -1642,10 +1642,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 
 				name: "grand piano 1 NG",
 
-				midiProgram: 0,
-
-				generalMidi: true,
-
 				tags: ["pickedstring", "beepbox", "keys"],
 
 				settings: {
@@ -2133,10 +2129,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 
 				name: "grand piano 2 NG",
 
-				midiProgram: 0,
-
-				generalMidi: true,
-
 				tags: ["harmonics", "jummbox", "keys"],
 
 				settings: {
@@ -2193,10 +2185,6 @@ export const presetsNgCategories: InputPresetCategory[] = [
 			{
 
 				name: "grand piano 3 NG",
-
-				midiProgram: 0,
-
-				generalMidi: true,
 
 				tags: ["pickedstring", "jummbox", "keys"],
 
@@ -2297,9 +2285,8 @@ export const presetsNgCategories: InputPresetCategory[] = [
 								{ type: "peak", cutoffHz: 400, linearGain: 2.0 },
 								{ type: "low-pass", cutoffHz: 4000, linearGain: 0.25 },
 							],
-							effects: ["note filter", "reverb"],
+							effects: ["note filter"],
 							noteFilter: [{ type: "low-pass", cutoffHz: 6000, linearGain: 0.125 }],
-							reverb: 70,
 							transition: "normal",
 							fadeInSeconds: 0,
 							fadeOutTicks: 60,
@@ -2324,9 +2311,8 @@ export const presetsNgCategories: InputPresetCategory[] = [
 								{ type: "peak", cutoffHz: 2000, linearGain: 2.8284 },
 								{ type: "low-pass", cutoffHz: 8000, linearGain: 0.1768 },
 							],
-							effects: ["note filter", "reverb"],
+							effects: ["note filter"],
 							noteFilter: [{ type: "low-pass", cutoffHz: 8000, linearGain: 0.125 }],
-							reverb: 67,
 							transition: "normal",
 							fadeInSeconds: 0,
 							fadeOutTicks: 48,
@@ -2351,9 +2337,8 @@ export const presetsNgCategories: InputPresetCategory[] = [
 								{ type: "peak", cutoffHz: 4000, linearGain: 4.0 },
 								{ type: "low-pass", cutoffHz: 14000, linearGain: 0.3536 },
 							],
-							effects: ["note filter", "reverb"],
+							effects: ["note filter"],
 							noteFilter: [{ type: "high-pass", cutoffHz: 1000, linearGain: 0.0625 }],
-							reverb: 60,
 							transition: "normal",
 							fadeInSeconds: 0,
 							fadeOutTicks: 36,
