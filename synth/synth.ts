@@ -4028,10 +4028,19 @@ export class Synth {
 		if (!effectsIncludeNoteFilter(instrument.effects)) {
 			tone.noteFilterCount = 0;
 		} else {
+			// Velocity→brightness tracking: scale note filter cutoff by velocity
+			// (gated under noteRange effect via velocityTracking field, no new effect bit)
+			let velBrightnessMult: number = 1.0;
+			if (instrument.velocityTracking > 0 && tone.note != null) {
+				const velNorm: number = tone.note.velocity / 127;
+				// Maps velocity [1,127] → multiplier [0.5, 1.5] × velocityTracking amount
+				velBrightnessMult = 1.0 + instrument.velocityTracking * (velNorm - 0.5);
+			}
+
 			const noteAllFreqsEnvelopeStart: number =
-				envelopeStarts[EnvelopeComputeIndex.noteFilterAllFreqs];
+				envelopeStarts[EnvelopeComputeIndex.noteFilterAllFreqs] * velBrightnessMult;
 			const noteAllFreqsEnvelopeEnd: number =
-				envelopeEnds[EnvelopeComputeIndex.noteFilterAllFreqs];
+				envelopeEnds[EnvelopeComputeIndex.noteFilterAllFreqs] * velBrightnessMult;
 
 			// Simple note filter
 			if (instrument.noteFilterType) {

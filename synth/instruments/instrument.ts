@@ -189,6 +189,8 @@ export class Instrument {
 	public readonly maxVelocity: number = 127;
 	public upperVelocityLimit: number = 127;
 	public lowerVelocityLimit: number = 1;
+	// 0 = off, 1.0 = full velocity→brightness tracking (scales note filter cutoff)
+	public velocityTracking: number = 0;
 
 	// Literally just for pitch envelopes.
 	public isNoiseInstrument: boolean = false;
@@ -328,6 +330,7 @@ export class Instrument {
 		this.lowerNoteLimit = 0;
 		this.upperVelocityLimit = 127;
 		this.lowerVelocityLimit = 1;
+		this.velocityTracking = 0;
 		this.isNoiseInstrument = isNoiseChannel;
 
 		const plugin = getPlugin(type);
@@ -641,6 +644,9 @@ export class Instrument {
 			instrumentObject.lowerNoteLimit = this.lowerNoteLimit;
 			instrumentObject.upperVelocityLimit = this.upperVelocityLimit;
 			instrumentObject.lowerVelocityLimit = this.lowerVelocityLimit;
+			if (this.velocityTracking > 0) {
+				instrumentObject.velocityTracking = this.velocityTracking;
+			}
 		}
 
 		if (this.type !== InstrumentType.drumset) {
@@ -1366,6 +1372,9 @@ export class Instrument {
 			this.lowerVelocityLimit = clamp(
 				0, this.maxVelocity, instrumentObject.lowerVelocityLimit | 0
 			);
+		}
+		if (instrumentObject.velocityTracking !== undefined) {
+			this.velocityTracking = Math.max(0, Math.min(1, instrumentObject.velocityTracking));
 		}
 
 		if (instrumentObject.pulseWidth !== undefined) {
