@@ -766,19 +766,6 @@ export function parseMidiFile(buffer: ArrayBuffer, fileName?: string): ParsedMid
 						if (held[pitch] !== undefined) {
 							const note: DiscreteNote = held[pitch];
 							note.endMidiTick = sustainReleaseTick;
-							// Sustain decay: velocity drops exponentially with the
-							// duration the pedal held the note past its natural off.
-							const noteOffTick: number = sustained[pitch];
-							if (sustainReleaseTick > noteOffTick) {
-								const sustainHoldBeats: number =
-									(sustainReleaseTick - noteOffTick) /
-									midiTicksPerBeat;
-								const decay: number = Math.max(
-									0.05,
-									Math.pow(0.5, sustainHoldBeats / 2.0),
-								);
-								note.velocity *= decay;
-							}
 							notes.push(note);
 							delete held[pitch];
 						}
@@ -792,24 +779,6 @@ export function parseMidiFile(buffer: ArrayBuffer, fileName?: string): ParsedMid
 					if (held[event.pitch] !== undefined) {
 						const prev: DiscreteNote = held[event.pitch];
 						prev.endMidiTick = event.midiTick;
-						// Sustain decay: when a new note-on replaces a sustained note,
-						// the sustained note's velocity decays based on how long the
-						// pedal held it past its natural release.
-						const noteOffTick: number | undefined =
-							sustained[event.pitch];
-						if (
-							noteOffTick !== undefined &&
-							event.midiTick > noteOffTick
-						) {
-							const sustainHoldBeats: number =
-								(event.midiTick - noteOffTick) /
-								midiTicksPerBeat;
-							const decay: number = Math.max(
-								0.05,
-								Math.pow(0.5, sustainHoldBeats / 2.0),
-							);
-							prev.velocity *= decay;
-						}
 						notes.push(prev);
 						delete held[event.pitch];
 					}
@@ -846,20 +815,6 @@ export function parseMidiFile(buffer: ArrayBuffer, fileName?: string): ParsedMid
 			if (note.endMidiTick === -1) {
 				if (sustained[pitch] !== undefined) {
 					note.endMidiTick = trackEndTick;
-					// Sustain decay for unreleased pedal at track end:
-					// decay based on how long the sustain held the note
-					// past its natural release.
-					const noteOffTick: number = sustained[pitch];
-					if (trackEndTick > noteOffTick) {
-						const sustainHoldBeats: number =
-							(trackEndTick - noteOffTick) /
-							midiTicksPerBeat;
-						const decay: number = Math.max(
-							0.05,
-							Math.pow(0.5, sustainHoldBeats / 2.0),
-						);
-						note.velocity *= decay;
-					}
 				} else {
 					note.endMidiTick = note.startMidiTick + midiTicksPerPart;
 				}
@@ -1179,6 +1134,9 @@ export function parseMidiFile(buffer: ArrayBuffer, fileName?: string): ParsedMid
 					const startBar: number = Math.floor(startPart / partsPerBar);
 					const endBar: number = Math.ceil(endPart / partsPerBar);
 					let createdNote: boolean = false;
+					// Tracks how many continuation bars this note spans (for progressive
+					// sustain decay: each continuation bar loses ~30% velocity).
+					let continuationCount: number = 0;
 
 					const presetValue: number | null = EditorConfig.midiProgramToPresetValue(
 						dnote.program,
@@ -1286,6 +1244,19 @@ export function parseMidiFile(buffer: ArrayBuffer, fileName?: string): ParsedMid
 							if (noteStartPart === 0) trackLinkNotes++;
 						}
 						createdNote = true;
+						// Per-bar sustain decay: continuation bars (second bar onward)
+						// get progressively quieter.  First bar keeps full velocity.
+						if (continuationCount > 0) {
+							const perBarDecay: number = Math.max(
+								0.1,
+								Math.pow(0.7, continuationCount),
+							);
+							note.velocity = Math.max(
+								1,
+								Math.round(note.velocity * perBarDecay),
+							);
+						}
+						continuationCount++;
 						updateCurrentMidiInterval(noteStartMidiTick);
 						updateCurrentMidiNoteSize(noteStartMidiTick);
 						const shiftedHeldPitch: number =
