@@ -1498,6 +1498,17 @@ export function parseMidiFile(buffer: ArrayBuffer, fileName?: string): ParsedMid
 								note.continuesLastPattern = false;
 							}
 						}
+						// If note end was forced to fill the bar (cont notes),
+						// ensure the last pin extends to cover the full duration.
+						if (note.continuesLastPattern && note.pins.length > 0) {
+							const lastPin: NotePin = note.pins[note.pins.length - 1];
+							const contEndPart: number = partsPerBar - note.start;
+							if (lastPin.time < contEndPart) {
+								note.pins.push(
+									makeNotePin(lastPin.interval, contEndPart, lastPin.size),
+								);
+							}
+						}
 						pattern.notes.push(note);
 						if (noteEndPart === partsPerBar) {
 							truncatedPitchesForNextBar.length = 0;
