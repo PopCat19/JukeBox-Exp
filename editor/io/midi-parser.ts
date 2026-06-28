@@ -1679,46 +1679,6 @@ export function parseMidiFile(buffer: ArrayBuffer, fileName?: string): ParsedMid
 	validateChannelNotes(noiseChannels, Config.drumCount - 1, Config.noteSizeMax, "noise channels");
 	validateChannelNotes(modChannels, Config.modCount - 1, Config.tempoMax, "mod channels");
 
-	// Post-processing: fix up continuesLastPattern for notes that span
-	// consecutive bars but whose flag wasn't set by the track-level
-	// bar-splitting (e.g. mid-bar start in first bar).
-	// Only links notes when a note in the previous bar actually ends at
-	// the bar boundary (partsPerBar) — this ensures only genuine sustain/
-	// tie continuations are linked, not repeated rhythmic patterns whose
-	// attack would be incorrectly suppressed by forceContinueAtStart.
-	function fixupContinuesLastPattern(channels: Channel[]): void {
-		for (const channel of channels) {
-			for (let bar: number = 1; bar < channel.bars.length; bar++) {
-				const prevPi: number = channel.bars[bar - 1] - 1;
-				const thisPi: number = channel.bars[bar] - 1;
-				if (prevPi < 0 || thisPi < 0) continue;
-				const prevPat: Pattern = channel.patterns[prevPi];
-				const thisPat: Pattern = channel.patterns[thisPi];
-				if (!prevPat || !thisPat) continue;
-				// Only link when a note in the previous bar ends at the bar
-				// boundary (genuine sustain/tie cross-bar continuation).
-				const prevCandidates: Note[] = prevPat.notes.filter(
-					(n: Note) => n.end === partsPerBar,
-				);
-				for (const thisNote of thisPat.notes) {
-					if (thisNote.continuesLastPattern) continue;
-					for (const prevNote of prevCandidates) {
-						const pitchMatch: boolean = thisNote.pitches.some(
-							(p: number) => prevNote.pitches.indexOf(p) >= 0,
-						);
-						if (pitchMatch) {
-							thisNote.continuesLastPattern = true;
-							break;
-						}
-					}
-				}
-			}
-		}
-	}
-	fixupContinuesLastPattern(pitchChannels);
-	fixupContinuesLastPattern(noiseChannels);
-	fixupContinuesLastPattern(modChannels);
-
 	console.log(
 		`[MIDI Import] key=${key} scale=${scale} (${Config.scales[scale].name}) rhythm=${detectedRhythm} (${Config.rhythms[detectedRhythm].name}) beatsPerBar=${beatsPerBar} tempo=${beatsPerMinute} BPM`,
 	);
