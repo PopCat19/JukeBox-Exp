@@ -272,6 +272,11 @@ export class ChangePreset extends Change {
 			}
 		}
 
+		// Update live input instruments so keyboard preview can reach all zones
+		doc.recentPatternInstruments[doc.channel] = [];
+		for (let zi: number = 0; zi < zoneCount; zi++) {
+			doc.recentPatternInstruments[doc.channel].push(zi);
+		}
 		doc.viewedInstrument[doc.channel] = 0;
 		doc.synth.computeLatestModValues();
 	}

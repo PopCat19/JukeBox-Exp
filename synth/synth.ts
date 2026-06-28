@@ -244,6 +244,7 @@ export class Synth {
 	public outputDataLUnfiltered: Float32Array | null = null;
 	public outputDataRUnfiltered: Float32Array | null = null;
 	private readonly _reusableFilteredPitches: number[] = [];
+	private readonly _reusableFilteredPitchesAndVelocities: number[] = [];
 
 	private _fillFilteredPitches(source: number[], lower: number, upper: number): number[] {
 		const out: number[] = this._reusableFilteredPitches;
@@ -262,7 +263,7 @@ export class Synth {
 		lowerVel: number,
 		upperVel: number,
 	): number[] {
-		const out: number[] = this._reusableFilteredPitches;
+		const out: number[] = this._reusableFilteredPitchesAndVelocities;
 		out.length = 0;
 		for (let i: number = 0; i < sourcePitches.length; i++) {
 			const pitch: number = sourcePitches[i];
@@ -2334,6 +2335,8 @@ export class Synth {
 					instrument.lowerVelocityLimit,
 					instrument.upperVelocityLimit,
 				);
+				// Snapshot before bass filter overwrites the reusable buffer
+				filteredPitches = filteredPitches.slice();
 			}
 			let filteredBassPitches: number[] = bassPitches;
 			if (effectsIncludeNoteRange(instrument.effects)) {
@@ -2352,6 +2355,7 @@ export class Synth {
 				pitches.length > 0 &&
 				this.liveInputInstruments.indexOf(instrumentIndex) !== -1
 			) {
+
 				const instrument: Instrument = channel.instruments[instrumentIndex];
 
 				if (instrument.getChord().singleTone) {
@@ -2929,9 +2933,7 @@ export class Synth {
 								filteredPitches = [];
 							}
 						}
-						if (filteredPitches.length === 0 && note.pitches.length > 0) {
-							console.log("[synth] zone filtered " + instrument.preset + ": pitch=" + note.pitches[0] + " in [" + instrument.lowerNoteLimit + "-" + instrument.upperNoteLimit + "], vel=" + note.velocity + " in [" + instrument.lowerVelocityLimit + "-" + instrument.upperVelocityLimit + "]");
-						}
+
 					}
 					if (chord.singleTone && !(filteredPitches.length <= 0)) {
 						const atNoteStart: boolean =
@@ -3059,9 +3061,7 @@ export class Synth {
 												pitchesForThisTone = [];
 											}
 										}
-										if (pitchesForThisTone.length === 0 && noteForThisTone.pitches.length > 0) {
-											console.log("[synth2] zone filtered " + instrument.preset + ": pitch=" + noteForThisTone.pitches[0] + " in [" + instrument.lowerNoteLimit + "-" + instrument.upperNoteLimit + "], vel=" + noteForThisTone.velocity + " in [" + instrument.lowerVelocityLimit + "-" + instrument.upperVelocityLimit + "]");
-										}
+
 									}
 									prevNoteForThisTone = null;
 									noteStartPart = noteForThisTone.start + strumOffsetParts;

@@ -2288,7 +2288,7 @@ export const presetsNgCategories: InputPresetCategory[] = [
 				tags: ["pickedstring", "beepbox", "keys", "zones"],
 
 				zones: [
-					// Zone 0: bass register (C2-B3) — warmer, more body, softer attack
+					// Zone 0: bass register (lowest-B3) — warmer, more body, softer attack
 					{
 						settings: {
 							type: "Picked String",
@@ -2312,7 +2312,7 @@ export const presetsNgCategories: InputPresetCategory[] = [
 							stringSustain: 85,
 							envelopes: [{ target: "noteFilterAllFreqs", envelope: "note size" }],
 						},
-						lowerNoteLimit: 24,
+						lowerNoteLimit: 0,
 						upperNoteLimit: 59,
 					},
 					// Zone 1: mid register (C4-B5) — balanced harmonics, full sustain
@@ -2340,9 +2340,9 @@ export const presetsNgCategories: InputPresetCategory[] = [
 							envelopes: [{ target: "noteFilterAllFreqs", envelope: "note size" }],
 						},
 						lowerNoteLimit: 60,
-						upperNoteLimit: 95,
+						upperNoteLimit: 83,
 					},
-					// Zone 2: treble register (C6-C8) — brighter, less body, faster decay
+					// Zone 2: treble register (C6-B7) — brighter, less body, faster decay
 					{
 						settings: {
 							type: "Picked String",
@@ -2366,8 +2366,8 @@ export const presetsNgCategories: InputPresetCategory[] = [
 							stringSustain: 65,
 							envelopes: [{ target: "noteFilterAllFreqs", envelope: "note size" }],
 						},
-						lowerNoteLimit: 96,
-						upperNoteLimit: 120,
+						lowerNoteLimit: 84,
+						upperNoteLimit: 95,
 					},
 				],
 
