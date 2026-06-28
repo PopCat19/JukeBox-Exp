@@ -2276,89 +2276,29 @@ export const presetsNgCategories: InputPresetCategory[] = [
 				tags: ["pickedstring", "beepbox", "keys", "zones"],
 
 				zones: [
-					// Zone 0: bass register (JB 0-59, ~A0-B3) — 3-string unison, warm body, slow decay
-					// Real piano: 2 strings/key (bass), thick winding, rich low harmonics, ~10s sustain
 					{
 						settings: {
 							type: "Picked String",
 							eqFilter: [
-								{ type: "high-pass", cutoffHz: 40, linearGain: 0.5 },
-								{ type: "peak", cutoffHz: 200, linearGain: 1.5 },
+								{ type: "high-pass", cutoffHz: 62.5, linearGain: 0.5 },
+								{ type: "peak", cutoffHz: 210.22, linearGain: 1.4142 },
 								{ type: "low-pass", cutoffHz: 4000, linearGain: 0.7071 },
 							],
-							effects: ["note range", "reverb"],
-							reverb: 25,
+							effects: ["reverb", "note range"],
+							reverb: 26,
 							transition: "normal",
 							fadeInSeconds: 0,
-							fadeOutTicks: 64,
+							fadeOutTicks: 72,
 							chord: "simultaneous",
-							// Bass: strong low harmonics, rapid upper rolloff (thick wound strings)
 							harmonics: [
-								100, 100, 86, 86, 86, 71, 57, 43, 0, 71, 57, 43, 43, 43,
-								29, 57, 43, 0, 29, 29, 43, 43, 43, 43, 43, 29, 14, 29,
+								100, 100, 86, 86, 86, 71, 57, 43, 0, 0, 86, 86, 71, 71, 71, 71, 86,
+								0, 43, 71, 71, 71, 71, 71, 71, 57, 43, 29,
 							],
 							unison: "piano",
 							stringSustain: 100,
-							velocityTracking: 0.4,
 						},
 						lowerNoteLimit: 0,
-						upperNoteLimit: 59,
-					},
-					// Zone 1: mid register (JB 60-83, C4-B5) — balanced, 3-string unison, full harmonics
-					// Real piano: 3 strings/key, medium hammer, ~5s sustain, richest harmonic development
-					{
-						settings: {
-							type: "Picked String",
-							eqFilter: [
-								{ type: "high-pass", cutoffHz: 80, linearGain: 0.7071 },
-								{ type: "peak", cutoffHz: 1000, linearGain: 2.0 },
-								{ type: "low-pass", cutoffHz: 8000, linearGain: 0.3536 },
-							],
-							effects: ["note range", "reverb"],
-							reverb: 25,
-							transition: "normal",
-							fadeInSeconds: 0,
-							fadeOutTicks: 52,
-							chord: "simultaneous",
-							// Mid: full harmonic series with moderate rolloff, 5th-8th partials prominent
-							harmonics: [
-								100, 100, 86, 86, 86, 71, 71, 57, 0, 86, 71, 71, 71, 57,
-								57, 71, 57, 14, 57, 57, 57, 57, 57, 57, 57, 57, 29, 57,
-							],
-							unison: "piano",
-							stringSustain: 100,
-							velocityTracking: 0.5,
-						},
-						lowerNoteLimit: 60,
-						upperNoteLimit: 83,
-					},
-					// Zone 2: treble register (JB 84-95, C6-B7) — bright, fast decay, pure harmonics
-					// Real piano: 3 strings/key (thin), very fast decay ~2s, purer tone
-					{
-						settings: {
-							type: "Picked String",
-							eqFilter: [
-								{ type: "high-pass", cutoffHz: 300, linearGain: 0.5 },
-								{ type: "peak", cutoffHz: 3000, linearGain: 3.0 },
-								{ type: "low-pass", cutoffHz: 12000, linearGain: 0.5 },
-							],
-							effects: ["note range", "reverb"],
-							reverb: 25,
-							transition: "normal",
-							fadeInSeconds: 0,
-							fadeOutTicks: 32,
-							chord: "simultaneous",
-							// Treble: sparse harmonics, very rapid rolloff, no subharmonics
-							harmonics: [
-								100, 86, 86, 86, 86, 71, 57, 43, 0, 57, 43, 43, 43, 29,
-								29, 43, 29, 0, 14, 29, 29, 29, 29, 29, 29, 14, 0, 14,
-							],
-							unison: "piano",
-							stringSustain: 100,
-							velocityTracking: 0.6,
-						},
-						lowerNoteLimit: 84,
-						upperNoteLimit: 95,
+						upperNoteLimit: 96,
 					},
 				],
 
