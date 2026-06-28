@@ -646,7 +646,6 @@ export function parseMidiFile(buffer: ArrayBuffer, fileName?: string): ParsedMid
 	interface DiscreteNote {
 		startMidiTick: number;
 		endMidiTick: number;
-		originalEndMidiTick: number;
 		pitches: number[];
 		velocity: number;
 		program: number;
@@ -660,7 +659,7 @@ export function parseMidiFile(buffer: ArrayBuffer, fileName?: string): ParsedMid
 	): DiscreteNote[] {
 		const notes: DiscreteNote[] = [];
 		const held: { [pitch: number]: DiscreteNote } = {};
-		const sustained: { [pitch: number]: number } = {};
+		const sustained: { [pitch: number]: boolean } = {};
 		let sustainActive: boolean = false;
 		let sustainReleaseTick: number = -1;
 		let eventIndex: number = 0;
@@ -679,9 +678,8 @@ export function parseMidiFile(buffer: ArrayBuffer, fileName?: string): ParsedMid
 				if (wasActive && !sustainActive) {
 					sustainReleaseTick = sustainEvent.midiTick;
 					for (const pitch in sustained) {
-						if (held[pitch] !== undefined) {
+						if (sustained[pitch] && held[pitch] !== undefined) {
 							const note: DiscreteNote = held[pitch];
-							note.originalEndMidiTick = sustained[pitch];
 							note.endMidiTick = sustainReleaseTick;
 							notes.push(note);
 							delete held[pitch];
@@ -702,7 +700,6 @@ export function parseMidiFile(buffer: ArrayBuffer, fileName?: string): ParsedMid
 					held[event.pitch] = {
 						startMidiTick: event.midiTick,
 						endMidiTick: -1,
-						originalEndMidiTick: -1,
 						pitches: [event.pitch],
 						velocity: event.velocity,
 						program: event.program,
@@ -713,9 +710,8 @@ export function parseMidiFile(buffer: ArrayBuffer, fileName?: string): ParsedMid
 				} else {
 					if (held[event.pitch] !== undefined) {
 						if (sustainActive) {
-							sustained[event.pitch] = event.midiTick;
+							sustained[event.pitch] = true;
 						} else {
-							held[event.pitch].originalEndMidiTick = event.midiTick;
 							const note: DiscreteNote = held[event.pitch];
 							note.endMidiTick = event.midiTick;
 							notes.push(note);
@@ -768,7 +764,6 @@ export function parseMidiFile(buffer: ArrayBuffer, fileName?: string): ParsedMid
 				grouped.push({
 					startMidiTick: note.startMidiTick,
 					endMidiTick: note.endMidiTick,
-					originalEndMidiTick: note.originalEndMidiTick,
 					pitches: note.pitches.slice(),
 					velocity: note.velocity,
 					program: note.program,
@@ -1318,35 +1313,6 @@ export function parseMidiFile(buffer: ArrayBuffer, fileName?: string): ParsedMid
 								lastToBePinned.size,
 							),
 						);
-						if (
-							dnote.originalEndMidiTick !== -1 &&
-							dnote.originalEndMidiTick < dnote.endMidiTick
-						) {
-							const originalEndPart: number = snapPartToRhythm(
-								quantizeMidiTickToPart(dnote.originalEndMidiTick),
-								detectedRhythm,
-							);
-							const sustainTaperStart: number = Math.max(
-								noteStartPart,
-								Math.min(noteEndPart, originalEndPart - barStartPart),
-							);
-							if (sustainTaperStart > noteStartPart && sustainTaperStart < noteEndPart) {
-								const taperPinPart: number = sustainTaperStart - noteStartPart;
-								const taperSize: number = Math.max(
-									1,
-									Math.round(lastToBePinned.size * 0.3),
-								);
-								note.pins.splice(
-									note.pins.length - 1,
-									0,
-									makeNotePin(
-										lastToBePinned.pitch - initialBeepBoxPitch,
-										taperPinPart,
-										taperSize,
-									),
-								);
-							}
-						}
 						let maxPitch: number = channelMaxPitch;
 						let minPitch: number = 0;
 						for (const notePin of note.pins) {
