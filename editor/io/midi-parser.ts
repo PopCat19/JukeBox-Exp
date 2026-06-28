@@ -1085,7 +1085,10 @@ export function parseMidiFile(buffer: ArrayBuffer, fileName?: string): ParsedMid
 				let trackRealNotes: number = 0;
 				let trackMultiBarSource: number = 0;
 				let pitchCount: number = 0;
-				let prevNoteTruncatedAtBarBoundary: boolean = false;
+				// Tracks which pitches were truncated at the previous bar boundary.
+				// Used to verify pitch continuity before setting continuesLastPattern
+				// across DIFFERENT DiscreteNotes in the same track.
+				const truncatedPitchesForNextBar: number[] = [];
 
 				let currentMidiInterval: number = 0.0;
 				let currentMidiNoteSize: number = Config.noteSizeMax;
@@ -1128,7 +1131,6 @@ export function parseMidiFile(buffer: ArrayBuffer, fileName?: string): ParsedMid
 					const startBar: number = Math.floor(startPart / partsPerBar);
 					const endBar: number = Math.ceil(endPart / partsPerBar);
 					let createdNote: boolean = false;
-					let noteTruncatedAtBarBoundary: boolean = false;
 
 					const presetValue: number | null = EditorConfig.midiProgramToPresetValue(
 						dnote.program,
@@ -1227,8 +1229,7 @@ export function parseMidiFile(buffer: ArrayBuffer, fileName?: string): ParsedMid
 							Math.min(127, Math.round(dnote.velocity * 127)),
 						);
 						note.continuesLastPattern =
-							(createdNote && noteStartPart === 0) ||
-							(prevNoteTruncatedAtBarBoundary && noteStartPart === 0);
+							createdNote && noteStartPart === 0;
 						if (!createdNote) {
 							trackRealNotes++;
 							if (endBar - startBar > 1) trackMultiBarSource++;
@@ -1440,12 +1441,48 @@ export function parseMidiFile(buffer: ArrayBuffer, fileName?: string): ParsedMid
 								pitchCount += weight;
 							}
 						}
+						// Verify pitch continuity before marking continuesLastPattern.
+						// When a chord spans the bar boundary, only pitches that were
+						// actually present in the previous bar fragment should continue.
+						// This prevents groupChords-merged arpeggio notes from falsely
+						// inheriting continuation when their pitches don't match.
+						if (
+							note.continuesLastPattern &&
+							noteStartPart === 0 &&
+							truncatedPitchesForNextBar.length > 0 &&
+							note.pitches.length > 0
+						) {
+							const matchingPitches: number[] = note.pitches.filter(
+								(p: number) => truncatedPitchesForNextBar.indexOf(p) >= 0,
+							);
+							const newPitches: number[] = note.pitches.filter(
+								(p: number) => truncatedPitchesForNextBar.indexOf(p) === -1,
+							);
+							if (newPitches.length > 0 && matchingPitches.length > 0) {
+								// Split: emit continuing pitches as a separate note, then
+								// modify current note to only carry the new pitches.
+								const continuingNote: Note = new Note(
+									-1, noteStartPart, noteEndPart, Config.noteSizeMax, false,
+								);
+								continuingNote.pitches = matchingPitches;
+								continuingNote.pins = note.pins.slice();
+								continuingNote.velocity = note.velocity;
+								continuingNote.continuesLastPattern = true;
+								pattern.notes.push(continuingNote);
+								note.pitches = newPitches;
+								note.continuesLastPattern = false;
+							}
+						}
 						pattern.notes.push(note);
 						if (noteEndPart === partsPerBar) {
-							noteTruncatedAtBarBoundary = true;
+							truncatedPitchesForNextBar.length = 0;
+							for (const p of note.pitches) {
+								truncatedPitchesForNextBar.push(p);
+							}
+						} else {
+							truncatedPitchesForNextBar.length = 0;
 						}
 					}
-					prevNoteTruncatedAtBarBoundary = noteTruncatedAtBarBoundary;
 				}
 				while (channel.bars.length < songTotalBars) channel.bars.push(0);
 				if (pitchCount > 0) {
