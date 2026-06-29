@@ -9,6 +9,7 @@
 
 import { applyFilters } from "./dsp-utils";
 import { DynamicBiquadFilter } from "./filtering";
+import { Config } from "./synth-config";
 import { epsilon } from "./util";
 
 /** Per-call parameters for the post-processing pipeline. */
@@ -27,8 +28,15 @@ export class PostProcessingState {
 	public limit: number = 0.0;
 	public songEqFilterVolume: number = 1.0;
 	public songEqFilterVolumeDelta: number = 0.0;
-	public readonly songEqFiltersL: DynamicBiquadFilter[] = [];
-	public readonly songEqFiltersR: DynamicBiquadFilter[] = [];
+	// Pre-allocated — no allocation in audio hot path
+	public readonly songEqFiltersL: DynamicBiquadFilter[] = Array.from(
+		{ length: Config.filterMaxPoints },
+		() => new DynamicBiquadFilter(),
+	);
+	public readonly songEqFiltersR: DynamicBiquadFilter[] = Array.from(
+		{ length: Config.filterMaxPoints },
+		() => new DynamicBiquadFilter(),
+	);
 	public songEqFilterCount: number = 0;
 	public initialSongEqFilterInput1L: number = 0.0;
 	public initialSongEqFilterInput2L: number = 0.0;

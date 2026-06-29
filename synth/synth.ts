@@ -1188,16 +1188,12 @@ export class Synth {
 				startPoint.toCoefficients(tempFilterStartCoefficients, samplesPerSecond, 1.0, 1.0);
 				endPoint.toCoefficients(tempFilterEndCoefficients, samplesPerSecond, 1.0, 1.0);
 
-				if (this._postProc.songEqFiltersL.length < 1)
-					this._postProc.songEqFiltersL[0] = new DynamicBiquadFilter();
 				this._postProc.songEqFiltersL[0].loadCoefficientsWithGradient(
 					tempFilterStartCoefficients,
 					tempFilterEndCoefficients,
 					1.0 / roundedSamplesPerTick,
 					startPoint.type === FilterType.lowPass,
 				);
-				if (this._postProc.songEqFiltersR.length < 1)
-					this._postProc.songEqFiltersR[0] = new DynamicBiquadFilter();
 				this._postProc.songEqFiltersR[0].loadCoefficientsWithGradient(
 					tempFilterStartCoefficients,
 					tempFilterEndCoefficients,
@@ -1215,16 +1211,12 @@ export class Synth {
 
 				startPoint.toCoefficients(tempFilterStartCoefficients, samplesPerSecond, 1.0, 1.0);
 
-				if (this._postProc.songEqFiltersL.length < 1)
-					this._postProc.songEqFiltersL[0] = new DynamicBiquadFilter();
 				this._postProc.songEqFiltersL[0].loadCoefficientsWithGradient(
 					tempFilterStartCoefficients,
 					tempFilterStartCoefficients,
 					1.0 / roundedSamplesPerTick,
 					startPoint.type === FilterType.lowPass,
 				);
-				if (this._postProc.songEqFiltersR.length < 1)
-					this._postProc.songEqFiltersR[0] = new DynamicBiquadFilter();
 				this._postProc.songEqFiltersR[0].loadCoefficientsWithGradient(
 					tempFilterStartCoefficients,
 					tempFilterStartCoefficients,
@@ -1273,16 +1265,12 @@ export class Synth {
 					/*eqAllFreqsEnvelopeEnd   * eqFreqEnvelopeEnd*/ 1.0,
 					/*eqPeakEnvelopeEnd*/ 1.0,
 				);
-				if (this._postProc.songEqFiltersL.length <= i)
-					this._postProc.songEqFiltersL[i] = new DynamicBiquadFilter();
 				this._postProc.songEqFiltersL[i].loadCoefficientsWithGradient(
 					tempFilterStartCoefficients,
 					tempFilterEndCoefficients,
 					1.0 / roundedSamplesPerTick,
 					startPoint.type === FilterType.lowPass,
 				);
-				if (this._postProc.songEqFiltersR.length <= i)
-					this._postProc.songEqFiltersR[i] = new DynamicBiquadFilter();
 				this._postProc.songEqFiltersR[i].loadCoefficientsWithGradient(
 					tempFilterStartCoefficients,
 					tempFilterEndCoefficients,
