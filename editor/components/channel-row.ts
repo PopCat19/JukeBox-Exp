@@ -117,6 +117,8 @@ export class ChannelRow {
 
 	public readonly container: HTMLElement = HTML.div({ class: "channelRow" });
 
+	private _renderedGeneration: number = -1;
+
 	constructor(
 		private readonly _doc: SongDocument,
 		public readonly index: number,
@@ -126,8 +128,23 @@ export class ChannelRow {
 		ChannelRow.patternHeight = this._doc.getChannelHeight();
 
 		const barWidth: number = this._doc.getBarWidth();
-		if (this._boxes.length !== this._doc.song.barCount) {
-			for (let x: number = this._boxes.length; x < this._doc.song.barCount; x++) {
+		const barCount: number = this._doc.song.barCount;
+
+		// Quick guard: skip per-bar DOM updates when nothing changed.
+		// The notifier generation increments on every state change; the
+		// rAF-driven render loop fires every frame even when idle.
+		if (
+			this._renderedGeneration === this._doc.notifier.generation &&
+			this._boxes.length === barCount &&
+			this._renderedBarWidth === barWidth &&
+			this._renderedBarHeight === ChannelRow.patternHeight
+		) {
+			return;
+		}
+		this._renderedGeneration = this._doc.notifier.generation;
+
+		if (this._boxes.length !== barCount) {
+			for (let x: number = this._boxes.length; x < barCount; x++) {
 				const box: Box = new Box(
 					this.index,
 					ColorConfig.getChannelColor(this._doc.song, this.index).secondaryChannel,
@@ -136,10 +153,10 @@ export class ChannelRow {
 				this.container.appendChild(box.container);
 				this._boxes[x] = box;
 			}
-			for (let x: number = this._doc.song.barCount; x < this._boxes.length; x++) {
+			for (let x: number = barCount; x < this._boxes.length; x++) {
 				this.container.removeChild(this._boxes[x].container);
 			}
-			this._boxes.length = this._doc.song.barCount;
+			this._boxes.length = barCount;
 		}
 
 		if (this._renderedBarWidth !== barWidth) {
@@ -156,42 +173,44 @@ export class ChannelRow {
 			}
 		}
 
+		const currentBar: number = this._doc.bar;
+		const currentChannel: number = this._doc.channel;
+		const loopBarStart: number = this._doc.synth.loopBarStart;
+		const loopBarEnd: number = this._doc.synth.loopBarEnd;
+		const channelIndex: number = this.index;
+		const colors: ChannelColors = ColorConfig.getChannelColor(this._doc.song, channelIndex);
+		const isNoise: boolean =
+			channelIndex >= this._doc.song.pitchChannelCount &&
+			channelIndex <
+				this._doc.song.pitchChannelCount + this._doc.song.noiseChannelCount;
+		const isMod: boolean =
+			channelIndex >= this._doc.song.pitchChannelCount + this._doc.song.noiseChannelCount;
+
 		for (let i: number = 0; i < this._boxes.length; i++) {
-			const pattern: Pattern | null = this._doc.song.getPattern(this.index, i);
-			const selected: boolean = i === this._doc.bar && this.index === this._doc.channel;
+			const pattern: Pattern | null = this._doc.song.getPattern(channelIndex, i);
+			const selected: boolean = i === currentBar && channelIndex === currentChannel;
 			const dim: boolean = pattern == null || pattern.notes.length === 0;
 
 			const box: Box = this._boxes[i];
-			if (i < this._doc.song.barCount) {
-				const colors: ChannelColors = ColorConfig.getChannelColor(
-					this._doc.song,
-					this.index,
-				);
+			if (i < barCount) {
 				box.setIndex(
-					this._doc.song.channels[this.index].bars[i],
+					this._doc.song.channels[channelIndex].bars[i],
 					selected,
 					dim,
 					dim && !selected ? colors.secondaryChannel : colors.primaryChannel,
-					this.index >= this._doc.song.pitchChannelCount &&
-						this.index <
-							this._doc.song.pitchChannelCount + this._doc.song.noiseChannelCount,
-					this.index >=
-						this._doc.song.pitchChannelCount + this._doc.song.noiseChannelCount,
+					isNoise,
+					isMod,
 				);
 				box.setVisibility("visible");
 			} else {
 				box.setVisibility("hidden");
 			}
-			if (i === this._doc.synth.loopBarStart) {
-				box.setBorderLeft(`1px dashed ${ColorConfig.uiWidgetFocus}`);
-			} else {
-				box.setBorderLeft("none");
-			}
-			if (i === this._doc.synth.loopBarEnd) {
-				box.setBorderRight(`1px dashed ${ColorConfig.uiWidgetFocus}`);
-			} else {
-				box.setBorderRight("none");
-			}
+			box.setBorderLeft(
+				i === loopBarStart ? `1px dashed ${ColorConfig.uiWidgetFocus}` : "none",
+			);
+			box.setBorderRight(
+				i === loopBarEnd ? `1px dashed ${ColorConfig.uiWidgetFocus}` : "none",
+			);
 		}
 	}
 }
