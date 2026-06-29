@@ -561,13 +561,13 @@ export class Synth {
 									) {
 										// Only the first tempo mod instrument for this bar will be checked (well, the first with a note in this bar).
 										foundMod = true;
-										// Need to re-sort the notes by start time to make the next part much less painful.
-										pattern.notes.sort((a, b) =>
+										// Sort a copy to avoid mutating the source pattern
+										const sortedNotes = pattern.notes.slice().sort((a, b) =>
 											a.start === b.start
 												? a.pitches[0] - b.pitches[0]
 												: a.start - b.start,
 										);
-										for (const note of pattern.notes) {
+										for (const note of sortedNotes) {
 											if (note.pitches[0] === Config.modCount - 1 - mod) {
 												// Compute samples up to this note
 												totalSamples +=

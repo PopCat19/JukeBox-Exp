@@ -352,5 +352,10 @@ export class Pattern {
 				this.notes.push(note);
 			}
 		}
+		// Sort notes by start time, then pitch — ensures deterministic iteration
+		// and avoids sorting in audio hot path.
+		this.notes.sort((a, b) =>
+			a.start === b.start ? a.pitches[0] - b.pitches[0] : a.start - b.start,
+		);
 	}
 }
