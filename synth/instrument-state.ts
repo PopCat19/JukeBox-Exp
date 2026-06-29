@@ -134,7 +134,11 @@ export class InstrumentState {
 	public bitcrusherFoldLevel: number = 1.0;
 	public bitcrusherFoldLevelScale: number = 1.0;
 
-	public readonly eqFilters: DynamicBiquadFilter[] = [];
+	// Pre-allocated — no allocation in audio hot path
+	public readonly eqFilters: DynamicBiquadFilter[] = Array.from(
+		{ length: Config.filterMaxPoints },
+		() => new DynamicBiquadFilter(),
+	);
 	public eqFilterCount: number = 0;
 	public initialEqFilterInput1: number = 0.0;
 	public initialEqFilterInput2: number = 0.0;
@@ -961,7 +965,6 @@ export class InstrumentState {
 				startPoint.toCoefficients(tempFilterStartCoefficients, samplesPerSecond, 1.0, 1.0);
 				endPoint.toCoefficients(tempFilterEndCoefficients, samplesPerSecond, 1.0, 1.0);
 
-				if (this.eqFilters.length < 1) this.eqFilters[0] = new DynamicBiquadFilter();
 				this.eqFilters[0].loadCoefficientsWithGradient(
 					tempFilterStartCoefficients,
 					tempFilterEndCoefficients,
@@ -978,8 +981,6 @@ export class InstrumentState {
 				startPoint = eqFilterSettingsStart.controlPoints[0];
 
 				startPoint.toCoefficients(tempFilterStartCoefficients, samplesPerSecond, 1.0, 1.0);
-
-				if (this.eqFilters.length < 1) this.eqFilters[0] = new DynamicBiquadFilter();
 				this.eqFilters[0].loadCoefficientsWithGradient(
 					tempFilterStartCoefficients,
 					tempFilterStartCoefficients,
@@ -1028,7 +1029,6 @@ export class InstrumentState {
 					/*eqAllFreqsEnvelopeEnd   * eqFreqEnvelopeEnd*/ 1.0,
 					/*eqPeakEnvelopeEnd*/ 1.0,
 				);
-				if (this.eqFilters.length <= i) this.eqFilters[i] = new DynamicBiquadFilter();
 				this.eqFilters[i].loadCoefficientsWithGradient(
 					tempFilterStartCoefficients,
 					tempFilterEndCoefficients,
