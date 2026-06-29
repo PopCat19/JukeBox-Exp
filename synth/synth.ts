@@ -4070,7 +4070,6 @@ export class Synth {
 					notePeakEnvelopeEnd,
 				);
 
-				if (tone.noteFilters.length < 1) tone.noteFilters[0] = new DynamicBiquadFilter();
 				tone.noteFilters[0].loadCoefficientsWithGradient(
 					tempFilterStartCoefficients,
 					tempFilterEndCoefficients,
@@ -4119,8 +4118,6 @@ export class Synth {
 						noteAllFreqsEnvelopeEnd * noteFreqEnvelopeEnd,
 						notePeakEnvelopeEnd,
 					);
-					if (tone.noteFilters.length <= i)
-						tone.noteFilters[i] = new DynamicBiquadFilter();
 					tone.noteFilters[i].loadCoefficientsWithGradient(
 						tempFilterStartCoefficients,
 						tempFilterEndCoefficients,
@@ -4172,9 +4169,6 @@ export class Synth {
 				drumsetFilterEnvelopeEnd * (1.0 + drumsetFilterEnvelopeEnd),
 				1.0,
 			);
-			if (tone.noteFilters.length === tone.noteFilterCount) {
-				tone.noteFilters[tone.noteFilterCount] = new DynamicBiquadFilter();
-			}
 			tone.noteFilters[tone.noteFilterCount].loadCoefficientsWithGradient(
 				tempFilterStartCoefficients,
 				tempFilterEndCoefficients,

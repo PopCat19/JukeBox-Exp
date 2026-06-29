@@ -6,7 +6,7 @@
 // - Holds per-voice state including filters, picked strings, and envelope computers
 
 import { EnvelopeComputer } from "./envelope-computer";
-import type { DynamicBiquadFilter } from "./filtering";
+import { DynamicBiquadFilter } from "./filtering";
 import type { Note } from "./notes";
 import type { PickedString } from "./picked-string";
 import { Config, type OperatorWave } from "./synth-config";
@@ -73,7 +73,11 @@ export class Tone {
 	public supersawPrevPhaseDelta: number | null = null;
 	public readonly pickedStrings: PickedString[] = [];
 
-	public readonly noteFilters: DynamicBiquadFilter[] = [];
+	// Pre-allocated in constructor — no allocation in audio hot path
+	public readonly noteFilters: DynamicBiquadFilter[] = Array.from(
+		{ length: Config.filterMaxPoints + 1 },
+		() => new DynamicBiquadFilter(),
+	);
 	public noteFilterCount: number = 0;
 	public initialNoteFilterInput1: number = 0.0;
 	public initialNoteFilterInput2: number = 0.0;
