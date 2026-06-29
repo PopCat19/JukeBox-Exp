@@ -67,8 +67,46 @@ declare global {
 }
 
 export class Synth {
+	private _songChannelCount: number = 0;
+	private _instrumentCounts: number[] = [];
+	private _cachedHasTempoMods: boolean = false;
+	private _cachedHasNextBarMods: boolean = false;
+
 	private syncSongState(): void {
 		const channelCount: number = this.song!.getChannelCount();
+		// Fast path: skip full sync when structure is unchanged during playback.
+		// Only muted toggles are checked (O(ch), no allocations).
+		if (
+			this._songChannelCount === channelCount &&
+			this._instrumentCounts.length >= channelCount
+		) {
+			let unchanged: boolean = true;
+			for (let i: number = 0; i < channelCount; i++) {
+				if (this._instrumentCounts[i] !== this.song!.channels[i].instruments.length) {
+					unchanged = false;
+					break;
+				}
+			}
+			if (unchanged) {
+				// Still need to catch mute toggles
+				for (let i: number = 0; i < channelCount; i++) {
+					const channel: Channel = this.song!.channels[i];
+					const channelState: ChannelState = this.channels[i];
+					if (channelState.muted !== channel.muted) {
+						channelState.muted = channel.muted;
+						if (channelState.muted) {
+							for (const inst of channelState.instruments) {
+								inst.resetAllEffects();
+							}
+						}
+					}
+				}
+				return;
+			}
+		}
+		this._songChannelCount = channelCount;
+		this._instrumentCounts.length = channelCount;
+
 		for (let i: number = this.channels.length; i < channelCount; i++) {
 			this.channels[i] = new ChannelState();
 		}
@@ -84,6 +122,7 @@ export class Synth {
 				channelState.instruments[j] = new InstrumentState();
 			}
 			channelState.instruments.length = channel.instruments.length;
+			this._instrumentCounts[i] = channel.instruments.length;
 
 			if (channelState.muted !== channel.muted) {
 				channelState.muted = channel.muted;
@@ -418,37 +457,9 @@ export class Synth {
 		if (loop === 0 && endBar <= startBar) {
 			return 0;
 		}
-		let hasTempoMods: boolean = false;
-		let hasNextBarMods: boolean = false;
+		let hasTempoMods: boolean = this._cachedHasTempoMods;
+		let hasNextBarMods: boolean = this._cachedHasNextBarMods;
 		let prevTempo: number = this.song.tempo;
-
-		// Determine if any tempo or next bar mods happen anywhere in the window
-		for (
-			let channel: number = this.song.getChannelCount() - 1;
-			channel >= this.song.pitchChannelCount + this.song.noiseChannelCount;
-			channel--
-		) {
-			for (let bar: number = startBar; bar < endBar; bar++) {
-				const pattern: Pattern | null = this.song.getPattern(channel, bar);
-				if (pattern != null) {
-					const instrument: Instrument =
-						this.song.channels[channel].instruments[pattern.instruments[0]];
-					for (let mod: number = 0; mod < Config.modCount; mod++) {
-						if (
-							instrument.modulators[mod] === Config.modulators.dictionary.tempo.index
-						) {
-							hasTempoMods = true;
-						}
-						if (
-							instrument.modulators[mod] ===
-							Config.modulators.dictionary["next bar"].index
-						) {
-							hasNextBarMods = true;
-						}
-					}
-				}
-			}
-		}
 
 		// If intro is not zero length, determine what the "entry" tempo is going into the start part, by looking at mods that came before...
 		if (startBar > 0) {
@@ -742,6 +753,39 @@ export class Synth {
 			this.song = song;
 		}
 		this.prevBar = null;
+		this._cacheSongModFlags();
+	}
+
+	/** Scan song mod channels once to cache tempo/next-bar mod presence. */
+	private _cacheSongModFlags(): void {
+		this._cachedHasTempoMods = false;
+		this._cachedHasNextBarMods = false;
+		if (this.song == null) return;
+		for (
+			let channel: number = this.song.getChannelCount() - 1;
+			channel >= this.song.pitchChannelCount + this.song.noiseChannelCount;
+			channel--
+		) {
+			for (let bar: number = 0; bar < this.song.barCount; bar++) {
+				const pattern: Pattern | null = this.song.getPattern(channel, bar);
+				if (pattern == null) continue;
+				const instrument: Instrument =
+					this.song.channels[channel].instruments[pattern.instruments[0]];
+				for (let mod: number = 0; mod < Config.modCount; mod++) {
+					if (
+						instrument.modulators[mod] === Config.modulators.dictionary.tempo.index
+					) {
+						this._cachedHasTempoMods = true;
+					}
+					if (
+						instrument.modulators[mod] ===
+						Config.modulators.dictionary["next bar"].index
+					) {
+						this._cachedHasNextBarMods = true;
+					}
+				}
+			}
+		}
 	}
 
 	private computeDelayBufferSizes(): void {
