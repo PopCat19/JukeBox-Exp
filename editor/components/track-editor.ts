@@ -88,7 +88,7 @@ export class TrackEditor {
 		// PMD card: 10px meta font, widget surface, 8px radius. Follows
 		// the mouse cursor with a 12px offset. pointer-events: none so
 		// it never blocks mouse events on the track grid.
-		style: "position: fixed; left: 0; top: 0; padding: 4px 8px; background: var(--ui-widget-background); color: var(--primary-text); border-radius: 8px; font-size: 10px; font-weight: 600; font-family: var(--font-family-mono); white-space: nowrap; pointer-events: none; z-index: 999; display: none;",
+		style: "position: fixed; left: 0; top: 0; padding: 4px 8px; background: var(--ui-widget-background); color: var(--primary-text); border-radius: 8px; font-size: 10px; font-weight: 600; font-family: var(--font-family-mono); white-space: pre-line; pointer-events: none; z-index: 999; display: none;",
 	});
 	private readonly _svg: SVGSVGElement = SVG.svg(
 		{ style: `position: absolute; top: 0;` },
@@ -350,41 +350,60 @@ export class TrackEditor {
 		this._updateHoverTooltip();
 	}
 
+	private _cachedTooltipKey: string | null = null;
+	private _cachedTooltipWidth: number = 0;
+	private _cachedTooltipHeight: number = 0;
+	private _renderedTooltipDisplay: string = "none";
+
 	private _updateHoverTooltip(): void {
 		if (!this._mouseOver || this._touchMode) {
-			this._hoverTooltip.style.display = "none";
+			if (this._renderedTooltipDisplay !== "none") {
+				this._hoverTooltip.style.display = "none";
+				this._renderedTooltipDisplay = "none";
+			}
+			this._cachedTooltipKey = null;
 			return;
 		}
 		const bar: number = this._mouseBar;
 		const channel: number = this._mouseChannel;
 		const overTrackEditor: boolean = this._mouseY >= Config.barEditorHeight;
-
-		// Elapsed samples up to the hovered bar. `getSamplesUpToBar` respects
-		// tempo mods and next-bar skips, giving accurate per-bar timestamps.
-		const barSamples = this._doc.synth.getSamplesUpToBar(bar);
-		const barTime = barSamples > 0 ? barSamples / this._doc.synth.samplesPerSecond : 0;
-		const elapsedStr = formatTime(barTime);
-
-		if (!overTrackEditor) {
-			this._hoverTooltip.innerHTML = `<div>B${bar + 1}</div><div>${elapsedStr}</div>`;
-		} else {
-			const channelType: string = this._doc.song.getChannelIsNoise(channel)
+		const channelType: string = overTrackEditor
+			? this._doc.song.getChannelIsNoise(channel)
 				? "D"
 				: this._doc.song.getChannelIsMod(channel)
 					? "M"
-					: "P";
-			this._hoverTooltip.innerHTML = `<div>B${bar + 1}/${channelType}${channel + 1}</div><div>${elapsedStr}</div>`;
+					: "P"
+			: "";
+
+		// Cache content by bar+channel key. Skip innerHTML + offset
+		// re-reads on same-bar mouse moves inside the same cell.
+		const key: string = overTrackEditor
+			? `${bar}_${channel}_${channelType}`
+			: `B${bar}`;
+		if (this._cachedTooltipKey !== key) {
+			this._cachedTooltipKey = key;
+
+			const barSamples = this._doc.synth.getSamplesUpToBar(bar);
+			const barTime = barSamples > 0 ? barSamples / this._doc.synth.samplesPerSecond : 0;
+			const elapsedStr = formatTime(barTime);
+
+			this._hoverTooltip.textContent = overTrackEditor
+				? `B${bar + 1}/${channelType}${channel + 1}\n${elapsedStr}`
+				: `B${bar + 1}\n${elapsedStr}`;
+
+			// Re-read size after content change. Cached between same-key
+			// mouse moves to avoid layout thrash on every pixel.
+			this._cachedTooltipWidth = this._hoverTooltip.offsetWidth || 100;
+			this._cachedTooltipHeight = this._hoverTooltip.offsetHeight || 20;
 		}
 
-		// Track the cursor in viewport coordinates, swapping sides to avoid
-		// clipping. Uses position: fixed so the tooltip is never clipped by
-		// parent overflow (the track container may extend beyond the viewport
-		// when scrolled right).
+		// Position update still runs every rAF (cursor moved). Uses
+		// cached dimensions — no reflow.
 		const offset: number = 12;
 		const viewportWidth: number = window.innerWidth;
 		const viewportHeight: number = window.innerHeight;
-		const tooltipWidth: number = this._hoverTooltip.offsetWidth || 100;
-		const tooltipHeight: number = this._hoverTooltip.offsetHeight || 20;
+		const tooltipWidth: number = this._cachedTooltipWidth;
+		const tooltipHeight: number = this._cachedTooltipHeight;
 
 		let left: number = this._mouseViewportX + offset;
 		if (left + tooltipWidth > viewportWidth) {
@@ -406,7 +425,10 @@ export class TrackEditor {
 
 		this._hoverTooltip.style.left = `${left}px`;
 		this._hoverTooltip.style.top = `${top}px`;
-		this._hoverTooltip.style.display = "block";
+		if (this._renderedTooltipDisplay !== "block") {
+			this._hoverTooltip.style.display = "block";
+			this._renderedTooltipDisplay = "block";
+		}
 	}
 
 	private _whenMousePressed = (event: MouseEvent): void => {
