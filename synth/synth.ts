@@ -1894,14 +1894,16 @@ export class Synth {
 				// Also reset awake InstrumentStates that didn't have any Tones during this tick.
 				for (const channelState of this.channels) {
 					for (const instrumentState of channelState.instruments) {
-						for (let i: number = 0; i < instrumentState.releasedTones.count(); i++) {
-							const tone: Tone = instrumentState.releasedTones.get(i);
-							// During stop fade: don't free released tones so effects
-							if (tone.isOnLastTick) {
-								this.freeReleasedTone(instrumentState, i);
-								i--;
-							} else {
-								tone.ticksSinceReleased++;
+						if (instrumentState.releasedTones.count() > 0) {
+							for (let i: number = 0; i < instrumentState.releasedTones.count(); i++) {
+								const tone: Tone = instrumentState.releasedTones.get(i);
+								// During stop fade: don't free released tones so effects
+								if (tone.isOnLastTick) {
+									this.freeReleasedTone(instrumentState, i);
+									i--;
+								} else {
+									tone.ticksSinceReleased++;
+								}
 							}
 						}
 						if (instrumentState.deactivateAfterThisTick) {
