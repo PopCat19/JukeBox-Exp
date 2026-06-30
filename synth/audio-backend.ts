@@ -51,7 +51,11 @@ export class AudioBackend {
 	private _logNeedDataCount: number = 0;
 	private _useSab: boolean = false;
 	private static readonly SPECTRUM_UPDATE_INTERVAL_MS: number = 1000 / 60;
-	private static readonly NUM_RING_SLOTS: number = 4;
+	// 8 slots gives ~7 fills of runway at 2048 samples each. Enough for
+// dense patterns where synthesize() takes up to ~7ms before the rAF
+// fill loop loses ground. Each slot is ~16KB (2048 × 2ch × 4B), total
+// ~128KB.
+private static readonly NUM_RING_SLOTS: number = 8;
 
 	public get isActive(): boolean {
 		return this.audioCtx != null && this._workletNode != null;

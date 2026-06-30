@@ -38,7 +38,7 @@ class BeepBoxAudioWorkletProcessor extends AudioWorkletProcessor {
     this._sab = null;
     this._header = null;
     this._data = null;
-    this._numSlots = 4;
+    this._numSlots = 8;
     this._slotLength = this._bufferSize;
     this._slotStride = this._bufferSize * 2;
     this._readHead = -1;
