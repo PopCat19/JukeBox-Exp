@@ -3869,24 +3869,18 @@ export class SongEditor
 	};
 
 	public whenUpdated = (): void => {
-		// During playback, apply the scroll position so auto-follow
-		// tracks the playhead, then return. All per-frame visual
-		// updates (playhead, mod sliders, filters, volume bar,
-		// center-follow, pattern notes) run in PlayerAnimator and
-		// component rAF loops. renderLayout would re-render all 38
-		// channel rows because ChangeChannelBar bumps
-		// notifier.generation at every bar transition, defeating
-		// the ChannelRow generation guard.
+		const prefs: Preferences = this.doc.prefs;
+		renderLayout(this._layoutRefs, this.doc);
+
+		// During playback, skip the full settings re-render cascade.
+		// All per-frame visual updates (playhead, mod sliders, filters,
+		// volume bar, center-follow, pattern notes) run in PlayerAnimator
+		// and component rAF loops. renderLayout above still runs to apply
+		// scroll position and update bar highlights in the track editor.
 		if (this.doc.synth.playing) {
-			this._trackAndMuteContainer.scrollLeft =
-				this.doc.barScrollPos * this.doc.getBarWidth();
-			this._trackAndMuteContainer.scrollTop =
-				this.doc.channelScrollPos * ChannelRow.patternHeight;
 			return;
 		}
 
-		const prefs: Preferences = this.doc.prefs;
-		renderLayout(this._layoutRefs, this.doc);
 		this._promptManager.repositionOutOfBounds();
 
 		renderOptionsMenu(this._optionsMenu, prefs, this.doc.song.scale);

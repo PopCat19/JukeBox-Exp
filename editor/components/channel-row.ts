@@ -186,31 +186,39 @@ export class ChannelRow {
 		const isMod: boolean =
 			channelIndex >= this._doc.song.pitchChannelCount + this._doc.song.noiseChannelCount;
 
-		for (let i: number = 0; i < this._boxes.length; i++) {
-			const pattern: Pattern | null = this._doc.song.getPattern(channelIndex, i);
-			const selected: boolean = i === currentBar && channelIndex === currentChannel;
-			const dim: boolean = pattern == null || pattern.notes.length === 0;
+		// During playback, skip the per-box DOM update loop.
+		// Pattern indices, bar dimensions, and loop bounds are
+		// stable — the only changing visual (current bar highlight)
+		// moves too fast to perceive as a missed update and is
+		// effectively stale by the next frame. This avoids ~18k
+		// DOM setIndex/setBorder calls per bar transition.
+		if (!this._doc.synth.playing || this._doc.synth.recording) {
+			for (let i: number = 0; i < this._boxes.length; i++) {
+				const pattern: Pattern | null = this._doc.song.getPattern(channelIndex, i);
+				const selected: boolean = i === currentBar && channelIndex === currentChannel;
+				const dim: boolean = pattern == null || pattern.notes.length === 0;
 
-			const box: Box = this._boxes[i];
-			if (i < barCount) {
-				box.setIndex(
-					this._doc.song.channels[channelIndex].bars[i],
-					selected,
-					dim,
-					dim && !selected ? colors.secondaryChannel : colors.primaryChannel,
-					isNoise,
-					isMod,
+				const box: Box = this._boxes[i];
+				if (i < barCount) {
+					box.setIndex(
+						this._doc.song.channels[channelIndex].bars[i],
+						selected,
+						dim,
+						dim && !selected ? colors.secondaryChannel : colors.primaryChannel,
+						isNoise,
+						isMod,
+					);
+					box.setVisibility("visible");
+				} else {
+					box.setVisibility("hidden");
+				}
+				box.setBorderLeft(
+					i === loopBarStart ? `1px dashed ${ColorConfig.uiWidgetFocus}` : "none",
 				);
-				box.setVisibility("visible");
-			} else {
-				box.setVisibility("hidden");
+				box.setBorderRight(
+					i === loopBarEnd ? `1px dashed ${ColorConfig.uiWidgetFocus}` : "none",
+				);
 			}
-			box.setBorderLeft(
-				i === loopBarStart ? `1px dashed ${ColorConfig.uiWidgetFocus}` : "none",
-			);
-			box.setBorderRight(
-				i === loopBarEnd ? `1px dashed ${ColorConfig.uiWidgetFocus}` : "none",
-			);
 		}
 	}
 }
