@@ -64,6 +64,8 @@ an uncovered module.
 | `synth/post-processing.ts` | `tests/post-processing.test.ts` | sanitizeFilters — overflow reset, epsilon clamping, empty array, normal value preservation |
 | `synth/synth-effects.ts` | `tests/synth-effects.test.ts` | Module import and export shape |
 
+| `synth/audio-worklet-processor.ts` | `tests/audio-worklet-processor.test.ts` | Syntax validation via Function(), brace/paren/bracket balance, regression guard for stray closing braces in embedded JS |
+
 **Recently added test coverage:**
 
 | Source | Test file | Scope |

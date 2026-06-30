@@ -148,7 +148,6 @@ class BeepBoxAudioWorkletProcessor extends AudioWorkletProcessor {
         }
         continue;
       }
-      }
 
       var slotBase = (this._activeSlot % this._numSlots) * this._slotStride;
       var available = this._slotLength - this._slotOffset;
