@@ -75,6 +75,8 @@ export class InstrumentBrowserPrompt extends BasePrompt {
 	private _tagItems: TagListItem[] = [];
 	private _tagSelectedIndex: number = 0;
 	private _tagColumns: number = 4;
+	private _tagResizeObserver: ResizeObserver | null = null;
+	private readonly _tagColWidth: number = 90;
 	private _tagContainer: HTMLDivElement;
 	private _tagSearchInput: HTMLInputElement;
 	private _tagClearButton: HTMLButtonElement;
@@ -201,29 +203,28 @@ export class InstrumentBrowserPrompt extends BasePrompt {
 		this._tagContainer.style.borderRadius = "8px";
 
 		this._tagContainer.classList.add("tagGridContainer");
+		this._tagResizeObserver = new ResizeObserver(() => { this._updateTagGridColumns(); });
+		this._tagResizeObserver.observe(this._tagContainer);
 
-		this._tagsTabContent = div(
-			{ class: "tabContent tagsTabContent" },
-			inputRow({}, this._tagSearchInput, this._tagClearButton),
-			this._tagContainer,
-			div(
-				{
-					style: `font-size: ${Typography.sizeSm}; color: var(--secondary-text); text-align: center;`,
-				},
-				"Click or Enter to toggle | Arrow keys to navigate | ESC to close",
-			),
+		this._tagContainer.style.flex = "1";
+		this._tagContainer.style.minHeight = "0";
+		this._tagContainer.style.removeProperty("max-height");
+
+		const tagFooter = div(
+			{
+				style: `font-size: ${Typography.sizeSm}; color: var(--secondary-text); text-align: center; flex-shrink: 0;`,
+			},
+			"Click or Enter to toggle | Arrow keys to navigate | ESC to close",
 		);
 
 		this._tagsTabContent = div(
-			{ class: "tabContent tagsTabContent" },
+			{
+				class: "tabContent tagsTabContent",
+				style: "display: flex; flex-direction: column; min-height: 0; flex: 1;",
+			},
 			inputRow({}, this._tagSearchInput, this._tagClearButton),
 			this._tagContainer,
-			div(
-				{
-					style: `font-size: ${Typography.sizeSm}; color: var(--secondary-text); text-align: center;`,
-				},
-				"Click or Enter to toggle | Arrow keys to navigate | ESC to close",
-			),
+			tagFooter,
 		);
 
 		this._tabPresets = tabButton("Presets", this._openTab === "presets");
@@ -254,7 +255,7 @@ export class InstrumentBrowserPrompt extends BasePrompt {
 		this.buildTitlebar();
 
 		this._commitTooltip = div({
-			style: "position: fixed; left: 0; top: 0; padding: 4px 8px; background: var(--ui-widget-background); color: var(--primary-text); border-radius: 8px; font-size: 10px; font-weight: 600; font-family: var(--font-family-mono); pointer-events: none; z-index: 999; display: none;",
+			style: "position: fixed; left: 0; top: 0; padding: 4px 8px; background: rgb(244, 201, 224); color: rgb(20, 9, 15); border-radius: 8px; font-size: 10px; font-weight: 600; font-family: \"Fredoka\", \"Rounded Mplus 1c\", sans-serif; white-space: pre-line; pointer-events: none; z-index: 999; display: none;",
 		});
 		document.body.appendChild(this._commitTooltip);
 		document.addEventListener("mousemove", this._onMouseMove);
@@ -828,15 +829,15 @@ export class InstrumentBrowserPrompt extends BasePrompt {
 			this._committedPreset = preset.value;
 			this._syncSelectionToCommittedPreset();
 			this._updateHighlight();
-			// Show "Committed" tooltip near the cursor with viewport clamping,
-			// same approach as track editor's _hoverTooltip. Fall back to
-			// center below the commit button when no mouse position recorded.
+			// Show "Committed" tooltip near the cursor with viewport clamping.
+			// Position logic mirrors track-editor's _updateHoverTooltip:
+			// prefer below/right of cursor, flip to above/left on overflow,
+			// then pin to 0, then pin to edge as last resort.
 			const offset = 12;
 			const viewportW = window.innerWidth;
 			const viewportH = window.innerHeight;
 			const hasMouse = this._lastMouseX > 10 || this._lastMouseY > 10;
 			this._commitTooltip.textContent = "Committed";
-			// Read dimensions after textContent to get accurate size
 			const tw = this._commitTooltip.offsetWidth || 80;
 			const th = this._commitTooltip.offsetHeight || 20;
 			let left: number;
@@ -1188,9 +1189,19 @@ export class InstrumentBrowserPrompt extends BasePrompt {
 		return this._tagData.filter((t) => t.tag.toLowerCase().includes(query));
 	}
 
+	private _updateTagGridColumns(): void {
+		const cols = Math.max(2, Math.min(8, Math.floor(this._tagContainer.clientWidth / this._tagColWidth)));
+		if (cols !== this._tagColumns) {
+			this._tagColumns = cols;
+			this._tagContainer.style.gridTemplateColumns = `repeat(${this._tagColumns}, 1fr)`;
+		}
+	}
+
 	private _renderTags(): void {
 		this._tagContainer.innerHTML = "";
 		this._tagItems = [];
+
+		this._updateTagGridColumns();
 
 		const filtered = this._getFilteredTags();
 
@@ -1355,6 +1366,10 @@ export class InstrumentBrowserPrompt extends BasePrompt {
 	public override cleanUp = (): void => {
 		super.cleanUp();
 		document.removeEventListener("mousemove", this._onMouseMove);
+		if (this._tagResizeObserver) {
+			this._tagResizeObserver.disconnect();
+			this._tagResizeObserver = null;
+		}
 		if (this._commitTooltipTimer !== null) {
 			clearTimeout(this._commitTooltipTimer);
 			this._commitTooltipTimer = null;
