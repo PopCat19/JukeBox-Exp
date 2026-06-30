@@ -74,7 +74,7 @@ export class InstrumentBrowserPrompt extends BasePrompt {
 	private _tagData: TagData[] = [];
 	private _tagItems: TagListItem[] = [];
 	private _tagSelectedIndex: number = 0;
-	private readonly _tagColumns: number = 4;
+	private readonly _tagColumns: number = 5;
 	private _tagContainer: HTMLDivElement;
 	private _tagSearchInput: HTMLInputElement;
 	private _tagClearButton: HTMLButtonElement;
