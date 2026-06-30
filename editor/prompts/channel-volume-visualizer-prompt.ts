@@ -461,6 +461,8 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 		true,
 	);
 
+	private _popoutObserver: MutationObserver | null = null;
+
 	public container: HTMLDivElement = div(
 		{
 			class: "prompt noSelection fill-y",
@@ -516,6 +518,25 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 		this._renderChannelList();
 		this._buildPianoKeyRows(1);
 		this._scheduleFrame();
+
+		// When the popout adopts the container into its own window, the
+		// existing rAF callback is still scheduled on the main window. If
+		// the main tab is in background its rAF is throttled (~1fps or
+		// never), so the popout animation freezes. Watch for data-popout
+		// and reschedule on whichever window owns the container now.
+		this._popoutObserver = new MutationObserver(() => {
+			const attr = this.container.getAttribute("data-popout");
+			if (attr === "true" || attr === null) {
+				// Reschedule on the current owner window (popout on adoption,
+				// main window on close). Cancel the old one first.
+				this._rafWin.cancelAnimationFrame(this._animationId);
+				this._scheduleFrame();
+			}
+		});
+		this._popoutObserver.observe(this.container, {
+			attributes: true,
+			attributeFilter: ["data-popout"],
+		});
 		this._playPauseButton.addEventListener("click", this._togglePlayPause);
 		this._stopButton.addEventListener("click", this._stop);
 		this._loopButton.addEventListener("click", this._toggleLoop);
@@ -888,7 +909,7 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 	// Only invoked when the user has enabled notesFlashWhenPlayed; the
 	// background overlay does not rely on flash but the player code path
 	// still requires a valid callback.
-	private static _removeAt<T>(array: T[], index: number): void {
+	private static _removeAt(array: unknown[], index: number): void {
 		const last = array.length - 1;
 		array[index] = array[last];
 		array.pop();
