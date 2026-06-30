@@ -57,6 +57,8 @@ export function renderLayout(refs: LayoutRefs, doc: SongDocument): void {
 		refs.trackAndMuteContainer.scrollTop = doc.channelScrollPos * ChannelRow.patternHeight;
 		refs.trackEditor.render();
 		refs.patternEditor.render();
+		refs.patternEditorPrev.render();
+		refs.patternEditorNext.render();
 		return;
 	}
 
