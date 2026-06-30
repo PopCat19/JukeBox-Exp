@@ -445,13 +445,8 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 	private _playerRenderedEnd = -1;
 	// Piano layout: -1 unknown, 0 double row, 1 single row. Rebuild only
 	// when the mode changes (throttled width check ~every 0.5s).
-	private _pianoLayoutMode = -1;
-	private _pianoLayoutCheckCounter = 0;
+
 	private static readonly PLAYER_OVERSCAN = 8;
-	// Container width at which the two piano rows merge into one. Above
-	// this, two rows make black keys too wide; one 56-unit row halves
-	// key width. Checked on a throttled cadence to avoid per-frame reflow.
-	private static readonly PIANO_SINGLE_THRESHOLD = 1000;
 
 	// Global spectrum bar pinned to the absolute bottom of the prompt.
 	// Only visible when popped out; when docked the editor's main
@@ -519,7 +514,7 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 		this._onThemeChange = this._refreshSpectrumColors.bind(this);
 		events.listen("themeChange", this._onThemeChange);
 		this._renderChannelList();
-		this._buildPianoKeyRows();
+		this._buildPianoKeyRows(1);
 		this._scheduleFrame();
 		this._playPauseButton.addEventListener("click", this._togglePlayPause);
 		this._stopButton.addEventListener("click", this._stop);
@@ -928,19 +923,8 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 		this._cvSpectrum.canvas.style.display = isPopout ? "block" : "none";
 		this._playerOverlay.style.display = isPopout ? "" : "none";
 
-		// Piano layout: merge two rows into one when the container is wide
-		// enough. Checked on a throttled cadence (~every 0.5s) so the
-		// clientWidth read doesn't force a per-frame reflow; rebuild only
-		// when the mode actually changes.
-		if (--this._pianoLayoutCheckCounter <= 0) {
-			this._pianoLayoutCheckCounter = 30;
-			const cw = this.container.clientWidth;
-			const desired = cw >= ChannelVolumeVisualizerPrompt.PIANO_SINGLE_THRESHOLD ? 1 : 0;
-			if (desired !== this._pianoLayoutMode) {
-				this._pianoLayoutMode = desired;
-				this._buildPianoKeyRows(desired);
-			}
-		}
+		// Piano layout is always single-row (octaves 0-7 in one row)
+		// for vertical estate. Built once in constructor.
 
 		// Player timeline background: render only the bars inside (or near)
 		// the visible viewport, not the whole song. renderTimeline rebuilds
