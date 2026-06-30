@@ -242,7 +242,13 @@ export class AudioBackend {
 		if (this._workletNode != null && this.audioCtx != null) {
 			this._dbg("Disconnecting worklet node...");
 			this._workletNode.port.postMessage({ type: "stop" });
-			this._workletNode.disconnect(this.audioCtx.destination);
+			// Guard: node may have been created but not yet connected
+			// (error in _doActivate between create and connect).
+			try {
+				this._workletNode.disconnect(this.audioCtx.destination);
+			} catch {
+				this._dbg("disconnect failed (node not connected)");
+			}
 			this._workletNode = null;
 		}
 		if (this.audioCtx != null) {
