@@ -152,6 +152,7 @@ export class SongDocument {
 				window.sessionStorage.getItem("jukeboxCurrentChannel");
 			if (savedChannel != null) {
 				this.channel = Number(savedChannel);
+				state.channel = this.channel;
 			}
 		}
 		this.channel = state.channel | 0;
