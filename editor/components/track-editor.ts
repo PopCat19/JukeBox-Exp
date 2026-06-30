@@ -243,7 +243,30 @@ export class TrackEditor {
 		this._doc.selection.setPattern(this._select.selectedIndex);
 	};
 
-	private _animatePlayhead = (_timestamp: number): void => {
+	private _lastFrameTime: number = 0;
+	private _frameStutterCount: number = 0;
+	private _lastFrameStutterLogMs: number = 0;
+
+	private _animatePlayhead = (timestamp: number): void => {
+		if (this._lastFrameTime > 0) {
+			const frameDelta: number = timestamp - this._lastFrameTime;
+			if (frameDelta > 50 && this._doc.synth.playing) {
+				this._frameStutterCount++;
+				const now: number = performance.now();
+				if (now - this._lastFrameStutterLogMs > 1000) {
+					this._lastFrameStutterLogMs = now;
+					console.warn(
+						"[UI] Frame stutter #" +
+							this._frameStutterCount +
+							", delta=" +
+							frameDelta.toFixed(0) +
+							"ms (target 16ms)",
+					);
+				}
+			}
+		}
+		this._lastFrameTime = timestamp;
+
 		const playhead = this._barWidth * this._doc.synth.playhead - 2;
 		if (this._renderedPlayhead !== playhead) {
 			this._renderedPlayhead = playhead;

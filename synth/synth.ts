@@ -318,6 +318,8 @@ export class Synth {
 
 	private _audio: AudioBackend = new AudioBackend();
 	private _logSynthCallCount: number = 0;
+	private _stutterCount: number = 0;
+	private _lastStutterLogMs: number = 0;
 	// _logNeedDataCount moved to AudioBackend
 
 	private static _debugSynthEnabled(): boolean {
@@ -1341,6 +1343,8 @@ export class Synth {
 		outputBufferLength: number,
 		playSong: boolean = true,
 	): void {
+		const _synthStartTime: number = performance.now();
+		const _bufferBudgetMs: number = (outputBufferLength / this.samplesPerSecond) * 1000;
 		this._logSynthCallCount++;
 		if (this._logSynthCallCount <= 5 || this._logSynthCallCount % 200 === 0) {
 			this._dbg(
@@ -2296,6 +2300,26 @@ export class Synth {
 					this.beat) /
 					song.beatsPerBar +
 				this.bar;
+		}
+
+		const _synthElapsed: number = performance.now() - _synthStartTime;
+		if (_synthElapsed > _bufferBudgetMs * 0.9) {
+			this._stutterCount++;
+			const now: number = performance.now();
+			if (now - this._lastStutterLogMs > 1000) {
+				this._lastStutterLogMs = now;
+				console.warn(
+					"[Synth] Audio stutter #" +
+						this._stutterCount +
+						", bar=" +
+						this.bar +
+						", elapsed=" +
+						_synthElapsed.toFixed(1) +
+						"ms, budget=" +
+						_bufferBudgetMs.toFixed(1) +
+						"ms",
+				);
+			}
 		}
 	}
 
