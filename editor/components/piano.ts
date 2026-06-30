@@ -325,6 +325,12 @@ export class Piano {
 		this._updatePreview();
 	};
 
+	// RAF-throttled mousemove handler. Piano._updatePreview does
+	// getBoundingClientRect + 88 classList toggles; running it on
+	// every mousemove (1000Hz) spikes main thread even on medium
+	// projects. Coordinate math stays synchronous for immediate
+	// cursor/collision detect, but preview updates go through rAF.
+	private _mouseMoveRAF: number | null = null;
 	private _whenMouseMoved = (event: MouseEvent): void => {
 		if (this._mouseDown || this._mouseOver) this._doc.synth.maintainLiveInput();
 		if (!this._containerRect) this._containerRect = this.container.getBoundingClientRect();
@@ -337,7 +343,11 @@ export class Piano {
 		this._updateCursorPitch();
 		if (this._mouseDown) this._playLiveInput();
 		if (this.periodKeyHeld) this.previewHoveredNote();
-		this._updatePreview();
+		if (this._mouseMoveRAF !== null) return;
+		this._mouseMoveRAF = requestAnimationFrame(() => {
+			this._mouseMoveRAF = null;
+			this._updatePreview();
+		});
 	};
 
 	private _whenMouseReleased = (_event: MouseEvent): void => {
