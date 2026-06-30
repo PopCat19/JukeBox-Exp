@@ -68,6 +68,8 @@ export class InstrumentBrowserPrompt extends BasePrompt {
 	private _infoPanelRAF: number | null = null;
 	private _commitTooltip: HTMLDivElement;
 	private _commitTooltipTimer: ReturnType<typeof setTimeout> | null = null;
+	private _lastMouseX: number = 0;
+	private _lastMouseY: number = 0;
 
 	private _tagData: TagData[] = [];
 	private _tagItems: TagListItem[] = [];
@@ -255,6 +257,7 @@ export class InstrumentBrowserPrompt extends BasePrompt {
 			style: "position: fixed; left: 0; top: 0; padding: 4px 8px; background: var(--ui-widget-background); color: var(--primary-text); border-radius: 8px; font-size: 10px; font-weight: 600; font-family: var(--font-family-mono); pointer-events: none; z-index: 999; display: none;",
 		});
 		document.body.appendChild(this._commitTooltip);
+		document.addEventListener("mousemove", this._onMouseMove);
 
 		this._applyTagFilter();
 		this._renderCategories();
@@ -825,12 +828,35 @@ export class InstrumentBrowserPrompt extends BasePrompt {
 			this._committedPreset = preset.value;
 			this._syncSelectionToCommittedPreset();
 			this._updateHighlight();
-			// Show "Committed" tooltip below the commit button, then auto-dismiss
-			const btnRect = this._okayButton.getBoundingClientRect();
-			const offset = 8;
+			// Show "Committed" tooltip near the cursor with viewport clamping,
+			// same approach as track editor's _hoverTooltip. Fall back to
+			// center below the commit button when no mouse position recorded.
+			const offset = 12;
+			const viewportW = window.innerWidth;
+			const viewportH = window.innerHeight;
+			const hasMouse = this._lastMouseX > 10 || this._lastMouseY > 10;
 			this._commitTooltip.textContent = "Committed";
-			this._commitTooltip.style.left = `${btnRect.left + btnRect.width / 2 - this._commitTooltip.offsetWidth / 2}px`;
-			this._commitTooltip.style.top = `${btnRect.bottom + offset}px`;
+			// Read dimensions after textContent to get accurate size
+			const tw = this._commitTooltip.offsetWidth || 80;
+			const th = this._commitTooltip.offsetHeight || 20;
+			let left: number;
+			let top: number;
+			if (hasMouse) {
+				left = this._lastMouseX + offset;
+				if (left + tw > viewportW) left = this._lastMouseX - offset - tw;
+				if (left < 0) left = 0;
+				if (left + tw > viewportW) left = Math.max(0, viewportW - tw);
+				top = this._lastMouseY + offset;
+				if (top + th > viewportH) top = this._lastMouseY - offset - th;
+				if (top < 0) top = 0;
+				if (top + th > viewportH) top = Math.max(0, viewportH - th);
+			} else {
+				const btnRect = this._okayButton.getBoundingClientRect();
+				left = btnRect.left + btnRect.width / 2 - tw / 2;
+				top = btnRect.bottom + offset;
+			}
+			this._commitTooltip.style.left = `${left}px`;
+			this._commitTooltip.style.top = `${top}px`;
 			this._commitTooltip.style.display = "block";
 			if (this._commitTooltipTimer !== null) clearTimeout(this._commitTooltipTimer);
 			this._commitTooltipTimer = setTimeout(() => {
@@ -1321,8 +1347,14 @@ export class InstrumentBrowserPrompt extends BasePrompt {
 			container.scrollTop += itemRect.bottom - containerRect.bottom;
 	}
 
+	private _onMouseMove = (e: MouseEvent): void => {
+		this._lastMouseX = e.clientX;
+		this._lastMouseY = e.clientY;
+	};
+
 	public override cleanUp = (): void => {
 		super.cleanUp();
+		document.removeEventListener("mousemove", this._onMouseMove);
 		if (this._commitTooltipTimer !== null) {
 			clearTimeout(this._commitTooltipTimer);
 			this._commitTooltipTimer = null;
