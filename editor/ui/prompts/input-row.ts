@@ -21,7 +21,16 @@ export function inputRow(
 	...children: (HTMLElement | string)[]
 ): HTMLDivElement {
 	const gap = options?.gap ?? Gap.normal;
-	let style = s(flex("row"), `gap:${gap};`, `height:32px;`);
+	let style = s(
+		flex("row"),
+		`gap:${gap};`,
+		`height:32px;`,
+		// Pin against flex shrinking so the row keeps its 32px height
+		// when the parent flex column has a fixed height and a flex: 1
+		// sibling below it (e.g. tag grid inside .tagsTabContent).
+		// Without this the row squashes to its content height.
+		"flex-shrink:0;",
+	);
 
 	if (options?.marginTop) {
 		style += ` margin-top: ${options.marginTop};`;
