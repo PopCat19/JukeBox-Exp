@@ -722,22 +722,12 @@ export class PromptManager {
 			x = pad.left + Math.max(gap, (vw - pw) / 2);
 			y = pad.top + Math.max(gap, (vh - ph) / 2);
 		} else {
-			const elCenter = info.elRect.left + info.elRect.width / 2 - mlRect.left;
-			x = Math.max(pad.left + gap, Math.min(elCenter - pw / 2, pad.left + vw - pw - gap));
-
+			// Center the prompt on the cursor, then clamp to viewport bounds
+			// so the full prompt stays visible with padding/gap.
+			const cursorX = info.clientX - mlRect.left;
 			const cursorY = info.clientY - mlRect.top;
-			const below = cursorY + gap;
-			const above = cursorY - ph - gap;
-			const yMin = pad.top + gap;
-			const yMax = pad.top + vh - ph - gap;
-			if (below + ph <= pad.top + vh) {
-				y = Math.max(yMin, below);
-			} else if (above >= yMin) {
-				y = Math.max(yMin, above);
-			} else {
-				y = pad.top + Math.max(gap, (vh - ph) / 2);
-			}
-			y = Math.min(y, yMax);
+			x = Math.max(pad.left + gap, Math.min(cursorX - pw / 2, pad.left + vw - pw - gap));
+			y = Math.max(pad.top + gap, Math.min(cursorY - ph / 2, pad.top + vh - ph - gap));
 		}
 
 		prompt.container.style.left = `${x}px`;
