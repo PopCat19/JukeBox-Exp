@@ -46,6 +46,20 @@ export interface LayoutRefs {
 export function renderLayout(refs: LayoutRefs, doc: SongDocument): void {
 	const prefs: Preferences = doc.prefs;
 	refs.muteEditor.container.style.display = prefs.enableChannelMuting ? "" : "none";
+
+	// During playback, skip forced layout (getBoundingClientRect) and
+	// expensive per-frame visibility/style checks. trackVisibleBars/
+	// trackVisibleChannels are stable between resize events. Still
+	// render the track editor so selected-bar highlights follow the
+	// playhead, and the pattern editor so auto-follow notes render.
+	if (doc.synth.playing) {
+		refs.trackAndMuteContainer.scrollLeft = doc.barScrollPos * doc.getBarWidth();
+		refs.trackAndMuteContainer.scrollTop = doc.channelScrollPos * ChannelRow.patternHeight;
+		refs.trackEditor.render();
+		refs.patternEditor.render();
+		return;
+	}
+
 	const trackBounds: DOMRect = refs.trackVisibleArea.getBoundingClientRect();
 	doc.trackVisibleBars = Math.floor(
 		(trackBounds.right - trackBounds.left - (prefs.enableChannelMuting ? 32 : 0)) /
