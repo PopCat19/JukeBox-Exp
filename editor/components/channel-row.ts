@@ -117,7 +117,6 @@ export class ChannelRow {
 
 	public readonly container: HTMLElement = HTML.div({ class: "channelRow" });
 
-	private _prevSelectedBar: number = -1;
 	private _renderedGeneration: number = -1;
 
 	constructor(
@@ -219,43 +218,23 @@ export class ChannelRow {
 				);
 			}
 		} else {
-			// During playback, only update the selected (highlighted)
-			// box when scrolled into view. Pattern indices, dimensions,
-			// and loop bounds are stable.
-			if (
-				currentBar >= 0 &&
-				currentBar < this._boxes.length &&
-				currentChannel === this.index
-			) {
-				this._boxes[currentBar].setIndex(
-					this._doc.song.channels[channelIndex].bars[currentBar],
-					true,
-					false,
-					colors.primaryChannel,
+			// Playback fast-path: update selected bar on all channels.
+			// setIndex has internal render-guards on every property
+			// (_renderedIndex, _renderedLabelColor, _renderedBackgroundColor)
+			// so only boxes where selected/color actually changes touch
+			// the DOM — typically 2 boxes per channel switch, 2 boxes
+			// per bar advance on the current channel, 0 for others.
+			for (let i: number = 0; i < this._boxes.length; i++) {
+				const pattern: Pattern | null = this._doc.song.getPattern(channelIndex, i);
+				const dim: boolean = pattern == null || pattern.notes.length === 0;
+				this._boxes[i].setIndex(
+					this._doc.song.channels[channelIndex].bars[i],
+					channelIndex === currentChannel && i === currentBar,
+					dim,
+					dim ? colors.secondaryChannel : colors.primaryChannel,
 					isNoise,
 					isMod,
 				);
-				// De-select the previously selected bar.
-				if (
-					this._prevSelectedBar !== currentBar &&
-					this._prevSelectedBar >= 0 &&
-					this._prevSelectedBar < this._boxes.length
-				) {
-					const prevPattern: Pattern | null = this._doc.song.getPattern(
-						channelIndex,
-						this._prevSelectedBar,
-					);
-					const prevDim: boolean = prevPattern == null || prevPattern.notes.length === 0;
-					this._boxes[this._prevSelectedBar].setIndex(
-						this._doc.song.channels[channelIndex].bars[this._prevSelectedBar],
-						false,
-						prevDim,
-						prevDim ? colors.secondaryChannel : colors.primaryChannel,
-						isNoise,
-						isMod,
-					);
-				}
-				this._prevSelectedBar = currentBar;
 			}
 		}
 	}
