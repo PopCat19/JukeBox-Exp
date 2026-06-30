@@ -20,6 +20,7 @@ export type Slot = 0 | 1;
 
 export interface PromptDockHost {
 	editor: HTMLElement;
+	onLayoutChanged: () => void;
 }
 
 const DEFAULT_WIDTH = 360;
@@ -38,6 +39,7 @@ interface SlotEntry {
 
 export class PromptDock {
 	private readonly _editor: HTMLElement;
+	private readonly _host: PromptDockHost;
 	private readonly _docked: Map<DockSide, SlotEntry[]> = new Map();
 	private readonly _dividerEls: Map<DockSide, HTMLDivElement> = new Map();
 	private readonly _slotDividerEls: Map<DockSide, HTMLDivElement[]> = new Map();
@@ -49,6 +51,7 @@ export class PromptDock {
 
 	constructor(host: PromptDockHost) {
 		this._editor = host.editor;
+		this._host = host;
 		window.addEventListener("resize", this._onWindowResize);
 	}
 
@@ -405,6 +408,7 @@ export class PromptDock {
 				: 0;
 		this._editor.style.paddingLeft = leftOverlap ? `${leftOverlap}px` : "";
 		this._editor.style.paddingRight = rightOverlap ? `${rightOverlap}px` : "";
+		this._host.onLayoutChanged();
 	}
 
 	private _maxWidth(): number {

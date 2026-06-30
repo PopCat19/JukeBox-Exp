@@ -44,7 +44,7 @@ import { VisualLoopControlsPrompt } from "../prompts/visual-loop-controls-prompt
 import type { SongDocument } from "../song-document";
 import { iconButton } from "../ui";
 import { makeLogger } from "./debug-log";
-import { type DockSide, PromptDock } from "./prompt-dock";
+import { PromptDock } from "./prompt-dock";
 import { PromptFocusController } from "./prompt-focus-controller";
 import { PromptPopout } from "./prompt-popout";
 
@@ -70,6 +70,7 @@ export interface PromptHost {
 	mainLayer: HTMLDivElement;
 	promptContainer: HTMLDivElement;
 	refocusStage(): void;
+	onLayoutChanged(): void;
 }
 
 // Prompts that offer a "pop out" titlebar button to detach into a separate
@@ -176,15 +177,16 @@ export class PromptManager {
 			setFocusedPrompt: (p) => {
 				this._focusedPrompt = p;
 			},
-			updatePromptFocus: () => this._updatePromptFocus(),
-			refocusSongEditor: () => this._host.refocusStage(),
+			updatePromptFocus: () => { this._updatePromptFocus(); },
+			refocusSongEditor: () => { this._host.refocusStage(); },
 			isInPromptContainer: (el) => el !== null && this._host.promptContainer.contains(el),
 		});
 
 		this._dock = new PromptDock({
 			editor: this._host.mainLayer,
+			onLayoutChanged: () => { this._host.onLayoutChanged(); },
 		});
-		this._popout = new PromptPopout({ onPopoutClosed: (p) => this.close(p) });
+		this._popout = new PromptPopout({ onPopoutClosed: (p) => { this.close(p); } });
 	}
 
 	public get prompt(): Prompt | null {
@@ -545,8 +547,8 @@ export class PromptManager {
 		if (!newPrompt) return;
 
 		newPrompt.name = promptName;
-		newPrompt.closeCallback = (p) => this.close(p);
-		newPrompt.openAlongsideCallback = (name) => this._setPrompt(name);
+		newPrompt.closeCallback = (p) => { this.close(p); };
+		newPrompt.openAlongsideCallback = (name) => { this._setPrompt(name); };
 		newPrompt.openCount = 1; // first spawn
 
 		this._prompts.push(newPrompt);
@@ -601,19 +603,19 @@ export class PromptManager {
 		// getBoundingClientRect unreliable mid-anim.
 		const afterPos = (): void => {
 			if (cursorInfo) {
-				this._spawnNearCursor(newPrompt!, promptName, cursorInfo);
+				this._spawnNearCursor(newPrompt, promptName, cursorInfo);
 			} else if (savedPos) {
-				this._applyPosition(newPrompt!, promptName, savedPos.x, savedPos.y);
+				this._applyPosition(newPrompt, promptName, savedPos.x, savedPos.y);
 			} else {
-				this._centerPrompt(newPrompt!, promptName);
+				this._centerPrompt(newPrompt, promptName);
 			}
 			// Start enter animation; remove initial opacity hide.
-			newPrompt!.container.classList.add("entering");
-			newPrompt!.container.style.removeProperty("opacity");
-			newPrompt!.container.addEventListener(
+			newPrompt.container.classList.add("entering");
+			newPrompt.container.style.removeProperty("opacity");
+			newPrompt.container.addEventListener(
 				"animationend",
 				() => {
-					newPrompt!.container.classList.remove("entering");
+					newPrompt.container.classList.remove("entering");
 				},
 				{ once: true },
 			);
@@ -632,7 +634,7 @@ export class PromptManager {
 
 		const cancelButton = newPrompt.container.querySelector(".cancelButton");
 		if (cancelButton) {
-			cancelButton.addEventListener("click", () => this.close(newPrompt));
+			cancelButton.addEventListener("click", () => { this.close(newPrompt); });
 		}
 
 		newPrompt.container.setAttribute("tabindex", "-1");
@@ -842,7 +844,7 @@ export class PromptManager {
 					pad.top,
 					Math.min(me.clientY - startY, pad.top + h - rect.height),
 				);
-				const side = this._dock.getSnapSide(x, rect.width, me.clientX) as DockSide | null;
+				const side = this._dock.getSnapSide(x, rect.width, me.clientX);
 				if (side && !suppressSnap) {
 					this._dock.snap(prompt, side);
 					anchorX = me.clientX;

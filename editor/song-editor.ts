@@ -145,6 +145,42 @@ export class SongEditor
 		return this._promptManager.prompt;
 	}
 
+	public onLayoutChanged(): void {
+		// Dock changes editor padding. Recalculate viewport dimensions so
+		// the playhead scroll bounds and visible bar count reflect the new
+		// layout even during playback. renderLayout's playback fast path
+		// skips getBoundingClientRect, so we compute them here before the
+		// call. Also clamp barScrollPos/channelScrollPos against the new
+		// viewport size since _validateDocState runs on notifyWatchers
+		// which is not called from the dock handler.
+		const trackBounds: DOMRect = this._trackVisibleArea.getBoundingClientRect();
+		this.doc.trackVisibleBars = Math.floor(
+			(trackBounds.right -
+				trackBounds.left -
+				(this.doc.prefs.enableChannelMuting ? 32 : 0)) /
+				this.doc.getBarWidth(),
+		);
+		this.doc.trackVisibleChannels = Math.floor(
+			(trackBounds.bottom - trackBounds.top - 30) / ChannelRow.patternHeight,
+		);
+		this.doc.barScrollPos = Math.min(
+			this.doc.barScrollPos,
+			Math.max(
+				0,
+				this.doc.song.barCount - this.doc.trackVisibleBars,
+			),
+		);
+		this.doc.channelScrollPos = Math.min(
+			this.doc.channelScrollPos,
+			Math.max(
+				0,
+				this.doc.song.getChannelCount() - this.doc.trackVisibleChannels,
+			),
+		);
+		renderLayout(this._layoutRefs, this.doc);
+		this._promptManager.repositionOutOfBounds();
+	}
+
 	public doc: SongDocument = new SongDocument();
 
 	private readonly _keyboardLayout: KeyboardLayout = new KeyboardLayout(this.doc);
