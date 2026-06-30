@@ -5,8 +5,8 @@
 // This module:
 // - Creates tag entries for tag browser
 // - Manages active/selected state styling
-// - Renders tag name and comma-separated preset count on separate rows
-// - Vertically hugs content; row heights even out via grid align-content
+// - Renders tag name (left) and comma-separated preset count (right)
+//   on a single row; the cell's grid column distributes width evenly
 
 import { HTML } from "imperative-html/dist/esm/elements-strict";
 import { createDiv } from "../base/container";

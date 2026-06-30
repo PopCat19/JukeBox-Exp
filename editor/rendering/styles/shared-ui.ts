@@ -49,10 +49,10 @@ export function buildSharedUICSS(): string {
 	background: var(--prompt-list-item-bg);
 	color: var(--primary-text);
 	display: flex;
-	flex-direction: column;
-	justify-content: center;
-	align-items: flex-start;
-	gap: 2px;
+	flex-direction: row;
+	justify-content: space-between;
+	align-items: center;
+	gap: var(--padding-6);
 	box-sizing: border-box;
 	min-width: 0;
 	outline: none;
@@ -64,12 +64,13 @@ export function buildSharedUICSS(): string {
 	overflow: hidden;
 	text-overflow: ellipsis;
 	white-space: nowrap;
-	max-width: 100%;
+	min-width: 0;
 }
 
 .beepboxEditor .tagListItem .tagListItemCount {
 	font-size: 10px;
 	opacity: 0.7;
+	flex-shrink: 0;
 }
 
 .beepboxEditor .tagListItem:hover {
