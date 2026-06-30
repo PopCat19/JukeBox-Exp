@@ -2745,13 +2745,7 @@ export class Synth {
 						tone.pitches[i] = notes[mod]!.pitches[i];
 					}
 					tone.pitchCount = notes[mod]!.pitches.length;
-					if (notes[mod]!.pitches.some((p: number) => p > 100 || p < -100)) {
-						console.warn(
-							"[Synth Diag] Extreme pitch detected:",
-							"pitches=" + JSON.stringify(notes[mod]!.pitches),
-							"note=" + notes[mod]!.start + "-" + notes[mod]!.end,
-						);
-					}
+
 					tone.chordSize = 1;
 					tone.instrumentIndex = newInstrumentIndex;
 					tone.note = notes[mod];
@@ -4270,21 +4264,7 @@ export class Synth {
 				const hzOffset: number =
 					Config.operatorFrequencies[instrument.operators[i].frequency].hzOffset;
 				const targetFreqStart: number = freqMult * baseFreqStart + hzOffset;
-				const targetFreqEnd: number = freqMult * baseFreqEnd + hzOffset;
-				if (targetFreqStart > 8000 || targetFreqEnd > 8000) {
-					console.warn(
-						"[Synth Diag] High frequency detected:",
-						"pitchStart=" + pitchStart,
-						"pitchEnd=" + pitchEnd,
-						"baseFreqStart=" + baseFreqStart.toFixed(2),
-						"targetFreqStart=" + targetFreqStart.toFixed(2),
-						"freqMult=" + freqMult,
-						"interval=" + interval,
-						"tone.pitches=" + JSON.stringify(tone.pitches),
-						"basePitch=" + basePitch,
-						"intervalScale=" + intervalScale,
-					);
-				}
+					const targetFreqEnd: number = freqMult * baseFreqEnd + hzOffset;
 
 				const freqEnvelopeStart: number =
 					envelopeStarts[EnvelopeComputeIndex.operatorFrequency0 + i];
@@ -4652,16 +4632,6 @@ export class Synth {
 			}
 
 			const startFreq: number = Instrument.frequencyFromPitch(startPitch);
-			if (startFreq > 8000) {
-				console.warn(
-					"[Synth Diag] High frequency in chip path:",
-					"startPitch=" + startPitch,
-					"startFreq=" + startFreq.toFixed(2),
-					"basePitch=" + basePitch,
-					"tone.pitches=" + JSON.stringify(tone.pitches),
-					"intervalScale=" + intervalScale,
-				);
-			}
 			if (getCapabilities(instrument.type).hasUnison) {
 				const unisonVoices: number = instrument.unisonVoices;
 				const unisonSpread: number = instrument.unisonSpread;
