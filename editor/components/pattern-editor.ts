@@ -671,48 +671,62 @@ export class PatternEditor {
 		let foundNote: boolean = false;
 
 		if (this._pattern != null) {
-			for (const note of this._pattern.notes) {
-				if (note.end <= this._cursor.exactPart) {
-					if (this._doc.song.getChannelIsMod(this._doc.channel)) {
-						if (note.pitches[0] === Math.floor(this._findMousePitch(this._mouseY))) {
-							this._cursor.prevNote = note;
-						}
-						if (!foundNote) {
-							this._cursor.curIndex++;
-						}
-					} else {
-						this._cursor.prevNote = note;
-						this._cursor.curIndex++;
-					}
-				} else if (
+			// Binary search for cursor position. Notes are pre-sorted
+			// by start at deserialization. O(log n) instead of O(n).
+			const notes: ReadonlyArray<Note> = this._pattern.notes;
+			const isMod: boolean = this._doc.song.getChannelIsMod(this._doc.channel);
+			const mousePitch: number = Math.floor(this._findMousePitch(this._mouseY));
+			let lo: number = 0;
+			let hi: number = notes.length;
+			while (lo < hi) {
+				const mid: number = (lo + hi) >>> 1;
+				if (notes[mid].start <= this._cursor.exactPart) {
+					lo = mid + 1;
+				} else {
+					hi = mid;
+				}
+			}
+			// lo is first note with start > exactPart. Scan backward for
+			// prevNote (last note ending before cursor) and curNote
+			// (first note containing cursor).
+			// Scan backward: curNote (contains cursor) first, then
+			// prevNote (closest note ending before cursor).
+			for (let i: number = lo - 1; i >= 0; i--) {
+				const note: Note = notes[i];
+				if (isMod && note.pitches[0] !== mousePitch) continue;
+				if (
 					note.start <= this._cursor.exactPart &&
 					note.end > this._cursor.exactPart
 				) {
-					if (this._doc.song.getChannelIsMod(this._doc.channel)) {
-						if (note.pitches[0] === Math.floor(this._findMousePitch(this._mouseY))) {
-							this._cursor.curNote = note;
-							foundNote = true;
-						} // Only increment index if the sought note has been found... or if this note truly starts before the other
-						else if (
-							!foundNote ||
-							(this._cursor.curNote != null &&
-								note.start < this._cursor.curNote.start)
-						) {
-							this._cursor.curIndex++;
-						}
-					} else {
-						this._cursor.curNote = note;
+					// Found a note containing the cursor. In backward
+					// scan the first hit is the highest index (closest),
+					// so accept it immediately.
+					this._cursor.curNote = note;
+					this._cursor.curIndex = i;
+					foundNote = true;
+				} else if (note.end <= this._cursor.exactPart && this._cursor.prevNote == null) {
+					this._cursor.prevNote = note;
+					break;
+				}
+			}
+			for (let i: number = lo; i < notes.length; i++) {
+				const note: Note = notes[i];
+				if (isMod && note.pitches[0] !== mousePitch) {
+					if (!foundNote && note.end <= this._cursor.exactPart) {
+						this._cursor.curIndex++;
 					}
+					continue;
+				}
+				if (
+					note.start <= this._cursor.exactPart &&
+					note.end > this._cursor.exactPart
+				) {
+					this._cursor.curNote = note;
+					this._cursor.curIndex = i;
+					foundNote = true;
 				} else if (note.start > this._cursor.exactPart) {
-					if (this._doc.song.getChannelIsMod(this._doc.channel)) {
-						if (note.pitches[0] === Math.floor(this._findMousePitch(this._mouseY))) {
-							this._cursor.nextNote = note;
-							break;
-						}
-					} else {
-						this._cursor.nextNote = note;
-						break;
-					}
+					this._cursor.nextNote = note;
+					break;
 				}
 			}
 
