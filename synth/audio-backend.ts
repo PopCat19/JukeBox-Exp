@@ -197,14 +197,25 @@ private static readonly NUM_RING_SLOTS: number = 8;
 				this._dbg("SAB init message sent to worklet");
 			}
 
-			if (!this._useSab) {
-				this._workletNode.port.onmessage = (e: MessageEvent) => {
-					const msg = e.data;
-					if (msg && msg.type === "need-data") {
+			// Handle need-data from worklet.
+			// Queue mode: worklet sends need-data when queue runs low
+			//   (primary fill). _onWorkletNeedData allocates buffers,
+			//   fills them via synthesize(), sends via postMessage.
+			// SAB mode: worklet sends need-data only when the ring is
+			//   empty, which happens during background-tab rAF throttle.
+			//   Fill the ring directly; the worklet reads it via atomic
+			//   head on the next process() call.
+			this._workletNode.port.onmessage = (e: MessageEvent) => {
+				const msg = e.data;
+				if (!msg) return;
+				if (msg.type === "need-data") {
+					if (this._useSab) {
+						this._fillAllFreeSlotsInternal(host, false);
+					} else {
 						this._onWorkletNeedData(host);
 					}
-				};
-			}
+				}
+			};
 
 			this._workletNode.connect(ctx.destination);
 			this._dbg("WorkletNode connected");

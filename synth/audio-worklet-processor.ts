@@ -44,6 +44,7 @@ class BeepBoxAudioWorkletProcessor extends AudioWorkletProcessor {
     this._readHead = -1;
     this._activeSlot = -1;
     this._slotOffset = 0;
+    this._sabNeedDataPending = false;
 
     // Mode B (queue) state
     this._queue = [];
@@ -66,6 +67,7 @@ class BeepBoxAudioWorkletProcessor extends AudioWorkletProcessor {
         this._readHead = -1;
         this._activeSlot = -1;
         this._slotOffset = 0;
+        this._sabNeedDataPending = false;
         this._queue.length = 0;
         if (this._debug) console.log("[Worklet] SAB mode, slots: " + msg.numSlots + ", slotLen: " + this._slotLength);
       } else if (msg.type === "audio") {
@@ -124,14 +126,24 @@ class BeepBoxAudioWorkletProcessor extends AudioWorkletProcessor {
       if (this._activeSlot < 0) {
         var writeHead = Atomics.load(this._header, 0);
 
-        if (writeHead <= this._readHead) {
-          for (var i = written; i < len; i++) { outL[i] = 0.0; outR[i] = 0.0; }
-          return;
+        if (writeHead > this._readHead) {
+          // Data available — reset the pending flag and consume.
+          this._sabNeedDataPending = false;
+          this._activeSlot = this._readHead + 1;
+          this._slotOffset = 0;
+          continue;
         }
 
-        this._activeSlot = this._readHead + 1;
-        this._slotOffset = 0;
-        continue;
+        // Ring empty — request refill once per empty period.
+        // During foreground the rAF loop keeps the ring full so
+        // this never fires. Background tab rAF is ~1fps; need-data
+        // wakes the main thread immediately via postMessage (unthrottled).
+        if (!this._sabNeedDataPending) {
+          this._sabNeedDataPending = true;
+          this.port.postMessage({ type: "need-data" });
+        }
+        for (var i = written; i < len; i++) { outL[i] = 0.0; outR[i] = 0.0; }
+        return;
       }
 
       var slotBase = (this._activeSlot % this._numSlots) * this._slotStride;
