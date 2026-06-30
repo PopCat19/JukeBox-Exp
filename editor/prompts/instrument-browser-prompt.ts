@@ -66,6 +66,8 @@ export class InstrumentBrowserPrompt extends BasePrompt {
 	private _hoveredPresetIndex: number | null = null;
 	private _lastInteraction: "hover" | "keyboard" | null = null;
 	private _infoPanelRAF: number | null = null;
+	private _commitTooltip: HTMLDivElement;
+	private _commitTooltipTimer: ReturnType<typeof setTimeout> | null = null;
 
 	private _tagData: TagData[] = [];
 	private _tagItems: TagListItem[] = [];
@@ -248,6 +250,11 @@ export class InstrumentBrowserPrompt extends BasePrompt {
 		);
 
 		this.buildTitlebar();
+
+		this._commitTooltip = div({
+			style: "position: fixed; left: 0; top: 0; padding: 4px 8px; background: var(--ui-widget-background); color: var(--primary-text); border-radius: 8px; font-size: 10px; font-weight: 600; font-family: var(--font-family-mono); pointer-events: none; z-index: 999; display: none;",
+		});
+		document.body.appendChild(this._commitTooltip);
 
 		this._applyTagFilter();
 		this._renderCategories();
@@ -813,8 +820,23 @@ export class InstrumentBrowserPrompt extends BasePrompt {
 			: (this._categories[this._selectedCategoryIndex]?.presets ?? []);
 		const preset = presets[this._selectedPresetIndex];
 		if (preset) {
-			this._close();
+			if (preset.value === this._committedPreset) return;
 			this._doc.record(new ChangePreset(this._doc, preset.value));
+			this._committedPreset = preset.value;
+			this._syncSelectionToCommittedPreset();
+			this._updateHighlight();
+			// Show "Committed" tooltip below the commit button, then auto-dismiss
+			const btnRect = this._okayButton.getBoundingClientRect();
+			const offset = 8;
+			this._commitTooltip.textContent = "Committed";
+			this._commitTooltip.style.left = `${btnRect.left + btnRect.width / 2 - this._commitTooltip.offsetWidth / 2}px`;
+			this._commitTooltip.style.top = `${btnRect.bottom + offset}px`;
+			this._commitTooltip.style.display = "block";
+			if (this._commitTooltipTimer !== null) clearTimeout(this._commitTooltipTimer);
+			this._commitTooltipTimer = setTimeout(() => {
+				this._commitTooltip.style.display = "none";
+				this._commitTooltipTimer = null;
+			}, 1500);
 		}
 	}
 
@@ -1301,6 +1323,11 @@ export class InstrumentBrowserPrompt extends BasePrompt {
 
 	public override cleanUp = (): void => {
 		super.cleanUp();
+		if (this._commitTooltipTimer !== null) {
+			clearTimeout(this._commitTooltipTimer);
+			this._commitTooltipTimer = null;
+		}
+		this._commitTooltip.remove();
 		if (this._clickTimer) clearTimeout(this._clickTimer);
 		this._doc.notifier.unwatch(this._onDocumentChanged);
 		this._searchInput.removeEventListener("input", this._onSearchInput);
