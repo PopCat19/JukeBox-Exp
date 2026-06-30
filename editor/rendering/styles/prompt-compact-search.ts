@@ -227,6 +227,15 @@ export function buildPromptCompactSearchCSS(): string {
 	display: flex;
 	flex-direction: column;
 	gap: 8px;
+	/* Fixed (not min-height) so a long tag list can't push the
+	 * modal taller when the user switches to the Tags tab. The
+	 * tag grid inside the Tags tab uses flex: 1 + overflow-y:
+	 * auto, so the list scrolls within this fixed envelope
+	 * instead of extending the prompt. Matched to the presets
+	 * tab's natural intrinsic height (search row + 400px pane +
+	 * info + instructions + tag banner). */
+	height: 520px;
+	flex-shrink: 0;
 }
 
 .beepboxEditor .prompt.compactSearchPrompt .tagGridContainer {

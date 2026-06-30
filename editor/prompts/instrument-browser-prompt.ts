@@ -201,18 +201,21 @@ export class InstrumentBrowserPrompt extends BasePrompt {
 
 		this._tagContainer.classList.add("tagGridContainer");
 
-		// Fixed-height scroll container (not vertical-hug) so the modal's
-		// outer height stays stable whether there are 6 tags or 60 — the
-		// column count + a tag row's wrap behaviour can otherwise push
-		// the modal to its max-height: 90% cap, causing layout shift.
-		this._tagContainer.style.maxHeight = "380px";
+		// Stretch the tag grid to fill the prompt's vertical estate
+		// inside the tab content, matching the presets tab's 400px
+		// pane. With flex: 1 + overflow-y: auto, the grid expands to
+		// whatever space remains after the search row and footer, and
+		// scrolls only when the tag list overflows that space. Pinned
+		// to the bottom of the tab via the footer's margin-top: auto.
+		this._tagContainer.style.flex = "1 1 auto";
+		this._tagContainer.style.minHeight = "0";
 		this._tagContainer.style.overflowY = "auto";
 		this._tagContainer.style.alignContent = "start";
-		this._tagContainer.style.removeProperty("min-height");
+		this._tagContainer.style.removeProperty("max-height");
 
 		const tagFooter = div(
 			{
-				style: `font-size: ${Typography.sizeSm}; color: var(--secondary-text); text-align: center; flex-shrink: 0;`,
+				style: `font-size: ${Typography.sizeSm}; color: var(--secondary-text); text-align: center; flex-shrink: 0; margin-top: auto;`,
 			},
 			"Click or Enter to toggle | Arrow keys to navigate | ESC to close",
 		);
@@ -220,7 +223,6 @@ export class InstrumentBrowserPrompt extends BasePrompt {
 		this._tagsTabContent = div(
 			{
 				class: "tabContent tagsTabContent",
-				style: "display: flex; flex-direction: column; min-height: 0; flex: 1;",
 			},
 			inputRow({}, this._tagSearchInput, this._tagClearButton),
 			this._tagContainer,
