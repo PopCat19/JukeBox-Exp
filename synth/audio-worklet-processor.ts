@@ -68,6 +68,7 @@ class BeepBoxAudioWorkletProcessor extends AudioWorkletProcessor {
         this._activeSlot = -1;
         this._slotOffset = 0;
         this._sabNeedDataPending = false;
+        this._totalWritten = 0;
         this._queue.length = 0;
         if (this._debug) console.log("[Worklet] SAB mode, slots: " + msg.numSlots + ", slotLen: " + this._slotLength);
       } else if (msg.type === "audio") {
@@ -126,24 +127,27 @@ class BeepBoxAudioWorkletProcessor extends AudioWorkletProcessor {
       if (this._activeSlot < 0) {
         var writeHead = Atomics.load(this._header, 0);
 
-        if (writeHead > this._readHead) {
-          // Data available — reset the pending flag and consume.
-          this._sabNeedDataPending = false;
-          this._activeSlot = this._readHead + 1;
-          this._slotOffset = 0;
-          continue;
+        if (writeHead <= this._readHead) {
+          if (!this._sabNeedDataPending) {
+            this._sabNeedDataPending = true;
+            this.port.postMessage({ type: "need-data" });
+          }
+          for (var i = written; i < len; i++) { outL[i] = 0.0; outR[i] = 0.0; }
+          return;
         }
 
-        // Ring empty — request refill once per empty period.
-        // During foreground the rAF loop keeps the ring full so
-        // this never fires. Background tab rAF is ~1fps; need-data
-        // wakes the main thread immediately via postMessage (unthrottled).
-        if (!this._sabNeedDataPending) {
-          this._sabNeedDataPending = true;
+        this._sabNeedDataPending = false;
+        this._activeSlot = this._readHead + 1;
+        this._slotOffset = 0;
+
+        // Preemptive: if this is the last available slot in the ring
+        // (only 1 ahead of readHead), fire need-data now. The main
+        // thread has ~46ms to refill before this slot drains.
+        if (writeHead === this._readHead + 1) {
           this.port.postMessage({ type: "need-data" });
         }
-        for (var i = written; i < len; i++) { outL[i] = 0.0; outR[i] = 0.0; }
-        return;
+        continue;
+      }
       }
 
       var slotBase = (this._activeSlot % this._numSlots) * this._slotStride;
