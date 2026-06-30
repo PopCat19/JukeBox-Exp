@@ -99,16 +99,17 @@ describe("loop-editor UI contract / song-editor focus-steal contract", () => {
 		expect(captureLines.length).toBeGreaterThan(0);
 	});
 
-	test("capture listener checks closest(\"select\") or activeElement === body", () => {
-		const hasClosestSelect = songLines.some((l) => l.includes("closest(\"select\")"));
-		expect(hasClosestSelect).toBeTrue();
-		const hasBodyCheck = songLines.some((l) => l.includes("activeElement === document.body"));
-		expect(hasBodyCheck).toBeTrue();
-	});
-
-	test("capture listener prevents default on Space for selects", () => {
+	test("capture listener intercepts Space/ArrowUp/ArrowDown on non-input elements", () => {
+		const hasArrowUp = songLines.some((l) => l.includes("38"));
+		const hasArrowDown = songLines.some((l) => l.includes("40"));
+		expect(hasArrowUp).toBeTrue();
+		expect(hasArrowDown).toBeTrue();
 		const hasPreventDefault = songLines.some((l) => l.includes("preventDefault"));
 		expect(hasPreventDefault).toBeTrue();
+		const hasFormCheck = songLines.some(
+			(l) => l.includes("HTMLInputElement") || l.includes("instanceof"),
+		);
+		expect(hasFormCheck).toBeTrue();
 	});
 
 	test("capture listener routes to handleKeyDown", () => {

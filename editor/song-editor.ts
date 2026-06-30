@@ -3091,18 +3091,25 @@ export class SongEditor
 				}
 			});
 		});
-		// Capture-phase Space interceptor. Cases:
-		// 1. Space on <select>: preventDefault prevents native dropdown.
-		// 2. Space when <body> is focused (after off-click to close a
-		//    select): route to keyboard handler.
-		// Skip if mainLayer already has focus (prevents double-fire).
+		// Capture-phase keyboard interceptor. Routes arrow keys and
+		// space to the keyboard handler instead of letting them scroll
+		// the page when focus is outside mainLayer (e.g. after clicking
+		// the track editor or pattern area during playback).
 		document.addEventListener(
 			"keydown",
 			(e: KeyboardEvent) => {
-				if (e.keyCode !== 32) return;
 				if (this.mainLayer.contains(e.target as Node)) return;
-				const target = e.target as HTMLElement;
-				if (target.closest("select") || document.activeElement === document.body) {
+				if (e.keyCode === 32 || e.keyCode === 38 || e.keyCode === 40) {
+					const target = e.target as HTMLElement;
+					if (
+						target instanceof HTMLInputElement ||
+						target instanceof HTMLTextAreaElement ||
+						target instanceof HTMLSelectElement ||
+						target instanceof HTMLButtonElement ||
+						target.isContentEditable
+					) {
+						return;
+					}
 					e.preventDefault();
 					this._keyboardHandler.handleKeyDown(e);
 				}
