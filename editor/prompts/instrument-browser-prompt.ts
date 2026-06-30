@@ -201,13 +201,14 @@ export class InstrumentBrowserPrompt extends BasePrompt {
 
 		this._tagContainer.classList.add("tagGridContainer");
 
-		// Stretch grid cells so rows even out across columns when a tag
-		// name wraps onto a second line. Combined with the cell's own
-		// flex-direction: column, this gives a tight vertical-hug layout
-		// without a fixed max-height.
-		this._tagContainer.style.alignContent = "stretch";
-		this._tagContainer.style.removeProperty("max-height");
-		this._tagContainer.style.minHeight = "0";
+		// Fixed-height scroll container (not vertical-hug) so the modal's
+		// outer height stays stable whether there are 6 tags or 60 — the
+		// column count + a tag row's wrap behaviour can otherwise push
+		// the modal to its max-height: 90% cap, causing layout shift.
+		this._tagContainer.style.maxHeight = "380px";
+		this._tagContainer.style.overflowY = "auto";
+		this._tagContainer.style.alignContent = "start";
+		this._tagContainer.style.removeProperty("min-height");
 
 		const tagFooter = div(
 			{
