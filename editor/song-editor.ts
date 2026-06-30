@@ -3169,7 +3169,7 @@ export class SongEditor
 		window.addEventListener("dragover", _onDragOver);
 		window.addEventListener("drop", _onDrop);
 
-		window.addEventListener("resize", this.whenUpdated);
+		window.addEventListener("resize", this._onResize);
 		window.requestAnimationFrame(this.updatePlayButton);
 		// Animator loop is no longer started unconditionally; it self-gates
 		// on synth.playing/recording and is armed by SongPerformance's
@@ -3861,19 +3861,25 @@ export class SongEditor
 		this._barScrollBar.changePos(offset);
 	}
 
-	public whenUpdated = (): void => {
-		const prefs: Preferences = this.doc.prefs;
+	// Dedicated resize handler: calls renderLayout during playback
+	// but skips the full settings cascade.
+	private _onResize = (): void => {
 		renderLayout(this._layoutRefs, this.doc);
+		this._promptManager.repositionOutOfBounds();
+	};
 
-		// During playback, per-frame visual updates (playhead, mod sliders,
-		// filters, volume bar, center-follow, pattern notes) all run in
-		// PlayerAnimator and component rAF loops. Skipping the full settings
-		// re-render cascade eliminates the 50-150ms main thread freeze on
-		// every bar change. renderLayout (above) still runs for resize events.
+	public whenUpdated = (): void => {
+		// During playback, all per-frame visual updates (playhead, mod
+		// sliders, filters, volume bar, center-follow, pattern notes) run
+		// in PlayerAnimator and component rAF loops. Full re-render is
+		// only needed when stopping playback or when user edits settings.
+		// renderLayout above handles resize events independently.
 		if (this.doc.synth.playing) {
 			return;
 		}
 
+		const prefs: Preferences = this.doc.prefs;
+		renderLayout(this._layoutRefs, this.doc);
 		this._promptManager.repositionOutOfBounds();
 
 		renderOptionsMenu(this._optionsMenu, prefs, this.doc.song.scale);
