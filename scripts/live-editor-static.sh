@@ -34,9 +34,10 @@ echo "Starting SAB-enabled dev server on http://localhost:$PORT"
 echo "(COOP/COEP headers set for SharedArrayBuffer, no live-reload)"
 echo "Multi-tab safe."
 
-( sleep 1 && [ "$open_browser_path" != false ] && (
-	command -v xdg-open &>/dev/null && xdg-open "http://localhost:$PORT$open_browser_path" 2>/dev/null
-) || true
+(
+	sleep 1 && [ "$open_browser_path" != false ] && (
+		command -v xdg-open &>/dev/null && xdg-open "http://localhost:$PORT$open_browser_path" 2>/dev/null
+	) || true
 ) &
 
 $RUNX concurrently --kill-others \

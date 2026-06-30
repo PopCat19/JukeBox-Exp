@@ -39,9 +39,10 @@ fi
 echo "Serving on http://localhost:$PORT/index_debug.html (legacy, no COOP/COEP)"
 echo "Multi-tab safe."
 
-( sleep 1 && (
-	command -v xdg-open &>/dev/null && xdg-open "http://localhost:$PORT/index_debug.html" 2>/dev/null
-) || true
+(
+	sleep 1 && (
+		command -v xdg-open &>/dev/null && xdg-open "http://localhost:$PORT/index_debug.html" 2>/dev/null
+	) || true
 ) &
 
 $RUNX concurrently --kill-others \
