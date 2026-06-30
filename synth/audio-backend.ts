@@ -1,13 +1,15 @@
 // audio-backend.ts
 //
-// Purpose: Web Audio API lifecycle — AudioContext, AudioWorklet, buffer management
+// Purpose: Web Audio API lifecycle — AudioContext, AudioWorklet, SAB ring buffer
 //
 // This module:
 // - Creates and manages AudioContext and AudioWorkletNode
-// - Provides buffer-level audio I/O via a host callback interface
+// - Allocates a SharedArrayBuffer ring buffer for lock-free audio handoff
+// - Fills the ring buffer proactively (rAF-driven, no need-data callback)
 // - Handles AudioContext suspension/resumption on user gesture
 // - Deactivates audio after a live-input timeout
 
+import { AudioRingBuffer } from "./audio-ring-buffer";
 import { AUDIO_WORKLET_PROCESSOR_CODE } from "./audio-worklet-processor";
 
 /** Interface for the host object that owns the audio backend. */
@@ -36,13 +38,15 @@ export class AudioBackend {
 	private _workletNode: AudioWorkletNode | null = null;
 	private _workletModuleUrl: string | null = null;
 	private _currentBufferSize: number = 0;
-	private _workletPrimed: boolean = false;
+	private _ringBuffer: AudioRingBuffer | null = null;
+	private _fillLoopId: number | null = null;
+	private _host: AudioBackendHost | null = null;
 	private _activateAudioPromise: Promise<void> | null = null;
 	private _gestureListenerAdded: boolean = false;
 	private _lastSpectrumUpdateTime: number = 0;
 	private _spectrumDecayStarted: boolean = false;
-	private _logNeedDataCount: number = 0;
 	private static readonly SPECTRUM_UPDATE_INTERVAL_MS: number = 1000 / 60;
+	private static readonly NUM_RING_SLOTS: number = 4;
 
 	public get isActive(): boolean {
 		return this.audioCtx != null && this._workletNode != null;
@@ -124,6 +128,7 @@ export class AudioBackend {
 				this.audioCtx ||
 				new (window.AudioContext || window.webkitAudioContext)({ latencyHint });
 			const ctx = this.audioCtx!;
+			this._host = host;
 			this._dbg("AudioContext sampleRate:", ctx.sampleRate);
 
 			if (ctx.state === "suspended" && !this._gestureListenerAdded) {
@@ -151,25 +156,46 @@ export class AudioBackend {
 			await ctx.audioWorklet.addModule(this._workletModuleUrl);
 			this._dbg("AudioWorklet module loaded");
 
+			// Allocate SAB ring buffer before creating the worklet node
+			// so the init message is ready immediately.
+			this._ringBuffer = new AudioRingBuffer(
+				AudioBackend.NUM_RING_SLOTS,
+				bufferSize,
+			);
+			this._dbg("SAB ring buffer allocated, slots:", AudioBackend.NUM_RING_SLOTS);
+
 			this._workletNode = new AudioWorkletNode(ctx, "beepbox-audio-worklet-processor", {
 				outputChannelCount: [2],
 				processorOptions: { bufferSize, debug: AudioBackend._debugSynthEnabled() },
 			});
 			this._dbg("AudioWorkletNode created");
 
-			this._workletNode.port.onmessage = (e: MessageEvent) => {
-				const msg = e.data;
-				if (msg && msg.type === "need-data") {
-					this._onWorkletNeedData(host);
-				}
-			};
+			// Send SAB to worklet — must happen before connect so the
+			// worklet has the SAB reference before its first process().
+			this._workletNode.port.postMessage(
+				{
+					type: "init",
+					sab: this._ringBuffer.sab,
+					numSlots: this._ringBuffer.numSlots,
+				},
+				[this._ringBuffer.sab] as any,
+			);
+			this._dbg("SAB init message sent to worklet");
 
 			this._workletNode.connect(ctx.destination);
 			this._dbg("WorkletNode connected");
 
 			this._currentBufferSize = bufferSize;
-			this._workletPrimed = false;
-			this._logNeedDataCount = 0;
+
+			// Fill initial slot(s) synchronously so the worklet doesn't
+			// start with silence. The worklet may not have processed the
+			// init message yet, but the SAB data is already written —
+			// the init message and the SAB write share the same main-
+			// thread turn, so the data is visible once init is processed.
+			this._fillAllFreeSlots(host);
+
+			// Start the rAF-driven fill loop to keep the ring topped up.
+			this._startFillLoop();
 
 			this._dbg("_doActivate complete, bufferSize:", bufferSize);
 		} catch (e) {
@@ -193,12 +219,8 @@ export class AudioBackend {
 	}
 
 	public deactivate(): void {
-		this._dbg(
-			"deactivate called, audioCtx:",
-			!!this.audioCtx,
-			"workletNode:",
-			!!this._workletNode,
-		);
+		this._dbg("deactivate called");
+		this._stopFillLoop();
 		if (this._workletNode != null && this.audioCtx != null) {
 			this._dbg("Disconnecting worklet node...");
 			this._workletNode.port.postMessage({ type: "stop" });
@@ -212,7 +234,8 @@ export class AudioBackend {
 			}
 			this.audioCtx = null;
 		}
-		this._workletPrimed = false;
+		this._ringBuffer = null;
+		this._host = null;
 		this._currentBufferSize = 0;
 		this._gestureListenerAdded = false;
 		this._activateAudioPromise = null;
@@ -229,64 +252,98 @@ export class AudioBackend {
 		// placeholder for future RAF-based decay
 	}
 
-	private _onWorkletNeedData(host: AudioBackendHost): void {
-		this._logNeedDataCount++;
-		const isPlayingSong: boolean = host.isPlayingSong();
-		if (this._logNeedDataCount <= 5 || this._logNeedDataCount % 100 === 0) {
-			this._dbg(
-				`need-data #${this._logNeedDataCount}, isPlayingSong:`,
-				isPlayingSong,
-				"liveInputEndTime:",
-				host.liveInputEndTime(),
-				"now:",
-				performance.now(),
-			);
-		}
+	/** Synchronously fill all free ring-buffer slots. Public so Synth
+	 *  can prime the ring after play() resumes the AudioContext. */
+	public fillAllFreeSlots(host: AudioBackendHost): void {
+		this._fillAllFreeSlots(host);
+	}
 
-		if (!isPlayingSong && !host.isFadingOut() && performance.now() >= host.liveInputEndTime()) {
-			this._dbg("Not playing, not fading out, and live input expired, deactivating");
+	// ── rAF-driven fill loop ──
+
+	private _startFillLoop(): void {
+		if (this._fillLoopId != null) return;
+		this._fillLoopId = requestAnimationFrame(this._onFillFrame);
+	}
+
+	private _stopFillLoop(): void {
+		if (this._fillLoopId != null) {
+			cancelAnimationFrame(this._fillLoopId);
+			this._fillLoopId = null;
+		}
+	}
+
+	private _onFillFrame = (): void => {
+		this._fillLoopId = requestAnimationFrame(this._onFillFrame);
+		const host: AudioBackendHost | null = this._host;
+		if (host != null && this._ringBuffer != null) {
+			this._fillAllFreeSlots(host);
+		}
+	};
+
+	/** Fill all free slots in the ring buffer. Deactivates the audio
+	 *  backend if nothing is playing, fading, or receiving live input. */
+	private _fillAllFreeSlots(host: AudioBackendHost): void {
+		const ring: AudioRingBuffer | null = this._ringBuffer;
+		if (ring == null) return;
+
+		// Check deactivation: if nothing is playing and no live input
+		// is expected, tear down the audio backend.
+		const playing: boolean = host.isPlayingSong();
+		if (!playing && !host.isFadingOut() && performance.now() >= host.liveInputEndTime()) {
+			this._dbg("No playback, no fade, no live input — deactivating");
 			this.deactivate();
 			return;
 		}
 
-		const left = new Float32Array(this._currentBufferSize);
-		const right = new Float32Array(this._currentBufferSize);
-		host.synthesize(left, right, this._currentBufferSize, isPlayingSong);
+		const writeHead: number = ring.loadWriteHead();
+		const readHead: number = ring.loadReadHead();
 
-		if (host.spectrumEnabled) {
-			const now = performance.now();
-			if (now - this._lastSpectrumUpdateTime >= AudioBackend.SPECTRUM_UPDATE_INTERVAL_MS) {
-				if (host.onSpectrumUpdate) host.onSpectrumUpdate(left, right);
-				this._lastSpectrumUpdateTime = now;
+		// Free slots = total - 1 safety margin - slots in use
+		const diff: number = writeHead - readHead;
+		const freeSlots: number = Math.min(
+			ring.numSlots - 1 - diff,
+			ring.numSlots,
+		);
+
+		if (freeSlots <= 0) return;
+
+		this._dbg(
+			"Filling",
+			freeSlots,
+			"slot(s), writeHead:",
+			writeHead,
+			"readHead:",
+			readHead,
+		);
+
+		for (let i: number = 0; i < freeSlots; i++) {
+			const slot: number = writeHead + 1 + i;
+			const left: Float32Array = new Float32Array(this._currentBufferSize);
+			const right: Float32Array = new Float32Array(this._currentBufferSize);
+			host.synthesize(left, right, this._currentBufferSize, playing);
+
+			ring.writeSlot(slot, left, right);
+			ring.publishWriteHead(slot);
+
+			// Spectrum: update from the first (most-recently-played)
+			// slot in this batch, throttled to ~60fps.
+			if (i === 0 && host.spectrumEnabled) {
+				const now: number = performance.now();
+				if (
+					now - this._lastSpectrumUpdateTime >=
+					AudioBackend.SPECTRUM_UPDATE_INTERVAL_MS
+				) {
+					if (host.onSpectrumUpdate) host.onSpectrumUpdate(left, right);
+					this._lastSpectrumUpdateTime = now;
+				}
 			}
 		}
 
-		if (this._workletNode != null) {
-			this._workletNode.port.postMessage({ type: "audio", left, right }, [
-				left.buffer,
-				right.buffer,
-			] as any);
-		} else {
-			this._dbgWarn("Worklet node is null after synthesize, audio data lost");
-		}
-	}
-
-	public primeWorklet(host: AudioBackendHost): void {
-		if (this._workletPrimed || this._workletNode == null) return;
-		this._dbg("Priming worklet queue with 2 buffers...");
-		const isPlayingSong: boolean = host.isPlayingSong();
-		for (let i = 0; i < 2; i++) {
-			const left = new Float32Array(this._currentBufferSize);
-			const right = new Float32Array(this._currentBufferSize);
-			host.synthesize(left, right, this._currentBufferSize, isPlayingSong);
-			if (this._workletNode != null) {
-				this._workletNode.port.postMessage({ type: "audio", left, right }, [
-					left.buffer,
-					right.buffer,
-				] as any);
-			}
-		}
-		this._workletPrimed = true;
-		this._dbg("Worklet primed with 2 buffers");
+		this._dbg(
+			"Done filling, now writeHead:",
+			writeHead + freeSlots,
+			"readHead:",
+			ring.loadReadHead(),
+		);
 	}
 }

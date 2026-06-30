@@ -837,7 +837,7 @@ export class Synth {
 	}
 
 	private _primeWorklet(): void {
-		this._audio.primeWorklet(this._toAudioHost());
+		this._audio.fillAllFreeSlots(this._toAudioHost());
 	}
 
 	public async maintainLiveInput(): Promise<void> {
