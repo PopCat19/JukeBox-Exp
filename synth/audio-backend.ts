@@ -182,14 +182,14 @@ export class AudioBackend {
 			this._dbg("AudioWorkletNode created");
 
 			if (this._useSab) {
-				this._workletNode.port.postMessage(
-					{
-						type: "init",
-						sab: this._ringBuffer!.sab,
-						numSlots: this._ringBuffer!.numSlots,
-					},
-					[this._ringBuffer!.sab] as any,
-				);
+				// SharedArrayBuffer is already shared — do not transfer.
+				// PostMessage automatically shares SABs referenced in
+				// the message payload; the transfer list would throw.
+				this._workletNode.port.postMessage({
+					type: "init",
+					sab: this._ringBuffer!.sab,
+					numSlots: this._ringBuffer!.numSlots,
+				});
 				this._dbg("SAB init message sent to worklet");
 			}
 
