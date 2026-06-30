@@ -3861,20 +3861,27 @@ export class SongEditor
 		this._barScrollBar.changePos(offset);
 	}
 
-	// Dedicated resize handler: calls renderLayout during playback
-	// but skips the full settings cascade.
+	// Resize events need full renderLayout even during playback
+	// to recalculate trackVisibleBars, bar widths, etc.
 	private _onResize = (): void => {
 		renderLayout(this._layoutRefs, this.doc);
 		this._promptManager.repositionOutOfBounds();
 	};
 
 	public whenUpdated = (): void => {
-		// During playback, all per-frame visual updates (playhead, mod
-		// sliders, filters, volume bar, center-follow, pattern notes) run
-		// in PlayerAnimator and component rAF loops. Full re-render is
-		// only needed when stopping playback or when user edits settings.
-		// renderLayout above handles resize events independently.
+		// During playback, apply the scroll position so auto-follow
+		// tracks the playhead, then return. All per-frame visual
+		// updates (playhead, mod sliders, filters, volume bar,
+		// center-follow, pattern notes) run in PlayerAnimator and
+		// component rAF loops. renderLayout would re-render all 38
+		// channel rows because ChangeChannelBar bumps
+		// notifier.generation at every bar transition, defeating
+		// the ChannelRow generation guard.
 		if (this.doc.synth.playing) {
+			this._trackAndMuteContainer.scrollLeft =
+				this.doc.barScrollPos * this.doc.getBarWidth();
+			this._trackAndMuteContainer.scrollTop =
+				this.doc.channelScrollPos * ChannelRow.patternHeight;
 			return;
 		}
 

@@ -352,6 +352,11 @@ export class OctaveScrollBar {
 
 			this._piano.forceRender();
 		}
-		this._updatePreview();
+		// During playback, the octave preview (DOM reads for
+		// getBoundingClientRect) is unnecessary. The preview uses
+		// mouse-driven events that fire independently.
+		if (!this._doc.synth.playing) {
+			this._updatePreview();
+		}
 	};
 }

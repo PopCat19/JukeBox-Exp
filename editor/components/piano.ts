@@ -493,10 +493,13 @@ export class Piano {
 		this._updateCursorPitch();
 		if (this._mouseDown) this._playLiveInput();
 
-		// Always refresh the preview and hover tooltip so they reflect
-		// the current channel's octave (which can change via the
-		// octave scrollbar without scale/key/pitchCount changing).
-		this._updatePreview();
+		// During playback, the piano preview (88 classList toggles +
+		// getBoundingClientRect layout reflow) is unnecessary — no
+		// live input is being pressed. The preview is handled by
+		// mouse events and the rAF loop when the user interacts.
+		if (!this._doc.synth.playing || this._mouseOver || this._mouseDown) {
+			this._updatePreview();
+		}
 
 		if (!this._doc.prefs.showLetters) return;
 		if (
