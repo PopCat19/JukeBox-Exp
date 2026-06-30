@@ -24,6 +24,7 @@
 		"typecheck:all": "bun run typecheck && bun run typecheck:synth && bun run typecheck:player",
 		"dev": "bash ./scripts/live-editor.sh",
 		"dev:static": "bash ./scripts/live-editor-static.sh",
+		"dev:sab": "bash ./scripts/live-editor-sab.sh",
 		"lint": "bash ./scripts/lint.sh",
 		"lint:fix": "bash ./scripts/lint-fix.sh",
 		"test": "bun test",
