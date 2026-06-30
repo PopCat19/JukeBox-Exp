@@ -3865,6 +3865,15 @@ export class SongEditor
 		const prefs: Preferences = this.doc.prefs;
 		renderLayout(this._layoutRefs, this.doc);
 
+		// During playback, per-frame visual updates (playhead, mod sliders,
+		// filters, volume bar, center-follow, pattern notes) all run in
+		// PlayerAnimator and component rAF loops. Skipping the full settings
+		// re-render cascade eliminates the 50-150ms main thread freeze on
+		// every bar change. renderLayout (above) still runs for resize events.
+		if (this.doc.synth.playing) {
+			return;
+		}
+
 		this._promptManager.repositionOutOfBounds();
 
 		renderOptionsMenu(this._optionsMenu, prefs, this.doc.song.scale);
