@@ -128,6 +128,7 @@ export class TrackEditor {
 	private _mouseOver: boolean = false;
 	private _mousePressed: boolean = false;
 	private _mouseDragging = false;
+	private _svgRect: DOMRect | null = null;
 	private _barWidth: number = 32;
 	private _renderedBarCount: number = -1;
 	private _renderedEditorWidth: number = -1;
@@ -154,6 +155,11 @@ export class TrackEditor {
 		this._svg.addEventListener("mousedown", this._whenMousePressed);
 		document.addEventListener("mousemove", this._whenMouseMoved);
 		document.addEventListener("mouseup", this._whenMouseReleased);
+		window.addEventListener("resize", () => (this._svgRect = null));
+		window.addEventListener("scroll", () => (this._svgRect = null), {
+			capture: true,
+			passive: true,
+		});
 
 		this._svg.addEventListener("mouseover", this._whenMouseOver);
 		this._svg.addEventListener("mouseout", this._whenMouseOut);
@@ -352,7 +358,8 @@ export class TrackEditor {
 	};
 
 	private _updateMouseCoords(event: MouseEvent): void {
-		const boundingRect: DOMRect = this._svg.getBoundingClientRect();
+		if (this._svgRect == null) this._svgRect = this._svg.getBoundingClientRect();
+		const boundingRect: DOMRect = this._svgRect;
 		this._mouseViewportX = event.clientX || event.pageX;
 		this._mouseViewportY = event.clientY || event.pageY;
 		this._mouseX = this._mouseViewportX - boundingRect.left;
