@@ -4,31 +4,18 @@
 //
 // This module:
 // - Exports the worklet processor source as a string (loaded via blob URL)
-// - Reads audio from a SharedArrayBuffer ring buffer (lock-free, no callbacks)
+// - Supports two data-source modes selected at runtime:
+//   Mode A (SAB): Lock-free SharedArrayBuffer ring buffer. No callbacks
+//     to main thread during playback. Set via "init" message with SAB.
+//   Mode B (queue): Legacy postMessage-based buffer queue. Sends
+//     "need-data" to main thread when the queue runs low.
 // - Outputs audio in 128-sample render quantums via process()
-// - Logging is opt-in, controlled by the debug flag passed via processorOptions
+// - Logging is opt-in, controlled by debug flag passed via processorOptions
 //
 // SAB ring buffer protocol (single producer, single consumer):
 //   header[0] (writeHead, Int32): last slot index the producer has fully written
 //   header[1] (readHead,  Int32): last slot index the consumer has fully consumed
 //   Data: numSlots × (slotLength × 2) Float32 — L/R interleaved per slot
-//
-// Producer (main thread):
-//   nextWrite = writeHead + 1
-//   if nextWrite - readHead >= numSlots: blocked (ring full)
-//   Write slot at (nextWrite % numSlots)
-//   publish writeHead = nextWrite (atomic store)
-//
-// Consumer (worklet):
-//   track activeSlot = -1 (no slot in progress)
-//   process():
-//     if activeSlot == -1:
-//       head = load writeHead
-//       if head > readHead:
-//         activeSlot = readHead + 1, slotOffset = 0
-//       else: silence
-//     Copy from activeSlot at slotOffset to output
-//     If slot complete: readHead = activeSlot (atomic store), activeSlot = -1
 //
 // readHead is only published AFTER the slot is fully consumed, so the
 // producer never overwrites a slot that's still being read.
@@ -45,46 +32,68 @@ class BeepBoxAudioWorkletProcessor extends AudioWorkletProcessor {
     super();
     this._active = true;
     this._bufferSize = (options && options.processorOptions && options.processorOptions.bufferSize) || 2048;
-    this._numSlots = 4;
-    this._slotLength = this._bufferSize;
-    this._slotStride = this._bufferSize * 2;
     this._debug = !!(options && options.processorOptions && options.processorOptions.debug);
-    // Consumer-local tracking: last fully-consumed slot index, the slot
-    // currently being read, and the read offset within that slot.
-    this._readHead = -1;
-    this._activeSlot = -1;
-    this._slotOffset = 0;
-    this._underrunCount = 0;
-    this._processCallCount = 0;
 
-    // SAB layout: header[2] Int32, then data[totalFloats] Float32
-    this._headerBytes = 8;
+    // Mode A (SAB) state
     this._sab = null;
     this._header = null;
     this._data = null;
+    this._numSlots = 4;
+    this._slotLength = this._bufferSize;
+    this._slotStride = this._bufferSize * 2;
+    this._readHead = -1;
+    this._activeSlot = -1;
+    this._slotOffset = 0;
+
+    // Mode B (queue) state
+    this._queue = [];
+    this._queueOffset = 0;
+    this._dataRequested = false;
+    this._totalProcessed = 0;
+    this._totalReceived = 0;
+    this._underrunCount = 0;
 
     this.port.onmessage = (e) => {
       var msg = e.data;
       if (!msg) return;
 
       if (msg.type === "init") {
+        // Mode A: SAB ring buffer
         this._sab = msg.sab;
         this._header = new Int32Array(this._sab, 0, 2);
         var totalFloats = msg.numSlots * this._slotStride;
-        this._data = new Float32Array(this._sab, this._headerBytes, totalFloats);
+        this._data = new Float32Array(this._sab, 8, totalFloats);
         this._readHead = -1;
         this._activeSlot = -1;
         this._slotOffset = 0;
-        this._underrunCount = 0;
-        this._processCallCount = 0;
-        if (this._debug) console.log("[Worklet] SAB init, slots: " + msg.numSlots + ", slotLen: " + this._slotLength);
+        this._queue.length = 0;
+        if (this._debug) console.log("[Worklet] SAB mode, slots: " + msg.numSlots + ", slotLen: " + this._slotLength);
+      } else if (msg.type === "audio") {
+        // Mode B: queue mode — push buffer
+        this._queue.push({ left: msg.left, right: msg.right });
+        this._totalReceived += msg.left.length;
+        this._dataRequested = false;
+        if (this._debug && (this._totalReceived <= 5 * this._bufferSize || this._totalReceived % (100 * this._bufferSize) === 0)) {
+          console.log("[Worklet] Queue push, size: " + this._queue.length);
+        }
+      } else if (msg.type === "clear") {
+        this._queue.length = 0;
+        this._queueOffset = 0;
+        this._dataRequested = false;
       } else if (msg.type === "stop") {
         this._active = false;
-        if (this._debug) console.log("[Worklet] Stop signal");
       }
     };
 
     if (this._debug) console.log("[Worklet] Created, bufferSize: " + this._bufferSize);
+  }
+
+  _getBufferedSamples() {
+    var total = 0;
+    for (var i = 0; i < this._queue.length; i++) {
+      total += this._queue[i].left.length;
+    }
+    return total - this._queueOffset;
   }
 
   process(inputs, outputs, parameters) {
@@ -97,38 +106,34 @@ class BeepBoxAudioWorkletProcessor extends AudioWorkletProcessor {
     var outR = output[1];
     var len = outL.length;
 
-    // No SAB — output silence until init
-    if (this._sab == null) {
-      this._setSilence(outL, outR, 0, len);
-      return true;
+    if (this._sab != null) {
+      // ── Mode A: SAB ring buffer ──
+      this._processSAB(outL, outR, len);
+    } else {
+      // ── Mode B: queue ──
+      this._processQueue(outL, outR, len);
     }
 
+    return true;
+  }
+
+  _processSAB(outL, outR, len) {
     var written = 0;
 
     while (written < len) {
-      // No active slot: try to claim the next unconsumed one.
       if (this._activeSlot < 0) {
         var writeHead = Atomics.load(this._header, 0);
 
         if (writeHead <= this._readHead) {
-          // Nothing new to play — fill rest with silence
-          for (var i = written; i < len; i++) {
-            outL[i] = 0.0;
-            outR[i] = 0.0;
-          }
-          break;
+          for (var i = written; i < len; i++) { outL[i] = 0.0; outR[i] = 0.0; }
+          return;
         }
 
         this._activeSlot = this._readHead + 1;
         this._slotOffset = 0;
-
-        if (this._debug && this._processCallCount < 5) {
-          console.log("[Worklet] Consuming slot " + this._activeSlot + " (writeHead: " + writeHead + ", readHead: " + this._readHead + ")");
-        }
         continue;
       }
 
-      // Copy from active slot at current offset
       var slotBase = (this._activeSlot % this._numSlots) * this._slotStride;
       var available = this._slotLength - this._slotOffset;
       var needed = len - written;
@@ -146,22 +151,52 @@ class BeepBoxAudioWorkletProcessor extends AudioWorkletProcessor {
       this._slotOffset += toCopy;
       written += toCopy;
 
-      // Slot fully consumed — publish readHead
       if (this._slotOffset >= this._slotLength) {
         this._readHead = this._activeSlot;
         Atomics.store(this._header, 1, this._readHead);
         this._activeSlot = -1;
       }
     }
-
-    this._processCallCount++;
-    return true;
   }
 
-  _setSilence(outL, outR, from, to) {
-    for (var i = from; i < to; i++) {
-      outL[i] = 0.0;
-      outR[i] = 0.0;
+  _processQueue(outL, outR, len) {
+    var written = 0;
+
+    while (written < len) {
+      if (this._queue.length === 0) {
+        for (var i = written; i < len; i++) { outL[i] = 0.0; outR[i] = 0.0; }
+        this._underrunCount++;
+        if (this._debug && (this._underrunCount <= 5 || this._underrunCount % 500 === 0)) {
+          console.warn("[Worklet] UNDERRUN #" + this._underrunCount);
+        }
+        break;
+      }
+
+      var buf = this._queue[0];
+      var available = buf.left.length - this._queueOffset;
+      var needed = len - written;
+      var toCopy = Math.min(available, needed);
+
+      outL.set(buf.left.subarray(this._queueOffset, this._queueOffset + toCopy), written);
+      outR.set(buf.right.subarray(this._queueOffset, this._queueOffset + toCopy), written);
+
+      this._queueOffset += toCopy;
+      written += toCopy;
+
+      if (this._queueOffset >= buf.left.length) {
+        this._queue.shift();
+        this._queueOffset = 0;
+      }
+    }
+
+    this._totalProcessed += len;
+
+    if (this._active) {
+      var buffered = this._getBufferedSamples();
+      if (buffered < this._bufferSize * 2 && !this._dataRequested) {
+        this.port.postMessage({ type: "need-data" });
+        this._dataRequested = true;
+      }
     }
   }
 }
