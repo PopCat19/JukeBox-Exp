@@ -117,6 +117,7 @@ export class ChannelRow {
 
 	public readonly container: HTMLElement = HTML.div({ class: "channelRow" });
 
+	private _prevSelectedBar: number = -1;
 	private _renderedGeneration: number = -1;
 
 	constructor(
@@ -186,13 +187,11 @@ export class ChannelRow {
 		const isMod: boolean =
 			channelIndex >= this._doc.song.pitchChannelCount + this._doc.song.noiseChannelCount;
 
-		// During playback, skip the per-box DOM update loop.
-		// Pattern indices, bar dimensions, and loop bounds are
-		// stable — the only changing visual (current bar highlight)
-		// moves too fast to perceive as a missed update and is
-		// effectively stale by the next frame. This avoids ~18k
-		// DOM setIndex/setBorder calls per bar transition.
-		if (!this._doc.synth.playing || this._doc.synth.recording) {
+		if (
+			!this._doc.synth.playing || this._doc.synth.recording
+		) {
+			// Full per-box update (18k calls for 38 ch x 485 bars):
+			// pattern index, selected state, dim/color, borders.
 			for (let i: number = 0; i < this._boxes.length; i++) {
 				const pattern: Pattern | null = this._doc.song.getPattern(channelIndex, i);
 				const selected: boolean = i === currentBar && channelIndex === currentChannel;
@@ -218,6 +217,45 @@ export class ChannelRow {
 				box.setBorderRight(
 					i === loopBarEnd ? `1px dashed ${ColorConfig.uiWidgetFocus}` : "none",
 				);
+			}
+		} else {
+			// During playback, only update the selected (highlighted)
+			// box when scrolled into view. Pattern indices, dimensions,
+			// and loop bounds are stable.
+			if (
+				currentBar >= 0 &&
+				currentBar < this._boxes.length &&
+				currentChannel === this.index
+			) {
+				this._boxes[currentBar].setIndex(
+					this._doc.song.channels[channelIndex].bars[currentBar],
+					true,
+					false,
+					colors.primaryChannel,
+					isNoise,
+					isMod,
+				);
+				// De-select the previously selected bar.
+				if (
+					this._prevSelectedBar !== currentBar &&
+					this._prevSelectedBar >= 0 &&
+					this._prevSelectedBar < this._boxes.length
+				) {
+					const prevPattern: Pattern | null = this._doc.song.getPattern(
+						channelIndex,
+						this._prevSelectedBar,
+					);
+					const prevDim: boolean = prevPattern == null || prevPattern.notes.length === 0;
+					this._boxes[this._prevSelectedBar].setIndex(
+						this._doc.song.channels[channelIndex].bars[this._prevSelectedBar],
+						false,
+						prevDim,
+						prevDim ? colors.secondaryChannel : colors.primaryChannel,
+						isNoise,
+						isMod,
+					);
+				}
+				this._prevSelectedBar = currentBar;
 			}
 		}
 	}
