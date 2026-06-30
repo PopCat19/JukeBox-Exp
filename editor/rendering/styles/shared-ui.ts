@@ -40,18 +40,36 @@ export function buildSharedUICSS(): string {
 }
 
 .beepboxEditor .tagListItem {
-	padding: var(--padding-4) var(--padding-8);
+	padding: var(--padding-6) var(--padding-12);
 	cursor: pointer;
 	font-size: 12px;
+	line-height: 1.3;
 	border-radius: var(--border-radius-medium);
 	border: 2px solid transparent;
 	background: var(--prompt-list-item-bg);
 	color: var(--primary-text);
 	display: flex;
-	justify-content: space-between;
-	align-items: center;
+	flex-direction: column;
+	justify-content: center;
+	align-items: flex-start;
+	gap: 2px;
 	box-sizing: border-box;
+	min-width: 0;
 	outline: none;
+}
+
+.beepboxEditor .tagListItem .tagListItemName {
+	font-size: 12px;
+	font-weight: 500;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	max-width: 100%;
+}
+
+.beepboxEditor .tagListItem .tagListItemCount {
+	font-size: 10px;
+	opacity: 0.7;
 }
 
 .beepboxEditor .tagListItem:hover {

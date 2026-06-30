@@ -74,9 +74,7 @@ export class InstrumentBrowserPrompt extends BasePrompt {
 	private _tagData: TagData[] = [];
 	private _tagItems: TagListItem[] = [];
 	private _tagSelectedIndex: number = 0;
-	private _tagColumns: number = 4;
-	private _tagResizeObserver: ResizeObserver | null = null;
-	private readonly _tagColWidth: number = 90;
+	private readonly _tagColumns: number = 4;
 	private _tagContainer: HTMLDivElement;
 	private _tagSearchInput: HTMLInputElement;
 	private _tagClearButton: HTMLButtonElement;
@@ -197,19 +195,19 @@ export class InstrumentBrowserPrompt extends BasePrompt {
 		this._tagContainer = flexPane({ padding: "8px" });
 		this._tagContainer.style.display = "grid";
 		this._tagContainer.style.gridTemplateColumns = `repeat(${this._tagColumns}, 1fr)`;
-		this._tagContainer.style.gap = "4px";
-		this._tagContainer.style.maxHeight = "380px";
+		this._tagContainer.style.gap = "6px";
 		this._tagContainer.style.border = "2px solid var(--ui-widget-background)";
 		this._tagContainer.style.borderRadius = "8px";
 
 		this._tagContainer.classList.add("tagGridContainer");
-		this._tagResizeObserver = new ResizeObserver(() => { this._updateTagGridColumns(); });
-		this._tagResizeObserver.observe(this._tagContainer);
 
-		this._tagContainer.style.flex = "1";
-		this._tagContainer.style.minHeight = "0";
-		this._tagContainer.style.alignContent = "start";
+		// Stretch grid cells so rows even out across columns when a tag
+		// name wraps onto a second line. Combined with the cell's own
+		// flex-direction: column, this gives a tight vertical-hug layout
+		// without a fixed max-height.
+		this._tagContainer.style.alignContent = "stretch";
 		this._tagContainer.style.removeProperty("max-height");
+		this._tagContainer.style.minHeight = "0";
 
 		const tagFooter = div(
 			{
@@ -1190,19 +1188,11 @@ export class InstrumentBrowserPrompt extends BasePrompt {
 		return this._tagData.filter((t) => t.tag.toLowerCase().includes(query));
 	}
 
-	private _updateTagGridColumns(): void {
-		const cols = Math.max(2, Math.min(8, Math.floor(this._tagContainer.clientWidth / this._tagColWidth)));
-		if (cols !== this._tagColumns) {
-			this._tagColumns = cols;
-			this._tagContainer.style.gridTemplateColumns = `repeat(${this._tagColumns}, 1fr)`;
-		}
-	}
-
 	private _renderTags(): void {
-		this._tagContainer.innerHTML = "";
+		while (this._tagContainer.firstChild) {
+			this._tagContainer.removeChild(this._tagContainer.firstChild);
+		}
 		this._tagItems = [];
-
-		this._updateTagGridColumns();
 
 		const filtered = this._getFilteredTags();
 
@@ -1367,10 +1357,6 @@ export class InstrumentBrowserPrompt extends BasePrompt {
 	public override cleanUp = (): void => {
 		super.cleanUp();
 		document.removeEventListener("mousemove", this._onMouseMove);
-		if (this._tagResizeObserver) {
-			this._tagResizeObserver.disconnect();
-			this._tagResizeObserver = null;
-		}
 		if (this._commitTooltipTimer !== null) {
 			clearTimeout(this._commitTooltipTimer);
 			this._commitTooltipTimer = null;

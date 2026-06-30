@@ -1,17 +1,21 @@
 // Tag List Item
 //
-// Purpose: Interactive tag button with active/selected states
+// Purpose: Interactive tag cell with active/selected states
 //
 // This module:
 // - Creates tag entries for tag browser
 // - Manages active/selected state styling
-// - Shows preset count
+// - Renders tag name and comma-separated preset count on separate rows
+// - Vertically hugs content; row heights even out via grid align-content
 
 import { HTML } from "imperative-html/dist/esm/elements-strict";
 import { createDiv } from "../base/container";
-import { Typography } from "../style-constants";
 
 const { span } = HTML;
+
+// Comma-separated count formatting matches how total preset counts are
+// already shown elsewhere in the editor's compact search UI.
+const formatCount = (n: number): string => n.toLocaleString();
 
 export class TagListItem {
 	public readonly element: HTMLDivElement;
@@ -27,13 +31,15 @@ export class TagListItem {
 		this.tag = tag;
 		this.presetCount = presetCount;
 
-		this._nameSpan = span({}, tag);
-		this._countSpan = span(
-			{ style: `font-size: ${Typography.sizeXs}; opacity: 0.6;` },
-			String(presetCount),
-		);
+		this._nameSpan = span({ class: "tagListItemName" }, tag);
+		this._countSpan = span({ class: "tagListItemCount" }, formatCount(presetCount));
 
-		this.element = createDiv("", { class: "tagListItem" }, this._nameSpan, this._countSpan);
+		this.element = createDiv(
+			"",
+			{ class: "tagListItem" },
+			this._nameSpan,
+			this._countSpan,
+		);
 	}
 
 	public set active(value: boolean) {
@@ -70,7 +76,7 @@ export function tagListItem(
 	return createDiv(
 		"",
 		{ class: classes.join(" ") },
-		span({}, tag),
-		span({ style: `font-size: ${Typography.sizeXs}; opacity: 0.6;` }, String(presetCount)),
+		span({ class: "tagListItemName" }, tag),
+		span({ class: "tagListItemCount" }, formatCount(presetCount)),
 	);
 }
