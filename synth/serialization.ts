@@ -330,11 +330,14 @@ export class BitFieldWriter {
 	}
 
 	public writePartDuration(value: number): void {
-		this.writeLongTail(1, 3, value);
+		// Clamp to minimum 1 — prevents serialization crashes from
+		// corrupted in-memory note data (e.g. MIDI import producing
+		// note.start > note.end, or end past bar boundary).
+		this.writeLongTail(1, 3, Math.max(1, value));
 	}
 
 	public writePinCount(value: number): void {
-		this.writeLongTail(1, 0, value);
+		this.writeLongTail(1, 0, Math.max(1, value));
 	}
 
 	public writePitchInterval(value: number): void {

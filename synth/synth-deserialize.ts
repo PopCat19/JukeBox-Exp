@@ -3940,9 +3940,9 @@ export function fromBase64StringImpl(
 								(beforeFive && fromJummBox) ||
 								(beforeFour && fromGoldBox)
 							) {
-								newPattern.instruments[0] = validateRange(
+								newPattern.instruments[0] = clamp(
 									0,
-									channel.instruments.length - 1,
+									channel.instruments.length,
 									bits.read(neededInstrumentIndexBits),
 								);
 								newPattern.instruments.length = 1;
@@ -3955,9 +3955,9 @@ export function fromBase64StringImpl(
 											Config.instrumentCountMin,
 									);
 									for (let j: number = 0; j < instrumentCount; j++) {
-										newPattern.instruments[j] = validateRange(
+										newPattern.instruments[j] = clamp(
 											0,
-											channel.instruments.length - 1 + +isModChannel * 2,
+											channel.instruments.length + +isModChannel * 2,
 											bits.read(neededInstrumentIndexBits),
 										);
 									}
@@ -3985,9 +3985,9 @@ export function fromBase64StringImpl(
 								let newNote: boolean = false;
 								let shapeIndex: number = 0;
 								if (useOldShape) {
-									shapeIndex = validateRange(
+									shapeIndex = clamp(
 										0,
-										recentShapes.count() - 1,
+										recentShapes.count(),
 										bits.readLongTail(0, 0),
 									);
 								} else {
@@ -4117,9 +4117,9 @@ export function fromBase64StringImpl(
 												intervalIter++;
 											}
 										} else {
-											const pitchIndex: number = validateRange(
+											const pitchIndex: number = clamp(
 												0,
-												recentPitches.length - 1,
+												recentPitches.length,
 												bits.read(recentPitchBitLength),
 											);
 											pitch = recentPitches[pitchIndex];
@@ -4229,9 +4229,9 @@ export function fromBase64StringImpl(
 										}
 									}
 
-									curPart = validateRange(
+									curPart = clamp(
 										0,
-										song.beatsPerBar * Config.partsPerBeat,
+										song.beatsPerBar * Config.partsPerBeat + 1,
 										note.end,
 									);
 								}
