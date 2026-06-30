@@ -208,6 +208,7 @@ export class InstrumentBrowserPrompt extends BasePrompt {
 
 		this._tagContainer.style.flex = "1";
 		this._tagContainer.style.minHeight = "0";
+		this._tagContainer.style.alignContent = "start";
 		this._tagContainer.style.removeProperty("max-height");
 
 		const tagFooter = div(
