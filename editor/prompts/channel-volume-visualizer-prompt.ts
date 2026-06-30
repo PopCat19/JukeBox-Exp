@@ -795,17 +795,10 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 		]);
 		const BLACK_X: Record<number, number> = { 1: 0.2, 3: 1.2, 6: 3.2, 8: 4.2, 10: 5.2 };
 		const BLACK_KEY_W = 0.6;
-		const BLACK_KEY_H = 0.6;
-		// Corner radius (viewBox units). Keys are 1 unit wide (white) /
-		// 0.6 (black), height 1 / 0.6. Round only the bottom corners; the
-		// top edge stays sharp so adjacent keys meet cleanly. viewBox is
-		// 0 0 N 1 with Y pointing DOWN (top=Y0, bottom=Y1), so rounding
-		// the bottom = rounding the large-Y corners.
-		const WHITE_R = 0.18;
-		const BLACK_R = 0.12;
-		// Rect with rounded bottom-left + bottom-right corners, sharp top.
-		// x/y is top-left; w/h the size; r the bottom radius (clamped to
-		// half width/height so it never inverts).
+		const KEY_H = 1.333;
+		const BLACK_KEY_H = 0.8;
+		const WHITE_R = 0.04;
+		const BLACK_R = 0.03;
 		const roundedBottomKey = (
 			x: number,
 			y: number,
@@ -819,7 +812,6 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 			return `M ${x} ${y} L ${x1} ${y} L ${x1} ${y1 - rr} Q ${x1} ${y1} ${x1 - rr} ${y1} L ${x + rr} ${y1} Q ${x} ${y1} ${x} ${y1 - rr} Z`;
 		};
 
-		// Clear previous layout: remove all key rects and reset caches.
 		for (const svgEl of [this._octaveRow0Svg, this._octaveRow1Svg]) {
 			while (svgEl.firstChild) svgEl.removeChild(svgEl.firstChild);
 		}
@@ -835,18 +827,16 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 		): void => {
 			for (let oct = startOctave; oct <= endOctave; oct++) {
 				const octX = (oct - viewBaseOctave) * 7;
-				// White keys
 				for (const [note, idx] of WHITE_IDX) {
 					const pitch = (oct + 1) * 12 + note;
 					const r = path({
-						d: roundedBottomKey(octX + idx, 0, 1, 1, WHITE_R),
+						d: roundedBottomKey(octX + idx, 0, 1, KEY_H, WHITE_R),
 						fill: "var(--pitch-background)",
 						opacity: "1",
 					});
 					svgEl.appendChild(r);
 					this._whiteKeyRects.set(pitch, r);
 				}
-				// Black keys
 				for (const noteStr of Object.keys(BLACK_X)) {
 					const note = parseInt(noteStr, 10);
 					const pitch = (oct + 1) * 12 + note;
@@ -868,14 +858,12 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 		};
 
 		if (mode === 1) {
-			// Single row: octaves 0–7 in one 56-unit viewBox, hide row 1.
-			this._octaveRow0Svg.setAttribute("viewBox", "0 0 56 1");
+			this._octaveRow0Svg.setAttribute("viewBox", "0 0 56 " + KEY_H);
 			this._octaveRow1Svg.style.display = "none";
 			buildRow(this._octaveRow0Svg, 0, 7, 0);
 		} else {
-			// Double row: 0–3 and 4–7, each 28-unit viewBox, show both.
-			this._octaveRow0Svg.setAttribute("viewBox", "0 0 28 1");
-			this._octaveRow1Svg.setAttribute("viewBox", "0 0 28 1");
+			this._octaveRow0Svg.setAttribute("viewBox", "0 0 28 " + KEY_H);
+			this._octaveRow1Svg.setAttribute("viewBox", "0 0 28 " + KEY_H);
 			this._octaveRow1Svg.style.display = "";
 			buildRow(this._octaveRow0Svg, 0, 3, 0);
 			buildRow(this._octaveRow1Svg, 4, 7, 4);
