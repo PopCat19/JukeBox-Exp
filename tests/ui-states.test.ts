@@ -154,48 +154,58 @@ describe("interactions module contract", () => {
 	});
 });
 
-describe("refactor proof: mute-editor loop button uses hoverReveal color mode", () => {
-	test("mute-editor.ts loop button has no mouseenter/mouseleave listeners", () => {
+describe("refactor proof: mute-editor loop button enter handler is single-branch and leave reuses _updateLoopButton", () => {
+	test("mute-editor.ts has exactly one _onLoopMouseEnter (no separate _onLoopMouseLeave)", () => {
 		const lines = sourceLines("editor/components/mute-editor.ts");
 		const joined = lines.join("\n");
-		// Phase-1 pattern removed: the loop button should not hand-roll
-		// a mouseenter/mouseleave color swap anymore.
-		expect(joined).not.toContain("_onLoopMouseEnter");
+		// Pre-phase-2 had _onLoopMouseEnter AND _onLoopMouseLeave. The refactor
+		// collapses the leave handler to a re-call of _updateLoopButton.
+		expect(joined).toContain("_onLoopMouseEnter");
 		expect(joined).not.toContain("_onLoopMouseLeave");
+		// mouseleave listener reuses the existing active/inactive handler.
+		expect(joined).toContain('_loopButton.addEventListener("mouseleave", this._updateLoopButton)');
 	});
 
-	test("mute-editor.ts routes loop button through hoverReveal with color mode", () => {
+	test("mute-editor.ts _onLoopMouseEnter has a single if branch over loopRepeatCount", () => {
 		const lines = sourceLines("editor/components/mute-editor.ts");
 		const joined = lines.join("\n");
-		expect(joined).toMatch(/hoverReveal\s*\(\s*this\._loopButton/);
-		expect(joined).toContain('mode: "color"');
+		// Pre-phase-2 duplicated the if/else across enter and leave. Post-refactor
+		// only the enter path keeps a conditional; leave reuses _updateLoopButton.
+		const enterBlock = joined.split("_onLoopMouseEnter =")[1]?.split("};")[0] ?? "";
+		expect(enterBlock).toContain("loopRepeatCount");
+		expect(enterBlock).toContain("--cta-fg");
+		expect(enterBlock).toContain("--primary-text");
+		// Only one ternary branch in the enter path, not two duplicated ones.
+		expect(enterBlock.split("var(--cta-fg)").length).toBe(2);
 	});
 });
 
-describe("refactor proof: channel-volume-visualizer loop button uses hoverReveal color mode", () => {
-	test("channel-volume-visualizer-prompt.ts loop button has no mouseenter/mouseleave listeners", () => {
+describe("refactor proof: channel-volume-visualizer loop button enter handler is single-branch and leave reuses _updateLoopButton", () => {
+	test("channel-volume-visualizer-prompt.ts has exactly one _onLoopMouseEnter (no separate _onLoopMouseLeave)", () => {
 		const lines = sourceLines(
 			"editor/prompts/channel-volume-visualizer-prompt.ts",
 		);
 		const joined = lines.join("\n");
-		// The two lambda listeners with the if/else color branch are gone.
-		const loopButtonSection = joined.split("this._loopButton.addEventListener(\"click\"")[1] ?? "";
-		expect(loopButtonSection.slice(0, 800)).not.toContain("mouseenter");
-		expect(loopButtonSection.slice(0, 800)).not.toContain("mouseleave");
+		expect(joined).toContain("_onLoopMouseEnter");
+		expect(joined).not.toContain("_onLoopMouseLeave");
+		expect(joined).toContain('_loopButton.addEventListener("mouseleave", this._updateLoopButton)');
 	});
 
-	test("channel-volume-visualizer-prompt.ts routes loop button through hoverReveal with color mode", () => {
+	test("channel-volume-visualizer-prompt.ts _onLoopMouseEnter has a single if branch over loopRepeatCount", () => {
 		const lines = sourceLines(
 			"editor/prompts/channel-volume-visualizer-prompt.ts",
 		);
 		const joined = lines.join("\n");
-		expect(joined).toMatch(/hoverReveal\s*\(\s*this\._loopButton/);
-		expect(joined).toContain('mode: "color"');
+		const enterBlock = joined.split("_onLoopMouseEnter =")[1]?.split("};")[0] ?? "";
+		expect(enterBlock).toContain("loopRepeatCount");
+		expect(enterBlock).toContain("--cta-fg");
+		expect(enterBlock).toContain("--primary-text");
+		expect(enterBlock.split("var(--cta-fg)").length).toBe(2);
 	});
 });
 
-describe("interactions module contract (phase 2: color hover mode)", () => {
-	test("hoverRevealHoverColor class hook and CSS rule are injected", () => {
+describe("interactions module still exposes color hover mode for future use", () => {
+	test("hoverRevealHoverColor class hook and CSS rule remain available", () => {
 		const lines = sourceLines("editor/ui/interactions.ts");
 		const joined = lines.join("\n");
 		expect(joined).toContain('"pmd-hover-color"');
