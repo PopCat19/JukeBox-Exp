@@ -175,8 +175,10 @@ export {
 export type { SurfaceRole } from "./surfaces";
 // Interaction helpers
 export type {
+	DisableableElement,
 	FocusRevealOptions,
 	HoverRevealOptions,
 	SetActiveOptions,
+	SetDisabledOptions,
 } from "./interactions";
-export { focusReveal, hoverReveal, setActive } from "./interactions";
+export { focusReveal, hoverReveal, setActive, setDisabled } from "./interactions";

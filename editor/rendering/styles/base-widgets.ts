@@ -82,6 +82,14 @@ export function buildBaseWidgetsCSS(): string {
 	font-weight: ${Typography.weightSemibold};
 }
 
+/* PMD opacity.txt:9: 88×24% foreground = disabled state.
+ * Applies to every natively-disabled form control inside the editor.
+ * The pmd-disabled class hook used by editor/ui/interactions.ts
+ * covers programmatic-only disabling. */
+.beepboxEditor [disabled] {
+	opacity: 0.24;
+}
+
 /* ── Preset button (replaces select2 dropdown) ── */
 .beepboxEditor .presetButton {
 	margin: 0;

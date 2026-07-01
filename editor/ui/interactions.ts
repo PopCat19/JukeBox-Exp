@@ -18,6 +18,7 @@ const HOVER_CLASS = "pmd-hover";
 const HOVER_COLOR_CLASS = "pmd-hover-color";
 const FOCUS_CLASS = "pmd-focus";
 const ACTIVE_CLASS = "pmd-active";
+const DISABLED_CLASS = "pmd-disabled";
 
 // Lazily-created shared <style> element that carries the PMD interaction
 // state rules. Created on first call to any interaction helper. The
@@ -33,6 +34,7 @@ function ensureStyleInjected(): void {
 		`.${HOVER_COLOR_CLASS}:hover{color:var(--hover-color-accent, var(--cta-fg));}`,
 		`.${FOCUS_CLASS}:focus-visible{outline-color:var(--scrollbar-color, var(--subtext));}`,
 		`.${ACTIVE_CLASS}{${interactiveSurface("primary")}}`,
+		`.${DISABLED_CLASS}{opacity:0.24;}`,
 	);
 	const style = document.createElement("style");
 	style.setAttribute("data-pmd-interactions", "");
@@ -134,5 +136,48 @@ export function setActive(el: HTMLElement, active: boolean, options?: SetActiveO
 	el.classList.toggle(ACTIVE_CLASS, active);
 	if (options?.textColor !== undefined) {
 		el.style.color = active ? options.textColor : "";
+	}
+}
+
+// HTML form-control elements that natively support the `disabled` IDL
+// attribute. setDisabled relies on this union so TypeScript validates
+// that callers do not pass elements without native disable support.
+export type DisableableElement =
+	| HTMLInputElement
+	| HTMLSelectElement
+	| HTMLButtonElement
+	| HTMLTextAreaElement
+	| HTMLOptionElement
+	| HTMLFieldSetElement;
+
+// setDisabled options. role is unused for now but reserved for symmetry
+// with hoverReveal/focusReveal; future per-surface disabled styling can
+// hook here (e.g. the disabled opacity stays at 88×24% regardless of role).
+export interface SetDisabledOptions {
+	role?: SurfaceRole;
+}
+
+// Apply PMD disabled state to a form control. Sets the native `disabled`
+// IDL attribute (which carries assistive-tech semantics) and toggles the
+// pmd-disabled class hook (which the injected stylesheet styles at 88×24%
+// opacity per opacity.txt:9).
+//
+// The native form-control pattern (`el.disabled = true`) ALSO triggers
+// the same 88×24% visual via the `.beepboxEditor [disabled]` rule in
+// base-widgets.ts, so callers that bypass setDisabled still get the
+// PMD-correct styling. setDisabled exists for symmetry with the other
+// interaction-state helpers and for the programmatic-disable case where
+// the native attribute is not appropriate (e.g. enabling/disabling a
+// wrapper div as a click-target, or a non-form-control element).
+export function setDisabled(
+	el: DisableableElement,
+	disabled: boolean,
+	options?: SetDisabledOptions,
+): void {
+	ensureStyleInjected();
+	el.disabled = disabled;
+	el.classList.toggle(DISABLED_CLASS, disabled);
+	if (options?.role !== undefined) {
+		el.dataset["pmdRole"] = options.role;
 	}
 }
