@@ -21,7 +21,7 @@ import {
 } from "../changes";
 import type { SongDocument } from "../song-document";
 import type { SongEditor } from "../song-editor";
-import { InputBox } from "../ui";
+import { hoverReveal, InputBox } from "../ui";
 import { ChannelRow } from "./channel-row";
 
 // namespace beepbox {
@@ -122,8 +122,11 @@ export class MuteEditor {
 		this._channelNameInput.input.addEventListener("input", this._channelNameInputWhenInput);
 
 		this._loopButton.addEventListener("click", this._toggleLoop);
-		this._loopButton.addEventListener("mouseenter", this._onLoopMouseEnter);
-		this._loopButton.addEventListener("mouseleave", this._onLoopMouseLeave);
+		hoverReveal(this._loopButton, {
+			mode: "color",
+			idleColor: "var(--primary-text)",
+			accentColor: "var(--cta-fg)",
+		});
 		this._updateLoopButton();
 	}
 
@@ -624,26 +627,15 @@ export class MuteEditor {
 		this._doc.notifier.notifyWatchers();
 	};
 
-	private _onLoopMouseEnter = (): void => {
-		if (this._doc.synth.loopRepeatCount === -1) {
-			this._loopButton.style.color = "var(--cta-fg)";
-		} else {
-			this._loopButton.style.color = "var(--primary-text)";
-		}
-	};
-
-	private _onLoopMouseLeave = (): void => {
-		if (this._doc.synth.loopRepeatCount === -1) {
-			this._loopButton.style.color = "var(--cta-fg)";
-		} else {
-			this._loopButton.style.color = "var(--tab-inactive-fg)";
-		}
-	};
-
 	private _updateLoopButton = (): void => {
 		const active: boolean = this._doc.synth.loopRepeatCount === -1;
 		this._loopButton.style.background = active ? "var(--cta-bg)" : "var(--tab-inactive-bg)";
-		this._loopButton.style.color = active ? "var(--cta-fg)" : "var(--tab-inactive-fg)";
+		// Loop state drives the background only. Foreground is handled by
+		// hoverReveal (mode: "color") which swaps between --primary-text
+		// (idle) and --cta-fg (hover) via a CSS class rule, with the
+		// custom props set at construction. Removing the inline color so
+		// the class rule wins.
+		this._loopButton.style.removeProperty("color");
 	};
 }
 // }
