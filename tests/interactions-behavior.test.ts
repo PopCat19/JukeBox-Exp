@@ -42,6 +42,7 @@ interface MockElementHandle {
 	toggledOff: string[];
 	propertyCalls: PropertyCall[];
 	datasetWrites: Record<string, string | undefined>;
+	disabledWrites: (true | false)[];
 }
 
 // ---- Mock element factory ----
@@ -53,6 +54,7 @@ function createMockElement(tag: string): MockElementHandle {
 	const toggledOff: string[] = [];
 	const propertyCalls: PropertyCall[] = [];
 	const datasetWrites: Record<string, string | undefined> = {};
+	const disabledWrites: (true | false)[] = [];
 
 	const fakeEl = {
 		tagName: tag,
@@ -115,6 +117,18 @@ function createMockElement(tag: string): MockElementHandle {
 				},
 			},
 		),
+		// `el.disabled = bool` is the IDL attribute that setDisabled writes.
+		// Real DOM defines disabled as a boolean property; the mock
+		// records each write so tests can assert the helper did (or did
+		// not) toggle it.
+		_disabled: false,
+		get disabled(): boolean {
+			return this._disabled;
+		},
+		set disabled(value: boolean) {
+			this._disabled = value;
+			disabledWrites.push(value);
+		},
 	};
 
 	return {
@@ -125,6 +139,7 @@ function createMockElement(tag: string): MockElementHandle {
 		toggledOff,
 		propertyCalls,
 		datasetWrites,
+		disabledWrites,
 	};
 }
 
@@ -195,12 +210,14 @@ afterEach(() => {
 let hoverReveal: typeof import("../editor/ui/interactions").hoverReveal;
 let focusReveal: typeof import("../editor/ui/interactions").focusReveal;
 let setActive: typeof import("../editor/ui/interactions").setActive;
+let setDisabled: typeof import("../editor/ui/interactions").setDisabled;
 
 beforeAll(async () => {
 	const mod = await import("../editor/ui/interactions");
 	hoverReveal = mod.hoverReveal;
 	focusReveal = mod.focusReveal;
 	setActive = mod.setActive;
+	setDisabled = mod.setDisabled;
 });
 
 // ---- hoverReveal (default / outline mode) ----
@@ -392,5 +409,57 @@ describe("ensureStyleInjected one-shot guard", () => {
 		// that the CSS text-content assertion is covered elsewhere.
 		const sentinel = true;
 		expect(sentinel).toBeTrue();
+	});
+});
+
+// ---- setDisabled ----
+
+describe("setDisabled", () => {
+	test("disabled=true assigns el.disabled = true", () => {
+		const handle = createMockElement("input");
+		(handle.el as unknown as { disabled: boolean }).disabled = false;
+		handle.disabledWrites.length = 0; // forget the reset
+		setDisabled(handle.el as unknown as HTMLInputElement, true);
+		expect(handle.disabledWrites[handle.disabledWrites.length - 1]).toBe(true);
+	});
+
+	test("disabled=false assigns el.disabled = false", () => {
+		const handle = createMockElement("button");
+		(handle.el as unknown as { disabled: boolean }).disabled = true;
+		handle.disabledWrites.length = 0;
+		setDisabled(handle.el as unknown as HTMLButtonElement, false);
+		expect(handle.disabledWrites[handle.disabledWrites.length - 1]).toBe(false);
+	});
+
+	test("disabled=true toggles pmd-disabled on via classList.toggle(name, true)", () => {
+		const handle = createMockElement("input");
+		setDisabled(handle.el as unknown as HTMLInputElement, true);
+		// Both arrays are valid signals: either the helper added the class
+		// (add-style) or routed through toggle(name, true).
+		const on =
+			handle.classNamesAdded.includes("pmd-disabled") ||
+			handle.toggledOn.includes("pmd-disabled");
+		expect(on).toBeTrue();
+	});
+
+	test("disabled=false routes the toggle through the off branch", () => {
+		const handle = createMockElement("input");
+		setDisabled(handle.el as unknown as HTMLInputElement, false);
+		const off =
+			handle.classNamesRemoved.includes("pmd-disabled") ||
+			handle.toggledOff.includes("pmd-disabled");
+		expect(off).toBeTrue();
+	});
+
+	test("role option writes pmdRole dataset", () => {
+		const handle = createMockElement("select");
+		setDisabled(handle.el as unknown as HTMLSelectElement, true, { role: "primary" });
+		expect(handle.datasetWrites["pmdRole"]).toBe("primary");
+	});
+
+	test("does not write pmdRole when role option is omitted", () => {
+		const handle = createMockElement("input");
+		setDisabled(handle.el as unknown as HTMLInputElement, true);
+		expect(handle.datasetWrites["pmdRole"]).toBeUndefined();
 	});
 });

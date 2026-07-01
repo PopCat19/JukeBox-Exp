@@ -126,10 +126,11 @@ describe("surfaces role composer", () => {
 });
 
 describe("interactions module contract", () => {
-	test("exports hoverReveal, focusReveal, and setActive", () => {
+	test("exports hoverReveal, focusReveal, setActive, and setDisabled", () => {
 		expect(typeof Interactions.hoverReveal).toBe("function");
 		expect(typeof Interactions.focusReveal).toBe("function");
 		expect(typeof Interactions.setActive).toBe("function");
+		expect(typeof Interactions.setDisabled).toBe("function");
 	});
 
 	test("interaction helpers accept an HTMLElement and an options bag", () => {
@@ -137,6 +138,7 @@ describe("interactions module contract", () => {
 		expect(Interactions.hoverReveal.length).toBeLessThanOrEqual(2);
 		expect(Interactions.focusReveal.length).toBeLessThanOrEqual(2);
 		expect(Interactions.setActive.length).toBeLessThanOrEqual(3);
+		expect(Interactions.setDisabled.length).toBeLessThanOrEqual(3);
 	});
 
 	test("interactions source injects PMD outline rules via a shared <style> element", () => {
@@ -148,9 +150,32 @@ describe("interactions module contract", () => {
 		expect(joined).toContain('"pmd-hover"');
 		expect(joined).toContain('"pmd-focus"');
 		expect(joined).toContain('"pmd-active"');
-		// Hover and focus rules must be injected via CSS, not inline
+		expect(joined).toContain('"pmd-disabled"');
+		// Hover, focus, and disabled rules must be injected via CSS
 		expect(joined).toContain(":hover{outline-color:");
 		expect(joined).toContain(":focus-visible{outline-color:");
+	});
+
+	test("interactions source injects pmd-disabled rule at 88×24% opacity", () => {
+		const lines = sourceLines("editor/ui/interactions.ts");
+		const joined = lines.join("\n");
+		// PMD opacity.txt:9 mandates 88×24% = 0.24 for disabled foreground.
+		// Assert the source template (DISABLED_CLASS interpolates to pmd-disabled at runtime).
+		expect(joined).toContain("${DISABLED_CLASS}{opacity:0.24;}");
+	});
+
+	test("DisableableElement union covers the form-control elements callers pass", () => {
+		// We can't introspect the union type at runtime, but we can assert
+		// the source declares the named union and references each member.
+		const lines = sourceLines("editor/ui/interactions.ts");
+		const joined = lines.join("\n");
+		expect(joined).toContain("DisableableElement");
+		expect(joined).toContain("HTMLInputElement");
+		expect(joined).toContain("HTMLSelectElement");
+		expect(joined).toContain("HTMLButtonElement");
+		expect(joined).toContain("HTMLOptionElement");
+		expect(joined).toContain("HTMLTextAreaElement");
+		expect(joined).toContain("HTMLFieldSetElement");
 	});
 });
 

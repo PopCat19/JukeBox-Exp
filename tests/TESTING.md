@@ -97,8 +97,8 @@ All 12 types verified via encode→decode→type-preservation.
 | `editor/ui/index.ts` (barrel) | `tests/barrel-exports.test.ts` | buildOptions, numberInput, Slider, Layout, createDiv, etc. |
 | `editor/ui/states.ts` | `tests/ui-states.test.ts` | Token values, surface CSS, source-grep proofs for refactored buttons |
 | `editor/ui/surfaces.ts` | `tests/ui-states.test.ts` | primarySurface/secondarySurface/ghostSurface role outputs |
-| `editor/ui/interactions.ts` | `tests/interactions-behavior.test.ts` | Behavioral: classList adds, style custom props, dataset writes, one-shot style injection guard |
-| `editor/ui/interactions.ts` (source-grep) | `tests/ui-states.test.ts` | CSS rule content, helper exports |
+| `editor/ui/interactions.ts` | `tests/interactions-behavior.test.ts` | Behavioral: classList adds, style custom props, dataset writes, native disabled property writes, one-shot style injection guard |
+| `editor/ui/interactions.ts` (source-grep) | `tests/ui-states.test.ts` | CSS rule content (incl. pmd-disabled), helper exports, DisableableElement union coverage |
 | `editor/components/mute-editor.ts` | `tests/ui-states.test.ts` | Source-grep: single-branch loop enter handler, leave reuses _updateLoopButton |
 | `editor/prompts/channel-volume-visualizer-prompt.ts` | `tests/ui-states.test.ts` | Source-grep: single-branch loop enter handler, leave reuses _updateLoopButton |
 | `editor/song-editor.ts` | `tests/loop-editor-contract.test.ts` | Focus-steal listeners for buttons/selects |
