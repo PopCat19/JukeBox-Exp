@@ -119,6 +119,7 @@ import {
 	iconButton,
 	numberInput,
 	rangeSlider,
+	setDisabled,
 	Slider,
 	tipSpan,
 	toggleButton,
@@ -3266,7 +3267,7 @@ export class SongEditor
 			const autoPlayOption: HTMLOptionElement = <HTMLOptionElement>(
 				this._optionsMenu.querySelector("[value=autoPlay]")
 			);
-			autoPlayOption.disabled = true;
+			setDisabled(autoPlayOption, true);
 			autoPlayOption.setAttribute("hidden", "");
 		}
 
@@ -3275,7 +3276,7 @@ export class SongEditor
 			const layoutOption: HTMLOptionElement = <HTMLOptionElement>(
 				this._optionsMenu.querySelector("[value=layout]")
 			);
-			layoutOption.disabled = true;
+			setDisabled(layoutOption, true);
 			layoutOption.setAttribute("hidden", "");
 		}
 

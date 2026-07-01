@@ -334,3 +334,19 @@ describe("refactor proof: render-post-sync route addEnvelopeButton disabled thro
 		expect(joined).not.toMatch(/refs\.addEnvelopeButton\.disabled\s*=/);
 	});
 });
+
+describe("refactor proof: song-editor route autoPlay/layout option-disabled through setDisabled", () => {
+	test("song-editor.ts routes mobile-hide autoPlay option through setDisabled", () => {
+		const lines = sourceLines("editor/song-editor.ts");
+		const joined = lines.join("\n");
+		expect(joined).toContain("setDisabled(autoPlayOption, true)");
+		expect(joined).not.toMatch(/autoPlayOption\.disabled\s*=/);
+	});
+
+	test("song-editor.ts routes narrow-screen layout option through setDisabled", () => {
+		const lines = sourceLines("editor/song-editor.ts");
+		const joined = lines.join("\n");
+		expect(joined).toContain("setDisabled(layoutOption, true)");
+		expect(joined).not.toMatch(/layoutOption\.disabled\s*=/);
+	});
+});
