@@ -211,6 +211,29 @@ describe("editor/ui barrel exports", () => {
 		expect(typeof mod.p).toBe("function");
 		expect(typeof mod.m).toBe("function");
 	});
+
+	test("state tokens and interaction helpers are accessible", async () => {
+		const mod = await import("../editor/ui");
+		// State tokens
+		expect(typeof mod.StateOutline).toBe("object");
+		expect(typeof mod.StateForeground).toBe("object");
+		expect(typeof mod.StateBackground).toBe("object");
+		expect(typeof mod.stateTransition).toBe("function");
+		expect(typeof mod.hoverRing).toBe("function");
+		expect(typeof mod.hoverRule).toBe("function");
+		expect(typeof mod.focusRule).toBe("function");
+		expect(typeof mod.inputFocusRule).toBe("function");
+		expect(typeof mod.interactiveFeedback).toBe("function");
+		// Surface roles
+		expect(typeof mod.interactiveSurface).toBe("function");
+		expect(typeof mod.primarySurface).toBe("function");
+		expect(typeof mod.secondarySurface).toBe("function");
+		expect(typeof mod.ghostSurface).toBe("function");
+		// Interaction helpers
+		expect(typeof mod.hoverReveal).toBe("function");
+		expect(typeof mod.focusReveal).toBe("function");
+		expect(typeof mod.setActive).toBe("function");
+	});
 });
 
 describe("shared barrel exports", () => {
