@@ -350,3 +350,14 @@ describe("refactor proof: song-editor route autoPlay/layout option-disabled thro
 		expect(joined).not.toMatch(/layoutOption\.disabled\s*=/);
 	});
 });
+
+describe("refactor proof: instrument-import-prompt route importStrategySelect disabled through setDisabled", () => {
+	test("instrument-import-prompt.ts routes importStrategySelect disabled through setDisabled", () => {
+		const lines = sourceLines("editor/prompts/instrument-import-prompt.ts");
+		const joined = lines.join("\n");
+		expect(joined).toContain(
+			"setDisabled(this._importStrategySelect, true)",
+		);
+		expect(joined).not.toMatch(/this\._importStrategySelect\.disabled\s*=/);
+	});
+});

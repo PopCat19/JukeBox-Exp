@@ -12,7 +12,7 @@ import { HTML } from "imperative-html/dist/esm/elements-strict";
 import type { Channel, Instrument } from "../../synth";
 import { ChangeAppendInstrument, ChangePasteInstrument, ChangeViewInstrument } from "../changes";
 import type { SongDocument } from "../song-document";
-import { selectField } from "../ui";
+import { selectField, setDisabled } from "../ui";
 import { BasePrompt } from "./base-prompt";
 
 const { div, h2, input, select, option, code } = HTML;
@@ -51,7 +51,7 @@ export class InstrumentImportPrompt extends BasePrompt {
 		super(doc);
 		this.buildTitlebar();
 		if (!(doc.song.patternInstruments || doc.song.layeredInstruments)) {
-			this._importStrategySelect.disabled = true;
+			setDisabled(this._importStrategySelect, true);
 			this._importStrategySelect.value = "replace";
 			this._strategyInfoText.hidden = false;
 		} else {
