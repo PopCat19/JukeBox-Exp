@@ -15,6 +15,7 @@ import { s } from "./style";
 // CSS class names. Used both to inject rules via a single <style> element
 // and as hook classes for call sites that want to override behaviour.
 const HOVER_CLASS = "pmd-hover";
+const HOVER_COLOR_CLASS = "pmd-hover-color";
 const FOCUS_CLASS = "pmd-focus";
 const ACTIVE_CLASS = "pmd-active";
 
@@ -28,6 +29,8 @@ function ensureStyleInjected(): void {
 	if (_styleInjected || typeof document === "undefined") return;
 	const css = s(
 		`.${HOVER_CLASS}:hover{outline-color:var(--secondary-text, currentColor);}`,
+		`.${HOVER_COLOR_CLASS}{color:var(--hover-color-idle, var(--primary-text));}`,
+		`.${HOVER_COLOR_CLASS}:hover{color:var(--hover-color-accent, var(--cta-fg));}`,
 		`.${FOCUS_CLASS}:focus-visible{outline-color:var(--scrollbar-color, var(--subtext));}`,
 		`.${ACTIVE_CLASS}{${interactiveSurface("primary")}}`,
 	);
@@ -43,13 +46,29 @@ function ensureStyleInjected(): void {
 // only feedback. Pass "primary" for CTA surfaces — the rule in the injected
 // stylesheet uses outline-color: var(--secondary-text) for non-CTA and
 // callers using "primary" should override via CSS class.
+//
+// mode: "outline" (default) applies the PMD outline-ring pattern. PMD
+// §Hover and Focus Feedback specifies 80x as the hover surface, expressed
+// as an outline ring with -2px offset. Use this for buttons on transparent
+// or visibly-bordered surfaces.
+//
+// mode: "color" swaps the element's `color` property between idleColor
+// and accentColor on hover. PMD does not formally endorse color-swap
+// hover (the spec prefers outline), but established call sites
+// (mute-editor._loopButton, channel-volume-visualizer-prompt._loopButton)
+// already use this pattern because their inline `outline: none` would
+// block an outline ring. Use "color" only as a preservation migration.
 export interface HoverRevealOptions {
 	role?: SurfaceRole;
+	mode?: "outline" | "color";
+	idleColor?: string;
+	accentColor?: string;
 }
 
 // Apply PMD hover-reveal to an element. Adds the hover class which triggers
-// the 80x outline ring injected by ensureStyleInjected. Idempotent: calling
-// twice adds the class once (DOMTokenList toggle semantics).
+// the 80x outline ring injected by ensureStyleInjected (mode: "outline")
+// or the color swap rule (mode: "color"). Idempotent: calling twice adds
+// the class once (DOMTokenList toggle semantics).
 //
 // Replaces the opacity-transition pattern that clear-button.ts and
 // dropdown-button.ts were hand-rolling. The PMD-correct feedback is an
@@ -57,9 +76,25 @@ export interface HoverRevealOptions {
 // not an opacity shift.
 export function hoverReveal(el: HTMLElement, options?: HoverRevealOptions): void {
 	ensureStyleInjected();
-	el.classList.add(HOVER_CLASS);
+	const mode = options?.mode ?? "outline";
+	el.classList.add(mode === "color" ? HOVER_COLOR_CLASS : HOVER_CLASS);
 	if (options?.role !== undefined) {
 		el.dataset["pmdRole"] = options.role;
+	}
+	if (mode === "color") {
+		// Set CSS custom props only; the injected stylesheet reads them and
+		// drives the swap. Setting inline `el.style.color` would beat the
+		// `:hover` class rule and break the swap.
+		const idle = options?.idleColor ?? "var(--primary-text)";
+		const accent = options?.accentColor ?? "var(--cta-fg)";
+		el.style.setProperty("--hover-color-idle", idle);
+		el.style.setProperty("--hover-color-accent", accent);
+		// Clear any existing inline color so the .pmd-hover-color rule wins.
+		// Callers that toggle `el.style.color` themselves (e.g.
+		// mute-editor._updateLoopButton based on loopRepeatCount) should
+		// use setActive() instead, or remove the inline color before
+		// calling hoverReveal.
+		el.style.removeProperty("color");
 	}
 }
 
