@@ -7,6 +7,8 @@ Purpose: bun:test test files covering editor, synth, and shared modules.
 - `test-helpers.ts`, Shared test fixtures (Song factories, assertion helpers)
 - `TESTING.md`, Conventions doc + source-to-test cross-reference table
 - `barrel-exports.test.ts`, Barrel re-export contract tests for synth, editor/ui, shared
+- `interactions-behavior.test.ts`, Behavioral tests for editor/ui/interactions.ts using a hand-rolled DOM mock (classList, style custom props, dataset writes, one-shot style injection guard)
+- `ui-states.test.ts`, Contract tests for the PMD state/surface/interaction token layer (states.ts, surfaces.ts, interactions.ts) plus source-grep proofs for refactored buttons and loop-button migrations
 - `debug-tools.test.ts`, Tests for __jukebox__ debug utilities
 - `dsp-utils.test.ts`, Unit tests for pure DSP utility functions (applyFilters, sanitizeDelayLine, findRandomZeroCrossing)
 - `filtering.test.ts`, Unit tests for digital filter coefficient computation and frequency response

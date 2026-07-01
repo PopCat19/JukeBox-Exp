@@ -95,14 +95,20 @@ All 12 types verified via encode→decode→type-preservation.
 | `editor/components/pattern-editor.ts` | `tests/pattern-editor-contract.test.ts` | Stale canvas path guard, SVG/canvas y-center alignment |
 | `editor/components/loop-editor.ts` | `tests/loop-editor-contract.test.ts` | CSS class for disabled state, no inline opacity conflict |
 | `editor/ui/index.ts` (barrel) | `tests/barrel-exports.test.ts` | buildOptions, numberInput, Slider, Layout, createDiv, etc. |
+| `editor/ui/states.ts` | `tests/ui-states.test.ts` | Token values, surface CSS, source-grep proofs for refactored buttons |
+| `editor/ui/surfaces.ts` | `tests/ui-states.test.ts` | primarySurface/secondarySurface/ghostSurface role outputs |
+| `editor/ui/interactions.ts` | `tests/interactions-behavior.test.ts` | Behavioral: classList adds, style custom props, dataset writes, one-shot style injection guard |
+| `editor/ui/interactions.ts` (source-grep) | `tests/ui-states.test.ts` | CSS rule content, helper exports |
+| `editor/components/mute-editor.ts` | `tests/ui-states.test.ts` | Source-grep: single-branch loop enter handler, leave reuses _updateLoopButton |
+| `editor/prompts/channel-volume-visualizer-prompt.ts` | `tests/ui-states.test.ts` | Source-grep: single-branch loop enter handler, leave reuses _updateLoopButton |
 | `editor/song-editor.ts` | `tests/loop-editor-contract.test.ts` | Focus-steal listeners for buttons/selects |
 
 **Untested editor modules:** All `editor/core/`, `editor/changes/`,
-`editor/prompts/`, `editor/renderers/`,
+`editor/prompts/` (except channel-volume-visualizer above), `editor/renderers/`,
 `editor/rendering/`, `editor/io/`, `editor/config/`,
-`editor/ui/*` subdirectories (except barrel), `editor/main.ts`,
+`editor/ui/*` subdirectories (except states/surfaces/interactions/barrel), `editor/main.ts`,
 `editor/song-document.ts`,
-`editor/song-custom-samples.ts`, `editor/components/mute-editor.ts`.
+`editor/song-custom-samples.ts`.
 
 ### shared/
 
