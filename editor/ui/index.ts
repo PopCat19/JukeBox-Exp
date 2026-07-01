@@ -153,3 +153,30 @@ export type { TipSpanOptions } from "./tip-span";
 export { tipSpan } from "./tip-span";
 // Value Label
 export { valueLabel } from "./value-label";
+// State tokens
+export {
+	StateBackground,
+	StateForeground,
+	StateOutline,
+	focusRule,
+	hoverRing,
+	hoverRule,
+	inputFocusRule,
+	interactiveFeedback,
+	stateTransition,
+} from "./states";
+// Surface roles
+export {
+	ghostSurface,
+	interactiveSurface,
+	primarySurface,
+	secondarySurface,
+} from "./surfaces";
+export type { SurfaceRole } from "./surfaces";
+// Interaction helpers
+export type {
+	FocusRevealOptions,
+	HoverRevealOptions,
+	SetActiveOptions,
+} from "./interactions";
+export { focusReveal, hoverReveal, setActive } from "./interactions";
