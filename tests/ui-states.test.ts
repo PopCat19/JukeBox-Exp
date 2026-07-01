@@ -308,3 +308,20 @@ describe("refactor proof: mute-editor route option-disabled through setDisabled"
 		expect(callCount).toBe(10);
 	});
 });
+
+describe("refactor proof: export-prompt route intro/outro disabled through setDisabled", () => {
+	test("export-prompt.ts has no remaining _enableIntro/_enableOutro.disabled = boolean assignments", () => {
+		const lines = sourceLines("editor/prompts/export-prompt.ts");
+		const joined = lines.join("\n");
+		expect(joined).not.toMatch(/this\._enable(Intro|Outro)\.disabled\s*=\s*(true|false)/);
+	});
+
+	test("export-prompt.ts routes intro/outro disabled through setDisabled", () => {
+		const lines = sourceLines("editor/prompts/export-prompt.ts");
+		const joined = lines.join("\n");
+		const introCalls = (joined.match(/setDisabled\(this\._enableIntro,/g) || []).length;
+		const outroCalls = (joined.match(/setDisabled\(this\._enableOutro,/g) || []).length;
+		expect(introCalls).toBe(2);
+		expect(outroCalls).toBe(2);
+	});
+});

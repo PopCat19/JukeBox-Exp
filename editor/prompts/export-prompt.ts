@@ -13,7 +13,7 @@ import { Synth } from "../../synth";
 import { toJukeboxExpJson, toLegacyCompatJson } from "../../synth/formats";
 import { Config } from "../../synth/synth-config";
 import type { SongDocument } from "../song-document";
-import { promptLabel, promptRowBetween, selectField } from "../ui";
+import { promptLabel, promptRowBetween, selectField, setDisabled } from "../ui";
 import { BasePrompt } from "./base-prompt";
 import { exportToMidi } from "./export-midi";
 import type { Prompt } from "./prompt";
@@ -126,17 +126,17 @@ export class ExportPrompt extends BasePrompt {
 
 		if (this._doc.song.loopStart === 0) {
 			this._enableIntro.checked = false;
-			this._enableIntro.disabled = true;
+			setDisabled(this._enableIntro, true);
 		} else {
 			this._enableIntro.checked = true;
-			this._enableIntro.disabled = false;
+			setDisabled(this._enableIntro, false);
 		}
 		if (this._doc.song.loopStart + this._doc.song.loopLength === this._doc.song.barCount) {
 			this._enableOutro.checked = false;
-			this._enableOutro.disabled = true;
+			setDisabled(this._enableOutro, true);
 		} else {
 			this._enableOutro.checked = true;
-			this._enableOutro.disabled = false;
+			setDisabled(this._enableOutro, false);
 		}
 
 		const lastExportFormat: string | null = window.localStorage.getItem("exportFormat");
