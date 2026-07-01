@@ -325,3 +325,12 @@ describe("refactor proof: export-prompt route intro/outro disabled through setDi
 		expect(outroCalls).toBe(2);
 	});
 });
+
+describe("refactor proof: render-post-sync route addEnvelopeButton disabled through setDisabled", () => {
+	test("render-post-sync.ts routes addEnvelopeButton disabled through setDisabled", () => {
+		const lines = sourceLines("editor/renderers/render-post-sync.ts");
+		const joined = lines.join("\n");
+		expect(joined).toContain("setDisabled(refs.addEnvelopeButton");
+		expect(joined).not.toMatch(/refs\.addEnvelopeButton\.disabled\s*=/);
+	});
+});

@@ -15,6 +15,7 @@ import type { FilterEditor } from "../components/filter-editor";
 import type { Preferences } from "../core/preferences";
 import type { SongDocument } from "../song-document";
 import type { Slider } from "../ui";
+import { setDisabled } from "../ui";
 
 export interface PostSyncRefs {
 	instrumentSettingsGroup: HTMLElement;
@@ -66,7 +67,7 @@ export function renderPostBranchSync(
 	refs.clicklessTransitionBox.checked = !!instrument.clicklessTransition;
 	refs.aliasingBox.checked = !!instrument.aliases;
 	refs.invertWaveBox.checked = !!instrument.invertWave;
-	refs.addEnvelopeButton.disabled = instrument.envelopeCount >= Config.maxEnvelopeCount;
+	setDisabled(refs.addEnvelopeButton, instrument.envelopeCount >= Config.maxEnvelopeCount);
 	refs.volumeSlider.updateValue(prefs.volume);
 
 	if (wasActive && activeElement != null && activeElement.clientWidth === 0 && !doc.prompt) {
