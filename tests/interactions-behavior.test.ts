@@ -250,6 +250,13 @@ describe("hoverReveal (outline mode, default)", () => {
 		expect(handle.datasetWrites["pmdRole"]).toBe("primary");
 	});
 
+	test("writes pmdRole dataset when role is secondary (instrument-browser clearBtn)", () => {
+		const handle = createMockElement("span");
+		hoverReveal(handle.el, { role: "secondary" });
+		expect(handle.datasetWrites["pmdRole"]).toBe("secondary");
+		expect(handle.classNamesAdded).toContain("pmd-hover");
+	});
+
 	test("does not write pmdRole when role option is omitted", () => {
 		const handle = createMockElement("div");
 		hoverReveal(handle.el);
