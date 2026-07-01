@@ -71,7 +71,7 @@ export class RecordingSetupPrompt extends BasePrompt {
 	});
 
 	public readonly container: HTMLDivElement = div(
-		{ class: "prompt recordingSetupPrompt noSelection" },
+		{ class: "prompt recordingSetupPrompt noSelection fill-y" },
 		h2({}, "Note Recording Setup"),
 		div(
 			{ class: "rsGrid" },

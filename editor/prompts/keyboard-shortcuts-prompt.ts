@@ -309,7 +309,7 @@ export class KeyboardShortcutsPrompt extends BasePrompt {
 
 	public readonly container: HTMLDivElement = div(
 		{
-			class: "prompt keyboardShortcutsPrompt",
+			class: "prompt keyboardShortcutsPrompt fill-y",
 			style: w("480px"),
 		},
 		h2("Keyboard Shortcuts"),

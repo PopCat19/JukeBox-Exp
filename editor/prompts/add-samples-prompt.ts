@@ -255,7 +255,7 @@ export class AddSamplesPrompt extends BasePrompt {
 		// ── Container ──
 		this.container = div(
 			{
-				class: "prompt noSelection sampleBrowserPrompt compactSearchPrompt",
+				class: "prompt noSelection sampleBrowserPrompt compactSearchPrompt fill-y",
 				tabindex: "0",
 			},
 			h2({}, "Add Samples"),

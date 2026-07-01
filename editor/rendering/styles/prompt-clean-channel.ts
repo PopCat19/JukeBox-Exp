@@ -84,6 +84,15 @@ export function buildCleanChannelCSS(): string {
 	gap: 0;
 }
 
+/* Mirror .prompt.docked.fill-y .paneContainer so the clean-channel
+ * prompt's custom .ccpPaneContainer grows to fill the dock slot
+ * vertically when the prompt is docked. */
+.beepboxEditor .prompt.cleanChannelPrompt.docked.fill-y .ccpPaneContainer {
+	height: auto !important;
+	flex: 1 1 auto;
+	min-height: 0;
+}
+
 .beepboxEditor .prompt.cleanChannelPrompt .ccpLeftPane {
 	width: 220px;
 	flex-shrink: 0;

@@ -16,7 +16,8 @@ export function buildPromptMiscCSS(): string {
 }
 
 .beepboxEditor .prompt.songRecoveryPrompt .recoveryScroll {
-	max-height: 385px;
+	flex: 1 1 auto;
+	min-height: 0;
 	overflow-y: auto;
 }
 
@@ -154,7 +155,8 @@ export function buildPromptMiscCSS(): string {
 	display: grid;
 	overflow-y: auto;
 	overflow-x: hidden;
-	flex-shrink: 1;
+	flex: 1 1 auto;
+	min-height: 0;
 }
 
 .beepboxEditor .prompt.recordingSetupPrompt .rsPreview {

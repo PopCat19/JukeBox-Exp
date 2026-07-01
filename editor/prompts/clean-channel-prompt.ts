@@ -307,7 +307,7 @@ export class CleanChannelPrompt extends BasePrompt {
 		});
 
 		this.container = div(
-			{ class: "prompt cleanChannelPrompt noSelection" },
+			{ class: "prompt cleanChannelPrompt noSelection fill-y" },
 			h2({}, "Clean (LSDj)"),
 			this._tabBar,
 			paneContainer(

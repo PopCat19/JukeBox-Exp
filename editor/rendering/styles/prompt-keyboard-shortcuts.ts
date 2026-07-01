@@ -14,7 +14,8 @@ export function buildKeyboardShortcutsCSS(): string {
 }
 
 .beepboxEditor .prompt.keyboardShortcutsPrompt .shortcutsList {
-	max-height: 420px;
+	flex: 1 1 auto;
+	min-height: 0;
 	overflow-y: auto;
 }
 

@@ -26,7 +26,7 @@ export class SongRecoveryPrompt extends BasePrompt {
 	private readonly _songContainer: HTMLDivElement = div();
 
 	public readonly container: HTMLDivElement = div(
-		{ class: "prompt songRecoveryPrompt" },
+		{ class: "prompt songRecoveryPrompt fill-y" },
 		h2("Song Recovery"),
 		div(
 			{ class: "recoveryScroll" },

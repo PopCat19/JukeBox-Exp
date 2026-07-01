@@ -392,7 +392,7 @@ export class PalettePrompt extends BasePrompt {
 	private _activePicker: HTMLElement | null = null;
 
 	private readonly _scrollArea: HTMLDivElement = div({
-		style: "max-height: 55vh; overflow-y: auto; padding-right: 4px;",
+		style: "flex: 1 1 auto; min-height: 0; overflow-y: auto; padding-right: 4px;",
 	});
 	private readonly _exportCssBtn: HTMLButtonElement = actionButton("Copy CSS", {
 		style: "width: auto; font-size: 10px;",
@@ -411,7 +411,7 @@ export class PalettePrompt extends BasePrompt {
 	});
 
 	public readonly container: HTMLDivElement = div(
-		{ class: "prompt palettePrompt noSelection" },
+		{ class: "prompt palettePrompt noSelection fill-y" },
 		h2("Color Palette"),
 		this._scrollArea,
 		div(
