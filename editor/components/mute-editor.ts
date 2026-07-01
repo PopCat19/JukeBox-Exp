@@ -21,7 +21,7 @@ import {
 } from "../changes";
 import type { SongDocument } from "../song-document";
 import type { SongEditor } from "../song-editor";
-import { hoverReveal, InputBox } from "../ui";
+import { InputBox } from "../ui";
 import { ChannelRow } from "./channel-row";
 
 // namespace beepbox {
@@ -122,11 +122,8 @@ export class MuteEditor {
 		this._channelNameInput.input.addEventListener("input", this._channelNameInputWhenInput);
 
 		this._loopButton.addEventListener("click", this._toggleLoop);
-		hoverReveal(this._loopButton, {
-			mode: "color",
-			idleColor: "var(--primary-text)",
-			accentColor: "var(--cta-fg)",
-		});
+		this._loopButton.addEventListener("mouseenter", this._onLoopMouseEnter);
+		this._loopButton.addEventListener("mouseleave", this._updateLoopButton);
 		this._updateLoopButton();
 	}
 
@@ -630,12 +627,18 @@ export class MuteEditor {
 	private _updateLoopButton = (): void => {
 		const active: boolean = this._doc.synth.loopRepeatCount === -1;
 		this._loopButton.style.background = active ? "var(--cta-bg)" : "var(--tab-inactive-bg)";
-		// Loop state drives the background only. Foreground is handled by
-		// hoverReveal (mode: "color") which swaps between --primary-text
-		// (idle) and --cta-fg (hover) via a CSS class rule, with the
-		// custom props set at construction. Removing the inline color so
-		// the class rule wins.
-		this._loopButton.style.removeProperty("color");
+		this._loopButton.style.color = active ? "var(--cta-fg)" : "var(--tab-inactive-fg)";
+	};
+
+	private _onLoopMouseEnter = (): void => {
+		// Hover accent depends on the loop state: when active, --cta-fg
+		// (already the dark contrast text on --cta-bg) remains; when
+		// inactive, --primary-text lifts the muted glyph into focus.
+		// Mirrors the pre-phase-2 semantic exactly.
+		this._loopButton.style.color =
+			this._doc.synth.loopRepeatCount === -1
+				? "var(--cta-fg)"
+				: "var(--primary-text)";
 	};
 }
 // }
