@@ -15,7 +15,7 @@ Purpose: Reusable UI primitives, factory functions, design tokens, and interacti
 - `value-label.ts`, Formatted numeric value display label
 - `states.ts`, PMD role and interaction-state token builders for inline styles
 - `surfaces.ts`, Composer for PMD interactive-surface roles (primary, secondary, ghost)
-- `interactions.ts`, PMD interaction helpers (hoverReveal with outline or color mode, focusReveal, setActive)
+- `interactions.ts`, PMD interaction helpers (hoverReveal with outline or color mode, focusReveal, setActive, setDisabled)
 
 ## Subdirectories
 
