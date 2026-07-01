@@ -21,7 +21,7 @@ import {
 } from "../changes";
 import type { SongDocument } from "../song-document";
 import type { SongEditor } from "../song-editor";
-import { InputBox } from "../ui";
+import { InputBox, setDisabled } from "../ui";
 import { ChannelRow } from "./channel-row";
 
 // namespace beepbox {
@@ -190,11 +190,11 @@ export class MuteEditor {
 				this._doc.song.pitchChannelCount + this._doc.song.noiseChannelCount &&
 				this._doc.song.modChannelCount === Config.modChannelCountMax)
 		) {
-			this._channelDropDown.options[5].disabled = true;
-			this._channelDropDown.options[6].disabled = true;
+			setDisabled(this._channelDropDown.options[5], true);
+			setDisabled(this._channelDropDown.options[6], true);
 		} else {
-			this._channelDropDown.options[5].disabled = false;
-			this._channelDropDown.options[6].disabled = false;
+			setDisabled(this._channelDropDown.options[5], false);
+			setDisabled(this._channelDropDown.options[6], false);
 		}
 
 		// Also check if a channel is eligible to move up or down based on the song's channel settings.
@@ -204,9 +204,9 @@ export class MuteEditor {
 			this._channelDropDownChannel ===
 				this._doc.song.pitchChannelCount + this._doc.song.noiseChannelCount
 		) {
-			this._channelDropDown.options[1].disabled = true;
+			setDisabled(this._channelDropDown.options[1], true);
 		} else {
-			this._channelDropDown.options[1].disabled = false;
+			setDisabled(this._channelDropDown.options[1], false);
 		}
 		if (
 			this._channelDropDownChannel === this._doc.song.pitchChannelCount - 1 ||
@@ -214,16 +214,16 @@ export class MuteEditor {
 				this._doc.song.pitchChannelCount + this._doc.song.noiseChannelCount - 1 ||
 			this._channelDropDownChannel === this._doc.song.getChannelCount() - 1
 		) {
-			this._channelDropDown.options[2].disabled = true;
+			setDisabled(this._channelDropDown.options[2], true);
 		} else {
-			this._channelDropDown.options[2].disabled = false;
+			setDisabled(this._channelDropDown.options[2], false);
 		}
 
 		// Also, can't delete the last pitch channel.
 		if (this._doc.song.pitchChannelCount === 1 && this._channelDropDownChannel === 0) {
-			this._channelDropDown.options[9].disabled = true;
+			setDisabled(this._channelDropDown.options[9], true);
 		} else {
-			this._channelDropDown.options[9].disabled = false;
+			setDisabled(this._channelDropDown.options[9], false);
 		}
 	};
 

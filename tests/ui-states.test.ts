@@ -281,3 +281,30 @@ describe("refactor proof: dropdown-button uses hoverReveal", () => {
 		expect(joined).toContain("hoverReveal(");
 	});
 });
+
+describe("refactor proof: mute-editor route option-disabled through setDisabled", () => {
+	test("mute-editor.ts has no remaining .options[N].disabled = boolean assignments", () => {
+		const lines = sourceLines("editor/components/mute-editor.ts");
+		const joined = lines.join("\n");
+		// Per phase 4 plan: 10 native .disabled = bool calls in
+		// _channelDropDownGetOpenedPosition must all be replaced with
+		// setDisabled(this._channelDropDown.options[N], bool).
+		expect(joined).not.toMatch(/\.options\[\d+\]\.disabled\s*=\s*(true|false)/);
+	});
+
+	test("mute-editor.ts imports setDisabled from the ui barrel", () => {
+		const lines = sourceLines("editor/components/mute-editor.ts");
+		const joined = lines.join("\n");
+		expect(joined).toContain("setDisabled");
+		expect(joined).toMatch(/import\s*\{[^}]*setDisabled[^}]*\}\s*from\s*["']\.\.\/ui["']/);
+	});
+
+	test("mute-editor.ts has 10 setDisabled calls along option[N] indexes 1, 2, 5, 6, 9", () => {
+		const lines = sourceLines("editor/components/mute-editor.ts");
+		const joined = lines.join("\n");
+		// Each index 1/2/5/6/9 should be touched twice (true and false branches).
+		// 5 indexes × 2 = 10 calls.
+		const callCount = (joined.match(/setDisabled\(this\._channelDropDown\.options\[\d+\]/g) || []).length;
+		expect(callCount).toBe(10);
+	});
+});
