@@ -154,6 +154,64 @@ describe("interactions module contract", () => {
 	});
 });
 
+describe("refactor proof: mute-editor loop button uses hoverReveal color mode", () => {
+	test("mute-editor.ts loop button has no mouseenter/mouseleave listeners", () => {
+		const lines = sourceLines("editor/components/mute-editor.ts");
+		const joined = lines.join("\n");
+		// Phase-1 pattern removed: the loop button should not hand-roll
+		// a mouseenter/mouseleave color swap anymore.
+		expect(joined).not.toContain("_onLoopMouseEnter");
+		expect(joined).not.toContain("_onLoopMouseLeave");
+	});
+
+	test("mute-editor.ts routes loop button through hoverReveal with color mode", () => {
+		const lines = sourceLines("editor/components/mute-editor.ts");
+		const joined = lines.join("\n");
+		expect(joined).toMatch(/hoverReveal\s*\(\s*this\._loopButton/);
+		expect(joined).toContain('mode: "color"');
+	});
+});
+
+describe("refactor proof: channel-volume-visualizer loop button uses hoverReveal color mode", () => {
+	test("channel-volume-visualizer-prompt.ts loop button has no mouseenter/mouseleave listeners", () => {
+		const lines = sourceLines(
+			"editor/prompts/channel-volume-visualizer-prompt.ts",
+		);
+		const joined = lines.join("\n");
+		// The two lambda listeners with the if/else color branch are gone.
+		const loopButtonSection = joined.split("this._loopButton.addEventListener(\"click\"")[1] ?? "";
+		expect(loopButtonSection.slice(0, 800)).not.toContain("mouseenter");
+		expect(loopButtonSection.slice(0, 800)).not.toContain("mouseleave");
+	});
+
+	test("channel-volume-visualizer-prompt.ts routes loop button through hoverReveal with color mode", () => {
+		const lines = sourceLines(
+			"editor/prompts/channel-volume-visualizer-prompt.ts",
+		);
+		const joined = lines.join("\n");
+		expect(joined).toMatch(/hoverReveal\s*\(\s*this\._loopButton/);
+		expect(joined).toContain('mode: "color"');
+	});
+});
+
+describe("interactions module contract (phase 2: color hover mode)", () => {
+	test("hoverRevealHoverColor class hook and CSS rule are injected", () => {
+		const lines = sourceLines("editor/ui/interactions.ts");
+		const joined = lines.join("\n");
+		expect(joined).toContain('"pmd-hover-color"');
+		expect(joined).toContain(":hover{color:var(--hover-color-accent");
+	});
+
+	test("hoverReveal options type allows mode: outline | color", () => {
+		const lines = sourceLines("editor/ui/interactions.ts");
+		const joined = lines.join("\n");
+		// Type definition accepts the new mode union.
+		expect(joined).toMatch(/mode\?:\s*"outline"\s*\|\s*"color"/);
+		// Function body dispatches on mode === "color".
+		expect(joined).toContain('mode === "color"');
+	});
+});
+
 describe("refactor proof: clear-button uses hoverReveal", () => {
 	test("clear-button.ts does not inline the mouseenter/mouseleave opacity pattern", () => {
 		const lines = sourceLines("editor/ui/buttons/clear-button.ts");
