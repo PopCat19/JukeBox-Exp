@@ -361,3 +361,30 @@ describe("refactor proof: instrument-import-prompt route importStrategySelect di
 		expect(joined).not.toMatch(/this\._importStrategySelect\.disabled\s*=/);
 	});
 });
+
+describe("refactor proof: instrument-browser-prompt clearBtn uses hoverReveal", () => {
+	test("clearBtn no longer inlines background swap on mouseenter/mouseleave", () => {
+		const lines = sourceLines("editor/prompts/instrument-browser-prompt.ts");
+		const joined = lines.join("\n");
+		// The clearBtn context: lines around the clearBtn creation must not
+		// contain addEventListener("mouseenter", ...) or addEventListener("mouseleave", ...)
+		// targeting clearBtn. Pre-phase-5 had inline style.background swaps.
+		expect(joined).not.toMatch(/clearBtn\.addEventListener\("mouseenter"/);
+		expect(joined).not.toMatch(/clearBtn\.addEventListener\("mouseleave"/);
+	});
+
+	test("clearBtn adopts hoverReveal with role:secondary", () => {
+		const lines = sourceLines("editor/prompts/instrument-browser-prompt.ts");
+		const joined = lines.join("\n");
+		expect(joined).toContain('hoverReveal(clearBtn, { role: "secondary" })');
+	});
+
+	test("clearBtn inline style includes interactiveFeedback prelude", () => {
+		const lines = sourceLines("editor/prompts/instrument-browser-prompt.ts");
+		const joined = lines.join("\n");
+		// The transparent outline + transition prelude must be present so the
+		// hover ring can transition into view. Without it the outline would
+		// snap on/off without animation.
+		expect(joined).toContain("interactiveFeedback()");
+	});
+});

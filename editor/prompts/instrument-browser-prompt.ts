@@ -1,4 +1,6 @@
 import { BorderRadius, BorderWidth, Typography } from "../ui/style-constants";
+import { interactiveFeedback } from "../ui/states";
+import { s } from "../ui/style";
 // InstrumentBrowserPrompt
 //
 // Purpose: Tabbed modal for browsing instrument presets and tags
@@ -18,7 +20,7 @@ import {
 	type PresetCategory,
 } from "../config/editor-config";
 import type { SongDocument } from "../song-document";
-import { flexPane, inputRow, instructions, paneContainer, searchInput, tagChip } from "../ui";
+import { flexPane, hoverReveal, inputRow, instructions, paneContainer, searchInput, tagChip } from "../ui";
 import { tabButton } from "../ui/buttons/tab-button";
 import { TagListItem } from "../ui/chips/tag-list-item";
 import { BasePrompt } from "./base-prompt";
@@ -764,16 +766,19 @@ export class InstrumentBrowserPrompt extends BasePrompt {
 			headerRow.appendChild(span({}, "Active Tags"));
 			const clearBtn = span(
 				{
-					style: `padding: 2px 8px; cursor: pointer; color: var(--primary-text); font-size: ${Typography.sizeSm}; background: var(--ui-widget-background); border-radius: var(--border-radius-medium);`,
+					style: s(
+						`padding: 2px 8px;`,
+						`cursor: pointer;`,
+						`color: var(--primary-text);`,
+						`font-size: ${Typography.sizeSm};`,
+						`background: var(--ui-widget-background);`,
+						`border-radius: var(--border-radius-medium);`,
+						interactiveFeedback(),
+					),
 				},
 				"Clear Tags",
 			);
-			clearBtn.addEventListener("mouseenter", () => {
-				clearBtn.style.background = "var(--ui-widget-focus, #555)";
-			});
-			clearBtn.addEventListener("mouseleave", () => {
-				clearBtn.style.background = "var(--ui-widget-background)";
-			});
+			hoverReveal(clearBtn, { role: "secondary" });
 			clearBtn.addEventListener("mousedown", (e: MouseEvent) => {
 				e.preventDefault();
 				e.stopPropagation();
