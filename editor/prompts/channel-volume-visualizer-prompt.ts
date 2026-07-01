@@ -27,6 +27,7 @@ import { forwardRealFourierTransform } from "../../synth/fft";
 import { EditorConfig } from "../config/editor-config";
 import type { PromptEditorRefs } from "../core/prompt-manager";
 import type { SongDocument } from "../song-document";
+import { hoverReveal } from "../ui/interactions";
 import { BasePrompt } from "./base-prompt";
 
 const { div, h2, span, button, canvas } = HTML;
@@ -540,19 +541,10 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 		this._playPauseButton.addEventListener("click", this._togglePlayPause);
 		this._stopButton.addEventListener("click", this._stop);
 		this._loopButton.addEventListener("click", this._toggleLoop);
-		this._loopButton.addEventListener("mouseenter", () => {
-			if (this._doc.synth.loopRepeatCount === -1) {
-				this._loopButton.style.color = "var(--cta-fg)";
-			} else {
-				this._loopButton.style.color = "var(--primary-text)";
-			}
-		});
-		this._loopButton.addEventListener("mouseleave", () => {
-			if (this._doc.synth.loopRepeatCount === -1) {
-				this._loopButton.style.color = "var(--cta-fg)";
-			} else {
-				this._loopButton.style.color = "var(--tab-inactive-fg)";
-			}
+		hoverReveal(this._loopButton, {
+			mode: "color",
+			idleColor: "var(--primary-text)",
+			accentColor: "var(--cta-fg)",
 		});
 		this._scrubTrack.addEventListener("pointerdown", this._onScrubPointerDown);
 		setTimeout(() => {
@@ -631,7 +623,10 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 	private _updateLoopButton = (): void => {
 		const active: boolean = this._doc.synth.loopRepeatCount === -1;
 		this._loopButton.style.background = active ? "var(--cta-bg)" : "var(--tab-inactive-bg)";
-		this._loopButton.style.color = active ? "var(--cta-fg)" : "var(--tab-inactive-fg)";
+		// Foreground is handled by hoverReveal (mode: "color"); remove the
+		// inline color so the CSS class rule (idle: --primary-text, hover:
+		// --cta-fg) wins.
+		this._loopButton.style.removeProperty("color");
 	};
 
 	// Seek the playhead to the bar position under the pointer.
