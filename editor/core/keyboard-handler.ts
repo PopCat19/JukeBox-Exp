@@ -921,9 +921,14 @@ export class KeyboardHandler {
 						host.loopEditor.setLoopAt(doc.synth.loopBarStart, doc.synth.loopBarEnd);
 					}
 
-					if (doc.prefs.autoFollow) {
-						doc.selection.setChannelBar(doc.channel, Math.floor(doc.synth.playhead));
-					}
+					// Always sync the editor focus to the new playhead bar,
+					// matching left/right arrow behavior (which always update
+					// doc.bar). Gating this on autoFollow left the focus
+					// stale when navigating with [/], so the focused-bar
+					// sessionStorage save recorded 0 and refresh snapped
+					// back to the start.
+					doc.selection.setChannelBar(doc.channel, Math.floor(doc.synth.playhead));
+					doc.selection.resetBoxSelection();
 					event.preventDefault();
 				}
 				break;
@@ -942,9 +947,8 @@ export class KeyboardHandler {
 						host.loopEditor.setLoopAt(doc.synth.loopBarStart, doc.synth.loopBarEnd);
 					}
 
-					if (doc.prefs.autoFollow) {
-						doc.selection.setChannelBar(doc.channel, Math.floor(doc.synth.playhead));
-					}
+					doc.selection.setChannelBar(doc.channel, Math.floor(doc.synth.playhead));
+					doc.selection.resetBoxSelection();
 					event.preventDefault();
 				}
 				break;

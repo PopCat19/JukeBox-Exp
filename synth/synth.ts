@@ -247,6 +247,14 @@ export class Synth {
 	public isAtEndOfTick: boolean = true;
 	public tickSampleCountdown: number = 0;
 	private _playheadNeedsReset: boolean = false;
+	// Set true by play() so the first audible synthesize output prepends
+	// ~1ms of silence. The pre-roll absorbs browser AudioContext startup
+	// latency so beat 0's attack is not truncated. Consumed (cleared) by
+	// the first real synthesize call after isPlayingSong becomes true;
+	// gated on isPlayingSong so the JIT warm-up synthesize (which runs
+	// with playSong=true but isPlayingSong=false) does not eat the
+	// lead-in.
+	private _needsLeadIn: boolean = false;
 	public modState: SynthModState = new SynthModState();
 	public isPlayingSong: boolean = false;
 	private isRecording: boolean = false;
@@ -883,6 +891,7 @@ export class Synth {
 		}
 		await this._audio.resumeContext();
 		this.warmUpSynthesizer(this.song);
+		this._needsLeadIn = true;
 		this.isPlayingSong = true;
 		if (this._audio.context) {
 			this.samplesPerSecond = this._audio.context.sampleRate;
@@ -2266,6 +2275,28 @@ export class Synth {
 					}
 				}
 			}
+		}
+
+		// 1ms lead-in: zero the first ~1ms of the first audible buffer so
+		// browser AudioContext startup latency does not truncate the
+		// attack of beat 0. Internal playhead/tick state advances
+		// normally — only the output samples are silenced. The unfiltered
+		// buffers are zeroed too so the masterGain^2 mix in the worklet
+		// does not leak the attack back in.
+		if (this._needsLeadIn && this.isPlayingSong && playSong) {
+			const leadInSamples: number = Math.ceil(this.samplesPerSecond * 0.001);
+			const leadInEnd: number = Math.min(leadInSamples, outputBufferLength);
+			for (let li: number = 0; li < leadInEnd; li++) {
+				outputDataL[li] = 0;
+				outputDataR[li] = 0;
+				if (this.outputDataLUnfiltered != null) {
+					this.outputDataLUnfiltered[li] = 0;
+				}
+				if (this.outputDataRUnfiltered != null) {
+					this.outputDataRUnfiltered![li] = 0;
+				}
+			}
+			this._needsLeadIn = false;
 		}
 
 		// Optimization: Avoid persistent reverb values in the float denormal range.

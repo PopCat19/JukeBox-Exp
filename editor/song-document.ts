@@ -154,6 +154,20 @@ export class SongDocument {
 				this.channel = Number(savedChannel);
 				state.channel = this.channel;
 			}
+			// Restore the synth playhead bar too. doc.bar covers the editor
+			// focus; doc.synth.bar is the actual playback position. They
+			// can diverge (e.g. after [/] with autoFollow off, historically).
+			// Clamp to the loaded song's barCount so a stale value from a
+			// different song cannot push the playhead out of range.
+			const savedPlayheadBar: string | null =
+				window.sessionStorage.getItem("jukeboxCurrentPlayheadBar");
+			if (savedPlayheadBar != null) {
+				const clampedPlayheadBar: number = Math.max(
+					0,
+					Math.min(Number(savedPlayheadBar), this.song.barCount - 1),
+				);
+				this.synth.goToBar(clampedPlayheadBar);
+			}
 		}
 		this.channel = state.channel | 0;
 		for (let i: number = 0; i <= this.channel; i++) this.viewedInstrument[i] = 0;
@@ -415,10 +429,16 @@ export class SongDocument {
 		this._recordedNewSong = false;
 
 		// Persist bar/channel to sessionStorage so they survive page refresh
-		// (window.history.state is null on fresh page loads).
+		// (window.history.state is null on fresh page loads). The synth
+		// playhead bar is saved alongside so paused-at-bar-N resumes at N
+		// instead of snapping back to the start.
 		try {
 			window.sessionStorage.setItem("jukeboxCurrentBar", String(this.bar));
 			window.sessionStorage.setItem("jukeboxCurrentChannel", String(this.channel));
+			window.sessionStorage.setItem(
+				"jukeboxCurrentPlayheadBar",
+				String(this.synth.currentBar),
+			);
 		} catch {
 			/* sessionStorage may be unavailable */
 		}
