@@ -619,15 +619,14 @@ export class SpectrumEditorPrompt implements Prompt {
 				);
 			}
 			const colors = ColorConfig.getChannelColor(this._doc.song, this._doc.channel);
+			const setDrumSpectrumForIndex = (drumIndex: number) => () => { this._setDrumSpectrum(drumIndex); };
 			for (let i: number = 0; i < Config.drumCount; i++) {
 				const newSpectrumButton: HTMLButtonElement = selectorButton(`${i + 1}`, {
 					style: "max-width: 2em;",
 				});
 				this._drumsetButtons.push(newSpectrumButton);
 				this._drumsetButtonContainer.appendChild(newSpectrumButton);
-				newSpectrumButton.addEventListener("click", () => {
-					this._setDrumSpectrum(i);
-				});
+				newSpectrumButton.addEventListener("click", setDrumSpectrumForIndex(i));
 			}
 			this._drumsetButtons[Config.drumCount - 1].classList.add("last-button");
 			this._drumsetButtons[0].classList.add("selected-instrument");
