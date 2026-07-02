@@ -550,9 +550,14 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 		// Drag-and-drop file import for .json, .mid, .midi files.
 		// Attach to the container so it works in both main-window and popped-out
 		// documents (popout key events are routed separately via prompt-popout).
+		// Stop propagation so the editor's window-level drop handler does not
+		// also fire — a double-fire would schedule the import twice, and the
+		// second FileReader load would close the focused prompt (CVV itself)
+		// after the first one closed the import prompt.
 		const _onDragOver = (e: DragEvent) => {
 			if (e.dataTransfer && e.dataTransfer.types.indexOf("Files") !== -1) {
 				e.preventDefault();
+				e.stopPropagation();
 			}
 		};
 		const _onDrop = (e: DragEvent) => {
@@ -563,6 +568,7 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 			const name: string = file.name.toLowerCase();
 			if (name.endsWith(".json") || name.endsWith(".mid") || name.endsWith(".midi")) {
 				e.preventDefault();
+				e.stopPropagation();
 				// Pass the window hosting this container so the import's
 				// deferred ChangeSong runs on the visible popup rAF, not the
 				// backgrounded main editor rAF (which is throttled and would
