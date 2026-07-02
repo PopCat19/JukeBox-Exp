@@ -1086,6 +1086,16 @@ export class Synth {
 		// songs with tempo mods or next-bar skip mods, not just a flat per-bar
 		// estimate.
 		this.totalSamplesRendered = this.getSamplesUpToBar(bar);
+		// Reset sub-bar state so the new bar starts at beat 0. Without
+		// this, jumping to a bar leaves beat/part/tick from the old bar
+		// and the first audio of the new bar renders from that stale
+		// position (e.g. beat 2 of the new bar instead of beat 0).
+		// snapToBar() does the same reset; goToBar was inconsistent.
+		this.beat = 0;
+		this.part = 0;
+		this.tick = 0;
+		this.tickSampleCountdown = 0;
+		this._playheadNeedsReset = true;
 	}
 
 	public snapToBar(): void {
@@ -1125,6 +1135,13 @@ export class Synth {
 		this._dbg("goToNextBar:", oldBar, "to", this.bar);
 		this.playheadInternal += this.bar - oldBar;
 		this.totalSamplesRendered = this.getSamplesUpToBar(this.bar);
+		// Fresh sub-bar state for the new bar so the first audio is beat 0,
+		// not the stale beat/tick carried from the old bar.
+		this.beat = 0;
+		this.part = 0;
+		this.tick = 0;
+		this.tickSampleCountdown = 0;
+		this._playheadNeedsReset = true;
 		if (this.playing) {
 			this.modState.computeLatestModValues(this.song, this.bar, this.beat, this.part);
 		}
@@ -1141,6 +1158,12 @@ export class Synth {
 		this._dbg("goToPrevBar:", oldBar, "to", this.bar);
 		this.playheadInternal += this.bar - oldBar;
 		this.totalSamplesRendered = this.getSamplesUpToBar(this.bar);
+		// Fresh sub-bar state for the new bar (see goToNextBar).
+		this.beat = 0;
+		this.part = 0;
+		this.tick = 0;
+		this.tickSampleCountdown = 0;
+		this._playheadNeedsReset = true;
 		if (this.playing) {
 			this.modState.computeLatestModValues(this.song, this.bar, this.beat, this.part);
 		}
