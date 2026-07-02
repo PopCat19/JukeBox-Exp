@@ -143,7 +143,6 @@ export class ChangeLimiterSettings extends Change {
 		super();
 
 		// This check causes state reversion when the limiter prompt closes; the notifier change must happen immediately.
-		// if (limitRatio != doc.song.limitRatio || compressionRatio != doc.song.compressionRatio || limitThreshold != doc.song.limitThreshold || compressionThreshold != doc.song.compressionThreshold || limitRise != doc.song.limitRise || limitDecay != doc.song.limitDecay) {
 
 		doc.song.limitRatio = limitRatio;
 		doc.song.compressionRatio = compressionRatio;

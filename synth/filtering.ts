@@ -48,12 +48,6 @@ export class FilterCoefficients {
 		this.a[1] = g - 1.0;
 		this.b[0] = g;
 		this.b[1] = 0.0;
-		// Alternatively (commented out — redundant with above):
-		// const g: number = 1.0 / (2.0 * Math.sin(cornerRadiansPerSample / 2));
-		// const a0: number = g;
-		// this.a[1] = (1.0 - g) / a0;
-		// this.b[0] = 1.0 / a0;
-		// this.b[1] = 0.0 / a0;
 		this.order = 1;
 	}
 
@@ -223,7 +217,6 @@ export class FilterCoefficients {
 		const sqrtGain: number = Math.sqrt(peakLinearGain);
 		const bandWidth: number =
 			(bandWidthScale * cornerRadiansPerSample) / (sqrtGain >= 1 ? sqrtGain : 1 / sqrtGain);
-		// const bandWidth: number = bandWidthScale * cornerRadiansPerSample / Math.max(sqrtGain, 1.0);
 		const alpha: number = Math.tan(bandWidth * 0.5);
 		const a0: number = 1.0 + alpha / sqrtGain;
 		this.b[0] = (1.0 + alpha * sqrtGain) / a0;

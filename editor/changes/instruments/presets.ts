@@ -180,7 +180,6 @@ export class ChangePreset extends Change {
 					const tempVolume: number = instrument.volume;
 					const tempPan: number = instrument.pan;
 					const tempPanDelay = instrument.panDelay;
-					// const usesPanning: boolean = effectsIncludePanning(instrument.effects);
 					instrument.fromJsonObject(
 						applySettings,
 						doc.song.getChannelIsNoise(doc.channel),
@@ -192,9 +191,7 @@ export class ChangePreset extends Change {
 					instrument.pan = tempPan;
 					instrument.panDelay = tempPanDelay;
 					// @jummbus - Disable this check, pan will be on by default.
-					// if (usesPanning && instrument.pan != Config.panCenter) {
 					instrument.effects = instrument.effects | (1 << EffectType.panning);
-					// }
 				}
 			}
 			instrument.preset = newValue;

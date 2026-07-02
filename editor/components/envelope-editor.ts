@@ -641,15 +641,6 @@ export class EnvelopeEditor {
 				);
 			}
 			// Envelope presets may be added later, but that is not a priority currently
-			// const envelopePresets: HTMLElement = HTML.optgroup({ label: "Presets ▾" });
-			// for (let envelope: number = 0; envelope < Config.envelopes.length; envelope++) {
-			// 	if (!Config.envelopes[envelope].default) {
-			// 		envelopePresets.appendChild(HTML.option({ value: envelope }, Config.envelopes[envelope].name));
-			// 		this.envelopesScrambled[count] = envelope;
-			// 		count++;
-			// 	}
-			// }
-			// envelopeSelect.appendChild(envelopePresets);
 
 			const deleteBtn: HTMLButtonElement = deleteButton({
 				class: "delete-envelope",
@@ -711,7 +702,7 @@ export class EnvelopeEditor {
 				{
 					class: "tip",
 					style: `width:68px; flex:1; height:1em; font-size: smaller;`,
-					onclick: () => this._openPrompt("pitchRange"),
+					onclick: () => { this._openPrompt("pitchRange"); },
 				},
 				`Start ${this._pitchToNote(parseInt(pitchStartNoteBox.value, 10), instrument.isNoiseInstrument)}: `,
 			);
@@ -719,7 +710,7 @@ export class EnvelopeEditor {
 				{
 					class: "tip",
 					style: `width:68px; flex:1; height:1em; font-size: smaller;`,
-					onclick: () => this._openPrompt("pitchRange"),
+					onclick: () => { this._openPrompt("pitchRange"); },
 				},
 				`End ${this._pitchToNote(parseInt(pitchEndNoteBox.value, 10), instrument.isNoiseInstrument)}: `,
 			);
@@ -798,7 +789,7 @@ export class EnvelopeEditor {
 					{
 						class: "tip",
 						style: `width:68px; flex:1; height:1em; font-size: smaller;`,
-						onclick: () => this._openPrompt("randomSteps"),
+						onclick: () => { this._openPrompt("randomSteps"); },
 					},
 					"Steps: ",
 				),
@@ -810,7 +801,7 @@ export class EnvelopeEditor {
 					{
 						class: "tip",
 						style: `width:68px; flex:1; height:1em; font-size: smaller;`,
-						onclick: () => this._openPrompt("randomSeed"),
+						onclick: () => { this._openPrompt("randomSeed"); },
 					},
 					"Seed: ",
 				),
@@ -850,7 +841,7 @@ export class EnvelopeEditor {
 					{
 						style: "font-size: smaller; margin-right: 35px;",
 						class: "tip",
-						onclick: () => this._openPrompt("randomEnvelopeType"),
+						onclick: () => { this._openPrompt("randomEnvelopeType"); },
 					},
 					"Type: ",
 				),
@@ -892,7 +883,7 @@ export class EnvelopeEditor {
 					{
 						class: "tip",
 						style: `width:68px; flex:1; height:1em; font-size: smaller;`,
-						onclick: () => this._openPrompt("randomSteps"),
+						onclick: () => { this._openPrompt("randomSteps"); },
 					},
 					"Steps: ",
 				),
@@ -928,7 +919,7 @@ export class EnvelopeEditor {
 					{
 						style: "font-size: smaller; margin-right: 10px;",
 						class: "tip",
-						onclick: () => this._openPrompt("lfoEnvelopeWaveform"),
+						onclick: () => { this._openPrompt("lfoEnvelopeWaveform"); },
 					},
 					"Waveform: ",
 				),
@@ -974,7 +965,7 @@ export class EnvelopeEditor {
 				{
 					class: "tip",
 					style: `width:58px; flex:1; height:1em; font-size: smaller; margin-left: 10px;`,
-					onclick: () => this._openPrompt("perEnvelopeSpeed"),
+					onclick: () => { this._openPrompt("perEnvelopeSpeed"); },
 				},
 				`Spd: x${prettyNumber(EnvelopeEditor.convertIndexSpeed(perEnvelopeSpeedSlider.getValueBeforeProspectiveChange(), "speed"))}`,
 			);
@@ -1046,7 +1037,7 @@ export class EnvelopeEditor {
 					{
 						class: "tip",
 						style: `width:68px; flex:1; height:1em; font-size: smaller;`,
-						onclick: () => this._openPrompt("envelopeRange"),
+						onclick: () => { this._openPrompt("envelopeRange"); },
 					},
 					"Lwr bnd: ",
 				),
@@ -1058,7 +1049,7 @@ export class EnvelopeEditor {
 					{
 						class: "tip",
 						style: `width:68px; flex:1; height:1em; font-size: smaller;`,
-						onclick: () => this._openPrompt("envelopeRange"),
+						onclick: () => { this._openPrompt("envelopeRange"); },
 					},
 					"Upr bnd: ",
 				),
@@ -1095,7 +1086,7 @@ export class EnvelopeEditor {
 			const checkboxWrapper: HTMLDivElement = HTML.div(
 				{ style: "margin: 0.1em; align-items:center; justify-content:right;" },
 				HTML.span(
-					{ class: "tip", onclick: () => this._openPrompt("envelopeInvert") },
+					{ class: "tip", onclick: () => { this._openPrompt("envelopeInvert"); } },
 					"‣ Invert: ",
 				),
 				invertBox,
@@ -1103,7 +1094,7 @@ export class EnvelopeEditor {
 					{
 						class: "tip",
 						style: "margin-left:4px;",
-						onclick: () => this._openPrompt("discreteEnvelope"),
+						onclick: () => { this._openPrompt("discreteEnvelope"); },
 					},
 					"‣ Discrete:",
 				),

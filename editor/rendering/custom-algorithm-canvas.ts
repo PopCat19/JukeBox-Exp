@@ -40,9 +40,6 @@ export class CustomAlgorithmCanvas {
 		canvas.addEventListener("mouseleave", this._onMouseUp);
 
 		this.mouseDown = false;
-		// this.continuousEdit = false;
-		// this.lastX = 0;
-		// this.lastY = 0;
 		this.drawArray = [[], [], [], [], [], []];
 		this.lookUpArray = [[], [], [], [], [], []];
 		this.carriers = 1;
@@ -426,7 +423,6 @@ export class CustomAlgorithmCanvas {
 	};
 	private _onMouseUp = (): void => {
 		this.mouseDown = false;
-		// this.continuousEdit = false;
 
 		this._whenChange();
 	};

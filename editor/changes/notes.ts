@@ -1684,16 +1684,6 @@ export class ChangeDuplicateSelectedReusedPatterns extends ChangeGroup {
 				if (currentPatternIndex === 0) continue;
 				if (reusablePatterns[String(currentPatternIndex)] === undefined) {
 					let isUsedElsewhere = false;
-					// if (replaceUnused) {
-					//     for (let bar2: number = 0; bar2 < doc.song.barCount; bar2++) {
-					//         if (bar2 < barStart || bar2 >= barStart + barWidth) {
-					//             if (doc.song.channels[channelIndex].bars[bar2] == currentPatternIndex) {
-					//                 isUsedElsewhere = true;
-					//                 break;
-					//             }
-					//         }
-					//     }
-					// } else {
 					for (let bar2: number = 0; bar2 < doc.song.barCount; bar2++) {
 						if (bar2 < barStart || bar2 >= barStart + barWidth) {
 							if (
@@ -1704,7 +1694,6 @@ export class ChangeDuplicateSelectedReusedPatterns extends ChangeGroup {
 							}
 						}
 					}
-					// }
 					if (isUsedElsewhere) {
 						// Need to duplicate the pattern.
 						const copiedPattern: Pattern = doc.song.getPattern(channelIndex, bar)!;
