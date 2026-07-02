@@ -407,7 +407,7 @@ export class FilterEditor {
 				) {
 					const data: FilterMoveData = (
 						this._dragChange.checkFirst() as ChangeFilterMovePoint
-					).getMoveData(true);
+					).getOldMoveData();
 					const newPoint: FilterControlPoint | null =
 						this._useFilterSettings.controlPoints[this._selectedIndex];
 
@@ -426,7 +426,7 @@ export class FilterEditor {
 				) {
 					const data: FilterMoveData = (
 						this._dragChange.checkFirst() as ChangeSongFilterMovePoint
-					).getMoveData(true);
+					).getOldMoveData();
 					const newPoint: FilterControlPoint | null =
 						this._useFilterSettings.controlPoints[this._selectedIndex];
 

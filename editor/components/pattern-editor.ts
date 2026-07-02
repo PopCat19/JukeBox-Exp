@@ -1620,8 +1620,8 @@ export class PatternEditor {
 			//
 			const useChange: ChangeSongFilterMovePoint =
 				change.checkFirst() as ChangeSongFilterMovePoint;
-			const preMoveData: FilterMoveData = useChange.getMoveData(true);
-			const postMoveData: FilterMoveData = useChange.getMoveData(false);
+			const preMoveData: FilterMoveData = useChange.getOldMoveData();
+			const postMoveData: FilterMoveData = useChange.getNewMoveData();
 			const song = this._doc.song;
 			const useFilter: FilterSettings = song.eqFilter;
 			const modulatorIndex = Config.modulators.dictionary["song eq"].index;
@@ -1872,8 +1872,8 @@ export class PatternEditor {
 			//     modFilterTarget gain index (Y)
 			//
 			const useChange: ChangeFilterMovePoint = change.checkFirst() as ChangeFilterMovePoint;
-			const preMoveData: FilterMoveData = useChange.getMoveData(true);
-			const postMoveData: FilterMoveData = useChange.getMoveData(false);
+			const preMoveData: FilterMoveData = useChange.getOldMoveData();
+			const postMoveData: FilterMoveData = useChange.getNewMoveData();
 			let useFilter: FilterSettings = instrument.eqFilter;
 			let modulatorIndex: number | undefined;
 

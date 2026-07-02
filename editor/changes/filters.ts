@@ -267,10 +267,11 @@ export class ChangeSongFilterMovePoint extends UndoableChange {
 		this.redo();
 	}
 
-	public getMoveData(beforeChange: boolean): FilterMoveData {
-		if (beforeChange) {
-			return new FilterMoveData(this._point, this._oldFreq, this._oldGain);
-		}
+	public getOldMoveData(): FilterMoveData {
+		return new FilterMoveData(this._point, this._oldFreq, this._oldGain);
+	}
+
+	public getNewMoveData(): FilterMoveData {
 		return new FilterMoveData(this._point, this._newFreq, this._newGain);
 	}
 
@@ -327,10 +328,11 @@ export class ChangeFilterMovePoint extends UndoableChange {
 		this.redo();
 	}
 
-	public getMoveData(beforeChange: boolean): FilterMoveData {
-		if (beforeChange) {
-			return new FilterMoveData(this._point, this._oldFreq, this._oldGain);
-		}
+	public getOldMoveData(): FilterMoveData {
+		return new FilterMoveData(this._point, this._oldFreq, this._oldGain);
+	}
+
+	public getNewMoveData(): FilterMoveData {
 		return new FilterMoveData(this._point, this._newFreq, this._newGain);
 	}
 
