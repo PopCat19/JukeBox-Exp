@@ -138,6 +138,12 @@ export class EnvelopeEditor {
 			: -1;
 		const LFOStepsBoxIndex: number = target ? this.LFOStepsBoxes.indexOf(target) : -1;
 		const LFOStepsSliderIndex: number = target ? this._LFOStepsSliders.indexOf(target) : -1;
+		const envelopeHandleIndex = [
+			startBoxIndex, endBoxIndex, startSliderIndex, endSliderIndex,
+			lowerBoundBoxIndex, upperBoundBoxIndex, randomStepsBoxIndex,
+			randomSeedBoxIndex, randomStepsSliderIndex, randomSeedSliderIndex,
+			LFOStepsBoxIndex, LFOStepsSliderIndex,
+		].find((i) => i !== -1);
 		if (targetSelectIndex !== -1) {
 			const combinedValue: number = parseInt(
 				this._targetSelects[targetSelectIndex].value,
@@ -194,20 +200,7 @@ export class EnvelopeEditor {
 					discreterIndex,
 				),
 			);
-		} else if (
-			startBoxIndex !== -1 ||
-			endBoxIndex !== -1 ||
-			startSliderIndex !== -1 ||
-			endSliderIndex !== -1 ||
-			lowerBoundBoxIndex !== -1 ||
-			upperBoundBoxIndex !== -1 ||
-			randomStepsBoxIndex !== -1 ||
-			randomSeedBoxIndex !== -1 ||
-			randomStepsSliderIndex !== -1 ||
-			randomSeedSliderIndex !== -1 ||
-			LFOStepsBoxIndex !== -1 ||
-			LFOStepsSliderIndex !== -1
-		) {
+		} else if (envelopeHandleIndex !== undefined) {
 			if (this._lastChange != null) {
 				this._doc.record(this._lastChange);
 				this._lastChange = null;

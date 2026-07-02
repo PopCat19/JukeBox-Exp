@@ -179,17 +179,18 @@ export class MuteEditor {
 		this._channelNameDisplay.style.setProperty("display", "");
 
 		// Check if channel is at limit, in which case another can't be inserted
-		if (
-			(this._channelDropDownChannel < this._doc.song.pitchChannelCount &&
-				this._doc.song.pitchChannelCount === Config.pitchChannelCountMax) ||
-			(this._channelDropDownChannel >= this._doc.song.pitchChannelCount &&
-				this._channelDropDownChannel <
-					this._doc.song.pitchChannelCount + this._doc.song.noiseChannelCount &&
-				this._doc.song.noiseChannelCount === Config.noiseChannelCountMax) ||
-			(this._channelDropDownChannel >=
-				this._doc.song.pitchChannelCount + this._doc.song.noiseChannelCount &&
-				this._doc.song.modChannelCount === Config.modChannelCountMax)
-		) {
+		const song = this._doc.song;
+		const ch = this._channelDropDownChannel;
+		const noiseStart = song.pitchChannelCount;
+		const modStart = song.pitchChannelCount + song.noiseChannelCount;
+		const isPitchChannel = ch < noiseStart;
+		const isNoiseChannel = ch >= noiseStart && ch < modStart;
+		const isModChannel = ch >= modStart;
+		const channelGroupAtLimit =
+			(isPitchChannel && song.pitchChannelCount === Config.pitchChannelCountMax) ||
+			(isNoiseChannel && song.noiseChannelCount === Config.noiseChannelCountMax) ||
+			(isModChannel && song.modChannelCount === Config.modChannelCountMax);
+		if (channelGroupAtLimit) {
 			setDisabled(this._channelDropDown.options[5], true);
 			setDisabled(this._channelDropDown.options[6], true);
 		} else {

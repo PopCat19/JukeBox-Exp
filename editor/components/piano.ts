@@ -512,15 +512,14 @@ export class Piano {
 		}
 
 		if (!this._doc.prefs.showLetters) return;
-		if (
+		const lettersAlreadyRendered =
 			this._renderedScale === this._doc.song.scale &&
 			this._doc.song.scale !== Config.scales.dictionary.Custom.index &&
 			this._renderedKey === this._doc.song.key &&
 			this._renderedDrums === isDrum &&
 			this._renderedMod === isMod &&
-			this._renderedPitchCount === this._pitchCount
-		)
-			return;
+			this._renderedPitchCount === this._pitchCount;
+		if (lettersAlreadyRendered) return;
 
 		this._renderedScale = this._doc.song.scale;
 		this._renderedKey = this._doc.song.key;
@@ -534,7 +533,7 @@ export class Piano {
 
 		if (!isDrum && !isMod) {
 			if (this._renderedPitchCount !== this._pitchCount) {
-				this._pianoContainer.innerHTML = "";
+				this._pianoContainer.replaceChildren();
 				for (let i: number = 0; i < this._pitchCount; i++) {
 					const pianoLabel: HTMLDivElement = HTML.div({
 						class: "piano-label",
