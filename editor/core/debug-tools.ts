@@ -188,7 +188,7 @@ export function installDebugTools(doc: SongDocument): void {
 							} else {
 								console.log("system clipboard: not a JukeBox copy");
 							}
-						} catch (_) {
+						} catch {
 							console.log("system clipboard: not JSON");
 						}
 					})

@@ -56,7 +56,9 @@ export function isProperUrl(string: string): boolean {
 		} else {
 			return Boolean(new URL(string));
 		}
-	} catch (_x) {
+	} catch {
+		// URL parsing can throw on arbitrary strings; the boolean return
+		// communicates validity to callers, so suppression is intentional.
 		return false;
 	}
 }

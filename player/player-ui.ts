@@ -25,7 +25,9 @@ export const isMobile: boolean =
 export function getLocalStorage(key: string): string | null {
 	try {
 		return localStorage.getItem(key);
-	} catch (_error) {
+	} catch {
+		// localStorage may throw in private browsing or when storage is full;
+		// callers treat null as "no saved value" so suppression is intentional.
 		return null;
 	}
 }
@@ -33,8 +35,9 @@ export function getLocalStorage(key: string): string | null {
 export function setLocalStorage(key: string, value: string): void {
 	try {
 		localStorage.setItem(key, value);
-	} catch (_error) {
-		/* localStorage may be unavailable (private browsing, etc.) */
+	} catch {
+		// localStorage may throw in private browsing or when quota is exceeded;
+		// writing the value is best-effort, so suppression is intentional.
 	}
 }
 
