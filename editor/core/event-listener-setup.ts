@@ -357,25 +357,19 @@ export class EventListenerSetup {
 
 		// Modulator controls
 		const thisRef = host;
+		const onSetModChannel = (m: number) => () => { thisRef.dispatch.whenSetModChannel(m); };
+		const onSetModInstrument = (m: number) => () => { thisRef.dispatch.whenSetModInstrument(m); };
+		const onSetModSetting = (m: number) => () => { thisRef.dispatch.whenSetModSetting(m); };
+		const onSetModFilter = (m: number) => () => { thisRef.dispatch.whenSetModFilter(m); };
+		const onSetModEnvelope = (m: number) => () => { thisRef.dispatch.whenSetModEnvelope(m); };
+		const onClickModTarget = (m: number) => () => { thisRef.dispatch.whenClickModTarget(m); };
 		for (let mod = 0; mod < Config.modCount; mod++) {
-			host.modChannelBoxes[mod].addEventListener("change", () => {
-				thisRef.dispatch.whenSetModChannel(mod);
-			});
-			host.modInstrumentBoxes[mod].addEventListener("change", () => {
-				thisRef.dispatch.whenSetModInstrument(mod);
-			});
-			host.modSetBoxes[mod].addEventListener("change", () => {
-				thisRef.dispatch.whenSetModSetting(mod);
-			});
-			host.modFilterBoxes[mod].addEventListener("change", () => {
-				thisRef.dispatch.whenSetModFilter(mod);
-			});
-			host.modEnvelopeBoxes[mod].addEventListener("change", () => {
-				thisRef.dispatch.whenSetModEnvelope(mod);
-			});
-			host.modTargetIndicators[mod].addEventListener("click", () => {
-				thisRef.dispatch.whenClickModTarget(mod);
-			});
+			host.modChannelBoxes[mod].addEventListener("change", onSetModChannel(mod));
+			host.modInstrumentBoxes[mod].addEventListener("change", onSetModInstrument(mod));
+			host.modSetBoxes[mod].addEventListener("change", onSetModSetting(mod));
+			host.modFilterBoxes[mod].addEventListener("change", onSetModFilter(mod));
+			host.modEnvelopeBoxes[mod].addEventListener("change", onSetModEnvelope(mod));
+			host.modTargetIndicators[mod].addEventListener("click", onClickModTarget(mod));
 		}
 
 		host.jumpToModIndicator.addEventListener("click", () => {
