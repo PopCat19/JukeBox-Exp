@@ -25,6 +25,66 @@ export class KeyboardLayout {
 		[11, 13, null, 16, 18, null, 21, 23, 25, null, 28, 30, null],
 	];
 
+	// Maps physical key codes to [x, y] note-grid positions. See
+	// https://www.w3.org/TR/uievents-code/#key-alphanumeric-writing-system
+	private static _keyCodeToPos: Readonly<Record<string, readonly [number, number]>> = {
+		// Row 3 (number row)
+		Backquote: [-1, 3],
+		Digit1: [0, 3],
+		Digit2: [1, 3],
+		Digit3: [2, 3],
+		Digit4: [3, 3],
+		Digit5: [4, 3],
+		Digit6: [5, 3],
+		Digit7: [6, 3],
+		Digit8: [7, 3],
+		Digit9: [8, 3],
+		Digit0: [9, 3],
+		Minus: [10, 3],
+		Equal: [11, 3],
+		IntlYen: [12, 3], // Present on Russian and Japanese keyboards.
+		// Row 2 (QWERTY row)
+		KeyQ: [0, 2],
+		KeyW: [1, 2],
+		KeyE: [2, 2],
+		KeyR: [3, 2],
+		KeyT: [4, 2],
+		KeyY: [5, 2],
+		KeyU: [6, 2],
+		KeyI: [7, 2],
+		KeyO: [8, 2],
+		KeyP: [9, 2],
+		BracketLeft: [10, 2],
+		BracketRight: [11, 2],
+		Backslash: [12, 2], // Special-cased below for non-US layouts.
+		// Row 1 (home row)
+		KeyA: [0, 1],
+		KeyS: [1, 1],
+		KeyD: [2, 1],
+		KeyF: [3, 1],
+		KeyG: [4, 1],
+		KeyH: [5, 1],
+		KeyJ: [6, 1],
+		KeyK: [7, 1],
+		KeyL: [8, 1],
+		Semicolon: [9, 1],
+		Quote: [10, 1],
+		IntlHash: [11, 1], // Present on non-US keyboards but usually reported as Backslash, so obsolete.
+		// Row 0 (bottom row)
+		IntlBackslash: [-1, 0], // Present on Brazilian and many European keyboards.
+		KeyZ: [0, 0],
+		KeyX: [1, 0],
+		KeyC: [2, 0],
+		KeyV: [3, 0],
+		KeyB: [4, 0],
+		KeyN: [5, 0],
+		KeyM: [6, 0],
+		Comma: [7, 0],
+		Period: [8, 0],
+		Slash: [9, 0],
+		IntlRo: [10, 0], // Present on Brazilian and Japanese keyboards.
+	};
+
 	public static keyPosToPitch(
 		doc: SongDocument,
 		x: number,
@@ -101,172 +161,18 @@ export class KeyboardLayout {
 
 	public handleKeyEvent(event: KeyboardEvent, pressed: boolean): void {
 		// See: https://www.w3.org/TR/uievents-code/#key-alphanumeric-writing-system
-		switch (event.code) {
-			case "Backquote":
-				this.handleKey(-1, 3, pressed);
-				break;
-			case "Digit1":
-				this.handleKey(0, 3, pressed);
-				break;
-			case "Digit2":
-				this.handleKey(1, 3, pressed);
-				break;
-			case "Digit3":
-				this.handleKey(2, 3, pressed);
-				break;
-			case "Digit4":
-				this.handleKey(3, 3, pressed);
-				break;
-			case "Digit5":
-				this.handleKey(4, 3, pressed);
-				break;
-			case "Digit6":
-				this.handleKey(5, 3, pressed);
-				break;
-			case "Digit7":
-				this.handleKey(6, 3, pressed);
-				break;
-			case "Digit8":
-				this.handleKey(7, 3, pressed);
-				break;
-			case "Digit9":
-				this.handleKey(8, 3, pressed);
-				break;
-			case "Digit0":
-				this.handleKey(9, 3, pressed);
-				break;
-			case "Minus":
-				this.handleKey(10, 3, pressed);
-				break;
-			case "Equal":
-				this.handleKey(11, 3, pressed);
-				break;
-			case "IntlYen":
-				this.handleKey(12, 3, pressed);
-				break; // Present on Russian and Japanese keyboards.
+		const pos = KeyboardLayout._keyCodeToPos[event.code];
+		if (pos === undefined) return; // unhandled, don't prevent default.
 
-			case "KeyQ":
-				this.handleKey(0, 2, pressed);
-				break;
-			case "KeyW":
-				this.handleKey(1, 2, pressed);
-				break;
-			case "KeyE":
-				this.handleKey(2, 2, pressed);
-				break;
-			case "KeyR":
-				this.handleKey(3, 2, pressed);
-				break;
-			case "KeyT":
-				this.handleKey(4, 2, pressed);
-				break;
-			case "KeyY":
-				this.handleKey(5, 2, pressed);
-				break;
-			case "KeyU":
-				this.handleKey(6, 2, pressed);
-				break;
-			case "KeyI":
-				this.handleKey(7, 2, pressed);
-				break;
-			case "KeyO":
-				this.handleKey(8, 2, pressed);
-				break;
-			case "KeyP":
-				this.handleKey(9, 2, pressed);
-				break;
-			case "BracketLeft":
-				this.handleKey(10, 2, pressed);
-				break;
-			case "BracketRight":
-				this.handleKey(11, 2, pressed);
-				break;
-			case "Backslash":
-				// Present on US keyboards... but on non-US keyboards it's also used at a different location, see "IntlHash" below. :/
-				if (event.key === "\\" || event.key === "|") {
-					this.handleKey(12, 2, pressed);
-				} else {
-					this.handleKey(11, 1, pressed);
-				}
-				break;
-
-			case "KeyA":
-				this.handleKey(0, 1, pressed);
-				break;
-			case "KeyS":
-				this.handleKey(1, 1, pressed);
-				break;
-			case "KeyD":
-				this.handleKey(2, 1, pressed);
-				break;
-			case "KeyF":
-				this.handleKey(3, 1, pressed);
-				break;
-			case "KeyG":
-				this.handleKey(4, 1, pressed);
-				break;
-			case "KeyH":
-				this.handleKey(5, 1, pressed);
-				break;
-			case "KeyJ":
-				this.handleKey(6, 1, pressed);
-				break;
-			case "KeyK":
-				this.handleKey(7, 1, pressed);
-				break;
-			case "KeyL":
-				this.handleKey(8, 1, pressed);
-				break;
-			case "Semicolon":
-				this.handleKey(9, 1, pressed);
-				break;
-			case "Quote":
-				this.handleKey(10, 1, pressed);
-				break;
-			case "IntlHash":
-				this.handleKey(11, 1, pressed);
-				break; // Present on non-US keyboards... but in practice it is actually represented as "Backslash" so this is obsolete. Oh well. :/
-
-			case "IntlBackslash":
-				this.handleKey(-1, 0, pressed);
-				break; // Present on Brazillian and many European keyboards.
-			case "KeyZ":
-				this.handleKey(0, 0, pressed);
-				break;
-			case "KeyX":
-				this.handleKey(1, 0, pressed);
-				break;
-			case "KeyC":
-				this.handleKey(2, 0, pressed);
-				break;
-			case "KeyV":
-				this.handleKey(3, 0, pressed);
-				break;
-			case "KeyB":
-				this.handleKey(4, 0, pressed);
-				break;
-			case "KeyN":
-				this.handleKey(5, 0, pressed);
-				break;
-			case "KeyM":
-				this.handleKey(6, 0, pressed);
-				break;
-			case "Comma":
-				this.handleKey(7, 0, pressed);
-				break;
-			case "Period":
-				this.handleKey(8, 0, pressed);
-				break;
-			case "Slash":
-				this.handleKey(9, 0, pressed);
-				break;
-			case "IntlRo":
-				this.handleKey(10, 0, pressed);
-				break; // Present on Brazillian and Japanese keyboards.
-
-			default:
-				return; // unhandled, don't prevent default.
+		let x = pos[0];
+		let y = pos[1];
+		// Backslash is [12,2] on US keyboards but on non-US layouts the same
+		// physical key reports a different key and maps to [11,1] instead.
+		if (event.code === "Backslash" && !(event.key === "\\" || event.key === "|")) {
+			x = 11;
+			y = 1;
 		}
+		this.handleKey(x, y, pressed);
 
 		// If the key event was handled as a note, prevent default behavior.
 		event.preventDefault();
