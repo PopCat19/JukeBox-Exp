@@ -177,16 +177,26 @@ export class PromptManager {
 			setFocusedPrompt: (p) => {
 				this._focusedPrompt = p;
 			},
-			updatePromptFocus: () => { this._updatePromptFocus(); },
-			refocusSongEditor: () => { this._host.refocusStage(); },
+			updatePromptFocus: () => {
+				this._updatePromptFocus();
+			},
+			refocusSongEditor: () => {
+				this._host.refocusStage();
+			},
 			isInPromptContainer: (el) => el !== null && this._host.promptContainer.contains(el),
 		});
 
 		this._dock = new PromptDock({
 			editor: this._host.mainLayer,
-			onLayoutChanged: () => { this._host.onLayoutChanged(); },
+			onLayoutChanged: () => {
+				this._host.onLayoutChanged();
+			},
 		});
-		this._popout = new PromptPopout({ onPopoutClosed: (p) => { this.close(p); } });
+		this._popout = new PromptPopout({
+			onPopoutClosed: (p) => {
+				this.close(p);
+			},
+		});
 	}
 
 	public get prompt(): Prompt | null {
@@ -547,8 +557,12 @@ export class PromptManager {
 		if (!newPrompt) return;
 
 		newPrompt.name = promptName;
-		newPrompt.closeCallback = (p) => { this.close(p); };
-		newPrompt.openAlongsideCallback = (name) => { this._setPrompt(name); };
+		newPrompt.closeCallback = (p) => {
+			this.close(p);
+		};
+		newPrompt.openAlongsideCallback = (name) => {
+			this._setPrompt(name);
+		};
 		newPrompt.openCount = 1; // first spawn
 
 		this._prompts.push(newPrompt);
@@ -634,7 +648,9 @@ export class PromptManager {
 
 		const cancelButton = newPrompt.container.querySelector(".cancelButton");
 		if (cancelButton) {
-			cancelButton.addEventListener("click", () => { this.close(newPrompt); });
+			cancelButton.addEventListener("click", () => {
+				this.close(newPrompt);
+			});
 		}
 
 		newPrompt.container.setAttribute("tabindex", "-1");

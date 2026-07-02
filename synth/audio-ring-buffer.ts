@@ -30,15 +30,10 @@ export class AudioRingBuffer {
 		this._slotStride = slotLength * 2;
 		const totalFloats = numSlots * this._slotStride;
 		this.sab = new SharedArrayBuffer(
-			AudioRingBuffer.HEADER_BYTES +
-				totalFloats * Float32Array.BYTES_PER_ELEMENT,
+			AudioRingBuffer.HEADER_BYTES + totalFloats * Float32Array.BYTES_PER_ELEMENT,
 		);
 		this._view = new Int32Array(this.sab, 0, AudioRingBuffer.HEADER_INTS);
-		this._data = new Float32Array(
-			this.sab,
-			AudioRingBuffer.HEADER_BYTES,
-			totalFloats,
-		);
+		this._data = new Float32Array(this.sab, AudioRingBuffer.HEADER_BYTES, totalFloats);
 		// No slots published yet
 		this._view[0] = -1;
 		this._view[1] = -1;
@@ -79,10 +74,7 @@ export class AudioRingBuffer {
 		writePos: number,
 	): void {
 		const slotBase = (slot % this.numSlots) * this._slotStride;
-		const srcL = this._data.subarray(
-			slotBase + offset,
-			slotBase + offset + length,
-		);
+		const srcL = this._data.subarray(slotBase + offset, slotBase + offset + length);
 		const srcR = this._data.subarray(
 			slotBase + this.slotLength + offset,
 			slotBase + this.slotLength + offset + length,

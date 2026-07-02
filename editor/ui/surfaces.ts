@@ -7,8 +7,8 @@
 // - Covers the role set the codebase actually uses: primary, secondary, ghost
 // - Defers state (hover/active/disabled) styling to interactions.ts and CSS classes
 
-import { s } from "./style";
 import { interactiveFeedback } from "./states";
+import { s } from "./style";
 
 // PMD interactive-surface roles. Idle-state inline-style fragments only.
 // State styling (hover outline, active fill, disabled dim) is applied via

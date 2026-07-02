@@ -34,12 +34,7 @@ export class TagListItem {
 		this._nameSpan = span({ class: "tagListItemName" }, tag);
 		this._countSpan = span({ class: "tagListItemCount" }, formatCount(presetCount));
 
-		this.element = createDiv(
-			"",
-			{ class: "tagListItem" },
-			this._nameSpan,
-			this._countSpan,
-		);
+		this.element = createDiv("", { class: "tagListItem" }, this._nameSpan, this._countSpan);
 	}
 
 	public set active(value: boolean) {

@@ -459,8 +459,8 @@ export class Synth {
 		if (loop === 0 && endBar <= startBar) {
 			return 0;
 		}
-		let hasTempoMods: boolean = this._cachedHasTempoMods;
-		let hasNextBarMods: boolean = this._cachedHasNextBarMods;
+		const hasTempoMods: boolean = this._cachedHasTempoMods;
+		const hasNextBarMods: boolean = this._cachedHasNextBarMods;
 		let prevTempo: number = this.song.tempo;
 
 		// If intro is not zero length, determine what the "entry" tempo is going into the start part, by looking at mods that came before...
@@ -575,11 +575,13 @@ export class Synth {
 										// Only the first tempo mod instrument for this bar will be checked (well, the first with a note in this bar).
 										foundMod = true;
 										// Sort a copy to avoid mutating the source pattern
-										const sortedNotes = pattern.notes.slice().sort((a, b) =>
-											a.start === b.start
-												? a.pitches[0] - b.pitches[0]
-												: a.start - b.start,
-										);
+										const sortedNotes = pattern.notes
+											.slice()
+											.sort((a, b) =>
+												a.start === b.start
+													? a.pitches[0] - b.pitches[0]
+													: a.start - b.start,
+											);
 										for (const note of sortedNotes) {
 											if (note.pitches[0] === Config.modCount - 1 - mod) {
 												// Compute samples up to this note
@@ -774,9 +776,7 @@ export class Synth {
 				const instrument: Instrument =
 					this.song.channels[channel].instruments[pattern.instruments[0]];
 				for (let mod: number = 0; mod < Config.modCount; mod++) {
-					if (
-						instrument.modulators[mod] === Config.modulators.dictionary.tempo.index
-					) {
+					if (instrument.modulators[mod] === Config.modulators.dictionary.tempo.index) {
 						this._cachedHasTempoMods = true;
 					}
 					if (
@@ -1943,7 +1943,11 @@ export class Synth {
 				for (const channelState of this.channels) {
 					for (const instrumentState of channelState.instruments) {
 						if (instrumentState.releasedTones.count() > 0) {
-							for (let i: number = 0; i < instrumentState.releasedTones.count(); i++) {
+							for (
+								let i: number = 0;
+								i < instrumentState.releasedTones.count();
+								i++
+							) {
 								const tone: Tone = instrumentState.releasedTones.get(i);
 								// During stop fade: don't free released tones so effects
 								if (tone.isOnLastTick) {
@@ -4288,7 +4292,7 @@ export class Synth {
 				const hzOffset: number =
 					Config.operatorFrequencies[instrument.operators[i].frequency].hzOffset;
 				const targetFreqStart: number = freqMult * baseFreqStart + hzOffset;
-					const targetFreqEnd: number = freqMult * baseFreqEnd + hzOffset;
+				const targetFreqEnd: number = freqMult * baseFreqEnd + hzOffset;
 
 				const freqEnvelopeStart: number =
 					envelopeStarts[EnvelopeComputeIndex.operatorFrequency0 + i];

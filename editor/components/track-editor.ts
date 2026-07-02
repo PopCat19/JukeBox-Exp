@@ -407,9 +407,7 @@ export class TrackEditor {
 
 		// Cache content by bar+channel key. Skip innerHTML + offset
 		// re-reads on same-bar mouse moves inside the same cell.
-		const key: string = overTrackEditor
-			? `${bar}_${channel}_${channelType}`
-			: `B${bar}`;
+		const key: string = overTrackEditor ? `${bar}_${channel}_${channelType}` : `B${bar}`;
 		if (this._cachedTooltipKey !== key) {
 			this._cachedTooltipKey = key;
 

@@ -636,9 +636,7 @@ export class MuteEditor {
 		// inactive, --primary-text lifts the muted glyph into focus.
 		// Mirrors the pre-phase-2 semantic exactly.
 		this._loopButton.style.color =
-			this._doc.synth.loopRepeatCount === -1
-				? "var(--cta-fg)"
-				: "var(--primary-text)";
+			this._doc.synth.loopRepeatCount === -1 ? "var(--cta-fg)" : "var(--primary-text)";
 	};
 }
 // }

@@ -694,10 +694,7 @@ export class PatternEditor {
 			for (let i: number = lo - 1; i >= 0; i--) {
 				const note: Note = notes[i];
 				if (isMod && note.pitches[0] !== mousePitch) continue;
-				if (
-					note.start <= this._cursor.exactPart &&
-					note.end > this._cursor.exactPart
-				) {
+				if (note.start <= this._cursor.exactPart && note.end > this._cursor.exactPart) {
 					// Found a note containing the cursor. In backward
 					// scan the first hit is the highest index (closest),
 					// so accept it immediately.
@@ -717,10 +714,7 @@ export class PatternEditor {
 					}
 					continue;
 				}
-				if (
-					note.start <= this._cursor.exactPart &&
-					note.end > this._cursor.exactPart
-				) {
+				if (note.start <= this._cursor.exactPart && note.end > this._cursor.exactPart) {
 					this._cursor.curNote = note;
 					this._cursor.curIndex = i;
 					foundNote = true;

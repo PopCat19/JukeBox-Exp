@@ -1,6 +1,6 @@
-import { BorderRadius, BorderWidth, Typography } from "../ui/style-constants";
 import { interactiveFeedback } from "../ui/states";
 import { s } from "../ui/style";
+import { BorderRadius, BorderWidth, Typography } from "../ui/style-constants";
 // InstrumentBrowserPrompt
 //
 // Purpose: Tabbed modal for browsing instrument presets and tags
@@ -20,7 +20,15 @@ import {
 	type PresetCategory,
 } from "../config/editor-config";
 import type { SongDocument } from "../song-document";
-import { flexPane, hoverReveal, inputRow, instructions, paneContainer, searchInput, tagChip } from "../ui";
+import {
+	flexPane,
+	hoverReveal,
+	inputRow,
+	instructions,
+	paneContainer,
+	searchInput,
+	tagChip,
+} from "../ui";
 import { tabButton } from "../ui/buttons/tab-button";
 import { TagListItem } from "../ui/chips/tag-list-item";
 import { BasePrompt } from "./base-prompt";
@@ -259,7 +267,7 @@ export class InstrumentBrowserPrompt extends BasePrompt {
 		this.buildTitlebar();
 
 		this._commitTooltip = div({
-			style: "position: fixed; left: 0; top: 0; padding: 4px 8px; background: rgb(244, 201, 224); color: rgb(20, 9, 15); border-radius: 8px; font-size: 10px; font-weight: 600; font-family: \"Fredoka\", \"Rounded Mplus 1c\", sans-serif; white-space: pre-line; pointer-events: none; z-index: 999; display: none;",
+			style: 'position: fixed; left: 0; top: 0; padding: 4px 8px; background: rgb(244, 201, 224); color: rgb(20, 9, 15); border-radius: 8px; font-size: 10px; font-weight: 600; font-family: "Fredoka", "Rounded Mplus 1c", sans-serif; white-space: pre-line; pointer-events: none; z-index: 999; display: none;',
 		});
 		document.body.appendChild(this._commitTooltip);
 		document.addEventListener("mousemove", this._onMouseMove);

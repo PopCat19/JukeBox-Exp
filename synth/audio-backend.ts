@@ -52,10 +52,10 @@ export class AudioBackend {
 	private _useSab: boolean = false;
 	private static readonly SPECTRUM_UPDATE_INTERVAL_MS: number = 1000 / 60;
 	// 8 slots gives ~7 fills of runway at 2048 samples each. Enough for
-// dense patterns where synthesize() takes up to ~7ms before the rAF
-// fill loop loses ground. Each slot is ~16KB (2048 × 2ch × 4B), total
-// ~128KB.
-private static readonly NUM_RING_SLOTS: number = 8;
+	// dense patterns where synthesize() takes up to ~7ms before the rAF
+	// fill loop loses ground. Each slot is ~16KB (2048 × 2ch × 4B), total
+	// ~128KB.
+	private static readonly NUM_RING_SLOTS: number = 8;
 
 	public get isActive(): boolean {
 		return this.audioCtx != null && this._workletNode != null;
@@ -166,16 +166,14 @@ private static readonly NUM_RING_SLOTS: number = 8;
 			this._dbg("AudioWorklet module loaded");
 
 			// Check for crossOriginIsolated (enables SharedArrayBuffer).
-			this._useSab = typeof SharedArrayBuffer !== "undefined" &&
+			this._useSab =
+				typeof SharedArrayBuffer !== "undefined" &&
 				typeof self !== "undefined" &&
 				(self as any).crossOriginIsolated === true;
 			this._dbg("crossOriginIsolated:", this._useSab);
 
 			if (this._useSab) {
-				this._ringBuffer = new AudioRingBuffer(
-					AudioBackend.NUM_RING_SLOTS,
-					bufferSize,
-				);
+				this._ringBuffer = new AudioRingBuffer(AudioBackend.NUM_RING_SLOTS, bufferSize);
 				this._dbg("SAB ring buffer allocated, slots:", AudioBackend.NUM_RING_SLOTS);
 			}
 
@@ -308,10 +306,7 @@ private static readonly NUM_RING_SLOTS: number = 8;
 		this._logNeedDataCount++;
 		const isPlayingSong: boolean = host.isPlayingSong();
 		if (this._logNeedDataCount <= 5 || this._logNeedDataCount % 100 === 0) {
-			this._dbg(
-				`need-data #${this._logNeedDataCount}, isPlayingSong:`,
-				isPlayingSong,
-			);
+			this._dbg(`need-data #${this._logNeedDataCount}, isPlayingSong:`, isPlayingSong);
 		}
 
 		if (!isPlayingSong && !host.isFadingOut() && performance.now() >= host.liveInputEndTime()) {
@@ -360,20 +355,13 @@ private static readonly NUM_RING_SLOTS: number = 8;
 	 *  @param host - the backend host
 	 *  @param skipDeactivate - when true, skips the deactivation check
 	 *    (used during _doActivate before play() has set isPlayingSong). */
-	private _fillAllFreeSlotsInternal(
-		host: AudioBackendHost,
-		skipDeactivate: boolean,
-	): void {
+	private _fillAllFreeSlotsInternal(host: AudioBackendHost, skipDeactivate: boolean): void {
 		const ring: AudioRingBuffer = this._ringBuffer!;
 		if (ring == null) return;
 
 		if (!skipDeactivate) {
 			const playing: boolean = host.isPlayingSong();
-			if (
-				!playing &&
-				!host.isFadingOut() &&
-				performance.now() >= host.liveInputEndTime()
-			) {
+			if (!playing && !host.isFadingOut() && performance.now() >= host.liveInputEndTime()) {
 				this._dbg("No playback, no fade, no live input — deactivating");
 				this.deactivate();
 				return;
@@ -392,7 +380,12 @@ private static readonly NUM_RING_SLOTS: number = 8;
 			const slot: number = writeHead + 1 + i;
 			const left: Float32Array = new Float32Array(this._currentBufferSize);
 			const right: Float32Array = new Float32Array(this._currentBufferSize);
-			host.synthesize(left, right, this._currentBufferSize, skipDeactivate ? false : host.isPlayingSong());
+			host.synthesize(
+				left,
+				right,
+				this._currentBufferSize,
+				skipDeactivate ? false : host.isPlayingSong(),
+			);
 
 			ring.writeSlot(slot, left, right);
 			ring.publishWriteHead(slot);

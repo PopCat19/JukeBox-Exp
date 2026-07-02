@@ -8,9 +8,9 @@
 // - Toggles PMD active-fill pattern on tab/list/chip-style elements
 // - All helpers mutate the passed element; none replace it
 
+import { s } from "./style";
 import type { SurfaceRole } from "./surfaces";
 import { interactiveSurface } from "./surfaces";
-import { s } from "./style";
 
 // CSS class names. Used both to inject rules via a single <style> element
 // and as hook classes for call sites that want to override behaviour.

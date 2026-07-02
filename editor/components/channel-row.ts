@@ -181,14 +181,11 @@ export class ChannelRow {
 		const colors: ChannelColors = ColorConfig.getChannelColor(this._doc.song, channelIndex);
 		const isNoise: boolean =
 			channelIndex >= this._doc.song.pitchChannelCount &&
-			channelIndex <
-				this._doc.song.pitchChannelCount + this._doc.song.noiseChannelCount;
+			channelIndex < this._doc.song.pitchChannelCount + this._doc.song.noiseChannelCount;
 		const isMod: boolean =
 			channelIndex >= this._doc.song.pitchChannelCount + this._doc.song.noiseChannelCount;
 
-		if (
-			!this._doc.synth.playing || this._doc.synth.recording
-		) {
+		if (!this._doc.synth.playing || this._doc.synth.recording) {
 			// Full per-box update (18k calls for 38 ch x 485 bars):
 			// pattern index, selected state, dim/color, borders.
 			for (let i: number = 0; i < this._boxes.length; i++) {

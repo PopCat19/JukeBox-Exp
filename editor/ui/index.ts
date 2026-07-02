@@ -70,6 +70,15 @@ export {
 } from "./containers";
 // Inputs
 export { checkboxInput, createInputBox, InputBox, searchInput, stepperInput } from "./inputs";
+// Interaction helpers
+export type {
+	DisableableElement,
+	FocusRevealOptions,
+	HoverRevealOptions,
+	SetActiveOptions,
+	SetDisabledOptions,
+} from "./interactions";
+export { focusReveal, hoverReveal, setActive, setDisabled } from "./interactions";
 // Labels
 export { fieldLabel, sectionLabel } from "./labels";
 // Layout
@@ -104,6 +113,18 @@ export { simpleSliderRow, sliderRow, sliderRowWithInput } from "./rows/slider-ro
 export { setSelectedValue } from "./select-helpers";
 // Sliders
 export { rangeSlider, Slider } from "./sliders";
+// State tokens
+export {
+	focusRule,
+	hoverRing,
+	hoverRule,
+	inputFocusRule,
+	interactiveFeedback,
+	StateBackground,
+	StateForeground,
+	StateOutline,
+	stateTransition,
+} from "./states";
 // Style composables
 export {
 	bg,
@@ -148,23 +169,7 @@ export {
 	Typography,
 	ZIndex,
 } from "./style-constants";
-// Tip Span
-export type { TipSpanOptions } from "./tip-span";
-export { tipSpan } from "./tip-span";
-// Value Label
-export { valueLabel } from "./value-label";
-// State tokens
-export {
-	StateBackground,
-	StateForeground,
-	StateOutline,
-	focusRule,
-	hoverRing,
-	hoverRule,
-	inputFocusRule,
-	interactiveFeedback,
-	stateTransition,
-} from "./states";
+export type { SurfaceRole } from "./surfaces";
 // Surface roles
 export {
 	ghostSurface,
@@ -172,13 +177,8 @@ export {
 	primarySurface,
 	secondarySurface,
 } from "./surfaces";
-export type { SurfaceRole } from "./surfaces";
-// Interaction helpers
-export type {
-	DisableableElement,
-	FocusRevealOptions,
-	HoverRevealOptions,
-	SetActiveOptions,
-	SetDisabledOptions,
-} from "./interactions";
-export { focusReveal, hoverReveal, setActive, setDisabled } from "./interactions";
+// Tip Span
+export type { TipSpanOptions } from "./tip-span";
+export { tipSpan } from "./tip-span";
+// Value Label
+export { valueLabel } from "./value-label";

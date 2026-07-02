@@ -10,8 +10,8 @@
 import { createButton } from "../base/button";
 import { hoverReveal } from "../interactions";
 import { s } from "../style";
-import { ghostSurface } from "../surfaces";
 import { Margin, Typography } from "../style-constants";
+import { ghostSurface } from "../surfaces";
 
 export function clearButton(title?: string): HTMLButtonElement {
 	const baseStyle = s(
