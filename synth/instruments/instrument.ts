@@ -2252,15 +2252,11 @@ export class Instrument {
 			);
 		}
 		if (automationTarget.isFilter) {
-			// if (automationTarget.perNote) {
 			let useControlPointCount: number = this.noteFilter.controlPointCount;
 			if (this.noteFilterType) {
 				useControlPointCount = 1;
 			}
 			if (index >= useControlPointCount) return false;
-			// } else {
-			// 	if (index >= this.eqFilter.controlPointCount)   return false;
-			// }
 		}
 		if (
 			automationTarget.name === "operatorFrequency" ||
