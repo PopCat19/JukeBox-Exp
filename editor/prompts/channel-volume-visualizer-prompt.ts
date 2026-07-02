@@ -271,6 +271,11 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 		this._scrubFill,
 	);
 	private _scrubDragging: boolean = false;
+	// Pending setTimeout handle for a shift+click scheduled play. Cleared
+	// whenever an explicit play/pause/stop action supersedes the schedule
+	// (or when the prompt is torn down) so the timer cannot fire a stale
+	// play after the user has moved on.
+	private _scheduledPlayTimer: ReturnType<typeof setTimeout> | null = null;
 	private readonly _tempoLabel: HTMLSpanElement = span(
 		{
 			style: `color: var(--secondary-text); font-size: ${Typography.sizeSm}; font-family: monospace; white-space: nowrap;`,
@@ -581,6 +586,51 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 		this.container.addEventListener("dragover", _onDragOver);
 		this.container.addEventListener("drop", _onDrop);
 
+		// Click on the prompt body toggles play/pause; shift+click schedules
+		// a restart-from-bar-0 play after 3 seconds (count-in). Works in
+		// floating, docked, and popped-out states because the listener is
+		// attached to this.container, which is the same element regardless
+		// of dock/popout mode.
+		//
+		// "Body" here is the prompt's one unified background fill — the
+		// container's filled region, which shows through every transparent
+		// child (titlebar, channels pane, top-bar labels, octave SVGs,
+		// spectrum canvas, dividers). Interactive widgets that paint their
+		// own background and own the click are excluded:
+		//   - buttons (play/pause, stop, loop, cancel, popout, shade)
+		//   - scrub track
+		//   - channel cards (click selects the channel; that handler must
+		//     win, otherwise we'd both select the channel AND toggle play)
+		let _bodyDownX = 0;
+		let _bodyDownY = 0;
+		const _onBodyMouseDown = (e: MouseEvent): void => {
+			_bodyDownX = e.clientX;
+			_bodyDownY = e.clientY;
+		};
+		const _onBodyClick = (e: MouseEvent): void => {
+			// Suppress click-after-drag. The prompt manager also attaches
+			// a mousedown to this container for dragging; a real drag still
+			// fires click on mouseup, so we discard clicks whose cursor
+			// moved more than a few pixels between mousedown and mouseup.
+			const dx = e.clientX - _bodyDownX;
+			const dy = e.clientY - _bodyDownY;
+			if (dx * dx + dy * dy > 25) return;
+			const target = e.target as HTMLElement | null;
+			if (target == null) return;
+			if (target.closest("button")) return;
+			if (this._scrubTrack.contains(target)) return;
+			for (const card of this._channelDivs.values()) {
+				if (card.contains(target)) return;
+			}
+			if (e.shiftKey) {
+				this._schedulePlayIn3s();
+			} else {
+				this._togglePlayPause();
+			}
+		};
+		this.container.addEventListener("mousedown", _onBodyMouseDown);
+		this.container.addEventListener("click", _onBodyClick);
+
 		// Re-apply the channels pane scroll state when the dock toggles, since
 		// docking happens after the last render and the pane style would
 		// otherwise stay stale until the next doc change.
@@ -596,6 +646,12 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 	private _onThemeChange!: (name: string) => void;
 
 	private _togglePlayPause = (): void => {
+		// Any explicit play/pause action cancels a pending shift+click
+		// schedule so the timer cannot fire a stale play afterwards.
+		if (this._scheduledPlayTimer != null) {
+			clearTimeout(this._scheduledPlayTimer);
+			this._scheduledPlayTimer = null;
+		}
 		if (this._doc.synth.playing) {
 			this._doc.performance.pause();
 		} else {
@@ -605,12 +661,35 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 	};
 
 	private _stop = (): void => {
+		// Stop also cancels a pending shift+click schedule.
+		if (this._scheduledPlayTimer != null) {
+			clearTimeout(this._scheduledPlayTimer);
+			this._scheduledPlayTimer = null;
+		}
 		// Pause and jump to bar 0. goToBar(0) seeds
 		// totalSamplesRendered to 0 so the elapsed counter resets.
 		this._doc.performance.pause();
 		this._doc.synth.goToBar(0);
 		this._updatePlayPauseButton();
 	};
+
+	// Schedule playback to restart from bar 0 after a 3-second delay.
+	// Used by shift+click on the prompt body as a count-in for the musician.
+	// Replaces any previously pending schedule so consecutive shift+clicks
+	// re-cue cleanly.
+	private _schedulePlayIn3s(): void {
+		if (this._scheduledPlayTimer != null) {
+			clearTimeout(this._scheduledPlayTimer);
+		}
+		this._doc.performance.pause();
+		this._doc.synth.goToBar(0);
+		this._updatePlayPauseButton();
+		this._scheduledPlayTimer = setTimeout(() => {
+			this._scheduledPlayTimer = null;
+			this._doc.performance.play();
+			this._updatePlayPauseButton();
+		}, 3000);
+	}
 
 	private _toggleLoop = (): void => {
 		// Mirror the standalone player: -1 = loop forever, 0 = no loop.
@@ -728,6 +807,12 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 				// a closed window auto-cancels its pending rAF callbacks on close.
 			}
 			this._animationId = 0;
+		}
+		// Cancel any pending shift+click scheduled play so the timer
+		// cannot fire performance.play() after the prompt is torn down.
+		if (this._scheduledPlayTimer != null) {
+			clearTimeout(this._scheduledPlayTimer);
+			this._scheduledPlayTimer = null;
 		}
 		while (this._contentContainer.firstChild !== null) {
 			this._contentContainer.removeChild(this._contentContainer.firstChild);
