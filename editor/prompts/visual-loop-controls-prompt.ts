@@ -816,6 +816,11 @@ export class VisualLoopControlsPrompt extends BasePrompt {
 	};
 
 	private _whenOverlayMouseIsDown = (event: MouseEvent): void => {
+		// Overlay canvas is a child of this.container; stopPropagation
+		// prevents the prompt manager's drag handler (on the container)
+		// from also starting a prompt drag while the user sets loop
+		// markers.
+		event.stopPropagation();
 		this._overlayIsMouseDown = true;
 		const w: number = this._overlayCanvas.width;
 		const bounds: DOMRect = this._overlayCanvas.getBoundingClientRect();
@@ -876,6 +881,7 @@ export class VisualLoopControlsPrompt extends BasePrompt {
 
 	private _whenOverlayTouchIsDown = (event: TouchEvent): void => {
 		event.preventDefault();
+		event.stopPropagation();
 		this._overlayIsMouseDown = true;
 		const w: number = this._overlayCanvas.width;
 		const bounds: DOMRect = this._overlayCanvas.getBoundingClientRect();

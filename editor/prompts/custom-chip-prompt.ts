@@ -195,7 +195,11 @@ export class CustomChipPromptCanvas {
 	};
 
 	private _whenMousePressed = (event: MouseEvent): void => {
+		// Same-element listener as the prompt manager's drag handler
+		// (both attached to this.container), so stopImmediatePropagation
+		// is required to suppress the prompt drag while drawing the chip.
 		event.preventDefault();
+		event.stopImmediatePropagation();
 		this._mouseDown = true;
 		if (!this._svgRect) this._svgRect = this._svg.getBoundingClientRect();
 		const boundingRect: DOMRect = this._svgRect;
@@ -214,6 +218,7 @@ export class CustomChipPromptCanvas {
 
 	private _whenTouchPressed = (event: TouchEvent): void => {
 		event.preventDefault();
+		event.stopImmediatePropagation();
 		this._mouseDown = true;
 		if (!this._svgRect) this._svgRect = this._svg.getBoundingClientRect();
 		const boundingRect: DOMRect = this._svgRect;

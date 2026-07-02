@@ -122,6 +122,7 @@ export class VisualLoopControlsHandle {
 	};
 
 	private _whenMouseIsDown = (event: MouseEvent): void => {
+		event.stopPropagation();
 		this._mouseDown = true;
 		const w: number = this._canvasWidth;
 		const vx0: number = this._viewportX0;
@@ -169,6 +170,7 @@ export class VisualLoopControlsHandle {
 
 	private _whenTouchIsDown = (event: TouchEvent): void => {
 		event.preventDefault();
+		event.stopPropagation();
 		this._mouseDown = true;
 		const w: number = this._canvasWidth;
 		const vx0: number = this._viewportX0;

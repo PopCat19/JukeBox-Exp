@@ -516,7 +516,7 @@ export class InstrumentBrowserPrompt extends BasePrompt {
 	}
 
 	private _renderCategories(): void {
-		this._categoryList.innerHTML = "";
+		this._categoryList.replaceChildren();
 		this._categoryItems = [];
 		for (let i = 0; i < this._categories.length; i++) {
 			const cat = this._categories[i];
@@ -534,6 +534,7 @@ export class InstrumentBrowserPrompt extends BasePrompt {
 			const idx = i;
 			item.addEventListener("mousedown", (event: MouseEvent) => {
 				event.preventDefault();
+				event.stopPropagation();
 				this._handleItemClick("cat", idx);
 			});
 			this._categoryList.appendChild(item);
@@ -542,7 +543,7 @@ export class InstrumentBrowserPrompt extends BasePrompt {
 	}
 
 	private _renderPresets(): void {
-		this._presetList.innerHTML = "";
+		this._presetList.replaceChildren();
 		this._presetItems = [];
 
 		const presets = this._isSearchMode
@@ -570,6 +571,7 @@ export class InstrumentBrowserPrompt extends BasePrompt {
 			const idx = i;
 			item.addEventListener("mousedown", (event: MouseEvent) => {
 				event.preventDefault();
+				event.stopPropagation();
 				this._handleItemClick("preset", idx);
 			});
 			item.addEventListener("mouseenter", () => {
@@ -746,6 +748,7 @@ export class InstrumentBrowserPrompt extends BasePrompt {
 				const tagEl = tagChip(tag, false);
 				tagEl.addEventListener("mousedown", (e: MouseEvent) => {
 					e.preventDefault();
+					e.stopPropagation();
 					const tags = this._getExternalTagValue()
 						.toLowerCase()
 						.split(/\s+/)
@@ -802,6 +805,7 @@ export class InstrumentBrowserPrompt extends BasePrompt {
 				const tagEl = tagChip(tag, false);
 				tagEl.addEventListener("mousedown", (e: MouseEvent) => {
 					e.preventDefault();
+					e.stopPropagation();
 					this._switchToTab("tags");
 				});
 				chipsRow.appendChild(tagEl);
@@ -1221,6 +1225,7 @@ export class InstrumentBrowserPrompt extends BasePrompt {
 			const idx = i;
 			item.element.addEventListener("mousedown", (e: MouseEvent) => {
 				e.preventDefault();
+				e.stopPropagation();
 				this._tagKeyboardNavigated = false;
 				this._toggleTag(idx, filtered);
 			});

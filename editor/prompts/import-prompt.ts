@@ -20,8 +20,6 @@ import { BasePrompt } from "./base-prompt";
 
 const { div, h2, p, input, select, option, button } = HTML;
 
-declare const OFFLINE: boolean;
-
 export class ImportPrompt extends BasePrompt {
 	private readonly _fileInput: HTMLInputElement = input({
 		type: "file",
@@ -95,12 +93,23 @@ export class ImportPrompt extends BasePrompt {
 			const reader: FileReader = new FileReader();
 			reader.addEventListener("load", (_event: Event): void => {
 				this._showLoading();
-				this._doc.prompt = null;
 				// Schedule the heavy ChangeSong on the provided window when
 				// given (the visible popup that received the drop), else the
 				// main window. The main window's rAF is throttled to ~1fps
 				// when backgrounded behind a popup, which previously deferred
 				// the load until the editor regained visibility.
+				//
+				// Do NOT set doc.prompt = null here. The original code did
+				// that to dismiss this prompt via the notifier sync, but
+				// sync(null) -> close(null) closes whichever prompt is
+				// focused at notify time. Under a concurrent second import
+				// (e.g. a second drop landing while this reader is still
+				// loading), the first import's record-notify would have
+				// already closed this prompt and refocused the prompt
+				// underneath; the second import's record-notify would then
+				// close that refocused prompt. Closing ourselves explicitly
+				// via _close() after record keeps the dismissal scoped to
+				// this prompt regardless of what is focused.
 				const raf: Window = rafWin ?? window;
 				raf.requestAnimationFrame(() => {
 					this._doc.goBackToStart();
@@ -114,13 +123,13 @@ export class ImportPrompt extends BasePrompt {
 						true,
 					);
 					this._doc.notifier.notifyWatchers();
+					this._close();
 				});
 			});
 			reader.readAsText(file);
 		} else if (extension === "midi" || extension === "mid") {
 			const reader: FileReader = new FileReader();
 			reader.addEventListener("load", (_event: Event): void => {
-				this._doc.prompt = null;
 				this._parseMidiFile(<ArrayBuffer>reader.result, fileName);
 			});
 			reader.readAsArrayBuffer(file);
@@ -135,7 +144,7 @@ export class ImportPrompt extends BasePrompt {
 	}
 
 	private _showLoading(): void {
-		this.container.innerHTML = "";
+		this.container.replaceChildren();
 		this.container.appendChild(h2("Importing\u2026"));
 		const loadingMsg = p(
 			{ style: "text-align: center; margin-top: 1em;" },
@@ -240,8 +249,11 @@ export class ImportPrompt extends BasePrompt {
 		}
 		this._doc.goBackToStart();
 		for (const channel of this._doc.song.channels) channel.muted = false;
-		this._doc.prompt = null;
 		this._doc.record(new ChangeImportMidi(this._doc), false, true);
 		this._doc.notifier.notifyWatchers();
+		// Close this prompt explicitly rather than via doc.prompt = null;
+		// see _handleFile for the rationale (concurrent imports would
+		// otherwise close the wrong prompt on a stale notify).
+		this._close();
 	}
 }
