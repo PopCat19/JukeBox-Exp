@@ -34,6 +34,21 @@ import { discardInvalidPatternInstruments } from "./util";
 
 export { ChangeFieldValue } from "./field-value";
 
+// True when a preset is eligible for random selection: it carries settings,
+// matches the requested noise/non-noise category, and matches every tag in
+// tagList (a "!tag" entry means the preset must NOT have that tag).
+function presetMatchesFilter(preset: Preset, isNoise: boolean, tagList: string[]): boolean {
+	if (preset.settings === undefined) return false;
+	if ((preset.isNoise === true) !== isNoise) return false;
+	if (tagList.length === 0) return true;
+	if (!preset.tags) return false;
+	return tagList.every((tag) =>
+		tag.startsWith("!")
+			? !preset.tags.includes(tag.slice(1))
+			: preset.tags.includes(tag),
+	);
+}
+
 export class ChangeBarCount extends Change {
 	constructor(doc: SongDocument, newValue: number, atBeginning: boolean) {
 		super();
@@ -787,11 +802,12 @@ export class ChangeModChannel extends Change {
 		}
 
 		// None, or swapping from song to instrument/vice-versa
-		if (
+		const modulator = Config.modulators[instrument.modulators[mod]];
+		const resetsToNone =
 			index === 0 ||
-			(Config.modulators[instrument.modulators[mod]].forSong && index >= 2) ||
-			(!Config.modulators[instrument.modulators[mod]].forSong && index < 2)
-		) {
+			(modulator.forSong && index >= 2) ||
+			(!modulator.forSong && index < 2);
+		if (resetsToNone) {
 			instrument.modulators[mod] = Config.modulators.dictionary.none.index;
 		}
 
@@ -1230,17 +1246,7 @@ export function pickRandomPresetValue(isNoise: boolean, rollNoveltyPresets: bool
 			continue;
 		for (let presetIndex: number = 0; presetIndex < category.presets.length; presetIndex++) {
 			const preset: Preset = category.presets[presetIndex];
-			if (
-				preset.settings !== undefined &&
-				(preset.isNoise === true) === isNoise &&
-				(tagList.length === 0 ||
-					(preset.tags &&
-						tagList.every(
-							(tag) =>
-								(tag.startsWith("!") && !preset.tags.includes(tag.slice(1))) ||
-								(!tag.startsWith("!") && preset.tags.includes(tag)),
-						)))
-			) {
+			if (presetMatchesFilter(preset, isNoise, tagList)) {
 				eligiblePresetValues.push((categoryIndex << 12) + presetIndex);
 			}
 		}
@@ -1303,17 +1309,7 @@ export function pickNextPresetValue(isNoise: boolean, rollNoveltyPresets: boolea
 		for (let presetIndex: number = 0; presetIndex < category.presets.length; presetIndex++) {
 			const preset: Preset = category.presets[presetIndex];
 
-			if (
-				preset.settings !== undefined &&
-				(preset.isNoise === true) === isNoise &&
-				(tagList.length === 0 ||
-					(preset.tags &&
-						tagList.every(
-							(tag) =>
-								(tag.startsWith("!") && !preset.tags.includes(tag.slice(1))) ||
-								(!tag.startsWith("!") && preset.tags.includes(tag)),
-						)))
-			) {
+			if (presetMatchesFilter(preset, isNoise, tagList)) {
 				eligiblePresetValues.push((categoryIndex << 12) + presetIndex);
 				if ((categoryIndex << 12) + presetIndex === currentPresetValue) {
 					nextPresetIndex = eligiblePresetValues.length;
