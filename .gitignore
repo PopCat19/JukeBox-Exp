@@ -46,3 +46,6 @@ pm2handler.cjs
 
 # npm-compat lockfile (use bun.lockb instead)
 bun.lock
+
+# pi-lens analysis cache (regenerated on each scan)
+.pi-lens/
