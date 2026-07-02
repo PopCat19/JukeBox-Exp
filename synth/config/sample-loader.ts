@@ -84,62 +84,53 @@ export async function startLoadingSample(
 			url = joined;
 		}
 	}
-	fetch(url)
-		.then((response) => {
-			if (!response.ok) {
-				// @TODO: Be specific with the error handling.
-				sampleLoadingState.statusTable[chipWaveIndex] = SampleLoadingStatus.error;
-				return Promise.reject(new Error("Couldn't load sample"));
-			}
-			return response.arrayBuffer();
-		})
-		.then((arrayBuffer) => {
-			return sampleLoaderAudioContext.decodeAudioData(arrayBuffer);
-		})
-		.then((audioBuffer) => {
-			// @TODO: Downmix.
-			const samples = centerWave(Array.from(audioBuffer.getChannelData(0)));
-			const integratedSamples = performIntegral(samples);
-			chipWave.samples = integratedSamples;
-			rawChipWave.samples = samples;
-			rawRawChipWave.samples = samples;
-			if (rawLoopOptions.isUsingAdvancedLoopControls) {
-				presetSettings.chipWaveLoopStart =
-					rawLoopOptions.chipWaveLoopStart != null ? rawLoopOptions.chipWaveLoopStart : 0;
-				presetSettings.chipWaveLoopEnd =
-					rawLoopOptions.chipWaveLoopEnd != null
-						? rawLoopOptions.chipWaveLoopEnd
-						: samples.length - 1;
-				presetSettings.chipWaveLoopMode =
-					rawLoopOptions.chipWaveLoopMode != null ? rawLoopOptions.chipWaveLoopMode : 0;
-				presetSettings.chipWavePlayBackwards = rawLoopOptions.chipWavePlayBackwards;
-				presetSettings.chipWaveStartOffset =
-					rawLoopOptions.chipWaveStartOffset != null
-						? rawLoopOptions.chipWaveStartOffset
-						: 0;
-			}
-			sampleLoadingState.samplesLoaded++;
-			sampleLoadingState.statusTable[chipWaveIndex] = SampleLoadingStatus.loaded;
-			sampleLoadEvents.dispatchEvent(
-				new SampleLoadedEvent(
-					sampleLoadingState.totalSamples,
-					sampleLoadingState.samplesLoaded,
-				),
-			);
-			if (!closedSampleLoaderAudioContext) {
-				closedSampleLoaderAudioContext = true;
-				sampleLoaderAudioContext.close();
-			}
-		})
-		.catch((error) => {
-			// console.error(error);
+	try {
+		const response = await fetch(url);
+		if (!response.ok) {
+			// @TODO: Be specific with the error handling.
 			sampleLoadingState.statusTable[chipWaveIndex] = SampleLoadingStatus.error;
-			alert(`Failed to load ${url}:\n${error}`);
-			if (!closedSampleLoaderAudioContext) {
-				closedSampleLoaderAudioContext = true;
-				sampleLoaderAudioContext.close();
-			}
-		});
+			throw new Error("Couldn't load sample");
+		}
+		const arrayBuffer = await response.arrayBuffer();
+		const audioBuffer = await sampleLoaderAudioContext.decodeAudioData(arrayBuffer);
+		// @TODO: Downmix.
+		const samples = centerWave(Array.from(audioBuffer.getChannelData(0)));
+		const integratedSamples = performIntegral(samples);
+		chipWave.samples = integratedSamples;
+		rawChipWave.samples = samples;
+		rawRawChipWave.samples = samples;
+		if (rawLoopOptions.isUsingAdvancedLoopControls) {
+			presetSettings.chipWaveLoopStart =
+				rawLoopOptions.chipWaveLoopStart != null ? rawLoopOptions.chipWaveLoopStart : 0;
+			presetSettings.chipWaveLoopEnd =
+				rawLoopOptions.chipWaveLoopEnd != null
+					? rawLoopOptions.chipWaveLoopEnd
+					: samples.length - 1;
+			presetSettings.chipWaveLoopMode =
+				rawLoopOptions.chipWaveLoopMode != null ? rawLoopOptions.chipWaveLoopMode : 0;
+			presetSettings.chipWavePlayBackwards = rawLoopOptions.chipWavePlayBackwards;
+			presetSettings.chipWaveStartOffset =
+				rawLoopOptions.chipWaveStartOffset != null
+					? rawLoopOptions.chipWaveStartOffset
+					: 0;
+		}
+		sampleLoadingState.samplesLoaded++;
+		sampleLoadingState.statusTable[chipWaveIndex] = SampleLoadingStatus.loaded;
+		sampleLoadEvents.dispatchEvent(
+			new SampleLoadedEvent(
+				sampleLoadingState.totalSamples,
+				sampleLoadingState.samplesLoaded,
+			),
+		);
+	} catch (error) {
+		sampleLoadingState.statusTable[chipWaveIndex] = SampleLoadingStatus.error;
+		alert(`Failed to load ${url}:\n${error}`);
+	} finally {
+		if (!closedSampleLoaderAudioContext) {
+			closedSampleLoaderAudioContext = true;
+			sampleLoaderAudioContext.close();
+		}
+	}
 }
 
 export function getLocalStorageItem<T>(key: string, defaultValue: T): T | string {

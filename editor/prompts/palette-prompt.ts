@@ -327,8 +327,11 @@ function buildColorSlots(): ColorSlot[] {
 }
 
 function extractDefault(varName: string): string {
-	const regex = new RegExp(`${varName.replace(/[-]/g, "\\$&")}\\s*:\\s*([^;]+);`);
-	const match = DEFAULT_CSS.match(regex);
+	// Escape regex metacharacters; varName is currently only sourced from
+	// hardcoded slot definitions, but defensive escaping keeps this safe
+	// if that assumption ever changes.
+	const escaped = varName.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+	const match = DEFAULT_CSS.match(new RegExp(`${escaped}\\s*:\\s*([^;]+);`));
 	if (match) return match[1].trim();
 	return "#000000";
 }
@@ -506,7 +509,7 @@ export class PalettePrompt extends BasePrompt {
 
 	private _renderAll(): void {
 		this._closePicker();
-		this._scrollArea.innerHTML = "";
+		this._scrollArea.replaceChildren();
 
 		const sections = [...new Set(this._slots.map((s) => s.section))];
 

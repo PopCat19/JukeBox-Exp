@@ -824,10 +824,6 @@ export class Synth {
 		return this._audio.activate(this._toAudioHost());
 	}
 
-	private async resumeAudioContext(): Promise<void> {
-		return this._audio.resumeContext();
-	}
-
 	private deactivateAudio(): void {
 		this._audio.deactivate();
 	}
@@ -855,7 +851,7 @@ export class Synth {
 			);
 			await this.activateAudio();
 		}
-		await this.resumeAudioContext();
+		await this._audio.resumeContext();
 		this.liveInputEndTime = performance.now() + 10000.0;
 	}
 
@@ -885,7 +881,7 @@ export class Synth {
 			this._dbgWarn("play: audio not active after activateAudio, forcing re-activation");
 			await this.activateAudio();
 		}
-		await this.resumeAudioContext();
+		await this._audio.resumeContext();
 		this.warmUpSynthesizer(this.song);
 		this.isPlayingSong = true;
 		if (this._audio.context) {
