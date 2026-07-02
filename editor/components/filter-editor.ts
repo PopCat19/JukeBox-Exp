@@ -792,7 +792,6 @@ export class FilterEditor {
 			}
 		}
 
-		// let volumeCompensation: number = 1.0;
 		const standardSampleRate: number = 44800;
 		const filters: FilterCoefficients[] = [];
 		for (let i: number = 0; i < this._useFilterSettings.controlPointCount; i++) {

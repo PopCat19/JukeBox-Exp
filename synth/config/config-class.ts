@@ -2887,13 +2887,7 @@ export class Config {
 		}
 		return wave;
 	}
-	// pupblic static generateOneBitWhiteNoiseFmWave() {
-	// const wave = new Float32Array(Config.sineWaveLength + 1);
-	// for (let i = 0; i < Config.sineWaveLength + 1; i++) {
-	// wave[i] = Math.round(Math.random());
-	// }
-	// return wave;
-	// }
+
 
 	public static generateQuasiSineWave() {
 		const wave = new Float32Array(Config.sineWaveLength + 1);
@@ -3483,7 +3477,6 @@ export class Config {
 		{ name: "sharksine", samples: Config.generateQuarterSineWave() },
 		{ name: "fastsine", samples: Config.generateSquishedSineWave() },
 		{ name: "camelsine", samples: Config.generateSquishedAbsSineWave() },
-		// { name: "1-bit white noise", samples: Config.generateOneBitWhiteNoiseFmWave() },
 	]);
 	public static readonly pwmOperatorWaves: DictionaryArray<OperatorWave> = toNameMap([
 		{ name: "1%", samples: Config.generateSquareWave(0.01) },

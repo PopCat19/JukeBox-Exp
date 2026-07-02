@@ -914,7 +914,6 @@ export function fromBase64StringImpl(
 					) {
 						if (beforeSeven && fromBeepBox) {
 							const legacyToCutoff: number[] = [10, 6, 3, 0, 8, 5, 2];
-							// const pregoldToEnvelope: number[] = [0, 1, 2, 4, 5, 6, 8, 9, 10, 12, 13, 14, 16, 17, 18, 19, 20, 21, 23, 24, 25, 27, 28, 29, 32, 33, 34, 31, 11];
 							const legacyToEnvelope: string[] = [
 								"none",
 								"none",
@@ -1233,7 +1232,6 @@ export function fromBase64StringImpl(
 							const encodedReleaseMode: number =
 								base64CharCodeToInt[compressed.charCodeAt(charIndex++)];
 							const chipWavePlayBackwards: boolean = Boolean(encodedReleaseMode & 1);
-							// const chipWaveReleaseMode: number = encodedReleaseMode >> 1;
 							const [chipWaveLoopStart, loopStartIndex] = decode32BitNumber(
 								compressed,
 								charIndex,
@@ -2031,7 +2029,6 @@ export function fromBase64StringImpl(
 							((fromUltraBox && !beforeFive) || fromSlarmoosBox || fromJukeBox) &&
 							instrument.unison === unisonLength
 						) {
-							// if (instrument.unison == Config.unisons.length) {
 							instrument.unison = Config.unisons.length;
 							instrument.unisonVoices =
 								base64CharCodeToInt[compressed.charCodeAt(charIndex++)];
@@ -2132,9 +2129,7 @@ export function fromBase64StringImpl(
 							instrument.reverb = legacyGlobalReverb;
 						}
 						// @jummbus - Enabling pan effect on song import no matter what to make it a default.
-						// if (instrument.pan != Config.panCenter) {
 						instrument.effects |= 1 << EffectType.panning;
-						// }
 						if (instrument.vibrato !== Config.vibratos.dictionary.none.index) {
 							// Enable vibrato if it was used.
 							instrument.effects |= 1 << EffectType.vibrato;

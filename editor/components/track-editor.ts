@@ -209,8 +209,6 @@ export class TrackEditor {
 		const moveBarOffset = this._barDropDown.value === "barBefore" ? 0 : 1;
 
 		if (this._barDropDown.value === "barBefore" || this._barDropDown.value === "barAfter") {
-			// let prevBar = this._doc.bar;
-
 			this._doc.bar = this._barDropDownBar - 1 + moveBarOffset;
 
 			this._doc.selection.resetBoxSelection();
@@ -225,8 +223,6 @@ export class TrackEditor {
 				this._songEditor._barScrollBar.animatePlayhead();
 			}
 		} else if (this._barDropDown.value === "deleteBar") {
-			// let prevBar = this._doc.bar;
-
 			this._doc.bar = this._barDropDownBar;
 
 			this._doc.selection.resetBoxSelection();

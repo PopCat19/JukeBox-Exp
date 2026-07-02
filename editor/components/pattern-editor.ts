@@ -1714,7 +1714,7 @@ export class PatternEditor {
 			slider = songEditor.modSliders.getSliderForModSetting(modulator.index);
 			if (slider != null) {
 				instrument.ringModulationHz = slider.getValueBeforeProspectiveChange();
-				songEditor.ringModHzNum.innerHTML = `(${instrument.ringModulationHz})`;
+				songEditor.ringModHzNum.textContent = `(${instrument.ringModulationHz})`;
 			}
 		} else if (change instanceof ChangeGranular) {
 			const modulator = Config.modulators.dictionary.granular;
@@ -1742,7 +1742,7 @@ export class PatternEditor {
 			slider = songEditor.modSliders.getSliderForModSetting(modulator.index);
 			if (slider != null) {
 				instrument.grainSize = slider.getValueBeforeProspectiveChange();
-				songEditor.grainSizeNum.innerHTML = `(${instrument.grainSize * Config.grainSizeStep})`;
+				songEditor.grainSizeNum.textContent = `(${instrument.grainSize * Config.grainSizeStep})`;
 			}
 		} else if (change instanceof ChangeGrainRange) {
 			const modulator = Config.modulators.dictionary["grain range"];
@@ -1752,7 +1752,7 @@ export class PatternEditor {
 			slider = songEditor.modSliders.getSliderForModSetting(modulator.index);
 			if (slider != null) {
 				instrument.grainRange = slider.getValueBeforeProspectiveChange();
-				songEditor.grainRangeNum.innerHTML = `(${instrument.grainRange * Config.grainSizeStep})`;
+				songEditor.grainRangeNum.textContent = `(${instrument.grainRange * Config.grainSizeStep})`;
 			}
 		} else if (change instanceof ChangeOperatorAmplitude) {
 			const modulator = Config.modulators.dictionary[`fm slider ${change.operatorIndex + 1}`];
@@ -2389,9 +2389,6 @@ export class PatternEditor {
 
 				let prevNotePart: number = -1;
 				let prevNote: Note | null = null;
-
-				// Debug, get an unaltered copy of the current pattern (usedPatterns[i]) for comparison if an error is thrown down below.
-				// let patternCopy: Pattern = JSON.parse(JSON.stringify(usedPatterns[i].notes));
 
 				// Explicitly set the mod to the applied value, just in case the note we add isn't picked up in the next synth run.
 				const modNoteIndex: number = Config.modCount - 1 - usedModIndices[i];

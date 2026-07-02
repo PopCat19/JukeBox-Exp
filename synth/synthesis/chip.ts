@@ -16,7 +16,6 @@ export function buildLoopableChipSource(voiceCount: number): string {
 
 	chipSource += `
             const aliases = (effectsIncludeDistortion(instrumentState.effects) && instrumentState.aliases);
-            // const aliases = false;
             const data = synth.tempMonoInstrumentSampleBuffer;
             const wave = instrumentState.wave;
             const volumeScale = instrumentState.volumeScale;
@@ -26,11 +25,6 @@ export function buildLoopableChipSource(voiceCount: number): string {
             let chipWaveLoopStart = Math.max(0, Math.min(chipWaveLoopEnd - 1, instrumentState.chipWaveLoopStart));
             `;
 	// @TODO: This is where to set things up for the release loop mode.
-	// const ticksSinceReleased = tone.ticksSinceReleased;
-	// if (ticksSinceReleased > 0) {
-	//     chipWaveLoopStart = 0;
-	//     chipWaveLoopEnd = waveLength - 1;
-	// }
 	chipSource += `
             let chipWaveLoopLength = chipWaveLoopEnd - chipWaveLoopStart;
             if (chipWaveLoopLength < 2) {

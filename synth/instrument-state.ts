@@ -698,10 +698,7 @@ export class InstrumentState {
 					const grain: Grain = this.granularGrains[grainIndex];
 					grain.ageInSamples = 0;
 					grain.maxAgeInSamples = granularGrainSizeInSamples;
-					// const minDelayTimeInMilliseconds: number = 2;
-					// const minDelayTimeInSeconds: number = minDelayTimeInMilliseconds / 1000.0;
 					const minDelayTimeInSeconds: number = 0.02;
-					// const maxDelayTimeInSeconds: number = this.granularMaximumDelayTimeInSeconds;
 					const maxDelayTimeInSeconds: number = 2.4;
 					grain.delayLinePosition = this.usesRandomGrainLocation
 						? (minDelayTimeInSeconds +
@@ -718,9 +715,7 @@ export class InstrumentState {
 					) {
 						grain.initializeRCBEnvelope(grain.maxAgeInSamples, 1.0);
 					}
-					// if (this.usesRandomGrainLocation) {
 					grain.addDelay(Math.random() * samplesPerTick * 4); // offset when grains begin playing ; This is different from the above delay, which delays how far back in time the grain looks for samples
-					// }
 				}
 			}
 		}
@@ -998,13 +993,7 @@ export class InstrumentState {
 				instrument.tmpEqFilterStart != null
 					? instrument.tmpEqFilterStart
 					: instrument.eqFilter;
-			// const eqAllFreqsEnvelopeStart: number = envelopeStarts[InstrumentAutomationIndex.eqFilterAllFreqs];
-			// const eqAllFreqsEnvelopeEnd:   number = envelopeEnds[  InstrumentAutomationIndex.eqFilterAllFreqs];
 			for (let i: number = 0; i < eqFilterSettings.controlPointCount; i++) {
-				// const eqFreqEnvelopeStart: number = envelopeStarts[InstrumentAutomationIndex.eqFilterFreq0 + i];
-				// const eqFreqEnvelopeEnd:   number = envelopeEnds[  InstrumentAutomationIndex.eqFilterFreq0 + i];
-				// const eqPeakEnvelopeStart: number = envelopeStarts[InstrumentAutomationIndex.eqFilterGain0 + i];
-				// const eqPeakEnvelopeEnd:   number = envelopeEnds[  InstrumentAutomationIndex.eqFilterGain0 + i];
 				let startPoint: FilterControlPoint = eqFilterSettings.controlPoints[i];
 				const endPoint: FilterControlPoint =
 					instrument.tmpEqFilterEnd != null &&

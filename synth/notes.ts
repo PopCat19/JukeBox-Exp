@@ -202,7 +202,6 @@ export class Pattern {
 			);
 
 			// TODO: Consider supporting notes specified in any timing order, sorting them and truncating as necessary.
-			// let tickClock: number = 0;
 			for (let j: number = 0; j < patternObject.notes.length; j++) {
 				if (j >= maxNoteCount) break;
 
@@ -228,7 +227,6 @@ export class Pattern {
 				}
 				if (note.pitches.length < 1) continue;
 
-				// let noteClock: number = tickClock;
 				let startInterval: number = 0;
 
 				const instrument: Instrument = channel.instruments[this.instruments[0]];
@@ -281,13 +279,9 @@ export class Pattern {
 
 					if (time > song.beatsPerBar * Config.partsPerBeat) continue;
 					if (note.pins.length === 0) {
-						// if (time < noteClock) continue;
 						note.start = time;
 						startInterval = interval;
-					} else {
-						// if (time <= noteClock) continue;
 					}
-					// noteClock = time;
 
 					note.pins.push(makeNotePin(interval - startInterval, time - note.start, size));
 				}

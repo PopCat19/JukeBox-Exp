@@ -72,7 +72,6 @@ export class EnvelopeComputer {
 	public lowpassCutoffDecayVolumeCompensation: number = 1.0;
 
 	constructor(/*private _perNote: boolean*/) {
-		// const length: number = this._perNote ? EnvelopeComputeIndex.length : InstrumentAutomationIndex.length;
 		const length: number = EnvelopeComputeIndex.length;
 		for (let i: number = 0; i < length; i++) {
 			this.envelopeStarts[i] = 1.0;

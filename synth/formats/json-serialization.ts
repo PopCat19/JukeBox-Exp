@@ -422,7 +422,6 @@ export function fromJsonObjectImpl(
 	if (!jsonObject) return;
 
 	// const version: number = jsonObject["version"] | 0;
-	// if (version > LATEST_VERSION) return; // Parse future versions too (JSON is forwards-compatible).
 
 	// Code for auto-detect mode; if statements that are lower down have 'higher priority'
 	if (jsonFormat === "auto") {
@@ -799,7 +798,6 @@ export function fromJsonObjectImpl(
 				isNoiseChannel = channelObject.type === "drum";
 				isModChannel = channelObject.type === "mod";
 			} else {
-				// for older files, assume drums are channel 3.
 				isNoiseChannel = channelIndex >= 3;
 			}
 			if (isNoiseChannel) {

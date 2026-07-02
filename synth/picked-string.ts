@@ -102,8 +102,6 @@ export class PickedString {
 		const register: number = sustainType === SustainType.acoustic ? 0.25 : 0.0;
 		const registerShelfCenter: number = 15.6;
 		const registerLowpassCenter: number = (3.0 * synth.samplesPerSecond) / 48000;
-		// const decayRateStart: number = Math.pow(0.5, decayCurveStart * shelfRadians / radiansPerSampleStart);
-		// const decayRateEnd: number   = Math.pow(0.5, decayCurveEnd   * shelfRadians / radiansPerSampleEnd);
 		const decayRateStart: number =
 			0.5 **
 			(decayCurveStart *

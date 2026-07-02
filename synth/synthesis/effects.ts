@@ -291,12 +291,8 @@ export function buildEffectsSource(
                         } else {
                             const grainDelayLinePosition = grain.delayLinePosition;
                             const grainDelayLinePositionInt = grainDelayLinePosition | 0;
-                            // const grainDelayLinePositionT = grainDelayLinePosition - grainDelayLinePositionInt;
                             let grainAgeInSamples = grain.ageInSamples;
                             const grainMaxAgeInSamples = grain.maxAgeInSamples;
-                            // const grainSample0 = granularDelayLine[((granularDelayLineIndex + (granularDelayLineLength - grainDelayLinePositionInt))    ) & granularDelayLineMask];
-                            // const grainSample1 = granularDelayLine[((granularDelayLineIndex + (granularDelayLineLength - grainDelayLinePositionInt)) + 1) & granularDelayLineMask];
-                            // let grainSample = grainSample0 + (grainSample1 - grainSample0) * grainDelayLinePositionT; // Linear interpolation (@TODO: sounds quite bad?)
                             let grainSample = granularDelayLine[((granularDelayLineIndex + (granularDelayLineLength - grainDelayLinePositionInt))    ) & granularDelayLineMask]; // No interpolation
                             `;
 		if (Config.granularEnvelopeType === GranularEnvelopeType.parabolic) {
@@ -340,9 +336,6 @@ export function buildEffectsSource(
 		}
 		effectsSource += `
                                 grain.ageInSamples = grainAgeInSamples;
-                                // if(usesRandomGrainLocation) {
-                                //     grain.delayLine -= grainPitchShift;
-                                // }
                             }
                         }
                     }
