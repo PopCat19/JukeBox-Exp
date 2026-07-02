@@ -28,6 +28,16 @@ import {
 	randomSineWave,
 } from "../util";
 
+// Instrument types that get a randomized unison setting during random generation.
+const unisonSupportedTypes: ReadonlySet<InstrumentType> = new Set([
+	InstrumentType.chip,
+	InstrumentType.harmonics,
+	InstrumentType.pickedString,
+	InstrumentType.customChipWave,
+	InstrumentType.pwm,
+	InstrumentType.spectrum,
+]);
+
 export class ChangeCustomizeInstrument extends Change {
 	constructor(doc: SongDocument) {
 		super();
@@ -783,14 +793,7 @@ export class ChangeRandomGeneratedInstrument extends Change {
 				Config.fadeOutNeutral,
 				2,
 			);
-			if (
-				type === InstrumentType.chip ||
-				type === InstrumentType.harmonics ||
-				type === InstrumentType.pickedString ||
-				type === InstrumentType.customChipWave ||
-				type === InstrumentType.pwm ||
-				type === InstrumentType.spectrum
-			) {
+			if (unisonSupportedTypes.has(type)) {
 				// TODO: add noise
 				instrument.unison =
 					Config.unisons.dictionary[

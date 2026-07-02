@@ -636,11 +636,10 @@ export class FilterEditor {
 		}
 
 		if (this.container.offsetParent == null) return;
-		if (
+		const dragInProgress =
 			this._mouseDown &&
-			(this._doc.lastChangeWas(this._dragChange) || this._writingMods) &&
-			this._dragChange != null
-		) {
+			(this._doc.lastChangeWas(this._dragChange) || this._writingMods);
+		if (dragInProgress && this._dragChange != null) {
 			if (!this._addingPoint && !this._mouseDragging && !this._touchMode) {
 				if (
 					this._selectedIndex < this._useFilterSettings.controlPointCount &&
@@ -758,14 +757,12 @@ export class FilterEditor {
 					this.coordText.innerText = `(${point.freq}, ${point.gain})`;
 				}
 			}
-			if (
-				(this._selectedIndex === i ||
-					(this._addingPoint &&
-						this._mouseDown &&
-						i === this._useFilterSettings.controlPointCount - 1)) &&
-				(this._mouseOver || this._mouseDown) &&
-				!this._deletingPoint
-			) {
+			const isAddingLastPoint =
+				this._addingPoint && this._mouseDown && i === this._useFilterSettings.controlPointCount - 1;
+			const isHighlightedPoint = this._selectedIndex === i || isAddingLastPoint;
+			const shouldShowLabel =
+				isHighlightedPoint && (this._mouseOver || this._mouseDown) && !this._deletingPoint;
+			if (shouldShowLabel) {
 				this._label.textContent = `${i + 1}: ${Config.filterTypeNames[point.type]}${this._larger ? ` @${prettyNumber(point.getHz())}Hz` : ""}`;
 			}
 
