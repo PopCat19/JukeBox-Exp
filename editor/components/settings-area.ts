@@ -107,16 +107,22 @@ export class SettingsArea {
 			this.playbackControls.pauseButton.style.display = "none";
 			this.playbackControls.recordButton.style.display = "none";
 			this.playbackControls.stopButton.style.display = "";
+			this.playbackControls.pauseButton.classList.remove("shrunk");
+			this.playbackControls.stopButton.classList.remove("shrunk");
 		} else if (isPlaying) {
 			this.playbackControls.playButton.style.display = "none";
 			this.playbackControls.pauseButton.style.display = "";
 			this.playbackControls.recordButton.style.display = "none";
-			this.playbackControls.stopButton.style.display = "none";
+			this.playbackControls.stopButton.style.display = "";
+			this.playbackControls.pauseButton.classList.add("shrunk");
+			this.playbackControls.stopButton.classList.add("shrunk");
 		} else {
 			this.playbackControls.playButton.style.display = "";
 			this.playbackControls.pauseButton.style.display = "none";
 			this.playbackControls.recordButton.style.display = "";
 			this.playbackControls.stopButton.style.display = "none";
+			this.playbackControls.pauseButton.classList.remove("shrunk");
+			this.playbackControls.stopButton.classList.remove("shrunk");
 		}
 	}
 }

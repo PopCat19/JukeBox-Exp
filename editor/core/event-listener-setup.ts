@@ -152,6 +152,7 @@ export interface EventListenerSetupHost {
 	// Methods to expose
 	togglePlay: () => void;
 	toggleRecord: () => void;
+	stopPlayback: () => void;
 	whenPrevBarPressed: () => void;
 	whenNextBarPressed: () => void;
 	setVolumeSlider: () => void;
@@ -285,7 +286,11 @@ export class EventListenerSetup {
 			host.toggleRecord();
 		});
 		host.stopButton.addEventListener("click", () => {
-			host.toggleRecord();
+			if (host.doc.synth.recording) {
+				host.toggleRecord();
+			} else {
+				host.stopPlayback();
+			}
 		});
 		// Start recording instead of opening context menu when control-clicking the record button on a Mac.
 		host.recordButton.addEventListener("contextmenu", (event: MouseEvent) => {
@@ -297,7 +302,11 @@ export class EventListenerSetup {
 		host.stopButton.addEventListener("contextmenu", (event: MouseEvent) => {
 			if (event.ctrlKey) {
 				event.preventDefault();
-				host.toggleRecord();
+				if (host.doc.synth.recording) {
+					host.toggleRecord();
+				} else {
+					host.stopPlayback();
+				}
 			}
 		});
 		host.prevBarButton.addEventListener("click", () => {

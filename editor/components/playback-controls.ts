@@ -49,7 +49,7 @@ export class PlaybackControls {
 				type: "button",
 				title: "Pause (Space)",
 			},
-			"Pause",
+			span("Pause"),
 		);
 
 		// Record button
@@ -71,7 +71,7 @@ export class PlaybackControls {
 				type: "button",
 				title: "Stop Recording (Space)",
 			},
-			"Stop Recording",
+			span("Stop Recording"),
 		);
 
 		// Navigation buttons

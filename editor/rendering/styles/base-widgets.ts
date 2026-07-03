@@ -407,22 +407,26 @@ export function buildBaseWidgetsCSS(): string {
 	grid-column-end: 5;
 }
 
-.beepboxEditor button.playButton.shrunk, .beepboxEditor button.recordButton.shrunk {
+.beepboxEditor button.playButton.shrunk, .beepboxEditor button.pauseButton.shrunk, .beepboxEditor button.recordButton.shrunk, .beepboxEditor button.stopButton.shrunk {
 	padding: 0;
 }
-.beepboxEditor button.playButton.shrunk::before, .beepboxEditor button.recordButton.shrunk::before {
+.beepboxEditor button.playButton.shrunk::before, .beepboxEditor button.pauseButton.shrunk::before, .beepboxEditor button.recordButton.shrunk::before, .beepboxEditor button.stopButton.shrunk::before {
 	left: 50%;
 	top: 50%;
 	transform: translate(-50%, -50%);
 }
-.beepboxEditor button.playButton.shrunk span, .beepboxEditor button.recordButton.shrunk span {
+.beepboxEditor button.playButton.shrunk span, .beepboxEditor button.pauseButton.shrunk span, .beepboxEditor button.recordButton.shrunk span, .beepboxEditor button.stopButton.shrunk span {
 	display: none;
 }
-.beepboxEditor button.playButton.shrunk {
+.beepboxEditor button.playButton.shrunk, .beepboxEditor button.pauseButton.shrunk {
 	grid-column-start: 1;
 	grid-column-end: 2;
 }
 .beepboxEditor button.recordButton.shrunk {
+	grid-column-start: 2;
+	grid-column-end: 3;
+}
+.beepboxEditor button.stopButton.shrunk {
 	grid-column-start: 2;
 	grid-column-end: 3;
 }

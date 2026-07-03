@@ -4182,7 +4182,9 @@ export class SongEditor
 			this._prevBarButton.style.display = "";
 			this._nextBarButton.style.display = "";
 			this._playButton.classList.remove("shrunk");
+			this._pauseButton.classList.remove("shrunk");
 			this._recordButton.classList.remove("shrunk");
+			this._stopButton.classList.remove("shrunk");
 			this._patternEditorRow.style.pointerEvents = "";
 			this._octaveScrollBar.container.style.pointerEvents = "";
 			this._octaveScrollBar.container.style.opacity = "";
@@ -4212,6 +4214,9 @@ export class SongEditor
 				this._songSettingsArea.style.opacity = "0.5";
 			} else if (this.doc.synth.playing) {
 				this._pauseButton.style.display = "";
+				this._stopButton.style.display = "";
+				this._pauseButton.classList.add("shrunk");
+				this._stopButton.classList.add("shrunk");
 			} else if (this.doc.prefs.showRecordButton) {
 				this._playButton.style.display = "";
 				this._recordButton.style.display = "";
@@ -4438,6 +4443,17 @@ export class SongEditor
 			this.doc.synth.snapToBar();
 			this.doc.performance.play();
 		}
+	}
+
+	public stopPlayback(): void {
+		this.doc.performance.pause();
+		this._animator.outVolumeHistoricCap = 0;
+		this.doc.synth.goToBar(0);
+		this.doc.bar = 0;
+		this.doc.barScrollPos = 0;
+		this.doc.selection.resetBoxSelection();
+		this.doc.notifier.changed();
+		this.doc.notifier.notifyWatchers();
 	}
 
 	public handleImportFile(file: File, rafWin?: Window): void {
