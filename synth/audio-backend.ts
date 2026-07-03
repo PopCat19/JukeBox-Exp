@@ -402,4 +402,16 @@ export class AudioBackend {
 			}
 		}
 	}
+
+	/** Number of samples sitting in the SAB ring between the writer
+	 *  (producer) and the reader (worklet). Used by the synth to compute
+	 *  the audible playhead (render head minus queued audio), since
+	 *  `playheadInternal` is the producer position and runs ahead of
+	 *  what the user actually hears by exactly this amount. */
+	public getQueuedSampleCount(): number {
+		if (this._ringBuffer == null || this._currentBufferSize <= 0) return 0;
+		const ring: AudioRingBuffer = this._ringBuffer;
+		const diff: number = Math.max(0, ring.loadWriteHead() - ring.loadReadHead());
+		return diff * this._currentBufferSize;
+	}
 }

@@ -181,8 +181,31 @@ export class Synth {
 		// Setting it to true temporarily creates a race condition: audio callbacks on the audio
 		// thread can read isPlayingSong=true and call synthesize() with playSong=true, which
 		// advances beat/part before playback officially starts.
+		//
+		// The dummy synthesize advances the transport by one sample (decrements
+		// tickSampleCountdown, recomputes playheadInternal). That mutation is
+		// incidental to warmup, so snapshot the transport first and restore it
+		// afterward, making the warmup a true no-op on transport state.
+		const _tBar = this.bar;
+		const _tBeat = this.beat;
+		const _tPart = this.part;
+		const _tTick = this.tick;
+		const _tCountdown = this.tickSampleCountdown;
+		const _tAtStart = this.isAtStartOfTick;
+		const _tPlayhead = this.playheadInternal;
+		const _tPrevBar = this.prevBar;
+		const _tNeedsReset = this._playheadNeedsReset;
 		const dummyArray = new Float32Array(1);
 		this.synthesize(dummyArray, dummyArray, 1, true);
+		this.bar = _tBar;
+		this.beat = _tBeat;
+		this.part = _tPart;
+		this.tick = _tTick;
+		this.tickSampleCountdown = _tCountdown;
+		this.isAtStartOfTick = _tAtStart;
+		this.playheadInternal = _tPlayhead;
+		this.prevBar = _tPrevBar;
+		this._playheadNeedsReset = _tNeedsReset;
 	}
 
 	public computeLatestModValues(): void {
@@ -354,6 +377,21 @@ export class Synth {
 		if (Synth._debugSynthEnabled()) console.warn("[Synth]", ...args);
 	}
 
+	/** Snapshot the transport state for diagnosing playhead drift.
+	 *  Logs the producer head (`playheadInternal`) and the SAB queue depth
+	 *  so the audible head (producer minus queued bars) can be compared to
+	 *  what the user actually hears. The queue depth is the gap between the
+	 *  render head and the worklet reader; that gap is exactly the offset
+	 *  `get playhead()` subtracts. */
+	private _debugTransport(label: string): void {
+		const queued: number = this._audio.getQueuedSampleCount();
+		const samplesPerBar: number = this.song == null ? 0 : this.getSamplesPerBar();
+		const queuedBars: number = samplesPerBar > 0 ? queued / samplesPerBar : 0;
+		this._dbg(
+			`[transport ${label}] render=${this.playheadInternal.toFixed(4)} bar=${this.bar} beat=${this.beat}.${this.part}.${this.tick} cd=${this.tickSampleCountdown.toFixed(1)} queuedSamples=${queued} queuedBars=${queuedBars.toFixed(4)} audible=${(this.playheadInternal - queuedBars).toFixed(4)}`,
+		);
+	}
+
 	public get playing(): boolean {
 		return this.isPlayingSong;
 	}
@@ -371,7 +409,23 @@ export class Synth {
 	}
 
 	public get playhead(): number {
-		return this.playheadInternal;
+		// `playheadInternal` is the producer/render head: it tracks how far
+		// `synthesize()` has generated, which runs ahead of what the user
+		// actually hears by the depth of the SAB ring buffer (pre-rendered
+		// audio queued between the writer and the worklet reader). The
+		// visible/audible position the user perceives is the reader head, so
+		// subtract the queued audio (in song bars) from the render head.
+		// Clamp at 0: the initial `_doActivate` fill is silent
+		// (playSong=false, contributes no song-bars to playheadInternal), so
+		// during the silent-prebuffer window the raw subtraction can go
+		// negative before the reader reaches the first real-audio slot.
+		if (this.song == null) return this.playheadInternal;
+		const queuedSamples: number = this._audio.getQueuedSampleCount();
+		if (queuedSamples <= 0) return this.playheadInternal;
+		const samplesPerBar: number = this.getSamplesPerBar();
+		if (samplesPerBar <= 0) return this.playheadInternal;
+		const queuedBars: number = queuedSamples / samplesPerBar;
+		return Math.max(0, this.playheadInternal - queuedBars);
 	}
 
 	public set playhead(value: number) {
@@ -898,7 +952,9 @@ export class Synth {
 		}
 		this.totalSamplesRendered = this.getSamplesUpToBar(this.bar);
 		this._dbg("isPlayingSong set to true, playhead:", this.playheadInternal, "bar:", this.bar);
+		this._debugTransport("pre-prime");
 		this._primeWorklet();
+		this._debugTransport("post-prime");
 	}
 
 	public pause(): void {
