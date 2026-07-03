@@ -909,7 +909,11 @@ export class KeyboardHandler {
 			case 219: // left brace
 				if (canPlayNotes) break;
 				if (needControlForShortcuts === (event.ctrlKey || event.metaKey)) {
-					doc.synth.goToPrevBar();
+					if (event.shiftKey) {
+						doc.synth.goToBar(0);
+					} else {
+						doc.synth.goToPrevBar();
+					}
 					doc.synth.initModFilters(doc.song);
 					doc.synth.computeLatestModValues();
 					if (
@@ -935,7 +939,11 @@ export class KeyboardHandler {
 			case 221: // right brace
 				if (canPlayNotes) break;
 				if (needControlForShortcuts === (event.ctrlKey || event.metaKey)) {
-					doc.synth.goToNextBar();
+					if (event.shiftKey) {
+						doc.synth.goToBar(doc.song.barCount - 1);
+					} else {
+						doc.synth.goToNextBar();
+					}
 					doc.synth.initModFilters(doc.song);
 					doc.synth.computeLatestModValues();
 					if (

@@ -2917,6 +2917,9 @@ export class SongEditor
 	public get harmonicsEditor(): { container: HTMLElement } {
 		return this._harmonicsEditor;
 	}
+	public getShiftHeld(): boolean {
+		return this._shiftHeld;
+	}
 	public get instrumentCopyButton(): HTMLButtonElement {
 		return this._instrumentCopyButton;
 	}

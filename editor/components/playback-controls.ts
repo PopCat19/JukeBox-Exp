@@ -76,10 +76,10 @@ export class PlaybackControls {
 
 		// Navigation buttons
 		this.prevBarButton = iconButton("prevBarButton", {
-			title: "Previous Bar (left bracket)",
+			title: "Previous Bar (left bracket), Shift+click to first bar",
 		});
 		this.nextBarButton = iconButton("nextBarButton", {
-			title: "Next Bar (right bracket)",
+			title: "Next Bar (right bracket), Shift+click to last bar",
 		});
 
 		// Volume slider

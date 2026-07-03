@@ -101,6 +101,7 @@ export interface EventListenerSetupHost {
 	noteFilterEditor: { container: HTMLElement };
 	songEqFilterEditor: { container: HTMLElement };
 	harmonicsEditor: { container: HTMLElement };
+	loopEditor: { setLoopAt: (start: number, end: number) => void };
 
 	// Instrument controls
 	addEnvelopeButton: HTMLButtonElement;
@@ -155,6 +156,7 @@ export interface EventListenerSetupHost {
 	stopPlayback: () => void;
 	whenPrevBarPressed: () => void;
 	whenNextBarPressed: () => void;
+	getShiftHeld: () => boolean;
 	setVolumeSlider: () => void;
 	zoomIn: () => void;
 	zoomOut: () => void;
@@ -310,10 +312,40 @@ export class EventListenerSetup {
 			}
 		});
 		host.prevBarButton.addEventListener("click", () => {
-			host.whenPrevBarPressed();
+			if (host.getShiftHeld()) {
+				host.doc.synth.goToBar(0);
+				host.doc.selection.setChannelBar(host.doc.channel, 0);
+				host.doc.selection.resetBoxSelection();
+				// Clear auto-loop if we jumped outside it.
+				if (
+					Math.floor(host.doc.synth.playhead) < host.doc.synth.loopBarStart ||
+					Math.floor(host.doc.synth.playhead) > host.doc.synth.loopBarEnd
+				) {
+					host.doc.synth.loopBarStart = -1;
+					host.doc.synth.loopBarEnd = -1;
+					host.loopEditor.setLoopAt(host.doc.synth.loopBarStart, host.doc.synth.loopBarEnd);
+				}
+			} else {
+				host.whenPrevBarPressed();
+			}
 		});
 		host.nextBarButton.addEventListener("click", () => {
-			host.whenNextBarPressed();
+			if (host.getShiftHeld()) {
+				const lastBar = host.doc.song.barCount - 1;
+				host.doc.synth.goToBar(lastBar);
+				host.doc.selection.setChannelBar(host.doc.channel, lastBar);
+				host.doc.selection.resetBoxSelection();
+				if (
+					Math.floor(host.doc.synth.playhead) < host.doc.synth.loopBarStart ||
+					Math.floor(host.doc.synth.playhead) > host.doc.synth.loopBarEnd
+				) {
+					host.doc.synth.loopBarStart = -1;
+					host.doc.synth.loopBarEnd = -1;
+					host.loopEditor.setLoopAt(host.doc.synth.loopBarStart, host.doc.synth.loopBarEnd);
+				}
+			} else {
+				host.whenNextBarPressed();
+			}
 		});
 		host.volumeSlider.input.addEventListener("input", () => {
 			host.setVolumeSlider();
