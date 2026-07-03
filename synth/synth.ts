@@ -296,6 +296,7 @@ export class Synth {
 	private _stopFadeSamplesTotal: number = 0;
 	private _stopFadeCleanupDone: boolean = false;
 	private static readonly STOP_FADE_DURATION_MS: number = 800;
+	private _fadeoutPlayheadSnapshot: number = 0;
 
 	public readonly channels: ChannelState[] = [];
 	private readonly tonePool: Deque<Tone> = new Deque<Tone>();
@@ -419,6 +420,11 @@ export class Synth {
 		// (playSong=false, contributes no song-bars to playheadInternal), so
 		// during the silent-prebuffer window the raw subtraction can go
 		// negative before the reader reaches the first real-audio slot.
+		// During fadeout the ring buffer keeps filling with tail audio while
+		// playheadInternal is frozen, so queuedBars oscillates and the raw
+		// subtraction causes the playhead to jitter. Return the snapshot
+		// taken when fadeout began so the playhead stays stationary.
+		if (this._stopFadeSamplesRemaining > 0) return this._fadeoutPlayheadSnapshot;
 		if (this.song == null) return this.playheadInternal;
 		const queuedSamples: number = this._audio.getQueuedSampleCount();
 		if (queuedSamples <= 0) return this.playheadInternal;
@@ -963,6 +969,7 @@ export class Synth {
 		this.isPlayingSong = false;
 		this.isRecording = false;
 		this.preferLowerLatency = false;
+		this._fadeoutPlayheadSnapshot = this.playhead;
 		this._dbg("Pausing with fade, playhead:", this.playheadInternal, "bar:", this.bar);
 
 		// Start spectrum decay loop so it fades smoothly instead of freezing
