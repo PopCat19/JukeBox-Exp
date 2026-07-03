@@ -670,6 +670,14 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 		// totalSamplesRendered to 0 so the elapsed counter resets.
 		this._doc.performance.pause();
 		this._doc.synth.goToBar(0);
+		// Move editor focus/scroll to bar 1 immediately so the user sees
+		// the reset; waiting for the fade completion edge leaves the
+		// highlight stranded at the previous position.
+		this._doc.bar = 0;
+		this._doc.barScrollPos = 0;
+		this._doc.selection.resetBoxSelection();
+		this._doc.notifier.changed();
+		this._doc.notifier.notifyWatchers();
 		this._updatePlayPauseButton();
 	};
 

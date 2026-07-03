@@ -1145,6 +1145,12 @@ export class Synth {
 		this.bar = bar;
 		this.resetEffects();
 		this.playheadInternal = this.bar;
+		// During fadeout the playhead getter returns a snapshot so the
+		// display stays stationary; update the snapshot so goToBar jumps
+		// the visible playhead to the new position.
+		if (this._stopFadeSamplesRemaining > 0) {
+			this._fadeoutPlayheadSnapshot = this.playheadInternal;
+		}
 		// Use the mod-aware sample count so the elapsed counter is accurate for
 		// songs with tempo mods or next-bar skip mods, not just a flat per-bar
 		// estimate.
