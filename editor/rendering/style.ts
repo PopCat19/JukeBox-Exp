@@ -10,7 +10,6 @@
 // Copyright (c) 2012-2022 John Nesky and contributing authors, distributed under the MIT license, see accompanying the LICENSE.md file.
 
 import { HTML } from "imperative-html/dist/esm/elements-strict";
-import { ColorConfig } from "../../shared/color-config";
 import { buildDesignTokensCSS } from "../../shared/styles/design-tokens";
 import { getLocalStorageItem } from "../../synth/synth-config";
 import { Animation, BorderRadius, Gap, Sizing, Typography } from "../ui/style-constants";
@@ -76,7 +75,7 @@ document.head.appendChild(
 	/* PMD: hover/focus outline color (80x body tier — present on every
 	 * prompt so the user always knows which one is targeted, but in a
 	 * neutral tier that doesn't compete with the 88x titlebar heading). */
-	--hout: ${ColorConfig.primaryText};
+	--hout: var(--primary-text, white);
 	--ease: ${Animation.easingDefault};
 	${buildIconSymbolsCSS()}
 	${buildDesignTokensCSS(Typography.fontFamily, Typography.fontFamilyMono)}
@@ -84,7 +83,7 @@ document.head.appendChild(
 
 
 html {
-	scrollbar-color: var(--scrollbar-color, ${ColorConfig.uiWidgetBackground}) transparent;
+	scrollbar-color: var(--scrollbar-color, var(--ui-widget-background, #444)) transparent;
 }
 
 .obtrusive-scrollbars, .obtrusive-scrollbars * {
@@ -97,7 +96,7 @@ html {
 	background: transparent;
 }
 .obtrusive-scrollbars::-webkit-scrollbar-thumb, .obtrusive-scrollbars *::-webkit-scrollbar-thumb {
-	background-color: ${ColorConfig.uiWidgetBackground};
+	background-color: var(--ui-widget-background, #444);
 	border: 3px solid transparent;
 }
 
@@ -114,8 +113,8 @@ html {
 	cursor: default;
 	font-size: 12px;
 	overflow: hidden;
-	color: ${ColorConfig.primaryText};
-	background: ${ColorConfig.editorBackground};
+	color: var(--primary-text, white);
+	background: var(--editor-background, black);
 }
 
 .beepboxEditor .operatorRow {
@@ -193,7 +192,7 @@ html {
 	position: sticky;
 	bottom: 0;
 	padding: var(--padding-4) 0;
-	background-color: ${ColorConfig.editorBackground};
+	background-color: var(--editor-background, black);
 }
 .beepboxEditor .loopEditor.loopDisabled {
 	opacity: 0.2;

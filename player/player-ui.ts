@@ -75,8 +75,8 @@ export function injectPlayerStyles(): void {
 	}
 
 	body {
-		color: ${ColorConfig.primaryText};
-		background: ${ColorConfig.editorBackground};
+		color: var(--primary-text, white);
+		background: var(--editor-background, black);
 	}
 	h1 {
 		font-weight: bold;
@@ -90,7 +90,7 @@ export function injectPlayerStyles(): void {
 		font-size: 12px;
 		line-height: 22px;
 		white-space: nowrap;
-		color: ${ColorConfig.linkAccent};
+		color: var(--link-accent, #98f);
 	}
 	button {
 		margin: 0;
@@ -98,14 +98,14 @@ export function injectPlayerStyles(): void {
 		position: relative;
 		border: none;
 		border-radius: 5px;
-		background: ${ColorConfig.uiWidgetBackground};
-		color: ${ColorConfig.primaryText};
+		background: var(--ui-widget-background, #444);
+		color: var(--primary-text, white);
 		cursor: pointer;
 		font-size: 14px;
 		font-family: inherit;
 	}
 	button:hover, button:focus {
-		background: ${ColorConfig.uiWidgetFocus};
+		background: var(--ui-widget-focus, #777);
 	}
 	.playButton, .pauseButton {
 		padding-left: 24px;
@@ -120,7 +120,7 @@ export function injectPlayerStyles(): void {
 		width: 12px;
 		height: 12px;
 		pointer-events: none;
-		background: ${ColorConfig.primaryText};
+		background: var(--primary-text, white);
 		-webkit-mask-image: url("data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2224%22 height=%2224%22 viewBox=%220 0 24 24%22 fill=%22currentColor%22 > <path stroke=%22none%22 d=%22M0 0h24v24H0z%22 fill=%22none%22 /> <path d=%22M6 4v16a1 1 0 0 0 1.524 .852l13 -8a1 1 0 0 0 0 -1.704l-13 -8a1 1 0 0 0 -1.524 .852z%22 /> </svg>");
 		-webkit-mask-repeat: no-repeat;
 		-webkit-mask-position: center;
@@ -139,7 +139,7 @@ export function injectPlayerStyles(): void {
 		width: 12px;
 		height: 12px;
 		pointer-events: none;
-		background: ${ColorConfig.primaryText};
+		background: var(--primary-text, white);
 		-webkit-mask-image: url("data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2224%22 height=%2224%22 viewBox=%220 0 24 24%22 fill=%22currentColor%22 > <path stroke=%22none%22 d=%22M0 0h24v24H0z%22 fill=%22none%22 /> <path d=%22M9 4h-2a2 2 0 0 0 -2 2v12a2 2 0 0 0 2 2h2a2 2 0 0 0 2 -2v-12a2 2 0 0 0 -2 -2z%22 /> <path d=%22M17 4h-2a2 2 0 0 0 -2 2v12a2 2 0 0 0 2 2h2a2 2 0 0 0 2 -2v-12a2 2 0 0 0 -2 -2z%22 /> </svg>");
 		-webkit-mask-repeat: no-repeat;
 		-webkit-mask-position: center;
@@ -156,7 +156,7 @@ export function injectPlayerStyles(): void {
 		height: 16px;
 		margin: 0;
 		cursor: pointer;
-		background-color: ${ColorConfig.editorBackground};
+		background-color: var(--editor-background, black);
 		touch-action: pan-y;
 	}
 	input[type=range]:focus {
@@ -166,52 +166,52 @@ export function injectPlayerStyles(): void {
 		width: 100%;
 		height: 4px;
 		cursor: pointer;
-		background: ${ColorConfig.uiWidgetBackground};
+		background: var(--ui-widget-background, #444);
 	}
 	input[type=range]::-webkit-slider-thumb {
 		height: 16px;
 		width: 4px;
 		border-radius: 2px;
-		background: ${ColorConfig.primaryText};
+		background: var(--primary-text, white);
 		cursor: pointer;
 		-webkit-appearance: none;
 		margin-top: -6px;
 	}
 	input[type=range]:focus::-webkit-slider-runnable-track, input[type=range]:hover::-webkit-slider-runnable-track {
-		background: ${ColorConfig.uiWidgetFocus};
+		background: var(--ui-widget-focus, #777);
 	}
 	input[type=range]::-moz-range-track {
 		width: 100%;
 		height: 4px;
 		cursor: pointer;
-		background: ${ColorConfig.uiWidgetBackground};
+		background: var(--ui-widget-background, #444);
 	}
 	input[type=range]:focus::-moz-range-track, input[type=range]:hover::-moz-range-track  {
-		background: ${ColorConfig.uiWidgetFocus};
+		background: var(--ui-widget-focus, #777);
 	}
 	input[type=range]::-moz-range-thumb {
 		height: 16px;
 		width: 4px;
 		border-radius: 2px;
 		border: none;
-		background: ${ColorConfig.primaryText};
+		background: var(--primary-text, white);
 		cursor: pointer;
 	}
 	input[type=range]::-ms-track {
 		width: 100%;
 		height: 4px;
 		cursor: pointer;
-		background: ${ColorConfig.uiWidgetBackground};
+		background: var(--ui-widget-background, #444);
 		border-color: transparent;
 	}
 	input[type=range]:focus::-ms-track, input[type=range]:hover::-ms-track {
-		background: ${ColorConfig.uiWidgetFocus};
+		background: var(--ui-widget-focus, #777);
 	}
 	input[type=range]::-ms-thumb {
 		height: 16px;
 		width: 4px;
 		border-radius: 2px;
-		background: ${ColorConfig.primaryText};
+		background: var(--primary-text, white);
 		cursor: pointer;
 	}
 `,
@@ -229,7 +229,7 @@ export function buildPlayerUI(): PlayerUI {
 		canvas({
 			width: isMobile ? 144 : 288,
 			height: isMobile ? 32 : 64,
-			style: `border:2px solid ${ColorConfig.uiWidgetBackground}; overflow: hidden;`,
+			style: "border:2px solid var(--ui-widget-background, #444); overflow: hidden;",
 			id: "spectrumAll",
 		}),
 		isMobile ? 1 : 2,
@@ -332,7 +332,7 @@ export function buildPlayerUI(): PlayerUI {
 		style: "min-width: 0; min-height: 0; touch-action: pan-y pinch-zoom;",
 	});
 	const playhead: HTMLDivElement = div({
-		style: `position: absolute; left: 0; top: 0; width: 2px; height: 100%; background: ${ColorConfig.playhead}; pointer-events: none;`,
+		style: "position: absolute; left: 0; top: 0; width: 2px; height: 100%; background: var(--playhead, white); pointer-events: none;",
 	});
 	const timelineContainer: HTMLDivElement = div(
 		{ style: "display: flex; flex-grow: 1; flex-shrink: 1; position: relative;" },
@@ -352,7 +352,7 @@ export function buildPlayerUI(): PlayerUI {
 		height: "50%",
 		x: "5%",
 		y: "25%",
-		fill: ColorConfig.uiWidgetBackground,
+		fill: "var(--ui-widget-background, #444)",
 	});
 	const outVolumeBar: SVGRectElement = SVG.rect({
 		"pointer-events": "none",
@@ -368,7 +368,7 @@ export function buildPlayerUI(): PlayerUI {
 		height: "50%",
 		x: "5%",
 		y: "25%",
-		fill: ColorConfig.uiWidgetFocus,
+		fill: "var(--ui-widget-focus, #777)",
 	});
 	const stop1: SVGStopElement = SVG.stop({ "stop-color": "lime", offset: "60%" });
 	const stop2: SVGStopElement = SVG.stop({ "stop-color": "orange", offset: "90%" });
@@ -393,12 +393,12 @@ export function buildPlayerUI(): PlayerUI {
 		outVolumeCap,
 	);
 	const sampleLoadingBar: HTMLDivElement = div({
-		style: `width: 0%; height: 100%; background-color: ${ColorConfig.indicatorPrimary};`,
+		style: "width: 0%; height: 100%; background-color: var(--indicator-primary, #74f);",
 	});
 	const sampleLoadingBarContainer: HTMLDivElement = div(
 		{
 			class: `sampleLoadingContainer`,
-			style: `overflow: hidden; margin: auto; width: 90%; height: 50%; background-color: var(--empty-sample-bar, ${ColorConfig.indicatorSecondary});`,
+			style: "overflow: hidden; margin: auto; width: 90%; height: 50%; background-color: var(--empty-sample-bar, var(--indicator-secondary, #444));",
 			preserveAspectRatio: "none",
 		},
 		sampleLoadingBar,
