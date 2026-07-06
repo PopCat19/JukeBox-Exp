@@ -38,6 +38,7 @@
 	"devDependencies": {
 		"@biomejs/biome": "^2.4.9",
 		"@eslint/js": "^10.0.1",
+		"@happy-dom/global-registrator": "^20.10.6",
 		"@types/jquery": "^3.5.32",
 		"@types/select2": "^4.0.63",
 		"concurrently": "^9.1.2",

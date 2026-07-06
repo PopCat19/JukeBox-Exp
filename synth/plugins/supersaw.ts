@@ -1,18 +1,18 @@
 // supersaw.ts
 //
-// Purpose: Supersaw synthesis plugin — compiled-function + per-voice cache
+// Purpose: Supersaw plugin registration via InstrumentModule bridge
 //
 // This module:
-// - Embeds private-scale build/compile/cache per unison voice
-// - Registers via plugin registry on module load
+// - Imports the InstrumentModule from synth/modules/supersaw/
+// - Registers it via the socket bridge to both old and new registries
+// - Keeps cached function compilation for performance
 
-import { InstrumentState } from "../instrument-state";
-import type { Instrument } from "../instruments";
 import { Synth } from "../synth";
 import { Config, InstrumentType } from "../synth-config";
 import { buildSupersawSource } from "../synthesis/supersaw";
-import type { Tone } from "../tone";
-import { registerPlugin } from "./registry";
+import type { Instrument } from "../instruments";
+import supersawModule from "../modules/supersaw/module";
+import { registerModuleAsPlugin } from "../socket/bridge";
 
 const functionCache: Function[] = Array(1).fill(undefined);
 
@@ -20,8 +20,8 @@ function supersawSynth(
 	synth: Synth,
 	bufferIndex: number,
 	runLength: number,
-	tone: Tone,
-	instrumentState: InstrumentState,
+	tone: any,
+	instrumentState: any,
 ): void {
 	const voiceCount: number = Config.supersawVoiceCount | 0;
 	let fn: Function = functionCache[0];
@@ -33,20 +33,14 @@ function supersawSynth(
 	fn(synth, bufferIndex, runLength, tone, instrumentState);
 }
 
-registerPlugin({
-	type: InstrumentType.supersaw,
-	name: "Supersaw",
-	displayName: "supersaw",
-	editorRows: ["supersaw", "pulseWidth"],
-	initialize: (instrument: Instrument) => {
-		instrument.chord = Config.chords.dictionary.arpeggio.index;
-		instrument.supersawDynamism = Config.supersawDynamismMax;
-		instrument.supersawSpread = Math.ceil(Config.supersawSpreadMax / 2.0);
-		instrument.supersawShape = 0;
-		instrument.pulseWidth = Config.pulseWidthRange - 1;
-		instrument.decimalOffset = 0;
-	},
-	getSynthFunction: (_instrument: Instrument, _synth: typeof Synth) => supersawSynth,
-	buildSource: (_instrument: Instrument, voiceCount?: number) =>
-		buildSupersawSource(voiceCount ?? 0),
+function bridgedGetSynthFunction(_instrument: Instrument, _synth: typeof Synth): Function {
+	return supersawSynth;
+}
+
+// Register via bridge: new socket registry + old plugin registry
+registerModuleAsPlugin(supersawModule, InstrumentType.supersaw, [
+	"supersaw",
+	"pulseWidth",
+], {
+	getSynthFunction: bridgedGetSynthFunction,
 });
