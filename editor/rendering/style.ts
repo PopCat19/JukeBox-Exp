@@ -11,6 +11,7 @@
 
 import { HTML } from "imperative-html/dist/esm/elements-strict";
 import { buildDesignTokensCSS } from "../../shared/styles/design-tokens";
+import { injectGlobalStyles } from "../../shared/styles/inject";
 import { getLocalStorageItem } from "../../synth/synth-config";
 import { Animation, BorderRadius, Gap, Sizing, Typography } from "../ui/style-constants";
 import { buildBaseWidgetsCSS } from "./styles/base-widgets";
@@ -42,10 +43,10 @@ if ((<any>scrollBarTest).firstChild.clientWidth < 30) {
 }
 document.body.removeChild(scrollBarTest);
 
-document.head.appendChild(
-	HTML.style(
-		{ type: "text/css" },
-		`
+injectGlobalStyles(
+	document,
+	"editor-main",
+	`
 
 /* Note: "#" symbols need to be encoded as "%23" in SVG data urls, otherwise they are interpreted as fragment identifiers! */
 :root {
@@ -247,5 +248,4 @@ ${buildSharedUICSS()}
 
 
 `,
-	),
 );

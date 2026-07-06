@@ -12,6 +12,7 @@ import { ColorConfig } from "../shared/color-config";
 import { events } from "../shared/events";
 import { spectrumCanvas } from "../shared/spectrum";
 import { buildDesignTokensCSS } from "../shared/styles/design-tokens";
+import { injectGlobalStyles } from "../shared/styles/inject";
 import { Synth } from "../synth";
 
 const { a, button, div, h1, input, canvas } = HTML;
@@ -66,10 +67,10 @@ export interface PlayerUI {
 }
 
 export function injectPlayerStyles(): void {
-	document.head.appendChild(
-		HTML.style(
-			{ type: "text/css" },
-			`
+	injectGlobalStyles(
+		document,
+		"player-main",
+		`
 	:root {
 		${buildDesignTokensCSS("'B612', sans-serif", "monospace")}
 	}
@@ -215,7 +216,6 @@ export function injectPlayerStyles(): void {
 		cursor: pointer;
 	}
 `,
-		),
 	);
 }
 

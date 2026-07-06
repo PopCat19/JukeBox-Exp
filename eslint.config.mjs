@@ -22,13 +22,9 @@ export default tseslint.config(
       parserOptions: {
         projectService: {
           allowDefaultProject: [
-            "player/main.ts",
-            "player/player-ui.ts",
-            "player/player-timeline.ts",
-            "player/player-controls.ts",
-            "player/player-keyboard.ts",
             "shared/styles/css-var-contract.ts",
             "tests/css-var-contract.test.ts",
+            "tests/style-inject.test.ts",
             "eslint.config.mjs",
           ],
         },
