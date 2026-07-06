@@ -9,3 +9,6 @@ Purpose: Formal socket interfaces — stable, versioned extension contracts for 
 - `effect-module.ts`, S2 socket — EffectModule interface for signal processors
 - `registry.ts`, Namespaced registry — register/resolve InstrumentModule and EffectModule
 - `bridge.ts`, Bridging InstrumentModule to existing SynthPlugin dispatch for migration
+- `id-table.ts`, Per-song ModuleIdTable for compact URL storage of namespaced module IDs
+- `legacy-importer.ts`, Legacy format importer — reads legacy instrument data, calls module.migrate()
+- `url-varint.ts`, Varint encoding helpers for compact module ID + payload in song URL bitstream
