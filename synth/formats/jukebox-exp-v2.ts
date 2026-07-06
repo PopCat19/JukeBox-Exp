@@ -1,0 +1,104 @@
+// jukebox-exp-v2.ts
+//
+// Purpose: JukeboxExp JSON v2 format with socket module payload embedding
+//
+// This module:
+// - Extends v1 with per-instrument modulePayload field
+// - Module payloads are structured JSON with id + version + params
+// - Unknown module payloads preserved opaquely for round-trip
+// - decode-variant one-way importer calls module.migrate() for legacy formats
+
+import type { SongLike } from "../song-serialization";
+import { toJukeboxExpJson, isJukeboxExpObject } from "./jukebox-exp";
+import { type JukeboxExpFields } from "./schema-types";
+import { fromJsonObjectImpl } from "./json-serialization";
+
+export const JUKEBOX_EXP_V2_FORMAT = "JukeboxExp" as const;
+export const JUKEBOX_EXP_V2_LATEST_VERSION = 2;
+export const JUKEBOX_EXP_V2_OLDEST_VERSION = 2;
+
+export interface ModulePayload {
+	id: string;
+	version: number;
+	params: Record<string, unknown>;
+}
+
+export interface JukeboxExpV2Fields extends JukeboxExpFields {
+	modulePayloads?: Record<string, ModulePayload>;
+}
+
+export type JukeboxExpV2Object = Record<string, unknown> & {
+	format: typeof JUKEBOX_EXP_V2_FORMAT;
+	version: number;
+} & JukeboxExpV2Fields;
+
+export function toJukeboxExpV2Json(
+	song: SongLike,
+	enableIntro = true,
+	loopCount = 1,
+	enableOutro = true,
+): JukeboxExpV2Object {
+	const base = toJukeboxExpJson(song, enableIntro, loopCount, enableOutro) as Record<
+		string,
+		unknown
+	>;
+
+	const modulePayloads: Record<string, ModulePayload> = {};
+	for (let ci = 0; ci < song.getChannelCount(); ci++) {
+		const channel = song.channels[ci];
+		for (const instrument of channel.instruments) {
+			const moduleId = (instrument as any)._socketModuleId as string | undefined;
+			if (!moduleId) continue;
+			const instIndex = `${ci}:${channel.instruments.indexOf(instrument)}`;
+			modulePayloads[instIndex] = {
+				id: moduleId,
+				version: 1,
+				params: {},
+			};
+		}
+	}
+
+	const v2Fields: JukeboxExpV2Fields = {
+		_expVersion: 2,
+		modulePayloads: Object.keys(modulePayloads).length > 0 ? modulePayloads : undefined,
+	};
+
+	return {
+		...base,
+		...v2Fields,
+		version: JUKEBOX_EXP_V2_LATEST_VERSION,
+	} as JukeboxExpV2Object;
+}
+
+export function fromJukeboxExpV2Json(song: SongLike, obj: JukeboxExpV2Object): void {
+	const version = obj.version ?? 0;
+	if (version < JUKEBOX_EXP_V2_OLDEST_VERSION || version > JUKEBOX_EXP_V2_LATEST_VERSION) {
+		return;
+	}
+
+	const modulePayloads = obj.modulePayloads;
+	if (modulePayloads) {
+		for (let ci = 0; ci < song.getChannelCount(); ci++) {
+			const channel = song.channels[ci];
+			for (let ii = 0; ii < channel.instruments.length; ii++) {
+				const key = `${ci}:${ii}`;
+				const payload = modulePayloads[key];
+				if (payload) {
+					(channel.instruments[ii] as any)._socketModulePayload = payload;
+				}
+			}
+		}
+	}
+
+	const { modulePayloads: _, _expVersion: __, ...base } = obj;
+	fromJsonObjectImpl(
+		song,
+		{ ...base, format: "JukeBox", version: 1 },
+		"jukebox",
+	);
+}
+
+export function isJukeboxExpV2Object(obj: unknown): obj is JukeboxExpV2Object {
+	if (!isJukeboxExpObject(obj)) return false;
+	return (obj as Record<string, unknown>).version === 2;
+}
