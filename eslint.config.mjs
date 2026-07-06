@@ -24,7 +24,9 @@ export default tseslint.config(
           allowDefaultProject: [
             "shared/styles/css-var-contract.ts",
             "tests/css-var-contract.test.ts",
+            "tests/interactions-behavior.test.ts",
             "tests/style-inject.test.ts",
+            "tests/ui-states.test.ts",
             "eslint.config.mjs",
           ],
         },

@@ -8,6 +8,7 @@
 // - Toggles PMD active-fill pattern on tab/list/chip-style elements
 // - All helpers mutate the passed element; none replace it
 
+import { injectGlobalStyles } from "../../shared/styles/inject";
 import { s } from "./style";
 import type { SurfaceRole } from "./surfaces";
 import { interactiveSurface } from "./surfaces";
@@ -20,14 +21,11 @@ const FOCUS_CLASS = "pmd-focus";
 const ACTIVE_CLASS = "pmd-active";
 const DISABLED_CLASS = "pmd-disabled";
 
-// Lazily-created shared <style> element that carries the PMD interaction
-// state rules. Created on first call to any interaction helper. The
-// element is appended to <head> once and reused; rules are idempotent
-// (same content each call) so re-injection is safe but unnecessary.
-let _styleInjected = false;
-
+// Lazily inject shared PMD interaction-state rules. The tagged style
+// helper dedupes by id, so repeated interaction calls update the existing
+// <style> element instead of appending duplicates.
 function ensureStyleInjected(): void {
-	if (_styleInjected || typeof document === "undefined") return;
+	if (typeof document === "undefined") return;
 	const css = s(
 		`.${HOVER_CLASS}:hover{outline-color:var(--secondary-text, currentColor);}`,
 		`.${HOVER_COLOR_CLASS}{color:var(--hover-color-idle, var(--primary-text));}`,
@@ -36,11 +34,7 @@ function ensureStyleInjected(): void {
 		`.${ACTIVE_CLASS}{${interactiveSurface("primary")}}`,
 		`.${DISABLED_CLASS}{opacity:0.24;}`,
 	);
-	const style = document.createElement("style");
-	style.setAttribute("data-pmd-interactions", "");
-	style.textContent = css;
-	document.head.appendChild(style);
-	_styleInjected = true;
+	injectGlobalStyles(document, "pmd-interactions", css);
 }
 
 // hoverReveal options. role defaults to "ghost" (transparent surface) since
@@ -81,7 +75,7 @@ export function hoverReveal(el: HTMLElement, options?: HoverRevealOptions): void
 	const mode = options?.mode ?? "outline";
 	el.classList.add(mode === "color" ? HOVER_COLOR_CLASS : HOVER_CLASS);
 	if (options?.role !== undefined) {
-		el.dataset["pmdRole"] = options.role;
+		el.dataset.pmdRole = options.role;
 	}
 	if (mode === "color") {
 		// Set CSS custom props only; the injected stylesheet reads them and
@@ -112,7 +106,7 @@ export function focusReveal(el: HTMLElement, options?: FocusRevealOptions): void
 	ensureStyleInjected();
 	el.classList.add(FOCUS_CLASS);
 	if (options?.role !== undefined) {
-		el.dataset["pmdRole"] = options.role;
+		el.dataset.pmdRole = options.role;
 	}
 }
 
@@ -178,6 +172,6 @@ export function setDisabled(
 	el.disabled = disabled;
 	el.classList.toggle(DISABLED_CLASS, disabled);
 	if (options?.role !== undefined) {
-		el.dataset["pmdRole"] = options.role;
+		el.dataset.pmdRole = options.role;
 	}
 }

@@ -7,7 +7,8 @@
 //   coverage without introducing happy-dom or jsdom.
 // - interactions.ts touches a narrow DOM surface (classList.add/remove/
 //   toggle, style.setProperty/removeProperty, dataset[key] = value,
-//   document.createElement("style"), document.head.appendChild).
+//   document.createElement("style"), document.head.appendChild,
+//   document.head.querySelectorAll("style[data-jb-style]")).
 //   A targeted recorder for those surfaces is clearer than a full
 //   DOM polyfill.
 //
@@ -17,12 +18,9 @@
 // returns, the test reads `handle.classNamesAdded`, `handle.propertyCalls`,
 // etc. to assert what the helper actually did.
 //
-// Test ordering constraint: interactions.ts uses a module-level
-// `_styleInjected` flag. Once flipped, it stays flipped. This file
-// therefore runs the helper for the first time in this bun-test
-// process (before any other test file imports interactions.ts for
-// execution). Subsequent test files that only import for source-grep
-// won't disturb the flag.
+// Style-injection constraint: interactions.ts delegates to the shared
+// tagged style injector. Repeated helper calls should leave one
+// data-jb-style="pmd-interactions" style tag in the mock document.
 
 import { afterEach, beforeAll, beforeEach, describe, expect, test } from "bun:test";
 
@@ -147,14 +145,18 @@ function createMockElement(tag: string): MockElementHandle {
 
 interface MockStyleElement {
 	setAttribute(name: string, value: string): void;
+	getAttribute(name: string): string | null;
 	textContent: string;
 }
 
 interface MockDocument {
 	createdStyles: MockStyleElement[];
 	headChildren: unknown[];
-	createElement(tag: string): MockStyleElement | unknown;
-	head: { appendChild(child: unknown): void };
+	createElement(tag: string): unknown;
+	head: {
+		appendChild(child: unknown): void;
+		querySelectorAll(selector: string): { length: number; item(index: number): MockStyleElement };
+	};
 }
 
 function createMockDocument(): MockDocument {
@@ -163,11 +165,15 @@ function createMockDocument(): MockDocument {
 	return {
 		createdStyles,
 		headChildren,
-		createElement(tag: string): MockStyleElement | unknown {
+		createElement(tag: string): unknown {
 			if (tag === "style") {
+				const attributes: Record<string, string> = {};
 				const el: MockStyleElement = {
-					setAttribute(_name: string, _value: string) {
-						// Captured implicitly via textContent. Not asserted directly.
+					setAttribute(name: string, value: string) {
+						attributes[name] = value;
+					},
+					getAttribute(name: string) {
+						return attributes[name] ?? null;
 					},
 					textContent: "",
 				};
@@ -179,6 +185,24 @@ function createMockDocument(): MockDocument {
 		head: {
 			appendChild(child: unknown) {
 				headChildren.push(child);
+			},
+			querySelectorAll(selector: string) {
+				const matches =
+					selector === "style[data-jb-style]"
+						? headChildren.filter(
+								(child): child is MockStyleElement =>
+									typeof child === "object" &&
+									child !== null &&
+									typeof (child as MockStyleElement).getAttribute === "function" &&
+									(child as MockStyleElement).getAttribute("data-jb-style") !== null,
+							)
+						: [];
+				return {
+					length: matches.length,
+					item(index: number) {
+						return matches[index];
+					},
+				};
 			},
 		},
 	};
@@ -203,10 +227,9 @@ afterEach(() => {
 	mockDoc.headChildren.length = 0;
 });
 
-// Lazy import after the mock document is installed. interactions.ts reads
-// `typeof document === "undefined"` at module top level? No: it checks
-// inside ensureStyleInjected() at call time, so we just need the mock to
-// be present on globalThis before the first helper call.
+// Lazy import after the mock document is installed. interactions.ts checks
+// `typeof document === "undefined"` inside ensureStyleInjected(), so the
+// mock must exist on globalThis before the first helper call.
 let hoverReveal: typeof import("../editor/ui/interactions").hoverReveal;
 let focusReveal: typeof import("../editor/ui/interactions").focusReveal;
 let setActive: typeof import("../editor/ui/interactions").setActive;
@@ -389,33 +412,36 @@ describe("setActive", () => {
 
 // ---- ensureStyleInjected ----
 
-describe("ensureStyleInjected one-shot guard", () => {
-	test("first helper call across the test run appended one <style> to document.head", () => {
-		// This test runs *after* all other tests in this file (Bun orders
-		// describe blocks top-to-bottom but tests within by default run
-		// in declared order). By now, ensureStyleInjected has run for
-		// every helper invocation in earlier tests. The guard means only
-		// the very first helper call appended a style element.
-		// The beforeEach clears the createdStyles/headChildren arrays
-		// before each test. So we cannot observe the historical append
-		// directly. Instead, assert the guard by checking that helper
-		// calls within this test do not produce new style elements.
-		const beforeStyles = mockDoc.createdStyles.length;
-		const beforeChildren = mockDoc.headChildren.length;
+describe("ensureStyleInjected tagged style injection", () => {
+	test("repeated helper calls leave one PMD interaction style tag", () => {
 		const handle = createMockElement("div");
 		hoverReveal(handle.el);
-		expect(mockDoc.createdStyles.length).toBe(beforeStyles);
-		expect(mockDoc.headChildren.length).toBe(beforeChildren);
+		focusReveal(handle.el);
+		setActive(handle.el, true);
+		setDisabled(createMockElement("button").el as unknown as HTMLButtonElement, true);
+
+		const pmdStyles = mockDoc.headChildren.filter(
+			(child): child is MockStyleElement =>
+				typeof child === "object" &&
+				child !== null &&
+				typeof (child as MockStyleElement).getAttribute === "function" &&
+				(child as MockStyleElement).getAttribute("data-jb-style") === "pmd-interactions",
+		);
+		expect(pmdStyles.length).toBe(1);
 	});
 
-	test("injected style element carries PMD rule text in textContent (source-level proof)", () => {
-		// Direct textContent inspection requires reaching back into the
-		// first element ever created, which has been cleared by
-		// beforeEach. We instead use source-grep already covered by
-		// ui-states.test.ts; this test acts as a placeholder documenting
-		// that the CSS text-content assertion is covered elsewhere.
-		const sentinel = true;
-		expect(sentinel).toBeTrue();
+	test("injected style element carries PMD rule text in textContent", () => {
+		const handle = createMockElement("div");
+		hoverReveal(handle.el);
+		const style = mockDoc.headChildren.find(
+			(child): child is MockStyleElement =>
+				typeof child === "object" &&
+				child !== null &&
+				typeof (child as MockStyleElement).getAttribute === "function" &&
+				(child as MockStyleElement).getAttribute("data-jb-style") === "pmd-interactions",
+		);
+		expect(style?.textContent).toContain(".pmd-hover:hover");
+		expect(style?.textContent).toContain(".pmd-disabled");
 	});
 });
 

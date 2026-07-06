@@ -141,11 +141,12 @@ describe("interactions module contract", () => {
 		expect(Interactions.setDisabled.length).toBeLessThanOrEqual(3);
 	});
 
-	test("interactions source injects PMD outline rules via a shared <style> element", () => {
+	test("interactions source injects PMD outline rules via shared tagged style helper", () => {
 		const lines = sourceLines("editor/ui/interactions.ts");
 		const joined = lines.join("\n");
-		// One-shot injection guard
-		expect(joined).toContain("_styleInjected");
+		// Tagged injection helper dedupes the shared style element.
+		expect(joined).toContain("injectGlobalStyles");
+		expect(joined).toContain('"pmd-interactions"');
 		// Class hooks must exist
 		expect(joined).toContain('"pmd-hover"');
 		expect(joined).toContain('"pmd-focus"');
