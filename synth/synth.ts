@@ -2077,6 +2077,7 @@ export class Synth {
 		let _lfoMs: number = 0;
 		let _postMs: number = 0;
 		let _activeMs: number = 0;
+		let _liveMs: number = 0;
 		let _captureMs: number = 0;
 		let _advanceMs: number = 0;
 		let _workletSendMs: number = 0;
@@ -2281,8 +2282,10 @@ export class Synth {
 						samplesPerTick,
 						playSong && !this.countInMetronome,
 					);
-					this.determineLiveInputTones(song, channelIndex, samplesPerTick);
 					_activeMs += performance.now() - _activeStart;
+					const _liveStart: number = performance.now();
+					this.determineLiveInputTones(song, channelIndex, samplesPerTick);
+					_liveMs += performance.now() - _liveStart;
 				}
 				for (
 					let instrumentIndex: number = 0;
@@ -2925,12 +2928,8 @@ export class Synth {
 				}
 			}
 
-			// Update mod values so that next values copy to current values
-			for (let setting: number = 0; setting < Config.modulators.length; setting++) {
-				if (this.modState.nextValues != null && this.modState.nextValues[setting] != null) {
-					this.modState.values[setting] = this.modState.nextValues[setting];
-				}
-			}
+			// Advance all next-mod values to current (song-level + per-instrument)
+			this.modState.advanceNextToValues();
 
 			// Set samples per tick if song tempo mods changed it
 			if (this.isModActive(Config.modulators.dictionary.tempo.index)) {
@@ -2972,30 +2971,6 @@ export class Synth {
 				}
 			}
 
-			const maxInstrumentsPerChannel = this.song.getMaxInstrumentsPerChannel();
-			for (let setting: number = 0; setting < Config.modulators.length; setting++) {
-				for (
-					let channel: number = 0;
-					channel < this.song.pitchChannelCount + this.song.noiseChannelCount;
-					channel++
-				) {
-					for (
-						let instrument: number = 0;
-						instrument < maxInstrumentsPerChannel;
-						instrument++
-					) {
-						if (
-							this.modState.nextInsValues != null &&
-							this.modState.nextInsValues[channel] != null &&
-							this.modState.nextInsValues[channel][instrument] != null &&
-							this.modState.nextInsValues[channel][instrument][setting] != null
-						) {
-							this.modState.insValues[channel][instrument][setting] =
-								this.modState.nextInsValues[channel][instrument][setting];
-						}
-					}
-				}
-			}
 			_advanceMs += performance.now() - _advanceStart;
 		}
 
@@ -3103,6 +3078,9 @@ export class Synth {
 					"ms" +
 					" active=" +
 					_activeMs.toFixed(1) +
+					"ms" +
+					" live=" +
+					_liveMs.toFixed(1) +
 					"ms" +
 					" capture=" +
 					_captureMs.toFixed(1) +
