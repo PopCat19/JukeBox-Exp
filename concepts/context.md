@@ -4,7 +4,7 @@ Purpose: Design concept documents and architecture proposals. Serves as scratch 
 
 - `micro-loop-sub-editor.md`, Proposes a mini step-sequencer embedded inside a note for rate-independent density and texture effects
 - `socket-architecture.md`, Proposes a plugin socket system for instrument and effect packages inspired by mechanical keyboard modularity
+- `synth-worklet-migration.md`, Roadmap for isolating the synth render core from the editor and moving DSP into AudioWorklet via immutable snapshots
 - `ui-framework-conclusion.md`, Summarizes the PMD-aligned UI framework living in editor/ui/ — interaction patterns, states, and surfaces
-- `ui-framework-foundation.md`, Audit of existing PMD design system usage and plan for formalizing UI conventions
-- `ui-framework-phase2.md`, Phase 2 of the UI framework — hover feedback composition and interaction state helpers
-- `ui-framework-phase4.md`, Phase 4 of the UI framework — disabled state composition and setDisabled helper
+- `socket-architecture.md`, Proposes a plugin socket system for instrument and effect packages inspired by mechanical keyboard modularity
+- `micro-loop-sub-editor.md`, Proposes a mini step-sequencer embedded inside a note for rate-independent density and texture effects
