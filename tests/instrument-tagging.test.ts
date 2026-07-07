@@ -152,23 +152,18 @@ describe("instrument tagging", () => {
 			const song = new Song();
 			setDefaultInstruments(song);
 			for (let ch = 0; ch < song.channels.length; ch++) {
-				const isNoise = song.getChannelIsNoise(ch);
-				const isMod = song.getChannelIsMod(ch);
 				for (const inst of song.channels[ch].instruments) {
 					const id = (inst as unknown as { _socketModuleId?: string })._socketModuleId;
-					// Tag must either be a known core module id, or cleared (unregistered type).
-					if (id !== undefined) {
-						expect(id).toMatch(/^core\./);
-					}
-					if (isMod) {
-						expect([InstrumentType.mod]).toContain(inst.type);
-					} else if (isNoise) {
-						expect(
-							id === undefined ||
-								id === "core.noise" ||
-								id === "core.drumset" ||
-								id === "core.spectrum",
-						).toBeTrue();
+					// Tag must be consistent with the actual numeric type.
+					// If the type maps to a core module, the tag must match;
+					// if the type has no mapping (unregistered), the tag must be cleared.
+					// This catches stale tags from a pre-reset type.
+					const expectedId =
+						INSTRUMENT_TYPE_TO_MODULE_ID.get(inst.type);
+					if (expectedId === undefined) {
+						expect(id).toBeUndefined();
+					} else {
+						expect(id).toBe(expectedId);
 					}
 				}
 			}
