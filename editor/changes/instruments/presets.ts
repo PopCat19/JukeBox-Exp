@@ -17,6 +17,7 @@ import {
 	LFOEnvelopeTypes,
 	RandomEnvelopeTypes,
 } from "../../../synth/synth-config";
+import { tagInstrumentWithModule } from "../../../synth/socket/instrument-tagging";
 import { EditorConfig, type Preset } from "../../config/editor-config";
 import { Change } from "../../core/change";
 import type { SongDocument } from "../../song-document";
@@ -186,6 +187,7 @@ export class ChangePreset extends Change {
 						instrument.chord = 0;
 					}
 					instrument.clearInvalidEnvelopeTargets();
+					tagInstrumentWithModule(instrument);
 				} else if (applySettings !== undefined) {
 					const tempVolume: number = instrument.volume;
 					const tempPan: number = instrument.pan;
@@ -202,6 +204,7 @@ export class ChangePreset extends Change {
 					instrument.panDelay = tempPanDelay;
 					// @jummbus - Disable this check, pan will be on by default.
 					instrument.effects = instrument.effects | (1 << EffectType.panning);
+					tagInstrumentWithModule(instrument);
 				}
 			}
 			instrument.preset = newValue;
@@ -293,6 +296,7 @@ export class ChangePreset extends Change {
 			}
 			zoneInst.preset = presetValue;
 			zoneInst.effects |= 1 << EffectType.panning;
+			tagInstrumentWithModule(zoneInst);
 
 			if (zone.lowerNoteLimit !== undefined) zoneInst.lowerNoteLimit = zone.lowerNoteLimit;
 			if (zone.upperNoteLimit !== undefined) zoneInst.upperNoteLimit = zone.upperNoteLimit;
@@ -440,6 +444,7 @@ export class ChangeRandomGeneratedInstrument extends Change {
 						{ item: InstrumentType.drumset, weight: 1 },
 					]);
 			instrument.preset = instrument.type = type;
+			tagInstrumentWithModule(instrument);
 
 			if (type !== InstrumentType.drumset) {
 				// Drumset doesn't use fade.
@@ -784,6 +789,7 @@ export class ChangeRandomGeneratedInstrument extends Change {
 						{ item: InstrumentType.fm6op, weight: 2 },
 					]);
 			instrument.preset = instrument.type = type;
+			tagInstrumentWithModule(instrument);
 
 			instrument.fadeIn =
 				Math.random() < 0.5 ? 0 : selectCurvedDistribution(0, Config.fadeInRange - 1, 0, 2);

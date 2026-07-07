@@ -11,6 +11,7 @@
 
 import { ColorConfig } from "../../shared/color-config";
 import { type Channel, Instrument, Note, type NotePin, type Pattern } from "../../synth";
+import { tagInstrumentWithModule } from "../../synth/socket/instrument-tagging";
 import { Config, type Dictionary } from "../../synth/synth-config";
 import {
 	ChangeAddChannel,
@@ -468,6 +469,7 @@ export class Selection {
 				this._doc.song.rhythm === 0 || this._doc.song.rhythm === 2,
 				this._doc.song.rhythm >= 2,
 			);
+			tagInstrumentWithModule(newInstrument);
 			const newIdx: number = channel.instruments.length;
 			channel.instruments.push(newInstrument);
 

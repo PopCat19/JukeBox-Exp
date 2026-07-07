@@ -11,6 +11,10 @@
 
 import { ColorConfig } from "../../shared/color-config";
 import { Channel, Instrument, type Note, type NotePin, Pattern, type Song } from "../../synth";
+import {
+	preserveOrTagInstrumentWithModule,
+	tagInstrumentWithModule,
+} from "../../synth/socket/instrument-tagging";
 import { Config, EffectType, InstrumentType } from "../../synth/synth-config";
 import {
 	EditorConfig,
@@ -280,6 +284,7 @@ export class ChangeChannelCount extends Change {
 							} else {
 								instrument.setTypeAndReset(InstrumentType.mod, isNoise, isMod);
 							}
+							tagInstrumentWithModule(instrument);
 							newChannels[channelIndex].instruments[j] = instrument;
 						}
 						for (let j: number = 0; j < doc.song.patternsPerChannel; j++) {
@@ -462,6 +467,7 @@ export class ChangeCloneChannel extends ChangeGroup {
 					doc.song.rhythm === 0 || doc.song.rhythm === 2,
 					doc.song.rhythm >= 2,
 				);
+				preserveOrTagInstrumentWithModule(newInstrument, instrument);
 				dst.instruments.push(newInstrument);
 			}
 
@@ -1015,6 +1021,7 @@ export class ChangeAddChannelInstrument extends Change {
 		instrument.preset = presetValue;
 		instrument.effects |= 1 << EffectType.panning;
 		instrument.volume = 0;
+		tagInstrumentWithModule(instrument);
 		channel.instruments.push(instrument);
 		if (!isMod) {
 			// Mod channels lose information when changing set instrument

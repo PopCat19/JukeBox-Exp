@@ -20,6 +20,7 @@ import {
 	type Song,
 } from "../../synth";
 import { Config, type Dictionary } from "../../synth/synth-config";
+import { tagInstrumentWithModule } from "../../synth/socket/instrument-tagging";
 import { Change, ChangeGroup, ChangeSequence, UndoableChange } from "../core/change";
 import type { SongDocument } from "../song-document";
 import type { Slider } from "../ui";
@@ -1951,6 +1952,7 @@ export class ChangePasteInstrument extends ChangeGroup {
 			false,
 			false,
 		);
+		tagInstrumentWithModule(instrument);
 		doc.notifier.changed();
 		this._didSomething();
 	}
@@ -1962,6 +1964,7 @@ export class ChangeAppendInstrument extends ChangeGroup {
 		super();
 		const newInstrument: Instrument = new Instrument(instrument.isDrum, instrument.isMod);
 		newInstrument.fromJsonObject(instrument, instrument.isDrum, instrument.isMod, false, false);
+		tagInstrumentWithModule(newInstrument);
 		channel.instruments.push(newInstrument);
 		this._didSomething();
 		doc.notifier.changed();

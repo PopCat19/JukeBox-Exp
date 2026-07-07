@@ -56,6 +56,12 @@ function validateModuleId(id: string): void {
 	}
 }
 
+// Maps legacy numeric InstrumentType → core module id.
+// Populated during registerModuleAsPlugin for core.* modules.
+// Used by instrument-tagging.ts to tag freshly created instruments so
+// the JukeboxExp v2 serializer can emit modulePayloads.
+export const INSTRUMENT_TYPE_TO_MODULE_ID = new Map<number, string>();
+
 export function registerModuleAsPlugin(
 	module: InstrumentModule,
 	type: number,
@@ -79,6 +85,9 @@ export function registerModuleAsPlugin(
 	// Bridge only creates old-style plugin dispatch for core.* modules.
 	// Community/external modules register through the socket registry only.
 	if (!isCoreModuleId(module.id)) return;
+
+	// Record type→moduleId for runtime tagging of newly created instruments
+	INSTRUMENT_TYPE_TO_MODULE_ID.set(type, module.id);
 
 	const getSynthFn = overrides?.getSynthFunction ?? buildDefaultGetSynthFunction(module);
 	const init = overrides?.initialize ?? buildDefaultInitialize(module);

@@ -11,6 +11,7 @@ import { Channel } from "./channels";
 import { fromJsonObjectImpl, toJsonObjectImpl } from "./formats/json-serialization";
 import { FilterSettings, Instrument } from "./instruments";
 import { Pattern } from "./notes";
+import { tagInstrumentWithModule } from "./socket/instrument-tagging";
 import type { CustomSampleHandler } from "./song-utilities";
 import { Config, InstrumentType } from "./synth-config";
 import { fromBase64StringImpl } from "./synth-deserialize";
@@ -527,6 +528,7 @@ export class Song {
 						isNoiseChannel,
 						isModChannel,
 					);
+					tagInstrumentWithModule(channel.instruments[instrument]);
 				}
 				channel.instruments.length = Config.instrumentCountMin;
 
