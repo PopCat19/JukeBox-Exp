@@ -22,10 +22,18 @@ import { FilterControlPoint, FilterSettings, type HeldMod, Instrument } from "./
 import { SynthModState } from "./mod-state";
 import type { Note, NotePin, Pattern } from "./notes";
 import { PickedString } from "./picked-string";
-import { getInstrumentCapability } from "./socket/capability-lookup";
 import { getPlugin } from "./plugins";
 import { PostProcessingState } from "./post-processing";
+import {
+	allocTone,
+	freeAllTones,
+	freeReleasedTone as renderFreeReleasedTone,
+	recycleTone,
+	playTone as renderPlayTone,
+	releaseTone as renderReleaseTone,
+} from "./render/render-core";
 import { SnapshotBuilder } from "./render/snapshot";
+import { getInstrumentCapability } from "./socket/capability-lookup";
 import { Song } from "./song";
 import type { Chord, Envelope, Transition } from "./synth-config";
 import {
@@ -2440,42 +2448,23 @@ export class Synth {
 	}
 
 	private freeTone(tone: Tone): void {
-		this.tonePool.pushBack(tone);
+		recycleTone(this.tonePool, tone);
 	}
 
 	private newTone(): Tone {
-		if (this.tonePool.count() > 0) {
-			const tone: Tone = this.tonePool.popBack();
-			tone.freshlyAllocated = true;
-			return tone;
-		}
-		return new Tone();
+		return allocTone(this.tonePool);
 	}
 
 	private releaseTone(instrumentState: InstrumentState, tone: Tone): void {
-		instrumentState.releasedTones.pushFront(tone);
-		tone.atNoteStart = false;
-		tone.passedEndOfNote = true;
+		renderReleaseTone(instrumentState.releasedTones, tone);
 	}
 
 	private freeReleasedTone(instrumentState: InstrumentState, toneIndex: number): void {
-		this.freeTone(instrumentState.releasedTones.get(toneIndex));
-		instrumentState.releasedTones.remove(toneIndex);
+		renderFreeReleasedTone(this.tonePool, instrumentState.releasedTones, toneIndex);
 	}
 
 	public freeAllTones(): void {
-		for (const channelState of this.channels) {
-			for (const instrumentState of channelState.instruments) {
-				while (instrumentState.activeTones.count() > 0)
-					this.freeTone(instrumentState.activeTones.popBack());
-				while (instrumentState.activeModTones.count() > 0)
-					this.freeTone(instrumentState.activeModTones.popBack());
-				while (instrumentState.releasedTones.count() > 0)
-					this.freeTone(instrumentState.releasedTones.popBack());
-				while (instrumentState.liveInputTones.count() > 0)
-					this.freeTone(instrumentState.liveInputTones.popBack());
-			}
-		}
+		freeAllTones(this.tonePool, this.channels);
 	}
 
 	private determineLiveInputTones(
@@ -3384,11 +3373,14 @@ export class Synth {
 		const channelState: ChannelState = this.channels[channelIndex];
 		const instrumentState: InstrumentState = channelState.instruments[tone.instrumentIndex];
 
-		if (instrumentState.synthesizer != null) {
-			instrumentState.synthesizer(this, bufferIndex, runLength, tone, instrumentState);
-		}
-		tone.envelopeComputer.clearEnvelopes();
-		instrumentState.envelopeComputer.clearEnvelopes();
+		renderPlayTone(
+			instrumentState.synthesizer,
+			bufferIndex,
+			runLength,
+			tone,
+			this,
+			instrumentState,
+		);
 	}
 
 	// Computes mod note position at the start and end of the window and "plays" the mod tone, setting appropriate mod data.

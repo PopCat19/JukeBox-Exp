@@ -16,7 +16,20 @@
 import { describe, test, expect } from "bun:test";
 import { Song, Synth } from "../../synth";
 import { SnapshotBuilder } from "../../synth/render/snapshot";
-import { renderTick, createRenderState } from "../../synth/render/render-core";
+import {
+	renderTick,
+	createRenderState,
+	allocTone,
+	recycleTone,
+	releaseTone,
+	freeReleasedTone,
+	freeAllTones,
+	playTone,
+	computeNoteExpression,
+} from "../../synth/render/render-core";
+import { Tone } from "../../synth/tone";
+import { Deque } from "../../synth/deque";
+import { Note } from "../../synth/notes";
 
 // ── Helpers ───────────────────────────────────────────────────────────────
 
@@ -126,3 +139,191 @@ describe("Synth.synthesize output (characterization baseline)", () => {
 		expect(state.playhead).toBe(0);
 	});
 });
+
+// ── Tone lifecycle tests ───────────────────────────────────────────────────
+
+describe("tone pool lifecycle", () => {
+	test("allocTone from empty pool returns a fresh Tone", () => {
+		const pool: Deque<Tone> = new Deque<Tone>();
+		const tone: Tone = allocTone(pool);
+
+		expect(tone).toBeInstanceOf(Tone);
+		expect(tone.freshlyAllocated).toBe(true);
+		// Pool should still be empty (we didn't recycle anything)
+		expect(pool.count()).toBe(0);
+	});
+
+	test("recycleTone returns tone to pool and allocTone reuses it", () => {
+		const pool: Deque<Tone> = new Deque<Tone>();
+		const tone1: Tone = allocTone(pool);
+		tone1.instrumentIndex = 42;
+
+		recycleTone(pool, tone1);
+		expect(pool.count()).toBe(1);
+
+		const tone2: Tone = allocTone(pool);
+		expect(tone2).toBe(tone1); // Same object reused
+		expect(tone2.freshlyAllocated).toBe(true);
+		expect(pool.count()).toBe(0);
+	});
+
+	test("allocTone reuses multiple recycled tones in LIFO order", () => {
+		const pool: Deque<Tone> = new Deque<Tone>();
+		const t1: Tone = allocTone(pool);
+		const t2: Tone = allocTone(pool);
+		const t3: Tone = allocTone(pool);
+
+		recycleTone(pool, t1);
+		recycleTone(pool, t2);
+		recycleTone(pool, t3);
+
+		// LIFO: t3 comes back first
+		expect(allocTone(pool)).toBe(t3);
+		expect(allocTone(pool)).toBe(t2);
+		expect(allocTone(pool)).toBe(t1);
+		expect(pool.count()).toBe(0);
+	});
+
+	test("releaseTone moves tone to released deque and clears flags", () => {
+		const released: Deque<Tone> = new Deque<Tone>();
+		const tone: Tone = new Tone();
+		tone.atNoteStart = true;
+		tone.passedEndOfNote = false;
+
+		releaseTone(released, tone);
+
+		expect(released.count()).toBe(1);
+		expect(released.get(0)).toBe(tone);
+		expect(tone.atNoteStart).toBe(false);
+		expect(tone.passedEndOfNote).toBe(true);
+	});
+
+	test("freeReleasedTone removes from deque and returns to pool", () => {
+		const pool: Deque<Tone> = new Deque<Tone>();
+		const released: Deque<Tone> = new Deque<Tone>();
+		const tone: Tone = new Tone();
+
+		releaseTone(released, tone);
+		expect(released.count()).toBe(1);
+
+		freeReleasedTone(pool, released, 0);
+
+		expect(released.count()).toBe(0);
+		// Tone should be in pool now
+		expect(pool.count()).toBe(1);
+		expect(allocTone(pool)).toBe(tone);
+	});
+
+	test("freeAllTones empties all tone deques across channels/instruments", () => {
+		const pool: Deque<Tone> = new Deque<Tone>();
+		const t1: Tone = new Tone();
+		const t2: Tone = new Tone();
+		const t3: Tone = new Tone();
+		const t4: Tone = new Tone();
+
+		const activeTones: Deque<Tone> = new Deque<Tone>();
+		const activeModTones: Deque<Tone> = new Deque<Tone>();
+		const releasedTones: Deque<Tone> = new Deque<Tone>();
+		const liveInputTones: Deque<Tone> = new Deque<Tone>();
+
+		activeTones.pushBack(t1);
+		activeModTones.pushBack(t2);
+		releasedTones.pushBack(t3);
+		liveInputTones.pushBack(t4);
+
+		const channels = [{
+			instruments: [{
+				activeTones,
+				activeModTones,
+				releasedTones,
+				liveInputTones,
+			}],
+		}];
+
+		freeAllTones(pool, channels);
+
+		expect(activeTones.count()).toBe(0);
+		expect(activeModTones.count()).toBe(0);
+		expect(releasedTones.count()).toBe(0);
+		expect(liveInputTones.count()).toBe(0);
+		expect(pool.count()).toBe(4);
+	});
+});
+
+// ── playTone tests ─────────────────────────────────────────────────────────
+
+describe("playTone", () => {
+	test("dispatches to synthesizer and clears envelopes", () => {
+		let synthCalled = false;
+		const fakeSynth = () => {
+			synthCalled = true;
+		};
+		const tone: Tone = new Tone();
+		const instrumentState = { envelopeComputer: { clearEnvelopes: () => {} } };
+
+		playTone(fakeSynth, 0, 128, tone, {} as any, instrumentState as any);
+
+		expect(synthCalled).toBe(true);
+	});
+
+	test("null synthesizer does not throw", () => {
+		const tone: Tone = new Tone();
+		const instrumentState = { envelopeComputer: { clearEnvelopes: () => {} } };
+
+		expect(() => playTone(null, 0, 128, tone, {} as any, instrumentState as any)).not.toThrow();
+	});
+
+	test("clears tone and instrument envelopes (spies on existing methods)", () => {
+		const tone: Tone = new Tone();
+		let toneEnvCalled = false;
+		tone.envelopeComputer.clearEnvelopes = () => { toneEnvCalled = true; };
+		const instrumentState = { envelopeComputer: { clearEnvelopes: () => {} } };
+		let instEnvCalled = false;
+		instrumentState.envelopeComputer.clearEnvelopes = () => { instEnvCalled = true; };
+
+		playTone(null, 0, 128, tone, {} as any, instrumentState as any);
+
+		expect(toneEnvCalled).toBe(true);
+		expect(instEnvCalled).toBe(true);
+	});
+});
+
+// ── computeNoteExpression tests ────────────────────────────────────────────
+
+describe("computeNoteExpression", () => {
+	test("throws for tone with no note", () => {
+		const tone: Tone = new Tone();
+		tone.note = null;
+
+		expect(() => computeNoteExpression(tone, 0, 0, 0, 2, 24, 0, 100, 50)).toThrow();
+	});
+
+	test("returns pin start value for tone at start of note", () => {
+		const tone: Tone = new Tone();
+		tone.note = new Note(60, 0, 1, 100);
+		// Override pins for known values
+		tone.note.pins[0] = { interval: 0, time: 0, size: 100 };
+		tone.note.pins[1] = { interval: 0, time: 1, size: 200 };
+
+		const result = computeNoteExpression(tone, 0, 0, 0, 2, 24, 100, 100, 50);
+
+		// At tick 0, beat 0, part 0: startPin time=0, so at ratio 0 expression=100
+		expect(result.expression).toBe(100);
+	});
+
+	test("interpolates pin values for a run starting mid-tick", () => {
+		const tone: Tone = new Tone();
+		tone.note = new Note(60, 0, 1, 100);
+		tone.note.pins[0] = { interval: 0, time: 0, size: 100 };
+		tone.note.pins[1] = { interval: 0, time: 1, size: 300 };
+
+		// tickSampleCountdown=50, samplesPerTick=100, runLength=50
+		// startRatio=0.5 → partTimeStart=0.25 → tickTimeStart=0.5
+		// Pin range: startPinTick=0, endPinTick=2
+		// ratioStart = (0.5-0)/2 = 0.25 → expression = 100+200*0.25 = 150
+		const result = computeNoteExpression(tone, 0, 0, 0, 2, 24, 50, 100, 50);
+
+		expect(result.expression).toBe(150);
+	});
+});
+
