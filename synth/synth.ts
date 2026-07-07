@@ -24,7 +24,7 @@ import type { Note, NotePin, Pattern } from "./notes";
 import { PickedString } from "./picked-string";
 import { getPlugin } from "./plugins";
 import { PostProcessingState } from "./post-processing";
-import { applyDetune, applyDrumsetPitch, applyFadeIn, applyIntervalFadeSideEffects, computeNonFmPitchSetup, applyPitchShift, applyVibrato, computeBasePitchAndExpression, computeEnvelopeSpeeds, computeFmExpressionAndFeedback, computeFmOperatorLoop, computeSimpleNoteFilterValues, computeSlides, computeToneIntervalAndFade, computeUnisonPhases, initTonePhaseState } from "./render/compute-tone";
+import { applyCustomSamplePhaseRestore, applyDetune, applyDrumsetPitch, applyFadeIn, applyIntervalFadeSideEffects, applyPitchShift, applyVibrato, computeBasePitchAndExpression, computeEnvelopeSpeeds, computeFmExpressionAndFeedback, computeFmOperatorLoop, computeNonFmExpression, computeNonFmPitchSetup, computeSimpleNoteFilterValues, computeSlides, computeToneIntervalAndFade, computeUnisonPhases, initTonePhaseState } from "./render/compute-tone";
 import {
 	allocTone,
 	freeAllTones,
@@ -4308,15 +4308,13 @@ export class Synth {
 				tone.phaseDeltas[0] = startFreq * sampleTime;
 				tone.phaseDeltaScales[0] = basePhaseDeltaScale;
 			}
-			if (customSampleNeedsPhaseRestore) {
-				const _el = customSamplePartsPassed * Config.ticksPerPart * samplesPerTick;
-				for (let i = 0; i < Config.maxPitchOrOperatorCount; i++) {
-					if (tone.phaseDeltas[i] > 0) {
-						tone.phases[i] =
-							(customSampleFirstOffset + _el * tone.phaseDeltas[i]) % 1.0;
-					}
-				}
-			}
+			applyCustomSamplePhaseRestore(
+				tone,
+				customSampleNeedsPhaseRestore,
+				customSamplePartsPassed,
+				customSampleFirstOffset,
+				samplesPerTick,
+			);
 			// TODO: make expressionStart and expressionEnd variables earlier and modify those
 			// instead of these supersawExpression variables.
 			let supersawExpressionStart: number = 1.0;
@@ -4664,60 +4662,52 @@ export class Synth {
 					Math.sqrt(1.0 + (Config.supersawVoiceCount - 1.0) * dynamismEnd * dynamismEnd);
 			}
 
-			let expressionStart: number =
-				settingsExpressionMult *
-				fadeExpressionStart *
-				chordExpressionStart *
-				pitchExpressionStart *
-				envelopeStarts[EnvelopeComputeIndex.noteVolume] *
-				supersawExpressionStart;
-			let expressionEnd: number =
-				settingsExpressionMult *
-				fadeExpressionEnd *
-				chordExpressionEnd *
-				pitchExpressionEnd *
-				envelopeEnds[EnvelopeComputeIndex.noteVolume] *
-				supersawExpressionEnd;
+			// Pre-compute note volume mod values
+			const _isModActiveNoteVol: boolean = this.isModActive(
+				Config.modulators.dictionary["note volume"].index,
+				channelIndex,
+				tone.instrumentIndex,
+			);
+			const _noteVolModStart: number = _isModActiveNoteVol
+				? this.modState.getModValue(
+						Config.modulators.dictionary["note volume"].index,
+						channelIndex,
+						tone.instrumentIndex,
+						false,
+					)
+				: 0;
+			const _noteVolModEnd: number = _isModActiveNoteVol
+				? this.modState.getModValue(
+						Config.modulators.dictionary["note volume"].index,
+						channelIndex,
+						tone.instrumentIndex,
+						true,
+					)
+				: 0;
 
-			// Check for mod-related volume delta
-			if (
-				this.isModActive(
-					Config.modulators.dictionary["note volume"].index,
-					channelIndex,
-					tone.instrumentIndex,
-				)
-			) {
-				// Linear falloff below 0, normal volume formula above 0. Seems to work best for scaling since the normal volume mult formula has a big gap from -25 to -24.
-				const startVal: number = this.modState.getModValue(
-					Config.modulators.dictionary["note volume"].index,
-					channelIndex,
-					tone.instrumentIndex,
-					false,
-				);
-				const endVal: number = this.modState.getModValue(
-					Config.modulators.dictionary["note volume"].index,
-					channelIndex,
-					tone.instrumentIndex,
-					true,
-				);
-				expressionStart *=
-					startVal <= 0
-						? (startVal + Config.volumeRange / 2) / (Config.volumeRange / 2)
-						: instrumentVolumeToVolumeMult(startVal);
-				expressionEnd *=
-					endVal <= 0
-						? (endVal + Config.volumeRange / 2) / (Config.volumeRange / 2)
-						: instrumentVolumeToVolumeMult(endVal);
-			}
-			if (isMono && tone.pitchCount <= instrument.monoChordTone) {
-				// silence if tone doesn't exist
-				expressionStart = 0;
-				expressionEnd = 0;
+			const _isSilent: boolean = computeNonFmExpression(
+				tone,
+				settingsExpressionMult,
+				fadeExpressionStart,
+				fadeExpressionEnd,
+				chordExpressionStart,
+				chordExpressionEnd,
+				pitchExpressionStart,
+				pitchExpressionEnd,
+				supersawExpressionStart,
+				supersawExpressionEnd,
+				envelopeStarts,
+				envelopeEnds,
+				isMono,
+				instrument.monoChordTone,
+				roundedSamplesPerTick,
+				_isModActiveNoteVol,
+				_noteVolModStart,
+				_noteVolModEnd,
+			);
+			if (_isSilent) {
 				instrumentState.awake = false;
 			}
-
-			tone.expression = expressionStart;
-			tone.expressionDelta = (expressionEnd - expressionStart) / roundedSamplesPerTick;
 
 			if (instrument.type === InstrumentType.pickedString) {
 				let stringDecayStart: number;

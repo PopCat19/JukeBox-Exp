@@ -1463,3 +1463,96 @@ export function computeFmOperatorLoop(
 	return { sineExpressionBoost, totalCarrierExpression };
 }
 
+// ── Custom sample phase restore ───────────────────────────────────────────-
+
+/**
+ * Restore phase state for custom sampled chip instruments resuming mid-note.
+ */
+export function applyCustomSamplePhaseRestore(
+	tone: Tone,
+	needsRestore: boolean,
+	partsPassed: number,
+	firstOffset: number,
+	samplesPerTick: number,
+): void {
+	if (!needsRestore) return;
+	const el: number = partsPassed * Config.ticksPerPart * samplesPerTick;
+	for (let i: number = 0; i < Config.maxPitchOrOperatorCount; i++) {
+		if (tone.phaseDeltas[i] > 0) {
+			tone.phases[i] = (firstOffset + el * tone.phaseDeltas[i]) % 1.0;
+		}
+	}
+}
+
+// ── Non-FM expression finalize ─────────────────────────────────────────────
+
+/**
+ * Compute the final expression values for the non-FM synth path.
+ *
+ * Combines all expression multipliers, applies note volume modulation,
+ * handles mono silence, and sets tone.expression/tone.expressionDelta.
+ */
+export function computeNonFmExpression(
+	tone: Tone,
+	settingsExpressionMult: number,
+	fadeExpressionStart: number,
+	fadeExpressionEnd: number,
+	chordExpressionStart: number,
+	chordExpressionEnd: number,
+	pitchExpressionStart: number,
+	pitchExpressionEnd: number,
+	supersawExpressionStart: number,
+	supersawExpressionEnd: number,
+	envelopeStarts: readonly number[],
+	envelopeEnds: readonly number[],
+	isMono: boolean,
+	monoChordTone: number,
+	roundedSamplesPerTick: number,
+	noteVolumeModActive: boolean,
+	noteVolumeModStart: number,
+	noteVolumeModEnd: number,
+): boolean {
+	let expressionStart: number =
+		settingsExpressionMult *
+		fadeExpressionStart *
+		chordExpressionStart *
+		pitchExpressionStart *
+		envelopeStarts[EnvelopeComputeIndex.noteVolume] *
+		supersawExpressionStart;
+	let expressionEnd: number =
+		settingsExpressionMult *
+		fadeExpressionEnd *
+		chordExpressionEnd *
+		pitchExpressionEnd *
+		envelopeEnds[EnvelopeComputeIndex.noteVolume] *
+		supersawExpressionEnd;
+
+	// Check for mod-related volume delta
+	if (noteVolumeModActive) {
+		expressionStart *=
+			noteVolumeModStart <= 0
+				? (noteVolumeModStart + Config.volumeRange / 2) /
+					(Config.volumeRange / 2)
+				: instrumentVolumeToVolumeMult(noteVolumeModStart);
+		expressionEnd *=
+			noteVolumeModEnd <= 0
+				? (noteVolumeModEnd + Config.volumeRange / 2) /
+					(Config.volumeRange / 2)
+				: instrumentVolumeToVolumeMult(noteVolumeModEnd);
+	}
+
+	// Return whether the tone was silenced (for caller to set instrumentState.awake)
+	let isSilent: boolean = false;
+	if (isMono && tone.pitchCount <= monoChordTone) {
+		expressionStart = 0;
+		expressionEnd = 0;
+		isSilent = true;
+	}
+
+	tone.expression = expressionStart;
+	tone.expressionDelta = (expressionEnd - expressionStart) / roundedSamplesPerTick;
+
+	return isSilent;
+}
+
+
