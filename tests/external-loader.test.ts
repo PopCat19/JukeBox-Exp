@@ -98,4 +98,38 @@ describe("loadExternalModule", () => {
 		expect(result.success).toBe(false);
 		expect(result.error).toBeDefined();
 	});
+
+	test("rejects module missing serialize", async () => {
+		clearRegistry();
+		const result = await loadExternalModule(
+			path.join(import.meta.dirname, "fixtures", "community-missing-serialize"),
+			"community.broken.missing-serialize",
+		);
+		expect(result.success).toBe(false);
+		expect(result.error).toContain("missing serialize");
+		// And it must NOT have been registered
+		expect(getInstrument("community.broken.missing-serialize")).toBeUndefined();
+	});
+
+	test("rejects module missing deserialize", async () => {
+		clearRegistry();
+		const result = await loadExternalModule(
+			path.join(import.meta.dirname, "fixtures", "community-missing-deserialize"),
+			"community.broken.missing-deserialize",
+		);
+		expect(result.success).toBe(false);
+		expect(result.error).toContain("missing deserialize");
+		expect(getInstrument("community.broken.missing-deserialize")).toBeUndefined();
+	});
+
+	test("rejects module missing or invalid schema", async () => {
+		clearRegistry();
+		const result = await loadExternalModule(
+			path.join(import.meta.dirname, "fixtures", "community-missing-schema"),
+			"community.broken.missing-schema",
+		);
+		expect(result.success).toBe(false);
+		expect(result.error).toMatch(/missing or invalid schema/);
+		expect(getInstrument("community.broken.missing-schema")).toBeUndefined();
+	});
 });

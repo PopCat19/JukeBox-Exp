@@ -70,6 +70,32 @@ export async function loadExternalModule(
 			};
 		}
 
+		if (typeof module.serialize !== "function") {
+			return {
+				success: false,
+				error: `Module at "${specifier}" does not implement InstrumentModule (missing serialize)`,
+			};
+		}
+
+		if (typeof module.deserialize !== "function") {
+			return {
+				success: false,
+				error: `Module at "${specifier}" does not implement InstrumentModule (missing deserialize)`,
+			};
+		}
+
+		if (
+			module.schema === undefined ||
+			module.schema === null ||
+			typeof module.schema !== "object" ||
+			!Array.isArray((module.schema as { params?: unknown }).params)
+		) {
+			return {
+				success: false,
+				error: `Module at "${specifier}" does not implement InstrumentModule (missing or invalid schema)`,
+			};
+		}
+
 		registerInstrument(module);
 		return { success: true, id: module.id };
 	} catch (err) {
