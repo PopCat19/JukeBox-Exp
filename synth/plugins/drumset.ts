@@ -1,10 +1,10 @@
 // drumset.ts
 //
-// Purpose: Drumset synthesis plugin — compiled-function + per-voice cache
+// Purpose: Drumset synthesis plugin — bridges from socket InstrumentModule
 //
 // This module:
-// - Embeds private-scale build/compile/cache per unison voice
-// - Registers via plugin registry on module load
+// - Bridges drumsetModule as a SynthPlugin for backward compat
+// - Preserves per-unison-voice function caching with InstrumentState arg
 
 import { InstrumentState } from "../instrument-state";
 import type { Instrument } from "../instruments";
@@ -13,7 +13,8 @@ import { Config, InstrumentType } from "../synth-config";
 import { buildDrumSource } from "../synthesis/drum";
 import type { Tone } from "../tone";
 import { SpectrumWave } from "../waves";
-import { registerPlugin } from "./registry";
+import { registerModuleAsPlugin } from "../socket/bridge";
+import drumsetModule from "../modules/drumset/module";
 
 const functionCache: Function[] = [];
 
@@ -38,11 +39,8 @@ function drumsetSynth(
 	fn(synth, bufferIndex, runLength, tone, instrumentState);
 }
 
-registerPlugin({
-	type: InstrumentType.drumset,
-	name: "Drumset",
-	displayName: "drumset",
-	editorRows: ["drumset"],
+registerModuleAsPlugin(drumsetModule, InstrumentType.drumset, ["drumset"], {
+	getSynthFunction: (_instrument: Instrument, _synth: typeof Synth) => drumsetSynth,
 	initialize: (instrument: Instrument) => {
 		instrument.chord = Config.chords.dictionary.simultaneous.index;
 		for (let i = 0; i < Config.drumCount; i++) {
@@ -53,6 +51,4 @@ registerPlugin({
 			instrument.drumsetSpectrumWaves[i].reset(true);
 		}
 	},
-	getSynthFunction: (_instrument: Instrument, _synth: typeof Synth) => drumsetSynth,
-	buildSource: (_instrument: Instrument, voiceCount?: number) => buildDrumSource(voiceCount ?? 0),
 });

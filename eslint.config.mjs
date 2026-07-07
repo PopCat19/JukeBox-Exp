@@ -56,6 +56,7 @@ export default tseslint.config(
             "tests/modules-picked-string.test.ts",
             "tests/modules-fm.test.ts",
             "tests/modules-fm6.test.ts",
+            "tests/modules-drumset.test.ts",
             "eslint.config.mjs",
           ],
         },
