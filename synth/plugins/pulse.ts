@@ -1,10 +1,10 @@
 // pulse.ts
 //
-// Purpose: Pulse width modulation synthesis plugin — compiled-function + per-voice cache
+// Purpose: Pulse width modulation synthesis plugin — bridges from socket InstrumentModule
 //
 // This module:
-// - Embeds private-scale build/compile/cache per unison voice
-// - Registers via plugin registry on module load
+// - Bridges pulseModule as a SynthPlugin for backward compat
+// - Preserves per-unison-voice function caching
 
 import { InstrumentState } from "../instrument-state";
 import type { Instrument } from "../instruments";
@@ -12,7 +12,8 @@ import { Synth } from "../synth";
 import { Config, InstrumentType } from "../synth-config";
 import { buildPulseWidthSource } from "../synthesis/pulse";
 import type { Tone } from "../tone";
-import { registerPlugin } from "./registry";
+import { registerModuleAsPlugin } from "../socket/bridge";
+import pulseModule from "../modules/pulse/module";
 
 const functionCache: Function[] = [];
 
@@ -33,17 +34,11 @@ function pulseWidthSynth(
 	fn(synth, bufferIndex, roundedSamplesPerTick, tone, instrumentState);
 }
 
-registerPlugin({
-	type: InstrumentType.pwm,
-	name: "Pulse Width",
-	displayName: "pulse width",
-	editorRows: ["pulseWidth"],
+registerModuleAsPlugin(pulseModule, InstrumentType.pwm, ["pulseWidth"], {
+	getSynthFunction: (_instrument: Instrument, _synth: typeof Synth) => pulseWidthSynth,
 	initialize: (instrument: Instrument) => {
 		instrument.chord = Config.chords.dictionary.arpeggio.index;
 		instrument.pulseWidth = Config.pulseWidthRange;
 		instrument.decimalOffset = 0;
 	},
-	getSynthFunction: (_instrument: Instrument, _synth: typeof Synth) => pulseWidthSynth,
-	buildSource: (_instrument: Instrument, voiceCount?: number) =>
-		buildPulseWidthSource(voiceCount ?? 0),
 });
