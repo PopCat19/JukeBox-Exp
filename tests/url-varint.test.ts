@@ -108,7 +108,7 @@ describe("module instrument encoding", () => {
 		const result = encodeModuleInstrument(table, "core.supersaw", [1, 2, 3]);
 		expect(result[0]).toBe(MODULE_INSTRUMENT_TAG);
 		// Tag + varint for index 16 + 3 payload bytes
-		expect(result.length).toBe(5);
+		expect(result.length).toBe(6);
 	});
 
 	test("decodeModuleInstrument reads encoded data", () => {

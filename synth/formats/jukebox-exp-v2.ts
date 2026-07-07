@@ -50,10 +50,18 @@ export function toJukeboxExpV2Json(
 			const moduleId = (instrument as any)._socketModuleId as string | undefined;
 			if (!moduleId) continue;
 			const instIndex = `${ci}:${channel.instruments.indexOf(instrument)}`;
+			const params: Record<string, unknown> = {};
+			// Collect module-relevant params from instrument for round-trip
+			for (const key of Object.keys(instrument as unknown as Record<string, unknown>)) {
+				const val = (instrument as any)[key];
+				if (typeof val === "number" || typeof val === "boolean" || typeof val === "string") {
+					params[key] = val;
+				}
+			}
 			modulePayloads[instIndex] = {
 				id: moduleId,
 				version: 1,
-				params: {},
+				params,
 			};
 		}
 	}
@@ -76,19 +84,7 @@ export function fromJukeboxExpV2Json(song: SongLike, obj: JukeboxExpV2Object): v
 		return;
 	}
 
-	const modulePayloads = obj.modulePayloads;
-	if (modulePayloads) {
-		for (let ci = 0; ci < song.getChannelCount(); ci++) {
-			const channel = song.channels[ci];
-			for (let ii = 0; ii < channel.instruments.length; ii++) {
-				const key = `${ci}:${ii}`;
-				const payload = modulePayloads[key];
-				if (payload) {
-					(channel.instruments[ii] as any)._socketModulePayload = payload;
-				}
-			}
-		}
-	}
+	const savedPayloads = obj.modulePayloads;
 
 	const { modulePayloads: _, _expVersion: __, ...base } = obj;
 	fromJsonObjectImpl(
@@ -96,6 +92,20 @@ export function fromJukeboxExpV2Json(song: SongLike, obj: JukeboxExpV2Object): v
 		{ ...base, format: "JukeBox", version: 1 },
 		"jukebox",
 	);
+
+	// Apply module payloads AFTER fromJsonObjectImpl which rebuilds instruments
+	if (savedPayloads) {
+		for (let ci = 0; ci < song.getChannelCount(); ci++) {
+			const channel = song.channels[ci];
+			for (let ii = 0; ii < channel.instruments.length; ii++) {
+				const key = `${ci}:${ii}`;
+				const payload = savedPayloads[key];
+				if (payload) {
+					(channel.instruments[ii] as any)._socketModulePayload = payload;
+				}
+			}
+		}
+	}
 }
 
 export function isJukeboxExpV2Object(obj: unknown): obj is JukeboxExpV2Object {

@@ -113,10 +113,11 @@ export function buildModulePanel(opts: PanelFactoryOptions): GeneratedModulePane
 					sel.appendChild(opt);
 				}
 				sel.value = String(param.defaultValue);
-				const oldVal = parseInt(sel.value, 10);
+				let currentVal = parseInt(sel.value, 10);
 				const onChange = () => {
 					const newVal = parseInt(sel.value, 10);
-					createChangeForParam(doc, param.key, oldVal, newVal, modMap);
+					createChangeForParam(doc, param.key, currentVal, newVal, modMap);
+					currentVal = newVal;
 				};
 				sel.addEventListener("change", onChange);
 				selects[param.key] = { el: sel, onChange };

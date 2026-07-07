@@ -14,6 +14,7 @@ import type { InstrumentModule } from "./instrument-module";
 import type { SynthPlugin } from "../plugins/interfaces";
 import { registerPlugin } from "../plugins/registry";
 import { registerInstrument } from "./registry";
+import { checkCompatibility, SOCKET_VERSION } from "./version";
 import type { Instrument } from "../instruments";
 import { Config } from "../synth-config";
 
@@ -65,6 +66,14 @@ export function registerModuleAsPlugin(
 	},
 ): void {
 	validateModuleId(module.id);
+
+	if (!checkCompatibility(module.socketVersion)) {
+		console.warn(
+			`[bridge] Module "${module.id}" socket v${module.socketVersion} incompatible with host v${SOCKET_VERSION}. Skipping registration.`,
+		);
+		return;
+	}
+
 	registerInstrument(module);
 
 	const getSynthFn = overrides?.getSynthFunction ?? buildDefaultGetSynthFunction(module);

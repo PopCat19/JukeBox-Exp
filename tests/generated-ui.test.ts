@@ -11,7 +11,11 @@ import { describe, test, expect, beforeAll } from "bun:test";
 
 // Register happy-dom for DOM APIs used by imperative-html and panel factory
 import { GlobalRegistrator } from "@happy-dom/global-registrator";
-GlobalRegistrator.register();
+try {
+	GlobalRegistrator.register();
+} catch {
+	// Already registered
+}
 
 // Dynamic imports to ensure DOM is available before module evaluation
 let buildModulePanel: any;

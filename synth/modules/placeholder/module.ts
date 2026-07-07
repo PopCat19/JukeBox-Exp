@@ -12,9 +12,17 @@ import type { FieldReader, FieldWriter } from "../../socket/serde";
 import { SOCKET_VERSION } from "../../socket/version";
 
 const PLACEHOLDER_ID = "core.placeholder";
+const OPAQUE_KEY = "_opaqueBytes";
 
 function makeId(originalId: string): string {
 	return `${PLACEHOLDER_ID}:${originalId}`;
+}
+
+function getOpaque(params: Record<string, unknown>): number[] {
+	const raw = params[OPAQUE_KEY];
+	if (raw instanceof Uint8Array) return Array.from(raw);
+	if (Array.isArray(raw)) return raw as number[];
+	return [];
 }
 
 export function createPlaceholderModule(originalId: string): InstrumentModule {
@@ -30,11 +38,18 @@ export function createPlaceholderModule(originalId: string): InstrumentModule {
 			return "return (synth, bufferIndex, runLength, tone, instrumentState) => {}";
 		},
 
-		serialize(_params: Record<string, unknown>, _w: FieldWriter): void {
-			// Placeholder has nothing to serialize beyond the opaque payload
+		serialize(params: Record<string, unknown>, w: FieldWriter): void {
+			const opaque = getOpaque(params);
+			if (opaque.length > 0) {
+				w.writeBlob(OPAQUE_KEY, new Uint8Array(opaque));
+			}
 		},
 
-		deserialize(_r: FieldReader, _version: number): Record<string, unknown> {
+		deserialize(r: FieldReader, _version: number): Record<string, unknown> {
+			const blob = r.readBlob(OPAQUE_KEY);
+			if (blob) {
+				return { [OPAQUE_KEY]: Array.from(blob) };
+			}
 			return {};
 		},
 	};

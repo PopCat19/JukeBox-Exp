@@ -59,7 +59,11 @@ export class ModuleIdTable {
 		const totalLen = idBytes.reduce((sum, b) => sum + 1 + b.length, 0);
 		const result = new Uint8Array(totalLen);
 		let offset = 0;
-		for (const bytes of idBytes) {
+		for (let i = 0; i < idBytes.length; i++) {
+			const bytes = idBytes[i];
+			if (bytes.length > 255) {
+				throw new RangeError(`Id too long: ${bytes.length} bytes (max 255)`);
+			}
 			result[offset++] = bytes.length;
 			result.set(bytes, offset);
 			offset += bytes.length;
@@ -71,8 +75,18 @@ export class ModuleIdTable {
 	decode(data: Uint8Array): void {
 		let offset = 0;
 		while (offset < data.length) {
+			if (offset + 1 > data.length) {
+				throw new RangeError(`Truncated id table: expected length byte at offset ${offset}`);
+			}
 			const len = data[offset++];
-			if (offset + len > data.length) break;
+			if (len === 0) {
+				throw new RangeError(`Invalid zero-length id at offset ${offset - 1}`);
+			}
+			if (offset + len > data.length) {
+				throw new RangeError(
+					`Truncated id table: expected ${len} bytes for id at offset ${offset}`,
+				);
+			}
 			const id = new TextDecoder().decode(data.slice(offset, offset + len));
 			offset += len;
 			this.getIndex(id);

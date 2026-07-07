@@ -61,7 +61,8 @@ export function encodeModuleInstrument(
 ): number[] {
 	const index = table.getIndex(moduleId);
 	const indexBytes = encodeVarint(index);
-	return [MODULE_INSTRUMENT_TAG, ...indexBytes, ...payload];
+	const payloadLenBytes = encodeVarint(payload.length);
+	return [MODULE_INSTRUMENT_TAG, ...indexBytes, ...payloadLenBytes, ...payload];
 }
 
 export interface DecodedModuleInstrument {
@@ -84,11 +85,12 @@ export function decodeModuleInstrument(
 	const moduleId = table.getId(index);
 	if (!moduleId) return null;
 
-	const payload: number[] = [];
-	while (offset < data.length && data[offset] !== MODULE_INSTRUMENT_TAG) {
-		payload.push(data[offset]);
-		offset++;
-	}
+	const { value: payloadLen, consumed: lenConsumed } = decodeVarint(data, offset);
+	offset += lenConsumed;
+
+	if (offset + payloadLen > data.length) return null;
+	const payload = data.slice(offset, offset + payloadLen);
+	offset += payloadLen;
 
 	return { moduleId, payload, consumed: offset };
 }
