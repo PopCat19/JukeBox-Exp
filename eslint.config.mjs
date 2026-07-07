@@ -58,6 +58,7 @@ export default tseslint.config(
             "tests/modules-fm6.test.ts",
             "tests/modules-drumset.test.ts",
             "tests/modules-mod.test.ts",
+            "tests/barrel-exports.test.ts",
             "eslint.config.mjs",
           ],
         },

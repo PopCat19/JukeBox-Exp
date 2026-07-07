@@ -275,4 +275,26 @@ describe("shared barrel exports", () => {
 		expect(typeof mod.events.listen).toBe("function");
 		expect(typeof mod.events.unlisten).toBe("function");
 	});
+
+	test("synth/modules barrel exports all module defaults", async () => {
+		const mods = await import("../synth/modules");
+		expect(typeof mods.supersawModule).toBe("object");
+		expect(typeof mods.pulseModule).toBe("object");
+		expect(typeof mods.noiseModule).toBe("object");
+		expect(typeof mods.chipModule).toBe("object");
+		expect(typeof mods.harmonicsModule).toBe("object");
+		expect(typeof mods.spectrumModule).toBe("object");
+		expect(typeof mods.pickedStringModule).toBe("object");
+		expect(typeof mods.fmModule).toBe("object");
+		expect(typeof mods.fm6Module).toBe("object");
+		expect(typeof mods.drumsetModule).toBe("object");
+		expect(typeof mods.modModule).toBe("object");
+		expect(typeof mods.createPlaceholderModule).toBe("function");
+		expect(typeof mods.isPlaceholderId).toBe("function");
+		expect(typeof mods.unwrapPlaceholderId).toBe("function");
+		expect(typeof mods.SUPERSHAW_ID).toBe("string");
+		expect(typeof mods.PULSE_ID).toBe("string");
+		expect(typeof mods.NOISE_ID).toBe("string");
+		expect(typeof mods.CHIP_ID).toBe("string");
+	});
 });
