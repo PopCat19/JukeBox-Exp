@@ -450,6 +450,7 @@ export class SongDocument {
 			if (replace) this._back();
 		} else {
 			change.commit();
+			this.synth.incrementEditSequence();
 			this._recentChange = change;
 			this._stateShouldBePushed = this._stateShouldBePushed || !replace;
 			this._recordedNewSong = this._recordedNewSong || newSong;

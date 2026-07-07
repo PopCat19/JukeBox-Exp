@@ -25,6 +25,7 @@ import { PickedString } from "./picked-string";
 import { getInstrumentCapability } from "./socket/capability-lookup";
 import { getPlugin } from "./plugins";
 import { PostProcessingState } from "./post-processing";
+import { SnapshotBuilder } from "./render/snapshot";
 import { Song } from "./song";
 import type { Chord, Envelope, Transition } from "./synth-config";
 import {
@@ -264,6 +265,7 @@ export class Synth {
 	public enableMetronome: boolean = false;
 	public countInMetronome: boolean = false;
 	public renderingSong: boolean = false;
+	public readonly snapshotBuilder: SnapshotBuilder = new SnapshotBuilder();
 	public heldMods: HeldMod[] = [];
 	private wantToSkip: boolean = false;
 	private playheadInternal: number = 0.0;
@@ -833,6 +835,11 @@ export class Synth {
 		}
 		this.prevBar = null;
 		this._cacheSongModFlags();
+	}
+
+	/** Bump editSequence — call after every editor change that mutates the song. */
+	public incrementEditSequence(): void {
+		this.snapshotBuilder.incrementEditSequence();
 	}
 
 	/** Scan song mod channels once to cache tempo/next-bar mod presence. */
