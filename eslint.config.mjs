@@ -53,6 +53,7 @@ export default tseslint.config(
             "tests/modules-chip.test.ts",
             "tests/modules-harmonics.test.ts",
             "tests/modules-spectrum.test.ts",
+            "tests/modules-picked-string.test.ts",
             "eslint.config.mjs",
           ],
         },

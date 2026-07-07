@@ -1,11 +1,10 @@
 // picked-string.ts
 //
-// Purpose: Picked string synthesis plugin — compiled-function + per-voice cache
+// Purpose: Picked string synthesis plugin — bridges from socket InstrumentModule
 //
 // This module:
-// - Embeds private-scale build/compile/cache per unison voice
-// - Uses Karpluss-Strong algorithm with all-pass filter for dispersion
-// - Registers via plugin registry on module load
+// - Bridges pickedStringModule as a SynthPlugin for backward compat
+// - Preserves per-unison-voice function caching
 
 import { InstrumentState } from "../instrument-state";
 import type { Instrument } from "../instruments";
@@ -13,9 +12,10 @@ import { Synth } from "../synth";
 import { Config, InstrumentType } from "../synth-config";
 import { buildPickedStringSource } from "../synthesis/picked-string";
 import type { Tone } from "../tone";
-import { registerPlugin } from "./registry";
+import { registerModuleAsPlugin } from "../socket/bridge";
+import pickedStringModule from "../modules/picked-string/module";
 
-const functionCache: Function[] = Array(3).fill(undefined); // keep in sync with the number of unison voices.
+const functionCache: Function[] = Array(3).fill(undefined);
 
 function pickedStringSynth(
 	synth: Synth,
@@ -34,16 +34,15 @@ function pickedStringSynth(
 	fn(synth, bufferIndex, roundedSamplesPerTick, tone, instrumentState);
 }
 
-registerPlugin({
-	type: InstrumentType.pickedString,
-	name: "Picked String",
-	displayName: "picked string",
-	editorRows: ["harmonics", "stringSustain"],
-	initialize: (instrument: Instrument) => {
-		instrument.chord = Config.chords.dictionary.strum.index;
-		instrument.harmonicsWave.reset();
+registerModuleAsPlugin(
+	pickedStringModule,
+	InstrumentType.pickedString,
+	["harmonics", "stringSustain"],
+	{
+		getSynthFunction: (_instrument: Instrument, _synth: typeof Synth) => pickedStringSynth,
+		initialize: (instrument: Instrument) => {
+			instrument.chord = Config.chords.dictionary.strum.index;
+			instrument.harmonicsWave.reset();
+		},
 	},
-	getSynthFunction: (_instrument: Instrument, _synth: typeof Synth) => pickedStringSynth,
-	buildSource: (_instrument: Instrument, voiceCount?: number) =>
-		buildPickedStringSource(voiceCount ?? 0),
-});
+);
