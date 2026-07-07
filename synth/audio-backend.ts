@@ -62,6 +62,11 @@ export class AudioBackend {
 	private _lastFillReadHead: number = -1;
 	private _lastFillWriteHead: number = -1;
 	private _lastFillEndedByBudget: boolean = false;
+	private _lastFillSynthMs: number = 0;
+	private _lastFillMaxSlotMs: number = 0;
+	private _lastFillQueuedSlots: number = 0;
+	private _sabScratchL: Float32Array | null = null;
+	private _sabScratchR: Float32Array | null = null;
 	private _useSab: boolean = false;
 	private static readonly SPECTRUM_UPDATE_INTERVAL_MS: number = 1000 / 60;
 	private static readonly FILL_BUDGET_MS: number = 16;
@@ -146,6 +151,12 @@ export class AudioBackend {
 				this._lastFillMs.toFixed(1) +
 				" budgetStop=" +
 				this._lastFillEndedByBudget +
+				" synthMs=" +
+				this._lastFillSynthMs.toFixed(1) +
+				" maxSlotMs=" +
+				this._lastFillMaxSlotMs.toFixed(1) +
+				" queued=" +
+				this._lastFillQueuedSlots +
 				" heads=" +
 				this._lastFillReadHead +
 				"→" +
@@ -388,6 +399,8 @@ export class AudioBackend {
 			this.audioCtx = null;
 		}
 		this._ringBuffer = null;
+		this._sabScratchL = null;
+		this._sabScratchR = null;
 		this._fillInProgress = false;
 		this._host = null;
 		this._currentBufferSize = 0;
@@ -518,20 +531,31 @@ export class AudioBackend {
 		const freeSlots: number = Math.min(ring.numSlots - 1 - diff, ring.numSlots);
 		if (freeSlots <= 0) return;
 
+		if (this._sabScratchL == null || this._sabScratchL.length !== this._currentBufferSize) {
+			this._sabScratchL = new Float32Array(this._currentBufferSize);
+			this._sabScratchR = new Float32Array(this._currentBufferSize);
+		}
+		const left: Float32Array = this._sabScratchL;
+		const right: Float32Array = this._sabScratchR!;
 		const fillStart: number = performance.now();
+		let synthMs: number = 0;
+		let maxSlotMs: number = 0;
 		let filledSlots: number = 0;
 		let endedByBudget: boolean = false;
 		this._fillInProgress = true;
 		for (let i: number = 0; i < freeSlots; i++) {
+			const slotStart: number = performance.now();
 			const slot: number = writeHead + 1 + i;
-			const left: Float32Array = new Float32Array(this._currentBufferSize);
-			const right: Float32Array = new Float32Array(this._currentBufferSize);
+			left.fill(0.0);
+			right.fill(0.0);
+			const synthStart: number = performance.now();
 			host.synthesize(
 				left,
 				right,
 				this._currentBufferSize,
 				skipDeactivate ? false : host.isPlayingSong(),
 			);
+			synthMs += performance.now() - synthStart;
 
 			ring.writeSlot(slot, left, right);
 			ring.publishWriteHead(slot);
@@ -549,6 +573,8 @@ export class AudioBackend {
 				}
 			}
 
+			const slotMs: number = performance.now() - slotStart;
+			if (slotMs > maxSlotMs) maxSlotMs = slotMs;
 			if (
 				!skipDeactivate &&
 				filledSlots > 0 &&
@@ -566,6 +592,9 @@ export class AudioBackend {
 		this._lastFillReadHead = readHead;
 		this._lastFillWriteHead = writeHead;
 		this._lastFillEndedByBudget = endedByBudget;
+		this._lastFillSynthMs = synthMs;
+		this._lastFillMaxSlotMs = maxSlotMs;
+		this._lastFillQueuedSlots = Math.max(0, writeHead + filledSlots - readHead);
 	}
 
 	/** Number of samples sitting in the SAB ring between the writer

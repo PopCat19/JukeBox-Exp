@@ -393,6 +393,17 @@ export class Synth {
 	private _timingLogCount: number = 0;
 	// _logNeedDataCount moved to AudioBackend
 
+	private _buildToneOnlySnapshot(song: Song): SongSnapshot {
+		return {
+			sampleRate: this.samplesPerSecond,
+			beatsPerBar: song.beatsPerBar,
+			key: song.key,
+			octave: song.octave,
+			pitchChannelCount: song.pitchChannelCount,
+			noiseChannelCount: song.noiseChannelCount,
+		} as SongSnapshot;
+	}
+
 	private static _computeWorkletEnabled(): boolean {
 		try {
 			if (typeof window === "undefined") return false;
@@ -2027,8 +2038,12 @@ export class Synth {
 			}
 		}
 
+		const _syncStart: number = performance.now();
 		this.syncSongState();
-		this._renderSnapshot = this.snapshotBuilder.build(song);
+		const _syncMs: number = performance.now() - _syncStart;
+		const _snapshotStart: number = performance.now();
+		this._renderSnapshot = this._buildToneOnlySnapshot(song);
+		const _snapshotMs: number = performance.now() - _snapshotStart;
 
 		if (
 			this.tempMonoInstrumentSampleBuffer == null ||
@@ -2052,6 +2067,7 @@ export class Synth {
 		let firstSkippedBufferIndex = -1;
 
 		let bufferIndex: number = 0;
+		let _preMs: number = performance.now() - _synthStartTime;
 		let _modMs: number = 0;
 		let _stateMs: number = 0;
 		let _channelMs: number = 0;
@@ -2060,6 +2076,9 @@ export class Synth {
 		let _effectsMs: number = 0;
 		let _lfoMs: number = 0;
 		let _postMs: number = 0;
+		let _activeMs: number = 0;
+		let _captureMs: number = 0;
+		let _advanceMs: number = 0;
 		let _workletSendMs: number = 0;
 		let _workletToneCount: number = 0;
 		let _hotChannelSummary: string = "none";
@@ -2232,7 +2251,9 @@ export class Synth {
 				const channelState: ChannelState = this.channels[channelIndex];
 
 				let channelPeakBefore: number = 0;
+				let _captureStart: number = 0;
 				if (this.channelAudioCaptureEnabled) {
+					_captureStart = performance.now();
 					const scratch = channelState.audioScratch;
 					for (let i = bufferIndex, si = 0; i < runEnd; i++, si += 2) {
 						scratch[si] = outputDataL[i] + (this.outputDataLUnfiltered?.[i] ?? 0);
@@ -2249,9 +2270,11 @@ export class Synth {
 						if (absL > channelPeakBefore) channelPeakBefore = absL;
 						if (absR > channelPeakBefore) channelPeakBefore = absR;
 					}
+					_captureMs += performance.now() - _captureStart;
 				}
 
 				if (this.isAtStartOfTick) {
+					const _activeStart: number = performance.now();
 					this.determineCurrentActiveTones(
 						song,
 						channelIndex,
@@ -2259,6 +2282,7 @@ export class Synth {
 						playSong && !this.countInMetronome,
 					);
 					this.determineLiveInputTones(song, channelIndex, samplesPerTick);
+					_activeMs += performance.now() - _activeStart;
 				}
 				for (
 					let instrumentIndex: number = 0;
@@ -2428,6 +2452,7 @@ export class Synth {
 				}
 
 				if (this.channelAudioCaptureEnabled) {
+					_captureStart = performance.now();
 					for (let i = bufferIndex; i < runEnd; i++) {
 						const absL = Math.abs(
 							outputDataL[i] + (this.outputDataLUnfiltered?.[i] ?? 0),
@@ -2453,6 +2478,7 @@ export class Synth {
 						ring[channelState.audioRingPos] = (diffL + diffR) * 0.5;
 						channelState.audioRingPos = (channelState.audioRingPos + 1) & 8191;
 					}
+					_captureMs += performance.now() - _captureStart;
 				}
 
 				const _singleChannelMs: number = performance.now() - _singleChannelStart;
@@ -2608,6 +2634,7 @@ export class Synth {
 				}
 			}
 
+			const _advanceStart: number = performance.now();
 			bufferIndex += runLength;
 			if (playSong) {
 				this.totalSamplesRendered += runLength;
@@ -2969,6 +2996,7 @@ export class Synth {
 					}
 				}
 			}
+			_advanceMs += performance.now() - _advanceStart;
 		}
 
 		// 1ms lead-in: zero the first ~1ms of the first audible buffer so
@@ -3015,6 +3043,18 @@ export class Synth {
 				_hotTypeSummary = `type=${i} tones=${_typeTones[i] ?? 0} ms=${_hotTypeMs.toFixed(1)}`;
 			}
 		}
+		_preMs = Math.max(0, _preMs - _syncMs - _snapshotMs);
+		const _knownMs: number =
+			_preMs +
+			_syncMs +
+			_snapshotMs +
+			_modMs +
+			_stateMs +
+			_channelMs +
+			_postMs +
+			_advanceMs +
+			_workletSendMs;
+		const _otherMs: number = Math.max(0, _synthElapsed - _knownMs);
 		if (Synth._debugSynthEnabled() && this._timingLogCount < 10) {
 			this._timingLogCount++;
 			console.warn(
@@ -3028,6 +3068,15 @@ export class Synth {
 					"ms" +
 					" wlA=" +
 					this._workletActive +
+					" pre=" +
+					_preMs.toFixed(1) +
+					"ms" +
+					" sync=" +
+					_syncMs.toFixed(1) +
+					"ms" +
+					" snap=" +
+					_snapshotMs.toFixed(1) +
+					"ms" +
 					" mod=" +
 					_modMs.toFixed(1) +
 					"ms" +
@@ -3051,6 +3100,18 @@ export class Synth {
 					"ms" +
 					" post=" +
 					_postMs.toFixed(1) +
+					"ms" +
+					" active=" +
+					_activeMs.toFixed(1) +
+					"ms" +
+					" capture=" +
+					_captureMs.toFixed(1) +
+					"ms" +
+					" advance=" +
+					_advanceMs.toFixed(1) +
+					"ms" +
+					" other=" +
+					_otherMs.toFixed(1) +
 					"ms" +
 					" wlSend=" +
 					_workletSendMs.toFixed(1) +
@@ -3088,7 +3149,13 @@ export class Synth {
 						_bufferBudgetMs.toFixed(1) +
 						"ms, wlA=" +
 						this._workletActive +
-						", mod=" +
+						", pre=" +
+						_preMs.toFixed(1) +
+						"ms, sync=" +
+						_syncMs.toFixed(1) +
+						"ms, snap=" +
+						_snapshotMs.toFixed(1) +
+						"ms, mod=" +
 						_modMs.toFixed(1) +
 						"ms, state=" +
 						_stateMs.toFixed(1) +
@@ -3104,6 +3171,14 @@ export class Synth {
 						_lfoMs.toFixed(1) +
 						"ms, post=" +
 						_postMs.toFixed(1) +
+						"ms, active=" +
+						_activeMs.toFixed(1) +
+						"ms, capture=" +
+						_captureMs.toFixed(1) +
+						"ms, advance=" +
+						_advanceMs.toFixed(1) +
+						"ms, other=" +
+						_otherMs.toFixed(1) +
 						"ms, wlSend=" +
 						_workletSendMs.toFixed(1) +
 						"ms, wlTones=" +
@@ -4837,7 +4912,7 @@ export class Synth {
 			);
 		};
 
-		const snapshot: SongSnapshot = this._renderSnapshot ?? this.snapshotBuilder.build(song);
+		const snapshot: SongSnapshot = this._renderSnapshot ?? this._buildToneOnlySnapshot(song);
 		const env: ToneRenderEnv = {
 			sampleRate: this.samplesPerSecond,
 			tick: this.tick,
