@@ -24,7 +24,7 @@ import type { Note, NotePin, Pattern } from "./notes";
 import { PickedString } from "./picked-string";
 import { getPlugin } from "./plugins";
 import { PostProcessingState } from "./post-processing";
-import { applyCustomSamplePhaseRestore, applyDetune, applyDrumsetPitch, applyFadeIn, applyIntervalFadeSideEffects, applyPitchShift, applyVibrato, computeBasePitchAndExpression, computeEnvelopeSpeeds, computeFmExpressionAndFeedback, computeFmOperatorLoop, computeNonFmExpression, computeNonFmPitchSetup, computeSimpleNoteFilterValues, computeSlides, computeSupersawSetup, computeToneIntervalAndFade, computeUnisonPhases, initTonePhaseState } from "./render/compute-tone";
+import { applyCustomSamplePhaseRestore, applyDetune, applyDrumsetPitch, applyFadeIn, applyIntervalFadeSideEffects, applyPitchShift, applyVibrato, computeBasePitchAndExpression, computeEnvelopeSpeeds, computeFmExpressionAndFeedback, computeFmOperatorLoop, computeNonFmExpression, computeNonFmPitchSetup, computeNoteFilters, computeSimpleNoteFilterValues, computeSlides, computeSupersawSetup, computeToneIntervalAndFade, computeUnisonPhases, initTonePhaseState } from "./render/compute-tone";
 import {
 	allocTone,
 	freeAllTones,
@@ -3519,8 +3519,8 @@ export class Synth {
 		applyIntervalFadeSideEffects(tone, released, intervalEnd, toneIsOnLastTick, roundedSamplesPerTick);
 
 		const tmpNoteFilter: FilterSettings = instrument.noteFilter;
-		let startPoint: FilterControlPoint;
-		let endPoint: FilterControlPoint;
+		let startPoint: FilterControlPoint | null = null;
+		let endPoint: FilterControlPoint | null = null;
 
 		if (instrument.noteFilterType) {
 			// Simple EQ filter (old style). For analysis, using random filters from normal style since they are N/A in this context.
@@ -3854,107 +3854,21 @@ export class Synth {
 
 		applyDrumsetPitch(tone, instrument.type, Config.drumCount);
 
-		let noteFilterExpression: number = envelopeComputer.lowpassCutoffDecayVolumeCompensation;
-		if (!effectsIncludeNoteFilter(instrument.effects)) {
-			tone.noteFilterCount = 0;
-		} else {
-			// Velocity→brightness tracking: scale note filter cutoff by velocity
-			// (gated under noteRange effect via velocityTracking field, no new effect bit)
-			let velBrightnessMult: number = 1.0;
-			if (instrument.velocityTracking > 0 && tone.note != null) {
-				const velNorm: number = tone.note.velocity / 127;
-				// Maps velocity [1,127] → multiplier [0.5, 1.5] × velocityTracking amount
-				velBrightnessMult = 1.0 + instrument.velocityTracking * (velNorm - 0.5);
-			}
-
-			const noteAllFreqsEnvelopeStart: number =
-				envelopeStarts[EnvelopeComputeIndex.noteFilterAllFreqs] * velBrightnessMult;
-			const noteAllFreqsEnvelopeEnd: number =
-				envelopeEnds[EnvelopeComputeIndex.noteFilterAllFreqs] * velBrightnessMult;
-
-			// Simple note filter
-			if (instrument.noteFilterType) {
-				const noteFreqEnvelopeStart: number =
-					envelopeStarts[EnvelopeComputeIndex.noteFilterFreq0];
-				const noteFreqEnvelopeEnd: number =
-					envelopeEnds[EnvelopeComputeIndex.noteFilterFreq0];
-				const notePeakEnvelopeStart: number =
-					envelopeStarts[EnvelopeComputeIndex.noteFilterGain0];
-				const notePeakEnvelopeEnd: number =
-					envelopeEnds[EnvelopeComputeIndex.noteFilterGain0];
-
-				startPoint!.toCoefficients(
-					tempFilterStartCoefficients,
-					this.samplesPerSecond,
-					noteAllFreqsEnvelopeStart * noteFreqEnvelopeStart,
-					notePeakEnvelopeStart,
-				);
-				endPoint!.toCoefficients(
-					tempFilterEndCoefficients,
-					this.samplesPerSecond,
-					noteAllFreqsEnvelopeEnd * noteFreqEnvelopeEnd,
-					notePeakEnvelopeEnd,
-				);
-
-				tone.noteFilters[0].loadCoefficientsWithGradient(
-					tempFilterStartCoefficients,
-					tempFilterEndCoefficients,
-					1.0 / roundedSamplesPerTick,
-					startPoint!.type === FilterType.lowPass,
-				);
-				noteFilterExpression *= startPoint!.getVolumeCompensationMult();
-
-				tone.noteFilterCount = 1;
-			} else {
-				const noteFilterSettings: FilterSettings =
-					instrument.tmpNoteFilterStart != null
-						? instrument.tmpNoteFilterStart
-						: instrument.noteFilter;
-
-				for (let i: number = 0; i < noteFilterSettings.controlPointCount; i++) {
-					const noteFreqEnvelopeStart: number =
-						envelopeStarts[EnvelopeComputeIndex.noteFilterFreq0 + i];
-					const noteFreqEnvelopeEnd: number =
-						envelopeEnds[EnvelopeComputeIndex.noteFilterFreq0 + i];
-					const notePeakEnvelopeStart: number =
-						envelopeStarts[EnvelopeComputeIndex.noteFilterGain0 + i];
-					const notePeakEnvelopeEnd: number =
-						envelopeEnds[EnvelopeComputeIndex.noteFilterGain0 + i];
-					let startPoint: FilterControlPoint = noteFilterSettings.controlPoints[i];
-					const endPoint: FilterControlPoint =
-						instrument.tmpNoteFilterEnd != null &&
-						instrument.tmpNoteFilterEnd.controlPoints[i] != null
-							? instrument.tmpNoteFilterEnd.controlPoints[i]
-							: noteFilterSettings.controlPoints[i];
-
-					// If switching dot type, do it all at once and do not try to interpolate since no valid interpolation exists.
-					if (startPoint.type !== endPoint.type) {
-						startPoint = endPoint;
-					}
-
-					startPoint.toCoefficients(
-						tempFilterStartCoefficients,
-						this.samplesPerSecond,
-						noteAllFreqsEnvelopeStart * noteFreqEnvelopeStart,
-						notePeakEnvelopeStart,
-					);
-					endPoint.toCoefficients(
-						tempFilterEndCoefficients,
-						this.samplesPerSecond,
-						noteAllFreqsEnvelopeEnd * noteFreqEnvelopeEnd,
-						notePeakEnvelopeEnd,
-					);
-					tone.noteFilters[i].loadCoefficientsWithGradient(
-						tempFilterStartCoefficients,
-						tempFilterEndCoefficients,
-						1.0 / roundedSamplesPerTick,
-						startPoint.type === FilterType.lowPass,
-					);
-					noteFilterExpression *= startPoint.getVolumeCompensationMult();
-				}
-				tone.noteFilterCount = noteFilterSettings.controlPointCount;
-			}
-		}
+		let noteFilterExpression: number = computeNoteFilters(
+			tone,
+			instrument,
+			envelopeComputer.lowpassCutoffDecayVolumeCompensation,
+			effectsIncludeNoteFilter(instrument.effects),
+			tone.note,
+			envelopeStarts,
+			envelopeEnds,
+			this.samplesPerSecond,
+			roundedSamplesPerTick,
+			tempFilterStartCoefficients,
+			tempFilterEndCoefficients,
+			startPoint,
+			endPoint,
+		);
 
 		if (instrument.type === InstrumentType.drumset) {
 			const drumsetEnvelopeComputer: EnvelopeComputer = tone.envelopeComputer;

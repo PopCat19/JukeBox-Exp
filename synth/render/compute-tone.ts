@@ -12,10 +12,11 @@
 // Phase 2: The full computeTone() lives here for the AudioWorklet.
 
 import type { Note } from "../notes";
-import { Config, EnvelopeComputeIndex, InstrumentType, type InstrumentType as InstrumentTypeEnum } from "../synth-config";
+import { Config, EnvelopeComputeIndex, FilterType, InstrumentType, type InstrumentType as InstrumentTypeEnum } from "../synth-config";
 import { computeChordExpression, operatorAmplitudeCurve } from "../synth-math";
 import { noteSizeToVolumeMult, instrumentVolumeToVolumeMult } from "../synth-shared";
 import { detuneToCents, getOperatorWave, fittingPowerOfTwo } from "../util";
+import { FilterCoefficients } from "../filtering";
 import { getArpeggioPitchIndex, getPulseWidthRatio } from "../config/synth-math-utils";
 import type { Tone } from "../tone";
 import type { SongSnapshot } from "./snapshot";
@@ -1839,6 +1840,176 @@ export function computeSupersawSetup(
 		supersawExpressionEnd,
 		unisonInitialized,
 	};
+}
+
+// ── Note filter ────────────────────────────────────────────────────────────
+
+/**
+ * Minimal instrument data for note filter computation.
+ */
+export interface NoteFilterInstrument {
+	readonly noteFilterType: boolean;
+	readonly velocityTracking: number;
+	readonly noteFilter: {
+		readonly controlPointCount: number;
+		readonly controlPoints: readonly FilterControlPointLite[];
+	};
+	readonly tmpNoteFilterStart: {
+		readonly controlPointCount: number;
+		readonly controlPoints: readonly FilterControlPointLite[];
+	} | null;
+	readonly tmpNoteFilterEnd: {
+		readonly controlPointCount: number;
+		readonly controlPoints: readonly (FilterControlPointLite | null)[];
+	} | null;
+}
+
+/**
+ * Minimal interface for FilterControlPoint — just the methods we call.
+ */
+export interface FilterControlPointLite {
+	readonly type: number;
+	toCoefficients(filter: FilterCoefficients, sampleRate: number, freqMult?: number, peakMult?: number): void;
+	getVolumeCompensationMult(): number;
+}
+
+/**
+ * Minimal interface for tone.noteFilters elements.
+ */
+export interface NoteFilterLite {
+	loadCoefficientsWithGradient(start: FilterCoefficients, end: FilterCoefficients, gradient: number, isLowPass: boolean): void;
+}
+
+/**
+ * Compute note filter coefficients for all control points.
+ *
+ * Handles both the simple EQ (noteFilterType=true) and multi-point
+ * (noteFilterType=false) branches. For simple mode, expects pre-computed
+ * startPoint/endPoint from computeSimpleNoteFilterValues.
+ *
+ * Mutates tone.noteFilters[] and tone.noteFilterCount.
+ * Returns the updated noteFilterExpression.
+ */
+export function computeNoteFilters(
+	tone: Tone,
+	inst: NoteFilterInstrument,
+	envelopeComputerLowpassComp: number,
+	effectsHasNoteFilter: boolean,
+	toneNote: { readonly velocity: number } | null,
+	envelopeStarts: readonly number[],
+	envelopeEnds: readonly number[],
+	samplesPerSecond: number,
+	roundedSamplesPerTick: number,
+	tempFilterStart: FilterCoefficients,
+	tempFilterEnd: FilterCoefficients,
+	simpleStartPoint: FilterControlPointLite | null,
+	simpleEndPoint: FilterControlPointLite | null,
+): number {
+	let noteFilterExpression: number = envelopeComputerLowpassComp;
+
+	if (!effectsHasNoteFilter) {
+		tone.noteFilterCount = 0;
+		return noteFilterExpression;
+	}
+
+	// Velocity→brightness tracking
+	let velBrightnessMult: number = 1.0;
+	if (inst.velocityTracking > 0 && toneNote != null) {
+		const velNorm: number = toneNote.velocity / 127;
+		velBrightnessMult = 1.0 + inst.velocityTracking * (velNorm - 0.5);
+	}
+
+	const noteAllFreqsEnvelopeStart: number =
+		envelopeStarts[EnvelopeComputeIndex.noteFilterAllFreqs] * velBrightnessMult;
+	const noteAllFreqsEnvelopeEnd: number =
+		envelopeEnds[EnvelopeComputeIndex.noteFilterAllFreqs] * velBrightnessMult;
+
+	if (inst.noteFilterType) {
+		// Simple EQ filter
+		const noteFreqEnvelopeStart: number =
+			envelopeStarts[EnvelopeComputeIndex.noteFilterFreq0];
+		const noteFreqEnvelopeEnd: number =
+			envelopeEnds[EnvelopeComputeIndex.noteFilterFreq0];
+		const notePeakEnvelopeStart: number =
+			envelopeStarts[EnvelopeComputeIndex.noteFilterGain0];
+		const notePeakEnvelopeEnd: number =
+			envelopeEnds[EnvelopeComputeIndex.noteFilterGain0];
+
+		const sp: FilterControlPointLite = simpleStartPoint!;
+		const ep: FilterControlPointLite = simpleEndPoint!;
+
+		sp.toCoefficients(
+			tempFilterStart,
+			samplesPerSecond,
+			noteAllFreqsEnvelopeStart * noteFreqEnvelopeStart,
+			notePeakEnvelopeStart,
+		);
+		ep.toCoefficients(
+			tempFilterEnd,
+			samplesPerSecond,
+			noteAllFreqsEnvelopeEnd * noteFreqEnvelopeEnd,
+			notePeakEnvelopeEnd,
+		);
+
+		tone.noteFilters[0].loadCoefficientsWithGradient(
+			tempFilterStart,
+			tempFilterEnd,
+			1.0 / roundedSamplesPerTick,
+			sp.type === FilterType.lowPass,
+		);
+		noteFilterExpression *= sp.getVolumeCompensationMult();
+
+		tone.noteFilterCount = 1;
+	} else {
+		// Multi-point filter
+		const noteFilterSettings: NoteFilterInstrument["noteFilter"] =
+			inst.tmpNoteFilterStart != null ? inst.tmpNoteFilterStart : inst.noteFilter;
+
+		for (let i: number = 0; i < noteFilterSettings.controlPointCount; i++) {
+			const noteFreqEnvelopeStart: number =
+				envelopeStarts[EnvelopeComputeIndex.noteFilterFreq0 + i];
+			const noteFreqEnvelopeEnd: number =
+				envelopeEnds[EnvelopeComputeIndex.noteFilterFreq0 + i];
+			const notePeakEnvelopeStart: number =
+				envelopeStarts[EnvelopeComputeIndex.noteFilterGain0 + i];
+			const notePeakEnvelopeEnd: number =
+				envelopeEnds[EnvelopeComputeIndex.noteFilterGain0 + i];
+			let sp: FilterControlPointLite = noteFilterSettings.controlPoints[i];
+			const ep: FilterControlPointLite =
+				inst.tmpNoteFilterEnd != null &&
+					inst.tmpNoteFilterEnd.controlPoints[i] != null
+					? inst.tmpNoteFilterEnd.controlPoints[i]!
+					: noteFilterSettings.controlPoints[i];
+
+			// If switching dot type, do not interpolate — no valid interpolation exists.
+			if (sp.type !== ep.type) {
+				sp = ep;
+			}
+
+			sp.toCoefficients(
+				tempFilterStart,
+				samplesPerSecond,
+				noteAllFreqsEnvelopeStart * noteFreqEnvelopeStart,
+				notePeakEnvelopeStart,
+			);
+			ep.toCoefficients(
+				tempFilterEnd,
+				samplesPerSecond,
+				noteAllFreqsEnvelopeEnd * noteFreqEnvelopeEnd,
+				notePeakEnvelopeEnd,
+			);
+			tone.noteFilters[i].loadCoefficientsWithGradient(
+				tempFilterStart,
+				tempFilterEnd,
+				1.0 / roundedSamplesPerTick,
+				sp.type === FilterType.lowPass,
+			);
+			noteFilterExpression *= sp.getVolumeCompensationMult();
+		}
+		tone.noteFilterCount = noteFilterSettings.controlPointCount;
+	}
+
+	return noteFilterExpression;
 }
 
 
