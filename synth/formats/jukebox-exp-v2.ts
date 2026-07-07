@@ -8,13 +8,13 @@
 // - Unknown module payloads preserved opaquely for round-trip
 // - decode-variant one-way importer calls module.migrate() for legacy formats
 
-import type { SongLike } from "../song-serialization";
-import { toJukeboxExpJson, isJukeboxExpObject } from "./jukebox-exp";
-import { type JukeboxExpFields } from "./schema-types";
-import { fromJsonObjectImpl } from "./json-serialization";
+import { JsonFieldReader } from "../socket/json-serde-adapter";
 import { getInstrument } from "../socket/registry";
 import { resolveOrPlaceholder } from "../socket/resolve-or-placeholder";
-import { JsonFieldReader } from "../socket/json-serde-adapter";
+import type { SongLike } from "../song-serialization";
+import { fromJsonObjectImpl } from "./json-serialization";
+import { isJukeboxExpObject, toJukeboxExpJson } from "./jukebox-exp";
+import { type JukeboxExpFields } from "./schema-types";
 
 export const JUKEBOX_EXP_V2_FORMAT = "JukeboxExp" as const;
 export const JUKEBOX_EXP_V2_LATEST_VERSION = 2;
@@ -57,7 +57,11 @@ export function toJukeboxExpV2Json(
 			// Collect module-relevant params from instrument for round-trip
 			for (const key of Object.keys(instrument as unknown as Record<string, unknown>)) {
 				const val = (instrument as any)[key];
-				if (typeof val === "number" || typeof val === "boolean" || typeof val === "string") {
+				if (
+					typeof val === "number" ||
+					typeof val === "boolean" ||
+					typeof val === "string"
+				) {
 					params[key] = val;
 				}
 			}
@@ -90,11 +94,7 @@ export function fromJukeboxExpV2Json(song: SongLike, obj: JukeboxExpV2Object): v
 	const savedPayloads = obj.modulePayloads;
 
 	const { modulePayloads: _, _expVersion: __, ...base } = obj;
-	fromJsonObjectImpl(
-		song,
-		{ ...base, format: "JukeBox", version: 1 },
-		"jukebox",
-	);
+	fromJsonObjectImpl(song, { ...base, format: "JukeBox", version: 1 }, "jukebox");
 
 	// Apply module payloads AFTER fromJsonObjectImpl which rebuilds instruments
 	// Restore _socketModuleId, then call module.deserialize() to hydrate params

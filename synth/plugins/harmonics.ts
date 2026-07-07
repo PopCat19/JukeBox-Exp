@@ -8,12 +8,12 @@
 
 import { InstrumentState } from "../instrument-state";
 import type { Instrument } from "../instruments";
+import harmonicsModule from "../modules/harmonics/module";
+import { registerModuleAsPlugin } from "../socket/bridge";
 import { Synth } from "../synth";
 import { Config, InstrumentType } from "../synth-config";
 import { buildHarmonicsSource } from "../synthesis/harmonics";
 import type { Tone } from "../tone";
-import { registerModuleAsPlugin } from "../socket/bridge";
-import harmonicsModule from "../modules/harmonics/module";
 
 const functionCache: Function[] = [];
 

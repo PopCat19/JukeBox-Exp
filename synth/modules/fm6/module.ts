@@ -5,10 +5,10 @@
 import type { InstrumentModule, SynthBuildContext } from "../../socket/instrument-module";
 import type { FieldReader, FieldWriter } from "../../socket/serde";
 import { SOCKET_VERSION } from "../../socket/version";
-import { schema } from "./schema";
-import { buildFm6Source } from "./dsp";
-import { deserialize, serialize } from "./serde";
 import { Config } from "../../synth-config";
+import { buildFm6Source } from "./dsp";
+import { schema } from "./schema";
+import { deserialize, serialize } from "./serde";
 
 const MODULE_ID = "core.fm6";
 
@@ -34,7 +34,11 @@ const fm6Module: InstrumentModule = {
 			algorithm6Op: 1,
 			feedbackType6Op: 1,
 			feedbackAmplitude: 0,
-			customAlgorithm: alg ?? { fromPreset: () => {}, name: "", modulatedBy: [[],[],[],[],[],[]] },
+			customAlgorithm: alg ?? {
+				fromPreset: () => {},
+				name: "",
+				modulatedBy: [[], [], [], [], [], []],
+			},
 			customFeedbackType: fb ?? { fromPreset: () => {}, name: "" },
 			operators: Array.from({ length: 6 }, () => ({})),
 		};

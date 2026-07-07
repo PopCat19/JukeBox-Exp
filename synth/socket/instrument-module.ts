@@ -8,9 +8,9 @@
 // - Modules own their params, serde, and DSP source generation
 // - Host owns tone lifecycle, mixing, envelopes, and container format
 
+import type { InstrumentCapabilities } from "./capability-schema";
 import type { ParamSchema } from "./param-schema";
 import type { FieldReader, FieldWriter } from "./serde";
-import type { InstrumentCapabilities } from "./capability-schema";
 
 export interface SynthBuildContext {
 	readonly sampleRate: number;

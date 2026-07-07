@@ -53,9 +53,7 @@ export class DrumsetSetup {
 			),
 		);
 		const recordEnvelopeChange = (drumIdx: number, select: HTMLSelectElement) => () => {
-			host.doc.record(
-				new ChangeDrumsetEnvelope(host.doc, drumIdx, select.selectedIndex),
-			);
+			host.doc.record(new ChangeDrumsetEnvelope(host.doc, drumIdx, select.selectedIndex));
 		};
 		for (let i: number = Config.drumCount - 1; i >= 0; i--) {
 			const drumIndex: number = i;
@@ -68,7 +66,10 @@ export class DrumsetSetup {
 				Config.envelopes.map((envelope) => envelope.name),
 			);
 			host.drumsetEnvelopeSelects[i] = envelopeSelect;
-			envelopeSelect.addEventListener("change", recordEnvelopeChange(drumIndex, envelopeSelect));
+			envelopeSelect.addEventListener(
+				"change",
+				recordEnvelopeChange(drumIndex, envelopeSelect),
+			);
 
 			const row: HTMLDivElement = div(
 				{ class: "selectRow" },

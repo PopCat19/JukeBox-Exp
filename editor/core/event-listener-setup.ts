@@ -323,7 +323,10 @@ export class EventListenerSetup {
 				) {
 					host.doc.synth.loopBarStart = -1;
 					host.doc.synth.loopBarEnd = -1;
-					host.loopEditor.setLoopAt(host.doc.synth.loopBarStart, host.doc.synth.loopBarEnd);
+					host.loopEditor.setLoopAt(
+						host.doc.synth.loopBarStart,
+						host.doc.synth.loopBarEnd,
+					);
 				}
 			} else {
 				host.whenPrevBarPressed();
@@ -341,7 +344,10 @@ export class EventListenerSetup {
 				) {
 					host.doc.synth.loopBarStart = -1;
 					host.doc.synth.loopBarEnd = -1;
-					host.loopEditor.setLoopAt(host.doc.synth.loopBarStart, host.doc.synth.loopBarEnd);
+					host.loopEditor.setLoopAt(
+						host.doc.synth.loopBarStart,
+						host.doc.synth.loopBarEnd,
+					);
 				}
 			} else {
 				host.whenNextBarPressed();
@@ -398,12 +404,24 @@ export class EventListenerSetup {
 
 		// Modulator controls
 		const thisRef = host;
-		const onSetModChannel = (m: number) => () => { thisRef.dispatch.whenSetModChannel(m); };
-		const onSetModInstrument = (m: number) => () => { thisRef.dispatch.whenSetModInstrument(m); };
-		const onSetModSetting = (m: number) => () => { thisRef.dispatch.whenSetModSetting(m); };
-		const onSetModFilter = (m: number) => () => { thisRef.dispatch.whenSetModFilter(m); };
-		const onSetModEnvelope = (m: number) => () => { thisRef.dispatch.whenSetModEnvelope(m); };
-		const onClickModTarget = (m: number) => () => { thisRef.dispatch.whenClickModTarget(m); };
+		const onSetModChannel = (m: number) => () => {
+			thisRef.dispatch.whenSetModChannel(m);
+		};
+		const onSetModInstrument = (m: number) => () => {
+			thisRef.dispatch.whenSetModInstrument(m);
+		};
+		const onSetModSetting = (m: number) => () => {
+			thisRef.dispatch.whenSetModSetting(m);
+		};
+		const onSetModFilter = (m: number) => () => {
+			thisRef.dispatch.whenSetModFilter(m);
+		};
+		const onSetModEnvelope = (m: number) => () => {
+			thisRef.dispatch.whenSetModEnvelope(m);
+		};
+		const onClickModTarget = (m: number) => () => {
+			thisRef.dispatch.whenClickModTarget(m);
+		};
 		for (let mod = 0; mod < Config.modCount; mod++) {
 			host.modChannelBoxes[mod].addEventListener("change", onSetModChannel(mod));
 			host.modInstrumentBoxes[mod].addEventListener("change", onSetModInstrument(mod));

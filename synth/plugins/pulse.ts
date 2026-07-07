@@ -8,12 +8,12 @@
 
 import { InstrumentState } from "../instrument-state";
 import type { Instrument } from "../instruments";
+import pulseModule from "../modules/pulse/module";
+import { registerModuleAsPlugin } from "../socket/bridge";
 import { Synth } from "../synth";
 import { Config, InstrumentType } from "../synth-config";
 import { buildPulseWidthSource } from "../synthesis/pulse";
 import type { Tone } from "../tone";
-import { registerModuleAsPlugin } from "../socket/bridge";
-import pulseModule from "../modules/pulse/module";
 
 const functionCache: Function[] = [];
 

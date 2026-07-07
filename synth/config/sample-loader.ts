@@ -110,9 +110,7 @@ export async function startLoadingSample(
 				rawLoopOptions.chipWaveLoopMode != null ? rawLoopOptions.chipWaveLoopMode : 0;
 			presetSettings.chipWavePlayBackwards = rawLoopOptions.chipWavePlayBackwards;
 			presetSettings.chipWaveStartOffset =
-				rawLoopOptions.chipWaveStartOffset != null
-					? rawLoopOptions.chipWaveStartOffset
-					: 0;
+				rawLoopOptions.chipWaveStartOffset != null ? rawLoopOptions.chipWaveStartOffset : 0;
 		}
 		sampleLoadingState.samplesLoaded++;
 		sampleLoadingState.statusTable[chipWaveIndex] = SampleLoadingStatus.loaded;

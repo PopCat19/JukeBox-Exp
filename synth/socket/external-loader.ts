@@ -9,7 +9,7 @@
 // - Community modules skip the old numeric plugin dispatch entirely
 
 import type { InstrumentModule } from "./instrument-module";
-import { registerInstrument, isCoreModuleId, validateModuleNamespace } from "./registry";
+import { isCoreModuleId, registerInstrument, validateModuleNamespace } from "./registry";
 
 /**
  * Results of a load attempt.
@@ -112,5 +112,7 @@ export async function loadExternalModule(
 export async function loadExternalModules(
 	manifest: Array<{ specifier: string; expectedId?: string }>,
 ): Promise<ExternalLoadResult[]> {
-	return Promise.all(manifest.map((entry) => loadExternalModule(entry.specifier, entry.expectedId)));
+	return Promise.all(
+		manifest.map((entry) => loadExternalModule(entry.specifier, entry.expectedId)),
+	);
 }

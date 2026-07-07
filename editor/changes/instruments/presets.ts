@@ -7,6 +7,7 @@
 // - Generates random instruments
 
 import { Channel, FilterControlPoint, type FilterSettings, Instrument } from "../../../synth";
+import { tagInstrumentWithModule } from "../../../synth/socket/instrument-tagging";
 import {
 	type Algorithm,
 	Config,
@@ -17,7 +18,6 @@ import {
 	LFOEnvelopeTypes,
 	RandomEnvelopeTypes,
 } from "../../../synth/synth-config";
-import { tagInstrumentWithModule } from "../../../synth/socket/instrument-tagging";
 import { EditorConfig, type Preset } from "../../config/editor-config";
 import { Change } from "../../core/change";
 import type { SongDocument } from "../../song-document";

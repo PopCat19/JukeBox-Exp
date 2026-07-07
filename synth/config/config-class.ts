@@ -2888,7 +2888,6 @@ export class Config {
 		return wave;
 	}
 
-
 	public static generateQuasiSineWave() {
 		const wave = new Float32Array(Config.sineWaveLength + 1);
 		for (let i = 0; i < Config.sineWaveLength + 1; i++) {

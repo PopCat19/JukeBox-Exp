@@ -9,10 +9,10 @@
 // - Keeps custom panel escape hatch via opts.overrideParam
 
 import { HTML } from "imperative-html/dist/esm/elements-strict";
-import { rangeSlider, type Slider } from "../ui";
-import type { SongDocument } from "../song-document";
-import type { ParamSchema, ParamDescriptor } from "../../synth/socket/param-schema";
 import type { Instrument } from "../../synth";
+import type { ParamDescriptor, ParamSchema } from "../../synth/socket/param-schema";
+import type { SongDocument } from "../song-document";
+import { rangeSlider, type Slider } from "../ui";
 import { createChangeForParam, type ModuleModMap } from "./change-factory";
 
 const { div, span, input, label } = HTML;
@@ -45,12 +45,15 @@ export function buildModulePanel(opts: PanelFactoryOptions): GeneratedModulePane
 	const sliders: Slider[] = [];
 	const elements: HTMLElement[] = [];
 
-	const groups = schema.groups && schema.groups.length > 0
-		? schema.groups.map((g) => ({
-				label: g.label,
-				params: g.params.map((k) => schema.params.find((p) => p.key === k)!).filter(Boolean),
-			}))
-		: [{ label: "", params: [...schema.params] }];
+	const groups =
+		schema.groups && schema.groups.length > 0
+			? schema.groups.map((g) => ({
+					label: g.label,
+					params: g.params
+						.map((k) => schema.params.find((p) => p.key === k)!)
+						.filter(Boolean),
+				}))
+			: [{ label: "", params: [...schema.params] }];
 
 	for (const group of groups) {
 		if (group.label) {
@@ -100,10 +103,7 @@ export function buildModulePanel(opts: PanelFactoryOptions): GeneratedModulePane
 				chk.addEventListener("change", onChange);
 				checkboxes[param.key] = { el: chk, onChange };
 
-				elements.push(div(
-					{ class: "selectRow" },
-					label(chk, param.label),
-				) as HTMLElement);
+				elements.push(div({ class: "selectRow" }, label(chk, param.label)) as HTMLElement);
 			} else if (param.type === "enum") {
 				const sel = document.createElement("select");
 				for (let i = 0; i < (param.enumValues?.length ?? 0); i++) {
@@ -122,17 +122,19 @@ export function buildModulePanel(opts: PanelFactoryOptions): GeneratedModulePane
 				sel.addEventListener("change", onChange);
 				selects[param.key] = { el: sel, onChange };
 
-				elements.push(div(
-					{ class: "selectRow" },
-					span(
-						{
-							class: "tip",
-							onclick: () => onOpenPrompt?.(param.key),
-						},
-						`${param.label}:`,
-					),
-					sel,
-				) as HTMLElement);
+				elements.push(
+					div(
+						{ class: "selectRow" },
+						span(
+							{
+								class: "tip",
+								onclick: () => onOpenPrompt?.(param.key),
+							},
+							`${param.label}:`,
+						),
+						sel,
+					) as HTMLElement,
+				);
 			}
 		}
 	}
@@ -171,5 +173,12 @@ export function buildModulePanel(opts: PanelFactoryOptions): GeneratedModulePane
 		container.remove();
 	}
 
-	return { container: container as HTMLElement, rows, checkboxes, selects, updateValues, destroy };
+	return {
+		container: container as HTMLElement,
+		rows,
+		checkboxes,
+		selects,
+		updateValues,
+		destroy,
+	};
 }

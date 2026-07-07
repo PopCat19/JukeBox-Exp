@@ -9,10 +9,10 @@
 import type { InstrumentModule, SynthBuildContext } from "../../socket/instrument-module";
 import type { FieldReader, FieldWriter } from "../../socket/serde";
 import { SOCKET_VERSION } from "../../socket/version";
-import { schema } from "./schema";
 import { buildSpectrumSource } from "./dsp";
-import { deserialize, serialize } from "./serde";
+import { schema } from "./schema";
 import type { SpectrumParams } from "./serde";
+import { deserialize, serialize } from "./serde";
 
 const MODULE_ID = "core.spectrum";
 const MAX_SPECTRUM_VOICES = 32;

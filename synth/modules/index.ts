@@ -8,17 +8,20 @@
 // - NOT an auto-registration file — each module registers through its
 //   corresponding plugin in synth/plugins/
 
-import { default as _supersawMod, MODULE_ID as _SUPERSAW_ID } from "./supersaw/module";
-import { default as _pulseMod, MODULE_ID as _PULSE_ID } from "./pulse/module";
-import { default as _noiseMod, MODULE_ID as _NOISE_ID } from "./noise/module";
-import { default as _chipMod, MODULE_ID as _CHIP_ID } from "./chip/module";
-import { default as _harmonicsMod, MODULE_ID as _HARMONICS_ID } from "./harmonics/module";
-import { default as _spectrumMod, MODULE_ID as _SPECTRUM_ID } from "./spectrum/module";
-import { default as _pickedStringMod, MODULE_ID as _PICKED_STRING_ID } from "./picked-string/module";
-import { default as _fmMod, MODULE_ID as _FM_ID } from "./fm/module";
-import { default as _fm6Mod, MODULE_ID as _FM6_ID } from "./fm6/module";
-import { default as _drumsetMod, MODULE_ID as _DRUMSET_ID } from "./drumset/module";
-import { default as _modMod, MODULE_ID as _MOD_ID } from "./mod/module";
+import { MODULE_ID as _CHIP_ID, default as _chipMod } from "./chip/module";
+import { MODULE_ID as _DRUMSET_ID, default as _drumsetMod } from "./drumset/module";
+import { MODULE_ID as _FM_ID, default as _fmMod } from "./fm/module";
+import { MODULE_ID as _FM6_ID, default as _fm6Mod } from "./fm6/module";
+import { MODULE_ID as _HARMONICS_ID, default as _harmonicsMod } from "./harmonics/module";
+import { MODULE_ID as _MOD_ID, default as _modMod } from "./mod/module";
+import { MODULE_ID as _NOISE_ID, default as _noiseMod } from "./noise/module";
+import {
+	MODULE_ID as _PICKED_STRING_ID,
+	default as _pickedStringMod,
+} from "./picked-string/module";
+import { MODULE_ID as _PULSE_ID, default as _pulseMod } from "./pulse/module";
+import { MODULE_ID as _SPECTRUM_ID, default as _spectrumMod } from "./spectrum/module";
+import { MODULE_ID as _SUPERSAW_ID, default as _supersawMod } from "./supersaw/module";
 
 export const supersawModule = _supersawMod;
 export const pulseModule = _pulseMod;
@@ -32,7 +35,10 @@ export const fm6Module = _fm6Mod;
 export const drumsetModule = _drumsetMod;
 export const modModule = _modMod;
 
-import { default as _customChipWaveMod, MODULE_ID as _CUSTOM_CHIP_WAVE_ID } from "./custom-chip-wave/module";
+import {
+	MODULE_ID as _CUSTOM_CHIP_WAVE_ID,
+	default as _customChipWaveMod,
+} from "./custom-chip-wave/module";
 export const customChipWaveModule = _customChipWaveMod;
 export const CUSTOM_CHIP_WAVE_ID = _CUSTOM_CHIP_WAVE_ID;
 
@@ -48,21 +54,25 @@ export const FM6_ID = _FM6_ID;
 export const DRUMSET_ID = _DRUMSET_ID;
 export const MOD_ID = _MOD_ID;
 
-export { createPlaceholderModule, isPlaceholderId, unwrapPlaceholderId } from "./placeholder/module";
+export {
+	createPlaceholderModule,
+	isPlaceholderId,
+	unwrapPlaceholderId,
+} from "./placeholder/module";
 
 // Ordered by InstrumentType value — slots match type indices for stable encoding.
 // customChipWave (type 9) is now core.customChipWave.
 export const CORE_MODULE_IDS: readonly string[] = [
-	_CHIP_ID,			// 0  — core.chip
-	_FM_ID,				// 1  — core.fm
-	_NOISE_ID,			// 2  — core.noise
-	_SPECTRUM_ID,		// 3  — core.spectrum
-	_DRUMSET_ID,		// 4  — core.drumset
-	_HARMONICS_ID,		// 5  — core.harmonics
-	_PULSE_ID,			// 6  — core.pulse
-	_PICKED_STRING_ID,	// 7  — core.pickedString
-	_SUPERSAW_ID,		// 8  — core.supersaw
-	_CUSTOM_CHIP_WAVE_ID,// 9  — core.customChipWave
-	_MOD_ID,			// 10 — core.mod
-	_FM6_ID,			// 11 — core.fm6
+	_CHIP_ID, // 0  — core.chip
+	_FM_ID, // 1  — core.fm
+	_NOISE_ID, // 2  — core.noise
+	_SPECTRUM_ID, // 3  — core.spectrum
+	_DRUMSET_ID, // 4  — core.drumset
+	_HARMONICS_ID, // 5  — core.harmonics
+	_PULSE_ID, // 6  — core.pulse
+	_PICKED_STRING_ID, // 7  — core.pickedString
+	_SUPERSAW_ID, // 8  — core.supersaw
+	_CUSTOM_CHIP_WAVE_ID, // 9  — core.customChipWave
+	_MOD_ID, // 10 — core.mod
+	_FM6_ID, // 11 — core.fm6
 ];

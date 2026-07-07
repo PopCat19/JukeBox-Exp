@@ -9,13 +9,13 @@
 
 import { InstrumentState } from "../instrument-state";
 import type { Instrument } from "../instruments";
+import chipModule from "../modules/chip/module";
+import customChipWaveModule from "../modules/custom-chip-wave/module";
+import { registerModuleAsPlugin } from "../socket/bridge";
 import { Synth } from "../synth";
 import { Config, effectsIncludeDistortion, InstrumentType } from "../synth-config";
 import { buildChipSource, buildLoopableChipSource } from "../synthesis/chip";
 import type { Tone } from "../tone";
-import { registerModuleAsPlugin } from "../socket/bridge";
-import chipModule from "../modules/chip/module";
-import customChipWaveModule from "../modules/custom-chip-wave/module";
 
 const chipFunctionCache: Function[] = [];
 const loopableChipFunctionCache: Function[] = Array(Config.unisonVoicesMax + 1).fill(undefined);

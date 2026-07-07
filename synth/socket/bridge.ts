@@ -10,15 +10,15 @@
 // - Registers the module in the socket registry AND the old plugin registry
 // - During migration: modules register through bridge, old dispatch still works
 
-import type { InstrumentModule } from "./instrument-module";
+import type { Instrument } from "../instruments";
+import { CORE_MODULE_IDS } from "../modules";
 import type { SynthPlugin } from "../plugins/interfaces";
 import { registerPlugin } from "../plugins/registry";
-import { registerInstrument, isCoreModuleId } from "./registry";
-import { checkCompatibility, SOCKET_VERSION } from "./version";
-import type { Instrument } from "../instruments";
 import { Config } from "../synth-config";
 import { ModuleIdTable } from "./id-table";
-import { CORE_MODULE_IDS } from "../modules";
+import type { InstrumentModule } from "./instrument-module";
+import { isCoreModuleId, registerInstrument } from "./registry";
+import { checkCompatibility, SOCKET_VERSION } from "./version";
 
 // Populate id-table reserved slots at boot so every new table
 // maps core module ids → stable low indices for compact URL encoding.

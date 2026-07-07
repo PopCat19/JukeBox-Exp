@@ -9,7 +9,10 @@
 // - Exports getInstrumentCapabilities(instrument) for full-object lookup
 // - Exports getInstrumentCapability(instrument, key) for single-flag lookup
 
-import { type InstrumentType, InstrumentType as InstrumentTypes } from "../config/instrument-registry";
+import {
+	type InstrumentType,
+	InstrumentType as InstrumentTypes,
+} from "../config/instrument-registry";
 import type { Instrument } from "../instruments/instrument";
 import type { InstrumentCapabilities } from "./capability-schema";
 import { getInstrument } from "./registry";
@@ -60,14 +63,22 @@ export const LEGACY_TYPE_CAPABILITIES: Readonly<Record<InstrumentType, Instrumen
 	[InstrumentTypes.spectrum]: { ...DEFAULT_CAPABILITIES, hasSpectrum: true },
 	[InstrumentTypes.noise]: { ...DEFAULT_CAPABILITIES, isNoise: true },
 	[InstrumentTypes.drumset]: { ...DEFAULT_CAPABILITIES, isDrumset: true },
-	[InstrumentTypes.pickedString]: { ...DEFAULT_CAPABILITIES, hasStringSustain: true, hasHarmonics: true },
+	[InstrumentTypes.pickedString]: {
+		...DEFAULT_CAPABILITIES,
+		hasStringSustain: true,
+		hasHarmonics: true,
+	},
 	[InstrumentTypes.supersaw]: {
 		...DEFAULT_CAPABILITIES,
 		hasSupersaw: true,
 		hasPulseWidth: true,
 		hasAliasableWaveform: true,
 	},
-	[InstrumentTypes.pwm]: { ...DEFAULT_CAPABILITIES, hasPulseWidth: true, hasAliasableWaveform: true },
+	[InstrumentTypes.pwm]: {
+		...DEFAULT_CAPABILITIES,
+		hasPulseWidth: true,
+		hasAliasableWaveform: true,
+	},
 	[InstrumentTypes.mod]: {
 		...DEFAULT_CAPABILITIES,
 		isMod: true,

@@ -195,15 +195,15 @@ export function freeAllTones(
  * to Synth internals. Phase 2 replaces the host/state types with the
  * worklet's own scope types.
  */
- 
+
 export function playTone(
 	synthesizer: Function | null,
 	bufferIndex: number,
 	runLength: number,
 	tone: Tone,
-	 
+
 	host: any,
-	 
+
 	instrumentState: any,
 ): void {
 	if (synthesizer != null) {
@@ -283,7 +283,7 @@ export function computeNoteExpression(
  * Phase 2: the tone's note field will be replaced with a NoteSnapshot
  * reference so no mutable Note is needed.
  */
- 
+
 export function playModTone(
 	snapshot: SongSnapshot,
 	_channelIndex: number,
@@ -292,9 +292,9 @@ export function playModTone(
 	runLength: number,
 	tone: Tone,
 	state: RenderState,
-	 
+
 	host: any,
-	 
+
 	instrumentState: any,
 ): void {
 	if (tone.note == null) return;
@@ -349,16 +349,17 @@ export function getSamplesPerTick(
  * Get the next bar index given the current bar and loop state.
  * Reads loop/transport data from SongSnapshot. No mutable Song reference.
  */
-export function getNextBarFromSnapshot(
-	snapshot: SongSnapshot,
-	state: RenderState,
-): number {
+export function getNextBarFromSnapshot(snapshot: SongSnapshot, state: RenderState): number {
 	let nextBar: number = state.bar + 1;
 	if (state.bar === snapshot.loopBarEnd && !state.renderingSong) {
 		nextBar = snapshot.loopBarStart;
 	} else if (
 		snapshot.loopRepeatCount !== 0 &&
-		nextBar === Math.max(snapshot.loopBarEnd + 1, snapshot.loopBarStart + (snapshot.loopBarEnd - snapshot.loopBarStart))
+		nextBar ===
+			Math.max(
+				snapshot.loopBarEnd + 1,
+				snapshot.loopBarStart + (snapshot.loopBarEnd - snapshot.loopBarStart),
+			)
 	) {
 		nextBar = snapshot.loopBarStart;
 	}
@@ -438,17 +439,13 @@ export function computePlayheadFromState(
 	ticksPerPart: number,
 ): number {
 	// Fractional position within the current tick (0..1 within the tick)
-	const tickFraction: number =
-		state.tick + 1.0 - state.tickSampleCountdown / samplesPerTick;
+	const tickFraction: number = state.tick + 1.0 - state.tickSampleCountdown / samplesPerTick;
 	// Convert ticks to parts, then parts → beats → bars.
 	// The / ticksPerPart converts from tick units to part-relative fraction.
 	return (
-		(tickFraction / ticksPerPart + state.part) /
-			partsPerBeat +
-		state.beat
-	) /
-		beatsPerBar +
-		state.bar;
+		((tickFraction / ticksPerPart + state.part) / partsPerBeat + state.beat) / beatsPerBar +
+		state.bar
+	);
 }
 
 // ── Snapshot → SongPostParams ─────────────────────────────────────────────

@@ -8,13 +8,13 @@
 
 import { InstrumentState } from "../instrument-state";
 import type { Instrument } from "../instruments";
+import drumsetModule from "../modules/drumset/module";
+import { registerModuleAsPlugin } from "../socket/bridge";
 import { Synth } from "../synth";
 import { Config, InstrumentType } from "../synth-config";
 import { buildDrumSource } from "../synthesis/drum";
 import type { Tone } from "../tone";
 import { SpectrumWave } from "../waves";
-import { registerModuleAsPlugin } from "../socket/bridge";
-import drumsetModule from "../modules/drumset/module";
 
 const functionCache: Function[] = [];
 

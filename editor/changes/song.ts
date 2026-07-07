@@ -47,9 +47,7 @@ function presetMatchesFilter(preset: Preset, isNoise: boolean, tagList: string[]
 	if (tagList.length === 0) return true;
 	if (!preset.tags) return false;
 	return tagList.every((tag) =>
-		tag.startsWith("!")
-			? !preset.tags.includes(tag.slice(1))
-			: preset.tags.includes(tag),
+		tag.startsWith("!") ? !preset.tags.includes(tag.slice(1)) : preset.tags.includes(tag),
 	);
 }
 
@@ -810,9 +808,7 @@ export class ChangeModChannel extends Change {
 		// None, or swapping from song to instrument/vice-versa
 		const modulator = Config.modulators[instrument.modulators[mod]];
 		const resetsToNone =
-			index === 0 ||
-			(modulator.forSong && index >= 2) ||
-			(!modulator.forSong && index < 2);
+			index === 0 || (modulator.forSong && index >= 2) || (!modulator.forSong && index < 2);
 		if (resetsToNone) {
 			instrument.modulators[mod] = Config.modulators.dictionary.none.index;
 		}

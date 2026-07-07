@@ -7,11 +7,11 @@
 // - Preserves algorithm-dependent compiled function caching
 
 import type { Instrument } from "../instruments";
+import fm6Module from "../modules/fm6/module";
+import { registerModuleAsPlugin } from "../socket/bridge";
 import { Synth } from "../synth";
 import { Config, InstrumentType } from "../synth-config";
 import { buildFm6Source } from "../synthesis/fm6";
-import { registerModuleAsPlugin } from "../socket/bridge";
-import fm6Module from "../modules/fm6/module";
 
 const cache: Map<string, Function> = new Map();
 

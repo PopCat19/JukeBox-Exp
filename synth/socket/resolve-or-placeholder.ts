@@ -8,9 +8,9 @@
 // - Falls back to createPlaceholderModule + registerPlaceholderModule
 // - Returns the module in either case (never undefined)
 
+import { createPlaceholderModule } from "../modules/placeholder/module";
 import type { InstrumentModule } from "./instrument-module";
 import { getInstrument, registerPlaceholderModule } from "./registry";
-import { createPlaceholderModule } from "../modules/placeholder/module";
 
 export function resolveOrPlaceholder(id: string): InstrumentModule | undefined {
 	if (!id) return undefined;

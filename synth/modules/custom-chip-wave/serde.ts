@@ -23,7 +23,7 @@ export function serialize(params: CustomChipParams, w: FieldWriter): void {
 	// Write custom wave as a blob of 64 bytes (each sample 0..48 offset by -24)
 	const blob = new Uint8Array(WAVE_LENGTH);
 	for (let i = 0; i < WAVE_LENGTH; i++) {
-		const raw = (params.customChipWave[i] ?? 0);
+		const raw = params.customChipWave[i] ?? 0;
 		blob[i] = Math.max(WAVE_MIN, Math.min(WAVE_MAX, Math.round(raw))) + WAVE_OFFSET;
 	}
 	w.writeBlob("customChipWave", blob);
@@ -40,7 +40,7 @@ export function deserialize(r: FieldReader, _version: number): CustomChipParams 
 	} else {
 		// Default sawtooth
 		for (let i = 0; i < WAVE_LENGTH; i++) {
-			customChipWave[i] = WAVE_OFFSET - Math.floor(i * (2 * WAVE_OFFSET / WAVE_LENGTH));
+			customChipWave[i] = WAVE_OFFSET - Math.floor(i * ((2 * WAVE_OFFSET) / WAVE_LENGTH));
 		}
 	}
 	return { chipWave, customChipWave };

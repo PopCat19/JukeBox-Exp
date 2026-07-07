@@ -88,7 +88,9 @@ export class ModuleIdTable {
 		let offset = 0;
 		while (offset < data.length) {
 			if (offset + 1 > data.length) {
-				throw new RangeError(`Truncated id table: expected length byte at offset ${offset}`);
+				throw new RangeError(
+					`Truncated id table: expected length byte at offset ${offset}`,
+				);
 			}
 			const len = data[offset++];
 			if (len === 0) {

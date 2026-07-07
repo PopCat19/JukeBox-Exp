@@ -414,11 +414,7 @@ export const promptSurfaceCssVars = [
 	"--tab-inactive-fg",
 ] as const;
 
-export const miscCssVars = [
-	"--ease",
-	"--input-box-outline",
-	"--mute-editor-text-dim",
-] as const;
+export const miscCssVars = ["--ease", "--input-box-outline", "--mute-editor-text-dim"] as const;
 
 export const cssVariableContract = {
 	themeCore: themeCoreCssVars,

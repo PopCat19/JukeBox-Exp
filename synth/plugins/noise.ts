@@ -8,12 +8,12 @@
 
 import { InstrumentState } from "../instrument-state";
 import type { Instrument } from "../instruments";
+import noiseModule from "../modules/noise/module";
+import { registerModuleAsPlugin } from "../socket/bridge";
 import { Synth } from "../synth";
 import { Config, InstrumentType } from "../synth-config";
 import { buildNoiseSource } from "../synthesis/noise";
 import type { Tone } from "../tone";
-import { registerModuleAsPlugin } from "../socket/bridge";
-import noiseModule from "../modules/noise/module";
 
 const functionCache: Function[] = [];
 

@@ -9,8 +9,8 @@
 import type { InstrumentModule, SynthBuildContext } from "../../socket/instrument-module";
 import type { FieldReader, FieldWriter } from "../../socket/serde";
 import { SOCKET_VERSION } from "../../socket/version";
-import { schema } from "./schema";
 import { buildNoiseSource } from "./dsp";
+import { schema } from "./schema";
 import { deserialize, serialize } from "./serde";
 
 const MODULE_ID = "core.noise";

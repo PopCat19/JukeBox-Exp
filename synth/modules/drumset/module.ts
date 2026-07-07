@@ -5,8 +5,8 @@
 import type { InstrumentModule, SynthBuildContext } from "../../socket/instrument-module";
 import type { FieldReader, FieldWriter } from "../../socket/serde";
 import { SOCKET_VERSION } from "../../socket/version";
-import { schema } from "./schema";
 import { buildDrumSource } from "./dsp";
+import { schema } from "./schema";
 
 const MODULE_ID = "core.drumset";
 const MAX_DRUM_VOICES = 32;

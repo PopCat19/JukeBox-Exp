@@ -53,27 +53,37 @@ export interface EffectStateDescriptor {
 /**
  * Validate a descriptor and return an error string, or null if valid.
  */
-export function validateDescriptor(
-	desc: EffectStateDescriptor | undefined,
-): string | null {
+export function validateDescriptor(desc: EffectStateDescriptor | undefined): string | null {
 	if (desc === undefined) return null;
 	const { stateBufferSize, delayLineCount, delayLineLength } = desc;
 
-	if (!Number.isFinite(stateBufferSize) || stateBufferSize < 0 || !Number.isInteger(stateBufferSize)) {
+	if (
+		!Number.isFinite(stateBufferSize) ||
+		stateBufferSize < 0 ||
+		!Number.isInteger(stateBufferSize)
+	) {
 		return `stateBufferSize must be a non-negative integer, got ${stateBufferSize}`;
 	}
 	if (stateBufferSize > MAX_STATE_BUFFER_SIZE) {
 		return `stateBufferSize ${stateBufferSize} exceeds max ${MAX_STATE_BUFFER_SIZE}`;
 	}
 
-	if (!Number.isFinite(delayLineCount) || delayLineCount < 0 || !Number.isInteger(delayLineCount)) {
+	if (
+		!Number.isFinite(delayLineCount) ||
+		delayLineCount < 0 ||
+		!Number.isInteger(delayLineCount)
+	) {
 		return `delayLineCount must be a non-negative integer, got ${delayLineCount}`;
 	}
 	if (delayLineCount > MAX_DELAY_LINE_COUNT) {
 		return `delayLineCount ${delayLineCount} exceeds max ${MAX_DELAY_LINE_COUNT}`;
 	}
 
-	if (!Number.isFinite(delayLineLength) || delayLineLength < 0 || !Number.isInteger(delayLineLength)) {
+	if (
+		!Number.isFinite(delayLineLength) ||
+		delayLineLength < 0 ||
+		!Number.isInteger(delayLineLength)
+	) {
 		return `delayLineLength must be a non-negative integer, got ${delayLineLength}`;
 	}
 	if (delayLineLength > MAX_DELAY_LINE_LENGTH) {

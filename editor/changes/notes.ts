@@ -19,8 +19,8 @@ import {
 	Pattern,
 	type Song,
 } from "../../synth";
-import { Config, type Dictionary } from "../../synth/synth-config";
 import { tagInstrumentWithModule } from "../../synth/socket/instrument-tagging";
+import { Config, type Dictionary } from "../../synth/synth-config";
 import { Change, ChangeGroup, ChangeSequence, UndoableChange } from "../core/change";
 import type { SongDocument } from "../song-document";
 import type { Slider } from "../ui";

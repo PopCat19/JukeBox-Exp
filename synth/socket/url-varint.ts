@@ -17,8 +17,7 @@ export function encodeVarint(value: number): number[] {
 	if (value < 0) return [0];
 	if (value < 64) return [value]; // 0xxxxxx
 	if (value < 8192) return [(value >> 6) | 0x40, value & 0x3f]; // 10xxxxxx xxxxxx
-	if (value < 2097152)
-		return [(value >> 12) | 0x80, (value >> 6) & 0x3f, value & 0x3f]; // 110xxxxx xxxxxx xxxxxx
+	if (value < 2097152) return [(value >> 12) | 0x80, (value >> 6) & 0x3f, value & 0x3f]; // 110xxxxx xxxxxx xxxxxx
 	return [0xc0 | ((value >> 18) & 0x3f), (value >> 12) & 0x3f, (value >> 6) & 0x3f, value & 0x3f]; // 1110xxxx 4 bytes
 }
 

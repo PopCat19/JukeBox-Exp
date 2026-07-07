@@ -44,9 +44,7 @@ export function serializeContainer(
 	const idBytes = encoder.encode(moduleId);
 
 	if (idBytes.length > MAX_ID_BYTES) {
-		throw new RangeError(
-			`Module id too long: ${idBytes.length} bytes (max ${MAX_ID_BYTES})`,
-		);
+		throw new RangeError(`Module id too long: ${idBytes.length} bytes (max ${MAX_ID_BYTES})`);
 	}
 	if (payload.length > MAX_PAYLOAD_BYTES) {
 		throw new RangeError(
@@ -72,23 +70,17 @@ export function deserializeContainer(data: Uint8Array): {
 	payload: Uint8Array;
 } {
 	if (data.length < 4) {
-		throw new RangeError(
-			`Container too short: ${data.length} bytes (minimum 4)`,
-		);
+		throw new RangeError(`Container too short: ${data.length} bytes (minimum 4)`);
 	}
 	let offset = 0;
 	const idLen = data[offset++];
 	if (idLen === 0 || offset + idLen > data.length) {
-		throw new RangeError(
-			`Invalid id length: ${idLen}, data length: ${data.length}`,
-		);
+		throw new RangeError(`Invalid id length: ${idLen}, data length: ${data.length}`);
 	}
 	const moduleId = new TextDecoder().decode(data.slice(offset, offset + idLen));
 	offset += idLen;
 	if (offset + 3 > data.length) {
-		throw new RangeError(
-			`Container truncated at version/length header`,
-		);
+		throw new RangeError(`Container truncated at version/length header`);
 	}
 	const payloadVersion = data[offset++];
 	const payloadLen = (data[offset++] << 8) | data[offset++];

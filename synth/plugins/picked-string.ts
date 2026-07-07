@@ -8,12 +8,12 @@
 
 import { InstrumentState } from "../instrument-state";
 import type { Instrument } from "../instruments";
+import pickedStringModule from "../modules/picked-string/module";
+import { registerModuleAsPlugin } from "../socket/bridge";
 import { Synth } from "../synth";
 import { Config, InstrumentType } from "../synth-config";
 import { buildPickedStringSource } from "../synthesis/picked-string";
 import type { Tone } from "../tone";
-import { registerModuleAsPlugin } from "../socket/bridge";
-import pickedStringModule from "../modules/picked-string/module";
 
 const functionCache: Function[] = Array(3).fill(undefined);
 

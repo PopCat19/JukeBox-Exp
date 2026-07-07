@@ -8,18 +8,18 @@
 // - Tracks version (monotonic per build) and editSequence (bumped on editor mutation)
 // - Designed for Phase 1 render-core ingestion: no DOM, no AudioContext, no mutable refs
 
-import type { Song } from "../song";
 import type { Channel } from "../channels";
 import { Instrument } from "../instruments";
-import { FilterSettings } from "../instruments/filter-settings";
-import { FilterControlPoint } from "../instruments/filter-control-point";
-import { EnvelopeSettings } from "../instruments/envelope-settings";
-import { Operator } from "../instruments/operator";
 import { CustomAlgorithm } from "../instruments/custom-algorithm";
 import { CustomFeedBack } from "../instruments/custom-feedback";
+import { EnvelopeSettings } from "../instruments/envelope-settings";
+import { FilterControlPoint } from "../instruments/filter-control-point";
+import { FilterSettings } from "../instruments/filter-settings";
+import { Operator } from "../instruments/operator";
 import type { Note, NotePin, Pattern } from "../notes";
-import { SpectrumWave, HarmonicsWave } from "../waves";
+import type { Song } from "../song";
 import { Config } from "../synth-config";
+import { HarmonicsWave, SpectrumWave } from "../waves";
 
 // ── Snapshot types ────────────────────────────────────────────────────────
 
@@ -402,7 +402,11 @@ export class SnapshotBuilder {
 		};
 	}
 
-	private _buildChannel(song: Song, channelIndex: number, maxPatternCount: number): ChannelSnapshot {
+	private _buildChannel(
+		song: Song,
+		channelIndex: number,
+		maxPatternCount: number,
+	): ChannelSnapshot {
 		const channel: Channel = song.channels[channelIndex];
 
 		// Build instruments
@@ -557,7 +561,8 @@ export function snapshotPattern(pattern: Pattern): PatternSnapshot {
 
 /** Deep-copy an Instrument into a snapshot. Returns a deeply immutable plain object (no shared refs). */
 export function snapshotInstrument(inst: Instrument): InstrumentSnapshot {
-	const _socketModuleId: string | undefined = (inst as unknown as { _socketModuleId?: string })._socketModuleId;
+	const _socketModuleId: string | undefined = (inst as unknown as { _socketModuleId?: string })
+		._socketModuleId;
 
 	// Envelopes
 	const envelopes: EnvelopeSettingsSnapshot[] = [];

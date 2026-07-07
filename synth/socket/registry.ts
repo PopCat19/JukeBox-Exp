@@ -8,9 +8,9 @@
 // - Supports capability queries across registered modules
 // - Bridges to existing plugin registry for migration (phase 1+)
 
-import { checkCompatibility, SOCKET_VERSION } from "./version";
 import type { EffectModule } from "./effect-module";
 import type { InstrumentModule } from "./instrument-module";
+import { checkCompatibility, SOCKET_VERSION } from "./version";
 
 const _instruments = new Map<string, InstrumentModule>();
 const _effects = new Map<string, EffectModule>();
@@ -30,8 +30,7 @@ export function validateModuleNamespace(id: string): string | null {
 	if (firstDot < 1) return "Module id must have a namespace prefix (e.g. 'core.foo')";
 	const ns = id.slice(0, firstDot);
 	if (ns === "core" && !CORE_RE.test(id)) return `Invalid core module id: "${id}"`;
-	if (ns === "community" && !COMMUNITY_RE.test(id))
-		return `Invalid community module id: "${id}"`;
+	if (ns === "community" && !COMMUNITY_RE.test(id)) return `Invalid community module id: "${id}"`;
 	if (!CORE_RE.test(id) && !COMMUNITY_RE.test(id) && !EXTERNAL_RE.test(id))
 		return `Unknown namespace in module id: "${id}"`;
 	return null;

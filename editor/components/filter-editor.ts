@@ -637,8 +637,7 @@ export class FilterEditor {
 
 		if (this.container.offsetParent == null) return;
 		const dragInProgress =
-			this._mouseDown &&
-			(this._doc.lastChangeWas(this._dragChange) || this._writingMods);
+			this._mouseDown && (this._doc.lastChangeWas(this._dragChange) || this._writingMods);
 		if (dragInProgress && this._dragChange != null) {
 			if (!this._addingPoint && !this._mouseDragging && !this._touchMode) {
 				if (
@@ -758,7 +757,9 @@ export class FilterEditor {
 				}
 			}
 			const isAddingLastPoint =
-				this._addingPoint && this._mouseDown && i === this._useFilterSettings.controlPointCount - 1;
+				this._addingPoint &&
+				this._mouseDown &&
+				i === this._useFilterSettings.controlPointCount - 1;
 			const isHighlightedPoint = this._selectedIndex === i || isAddingLastPoint;
 			const shouldShowLabel =
 				isHighlightedPoint && (this._mouseOver || this._mouseDown) && !this._deletingPoint;

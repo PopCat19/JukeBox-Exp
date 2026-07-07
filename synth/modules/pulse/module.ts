@@ -9,10 +9,10 @@
 import type { InstrumentModule, SynthBuildContext } from "../../socket/instrument-module";
 import type { FieldReader, FieldWriter } from "../../socket/serde";
 import { SOCKET_VERSION } from "../../socket/version";
-import { schema } from "./schema";
-import { buildPulseWidthSource } from "./dsp";
-import { deserialize, serialize } from "./serde";
 import { Config } from "../../synth-config";
+import { buildPulseWidthSource } from "./dsp";
+import { schema } from "./schema";
+import { deserialize, serialize } from "./serde";
 
 const MODULE_ID = "core.pulse";
 const MAX_PULSE_VOICES = 32;

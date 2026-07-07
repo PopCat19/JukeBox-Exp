@@ -12,8 +12,6 @@ import type { FilterControlPoint } from "./instruments";
 import { Instrument } from "./instruments";
 import { NotePin } from "./notes";
 import { getPlugin } from "./plugins";
-import { getInstrument } from "./socket/registry";
-import { JsonFieldWriter } from "./socket/json-serde-adapter";
 import {
 	BitFieldWriter,
 	base64IntToCharCode,
@@ -21,6 +19,8 @@ import {
 	encodeUnisonSettings,
 	SongTagCode,
 } from "./serialization";
+import { JsonFieldWriter } from "./socket/json-serde-adapter";
+import { getInstrument } from "./socket/registry";
 import type { SongLike } from "./song-serialization";
 import { getNeededBits, LATEST_JUKEBOX_VERSION } from "./song-serialization";
 import {

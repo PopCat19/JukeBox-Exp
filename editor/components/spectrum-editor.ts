@@ -619,7 +619,9 @@ export class SpectrumEditorPrompt implements Prompt {
 				);
 			}
 			const colors = ColorConfig.getChannelColor(this._doc.song, this._doc.channel);
-			const setDrumSpectrumForIndex = (drumIndex: number) => () => { this._setDrumSpectrum(drumIndex); };
+			const setDrumSpectrumForIndex = (drumIndex: number) => () => {
+				this._setDrumSpectrum(drumIndex);
+			};
 			for (let i: number = 0; i < Config.drumCount; i++) {
 				const newSpectrumButton: HTMLButtonElement = selectorButton(`${i + 1}`, {
 					style: "max-width: 2em;",

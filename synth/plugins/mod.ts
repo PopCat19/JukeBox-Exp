@@ -7,10 +7,10 @@
 // - Uses synth.runModSynth directly (no DSP code generation)
 
 import type { Instrument } from "../instruments";
+import modModule from "../modules/mod/module";
+import { registerModuleAsPlugin } from "../socket/bridge";
 import { Synth } from "../synth";
 import { Config, InstrumentType } from "../synth-config";
-import { registerModuleAsPlugin } from "../socket/bridge";
-import modModule from "../modules/mod/module";
 
 registerModuleAsPlugin(modModule, InstrumentType.mod, [], {
 	getSynthFunction: (_instrument: Instrument, synth: typeof Synth) => synth.runModSynth,

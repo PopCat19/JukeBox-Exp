@@ -24,12 +24,13 @@ import type { Note, NotePin, Pattern } from "./notes";
 import { PickedString } from "./picked-string";
 import { getPlugin } from "./plugins";
 import { PostProcessingState } from "./post-processing";
+import { computeBasePitchAndExpression } from "./render/compute-tone";
 import {
 	allocTone,
 	freeAllTones,
+	recycleTone,
 	freeReleasedTone as renderFreeReleasedTone,
 	getSamplesPerTick as renderGetSamplesPerTick,
-	recycleTone,
 	playTone as renderPlayTone,
 	releaseTone as renderReleaseTone,
 } from "./render/render-core";
@@ -3468,8 +3469,13 @@ export class Synth {
 		const chordExpression: number = chord.singleTone
 			? 1.0
 			: Synth.computeChordExpression(tone.chordSize);
-		const isNoiseChannel: boolean = song.getChannelIsNoise(channelIndex);
-		const intervalScale: number = isNoiseChannel ? Config.noiseInterval : 1;
+		const { basePitch, baseExpression, expressionReferencePitch, pitchDamping, intervalScale } =
+			computeBasePitchAndExpression(channelIndex, instrument, {
+				key: song.key,
+				octave: song.octave,
+				pitchChannelCount: song.pitchChannelCount,
+				noiseChannelCount: song.noiseChannelCount,
+			});
 		const secondsPerPart: number =
 			(Config.ticksPerPart * samplesPerTick) / this.samplesPerSecond;
 		const sampleTime: number = 1.0 / this.samplesPerSecond;
@@ -3489,92 +3495,6 @@ export class Synth {
 		let fadeExpressionEnd: number = 1.0;
 		let chordExpressionStart: number = chordExpression;
 		let chordExpressionEnd: number = chordExpression;
-
-		let expressionReferencePitch: number = 16; // A low "E" as a MIDI pitch.
-		let basePitch: number =
-			Config.keys[song.key].basePitch + Config.pitchesPerOctave * song.octave;
-		let baseExpression: number = 1.0;
-		let pitchDamping: number = 48;
-		if (instrument.type === InstrumentType.spectrum) {
-			baseExpression = Config.spectrumBaseExpression;
-			if (isNoiseChannel) {
-				basePitch = Config.spectrumBasePitch;
-				baseExpression *= 2.0; // Note: spectrum is louder for drum channels than pitch channels!
-			}
-			expressionReferencePitch = Config.spectrumBasePitch;
-			pitchDamping = 28;
-		} else if (instrument.type === InstrumentType.drumset) {
-			basePitch = Config.spectrumBasePitch;
-			baseExpression = Config.drumsetBaseExpression;
-			expressionReferencePitch = basePitch;
-		} else if (instrument.type === InstrumentType.noise) {
-			// dogebox2 code, makes basic noise affected by keys in pitch channels
-			basePitch = isNoiseChannel
-				? Config.chipNoises[instrument.chipNoise].basePitch
-				: basePitch + Config.chipNoises[instrument.chipNoise].basePitch - 12;
-			// maybe also lower expression in pitch channels?
-			baseExpression = Config.noiseBaseExpression;
-			expressionReferencePitch = basePitch;
-			pitchDamping = Config.chipNoises[instrument.chipNoise].isSoft ? 24.0 : 60.0;
-		} else if (
-			instrument.type === InstrumentType.fm ||
-			instrument.type === InstrumentType.fm6op
-		) {
-			baseExpression = Config.fmBaseExpression;
-		} else if (instrument.type === InstrumentType.chip) {
-			baseExpression = Config.chipBaseExpression;
-			if (Config.chipWaves[instrument.chipWave].isCustomSampled) {
-				if (Config.chipWaves[instrument.chipWave].isPercussion) {
-					basePitch =
-						-84.37 +
-						Math.log2(
-							Config.chipWaves[instrument.chipWave].samples.length /
-								Config.chipWaves[instrument.chipWave].sampleRate!,
-						) *
-							-12 -
-						(-60 + Config.chipWaves[instrument.chipWave].rootKey!);
-				} else {
-					basePitch +=
-						-96.37 +
-						Math.log2(
-							Config.chipWaves[instrument.chipWave].samples.length /
-								Config.chipWaves[instrument.chipWave].sampleRate!,
-						) *
-							-12 -
-						(-60 + Config.chipWaves[instrument.chipWave].rootKey!);
-				}
-			} else {
-				if (
-					Config.chipWaves[instrument.chipWave].isSampled &&
-					!Config.chipWaves[instrument.chipWave].isPercussion
-				) {
-					basePitch =
-						basePitch - 63 + Config.chipWaves[instrument.chipWave].extraSampleDetune!;
-				} else if (
-					Config.chipWaves[instrument.chipWave].isSampled &&
-					Config.chipWaves[instrument.chipWave].isPercussion
-				) {
-					basePitch = -51 + Config.chipWaves[instrument.chipWave].extraSampleDetune!;
-				}
-			}
-		} else if (instrument.type === InstrumentType.customChipWave) {
-			baseExpression = Config.chipBaseExpression;
-		} else if (instrument.type === InstrumentType.harmonics) {
-			baseExpression = Config.harmonicsBaseExpression;
-		} else if (instrument.type === InstrumentType.pwm) {
-			baseExpression = Config.pwmBaseExpression;
-		} else if (instrument.type === InstrumentType.supersaw) {
-			baseExpression = Config.supersawBaseExpression;
-		} else if (instrument.type === InstrumentType.pickedString) {
-			baseExpression = Config.pickedStringBaseExpression;
-		} else if (instrument.type === InstrumentType.mod) {
-			baseExpression = 1.0;
-			expressionReferencePitch = 0;
-			pitchDamping = 1.0;
-			basePitch = 0;
-		} else {
-			throw new Error("Unknown instrument type in computeTone.");
-		}
 
 		let customSampleNeedsPhaseRestore: boolean = false;
 		let customSamplePartsPassed: number = 0;

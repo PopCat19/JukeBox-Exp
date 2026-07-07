@@ -10,9 +10,9 @@
 import type { InstrumentModule, SynthBuildContext } from "../../socket/instrument-module";
 import type { FieldReader, FieldWriter } from "../../socket/serde";
 import { SOCKET_VERSION } from "../../socket/version";
-import { schema } from "./schema";
 import { buildChipSource } from "./dsp";
-import { serialize, deserialize } from "./serde";
+import { schema } from "./schema";
+import { deserialize, serialize } from "./serde";
 
 const MODULE_ID = "core.customChipWave";
 const MAX_CHIP_VOICES = 32;
@@ -49,7 +49,7 @@ const customChipWaveModule: InstrumentModule = {
 		} else {
 			waveArray = new Float32Array(WAVE_LENGTH);
 			for (let i = 0; i < WAVE_LENGTH; i++) {
-				waveArray[i] = WAVE_OFFSET - Math.floor(i * (2 * WAVE_OFFSET / WAVE_LENGTH));
+				waveArray[i] = WAVE_OFFSET - Math.floor(i * ((2 * WAVE_OFFSET) / WAVE_LENGTH));
 			}
 		}
 		serialize(
@@ -72,7 +72,7 @@ const customChipWaveModule: InstrumentModule = {
 	initialize(): Record<string, unknown> {
 		const wave = new Float32Array(WAVE_LENGTH);
 		for (let i = 0; i < WAVE_LENGTH; i++) {
-			wave[i] = WAVE_OFFSET - Math.floor(i * (2 * WAVE_OFFSET / WAVE_LENGTH));
+			wave[i] = WAVE_OFFSET - Math.floor(i * ((2 * WAVE_OFFSET) / WAVE_LENGTH));
 		}
 		return { chipWave: 2, customChipWave: wave };
 	},

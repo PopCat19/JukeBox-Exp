@@ -10,10 +10,10 @@
 import type { InstrumentModule, SynthBuildContext } from "../../socket/instrument-module";
 import type { FieldReader, FieldWriter } from "../../socket/serde";
 import { SOCKET_VERSION } from "../../socket/version";
-import { schema } from "./schema";
-import { buildSupersawSource } from "./dsp";
-import { deserialize, serialize } from "./serde";
 import { Config } from "../../synth-config";
+import { buildSupersawSource } from "./dsp";
+import { schema } from "./schema";
+import { deserialize, serialize } from "./serde";
 
 const MODULE_ID = "core.supersaw";
 
@@ -41,7 +41,8 @@ const supersawModule: InstrumentModule = {
 		serialize(
 			{
 				supersawDynamism: (params.supersawDynamism as number) ?? Config.supersawDynamismMax,
-				supersawSpread: (params.supersawSpread as number) ?? Math.ceil(Config.supersawSpreadMax / 2),
+				supersawSpread:
+					(params.supersawSpread as number) ?? Math.ceil(Config.supersawSpreadMax / 2),
 				supersawShape: (params.supersawShape as number) ?? 0,
 				pulseWidth: (params.pulseWidth as number) ?? Config.pulseWidthRange - 1,
 				decimalOffset: (params.decimalOffset as number) ?? 0,

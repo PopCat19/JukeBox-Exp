@@ -59,12 +59,21 @@ export interface ModSliderProvider {
 export class ModSliderRegistry {
 	constructor(private _provider: ModSliderProvider) {}
 
-	private static _sliderMap: Map<number, (p: ModSliderProvider, index: number) => Slider | null> | null = null;
+	private static _sliderMap: Map<
+		number,
+		(p: ModSliderProvider, index: number) => Slider | null
+	> | null = null;
 
-	private static _buildSliderMap(): Map<number, (p: ModSliderProvider, index: number) => Slider | null> {
+	private static _buildSliderMap(): Map<
+		number,
+		(p: ModSliderProvider, index: number) => Slider | null
+	> {
 		const d = Config.modulators.dictionary;
 		const map = new Map<number, (p: ModSliderProvider, index: number) => Slider | null>();
-		const add = (idx: number, getter: (p: ModSliderProvider, index: number) => Slider | null) => {
+		const add = (
+			idx: number,
+			getter: (p: ModSliderProvider, index: number) => Slider | null,
+		) => {
 			map.set(idx, getter);
 		};
 		add(d.pan.index, (p) => p.panSlider);
@@ -108,9 +117,18 @@ export class ModSliderRegistry {
 		add(d.dynamism.index, (p) => p.supersawDynamismSlider);
 		add(d.spread.index, (p) => p.supersawSpreadSlider);
 		add(d["saw shape"].index, (p) => p.supersawShapeSlider);
-		add(d["individual envelope speed"].index, (p, i) => p.envelopeEditor.perEnvelopeSpeedSliders[i]);
-		add(d["individual envelope lower bound"].index, (p, i) => p.envelopeEditor.perEnvelopeLowerBoundSliders[i]);
-		add(d["individual envelope upper bound"].index, (p, i) => p.envelopeEditor.perEnvelopeUpperBoundSliders[i]);
+		add(
+			d["individual envelope speed"].index,
+			(p, i) => p.envelopeEditor.perEnvelopeSpeedSliders[i],
+		);
+		add(
+			d["individual envelope lower bound"].index,
+			(p, i) => p.envelopeEditor.perEnvelopeLowerBoundSliders[i],
+		);
+		add(
+			d["individual envelope upper bound"].index,
+			(p, i) => p.envelopeEditor.perEnvelopeUpperBoundSliders[i],
+		);
 		add(d["ring modulation"].index, (p) => p.ringModSlider);
 		add(d["ring mod hertz"].index, (p) => p.ringModHzSlider);
 		add(d.phaser.index, (p) => p.phaserMixSlider);

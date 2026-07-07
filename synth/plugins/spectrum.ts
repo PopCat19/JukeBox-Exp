@@ -8,12 +8,12 @@
 
 import { InstrumentState } from "../instrument-state";
 import type { Instrument } from "../instruments";
+import spectrumModule from "../modules/spectrum/module";
+import { registerModuleAsPlugin } from "../socket/bridge";
 import { Synth } from "../synth";
 import { Config, InstrumentType } from "../synth-config";
 import { buildSpectrumSource } from "../synthesis/spectrum";
 import type { Tone } from "../tone";
-import { registerModuleAsPlugin } from "../socket/bridge";
-import spectrumModule from "../modules/spectrum/module";
 
 const functionCache: Function[] = [];
 

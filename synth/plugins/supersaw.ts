@@ -7,12 +7,12 @@
 // - Registers it via the socket bridge to both old and new registries
 // - Keeps cached function compilation for performance
 
-import { Synth } from "../synth";
-import { Config, InstrumentType } from "../synth-config";
-import { buildSupersawSource } from "../synthesis/supersaw";
 import type { Instrument } from "../instruments";
 import supersawModule from "../modules/supersaw/module";
 import { registerModuleAsPlugin } from "../socket/bridge";
+import { Synth } from "../synth";
+import { Config, InstrumentType } from "../synth-config";
+import { buildSupersawSource } from "../synthesis/supersaw";
 
 const functionCache: Function[] = Array(1).fill(undefined);
 
@@ -38,9 +38,6 @@ function bridgedGetSynthFunction(_instrument: Instrument, _synth: typeof Synth):
 }
 
 // Register via bridge: new socket registry + old plugin registry
-registerModuleAsPlugin(supersawModule, InstrumentType.supersaw, [
-	"supersaw",
-	"pulseWidth",
-], {
+registerModuleAsPlugin(supersawModule, InstrumentType.supersaw, ["supersaw", "pulseWidth"], {
 	getSynthFunction: bridgedGetSynthFunction,
 });

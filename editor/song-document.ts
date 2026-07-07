@@ -159,8 +159,9 @@ export class SongDocument {
 			// can diverge (e.g. after [/] with autoFollow off, historically).
 			// Clamp to the loaded song's barCount so a stale value from a
 			// different song cannot push the playhead out of range.
-			const savedPlayheadBar: string | null =
-				window.sessionStorage.getItem("jukeboxCurrentPlayheadBar");
+			const savedPlayheadBar: string | null = window.sessionStorage.getItem(
+				"jukeboxCurrentPlayheadBar",
+			);
 			if (savedPlayheadBar != null) {
 				const clampedPlayheadBar: number = Math.max(
 					0,

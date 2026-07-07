@@ -8,9 +8,9 @@
 // - Modules apply per-buffer or per-sample processing on the mix
 // - Host owns effect chain ordering, bypass, and mix levels
 
+import type { EffectInstanceContext, EffectStateDescriptor } from "./effect-state";
 import type { ParamSchema } from "./param-schema";
 import type { FieldReader, FieldWriter } from "./serde";
-import type { EffectInstanceContext, EffectStateDescriptor } from "./effect-state";
 
 export interface EffectBuildContext {
 	readonly sampleRate: number;
