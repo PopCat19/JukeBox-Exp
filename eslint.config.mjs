@@ -39,7 +39,6 @@ export default tseslint.config(
             "synth/socket/capability-lookup.ts",
             "synth/socket/instrument-tagging.ts",
             "synth/socket/external-loader.ts",
-            "synth/socket/effect-state.ts",
             "synth/formats/jukebox-exp-v2.ts",
             "synth/socket/legacy-importer.ts",
             "synth/socket/url-varint.ts",

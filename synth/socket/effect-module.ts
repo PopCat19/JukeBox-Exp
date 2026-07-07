@@ -26,7 +26,7 @@ export interface EffectModule {
 
 	/**
 	 * Describes what per-instance runtime state this effect needs.
-	 * undefined/null = stateless effect (e.g., distortion, panning).
+	 * undefined = stateless effect (e.g., distortion, panning).
 	 */
 	readonly stateDescriptor?: EffectStateDescriptor;
 

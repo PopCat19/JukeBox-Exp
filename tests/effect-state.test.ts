@@ -6,6 +6,10 @@ import { describe, it, expect } from "bun:test";
 import {
 	createEffectInstanceState,
 	resetEffectInstanceState,
+	validateDescriptor,
+	MAX_STATE_BUFFER_SIZE,
+	MAX_DELAY_LINE_COUNT,
+	MAX_DELAY_LINE_LENGTH,
 } from "../synth/socket/effect-state";
 import type { EffectStateDescriptor } from "../synth/socket/effect-state";
 import type { EffectModule } from "../synth/socket/effect-module";
@@ -220,6 +224,134 @@ describe("resetEffectInstanceState", () => {
 		for (let i = 0; i < ctx.stateBuffer.length; i++) {
 			expect(ctx.stateBuffer[i]).toBe(0);
 		}
+	});
+});
+
+describe("validateDescriptor", () => {
+	it("returns null for undefined descriptor (stateless)", () => {
+		expect(validateDescriptor(undefined)).toBeNull();
+	});
+
+	it("returns null for valid descriptor", () => {
+		expect(validateDescriptor({ stateBufferSize: 4, delayLineCount: 1, delayLineLength: 256 })).toBeNull();
+	});
+
+	it("returns null for zero-value descriptor", () => {
+		expect(validateDescriptor({ stateBufferSize: 0, delayLineCount: 0, delayLineLength: 0 })).toBeNull();
+	});
+
+	it("rejects negative stateBufferSize", () => {
+		const err = validateDescriptor({
+			stateBufferSize: -1,
+			delayLineCount: 1,
+			delayLineLength: 256,
+		});
+		expect(err).toContain("stateBufferSize");
+	});
+
+	it("rejects fractional stateBufferSize", () => {
+		const err = validateDescriptor({
+			stateBufferSize: 3.5,
+			delayLineCount: 1,
+			delayLineLength: 256,
+		});
+		expect(err).toContain("stateBufferSize");
+	});
+
+	it("rejects infinity in any field", () => {
+		const err = validateDescriptor({
+			stateBufferSize: Infinity,
+			delayLineCount: 1,
+			delayLineLength: 256,
+		});
+		expect(err).toContain("stateBufferSize");
+	});
+
+	it("rejects stateBufferSize exceeding max", () => {
+		const err = validateDescriptor({
+			stateBufferSize: MAX_STATE_BUFFER_SIZE + 1,
+			delayLineCount: 1,
+			delayLineLength: 256,
+		});
+		expect(err).toContain("exceeds max");
+	});
+
+	it("rejects delayLineCount exceeding max", () => {
+		const err = validateDescriptor({
+			stateBufferSize: 4,
+			delayLineCount: MAX_DELAY_LINE_COUNT + 1,
+			delayLineLength: 256,
+		});
+		expect(err).toContain("delayLineCount");
+	});
+
+	it("rejects delayLineLength exceeding max", () => {
+		const err = validateDescriptor({
+			stateBufferSize: 4,
+			delayLineCount: 1,
+			delayLineLength: MAX_DELAY_LINE_LENGTH + 1,
+		});
+		expect(err).toContain("delayLineLength");
+	});
+
+	it("rejects negative delayLineCount", () => {
+		const err = validateDescriptor({
+			stateBufferSize: 4,
+			delayLineCount: -1,
+			delayLineLength: 256,
+		});
+		expect(err).toContain("delayLineCount");
+	});
+
+	it("rejects NaN in stateBufferSize", () => {
+		const err = validateDescriptor({
+			stateBufferSize: NaN,
+			delayLineCount: 1,
+			delayLineLength: 256,
+		});
+		expect(err).toContain("stateBufferSize");
+	});
+});
+
+describe("createEffectInstanceState with invalid descriptor", () => {
+	it("throws on negative stateBufferSize", () => {
+		const badMod: EffectModule = {
+			...delayLineModule,
+			id: "test.badStateSize",
+			stateDescriptor: { stateBufferSize: -1, delayLineCount: 1, delayLineLength: 256 },
+		};
+		expect(() => createEffectInstanceState(badMod, 44100, 128, 2)).toThrow(RangeError);
+	});
+
+	it("throws on fractional delayLineCount", () => {
+		const badMod: EffectModule = {
+			...delayLineModule,
+			id: "test.badDelayCount",
+			stateDescriptor: { stateBufferSize: 4, delayLineCount: 1.5, delayLineLength: 256 },
+		};
+		expect(() => createEffectInstanceState(badMod, 44100, 128, 2)).toThrow(RangeError);
+	});
+
+	it("throws on delayLineLength exceeding max", () => {
+		const badMod: EffectModule = {
+			...delayLineModule,
+			id: "test.hugeDelay",
+			stateDescriptor: {
+				stateBufferSize: 4,
+				delayLineCount: 1,
+				delayLineLength: MAX_DELAY_LINE_LENGTH + 1,
+			},
+		};
+		expect(() => createEffectInstanceState(badMod, 44100, 128, 2)).toThrow(RangeError);
+	});
+
+	it("includes module id in error message", () => {
+		const badMod: EffectModule = {
+			...delayLineModule,
+			id: "test.badModule",
+			stateDescriptor: { stateBufferSize: -5, delayLineCount: 1, delayLineLength: 256 },
+		};
+		expect(() => createEffectInstanceState(badMod, 44100, 128, 2)).toThrow(/test\.badModule/);
 	});
 });
 
