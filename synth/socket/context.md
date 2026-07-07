@@ -9,6 +9,7 @@ Purpose: Formal socket interfaces — stable, versioned extension contracts for 
 - `capability-lookup.ts`, Resolves capabilities from socket module id with legacy type fallback
 - `instrument-module.ts`, S1 socket — InstrumentModule interface for sound generators
 - `effect-module.ts`, S2 socket — EffectModule interface for signal processors
+- `effect-state.ts`, Per-instance state model for S2 effects — descriptor, context, factory, reset
 - `registry.ts`, Namespaced registry — register/resolve InstrumentModule and EffectModule
 - `bridge.ts`, Bridging InstrumentModule to existing SynthPlugin dispatch for migration
   - Also exports `INSTRUMENT_TYPE_TO_MODULE_ID` populated at boot

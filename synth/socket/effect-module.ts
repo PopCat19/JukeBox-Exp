@@ -10,6 +10,7 @@
 
 import type { ParamSchema } from "./param-schema";
 import type { FieldReader, FieldWriter } from "./serde";
+import type { EffectInstanceContext, EffectStateDescriptor } from "./effect-state";
 
 export interface EffectBuildContext {
 	readonly sampleRate: number;
@@ -23,11 +24,25 @@ export interface EffectModule {
 	readonly displayName: string;
 	readonly schema: ParamSchema;
 
+	/**
+	 * Describes what per-instance runtime state this effect needs.
+	 * undefined/null = stateless effect (e.g., distortion, panning).
+	 */
+	readonly stateDescriptor?: EffectStateDescriptor;
+
 	buildEffectSource(ctx: EffectBuildContext): string;
 
 	serialize(params: Record<string, unknown>, w: FieldWriter): void;
 	deserialize(r: FieldReader, version: number): Record<string, unknown>;
 
 	initialize?(): Record<string, unknown>;
+
+	/**
+	 * Initialize per-instance state buffers after allocation.
+	 * Called once when the effect instance is created.
+	 * State buffer and delay lines are zero-initialized before this call.
+	 */
+	initializeState?(ctx: EffectInstanceContext): void;
+
 	migrate?(legacy: unknown, formatVersion: number): Record<string, unknown>;
 }
