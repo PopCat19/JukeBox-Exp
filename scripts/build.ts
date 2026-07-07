@@ -35,7 +35,7 @@ const shared: esbuild.BuildOptions = {
 mkdirSync("dist/player", { recursive: true });
 mkdirSync("dist/manual", { recursive: true });
 
-const targets = ["synth", "player", "editor", "EditorConfig"] as const;
+const targets = ["synth", "player", "editor", "EditorConfig", "worklet"] as const;
 
 const results = await Promise.allSettled([
   esbuild.build({
@@ -63,6 +63,11 @@ const results = await Promise.allSettled([
     outfile: "dist/manual/EditorConfig.min.js",
     define: {},
   }),
+  esbuild.build({
+    ...shared,
+    entryPoints: ["synth/render/worklet.ts"],
+    outfile: "dist/beepbox_synth_worklet.min.js",
+  }),
 ]);
 
 let failed = false;
@@ -76,4 +81,5 @@ for (const [i, result] of results.entries()) {
 }
 
 if (failed) process.exit(1);
+console.log(`\nWorklet bundle: dist/beepbox_synth_worklet.min.js`);
 console.log(`\nBuild complete (offline=${offline})`);
