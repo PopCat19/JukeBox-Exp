@@ -8,7 +8,7 @@
 // - NOT an auto-registration file — each module registers through its
 //   corresponding plugin in synth/plugins/
 
-export { default as supersawModule, MODULE_ID as SUPERSHAW_ID } from "./supersaw/module";
+export { default as supersawModule, MODULE_ID as SUPERSAW_ID } from "./supersaw/module";
 export { default as pulseModule, MODULE_ID as PULSE_ID } from "./pulse/module";
 export { default as noiseModule, MODULE_ID as NOISE_ID } from "./noise/module";
 export { default as chipModule, MODULE_ID as CHIP_ID } from "./chip/module";

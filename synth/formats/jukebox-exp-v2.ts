@@ -94,6 +94,7 @@ export function fromJukeboxExpV2Json(song: SongLike, obj: JukeboxExpV2Object): v
 	);
 
 	// Apply module payloads AFTER fromJsonObjectImpl which rebuilds instruments
+	// Restore both _socketModuleId (for export) and _socketModulePayload (for module deserialize)
 	if (savedPayloads) {
 		for (let ci = 0; ci < song.getChannelCount(); ci++) {
 			const channel = song.channels[ci];
@@ -101,6 +102,7 @@ export function fromJukeboxExpV2Json(song: SongLike, obj: JukeboxExpV2Object): v
 				const key = `${ci}:${ii}`;
 				const payload = savedPayloads[key];
 				if (payload) {
+					(channel.instruments[ii] as any)._socketModuleId = payload.id;
 					(channel.instruments[ii] as any)._socketModulePayload = payload;
 				}
 			}

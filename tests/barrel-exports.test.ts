@@ -292,7 +292,7 @@ describe("shared barrel exports", () => {
 		expect(typeof mods.createPlaceholderModule).toBe("function");
 		expect(typeof mods.isPlaceholderId).toBe("function");
 		expect(typeof mods.unwrapPlaceholderId).toBe("function");
-		expect(typeof mods.SUPERSHAW_ID).toBe("string");
+		expect(typeof mods.SUPERSAW_ID).toBe("string");
 		expect(typeof mods.PULSE_ID).toBe("string");
 		expect(typeof mods.NOISE_ID).toBe("string");
 		expect(typeof mods.CHIP_ID).toBe("string");
