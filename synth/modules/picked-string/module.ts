@@ -18,6 +18,8 @@ const pickedStringModule: InstrumentModule = {
 	socketVersion: SOCKET_VERSION,
 	displayName: "Picked String",
 	capabilities: {
+		hasHarmonics: true,
+		hasStringSustain: true,
 		hasChord: true,
 		hasEnvelopes: true,
 		hasUnison: true,

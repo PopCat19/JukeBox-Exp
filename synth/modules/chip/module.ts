@@ -22,6 +22,8 @@ const chipModule: InstrumentModule = {
 	displayName: "Chip",
 	capabilities: {
 		hasAliasableWaveform: true,
+		hasWaveSelect: true,
+		hasLoopControls: true,
 		hasChord: true,
 		hasEnvelopes: true,
 		hasUnison: true,

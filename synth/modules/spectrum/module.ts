@@ -22,6 +22,7 @@ const spectrumModule: InstrumentModule = {
 	socketVersion: SOCKET_VERSION,
 	displayName: "Spectrum",
 	capabilities: {
+		hasSpectrum: true,
 		hasChord: true,
 		hasEnvelopes: true,
 		hasUnison: true,

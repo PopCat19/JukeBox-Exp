@@ -22,6 +22,7 @@ const harmonicsModule: InstrumentModule = {
 	socketVersion: SOCKET_VERSION,
 	displayName: "Harmonics",
 	capabilities: {
+		hasHarmonics: true,
 		hasChord: true,
 		hasEnvelopes: true,
 		hasUnison: true,
