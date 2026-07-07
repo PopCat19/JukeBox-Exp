@@ -23,6 +23,7 @@ const pulseModule: InstrumentModule = {
 	displayName: "Pulse Width",
 	capabilities: {
 		hasPulseWidth: true,
+		hasAliasableWaveform: true,
 		hasChord: true,
 		hasEnvelopes: true,
 		hasUnison: true,

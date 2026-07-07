@@ -39,6 +39,10 @@ describe("pulse InstrumentModule", () => {
 		expect(pulseModule.capabilities.hasPulseWidth).toBe(true);
 	});
 
+	test("capabilities include aliasable waveform flag", () => {
+		expect(pulseModule.capabilities.hasAliasableWaveform).toBe(true);
+	});
+
 	test("buildSynthSource returns a non-empty string", () => {
 		const source = pulseModule.buildSynthSource({
 			sampleRate: 44100,

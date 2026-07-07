@@ -21,6 +21,7 @@ const noiseModule: InstrumentModule = {
 	socketVersion: SOCKET_VERSION,
 	displayName: "Noise",
 	capabilities: {
+		isNoise: true,
 		hasChord: true,
 		hasEnvelopes: true,
 		hasUnison: true,

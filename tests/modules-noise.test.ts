@@ -35,6 +35,10 @@ describe("noise InstrumentModule", () => {
 		expect(noiseModule.displayName).toBe("Noise");
 	});
 
+	test("capabilities include isNoise flag", () => {
+		expect(noiseModule.capabilities.isNoise).toBe(true);
+	});
+
 	test("buildSynthSource returns a non-empty string", () => {
 		const source = noiseModule.buildSynthSource({
 			sampleRate: 44100,
