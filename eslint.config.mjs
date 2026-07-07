@@ -54,6 +54,7 @@ export default tseslint.config(
             "tests/modules-harmonics.test.ts",
             "tests/modules-spectrum.test.ts",
             "tests/modules-picked-string.test.ts",
+            "tests/modules-fm.test.ts",
             "eslint.config.mjs",
           ],
         },

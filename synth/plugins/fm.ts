@@ -1,16 +1,17 @@
 // fm.ts
 //
-// Purpose: FM synthesis plugin wrapping buildFmSource + dynamic compilation
+// Purpose: FM synthesis plugin — bridges from socket InstrumentModule
 //
 // This module:
-// - Caches compiled FM synth functions by algorithm + feedbackType fingerprint
-// - Registers via registry on module load
+// - Bridges fmModule as a SynthPlugin for backward compat
+// - Preserves algorithm-dependent compiled function caching
 
 import type { Instrument } from "../instruments";
 import { Synth } from "../synth";
 import { Config, InstrumentType } from "../synth-config";
 import { buildFmSource } from "../synthesis/fm";
-import { registerPlugin } from "./registry";
+import { registerModuleAsPlugin } from "../socket/bridge";
+import fmModule from "../modules/fm/module";
 
 const cache: Map<string, Function> = new Map();
 
@@ -23,11 +24,8 @@ function getSynthFunction(instrument: Instrument, synth: typeof Synth): Function
 	return cache.get(fingerprint)!;
 }
 
-registerPlugin({
-	type: InstrumentType.fm,
-	name: "FM",
-	displayName: "FM",
-	editorRows: ["fm"],
+registerModuleAsPlugin(fmModule, InstrumentType.fm, ["fm"], {
+	getSynthFunction,
 	initialize: (instrument: Instrument) => {
 		instrument.chord = 3;
 		instrument.algorithm = 0;
@@ -37,6 +35,4 @@ registerPlugin({
 			instrument.operators[i].reset(i);
 		}
 	},
-	getSynthFunction,
-	buildSource: (instrument: Instrument) => buildFmSource(instrument),
 });
