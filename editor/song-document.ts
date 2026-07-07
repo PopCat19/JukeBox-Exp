@@ -245,6 +245,7 @@ export class SongDocument {
 			} catch (error) {
 				errorAlert(error);
 			}
+			this.synth.incrementEditSequence();
 			this._history.replaceState(state, this.song.toBase64String());
 			this.forgetLastChange();
 			this.synth.pause();
@@ -269,6 +270,7 @@ export class SongDocument {
 		} catch (error) {
 			errorAlert(error);
 		}
+		this.synth.incrementEditSequence();
 
 		this._recoveryUid = state.recoveryUid;
 		this.selection.fromJSON(state.selection);
