@@ -26,6 +26,7 @@ export default tseslint.config(
             "tests/css-var-contract.test.ts",
             "tests/interactions-behavior.test.ts",
             "tests/style-inject.test.ts",
+            "tests/synth-contract.test.ts",
             "tests/ui-states.test.ts",
             "tests/socket-contract.test.ts",
             "tests/modules-supersaw.test.ts",

@@ -22,7 +22,8 @@ import { FilterControlPoint, FilterSettings, type HeldMod, Instrument } from "./
 import { SynthModState } from "./mod-state";
 import type { Note, NotePin, Pattern } from "./notes";
 import { PickedString } from "./picked-string";
-import { getCapabilities, getPlugin } from "./plugins";
+import { getInstrument } from "./socket/registry";
+import { getCapabilities, getPlugin, type InstrumentCapabilities } from "./plugins";
 import { PostProcessingState } from "./post-processing";
 import { Song } from "./song";
 import type { Chord, Envelope, Transition } from "./synth-config";
@@ -64,6 +65,25 @@ declare global {
 		// biome-ignore lint/suspicious/noExplicitAny: browser API type missing
 		webkitAudioContext: any;
 	}
+}
+
+/**
+ * Query an instrument's capability flag, falling back to the legacy
+ * getCapabilities() when no socket module id is set or the module
+ * doesn't declare the flag.
+ */
+function getInstrumentCapability(
+	instrument: Instrument,
+	key: keyof InstrumentCapabilities,
+): boolean {
+	const moduleId = (instrument as { _socketModuleId?: string })._socketModuleId;
+	if (moduleId) {
+		const mod = getInstrument(moduleId);
+		if (mod && mod.capabilities[key] !== undefined) {
+			return mod.capabilities[key]!;
+		}
+	}
+	return getCapabilities(instrument.type)[key];
 }
 
 export class Synth {
@@ -4123,7 +4143,7 @@ export class Synth {
 				secondsPerPart * instrumentState.nextVibratoTime,
 			);
 			const vibratoDepthEnvelopeEnd: number = envelopeEnds[EnvelopeComputeIndex.vibratoDepth];
-			if (!getCapabilities(instrument.type).isMod) {
+			if (!getInstrumentCapability(instrument, "isMod")) {
 				let vibratoEnd: number =
 					vibratoAmplitudeEnd * vibratoLfoEnd * vibratoDepthEnvelopeEnd;
 				if (delayTicks > 0.0) {
@@ -4738,7 +4758,7 @@ export class Synth {
 			}
 
 			const startFreq: number = Instrument.frequencyFromPitch(startPitch);
-			if (getCapabilities(instrument.type).hasUnison) {
+			if (getInstrumentCapability(instrument, "hasUnison")) {
 				const unisonVoices: number = instrument.unisonVoices;
 				const unisonSpread: number = instrument.unisonSpread;
 				const unisonOffset: number = instrument.unisonOffset;

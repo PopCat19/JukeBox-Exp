@@ -196,3 +196,32 @@ describe("Category D: barrel exports", () => {
 		// If it later becomes public, this test catches the change.
 	});
 });
+
+// ---------------------------------------------------------------------------
+// Category E: Socket module capability wiring — verify render path uses
+// getInstrumentCapability() helper, not direct getCapabilities() calls.
+// ---------------------------------------------------------------------------
+
+describe("Category E: socket capability lookup", () => {
+	test("synth.ts defines getInstrumentCapability helper", () => {
+		const fs = require("fs");
+		const source = fs.readFileSync(
+			new URL("../synth/synth.ts", import.meta.url),
+			"utf8",
+		) as string;
+		expect(source).toContain("function getInstrumentCapability(");
+	});
+
+	test("render path uses getInstrumentCapability not direct getCapabilities", () => {
+		const fs = require("fs");
+		const source = fs.readFileSync(
+			new URL("../synth/synth.ts", import.meta.url),
+			"utf8",
+		) as string;
+		// The helper contains one getCapabilities call as fallback. The two
+		// render-path callsites must use getInstrumentCapability instead.
+		// Count occurrences: helper has 1 fallback, any more are drift.
+		const matches = source.match(/getCapabilities\(instrument\.type\)/g);
+		expect(matches ? matches.length : 0).toBe(1);
+	});
+});
