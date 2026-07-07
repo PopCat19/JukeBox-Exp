@@ -11,7 +11,7 @@
 //
 // Phase 2: The full computeTone() lives here for the AudioWorklet.
 
-import { Config, InstrumentType } from "../synth-config";
+import { Config, InstrumentType, type InstrumentType as InstrumentTypeEnum } from "../synth-config";
 import type { SongSnapshot } from "./snapshot";
 
 // ── Channel-type detection ────────────────────────────────────────────────
@@ -38,7 +38,7 @@ export function isNoiseChannel(
  * Both the mutable Instrument class and InstrumentSnapshot satisfy this.
  */
 export interface InstrumentTypeInfo {
-	readonly type: number;
+	readonly type: InstrumentTypeEnum;
 	readonly chipNoise: number;
 	readonly chipWave: number;
 }
