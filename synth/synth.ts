@@ -18,7 +18,13 @@ import { applyFilters, findRandomZeroCrossing, sanitizeDelayLine } from "./dsp-u
 import { EnvelopeComputer } from "./envelope-computer";
 import { DynamicBiquadFilter, type FilterCoefficients, FrequencyResponse } from "./filtering";
 import { InstrumentState } from "./instrument-state";
-import { FilterControlPoint, FilterSettings, type HeldMod, Instrument } from "./instruments";
+import {
+	FilterControlPoint,
+	FilterSettings,
+	type HeldMod,
+	Instrument,
+	Operator,
+} from "./instruments";
 import { SynthModState } from "./mod-state";
 import type { Note, NotePin, Pattern } from "./notes";
 import { PickedString, type PickedStringEnv } from "./picked-string";
@@ -58,8 +64,8 @@ import {
 	effectsIncludePitchShift,
 	effectsIncludeVibrato,
 	FilterType,
-	InstrumentType,
 	getArpeggioPitchIndex,
+	InstrumentType,
 	SustainType,
 } from "./synth-config";
 import { effectsSynth } from "./synth-effects";
@@ -274,6 +280,7 @@ export class Synth {
 	public volume: number = 1.0;
 	public oscRefreshEventTimer: number = 0;
 	public spectrumEnabled: boolean = true;
+	public channelAudioCaptureEnabled: boolean = false;
 	public onSpectrumUpdate?: (left: Float32Array, right: Float32Array) => void;
 	public onSpectrumReset?: () => void;
 	public totalSamplesRendered: number = 0;
@@ -282,6 +289,7 @@ export class Synth {
 	public countInMetronome: boolean = false;
 	public renderingSong: boolean = false;
 	public readonly snapshotBuilder: SnapshotBuilder = new SnapshotBuilder();
+	private _renderSnapshot: SongSnapshot | null = null;
 	public heldMods: HeldMod[] = [];
 	private wantToSkip: boolean = false;
 	private playheadInternal: number = 0.0;
@@ -306,6 +314,7 @@ export class Synth {
 
 	/** Whether the compute-tone worklet is active and handling sample rendering. */
 	private _workletActive: boolean = false;
+	private _workletTickCompleteCount: number = 0;
 
 	public modState: SynthModState = new SynthModState();
 	public isPlayingSong: boolean = false;
@@ -381,7 +390,25 @@ export class Synth {
 	private _logSynthCallCount: number = 0;
 	private _stutterCount: number = 0;
 	private _lastStutterLogMs: number = 0;
+	private _timingLogCount: number = 0;
 	// _logNeedDataCount moved to AudioBackend
+
+	private static _computeWorkletEnabled(): boolean {
+		try {
+			if (typeof window === "undefined") return false;
+			// biome-ignore lint/suspicious/noExplicitAny: dynamic feature flag bridge.
+			const w = window as any;
+			if (w.enableComputeWorklet === true) return true;
+			if (w.enableComputeWorklet === "1" || w.enableComputeWorklet === "true") return true;
+			if (window.localStorage) {
+				const v = window.localStorage.getItem("enableComputeWorklet");
+				if (v === "1" || v === "true") return true;
+			}
+		} catch {
+			/* ignore */
+		}
+		return false;
+	}
 
 	private static _debugSynthEnabled(): boolean {
 		try {
@@ -923,11 +950,13 @@ export class Synth {
 		if (this.isPlayingSong && this._audio.context) {
 			this.samplesPerSecond = this._audio.context.sampleRate;
 		}
-		// Set the compute-tone worklet URL before activating.
+		// Compute worklet is opt-in until tick-sliced rendering is complete.
 		// The worklet bundle is co-located with the main script.
-		this._audio.setComputeWorkletUrl("beepbox_synth_worklet.min.js");
+		if (Synth._computeWorkletEnabled()) {
+			this._audio.setComputeWorkletUrl("beepbox_synth_worklet.min.js");
+		}
 		return this._audio.activate(this._toAudioHost()).then((): void => {
-			this._initComputeWorklet();
+			if (Synth._computeWorkletEnabled()) this._initComputeWorklet();
 		});
 	}
 
@@ -944,16 +973,19 @@ export class Synth {
 			snapshot,
 			sampleRate: this.samplesPerSecond,
 		});
-		// Listen for ready ack before activating delegation
-		const readyHandler = (ev: { data: unknown }): void => {
+		// Listen for ready ack before activating delegation.
+		port.onmessage = (ev: { data: unknown }): void => {
 			const msg: Record<string, unknown> = ev.data as Record<string, unknown>;
 			if (msg?.type === "ready") {
 				this._workletActive = true;
-				port.removeEventListener("message", readyHandler);
 				this._dbg("Compute worklet ready ack received, delegation active");
+				return;
+			}
+			if (msg?.type === "tick-complete") {
+				this._workletTickCompleteCount++;
 			}
 		};
-		port.addEventListener("message", readyHandler);
+		if (typeof port.start === "function") port.start();
 		this._dbg("Compute worklet init sent, awaiting ready ack");
 	}
 
@@ -964,10 +996,10 @@ export class Synth {
 	 * Phase 4: builds WorkletToneCommand[] from active tones per channel.
 	 * Phase 5: also sends result back for delegation.
 	 */
-	private _sendWorkletTick(samplesPerTick: number, _playSong: boolean): void {
+	private _sendWorkletTick(samplesPerTick: number, _playSong: boolean): number {
 		const port: MessagePort | null = this._audio.computeWorkletPort;
 		type _WTC = import("./render/worklet-messages").WorkletToneCommand;
-		if (port == null || this.song == null) return;
+		if (!this._workletActive || port == null || this.song == null) return 0;
 
 		const song: Song = this.song;
 		const tones: _WTC[] = [];
@@ -1022,6 +1054,7 @@ export class Synth {
 			playSong: _playSong,
 			tones,
 		});
+		return tones.length;
 	}
 
 	/**
@@ -1064,6 +1097,7 @@ export class Synth {
 
 		const cmd: WTC = {
 			toneSlotId: slotId,
+			generation: tone.workletGeneration,
 			instrumentIndex,
 			channelIndex,
 			pitchCount: tone.pitchCount,
@@ -1119,11 +1153,14 @@ export class Synth {
 
 			// Serialize wave data for worklet-native rendering
 			waveBuffer: instrumentState.wave,
-			drumsetWaves: instrument.type === InstrumentType.drumset
-				? Array.from({ length: Config.drumCount }, (_, di: number): Float32Array | null =>
-					instrumentState.drumsetSpectrumWaves[di]?.wave ?? null!,
-				).filter((w: Float32Array | null): w is Float32Array => w != null)
-				: [],
+			drumsetWaves:
+				instrument.type === InstrumentType.drumset
+					? Array.from(
+							{ length: Config.drumCount },
+							(_, di: number): Float32Array | null =>
+								instrumentState.drumsetSpectrumWaves[di]?.wave ?? null!,
+						).filter((w: Float32Array | null): w is Float32Array => w != null)
+					: [],
 			aliases: instrumentState.aliases,
 			volumeScale: instrumentState.volumeScale,
 			noisePitchFilterMult: instrumentState.noisePitchFilterMult,
@@ -1156,15 +1193,15 @@ export class Synth {
 			arpeggioIndex: 0,
 			carrierCount: 0,
 
-			fmOperatorCount: 0,
-			fmAlgorithm: 0,
-			fmCustomCarrierCount: 0,
-			fmCustomAssociatedCarrier: [],
-			fmOperatorFrequencies: [],
-			fmOperatorAmplitudes: [],
-			fmFeedbackAmplitude: 0,
-			fmFastTwoNoteArp: false,
-			fmMonoChordTone: 0,
+			fmOperatorCount: instrument.operators.length,
+			fmAlgorithm: instrument.algorithm,
+			fmCustomCarrierCount: instrument.customAlgorithm.carrierCount,
+			fmCustomAssociatedCarrier: [...instrument.customAlgorithm.associatedCarrier],
+			fmOperatorFrequencies: instrument.operators.map((op: Operator): number => op.frequency),
+			fmOperatorAmplitudes: instrument.operators.map((op: Operator): number => op.amplitude),
+			fmFeedbackAmplitude: instrument.feedbackAmplitude,
+			fmFastTwoNoteArp: instrument.fastTwoNoteArp,
+			fmMonoChordTone: instrument.monoChordTone,
 
 			nonFmType: instrument.type,
 			nonFmChipNoise: instrument.chipNoise,
@@ -1211,17 +1248,40 @@ export class Synth {
 	 */
 	private _buildModValues(channelIndex: number, instrumentIndex: number): PrecomputedModValues {
 		const _isActive = (name: string): boolean =>
-			this.isModActive(Config.modulators.dictionary[name]?.index ?? -1, channelIndex, instrumentIndex);
+			this.isModActive(
+				Config.modulators.dictionary[name]?.index ?? -1,
+				channelIndex,
+				instrumentIndex,
+			);
 
 		const _getVal = (name: string, nextVal: boolean = false): number =>
-			this.getModValue(Config.modulators.dictionary[name]?.index ?? -1, channelIndex, instrumentIndex, nextVal) ?? 0;
+			this.getModValue(
+				Config.modulators.dictionary[name]?.index ?? -1,
+				channelIndex,
+				instrumentIndex,
+				nextVal,
+			) ?? 0;
 
 		const fmSliderStarts: number[] = [];
 		const fmSliderEnds: number[] = [];
 		for (let si = 1; si <= Math.min(6, Config.operatorCount); si++) {
 			const sliderName: string = `fm slider ${si}`;
-			fmSliderStarts.push(this.getModValue(Config.modulators.dictionary[sliderName]?.index ?? -1, channelIndex, instrumentIndex, false) ?? 0);
-			fmSliderEnds.push(this.getModValue(Config.modulators.dictionary[sliderName]?.index ?? -1, channelIndex, instrumentIndex, true) ?? 0);
+			fmSliderStarts.push(
+				this.getModValue(
+					Config.modulators.dictionary[sliderName]?.index ?? -1,
+					channelIndex,
+					instrumentIndex,
+					false,
+				) ?? 0,
+			);
+			fmSliderEnds.push(
+				this.getModValue(
+					Config.modulators.dictionary[sliderName]?.index ?? -1,
+					channelIndex,
+					instrumentIndex,
+					true,
+				) ?? 0,
+			);
 		}
 
 		return {
@@ -1885,6 +1945,10 @@ export class Synth {
 			);
 		}
 
+		if (outputBufferLength <= 0) {
+			return;
+		}
+
 		if (this.song == null) {
 			this._dbgWarn("synthesize: song is null, filling silence and deactivating");
 			outputDataL.fill(0.0);
@@ -1964,6 +2028,7 @@ export class Synth {
 		}
 
 		this.syncSongState();
+		this._renderSnapshot = this.snapshotBuilder.build(song);
 
 		if (
 			this.tempMonoInstrumentSampleBuffer == null ||
@@ -1987,6 +2052,22 @@ export class Synth {
 		let firstSkippedBufferIndex = -1;
 
 		let bufferIndex: number = 0;
+		let _modMs: number = 0;
+		let _stateMs: number = 0;
+		let _channelMs: number = 0;
+		let _toneSetupMs: number = 0;
+		let _tonePlayMs: number = 0;
+		let _effectsMs: number = 0;
+		let _lfoMs: number = 0;
+		let _postMs: number = 0;
+		let _workletSendMs: number = 0;
+		let _workletToneCount: number = 0;
+		let _hotChannelSummary: string = "none";
+		let _hotChannelMs: number = 0;
+		let _hotInstrumentSummary: string = "none";
+		let _hotInstrumentMs: number = 0;
+		const _typeMs: number[] = [];
+		const _typeTones: number[] = [];
 		while (bufferIndex < outputBufferLength && !ended) {
 			this.nextBar = this.getNextBar();
 			if (this.nextBar >= song.barCount) this.nextBar = null;
@@ -1996,6 +2077,7 @@ export class Synth {
 			const runLength: number = Math.min(samplesLeftInTick, samplesLeftInBuffer);
 			const runEnd: number = bufferIndex + runLength;
 
+			const _modStart: number = performance.now();
 			// Handle mod synth
 			if (this.isPlayingSong || this.renderingSong) {
 				// First modulation pass. Determines active tones.
@@ -2098,6 +2180,7 @@ export class Synth {
 					}
 				}
 			}
+			_modMs += performance.now() - _modStart;
 
 			// Handle next bar mods if they were set
 			if (this.wantToSkip) {
@@ -2125,7 +2208,9 @@ export class Synth {
 				continue;
 			}
 
+			const _stateStart: number = performance.now();
 			this.computeSongState(samplesPerTick);
+			_stateMs += performance.now() - _stateStart;
 
 			if (
 				!this.isPlayingSong &&
@@ -2135,28 +2220,35 @@ export class Synth {
 				this.modState.computeLatestModValues(this.song, this.bar, this.beat, this.part);
 			}
 
+			const _channelStart: number = performance.now();
 			for (
 				let channelIndex: number = 0;
 				channelIndex < song.pitchChannelCount + song.noiseChannelCount;
 				channelIndex++
 			) {
+				const _singleChannelStart: number = performance.now();
+				let _channelToneCount: number = 0;
 				const channel: Channel = song.channels[channelIndex];
 				const channelState: ChannelState = this.channels[channelIndex];
 
-				// Snapshot output before this channel contributes (use pre-allocated scratch, L+R interleaved)
-				const scratch = channelState.audioScratch;
-				for (let i = bufferIndex, si = 0; i < runEnd; i++, si += 2) {
-					scratch[si] = outputDataL[i] + (this.outputDataLUnfiltered?.[i] ?? 0);
-					scratch[si + 1] = outputDataR[i] + (this.outputDataRUnfiltered?.[i] ?? 0);
-				}
-
-				// Track per-channel volume by measuring before/after this channel's contribution
 				let channelPeakBefore: number = 0;
-				for (let i = bufferIndex; i < runEnd; i++) {
-					const absL = Math.abs(outputDataL[i] + (this.outputDataLUnfiltered?.[i] ?? 0));
-					const absR = Math.abs(outputDataR[i] + (this.outputDataRUnfiltered?.[i] ?? 0));
-					if (absL > channelPeakBefore) channelPeakBefore = absL;
-					if (absR > channelPeakBefore) channelPeakBefore = absR;
+				if (this.channelAudioCaptureEnabled) {
+					const scratch = channelState.audioScratch;
+					for (let i = bufferIndex, si = 0; i < runEnd; i++, si += 2) {
+						scratch[si] = outputDataL[i] + (this.outputDataLUnfiltered?.[i] ?? 0);
+						scratch[si + 1] = outputDataR[i] + (this.outputDataRUnfiltered?.[i] ?? 0);
+					}
+
+					for (let i = bufferIndex; i < runEnd; i++) {
+						const absL = Math.abs(
+							outputDataL[i] + (this.outputDataLUnfiltered?.[i] ?? 0),
+						);
+						const absR = Math.abs(
+							outputDataR[i] + (this.outputDataRUnfiltered?.[i] ?? 0),
+						);
+						if (absL > channelPeakBefore) channelPeakBefore = absL;
+						if (absR > channelPeakBefore) channelPeakBefore = absR;
+					}
 				}
 
 				if (this.isAtStartOfTick) {
@@ -2173,10 +2265,12 @@ export class Synth {
 					instrumentIndex < channel.instruments.length;
 					instrumentIndex++
 				) {
+					const _singleInstrumentStart: number = performance.now();
 					const instrument: Instrument = channel.instruments[instrumentIndex];
 					const instrumentState: InstrumentState =
 						channelState.instruments[instrumentIndex];
 
+					const _toneSetupStart: number = performance.now();
 					if (this.isAtStartOfTick) {
 						let tonesPlayedInThisInstrument: number =
 							instrumentState.activeTones.count() +
@@ -2220,6 +2314,9 @@ export class Synth {
 						}
 					}
 
+					_toneSetupMs += performance.now() - _toneSetupStart;
+
+					const _tonePlayStart: number = performance.now();
 					if (!this._workletActive) {
 						for (let i: number = 0; i < instrumentState.activeTones.count(); i++) {
 							const tone: Tone = instrumentState.activeTones.get(i);
@@ -2236,6 +2333,9 @@ export class Synth {
 							this.playTone(channelIndex, bufferIndex, runLength, tone);
 						}
 
+						_tonePlayMs += performance.now() - _tonePlayStart;
+
+						const _effectsStart: number = performance.now();
 						if (instrumentState.awake) {
 							effectsSynth(
 								this,
@@ -2246,8 +2346,10 @@ export class Synth {
 								instrumentState,
 							);
 						}
+						_effectsMs += performance.now() - _effectsStart;
 					}
 
+					const _lfoStart: number = performance.now();
 					// Update LFO time for instruments (used to be deterministic based on bar position but now vibrato/arp speed messes that up!)
 
 					const tickSampleCountdown: number = this.tickSampleCountdown;
@@ -2290,34 +2392,89 @@ export class Synth {
 						instrumentState.nextVibratoTime +=
 							useVibratoSpeed * 0.1 * (partTimeEnd - partTimeStart);
 					}
-				}
 
-				// Track per-channel volume by measuring after this channel's contribution
-				for (let i = bufferIndex; i < runEnd; i++) {
-					const absL = Math.abs(outputDataL[i] + (this.outputDataLUnfiltered?.[i] ?? 0));
-					const absR = Math.abs(outputDataR[i] + (this.outputDataRUnfiltered?.[i] ?? 0));
-					const diffL = Math.max(0, absL - channelPeakBefore);
-					const diffR = Math.max(0, absR - channelPeakBefore);
-					const peak = Math.max(diffL, diffR);
-					if (peak > channelState.volumeCap) {
-						channelState.volumeCap = peak;
+					_lfoMs += performance.now() - _lfoStart;
+					const _activeToneCount: number = instrumentState.activeTones.count();
+					const _liveToneCount: number = instrumentState.liveInputTones.count();
+					const _releasedToneCount: number = instrumentState.releasedTones.count();
+					const _instrumentToneCount: number =
+						_activeToneCount + _liveToneCount + _releasedToneCount;
+					_channelToneCount += _instrumentToneCount;
+					const _singleInstrumentMs: number = performance.now() - _singleInstrumentStart;
+					_typeMs[instrument.type] =
+						(_typeMs[instrument.type] ?? 0) + _singleInstrumentMs;
+					_typeTones[instrument.type] =
+						(_typeTones[instrument.type] ?? 0) + _instrumentToneCount;
+					if (_singleInstrumentMs > _hotInstrumentMs) {
+						_hotInstrumentMs = _singleInstrumentMs;
+						_hotInstrumentSummary =
+							"ch=" +
+							channelIndex +
+							" inst=" +
+							instrumentIndex +
+							" type=" +
+							instrument.type +
+							" tones=" +
+							_instrumentToneCount +
+							" a/l/r=" +
+							_activeToneCount +
+							"/" +
+							_liveToneCount +
+							"/" +
+							_releasedToneCount +
+							" ms=" +
+							_singleInstrumentMs.toFixed(1);
 					}
 				}
 
-				// Diff snapshotted vs current output to isolate this channel's audio (L+R interleaved)
-				const ring = channelState.audioRing;
-				for (let i = bufferIndex, si = 0; i < runEnd; i++, si += 2) {
-					const currentL = outputDataL[i] + (this.outputDataLUnfiltered?.[i] ?? 0);
-					const currentR = outputDataR[i] + (this.outputDataRUnfiltered?.[i] ?? 0);
-					const diffL = currentL - scratch[si];
-					const diffR = currentR - scratch[si + 1];
-					ring[channelState.audioRingPos] = (diffL + diffR) * 0.5;
-					channelState.audioRingPos = (channelState.audioRingPos + 1) & 8191;
+				if (this.channelAudioCaptureEnabled) {
+					for (let i = bufferIndex; i < runEnd; i++) {
+						const absL = Math.abs(
+							outputDataL[i] + (this.outputDataLUnfiltered?.[i] ?? 0),
+						);
+						const absR = Math.abs(
+							outputDataR[i] + (this.outputDataRUnfiltered?.[i] ?? 0),
+						);
+						const diffL = Math.max(0, absL - channelPeakBefore);
+						const diffR = Math.max(0, absR - channelPeakBefore);
+						const peak = Math.max(diffL, diffR);
+						if (peak > channelState.volumeCap) {
+							channelState.volumeCap = peak;
+						}
+					}
+
+					const scratch = channelState.audioScratch;
+					const ring = channelState.audioRing;
+					for (let i = bufferIndex, si = 0; i < runEnd; i++, si += 2) {
+						const currentL = outputDataL[i] + (this.outputDataLUnfiltered?.[i] ?? 0);
+						const currentR = outputDataR[i] + (this.outputDataRUnfiltered?.[i] ?? 0);
+						const diffL = currentL - scratch[si];
+						const diffR = currentR - scratch[si + 1];
+						ring[channelState.audioRingPos] = (diffL + diffR) * 0.5;
+						channelState.audioRingPos = (channelState.audioRingPos + 1) & 8191;
+					}
+				}
+
+				const _singleChannelMs: number = performance.now() - _singleChannelStart;
+				if (_singleChannelMs > _hotChannelMs) {
+					_hotChannelMs = _singleChannelMs;
+					_hotChannelSummary =
+						"ch=" +
+						channelIndex +
+						" tones=" +
+						_channelToneCount +
+						" insts=" +
+						channel.instruments.length +
+						" ms=" +
+						_singleChannelMs.toFixed(1);
 				}
 			}
+			_channelMs += performance.now() - _channelStart;
 
-			// Send tick data to worklet AFTER tone state is computed
-			this._sendWorkletTick(samplesPerTick, playSong);
+			// Send tick data to worklet AFTER tone state is computed.
+			const _sendStart: number = performance.now();
+			_workletToneCount += this._sendWorkletTick(samplesPerTick, playSong);
+			_workletSendMs += performance.now() - _sendStart;
 
 			if (this.enableMetronome || this.countInMetronome) {
 				if (this.part === 0) {
@@ -2359,22 +2516,26 @@ export class Synth {
 				}
 			}
 
-			// Post processing:
-			const volCap = { in: this.song.inVolumeCap, out: this.song.outVolumeCap };
-			this._postProc.processBlock(
-				outputDataL,
-				outputDataR,
-				this.outputDataLUnfiltered,
-				this.outputDataRUnfiltered!,
-				bufferIndex,
-				runEnd,
-				songParams,
-				volume,
-				this.samplesPerSecond,
-				volCap,
-			);
-			this.song.inVolumeCap = volCap.in;
-			this.song.outVolumeCap = volCap.out;
+			const _postStart: number = performance.now();
+			// Post processing (skipped when compute worklet handles audio)
+			if (!this._workletActive) {
+				const volCap = { in: this.song.inVolumeCap, out: this.song.outVolumeCap };
+				this._postProc.processBlock(
+					outputDataL,
+					outputDataR,
+					this.outputDataLUnfiltered,
+					this.outputDataRUnfiltered!,
+					bufferIndex,
+					runEnd,
+					songParams,
+					volume,
+					this.samplesPerSecond,
+					volCap,
+				);
+				this.song.inVolumeCap = volCap.in;
+				this.song.outVolumeCap = volCap.out;
+			}
+			_postMs += performance.now() - _postStart;
 
 			// Stop-fade gain ramp: after post-processing, apply a cubic
 			// ease-out curve from 1.0 to 0. Scale outVolumeCap so peak
@@ -2846,7 +3007,72 @@ export class Synth {
 		}
 
 		const _synthElapsed: number = performance.now() - _synthStartTime;
-		if (_synthElapsed > _bufferBudgetMs * 0.9) {
+		let _hotTypeSummary: string = "none";
+		let _hotTypeMs: number = 0;
+		for (let i: number = 0; i < _typeMs.length; i++) {
+			if ((_typeMs[i] ?? 0) > _hotTypeMs) {
+				_hotTypeMs = _typeMs[i];
+				_hotTypeSummary = `type=${i} tones=${_typeTones[i] ?? 0} ms=${_hotTypeMs.toFixed(1)}`;
+			}
+		}
+		if (Synth._debugSynthEnabled() && this._timingLogCount < 10) {
+			this._timingLogCount++;
+			console.warn(
+				"[SynthTiming] bar=" +
+					this.bar +
+					" total=" +
+					_synthElapsed.toFixed(1) +
+					"ms" +
+					" budget=" +
+					_bufferBudgetMs.toFixed(1) +
+					"ms" +
+					" wlA=" +
+					this._workletActive +
+					" mod=" +
+					_modMs.toFixed(1) +
+					"ms" +
+					" state=" +
+					_stateMs.toFixed(1) +
+					"ms" +
+					" chan=" +
+					_channelMs.toFixed(1) +
+					"ms" +
+					" setup=" +
+					_toneSetupMs.toFixed(1) +
+					"ms" +
+					" play=" +
+					_tonePlayMs.toFixed(1) +
+					"ms" +
+					" fx=" +
+					_effectsMs.toFixed(1) +
+					"ms" +
+					" lfo=" +
+					_lfoMs.toFixed(1) +
+					"ms" +
+					" post=" +
+					_postMs.toFixed(1) +
+					"ms" +
+					" wlSend=" +
+					_workletSendMs.toFixed(1) +
+					"ms" +
+					" wlTones=" +
+					_workletToneCount +
+					" wlDone=" +
+					this._workletTickCompleteCount +
+					" hotCh=[" +
+					_hotChannelSummary +
+					"]" +
+					" hotInst=[" +
+					_hotInstrumentSummary +
+					"]" +
+					" hotType=[" +
+					_hotTypeSummary +
+					"]",
+			);
+		}
+		this._renderSnapshot = null;
+
+		if (_bufferBudgetMs > 0 && _synthElapsed > _bufferBudgetMs * 0.9) {
 			this._stutterCount++;
 			const now: number = performance.now();
 			if (now - this._lastStutterLogMs > 1000) {
@@ -2860,7 +3086,35 @@ export class Synth {
 						_synthElapsed.toFixed(1) +
 						"ms, budget=" +
 						_bufferBudgetMs.toFixed(1) +
-						"ms",
+						"ms, wlA=" +
+						this._workletActive +
+						", mod=" +
+						_modMs.toFixed(1) +
+						"ms, state=" +
+						_stateMs.toFixed(1) +
+						"ms, chan=" +
+						_channelMs.toFixed(1) +
+						"ms, setup=" +
+						_toneSetupMs.toFixed(1) +
+						"ms, play=" +
+						_tonePlayMs.toFixed(1) +
+						"ms, fx=" +
+						_effectsMs.toFixed(1) +
+						"ms, lfo=" +
+						_lfoMs.toFixed(1) +
+						"ms, post=" +
+						_postMs.toFixed(1) +
+						"ms, wlSend=" +
+						_workletSendMs.toFixed(1) +
+						"ms, wlTones=" +
+						_workletToneCount +
+						", hotCh=[" +
+						_hotChannelSummary +
+						"], hotInst=[" +
+						_hotInstrumentSummary +
+						"], hotType=[" +
+						_hotTypeSummary +
+						"]",
 				);
 			}
 		}
@@ -4518,14 +4772,21 @@ export class Synth {
 		let carrierCount: number = 0;
 		if (
 			tone.pitchCount > 1 &&
-			(chord.arpeggiates || (instrument.type !== InstrumentType.fm && instrument.type !== InstrumentType.fm6op))
+			(chord.arpeggiates ||
+				(instrument.type !== InstrumentType.fm && instrument.type !== InstrumentType.fm6op))
 		) {
-			const arpeggioTick: number = Math.floor(instrumentState.arpTime / Config.ticksPerArpeggio);
+			const arpeggioTick: number = Math.floor(
+				instrumentState.arpTime / Config.ticksPerArpeggio,
+			);
 			if (instrument.type === InstrumentType.fm || instrument.type === InstrumentType.fm6op) {
 				if (chord.arpeggiates) {
 					arpeggioInterval =
 						tone.pitches[
-							getArpeggioPitchIndex(tone.pitchCount, instrument.fastTwoNoteArp, arpeggioTick)
+							getArpeggioPitchIndex(
+								tone.pitchCount,
+								instrument.fastTwoNoteArp,
+								arpeggioTick,
+							)
 						] - tone.pitches[0];
 				}
 				carrierCount =
@@ -4536,7 +4797,10 @@ export class Synth {
 				arpeggioIndex = arpeggioTick;
 			}
 		}
-		if (carrierCount === 0 && (instrument.type === InstrumentType.fm || instrument.type === InstrumentType.fm6op)) {
+		if (
+			carrierCount === 0 &&
+			(instrument.type === InstrumentType.fm || instrument.type === InstrumentType.fm6op)
+		) {
 			carrierCount =
 				instrument.type === InstrumentType.fm6op
 					? instrument.customAlgorithm.carrierCount
@@ -4573,7 +4837,7 @@ export class Synth {
 			);
 		};
 
-		const snapshot: SongSnapshot = this.snapshotBuilder.build(song);
+		const snapshot: SongSnapshot = this._renderSnapshot ?? this.snapshotBuilder.build(song);
 		const env: ToneRenderEnv = {
 			sampleRate: this.samplesPerSecond,
 			tick: this.tick,

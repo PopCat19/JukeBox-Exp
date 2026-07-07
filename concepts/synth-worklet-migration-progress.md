@@ -117,6 +117,20 @@ cfaee1f4 feat(synth): wire compute-tone worklet with message protocol and tone p
 3ea8b7b7 feat(synth): add worklet-native synth dispatch and full mod serialization
 ```
 
+## Stabilization note — snapshot build in hot loop
+
+A dense MIDI import exposed SAB underruns after Phase 5. Runtime blame logs showed the worklet was starved by the main-thread producer, not by AudioWorklet processing:
+
+- `lastFill=raf slots=1/6 ms=88-138 budgetStop=true`
+- `chan=71.2ms setup=68.8ms play=1.4ms`
+- `hotInst=[... type=3 ... a/l/r=0/0/7]`
+
+Root cause: `Synth.computeTone()` built a full `SongSnapshot` once per tone. Dense released-tone sections rebuilt the whole song snapshot dozens of times per audio buffer.
+
+Fix: `Synth.synthesize()` now builds one `_renderSnapshot` after `syncSongState()` and `computeTone()` reuses it for every tone in the buffer. Stability details live in `docs/synth-audio-stability.md`.
+
+Rule for future worklet migration: snapshots are tick/buffer-boundary data. Do not construct snapshots inside per-tone, per-channel, or per-sample loops.
+
 ## Phase 6 — Tick-sliced Rendering (PLANNED)
 
 ### 6a (CRITICAL): Render across multiple process() calls

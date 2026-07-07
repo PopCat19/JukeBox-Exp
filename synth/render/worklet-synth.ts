@@ -20,8 +20,8 @@
 
 import { type DynamicBiquadFilter } from "../filtering";
 import { Config, InstrumentType } from "../synth-config";
-import { epsilon } from "../util";
 import { Tone } from "../tone";
+import { epsilon } from "../util";
 
 // ── Local reimplementations of Synth static helpers ─────────────────────
 
@@ -74,8 +74,6 @@ function workletSanitizeFilters(filters: DynamicBiquadFilter[], count: number): 
 		if (!Number.isFinite(out2) || Math.abs(out2) < epsilon) f.output2 = 0.0;
 	}
 }
-
-
 
 // ── Per-instrument effect state (Phase 5 subset) ────────────────────────
 
@@ -135,7 +133,7 @@ function renderChipWave(
 	if (wave == null) return;
 
 	const voiceCount: number = Math.max(2, es.unisonVoices);
-	const waveLength: number = (es.aliases ? wave.length : wave.length - 1);
+	const waveLength: number = es.aliases ? wave.length : wave.length - 1;
 	const volumeScale: number = es.volumeScale;
 	void volumeScale;
 	const unisonSign: number = tone.specialIntervalExpressionMult * es.unisonSign;
@@ -176,7 +174,13 @@ function renderChipWave(
 			phases[v] += phaseDeltas[v] * directions[v];
 		}
 
-		const sample: number = workletApplyFilters(inputSample, initFilterInput1, initFilterInput2, filterCount, filters);
+		const sample: number = workletApplyFilters(
+			inputSample,
+			initFilterInput1,
+			initFilterInput2,
+			filterCount,
+			filters,
+		);
 		initFilterInput2 = initFilterInput1;
 		initFilterInput1 = inputSample;
 
@@ -231,7 +235,7 @@ function renderPulseWidth(
 		for (let v = 0; v < voiceCount; v++) {
 			const pd: number = tone.phaseDeltas[v];
 			const sawA: number = phases[v] - Math.floor(phases[v]);
-			const sawB: number = (phases[v] + pulseWidth) - Math.floor(phases[v] + pulseWidth);
+			const sawB: number = phases[v] + pulseWidth - Math.floor(phases[v] + pulseWidth);
 			let pulse: number = sawB - sawA;
 			if (!aliases) {
 				if (sawA < pd) {
@@ -255,7 +259,13 @@ function renderPulseWidth(
 			tone.phaseDeltas[v] *= tone.phaseDeltaScales[v];
 		}
 
-		const sample: number = workletApplyFilters(inputSample, initFilterInput1, initFilterInput2, filterCount, filters);
+		const sample: number = workletApplyFilters(
+			inputSample,
+			initFilterInput1,
+			initFilterInput2,
+			filterCount,
+			filters,
+		);
 		initFilterInput2 = initFilterInput1;
 		initFilterInput1 = inputSample;
 
@@ -314,7 +324,10 @@ function renderNoise(
 	for (let si = bufferOffset; si < stopIndex; si++) {
 		let inputSample: number = 0;
 		for (let v = 0; v < voiceCount; v++) {
-			const pitchRelativeFilter: number = Math.min(1.0, tone.phaseDeltas[v] * es.noisePitchFilterMult);
+			const pitchRelativeFilter: number = Math.min(
+				1.0,
+				tone.phaseDeltas[v] * es.noisePitchFilterMult,
+			);
 			const waveSample: number = wave[phases[v] & phaseMask];
 			noiseSamples[v] += (waveSample - noiseSamples[v]) * pitchRelativeFilter;
 			inputSample += v === 0 ? noiseSamples[v] : noiseSamples[v] * unisonSign;
@@ -323,7 +336,13 @@ function renderNoise(
 			tone.phaseDeltas[v] *= tone.phaseDeltaScales[v];
 		}
 
-		const sample: number = workletApplyFilters(inputSample, initFilterInput1, initFilterInput2, filterCount, filters);
+		const sample: number = workletApplyFilters(
+			inputSample,
+			initFilterInput1,
+			initFilterInput2,
+			filterCount,
+			filters,
+		);
 		initFilterInput2 = initFilterInput1;
 		initFilterInput1 = inputSample;
 
@@ -379,7 +398,10 @@ function renderSpectrum(
 	for (let si = bufferOffset; si < stopIndex; si++) {
 		let inputSample: number = 0;
 		for (let v = 0; v < voiceCount; v++) {
-			const pitchRelativeFilter: number = Math.min(1.0, tone.phaseDeltas[v] * samplesInPeriod);
+			const pitchRelativeFilter: number = Math.min(
+				1.0,
+				tone.phaseDeltas[v] * samplesInPeriod,
+			);
 			const phaseInt: number = phases[v] | 0;
 			const idx: number = phaseInt & phaseMask;
 			let waveSample: number = wave[idx];
@@ -392,7 +414,13 @@ function renderSpectrum(
 			tone.phaseDeltas[v] *= tone.phaseDeltaScales[v];
 		}
 
-		const sample: number = workletApplyFilters(inputSample, initFilterInput1, initFilterInput2, filterCount, filters);
+		const sample: number = workletApplyFilters(
+			inputSample,
+			initFilterInput1,
+			initFilterInput2,
+			filterCount,
+			filters,
+		);
 		initFilterInput2 = initFilterInput1;
 		initFilterInput1 = inputSample;
 
@@ -460,16 +488,23 @@ function renderHarmonics(
 			const ratio: number = phases[v] - phaseInt;
 			nextWaveIntegral += (wave[idx + 1] - nextWaveIntegral) * ratio;
 			const phaseDeltaScaled: number = tone.phaseDeltas[v] * waveLength;
-			const waveSample: number = phaseDeltaScaled > 1e-10
-				? (nextWaveIntegral - prevWaveIntegrals[v]) / phaseDeltaScaled
-				: 0.0;
+			const waveSample: number =
+				phaseDeltaScaled > 1e-10
+					? (nextWaveIntegral - prevWaveIntegrals[v]) / phaseDeltaScaled
+					: 0.0;
 			prevWaveIntegrals[v] = nextWaveIntegral;
 			inputSample += v === 0 ? waveSample : waveSample * unisonSign;
 
 			tone.phaseDeltas[v] *= tone.phaseDeltaScales[v];
 		}
 
-		const sample: number = workletApplyFilters(inputSample, initFilterInput1, initFilterInput2, filterCount, filters);
+		const sample: number = workletApplyFilters(
+			inputSample,
+			initFilterInput1,
+			initFilterInput2,
+			filterCount,
+			filters,
+		);
 		initFilterInput2 = initFilterInput1;
 		initFilterInput1 = inputSample;
 
@@ -533,12 +568,14 @@ function renderFm(
 
 	// Resolve FM algorithm modulation routing (Config.algorithms is 1-based)
 	// modulatedBy[op] lists the operators (1-indexed) that modulate operator op
-	const algoMods: ReadonlyArray<readonly number[]> = algorithm >= 0 && algorithm < Config.algorithms.length
-		? Config.algorithms[algorithm].modulatedBy
-		: Config.algorithms[0].modulatedBy;
-	const carrierCount: number = algorithm >= 0 && algorithm < Config.algorithms.length
-		? Config.algorithms[algorithm].carrierCount
-		: Config.algorithms[0].carrierCount;
+	const algoMods: ReadonlyArray<readonly number[]> =
+		algorithm >= 0 && algorithm < Config.algorithms.length
+			? Config.algorithms[algorithm].modulatedBy
+			: Config.algorithms[0].modulatedBy;
+	const carrierCount: number =
+		algorithm >= 0 && algorithm < Config.algorithms.length
+			? Config.algorithms[algorithm].carrierCount
+			: Config.algorithms[0].carrierCount;
 
 	const stopIndex: number = bufferOffset + numSamples;
 	for (let si = bufferOffset; si < stopIndex; si++) {
@@ -552,7 +589,18 @@ function renderFm(
 				modSum += opScaled[mods[mi] - 1]; // 1-indexed in config
 			}
 			const fb: number = op === 3 ? feedbackMult : 0; // feedback only on last operator
-			opScaled[op] = computeFmOperatorSample(op, modSum, opPhases, opPhaseDeltas, opOutputMults, opOutputs, fb, sineWave, sineMask, sineLength);
+			opScaled[op] = computeFmOperatorSample(
+				op,
+				modSum,
+				opPhases,
+				opPhaseDeltas,
+				opOutputMults,
+				opOutputs,
+				fb,
+				sineWave,
+				sineMask,
+				sineLength,
+			);
 		}
 
 		// Sum carriers
@@ -561,7 +609,13 @@ function renderFm(
 			fmOutput += opScaled[c];
 		}
 
-		const sample: number = workletApplyFilters(fmOutput, initFilterInput1, initFilterInput2, filterCount, filters);
+		const sample: number = workletApplyFilters(
+			fmOutput,
+			initFilterInput1,
+			initFilterInput2,
+			filterCount,
+			filters,
+		);
 		initFilterInput2 = initFilterInput1;
 		initFilterInput1 = fmOutput;
 
@@ -639,8 +693,8 @@ function renderSupersaw(
 	let delayLength: number = tone.supersawDelayLength;
 	const delayLengthDelta: number = tone.supersawDelayLengthDelta;
 	const delayLine: Float32Array | null = tone.supersawDelayLine;
-	const delayBufferMask: number = delayLine != null ? (delayLine.length - 1) : 0;
-	let delayIndex: number = (tone.supersawDelayIndex | 0);
+	const delayBufferMask: number = delayLine != null ? delayLine.length - 1 : 0;
+	let delayIndex: number = tone.supersawDelayIndex | 0;
 	delayIndex = (delayIndex & delayBufferMask) + (delayLine != null ? delayLine.length : 0);
 
 	const unisonDetunes: number[] = [];
@@ -662,7 +716,7 @@ function renderSupersaw(
 
 	const stopIndex: number = bufferOffset + numSamples;
 	for (let si = bufferOffset; si < stopIndex; si++) {
-		phase0 = (phase0 + curPhaseDelta) - Math.floor(phase0 + curPhaseDelta);
+		phase0 = phase0 + curPhaseDelta - Math.floor(phase0 + curPhaseDelta);
 		let ss: number = phase0 - 0.5 * (1.0 + (voiceCount - 1.0) * dynamism);
 
 		if (!aliases) {
@@ -678,7 +732,7 @@ function renderSupersaw(
 		if (!aliases) {
 			for (let v = 1; v < voiceCount; v++) {
 				const dpd: number = curPhaseDelta * unisonDetunes[v];
-				const aph: number = (phases[v] + dpd) - Math.floor(phases[v] + dpd);
+				const aph: number = phases[v] + dpd - Math.floor(phases[v] + dpd);
 				ss += aph * dynamism;
 				if (aph < dpd) {
 					const t: number = aph / dpd;
@@ -692,7 +746,7 @@ function renderSupersaw(
 		} else {
 			for (let v = 1; v < voiceCount; v++) {
 				const dpd: number = curPhaseDelta * unisonDetunes[v];
-				phases[v] = (phases[v] + dpd) - Math.floor(phases[v] + dpd);
+				phases[v] = phases[v] + dpd - Math.floor(phases[v] + dpd);
 				ss += phases[v] * dynamism;
 			}
 		}
@@ -710,7 +764,13 @@ function renderSupersaw(
 			ss -= delaySample * shape;
 		}
 
-		const sample: number = workletApplyFilters(ss, initFilterInput1, initFilterInput2, filterCount, filters);
+		const sample: number = workletApplyFilters(
+			ss,
+			initFilterInput1,
+			initFilterInput2,
+			filterCount,
+			filters,
+		);
 		initFilterInput2 = initFilterInput1;
 		initFilterInput1 = ss;
 
@@ -785,7 +845,13 @@ function renderDrumset(
 			tone.phaseDeltas[v] *= tone.phaseDeltaScales[v];
 		}
 
-		const sample: number = workletApplyFilters(inputSample, initFilterInput1, initFilterInput2, filterCount, filters);
+		const sample: number = workletApplyFilters(
+			inputSample,
+			initFilterInput1,
+			initFilterInput2,
+			filterCount,
+			filters,
+		);
 		initFilterInput2 = initFilterInput1;
 		initFilterInput1 = inputSample;
 
@@ -844,6 +910,11 @@ registerWorkletSynth(InstrumentType.fm6op, renderFm);
 registerWorkletSynth(InstrumentType.supersaw, renderSupersaw);
 registerWorkletSynth(InstrumentType.drumset, renderDrumset);
 
-void renderChipWave; void renderPulseWidth; void renderNoise;
-void renderSpectrum; void renderHarmonics; void renderFm;
-void renderSupersaw; void renderDrumset;
+void renderChipWave;
+void renderPulseWidth;
+void renderNoise;
+void renderSpectrum;
+void renderHarmonics;
+void renderFm;
+void renderSupersaw;
+void renderDrumset;

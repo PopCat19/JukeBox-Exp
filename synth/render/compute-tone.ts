@@ -2657,38 +2657,26 @@ export function computeToneSnapshot(
 			const _uV: number = env.supersawInstrument.unisonVoices;
 			const _uSpr: number = env.supersawInstrument.unisonSpread;
 			const _uOff: number = env.supersawInstrument.unisonOffset;
-			const _uEnvStart: number =
-				env.envelopeStarts[EnvelopeComputeIndex.unison];
-			const _uEnvEnd: number =
-				env.envelopeEnds[EnvelopeComputeIndex.unison];
+			const _uEnvStart: number = env.envelopeStarts[EnvelopeComputeIndex.unison];
+			const _uEnvEnd: number = env.envelopeEnds[EnvelopeComputeIndex.unison];
 
-			const _uStartA: number =
-				2.0 ** (((_uOff + _uSpr) * _uEnvStart) / 12.0);
-			const _uEndA: number =
-				2.0 ** (((_uOff + _uSpr) * _uEnvEnd) / 12.0);
+			const _uStartA: number = 2.0 ** (((_uOff + _uSpr) * _uEnvStart) / 12.0);
+			const _uEndA: number = 2.0 ** (((_uOff + _uSpr) * _uEnvEnd) / 12.0);
 			tone.phaseDeltas[0] = startFreq * env.sampleTime * _uStartA;
 			tone.phaseDeltaScales[0] =
-				basePhaseDeltaScale *
-				(_uEndA / _uStartA) ** (1.0 / roundedSamplesPerTick);
+				basePhaseDeltaScale * (_uEndA / _uStartA) ** (1.0 / roundedSamplesPerTick);
 
 			const _div: number = _uV === 1 ? 1 : _uV - 1;
 			for (let _v: number = 1; _v < _uV; _v++) {
 				const _uStart: number =
-					2.0 **
-						(((_uOff + _uSpr - (2 * _v * _uSpr) / _div) *
-							_uEnvStart) /
-							12.0) *
+					2.0 ** (((_uOff + _uSpr - (2 * _v * _uSpr) / _div) * _uEnvStart) / 12.0) *
 					specialIntervalMult;
 				const _uEnd: number =
-					2.0 **
-						(((_uOff + _uSpr - (2 * _v * _uSpr) / _div) *
-							_uEnvEnd) /
-							12.0) *
+					2.0 ** (((_uOff + _uSpr - (2 * _v * _uSpr) / _div) * _uEnvEnd) / 12.0) *
 					specialIntervalMult;
 				tone.phaseDeltas[_v] = startFreq * env.sampleTime * _uStart;
 				tone.phaseDeltaScales[_v] =
-					basePhaseDeltaScale *
-					(_uEnd / _uStart) ** (1.0 / roundedSamplesPerTick);
+					basePhaseDeltaScale * (_uEnd / _uStart) ** (1.0 / roundedSamplesPerTick);
 			}
 		} else {
 			tone.phaseDeltas[0] = startFreq * env.sampleTime;

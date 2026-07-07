@@ -52,13 +52,37 @@ export class AudioBackend {
 	private _lastSpectrumUpdateTime: number = 0;
 	private _spectrumDecayStarted: boolean = false;
 	private _logNeedDataCount: number = 0;
+	private _underrunLogCount: number = 0;
+	private _lastUnderrunLogMs: number = 0;
+	private _fillInProgress: boolean = false;
+	private _lastFillReason: string = "none";
+	private _lastFillMs: number = 0;
+	private _lastFillSlots: number = 0;
+	private _lastFillFreeSlots: number = 0;
+	private _lastFillReadHead: number = -1;
+	private _lastFillWriteHead: number = -1;
+	private _lastFillEndedByBudget: boolean = false;
 	private _useSab: boolean = false;
 	private static readonly SPECTRUM_UPDATE_INTERVAL_MS: number = 1000 / 60;
+	private static readonly FILL_BUDGET_MS: number = 16;
 	// 8 slots gives ~7 fills of runway at 2048 samples each. Enough for
 	// dense patterns where synthesize() takes up to ~7ms before the rAF
 	// fill loop loses ground. Each slot is ~16KB (2048 × 2ch × 4B), total
 	// ~128KB.
 	private static readonly NUM_RING_SLOTS: number = 8;
+
+	private static _readBufferSizeOverride(): number | null {
+		try {
+			if (typeof window === "undefined" || window.localStorage == null) return null;
+			const raw: string | null = window.localStorage.getItem("audioBufferSize");
+			if (raw == null) return null;
+			const parsed: number = Number(raw);
+			if ([512, 1024, 2048, 4096, 8192, 16384].includes(parsed)) return parsed;
+		} catch {
+			/* ignore */
+		}
+		return null;
+	}
 
 	public get isActive(): boolean {
 		return this.audioCtx != null && this._workletNode != null;
@@ -96,6 +120,41 @@ export class AudioBackend {
 		if (AudioBackend._debugSynthEnabled()) console.warn("[AudioBackend]", ...args);
 	}
 
+	private _logUnderrun(msg: Record<string, unknown>): void {
+		this._underrunLogCount++;
+		const now: number = performance.now();
+		if (now - this._lastUnderrunLogMs < 1000 && this._underrunLogCount > 3) return;
+		this._lastUnderrunLogMs = now;
+		console.warn(
+			"[AudioBackend] underrun #" +
+				this._underrunLogCount +
+				" mode=" +
+				String(msg.mode) +
+				" workletCount=" +
+				String(msg.count) +
+				" bufferSize=" +
+				this._currentBufferSize +
+				" fillInProgress=" +
+				this._fillInProgress +
+				" lastFill=" +
+				this._lastFillReason +
+				" slots=" +
+				this._lastFillSlots +
+				"/" +
+				this._lastFillFreeSlots +
+				" ms=" +
+				this._lastFillMs.toFixed(1) +
+				" budgetStop=" +
+				this._lastFillEndedByBudget +
+				" heads=" +
+				this._lastFillReadHead +
+				"→" +
+				this._lastFillWriteHead +
+				" ctx=" +
+				(this.audioCtx?.state ?? "none"),
+		);
+	}
+
 	public static _debugSynthEnabled(): boolean {
 		try {
 			if (typeof window === "undefined") return false;
@@ -121,13 +180,14 @@ export class AudioBackend {
 	}
 
 	private async _doActivate(host: AudioBackendHost): Promise<void> {
-		const bufferSize: number = host.anticipatePoorPerformance
+		const configuredBufferSize: number = host.anticipatePoorPerformance
 			? host.preferLowerLatency
 				? 2048
 				: 4096
 			: host.preferLowerLatency
 				? 512
 				: 2048;
+		const bufferSize: number = AudioBackend._readBufferSizeOverride() ?? configuredBufferSize;
 		if (
 			this.audioCtx != null &&
 			this._workletNode != null &&
@@ -192,9 +252,12 @@ export class AudioBackend {
 					this._computeWorkletNode = new AudioWorkletNode(
 						ctx,
 						"jukebox-compute-tone-processor",
+						{ outputChannelCount: [2] },
 					);
-					// Not connected to destination — communicates via message port only
-					this._dbg("Compute-tone worklet node created");
+					// Connect to destination so the worklet's process() output is audible.
+					// Phase 6: replaces the output worklet as the audio source.
+					this._computeWorkletNode.connect(ctx.destination);
+					this._dbg("Compute-tone worklet node created and connected to destination");
 				} catch (e) {
 					this._dbgWarn("Failed to load compute-tone worklet:", e);
 					this._computeWorkletNode = null;
@@ -246,10 +309,12 @@ export class AudioBackend {
 				if (!msg) return;
 				if (msg.type === "need-data") {
 					if (this._useSab) {
-						this._fillAllFreeSlotsInternal(host, false);
+						this._fillAllFreeSlotsInternal(host, false, "need-data");
 					} else {
 						this._onWorkletNeedData(host);
 					}
+				} else if (msg.type === "underrun") {
+					this._logUnderrun(msg as Record<string, unknown>);
 				}
 			};
 
@@ -263,7 +328,7 @@ export class AudioBackend {
 			// has data from its first process() call. play() hasn't
 			// set isPlayingSong yet — skip the deactivation gate.
 			if (this._useSab) {
-				this._fillAllFreeSlotsInternal(host, true);
+				this._fillAllFreeSlotsInternal(host, true, "activate");
 			}
 
 			this._dbg("_doActivate complete, mode:", this._useSab ? "SAB" : "queue");
@@ -305,6 +370,14 @@ export class AudioBackend {
 		// Clean up compute-tone worklet node
 		if (this._computeWorkletNode != null) {
 			this._computeWorkletNode.port.postMessage({ type: "stop" });
+			// Disconnect from destination if connected
+			try {
+				if (this.audioCtx != null) {
+					this._computeWorkletNode.disconnect(this.audioCtx.destination);
+				}
+			} catch {
+				this._dbg("compute worklet disconnect failed (already disconnected)");
+			}
 			this._computeWorkletNode = null;
 		}
 		if (this.audioCtx != null) {
@@ -315,6 +388,7 @@ export class AudioBackend {
 			this.audioCtx = null;
 		}
 		this._ringBuffer = null;
+		this._fillInProgress = false;
 		this._host = null;
 		this._currentBufferSize = 0;
 		this._gestureListenerAdded = false;
@@ -337,7 +411,7 @@ export class AudioBackend {
 	 *  starts the rAF fill loop. */
 	public fillAllFreeSlots(host: AudioBackendHost): void {
 		if (!this._useSab || this._ringBuffer == null) return;
-		this._fillAllFreeSlotsInternal(host, false);
+		this._fillAllFreeSlotsInternal(host, false, "manual");
 		if (this._fillLoopId == null) {
 			this._fillLoopId = requestAnimationFrame(this._onFillFrame);
 		}
@@ -354,6 +428,17 @@ export class AudioBackend {
 
 		if (!isPlayingSong && !host.isFadingOut() && performance.now() >= host.liveInputEndTime()) {
 			this.deactivate();
+			return;
+		}
+
+		// Guard: deactivate() may have been called while this need-data
+		// message was in flight, setting _currentBufferSize to 0. If we
+		// proceed with bufferSize=0, budget becomes 0ms and every render
+		// exceeds it, cascading into hundreds of audio stutter warnings.
+		if (this._currentBufferSize <= 0) {
+			if (this._logNeedDataCount <= 5 || this._logNeedDataCount % 100 === 0) {
+				this._dbg("need-data skipped: _currentBufferSize is 0");
+			}
 			return;
 		}
 
@@ -383,7 +468,7 @@ export class AudioBackend {
 		this._fillLoopId = requestAnimationFrame(this._onFillFrame);
 		const host: AudioBackendHost | null = this._host;
 		if (host != null && this._ringBuffer != null) {
-			this._fillAllFreeSlotsInternal(host, false);
+			this._fillAllFreeSlotsInternal(host, false, "raf");
 		}
 	};
 
@@ -398,7 +483,11 @@ export class AudioBackend {
 	 *  @param host - the backend host
 	 *  @param skipDeactivate - when true, skips the deactivation check
 	 *    (used during _doActivate before play() has set isPlayingSong). */
-	private _fillAllFreeSlotsInternal(host: AudioBackendHost, skipDeactivate: boolean): void {
+	private _fillAllFreeSlotsInternal(
+		host: AudioBackendHost,
+		skipDeactivate: boolean,
+		reason: string,
+	): void {
 		const ring: AudioRingBuffer = this._ringBuffer!;
 		if (ring == null) return;
 
@@ -411,6 +500,16 @@ export class AudioBackend {
 			}
 		}
 
+		// Guard: _currentBufferSize may be 0 if deactivate() was called
+		// from another handler between the ring-null check above and here.
+		// Prevents budget=0.0ms renders that cascade into stutters.
+		if (this._currentBufferSize <= 0) {
+			if (AudioBackend._debugSynthEnabled()) {
+				console.log("[AudioBackend] fill skipped: _currentBufferSize is 0");
+			}
+			return;
+		}
+
 		const writeHead: number = ring.loadWriteHead();
 		const readHead: number = ring.loadReadHead();
 
@@ -419,6 +518,10 @@ export class AudioBackend {
 		const freeSlots: number = Math.min(ring.numSlots - 1 - diff, ring.numSlots);
 		if (freeSlots <= 0) return;
 
+		const fillStart: number = performance.now();
+		let filledSlots: number = 0;
+		let endedByBudget: boolean = false;
+		this._fillInProgress = true;
 		for (let i: number = 0; i < freeSlots; i++) {
 			const slot: number = writeHead + 1 + i;
 			const left: Float32Array = new Float32Array(this._currentBufferSize);
@@ -433,6 +536,8 @@ export class AudioBackend {
 			ring.writeSlot(slot, left, right);
 			ring.publishWriteHead(slot);
 
+			filledSlots++;
+
 			if (i === 0 && host.spectrumEnabled) {
 				const now: number = performance.now();
 				if (
@@ -443,7 +548,24 @@ export class AudioBackend {
 					this._lastSpectrumUpdateTime = now;
 				}
 			}
+
+			if (
+				!skipDeactivate &&
+				filledSlots > 0 &&
+				performance.now() - fillStart > AudioBackend.FILL_BUDGET_MS
+			) {
+				endedByBudget = true;
+				break;
+			}
 		}
+		this._fillInProgress = false;
+		this._lastFillReason = reason;
+		this._lastFillMs = performance.now() - fillStart;
+		this._lastFillSlots = filledSlots;
+		this._lastFillFreeSlots = freeSlots;
+		this._lastFillReadHead = readHead;
+		this._lastFillWriteHead = writeHead;
+		this._lastFillEndedByBudget = endedByBudget;
 	}
 
 	/** Number of samples sitting in the SAB ring between the writer

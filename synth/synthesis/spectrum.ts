@@ -91,7 +91,9 @@ export function buildSpectrumSource(voiceCount: number): string {
 
 	spectrumSource += `let inputSample = ${sampleList.join(" + ")};`;
 
-	spectrumSource += `const sample = applyFilters(inputSample, initialFilterInput1, initialFilterInput2, filterCount, filters);
+	spectrumSource += `const sample = filterCount > 0
+                ? applyFilters(inputSample, initialFilterInput1, initialFilterInput2, filterCount, filters)
+                : inputSample;
             initialFilterInput2 = initialFilterInput1;
             initialFilterInput1 = inputSample;`;
 

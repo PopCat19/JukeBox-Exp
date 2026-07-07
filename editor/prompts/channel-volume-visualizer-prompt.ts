@@ -520,6 +520,7 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 		this._doc.notifier.watch(this._onDocChange);
 		this._onThemeChange = this._refreshSpectrumColors.bind(this);
 		events.listen("themeChange", this._onThemeChange);
+		this._doc.synth.channelAudioCaptureEnabled = true;
 		this._renderChannelList();
 		this._buildPianoKeyRows(1);
 		this._scheduleFrame();
@@ -797,6 +798,7 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 
 	public override cleanUp = (): void => {
 		super.cleanUp();
+		this._doc.synth.channelAudioCaptureEnabled = false;
 		this._doc.notifier.unwatch(this._onDocChange);
 		events.unlisten("themeChange", this._onThemeChange);
 		if (this._resizeObserver != null) {

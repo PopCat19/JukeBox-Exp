@@ -101,6 +101,10 @@ export class Tone {
 
 	public readonly envelopeComputer: EnvelopeComputer = new EnvelopeComputer(/*true*/);
 
+	/** Generation counter incremented each time the tone is allocated from pool.
+	 *  Used by worklet for stable tone slot IDs via compound key [instrumentIndex, generation]. */
+	public workletGeneration: number = 0;
+
 	constructor() {
 		this.reset();
 	}

@@ -19,10 +19,14 @@ console.log(
 
 Bun.serve({
 	port,
-	fetch(request: Request): Response {
+	async fetch(request: Request): Promise<Response> {
 		const url = new URL(request.url);
 		const filePath = url.pathname === "/" ? "/index_debug.html" : url.pathname;
-		const file = Bun.file(`${rootDir}${filePath}`);
+		// Try website/ first, then dist/ as fallback (for worklet bundle)
+		let file = Bun.file(`${rootDir}${filePath}`);
+		if (!(await file.exists())) {
+			file = Bun.file(`dist${filePath}`);
+		}
 
 		return new Response(file, {
 			headers: {

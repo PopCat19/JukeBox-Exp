@@ -608,6 +608,12 @@ class JukeBoxComputeToneProcessor extends AudioWorkletProcessor {
 			ec.nextSlideRatioStart = 0;
 			ec.nextSlideRatioEnd = 0;
 
+			// Skip instrument types without a worklet-native synth function.
+			// Avoids crashing computeToneSnapshot on stub createPickedString
+			// (null entries in tone.pickedStrings) and similar Phase 5 gaps.
+			const synthFn = getWorkletSynthFn(cmd.instrumentType);
+			if (synthFn == null) continue;
+
 			// Build ToneRenderEnv from command + scratch buffers
 			const env: ToneRenderEnv = buildToneRenderEnv(
 				tone,
@@ -634,8 +640,6 @@ class JukeBoxComputeToneProcessor extends AudioWorkletProcessor {
 			if (!result.awake) continue;
 
 			// ── Phase 5: render samples via worklet-native synth dispatch ──
-			const synthFn = getWorkletSynthFn(cmd.instrumentType);
-			if (synthFn == null) continue; // No synth implementation yet
 
 			// Build the effect state for this tone from serialized command data
 			const drumsetWaves: readonly Float32Array[] = cmd.drumsetWaves;

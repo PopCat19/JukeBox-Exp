@@ -116,6 +116,7 @@ export function allocTone(tonePool: Deque<Tone>): Tone {
 	if (tonePool.count() > 0) {
 		const tone: Tone = tonePool.popBack();
 		tone.freshlyAllocated = true;
+		tone.workletGeneration++;
 		return tone;
 	}
 	return new Tone();

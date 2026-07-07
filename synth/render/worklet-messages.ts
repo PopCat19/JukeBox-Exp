@@ -21,7 +21,7 @@ import type { SongSnapshot } from "./snapshot";
 
 // ── Message types ─────────────────────────────────────────────────────────
 
-export const enum WorkletMessageType {
+export enum WorkletMessageType {
 	Init = "init",
 	Tick = "tick",
 	Stop = "stop",
@@ -68,6 +68,11 @@ export interface WorkletInitMessage {
 export interface WorkletToneCommand {
 	/** Index into the worklet's per-channel per-instrument tone array */
 	readonly toneSlotId: number;
+
+	/** Per-tone generation counter for stable compound-key lookup in worklet.
+	 *  Combined with instrumentIndex to form the activeTones map key
+	 *  so that slot-ID shifts don't reuse stale tone state. */
+	readonly generation: number;
 
 	// ── Tone identity (tone.note may be null) ──────────────────────────
 	readonly instrumentIndex: number;

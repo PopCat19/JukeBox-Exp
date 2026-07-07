@@ -53,6 +53,7 @@ class BeepBoxAudioWorkletProcessor extends AudioWorkletProcessor {
     this._totalProcessed = 0;
     this._totalReceived = 0;
     this._underrunCount = 0;
+    this._lastUnderrunMessageTime = 0;
 
     this.port.onmessage = (e) => {
       var msg = e.data;
@@ -132,6 +133,21 @@ class BeepBoxAudioWorkletProcessor extends AudioWorkletProcessor {
             this._sabNeedDataPending = true;
             this.port.postMessage({ type: "need-data" });
           }
+          this._underrunCount++;
+          var now = currentTime;
+          if (now - this._lastUnderrunMessageTime > 0.25) {
+            this._lastUnderrunMessageTime = now;
+            this.port.postMessage({
+              type: "underrun",
+              mode: "sab",
+              count: this._underrunCount,
+              writeHead: writeHead,
+              readHead: this._readHead,
+              activeSlot: this._activeSlot,
+              slotOffset: this._slotOffset,
+              bufferSize: this._bufferSize
+            });
+          }
           for (var i = written; i < len; i++) { outL[i] = 0.0; outR[i] = 0.0; }
           return;
         }
@@ -181,6 +197,19 @@ class BeepBoxAudioWorkletProcessor extends AudioWorkletProcessor {
       if (this._queue.length === 0) {
         for (var i = written; i < len; i++) { outL[i] = 0.0; outR[i] = 0.0; }
         this._underrunCount++;
+        var now = currentTime;
+        if (now - this._lastUnderrunMessageTime > 0.25) {
+          this._lastUnderrunMessageTime = now;
+          this.port.postMessage({
+            type: "underrun",
+            mode: "queue",
+            count: this._underrunCount,
+            queueLength: this._queue.length,
+            queueOffset: this._queueOffset,
+            bufferedSamples: this._getBufferedSamples(),
+            bufferSize: this._bufferSize
+          });
+        }
         if (this._debug && (this._underrunCount <= 5 || this._underrunCount % 500 === 0)) {
           console.warn("[Worklet] UNDERRUN #" + this._underrunCount);
         }
