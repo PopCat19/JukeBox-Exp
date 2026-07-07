@@ -5,29 +5,53 @@
 // This module:
 // - Defines RenderState (mutable state owned by the render core)
 // - Defines renderTick() signature and RenderResult/RenderTelemetry types
-// - Phase 1 will extract synthesize() logic into this pure function
+// - Provides renderPostProcessing() — post-processor call reading from SongSnapshot
+// - Phase 1 extracts synthesize() logic into pure, snapshot-based functions
 // - No Song reference, no DOM/AudioContext, no mutable imports beyond state
 
+import { PostProcessingState, type SongPostParams } from "../post-processing";
 import type { SongSnapshot } from "./snapshot";
+
+// ── Stop-fade state ───────────────────────────────────────────────────────
+
+export interface StopFadeState {
+	samplesRemaining: number;
+	samplesTotal: number;
+	cleanupDone: boolean;
+}
+
+export function createStopFadeState(): StopFadeState {
+	return {
+		samplesRemaining: 0,
+		samplesTotal: 0,
+		cleanupDone: false,
+	};
+}
 
 // ── RenderState (mutable state owned by render core) ─────────────────────
 
 export interface RenderState {
-playhead: number;
-bar: number;
-beat: number;
-part: number;
-tick: number;
-tickSampleCountdown: number;
-isAtStartOfTick: boolean;
-isAtStartOfSong: boolean;
-playheadNeedsReset: boolean;
-prevBar: number | null;
+	playhead: number;
+	bar: number;
+	beat: number;
+	part: number;
+	tick: number;
+	tickSampleCountdown: number;
+	isAtStartOfTick: boolean;
+	isAtStartOfSong: boolean;
+	playheadNeedsReset: boolean;
+	prevBar: number | null;
 
 	// Per-channel audio accumulation ring buffers
-	// (initialized from snapshot channel count, sized by sample rate × max tick)
+	// (initialized from snapshot channel count, sized by sample rate x max tick)
 	channelRingBuffers: Float32Array[];
 	channelRingPositions: number[];
+
+	// Post-processing state (song EQ, compression, limiting)
+	postProc: PostProcessingState;
+
+	// Stop-fade state
+	stopFade: StopFadeState;
 
 	// Tone pools
 	// (phase 2: tone lifecycle moved here)
@@ -39,20 +63,23 @@ prevBar: number | null;
 }
 
 export function createRenderState(): RenderState {
-return {
-playhead: 0,
-bar: 0,
-beat: 0,
-part: 0,
-tick: 0,
-tickSampleCountdown: 0,
-isAtStartOfTick: true,
-isAtStartOfSong: true,
-playheadNeedsReset: false,
-prevBar: null,
+	return {
+		playhead: 0,
+		bar: 0,
+		beat: 0,
+		part: 0,
+		tick: 0,
+		tickSampleCountdown: 0,
+		isAtStartOfTick: true,
+		isAtStartOfSong: true,
+		playheadNeedsReset: false,
+		prevBar: null,
 
 		channelRingBuffers: [],
 		channelRingPositions: [],
+
+		postProc: new PostProcessingState(),
+		stopFade: createStopFadeState(),
 
 		activeTones: 0,
 		releasedTones: 0,
@@ -77,7 +104,87 @@ export interface RenderResult {
 	readonly telemetry: RenderTelemetry;
 }
 
-// ── RenderTick (pure function stub — Phase 1 extraction target) ──────────
+// ── Snapshot → SongPostParams ─────────────────────────────────────────────
+
+export function songParamsFromSnapshot(snapshot: SongSnapshot): SongPostParams {
+	return {
+		masterGain: snapshot.masterGain,
+		compressionThreshold: snapshot.compressionThreshold,
+		limitThreshold: snapshot.limitThreshold,
+		compressionRatio: snapshot.compressionRatio,
+		limitRatio: snapshot.limitRatio,
+		limitDecay: snapshot.limitDecay,
+		limitRise: snapshot.limitRise,
+	};
+}
+
+// ── renderPostProcessing ──────────────────────────────────────────────────
+
+export interface VolumeCapTracker {
+	in: number;
+	out: number;
+}
+
+/**
+ * Apply song EQ + compressor/limiter to a range of output samples.
+ * Reads params from SongSnapshot. Mutates output buffers in place.
+ */
+export function renderPostProcessing(
+	left: Float32Array,
+	right: Float32Array,
+	leftUnfiltered: Float32Array | null,
+	rightUnfiltered: Float32Array | null,
+	bufferIndex: number,
+	runEnd: number,
+	params: SongPostParams,
+	volume: number,
+	sampleRate: number,
+	volCap: VolumeCapTracker,
+	state: PostProcessingState,
+): void {
+	if (leftUnfiltered == null || rightUnfiltered == null) {
+		// Fallback: process with silence unfiltered buffers
+		const dummyL: Float32Array = new Float32Array(left.length);
+		const dummyR: Float32Array = new Float32Array(right.length);
+		state.processBlock(left, right, dummyL, dummyR, bufferIndex, runEnd, params, volume, sampleRate, volCap);
+	} else {
+		state.processBlock(left, right, leftUnfiltered, rightUnfiltered, bufferIndex, runEnd, params, volume, sampleRate, volCap);
+	}
+}
+
+// ── renderStopFade ────────────────────────────────────────────────────────
+
+/**
+ * Apply cubic ease-out stop-fade to a range of output samples.
+ * Mutates output buffers in place. Updates stopFade state.
+ */
+export function renderStopFade(
+	left: Float32Array,
+	right: Float32Array,
+	bufferIndex: number,
+	runEnd: number,
+	stopFade: StopFadeState,
+): number {
+	// Returns the last applied gain (for volume cap scaling)
+	let lastGain: number = 1;
+	let i: number = bufferIndex;
+	for (; i < runEnd && stopFade.samplesRemaining > 0; i++) {
+		const t: number = stopFade.samplesRemaining / stopFade.samplesTotal;
+		const gain: number = 1 - (1 - t) * (1 - t) * (1 - t);
+		lastGain = gain;
+		left[i] *= gain;
+		right[i] *= gain;
+		stopFade.samplesRemaining--;
+	}
+	// Zero remaining samples if fade ended mid-buffer
+	for (; i < runEnd; i++) {
+		left[i] = 0;
+		right[i] = 0;
+	}
+	return lastGain;
+}
+
+// ── RenderTick (stub — Phase 1 extraction target) ─────────────────────────
 
 /**
  * Produce one tick of audio from a SongSnapshot.
