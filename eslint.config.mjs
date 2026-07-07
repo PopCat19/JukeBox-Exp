@@ -77,6 +77,7 @@ export default tseslint.config(
             "tests/instrument-tagging.test.ts",
             "tests/external-loader.test.ts",
             "tests/effect-state.test.ts",
+            "tests/song-serialization.test.ts",
             "tests/fixtures/community-x-wt.ts",
             "tests/fixtures/community-missing-schema.ts",
             "tests/fixtures/community-missing-serialize.ts",

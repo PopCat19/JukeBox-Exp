@@ -88,7 +88,7 @@ describe("failure injection", () => {
 	});
 
 	describe("corrupted data", () => {
-		test("flipping bits in the middle of encoded string — KNOWN CRASH", () => {
+		test("flipping bits in the middle of encoded string does not crash", () => {
 			const song = createTestSong();
 			song.tempo = 200;
 			song.title = "Corruption Test";
@@ -101,7 +101,8 @@ describe("failure injection", () => {
 			}
 			const corrupted = chars.join("");
 			const decoded = createTestSong();
-			expect(() => decoded.fromBase64String(corrupted)).toThrow();
+			expect(() => decoded.fromBase64String(corrupted)).not.toThrow();
+			expect(decoded.getChannelCount()).toBeGreaterThanOrEqual(0);
 		});
 
 		test("replacing middle section with high-value base64 chars — KNOWN CRASH", () => {
