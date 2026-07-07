@@ -13,8 +13,8 @@
 
 import type { Note } from "../notes";
 import { Config, EnvelopeComputeIndex, InstrumentType, type InstrumentType as InstrumentTypeEnum } from "../synth-config";
-import { computeChordExpression } from "../synth-math";
-import { noteSizeToVolumeMult } from "../synth-shared";
+import { computeChordExpression, operatorAmplitudeCurve } from "../synth-math";
+import { noteSizeToVolumeMult, instrumentVolumeToVolumeMult } from "../synth-shared";
 import { detuneToCents, getOperatorWave } from "../util";
 import type { Tone } from "../tone";
 import type { SongSnapshot } from "./snapshot";
@@ -1068,3 +1068,201 @@ export function computeFmExpressionAndFeedback(
 	tone.feedbackMult = feedbackStart;
 	tone.feedbackDelta = (feedbackEnd - feedbackStart) / roundedSamplesPerTick;
 }
+
+// ── Local helpers ──────────────────────────────────────────────────────────
+
+function frequencyFromPitch(pitch: number): number {
+	return 440.0 * 2.0 ** ((pitch - 69.0) / Config.pitchesPerOctave);
+}
+
+// ── FM operator loop ───────────────────────────────────────────────────────
+
+/**
+ * Minimal FM instrument data for the operator loop.
+ */
+export interface FmOperatorInstrument {
+	readonly type: InstrumentTypeEnum;
+	readonly operators: ReadonlyArray<{
+		readonly frequency: number;
+		readonly amplitude: number;
+	}>;
+	readonly algorithm: number;
+	readonly customAlgorithm: {
+		readonly carrierCount: number;
+		readonly associatedCarrier: readonly number[];
+	};
+	readonly fastTwoNoteArp: boolean;
+	readonly monoChordTone: number;
+}
+
+/**
+ * Result from the FM operator loop.
+ */
+export interface FmOperatorLoopResult {
+	readonly sineExpressionBoost: number;
+	readonly totalCarrierExpression: number;
+}
+
+/**
+ * Compute per-operator phase deltas, amplitude mods, pitch expressions,
+ * and note volume modulation for FM synthesis.
+ *
+ * Pure function — all mod values (fm slider, note volume) are pre-computed
+ * and passed as parameters. Does not read from Synth or AudioContext.
+ *
+ * Mutates tone.phaseDeltas[], tone.phaseDeltaScales[],
+ * tone.operatorExpressions[], tone.operatorExpressionDeltas[],
+ * and tone.prevPitchExpressions[].
+ */
+export function computeFmOperatorLoop(
+	tone: Tone,
+	inst: FmOperatorInstrument,
+	arpeggiates: boolean,
+	isMono: boolean,
+	arpeggioInterval: number,
+	carrierCount: number,
+	basePitch: number,
+	intervalScale: number,
+	intervalStart: number,
+	intervalEnd: number,
+	sampleTime: number,
+	roundedSamplesPerTick: number,
+	expressionReferencePitch: number,
+	pitchDamping: number,
+	envelopeStarts: readonly number[],
+	envelopeEnds: readonly number[],
+	fmSliderMultStarts: readonly number[],
+	fmSliderMultEnds: readonly number[],
+	noteVolumeModActive: boolean,
+	noteVolumeModStart: number,
+	noteVolumeModEnd: number,
+): FmOperatorLoopResult {
+	let sineExpressionBoost: number = 1.0;
+	let totalCarrierExpression: number = 0.0;
+
+	const isFm6Op: boolean = inst.type === InstrumentType.fm6op;
+	const operatorCount: number = isFm6Op ? 6 : Config.operatorCount;
+
+	for (let i: number = 0; i < operatorCount; i++) {
+		const associatedCarrierIndex: number = isFm6Op
+			? inst.customAlgorithm.associatedCarrier[i] - 1
+			: Config.algorithms[inst.algorithm].associatedCarrier[i] - 1;
+		const pitch: number =
+			tone.pitches[
+				arpeggiates
+					? 0
+					: isMono
+						? inst.monoChordTone
+						: i < tone.pitchCount
+							? i
+							: associatedCarrierIndex < tone.pitchCount
+								? associatedCarrierIndex
+								: 0
+			];
+		const freqMult = Config.operatorFrequencies[inst.operators[i].frequency].mult;
+		const interval =
+			Config.operatorCarrierInterval[associatedCarrierIndex] + arpeggioInterval;
+		const pitchStart: number =
+			basePitch + (pitch + intervalStart) * intervalScale + interval;
+		const pitchEnd: number =
+			basePitch + (pitch + intervalEnd) * intervalScale + interval;
+		const baseFreqStart: number = frequencyFromPitch(pitchStart);
+		const baseFreqEnd: number = frequencyFromPitch(pitchEnd);
+		const hzOffset: number =
+			Config.operatorFrequencies[inst.operators[i].frequency].hzOffset;
+		const targetFreqStart: number = freqMult * baseFreqStart + hzOffset;
+		const targetFreqEnd: number = freqMult * baseFreqEnd + hzOffset;
+
+		const freqEnvelopeStart: number =
+			envelopeStarts[EnvelopeComputeIndex.operatorFrequency0 + i];
+		const freqEnvelopeEnd: number =
+			envelopeEnds[EnvelopeComputeIndex.operatorFrequency0 + i];
+		let freqStart: number;
+		let freqEnd: number;
+		if (freqEnvelopeStart !== 1.0 || freqEnvelopeEnd !== 1.0) {
+			freqStart =
+				2.0 ** (Math.log2(targetFreqStart / baseFreqStart) * freqEnvelopeStart) *
+				baseFreqStart;
+			freqEnd =
+				2.0 ** (Math.log2(targetFreqEnd / baseFreqEnd) * freqEnvelopeEnd) *
+				baseFreqEnd;
+		} else {
+			freqStart = targetFreqStart;
+			freqEnd = targetFreqEnd;
+		}
+		tone.phaseDeltas[i] = freqStart * sampleTime;
+		tone.phaseDeltaScales[i] = (freqEnd / freqStart) ** (1.0 / roundedSamplesPerTick);
+
+		let amplitudeStart: number = inst.operators[i].amplitude;
+		let amplitudeEnd: number = inst.operators[i].amplitude;
+
+		// Apply FM slider modulation (pre-computed multipliers)
+		if (i < fmSliderMultStarts.length) {
+			amplitudeStart *= fmSliderMultStarts[i];
+			amplitudeEnd *= fmSliderMultEnds[i];
+		}
+
+		const amplitudeCurveStartVal: number = operatorAmplitudeCurve(amplitudeStart);
+		const amplitudeCurveEndVal: number = operatorAmplitudeCurve(amplitudeEnd);
+		const amplitudeMultStart: number =
+			amplitudeCurveStartVal *
+			Config.operatorFrequencies[inst.operators[i].frequency].amplitudeSign;
+		const amplitudeMultEnd: number =
+			amplitudeCurveEndVal *
+			Config.operatorFrequencies[inst.operators[i].frequency].amplitudeSign;
+
+		let expressionStart: number = amplitudeMultStart;
+		let expressionEnd: number = amplitudeMultEnd;
+
+		if (i < carrierCount) {
+			// carrier
+			let pitchExpressionStart: number;
+			if (tone.prevPitchExpressions[i] != null) {
+				pitchExpressionStart = tone.prevPitchExpressions[i]!;
+			} else {
+				pitchExpressionStart =
+					2.0 ** (-(pitchStart - expressionReferencePitch) / pitchDamping);
+			}
+			const pitchExpressionEnd: number =
+				2.0 ** (-(pitchEnd - expressionReferencePitch) / pitchDamping);
+			tone.prevPitchExpressions[i] = pitchExpressionEnd;
+			expressionStart *= pitchExpressionStart;
+			expressionEnd *= pitchExpressionEnd;
+
+			totalCarrierExpression += amplitudeCurveEndVal;
+		} else {
+			// modulator
+			expressionStart *= Config.sineWaveLength * 1.5;
+			expressionEnd *= Config.sineWaveLength * 1.5;
+
+			sineExpressionBoost *=
+				1.0 - Math.min(1.0, inst.operators[i].amplitude / 15);
+		}
+
+		expressionStart *=
+			envelopeStarts[EnvelopeComputeIndex.operatorAmplitude0 + i];
+		expressionEnd *=
+			envelopeEnds[EnvelopeComputeIndex.operatorAmplitude0 + i];
+
+		// Note volume mod (applied to all operators, legacy behavior)
+		if (noteVolumeModActive) {
+			expressionStart *=
+				noteVolumeModStart <= 0
+					? (noteVolumeModStart + Config.volumeRange / 2) /
+						(Config.volumeRange / 2)
+					: instrumentVolumeToVolumeMult(noteVolumeModStart);
+			expressionEnd *=
+				noteVolumeModEnd <= 0
+					? (noteVolumeModEnd + Config.volumeRange / 2) /
+						(Config.volumeRange / 2)
+					: instrumentVolumeToVolumeMult(noteVolumeModEnd);
+		}
+
+		tone.operatorExpressions[i] = expressionStart;
+		tone.operatorExpressionDeltas[i] =
+			(expressionEnd - expressionStart) / roundedSamplesPerTick;
+	}
+
+	return { sineExpressionBoost, totalCarrierExpression };
+}
+

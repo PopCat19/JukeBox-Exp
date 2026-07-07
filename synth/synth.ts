@@ -24,7 +24,7 @@ import type { Note, NotePin, Pattern } from "./notes";
 import { PickedString } from "./picked-string";
 import { getPlugin } from "./plugins";
 import { PostProcessingState } from "./post-processing";
-import { applyDetune, applyDrumsetPitch, applyFadeIn, applyIntervalFadeSideEffects, applyPitchShift, applyVibrato, computeBasePitchAndExpression, computeEnvelopeSpeeds, computeFmExpressionAndFeedback, computeSimpleNoteFilterValues, computeSlides, computeToneIntervalAndFade, computeUnisonPhases, initTonePhaseState } from "./render/compute-tone";
+import { applyDetune, applyDrumsetPitch, applyFadeIn, applyIntervalFadeSideEffects, applyPitchShift, applyVibrato, computeBasePitchAndExpression, computeEnvelopeSpeeds, computeFmExpressionAndFeedback, computeFmOperatorLoop, computeSimpleNoteFilterValues, computeSlides, computeToneIntervalAndFade, computeUnisonPhases, initTonePhaseState } from "./render/compute-tone";
 import {
 	allocTone,
 	freeAllTones,
@@ -56,7 +56,6 @@ import {
 	adjacentNotesHaveMatchingPitches,
 	computeChordExpression,
 	getLFOAmplitude,
-	operatorAmplitudeCurve,
 	volumeMultToInstrumentVolume,
 	volumeMultToNoteSize,
 } from "./synth-math";
@@ -236,10 +235,6 @@ export class Synth {
 
 	public determineInvalidModulators(instrument: Instrument): void {
 		this.modState.determineInvalidModulators(this.song, instrument);
-	}
-
-	private static operatorAmplitudeCurve(amplitude: number): number {
-		return operatorAmplitudeCurve(amplitude);
 	}
 
 	public samplesPerSecond: number = Config.defaultSampleRate;
@@ -4013,10 +4008,7 @@ export class Synth {
 		noteFilterExpression = Math.min(3.0, noteFilterExpression);
 
 		if (instrument.type === InstrumentType.fm || instrument.type === InstrumentType.fm6op) {
-			// phase modulation!
-
-			let sineExpressionBoost: number = 1.0;
-			let totalCarrierExpression: number = 0.0;
+			// phase modulation — operator loop extracted to pure function
 
 			let arpeggioInterval: number = 0;
 			const arpeggiates: boolean = chord.arpeggiates;
@@ -4035,190 +4027,87 @@ export class Synth {
 				instrument.type === InstrumentType.fm6op
 					? instrument.customAlgorithm.carrierCount
 					: Config.algorithms[instrument.algorithm].carrierCount;
-			for (
-				let i: number = 0;
-				i < (instrument.type === InstrumentType.fm6op ? 6 : Config.operatorCount);
-				i++
-			) {
-				const associatedCarrierIndex: number =
-					instrument.type === InstrumentType.fm6op
-						? instrument.customAlgorithm.associatedCarrier[i] - 1
-						: Config.algorithms[instrument.algorithm].associatedCarrier[i] - 1;
-				const pitch: number =
-					tone.pitches[
-						arpeggiates
-							? 0
-							: isMono
-								? instrument.monoChordTone
-								: i < tone.pitchCount
-									? i
-									: associatedCarrierIndex < tone.pitchCount
-										? associatedCarrierIndex
-										: 0
-					];
-				const freqMult = Config.operatorFrequencies[instrument.operators[i].frequency].mult;
-				const interval =
-					Config.operatorCarrierInterval[associatedCarrierIndex] + arpeggioInterval;
-				const pitchStart: number =
-					basePitch + (pitch + intervalStart) * intervalScale + interval;
-				const pitchEnd: number =
-					basePitch + (pitch + intervalEnd) * intervalScale + interval;
-				const baseFreqStart: number = Instrument.frequencyFromPitch(pitchStart);
-				const baseFreqEnd: number = Instrument.frequencyFromPitch(pitchEnd);
-				const hzOffset: number =
-					Config.operatorFrequencies[instrument.operators[i].frequency].hzOffset;
-				const targetFreqStart: number = freqMult * baseFreqStart + hzOffset;
-				const targetFreqEnd: number = freqMult * baseFreqEnd + hzOffset;
 
-				const freqEnvelopeStart: number =
-					envelopeStarts[EnvelopeComputeIndex.operatorFrequency0 + i];
-				const freqEnvelopeEnd: number =
-					envelopeEnds[EnvelopeComputeIndex.operatorFrequency0 + i];
-				let freqStart: number;
-				let freqEnd: number;
-				if (freqEnvelopeStart !== 1.0 || freqEnvelopeEnd !== 1.0) {
-					freqStart =
-						2.0 ** (Math.log2(targetFreqStart / baseFreqStart) * freqEnvelopeStart) *
-						baseFreqStart;
-					freqEnd =
-						2.0 ** (Math.log2(targetFreqEnd / baseFreqEnd) * freqEnvelopeEnd) *
-						baseFreqEnd;
-				} else {
-					freqStart = targetFreqStart;
-					freqEnd = targetFreqEnd;
-				}
-				tone.phaseDeltas[i] = freqStart * sampleTime;
-				tone.phaseDeltaScales[i] = (freqEnd / freqStart) ** (1.0 / roundedSamplesPerTick);
-
-				let amplitudeStart: number = instrument.operators[i].amplitude;
-				let amplitudeEnd: number = instrument.operators[i].amplitude;
-				if (i < 4) {
-					if (
-						this.isModActive(
-							Config.modulators.dictionary["fm slider 1"].index + i,
-							channelIndex,
-							tone.instrumentIndex,
-						)
-					) {
-						amplitudeStart *=
-							this.modState.getModValue(
-								Config.modulators.dictionary["fm slider 1"].index + i,
-								channelIndex,
-								tone.instrumentIndex,
-								false,
-							) / 15.0;
-						amplitudeEnd *=
-							this.modState.getModValue(
-								Config.modulators.dictionary["fm slider 1"].index + i,
-								channelIndex,
-								tone.instrumentIndex,
-								true,
-							) / 15.0;
-					}
-				} else {
-					if (
-						this.isModActive(
-							Config.modulators.dictionary["fm slider 5"].index + i - 4,
-							channelIndex,
-							tone.instrumentIndex,
-						)
-					) {
-						amplitudeStart *=
-							this.modState.getModValue(
-								Config.modulators.dictionary["fm slider 5"].index + i - 4,
-								channelIndex,
-								tone.instrumentIndex,
-								false,
-							) / 15.0;
-						amplitudeEnd *=
-							this.modState.getModValue(
-								Config.modulators.dictionary["fm slider 5"].index + i - 4,
-								channelIndex,
-								tone.instrumentIndex,
-								true,
-							) / 15.0;
-					}
-				}
-
-				const amplitudeCurveStart: number = Synth.operatorAmplitudeCurve(amplitudeStart);
-				const amplitudeCurveEnd: number = Synth.operatorAmplitudeCurve(amplitudeEnd);
-				const amplitudeMultStart: number =
-					amplitudeCurveStart *
-					Config.operatorFrequencies[instrument.operators[i].frequency].amplitudeSign;
-				const amplitudeMultEnd: number =
-					amplitudeCurveEnd *
-					Config.operatorFrequencies[instrument.operators[i].frequency].amplitudeSign;
-
-				let expressionStart: number = amplitudeMultStart;
-				let expressionEnd: number = amplitudeMultEnd;
-
-				if (i < carrierCount) {
-					// carrier
-					let pitchExpressionStart: number;
-					if (tone.prevPitchExpressions[i] != null) {
-						pitchExpressionStart = tone.prevPitchExpressions[i]!;
-					} else {
-						pitchExpressionStart =
-							2.0 ** (-(pitchStart - expressionReferencePitch) / pitchDamping);
-					}
-					const pitchExpressionEnd: number =
-						2.0 ** (-(pitchEnd - expressionReferencePitch) / pitchDamping);
-					tone.prevPitchExpressions[i] = pitchExpressionEnd;
-					expressionStart *= pitchExpressionStart;
-					expressionEnd *= pitchExpressionEnd;
-
-					totalCarrierExpression += amplitudeCurveEnd;
-				} else {
-					// modulator
-					expressionStart *= Config.sineWaveLength * 1.5;
-					expressionEnd *= Config.sineWaveLength * 1.5;
-
-					sineExpressionBoost *=
-						1.0 - Math.min(1.0, instrument.operators[i].amplitude / 15);
-				}
-
-				expressionStart *= envelopeStarts[EnvelopeComputeIndex.operatorAmplitude0 + i];
-				expressionEnd *= envelopeEnds[EnvelopeComputeIndex.operatorAmplitude0 + i];
-
-				// Check for mod-related volume delta
-				// @jummbus - This amplification is also applied to modulator FM operators which distorts the sound.
-				// The fix is to apply this only to carriers, but as this is a legacy bug and it can cause some interesting sounds, it's left in.
-				// You can use the mix volume modulator instead to avoid this effect.
-
+			// Pre-compute fm slider modulation multipliers for all 6 operators
+			const fmSliderMultStarts: number[] = [];
+			const fmSliderMultEnds: number[] = [];
+			for (let s: number = 0; s < 6; s++) {
+				const sliderModIndex: number =
+					s < 4
+						? Config.modulators.dictionary["fm slider 1"].index + s
+						: Config.modulators.dictionary["fm slider 5"].index + s - 4;
+				let sliderMultStart: number = 1.0;
+				let sliderMultEnd: number = 1.0;
 				if (
 					this.isModActive(
-						Config.modulators.dictionary["note volume"].index,
+						sliderModIndex,
 						channelIndex,
 						tone.instrumentIndex,
 					)
 				) {
-					// Linear falloff below 0, normal volume formula above 0. Seems to work best for scaling since the normal volume mult formula has a big gap from -25 to -24.
-					const startVal: number = this.modState.getModValue(
+					sliderMultStart = this.modState.getModValue(
+						sliderModIndex,
+						channelIndex,
+						tone.instrumentIndex,
+						false,
+					) / 15.0;
+					sliderMultEnd = this.modState.getModValue(
+						sliderModIndex,
+						channelIndex,
+						tone.instrumentIndex,
+						true,
+					) / 15.0;
+				}
+				fmSliderMultStarts[s] = sliderMultStart;
+				fmSliderMultEnds[s] = sliderMultEnd;
+			}
+
+			// Pre-compute note volume mod values
+			const _isModActiveNoteVol: boolean = this.isModActive(
+				Config.modulators.dictionary["note volume"].index,
+				channelIndex,
+				tone.instrumentIndex,
+			);
+			const _noteVolModStart: number = _isModActiveNoteVol
+				? this.modState.getModValue(
 						Config.modulators.dictionary["note volume"].index,
 						channelIndex,
 						tone.instrumentIndex,
 						false,
-					);
-					const endVal: number = this.modState.getModValue(
+					)
+				: 0;
+			const _noteVolModEnd: number = _isModActiveNoteVol
+				? this.modState.getModValue(
 						Config.modulators.dictionary["note volume"].index,
 						channelIndex,
 						tone.instrumentIndex,
 						true,
-					);
-					expressionStart *=
-						startVal <= 0
-							? (startVal + Config.volumeRange / 2) / (Config.volumeRange / 2)
-							: instrumentVolumeToVolumeMult(startVal);
-					expressionEnd *=
-						endVal <= 0
-							? (endVal + Config.volumeRange / 2) / (Config.volumeRange / 2)
-							: instrumentVolumeToVolumeMult(endVal);
-				}
+					)
+				: 0;
 
-				tone.operatorExpressions[i] = expressionStart;
-				tone.operatorExpressionDeltas[i] =
-					(expressionEnd - expressionStart) / roundedSamplesPerTick;
-			}
+			const fmResult = computeFmOperatorLoop(
+				tone,
+				instrument,
+				arpeggiates,
+				isMono,
+				arpeggioInterval,
+				carrierCount,
+				basePitch,
+				intervalScale,
+				intervalStart,
+				intervalEnd,
+				sampleTime,
+				roundedSamplesPerTick,
+				expressionReferencePitch,
+				pitchDamping,
+				envelopeStarts,
+				envelopeEnds,
+				fmSliderMultStarts,
+				fmSliderMultEnds,
+				_isModActiveNoteVol,
+				_noteVolModStart,
+				_noteVolModEnd,
+			);
 
 			const _isModActiveFb: boolean = this.isModActive(
 				Config.modulators.dictionary["fm feedback"].index,
@@ -4243,8 +4132,8 @@ export class Synth {
 			}
 			computeFmExpressionAndFeedback(
 				tone,
-				sineExpressionBoost,
-				totalCarrierExpression,
+				fmResult.sineExpressionBoost,
+				fmResult.totalCarrierExpression,
 				isMono,
 				baseExpression,
 				noteFilterExpression,
