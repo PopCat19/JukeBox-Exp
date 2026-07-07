@@ -40,6 +40,9 @@ export class AudioBackend {
 	private audioCtx: AudioContext | null = null;
 	private _workletNode: AudioWorkletNode | null = null;
 	private _workletModuleUrl: string | null = null;
+	/** Compute-tone worklet node (jukebox-compute-tone-processor). */
+	private _computeWorkletNode: AudioWorkletNode | null = null;
+	private _computeWorkletUrl: string | null = null;
 	private _currentBufferSize: number = 0;
 	private _ringBuffer: AudioRingBuffer | null = null;
 	private _fillLoopId: number | null = null;
@@ -67,6 +70,22 @@ export class AudioBackend {
 
 	public get context(): AudioContext | null {
 		return this.audioCtx;
+	}
+
+	/**
+	 * MessagePort for sending commands to the compute-tone worklet.
+	 * Returns null if the worklet hasn't been loaded yet.
+	 */
+	public get computeWorkletPort(): MessagePort | null {
+		return this._computeWorkletNode?.port ?? null;
+	}
+
+	/**
+	 * Set the URL for the compute-tone worklet module file.
+	 * Called by Synth after the build path is determined.
+	 */
+	public setComputeWorkletUrl(url: string): void {
+		this._computeWorkletUrl = url;
 	}
 
 	private _dbg(...args: unknown[]): void {
@@ -161,9 +180,28 @@ export class AudioBackend {
 				this._workletModuleUrl = URL.createObjectURL(blob);
 				this._dbg("Created worklet module blob URL");
 			}
-			this._dbg("Loading AudioWorklet module...");
+			this._dbg("Loading AudioWorklet module (output sink)...");
 			await ctx.audioWorklet.addModule(this._workletModuleUrl);
-			this._dbg("AudioWorklet module loaded");
+			this._dbg("AudioWorklet module (output sink) loaded");
+
+			// Load the compute-tone worklet
+			if (this._computeWorkletUrl != null) {
+				this._dbg("Loading compute-tone worklet module...");
+				try {
+					await ctx.audioWorklet.addModule(this._computeWorkletUrl);
+					this._computeWorkletNode = new AudioWorkletNode(
+						ctx,
+						"jukebox-compute-tone-processor",
+					);
+					// Not connected to destination — communicates via message port only
+					this._dbg("Compute-tone worklet node created");
+				} catch (e) {
+					this._dbgWarn("Failed to load compute-tone worklet:", e);
+					this._computeWorkletNode = null;
+				}
+			} else {
+				this._dbg("No compute-tone worklet URL configured — skipping");
+			}
 
 			// Check for crossOriginIsolated (enables SharedArrayBuffer).
 			this._useSab =
@@ -263,6 +301,11 @@ export class AudioBackend {
 				this._dbg("disconnect failed (node not connected)");
 			}
 			this._workletNode = null;
+		}
+		// Clean up compute-tone worklet node
+		if (this._computeWorkletNode != null) {
+			this._computeWorkletNode.port.postMessage({ type: "stop" });
+			this._computeWorkletNode = null;
 		}
 		if (this.audioCtx != null) {
 			if (this.audioCtx.close) {

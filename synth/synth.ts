@@ -919,7 +919,294 @@ export class Synth {
 		if (this.isPlayingSong && this._audio.context) {
 			this.samplesPerSecond = this._audio.context.sampleRate;
 		}
-		return this._audio.activate(this._toAudioHost());
+		// Set the compute-tone worklet URL before activating.
+		// The worklet bundle is co-located with the main script.
+		this._audio.setComputeWorkletUrl("beepbox_synth_worklet.min.js");
+		return this._audio.activate(this._toAudioHost()).then((): void => {
+			this._initComputeWorklet();
+		});
+	}
+
+	/**
+	 * Send init message to the compute-tone worklet with the current SongSnapshot.
+	 * No-op if worklet node isn't loaded.
+	 */
+	private _initComputeWorklet(): void {
+		const port: MessagePort | null = this._audio.computeWorkletPort;
+		if (port == null || this.song == null) return;
+		const snapshot = this.snapshotBuilder.build(this.song);
+		port.postMessage({
+			type: "init",
+			snapshot,
+			sampleRate: this.samplesPerSecond,
+		});
+		this._dbg("Compute worklet init sent");
+	}
+
+	/**
+	 * Send a tick message to the compute-tone worklet with the current
+	 * tick's tone data. No-op if worklet isn't loaded.
+	 *
+	 * Phase 4: builds WorkletToneCommand[] from active tones per channel.
+	 * Phase 5: also sends result back for delegation.
+	 */
+	private _sendWorkletTick(samplesPerTick: number, _playSong: boolean): void {
+		const port: MessagePort | null = this._audio.computeWorkletPort;
+		type _WTC = import("./render/worklet-messages").WorkletToneCommand;
+		if (port == null || this.song == null) return;
+
+		const song: Song = this.song;
+		const tones: _WTC[] = [];
+		const secondsPerPart: number =
+			(Config.ticksPerPart * samplesPerTick) / this.samplesPerSecond;
+		const sampleTime: number = 1.0 / this.samplesPerSecond;
+		const beatsPerPart: number = 1.0 / Config.partsPerBeat;
+		const ticksIntoBar: number = this.getTicksIntoBar();
+		const currentPart: number = this.getCurrentPart();
+		const ticksSinceStart: number = this.computeTicksSinceStart();
+		const ticksSinceStartOfBar: number = this.computeTicksSinceStart(true);
+
+		let slotId: number = 0;
+
+		for (let ch = 0; ch < song.pitchChannelCount + song.noiseChannelCount; ch++) {
+			const chState: ChannelState = this.channels[ch];
+			for (let inst = 0; inst < chState.instruments.length; inst++) {
+				const instState: InstrumentState = chState.instruments[inst];
+				const instrument: Instrument = song.channels[ch].instruments[inst];
+
+				for (let ti = 0; ti < instState.activeTones.count(); ti++) {
+					const tone: Tone = instState.activeTones.get(ti);
+					const cmd: _WTC = this._buildToneCommand(
+						tone,
+						ch,
+						inst,
+						instState,
+						instrument,
+						slotId,
+						samplesPerTick,
+						secondsPerPart,
+						sampleTime,
+						beatsPerPart,
+						ticksIntoBar,
+						currentPart,
+						ticksSinceStart,
+						ticksSinceStartOfBar,
+					);
+					tones.push(cmd);
+					slotId++;
+				}
+			}
+		}
+
+		if (tones.length === 0) return;
+
+		port.postMessage({
+			type: "tick",
+			tick: this.tick,
+			bar: this.bar,
+			beat: this.beat,
+			part: this.part,
+			samplesPerTick,
+			playSong: _playSong,
+			tones,
+		});
+	}
+
+	/**
+	 * Build a WorkletToneCommand from a single tone + synth state.
+	 * Phase 4: builds the minimum fields needed for computeToneSnapshot
+	 * to run without crashing. Phase 5: full serialization with mods,
+	 * FM operators, supersaw, note filter control points, etc.
+	 */
+	private _buildToneCommand(
+		tone: Tone,
+		channelIndex: number,
+		instrumentIndex: number,
+		instrumentState: InstrumentState,
+		instrument: Instrument,
+		slotId: number,
+		_samplesPerTick: number,
+		secondsPerPart: number,
+		sampleTime: number,
+		beatsPerPart: number,
+		ticksIntoBar: number,
+		currentPart: number,
+		ticksSinceStart: number,
+		ticksSinceStartOfBar: number,
+	): import("./render/worklet-messages").WorkletToneCommand {
+		// Use type-only import for the return type annotation
+		type WTC = import("./render/worklet-messages").WorkletToneCommand;
+
+		const song: Song = this.song!;
+		const { basePitch, baseExpression, expressionReferencePitch, pitchDamping, intervalScale } =
+			computeBasePitchAndExpression(channelIndex, instrument, {
+				key: song.key,
+				octave: song.octave,
+				pitchChannelCount: song.pitchChannelCount,
+				noiseChannelCount: song.noiseChannelCount,
+			});
+
+		// Build minimal all-inactive mods (Phase 5: fill from modState)
+		const emptyMods: import("./render/compute-tone").PrecomputedModValues = {
+			noteFiltCut: { active: false, start: 0, end: 0 },
+			noteFiltPeak: { active: false, start: 0, end: 0 },
+			indivSpeed: { active: false, value: 0 },
+			speed: { active: false, value: 0 },
+			indivLower: { active: false, value: 0 },
+			indivUpper: { active: false, value: 0 },
+			pitchShift: { active: false, start: 0, end: 0 },
+			detune: { active: false, start: 0, end: 0 },
+			songDetune: { active: false, start: 0, end: 0 },
+			vibratoDelay: { active: false, value: 0 },
+			vibratoDepth: { active: false, start: 0, end: 0 },
+			fmSliderStarts: [],
+			fmSliderEnds: [],
+			fmFeedback: { active: false, start: 0, end: 0 },
+			noteVolume: { active: false, start: 0, end: 0 },
+			pulseWidth: { active: false, start: 0, end: 0 },
+			decimalOffset: { active: false, value: 0 },
+			sustain: { active: false, start: 0, end: 0 },
+			dynamism: { active: false, start: 0, end: 0 },
+			spread: { active: false, start: 0, end: 0 },
+			sawShape: { active: false, start: 0, end: 0 },
+			ssDecOffset: { active: false, value: 0 },
+			ssPulseWidth: { active: false, start: 0, end: 0 },
+		};
+
+		// Envelope starts/ends from tone's envelope computer
+		const envelopeStarts: readonly number[] = [...tone.envelopeComputer.envelopeStarts];
+		const envelopeEnds: readonly number[] = [...tone.envelopeComputer.envelopeEnds];
+
+		const cmd: WTC = {
+			toneSlotId: slotId,
+			instrumentIndex,
+			channelIndex,
+			pitchCount: tone.pitchCount,
+			chordSize: tone.chordSize,
+			atNoteStart: tone.atNoteStart,
+			freshlyAllocated: tone.freshlyAllocated,
+			drumsetPitch: tone.drumsetPitch,
+
+			tick: this.tick,
+			bar: this.bar,
+			beat: this.beat,
+			part: this.part,
+			secondsPerPart,
+			sampleTime,
+			beatsPerPart,
+			ticksIntoBar,
+			currentPart,
+			ticksSinceStart,
+			ticksSinceStartOfBar,
+
+			envelopeStarts,
+			envelopeEnds,
+			chordExpression: 1.0,
+			envelopeSpeeds: [],
+
+			arpTime: instrumentState.arpTime,
+			envelopeTime: [...instrumentState.envelopeTime],
+			vibratoTime: instrumentState.vibratoTime,
+			nextVibratoTime: instrumentState.nextVibratoTime,
+
+			mods: emptyMods,
+
+			lfoAmplitudeStart: 0,
+			lfoAmplitudeEnd: 0,
+
+			basePitch,
+			baseExpression,
+			expressionReferencePitch,
+			pitchDamping,
+			intervalScale,
+
+			instrumentType: instrument.type,
+			effectsHasPitchShift: effectsIncludePitchShift(instrument.effects),
+			effectsHasDetune: effectsIncludeDetune(instrument.effects),
+			effectsHasVibrato: effectsIncludeVibrato(instrument.effects),
+			effectsHasNoteFilter: effectsIncludeNoteFilter(instrument.effects),
+			hasUnison: getInstrumentCapability(instrument, "hasUnison"),
+			isModCapable: getInstrumentCapability(instrument, "isMod"),
+			justIntonationSemitone: Config.justIntonationSemitones[instrument.pitchShift],
+			instrumentDetune: instrument.detune,
+			fadeOutTicks: instrument.getFadeOutTicks(),
+			fadeInSeconds: instrument.getFadeInSeconds(),
+
+			transitionIsSeamless: instrument.getTransition().isSeamless,
+			transitionContinues: instrument.getTransition().continues,
+			transitionSlides: instrument.getTransition().slides,
+			transitionSlideTicks: instrument.getTransition().slideTicks,
+			chordSingleTone: instrument.getChord().singleTone,
+			chordArpeggiates: instrument.getChord().arpeggiates,
+			chordName: instrument.getChord().name,
+			chordCustomInterval: instrument.getChord().customInterval as unknown as boolean,
+
+			toneResetInst: instrument,
+
+			simpleFilterStartType: null,
+			simpleFilterStartGain: null,
+			simpleFilterStartFreq: null,
+			simpleFilterEndType: null,
+			simpleFilterEndGain: null,
+			simpleFilterEndFreq: null,
+
+			drumsetFilterEnvelopeType: null,
+			drumsetLowpassComp: 1.0,
+			drumsetGain: 0,
+			drumsetFreq: 0,
+
+			arpeggioInterval: 0,
+			arpeggioIndex: 0,
+			carrierCount: 0,
+
+			fmOperatorCount: 0,
+			fmAlgorithm: 0,
+			fmCustomCarrierCount: 0,
+			fmCustomAssociatedCarrier: [],
+			fmOperatorFrequencies: [],
+			fmOperatorAmplitudes: [],
+			fmFeedbackAmplitude: 0,
+			fmFastTwoNoteArp: false,
+			fmMonoChordTone: 0,
+
+			nonFmType: instrument.type,
+			nonFmChipNoise: instrument.chipNoise,
+			nonFmChipWave: instrument.chipWave,
+			nonFmPulseWidth: instrument.pulseWidth,
+			nonFmDecimalOffset: instrument.decimalOffset,
+			nonFmStringSustain: instrument.stringSustain,
+			nonFmStringSustainType: instrument.stringSustainType,
+			nonFmFastTwoNoteArp: instrument.fastTwoNoteArp,
+			nonFmMonoChordTone: instrument.monoChordTone,
+
+			unisonVoices: instrument.unisonVoices,
+			unisonSpread: instrument.unisonSpread,
+			unisonOffset: instrument.unisonOffset,
+			unisonExpression: instrument.unisonExpression,
+
+			supersawDynamism: instrument.supersawDynamism,
+			supersawSpread: instrument.supersawSpread,
+			supersawShape: instrument.supersawShape,
+
+			vibrato: instrument.vibrato,
+			vibratoDepth: instrument.vibratoDepth,
+			vibratoDelay: instrument.vibratoDelay,
+
+			noteFilterType: instrument.noteFilterType,
+			noteFilterControlPointCount: 0,
+			noteFilterControlPointTypes: [],
+			noteFilterControlPointGains: [],
+			noteFilterControlPointFreqs: [],
+			velocityTracking: instrument.velocityTracking,
+
+			stringSustainType: instrument.stringSustainType,
+			stringSustainRange: Config.stringSustainRange,
+
+			unisonInitialized: instrumentState.unisonInitialized,
+			lowpassCutoffDecayVolumeCompensation: 1.0,
+		};
+
+		return cmd as import("./render/worklet-messages").WorkletToneCommand;
 	}
 
 	private deactivateAudio(): void {
@@ -1718,6 +2005,9 @@ export class Synth {
 				this.skipBar();
 				continue;
 			}
+
+			// Send tick data to compute-tone worklet (Phase 4)
+			this._sendWorkletTick(samplesPerTick, playSong);
 
 			this.computeSongState(samplesPerTick);
 
