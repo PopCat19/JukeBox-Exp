@@ -2024,7 +2024,7 @@ export interface DrumsetEnvelopeComputer {
 	drumsetFilterEnvelopeStart: number;
 	drumsetFilterEnvelopeEnd: number;
 	computeDrumsetEnvelopes(
-		instrument: unknown,
+		_instrument: unknown,
 		envelope: { readonly type: number },
 		beatsPerPart: number,
 		partTimeStart: number,

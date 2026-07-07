@@ -3690,27 +3690,35 @@ export class Synth {
 		}
 
 		{
+			const _hasPsEffect: boolean = effectsIncludePitchShift(instrument.effects);
+			const _isModActivePs: boolean = this.isModActive(
+				Config.modulators.dictionary["pitch shift"].index,
+				channelIndex,
+				tone.instrumentIndex,
+			);
+			const _psModStart: number = _isModActivePs
+				? this.modState.getModValue(
+						Config.modulators.dictionary["pitch shift"].index,
+						channelIndex,
+						tone.instrumentIndex,
+						false,
+					)
+				: 0;
+			const _psModEnd: number = _isModActivePs
+				? this.modState.getModValue(
+						Config.modulators.dictionary["pitch shift"].index,
+						channelIndex,
+						tone.instrumentIndex,
+						true,
+					)
+				: 0;
 			const psResult = applyPitchShift(
-				effectsIncludePitchShift(instrument.effects),
+				_hasPsEffect,
 				Config.justIntonationSemitones[instrument.pitchShift],
 				intervalScale,
-				this.isModActive(
-					Config.modulators.dictionary["pitch shift"].index,
-					channelIndex,
-					tone.instrumentIndex,
-				),
-				this.modState.getModValue(
-					Config.modulators.dictionary["pitch shift"].index,
-					channelIndex,
-					tone.instrumentIndex,
-					false,
-				),
-				this.modState.getModValue(
-					Config.modulators.dictionary["pitch shift"].index,
-					channelIndex,
-					tone.instrumentIndex,
-					true,
-				),
+				_isModActivePs,
+				_psModStart,
+				_psModEnd,
 				envelopeStarts[EnvelopeComputeIndex.pitchShift],
 				envelopeEnds[EnvelopeComputeIndex.pitchShift],
 				intervalStart,
@@ -3720,48 +3728,58 @@ export class Synth {
 			intervalEnd = psResult.intervalEnd;
 		}
 		{
-			const detuneResult = applyDetune(
-				effectsIncludeDetune(instrument.effects) ||
-					this.isModActive(
+			const _hasDetuneEffect: boolean = effectsIncludeDetune(instrument.effects);
+			const _isModActiveDet: boolean = this.isModActive(
+				Config.modulators.dictionary.detune.index,
+				channelIndex,
+				tone.instrumentIndex,
+			);
+			const _detModStart: number = _isModActiveDet
+				? this.modState.getModValue(
+						Config.modulators.dictionary.detune.index,
+						channelIndex,
+						tone.instrumentIndex,
+						false,
+					)
+				: 0;
+			const _detModEnd: number = _isModActiveDet
+				? this.modState.getModValue(
+						Config.modulators.dictionary.detune.index,
+						channelIndex,
+						tone.instrumentIndex,
+						true,
+					)
+				: 0;
+			const _isModActiveSongDet: boolean = this.isModActive(
+				Config.modulators.dictionary["song detune"].index,
+				channelIndex,
+				tone.instrumentIndex,
+			);
+			const _songDetModStart: number = _isModActiveSongDet
+				? this.modState.getModValue(
 						Config.modulators.dictionary["song detune"].index,
 						channelIndex,
 						tone.instrumentIndex,
-					),
+						false,
+					)
+				: 0;
+			const _songDetModEnd: number = _isModActiveSongDet
+				? this.modState.getModValue(
+						Config.modulators.dictionary["song detune"].index,
+						channelIndex,
+						tone.instrumentIndex,
+						true,
+					)
+				: 0;
+			const detuneResult = applyDetune(
+				_hasDetuneEffect || _isModActiveSongDet,
 				instrument.detune,
-				this.isModActive(
-					Config.modulators.dictionary.detune.index,
-					channelIndex,
-					tone.instrumentIndex,
-				),
-				this.modState.getModValue(
-					Config.modulators.dictionary.detune.index,
-					channelIndex,
-					tone.instrumentIndex,
-					false,
-				),
-				this.modState.getModValue(
-					Config.modulators.dictionary.detune.index,
-					channelIndex,
-					tone.instrumentIndex,
-					true,
-				),
-				this.isModActive(
-					Config.modulators.dictionary["song detune"].index,
-					channelIndex,
-					tone.instrumentIndex,
-				),
-				this.modState.getModValue(
-					Config.modulators.dictionary["song detune"].index,
-					channelIndex,
-					tone.instrumentIndex,
-					false,
-				),
-				this.modState.getModValue(
-					Config.modulators.dictionary["song detune"].index,
-					channelIndex,
-					tone.instrumentIndex,
-					true,
-				),
+				_isModActiveDet,
+				_detModStart,
+				_detModEnd,
+				_isModActiveSongDet,
+				_songDetModStart,
+				_songDetModEnd,
 				envelopeStarts[EnvelopeComputeIndex.detune],
 				envelopeEnds[EnvelopeComputeIndex.detune],
 				intervalStart,
