@@ -1,9 +1,10 @@
 # Synth Worklet Migration
 
-Status: PLAN (draft 2026-07-07)
+Status: ACTIVE (2026-07-07) — Phases 0-5 complete, 6 in queue
 Depends on: synth/ audio-backend, synth/audio-worklet-processor, synth/synth.ts,
             synth/modules/ (S1 InstrumentModule), concepts/socket-architecture.md
 Supersedes: nothing — additive roadmap
+Latest: Phase 5 — worklet-native synth dispatch replaces compiled Function() closures
 
 ## 0. thesis
 
@@ -372,6 +373,8 @@ selects the active path at startup.
 | R4 | Editor playhead drifts from audible position | display desync | telemetry vs coordinator comparison | Telemetry wins as authoritative |
 | R5 | Snapshot size causes message thrash | high GC pressure, frame drops | snapshot serialization time per frame | Compress channel data; skip unchanged channels |
 | R6 | S1 module schema change | snapshot fields diverge | schema version in snapshot | `socketVersion` field in snapshot |
+| R7 | Tick-slicing: worklet process() called with 128 samples but tick is ~600+ samples | dropped samples, staticky audio | audible during playback | `_tickSamplesRendered` counter; computeToneSnapshot once per tick, render min(128, remaining) |
+| R8 | Wave buffer serialization: Float32Array per-tick | increased message size, GC pressure | measure postMessage size per tick | Cache wave buffers on worklet side by instrument fingerprint |
 
 ## 8. non-goals
 
@@ -381,20 +384,47 @@ selects the active path at startup.
 - No WASM integration in scope
 - No editor UI refactor
 
-## 9. build order
+## 9. build order (actual)
+
+### Phase 0 — Snapshot protocol
 
 1. `synth/render/snapshot.ts` — SongSnapshot types + SnapshotBuilder
-2. `synth/render/core.ts` — pure renderTick() extracted from synth.ts
-3. `synth/render/coordinator.ts` — tick scheduling, AudioBackend control
-4. `tests/synth/render-core.test.ts` — offline snapshot render tests
-5. Reshape `synth/synth.ts` to facade that uses coordinator + core
-6. `synth/worklet/render-bundle.ts` — worklet blob generator
-7. Port worklet processor to host render core
-8. Remove old buffer-player worklet mode
-9. Clean up facade (remove dead code paths)
+2. `tests/synth/render/snapshot.test.ts` — 15 tests
 
-Steps 1-5 are main-thread only and independently mergable.
-Step 6-9 require the snapshot protocol to be stable.
+### Phase 1 — Render core split
+
+1. `synth/render/render-core.ts` — renderTick(), tone pool, transport
+2. `tests/synth/render-core.test.ts` — 31 tests
+
+### Phase 3 — Worklet entry scaffold
+
+1. `synth/render/worklet.ts` — AudioWorkletProcessor with Tone pool
+2. `tsconfig_worklet.json` — isolated tsconfig, no DOM lib
+3. Build pipeline: esbuild → `dist/beepbox_synth_worklet.min.js`
+
+### Phase 4 — Message protocol
+
+1. `synth/render/worklet-messages.ts` — typed structured-clone protocol
+2. Wire synth.ts: `_initComputeWorklet()` + `_sendWorkletTick()` + `_buildToneCommand()`
+3. `audio-backend.ts` — load compute-tone module in `_doActivate()`
+
+### Phase 5 — Worklet-native synth dispatch
+
+1. `synth/render/worklet-synth.ts` — native instrument render functions
+2. Wire worklet.ts process() to call synth dispatch
+3. `_buildModValues()` — full mod serialization from modState
+4. `_workletActive` flag gates main-thread delegation
+
+### Phase 6+ (planned)
+
+1. Tick-sliced rendering across 128-sample process() quanta
+2. Stable tone slot IDs
+3. Worklet-side effects (panning → distortion → delay-based)
+4. Coordinator pattern for full worklet render
+
+Phases 0-5 are complete and independently mergable (all on `dev-exp` branch).
+Phases 6+ refine the worklet's process() to handle real-time constraints.
+`Step 18 (coordinator) is deferred until tick-slicing is stable.
 
 ## 10. open questions
 
