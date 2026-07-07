@@ -39,5 +39,6 @@ Purpose: Project root with configuration, build tooling, and entry points.
 - `concepts/`, Design concept documents
 - `conventions/`, Reference copy of dev-mini conventions
 - `readme_manifest/`, Modular README source files
+- `community_modules/`, Reference community InstrumentModules outside the core tree
 - `tools/`, Utility scripts (generate-readme.sh)
 - `website/`, GitHub Pages deployment source (static assets, manual pages, offline bundle)
