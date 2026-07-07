@@ -24,7 +24,7 @@ import type { Note, NotePin, Pattern } from "./notes";
 import { PickedString } from "./picked-string";
 import { getPlugin } from "./plugins";
 import { PostProcessingState } from "./post-processing";
-import { applyDetune, applyDrumsetPitch, applyFadeIn, applyIntervalFadeSideEffects, applyPitchShift, applyVibrato, computeBasePitchAndExpression, computeEnvelopeSpeeds, computeFmExpressionAndFeedback, computeFmOperatorLoop, computeSimpleNoteFilterValues, computeSlides, computeToneIntervalAndFade, computeUnisonPhases, initTonePhaseState } from "./render/compute-tone";
+import { applyDetune, applyDrumsetPitch, applyFadeIn, applyIntervalFadeSideEffects, computeNonFmPitchSetup, applyPitchShift, applyVibrato, computeBasePitchAndExpression, computeEnvelopeSpeeds, computeFmExpressionAndFeedback, computeFmOperatorLoop, computeSimpleNoteFilterValues, computeSlides, computeToneIntervalAndFade, computeUnisonPhases, initTonePhaseState } from "./render/compute-tone";
 import {
 	allocTone,
 	freeAllTones,
@@ -4150,158 +4150,109 @@ export class Synth {
 				_modFbEnd,
 			);
 		} else {
-			const freqEndRatio: number =
-				2.0 ** (((intervalEnd - intervalStart) * intervalScale) / 12.0);
-			const basePhaseDeltaScale: number = freqEndRatio ** (1.0 / roundedSamplesPerTick);
 			const isMono: boolean = chord.name === "monophonic";
 
-			let pitch: number = tone.pitches[0];
-			if (tone.pitchCount > 1 && (chord.arpeggiates || chord.customInterval || isMono)) {
-				const arpeggio: number = Math.floor(
-					instrumentState.arpTime / Config.ticksPerArpeggio,
-				);
-				if (chord.customInterval) {
-					const intervalOffset: number =
-						tone.pitches[
-							1 +
-								getArpeggioPitchIndex(
-									tone.pitchCount - 1,
-									instrument.fastTwoNoteArp,
-									arpeggio,
-								)
-						] - tone.pitches[0];
-					specialIntervalMult = 2.0 ** (intervalOffset / 12.0);
-					tone.specialIntervalExpressionMult = 2.0 ** (-intervalOffset / pitchDamping);
-				} else if (chord.arpeggiates) {
-					pitch =
-						tone.pitches[
-							getArpeggioPitchIndex(
-								tone.pitchCount,
-								instrument.fastTwoNoteArp,
-								arpeggio,
-							)
-						];
-				} else {
-					pitch = tone.pitches[instrument.monoChordTone];
-				}
-			}
+			// Pre-compute arpeggio ticks (depends on instrumentState)
+			const arpeggio: number = tone.pitchCount > 1
+				? Math.floor(instrumentState.arpTime / Config.ticksPerArpeggio)
+				: 0;
 
-			const startPitch: number = basePitch + (pitch + intervalStart) * intervalScale;
-			const endPitch: number = basePitch + (pitch + intervalEnd) * intervalScale;
-			let pitchExpressionStart: number;
-			// TODO: use the second element of prevPitchExpressions for the unison voice, compute a separate expression delta for it.
-			if (tone.prevPitchExpressions[0] != null) {
-				pitchExpressionStart = tone.prevPitchExpressions[0]!;
-			} else {
-				pitchExpressionStart =
-					2.0 ** (-(startPitch - expressionReferencePitch) / pitchDamping);
-			}
-			const pitchExpressionEnd: number =
-				2.0 ** (-(endPitch - expressionReferencePitch) / pitchDamping);
-			tone.prevPitchExpressions[0] = pitchExpressionEnd;
-			let settingsExpressionMult: number = baseExpression * noteFilterExpression;
-
-			if (instrument.type === InstrumentType.noise) {
-				settingsExpressionMult *= Config.chipNoises[instrument.chipNoise].expression;
-			}
-			if (instrument.type === InstrumentType.chip) {
-				settingsExpressionMult *= Config.chipWaves[instrument.chipWave].expression;
-			}
-			if (instrument.type === InstrumentType.pwm) {
-				const basePulseWidth: number = getPulseWidthRatio(instrument.pulseWidth);
-
-				// Check for PWM mods to this instrument
-				let pulseWidthModStart: number = basePulseWidth;
-				let pulseWidthModEnd: number = basePulseWidth;
-				if (
-					this.isModActive(
+			// Pre-compute PWM mod values
+			const _isModActivePw: boolean = this.isModActive(
+				Config.modulators.dictionary["pulse width"].index,
+				channelIndex,
+				tone.instrumentIndex,
+			);
+			const _pwModStart: number = _isModActivePw
+				? this.modState.getModValue(
 						Config.modulators.dictionary["pulse width"].index,
 						channelIndex,
 						tone.instrumentIndex,
-					)
-				) {
-					pulseWidthModStart =
-						this.modState.getModValue(
-							Config.modulators.dictionary["pulse width"].index,
-							channelIndex,
-							tone.instrumentIndex,
-							false,
-						) /
-						(Config.pulseWidthRange * 2);
-					pulseWidthModEnd =
-						this.modState.getModValue(
-							Config.modulators.dictionary["pulse width"].index,
-							channelIndex,
-							tone.instrumentIndex,
-							true,
-						) /
-						(Config.pulseWidthRange * 2);
-				}
-
-				const pulseWidthStart: number =
-					pulseWidthModStart * envelopeStarts[EnvelopeComputeIndex.pulseWidth];
-				const pulseWidthEnd: number =
-					pulseWidthModEnd * envelopeEnds[EnvelopeComputeIndex.pulseWidth];
-				tone.pulseWidth = pulseWidthStart;
-				tone.pulseWidthDelta = (pulseWidthEnd - pulseWidthStart) / roundedSamplesPerTick;
-
-				// decimal offset mods
-				let decimalOffsetModStart: number = instrument.decimalOffset;
-				if (
-					this.isModActive(
-						Config.modulators.dictionary["decimal offset"].index,
+						false,
+					) / (Config.pulseWidthRange * 2)
+				: 0;
+			const _pwModEnd: number = _isModActivePw
+				? this.modState.getModValue(
+						Config.modulators.dictionary["pulse width"].index,
 						channelIndex,
 						tone.instrumentIndex,
-					)
-				) {
-					decimalOffsetModStart = this.modState.getModValue(
+						true,
+					) / (Config.pulseWidthRange * 2)
+				: 0;
+
+			const _isModActiveDec: boolean = this.isModActive(
+				Config.modulators.dictionary["decimal offset"].index,
+				channelIndex,
+				tone.instrumentIndex,
+			);
+			const _decOffsetModVal: number = _isModActiveDec
+				? this.modState.getModValue(
 						Config.modulators.dictionary["decimal offset"].index,
 						channelIndex,
 						tone.instrumentIndex,
 						false,
-					);
-				}
-
-				const decimalOffsetStart: number =
-					decimalOffsetModStart * envelopeStarts[EnvelopeComputeIndex.decimalOffset];
-				tone.decimalOffset = decimalOffsetStart;
-
-				tone.pulseWidth -= tone.decimalOffset / 10000;
-			}
-			if (instrument.type === InstrumentType.pickedString) {
-				// Check for sustain mods
-				let useSustainStart: number = instrument.stringSustain;
-				let useSustainEnd: number = instrument.stringSustain;
-				if (
-					this.isModActive(
-						Config.modulators.dictionary.sustain.index,
-						channelIndex,
-						tone.instrumentIndex,
 					)
-				) {
-					useSustainStart = this.modState.getModValue(
+				: 0;
+
+			// Pre-compute sustain mod values
+			const _isModActiveSus: boolean = this.isModActive(
+				Config.modulators.dictionary.sustain.index,
+				channelIndex,
+				tone.instrumentIndex,
+			);
+			const _susModStart: number = _isModActiveSus
+				? this.modState.getModValue(
 						Config.modulators.dictionary.sustain.index,
 						channelIndex,
 						tone.instrumentIndex,
 						false,
-					);
-					useSustainEnd = this.modState.getModValue(
+					)
+				: 0;
+			const _susModEnd: number = _isModActiveSus
+				? this.modState.getModValue(
 						Config.modulators.dictionary.sustain.index,
 						channelIndex,
 						tone.instrumentIndex,
 						true,
-					);
-				}
+					)
+				: 0;
 
-				tone.stringSustainStart = useSustainStart;
-				tone.stringSustainEnd = useSustainEnd;
-
-				// Increase expression to compensate for string decay.
-				settingsExpressionMult *=
-					2.0 ** (0.7 * (1.0 - useSustainStart / (Config.stringSustainRange - 1)));
-			}
-
-			const startFreq: number = Instrument.frequencyFromPitch(startPitch);
+			const psResult = computeNonFmPitchSetup(
+				tone,
+				instrument,
+				isMono,
+				chord.arpeggiates,
+				chord.customInterval,
+				arpeggio,
+				basePitch,
+				intervalScale,
+				intervalStart,
+				intervalEnd,
+				expressionReferencePitch,
+				pitchDamping,
+				baseExpression,
+				noteFilterExpression,
+				envelopeStarts,
+				envelopeEnds,
+				roundedSamplesPerTick,
+				{
+					pulseWidthModActive: _isModActivePw,
+					pulseWidthModStart: _pwModStart,
+					pulseWidthModEnd: _pwModEnd,
+					decimalOffsetModActive: _isModActiveDec,
+					decimalOffsetModValue: _decOffsetModVal,
+					sustainModActive: _isModActiveSus,
+					sustainModStart: _susModStart,
+					sustainModEnd: _susModEnd,
+				},
+			);
+			specialIntervalMult = psResult.specialIntervalMult;
+			const freqEndRatio: number = psResult.freqEndRatio;
+			const basePhaseDeltaScale: number = psResult.basePhaseDeltaScale;
+			const pitchExpressionStart: number = psResult.pitchExpressionStart;
+			const pitchExpressionEnd: number = psResult.pitchExpressionEnd;
+			let settingsExpressionMult: number = psResult.settingsExpressionMult;
+			const startFreq: number = psResult.startFreq;
 			if (getInstrumentCapability(instrument, "hasUnison")) {
 				const _isPickedString: boolean =
 					instrument.type === InstrumentType.pickedString;

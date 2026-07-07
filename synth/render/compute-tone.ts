@@ -16,6 +16,7 @@ import { Config, EnvelopeComputeIndex, InstrumentType, type InstrumentType as In
 import { computeChordExpression, operatorAmplitudeCurve } from "../synth-math";
 import { noteSizeToVolumeMult, instrumentVolumeToVolumeMult } from "../synth-shared";
 import { detuneToCents, getOperatorWave } from "../util";
+import { getArpeggioPitchIndex, getPulseWidthRatio } from "../config/synth-math-utils";
 import type { Tone } from "../tone";
 import type { SongSnapshot } from "./snapshot";
 
@@ -1074,6 +1075,202 @@ export function computeFmExpressionAndFeedback(
 function frequencyFromPitch(pitch: number): number {
 	return 440.0 * 2.0 ** ((pitch - 69.0) / Config.pitchesPerOctave);
 }
+
+// ── Non-FM instrument data types ───────────────────────────────────────────
+
+/**
+ * Minimal instrument info for the non-FM pitch+expression setup section.
+ */
+export interface NonFmPitchSetupInstrument {
+	readonly type: InstrumentTypeEnum;
+	readonly chipNoise: number;
+	readonly chipWave: number;
+	readonly pulseWidth: number;
+	readonly decimalOffset: number;
+	readonly stringSustain: number;
+	readonly stringSustainType: number;
+	readonly fastTwoNoteArp: boolean;
+	readonly monoChordTone: number;
+}
+
+/**
+ * Pre-computed mod values for the non-FM pitch+expression section.
+ */
+export interface NonFmPitchSetupMods {
+	readonly pulseWidthModActive: boolean;
+	readonly pulseWidthModStart: number;
+	readonly pulseWidthModEnd: number;
+	readonly decimalOffsetModActive: boolean;
+	readonly decimalOffsetModValue: number;
+	readonly sustainModActive: boolean;
+	readonly sustainModStart: number;
+	readonly sustainModEnd: number;
+}
+
+/**
+ * Result from computeNonFmPitchSetup.
+ */
+export interface NonFmPitchSetupResult {
+	readonly freqEndRatio: number;
+	readonly basePhaseDeltaScale: number;
+	readonly pitch: number;
+	readonly startPitch: number;
+	readonly endPitch: number;
+	readonly pitchExpressionStart: number;
+	readonly pitchExpressionEnd: number;
+	readonly settingsExpressionMult: number;
+	readonly specialIntervalMult: number;
+	readonly startFreq: number;
+}
+
+/**
+ * Compute the non-FM pitch and expression setup section.
+ *
+ * Handles:
+ * - freqEndRatio, basePhaseDeltaScale
+ * - Pitch selection (arpeggio, custom interval, mono)
+ * - Pitch expression calculation with prevPitchExpressions tracking
+ * - settingsExpressionMult (base * noteFilter * noise/chip multipliers)
+ * - PWM pulse width + decimal offset setup
+ * - Picked string sustain setup
+ * - startFreq computation
+ *
+ * Pure function — all mod values pre-computed. Does not read from this/modState.
+ * Mutates tone fields: prevPitchExpressions, pulseWidth, pulseWidthDelta,
+ * decimalOffset, stringSustainStart, stringSustainEnd.
+ */
+export function computeNonFmPitchSetup(
+	tone: Tone,
+	inst: NonFmPitchSetupInstrument,
+	isMono: boolean,
+	arpeggiates: boolean,
+	customInterval: boolean,
+	arpeggio: number,
+	basePitch: number,
+	intervalScale: number,
+	intervalStart: number,
+	intervalEnd: number,
+	expressionReferencePitch: number,
+	pitchDamping: number,
+	baseExpression: number,
+	noteFilterExpression: number,
+	envelopeStarts: readonly number[],
+	envelopeEnds: readonly number[],
+	roundedSamplesPerTick: number,
+	mods: NonFmPitchSetupMods,
+): NonFmPitchSetupResult {
+	let specialIntervalMult: number = 1.0;
+
+	let pitch: number = tone.pitches[0];
+	if (tone.pitchCount > 1 && (arpeggiates || customInterval || isMono)) {
+		if (customInterval) {
+			const intervalOffset: number =
+				tone.pitches[
+					1 +
+						getArpeggioPitchIndex(
+							tone.pitchCount - 1,
+							inst.fastTwoNoteArp,
+							arpeggio,
+						)
+				] - tone.pitches[0];
+			specialIntervalMult = 2.0 ** (intervalOffset / 12.0);
+			tone.specialIntervalExpressionMult = 2.0 ** (-intervalOffset / pitchDamping);
+		} else if (arpeggiates) {
+			pitch =
+				tone.pitches[
+					getArpeggioPitchIndex(
+						tone.pitchCount,
+						inst.fastTwoNoteArp,
+						arpeggio,
+					)
+				];
+		} else {
+			pitch = tone.pitches[inst.monoChordTone];
+		}
+	}
+
+	const startPitch: number = basePitch + (pitch + intervalStart) * intervalScale;
+	const endPitch: number = basePitch + (pitch + intervalEnd) * intervalScale;
+	let pitchExpressionStart: number;
+	if (tone.prevPitchExpressions[0] != null) {
+		pitchExpressionStart = tone.prevPitchExpressions[0]!;
+	} else {
+		pitchExpressionStart =
+			2.0 ** (-(startPitch - expressionReferencePitch) / pitchDamping);
+	}
+	const pitchExpressionEnd: number =
+		2.0 ** (-(endPitch - expressionReferencePitch) / pitchDamping);
+	tone.prevPitchExpressions[0] = pitchExpressionEnd;
+	let settingsExpressionMult: number = baseExpression * noteFilterExpression;
+
+	if (inst.type === InstrumentType.noise) {
+		settingsExpressionMult *= Config.chipNoises[inst.chipNoise].expression;
+	}
+	if (inst.type === InstrumentType.chip) {
+		settingsExpressionMult *= Config.chipWaves[inst.chipWave].expression;
+	}
+	if (inst.type === InstrumentType.pwm) {
+		const basePulseWidth: number = getPulseWidthRatio(inst.pulseWidth);
+
+		let pulseWidthModStart: number = basePulseWidth;
+		let pulseWidthModEnd: number = basePulseWidth;
+		if (mods.pulseWidthModActive) {
+			pulseWidthModStart = mods.pulseWidthModStart;
+			pulseWidthModEnd = mods.pulseWidthModEnd;
+		}
+
+		const pulseWidthStart: number =
+			pulseWidthModStart * envelopeStarts[EnvelopeComputeIndex.pulseWidth];
+		const pulseWidthEnd: number =
+			pulseWidthModEnd * envelopeEnds[EnvelopeComputeIndex.pulseWidth];
+		tone.pulseWidth = pulseWidthStart;
+		tone.pulseWidthDelta = (pulseWidthEnd - pulseWidthStart) / roundedSamplesPerTick;
+
+		let decimalOffsetModStart: number = inst.decimalOffset;
+		if (mods.decimalOffsetModActive) {
+			decimalOffsetModStart = mods.decimalOffsetModValue;
+		}
+
+		const decimalOffsetStart: number =
+			decimalOffsetModStart * envelopeStarts[EnvelopeComputeIndex.decimalOffset];
+		tone.decimalOffset = decimalOffsetStart;
+
+		tone.pulseWidth -= tone.decimalOffset / 10000;
+	}
+	if (inst.type === InstrumentType.pickedString) {
+		let useSustainStart: number = inst.stringSustain;
+		let useSustainEnd: number = inst.stringSustain;
+		if (mods.sustainModActive) {
+			useSustainStart = mods.sustainModStart;
+			useSustainEnd = mods.sustainModEnd;
+		}
+
+		tone.stringSustainStart = useSustainStart;
+		tone.stringSustainEnd = useSustainEnd;
+
+		settingsExpressionMult *=
+			2.0 ** (0.7 * (1.0 - useSustainStart / (Config.stringSustainRange - 1)));
+	}
+
+	const freqEndRatio: number =
+		2.0 ** (((intervalEnd - intervalStart) * intervalScale) / 12.0);
+	const basePhaseDeltaScale: number = freqEndRatio ** (1.0 / roundedSamplesPerTick);
+	const startFreq: number = frequencyFromPitch(startPitch);
+
+	return {
+		freqEndRatio,
+		basePhaseDeltaScale,
+		pitch,
+		startPitch,
+		endPitch,
+		pitchExpressionStart,
+		pitchExpressionEnd,
+		settingsExpressionMult,
+		specialIntervalMult,
+		startFreq,
+	};
+}
+
 
 // ── FM operator loop ───────────────────────────────────────────────────────
 
