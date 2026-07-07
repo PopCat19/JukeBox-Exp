@@ -1,12 +1,17 @@
 // fm6.ts
 //
-// Purpose: 6-operator FM synthesis plugin
+// Purpose: 6-operator FM synthesis plugin — bridges from socket InstrumentModule
+//
+// This module:
+// - Bridges fm6Module as a SynthPlugin for backward compat
+// - Preserves algorithm-dependent compiled function caching
 
 import type { Instrument } from "../instruments";
 import { Synth } from "../synth";
 import { Config, InstrumentType } from "../synth-config";
 import { buildFm6Source } from "../synthesis/fm6";
-import { registerPlugin } from "./registry";
+import { registerModuleAsPlugin } from "../socket/bridge";
+import fm6Module from "../modules/fm6/module";
 
 const cache: Map<string, Function> = new Map();
 
@@ -19,11 +24,8 @@ function getSynthFunction(instrument: Instrument, synth: typeof Synth): Function
 	return cache.get(fingerprint)!;
 }
 
-registerPlugin({
-	type: InstrumentType.fm6op,
-	name: "FM6",
-	displayName: "FM (6-op)",
-	editorRows: ["fm", "fm6"],
+registerModuleAsPlugin(fm6Module, InstrumentType.fm6op, ["fm", "fm6"], {
+	getSynthFunction,
 	initialize: (instrument: Instrument) => {
 		instrument.chord = 3;
 		instrument.algorithm6Op = 1;
@@ -34,6 +36,4 @@ registerPlugin({
 			instrument.operators[i].reset(i);
 		}
 	},
-	getSynthFunction,
-	buildSource: (instrument: Instrument) => buildFm6Source(instrument),
 });
