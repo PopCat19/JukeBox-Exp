@@ -2046,6 +2046,7 @@ export function computeDrumsetFilter(
 	instrumentType: InstrumentTypeEnum,
 	drumsetPitch: number | null,
 	envelopeComputer: DrumsetEnvelopeComputer,
+	drumsetFilterEnvelope: { readonly type: number } | null,
 	beatsPerPart: number,
 	partTimeStart: number,
 	partTimeEnd: number,
@@ -2059,7 +2060,7 @@ export function computeDrumsetFilter(
 	precomputedGain: number,
 	precomputedFreq: number,
 ): number {
-	if (instrumentType !== InstrumentType.drumset || drumsetPitch == null) {
+	if (instrumentType !== InstrumentType.drumset || drumsetPitch == null || drumsetFilterEnvelope == null) {
 		return noteFilterExpression;
 	}
 
@@ -2067,7 +2068,7 @@ export function computeDrumsetFilter(
 
 	envelopeComputer.computeDrumsetEnvelopes(
 		null,
-		{ type: 0 },
+		drumsetFilterEnvelope,
 		beatsPerPart,
 		partTimeStart,
 		partTimeEnd,

@@ -3888,6 +3888,7 @@ export class Synth {
 				instrument.type,
 				tone.drumsetPitch,
 				tone.envelopeComputer,
+				_dsEnv,
 				beatsPerPart,
 				beatPartTimeStart,
 				beatPartTimeEnd,
@@ -4218,139 +4219,141 @@ export class Synth {
 			let supersawExpressionStart: number = 1.0;
 			let supersawExpressionEnd: number = 1.0;
 			// Pre-compute supersaw mod values
-			const _isModActiveDyn: boolean = this.isModActive(
-				Config.modulators.dictionary.dynamism.index,
-				channelIndex,
-				tone.instrumentIndex,
-			);
-			const _dynModStart: number = _isModActiveDyn
-				? this.modState.getModValue(
-						Config.modulators.dictionary.dynamism.index,
-						channelIndex,
-						tone.instrumentIndex,
-						false,
-					)
-				: 0;
-			const _dynModEnd: number = _isModActiveDyn
-				? this.modState.getModValue(
-						Config.modulators.dictionary.dynamism.index,
-						channelIndex,
-						tone.instrumentIndex,
-						true,
-					)
-				: 0;
+			if (instrument.type === InstrumentType.supersaw) {
+				const _isModActiveDyn: boolean = this.isModActive(
+					Config.modulators.dictionary.dynamism.index,
+					channelIndex,
+					tone.instrumentIndex,
+				);
+				const _dynModStart: number = _isModActiveDyn
+					? this.modState.getModValue(
+							Config.modulators.dictionary.dynamism.index,
+							channelIndex,
+							tone.instrumentIndex,
+							false,
+						)
+					: 0;
+				const _dynModEnd: number = _isModActiveDyn
+					? this.modState.getModValue(
+							Config.modulators.dictionary.dynamism.index,
+							channelIndex,
+							tone.instrumentIndex,
+							true,
+						)
+					: 0;
 
-			const _isModActiveSpr: boolean = this.isModActive(
-				Config.modulators.dictionary.spread.index,
-				channelIndex,
-				tone.instrumentIndex,
-			);
-			const _sprModStart: number = _isModActiveSpr
-				? this.modState.getModValue(
-						Config.modulators.dictionary.spread.index,
-						channelIndex,
-						tone.instrumentIndex,
-						false,
-					)
-				: 0;
-			const _sprModEnd: number = _isModActiveSpr
-				? this.modState.getModValue(
-						Config.modulators.dictionary.spread.index,
-						channelIndex,
-						tone.instrumentIndex,
-						true,
-					)
-				: 0;
+				const _isModActiveSpr: boolean = this.isModActive(
+					Config.modulators.dictionary.spread.index,
+					channelIndex,
+					tone.instrumentIndex,
+				);
+				const _sprModStart: number = _isModActiveSpr
+					? this.modState.getModValue(
+							Config.modulators.dictionary.spread.index,
+							channelIndex,
+							tone.instrumentIndex,
+							false,
+						)
+					: 0;
+				const _sprModEnd: number = _isModActiveSpr
+					? this.modState.getModValue(
+							Config.modulators.dictionary.spread.index,
+							channelIndex,
+							tone.instrumentIndex,
+							true,
+						)
+					: 0;
 
-			const _isModActiveShp: boolean = this.isModActive(
-				Config.modulators.dictionary["saw shape"].index,
-				channelIndex,
-				tone.instrumentIndex,
-			);
-			const _shpModStart: number = _isModActiveShp
-				? this.modState.getModValue(
-						Config.modulators.dictionary["saw shape"].index,
-						channelIndex,
-						tone.instrumentIndex,
-						false,
-					)
-				: 0;
-			const _shpModEnd: number = _isModActiveShp
-				? this.modState.getModValue(
-						Config.modulators.dictionary["saw shape"].index,
-						channelIndex,
-						tone.instrumentIndex,
-						true,
-					)
-				: 0;
+				const _isModActiveShp: boolean = this.isModActive(
+					Config.modulators.dictionary["saw shape"].index,
+					channelIndex,
+					tone.instrumentIndex,
+				);
+				const _shpModStart: number = _isModActiveShp
+					? this.modState.getModValue(
+							Config.modulators.dictionary["saw shape"].index,
+							channelIndex,
+							tone.instrumentIndex,
+							false,
+						)
+					: 0;
+				const _shpModEnd: number = _isModActiveShp
+					? this.modState.getModValue(
+							Config.modulators.dictionary["saw shape"].index,
+							channelIndex,
+							tone.instrumentIndex,
+							true,
+						)
+					: 0;
 
-			const _isModActiveDecOff: boolean = this.isModActive(
-				Config.modulators.dictionary["decimal offset"].index,
-				channelIndex,
-				tone.instrumentIndex,
-			);
-			const _decOffModVal: number = _isModActiveDecOff
-				? this.modState.getModValue(
-						Config.modulators.dictionary["decimal offset"].index,
-						channelIndex,
-						tone.instrumentIndex,
-						false,
-					)
-				: 0;
+				const _isModActiveDecOff: boolean = this.isModActive(
+					Config.modulators.dictionary["decimal offset"].index,
+					channelIndex,
+					tone.instrumentIndex,
+				);
+				const _decOffModVal: number = _isModActiveDecOff
+					? this.modState.getModValue(
+							Config.modulators.dictionary["decimal offset"].index,
+							channelIndex,
+							tone.instrumentIndex,
+							false,
+						)
+					: 0;
 
-			const _isModActivePwSs: boolean = this.isModActive(
-				Config.modulators.dictionary["pulse width"].index,
-				channelIndex,
-				tone.instrumentIndex,
-			);
-			const _pwSsModStart: number = _isModActivePwSs
-				? this.modState.getModValue(
-						Config.modulators.dictionary["pulse width"].index,
-						channelIndex,
-						tone.instrumentIndex,
-						false,
-					)
-				: 0;
-			const _pwSsModEnd: number = _isModActivePwSs
-				? this.modState.getModValue(
-						Config.modulators.dictionary["pulse width"].index,
-						channelIndex,
-						tone.instrumentIndex,
-						true,
-					)
-				: 0;
+				const _isModActivePwSs: boolean = this.isModActive(
+					Config.modulators.dictionary["pulse width"].index,
+					channelIndex,
+					tone.instrumentIndex,
+				);
+				const _pwSsModStart: number = _isModActivePwSs
+					? this.modState.getModValue(
+							Config.modulators.dictionary["pulse width"].index,
+							channelIndex,
+							tone.instrumentIndex,
+							false,
+						)
+					: 0;
+				const _pwSsModEnd: number = _isModActivePwSs
+					? this.modState.getModValue(
+							Config.modulators.dictionary["pulse width"].index,
+							channelIndex,
+							tone.instrumentIndex,
+							true,
+						)
+					: 0;
 
-			const ssResult = computeSupersawSetup(
-				tone,
-				instrument,
-				{
-					dynamismActive: _isModActiveDyn,
-					dynamismModStart: _dynModStart,
-					dynamismModEnd: _dynModEnd,
-					spreadActive: _isModActiveSpr,
-					spreadModStart: _sprModStart,
-					spreadModEnd: _sprModEnd,
-					shapeActive: _isModActiveShp,
-					shapeModStart: _shpModStart,
-					shapeModEnd: _shpModEnd,
-					decimalOffsetActive: _isModActiveDecOff,
-					decimalOffsetModVal: _decOffModVal,
-					pulseWidthActive: _isModActivePwSs,
-					pulseWidthModStart: _pwSsModStart,
-					pulseWidthModEnd: _pwSsModEnd,
-				},
-				envelopeStarts,
-				envelopeEnds,
-				startFreq,
-				sampleTime,
-				freqEndRatio,
-				roundedSamplesPerTick,
-				this.samplesPerSecond,
-				instrumentState.unisonInitialized,
-			);
-			supersawExpressionStart = ssResult.supersawExpressionStart;
-			supersawExpressionEnd = ssResult.supersawExpressionEnd;
-			instrumentState.unisonInitialized = ssResult.unisonInitialized;
+				const ssResult = computeSupersawSetup(
+					tone,
+					instrument,
+					{
+						dynamismActive: _isModActiveDyn,
+						dynamismModStart: _dynModStart,
+						dynamismModEnd: _dynModEnd,
+						spreadActive: _isModActiveSpr,
+						spreadModStart: _sprModStart,
+						spreadModEnd: _sprModEnd,
+						shapeActive: _isModActiveShp,
+						shapeModStart: _shpModStart,
+						shapeModEnd: _shpModEnd,
+						decimalOffsetActive: _isModActiveDecOff,
+						decimalOffsetModVal: _decOffModVal,
+						pulseWidthActive: _isModActivePwSs,
+						pulseWidthModStart: _pwSsModStart,
+						pulseWidthModEnd: _pwSsModEnd,
+					},
+					envelopeStarts,
+					envelopeEnds,
+					startFreq,
+					sampleTime,
+					freqEndRatio,
+					roundedSamplesPerTick,
+					this.samplesPerSecond,
+					instrumentState.unisonInitialized,
+				);
+				supersawExpressionStart = ssResult.supersawExpressionStart;
+				supersawExpressionEnd = ssResult.supersawExpressionEnd;
+				instrumentState.unisonInitialized = ssResult.unisonInitialized;
+			}
 
 			// Pre-compute note volume mod values
 			const _isModActiveNoteVol: boolean = this.isModActive(
