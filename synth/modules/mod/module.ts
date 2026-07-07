@@ -17,7 +17,14 @@ const modModule: InstrumentModule = {
 	id: MODULE_ID,
 	socketVersion: SOCKET_VERSION,
 	displayName: "Mod",
-	capabilities: {},
+	capabilities: {
+		isMod: true,
+		hasEnvelopes: false,
+		hasUnison: false,
+		hasNoteFilter: false,
+		hasEffects: false,
+		hasChord: false,
+	},
 	schema,
 
 	buildSynthSource(_ctx: SynthBuildContext): string {

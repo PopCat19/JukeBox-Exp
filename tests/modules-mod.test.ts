@@ -23,8 +23,17 @@ describe("mod InstrumentModule", () => {
 		expect(modModule.displayName).toBe("Mod");
 	});
 
-	test("capabilities are empty (no effects/chord/envelopes/unison)", () => {
-		expect(modModule.capabilities).toEqual({});
+	test("capabilities declare mod-specific flags", () => {
+		// core.mod has no synth controls (no envelopes/unison/effects/etc.)
+		// and the legacy registration marked it as isMod. Module must
+		// declare these so capability lookup works correctly when the
+		// module is registered (not relying on legacy fallback).
+		expect(modModule.capabilities.isMod).toBeTrue();
+		expect(modModule.capabilities.hasEnvelopes).toBeFalse();
+		expect(modModule.capabilities.hasUnison).toBeFalse();
+		expect(modModule.capabilities.hasNoteFilter).toBeFalse();
+		expect(modModule.capabilities.hasEffects).toBeFalse();
+		expect(modModule.capabilities.hasChord).toBeFalse();
 	});
 
 	test("buildSynthSource returns a non-empty string", () => {
