@@ -24,7 +24,7 @@ import type { Note, NotePin, Pattern } from "./notes";
 import { PickedString } from "./picked-string";
 import { getPlugin } from "./plugins";
 import { PostProcessingState } from "./post-processing";
-import { applyDetune, applyFadeIn, applyPitchShift, computeBasePitchAndExpression, computeSlides, computeToneIntervalAndFade } from "./render/compute-tone";
+import { applyDetune, applyFadeIn, applyPitchShift, computeBasePitchAndExpression, computeSlides, computeToneIntervalAndFade, initTonePhaseState } from "./render/compute-tone";
 import {
 	allocTone,
 	freeAllTones,
@@ -67,7 +67,7 @@ import {
 	tempFilterStartCoefficients,
 } from "./synth-shared";
 import { Tone } from "./tone";
-import { clamp, epsilon, fittingPowerOfTwo, getOperatorWave, wrap } from "./util";
+import { clamp, epsilon, fittingPowerOfTwo, wrap } from "./util";
 
 declare global {
 	interface Window {
@@ -3496,76 +3496,16 @@ export class Synth {
 		let chordExpressionStart: number = chordExpression;
 		let chordExpressionEnd: number = chordExpression;
 
-		let customSampleNeedsPhaseRestore: boolean = false;
-		let customSamplePartsPassed: number = 0;
-		let customSampleFirstOffset: number = 0;
-		if (
-			(tone.atNoteStart && !transition.isSeamless && !tone.forceContinueAtStart) ||
-			tone.freshlyAllocated
-		) {
-			tone.reset();
-			instrumentState.envelopeComputer.reset();
-			// advloop addition
-			if (instrument.type === InstrumentType.chip && instrument.isUsingAdvancedLoopControls) {
-				const chipWaveLength =
-					Config.rawRawChipWaves[instrument.chipWave].samples.length - 1;
-				const firstOffset = instrument.chipWaveStartOffset / chipWaveLength;
-				// @TODO: Keep lastOffset as 1.0 without wrap-back to 0 in loopableChipSynth.
-				const lastOffset = 0.999999999999999;
-				for (let i = 0; i < Config.maxPitchOrOperatorCount; i++) {
-					tone.phases[i] = instrument.chipWavePlayBackwards
-						? Math.max(0, Math.min(lastOffset, firstOffset))
-						: Math.max(0, firstOffset);
-					tone.directions[i] = instrument.chipWavePlayBackwards ? -1 : 1;
-					tone.chipWaveCompletions[i] = 0;
-					tone.chipWavePrevWaves[i] = 0;
-					tone.chipWaveCompletionsLastWave[i] = 0;
-				}
-			}
-			// advloop addition
-
-			// Phase offset for custom sampled chips resuming mid-note (INSIDE reset block so it takes effect immediately)
-			const isCustomChip =
-				instrument.type === InstrumentType.chip &&
-				Config.chipWaves[instrument.chipWave]?.isCustomSampled;
-			if (isCustomChip && tone.note != null) {
-				const partsPerBar = Config.partsPerBeat * song.beatsPerBar;
-				const currentPartInBar = this.beat * Config.partsPerBeat + this.part;
-				const currentAbsolutePart = this.bar * partsPerBar + currentPartInBar;
-				const noteStartAbsolutePart =
-					tone.forceContinueAtStart && tone.noteStartBar !== this.bar
-						? tone.noteStartBar * partsPerBar + tone.noteStartPart
-						: this.bar * partsPerBar + tone.noteStartPart;
-				const partsPassed = currentAbsolutePart - noteStartAbsolutePart;
-				if (partsPassed > 0) {
-					const chipWaveLength =
-						Config.rawRawChipWaves[instrument.chipWave].samples.length - 1;
-					customSampleNeedsPhaseRestore = true;
-					customSamplePartsPassed = partsPassed;
-					customSampleFirstOffset = instrument.chipWaveStartOffset / chipWaveLength;
-				}
-			}
-		}
-		tone.freshlyAllocated = false;
-
-		for (let i: number = 0; i < Config.maxPitchOrOperatorCount; i++) {
-			tone.phaseDeltas[i] = 0.0;
-			tone.phaseDeltaScales[i] = 0.0;
-			tone.operatorExpressions[i] = 0.0;
-			tone.operatorExpressionDeltas[i] = 0.0;
-		}
-		tone.expression = 0.0;
-		tone.expressionDelta = 0.0;
-		for (
-			let i: number = 0;
-			i < (instrument.type === InstrumentType.fm6op ? 6 : Config.operatorCount);
-			i++
-		) {
-			tone.operatorWaves[i] = getOperatorWave(
-				instrument.operators[i].waveform,
-				instrument.operators[i].pulseWidth,
-			);
-		}
+		const { needsRestore: customSampleNeedsPhaseRestore, partsPassed: customSamplePartsPassed, firstOffset: customSampleFirstOffset } = initTonePhaseState(
+			tone,
+			instrumentState.envelopeComputer,
+			instrument,
+			transition.isSeamless,
+			song.beatsPerBar,
+			this.bar,
+			this.beat,
+			this.part,
+		);
 
 		const intervalFadeResult = computeToneIntervalAndFade(
 			released,

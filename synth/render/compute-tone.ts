@@ -15,7 +15,7 @@ import type { Note } from "../notes";
 import { Config, InstrumentType, type InstrumentType as InstrumentTypeEnum } from "../synth-config";
 import { computeChordExpression } from "../synth-math";
 import { noteSizeToVolumeMult } from "../synth-shared";
-import { detuneToCents } from "../util";
+import { detuneToCents, getOperatorWave } from "../util";
 import type { Tone } from "../tone";
 import type { SongSnapshot } from "./snapshot";
 
@@ -495,4 +495,128 @@ export function applyDetune(
 	intervalEnd += detuneToCents(modDetuneEnd) * envEnd * semitoneFactor;
 
 	return { intervalStart, intervalEnd };
+}
+
+// ── Tone reset + phase init ──────────────────────────────────────────────
+
+export interface CustomSamplePhaseInfo {
+	readonly needsRestore: boolean;
+	readonly partsPassed: number;
+	readonly firstOffset: number;
+}
+
+/**
+ * Minimal instrument info for tone reset — avoids importing Instrument class.
+ */
+export interface ToneResetInst {
+	readonly type: InstrumentTypeEnum;
+	readonly chipWave: number;
+	readonly isUsingAdvancedLoopControls: boolean;
+	readonly chipWaveStartOffset: number;
+	readonly chipWavePlayBackwards: boolean;
+	readonly operators: ReadonlyArray<{
+		readonly waveform: number;
+		readonly pulseWidth: number;
+	}>;
+}
+
+/**
+ * Initialize tone state at the start of computeTone:
+ *
+ * 1. Reset tone + envelope computer if at note start or freshly allocated.
+ * 2. Set advanced loop control phase/direction state for chip instruments.
+ * 3. Compute custom sample phase restore tracking for mid-note chip samples.
+ * 4. Always: zero out phase deltas, operator expressions, set operator waves.
+ *
+ * Mutates tone fields directly. Returns custom sample phase info used
+ * later in the non-FM synth path for phase restoration.
+ */
+export function initTonePhaseState(
+	tone: Tone,
+	envelopeComputer: { reset(): void },
+	inst: ToneResetInst,
+	transitionIsSeamless: boolean,
+	beatsPerBar: number,
+	bar: number,
+	beat: number,
+	part: number,
+): CustomSamplePhaseInfo {
+	let customSampleNeedsPhaseRestore: boolean = false;
+	let customSamplePartsPassed: number = 0;
+	let customSampleFirstOffset: number = 0;
+
+	if (
+		(tone.atNoteStart && !transitionIsSeamless && !tone.forceContinueAtStart) ||
+		tone.freshlyAllocated
+	) {
+		tone.reset();
+		envelopeComputer.reset();
+
+		// Advanced loop controls
+		if (inst.type === InstrumentType.chip && inst.isUsingAdvancedLoopControls) {
+			const chipWaveLength: number =
+				Config.rawRawChipWaves[inst.chipWave].samples.length - 1;
+			const firstOffset: number = inst.chipWaveStartOffset / chipWaveLength;
+			// @TODO: Keep lastOffset as 1.0 without wrap-back to 0 in loopableChipSynth.
+			const lastOffset: number = 0.999999999999999;
+			for (let i: number = 0; i < Config.maxPitchOrOperatorCount; i++) {
+				tone.phases[i] = inst.chipWavePlayBackwards
+					? Math.max(0, Math.min(lastOffset, firstOffset))
+					: Math.max(0, firstOffset);
+				tone.directions[i] = inst.chipWavePlayBackwards ? -1 : 1;
+				tone.chipWaveCompletions[i] = 0;
+				tone.chipWavePrevWaves[i] = 0;
+				tone.chipWaveCompletionsLastWave[i] = 0;
+			}
+		}
+
+		// Phase offset for custom sampled chips resuming mid-note
+		const isCustomChip: boolean =
+			inst.type === InstrumentType.chip &&
+			(Config.chipWaves[inst.chipWave]?.isCustomSampled ?? false);
+		if (isCustomChip && tone.note != null) {
+			const partsPerBar: number = Config.partsPerBeat * beatsPerBar;
+			const currentPartInBar: number = beat * Config.partsPerBeat + part;
+			const currentAbsolutePart: number = bar * partsPerBar + currentPartInBar;
+			const noteStartAbsolutePart: number =
+				tone.forceContinueAtStart && tone.noteStartBar !== bar
+					? tone.noteStartBar * partsPerBar + tone.noteStartPart
+					: bar * partsPerBar + tone.noteStartPart;
+			const partsPassed: number = currentAbsolutePart - noteStartAbsolutePart;
+			if (partsPassed > 0) {
+				const chipWaveLength: number =
+					Config.rawRawChipWaves[inst.chipWave].samples.length - 1;
+				customSampleNeedsPhaseRestore = true;
+				customSamplePartsPassed = partsPassed;
+				customSampleFirstOffset = inst.chipWaveStartOffset / chipWaveLength;
+			}
+		}
+	}
+	tone.freshlyAllocated = false;
+
+	// Zero phase deltas, scales, operator expressions
+	for (let i: number = 0; i < Config.maxPitchOrOperatorCount; i++) {
+		tone.phaseDeltas[i] = 0.0;
+		tone.phaseDeltaScales[i] = 0.0;
+		tone.operatorExpressions[i] = 0.0;
+		tone.operatorExpressionDeltas[i] = 0.0;
+	}
+	tone.expression = 0.0;
+	tone.expressionDelta = 0.0;
+
+	// Set operator waves
+	const operatorCount: number =
+		inst.type === InstrumentType.fm6op ? 6 : Config.operatorCount;
+	for (let i: number = 0; i < operatorCount; i++) {
+		tone.operatorWaves[i] = getOperatorWave(
+			inst.operators[i].waveform,
+			inst.operators[i].pulseWidth,
+		);
+	}
+
+	return {
+		needsRestore: customSampleNeedsPhaseRestore,
+		partsPassed: customSamplePartsPassed,
+		firstOffset: customSampleFirstOffset,
+	};
 }
