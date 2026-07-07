@@ -43,6 +43,7 @@ export default tseslint.config(
             "synth/socket/legacy-importer.ts",
             "synth/socket/url-varint.ts",
             "synth/socket/json-serde-adapter.ts",
+            "synth/socket/resolve-or-placeholder.ts",
             "synth/modules/index.ts",
             "synth/modules/placeholder/module.ts",
             "tests/serde-container.test.ts",

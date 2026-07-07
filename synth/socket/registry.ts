@@ -123,6 +123,25 @@ export function hasEffectId(id: string): boolean {
 	return _effects.has(id);
 }
 
+/**
+ * Register a placeholder module under its original id (skips namespace validation).
+ * The placeholder is looked up by getInstrument(originalId).
+ */
+export function registerPlaceholderModule(originalId: string, module: InstrumentModule): void {
+	if (_instruments.has(originalId)) {
+		// Already resolved or another placeholder registered — skip
+		return;
+	}
+	_instruments.set(originalId, module);
+}
+
+/** Returns true if the module at this id is a placeholder resolution */
+export function isPlaceholderResolution(id: string): boolean {
+	const mod = _instruments.get(id);
+	if (!mod) return false;
+	return mod.id.startsWith("core.placeholder:");
+}
+
 export function instrumentIds(): IterableIterator<string> {
 	return _instruments.keys();
 }

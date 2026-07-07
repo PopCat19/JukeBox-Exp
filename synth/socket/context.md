@@ -16,3 +16,4 @@ Purpose: Formal socket interfaces — stable, versioned extension contracts for 
 - `id-table.ts`, Per-song ModuleIdTable for compact URL storage of namespaced module IDs
 - `legacy-importer.ts`, Legacy format importer — reads legacy instrument data, calls module.migrate()
 - `url-varint.ts`, Varint encoding helpers for compact module ID + payload in song URL bitstream
+- `resolve-or-placeholder.ts`, Resolve a module id with auto-registered placeholder fallback

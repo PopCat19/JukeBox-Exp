@@ -13,6 +13,7 @@ import { toJukeboxExpJson, isJukeboxExpObject } from "./jukebox-exp";
 import { type JukeboxExpFields } from "./schema-types";
 import { fromJsonObjectImpl } from "./json-serialization";
 import { getInstrument } from "../socket/registry";
+import { resolveOrPlaceholder } from "../socket/resolve-or-placeholder";
 import { JsonFieldReader } from "../socket/json-serde-adapter";
 
 export const JUKEBOX_EXP_V2_FORMAT = "JukeboxExp" as const;
@@ -105,7 +106,7 @@ export function fromJukeboxExpV2Json(song: SongLike, obj: JukeboxExpV2Object): v
 				const payload = savedPayloads[key];
 				if (!payload) continue;
 				(channel.instruments[ii] as any)._socketModuleId = payload.id;
-				const mod = getInstrument(payload.id);
+				const mod = getInstrument(payload.id) ?? resolveOrPlaceholder(payload.id);
 				if (mod && payload.params && typeof payload.params === "object") {
 					const r = new JsonFieldReader(payload.params);
 					const deserialized = mod.deserialize(r, payload.version ?? 1);

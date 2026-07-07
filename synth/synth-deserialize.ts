@@ -16,6 +16,7 @@ import { makeNotePin, Note, NotePin, Pattern } from "./notes";
 import { getPlugin } from "./plugins";
 import { getInstrument } from "./socket/registry";
 import { JsonFieldReader } from "./socket/json-serde-adapter";
+import { resolveOrPlaceholder } from "./socket/resolve-or-placeholder";
 import {
 	BitFieldReader,
 	base64CharCodeToInt,
@@ -4381,7 +4382,7 @@ export function fromBase64StringImpl(
 						(instrument as any)._socketModuleId = payload.id;
 						// Deserialize module params if registered and payload has params
 						if (payload.params) {
-							const mod = getInstrument(payload.id);
+							const mod = getInstrument(payload.id) ?? resolveOrPlaceholder(payload.id);
 							if (mod) {
 								const r = new JsonFieldReader(payload.params);
 								const deserialized = mod.deserialize(r, payload.version ?? 1);

@@ -194,3 +194,38 @@ describe("simple_synth integrated into a Song", () => {
 		expect(restored.frequency).toBe(880);
 	});
 });
+
+// ─── placeholder / unknown module preservation ──────────────────────────────
+
+describe("unknown module id preservation", () => {
+	test("URL hash preserves _socketModuleId for unregistered module id", () => {
+		const song = new Song();
+		const instrument: Instrument = new Instrument(false, false);
+		(instrument as any)._socketModuleId = "community.x.wt";
+		song.channels[0].instruments[0] = instrument;
+
+		const url = (song as any).toBase64String();
+		const newSong = new Song();
+		newSong.fromBase64String(url);
+
+		const restored = (newSong.channels[0].instruments[0] as any);
+		expect(restored._socketModuleId).toBe("community.x.wt");
+	});
+
+	test("v2 JSON preserves _socketModuleId for unregistered module id", () => {
+		const song = new Song();
+		const instrument: Instrument = new Instrument(false, false);
+		(instrument as any)._socketModuleId = "community.x.wt";
+		song.channels[0].instruments[0] = instrument;
+
+		const exported = toJukeboxExpV2Json(song as never);
+		expect(exported.modulePayloads).toBeDefined();
+		const payload = exported.modulePayloads!["0:0"];
+		expect(payload.id).toBe("community.x.wt");
+
+		const newSong = new Song();
+		fromJukeboxExpV2Json(newSong as never, exported);
+		const restored = (newSong.channels[0].instruments[0] as any);
+		expect(restored._socketModuleId).toBe("community.x.wt");
+	});
+});
