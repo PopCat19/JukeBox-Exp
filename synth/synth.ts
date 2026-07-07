@@ -4090,7 +4090,9 @@ export class Synth {
 		// ── Pre-compute drumset filter params ───────────────────────────
 
 		const _dsEnv: Envelope | null =
-			tone.drumsetPitch != null ? instrument.getDrumsetEnvelope(tone.drumsetPitch) : null;
+			instrument.type === InstrumentType.drumset && tone.drumsetPitch != null
+				? instrument.getDrumsetEnvelope(tone.drumsetPitch)
+				: null;
 		const _dsComp: number =
 			instrument.type === InstrumentType.drumset && _dsEnv != null
 				? EnvelopeComputer.getLowpassCutoffDecayVolumeCompensation(_dsEnv)
