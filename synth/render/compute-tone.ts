@@ -982,3 +982,89 @@ intervalEnd += vibratoEnd;
 
 return { intervalStart, intervalEnd };
 }
+
+// ── FM expression + feedback ──────────────────────────────────────────────
+
+/**
+ * Minimal instrument fields for FM expression + feedback computation.
+ */
+export interface FmInstrumentInfo {
+	readonly feedbackAmplitude: number;
+	readonly monoChordTone: number;
+}
+
+/**
+ * Compute the final expression value and feedback state for FM instruments.
+ *
+ * Takes the post-operator-loop sineExpressionBoost and totalCarrierExpression,
+ * finalizes sineExpressionBoost, computes tone.expression/tone.expressionDelta,
+ * then computes feedback amplitude and sets tone.feedbackMult/tone.feedbackDelta.
+ */
+export function computeFmExpressionAndFeedback(
+	tone: Tone,
+	sineExpressionBoost: number,
+	totalCarrierExpression: number,
+	isMono: boolean,
+	baseExpression: number,
+	noteFilterExpression: number,
+	fadeExpressionStart: number,
+	fadeExpressionEnd: number,
+	chordExpressionStart: number,
+	chordExpressionEnd: number,
+	envelopeStarts: readonly number[],
+	envelopeEnds: readonly number[],
+	inst: FmInstrumentInfo,
+	roundedSamplesPerTick: number,
+	isModActiveFb: boolean,
+	modFbStart: number,
+	modFbEnd: number,
+): void {
+	// Finalize sineExpressionBoost
+	let sb: number = sineExpressionBoost;
+	sb *= (2.0 ** (2.0 - (1.4 * inst.feedbackAmplitude) / 15.0) - 1.0) / 3.0;
+	sb *= 1.0 - Math.min(1.0, Math.max(0.0, totalCarrierExpression - 1) / 2.0);
+	sb = 1.0 + sb * 3.0;
+
+	let expressionStart: number =
+		baseExpression *
+		sb *
+		noteFilterExpression *
+		fadeExpressionStart *
+		chordExpressionStart *
+		envelopeStarts[EnvelopeComputeIndex.noteVolume];
+	let expressionEnd: number =
+		baseExpression *
+		sb *
+		noteFilterExpression *
+		fadeExpressionEnd *
+		chordExpressionEnd *
+		envelopeEnds[EnvelopeComputeIndex.noteVolume];
+	if (isMono && tone.pitchCount <= inst.monoChordTone) {
+		expressionStart = 0;
+		expressionEnd = 0;
+	}
+	tone.expression = expressionStart;
+	tone.expressionDelta = (expressionEnd - expressionStart) / roundedSamplesPerTick;
+
+	// Feedback
+	let useFeedbackAmplitudeStart: number = inst.feedbackAmplitude;
+	let useFeedbackAmplitudeEnd: number = inst.feedbackAmplitude;
+	if (isModActiveFb) {
+		useFeedbackAmplitudeStart *=
+			modFbStart / 15.0;
+		useFeedbackAmplitudeEnd *=
+			modFbEnd / 15.0;
+	}
+
+	const feedbackAmplitudeStart: number =
+		(Config.sineWaveLength * 0.3 * useFeedbackAmplitudeStart) / 15.0;
+	const feedbackAmplitudeEnd: number =
+		(Config.sineWaveLength * 0.3 * useFeedbackAmplitudeEnd) / 15.0;
+
+	const feedbackStart: number =
+		feedbackAmplitudeStart * envelopeStarts[EnvelopeComputeIndex.feedbackAmplitude];
+	const feedbackEnd: number =
+		feedbackAmplitudeEnd * envelopeEnds[EnvelopeComputeIndex.feedbackAmplitude];
+	tone.feedbackMult = feedbackStart;
+	tone.feedbackDelta = (feedbackEnd - feedbackStart) / roundedSamplesPerTick;
+}

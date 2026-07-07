@@ -24,7 +24,7 @@ import type { Note, NotePin, Pattern } from "./notes";
 import { PickedString } from "./picked-string";
 import { getPlugin } from "./plugins";
 import { PostProcessingState } from "./post-processing";
-import { applyDetune, applyDrumsetPitch, applyFadeIn, applyIntervalFadeSideEffects, applyPitchShift, applyVibrato, computeBasePitchAndExpression, computeEnvelopeSpeeds, computeSimpleNoteFilterValues, computeSlides, computeToneIntervalAndFade, computeUnisonPhases, initTonePhaseState } from "./render/compute-tone";
+import { applyDetune, applyDrumsetPitch, applyFadeIn, applyIntervalFadeSideEffects, applyPitchShift, applyVibrato, computeBasePitchAndExpression, computeEnvelopeSpeeds, computeFmExpressionAndFeedback, computeSimpleNoteFilterValues, computeSlides, computeToneIntervalAndFade, computeUnisonPhases, initTonePhaseState } from "./render/compute-tone";
 import {
 	allocTone,
 	freeAllTones,
@@ -4220,69 +4220,46 @@ export class Synth {
 					(expressionEnd - expressionStart) / roundedSamplesPerTick;
 			}
 
-			sineExpressionBoost *=
-				(2.0 ** (2.0 - (1.4 * instrument.feedbackAmplitude) / 15.0) - 1.0) / 3.0;
-			sineExpressionBoost *=
-				1.0 - Math.min(1.0, Math.max(0.0, totalCarrierExpression - 1) / 2.0);
-			sineExpressionBoost = 1.0 + sineExpressionBoost * 3.0;
-			let expressionStart: number =
-				baseExpression *
-				sineExpressionBoost *
-				noteFilterExpression *
-				fadeExpressionStart *
-				chordExpressionStart *
-				envelopeStarts[EnvelopeComputeIndex.noteVolume];
-			let expressionEnd: number =
-				baseExpression *
-				sineExpressionBoost *
-				noteFilterExpression *
-				fadeExpressionEnd *
-				chordExpressionEnd *
-				envelopeEnds[EnvelopeComputeIndex.noteVolume];
-			if (isMono && tone.pitchCount <= instrument.monoChordTone) {
-				// silence if tone doesn't exist
-				expressionStart = 0;
-				expressionEnd = 0;
-			}
-			tone.expression = expressionStart;
-			tone.expressionDelta = (expressionEnd - expressionStart) / roundedSamplesPerTick;
-
-			let useFeedbackAmplitudeStart: number = instrument.feedbackAmplitude;
-			let useFeedbackAmplitudeEnd: number = instrument.feedbackAmplitude;
-			if (
-				this.isModActive(
+			const _isModActiveFb: boolean = this.isModActive(
+				Config.modulators.dictionary["fm feedback"].index,
+				channelIndex,
+				tone.instrumentIndex,
+			);
+			let _modFbStart: number = 0;
+			let _modFbEnd: number = 0;
+			if (_isModActiveFb) {
+				_modFbStart = this.modState.getModValue(
 					Config.modulators.dictionary["fm feedback"].index,
 					channelIndex,
 					tone.instrumentIndex,
-				)
-			) {
-				useFeedbackAmplitudeStart *=
-					this.modState.getModValue(
-						Config.modulators.dictionary["fm feedback"].index,
-						channelIndex,
-						tone.instrumentIndex,
-						false,
-					) / 15.0;
-				useFeedbackAmplitudeEnd *=
-					this.modState.getModValue(
-						Config.modulators.dictionary["fm feedback"].index,
-						channelIndex,
-						tone.instrumentIndex,
-						true,
-					) / 15.0;
+					false,
+				);
+				_modFbEnd = this.modState.getModValue(
+					Config.modulators.dictionary["fm feedback"].index,
+					channelIndex,
+					tone.instrumentIndex,
+					true,
+				);
 			}
-
-			const feedbackAmplitudeStart: number =
-				(Config.sineWaveLength * 0.3 * useFeedbackAmplitudeStart) / 15.0;
-			const feedbackAmplitudeEnd: number =
-				(Config.sineWaveLength * 0.3 * useFeedbackAmplitudeEnd) / 15.0;
-
-			const feedbackStart: number =
-				feedbackAmplitudeStart * envelopeStarts[EnvelopeComputeIndex.feedbackAmplitude];
-			const feedbackEnd: number =
-				feedbackAmplitudeEnd * envelopeEnds[EnvelopeComputeIndex.feedbackAmplitude];
-			tone.feedbackMult = feedbackStart;
-			tone.feedbackDelta = (feedbackEnd - feedbackStart) / roundedSamplesPerTick;
+			computeFmExpressionAndFeedback(
+				tone,
+				sineExpressionBoost,
+				totalCarrierExpression,
+				isMono,
+				baseExpression,
+				noteFilterExpression,
+				fadeExpressionStart,
+				fadeExpressionEnd,
+				chordExpressionStart,
+				chordExpressionEnd,
+				envelopeStarts,
+				envelopeEnds,
+				instrument,
+				roundedSamplesPerTick,
+				_isModActiveFb,
+				_modFbStart,
+				_modFbEnd,
+			);
 		} else {
 			const freqEndRatio: number =
 				2.0 ** (((intervalEnd - intervalStart) * intervalScale) / 12.0);
