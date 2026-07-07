@@ -24,7 +24,7 @@ import type { Note, NotePin, Pattern } from "./notes";
 import { PickedString } from "./picked-string";
 import { getPlugin } from "./plugins";
 import { PostProcessingState } from "./post-processing";
-import { computeBasePitchAndExpression, computeToneIntervalAndFade } from "./render/compute-tone";
+import { computeBasePitchAndExpression, computeSlides, computeToneIntervalAndFade } from "./render/compute-tone";
 import {
 	allocTone,
 	freeAllTones,
@@ -3755,55 +3755,21 @@ export class Synth {
 			instrumentState.envelopeComputer.reset();
 		}
 
-		if (tone.note != null && transition.slides) {
-			// Slide interval and chordExpression at the start and/or end of the note if necessary.
-			const prevNote: Note | null = tone.prevNote;
-			const nextNote: Note | null = tone.nextNote;
-			if (prevNote != null) {
-				const intervalDiff: number =
-					prevNote.pitches[tone.prevNotePitchIndex] +
-					prevNote.pins[prevNote.pins.length - 1].interval -
-					tone.pitches[0];
-				if (envelopeComputer.prevSlideStart)
-					intervalStart += intervalDiff * envelopeComputer.prevSlideRatioStart;
-				if (envelopeComputer.prevSlideEnd)
-					intervalEnd += intervalDiff * envelopeComputer.prevSlideRatioEnd;
-				if (!chord.singleTone) {
-					const chordSizeDiff: number = prevNote.pitches.length - tone.chordSize;
-					if (envelopeComputer.prevSlideStart) {
-						chordExpressionStart = Synth.computeChordExpression(
-							tone.chordSize + chordSizeDiff * envelopeComputer.prevSlideRatioStart,
-						);
-					}
-					if (envelopeComputer.prevSlideEnd) {
-						chordExpressionEnd = Synth.computeChordExpression(
-							tone.chordSize + chordSizeDiff * envelopeComputer.prevSlideRatioEnd,
-						);
-					}
-				}
-			}
-			if (nextNote != null) {
-				const intervalDiff: number =
-					nextNote.pitches[tone.nextNotePitchIndex] -
-					(tone.pitches[0] + tone.note.pins[tone.note.pins.length - 1].interval);
-				if (envelopeComputer.nextSlideStart)
-					intervalStart += intervalDiff * envelopeComputer.nextSlideRatioStart;
-				if (envelopeComputer.nextSlideEnd)
-					intervalEnd += intervalDiff * envelopeComputer.nextSlideRatioEnd;
-				if (!chord.singleTone) {
-					const chordSizeDiff: number = nextNote.pitches.length - tone.chordSize;
-					if (envelopeComputer.nextSlideStart) {
-						chordExpressionStart = Synth.computeChordExpression(
-							tone.chordSize + chordSizeDiff * envelopeComputer.nextSlideRatioStart,
-						);
-					}
-					if (envelopeComputer.nextSlideEnd) {
-						chordExpressionEnd = Synth.computeChordExpression(
-							tone.chordSize + chordSizeDiff * envelopeComputer.nextSlideRatioEnd,
-						);
-					}
-				}
-			}
+		{
+			const slideResult = computeSlides(
+				tone,
+				transition.slides,
+				chord.singleTone,
+				envelopeComputer,
+				intervalStart,
+				intervalEnd,
+				chordExpressionStart,
+				chordExpressionEnd,
+			);
+			intervalStart = slideResult.intervalStart;
+			intervalEnd = slideResult.intervalEnd;
+			chordExpressionStart = slideResult.chordExpressionStart;
+			chordExpressionEnd = slideResult.chordExpressionEnd;
 		}
 
 		if (effectsIncludePitchShift(instrument.effects)) {
