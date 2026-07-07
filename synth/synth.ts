@@ -24,7 +24,7 @@ import type { Note, NotePin, Pattern } from "./notes";
 import { PickedString } from "./picked-string";
 import { getPlugin } from "./plugins";
 import { PostProcessingState } from "./post-processing";
-import { computeBasePitchAndExpression } from "./render/compute-tone";
+import { computeBasePitchAndExpression, computeToneIntervalAndFade } from "./render/compute-tone";
 import {
 	allocTone,
 	freeAllTones,
@@ -3567,82 +3567,32 @@ export class Synth {
 			);
 		}
 
+		const intervalFadeResult = computeToneIntervalAndFade(
+			released,
+			shouldFadeOutFast,
+			tone,
+			currentPart,
+			this.tick,
+			transition.isSeamless,
+			instrument.getFadeOutTicks(),
+		);
+		intervalStart = intervalFadeResult.intervalStart;
+		intervalEnd = intervalFadeResult.intervalEnd;
+		fadeExpressionStart = intervalFadeResult.fadeExpressionStart;
+		fadeExpressionEnd = intervalFadeResult.fadeExpressionEnd;
+		toneIsOnLastTick = intervalFadeResult.toneIsOnLastTick;
+
+		// Side effects that require mutable tone:
 		if (released) {
-			const startTicksSinceReleased: number = tone.ticksSinceReleased;
-			const endTicksSinceReleased: number = tone.ticksSinceReleased + 1.0;
-			intervalStart = intervalEnd = tone.lastInterval;
-			const fadeOutTicks: number = Math.abs(instrument.getFadeOutTicks());
-			fadeExpressionStart = noteSizeToVolumeMult(
-				(1.0 - startTicksSinceReleased / fadeOutTicks) * Config.noteSizeMax,
-			);
-			fadeExpressionEnd = noteSizeToVolumeMult(
-				(1.0 - endTicksSinceReleased / fadeOutTicks) * Config.noteSizeMax,
-			);
-
-			if (shouldFadeOutFast) {
-				fadeExpressionEnd = 0.0;
-			}
-
-			if (tone.ticksSinceReleased + 1 >= fadeOutTicks) toneIsOnLastTick = true;
+			// No tone mutations for released tones (reads only)
 		} else if (tone.note == null) {
-			fadeExpressionStart = fadeExpressionEnd = 1.0;
 			tone.lastInterval = 0;
 			tone.ticksSinceReleased = 0;
 			tone.liveInputSamplesHeld += roundedSamplesPerTick;
 		} else {
-			const note: Note = tone.note;
-			const nextNote: Note | null = tone.nextNote;
-
-			const noteStartPart: number = tone.noteStartPart;
-			const noteEndPart: number = tone.noteEndPart;
-
-			const endPinIndex: number = note.getEndPinIndex(currentPart);
-			const startPin: NotePin = note.pins[endPinIndex - 1];
-			const endPin: NotePin = note.pins[endPinIndex];
-			const noteStartTick: number = noteStartPart * Config.ticksPerPart;
-			const noteEndTick: number = noteEndPart * Config.ticksPerPart;
-			const pinStart: number = (note.start + startPin.time) * Config.ticksPerPart;
-			const pinEnd: number = (note.start + endPin.time) * Config.ticksPerPart;
-
 			tone.ticksSinceReleased = 0;
-
-			const tickTimeStart: number = currentPart * Config.ticksPerPart + this.tick;
-			const tickTimeEnd: number = tickTimeStart + 1.0;
-			const noteTicksPassedTickStart: number = tickTimeStart - noteStartTick;
-			const noteTicksPassedTickEnd: number = tickTimeEnd - noteStartTick;
-			const pinRatioStart: number = Math.min(
-				1.0,
-				(tickTimeStart - pinStart) / (pinEnd - pinStart),
-			);
-			const pinRatioEnd: number = Math.min(
-				1.0,
-				(tickTimeEnd - pinStart) / (pinEnd - pinStart),
-			);
-			fadeExpressionStart = 1.0;
-			fadeExpressionEnd = 1.0;
-			intervalStart =
-				startPin.interval + (endPin.interval - startPin.interval) * pinRatioStart;
-			intervalEnd = startPin.interval + (endPin.interval - startPin.interval) * pinRatioEnd;
 			tone.lastInterval = intervalEnd;
-
-			if ((!transition.isSeamless && !tone.forceContinueAtEnd) || nextNote == null) {
-				const fadeOutTicks: number = -instrument.getFadeOutTicks();
-				if (fadeOutTicks > 0.0) {
-					// If the tone should fade out before the end of the note, do so here.
-					const noteLengthTicks: number = noteEndTick - noteStartTick;
-					fadeExpressionStart *= Math.min(
-						1.0,
-						(noteLengthTicks - noteTicksPassedTickStart) / fadeOutTicks,
-					);
-					fadeExpressionEnd *= Math.min(
-						1.0,
-						(noteLengthTicks - noteTicksPassedTickEnd) / fadeOutTicks,
-					);
-					if (tickTimeEnd >= noteStartTick + noteLengthTicks) toneIsOnLastTick = true;
-				}
-			}
 		}
-
 		tone.isOnLastTick = toneIsOnLastTick;
 
 		const tmpNoteFilter: FilterSettings = instrument.noteFilter;
