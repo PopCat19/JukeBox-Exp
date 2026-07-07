@@ -669,6 +669,53 @@ export function applyDrumsetPitch(
 	}
 }
 
+// ── Simple note filter (legacy EQ style) ─────────────────────────────────
+
+/**
+ * Compute the freq/gain values for a simple EQ note filter, with
+ * optional mod overrides for "note filt cut" and "note filt peak".
+ *
+ * Pure computation — returns the 4 scalar values + filterChanges flag.
+ * Caller is responsible for creating/assigning FilterSettings instances
+ * and temporarily overriding instrument.noteFilter for the envelope
+ * computer.
+ */
+export function computeSimpleNoteFilterValues(
+	isModActiveCut: boolean,
+	modCutStart: number,
+	modCutEnd: number,
+	isModActivePeak: boolean,
+	modPeakStart: number,
+	modPeakEnd: number,
+	baseCut: number,
+	basePeak: number,
+): {
+	readonly startFreq: number;
+	readonly startGain: number;
+	readonly endFreq: number;
+	readonly endGain: number;
+	readonly filterChanges: boolean;
+} {
+	let startFreq: number = baseCut;
+	let startGain: number = basePeak;
+	let endFreq: number = baseCut;
+	let endGain: number = basePeak;
+	let filterChanges: boolean = false;
+
+	if (isModActiveCut) {
+		startFreq = modCutStart;
+		endFreq = modCutEnd;
+		filterChanges = true;
+	}
+	if (isModActivePeak) {
+		startGain = modPeakStart;
+		endGain = modPeakEnd;
+		filterChanges = true;
+	}
+
+	return { startFreq, startGain, endFreq, endGain, filterChanges };
+}
+
 // ── Envelope speeds ───────────────────────────────────────────────────────
 
 /**

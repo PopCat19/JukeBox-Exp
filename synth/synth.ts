@@ -24,7 +24,7 @@ import type { Note, NotePin, Pattern } from "./notes";
 import { PickedString } from "./picked-string";
 import { getPlugin } from "./plugins";
 import { PostProcessingState } from "./post-processing";
-import { applyDetune, applyDrumsetPitch, applyFadeIn, applyIntervalFadeSideEffects, applyPitchShift, applyVibrato, computeBasePitchAndExpression, computeEnvelopeSpeeds, computeSlides, computeToneIntervalAndFade, initTonePhaseState } from "./render/compute-tone";
+import { applyDetune, applyDrumsetPitch, applyFadeIn, applyIntervalFadeSideEffects, applyPitchShift, applyVibrato, computeBasePitchAndExpression, computeEnvelopeSpeeds, computeSimpleNoteFilterValues, computeSlides, computeToneIntervalAndFade, initTonePhaseState } from "./render/compute-tone";
 import {
 	allocTone,
 	freeAllTones,
@@ -3536,55 +3536,60 @@ export class Synth {
 			}
 			const noteFilterSettingsEnd: FilterSettings = instrument.noteSubFilters[1];
 
-			// Change location based on slider values
-			let startSimpleFreq: number = instrument.noteFilterSimpleCut;
-			let startSimpleGain: number = instrument.noteFilterSimplePeak;
-			let endSimpleFreq: number = instrument.noteFilterSimpleCut;
-			let endSimpleGain: number = instrument.noteFilterSimplePeak;
-			let filterChanges: boolean = false;
+			// Pre-compute mod values for simple EQ
+			const _isModActiveCut: boolean = this.isModActive(
+				Config.modulators.dictionary["note filt cut"].index,
+				channelIndex,
+				tone.instrumentIndex,
+			);
+			let _modCutStart: number = 0;
+			let _modCutEnd: number = 0;
+			if (_isModActiveCut) {
+				_modCutStart = this.modState.getModValue(
+					Config.modulators.dictionary["note filt cut"].index,
+					channelIndex,
+					tone.instrumentIndex,
+					false,
+				);
+				_modCutEnd = this.modState.getModValue(
+					Config.modulators.dictionary["note filt cut"].index,
+					channelIndex,
+					tone.instrumentIndex,
+					true,
+				);
+			}
+			const _isModActivePeak: boolean = this.isModActive(
+				Config.modulators.dictionary["note filt peak"].index,
+				channelIndex,
+				tone.instrumentIndex,
+			);
+			let _modPeakStart: number = 0;
+			let _modPeakEnd: number = 0;
+			if (_isModActivePeak) {
+				_modPeakStart = this.modState.getModValue(
+					Config.modulators.dictionary["note filt peak"].index,
+					channelIndex,
+					tone.instrumentIndex,
+					false,
+				);
+				_modPeakEnd = this.modState.getModValue(
+					Config.modulators.dictionary["note filt peak"].index,
+					channelIndex,
+					tone.instrumentIndex,
+					true,
+				);
+			}
 
-			if (
-				this.isModActive(
-					Config.modulators.dictionary["note filt cut"].index,
-					channelIndex,
-					tone.instrumentIndex,
-				)
-			) {
-				startSimpleFreq = this.modState.getModValue(
-					Config.modulators.dictionary["note filt cut"].index,
-					channelIndex,
-					tone.instrumentIndex,
-					false,
-				);
-				endSimpleFreq = this.modState.getModValue(
-					Config.modulators.dictionary["note filt cut"].index,
-					channelIndex,
-					tone.instrumentIndex,
-					true,
-				);
-				filterChanges = true;
-			}
-			if (
-				this.isModActive(
-					Config.modulators.dictionary["note filt peak"].index,
-					channelIndex,
-					tone.instrumentIndex,
-				)
-			) {
-				startSimpleGain = this.modState.getModValue(
-					Config.modulators.dictionary["note filt peak"].index,
-					channelIndex,
-					tone.instrumentIndex,
-					false,
-				);
-				endSimpleGain = this.modState.getModValue(
-					Config.modulators.dictionary["note filt peak"].index,
-					channelIndex,
-					tone.instrumentIndex,
-					true,
-				);
-				filterChanges = true;
-			}
+			const { startFreq: startSimpleFreq, startGain: startSimpleGain, endFreq: endSimpleFreq, endGain: endSimpleGain, filterChanges } = computeSimpleNoteFilterValues(
+				_isModActiveCut,
+				_modCutStart,
+				_modCutEnd,
+				_isModActivePeak,
+				_modPeakStart,
+				_modPeakEnd,
+				instrument.noteFilterSimpleCut,
+				instrument.noteFilterSimplePeak,
+			);
 
 			noteFilterSettingsStart.convertLegacySettingsForSynth(
 				startSimpleFreq,
