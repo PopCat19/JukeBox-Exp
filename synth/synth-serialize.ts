@@ -839,6 +839,17 @@ export function toBase64StringImpl(song: SongLike): string {
 				}
 			}
 
+			// Socket module payload — preserve _socketModuleId through URL round-trip
+			const _socketModuleId = (instrument as any)._socketModuleId as string | undefined;
+			if (_socketModuleId) {
+				buffer.push(SongTagCode.socketPayload);
+				const blob = btoa(JSON.stringify({ id: _socketModuleId, version: 1 }));
+				encode32BitNumber(buffer, blob.length);
+				for (let i = 0; i < blob.length; i++) {
+					buffer.push(blob.charCodeAt(i));
+				}
+			}
+
 			buffer.push(SongTagCode.envelopes, base64IntToCharCode[instrument.envelopeCount]);
 			// Added in JB v6: Options for envelopes come next.
 			buffer.push(base64IntToCharCode[instrument.envelopeSpeed]);

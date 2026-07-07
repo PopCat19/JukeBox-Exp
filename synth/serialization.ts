@@ -206,7 +206,7 @@ export enum SongTagCode {
 	pulseWidth = CharCode.W, // added in BeepBox URL version 7
 	aliases = CharCode.X, // added in JummBox URL version 4 for aliases, DEPRECATED, [UB] repurposed for PWM decimal offset (DEPRECATED as well)
 	pluginData = CharCode.Y, // plugin instrument supplementary data (JSON blob)
-	// 	                    = CharCode.Z,
+	socketPayload = CharCode.Z, // socket module id + params (JSON blob for url round-trip)
 	// 	                    = CharCode.NUM_0,
 	// 	                    = CharCode.NUM_1,
 	// 	                    = CharCode.NUM_2,

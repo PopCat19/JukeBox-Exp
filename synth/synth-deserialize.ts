@@ -4364,6 +4364,24 @@ export function fromBase64StringImpl(
 					}
 				}
 				break;
+			case SongTagCode.socketPayload:
+				{
+					const [blobLength, afterBlobIndex] = decode32BitNumber(compressed, charIndex);
+					charIndex = afterBlobIndex;
+					const blob: string = compressed.substring(charIndex, charIndex + blobLength);
+					charIndex += blobLength;
+					try {
+						const payload: { id: string } = JSON.parse(atob(blob));
+						const instrument: Instrument =
+							song.channels[instrumentChannelIterator].instruments[
+								instrumentIndexIterator
+							];
+						(instrument as any)._socketModuleId = payload.id;
+					} catch (_e) {
+						// Invalid socket payload — skip gracefully
+					}
+				}
+				break;
 			default:
 				{
 					// Unknown tag code (command=<CharCode>) — skip, could be plugin data or future extension
