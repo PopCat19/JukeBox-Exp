@@ -303,6 +303,10 @@ export class Synth {
 	// with playSong=true but isPlayingSong=false) does not eat the
 	// lead-in.
 	private _needsLeadIn: boolean = false;
+
+	/** Whether the compute-tone worklet is active and handling sample rendering. */
+	private _workletActive: boolean = false;
+
 	public modState: SynthModState = new SynthModState();
 	public isPlayingSong: boolean = false;
 	private isRecording: boolean = false;
@@ -940,7 +944,17 @@ export class Synth {
 			snapshot,
 			sampleRate: this.samplesPerSecond,
 		});
-		this._dbg("Compute worklet init sent");
+		// Listen for ready ack before activating delegation
+		const readyHandler = (ev: { data: unknown }): void => {
+			const msg: Record<string, unknown> = ev.data as Record<string, unknown>;
+			if (msg?.type === "ready") {
+				this._workletActive = true;
+				port.removeEventListener("message", readyHandler);
+				this._dbg("Compute worklet ready ack received, delegation active");
+			}
+		};
+		port.addEventListener("message", readyHandler);
+		this._dbg("Compute worklet init sent, awaiting ready ack");
 	}
 
 	/**
@@ -998,8 +1012,6 @@ export class Synth {
 			}
 		}
 
-		if (tones.length === 0) return;
-
 		port.postMessage({
 			type: "tick",
 			tick: this.tick,
@@ -1014,9 +1026,6 @@ export class Synth {
 
 	/**
 	 * Build a WorkletToneCommand from a single tone + synth state.
-	 * Phase 4: builds the minimum fields needed for computeToneSnapshot
-	 * to run without crashing. Phase 5: full serialization with mods,
-	 * FM operators, supersaw, note filter control points, etc.
 	 */
 	private _buildToneCommand(
 		tone: Tone,
@@ -1046,32 +1055,8 @@ export class Synth {
 				noiseChannelCount: song.noiseChannelCount,
 			});
 
-		// Build minimal all-inactive mods (Phase 5: fill from modState)
-		const emptyMods: import("./render/compute-tone").PrecomputedModValues = {
-			noteFiltCut: { active: false, start: 0, end: 0 },
-			noteFiltPeak: { active: false, start: 0, end: 0 },
-			indivSpeed: { active: false, value: 0 },
-			speed: { active: false, value: 0 },
-			indivLower: { active: false, value: 0 },
-			indivUpper: { active: false, value: 0 },
-			pitchShift: { active: false, start: 0, end: 0 },
-			detune: { active: false, start: 0, end: 0 },
-			songDetune: { active: false, start: 0, end: 0 },
-			vibratoDelay: { active: false, value: 0 },
-			vibratoDepth: { active: false, start: 0, end: 0 },
-			fmSliderStarts: [],
-			fmSliderEnds: [],
-			fmFeedback: { active: false, start: 0, end: 0 },
-			noteVolume: { active: false, start: 0, end: 0 },
-			pulseWidth: { active: false, start: 0, end: 0 },
-			decimalOffset: { active: false, value: 0 },
-			sustain: { active: false, start: 0, end: 0 },
-			dynamism: { active: false, start: 0, end: 0 },
-			spread: { active: false, start: 0, end: 0 },
-			sawShape: { active: false, start: 0, end: 0 },
-			ssDecOffset: { active: false, value: 0 },
-			ssPulseWidth: { active: false, start: 0, end: 0 },
-		};
+		// Build mod values from current modState
+		const mods: PrecomputedModValues = this._buildModValues(channelIndex, instrumentIndex);
 
 		// Envelope starts/ends from tone's envelope computer
 		const envelopeStarts: readonly number[] = [...tone.envelopeComputer.envelopeStarts];
@@ -1109,7 +1094,7 @@ export class Synth {
 			vibratoTime: instrumentState.vibratoTime,
 			nextVibratoTime: instrumentState.nextVibratoTime,
 
-			mods: emptyMods,
+			mods,
 
 			lfoAmplitudeStart: 0,
 			lfoAmplitudeEnd: 0,
@@ -1131,6 +1116,18 @@ export class Synth {
 			instrumentDetune: instrument.detune,
 			fadeOutTicks: instrument.getFadeOutTicks(),
 			fadeInSeconds: instrument.getFadeInSeconds(),
+
+			// Serialize wave data for worklet-native rendering
+			waveBuffer: instrumentState.wave,
+			drumsetWaves: instrument.type === InstrumentType.drumset
+				? Array.from({ length: Config.drumCount }, (_, di: number): Float32Array | null =>
+					instrumentState.drumsetSpectrumWaves[di]?.wave ?? null!,
+				).filter((w: Float32Array | null): w is Float32Array => w != null)
+				: [],
+			aliases: instrumentState.aliases,
+			volumeScale: instrumentState.volumeScale,
+			noisePitchFilterMult: instrumentState.noisePitchFilterMult,
+			unisonSign: instrumentState.unisonSign,
 
 			transitionIsSeamless: instrument.getTransition().isSeamless,
 			transitionContinues: instrument.getTransition().continues,
@@ -1207,6 +1204,128 @@ export class Synth {
 		};
 
 		return cmd as import("./render/worklet-messages").WorkletToneCommand;
+	}
+
+	/**
+	 * Build PrecomputedModValues from current modState for a given channel/instrument.
+	 */
+	private _buildModValues(channelIndex: number, instrumentIndex: number): PrecomputedModValues {
+		const _isActive = (name: string): boolean =>
+			this.isModActive(Config.modulators.dictionary[name]?.index ?? -1, channelIndex, instrumentIndex);
+
+		const _getVal = (name: string, nextVal: boolean = false): number =>
+			this.getModValue(Config.modulators.dictionary[name]?.index ?? -1, channelIndex, instrumentIndex, nextVal) ?? 0;
+
+		const fmSliderStarts: number[] = [];
+		const fmSliderEnds: number[] = [];
+		for (let si = 1; si <= Math.min(6, Config.operatorCount); si++) {
+			const sliderName: string = `fm slider ${si}`;
+			fmSliderStarts.push(this.getModValue(Config.modulators.dictionary[sliderName]?.index ?? -1, channelIndex, instrumentIndex, false) ?? 0);
+			fmSliderEnds.push(this.getModValue(Config.modulators.dictionary[sliderName]?.index ?? -1, channelIndex, instrumentIndex, true) ?? 0);
+		}
+
+		return {
+			noteFiltCut: {
+				active: _isActive("note filt cut"),
+				start: _getVal("note filt cut", false),
+				end: _getVal("note filt cut", true),
+			},
+			noteFiltPeak: {
+				active: _isActive("note filt peak"),
+				start: _getVal("note filt peak", false),
+				end: _getVal("note filt peak", true),
+			},
+			indivSpeed: {
+				active: _isActive("individual envelope speed"),
+				value: _getVal("individual envelope speed"),
+			},
+			speed: {
+				active: _isActive("envelope speed"),
+				value: _getVal("envelope speed"),
+			},
+			indivLower: {
+				active: _isActive("individual envelope lower bound"),
+				value: _getVal("individual envelope lower bound"),
+			},
+			indivUpper: {
+				active: _isActive("individual envelope upper bound"),
+				value: _getVal("individual envelope upper bound"),
+			},
+			pitchShift: {
+				active: _isActive("pitch shift"),
+				start: _getVal("pitch shift", false),
+				end: _getVal("pitch shift", true),
+			},
+			detune: {
+				active: _isActive("detune"),
+				start: _getVal("detune", false),
+				end: _getVal("detune", true),
+			},
+			songDetune: {
+				active: _isActive("song detune"),
+				start: _getVal("song detune", false),
+				end: _getVal("song detune", true),
+			},
+			vibratoDelay: {
+				active: _isActive("vibrato delay"),
+				value: _getVal("vibrato delay"),
+			},
+			vibratoDepth: {
+				active: _isActive("vibrato depth"),
+				start: _getVal("vibrato depth", false),
+				end: _getVal("vibrato depth", true),
+			},
+			fmSliderStarts,
+			fmSliderEnds,
+			fmFeedback: {
+				active: _isActive("fm feedback"),
+				start: _getVal("fm feedback", false),
+				end: _getVal("fm feedback", true),
+			},
+			noteVolume: {
+				active: _isActive("note volume"),
+				start: _getVal("note volume", false),
+				end: _getVal("note volume", true),
+			},
+			pulseWidth: {
+				active: _isActive("pulse width"),
+				start: _getVal("pulse width", false),
+				end: _getVal("pulse width", true),
+			},
+			decimalOffset: {
+				active: _isActive("decimal offset"),
+				value: _getVal("decimal offset"),
+			},
+			sustain: {
+				active: _isActive("sustain"),
+				start: _getVal("sustain", false),
+				end: _getVal("sustain", true),
+			},
+			dynamism: {
+				active: _isActive("dynamism"),
+				start: _getVal("dynamism", false),
+				end: _getVal("dynamism", true),
+			},
+			spread: {
+				active: _isActive("spread"),
+				start: _getVal("spread", false),
+				end: _getVal("spread", true),
+			},
+			sawShape: {
+				active: _isActive("saw shape"),
+				start: _getVal("saw shape", false),
+				end: _getVal("saw shape", true),
+			},
+			ssDecOffset: {
+				active: _isActive("decimal offset"),
+				value: _getVal("decimal offset"),
+			},
+			ssPulseWidth: {
+				active: _isActive("pulse width"),
+				start: _getVal("pulse width", false),
+				end: _getVal("pulse width", true),
+			},
+		};
 	}
 
 	private deactivateAudio(): void {
@@ -2006,9 +2125,6 @@ export class Synth {
 				continue;
 			}
 
-			// Send tick data to compute-tone worklet (Phase 4)
-			this._sendWorkletTick(samplesPerTick, playSong);
-
 			this.computeSongState(samplesPerTick);
 
 			if (
@@ -2104,30 +2220,32 @@ export class Synth {
 						}
 					}
 
-					for (let i: number = 0; i < instrumentState.activeTones.count(); i++) {
-						const tone: Tone = instrumentState.activeTones.get(i);
-						this.playTone(channelIndex, bufferIndex, runLength, tone);
-					}
+					if (!this._workletActive) {
+						for (let i: number = 0; i < instrumentState.activeTones.count(); i++) {
+							const tone: Tone = instrumentState.activeTones.get(i);
+							this.playTone(channelIndex, bufferIndex, runLength, tone);
+						}
 
-					for (let i: number = 0; i < instrumentState.liveInputTones.count(); i++) {
-						const tone: Tone = instrumentState.liveInputTones.get(i);
-						this.playTone(channelIndex, bufferIndex, runLength, tone);
-					}
+						for (let i: number = 0; i < instrumentState.liveInputTones.count(); i++) {
+							const tone: Tone = instrumentState.liveInputTones.get(i);
+							this.playTone(channelIndex, bufferIndex, runLength, tone);
+						}
 
-					for (let i: number = 0; i < instrumentState.releasedTones.count(); i++) {
-						const tone: Tone = instrumentState.releasedTones.get(i);
-						this.playTone(channelIndex, bufferIndex, runLength, tone);
-					}
+						for (let i: number = 0; i < instrumentState.releasedTones.count(); i++) {
+							const tone: Tone = instrumentState.releasedTones.get(i);
+							this.playTone(channelIndex, bufferIndex, runLength, tone);
+						}
 
-					if (instrumentState.awake) {
-						effectsSynth(
-							this,
-							outputDataL,
-							outputDataR,
-							bufferIndex,
-							runLength,
-							instrumentState,
-						);
+						if (instrumentState.awake) {
+							effectsSynth(
+								this,
+								outputDataL,
+								outputDataR,
+								bufferIndex,
+								runLength,
+								instrumentState,
+							);
+						}
 					}
 
 					// Update LFO time for instruments (used to be deterministic based on bar position but now vibrato/arp speed messes that up!)
@@ -2197,6 +2315,9 @@ export class Synth {
 					channelState.audioRingPos = (channelState.audioRingPos + 1) & 8191;
 				}
 			}
+
+			// Send tick data to worklet AFTER tone state is computed
+			this._sendWorkletTick(samplesPerTick, playSong);
 
 			if (this.enableMetronome || this.countInMetronome) {
 				if (this.part === 0) {

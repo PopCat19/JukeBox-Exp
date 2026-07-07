@@ -9,6 +9,7 @@
 	},
 	"files": [
 		"synth/render/worklet.ts",
+		"synth/render/worklet-synth.ts",
 		"synth/render/worklet-messages.ts"
 	],
 	"exclude": [

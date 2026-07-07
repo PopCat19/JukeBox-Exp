@@ -67,6 +67,11 @@ import { FilterType, InstrumentType, Config } from "../synth-config";
 // tempFilterStart/EndCoefficients used by computeToneSnapshot transitive deps.
 import { Tone } from "../tone";
 import {
+	getWorkletSynthFn,
+	type WorkletSynthContext,
+	type WorkletEffectState,
+} from "./worklet-synth";
+import {
 	MSG_INIT,
 	MSG_TICK,
 	MSG_STOP,
@@ -175,6 +180,9 @@ class WorkletScopeState {
 
 	/** Whether the worklet is actively processing (false after stop). */
 	public running: boolean = true;
+
+	/** Temp buffer for accumulating mono samples within a render quantum (max 128). */
+	public readonly tempRenderBuf: Float32Array = new Float32Array(128);
 
 	public reset(): void {
 		// Recycle all active tones
@@ -533,12 +541,12 @@ class JukeBoxComputeToneProcessor extends AudioWorkletProcessor {
 		const output: Float32Array[] | undefined = outputs[0];
 		if (output == null) return true;
 
-		// Zero output (silence — Phase 5 will render actual samples)
+		const numSamples: number = output.length > 0 ? output[0].length : 0;
+		if (numSamples === 0) return true;
+
+		// Zero output buffers
 		for (let ch = 0; ch < output.length; ch++) {
-			const channel: Float32Array = output[ch];
-			for (let i = 0; i < channel.length; i++) {
-				channel[i] = 0.0;
-			}
+			output[ch].fill(0.0);
 		}
 
 		// Process pending tick
@@ -553,11 +561,14 @@ class JukeBoxComputeToneProcessor extends AudioWorkletProcessor {
 
 		const samplesPerTick: number = tick.samplesPerTick;
 		const toneCount: number = tick.tones.length;
-
 		const sampleTime: number = 1.0 / snapshot.sampleRate;
+
+		// Build set of tone slot IDs for this tick (for recycling unused slots)
+		const usedSlots: Set<number> = new Set();
 
 		for (let ti = 0; ti < toneCount; ti++) {
 			const cmd: WorkletToneCommand = tick.tones[ti];
+			usedSlots.add(cmd.toneSlotId);
 
 			// Get or create tone for this slot
 			let tone: Tone;
@@ -619,17 +630,73 @@ class JukeBoxComputeToneProcessor extends AudioWorkletProcessor {
 				ec,
 			);
 
-			// Phase 5: route result.awake back to tone/instrument state
-			void result;
+			// If tone is silent after snapshot, skip rendering
+			if (!result.awake) continue;
+
+			// ── Phase 5: render samples via worklet-native synth dispatch ──
+			const synthFn = getWorkletSynthFn(cmd.instrumentType);
+			if (synthFn == null) continue; // No synth implementation yet
+
+			// Build the effect state for this tone from serialized command data
+			const drumsetWaves: readonly Float32Array[] = cmd.drumsetWaves;
+			const effectState: WorkletEffectState = {
+				wave: cmd.waveBuffer,
+				volumeScale: cmd.volumeScale,
+				aliases: cmd.aliases,
+				unisonVoices: cmd.unisonVoices,
+				unisonSign: cmd.unisonSign,
+				unisonSpread: cmd.unisonSpread,
+				unisonOffset: cmd.unisonOffset,
+				chordCustomInterval: cmd.chordCustomInterval,
+				noisePitchFilterMult: cmd.noisePitchFilterMult,
+				chipWaveLoopStart: 0,
+				chipWaveLoopEnd: 0,
+				chipWaveLoopMode: 0,
+				chipWavePlayBackwards: false,
+				isUsingAdvancedLoopControls: false,
+				drumsetWaveCache: new Map(),
+				getDrumsetWave: (pitch: number | null): Float32Array | null => {
+					if (pitch == null) return null;
+					return pitch < drumsetWaves.length ? drumsetWaves[pitch] : null;
+				},
+				drumsetIndexReferenceDelta: (_pitch: number | null): number => 1,
+				spectrumNoiseLength: Config.spectrumNoiseLength,
+			};
+
+			const synthCtx: WorkletSynthContext = {
+				effectState,
+				filters: tone.noteFilters,
+				filterCount: tone.noteFilterCount,
+				sampleRate: snapshot.sampleRate,
+				sineWave: Config.sineWave,
+				sineWaveLength: Config.sineWaveLength,
+				sineWaveMask: Config.sineWaveMask,
+				chipNoiseLength: Config.chipNoiseLength,
+				spectrumNoiseLength: Config.spectrumNoiseLength,
+				fmAlgorithm: cmd.fmAlgorithm,
+			};
+
+			// Zero the temp buffer, render into it, then accumulate to output
+			const tempBuf: Float32Array = this._state.tempRenderBuf;
+			tempBuf.fill(0.0);
+			synthFn(tone, synthCtx, tempBuf, 0, numSamples);
+
+			// Accumulate temp buffer to output channels with stereo panning
+			const sl: number = tone.stereoVolumeLStart;
+			const sr: number = tone.stereoVolumeRStart;
+			const sld: number = tone.stereoVolumeLDelta;
+			const srd: number = tone.stereoVolumeRDelta;
+			for (let si = 0; si < numSamples; si++) {
+				const sample: number = tempBuf[si];
+				const volL: number = si === 0 ? sl : sl + sld * (si / numSamples);
+				const volR: number = si === 0 ? sr : sr + srd * (si / numSamples);
+				if (output.length > 0) output[0][si] += sample * volL;
+				if (output.length > 1) output[1][si] += sample * volR;
+			}
 		}
 
 		// Recycle tones for slots no longer in use
 		if (this._state.activeTones.size > toneCount) {
-			const usedSlots: Set<number> = new Set();
-			const toneCmds: readonly WorkletToneCommand[] = tick.tones;
-			for (let ci: number = 0; ci < toneCmds.length; ci++) {
-				usedSlots.add(toneCmds[ci].toneSlotId);
-			}
 			const toRemove: number[] = [];
 			this._state.activeTones.forEach((_val: Tone, slotId: number): void => {
 				if (!usedSlots.has(slotId)) {

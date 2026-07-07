@@ -130,6 +130,14 @@ export interface WorkletToneCommand {
 	readonly fadeOutTicks: number;
 	readonly fadeInSeconds: number;
 
+	// ── Effect state (instrument wave data, serialized per-tick) ─────
+	readonly waveBuffer: Float32Array | null;
+	readonly drumsetWaves: readonly Float32Array[];
+	readonly aliases: boolean;
+	readonly volumeScale: number;
+	readonly noisePitchFilterMult: number;
+	readonly unisonSign: number;
+
 	// ── Transition / chord ────────────────────────────────────────────
 	readonly transitionIsSeamless: boolean;
 	readonly transitionContinues: boolean;
