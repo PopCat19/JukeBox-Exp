@@ -51,6 +51,7 @@ export default tseslint.config(
             "synth/modules/noise/dsp.ts",
             "tests/modules-noise.test.ts",
             "tests/modules-chip.test.ts",
+            "tests/modules-harmonics.test.ts",
             "eslint.config.mjs",
           ],
         },

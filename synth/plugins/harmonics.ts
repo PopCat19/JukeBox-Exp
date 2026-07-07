@@ -1,10 +1,10 @@
 // harmonics.ts
 //
-// Purpose: Harmonics synthesis plugin — compiled-function + per-voice cache
+// Purpose: Harmonics synthesis plugin — bridges from socket InstrumentModule
 //
 // This module:
-// - Embeds private-scale build/compile/cache per unison voice
-// - Registers via plugin registry on module load
+// - Bridges harmonicsModule as a SynthPlugin for backward compat
+// - Preserves per-unison-voice function caching
 
 import { InstrumentState } from "../instrument-state";
 import type { Instrument } from "../instruments";
@@ -12,7 +12,8 @@ import { Synth } from "../synth";
 import { Config, InstrumentType } from "../synth-config";
 import { buildHarmonicsSource } from "../synthesis/harmonics";
 import type { Tone } from "../tone";
-import { registerPlugin } from "./registry";
+import { registerModuleAsPlugin } from "../socket/bridge";
+import harmonicsModule from "../modules/harmonics/module";
 
 const functionCache: Function[] = [];
 
@@ -33,16 +34,10 @@ function harmonicsSynth(
 	fn(synth, bufferIndex, roundedSamplesPerTick, tone, instrumentState);
 }
 
-registerPlugin({
-	type: InstrumentType.harmonics,
-	name: "Harmonics",
-	displayName: "harmonics",
-	editorRows: ["harmonics"],
+registerModuleAsPlugin(harmonicsModule, InstrumentType.harmonics, ["harmonics"], {
+	getSynthFunction: (_instrument: Instrument, _synth: typeof Synth) => harmonicsSynth,
 	initialize: (instrument: Instrument) => {
 		instrument.chord = Config.chords.dictionary.simultaneous.index;
 		instrument.harmonicsWave.reset();
 	},
-	getSynthFunction: (_instrument: Instrument, _synth: typeof Synth) => harmonicsSynth,
-	buildSource: (_instrument: Instrument, voiceCount?: number) =>
-		buildHarmonicsSource(voiceCount ?? 0),
 });
