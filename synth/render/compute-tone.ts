@@ -1866,9 +1866,12 @@ export interface NoteFilterInstrument {
 
 /**
  * Minimal interface for FilterControlPoint — just the methods we call.
+ * Properties are mutable because computeDrumsetFilter reassigns them.
  */
 export interface FilterControlPointLite {
-	readonly type: number;
+	type: number;
+	gain: number;
+	freq: number;
 	toCoefficients(filter: FilterCoefficients, sampleRate: number, freqMult?: number, peakMult?: number): void;
 	getVolumeCompensationMult(): number;
 }
@@ -2008,6 +2011,96 @@ export function computeNoteFilters(
 		}
 		tone.noteFilterCount = noteFilterSettings.controlPointCount;
 	}
+
+	return noteFilterExpression;
+}
+
+// ── Drumset filter ─────────────────────────────────────────────────────────
+
+/**
+ * Minimal interface for the drumset envelope computer.
+ */
+export interface DrumsetEnvelopeComputer {
+	drumsetFilterEnvelopeStart: number;
+	drumsetFilterEnvelopeEnd: number;
+	computeDrumsetEnvelopes(
+		instrument: unknown,
+		envelope: { readonly type: number },
+		beatsPerPart: number,
+		partTimeStart: number,
+		partTimeEnd: number,
+	): void;
+}
+
+/**
+ * Compute drumset filter coefficients using the drumset envelope.
+ *
+ * Executes the drumset envelope computer, sets up the filter control point
+ * as a low-pass filter, writes coefficients to temp buffers, and loads
+ * them into tone.noteFilters.
+ *
+ * Returns the updated noteFilterExpression (multiplied by lowpass compensation).
+ */
+export function computeDrumsetFilter(
+	tone: Tone,
+	instrumentType: InstrumentTypeEnum,
+	drumsetPitch: number | null,
+	envelopeComputer: DrumsetEnvelopeComputer,
+	beatsPerPart: number,
+	partTimeStart: number,
+	partTimeEnd: number,
+	tempFilterStart: FilterCoefficients,
+	tempFilterEnd: FilterCoefficients,
+	tempDrumSetControlPoint: FilterControlPointLite,
+	samplesPerSecond: number,
+	roundedSamplesPerTick: number,
+	noteFilterExpression: number,
+	lowpassCompensation: number,
+	precomputedGain: number,
+	precomputedFreq: number,
+): number {
+	if (instrumentType !== InstrumentType.drumset || drumsetPitch == null) {
+		return noteFilterExpression;
+	}
+
+	noteFilterExpression *= lowpassCompensation;
+
+	envelopeComputer.computeDrumsetEnvelopes(
+		null,
+		{ type: 0 },
+		beatsPerPart,
+		partTimeStart,
+		partTimeEnd,
+	);
+
+	const drumsetFilterEnvelopeStart: number = envelopeComputer.drumsetFilterEnvelopeStart;
+	const drumsetFilterEnvelopeEnd: number = envelopeComputer.drumsetFilterEnvelopeEnd;
+
+	const point: FilterControlPointLite = tempDrumSetControlPoint;
+	point.type = FilterType.lowPass;
+	point.gain = precomputedGain;
+	point.freq = precomputedFreq;
+
+	// Drumset envelopes warped to imitate the legacy simplified 2nd order lowpass at ~48000Hz.
+	point.toCoefficients(
+		tempFilterStart,
+		samplesPerSecond,
+		drumsetFilterEnvelopeStart * (1.0 + drumsetFilterEnvelopeStart),
+		1.0,
+	);
+	point.toCoefficients(
+		tempFilterEnd,
+		samplesPerSecond,
+		drumsetFilterEnvelopeEnd * (1.0 + drumsetFilterEnvelopeEnd),
+		1.0,
+	);
+	tone.noteFilters[tone.noteFilterCount].loadCoefficientsWithGradient(
+		tempFilterStart,
+		tempFilterEnd,
+		1.0 / roundedSamplesPerTick,
+		true,
+	);
+	tone.noteFilterCount++;
 
 	return noteFilterExpression;
 }

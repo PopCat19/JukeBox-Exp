@@ -24,7 +24,7 @@ import type { Note, NotePin, Pattern } from "./notes";
 import { PickedString } from "./picked-string";
 import { getPlugin } from "./plugins";
 import { PostProcessingState } from "./post-processing";
-import { applyCustomSamplePhaseRestore, applyDetune, applyDrumsetPitch, applyFadeIn, applyIntervalFadeSideEffects, applyPitchShift, applyVibrato, computeBasePitchAndExpression, computeEnvelopeSpeeds, computeFmExpressionAndFeedback, computeFmOperatorLoop, computeNonFmExpression, computeNonFmPitchSetup, computeNoteFilters, computeSimpleNoteFilterValues, computeSlides, computeSupersawSetup, computeToneIntervalAndFade, computeUnisonPhases, initTonePhaseState } from "./render/compute-tone";
+import { applyCustomSamplePhaseRestore, applyDetune, applyDrumsetPitch, applyFadeIn, applyIntervalFadeSideEffects, applyPitchShift, applyVibrato, computeBasePitchAndExpression, computeEnvelopeSpeeds, computeFmExpressionAndFeedback, computeFmOperatorLoop, computeNonFmExpression, computeNonFmPitchSetup, computeDrumsetFilter, computeNoteFilters, computeSimpleNoteFilterValues, computeSlides, computeSupersawSetup, computeToneIntervalAndFade, computeUnisonPhases, initTonePhaseState } from "./render/compute-tone";
 import {
 	allocTone,
 	freeAllTones,
@@ -3870,52 +3870,37 @@ export class Synth {
 			endPoint,
 		);
 
-		if (instrument.type === InstrumentType.drumset) {
-			const drumsetEnvelopeComputer: EnvelopeComputer = tone.envelopeComputer;
+		{
+			const beatPartTimeStart: number = partTimeStart;
+			const beatPartTimeEnd: number = partTimeEnd;
+			const _dsEnv: Envelope | null = tone.drumsetPitch != null
+				? instrument.getDrumsetEnvelope(tone.drumsetPitch)
+				: null;
+			const _dsComp: number =
+				instrument.type === InstrumentType.drumset && _dsEnv != null
+					? EnvelopeComputer.getLowpassCutoffDecayVolumeCompensation(_dsEnv)
+					: 1.0;
+			const _dsGain: number = FilterControlPoint.getRoundedSettingValueFromLinearGain(0.5);
+			const _dsFreq: number = FilterControlPoint.getRoundedSettingValueFromHz(8000.0);
 
-			const drumsetFilterEnvelope: Envelope = instrument.getDrumsetEnvelope(
-				tone.drumsetPitch!,
-			);
-
-			// If the drumset lowpass cutoff decays, compensate by increasing expression.
-			noteFilterExpression *=
-				EnvelopeComputer.getLowpassCutoffDecayVolumeCompensation(drumsetFilterEnvelope);
-
-			drumsetEnvelopeComputer.computeDrumsetEnvelopes(
-				instrument,
-				drumsetFilterEnvelope,
+			noteFilterExpression = computeDrumsetFilter(
+				tone,
+				instrument.type,
+				tone.drumsetPitch,
+				tone.envelopeComputer,
 				beatsPerPart,
-				partTimeStart,
-				partTimeEnd,
-			);
-
-			const drumsetFilterEnvelopeStart = drumsetEnvelopeComputer.drumsetFilterEnvelopeStart;
-			const drumsetFilterEnvelopeEnd = drumsetEnvelopeComputer.drumsetFilterEnvelopeEnd;
-
-			const point: FilterControlPoint = this.tempDrumSetControlPoint;
-			point.type = FilterType.lowPass;
-			point.gain = FilterControlPoint.getRoundedSettingValueFromLinearGain(0.5);
-			point.freq = FilterControlPoint.getRoundedSettingValueFromHz(8000.0);
-			// Drumset envelopes warped to imitate the legacy simplified 2nd order lowpass at ~48000Hz.
-			point.toCoefficients(
-				tempFilterStartCoefficients,
-				this.samplesPerSecond,
-				drumsetFilterEnvelopeStart * (1.0 + drumsetFilterEnvelopeStart),
-				1.0,
-			);
-			point.toCoefficients(
-				tempFilterEndCoefficients,
-				this.samplesPerSecond,
-				drumsetFilterEnvelopeEnd * (1.0 + drumsetFilterEnvelopeEnd),
-				1.0,
-			);
-			tone.noteFilters[tone.noteFilterCount].loadCoefficientsWithGradient(
+				beatPartTimeStart,
+				beatPartTimeEnd,
 				tempFilterStartCoefficients,
 				tempFilterEndCoefficients,
-				1.0 / roundedSamplesPerTick,
-				true,
+				this.tempDrumSetControlPoint,
+				this.samplesPerSecond,
+				roundedSamplesPerTick,
+				noteFilterExpression,
+				_dsComp,
+				_dsGain,
+				_dsFreq,
 			);
-			tone.noteFilterCount++;
 		}
 
 		noteFilterExpression = Math.min(3.0, noteFilterExpression);
