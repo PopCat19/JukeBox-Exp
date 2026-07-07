@@ -51,7 +51,7 @@ export const MOD_ID = _MOD_ID;
 export { createPlaceholderModule, isPlaceholderId, unwrapPlaceholderId } from "./placeholder/module";
 
 // Ordered by InstrumentType value — slots match type indices for stable encoding.
-// customChipWave (type 9) has no module yet; slot 9 remains blank.
+// customChipWave (type 9) is now core.customChipWave.
 export const CORE_MODULE_IDS: readonly string[] = [
 	_CHIP_ID,			// 0  — core.chip
 	_FM_ID,				// 1  — core.fm

@@ -18,8 +18,8 @@ import { INSTRUMENT_TYPE_TO_MODULE_ID } from "./bridge";
 
 /**
  * Set instrument._socketModuleId based on its current numeric type.
- * If the type has no core module registered (e.g. customChipWave), the
- * existing _socketModuleId is cleared so stale module payloads don't
+ * If the type has no core module registered (e.g. a deleted or unknown type),
+ * the existing _socketModuleId is cleared so stale module payloads don't
  * survive a type switch.
  */
 export function tagInstrumentWithModule(instrument: Instrument): void {

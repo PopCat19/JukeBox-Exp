@@ -10,6 +10,8 @@ import type { FieldReader, FieldWriter } from "../../socket/serde";
 
 const WAVE_LENGTH = 64;
 const WAVE_OFFSET = 24;
+const WAVE_MIN = -WAVE_OFFSET;
+const WAVE_MAX = WAVE_OFFSET;
 
 export interface CustomChipParams {
 	chipWave: number;
@@ -18,10 +20,11 @@ export interface CustomChipParams {
 
 export function serialize(params: CustomChipParams, w: FieldWriter): void {
 	w.writeInt("chipWave", params.chipWave);
-	// Write custom wave as a blob of 64 bytes (each sample is 0..48 offset by -24)
+	// Write custom wave as a blob of 64 bytes (each sample 0..48 offset by -24)
 	const blob = new Uint8Array(WAVE_LENGTH);
 	for (let i = 0; i < WAVE_LENGTH; i++) {
-		blob[i] = (params.customChipWave[i] ?? 0) + WAVE_OFFSET;
+		const raw = (params.customChipWave[i] ?? 0);
+		blob[i] = Math.max(WAVE_MIN, Math.min(WAVE_MAX, Math.round(raw))) + WAVE_OFFSET;
 	}
 	w.writeBlob("customChipWave", blob);
 }

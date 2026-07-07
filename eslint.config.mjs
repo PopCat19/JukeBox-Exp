@@ -62,6 +62,7 @@ export default tseslint.config(
             "synth/modules/noise/serde.ts",
             "synth/modules/noise/dsp.ts",
             "tests/modules-noise.test.ts",
+            "tests/modules-custom-chip-wave.test.ts",
             "tests/modules-chip.test.ts",
             "tests/modules-harmonics.test.ts",
             "tests/modules-spectrum.test.ts",
