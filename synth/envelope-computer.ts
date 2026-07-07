@@ -117,9 +117,31 @@ export class EnvelopeComputer {
 		channelIndex: number,
 		instrumentIndex: number,
 		perNote: boolean,
+		ticksSinceStart?: number,
+		ticksSinceStartOfBar?: number,
+		isModActiveLowerBound?: boolean,
+		isModActiveUpperBound?: boolean,
 	): void {
 		const secondsPerTickUnscaled: number = secondsPerTick;
 		const transition: Transition = instrument.getTransition();
+		const _ticksSinceStart: number =
+			ticksSinceStart ?? synth.computeTicksSinceStart();
+		const _ticksSinceStartOfBar: number =
+			ticksSinceStartOfBar ?? synth.computeTicksSinceStart(true);
+		const _isModActiveLower: boolean =
+			isModActiveLowerBound ??
+			synth.isModActive(
+				Config.modulators.dictionary["individual envelope lower bound"].index,
+				channelIndex,
+				instrumentIndex,
+			);
+		const _isModActiveUpper: boolean =
+			isModActiveUpperBound ??
+			synth.isModActive(
+				Config.modulators.dictionary["individual envelope upper bound"].index,
+				channelIndex,
+				instrumentIndex,
+			);
 		if (tone?.atNoteStart && !transition.continues && !tone.forceContinueAtStart) {
 			this.prevNoteSecondsEndUnscaled = this.noteSecondsEndUnscaled;
 			this.prevNoteTicksEnd = this.noteTicksEnd;
@@ -187,7 +209,7 @@ export class EnvelopeComputer {
 				this.startPinTickAbsolute == null ||
 				(!(transition.continues || transition.slides) && tone.passedEndOfNote)
 			) {
-				this.startPinTickAbsolute = startPinTick + synth.computeTicksSinceStart(true); // for random per note
+				this.startPinTickAbsolute = startPinTick + _ticksSinceStartOfBar; // for random per note
 			}
 			if (
 				this.startPinTickDefaultPitch == null ||
@@ -291,11 +313,7 @@ export class EnvelopeComputer {
 				perEnvelopeLowerBound = instrument.envelopes[envelopeIndex].perEnvelopeLowerBound;
 				perEnvelopeUpperBound = instrument.envelopes[envelopeIndex].perEnvelopeUpperBound;
 				if (
-					synth.isModActive(
-						Config.modulators.dictionary["individual envelope lower bound"].index,
-						channelIndex,
-						instrumentIndex,
-					) &&
+					_isModActiveLower &&
 					instrument.envelopes[envelopeIndex].tempEnvelopeLowerBound != null
 				) {
 					// modulation
@@ -303,11 +321,7 @@ export class EnvelopeComputer {
 						instrument.envelopes[envelopeIndex].tempEnvelopeLowerBound!;
 				}
 				if (
-					synth.isModActive(
-						Config.modulators.dictionary["individual envelope upper bound"].index,
-						channelIndex,
-						instrumentIndex,
-					) &&
+					_isModActiveUpper &&
 					instrument.envelopes[envelopeIndex].tempEnvelopeUpperBound != null
 				) {
 					// modulation
@@ -320,7 +334,7 @@ export class EnvelopeComputer {
 					perEnvelopeUpperBound = 1;
 				}
 
-				timeSinceStart = synth.computeTicksSinceStart();
+				timeSinceStart = _ticksSinceStart;
 				steps = instrument.envelopes[envelopeIndex].steps;
 				seed = instrument.envelopes[envelopeIndex].seed;
 				if (

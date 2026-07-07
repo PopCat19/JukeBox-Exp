@@ -3662,6 +3662,19 @@ export class Synth {
 			}
 			envelopeSpeeds[envelopeIndex] = useEnvelopeSpeed;
 		}
+		// Pre-compute Synth-dependent values for envelope computer
+		const _ticksSinceStart: number = this.computeTicksSinceStart();
+		const _ticksSinceStartOfBar: number = this.computeTicksSinceStart(true);
+		const _isModActiveLower: boolean = this.isModActive(
+			Config.modulators.dictionary["individual envelope lower bound"].index,
+			channelIndex,
+			tone.instrumentIndex,
+		);
+		const _isModActiveUpper: boolean = this.isModActive(
+			Config.modulators.dictionary["individual envelope upper bound"].index,
+			channelIndex,
+			tone.instrumentIndex,
+		);
 		// the perTone envelopeComputer
 		envelopeComputer.computeEnvelopes(
 			instrument,
@@ -3676,6 +3689,10 @@ export class Synth {
 			channelIndex,
 			tone.instrumentIndex,
 			true,
+			_ticksSinceStart,
+			_ticksSinceStartOfBar,
+			_isModActiveLower,
+			_isModActiveUpper,
 		);
 		const envelopeStarts: number[] = tone.envelopeComputer.envelopeStarts;
 		const envelopeEnds: number[] = tone.envelopeComputer.envelopeEnds;
