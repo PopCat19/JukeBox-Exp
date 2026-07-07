@@ -1,10 +1,10 @@
 // spectrum.ts
 //
-// Purpose: Spectrum synthesis plugin — compiled-function + per-voice cache
+// Purpose: Spectrum synthesis plugin — bridges from socket InstrumentModule
 //
 // This module:
-// - Embeds private-scale build/compile/cache per unison voice
-// - Registers via plugin registry on module load
+// - Bridges spectrumModule as a SynthPlugin for backward compat
+// - Preserves per-unison-voice function caching
 
 import { InstrumentState } from "../instrument-state";
 import type { Instrument } from "../instruments";
@@ -12,7 +12,8 @@ import { Synth } from "../synth";
 import { Config, InstrumentType } from "../synth-config";
 import { buildSpectrumSource } from "../synthesis/spectrum";
 import type { Tone } from "../tone";
-import { registerPlugin } from "./registry";
+import { registerModuleAsPlugin } from "../socket/bridge";
+import spectrumModule from "../modules/spectrum/module";
 
 const functionCache: Function[] = [];
 
@@ -33,16 +34,10 @@ function spectrumSynth(
 	fn(synth, bufferIndex, runLength, tone, instrumentState);
 }
 
-registerPlugin({
-	type: InstrumentType.spectrum,
-	name: "Spectrum",
-	displayName: "spectrum",
-	editorRows: ["spectrum"],
+registerModuleAsPlugin(spectrumModule, InstrumentType.spectrum, ["spectrum"], {
+	getSynthFunction: (_instrument: Instrument, _synth: typeof Synth) => spectrumSynth,
 	initialize: (instrument: Instrument) => {
 		instrument.chord = Config.chords.dictionary.simultaneous.index;
 		instrument.spectrumWave.reset(true);
 	},
-	getSynthFunction: (_instrument: Instrument, _synth: typeof Synth) => spectrumSynth,
-	buildSource: (_instrument: Instrument, voiceCount?: number) =>
-		buildSpectrumSource(voiceCount ?? 0),
 });

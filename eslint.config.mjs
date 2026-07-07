@@ -52,6 +52,7 @@ export default tseslint.config(
             "tests/modules-noise.test.ts",
             "tests/modules-chip.test.ts",
             "tests/modules-harmonics.test.ts",
+            "tests/modules-spectrum.test.ts",
             "eslint.config.mjs",
           ],
         },
