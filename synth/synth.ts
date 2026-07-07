@@ -24,7 +24,7 @@ import type { Note, NotePin, Pattern } from "./notes";
 import { PickedString } from "./picked-string";
 import { getPlugin } from "./plugins";
 import { PostProcessingState } from "./post-processing";
-import { applyFadeIn, computeBasePitchAndExpression, computeSlides, computeToneIntervalAndFade } from "./render/compute-tone";
+import { applyDetune, applyFadeIn, applyPitchShift, computeBasePitchAndExpression, computeSlides, computeToneIntervalAndFade } from "./render/compute-tone";
 import {
 	allocTone,
 	freeAllTones,
@@ -67,7 +67,7 @@ import {
 	tempFilterStartCoefficients,
 } from "./synth-shared";
 import { Tone } from "./tone";
-import { clamp, detuneToCents, epsilon, fittingPowerOfTwo, getOperatorWave, wrap } from "./util";
+import { clamp, epsilon, fittingPowerOfTwo, getOperatorWave, wrap } from "./util";
 
 declare global {
 	interface Window {
@@ -3772,105 +3772,86 @@ export class Synth {
 			chordExpressionEnd = slideResult.chordExpressionEnd;
 		}
 
-		if (effectsIncludePitchShift(instrument.effects)) {
-			let pitchShift: number =
-				Config.justIntonationSemitones[instrument.pitchShift] / intervalScale;
-			let pitchShiftScalarStart: number = 1.0;
-			let pitchShiftScalarEnd: number = 1.0;
-			if (
+		{
+			const psResult = applyPitchShift(
+				effectsIncludePitchShift(instrument.effects),
+				Config.justIntonationSemitones[instrument.pitchShift],
+				intervalScale,
 				this.isModActive(
 					Config.modulators.dictionary["pitch shift"].index,
 					channelIndex,
 					tone.instrumentIndex,
-				)
-			) {
-				pitchShift =
-					Config.justIntonationSemitones[Config.justIntonationSemitones.length - 1];
-				pitchShiftScalarStart =
-					this.modState.getModValue(
-						Config.modulators.dictionary["pitch shift"].index,
-						channelIndex,
-						tone.instrumentIndex,
-						false,
-					) / Config.pitchShiftCenter;
-				pitchShiftScalarEnd =
-					this.modState.getModValue(
-						Config.modulators.dictionary["pitch shift"].index,
-						channelIndex,
-						tone.instrumentIndex,
-						true,
-					) / Config.pitchShiftCenter;
-			}
-			const envelopeStart: number = envelopeStarts[EnvelopeComputeIndex.pitchShift];
-			const envelopeEnd: number = envelopeEnds[EnvelopeComputeIndex.pitchShift];
-			intervalStart += pitchShift * envelopeStart * pitchShiftScalarStart;
-			intervalEnd += pitchShift * envelopeEnd * pitchShiftScalarEnd;
+				),
+				this.modState.getModValue(
+					Config.modulators.dictionary["pitch shift"].index,
+					channelIndex,
+					tone.instrumentIndex,
+					false,
+				),
+				this.modState.getModValue(
+					Config.modulators.dictionary["pitch shift"].index,
+					channelIndex,
+					tone.instrumentIndex,
+					true,
+				),
+				envelopeStarts[EnvelopeComputeIndex.pitchShift],
+				envelopeEnds[EnvelopeComputeIndex.pitchShift],
+				intervalStart,
+				intervalEnd,
+			);
+			intervalStart = psResult.intervalStart;
+			intervalEnd = psResult.intervalEnd;
 		}
-		if (
-			effectsIncludeDetune(instrument.effects) ||
-			this.isModActive(
-				Config.modulators.dictionary["song detune"].index,
-				channelIndex,
-				tone.instrumentIndex,
-			)
-		) {
-			const envelopeStart: number = envelopeStarts[EnvelopeComputeIndex.detune];
-			const envelopeEnd: number = envelopeEnds[EnvelopeComputeIndex.detune];
-			let modDetuneStart: number = instrument.detune;
-			let modDetuneEnd: number = instrument.detune;
-			if (
+		{
+			const detuneResult = applyDetune(
+				effectsIncludeDetune(instrument.effects) ||
+					this.isModActive(
+						Config.modulators.dictionary["song detune"].index,
+						channelIndex,
+						tone.instrumentIndex,
+					),
+				instrument.detune,
 				this.isModActive(
 					Config.modulators.dictionary.detune.index,
 					channelIndex,
 					tone.instrumentIndex,
-				)
-			) {
-				modDetuneStart =
-					this.modState.getModValue(
-						Config.modulators.dictionary.detune.index,
-						channelIndex,
-						tone.instrumentIndex,
-						false,
-					) + Config.detuneCenter;
-				modDetuneEnd =
-					this.modState.getModValue(
-						Config.modulators.dictionary.detune.index,
-						channelIndex,
-						tone.instrumentIndex,
-						true,
-					) + Config.detuneCenter;
-			}
-			if (
+				),
+				this.modState.getModValue(
+					Config.modulators.dictionary.detune.index,
+					channelIndex,
+					tone.instrumentIndex,
+					false,
+				),
+				this.modState.getModValue(
+					Config.modulators.dictionary.detune.index,
+					channelIndex,
+					tone.instrumentIndex,
+					true,
+				),
 				this.isModActive(
 					Config.modulators.dictionary["song detune"].index,
 					channelIndex,
 					tone.instrumentIndex,
-				)
-			) {
-				modDetuneStart +=
-					4 *
-					this.modState.getModValue(
-						Config.modulators.dictionary["song detune"].index,
-						channelIndex,
-						tone.instrumentIndex,
-						false,
-					);
-				modDetuneEnd +=
-					4 *
-					this.modState.getModValue(
-						Config.modulators.dictionary["song detune"].index,
-						channelIndex,
-						tone.instrumentIndex,
-						true,
-					);
-			}
-			intervalStart +=
-				(detuneToCents(modDetuneStart) * envelopeStart * Config.pitchesPerOctave) /
-				(12.0 * 100.0);
-			intervalEnd +=
-				(detuneToCents(modDetuneEnd) * envelopeEnd * Config.pitchesPerOctave) /
-				(12.0 * 100.0);
-			// //envelopes should not affect song detune
+				),
+				this.modState.getModValue(
+					Config.modulators.dictionary["song detune"].index,
+					channelIndex,
+					tone.instrumentIndex,
+					false,
+				),
+				this.modState.getModValue(
+					Config.modulators.dictionary["song detune"].index,
+					channelIndex,
+					tone.instrumentIndex,
+					true,
+				),
+				envelopeStarts[EnvelopeComputeIndex.detune],
+				envelopeEnds[EnvelopeComputeIndex.detune],
+				intervalStart,
+				intervalEnd,
+			);
+			intervalStart = detuneResult.intervalStart;
+			intervalEnd = detuneResult.intervalEnd;
 		}
 
 		if (effectsIncludeVibrato(instrument.effects)) {

@@ -15,6 +15,7 @@ import type { Note } from "../notes";
 import { Config, InstrumentType, type InstrumentType as InstrumentTypeEnum } from "../synth-config";
 import { computeChordExpression } from "../synth-math";
 import { noteSizeToVolumeMult } from "../synth-shared";
+import { detuneToCents } from "../util";
 import type { Tone } from "../tone";
 import type { SongSnapshot } from "./snapshot";
 
@@ -404,4 +405,94 @@ export function applyFadeIn(
 		}
 	}
 	return { fadeExpressionStart, fadeExpressionEnd };
+}
+
+// ── Pitch shift ───────────────────────────────────────────────────────────
+
+/**
+ * Apply pitch shift modulation to interval.
+ * Pure: reads values, returns updated interval.
+ */
+export function applyPitchShift(
+	hasEffect: boolean,
+	baseSemitones: number,
+	intervalScale: number,
+	isModActive: boolean,
+	modValStart: number,
+	modValEnd: number,
+	envStart: number,
+	envEnd: number,
+	intervalStart: number,
+	intervalEnd: number,
+): { intervalStart: number; intervalEnd: number } {
+	if (!hasEffect) return { intervalStart, intervalEnd };
+
+	let pitchShift: number = baseSemitones / intervalScale;
+	let scalarStart: number = 1.0;
+	let scalarEnd: number = 1.0;
+
+	if (isModActive) {
+		pitchShift =
+			Config.justIntonationSemitones[Config.justIntonationSemitones.length - 1];
+		scalarStart = modValStart / Config.pitchShiftCenter;
+		scalarEnd = modValEnd / Config.pitchShiftCenter;
+	}
+
+	intervalStart += pitchShift * envStart * scalarStart;
+	intervalEnd += pitchShift * envEnd * scalarEnd;
+
+	return { intervalStart, intervalEnd };
+}
+
+// ── Detune ────────────────────────────────────────────────────────────────
+
+/**
+ * Apply detune modulation to interval (instrument detune + song detune).
+ * Pure: reads values, returns updated interval.
+ *
+ * @param hasEffectOrSongDetune - true if effectsIncludeDetune() or song detune mod is active
+ * @param baseDetune - instrument.detune
+ * @param hasDetuneMod - isModActive for detune
+ * @param detuneModValStart - raw modState value for detune (false), before adding detuneCenter
+ * @param detuneModValEnd - raw modState value for detune (true)
+ * @param hasSongDetune - isModActive for song detune
+ * @param songDetuneValStart - raw modState value for song detune (false)
+ * @param songDetuneValEnd - raw modState value for song detune (true)
+ * @param envStart - envelopeStarts[EnvelopeComputeIndex.detune]
+ * @param envEnd - envelopeEnds[EnvelopeComputeIndex.detune]
+ */
+export function applyDetune(
+	hasEffectOrSongDetune: boolean,
+	baseDetune: number,
+	hasDetuneMod: boolean,
+	detuneModValStart: number,
+	detuneModValEnd: number,
+	hasSongDetune: boolean,
+	songDetuneValStart: number,
+	songDetuneValEnd: number,
+	envStart: number,
+	envEnd: number,
+	intervalStart: number,
+	intervalEnd: number,
+): { intervalStart: number; intervalEnd: number } {
+	if (!hasEffectOrSongDetune) return { intervalStart, intervalEnd };
+
+	let modDetuneStart: number = baseDetune;
+	let modDetuneEnd: number = baseDetune;
+
+	if (hasDetuneMod) {
+		modDetuneStart = detuneModValStart + Config.detuneCenter;
+		modDetuneEnd = detuneModValEnd + Config.detuneCenter;
+	}
+	if (hasSongDetune) {
+		modDetuneStart += 4 * songDetuneValStart;
+		modDetuneEnd += 4 * songDetuneValEnd;
+	}
+
+	const semitoneFactor: number =
+		(Config.pitchesPerOctave) / (12.0 * 100.0);
+	intervalStart += detuneToCents(modDetuneStart) * envStart * semitoneFactor;
+	intervalEnd += detuneToCents(modDetuneEnd) * envEnd * semitoneFactor;
+
+	return { intervalStart, intervalEnd };
 }
