@@ -24,7 +24,7 @@ import type { Note, NotePin, Pattern } from "./notes";
 import { PickedString } from "./picked-string";
 import { getPlugin } from "./plugins";
 import { PostProcessingState } from "./post-processing";
-import { computeBasePitchAndExpression, computeSlides, computeToneIntervalAndFade } from "./render/compute-tone";
+import { applyFadeIn, computeBasePitchAndExpression, computeSlides, computeToneIntervalAndFade } from "./render/compute-tone";
 import {
 	allocTone,
 	freeAllTones,
@@ -3981,19 +3981,19 @@ export class Synth {
 			}
 		}
 
-		if ((!transition.isSeamless && !tone.forceContinueAtStart) || tone.prevNote == null) {
-			// Fade in the beginning of the note.
-			const fadeInSeconds: number = instrument.getFadeInSeconds();
-			if (fadeInSeconds > 0.0) {
-				fadeExpressionStart *= Math.min(
-					1.0,
-					envelopeComputer.noteSecondsStartUnscaled / fadeInSeconds,
-				);
-				fadeExpressionEnd *= Math.min(
-					1.0,
-					envelopeComputer.noteSecondsEndUnscaled / fadeInSeconds,
-				);
-			}
+		{
+			const fadeInResult = applyFadeIn(
+				transition.isSeamless,
+				tone.forceContinueAtStart,
+				tone.prevNote,
+				instrument.getFadeInSeconds(),
+				envelopeComputer.noteSecondsStartUnscaled,
+				envelopeComputer.noteSecondsEndUnscaled,
+				fadeExpressionStart,
+				fadeExpressionEnd,
+			);
+			fadeExpressionStart = fadeInResult.fadeExpressionStart;
+			fadeExpressionEnd = fadeInResult.fadeExpressionEnd;
 		}
 
 		if (instrument.type === InstrumentType.drumset && tone.drumsetPitch == null) {

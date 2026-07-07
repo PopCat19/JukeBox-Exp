@@ -369,3 +369,39 @@ export function computeSlides(
 
 	return { intervalStart, intervalEnd, chordExpressionStart, chordExpressionEnd };
 }
+
+// ── Fade-in expression ────────────────────────────────────────────────────
+
+export interface FadeInResult {
+	readonly fadeExpressionStart: number;
+	readonly fadeExpressionEnd: number;
+}
+
+/**
+ * Apply fade-in to note start expression.
+ * Pure: reads values, returns updated expression.
+ */
+export function applyFadeIn(
+	transitionIsSeamless: boolean,
+	toneForceContinueAtStart: boolean,
+	tonePrevNote: Note | null,
+	fadeInSeconds: number,
+	noteSecondsStartUnscaled: number,
+	noteSecondsEndUnscaled: number,
+	fadeExpressionStart: number,
+	fadeExpressionEnd: number,
+): FadeInResult {
+	if ((!transitionIsSeamless && !toneForceContinueAtStart) || tonePrevNote == null) {
+		if (fadeInSeconds > 0.0) {
+			fadeExpressionStart *= Math.min(
+				1.0,
+				noteSecondsStartUnscaled / fadeInSeconds,
+			);
+			fadeExpressionEnd *= Math.min(
+				1.0,
+				noteSecondsEndUnscaled / fadeInSeconds,
+			);
+		}
+	}
+	return { fadeExpressionStart, fadeExpressionEnd };
+}
