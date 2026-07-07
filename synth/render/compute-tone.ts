@@ -11,15 +11,26 @@
 //
 // Phase 2: The full computeTone() lives here for the AudioWorklet.
 
-import type { Note } from "../notes";
-import { Config, EnvelopeComputeIndex, FilterType, InstrumentType, type InstrumentType as InstrumentTypeEnum } from "../synth-config";
-import { computeChordExpression, operatorAmplitudeCurve } from "../synth-math";
-import { noteSizeToVolumeMult, instrumentVolumeToVolumeMult } from "../synth-shared";
-import { detuneToCents, getOperatorWave, fittingPowerOfTwo } from "../util";
-import { FilterCoefficients } from "../filtering";
 import { getArpeggioPitchIndex, getPulseWidthRatio } from "../config/synth-math-utils";
+import { FilterCoefficients, FrequencyResponse } from "../filtering";
+import type { Note } from "../notes";
+import {
+	Config,
+	EnvelopeComputeIndex,
+	FilterType,
+	InstrumentType,
+	type InstrumentType as InstrumentTypeEnum,
+} from "../synth-config";
+import { computeChordExpression, operatorAmplitudeCurve } from "../synth-math";
+import {
+	instrumentVolumeToVolumeMult,
+	noteSizeToVolumeMult,
+	tempFilterEndCoefficients,
+	tempFilterStartCoefficients,
+} from "../synth-shared";
 import type { Tone } from "../tone";
-import type { SongSnapshot } from "./snapshot";
+import { detuneToCents, fittingPowerOfTwo, getOperatorWave } from "../util";
+import { type SongSnapshot } from "./snapshot";
 
 // ── Channel-type detection ────────────────────────────────────────────────
 
@@ -328,10 +339,8 @@ export function computeSlides(
 			prevNote.pitches[tone.prevNotePitchIndex] +
 			prevNote.pins[prevNote.pins.length - 1].interval -
 			tone.pitches[0];
-		if (env.prevSlideStart)
-			intervalStart += intervalDiff * env.prevSlideRatioStart;
-		if (env.prevSlideEnd)
-			intervalEnd += intervalDiff * env.prevSlideRatioEnd;
+		if (env.prevSlideStart) intervalStart += intervalDiff * env.prevSlideRatioStart;
+		if (env.prevSlideEnd) intervalEnd += intervalDiff * env.prevSlideRatioEnd;
 		if (!chordSingleTone) {
 			const chordSizeDiff: number = prevNote.pitches.length - tone.chordSize;
 			if (env.prevSlideStart) {
@@ -351,10 +360,8 @@ export function computeSlides(
 		const intervalDiff: number =
 			nextNote.pitches[tone.nextNotePitchIndex] -
 			(tone.pitches[0] + tone.note.pins[tone.note.pins.length - 1].interval);
-		if (env.nextSlideStart)
-			intervalStart += intervalDiff * env.nextSlideRatioStart;
-		if (env.nextSlideEnd)
-			intervalEnd += intervalDiff * env.nextSlideRatioEnd;
+		if (env.nextSlideStart) intervalStart += intervalDiff * env.nextSlideRatioStart;
+		if (env.nextSlideEnd) intervalEnd += intervalDiff * env.nextSlideRatioEnd;
 		if (!chordSingleTone) {
 			const chordSizeDiff: number = nextNote.pitches.length - tone.chordSize;
 			if (env.nextSlideStart) {
@@ -396,14 +403,8 @@ export function applyFadeIn(
 ): FadeInResult {
 	if ((!transitionIsSeamless && !toneForceContinueAtStart) || tonePrevNote == null) {
 		if (fadeInSeconds > 0.0) {
-			fadeExpressionStart *= Math.min(
-				1.0,
-				noteSecondsStartUnscaled / fadeInSeconds,
-			);
-			fadeExpressionEnd *= Math.min(
-				1.0,
-				noteSecondsEndUnscaled / fadeInSeconds,
-			);
+			fadeExpressionStart *= Math.min(1.0, noteSecondsStartUnscaled / fadeInSeconds);
+			fadeExpressionEnd *= Math.min(1.0, noteSecondsEndUnscaled / fadeInSeconds);
 		}
 	}
 	return { fadeExpressionStart, fadeExpressionEnd };
@@ -434,8 +435,7 @@ export function applyPitchShift(
 	let scalarEnd: number = 1.0;
 
 	if (isModActive) {
-		pitchShift =
-			Config.justIntonationSemitones[Config.justIntonationSemitones.length - 1];
+		pitchShift = Config.justIntonationSemitones[Config.justIntonationSemitones.length - 1];
 		scalarStart = modValStart / Config.pitchShiftCenter;
 		scalarEnd = modValEnd / Config.pitchShiftCenter;
 	}
@@ -491,8 +491,7 @@ export function applyDetune(
 		modDetuneEnd += 4 * songDetuneValEnd;
 	}
 
-	const semitoneFactor: number =
-		(Config.pitchesPerOctave) / (12.0 * 100.0);
+	const semitoneFactor: number = Config.pitchesPerOctave / (12.0 * 100.0);
 	intervalStart += detuneToCents(modDetuneStart) * envStart * semitoneFactor;
 	intervalEnd += detuneToCents(modDetuneEnd) * envEnd * semitoneFactor;
 
@@ -557,8 +556,7 @@ export function initTonePhaseState(
 
 		// Advanced loop controls
 		if (inst.type === InstrumentType.chip && inst.isUsingAdvancedLoopControls) {
-			const chipWaveLength: number =
-				Config.rawRawChipWaves[inst.chipWave].samples.length - 1;
+			const chipWaveLength: number = Config.rawRawChipWaves[inst.chipWave].samples.length - 1;
 			const firstOffset: number = inst.chipWaveStartOffset / chipWaveLength;
 			// @TODO: Keep lastOffset as 1.0 without wrap-back to 0 in loopableChipSynth.
 			const lastOffset: number = 0.999999999999999;
@@ -608,8 +606,7 @@ export function initTonePhaseState(
 	tone.expressionDelta = 0.0;
 
 	// Set operator waves
-	const operatorCount: number =
-		inst.type === InstrumentType.fm6op ? 6 : Config.operatorCount;
+	const operatorCount: number = inst.type === InstrumentType.fm6op ? 6 : Config.operatorCount;
 	for (let i: number = 0; i < operatorCount; i++) {
 		tone.operatorWaves[i] = getOperatorWave(
 			inst.operators[i].waveform,
@@ -765,12 +762,10 @@ export function computeUnisonPhases(
 	const unisonEnvelopeEnd: number = envelopeEnds[EnvelopeComputeIndex.unison];
 	const unisonStartA: number =
 		2.0 ** (((unisonOffset + unisonSpread) * unisonEnvelopeStart) / 12.0);
-	const unisonEndA: number =
-		2.0 ** (((unisonOffset + unisonSpread) * unisonEnvelopeEnd) / 12.0);
+	const unisonEndA: number = 2.0 ** (((unisonOffset + unisonSpread) * unisonEnvelopeEnd) / 12.0);
 	tone.phaseDeltas[0] = startFreq * sampleTime * unisonStartA;
 	tone.phaseDeltaScales[0] =
-		basePhaseDeltaScale *
-		(unisonEndA / unisonStartA) ** (1.0 / roundedSamplesPerTick);
+		basePhaseDeltaScale * (unisonEndA / unisonStartA) ** (1.0 / roundedSamplesPerTick);
 	const divisor: number = unisonVoices === 1 ? 1 : unisonVoices - 1;
 	for (let i: number = 1; i <= unisonVoices; i++) {
 		const unisonStart: number =
@@ -787,8 +782,7 @@ export function computeUnisonPhases(
 			specialIntervalMult;
 		tone.phaseDeltas[i] = startFreq * sampleTime * unisonStart;
 		tone.phaseDeltaScales[i] =
-			basePhaseDeltaScale *
-			(unisonEnd / unisonStart) ** (1.0 / roundedSamplesPerTick);
+			basePhaseDeltaScale * (unisonEnd / unisonStart) ** (1.0 / roundedSamplesPerTick);
 	}
 	for (let i: number = unisonVoices + 1; i < Config.unisonVoicesMax; i++) {
 		if (i === 2) {
@@ -800,8 +794,7 @@ export function computeUnisonPhases(
 				specialIntervalMult;
 			tone.phaseDeltas[i] = startFreq * sampleTime * unisonBStart;
 			tone.phaseDeltaScales[i] =
-				basePhaseDeltaScale *
-				(unisonBEnd / unisonBStart) ** (1.0 / roundedSamplesPerTick);
+				basePhaseDeltaScale * (unisonBEnd / unisonBStart) ** (1.0 / roundedSamplesPerTick);
 		} else {
 			tone.phaseDeltas[i] = tone.phaseDeltas[0];
 			tone.phaseDeltaScales[i] = tone.phaseDeltaScales[0];
@@ -842,10 +835,7 @@ export function computeEnvelopeSpeeds(
 	}
 	for (let envelopeIndex: number = 0; envelopeIndex < envelopeCount; envelopeIndex++) {
 		let perEnvelopeSpeed: number = envelopes[envelopeIndex].perEnvelopeSpeed;
-		if (
-			isModActiveIndivSpeed &&
-			envelopes[envelopeIndex].tempEnvelopeSpeed != null
-		) {
+		if (isModActiveIndivSpeed && envelopes[envelopeIndex].tempEnvelopeSpeed != null) {
 			perEnvelopeSpeed = envelopes[envelopeIndex].tempEnvelopeSpeed!;
 		}
 		let useEnvelopeSpeed: number =
@@ -853,14 +843,10 @@ export function computeEnvelopeSpeeds(
 		if (isModActiveSpeed) {
 			useEnvelopeSpeed = Math.max(
 				0,
-				Math.min(
-					Config.arpSpeedScale.length - 1,
-					modSpeedValue,
-				),
+				Math.min(Config.arpSpeedScale.length - 1, modSpeedValue),
 			);
 			if (Number.isInteger(useEnvelopeSpeed)) {
-				useEnvelopeSpeed =
-					Config.arpSpeedScale[useEnvelopeSpeed] * perEnvelopeSpeed;
+				useEnvelopeSpeed = Config.arpSpeedScale[useEnvelopeSpeed] * perEnvelopeSpeed;
 			} else {
 				// Linear interpolate envelope values
 				useEnvelopeSpeed =
@@ -898,91 +884,83 @@ export interface VibratoInstrument {
  * Returns updated interval values; callers assigns.
  */
 export function applyVibrato(
-tone: Tone,
-inst: VibratoInstrument,
-envelopeComputer: { readonly noteTicksStart: number; readonly noteTicksEnd: number },
-envelopeStarts: readonly number[],
-envelopeEnds: readonly number[],
-isModCapable: boolean,
-lfoAmplitudeStart: number,
-lfoAmplitudeEnd: number,
-isModActiveDelay: boolean,
-modDelayValue: number,
-isModActiveDepth: boolean,
-modDepthStart: number,
-modDepthEnd: number,
-intervalStart: number,
-intervalEnd: number,
+	tone: Tone,
+	inst: VibratoInstrument,
+	envelopeComputer: { readonly noteTicksStart: number; readonly noteTicksEnd: number },
+	envelopeStarts: readonly number[],
+	envelopeEnds: readonly number[],
+	isModCapable: boolean,
+	lfoAmplitudeStart: number,
+	lfoAmplitudeEnd: number,
+	isModActiveDelay: boolean,
+	modDelayValue: number,
+	isModActiveDepth: boolean,
+	modDepthStart: number,
+	modDepthEnd: number,
+	intervalStart: number,
+	intervalEnd: number,
 ): { intervalStart: number; intervalEnd: number } {
-let delayTicks: number;
-let vibratoAmplitudeStart: number;
-let vibratoAmplitudeEnd: number;
+	let delayTicks: number;
+	let vibratoAmplitudeStart: number;
+	let vibratoAmplitudeEnd: number;
 
-// Custom vibrato
-if (inst.vibrato === Config.vibratos.length) {
-delayTicks = inst.vibratoDelay * 2; // Delay was changed from parts to ticks in BB v9
-// Special case: if vibrato delay is max, NEVER vibrato.
-if (inst.vibratoDelay === Config.modulators.dictionary["vibrato delay"].maxRawVol) {
-delayTicks = Number.POSITIVE_INFINITY;
-}
-vibratoAmplitudeStart = inst.vibratoDepth;
-vibratoAmplitudeEnd = vibratoAmplitudeStart;
-} else {
-delayTicks = Config.vibratos[inst.vibrato].delayTicks;
-vibratoAmplitudeStart = Config.vibratos[inst.vibrato].amplitude;
-vibratoAmplitudeEnd = vibratoAmplitudeStart;
-}
+	// Custom vibrato
+	if (inst.vibrato === Config.vibratos.length) {
+		delayTicks = inst.vibratoDelay * 2; // Delay was changed from parts to ticks in BB v9
+		// Special case: if vibrato delay is max, NEVER vibrato.
+		if (inst.vibratoDelay === Config.modulators.dictionary["vibrato delay"].maxRawVol) {
+			delayTicks = Number.POSITIVE_INFINITY;
+		}
+		vibratoAmplitudeStart = inst.vibratoDepth;
+		vibratoAmplitudeEnd = vibratoAmplitudeStart;
+	} else {
+		delayTicks = Config.vibratos[inst.vibrato].delayTicks;
+		vibratoAmplitudeStart = Config.vibratos[inst.vibrato].amplitude;
+		vibratoAmplitudeEnd = vibratoAmplitudeStart;
+	}
 
-if (isModActiveDelay) {
-delayTicks = modDelayValue * 2; // Delay was changed from parts to ticks in BB v9
-if (delayTicks === Config.modulators.dictionary["vibrato delay"].maxRawVol * 2) {
-delayTicks = Number.POSITIVE_INFINITY;
-}
-}
+	if (isModActiveDelay) {
+		delayTicks = modDelayValue * 2; // Delay was changed from parts to ticks in BB v9
+		if (delayTicks === Config.modulators.dictionary["vibrato delay"].maxRawVol * 2) {
+			delayTicks = Number.POSITIVE_INFINITY;
+		}
+	}
 
-if (isModActiveDepth) {
-vibratoAmplitudeStart = modDepthStart / 25;
-vibratoAmplitudeEnd = modDepthEnd / 25;
-}
+	if (isModActiveDepth) {
+		vibratoAmplitudeStart = modDepthStart / 25;
+		vibratoAmplitudeEnd = modDepthEnd / 25;
+	}
 
-// To maintain pitch continuity, (mostly for picked string which retriggers impulse
-// otherwise) remember the vibrato at the end of this run and reuse it at the start
-// of the next run if available.
-let vibratoStart: number;
-if (tone.prevVibrato != null) {
-vibratoStart = tone.prevVibrato;
-} else {
-const vibratoDepthEnvelopeStart: number =
-envelopeStarts[EnvelopeComputeIndex.vibratoDepth];
-vibratoStart =
-vibratoAmplitudeStart * lfoAmplitudeStart * vibratoDepthEnvelopeStart;
-if (delayTicks > 0.0) {
-const ticksUntilVibratoStart: number =
-delayTicks - envelopeComputer.noteTicksStart;
-vibratoStart *= Math.max(
-0.0,
-Math.min(1.0, 1.0 - ticksUntilVibratoStart / 2.0),
-);
-}
-}
+	// To maintain pitch continuity, (mostly for picked string which retriggers impulse
+	// otherwise) remember the vibrato at the end of this run and reuse it at the start
+	// of the next run if available.
+	let vibratoStart: number;
+	if (tone.prevVibrato != null) {
+		vibratoStart = tone.prevVibrato;
+	} else {
+		const vibratoDepthEnvelopeStart: number = envelopeStarts[EnvelopeComputeIndex.vibratoDepth];
+		vibratoStart = vibratoAmplitudeStart * lfoAmplitudeStart * vibratoDepthEnvelopeStart;
+		if (delayTicks > 0.0) {
+			const ticksUntilVibratoStart: number = delayTicks - envelopeComputer.noteTicksStart;
+			vibratoStart *= Math.max(0.0, Math.min(1.0, 1.0 - ticksUntilVibratoStart / 2.0));
+		}
+	}
 
-const vibratoDepthEnvelopeEnd: number =
-envelopeEnds[EnvelopeComputeIndex.vibratoDepth];
-if (!isModCapable) {
-let vibratoEnd: number =
-vibratoAmplitudeEnd * lfoAmplitudeEnd * vibratoDepthEnvelopeEnd;
-if (delayTicks > 0.0) {
-const ticksUntilVibratoEnd: number = delayTicks - envelopeComputer.noteTicksEnd;
-vibratoEnd *= Math.max(0.0, Math.min(1.0, 1.0 - ticksUntilVibratoEnd / 2.0));
-}
+	const vibratoDepthEnvelopeEnd: number = envelopeEnds[EnvelopeComputeIndex.vibratoDepth];
+	if (!isModCapable) {
+		let vibratoEnd: number = vibratoAmplitudeEnd * lfoAmplitudeEnd * vibratoDepthEnvelopeEnd;
+		if (delayTicks > 0.0) {
+			const ticksUntilVibratoEnd: number = delayTicks - envelopeComputer.noteTicksEnd;
+			vibratoEnd *= Math.max(0.0, Math.min(1.0, 1.0 - ticksUntilVibratoEnd / 2.0));
+		}
 
-tone.prevVibrato = vibratoEnd;
+		tone.prevVibrato = vibratoEnd;
 
-intervalStart += vibratoStart;
-intervalEnd += vibratoEnd;
-}
+		intervalStart += vibratoStart;
+		intervalEnd += vibratoEnd;
+	}
 
-return { intervalStart, intervalEnd };
+	return { intervalStart, intervalEnd };
 }
 
 // ── FM expression + feedback ──────────────────────────────────────────────
@@ -1052,10 +1030,8 @@ export function computeFmExpressionAndFeedback(
 	let useFeedbackAmplitudeStart: number = inst.feedbackAmplitude;
 	let useFeedbackAmplitudeEnd: number = inst.feedbackAmplitude;
 	if (isModActiveFb) {
-		useFeedbackAmplitudeStart *=
-			modFbStart / 15.0;
-		useFeedbackAmplitudeEnd *=
-			modFbEnd / 15.0;
+		useFeedbackAmplitudeStart *= modFbStart / 15.0;
+		useFeedbackAmplitudeEnd *= modFbEnd / 15.0;
 	}
 
 	const feedbackAmplitudeStart: number =
@@ -1167,24 +1143,13 @@ export function computeNonFmPitchSetup(
 		if (customInterval) {
 			const intervalOffset: number =
 				tone.pitches[
-					1 +
-						getArpeggioPitchIndex(
-							tone.pitchCount - 1,
-							inst.fastTwoNoteArp,
-							arpeggio,
-						)
+					1 + getArpeggioPitchIndex(tone.pitchCount - 1, inst.fastTwoNoteArp, arpeggio)
 				] - tone.pitches[0];
 			specialIntervalMult = 2.0 ** (intervalOffset / 12.0);
 			tone.specialIntervalExpressionMult = 2.0 ** (-intervalOffset / pitchDamping);
 		} else if (arpeggiates) {
 			pitch =
-				tone.pitches[
-					getArpeggioPitchIndex(
-						tone.pitchCount,
-						inst.fastTwoNoteArp,
-						arpeggio,
-					)
-				];
+				tone.pitches[getArpeggioPitchIndex(tone.pitchCount, inst.fastTwoNoteArp, arpeggio)];
 		} else {
 			pitch = tone.pitches[inst.monoChordTone];
 		}
@@ -1196,8 +1161,7 @@ export function computeNonFmPitchSetup(
 	if (tone.prevPitchExpressions[0] != null) {
 		pitchExpressionStart = tone.prevPitchExpressions[0]!;
 	} else {
-		pitchExpressionStart =
-			2.0 ** (-(startPitch - expressionReferencePitch) / pitchDamping);
+		pitchExpressionStart = 2.0 ** (-(startPitch - expressionReferencePitch) / pitchDamping);
 	}
 	const pitchExpressionEnd: number =
 		2.0 ** (-(endPitch - expressionReferencePitch) / pitchDamping);
@@ -1253,8 +1217,7 @@ export function computeNonFmPitchSetup(
 			2.0 ** (0.7 * (1.0 - useSustainStart / (Config.stringSustainRange - 1)));
 	}
 
-	const freqEndRatio: number =
-		2.0 ** (((intervalEnd - intervalStart) * intervalScale) / 12.0);
+	const freqEndRatio: number = 2.0 ** (((intervalEnd - intervalStart) * intervalScale) / 12.0);
 	const basePhaseDeltaScale: number = freqEndRatio ** (1.0 / roundedSamplesPerTick);
 	const startFreq: number = frequencyFromPitch(startPitch);
 
@@ -1271,7 +1234,6 @@ export function computeNonFmPitchSetup(
 		startFreq,
 	};
 }
-
 
 // ── FM operator loop ───────────────────────────────────────────────────────
 
@@ -1358,23 +1320,18 @@ export function computeFmOperatorLoop(
 								: 0
 			];
 		const freqMult = Config.operatorFrequencies[inst.operators[i].frequency].mult;
-		const interval =
-			Config.operatorCarrierInterval[associatedCarrierIndex] + arpeggioInterval;
-		const pitchStart: number =
-			basePitch + (pitch + intervalStart) * intervalScale + interval;
-		const pitchEnd: number =
-			basePitch + (pitch + intervalEnd) * intervalScale + interval;
+		const interval = Config.operatorCarrierInterval[associatedCarrierIndex] + arpeggioInterval;
+		const pitchStart: number = basePitch + (pitch + intervalStart) * intervalScale + interval;
+		const pitchEnd: number = basePitch + (pitch + intervalEnd) * intervalScale + interval;
 		const baseFreqStart: number = frequencyFromPitch(pitchStart);
 		const baseFreqEnd: number = frequencyFromPitch(pitchEnd);
-		const hzOffset: number =
-			Config.operatorFrequencies[inst.operators[i].frequency].hzOffset;
+		const hzOffset: number = Config.operatorFrequencies[inst.operators[i].frequency].hzOffset;
 		const targetFreqStart: number = freqMult * baseFreqStart + hzOffset;
 		const targetFreqEnd: number = freqMult * baseFreqEnd + hzOffset;
 
 		const freqEnvelopeStart: number =
 			envelopeStarts[EnvelopeComputeIndex.operatorFrequency0 + i];
-		const freqEnvelopeEnd: number =
-			envelopeEnds[EnvelopeComputeIndex.operatorFrequency0 + i];
+		const freqEnvelopeEnd: number = envelopeEnds[EnvelopeComputeIndex.operatorFrequency0 + i];
 		let freqStart: number;
 		let freqEnd: number;
 		if (freqEnvelopeStart !== 1.0 || freqEnvelopeEnd !== 1.0) {
@@ -1382,8 +1339,7 @@ export function computeFmOperatorLoop(
 				2.0 ** (Math.log2(targetFreqStart / baseFreqStart) * freqEnvelopeStart) *
 				baseFreqStart;
 			freqEnd =
-				2.0 ** (Math.log2(targetFreqEnd / baseFreqEnd) * freqEnvelopeEnd) *
-				baseFreqEnd;
+				2.0 ** (Math.log2(targetFreqEnd / baseFreqEnd) * freqEnvelopeEnd) * baseFreqEnd;
 		} else {
 			freqStart = targetFreqStart;
 			freqEnd = targetFreqEnd;
@@ -1433,26 +1389,21 @@ export function computeFmOperatorLoop(
 			expressionStart *= Config.sineWaveLength * 1.5;
 			expressionEnd *= Config.sineWaveLength * 1.5;
 
-			sineExpressionBoost *=
-				1.0 - Math.min(1.0, inst.operators[i].amplitude / 15);
+			sineExpressionBoost *= 1.0 - Math.min(1.0, inst.operators[i].amplitude / 15);
 		}
 
-		expressionStart *=
-			envelopeStarts[EnvelopeComputeIndex.operatorAmplitude0 + i];
-		expressionEnd *=
-			envelopeEnds[EnvelopeComputeIndex.operatorAmplitude0 + i];
+		expressionStart *= envelopeStarts[EnvelopeComputeIndex.operatorAmplitude0 + i];
+		expressionEnd *= envelopeEnds[EnvelopeComputeIndex.operatorAmplitude0 + i];
 
 		// Note volume mod (applied to all operators, legacy behavior)
 		if (noteVolumeModActive) {
 			expressionStart *=
 				noteVolumeModStart <= 0
-					? (noteVolumeModStart + Config.volumeRange / 2) /
-						(Config.volumeRange / 2)
+					? (noteVolumeModStart + Config.volumeRange / 2) / (Config.volumeRange / 2)
 					: instrumentVolumeToVolumeMult(noteVolumeModStart);
 			expressionEnd *=
 				noteVolumeModEnd <= 0
-					? (noteVolumeModEnd + Config.volumeRange / 2) /
-						(Config.volumeRange / 2)
+					? (noteVolumeModEnd + Config.volumeRange / 2) / (Config.volumeRange / 2)
 					: instrumentVolumeToVolumeMult(noteVolumeModEnd);
 		}
 
@@ -1532,13 +1483,11 @@ export function computeNonFmExpression(
 	if (noteVolumeModActive) {
 		expressionStart *=
 			noteVolumeModStart <= 0
-				? (noteVolumeModStart + Config.volumeRange / 2) /
-					(Config.volumeRange / 2)
+				? (noteVolumeModStart + Config.volumeRange / 2) / (Config.volumeRange / 2)
 				: instrumentVolumeToVolumeMult(noteVolumeModStart);
 		expressionEnd *=
 			noteVolumeModEnd <= 0
-				? (noteVolumeModEnd + Config.volumeRange / 2) /
-					(Config.volumeRange / 2)
+				? (noteVolumeModEnd + Config.volumeRange / 2) / (Config.volumeRange / 2)
 				: instrumentVolumeToVolumeMult(noteVolumeModEnd);
 	}
 
@@ -1564,6 +1513,8 @@ export function computeNonFmExpression(
 export interface SupersawInstrumentInfo {
 	readonly unisonExpression: number;
 	readonly unisonVoices: number;
+	readonly unisonSpread: number;
+	readonly unisonOffset: number;
 	readonly supersawDynamism: number;
 	readonly supersawSpread: number;
 	readonly supersawShape: number;
@@ -1622,10 +1573,8 @@ export function computeSupersawSetup(
 	samplesPerSecond: number,
 	unisonInitialized: boolean,
 ): SupersawResult {
-	let supersawExpressionStart: number =
-		(inst.unisonExpression * inst.unisonVoices) / 1.4;
-	let supersawExpressionEnd: number =
-		(inst.unisonExpression * inst.unisonVoices) / 1.4;
+	let supersawExpressionStart: number = (inst.unisonExpression * inst.unisonVoices) / 1.4;
+	let supersawExpressionEnd: number = (inst.unisonExpression * inst.unisonVoices) / 1.4;
 	const minFirstVoiceAmplitude: number = 1.0 / Math.sqrt(Config.supersawVoiceCount);
 
 	// ── Dynamism ──
@@ -1641,13 +1590,12 @@ export function computeSupersawSetup(
 		Math.max(
 			0.0,
 			1.0 - useDynamismStart * envelopeStarts[EnvelopeComputeIndex.supersawDynamism],
-		) ** 0.2;
+		) **
+			0.2;
 	const curvedDynamismEnd: number =
 		1.0 -
-		Math.max(
-			0.0,
-			1.0 - useDynamismEnd * envelopeEnds[EnvelopeComputeIndex.supersawDynamism],
-		) ** 0.2;
+		Math.max(0.0, 1.0 - useDynamismEnd * envelopeEnds[EnvelopeComputeIndex.supersawDynamism]) **
+			0.2;
 	const firstVoiceAmplitudeStart: number =
 		2.0 ** (Math.log2(minFirstVoiceAmplitude) * curvedDynamismStart);
 	const firstVoiceAmplitudeEnd: number =
@@ -1705,8 +1653,7 @@ export function computeSupersawSetup(
 		}
 
 		for (let i: number = 1; i < voiceCount - 1; i++) {
-			const swappedIndex: number =
-				i + Math.floor(Math.random() * (voiceCount - i));
+			const swappedIndex: number = i + Math.floor(Math.random() * (voiceCount - i));
 			const temp: number = tone.phases[i];
 			tone.phases[i] = tone.phases[swappedIndex];
 			tone.phases[swappedIndex] = temp;
@@ -1737,7 +1684,9 @@ export function computeSupersawSetup(
 			i === 0
 				? 0.0
 				: ((((i + 1) >> 1) - 0.5 + 0.025 * ((i & 2) - 1)) /
-						(Config.supersawVoiceCount >> 1)) ** 1.1 * ((i & 1) * 2 - 1);
+						(Config.supersawVoiceCount >> 1)) **
+						1.1 *
+					((i & 1) * 2 - 1);
 		tone.supersawUnisonDetunes[i] = 2.0 ** ((curvedSpread * offset) / 12.0);
 	}
 
@@ -1750,10 +1699,8 @@ export function computeSupersawSetup(
 		useShapeEnd = mods.shapeModEnd / Config.supersawShapeMax;
 	}
 
-	const shapeStart: number =
-		useShapeStart * envelopeStarts[EnvelopeComputeIndex.supersawShape];
-	const shapeEnd: number =
-		useShapeEnd * envelopeEnds[EnvelopeComputeIndex.supersawShape];
+	const shapeStart: number = useShapeStart * envelopeStarts[EnvelopeComputeIndex.supersawShape];
+	const shapeEnd: number = useShapeEnd * envelopeEnds[EnvelopeComputeIndex.supersawShape];
 	tone.supersawShape = shapeStart;
 	tone.supersawShapeDelta = (shapeEnd - shapeStart) / roundedSamplesPerTick;
 
@@ -1777,29 +1724,21 @@ export function computeSupersawSetup(
 
 	let pulseWidthStart: number =
 		pulseWidthModStart * envelopeStarts[EnvelopeComputeIndex.pulseWidth];
-	let pulseWidthEnd: number =
-		pulseWidthModEnd * envelopeEnds[EnvelopeComputeIndex.pulseWidth];
+	let pulseWidthEnd: number = pulseWidthModEnd * envelopeEnds[EnvelopeComputeIndex.pulseWidth];
 	pulseWidthStart -= decimalOffsetStart / 10000;
 	pulseWidthEnd -= decimalOffsetStart / 10000;
 	const phaseDeltaStart: number =
-		tone.supersawPrevPhaseDelta != null
-			? tone.supersawPrevPhaseDelta
-			: startFreq * sampleTime;
+		tone.supersawPrevPhaseDelta != null ? tone.supersawPrevPhaseDelta : startFreq * sampleTime;
 	const phaseDeltaEnd: number = startFreq * sampleTime * freqEndRatio;
 	tone.supersawPrevPhaseDelta = phaseDeltaEnd;
 	const delayLengthStart: number = pulseWidthStart / phaseDeltaStart;
 	const delayLengthEnd: number = pulseWidthEnd / phaseDeltaEnd;
 	tone.supersawDelayLength = delayLengthStart;
-	tone.supersawDelayLengthDelta =
-		(delayLengthEnd - delayLengthStart) / roundedSamplesPerTick;
-	const minBufferLength: number =
-		Math.ceil(Math.max(delayLengthStart, delayLengthEnd)) + 2;
+	tone.supersawDelayLengthDelta = (delayLengthEnd - delayLengthStart) / roundedSamplesPerTick;
+	const minBufferLength: number = Math.ceil(Math.max(delayLengthStart, delayLengthEnd)) + 2;
 
 	// ── Delay line buffer ──
-	if (
-		tone.supersawDelayLine == null ||
-		tone.supersawDelayLine.length <= minBufferLength
-	) {
+	if (tone.supersawDelayLine == null || tone.supersawDelayLine.length <= minBufferLength) {
 		const likelyMaximumLength: number = Math.ceil(
 			(0.5 * samplesPerSecond) / frequencyFromPitch(24),
 		);
@@ -1811,9 +1750,7 @@ export function computeSupersawSetup(
 			const startCopyingFromIndex: number = tone.supersawDelayIndex;
 			for (let i: number = 0; i < tone.supersawDelayLine.length; i++) {
 				newDelayLine[i] =
-					tone.supersawDelayLine[
-						(startCopyingFromIndex + i) & oldDelayBufferMask
-					];
+					tone.supersawDelayLine[(startCopyingFromIndex + i) & oldDelayBufferMask];
 			}
 		}
 		tone.supersawDelayLine = newDelayLine;
@@ -1824,13 +1761,10 @@ export function computeSupersawSetup(
 	}
 
 	// ── Final expression scaling ──
-	const pulseExpressionRatio: number =
-		Config.pwmBaseExpression / Config.supersawBaseExpression;
+	const pulseExpressionRatio: number = Config.pwmBaseExpression / Config.supersawBaseExpression;
 	supersawExpressionStart *=
 		(1.0 + (pulseExpressionRatio - 1.0) * shapeStart) /
-		Math.sqrt(
-			1.0 + (Config.supersawVoiceCount - 1.0) * dynamismStart * dynamismStart,
-		);
+		Math.sqrt(1.0 + (Config.supersawVoiceCount - 1.0) * dynamismStart * dynamismStart);
 	supersawExpressionEnd *=
 		(1.0 + (pulseExpressionRatio - 1.0) * shapeEnd) /
 		Math.sqrt(1.0 + (Config.supersawVoiceCount - 1.0) * dynamismEnd * dynamismEnd);
@@ -1872,7 +1806,12 @@ export interface FilterControlPointLite {
 	type: number;
 	gain: number;
 	freq: number;
-	toCoefficients(filter: FilterCoefficients, sampleRate: number, freqMult?: number, peakMult?: number): void;
+	toCoefficients(
+		filter: FilterCoefficients,
+		sampleRate: number,
+		freqMult?: number,
+		peakMult?: number,
+	): void;
 	getVolumeCompensationMult(): number;
 }
 
@@ -1880,7 +1819,12 @@ export interface FilterControlPointLite {
  * Minimal interface for tone.noteFilters elements.
  */
 export interface NoteFilterLite {
-	loadCoefficientsWithGradient(start: FilterCoefficients, end: FilterCoefficients, gradient: number, isLowPass: boolean): void;
+	loadCoefficientsWithGradient(
+		start: FilterCoefficients,
+		end: FilterCoefficients,
+		gradient: number,
+		isLowPass: boolean,
+	): void;
 }
 
 /**
@@ -1929,14 +1873,10 @@ export function computeNoteFilters(
 
 	if (inst.noteFilterType) {
 		// Simple EQ filter
-		const noteFreqEnvelopeStart: number =
-			envelopeStarts[EnvelopeComputeIndex.noteFilterFreq0];
-		const noteFreqEnvelopeEnd: number =
-			envelopeEnds[EnvelopeComputeIndex.noteFilterFreq0];
-		const notePeakEnvelopeStart: number =
-			envelopeStarts[EnvelopeComputeIndex.noteFilterGain0];
-		const notePeakEnvelopeEnd: number =
-			envelopeEnds[EnvelopeComputeIndex.noteFilterGain0];
+		const noteFreqEnvelopeStart: number = envelopeStarts[EnvelopeComputeIndex.noteFilterFreq0];
+		const noteFreqEnvelopeEnd: number = envelopeEnds[EnvelopeComputeIndex.noteFilterFreq0];
+		const notePeakEnvelopeStart: number = envelopeStarts[EnvelopeComputeIndex.noteFilterGain0];
+		const notePeakEnvelopeEnd: number = envelopeEnds[EnvelopeComputeIndex.noteFilterGain0];
 
 		const sp: FilterControlPointLite = simpleStartPoint!;
 		const ep: FilterControlPointLite = simpleEndPoint!;
@@ -1979,8 +1919,7 @@ export function computeNoteFilters(
 				envelopeEnds[EnvelopeComputeIndex.noteFilterGain0 + i];
 			let sp: FilterControlPointLite = noteFilterSettings.controlPoints[i];
 			const ep: FilterControlPointLite =
-				inst.tmpNoteFilterEnd != null &&
-					inst.tmpNoteFilterEnd.controlPoints[i] != null
+				inst.tmpNoteFilterEnd != null && inst.tmpNoteFilterEnd.controlPoints[i] != null
 					? inst.tmpNoteFilterEnd.controlPoints[i]!
 					: noteFilterSettings.controlPoints[i];
 
@@ -2041,6 +1980,39 @@ export interface DrumsetEnvelopeComputer {
  *
  * Returns the updated noteFilterExpression (multiplied by lowpass compensation).
  */
+/**
+ * Minimal structural interface for the EnvelopeComputer fields and methods
+ * that computeToneSnapshot reads after computeEnvelopes() has been called.
+ * Avoids importing the EnvelopeComputer class.
+ */
+export interface EnvelopeComputerLike {
+	noteTicksStart: number;
+	noteTicksEnd: number;
+	noteSecondsStart: readonly number[];
+	noteSecondsEnd: readonly number[];
+	noteSecondsStartUnscaled: number;
+	noteSecondsEndUnscaled: number;
+	drumsetFilterEnvelopeStart: number;
+	drumsetFilterEnvelopeEnd: number;
+	lowpassCutoffDecayVolumeCompensation: number;
+	prevSlideStart: boolean;
+	prevSlideEnd: boolean;
+	nextSlideStart: boolean;
+	nextSlideEnd: boolean;
+	prevSlideRatioStart: number;
+	prevSlideRatioEnd: number;
+	nextSlideRatioStart: number;
+	nextSlideRatioEnd: number;
+	reset(): void;
+	computeDrumsetEnvelopes(
+		instrument: unknown,
+		envelope: { readonly type: number },
+		beatsPerPart: number,
+		partTimeStart: number,
+		partTimeEnd: number,
+	): void;
+}
+
 export function computeDrumsetFilter(
 	tone: Tone,
 	instrumentType: InstrumentTypeEnum,
@@ -2060,7 +2032,11 @@ export function computeDrumsetFilter(
 	precomputedGain: number,
 	precomputedFreq: number,
 ): number {
-	if (instrumentType !== InstrumentType.drumset || drumsetPitch == null || drumsetFilterEnvelope == null) {
+	if (
+		instrumentType !== InstrumentType.drumset ||
+		drumsetPitch == null ||
+		drumsetFilterEnvelope == null
+	) {
 		return noteFilterExpression;
 	}
 
@@ -2106,5 +2082,740 @@ export function computeDrumsetFilter(
 	return noteFilterExpression;
 }
 
+// ── Phase 2: Pre-computed mod values ────────────────────────────────────────
 
+/**
+ * Single modulator gate value (no start/end split).
+ */
+export interface ModGate1 {
+	readonly active: boolean;
+	readonly value: number;
+}
 
+/**
+ * Single modulator gate value with start/end split.
+ */
+export interface ModGate2 {
+	readonly active: boolean;
+	readonly start: number;
+	readonly end: number;
+}
+
+/**
+ * All pre-computed modulator values for a single computeTone call.
+ * Every getModValue() is gated by the corresponding isModActive() at the call site.
+ */
+export interface PrecomputedModValues {
+	readonly noteFiltCut: ModGate2;
+	readonly noteFiltPeak: ModGate2;
+	readonly indivSpeed: ModGate1;
+	readonly speed: ModGate1;
+	readonly indivLower: ModGate1;
+	readonly indivUpper: ModGate1;
+	readonly pitchShift: ModGate2;
+	readonly detune: ModGate2;
+	readonly songDetune: ModGate2;
+	readonly vibratoDelay: ModGate1;
+	readonly vibratoDepth: ModGate2;
+	readonly fmSliderStarts: readonly number[];
+	readonly fmSliderEnds: readonly number[];
+	readonly fmFeedback: ModGate2;
+	readonly noteVolume: ModGate2;
+	readonly pulseWidth: ModGate2;
+	readonly decimalOffset: ModGate1;
+	readonly sustain: ModGate2;
+	readonly dynamism: ModGate2;
+	readonly spread: ModGate2;
+	readonly sawShape: ModGate2;
+	readonly ssDecOffset: ModGate1;
+	readonly ssPulseWidth: ModGate2;
+}
+
+/**
+ * Structural bridge for PickedString — avoids importing the class.
+ */
+export interface PickedStringBridge {
+	delayIndex: number;
+	allPassSample: number;
+	allPassPrevInput: number;
+	sustainFilterSample: number;
+	sustainFilterPrevOutput2: number;
+	sustainFilterPrevInput1: number;
+	sustainFilterPrevInput2: number;
+	fractionalDelaySample: number;
+	prevDelayLength: number;
+	delayLengthDelta: number;
+	delayResetOffset: number;
+	allPassG: number;
+	allPassGDelta: number;
+	sustainFilterA1: number;
+	sustainFilterA1Delta: number;
+	sustainFilterA2: number;
+	sustainFilterA2Delta: number;
+	sustainFilterB0: number;
+	sustainFilterB0Delta: number;
+	sustainFilterB1: number;
+	sustainFilterB1Delta: number;
+	sustainFilterB2: number;
+	sustainFilterB2Delta: number;
+	delayLine: Float32Array | null;
+}
+
+/**
+ * Structural type for PickedString.update — avoids importing Synth.
+ */
+export type PickedStringUpdateFn = (
+	pickedString: PickedStringBridge,
+	sampleRate: number,
+	tempFrequencyResponse: FrequencyResponse,
+	tone: Tone,
+	stringIndex: number,
+	roundedSamplesPerTick: number,
+	stringDecayStart: number,
+	stringDecayEnd: number,
+	sustainType: number,
+) => void;
+
+/**
+ * Timing and environment for a single computeToneSnapshot call.
+ * All synth-level mutable state is pre-computed and passed here.
+ */
+export interface ToneRenderEnv {
+	readonly sampleRate: number;
+	readonly tick: number;
+	readonly bar: number;
+	readonly beat: number;
+	readonly part: number;
+	readonly secondsPerPart: number;
+	readonly sampleTime: number;
+	readonly beatsPerPart: number;
+	readonly ticksIntoBar: number;
+	readonly currentPart: number;
+	readonly ticksSinceStart: number;
+	readonly ticksSinceStartOfBar: number;
+
+	// InstrumentState values (read at call time, written back via result)
+	readonly arpTime: number;
+	readonly envelopeTime: readonly number[];
+	readonly vibratoTime: number;
+	readonly nextVibratoTime: number;
+
+	// Pre-computed mod values
+	readonly mods: PrecomputedModValues;
+
+	// Scratch buffers (shared, mutated during compute)
+	readonly tempDrumSetControlPoint: FilterControlPointLite;
+	readonly tempFrequencyResponse: FrequencyResponse;
+
+	// Envelope results (pre-computed in Synth before calling)
+	readonly envelopeStarts: readonly number[];
+	readonly envelopeEnds: readonly number[];
+
+	// Pre-computed chord expression (replaces Synth.computeChordExpression)
+	readonly chordExpression: number;
+
+	// Envelope speed values (pre-computed)
+	readonly envelopeSpeeds: readonly number[];
+
+	// Song-level data from snapshot
+	readonly beatsPerBar: number;
+
+	// Transition/chord (pre-computed from instrument)
+	readonly transition: {
+		readonly isSeamless: boolean;
+		readonly continues: boolean;
+		readonly slides: boolean;
+		readonly slideTicks: number;
+	};
+	readonly chord: {
+		readonly singleTone: boolean;
+		readonly arpeggiates: boolean;
+		readonly name: string;
+		readonly customInterval: boolean;
+	};
+	readonly toneResetInst: ToneResetInst;
+
+	// Instrument params
+	readonly instrumentType: InstrumentTypeEnum;
+	readonly effectsHasPitchShift: boolean;
+	readonly effectsHasDetune: boolean;
+	readonly effectsHasVibrato: boolean;
+	readonly effectsHasNoteFilter: boolean;
+	readonly hasUnison: boolean;
+	readonly isModCapable: boolean;
+	readonly justIntonationSemitone: number;
+	readonly instrumentDetune: number;
+	readonly fadeOutTicks: number;
+	readonly fadeInSeconds: number;
+	readonly intervalScale: number;
+	readonly basePitch: number;
+	readonly baseExpression: number;
+	readonly expressionReferencePitch: number;
+	readonly pitchDamping: number;
+
+	// LFO (pre-computed vibrato params)
+	readonly lfoAmplitudeStart: number;
+	readonly lfoAmplitudeEnd: number;
+
+	// Note filter (pre-computed converted control points)
+	readonly simpleFilterStartPoint: FilterControlPointLite | null;
+	readonly simpleFilterEndPoint: FilterControlPointLite | null;
+
+	// Drumset filter
+	readonly drumsetFilterEnvelope: { readonly type: number } | null;
+	readonly drumsetLowpassComp: number;
+	readonly drumsetGain: number;
+	readonly drumsetFreq: number;
+
+	// Arpeggio
+	readonly arpeggioInterval: number;
+	readonly arpeggioIndex: number;
+
+	// FM-specific pre-computed interfaces
+	readonly carrierCount: number;
+	readonly fmOperatorInstrument: FmOperatorInstrument;
+	readonly fmInstrumentInfo: FmInstrumentInfo;
+
+	// Non-FM structural interfaces
+	readonly nonFmPitchInstrument: NonFmPitchSetupInstrument;
+	readonly unisonInstrument: UnisonInstrument;
+	readonly supersawInstrument: SupersawInstrumentInfo;
+	readonly vibratoInstrument: VibratoInstrument;
+	readonly noteFilterInstrument: NoteFilterInstrument;
+
+	// Picked string
+	readonly stringSustainType: number;
+	readonly stringSustainRange: number;
+	readonly unisonVoices: number;
+
+	// Picked string helpers (structural bridge, no class import)
+	readonly createPickedString: () => PickedStringBridge;
+	readonly pickedStringUpdate: PickedStringUpdateFn;
+
+	// Unison init (read/written back via result)
+	readonly unisonInitialized: boolean;
+}
+
+/**
+ * Mutable output from computeToneSnapshot.
+ */
+export interface ToneRenderResult {
+	awake: boolean;
+	unisonInitialized: boolean;
+}
+
+/**
+ * Standalone snapshot-based computeTone — replaces Synth.computeTone() body.
+ *
+ * Takes a SongSnapshot for all read-only song data, pre-computed mod values
+ * and timing in ToneRenderEnv, and a structural EnvelopeComputerLike for the
+ * remaining mutable envelope computer reference.
+ *
+ * No mutable Song, no AudioContext, no DOM, no Synth class reference.
+ * The caller (Synth.computeTone) handles:
+ *   - Channel/instrument resolution and computation
+ *   - Simple note filter legacy EQ conversion (mutates instrument.noteFilter)
+ *   - EnvelopeComputer.computeEnvelopes() call
+ *   - Point extraction from converted FilterSettings
+ *   - Mod value pre-computation
+ */
+export function computeToneSnapshot(
+	snapshot: SongSnapshot,
+	samplesPerTick: number,
+	tone: Tone,
+	released: boolean,
+	shouldFadeOutFast: boolean,
+	env: ToneRenderEnv,
+	envelopeComputer: EnvelopeComputerLike,
+): ToneRenderResult {
+	const roundedSamplesPerTick: number = Math.ceil(samplesPerTick);
+
+	// ── Timing setup ───────────────────────────────────────────────────
+
+	const ticksIntoBar: number = env.ticksIntoBar;
+	const partTimeStart: number = ticksIntoBar / Config.ticksPerPart;
+	const partTimeEnd: number = (ticksIntoBar + 1.0) / Config.ticksPerPart;
+	const currentPart: number = env.currentPart;
+
+	// ── Per-tone state ─────────────────────────────────────────────────
+
+	let specialIntervalMult: number = 1.0;
+	tone.specialIntervalExpressionMult = 1.0;
+
+	let toneIsOnLastTick: boolean = shouldFadeOutFast;
+	let intervalStart: number = 0.0;
+	let intervalEnd: number = 0.0;
+	let fadeExpressionStart: number = 1.0;
+	let fadeExpressionEnd: number = 1.0;
+	let chordExpressionStart: number = env.chordExpression;
+	let chordExpressionEnd: number = env.chordExpression;
+
+	// ── Phase init ─────────────────────────────────────────────────────
+
+	const {
+		needsRestore: customSampleNeedsPhaseRestore,
+		partsPassed: customSamplePartsPassed,
+		firstOffset: customSampleFirstOffset,
+	} = initTonePhaseState(
+		tone,
+		envelopeComputer,
+		env.toneResetInst,
+		env.transition.isSeamless,
+		snapshot.beatsPerBar,
+		env.bar,
+		env.beat,
+		env.part,
+	);
+
+	// ── Interval and fade ──────────────────────────────────────────────
+
+	const intervalFadeResult = computeToneIntervalAndFade(
+		released,
+		shouldFadeOutFast,
+		tone,
+		currentPart,
+		env.tick,
+		env.transition.isSeamless,
+		env.fadeOutTicks,
+	);
+	intervalStart = intervalFadeResult.intervalStart;
+	intervalEnd = intervalFadeResult.intervalEnd;
+	fadeExpressionStart = intervalFadeResult.fadeExpressionStart;
+	fadeExpressionEnd = intervalFadeResult.fadeExpressionEnd;
+	toneIsOnLastTick = intervalFadeResult.toneIsOnLastTick;
+
+	applyIntervalFadeSideEffects(
+		tone,
+		released,
+		intervalEnd,
+		toneIsOnLastTick,
+		roundedSamplesPerTick,
+	);
+
+	// ── Slides ─────────────────────────────────────────────────────────
+
+	{
+		const slideResult = computeSlides(
+			tone,
+			env.transition.slides,
+			env.chord.singleTone,
+			envelopeComputer,
+			intervalStart,
+			intervalEnd,
+			chordExpressionStart,
+			chordExpressionEnd,
+		);
+		intervalStart = slideResult.intervalStart;
+		intervalEnd = slideResult.intervalEnd;
+		chordExpressionStart = slideResult.chordExpressionStart;
+		chordExpressionEnd = slideResult.chordExpressionEnd;
+	}
+
+	// ── Pitch shift ────────────────────────────────────────────────────
+
+	{
+		const psResult = applyPitchShift(
+			env.effectsHasPitchShift,
+			env.justIntonationSemitone,
+			env.intervalScale,
+			env.mods.pitchShift.active,
+			env.mods.pitchShift.start,
+			env.mods.pitchShift.end,
+			env.envelopeStarts[EnvelopeComputeIndex.pitchShift],
+			env.envelopeEnds[EnvelopeComputeIndex.pitchShift],
+			intervalStart,
+			intervalEnd,
+		);
+		intervalStart = psResult.intervalStart;
+		intervalEnd = psResult.intervalEnd;
+	}
+
+	// ── Detune ─────────────────────────────────────────────────────────
+
+	{
+		const detuneResult = applyDetune(
+			env.effectsHasDetune || env.mods.songDetune.active,
+			env.instrumentDetune,
+			env.mods.detune.active,
+			env.mods.detune.start,
+			env.mods.detune.end,
+			env.mods.songDetune.active,
+			env.mods.songDetune.start,
+			env.mods.songDetune.end,
+			env.envelopeStarts[EnvelopeComputeIndex.detune],
+			env.envelopeEnds[EnvelopeComputeIndex.detune],
+			intervalStart,
+			intervalEnd,
+		);
+		intervalStart = detuneResult.intervalStart;
+		intervalEnd = detuneResult.intervalEnd;
+	}
+
+	// ── Vibrato ────────────────────────────────────────────────────────
+
+	if (env.effectsHasVibrato) {
+		const vibratoResult = applyVibrato(
+			tone,
+			env.vibratoInstrument,
+			envelopeComputer,
+			env.envelopeStarts as number[],
+			env.envelopeEnds as number[],
+			env.isModCapable,
+			env.lfoAmplitudeStart,
+			env.lfoAmplitudeEnd,
+			env.mods.vibratoDelay.active,
+			env.mods.vibratoDelay.value,
+			env.mods.vibratoDepth.active,
+			env.mods.vibratoDepth.start,
+			env.mods.vibratoDepth.end,
+			intervalStart,
+			intervalEnd,
+		);
+		intervalStart = vibratoResult.intervalStart;
+		intervalEnd = vibratoResult.intervalEnd;
+	}
+
+	// ── Fade in ────────────────────────────────────────────────────────
+
+	{
+		const fadeInResult = applyFadeIn(
+			env.transition.isSeamless,
+			tone.forceContinueAtStart,
+			tone.prevNote,
+			env.fadeInSeconds,
+			envelopeComputer.noteSecondsStartUnscaled,
+			envelopeComputer.noteSecondsEndUnscaled,
+			fadeExpressionStart,
+			fadeExpressionEnd,
+		);
+		fadeExpressionStart = fadeInResult.fadeExpressionStart;
+		fadeExpressionEnd = fadeInResult.fadeExpressionEnd;
+	}
+
+	// ── Drumset pitch ──────────────────────────────────────────────────
+
+	applyDrumsetPitch(tone, env.instrumentType, Config.drumCount);
+
+	// ── Note filters ───────────────────────────────────────────────────
+
+	let noteFilterExpression: number = computeNoteFilters(
+		tone,
+		env.noteFilterInstrument,
+		envelopeComputer.lowpassCutoffDecayVolumeCompensation,
+		env.effectsHasNoteFilter,
+		tone.note,
+		env.envelopeStarts,
+		env.envelopeEnds,
+		env.sampleRate,
+		roundedSamplesPerTick,
+		tempFilterStartCoefficients,
+		tempFilterEndCoefficients,
+		env.simpleFilterStartPoint,
+		env.simpleFilterEndPoint,
+	);
+
+	// ── Drumset filter ─────────────────────────────────────────────────
+
+	{
+		const beatPartTimeStart: number = partTimeStart;
+		const beatPartTimeEnd: number = partTimeEnd;
+
+		noteFilterExpression = computeDrumsetFilter(
+			tone,
+			env.instrumentType,
+			tone.drumsetPitch,
+			envelopeComputer,
+			env.drumsetFilterEnvelope,
+			env.beatsPerPart,
+			beatPartTimeStart,
+			beatPartTimeEnd,
+			tempFilterStartCoefficients,
+			tempFilterEndCoefficients,
+			env.tempDrumSetControlPoint,
+			env.sampleRate,
+			roundedSamplesPerTick,
+			noteFilterExpression,
+			env.drumsetLowpassComp,
+			env.drumsetGain,
+			env.drumsetFreq,
+		);
+	}
+
+	noteFilterExpression = Math.min(3.0, noteFilterExpression);
+
+	// ── Instrument type branches ───────────────────────────────────────
+
+	let awake: boolean = true;
+	let unisonInitialized: boolean = env.unisonInitialized;
+
+	if (env.instrumentType === InstrumentType.fm || env.instrumentType === InstrumentType.fm6op) {
+		// ── FM branch ──────────────────────────────────────────────────
+
+		const fmResult = computeFmOperatorLoop(
+			tone,
+			env.fmOperatorInstrument,
+			env.chord.arpeggiates,
+			env.chord.name === "monophonic",
+			env.arpeggioInterval,
+			env.carrierCount,
+			env.basePitch,
+			env.intervalScale,
+			intervalStart,
+			intervalEnd,
+			env.sampleTime,
+			roundedSamplesPerTick,
+			env.expressionReferencePitch,
+			env.pitchDamping,
+			env.envelopeStarts,
+			env.envelopeEnds,
+			env.mods.fmSliderStarts,
+			env.mods.fmSliderEnds,
+			env.mods.noteVolume.active,
+			env.mods.noteVolume.start,
+			env.mods.noteVolume.end,
+		);
+
+		computeFmExpressionAndFeedback(
+			tone,
+			fmResult.sineExpressionBoost,
+			fmResult.totalCarrierExpression,
+			env.chord.name === "monophonic",
+			env.baseExpression,
+			noteFilterExpression,
+			fadeExpressionStart,
+			fadeExpressionEnd,
+			chordExpressionStart,
+			chordExpressionEnd,
+			env.envelopeStarts,
+			env.envelopeEnds,
+			env.fmInstrumentInfo,
+			roundedSamplesPerTick,
+			env.mods.fmFeedback.active,
+			env.mods.fmFeedback.start,
+			env.mods.fmFeedback.end,
+		);
+	} else {
+		// ── Non-FM branch ──────────────────────────────────────────────
+
+		const isMono: boolean = env.chord.name === "monophonic";
+
+		const psResult = computeNonFmPitchSetup(
+			tone,
+			env.nonFmPitchInstrument,
+			isMono,
+			env.chord.arpeggiates,
+			env.chord.customInterval,
+			env.arpeggioIndex,
+			env.basePitch,
+			env.intervalScale,
+			intervalStart,
+			intervalEnd,
+			env.expressionReferencePitch,
+			env.pitchDamping,
+			env.baseExpression,
+			noteFilterExpression,
+			env.envelopeStarts,
+			env.envelopeEnds,
+			roundedSamplesPerTick,
+			{
+				pulseWidthModActive: env.mods.pulseWidth.active,
+				pulseWidthModStart: env.mods.pulseWidth.start,
+				pulseWidthModEnd: env.mods.pulseWidth.end,
+				decimalOffsetModActive: env.mods.decimalOffset.active,
+				decimalOffsetModValue: env.mods.decimalOffset.value,
+				sustainModActive: env.mods.sustain.active,
+				sustainModStart: env.mods.sustain.start,
+				sustainModEnd: env.mods.sustain.end,
+			},
+		);
+		specialIntervalMult = psResult.specialIntervalMult;
+		const freqEndRatio: number = psResult.freqEndRatio;
+		const basePhaseDeltaScale: number = psResult.basePhaseDeltaScale;
+		const pitchExpressionStart: number = psResult.pitchExpressionStart;
+		const pitchExpressionEnd: number = psResult.pitchExpressionEnd;
+		let settingsExpressionMult: number = psResult.settingsExpressionMult;
+		const startFreq: number = psResult.startFreq;
+
+		if (env.hasUnison) {
+			const _isPickedString: boolean = env.instrumentType === InstrumentType.pickedString;
+			settingsExpressionMult = computeUnisonPhases(
+				tone,
+				env.unisonInstrument,
+				env.envelopeStarts,
+				env.envelopeEnds,
+				_isPickedString,
+				startFreq,
+				env.sampleTime,
+				specialIntervalMult,
+				basePhaseDeltaScale,
+				roundedSamplesPerTick,
+				settingsExpressionMult,
+			);
+		} else if (env.instrumentType === InstrumentType.supersaw) {
+			// Inline phase setup for supersaw — matches original Synth.computeTone()
+			// (computeSupersawSetup is called later for mod-aware values)
+			const _uV: number = env.supersawInstrument.unisonVoices;
+			const _uSpr: number = env.supersawInstrument.unisonSpread;
+			const _uOff: number = env.supersawInstrument.unisonOffset;
+			const _uEnvStart: number =
+				env.envelopeStarts[EnvelopeComputeIndex.unison];
+			const _uEnvEnd: number =
+				env.envelopeEnds[EnvelopeComputeIndex.unison];
+
+			const _uStartA: number =
+				2.0 ** (((_uOff + _uSpr) * _uEnvStart) / 12.0);
+			const _uEndA: number =
+				2.0 ** (((_uOff + _uSpr) * _uEnvEnd) / 12.0);
+			tone.phaseDeltas[0] = startFreq * env.sampleTime * _uStartA;
+			tone.phaseDeltaScales[0] =
+				basePhaseDeltaScale *
+				(_uEndA / _uStartA) ** (1.0 / roundedSamplesPerTick);
+
+			const _div: number = _uV === 1 ? 1 : _uV - 1;
+			for (let _v: number = 1; _v < _uV; _v++) {
+				const _uStart: number =
+					2.0 **
+						(((_uOff + _uSpr - (2 * _v * _uSpr) / _div) *
+							_uEnvStart) /
+							12.0) *
+					specialIntervalMult;
+				const _uEnd: number =
+					2.0 **
+						(((_uOff + _uSpr - (2 * _v * _uSpr) / _div) *
+							_uEnvEnd) /
+							12.0) *
+					specialIntervalMult;
+				tone.phaseDeltas[_v] = startFreq * env.sampleTime * _uStart;
+				tone.phaseDeltaScales[_v] =
+					basePhaseDeltaScale *
+					(_uEnd / _uStart) ** (1.0 / roundedSamplesPerTick);
+			}
+		} else {
+			tone.phaseDeltas[0] = startFreq * env.sampleTime;
+			tone.phaseDeltaScales[0] = basePhaseDeltaScale;
+		}
+
+		applyCustomSamplePhaseRestore(
+			tone,
+			customSampleNeedsPhaseRestore,
+			customSamplePartsPassed,
+			customSampleFirstOffset,
+			samplesPerTick,
+		);
+
+		let supersawExpressionStart: number = 1.0;
+		let supersawExpressionEnd: number = 1.0;
+
+		if (env.instrumentType === InstrumentType.supersaw) {
+			const ssResult = computeSupersawSetup(
+				tone,
+				env.supersawInstrument,
+				{
+					dynamismActive: env.mods.dynamism.active,
+					dynamismModStart: env.mods.dynamism.start,
+					dynamismModEnd: env.mods.dynamism.end,
+					spreadActive: env.mods.spread.active,
+					spreadModStart: env.mods.spread.start,
+					spreadModEnd: env.mods.spread.end,
+					shapeActive: env.mods.sawShape.active,
+					shapeModStart: env.mods.sawShape.start,
+					shapeModEnd: env.mods.sawShape.end,
+					decimalOffsetActive: env.mods.ssDecOffset.active,
+					decimalOffsetModVal: env.mods.ssDecOffset.value,
+					pulseWidthActive: env.mods.ssPulseWidth.active,
+					pulseWidthModStart: env.mods.ssPulseWidth.start,
+					pulseWidthModEnd: env.mods.ssPulseWidth.end,
+				},
+				env.envelopeStarts,
+				env.envelopeEnds,
+				startFreq,
+				env.sampleTime,
+				freqEndRatio,
+				roundedSamplesPerTick,
+				env.sampleRate,
+				unisonInitialized,
+			);
+			supersawExpressionStart = ssResult.supersawExpressionStart;
+			supersawExpressionEnd = ssResult.supersawExpressionEnd;
+			unisonInitialized = ssResult.unisonInitialized;
+		}
+
+		const _isSilent: boolean = computeNonFmExpression(
+			tone,
+			settingsExpressionMult,
+			fadeExpressionStart,
+			fadeExpressionEnd,
+			chordExpressionStart,
+			chordExpressionEnd,
+			pitchExpressionStart,
+			pitchExpressionEnd,
+			supersawExpressionStart,
+			supersawExpressionEnd,
+			env.envelopeStarts,
+			env.envelopeEnds,
+			isMono,
+			env.nonFmPitchInstrument.monoChordTone,
+			roundedSamplesPerTick,
+			env.mods.noteVolume.active,
+			env.mods.noteVolume.start,
+			env.mods.noteVolume.end,
+		);
+		if (_isSilent) {
+			awake = false;
+		}
+
+		// ── Picked string ──────────────────────────────────────────────
+
+		if (env.instrumentType === InstrumentType.pickedString) {
+			let stringDecayStart: number;
+			if (tone.prevStringDecay != null) {
+				stringDecayStart = tone.prevStringDecay;
+			} else {
+				const sustainEnvelopeStart: number =
+					env.envelopeStarts[EnvelopeComputeIndex.stringSustain];
+				stringDecayStart =
+					1.0 -
+					Math.min(
+						1.0,
+						(sustainEnvelopeStart * tone.stringSustainStart) /
+							(Config.stringSustainRange - 1),
+					);
+			}
+			const sustainEnvelopeEnd: number = env.envelopeEnds[EnvelopeComputeIndex.stringSustain];
+			const stringDecayEnd: number =
+				1.0 -
+				Math.min(
+					1.0,
+					(sustainEnvelopeEnd * tone.stringSustainEnd) / (Config.stringSustainRange - 1),
+				);
+			tone.prevStringDecay = stringDecayEnd;
+
+			const unisonVoices: number = env.unisonVoices;
+			for (let i: number = tone.pickedStrings.length; i < unisonVoices; i++) {
+				tone.pickedStrings[i] = env.createPickedString() as never;
+			}
+
+			if (tone.atNoteStart && !env.transition.continues && !tone.forceContinueAtStart) {
+				for (const pickedString of tone.pickedStrings) {
+					pickedString.delayIndex = -1;
+				}
+			}
+
+			for (let i: number = 0; i < unisonVoices; i++) {
+				env.pickedStringUpdate(
+					tone.pickedStrings[i] as never,
+					env.sampleRate,
+					env.tempFrequencyResponse,
+					tone,
+					i,
+					roundedSamplesPerTick,
+					stringDecayStart,
+					stringDecayEnd,
+					env.stringSustainType,
+				);
+			}
+		}
+	}
+
+	return { awake, unisonInitialized };
+}

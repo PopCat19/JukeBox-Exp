@@ -124,8 +124,7 @@ export class EnvelopeComputer {
 	): void {
 		const secondsPerTickUnscaled: number = secondsPerTick;
 		const transition: Transition = instrument.getTransition();
-		const _ticksSinceStart: number =
-			ticksSinceStart ?? synth.computeTicksSinceStart();
+		const _ticksSinceStart: number = ticksSinceStart ?? synth.computeTicksSinceStart();
 		const _ticksSinceStartOfBar: number =
 			ticksSinceStartOfBar ?? synth.computeTicksSinceStart(true);
 		const _isModActiveLower: boolean =

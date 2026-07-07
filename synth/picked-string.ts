@@ -5,14 +5,22 @@
 // This module:
 // - Implements delay-line-based string simulation
 
-import { warpInfinityToNyquist } from "./filtering";
+import { type FrequencyResponse, warpInfinityToNyquist } from "./filtering";
 import type { InstrumentState } from "./instrument-state";
 import { Instrument } from "./instruments";
-import type { Synth } from "./synth";
 import { Config, SustainType } from "./synth-config";
 import { tempFilterEndCoefficients, tempFilterStartCoefficients } from "./synth-shared";
 import type { Tone } from "./tone";
 import { fittingPowerOfTwo } from "./util";
+
+/**
+ * Structural interface for PickedString.update — avoids coupling to Synth.
+ * Only exposes the fields the update method actually needs.
+ */
+export interface PickedStringEnv {
+	readonly samplesPerSecond: number;
+	readonly tempFrequencyResponse: FrequencyResponse;
+}
 
 export class PickedString {
 	public delayLine: Float32Array | null = null;
@@ -59,7 +67,7 @@ export class PickedString {
 	}
 
 	public update(
-		synth: Synth,
+		env: PickedStringEnv,
 		instrumentState: InstrumentState,
 		tone: Tone,
 		stringIndex: number,
@@ -69,7 +77,7 @@ export class PickedString {
 		sustainType: SustainType,
 	): void {
 		const allPassCenter: number =
-			(2.0 * Math.PI * Config.pickedStringDispersionCenterFreq) / synth.samplesPerSecond;
+			(2.0 * Math.PI * Config.pickedStringDispersionCenterFreq) / env.samplesPerSecond;
 
 		const prevDelayLength: number = this.prevDelayLength;
 
@@ -96,12 +104,12 @@ export class PickedString {
 				(allPassCenter / radiansPerSampleEnd) ** Config.pickedStringDispersionFreqScale,
 		);
 		const shelfRadians: number =
-			(2.0 * Math.PI * Config.pickedStringShelfHz) / synth.samplesPerSecond;
+			(2.0 * Math.PI * Config.pickedStringShelfHz) / env.samplesPerSecond;
 		const decayCurveStart: number = (100.0 ** stringDecayStart - 1.0) / 99.0;
 		const decayCurveEnd: number = (100.0 ** stringDecayEnd - 1.0) / 99.0;
 		const register: number = sustainType === SustainType.acoustic ? 0.25 : 0.0;
 		const registerShelfCenter: number = 15.6;
-		const registerLowpassCenter: number = (3.0 * synth.samplesPerSecond) / 48000;
+		const registerLowpassCenter: number = (3.0 * env.samplesPerSecond) / 48000;
 		const decayRateStart: number =
 			0.5 **
 			(decayCurveStart *
@@ -119,16 +127,15 @@ export class PickedString {
 		const expressionDecayEnd: number = decayRateEnd ** 0.002;
 
 		tempFilterStartCoefficients.allPass1stOrderInvertPhaseAbove(allPassRadiansStart);
-		synth.tempFrequencyResponse.analyze(tempFilterStartCoefficients, centerHarmonicStart);
+		env.tempFrequencyResponse.analyze(tempFilterStartCoefficients, centerHarmonicStart);
 		const allPassGStart: number = tempFilterStartCoefficients.b[0]; /* same as a[1] */
 		const allPassPhaseDelayStart: number =
-			-synth.tempFrequencyResponse.angle() / centerHarmonicStart;
+			-env.tempFrequencyResponse.angle() / centerHarmonicStart;
 
 		tempFilterEndCoefficients.allPass1stOrderInvertPhaseAbove(allPassRadiansEnd);
-		synth.tempFrequencyResponse.analyze(tempFilterEndCoefficients, centerHarmonicEnd);
+		env.tempFrequencyResponse.analyze(tempFilterEndCoefficients, centerHarmonicEnd);
 		const allPassGEnd: number = tempFilterEndCoefficients.b[0]; /* same as a[1] */
-		const allPassPhaseDelayEnd: number =
-			-synth.tempFrequencyResponse.angle() / centerHarmonicEnd;
+		const allPassPhaseDelayEnd: number = -env.tempFrequencyResponse.angle() / centerHarmonicEnd;
 
 		// 1st order shelf vs 2nd order lowpass: different frequency response shapes.
 		// Supports multiple brightness types (bright/shelf, normal/lowpass, resonant/3rd-order).
@@ -155,7 +162,7 @@ export class PickedString {
 					radiansPerSampleStart *
 					3.3 *
 					48000) /
-					synth.samplesPerSecond) **
+					env.samplesPerSecond) **
 					(0.5 + register) /
 				registerLowpassCenter /
 				decayCurveStart ** 0.5;
@@ -165,7 +172,7 @@ export class PickedString {
 					radiansPerSampleEnd *
 					3.3 *
 					48000) /
-					synth.samplesPerSecond) **
+					env.samplesPerSecond) **
 					(0.5 + register) /
 				registerLowpassCenter /
 				decayCurveEnd ** 0.5;
@@ -187,7 +194,7 @@ export class PickedString {
 			);
 		}
 
-		synth.tempFrequencyResponse.analyze(tempFilterStartCoefficients, centerHarmonicStart);
+		env.tempFrequencyResponse.analyze(tempFilterStartCoefficients, centerHarmonicStart);
 		const sustainFilterA1Start: number = tempFilterStartCoefficients.a[1];
 		const sustainFilterA2Start: number = tempFilterStartCoefficients.a[2];
 		const sustainFilterB0Start: number =
@@ -197,16 +204,16 @@ export class PickedString {
 		const sustainFilterB2Start: number =
 			tempFilterStartCoefficients.b[2] * expressionDecayStart;
 		const sustainFilterPhaseDelayStart: number =
-			-synth.tempFrequencyResponse.angle() / centerHarmonicStart;
+			-env.tempFrequencyResponse.angle() / centerHarmonicStart;
 
-		synth.tempFrequencyResponse.analyze(tempFilterEndCoefficients, centerHarmonicEnd);
+		env.tempFrequencyResponse.analyze(tempFilterEndCoefficients, centerHarmonicEnd);
 		const sustainFilterA1End: number = tempFilterEndCoefficients.a[1];
 		const sustainFilterA2End: number = tempFilterEndCoefficients.a[2];
 		const sustainFilterB0End: number = tempFilterEndCoefficients.b[0] * expressionDecayEnd;
 		const sustainFilterB1End: number = tempFilterEndCoefficients.b[1] * expressionDecayEnd;
 		const sustainFilterB2End: number = tempFilterEndCoefficients.b[2] * expressionDecayEnd;
 		const sustainFilterPhaseDelayEnd: number =
-			-synth.tempFrequencyResponse.angle() / centerHarmonicEnd;
+			-env.tempFrequencyResponse.angle() / centerHarmonicEnd;
 
 		const periodLengthStart: number = 1.0 / phaseDeltaStart;
 		const periodLengthEnd: number = 1.0 / phaseDeltaEnd;
@@ -243,7 +250,7 @@ export class PickedString {
 			// The delay line buffer will get reused for other tones so might as well
 			// start off with a buffer size that is big enough for most notes.
 			const likelyMaximumLength: number = Math.ceil(
-				(2 * synth.samplesPerSecond) / Instrument.frequencyFromPitch(12),
+				(2 * env.samplesPerSecond) / Instrument.frequencyFromPitch(12),
 			);
 			const newDelayLine: Float32Array = new Float32Array(
 				fittingPowerOfTwo(Math.max(likelyMaximumLength, minBufferLength)),
@@ -292,7 +299,7 @@ export class PickedString {
 
 			const fadeDuration: number = Math.min(
 				periodLengthStart * 0.2,
-				synth.samplesPerSecond * 0.003,
+				env.samplesPerSecond * 0.003,
 			);
 			const startImpulseFromSample: number = Math.ceil(startImpulseFrom);
 			const stopImpulseAt: number = startImpulseFrom + periodLengthStart + fadeDuration;

@@ -21,10 +21,21 @@ import { InstrumentState } from "./instrument-state";
 import { FilterControlPoint, FilterSettings, type HeldMod, Instrument } from "./instruments";
 import { SynthModState } from "./mod-state";
 import type { Note, NotePin, Pattern } from "./notes";
-import { PickedString } from "./picked-string";
+import { PickedString, type PickedStringEnv } from "./picked-string";
 import { getPlugin } from "./plugins";
 import { PostProcessingState } from "./post-processing";
-import { applyCustomSamplePhaseRestore, applyDetune, applyDrumsetPitch, applyFadeIn, applyIntervalFadeSideEffects, applyPitchShift, applyVibrato, computeBasePitchAndExpression, computeEnvelopeSpeeds, computeFmExpressionAndFeedback, computeFmOperatorLoop, computeNonFmExpression, computeNonFmPitchSetup, computeDrumsetFilter, computeNoteFilters, computeSimpleNoteFilterValues, computeSlides, computeSupersawSetup, computeToneIntervalAndFade, computeUnisonPhases, initTonePhaseState } from "./render/compute-tone";
+import {
+	computeBasePitchAndExpression,
+	computeEnvelopeSpeeds,
+	computeSimpleNoteFilterValues,
+	computeToneSnapshot,
+	type EnvelopeComputerLike,
+	type PickedStringBridge,
+	type PickedStringUpdateFn,
+	type PrecomputedModValues,
+	type ToneRenderEnv,
+	type ToneRenderResult,
+} from "./render/compute-tone";
 import {
 	allocTone,
 	freeAllTones,
@@ -34,7 +45,7 @@ import {
 	playTone as renderPlayTone,
 	releaseTone as renderReleaseTone,
 } from "./render/render-core";
-import { SnapshotBuilder } from "./render/snapshot";
+import { SnapshotBuilder, type SongSnapshot } from "./render/snapshot";
 import { getInstrumentCapability } from "./socket/capability-lookup";
 import { Song } from "./song";
 import type { Chord, Envelope, Transition } from "./synth-config";
@@ -47,8 +58,9 @@ import {
 	effectsIncludePitchShift,
 	effectsIncludeVibrato,
 	FilterType,
-	getArpeggioPitchIndex,
 	InstrumentType,
+	getArpeggioPitchIndex,
+	SustainType,
 } from "./synth-config";
 import { effectsSynth } from "./synth-effects";
 import {
@@ -3476,111 +3488,88 @@ export class Synth {
 		const beatsPerPart: number = 1.0 / Config.partsPerBeat;
 		const ticksIntoBar: number = this.getTicksIntoBar();
 		const partTimeStart: number = ticksIntoBar / Config.ticksPerPart;
-		const partTimeEnd: number = (ticksIntoBar + 1.0) / Config.ticksPerPart;
 		const currentPart: number = this.getCurrentPart();
+		const ticksSinceStart: number = this.computeTicksSinceStart();
+		const ticksSinceStartOfBar: number = this.computeTicksSinceStart(true);
 
-		let specialIntervalMult: number = 1.0;
-		tone.specialIntervalExpressionMult = 1.0;
-
-		let toneIsOnLastTick: boolean = shouldFadeOutFast;
-		let intervalStart: number = 0.0;
-		let intervalEnd: number = 0.0;
-		let fadeExpressionStart: number = 1.0;
-		let fadeExpressionEnd: number = 1.0;
-		let chordExpressionStart: number = chordExpression;
-		let chordExpressionEnd: number = chordExpression;
-
-		const { needsRestore: customSampleNeedsPhaseRestore, partsPassed: customSamplePartsPassed, firstOffset: customSampleFirstOffset } = initTonePhaseState(
-			tone,
-			instrumentState.envelopeComputer,
-			instrument,
-			transition.isSeamless,
-			song.beatsPerBar,
-			this.bar,
-			this.beat,
-			this.part,
-		);
-
-		const intervalFadeResult = computeToneIntervalAndFade(
-			released,
-			shouldFadeOutFast,
-			tone,
-			currentPart,
-			this.tick,
-			transition.isSeamless,
-			instrument.getFadeOutTicks(),
-		);
-		intervalStart = intervalFadeResult.intervalStart;
-		intervalEnd = intervalFadeResult.intervalEnd;
-		fadeExpressionStart = intervalFadeResult.fadeExpressionStart;
-		fadeExpressionEnd = intervalFadeResult.fadeExpressionEnd;
-		toneIsOnLastTick = intervalFadeResult.toneIsOnLastTick;
-
-		applyIntervalFadeSideEffects(tone, released, intervalEnd, toneIsOnLastTick, roundedSamplesPerTick);
+		// ── Simple note filter + envelope computer ────────────────────
 
 		const tmpNoteFilter: FilterSettings = instrument.noteFilter;
 		let startPoint: FilterControlPoint | null = null;
 		let endPoint: FilterControlPoint | null = null;
 
 		if (instrument.noteFilterType) {
-			// Simple EQ filter (old style). For analysis, using random filters from normal style since they are N/A in this context.
 			const noteFilterSettingsStart: FilterSettings = instrument.noteFilter;
 			if (instrument.noteSubFilters[1] == null) {
 				instrument.noteSubFilters[1] = new FilterSettings();
 			}
 			const noteFilterSettingsEnd: FilterSettings = instrument.noteSubFilters[1];
 
-			// Pre-compute mod values for simple EQ
-			const _isModActiveCut: boolean = this.isModActive(
-				Config.modulators.dictionary["note filt cut"].index,
-				channelIndex,
-				tone.instrumentIndex,
-			);
-			let _modCutStart: number = 0;
-			let _modCutEnd: number = 0;
-			if (_isModActiveCut) {
-				_modCutStart = this.modState.getModValue(
+			const {
+				startFreq: startSimpleFreq,
+				startGain: startSimpleGain,
+				endFreq: endSimpleFreq,
+				endGain: endSimpleGain,
+				filterChanges,
+			} = computeSimpleNoteFilterValues(
+				this.isModActive(
 					Config.modulators.dictionary["note filt cut"].index,
 					channelIndex,
 					tone.instrumentIndex,
-					false,
-				);
-				_modCutEnd = this.modState.getModValue(
+				),
+				this.isModActive(
 					Config.modulators.dictionary["note filt cut"].index,
 					channelIndex,
 					tone.instrumentIndex,
-					true,
-				);
-			}
-			const _isModActivePeak: boolean = this.isModActive(
-				Config.modulators.dictionary["note filt peak"].index,
-				channelIndex,
-				tone.instrumentIndex,
-			);
-			let _modPeakStart: number = 0;
-			let _modPeakEnd: number = 0;
-			if (_isModActivePeak) {
-				_modPeakStart = this.modState.getModValue(
+				)
+					? this.modState.getModValue(
+							Config.modulators.dictionary["note filt cut"].index,
+							channelIndex,
+							tone.instrumentIndex,
+							false,
+						)
+					: 0,
+				this.isModActive(
+					Config.modulators.dictionary["note filt cut"].index,
+					channelIndex,
+					tone.instrumentIndex,
+				)
+					? this.modState.getModValue(
+							Config.modulators.dictionary["note filt cut"].index,
+							channelIndex,
+							tone.instrumentIndex,
+							true,
+						)
+					: 0,
+				this.isModActive(
 					Config.modulators.dictionary["note filt peak"].index,
 					channelIndex,
 					tone.instrumentIndex,
-					false,
-				);
-				_modPeakEnd = this.modState.getModValue(
+				),
+				this.isModActive(
 					Config.modulators.dictionary["note filt peak"].index,
 					channelIndex,
 					tone.instrumentIndex,
-					true,
-				);
-			}
-
-			const { startFreq: startSimpleFreq, startGain: startSimpleGain, endFreq: endSimpleFreq, endGain: endSimpleGain, filterChanges } = computeSimpleNoteFilterValues(
-				_isModActiveCut,
-				_modCutStart,
-				_modCutEnd,
-				_isModActivePeak,
-				_modPeakStart,
-				_modPeakEnd,
+				)
+					? this.modState.getModValue(
+							Config.modulators.dictionary["note filt peak"].index,
+							channelIndex,
+							tone.instrumentIndex,
+							false,
+						)
+					: 0,
+				this.isModActive(
+					Config.modulators.dictionary["note filt peak"].index,
+					channelIndex,
+					tone.instrumentIndex,
+				)
+					? this.modState.getModValue(
+							Config.modulators.dictionary["note filt peak"].index,
+							channelIndex,
+							tone.instrumentIndex,
+							true,
+						)
+					: 0,
 				instrument.noteFilterSimpleCut,
 				instrument.noteFilterSimplePeak,
 			);
@@ -3599,55 +3588,41 @@ export class Synth {
 			startPoint = noteFilterSettingsStart.controlPoints[0];
 			endPoint = noteFilterSettingsEnd.controlPoints[0];
 
-			// Temporarily override so that envelope computer uses appropriate computed note filter
 			instrument.noteFilter = noteFilterSettingsStart;
 			instrument.tmpNoteFilterStart = noteFilterSettingsStart;
 		}
 
-		// Compute envelopes *after* resetting the tone, otherwise the envelope computer gets reset too!
-		const envelopeComputer: EnvelopeComputer = tone.envelopeComputer;
-		const _isModActiveIndivSpeed: boolean = this.isModActive(
-			Config.modulators.dictionary["individual envelope speed"].index,
-			channelIndex,
-			tone.instrumentIndex,
-		);
-		const _isModActiveSpeed: boolean = this.isModActive(
-			Config.modulators.dictionary["envelope speed"].index,
-			channelIndex,
-			tone.instrumentIndex,
-		);
-		let _modSpeedValue: number = 0;
-		if (_isModActiveSpeed) {
-			_modSpeedValue = this.modState.getModValue(
-				Config.modulators.dictionary["envelope speed"].index,
-				channelIndex,
-				tone.instrumentIndex,
-				false,
-			);
-		}
+		// ── Envelope computer ───────────────────────────────────────────
+
 		const envelopeSpeeds: number[] = computeEnvelopeSpeeds(
 			instrument.envelopeCount,
 			instrument.envelopeSpeed,
 			instrument.envelopes,
-			_isModActiveIndivSpeed,
-			_isModActiveSpeed,
-			_modSpeedValue,
+			this.isModActive(
+				Config.modulators.dictionary["individual envelope speed"].index,
+				channelIndex,
+				tone.instrumentIndex,
+			),
+			this.isModActive(
+				Config.modulators.dictionary["envelope speed"].index,
+				channelIndex,
+				tone.instrumentIndex,
+			),
+			this.isModActive(
+				Config.modulators.dictionary["envelope speed"].index,
+				channelIndex,
+				tone.instrumentIndex,
+			)
+				? this.modState.getModValue(
+						Config.modulators.dictionary["envelope speed"].index,
+						channelIndex,
+						tone.instrumentIndex,
+						false,
+					)
+				: 0,
 		);
-		// Pre-compute Synth-dependent values for envelope computer
-		const _ticksSinceStart: number = this.computeTicksSinceStart();
-		const _ticksSinceStartOfBar: number = this.computeTicksSinceStart(true);
-		const _isModActiveLower: boolean = this.isModActive(
-			Config.modulators.dictionary["individual envelope lower bound"].index,
-			channelIndex,
-			tone.instrumentIndex,
-		);
-		const _isModActiveUpper: boolean = this.isModActive(
-			Config.modulators.dictionary["individual envelope upper bound"].index,
-			channelIndex,
-			tone.instrumentIndex,
-		);
-		// the perTone envelopeComputer
-		envelopeComputer.computeEnvelopes(
+
+		tone.envelopeComputer.computeEnvelopes(
 			instrument,
 			currentPart,
 			instrumentState.envelopeTime,
@@ -3660,818 +3635,634 @@ export class Synth {
 			channelIndex,
 			tone.instrumentIndex,
 			true,
-			_ticksSinceStart,
-			_ticksSinceStartOfBar,
-			_isModActiveLower,
-			_isModActiveUpper,
+			ticksSinceStart,
+			ticksSinceStartOfBar,
+			this.isModActive(
+				Config.modulators.dictionary["individual envelope lower bound"].index,
+				channelIndex,
+				tone.instrumentIndex,
+			),
+			this.isModActive(
+				Config.modulators.dictionary["individual envelope upper bound"].index,
+				channelIndex,
+				tone.instrumentIndex,
+			),
 		);
-		const envelopeStarts: number[] = tone.envelopeComputer.envelopeStarts;
-		const envelopeEnds: number[] = tone.envelopeComputer.envelopeEnds;
 		instrument.noteFilter = tmpNoteFilter;
 		if (transition.continues && (tone.prevNote == null || tone.note == null)) {
 			instrumentState.envelopeComputer.reset();
 		}
 
-		{
-			const slideResult = computeSlides(
-				tone,
-				transition.slides,
-				chord.singleTone,
-				envelopeComputer,
-				intervalStart,
-				intervalEnd,
-				chordExpressionStart,
-				chordExpressionEnd,
-			);
-			intervalStart = slideResult.intervalStart;
-			intervalEnd = slideResult.intervalEnd;
-			chordExpressionStart = slideResult.chordExpressionStart;
-			chordExpressionEnd = slideResult.chordExpressionEnd;
-		}
+		// ── Pre-compute all mod values ──────────────────────────────────
 
-		{
-			const _hasPsEffect: boolean = effectsIncludePitchShift(instrument.effects);
-			const _isModActivePs: boolean = this.isModActive(
-				Config.modulators.dictionary["pitch shift"].index,
-				channelIndex,
-				tone.instrumentIndex,
-			);
-			const _psModStart: number = _isModActivePs
-				? this.modState.getModValue(
-						Config.modulators.dictionary["pitch shift"].index,
-						channelIndex,
-						tone.instrumentIndex,
-						false,
-					)
-				: 0;
-			const _psModEnd: number = _isModActivePs
-				? this.modState.getModValue(
-						Config.modulators.dictionary["pitch shift"].index,
-						channelIndex,
-						tone.instrumentIndex,
-						true,
-					)
-				: 0;
-			const psResult = applyPitchShift(
-				_hasPsEffect,
-				Config.justIntonationSemitones[instrument.pitchShift],
-				intervalScale,
-				_isModActivePs,
-				_psModStart,
-				_psModEnd,
-				envelopeStarts[EnvelopeComputeIndex.pitchShift],
-				envelopeEnds[EnvelopeComputeIndex.pitchShift],
-				intervalStart,
-				intervalEnd,
-			);
-			intervalStart = psResult.intervalStart;
-			intervalEnd = psResult.intervalEnd;
-		}
-		{
-			const _hasDetuneEffect: boolean = effectsIncludeDetune(instrument.effects);
-			const _isModActiveDet: boolean = this.isModActive(
-				Config.modulators.dictionary.detune.index,
-				channelIndex,
-				tone.instrumentIndex,
-			);
-			const _detModStart: number = _isModActiveDet
-				? this.modState.getModValue(
-						Config.modulators.dictionary.detune.index,
-						channelIndex,
-						tone.instrumentIndex,
-						false,
-					)
-				: 0;
-			const _detModEnd: number = _isModActiveDet
-				? this.modState.getModValue(
-						Config.modulators.dictionary.detune.index,
-						channelIndex,
-						tone.instrumentIndex,
-						true,
-					)
-				: 0;
-			const _isModActiveSongDet: boolean = this.isModActive(
-				Config.modulators.dictionary["song detune"].index,
-				channelIndex,
-				tone.instrumentIndex,
-			);
-			const _songDetModStart: number = _isModActiveSongDet
-				? this.modState.getModValue(
-						Config.modulators.dictionary["song detune"].index,
-						channelIndex,
-						tone.instrumentIndex,
-						false,
-					)
-				: 0;
-			const _songDetModEnd: number = _isModActiveSongDet
-				? this.modState.getModValue(
-						Config.modulators.dictionary["song detune"].index,
-						channelIndex,
-						tone.instrumentIndex,
-						true,
-					)
-				: 0;
-			const detuneResult = applyDetune(
-				_hasDetuneEffect || _isModActiveSongDet,
-				instrument.detune,
-				_isModActiveDet,
-				_detModStart,
-				_detModEnd,
-				_isModActiveSongDet,
-				_songDetModStart,
-				_songDetModEnd,
-				envelopeStarts[EnvelopeComputeIndex.detune],
-				envelopeEnds[EnvelopeComputeIndex.detune],
-				intervalStart,
-				intervalEnd,
-			);
-			intervalStart = detuneResult.intervalStart;
-			intervalEnd = detuneResult.intervalEnd;
-		}
-
-		if (effectsIncludeVibrato(instrument.effects)) {
-			const _isModCapable: boolean = getInstrumentCapability(instrument, "isMod");
-			const _lfoAmplitudeStart: number = Synth.getLFOAmplitude(
-				instrument,
-				secondsPerPart * instrumentState.vibratoTime,
-			);
-			const _lfoAmplitudeEnd: number = Synth.getLFOAmplitude(
-				instrument,
-				secondsPerPart * instrumentState.nextVibratoTime,
-			);
-			const _isModActiveDelay: boolean = this.isModActive(
-				Config.modulators.dictionary["vibrato delay"].index,
-				channelIndex,
-				tone.instrumentIndex,
-			);
-			let _modDelayValue: number = 0;
-			if (_isModActiveDelay) {
-				_modDelayValue = this.modState.getModValue(
-					Config.modulators.dictionary["vibrato delay"].index,
-					channelIndex,
-					tone.instrumentIndex,
-					false,
-				);
-			}
-			const _isModActiveDepth: boolean = this.isModActive(
-				Config.modulators.dictionary["vibrato depth"].index,
-				channelIndex,
-				tone.instrumentIndex,
-			);
-			let _modDepthStart: number = 0;
-			let _modDepthEnd: number = 0;
-			if (_isModActiveDepth) {
-				_modDepthStart = this.modState.getModValue(
-					Config.modulators.dictionary["vibrato depth"].index,
-					channelIndex,
-					tone.instrumentIndex,
-					false,
-				);
-				_modDepthEnd = this.modState.getModValue(
-					Config.modulators.dictionary["vibrato depth"].index,
-					channelIndex,
-					tone.instrumentIndex,
-					true,
-				);
-			}
-			const vibratoResult = applyVibrato(
-				tone,
-				instrument,
-				envelopeComputer,
-				envelopeStarts,
-				envelopeEnds,
-				_isModCapable,
-				_lfoAmplitudeStart,
-				_lfoAmplitudeEnd,
-				_isModActiveDelay,
-				_modDelayValue,
-				_isModActiveDepth,
-				_modDepthStart,
-				_modDepthEnd,
-				intervalStart,
-				intervalEnd,
-			);
-			intervalStart = vibratoResult.intervalStart;
-			intervalEnd = vibratoResult.intervalEnd;
-		}
-
-		{
-			const fadeInResult = applyFadeIn(
-				transition.isSeamless,
-				tone.forceContinueAtStart,
-				tone.prevNote,
-				instrument.getFadeInSeconds(),
-				envelopeComputer.noteSecondsStartUnscaled,
-				envelopeComputer.noteSecondsEndUnscaled,
-				fadeExpressionStart,
-				fadeExpressionEnd,
-			);
-			fadeExpressionStart = fadeInResult.fadeExpressionStart;
-			fadeExpressionEnd = fadeInResult.fadeExpressionEnd;
-		}
-
-		applyDrumsetPitch(tone, instrument.type, Config.drumCount);
-
-		let noteFilterExpression: number = computeNoteFilters(
-			tone,
-			instrument,
-			envelopeComputer.lowpassCutoffDecayVolumeCompensation,
-			effectsIncludeNoteFilter(instrument.effects),
-			tone.note,
-			envelopeStarts,
-			envelopeEnds,
-			this.samplesPerSecond,
-			roundedSamplesPerTick,
-			tempFilterStartCoefficients,
-			tempFilterEndCoefficients,
-			startPoint,
-			endPoint,
+		const _isModActivePs: boolean = this.isModActive(
+			Config.modulators.dictionary["pitch shift"].index,
+			channelIndex,
+			tone.instrumentIndex,
+		);
+		const _isModActiveDet: boolean = this.isModActive(
+			Config.modulators.dictionary.detune.index,
+			channelIndex,
+			tone.instrumentIndex,
+		);
+		const _isModActiveSongDet: boolean = this.isModActive(
+			Config.modulators.dictionary["song detune"].index,
+			channelIndex,
+			tone.instrumentIndex,
+		);
+		const _isModActiveVibDelay: boolean = this.isModActive(
+			Config.modulators.dictionary["vibrato delay"].index,
+			channelIndex,
+			tone.instrumentIndex,
+		);
+		const _isModActiveVibDepth: boolean = this.isModActive(
+			Config.modulators.dictionary["vibrato depth"].index,
+			channelIndex,
+			tone.instrumentIndex,
+		);
+		const _isModActivePw: boolean = this.isModActive(
+			Config.modulators.dictionary["pulse width"].index,
+			channelIndex,
+			tone.instrumentIndex,
+		);
+		const _isModActiveDec: boolean = this.isModActive(
+			Config.modulators.dictionary["decimal offset"].index,
+			channelIndex,
+			tone.instrumentIndex,
+		);
+		const _isModActiveSus: boolean = this.isModActive(
+			Config.modulators.dictionary.sustain.index,
+			channelIndex,
+			tone.instrumentIndex,
+		);
+		const _isModActiveFb: boolean = this.isModActive(
+			Config.modulators.dictionary["fm feedback"].index,
+			channelIndex,
+			tone.instrumentIndex,
+		);
+		const _isModActiveNoteVol: boolean = this.isModActive(
+			Config.modulators.dictionary["note volume"].index,
+			channelIndex,
+			tone.instrumentIndex,
 		);
 
-		{
-			const beatPartTimeStart: number = partTimeStart;
-			const beatPartTimeEnd: number = partTimeEnd;
-			const _dsEnv: Envelope | null = tone.drumsetPitch != null
-				? instrument.getDrumsetEnvelope(tone.drumsetPitch)
-				: null;
-			const _dsComp: number =
-				instrument.type === InstrumentType.drumset && _dsEnv != null
-					? EnvelopeComputer.getLowpassCutoffDecayVolumeCompensation(_dsEnv)
-					: 1.0;
-			const _dsGain: number = FilterControlPoint.getRoundedSettingValueFromLinearGain(0.5);
-			const _dsFreq: number = FilterControlPoint.getRoundedSettingValueFromHz(8000.0);
-
-			noteFilterExpression = computeDrumsetFilter(
-				tone,
-				instrument.type,
-				tone.drumsetPitch,
-				tone.envelopeComputer,
-				_dsEnv,
-				beatsPerPart,
-				beatPartTimeStart,
-				beatPartTimeEnd,
-				tempFilterStartCoefficients,
-				tempFilterEndCoefficients,
-				this.tempDrumSetControlPoint,
-				this.samplesPerSecond,
-				roundedSamplesPerTick,
-				noteFilterExpression,
-				_dsComp,
-				_dsGain,
-				_dsFreq,
-			);
+		// FM slider mods (fill array)
+		const fmSliderStartsArr: number[] = [];
+		const fmSliderEndsArr: number[] = [];
+		for (let s: number = 0; s < 6; s++) {
+			const sliderModIndex: number =
+				s < 4
+					? Config.modulators.dictionary["fm slider 1"].index + s
+					: Config.modulators.dictionary["fm slider 5"].index + s - 4;
+			let sliderMultStart: number = 1.0;
+			let sliderMultEnd: number = 1.0;
+			if (this.isModActive(sliderModIndex, channelIndex, tone.instrumentIndex)) {
+				sliderMultStart =
+					this.modState.getModValue(
+						sliderModIndex,
+						channelIndex,
+						tone.instrumentIndex,
+						false,
+					) / 15.0;
+				sliderMultEnd =
+					this.modState.getModValue(
+						sliderModIndex,
+						channelIndex,
+						tone.instrumentIndex,
+						true,
+					) / 15.0;
+			}
+			fmSliderStartsArr[s] = sliderMultStart;
+			fmSliderEndsArr[s] = sliderMultEnd;
 		}
 
-		noteFilterExpression = Math.min(3.0, noteFilterExpression);
-
-		if (instrument.type === InstrumentType.fm || instrument.type === InstrumentType.fm6op) {
-			// phase modulation — operator loop extracted to pure function
-
-			let arpeggioInterval: number = 0;
-			const arpeggiates: boolean = chord.arpeggiates;
-			const isMono: boolean = chord.name === "monophonic";
-			if (tone.pitchCount > 1 && arpeggiates) {
-				const arpeggio: number = Math.floor(
-					instrumentState.arpTime / Config.ticksPerArpeggio,
-				);
-				arpeggioInterval =
-					tone.pitches[
-						getArpeggioPitchIndex(tone.pitchCount, instrument.fastTwoNoteArp, arpeggio)
-					] - tone.pitches[0];
-			}
-
-			const carrierCount: number =
-				instrument.type === InstrumentType.fm6op
-					? instrument.customAlgorithm.carrierCount
-					: Config.algorithms[instrument.algorithm].carrierCount;
-
-			// Pre-compute fm slider modulation multipliers for all 6 operators
-			const fmSliderMultStarts: number[] = [];
-			const fmSliderMultEnds: number[] = [];
-			for (let s: number = 0; s < 6; s++) {
-				const sliderModIndex: number =
-					s < 4
-						? Config.modulators.dictionary["fm slider 1"].index + s
-						: Config.modulators.dictionary["fm slider 5"].index + s - 4;
-				let sliderMultStart: number = 1.0;
-				let sliderMultEnd: number = 1.0;
-				if (
-					this.isModActive(
-						sliderModIndex,
-						channelIndex,
-						tone.instrumentIndex,
-					)
-				) {
-					sliderMultStart = this.modState.getModValue(
-						sliderModIndex,
-						channelIndex,
-						tone.instrumentIndex,
-						false,
-					) / 15.0;
-					sliderMultEnd = this.modState.getModValue(
-						sliderModIndex,
-						channelIndex,
-						tone.instrumentIndex,
-						true,
-					) / 15.0;
-				}
-				fmSliderMultStarts[s] = sliderMultStart;
-				fmSliderMultEnds[s] = sliderMultEnd;
-			}
-
-			// Pre-compute note volume mod values
-			const _isModActiveNoteVol: boolean = this.isModActive(
-				Config.modulators.dictionary["note volume"].index,
+		// Pre-compute supersaw-specific mods
+		const _isSs: boolean = instrument.type === InstrumentType.supersaw;
+		const _isModActiveDyn: boolean =
+			_isSs &&
+			this.isModActive(
+				Config.modulators.dictionary.dynamism.index,
 				channelIndex,
 				tone.instrumentIndex,
 			);
-			const _noteVolModStart: number = _isModActiveNoteVol
-				? this.modState.getModValue(
-						Config.modulators.dictionary["note volume"].index,
-						channelIndex,
-						tone.instrumentIndex,
-						false,
-					)
-				: 0;
-			const _noteVolModEnd: number = _isModActiveNoteVol
-				? this.modState.getModValue(
-						Config.modulators.dictionary["note volume"].index,
-						channelIndex,
-						tone.instrumentIndex,
-						true,
-					)
-				: 0;
-
-			const fmResult = computeFmOperatorLoop(
-				tone,
-				instrument,
-				arpeggiates,
-				isMono,
-				arpeggioInterval,
-				carrierCount,
-				basePitch,
-				intervalScale,
-				intervalStart,
-				intervalEnd,
-				sampleTime,
-				roundedSamplesPerTick,
-				expressionReferencePitch,
-				pitchDamping,
-				envelopeStarts,
-				envelopeEnds,
-				fmSliderMultStarts,
-				fmSliderMultEnds,
-				_isModActiveNoteVol,
-				_noteVolModStart,
-				_noteVolModEnd,
-			);
-
-			const _isModActiveFb: boolean = this.isModActive(
-				Config.modulators.dictionary["fm feedback"].index,
+		const _isModActiveSpr: boolean =
+			_isSs &&
+			this.isModActive(
+				Config.modulators.dictionary.spread.index,
 				channelIndex,
 				tone.instrumentIndex,
 			);
-			let _modFbStart: number = 0;
-			let _modFbEnd: number = 0;
-			if (_isModActiveFb) {
-				_modFbStart = this.modState.getModValue(
-					Config.modulators.dictionary["fm feedback"].index,
-					channelIndex,
-					tone.instrumentIndex,
-					false,
-				);
-				_modFbEnd = this.modState.getModValue(
-					Config.modulators.dictionary["fm feedback"].index,
-					channelIndex,
-					tone.instrumentIndex,
-					true,
-				);
-			}
-			computeFmExpressionAndFeedback(
-				tone,
-				fmResult.sineExpressionBoost,
-				fmResult.totalCarrierExpression,
-				isMono,
-				baseExpression,
-				noteFilterExpression,
-				fadeExpressionStart,
-				fadeExpressionEnd,
-				chordExpressionStart,
-				chordExpressionEnd,
-				envelopeStarts,
-				envelopeEnds,
-				instrument,
-				roundedSamplesPerTick,
-				_isModActiveFb,
-				_modFbStart,
-				_modFbEnd,
-			);
-		} else {
-			const isMono: boolean = chord.name === "monophonic";
-
-			// Pre-compute arpeggio ticks (depends on instrumentState)
-			const arpeggio: number = tone.pitchCount > 1
-				? Math.floor(instrumentState.arpTime / Config.ticksPerArpeggio)
-				: 0;
-
-			// Pre-compute PWM mod values
-			const _isModActivePw: boolean = this.isModActive(
-				Config.modulators.dictionary["pulse width"].index,
+		const _isModActiveShp: boolean =
+			_isSs &&
+			this.isModActive(
+				Config.modulators.dictionary["saw shape"].index,
 				channelIndex,
 				tone.instrumentIndex,
 			);
-			const _pwModStart: number = _isModActivePw
-				? this.modState.getModValue(
-						Config.modulators.dictionary["pulse width"].index,
-						channelIndex,
-						tone.instrumentIndex,
-						false,
-					) / (Config.pulseWidthRange * 2)
-				: 0;
-			const _pwModEnd: number = _isModActivePw
-				? this.modState.getModValue(
-						Config.modulators.dictionary["pulse width"].index,
-						channelIndex,
-						tone.instrumentIndex,
-						true,
-					) / (Config.pulseWidthRange * 2)
-				: 0;
-
-			const _isModActiveDec: boolean = this.isModActive(
+		const _isModActiveSsDec: boolean =
+			_isSs &&
+			this.isModActive(
 				Config.modulators.dictionary["decimal offset"].index,
 				channelIndex,
 				tone.instrumentIndex,
 			);
-			const _decOffsetModVal: number = _isModActiveDec
-				? this.modState.getModValue(
-						Config.modulators.dictionary["decimal offset"].index,
-						channelIndex,
-						tone.instrumentIndex,
-						false,
-					)
-				: 0;
-
-			// Pre-compute sustain mod values
-			const _isModActiveSus: boolean = this.isModActive(
-				Config.modulators.dictionary.sustain.index,
+		const _isModActiveSsPw: boolean =
+			_isSs &&
+			this.isModActive(
+				Config.modulators.dictionary["pulse width"].index,
 				channelIndex,
 				tone.instrumentIndex,
 			);
-			const _susModStart: number = _isModActiveSus
-				? this.modState.getModValue(
-						Config.modulators.dictionary.sustain.index,
-						channelIndex,
-						tone.instrumentIndex,
-						false,
-					)
-				: 0;
-			const _susModEnd: number = _isModActiveSus
-				? this.modState.getModValue(
-						Config.modulators.dictionary.sustain.index,
-						channelIndex,
-						tone.instrumentIndex,
-						true,
-					)
-				: 0;
 
-			const psResult = computeNonFmPitchSetup(
-				tone,
-				instrument,
-				isMono,
-				chord.arpeggiates,
-				chord.customInterval,
-				arpeggio,
-				basePitch,
-				intervalScale,
-				intervalStart,
-				intervalEnd,
-				expressionReferencePitch,
-				pitchDamping,
-				baseExpression,
-				noteFilterExpression,
-				envelopeStarts,
-				envelopeEnds,
-				roundedSamplesPerTick,
-				{
-					pulseWidthModActive: _isModActivePw,
-					pulseWidthModStart: _pwModStart,
-					pulseWidthModEnd: _pwModEnd,
-					decimalOffsetModActive: _isModActiveDec,
-					decimalOffsetModValue: _decOffsetModVal,
-					sustainModActive: _isModActiveSus,
-					sustainModStart: _susModStart,
-					sustainModEnd: _susModEnd,
-				},
-			);
-			specialIntervalMult = psResult.specialIntervalMult;
-			const freqEndRatio: number = psResult.freqEndRatio;
-			const basePhaseDeltaScale: number = psResult.basePhaseDeltaScale;
-			const pitchExpressionStart: number = psResult.pitchExpressionStart;
-			const pitchExpressionEnd: number = psResult.pitchExpressionEnd;
-			let settingsExpressionMult: number = psResult.settingsExpressionMult;
-			const startFreq: number = psResult.startFreq;
-			if (getInstrumentCapability(instrument, "hasUnison")) {
-				const _isPickedString: boolean =
-					instrument.type === InstrumentType.pickedString;
-				settingsExpressionMult = computeUnisonPhases(
-					tone,
-					instrument,
-					envelopeStarts,
-					envelopeEnds,
-					_isPickedString,
-					startFreq,
-					sampleTime,
-					specialIntervalMult,
-					basePhaseDeltaScale,
-					roundedSamplesPerTick,
-					settingsExpressionMult,
-				);
-			} else if (instrument.type === InstrumentType.supersaw) {
-				const unisonVoices: number = instrument.unisonVoices;
-				const unisonSpread: number = instrument.unisonSpread;
-				const unisonOffset: number = instrument.unisonOffset;
-				const unisonEnvelopeStart = envelopeStarts[EnvelopeComputeIndex.unison];
-				const unisonEnvelopeEnd = envelopeEnds[EnvelopeComputeIndex.unison];
-
-				const unisonStartA: number =
-					2.0 ** (((unisonOffset + unisonSpread) * unisonEnvelopeStart) / 12.0);
-				const unisonEndA: number =
-					2.0 ** (((unisonOffset + unisonSpread) * unisonEnvelopeEnd) / 12.0);
-				tone.phaseDeltas[0] = startFreq * sampleTime * unisonStartA;
-				tone.phaseDeltaScales[0] =
-					basePhaseDeltaScale *
-					(unisonEndA / unisonStartA) ** (1.0 / roundedSamplesPerTick);
-
-				const divisor = unisonVoices === 1 ? 1 : unisonVoices - 1;
-				for (let voice: number = 1; voice < unisonVoices; voice++) {
-					const unisonStart: number =
-						2.0 **
-							(((unisonOffset + unisonSpread - (2 * voice * unisonSpread) / divisor) *
-								unisonEnvelopeStart) /
-								12.0) *
-						specialIntervalMult;
-					const unisonEnd: number =
-						2.0 **
-							(((unisonOffset + unisonSpread - (2 * voice * unisonSpread) / divisor) *
-								unisonEnvelopeEnd) /
-								12.0) *
-						specialIntervalMult;
-					tone.phaseDeltas[voice] = startFreq * sampleTime * unisonStart;
-					tone.phaseDeltaScales[voice] =
-						basePhaseDeltaScale *
-						(unisonEnd / unisonStart) ** (1.0 / roundedSamplesPerTick);
-				}
-			} else {
-				tone.phaseDeltas[0] = startFreq * sampleTime;
-				tone.phaseDeltaScales[0] = basePhaseDeltaScale;
-			}
-			applyCustomSamplePhaseRestore(
-				tone,
-				customSampleNeedsPhaseRestore,
-				customSamplePartsPassed,
-				customSampleFirstOffset,
-				samplesPerTick,
-			);
-			// TODO: make expressionStart and expressionEnd variables earlier and modify those
-			// instead of these supersawExpression variables.
-			let supersawExpressionStart: number = 1.0;
-			let supersawExpressionEnd: number = 1.0;
-			// Pre-compute supersaw mod values
-			if (instrument.type === InstrumentType.supersaw) {
-				const _isModActiveDyn: boolean = this.isModActive(
-					Config.modulators.dictionary.dynamism.index,
+		const mods: PrecomputedModValues = {
+			noteFiltCut: { active: false, start: 0, end: 0 },
+			noteFiltPeak: { active: false, start: 0, end: 0 },
+			indivSpeed: {
+				active: this.isModActive(
+					Config.modulators.dictionary["individual envelope speed"].index,
 					channelIndex,
 					tone.instrumentIndex,
-				);
-				const _dynModStart: number = _isModActiveDyn
+				),
+				value: 0,
+			},
+			speed: {
+				active: this.isModActive(
+					Config.modulators.dictionary["envelope speed"].index,
+					channelIndex,
+					tone.instrumentIndex,
+				),
+				value: this.isModActive(
+					Config.modulators.dictionary["envelope speed"].index,
+					channelIndex,
+					tone.instrumentIndex,
+				)
 					? this.modState.getModValue(
-							Config.modulators.dictionary.dynamism.index,
+							Config.modulators.dictionary["envelope speed"].index,
 							channelIndex,
 							tone.instrumentIndex,
 							false,
 						)
-					: 0;
-				const _dynModEnd: number = _isModActiveDyn
-					? this.modState.getModValue(
-							Config.modulators.dictionary.dynamism.index,
-							channelIndex,
-							tone.instrumentIndex,
-							true,
-						)
-					: 0;
-
-				const _isModActiveSpr: boolean = this.isModActive(
-					Config.modulators.dictionary.spread.index,
+					: 0,
+			},
+			indivLower: {
+				active: this.isModActive(
+					Config.modulators.dictionary["individual envelope lower bound"].index,
 					channelIndex,
 					tone.instrumentIndex,
-				);
-				const _sprModStart: number = _isModActiveSpr
+				),
+				value: 0,
+			},
+			indivUpper: {
+				active: this.isModActive(
+					Config.modulators.dictionary["individual envelope upper bound"].index,
+					channelIndex,
+					tone.instrumentIndex,
+				),
+				value: 0,
+			},
+			pitchShift: {
+				active: _isModActivePs,
+				start: _isModActivePs
 					? this.modState.getModValue(
-							Config.modulators.dictionary.spread.index,
+							Config.modulators.dictionary["pitch shift"].index,
 							channelIndex,
 							tone.instrumentIndex,
 							false,
 						)
-					: 0;
-				const _sprModEnd: number = _isModActiveSpr
+					: 0,
+				end: _isModActivePs
 					? this.modState.getModValue(
-							Config.modulators.dictionary.spread.index,
+							Config.modulators.dictionary["pitch shift"].index,
 							channelIndex,
 							tone.instrumentIndex,
 							true,
 						)
-					: 0;
-
-				const _isModActiveShp: boolean = this.isModActive(
-					Config.modulators.dictionary["saw shape"].index,
-					channelIndex,
-					tone.instrumentIndex,
-				);
-				const _shpModStart: number = _isModActiveShp
+					: 0,
+			},
+			detune: {
+				active: _isModActiveDet,
+				start: _isModActiveDet
 					? this.modState.getModValue(
-							Config.modulators.dictionary["saw shape"].index,
+							Config.modulators.dictionary.detune.index,
 							channelIndex,
 							tone.instrumentIndex,
 							false,
 						)
-					: 0;
-				const _shpModEnd: number = _isModActiveShp
+					: 0,
+				end: _isModActiveDet
 					? this.modState.getModValue(
-							Config.modulators.dictionary["saw shape"].index,
+							Config.modulators.dictionary.detune.index,
 							channelIndex,
 							tone.instrumentIndex,
 							true,
 						)
-					: 0;
-
-				const _isModActiveDecOff: boolean = this.isModActive(
-					Config.modulators.dictionary["decimal offset"].index,
-					channelIndex,
-					tone.instrumentIndex,
-				);
-				const _decOffModVal: number = _isModActiveDecOff
+					: 0,
+			},
+			songDetune: {
+				active: _isModActiveSongDet,
+				start: _isModActiveSongDet
+					? this.modState.getModValue(
+							Config.modulators.dictionary["song detune"].index,
+							channelIndex,
+							tone.instrumentIndex,
+							false,
+						)
+					: 0,
+				end: _isModActiveSongDet
+					? this.modState.getModValue(
+							Config.modulators.dictionary["song detune"].index,
+							channelIndex,
+							tone.instrumentIndex,
+							true,
+						)
+					: 0,
+			},
+			vibratoDelay: {
+				active: _isModActiveVibDelay,
+				value: _isModActiveVibDelay
+					? this.modState.getModValue(
+							Config.modulators.dictionary["vibrato delay"].index,
+							channelIndex,
+							tone.instrumentIndex,
+							false,
+						)
+					: 0,
+			},
+			vibratoDepth: {
+				active: _isModActiveVibDepth,
+				start: _isModActiveVibDepth
+					? this.modState.getModValue(
+							Config.modulators.dictionary["vibrato depth"].index,
+							channelIndex,
+							tone.instrumentIndex,
+							false,
+						)
+					: 0,
+				end: _isModActiveVibDepth
+					? this.modState.getModValue(
+							Config.modulators.dictionary["vibrato depth"].index,
+							channelIndex,
+							tone.instrumentIndex,
+							true,
+						)
+					: 0,
+			},
+			fmSliderStarts: fmSliderStartsArr,
+			fmSliderEnds: fmSliderEndsArr,
+			fmFeedback: {
+				active: _isModActiveFb,
+				start: _isModActiveFb
+					? this.modState.getModValue(
+							Config.modulators.dictionary["fm feedback"].index,
+							channelIndex,
+							tone.instrumentIndex,
+							false,
+						)
+					: 0,
+				end: _isModActiveFb
+					? this.modState.getModValue(
+							Config.modulators.dictionary["fm feedback"].index,
+							channelIndex,
+							tone.instrumentIndex,
+							true,
+						)
+					: 0,
+			},
+			noteVolume: {
+				active: _isModActiveNoteVol,
+				start: _isModActiveNoteVol
+					? this.modState.getModValue(
+							Config.modulators.dictionary["note volume"].index,
+							channelIndex,
+							tone.instrumentIndex,
+							false,
+						)
+					: 0,
+				end: _isModActiveNoteVol
+					? this.modState.getModValue(
+							Config.modulators.dictionary["note volume"].index,
+							channelIndex,
+							tone.instrumentIndex,
+							true,
+						)
+					: 0,
+			},
+			pulseWidth: {
+				active: _isModActivePw,
+				start: _isModActivePw
+					? this.modState.getModValue(
+							Config.modulators.dictionary["pulse width"].index,
+							channelIndex,
+							tone.instrumentIndex,
+							false,
+						) /
+						(Config.pulseWidthRange * 2)
+					: 0,
+				end: _isModActivePw
+					? this.modState.getModValue(
+							Config.modulators.dictionary["pulse width"].index,
+							channelIndex,
+							tone.instrumentIndex,
+							true,
+						) /
+						(Config.pulseWidthRange * 2)
+					: 0,
+			},
+			decimalOffset: {
+				active: _isModActiveDec,
+				value: _isModActiveDec
 					? this.modState.getModValue(
 							Config.modulators.dictionary["decimal offset"].index,
 							channelIndex,
 							tone.instrumentIndex,
 							false,
 						)
-					: 0;
-
-				const _isModActivePwSs: boolean = this.isModActive(
-					Config.modulators.dictionary["pulse width"].index,
-					channelIndex,
-					tone.instrumentIndex,
-				);
-				const _pwSsModStart: number = _isModActivePwSs
+					: 0,
+			},
+			sustain: {
+				active: _isModActiveSus,
+				start: _isModActiveSus
+					? this.modState.getModValue(
+							Config.modulators.dictionary.sustain.index,
+							channelIndex,
+							tone.instrumentIndex,
+							false,
+						)
+					: 0,
+				end: _isModActiveSus
+					? this.modState.getModValue(
+							Config.modulators.dictionary.sustain.index,
+							channelIndex,
+							tone.instrumentIndex,
+							true,
+						)
+					: 0,
+			},
+			dynamism: {
+				active: _isModActiveDyn,
+				start: _isModActiveDyn
+					? this.modState.getModValue(
+							Config.modulators.dictionary.dynamism.index,
+							channelIndex,
+							tone.instrumentIndex,
+							false,
+						)
+					: 0,
+				end: _isModActiveDyn
+					? this.modState.getModValue(
+							Config.modulators.dictionary.dynamism.index,
+							channelIndex,
+							tone.instrumentIndex,
+							true,
+						)
+					: 0,
+			},
+			spread: {
+				active: _isModActiveSpr,
+				start: _isModActiveSpr
+					? this.modState.getModValue(
+							Config.modulators.dictionary.spread.index,
+							channelIndex,
+							tone.instrumentIndex,
+							false,
+						)
+					: 0,
+				end: _isModActiveSpr
+					? this.modState.getModValue(
+							Config.modulators.dictionary.spread.index,
+							channelIndex,
+							tone.instrumentIndex,
+							true,
+						)
+					: 0,
+			},
+			sawShape: {
+				active: _isModActiveShp,
+				start: _isModActiveShp
+					? this.modState.getModValue(
+							Config.modulators.dictionary["saw shape"].index,
+							channelIndex,
+							tone.instrumentIndex,
+							false,
+						)
+					: 0,
+				end: _isModActiveShp
+					? this.modState.getModValue(
+							Config.modulators.dictionary["saw shape"].index,
+							channelIndex,
+							tone.instrumentIndex,
+							true,
+						)
+					: 0,
+			},
+			ssDecOffset: {
+				active: _isModActiveSsDec,
+				value: _isModActiveSsDec
+					? this.modState.getModValue(
+							Config.modulators.dictionary["decimal offset"].index,
+							channelIndex,
+							tone.instrumentIndex,
+							false,
+						)
+					: 0,
+			},
+			ssPulseWidth: {
+				active: _isModActiveSsPw,
+				start: _isModActiveSsPw
 					? this.modState.getModValue(
 							Config.modulators.dictionary["pulse width"].index,
 							channelIndex,
 							tone.instrumentIndex,
 							false,
 						)
-					: 0;
-				const _pwSsModEnd: number = _isModActivePwSs
+					: 0,
+				end: _isModActiveSsPw
 					? this.modState.getModValue(
 							Config.modulators.dictionary["pulse width"].index,
 							channelIndex,
 							tone.instrumentIndex,
 							true,
 						)
-					: 0;
+					: 0,
+			},
+		};
 
-				const ssResult = computeSupersawSetup(
-					tone,
-					instrument,
-					{
-						dynamismActive: _isModActiveDyn,
-						dynamismModStart: _dynModStart,
-						dynamismModEnd: _dynModEnd,
-						spreadActive: _isModActiveSpr,
-						spreadModStart: _sprModStart,
-						spreadModEnd: _sprModEnd,
-						shapeActive: _isModActiveShp,
-						shapeModStart: _shpModStart,
-						shapeModEnd: _shpModEnd,
-						decimalOffsetActive: _isModActiveDecOff,
-						decimalOffsetModVal: _decOffModVal,
-						pulseWidthActive: _isModActivePwSs,
-						pulseWidthModStart: _pwSsModStart,
-						pulseWidthModEnd: _pwSsModEnd,
-					},
-					envelopeStarts,
-					envelopeEnds,
-					startFreq,
-					sampleTime,
-					freqEndRatio,
-					roundedSamplesPerTick,
-					this.samplesPerSecond,
-					instrumentState.unisonInitialized,
-				);
-				supersawExpressionStart = ssResult.supersawExpressionStart;
-				supersawExpressionEnd = ssResult.supersawExpressionEnd;
-				instrumentState.unisonInitialized = ssResult.unisonInitialized;
-			}
+		// ── Pre-compute drumset filter params ───────────────────────────
 
-			// Pre-compute note volume mod values
-			const _isModActiveNoteVol: boolean = this.isModActive(
-				Config.modulators.dictionary["note volume"].index,
-				channelIndex,
-				tone.instrumentIndex,
-			);
-			const _noteVolModStart: number = _isModActiveNoteVol
-				? this.modState.getModValue(
-						Config.modulators.dictionary["note volume"].index,
-						channelIndex,
-						tone.instrumentIndex,
-						false,
-					)
-				: 0;
-			const _noteVolModEnd: number = _isModActiveNoteVol
-				? this.modState.getModValue(
-						Config.modulators.dictionary["note volume"].index,
-						channelIndex,
-						tone.instrumentIndex,
-						true,
-					)
-				: 0;
+		const _dsEnv: Envelope | null =
+			tone.drumsetPitch != null ? instrument.getDrumsetEnvelope(tone.drumsetPitch) : null;
+		const _dsComp: number =
+			instrument.type === InstrumentType.drumset && _dsEnv != null
+				? EnvelopeComputer.getLowpassCutoffDecayVolumeCompensation(_dsEnv)
+				: 1.0;
+		const _dsGain: number = FilterControlPoint.getRoundedSettingValueFromLinearGain(0.5);
+		const _dsFreq: number = FilterControlPoint.getRoundedSettingValueFromHz(8000.0);
 
-			const _isSilent: boolean = computeNonFmExpression(
-				tone,
-				settingsExpressionMult,
-				fadeExpressionStart,
-				fadeExpressionEnd,
-				chordExpressionStart,
-				chordExpressionEnd,
-				pitchExpressionStart,
-				pitchExpressionEnd,
-				supersawExpressionStart,
-				supersawExpressionEnd,
-				envelopeStarts,
-				envelopeEnds,
-				isMono,
-				instrument.monoChordTone,
-				roundedSamplesPerTick,
-				_isModActiveNoteVol,
-				_noteVolModStart,
-				_noteVolModEnd,
-			);
-			if (_isSilent) {
-				instrumentState.awake = false;
-			}
+		// ── Pre-compute arpeggio and carrier values ────────────────────
 
-			if (instrument.type === InstrumentType.pickedString) {
-				let stringDecayStart: number;
-				if (tone.prevStringDecay != null) {
-					stringDecayStart = tone.prevStringDecay;
-				} else {
-					const sustainEnvelopeStart: number =
-						tone.envelopeComputer.envelopeStarts[EnvelopeComputeIndex.stringSustain];
-					stringDecayStart =
-						1.0 -
-						Math.min(
-							1.0,
-							(sustainEnvelopeStart * tone.stringSustainStart) /
-								(Config.stringSustainRange - 1),
-						);
+		let arpeggioInterval: number = 0;
+		let arpeggioIndex: number = 0;
+		let carrierCount: number = 0;
+		if (
+			tone.pitchCount > 1 &&
+			(chord.arpeggiates || (instrument.type !== InstrumentType.fm && instrument.type !== InstrumentType.fm6op))
+		) {
+			const arpeggioTick: number = Math.floor(instrumentState.arpTime / Config.ticksPerArpeggio);
+			if (instrument.type === InstrumentType.fm || instrument.type === InstrumentType.fm6op) {
+				if (chord.arpeggiates) {
+					arpeggioInterval =
+						tone.pitches[
+							getArpeggioPitchIndex(tone.pitchCount, instrument.fastTwoNoteArp, arpeggioTick)
+						] - tone.pitches[0];
 				}
-				const sustainEnvelopeEnd: number =
-					tone.envelopeComputer.envelopeEnds[EnvelopeComputeIndex.stringSustain];
-				const stringDecayEnd: number =
-					1.0 -
-					Math.min(
-						1.0,
-						(sustainEnvelopeEnd * tone.stringSustainEnd) /
-							(Config.stringSustainRange - 1),
-					);
-				tone.prevStringDecay = stringDecayEnd;
-
-				const unisonVoices: number = instrument.unisonVoices;
-				for (let i: number = tone.pickedStrings.length; i < unisonVoices; i++) {
-					tone.pickedStrings[i] = new PickedString();
-				}
-
-				if (tone.atNoteStart && !transition.continues && !tone.forceContinueAtStart) {
-					for (const pickedString of tone.pickedStrings) {
-						// Force the picked string to retrigger the attack impulse at the start of the note.
-						pickedString.delayIndex = -1;
-					}
-				}
-
-				for (let i: number = 0; i < unisonVoices; i++) {
-					tone.pickedStrings[i].update(
-						this,
-						instrumentState,
-						tone,
-						i,
-						roundedSamplesPerTick,
-						stringDecayStart,
-						stringDecayEnd,
-						instrument.stringSustainType,
-					);
-				}
+				carrierCount =
+					instrument.type === InstrumentType.fm6op
+						? instrument.customAlgorithm.carrierCount
+						: Config.algorithms[instrument.algorithm].carrierCount;
+			} else {
+				arpeggioIndex = arpeggioTick;
 			}
 		}
+		if (carrierCount === 0 && (instrument.type === InstrumentType.fm || instrument.type === InstrumentType.fm6op)) {
+			carrierCount =
+				instrument.type === InstrumentType.fm6op
+					? instrument.customAlgorithm.carrierCount
+					: Config.algorithms[instrument.algorithm].carrierCount;
+		}
+
+		// ── Build ToneRenderEnv ─────────────────────────────────────────
+
+		const createPickedString = (): PickedStringBridge => new PickedString();
+		const pickedStringUpdate: PickedStringUpdateFn = (
+			ps,
+			sampleRate,
+			freqResp,
+			t,
+			idx,
+			rounded,
+			decayStart,
+			decayEnd,
+			sustainType,
+		) => {
+			const psEnv: PickedStringEnv = {
+				samplesPerSecond: sampleRate,
+				tempFrequencyResponse: freqResp,
+			};
+			(ps as unknown as PickedString).update(
+				psEnv,
+				instrumentState,
+				t,
+				idx,
+				rounded,
+				decayStart,
+				decayEnd,
+				sustainType as SustainType,
+			);
+		};
+
+		const snapshot: SongSnapshot = this.snapshotBuilder.build(song);
+		const env: ToneRenderEnv = {
+			sampleRate: this.samplesPerSecond,
+			tick: this.tick,
+			bar: this.bar,
+			beat: this.beat,
+			part: this.part,
+			secondsPerPart,
+			sampleTime,
+			beatsPerPart,
+			ticksIntoBar,
+			currentPart,
+			ticksSinceStart,
+			ticksSinceStartOfBar,
+			arpTime: instrumentState.arpTime,
+			envelopeTime: instrumentState.envelopeTime,
+			vibratoTime: instrumentState.vibratoTime,
+			nextVibratoTime: instrumentState.nextVibratoTime,
+			mods,
+			tempDrumSetControlPoint: this.tempDrumSetControlPoint,
+			tempFrequencyResponse: this.tempFrequencyResponse,
+			envelopeStarts: tone.envelopeComputer.envelopeStarts,
+			envelopeEnds: tone.envelopeComputer.envelopeEnds,
+			chordExpression,
+			envelopeSpeeds,
+			beatsPerBar: song.beatsPerBar,
+			transition: {
+				isSeamless: transition.isSeamless,
+				continues: transition.continues,
+				slides: transition.slides,
+				slideTicks: transition.slideTicks,
+			},
+			chord: {
+				singleTone: chord.singleTone,
+				arpeggiates: chord.arpeggiates,
+				name: chord.name,
+				customInterval: chord.customInterval as unknown as boolean,
+			},
+			toneResetInst: instrument,
+			instrumentType: instrument.type,
+			effectsHasPitchShift: effectsIncludePitchShift(instrument.effects),
+			effectsHasDetune: effectsIncludeDetune(instrument.effects),
+			effectsHasVibrato: effectsIncludeVibrato(instrument.effects),
+			effectsHasNoteFilter: effectsIncludeNoteFilter(instrument.effects),
+			hasUnison: getInstrumentCapability(instrument, "hasUnison"),
+			isModCapable: getInstrumentCapability(instrument, "isMod"),
+			justIntonationSemitone: Config.justIntonationSemitones[instrument.pitchShift],
+			instrumentDetune: instrument.detune,
+			fadeOutTicks: instrument.getFadeOutTicks(),
+			fadeInSeconds: instrument.getFadeInSeconds(),
+			intervalScale,
+			basePitch,
+			baseExpression,
+			expressionReferencePitch,
+			pitchDamping,
+			lfoAmplitudeStart: effectsIncludeVibrato(instrument.effects)
+				? Synth.getLFOAmplitude(instrument, secondsPerPart * instrumentState.vibratoTime)
+				: 0,
+			lfoAmplitudeEnd: effectsIncludeVibrato(instrument.effects)
+				? Synth.getLFOAmplitude(
+						instrument,
+						secondsPerPart * instrumentState.nextVibratoTime,
+					)
+				: 0,
+			simpleFilterStartPoint: startPoint,
+			simpleFilterEndPoint: endPoint,
+			drumsetFilterEnvelope: _dsEnv,
+			drumsetLowpassComp: _dsComp,
+			drumsetGain: _dsGain,
+			drumsetFreq: _dsFreq,
+			arpeggioInterval,
+			arpeggioIndex,
+			carrierCount,
+			fmOperatorInstrument: instrument,
+			fmInstrumentInfo: instrument,
+			nonFmPitchInstrument: instrument,
+			unisonInstrument: instrument,
+			supersawInstrument: instrument,
+			vibratoInstrument: instrument,
+			noteFilterInstrument: instrument,
+			stringSustainType: instrument.stringSustainType,
+			stringSustainRange: Config.stringSustainRange,
+			unisonVoices: instrument.unisonVoices,
+			createPickedString,
+			pickedStringUpdate,
+			unisonInitialized: instrumentState.unisonInitialized,
+		};
+
+		const result: ToneRenderResult = computeToneSnapshot(
+			snapshot,
+			samplesPerTick,
+			tone,
+			released,
+			shouldFadeOutFast,
+			env,
+			tone.envelopeComputer as unknown as EnvelopeComputerLike,
+		);
+
+		// Apply results
+		if (!result.awake) {
+			instrumentState.awake = false;
+		}
+		instrumentState.unisonInitialized = result.unisonInitialized;
 	}
 
 	public static getLFOAmplitude(instrument: Instrument, secondsIntoBar: number): number {
