@@ -12,7 +12,7 @@
 // Phase 2: The full computeTone() lives here for the AudioWorklet.
 
 import type { Note } from "../notes";
-import { Config, InstrumentType, type InstrumentType as InstrumentTypeEnum } from "../synth-config";
+import { Config, EnvelopeComputeIndex, InstrumentType, type InstrumentType as InstrumentTypeEnum } from "../synth-config";
 import { computeChordExpression } from "../synth-math";
 import { noteSizeToVolumeMult } from "../synth-shared";
 import { detuneToCents, getOperatorWave } from "../util";
@@ -733,4 +733,114 @@ export function computeEnvelopeSpeeds(
 		envelopeSpeeds[envelopeIndex] = useEnvelopeSpeed;
 	}
 	return envelopeSpeeds;
+}
+
+// ── Vibrato ───────────────────────────────────────────────────────────────
+
+/**
+ * Minimal instrument data for vibrato computation.
+ */
+export interface VibratoInstrument {
+	readonly vibrato: number;
+	readonly vibratoDepth: number;
+	readonly vibratoDelay: number;
+	readonly vibratoType: number;
+}
+
+/**
+ * Apply vibrato modulation to interval.
+ *
+ * Handles custom vibrato, Config vibrato presets, mod overrides for
+ * vibrato delay and depth, and pitch continuity via tone.prevVibrato.
+ * Skips vibrato for mod-capable instruments.
+ *
+ * Mutates tone.prevVibrato for pitch continuity across ticks.
+ * Returns updated interval values; callers assigns.
+ */
+export function applyVibrato(
+tone: Tone,
+inst: VibratoInstrument,
+envelopeComputer: { readonly noteTicksStart: number; readonly noteTicksEnd: number },
+envelopeStarts: readonly number[],
+envelopeEnds: readonly number[],
+isModCapable: boolean,
+lfoAmplitudeStart: number,
+lfoAmplitudeEnd: number,
+isModActiveDelay: boolean,
+modDelayValue: number,
+isModActiveDepth: boolean,
+modDepthStart: number,
+modDepthEnd: number,
+intervalStart: number,
+intervalEnd: number,
+): { intervalStart: number; intervalEnd: number } {
+let delayTicks: number;
+let vibratoAmplitudeStart: number;
+let vibratoAmplitudeEnd: number;
+
+// Custom vibrato
+if (inst.vibrato === Config.vibratos.length) {
+delayTicks = inst.vibratoDelay * 2; // Delay was changed from parts to ticks in BB v9
+// Special case: if vibrato delay is max, NEVER vibrato.
+if (inst.vibratoDelay === Config.modulators.dictionary["vibrato delay"].maxRawVol) {
+delayTicks = Number.POSITIVE_INFINITY;
+}
+vibratoAmplitudeStart = inst.vibratoDepth;
+vibratoAmplitudeEnd = vibratoAmplitudeStart;
+} else {
+delayTicks = Config.vibratos[inst.vibrato].delayTicks;
+vibratoAmplitudeStart = Config.vibratos[inst.vibrato].amplitude;
+vibratoAmplitudeEnd = vibratoAmplitudeStart;
+}
+
+if (isModActiveDelay) {
+delayTicks = modDelayValue * 2; // Delay was changed from parts to ticks in BB v9
+if (delayTicks === Config.modulators.dictionary["vibrato delay"].maxRawVol * 2) {
+delayTicks = Number.POSITIVE_INFINITY;
+}
+}
+
+if (isModActiveDepth) {
+vibratoAmplitudeStart = modDepthStart / 25;
+vibratoAmplitudeEnd = modDepthEnd / 25;
+}
+
+// To maintain pitch continuity, (mostly for picked string which retriggers impulse
+// otherwise) remember the vibrato at the end of this run and reuse it at the start
+// of the next run if available.
+let vibratoStart: number;
+if (tone.prevVibrato != null) {
+vibratoStart = tone.prevVibrato;
+} else {
+const vibratoDepthEnvelopeStart: number =
+envelopeStarts[EnvelopeComputeIndex.vibratoDepth];
+vibratoStart =
+vibratoAmplitudeStart * lfoAmplitudeStart * vibratoDepthEnvelopeStart;
+if (delayTicks > 0.0) {
+const ticksUntilVibratoStart: number =
+delayTicks - envelopeComputer.noteTicksStart;
+vibratoStart *= Math.max(
+0.0,
+Math.min(1.0, 1.0 - ticksUntilVibratoStart / 2.0),
+);
+}
+}
+
+const vibratoDepthEnvelopeEnd: number =
+envelopeEnds[EnvelopeComputeIndex.vibratoDepth];
+if (!isModCapable) {
+let vibratoEnd: number =
+vibratoAmplitudeEnd * lfoAmplitudeEnd * vibratoDepthEnvelopeEnd;
+if (delayTicks > 0.0) {
+const ticksUntilVibratoEnd: number = delayTicks - envelopeComputer.noteTicksEnd;
+vibratoEnd *= Math.max(0.0, Math.min(1.0, 1.0 - ticksUntilVibratoEnd / 2.0));
+}
+
+tone.prevVibrato = vibratoEnd;
+
+intervalStart += vibratoStart;
+intervalEnd += vibratoEnd;
+}
+
+return { intervalStart, intervalEnd };
 }

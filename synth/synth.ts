@@ -24,7 +24,7 @@ import type { Note, NotePin, Pattern } from "./notes";
 import { PickedString } from "./picked-string";
 import { getPlugin } from "./plugins";
 import { PostProcessingState } from "./post-processing";
-import { applyDetune, applyDrumsetPitch, applyFadeIn, applyIntervalFadeSideEffects, applyPitchShift, computeBasePitchAndExpression, computeEnvelopeSpeeds, computeSlides, computeToneIntervalAndFade, initTonePhaseState } from "./render/compute-tone";
+import { applyDetune, applyDrumsetPitch, applyFadeIn, applyIntervalFadeSideEffects, applyPitchShift, applyVibrato, computeBasePitchAndExpression, computeEnvelopeSpeeds, computeSlides, computeToneIntervalAndFade, initTonePhaseState } from "./render/compute-tone";
 import {
 	allocTone,
 	freeAllTones,
@@ -3773,111 +3773,69 @@ export class Synth {
 		}
 
 		if (effectsIncludeVibrato(instrument.effects)) {
-			let delayTicks: number;
-			let vibratoAmplitudeStart: number;
-			let vibratoAmplitudeEnd: number;
-			// Custom vibrato
-			if (instrument.vibrato === Config.vibratos.length) {
-				delayTicks = instrument.vibratoDelay * 2; // Delay was changed from parts to ticks in BB v9
-				// Special case: if vibrato delay is max, NEVER vibrato.
-				if (
-					instrument.vibratoDelay ===
-					Config.modulators.dictionary["vibrato delay"].maxRawVol
-				) {
-					delayTicks = Number.POSITIVE_INFINITY;
-				}
-				vibratoAmplitudeStart = instrument.vibratoDepth;
-				vibratoAmplitudeEnd = vibratoAmplitudeStart;
-			} else {
-				delayTicks = Config.vibratos[instrument.vibrato].delayTicks;
-				vibratoAmplitudeStart = Config.vibratos[instrument.vibrato].amplitude;
-				vibratoAmplitudeEnd = vibratoAmplitudeStart;
-			}
-
-			if (
-				this.isModActive(
-					Config.modulators.dictionary["vibrato delay"].index,
-					channelIndex,
-					tone.instrumentIndex,
-				)
-			) {
-				delayTicks =
-					this.modState.getModValue(
-						Config.modulators.dictionary["vibrato delay"].index,
-						channelIndex,
-						tone.instrumentIndex,
-						false,
-					) * 2; // Delay was changed from parts to ticks in BB v9
-				if (delayTicks === Config.modulators.dictionary["vibrato delay"].maxRawVol * 2) {
-					delayTicks = Number.POSITIVE_INFINITY;
-				}
-			}
-
-			if (
-				this.isModActive(
-					Config.modulators.dictionary["vibrato depth"].index,
-					channelIndex,
-					tone.instrumentIndex,
-				)
-			) {
-				vibratoAmplitudeStart =
-					this.modState.getModValue(
-						Config.modulators.dictionary["vibrato depth"].index,
-						channelIndex,
-						tone.instrumentIndex,
-						false,
-					) / 25;
-				vibratoAmplitudeEnd =
-					this.modState.getModValue(
-						Config.modulators.dictionary["vibrato depth"].index,
-						channelIndex,
-						tone.instrumentIndex,
-						true,
-					) / 25;
-			}
-
-			// To maintain pitch continuity, (mostly for picked string which retriggers impulse
-			// otherwise) remember the vibrato at the end of this run and reuse it at the start
-			// of the next run if available.
-			let vibratoStart: number;
-			if (tone.prevVibrato != null) {
-				vibratoStart = tone.prevVibrato;
-			} else {
-				const vibratoLfoStart: number = Synth.getLFOAmplitude(
-					instrument,
-					secondsPerPart * instrumentState.vibratoTime,
-				);
-				const vibratoDepthEnvelopeStart: number =
-					envelopeStarts[EnvelopeComputeIndex.vibratoDepth];
-				vibratoStart = vibratoAmplitudeStart * vibratoLfoStart * vibratoDepthEnvelopeStart;
-				if (delayTicks > 0.0) {
-					const ticksUntilVibratoStart: number =
-						delayTicks - envelopeComputer.noteTicksStart;
-					vibratoStart *= Math.max(
-						0.0,
-						Math.min(1.0, 1.0 - ticksUntilVibratoStart / 2.0),
-					);
-				}
-			}
-
-			const vibratoLfoEnd: number = Synth.getLFOAmplitude(
+			const _isModCapable: boolean = getInstrumentCapability(instrument, "isMod");
+			const _lfoAmplitudeStart: number = Synth.getLFOAmplitude(
+				instrument,
+				secondsPerPart * instrumentState.vibratoTime,
+			);
+			const _lfoAmplitudeEnd: number = Synth.getLFOAmplitude(
 				instrument,
 				secondsPerPart * instrumentState.nextVibratoTime,
 			);
-			const vibratoDepthEnvelopeEnd: number = envelopeEnds[EnvelopeComputeIndex.vibratoDepth];
-			if (!getInstrumentCapability(instrument, "isMod")) {
-				let vibratoEnd: number =
-					vibratoAmplitudeEnd * vibratoLfoEnd * vibratoDepthEnvelopeEnd;
-				if (delayTicks > 0.0) {
-					const ticksUntilVibratoEnd: number = delayTicks - envelopeComputer.noteTicksEnd;
-					vibratoEnd *= Math.max(0.0, Math.min(1.0, 1.0 - ticksUntilVibratoEnd / 2.0));
-				}
-
-				tone.prevVibrato = vibratoEnd;
-
-				intervalStart += vibratoStart;
-				intervalEnd += vibratoEnd;
+			const _isModActiveDelay: boolean = this.isModActive(
+				Config.modulators.dictionary["vibrato delay"].index,
+				channelIndex,
+				tone.instrumentIndex,
+			);
+			let _modDelayValue: number = 0;
+			if (_isModActiveDelay) {
+				_modDelayValue = this.modState.getModValue(
+					Config.modulators.dictionary["vibrato delay"].index,
+					channelIndex,
+					tone.instrumentIndex,
+					false,
+				);
 			}
+			const _isModActiveDepth: boolean = this.isModActive(
+				Config.modulators.dictionary["vibrato depth"].index,
+				channelIndex,
+				tone.instrumentIndex,
+			);
+			let _modDepthStart: number = 0;
+			let _modDepthEnd: number = 0;
+			if (_isModActiveDepth) {
+				_modDepthStart = this.modState.getModValue(
+					Config.modulators.dictionary["vibrato depth"].index,
+					channelIndex,
+					tone.instrumentIndex,
+					false,
+				);
+				_modDepthEnd = this.modState.getModValue(
+					Config.modulators.dictionary["vibrato depth"].index,
+					channelIndex,
+					tone.instrumentIndex,
+					true,
+				);
+			}
+			const vibratoResult = applyVibrato(
+				tone,
+				instrument,
+				envelopeComputer,
+				envelopeStarts,
+				envelopeEnds,
+				_isModCapable,
+				_lfoAmplitudeStart,
+				_lfoAmplitudeEnd,
+				_isModActiveDelay,
+				_modDelayValue,
+				_isModActiveDepth,
+				_modDepthStart,
+				_modDepthEnd,
+				intervalStart,
+				intervalEnd,
+			);
+			intervalStart = vibratoResult.intervalStart;
+			intervalEnd = vibratoResult.intervalEnd;
 		}
 
 		{
