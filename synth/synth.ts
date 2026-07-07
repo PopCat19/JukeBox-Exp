@@ -24,7 +24,7 @@ import type { Note, NotePin, Pattern } from "./notes";
 import { PickedString } from "./picked-string";
 import { getPlugin } from "./plugins";
 import { PostProcessingState } from "./post-processing";
-import { applyDetune, applyDrumsetPitch, applyFadeIn, applyIntervalFadeSideEffects, applyPitchShift, computeBasePitchAndExpression, computeSlides, computeToneIntervalAndFade, initTonePhaseState } from "./render/compute-tone";
+import { applyDetune, applyDrumsetPitch, applyFadeIn, applyIntervalFadeSideEffects, applyPitchShift, computeBasePitchAndExpression, computeEnvelopeSpeeds, computeSlides, computeToneIntervalAndFade, initTonePhaseState } from "./render/compute-tone";
 import {
 	allocTone,
 	freeAllTones,
@@ -3607,61 +3607,33 @@ export class Synth {
 
 		// Compute envelopes *after* resetting the tone, otherwise the envelope computer gets reset too!
 		const envelopeComputer: EnvelopeComputer = tone.envelopeComputer;
-		const envelopeSpeeds: number[] = [];
-		for (let i: number = 0; i < Config.maxEnvelopeCount; i++) {
-			envelopeSpeeds[i] = 0;
+		const _isModActiveIndivSpeed: boolean = this.isModActive(
+			Config.modulators.dictionary["individual envelope speed"].index,
+			channelIndex,
+			tone.instrumentIndex,
+		);
+		const _isModActiveSpeed: boolean = this.isModActive(
+			Config.modulators.dictionary["envelope speed"].index,
+			channelIndex,
+			tone.instrumentIndex,
+		);
+		let _modSpeedValue: number = 0;
+		if (_isModActiveSpeed) {
+			_modSpeedValue = this.modState.getModValue(
+				Config.modulators.dictionary["envelope speed"].index,
+				channelIndex,
+				tone.instrumentIndex,
+				false,
+			);
 		}
-		for (
-			let envelopeIndex: number = 0;
-			envelopeIndex < instrument.envelopeCount;
-			envelopeIndex++
-		) {
-			let perEnvelopeSpeed: number = instrument.envelopes[envelopeIndex].perEnvelopeSpeed;
-			if (
-				this.isModActive(
-					Config.modulators.dictionary["individual envelope speed"].index,
-					channelIndex,
-					tone.instrumentIndex,
-				) &&
-				instrument.envelopes[envelopeIndex].tempEnvelopeSpeed != null
-			) {
-				perEnvelopeSpeed = instrument.envelopes[envelopeIndex].tempEnvelopeSpeed!;
-			}
-			let useEnvelopeSpeed: number =
-				Config.arpSpeedScale[instrument.envelopeSpeed] * perEnvelopeSpeed;
-			if (
-				this.isModActive(
-					Config.modulators.dictionary["envelope speed"].index,
-					channelIndex,
-					tone.instrumentIndex,
-				)
-			) {
-				useEnvelopeSpeed = Math.max(
-					0,
-					Math.min(
-						Config.arpSpeedScale.length - 1,
-						this.modState.getModValue(
-							Config.modulators.dictionary["envelope speed"].index,
-							channelIndex,
-							tone.instrumentIndex,
-							false,
-						),
-					),
-				);
-				if (Number.isInteger(useEnvelopeSpeed)) {
-					useEnvelopeSpeed = Config.arpSpeedScale[useEnvelopeSpeed] * perEnvelopeSpeed;
-				} else {
-					// Linear interpolate envelope values
-					useEnvelopeSpeed =
-						(1 - (useEnvelopeSpeed % 1)) *
-							Config.arpSpeedScale[Math.floor(useEnvelopeSpeed)] +
-						(useEnvelopeSpeed % 1) *
-							Config.arpSpeedScale[Math.ceil(useEnvelopeSpeed)] *
-							perEnvelopeSpeed;
-				}
-			}
-			envelopeSpeeds[envelopeIndex] = useEnvelopeSpeed;
-		}
+		const envelopeSpeeds: number[] = computeEnvelopeSpeeds(
+			instrument.envelopeCount,
+			instrument.envelopeSpeed,
+			instrument.envelopes,
+			_isModActiveIndivSpeed,
+			_isModActiveSpeed,
+			_modSpeedValue,
+		);
 		// Pre-compute Synth-dependent values for envelope computer
 		const _ticksSinceStart: number = this.computeTicksSinceStart();
 		const _ticksSinceStartOfBar: number = this.computeTicksSinceStart(true);

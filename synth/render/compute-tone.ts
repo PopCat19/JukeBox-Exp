@@ -668,3 +668,69 @@ export function applyDrumsetPitch(
 		tone.drumsetPitch = Math.max(0, Math.min(drumCount - 1, tone.drumsetPitch));
 	}
 }
+
+// ── Envelope speeds ───────────────────────────────────────────────────────
+
+/**
+ * Per-envelope speed data needed for envelope speed computation.
+ */
+export interface EnvelopeSpeedData {
+	readonly perEnvelopeSpeed: number;
+	readonly tempEnvelopeSpeed: number | null;
+}
+
+/**
+ * Compute the envelopeSpeeds array for the envelope computer.
+ *
+ * Reads per-envelope speed values, applies mod overrides for
+ * individual envelope speed and global envelope speed.
+ * Returns an array initialized to Config.maxEnvelopeCount length
+ * with zeros where no envelope is defined.
+ */
+export function computeEnvelopeSpeeds(
+	envelopeCount: number,
+	instrumentEnvelopeSpeed: number,
+	envelopes: ReadonlyArray<EnvelopeSpeedData>,
+	isModActiveIndivSpeed: boolean,
+	isModActiveSpeed: boolean,
+	modSpeedValue: number,
+): number[] {
+	const envelopeSpeeds: number[] = [];
+	for (let i: number = 0; i < Config.maxEnvelopeCount; i++) {
+		envelopeSpeeds[i] = 0;
+	}
+	for (let envelopeIndex: number = 0; envelopeIndex < envelopeCount; envelopeIndex++) {
+		let perEnvelopeSpeed: number = envelopes[envelopeIndex].perEnvelopeSpeed;
+		if (
+			isModActiveIndivSpeed &&
+			envelopes[envelopeIndex].tempEnvelopeSpeed != null
+		) {
+			perEnvelopeSpeed = envelopes[envelopeIndex].tempEnvelopeSpeed!;
+		}
+		let useEnvelopeSpeed: number =
+			Config.arpSpeedScale[instrumentEnvelopeSpeed] * perEnvelopeSpeed;
+		if (isModActiveSpeed) {
+			useEnvelopeSpeed = Math.max(
+				0,
+				Math.min(
+					Config.arpSpeedScale.length - 1,
+					modSpeedValue,
+				),
+			);
+			if (Number.isInteger(useEnvelopeSpeed)) {
+				useEnvelopeSpeed =
+					Config.arpSpeedScale[useEnvelopeSpeed] * perEnvelopeSpeed;
+			} else {
+				// Linear interpolate envelope values
+				useEnvelopeSpeed =
+					(1 - (useEnvelopeSpeed % 1)) *
+						Config.arpSpeedScale[Math.floor(useEnvelopeSpeed)] +
+					(useEnvelopeSpeed % 1) *
+						Config.arpSpeedScale[Math.ceil(useEnvelopeSpeed)] *
+						perEnvelopeSpeed;
+			}
+		}
+		envelopeSpeeds[envelopeIndex] = useEnvelopeSpeed;
+	}
+	return envelopeSpeeds;
+}
