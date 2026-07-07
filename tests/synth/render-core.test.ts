@@ -20,7 +20,7 @@ import { renderTick, createRenderState } from "../../synth/render/render-core";
 
 // ── Helpers ───────────────────────────────────────────────────────────────
 
-/** Compute a simple 64-bit checksum from a Float32Array. */
+/** Compute a simple 32-bit checksum from a Float32Array (int32 mixing, not a real hash). */
 function checksumF32(buf: Float32Array): number {
 	let h: number = 0;
 	for (let i: number = 0; i < buf.length; i++) {

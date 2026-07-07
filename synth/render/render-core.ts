@@ -1,4 +1,4 @@
-// core.ts
+// render-core.ts
 //
 // Purpose: Pure render tick function — takes a SongSnapshot + RenderState, produces audio
 //
@@ -13,15 +13,16 @@ import type { SongSnapshot } from "./snapshot";
 // ── RenderState (mutable state owned by render core) ─────────────────────
 
 export interface RenderState {
-	playhead: number;
-	bar: number;
-	beat: number;
-	part: number;
-	tick: number;
-	tickSampleCountdown: number;
-	isAtStartOfTick: boolean;
-	isAtStartOfSong: boolean;
-	prevBar: number | null;
+playhead: number;
+bar: number;
+beat: number;
+part: number;
+tick: number;
+tickSampleCountdown: number;
+isAtStartOfTick: boolean;
+isAtStartOfSong: boolean;
+playheadNeedsReset: boolean;
+prevBar: number | null;
 
 	// Per-channel audio accumulation ring buffers
 	// (initialized from snapshot channel count, sized by sample rate × max tick)
@@ -38,16 +39,17 @@ export interface RenderState {
 }
 
 export function createRenderState(): RenderState {
-	return {
-		playhead: 0,
-		bar: 0,
-		beat: 0,
-		part: 0,
-		tick: 0,
-		tickSampleCountdown: 0,
-		isAtStartOfTick: true,
-		isAtStartOfSong: true,
-		prevBar: null,
+return {
+playhead: 0,
+bar: 0,
+beat: 0,
+part: 0,
+tick: 0,
+tickSampleCountdown: 0,
+isAtStartOfTick: true,
+isAtStartOfSong: true,
+playheadNeedsReset: false,
+prevBar: null,
 
 		channelRingBuffers: [],
 		channelRingPositions: [],
