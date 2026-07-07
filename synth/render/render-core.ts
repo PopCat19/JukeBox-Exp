@@ -143,7 +143,10 @@ export function renderPostProcessing(
 	state: PostProcessingState,
 ): void {
 	if (leftUnfiltered == null || rightUnfiltered == null) {
-		// Fallback: process with silence unfiltered buffers
+		// SAFETY: Allocates temporary silence buffers. The coordinator path
+		// always provides real unfiltered buffers — this fallback exists for
+		// test isolation where unfiltered buffers may not be wired. Replace
+		// with a guard assert once the coordinator is the only caller.
 		const dummyL: Float32Array = new Float32Array(left.length);
 		const dummyR: Float32Array = new Float32Array(right.length);
 		state.processBlock(left, right, dummyL, dummyR, bufferIndex, runEnd, params, volume, sampleRate, volCap);
@@ -156,7 +159,18 @@ export function renderPostProcessing(
 
 /**
  * Apply cubic ease-out stop-fade to a range of output samples.
- * Mutates output buffers in place. Updates stopFade state.
+ * Mutates output buffers in place. Updates stopFade.samplesRemaining.
+ *
+ * Caller must:
+ * 1. Scale outVolumeCap by the returned gain for peak-meter tracking.
+ * 2. Zero remaining unfiltered buffers when fade completes.
+ * 3. Set stopFade.cleanupDone = true after freeing tones/effects.
+ *
+ * The tone/effect cleanup (freeAllTones, resetAllEffects, clear mods)
+ * stays in the coordinator because it touches Synth internals not yet
+ * ported to render-core. When the coordinator detects
+ * stopFade.samplesRemaining <= 0 && !stopFade.cleanupDone, it runs the
+ * cleanup and sets cleanupDone = true.
  */
 export function renderStopFade(
 	left: Float32Array,
