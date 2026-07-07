@@ -46,9 +46,8 @@ export type { NotePin } from "./notes";
 // Layer 2: Notes
 export { makeNotePin, Note, Pattern } from "./notes";
 export { PickedString } from "./picked-string";
-export type { InstrumentCapabilities } from "./plugins/capabilities";
+export type { InstrumentCapabilities } from "./socket/capability-schema";
 // Plugin registry
-export { getCapabilities, registerCapabilities } from "./plugins/capabilities";
 export type { EditorRowName, SynthPlugin } from "./plugins/interfaces";
 export { getAllPlugins, getPlugin, getRegisteredPlugins, registerPlugin } from "./plugins/registry";
 // Layer 1: Serialization

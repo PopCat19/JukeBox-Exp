@@ -64,8 +64,6 @@ describe("synth barrel exports", () => {
 		expect(typeof plugMod.getPlugin).toBe("function");
 		expect(typeof plugMod.registerPlugin).toBe("function");
 		expect(typeof plugMod.getRegisteredPlugins).toBe("function");
-		expect(typeof plugMod.getCapabilities).toBe("function");
-		expect(typeof plugMod.registerCapabilities).toBe("function");
 		expect(typeof plugMod.getEffectsSynthFunction).toBe("function");
 	});
 
@@ -101,7 +99,6 @@ describe("synth barrel exports", () => {
 	test("plugin registry is accessible", async () => {
 		const mod = await import("../synth");
 		expect(typeof mod.getPlugin).toBe("function");
-		expect(typeof mod.getCapabilities).toBe("function");
 		expect(typeof mod.registerPlugin).toBe("function");
 		expect(typeof mod.getRegisteredPlugins).toBe("function");
 	});

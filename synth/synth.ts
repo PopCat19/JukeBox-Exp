@@ -22,8 +22,8 @@ import { FilterControlPoint, FilterSettings, type HeldMod, Instrument } from "./
 import { SynthModState } from "./mod-state";
 import type { Note, NotePin, Pattern } from "./notes";
 import { PickedString } from "./picked-string";
-import { getInstrument } from "./socket/registry";
-import { getCapabilities, getPlugin, type InstrumentCapabilities } from "./plugins";
+import { getInstrumentCapability } from "./socket/capability-lookup";
+import { getPlugin } from "./plugins";
 import { PostProcessingState } from "./post-processing";
 import { Song } from "./song";
 import type { Chord, Envelope, Transition } from "./synth-config";
@@ -72,19 +72,6 @@ declare global {
  * getCapabilities() when no socket module id is set or the module
  * doesn't declare the flag.
  */
-function getInstrumentCapability(
-	instrument: Instrument,
-	key: keyof InstrumentCapabilities,
-): boolean {
-	const moduleId = (instrument as { _socketModuleId?: string })._socketModuleId;
-	if (moduleId) {
-		const mod = getInstrument(moduleId);
-		if (mod && mod.capabilities[key] !== undefined) {
-			return mod.capabilities[key]!;
-		}
-	}
-	return getCapabilities(instrument.type)[key];
-}
 
 export class Synth {
 	private _songChannelCount: number = 0;

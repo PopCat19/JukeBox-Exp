@@ -16,6 +16,7 @@
 // Any extraction that changes synth.ts must update this file to re-scan
 // the new generated sources and re-verify the host interfaces.
 
+import { readFileSync } from "fs";
 import { describe, test, expect } from "bun:test";
 import { Synth } from "../synth/synth";
 import { AudioBackend } from "../synth/audio-backend";
@@ -203,25 +204,23 @@ describe("Category D: barrel exports", () => {
 // ---------------------------------------------------------------------------
 
 describe("Category E: socket capability lookup", () => {
-	test("synth.ts defines getInstrumentCapability helper", () => {
-		const fs = require("fs");
-		const source = fs.readFileSync(
+	test("synth.ts imports getInstrumentCapability from socket/capability-lookup", () => {
+		const source = readFileSync(
 			new URL("../synth/synth.ts", import.meta.url),
 			"utf8",
-		) as string;
-		expect(source).toContain("function getInstrumentCapability(");
+		);
+		expect(source).toContain("import { getInstrumentCapability } from");
+		expect(source).toMatch(/from\s+["'].\/socket\/capability-lookup["']/);
 	});
 
 	test("render path uses getInstrumentCapability not direct getCapabilities", () => {
-		const fs = require("fs");
-		const source = fs.readFileSync(
+		const source = readFileSync(
 			new URL("../synth/synth.ts", import.meta.url),
 			"utf8",
-		) as string;
-		// The helper contains one getCapabilities call as fallback. The two
-		// render-path callsites must use getInstrumentCapability instead.
-		// Count occurrences: helper has 1 fallback, any more are drift.
+		);
+		// After removal of capabilities.ts, synth.ts must use only the helper
+		// for capability lookups. No direct getCapabilities() calls remain.
 		const matches = source.match(/getCapabilities\(instrument\.type\)/g);
-		expect(matches ? matches.length : 0).toBe(1);
+		expect(matches ? matches.length : 0).toBe(0);
 	});
 });

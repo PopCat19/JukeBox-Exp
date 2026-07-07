@@ -9,7 +9,8 @@
 // - Handles chip wave advanced loop controls
 
 import { type ChannelColors, ColorConfig } from "../../shared/color-config";
-import { detuneToCents, getCapabilities, getPlugin, type Instrument } from "../../synth";
+import { detuneToCents, getPlugin, type Instrument } from "../../synth";
+import { getInstrumentCapabilities } from "../../synth/socket/capability-lookup";
 import {
 	Config,
 	effectsIncludeBitcrusher,
@@ -248,7 +249,7 @@ export function applyInstrumentVisibility(
 	shiftHeld: boolean,
 ): void {
 	// --- Data-driven type-specific row visibility ---
-	const caps = getCapabilities(instrument.type);
+	const caps = getInstrumentCapabilities(instrument);
 	const plugin = getPlugin(instrument.type);
 	const rows = new Set<string>(plugin?.editorRows ?? []);
 
@@ -667,7 +668,7 @@ export function applyInstrumentVisibility(
 		refs.lowerNoteLimitRow.style.display = "none";
 	}
 
-	if (getCapabilities(instrument.type).hasUnison) {
+	if (getInstrumentCapabilities(instrument).hasUnison) {
 		refs.unisonSelectRow.style.display = "";
 		setSelectedValue(refs.unisonSelect, instrument.unison);
 		refs.unisonVoicesInputBox.value = `${instrument.unisonVoices}`;

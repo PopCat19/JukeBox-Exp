@@ -10,7 +10,7 @@
 
 import type { ParamSchema } from "./param-schema";
 import type { FieldReader, FieldWriter } from "./serde";
-import type { InstrumentCapabilities } from "../plugins/capabilities";
+import type { InstrumentCapabilities } from "./capability-schema";
 
 export interface SynthBuildContext {
 	readonly sampleRate: number;

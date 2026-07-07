@@ -5,6 +5,8 @@ Purpose: Formal socket interfaces — stable, versioned extension contracts for 
 - `version.ts`, SOCKET_VERSION constant and compat check functions
 - `param-schema.ts`, Declarative parameter descriptors — drives UI, changes, and serde
 - `serde.ts`, Namespaced serialization contract — FieldWriter/FieldReader, container format
+- `capability-schema.ts`, InstrumentCapabilities interface (capability flag declarations)
+- `capability-lookup.ts`, Resolves capabilities from socket module id with legacy type fallback
 - `instrument-module.ts`, S1 socket — InstrumentModule interface for sound generators
 - `effect-module.ts`, S2 socket — EffectModule interface for signal processors
 - `registry.ts`, Namespaced registry — register/resolve InstrumentModule and EffectModule
