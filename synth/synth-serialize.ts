@@ -12,6 +12,8 @@ import type { FilterControlPoint } from "./instruments";
 import { Instrument } from "./instruments";
 import { NotePin } from "./notes";
 import { getPlugin } from "./plugins";
+import { getInstrument } from "./socket/registry";
+import { JsonFieldWriter } from "./socket/json-serde-adapter";
 import {
 	BitFieldWriter,
 	base64IntToCharCode,
@@ -839,11 +841,18 @@ export function toBase64StringImpl(song: SongLike): string {
 				}
 			}
 
-			// Socket module payload — preserve _socketModuleId through URL round-trip
+			// Socket module payload — use module.serialize() for real param round-trip
 			const _socketModuleId = (instrument as any)._socketModuleId as string | undefined;
 			if (_socketModuleId) {
 				buffer.push(SongTagCode.socketPayload);
-				const blob = btoa(JSON.stringify({ id: _socketModuleId, version: 1 }));
+				const mod = getInstrument(_socketModuleId);
+				let payload: Record<string, unknown> = { id: _socketModuleId, version: 1 };
+				if (mod) {
+					const w = new JsonFieldWriter();
+					mod.serialize(instrument as unknown as Record<string, unknown>, w);
+					payload = { id: _socketModuleId, version: 1, params: w.toJSON() };
+				}
+				const blob = btoa(JSON.stringify(payload));
 				encode32BitNumber(buffer, blob.length);
 				for (let i = 0; i < blob.length; i++) {
 					buffer.push(blob.charCodeAt(i));

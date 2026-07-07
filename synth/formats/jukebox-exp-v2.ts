@@ -12,6 +12,8 @@ import type { SongLike } from "../song-serialization";
 import { toJukeboxExpJson, isJukeboxExpObject } from "./jukebox-exp";
 import { type JukeboxExpFields } from "./schema-types";
 import { fromJsonObjectImpl } from "./json-serialization";
+import { getInstrument } from "../socket/registry";
+import { JsonFieldReader } from "../socket/json-serde-adapter";
 
 export const JUKEBOX_EXP_V2_FORMAT = "JukeboxExp" as const;
 export const JUKEBOX_EXP_V2_LATEST_VERSION = 2;
@@ -94,16 +96,22 @@ export function fromJukeboxExpV2Json(song: SongLike, obj: JukeboxExpV2Object): v
 	);
 
 	// Apply module payloads AFTER fromJsonObjectImpl which rebuilds instruments
-	// Restore both _socketModuleId (for export) and _socketModulePayload (for module deserialize)
+	// Restore _socketModuleId, then call module.deserialize() to hydrate params
 	if (savedPayloads) {
 		for (let ci = 0; ci < song.getChannelCount(); ci++) {
 			const channel = song.channels[ci];
 			for (let ii = 0; ii < channel.instruments.length; ii++) {
 				const key = `${ci}:${ii}`;
 				const payload = savedPayloads[key];
-				if (payload) {
-					(channel.instruments[ii] as any)._socketModuleId = payload.id;
-					(channel.instruments[ii] as any)._socketModulePayload = payload;
+				if (!payload) continue;
+				(channel.instruments[ii] as any)._socketModuleId = payload.id;
+				const mod = getInstrument(payload.id);
+				if (mod && payload.params && typeof payload.params === "object") {
+					const r = new JsonFieldReader(payload.params);
+					const deserialized = mod.deserialize(r, payload.version ?? 1);
+					for (const [key, value] of Object.entries(deserialized)) {
+						(channel.instruments[ii] as any)[key] = value;
+					}
 				}
 			}
 		}

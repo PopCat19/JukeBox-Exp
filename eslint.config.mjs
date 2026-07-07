@@ -42,6 +42,7 @@ export default tseslint.config(
             "synth/formats/jukebox-exp-v2.ts",
             "synth/socket/legacy-importer.ts",
             "synth/socket/url-varint.ts",
+            "synth/socket/json-serde-adapter.ts",
             "synth/modules/index.ts",
             "synth/modules/placeholder/module.ts",
             "tests/serde-container.test.ts",

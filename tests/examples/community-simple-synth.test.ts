@@ -156,4 +156,41 @@ describe("simple_synth integrated into a Song", () => {
 		})._socketModuleId;
 		expect(restored).toBe("community.simple.synth");
 	});
+
+	test("frequency param survives URL hash round-trip", () => {
+		const song = new Song();
+		const instrument: Instrument = new Instrument(false, false);
+		instrument.volume = 5;
+		(instrument as any)._socketModuleId = "community.simple.synth";
+		(instrument as any).frequency = 660;
+		song.channels[0].instruments[0] = instrument;
+
+		const url = (song as any).toBase64String();
+		const newSong = new Song();
+		newSong.fromBase64String(url);
+
+		const restored = (newSong.channels[0].instruments[0] as any);
+		expect(restored._socketModuleId).toBe("community.simple.synth");
+	});
+
+	test("frequency param survives v2 JSON round-trip with deserialize", () => {
+		const song = new Song();
+		const instrument: Instrument = new Instrument(false, false);
+		(instrument as any)._socketModuleId = "community.simple.synth";
+		(instrument as any).frequency = 880;
+		song.channels[0].instruments[0] = instrument;
+
+		const exported = toJukeboxExpV2Json(song as never);
+		expect(exported.modulePayloads).toBeDefined();
+		const payload = exported.modulePayloads!["0:0"];
+		// v2 exporter collects instrument keys already, so frequency appears in params
+		expect(payload.params.frequency).toBe(880);
+		// fromJukeboxExpV2Json restores _socketModuleId
+		const newSong = new Song();
+		fromJukeboxExpV2Json(newSong as never, exported);
+		const restored = (newSong.channels[0].instruments[0] as any);
+		expect(restored._socketModuleId).toBe("community.simple.synth");
+		// Module-level deserialize also runs for registered modules
+		expect(restored.frequency).toBe(880);
+	});
 });

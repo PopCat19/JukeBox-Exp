@@ -14,6 +14,8 @@ import { loadCustomSamples } from "./deserialize/load-custom-samples";
 import { FilterControlPoint, FilterSettings, Instrument, LegacySettings } from "./instruments";
 import { makeNotePin, Note, NotePin, Pattern } from "./notes";
 import { getPlugin } from "./plugins";
+import { getInstrument } from "./socket/registry";
+import { JsonFieldReader } from "./socket/json-serde-adapter";
 import {
 	BitFieldReader,
 	base64CharCodeToInt,
@@ -4371,12 +4373,23 @@ export function fromBase64StringImpl(
 					const blob: string = compressed.substring(charIndex, charIndex + blobLength);
 					charIndex += blobLength;
 					try {
-						const payload: { id: string } = JSON.parse(atob(blob));
+						const payload: { id: string; version?: number; params?: Record<string, unknown> } = JSON.parse(atob(blob));
 						const instrument: Instrument =
 							song.channels[instrumentChannelIterator].instruments[
 								instrumentIndexIterator
 							];
 						(instrument as any)._socketModuleId = payload.id;
+						// Deserialize module params if registered and payload has params
+						if (payload.params) {
+							const mod = getInstrument(payload.id);
+							if (mod) {
+								const r = new JsonFieldReader(payload.params);
+								const deserialized = mod.deserialize(r, payload.version ?? 1);
+								for (const [key, value] of Object.entries(deserialized)) {
+									(instrument as any)[key] = value;
+								}
+							}
+						}
 					} catch (_e) {
 						// Invalid socket payload — skip gracefully
 					}
