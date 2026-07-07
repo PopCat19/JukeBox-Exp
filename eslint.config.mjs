@@ -50,6 +50,7 @@ export default tseslint.config(
             "synth/modules/noise/serde.ts",
             "synth/modules/noise/dsp.ts",
             "tests/modules-noise.test.ts",
+            "tests/modules-chip.test.ts",
             "eslint.config.mjs",
           ],
         },

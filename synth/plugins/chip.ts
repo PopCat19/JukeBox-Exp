@@ -1,10 +1,11 @@
 // chip.ts
 //
-// Purpose: Chip wave synthesis plugin (handles normal, loopable, and custom chip wave)
+// Purpose: Chip wave synthesis plugin — bridges from socket InstrumentModule
 //
 // This module:
-// - Branches on isUsingAdvancedLoopControls for loopable variant
-// - Registers for both InstrumentType.chip and InstrumentType.customChipWave
+// - Bridges chipModule as a SynthPlugin for backward compat
+// - Preserves per-unison-voice function caching (normal + loopable)
+// - Registers both InstrumentType.chip and InstrumentType.customChipWave
 
 import { InstrumentState } from "../instrument-state";
 import type { Instrument } from "../instruments";
@@ -12,7 +13,9 @@ import { Synth } from "../synth";
 import { Config, effectsIncludeDistortion, InstrumentType } from "../synth-config";
 import { buildChipSource, buildLoopableChipSource } from "../synthesis/chip";
 import type { Tone } from "../tone";
+import { registerModuleAsPlugin } from "../socket/bridge";
 import { registerPlugin } from "./registry";
+import chipModule from "../modules/chip/module";
 
 const chipFunctionCache: Function[] = [];
 const loopableChipFunctionCache: Function[] = Array(Config.unisonVoicesMax + 1).fill(undefined);
@@ -66,8 +69,7 @@ function getSynthFunction(instrument: Instrument, _synth: typeof Synth): Functio
 	return chipSynth;
 }
 
-const plugin = {
-	name: "Chip",
+const sharedPlugin = {
 	getSynthFunction,
 	buildSource: (instrument: Instrument, voiceCount?: number) =>
 		instrument.isUsingAdvancedLoopControls
@@ -75,18 +77,17 @@ const plugin = {
 			: buildChipSource(voiceCount ?? 0),
 };
 
-registerPlugin({
-	...plugin,
-	type: InstrumentType.chip,
-	displayName: "chip",
-	editorRows: ["waveSelect", "loopControls"] as const,
+registerModuleAsPlugin(chipModule, InstrumentType.chip, ["waveSelect", "loopControls"], {
+	getSynthFunction,
 	initialize: (instrument: Instrument) => {
 		instrument.chord = Config.chords.dictionary.arpeggio.index;
 	},
 });
+
 registerPlugin({
-	...plugin,
+	...sharedPlugin,
 	type: InstrumentType.customChipWave,
+	name: "Chip (Custom)",
 	displayName: "chip (custom)",
 	editorRows: ["customWave"] as const,
 	initialize: (instrument: Instrument) => {
