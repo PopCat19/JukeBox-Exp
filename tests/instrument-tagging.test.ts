@@ -13,8 +13,8 @@ import { InstrumentType } from "../synth/synth-config";
 import { toJukeboxExpV2Json, fromJukeboxExpV2Json } from "../synth/formats/jukebox-exp-v2";
 
 describe("instrument tagging", () => {
-	test("bridge map covers all 11 core modules", () => {
-		expect(INSTRUMENT_TYPE_TO_MODULE_ID.size).toBe(11);
+	test("bridge map covers all 12 core modules", () => {
+		expect(INSTRUMENT_TYPE_TO_MODULE_ID.size).toBe(12);
 		expect(INSTRUMENT_TYPE_TO_MODULE_ID.get(InstrumentType.chip)).toBe("core.chip");
 		expect(INSTRUMENT_TYPE_TO_MODULE_ID.get(InstrumentType.noise)).toBe("core.noise");
 		expect(INSTRUMENT_TYPE_TO_MODULE_ID.get(InstrumentType.fm)).toBe("core.fm");
@@ -28,6 +28,9 @@ describe("instrument tagging", () => {
 		expect(INSTRUMENT_TYPE_TO_MODULE_ID.get(InstrumentType.supersaw)).toBe("core.supersaw");
 		expect(INSTRUMENT_TYPE_TO_MODULE_ID.get(InstrumentType.pwm)).toBe("core.pulse");
 		expect(INSTRUMENT_TYPE_TO_MODULE_ID.get(InstrumentType.mod)).toBe("core.mod");
+		expect(INSTRUMENT_TYPE_TO_MODULE_ID.get(InstrumentType.customChipWave)).toBe(
+			"core.customChipWave",
+		);
 	});
 
 	test("tagInstrumentWithModule sets id for chip type", () => {
@@ -61,8 +64,8 @@ describe("instrument tagging", () => {
 		const inst = new Instrument(false, false);
 		// Simulate a previously tagged chip instrument whose user then changes type
 		(inst as unknown as { _socketModuleId?: string })._socketModuleId = "core.chip";
-		// customChipWave has no core module registered
-		inst.setTypeAndReset(InstrumentType.customChipWave, false, false);
+		// Use an instrument type beyond the registered range to test stale-id clearing
+		inst.setTypeAndReset(-1, false, false);
 		tagInstrumentWithModule(inst);
 		expect((inst as unknown as { _socketModuleId?: string })._socketModuleId).toBeUndefined();
 	});

@@ -14,8 +14,8 @@ import { Config, effectsIncludeDistortion, InstrumentType } from "../synth-confi
 import { buildChipSource, buildLoopableChipSource } from "../synthesis/chip";
 import type { Tone } from "../tone";
 import { registerModuleAsPlugin } from "../socket/bridge";
-import { registerPlugin } from "./registry";
 import chipModule from "../modules/chip/module";
+import customChipWaveModule from "../modules/custom-chip-wave/module";
 
 const chipFunctionCache: Function[] = [];
 const loopableChipFunctionCache: Function[] = Array(Config.unisonVoicesMax + 1).fill(undefined);
@@ -69,14 +69,6 @@ function getSynthFunction(instrument: Instrument, _synth: typeof Synth): Functio
 	return chipSynth;
 }
 
-const sharedPlugin = {
-	getSynthFunction,
-	buildSource: (instrument: Instrument, voiceCount?: number) =>
-		instrument.isUsingAdvancedLoopControls
-			? buildLoopableChipSource(voiceCount ?? 0)
-			: buildChipSource(voiceCount ?? 0),
-};
-
 registerModuleAsPlugin(chipModule, InstrumentType.chip, ["waveSelect", "loopControls"], {
 	getSynthFunction,
 	initialize: (instrument: Instrument) => {
@@ -84,12 +76,8 @@ registerModuleAsPlugin(chipModule, InstrumentType.chip, ["waveSelect", "loopCont
 	},
 });
 
-registerPlugin({
-	...sharedPlugin,
-	type: InstrumentType.customChipWave,
-	name: "Chip (Custom)",
-	displayName: "chip (custom)",
-	editorRows: ["customWave"] as const,
+registerModuleAsPlugin(customChipWaveModule, InstrumentType.customChipWave, ["customWave"], {
+	getSynthFunction,
 	initialize: (instrument: Instrument) => {
 		instrument.chord = Config.chords.dictionary.arpeggio.index;
 		instrument.chipWave = 2;

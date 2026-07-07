@@ -300,6 +300,9 @@ describe("shared barrel exports", () => {
 		expect(typeof mods.FM6_ID).toBe("string");
 		expect(typeof mods.DRUMSET_ID).toBe("string");
 		expect(typeof mods.MOD_ID).toBe("string");
+		expect(typeof mods.CUSTOM_CHIP_WAVE_ID).toBe("string");
+		expect(mods.CUSTOM_CHIP_WAVE_ID).toBe("core.customChipWave");
 		expect(Array.isArray(mods.CORE_MODULE_IDS)).toBeTrue();
+		expect(mods.CORE_MODULE_IDS[9]).toBe("core.customChipWave");
 	});
 });

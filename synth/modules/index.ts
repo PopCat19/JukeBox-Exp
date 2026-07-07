@@ -32,6 +32,10 @@ export const fm6Module = _fm6Mod;
 export const drumsetModule = _drumsetMod;
 export const modModule = _modMod;
 
+import { default as _customChipWaveMod, MODULE_ID as _CUSTOM_CHIP_WAVE_ID } from "./custom-chip-wave/module";
+export const customChipWaveModule = _customChipWaveMod;
+export const CUSTOM_CHIP_WAVE_ID = _CUSTOM_CHIP_WAVE_ID;
+
 export const SUPERSAW_ID = _SUPERSAW_ID;
 export const PULSE_ID = _PULSE_ID;
 export const NOISE_ID = _NOISE_ID;
@@ -58,7 +62,7 @@ export const CORE_MODULE_IDS: readonly string[] = [
 	_PULSE_ID,			// 6  — core.pulse
 	_PICKED_STRING_ID,	// 7  — core.pickedString
 	_SUPERSAW_ID,		// 8  — core.supersaw
-	// 9  — core.customChipWave (not migrated yet)
+	_CUSTOM_CHIP_WAVE_ID,// 9  — core.customChipWave
 	_MOD_ID,			// 10 — core.mod
 	_FM6_ID,			// 11 — core.fm6
 ];

@@ -25,7 +25,7 @@ import {
 	getInstrumentCapability,
 } from "../synth/socket/capability-lookup";
 import { registerInstrument, getInstrument } from "../synth/socket/registry";
-import "../synth/plugins"; // Side-effect: registers all 11 core InstrumentModules
+import "../synth/plugins"; // Side-effect: registers all 12 core InstrumentModules
 import { InstrumentType } from "../synth/config/instrument-registry";
 import { SOCKET_VERSION } from "../synth/socket/version";
 import type { InstrumentModule } from "../synth/socket/instrument-module";
