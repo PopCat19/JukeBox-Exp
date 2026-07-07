@@ -15,7 +15,7 @@ import type { Note } from "../notes";
 import { Config, EnvelopeComputeIndex, InstrumentType, type InstrumentType as InstrumentTypeEnum } from "../synth-config";
 import { computeChordExpression, operatorAmplitudeCurve } from "../synth-math";
 import { noteSizeToVolumeMult, instrumentVolumeToVolumeMult } from "../synth-shared";
-import { detuneToCents, getOperatorWave } from "../util";
+import { detuneToCents, getOperatorWave, fittingPowerOfTwo } from "../util";
 import { getArpeggioPitchIndex, getPulseWidthRatio } from "../config/synth-math-utils";
 import type { Tone } from "../tone";
 import type { SongSnapshot } from "./snapshot";
@@ -1554,5 +1554,292 @@ export function computeNonFmExpression(
 
 	return isSilent;
 }
+
+// ── Supersaw section ───────────────────────────────────────────────────────
+
+/**
+ * Minimal supersaw instrument info.
+ */
+export interface SupersawInstrumentInfo {
+	readonly unisonExpression: number;
+	readonly unisonVoices: number;
+	readonly supersawDynamism: number;
+	readonly supersawSpread: number;
+	readonly supersawShape: number;
+	readonly decimalOffset: number;
+	readonly pulseWidth: number;
+}
+
+/**
+ * Pre-computed mod values for the supersaw section.
+ * All values are the raw modState values, call-sites scale as needed.
+ */
+export interface SupersawModValues {
+	readonly dynamismActive: boolean;
+	readonly dynamismModStart: number;
+	readonly dynamismModEnd: number;
+	readonly spreadActive: boolean;
+	readonly spreadModStart: number;
+	readonly spreadModEnd: number;
+	readonly shapeActive: boolean;
+	readonly shapeModStart: number;
+	readonly shapeModEnd: number;
+	readonly decimalOffsetActive: boolean;
+	readonly decimalOffsetModVal: number;
+	readonly pulseWidthActive: boolean;
+	readonly pulseWidthModStart: number;
+	readonly pulseWidthModEnd: number;
+}
+
+/**
+ * Result from the supersaw section: updated expression values and
+ * whether unison was initialized.
+ */
+export interface SupersawResult {
+	readonly supersawExpressionStart: number;
+	readonly supersawExpressionEnd: number;
+	readonly unisonInitialized: boolean;
+}
+
+/**
+ * Compute the supersaw instrument setup: dynamism, spread, shape,
+ * phase initialization, delay line management, and expression scaling.
+ *
+ * Pure function — all mod values are pre-computed. Does not read
+ * from this/modState. Mutates tone fields extensively.
+ */
+export function computeSupersawSetup(
+	tone: Tone,
+	inst: SupersawInstrumentInfo,
+	mods: SupersawModValues,
+	envelopeStarts: readonly number[],
+	envelopeEnds: readonly number[],
+	startFreq: number,
+	sampleTime: number,
+	freqEndRatio: number,
+	roundedSamplesPerTick: number,
+	samplesPerSecond: number,
+	unisonInitialized: boolean,
+): SupersawResult {
+	let supersawExpressionStart: number =
+		(inst.unisonExpression * inst.unisonVoices) / 1.4;
+	let supersawExpressionEnd: number =
+		(inst.unisonExpression * inst.unisonVoices) / 1.4;
+	const minFirstVoiceAmplitude: number = 1.0 / Math.sqrt(Config.supersawVoiceCount);
+
+	// ── Dynamism ──
+	let useDynamismStart: number = inst.supersawDynamism / Config.supersawDynamismMax;
+	let useDynamismEnd: number = inst.supersawDynamism / Config.supersawDynamismMax;
+	if (mods.dynamismActive) {
+		useDynamismStart = mods.dynamismModStart / Config.supersawDynamismMax;
+		useDynamismEnd = mods.dynamismModEnd / Config.supersawDynamismMax;
+	}
+
+	const curvedDynamismStart: number =
+		1.0 -
+		Math.max(
+			0.0,
+			1.0 - useDynamismStart * envelopeStarts[EnvelopeComputeIndex.supersawDynamism],
+		) ** 0.2;
+	const curvedDynamismEnd: number =
+		1.0 -
+		Math.max(
+			0.0,
+			1.0 - useDynamismEnd * envelopeEnds[EnvelopeComputeIndex.supersawDynamism],
+		) ** 0.2;
+	const firstVoiceAmplitudeStart: number =
+		2.0 ** (Math.log2(minFirstVoiceAmplitude) * curvedDynamismStart);
+	const firstVoiceAmplitudeEnd: number =
+		2.0 ** (Math.log2(minFirstVoiceAmplitude) * curvedDynamismEnd);
+
+	const dynamismStart: number = Math.sqrt(
+		(1.0 / firstVoiceAmplitudeStart ** 2.0 - 1.0) / (Config.supersawVoiceCount - 1.0),
+	);
+	const dynamismEnd: number = Math.sqrt(
+		(1.0 / firstVoiceAmplitudeEnd ** 2.0 - 1.0) / (Config.supersawVoiceCount - 1.0),
+	);
+	tone.supersawDynamism = dynamismStart;
+	tone.supersawDynamismDelta = (dynamismEnd - dynamismStart) / roundedSamplesPerTick;
+
+	// ── Phase initialization ──
+	const initializeSupersaw: boolean = tone.supersawDelayIndex === -1;
+	if (initializeSupersaw || !unisonInitialized) {
+		const voiceCount: number = Config.supersawVoiceCount;
+
+		let accumulator: number = 0.0;
+		for (let i: number = 0; i < voiceCount; i++) {
+			tone.phases[i] = accumulator;
+			accumulator += -Math.log(Math.random());
+		}
+
+		const amplitudeSum: number = 1.0 + (voiceCount - 1.0) * dynamismStart;
+		const slope: number = amplitudeSum;
+
+		let sample: number = 0.0;
+		for (let i: number = 0; i < voiceCount; i++) {
+			const amplitude: number = i === 0 ? 1.0 : dynamismStart;
+			const normalizedPhase: number = tone.phases[i] / accumulator;
+			tone.phases[i] = normalizedPhase;
+			sample += (normalizedPhase - 0.5) * amplitude;
+		}
+
+		let zeroCrossingPhase: number = 1.0;
+		let prevDrop: number = 0.0;
+		for (let i: number = voiceCount - 1; i >= 0; i--) {
+			const nextDrop: number = 1.0 - tone.phases[i];
+			const phaseDelta: number = nextDrop - prevDrop;
+			if (sample < 0.0) {
+				const distanceToZeroCrossing: number = -sample / slope;
+				if (distanceToZeroCrossing < phaseDelta) {
+					zeroCrossingPhase = prevDrop + distanceToZeroCrossing;
+					break;
+				}
+			}
+			const amplitude: number = i === 0 ? 1.0 : dynamismStart;
+			sample += phaseDelta * slope - amplitude;
+			prevDrop = nextDrop;
+		}
+		for (let i: number = 0; i < voiceCount; i++) {
+			tone.phases[i] += zeroCrossingPhase;
+		}
+
+		for (let i: number = 1; i < voiceCount - 1; i++) {
+			const swappedIndex: number =
+				i + Math.floor(Math.random() * (voiceCount - i));
+			const temp: number = tone.phases[i];
+			tone.phases[i] = tone.phases[swappedIndex];
+			tone.phases[swappedIndex] = temp;
+		}
+		unisonInitialized = true;
+	}
+
+	// ── Spread ──
+	const baseSpreadSlider: number = inst.supersawSpread / Config.supersawSpreadMax;
+	let useSpreadStart: number = baseSpreadSlider;
+	let useSpreadEnd: number = baseSpreadSlider;
+	if (mods.spreadActive) {
+		useSpreadStart = mods.spreadModStart / Config.supersawSpreadMax;
+		useSpreadEnd = mods.spreadModEnd / Config.supersawSpreadMax;
+	}
+	useSpreadStart = Math.max(0, useSpreadStart);
+	useSpreadEnd = Math.max(0, useSpreadEnd);
+
+	const spreadSliderStart: number =
+		useSpreadStart * envelopeStarts[EnvelopeComputeIndex.supersawSpread];
+	const spreadSliderEnd: number =
+		useSpreadEnd * envelopeEnds[EnvelopeComputeIndex.supersawSpread];
+	const averageSpreadSlider: number = (spreadSliderStart + spreadSliderEnd) * 0.5;
+	const curvedSpread: number =
+		(1.0 - Math.sqrt(Math.max(0.0, 1.0 - averageSpreadSlider))) ** 1.75;
+	for (let i: number = 0; i < Config.supersawVoiceCount; i++) {
+		const offset: number =
+			i === 0
+				? 0.0
+				: ((((i + 1) >> 1) - 0.5 + 0.025 * ((i & 2) - 1)) /
+						(Config.supersawVoiceCount >> 1)) ** 1.1 * ((i & 1) * 2 - 1);
+		tone.supersawUnisonDetunes[i] = 2.0 ** ((curvedSpread * offset) / 12.0);
+	}
+
+	// ── Shape ──
+	const baseShape: number = inst.supersawShape / Config.supersawShapeMax;
+	let useShapeStart: number = baseShape * envelopeStarts[EnvelopeComputeIndex.supersawShape];
+	let useShapeEnd: number = baseShape * envelopeEnds[EnvelopeComputeIndex.supersawShape];
+	if (mods.shapeActive) {
+		useShapeStart = mods.shapeModStart / Config.supersawShapeMax;
+		useShapeEnd = mods.shapeModEnd / Config.supersawShapeMax;
+	}
+
+	const shapeStart: number =
+		useShapeStart * envelopeStarts[EnvelopeComputeIndex.supersawShape];
+	const shapeEnd: number =
+		useShapeEnd * envelopeEnds[EnvelopeComputeIndex.supersawShape];
+	tone.supersawShape = shapeStart;
+	tone.supersawShapeDelta = (shapeEnd - shapeStart) / roundedSamplesPerTick;
+
+	// ── Decimal offset ──
+	let decimalOffsetModStart: number = inst.decimalOffset;
+	if (mods.decimalOffsetActive) {
+		decimalOffsetModStart = mods.decimalOffsetModVal;
+	}
+	const decimalOffsetStart: number =
+		decimalOffsetModStart * envelopeStarts[EnvelopeComputeIndex.decimalOffset];
+	tone.decimalOffset = decimalOffsetStart;
+
+	// ── Pulse width + delay line ──
+	const basePulseWidth: number = getPulseWidthRatio(inst.pulseWidth);
+	let pulseWidthModStart: number = basePulseWidth;
+	let pulseWidthModEnd: number = basePulseWidth;
+	if (mods.pulseWidthActive) {
+		pulseWidthModStart = mods.pulseWidthModStart / (Config.pulseWidthRange * 2);
+		pulseWidthModEnd = mods.pulseWidthModEnd / (Config.pulseWidthRange * 2);
+	}
+
+	let pulseWidthStart: number =
+		pulseWidthModStart * envelopeStarts[EnvelopeComputeIndex.pulseWidth];
+	let pulseWidthEnd: number =
+		pulseWidthModEnd * envelopeEnds[EnvelopeComputeIndex.pulseWidth];
+	pulseWidthStart -= decimalOffsetStart / 10000;
+	pulseWidthEnd -= decimalOffsetStart / 10000;
+	const phaseDeltaStart: number =
+		tone.supersawPrevPhaseDelta != null
+			? tone.supersawPrevPhaseDelta
+			: startFreq * sampleTime;
+	const phaseDeltaEnd: number = startFreq * sampleTime * freqEndRatio;
+	tone.supersawPrevPhaseDelta = phaseDeltaEnd;
+	const delayLengthStart: number = pulseWidthStart / phaseDeltaStart;
+	const delayLengthEnd: number = pulseWidthEnd / phaseDeltaEnd;
+	tone.supersawDelayLength = delayLengthStart;
+	tone.supersawDelayLengthDelta =
+		(delayLengthEnd - delayLengthStart) / roundedSamplesPerTick;
+	const minBufferLength: number =
+		Math.ceil(Math.max(delayLengthStart, delayLengthEnd)) + 2;
+
+	// ── Delay line buffer ──
+	if (
+		tone.supersawDelayLine == null ||
+		tone.supersawDelayLine.length <= minBufferLength
+	) {
+		const likelyMaximumLength: number = Math.ceil(
+			(0.5 * samplesPerSecond) / frequencyFromPitch(24),
+		);
+		const newDelayLine: Float32Array = new Float32Array(
+			fittingPowerOfTwo(Math.max(likelyMaximumLength, minBufferLength)),
+		);
+		if (!initializeSupersaw && tone.supersawDelayLine != null) {
+			const oldDelayBufferMask: number = (tone.supersawDelayLine.length - 1) >> 0;
+			const startCopyingFromIndex: number = tone.supersawDelayIndex;
+			for (let i: number = 0; i < tone.supersawDelayLine.length; i++) {
+				newDelayLine[i] =
+					tone.supersawDelayLine[
+						(startCopyingFromIndex + i) & oldDelayBufferMask
+					];
+			}
+		}
+		tone.supersawDelayLine = newDelayLine;
+		tone.supersawDelayIndex = tone.supersawDelayLine.length;
+	} else if (initializeSupersaw) {
+		tone.supersawDelayLine.fill(0.0);
+		tone.supersawDelayIndex = tone.supersawDelayLine.length;
+	}
+
+	// ── Final expression scaling ──
+	const pulseExpressionRatio: number =
+		Config.pwmBaseExpression / Config.supersawBaseExpression;
+	supersawExpressionStart *=
+		(1.0 + (pulseExpressionRatio - 1.0) * shapeStart) /
+		Math.sqrt(
+			1.0 + (Config.supersawVoiceCount - 1.0) * dynamismStart * dynamismStart,
+		);
+	supersawExpressionEnd *=
+		(1.0 + (pulseExpressionRatio - 1.0) * shapeEnd) /
+		Math.sqrt(1.0 + (Config.supersawVoiceCount - 1.0) * dynamismEnd * dynamismEnd);
+
+	return {
+		supersawExpressionStart,
+		supersawExpressionEnd,
+		unisonInitialized,
+	};
+}
+
 
 

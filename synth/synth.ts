@@ -24,7 +24,7 @@ import type { Note, NotePin, Pattern } from "./notes";
 import { PickedString } from "./picked-string";
 import { getPlugin } from "./plugins";
 import { PostProcessingState } from "./post-processing";
-import { applyCustomSamplePhaseRestore, applyDetune, applyDrumsetPitch, applyFadeIn, applyIntervalFadeSideEffects, applyPitchShift, applyVibrato, computeBasePitchAndExpression, computeEnvelopeSpeeds, computeFmExpressionAndFeedback, computeFmOperatorLoop, computeNonFmExpression, computeNonFmPitchSetup, computeSimpleNoteFilterValues, computeSlides, computeToneIntervalAndFade, computeUnisonPhases, initTonePhaseState } from "./render/compute-tone";
+import { applyCustomSamplePhaseRestore, applyDetune, applyDrumsetPitch, applyFadeIn, applyIntervalFadeSideEffects, applyPitchShift, applyVibrato, computeBasePitchAndExpression, computeEnvelopeSpeeds, computeFmExpressionAndFeedback, computeFmOperatorLoop, computeNonFmExpression, computeNonFmPitchSetup, computeSimpleNoteFilterValues, computeSlides, computeSupersawSetup, computeToneIntervalAndFade, computeUnisonPhases, initTonePhaseState } from "./render/compute-tone";
 import {
 	allocTone,
 	freeAllTones,
@@ -48,7 +48,6 @@ import {
 	effectsIncludeVibrato,
 	FilterType,
 	getArpeggioPitchIndex,
-	getPulseWidthRatio,
 	InstrumentType,
 } from "./synth-config";
 import { effectsSynth } from "./synth-effects";
@@ -4319,348 +4318,140 @@ export class Synth {
 			// instead of these supersawExpression variables.
 			let supersawExpressionStart: number = 1.0;
 			let supersawExpressionEnd: number = 1.0;
-			if (instrument.type === InstrumentType.supersaw) {
-				supersawExpressionStart =
-					(instrument.unisonExpression * instrument.unisonVoices) / 1.4;
-				supersawExpressionEnd =
-					(instrument.unisonExpression * instrument.unisonVoices) / 1.4;
-				const minFirstVoiceAmplitude: number = 1.0 / Math.sqrt(Config.supersawVoiceCount);
-
-				// Dynamism mods
-				let useDynamismStart: number =
-					instrument.supersawDynamism / Config.supersawDynamismMax;
-				let useDynamismEnd: number =
-					instrument.supersawDynamism / Config.supersawDynamismMax;
-				if (
-					this.isModActive(
+			// Pre-compute supersaw mod values
+			const _isModActiveDyn: boolean = this.isModActive(
+				Config.modulators.dictionary.dynamism.index,
+				channelIndex,
+				tone.instrumentIndex,
+			);
+			const _dynModStart: number = _isModActiveDyn
+				? this.modState.getModValue(
 						Config.modulators.dictionary.dynamism.index,
 						channelIndex,
 						tone.instrumentIndex,
+						false,
 					)
-				) {
-					useDynamismStart =
-						this.modState.getModValue(
-							Config.modulators.dictionary.dynamism.index,
-							channelIndex,
-							tone.instrumentIndex,
-							false,
-						) / Config.supersawDynamismMax;
-					useDynamismEnd =
-						this.modState.getModValue(
-							Config.modulators.dictionary.dynamism.index,
-							channelIndex,
-							tone.instrumentIndex,
-							true,
-						) / Config.supersawDynamismMax;
-				}
+				: 0;
+			const _dynModEnd: number = _isModActiveDyn
+				? this.modState.getModValue(
+						Config.modulators.dictionary.dynamism.index,
+						channelIndex,
+						tone.instrumentIndex,
+						true,
+					)
+				: 0;
 
-				const curvedDynamismStart: number =
-					1.0 -
-					Math.max(
-						0.0,
-						1.0 -
-							useDynamismStart *
-								envelopeStarts[EnvelopeComputeIndex.supersawDynamism],
-					) **
-						0.2;
-				const curvedDynamismEnd: number =
-					1.0 -
-					Math.max(
-						0.0,
-						1.0 - useDynamismEnd * envelopeEnds[EnvelopeComputeIndex.supersawDynamism],
-					) **
-						0.2;
-				const firstVoiceAmplitudeStart: number =
-					2.0 ** (Math.log2(minFirstVoiceAmplitude) * curvedDynamismStart);
-				const firstVoiceAmplitudeEnd: number =
-					2.0 ** (Math.log2(minFirstVoiceAmplitude) * curvedDynamismEnd);
-
-				const dynamismStart: number = Math.sqrt(
-					(1.0 / firstVoiceAmplitudeStart ** 2.0 - 1.0) /
-						(Config.supersawVoiceCount - 1.0),
-				);
-				const dynamismEnd: number = Math.sqrt(
-					(1.0 / firstVoiceAmplitudeEnd ** 2.0 - 1.0) / (Config.supersawVoiceCount - 1.0),
-				);
-				tone.supersawDynamism = dynamismStart;
-				tone.supersawDynamismDelta = (dynamismEnd - dynamismStart) / roundedSamplesPerTick;
-
-				const initializeSupersaw: boolean = tone.supersawDelayIndex === -1;
-				if (initializeSupersaw || !instrumentState.unisonInitialized) {
-					// Goal: generate sawtooth phases such that the combined initial amplitude
-					// cancel out to minimize pop. Algorithm: generate sorted phases, iterate over
-					// their sawtooth drop points to find a combined zero crossing, then offset the
-					// phases so they start there.
-
-					// Generate random phases in ascending order by adding positive randomly
-					// sized gaps between adjacent phases. For a proper distribution of random
-					// events, the gaps sizes should be an "exponential distribution", which is
-					// just: -Math.log(Math.random()). At the end, normalize the phases to a 0-1
-					// range by dividing by the final value of the accumulator.
-					const voiceCount: number = false
-						? Config.supersawVoiceCount * Config.unisonVoicesMax
-						: Config.supersawVoiceCount;
-
-					let accumulator: number = 0.0;
-					for (let i: number = 0; i < voiceCount; i++) {
-						tone.phases[i] = accumulator;
-						accumulator += -Math.log(Math.random());
-					}
-
-					const amplitudeSum: number = 1.0 + (voiceCount - 1.0) * dynamismStart;
-					const slope: number = amplitudeSum;
-
-					// Find the initial amplitude of the sum of sawtooths with the normalized
-					// set of phases.
-					let sample: number = 0.0;
-					for (let i: number = 0; i < voiceCount; i++) {
-						const amplitude: number = i === 0 ? 1.0 : dynamismStart;
-						const normalizedPhase: number = tone.phases[i] / accumulator;
-						tone.phases[i] = normalizedPhase;
-						sample += (normalizedPhase - 0.5) * amplitude;
-					}
-
-					// Find the phase of the zero crossing of the sum of the sawtooths. You can
-					// use a constant slope and the distance between sawtooth drops to determine if
-					// the zero crossing occurs between them. Note that a small phase means that
-					// the corresponding drop for that wave is far away, and a big phase means the
-					// drop is nearby, so to iterate forward through the drops we iterate backward
-					// through the phases.
-					let zeroCrossingPhase: number = 1.0;
-					let prevDrop: number = 0.0;
-					for (let i: number = voiceCount - 1; i >= 0; i--) {
-						const nextDrop: number = 1.0 - tone.phases[i];
-						const phaseDelta: number = nextDrop - prevDrop;
-						if (sample < 0.0) {
-							const distanceToZeroCrossing: number = -sample / slope;
-							if (distanceToZeroCrossing < phaseDelta) {
-								zeroCrossingPhase = prevDrop + distanceToZeroCrossing;
-								break;
-							}
-						}
-						const amplitude: number = i === 0 ? 1.0 : dynamismStart;
-						sample += phaseDelta * slope - amplitude;
-						prevDrop = nextDrop;
-					}
-					for (let i: number = 0; i < voiceCount; i++) {
-						tone.phases[i] += zeroCrossingPhase;
-					}
-
-					// Randomize the (initially sorted) order of the phases (aside from the
-					// first one) so that they don't correlate to the detunes that are also
-					// based on index.
-					for (let i: number = 1; i < voiceCount - 1; i++) {
-						const swappedIndex: number =
-							i + Math.floor(Math.random() * (voiceCount - i));
-						const temp: number = tone.phases[i];
-						tone.phases[i] = tone.phases[swappedIndex];
-						tone.phases[swappedIndex] = temp;
-					}
-					instrumentState.unisonInitialized = true;
-				}
-
-				const baseSpreadSlider: number =
-					instrument.supersawSpread / Config.supersawSpreadMax;
-				// Spread mods
-				let useSpreadStart: number = baseSpreadSlider;
-				let useSpreadEnd: number = baseSpreadSlider;
-				if (
-					this.isModActive(
+			const _isModActiveSpr: boolean = this.isModActive(
+				Config.modulators.dictionary.spread.index,
+				channelIndex,
+				tone.instrumentIndex,
+			);
+			const _sprModStart: number = _isModActiveSpr
+				? this.modState.getModValue(
 						Config.modulators.dictionary.spread.index,
 						channelIndex,
 						tone.instrumentIndex,
+						false,
 					)
-				) {
-					useSpreadStart =
-						this.modState.getModValue(
-							Config.modulators.dictionary.spread.index,
-							channelIndex,
-							tone.instrumentIndex,
-							false,
-						) / Config.supersawSpreadMax;
-					useSpreadEnd =
-						this.modState.getModValue(
-							Config.modulators.dictionary.spread.index,
-							channelIndex,
-							tone.instrumentIndex,
-							true,
-						) / Config.supersawSpreadMax;
-				}
+				: 0;
+			const _sprModEnd: number = _isModActiveSpr
+				? this.modState.getModValue(
+						Config.modulators.dictionary.spread.index,
+						channelIndex,
+						tone.instrumentIndex,
+						true,
+					)
+				: 0;
 
-				// clamp the spread values to prevent negative ones polluting the output
-				useSpreadStart = Math.max(0, useSpreadStart);
-				useSpreadEnd = Math.max(0, useSpreadEnd);
-
-				const spreadSliderStart: number =
-					useSpreadStart * envelopeStarts[EnvelopeComputeIndex.supersawSpread];
-				const spreadSliderEnd: number =
-					useSpreadEnd * envelopeEnds[EnvelopeComputeIndex.supersawSpread];
-				// Just use the average detune for the current tick in the below loop.
-				const averageSpreadSlider: number = (spreadSliderStart + spreadSliderEnd) * 0.5;
-				const curvedSpread: number =
-					(1.0 - Math.sqrt(Math.max(0.0, 1.0 - averageSpreadSlider))) ** 1.75;
-				for (let i = 0; i < Config.supersawVoiceCount; i++) {
-					// Spread out the detunes around the center;
-					const offset: number =
-						i === 0
-							? 0.0
-							: ((((i + 1) >> 1) - 0.5 + 0.025 * ((i & 2) - 1)) /
-									(Config.supersawVoiceCount >> 1)) **
-									1.1 *
-								((i & 1) * 2 - 1);
-					tone.supersawUnisonDetunes[i] = 2.0 ** ((curvedSpread * offset) / 12.0);
-				}
-
-				const baseShape: number = instrument.supersawShape / Config.supersawShapeMax;
-				// Saw shape mods
-				let useShapeStart: number =
-					baseShape * envelopeStarts[EnvelopeComputeIndex.supersawShape];
-				let useShapeEnd: number =
-					baseShape * envelopeEnds[EnvelopeComputeIndex.supersawShape];
-				if (
-					this.isModActive(
+			const _isModActiveShp: boolean = this.isModActive(
+				Config.modulators.dictionary["saw shape"].index,
+				channelIndex,
+				tone.instrumentIndex,
+			);
+			const _shpModStart: number = _isModActiveShp
+				? this.modState.getModValue(
 						Config.modulators.dictionary["saw shape"].index,
 						channelIndex,
 						tone.instrumentIndex,
+						false,
 					)
-				) {
-					useShapeStart =
-						this.modState.getModValue(
-							Config.modulators.dictionary["saw shape"].index,
-							channelIndex,
-							tone.instrumentIndex,
-							false,
-						) / Config.supersawShapeMax;
-					useShapeEnd =
-						this.modState.getModValue(
-							Config.modulators.dictionary["saw shape"].index,
-							channelIndex,
-							tone.instrumentIndex,
-							true,
-						) / Config.supersawShapeMax;
-				}
-
-				const shapeStart: number =
-					useShapeStart * envelopeStarts[EnvelopeComputeIndex.supersawShape];
-				const shapeEnd: number =
-					useShapeEnd * envelopeEnds[EnvelopeComputeIndex.supersawShape];
-				tone.supersawShape = shapeStart;
-				tone.supersawShapeDelta = (shapeEnd - shapeStart) / roundedSamplesPerTick;
-
-				// decimal offset mods
-				let decimalOffsetModStart: number = instrument.decimalOffset;
-				if (
-					this.isModActive(
-						Config.modulators.dictionary["decimal offset"].index,
+				: 0;
+			const _shpModEnd: number = _isModActiveShp
+				? this.modState.getModValue(
+						Config.modulators.dictionary["saw shape"].index,
 						channelIndex,
 						tone.instrumentIndex,
+						true,
 					)
-				) {
-					decimalOffsetModStart = this.modState.getModValue(
+				: 0;
+
+			const _isModActiveDecOff: boolean = this.isModActive(
+				Config.modulators.dictionary["decimal offset"].index,
+				channelIndex,
+				tone.instrumentIndex,
+			);
+			const _decOffModVal: number = _isModActiveDecOff
+				? this.modState.getModValue(
 						Config.modulators.dictionary["decimal offset"].index,
 						channelIndex,
 						tone.instrumentIndex,
 						false,
-					);
-				}
+					)
+				: 0;
 
-				const decimalOffsetStart: number =
-					decimalOffsetModStart * envelopeStarts[EnvelopeComputeIndex.decimalOffset];
-				// ...is including tone.decimalOffset still necessary?
-				tone.decimalOffset = decimalOffsetStart;
-
-				const basePulseWidth: number = getPulseWidthRatio(instrument.pulseWidth);
-
-				// Check for PWM mods to this instrument
-				let pulseWidthModStart: number = basePulseWidth;
-				let pulseWidthModEnd: number = basePulseWidth;
-				if (
-					this.isModActive(
+			const _isModActivePwSs: boolean = this.isModActive(
+				Config.modulators.dictionary["pulse width"].index,
+				channelIndex,
+				tone.instrumentIndex,
+			);
+			const _pwSsModStart: number = _isModActivePwSs
+				? this.modState.getModValue(
 						Config.modulators.dictionary["pulse width"].index,
 						channelIndex,
 						tone.instrumentIndex,
+						false,
 					)
-				) {
-					pulseWidthModStart =
-						this.modState.getModValue(
-							Config.modulators.dictionary["pulse width"].index,
-							channelIndex,
-							tone.instrumentIndex,
-							false,
-						) /
-						(Config.pulseWidthRange * 2);
-					pulseWidthModEnd =
-						this.modState.getModValue(
-							Config.modulators.dictionary["pulse width"].index,
-							channelIndex,
-							tone.instrumentIndex,
-							true,
-						) /
-						(Config.pulseWidthRange * 2);
-				}
+				: 0;
+			const _pwSsModEnd: number = _isModActivePwSs
+				? this.modState.getModValue(
+						Config.modulators.dictionary["pulse width"].index,
+						channelIndex,
+						tone.instrumentIndex,
+						true,
+					)
+				: 0;
 
-				let pulseWidthStart: number =
-					pulseWidthModStart * envelopeStarts[EnvelopeComputeIndex.pulseWidth];
-				let pulseWidthEnd: number =
-					pulseWidthModEnd * envelopeEnds[EnvelopeComputeIndex.pulseWidth];
-				pulseWidthStart -= decimalOffsetStart / 10000;
-				pulseWidthEnd -= decimalOffsetStart / 10000;
-				const phaseDeltaStart: number =
-					tone.supersawPrevPhaseDelta != null
-						? tone.supersawPrevPhaseDelta
-						: startFreq * sampleTime;
-				const phaseDeltaEnd: number = startFreq * sampleTime * freqEndRatio;
-				tone.supersawPrevPhaseDelta = phaseDeltaEnd;
-				const delayLengthStart = pulseWidthStart / phaseDeltaStart;
-				const delayLengthEnd = pulseWidthEnd / phaseDeltaEnd;
-				tone.supersawDelayLength = delayLengthStart;
-				tone.supersawDelayLengthDelta =
-					(delayLengthEnd - delayLengthStart) / roundedSamplesPerTick;
-				const minBufferLength: number =
-					Math.ceil(Math.max(delayLengthStart, delayLengthEnd)) + 2;
-
-				if (
-					tone.supersawDelayLine == null ||
-					tone.supersawDelayLine.length <= minBufferLength
-				) {
-					// The delay line buffer will get reused for other tones so might as well
-					// start off with a buffer size that is big enough for most notes.
-					const likelyMaximumLength: number = Math.ceil(
-						(0.5 * this.samplesPerSecond) / Instrument.frequencyFromPitch(24),
-					);
-					const newDelayLine: Float32Array = new Float32Array(
-						fittingPowerOfTwo(Math.max(likelyMaximumLength, minBufferLength)),
-					);
-					if (!initializeSupersaw && tone.supersawDelayLine != null) {
-						// If the tone has already started but the buffer needs to be reallocated,
-						// transfer the old data to the new buffer.
-						const oldDelayBufferMask: number = (tone.supersawDelayLine.length - 1) >> 0;
-						const startCopyingFromIndex: number = tone.supersawDelayIndex;
-						for (let i: number = 0; i < tone.supersawDelayLine.length; i++) {
-							newDelayLine[i] =
-								tone.supersawDelayLine[
-									(startCopyingFromIndex + i) & oldDelayBufferMask
-								];
-						}
-					}
-					tone.supersawDelayLine = newDelayLine;
-					tone.supersawDelayIndex = tone.supersawDelayLine.length;
-				} else if (initializeSupersaw) {
-					tone.supersawDelayLine.fill(0.0);
-					tone.supersawDelayIndex = tone.supersawDelayLine.length;
-				}
-
-				const pulseExpressionRatio: number =
-					Config.pwmBaseExpression / Config.supersawBaseExpression;
-				supersawExpressionStart *=
-					(1.0 + (pulseExpressionRatio - 1.0) * shapeStart) /
-					Math.sqrt(
-						1.0 + (Config.supersawVoiceCount - 1.0) * dynamismStart * dynamismStart,
-					);
-				supersawExpressionEnd *=
-					(1.0 + (pulseExpressionRatio - 1.0) * shapeEnd) /
-					Math.sqrt(1.0 + (Config.supersawVoiceCount - 1.0) * dynamismEnd * dynamismEnd);
-			}
+			const ssResult = computeSupersawSetup(
+				tone,
+				instrument,
+				{
+					dynamismActive: _isModActiveDyn,
+					dynamismModStart: _dynModStart,
+					dynamismModEnd: _dynModEnd,
+					spreadActive: _isModActiveSpr,
+					spreadModStart: _sprModStart,
+					spreadModEnd: _sprModEnd,
+					shapeActive: _isModActiveShp,
+					shapeModStart: _shpModStart,
+					shapeModEnd: _shpModEnd,
+					decimalOffsetActive: _isModActiveDecOff,
+					decimalOffsetModVal: _decOffModVal,
+					pulseWidthActive: _isModActivePwSs,
+					pulseWidthModStart: _pwSsModStart,
+					pulseWidthModEnd: _pwSsModEnd,
+				},
+				envelopeStarts,
+				envelopeEnds,
+				startFreq,
+				sampleTime,
+				freqEndRatio,
+				roundedSamplesPerTick,
+				this.samplesPerSecond,
+				instrumentState.unisonInitialized,
+			);
+			supersawExpressionStart = ssResult.supersawExpressionStart;
+			supersawExpressionEnd = ssResult.supersawExpressionEnd;
+			instrumentState.unisonInitialized = ssResult.unisonInitialized;
 
 			// Pre-compute note volume mod values
 			const _isModActiveNoteVol: boolean = this.isModActive(
