@@ -7,8 +7,12 @@
 // - Verifies encodeModuleTable
 // - Verifies encodeModuleInstrument / decodeModuleInstrument
 
-import { describe, test, expect } from "bun:test";
+import { describe, test, expect, beforeAll } from "bun:test";
 import { ModuleIdTable } from "../synth/socket/id-table";
+
+beforeAll(() => {
+	ModuleIdTable.defaultReservedIds = [];
+});
 import {
 	encodeVarint,
 	decodeVarint,

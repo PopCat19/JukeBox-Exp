@@ -8,7 +8,7 @@
 // - Verifies opaque preservation of unknown module payloads
 // - Verifies container bounds and error handling
 
-import { describe, test, expect } from "bun:test";
+import { describe, test, expect, beforeAll } from "bun:test";
 import { ModuleIdTable } from "../synth/socket/id-table";
 import {
 	JUKEBOX_EXP_V2_FORMAT,
@@ -21,6 +21,12 @@ import { serializeContainer, deserializeContainer } from "../synth/socket/serde"
 // ─── ModuleIdTable ───────────────────────────────────────────────────────────
 
 describe("ModuleIdTable", () => {
+	// Clear boot-time reserved slots so tests are deterministic
+	// regardless of whether bridge.ts loaded before this test runs
+	beforeAll(() => {
+		ModuleIdTable.defaultReservedIds = [];
+	});
+
 	test("starts with reserved slots", () => {
 		const table = new ModuleIdTable();
 		expect(table.size).toBe(16);
@@ -88,6 +94,24 @@ describe("ModuleIdTable", () => {
 		expect(table.size).toBe(16);
 		const idx = table.getIndex("core.supersaw");
 		expect(idx).toBe(16);
+	});
+
+	test("auto-populates from static defaultReservedIds", () => {
+		ModuleIdTable.defaultReservedIds = ["one.alpha", "two.beta", "three.gamma"];
+		const table = new ModuleIdTable();
+		expect(table.getId(0)).toBe("one.alpha");
+		expect(table.getId(1)).toBe("two.beta");
+		expect(table.getId(2)).toBe("three.gamma");
+		expect(table.getIndex("other.mod")).toBe(16);
+		// Restore for other tests
+		ModuleIdTable.defaultReservedIds = [];
+	});
+
+	test("auto-population has getIndex return reserved index", () => {
+		ModuleIdTable.defaultReservedIds = ["one.alpha"];
+		const table = new ModuleIdTable();
+		expect(table.getIndex("one.alpha")).toBe(0);
+		ModuleIdTable.defaultReservedIds = [];
 	});
 });
 

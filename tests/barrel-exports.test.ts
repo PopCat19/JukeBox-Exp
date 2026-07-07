@@ -293,5 +293,13 @@ describe("shared barrel exports", () => {
 		expect(typeof mods.PULSE_ID).toBe("string");
 		expect(typeof mods.NOISE_ID).toBe("string");
 		expect(typeof mods.CHIP_ID).toBe("string");
+		expect(typeof mods.HARMONICS_ID).toBe("string");
+		expect(typeof mods.SPECTRUM_ID).toBe("string");
+		expect(typeof mods.PICKED_STRING_ID).toBe("string");
+		expect(typeof mods.FM_ID).toBe("string");
+		expect(typeof mods.FM6_ID).toBe("string");
+		expect(typeof mods.DRUMSET_ID).toBe("string");
+		expect(typeof mods.MOD_ID).toBe("string");
+		expect(Array.isArray(mods.CORE_MODULE_IDS)).toBeTrue();
 	});
 });

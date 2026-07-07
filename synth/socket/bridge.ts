@@ -17,6 +17,12 @@ import { registerInstrument, isCoreModuleId } from "./registry";
 import { checkCompatibility, SOCKET_VERSION } from "./version";
 import type { Instrument } from "../instruments";
 import { Config } from "../synth-config";
+import { ModuleIdTable } from "./id-table";
+import { CORE_MODULE_IDS } from "../modules";
+
+// Populate id-table reserved slots at boot so every new table
+// maps core module ids → stable low indices for compact URL encoding.
+ModuleIdTable.defaultReservedIds = CORE_MODULE_IDS;
 
 const defaultBuildContext = {
 	sampleRate: 44100,

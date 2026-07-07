@@ -15,9 +15,21 @@ export class ModuleIdTable {
 	private _idToIndex: Map<string, number> = new Map();
 	private _indexToId: string[] = [];
 
+	/** Set this at boot time to auto-populate reserved slots on every new table */
+	static defaultReservedIds: readonly string[] = [];
+
 	constructor() {
 		for (let i = 0; i < ID_TABLE_RESERVED; i++) {
 			this._indexToId.push("");
+		}
+		// Auto-populate reserved slots from static list set at boot
+		const ids = ModuleIdTable.defaultReservedIds;
+		for (let i = 0; i < ids.length && i < ID_TABLE_RESERVED; i++) {
+			const id = ids[i];
+			if (id) {
+				this._idToIndex.set(id, i);
+				this._indexToId[i] = id;
+			}
 		}
 	}
 
