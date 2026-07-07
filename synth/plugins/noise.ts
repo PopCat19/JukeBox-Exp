@@ -1,10 +1,10 @@
 // noise.ts
 //
-// Purpose: Noise synthesis plugin — compiled-function + per-voice cache
+// Purpose: Noise synthesis plugin — bridges from socket InstrumentModule
 //
 // This module:
-// - Embeds private-scale build/compile/cache per unison voice
-// - Registers via plugin registry on module load
+// - Bridges noiseModule as a SynthPlugin for backward compat
+// - Preserves per-unison-voice function caching
 
 import { InstrumentState } from "../instrument-state";
 import type { Instrument } from "../instruments";
@@ -12,7 +12,8 @@ import { Synth } from "../synth";
 import { Config, InstrumentType } from "../synth-config";
 import { buildNoiseSource } from "../synthesis/noise";
 import type { Tone } from "../tone";
-import { registerPlugin } from "./registry";
+import { registerModuleAsPlugin } from "../socket/bridge";
+import noiseModule from "../modules/noise/module";
 
 const functionCache: Function[] = [];
 
@@ -33,16 +34,10 @@ function noiseSynth(
 	fn(synth, bufferIndex, runLength, tone, instrumentState);
 }
 
-registerPlugin({
-	type: InstrumentType.noise,
-	name: "Noise",
-	displayName: "noise",
-	editorRows: ["noiseSelect"],
+registerModuleAsPlugin(noiseModule, InstrumentType.noise, ["noiseSelect"], {
+	getSynthFunction: (_instrument: Instrument, _synth: typeof Synth) => noiseSynth,
 	initialize: (instrument: Instrument) => {
 		instrument.chipNoise = 1;
 		instrument.chord = Config.chords.dictionary.arpeggio.index;
 	},
-	getSynthFunction: (_instrument: Instrument, _synth: typeof Synth) => noiseSynth,
-	buildSource: (_instrument: Instrument, voiceCount?: number) =>
-		buildNoiseSource(voiceCount ?? 0),
 });
