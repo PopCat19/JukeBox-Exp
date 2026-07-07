@@ -1,21 +1,19 @@
 // mod.ts
 //
-// Purpose: Modulator channel synthesis plugin
+// Purpose: Modulator channel plugin — bridges from socket InstrumentModule
 //
 // This module:
-// - Bridges to Synth.runModSynth (modSynth accesses private Synth state)
-// - Registers via plugin registry on module load
+// - Bridges modModule as a SynthPlugin for backward compat
+// - Uses synth.runModSynth directly (no DSP code generation)
 
 import type { Instrument } from "../instruments";
 import { Synth } from "../synth";
 import { Config, InstrumentType } from "../synth-config";
-import { registerPlugin } from "./registry";
+import { registerModuleAsPlugin } from "../socket/bridge";
+import modModule from "../modules/mod/module";
 
-registerPlugin({
-	type: InstrumentType.mod,
-	name: "Mod",
-	displayName: "mod",
-	editorRows: [],
+registerModuleAsPlugin(modModule, InstrumentType.mod, [], {
+	getSynthFunction: (_instrument: Instrument, synth: typeof Synth) => synth.runModSynth,
 	initialize: (instrument: Instrument) => {
 		instrument.transition = 0;
 		instrument.vibrato = 0;
@@ -33,9 +31,5 @@ registerPlugin({
 			instrument.modFilterTypes[mod] = 0;
 			instrument.modEnvelopeNumbers[mod] = 0;
 		}
-	},
-	getSynthFunction: (_instrument: Instrument, synth: typeof Synth) => synth.runModSynth,
-	buildSource: () => {
-		throw new Error("Mod instruments do not support code generation");
 	},
 });
