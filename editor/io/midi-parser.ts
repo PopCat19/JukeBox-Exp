@@ -10,6 +10,7 @@
 import { Channel } from "../../synth/channels";
 import { Instrument } from "../../synth/instruments";
 import { makeNotePin, Note, NotePin, Pattern } from "../../synth/notes";
+import { tagInstrumentWithModule } from "../../synth/socket/instrument-tagging";
 import { Synth } from "../../synth/synth";
 import { Config, InstrumentType } from "../../synth/synth-config";
 import { EditorConfig, type Preset } from "../config/editor-config";
@@ -953,6 +954,7 @@ export function parseMidiFile(buffer: ArrayBuffer, fileName?: string): ParsedMid
 				1,
 			);
 			instrument.preset = presetValue;
+			tagInstrumentWithModule(instrument);
 			channel.instruments.push(instrument);
 
 			for (
@@ -1193,6 +1195,7 @@ export function parseMidiFile(buffer: ArrayBuffer, fileName?: string): ParsedMid
 							instrument.volume = dnote.instrumentVolume;
 							instrument.pan = dnote.instrumentPan;
 							instrument.panDelay = 0;
+							tagInstrumentWithModule(instrument);
 							channel.instruments.push(instrument);
 						}
 

@@ -1355,6 +1355,7 @@ export function setDefaultInstruments(song: Song): void {
 			);
 			instrument.preset = presetValue;
 			instrument.effects |= 1 << EffectType.panning;
+			tagInstrumentWithModule(instrument);
 		}
 	}
 }

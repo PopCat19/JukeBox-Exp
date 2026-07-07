@@ -139,6 +139,48 @@ describe("instrument tagging", () => {
 		expect(restored).toBe((pitchInstrument as unknown as { _socketModuleId?: string })._socketModuleId);
 	});
 
+	test("setDefaultInstruments retags after preset reset (regression)", async () => {
+		// setDefaultInstruments() overwrites instrument settings via fromJsonObject
+		// inside a fresh editor song. Without re-tagging, stale _socketModuleId
+		// would survive and v2 export would emit a wrong modulePayload.
+		// setDefaultInstruments depends on document for preset tags, so stub it.
+		const g = globalThis as { document?: unknown };
+		const prevDoc = g.document;
+		g.document = { getElementById: () => null };
+		try {
+			const { setDefaultInstruments } = await import("../editor/changes/song");
+			const song = new Song();
+			setDefaultInstruments(song);
+			for (let ch = 0; ch < song.channels.length; ch++) {
+				const isNoise = song.getChannelIsNoise(ch);
+				const isMod = song.getChannelIsMod(ch);
+				for (const inst of song.channels[ch].instruments) {
+					const id = (inst as unknown as { _socketModuleId?: string })._socketModuleId;
+					// Tag must either be a known core module id, or cleared (unregistered type).
+					if (id !== undefined) {
+						expect(id).toMatch(/^core\./);
+					}
+					if (isMod) {
+						expect([InstrumentType.mod]).toContain(inst.type);
+					} else if (isNoise) {
+						expect(
+							id === undefined ||
+								id === "core.noise" ||
+								id === "core.drumset" ||
+								id === "core.spectrum",
+						).toBeTrue();
+					}
+				}
+			}
+		} finally {
+			if (prevDoc === undefined) {
+				delete g.document;
+			} else {
+				g.document = prevDoc;
+			}
+		}
+	});
+
 	test("registry returns module for each tagged type", () => {
 		const taggableTypes = [
 			InstrumentType.chip,
