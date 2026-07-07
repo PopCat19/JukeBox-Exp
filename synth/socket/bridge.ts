@@ -13,7 +13,7 @@
 import type { InstrumentModule } from "./instrument-module";
 import type { SynthPlugin } from "../plugins/interfaces";
 import { registerPlugin } from "../plugins/registry";
-import { registerInstrument } from "./registry";
+import { registerInstrument, isCoreModuleId } from "./registry";
 import { checkCompatibility, SOCKET_VERSION } from "./version";
 import type { Instrument } from "../instruments";
 import { Config } from "../synth-config";
@@ -75,6 +75,10 @@ export function registerModuleAsPlugin(
 	}
 
 	registerInstrument(module);
+
+	// Bridge only creates old-style plugin dispatch for core.* modules.
+	// Community/external modules register through the socket registry only.
+	if (!isCoreModuleId(module.id)) return;
 
 	const getSynthFn = overrides?.getSynthFunction ?? buildDefaultGetSynthFunction(module);
 	const init = overrides?.initialize ?? buildDefaultInitialize(module);

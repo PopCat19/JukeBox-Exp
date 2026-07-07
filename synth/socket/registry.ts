@@ -15,8 +15,44 @@ import type { InstrumentModule } from "./instrument-module";
 const _instruments = new Map<string, InstrumentModule>();
 const _effects = new Map<string, EffectModule>();
 
+const CORE_RE = /^core\.[a-zA-Z][a-zA-Z0-9._-]*$/;
+const COMMUNITY_RE = /^community\.[a-zA-Z][a-zA-Z0-9._-]*$/;
+const EXTERNAL_RE = /^(other|external)\.[a-zA-Z][a-zA-Z0-9._-]*$/;
+
+/**
+ * Validate a module id namespace.
+ * Returns an error string or null if valid.
+ */
+export function validateModuleNamespace(id: string): string | null {
+	if (!id || id.length < 2) return "Module id too short";
+	if (id.length > 128) return "Module id too long";
+	const firstDot = id.indexOf(".");
+	if (firstDot < 1) return "Module id must have a namespace prefix (e.g. 'core.foo')";
+	const ns = id.slice(0, firstDot);
+	if (ns === "core" && !CORE_RE.test(id)) return `Invalid core module id: "${id}"`;
+	if (ns === "community" && !COMMUNITY_RE.test(id))
+		return `Invalid community module id: "${id}"`;
+	if (!CORE_RE.test(id) && !COMMUNITY_RE.test(id) && !EXTERNAL_RE.test(id))
+		return `Unknown namespace in module id: "${id}"`;
+	return null;
+}
+
+/** Returns true if the id is in the "core.*" namespace */
+export function isCoreModuleId(id: string): boolean {
+	return CORE_RE.test(id);
+}
+
+/** Returns true if the id is a community or external namespace */
+export function isExternalModuleId(id: string): boolean {
+	return COMMUNITY_RE.test(id) || EXTERNAL_RE.test(id);
+}
 
 export function registerInstrument(module: InstrumentModule): void {
+	const nsErr = validateModuleNamespace(module.id);
+	if (nsErr) {
+		console.warn(`[socket] ${nsErr} — skipping registration`);
+		return;
+	}
 	if (!checkCompatibility(module.socketVersion)) {
 		console.warn(
 			`[socket] InstrumentModule "${module.id}" socket v${module.socketVersion} incompatible with host v${SOCKET_VERSION}`,
@@ -30,6 +66,11 @@ export function registerInstrument(module: InstrumentModule): void {
 }
 
 export function registerEffect(module: EffectModule): void {
+	const nsErr = validateModuleNamespace(module.id);
+	if (nsErr) {
+		console.warn(`[socket] ${nsErr} — skipping registration`);
+		return;
+	}
 	if (!checkCompatibility(module.socketVersion)) {
 		console.warn(
 			`[socket] EffectModule "${module.id}" socket v${module.socketVersion} incompatible with host v${SOCKET_VERSION}`,

@@ -59,6 +59,8 @@ export default tseslint.config(
             "tests/modules-drumset.test.ts",
             "tests/modules-mod.test.ts",
             "tests/barrel-exports.test.ts",
+            "tests/external-loader.test.ts",
+            "tests/fixtures/community-x-wt.ts",
             "eslint.config.mjs",
           ],
         },
