@@ -24,7 +24,7 @@ import type { Note, NotePin, Pattern } from "./notes";
 import { PickedString } from "./picked-string";
 import { getPlugin } from "./plugins";
 import { PostProcessingState } from "./post-processing";
-import { applyDetune, applyDrumsetPitch, applyFadeIn, applyIntervalFadeSideEffects, applyPitchShift, applyVibrato, computeBasePitchAndExpression, computeEnvelopeSpeeds, computeSimpleNoteFilterValues, computeSlides, computeToneIntervalAndFade, initTonePhaseState } from "./render/compute-tone";
+import { applyDetune, applyDrumsetPitch, applyFadeIn, applyIntervalFadeSideEffects, applyPitchShift, applyVibrato, computeBasePitchAndExpression, computeEnvelopeSpeeds, computeSimpleNoteFilterValues, computeSlides, computeToneIntervalAndFade, computeUnisonPhases, initTonePhaseState } from "./render/compute-tone";
 import {
 	allocTone,
 	freeAllTones,
@@ -4437,59 +4437,21 @@ export class Synth {
 
 			const startFreq: number = Instrument.frequencyFromPitch(startPitch);
 			if (getInstrumentCapability(instrument, "hasUnison")) {
-				const unisonVoices: number = instrument.unisonVoices;
-				const unisonSpread: number = instrument.unisonSpread;
-				const unisonOffset: number = instrument.unisonOffset;
-				const unisonExpression: number = instrument.unisonExpression;
-				const voiceCountExpression: number =
-					instrument.type === InstrumentType.pickedString ? 1 : unisonVoices / 2.0;
-				settingsExpressionMult *= unisonExpression * voiceCountExpression;
-				const unisonEnvelopeStart = envelopeStarts[EnvelopeComputeIndex.unison];
-				const unisonEnvelopeEnd = envelopeEnds[EnvelopeComputeIndex.unison];
-				const unisonStartA: number =
-					2.0 ** (((unisonOffset + unisonSpread) * unisonEnvelopeStart) / 12.0);
-				const unisonEndA: number =
-					2.0 ** (((unisonOffset + unisonSpread) * unisonEnvelopeEnd) / 12.0);
-				tone.phaseDeltas[0] = startFreq * sampleTime * unisonStartA;
-				tone.phaseDeltaScales[0] =
-					basePhaseDeltaScale *
-					(unisonEndA / unisonStartA) ** (1.0 / roundedSamplesPerTick);
-				const divisor = unisonVoices === 1 ? 1 : unisonVoices - 1;
-				for (let i: number = 1; i <= unisonVoices; i++) {
-					const unisonStart: number =
-						2.0 **
-							(((unisonOffset + unisonSpread - (2 * i * unisonSpread) / divisor) *
-								unisonEnvelopeStart) /
-								12.0) *
-						specialIntervalMult;
-					const unisonEnd: number =
-						2.0 **
-							(((unisonOffset + unisonSpread - (2 * i * unisonSpread) / divisor) *
-								unisonEnvelopeEnd) /
-								12.0) *
-						specialIntervalMult;
-					tone.phaseDeltas[i] = startFreq * sampleTime * unisonStart;
-					tone.phaseDeltaScales[i] =
-						basePhaseDeltaScale *
-						(unisonEnd / unisonStart) ** (1.0 / roundedSamplesPerTick);
-				}
-				for (let i: number = unisonVoices + 1; i < Config.unisonVoicesMax; i++) {
-					if (i === 2) {
-						const unisonBStart: number =
-							2.0 ** (((unisonOffset - unisonSpread) * unisonEnvelopeStart) / 12.0) *
-							specialIntervalMult;
-						const unisonBEnd: number =
-							2.0 ** (((unisonOffset - unisonSpread) * unisonEnvelopeEnd) / 12.0) *
-							specialIntervalMult;
-						tone.phaseDeltas[i] = startFreq * sampleTime * unisonBStart;
-						tone.phaseDeltaScales[i] =
-							basePhaseDeltaScale *
-							(unisonBEnd / unisonBStart) ** (1.0 / roundedSamplesPerTick);
-					} else {
-						tone.phaseDeltas[i] = tone.phaseDeltas[0];
-						tone.phaseDeltaScales[i] = tone.phaseDeltaScales[0];
-					}
-				}
+				const _isPickedString: boolean =
+					instrument.type === InstrumentType.pickedString;
+				settingsExpressionMult = computeUnisonPhases(
+					tone,
+					instrument,
+					envelopeStarts,
+					envelopeEnds,
+					_isPickedString,
+					startFreq,
+					sampleTime,
+					specialIntervalMult,
+					basePhaseDeltaScale,
+					roundedSamplesPerTick,
+					settingsExpressionMult,
+				);
 			} else if (instrument.type === InstrumentType.supersaw) {
 				const unisonVoices: number = instrument.unisonVoices;
 				const unisonSpread: number = instrument.unisonSpread;
