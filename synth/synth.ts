@@ -28,6 +28,7 @@ import {
 	allocTone,
 	freeAllTones,
 	freeReleasedTone as renderFreeReleasedTone,
+	getSamplesPerTick as renderGetSamplesPerTick,
 	recycleTone,
 	playTone as renderPlayTone,
 	releaseTone as renderReleaseTone,
@@ -5761,10 +5762,12 @@ export class Synth {
 	}
 
 	private getSamplesPerTickSpecificBPM(beatsPerMinute: number): number {
-		const beatsPerSecond: number = beatsPerMinute / 60.0;
-		const partsPerSecond: number = Config.partsPerBeat * beatsPerSecond;
-		const tickPerSecond: number = Config.ticksPerPart * partsPerSecond;
-		return this.samplesPerSecond / tickPerSecond;
+		return renderGetSamplesPerTick(
+			this.samplesPerSecond,
+			beatsPerMinute,
+			Config.ticksPerPart,
+			Config.partsPerBeat,
+		);
 	}
 
 	public sanitizeFilters(filters: DynamicBiquadFilter[]): void {

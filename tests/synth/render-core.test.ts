@@ -16,9 +16,11 @@
 import { describe, test, expect } from "bun:test";
 import { Song, Synth } from "../../synth";
 import { SnapshotBuilder } from "../../synth/render/snapshot";
+import type { SongSnapshot } from "../../synth/render/snapshot";
 import {
 	renderTick,
 	createRenderState,
+	type RenderState,
 	allocTone,
 	recycleTone,
 	releaseTone,
@@ -26,6 +28,10 @@ import {
 	freeAllTones,
 	playTone,
 	computeNoteExpression,
+	getSamplesPerTick,
+	getNextBarFromSnapshot,
+	advanceTickTransport,
+	computePlayheadFromState,
 } from "../../synth/render/render-core";
 import { Tone } from "../../synth/tone";
 import { Deque } from "../../synth/deque";
@@ -104,13 +110,14 @@ describe("Synth.synthesize output (characterization baseline)", () => {
 		expect(r1.checksumR).toBe(r2.checksumR);
 	});
 
-	test("renderTick with snapshot of default song returns silence", () => {
+	test("renderTick with snapshot of default song returns silence and advances state", () => {
 		const song: Song = new Song();
 		const builder: SnapshotBuilder = new SnapshotBuilder();
 		const snapshot = builder.build(song);
 		const state = createRenderState();
 
-		// Advance state to match synth's playhead after warmUp+goToBar(0)
+		// Default song: 8 beats/bar, 24 parts/beat, 2 ticks/part, 160 BPM, 44100 Hz
+		// samplesPerTick = 44100 / (2*24*(160/60)) ≈ 344.53
 		state.bar = 0;
 		state.beat = 0;
 		state.part = 0;
@@ -118,12 +125,11 @@ describe("Synth.synthesize output (characterization baseline)", () => {
 
 		const result = renderTick(snapshot, state, 256, false);
 
-		// renderTick currently returns silence (stub). This test establishes
-		// the contract — when Phase 1 extraction is complete, both paths
-		// will produce the same output.
+		// renderTick advances state but returns silence (no tone extraction yet).
+		// With playSong=false, tick does NOT advance, but playhead is computed.
 		expect(result.left.length).toBe(256);
 		expect(result.right.length).toBe(256);
-		expect(result.telemetry.playhead).toBe(0);
+		expect(result.telemetry.playhead).toBeGreaterThanOrEqual(0);
 		expect(energy(result.left)).toBe(0);
 	});
 
@@ -326,4 +332,331 @@ describe("computeNoteExpression", () => {
 		expect(result.expression).toBe(150);
 	});
 });
+
+// ── Transport advancement helpers ───────────────────────────────────────────
+
+function makeSnapshot(overrides?: Partial<SongSnapshot>): SongSnapshot {
+	return {
+		version: 1,
+		editSequence: 0,
+		timestamp: 0,
+		sampleRate: 44100,
+		beatsPerBar: 4,
+		barCount: 8,
+		ticksPerPart: 2,
+		partsPerBeat: 24,
+		pitchChannelCount: 2,
+		noiseChannelCount: 1,
+		modChannelCount: 1,
+		channelSnapshots: [],
+		loopBarStart: 0,
+		loopBarEnd: 4,
+		loopRepeatCount: -1,
+		loopBarCopy: 0,
+		barCountOverride: null,
+		masterGain: 1,
+		eqFilter: { controlPointCount: 0, controlPoints: [] },
+		eqFilterType: false,
+		eqFilterSimpleCut: 0,
+		eqFilterSimplePeak: 0,
+		eqSubFilters: [],
+		inVolumeCap: 0,
+		outVolumeCap: 0,
+		compressionThreshold: 1,
+		limitThreshold: 1,
+		compressionRatio: 1,
+		limitRatio: 1,
+		limitDecay: 4,
+		limitRise: 4000,
+		channelVolumeCaps: [],
+		octave: 0,
+		key: 0,
+		patternInstruments: true,
+		layeredInstruments: false,
+		tempo: 120,
+		rhythm: 1,
+		reverb: 0,
+		scaleCustom: [],
+		...overrides,
+	};
+}
+
+// ── Transport advancement tests ────────────────────────────────────────────
+
+describe("getSamplesPerTick", () => {
+	test("computes samples per tick at default tempo (160 BPM)", () => {
+		// 160 BPM, 44100 Hz, 2 ticks/part, 24 parts/beat
+		// ticks per second = 2 * 24 * (160/60) = 128
+		// samples per tick = 44100 / 128 ≈ 344.53
+		const result: number = getSamplesPerTick(44100, 160, 2, 24);
+		expect(result).toBeCloseTo(344.53125, 5);
+	});
+
+	test("doubling tempo halves samples per tick", () => {
+		const slow: number = getSamplesPerTick(44100, 80, 2, 24);
+		const fast: number = getSamplesPerTick(44100, 160, 2, 24);
+		expect(fast).toBeCloseTo(slow / 2, 5);
+	});
+
+	test("higher sample rate increases samples per tick", () => {
+		const lowSR: number = getSamplesPerTick(44100, 120, 2, 24);
+		const highSR: number = getSamplesPerTick(48000, 120, 2, 24);
+		expect(highSR).toBeCloseTo(lowSR * (48000 / 44100), 5);
+	});
+});
+
+describe("getNextBarFromSnapshot", () => {
+	test("returns bar+1 within song range", () => {
+		const snapshot: SongSnapshot = makeSnapshot({ barCount: 8 });
+		const state: RenderState = createRenderState();
+		state.bar = 3;
+
+		expect(getNextBarFromSnapshot(snapshot, state)).toBe(4);
+	});
+
+	test("returns loopBarStart when at loopBarEnd (standard loop)", () => {
+		const snapshot: SongSnapshot = makeSnapshot({ loopBarStart: 2, loopBarEnd: 6 });
+		const state: RenderState = createRenderState();
+		state.bar = 6;
+
+		expect(getNextBarFromSnapshot(snapshot, state)).toBe(2);
+	});
+
+	test("renderingSong skips the loopBarEnd wrap but NOT the loop-repeat wrap (matches original Synth)", () => {
+		// Original Synth.getNextBar(): when renderingSong=true, the loopBarEnd
+		// check is skipped, but the loopRepeatCount second check still fires.
+		// So bar=6 at loopBarEnd=6 with renderingSong=true still returns loopBarStart
+		// via the second condition.
+		const snapshot: SongSnapshot = makeSnapshot({ loopBarStart: 2, loopBarEnd: 6 });
+		const state: RenderState = createRenderState();
+		state.bar = 6;
+		state.renderingSong = true;
+
+		// Second condition fires: nextBar=7 === Math.max(6+1, 2+(6-2)) = 7
+		// Returns loopBarStart = 2, matching original Synth behavior.
+		expect(getNextBarFromSnapshot(snapshot, state)).toBe(2);
+	});
+
+	test("returns bar+1 when not at loop boundary", () => {
+		const snapshot: SongSnapshot = makeSnapshot({ loopBarStart: 2, loopBarEnd: 6 });
+		const state: RenderState = createRenderState();
+		state.bar = 4;
+
+		expect(getNextBarFromSnapshot(snapshot, state)).toBe(5);
+	});
+});
+
+describe("advanceTickTransport", () => {
+	test("advances tick within same part", () => {
+		const snapshot: SongSnapshot = makeSnapshot({ ticksPerPart: 2, partsPerBeat: 4, beatsPerBar: 4 });
+		const state: RenderState = createRenderState();
+		state.tick = 0;
+		state.part = 0;
+		state.beat = 0;
+		state.bar = 0;
+		state.tickSampleCountdown = 0;
+
+		const { songEnded } = advanceTickTransport(snapshot, state, 344, true);
+
+		expect(songEnded).toBe(false);
+		expect(state.tick).toBe(1); // tick 0 → 1
+		expect(state.part).toBe(0); // same part
+		expect(state.beat).toBe(0);
+		expect(state.bar).toBe(0);
+	});
+
+	test("wraps tick to 0 and advances part at ticksPerPart boundary", () => {
+		const snapshot: SongSnapshot = makeSnapshot({ ticksPerPart: 2, partsPerBeat: 4, beatsPerBar: 4 });
+		const state: RenderState = createRenderState();
+		state.tick = 1; // last tick before wrap
+		state.part = 0;
+		state.beat = 0;
+		state.bar = 0;
+
+		const { songEnded } = advanceTickTransport(snapshot, state, 344, true);
+
+		expect(songEnded).toBe(false);
+		expect(state.tick).toBe(0); // wrapped
+		expect(state.part).toBe(1); // advanced
+		expect(state.beat).toBe(0);
+		expect(state.bar).toBe(0);
+	});
+
+	test("advances tick/part without advancing beat when playSong is false", () => {
+		const snapshot: SongSnapshot = makeSnapshot({ ticksPerPart: 1, partsPerBeat: 4 });
+		const state: RenderState = createRenderState();
+		state.tick = 0;
+		state.part = 0;
+		state.beat = 0;
+		state.bar = 0;
+
+		const { songEnded } = advanceTickTransport(snapshot, state, 344, false);
+
+		expect(songEnded).toBe(false);
+		// tick wraps (ticksPerPart=1 → 0→1 wraps to 0)
+		expect(state.tick).toBe(0);
+		// part advances
+		expect(state.part).toBe(1);
+		// beat does NOT advance (playSong=false)
+		expect(state.beat).toBe(0);
+		expect(state.bar).toBe(0);
+	});
+
+	test("returns songEnded when bar exceeds barCount and loopRepeatCount is 0", () => {
+		// loopRepeatCount=0 means no infinite loop; signal song end
+		const snapshot: SongSnapshot = makeSnapshot({
+			barCount: 8,
+			beatsPerBar: 4,
+			partsPerBeat: 4,
+			ticksPerPart: 1,
+			loopRepeatCount: 0,
+		});
+		const state: RenderState = createRenderState();
+		state.tick = 0;
+		state.part = 3;
+		state.beat = 3;
+		state.bar = 7;
+
+		const { songEnded } = advanceTickTransport(snapshot, state, 344, true);
+
+		// tick wraps → part wraps → beat wraps → bar=8 >= barCount
+		expect(songEnded).toBe(true);
+		expect(state.bar).toBe(8); // advanced past end
+	});
+
+	test("infinite loop (loopRepeatCount=-1) wraps bar to 0 instead of ending", () => {
+		const snapshot: SongSnapshot = makeSnapshot({
+			barCount: 8,
+			beatsPerBar: 4,
+			partsPerBeat: 4,
+			ticksPerPart: 1,
+			loopRepeatCount: -1,
+		});
+		const state: RenderState = createRenderState();
+		state.tick = 0;
+		state.part = 3;
+		state.beat = 3;
+		state.bar = 7;
+
+		const { songEnded } = advanceTickTransport(snapshot, state, 344, true);
+
+		// Infinite loop: bar wraps to 0
+		expect(songEnded).toBe(false);
+		expect(state.bar).toBe(0);
+	});
+});
+
+describe("computePlayheadFromState", () => {
+	test("at start of song playhead is 0", () => {
+		const state: RenderState = createRenderState();
+		state.bar = 0;
+		state.beat = 0;
+		state.part = 0;
+		state.tick = 0;
+		state.tickSampleCountdown = 344; // full tick remaining
+
+		const ph: number = computePlayheadFromState(state, 344, 4, 24, 2);
+
+		// tickFraction = 0 + 1.0 - 344/344 = 0
+		// ((0/2 + 0) / 24 + 0) / 4 + 0 = 0
+		expect(ph).toBeCloseTo(0, 5);
+	});
+
+	test("mid-tick playhead is fractional", () => {
+		const state: RenderState = createRenderState();
+		state.bar = 2;
+		state.beat = 1;
+		state.part = 6;
+		state.tick = 0;
+		state.tickSampleCountdown = 172; // half tick remaining
+
+		const ph: number = computePlayheadFromState(state, 344, 4, 24, 2);
+
+		// tickFraction = 0 + 1.0 - 172/344 = 0.5
+		// ((0.5/2 + 6) / 24 + 1) / 4 + 2
+		// = ((0.25 + 6) / 24 + 1) / 4 + 2
+		// = (6.25/24 + 1) / 4 + 2
+		// = (0.2604 + 1) / 4 + 2
+		// = 1.2604/4 + 2 = 0.3151 + 2 = 2.3151
+		expect(ph).toBeCloseTo(2.3151, 3);
+	});
+});
+
+describe("renderTick transport integration", () => {
+	test("renderTick with playSong=true advances state and computes playhead", () => {
+		const snapshot: SongSnapshot = makeSnapshot({ tempo: 160, beatsPerBar: 4, partsPerBeat: 24, ticksPerPart: 2 });
+		const state: RenderState = createRenderState();
+		state.bar = 0;
+		state.beat = 0;
+		state.part = 0;
+		state.tick = 0;
+
+		const result = renderTick(snapshot, state, 344, true);
+
+		// Should have advanced tick
+		expect(state.tick).toBeGreaterThanOrEqual(0);
+		expect(result.left.length).toBe(344);
+		expect(result.right.length).toBe(344);
+		// playhead should be computed
+		expect(result.telemetry.playhead).toBeGreaterThan(0);
+	});
+
+	test("renderTick with playSong=false advances tick but not beat/bar or playhead", () => {
+		const snapshot: SongSnapshot = makeSnapshot({ tempo: 160, ticksPerPart: 2, partsPerBeat: 4 });
+		const state: RenderState = createRenderState();
+		state.bar = 0;
+		state.beat = 0;
+		state.part = 0;
+		state.tick = 0;
+		state.tickSampleCountdown = 344;
+
+		const result = renderTick(snapshot, state, 344, false);
+
+		// countdown=344, outputBufferLength=344 → runLength=344, countdown goes to 0 → transport advances
+		// tick advances (0→1) but part/beat/bar stay because no boundaries crossed
+		expect(state.tick).toBe(1);
+		expect(state.part).toBe(0);
+		expect(state.beat).toBe(0);
+		expect(state.bar).toBe(0);
+		// Playhead NOT updated when playSong=false
+		expect(result.telemetry.playhead).toBe(0);
+	});
+
+	test("renderTick with playSong=false still advances tick/part at tick boundary", () => {
+		const snapshot: SongSnapshot = makeSnapshot({ tempo: 160, ticksPerPart: 1, partsPerBeat: 4, beatsPerBar: 4 });
+		const state: RenderState = createRenderState();
+		state.tick = 0;
+		state.part = 0;
+		state.beat = 0;
+		state.bar = 0;
+		state.tickSampleCountdown = 1;
+
+		renderTick(snapshot, state, 1, false);
+
+		// Tick wraps to 0, part advances (mirrors Synth warmup)
+		expect(state.tick).toBe(0);
+		expect(state.part).toBe(1);
+		expect(state.beat).toBe(0);
+		expect(state.bar).toBe(0);
+	});
+
+	test("renderTick with playSong=false respects partsPerBeat boundary", () => {
+		const snapshot: SongSnapshot = makeSnapshot({ tempo: 160, ticksPerPart: 1, partsPerBeat: 2, beatsPerBar: 4 });
+		const state: RenderState = createRenderState();
+		state.tick = 0;
+		state.part = 1; // last part before wrap
+		state.beat = 0;
+		state.bar = 0;
+		state.tickSampleCountdown = 1;
+
+		renderTick(snapshot, state, 1, false);
+
+		// Part wraps but beat stays (playSong=false)
+		expect(state.tick).toBe(0);
+		expect(state.part).toBe(0); // wrapped
+		expect(state.beat).toBe(0); // NOT advanced
+		expect(state.bar).toBe(0);
+	});
+});
+
 

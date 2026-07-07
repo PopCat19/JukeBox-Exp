@@ -195,15 +195,15 @@ export function freeAllTones(
  * to Synth internals. Phase 2 replaces the host/state types with the
  * worklet's own scope types.
  */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+ 
 export function playTone(
 	synthesizer: Function | null,
 	bufferIndex: number,
 	runLength: number,
 	tone: Tone,
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	 
 	host: any,
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	 
 	instrumentState: any,
 ): void {
 	if (synthesizer != null) {
@@ -283,7 +283,7 @@ export function computeNoteExpression(
  * Phase 2: the tone's note field will be replaced with a NoteSnapshot
  * reference so no mutable Note is needed.
  */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+ 
 export function playModTone(
 	snapshot: SongSnapshot,
 	_channelIndex: number,
@@ -292,9 +292,9 @@ export function playModTone(
 	runLength: number,
 	tone: Tone,
 	state: RenderState,
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	 
 	host: any,
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	 
 	instrumentState: any,
 ): void {
 	if (tone.note == null) return;
@@ -325,6 +325,130 @@ export function playModTone(
 	if (instrumentState.synthesizer != null) {
 		instrumentState.synthesizer(host, bufferIndex, runLength, tone, instrumentState);
 	}
+}
+
+// ── Transport advancement ────────────────────────────────────────────────
+
+/**
+ * Compute samples per tick from BPM and sample rate.
+ * Pure: no mods, no mutable state.
+ */
+export function getSamplesPerTick(
+	sampleRate: number,
+	bpm: number,
+	ticksPerPart: number,
+	partsPerBeat: number,
+): number {
+	const beatsPerSecond: number = bpm / 60.0;
+	const partsPerSecond: number = partsPerBeat * beatsPerSecond;
+	const tickPerSecond: number = ticksPerPart * partsPerSecond;
+	return sampleRate / tickPerSecond;
+}
+
+/**
+ * Get the next bar index given the current bar and loop state.
+ * Reads loop/transport data from SongSnapshot. No mutable Song reference.
+ */
+export function getNextBarFromSnapshot(
+	snapshot: SongSnapshot,
+	state: RenderState,
+): number {
+	let nextBar: number = state.bar + 1;
+	if (state.bar === snapshot.loopBarEnd && !state.renderingSong) {
+		nextBar = snapshot.loopBarStart;
+	} else if (
+		snapshot.loopRepeatCount !== 0 &&
+		nextBar === Math.max(snapshot.loopBarEnd + 1, snapshot.loopBarStart + (snapshot.loopBarEnd - snapshot.loopBarStart))
+	) {
+		nextBar = snapshot.loopBarStart;
+	}
+	return nextBar;
+}
+
+/**
+ * Advance the tick/part/beat/bar transport by one tick.
+ * Handles: tick→part→beat→bar progression, loop wrapping, and song-end detection.
+ *
+ * Returns `songEnded: true` if the song reached barCount and should trigger stop fade.
+ * Caller must handle the stop fade (pause, loop reset) based on this flag.
+ *
+ * Does NOT touch: sample countdown reset, envelope advancement, free released tones.
+ * Those are separate concerns called at the same boundary by the coordinator.
+ */
+export function advanceTickTransport(
+	snapshot: SongSnapshot,
+	state: RenderState,
+	samplesPerTick: number,
+	playSong: boolean,
+): { songEnded: boolean } {
+	state.isAtStartOfTick = true;
+	state.tick++;
+	state.tickSampleCountdown += samplesPerTick;
+
+	// Tick/part always advance (even when playSong=false — needed for
+	// JIT warmup and tick-countdown consistency).
+	if (state.tick < snapshot.ticksPerPart) {
+		return { songEnded: false };
+	}
+	state.tick = 0;
+	state.part++;
+
+	if (state.part < snapshot.partsPerBeat) {
+		return { songEnded: false };
+	}
+	state.part = 0;
+
+	// Beat/bar advancement only when playSong=true (mirrors Synth).
+	if (!playSong) return { songEnded: false };
+
+	state.beat++;
+
+	if (state.beat < snapshot.beatsPerBar) {
+		return { songEnded: false };
+	}
+	state.beat = 0;
+
+	state.prevBar = state.bar;
+	state.bar = getNextBarFromSnapshot(snapshot, state);
+
+	if (state.bar >= snapshot.barCount) {
+		if (snapshot.loopRepeatCount === -1) {
+			// Infinite end-wrap: wrap bar to 0 (mirrors Synth).
+			// loopRepeatCount === -1 means no user loop points / infinite play.
+			state.bar = 0;
+			return { songEnded: false };
+		}
+		// Finite loop counts (0 or positive): signal song ended.
+		// Caller must trigger stop fade and cleanup.
+		return { songEnded: true };
+	}
+
+	return { songEnded: false };
+}
+
+/**
+ * Compute the fractional playhead position (in bars) from tick/beat/part/bar state.
+ * Mirrors the formula in Synth.synthesize().
+ */
+export function computePlayheadFromState(
+	state: RenderState,
+	samplesPerTick: number,
+	beatsPerBar: number,
+	partsPerBeat: number,
+	ticksPerPart: number,
+): number {
+	// Fractional position within the current tick (0..1 within the tick)
+	const tickFraction: number =
+		state.tick + 1.0 - state.tickSampleCountdown / samplesPerTick;
+	// Convert ticks to parts, then parts → beats → bars.
+	// The / ticksPerPart converts from tick units to part-relative fraction.
+	return (
+		(tickFraction / ticksPerPart + state.part) /
+			partsPerBeat +
+		state.beat
+	) /
+		beatsPerBar +
+		state.bar;
 }
 
 // ── Snapshot → SongPostParams ─────────────────────────────────────────────
@@ -443,7 +567,7 @@ export function renderStopFade(
 	return lastGain;
 }
 
-// ── RenderTick (stub — Phase 1 extraction target) ─────────────────────────
+// ── RenderTick (Phase 1 extraction target) ────────────────────────────────
 
 /**
  * Produce one tick of audio from a SongSnapshot.
@@ -452,19 +576,68 @@ export function renderStopFade(
  *           instead of mutable Song. No external side effects.
  *
  * Phase 2: runs inside AudioWorklet (no DOM, no AudioContext).
+ *
+ * Currently: advances transport state + produces silence.
+ * Tone rendering (determineActiveTones, computeTone, playTone) is not yet extracted.
  */
 export function renderTick(
-	_snapshot: SongSnapshot,
-	_state: RenderState,
-	_outputBufferLength: number,
-	_playSong: boolean,
+	snapshot: SongSnapshot,
+	state: RenderState,
+	outputBufferLength: number,
+	playSong: boolean,
 ): RenderResult {
-	// Placeholder: returns silence until Phase 1 extraction
-	const left: Float32Array = new Float32Array(_outputBufferLength);
-	const right: Float32Array = new Float32Array(_outputBufferLength);
+	// Compute samples per tick from snapshot tempo
+	const samplesPerTick: number = getSamplesPerTick(
+		snapshot.sampleRate,
+		snapshot.tempo,
+		snapshot.ticksPerPart,
+		snapshot.partsPerBeat,
+	);
 
+	// Check and reset tick bounds (mirrors synth entry logic)
+	if (state.tickSampleCountdown <= 0 || state.tickSampleCountdown > samplesPerTick) {
+		state.tickSampleCountdown = samplesPerTick;
+		state.isAtStartOfTick = true;
+	}
+
+	// Compute run length for this iteration
+	const samplesLeftInTick: number = Math.ceil(state.tickSampleCountdown);
+	const runLength: number = Math.min(samplesLeftInTick, outputBufferLength);
+
+	// [Phase 2: render tone samples here]
+
+	// Produce silence output buffer
+	const left: Float32Array = new Float32Array(outputBufferLength);
+	const right: Float32Array = new Float32Array(outputBufferLength);
+
+	// Advance sample countdown
+	state.isAtStartOfTick = false;
+	state.tickSampleCountdown -= runLength;
+
+	// At end of tick: advance transport
+	if (state.tickSampleCountdown <= 0) {
+		const { songEnded } = advanceTickTransport(snapshot, state, samplesPerTick, playSong);
+		// Phase 2: handle songEnded (trigger pause/stop fade, loop repeat decrement)
+		// Phase 2: handle infinite-loop bar=0 wrap (already handled in advanceTickTransport)
+		// Cast to void to explicitly discard (not needed yet)
+		void songEnded;
+	}
+
+	// Update playhead (mirrors Synth: only updates when playSong is true, plus the
+	// countInMetronome check which is not yet ported to render-core).
+	if (playSong) {
+		state.playhead = computePlayheadFromState(
+			state,
+			samplesPerTick,
+			snapshot.beatsPerBar,
+			snapshot.partsPerBeat,
+			snapshot.ticksPerPart,
+		);
+	}
+
+	// Build telemetry
 	const telemetry: RenderTelemetry = {
-		playhead: _state.playhead,
+		playhead: state.playhead,
 		spectrum: null,
 		volumeCaps: [],
 	};

@@ -47,16 +47,12 @@ Per-instrument: ALL fields — type, socketModuleId, volume, pan, effects bitmas
 | computeNoteExpression extracted | ✅ Done | `render-core.ts` — computes note-pin expression range from playhead + tick timing. |
 | playModTone snapshot-based | ✅ Done | `render-core.ts` — reads tick timing from RenderState, instrument data from SongSnapshot. Uses computeNoteExpression. |
 | Characterization tests expanded | ✅ Done | `tests/synth/render-core.test.ts` — 16 tests (4 old + 6 tone pool + 3 playTone + 3 computeNoteExpression) |
+| Transport advancement extracted | ✅ Done | `render-core.ts` — `getSamplesPerTick`, `getNextBarFromSnapshot`, `advanceTickTransport`, `computePlayheadFromState`. Pure functions for tick/part/beat/bar advancement with loop handling. |
+| renderTick advances transport | ✅ Done | `renderTick()` now calls transport functions. Still returns silence (no tone sample rendering). |
+| Synth delegates to render-core BPM calc | ✅ Done | `Synth.getSamplesPerTickSpecificBPM()` → `renderGetSamplesPerTick()` |
+| Transport tests | ✅ Done | `tests/synth/render-core.test.ts` — 15 transport tests (getSamplesPerTick, getNextBar, advanceTickTransport, computePlayhead, renderTick integration) |
 | Rename core.ts→render-core.ts | ✅ Done | Avoids `.gitignore` `core.*` pattern for core dumps |
 | tsconfig_synth.json updated | ✅ Done | Both files added to synth project |
-
-1. **Extract modulator computation**: `SynthModState.computeLatestModValues()` reads from Song to compute active modulator values at the current bar/beat/part. Must read from snapshot instead.
-
-2. **Extract envelope/arpeggio**: The per-tick envelope and arpeggio time advancement.
-
-3. **Build coordinator**: `synth/render/coordinator.ts` — tick scheduling, AudioBackend control, Snapshot sync at tick boundaries.
-
-4. **Characterization test phase shift**: Once renderTick produces bit-identical output to old `synthesize()`, update the characterization tests to compare checksums and verify they match.
 
 ### Architecture rules
 
@@ -67,19 +63,17 @@ Per-instrument: ALL fields — type, socketModuleId, volume, pan, effects bitmas
 
 ### Next steps (in order)
 
-1. **Extract per-tick loop**: The bar/beat/part advancement, tick countdown, and pattern-reading logic from `synthesize()` into a pure tick-advancement function.
+1. **Extract `computeTone()`**: The core DSP dispatch (~1865 lines) — reads instrument params from snapshot, produces sample data. This is the largest piece.
 
-2. **Extract `computeTone()`**: The core DSP dispatch (~1865 lines) — reads instrument params from snapshot, produces sample data. This is the largest piece.
+2. **Extract modulator computation**: `SynthModState.computeLatestModValues()` reads from Song to compute active modulator values at the current bar/beat/part. Must read from snapshot instead.
 
-3. **Extract modulator computation**: `SynthModState.computeLatestModValues()` reads from Song to compute active modulator values at the current bar/beat/part. Must read from snapshot instead.
+3. **Extract envelope/arpeggio**: The per-tick envelope and arpeggio time advancement.
 
-4. **Extract envelope/arpeggio**: The per-tick envelope and arpeggio time advancement.
+4. **Build coordinator**: `synth/render/coordinator.ts` — tick scheduling, AudioBackend control, Snapshot sync at tick boundaries.
 
-5. **Build coordinator**: `synth/render/coordinator.ts` — tick scheduling, AudioBackend control, Snapshot sync at tick boundaries.
+5. **Characterization test phase shift**: Once renderTick produces bit-identical output to old `synthesize()`, update the characterization tests to compare checksums and verify they match.
 
-6. **Characterization test phase shift**: Once renderTick produces bit-identical output to old `synthesize()`, update the characterization tests to compare checksums and verify they match.
-
-### Commits (9 total)
+### Commits (10 total)
 
 ```
 4695f9a7 docs(concepts): add synth-worklet-migration plan, remove stale ui-framework phased docs
@@ -91,12 +85,13 @@ cf6619d7 fix(synth-render): bump editSequence on ChangeSong history paths too
 17c12d78 fix(synth-render): add playheadNeedsReset field, fix header name, fix checksum comment
 a2e7e0a9 feat(synth-render): extract post-processing into renderPostProcessing and renderStopFade functions
 2c748d80 docs(synth-render): document stopFade cleanup responsibility and allocation guard in renderPostProcessing
-[new]   feat(synth-render): add tone pool lifecycle and playTone/playModTone to render-core
+4d20d212 feat(synth-render): add tone pool lifecycle and playTone/playModTone to render-core
+[new]   feat(synth-render): extract transport advancement into render-core
 ```
 
 ### Verification
 
-- `bun test` — 1060 pass, 0 fail
+- `bun test` — 1075 pass, 0 fail
 - `bun run typecheck:all` — clean (editor + synth + player)
 - `bun run lint` — only pre-existing `any` type warnings (no new errors)
 
