@@ -1,4 +1,4 @@
 {
 	"extends": "./tsconfig.base.json",
-	"files": [ "synth/synth.ts", "synth/render/snapshot.ts" ]
+	"files": [ "synth/synth.ts", "synth/render/snapshot.ts", "synth/render/render-core.ts" ]
 }
