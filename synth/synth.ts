@@ -24,7 +24,7 @@ import type { Note, NotePin, Pattern } from "./notes";
 import { PickedString } from "./picked-string";
 import { getPlugin } from "./plugins";
 import { PostProcessingState } from "./post-processing";
-import { applyDetune, applyFadeIn, applyPitchShift, computeBasePitchAndExpression, computeSlides, computeToneIntervalAndFade, initTonePhaseState } from "./render/compute-tone";
+import { applyDetune, applyDrumsetPitch, applyFadeIn, applyIntervalFadeSideEffects, applyPitchShift, computeBasePitchAndExpression, computeSlides, computeToneIntervalAndFade, initTonePhaseState } from "./render/compute-tone";
 import {
 	allocTone,
 	freeAllTones,
@@ -3522,18 +3522,7 @@ export class Synth {
 		fadeExpressionEnd = intervalFadeResult.fadeExpressionEnd;
 		toneIsOnLastTick = intervalFadeResult.toneIsOnLastTick;
 
-		// Side effects that require mutable tone:
-		if (released) {
-			// No tone mutations for released tones (reads only)
-		} else if (tone.note == null) {
-			tone.lastInterval = 0;
-			tone.ticksSinceReleased = 0;
-			tone.liveInputSamplesHeld += roundedSamplesPerTick;
-		} else {
-			tone.ticksSinceReleased = 0;
-			tone.lastInterval = intervalEnd;
-		}
-		tone.isOnLastTick = toneIsOnLastTick;
+		applyIntervalFadeSideEffects(tone, released, intervalEnd, toneIsOnLastTick, roundedSamplesPerTick);
 
 		const tmpNoteFilter: FilterSettings = instrument.noteFilter;
 		let startPoint: FilterControlPoint;
@@ -3917,14 +3906,7 @@ export class Synth {
 			fadeExpressionEnd = fadeInResult.fadeExpressionEnd;
 		}
 
-		if (instrument.type === InstrumentType.drumset && tone.drumsetPitch == null) {
-			// It's possible that the note will change while the user is editing it,
-			// but the tone's pitches don't get updated because the tone has already
-			// ended and is fading out. To avoid an array index out of bounds error, clamp the pitch.
-			tone.drumsetPitch = tone.pitches[0];
-			if (tone.note != null) tone.drumsetPitch += tone.note.pickMainInterval();
-			tone.drumsetPitch = Math.max(0, Math.min(Config.drumCount - 1, tone.drumsetPitch));
-		}
+		applyDrumsetPitch(tone, instrument.type, Config.drumCount);
 
 		let noteFilterExpression: number = envelopeComputer.lowpassCutoffDecayVolumeCompensation;
 		if (!effectsIncludeNoteFilter(instrument.effects)) {

@@ -521,15 +521,16 @@ export interface ToneResetInst {
 }
 
 /**
- * Initialize tone state at the start of computeTone:
+ * Initialize tone state at the start of computeTone.
  *
  * 1. Reset tone + envelope computer if at note start or freshly allocated.
  * 2. Set advanced loop control phase/direction state for chip instruments.
  * 3. Compute custom sample phase restore tracking for mid-note chip samples.
  * 4. Always: zero out phase deltas, operator expressions, set operator waves.
  *
- * Mutates tone fields directly. Returns custom sample phase info used
- * later in the non-FM synth path for phase restoration.
+ * Extracted from Synth — still mutates tone directly (Phase 1 delegate, not
+ * yet fully pure). Returns custom sample phase info used later in the non-FM
+ * synth path for phase restoration.
  */
 export function initTonePhaseState(
 	tone: Tone,
@@ -619,4 +620,51 @@ export function initTonePhaseState(
 		partsPassed: customSamplePartsPassed,
 		firstOffset: customSampleFirstOffset,
 	};
+}
+
+// ── Interval/fade side effects ────────────────────────────────────────────
+
+/**
+ * Apply tone mutations from the interval/fade computation result.
+ *
+ * Sets lastInterval, ticksSinceReleased, liveInputSamplesHeld, and
+ * isOnLastTick on the tone. Separated from computeToneIntervalAndFade
+ * because these are side effects the pure function cannot do.
+ */
+export function applyIntervalFadeSideEffects(
+	tone: Tone,
+	released: boolean,
+	intervalEnd: number,
+	toneIsOnLastTick: boolean,
+	roundedSamplesPerTick: number,
+): void {
+	if (released) {
+		// No tone mutations for released tones (reads only)
+	} else if (tone.note == null) {
+		tone.lastInterval = 0;
+		tone.ticksSinceReleased = 0;
+		tone.liveInputSamplesHeld += roundedSamplesPerTick;
+	} else {
+		tone.ticksSinceReleased = 0;
+		tone.lastInterval = intervalEnd;
+	}
+	tone.isOnLastTick = toneIsOnLastTick;
+}
+
+// ── Drumset pitch ─────────────────────────────────────────────────────────
+
+/**
+ * Assign the drumset pitch for a tone if it hasn't been set yet.
+ * Clamps to valid range to avoid out-of-bounds errors during editing.
+ */
+export function applyDrumsetPitch(
+	tone: Tone,
+	instrumentType: InstrumentTypeEnum,
+	drumCount: number,
+): void {
+	if (instrumentType === InstrumentType.drumset && tone.drumsetPitch == null) {
+		tone.drumsetPitch = tone.pitches[0];
+		if (tone.note != null) tone.drumsetPitch += tone.note.pickMainInterval();
+		tone.drumsetPitch = Math.max(0, Math.min(drumCount - 1, tone.drumsetPitch));
+	}
 }
