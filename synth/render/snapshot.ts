@@ -296,6 +296,14 @@ export interface SongSnapshot {
 	readonly limitRise: number;
 	readonly channelVolumeCaps: readonly number[];
 
+	// Song-level octave/key (read by render core for pitch computation)
+	readonly octave: number;
+	readonly key: number;
+
+	// Pattern/layer flags (read by render core for instrument resolution)
+	readonly patternInstruments: boolean;
+	readonly layeredInstruments: boolean;
+
 	// Tempo / reverb
 	readonly tempo: number;
 	readonly rhythm: number;
@@ -381,6 +389,11 @@ export class SnapshotBuilder {
 			limitDecay: song.limitDecay,
 			limitRise: song.limitRise,
 			channelVolumeCaps,
+
+			octave: song.octave,
+			key: song.key,
+			patternInstruments: song.patternInstruments,
+			layeredInstruments: song.layeredInstruments,
 
 			tempo: song.tempo,
 			rhythm: song.rhythm,
@@ -542,7 +555,7 @@ export function snapshotPattern(pattern: Pattern): PatternSnapshot {
 	};
 }
 
-/** Deep-copy an Instrument into a snapshot. Returns a frozen plain object. */
+/** Deep-copy an Instrument into a snapshot. Returns a deeply immutable plain object (no shared refs). */
 export function snapshotInstrument(inst: Instrument): InstrumentSnapshot {
 	const _socketModuleId: string | undefined = (inst as unknown as { _socketModuleId?: string })._socketModuleId;
 

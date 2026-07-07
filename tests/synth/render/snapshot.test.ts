@@ -13,12 +13,10 @@ import { describe, test, expect } from "bun:test";
 import {
 	SnapshotBuilder,
 	snapshotInstrument,
-	snapshotFilterSettings,
 } from "../../../synth/render/snapshot";
 import { Song } from "../../../synth/song";
 import { Instrument } from "../../../synth/instruments";
 import { Note } from "../../../synth/notes";
-import { Config } from "../../../synth/synth-config";
 
 // ── Default song snapshot ─────────────────────────────────────────────────
 
@@ -76,6 +74,14 @@ describe("SnapshotBuilder", () => {
 
 		// eqFilter exists
 		expect(snapshot.eqFilter.controlPointCount).toBe(0);
+
+		// Song-level octave/key
+		expect(snapshot.octave).toBe(0);
+		expect(snapshot.key).toBe(0);
+
+		// Pattern/layer flags
+		expect(snapshot.patternInstruments).toBeTrue();
+		expect(snapshot.layeredInstruments).toBeFalse();
 
 		// scaleCustom array
 		expect(snapshot.scaleCustom.length).toBe(12);
@@ -294,7 +300,23 @@ describe("SnapshotBuilder", () => {
 		expect(snap.loopRepeatCount).toBe(3);
 	});
 
-	test("scaleCustom array is copied by value", () => {
+	test("snapshot includes key, octave, patternInstruments, layeredInstruments from modified song", () => {
+	const song: Song = new Song();
+	song.key = 3;
+	song.octave = 4;
+	song.patternInstruments = false;
+	song.layeredInstruments = true;
+
+	const builder: SnapshotBuilder = new SnapshotBuilder();
+	const snap = builder.build(song);
+
+	expect(snap.key).toBe(3);
+	expect(snap.octave).toBe(4);
+	expect(snap.patternInstruments).toBeFalse();
+	expect(snap.layeredInstruments).toBeTrue();
+});
+
+test("scaleCustom array is copied by value", () => {
 		const song: Song = new Song();
 		const builder: SnapshotBuilder = new SnapshotBuilder();
 		const snap = builder.build(song);
