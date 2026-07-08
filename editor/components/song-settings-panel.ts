@@ -180,51 +180,39 @@ export class SongSettingsPanel {
 			this.songEqFilterEditor.container,
 		);
 
-		const eqFilterSimpleCutSlider = rangeSlider(
+		const eqFilterSimpleCutWidget = new SliderNumWidget(
 			doc,
 			(oldValue: number, newValue: number) =>
 				new ChangeEQFilterSimpleCut(doc, oldValue, newValue),
 			0,
 			Config.filterSimpleCutRange - 1,
 			6,
+			"Filter Cut:",
+			() => {
+				onOpenPrompt("filterCutoff");
+			},
+			{ getInstrumentValue: () => doc.getCurrentInstrumentObj().eqFilterSimpleCut },
 		);
 
-		this.eqFilterSimpleCutRow = div(
-			{ class: "selectRow", title: "Low-pass Filter Cutoff Frequency" },
-			span(
-				{
-					class: "tip",
-					onclick: () => {
-						onOpenPrompt("filterCutoff");
-					},
-				},
-				"Filter Cut:",
-			),
-			eqFilterSimpleCutSlider.container,
-		);
+		this.eqFilterSimpleCutRow = eqFilterSimpleCutWidget.row;
+		this.eqFilterSimpleCutRow.title = "Low-pass Filter Cutoff Frequency";
 
-		const eqFilterSimplePeakSlider = rangeSlider(
+		const eqFilterSimplePeakWidget = new SliderNumWidget(
 			doc,
 			(oldValue: number, newValue: number) =>
 				new ChangeEQFilterSimplePeak(doc, oldValue, newValue),
 			0,
 			Config.filterSimplePeakRange - 1,
 			6,
+			"Filter Peak:",
+			() => {
+				onOpenPrompt("filterResonance");
+			},
+			{ getInstrumentValue: () => doc.getCurrentInstrumentObj().eqFilterSimplePeak },
 		);
 
-		this.eqFilterSimplePeakRow = div(
-			{ class: "selectRow", title: "Low-pass Filter Peak Resonance" },
-			span(
-				{
-					class: "tip",
-					onclick: () => {
-						onOpenPrompt("filterResonance");
-					},
-				},
-				"Filter Peak:",
-			),
-			eqFilterSimplePeakSlider.container,
-		);
+		this.eqFilterSimplePeakRow = eqFilterSimplePeakWidget.row;
+		this.eqFilterSimplePeakRow.title = "Low-pass Filter Peak Resonance";
 
 		// Chorus
 		this.chorusWidget = new SliderNumWidget(
@@ -234,7 +222,9 @@ export class SongSettingsPanel {
 			Config.chorusRange - 1,
 			0,
 			"Chorus:",
-			() => { onOpenPrompt("chorus"); },
+			() => {
+				onOpenPrompt("chorus");
+			},
 		);
 		this.chorusSlider = this.chorusWidget.slider;
 		this.chorusRow = this.chorusWidget.row;
@@ -247,7 +237,9 @@ export class SongSettingsPanel {
 			Config.reverbRange - 1,
 			0,
 			"Reverb:",
-			() => { onOpenPrompt("reverb"); },
+			() => {
+				onOpenPrompt("reverb");
+			},
 		);
 		this.reverbSlider = this.reverbWidget.slider;
 		this.reverbRow = this.reverbWidget.row;

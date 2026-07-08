@@ -12,7 +12,7 @@ import { HTML } from "imperative-html/dist/esm/elements-strict";
 import type { Instrument } from "../../synth";
 import type { ParamDescriptor, ParamSchema } from "../../synth/socket/param-schema";
 import type { SongDocument } from "../song-document";
-import { rangeSlider, type Slider } from "../ui";
+import { type Slider, SliderNumWidget } from "../ui";
 import { createChangeForParam, type ModuleModMap } from "./change-factory";
 
 const { div, span, input, label } = HTML;
@@ -72,28 +72,21 @@ export function buildModulePanel(opts: PanelFactoryOptions): GeneratedModulePane
 			}
 
 			if (param.type === "int" || param.type === "float" || param.type === "percent") {
-				const slider = rangeSlider(
+				const widget = new SliderNumWidget(
 					doc,
 					(oldValue: number, newValue: number) =>
 						createChangeForParam(doc, param.key, oldValue, newValue, modMap),
 					param.min ?? 0,
 					param.max ?? 100,
 					(param.defaultValue as number) ?? 0,
+					param.label,
+					() => onOpenPrompt?.(param.key),
 				);
+				const slider = widget.slider;
 				sliders.push(slider);
 
-				const row = div(
-					{ class: "selectRow" },
-					span(
-						{
-							class: "tip",
-							onclick: () => onOpenPrompt?.(param.key),
-						},
-						`${param.label}:`,
-					),
-					slider.container,
-				);
-				rows[param.key] = { row: row, slider };
+				const row = widget.row;
+				rows[param.key] = { row, slider };
 				elements.push(row as HTMLElement);
 			} else if (param.type === "boolean") {
 				const chk = input({ type: "checkbox", checked: !!param.defaultValue });

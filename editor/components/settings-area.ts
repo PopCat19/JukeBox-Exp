@@ -86,6 +86,7 @@ export class SettingsArea {
 			div(
 				{ class: "settings-volume" },
 				this.playbackControls.volumeSlider.container,
+				this.playbackControls.volumeInputBox,
 				this.playbackControls.volumeBarBox,
 			),
 		);

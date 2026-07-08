@@ -10,6 +10,7 @@
 import { HTML, SVG } from "imperative-html/dist/esm/elements-strict";
 import { ColorConfig } from "../../shared/color-config";
 import type { SongDocument } from "../song-document";
+import { numberInput } from "../ui/build-helpers";
 import { iconButton } from "../ui/buttons";
 import { rangeSlider, type Slider } from "../ui/sliders";
 
@@ -23,6 +24,7 @@ export class PlaybackControls {
 	public readonly prevBarButton: HTMLButtonElement;
 	public readonly nextBarButton: HTMLButtonElement;
 	public readonly volumeSlider: Slider;
+	public readonly volumeInputBox: HTMLInputElement;
 	public readonly volumeBarContainer: SVGSVGElement;
 	public readonly volumeBarBox: HTMLDivElement;
 	public readonly barPosLabel: HTMLSpanElement;
@@ -86,6 +88,25 @@ export class PlaybackControls {
 		this.volumeSlider = rangeSlider(doc, null, 0, 75, 50, {
 			style: "width: 5em; flex-grow: 1; margin: 0;",
 			title: "main volume",
+		});
+
+		this.volumeInputBox = numberInput({
+			style: "width: 4em; font-size: 80%; margin-left: 0.4em; vertical-align: middle;",
+			type: "number",
+			step: "1",
+			min: "0",
+			max: "75",
+			value: "50",
+		});
+
+		this.volumeInputBox.addEventListener("change", () => {
+			const raw = +this.volumeInputBox.value;
+			if (isNaN(raw)) return;
+			const clamped = Math.max(0, Math.min(75, Math.round(raw)));
+			this.volumeInputBox.value = String(clamped);
+			this.volumeSlider.input.value = String(clamped);
+			this.volumeSlider.input.dispatchEvent(new Event("input", { bubbles: true }));
+			this.volumeSlider.input.dispatchEvent(new Event("change", { bubbles: true }));
 		});
 
 		// Volume visualization

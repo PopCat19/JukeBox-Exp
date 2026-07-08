@@ -136,6 +136,16 @@ export class InstrumentSettingsPanel {
 	public readonly vibratoDelayWidget: SliderNumWidget;
 	public readonly vibratoDelayRow: HTMLDivElement;
 	public readonly vibratoDepthSlider: Slider;
+	public readonly vibratoDepthInputBox: HTMLInputElement;
+	public readonly vibratoDelayInputBox: HTMLInputElement;
+	public readonly vibratoSpeedInputBox: HTMLInputElement;
+	public readonly arpeggioSpeedInputBox: HTMLInputElement;
+	public readonly panDelayInputBox: HTMLInputElement;
+	public readonly eqFilterSimpleCutInputBox: HTMLInputElement;
+	public readonly eqFilterSimplePeakInputBox: HTMLInputElement;
+	public readonly noteFilterSimpleCutInputBox: HTMLInputElement;
+	public readonly noteFilterSimplePeakInputBox: HTMLInputElement;
+	public readonly envelopeSpeedInputBox: HTMLInputElement;
 	public readonly vibratoDepthWidget: SliderNumWidget;
 	public readonly vibratoDepthRow: HTMLDivElement;
 
@@ -215,7 +225,9 @@ export class InstrumentSettingsPanel {
 			Math.floor(Config.volumeRange / 2),
 			0,
 			"Volume:",
-			() => { onOpenPrompt("instrumentVolume"); },
+			() => {
+				onOpenPrompt("instrumentVolume");
+			},
 			{ midTick: true, getInstrumentValue: () => doc.getCurrentInstrumentObj().volume },
 		);
 		this.volumeSlider = this.volumeWidget.slider;
@@ -236,8 +248,14 @@ export class InstrumentSettingsPanel {
 			Config.panMax,
 			Config.panCenter,
 			"Pan:",
-			() => { onOpenPrompt("pan"); },
-			{ midTick: true, dropdown: this.panDropdown, getInstrumentValue: () => doc.getCurrentInstrumentObj().pan },
+			() => {
+				onOpenPrompt("pan");
+			},
+			{
+				midTick: true,
+				dropdown: this.panDropdown,
+				getInstrumentValue: () => doc.getCurrentInstrumentObj().pan,
+			},
 		);
 		this.panSlider = this.panWidget.slider;
 		this.panSliderInputBox = this.panWidget.inputBox;
@@ -250,7 +268,9 @@ export class InstrumentSettingsPanel {
 			Config.modulators.dictionary["pan delay"].maxRawVol,
 			0,
 			"Delay:",
-			() => { onOpenPrompt("panDelay"); },
+			() => {
+				onOpenPrompt("panDelay");
+			},
 			{ getInstrumentValue: () => doc.getCurrentInstrumentObj().panDelay },
 		);
 		this.panDelaySlider = this.panDelayWidget.slider;
@@ -334,7 +354,9 @@ export class InstrumentSettingsPanel {
 			Config.filterSimpleCutRange - 1,
 			6,
 			"Filter Cut:",
-			() => { onOpenPrompt("filterCutoff"); },
+			() => {
+				onOpenPrompt("filterCutoff");
+			},
 			{ getInstrumentValue: () => doc.getCurrentInstrumentObj().eqFilterSimpleCut },
 		);
 		this.eqFilterSimpleCutSlider = this.eqFilterSimpleCutWidget.slider;
@@ -348,7 +370,9 @@ export class InstrumentSettingsPanel {
 			Config.filterSimplePeakRange - 1,
 			6,
 			"Filter Peak:",
-			() => { onOpenPrompt("filterResonance"); },
+			() => {
+				onOpenPrompt("filterResonance");
+			},
 			{ getInstrumentValue: () => doc.getCurrentInstrumentObj().eqFilterSimplePeak },
 		);
 		this.eqFilterSimplePeakSlider = this.eqFilterSimplePeakWidget.slider;
@@ -411,7 +435,9 @@ export class InstrumentSettingsPanel {
 			Config.filterSimpleCutRange - 1,
 			6,
 			"Filter Cut:",
-			() => { onOpenPrompt("filterCutoff"); },
+			() => {
+				onOpenPrompt("filterCutoff");
+			},
 			{ getInstrumentValue: () => doc.getCurrentInstrumentObj().noteFilterSimpleCut },
 		);
 		this.noteFilterSimpleCutSlider = this.noteFilterSimpleCutWidget.slider;
@@ -425,7 +451,9 @@ export class InstrumentSettingsPanel {
 			Config.filterSimplePeakRange - 1,
 			6,
 			"Filter Peak:",
-			() => { onOpenPrompt("filterResonance"); },
+			() => {
+				onOpenPrompt("filterResonance");
+			},
 			{ getInstrumentValue: () => doc.getCurrentInstrumentObj().noteFilterSimplePeak },
 		);
 		this.noteFilterSimplePeakSlider = this.noteFilterSimplePeakWidget.slider;
@@ -504,7 +532,9 @@ export class InstrumentSettingsPanel {
 			Config.modulators.dictionary["arp speed"].maxRawVol,
 			0,
 			"Arp Speed:",
-			() => { onOpenPrompt("arpeggioSpeed"); },
+			() => {
+				onOpenPrompt("arpeggioSpeed");
+			},
 			{ getInstrumentValue: () => doc.getCurrentInstrumentObj().arpeggioSpeed },
 		);
 		this.arpeggioSpeedSlider = this.arpeggioSpeedWidget.slider;
@@ -563,7 +593,9 @@ export class InstrumentSettingsPanel {
 			Config.modulators.dictionary["vibrato speed"].maxRawVol,
 			0,
 			"Speed:",
-			() => { onOpenPrompt("vibratoSpeed"); },
+			() => {
+				onOpenPrompt("vibratoSpeed");
+			},
 			{ getInstrumentValue: () => doc.getCurrentInstrumentObj().vibratoSpeed },
 		);
 		this.vibratoSpeedSlider = this.vibratoSpeedWidget.slider;
@@ -576,7 +608,9 @@ export class InstrumentSettingsPanel {
 			Config.modulators.dictionary["vibrato delay"].maxRawVol,
 			0,
 			"Delay:",
-			() => { onOpenPrompt("vibratoDelay"); },
+			() => {
+				onOpenPrompt("vibratoDelay");
+			},
 			{ getInstrumentValue: () => doc.getCurrentInstrumentObj().vibratoDelay },
 		);
 		this.vibratoDelaySlider = this.vibratoDelayWidget.slider;
@@ -589,10 +623,22 @@ export class InstrumentSettingsPanel {
 			Config.modulators.dictionary["vibrato depth"].maxRawVol,
 			0,
 			"Depth:",
-			() => { onOpenPrompt("vibratoDepth"); },
+			() => {
+				onOpenPrompt("vibratoDepth");
+			},
 			{ getInstrumentValue: () => doc.getCurrentInstrumentObj().vibratoDepth },
 		);
 		this.vibratoDepthSlider = this.vibratoDepthWidget.slider;
+		this.vibratoDepthInputBox = this.vibratoDepthWidget.inputBox;
+		this.vibratoDelayInputBox = this.vibratoDelayWidget.inputBox;
+		this.vibratoSpeedInputBox = this.vibratoSpeedWidget.inputBox;
+		this.arpeggioSpeedInputBox = this.arpeggioSpeedWidget.inputBox;
+		this.panDelayInputBox = this.panDelayWidget.inputBox;
+		this.eqFilterSimpleCutInputBox = this.eqFilterSimpleCutWidget.inputBox;
+		this.eqFilterSimplePeakInputBox = this.eqFilterSimplePeakWidget.inputBox;
+		this.noteFilterSimpleCutInputBox = this.noteFilterSimpleCutWidget.inputBox;
+		this.noteFilterSimplePeakInputBox = this.noteFilterSimplePeakWidget.inputBox;
+		this.envelopeSpeedInputBox = this.envelopeSpeedWidget.inputBox;
 		this.vibratoDepthRow = this.vibratoDepthWidget.row;
 
 		this.vibratoDropdownGroup = div(
@@ -610,7 +656,9 @@ export class InstrumentSettingsPanel {
 			Config.chorusRange - 1,
 			0,
 			"Chorus:",
-			() => { onOpenPrompt("chorus"); },
+			() => {
+				onOpenPrompt("chorus");
+			},
 			{ getInstrumentValue: () => doc.getCurrentInstrumentObj().chorus },
 		);
 		this.chorusSlider = this.chorusWidget.slider;
@@ -624,7 +672,9 @@ export class InstrumentSettingsPanel {
 			Config.reverbRange - 1,
 			0,
 			"Reverb:",
-			() => { onOpenPrompt("reverb"); },
+			() => {
+				onOpenPrompt("reverb");
+			},
 			{ getInstrumentValue: () => doc.getCurrentInstrumentObj().reverb },
 		);
 		this.reverbSlider = this.reverbWidget.slider;
@@ -638,7 +688,9 @@ export class InstrumentSettingsPanel {
 			Config.echoSustainRange - 1,
 			0,
 			"Echo:",
-			() => { onOpenPrompt("echoSustain"); },
+			() => {
+				onOpenPrompt("echoSustain");
+			},
 			{ getInstrumentValue: () => doc.getCurrentInstrumentObj().echoSustain },
 		);
 		this.echoSustainSlider = this.echoSustainWidget.slider;
@@ -651,7 +703,9 @@ export class InstrumentSettingsPanel {
 			Config.echoDelayRange - 1,
 			0,
 			"Echo Delay:",
-			() => { onOpenPrompt("echoDelay"); },
+			() => {
+				onOpenPrompt("echoDelay");
+			},
 			{ getInstrumentValue: () => doc.getCurrentInstrumentObj().echoDelay },
 		);
 		this.echoDelaySlider = this.echoDelayWidget.slider;
@@ -665,7 +719,9 @@ export class InstrumentSettingsPanel {
 			Config.distortionRange - 1,
 			0,
 			"Distortion:",
-			() => { onOpenPrompt("distortion"); },
+			() => {
+				onOpenPrompt("distortion");
+			},
 			{ getInstrumentValue: () => doc.getCurrentInstrumentObj().distortion },
 		);
 		this.distortionSlider = this.distortionWidget.slider;
@@ -680,7 +736,9 @@ export class InstrumentSettingsPanel {
 			Config.bitcrusherQuantizationRange - 1,
 			0,
 			"Crush:",
-			() => { onOpenPrompt("bitcrusherQuantization"); },
+			() => {
+				onOpenPrompt("bitcrusherQuantization");
+			},
 			{ getInstrumentValue: () => doc.getCurrentInstrumentObj().bitcrusherQuantization },
 		);
 		this.bitcrusherQuantizationSlider = this.bitcrusherQuantizationWidget.slider;
@@ -694,7 +752,9 @@ export class InstrumentSettingsPanel {
 			Config.bitcrusherFreqRange - 1,
 			0,
 			"Bit Freq:",
-			() => { onOpenPrompt("bitcrusherFreq"); },
+			() => {
+				onOpenPrompt("bitcrusherFreq");
+			},
 			{ getInstrumentValue: () => doc.getCurrentInstrumentObj().bitcrusherFreq },
 		);
 		this.bitcrusherFreqSlider = this.bitcrusherFreqWidget.slider;
@@ -709,7 +769,9 @@ export class InstrumentSettingsPanel {
 			Config.operatorAmplitudeMax,
 			0,
 			"Feedback:",
-			() => { onOpenPrompt("feedbackAmplitude"); },
+			() => {
+				onOpenPrompt("feedbackAmplitude");
+			},
 			{ getInstrumentValue: () => doc.getCurrentInstrumentObj().feedbackAmplitude },
 		);
 		this.feedbackAmplitudeSlider = this.feedbackAmplitudeWidget.slider;
@@ -724,7 +786,9 @@ export class InstrumentSettingsPanel {
 			Config.supersawDynamismMax,
 			0,
 			"Dynamism:",
-			() => { onOpenPrompt("supersawDynamism"); },
+			() => {
+				onOpenPrompt("supersawDynamism");
+			},
 			{ getInstrumentValue: () => doc.getCurrentInstrumentObj().supersawDynamism },
 		);
 		this.supersawDynamismSlider = this.supersawDynamismWidget.slider;
@@ -738,7 +802,9 @@ export class InstrumentSettingsPanel {
 			Config.supersawSpreadMax,
 			0,
 			"Spread:",
-			() => { onOpenPrompt("supersawSpread"); },
+			() => {
+				onOpenPrompt("supersawSpread");
+			},
 			{ getInstrumentValue: () => doc.getCurrentInstrumentObj().supersawSpread },
 		);
 		this.supersawSpreadSlider = this.supersawSpreadWidget.slider;
@@ -752,7 +818,9 @@ export class InstrumentSettingsPanel {
 			Config.supersawShapeMax,
 			0,
 			"Saw/Pulse:",
-			() => { onOpenPrompt("supersawShape"); },
+			() => {
+				onOpenPrompt("supersawShape");
+			},
 			{ getInstrumentValue: () => doc.getCurrentInstrumentObj().supersawShape },
 		);
 		this.supersawShapeSlider = this.supersawShapeWidget.slider;
@@ -766,7 +834,9 @@ export class InstrumentSettingsPanel {
 			Config.pulseWidthRange - 1,
 			Config.pulseWidthRange - 1,
 			"Pulse Width:",
-			() => { onOpenPrompt("pulseWidth"); },
+			() => {
+				onOpenPrompt("pulseWidth");
+			},
 			{ getInstrumentValue: () => doc.getCurrentInstrumentObj().pulseWidth },
 		);
 		this.pulseWidthSlider = this.pulseWidthWidget.slider;
@@ -781,7 +851,9 @@ export class InstrumentSettingsPanel {
 			Config.stringSustainRange - 1,
 			Config.stringSustainRange - 1,
 			"Sustain:",
-			() => { onOpenPrompt("stringSustain"); },
+			() => {
+				onOpenPrompt("stringSustain");
+			},
 			{ getInstrumentValue: () => doc.getCurrentInstrumentObj().stringSustain },
 		);
 		this.stringSustainSlider = this.stringSustainWidget.slider;
@@ -858,7 +930,9 @@ export class InstrumentSettingsPanel {
 			Config.modulators.dictionary["envelope speed"].maxRawVol,
 			0,
 			"Envelope Speed:",
-			() => { onOpenPrompt("envelopeSpeed"); },
+			() => {
+				onOpenPrompt("envelopeSpeed");
+			},
 			{ getInstrumentValue: () => doc.getCurrentInstrumentObj().envelopeSpeed },
 		);
 		this.envelopeSpeedSlider = this.envelopeSpeedWidget.slider;
@@ -967,6 +1041,16 @@ export class InstrumentSettingsPanel {
 			grainRangeNum: this.grainRangeNum,
 			instrumentVolumeSlider: this.volumeSlider,
 			instrumentVolumeSliderInputBox: this.volumeSliderInputBox,
+			vibratoDepthInputBox: this.vibratoDepthInputBox,
+			vibratoDelayInputBox: this.vibratoDelayInputBox,
+			vibratoSpeedInputBox: this.vibratoSpeedInputBox,
+			arpeggioSpeedInputBox: this.arpeggioSpeedInputBox,
+			panDelayInputBox: this.panDelayInputBox,
+			eqFilterSimpleCutInputBox: this.eqFilterSimpleCutInputBox,
+			eqFilterSimplePeakInputBox: this.eqFilterSimplePeakInputBox,
+			noteFilterSimpleCutInputBox: this.noteFilterSimpleCutInputBox,
+			noteFilterSimplePeakInputBox: this.noteFilterSimplePeakInputBox,
+			envelopeSpeedInputBox: this.envelopeSpeedInputBox,
 			vibratoDepthSlider: this.vibratoDepthSlider,
 			vibratoDelaySlider: this.vibratoDelaySlider,
 			vibratoSpeedSlider: this.vibratoSpeedSlider,

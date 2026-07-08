@@ -17,7 +17,7 @@ import {
 	ChangeOperatorWaveform,
 } from "../changes";
 import type { SongDocument } from "../song-document";
-import { buildOptions, dropdownButton, Slider } from "../ui";
+import { buildOptions, dropdownButton, numberInput, Slider } from "../ui";
 
 const { div, select, span, input } = HTML;
 
@@ -26,11 +26,13 @@ export interface FmOperatorSetupHost {
 	phaseModGroup: HTMLElement;
 	operatorRows: HTMLDivElement[];
 	operatorAmplitudeSliders: Slider[];
+	operatorAmplitudeInputBoxes: HTMLInputElement[];
 	operatorFrequencySelects: HTMLSelectElement[];
 	operatorDropdowns: HTMLButtonElement[];
 	operatorWaveformHints: HTMLSpanElement[];
 	operatorWaveformSelects: HTMLSelectElement[];
 	operatorWaveformPulsewidthSliders: Slider[];
+	operatorWaveformPulsewidthInputBoxes: HTMLInputElement[];
 	operatorDropdownRows: HTMLElement[];
 	operatorDropdownGroups: HTMLDivElement[];
 	openOperatorDropdowns: boolean[];
@@ -94,6 +96,23 @@ export class FmOperatorSetup {
 					new ChangeOperatorAmplitude(host.doc, operatorIndex, oldValue, newValue),
 				false,
 			);
+			const amplitudeInputBox: HTMLInputElement = numberInput({
+				style: "width: 4em; font-size: 80%; margin-left: 0.4em; vertical-align: middle;",
+				type: "number",
+				step: "1",
+				min: "0",
+				max: String(Config.operatorAmplitudeMax),
+				value: "0",
+			});
+			amplitudeInputBox.addEventListener("change", () => {
+				const raw = +amplitudeInputBox.value;
+				if (isNaN(raw)) return;
+				const clamped = Math.max(0, Math.min(Config.operatorAmplitudeMax, Math.round(raw)));
+				amplitudeInputBox.value = String(clamped);
+				amplitudeSlider.input.value = String(clamped);
+				amplitudeSlider.input.dispatchEvent(new Event("input", { bubbles: true }));
+				amplitudeSlider.input.dispatchEvent(new Event("change", { bubbles: true }));
+			});
 			const waveformSelect: HTMLSelectElement = buildOptions(
 				select({ style: "width: 100%;", title: "Waveform" }),
 				Config.operatorWaves.map((wave) => wave.name),
@@ -129,10 +148,31 @@ export class FmOperatorSetup {
 					new ChangeOperatorPulseWidth(host.doc, operatorIndex, oldValue, newValue),
 				true,
 			);
+			const pulsewidthInputBox: HTMLInputElement = numberInput({
+				style: "width: 4em; font-size: 80%; margin-left: 0.4em; vertical-align: middle;",
+				type: "number",
+				step: "1",
+				min: "0",
+				max: String(Config.pwmOperatorWaves.length - 1),
+				value: "0",
+			});
+			pulsewidthInputBox.addEventListener("change", () => {
+				const raw = +pulsewidthInputBox.value;
+				if (isNaN(raw)) return;
+				const maxPw = Config.pwmOperatorWaves.length - 1;
+				const clamped = Math.max(0, Math.min(maxPw, Math.round(raw)));
+				pulsewidthInputBox.value = String(clamped);
+				waveformPulsewidthSlider.input.value = String(clamped);
+				waveformPulsewidthSlider.input.dispatchEvent(new Event("input", { bubbles: true }));
+				waveformPulsewidthSlider.input.dispatchEvent(
+					new Event("change", { bubbles: true }),
+				);
+			});
 			const waveformDropdownRow: HTMLElement = div(
 				{ class: "selectRow" },
 				waveformDropdownHint,
 				waveformPulsewidthSlider.container,
+				pulsewidthInputBox,
 				div(
 					{ class: "selectContainer", style: "width: 6em; margin-left: .3em;" },
 					waveformSelect,
@@ -151,15 +191,18 @@ export class FmOperatorSetup {
 					frequencySelect,
 				),
 				amplitudeSlider.container,
+				amplitudeInputBox,
 			);
 			host.phaseModGroup.appendChild(row);
 			host.operatorRows[i] = row;
 			host.operatorAmplitudeSliders[i] = amplitudeSlider;
+			host.operatorAmplitudeInputBoxes[i] = amplitudeInputBox;
 			host.operatorFrequencySelects[i] = frequencySelect;
 			host.operatorDropdowns[i] = waveformDropdown;
 			host.operatorWaveformHints[i] = waveformDropdownHint;
 			host.operatorWaveformSelects[i] = waveformSelect;
 			host.operatorWaveformPulsewidthSliders[i] = waveformPulsewidthSlider;
+			host.operatorWaveformPulsewidthInputBoxes[i] = pulsewidthInputBox;
 			host.operatorDropdownRows[i] = waveformDropdownRow;
 			host.phaseModGroup.appendChild(waveformDropdownGroup);
 			host.operatorDropdownGroups[i] = waveformDropdownGroup;

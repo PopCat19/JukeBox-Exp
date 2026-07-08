@@ -119,8 +119,10 @@ export interface InstrumentVisibilityRefs {
 	operatorRows: HTMLDivElement[];
 	operatorFrequencySelects: HTMLSelectElement[];
 	operatorAmplitudeSliders: Slider[];
+	operatorAmplitudeInputBoxes: HTMLInputElement[];
 	operatorWaveformSelects: HTMLSelectElement[];
 	operatorWaveformPulsewidthSliders: Slider[];
+	operatorWaveformPulsewidthInputBoxes: HTMLInputElement[];
 	operatorDropdownGroups: HTMLDivElement[];
 	operatorWaveformHints: HTMLSpanElement[];
 
@@ -444,8 +446,12 @@ export function applyInstrumentVisibility(
 			refs.operatorRows[i].style.color = isCarrier ? ColorConfig.primaryText : "";
 			setSelectedValue(refs.operatorFrequencySelects[i], instrument.operators[i].frequency);
 			refs.operatorAmplitudeSliders[i].updateValue(instrument.operators[i].amplitude);
+			refs.operatorAmplitudeInputBoxes[i].value = String(instrument.operators[i].amplitude);
 			setSelectedValue(refs.operatorWaveformSelects[i], instrument.operators[i].waveform);
 			refs.operatorWaveformPulsewidthSliders[i].updateValue(
+				instrument.operators[i].pulseWidth,
+			);
+			refs.operatorWaveformPulsewidthInputBoxes[i].value = String(
 				instrument.operators[i].pulseWidth,
 			);
 			refs.operatorWaveformPulsewidthSliders[i].input.title =
@@ -580,7 +586,11 @@ export function applyInstrumentVisibility(
 			refs.noteFilterAdvancedButton.classList.add("deactivated");
 			refs.noteFilterRow.style.display = "none";
 			refs.noteFilterSimpleCutRow.style.display = "";
+			refs.noteFilterSimpleCutSlider.updateValue(instrument.noteFilterSimpleCut);
+			refs.noteFilterSimpleCutInputBox.value = `${instrument.noteFilterSimpleCut}`;
 			refs.noteFilterSimplePeakRow.style.display = "";
+			refs.noteFilterSimplePeakSlider.updateValue(instrument.noteFilterSimplePeak);
+			refs.noteFilterSimplePeakInputBox.value = `${instrument.noteFilterSimplePeak}`;
 		} else {
 			refs.noteFilterSimpleButton.classList.remove("active");
 			refs.noteFilterAdvancedButton.classList.add("active");

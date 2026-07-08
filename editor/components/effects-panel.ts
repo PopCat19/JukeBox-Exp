@@ -107,7 +107,9 @@ export class EffectsPanel {
 			Config.ringModRange - 1,
 			0,
 			"Ring Mod:",
-			() => { onOpenPrompt("ringMod"); },
+			() => {
+				onOpenPrompt("ringMod");
+			},
 			{ getInstrumentValue: () => doc.getCurrentInstrumentObj().ringModulation },
 		);
 		this.ringModSlider = this.ringModWidget.slider;
@@ -120,7 +122,9 @@ export class EffectsPanel {
 			Config.ringModHzRange - 1,
 			Config.ringModHzRange - Config.ringModHzRange / 2,
 			"Hertz:",
-			() => { onOpenPrompt("RingModHz"); },
+			() => {
+				onOpenPrompt("RingModHz");
+			},
 			{
 				getInstrumentValue: () => doc.getCurrentInstrumentObj().ringModulationHz,
 				midTick: true,
@@ -183,7 +187,9 @@ export class EffectsPanel {
 			Config.granularRange,
 			0,
 			"Granular:",
-			() => { onOpenPrompt("granular"); },
+			() => {
+				onOpenPrompt("granular");
+			},
 			{ getInstrumentValue: () => doc.getCurrentInstrumentObj().granular },
 		);
 		this.granularSlider = this.granularWidget.slider;
@@ -196,7 +202,9 @@ export class EffectsPanel {
 			Config.grainSizeMax / Config.grainSizeStep,
 			Config.grainSizeMin / Config.grainSizeStep,
 			"Grain:",
-			() => { onOpenPrompt("grainSize"); },
+			() => {
+				onOpenPrompt("grainSize");
+			},
 			{ getInstrumentValue: () => doc.getCurrentInstrumentObj().grainSize },
 		);
 		this.grainSizeSlider = this.grainSizeWidget.slider;
@@ -210,7 +218,9 @@ export class EffectsPanel {
 			Config.grainAmountsMax,
 			8,
 			"Grain Freq:",
-			() => { onOpenPrompt("grainAmount"); },
+			() => {
+				onOpenPrompt("grainAmount");
+			},
 			{ getInstrumentValue: () => doc.getCurrentInstrumentObj().grainAmounts },
 		);
 		this.grainAmountsSlider = this.grainAmountsWidget.slider;
@@ -223,7 +233,9 @@ export class EffectsPanel {
 			Config.grainRangeMax / Config.grainSizeStep,
 			0,
 			"Range:",
-			() => { onOpenPrompt("grainRange"); },
+			() => {
+				onOpenPrompt("grainRange");
+			},
 			{ getInstrumentValue: () => doc.getCurrentInstrumentObj().grainRange },
 		);
 		this.grainRangeSlider = this.grainRangeWidget.slider;
@@ -246,7 +258,9 @@ export class EffectsPanel {
 			Config.echoSustainRange - 1,
 			0,
 			"Echo:",
-			() => { onOpenPrompt("echoSustain"); },
+			() => {
+				onOpenPrompt("echoSustain");
+			},
 			{ getInstrumentValue: () => doc.getCurrentInstrumentObj().echoSustain },
 		);
 		this.echoSustainSlider = this.echoSustainWidget.slider;
@@ -259,7 +273,9 @@ export class EffectsPanel {
 			Config.echoDelayRange - 1,
 			0,
 			"Echo Delay:",
-			() => { onOpenPrompt("echoDelay"); },
+			() => {
+				onOpenPrompt("echoDelay");
+			},
 			{ getInstrumentValue: () => doc.getCurrentInstrumentObj().echoDelay },
 		);
 		this.echoDelaySlider = this.echoDelayWidget.slider;
@@ -273,7 +289,9 @@ export class EffectsPanel {
 			Config.phaserMixRange - 1,
 			0,
 			"Phaser Mix:",
-			() => { onOpenPrompt("phaserMix"); },
+			() => {
+				onOpenPrompt("phaserMix");
+			},
 			{ getInstrumentValue: () => doc.getCurrentInstrumentObj().phaserMix },
 		);
 		this.phaserMixSlider = this.phaserMixWidget.slider;
@@ -286,7 +304,9 @@ export class EffectsPanel {
 			Config.phaserFreqRange - 1,
 			0,
 			"Phaser Freq:",
-			() => { onOpenPrompt("phaserFreq"); },
+			() => {
+				onOpenPrompt("phaserFreq");
+			},
 			{ getInstrumentValue: () => doc.getCurrentInstrumentObj().phaserFreq },
 		);
 		this.phaserFreqSlider = this.phaserFreqWidget.slider;
@@ -300,7 +320,9 @@ export class EffectsPanel {
 			Config.phaserFeedbackRange - 1,
 			0,
 			"Phaser Fdbk:",
-			() => { onOpenPrompt("phaserFeedback"); },
+			() => {
+				onOpenPrompt("phaserFeedback");
+			},
 			{ getInstrumentValue: () => doc.getCurrentInstrumentObj().phaserFeedback },
 		);
 		this.phaserFeedbackSlider = this.phaserFeedbackWidget.slider;
@@ -313,7 +335,9 @@ export class EffectsPanel {
 			Config.phaserMaxStages,
 			2,
 			"Stages:",
-			() => { onOpenPrompt("phaserStages"); },
+			() => {
+				onOpenPrompt("phaserStages");
+			},
 			{ getInstrumentValue: () => doc.getCurrentInstrumentObj().phaserStages },
 		);
 		this.phaserStagesSlider = this.phaserStagesWidget.slider;

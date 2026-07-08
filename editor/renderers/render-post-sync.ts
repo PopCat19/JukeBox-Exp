@@ -29,6 +29,7 @@ export interface PostSyncRefs {
 	invertWaveBox: HTMLInputElement;
 	addEnvelopeButton: HTMLButtonElement;
 	volumeSlider: Slider;
+	volumeInputBox: HTMLInputElement;
 	ringModWaveSelect: HTMLSelectElement;
 	ringModPulsewidthSlider: Slider;
 	ringModWaveText: HTMLElement;
@@ -69,6 +70,7 @@ export function renderPostBranchSync(
 	refs.invertWaveBox.checked = !!instrument.invertWave;
 	setDisabled(refs.addEnvelopeButton, instrument.envelopeCount >= Config.maxEnvelopeCount);
 	refs.volumeSlider.updateValue(prefs.volume);
+	refs.volumeInputBox.value = String(prefs.volume);
 
 	if (wasActive && activeElement != null && activeElement.clientWidth === 0 && !doc.prompt) {
 		refocusStage();
