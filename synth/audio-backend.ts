@@ -424,6 +424,10 @@ export class AudioBackend {
 	 *  starts the rAF fill loop. */
 	public fillAllFreeSlots(host: AudioBackendHost): void {
 		if (!this._useSab || this._ringBuffer == null) return;
+		// Reset ring heads so all slots appear consumed. The fill loop
+		// then treats every slot as free, filling all 8 with fresh audio
+		// instead of leaving stale silence-filled slots from activation.
+		this._ringBuffer.resetHeads();
 		// skipDeactivate=true so the fill loop fills ALL free slots
 		// without the 16ms budget stop. Prevents the ~500-800ms silent
 		// gap on unpause when the ring would otherwise only get 1 slot.

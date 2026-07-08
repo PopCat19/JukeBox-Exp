@@ -49,6 +49,16 @@ export class AudioRingBuffer {
 		return Atomics.load(this._view, 1);
 	}
 
+	/**
+	 * Mark all slots as consumed so the next fill cycle treats every
+	 * slot as free. Used before pre-filling on unpause to ensure all
+	 * slots carry fresh audio instead of stale silence from activation.
+	 */
+	public resetHeads(): void {
+		const writeHead: number = Atomics.load(this._view, 0);
+		Atomics.store(this._view, 1, writeHead);
+	}
+
 	public writeSlot(slot: number, left: Float32Array, right: Float32Array): void {
 		const offset = (slot % this.numSlots) * this._slotStride;
 		this._data.set(left, offset);
