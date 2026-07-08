@@ -36,9 +36,19 @@ const RELEVANT = [
 	"letterSpacing",
 	"display",
 	"flexDirection",
+	"flexWrap",
+	"flex",
+	"flexShrink",
+	"flexGrow",
+	"flexBasis",
+	"alignSelf",
 	"alignItems",
 	"justifyContent",
+	"justifySelf",
 	"gap",
+	"gridColumn",
+	"gridRow",
+	"gridArea",
 	"position",
 	"top",
 	"right",
@@ -46,8 +56,26 @@ const RELEVANT = [
 	"left",
 	"zIndex",
 	"opacity",
+	"transform",
+	"transformOrigin",
+	"visibility",
+	"pointerEvents",
+	"cursor",
+	"scrollbarWidth",
+	"textAlign",
+	"whiteSpace",
+	"textOverflow",
+	"textShadow",
+	"outline",
+	"outlineWidth",
+	"outlineStyle",
+	"outlineColor",
 	"boxShadow",
 	"overflow",
+	"overflowX",
+	"overflowY",
+	"transition",
+	"animation",
 ] as const;
 
 const COLORS = {
@@ -240,6 +268,78 @@ function elementId(el: Element): string {
 	}
 
 	return tag;
+}
+
+/** Known CSS class patterns mapped to component names */
+const COMPONENT_GUESSES: [RegExp, string][] = [
+	[/\bslider-num-input\b/, "SliderNumWidget"],
+	[/\bplayback-volume-controls\b/, "PlaybackVolumeControls (song-editor)"],
+	[/\bplayback-bar-controls\b/, "PlaybackBarControls (song-editor)"],
+	[/\bplay-pause-area\b/, "PlayPauseArea (song-editor)"],
+	[/\bvolume-speaker\b/, "VolumeSpeaker (song-editor)"],
+	[/\bvolBarContainer\b/, "VolumeBar (player-ui)"],
+	[/\bsettings-area\b/, "SettingsArea (song-editor)"],
+	[/\bversion-area\b/, "VersionArea (song-editor)"],
+	[/\bsong-settings-area\b/, "SongSettingsArea (song-editor)"],
+	[/\binstrument-settings-area\b/, "InstrumentSettingsArea (song-editor)"],
+	[/\beditor-controls\b/, "EditorControls (song-editor)"],
+	[/\bselectRow\b/, "SelectRow (song-editor)"],
+	[/\beditor-song-settings\b/, "EditorSongSettings (song-editor)"],
+	[/\bselectContainer\b/, "SelectContainer (song-editor)"],
+	[/\btrackContainer\b/, "TrackContainer (song-editor)"],
+	[/\btrack-area\b/, "TrackArea (song-editor)"],
+	[/\bpattern-area\b/, "PatternArea (song-editor)"],
+	[/\bmute-editor\b/, "MuteEditor"],
+	[/\bmenu-area\b/, "MenuArea (song-editor)"],
+	[/\binstrument-bar\b/, "InstrumentBar (song-editor)"],
+	[/\bprompt\b/, "Prompt overlay"],
+	[/\bpromptContainer\b/, "PromptContainer (song-editor)"],
+	[/\bbarScrollBar\b/, "BarScrollBar"],
+	[/\bpresetButton\b/, "PresetButton (song-editor)"],
+	[/\bpresetSelect\b/, "PresetSelect (song-editor)"],
+	[/\bdropFader\b/, "DropFader (dropdown group)"],
+	[/\bdropdown-open\b/, "DropdownOpen (menu-handler)"],
+	[/\bcopyButton\b/, "InstrumentCopyButton (song-editor)"],
+	[/\bpasteButton\b/, "InstrumentPasteButton (song-editor)"],
+	[/\bexportInstrumentButton\b/, "InstrumentExportButton (song-editor)"],
+	[/\bimportInstrumentButton\b/, "InstrumentImportButton (song-editor)"],
+	[/\bplayButton\b/, "PlayButton (playback-controls)"],
+	[/\bpauseButton\b/, "PauseButton (playback-controls)"],
+	[/\brecordButton\b/, "RecordButton (playback-controls)"],
+	[/\bstopButton\b/, "StopButton (playback-controls)"],
+	[/\bmodSlider\b/, "ModSlider (mod indicators)"],
+	[/\bslider-mod-indicator\b/, "SliderModIndicator (slider.ts)"],
+	[/\btnip\b/, "TipLabel (various)"],
+	[/\badd-envelope\b/, "AddEnvelopeButton (song-editor)"],
+	[/\bpitchShiftMarker\b/, "PitchShiftMarker (song-editor)"],
+];
+
+function componentGuess(el: Element): string | null {
+	const cls = Array.from(el.classList).join(" ");
+	for (const [pattern, name] of COMPONENT_GUESSES) {
+		if (pattern.test(cls)) return name;
+	}
+	return null;
+}
+
+function domPath(el: Element): string {
+	const parts: string[] = [];
+	let c: Element | null = el;
+	while (c && c !== document.body && c !== document.documentElement) {
+		const tag = c.tagName.toLowerCase();
+		const id = c.getAttribute("id");
+		if (id && id.length > 1 && !/^hsl\(/.test(id)) {
+			parts.unshift(`#${id}`);
+			break;
+		}
+		const cls = Array.from(c.classList)
+			.filter((x) => x.length > 2 && !/^hsl\(|^[\d.]+$/.test(x))
+			.slice(0, 2)
+			.join(".");
+		parts.unshift(cls ? `${tag}.${cls}` : tag);
+		c = c.parentElement;
+	}
+	return parts.join(" > ");
 }
 
 function elementHtml(el: Element, maxLen = 120): string {
@@ -688,11 +788,25 @@ interface SummaryResult {
 	styles: string[];
 }
 
+function cssVar(el: Element, name: string): string | undefined {
+	const val = getComputedStyle(el).getPropertyValue(name).trim();
+	if (!val || val === "") return undefined;
+	return val;
+}
+
+function attrSummary(input: Record<string, string>, keys: string[]): Record<string, string> {
+	const out: Record<string, string> = {};
+	for (const k of keys) if (input[k] != null && input[k] !== "") out[k] = input[k];
+	return out;
+}
+
 function figmaSummary(el: Element, cs: CSSStyleDeclaration): SummaryResult {
 	const segments: string[] = [];
 	const styles: string[] = [];
 	segments.push(elementId(el));
 	const props: { label: string; color?: string }[] = [];
+	const comp = componentGuess(el);
+	if (comp) props.push({ label: `Component: ${comp}`, color: "#ff88cc" });
 	props.push({ label: `W: ${px(cs.width)}  H: ${px(cs.height)}` });
 	const bg = cs.backgroundColor;
 	if (bg && bg !== "transparent" && bg !== "rgba(0, 0, 0, 0)")
@@ -747,6 +861,85 @@ function figmaSummary(el: Element, cs: CSSStyleDeclaration): SummaryResult {
 	} else if (el instanceof HTMLTextAreaElement) {
 		props.push({ label: `Textarea: "${el.value.slice(0, 30)}"`, color: "#ff88cc" });
 	}
+
+	// Sibling info
+	const parent = el.parentElement;
+	if (parent) {
+		const siblings = Array.from(parent.children).filter((c) => c !== el);
+		const idx = Array.from(parent.children).indexOf(el);
+		if (siblings.length > 0) {
+			props.push({
+				label: `Parent: ${parent.tagName.toLowerCase()}[${parent.children.length}] child #${idx}`,
+				color: "#888",
+			});
+		}
+	}
+
+	// DOM path
+	const path = domPath(el);
+	if (path) props.push({ label: `Path: ${path}`, color: "#888" });
+
+	// Key attributes
+	const elAttrs = attrSummary(
+		Object.fromEntries(
+			Array.from(el.attributes)
+				.filter(
+					(a) =>
+						/^(id|title|role|aria-|data-)/.test(a.name) &&
+						a.name !== "style" &&
+						a.name !== "class",
+				)
+				.map((a) => [a.name, a.value]),
+		),
+		[],
+	);
+	const attrKeys = Object.keys(elAttrs);
+	if (attrKeys.length > 0) {
+		const parts = attrKeys.map((k) => `${k}="${elAttrs[k]}"`).join(" ");
+		props.push({ label: `Attrs: ${parts}`, color: "#ff88cc" });
+	}
+
+	// Semantic classes (full list, filtered)
+	const allClasses = Array.from(el.classList).filter(
+		(c) => c.length > 2 && !/^\d+$/.test(c) && !/^hsl\(/.test(c),
+	);
+	if (allClasses.length > 0) {
+		props.push({ label: `Classes: ${allClasses.join(" ")}`, color: "#aaa" });
+	}
+
+	// CSS custom properties on this element
+	const CUSTOM_PROPS = [
+		"--cta-bg",
+		"--primary-text",
+		"--secondary-text",
+		"--ui-widget-background",
+		"--ui-widget-focus",
+		"--slider-track",
+		"--subtext",
+		"--mod-color",
+		"--mod-border-radius",
+		"--mod-position",
+		"--text-color-lit",
+		"--text-color-dim",
+		"--background-color-lit",
+		"--background-color-dim",
+		"--link-accent",
+		"--editor-background",
+		"--playhead",
+		"--indicator-primary",
+		"--indicator-secondary",
+		"--empty-sample-bar",
+	];
+	const found = CUSTOM_PROPS.map((n) => [n, cssVar(el, n)] as const).filter(
+		([, v]) => v != null,
+	);
+	if (found.length > 0) {
+		props.push({
+			label: `CSS vars: ${found.map(([n]) => n.replace("--", "")).join(" ")}`,
+			color: "#88ddaa",
+		});
+	}
+
 	for (let i = 0; i < props.length; i++) {
 		const isLast = i === props.length - 1;
 		const prefix = isLast ? "└─ " : "├─ ";
@@ -881,13 +1074,20 @@ function captureStyles(): void {
 		inputInfo = { type: "textarea", value: el.value };
 	}
 
+	const comp = componentGuess(el);
+	const path = domPath(el);
+	const siblingsTotal = parent ? parent.children.length : 0;
+
 	navigator.clipboard.writeText(
 		JSON.stringify(
 			{
 				id: elementId(el),
+				label: comp ?? undefined,
+				domPath: path,
 				tag: el.tagName.toLowerCase(),
 				classes: Array.from(el.classList),
 				siblingIndex: siblings.length > 1 ? siblingIndex : undefined,
+				siblingTotal: siblingsTotal > 0 ? siblingsTotal : undefined,
 				parent: parentInfo,
 				html: html.length > 1000 ? `${html.slice(0, 1000)}…` : html,
 				...(inputInfo ? { input: inputInfo } : {}),
@@ -925,7 +1125,7 @@ function deactivate(): void {
 		document.removeEventListener("keydown", keyHandler, true);
 		keyHandler = null;
 	}
-	const editor = document.querySelector(".beepboxEditor") as HTMLElement | null;
+	const editor = document.querySelector(".beepboxEditor") as HTMLElement;
 	if (editor) editor.focus({ preventScroll: true });
 	console.log("[inspector] deactivated");
 }
@@ -963,7 +1163,7 @@ export function activate(): void {
 		overlay!.style.pointerEvents = "auto";
 		if (el) highlight(el);
 	});
-	overlay.addEventListener("wheel", (e) => e.preventDefault(), { passive: false });
+	overlay.addEventListener("wheel", (e) => { e.preventDefault(); }, { passive: false });
 	overlay.addEventListener("click", (e) => {
 		e.preventDefault();
 		e.stopPropagation();
