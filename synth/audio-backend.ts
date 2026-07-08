@@ -337,11 +337,12 @@ export class AudioBackend {
 			this._currentBufferSize = bufferSize;
 			this._logNeedDataCount = 0;
 
-			// Fill initial SAB slot(s) synchronously so the worklet
-			// has data from its first process() call. play() hasn't
-			// set isPlayingSong yet — skip the deactivation gate.
+			// Do not pre-render on activation. synthesize(playSong=false)
+			// still advances tick/part transport, which made cold playback
+			// begin after beat 0. play() resets the ring and starts filling
+			// once isPlayingSong is true.
 			if (this._useSab) {
-				this._fillAllFreeSlotsInternal(host, true, "activate");
+				this._ringBuffer!.resetHeads();
 			}
 
 			this._dbg("_doActivate complete, mode:", this._useSab ? "SAB" : "queue");

@@ -1449,10 +1449,10 @@ export class Synth {
 		await this._audio.resumeContext();
 		this.warmUpSynthesizer(this.song);
 		this._needsLeadIn = true;
-		// Drop activation-time silence before playback starts. The rAF/
-		// need-data path will render from the real transport position.
-		this._audio.resetRingForPlayback();
 		this.isPlayingSong = true;
+		// Drop any stale ring slots, then start the rAF fill loop while
+		// isPlayingSong is already true so the first fill renders beat 0.
+		this._audio.resetRingForPlayback();
 		if (this._audio.context) {
 			this.samplesPerSecond = this._audio.context.sampleRate;
 		}
