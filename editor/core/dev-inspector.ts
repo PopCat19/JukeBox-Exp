@@ -309,6 +309,16 @@ const COMPONENT_GUESSES: [RegExp, string][] = [
 	[/\bstopButton\b/, "StopButton (playback-controls)"],
 	[/\bmodSlider\b/, "ModSlider (mod indicators)"],
 	[/\bslider-mod-indicator\b/, "SliderModIndicator (slider.ts)"],
+	[/\boperatorRow\b/, "OperatorRow (fm-operator-setup)"],
+	[/\btabButton\b/, "TabButton (various)"],
+	[/\bcategoryListPane\b/, "CategoryListPane (preset-browser)"],
+	[/\bpresetListPane\b/, "PresetListPane (preset-browser)"],
+	[/\btagGridContainer\b/, "TagGridContainer (preset-browser)"],
+	[/\bprompt-dock-slot\b/, "PromptDockSlot (prompt-manager)"],
+	[/\bprompt-dock-slot-divider\b/, "PromptDockSlotDivider (prompt-manager)"],
+	[/\btoggle-switch\b/, "ToggleSwitch (various)"],
+	[/\bcolor-swatch\b/, "ColorSwatch (palette-prompt)"],
+	[/\bbeat-selector\b/, "BeatSelector (pattern-editor)"],
 	[/\btnip\b/, "TipLabel (various)"],
 	[/\badd-envelope\b/, "AddEnvelopeButton (song-editor)"],
 	[/\bpitchShiftMarker\b/, "PitchShiftMarker (song-editor)"],
@@ -325,16 +335,24 @@ function componentGuess(el: Element): string | null {
 function domPath(el: Element): string {
 	const parts: string[] = [];
 	let c: Element | null = el;
-	while (c && c !== document.body && c !== document.documentElement) {
+	while (c) {
+		const root = c.getRootNode ? c.getRootNode() : document;
+		if (c === document.body || c === document.documentElement) break;
+		if (root instanceof ShadowRoot) {
+			parts.unshift("> shadow");
+			parts.unshift(domPath(root.host));
+			break;
+		}
 		const tag = c.tagName.toLowerCase();
 		const id = c.getAttribute("id");
 		if (id && id.length > 1 && !/^hsl\(/.test(id)) {
-			parts.unshift(`#${id}`);
+			parts.unshift(`#${CSS.escape(id)}`);
 			break;
 		}
 		const cls = Array.from(c.classList)
 			.filter((x) => x.length > 2 && !/^hsl\(|^[\d.]+$/.test(x))
 			.slice(0, 2)
+			.map((x) => CSS.escape(x))
 			.join(".");
 		parts.unshift(cls ? `${tag}.${cls}` : tag);
 		c = c.parentElement;
@@ -794,9 +812,9 @@ function cssVar(el: Element, name: string): string | undefined {
 	return val;
 }
 
-function attrSummary(input: Record<string, string>, keys: string[]): Record<string, string> {
+function attrSummary(input: Record<string, string>): Record<string, string> {
 	const out: Record<string, string> = {};
-	for (const k of keys) if (input[k] != null && input[k] !== "") out[k] = input[k];
+	for (const [k, v] of Object.entries(input)) if (v !== "") out[k] = v;
 	return out;
 }
 
@@ -891,7 +909,6 @@ function figmaSummary(el: Element, cs: CSSStyleDeclaration): SummaryResult {
 				)
 				.map((a) => [a.name, a.value]),
 		),
-		[],
 	);
 	const attrKeys = Object.keys(elAttrs);
 	if (attrKeys.length > 0) {
@@ -1125,8 +1142,8 @@ function deactivate(): void {
 		document.removeEventListener("keydown", keyHandler, true);
 		keyHandler = null;
 	}
-	const editor = document.querySelector(".beepboxEditor") as HTMLElement;
-	if (editor) editor.focus({ preventScroll: true });
+	const editor = document.querySelector(".beepboxEditor");
+	if (editor instanceof HTMLElement) editor.focus({ preventScroll: true });
 	console.log("[inspector] deactivated");
 }
 
