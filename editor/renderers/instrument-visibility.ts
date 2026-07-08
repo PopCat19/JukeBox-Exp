@@ -77,6 +77,7 @@ export interface InstrumentVisibilityRefs {
 	// String sustain (pickedString)
 	stringSustainRow: HTMLElement;
 	stringSustainSlider: Slider;
+	stringSustainInputBox: HTMLInputElement;
 	stringSustainLabel: HTMLElement;
 
 	// Drumset
@@ -94,15 +95,19 @@ export interface InstrumentVisibilityRefs {
 	// Supersaw
 	supersawDynamismRow: HTMLElement;
 	supersawDynamismSlider: Slider;
+	supersawDynamismInputBox: HTMLInputElement;
 	supersawSpreadRow: HTMLElement;
 	supersawSpreadSlider: Slider;
+	supersawSpreadInputBox: HTMLInputElement;
 	supersawShapeRow: HTMLElement;
 	supersawShapeSlider: Slider;
+	supersawShapeInputBox: HTMLInputElement;
 
 	// Pulse width (PWM / supersaw)
 	pulseWidthRow: HTMLElement;
 	pulseWidthSlider: Slider;
 	decimalOffsetSlider: Slider;
+	decimalOffsetInputBox: HTMLInputElement;
 	pulseWidthDropdownGroup: HTMLElement;
 
 	// FM
@@ -110,6 +115,7 @@ export interface InstrumentVisibilityRefs {
 	algorithmSelect: HTMLSelectElement;
 	feedbackTypeSelect: HTMLSelectElement;
 	feedbackAmplitudeSlider: Slider;
+	feedbackAmplitudeInputBox: HTMLInputElement;
 	operatorRows: HTMLDivElement[];
 	operatorFrequencySelects: HTMLSelectElement[];
 	operatorAmplitudeSliders: Slider[];
@@ -142,6 +148,7 @@ export interface InstrumentVisibilityRefs {
 
 	pitchShiftRow: HTMLElement;
 	pitchShiftSlider: Slider;
+	pitchShiftInputBox: HTMLInputElement;
 	pitchShiftFifthMarkers: HTMLElement[];
 
 	detuneSliderRow: HTMLElement;
@@ -157,7 +164,11 @@ export interface InstrumentVisibilityRefs {
 	noteFilterAdvancedButton: HTMLElement;
 	noteFilterRow: HTMLElement;
 	noteFilterSimpleCutRow: HTMLElement;
+	noteFilterSimpleCutSlider: Slider;
+	noteFilterSimpleCutInputBox: HTMLInputElement;
 	noteFilterSimplePeakRow: HTMLElement;
+	noteFilterSimplePeakSlider: Slider;
+	noteFilterSimplePeakInputBox: HTMLInputElement;
 
 	distortionRow: HTMLElement;
 	aliasingRow: HTMLElement;
@@ -166,8 +177,10 @@ export interface InstrumentVisibilityRefs {
 
 	bitcrusherQuantizationRow: HTMLElement;
 	bitcrusherQuantizationSlider: Slider;
+	bitcrusherQuantizationInputBox: HTMLInputElement;
 	bitcrusherFreqRow: HTMLElement;
 	bitcrusherFreqSlider: Slider;
+	bitcrusherFreqInputBox: HTMLInputElement;
 
 	panSliderRow: HTMLElement;
 	panDropdownGroup: HTMLElement;
@@ -344,6 +357,7 @@ export function applyInstrumentVisibility(
 	if (rows.has("stringSustain")) {
 		showRow(refs.stringSustainRow, true);
 		refs.stringSustainSlider.updateValue(instrument.stringSustain);
+		refs.stringSustainInputBox.value = `${instrument.stringSustain}`;
 		refs.stringSustainLabel.textContent = Config.enableAcousticSustain
 			? `Sustain (${Config.sustainTypeNames[instrument.stringSustainType].substring(0, 1).toUpperCase()}):`
 			: "Sustain:";
@@ -377,8 +391,11 @@ export function applyInstrumentVisibility(
 		showRow(refs.supersawSpreadRow, true);
 		showRow(refs.supersawShapeRow, true);
 		refs.supersawDynamismSlider.updateValue(instrument.supersawDynamism);
+		refs.supersawDynamismInputBox.value = `${instrument.supersawDynamism}`;
 		refs.supersawSpreadSlider.updateValue(instrument.supersawSpread);
+		refs.supersawSpreadInputBox.value = `${instrument.supersawSpread}`;
 		refs.supersawShapeSlider.updateValue(instrument.supersawShape);
+		refs.supersawShapeInputBox.value = `${instrument.supersawShape}`;
 	}
 
 	// Pulse width
@@ -391,6 +408,7 @@ export function applyInstrumentVisibility(
 				? "none"
 				: `-${prettyNumber(instrument.decimalOffset / 100)}%`;
 		refs.decimalOffsetSlider.updateValue(99 - instrument.decimalOffset);
+		refs.decimalOffsetInputBox.value = `${99 - instrument.decimalOffset}`;
 		showRow(refs.pulseWidthDropdownGroup, dropdownState.openPulseWidthDropdown);
 	}
 
@@ -401,6 +419,7 @@ export function applyInstrumentVisibility(
 		setSelectedValue(refs.algorithmSelect, instrument.algorithm);
 		setSelectedValue(refs.feedbackTypeSelect, instrument.feedbackType);
 		refs.feedbackAmplitudeSlider.updateValue(instrument.feedbackAmplitude);
+		refs.feedbackAmplitudeInputBox.value = `${instrument.feedbackAmplitude}`;
 		const opCount = rows.has("fm6") ? Config.operatorCount + 2 : Config.operatorCount;
 		for (let i: number = 0; i < opCount; i++) {
 			showRow(refs.operatorRows[i], true);
@@ -498,6 +517,7 @@ export function applyInstrumentVisibility(
 	if (effectsIncludePitchShift(instrument.effects)) {
 		refs.pitchShiftRow.style.display = "";
 		refs.pitchShiftSlider.updateValue(instrument.pitchShift);
+		refs.pitchShiftInputBox.value = `${instrument.pitchShift}`;
 		refs.pitchShiftSlider.input.title = `${instrument.pitchShift - Config.pitchShiftCenter} semitone(s)`;
 		for (const marker of refs.pitchShiftFifthMarkers) {
 			marker.style.display = prefs.showFifth ? "" : "none";
@@ -576,7 +596,9 @@ export function applyInstrumentVisibility(
 		refs.bitcrusherQuantizationRow.style.display = "";
 		refs.bitcrusherFreqRow.style.display = "";
 		refs.bitcrusherQuantizationSlider.updateValue(instrument.bitcrusherQuantization);
+		refs.bitcrusherQuantizationInputBox.value = `${instrument.bitcrusherQuantization}`;
 		refs.bitcrusherFreqSlider.updateValue(instrument.bitcrusherFreq);
+		refs.bitcrusherFreqInputBox.value = `${instrument.bitcrusherFreq}`;
 	} else {
 		refs.bitcrusherQuantizationRow.style.display = "none";
 		refs.bitcrusherFreqRow.style.display = "none";

@@ -388,27 +388,21 @@ export class SongEditor
 		this._panSliderInputBox,
 		this._panDropdown,
 	);
-	private readonly _panDelaySlider: Slider = rangeSlider(
+	private readonly _panDelayWidget: SliderNumWidget = new SliderNumWidget(
 		this.doc,
 		(oldValue: number, newValue: number) => new ChangePanDelay(this.doc, oldValue, newValue),
 		0,
 		Config.modulators.dictionary["pan delay"].maxRawVol,
 		0,
-	);
-	private readonly _panDelayRow: HTMLElement = div(
-		{ class: "selectRow dropFader" },
-		tipSpan(
-			"‣ Delay:",
-			() => {
-				this._openPrompt("panDelay");
-			},
-			{ style: "margin-left:4px;" },
-		),
-		this._panDelaySlider.container,
+		"‣ Delay:",
+		() => {
+			this._openPrompt("panDelay");
+		},
+		{ getInstrumentValue: () => this.doc.getCurrentInstrumentObj().panDelay },
 	);
 	private readonly _panDropdownGroup: HTMLElement = div(
 		{ class: "editor-controls", style: "display: none;" },
-		this._panDelayRow,
+		this._panDelayWidget.row,
 	);
 	private readonly _chipWaveSelect: HTMLSelectElement = buildOptions(
 		select(),
@@ -654,35 +648,31 @@ export class SongEditor
 		this._eqFilterZoom,
 		this._eqFilterEditor.container,
 	);
-	private readonly _eqFilterSimpleCutSlider: Slider = rangeSlider(
+	private readonly _eqFilterSimpleCutWidget: SliderNumWidget = new SliderNumWidget(
 		this.doc,
 		(oldValue: number, newValue: number) =>
 			new ChangeEQFilterSimpleCut(this.doc, oldValue, newValue),
 		0,
 		Config.filterSimpleCutRange - 1,
 		6,
-	);
-	private _eqFilterSimpleCutRow: HTMLDivElement = div(
-		{ class: "selectRow", title: "Low-pass Filter Cutoff Frequency" },
-		tipSpan("Filter Cut:", () => {
+		"Filter Cut:",
+		() => {
 			this._openPrompt("filterCutoff");
-		}),
-		this._eqFilterSimpleCutSlider.container,
+		},
+		{ getInstrumentValue: () => this.doc.getCurrentInstrumentObj().eqFilterSimpleCut },
 	);
-	private readonly _eqFilterSimplePeakSlider: Slider = rangeSlider(
+	private readonly _eqFilterSimplePeakWidget: SliderNumWidget = new SliderNumWidget(
 		this.doc,
 		(oldValue: number, newValue: number) =>
 			new ChangeEQFilterSimplePeak(this.doc, oldValue, newValue),
 		0,
 		Config.filterSimplePeakRange - 1,
 		6,
-	);
-	private _eqFilterSimplePeakRow: HTMLDivElement = div(
-		{ class: "selectRow", title: "Low-pass Filter Peak Resonance" },
-		tipSpan("Filter Peak:", () => {
+		"Filter Peak:",
+		() => {
 			this._openPrompt("filterResonance");
-		}),
-		this._eqFilterSimplePeakSlider.container,
+		},
+		{ getInstrumentValue: () => this.doc.getCurrentInstrumentObj().eqFilterSimplePeak },
 	);
 
 	private readonly _noteFilterToggle = toggleButton(["simple", "advanced"], (index: 0 | 1) => {
@@ -722,99 +712,71 @@ export class SongEditor
 		this._noteFilterZoom,
 		this._noteFilterEditor.container,
 	);
-	private readonly _noteFilterSimpleCutSlider: Slider = rangeSlider(
+	private readonly _noteFilterSimpleCutWidget: SliderNumWidget = new SliderNumWidget(
 		this.doc,
 		(oldValue: number, newValue: number) =>
 			new ChangeNoteFilterSimpleCut(this.doc, oldValue, newValue),
 		0,
 		Config.filterSimpleCutRange - 1,
 		6,
+		"Filter Cut:",
+		() => {
+			this._openPrompt("filterCutoff");
+		},
+		{ getInstrumentValue: () => this.doc.getCurrentInstrumentObj().noteFilterSimpleCut },
 	);
-	private _noteFilterSimpleCutRow: HTMLDivElement = div(
-		{ class: "selectRow", title: "Low-pass Filter Cutoff Frequency" },
-		span(
-			{
-				class: "tip",
-				onclick: () => {
-					this._openPrompt("filterCutoff");
-				},
-			},
-			"Filter Cut:",
-		),
-		this._noteFilterSimpleCutSlider.container,
-	);
-	private readonly _noteFilterSimplePeakSlider: Slider = rangeSlider(
+	private readonly _noteFilterSimplePeakWidget: SliderNumWidget = new SliderNumWidget(
 		this.doc,
 		(oldValue: number, newValue: number) =>
 			new ChangeNoteFilterSimplePeak(this.doc, oldValue, newValue),
 		0,
 		Config.filterSimplePeakRange - 1,
 		6,
-	);
-	private _noteFilterSimplePeakRow: HTMLDivElement = div(
-		{ class: "selectRow", title: "Low-pass Filter Peak Resonance" },
-		span(
-			{
-				class: "tip",
-				onclick: () => {
-					this._openPrompt("filterResonance");
-				},
-			},
-			"Filter Peak:",
-		),
-		this._noteFilterSimplePeakSlider.container,
+		"Filter Peak:",
+		() => {
+			this._openPrompt("filterResonance");
+		},
+		{ getInstrumentValue: () => this.doc.getCurrentInstrumentObj().noteFilterSimplePeak },
 	);
 
-	private readonly _supersawDynamismSlider: Slider = rangeSlider(
+	private readonly _supersawDynamismWidget: SliderNumWidget = new SliderNumWidget(
 		this.doc,
 		(oldValue: number, newValue: number) =>
 			new ChangeSupersawDynamism(this.doc, oldValue, newValue),
 		0,
 		Config.supersawDynamismMax,
 		0,
-	);
-	private readonly _supersawDynamismRow: HTMLDivElement = div(
-		{ class: "selectRow" },
-		tipSpan("Dynamism:", () => {
+		"Dynamism:",
+		() => {
 			this._openPrompt("supersawDynamism");
-		}),
-		this._supersawDynamismSlider.container,
+		},
+		{ getInstrumentValue: () => this.doc.getCurrentInstrumentObj().supersawDynamism },
 	);
-	private readonly _supersawSpreadSlider: Slider = rangeSlider(
+	private readonly _supersawSpreadWidget: SliderNumWidget = new SliderNumWidget(
 		this.doc,
 		(oldValue: number, newValue: number) =>
 			new ChangeSupersawSpread(this.doc, oldValue, newValue),
 		0,
 		Config.supersawSpreadMax,
 		0,
-	);
-	private readonly _supersawSpreadRow: HTMLDivElement = div(
-		{ class: "selectRow" },
-		tipSpan("Spread:", () => {
+		"Spread:",
+		() => {
 			this._openPrompt("supersawSpread");
-		}),
-		this._supersawSpreadSlider.container,
+		},
+		{ getInstrumentValue: () => this.doc.getCurrentInstrumentObj().supersawSpread },
 	);
-	private readonly _supersawShapeSlider: Slider = rangeSlider(
+	private readonly _supersawShapeWidget: SliderNumWidget = new SliderNumWidget(
 		this.doc,
 		(oldValue: number, newValue: number) =>
 			new ChangeSupersawShape(this.doc, oldValue, newValue),
 		0,
 		Config.supersawShapeMax,
 		0,
-	);
-	private readonly _supersawShapeRow: HTMLDivElement = div(
-		{ class: "selectRow" },
-		tipSpan(
-			"Saw/Pulse:",
-			() => {
-				this._openPrompt("supersawShape");
-			},
-			{
-				style: "overflow: clip;",
-			},
-		),
-		this._supersawShapeSlider.container,
+		"Saw/Pulse:",
+		() => {
+			this._openPrompt("supersawShape");
+		},
+		{ getInstrumentValue: () => this.doc.getCurrentInstrumentObj().supersawShape },
 	);
 
 	private readonly _pulseWidthSlider: Slider = rangeSlider(
@@ -849,39 +811,40 @@ export class SongEditor
 		this._pulseWidthDropdown,
 	);
 	// private readonly _pulseWidthRow: HTMLDivElement = div({ class: "selectRow" }, span({ class: "tip", onclick: () => this._openPrompt("pulseWidth") }, "Pulse Width:"), this._pulseWidthDropdown, this._pulseWidthSlider.container);
-	private readonly _decimalOffsetSlider: Slider = rangeSlider(
+	private readonly _decimalOffsetWidget: SliderNumWidget = new SliderNumWidget(
 		this.doc,
 		(oldValue: number, newValue: number) =>
 			new ChangeDecimalOffset(this.doc, oldValue, 99 - newValue),
 		0,
 		99,
 		0,
-	);
-	private readonly _decimalOffsetRow: HTMLDivElement = div(
-		{ class: "selectRow dropFader" },
-		tipSpan(
-			"‣ Offset:",
-			() => {
-				this._openPrompt("decimalOffset");
-			},
-			{
-				style: "margin-left:10px;",
-			},
-		),
-		this._decimalOffsetSlider.container,
+		"‣ Offset:",
+		() => {
+			this._openPrompt("decimalOffset");
+		},
+		{
+			getInstrumentValue: () => 99 - this.doc.getCurrentInstrumentObj().decimalOffset,
+		},
 	);
 	private readonly _pulseWidthDropdownGroup: HTMLElement = div(
 		{ class: "editor-controls", style: "display: none;" },
-		this._decimalOffsetRow,
+		this._decimalOffsetWidget.row,
 	);
 
-	private readonly _pitchShiftSlider: Slider = rangeSlider(
+	private readonly _pitchShiftWidget: SliderNumWidget = new SliderNumWidget(
 		this.doc,
 		(oldValue: number, newValue: number) => new ChangePitchShift(this.doc, oldValue, newValue),
 		0,
 		Config.pitchShiftRange - 1,
 		0,
-		{ midTick: true },
+		"Pitch Shift:",
+		() => {
+			this._openPrompt("pitchShift");
+		},
+		{
+			midTick: true,
+			getInstrumentValue: () => this.doc.getCurrentInstrumentObj().pitchShift,
+		},
 	);
 	private readonly _pitchShiftTonicMarkers: HTMLDivElement[] = [
 		div({ class: "pitchShiftMarker", style: { color: ColorConfig.tonic } }),
@@ -900,7 +863,7 @@ export class SongEditor
 	];
 	private readonly _pitchShiftMarkerContainer: HTMLDivElement = div(
 		{ style: "display: flex; position: relative;" },
-		this._pitchShiftSlider.container,
+		this._pitchShiftWidget.slider.container,
 		div(
 			{ class: "pitchShiftMarkerContainer" },
 			this._pitchShiftTonicMarkers,
@@ -971,43 +934,44 @@ export class SongEditor
 		),
 		this._aliasingBox,
 	);
-	private readonly _bitcrusherQuantizationSlider: Slider = rangeSlider(
+	private readonly _bitcrusherQuantizationWidget: SliderNumWidget = new SliderNumWidget(
 		this.doc,
 		(oldValue: number, newValue: number) =>
 			new ChangeBitcrusherQuantization(this.doc, oldValue, newValue),
 		0,
 		Config.bitcrusherQuantizationRange - 1,
 		0,
-	);
-	private readonly _bitcrusherQuantizationRow: HTMLDivElement = div(
-		{ class: "selectRow" },
-		tipSpan("Bit Crush:", () => {
+		"Bit Crush:",
+		() => {
 			this._openPrompt("bitcrusherQuantization");
-		}),
-		this._bitcrusherQuantizationSlider.container,
+		},
+		{ getInstrumentValue: () => this.doc.getCurrentInstrumentObj().bitcrusherQuantization },
 	);
-	private readonly _bitcrusherFreqSlider: Slider = rangeSlider(
+	private readonly _bitcrusherFreqWidget: SliderNumWidget = new SliderNumWidget(
 		this.doc,
 		(oldValue: number, newValue: number) =>
 			new ChangeBitcrusherFreq(this.doc, oldValue, newValue),
 		0,
 		Config.bitcrusherFreqRange - 1,
 		0,
-	);
-	private readonly _bitcrusherFreqRow: HTMLDivElement = div(
-		{ class: "selectRow" },
-		tipSpan("Freq Crush:", () => {
+		"Freq Crush:",
+		() => {
 			this._openPrompt("bitcrusherFreq");
-		}),
-		this._bitcrusherFreqSlider.container,
+		},
+		{ getInstrumentValue: () => this.doc.getCurrentInstrumentObj().bitcrusherFreq },
 	);
-	private readonly _stringSustainSlider: Slider = rangeSlider(
+	private readonly _stringSustainWidget: SliderNumWidget = new SliderNumWidget(
 		this.doc,
 		(oldValue: number, newValue: number) =>
 			new ChangeStringSustain(this.doc, oldValue, newValue),
 		0,
 		Config.stringSustainRange - 1,
 		0,
+		"Sustain:",
+		() => {
+			this._openPrompt("stringSustain");
+		},
+		{ getInstrumentValue: () => this.doc.getCurrentInstrumentObj().stringSustain },
 	);
 	private readonly _stringSustainLabel: HTMLSpanElement = span(
 		{
@@ -1021,7 +985,7 @@ export class SongEditor
 	private readonly _stringSustainRow: HTMLDivElement = div(
 		{ class: "selectRow" },
 		this._stringSustainLabel,
-		this._stringSustainSlider.container,
+		this._stringSustainWidget.slider.container,
 	);
 
 	private readonly _unisonDropdown: HTMLButtonElement = dropdownButton({
@@ -1227,25 +1191,23 @@ export class SongEditor
 		},
 		"x1",
 	);
-	private readonly _arpeggioSpeedSlider: Slider = rangeSlider(
+	private readonly _arpeggioSpeedWidget: SliderNumWidget = new SliderNumWidget(
 		this.doc,
 		(oldValue: number, newValue: number) =>
 			new ChangeArpeggioSpeed(this.doc, oldValue, newValue),
 		0,
 		Config.modulators.dictionary["arp speed"].maxRawVol,
 		0,
+		"‣ Spd:",
+		() => {
+			this._openPrompt("arpeggioSpeed");
+		},
+		{ getInstrumentValue: () => this.doc.getCurrentInstrumentObj().arpeggioSpeed },
 	);
 	private readonly _arpeggioSpeedRow: HTMLElement = div(
 		{ class: "selectRow dropFader" },
-		tipSpan(
-			"‣ Spd:",
-			() => {
-				this._openPrompt("arpeggioSpeed");
-			},
-			{ style: "margin-left:4px;" },
-		),
 		this._arpeggioSpeedDisplay,
-		this._arpeggioSpeedSlider.container,
+		this._arpeggioSpeedWidget.slider.container,
 	);
 	private readonly _twoNoteArpBox: HTMLInputElement = input({
 		type: "checkbox",
@@ -1306,24 +1268,18 @@ export class SongEditor
 		this._vibratoDropdown,
 		div({ class: "selectContainer", style: "width: 61.5%;" }, this._vibratoSelect),
 	);
-	private readonly _vibratoDepthSlider: Slider = rangeSlider(
+	private readonly _vibratoDepthWidget: SliderNumWidget = new SliderNumWidget(
 		this.doc,
 		(oldValue: number, newValue: number) =>
 			new ChangeVibratoDepth(this.doc, oldValue, newValue),
 		0,
 		Config.modulators.dictionary["vibrato depth"].maxRawVol,
 		0,
-	);
-	private readonly _vibratoDepthRow: HTMLElement = div(
-		{ class: "selectRow dropFader" },
-		tipSpan(
-			"‣ Depth:",
-			() => {
-				this._openPrompt("vibratoDepth");
-			},
-			{ style: "margin-left:4px;" },
-		),
-		this._vibratoDepthSlider.container,
+		"‣ Depth:",
+		() => {
+			this._openPrompt("vibratoDepth");
+		},
+		{ getInstrumentValue: () => this.doc.getCurrentInstrumentObj().vibratoDepth },
 	);
 	private readonly _vibratoSpeedDisplay: HTMLSpanElement = span(
 		{
@@ -1331,44 +1287,36 @@ export class SongEditor
 		},
 		"x1",
 	);
-	private readonly _vibratoSpeedSlider: Slider = rangeSlider(
+	private readonly _vibratoSpeedWidget: SliderNumWidget = new SliderNumWidget(
 		this.doc,
 		(oldValue: number, newValue: number) =>
 			new ChangeVibratoSpeed(this.doc, oldValue, newValue),
 		0,
 		Config.modulators.dictionary["vibrato speed"].maxRawVol,
 		0,
+		"‣ Spd:",
+		() => {
+			this._openPrompt("vibratoSpeed");
+		},
+		{ getInstrumentValue: () => this.doc.getCurrentInstrumentObj().vibratoSpeed },
 	);
 	private readonly _vibratoSpeedRow: HTMLElement = div(
 		{ class: "selectRow dropFader" },
-		tipSpan(
-			"‣ Spd:",
-			() => {
-				this._openPrompt("vibratoSpeed");
-			},
-			{ style: "margin-left:4px;" },
-		),
 		this._vibratoSpeedDisplay,
-		this._vibratoSpeedSlider.container,
+		this._vibratoSpeedWidget.slider.container,
 	);
-	private readonly _vibratoDelaySlider: Slider = rangeSlider(
+	private readonly _vibratoDelayWidget: SliderNumWidget = new SliderNumWidget(
 		this.doc,
 		(oldValue: number, newValue: number) =>
 			new ChangeVibratoDelay(this.doc, oldValue, newValue),
 		0,
 		Config.modulators.dictionary["vibrato delay"].maxRawVol,
 		0,
-	);
-	private readonly _vibratoDelayRow: HTMLElement = div(
-		{ class: "selectRow dropFader" },
-		tipSpan(
-			"‣ Delay:",
-			() => {
-				this._openPrompt("vibratoDelay");
-			},
-			{ style: "margin-left:4px;" },
-		),
-		this._vibratoDelaySlider.container,
+		"‣ Delay:",
+		() => {
+			this._openPrompt("vibratoDelay");
+		},
+		{ getInstrumentValue: () => this.doc.getCurrentInstrumentObj().vibratoDelay },
 	);
 	private readonly _vibratoTypeSelect: HTMLSelectElement = buildOptions(
 		select(),
@@ -1387,9 +1335,9 @@ export class SongEditor
 	);
 	private readonly _vibratoDropdownGroup: HTMLElement = div(
 		{ class: "editor-controls", style: `display: none;` },
-		this._vibratoDepthRow,
+		this._vibratoDepthWidget.row,
 		this._vibratoSpeedRow,
-		this._vibratoDelayRow,
+		this._vibratoDelayWidget.row,
 		this._vibratoTypeSelectRow,
 	);
 	private readonly _phaseModGroup: HTMLElement = div({ class: "editor-controls" });
@@ -1465,25 +1413,23 @@ export class SongEditor
 		},
 		"x1",
 	);
-	private readonly _envelopeSpeedSlider: Slider = rangeSlider(
+	private readonly _envelopeSpeedWidget: SliderNumWidget = new SliderNumWidget(
 		this.doc,
 		(oldValue: number, newValue: number) =>
 			new ChangeEnvelopeSpeed(this.doc, oldValue, newValue),
 		0,
 		Config.modulators.dictionary["envelope speed"].maxRawVol,
 		0,
+		"‣ Spd:",
+		() => {
+			this._openPrompt("envelopeSpeed");
+		},
+		{ getInstrumentValue: () => this.doc.getCurrentInstrumentObj().envelopeSpeed },
 	);
 	private readonly _envelopeSpeedRow: HTMLElement = div(
 		{ class: "selectRow dropFader" },
-		tipSpan(
-			"‣ Spd:",
-			() => {
-				this._openPrompt("envelopeSpeed");
-			},
-			{ style: "margin-left:4px;" },
-		),
 		this._envelopeSpeedDisplay,
-		this._envelopeSpeedSlider.container,
+		this._envelopeSpeedWidget.slider.container,
 	);
 	private readonly _envelopeDropdownGroup: HTMLElement = div(
 		{ class: "editor-controls", style: "display: none;" },
@@ -1828,21 +1774,21 @@ export class SongEditor
 		(oldValue: string, newValue: string) => new ChangeSongTitle(this.doc, oldValue, newValue),
 	);
 
-	private readonly _feedbackAmplitudeSlider: Slider = rangeSlider(
+	private readonly _feedbackAmplitudeWidget: SliderNumWidget = new SliderNumWidget(
 		this.doc,
 		(oldValue: number, newValue: number) =>
 			new ChangeFeedbackAmplitude(this.doc, oldValue, newValue),
 		0,
 		Config.operatorAmplitudeMax,
 		0,
-		{ title: "Feedback Amplitude" },
-	);
-	private readonly _feedbackRow2: HTMLDivElement = div(
-		{ class: "selectRow" },
-		tipSpan("Fdback Vol:", () => {
+		"Fdback Vol:",
+		() => {
 			this._openPrompt("feedbackVolume");
-		}),
-		this._feedbackAmplitudeSlider.container,
+		},
+		{
+			title: "Feedback Amplitude",
+			getInstrumentValue: () => this.doc.getCurrentInstrumentObj().feedbackAmplitude,
+		},
 	);
 	/*
      * @jummbus - This button was cut for editorial reasons.
@@ -1871,21 +1817,21 @@ export class SongEditor
 		this._customWaveDraw,
 		this._eqFilterTypeRow,
 		this._eqFilterRow,
-		this._eqFilterSimpleCutRow,
-		this._eqFilterSimplePeakRow,
+		this._eqFilterSimpleCutWidget.row,
+		this._eqFilterSimplePeakWidget.row,
 		this._fadeInOutRow,
 		this._algorithmSelectRow,
 		this._algorithm6OpSelectRow,
 		this._phaseModGroup,
 		this._feedbackRow1,
 		this._feedback6OpRow1,
-		this._feedbackRow2,
+		this._feedbackAmplitudeWidget.row,
 		this._spectrumRow,
 		this._harmonicsRow,
 		this._drumsetGroup,
-		this._supersawDynamismRow,
-		this._supersawSpreadRow,
-		this._supersawShapeRow,
+		this._supersawDynamismWidget.row,
+		this._supersawSpreadWidget.row,
+		this._supersawShapeWidget.row,
 		this._pulseWidthRow,
 		this._pulseWidthDropdownGroup,
 		this._stringSustainRow,
@@ -1911,12 +1857,12 @@ export class SongEditor
 		this._vibratoDropdownGroup,
 		this._noteFilterTypeRow,
 		this._noteFilterRow,
-		this._noteFilterSimpleCutRow,
-		this._noteFilterSimplePeakRow,
+		this._noteFilterSimpleCutWidget.row,
+		this._noteFilterSimplePeakWidget.row,
 		this._distortionWidget.row,
 		this._aliasingRow,
-		this._bitcrusherQuantizationRow,
-		this._bitcrusherFreqRow,
+		this._bitcrusherQuantizationWidget.row,
+		this._bitcrusherFreqWidget.row,
 		this._chorusRow,
 		this._echoSustainRow,
 		this._echoDelayRow,
@@ -2302,13 +2248,13 @@ export class SongEditor
 		return this._operatorAmplitudeSliders;
 	}
 	public get feedbackAmplitudeSlider(): Slider {
-		return this._feedbackAmplitudeSlider;
+		return this._feedbackAmplitudeWidget.slider;
 	}
 	public get pulseWidthSlider(): Slider {
 		return this._pulseWidthSlider;
 	}
 	public get decimalOffsetSlider(): Slider {
-		return this._decimalOffsetSlider;
+		return this._decimalOffsetWidget.slider;
 	}
 	public get reverbSlider(): Slider {
 		return this._reverbSlider;
@@ -2320,19 +2266,19 @@ export class SongEditor
 		return this._instrumentVolumeSlider;
 	}
 	public get vibratoDepthSlider(): Slider {
-		return this._vibratoDepthSlider;
+		return this._vibratoDepthWidget.slider;
 	}
 	public get vibratoSpeedSlider(): Slider {
-		return this._vibratoSpeedSlider;
+		return this._vibratoSpeedWidget.slider;
 	}
 	public get vibratoDelaySlider(): Slider {
-		return this._vibratoDelaySlider;
+		return this._vibratoDelayWidget.slider;
 	}
 	public get arpeggioSpeedSlider(): Slider {
-		return this._arpeggioSpeedSlider;
+		return this._arpeggioSpeedWidget.slider;
 	}
 	public get panDelaySlider(): Slider {
-		return this._panDelaySlider;
+		return this._panDelayWidget.slider;
 	}
 	public get tempoSlider(): Slider {
 		return this._tempoSlider;
@@ -2341,25 +2287,25 @@ export class SongEditor
 		return this._volumeSlider;
 	}
 	public get eqFilterSimpleCutSlider(): Slider {
-		return this._eqFilterSimpleCutSlider;
+		return this._eqFilterSimpleCutWidget.slider;
 	}
 	public get eqFilterSimplePeakSlider(): Slider {
-		return this._eqFilterSimplePeakSlider;
+		return this._eqFilterSimplePeakWidget.slider;
 	}
 	public get noteFilterSimpleCutSlider(): Slider {
-		return this._noteFilterSimpleCutSlider;
+		return this._noteFilterSimpleCutWidget.slider;
 	}
 	public get noteFilterSimplePeakSlider(): Slider {
-		return this._noteFilterSimplePeakSlider;
+		return this._noteFilterSimplePeakWidget.slider;
 	}
 	public get bitcrusherQuantizationSlider(): Slider {
-		return this._bitcrusherQuantizationSlider;
+		return this._bitcrusherQuantizationWidget.slider;
 	}
 	public get bitcrusherFreqSlider(): Slider {
-		return this._bitcrusherFreqSlider;
+		return this._bitcrusherFreqWidget.slider;
 	}
 	public get pitchShiftSlider(): Slider {
-		return this._pitchShiftSlider;
+		return this._pitchShiftWidget.slider;
 	}
 	public get chorusSlider(): Slider {
 		return this._chorusSlider;
@@ -2371,20 +2317,21 @@ export class SongEditor
 		return this._echoDelaySlider;
 	}
 	public get stringSustainSlider(): Slider {
-		return this._stringSustainSlider;
+		return this._stringSustainWidget.slider;
 	}
 	public get envelopeSpeedSlider(): Slider {
-		return this._envelopeSpeedSlider;
+		return this._envelopeSpeedWidget.slider;
 	}
 	public get supersawDynamismSlider(): Slider {
-		return this._supersawDynamismSlider;
+		return this._supersawDynamismWidget.slider;
 	}
 	public get supersawSpreadSlider(): Slider {
-		return this._supersawSpreadSlider;
+		return this._supersawSpreadWidget.slider;
 	}
 	public get supersawShapeSlider(): Slider {
-		return this._supersawShapeSlider;
+		return this._supersawShapeWidget.slider;
 	}
+
 	public get ringModSlider(): Slider {
 		return this._ringModSlider;
 	}
@@ -2591,8 +2538,8 @@ export class SongEditor
 			eqFilterSimpleButton: this._eqFilterSimpleButton,
 			eqFilterAdvancedButton: this._eqFilterAdvancedButton,
 			eqFilterRow: this._eqFilterRow,
-			eqFilterSimpleCutRow: this._eqFilterSimpleCutRow,
-			eqFilterSimplePeakRow: this._eqFilterSimplePeakRow,
+			eqFilterSimpleCutRow: this._eqFilterSimpleCutWidget.row,
+			eqFilterSimplePeakRow: this._eqFilterSimplePeakWidget.row,
 			rhythmSelect: this._rhythmSelect,
 		};
 	}
@@ -2628,18 +2575,18 @@ export class SongEditor
 			grainRangeNum: this.grainRangeNum,
 			instrumentVolumeSlider: this._instrumentVolumeSlider,
 			instrumentVolumeSliderInputBox: this._instrumentVolumeSliderInputBox,
-			vibratoDepthSlider: this._vibratoDepthSlider,
-			vibratoDelaySlider: this._vibratoDelaySlider,
-			vibratoSpeedSlider: this._vibratoSpeedSlider,
+			vibratoDepthSlider: this._vibratoDepthWidget.slider,
+			vibratoDelaySlider: this._vibratoDelayWidget.slider,
+			vibratoSpeedSlider: this._vibratoSpeedWidget.slider,
 			vibratoSpeedDisplay: this._vibratoSpeedDisplay,
-			panDelaySlider: this._panDelaySlider,
-			arpeggioSpeedSlider: this._arpeggioSpeedSlider,
+			panDelaySlider: this._panDelayWidget.slider,
+			arpeggioSpeedSlider: this._arpeggioSpeedWidget.slider,
 			arpeggioSpeedDisplay: this._arpeggioSpeedDisplay,
-			eqFilterSimpleCutSlider: this._eqFilterSimpleCutSlider,
-			eqFilterSimplePeakSlider: this._eqFilterSimplePeakSlider,
-			noteFilterSimpleCutSlider: this._noteFilterSimpleCutSlider,
-			noteFilterSimplePeakSlider: this._noteFilterSimplePeakSlider,
-			envelopeSpeedSlider: this._envelopeSpeedSlider,
+			eqFilterSimpleCutSlider: this._eqFilterSimpleCutWidget.slider,
+			eqFilterSimplePeakSlider: this._eqFilterSimplePeakWidget.slider,
+			noteFilterSimpleCutSlider: this._noteFilterSimpleCutWidget.slider,
+			noteFilterSimplePeakSlider: this._noteFilterSimplePeakWidget.slider,
+			envelopeSpeedSlider: this._envelopeSpeedWidget.slider,
 			envelopeSpeedDisplay: this._envelopeSpeedDisplay,
 			upperNoteLimitRow: this._upperNoteLimitRow,
 			lowerNoteLimitRow: this._lowerNoteLimitRow,
@@ -3207,8 +3154,9 @@ export class SongEditor
 			spectrumEditor: this._spectrumEditor,
 			harmonicsRow: this._harmonicsRow,
 			harmonicsEditor: this._harmonicsEditor,
-			stringSustainRow: this._stringSustainRow,
-			stringSustainSlider: this._stringSustainSlider,
+			stringSustainRow: this._stringSustainWidget.row,
+			stringSustainSlider: this._stringSustainWidget.slider,
+			stringSustainInputBox: this._stringSustainWidget.inputBox,
 			stringSustainLabel: this._stringSustainLabel,
 			drumsetGroup: this._drumsetGroup,
 			drumsetEnvelopeSelects: this._drumsetEnvelopeSelects,
@@ -3216,20 +3164,25 @@ export class SongEditor
 			fadeInOutRow: this._fadeInOutRow,
 			fadeInOutEditor: this._fadeInOutEditor,
 			customWaveDraw: this._customWaveDraw,
-			supersawDynamismRow: this._supersawDynamismRow,
-			supersawDynamismSlider: this._supersawDynamismSlider,
-			supersawSpreadRow: this._supersawSpreadRow,
-			supersawSpreadSlider: this._supersawSpreadSlider,
-			supersawShapeRow: this._supersawShapeRow,
-			supersawShapeSlider: this._supersawShapeSlider,
+			supersawDynamismRow: this._supersawDynamismWidget.row,
+			supersawDynamismSlider: this._supersawDynamismWidget.slider,
+			supersawDynamismInputBox: this._supersawDynamismWidget.inputBox,
+			supersawSpreadRow: this._supersawSpreadWidget.row,
+			supersawSpreadSlider: this._supersawSpreadWidget.slider,
+			supersawSpreadInputBox: this._supersawSpreadWidget.inputBox,
+			supersawShapeRow: this._supersawShapeWidget.row,
+			supersawShapeSlider: this._supersawShapeWidget.slider,
+			supersawShapeInputBox: this._supersawShapeWidget.inputBox,
 			pulseWidthRow: this._pulseWidthRow,
 			pulseWidthSlider: this._pulseWidthSlider,
-			decimalOffsetSlider: this._decimalOffsetSlider,
+			decimalOffsetSlider: this._decimalOffsetWidget.slider,
+			decimalOffsetInputBox: this._decimalOffsetWidget.inputBox,
 			pulseWidthDropdownGroup: this._pulseWidthDropdownGroup,
 			phaseModGroup: this._phaseModGroup,
 			algorithmSelect: this._algorithmSelect,
 			feedbackTypeSelect: this._feedbackTypeSelect,
-			feedbackAmplitudeSlider: this._feedbackAmplitudeSlider,
+			feedbackAmplitudeSlider: this._feedbackAmplitudeWidget.slider,
+			feedbackAmplitudeInputBox: this._feedbackAmplitudeWidget.inputBox,
 			operatorRows: this._operatorRows,
 			operatorFrequencySelects: this._operatorFrequencySelects,
 			operatorAmplitudeSliders: this._operatorAmplitudeSliders,
@@ -3244,7 +3197,7 @@ export class SongEditor
 			feedback6OpRow1: this._feedback6OpRow1,
 			algorithmSelectRow: this._algorithmSelectRow,
 			feedbackRow1: this._feedbackRow1,
-			feedbackRow2: this._feedbackRow2,
+			feedbackRow2: this._feedbackAmplitudeWidget.row,
 			transitionRow: this._transitionRow,
 			transitionSelect: this._transitionSelect,
 			transitionDropdownGroup: this._transitionDropdownGroup,
@@ -3255,7 +3208,8 @@ export class SongEditor
 			monophonicNoteInputBox: this._monophonicNoteInputBox,
 			chordSelectContainer: this._chordSelectContainer,
 			pitchShiftRow: this._pitchShiftRow,
-			pitchShiftSlider: this._pitchShiftSlider,
+			pitchShiftSlider: this._pitchShiftWidget.slider,
+			pitchShiftInputBox: this._pitchShiftWidget.inputBox,
 			pitchShiftFifthMarkers: this._pitchShiftFifthMarkers,
 			detuneSliderRow: this._detuneSliderRow,
 			detuneSlider: this._detuneSlider,
@@ -3267,16 +3221,22 @@ export class SongEditor
 			noteFilterSimpleButton: this._noteFilterSimpleButton,
 			noteFilterAdvancedButton: this._noteFilterAdvancedButton,
 			noteFilterRow: this._noteFilterRow,
-			noteFilterSimpleCutRow: this._noteFilterSimpleCutRow,
-			noteFilterSimplePeakRow: this._noteFilterSimplePeakRow,
+			noteFilterSimpleCutRow: this._noteFilterSimpleCutWidget.row,
+			noteFilterSimpleCutSlider: this._noteFilterSimpleCutWidget.slider,
+			noteFilterSimpleCutInputBox: this._noteFilterSimpleCutWidget.inputBox,
+			noteFilterSimplePeakRow: this._noteFilterSimplePeakWidget.row,
+			noteFilterSimplePeakSlider: this._noteFilterSimplePeakWidget.slider,
+			noteFilterSimplePeakInputBox: this._noteFilterSimplePeakWidget.inputBox,
 			distortionRow: this._distortionWidget.row,
 			aliasingRow: this._aliasingRow,
 			distortionSlider: this._distortionWidget.slider,
 			distortionInputBox: this._distortionWidget.inputBox,
-			bitcrusherQuantizationRow: this._bitcrusherQuantizationRow,
-			bitcrusherQuantizationSlider: this._bitcrusherQuantizationSlider,
-			bitcrusherFreqRow: this._bitcrusherFreqRow,
-			bitcrusherFreqSlider: this._bitcrusherFreqSlider,
+			bitcrusherQuantizationRow: this._bitcrusherQuantizationWidget.row,
+			bitcrusherQuantizationSlider: this._bitcrusherQuantizationWidget.slider,
+			bitcrusherQuantizationInputBox: this._bitcrusherQuantizationWidget.inputBox,
+			bitcrusherFreqRow: this._bitcrusherFreqWidget.row,
+			bitcrusherFreqSlider: this._bitcrusherFreqWidget.slider,
+			bitcrusherFreqInputBox: this._bitcrusherFreqWidget.inputBox,
 			panSliderRow: this._panSliderRow,
 			panDropdownGroup: this._panDropdownGroup,
 			panSlider: this._panSlider,
@@ -3342,13 +3302,13 @@ export class SongEditor
 			harmonicsRow: this._harmonicsRow,
 			drumsetGroup: this._drumsetGroup,
 			customWaveDraw: this._customWaveDraw,
-			supersawDynamismRow: this._supersawDynamismRow,
-			supersawSpreadRow: this._supersawSpreadRow,
-			supersawShapeRow: this._supersawShapeRow,
+			supersawDynamismRow: this._supersawDynamismWidget.row,
+			supersawSpreadRow: this._supersawSpreadWidget.row,
+			supersawShapeRow: this._supersawShapeWidget.row,
 			algorithmSelectRow: this._algorithmSelectRow,
 			phaseModGroup: this._phaseModGroup,
 			feedbackRow1: this._feedbackRow1,
-			feedbackRow2: this._feedbackRow2,
+			feedbackRow2: this._feedbackAmplitudeWidget.row,
 			pulseWidthRow: this._pulseWidthRow,
 			vibratoSelectRow: this._vibratoSelectRow,
 			vibratoDropdownGroup: this._vibratoDropdownGroup,
