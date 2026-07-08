@@ -300,6 +300,10 @@ export class SongSettingsPanel {
 	}
 
 	private _createTempoRow(): HTMLDivElement {
+		// Wrap slider + stepper in flex container (matching widget row pattern).
+		this.tempoSlider.container.style.flex = "1 1 auto";
+		this.tempoSlider.container.style.minWidth = "0";
+		this.tempoStepper.style.flexShrink = "0";
 		return div(
 			{ class: "selectRow" },
 			span(
@@ -311,8 +315,11 @@ export class SongSettingsPanel {
 				},
 				"Tempo:",
 			),
-			this.tempoSlider.container,
-			this.tempoStepper,
+			div(
+				{ style: "display: flex; align-items: center; min-width: 0;" },
+				this.tempoSlider.container,
+				this.tempoStepper,
+			),
 		);
 	}
 
