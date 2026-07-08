@@ -339,7 +339,7 @@ export class SongEditor
 		{ midTick: true },
 	);
 	private readonly _instrumentVolumeSliderInputBox: HTMLInputElement = numberInput({
-		style: "width: 4em; font-size: 80%",
+		style: "width: 4em; font-size: 80%; margin-left: 0.4em; vertical-align: middle;",
 		id: "volumeSliderInputBox",
 		type: "number",
 		step: "1",
@@ -347,21 +347,11 @@ export class SongEditor
 		max: Math.floor(Config.volumeRange / 2),
 		value: "0",
 	});
-	private readonly _instrumentVolumeSliderTip: HTMLDivElement = div(
-		{ class: "selectRow", style: "height: 1em" },
-		tipSpan(
-			"Volume: ",
-			() => {
-				this._openPrompt("instrumentVolume");
-			},
-			{
-				style: "font-size: smaller;",
-			},
-		),
-	);
 	private readonly _instrumentVolumeSliderRow: HTMLDivElement = div(
 		{ class: "selectRow" },
-		this._instrumentVolumeSliderTip,
+		tipSpan("Volume: ", () => {
+			this._openPrompt("instrumentVolume");
+		}),
 		span(
 			{ style: "display: flex; align-items: center;" },
 			this._instrumentVolumeSlider.container,
@@ -382,7 +372,7 @@ export class SongEditor
 		},
 	});
 	private readonly _panSliderInputBox: HTMLInputElement = numberInput({
-		style: "width: 4em; font-size: 80%; ",
+		style: "width: 4em; font-size: 80%; margin-left: 0.4em; vertical-align: middle;",
 		id: "panSliderInputBox",
 		type: "number",
 		step: "1",
@@ -392,17 +382,9 @@ export class SongEditor
 	});
 	private readonly _panSliderRow: HTMLDivElement = div(
 		{ class: "selectRow" },
-		span(
-			{
-				class: "tip",
-				tabindex: "0",
-				style: "height:1em; font-size: smaller;",
-				onclick: () => {
-					this._openPrompt("pan");
-				},
-			},
-			"Pan: ",
-		),
+		tipSpan("Pan: ", () => {
+			this._openPrompt("pan");
+		}),
 		this._panDropdown,
 		span(
 			{ style: "display: flex; align-items: center;" },
