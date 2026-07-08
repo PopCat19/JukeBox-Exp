@@ -303,6 +303,8 @@ export class AudioBackend {
 					type: "init",
 					sab: this._ringBuffer!.sab,
 					numSlots: this._ringBuffer!.numSlots,
+					headerInts: AudioRingBuffer.HEADER_INTS,
+					headerBytes: this._ringBuffer!.headerBytes,
 				});
 				this._dbg("SAB init message sent to worklet");
 			}

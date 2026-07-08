@@ -38,6 +38,9 @@ class BeepBoxAudioWorkletProcessor extends AudioWorkletProcessor {
     this._sab = null;
     this._header = null;
     this._data = null;
+    this._headerInts = 2;
+    this._headerBytes = 8;
+    this._resetSeq = 0;
     this._numSlots = 8;
     this._slotLength = this._bufferSize;
     this._slotStride = this._bufferSize * 2;
@@ -62,9 +65,13 @@ class BeepBoxAudioWorkletProcessor extends AudioWorkletProcessor {
       if (msg.type === "init") {
         // Mode A: SAB ring buffer
         this._sab = msg.sab;
-        this._header = new Int32Array(this._sab, 0, 2);
-        var totalFloats = msg.numSlots * this._slotStride;
-        this._data = new Float32Array(this._sab, 8, totalFloats);
+        this._headerInts = msg.headerInts || 2;
+        this._headerBytes = msg.headerBytes || 8;
+        this._header = new Int32Array(this._sab, 0, this._headerInts);
+        this._numSlots = msg.numSlots || this._numSlots;
+        var totalFloats = this._numSlots * this._slotStride;
+        this._data = new Float32Array(this._sab, this._headerBytes, totalFloats);
+        this._resetSeq = this._headerInts > 2 ? Atomics.load(this._header, 2) : 0;
         this._readHead = -1;
         this._activeSlot = -1;
         this._slotOffset = 0;
@@ -122,6 +129,17 @@ class BeepBoxAudioWorkletProcessor extends AudioWorkletProcessor {
   }
 
   _processSAB(outL, outR, len) {
+    if (this._headerInts > 2) {
+      var resetSeq = Atomics.load(this._header, 2);
+      if (resetSeq !== this._resetSeq) {
+        this._resetSeq = resetSeq;
+        this._readHead = Atomics.load(this._header, 1);
+        this._activeSlot = -1;
+        this._slotOffset = 0;
+        this._sabNeedDataPending = false;
+      }
+    }
+
     var written = 0;
 
     while (written < len) {

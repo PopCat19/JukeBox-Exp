@@ -10,14 +10,15 @@
 // SAB layout:
 //   [0] writeHead (Int32) — last slot index the producer has fully written
 //   [1] readHead  (Int32) — last slot index the consumer has fully consumed
-//   [2..] data (Float32) — numSlots × (slotLength × 2) for interleaved L/R
+//   [2] resetSeq  (Int32) — bumped when producer invalidates consumer cursor
+//   [3..] data (Float32) — numSlots × (slotLength × 2) for interleaved L/R
 
 export class AudioRingBuffer {
 	public readonly sab: SharedArrayBuffer;
 	public readonly numSlots: number;
 	public readonly slotLength: number;
 
-	private static readonly HEADER_INTS = 2;
+	public static readonly HEADER_INTS = 3;
 	private static readonly HEADER_BYTES = AudioRingBuffer.HEADER_INTS * 4;
 
 	private readonly _view: Int32Array;
@@ -37,6 +38,7 @@ export class AudioRingBuffer {
 		// No slots published yet
 		this._view[0] = -1;
 		this._view[1] = -1;
+		this._view[2] = 0;
 	}
 
 	// ── Producer (main thread) ──
@@ -57,6 +59,11 @@ export class AudioRingBuffer {
 	public resetHeads(): void {
 		const writeHead: number = Atomics.load(this._view, 0);
 		Atomics.store(this._view, 1, writeHead);
+		Atomics.add(this._view, 2, 1);
+	}
+
+	public get headerBytes(): number {
+		return AudioRingBuffer.HEADER_BYTES;
 	}
 
 	public writeSlot(slot: number, left: Float32Array, right: Float32Array): void {

@@ -3120,7 +3120,7 @@ export class Synth {
 		}
 		this._renderSnapshot = null;
 
-		if (_bufferBudgetMs > 0 && _synthElapsed > _bufferBudgetMs * 0.9) {
+		if (_bufferBudgetMs >= 1 && _synthElapsed > _bufferBudgetMs * 0.9) {
 			this._stutterCount++;
 			const now: number = performance.now();
 			if (now - this._lastStutterLogMs > 1000) {
