@@ -168,11 +168,16 @@ export class FmOperatorSetup {
 					new Event("change", { bubbles: true }),
 				);
 			});
+			// Wrap pulsewidth slider + input so last-child rule targets wrapper, not bare input.
+			const pulsewidthWrapper = span(
+				{ style: "display: flex; align-items: center;" },
+				waveformPulsewidthSlider.container,
+				pulsewidthInputBox,
+			);
 			const waveformDropdownRow: HTMLElement = div(
 				{ class: "selectRow" },
 				waveformDropdownHint,
-				waveformPulsewidthSlider.container,
-				pulsewidthInputBox,
+				pulsewidthWrapper,
 				div(
 					{ class: "selectContainer", style: "width: 6em; margin-left: .3em;" },
 					waveformSelect,
@@ -182,6 +187,12 @@ export class FmOperatorSetup {
 				{ class: "operatorRow" },
 				waveformDropdownRow,
 			);
+			// Wrap amplitude slider + input so last-child rule targets the wrapper, not bare input.
+			const amplitudeWrapper = span(
+				{ style: "display: flex; align-items: center;" },
+				amplitudeSlider.container,
+				amplitudeInputBox,
+			);
 			const row: HTMLDivElement = div(
 				{ class: "selectRow" },
 				operatorNumber,
@@ -190,8 +201,7 @@ export class FmOperatorSetup {
 					{ class: "selectContainer", style: "width: 3em; margin-right: .3em;" },
 					frequencySelect,
 				),
-				amplitudeSlider.container,
-				amplitudeInputBox,
+				amplitudeWrapper,
 			);
 			host.phaseModGroup.appendChild(row);
 			host.operatorRows[i] = row;

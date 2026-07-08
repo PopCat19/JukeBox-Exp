@@ -976,11 +976,16 @@ export class SongEditor
 		},
 		"Sustain:",
 	);
-	private readonly _stringSustainRow: HTMLDivElement = div(
-		{ class: "selectRow" },
-		this._stringSustainLabel,
-		this._stringSustainWidget.slider.container,
-	);
+	// Custom row: dynamic label + slider + input (widget row tip is static).
+	private readonly _stringSustainRow: HTMLDivElement = (() => {
+		const wrapper = div({ style: "display: flex; align-items: center; min-width: 0;" });
+		wrapper.appendChild(this._stringSustainWidget.slider.container);
+		wrapper.appendChild(this._stringSustainWidget.inputBox);
+		this._stringSustainWidget.slider.container.style.flex = "1 1 auto";
+		this._stringSustainWidget.slider.container.style.minWidth = "0";
+		this._stringSustainWidget.inputBox.style.flexShrink = "0";
+		return div({ class: "selectRow" }, this._stringSustainLabel, wrapper);
+	})();
 
 	private readonly _unisonDropdown: HTMLButtonElement = dropdownButton({
 		onclick: () => {
