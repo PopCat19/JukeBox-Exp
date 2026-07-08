@@ -2120,7 +2120,17 @@ export class SongEditor
 				tipSpan("Tempo: ", () => {
 					this._openPrompt("tempo");
 				}),
-				span({ style: "display: flex;" }, this._tempoSlider.container, this._tempoStepper),
+				// Wrap slider + stepper with align-items to match widget row vertical centering.
+				(() => {
+					this._tempoSlider.container.style.flex = "1 1 auto";
+					this._tempoSlider.container.style.minWidth = "0";
+					this._tempoStepper.style.flexShrink = "0";
+					return span(
+						{ style: "display: flex; align-items: center; min-width: 0;" },
+						this._tempoSlider.container,
+						this._tempoStepper,
+					);
+				})(),
 			),
 			div(
 				{ class: "selectRow" },
