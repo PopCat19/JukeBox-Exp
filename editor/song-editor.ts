@@ -119,7 +119,6 @@ import {
 	iconButton,
 	inlineSliderRow,
 	numberInput,
-	rangeSlider,
 	Slider,
 	SliderNumWidget,
 	setDisabled,
@@ -347,61 +346,34 @@ export class SongEditor
 		}),
 		this._instrumentsButtonBar,
 	);
-	private readonly _instrumentVolumeSlider: Slider = rangeSlider(
+	private readonly _instrumentVolumeWidget: SliderNumWidget = new SliderNumWidget(
 		this.doc,
 		(oldValue: number, newValue: number) => new ChangeVolume(this.doc, oldValue, newValue),
 		Math.floor(-Config.volumeRange / 2),
 		Math.floor(Config.volumeRange / 2),
 		0,
-		{ midTick: true },
-	);
-	private readonly _instrumentVolumeSliderInputBox: HTMLInputElement = numberInput({
-		style: "width: 4em; font-size: 80%; margin-left: 0.4em; vertical-align: middle;",
-		id: "volumeSliderInputBox",
-		type: "number",
-		step: "1",
-		min: Math.floor(-Config.volumeRange / 2),
-		max: Math.floor(Config.volumeRange / 2),
-		value: "0",
-	});
-	private readonly _instrumentVolumeSliderRow: HTMLDivElement = inlineSliderRow(
-		"Volume: ",
+		"Volume:",
 		() => {
 			this._openPrompt("instrumentVolume");
 		},
-		this._instrumentVolumeSlider.container,
-		this._instrumentVolumeSliderInputBox,
-	);
-	private readonly _panSlider: Slider = rangeSlider(
-		this.doc,
-		(oldValue: number, newValue: number) => new ChangePan(this.doc, oldValue, newValue),
-		0,
-		Config.panMax,
-		Config.panCenter,
-		{ midTick: true },
+		{ midTick: true, getInstrumentValue: () => this.doc.getCurrentInstrumentObj().volume },
 	);
 	private readonly _panDropdown: HTMLButtonElement = dropdownButton({
 		onclick: () => {
 			this._toggleDropdownMenu(DropdownID.Pan);
 		},
 	});
-	private readonly _panSliderInputBox: HTMLInputElement = numberInput({
-		style: "width: 4em; font-size: 80%; margin-left: 0.4em; vertical-align: middle;",
-		id: "panSliderInputBox",
-		type: "number",
-		step: "1",
-		min: "0",
-		max: "100",
-		value: "0",
-	});
-	private readonly _panSliderRow: HTMLDivElement = inlineSliderRow(
-		"Pan: ",
+	private readonly _panWidget: SliderNumWidget = new SliderNumWidget(
+		this.doc,
+		(oldValue: number, newValue: number) => new ChangePan(this.doc, oldValue, newValue),
+		0,
+		Config.panMax,
+		Config.panCenter,
+		"Pan:",
 		() => {
 			this._openPrompt("pan");
 		},
-		this._panSlider.container,
-		this._panSliderInputBox,
-		this._panDropdown,
+		{ midTick: true, dropdown: this._panDropdown, getInstrumentValue: () => this.doc.getCurrentInstrumentObj().pan },
 	);
 	private readonly _panDelayWidget: SliderNumWidget = new SliderNumWidget(
 		this.doc,
@@ -794,38 +766,24 @@ export class SongEditor
 		{ getInstrumentValue: () => this.doc.getCurrentInstrumentObj().supersawShape },
 	);
 
-	private readonly _pulseWidthSlider: Slider = rangeSlider(
-		this.doc,
-		(oldValue: number, newValue: number) => new ChangePulseWidth(this.doc, oldValue, newValue),
-		1,
-		Config.pulseWidthRange,
-		1,
-	);
 	private readonly _pulseWidthDropdown: HTMLButtonElement = dropdownButton({
 		style: "margin-right: 5px;",
 		onclick: () => {
 			this._toggleDropdownMenu(DropdownID.PulseWidth);
 		},
 	});
-	private readonly _pwmSliderInputBox: HTMLInputElement = numberInput({
-		style: "width: 4em; font-size: 80%; margin-left: 0.4em; vertical-align: middle;",
-		id: "pwmSliderInputBox",
-		type: "number",
-		step: "1",
-		min: "1",
-		max: Config.pulseWidthRange,
-		value: "1",
-	});
-	private readonly _pulseWidthRow: HTMLDivElement = inlineSliderRow(
+	private readonly _pulseWidthWidget: SliderNumWidget = new SliderNumWidget(
+		this.doc,
+		(oldValue: number, newValue: number) => new ChangePulseWidth(this.doc, oldValue, newValue),
+		1,
+		Config.pulseWidthRange,
+		1,
 		"Pulse W.:",
 		() => {
 			this._openPrompt("pulseWidth");
 		},
-		this._pulseWidthSlider.container,
-		this._pwmSliderInputBox,
-		this._pulseWidthDropdown,
+		{ dropdown: this._pulseWidthDropdown, getInstrumentValue: () => this.doc.getCurrentInstrumentObj().pulseWidth },
 	);
-	// private readonly _pulseWidthRow: HTMLDivElement = div({ class: "selectRow" }, span({ class: "tip", onclick: () => this._openPrompt("pulseWidth") }, "Pulse Width:"), this._pulseWidthDropdown, this._pulseWidthSlider.container);
 	private readonly _decimalOffsetWidget: SliderNumWidget = new SliderNumWidget(
 		this.doc,
 		(oldValue: number, newValue: number) =>
@@ -1819,7 +1777,7 @@ export class SongEditor
 	});
 	private readonly _customInstrumentSettingsGroup: HTMLDivElement = div(
 		{ class: "editor-controls" },
-		this._panSliderRow,
+		this._panWidget.row,
 		this._panDropdownGroup,
 		this._chipWaveSelectRow,
 		this._chipNoiseSelectRow,
@@ -1847,7 +1805,7 @@ export class SongEditor
 		this._supersawDynamismWidget.row,
 		this._supersawSpreadWidget.row,
 		this._supersawShapeWidget.row,
-		this._pulseWidthRow,
+		this._pulseWidthWidget.row,
 		this._pulseWidthDropdownGroup,
 		this._stringSustainRow,
 		this._unisonSelectRow,
@@ -1936,7 +1894,7 @@ export class SongEditor
 		this._instrumentSettingsTextRow,
 		this._instrumentsButtonRow,
 		this._instrumentTypeSelectRow,
-		this._instrumentVolumeSliderRow,
+		this._instrumentVolumeWidget.row,
 		this._customInstrumentSettingsGroup,
 	);
 	private readonly _usedPatternIndicator: SVGElement = SVG.path({
@@ -2254,7 +2212,7 @@ export class SongEditor
 	public readonly modSliders = new ModSliderRegistry(this);
 
 	public get panSlider(): Slider {
-		return this._panSlider;
+		return this._panWidget.slider;
 	}
 	public get detuneSlider(): Slider {
 		return this._detuneSlider;
@@ -2266,7 +2224,7 @@ export class SongEditor
 		return this._feedbackAmplitudeWidget.slider;
 	}
 	public get pulseWidthSlider(): Slider {
-		return this._pulseWidthSlider;
+		return this._pulseWidthWidget.slider;
 	}
 	public get decimalOffsetSlider(): Slider {
 		return this._decimalOffsetWidget.slider;
@@ -2278,7 +2236,7 @@ export class SongEditor
 		return this._distortionWidget.slider;
 	}
 	public get instrumentVolumeSlider(): Slider {
-		return this._instrumentVolumeSlider;
+		return this._instrumentVolumeWidget.slider;
 	}
 	public get vibratoDepthSlider(): Slider {
 		return this._vibratoDepthWidget.slider;
@@ -2413,10 +2371,10 @@ export class SongEditor
 		return this._lowerNoteLimitInputBox;
 	}
 	public get panSliderInputBox(): HTMLInputElement {
-		return this._panSliderInputBox;
+		return this._panWidget.inputBox;
 	}
 	public get pwmSliderInputBox(): HTMLInputElement {
-		return this._pwmSliderInputBox;
+		return this._pulseWidthWidget.inputBox;
 	}
 	public get detuneSliderInputBox(): HTMLInputElement {
 		return this._detuneSliderInputBox;
@@ -2425,7 +2383,7 @@ export class SongEditor
 		return this._distortionWidget.inputBox;
 	}
 	public get instrumentVolumeSliderInputBox(): HTMLInputElement {
-		return this._instrumentVolumeSliderInputBox;
+		return this._instrumentVolumeWidget.inputBox;
 	}
 
 	public get chipWaveLoopStartStepper(): HTMLInputElement {
@@ -2561,10 +2519,10 @@ export class SongEditor
 	private get _presetSetupRefs(): PresetSetupRefs {
 		return {
 			customInstrumentSettingsGroup: this._customInstrumentSettingsGroup,
-			panSliderRow: this._panSliderRow,
+			panSliderRow: this._panWidget.row,
 			panDropdownGroup: this._panDropdownGroup,
 			detuneSliderRow: this._detuneSliderRow,
-			instrumentVolumeSliderRow: this._instrumentVolumeSliderRow,
+			instrumentVolumeSliderRow: this._instrumentVolumeWidget.row,
 			instrumentTypeSelectRow: this._instrumentTypeSelectRow,
 			instrumentSettingsGroup: this._instrumentSettingsGroup,
 			instrumentExportGroup: this._instrumentExportGroup,
@@ -2582,14 +2540,14 @@ export class SongEditor
 			vibratoSelect: this._vibratoSelect,
 			vibratoTypeSelect: this._vibratoTypeSelect,
 			chordSelect: this._chordSelect,
-			panSliderInputBox: this._panSliderInputBox,
-			pwmSliderInputBox: this._pwmSliderInputBox,
+			panSliderInputBox: this._panWidget.inputBox,
+			pwmSliderInputBox: this._pulseWidthWidget.inputBox,
 			detuneSliderInputBox: this._detuneSliderInputBox,
 			ringModHzNum: this.ringModHzNum,
 			grainSizeNum: this.grainSizeNum,
 			grainRangeNum: this.grainRangeNum,
-			instrumentVolumeSlider: this._instrumentVolumeSlider,
-			instrumentVolumeSliderInputBox: this._instrumentVolumeSliderInputBox,
+			instrumentVolumeSlider: this._instrumentVolumeWidget.slider,
+			instrumentVolumeSliderInputBox: this._instrumentVolumeWidget.inputBox,
 			vibratoDepthSlider: this._vibratoDepthWidget.slider,
 			vibratoDelaySlider: this._vibratoDelayWidget.slider,
 			vibratoSpeedSlider: this._vibratoSpeedWidget.slider,
@@ -2612,7 +2570,7 @@ export class SongEditor
 			instrumentSettingsGroup: this._instrumentSettingsGroup,
 			eqFilterEditor: this._eqFilterEditor,
 			songEqFilterEditor: this._songEqFilterEditor,
-			instrumentVolumeSlider: this._instrumentVolumeSlider,
+			instrumentVolumeSlider: this._instrumentVolumeWidget.slider,
 			detuneSlider: this._detuneSlider,
 			twoNoteArpBox: this._twoNoteArpBox,
 			clicklessTransitionBox: this._clicklessTransitionBox,
@@ -3188,8 +3146,8 @@ export class SongEditor
 			supersawShapeRow: this._supersawShapeWidget.row,
 			supersawShapeSlider: this._supersawShapeWidget.slider,
 			supersawShapeInputBox: this._supersawShapeWidget.inputBox,
-			pulseWidthRow: this._pulseWidthRow,
-			pulseWidthSlider: this._pulseWidthSlider,
+			pulseWidthRow: this._pulseWidthWidget.row,
+			pulseWidthSlider: this._pulseWidthWidget.slider,
 			decimalOffsetSlider: this._decimalOffsetWidget.slider,
 			decimalOffsetInputBox: this._decimalOffsetWidget.inputBox,
 			pulseWidthDropdownGroup: this._pulseWidthDropdownGroup,
@@ -3252,9 +3210,9 @@ export class SongEditor
 			bitcrusherFreqRow: this._bitcrusherFreqWidget.row,
 			bitcrusherFreqSlider: this._bitcrusherFreqWidget.slider,
 			bitcrusherFreqInputBox: this._bitcrusherFreqWidget.inputBox,
-			panSliderRow: this._panSliderRow,
+			panSliderRow: this._panWidget.row,
 			panDropdownGroup: this._panDropdownGroup,
-			panSlider: this._panSlider,
+			panSlider: this._panWidget.slider,
 			chorusRow: this._chorusRow,
 			chorusSlider: this._chorusSlider,
 			chorusInputBox: this._chorusInputBox,
@@ -3339,12 +3297,12 @@ export class SongEditor
 			phaseModGroup: this._phaseModGroup,
 			feedbackRow1: this._feedbackRow1,
 			feedbackRow2: this._feedbackAmplitudeWidget.row,
-			pulseWidthRow: this._pulseWidthRow,
+			pulseWidthRow: this._pulseWidthWidget.row,
 			vibratoSelectRow: this._vibratoSelectRow,
 			vibratoDropdownGroup: this._vibratoDropdownGroup,
 			envelopeDropdownGroup: this._envelopeDropdownGroup,
 			detuneSliderRow: this._detuneSliderRow,
-			panSliderRow: this._panSliderRow,
+			panSliderRow: this._panWidget.row,
 			panDropdownGroup: this._panDropdownGroup,
 			pulseWidthDropdownGroup: this._pulseWidthDropdownGroup,
 			unisonDropdownGroup: this._unisonDropdownGroup,
@@ -3352,7 +3310,7 @@ export class SongEditor
 			chordDropdownGroup: this._chordDropdownGroup,
 			transitionRow: this._transitionRow,
 			customInstrumentSettingsGroup: this._customInstrumentSettingsGroup,
-			instrumentVolumeSliderRow: this._instrumentVolumeSliderRow,
+			instrumentVolumeSliderRow: this._instrumentVolumeWidget.row,
 			instrumentTypeSelectRow: this._instrumentTypeSelectRow,
 			instrumentSettingsGroup: this._instrumentSettingsGroup,
 			pitchedPresetSelect: this._pitchedPresetSelect,
@@ -4476,11 +4434,11 @@ export class SongEditor
 		}
 
 		this.doc.record(new ChangeCustomWave(this.doc, customWaveArray));
-		if (+this._instrumentVolumeSlider.input.value !== -Config.volumeRange / 2) {
+		if (+this._instrumentVolumeWidget.slider.input.value !== -Config.volumeRange / 2) {
 			this.doc.record(
 				new ChangeVolume(
 					this.doc,
-					+this._instrumentVolumeSlider.input.value,
+					+this._instrumentVolumeWidget.slider.input.value,
 					Math.min(
 						Math.max(
 							-Config.volumeRange / 2 +
@@ -4488,7 +4446,7 @@ export class SongEditor
 									(Math.sqrt(Config.chipWaves[index].expression) *
 										Config.volumeRange) /
 										2 +
-										parseInt(this._instrumentVolumeSlider.input.value, 10),
+										parseInt(this._instrumentVolumeWidget.slider.input.value, 10),
 								),
 							-Config.volumeRange / 2,
 						) >> 1,
