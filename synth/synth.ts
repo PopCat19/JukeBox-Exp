@@ -1401,16 +1401,6 @@ export class Synth {
 		this._audio.startSpectrumDecay(this._toAudioHost());
 	}
 
-	/**
-	 * Pre-fill the SAB ring buffer with audio from the current song
-	 * position. When playOverride is true, synthesize uses playSong=true
-	 * even if isPlayingSong hasn't been set yet — this ensures the ring
-	 * carries real audio before the playhead starts moving.
-	 */
-	private _primeWorklet(playOverride?: boolean, maxSlots?: number): void {
-		this._audio.fillAllFreeSlots(this._toAudioHost(), playOverride, maxSlots);
-	}
-
 	public async maintainLiveInput(): Promise<void> {
 		if (this._audio.isActive) {
 			if (this.liveInputPitches.length > 0 || this.liveBassInputPitches.length > 0) {
@@ -1459,15 +1449,9 @@ export class Synth {
 		await this._audio.resumeContext();
 		this.warmUpSynthesizer(this.song);
 		this._needsLeadIn = true;
-		// Fill two real-audio slots before the playhead starts moving.
-		// That gives the audio thread immediate data without pushing the
-		// producer head a full ring ahead, which made cold starts visibly
-		// snap and sound like beat 0 was replayed.
-		this._primeWorklet(true, 2);
-		// Don't restore bar/beat/part/tick — the pre-fill advanced them
-		// and the rAF loop must continue from that position to avoid
-		// repeating the pre-filled audio. playhead subtracts queued ring
-		// audio so the visible position still starts at 0.
+		// Drop activation-time silence before playback starts. The rAF/
+		// need-data path will render from the real transport position.
+		this._audio.resetRingForPlayback();
 		this.isPlayingSong = true;
 		if (this._audio.context) {
 			this.samplesPerSecond = this._audio.context.sampleRate;

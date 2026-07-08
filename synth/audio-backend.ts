@@ -421,6 +421,17 @@ export class AudioBackend {
 		// placeholder for future RAF-based decay
 	}
 
+	/** Discards queued SAB audio without rendering new samples.
+	 *  Used on play() to drop activation-time silence so the visible
+	 *  playhead does not compensate for audio that will never be heard. */
+	public resetRingForPlayback(): void {
+		if (!this._useSab || this._ringBuffer == null) return;
+		this._ringBuffer.resetHeads();
+		if (this._fillLoopId == null) {
+			this._fillLoopId = requestAnimationFrame(this._onFillFrame);
+		}
+	}
+
 	/** Synchronously fills all free ring-buffer slots (SAB mode only).
 	 *  Queue mode is a no-op. First call (after isPlayingSong=true)
 	 *  starts the rAF fill loop. */
