@@ -424,13 +424,13 @@ export class AudioBackend {
 	/** Synchronously fills all free ring-buffer slots (SAB mode only).
 	 *  Queue mode is a no-op. First call (after isPlayingSong=true)
 	 *  starts the rAF fill loop. */
-	public fillAllFreeSlots(host: AudioBackendHost, playSong?: boolean): void {
+	public fillAllFreeSlots(host: AudioBackendHost, playSong?: boolean, maxSlots?: number): void {
 		if (!this._useSab || this._ringBuffer == null) return;
 		this._ringBuffer.resetHeads();
-		// noBudget=true fills ALL free slots without the 16ms budget
+		// noBudget=true fills synchronously without the 16ms budget
 		// stop. When playSong is provided, use it explicitly (allows
 		// pre-fill before the host sets isPlayingSong=true).
-		this._fillAllFreeSlotsInternal(host, true, "manual", true, playSong);
+		this._fillAllFreeSlotsInternal(host, true, "manual", true, playSong, maxSlots);
 		if (this._fillLoopId == null) {
 			this._fillLoopId = requestAnimationFrame(this._onFillFrame);
 		}
@@ -510,6 +510,7 @@ export class AudioBackend {
 		reason: string,
 		noBudget?: boolean,
 		playSongOverride?: boolean,
+		maxSlots?: number,
 	): void {
 		const ring: AudioRingBuffer = this._ringBuffer!;
 		if (ring == null) return;
@@ -539,7 +540,9 @@ export class AudioBackend {
 		// Free slots = total - 1 safety margin - slots consumed
 		const diff: number = writeHead - readHead;
 		const freeSlots: number = Math.min(ring.numSlots - 1 - diff, ring.numSlots);
-		if (freeSlots <= 0) return;
+		const slotsToFill: number =
+			maxSlots == null ? freeSlots : Math.max(0, Math.min(freeSlots, maxSlots));
+		if (slotsToFill <= 0) return;
 
 		if (this._sabScratchL == null || this._sabScratchL.length !== this._currentBufferSize) {
 			this._sabScratchL = new Float32Array(this._currentBufferSize);
@@ -553,7 +556,7 @@ export class AudioBackend {
 		let filledSlots: number = 0;
 		let endedByBudget: boolean = false;
 		this._fillInProgress = true;
-		for (let i: number = 0; i < freeSlots; i++) {
+		for (let i: number = 0; i < slotsToFill; i++) {
 			const slotStart: number = performance.now();
 			const slot: number = writeHead + 1 + i;
 			left.fill(0.0);
