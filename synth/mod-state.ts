@@ -73,7 +73,13 @@ export class SynthModState {
 			}
 		} else if (channel != null && instrument != null) {
 			if (
+				this.insValues != null &&
+				this.insValues[channel] != null &&
+				this.insValues[channel][instrument] != null &&
 				this.insValues[channel][instrument][setting] != null &&
+				this.nextInsValues != null &&
+				this.nextInsValues[channel] != null &&
+				this.nextInsValues[channel][instrument] != null &&
 				this.nextInsValues[channel][instrument][setting] != null
 			) {
 				return nextVal
