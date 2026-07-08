@@ -79,14 +79,12 @@ export class PromptDock {
 		return null;
 	}
 
-	public getSnapSide(promptX: number, promptWidth: number, pointerX: number): DockSide | null {
+	public getSnapSide(promptX: number, promptWidth: number, _pointerX: number): DockSide | null {
 		const r = this._editor.getBoundingClientRect();
-		const vw = window.innerWidth;
 		const promptLeftVp = r.left + promptX;
 		const promptRightVp = promptLeftVp + promptWidth;
-		if (promptLeftVp <= r.left + SNAP_THRESHOLD || pointerX <= SNAP_THRESHOLD) return "left";
-		if (promptRightVp >= r.right - SNAP_THRESHOLD || pointerX >= vw - SNAP_THRESHOLD)
-			return "right";
+		if (promptLeftVp <= r.left + SNAP_THRESHOLD) return "left";
+		if (promptRightVp >= r.right - SNAP_THRESHOLD) return "right";
 		return null;
 	}
 

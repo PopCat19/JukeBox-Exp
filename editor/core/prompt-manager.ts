@@ -686,9 +686,14 @@ export class PromptManager {
 		}
 	}
 
-	private _editorPadding(): { left: number; top: number } {
+	private _editorPadding(): { left: number; top: number; right: number; bottom: number } {
 		const cs = getComputedStyle(this._host.mainLayer);
-		return { left: parseFloat(cs.paddingLeft) || 0, top: parseFloat(cs.paddingTop) || 0 };
+		return {
+			left: parseFloat(cs.paddingLeft) || 0,
+			top: parseFloat(cs.paddingTop) || 0,
+			right: parseFloat(cs.paddingRight) || 0,
+			bottom: parseFloat(cs.paddingBottom) || 0,
+		};
 	}
 
 	private _applyPosition(prompt: Prompt, name: string, x: number, y: number): void {
@@ -697,8 +702,8 @@ export class PromptManager {
 		const w = this._host.mainLayer.clientWidth;
 		const h = this._host.mainLayer.clientHeight;
 		const pad = this._editorPadding();
-		x = Math.max(pad.left, Math.min(x, pad.left + w - prompt.container.offsetWidth));
-		y = Math.max(pad.top, Math.min(y, pad.top + h - prompt.container.offsetHeight));
+		x = Math.max(pad.left, Math.min(x, w - pad.right - prompt.container.offsetWidth));
+		y = Math.max(pad.top, Math.min(y, h - pad.bottom - prompt.container.offsetHeight));
 		prompt.container.style.left = `${x}px`;
 		prompt.container.style.top = `${y}px`;
 		this._promptPositions.set(name, { x, y });
@@ -734,16 +739,28 @@ export class PromptManager {
 		let x: number;
 		let y: number;
 
+		const minX = pad.left + gap;
+		const maxX = vw - pad.right - pw - gap;
+		const minY = pad.top + gap;
+		const maxY = vh - pad.bottom - ph - gap;
+
 		if (isMobile) {
-			x = pad.left + Math.max(gap, (vw - pw) / 2);
-			y = pad.top + Math.max(gap, (vh - ph) / 2);
+			x = Math.max(minX, Math.min((vw - pw) / 2, maxX));
+			y = Math.max(minY, Math.min((vh - ph) / 2, maxY));
 		} else {
-			// Center the prompt on the cursor, then clamp to viewport bounds
-			// so the full prompt stays visible with padding/gap.
 			const cursorX = info.clientX - mlRect.left;
 			const cursorY = info.clientY - mlRect.top;
-			x = Math.max(pad.left + gap, Math.min(cursorX - pw / 2, pad.left + vw - pw - gap));
-			y = Math.max(pad.top + gap, Math.min(cursorY - ph / 2, pad.top + vh - ph - gap));
+			x = Math.max(minX, Math.min(cursorX - pw / 2, maxX));
+			// Prefer opening below the cursor like a context window. If there is
+			// not enough room, fall back above, then center in the available area.
+			if (cursorY + gap <= maxY) {
+				y = cursorY + gap;
+			} else if (cursorY - gap - ph >= minY) {
+				y = cursorY - gap - ph;
+			} else {
+				y = (minY + maxY) / 2;
+			}
+			y = Math.max(minY, Math.min(y, maxY));
 		}
 
 		prompt.container.style.left = `${x}px`;
@@ -757,8 +774,10 @@ export class PromptManager {
 		const w = this._host.mainLayer.clientWidth;
 		const h = this._host.mainLayer.clientHeight;
 		const pad = this._editorPadding();
-		const x = pad.left + Math.max(0, (w - prompt.container.offsetWidth) / 2);
-		const y = pad.top + Math.max(0, (h - prompt.container.offsetHeight) / 2);
+		const availableW = Math.max(0, w - pad.left - pad.right);
+		const availableH = Math.max(0, h - pad.top - pad.bottom);
+		const x = pad.left + Math.max(0, (availableW - prompt.container.offsetWidth) / 2);
+		const y = pad.top + Math.max(0, (availableH - prompt.container.offsetHeight) / 2);
 		prompt.container.style.left = `${x}px`;
 		prompt.container.style.top = `${y}px`;
 		this._promptPositions.set(name, { x, y });
@@ -844,11 +863,11 @@ export class PromptManager {
 				const pad = this._editorPadding();
 				const x = Math.max(
 					pad.left,
-					Math.min(me.clientX - startX, pad.left + w - rect.width),
+					Math.min(me.clientX - startX, w - pad.right - rect.width),
 				);
 				const y = Math.max(
 					pad.top,
-					Math.min(me.clientY - startY, pad.top + h - rect.height),
+					Math.min(me.clientY - startY, h - pad.bottom - rect.height),
 				);
 				const side = this._dock.getSnapSide(x, rect.width, me.clientX);
 				if (side && !suppressSnap) {

@@ -53,6 +53,10 @@ const FG_REF = 0.04;
 // meter, which stays accurate to the post-limiter output level. Tuned so a
 // typical channel sits mid-bar rather than near the floor.
 const SPECTRUM_DISPLAY_GAIN = 3;
+// Cap expensive per-channel FFTs per animation frame. Large MIDI imports can
+// have dozens of audio channels; doing an 8192-point FFT for every channel in
+// one rAF stalls the editor and starves audio production.
+const MAX_FFT_CHANNELS_PER_FRAME = 4;
 // 8192-point FFT: at 48kHz gives 5.86Hz bins, enough resolution for the FG band grid.
 const FFT_SIZE = 8192;
 // Gaussian spatial-blur kernel (sigma=3 bands), truncated to +-BLUR_RADIUS.
@@ -175,6 +179,10 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 	private readonly _channelDivs: Map<number, HTMLDivElement> = new Map();
 	// Store instrument spans for live updates: key is "channelIndex-instrumentIndex"
 	private readonly _instrumentSpans: Map<string, HTMLSpanElement> = new Map();
+	private readonly _instrumentEntriesByChannel: Map<
+		number,
+		{ key: string; index: number; span: HTMLSpanElement }[]
+	> = new Map();
 	// Per-channel pitch spectrum overlay canvases
 	private readonly _channelSpectrumCanvases: Map<number, HTMLCanvasElement> = new Map();
 	private readonly _channelSpectrumCanvas2ds: Map<number, CanvasRenderingContext2D | null> =
@@ -212,6 +220,9 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 	// FG band center frequencies (absolute Hz, independent of sample rate).
 	private readonly _fgFreqs: number[] = ChannelVolumeVisualizerPrompt._initFgFreqs();
 	private readonly _bgFreqs: number[] = ChannelVolumeVisualizerPrompt._initBgFreqs();
+	private readonly _spectrumFrameChannels: Set<number> = new Set();
+	private readonly _renderedAudioChannelIndexes: number[] = [];
+	private _spectrumChannelCursor: number = 0;
 
 	private static _initFgFreqs(): number[] {
 		const freqs: number[] = [];
@@ -835,6 +846,7 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 		this._channelDbLabels.clear();
 		this._channelDivs.clear();
 		this._instrumentSpans.clear();
+		this._instrumentEntriesByChannel.clear();
 		this._channelSpectrumColors.clear();
 		this._canvasSizes.clear();
 		this._channelPeak.clear();
@@ -848,6 +860,9 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 		this._lastChannelOpacity.clear();
 		this._instrumentIndex.clear();
 		this._inactiveSig.clear();
+		this._renderedAudioChannelIndexes.length = 0;
+		this._spectrumFrameChannels.clear();
+		this._spectrumChannelCursor = 0;
 		this._pitchBlendPool.length = 0;
 		this._renderSignature = "";
 		this._playPauseButton.removeEventListener("click", this._togglePlayPause);
@@ -1135,8 +1150,15 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 			this._updateBarPosLabel();
 		}
 
-		// Update tempo label
-		this._tempoLabel.textContent = `BPM: ${this._doc.song.tempo}`;
+		// Update tempo label. Match the editor tempo stepper: show the modded
+		// runtime tempo when tempo modulation is active.
+		const tempoSetting = Config.modulators.dictionary.tempo.index;
+		const tempoModActive = this._doc.synth.isModActive(tempoSetting);
+		const displayTempo = tempoModActive
+			? Math.max(0, Math.round(this._doc.synth.getModValue(tempoSetting)))
+			: Math.max(0, Math.round(this._doc.song.tempo));
+		this._tempoLabel.textContent = `BPM: ${displayTempo}`;
+		this._tempoLabel.classList.toggle("modActive", tempoModActive);
 
 		// Master volume from the post-limiter sample peak (song.outVolumeCap), the
 		// same source as the limiter prompt's Out meter and the editor's main meter.
@@ -1195,6 +1217,23 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 		// tame the limiter's fast per-sample dynamics.
 		const targetScale = synth.getMasterScale();
 		this._smoothedMasterScale += (targetScale - this._smoothedMasterScale) * 0.3;
+		this._spectrumFrameChannels.clear();
+		if (
+			this._spectrumFrameToggle &&
+			(this._doc.synth.playing || this._doc.synth.fadingOut) &&
+			this._renderedAudioChannelIndexes.length > 0
+		) {
+			const channelCount = this._renderedAudioChannelIndexes.length;
+			const count = Math.min(MAX_FFT_CHANNELS_PER_FRAME, channelCount);
+			for (let i = 0; i < count; i++) {
+				const channelIndex =
+					this._renderedAudioChannelIndexes[
+						(this._spectrumChannelCursor + i) % channelCount
+					];
+				this._spectrumFrameChannels.add(channelIndex);
+			}
+			this._spectrumChannelCursor = (this._spectrumChannelCursor + count) % channelCount;
+		}
 		for (const [channelIndex, bar] of this._channelVolumeBars) {
 			const channelState = synth.channels[channelIndex];
 			if (!channelState) continue;
@@ -1277,7 +1316,7 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 			// OR the FFT, never both — halves the per-channel scan cost and
 			// distributes work evenly. Metering above reads the cached peak
 			// (at most 1 frame stale on FFT frames, imperceptible).
-			if (!this._spectrumFrameToggle) {
+			if (!this._spectrumFrameChannels.has(channelIndex)) {
 				this._channelPeak.set(
 					channelIndex,
 					this._computeChannelPeak(channelState, this._smoothedMasterScale),
@@ -1542,12 +1581,13 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 				const inactiveSig = `i:${inactiveBg}|${spectrumColor}|${inactiveOpacity}`;
 				this._inactiveSig.set(channelIndex, inactiveSig);
 
-				for (const [key, instrSpan] of this._instrumentSpans) {
-					if (!key.startsWith(`${channelIndex}-`)) continue;
-					const j = this._instrumentIndex.get(key);
-					if (j === undefined) continue;
-					const instrState = channelState.instruments[j];
-					if (!instrState || !instrSpan) continue;
+				const entries = this._instrumentEntriesByChannel.get(channelIndex);
+				if (!entries) continue;
+				for (const entry of entries) {
+					const key = entry.key;
+					const instrSpan = entry.span;
+					const instrState = channelState.instruments[entry.index];
+					if (!instrState) continue;
 
 					const isPlaying =
 						(instrState.activeTones.count() > 0 ||
@@ -1716,6 +1756,8 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 		this._channelLastCaps.clear();
 		this._channelDbLabels.clear();
 		this._channelDivs.clear();
+		this._instrumentSpans.clear();
+		this._instrumentEntriesByChannel.clear();
 		this._channelSpectrumCanvases.clear();
 		this._channelSpectrumCanvas2ds.clear();
 		this._spectrumSmooth.clear();
@@ -1728,6 +1770,9 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 		this._lastChannelOpacity.clear();
 		this._instrumentIndex.clear();
 		this._inactiveSig.clear();
+		this._renderedAudioChannelIndexes.length = 0;
+		this._spectrumFrameChannels.clear();
+		this._spectrumChannelCursor = 0;
 		this._pitchBlendPool.length = 0;
 		this._pitchBlend.clear();
 
@@ -1756,6 +1801,7 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 			const isMuted = channel.muted;
 			const isModChannel = i >= song.pitchChannelCount + song.noiseChannelCount;
 			if (isModChannel) continue; // Skip mod channels
+			this._renderedAudioChannelIndexes.push(i);
 
 			const isDrumChannel = i >= song.pitchChannelCount;
 
@@ -1924,6 +1970,12 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 					const instrKey = `${i}-${j}`;
 					this._instrumentSpans.set(instrKey, instrSpan);
 					this._instrumentIndex.set(instrKey, j);
+					let entries = this._instrumentEntriesByChannel.get(i);
+					if (!entries) {
+						entries = [];
+						this._instrumentEntriesByChannel.set(i, entries);
+					}
+					entries.push({ key: instrKey, index: j, span: instrSpan });
 					instrDiv.appendChild(instrSpan);
 				}
 				contentWrap.appendChild(instrDiv);
