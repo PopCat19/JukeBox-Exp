@@ -1463,11 +1463,15 @@ export class Synth {
 		// playOverride=true so synthesize() produces audio even though
 		// isPlayingSong is still false.
 		this._primeWorklet(true);
+		// Don't restore bar/beat/part/tick — the pre-fill advanced them
+		// by 8 buffers and the rAF loop must continue from that position
+		// to avoid repeating the pre-filled audio. totalSamplesRendered
+		// is also left advanced; the playhead subtracts queued ring audio
+		// so the visible position still starts at 0.
 		this.isPlayingSong = true;
 		if (this._audio.context) {
 			this.samplesPerSecond = this._audio.context.sampleRate;
 		}
-		this.totalSamplesRendered = this.getSamplesUpToBar(this.bar);
 		this._dbg("isPlayingSong set to true, playhead:", this.playheadInternal, "bar:", this.bar);
 	}
 
