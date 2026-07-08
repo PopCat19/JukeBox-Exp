@@ -108,7 +108,7 @@ export class SongSettingsPanel {
 			500,
 			160,
 			{
-				style: "margin: 0; vertical-align: middle;",
+				style: "margin: 0;",
 			},
 		);
 

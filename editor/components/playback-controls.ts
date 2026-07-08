@@ -106,6 +106,8 @@ export class PlaybackControls {
 			const clamped = Math.max(0, Math.min(75, Math.round(raw)));
 			this.volumeInputBox.value = String(clamped);
 			this.volumeSlider.input.value = String(clamped);
+			// Sync the custom slider visual (null getChange means _whenInput skips _syncVisual).
+			this.volumeSlider.updateValue(clamped);
 			this.volumeSlider.input.dispatchEvent(new Event("input", { bubbles: true }));
 			this.volumeSlider.input.dispatchEvent(new Event("change", { bubbles: true }));
 		});
