@@ -117,6 +117,7 @@ import {
 	dropdownButton,
 	InputBox,
 	iconButton,
+	inlineSliderRow,
 	numberInput,
 	rangeSlider,
 	Slider,
@@ -347,16 +348,13 @@ export class SongEditor
 		max: Math.floor(Config.volumeRange / 2),
 		value: "0",
 	});
-	private readonly _instrumentVolumeSliderRow: HTMLDivElement = div(
-		{ class: "selectRow" },
-		tipSpan("Volume: ", () => {
+	private readonly _instrumentVolumeSliderRow: HTMLDivElement = inlineSliderRow(
+		"Volume: ",
+		() => {
 			this._openPrompt("instrumentVolume");
-		}),
-		span(
-			{ style: "display: flex; align-items: center;" },
-			this._instrumentVolumeSlider.container,
-			this._instrumentVolumeSliderInputBox,
-		),
+		},
+		this._instrumentVolumeSlider.container,
+		this._instrumentVolumeSliderInputBox,
 	);
 	private readonly _panSlider: Slider = rangeSlider(
 		this.doc,
@@ -380,17 +378,14 @@ export class SongEditor
 		max: "100",
 		value: "0",
 	});
-	private readonly _panSliderRow: HTMLDivElement = div(
-		{ class: "selectRow" },
-		tipSpan("Pan: ", () => {
+	private readonly _panSliderRow: HTMLDivElement = inlineSliderRow(
+		"Pan: ",
+		() => {
 			this._openPrompt("pan");
-		}),
+		},
+		this._panSlider.container,
+		this._panSliderInputBox,
 		this._panDropdown,
-		span(
-			{ style: "display: flex; align-items: center;" },
-			this._panSlider.container,
-			this._panSliderInputBox,
-		),
 	);
 	private readonly _panDelaySlider: Slider = rangeSlider(
 		this.doc,
@@ -835,7 +830,7 @@ export class SongEditor
 		},
 	});
 	private readonly _pwmSliderInputBox: HTMLInputElement = numberInput({
-		style: "width: 4em; font-size: 70%;",
+		style: "width: 4em; font-size: 80%; margin-left: 0.4em; vertical-align: middle;",
 		id: "pwmSliderInputBox",
 		type: "number",
 		step: "1",
@@ -843,25 +838,14 @@ export class SongEditor
 		max: Config.pulseWidthRange,
 		value: "1",
 	});
-	private readonly _pulseWidthRow: HTMLDivElement = div(
-		{ class: "selectRow" },
-		div(
-			{},
-			span(
-				{
-					class: "tip",
-					tabindex: "0",
-					style: "height:1em; font-size: smaller; white-space: nowrap;",
-					onclick: () => {
-						this._openPrompt("pulseWidth");
-					},
-				},
-				"Pulse W.:",
-			),
-			valueLabel(this._pwmSliderInputBox),
-		),
-		this._pulseWidthDropdown,
+	private readonly _pulseWidthRow: HTMLDivElement = inlineSliderRow(
+		"Pulse W.:",
+		() => {
+			this._openPrompt("pulseWidth");
+		},
 		this._pulseWidthSlider.container,
+		this._pwmSliderInputBox,
+		this._pulseWidthDropdown,
 	);
 	// private readonly _pulseWidthRow: HTMLDivElement = div({ class: "selectRow" }, span({ class: "tip", onclick: () => this._openPrompt("pulseWidth") }, "Pulse Width:"), this._pulseWidthDropdown, this._pulseWidthSlider.container);
 	private readonly _decimalOffsetSlider: Slider = rangeSlider(
@@ -943,7 +927,7 @@ export class SongEditor
 		true,
 	);
 	private readonly _detuneSliderInputBox: HTMLInputElement = numberInput({
-		style: "width: 4em; font-size: 80%; ",
+		style: "width: 4em; font-size: 80%; margin-left: 0.4em; vertical-align: middle;",
 		id: "detuneSliderInputBox",
 		type: "number",
 		step: "1",
@@ -951,23 +935,13 @@ export class SongEditor
 		max: Config.detuneMax - Config.detuneCenter,
 		value: 0,
 	});
-	private readonly _detuneSliderRow: HTMLDivElement = div(
-		{ class: "selectRow" },
-		div(
-			{},
-			span(
-				{
-					class: "tip",
-					style: "height:1em; font-size: smaller;",
-					onclick: () => {
-						this._openPrompt("detune");
-					},
-				},
-				"Detune: ",
-			),
-			valueLabel(this._detuneSliderInputBox),
-		),
+	private readonly _detuneSliderRow: HTMLDivElement = inlineSliderRow(
+		"Detune: ",
+		() => {
+			this._openPrompt("detune");
+		},
 		this._detuneSlider.container,
+		this._detuneSliderInputBox,
 	);
 	private readonly _distortionSlider: Slider = rangeSlider(
 		this.doc,

@@ -11,6 +11,7 @@ Purpose: Reusable UI primitives, factory functions, design tokens, and interacti
 - `select-helpers.ts`, Shared DOM helpers for synchronizing HTMLSelectElement values
 - `style.ts`, Style composition helpers with token-based CSS shorthand functions
 - `style-constants.ts`, Standardized design tokens for UI spacing, sizing, typography, and animation
+- `inline-slider-row.ts`, Reusable tempo-style inline slider + number input row layout
 - `tip-span.ts`, Styled span element for tooltip-style hints
 - `value-label.ts`, Formatted numeric value display label
 - `states.ts`, PMD role and interaction-state token builders for inline styles

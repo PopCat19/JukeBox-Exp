@@ -68,6 +68,8 @@ export {
 	selectField,
 	selectRow,
 } from "./containers";
+// Inline Slider Row
+export { inlineSliderRow } from "./inline-slider-row";
 // Inputs
 export { checkboxInput, createInputBox, InputBox, searchInput, stepperInput } from "./inputs";
 // Interaction helpers
