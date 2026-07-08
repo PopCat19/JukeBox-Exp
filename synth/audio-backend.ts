@@ -265,8 +265,9 @@ export class AudioBackend {
 						"jukebox-compute-tone-processor",
 						{ outputChannelCount: [2] },
 					);
-					// Connect to destination so the worklet's process() output is audible.
-					// Phase 6: replaces the output worklet as the audio source.
+					// Connect to destination — worklet renders computeToneSnapshot
+					// output directly. Post-processing (master gain, EQ, compression)
+					// is Phase 6; output worklet feeds zeros in the meantime.
 					this._computeWorkletNode.connect(ctx.destination);
 					this._dbg("Compute-tone worklet node created and connected to destination");
 				} catch (e) {

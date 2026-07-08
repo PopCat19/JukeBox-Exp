@@ -685,17 +685,11 @@ class JukeBoxComputeToneProcessor extends AudioWorkletProcessor {
 			tempBuf.fill(0.0);
 			synthFn(tone, synthCtx, tempBuf, 0, numSamples);
 
-			// Accumulate temp buffer to output channels with stereo panning
-			const sl: number = tone.stereoVolumeLStart;
-			const sr: number = tone.stereoVolumeRStart;
-			const sld: number = tone.stereoVolumeLDelta;
-			const srd: number = tone.stereoVolumeRDelta;
+			// Accumulate temp buffer to output channels (panning TBD in Phase 6)
 			for (let si = 0; si < numSamples; si++) {
 				const sample: number = tempBuf[si];
-				const volL: number = si === 0 ? sl : sl + sld * (si / numSamples);
-				const volR: number = si === 0 ? sr : sr + srd * (si / numSamples);
-				if (output.length > 0) output[0][si] += sample * volL;
-				if (output.length > 1) output[1][si] += sample * volR;
+				if (output.length > 0) output[0][si] += sample;
+				if (output.length > 1) output[1][si] += sample;
 			}
 		}
 
