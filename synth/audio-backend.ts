@@ -428,10 +428,10 @@ export class AudioBackend {
 		// then treats every slot as free, filling all 8 with fresh audio
 		// instead of leaving stale silence-filled slots from activation.
 		this._ringBuffer.resetHeads();
-		// skipDeactivate=true so the fill loop fills ALL free slots
-		// without the 16ms budget stop. Prevents the ~500-800ms silent
-		// gap on unpause when the ring would otherwise only get 1 slot.
-		this._fillAllFreeSlotsInternal(host, true, "manual");
+		// noBudget=true fills ALL free slots without the 16ms budget
+		// stop. playSong comes from host.isPlayingSong() so pre-fill
+		// produces real audio, not silence.
+		this._fillAllFreeSlotsInternal(host, true, "manual", true);
 		if (this._fillLoopId == null) {
 			this._fillLoopId = requestAnimationFrame(this._onFillFrame);
 		}
@@ -502,11 +502,14 @@ export class AudioBackend {
 	/** Core fill — writes into all free SAB ring slots.
 	 *  @param host - the backend host
 	 *  @param skipDeactivate - when true, skips the deactivation check
-	 *    (used during _doActivate before play() has set isPlayingSong). */
+	 *    (used during _doActivate before play() has set isPlayingSong).
+	 *  @param noBudget - when true, fill ALL free slots without the 16ms
+	 *    budget stop (used during pre-fill on unpause). */
 	private _fillAllFreeSlotsInternal(
 		host: AudioBackendHost,
 		skipDeactivate: boolean,
 		reason: string,
+		noBudget?: boolean,
 	): void {
 		const ring: AudioRingBuffer = this._ringBuffer!;
 		if (ring == null) return;
@@ -556,12 +559,12 @@ export class AudioBackend {
 			left.fill(0.0);
 			right.fill(0.0);
 			const synthStart: number = performance.now();
-			host.synthesize(
-				left,
-				right,
-				this._currentBufferSize,
-				skipDeactivate ? false : host.isPlayingSong(),
-			);
+			const playSong: boolean = noBudget
+				? host.isPlayingSong()
+				: skipDeactivate
+					? false
+					: host.isPlayingSong();
+			host.synthesize(left, right, this._currentBufferSize, playSong);
 			synthMs += performance.now() - synthStart;
 
 			ring.writeSlot(slot, left, right);
@@ -584,6 +587,7 @@ export class AudioBackend {
 			if (slotMs > maxSlotMs) maxSlotMs = slotMs;
 			if (
 				!skipDeactivate &&
+				!noBudget &&
 				filledSlots > 0 &&
 				performance.now() - fillStart > AudioBackend.FILL_BUDGET_MS
 			) {
