@@ -424,7 +424,10 @@ export class AudioBackend {
 	 *  starts the rAF fill loop. */
 	public fillAllFreeSlots(host: AudioBackendHost): void {
 		if (!this._useSab || this._ringBuffer == null) return;
-		this._fillAllFreeSlotsInternal(host, false, "manual");
+		// skipDeactivate=true so the fill loop fills ALL free slots
+		// without the 16ms budget stop. Prevents the ~500-800ms silent
+		// gap on unpause when the ring would otherwise only get 1 slot.
+		this._fillAllFreeSlotsInternal(host, true, "manual");
 		if (this._fillLoopId == null) {
 			this._fillLoopId = requestAnimationFrame(this._onFillFrame);
 		}
