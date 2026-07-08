@@ -43,5 +43,5 @@ echo "Multi-tab safe."
 $RUNX concurrently --kill-others \
 	"$ESBUILD --format=iife --keep-names --global-name=beepbox --bundle ./synth/synth.ts --outfile=website/beepbox_synth.js --sourcemap --watch" \
 	"$ESBUILD --format=iife --keep-names --global-name=beepbox --bundle ./player/main.ts --outfile=website/player/beepbox_player.js --sourcemap --watch --define:OFFLINE=false" \
-	"$ESBUILD --format=iife --keep-names --global-name=beepbox --bundle ./editor/main.ts --outfile=website/beepbox_editor.js --sourcemap --watch" \
+	"$ESBUILD --format=iife --keep-names --global-name=beepbox --bundle ./editor/main.ts --outfile=website/beepbox_editor.js --sourcemap --watch --define:GIT_HASH='\"$(git rev-parse --short HEAD 2>/dev/null || echo unknown)\"' --define:GIT_BRANCH='\"$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo unknown)\"' --define:BUILD_DATE='\"$(date +%Y%m%d)\"'" \
 	"bun $(dirname "$0")/dev-server-sab.ts $PORT"

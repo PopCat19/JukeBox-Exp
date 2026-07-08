@@ -134,6 +134,7 @@ import { CustomChipCanvas } from "./rendering/custom-chip-canvas";
 
 declare const GIT_HASH: string;
 declare const GIT_BRANCH: string;
+declare const BUILD_DATE: string;
 
 export class SongEditor
 	implements
@@ -205,12 +206,12 @@ export class SongEditor
 		const el = span({
 			style: "font-size: 8px; font-family: monospace; color: var(--secondary-text); white-space: nowrap; line-height: 1.2; display: inline-block;",
 		});
-		// GIT_HASH/GIT_BRANCH injected by esbuild defines at build time.
-		// Falls back to 'unknown/unknown' in dev (no define) or test runners.
+		// GIT_HASH/GIT_BRANCH/BUILD_DATE injected by esbuild defines at build time.
+		// Falls back to unknown values in dev (no define) or test runners.
 		try {
-			el.textContent = `${GIT_HASH || "unknown"} / ${GIT_BRANCH || "unknown"}`;
+			el.textContent = `${GIT_HASH || "unknown"} / ${GIT_BRANCH || "unknown"} / ${BUILD_DATE || "unknown"}`;
 		} catch {
-			el.textContent = "unknown / unknown";
+			el.textContent = "unknown / unknown / unknown";
 		}
 		return el;
 	})();

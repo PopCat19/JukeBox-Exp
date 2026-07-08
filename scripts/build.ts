@@ -22,6 +22,12 @@ const offline = process.argv.includes("--offline");
 
 let gitHash = "unknown";
 let gitBranch = "unknown";
+const now = new Date();
+const buildDate = [
+	now.getFullYear(),
+	String(now.getMonth() + 1).padStart(2, "0"),
+	String(now.getDate()).padStart(2, "0"),
+].join("");
 try {
 	gitHash = execSync("git rev-parse --short HEAD", { encoding: "utf-8" }).trim();
 	gitBranch = execSync("git rev-parse --abbrev-ref HEAD", { encoding: "utf-8" }).trim();
@@ -33,6 +39,7 @@ const define: Record<string, string> = {
 	OFFLINE: JSON.stringify(offline),
 	GIT_HASH: JSON.stringify(gitHash),
 	GIT_BRANCH: JSON.stringify(gitBranch),
+	BUILD_DATE: JSON.stringify(buildDate),
 };
 
 const shared: esbuild.BuildOptions = {
