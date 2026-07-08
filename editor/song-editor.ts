@@ -121,6 +121,7 @@ import {
 	numberInput,
 	rangeSlider,
 	Slider,
+	SliderNumWidget,
 	setDisabled,
 	tipSpan,
 	toggleButton,
@@ -943,19 +944,17 @@ export class SongEditor
 		this._detuneSlider.container,
 		this._detuneSliderInputBox,
 	);
-	private readonly _distortionSlider: Slider = rangeSlider(
+	private readonly _distortionWidget: SliderNumWidget = new SliderNumWidget(
 		this.doc,
 		(oldValue: number, newValue: number) => new ChangeDistortion(this.doc, oldValue, newValue),
 		0,
 		Config.distortionRange - 1,
 		0,
-	);
-	private readonly _distortionRow: HTMLDivElement = div(
-		{ class: "selectRow" },
-		tipSpan("Distortion:", () => {
+		"Distortion:",
+		() => {
 			this._openPrompt("distortion");
-		}),
-		this._distortionSlider.container,
+		},
+		{ getInstrumentValue: () => this.doc.getCurrentInstrumentObj().distortion },
 	);
 	private readonly _aliasingBox: HTMLInputElement = input({
 		type: "checkbox",
@@ -1914,7 +1913,7 @@ export class SongEditor
 		this._noteFilterRow,
 		this._noteFilterSimpleCutRow,
 		this._noteFilterSimplePeakRow,
-		this._distortionRow,
+		this._distortionWidget.row,
 		this._aliasingRow,
 		this._bitcrusherQuantizationRow,
 		this._bitcrusherFreqRow,
@@ -2315,7 +2314,7 @@ export class SongEditor
 		return this._reverbSlider;
 	}
 	public get distortionSlider(): Slider {
-		return this._distortionSlider;
+		return this._distortionWidget.slider;
 	}
 	public get instrumentVolumeSlider(): Slider {
 		return this._instrumentVolumeSlider;
@@ -2459,6 +2458,9 @@ export class SongEditor
 	}
 	public get detuneSliderInputBox(): HTMLInputElement {
 		return this._detuneSliderInputBox;
+	}
+	public get distortionInputBox(): HTMLInputElement {
+		return this._distortionWidget.inputBox;
 	}
 	public get instrumentVolumeSliderInputBox(): HTMLInputElement {
 		return this._instrumentVolumeSliderInputBox;
@@ -3267,9 +3269,10 @@ export class SongEditor
 			noteFilterRow: this._noteFilterRow,
 			noteFilterSimpleCutRow: this._noteFilterSimpleCutRow,
 			noteFilterSimplePeakRow: this._noteFilterSimplePeakRow,
-			distortionRow: this._distortionRow,
+			distortionRow: this._distortionWidget.row,
 			aliasingRow: this._aliasingRow,
-			distortionSlider: this._distortionSlider,
+			distortionSlider: this._distortionWidget.slider,
+			distortionInputBox: this._distortionWidget.inputBox,
 			bitcrusherQuantizationRow: this._bitcrusherQuantizationRow,
 			bitcrusherQuantizationSlider: this._bitcrusherQuantizationSlider,
 			bitcrusherFreqRow: this._bitcrusherFreqRow,

@@ -114,7 +114,7 @@ export { simpleSliderRow, sliderRow, sliderRowWithInput } from "./rows/slider-ro
 // Select helpers
 export { setSelectedValue } from "./select-helpers";
 // Sliders
-export { rangeSlider, Slider } from "./sliders";
+export { rangeSlider, Slider, SliderNumWidget } from "./sliders";
 // State tokens
 export {
 	focusRule,

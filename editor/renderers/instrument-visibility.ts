@@ -162,6 +162,7 @@ export interface InstrumentVisibilityRefs {
 	distortionRow: HTMLElement;
 	aliasingRow: HTMLElement;
 	distortionSlider: Slider;
+	distortionInputBox: HTMLInputElement;
 
 	bitcrusherQuantizationRow: HTMLElement;
 	bitcrusherQuantizationSlider: Slider;
@@ -565,6 +566,7 @@ export function applyInstrumentVisibility(
 		refs.distortionRow.style.display = "";
 		refs.aliasingRow.style.display = caps.hasAliasableWaveform ? "" : "none";
 		refs.distortionSlider.updateValue(instrument.distortion);
+		refs.distortionInputBox.value = `${instrument.distortion}`;
 	} else {
 		refs.distortionRow.style.display = "none";
 		refs.aliasingRow.style.display = "none";

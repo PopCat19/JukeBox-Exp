@@ -17,6 +17,7 @@ import {
 	ChangeClicklessTransition,
 	ChangeCustomWave,
 	ChangeDetune,
+	ChangeDistortion,
 	ChangeFastTwoNoteArp,
 	ChangeInvertWave,
 	ChangeLowerLimit,
@@ -124,6 +125,7 @@ export interface EventListenerSetupHost {
 	panSliderInputBox: HTMLInputElement;
 	pwmSliderInputBox: HTMLInputElement;
 	detuneSliderInputBox: HTMLInputElement;
+	distortionInputBox: HTMLInputElement;
 	unisonVoicesInputBox: HTMLInputElement;
 	unisonSpreadInputBox: HTMLInputElement;
 	unisonOffsetInputBox: HTMLInputElement;
@@ -521,6 +523,18 @@ export class EventListenerSetup {
 					Math.min(
 						Config.pulseWidthRange,
 						Math.max(1.0, Math.round(+host.pwmSliderInputBox.value)),
+					),
+				),
+			);
+		});
+		host.distortionInputBox.addEventListener("input", () => {
+			host.doc.record(
+				new ChangeDistortion(
+					host.doc,
+					host.doc.getCurrentInstrumentObj().distortion,
+					Math.min(
+						Config.distortionRange - 1,
+						Math.max(0, Math.round(+host.distortionInputBox.value)),
 					),
 				),
 			);

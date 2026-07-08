@@ -64,6 +64,7 @@ export interface KeyboardHandlerHost {
 	panSliderInputBox: HTMLInputElement;
 	pwmSliderInputBox: HTMLInputElement;
 	detuneSliderInputBox: HTMLInputElement;
+	distortionInputBox: HTMLInputElement;
 	instrumentVolumeSliderInputBox: HTMLInputElement;
 
 	chipWaveLoopStartStepper: HTMLInputElement;
@@ -154,6 +155,8 @@ export class KeyboardHandler {
 				isEditingModLabel ||
 				document.activeElement === host.muteEditor._channelNameInput?.input;
 			const isEditingNumberInput =
+				// All SliderNumWidget input boxes carry this CSS class.
+				document.activeElement?.classList.contains("slider-num-input") ||
 				document.activeElement === host.panSliderInputBox ||
 				document.activeElement === host.pwmSliderInputBox ||
 				document.activeElement === host.detuneSliderInputBox ||
