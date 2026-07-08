@@ -45,9 +45,17 @@ export function inlineSliderRow(
 		children.push(dropdown);
 	}
 
-	children.push(
-		HTML.span({ style: "display: flex; align-items: center;" }, sliderContainer, inputBox),
+	// Wrapper needs min-width:0 so it can shrink inside the 62.5% last-child slot.
+	const wrapper = HTML.span(
+		{ style: "display: flex; align-items: center; min-width: 0;" },
+		sliderContainer,
+		inputBox,
 	);
+	// Slider container shrinks, input box stays fixed at 4em.
+	sliderContainer.style.flex = "1 1 auto";
+	sliderContainer.style.minWidth = "0";
+	inputBox.style.flexShrink = "0";
+	children.push(wrapper);
 
 	return HTML.div({ class: "selectRow" }, ...children);
 }
