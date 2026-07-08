@@ -5,7 +5,14 @@
 export { type CheckboxRowOptions, checkboxRow } from "./checkbox-row";
 export { type FlexColumnCenterOptions, flexColumnCenter } from "./flex-column-center";
 export { type FlexRowCenterOptions, flexRowCenter } from "./flex-row-center";
-export { type FormRowOptions, formRow } from "./form-row";
+export {
+	type FormRowBetweenOptions,
+	type FormRowEndOptions,
+	type FormRowOptions,
+	formRow,
+	formRowBetween,
+	formRowEnd,
+} from "./form-row";
 export { type LabelRowOptions, labelRow } from "./label-row";
 export { okayRow } from "./okay-row";
 export { scrollableContainer } from "./scrollable-container";

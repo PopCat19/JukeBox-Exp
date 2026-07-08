@@ -12,6 +12,7 @@ import {
 	Animation,
 	BorderRadius,
 	BorderWidth,
+	FormRow,
 	Gap,
 	Icon,
 	Margin,
@@ -101,12 +102,53 @@ export const promptFrame = (width: string, ...children: (HTMLElement | string)[]
 export const flexInline = (opts?: { gap?: string }) =>
 	s("display:inline-flex;align-items:center;", opts?.gap ? gap(opts.gap) : null);
 
+// ── Form / Control Row style helpers ──────────────────────
+// Token-backed helpers for form and control row layouts.
+// Each accepts optional overrides; defaults come from FormRow tokens.
+
+/** Flex row with space-between alignment (label left, control right) */
+export const formRowBetween = (opts?: { gap?: string }) =>
+	s(
+		flex("row"),
+		"align-items:center;justify-content:space-between;",
+		opts?.gap ? gap(opts.gap) : gap(FormRow.gap),
+	);
+
+/** Flex row with end-aligned content (action buttons, single controls) */
+export const formRowEnd = (opts?: { gap?: string }) =>
+	s(
+		flex("row"),
+		"align-items:center;justify-content:flex-end;",
+		opts?.gap ? gap(opts.gap) : gap(FormRow.gap),
+	);
+
+/** Form label column style (text-align right, flexible shrink) */
+export const formLabel = (opts?: { width?: string; flexShrink?: string }) =>
+	s(
+		"text-align:right;",
+		opts?.width
+			? `flex:0 0 ${opts.width};`
+			: `flex-shrink:${opts?.flexShrink ?? FormRow.labelFlexShrink};`,
+		"align-self:center;",
+	);
+
+/** Full-width flex row with bottom margin — most common inline form row pattern */
+export const controlRow = (opts?: { marginBottom?: string }) =>
+	s(
+		"width:100%;",
+		flex("row"),
+		opts?.marginBottom
+			? `margin-bottom:${opts.marginBottom};`
+			: `margin-bottom:${FormRow.marginBottom};`,
+	);
+
 // ── Export all tokens for convenience ──────────────────────
 
 export {
 	Animation,
 	BorderRadius,
 	BorderWidth,
+	FormRow,
 	Gap,
 	Icon,
 	Margin,

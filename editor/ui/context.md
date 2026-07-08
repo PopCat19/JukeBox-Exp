@@ -9,8 +9,8 @@ Purpose: Reusable UI primitives, factory functions, design tokens, and interacti
 - `index.ts`, Barrel re-export of editor UI utility modules
 - `build-helpers.ts`, Factory functions for common UI elements like selects and inputs
 - `select-helpers.ts`, Shared DOM helpers for synchronizing HTMLSelectElement values
-- `style.ts`, Style composition helpers with token-based CSS shorthand functions
-- `style-constants.ts`, Standardized design tokens for UI spacing, sizing, typography, and animation
+- `style.ts`, Style composition helpers with token-based CSS shorthand functions. Includes form/control row helpers: controlRow, formLabel, formRow (CSS), formRowBetween (CSS), formRowEnd (CSS).
+- `style-constants.ts`, Standardized design tokens for UI spacing, sizing, typography, and animation. Includes FormRow token set for form/control row defaults.
 - `inline-slider-row.ts`, Reusable tempo-style inline slider + number input row layout
 - `tip-span.ts`, Styled span element for tooltip-style hints
 - `value-label.ts`, Formatted numeric value display label

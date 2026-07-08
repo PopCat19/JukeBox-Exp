@@ -182,3 +182,18 @@ export const Backdrop = {
 	blurHeavy: "blur(24px)",
 	dim: "brightness(0.9)",
 } as const;
+
+// ── Form/Control Row Tokens ────────────────────────────────
+// Token-backed defaults for form and control row layouts.
+// These compose with layout helpers in style.ts.
+
+export const FormRow = {
+	// Standard row min-height (matches .prompt-form-row in prompt-shell.ts)
+	minHeight: "2em",
+	// Default gap between label and input in a form row
+	gap: Gap.md,
+	// Label column flex-shrink value (1 = shrink, 0 = fixed)
+	labelFlexShrink: "0",
+	// Default bottom margin for stacked control rows
+	marginBottom: "0.5em",
+} as const;
