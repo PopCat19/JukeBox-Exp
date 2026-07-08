@@ -188,35 +188,50 @@ export interface InstrumentVisibilityRefs {
 
 	chorusRow: HTMLElement;
 	chorusSlider: Slider;
+	chorusInputBox: HTMLInputElement;
 
 	echoSustainRow: HTMLElement;
 	echoSustainSlider: Slider;
+	echoSustainInputBox: HTMLInputElement;
 	echoDelayRow: HTMLElement;
 	echoDelaySlider: Slider;
+	echoDelayInputBox: HTMLInputElement;
 
 	reverbRow: HTMLElement;
 	reverbSlider: Slider;
+	reverbInputBox: HTMLInputElement;
 
 	ringModContainerRow: HTMLElement;
 	ringModSlider: Slider;
+	ringModInputBox: HTMLInputElement;
 	ringModHzSlider: Slider;
+	ringModHzInputBox: HTMLInputElement;
 	ringModWaveSelect: HTMLSelectElement;
 	ringModPulsewidthSlider: Slider;
+	ringModPulsewidthInputBox: HTMLInputElement;
 
 	granularContainerRow: HTMLElement;
 	granularSlider: Slider;
+	granularInputBox: HTMLInputElement;
 	grainSizeSlider: Slider;
+	grainSizeInputBox: HTMLInputElement;
 	grainAmountsSlider: Slider;
+	grainAmountsInputBox: HTMLInputElement;
 	grainRangeSlider: Slider;
+	grainRangeInputBox: HTMLInputElement;
 
 	phaserMixRow: HTMLElement;
 	phaserMixSlider: Slider;
+	phaserMixInputBox: HTMLInputElement;
 	phaserFreqRow: HTMLElement;
 	phaserFreqSlider: Slider;
+	phaserFreqInputBox: HTMLInputElement;
 	phaserFeedbackRow: HTMLElement;
 	phaserFeedbackSlider: Slider;
+	phaserFeedbackInputBox: HTMLInputElement;
 	phaserStagesRow: HTMLElement;
 	phaserStagesSlider: Slider;
+	phaserStagesInputBox: HTMLInputElement;
 
 	invertWaveRow: HTMLElement;
 
@@ -618,6 +633,7 @@ export function applyInstrumentVisibility(
 	if (effectsIncludeChorus(instrument.effects)) {
 		refs.chorusRow.style.display = "";
 		refs.chorusSlider.updateValue(instrument.chorus);
+		refs.chorusInputBox.value = `${instrument.chorus}`;
 	} else {
 		refs.chorusRow.style.display = "none";
 	}
@@ -625,8 +641,10 @@ export function applyInstrumentVisibility(
 	if (effectsIncludeEcho(instrument.effects)) {
 		refs.echoSustainRow.style.display = "";
 		refs.echoSustainSlider.updateValue(instrument.echoSustain);
+		refs.echoSustainInputBox.value = `${instrument.echoSustain}`;
 		refs.echoDelayRow.style.display = "";
 		refs.echoDelaySlider.updateValue(instrument.echoDelay);
+		refs.echoDelayInputBox.value = `${instrument.echoDelay}`;
 		refs.echoDelaySlider.input.title = `${Math.round((((instrument.echoDelay + 1) * Config.echoDelayStepTicks) / (Config.ticksPerPart * Config.partsPerBeat)) * 1000) / 1000} beat(s)`;
 	} else {
 		refs.echoSustainRow.style.display = "none";
@@ -636,6 +654,7 @@ export function applyInstrumentVisibility(
 	if (effectsIncludeReverb(instrument.effects)) {
 		refs.reverbRow.style.display = "";
 		refs.reverbSlider.updateValue(instrument.reverb);
+		refs.reverbInputBox.value = `${instrument.reverb}`;
 	} else {
 		refs.reverbRow.style.display = "none";
 	}
@@ -643,9 +662,12 @@ export function applyInstrumentVisibility(
 	if (effectsIncludeRingModulation(instrument.effects)) {
 		refs.ringModContainerRow.style.display = "";
 		refs.ringModSlider.updateValue(instrument.ringModulation);
+		refs.ringModInputBox.value = `${instrument.ringModulation}`;
 		refs.ringModHzSlider.updateValue(instrument.ringModulationHz);
+		refs.ringModHzInputBox.value = `${instrument.ringModulationHz}`;
 		setSelectedValue(refs.ringModWaveSelect, instrument.ringModWaveformIndex);
 		refs.ringModPulsewidthSlider.updateValue(instrument.ringModPulseWidth);
+		refs.ringModPulsewidthInputBox.value = `${instrument.ringModPulseWidth}`;
 	} else {
 		refs.ringModContainerRow.style.display = "none";
 	}
@@ -653,9 +675,13 @@ export function applyInstrumentVisibility(
 	if (effectsIncludeGranular(instrument.effects)) {
 		refs.granularContainerRow.style.display = "";
 		refs.granularSlider.updateValue(instrument.granular);
+		refs.granularInputBox.value = `${instrument.granular}`;
 		refs.grainSizeSlider.updateValue(instrument.grainSize);
+		refs.grainSizeInputBox.value = `${instrument.grainSize}`;
 		refs.grainAmountsSlider.updateValue(instrument.grainAmounts);
+		refs.grainAmountsInputBox.value = `${instrument.grainAmounts}`;
 		refs.grainRangeSlider.updateValue(instrument.grainRange);
+		refs.grainRangeInputBox.value = `${instrument.grainRange}`;
 	} else {
 		refs.granularContainerRow.style.display = "none";
 	}
@@ -663,12 +689,16 @@ export function applyInstrumentVisibility(
 	if (effectsIncludePhaser(instrument.effects)) {
 		refs.phaserMixRow.style.display = "";
 		refs.phaserMixSlider.updateValue(instrument.phaserMix);
+		refs.phaserMixInputBox.value = `${instrument.phaserMix}`;
 		refs.phaserFreqRow.style.display = "";
 		refs.phaserFreqSlider.updateValue(instrument.phaserFreq);
+		refs.phaserFreqInputBox.value = `${instrument.phaserFreq}`;
 		refs.phaserFeedbackRow.style.display = "";
 		refs.phaserFeedbackSlider.updateValue(instrument.phaserFeedback);
+		refs.phaserFeedbackInputBox.value = `${instrument.phaserFeedback}`;
 		refs.phaserStagesRow.style.display = "";
 		refs.phaserStagesSlider.updateValue(instrument.phaserStages);
+		refs.phaserStagesInputBox.value = `${instrument.phaserStages}`;
 	} else {
 		refs.phaserMixRow.style.display = "none";
 		refs.phaserFreqRow.style.display = "none";

@@ -19,6 +19,7 @@ import {
 	numberInput,
 	rangeSlider,
 	type Slider,
+	SliderNumWidget,
 	toggleButton,
 } from "../ui";
 
@@ -62,10 +63,12 @@ export class SongSettingsPanel {
 	public readonly eqFilterSimplePeakRow: HTMLElement;
 
 	// Effects (Song-level)
-	public readonly chorusRow: HTMLDivElement;
-	public readonly reverbRow: HTMLDivElement;
+	public readonly chorusWidget: SliderNumWidget;
 	public readonly chorusSlider: Slider;
+	public readonly chorusRow: HTMLDivElement;
+	public readonly reverbWidget: SliderNumWidget;
 	public readonly reverbSlider: Slider;
+	public readonly reverbRow: HTMLDivElement;
 
 	// Container
 	public readonly container: HTMLDivElement;
@@ -224,50 +227,30 @@ export class SongSettingsPanel {
 		);
 
 		// Chorus
-		this.chorusSlider = rangeSlider(
+		this.chorusWidget = new SliderNumWidget(
 			doc,
 			(oldValue: number, newValue: number) => new ChangeChorus(doc, oldValue, newValue),
 			0,
 			Config.chorusRange - 1,
 			0,
+			"Chorus:",
+			() => { onOpenPrompt("chorus"); },
 		);
-
-		this.chorusRow = div(
-			{ class: "selectRow" },
-			span(
-				{
-					class: "tip",
-					onclick: () => {
-						onOpenPrompt("chorus");
-					},
-				},
-				"Chorus:",
-			),
-			this.chorusSlider.container,
-		);
+		this.chorusSlider = this.chorusWidget.slider;
+		this.chorusRow = this.chorusWidget.row;
 
 		// Reverb
-		this.reverbSlider = rangeSlider(
+		this.reverbWidget = new SliderNumWidget(
 			doc,
 			(oldValue: number, newValue: number) => new ChangeReverb(doc, oldValue, newValue),
 			0,
 			Config.reverbRange - 1,
 			0,
+			"Reverb:",
+			() => { onOpenPrompt("reverb"); },
 		);
-
-		this.reverbRow = div(
-			{ class: "selectRow" },
-			span(
-				{
-					class: "tip",
-					onclick: () => {
-						onOpenPrompt("reverb");
-					},
-				},
-				"Reverb:",
-			),
-			this.reverbSlider.container,
-		);
+		this.reverbSlider = this.reverbWidget.slider;
+		this.reverbRow = this.reverbWidget.row;
 
 		// Build container
 		this.container = div(

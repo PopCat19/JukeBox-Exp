@@ -245,15 +245,20 @@ export class SongEditor
 	);
 	private readonly _chorusSlider: Slider = this._songSettingsPanel.chorusSlider;
 	private readonly _chorusRow: HTMLDivElement = this._songSettingsPanel.chorusRow;
+	private readonly _chorusInputBox: HTMLInputElement = this._songSettingsPanel.chorusWidget.inputBox;
 	private readonly _reverbSlider: Slider = this._songSettingsPanel.reverbSlider;
 	private readonly _reverbRow: HTMLDivElement = this._songSettingsPanel.reverbRow;
+	private readonly _reverbInputBox: HTMLInputElement = this._songSettingsPanel.reverbWidget.inputBox;
 	private readonly _effectsPanel: EffectsPanel = new EffectsPanel(this.doc, (prompt: string) => {
 		this._openPrompt(prompt);
 	});
 	private readonly _ringModWaveSelect: HTMLSelectElement = this._effectsPanel.ringModWaveSelect;
 	private readonly _ringModPulsewidthSlider: Slider = this._effectsPanel.ringModPulsewidthSlider;
+	private readonly _ringModPulsewidthInputBox: HTMLInputElement = this._effectsPanel.ringModPulsewidthWidget.inputBox;
 	private readonly _ringModSlider: Slider = this._effectsPanel.ringModSlider;
+	private readonly _ringModInputBox: HTMLInputElement = this._effectsPanel.ringModWidget.inputBox;
 	private readonly _ringModHzSlider: Slider = this._effectsPanel.ringModHzSlider;
+	private readonly _ringModHzInputBox: HTMLInputElement = this._effectsPanel.ringModHzWidget.inputBox;
 	public readonly ringModHzNum: HTMLParagraphElement = this._effectsPanel.ringModHzNum;
 	private readonly _ringModWaveText: HTMLSpanElement = span(
 		{
@@ -266,25 +271,35 @@ export class SongEditor
 	);
 	private readonly _ringModContainerRow: HTMLDivElement = this._effectsPanel.ringModContainerRow;
 	private readonly _granularSlider: Slider = this._effectsPanel.granularSlider;
+	private readonly _granularInputBox: HTMLInputElement = this._effectsPanel.granularWidget.inputBox;
 	private readonly _grainSizeSlider: Slider = this._effectsPanel.grainSizeSlider;
+	private readonly _grainSizeInputBox: HTMLInputElement = this._effectsPanel.grainSizeWidget.inputBox;
 	public readonly grainSizeNum: HTMLParagraphElement = this._effectsPanel.grainSizeNum;
 	private readonly _grainAmountsSlider: Slider = this._effectsPanel.grainAmountsSlider;
+	private readonly _grainAmountsInputBox: HTMLInputElement = this._effectsPanel.grainAmountsWidget.inputBox;
 	private readonly _grainRangeSlider: Slider = this._effectsPanel.grainRangeSlider;
+	private readonly _grainRangeInputBox: HTMLInputElement = this._effectsPanel.grainRangeWidget.inputBox;
 	public readonly grainRangeNum: HTMLParagraphElement = this._effectsPanel.grainRangeNum;
 	private readonly _granularContainerRow: HTMLDivElement =
 		this._effectsPanel.granularContainerRow;
 	private readonly _echoSustainSlider: Slider = this._effectsPanel.echoSustainSlider;
 	private readonly _echoSustainRow: HTMLDivElement = this._effectsPanel.echoSustainRow;
+	private readonly _echoSustainInputBox: HTMLInputElement = this._effectsPanel.echoSustainWidget.inputBox;
 	private readonly _echoDelaySlider: Slider = this._effectsPanel.echoDelaySlider;
 	private readonly _echoDelayRow: HTMLDivElement = this._effectsPanel.echoDelayRow;
+	private readonly _echoDelayInputBox: HTMLInputElement = this._effectsPanel.echoDelayWidget.inputBox;
 	private readonly _phaserMixSlider: Slider = this._effectsPanel.phaserMixSlider;
 	private readonly _phaserMixRow: HTMLDivElement = this._effectsPanel.phaserMixRow;
+	private readonly _phaserMixInputBox: HTMLInputElement = this._effectsPanel.phaserMixWidget.inputBox;
 	private readonly _phaserFreqSlider: Slider = this._effectsPanel.phaserFreqSlider;
 	private readonly _phaserFreqRow: HTMLDivElement = this._effectsPanel.phaserFreqRow;
+	private readonly _phaserFreqInputBox: HTMLInputElement = this._effectsPanel.phaserFreqWidget.inputBox;
 	private readonly _phaserFeedbackSlider: Slider = this._effectsPanel.phaserFeedbackSlider;
 	private readonly _phaserFeedbackRow: HTMLDivElement = this._effectsPanel.phaserFeedbackRow;
+	private readonly _phaserFeedbackInputBox: HTMLInputElement = this._effectsPanel.phaserFeedbackWidget.inputBox;
 	private readonly _phaserStagesSlider: Slider = this._effectsPanel.phaserStagesSlider;
 	private readonly _phaserStagesRow: HTMLDivElement = this._effectsPanel.phaserStagesRow;
+	private readonly _phaserStagesInputBox: HTMLInputElement = this._effectsPanel.phaserStagesWidget.inputBox;
 	private readonly _rhythmSelect: HTMLSelectElement = this._songSettingsPanel.rhythmSelect;
 	private readonly _pitchedPresetSelect: HTMLButtonElement = (() => {
 		const btn = buildPresetButton("pitchPresetSelect");
@@ -3242,30 +3257,45 @@ export class SongEditor
 			panSlider: this._panSlider,
 			chorusRow: this._chorusRow,
 			chorusSlider: this._chorusSlider,
+			chorusInputBox: this._chorusInputBox,
 			echoSustainRow: this._echoSustainRow,
 			echoSustainSlider: this._echoSustainSlider,
+			echoSustainInputBox: this._echoSustainInputBox,
 			echoDelayRow: this._echoDelayRow,
 			echoDelaySlider: this._echoDelaySlider,
+			echoDelayInputBox: this._echoDelayInputBox,
 			reverbRow: this._reverbRow,
 			reverbSlider: this._reverbSlider,
+			reverbInputBox: this._reverbInputBox,
 			ringModContainerRow: this._ringModContainerRow,
 			ringModSlider: this._ringModSlider,
+			ringModInputBox: this._ringModInputBox,
 			ringModHzSlider: this._ringModHzSlider,
+			ringModHzInputBox: this._ringModHzInputBox,
 			ringModWaveSelect: this._ringModWaveSelect,
 			ringModPulsewidthSlider: this._ringModPulsewidthSlider,
+			ringModPulsewidthInputBox: this._ringModPulsewidthInputBox,
 			granularContainerRow: this._granularContainerRow,
 			granularSlider: this._granularSlider,
+			granularInputBox: this._granularInputBox,
 			grainSizeSlider: this._grainSizeSlider,
+			grainSizeInputBox: this._grainSizeInputBox,
 			grainAmountsSlider: this._grainAmountsSlider,
+			grainAmountsInputBox: this._grainAmountsInputBox,
 			grainRangeSlider: this._grainRangeSlider,
+			grainRangeInputBox: this._grainRangeInputBox,
 			phaserMixRow: this._phaserMixRow,
 			phaserMixSlider: this._phaserMixSlider,
+			phaserMixInputBox: this._phaserMixInputBox,
 			phaserFreqRow: this._phaserFreqRow,
 			phaserFreqSlider: this._phaserFreqSlider,
+			phaserFreqInputBox: this._phaserFreqInputBox,
 			phaserFeedbackRow: this._phaserFeedbackRow,
 			phaserFeedbackSlider: this._phaserFeedbackSlider,
+			phaserFeedbackInputBox: this._phaserFeedbackInputBox,
 			phaserStagesRow: this._phaserStagesRow,
 			phaserStagesSlider: this._phaserStagesSlider,
+			phaserStagesInputBox: this._phaserStagesInputBox,
 			invertWaveRow: this._invertWaveRow,
 			upperNoteLimitRow: this._upperNoteLimitRow,
 			upperNoteLimitInputBox: this._upperNoteLimitInputBox,

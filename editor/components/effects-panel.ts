@@ -8,7 +8,6 @@
 // - Manages effect visibility and state
 
 import { HTML } from "imperative-html/dist/esm/elements-strict";
-import { ColorConfig } from "../../shared/color-config";
 import { Config } from "../../synth/synth-config";
 import {
 	ChangeEchoDelay,
@@ -26,7 +25,7 @@ import {
 	ChangeRingModPulseWidth,
 } from "../changes";
 import type { SongDocument } from "../song-document";
-import { buildOptions, rangeSlider, type Slider } from "../ui";
+import { buildOptions, type Slider, SliderNumWidget } from "../ui";
 
 const { div, select, span } = HTML;
 
@@ -44,107 +43,114 @@ export interface EffectGroup {
 
 export class EffectsPanel {
 	// Ring Mod
+	public readonly ringModWidget: SliderNumWidget;
 	public readonly ringModSlider: Slider;
 	public readonly ringModRow: HTMLDivElement;
+	public readonly ringModHzWidget: SliderNumWidget;
 	public readonly ringModHzSlider: Slider;
 	public readonly ringModHzNum: HTMLParagraphElement;
 	public readonly ringModHzSliderRow: HTMLDivElement;
 	public readonly ringModWaveSelect: HTMLSelectElement;
+	public readonly ringModPulsewidthWidget: SliderNumWidget;
 	public readonly ringModPulsewidthSlider: Slider;
 	public readonly ringModWaveSelectRow: HTMLDivElement;
 	public readonly ringModContainerRow: HTMLDivElement;
 
 	// Granular
+	public readonly granularWidget: SliderNumWidget;
 	public readonly granularSlider: Slider;
 	public readonly granularRow: HTMLDivElement;
+	public readonly grainSizeWidget: SliderNumWidget;
 	public readonly grainSizeSlider: Slider;
 	public readonly grainSizeNum: HTMLParagraphElement;
 	public readonly grainSizeSliderRow: HTMLDivElement;
+	public readonly grainAmountsWidget: SliderNumWidget;
 	public readonly grainAmountsSlider: Slider;
 	public readonly grainAmountsRow: HTMLDivElement;
+	public readonly grainRangeWidget: SliderNumWidget;
 	public readonly grainRangeSlider: Slider;
 	public readonly grainRangeNum: HTMLParagraphElement;
 	public readonly grainRangeSliderRow: HTMLDivElement;
 	public readonly granularContainerRow: HTMLDivElement;
 
 	// Echo
+	public readonly echoSustainWidget: SliderNumWidget;
 	public readonly echoSustainSlider: Slider;
 	public readonly echoSustainRow: HTMLDivElement;
+	public readonly echoDelayWidget: SliderNumWidget;
 	public readonly echoDelaySlider: Slider;
 	public readonly echoDelayRow: HTMLDivElement;
 
 	// Phaser
+	public readonly phaserMixWidget: SliderNumWidget;
 	public readonly phaserMixSlider: Slider;
 	public readonly phaserMixRow: HTMLDivElement;
+	public readonly phaserFreqWidget: SliderNumWidget;
 	public readonly phaserFreqSlider: Slider;
 	public readonly phaserFreqRow: HTMLDivElement;
+	public readonly phaserFeedbackWidget: SliderNumWidget;
 	public readonly phaserFeedbackSlider: Slider;
 	public readonly phaserFeedbackRow: HTMLDivElement;
+	public readonly phaserStagesWidget: SliderNumWidget;
 	public readonly phaserStagesSlider: Slider;
 	public readonly phaserStagesRow: HTMLDivElement;
 
 	// Container
 	public readonly container: HTMLDivElement;
 
-	private readonly _onOpenPrompt: (prompt: string) => void;
-
 	constructor(doc: SongDocument, onOpenPrompt: (prompt: string) => void) {
-		this._onOpenPrompt = onOpenPrompt;
-
 		// Ring Mod
-		this.ringModSlider = rangeSlider(
+		this.ringModWidget = new SliderNumWidget(
 			doc,
 			(oldValue: number, newValue: number) => new ChangeRingMod(doc, oldValue, newValue),
 			0,
 			Config.ringModRange - 1,
 			0,
+			"Ring Mod:",
+			() => { onOpenPrompt("ringMod"); },
+			{ getInstrumentValue: () => doc.getCurrentInstrumentObj().ringModulation },
 		);
+		this.ringModSlider = this.ringModWidget.slider;
+		this.ringModRow = this.ringModWidget.row;
 
-		this.ringModRow = this._createEffectRow("Ring Mod:", "ringMod", this.ringModSlider);
-
-		this.ringModHzSlider = rangeSlider(
+		this.ringModHzWidget = new SliderNumWidget(
 			doc,
 			(oldValue: number, newValue: number) => new ChangeRingModHz(doc, oldValue, newValue),
 			0,
 			Config.ringModHzRange - 1,
 			Config.ringModHzRange - Config.ringModHzRange / 2,
-			{ midTick: true },
+			"Hertz:",
+			() => { onOpenPrompt("RingModHz"); },
+			{
+				getInstrumentValue: () => doc.getCurrentInstrumentObj().ringModulationHz,
+				midTick: true,
+			},
 		);
-
+		this.ringModHzSlider = this.ringModHzWidget.slider;
 		this.ringModHzNum = div({ style: "font-size: 80%;", id: "ringModHzNum" });
-		this.ringModHzSliderRow = div(
-			{ class: "selectRow", style: "width:100%;" },
-			div(
-				{ style: "display:flex; flex-direction:column; align-items:center;" },
-				span(
-					{
-						class: "tip",
-						style: "font-size: smaller;",
-						onclick: () => {
-							onOpenPrompt("RingModHz");
-						},
-					},
-					"Hertz: ",
-				),
-				div({ style: `color: ${ColorConfig.secondaryText};` }, this.ringModHzNum),
-			),
-			this.ringModHzSlider.container,
-		);
+		this.ringModHzSliderRow = this.ringModHzWidget.row;
 
 		this.ringModWaveSelect = buildOptions(
 			select({}),
 			Config.operatorWaves.map((wave) => wave.name),
 		);
 
-		this.ringModPulsewidthSlider = rangeSlider(
+		this.ringModPulsewidthWidget = new SliderNumWidget(
 			doc,
 			(oldValue: number, newValue: number) =>
 				new ChangeRingModPulseWidth(doc, oldValue, newValue),
 			0,
 			Config.pwmOperatorWaves.length - 1,
 			0,
-			{ style: "margin-left: 10px; width: 85%;", title: "Pulse Width", midTick: true },
+			"",
+			() => {},
+			{
+				getInstrumentValue: () => doc.getCurrentInstrumentObj().ringModPulseWidth,
+				midTick: true,
+				title: "Pulse Width",
+			},
 		);
+		this.ringModPulsewidthSlider = this.ringModPulsewidthWidget.slider;
 
 		this.ringModWaveSelectRow = div(
 			{ class: "selectRow", style: "width: 100%;" },
@@ -158,6 +164,7 @@ export class EffectsPanel {
 				"Wave: ",
 			),
 			this.ringModPulsewidthSlider.container,
+			this.ringModPulsewidthWidget.inputBox,
 			div({ class: "selectContainer", style: "width:40%;" }, this.ringModWaveSelect),
 		);
 
@@ -169,85 +176,59 @@ export class EffectsPanel {
 		);
 
 		// Granular
-		this.granularSlider = rangeSlider(
+		this.granularWidget = new SliderNumWidget(
 			doc,
 			(oldValue: number, newValue: number) => new ChangeGranular(doc, oldValue, newValue),
 			0,
 			Config.granularRange,
 			0,
+			"Granular:",
+			() => { onOpenPrompt("granular"); },
+			{ getInstrumentValue: () => doc.getCurrentInstrumentObj().granular },
 		);
+		this.granularSlider = this.granularWidget.slider;
+		this.granularRow = this.granularWidget.row;
 
-		this.granularRow = this._createEffectRow("Granular:", "granular", this.granularSlider);
-
-		this.grainSizeSlider = rangeSlider(
+		this.grainSizeWidget = new SliderNumWidget(
 			doc,
 			(oldValue: number, newValue: number) => new ChangeGrainSize(doc, oldValue, newValue),
 			Config.grainSizeMin / Config.grainSizeStep,
 			Config.grainSizeMax / Config.grainSizeStep,
 			Config.grainSizeMin / Config.grainSizeStep,
+			"Grain:",
+			() => { onOpenPrompt("grainSize"); },
+			{ getInstrumentValue: () => doc.getCurrentInstrumentObj().grainSize },
 		);
-
+		this.grainSizeSlider = this.grainSizeWidget.slider;
 		this.grainSizeNum = div({ style: "font-size: 80%;", id: "grainSizeNum" });
-		this.grainSizeSliderRow = div(
-			{ class: "selectRow", style: "width:100%;" },
-			div(
-				{ style: "display:flex; flex-direction:column; align-items:center;" },
-				span(
-					{
-						class: "tip",
-						style: "font-size: smaller;",
-						onclick: () => {
-							onOpenPrompt("grainSize");
-						},
-					},
-					"Grain: ",
-				),
-				div({ style: `color: ${ColorConfig.secondaryText};` }, this.grainSizeNum),
-			),
-			this.grainSizeSlider.container,
-		);
+		this.grainSizeSliderRow = this.grainSizeWidget.row;
 
-		this.grainAmountsSlider = rangeSlider(
+		this.grainAmountsWidget = new SliderNumWidget(
 			doc,
 			(oldValue: number, newValue: number) => new ChangeGrainAmounts(doc, oldValue, newValue),
 			0,
 			Config.grainAmountsMax,
 			8,
-		);
-
-		this.grainAmountsRow = this._createEffectRow(
 			"Grain Freq:",
-			"grainAmount",
-			this.grainAmountsSlider,
+			() => { onOpenPrompt("grainAmount"); },
+			{ getInstrumentValue: () => doc.getCurrentInstrumentObj().grainAmounts },
 		);
+		this.grainAmountsSlider = this.grainAmountsWidget.slider;
+		this.grainAmountsRow = this.grainAmountsWidget.row;
 
-		this.grainRangeSlider = rangeSlider(
+		this.grainRangeWidget = new SliderNumWidget(
 			doc,
 			(oldValue: number, newValue: number) => new ChangeGrainRange(doc, oldValue, newValue),
 			0,
 			Config.grainRangeMax / Config.grainSizeStep,
 			0,
+			"Range:",
+			() => { onOpenPrompt("grainRange"); },
+			{ getInstrumentValue: () => doc.getCurrentInstrumentObj().grainRange },
 		);
-
+		this.grainRangeSlider = this.grainRangeWidget.slider;
 		this.grainRangeNum = div({ style: "font-size: 80%;", id: "grainRangeNum" });
-		this.grainRangeSliderRow = div(
-			{ class: "selectRow", style: "width:100%;" },
-			div(
-				{ style: "display:flex; flex-direction:column; align-items:center;" },
-				span(
-					{
-						class: "tip",
-						style: "font-size: smaller;",
-						onclick: () => {
-							onOpenPrompt("grainRange");
-						},
-					},
-					"Range: ",
-				),
-				div({ style: `color: ${ColorConfig.secondaryText};` }, this.grainRangeNum),
-			),
-			this.grainRangeSlider.container,
-		);
+		this.grainRangeSliderRow = this.grainRangeWidget.row;
 
 		this.granularContainerRow = div(
 			{ style: "display:flex; flex-direction:column;" },
@@ -258,79 +239,85 @@ export class EffectsPanel {
 		);
 
 		// Echo
-		this.echoSustainSlider = rangeSlider(
+		this.echoSustainWidget = new SliderNumWidget(
 			doc,
 			(oldValue: number, newValue: number) => new ChangeEchoSustain(doc, oldValue, newValue),
 			0,
 			Config.echoSustainRange - 1,
 			0,
+			"Echo:",
+			() => { onOpenPrompt("echoSustain"); },
+			{ getInstrumentValue: () => doc.getCurrentInstrumentObj().echoSustain },
 		);
+		this.echoSustainSlider = this.echoSustainWidget.slider;
+		this.echoSustainRow = this.echoSustainWidget.row;
 
-		this.echoSustainRow = this._createEffectRow("Echo:", "echoSustain", this.echoSustainSlider);
-
-		this.echoDelaySlider = rangeSlider(
+		this.echoDelayWidget = new SliderNumWidget(
 			doc,
 			(oldValue: number, newValue: number) => new ChangeEchoDelay(doc, oldValue, newValue),
 			0,
 			Config.echoDelayRange - 1,
 			0,
+			"Echo Delay:",
+			() => { onOpenPrompt("echoDelay"); },
+			{ getInstrumentValue: () => doc.getCurrentInstrumentObj().echoDelay },
 		);
-
-		this.echoDelayRow = this._createEffectRow("Echo Delay:", "echoDelay", this.echoDelaySlider);
+		this.echoDelaySlider = this.echoDelayWidget.slider;
+		this.echoDelayRow = this.echoDelayWidget.row;
 
 		// Phaser
-		this.phaserMixSlider = rangeSlider(
+		this.phaserMixWidget = new SliderNumWidget(
 			doc,
 			(oldValue: number, newValue: number) => new ChangePhaserMix(doc, oldValue, newValue),
 			0,
 			Config.phaserMixRange - 1,
 			0,
+			"Phaser Mix:",
+			() => { onOpenPrompt("phaserMix"); },
+			{ getInstrumentValue: () => doc.getCurrentInstrumentObj().phaserMix },
 		);
+		this.phaserMixSlider = this.phaserMixWidget.slider;
+		this.phaserMixRow = this.phaserMixWidget.row;
 
-		this.phaserMixRow = this._createEffectRow("Phaser Mix:", "phaserMix", this.phaserMixSlider);
-
-		this.phaserFreqSlider = rangeSlider(
+		this.phaserFreqWidget = new SliderNumWidget(
 			doc,
 			(oldValue: number, newValue: number) => new ChangePhaserFreq(doc, oldValue, newValue),
 			0,
 			Config.phaserFreqRange - 1,
 			0,
-		);
-
-		this.phaserFreqRow = this._createEffectRow(
 			"Phaser Freq:",
-			"phaserFreq",
-			this.phaserFreqSlider,
+			() => { onOpenPrompt("phaserFreq"); },
+			{ getInstrumentValue: () => doc.getCurrentInstrumentObj().phaserFreq },
 		);
+		this.phaserFreqSlider = this.phaserFreqWidget.slider;
+		this.phaserFreqRow = this.phaserFreqWidget.row;
 
-		this.phaserFeedbackSlider = rangeSlider(
+		this.phaserFeedbackWidget = new SliderNumWidget(
 			doc,
 			(oldValue: number, newValue: number) =>
 				new ChangePhaserFeedback(doc, oldValue, newValue),
 			0,
 			Config.phaserFeedbackRange - 1,
 			0,
-		);
-
-		this.phaserFeedbackRow = this._createEffectRow(
 			"Phaser Fdbk:",
-			"phaserFeedback",
-			this.phaserFeedbackSlider,
+			() => { onOpenPrompt("phaserFeedback"); },
+			{ getInstrumentValue: () => doc.getCurrentInstrumentObj().phaserFeedback },
 		);
+		this.phaserFeedbackSlider = this.phaserFeedbackWidget.slider;
+		this.phaserFeedbackRow = this.phaserFeedbackWidget.row;
 
-		this.phaserStagesSlider = rangeSlider(
+		this.phaserStagesWidget = new SliderNumWidget(
 			doc,
 			(oldValue: number, newValue: number) => new ChangePhaserStages(doc, oldValue, newValue),
 			0,
 			Config.phaserMaxStages,
 			2,
-		);
-
-		this.phaserStagesRow = this._createEffectRow(
 			"Stages:",
-			"phaserStages",
-			this.phaserStagesSlider,
+			() => { onOpenPrompt("phaserStages"); },
+			{ getInstrumentValue: () => doc.getCurrentInstrumentObj().phaserStages },
 		);
+		this.phaserStagesSlider = this.phaserStagesWidget.slider;
+		this.phaserStagesRow = this.phaserStagesWidget.row;
 
 		// Main container
 		this.container = div(
@@ -346,67 +333,51 @@ export class EffectsPanel {
 		);
 	}
 
-	private _createEffectRow(label: string, prompt: string, slider: Slider): HTMLDivElement {
-		return div(
-			{ class: "selectRow" },
-			span(
-				{
-					class: "tip",
-					onclick: () => {
-						this._onOpenPrompt(prompt);
-					},
-				},
-				label,
-			),
-			slider.container,
-		);
-	}
-
 	public updateRingMod(value: number): void {
-		this.ringModSlider.updateValue(value);
+		this.ringModWidget.updateValue(value);
 	}
 
 	public updateRingModHz(value: number): void {
-		this.ringModHzSlider.updateValue(value);
+		this.ringModHzWidget.updateValue(value);
 	}
 
 	public updateGranular(value: number): void {
-		this.granularSlider.updateValue(value);
+		this.granularWidget.updateValue(value);
 	}
 
 	public updateGrainSize(value: number): void {
-		this.grainSizeSlider.updateValue(value);
+		this.grainSizeWidget.updateValue(value);
 	}
 
 	public updateGrainAmounts(value: number): void {
-		this.grainAmountsSlider.updateValue(value);
+		this.grainAmountsWidget.updateValue(value);
 	}
 
 	public updateGrainRange(value: number): void {
-		this.grainRangeSlider.updateValue(value);
+		this.grainRangeWidget.updateValue(value);
 	}
 
 	public updateEchoSustain(value: number): void {
-		this.echoSustainSlider.updateValue(value);
+		this.echoSustainWidget.updateValue(value);
 	}
 
 	public updateEchoDelay(value: number): void {
-		this.echoDelaySlider.updateValue(value);
+		this.echoDelayWidget.updateValue(value);
 	}
 
 	public updatePhaserMix(value: number): void {
-		this.phaserMixSlider.updateValue(value);
+		this.phaserMixWidget.updateValue(value);
 	}
 
 	public updatePhaserFreq(value: number): void {
-		this.phaserFreqSlider.updateValue(value);
+		this.phaserFreqWidget.updateValue(value);
 	}
 
 	public updatePhaserFeedback(value: number): void {
-		this.phaserFeedbackSlider.updateValue(value);
+		this.phaserFeedbackWidget.updateValue(value);
 	}
 
 	public updatePhaserStages(value: number): void {
-		this.phaserStagesSlider.updateValue(value);
+		this.phaserStagesWidget.updateValue(value);
 	}
 }
