@@ -2195,6 +2195,7 @@ export class SongEditor
 				{ class: "playback-volume-controls" },
 				span({ class: "volume-speaker" }),
 				this._volumeSlider.container,
+				this._playbackControls.volumeInputBox,
 			),
 			this._globalSpectrumContainer,
 		),
