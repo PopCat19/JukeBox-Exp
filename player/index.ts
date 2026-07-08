@@ -8,4 +8,4 @@
 export { PlayerControls } from "./player-controls";
 export { bindPlayerKeys } from "./player-keyboard";
 export { drawNote, renderPlayhead, renderTimeline } from "./player-timeline";
-export { buildPlayerUI, injectPlayerStyles } from "./player-ui";
+export { buildPlayerCSS, buildPlayerUI, injectPlayerStyles } from "./player-ui";

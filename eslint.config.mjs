@@ -73,6 +73,7 @@ export default tseslint.config(
             "tests/module-deletion.test.ts",
             "tests/modules-mod.test.ts",
             "tests/barrel-exports.test.ts",
+            "tests/player-ui-styles.test.ts",
             "tests/capability-lookup.test.ts",
             "tests/instrument-tagging.test.ts",
             "tests/external-loader.test.ts",

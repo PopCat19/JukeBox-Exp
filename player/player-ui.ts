@@ -66,11 +66,8 @@ export interface PlayerUI {
 	sampleLoadingBarContainer: HTMLDivElement;
 }
 
-export function injectPlayerStyles(): void {
-	injectGlobalStyles(
-		document,
-		"player-main",
-		`
+export function buildPlayerCSS(): string {
+	return `
 	:root {
 		${buildDesignTokensCSS("'B612', sans-serif", "monospace")}
 	}
@@ -150,7 +147,7 @@ export function injectPlayerStyles(): void {
 		mask-position: center;
 		mask-size: 12px 12px;
 	}
-	
+
 	input[type=range] {
 		-webkit-appearance: none;
 		appearance: none;
@@ -215,8 +212,130 @@ export function injectPlayerStyles(): void {
 		background: var(--primary-text, white);
 		cursor: pointer;
 	}
-`,
-	);
+
+	/* --- scoped player UI classes --- */
+
+	.pm-player-spectrum {
+		border: 2px solid var(--ui-widget-background, #444);
+		overflow: hidden;
+	}
+	.pm-player-title {
+		flex-grow: 1;
+		margin: 0 1px;
+		margin-left: 10px;
+		overflow: hidden;
+	}
+	.pm-player-link {
+		margin: 0 4px;
+	}
+	.pm-player-play-btn {
+		width: 100%;
+		height: 100%;
+		max-height: 50px;
+	}
+	.pm-player-btn-container {
+		flex-shrink: 0;
+		display: flex;
+		padding: 2px;
+		width: 80px;
+		height: 100%;
+		box-sizing: border-box;
+		align-items: center;
+	}
+	.pm-player-icon-btn {
+		background: none;
+		flex: 0 0 12px;
+		margin: 0 3px;
+		width: 12px;
+		height: 12px;
+		display: flex;
+	}
+	.pm-player-icon-btn:hover, .pm-player-icon-btn:focus {
+		background: none;
+	}
+	.pm-player-vol-icon {
+		flex: 0 0 12px;
+		margin: 0 1px;
+		width: 12px;
+		height: 12px;
+	}
+	.pm-player-vol-slider {
+		width: 12vw;
+		max-width: 100px;
+	}
+	input.pm-player-vol-slider {
+		margin: 0 1px;
+	}
+	.pm-player-timeline {
+		min-width: 0;
+		min-height: 0;
+		touch-action: pan-y pinch-zoom;
+	}
+	.pm-player-playhead {
+		position: absolute;
+		left: 0;
+		top: 0;
+		width: 2px;
+		height: 100%;
+		background: var(--playhead, white);
+		pointer-events: none;
+	}
+	.pm-player-timeline-container {
+		display: flex;
+		flex-grow: 1;
+		flex-shrink: 1;
+		position: relative;
+	}
+	.pm-player-viz-container {
+		display: flex;
+		flex-grow: 1;
+		flex-shrink: 1;
+		height: 0;
+		position: relative;
+		align-items: center;
+		overflow: hidden;
+	}
+	.pm-player-volbar-svg {
+		touch-action: none;
+		overflow: hidden;
+		margin: auto;
+	}
+	.pm-player-sample-bar {
+		height: 100%;
+		background-color: var(--indicator-primary, #74f);
+	}
+	.pm-player-sample-bar-container {
+		overflow: hidden;
+		margin: auto;
+		width: 90%;
+		height: 50%;
+	}
+	.pm-player-vol-bar-wrapper {
+		display: flex;
+		flex-direction: column;
+		touch-action: none;
+		overflow: hidden;
+		margin: auto;
+	}
+	.pm-player-control-bar {
+		flex-shrink: 0;
+		height: 20vh;
+		min-height: 22px;
+		max-height: 70px;
+		display: flex;
+		align-items: center;
+	}
+	.pm-player-sample-status-row {
+		overflow: hidden;
+		margin: auto;
+		width: 160px;
+		height: 10px;
+	}
+`;
+}
+
+export function injectPlayerStyles(): void {
+	injectGlobalStyles(document, "player-main", buildPlayerCSS());
 }
 
 export function buildPlayerUI(): PlayerUI {
@@ -224,12 +343,14 @@ export function buildPlayerUI(): PlayerUI {
 	ColorConfig.setTheme(colorTheme === null ? ColorConfig.defaultTheme : colorTheme);
 
 	const synth: Synth = new Synth();
-	synth.onSpectrumUpdate = (l, r) => events.raise("spectrumUpdate", l, r);
+	synth.onSpectrumUpdate = (l, r) => {
+		events.raise("spectrumUpdate", l, r);
+	};
 	const spectrum: spectrumCanvas = new spectrumCanvas(
 		canvas({
 			width: isMobile ? 144 : 288,
 			height: isMobile ? 32 : 64,
-			style: "border:2px solid var(--ui-widget-background, #444); overflow: hidden;",
+			class: "pm-player-spectrum",
 			id: "spectrumAll",
 		}),
 		isMobile ? 1 : 2,
@@ -239,27 +360,20 @@ export function buildPlayerUI(): PlayerUI {
 		spectrum.canvas.style.display = "none";
 		synth.spectrumEnabled = false;
 	}
-	const titleText: HTMLHeadingElement = h1(
-		{
-			style: "flex-grow: 1; margin: 0 1px; margin-left: 10px; overflow: hidden;",
-		},
-		"",
-	);
-	const editLink: HTMLAnchorElement = a({ target: "_top", style: "margin: 0 4px;" }, "Edit");
-	const copyLink: HTMLAnchorElement = a({ href: "#", style: "margin: 0 4px;" }, "Copy URL");
-	const shareLink: HTMLAnchorElement = a({ href: "#", style: "margin: 0 4px;" }, "Share");
+	const titleText: HTMLHeadingElement = h1({ class: "pm-player-title" }, "");
+	const editLink: HTMLAnchorElement = a({ target: "_top", class: "pm-player-link" }, "Edit");
+	const copyLink: HTMLAnchorElement = a({ href: "#", class: "pm-player-link" }, "Copy URL");
+	const shareLink: HTMLAnchorElement = a({ href: "#", class: "pm-player-link" }, "Share");
 	const fullscreenLink: HTMLAnchorElement = a(
-		{ target: "_top", style: "margin: 0 4px;" },
+		{ target: "_top", class: "pm-player-link" },
 		"Fullscreen",
 	);
 
 	const playButton: HTMLButtonElement = button({
-		style: "width: 100%; height: 100%; max-height: 50px;",
+		class: "pm-player-play-btn",
 	});
 	const playButtonContainer: HTMLDivElement = div(
-		{
-			style: "flex-shrink: 0; display: flex; padding: 2px; width: 80px; height: 100%; box-sizing: border-box; align-items: center;",
-		},
+		{ class: "pm-player-btn-container" },
 		playButton,
 	);
 	const loopIcon: SVGPathElement = path({
@@ -273,14 +387,14 @@ export function buildPlayerUI(): PlayerUI {
 	const loopButton: HTMLButtonElement = button(
 		{
 			title: "loop",
-			style: "background: none; flex: 0 0 12px; margin: 0 3px; width: 12px; height: 12px; display: flex;",
+			class: "pm-player-icon-btn",
 		},
 		svg({ width: 12, height: 12, viewBox: "0 0 24 24" }, loopIcon),
 	);
 
 	const volumeIcon: SVGSVGElement = svg(
 		{
-			style: "flex: 0 0 12px; margin: 0 1px; width: 12px; height: 12px;",
+			class: "pm-player-vol-icon",
 			viewBox: "0 0 24 24",
 		},
 		path({
@@ -299,7 +413,7 @@ export function buildPlayerUI(): PlayerUI {
 		min: 0,
 		max: 75,
 		step: 1,
-		style: "width: 12vw; max-width: 100px; margin: 0 1px;",
+		class: "pm-player-vol-slider",
 	});
 
 	const zoomIcon: SVGSVGElement = svg(
@@ -323,26 +437,24 @@ export function buildPlayerUI(): PlayerUI {
 	const zoomButton: HTMLButtonElement = button(
 		{
 			title: "zoom",
-			style: "background: none; flex: 0 0 12px; margin: 0 3px; width: 12px; height: 12px; display: flex;",
+			class: "pm-player-icon-btn",
 		},
 		zoomIcon,
 	);
 
 	const timeline: SVGSVGElement = svg({
-		style: "min-width: 0; min-height: 0; touch-action: pan-y pinch-zoom;",
+		class: "pm-player-timeline",
 	});
 	const playhead: HTMLDivElement = div({
-		style: "position: absolute; left: 0; top: 0; width: 2px; height: 100%; background: var(--playhead, white); pointer-events: none;",
+		class: "pm-player-playhead",
 	});
 	const timelineContainer: HTMLDivElement = div(
-		{ style: "display: flex; flex-grow: 1; flex-shrink: 1; position: relative;" },
+		{ class: "pm-player-timeline-container" },
 		timeline,
 		playhead,
 	);
 	const visualizationContainer: HTMLDivElement = div(
-		{
-			style: "display: flex; flex-grow: 1; flex-shrink: 1; height: 0; position: relative; align-items: center; overflow: hidden;",
-		},
+		{ class: "pm-player-viz-container" },
 		timelineContainer,
 	);
 
@@ -382,7 +494,7 @@ export function buildPlayerUI(): PlayerUI {
 	const defs: SVGDefsElement = SVG.defs({}, gradient);
 	const volumeBarContainer: SVGSVGElement = SVG.svg(
 		{
-			style: `touch-action: none; overflow: hidden; margin: auto;`,
+			class: "pm-player-volbar-svg",
 			width: "160px",
 			height: "10px",
 			preserveAspectRatio: "none",
@@ -393,12 +505,13 @@ export function buildPlayerUI(): PlayerUI {
 		outVolumeCap,
 	);
 	const sampleLoadingBar: HTMLDivElement = div({
-		style: "width: 0%; height: 100%; background-color: var(--indicator-primary, #74f);",
+		style: "width: 0%;",
+		class: "pm-player-sample-bar",
 	});
 	const sampleLoadingBarContainer: HTMLDivElement = div(
 		{
-			class: `sampleLoadingContainer`,
-			style: "overflow: hidden; margin: auto; width: 90%; height: 50%; background-color: var(--empty-sample-bar, var(--indicator-secondary, #444));",
+			class: "sampleLoadingContainer pm-player-sample-bar-container",
+			style: "background-color: var(--empty-sample-bar, var(--indicator-secondary, #444));",
 			preserveAspectRatio: "none",
 		},
 		sampleLoadingBar,
@@ -407,16 +520,14 @@ export function buildPlayerUI(): PlayerUI {
 		{},
 		div(
 			{
-				class: "selectRow",
-				style: "overflow: hidden; margin: auto; width: 160px; height: 10px; ",
+				class: "selectRow pm-player-sample-status-row",
 			},
 			sampleLoadingBarContainer,
 		),
 	);
 	const volumeBarContainerDiv: HTMLDivElement = div(
 		{
-			class: `volBarContainer`,
-			style: "display:flex; flex-direction:column; touch-action: none; overflow: hidden; margin: auto",
+			class: "volBarContainer pm-player-vol-bar-wrapper",
 		},
 		volumeBarContainer,
 		sampleLoadingStatusContainer,
@@ -424,9 +535,7 @@ export function buildPlayerUI(): PlayerUI {
 	document.body.appendChild(visualizationContainer);
 	document.body.appendChild(
 		div(
-			{
-				style: `flex-shrink: 0; height: 20vh; min-height: 22px; max-height: 70px; display: flex; align-items: center;`,
-			},
+			{ class: "pm-player-control-bar" },
 			playButtonContainer,
 			loopButton,
 			volumeIcon,
