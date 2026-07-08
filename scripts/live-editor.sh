@@ -44,4 +44,5 @@ $RUNX concurrently --kill-others \
 	"$ESBUILD --format=iife --keep-names --global-name=beepbox --bundle ./synth/synth.ts --outfile=website/beepbox_synth.js --sourcemap --watch" \
 	"$ESBUILD --format=iife --keep-names --global-name=beepbox --bundle ./player/main.ts --outfile=website/player/beepbox_player.js --sourcemap --watch --define:OFFLINE=false" \
 	"$ESBUILD --format=iife --keep-names --global-name=beepbox --bundle ./editor/main.ts --outfile=website/beepbox_editor.js --sourcemap --watch" \
+	"$ESBUILD --bundle ./synth/render/worklet.ts --outfile=website/beepbox_synth_worklet.js --sourcemap --watch" \
 	"bun $(dirname "$0")/dev-server-sab.ts $PORT"

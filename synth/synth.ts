@@ -404,21 +404,27 @@ export class Synth {
 		} as SongSnapshot;
 	}
 
+	/**
+	 * Compute worklet is always active on supported browsers.
+	 * Kept as a method so the opt-in override path (localStorage
+	 * disableComputeWorklet) is available for debugging.
+	 */
 	private static _computeWorkletEnabled(): boolean {
 		try {
 			if (typeof window === "undefined") return false;
+			// Allow explicit opt-out via window or localStorage
 			// biome-ignore lint/suspicious/noExplicitAny: dynamic feature flag bridge.
 			const w = window as any;
-			if (w.enableComputeWorklet === true) return true;
-			if (w.enableComputeWorklet === "1" || w.enableComputeWorklet === "true") return true;
+			if (w.disableComputeWorklet === true) return false;
+			if (w.disableComputeWorklet === "1" || w.disableComputeWorklet === "true") return false;
 			if (window.localStorage) {
-				const v = window.localStorage.getItem("enableComputeWorklet");
-				if (v === "1" || v === "true") return true;
+				const v = window.localStorage.getItem("disableComputeWorklet");
+				if (v === "1" || v === "true") return false;
 			}
 		} catch {
 			/* ignore */
 		}
-		return false;
+		return true;
 	}
 
 	private static _debugSynthEnabled(): boolean {
@@ -961,11 +967,7 @@ export class Synth {
 		if (this.isPlayingSong && this._audio.context) {
 			this.samplesPerSecond = this._audio.context.sampleRate;
 		}
-		// Compute worklet is opt-in until tick-sliced rendering is complete.
-		// The worklet bundle is co-located with the main script.
-		if (Synth._computeWorkletEnabled()) {
-			this._audio.setComputeWorkletUrl("beepbox_synth_worklet.min.js");
-		}
+		this._audio.setComputeWorkletUrl("beepbox_synth_worklet.js");
 		return this._audio.activate(this._toAudioHost()).then((): void => {
 			if (Synth._computeWorkletEnabled()) this._initComputeWorklet();
 		});
