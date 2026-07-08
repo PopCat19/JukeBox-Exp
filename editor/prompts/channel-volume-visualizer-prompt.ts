@@ -56,9 +56,12 @@ const SPECTRUM_DISPLAY_GAIN = 3;
 // Cap expensive per-channel FFTs per animation frame. Large MIDI imports can
 // have dozens of audio channels; doing an 8192-point FFT for every channel in
 // one rAF stalls the editor and starves audio production.
-const MAX_FFT_CHANNELS_PER_FRAME = 4;
-// 8192-point FFT: at 48kHz gives 5.86Hz bins, enough resolution for the FG band grid.
-const FFT_SIZE = 8192;
+const MAX_FFT_CHANNELS_PER_FRAME = 16;
+const CHANNEL_RING_MASK = 8191;
+// CVV favors responsiveness over analyzer precision. The source ring is 8192
+// samples, but using the newest 2048 samples keeps spectrum/alpha/meter attack
+// near one video frame instead of smearing over ~170ms.
+const FFT_SIZE = 2048;
 // Gaussian spatial-blur kernel (sigma=3 bands), truncated to +-BLUR_RADIUS.
 // Precomputed once so the per-channel per-frame blur is O(FG_BANDS * kernel)
 // instead of O(FG_BANDS^2). At 3 sigma the truncated tail is negligible.
@@ -901,10 +904,10 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 	private _computeChannelPeak(channelState: ChannelState, masterScale: number): number {
 		const fftSize = FFT_SIZE;
 		const ring = channelState.audioRing;
-		const ringPos = channelState.audioRingPos;
+		const start = (channelState.audioRingPos - fftSize) & CHANNEL_RING_MASK;
 		let peak = 0;
 		for (let i = 0; i < fftSize; i++) {
-			const s = ring[(ringPos + i) & (fftSize - 1)];
+			const s = ring[(start + i) & CHANNEL_RING_MASK];
 			const a = s < 0 ? -s : s;
 			if (a > peak) peak = a;
 		}
@@ -1219,18 +1222,29 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 		this._smoothedMasterScale += (targetScale - this._smoothedMasterScale) * 0.3;
 		this._spectrumFrameChannels.clear();
 		if (
-			this._spectrumFrameToggle &&
 			(this._doc.synth.playing || this._doc.synth.fadingOut) &&
 			this._renderedAudioChannelIndexes.length > 0
 		) {
 			const channelCount = this._renderedAudioChannelIndexes.length;
 			const count = Math.min(MAX_FFT_CHANNELS_PER_FRAME, channelCount);
-			for (let i = 0; i < count; i++) {
+			let added = 0;
+			for (let i = 0; i < channelCount && added < count; i++) {
 				const channelIndex =
 					this._renderedAudioChannelIndexes[
 						(this._spectrumChannelCursor + i) % channelCount
 					];
+				if ((this._channelPeak.get(channelIndex) ?? 0) <= 0.001) continue;
 				this._spectrumFrameChannels.add(channelIndex);
+				added++;
+			}
+			for (let i = 0; i < channelCount && added < count; i++) {
+				const channelIndex =
+					this._renderedAudioChannelIndexes[
+						(this._spectrumChannelCursor + i) % channelCount
+					];
+				if (this._spectrumFrameChannels.has(channelIndex)) continue;
+				this._spectrumFrameChannels.add(channelIndex);
+				added++;
 			}
 			this._spectrumChannelCursor = (this._spectrumChannelCursor + count) % channelCount;
 		}
@@ -1238,11 +1252,8 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 			const channelState = synth.channels[channelIndex];
 			if (!channelState) continue;
 
-			// Per-channel perceived loudness (C-weighted RMS of the isolated ring,
-			// scaled by the post-limiter master gain), normalized so a full-scale
-			// 1 kHz sine fills the bar. Reads last frame's value (populated in the
-			// spectrum FFT pass) to avoid a second FFT.
-			const channelLevel = this._channelPeak.get(channelIndex) ?? 0;
+			const channelLevel = this._computeChannelPeak(channelState, this._smoothedMasterScale);
+			this._channelPeak.set(channelIndex, channelLevel);
 
 			let historic = this._channelHistoricCaps.get(channelIndex);
 			if (!historic) {
@@ -1310,17 +1321,7 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 					: `Pk:-inf\nA:${avgText}\n${minText}/${maxText}`;
 			}
 
-			// Per-channel post-limiter peak for the meter, computed from the
-			// isolated ring (linear scan, no FFT). Interleaved with the FFT
-			// on the opposite phase so each frame does either the peak scan
-			// OR the FFT, never both — halves the per-channel scan cost and
-			// distributes work evenly. Metering above reads the cached peak
-			// (at most 1 frame stale on FFT frames, imperceptible).
 			if (!this._spectrumFrameChannels.has(channelIndex)) {
-				this._channelPeak.set(
-					channelIndex,
-					this._computeChannelPeak(channelState, this._smoothedMasterScale),
-				);
 				continue;
 			}
 
@@ -1352,9 +1353,9 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 					const fftBuf = this._fftScratch;
 					const mags = this._magScratch;
 					const ring = channelState.audioRing;
-					const ringPos = channelState.audioRingPos;
+					const ringStart = (channelState.audioRingPos - fftSize) & CHANNEL_RING_MASK;
 					for (let i = 0; i < fftSize; i++) {
-						const idx = (ringPos + i) & (fftSize - 1);
+						const idx = (ringStart + i) & CHANNEL_RING_MASK;
 						const hann = 0.5 * (1 - Math.cos((2 * Math.PI * i) / (fftSize - 1)));
 						fftBuf[i] = ring[idx] * hann;
 					}
