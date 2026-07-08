@@ -422,16 +422,13 @@ export class AudioBackend {
 	/** Synchronously fills all free ring-buffer slots (SAB mode only).
 	 *  Queue mode is a no-op. First call (after isPlayingSong=true)
 	 *  starts the rAF fill loop. */
-	public fillAllFreeSlots(host: AudioBackendHost): void {
+	public fillAllFreeSlots(host: AudioBackendHost, playSong?: boolean): void {
 		if (!this._useSab || this._ringBuffer == null) return;
-		// Reset ring heads so all slots appear consumed. The fill loop
-		// then treats every slot as free, filling all 8 with fresh audio
-		// instead of leaving stale silence-filled slots from activation.
 		this._ringBuffer.resetHeads();
 		// noBudget=true fills ALL free slots without the 16ms budget
-		// stop. playSong comes from host.isPlayingSong() so pre-fill
-		// produces real audio, not silence.
-		this._fillAllFreeSlotsInternal(host, true, "manual", true);
+		// stop. When playSong is provided, use it explicitly (allows
+		// pre-fill before the host sets isPlayingSong=true).
+		this._fillAllFreeSlotsInternal(host, true, "manual", true, playSong);
 		if (this._fillLoopId == null) {
 			this._fillLoopId = requestAnimationFrame(this._onFillFrame);
 		}
@@ -510,6 +507,7 @@ export class AudioBackend {
 		skipDeactivate: boolean,
 		reason: string,
 		noBudget?: boolean,
+		playSongOverride?: boolean,
 	): void {
 		const ring: AudioRingBuffer = this._ringBuffer!;
 		if (ring == null) return;
@@ -559,11 +557,9 @@ export class AudioBackend {
 			left.fill(0.0);
 			right.fill(0.0);
 			const synthStart: number = performance.now();
-			const playSong: boolean = noBudget
-				? host.isPlayingSong()
-				: skipDeactivate
-					? false
-					: host.isPlayingSong();
+			const playSong: boolean =
+				playSongOverride ??
+				(noBudget ? host.isPlayingSong() : skipDeactivate ? false : host.isPlayingSong());
 			host.synthesize(left, right, this._currentBufferSize, playSong);
 			synthMs += performance.now() - synthStart;
 

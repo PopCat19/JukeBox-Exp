@@ -457,15 +457,6 @@ export class Synth {
 	 *  what the user actually hears. The queue depth is the gap between the
 	 *  render head and the worklet reader; that gap is exactly the offset
 	 *  `get playhead()` subtracts. */
-	private _debugTransport(label: string): void {
-		const queued: number = this._audio.getQueuedSampleCount();
-		const samplesPerBar: number = this.song == null ? 0 : this.getSamplesPerBar();
-		const queuedBars: number = samplesPerBar > 0 ? queued / samplesPerBar : 0;
-		this._dbg(
-			`[transport ${label}] render=${this.playheadInternal.toFixed(4)} bar=${this.bar} beat=${this.beat}.${this.part}.${this.tick} cd=${this.tickSampleCountdown.toFixed(1)} queuedSamples=${queued} queuedBars=${queuedBars.toFixed(4)} audible=${(this.playheadInternal - queuedBars).toFixed(4)}`,
-		);
-	}
-
 	public get playing(): boolean {
 		return this.isPlayingSong;
 	}
@@ -1410,8 +1401,14 @@ export class Synth {
 		this._audio.startSpectrumDecay(this._toAudioHost());
 	}
 
-	private _primeWorklet(): void {
-		this._audio.fillAllFreeSlots(this._toAudioHost());
+	/**
+	 * Pre-fill the SAB ring buffer with audio from the current song
+	 * position. When playOverride is true, synthesize uses playSong=true
+	 * even if isPlayingSong hasn't been set yet — this ensures the ring
+	 * carries real audio before the playhead starts moving.
+	 */
+	private _primeWorklet(playOverride?: boolean): void {
+		this._audio.fillAllFreeSlots(this._toAudioHost(), playOverride);
 	}
 
 	public async maintainLiveInput(): Promise<void> {
@@ -1462,15 +1459,16 @@ export class Synth {
 		await this._audio.resumeContext();
 		this.warmUpSynthesizer(this.song);
 		this._needsLeadIn = true;
+		// Fill ring with real audio before the playhead starts moving.
+		// playOverride=true so synthesize() produces audio even though
+		// isPlayingSong is still false.
+		this._primeWorklet(true);
 		this.isPlayingSong = true;
 		if (this._audio.context) {
 			this.samplesPerSecond = this._audio.context.sampleRate;
 		}
 		this.totalSamplesRendered = this.getSamplesUpToBar(this.bar);
 		this._dbg("isPlayingSong set to true, playhead:", this.playheadInternal, "bar:", this.bar);
-		this._debugTransport("pre-prime");
-		this._primeWorklet();
-		this._debugTransport("post-prime");
 	}
 
 	public pause(): void {
