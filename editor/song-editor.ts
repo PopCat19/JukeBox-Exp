@@ -4385,12 +4385,14 @@ export class SongEditor
 
 			this.doc.prefs.volume = prevVol;
 			this._volumeSlider.updateValue(this.doc.prefs.volume);
+			this._playbackControls.volumeInputBox.value = String(this.doc.prefs.volume);
 
 			if (changedPatterns) {
 				this._trackEditor.render();
 			}
 		} else {
 			this.doc.setVolume(Number(this._volumeSlider.input.value));
+			this._playbackControls.volumeInputBox.value = this._volumeSlider.input.value;
 			if (this.doc.recordingModulators) {
 				this.doc.recordingModulators = false;
 				// A dummy change that pushes history state.
@@ -4414,8 +4416,10 @@ export class SongEditor
 
 			this.doc.prefs.volume = prevVol;
 			this._volumeSlider.updateValue(this.doc.prefs.volume);
+			this._playbackControls.volumeInputBox.value = String(this.doc.prefs.volume);
 		} else {
 			this.doc.setVolume(Number(this._volumeSlider.input.value));
+			this._playbackControls.volumeInputBox.value = this._volumeSlider.input.value;
 			if (this.doc.recordingModulators) {
 				this.doc.recordingModulators = false;
 				// A dummy change that pushes history state.
