@@ -97,7 +97,7 @@ export class Slider {
 		// Track container: pills the outer edges, clips fill/track inside.
 		const trackLayer = div(
 			{
-				style: "position: absolute; top: 5px; left: 0; right: 0; height: 6px; overflow: hidden; border-radius: 999px;",
+				style: "position: absolute; top: 5px; left: 2px; right: 2px; height: 6px; overflow: hidden; border-radius: 999px;",
 			},
 			// Inactive track (fills entire track)
 			div({
