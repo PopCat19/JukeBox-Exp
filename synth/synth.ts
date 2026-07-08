@@ -990,8 +990,9 @@ export class Synth {
 		port.onmessage = (ev: { data: unknown }): void => {
 			const msg: Record<string, unknown> = ev.data as Record<string, unknown>;
 			if (msg?.type === "ready") {
-				this._workletActive = true;
-				this._dbg("Compute worklet ready ack received, delegation active");
+				this._dbg(
+					"Compute worklet ready ack received (delegation disabled until FM renderer is validated)",
+				);
 				return;
 			}
 			if (msg?.type === "tick-complete") {
