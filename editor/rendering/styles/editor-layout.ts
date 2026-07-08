@@ -221,8 +221,6 @@ export function buildEditorLayoutCSS(): string {
 	flex-shrink: 0;
 	display: flex;
 	flex-direction: column;
-	min-width: 0;
-	overflow-x: hidden;
 }
 
 .beepboxEditor .instrument-settings-area {

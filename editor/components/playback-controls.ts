@@ -91,6 +91,7 @@ export class PlaybackControls {
 		});
 
 		this.volumeInputBox = numberInput({
+			class: "slider-num-input",
 			style: "width: 4em; font-size: 80%; margin-left: 0.4em; vertical-align: middle;",
 			type: "number",
 			step: "1",
