@@ -69,7 +69,7 @@ export class InstrumentBrowserPrompt extends BasePrompt {
 	private _clickTarget: string | null = null;
 	private _activeTags: string[] = [];
 	private _tagBanner: HTMLDivElement;
-	private _externalTagHandler: () => void;
+
 	private _committedPreset: number;
 	private _lastChannel: number;
 	private _hoveredPane: "categories" | "presets" | null = null;
@@ -296,19 +296,7 @@ export class InstrumentBrowserPrompt extends BasePrompt {
 		this._searchInput.addEventListener("input", this._onSearchInput);
 		this._searchInput.addEventListener("keydown", this._onSearchKeyDown);
 
-		this._externalTagHandler = () => {
-			this._readActiveTags();
-			this._applyTagFilter();
-			this._renderTags();
-			this._highlightTagSelected();
-			this._updateTagClearButton();
-		};
-		const externalInput = document.getElementById(
-			"presetTagsInputBox",
-		) as HTMLInputElement | null;
-		if (externalInput) {
-			externalInput.addEventListener("input", this._externalTagHandler);
-		}
+		// Inline tag input was removed; prompt manages _activeTags internally.
 
 		this._tagSearchInput.addEventListener("input", this._onTagSearch);
 		this._tagSearchInput.addEventListener("keydown", this._onTagSearchKeyDown);
@@ -363,29 +351,13 @@ export class InstrumentBrowserPrompt extends BasePrompt {
 		}
 	}
 
-	private _getExternalTagValue(): string {
-		const ext = document.getElementById("presetTagsInputBox") as HTMLInputElement | null;
-		return ext ? ext.value : "";
-	}
-
-	private _setExternalTagValue(value: string): void {
-		const ext = document.getElementById("presetTagsInputBox") as HTMLInputElement | null;
-		if (ext) {
-			ext.value = value;
-			ext.dispatchEvent(new Event("input"));
-		}
+	private _setExternalTagValue(_value: string): void {
+		// No-op: inline tag input removed, tags managed internally via _activeTags.
 	}
 
 	private _readActiveTags(): void {
-		const value = this._getExternalTagValue().trim();
-		if (value) {
-			this._activeTags = value
-				.toLowerCase()
-				.split(/\s+/)
-				.filter((t: string) => t !== "");
-		} else {
-			this._activeTags = [];
-		}
+		// No-op: inline tag input removed, tags managed internally via _activeTags.
+		// Mutations go directly to this._activeTags elsewhere.
 	}
 
 	private _applyTagFilter(): void {
@@ -749,17 +721,12 @@ export class InstrumentBrowserPrompt extends BasePrompt {
 				tagEl.addEventListener("mousedown", (e: MouseEvent) => {
 					e.preventDefault();
 					e.stopPropagation();
-					const tags = this._getExternalTagValue()
-						.toLowerCase()
-						.split(/\s+/)
-						.filter((t: string) => t !== "");
-					const idx = tags.indexOf(tag);
+					const idx = this._activeTags.indexOf(tag);
 					if (idx >= 0) {
-						tags.splice(idx, 1);
+						this._activeTags.splice(idx, 1);
 					} else {
-						tags.push(tag);
+						this._activeTags.push(tag);
 					}
-					this._setExternalTagValue(tags.join(" "));
 					this._applyTagFilter();
 					this._renderTags();
 					this._highlightTagSelected();
@@ -1391,12 +1358,6 @@ export class InstrumentBrowserPrompt extends BasePrompt {
 		this._tagSearchInput.removeEventListener("keydown", this._onTagSearchKeyDown);
 		this._tagClearButton.removeEventListener("click", this._onTagClear);
 		this.container.removeEventListener("keydown", this._onContainerKeyDown);
-		const externalInput = document.getElementById(
-			"presetTagsInputBox",
-		) as HTMLInputElement | null;
-		if (externalInput) {
-			externalInput.removeEventListener("input", this._externalTagHandler);
-		}
 	};
 
 	private _onDocumentChanged = (): void => {
