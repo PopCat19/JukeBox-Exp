@@ -37,7 +37,7 @@ import {
 import { prettyNumber } from "../config/editor-config";
 import type { Change } from "../core/change";
 import type { SongDocument } from "../song-document";
-import { addWheelSupport, deleteButton, dropdownButton, Slider } from "../ui";
+import { addWheelSupport, deleteButton, dropdownButton, flex, fontSize, Slider, s, w } from "../ui";
 
 export class EnvelopeEditor {
 	public readonly container: HTMLElement = HTML.div({ class: "envelopeEditor" });
@@ -232,14 +232,23 @@ export class EnvelopeEditor {
 				JSON.stringify(instrument.envelopes[envelopeCopyButtonIndex].toJsonObject()),
 			);
 		} else if (envelopePasteButtonIndex !== -1) {
-			// biome-ignore lint/suspicious/noExplicitAny: JSON parse result
-			const envelopeCopy: any = window.localStorage.getItem("envelopeCopy");
+			const envelopeCopy: string | null = window.localStorage.getItem("envelopeCopy");
+			if (envelopeCopy === null) return;
+			let envelopeJson: unknown;
+			try {
+				envelopeJson = JSON.parse(envelopeCopy);
+			} catch {
+				return;
+			}
+			if (
+				typeof envelopeJson !== "object" ||
+				envelopeJson === null ||
+				Array.isArray(envelopeJson)
+			)
+				return;
+			const envelopeObject = envelopeJson as Record<string, unknown>;
 			this._doc.record(
-				new PasteEnvelope(
-					this._doc,
-					JSON.parse(String(envelopeCopy)),
-					envelopePasteButtonIndex,
-				),
+				new PasteEnvelope(this._doc, envelopeObject, envelopePasteButtonIndex),
 			);
 		}
 	};
@@ -655,7 +664,7 @@ export class EnvelopeEditor {
 				value: instrument.envelopes[envelopeIndex].pitchEnvelopeStart
 					? instrument.envelopes[envelopeIndex].pitchEnvelopeStart
 					: 0,
-				style: `width:${Sizing.inputMd}; margin-left: 0px;`,
+				style: s(w(Sizing.inputMd), "margin-left:0px;"),
 				type: "range",
 				min: "0",
 				max: instrument.isNoiseInstrument ? Config.drumCount - 1 : Config.maxPitch,
@@ -665,7 +674,7 @@ export class EnvelopeEditor {
 				value: instrument.envelopes[envelopeIndex].pitchEnvelopeStart
 					? instrument.envelopes[envelopeIndex].pitchEnvelopeStart
 					: 0,
-				style: "width: 4em; font-size: 80%; ",
+				style: s(w("4em"), fontSize("80%")),
 				id: "startNoteBox",
 				type: "number",
 				step: "1",
@@ -679,7 +688,7 @@ export class EnvelopeEditor {
 					: instrument.isNoiseInstrument
 						? Config.drumCount - 1
 						: Config.maxPitch,
-				style: `width:${Sizing.inputMd}; margin-left: 0px;`,
+				style: s(w(Sizing.inputMd), "margin-left:0px;"),
 				type: "range",
 				min: "0",
 				max: instrument.isNoiseInstrument ? Config.drumCount - 1 : Config.maxPitch,
@@ -691,7 +700,7 @@ export class EnvelopeEditor {
 					: instrument.isNoiseInstrument
 						? Config.drumCount - 1
 						: Config.maxPitch,
-				style: "width: 4em; font-size: 80%; ",
+				style: s(w("4em"), fontSize("80%")),
 				id: "endNoteBox",
 				type: "number",
 				step: "1",
@@ -702,7 +711,7 @@ export class EnvelopeEditor {
 			const pitchStartNoteDisplay: HTMLSpanElement = HTML.span(
 				{
 					class: "tip",
-					style: `width:68px; flex:1; height:1em; font-size: smaller;`,
+					style: s(w("68px"), "flex:1;", "height:1em;", fontSize("smaller")),
 					onclick: () => {
 						this._openPrompt("pitchRange");
 					},
@@ -712,7 +721,7 @@ export class EnvelopeEditor {
 			const pitchEndNoteDisplay: HTMLSpanElement = HTML.span(
 				{
 					class: "tip",
-					style: `width:68px; flex:1; height:1em; font-size: smaller;`,
+					style: s(w("68px"), "flex:1;", "height:1em;", fontSize("smaller")),
 					onclick: () => {
 						this._openPrompt("pitchRange");
 					},
@@ -721,33 +730,44 @@ export class EnvelopeEditor {
 			);
 
 			const pitchStartBoxWrapper: HTMLDivElement = HTML.div(
-				{ style: "flex: 1; display: flex; flex-direction: column; align-items: center;" },
+				{ style: s("flex:1;", flex("column"), "align-items:center;") },
 				pitchStartNoteDisplay,
 				pitchStartNoteBox,
 			);
 			const pitchEndBoxWrapper: HTMLDivElement = HTML.div(
-				{ style: "flex: 1; display: flex; flex-direction: column; align-items: center;" },
+				{ style: s("flex:1;", flex("column"), "align-items:center;") },
 				pitchEndNoteDisplay,
 				pitchEndNoteBox,
 			);
 
 			const pitchStartNoteWrapper: HTMLDivElement = HTML.div(
 				{
-					style: "margin-top: 3px; flex:1; display:flex; flex-direction: row; align-items:center; justify-content:right;",
+					style: s(
+						"margin-top:3px;flex:1;",
+						flex("row"),
+						"align-items:center;justify-content:right;",
+					),
 				},
 				pitchStartBoxWrapper,
 				pitchStartNoteSlider,
 			);
 			const pitchEndNoteWrapper: HTMLDivElement = HTML.div(
 				{
-					style: "margin-top: 3px; flex:1; display:flex; flex-direction: row; align-items:center; justify-content:right;",
+					style: s(
+						"margin-top:3px;flex:1;",
+						flex("row"),
+						"align-items:center;justify-content:right;",
+					),
 				},
 				pitchEndBoxWrapper,
 				pitchEndNoteSlider,
 			);
 
 			const extraPitchSettingsGroup: HTMLDivElement = HTML.div(
-				{ class: "editor-controls", style: "flex-direction:column; align-items:center;" },
+				{
+					class: "editor-controls",
+					style: s("flex-direction:column;", "align-items:center;"),
+				},
 				pitchStartNoteWrapper,
 				pitchEndNoteWrapper,
 			);
@@ -760,7 +780,7 @@ export class EnvelopeEditor {
 				min: 1,
 				max: Config.randomEnvelopeStepsMax,
 				step: 1,
-				style: "width: 4em; font-size: 80%; ",
+				style: s(w("4em"), fontSize("80%")),
 			});
 			const randomStepsSlider: HTMLInputElement = HTML.input({
 				value: instrument.envelopes[envelopeIndex].steps,
@@ -768,7 +788,7 @@ export class EnvelopeEditor {
 				min: 1,
 				max: Config.randomEnvelopeStepsMax,
 				step: 1,
-				style: `width:${Sizing.inputMd}; margin-left: 0px;`,
+				style: s(w(Sizing.inputMd), "margin-left:0px;"),
 			});
 
 			const randomSeedBox: HTMLInputElement = HTML.input({
@@ -777,7 +797,7 @@ export class EnvelopeEditor {
 				min: 1,
 				max: Config.randomEnvelopeSeedMax,
 				step: 1,
-				style: "width: 4em; font-size: 80%; ",
+				style: s(w("4em"), fontSize("80%")),
 			});
 			const randomSeedSlider: HTMLInputElement = HTML.input({
 				value: instrument.envelopes[envelopeIndex].seed,
@@ -785,15 +805,15 @@ export class EnvelopeEditor {
 				min: 1,
 				max: Config.randomEnvelopeSeedMax,
 				step: 1,
-				style: `width:${Sizing.inputMd}; margin-left: 0px;`,
+				style: s(w(Sizing.inputMd), "margin-left:0px;"),
 			});
 
 			const randomStepsBoxWrapper: HTMLDivElement = HTML.div(
-				{ style: "flex: 1; display: flex; flex-direction: column; align-items: center;" },
+				{ style: s("flex:1;", flex("column"), "align-items:center;") },
 				HTML.span(
 					{
 						class: "tip",
-						style: `width:68px; flex:1; height:1em; font-size: smaller;`,
+						style: s(w("68px"), "flex:1;", "height:1em;", fontSize("smaller")),
 						onclick: () => {
 							this._openPrompt("randomSteps");
 						},
@@ -803,11 +823,11 @@ export class EnvelopeEditor {
 				randomStepsBox,
 			);
 			const randomSeedBoxWrapper: HTMLDivElement = HTML.div(
-				{ style: "flex: 1; display: flex; flex-direction: column; align-items: center;" },
+				{ style: s("flex:1;", flex("column"), "align-items:center;") },
 				HTML.span(
 					{
 						class: "tip",
-						style: `width:68px; flex:1; height:1em; font-size: smaller;`,
+						style: s(w("68px"), "flex:1;", "height:1em;", fontSize("smaller")),
 						onclick: () => {
 							this._openPrompt("randomSeed");
 						},
@@ -819,21 +839,29 @@ export class EnvelopeEditor {
 
 			const randomStepsWrapper: HTMLDivElement = HTML.div(
 				{
-					style: "margin-top: 3px; flex:1; display:flex; flex-direction: row; align-items:center; justify-content:right;",
+					style: s(
+						"margin-top:3px;flex:1;",
+						flex("row"),
+						"align-items:center;justify-content:right;",
+					),
 				},
 				randomStepsBoxWrapper,
 				randomStepsSlider,
 			);
 			const randomSeedWrapper: HTMLDivElement = HTML.div(
 				{
-					style: "margin-top: 3px; flex:1; display:flex; flex-direction: row; align-items:center; justify-content:right;",
+					style: s(
+						"margin-top:3px;flex:1;",
+						flex("row"),
+						"align-items:center;justify-content:right;",
+					),
 				},
 				randomSeedBoxWrapper,
 				randomSeedSlider,
 			);
 
 			const randomTypeSelect: HTMLSelectElement = HTML.select({
-				style: `width:${Sizing.inputLg};`,
+				style: w(Sizing.inputLg),
 			});
 			const randomNames: string[] = ["time", "pitch", "note", "time smooth"];
 			for (let waveform: number = 0; waveform < RandomEnvelopeTypes.length; waveform++) {
@@ -844,7 +872,11 @@ export class EnvelopeEditor {
 			const randomTypeSelectWrapper: HTMLDivElement = HTML.div(
 				{
 					class: "editor-controls selectContainer",
-					style: "margin-top: 3px; flex:1; display:flex; flex-direction: row; align-items:center; justify-content:right;",
+					style: s(
+						"margin-top:3px;flex:1;",
+						flex("row"),
+						"align-items:center;justify-content:right;",
+					),
 				},
 				HTML.span(
 					{
@@ -860,7 +892,10 @@ export class EnvelopeEditor {
 			);
 
 			const extraRandomSettingsGroup: HTMLDivElement = HTML.div(
-				{ class: "editor-controls", style: "flex-direction:column; align-items:center;" },
+				{
+					class: "editor-controls",
+					style: s("flex-direction:column;", "align-items:center;"),
+				},
 				randomTypeSelectWrapper,
 				randomStepsWrapper,
 				randomSeedWrapper,
@@ -869,7 +904,7 @@ export class EnvelopeEditor {
 
 			// lfo settings
 			const waveformSelect: HTMLSelectElement = HTML.select({
-				style: `width:${Sizing.inputLg};`,
+				style: w(Sizing.inputLg),
 			});
 			const LFOStepsBox: HTMLInputElement = HTML.input({
 				value: instrument.envelopes[envelopeIndex].steps,
@@ -877,7 +912,7 @@ export class EnvelopeEditor {
 				min: 1,
 				max: Config.randomEnvelopeStepsMax,
 				step: 1,
-				style: "width: 4em; font-size: 80%; ",
+				style: s(w("4em"), fontSize("80%")),
 			});
 			const LFOStepsSlider: HTMLInputElement = HTML.input({
 				value: instrument.envelopes[envelopeIndex].steps,
@@ -885,15 +920,15 @@ export class EnvelopeEditor {
 				min: 1,
 				max: Config.randomEnvelopeStepsMax,
 				step: 1,
-				style: `width:${Sizing.inputMd}; margin-left: 0px;`,
+				style: s(w(Sizing.inputMd), "margin-left:0px;"),
 			});
 
 			const LFOStepsBoxWrapper: HTMLDivElement = HTML.div(
-				{ style: "flex: 1; display: flex; flex-direction: column; align-items: center;" },
+				{ style: s("flex:1;", flex("column"), "align-items:center;") },
 				HTML.span(
 					{
 						class: "tip",
-						style: `width:68px; flex:1; height:1em; font-size: smaller;`,
+						style: s(w("68px"), "flex:1;", "height:1em;", fontSize("smaller")),
 						onclick: () => {
 							this._openPrompt("randomSteps");
 						},
@@ -905,7 +940,11 @@ export class EnvelopeEditor {
 
 			const LFOStepsWrapper: HTMLDivElement = HTML.div(
 				{
-					style: "margin-top: 3px; flex:1; display:flex; flex-direction: row; align-items:center; justify-content:right;",
+					style: s(
+						"margin-top:3px;flex:1;",
+						flex("row"),
+						"align-items:center;justify-content:right;",
+					),
 				},
 				LFOStepsBoxWrapper,
 				LFOStepsSlider,
@@ -926,7 +965,11 @@ export class EnvelopeEditor {
 			const waveformWrapper: HTMLDivElement = HTML.div(
 				{
 					class: "editor-controls selectContainer",
-					style: "margin-top: 3px; flex:1; display:flex; flex-direction: row; align-items:center; justify-content:right;",
+					style: s(
+						"margin-top:3px;flex:1;",
+						flex("row"),
+						"align-items:center;justify-content:right;",
+					),
 				},
 				HTML.span(
 					{
@@ -943,7 +986,11 @@ export class EnvelopeEditor {
 			const extraLFOSettingsGroup: HTMLDivElement = HTML.div(
 				{
 					class: "editor-controls",
-					style: "margin-top: 3px; flex:1; display:flex; flex-direction: column; align-items:center; justify-content:right;",
+					style: s(
+						"margin-top:3px;flex:1;",
+						"flex-direction:column;",
+						"align-items:center;justify-content:right;",
+					),
 				},
 				waveformWrapper,
 				LFOStepsWrapper,
@@ -988,7 +1035,11 @@ export class EnvelopeEditor {
 			);
 			const perEnvelopeSpeedWrapper: HTMLDivElement = HTML.div(
 				{
-					style: "margin-top: 3px; flex:1; display:flex; flex-direction: row; align-items:center; justify-content:right;",
+					style: s(
+						"margin-top:3px;flex:1;",
+						flex("row"),
+						"align-items:center;justify-content:right;",
+					),
 				},
 				perEnvelopeSpeedDisplay,
 				perEnvelopeSpeedSlider.container,
@@ -996,7 +1047,7 @@ export class EnvelopeEditor {
 			const perEnvelopeSpeedGroup: HTMLDivElement = HTML.div(
 				{
 					class: "editor-controls",
-					style: "flex-direction:column; align-items:center;",
+					style: s("flex-direction:column;", "align-items:center;"),
 				},
 				perEnvelopeSpeedWrapper,
 			);
@@ -1008,7 +1059,7 @@ export class EnvelopeEditor {
 				min: Config.perEnvelopeBoundMin,
 				max: Config.perEnvelopeBoundMax,
 				step: 0.1,
-				style: "width: 4em; font-size: 80%; ",
+				style: s(w("4em"), fontSize("80%")),
 			});
 			const lowerBoundSlider: Slider = new Slider(
 				HTML.input({
@@ -1017,7 +1068,7 @@ export class EnvelopeEditor {
 					min: Config.perEnvelopeBoundMin,
 					max: Config.perEnvelopeBoundMax,
 					step: 0.1,
-					style: `width:${Sizing.inputMd}; margin-left: 0px;`,
+					style: s(w(Sizing.inputMd), "margin-left:0px;"),
 				}),
 				this._doc,
 				(oldBound: number, newBound: number) =>
@@ -1031,7 +1082,7 @@ export class EnvelopeEditor {
 				min: Config.perEnvelopeBoundMin,
 				max: Config.perEnvelopeBoundMax,
 				step: 0.1,
-				style: "width: 4em; font-size: 80%; ",
+				style: s(w("4em"), fontSize("80%")),
 			});
 			const upperBoundSlider: Slider = new Slider(
 				HTML.input({
@@ -1040,7 +1091,7 @@ export class EnvelopeEditor {
 					min: Config.perEnvelopeBoundMin,
 					max: Config.perEnvelopeBoundMax,
 					step: 0.1,
-					style: `width:${Sizing.inputMd}; margin-left: 0px;`,
+					style: s(w(Sizing.inputMd), "margin-left:0px;"),
 				}),
 				this._doc,
 				(oldBound: number, newBound: number) =>
@@ -1049,11 +1100,11 @@ export class EnvelopeEditor {
 			);
 
 			const lowerBoundBoxWrapper: HTMLDivElement = HTML.div(
-				{ style: "flex: 1; display: flex; flex-direction: column; align-items: center;" },
+				{ style: s("flex:1;", flex("column"), "align-items:center;") },
 				HTML.span(
 					{
 						class: "tip",
-						style: `width:68px; flex:1; height:1em; font-size: smaller;`,
+						style: s(w("68px"), "flex:1;", "height:1em;", fontSize("smaller")),
 						onclick: () => {
 							this._openPrompt("envelopeRange");
 						},
@@ -1063,11 +1114,11 @@ export class EnvelopeEditor {
 				lowerBoundBox,
 			);
 			const upperBoundBoxWrapper: HTMLDivElement = HTML.div(
-				{ style: "flex: 1; display: flex; flex-direction: column; align-items: center;" },
+				{ style: s("flex:1;", flex("column"), "align-items:center;") },
 				HTML.span(
 					{
 						class: "tip",
-						style: `width:68px; flex:1; height:1em; font-size: smaller;`,
+						style: s(w("68px"), "flex:1;", "height:1em;", fontSize("smaller")),
 						onclick: () => {
 							this._openPrompt("envelopeRange");
 						},
@@ -1079,14 +1130,22 @@ export class EnvelopeEditor {
 
 			const lowerBoundWrapper: HTMLDivElement = HTML.div(
 				{
-					style: "margin-top: 3px; flex:1; display:flex; flex-direction: row; align-items:center; justify-content:right;",
+					style: s(
+						"margin-top:3px;flex:1;",
+						flex("row"),
+						"align-items:center;justify-content:right;",
+					),
 				},
 				lowerBoundBoxWrapper,
 				lowerBoundSlider.container,
 			);
 			const upperBoundWrapper: HTMLDivElement = HTML.div(
 				{
-					style: "margin-top: 3px; flex:1; display:flex; flex-direction: row; align-items:center; justify-content:right;",
+					style: s(
+						"margin-top:3px;flex:1;",
+						flex("row"),
+						"align-items:center;justify-content:right;",
+					),
 				},
 				upperBoundBoxWrapper,
 				upperBoundSlider.container,
@@ -1235,7 +1294,7 @@ export class EnvelopeEditor {
 			});
 
 			const extraSettingsDropdownGroup: HTMLDivElement = HTML.div(
-				{ class: "editor-controls", style: "flex-direction:column; align-items:center;" },
+				{ class: "editor-controls", style: s(flex("column"), "align-items:center;") },
 				extraRandomSettingsGroup,
 				extraLFOSettingsGroup,
 				extraPitchSettingsGroup,
