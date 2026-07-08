@@ -2346,7 +2346,11 @@ export class Synth {
 					_toneSetupMs += performance.now() - _toneSetupStart;
 
 					const _tonePlayStart: number = performance.now();
-					if (!this._workletActive) {
+					// Worklet runs compute in parallel for timing verification,
+					// but main thread still renders audio until FM rendering
+					// is verified in the worklet-native path.
+					// TEMP: remove this gate when worklet FM output is validated.
+					if (true) {
 						for (let i: number = 0; i < instrumentState.activeTones.count(); i++) {
 							const tone: Tone = instrumentState.activeTones.get(i);
 							this.playTone(channelIndex, bufferIndex, runLength, tone);
