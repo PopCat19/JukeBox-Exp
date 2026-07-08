@@ -82,6 +82,8 @@ export class Slider {
 					this._wrapperDiv,
 				);
 
+		this.container.dataset.devComponent = midTick ? "DeltaSlider" : "Slider";
+
 		input.addEventListener("input", this._whenInput);
 		input.addEventListener("change", this._whenChange);
 		this._wrapperDiv.addEventListener("pointerdown", this._onPointerDown);

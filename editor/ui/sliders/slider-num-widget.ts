@@ -53,6 +53,7 @@ export class SliderNumWidget {
 			value: String(value),
 		});
 		this.inputBox.classList.add("slider-num-input");
+		this.inputBox.dataset.devComponent = "SliderNumWidget";
 		this.row = inlineSliderRow(
 			label,
 			onOpenPrompt,
