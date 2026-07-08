@@ -65,7 +65,7 @@ export interface KeyboardHandlerHost {
 	pwmSliderInputBox: HTMLInputElement;
 	detuneSliderInputBox: HTMLInputElement;
 	instrumentVolumeSliderInputBox: HTMLInputElement;
-	presetTagsInputBox: HTMLInputElement;
+
 	chipWaveLoopStartStepper: HTMLInputElement;
 	chipWaveLoopEndStepper: HTMLInputElement;
 	chipWaveStartOffsetStepper: HTMLInputElement;
@@ -158,7 +158,6 @@ export class KeyboardHandler {
 				document.activeElement === host.pwmSliderInputBox ||
 				document.activeElement === host.detuneSliderInputBox ||
 				document.activeElement === host.instrumentVolumeSliderInputBox ||
-				document.activeElement === host.presetTagsInputBox ||
 				document.activeElement === host.chipWaveLoopStartStepper ||
 				document.activeElement === host.chipWaveLoopEndStepper ||
 				document.activeElement === host.chipWaveStartOffsetStepper ||
@@ -617,7 +616,7 @@ export class KeyboardHandler {
 					doc.prefs.visibleOctaves = 5;
 					doc.prefs.colorTheme = "jummbox classic";
 					doc.prefs.rollNoveltyPresets = false;
-					doc.prefs.enableTagSearch = false;
+					// enableTagSearch removed — tags handled by instrument-browser-prompt
 					doc.prefs.save();
 					event.preventDefault();
 					location.reload();
@@ -774,7 +773,7 @@ export class KeyboardHandler {
 
 					doc.prefs.showSpectrum = true;
 					doc.prefs.rollNoveltyPresets = false;
-					doc.prefs.enableTagSearch = false;
+					// enableTagSearch removed — tags handled by instrument-browser-prompt
 					doc.prefs.save();
 					event.preventDefault();
 					location.reload();
@@ -894,7 +893,7 @@ export class KeyboardHandler {
 
 					doc.prefs.showSpectrum = true;
 					doc.prefs.rollNoveltyPresets = true;
-					doc.prefs.enableTagSearch = true;
+					// enableTagSearch removed — tags handled by instrument-browser-prompt
 					doc.prefs.save();
 					event.preventDefault();
 					location.reload();

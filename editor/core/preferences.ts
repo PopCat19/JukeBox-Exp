@@ -46,7 +46,7 @@ const prefSchema: PrefEntry[] = [
 	{ key: "closePromptByClickoff", default: true },
 	{ key: "showPromptBackdrop", default: true },
 	{ key: "displayBrowserUrl", default: true },
-	{ key: "enableTagSearch", default: true },
+	// { key: "enableTagSearch", default: true } — removed, tags handled by instrument-browser-prompt
 	// notesFlashWhenPlayed: original code had a typo ("flase" for "false")
 	// which meant saving "false" still produced true on reload. Fixed here.
 	{ key: "notesFlashWhenPlayed", default: true },
@@ -157,6 +157,7 @@ export class Preferences {
 	public doubleClickSliderReset: boolean = false;
 	// jukebox
 	public rollNoveltyPresets: boolean = false;
+	/** @deprecated No longer used. Tags handled by instrument-browser-prompt. */
 	public enableTagSearch: boolean = true;
 	public debugPrompts: boolean = false;
 	public debugSynth: boolean = false;

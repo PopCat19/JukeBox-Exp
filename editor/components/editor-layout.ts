@@ -146,7 +146,6 @@ export class EditorLayout {
 			globalSpectrumContainer: this.container,
 			sampleLoadingStatusContainer: this._sampleLoadingStatusContainer,
 			instrumentCopyGroup: this.container,
-			instrumentTagRow: this.container,
 			instrumentExportGroup: this.container,
 			instrumentSettingsArea: this.settingsArea.instrumentSettings.container,
 			patternEditorRow: this._patternAreaContainer,

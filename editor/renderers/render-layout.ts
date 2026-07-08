@@ -33,7 +33,7 @@ export interface LayoutRefs {
 	overlaySpectrum?: spectrumCanvas;
 	sampleLoadingStatusContainer: HTMLElement;
 	instrumentCopyGroup: HTMLElement;
-	instrumentTagRow: HTMLElement;
+
 	instrumentExportGroup: HTMLElement;
 	instrumentSettingsArea: HTMLElement;
 	patternEditorRow: HTMLElement;
@@ -113,7 +113,7 @@ export function renderLayout(refs: LayoutRefs, doc: SongDocument): void {
 		? ""
 		: "none";
 	refs.instrumentCopyGroup.style.display = doc.prefs.instrumentCopyPaste ? "" : "none";
-	refs.instrumentTagRow.style.display = doc.prefs.enableTagSearch ? "" : "none";
+
 	refs.instrumentExportGroup.style.display = doc.prefs.instrumentImportExport ? "" : "none";
 	refs.instrumentSettingsArea.style.scrollbarWidth = doc.prefs.showInstrumentScrollbars
 		? ""

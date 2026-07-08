@@ -87,7 +87,7 @@ export class MenuBar {
 				option({ value: "alwaysFineNoteVol" }, "Always Fine Note Volume"),
 				option({ value: "enableChannelMuting" }, "Enable Channel Muting"),
 				option({ value: "instrumentCopyPaste" }, "Enable Copy/Paste Buttons"),
-				option({ value: "enableTagSearch" }, "Enable Tag Search"),
+
 				option({ value: "instrumentImportExport" }, "Enable Import/Export Buttons"),
 				option({ value: "displayBrowserUrl" }, "Enable Song Data in URL"),
 				option({ value: "closePromptByClickoff" }, "Close Prompts on Click Off"),

@@ -21,7 +21,7 @@ export interface PresetSetupRefs {
 	panSliderRow: HTMLElement;
 	panDropdownGroup: HTMLElement;
 	detuneSliderRow: HTMLElement;
-	instrumentTagRow: HTMLElement;
+
 	instrumentVolumeSliderRow: HTMLElement;
 	instrumentTypeSelectRow: HTMLElement;
 	instrumentSettingsGroup: HTMLElement;
@@ -46,7 +46,7 @@ export function renderPresetSetup(
 	refs.panSliderRow.style.display = "";
 	refs.panDropdownGroup.style.display = openPanDropdown ? "" : "none";
 	refs.detuneSliderRow.style.display = "";
-	if (prefs.enableTagSearch) refs.instrumentTagRow.style.display = "";
+
 	refs.instrumentVolumeSliderRow.style.display = "";
 	refs.instrumentTypeSelectRow.style.setProperty("display", "");
 	if (prefs.instrumentButtonsAtTop) {

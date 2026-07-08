@@ -28,7 +28,7 @@ export function renderOptionsMenu(
 		`${prefs.alwaysFineNoteVol ? textOnIcon : textOffIcon}Always Fine Note Volume`,
 		`${prefs.enableChannelMuting ? textOnIcon : textOffIcon}Enable Channel Muting`,
 		`${prefs.instrumentCopyPaste ? textOnIcon : textOffIcon}Enable Copy/Paste Buttons`,
-		`${prefs.enableTagSearch ? textOnIcon : textOffIcon}Enable Tag Search`,
+
 		`${prefs.instrumentImportExport ? textOnIcon : textOffIcon}Enable Import/Export Buttons`,
 		`${prefs.displayBrowserUrl ? textOnIcon : textOffIcon}Enable Song Data in URL`,
 		`${prefs.closePromptByClickoff ? textOnIcon : textOffIcon}Close Prompts on Click Off`,

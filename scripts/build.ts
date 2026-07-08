@@ -20,8 +20,19 @@ try {
 
 const offline = process.argv.includes("--offline");
 
+let gitHash = "unknown";
+let gitBranch = "unknown";
+try {
+	gitHash = execSync("git rev-parse --short HEAD", { encoding: "utf-8" }).trim();
+	gitBranch = execSync("git rev-parse --abbrev-ref HEAD", { encoding: "utf-8" }).trim();
+} catch {
+	// Not a git repo or git unavailable.
+}
+
 const define: Record<string, string> = {
-  OFFLINE: JSON.stringify(offline),
+	OFFLINE: JSON.stringify(offline),
+	GIT_HASH: JSON.stringify(gitHash),
+	GIT_BRANCH: JSON.stringify(gitBranch),
 };
 
 const shared: esbuild.BuildOptions = {

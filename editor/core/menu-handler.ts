@@ -17,7 +17,7 @@ export interface MenuHandlerHost {
 	openPrompt(name: string): void;
 	openShortcuts(): void;
 	copyTextToClipboard(text: string): void;
-	presetTagsInputBox: HTMLInputElement;
+
 	refocusStage(): void;
 }
 
@@ -308,10 +308,7 @@ export class MenuHandler {
 			case "rollNoveltyPresets":
 				this._host.doc.prefs.rollNoveltyPresets = !this._host.doc.prefs.rollNoveltyPresets;
 				break;
-			case "enableTagSearch":
-				this._host.doc.prefs.enableTagSearch = !this._host.doc.prefs.enableTagSearch;
-				this._host.presetTagsInputBox.value = "";
-				break;
+
 			case "enableScrollStep":
 				this._host.doc.prefs.enableScrollStep = !this._host.doc.prefs.enableScrollStep;
 				break;

@@ -76,7 +76,7 @@ export interface ModSettingsRefs {
 	chordDropdownGroup: HTMLElement;
 	transitionRow: HTMLElement;
 	customInstrumentSettingsGroup: HTMLElement;
-	instrumentTagRow: HTMLElement;
+
 	instrumentVolumeSliderRow: HTMLElement;
 	instrumentTypeSelectRow: HTMLElement;
 	instrumentSettingsGroup: HTMLElement;
@@ -822,7 +822,7 @@ export function renderModSettings(
 	refs.customInstrumentSettingsGroup.style.display = "none";
 	refs.panSliderRow.style.display = "none";
 	refs.panDropdownGroup.style.display = "none";
-	refs.instrumentTagRow.style.display = "none";
+
 	refs.instrumentVolumeSliderRow.style.display = "none";
 	refs.instrumentTypeSelectRow.style.setProperty("display", "none");
 

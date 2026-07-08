@@ -141,11 +141,6 @@ export interface EventListenerSetupHost {
 	upperNoteLimitInputBox: HTMLInputElement;
 	lowerNoteLimitInputBox: HTMLInputElement;
 
-	// Tag autocomplete
-	presetTagsInputBox: HTMLInputElement;
-	tagAutocompleteBox: HTMLDivElement;
-	clearTagsButton: HTMLButtonElement;
-
 	// Container elements
 	promptContainer: HTMLDivElement;
 	trackAndMuteContainer: HTMLDivElement;
@@ -170,16 +165,7 @@ export interface EventListenerSetupHost {
 	updateSampleLoadingBar: (event: SampleLoadedEvent) => void;
 	customWavePresetHandler: (event: Event) => void;
 
-	// Tag autocomplete methods
-	updateTagAutocomplete: () => void;
-	filterPresetSelectByTags: () => void;
-	highlightTagSuggestion: (items: NodeListOf<HTMLElement>) => void;
-	applyTagSuggestion: (tag: string) => void;
-	hideTagAutocomplete: () => void;
 	onTrackAreaScroll: (event: Event) => void;
-
-	// State for tag autocomplete
-	tagAutocompleteIndex: number;
 }
 
 export class EventListenerSetup {
@@ -659,44 +645,6 @@ export class EventListenerSetup {
 		});
 		host.invertWaveBox.addEventListener("input", () => {
 			host.doc.record(new ChangeInvertWave(host.doc, host.invertWaveBox.checked));
-		});
-
-		// Tag autocomplete handlers
-		host.presetTagsInputBox.addEventListener("input", () => {
-			host.updateTagAutocomplete();
-			host.filterPresetSelectByTags();
-		});
-		host.presetTagsInputBox.addEventListener("keydown", (event: KeyboardEvent) => {
-			const items = host.tagAutocompleteBox.querySelectorAll<HTMLElement>(".tagSuggestion");
-			if (host.tagAutocompleteBox.style.display === "none" || items.length === 0) return;
-
-			if (event.key === "ArrowDown") {
-				event.preventDefault();
-				host.tagAutocompleteIndex = (host.tagAutocompleteIndex + 1) % items.length;
-				host.highlightTagSuggestion(items);
-			} else if (event.key === "ArrowUp") {
-				event.preventDefault();
-				host.tagAutocompleteIndex =
-					(host.tagAutocompleteIndex - 1 + items.length) % items.length;
-				host.highlightTagSuggestion(items);
-			} else if (event.key === "Enter" || event.key === "Tab") {
-				if (host.tagAutocompleteIndex >= 0 && host.tagAutocompleteIndex < items.length) {
-					event.preventDefault();
-					host.applyTagSuggestion(items[host.tagAutocompleteIndex].dataset.tag!);
-				}
-			} else if (event.key === "Escape") {
-				host.hideTagAutocomplete();
-			}
-		});
-		host.presetTagsInputBox.addEventListener("blur", () => {
-			// Delay hiding so click on suggestion registers first
-			setTimeout(() => {
-				host.hideTagAutocomplete();
-			}, 150);
-		});
-		host.clearTagsButton.addEventListener("click", () => {
-			host.presetTagsInputBox.value = "";
-			host.presetTagsInputBox.dispatchEvent(new Event("input"));
 		});
 
 		// Prompt container click handler

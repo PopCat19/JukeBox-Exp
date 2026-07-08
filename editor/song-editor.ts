@@ -85,7 +85,7 @@ import { ModulatorSetup, type ModulatorSetupHost } from "./core/modulator-setup"
 import { PlayerAnimator } from "./core/player-animator";
 import type { Preferences } from "./core/preferences";
 import { type PromptEditorRefs, type PromptHost, PromptManager } from "./core/prompt-manager";
-import { TagAutocomplete } from "./core/tag-autocomplete";
+
 import { MidiInputHandler } from "./io/midi-input";
 import { CustomChipPrompt } from "./prompts/custom-chip-prompt";
 import { ImportPrompt } from "./prompts/import-prompt";
@@ -114,7 +114,6 @@ import {
 	buildHeaderedOptions,
 	buildOptions,
 	buildPresetButton,
-	clearButton,
 	dropdownButton,
 	InputBox,
 	iconButton,
@@ -131,6 +130,9 @@ const { button, div, input, select, span, optgroup, option, canvas } = HTML;
 
 import { CustomAlgorithmCanvas } from "./rendering/custom-algorithm-canvas";
 import { CustomChipCanvas } from "./rendering/custom-chip-canvas";
+
+declare const GIT_HASH: string;
+declare const GIT_BRANCH: string;
 
 export class SongEditor
 	implements
@@ -198,6 +200,19 @@ export class SongEditor
 	private readonly _volumeSlider: Slider = this._playbackControls.volumeSlider;
 	private readonly _volumeBarBox: HTMLDivElement = this._playbackControls.volumeBarBox;
 	private readonly _barPosLabel: HTMLSpanElement = this._playbackControls.barPosLabel;
+	private readonly _gitStatusLabel: HTMLSpanElement = (() => {
+		const el = span({
+			style: "font-size: 8px; font-family: monospace; color: var(--secondary-text); white-space: nowrap; line-height: 1.2; display: inline-block;",
+		});
+		// GIT_HASH/GIT_BRANCH injected by esbuild defines at build time.
+		// Falls back to 'unknown/unknown' in dev (no define) or test runners.
+		try {
+			el.textContent = `${GIT_HASH || "unknown"} / ${GIT_BRANCH || "unknown"}`;
+		} catch {
+			el.textContent = "unknown / unknown";
+		}
+		return el;
+	})();
 	private readonly _menuBar: MenuBar = new MenuBar();
 	private readonly _fileMenu: HTMLSelectElement = this._menuBar.fileMenu;
 	private readonly _editMenu: HTMLSelectElement = this._menuBar.editMenu;
@@ -346,15 +361,12 @@ export class SongEditor
 	);
 	private readonly _instrumentVolumeSliderRow: HTMLDivElement = div(
 		{ class: "selectRow" },
-		div(
-			{},
-			div(
-				{ style: `color: ${ColorConfig.secondaryText};` },
-				span({ class: "tip" }, this._instrumentVolumeSliderTip),
-			),
-			valueLabel(this._instrumentVolumeSliderInputBox),
+		this._instrumentVolumeSliderTip,
+		span(
+			{ style: "display: flex; align-items: center;" },
+			this._instrumentVolumeSlider.container,
+			this._instrumentVolumeSliderInputBox,
 		),
-		this._instrumentVolumeSlider.container,
 	);
 	private readonly _panSlider: Slider = rangeSlider(
 		this.doc,
@@ -380,23 +392,23 @@ export class SongEditor
 	});
 	private readonly _panSliderRow: HTMLDivElement = div(
 		{ class: "selectRow" },
-		div(
-			{},
-			span(
-				{
-					class: "tip",
-					tabindex: "0",
-					style: "height:1em; font-size: smaller;",
-					onclick: () => {
-						this._openPrompt("pan");
-					},
+		span(
+			{
+				class: "tip",
+				tabindex: "0",
+				style: "height:1em; font-size: smaller;",
+				onclick: () => {
+					this._openPrompt("pan");
 				},
-				"Pan: ",
-			),
-			valueLabel(this._panSliderInputBox),
+			},
+			"Pan: ",
 		),
 		this._panDropdown,
-		this._panSlider.container,
+		span(
+			{ style: "display: flex; align-items: center;" },
+			this._panSlider.container,
+			this._panSliderInputBox,
+		),
 	);
 	private readonly _panDelaySlider: Slider = rangeSlider(
 		this.doc,
@@ -1861,37 +1873,6 @@ export class SongEditor
 		(oldValue: string, newValue: string) => new ChangeSongTitle(this.doc, oldValue, newValue),
 	);
 
-	private readonly _presetTagsInputBox: HTMLInputElement = input({
-		style: "width: 100%; height: 100%; font-size: 80%; margin: 0; vertical-align: middle; padding: 0 1.6em 0 4px; box-sizing: border-box;",
-		id: "presetTagsInputBox",
-		type: "text",
-		value: "",
-		autocomplete: "off",
-	});
-
-	private readonly _clearTagsButton: HTMLButtonElement = clearButton("Clear tags");
-
-	private readonly _tagAutocomplete: TagAutocomplete = new TagAutocomplete({
-		presetTagsInputBox: this._presetTagsInputBox,
-		pitchedPresetSelect: this._pitchedPresetSelect,
-		drumPresetSelect: this._drumPresetSelect,
-	});
-
-	private readonly _tagInputWrapper: HTMLDivElement = div(
-		{ style: "position: relative; width: 60%; display: inline-block; height: 100%;" },
-		this._presetTagsInputBox,
-		(() => {
-			this._clearTagsButton.style.position = "absolute";
-			this._clearTagsButton.style.right = "0";
-			this._clearTagsButton.style.top = "50%";
-			this._clearTagsButton.style.transform = "translateY(-50%)";
-			this._clearTagsButton.style.background = "none";
-			this._clearTagsButton.style.borderRadius = "3px";
-			return this._clearTagsButton;
-		})(),
-		this._tagAutocomplete.autocompleteBox,
-	);
-
 	private readonly _feedbackAmplitudeSlider: Slider = rangeSlider(
 		this.doc,
 		(oldValue: number, newValue: number) =>
@@ -2024,14 +2005,6 @@ export class SongEditor
 		"Instrument Settings",
 	);
 
-	private readonly _instrumentTagRow: HTMLDivElement = div(
-		{ class: "selectRow", style: "position:relative;" },
-		tipSpan("Tags:", () => {
-			this._openPrompt("instrumentTags");
-		}),
-		this._tagInputWrapper,
-	);
-
 	private readonly _instrumentTypeSelectRow: HTMLDivElement = div(
 		{ class: "selectRow", id: "typeSelectRow" },
 		tipSpan("Type:", () => {
@@ -2045,7 +2018,6 @@ export class SongEditor
 	private readonly _instrumentSettingsGroup: HTMLDivElement = div(
 		{ class: "editor-controls" },
 		this._instrumentSettingsTextRow,
-		this._instrumentTagRow,
 		this._instrumentsButtonRow,
 		this._instrumentTypeSelectRow,
 		this._instrumentVolumeSliderRow,
@@ -2302,6 +2274,12 @@ export class SongEditor
 					style: "text-align: center; font-size: 10px; color: var(--primary-text); margin-top: 2px;",
 				},
 				this._barPosLabel,
+				div(
+					{
+						style: "margin-top: 1px;",
+					},
+					this._gitStatusLabel,
+				),
 			),
 			div(
 				{ class: "playback-volume-controls" },
@@ -2529,9 +2507,7 @@ export class SongEditor
 	public get instrumentVolumeSliderInputBox(): HTMLInputElement {
 		return this._instrumentVolumeSliderInputBox;
 	}
-	public get presetTagsInputBox(): HTMLInputElement {
-		return this._presetTagsInputBox;
-	}
+
 	public get chipWaveLoopStartStepper(): HTMLInputElement {
 		return this._chipWaveLoopStartStepper;
 	}
@@ -2635,7 +2611,6 @@ export class SongEditor
 			overlaySpectrum: this._overlaySpectrum,
 			sampleLoadingStatusContainer: this._sampleLoadingStatusContainer,
 			instrumentCopyGroup: this._instrumentCopyGroup,
-			instrumentTagRow: this._instrumentTagRow,
 			instrumentExportGroup: this._instrumentExportGroup,
 			instrumentSettingsArea: this._instrumentSettingsArea,
 			patternEditorRow: this._patternEditorRow,
@@ -2669,7 +2644,6 @@ export class SongEditor
 			panSliderRow: this._panSliderRow,
 			panDropdownGroup: this._panDropdownGroup,
 			detuneSliderRow: this._detuneSliderRow,
-			instrumentTagRow: this._instrumentTagRow,
 			instrumentVolumeSliderRow: this._instrumentVolumeSliderRow,
 			instrumentTypeSelectRow: this._instrumentTypeSelectRow,
 			instrumentSettingsGroup: this._instrumentSettingsGroup,
@@ -2951,12 +2925,7 @@ export class SongEditor
 	public get invertWaveBox(): HTMLInputElement {
 		return this._invertWaveBox;
 	}
-	public get tagAutocompleteBox(): HTMLDivElement {
-		return this._tagAutocomplete.autocompleteBox;
-	}
-	public get clearTagsButton(): HTMLButtonElement {
-		return this._clearTagsButton;
-	}
+
 	public get promptContainer(): HTMLDivElement {
 		return this._promptContainer;
 	}
@@ -2968,12 +2937,6 @@ export class SongEditor
 	}
 	public get trackAndMuteContainer(): HTMLDivElement {
 		return this._trackAndMuteContainer;
-	}
-	public get tagAutocompleteIndex(): number {
-		return this._tagAutocomplete.index;
-	}
-	public set tagAutocompleteIndex(value: number) {
-		this._tagAutocomplete.index = value;
 	}
 
 	// EventListenerSetupHost methods
@@ -3010,18 +2973,7 @@ export class SongEditor
 	public updateSampleLoadingBar(event: SampleLoadedEvent): void {
 		this._updateSampleLoadingBar(event);
 	}
-	public updateTagAutocomplete(): void {
-		this._updateTagAutocomplete();
-	}
-	public highlightTagSuggestion(items: NodeListOf<HTMLElement>): void {
-		this._highlightTagSuggestion(items);
-	}
-	public applyTagSuggestion(tag: string): void {
-		this._applyTagSuggestion(tag);
-	}
-	public hideTagAutocomplete(): void {
-		this._hideTagAutocomplete();
-	}
+
 	public onTrackAreaScroll(event: Event): void {
 		this._onTrackAreaScroll(event);
 	}
@@ -3451,7 +3403,6 @@ export class SongEditor
 			chordDropdownGroup: this._chordDropdownGroup,
 			transitionRow: this._transitionRow,
 			customInstrumentSettingsGroup: this._customInstrumentSettingsGroup,
-			instrumentTagRow: this._instrumentTagRow,
 			instrumentVolumeSliderRow: this._instrumentVolumeSliderRow,
 			instrumentTypeSelectRow: this._instrumentTypeSelectRow,
 			instrumentSettingsGroup: this._instrumentSettingsGroup,
@@ -3482,26 +3433,6 @@ export class SongEditor
 				this._dispatch.whenSetModSetting(mod, invalid);
 			},
 		};
-	}
-
-	private _updateTagAutocomplete(): void {
-		this._tagAutocomplete.update();
-	}
-
-	private _applyTagSuggestion(tag: string): void {
-		this._tagAutocomplete.applySuggestion(tag);
-	}
-
-	private _hideTagAutocomplete(): void {
-		this._tagAutocomplete.hide();
-	}
-
-	private _highlightTagSuggestion(items: NodeListOf<HTMLElement>): void {
-		this._tagAutocomplete.highlight(items);
-	}
-
-	public filterPresetSelectByTags(): void {
-		this._tagAutocomplete.filterPresetSelectByTags();
 	}
 
 	private _updateSampleLoadingBar(e: SampleLoadedEvent): void {

@@ -840,19 +840,22 @@ export class PromptManager {
 				const mlRect = this._host.mainLayer.getBoundingClientRect();
 				currentPos = { x: r.left - mlRect.left, y: r.top - mlRect.top };
 			}
-			const startX = e.clientX - currentPos.x;
-			const startY = e.clientY - currentPos.y;
+			let startX = e.clientX - currentPos.x;
+			let startY = e.clientY - currentPos.y;
 
 			const onMove = (me: MouseEvent): void => {
 				if (!this._prompts.includes(prompt)) return;
 				if (this._dock.isDocked(prompt)) {
 					if (this._dock.shouldUnsnapByDrag(prompt, me.clientX - anchorX)) {
 						this._dock.undock(prompt);
+						// Recompute drag offset from the undocked position so the
+						// cursor stays at the same point on the prompt (no jump).
+						const mlRect = this._host.mainLayer.getBoundingClientRect();
+						const r = prompt.container.getBoundingClientRect();
+						startX = me.clientX - (r.left - mlRect.left);
+						startY = me.clientY - (r.top - mlRect.top);
 						anchorX = me.clientX;
 						suppressSnap = true;
-						// Continue the drag with the original grab offset so the
-						// prompt follows the cursor instead of jumping to the
-						// titlebar.
 					} else {
 						return;
 					}
