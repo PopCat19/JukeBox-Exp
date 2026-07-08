@@ -30,6 +30,8 @@ export class Slider {
 	private _wrapperDiv: HTMLDivElement;
 	// Regular slider fields
 	private _fillDiv: HTMLDivElement | null = null;
+	// Regular slider inactive track (behind fill, starts after knob gap)
+	private _inactiveTrackDiv: HTMLDivElement | null = null;
 	// Delta slider fields
 	private _leftFillDiv: HTMLDivElement | null = null;
 	private _rightFillDiv: HTMLDivElement | null = null;
@@ -97,12 +99,13 @@ export class Slider {
 		// Track container: pills the outer edges, clips fill/track inside.
 		const trackLayer = div(
 			{
-				style: "position: absolute; top: 5px; left: 2px; right: 2px; height: 6px; overflow: hidden; border-radius: 999px;",
+				style: "position: absolute; top: 5px; left: 0; right: 0; height: 6px; overflow: hidden; border-radius: 999px;",
 			},
-			// Inactive track (fills entire track)
-			div({
-				style: "position: absolute; inset: 0; background: var(--slider-track, var(--ui-widget-background, #444));",
-			}),
+			// Inactive track: positioned dynamically in _syncVisual to start at nearGap
+			// biome-ignore lint/suspicious/noAssignInExpressions: capture ref
+			(this._inactiveTrackDiv = div({
+				style: "position: absolute; top: 0; bottom: 0; left: 0; width: 100%; background: var(--slider-track, var(--ui-widget-background, #444));",
+			})),
 			// Fill: always 100% wide, scaled via transform
 			// biome-ignore lint/suspicious/noAssignInExpressions: intentional — capture ref during DOM build
 			(this._fillDiv = div({
@@ -266,12 +269,17 @@ export class Slider {
 			}
 			if (this._knobDiv) this._knobDiv.style.left = `${kClamped}%`;
 		} else {
-			// Regular mode: fill via transform:scaleX (MD3-style), clipped by track-layer.
-			// Gap from knob: fill stops at kClamped - gapPct.
+			// Regular mode: fill + inactive track both respect knob gap.
+			// Fill goes from 0 to farGap (before knob), inactive track goes from nearGap to 100 (after knob).
 			const gapPct = (4 / w) * 100;
-			const fillPct = Math.max(0, kClamped - gapPct);
+			const farGap = Math.max(0, kClamped - gapPct);
+			const nearGap = Math.min(100, kClamped + gapPct);
 			if (this._fillDiv)
-				this._fillDiv.style.transform = `scaleX(${Math.min(1, fillPct / 100)})`;
+				this._fillDiv.style.transform = `scaleX(${Math.min(1, farGap / 100)})`;
+			if (this._inactiveTrackDiv) {
+				this._inactiveTrackDiv.style.left = `${nearGap}%`;
+				this._inactiveTrackDiv.style.width = `${Math.max(0, 100 - nearGap)}%`;
+			}
 			if (this._knobDiv) this._knobDiv.style.left = `${kClamped}%`;
 		}
 	}
