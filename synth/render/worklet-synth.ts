@@ -532,7 +532,6 @@ function renderFm(
 	bufferOffset: number,
 	numSamples: number,
 ): void {
-	const sineWave: Float32Array = ctx.sineWave;
 	const sineLength: number = ctx.sineWaveLength;
 	const sineMask: number = ctx.sineWaveMask;
 	const algorithm: number = ctx.fmAlgorithm;
@@ -549,6 +548,8 @@ function renderFm(
 	const opOutputDeltas: number[] = [];
 	const opOutputs: number[] = [];
 	const opPhaseDeltaScales: number[] = [];
+	// Per-operator wave arrays for waveform selection
+	const opWaves: Float32Array[] = [];
 
 	for (let op = 0; op < 4; op++) {
 		opPhases[op] = (tone.phases[op] - Math.floor(tone.phases[op]) + 1000) * sineLength;
@@ -557,6 +558,8 @@ function renderFm(
 		opOutputDeltas[op] = tone.operatorExpressionDeltas[op];
 		opOutputs[op] = tone.feedbackOutputs[op];
 		opPhaseDeltaScales[op] = tone.phaseDeltaScales[op];
+		// Use per-operator waveform from tone, fall back to ctx.sineWave
+		opWaves[op] = tone.operatorWaves[op]?.samples ?? ctx.sineWave;
 	}
 
 	let feedbackMult: number = tone.feedbackMult;
@@ -605,9 +608,8 @@ function renderFm(
 				opOutputMults,
 				opOutputs,
 				fb,
-				sineWave,
+				opWaves[op],
 				sineMask,
-				sineLength,
 			);
 		}
 
@@ -662,15 +664,14 @@ function computeFmOperatorSample(
 	outputMults: number[],
 	outputs: number[],
 	feedback: number,
-	sineWave: Float32Array,
+	wave: Float32Array,
 	sineMask: number,
-	_sineLength: number,
 ): number {
 	const phaseMix: number = phases[op] + modulation;
 	const phaseInt: number = phaseMix | 0;
 	const idx: number = phaseInt & sineMask;
-	let sample: number = sineWave[idx];
-	sample += (sineWave[idx + 1] - sample) * (phaseMix - phaseInt);
+	let sample: number = wave[idx];
+	sample += (wave[idx + 1] - sample) * (phaseMix - phaseInt);
 	outputs[op] = sample;
 	return outputMults[op] * (sample + feedback * outputs[op]);
 }

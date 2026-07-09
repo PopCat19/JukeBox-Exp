@@ -7,7 +7,7 @@
 // - Covers numeric clamping, power-of-two, fade conversion, integration, effects helpers
 
 import { describe, test, expect } from "bun:test";
-import { clamp, validateRange, fittingPowerOfTwo, fadeInSettingToSeconds, secondsToFadeInSetting } from "../synth/util";
+import { clamp, validateRange, fittingPowerOfTwo, fadeInSettingToSeconds, secondsToFadeInSetting, getOperatorWave } from "../synth/util";
 import { performIntegral, getPulseWidthRatio, getArpeggioPitchIndex, effectsIncludeTransition, effectsIncludeChord, effectsIncludePitchShift, EffectType, Config } from "../synth/synth-config";
 
 describe("clamp", () => {
@@ -185,5 +185,89 @@ describe("effectsInclude*", () => {
 		expect(effectsIncludeTransition(bits)).toBe(true);
 		expect(effectsIncludeChord(bits)).toBe(true);
 		expect(effectsIncludePitchShift(bits)).toBe(false);
+	});
+});
+
+describe("Config.operatorWaves", () => {
+	test("has expected count after appending OPL3-style waves", () => {
+		// 13 existing + 4 OPL3-style appended = 17
+		expect(Config.operatorWaves.length).toBe(17);
+	});
+
+	test("each entry has name and samples Float32Array of correct length", () => {
+		const expectedLen: number = Config.sineWaveLength + 1; // 257
+		for (let i = 0; i < Config.operatorWaves.length; i++) {
+			const w = Config.operatorWaves[i];
+			expect(w).toBeDefined();
+			expect(typeof w.name).toBe("string");
+			expect(w.name.length).toBeGreaterThan(0);
+			expect(w.samples).toBeInstanceOf(Float32Array);
+			expect(w.samples.length).toBe(expectedLen);
+		}
+	});
+
+	test("getOperatorWave returns correct wave for each waveform index (except pulse width which redirects to pwmOperatorWaves)", () => {
+		for (let i = 0; i < Config.operatorWaves.length; i++) {
+			if (i === 2) {
+				// waveform 2 is pulse width, redirects to pwmOperatorWaves
+				const wave = getOperatorWave(i, 0);
+				expect(wave).toBeDefined();
+				expect(wave.samples).toBeInstanceOf(Float32Array);
+				expect(wave.name).toBe(Config.pwmOperatorWaves[0].name);
+			} else {
+				const wave = getOperatorWave(i, 0);
+				expect(wave).toBeDefined();
+				expect(wave.samples).toBeInstanceOf(Float32Array);
+				expect(wave.name).toBe(Config.operatorWaves[i].name);
+			}
+		}
+	});
+
+	test("new OPL3-style waves have distinct names", () => {
+		const lastFour: string[] = [];
+		for (let i = Config.operatorWaves.length - 4; i < Config.operatorWaves.length; i++) {
+			lastFour.push(Config.operatorWaves[i].name);
+		}
+		expect(lastFour).toEqual([
+			"pseudo-sine",
+			"square-ish",
+			"neg half-sine",
+			"stretched sine",
+		]);
+	});
+
+	test("pseudo-sine wave has positive half full and negative half at 50% amplitude", () => {
+		const wave = Config.generatePseudoSineWave();
+		const quarterIdx: number = Config.sineWaveLength / 4;
+		const threeQuarterIdx: number = (3 * Config.sineWaveLength) / 4;
+		// At quarter (peak of positive half), value ≈ 1.0
+		expect(wave[quarterIdx]).toBeCloseTo(1.0, 1);
+		// At three-quarters (peak of negative half), value ≈ -0.5 (half amplitude)
+		expect(wave[threeQuarterIdx]).toBeCloseTo(-0.5, 1);
+	});
+
+	test("square-ish wave is either 1.0 or -1.0", () => {
+		const wave = Config.generateSquareishSineWave();
+		for (let i = 0; i < wave.length; i++) {
+			expect(wave[i] === 1.0 || wave[i] === -1.0).toBe(true);
+		}
+	});
+
+	test("neg half-sine wave has no positive values", () => {
+		const wave = Config.generateNegHalfSineWave();
+		for (let i = 0; i < wave.length; i++) {
+			expect(wave[i]).toBeLessThanOrEqual(0);
+		}
+	});
+
+	test("stretched sine wave preserves sign at each sample", () => {
+		const sine = Config.generateSineWave();
+		const stretched = Config.generateStretchedSineWave();
+		for (let i = 0; i < sine.length; i++) {
+			// Sign must match the underlying sine
+			if (sine[i] > 0) expect(stretched[i]).toBeGreaterThan(0);
+			if (sine[i] < 0) expect(stretched[i]).toBeLessThan(0);
+			if (sine[i] === 0) expect(stretched[i]).toBeCloseTo(0, 5);
+		}
 	});
 });

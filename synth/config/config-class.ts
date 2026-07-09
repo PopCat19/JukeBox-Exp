@@ -3003,6 +3003,48 @@ export class Config {
 		return wave;
 	}
 
+	// OPL3-style operator waveforms (appended)
+	// Pseudo-sine: positive half full amplitude, negative half at 50%
+	public static generatePseudoSineWave(): Float32Array {
+		const wave: Float32Array = new Float32Array(Config.sineWaveLength + 1);
+		for (let i: number = 0; i < Config.sineWaveLength + 1; i++) {
+			const s: number = Math.sin((i * Math.PI * 2.0) / Config.sineWaveLength);
+			wave[i] = s >= 0 ? s : s * 0.5;
+		}
+		return wave;
+	}
+
+	// Square-ish: sign of sine, produces odd harmonics
+	public static generateSquareishSineWave(): Float32Array {
+		const wave: Float32Array = new Float32Array(Config.sineWaveLength + 1);
+		for (let i: number = 0; i < Config.sineWaveLength + 1; i++) {
+			const s: number = Math.sin((i * Math.PI * 2.0) / Config.sineWaveLength);
+			wave[i] = s >= 0 ? 1.0 : -1.0;
+		}
+		return wave;
+	}
+
+	// Neg half-sine: only negative half (inverted half-sine)
+	public static generateNegHalfSineWave(): Float32Array {
+		const wave: Float32Array = new Float32Array(Config.sineWaveLength + 1);
+		for (let i: number = 0; i < Config.sineWaveLength + 1; i++) {
+			const s: number = Math.sin((i * Math.PI * 2.0) / Config.sineWaveLength);
+			wave[i] = s < 0 ? s : 0;
+		}
+		return wave;
+	}
+
+	// Stretched sine: boosted peaks, compressed troughs
+	public static generateStretchedSineWave(): Float32Array {
+		const wave: Float32Array = new Float32Array(Config.sineWaveLength + 1);
+		for (let i: number = 0; i < Config.sineWaveLength + 1; i++) {
+			const s: number = Math.sin((i * Math.PI * 2.0) / Config.sineWaveLength);
+			// Boost positive peaks by squaring, negative by square then negate
+			wave[i] = s >= 0 ? s * s : -(s * s);
+		}
+		return wave;
+	}
+
 	public static readonly sineWave: Float32Array = Config.generateSineWave();
 
 	public static readonly perEnvelopeSpeedIndices: number[] = [
@@ -3536,6 +3578,11 @@ export class Config {
 		{ name: "sharksine", samples: Config.generateQuarterSineWave() },
 		{ name: "fastsine", samples: Config.generateSquishedSineWave() },
 		{ name: "camelsine", samples: Config.generateSquishedAbsSineWave() },
+		// OPL3-style operator waveforms (appended)
+		{ name: "pseudo-sine", samples: Config.generatePseudoSineWave() },
+		{ name: "square-ish", samples: Config.generateSquareishSineWave() },
+		{ name: "neg half-sine", samples: Config.generateNegHalfSineWave() },
+		{ name: "stretched sine", samples: Config.generateStretchedSineWave() },
 	]);
 	public static readonly pwmOperatorWaves: DictionaryArray<OperatorWave> = toNameMap([
 		{ name: "1%", samples: Config.generateSquareWave(0.01) },

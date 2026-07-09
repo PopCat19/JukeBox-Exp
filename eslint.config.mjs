@@ -31,6 +31,7 @@ export default tseslint.config(
             "tests/socket-contract.test.ts",
             "tests/modules-supersaw.test.ts",
             "tests/plugin-round-trip.test.ts",
+            "tests/synth-utilities.test.ts",
             "editor/generated-ui/change-factory.ts",
             "editor/generated-ui/panel-factory.ts",
             "tests/generated-ui.test.ts",
