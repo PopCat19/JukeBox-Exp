@@ -101,6 +101,10 @@ export interface WorkletToneCommand {
 	readonly envelopeEnds: readonly number[];
 	readonly chordExpression: number;
 	readonly envelopeSpeeds: readonly number[];
+	readonly noteSecondsStartUnscaled: number;
+	readonly noteSecondsEndUnscaled: number;
+	readonly noteTicksStart: number;
+	readonly noteTicksEnd: number;
 
 	// ── Instrument state values ───────────────────────────────────────
 	readonly arpTime: number;
@@ -182,6 +186,10 @@ export interface WorkletToneCommand {
 	readonly fmCustomAssociatedCarrier: readonly number[];
 	readonly fmOperatorFrequencies: readonly number[];
 	readonly fmOperatorAmplitudes: readonly number[];
+	readonly fmOperatorAttacks: readonly number[];
+	readonly fmOperatorDecays: readonly number[];
+	readonly fmOperatorSustains: readonly number[];
+	readonly fmOperatorReleases: readonly number[];
 	readonly fmFeedbackAmplitude: number;
 	readonly fmFastTwoNoteArp: boolean;
 	readonly fmMonoChordTone: number;

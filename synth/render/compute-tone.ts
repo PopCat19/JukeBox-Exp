@@ -1245,6 +1245,10 @@ export interface FmOperatorInstrument {
 	readonly operators: ReadonlyArray<{
 		readonly frequency: number;
 		readonly amplitude: number;
+		readonly attack: number;
+		readonly decay: number;
+		readonly sustain: number;
+		readonly release: number;
 	}>;
 	readonly algorithm: number;
 	readonly customAlgorithm: {
@@ -1413,6 +1417,98 @@ export function computeFmOperatorLoop(
 	}
 
 	return { sineExpressionBoost, totalCarrierExpression };
+}
+
+// ── OPL3 per-operator ADSR envelope ────────────────────────────────────────
+
+/**
+ * Compute per-operator ADSR envelope for OPL3 instruments and multiply into
+ * tone.operatorExpressions[i].
+ *
+ * OPL3 per-operator ADSR parameters (attack, decay, sustain, release) are
+ * stored as 0-63 values on each Operator. This function maps them to a
+ * note-aged envelope and applies it multiplicatively — it does NOT replace
+ * the generic envelopes (operator amplitude, pitch, note volume etc.) that
+ * are already baked into operatorExpressions by computeFmOperatorLoop.
+ *
+ * ADSR timing model (sound-alike, not cycle-accurate OPL3):
+ *   attack(0-63) → time to peak, 0 = instant, 63 ≈ 4s
+ *   decay (0-63) → time to sustain level, 0 = instant, 63 ≈ 4s
+ *   sustain(0-63) → level after decay completes (0 = silent, 63 = full)
+ *   release(0-63) → released-note fade time, 0 = instant, 63 ≈ 4s
+ *
+ * @param tone - Active tone with operatorExpressions[] already set
+ * @param operators - Operator data including ADSR fields
+ * @param noteSecondsStart - Elapsed seconds since note start (start of tick)
+ * @param noteSecondsEnd - Elapsed seconds since note start (end of tick)
+ * @param operatorCount - Number of operators (4 for OPL3)
+ * @param roundedSamplesPerTick - Samples in this tick for delta calculation
+ */
+export function computeOpl3AdsrEnvelopes(
+	tone: Tone,
+	operators: ReadonlyArray<{
+		readonly attack: number;
+		readonly decay: number;
+		readonly sustain: number;
+		readonly release: number;
+	}>,
+	noteSecondsStart: number,
+	noteSecondsEnd: number,
+	operatorCount: number,
+	roundedSamplesPerTick: number,
+	released: boolean,
+	secondsPerTick: number,
+): void {
+	if (operatorCount === 0) return;
+
+	for (let i: number = 0; i < operatorCount && i < operators.length; i++) {
+		const rawAttack: number = operators[i].attack; // 0-63
+		const rawDecay: number = operators[i].decay; // 0-63
+		const rawSustain: number = operators[i].sustain; // 0-63
+		const rawRelease: number = operators[i].release; // 0-63
+
+		// Map 0-63 to time in seconds (non-linear, fast at low values)
+		const attackTime: number = (rawAttack / 63) ** 2 * 4.0;
+		const decayTime: number = (rawDecay / 63) ** 2 * 4.0;
+		const releaseTime: number = (rawRelease / 63) ** 2 * 4.0;
+		const sustainLevel: number = rawSustain / 63; // 0..1
+
+		// Recover expressionEnd from stored expressionStart + delta
+		const exprStart: number = tone.operatorExpressions[i];
+		const exprEnd: number =
+			exprStart + tone.operatorExpressionDeltas[i] * roundedSamplesPerTick;
+
+		// Compute ADSR envelope value at time t (seconds since note start)
+		const adsrValueAt = (t: number): number => {
+			if (t < attackTime) {
+				// Attack: ramp 0 → 1
+				return attackTime > 0 ? Math.min(1.0, t / attackTime) : 1.0;
+			}
+			const postAttack: number = t - attackTime;
+			if (postAttack < decayTime) {
+				// Decay: ramp 1 → sustainLevel
+				const decayFraction: number = decayTime > 0 ? postAttack / decayTime : 1.0;
+				return 1.0 - (1.0 - sustainLevel) * Math.min(1.0, decayFraction);
+			}
+			// Sustain: hold at sustain level
+			return sustainLevel;
+		};
+
+		let adsrStart: number = adsrValueAt(noteSecondsStart);
+		let adsrEnd: number = adsrValueAt(noteSecondsEnd);
+		if (released) {
+			const releaseSecondsStart: number = tone.ticksSinceReleased * secondsPerTick;
+			const releaseSecondsEnd: number = (tone.ticksSinceReleased + 1.0) * secondsPerTick;
+			const releaseMultAt = (t: number): number =>
+				releaseTime > 0 ? Math.max(0.0, 1.0 - t / releaseTime) : 0.0;
+			adsrStart *= releaseMultAt(releaseSecondsStart);
+			adsrEnd *= releaseMultAt(releaseSecondsEnd);
+		}
+
+		tone.operatorExpressions[i] = exprStart * adsrStart;
+		tone.operatorExpressionDeltas[i] =
+			(exprEnd * adsrEnd - exprStart * adsrStart) / roundedSamplesPerTick;
+	}
 }
 
 // ── Custom sample phase restore ───────────────────────────────────────────-
@@ -2574,6 +2670,20 @@ export function computeToneSnapshot(
 			env.mods.noteVolume.start,
 			env.mods.noteVolume.end,
 		);
+
+		// ── OPL3 ADSR: multiply per-operator envelope with operatorExpressions
+		if (env.instrumentType === InstrumentType.opl3) {
+			computeOpl3AdsrEnvelopes(
+				tone,
+				env.fmOperatorInstrument.operators,
+				envelopeComputer.noteSecondsStartUnscaled,
+				envelopeComputer.noteSecondsEndUnscaled,
+				Config.operatorCount,
+				roundedSamplesPerTick,
+				released,
+				env.sampleTime * roundedSamplesPerTick,
+			);
+		}
 
 		computeFmExpressionAndFeedback(
 			tone,

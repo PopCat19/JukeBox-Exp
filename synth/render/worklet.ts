@@ -220,7 +220,7 @@ function buildToneRenderEnv(
 		cmd.instrumentType === InstrumentType.opl3
 		? {
 			type: cmd.instrumentType,
-			operators: buildOperatorArray(cmd.fmOperatorCount, cmd.fmOperatorFrequencies, cmd.fmOperatorAmplitudes),
+			operators: buildOperatorArray(cmd.fmOperatorCount, cmd.fmOperatorFrequencies, cmd.fmOperatorAmplitudes, cmd.fmOperatorAttacks, cmd.fmOperatorDecays, cmd.fmOperatorSustains, cmd.fmOperatorReleases),
 			algorithm: cmd.fmAlgorithm,
 			customAlgorithm: {
 				carrierCount: cmd.fmCustomCarrierCount,
@@ -390,15 +390,34 @@ function buildOperatorArray(
 	count: number,
 	frequencies: readonly number[],
 	amplitudes: readonly number[],
+	attacks: readonly number[],
+	decays: readonly number[],
+	sustains: readonly number[],
+	releases: readonly number[],
 ): ReadonlyArray<{
 	readonly frequency: number;
 	readonly amplitude: number;
+	readonly attack: number;
+	readonly decay: number;
+	readonly sustain: number;
+	readonly release: number;
 }> {
-	const arr: { frequency: number; amplitude: number }[] = [];
+	const arr: {
+		frequency: number;
+		amplitude: number;
+		attack: number;
+		decay: number;
+		sustain: number;
+		release: number;
+	}[] = [];
 	for (let i = 0; i < count; i++) {
 		arr.push({
 			frequency: i < frequencies.length ? frequencies[i] : 0,
 			amplitude: i < amplitudes.length ? amplitudes[i] : 0,
+			attack: i < attacks.length ? attacks[i] : 0,
+			decay: i < decays.length ? decays[i] : 0,
+			sustain: i < sustains.length ? sustains[i] : 63,
+			release: i < releases.length ? releases[i] : 10,
 		});
 	}
 	return arr;
@@ -562,7 +581,6 @@ class JukeBoxComputeToneProcessor extends AudioWorkletProcessor {
 
 		const samplesPerTick: number = tick.samplesPerTick;
 		const toneCount: number = tick.tones.length;
-		const sampleTime: number = 1.0 / snapshot.sampleRate;
 
 		// Build set of tone slot IDs for this tick (for recycling unused slots)
 		const usedSlots: Set<number> = new Set();
@@ -590,12 +608,12 @@ class JukeBoxComputeToneProcessor extends AudioWorkletProcessor {
 
 			// Populate envelope computer fields from command data
 			const ec: WorkletEnvelopeComputer = this._state.envComputer;
-			ec.noteTicksStart = 0;
-			ec.noteTicksEnd = 1.0;
+			ec.noteTicksStart = cmd.noteTicksStart;
+			ec.noteTicksEnd = cmd.noteTicksEnd;
 			ec.noteSecondsStart = [];
 			ec.noteSecondsEnd = [];
-			ec.noteSecondsStartUnscaled = 0;
-			ec.noteSecondsEndUnscaled = sampleTime;
+			ec.noteSecondsStartUnscaled = cmd.noteSecondsStartUnscaled;
+			ec.noteSecondsEndUnscaled = cmd.noteSecondsEndUnscaled;
 			ec.lowpassCutoffDecayVolumeCompensation =
 				cmd.lowpassCutoffDecayVolumeCompensation;
 			ec.drumsetFilterEnvelopeStart = 0;
