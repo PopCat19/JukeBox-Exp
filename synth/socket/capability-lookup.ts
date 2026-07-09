@@ -88,6 +88,7 @@ export const LEGACY_TYPE_CAPABILITIES: Readonly<Record<InstrumentType, Instrumen
 		hasEffects: false,
 		hasChord: false,
 	},
+	[InstrumentTypes.opl3]: { ...DEFAULT_CAPABILITIES, isFm: true },
 };
 
 /**

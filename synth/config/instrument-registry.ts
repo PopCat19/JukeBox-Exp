@@ -54,6 +54,7 @@ export const InstrumentType = {
 	customChipWave: _registerBuiltInType("customChipWave"), // 9
 	mod: _registerBuiltInType("mod"), // 10
 	fm6op: _registerBuiltInType("fm6op"), // 11
+	opl3: _registerBuiltInType("opl3"), // 12
 } as const;
 
 export type InstrumentType = (typeof InstrumentType)[keyof typeof InstrumentType];
@@ -100,4 +101,5 @@ export const TypePresets: ReadonlyArray<string> = [
 	"chip (custom)",
 	"mod",
 	"FM (6-op)",
+	"OPL3",
 ];

@@ -8,6 +8,7 @@
 
 import "./fm";
 import "./fm6";
+import "./opl3";
 import "./chip";
 import "./harmonics";
 import "./picked-string";

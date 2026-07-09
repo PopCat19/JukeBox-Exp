@@ -1199,7 +1199,8 @@ export class Synth {
 			carrierCount: 0,
 
 			fmOperatorCount: instrument.operators.length,
-			fmAlgorithm: instrument.algorithm,
+			fmAlgorithm:
+				instrument.type === InstrumentType.opl3 ? instrument.opl3Algorithm : instrument.algorithm,
 			fmCustomCarrierCount: instrument.customAlgorithm.carrierCount,
 			fmCustomAssociatedCarrier: [...instrument.customAlgorithm.associatedCarrier],
 			fmOperatorFrequencies: instrument.operators.map((op: Operator): number => op.frequency),
@@ -1245,7 +1246,7 @@ export class Synth {
 			lowpassCutoffDecayVolumeCompensation: 1.0,
 		};
 
-		return cmd as import("./render/worklet-messages").WorkletToneCommand;
+		return cmd;
 	}
 
 	/**
@@ -2983,7 +2984,7 @@ export class Synth {
 					this.outputDataLUnfiltered[li] = 0;
 				}
 				if (this.outputDataRUnfiltered != null) {
-					this.outputDataRUnfiltered![li] = 0;
+					this.outputDataRUnfiltered[li] = 0;
 				}
 			}
 			this._needsLeadIn = false;
@@ -4819,12 +4820,12 @@ export class Synth {
 		if (
 			tone.pitchCount > 1 &&
 			(chord.arpeggiates ||
-				(instrument.type !== InstrumentType.fm && instrument.type !== InstrumentType.fm6op))
+				!(instrument.type === InstrumentType.fm || instrument.type === InstrumentType.fm6op || instrument.type === InstrumentType.opl3))
 		) {
 			const arpeggioTick: number = Math.floor(
 				instrumentState.arpTime / Config.ticksPerArpeggio,
 			);
-			if (instrument.type === InstrumentType.fm || instrument.type === InstrumentType.fm6op) {
+			if (instrument.type === InstrumentType.fm || instrument.type === InstrumentType.fm6op || instrument.type === InstrumentType.opl3) {
 				if (chord.arpeggiates) {
 					arpeggioInterval =
 						tone.pitches[
@@ -4835,9 +4836,10 @@ export class Synth {
 							)
 						] - tone.pitches[0];
 				}
-				carrierCount =
-					instrument.type === InstrumentType.fm6op
-						? instrument.customAlgorithm.carrierCount
+				carrierCount = instrument.type === InstrumentType.fm6op
+					? instrument.customAlgorithm.carrierCount
+					: instrument.type === InstrumentType.opl3
+						? Config.algorithmsOpl3[instrument.opl3Algorithm].carrierCount
 						: Config.algorithms[instrument.algorithm].carrierCount;
 			} else {
 				arpeggioIndex = arpeggioTick;
@@ -4845,11 +4847,12 @@ export class Synth {
 		}
 		if (
 			carrierCount === 0 &&
-			(instrument.type === InstrumentType.fm || instrument.type === InstrumentType.fm6op)
+			(instrument.type === InstrumentType.fm || instrument.type === InstrumentType.fm6op || instrument.type === InstrumentType.opl3)
 		) {
-			carrierCount =
-				instrument.type === InstrumentType.fm6op
-					? instrument.customAlgorithm.carrierCount
+			carrierCount = instrument.type === InstrumentType.fm6op
+				? instrument.customAlgorithm.carrierCount
+				: instrument.type === InstrumentType.opl3
+					? Config.algorithmsOpl3[instrument.opl3Algorithm].carrierCount
 					: Config.algorithms[instrument.algorithm].carrierCount;
 		}
 

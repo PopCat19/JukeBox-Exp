@@ -93,6 +93,10 @@ describe("Instrument type round-trip", () => {
 	test("fm6op type round-trips", () => {
 		assertInstrumentTypeRoundTrips(InstrumentType.fm6op);
 	});
+
+	test("opl3 type round-trips", () => {
+		assertInstrumentTypeRoundTrips(InstrumentType.opl3);
+	});
 });
 
 describe("Instrument type round-trip updates correct instrument", () => {

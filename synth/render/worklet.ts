@@ -43,7 +43,7 @@ declare function registerProcessor(
 
 // ── Ambient: worklet-scope globals needed by transitive deps at type-check ──
 
-declare var console: {
+declare const console: {
 	log(...data: unknown[]): void;
 	warn(...data: unknown[]): void;
 	error(...data: unknown[]): void;
@@ -216,7 +216,8 @@ function buildToneRenderEnv(
 	// ── Instrument type info helpers ──────────────────────────────
 
 	const fmOperatorInstrument = cmd.instrumentType === InstrumentType.fm ||
-		cmd.instrumentType === InstrumentType.fm6op
+		cmd.instrumentType === InstrumentType.fm6op ||
+		cmd.instrumentType === InstrumentType.opl3
 		? {
 			type: cmd.instrumentType,
 			operators: buildOperatorArray(cmd.fmOperatorCount, cmd.fmOperatorFrequencies, cmd.fmOperatorAmplitudes),
@@ -678,6 +679,7 @@ class JukeBoxComputeToneProcessor extends AudioWorkletProcessor {
 				chipNoiseLength: Config.chipNoiseLength,
 				spectrumNoiseLength: Config.spectrumNoiseLength,
 				fmAlgorithm: cmd.fmAlgorithm,
+				isOpl3: cmd.instrumentType === InstrumentType.opl3,
 			};
 
 			// Zero the temp buffer, render into it, then accumulate to output

@@ -349,6 +349,7 @@ export class Config {
 	];
 	public static readonly chipBaseExpression: number = 0.03375; // Doubled by unison feature, but affected by expression adjustments per unison setting and wave shape. Custom chip is multiplied by 0.05 in instrumentState.updateWaves
 	public static readonly fmBaseExpression: number = 0.03;
+	public static readonly opl3BaseExpression: number = 0.03;
 	public static readonly noiseBaseExpression: number = 0.19;
 	public static readonly spectrumBaseExpression: number = 0.3; // Spectrum can be in pitch or noise channels, the expression is doubled for noise.
 	public static readonly drumsetBaseExpression: number = 0.45; // Drums tend to be loud but brief!
@@ -2299,6 +2300,65 @@ export class Config {
 			carrierCount: 3,
 			associatedCarrier: [1, 2, 3, 3],
 			modulatedBy: [[2, 3, 4], [3, 4], [4], []],
+		},
+	]);
+	public static readonly algorithmsOpl3: DictionaryArray<Algorithm> = toNameMap([
+		// OPL3 4-op algorithms (8 algorithms matching YMF262 4-op mode)
+		{
+			// All serial: 1←2←3←4
+			name: "1←2←3←4",
+			carrierCount: 1,
+			associatedCarrier: [1, 1, 1, 1],
+			modulatedBy: [[2], [3], [4], []],
+		},
+		{
+			// Two parallel pairs: (1←2) || (3←4)
+			name: "1←2\u20023←4",
+			carrierCount: 2,
+			associatedCarrier: [1, 2, 2, 2],
+			modulatedBy: [[2], [], [4], []],
+		},
+		{
+			// 1←2←3 + 4 alone
+			name: "1←2←3\u20024",
+			carrierCount: 2,
+			associatedCarrier: [1, 2, 2, 2],
+			modulatedBy: [[2], [3], [], []],
+		},
+		{
+			// Parallel pairs cross: (1←2) || (3←4), alt fb
+			name: "1←2\u20023→4",
+			carrierCount: 2,
+			associatedCarrier: [1, 2, 1, 2],
+			modulatedBy: [[2], [4], [], []],
+		},
+		{
+			// All independent: 1 2 3←4
+			name: "1\u20022\u20023←4",
+			carrierCount: 3,
+			associatedCarrier: [1, 2, 3, 3],
+			modulatedBy: [[], [], [4], []],
+		},
+		{
+			// 1←2 || 3←4 (alt)
+			name: "1←2\u20023←4 alt",
+			carrierCount: 2,
+			associatedCarrier: [1, 2, 2, 2],
+			modulatedBy: [[2], [], [4], []],
+		},
+		{
+			// All parallel: 1 2 3 4
+			name: "1\u20022\u20023\u20024",
+			carrierCount: 4,
+			associatedCarrier: [1, 2, 3, 4],
+			modulatedBy: [[], [], [], []],
+		},
+		{
+			// Cascade: 1←2←3, 4 alone (alt carrier map)
+			name: "1←2←3\u20024 alt",
+			carrierCount: 2,
+			associatedCarrier: [1, 2, 1, 1],
+			modulatedBy: [[2], [3], [], []],
 		},
 	]);
 	public static readonly algorithms6Op: DictionaryArray<Algorithm> = toNameMap([

@@ -12,6 +12,7 @@ import { MODULE_ID as _CHIP_ID, default as _chipMod } from "./chip/module";
 import { MODULE_ID as _DRUMSET_ID, default as _drumsetMod } from "./drumset/module";
 import { MODULE_ID as _FM_ID, default as _fmMod } from "./fm/module";
 import { MODULE_ID as _FM6_ID, default as _fm6Mod } from "./fm6/module";
+import { MODULE_ID as _OPL3_ID, default as _opl3Mod } from "./opl3/module";
 import { MODULE_ID as _HARMONICS_ID, default as _harmonicsMod } from "./harmonics/module";
 import { MODULE_ID as _MOD_ID, default as _modMod } from "./mod/module";
 import { MODULE_ID as _NOISE_ID, default as _noiseMod } from "./noise/module";
@@ -32,6 +33,7 @@ export const spectrumModule = _spectrumMod;
 export const pickedStringModule = _pickedStringMod;
 export const fmModule = _fmMod;
 export const fm6Module = _fm6Mod;
+export const opl3Module = _opl3Mod;
 export const drumsetModule = _drumsetMod;
 export const modModule = _modMod;
 
@@ -51,6 +53,7 @@ export const SPECTRUM_ID = _SPECTRUM_ID;
 export const PICKED_STRING_ID = _PICKED_STRING_ID;
 export const FM_ID = _FM_ID;
 export const FM6_ID = _FM6_ID;
+export const OPL3_ID = _OPL3_ID;
 export const DRUMSET_ID = _DRUMSET_ID;
 export const MOD_ID = _MOD_ID;
 
@@ -75,4 +78,5 @@ export const CORE_MODULE_IDS: readonly string[] = [
 	_CUSTOM_CHIP_WAVE_ID, // 9  — core.customChipWave
 	_MOD_ID, // 10 — core.mod
 	_FM6_ID, // 11 — core.fm6
+	_OPL3_ID, // 12 — core.opl3
 ];

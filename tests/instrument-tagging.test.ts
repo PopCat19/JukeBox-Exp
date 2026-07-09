@@ -13,12 +13,13 @@ import { InstrumentType } from "../synth/synth-config";
 import { toJukeboxExpV2Json, fromJukeboxExpV2Json } from "../synth/formats/jukebox-exp-v2";
 
 describe("instrument tagging", () => {
-	test("bridge map covers all 12 core modules", () => {
-		expect(INSTRUMENT_TYPE_TO_MODULE_ID.size).toBe(12);
+	test("bridge map covers all 13 core modules", () => {
+		expect(INSTRUMENT_TYPE_TO_MODULE_ID.size).toBe(13);
 		expect(INSTRUMENT_TYPE_TO_MODULE_ID.get(InstrumentType.chip)).toBe("core.chip");
 		expect(INSTRUMENT_TYPE_TO_MODULE_ID.get(InstrumentType.noise)).toBe("core.noise");
 		expect(INSTRUMENT_TYPE_TO_MODULE_ID.get(InstrumentType.fm)).toBe("core.fm");
 		expect(INSTRUMENT_TYPE_TO_MODULE_ID.get(InstrumentType.fm6op)).toBe("core.fm6");
+		expect(INSTRUMENT_TYPE_TO_MODULE_ID.get(InstrumentType.opl3)).toBe("core.opl3");
 		expect(INSTRUMENT_TYPE_TO_MODULE_ID.get(InstrumentType.spectrum)).toBe("core.spectrum");
 		expect(INSTRUMENT_TYPE_TO_MODULE_ID.get(InstrumentType.harmonics)).toBe("core.harmonics");
 		expect(INSTRUMENT_TYPE_TO_MODULE_ID.get(InstrumentType.drumset)).toBe("core.drumset");
@@ -48,6 +49,15 @@ describe("instrument tagging", () => {
 		tagInstrumentWithModule(inst);
 		expect((inst as unknown as { _socketModuleId?: string })._socketModuleId).toBe(
 			"core.fm6",
+		);
+	});
+
+	test("tagInstrumentWithModule sets id for opl3 type", () => {
+		const inst = new Instrument(false, false);
+		inst.setTypeAndReset(InstrumentType.opl3, false, false);
+		tagInstrumentWithModule(inst);
+		expect((inst as unknown as { _socketModuleId?: string })._socketModuleId).toBe(
+			"core.opl3",
 		);
 	});
 

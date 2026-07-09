@@ -2864,6 +2864,12 @@ export function fromBase64StringImpl(
 							Config.algorithms.length,
 							base64CharCodeToInt[compressed.charCodeAt(charIndex++)],
 						);
+					} else if (instrument.type === InstrumentType.opl3) {
+						instrument.opl3Algorithm = clamp(
+							0,
+							Config.algorithmsOpl3.length,
+							base64CharCodeToInt[compressed.charCodeAt(charIndex++)],
+						);
 					} else {
 						instrument.algorithm6Op = clamp(
 							0,

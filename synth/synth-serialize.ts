@@ -554,13 +554,20 @@ export function toBase64StringImpl(song: SongLike): string {
 				encode32BitNumber(buffer, instrument.chipWaveStartOffset);
 			} else if (
 				instrument.type === InstrumentType.fm ||
-				instrument.type === InstrumentType.fm6op
+				instrument.type === InstrumentType.fm6op ||
+				instrument.type === InstrumentType.opl3
 			) {
 				if (instrument.type === InstrumentType.fm) {
 					buffer.push(SongTagCode.algorithm, base64IntToCharCode[instrument.algorithm]);
 					buffer.push(
 						SongTagCode.feedbackType,
 						base64IntToCharCode[instrument.feedbackType],
+					);
+				} else if (instrument.type === InstrumentType.opl3) {
+					buffer.push(SongTagCode.algorithm, base64IntToCharCode[instrument.opl3Algorithm]);
+					buffer.push(
+						SongTagCode.feedbackAmplitude,
+						base64IntToCharCode[instrument.feedbackAmplitude],
 					);
 				} else {
 					buffer.push(

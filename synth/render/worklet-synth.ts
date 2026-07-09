@@ -114,8 +114,9 @@ export interface WorkletSynthContext {
 	readonly sineWaveMask: number;
 	readonly chipNoiseLength: number;
 	readonly spectrumNoiseLength: number;
-	/** FM algorithm index (0-7), used for modulation routing */
+	/** FM algorithm index, used for modulation routing */
 	readonly fmAlgorithm: number;
+	readonly isOpl3: boolean;
 }
 
 // ── Chip synthesis ───────────────────────────────────────────────────────
@@ -568,14 +569,21 @@ function renderFm(
 
 	// Resolve FM algorithm modulation routing (Config.algorithms is 1-based)
 	// modulatedBy[op] lists the operators (1-indexed) that modulate operator op
+	const algorithms = ctx.isOpl3 ? Config.algorithmsOpl3 : Config.algorithms;
 	const algoMods: ReadonlyArray<readonly number[]> =
-		algorithm >= 0 && algorithm < Config.algorithms.length
-			? Config.algorithms[algorithm].modulatedBy
-			: Config.algorithms[0].modulatedBy;
-	const carrierCount: number =
-		algorithm >= 0 && algorithm < Config.algorithms.length
-			? Config.algorithms[algorithm].carrierCount
-			: Config.algorithms[0].carrierCount;
+		algorithm >= 0 && algorithm < algorithms.length
+			? algorithms[algorithm].modulatedBy
+			: algorithms[0].modulatedBy;
+	const algorithmConfig =
+		algorithm >= 0 && algorithm < algorithms.length ? algorithms[algorithm] : algorithms[0];
+	const carrierCount: number = algorithmConfig.carrierCount;
+	const carrierIndices: number[] = [];
+	for (let op = 0; op < Config.operatorCount; op++) {
+		if (algorithmConfig.associatedCarrier[op] === op + 1) carrierIndices.push(op);
+	}
+	if (carrierIndices.length === 0) {
+		for (let op = 0; op < carrierCount; op++) carrierIndices.push(op);
+	}
 
 	const stopIndex: number = bufferOffset + numSamples;
 	for (let si = bufferOffset; si < stopIndex; si++) {
@@ -605,8 +613,8 @@ function renderFm(
 
 		// Sum carriers
 		let fmOutput: number = 0;
-		for (let c = 0; c < carrierCount; c++) {
-			fmOutput += opScaled[c];
+		for (let c = 0; c < carrierIndices.length; c++) {
+			fmOutput += opScaled[carrierIndices[c]];
 		}
 
 		const sample: number = workletApplyFilters(
@@ -907,6 +915,7 @@ registerWorkletSynth(InstrumentType.spectrum, renderSpectrum);
 registerWorkletSynth(InstrumentType.harmonics, renderHarmonics);
 registerWorkletSynth(InstrumentType.fm, renderFm);
 registerWorkletSynth(InstrumentType.fm6op, renderFm);
+registerWorkletSynth(InstrumentType.opl3, renderFm);
 registerWorkletSynth(InstrumentType.supersaw, renderSupersaw);
 registerWorkletSynth(InstrumentType.drumset, renderDrumset);
 

@@ -167,6 +167,7 @@ export class Instrument {
 	public algorithm: number = 0;
 	public feedbackType: number = 0;
 	public algorithm6Op: number = 1;
+	public opl3Algorithm: number = 0;
 	public feedbackType6Op: number = 1; // default to not custom
 	public customAlgorithm: CustomAlgorithm = new CustomAlgorithm(); // { name: "1←4(2←5 3←6", carrierCount: 3, associatedCarrier: [1, 2, 3, 1, 2, 3], modulatedBy: [[2, 3, 4], [5], [6], [], [], []] };
 	public customFeedbackType: CustomFeedBack = new CustomFeedBack(); // { name: "1↔4 2↔5 3↔6", indices: [[3], [5], [6], [1], [2], [3]] };
@@ -387,7 +388,7 @@ export class Instrument {
 		let noteSizeControlsSomethingElse: boolean =
 			legacyFilterEnv.type === EnvelopeType.noteSize ||
 			legacyPulseEnv.type === EnvelopeType.noteSize;
-		if (this.type === InstrumentType.fm || this.type === InstrumentType.fm6op) {
+		if (this.type === InstrumentType.fm || this.type === InstrumentType.fm6op || this.type === InstrumentType.opl3) {
 			noteSizeControlsSomethingElse =
 				noteSizeControlsSomethingElse || legacyFeedbackEnv.type === EnvelopeType.noteSize;
 			for (let i: number = 0; i < legacyOperatorEnvelopes.length; i++) {
@@ -794,7 +795,7 @@ export class Instrument {
 				instrumentObject.unisonExpression = this.unisonExpression;
 				instrumentObject.unisonSign = this.unisonSign;
 			}
-		} else if (this.type === InstrumentType.fm || this.type === InstrumentType.fm6op) {
+		} else if (this.type === InstrumentType.fm || this.type === InstrumentType.fm6op || this.type === InstrumentType.opl3) {
 			const operatorArray: object[] = [];
 			for (const operator of this.operators) {
 				operatorArray.push({
@@ -807,6 +808,10 @@ export class Instrument {
 			if (this.type === InstrumentType.fm) {
 				instrumentObject.algorithm = Config.algorithms[this.algorithm].name;
 				instrumentObject.feedbackType = Config.feedbacks[this.feedbackType].name;
+				instrumentObject.feedbackAmplitude = this.feedbackAmplitude;
+				instrumentObject.operators = operatorArray;
+			} else if (this.type === InstrumentType.opl3) {
+				instrumentObject.algorithm = Config.algorithmsOpl3[this.opl3Algorithm].name;
 				instrumentObject.feedbackAmplitude = this.feedbackAmplitude;
 				instrumentObject.operators = operatorArray;
 			} else {
@@ -1670,7 +1675,7 @@ export class Instrument {
 			if (this.chipWave === -1) this.chipWave = 1;
 		}
 
-		if (this.type === InstrumentType.fm || this.type === InstrumentType.fm6op) {
+		if (this.type === InstrumentType.fm || this.type === InstrumentType.fm6op || this.type === InstrumentType.opl3) {
 			if (this.type === InstrumentType.fm) {
 				this.algorithm = Config.algorithms.findIndex(
 					(algorithm) => algorithm.name === instrumentObject.algorithm,
@@ -1680,6 +1685,11 @@ export class Instrument {
 					(feedback) => feedback.name === instrumentObject.feedbackType,
 				);
 				if (this.feedbackType === -1) this.feedbackType = 0;
+			} else if (this.type === InstrumentType.opl3) {
+				this.opl3Algorithm = Config.algorithmsOpl3.findIndex(
+					(algo) => algo.name === instrumentObject.algorithm,
+				);
+				if (this.opl3Algorithm === -1) this.opl3Algorithm = 0;
 			} else {
 				this.algorithm6Op = Config.algorithms6Op.findIndex(
 					(algorithm6Op) => algorithm6Op.name === instrumentObject.algorithm,
