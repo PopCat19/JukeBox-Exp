@@ -40,8 +40,12 @@ export {
 	Change6OpFeedbackType,
 	ChangeAlgorithm,
 	ChangeFeedbackType,
+	ChangeOperatorAttack,
+	ChangeOperatorDecay,
 	ChangeOperatorFrequency,
 	ChangeOperatorPulseWidth,
+	ChangeOperatorRelease,
+	ChangeOperatorSustain,
 	ChangeOperatorWaveform,
 } from "./fm-operators";
 export {

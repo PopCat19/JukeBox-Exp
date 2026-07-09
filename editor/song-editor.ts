@@ -2243,6 +2243,15 @@ export class SongEditor
 	private readonly _operatorWaveformPulsewidthInputBoxes: HTMLInputElement[] = [];
 	private readonly _operatorDropdownRows: HTMLElement[] = [];
 	private readonly _operatorDropdownGroups: HTMLDivElement[] = [];
+	private readonly _operatorAdsrAttackSliders: Slider[] = [];
+	private readonly _operatorAdsrDecaySliders: Slider[] = [];
+	private readonly _operatorAdsrSustainSliders: Slider[] = [];
+	private readonly _operatorAdsrReleaseSliders: Slider[] = [];
+	private readonly _operatorAdsrAttackInputBoxes: HTMLInputElement[] = [];
+	private readonly _operatorAdsrDecayInputBoxes: HTMLInputElement[] = [];
+	private readonly _operatorAdsrSustainInputBoxes: HTMLInputElement[] = [];
+	private readonly _operatorAdsrReleaseInputBoxes: HTMLInputElement[] = [];
+	private readonly _operatorAdsrRows: HTMLDivElement[] = [];
 	readonly _drumsetSpectrumEditors: SpectrumEditor[] = [];
 	private readonly _drumsetEnvelopeSelects: HTMLSelectElement[] = [];
 	private _showModSliders: boolean[][] = [];
@@ -2497,6 +2506,33 @@ export class SongEditor
 	}
 	public get operatorDropdownRows(): HTMLElement[] {
 		return this._operatorDropdownRows;
+	}
+	public get operatorAdsrAttackSliders(): Slider[] {
+		return this._operatorAdsrAttackSliders;
+	}
+	public get operatorAdsrDecaySliders(): Slider[] {
+		return this._operatorAdsrDecaySliders;
+	}
+	public get operatorAdsrSustainSliders(): Slider[] {
+		return this._operatorAdsrSustainSliders;
+	}
+	public get operatorAdsrReleaseSliders(): Slider[] {
+		return this._operatorAdsrReleaseSliders;
+	}
+	public get operatorAdsrAttackInputBoxes(): HTMLInputElement[] {
+		return this._operatorAdsrAttackInputBoxes;
+	}
+	public get operatorAdsrDecayInputBoxes(): HTMLInputElement[] {
+		return this._operatorAdsrDecayInputBoxes;
+	}
+	public get operatorAdsrSustainInputBoxes(): HTMLInputElement[] {
+		return this._operatorAdsrSustainInputBoxes;
+	}
+	public get operatorAdsrReleaseInputBoxes(): HTMLInputElement[] {
+		return this._operatorAdsrReleaseInputBoxes;
+	}
+	public get operatorAdsrRows(): HTMLDivElement[] {
+		return this._operatorAdsrRows;
 	}
 	public get operatorDropdownGroups(): HTMLDivElement[] {
 		return this._operatorDropdownGroups;
@@ -3222,6 +3258,15 @@ export class SongEditor
 			operatorWaveformPulsewidthInputBoxes: this._operatorWaveformPulsewidthInputBoxes,
 			operatorDropdownGroups: this._operatorDropdownGroups,
 			operatorWaveformHints: this._operatorWaveformHints,
+			operatorAdsrAttackSliders: this._operatorAdsrAttackSliders,
+			operatorAdsrDecaySliders: this._operatorAdsrDecaySliders,
+			operatorAdsrSustainSliders: this._operatorAdsrSustainSliders,
+			operatorAdsrReleaseSliders: this._operatorAdsrReleaseSliders,
+			operatorAdsrAttackInputBoxes: this._operatorAdsrAttackInputBoxes,
+			operatorAdsrDecayInputBoxes: this._operatorAdsrDecayInputBoxes,
+			operatorAdsrSustainInputBoxes: this._operatorAdsrSustainInputBoxes,
+			operatorAdsrReleaseInputBoxes: this._operatorAdsrReleaseInputBoxes,
+			operatorAdsrRows: this._operatorAdsrRows,
 			algorithm6OpSelect: this._algorithm6OpSelect,
 			feedback6OpTypeSelect: this._feedback6OpTypeSelect,
 			customAlgorithmCanvas: this._customAlgorithmCanvas,

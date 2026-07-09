@@ -97,6 +97,26 @@ describe("Instrument type round-trip", () => {
 	test("opl3 type round-trips", () => {
 		assertInstrumentTypeRoundTrips(InstrumentType.opl3);
 	});
+
+	test("opl3 operator ADSR round-trips", () => {
+		const song = createTestSong();
+		const instr = song.channels[0].instruments[0];
+		instr.setTypeAndReset(InstrumentType.opl3, false, false);
+		instr.operators[0].attack = 12;
+		instr.operators[0].decay = 23;
+		instr.operators[0].sustain = 34;
+		instr.operators[0].release = 45;
+
+		const encoded = song.toBase64String();
+		const decoded = createTestSong();
+		decoded.fromBase64String(encoded);
+
+		const operator = decoded.channels[0].instruments[0].operators[0];
+		expect(operator.attack).toBe(12);
+		expect(operator.decay).toBe(23);
+		expect(operator.sustain).toBe(34);
+		expect(operator.release).toBe(45);
+	});
 });
 
 describe("Instrument type round-trip updates correct instrument", () => {

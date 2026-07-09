@@ -111,3 +111,59 @@ export class ChangeOperatorFrequency extends Change {
 		}
 	}
 }
+
+export class ChangeOperatorAttack extends Change {
+	constructor(doc: SongDocument, operatorIndex: number, newValue: number) {
+		super();
+		const instrument: Instrument = doc.getCurrentInstrumentObj();
+		const oldValue: number = instrument.operators[operatorIndex].attack;
+		if (oldValue !== newValue) {
+			instrument.operators[operatorIndex].attack = newValue;
+			instrument.preset = instrument.type;
+			doc.notifier.changed();
+			this._didSomething();
+		}
+	}
+}
+
+export class ChangeOperatorDecay extends Change {
+	constructor(doc: SongDocument, operatorIndex: number, newValue: number) {
+		super();
+		const instrument: Instrument = doc.getCurrentInstrumentObj();
+		const oldValue: number = instrument.operators[operatorIndex].decay;
+		if (oldValue !== newValue) {
+			instrument.operators[operatorIndex].decay = newValue;
+			instrument.preset = instrument.type;
+			doc.notifier.changed();
+			this._didSomething();
+		}
+	}
+}
+
+export class ChangeOperatorSustain extends Change {
+	constructor(doc: SongDocument, operatorIndex: number, newValue: number) {
+		super();
+		const instrument: Instrument = doc.getCurrentInstrumentObj();
+		const oldValue: number = instrument.operators[operatorIndex].sustain;
+		if (oldValue !== newValue) {
+			instrument.operators[operatorIndex].sustain = newValue;
+			instrument.preset = instrument.type;
+			doc.notifier.changed();
+			this._didSomething();
+		}
+	}
+}
+
+export class ChangeOperatorRelease extends Change {
+	constructor(doc: SongDocument, operatorIndex: number, newValue: number) {
+		super();
+		const instrument: Instrument = doc.getCurrentInstrumentObj();
+		const oldValue: number = instrument.operators[operatorIndex].release;
+		if (oldValue !== newValue) {
+			instrument.operators[operatorIndex].release = newValue;
+			instrument.preset = instrument.type;
+			doc.notifier.changed();
+			this._didSomething();
+		}
+	}
+}

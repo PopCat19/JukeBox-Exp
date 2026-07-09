@@ -45,10 +45,18 @@ const opl3Module: InstrumentModule = {
 	},
 
 	serialize(params: Record<string, unknown>, w: FieldWriter): void {
+		const opAttack = params.operatorAttack as number[] | undefined;
+		const opDecay = params.operatorDecay as number[] | undefined;
+		const opSustain = params.operatorSustain as number[] | undefined;
+		const opRelease = params.operatorRelease as number[] | undefined;
 		serialize(
 			{
 				algorithm: (params.opl3Algorithm as number) ?? (params.algorithm as number) ?? 0,
 				feedbackAmplitude: (params.feedbackAmplitude as number) ?? 0,
+				operatorAttack: opAttack ?? [0, 0, 0, 0],
+				operatorDecay: opDecay ?? [0, 0, 0, 0],
+				operatorSustain: opSustain ?? [63, 63, 63, 63],
+				operatorRelease: opRelease ?? [10, 10, 10, 10],
 			},
 			w,
 		);
@@ -56,11 +64,25 @@ const opl3Module: InstrumentModule = {
 
 	deserialize(r: FieldReader, _version: number): Record<string, unknown> {
 		const params = deserialize(r, _version);
-		return { opl3Algorithm: params.algorithm, feedbackAmplitude: params.feedbackAmplitude };
+		return {
+			opl3Algorithm: params.algorithm,
+			feedbackAmplitude: params.feedbackAmplitude,
+			operatorAttack: params.operatorAttack,
+			operatorDecay: params.operatorDecay,
+			operatorSustain: params.operatorSustain,
+			operatorRelease: params.operatorRelease,
+		};
 	},
 
 	initialize(): Record<string, unknown> {
-		return { opl3Algorithm: 0, feedbackAmplitude: 0 };
+		return {
+			opl3Algorithm: 0,
+			feedbackAmplitude: 0,
+			operatorAttack: [0, 0, 0, 0],
+			operatorDecay: [0, 0, 0, 0],
+			operatorSustain: [63, 63, 63, 63],
+			operatorRelease: [10, 10, 10, 10],
+		};
 	},
 };
 

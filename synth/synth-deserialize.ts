@@ -1,3 +1,4 @@
+/* biome-ignore-all lint/suspicious/noSwitchDeclarations: legacy URL tag decoder keeps one switch branch per tag. */
 // synth-deserialize.ts
 //
 // Purpose: URL hash decoding for songs (fromBase64StringImpl)
@@ -3520,6 +3521,34 @@ export function fromBase64StringImpl(
 									base64CharCodeToInt[compressed.charCodeAt(charIndex++)],
 								);
 							}
+						}
+					}
+				}
+				break;
+			case SongTagCode.opl3OperatorAdsr:
+				{
+					const instrument: Instrument =
+						song.channels[instrumentChannelIterator].instruments[
+							instrumentIndexIterator
+						];
+					if (instrument.type === InstrumentType.opl3) {
+						for (let o = 0; o < Config.operatorCount; o++) {
+							instrument.operators[o].attack = clamp(
+								0, 64,
+								base64CharCodeToInt[compressed.charCodeAt(charIndex++)],
+							);
+							instrument.operators[o].decay = clamp(
+								0, 64,
+								base64CharCodeToInt[compressed.charCodeAt(charIndex++)],
+							);
+							instrument.operators[o].sustain = clamp(
+								0, 64,
+								base64CharCodeToInt[compressed.charCodeAt(charIndex++)],
+							);
+							instrument.operators[o].release = clamp(
+								0, 64,
+								base64CharCodeToInt[compressed.charCodeAt(charIndex++)],
+							);
 						}
 					}
 				}

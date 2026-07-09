@@ -660,6 +660,16 @@ export function toBase64StringImpl(song: SongLike): string {
 						buffer.push(base64IntToCharCode[instrument.operators[o].pulseWidth]);
 					}
 				}
+				if (instrument.type === InstrumentType.opl3) {
+					// Serialize per-operator ADSR: attack, decay, sustain, release for 4 operators
+					buffer.push(SongTagCode.opl3OperatorAdsr);
+					for (let o = 0; o < Config.operatorCount; o++) {
+						buffer.push(base64IntToCharCode[Math.max(0, Math.min(63, instrument.operators[o].attack))]);
+						buffer.push(base64IntToCharCode[Math.max(0, Math.min(63, instrument.operators[o].decay))]);
+						buffer.push(base64IntToCharCode[Math.max(0, Math.min(63, instrument.operators[o].sustain))]);
+						buffer.push(base64IntToCharCode[Math.max(0, Math.min(63, instrument.operators[o].release))]);
+					}
+				}
 			} else if (instrument.type === InstrumentType.customChipWave) {
 				if (instrument.chipWave > 186) {
 					buffer.push(119, base64IntToCharCode[instrument.chipWave - 186]);

@@ -30,7 +30,7 @@ import {
 	effectsIncludeRingModulation,
 	effectsIncludeTransition,
 	effectsIncludeVibrato,
-} from "../../synth/synth-config";
+InstrumentType,} from "../../synth/synth-config";
 import type { EnvelopeEditor } from "../components/envelope-editor";
 import type { FadeInOutEditor } from "../components/fade-in-out-editor";
 import type { FilterEditor } from "../components/filter-editor";
@@ -125,6 +125,15 @@ export interface InstrumentVisibilityRefs {
 	operatorWaveformPulsewidthInputBoxes: HTMLInputElement[];
 	operatorDropdownGroups: HTMLDivElement[];
 	operatorWaveformHints: HTMLSpanElement[];
+	operatorAdsrAttackSliders: Slider[];
+	operatorAdsrDecaySliders: Slider[];
+	operatorAdsrSustainSliders: Slider[];
+	operatorAdsrReleaseSliders: Slider[];
+	operatorAdsrAttackInputBoxes: HTMLInputElement[];
+	operatorAdsrDecayInputBoxes: HTMLInputElement[];
+	operatorAdsrSustainInputBoxes: HTMLInputElement[];
+	operatorAdsrReleaseInputBoxes: HTMLInputElement[];
+	operatorAdsrRows: HTMLDivElement[];
 
 	// FM 6op
 	algorithm6OpSelect: HTMLSelectElement;
@@ -470,6 +479,20 @@ export function applyInstrumentVisibility(
 			} else {
 				refs.operatorWaveformPulsewidthSliders[i].container.style.display = "none";
 				refs.operatorWaveformHints[i].style.display = "";
+			}
+			// ADSR controls — shown only for OPL3
+			if (instrument.type === InstrumentType.opl3) {
+				refs.operatorAdsrRows[i].style.display = "";
+				refs.operatorAdsrAttackSliders[i].updateValue(instrument.operators[i].attack);
+				refs.operatorAdsrAttackInputBoxes[i].value = String(instrument.operators[i].attack);
+				refs.operatorAdsrDecaySliders[i].updateValue(instrument.operators[i].decay);
+				refs.operatorAdsrDecayInputBoxes[i].value = String(instrument.operators[i].decay);
+				refs.operatorAdsrSustainSliders[i].updateValue(instrument.operators[i].sustain);
+				refs.operatorAdsrSustainInputBoxes[i].value = String(instrument.operators[i].sustain);
+				refs.operatorAdsrReleaseSliders[i].updateValue(instrument.operators[i].release);
+				refs.operatorAdsrReleaseInputBoxes[i].value = String(instrument.operators[i].release);
+			} else {
+				refs.operatorAdsrRows[i].style.display = "none";
 			}
 		}
 

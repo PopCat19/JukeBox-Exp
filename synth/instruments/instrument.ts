@@ -796,14 +796,22 @@ export class Instrument {
 				instrumentObject.unisonSign = this.unisonSign;
 			}
 		} else if (this.type === InstrumentType.fm || this.type === InstrumentType.fm6op || this.type === InstrumentType.opl3) {
+			const isOpl3 = this.type === InstrumentType.opl3;
 			const operatorArray: object[] = [];
 			for (const operator of this.operators) {
-				operatorArray.push({
+				const opEntry: Record<string, unknown> = {
 					frequency: Config.operatorFrequencies[operator.frequency].name,
 					amplitude: operator.amplitude,
 					waveform: Config.operatorWaves[operator.waveform].name,
 					pulseWidth: operator.pulseWidth,
-				});
+				};
+				if (isOpl3) {
+					opEntry.attack = operator.attack;
+					opEntry.decay = operator.decay;
+					opEntry.sustain = operator.sustain;
+					opEntry.release = operator.release;
+				}
+				operatorArray.push(opEntry);
 			}
 			if (this.type === InstrumentType.fm) {
 				instrumentObject.algorithm = Config.algorithms[this.algorithm].name;
@@ -1823,6 +1831,12 @@ export class Instrument {
 					operator.pulseWidth = operatorObject.pulseWidth | 0;
 				} else {
 					operator.pulseWidth = 5;
+				}
+				if (this.type === InstrumentType.opl3) {
+					operator.attack = operatorObject.attack ?? 0;
+					operator.decay = operatorObject.decay ?? 0;
+					operator.sustain = operatorObject.sustain ?? 63;
+					operator.release = operatorObject.release ?? 10;
 				}
 			}
 		} else if (this.type === InstrumentType.customChipWave) {
