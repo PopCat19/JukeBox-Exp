@@ -3860,23 +3860,41 @@ export class SongEditor
 		}
 	}
 
-	// Global keydown handler: routes shortcuts when focus is on prompts (outside mainLayer).
+	// Global keydown handler: routes shortcuts when focus is outside mainLayer.
+	// Captures arrow keys before document scrolls, routes them back to mainLayer.
 	// Skips if focus is on an input, textarea, select, button, or contenteditable element.
 	private _handleGlobalKeyDown(event: KeyboardEvent): void {
 		if (event.isComposing) return; // Skip during IME composition
-		// Only handle if mainLayer doesn't have focus and a prompt is open
-		if (this.mainLayer.contains(document.activeElement)) return;
-		if (!this.prompt) return;
 
+		// If mainLayer has focus, its own handler already processes keys.
+		if (this.mainLayer.contains(document.activeElement)) return;
+
+		// Don't steal keys from form elements or contenteditable.
 		const target = event.target as HTMLElement;
-		if (
+		const isFormElement =
 			target instanceof HTMLInputElement ||
 			target instanceof HTMLTextAreaElement ||
 			target instanceof HTMLSelectElement ||
-			target instanceof HTMLButtonElement
+			target instanceof HTMLButtonElement;
+
+		// Arrow keys: prevent page scroll and route to mainLayer's keyboard handler,
+		// unless the target is a form element that needs them.
+		if (
+			event.key === "ArrowUp" ||
+			event.key === "ArrowDown" ||
+			event.key === "ArrowLeft" ||
+			event.key === "ArrowRight"
 		) {
+			if (isFormElement || target.isContentEditable) return;
+			event.preventDefault();
+			this.mainLayer.focus({ preventScroll: true });
+			this._keyboardHandler.handleKeyDown(event);
 			return;
 		}
+
+		// Prompt-only shortcuts: only route if a prompt is open.
+		if (!this.prompt) return;
+		if (isFormElement) return;
 		if (target.isContentEditable) return;
 
 		this._keyboardHandler.handleKeyDown(event);
