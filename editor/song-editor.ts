@@ -27,7 +27,6 @@ import {
 	ChangeBitcrusherQuantization,
 	ChangeCustomAlgorythmorFeedback,
 	ChangeCustomWave,
-	ChangeInstrumentType,
 	ChangeDecimalOffset,
 	ChangeDetune,
 	ChangeDistortion,
@@ -36,6 +35,7 @@ import {
 	ChangeEQFilterSimplePeak,
 	ChangeFeedbackAmplitude,
 	ChangeHoldingModRecording,
+	ChangeInstrumentType,
 	ChangeNoteFilterSimpleCut,
 	ChangeNoteFilterSimplePeak,
 	ChangePan,
@@ -3062,24 +3062,15 @@ export class SongEditor
 		this._keyboardHandler = new KeyboardHandler(this);
 		this._dispatch = new ChangeDispatcher(this);
 
-		// Blur buttons and selects on click so Space doesn't re-trigger the
-		// last clicked element instead of toggling playback.
-		// Excludes text inputs and contenteditable elements.
-		// Uses document-level listener to cover prompts outside mainLayer.
-		// Blur buttons and selects on mousedown (fires before focus transfer)
-		// so subsequent Space keydown goes to mainLayer instead of the element.
-		// Without this, clicking a button or select leaves focus on it, and
-		// pressing Space toggles the element's default behavior (e.g. opening
-		// a select dropdown) instead of toggling playback.
-		// Blur buttons after mouseup so Space toggles playback.
-		// For selects, intercept Space at keydown (native opens dropdown).
-		// After a select's dropdown closes via off-click, the browser
-		// transfers focus to <body> asynchronously (after mouseup
-		// returns). Use rAF to check after the transfer completes.
-		// If <body> is focused, restore mainLayer focus.
+		// Restore editor hotkeys after pointer interaction with non-text controls.
 		document.addEventListener("mouseup", () => {
 			requestAnimationFrame(() => {
-				if (document.activeElement === document.body) {
+				const activeElement = document.activeElement;
+				if (
+					activeElement === document.body ||
+					activeElement instanceof HTMLButtonElement ||
+					activeElement instanceof HTMLSelectElement
+				) {
 					this.mainLayer.focus({ preventScroll: true });
 				}
 			});

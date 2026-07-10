@@ -25,6 +25,7 @@ export default tseslint.config(
             "shared/styles/css-var-contract.ts",
             "tests/css-var-contract.test.ts",
             "tests/interactions-behavior.test.ts",
+            "tests/loop-editor-contract.test.ts",
             "tests/style-inject.test.ts",
             "tests/synth-contract.test.ts",
             "tests/ui-states.test.ts",
