@@ -504,10 +504,17 @@ export class PatternEditor {
 		return true;
 	}
 
-	private _moveTrackerCursor(timeSteps: number, pitchSteps: number, extendSelection: boolean): void {
+	private _moveTrackerCursor(
+		timeSteps: number,
+		pitchSteps: number,
+		extendSelection: boolean,
+	): void {
 		const minDivision = this._getMinDivision();
 		const maxPart = this._doc.song.beatsPerBar * Config.partsPerBeat - minDivision;
-		this._trackerPart = Math.max(0, Math.min(maxPart, this._trackerPart + timeSteps * minDivision));
+		this._trackerPart = Math.max(
+			0,
+			Math.min(maxPart, this._trackerPart + timeSteps * minDivision),
+		);
 		this._trackerPitch = Math.max(
 			0,
 			Math.min(this._getMaxPitch(), this._trackerPitch + pitchSteps),
@@ -621,7 +628,6 @@ export class PatternEditor {
 		this._doc.record(sequence);
 	}
 
-
 	private _resizeTrackerNoteOrLength(direction: number, headScope: boolean): void {
 		const step = this._getMinDivision();
 		const pattern = this._doc.getCurrentPattern(this._barOffset);
@@ -636,7 +642,10 @@ export class PatternEditor {
 			} else {
 				newEnd = Math.max(
 					note.start + step,
-					Math.min(this._doc.song.beatsPerBar * Config.partsPerBeat, note.end + direction * step),
+					Math.min(
+						this._doc.song.beatsPerBar * Config.partsPerBeat,
+						note.end + direction * step,
+					),
 				);
 			}
 			const sequence = new ChangeSequence();

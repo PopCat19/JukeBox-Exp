@@ -6,7 +6,13 @@
 // - Handles instrument type switching and preset application
 // - Generates random instruments
 
-import { Channel, FilterControlPoint, type FilterSettings, Instrument, getPlugin } from "../../../synth";
+import {
+	Channel,
+	FilterControlPoint,
+	type FilterSettings,
+	getPlugin,
+	Instrument,
+} from "../../../synth";
 import { tagInstrumentWithModule } from "../../../synth/socket/instrument-tagging";
 import {
 	type Algorithm,
@@ -1946,7 +1952,8 @@ export class ChangeRandomGeneratedInstrument extends Change {
 				case InstrumentType.opl3:
 					{
 						if (type === InstrumentType.opl3) {
-							instrument.opl3Algorithm = (Math.random() * Config.algorithmsOpl3.length) | 0;
+							instrument.opl3Algorithm =
+								(Math.random() * Config.algorithmsOpl3.length) | 0;
 						} else if (type === InstrumentType.fm) {
 							instrument.algorithm = (Math.random() * Config.algorithms.length) | 0;
 							instrument.feedbackType = (Math.random() * Config.feedbacks.length) | 0;

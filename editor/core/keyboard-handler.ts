@@ -257,7 +257,12 @@ export class KeyboardHandler {
 					event.preventDefault();
 					return;
 				}
-				if (!event.ctrlKey && !event.metaKey && !event.altKey && this._handleNavigationKey(event)) {
+				if (
+					!event.ctrlKey &&
+					!event.metaKey &&
+					!event.altKey &&
+					this._handleNavigationKey(event)
+				) {
 					return;
 				}
 			}

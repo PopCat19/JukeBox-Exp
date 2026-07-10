@@ -240,8 +240,15 @@ export function computeBasePitchAndExpression(
 		baseExpression = Config.noiseBaseExpression;
 		expressionReferencePitch = basePitch;
 		pitchDamping = Config.chipNoises[inst.chipNoise].isSoft ? 24.0 : 60.0;
-	} else if (instrumentType === InstrumentType.fm || instrumentType === InstrumentType.fm6op || instrumentType === InstrumentType.opl3) {
-		baseExpression = instrumentType === InstrumentType.opl3 ? Config.opl3BaseExpression : Config.fmBaseExpression;
+	} else if (
+		instrumentType === InstrumentType.fm ||
+		instrumentType === InstrumentType.fm6op ||
+		instrumentType === InstrumentType.opl3
+	) {
+		baseExpression =
+			instrumentType === InstrumentType.opl3
+				? Config.opl3BaseExpression
+				: Config.fmBaseExpression;
 	} else if (instrumentType === InstrumentType.chip) {
 		baseExpression = Config.chipBaseExpression;
 		const chipWaveConfig = Config.chipWaves[inst.chipWave];
@@ -2644,7 +2651,11 @@ export function computeToneSnapshot(
 	let awake: boolean = true;
 	let unisonInitialized: boolean = env.unisonInitialized;
 
-	if (env.instrumentType === InstrumentType.fm || env.instrumentType === InstrumentType.fm6op || env.instrumentType === InstrumentType.opl3) {
+	if (
+		env.instrumentType === InstrumentType.fm ||
+		env.instrumentType === InstrumentType.fm6op ||
+		env.instrumentType === InstrumentType.opl3
+	) {
 		// ── FM branch ──────────────────────────────────────────────────
 
 		const fmResult = computeFmOperatorLoop(

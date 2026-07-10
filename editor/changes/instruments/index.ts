@@ -37,7 +37,6 @@ export {
 } from "./envelopes";
 export {
 	Change6OpAlgorithm,
-	ChangeOpl3Algorithm,
 	Change6OpFeedbackType,
 	ChangeAlgorithm,
 	ChangeFeedbackType,
@@ -48,6 +47,7 @@ export {
 	ChangeOperatorRelease,
 	ChangeOperatorSustain,
 	ChangeOperatorWaveform,
+	ChangeOpl3Algorithm,
 } from "./fm-operators";
 export {
 	ChangeDrumsetEnvelope,

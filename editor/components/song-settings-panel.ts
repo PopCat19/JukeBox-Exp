@@ -222,7 +222,9 @@ export class SongSettingsPanel {
 			Config.chorusRange - 1,
 			0,
 			"Chorus:",
-			() => { onOpenPrompt("chorus"); },
+			() => {
+				onOpenPrompt("chorus");
+			},
 			{ getInstrumentValue: () => doc.getCurrentInstrumentObj().chorus },
 		);
 		this.chorusSlider = this.chorusWidget.slider;
@@ -236,7 +238,9 @@ export class SongSettingsPanel {
 			Config.reverbRange - 1,
 			0,
 			"Reverb:",
-			() => { onOpenPrompt("reverb"); },
+			() => {
+				onOpenPrompt("reverb");
+			},
 			{ getInstrumentValue: () => doc.getCurrentInstrumentObj().reverb },
 		);
 		this.reverbSlider = this.reverbWidget.slider;

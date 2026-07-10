@@ -30,7 +30,8 @@ import {
 	effectsIncludeRingModulation,
 	effectsIncludeTransition,
 	effectsIncludeVibrato,
-InstrumentType,} from "../../synth/synth-config";
+	InstrumentType,
+} from "../../synth/synth-config";
 import type { EnvelopeEditor } from "../components/envelope-editor";
 import type { FadeInOutEditor } from "../components/fade-in-out-editor";
 import type { FilterEditor } from "../components/filter-editor";
@@ -497,9 +498,13 @@ export function applyInstrumentVisibility(
 				refs.operatorAdsrDecaySliders[i].updateValue(instrument.operators[i].decay);
 				refs.operatorAdsrDecayInputBoxes[i].value = String(instrument.operators[i].decay);
 				refs.operatorAdsrSustainSliders[i].updateValue(instrument.operators[i].sustain);
-				refs.operatorAdsrSustainInputBoxes[i].value = String(instrument.operators[i].sustain);
+				refs.operatorAdsrSustainInputBoxes[i].value = String(
+					instrument.operators[i].sustain,
+				);
 				refs.operatorAdsrReleaseSliders[i].updateValue(instrument.operators[i].release);
-				refs.operatorAdsrReleaseInputBoxes[i].value = String(instrument.operators[i].release);
+				refs.operatorAdsrReleaseInputBoxes[i].value = String(
+					instrument.operators[i].release,
+				);
 			} else {
 				refs.operatorAdsrRows[i].style.display = "none";
 			}

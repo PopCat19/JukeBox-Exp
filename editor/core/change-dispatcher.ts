@@ -16,7 +16,6 @@ import {
 	ChangeAddChannelInstrument,
 	ChangeAddEnvelope,
 	ChangeAlgorithm,
-	ChangeOpl3Algorithm,
 	ChangeChipWave,
 	ChangeChipWaveLoopEnd,
 	ChangeChipWaveLoopMode,
@@ -33,6 +32,7 @@ import {
 	ChangeMonophonicTone,
 	ChangeNoiseWave,
 	ChangeNoteFilterType,
+	ChangeOpl3Algorithm,
 	ChangePasteInstrument,
 	ChangePreset,
 	ChangeRandomGeneratedInstrument,
@@ -193,7 +193,9 @@ export class ChangeDispatcher {
 	};
 
 	public whenSetOpl3Algorithm = (): void => {
-		this.doc.record(new ChangeOpl3Algorithm(this.doc, this._host.opl3AlgorithmSelect.selectedIndex));
+		this.doc.record(
+			new ChangeOpl3Algorithm(this.doc, this._host.opl3AlgorithmSelect.selectedIndex),
+		);
 	};
 
 	public whenSet6OpAlgorithm = (): void => {

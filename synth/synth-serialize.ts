@@ -564,7 +564,10 @@ export function toBase64StringImpl(song: SongLike): string {
 						base64IntToCharCode[instrument.feedbackType],
 					);
 				} else if (instrument.type === InstrumentType.opl3) {
-					buffer.push(SongTagCode.algorithm, base64IntToCharCode[instrument.opl3Algorithm]);
+					buffer.push(
+						SongTagCode.algorithm,
+						base64IntToCharCode[instrument.opl3Algorithm],
+					);
 					buffer.push(
 						SongTagCode.feedbackAmplitude,
 						base64IntToCharCode[instrument.feedbackAmplitude],
@@ -664,10 +667,26 @@ export function toBase64StringImpl(song: SongLike): string {
 					// Serialize per-operator ADSR: attack, decay, sustain, release for 4 operators
 					buffer.push(SongTagCode.opl3OperatorAdsr);
 					for (let o = 0; o < Config.operatorCount; o++) {
-						buffer.push(base64IntToCharCode[Math.max(0, Math.min(63, instrument.operators[o].attack))]);
-						buffer.push(base64IntToCharCode[Math.max(0, Math.min(63, instrument.operators[o].decay))]);
-						buffer.push(base64IntToCharCode[Math.max(0, Math.min(63, instrument.operators[o].sustain))]);
-						buffer.push(base64IntToCharCode[Math.max(0, Math.min(63, instrument.operators[o].release))]);
+						buffer.push(
+							base64IntToCharCode[
+								Math.max(0, Math.min(63, instrument.operators[o].attack))
+							],
+						);
+						buffer.push(
+							base64IntToCharCode[
+								Math.max(0, Math.min(63, instrument.operators[o].decay))
+							],
+						);
+						buffer.push(
+							base64IntToCharCode[
+								Math.max(0, Math.min(63, instrument.operators[o].sustain))
+							],
+						);
+						buffer.push(
+							base64IntToCharCode[
+								Math.max(0, Math.min(63, instrument.operators[o].release))
+							],
+						);
 					}
 				}
 			} else if (instrument.type === InstrumentType.customChipWave) {

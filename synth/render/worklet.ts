@@ -59,30 +59,30 @@ interface MessagePort {
 
 // ── Imports ──────────────────────────────────────────────────────────────
 
-import { computeToneSnapshot, type EnvelopeComputerLike, type ToneRenderEnv } from "./compute-tone";
 import { Deque } from "../deque";
-import { FilterControlPoint } from "../instruments/filter-control-point";
 import { FrequencyResponse } from "../filtering";
-import { FilterType, InstrumentType, Config } from "../synth-config";
+import { FilterControlPoint } from "../instruments/filter-control-point";
+import { Config, FilterType, InstrumentType } from "../synth-config";
 // tempFilterStart/EndCoefficients used by computeToneSnapshot transitive deps.
 import { Tone } from "../tone";
-import {
-	getWorkletSynthFn,
-	type WorkletSynthContext,
-	type WorkletEffectState,
-} from "./worklet-synth";
+import { computeToneSnapshot, type EnvelopeComputerLike, type ToneRenderEnv } from "./compute-tone";
+import type { SongSnapshot } from "./snapshot";
 import {
 	MSG_INIT,
-	MSG_TICK,
-	MSG_STOP,
-	MSG_RESET,
 	MSG_READY,
+	MSG_RESET,
+	MSG_STOP,
+	MSG_TICK,
 	MSG_TICK_COMPLETE,
-	type WorkletToneCommand,
 	type WorkletInitMessage,
 	type WorkletTickMessage,
+	type WorkletToneCommand,
 } from "./worklet-messages";
-import type { SongSnapshot } from "./snapshot";
+import {
+	getWorkletSynthFn,
+	type WorkletEffectState,
+	type WorkletSynthContext,
+} from "./worklet-synth";
 
 // ── Scratch buffer accessors ──────────────────────────────────────────────
 //
@@ -215,23 +215,32 @@ function buildToneRenderEnv(
 ): ToneRenderEnv {
 	// ── Instrument type info helpers ──────────────────────────────
 
-	const fmOperatorInstrument = cmd.instrumentType === InstrumentType.fm ||
+	const fmOperatorInstrument =
+		cmd.instrumentType === InstrumentType.fm ||
 		cmd.instrumentType === InstrumentType.fm6op ||
 		cmd.instrumentType === InstrumentType.opl3
-		? {
-			type: cmd.instrumentType,
-			operators: buildOperatorArray(cmd.fmOperatorCount, cmd.fmOperatorFrequencies, cmd.fmOperatorAmplitudes, cmd.fmOperatorAttacks, cmd.fmOperatorDecays, cmd.fmOperatorSustains, cmd.fmOperatorReleases),
-			algorithm: cmd.fmAlgorithm,
-			customAlgorithm: {
-				carrierCount: cmd.fmCustomCarrierCount,
-				associatedCarrier: [...cmd.fmCustomAssociatedCarrier],
-				modulatedBy: [] as readonly (readonly number[])[],
-				name: "",
-			},
-			fastTwoNoteArp: cmd.fmFastTwoNoteArp,
-			monoChordTone: cmd.fmMonoChordTone,
-		}
-		: null!; // Won't be accessed in non-FM branch
+			? {
+					type: cmd.instrumentType,
+					operators: buildOperatorArray(
+						cmd.fmOperatorCount,
+						cmd.fmOperatorFrequencies,
+						cmd.fmOperatorAmplitudes,
+						cmd.fmOperatorAttacks,
+						cmd.fmOperatorDecays,
+						cmd.fmOperatorSustains,
+						cmd.fmOperatorReleases,
+					),
+					algorithm: cmd.fmAlgorithm,
+					customAlgorithm: {
+						carrierCount: cmd.fmCustomCarrierCount,
+						associatedCarrier: [...cmd.fmCustomAssociatedCarrier],
+						modulatedBy: [] as readonly (readonly number[])[],
+						name: "",
+					},
+					fastTwoNoteArp: cmd.fmFastTwoNoteArp,
+					monoChordTone: cmd.fmMonoChordTone,
+				}
+			: null!; // Won't be accessed in non-FM branch
 
 	const nonFmPitchInst = {
 		type: cmd.nonFmType,
@@ -248,8 +257,8 @@ function buildToneRenderEnv(
 	// Build note filter control points from command data.
 	// If no real points were provided, set count to 0 to avoid
 	// out-of-bounds access in computeNoteFilters.
-	const hasFilterPoints: boolean = cmd.noteFilterControlPointCount > 0 &&
-		cmd.noteFilterControlPointTypes.length > 0;
+	const hasFilterPoints: boolean =
+		cmd.noteFilterControlPointCount > 0 && cmd.noteFilterControlPointTypes.length > 0;
 	const noteFilterCtrlPointCount: number = hasFilterPoints
 		? Math.min(cmd.noteFilterControlPointCount, cmd.noteFilterControlPointTypes.length)
 		: 0;
@@ -266,8 +275,6 @@ function buildToneRenderEnv(
 		const pFreq: number = cmd.noteFilterControlPointFreqs[pi];
 		noteFilterCtrlPoints.push(buildSimpleFilterPoint(pType, pGain, pFreq)!);
 	}
-
-
 
 	return {
 		sampleRate: snapshot.sampleRate,
@@ -325,9 +332,18 @@ function buildToneRenderEnv(
 		pitchDamping: cmd.pitchDamping,
 		lfoAmplitudeStart: cmd.lfoAmplitudeStart,
 		lfoAmplitudeEnd: cmd.lfoAmplitudeEnd,
-		simpleFilterStartPoint: buildSimpleFilterPoint(cmd.simpleFilterStartType, cmd.simpleFilterStartGain, cmd.simpleFilterStartFreq),
-		simpleFilterEndPoint: buildSimpleFilterPoint(cmd.simpleFilterEndType, cmd.simpleFilterEndGain, cmd.simpleFilterEndFreq),
-		drumsetFilterEnvelope: cmd.drumsetFilterEnvelopeType != null ? { type: cmd.drumsetFilterEnvelopeType } : null,
+		simpleFilterStartPoint: buildSimpleFilterPoint(
+			cmd.simpleFilterStartType,
+			cmd.simpleFilterStartGain,
+			cmd.simpleFilterStartFreq,
+		),
+		simpleFilterEndPoint: buildSimpleFilterPoint(
+			cmd.simpleFilterEndType,
+			cmd.simpleFilterEndGain,
+			cmd.simpleFilterEndFreq,
+		),
+		drumsetFilterEnvelope:
+			cmd.drumsetFilterEnvelopeType != null ? { type: cmd.drumsetFilterEnvelopeType } : null,
 		drumsetLowpassComp: cmd.drumsetLowpassComp,
 		drumsetGain: cmd.drumsetGain,
 		drumsetFreq: cmd.drumsetFreq,
@@ -427,7 +443,13 @@ function buildSimpleFilterPoint(
 	type: number | null,
 	gain: number | null,
 	freq: number | null,
-): { type: number; gain: number; freq: number; toCoefficients(filter: any, sampleRate: number, freqMult?: number, peakMult?: number): void; getVolumeCompensationMult(): number } | null {
+): {
+	type: number;
+	gain: number;
+	freq: number;
+	toCoefficients(filter: any, sampleRate: number, freqMult?: number, peakMult?: number): void;
+	getVolumeCompensationMult(): number;
+} | null {
 	if (type == null || gain == null || freq == null) return null;
 	return {
 		type,
@@ -440,9 +462,15 @@ function buildSimpleFilterPoint(
 			peakMult: number = 1.0,
 		): void {
 			const cornerRadiansPerSample: number =
-				(2.0 * Math.PI * Math.max(Config.filterFreqMinHz,
-					Math.min(Config.filterFreqMaxHz,
-						freqMult * FilterControlPoint.getHzFromSettingValue(this.freq)))) /
+				(2.0 *
+					Math.PI *
+					Math.max(
+						Config.filterFreqMinHz,
+						Math.min(
+							Config.filterFreqMaxHz,
+							freqMult * FilterControlPoint.getHzFromSettingValue(this.freq),
+						),
+					)) /
 				sampleRate;
 			const power: number = (this.gain - Config.filterGainCenter) * Config.filterGainStep;
 			const neutral: number = this.type === FilterType.peak ? 0.0 : -0.5;
@@ -468,23 +496,41 @@ function buildSimpleFilterPoint(
 				case FilterType.lowPass: {
 					const freqRelativeTo8khz: number =
 						(2.0 ** octave * Config.filterFreqReferenceHz) / 8000.0;
-					const warpedFreq: number = (Math.sqrt(1.0 + 4.0 * freqRelativeTo8khz) - 1.0) / 2.0;
-					return 0.5 **
+					const warpedFreq: number =
+						(Math.sqrt(1.0 + 4.0 * freqRelativeTo8khz) - 1.0) / 2.0;
+					return (
+						0.5 **
 						(0.2 * Math.max(0.0, gainPow + 1.0) +
-							Math.min(0.0, Math.max(-3.0, 0.595 * Math.log2(warpedFreq) + 0.35 * Math.min(0.0, gainPow + 1.0))));
+							Math.min(
+								0.0,
+								Math.max(
+									-3.0,
+									0.595 * Math.log2(warpedFreq) +
+										0.35 * Math.min(0.0, gainPow + 1.0),
+								),
+							))
+					);
 				}
 				case FilterType.highPass:
-					return 0.5 **
+					return (
+						0.5 **
 						(0.125 * Math.max(0.0, gainPow + 1.0) +
-							Math.min(0.0, 0.3 * (-octave - Math.log2(Config.filterFreqReferenceHz / 125.0)) +
-								0.2 * Math.min(0.0, gainPow + 1.0)));
+							Math.min(
+								0.0,
+								0.3 * (-octave - Math.log2(Config.filterFreqReferenceHz / 125.0)) +
+									0.2 * Math.min(0.0, gainPow + 1.0),
+							))
+					);
 				case FilterType.peak: {
 					const distanceFromCenter: number =
 						octave + Math.log2(Config.filterFreqReferenceHz / 2000.0);
 					const freqLoudness: number =
 						(1.0 / (1.0 + (distanceFromCenter / 3.0) ** 2.0)) ** 2.0;
-					return 0.5 **
-						(0.125 * Math.max(0.0, gainPow) + 0.1 * freqLoudness * Math.min(0.0, gainPow));
+					return (
+						0.5 **
+						(0.125 * Math.max(0.0, gainPow) +
+							0.1 * freqLoudness * Math.min(0.0, gainPow))
+					);
 				}
 				default:
 					return 1.0;
@@ -614,8 +660,7 @@ class JukeBoxComputeToneProcessor extends AudioWorkletProcessor {
 			ec.noteSecondsEnd = [];
 			ec.noteSecondsStartUnscaled = cmd.noteSecondsStartUnscaled;
 			ec.noteSecondsEndUnscaled = cmd.noteSecondsEndUnscaled;
-			ec.lowpassCutoffDecayVolumeCompensation =
-				cmd.lowpassCutoffDecayVolumeCompensation;
+			ec.lowpassCutoffDecayVolumeCompensation = cmd.lowpassCutoffDecayVolumeCompensation;
 			ec.drumsetFilterEnvelopeStart = 0;
 			ec.drumsetFilterEnvelopeEnd = 0;
 			ec.prevSlideStart = false;

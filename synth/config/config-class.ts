@@ -3222,7 +3222,11 @@ export class Config {
 				isFilter: false,
 				/*range: Config.defaultAutomationRange,  */ maxCount: Config.operatorCount + 2,
 				effect: null,
-				compatibleInstruments: [InstrumentType.fm, InstrumentType.fm6op, InstrumentType.opl3],
+				compatibleInstruments: [
+					InstrumentType.fm,
+					InstrumentType.fm6op,
+					InstrumentType.opl3,
+				],
 			},
 			{
 				name: "operatorAmplitude",
@@ -3233,7 +3237,11 @@ export class Config {
 				isFilter: false,
 				/*range: Config.operatorAmplitudeMax + 1,*/ maxCount: Config.operatorCount + 2,
 				effect: null,
-				compatibleInstruments: [InstrumentType.fm, InstrumentType.fm6op, InstrumentType.opl3],
+				compatibleInstruments: [
+					InstrumentType.fm,
+					InstrumentType.fm6op,
+					InstrumentType.opl3,
+				],
 			},
 			{
 				name: "feedbackAmplitude",
@@ -3244,7 +3252,11 @@ export class Config {
 				isFilter: false,
 				/*range: Config.operatorAmplitudeMax + 1,*/ maxCount: 1,
 				effect: null,
-				compatibleInstruments: [InstrumentType.fm, InstrumentType.fm6op, InstrumentType.opl3],
+				compatibleInstruments: [
+					InstrumentType.fm,
+					InstrumentType.fm6op,
+					InstrumentType.opl3,
+				],
 			},
 			{
 				name: "pitchShift",

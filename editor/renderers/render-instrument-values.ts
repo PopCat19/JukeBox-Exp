@@ -8,7 +8,7 @@
 // - Updates note limit labels with current pitch names
 // - Syncs filter, envelope, and arpeggio speed displays
 
-import { type Instrument, getRegisteredPlugins } from "../../synth";
+import { getRegisteredPlugins, type Instrument } from "../../synth";
 import { Config, calculateRingModHertz } from "../../synth/synth-config";
 import { Piano } from "../components/piano";
 import { prettyNumber } from "../config/editor-config";

@@ -166,9 +166,15 @@ export class TrackEditor {
 		// Prevent wheel events on the track SVG from scrolling the page.
 		// The track editor has no native scroll action, but the event
 		// still reaches the document and scrolls <body>.
-		this._svg.addEventListener("wheel", (event: WheelEvent) => { event.preventDefault(); }, {
-			passive: false,
-		});
+		this._svg.addEventListener(
+			"wheel",
+			(event: WheelEvent) => {
+				event.preventDefault();
+			},
+			{
+				passive: false,
+			},
+		);
 
 		this._select.addEventListener("change", this._whenSelectChanged);
 		this._select.addEventListener("touchstart", this._whenSelectPressed);

@@ -281,80 +281,440 @@ interface ComponentSpec {
 /** Known class patterns mapped to component specs with source file hints */
 const COMPONENT_GUESSES: ComponentSpec[] = [
 	// Widgets
-	{ pattern: /\bslider-num-input\b/, name: "SliderNumWidget", file: "editor/ui/sliders/slider-num-widget.ts", confidence: 7 },
-	{ pattern: /\bdata-dev-component=.*SliderNumWidget\b/, name: "SliderNumWidget", file: "editor/ui/sliders/slider-num-widget.ts", confidence: 10 },
-	{ pattern: /\bdata-dev-component=.*(Slider|DeltaSlider)\b/, name: "Slider", file: "editor/ui/sliders/slider.ts", confidence: 10 },
+	{
+		pattern: /\bslider-num-input\b/,
+		name: "SliderNumWidget",
+		file: "editor/ui/sliders/slider-num-widget.ts",
+		confidence: 7,
+	},
+	{
+		pattern: /\bdata-dev-component=.*SliderNumWidget\b/,
+		name: "SliderNumWidget",
+		file: "editor/ui/sliders/slider-num-widget.ts",
+		confidence: 10,
+	},
+	{
+		pattern: /\bdata-dev-component=.*(Slider|DeltaSlider)\b/,
+		name: "Slider",
+		file: "editor/ui/sliders/slider.ts",
+		confidence: 10,
+	},
 	// Playback area (song-editor.ts ~line 2170)
-	{ pattern: /\bplayback-volume-controls\b/, name: "PlaybackVolumeControls", file: "editor/song-editor.ts", grep: "playback-volume-controls", confidence: 7 },
-	{ pattern: /\bplayback-bar-controls\b/, name: "PlaybackBarControls", file: "editor/song-editor.ts", grep: "playback-bar-controls", confidence: 7 },
-	{ pattern: /\bplay-pause-area\b/, name: "PlayPauseArea", file: "editor/song-editor.ts", grep: "class.*play-pause", confidence: 7 },
-	{ pattern: /\bvolume-speaker\b/, name: "VolumeSpeaker", file: "editor/song-editor.ts", grep: "volume-speaker", confidence: 7 },
-	{ pattern: /\bplayback-volume-bar\b/, name: "PlaybackVolumeBar", file: "editor/components/playback-controls.ts", grep: "playback-volume-bar", confidence: 7 },
+	{
+		pattern: /\bplayback-volume-controls\b/,
+		name: "PlaybackVolumeControls",
+		file: "editor/song-editor.ts",
+		grep: "playback-volume-controls",
+		confidence: 7,
+	},
+	{
+		pattern: /\bplayback-bar-controls\b/,
+		name: "PlaybackBarControls",
+		file: "editor/song-editor.ts",
+		grep: "playback-bar-controls",
+		confidence: 7,
+	},
+	{
+		pattern: /\bplay-pause-area\b/,
+		name: "PlayPauseArea",
+		file: "editor/song-editor.ts",
+		grep: "class.*play-pause",
+		confidence: 7,
+	},
+	{
+		pattern: /\bvolume-speaker\b/,
+		name: "VolumeSpeaker",
+		file: "editor/song-editor.ts",
+		grep: "volume-speaker",
+		confidence: 7,
+	},
+	{
+		pattern: /\bplayback-volume-bar\b/,
+		name: "PlaybackVolumeBar",
+		file: "editor/components/playback-controls.ts",
+		grep: "playback-volume-bar",
+		confidence: 7,
+	},
 	// Settings area (song-editor.ts ~line 2170)
-	{ pattern: /\bsettings-area\b/, name: "SettingsArea", file: "editor/song-editor.ts", grep: "class.*settings-area", confidence: 7 },
-	{ pattern: /\bversion-area\b/, name: "VersionArea", file: "editor/song-editor.ts", grep: "class.*version-area", confidence: 7 },
-	{ pattern: /\bsong-settings-area\b/, name: "SongSettingsArea", file: "editor/song-editor.ts", grep: "class.*song-settings-area", confidence: 7 },
-	{ pattern: /\binstrument-settings-area\b/, name: "InstrumentSettingsArea", file: "editor/song-editor.ts", grep: "class.*instrument-settings-area", confidence: 7 },
-	{ pattern: /\beditor-controls\b/, name: "EditorControls", file: "editor/song-editor.ts", grep: "class.*editor-controls", confidence: 7 },
-	{ pattern: /\beditor-song-settings\b/, name: "EditorSongSettings", file: "editor/song-editor.ts", grep: "class.*editor-song-settings", confidence: 7 },
-	{ pattern: /\bselectRow\b/, name: "SelectRow", file: "editor/song-editor.ts", grep: "class.*selectRow", confidence: 6 },
-	{ pattern: /\bselectContainer\b/, name: "SelectContainer", file: "editor/song-editor.ts", grep: "class.*selectContainer", confidence: 6 },
+	{
+		pattern: /\bsettings-area\b/,
+		name: "SettingsArea",
+		file: "editor/song-editor.ts",
+		grep: "class.*settings-area",
+		confidence: 7,
+	},
+	{
+		pattern: /\bversion-area\b/,
+		name: "VersionArea",
+		file: "editor/song-editor.ts",
+		grep: "class.*version-area",
+		confidence: 7,
+	},
+	{
+		pattern: /\bsong-settings-area\b/,
+		name: "SongSettingsArea",
+		file: "editor/song-editor.ts",
+		grep: "class.*song-settings-area",
+		confidence: 7,
+	},
+	{
+		pattern: /\binstrument-settings-area\b/,
+		name: "InstrumentSettingsArea",
+		file: "editor/song-editor.ts",
+		grep: "class.*instrument-settings-area",
+		confidence: 7,
+	},
+	{
+		pattern: /\beditor-controls\b/,
+		name: "EditorControls",
+		file: "editor/song-editor.ts",
+		grep: "class.*editor-controls",
+		confidence: 7,
+	},
+	{
+		pattern: /\beditor-song-settings\b/,
+		name: "EditorSongSettings",
+		file: "editor/song-editor.ts",
+		grep: "class.*editor-song-settings",
+		confidence: 7,
+	},
+	{
+		pattern: /\bselectRow\b/,
+		name: "SelectRow",
+		file: "editor/song-editor.ts",
+		grep: "class.*selectRow",
+		confidence: 6,
+	},
+	{
+		pattern: /\bselectContainer\b/,
+		name: "SelectContainer",
+		file: "editor/song-editor.ts",
+		grep: "class.*selectContainer",
+		confidence: 6,
+	},
 	// Track/pattern editors
-	{ pattern: /\btrackContainer\b/, name: "TrackContainer", file: "editor/song-editor.ts", grep: "trackContainer", confidence: 7 },
-	{ pattern: /\btrack-area\b/, name: "TrackArea", file: "editor/song-editor.ts", grep: "class.*track-area", confidence: 7 },
-	{ pattern: /\bpattern-area\b/, name: "PatternArea", file: "editor/song-editor.ts", grep: "class.*pattern-area", confidence: 7 },
-	{ pattern: /\btrackAndMuteContainer\b/, name: "TrackAndMuteContainer", file: "editor/song-editor.ts", grep: "trackAndMuteContainer", confidence: 7 },
-	{ pattern: /\bmute-editor\b/, name: "MuteEditor", file: "editor/components/mute-editor.ts", confidence: 7 },
-	{ pattern: /\bbarScrollBar\b/, name: "BarScrollBar", file: "editor/components/bar-scroll-bar.ts", confidence: 7 },
-	{ pattern: /\bchannelRow\b/, name: "ChannelRow", file: "editor/components/channel-row.ts", confidence: 7 },
-	{ pattern: /\bpiano-button\b/, name: "PianoButton", file: "editor/components/piano.ts", confidence: 7 },
-	{ pattern: /\bdrum-button\b/, name: "DrumButton", file: "editor/core/drumset-setup.ts", confidence: 7 },
-	{ pattern: /\benvelope-row\b/, name: "EnvelopeRow", file: "editor/components/envelope-editor.ts", confidence: 7 },
-	{ pattern: /\bfadeInOut\b/, name: "FadeInOutEditor", file: "editor/components/fade-in-out-editor.ts", confidence: 7 },
-	{ pattern: /\bfilterEditor\b/, name: "FilterEditor", file: "editor/components/filter-editor.ts", confidence: 7 },
-	{ pattern: /\bloopEditor\b/, name: "LoopEditor", file: "editor/components/loop-editor.ts", confidence: 7 },
+	{
+		pattern: /\btrackContainer\b/,
+		name: "TrackContainer",
+		file: "editor/song-editor.ts",
+		grep: "trackContainer",
+		confidence: 7,
+	},
+	{
+		pattern: /\btrack-area\b/,
+		name: "TrackArea",
+		file: "editor/song-editor.ts",
+		grep: "class.*track-area",
+		confidence: 7,
+	},
+	{
+		pattern: /\bpattern-area\b/,
+		name: "PatternArea",
+		file: "editor/song-editor.ts",
+		grep: "class.*pattern-area",
+		confidence: 7,
+	},
+	{
+		pattern: /\btrackAndMuteContainer\b/,
+		name: "TrackAndMuteContainer",
+		file: "editor/song-editor.ts",
+		grep: "trackAndMuteContainer",
+		confidence: 7,
+	},
+	{
+		pattern: /\bmute-editor\b/,
+		name: "MuteEditor",
+		file: "editor/components/mute-editor.ts",
+		confidence: 7,
+	},
+	{
+		pattern: /\bbarScrollBar\b/,
+		name: "BarScrollBar",
+		file: "editor/components/bar-scroll-bar.ts",
+		confidence: 7,
+	},
+	{
+		pattern: /\bchannelRow\b/,
+		name: "ChannelRow",
+		file: "editor/components/channel-row.ts",
+		confidence: 7,
+	},
+	{
+		pattern: /\bpiano-button\b/,
+		name: "PianoButton",
+		file: "editor/components/piano.ts",
+		confidence: 7,
+	},
+	{
+		pattern: /\bdrum-button\b/,
+		name: "DrumButton",
+		file: "editor/core/drumset-setup.ts",
+		confidence: 7,
+	},
+	{
+		pattern: /\benvelope-row\b/,
+		name: "EnvelopeRow",
+		file: "editor/components/envelope-editor.ts",
+		confidence: 7,
+	},
+	{
+		pattern: /\bfadeInOut\b/,
+		name: "FadeInOutEditor",
+		file: "editor/components/fade-in-out-editor.ts",
+		confidence: 7,
+	},
+	{
+		pattern: /\bfilterEditor\b/,
+		name: "FilterEditor",
+		file: "editor/components/filter-editor.ts",
+		confidence: 7,
+	},
+	{
+		pattern: /\bloopEditor\b/,
+		name: "LoopEditor",
+		file: "editor/components/loop-editor.ts",
+		confidence: 7,
+	},
 	// Menu
-	{ pattern: /\bmenu-area\b/, name: "MenuArea", file: "editor/song-editor.ts", grep: "class.*menu-area", confidence: 7 },
-	{ pattern: /\binstrument-bar\b/, name: "InstrumentBar", file: "editor/song-editor.ts", grep: "class.*instrument-bar", confidence: 7 },
+	{
+		pattern: /\bmenu-area\b/,
+		name: "MenuArea",
+		file: "editor/song-editor.ts",
+		grep: "class.*menu-area",
+		confidence: 7,
+	},
+	{
+		pattern: /\binstrument-bar\b/,
+		name: "InstrumentBar",
+		file: "editor/song-editor.ts",
+		grep: "class.*instrument-bar",
+		confidence: 7,
+	},
 	// Prompts
-	{ pattern: /\bprompt\b/, name: "Prompt overlay", file: "editor/prompts/", grep: "class.*prompt", confidence: 5 },
-	{ pattern: /\bpromptContainer\b/, name: "PromptContainer", file: "editor/song-editor.ts", grep: "promptContainer", confidence: 7 },
-	{ pattern: /\bprompt-dock-slot\b/, name: "PromptDockSlot", file: "editor/core/prompt-manager.ts", grep: "prompt-dock", confidence: 7 },
-	{ pattern: /\bprompt-dock-slot-divider\b/, name: "PromptDockSlotDivider", file: "editor/core/prompt-manager.ts", grep: "prompt-dock", confidence: 7 },
+	{
+		pattern: /\bprompt\b/,
+		name: "Prompt overlay",
+		file: "editor/prompts/",
+		grep: "class.*prompt",
+		confidence: 5,
+	},
+	{
+		pattern: /\bpromptContainer\b/,
+		name: "PromptContainer",
+		file: "editor/song-editor.ts",
+		grep: "promptContainer",
+		confidence: 7,
+	},
+	{
+		pattern: /\bprompt-dock-slot\b/,
+		name: "PromptDockSlot",
+		file: "editor/core/prompt-manager.ts",
+		grep: "prompt-dock",
+		confidence: 7,
+	},
+	{
+		pattern: /\bprompt-dock-slot-divider\b/,
+		name: "PromptDockSlotDivider",
+		file: "editor/core/prompt-manager.ts",
+		grep: "prompt-dock",
+		confidence: 7,
+	},
 	// Buttons
-	{ pattern: /\bpresetButton\b/, name: "PresetButton", file: "editor/song-editor.ts", grep: "presetButton", confidence: 7 },
-	{ pattern: /\bpresetSelect\b/, name: "PresetSelect", file: "editor/song-editor.ts", grep: "presetSelect", confidence: 7 },
-	{ pattern: /\bcopyButton\b/, name: "InstrumentCopyButton", file: "editor/song-editor.ts", grep: "copyButton", confidence: 7 },
-	{ pattern: /\bpasteButton\b/, name: "InstrumentPasteButton", file: "editor/song-editor.ts", grep: "pasteButton", confidence: 7 },
-	{ pattern: /\bexportInstrumentButton\b/, name: "InstrumentExportButton", file: "editor/song-editor.ts", grep: "exportInstrumentButton", confidence: 7 },
-	{ pattern: /\bimportInstrumentButton\b/, name: "InstrumentImportButton", file: "editor/song-editor.ts", grep: "importInstrumentButton", confidence: 7 },
-	{ pattern: /\bplayButton\b/, name: "PlayButton", file: "editor/components/playback-controls.ts", grep: "PlayButton", confidence: 7 },
-	{ pattern: /\bpauseButton\b/, name: "PauseButton", file: "editor/components/playback-controls.ts", grep: "PauseButton", confidence: 7 },
-	{ pattern: /\brecordButton\b/, name: "RecordButton", file: "editor/components/playback-controls.ts", grep: "RecordButton", confidence: 7 },
-	{ pattern: /\bstopButton\b/, name: "StopButton", file: "editor/components/playback-controls.ts", grep: "StopButton", confidence: 7 },
-	{ pattern: /\badd-envelope\b/, name: "AddEnvelopeButton", file: "editor/song-editor.ts", grep: "add-envelope", confidence: 7 },
+	{
+		pattern: /\bpresetButton\b/,
+		name: "PresetButton",
+		file: "editor/song-editor.ts",
+		grep: "presetButton",
+		confidence: 7,
+	},
+	{
+		pattern: /\bpresetSelect\b/,
+		name: "PresetSelect",
+		file: "editor/song-editor.ts",
+		grep: "presetSelect",
+		confidence: 7,
+	},
+	{
+		pattern: /\bcopyButton\b/,
+		name: "InstrumentCopyButton",
+		file: "editor/song-editor.ts",
+		grep: "copyButton",
+		confidence: 7,
+	},
+	{
+		pattern: /\bpasteButton\b/,
+		name: "InstrumentPasteButton",
+		file: "editor/song-editor.ts",
+		grep: "pasteButton",
+		confidence: 7,
+	},
+	{
+		pattern: /\bexportInstrumentButton\b/,
+		name: "InstrumentExportButton",
+		file: "editor/song-editor.ts",
+		grep: "exportInstrumentButton",
+		confidence: 7,
+	},
+	{
+		pattern: /\bimportInstrumentButton\b/,
+		name: "InstrumentImportButton",
+		file: "editor/song-editor.ts",
+		grep: "importInstrumentButton",
+		confidence: 7,
+	},
+	{
+		pattern: /\bplayButton\b/,
+		name: "PlayButton",
+		file: "editor/components/playback-controls.ts",
+		grep: "PlayButton",
+		confidence: 7,
+	},
+	{
+		pattern: /\bpauseButton\b/,
+		name: "PauseButton",
+		file: "editor/components/playback-controls.ts",
+		grep: "PauseButton",
+		confidence: 7,
+	},
+	{
+		pattern: /\brecordButton\b/,
+		name: "RecordButton",
+		file: "editor/components/playback-controls.ts",
+		grep: "RecordButton",
+		confidence: 7,
+	},
+	{
+		pattern: /\bstopButton\b/,
+		name: "StopButton",
+		file: "editor/components/playback-controls.ts",
+		grep: "StopButton",
+		confidence: 7,
+	},
+	{
+		pattern: /\badd-envelope\b/,
+		name: "AddEnvelopeButton",
+		file: "editor/song-editor.ts",
+		grep: "add-envelope",
+		confidence: 7,
+	},
 	// Dropdowns
-	{ pattern: /\bdropFader\b/, name: "DropFader", file: "editor/song-editor.ts", grep: "dropFader", confidence: 7 },
-	{ pattern: /\bdropdown-open\b/, name: "DropdownOpen", file: "editor/core/menu-handler.ts", grep: "dropdown-open", confidence: 7 },
+	{
+		pattern: /\bdropFader\b/,
+		name: "DropFader",
+		file: "editor/song-editor.ts",
+		grep: "dropFader",
+		confidence: 7,
+	},
+	{
+		pattern: /\bdropdown-open\b/,
+		name: "DropdownOpen",
+		file: "editor/core/menu-handler.ts",
+		grep: "dropdown-open",
+		confidence: 7,
+	},
 	// Modulators
-	{ pattern: /\bmodSlider\b/, name: "ModSlider", file: "editor/core/mod-slider-registry.ts", grep: "modSlider", confidence: 7 },
-	{ pattern: /\bslider-mod-indicator\b/, name: "SliderModIndicator", file: "editor/ui/sliders/slider.ts", grep: "slider-mod-indicator", confidence: 7 },
+	{
+		pattern: /\bmodSlider\b/,
+		name: "ModSlider",
+		file: "editor/core/mod-slider-registry.ts",
+		grep: "modSlider",
+		confidence: 7,
+	},
+	{
+		pattern: /\bslider-mod-indicator\b/,
+		name: "SliderModIndicator",
+		file: "editor/ui/sliders/slider.ts",
+		grep: "slider-mod-indicator",
+		confidence: 7,
+	},
 	// FM operators
-	{ pattern: /\boperatorRow\b/, name: "OperatorRow", file: "editor/core/fm-operator-setup.ts", grep: "operatorRow", confidence: 7 },
+	{
+		pattern: /\boperatorRow\b/,
+		name: "OperatorRow",
+		file: "editor/core/fm-operator-setup.ts",
+		grep: "operatorRow",
+		confidence: 7,
+	},
 	// Preset browser
-	{ pattern: /\bcategoryListPane\b/, name: "CategoryListPane", file: "editor/prompts/preset-browser-prompt.ts", grep: "categoryListPane", confidence: 7 },
-	{ pattern: /\bpresetListPane\b/, name: "PresetListPane", file: "editor/prompts/preset-browser-prompt.ts", grep: "presetListPane", confidence: 7 },
-	{ pattern: /\btagGridContainer\b/, name: "TagGridContainer", file: "editor/prompts/preset-browser-prompt.ts", grep: "tagGridContainer", confidence: 7 },
+	{
+		pattern: /\bcategoryListPane\b/,
+		name: "CategoryListPane",
+		file: "editor/prompts/preset-browser-prompt.ts",
+		grep: "categoryListPane",
+		confidence: 7,
+	},
+	{
+		pattern: /\bpresetListPane\b/,
+		name: "PresetListPane",
+		file: "editor/prompts/preset-browser-prompt.ts",
+		grep: "presetListPane",
+		confidence: 7,
+	},
+	{
+		pattern: /\btagGridContainer\b/,
+		name: "TagGridContainer",
+		file: "editor/prompts/preset-browser-prompt.ts",
+		grep: "tagGridContainer",
+		confidence: 7,
+	},
 	// Player
-	{ pattern: /\bvolBarContainer\b/, name: "VolumeBar", file: "player/player-ui.ts", grep: "volBarContainer", confidence: 7 },
-	{ pattern: /\bbeepboxEditor\b/, name: "BeepboxEditor", file: "editor/song-editor.ts", grep: "beepboxEditor", confidence: 7 },
+	{
+		pattern: /\bvolBarContainer\b/,
+		name: "VolumeBar",
+		file: "player/player-ui.ts",
+		grep: "volBarContainer",
+		confidence: 7,
+	},
+	{
+		pattern: /\bbeepboxEditor\b/,
+		name: "BeepboxEditor",
+		file: "editor/song-editor.ts",
+		grep: "beepboxEditor",
+		confidence: 7,
+	},
 	// Generics
-	{ pattern: /\btoggle-switch\b/, name: "ToggleSwitch", file: "editor/ui/", grep: "toggle-switch", confidence: 6 },
-	{ pattern: /\bcolor-swatch\b/, name: "ColorSwatch", file: "editor/prompts/", grep: "color-swatch", confidence: 6 },
-	{ pattern: /\bbeat-selector\b/, name: "BeatSelector", file: "editor/components/", grep: "beat-selector", confidence: 6 },
-	{ pattern: /\btip\b/, name: "TipLabel", file: "editor/", grep: "tipSpan.*onclick", confidence: 5 },
-	{ pattern: /\bpitchShiftMarker\b/, name: "PitchShiftMarker", file: "editor/song-editor.ts", grep: "pitchShiftMarker", confidence: 7 },
-	{ pattern: /\btabButton\b/, name: "TabButton", file: "editor/", grep: "tabButton", confidence: 6 },
+	{
+		pattern: /\btoggle-switch\b/,
+		name: "ToggleSwitch",
+		file: "editor/ui/",
+		grep: "toggle-switch",
+		confidence: 6,
+	},
+	{
+		pattern: /\bcolor-swatch\b/,
+		name: "ColorSwatch",
+		file: "editor/prompts/",
+		grep: "color-swatch",
+		confidence: 6,
+	},
+	{
+		pattern: /\bbeat-selector\b/,
+		name: "BeatSelector",
+		file: "editor/components/",
+		grep: "beat-selector",
+		confidence: 6,
+	},
+	{
+		pattern: /\btip\b/,
+		name: "TipLabel",
+		file: "editor/",
+		grep: "tipSpan.*onclick",
+		confidence: 5,
+	},
+	{
+		pattern: /\bpitchShiftMarker\b/,
+		name: "PitchShiftMarker",
+		file: "editor/song-editor.ts",
+		grep: "pitchShiftMarker",
+		confidence: 7,
+	},
+	{
+		pattern: /\btabButton\b/,
+		name: "TabButton",
+		file: "editor/",
+		grep: "tabButton",
+		confidence: 6,
+	},
 ];
 
 interface ComponentInfo {
@@ -366,7 +726,8 @@ interface ComponentInfo {
 
 function componentGuess(el: Element): ComponentInfo | null {
 	// 1. Check data-dev-component (highest confidence)
-	const devComp = el.getAttribute("data-dev-component") ||
+	const devComp =
+		el.getAttribute("data-dev-component") ||
 		el.closest("[data-dev-component]")?.getAttribute("data-dev-component");
 	if (devComp) {
 		const info: ComponentInfo = {
@@ -393,7 +754,12 @@ function componentGuess(el: Element): ComponentInfo | null {
 	if (el.classList.contains("slider-num-input")) {
 		const parentRow = el.closest(".selectRow");
 		if (parentRow) {
-			return { name: "SliderNumWidget", file: "editor/ui/sliders/slider-num-widget.ts", grep: "new SliderNumWidget", confidence: 8 };
+			return {
+				name: "SliderNumWidget",
+				file: "editor/ui/sliders/slider-num-widget.ts",
+				grep: "new SliderNumWidget",
+				confidence: 8,
+			};
 		}
 	}
 
@@ -401,7 +767,12 @@ function componentGuess(el: Element): ComponentInfo | null {
 	if (el instanceof HTMLInputElement && el.type === "range" && el.style.display === "none") {
 		const container = el.parentElement;
 		if (container && container.querySelector(".slider-mod-indicator")) {
-			return { name: "Slider", file: "editor/ui/sliders/slider.ts", grep: "new Slider", confidence: 8 };
+			return {
+				name: "Slider",
+				file: "editor/ui/sliders/slider.ts",
+				grep: "new Slider",
+				confidence: 8,
+			};
 		}
 	}
 
@@ -1028,9 +1399,7 @@ function figmaSummary(el: Element, cs: CSSStyleDeclaration): SummaryResult {
 		"--indicator-secondary",
 		"--empty-sample-bar",
 	];
-	const found = CUSTOM_PROPS.map((n) => [n, cssVar(el, n)] as const).filter(
-		([, v]) => v != null,
-	);
+	const found = CUSTOM_PROPS.map((n) => [n, cssVar(el, n)] as const).filter(([, v]) => v != null);
 	if (found.length > 0) {
 		props.push({
 			label: `CSS vars: ${found.map(([n]) => n.replace("--", "")).join(" ")}`,
@@ -1266,7 +1635,13 @@ export function activate(): void {
 		overlay!.style.pointerEvents = "auto";
 		if (el) highlight(el);
 	});
-	overlay.addEventListener("wheel", (e) => { e.preventDefault(); }, { passive: false });
+	overlay.addEventListener(
+		"wheel",
+		(e) => {
+			e.preventDefault();
+		},
+		{ passive: false },
+	);
 	overlay.addEventListener("click", (e) => {
 		e.preventDefault();
 		e.stopPropagation();

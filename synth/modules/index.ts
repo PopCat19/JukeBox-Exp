@@ -12,10 +12,10 @@ import { MODULE_ID as _CHIP_ID, default as _chipMod } from "./chip/module";
 import { MODULE_ID as _DRUMSET_ID, default as _drumsetMod } from "./drumset/module";
 import { MODULE_ID as _FM_ID, default as _fmMod } from "./fm/module";
 import { MODULE_ID as _FM6_ID, default as _fm6Mod } from "./fm6/module";
-import { MODULE_ID as _OPL3_ID, default as _opl3Mod } from "./opl3/module";
 import { MODULE_ID as _HARMONICS_ID, default as _harmonicsMod } from "./harmonics/module";
 import { MODULE_ID as _MOD_ID, default as _modMod } from "./mod/module";
 import { MODULE_ID as _NOISE_ID, default as _noiseMod } from "./noise/module";
+import { MODULE_ID as _OPL3_ID, default as _opl3Mod } from "./opl3/module";
 import {
 	MODULE_ID as _PICKED_STRING_ID,
 	default as _pickedStringMod,

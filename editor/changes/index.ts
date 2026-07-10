@@ -20,7 +20,6 @@ export {
 } from "./filters";
 export {
 	Change6OpAlgorithm,
-	ChangeOpl3Algorithm,
 	Change6OpFeedbackType,
 	ChangeAddEnvelope,
 	ChangeAlgorithm,
@@ -37,7 +36,6 @@ export {
 	ChangeClicklessTransition,
 	ChangeCustomAlgorythmorFeedback,
 	ChangeCustomizeInstrument,
-	ChangeInstrumentType,
 	ChangeCustomWave,
 	ChangeDiscreteEnvelope,
 	ChangeDrumsetEnvelope,
@@ -49,6 +47,7 @@ export {
 	ChangeFastTwoNoteArp,
 	ChangeFeedbackType,
 	ChangeHarmonics,
+	ChangeInstrumentType,
 	ChangeInvertWave,
 	ChangeMonophonicTone,
 	ChangeNoiseWave,
@@ -59,6 +58,7 @@ export {
 	ChangeOperatorRelease,
 	ChangeOperatorSustain,
 	ChangeOperatorWaveform,
+	ChangeOpl3Algorithm,
 	ChangePreset,
 	ChangeRandomEnvelopeSeed,
 	ChangeRandomEnvelopeSteps,

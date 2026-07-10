@@ -12,6 +12,8 @@ import { BorderRadius, BorderWidth, Typography } from "../ui/style-constants";
 // - Unified keyboard navigation across tabs
 
 import { HTML } from "imperative-html/dist/esm/elements-strict";
+import { getRegisteredPlugins } from "../../synth";
+import { InstrumentType } from "../../synth/synth-config";
 import { ChangeInstrumentType, ChangePreset } from "../changes";
 import {
 	EditorConfig,
@@ -19,8 +21,6 @@ import {
 	type Preset,
 	type PresetCategory,
 } from "../config/editor-config";
-import { getRegisteredPlugins } from "../../synth";
-import { InstrumentType } from "../../synth/synth-config";
 import type { SongDocument } from "../song-document";
 import {
 	flexPane,
@@ -286,8 +286,7 @@ export class InstrumentBrowserPrompt extends BasePrompt {
 
 		this.buildTitlebar();
 
-		this._commitTooltip = div({
-		});
+		this._commitTooltip = div({});
 		document.body.appendChild(this._commitTooltip);
 		document.addEventListener("mousemove", this._onMouseMove);
 
@@ -1073,72 +1072,72 @@ export class InstrumentBrowserPrompt extends BasePrompt {
 		const cols = 3;
 		switch (event.keyCode) {
 			case 38: // up
-			{
-				const prev = this._selectedTypeIndex - cols;
-				if (prev >= 0) {
-					this._selectedTypeIndex = prev;
-					this._updateTypeHighlight();
-					this._scrollItemIntoView(
-						this._typeItemElements,
-						this._selectedTypeIndex,
-						this._typesTabContent.firstChild as HTMLDivElement,
-					);
+				{
+					const prev = this._selectedTypeIndex - cols;
+					if (prev >= 0) {
+						this._selectedTypeIndex = prev;
+						this._updateTypeHighlight();
+						this._scrollItemIntoView(
+							this._typeItemElements,
+							this._selectedTypeIndex,
+							this._typesTabContent.firstChild as HTMLDivElement,
+						);
+					}
+					event.preventDefault();
+					break;
 				}
-				event.preventDefault();
-				break;
-			}
 			case 40: // down
-			{
-				const next = this._selectedTypeIndex + cols;
-				if (next < count) {
-					this._selectedTypeIndex = next;
-					this._updateTypeHighlight();
-					this._scrollItemIntoView(
-						this._typeItemElements,
-						this._selectedTypeIndex,
-						this._typesTabContent.firstChild as HTMLDivElement,
-					);
+				{
+					const next = this._selectedTypeIndex + cols;
+					if (next < count) {
+						this._selectedTypeIndex = next;
+						this._updateTypeHighlight();
+						this._scrollItemIntoView(
+							this._typeItemElements,
+							this._selectedTypeIndex,
+							this._typesTabContent.firstChild as HTMLDivElement,
+						);
+					}
+					event.preventDefault();
+					break;
 				}
-				event.preventDefault();
-				break;
-			}
 			case 37: // left
-			{
-				const left = this._selectedTypeIndex - 1;
-				if (left >= 0) {
-					this._selectedTypeIndex = left;
-					this._updateTypeHighlight();
-					this._scrollItemIntoView(
-						this._typeItemElements,
-						this._selectedTypeIndex,
-						this._typesTabContent.firstChild as HTMLDivElement,
-					);
+				{
+					const left = this._selectedTypeIndex - 1;
+					if (left >= 0) {
+						this._selectedTypeIndex = left;
+						this._updateTypeHighlight();
+						this._scrollItemIntoView(
+							this._typeItemElements,
+							this._selectedTypeIndex,
+							this._typesTabContent.firstChild as HTMLDivElement,
+						);
+					}
+					event.preventDefault();
+					break;
 				}
-				event.preventDefault();
-				break;
-			}
 			case 39: // right
-			{
-				const right = this._selectedTypeIndex + 1;
-				if (right < count) {
-					this._selectedTypeIndex = right;
-					this._updateTypeHighlight();
-					this._scrollItemIntoView(
-						this._typeItemElements,
-						this._selectedTypeIndex,
-						this._typesTabContent.firstChild as HTMLDivElement,
-					);
+				{
+					const right = this._selectedTypeIndex + 1;
+					if (right < count) {
+						this._selectedTypeIndex = right;
+						this._updateTypeHighlight();
+						this._scrollItemIntoView(
+							this._typeItemElements,
+							this._selectedTypeIndex,
+							this._typesTabContent.firstChild as HTMLDivElement,
+						);
+					}
+					event.preventDefault();
+					break;
 				}
-				event.preventDefault();
-				break;
-			}
 			case 13: // enter
-			{
-				this._applyTypeSelection(this._selectedTypeIndex);
-				event.preventDefault();
-				event.stopImmediatePropagation();
-				break;
-			}
+				{
+					this._applyTypeSelection(this._selectedTypeIndex);
+					event.preventDefault();
+					event.stopImmediatePropagation();
+					break;
+				}
 			case 9: // tab
 				this._lastInteraction = "keyboard";
 				event.preventDefault();

@@ -388,7 +388,11 @@ export class Instrument {
 		let noteSizeControlsSomethingElse: boolean =
 			legacyFilterEnv.type === EnvelopeType.noteSize ||
 			legacyPulseEnv.type === EnvelopeType.noteSize;
-		if (this.type === InstrumentType.fm || this.type === InstrumentType.fm6op || this.type === InstrumentType.opl3) {
+		if (
+			this.type === InstrumentType.fm ||
+			this.type === InstrumentType.fm6op ||
+			this.type === InstrumentType.opl3
+		) {
 			noteSizeControlsSomethingElse =
 				noteSizeControlsSomethingElse || legacyFeedbackEnv.type === EnvelopeType.noteSize;
 			for (let i: number = 0; i < legacyOperatorEnvelopes.length; i++) {
@@ -795,7 +799,11 @@ export class Instrument {
 				instrumentObject.unisonExpression = this.unisonExpression;
 				instrumentObject.unisonSign = this.unisonSign;
 			}
-		} else if (this.type === InstrumentType.fm || this.type === InstrumentType.fm6op || this.type === InstrumentType.opl3) {
+		} else if (
+			this.type === InstrumentType.fm ||
+			this.type === InstrumentType.fm6op ||
+			this.type === InstrumentType.opl3
+		) {
 			const isOpl3 = this.type === InstrumentType.opl3;
 			const operatorArray: object[] = [];
 			for (const operator of this.operators) {
@@ -1683,7 +1691,11 @@ export class Instrument {
 			if (this.chipWave === -1) this.chipWave = 1;
 		}
 
-		if (this.type === InstrumentType.fm || this.type === InstrumentType.fm6op || this.type === InstrumentType.opl3) {
+		if (
+			this.type === InstrumentType.fm ||
+			this.type === InstrumentType.fm6op ||
+			this.type === InstrumentType.opl3
+		) {
 			if (this.type === InstrumentType.fm) {
 				this.algorithm = Config.algorithms.findIndex(
 					(algorithm) => algorithm.name === instrumentObject.algorithm,

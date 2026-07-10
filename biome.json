@@ -55,7 +55,8 @@
 			"!website",
 			"!archive",
 			"!conventions",
-			"!.kilocode"
+			"!.kilocode",
+			"!synth/wasm-synth/pkg"
 		]
 	}
 }

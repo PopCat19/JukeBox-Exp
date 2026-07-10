@@ -64,11 +64,10 @@ export function invalidateVizWidthCache(): void {
 }
 
 // Generic parameter required so caller can type the array element — not inferable from arguments alone
-// eslint-disable-next-line @typescript-eslint/no-unnecessary-type-parameters
 export function renderTimeline(
 	ui: PlayerUI,
 	zoomEnabled: boolean,
-	removeFromUnorderedArray: <T>(array: T[], index: number) => void,
+	removeFromUnorderedArray: <T>(array: T[], index: number) => void, // eslint-disable-line @typescript-eslint/no-unnecessary-type-parameters
 	startBar: number = 0,
 	endBar?: number,
 	noBackground: boolean = false,
@@ -264,10 +263,9 @@ export function renderTimeline(
 let cachedVizWidth: number = -1;
 
 // Generic parameter required so caller can type the array element — not inferable from arguments alone
-// eslint-disable-next-line @typescript-eslint/no-unnecessary-type-parameters
 export function renderPlayhead(
 	ui: PlayerUI,
-	removeFromUnorderedArray: <T>(array: T[], index: number) => void,
+	removeFromUnorderedArray: <T>(array: T[], index: number) => void, // eslint-disable-line @typescript-eslint/no-unnecessary-type-parameters
 ): void {
 	if (ui.synth.song != null) {
 		const pos: number = ui.synth.playhead / ui.synth.song.barCount;
