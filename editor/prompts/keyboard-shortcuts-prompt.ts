@@ -179,6 +179,16 @@ const shortcutCategories: ShortcutCategory[] = [
 		name: "Selection & Navigation",
 		entries: [
 			{
+				keys: [{ key: "F2" }],
+				desc: "Enter Tracker Composition Mode",
+				detail: "Arrows or HJKL move the grid cursor. Alt skips 2x, Ctrl+Alt 4x. Escape exits mode.",
+			},
+			{
+				keys: [{ key: "Enter" }, { key: "Enter", mods: "Shift" }],
+				desc: "Place Tracker Note / Chord Pitch",
+				detail: "Use Delete to remove and [ or ] to change note length.",
+			},
+			{
 				keys: [{ key: ";", mods: "Ctrl" }],
 				desc: "Enter Keyboard Navigation Mode",
 				detail: "Use H/L for bars and J/K for channels. Escape exits mode.",

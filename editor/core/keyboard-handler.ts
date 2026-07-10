@@ -108,6 +108,7 @@ export interface KeyboardHandlerHost {
 export class KeyboardHandler {
 	private _lastGPressTime: number = 0;
 	private _navigationMode: boolean = false;
+	private _trackerMode: boolean = false;
 	private static readonly DOUBLE_PRESS_MS = 400;
 
 	constructor(private _host: KeyboardHandlerHost) {}
@@ -214,6 +215,10 @@ export class KeyboardHandler {
 		}
 
 		if (doc.synth.recording) {
+			if (this._trackerMode) {
+				this._trackerMode = false;
+				host.patternEditor.setTrackerMode(false);
+			}
 			if (!event.ctrlKey && !event.metaKey) {
 				host.keyboardLayout.handleKeyEvent(event, true);
 			}
@@ -232,6 +237,20 @@ export class KeyboardHandler {
 		}
 
 		if (!host.prompt) {
+			if (this._trackerMode) {
+				if (event.key === "Escape" && !event.ctrlKey && !event.metaKey) {
+					this._trackerMode = false;
+					host.patternEditor.setTrackerMode(false);
+					event.preventDefault();
+					return;
+				}
+				if (host.patternEditor.handleTrackerKey(event)) return;
+				if (!event.ctrlKey && !event.metaKey) {
+					event.preventDefault();
+					return;
+				}
+			}
+
 			if (this._navigationMode) {
 				if (event.keyCode === 27 && !event.ctrlKey && !event.metaKey) {
 					this._navigationMode = false;
@@ -241,6 +260,13 @@ export class KeyboardHandler {
 				if (!event.ctrlKey && !event.metaKey && !event.altKey && this._handleNavigationKey(event)) {
 					return;
 				}
+			}
+
+			if (event.key === "F2" && !event.ctrlKey && !event.metaKey && !event.altKey) {
+				this._trackerMode = true;
+				host.patternEditor.setTrackerMode(true);
+				event.preventDefault();
+				return;
 			}
 
 			if (event.key === ";" && event.ctrlKey && !event.metaKey && !event.altKey) {

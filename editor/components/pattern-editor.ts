@@ -168,6 +168,7 @@ export class PatternEditor {
 	private readonly _svgPlayhead: SVGRectElement;
 	private readonly _selectionRect: SVGRectElement;
 	private readonly _svgPreview: SVGPathElement;
+	private readonly _trackerCursor: SVGRectElement;
 	// @TODO: Make this themeable?
 	private readonly _svgNoteRangeIndicatorOverlay: SVGPathElement = SVG.path({
 		fill: ColorConfig.editorBackground,
@@ -253,6 +254,12 @@ export class PatternEditor {
 	private _changePatternSelection: UndoableChange | null = null;
 	private _lastChangeWasPatternSelection: boolean = false;
 	private _cursor: PatternCursor = new PatternCursor();
+	private _trackerMode: boolean = false;
+	private _trackerCursorInitialized: boolean = false;
+	private _trackerPart: number = 0;
+	private _trackerPitch: number = 0;
+	private _trackerSelectionAnchor: number | null = null;
+	private _trackerLength: number = Config.partsPerBeat / 4;
 	private _stashCursorPinVols: number[][] = [];
 	private _pattern: Pattern | null = null;
 	private _cachedFlashElements: SVGPathElement[] = [];
@@ -333,6 +340,13 @@ export class PatternEditor {
 			"stroke-width": "2",
 			"pointer-events": "none",
 		});
+		this._trackerCursor = SVG.rect({
+			fill: "none",
+			stroke: "var(--indicator-primary)",
+			"stroke-width": "2",
+			"pointer-events": "none",
+			visibility: "hidden",
+		});
 		this.modDragValueLabel = HTML.div({
 			width: "90",
 			"text-anchor": "start",
@@ -355,6 +369,7 @@ export class PatternEditor {
 			this._svgNoteRangeIndicatorOverlay,
 			this._selectionRect,
 			this._svgNoteContainer,
+			this._trackerCursor,
 			this._svgPreview,
 			this._svgPlayhead,
 		);
@@ -430,6 +445,210 @@ export class PatternEditor {
 		}
 
 		this.resetCopiedPins();
+	}
+
+	public setTrackerMode(active: boolean): void {
+		if (active && !this._trackerCursorInitialized && this._cursor.valid) {
+			this._trackerPart = this._cursor.part;
+			this._trackerPitch = this._cursor.pitch;
+			this._trackerCursorInitialized = true;
+		}
+		this._trackerMode = active;
+		this._clampTrackerCursor();
+		this._renderTrackerCursor();
+	}
+
+	public handleTrackerKey(event: KeyboardEvent): boolean {
+		if (!this._trackerMode) return false;
+
+		const skip = event.altKey ? (event.ctrlKey ? 4 : 2) : 1;
+		const extend = event.shiftKey && !event.altKey;
+
+		switch (event.key) {
+			case "ArrowLeft":
+			case "h":
+				this._moveTrackerCursor(-skip, 0, extend);
+				break;
+			case "ArrowRight":
+			case "l":
+				this._moveTrackerCursor(skip, 0, extend);
+				break;
+			case "ArrowUp":
+			case "k":
+				this._moveTrackerCursor(0, skip, extend);
+				break;
+			case "ArrowDown":
+			case "j":
+				this._moveTrackerCursor(0, -skip, extend);
+				break;
+			case "Enter":
+				this._placeTrackerNote(event.shiftKey);
+				break;
+			case "Delete":
+			case "Backspace":
+				this._removeTrackerNote();
+				break;
+			case "[":
+				this._trackerLength = Math.max(this._getMinDivision(), this._trackerLength / 2);
+				this._renderTrackerCursor();
+				break;
+			case "]":
+				this._trackerLength = Math.min(
+					this._getMaxDivision(),
+					this._trackerLength * 2,
+				);
+				this._renderTrackerCursor();
+				break;
+			default:
+				return false;
+		}
+
+		event.preventDefault();
+		return true;
+	}
+
+	private _moveTrackerCursor(timeSteps: number, pitchSteps: number, extendSelection: boolean): void {
+		const minDivision = this._getMinDivision();
+		const maxPart = this._doc.song.beatsPerBar * Config.partsPerBeat - minDivision;
+		this._trackerPart = Math.max(0, Math.min(maxPart, this._trackerPart + timeSteps * minDivision));
+		this._trackerPitch = Math.max(
+			0,
+			Math.min(this._getMaxPitch(), this._trackerPitch + pitchSteps),
+		);
+
+		if (extendSelection) {
+			this._trackerSelectionAnchor ??= this._trackerPart - timeSteps * minDivision;
+			this._doc.selection.patternSelectionStart = Math.min(
+				this._trackerSelectionAnchor,
+				this._trackerPart,
+			);
+			this._doc.selection.patternSelectionEnd =
+				Math.max(this._trackerSelectionAnchor, this._trackerPart) + minDivision;
+			this._doc.selection.patternSelectionActive = true;
+			this._doc.selection.selectionUpdated();
+		} else if (!extendSelection) {
+			this._trackerSelectionAnchor = null;
+			this._doc.selection.patternSelectionStart = 0;
+			this._doc.selection.patternSelectionEnd = 0;
+			this._doc.selection.patternSelectionActive = false;
+			this._doc.selection.selectionUpdated();
+		}
+
+		this._renderTrackerCursor();
+	}
+
+	private _placeTrackerNote(addPitch: boolean): void {
+		const sequence = new ChangeSequence();
+		let pattern = this._doc.getCurrentPattern(this._barOffset);
+		if (pattern == null) {
+			sequence.append(
+				new ChangeEnsurePatternExists(this._doc, this._doc.channel, this._doc.bar),
+			);
+			pattern = this._doc.getCurrentPattern(this._barOffset);
+		}
+		if (pattern == null) return;
+
+		const note = pattern.notes.find(
+			(note) => note.start <= this._trackerPart && note.end > this._trackerPart,
+		);
+		if (note != null) {
+			if (
+				addPitch &&
+				!this._doc.song.getChannelIsMod(this._doc.channel) &&
+				!note.pitches.includes(this._trackerPitch)
+			) {
+				const pitchIndex = note.pitches.findIndex((pitch) => pitch > this._trackerPitch);
+				sequence.append(
+					new ChangePitchAdded(
+						this._doc,
+						note,
+						this._trackerPitch,
+						pitchIndex === -1 ? note.pitches.length : pitchIndex,
+					),
+				);
+			}
+		} else {
+			const end = Math.min(
+				this._doc.song.beatsPerBar * Config.partsPerBeat,
+				this._trackerPart + this._trackerLength,
+			);
+			const newNote = new Note(
+				this._trackerPitch,
+				this._trackerPart,
+				end,
+				Config.noteSizeMax,
+				this._doc.song.getChannelIsNoise(this._doc.channel),
+			);
+			const noteIndex = pattern.notes.findIndex(
+				(candidate) => candidate.start > this._trackerPart,
+			);
+			sequence.append(
+				new ChangeNoteAdded(
+					this._doc,
+					pattern,
+					newNote,
+					noteIndex === -1 ? pattern.notes.length : noteIndex,
+				),
+			);
+		}
+		if (!addPitch || note == null) this._moveTrackerCursor(1, 0, false);
+		if (!sequence.isNoop()) this._doc.record(sequence);
+	}
+
+	private _removeTrackerNote(): void {
+		const pattern = this._doc.getCurrentPattern(this._barOffset);
+		if (pattern == null) return;
+		const noteIndex = pattern.notes.findIndex(
+			(note) =>
+				note.start <= this._trackerPart &&
+				note.end > this._trackerPart &&
+				note.pitches.includes(this._trackerPitch),
+		);
+		if (noteIndex === -1) return;
+
+		const note = pattern.notes[noteIndex];
+		const sequence = new ChangeSequence();
+		if (note.pitches.length === 1) {
+			sequence.append(new ChangeNoteAdded(this._doc, pattern, note, noteIndex, true));
+		} else {
+			sequence.append(
+				new ChangePitchAdded(
+					this._doc,
+					note,
+					this._trackerPitch,
+					note.pitches.indexOf(this._trackerPitch),
+					true,
+				),
+			);
+		}
+		this._doc.record(sequence);
+	}
+
+
+	private _clampTrackerCursor(): void {
+		const minDivision = this._getMinDivision();
+		const maxPart = this._doc.song.beatsPerBar * Config.partsPerBeat - minDivision;
+		this._trackerPart = Math.max(0, Math.min(maxPart, this._trackerPart));
+		this._trackerPitch = Math.max(0, Math.min(this._getMaxPitch(), this._trackerPitch));
+		this._trackerLength = Math.max(
+			minDivision,
+			Math.min(this._getMaxDivision(), this._trackerLength),
+		);
+	}
+
+	private _renderTrackerCursor(): void {
+		if (!this._trackerMode || this._partWidth <= 0 || this._pitchHeight <= 0) {
+			this._trackerCursor.setAttribute("visibility", "hidden");
+			return;
+		}
+		this._trackerCursor.setAttribute("x", `${this._trackerPart * this._partWidth}`);
+		this._trackerCursor.setAttribute(
+			"y",
+			`${this._pitchToPixelHeight(this._trackerPitch - this._octaveOffset) - this._pitchHeight / 2}`,
+		);
+		this._trackerCursor.setAttribute("width", `${this._trackerLength * this._partWidth}`);
+		this._trackerCursor.setAttribute("height", `${this._pitchHeight}`);
+		this._trackerCursor.setAttribute("visibility", "visible");
 	}
 
 	private _initCanvas(): void {
@@ -4530,6 +4749,8 @@ export class PatternEditor {
 
 		this._redrawNotePatterns();
 		this._redrawNoteRangeIndicator(wasResized);
+		this._clampTrackerCursor();
+		this._renderTrackerCursor();
 	}
 
 	private _redrawNotePatterns(): void {

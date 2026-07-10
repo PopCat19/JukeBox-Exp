@@ -31,7 +31,7 @@ export interface InputBinding {
 	concern: InputConcern;
 	sourceFile: string;
 	handler: string;
-	keys?: string;
+	keys?: string | string[];
 	modifiers?: string[];
 	condition?: string;
 	detail?: string;
@@ -177,6 +177,65 @@ export const inputBindings: InputBinding[] = [
 		detail: "Open song in player view",
 	},
 
+	{
+		id: "tracker_mode_enter",
+		kind: "key",
+		concern: "pattern-draw",
+		sourceFile: "editor/core/keyboard-handler.ts",
+		handler: "handleKeyDown",
+		keys: "F2",
+		detail: "Enter tracker composition mode",
+	},
+	{
+		id: "tracker_mode_move",
+		kind: "key",
+		concern: "pattern-draw",
+		sourceFile: "editor/core/keyboard-handler.ts",
+		handler: "handleTrackerKey",
+		keys: ["Arrows", "H", "J", "K", "L"],
+		condition: "while tracker composition mode is active",
+		detail: "Move tracker cursor (Shift extends time selection, Alt skips 2x, Ctrl+Alt 4x)",
+	},
+	{
+		id: "tracker_mode_place",
+		kind: "key",
+		concern: "pattern-draw",
+		sourceFile: "editor/core/keyboard-handler.ts",
+		handler: "handleTrackerKey",
+		keys: "Enter",
+		condition: "while tracker composition mode is active",
+		detail: "Place note (Shift adds a chord pitch)",
+	},
+	{
+		id: "tracker_mode_remove",
+		kind: "key",
+		concern: "pattern-draw",
+		sourceFile: "editor/core/keyboard-handler.ts",
+		handler: "handleTrackerKey",
+		keys: ["Delete", "Backspace"],
+		condition: "while tracker composition mode is active",
+		detail: "Remove note or chord pitch at cursor",
+	},
+	{
+		id: "tracker_mode_length",
+		kind: "key",
+		concern: "pattern-draw",
+		sourceFile: "editor/core/keyboard-handler.ts",
+		handler: "handleTrackerKey",
+		keys: ["[", "]"],
+		condition: "while tracker composition mode is active",
+		detail: "Decrease or increase note length",
+	},
+	{
+		id: "tracker_mode_exit",
+		kind: "key",
+		concern: "pattern-draw",
+		sourceFile: "editor/core/keyboard-handler.ts",
+		handler: "handleKeyDown",
+		keys: "Escape",
+		condition: "while tracker composition mode is active",
+		detail: "Exit tracker composition mode",
+	},
 	{
 		id: "nav_mode_enter",
 		kind: "key",
