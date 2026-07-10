@@ -146,6 +146,9 @@ html {
 .trackAndMuteContainer {
 }
 
+.track-area-container {
+}
+
 .barScrollBar {
 }
 
