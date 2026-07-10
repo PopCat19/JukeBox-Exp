@@ -3213,6 +3213,12 @@ export class SongEditor
 		new EventListenerSetup(this);
 
 		this._instrumentTypeSelect.addEventListener("change", this._onInstrumentTypeChange);
+		// Prevent page scroll when using arrow keys on type select
+		this._instrumentTypeSelect.addEventListener("keydown", (event: KeyboardEvent) => {
+			if (event.key === "ArrowUp" || event.key === "ArrowDown") {
+				event.preventDefault();
+			}
+		});
 
 		this._zoomInButton.addEventListener("click", () => {
 			this._zoomIn();
