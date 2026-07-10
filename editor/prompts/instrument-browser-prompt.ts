@@ -1012,28 +1012,21 @@ export class InstrumentBrowserPrompt extends BasePrompt {
 			const el = div(
 				{
 					class: "typeItem",
-					style: `
-						padding: 12px 8px;
-						text-align: center;
-						border-radius: 8px;
-						cursor: pointer;
-						font-size: ${Typography.sizeMd};
-						background: var(--ui-widget-background);
-					`,
 					role: "button",
 					tabindex: "-1",
 				},
 				item.name,
 			);
+			const idx = i;
 			el.addEventListener("mouseenter", () => {
-				this._selectedTypeIndex = i;
+				this._lastInteraction = "hover";
+				this._selectedTypeIndex = idx;
 				this._updateTypeHighlight();
 			});
-			el.addEventListener("click", () => {
-				this._applyTypeSelection(i);
-			});
-			el.addEventListener("dblclick", () => {
-				this._applyTypeSelection(i);
+			el.addEventListener("mousedown", (event: MouseEvent) => {
+				event.preventDefault();
+				event.stopPropagation();
+				this._applyTypeSelection(idx);
 			});
 			grid.appendChild(el);
 			this._typeItemElements.push(el);
@@ -1068,13 +1061,10 @@ export class InstrumentBrowserPrompt extends BasePrompt {
 	private _updateTypeHighlight(): void {
 		for (let i = 0; i < this._typeItemElements.length; i++) {
 			const el = this._typeItemElements[i];
-			if (i === this._selectedTypeIndex) {
-				el.style.outline = "2px solid var(--text-color)";
-				el.style.background = "var(--selected-bg, rgba(255,255,255,0.1))";
-			} else {
-				el.style.outline = "none";
-				el.style.background = "var(--ui-widget-background)";
-			}
+			const isFocused = this._selectedTypeIndex === i;
+			// focused = keyboard nav; active = currently selected item
+			el.classList.toggle("focused", isFocused);
+			el.classList.toggle("active", isFocused);
 		}
 	}
 

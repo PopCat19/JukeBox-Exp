@@ -75,7 +75,8 @@ export function buildPromptCompactSearchCSS(): string {
 }
 
 .beepboxEditor .prompt.compactSearchPrompt .categoryItem,
-.beepboxEditor .prompt.compactSearchPrompt .presetItem {
+.beepboxEditor .prompt.compactSearchPrompt .presetItem,
+.beepboxEditor .prompt.compactSearchPrompt .typeItem {
 	padding: var(--padding-6) var(--padding-12);
 	cursor: pointer;
 	font-size: 12px;
@@ -88,19 +89,22 @@ export function buildPromptCompactSearchCSS(): string {
 }
 
 .beepboxEditor .prompt.compactSearchPrompt .categoryItem:hover,
-.beepboxEditor .prompt.compactSearchPrompt .presetItem:hover {
+.beepboxEditor .prompt.compactSearchPrompt .presetItem:hover,
+.beepboxEditor .prompt.compactSearchPrompt .typeItem:hover {
 	border-color: var(--hout, var(--primary-text));
 }
 
 .beepboxEditor .prompt.compactSearchPrompt .categoryItem.committed,
-.beepboxEditor .prompt.compactSearchPrompt .presetItem.committed {
+.beepboxEditor .prompt.compactSearchPrompt .presetItem.committed,
+.beepboxEditor .prompt.compactSearchPrompt .typeItem.committed {
 	/* 88x alert border: highest emphasis border, no bg fill
 	 * to avoid conflict with active selection (CTA fill). */
 	border-color: var(--indicator-primary, #4444ff);
 }
 
 .beepboxEditor .prompt.compactSearchPrompt .categoryItem.committed:hover,
-.beepboxEditor .prompt.compactSearchPrompt .presetItem.committed:hover {
+.beepboxEditor .prompt.compactSearchPrompt .presetItem.committed:hover,
+.beepboxEditor .prompt.compactSearchPrompt .typeItem.committed:hover {
 	border-color: var(--indicator-primary, #4444ff);
 }
 
@@ -110,7 +114,8 @@ export function buildPromptCompactSearchCSS(): string {
  * Inverts to 4x when the item is also CTA-active, so the border
  * stays contrasted against the 88x fill (same rule as hover). */
 .beepboxEditor .prompt.compactSearchPrompt .categoryItem.focused,
-.beepboxEditor .prompt.compactSearchPrompt .presetItem.focused {
+.beepboxEditor .prompt.compactSearchPrompt .presetItem.focused,
+.beepboxEditor .prompt.compactSearchPrompt .typeItem.focused {
 	border-color: var(--hout, var(--primary-text));
 }
 
@@ -118,36 +123,42 @@ export function buildPromptCompactSearchCSS(): string {
  * but without the final confirmation. Single-click in presets pane
  * immediately shows this state. */
 .beepboxEditor .prompt.compactSearchPrompt .presetItem.active,
-.beepboxEditor .prompt.compactSearchPrompt .categoryItem.active {
+.beepboxEditor .prompt.compactSearchPrompt .categoryItem.active,
+.beepboxEditor .prompt.compactSearchPrompt .typeItem.active {
 	background: var(--cta-bg);
 	color: var(--cta-fg);
 	border-color: var(--cta-bg);
 }
 
 .beepboxEditor .prompt.compactSearchPrompt .presetItem.active:hover,
-.beepboxEditor .prompt.compactSearchPrompt .categoryItem.active:hover {
+.beepboxEditor .prompt.compactSearchPrompt .categoryItem.active:hover,
+.beepboxEditor .prompt.compactSearchPrompt .typeItem.active:hover {
 	border-color: var(--editor-background);
 }
 
 .beepboxEditor .prompt.compactSearchPrompt .categoryItem.committed.focused,
-.beepboxEditor .prompt.compactSearchPrompt .presetItem.committed.focused {
+.beepboxEditor .prompt.compactSearchPrompt .presetItem.committed.focused,
+.beepboxEditor .prompt.compactSearchPrompt .typeItem.committed.focused {
 	border-color: var(--indicator-primary, #4444ff);
 }
 
 /* Category can be both committed (88x border) and active (CTA fill). */
-.beepboxEditor .prompt.compactSearchPrompt .categoryItem.committed.active {
+.beepboxEditor .prompt.compactSearchPrompt .categoryItem.committed.active,
+.beepboxEditor .prompt.compactSearchPrompt .typeItem.committed.active {
 	background: var(--cta-bg);
 	color: var(--cta-fg);
 	border-color: var(--indicator-primary, #4444ff);
 }
 
 .beepboxEditor .prompt.compactSearchPrompt .categoryItem.dimmed,
-.beepboxEditor .prompt.compactSearchPrompt .presetItem.dimmed {
+.beepboxEditor .prompt.compactSearchPrompt .presetItem.dimmed,
+.beepboxEditor .prompt.compactSearchPrompt .typeItem.dimmed {
 	opacity: 0.6;
 }
 
 .beepboxEditor .prompt.compactSearchPrompt .categoryItem.dimmed-heavy,
-.beepboxEditor .prompt.compactSearchPrompt .presetItem.dimmed-heavy {
+.beepboxEditor .prompt.compactSearchPrompt .presetItem.dimmed-heavy,
+.beepboxEditor .prompt.compactSearchPrompt .typeItem.dimmed-heavy {
 	background: transparent;
 	color: var(--primary-text);
 	border-color: var(--subtext, var(--primary-text));
@@ -223,7 +234,8 @@ export function buildPromptCompactSearchCSS(): string {
 }
 
 .beepboxEditor .prompt.compactSearchPrompt .presetsTabContent,
-.beepboxEditor .prompt.compactSearchPrompt .tagsTabContent {
+.beepboxEditor .prompt.compactSearchPrompt .tagsTabContent,
+.beepboxEditor .prompt.compactSearchPrompt .typesTabContent {
 	display: flex;
 	flex-direction: column;
 	gap: 8px;
