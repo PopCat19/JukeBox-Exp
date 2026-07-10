@@ -1341,6 +1341,17 @@ export class SongEditor
 		this._vibratoTypeSelectRow,
 	);
 	private readonly _phaseModGroup: HTMLElement = div({ class: "editor-controls" });
+	private readonly _opl3AlgorithmSelect: HTMLSelectElement = buildOptions(
+		select(),
+		Config.algorithmsOpl3.map((algorithm) => algorithm.name),
+	);
+	private readonly _opl3AlgorithmSelectRow: HTMLDivElement = div(
+		{ class: "selectRow" },
+		tipSpan("OPL3 Algorithm: ", () => {
+			this._openPrompt("algorithm");
+		}),
+		div({ class: "selectContainer" }, this._opl3AlgorithmSelect),
+	);
 	private readonly _feedbackTypeSelect: HTMLSelectElement = buildOptions(
 		select(),
 		Config.feedbacks.map((feedback) => feedback.name),
@@ -1820,6 +1831,7 @@ export class SongEditor
 		this._eqFilterSimpleCutWidget.row,
 		this._eqFilterSimplePeakWidget.row,
 		this._fadeInOutRow,
+		this._opl3AlgorithmSelectRow,
 		this._algorithmSelectRow,
 		this._algorithm6OpSelectRow,
 		this._phaseModGroup,
@@ -1908,7 +1920,7 @@ export class SongEditor
 
 	private readonly _instrumentTypeSelectRow: HTMLDivElement = div(
 		{ class: "selectRow", id: "typeSelectRow" },
-		tipSpan("Type:", () => {
+		tipSpan("Preset:", () => {
 			this.openPresetSelector();
 		}),
 		div(
@@ -2723,6 +2735,9 @@ export class SongEditor
 	public get feedbackTypeSelect(): HTMLSelectElement {
 		return this._feedbackTypeSelect;
 	}
+	public get opl3AlgorithmSelect(): HTMLSelectElement {
+		return this._opl3AlgorithmSelect;
+	}
 	public get algorithmSelect(): HTMLSelectElement {
 		return this._algorithmSelect;
 	}
@@ -3245,6 +3260,7 @@ export class SongEditor
 			decimalOffsetInputBox: this._decimalOffsetWidget.inputBox,
 			pulseWidthDropdownGroup: this._pulseWidthDropdownGroup,
 			phaseModGroup: this._phaseModGroup,
+			opl3AlgorithmSelect: this._opl3AlgorithmSelect,
 			algorithmSelect: this._algorithmSelect,
 			feedbackTypeSelect: this._feedbackTypeSelect,
 			feedbackAmplitudeSlider: this._feedbackAmplitudeWidget.slider,
@@ -3272,6 +3288,7 @@ export class SongEditor
 			customAlgorithmCanvas: this._customAlgorithmCanvas,
 			algorithm6OpSelectRow: this._algorithm6OpSelectRow,
 			feedback6OpRow1: this._feedback6OpRow1,
+			opl3AlgorithmSelectRow: this._opl3AlgorithmSelectRow,
 			algorithmSelectRow: this._algorithmSelectRow,
 			feedbackRow1: this._feedbackRow1,
 			feedbackRow2: this._feedbackAmplitudeWidget.row,

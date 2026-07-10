@@ -113,6 +113,8 @@ export interface InstrumentVisibilityRefs {
 	// FM
 	phaseModGroup: HTMLElement;
 	algorithmSelect: HTMLSelectElement;
+	opl3AlgorithmSelect: HTMLSelectElement;
+	opl3AlgorithmSelectRow: HTMLElement;
 	feedbackTypeSelect: HTMLSelectElement;
 	feedbackAmplitudeSlider: Slider;
 	feedbackAmplitudeInputBox: HTMLInputElement;
@@ -324,6 +326,7 @@ export function applyInstrumentVisibility(
 	showRow(refs.algorithm6OpSelectRow, false);
 	showRow(refs.feedback6OpRow1, false);
 	showRow(refs.algorithmSelectRow, false);
+	showRow(refs.opl3AlgorithmSelectRow, false);
 	showRow(refs.feedbackRow1, false);
 	showRow(refs.feedbackRow2, false);
 	for (let i = 0; i < refs.operatorRows.length; i++) {
@@ -436,6 +439,12 @@ export function applyInstrumentVisibility(
 		refs.decimalOffsetSlider.updateValue(99 - instrument.decimalOffset);
 		refs.decimalOffsetInputBox.value = `${99 - instrument.decimalOffset}`;
 		showRow(refs.pulseWidthDropdownGroup, dropdownState.openPulseWidthDropdown);
+	}
+
+	// OPL3
+	if (rows.has("opl3")) {
+		showRow(refs.opl3AlgorithmSelectRow, true);
+		setSelectedValue(refs.opl3AlgorithmSelect, instrument.opl3Algorithm ?? 0);
 	}
 
 	// FM

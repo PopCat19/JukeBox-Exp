@@ -54,6 +54,7 @@ export interface EventListenerSetupHost {
 	octaveStepper: HTMLInputElement;
 	rhythmSelect: HTMLSelectElement;
 	algorithmSelect: HTMLSelectElement;
+	opl3AlgorithmSelect: HTMLSelectElement;
 	instrumentsButtonBar: HTMLDivElement;
 	feedbackTypeSelect: HTMLSelectElement;
 	algorithm6OpSelect: HTMLSelectElement;
@@ -203,6 +204,9 @@ export class EventListenerSetup {
 		});
 		host.feedbackTypeSelect.addEventListener("change", () => {
 			host.dispatch.whenSetFeedbackType();
+		});
+		host.opl3AlgorithmSelect.addEventListener("change", () => {
+			host.dispatch.whenSetOpl3Algorithm();
 		});
 		host.algorithm6OpSelect.addEventListener("change", () => {
 			host.dispatch.whenSet6OpAlgorithm();

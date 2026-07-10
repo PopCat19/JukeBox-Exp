@@ -6,7 +6,7 @@
 // - Handles instrument type switching and preset application
 // - Generates random instruments
 
-import { Channel, FilterControlPoint, type FilterSettings, Instrument } from "../../../synth";
+import { Channel, FilterControlPoint, type FilterSettings, Instrument, getPlugin } from "../../../synth";
 import { tagInstrumentWithModule } from "../../../synth/socket/instrument-tagging";
 import {
 	type Algorithm,
@@ -37,7 +37,46 @@ const unisonSupportedTypes: ReadonlySet<InstrumentType> = new Set([
 	InstrumentType.customChipWave,
 	InstrumentType.pwm,
 	InstrumentType.spectrum,
+	InstrumentType.opl3,
 ]);
+
+export class ChangeInstrumentType extends Change {
+	constructor(doc: SongDocument, newType: number) {
+		super();
+		const instrument = doc.getCurrentInstrumentObj();
+		const plugin = getPlugin(newType);
+		if (instrument.type === newType) {
+			// Force re-init even if same type (e.g. resetting defaults)
+			if (plugin?.initialize) {
+				plugin.initialize(instrument);
+			}
+			instrument.preset = instrument.type;
+			instrument.clearInvalidEnvelopeTargets();
+			tagInstrumentWithModule(instrument);
+			doc.notifier.changed();
+			this._didSomething();
+			return;
+		}
+		instrument.type = newType;
+		// Run plugin initialize to set defaults
+		if (plugin?.initialize) {
+			plugin.initialize(instrument);
+		} else {
+			instrument.chord = 3;
+		}
+		if (
+			!Config.instrumentTypeHasSpecialInterval[instrument.type] &&
+			Config.chords[instrument.chord]?.customInterval
+		) {
+			instrument.chord = 0;
+		}
+		instrument.clearInvalidEnvelopeTargets();
+		tagInstrumentWithModule(instrument);
+		instrument.preset = instrument.type;
+		doc.notifier.changed();
+		this._didSomething();
+	}
+}
 
 export class ChangeCustomizeInstrument extends Change {
 	constructor(doc: SongDocument) {
@@ -787,6 +826,7 @@ export class ChangeRandomGeneratedInstrument extends Change {
 						{ item: InstrumentType.spectrum, weight: 2 },
 						{ item: InstrumentType.fm, weight: 2 },
 						{ item: InstrumentType.fm6op, weight: 2 },
+						{ item: InstrumentType.opl3, weight: 1 },
 					]);
 			instrument.preset = instrument.type = type;
 			tagInstrumentWithModule(instrument);
@@ -1903,8 +1943,11 @@ export class ChangeRandomGeneratedInstrument extends Change {
 					break;
 				case InstrumentType.fm6op:
 				case InstrumentType.fm:
+				case InstrumentType.opl3:
 					{
-						if (type === InstrumentType.fm) {
+						if (type === InstrumentType.opl3) {
+							instrument.opl3Algorithm = (Math.random() * Config.algorithmsOpl3.length) | 0;
+						} else if (type === InstrumentType.fm) {
 							instrument.algorithm = (Math.random() * Config.algorithms.length) | 0;
 							instrument.feedbackType = (Math.random() * Config.feedbacks.length) | 0;
 						} else {
@@ -1918,7 +1961,9 @@ export class ChangeRandomGeneratedInstrument extends Change {
 						const algorithm: Algorithm =
 							type === InstrumentType.fm
 								? Config.algorithms[instrument.algorithm]
-								: Config.algorithms6Op[instrument.algorithm6Op];
+								: type === InstrumentType.opl3
+									? Config.algorithmsOpl3[instrument.opl3Algorithm]
+									: Config.algorithms6Op[instrument.algorithm6Op];
 						for (let i: number = 0; i < algorithm.carrierCount; i++) {
 							instrument.operators[i].frequency = selectCurvedDistribution(
 								0,
@@ -1964,6 +2009,15 @@ export class ChangeRandomGeneratedInstrument extends Change {
 									{ item: 9, weight: 5 },
 									{ item: 9, weight: 3 },
 								]);
+							}
+						}
+						// OPL3 ADSR randomization
+						if (type === InstrumentType.opl3) {
+							for (let i = 0; i < Config.operatorCount; i++) {
+								instrument.operators[i].attack = (Math.random() * 64) | 0;
+								instrument.operators[i].decay = (Math.random() * 64) | 0;
+								instrument.operators[i].sustain = (Math.random() * 64) | 0;
+								instrument.operators[i].release = (Math.random() * 64) | 0;
 							}
 						}
 						for (

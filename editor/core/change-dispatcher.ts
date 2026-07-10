@@ -16,6 +16,7 @@ import {
 	ChangeAddChannelInstrument,
 	ChangeAddEnvelope,
 	ChangeAlgorithm,
+	ChangeOpl3Algorithm,
 	ChangeChipWave,
 	ChangeChipWaveLoopEnd,
 	ChangeChipWaveLoopMode,
@@ -73,6 +74,7 @@ export interface ChangeDispatcherHost {
 	algorithmSelect: HTMLSelectElement;
 	feedback6OpTypeSelect: HTMLSelectElement;
 	algorithm6OpSelect: HTMLSelectElement;
+	opl3AlgorithmSelect: HTMLSelectElement;
 	instrumentButtons: HTMLButtonElement[];
 	instrumentAddButton: HTMLButtonElement;
 	instrumentRemoveButton: HTMLButtonElement;
@@ -188,6 +190,10 @@ export class ChangeDispatcher {
 			new Change6OpFeedbackType(this.doc, this._host.feedback6OpTypeSelect.selectedIndex),
 		);
 		this._host.customAlgorithmCanvas.reset();
+	};
+
+	public whenSetOpl3Algorithm = (): void => {
+		this.doc.record(new ChangeOpl3Algorithm(this.doc, this._host.opl3AlgorithmSelect.selectedIndex));
 	};
 
 	public whenSet6OpAlgorithm = (): void => {

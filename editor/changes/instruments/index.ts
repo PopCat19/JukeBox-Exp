@@ -37,6 +37,7 @@ export {
 } from "./envelopes";
 export {
 	Change6OpAlgorithm,
+	ChangeOpl3Algorithm,
 	Change6OpFeedbackType,
 	ChangeAlgorithm,
 	ChangeFeedbackType,
@@ -57,6 +58,7 @@ export {
 	ChangeCustomAlgorythmorFeedback,
 	ChangeCustomizeInstrument,
 	ChangeCustomWave,
+	ChangeInstrumentType,
 	ChangePreset,
 	ChangeRandomGeneratedInstrument,
 } from "./presets";

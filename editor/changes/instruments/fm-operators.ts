@@ -37,6 +37,20 @@ export class ChangeFeedbackType extends Change {
 	}
 }
 
+export class ChangeOpl3Algorithm extends Change {
+	constructor(doc: SongDocument, newValue: number) {
+		super();
+		const instrument: Instrument = doc.getCurrentInstrumentObj();
+		const oldValue: number = instrument.opl3Algorithm;
+		if (oldValue !== newValue) {
+			instrument.opl3Algorithm = newValue;
+			instrument.preset = instrument.type;
+			doc.notifier.changed();
+			this._didSomething();
+		}
+	}
+}
+
 export class Change6OpAlgorithm extends Change {
 	constructor(doc: SongDocument, newValue: number) {
 		super();

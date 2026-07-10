@@ -12,13 +12,15 @@ import { BorderRadius, BorderWidth, Typography } from "../ui/style-constants";
 // - Unified keyboard navigation across tabs
 
 import { HTML } from "imperative-html/dist/esm/elements-strict";
-import { ChangePreset } from "../changes";
+import { ChangeInstrumentType, ChangePreset } from "../changes";
 import {
 	EditorConfig,
 	fullTagList,
 	type Preset,
 	type PresetCategory,
 } from "../config/editor-config";
+import { getRegisteredPlugins } from "../../synth";
+import { InstrumentType } from "../../synth/synth-config";
 import type { SongDocument } from "../song-document";
 import {
 	flexPane,
@@ -93,15 +95,20 @@ export class InstrumentBrowserPrompt extends BasePrompt {
 	private _tabBar: HTMLDivElement;
 	private _tabPresets: HTMLButtonElement;
 	private _tabTags: HTMLButtonElement;
-	private _openTab: "presets" | "tags" = "presets";
-	private _currentTab: "presets" | "tags" = "presets";
+	private _tabTypes: HTMLButtonElement;
+	private _openTab: "presets" | "tags" | "types" = "presets";
+	private _currentTab: "presets" | "tags" | "types" = "presets";
 
 	private _presetsTabContent: HTMLDivElement;
 	private _tagsTabContent: HTMLDivElement;
+	private _typesTabContent: HTMLDivElement;
+	private _typeItems: { name: string; type: InstrumentType }[] = [];
+	private _selectedTypeIndex: number = 0;
+	private _typeItemElements: HTMLDivElement[] = [];
 
 	public readonly container: HTMLDivElement;
 
-	constructor(doc: SongDocument, openTab: "presets" | "tags" = "presets") {
+	constructor(doc: SongDocument, openTab: "presets" | "tags" | "types" = "presets") {
 		super(doc);
 		const isNoise: boolean = this._doc.song.getChannelIsNoise(this._doc.channel);
 		const currentPreset: number = this._doc.getCurrentInstrumentObj().preset;
@@ -241,15 +248,27 @@ export class InstrumentBrowserPrompt extends BasePrompt {
 
 		this._tabPresets = tabButton("Presets", this._openTab === "presets");
 		this._tabTags = tabButton("Tags", this._openTab === "tags");
+		this._tabTypes = tabButton("Type", this._openTab === "types");
 
-		this._tabBar = div({ class: "tabBar toggle-group" }, this._tabPresets, this._tabTags);
+		this._tabBar = div(
+			{ class: "tabBar toggle-group" },
+			this._tabPresets,
+			this._tabTypes,
+			this._tabTags,
+		);
 
 		this._tabPresets.addEventListener("click", () => {
 			this._switchToTab("presets");
 		});
+		this._tabTypes.addEventListener("click", () => {
+			this._switchToTab("types");
+		});
 		this._tabTags.addEventListener("click", () => {
 			this._switchToTab("tags");
 		});
+
+		this._buildTypeItems();
+		this._buildTypesTabContent();
 
 		this.container = div(
 			{
@@ -260,6 +279,7 @@ export class InstrumentBrowserPrompt extends BasePrompt {
 			h2({ style: `text-align: center; margin: 0 0 ${rowGap} 0;` }, "Preset Selector"),
 			this._tabBar,
 			this._presetsTabContent,
+			this._typesTabContent,
 			this._tagsTabContent,
 			this._cancelButton,
 		);
@@ -267,7 +287,6 @@ export class InstrumentBrowserPrompt extends BasePrompt {
 		this.buildTitlebar();
 
 		this._commitTooltip = div({
-			style: 'position: fixed; left: 0; top: 0; padding: 4px 8px; background: rgb(244, 201, 224); color: rgb(20, 9, 15); border-radius: 8px; font-size: 10px; font-weight: 600; font-family: "Fredoka", "Rounded Mplus 1c", sans-serif; white-space: pre-line; pointer-events: none; z-index: 999; display: none;',
 		});
 		document.body.appendChild(this._commitTooltip);
 		document.addEventListener("mousemove", this._onMouseMove);
@@ -332,16 +351,25 @@ export class InstrumentBrowserPrompt extends BasePrompt {
 		}
 	};
 
-	private _switchToTab(tab: "presets" | "tags", focusSearch = true): void {
+	private _switchToTab(tab: "presets" | "tags" | "types", focusSearch = true): void {
 		this._currentTab = tab;
 		this._tabPresets.classList.toggle("active", tab === "presets");
+		this._tabTypes.classList.toggle("active", tab === "types");
 		this._tabTags.classList.toggle("active", tab === "tags");
 		this._presetsTabContent.style.display = tab === "presets" ? "" : "none";
+		this._typesTabContent.style.display = tab === "types" ? "" : "none";
 		this._tagsTabContent.style.display = tab === "tags" ? "" : "none";
+		if (tab === "types") {
+			this._updateTypeHighlight();
+		}
 		if (focusSearch) {
 			if (tab === "presets") {
 				setTimeout(() => {
 					this._searchInput.focus();
+				});
+			} else if (tab === "types") {
+				setTimeout(() => {
+					(this._typesTabContent.firstChild as HTMLElement)?.focus();
 				});
 			} else {
 				setTimeout(() => {
@@ -954,9 +982,205 @@ export class InstrumentBrowserPrompt extends BasePrompt {
 		}
 	};
 
+	private _buildTypeItems(): void {
+		this._typeItems = getRegisteredPlugins().map((p) => ({
+			name: p.displayName ?? p.name,
+			type: p.type,
+		}));
+	}
+
+	private _buildTypesTabContent(): void {
+		const grid = flexPane({ padding: "8px" });
+		grid.style.display = "grid";
+		grid.style.gridTemplateColumns = "1fr 1fr 1fr";
+		grid.style.gap = "8px";
+		grid.style.alignContent = "start";
+		grid.style.border = "2px solid var(--ui-widget-background)";
+		grid.style.borderRadius = "8px";
+		grid.style.minHeight = "400px";
+		grid.style.overflowY = "auto";
+		grid.tabIndex = -1;
+
+		const typeInstructions = instructions(
+			"Arrow keys: navigate | Enter: select type | #: tags | ESC: close",
+			{ fontSize: Typography.sizeSm, marginTop: "0" },
+		);
+
+		this._typeItemElements = [];
+		for (let i = 0; i < this._typeItems.length; i++) {
+			const item = this._typeItems[i];
+			const el = div(
+				{
+					class: "typeItem",
+					style: `
+						padding: 12px 8px;
+						text-align: center;
+						border-radius: 8px;
+						cursor: pointer;
+						font-size: ${Typography.sizeMd};
+						background: var(--ui-widget-background);
+					`,
+					role: "button",
+					tabindex: "-1",
+				},
+				item.name,
+			);
+			el.addEventListener("mouseenter", () => {
+				this._selectedTypeIndex = i;
+				this._updateTypeHighlight();
+			});
+			el.addEventListener("click", () => {
+				this._applyTypeSelection(i);
+			});
+			el.addEventListener("dblclick", () => {
+				this._applyTypeSelection(i);
+			});
+			grid.appendChild(el);
+			this._typeItemElements.push(el);
+		}
+
+		// Highlight currently selected type
+		const currentType = this._doc.getCurrentInstrumentObj().type;
+		for (let i = 0; i < this._typeItems.length; i++) {
+			if (this._typeItems[i].type === currentType) {
+				this._selectedTypeIndex = i;
+				break;
+			}
+		}
+		this._updateTypeHighlight();
+
+		this._typesTabContent = div(
+			{ class: "tabContent typesTabContent" },
+			grid,
+			typeInstructions,
+		);
+	}
+
+	private _applyTypeSelection(index: number): void {
+		const typeItem = this._typeItems[index];
+		if (!typeItem) return;
+		// Block type change on noise/mod channels
+		if (this._doc.song.getChannelIsNoise(this._doc.channel)) return;
+		if (this._doc.song.getChannelIsMod(this._doc.channel)) return;
+		this._doc.record(new ChangeInstrumentType(this._doc, typeItem.type));
+	}
+
+	private _updateTypeHighlight(): void {
+		for (let i = 0; i < this._typeItemElements.length; i++) {
+			const el = this._typeItemElements[i];
+			if (i === this._selectedTypeIndex) {
+				el.style.outline = "2px solid var(--text-color)";
+				el.style.background = "var(--selected-bg, rgba(255,255,255,0.1))";
+			} else {
+				el.style.outline = "none";
+				el.style.background = "var(--ui-widget-background)";
+			}
+		}
+	}
+
+	private _onTypesKeyDown = (event: KeyboardEvent): void => {
+		const count = this._typeItems.length;
+		const cols = 3;
+		switch (event.keyCode) {
+			case 38: // up
+			{
+				const prev = this._selectedTypeIndex - cols;
+				if (prev >= 0) {
+					this._selectedTypeIndex = prev;
+					this._updateTypeHighlight();
+					this._scrollItemIntoView(
+						this._typeItemElements,
+						this._selectedTypeIndex,
+						this._typesTabContent.firstChild as HTMLDivElement,
+					);
+				}
+				event.preventDefault();
+				break;
+			}
+			case 40: // down
+			{
+				const next = this._selectedTypeIndex + cols;
+				if (next < count) {
+					this._selectedTypeIndex = next;
+					this._updateTypeHighlight();
+					this._scrollItemIntoView(
+						this._typeItemElements,
+						this._selectedTypeIndex,
+						this._typesTabContent.firstChild as HTMLDivElement,
+					);
+				}
+				event.preventDefault();
+				break;
+			}
+			case 37: // left
+			{
+				const left = this._selectedTypeIndex - 1;
+				if (left >= 0) {
+					this._selectedTypeIndex = left;
+					this._updateTypeHighlight();
+					this._scrollItemIntoView(
+						this._typeItemElements,
+						this._selectedTypeIndex,
+						this._typesTabContent.firstChild as HTMLDivElement,
+					);
+				}
+				event.preventDefault();
+				break;
+			}
+			case 39: // right
+			{
+				const right = this._selectedTypeIndex + 1;
+				if (right < count) {
+					this._selectedTypeIndex = right;
+					this._updateTypeHighlight();
+					this._scrollItemIntoView(
+						this._typeItemElements,
+						this._selectedTypeIndex,
+						this._typesTabContent.firstChild as HTMLDivElement,
+					);
+				}
+				event.preventDefault();
+				break;
+			}
+			case 13: // enter
+			{
+				this._applyTypeSelection(this._selectedTypeIndex);
+				event.preventDefault();
+				event.stopImmediatePropagation();
+				break;
+			}
+			case 9: // tab
+				this._lastInteraction = "keyboard";
+				event.preventDefault();
+				break;
+			default:
+				if (event.key === "#") {
+					this._switchToTab("tags");
+					event.preventDefault();
+				} else if (event.key === "p") {
+					this._switchToTab("presets");
+					event.preventDefault();
+				} else if (
+					event.key &&
+					event.key.length === 1 &&
+					!event.ctrlKey &&
+					!event.metaKey &&
+					!event.altKey
+				) {
+					this._switchToTab("presets");
+				}
+				break;
+		}
+	};
+
 	private _onContainerKeyDown = (event: KeyboardEvent): void => {
 		if (event.target === this._searchInput) return;
 		if (event.target === this._tagSearchInput) return;
+
+		if (this._currentTab === "types") {
+			this._onTypesKeyDown(event);
+			return;
+		}
 
 		if (this._currentTab === "tags") {
 			this._onTagContainerKeyDown(event);
@@ -1129,7 +1353,10 @@ export class InstrumentBrowserPrompt extends BasePrompt {
 				this._searchInput.focus();
 				break;
 			default:
-				if (event.key === "#") {
+				if (event.key === "t") {
+					this._switchToTab("types");
+					event.preventDefault();
+				} else if (event.key === "#") {
 					this._switchToTab("tags");
 					event.preventDefault();
 				} else if (
@@ -1309,7 +1536,10 @@ export class InstrumentBrowserPrompt extends BasePrompt {
 				this._tagSearchInput.focus();
 				break;
 			default:
-				if (event.key === "`") {
+				if (event.key === "t") {
+					this._switchToTab("types");
+					event.preventDefault();
+				} else if (event.key === "`") {
 					this._switchToTab("presets");
 					event.preventDefault();
 				} else if (
