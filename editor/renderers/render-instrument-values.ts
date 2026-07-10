@@ -8,7 +8,7 @@
 // - Updates note limit labels with current pitch names
 // - Syncs filter, envelope, and arpeggio speed displays
 
-import type { Instrument } from "../../synth";
+import { type Instrument, getRegisteredPlugins } from "../../synth";
 import { Config, calculateRingModHertz } from "../../synth/synth-config";
 import { Piano } from "../components/piano";
 import { prettyNumber } from "../config/editor-config";
@@ -18,6 +18,7 @@ import { setSelectedValue } from "../ui";
 
 export interface InstrumentValueRefs {
 	transitionSelect: HTMLSelectElement;
+	instrumentTypeSelect?: HTMLSelectElement;
 	vibratoSelect: HTMLSelectElement;
 	vibratoTypeSelect: HTMLSelectElement;
 	chordSelect: HTMLSelectElement;
@@ -61,6 +62,14 @@ export function renderInstrumentValues(
 	doc: SongDocument,
 	instrument: Instrument,
 ): void {
+	// Sync type select: find the index of the plugin matching instrument.type
+	if (refs.instrumentTypeSelect) {
+		const plugins = getRegisteredPlugins();
+		const typeIdx = plugins.findIndex((p) => p.type === instrument.type);
+		if (typeIdx >= 0 && refs.instrumentTypeSelect.selectedIndex !== typeIdx) {
+			refs.instrumentTypeSelect.selectedIndex = typeIdx;
+		}
+	}
 	setSelectedValue(refs.transitionSelect, instrument.transition);
 	setSelectedValue(refs.vibratoSelect, instrument.vibrato);
 	setSelectedValue(refs.vibratoTypeSelect, instrument.vibratoType);

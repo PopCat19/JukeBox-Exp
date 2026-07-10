@@ -19,7 +19,7 @@ import type { Change } from "./core/change";
 import "./ui/layout/layout"; // Imported here for the sake of ensuring this code is transpiled early.
 import { HTML, SVG } from "imperative-html/dist/esm/elements-strict";
 import { spectrumCanvas } from "../shared/spectrum";
-import { type Channel, type Instrument, type Pattern } from "../synth";
+import { type Channel, getRegisteredPlugins, type Instrument, type Pattern } from "../synth";
 import { getInstrumentCapabilities } from "../synth/socket/capability-lookup";
 import {
 	ChangeArpeggioSpeed,
@@ -27,6 +27,7 @@ import {
 	ChangeBitcrusherQuantization,
 	ChangeCustomAlgorythmorFeedback,
 	ChangeCustomWave,
+	ChangeInstrumentType,
 	ChangeDecimalOffset,
 	ChangeDetune,
 	ChangeDistortion,
@@ -1918,8 +1919,27 @@ export class SongEditor
 		"Instrument Settings",
 	);
 
-	private readonly _instrumentTypeSelectRow: HTMLDivElement = div(
-		{ class: "selectRow", id: "typeSelectRow" },
+	private readonly _instrumentTypeSelect: HTMLSelectElement = buildOptions(
+		select(),
+		getRegisteredPlugins().map((p) => p.displayName ?? p.name),
+	);
+	private readonly _onInstrumentTypeChange = (): void => {
+		const plugins = getRegisteredPlugins();
+		const idx = this._instrumentTypeSelect.selectedIndex;
+		const plugin = plugins[idx];
+		if (plugin) {
+			this.doc.record(new ChangeInstrumentType(this.doc, plugin.type));
+		}
+	};
+	private readonly _instrumentTypeRow: HTMLDivElement = div(
+		{ class: "selectRow", id: "instrumentTypeRow" },
+		tipSpan("Type:", () => {
+			this._openPrompt("instrumentType");
+		}),
+		div({ class: "selectContainer" }, this._instrumentTypeSelect),
+	);
+	private readonly _instrumentPresetSelectRow: HTMLDivElement = div(
+		{ class: "selectRow", id: "presetSelectRow" },
 		tipSpan("Preset:", () => {
 			this.openPresetSelector();
 		}),
@@ -1932,7 +1952,8 @@ export class SongEditor
 		{ class: "editor-controls" },
 		this._instrumentSettingsTextRow,
 		this._instrumentsButtonRow,
-		this._instrumentTypeSelectRow,
+		this._instrumentTypeRow,
+		this._instrumentPresetSelectRow,
 		this._instrumentVolumeWidget.row,
 		this._customInstrumentSettingsGroup,
 	);
@@ -2617,7 +2638,7 @@ export class SongEditor
 			panDropdownGroup: this._panDropdownGroup,
 			detuneSliderRow: this._detuneSliderRow,
 			instrumentVolumeSliderRow: this._instrumentVolumeWidget.row,
-			instrumentTypeSelectRow: this._instrumentTypeSelectRow,
+			instrumentTypeSelectRow: this._instrumentPresetSelectRow,
 			instrumentSettingsGroup: this._instrumentSettingsGroup,
 			instrumentExportGroup: this._instrumentExportGroup,
 			instrumentCopyGroup: this._instrumentCopyGroup,
@@ -2630,6 +2651,7 @@ export class SongEditor
 	}
 	private get _instrumentValueRefs(): InstrumentValueRefs {
 		return {
+			instrumentTypeSelect: this._instrumentTypeSelect,
 			transitionSelect: this._transitionSelect,
 			vibratoSelect: this._vibratoSelect,
 			vibratoTypeSelect: this._vibratoTypeSelect,
@@ -3190,6 +3212,8 @@ export class SongEditor
 
 		new EventListenerSetup(this);
 
+		this._instrumentTypeSelect.addEventListener("change", this._onInstrumentTypeChange);
+
 		this._zoomInButton.addEventListener("click", () => {
 			this._zoomIn();
 		});
@@ -3432,7 +3456,7 @@ export class SongEditor
 			transitionRow: this._transitionRow,
 			customInstrumentSettingsGroup: this._customInstrumentSettingsGroup,
 			instrumentVolumeSliderRow: this._instrumentVolumeWidget.row,
-			instrumentTypeSelectRow: this._instrumentTypeSelectRow,
+			instrumentTypeSelectRow: this._instrumentPresetSelectRow,
 			instrumentSettingsGroup: this._instrumentSettingsGroup,
 			pitchedPresetSelect: this._pitchedPresetSelect,
 			drumPresetSelect: this._drumPresetSelect,
