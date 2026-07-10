@@ -224,7 +224,7 @@ export const inputBindings: InputBinding[] = [
 		handler: "handleTrackerKey",
 		keys: ["[", "]"],
 		condition: "while tracker composition mode is active",
-		detail: "Decrease or increase note length",
+		detail: "Resize note tail (Shift scopes to note head)",
 	},
 	{
 		id: "tracker_mode_exit",

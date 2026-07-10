@@ -489,15 +489,12 @@ export class PatternEditor {
 				this._removeTrackerNote();
 				break;
 			case "[":
-				this._trackerLength = Math.max(this._getMinDivision(), this._trackerLength / 2);
-				this._renderTrackerCursor();
+			case "{":
+				this._resizeTrackerNoteOrLength(-1, event.shiftKey);
 				break;
 			case "]":
-				this._trackerLength = Math.min(
-					this._getMaxDivision(),
-					this._trackerLength * 2,
-				);
-				this._renderTrackerCursor();
+			case "}":
+				this._resizeTrackerNoteOrLength(1, event.shiftKey);
 				break;
 			default:
 				return false;
@@ -625,6 +622,40 @@ export class PatternEditor {
 	}
 
 
+	private _resizeTrackerNoteOrLength(direction: number, headScope: boolean): void {
+		const step = this._getMinDivision();
+		const pattern = this._doc.getCurrentPattern(this._barOffset);
+		const note = pattern?.notes.find(
+			(n) => n.start <= this._trackerPart && n.end > this._trackerPart,
+		);
+		if (note != null && pattern != null) {
+			let newStart = note.start;
+			let newEnd = note.end;
+			if (headScope) {
+				newStart = Math.max(0, Math.min(note.end - step, note.start + direction * step));
+			} else {
+				newEnd = Math.max(
+					note.start + step,
+					Math.min(this._doc.song.beatsPerBar * Config.partsPerBeat, note.end + direction * step),
+				);
+			}
+			const sequence = new ChangeSequence();
+			sequence.append(new ChangeNoteTruncate(this._doc, pattern, newStart, newEnd, note));
+			sequence.append(new ChangeNoteLength(this._doc, note, newStart, newEnd));
+			this._doc.record(sequence);
+		} else {
+			if (direction > 0) {
+				this._trackerLength = Math.min(
+					this._doc.song.beatsPerBar * Config.partsPerBeat,
+					this._trackerLength + step,
+				);
+			} else {
+				this._trackerLength = Math.max(step, this._trackerLength - step);
+			}
+			this._renderTrackerCursor();
+		}
+	}
+
 	private _clampTrackerCursor(): void {
 		const minDivision = this._getMinDivision();
 		const maxPart = this._doc.song.beatsPerBar * Config.partsPerBeat - minDivision;
@@ -632,7 +663,7 @@ export class PatternEditor {
 		this._trackerPitch = Math.max(0, Math.min(this._getMaxPitch(), this._trackerPitch));
 		this._trackerLength = Math.max(
 			minDivision,
-			Math.min(this._getMaxDivision(), this._trackerLength),
+			Math.min(this._doc.song.beatsPerBar * Config.partsPerBeat, this._trackerLength),
 		);
 	}
 
