@@ -107,6 +107,7 @@ export interface KeyboardHandlerHost {
 
 export class KeyboardHandler {
 	private _lastGPressTime: number = 0;
+	private _navigationMode: boolean = false;
 	private static readonly DOUBLE_PRESS_MS = 400;
 
 	constructor(private _host: KeyboardHandlerHost) {}
@@ -228,6 +229,25 @@ export class KeyboardHandler {
 				host.refocusStage();
 			}
 			return;
+		}
+
+		if (!host.prompt) {
+			if (this._navigationMode) {
+				if (event.keyCode === 27 && !event.ctrlKey && !event.metaKey) {
+					this._navigationMode = false;
+					event.preventDefault();
+					return;
+				}
+				if (!event.ctrlKey && !event.metaKey && !event.altKey && this._handleNavigationKey(event)) {
+					return;
+				}
+			}
+
+			if (event.key === ";" && event.ctrlKey && !event.metaKey && !event.altKey) {
+				this._navigationMode = true;
+				event.preventDefault();
+				return;
+			}
 		}
 
 		const needControlForShortcuts: boolean =
@@ -1089,6 +1109,76 @@ export class KeyboardHandler {
 			doc.selection.instrumentDigits = "";
 		}
 	};
+
+	private _handleNavigationKey(event: KeyboardEvent): boolean {
+		const host = this._host;
+		const doc = host.doc;
+
+		switch (event.key.toLowerCase()) {
+			case "h":
+				if (event.shiftKey) {
+					doc.selection.boxSelectionX1 = Math.max(0, doc.selection.boxSelectionX1 - 1);
+					doc.selection.scrollToEndOfSelection();
+					doc.selection.selectionUpdated();
+				} else {
+					doc.selection.setChannelBar(
+						doc.channel,
+						(doc.bar + doc.song.barCount - 1) % doc.song.barCount,
+					);
+					doc.selection.resetBoxSelection();
+				}
+				break;
+			case "l":
+				if (event.shiftKey) {
+					doc.selection.boxSelectionX1 = Math.min(
+						doc.song.barCount - 1,
+						doc.selection.boxSelectionX1 + 1,
+					);
+					doc.selection.scrollToEndOfSelection();
+					doc.selection.selectionUpdated();
+				} else {
+					doc.selection.setChannelBar(doc.channel, (doc.bar + 1) % doc.song.barCount);
+					doc.selection.resetBoxSelection();
+				}
+				break;
+			case "k":
+				if (event.shiftKey) {
+					doc.selection.boxSelectionY1 = Math.max(0, doc.selection.boxSelectionY1 - 1);
+					doc.selection.scrollToEndOfSelection();
+					doc.selection.selectionUpdated();
+				} else {
+					doc.selection.setChannelBar(
+						(doc.channel - 1 + doc.song.getChannelCount()) % doc.song.getChannelCount(),
+						doc.bar,
+					);
+					doc.selection.resetBoxSelection();
+					host.envelopeEditor.rerenderExtraSettings();
+				}
+				break;
+			case "j":
+				if (event.shiftKey) {
+					doc.selection.boxSelectionY1 = Math.min(
+						doc.song.getChannelCount() - 1,
+						doc.selection.boxSelectionY1 + 1,
+					);
+					doc.selection.scrollToEndOfSelection();
+					doc.selection.selectionUpdated();
+				} else {
+					doc.selection.setChannelBar(
+						(doc.channel + 1) % doc.song.getChannelCount(),
+						doc.bar,
+					);
+					doc.selection.resetBoxSelection();
+					host.envelopeEditor.rerenderExtraSettings();
+				}
+				break;
+			default:
+				return false;
+		}
+
+		event.preventDefault();
+		return true;
+	}
 
 	public handleKeyUp = (event: KeyboardEvent): void => {
 		const host = this._host;

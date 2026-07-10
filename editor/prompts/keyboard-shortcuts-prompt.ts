@@ -178,6 +178,16 @@ const shortcutCategories: ShortcutCategory[] = [
 	{
 		name: "Selection & Navigation",
 		entries: [
+			{
+				keys: [{ key: ";", mods: "Ctrl" }],
+				desc: "Enter Keyboard Navigation Mode",
+				detail: "Use H/L for bars and J/K for channels. Escape exits mode.",
+			},
+			{
+				keys: [{ key: "H" }, { key: "J" }, { key: "K" }, { key: "L" }],
+				desc: "Navigate In Keyboard Navigation Mode",
+				detail: "Shift extends the box selection.",
+			},
 			{ keys: [{ key: "Arrows" }], desc: "Navigate Patterns / Channels" },
 			{ keys: [{ key: "Arrows", mods: "Shift" }], desc: "Box Selection" },
 			{ keys: [{ key: "Arrows", mods: "Ctrl" }], desc: "Swap Channels" },
