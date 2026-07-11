@@ -49,6 +49,8 @@ Purpose: bun:test test files covering editor, synth, and shared modules.
 - `style-slots.test.ts`, Guard that hardcoded injectGlobalStyles slot ids stay unique and accounted for
 - `dom-hooks.test.ts`, Static source-read guards for editor, prompt, and player DOM hook literals (mount, shell, grid layout, lifecycle, popout, PMD role, scrollbars, player root and element classes)
 - `player-ui-styles.test.ts`, Contract tests for player CSS builder and player UI body-root append contract
+- `editor-selector-scope.test.ts`, Selector scoping guard: editor CSS class selectors must root under .beepboxEditor or be baseline-allowed page-level exceptions
+- `website-html-contract.test.ts`, Guard that 20 migrated website HTML pages keep semantic landmarks and reject inline style=, inline event handlers, and inline <style> blocks
 
 ## Source-to-test cross-reference
 

@@ -76,6 +76,8 @@ export default tseslint.config(
             "tests/modules-mod.test.ts",
             "tests/barrel-exports.test.ts",
             "tests/player-ui-styles.test.ts",
+            "tests/editor-selector-scope.test.ts",
+            "tests/website-html-contract.test.ts",
             "tests/capability-lookup.test.ts",
             "tests/instrument-tagging.test.ts",
             "tests/external-loader.test.ts",

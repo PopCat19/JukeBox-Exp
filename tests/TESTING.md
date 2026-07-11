@@ -110,6 +110,7 @@ All 12 types verified via encode→decode→type-preservation.
 | `editor/core/prompt-popout.ts` | `tests/dom-hooks.test.ts` | dataset.popout set and data-popout removeAttribute |
 | `editor/ui/interactions.ts` | `tests/dom-hooks.test.ts` | dataset.pmdRole assignment literals |
 | `editor/rendering/style.ts` | `tests/dom-hooks.test.ts` | classList.add("obtrusive-scrollbars") hook |
+| `editor/rendering/styles/*.ts` (16 modules) | `tests/editor-selector-scope.test.ts` | Selector scoping guard: all class selectors root under .beepboxEditor or are baseline-allowed page-level exceptions |
 | `editor/song-editor.ts` | `tests/dom-hooks.test.ts` | Grid layout class literals: pattern-area, song-settings-area, instrument-settings-area, trackAndMuteContainer |
 | `editor/components/bar-scroll-bar.ts` | `tests/dom-hooks.test.ts` | Source literal `"barScrollBar"` class declaration |
 | `editor/components/track-editor.ts` | `tests/dom-hooks.test.ts` | Source literal `"noSelection"` class declaration |
@@ -127,6 +128,12 @@ All 12 types verified via encode→decode→type-preservation.
 | Source | Test file | Scope |
 |--------|-----------|-------|
 | `player/player-ui.ts` | `tests/player-ui-styles.test.ts` | buildPlayerCSS selector contract, scoped class wiring, player body-root append contract |
+
+### website/
+
+| Source | Test file | Scope |
+|--------|-----------|-------|
+| 20 migrated HTML pages | `tests/website-html-contract.test.ts` | No inline style=, no inline event handlers, no inline <style> blocks, semantic landmarks (<main>, header/nav/footer) present |
 
 ### shared/
 
