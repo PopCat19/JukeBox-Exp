@@ -1003,7 +1003,7 @@ export class SongEditor
 			this._openPrompt("unison");
 		}),
 		this._unisonDropdown,
-		div({ class: "selectContainer", style: "width: 61.5%;" }, this._unisonSelect),
+		div({ class: "selectContainer select-container-narrow" }, this._unisonSelect),
 	);
 
 	private readonly _unisonVoicesInputBox: HTMLInputElement = numberInput({
@@ -1265,7 +1265,7 @@ export class SongEditor
 			this._openPrompt("vibrato");
 		}),
 		this._vibratoDropdown,
-		div({ class: "selectContainer", style: "width: 61.5%;" }, this._vibratoSelect),
+		div({ class: "selectContainer select-container-narrow" }, this._vibratoSelect),
 	);
 	private readonly _vibratoDepthWidget: SliderNumWidget = new SliderNumWidget(
 		this.doc,
@@ -1330,7 +1330,7 @@ export class SongEditor
 			},
 			{ style: "margin-left:4px;" },
 		),
-		div({ class: "selectContainer", style: "width: 61.5%;" }, this._vibratoTypeSelect),
+		div({ class: "selectContainer select-container-narrow" }, this._vibratoTypeSelect),
 	);
 	private readonly _vibratoDropdownGroup: HTMLElement = div(
 		{ class: "editor-controls", style: `display: none;` },

@@ -32,6 +32,9 @@ export function buildBaseWidgetsCSS(): string {
 .beepboxEditor .selectContainer {
 	position: relative;
 }
+.beepboxEditor .selectRow > .selectContainer.select-container-narrow {
+	width: 61.5%;
+}
 /* PMD: removed the up/down triangle from .selectContainer. The
  * dropdown's interactivity is already signalled by the focus
  * ring on .focused / :hover (80x body tier), the cursor
