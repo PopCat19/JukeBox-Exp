@@ -97,6 +97,25 @@ Typecheck each affected project before cross-project changes.
 
 Edit `readme_manifest/*.md`, then run `bash tools/generate-readme.sh`.
 
+## Labels
+
+Colors from pmd.hue.245. P0 (salmon) to P4 (muted).
+Context labels tag the area: refactor, css, dom, html, shared, themes, editor, player, website, test.
+Every issue gets a P label. Body ends with `**Branch:** dev-exp`.
+
+## Forgejo
+
+Repo: `popcat19/JukeBox-Exp`. Branch: `dev-exp` only. No feature branches.
+No project API in forgejo 15.0.3. Board at project/6 needs manual moves.
+`fj -H dawn.wine` for CLI. Label/milestone writes use curl + api.
+
+## Milestone #5
+
+Tree-wide css/dom/html restruct. 8 issues (#23-#30).
+Order: #23 (audit) → #24 (inject) → #25 (tokens).
+# 30 (guards) lands before #26-#29 migrations.
+Docs in `concepts/css_dom_html_restruct/`.
+
 ## Deployment
 
 ```bash
