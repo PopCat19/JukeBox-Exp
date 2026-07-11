@@ -46,16 +46,17 @@
         </noscript>
     </div>
     <div id="text-content">
+        <main>
         <section>
 
             <h1>
                 <font>JukeBox-Exp</font>
-                <span id="goldboxPlant" style="display: inline; color:#62a13b"></span>
+                <span id="goldboxPlant" class="goldbox-plant"></span>
             </h1>
 
             <p id="introduction">
                 JukeBox-exp is a fork of JukeBox, which is a mod of Slarmoo's Box that aims to add a crap ton of presets. <br>
-                (see <a onclick="window.open('./manual/credits.html')">credits</a>).
+                (see <a href="./manual/credits.html">credits</a>).
             </p>
     <div class="donation">
         BeepBox is a passion project, and will always be free to use. If you find it valuable and have the means, please feel free to show your gratitude to the original creator of Beepbox here:
@@ -89,50 +90,45 @@
                     </p>
                 </section>
     </div>
-            <div style="justify-content: center; display: flex; cursor: pointer;">
-                <div onclick="window.open('./manual/introduction.html')" style="height: 80px; background: black; width: 430px; border-radius: 20px; border: solid 1px #444; display: flex; flex-direction: row; align-items: center;">
-                    <div style="height: 100%;width: 80px;border-right: 1px solid #444;background-image: url(./assets/images/manual_brown.png);background-size: 90%;background-repeat: no-repeat;background-position: center;"></div>
-                    <div style="flex: 1;text-align: center;font-size: 21px;text-decoration: underline;color: #795548;">JukeBox Manual</div>
-                </div>
-            </div>
-            <p></p>
-            <div style="justify-content: center; display: flex; cursor: pointer;">
-                <div onclick="window.open('https:/\/forms.gle/B29T3gCRHB6srueB8')" style="height: 80px; background: black; width: 430px; border-radius: 20px; border: solid 1px #444; display: flex; flex-direction: row; align-items: center;">
-                    <div style="height: 100%;width: 78px;margin-left: 2px; border-right: 1px solid #444;background-image: url(./assets/images/google_forms.png);background-size: 90%;background-repeat: no-repeat;background-position: center;"></div>
-                    <div style="flex: 1;text-align: center;font-size: 21px;text-decoration: underline;color: #7046BB">JukeBox Preset Submission Form</div>
-                </div>
-            </div>
-            <p></p>
-            <div style="justify-content: center; display: flex; cursor: pointer;">
-                <div onclick="window.open('//discord.gg/xSs9nABmP5')" style="height: 80px; background: black; width: 430px; border-radius: 20px; border: solid 1px #444; display: flex; flex-direction: row; align-items: center;">
-                    <div style="height: 100%;width: 80px;border-right: 1px solid #444;background-image: url(./assets/images/discord.png);background-size: 90%;background-repeat: no-repeat;background-position: center;"></div>
-                    <div style="flex: 1;text-align: center;font-size: 21px;text-decoration: underline;color: #5865F2;">JukeBox Community Discord</div>
-                </div>
-            </div>
-            <p></p>
-            <div style="justify-content: center; display: flex; cursor: pointer;">
-                <div onclick="window.open('//github.com/JukeeBox/JukeBox_TypeScript')" style="height: 80px; background: black; width: 430px; border-radius: 20px; border: solid 1px #444; display: flex; flex-direction: row; align-items: center;">
-                    <div style="height: 100%;width: 80px;border-right: 1px solid #444;background-image: url(./assets/images/github.png);background-size: 90%;background-repeat: no-repeat;background-position: center;"></div>
-                    <div style="flex: 1;text-align: center;font-size: 21px;text-decoration: underline;color: white;">JukeBox Source Code</div>
-                </div>
-            </div>
-            <p></p>
-            <div style="justify-content: center; display: flex; cursor: pointer;">
-                <div onclick="window.open('//beepbox-launchpad.github.io')" style="height: 80px; background: black; width: 430px; border-radius: 20px; border: solid 1px #444; display: flex; flex-direction: row; align-items: center;">
-                    <div style="height: 100%;width: 80px;border-right: 1px solid #444;background-image: url(./assets/images/launchpad.png);background-size: 90%;background-repeat: no-repeat;background-position: center;"></div>
-                    <div style="flex: 1;text-align: center;font-size: 21px;text-decoration: underline;color: #7744FF;">BeepBox Launchpad</div>
-                </div>
-            </div>
-            <p style="text-align: center;">Launchpad made by Slarmoo, Choptop84, and HappyLemonLime</p>
-            <div style="justify-content: center; display: flex; cursor: pointer;">
-                <div onclick="window.open('./bluesky', '_blank')" style="height: 80px; background: black; width: 430px; border-radius: 20px; border: solid 1px #444; display: flex; flex-direction: row; align-items: center;">
-                    <div style="height: 100%;width: 80px;border-right: 1px solid #444;background-image: url(./assets/images/bsky.png);background-size: 90%;background-repeat: no-repeat;background-position: center;"></div>
-                    <div style="flex: 1;text-align: center;font-size: 21px;text-decoration: underline;color: #1185fe;"> Music on Bluesky</div>
-                </div>
-            </div>
+            <nav class="link-cards" aria-label="JukeBox links">
+                <a class="link-card link-card-manual" href="./manual/introduction.html">
+                    <div class="link-card-icon"></div>
+                    <div class="link-card-label">JukeBox Manual</div>
+                </a>
+                <p></p>
+                <a class="link-card link-card-forms" href="https://forms.gle/B29T3gCRHB6srueB8" target="_blank" rel="noopener">
+                    <div class="link-card-icon"></div>
+                    <div class="link-card-label">JukeBox Preset Submission Form</div>
+                </a>
+                <p></p>
+                <a class="link-card link-card-discord" href="https://discord.gg/xSs9nABmP5" target="_blank" rel="noopener">
+                    <div class="link-card-icon"></div>
+                    <div class="link-card-label">JukeBox Community Discord</div>
+                </a>
+                <p></p>
+                <a class="link-card link-card-github" href="https://github.com/JukeeBox/JukeBox_TypeScript" target="_blank" rel="noopener">
+                    <div class="link-card-icon"></div>
+                    <div class="link-card-label">JukeBox Source Code</div>
+                </a>
+                <p></p>
+                <a class="link-card link-card-launchpad" href="https://beepbox-launchpad.github.io" target="_blank" rel="noopener">
+                    <div class="link-card-icon"></div>
+                    <div class="link-card-label">BeepBox Launchpad</div>
+                </a>
+            </nav>
+            <p class="landing-caption">Launchpad made by Slarmoo, Choptop84, and HappyLemonLime</p>
+            <nav class="link-cards" aria-label="JukeBox social">
+                <a class="link-card link-card-bluesky" href="./bluesky" target="_blank" rel="noopener">
+                    <div class="link-card-icon"></div>
+                    <div class="link-card-label">Music on Bluesky</div>
+                </a>
+            </nav>
             <br><br>
-        </div>
+        </main>
     </div>
+    <footer>
+        <p class="footertext">JukeBox — <a href="https://jukeebox.github.io">Home</a></p>
+    </footer>
     <script type="text/javascript" src="./index.js"></script>
 </body>
 </html>
