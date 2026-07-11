@@ -1831,9 +1831,9 @@ export class SongEditor
 		this._unisonSelectRow,
 		this._unisonDropdownGroup,
 		div(
-			{ style: `padding: 2px 0; margin-left: 2em; display: flex; align-items: center;` },
+			{ class: "settings-section-header" },
 			span(
-				{ style: `flex-grow: 1; text-align: center;` },
+				{ class: "settings-section-header-label" },
 				tipSpan("Effects", () => {
 					this._openPrompt("effects");
 				}),
@@ -1870,9 +1870,9 @@ export class SongEditor
 		this._lowerNoteLimitRow,
 		this._granularContainerRow,
 		div(
-			{ style: `padding: 2px 0; margin-left: 2em; display: flex; align-items: center;` },
+			{ class: "settings-section-header" },
 			span(
-				{ style: `flex-grow: 1; text-align: center;` },
+				{ class: "settings-section-header-label" },
 				tipSpan("Envelopes", () => {
 					this._openPrompt("envelopes");
 				}),

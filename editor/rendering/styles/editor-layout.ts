@@ -312,5 +312,15 @@ export function buildEditorLayoutCSS(): string {
 	height: 100%;
 	pointer-events: none;
 }
+.beepboxEditor .settings-section-header {
+	padding: 2px 0;
+	margin-left: 2em;
+	display: flex;
+	align-items: center;
+}
+.beepboxEditor .settings-section-header-label {
+	flex-grow: 1;
+	text-align: center;
+}
 `;
 }
