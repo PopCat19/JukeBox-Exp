@@ -7,7 +7,6 @@
 // - Provides shorthand CSS property builders for common patterns
 // - Reduces inline string literal CSS scattered across components
 
-import { HTML } from "imperative-html/dist/esm/elements-strict";
 import {
 	Animation,
 	BorderRadius,
@@ -24,8 +23,6 @@ import {
 	Typography,
 	ZIndex,
 } from "./style-constants";
-
-const { div } = HTML;
 
 // ── Style composer ─────────────────────────────────────────
 // Compose multiple CSS declarations into one string.
@@ -86,17 +83,6 @@ export const formRow = (opts?: { gap?: string }) =>
 /** Standard prompt panel sizing */
 export const promptPanel = (width: string, textAlignDir: "left" | "right" | "center" = "center") =>
 	s(`width:${width};`, textAlign(textAlignDir));
-
-/**
- * Creates a prompt container element.
- * Shorthand for: div({ class: "prompt noSelection", style: w(width) }, ...children)
- *
- * The width parameter uses Sizing tokens or CSS values:
- *   promptFrame("300px", children)          — fixed width
- *   promptFrame(Sizing.promptSm, children)  — Sizing.promptSm = "250px"
- */
-export const promptFrame = (width: string, ...children: (HTMLElement | string)[]) =>
-	div({ class: "prompt noSelection", style: w(width) }, ...children);
 
 /** Inline-flex with gap, used for rows of small elements */
 export const flexInline = (opts?: { gap?: string }) =>

@@ -5,6 +5,42 @@
 //
 // Extracted from style.ts. Variant-specific prompt classes
 // (compactSearch, cleanChannel, export, etc.) remain in style.ts.
+//
+// Prompt DOM state contract (issue #27):
+//
+// Lifecycle classes, owned by prompt-manager.ts and base-prompt.ts,
+// asserted by tests/dom-hooks.test.ts — do not rename:
+//   .entering  — pre-enter hide + enter animation (fill-mode: both).
+//                Added before append; removed on animationend.
+//   .exiting   — exit animation (fill-mode: forwards). Added on close
+//                or via BasePrompt.animateExit; removed on animationend
+//                which triggers DOM removal (doRemove).
+//   .focused   — steady focus outline. Toggled by _updatePromptFocus.
+//   .refocus   — transient raise-gesture outline flash when an
+//                existing prompt is reopened. Removed on animationend.
+//   .docked    — pinned to L/R editor edge by prompt-dock.ts.
+//
+// View-state class (NOT a lifecycle state; not in the dom-hooks set):
+//   .shaded    — titlebar-only collapsed view, toggled by BasePrompt.
+//
+// Attribute:
+//   data-popout="true" — set by prompt-popout.ts when the prompt is
+//                detached into an OS window. Hides shade/popout buttons
+//                and suppresses hover/focus outlines.
+//
+// Shell markup contract:
+//   .promptContainer > .prompt (variant classes per factory)
+//   .prompt > .prompt-titlebar > [shadeButton] h2 [cancelButton]
+//   .prompt > (factory content: form rows, hints, button rows)
+// Factories hand-build the .prompt div; no shared shell helper exists.
+//
+// Reduced motion: prompt lifecycle animations collapse to 0.01ms
+// (see animations.ts) so animationend cleanup still fires.
+//
+// Inline-style exceptions (audit §6): measured position (left/top),
+// dock pinning, divider geometry, and editor padding stay inline in
+// prompt-manager.ts / prompt-dock.ts. Visual state (spawn opacity)
+// moved to the .entering class under #27.
 
 import { ColorConfig } from "../../../shared/color-config";
 import { Animation, Typography } from "../../ui/style-constants";
