@@ -84,38 +84,17 @@ export class PaneOwnership {
 		if (!this.isLeaseCurrent(lease)) throw new Error("stale host lease");
 		if (!this.mounted || this.host === null) throw new Error("pane not mounted");
 		const oldHost = this.host;
+		const root = this.owner!.lifecycle.root;
 		this.busy = true;
 		try {
-			this.owner!.lifecycle.unmount();
-			this.mounted = false;
-			let mountError: unknown = null;
+			oldHost.detach(root);
 			try {
-				this.owner!.lifecycle.mount(newHost);
-			} catch (e) {
-				mountError = e;
-			}
-			if (mountError !== null) {
-				let rollbackError: unknown = null;
-				try {
-					this.owner!.lifecycle.mount(oldHost);
-					this.host = oldHost;
-					this.mounted = true;
-				} catch (e) {
-					rollbackError = e;
-				}
-				if (rollbackError !== null) {
-					this.mounted = false;
-					this.host = null;
-					this.leaseGen++;
-					throw new AggregateError(
-						[mountError as Error, rollbackError as Error],
-						"transferHost failed: mount and rollback both failed",
-					);
-				}
-				throw mountError as Error;
+				newHost.attach(root);
+			} catch (error) {
+				oldHost.attach(root);
+				throw error;
 			}
 			this.host = newHost;
-			this.mounted = true;
 			this.leaseGen++;
 			return { generation: this.leaseGen } as HostLease;
 		} finally {
@@ -148,6 +127,7 @@ export class PaneOwnership {
 		this.mounted = false;
 		this.invoke(() => {
 			previous!.lifecycle.unmount();
+			previous!.lifecycle.dispose();
 		});
 		return { generation: this.generation, identity: newOwner.identity };
 	}
@@ -167,6 +147,7 @@ export class PaneOwnership {
 		this.mounted = false;
 		this.invoke(() => {
 			previous!.lifecycle.unmount();
+			previous!.lifecycle.dispose();
 		});
 		return true;
 	}
@@ -187,6 +168,10 @@ export class PaneOwnership {
 
 	currentToken(): OwnershipToken | null {
 		return this.owner === null ? null : this.token();
+	}
+
+	currentOwner(token: OwnershipToken): PaneOwner | null {
+		return this.acceptedOwner(token);
 	}
 
 	private release(token: OwnershipToken): PaneOwner | null {

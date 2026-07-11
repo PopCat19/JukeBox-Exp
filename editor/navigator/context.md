@@ -1,10 +1,12 @@
 # Navigator Context
 
-Purpose: Defines runtime-independent navigation contracts and identity ownership rules.
+Purpose: Defines navigator contracts, persistent shell, runtime, and identity ownership rules.
 
 ## Files
 
 - `contracts.ts` - Pane lifecycle, decisions, commands, and retained-state contracts
 - `route-identity.ts` - Canonical finite-JSON pane route identity
 - `ownership.ts` - Generation-safe ownership for one live pane
+- `navigator-runtime.ts` - Serialized attached and detached pane coordination
+- `navigator-shell.ts` - Persistent PMD pane host shell
 - `index.ts` - Navigator contract barrel

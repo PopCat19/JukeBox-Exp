@@ -24,6 +24,7 @@ import { buildCleanChannelCSS } from "./styles/prompt-clean-channel";
 import { buildPromptCompactSearchCSS } from "./styles/prompt-compact-search";
 import { buildKeyboardShortcutsCSS } from "./styles/prompt-keyboard-shortcuts";
 import { buildPromptMiscCSS } from "./styles/prompt-misc";
+import { buildNavigatorCSS } from "./styles/prompt-navigator";
 import { buildSampleBrowserCSS } from "./styles/prompt-sample-browser";
 import { buildPromptShellCSS } from "./styles/prompt-shell";
 import { buildPromptSmallCSS } from "./styles/prompt-small";
@@ -234,6 +235,8 @@ ${buildPromptSmallCSS()}
 ${buildSampleBrowserCSS()}
 
 ${buildPromptMiscCSS()}
+
+${buildNavigatorCSS()}
 
 ${buildFilterEditorsCSS()}
 

@@ -15,6 +15,7 @@ CSS-in-JS style definitions for the editor UI. Each file exports a CSS string (e
 - `prompt-compact-search.ts`, CSS for compact search prompt (preset/tag browser with tabs)
 - `prompt-keyboard-shortcuts.ts`, CSS for the keyboard shortcuts prompt — shortcut categories
 - `prompt-misc.ts`, CSS for remaining miscellaneous prompts — songRecovery, import, etc.
+- `prompt-navigator.ts`, PMD CSS for the persistent Navigator shell and pane host
 - `prompt-sample-browser.ts`, CSS for sample browser prompt — list pane with reorderable items
 - `prompt-shell.ts`, CSS for generic prompt container, dock, shell, titlebar
 - `prompt-small.ts`, CSS for small one-off prompts — beatsPerBar, export header

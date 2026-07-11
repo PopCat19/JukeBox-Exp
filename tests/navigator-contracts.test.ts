@@ -4,11 +4,18 @@
 // async replace/close, host transfer with rollback, opaque identity, and retained-state validation.
 
 import { describe, expect, test } from "bun:test";
+import { GlobalRegistrator } from "@happy-dom/global-registrator";
+import { Window } from "happy-dom";
 import type { CloseDecision, CommandReference, HostLease, LeaveDecision, PaneHost, PaneLifecycle, SerializableValue } from "../editor/navigator/contracts";
 import { isSerializableValue, validateRetainedState } from "../editor/navigator/contracts";
+import { NavigatorRuntime, type DetachedPane } from "../editor/navigator/navigator-runtime";
+import { NavigatorShell } from "../editor/navigator/navigator-shell";
 import { PaneOwnership, type PaneOwner } from "../editor/navigator/ownership";
 import { canonicalRouteIdentity, type PaneIdentity } from "../editor/navigator/route-identity";
 
+if (!GlobalRegistrator.isRegistered) GlobalRegistrator.register();
+
+const root = { element: {} as HTMLElement };
 const stubHost: PaneHost = { attach: () => {}, detach: () => {} };
 const host: PaneHost = stubHost;
 
@@ -18,6 +25,7 @@ function bid(id: string): PaneIdentity {
 
 function owner(identity: string, effects: string[]): PaneOwner {
 	const lifecycle: PaneLifecycle = {
+		root,
 		mount: (mountedHost) => effects.push(mountedHost === host ? "mount" : "wrong-host"),
 		unmount: () => effects.push("unmount"),
 		suspend: () => effects.push("suspend"),
@@ -34,6 +42,7 @@ function brandedOwner(paneId: string, effects: string[]): PaneOwner {
 	return {
 		identity: canonicalRouteIdentity({ paneId }),
 		lifecycle: {
+			root,
 			mount: () => effects.push("mount"),
 			unmount: () => effects.push("unmount"),
 			suspend: () => effects.push("suspend"),
@@ -173,7 +182,7 @@ describe("pane ownership", () => {
 		const lease = ownership.mount(token, host);
 		const closed = await ownership.close(token, lease!);
 		expect(closed).toBeTrue();
-		expect(effects).toEqual(["mount", "stale-rejected", "unmount"]);
+		expect(effects).toEqual(["mount", "stale-rejected", "unmount", "dispose"]);
 	});
 
 	test("invalidates dispose tokens before reentrant callbacks", () => {
@@ -357,84 +366,19 @@ describe("async close with close decision", () => {
 });
 
 describe("host transfer", () => {
-	test("transferHost unmounts old host, advances lease, mounts new host", () => {
-		const effects: string[] = [];
-		const ownership = new PaneOwnership();
-		const lifecycle: PaneLifecycle = {
-			mount: () => effects.push("mount"),
-			unmount: () => effects.push("unmount"),
-			suspend: () => effects.push("suspend"),
-			resume: () => effects.push("resume"),
-			dispose: () => effects.push("dispose"),
-			requestLeave: () => "allow",
-			requestClose: () => "close",
-			captureRetainedState: (): SerializableValue => ({ saved: true }),
-		};
-		const pane: PaneOwner = { identity: bid("pane"), lifecycle, focus: () => effects.push("focus") };
-		const token = ownership.open(pane);
-		const lease = ownership.mount(token, host);
-		const newHost: PaneHost = { attach: () => {}, detach: () => {} };
-		const hl = ownership.transferHost(token, lease!, newHost);
-		expect(effects).toEqual(["mount", "unmount", "mount"]);
-		expect(hl.generation).toBeGreaterThan((lease as HostLease).generation);
-	});
-
-	test("unmount throw in transferHost preserves old owner, token, generation", () => {
+	test("moves the opaque root without lifecycle remount", () => {
 		const effects: string[] = [];
 		const ownership = new PaneOwnership();
 		const pane = owner("pane", effects);
 		const token = ownership.open(pane);
-		const lease = ownership.mount(token, host);
-		pane.lifecycle.unmount = () => { throw new Error("unmount failed"); };
-		expect(() => ownership.transferHost(token, lease!, { attach: () => {}, detach: () => {} })).toThrow("unmount failed");
-		expect(ownership.currentToken()?.generation).toBe((lease as HostLease).generation + 1); // mount advanced lease, not gen
-	});
-
-	test("mount throw in transferHost rolls back by remounting old host", () => {
-		const effects: string[] = [];
-		const ownership = new PaneOwnership();
-		const pane = owner("pane", effects);
-		const token = ownership.open(pane);
-		const lease = ownership.mount(token, host);
-		let mountCount = 1;
-		pane.lifecycle.mount = () => {
-			mountCount++;
-			effects.push("mount");
-			if (mountCount === 2) throw new Error("mount failed");
-		};
-		pane.lifecycle.unmount = () => effects.push("unmount");
-		expect(() => ownership.transferHost(token, lease!, { attach: () => {}, detach: () => {} })).toThrow("mount failed");
-		expect(effects).toEqual(["mount", "unmount", "mount", "mount"]);
-		expect(ownership.suspend(token, lease!)).toBeTrue(); // old lease still valid after rollback
-	});
-
-	test("mount throw and rollback fail produces AggregateError and invalidates lease", () => {
-		const effects: string[] = [];
-		const ownership = new PaneOwnership();
-		const pane = owner("pane", effects);
-		const token = ownership.open(pane);
-		const lease = ownership.mount(token, host);
-		let mountCount = 1;
-		pane.lifecycle.mount = () => {
-			mountCount++;
-			if (mountCount === 1) { return; } // initial mount via ownership.mount
-			if (mountCount === 2) { effects.push("mount-new"); throw new Error("mount failed"); }
-			if (mountCount === 3) { effects.push("rollback-try"); throw new Error("rollback failed"); }
-			effects.push("mount");
-		};
-		pane.lifecycle.unmount = () => effects.push("unmount");
-		expect(() => ownership.transferHost(token, lease!, { attach: () => {}, detach: () => {} })).toThrow("mount and rollback both failed");
-		expect(effects).toEqual(["mount", "unmount", "mount-new", "rollback-try"]);
-		expect(ownership.suspend(token, lease!)).toBeFalse(); // lease invalidated
-	});
-
-	test("stale token transferHost throws", () => {
-		const effects: string[] = [];
-		const ownership = new PaneOwnership();
-		const token = ownership.open(owner("first", effects));
-		const lease = ownership.mount(token, host);
-		ownership.unmount(token, lease!);
-		expect(() => ownership.transferHost(token, lease!, host)).toThrow("stale host lease");
+		const lease = ownership.mount(token, host)!;
+		const transfers: string[] = [];
+		const oldHost: PaneHost = { attach: () => {}, detach: (value) => transfers.push(value === root ? "detach" : "wrong") };
+		ownership.transferHost(token, lease, oldHost);
+		const nextHost: PaneHost = { attach: (value) => transfers.push(value === root ? "attach" : "wrong"), detach: () => {} };
+		ownership.transferHost(token, ownership.transferHost(token, { generation: lease.generation + 1 } as HostLease, host), nextHost);
+		expect(effects).toEqual(["mount"]);
+		expect(transfers).toEqual(["detach", "attach"]);
 	});
 });
 
@@ -491,6 +435,87 @@ describe("stale pane and host operations", () => {
 		expect(ownership.suspend(token, lease!)).toBeFalse();
 		expect(ownership.resume(token, lease!)).toBeFalse();
 		expect(ownership.unmount(token, lease!)).toBeFalse();
+	});
+});
+
+describe("navigator runtime", () => {
+	function resetDocument(): void {
+		Object.defineProperty(globalThis, "document", { configurable: true, value: new Window().document });
+	}
+
+	function runtimeOwner(route: { paneId: string }, effects: string[]): PaneOwner {
+		const element = document.createElement("div");
+		return {
+			identity: canonicalRouteIdentity(route),
+			lifecycle: {
+				root: { element },
+				mount: (paneHost) => { paneHost.attach({ element }); effects.push(`mount:${route.paneId}`); },
+				unmount: () => { element.remove(); effects.push(`unmount:${route.paneId}`); },
+				suspend: () => {}, resume: () => {},
+				dispose: () => effects.push(`dispose:${route.paneId}`),
+				requestLeave: () => "allow", requestClose: () => "close",
+				captureRetainedState: () => null,
+			},
+			focus: () => effects.push(`focus:${route.paneId}`),
+		};
+	}
+
+	test("detached panes own independent lifecycle while attached route changes", async () => {
+		resetDocument();
+		const effects: string[] = [];
+		const shell = new NavigatorShell();
+		const runtime = new NavigatorRuntime(shell, (route) => runtimeOwner(route, effects));
+		await runtime.open({ paneId: "first" });
+		let closeDetached: (() => Promise<boolean>) | null = null;
+		const detachedHost = new NavigatorShell("Detached");
+		const pane = await runtime.detach((owner, _host, close) => {
+			closeDetached = close;
+			return { identity: owner.identity, focus: owner.focus, close };
+		}, detachedHost);
+		expect(pane).not.toBeNull();
+		await runtime.open({ paneId: "second" });
+		expect(await runtime.closeNavigator()).toBeTrue();
+		expect(effects).toEqual(["mount:first", "mount:second", "unmount:second", "dispose:second"]);
+		expect(await closeDetached!()).toBeTrue();
+		expect(effects).toContain("unmount:first");
+		expect(effects).toContain("dispose:first");
+	});
+
+	test("detach create failure rolls root back to navigator atomically", async () => {
+		resetDocument();
+		const effects: string[] = [];
+		const shell = new NavigatorShell();
+		const runtime = new NavigatorRuntime(shell, (route) => runtimeOwner(route, effects));
+		await runtime.open({ paneId: "first" });
+		const detachedHost = new NavigatorShell("Detached");
+		expect(runtime.detach((): DetachedPane => { throw new Error("create failed"); }, detachedHost)).rejects.toThrow("create failed");
+		expect(shell.container.querySelector(".navigator-pane-host")?.childElementCount).toBe(1);
+		expect(detachedHost.container.querySelector(".navigator-pane-host")?.childElementCount).toBe(0);
+		expect(await runtime.closeNavigator()).toBeTrue();
+	});
+
+	test("existing detached route focuses without constructing duplicate", async () => {
+		resetDocument();
+		const effects: string[] = [];
+		let factoryCalls = 0;
+		const runtime = new NavigatorRuntime(new NavigatorShell(), (route) => { factoryCalls++; return runtimeOwner(route, effects); });
+		await runtime.open({ paneId: "first" });
+		await runtime.detach((owner, _host, close) => ({ identity: owner.identity, focus: owner.focus, close }), new NavigatorShell());
+		await runtime.open({ paneId: "first" });
+		expect(factoryCalls).toBe(1);
+		expect(effects).toContain("focus:first");
+	});
+});
+
+describe("navigator shell", () => {
+	test("container is programmatically focusable", () => {
+		Object.defineProperty(globalThis, "document", { configurable: true, value: new Window().document });
+		const shell = new NavigatorShell();
+		document.body.append(shell.container);
+		expect(shell.container.tabIndex).toBe(-1);
+		shell.focus();
+		expect(document.activeElement).toBe(shell.container);
+		shell.container.remove();
 	});
 });
 
