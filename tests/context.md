@@ -46,6 +46,7 @@ Purpose: bun:test test files covering editor, synth, and shared modules.
 - `custom-feedback.test.ts`, Unit tests for CustomFeedBack — FM feedback routing
 - `css-var-contract.test.ts`, Contract tests for CSS custom property registration, theme variable declarations, and ColorConfig fallback coverage for required theme variables
 - `style-inject.test.ts`, Behavioral tests for tagged global style injection deduplication
+- `style-slots.test.ts`, Guard that hardcoded injectGlobalStyles slot ids stay unique and accounted for
 
 ## Source-to-test cross-reference
 

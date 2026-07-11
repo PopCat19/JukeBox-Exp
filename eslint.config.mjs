@@ -49,6 +49,7 @@ export default tseslint.config(
             "tests/interactions-behavior.test.ts",
             "tests/loop-editor-contract.test.ts",
             "tests/style-inject.test.ts",
+            "tests/style-slots.test.ts",
             "tests/synth-contract.test.ts",
             "tests/ui-states.test.ts",
             "tests/socket-contract.test.ts",

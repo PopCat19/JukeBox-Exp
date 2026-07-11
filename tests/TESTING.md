@@ -124,6 +124,7 @@ All 12 types verified via encode→decode→type-preservation.
 | `shared/events.ts` | `tests/barrel-exports.test.ts` | events (indirect) |
 | `shared/styles/css-var-contract.ts` | `tests/css-var-contract.test.ts` | known CSS custom properties, source references, theme declarations, ColorConfig fallback coverage for required theme variables |
 | `shared/styles/inject.ts` | `tests/style-inject.test.ts` | tagged global style injection and same-id deduplication |
+| `shared/styles/inject.ts` | `tests/style-slots.test.ts` | hardcoded slot id uniqueness and known-set guard |
 | `shared/spectrum.ts` | none | Spectrogram type exports |
 
 ## Test structure: every file
