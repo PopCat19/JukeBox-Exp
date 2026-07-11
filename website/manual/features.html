@@ -10,58 +10,31 @@
 	<meta name="description" content="JukeBox is a mod of Slarmoo's Box that aims to add a crap ton of presets." />
 	<!-- Self-hosted B612 font -->
 	<link rel="stylesheet" href="../assets/fonts/google/fonts.css" />
-    <script>
-		function linkTo(update) {
-			window.history.replaceState(null, "", location.pathname + "#" + update);
-			navigator.clipboard.writeText(window.location).then(() => {
-				const popup = document.getElementById("popup");
-				popup.classList.add("show");
-				setTimeout(() => {
-					popup.classList.remove("show");
-				}, 2000);
-			});
-		}
-	</script>
 	<title>JukeBox Features List</title>
 </head>
-<body>
-
-<style>
-
-h2, summary {
-	font-size: 1.5rem;
-	font-weight: bold;
-	margin-top: 0.5em;
-	margin-bottom: 0.5em;
-	-webkit-text-stroke-width: 0;
-}
-
-.left-indent {
-	padding-left: 50px;
-}
-b {
-	font-weight: normal;
-}
-
-</style>
-
-
-<nav class="navbar">
-  <a title="Click to go back to homepage" href="https://jukeebox.github.io">
+<body class="page-features">
+<!-- BEGIN NAV -->
+<header>
+<nav class="navbar" aria-label="Manual navigation">
+  <a class="navbar-logo" title="Click to go back to homepage" href="https://jukeebox.github.io">
     <div class="logo-wrapper">
       <img src="https://jukeebox.github.io/assets/images/JukeBoxLogo.png" alt="JukeBox" class="logo" height="64px">
       <img src="https://jukeebox.github.io/assets/images/JukeBoxLogo.png" alt="" class="logo-glow" height="64px" aria-hidden="true">
     </div>
   </a>
   <div class="navbartitle col"><h1>JukeBox - Features List</h1></div>
-  	<div class="col">
+  <div class="col">
 		<a class="navbarlinks" href="credits.html"><button>Credits</button></a>
-    	<a class="navbarlinks" href="resources.html"><button>Resources</button></a>
-		<a class="navbarlinks" href="features.html"><button>Features</button></a>
+		<a class="navbarlinks" href="resources.html"><button>Resources</button></a>
+		<a class="navbarlinks" href="features.html" aria-current="page"><button>Features</button></a>
 		<a class="navbarlinks" href="patch_notes.html"><button>Patch Notes</button></a>
 		<a class="navbarlinks" href="instructions.html"><button>Instructions</button></a>
-	</div>
+		<a class="navbarlinks" href="leaderboard.html"><button>Leaderboard</button></a>
+  </div>
 </nav>
+</header>
+<!-- END NAV -->
+<main>
 <article id="Presets">
 	<h2></h2>
 	<h3>JukeBox was originally created just to add as many presets as possible to Slarmoo's box.</h3>
@@ -189,7 +162,10 @@ b {
 			<br>
 		</div>
 	</details>
-<div id="popup">Link to patch note is now copied!</div>
 
+</main>
+<footer>
+    <p class="footertext">JukeBox — <a href="https://jukeebox.github.io">Home</a></p>
+</footer>
 </body>
 </html>

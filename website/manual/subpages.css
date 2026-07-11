@@ -381,5 +381,215 @@ details:hover {
 }
 
 .beepboard {
-    color: #C203FE;
+	color: #C203FE;
+}
+
+/* --- Page-specific overrides (moved from per-page inline <style> blocks) --- */
+
+/* introduction, instructions, resources: h2 margin + h3 size */
+body.page-introduction h2,
+body.page-instructions h2,
+body.page-resources h2 {
+    margin-top: 0.5em;
+    margin-bottom: 0.5em;
+}
+
+body.page-introduction h3,
+body.page-instructions h3,
+body.page-resources h3 {
+    font-size: 1.5rem;
+}
+
+/* features: heading + indent + bold override */
+body.page-features h2,
+body.page-features summary {
+    font-size: 1.5rem;
+    font-weight: bold;
+    margin-top: 0.5em;
+    margin-bottom: 0.5em;
+    -webkit-text-stroke-width: 0;
+}
+
+body.page-features .left-indent {
+    padding-left: 50px;
+}
+
+body.page-features b {
+    font-weight: normal;
+}
+
+/* patch_notes, top_sneaky: heading margins + version tag colors */
+body.page-patch-notes h2,
+body.page-top-sneaky h2 {
+    margin-top: 0.5em;
+    margin-bottom: 0.5em;
+}
+
+body.page-patch-notes h3,
+body.page-top-sneaky h3 {
+    margin-top: 1.0em;
+    margin-bottom: -0.5em;
+}
+
+body.page-patch-notes h4,
+body.page-top-sneaky h4 {
+    margin-top: 0.5em;
+    margin-bottom: 0.5em;
+}
+
+body.page-patch-notes h5,
+body.page-top-sneaky h5 {
+    margin-top: 1.5em;
+    margin-bottom: -0.5em;
+}
+
+body.page-patch-notes .gold,
+body.page-top-sneaky .gold {
+    color: #fbea37;
+}
+
+body.page-patch-notes .bonus,
+body.page-top-sneaky .bonus {
+    color: #8bc1f3;
+}
+
+body.page-patch-notes .return,
+body.page-top-sneaky .return {
+    color: #6ef43d;
+}
+
+/* credits: h2 margin + custom hmod element */
+body.page-credits h2 {
+    margin-top: 0.5em;
+    margin-bottom: 0.5em;
+}
+
+body.page-credits hmod {
+    font-size: 1.5rem;
+    margin-top: 0.5em;
+    margin-bottom: 0.5em;
+    -webkit-text-stroke-width: 0;
+}
+
+@media (min-width: 1100px) {
+    body.page-credits hmod {
+        border-left: white solid 4px;
+        padding-left: 8px;
+    }
+}
+
+/* leaderboard: table styling */
+body.page-leaderboard table {
+    border-collapse: collapse;
+    border: 2px solid #ebebeb;
+    font-family: sans-serif;
+    font-size: 0.8rem;
+    letter-spacing: 1px;
+}
+
+body.page-leaderboard caption {
+    caption-side: bottom;
+    padding: 10px;
+    font-weight: bold;
+}
+
+body.page-leaderboard thead,
+body.page-leaderboard tfoot {
+    background-color: #020009;
+}
+
+body.page-leaderboard th,
+body.page-leaderboard td {
+    border: 2px solid #ebebeb;
+    padding: 8px 10px;
+}
+
+body.page-leaderboard td:last-of-type {
+    text-align: center;
+}
+
+body.page-leaderboard tbody > tr:nth-of-type(even) {
+    background-color: #fff57054;
+}
+
+body.page-leaderboard tfoot th {
+    text-align: right;
+}
+
+body.page-leaderboard tfoot td {
+    font-weight: bold;
+}
+
+/* faq: overrides for subpages.css base rules */
+body.page-faq h1 {
+    align-items: center;
+    align-content: center;
+}
+
+body.page-faq h2,
+body.page-faq summary {
+    font-size: 1.5rem;
+    font-weight: bold;
+    margin-top: 0.5em;
+    margin-bottom: 0.5em;
+    -webkit-text-stroke-width: 0;
+    border-top: none;
+    padding-top: 0;
+}
+
+body.page-faq h3 {
+    text-align: center;
+}
+
+body.page-faq a {
+    color: var(--link-accent, #98f);
+}
+
+body.page-faq p {
+    font-size: inherit;
+    color: inherit;
+}
+
+body.page-faq li,
+body.page-faq details {
+    margin-left: 3vw;
+    margin-right: 3vw;
+    margin-bottom: 0;
+}
+
+body.page-faq table {
+    border-collapse: collapse;
+    margin: 20px;
+    align-self: center;
+    justify-content: center;
+}
+
+body.page-faq tr,
+body.page-faq tbody,
+body.page-faq thead {
+    margin: 0;
+    padding: 0;
+}
+
+body.page-faq th {
+    border-width: 2px;
+    border-style: solid;
+    margin: 0;
+    padding: 10px;
+}
+
+@media (min-width: 711px) {
+    body.page-faq {
+        width: 100%;
+    }
+}
+
+@media (max-width: 710px) {
+    body.page-faq {
+        width: 100%;
+    }
+
+    body.page-faq p {
+        margin: 1em 0.5em;
+    }
 }

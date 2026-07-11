@@ -10,57 +10,33 @@
 	<meta name="description" content="JukeBox is a mod of Slarmoo's Box that aims to add a crap ton of presets." />
 	<!-- Self-hosted B612 font -->
 	<link rel="stylesheet" href="../assets/fonts/google/fonts.css" />
-    <script>
-		function linkTo(update) {
-			window.history.replaceState(null, "", location.pathname + "#" + update);
-			navigator.clipboard.writeText(window.location).then(() => {
-				const popup = document.getElementById("popup");
-				popup.classList.add("show");
-				setTimeout(() => {
-					popup.classList.remove("show");
-				}, 2000);
-			});
-		}
-	</script>
 	<title>JukeBox Instructions</title>
 </head>
-
-<style>
-
-h3 {
-    font-size: 1.5rem;
-}
-
-h2 {
-	margin-top: 0.5em;
-	margin-bottom: 0.5em;
-}
-
-</style>
-
-<body>
-    
-<nav class="navbar">
-  <a title="Click to go back to homepage" href="https://jukeebox.github.io">
+<body class="page-instructions">
+<!-- BEGIN NAV -->
+<header>
+<nav class="navbar" aria-label="Manual navigation">
+  <a class="navbar-logo" title="Click to go back to homepage" href="https://jukeebox.github.io">
     <div class="logo-wrapper">
       <img src="https://jukeebox.github.io/assets/images/JukeBoxLogo.png" alt="JukeBox" class="logo" height="64px">
       <img src="https://jukeebox.github.io/assets/images/JukeBoxLogo.png" alt="" class="logo-glow" height="64px" aria-hidden="true">
     </div>
   </a>
   <div class="navbartitle col"><h1>JukeBox - Instructions</h1></div>
-  	<div class="col">
+  <div class="col">
 		<a class="navbarlinks" href="credits.html"><button>Credits</button></a>
-    	<a class="navbarlinks" href="resources.html"><button>Resources</button></a>
+		<a class="navbarlinks" href="resources.html"><button>Resources</button></a>
 		<a class="navbarlinks" href="features.html"><button>Features</button></a>
 		<a class="navbarlinks" href="patch_notes.html"><button>Patch Notes</button></a>
-		<a class="navbarlinks" href="instructions.html"><button>Instructions</button></a>
-	</div>
+		<a class="navbarlinks" href="instructions.html" aria-current="page"><button>Instructions</button></a>
+		<a class="navbarlinks" href="leaderboard.html"><button>Leaderboard</button></a>
+  </div>
 </nav>
-
-</body>
+</header>
+<!-- END NAV -->
+<main>
 <h3 class="sub">NOTE: This page is still being worked on!</h3>
 <h2></h2>
-</section>
 <h3>
     Instructions
 </h3>
@@ -164,7 +140,7 @@ h2 {
     In the note pattern editor, you can click and drag horizontally on a note to adjust its duration.
     You can also click above or below an existing note to add more notes to be played simultaneously, which is called a chord.
 </b>
-<div id="mobile-instructions" style="display: none;">
+<div id="mobile-instructions" hidden>
     <b>
         You can also long-press in the pattern editor to select a time range within a pattern, which you can then drag to move multiple notes at once.<br/>
     </b>
@@ -184,7 +160,10 @@ h2 {
     You can also click on the label next to each option for a description of what it does.
     Some features are hard to find anywhere though - for example, if your song has any modulator channels, you can hold Ctrl or Shift while the song is playing to record the movement of sliders directly!
 </b>
-</section>
 
+</main>
+<footer>
+    <p class="footertext">JukeBox — <a href="https://jukeebox.github.io">Home</a></p>
+</footer>
 </body>
 </html>

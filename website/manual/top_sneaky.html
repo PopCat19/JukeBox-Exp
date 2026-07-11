@@ -15,72 +15,47 @@
 			window.history.replaceState(null, "", location.pathname + "#" + update);
 			navigator.clipboard.writeText(window.location).then(() => {
 				const popup = document.getElementById("popup");
-				popup.classList.add("show");
-				setTimeout(() => {
-					popup.classList.remove("show");
-				}, 2000);
+				if (popup) {
+					popup.classList.add("show");
+					setTimeout(() => {
+						popup.classList.remove("show");
+					}, 2000);
+				}
 			});
 		}
+		document.querySelectorAll('a.link[title="Copy link"]').forEach(function(a) {
+			a.addEventListener('click', function() { linkTo(a.dataset.linkTo); });
+		});
 	</script>
-	<title>JukeBox Patch Notes</title>
+	<title>JukeBox Top Sneaky</title>
 </head>
-
-<style>
-
-h2 {
-	margin-top: 0.5em;
-	margin-bottom: 0.5em;
-}
-
-h3 {
-	margin-top: 1.0em;
-	margin-bottom: -0.5em;
-}
-
-h4 {
-	margin-top: 0.5em;
-	margin-bottom: 0.5em;
-}
-
-h5 {
-	margin-top: 1.5em;
-	margin-bottom: -0.5em;
-}
-
-.gold {
-	color: #fbea37;
-}
-
-.bonus {
-	color: #8bc1f3;
-}
-
-.return {
-	color: #6ef43d;
-}
-</style>
-
-<body>
-<nav class="navbar">
-  <a title="Click to go back to homepage" href="https://jukeebox.github.io">
+<body class="page-top-sneaky">
+<!-- BEGIN NAV -->
+<header>
+<nav class="navbar" aria-label="Manual navigation">
+  <a class="navbar-logo" title="Click to go back to homepage" href="https://jukeebox.github.io">
     <div class="logo-wrapper">
       <img src="https://jukeebox.github.io/assets/images/JukeBoxLogo.png" alt="JukeBox" class="logo" height="64px">
       <img src="https://jukeebox.github.io/assets/images/JukeBoxLogo.png" alt="" class="logo-glow" height="64px" aria-hidden="true">
     </div>
   </a>
   <div class="navbartitle col"><h1>JukeBox - Top Sneaky</h1></div>
-  	<div class="col">
+  <div class="col">
 		<a class="navbarlinks" href="credits.html"><button>Credits</button></a>
-    	<a class="navbarlinks" href="resources.html"><button>Resources</button></a>
+		<a class="navbarlinks" href="resources.html"><button>Resources</button></a>
 		<a class="navbarlinks" href="features.html"><button>Features</button></a>
 		<a class="navbarlinks" href="patch_notes.html"><button>Patch Notes</button></a>
 		<a class="navbarlinks" href="instructions.html"><button>Instructions</button></a>
-	</div>
+		<a class="navbarlinks" href="leaderboard.html"><button>Leaderboard</button></a>
+  </div>
 </nav>
+</header>
+<!-- END NAV -->
+<main>
 <h3 class="sub">This is the list of planned stuff for the future. Things on this list are subject to change at any time.</h3>
 
 <article id="X.X.0">
-	<h2>Major Port Completion List <a class="link" onclick="linkTo('X.X.0')" title="Copy link">⎋</a></h2>
+	<h2>Major Port Completion List <a class="link" data-link-to="X.X.0" title="Copy link">⎋</a></h2>
 	<h3>JukeBox × LemmBox <span class=return>✓</span></h3>
 	<ul>  
 		✓ presets <br>
@@ -156,14 +131,14 @@ h5 {
 	</ul>
 	<p class="date">eventually</p>
 <article id="X.X.0">
-	<h2>Version ?.?.0 | JukeBox × Dogebox2<a class="link" onclick="linkTo('X.X.0')" title="Copy link">⎋</a></h2>
+	<h2>Version ?.?.0 | JukeBox × Dogebox2<a class="link" data-link-to="X.X.0" title="Copy link">⎋</a></h2>
 	<h3>Custom FM:</h3>
 	<ul>  
 		<li></li>
 	</ul>
 	<p class="date">eventually</p>
 <article id="2.0.0">
-	<h2>Version 2.0.0 | JUKEBOX LIVE<a class="link" onclick="linkTo('2.0.0')" title="Copy link">⎋</a></h2>
+	<h2>Version 2.0.0 | JUKEBOX LIVE<a class="link" data-link-to="2.0.0" title="Copy link">⎋</a></h2>
 	<b>"JukeBox Live" is the new hub for viewing and submitting new presets.</b>
 	<br></br>
 	<h4>What are live submissions?</h4>
@@ -190,7 +165,7 @@ h5 {
 		<li>everything other than submitting instruments require account verification via discord</li>
 	</ul>
 	<p class="date">eventually</p>
-<h2>other future crap | <a class="link" onclick="linkTo('0.3.1')" title="Copy link">⎋</a></h2>
+<h2>other future crap | <a class="link" data-link-to="0.3.1" title="Copy link">⎋</a></h2>
 	<h3>Major Features:</h3>
 	<ul>  
 		<li>Supersaws now have unison options (<span class=slarmoo>Slarmoo's Box Testing</span> port) (search ivate static supersawSy)</li>
@@ -202,35 +177,35 @@ h5 {
 		<li>created a drumset and noise channel FM for the "unmodified" category</li>
 	</ul>
 <article id="1.X.0">
-	<h2>Version 1.?.0 | JukeBox × EdoBox<a class="link" onclick="linkTo('1.X.0')" title="Copy link">⎋</a></h2>
+	<h2>Version 1.?.0 | JukeBox × EdoBox<a class="link" data-link-to="1.X.0" title="Copy link">⎋</a></h2>
 	<h3>Changeable Song Edo:</h3>
 	<ul>  
 		<li></li>
 	</ul>
 	<p class="date">before the sun explodes</p>
 <article id="1.X.0">
-	<h2>Version 1.?.0 | The Preset Preservation Act of 2026<a class="link" onclick="linkTo('1.X.0')" title="Copy link">⎋</a></h2>
+	<h2>Version 1.?.0 | The Preset Preservation Act of 2026<a class="link" data-link-to="1.X.0" title="Copy link">⎋</a></h2>
 	<h3>New Features:</h3>
 	<ul>  
 		<li>all songs dating back to 0.2.2 (11/25/2025) now use the correct preset names</li>
 	</ul>
 	<p class="date"> sometime after 1973</p>
 <article id="1.X.0">
-	<h2>Version 1.?.0 | Song Templates!<a class="link" onclick="linkTo('1.X.0')" title="Copy link">⎋</a></h2>
+	<h2>Version 1.?.0 | Song Templates!<a class="link" data-link-to="1.X.0" title="Copy link">⎋</a></h2>
 	<h3>New Features:</h3>
 	<ul>  
 		<li>song templates menu added under "file" (feature suggested by Kurrmailence. keybind: Shift + T)</li>
 	</ul>
 	<p class="date">eventually</p>
 <article id="1.0.X">
-	<h2>Version 1.0.? |<a class="link" onclick="linkTo('1.0.X')" title="Copy link">⎋</a></h2>
+	<h2>Version 1.0.? |<a class="link" data-link-to="1.0.X" title="Copy link">⎋</a></h2>
 	<h3>New Features:</h3>
 	<ul>  
 		<li></li>
 	</ul>
 	<p class="date">eventually</p>
 <article id="1.0.X">
-	<h2>Version 1.0.? |<a class="link" onclick="linkTo('1.0.X')" title="Copy link">⎋</a></h2>
+	<h2>Version 1.0.? |<a class="link" data-link-to="1.0.X" title="Copy link">⎋</a></h2>
 	<h3>New Features:</h3>
 	<ul>  
 		<li>small layout now has options for zooming in and out (<span class=studiobox>Studio Box</span> port) (search "this._zoomInButton.style.display = "none";")</li>
@@ -239,7 +214,7 @@ h5 {
 	</ul>
 	<p class="date">eventually</p>
 <article id="1.0.X">
-	<h2>Version 1.0.? | JukeBox × <span class=choptop>AbyssBox</span> FINAL<a class="link" onclick="linkTo('1.0.X')" title="Copy link">⎋</a></h2>
+	<h2>Version 1.0.? | JukeBox × <span class=choptop>AbyssBox</span> FINAL<a class="link" data-link-to="1.0.X" title="Copy link">⎋</a></h2>
 	<h3>Major AbyssBox Ports:</h3>
 	<ul>  
 		<li>added song player layouts</li> 
@@ -265,7 +240,7 @@ h5 {
 	
 	<p class="date">eventually</p>
 <article id="1.0.0">
-	<h2>Version 1.0.0 | JukeBox gets real!!! (for real)<a class="link" onclick="linkTo('1.0.0')" title="Copy link">⎋</a></h2>
+	<h2>Version 1.0.0 | JukeBox gets real!!! (for real)<a class="link" data-link-to="1.0.0" title="Copy link">⎋</a></h2>
 	</ul><h3>Instrument Tag System:</h3>
 	<ul>  
 		<li>you can now filter instruments by tags, making it easier to find specific kinds of instruments</li>
@@ -281,4 +256,12 @@ h5 {
 	</ul>
 	
 	<p class="date"> date o' clock</p>
+</article>
+<div id="popup">Link to patch note is now copied!</div>
+
+</main>
+<footer>
+    <p class="footertext">JukeBox — <a href="https://jukeebox.github.io">Home</a></p>
+</footer>
+</body>
 </html>

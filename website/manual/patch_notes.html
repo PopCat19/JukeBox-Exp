@@ -15,70 +15,45 @@
 			window.history.replaceState(null, "", location.pathname + "#" + update);
 			navigator.clipboard.writeText(window.location).then(() => {
 				const popup = document.getElementById("popup");
-				popup.classList.add("show");
-				setTimeout(() => {
-					popup.classList.remove("show");
-				}, 2000);
+				if (popup) {
+					popup.classList.add("show");
+					setTimeout(() => {
+						popup.classList.remove("show");
+					}, 2000);
+				}
 			});
 		}
+		document.querySelectorAll('a.link[title="Copy link"]').forEach(function(a) {
+			a.addEventListener('click', function() { linkTo(a.dataset.linkTo); });
+		});
 	</script>
 	<title>JukeBox Patch Notes</title>
 </head>
-
-<style>
-h2 {
-	margin-top: 0.5em;
-	margin-bottom: 0.5em;
-}
-
-h3 {
-	margin-top: 1.0em;
-	margin-bottom: -0.5em;
-}
-
-h4 {
-	margin-top: 0.5em;
-	margin-bottom: 0.5em;
-}
-
-h5 {
-	margin-top: 1.5em;
-	margin-bottom: -0.5em;
-}
-
-.gold {
-	color: #fbea37;
-}
-
-.bonus {
-	color: #8bc1f3;
-}
-
-.return {
-	color: #6ef43d;
-}
-</style>
-
-<body>
-<nav class="navbar">
-  <a title="Click to go back to homepage" href="https://jukeebox.github.io">
+<body class="page-patch-notes">
+<!-- BEGIN NAV -->
+<header>
+<nav class="navbar" aria-label="Manual navigation">
+  <a class="navbar-logo" title="Click to go back to homepage" href="https://jukeebox.github.io">
     <div class="logo-wrapper">
       <img src="https://jukeebox.github.io/assets/images/JukeBoxLogo.png" alt="JukeBox" class="logo" height="64px">
       <img src="https://jukeebox.github.io/assets/images/JukeBoxLogo.png" alt="" class="logo-glow" height="64px" aria-hidden="true">
     </div>
   </a>
   <div class="navbartitle col"><h1>JukeBox - Patch Notes</h1></div>
-  	<div class="col">
+  <div class="col">
 		<a class="navbarlinks" href="credits.html"><button>Credits</button></a>
-    	<a class="navbarlinks" href="resources.html"><button>Resources</button></a>
+		<a class="navbarlinks" href="resources.html"><button>Resources</button></a>
 		<a class="navbarlinks" href="features.html"><button>Features</button></a>
-		<a class="navbarlinks" href="patch_notes.html"><button>Patch Notes</button></a>
+		<a class="navbarlinks" href="patch_notes.html" aria-current="page"><button>Patch Notes</button></a>
 		<a class="navbarlinks" href="instructions.html"><button>Instructions</button></a>
-	</div>
+		<a class="navbarlinks" href="leaderboard.html"><button>Leaderboard</button></a>
+  </div>
 </nav>
-</body>
+</header>
+<!-- END NAV -->
+<main>
 <article id="1.0.0">
-	<h2>Version 1.0.0 | JukeBox gets real!!! (for real)<a class="link" onclick="linkTo('1.0.0')" title="Copy link">⎋</a></h2>
+	<h2>Version 1.0.0 | JukeBox gets real!!! (for real)<a class="link" data-link-to="1.0.0" title="Copy link">⎋</a></h2>
 	</ul><h3>Instrument Tag System:</h3>
 	<ul>  
 		<li>you can now filter instruments by tags, making it easier to find specific kinds of instruments</li>
@@ -134,7 +109,7 @@ h5 {
 	<p class="date"> date o' clock</p>
 
 <article id="0.3.0">
-	<h2>Version 0.3.0 | Effect Ports!<a class="link" onclick="linkTo('0.3.0')" title="Copy link">⎋</a></h2>
+	<h2>Version 0.3.0 | Effect Ports!<a class="link" data-link-to="0.3.0" title="Copy link">⎋</a></h2>
 	</ul><h3>New Effects:</h3>
 	<h5>thanks <span class=slarmoo>Slarmoo</span>, again</h5>
 	<ul>  
@@ -195,7 +170,7 @@ h5 {
 	</ul>
 	<p class="date"> 3/1/2026</p>
 <article id="0.2.4">
-	<h2>Version 0.2.4 | Mobile Fix (finally)<a class="link" onclick="linkTo('0.2.4')" title="Copy link">⎋</a></h2>
+	<h2>Version 0.2.4 | Mobile Fix (finally)<a class="link" data-link-to="0.2.4" title="Copy link">⎋</a></h2>
 	<h4>Over 1000 presets have been submitted to JukeBox! Thank you all!</h4>
 	<h3>Major Bug Fixes:</h3>
 	<ul>
@@ -237,7 +212,7 @@ h5 {
 	</ul>
 	<p class="date"> 2/21/2026</p>
 <article id="0.2.3">
-	<h2>Version 0.2.3 | HEY GUYS I'M BACK!! <a class="link" onclick="linkTo('0.2.3')" title="Copy link">⎋</a></h2>
+	<h2>Version 0.2.3 | HEY GUYS I'M BACK!! <a class="link" data-link-to="0.2.3" title="Copy link">⎋</a></h2>
 	<h4>Thanks to the new JukeBox Preset Naming Committee for helping speed things along!</h4>
 	<h4>Thanks especially to Malicious Mandwald and Kurrm, for handling the majority of the unnamed presets</h4>
 	
@@ -330,7 +305,7 @@ h5 {
 	</ul>
 	<p class="date"> 2/18/2026</p>
 <article id="0.2.2">
-	<h2>Version 0.2.2 | --Intermission--<a class="link" onclick="linkTo('0.2.2')" title="Copy link">⎋</a></h2>
+	<h2>Version 0.2.2 | --Intermission--<a class="link" data-link-to="0.2.2" title="Copy link">⎋</a></h2>
 	<h4>I borked some stuff when making the JukeBox manual. This update is me picking up after my mess, + some other changes I was intending to go alongside a larger update.</h4>
 	</ul><h3>New Features:</h3>
 	<ul>  
@@ -355,7 +330,7 @@ h5 {
 	</ul>
 	<p class="date"> 11/25/2025</p>
 <article id="0.2.1">
-	<h2>Version 0.2.1 | JukeBox Manual!<a class="link" onclick="linkTo('0.2.1')" title="Copy link">⎋</a></h2>
+	<h2>Version 0.2.1 | JukeBox Manual!<a class="link" data-link-to="0.2.1" title="Copy link">⎋</a></h2>
 	</ul><h3>New Features:</h3>
 	<ul>  
 		<li>Creation of the JukeBox Manual, designed to remove as much clutter from the description as possible. (credits to <span class="choptop">Choptop84</span> for the fancy description buttons, and credits to <span class="lemon">HappyLemonLime</span> for designing these subpage menus)</li>
@@ -403,7 +378,7 @@ h5 {
 	</ul>
 	<p class="date"> 11/24/2025</p>
 <article id="0.2.0">
-	<h2>Version 0.2.0 | WE ARE SO BACK!!!<a class="link" onclick="linkTo('0.2.0')" title="Copy link">⎋</a></h2>
+	<h2>Version 0.2.0 | WE ARE SO BACK!!!<a class="link" data-link-to="0.2.0" title="Copy link">⎋</a></h2>
 	<h4 class="slarmoo">Huge thanks to Slarmoo for the hours of programing help to make this update possible!</h4>
 	<h3>136 New Community Presets:</h3>
 	<ul>  
@@ -470,7 +445,7 @@ h5 {
 	</ul>
 	<p class="date">11/16/2025</p>
 <article id="0.1.6">
-	<h2>Version 0.1.6 | 0.2.0 is taking too long so enjoy this<a class="link" onclick="linkTo('0.1.6')" title="Copy link">⎋</a></h2>
+	<h2>Version 0.1.6 | 0.2.0 is taking too long so enjoy this<a class="link" data-link-to="0.1.6" title="Copy link">⎋</a></h2>
 	<h3>75 New Community Presets:</h3>
 	<ul>  
 		<li>38 - HoneykitKD</li>
@@ -506,7 +481,7 @@ h5 {
 	</ul>
 	<p class="date">09/30/2025</p>
 <article id="0.1.5">
-	<h2>Version 0.1.5 | I don't really care about these update names anymore<a class="link" onclick="linkTo('0.1.5')" title="Copy link">⎋</a></h2>
+	<h2>Version 0.1.5 | I don't really care about these update names anymore<a class="link" data-link-to="0.1.5" title="Copy link">⎋</a></h2>
 	<h3>New keybinds:</h3>
 	<ul>
 		<li>Alt + Enter: add instrument within instrument channel</li>
@@ -540,7 +515,7 @@ h5 {
 	</ul>
 	<p class="date">09/12/2025</p>
 </article><article id="0.1.4">
-	<h2>Version 0.1.4 | Tweaking Out<a class="link" onclick="linkTo('0.1.4')" title="Copy link">⎋</a></h2>
+	<h2>Version 0.1.4 | Tweaking Out<a class="link" data-link-to="0.1.4" title="Copy link">⎋</a></h2>
 	<h3>Tweaks:</h3>
 	<ul>  
 		<li>The "You Shouldn't Be Here" and "No Signal" presets have been removed due to freezing the playhead</li>
@@ -550,7 +525,7 @@ h5 {
 	<p class="date">08/30/2025</p>
 </article>
 <article id="0.1.3">
-	<h2>Version 0.1.3 | UNBOX IS HERE<a class="link" onclick="linkTo('0.1.3')" title="Copy link">⎋</a></h2>
+	<h2>Version 0.1.3 | UNBOX IS HERE<a class="link" data-link-to="0.1.3" title="Copy link">⎋</a></h2>
 	<h3>Imported Presets:</h3>
 	<ul>  
 		<li>Added 207 presets from <span class=unbox>Unbox Testing</span></li>
@@ -562,7 +537,7 @@ h5 {
 	<p class="date">08/29/2025</p>
 </article>
 <article id="0.1.2">
-	<h2>Version 0.1.2 | Some Cool Novelty Preset Stuff<a class="link" onclick="linkTo('0.1.2')" title="Copy link">⎋</a></h2>
+	<h2>Version 0.1.2 | Some Cool Novelty Preset Stuff<a class="link" data-link-to="0.1.2" title="Copy link">⎋</a></h2>
 	<h3>New Features:</h3>
 	<ul>
 		<li>"Randomize preset" avoiding novelty presets is now toggleable under preferences</li>
@@ -586,7 +561,7 @@ h5 {
 	<p class="date">08/26/2025 (third daily update?!?!)</p>
 </article>
 <article id="0.1.1">
-	<h2>Version 0.1.1 | The Stuff n' Such Update<a class="link" onclick="linkTo('0.1.1')" title="Copy link">⎋</a></h2>
+	<h2>Version 0.1.1 | The Stuff n' Such Update<a class="link" data-link-to="0.1.1" title="Copy link">⎋</a></h2>
 	<h3>New Features:</h3>
 	<ul>  
 		<li>"Unmodified" preset category, which has a unmodified version of each instrument type (this category will not roll in "Random Preset")</li>
@@ -609,7 +584,7 @@ h5 {
 	<p class="date">08/25/2025</p>
 </article>
 <article id="0.1.0">
-	<h2>Version 0.1.0 | JukeBox gets real!!!!<a class="link" onclick="linkTo('0.1.0')" title="Copy link">⎋</a></h2>
+	<h2>Version 0.1.0 | JukeBox gets real!!!!<a class="link" data-link-to="0.1.0" title="Copy link">⎋</a></h2>
 	<h3>New Features:</h3>
 	<ul>  
 		<li>The JukeBox Preset Submission Form is now public!</li>
@@ -640,7 +615,7 @@ h5 {
 	<p class="date">08/24/2025</p>
 </article>
 <article id="0.0.3">
-	<h2>Version 0.0.3 | oops<a class="link" onclick="linkTo('0.0.3')" title="Copy link">⎋</a></h2>
+	<h2>Version 0.0.3 | oops<a class="link" data-link-to="0.0.3" title="Copy link">⎋</a></h2>
 	<ul>  
 		<li>fixed "sawcrush pad" and "dirty guitar" as they were imported incorrectly</li>
 		<li><span class=slarmoo>Slarmoo's Box</span>'s presets have been moved to before SandBox</li>
@@ -652,7 +627,7 @@ h5 {
 	<p class="date">08/18/2025</p>
 </article>
 <article id="0.0.2">
-	<h2>Version 0.0.2 | A Whole Lot More Presets<a class="link" onclick="linkTo('0.0.2')" title="Copy link">⎋</a></h2>
+	<h2>Version 0.0.2 | A Whole Lot More Presets<a class="link" data-link-to="0.0.2" title="Copy link">⎋</a></h2>
     <h3>45 New Community Presets:</h3>
 	<ul>  
 		<li>22 - ThatBeepboxGuy</li>
@@ -689,7 +664,7 @@ h5 {
 </article>
 
 <article id="0.0.1">
-	<h2>Version 0.0.1 | The Website Exists Now! (wo)<a class="link" onclick="linkTo('0.0.1')" title="Copy link">⎋</a></h2>
+	<h2>Version 0.0.1 | The Website Exists Now! (wo)<a class="link" data-link-to="0.0.1" title="Copy link">⎋</a></h2>
     <ul>
 		<li>JukeBox GitHub Initial Release</li>
 		<li>Patch Notes Imported from <span class=lemon>LemmBox</span></li>
@@ -705,7 +680,7 @@ h5 {
 </article>
 
 <article id="0.0.0">
-	<h2>Version 0.0.0 | testing testing 123<a class="link" onclick="linkTo('0.0.0')" title="Copy link">⎋</a></h2>
+	<h2>Version 0.0.0 | testing testing 123<a class="link" data-link-to="0.0.0" title="Copy link">⎋</a></h2>
     <ul>
 		<li>JukeBox Netlify Initial Release</li>
     </ul>
@@ -747,6 +722,9 @@ h5 {
 
 <div id="popup">Link to patch note is now copied!</div>
 
-
+</main>
+<footer>
+    <p class="footertext">JukeBox — <a href="https://jukeebox.github.io">Home</a></p>
+</footer>
 </body>
 </html>
