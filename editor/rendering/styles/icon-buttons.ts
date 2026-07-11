@@ -37,6 +37,9 @@ export function buildIconButtonsCSS(): string {
 	height: 1em;
 	font-size: smaller;
 }
+.beepboxEditor .tip.tip-sm {
+	font-size: smaller;
+}
 
 .beepboxEditor .volume-speaker {
 	flex-shrink: 0;

@@ -1367,7 +1367,7 @@ export class SongEditor
 			() => {
 				this._openPrompt("spectrum");
 			},
-			{ style: "font-size: smaller" },
+			{ class: "tip-sm" },
 		),
 		this._spectrumZoom,
 		this._spectrumEditor.container,
@@ -1389,7 +1389,7 @@ export class SongEditor
 			() => {
 				this._openPrompt("harmonics");
 			},
-			{ style: "font-size: smaller" },
+			{ class: "tip-sm" },
 		),
 		this._harmonicsZoom,
 		this._harmonicsEditor.container,
