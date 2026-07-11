@@ -115,6 +115,9 @@ All 12 types verified via encode→decode→type-preservation.
 | `editor/song-editor.ts` | `tests/dom-hooks.test.ts` | Grid layout class literals: pattern-area, song-settings-area, instrument-settings-area, trackAndMuteContainer |
 | `editor/components/bar-scroll-bar.ts` | `tests/dom-hooks.test.ts` | Source literal `"barScrollBar"` class declaration |
 | `editor/components/track-editor.ts` | `tests/dom-hooks.test.ts` | Source literal `"noSelection"` class declaration |
+| `editor/components/harmonics-editor.ts`, `editor/components/spectrum-editor.ts`, `editor/prompts/custom-filter-prompt.ts` | `tests/prompt-shell-contract.test.ts` | Standard prompt titlebar and button-row structure |
+| `editor/components/filter-editor.ts`, `editor/components/harmonics-editor.ts`, `editor/components/spectrum-editor.ts` | `tests/svg-editor-rect-contract.test.ts` | Fresh SVG geometry on press, release invalidation, and safe hover recapture |
+| `editor/components/harmonics-editor.ts`, `editor/components/spectrum-editor.ts`, `editor/prompts/custom-chip-prompt.ts`, `editor/prompts/custom-filter-prompt.ts`, `editor/prompts/limiter-prompt.ts` | `tests/svg-prompt-transaction-contract.test.ts` | Idempotent discard on close and cleanup, opening-state restoration, and save-before-close ordering |
 | `player/player-ui.ts` | `tests/dom-hooks.test.ts` | Player root and element class literals: pm-player, pm-player-spectrum, pm-player-play-btn, pm-player-timeline, pm-player-playhead, pm-player-control-bar, pm-player-viz-container, body append |
 
 **Untested editor modules:** All `editor/core/`, `editor/changes/`,

@@ -35,12 +35,44 @@ export function buildFilterEditorsCSS(): string {
 	width: var(--input-width-sm, 86px);
 }
 
-.beepboxEditor .iconBtnSm.marginRight {
-	margin-right: 5px;
+.beepboxEditor .iconBtnContainer {
+	display: flex;
+	gap: 5px;
+	width: 185px;
 }
 
-.beepboxEditor .iconBtnContainer {
-	width: 185px;
+.beepboxEditor .promptCopyPasteActions {
+	display: flex;
+	gap: 5px;
+	width: max-content;
+}
+
+.beepboxEditor .promptCopyPasteButton {
+	display: inline-flex;
+	align-items: center;
+	gap: 4px;
+	width: max-content;
+	height: 26px;
+	padding: 0 var(--padding-12);
+}
+
+.beepboxEditor .customFilterPrompt {
+	box-sizing: border-box;
+	width: 500px;
+	max-width: calc(100vw - 24px);
+}
+
+.beepboxEditor .graphEditorPrompt {
+	box-sizing: border-box;
+	width: 500px;
+	max-width: calc(100vw - 24px);
+}
+
+.beepboxEditor .graphEditorPrompt .harmonics,
+.beepboxEditor .graphEditorPrompt .spectrum {
+	width: 100%;
+	aspect-ratio: 120 / 26;
+	height: auto !important;
 }
 
 .beepboxEditor .iconBtnSvgOverlay {

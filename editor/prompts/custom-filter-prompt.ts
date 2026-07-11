@@ -23,6 +23,8 @@ import { updatePlayButton } from "./input-helpers";
 const { button, div, h2, p } = HTML;
 
 export class CustomFilterPrompt extends BasePrompt {
+	private _saved: boolean = false;
+	private _restored: boolean = false;
 	public filterEditor: FilterEditor;
 	public filterData: FilterSettings = new FilterSettings();
 	public startingFilterData: FilterSettings = new FilterSettings();
@@ -37,13 +39,12 @@ export class CustomFilterPrompt extends BasePrompt {
 	});
 	private readonly _filterCopyButton: HTMLButtonElement = button(
 		{
-			class: "iconBtnSm marginRight copyButton",
+			class: "iconBtnSm promptCopyPasteButton copyButton",
 		},
 		[
-			"Copy",
 			SVG.svg(
 				{
-					class: "iconBtnSvgOverlay",
+					style: "flex-shrink: 0; pointer-events: none;",
 					width: Sizing.iconMd,
 					height: Sizing.iconMd,
 					viewBox: "0 0 24 24",
@@ -67,15 +68,15 @@ export class CustomFilterPrompt extends BasePrompt {
 					}),
 				],
 			),
+			"Copy",
 		],
 	);
 	private readonly _filterPasteButton: HTMLButtonElement = button(
-		{ class: "iconBtnSm pasteButton" },
+		{ class: "iconBtnSm promptCopyPasteButton pasteButton" },
 		[
-			"Paste",
 			SVG.svg(
 				{
-					class: "iconBtnSvgOverlay",
+					style: "flex-shrink: 0; pointer-events: none;",
 					width: Sizing.iconMd,
 					height: Sizing.iconMd,
 					viewBox: "0 0 24 24",
@@ -107,10 +108,11 @@ export class CustomFilterPrompt extends BasePrompt {
 					}),
 				],
 			),
+			"Paste",
 		],
 	);
 	private readonly _filterCopyPasteContainer: HTMLDivElement = div(
-		{ class: "iconBtnContainer" },
+		{ class: "promptCopyPasteActions" },
 		this._filterCopyButton,
 		this._filterPasteButton,
 	);
@@ -162,7 +164,7 @@ export class CustomFilterPrompt extends BasePrompt {
 
 		const titleH2 = this.container.querySelector("h2");
 		if (titleH2) {
-			titleH2.innerHTML = forSong
+			titleH2.textContent = forSong
 				? "Edit Song EQ Filter"
 				: _useNoteFilter
 					? "Edit Note Filter"
@@ -230,8 +232,12 @@ export class CustomFilterPrompt extends BasePrompt {
 		const filterCopy: FilterSettings = new FilterSettings();
 		const stored = window.localStorage.getItem("filterCopy");
 		if (stored) {
-			filterCopy.fromJsonObject(JSON.parse(stored));
-			this.filterEditor.swapToSettings(filterCopy, true);
+			try {
+				filterCopy.fromJsonObject(JSON.parse(stored));
+				this.filterEditor.swapToSettings(filterCopy, true);
+			} catch (error) {
+				console.error("Could not paste filter settings.", error);
+			}
 		}
 	};
 
@@ -240,12 +246,27 @@ export class CustomFilterPrompt extends BasePrompt {
 		updatePlayButton(this._playButton, this._doc.synth.playing);
 	};
 
-	protected override _close = (): void => {
+	public override discard(): void {
+		this._restoreOpeningState();
+	}
+
+	private _restoreOpeningState(): void {
+		if (this._saved || this._restored) return;
+		this._restored = true;
 		this.filterEditor.resetToInitial();
-		this._doc.prompt = null;
+	}
+
+	protected override _close = (): void => {
+		this._restoreOpeningState();
+		if (this.closeCallback) {
+			this.closeCallback(this);
+		} else {
+			this._doc.prompt = null;
+		}
 	};
 
 	public override cleanUp(): void {
+		this._restoreOpeningState();
 		super.cleanUp();
 		this._playButton.removeEventListener("click", this._togglePlay);
 		this._filterCopyButton.removeEventListener("click", this._copyFilterSettings);
@@ -281,7 +302,8 @@ export class CustomFilterPrompt extends BasePrompt {
 	};
 
 	protected override _saveChanges(): void {
-		this._doc.prompt = null;
+		this._saved = true;
 		this.filterEditor.saveSettings();
+		this._doc.prompt = null;
 	}
 }

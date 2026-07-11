@@ -35,10 +35,9 @@
 //   .promptContainer > .prompt (variant classes per factory)
 //   Standard prompts: .prompt > .prompt-titlebar > [shadeButton] h2
 //   [cancelButton], then factory content (form rows, hints, button
-//   rows). The titlebar is built by BasePrompt.buildTitlebar.
-//   Some prompts (e.g. spectrum-editor, harmonics-editor) place h2
-//   and cancelButton as direct children without a titlebar wrapper.
-// Factories hand-build the .prompt div; no shared shell helper exists.
+//   rows). BasePrompt.buildTitlebar and buildPromptTitlebar create
+//   the shared titlebar for class-based and component-owned prompts.
+// Factories hand-build the .prompt div and use the shared titlebar builder.
 //
 // Reduced motion: prompt lifecycle animations collapse to 0.01ms
 // (see animations.ts) so animationend cleanup still fires.

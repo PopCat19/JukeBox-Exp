@@ -265,6 +265,7 @@ export class PromptManager {
 		if (prompt) {
 			const index = this._prompts.indexOf(prompt);
 			if (index !== -1) {
+				prompt.discard();
 				this._prompts.splice(index, 1);
 				this._dock.remove(prompt);
 				this._popout.closeWindow(prompt);

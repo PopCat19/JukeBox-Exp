@@ -337,12 +337,14 @@ export class CustomChipPromptCanvas {
 
 export class CustomChipPrompt extends BasePrompt {
 	public customChipCanvas: CustomChipPromptCanvas = new CustomChipPromptCanvas(this._doc);
+	private _saved: boolean = false;
+	private _restored: boolean = false;
 
 	public readonly _playButton: HTMLButtonElement = button({ class: "play55Btn", type: "button" });
 
 	private readonly copyButton: HTMLButtonElement = button(
 		{
-			class: "iconBtnSm marginRight copyButton",
+			class: "iconBtnSm copyButton",
 		},
 		[
 			"Copy",
@@ -454,7 +456,29 @@ export class CustomChipPrompt extends BasePrompt {
 		updatePlayButton(this._playButton, this._doc.synth.playing);
 	};
 
+	public override discard(): void {
+		this._restoreOpeningState();
+	}
+
+	private _restoreOpeningState(): void {
+		if (this._saved || this._restored) return;
+		this._restored = true;
+		this.customChipCanvas.chipData = this.customChipCanvas.startingChipData.slice();
+		new ChangeCustomWave(this._doc, this.customChipCanvas.chipData);
+		this.customChipCanvas.render();
+	}
+
+	protected override _close = (): void => {
+		this._restoreOpeningState();
+		if (this.closeCallback) {
+			this.closeCallback(this);
+		} else {
+			this._doc.prompt = null;
+		}
+	};
+
 	public override cleanUp(): void {
+		this._restoreOpeningState();
 		super.cleanUp();
 		this.customChipCanvas.cleanUp();
 		this._playButton.removeEventListener("click", this._togglePlay);
@@ -468,12 +492,21 @@ export class CustomChipPrompt extends BasePrompt {
 	};
 
 	private _pasteSettings = (): void => {
-		const storedChipWave: any = JSON.parse(String(window.localStorage.getItem("chipCopy")));
-		for (let i: number = 0; i < 64; i++) {
-			this.customChipCanvas.chipData[i] = storedChipWave[i];
+		try {
+			const storedChipWave: unknown = JSON.parse(
+				String(window.localStorage.getItem("chipCopy")),
+			);
+			if (!Array.isArray(storedChipWave) || storedChipWave.length < 64) return;
+			for (let i: number = 0; i < 64; i++) {
+				const value = storedChipWave[i];
+				if (typeof value !== "number") return;
+				this.customChipCanvas.chipData[i] = value;
+			}
+			this.customChipCanvas._storeChange();
+			new ChangeCustomWave(this._doc, this.customChipCanvas.chipData);
+		} catch (error) {
+			console.error("Could not paste custom chip settings.", error);
 		}
-		this.customChipCanvas._storeChange();
-		new ChangeCustomWave(this._doc, this.customChipCanvas.chipData);
 	};
 
 	public override whenKeyPressed = (event: KeyboardEvent): void => {
@@ -491,8 +524,9 @@ export class CustomChipPrompt extends BasePrompt {
 	};
 
 	protected override _saveChanges(): void {
-		this._doc.prompt = null;
+		this._saved = true;
 		new ChangeCustomWave(this._doc, this.customChipCanvas.startingChipData);
 		this._doc.record(new ChangeCustomWave(this._doc, this.customChipCanvas.chipData));
+		this._doc.prompt = null;
 	}
 }

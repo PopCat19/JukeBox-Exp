@@ -46,7 +46,7 @@ describe("editor and prompt DOM hooks", () => {
 	});
 
 	test("prompt structural and lifecycle hooks stay declared", () => {
-		assertLiteral("editor/components/spectrum-editor.ts", '"prompt noSelection"');
+		assertLiteral("editor/components/spectrum-editor.ts", '"prompt graphEditorPrompt noSelection"');
 		assertLiteral("editor/core/prompt-manager.ts", 'classList.add("entering")');
 		assertLiteral("editor/core/prompt-manager.ts", 'classList.add("exiting")');
 		assertLiteral("editor/core/prompt-manager.ts", 'classList.add("focused")');

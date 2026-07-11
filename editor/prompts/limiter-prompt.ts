@@ -389,6 +389,8 @@ export class LimiterCanvas {
 }
 
 export class LimiterPrompt extends BasePrompt {
+	private _saved: boolean = false;
+	private _restored: boolean = false;
 	private limiterCanvas: LimiterCanvas = new LimiterCanvas(this);
 
 	public readonly _playButton: HTMLButtonElement = button({ style: w("55%"), type: "button" });
@@ -658,7 +660,13 @@ export class LimiterPrompt extends BasePrompt {
 		this._updateLimiter();
 	};
 
-	protected override _close = (): void => {
+	public override discard(): void {
+		this._restoreOpeningState();
+	}
+
+	private _restoreOpeningState(): void {
+		if (this._saved || this._restored) return;
+		this._restored = true;
 		this.limitRatioSlider.value = `${this.startingLimitRatio}`;
 		this.compressionRatioSlider.value = `${this.startingCompressionRatio}`;
 		this.limitThresholdSlider.value = `${this.startingLimitThreshold}`;
@@ -668,10 +676,19 @@ export class LimiterPrompt extends BasePrompt {
 		this.masterGainSlider.value = `${this.startingMasterGain}`;
 
 		this._updateLimiter();
-		this._doc.prompt = null;
+	}
+
+	protected override _close = (): void => {
+		this._restoreOpeningState();
+		if (this.closeCallback) {
+			this.closeCallback(this);
+		} else {
+			this._doc.prompt = null;
+		}
 	};
 
 	public override cleanUp(): void {
+		this._restoreOpeningState();
 		super.cleanUp();
 		this._resetButton.removeEventListener("click", this._resetDefaults);
 		this.container.removeEventListener("keydown", this.whenKeyPressed);
@@ -714,28 +731,26 @@ export class LimiterPrompt extends BasePrompt {
 		}
 	};
 
-	private _updateLimiter = (): void => {
-		this._doc.record(
-			new ChangeLimiterSettings(
-				this._doc,
-				+this.limitRatioSlider.value < 10
-					? +this.limitRatioSlider.value / 10
-					: +this.limitRatioSlider.value - 9,
-				+this.compressionRatioSlider.value < 10
-					? +this.compressionRatioSlider.value / 10
-					: 1 + (+this.compressionRatioSlider.value - 10) / 60,
-				+this.limitThresholdSlider.value,
-				+this.compressionThresholdSlider.value,
-				+this.limitRiseSlider.value,
-				+this.limitDecaySlider.value,
-				+this.masterGainSlider.value,
-			),
-			true,
+	private _updateLimiter = (): ChangeLimiterSettings => {
+		return new ChangeLimiterSettings(
+			this._doc,
+			+this.limitRatioSlider.value < 10
+				? +this.limitRatioSlider.value / 10
+				: +this.limitRatioSlider.value - 9,
+			+this.compressionRatioSlider.value < 10
+				? +this.compressionRatioSlider.value / 10
+				: 1 + (+this.compressionRatioSlider.value - 10) / 60,
+			+this.limitThresholdSlider.value,
+			+this.compressionThresholdSlider.value,
+			+this.limitRiseSlider.value,
+			+this.limitDecaySlider.value,
+			+this.masterGainSlider.value,
 		);
 	};
 
 	protected override _saveChanges(): void {
-		this._updateLimiter();
+		this._saved = true;
+		this._doc.record(this._updateLimiter(), true);
 		this._doc.prompt = null;
 	}
 }

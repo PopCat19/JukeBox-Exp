@@ -17,10 +17,11 @@ import { ChangeSpectrum } from "../changes";
 import { prettyNumber } from "../config/editor-config";
 import { ChangeGroup } from "../core/change";
 import type { PromptEditorRefs } from "../core/prompt-manager";
+import { buildPromptTitlebar } from "../prompts/base-prompt";
 import { closePrompt, updatePlayButton } from "../prompts/input-helpers";
 import type { Prompt } from "../prompts/prompt";
 import type { SongDocument } from "../song-document";
-import { selectorButton } from "../ui";
+import { actionButton, selectorButton } from "../ui";
 
 export class SpectrumEditor {
 	private readonly _editorWidth: number = 120;
@@ -75,6 +76,7 @@ export class SpectrumEditor {
 
 	private _undoHistoryState: number = 0;
 	private _changeQueue: number[][] = [];
+	private readonly _initialSpectrum: number[];
 
 	private _doc: SongDocument;
 
@@ -85,6 +87,7 @@ export class SpectrumEditor {
 	) {
 		this._doc = _doc;
 		this.instrument = this._doc.getCurrentInstrumentObj();
+		this._initialSpectrum = this.getSpectrumWave().spectrum.slice();
 		// this._initial.spectrum = this._spectrumIndex == null ? this.instrument.spectrumWave.spectrum.slice() : this.instrument.drumsetSpectrumWaves[this._spectrumIndex].spectrum.slice();
 		for (
 			let i: number = 0;
@@ -193,7 +196,7 @@ export class SpectrumEditor {
 	private _whenMousePressed = (event: MouseEvent): void => {
 		event.preventDefault();
 		this._mouseDown = true;
-		if (!this._svgRect) this._svgRect = this._svg.getBoundingClientRect();
+		this._svgRect = this._svg.getBoundingClientRect();
 		const boundingRect: DOMRect = this._svgRect;
 		this._mouseX =
 			(((event.clientX || event.pageX) - boundingRect.left) * this._editorWidth) /
@@ -212,7 +215,7 @@ export class SpectrumEditor {
 	private _whenTouchPressed = (event: TouchEvent): void => {
 		event.preventDefault();
 		this._mouseDown = true;
-		if (!this._svgRect) this._svgRect = this._svg.getBoundingClientRect();
+		this._svgRect = this._svg.getBoundingClientRect();
 		const boundingRect: DOMRect = this._svgRect;
 		this._mouseX =
 			((event.touches[0].clientX - boundingRect.left) * this._editorWidth) /
@@ -299,6 +302,7 @@ export class SpectrumEditor {
 	}
 
 	private _whenCursorReleased = (_event: Event): void => {
+		this._svgRect = null;
 		if (this._mouseDown) {
 			if (!this._isPrompt) {
 				this._doc.record(this._change!);
@@ -361,7 +365,8 @@ export class SpectrumEditor {
 		}
 	}
 
-	public resetToInitial() {
+	public resetToInitial(): void {
+		this.setSpectrumWave(this._initialSpectrum);
 		this._changeQueue = [];
 		this._undoHistoryState = 0;
 	}
@@ -464,15 +469,11 @@ export class SpectrumEditorPrompt implements Prompt {
 	});
 
 	private readonly _cancelButton: HTMLButtonElement = HTML.button({ class: "cancelButton" });
-	private readonly _okayButton: HTMLButtonElement = HTML.button(
-		{ class: "okayButton", style: "width:45%;" },
-		"Okay",
-	);
+	private readonly _okayButton: HTMLButtonElement = actionButton("Commit");
 
 	private readonly copyButton: HTMLButtonElement = HTML.button(
 		{
-			style: `width:${Sizing.inputSm}; margin-right: 5px;`,
-			class: "copyButton",
+			class: "iconBtnSm promptCopyPasteButton copyButton",
 		},
 		[
 			// Copy icon:
@@ -506,7 +507,7 @@ export class SpectrumEditorPrompt implements Prompt {
 		],
 	);
 	private readonly pasteButton: HTMLButtonElement = HTML.button(
-		{ style: `width:${Sizing.inputSm};`, class: "pasteButton" },
+		{ class: "iconBtnSm promptCopyPasteButton pasteButton" },
 		[
 			// Paste icon:
 			SVG.svg(
@@ -547,12 +548,12 @@ export class SpectrumEditorPrompt implements Prompt {
 		],
 	);
 	private readonly copyPasteContainer: HTMLDivElement = HTML.div(
-		{ style: "width: 185px;" },
+		{ class: "promptCopyPasteActions" },
 		this.copyButton,
 		this.pasteButton,
 	);
 	public readonly container: HTMLDivElement = HTML.div(
-		{ class: "prompt noSelection", style: "width: 500px;" },
+		{ class: "prompt graphEditorPrompt noSelection" },
 		HTML.h2("Edit Spectrum Instrument"),
 		HTML.div(
 			{
@@ -567,13 +568,7 @@ export class SpectrumEditorPrompt implements Prompt {
 			},
 			this.spectrumEditor.container,
 		),
-		HTML.div(
-			{
-				style: "display: flex; flex-direction: row-reverse; justify-content: space-between;",
-			},
-			this._okayButton,
-			this.copyPasteContainer,
-		),
+		HTML.div({ class: "prompt-button-row" }, this._okayButton, this.copyPasteContainer),
 		this._cancelButton,
 	);
 
@@ -588,6 +583,7 @@ export class SpectrumEditorPrompt implements Prompt {
 		this.copyButton.addEventListener("click", this._copySettings);
 		this.pasteButton.addEventListener("click", this._pasteSettings);
 		this._playButton.addEventListener("click", this._togglePlay);
+		buildPromptTitlebar(this.container);
 		this.container.addEventListener("mousemove", () => {
 			this.spectrumEditor.render();
 			this.spectrumEditors[this._drumsetSpectrumIndex].setSpectrumWave(
@@ -685,7 +681,21 @@ export class SpectrumEditorPrompt implements Prompt {
 		updatePlayButton(this._playButton, this._doc.synth.playing);
 	}
 
+	private _saved: boolean = false;
+	private _restored: boolean = false;
+
+	public discard(): void {
+		this._restoreOpeningState();
+	}
+
+	private _restoreOpeningState(): void {
+		if (this._saved || this._restored) return;
+		this._restored = true;
+		for (const editor of this.spectrumEditors) editor.resetToInitial();
+	}
+
 	private _close = (): void => {
+		this._restoreOpeningState();
 		closePrompt(this._doc, this.closeCallback, this);
 	};
 
@@ -756,6 +766,7 @@ export class SpectrumEditorPrompt implements Prompt {
 	}
 
 	public cleanUp = (): void => {
+		this._restoreOpeningState();
 		this._okayButton.removeEventListener("click", this._saveChanges);
 		this._cancelButton.removeEventListener("click", this._close);
 		this.container.removeEventListener("keydown", this.whenKeyPressed);
@@ -771,10 +782,14 @@ export class SpectrumEditorPrompt implements Prompt {
 	};
 
 	private _pasteSettings = (): void => {
-		const storedSpectrumWave: number[] = JSON.parse(
-			String(window.localStorage.getItem("spectrumCopy")),
-		);
-		this.spectrumEditor.setSpectrumWave(storedSpectrumWave);
+		try {
+			const storedSpectrumWave: number[] = JSON.parse(
+				String(window.localStorage.getItem("spectrumCopy")),
+			);
+			this.spectrumEditor.setSpectrumWave(storedSpectrumWave);
+		} catch (error) {
+			console.warn("Could not paste spectrum settings.", error);
+		}
 	};
 
 	public whenKeyPressed = (event: KeyboardEvent): void => {
@@ -790,7 +805,7 @@ export class SpectrumEditorPrompt implements Prompt {
 	};
 
 	private _saveChanges = (): void => {
-		// Save again just in case
+		this._saved = true;
 		const group: ChangeGroup = new ChangeGroup();
 		for (let i = 0; i < this.spectrumEditors.length; i++) {
 			group.append(this.spectrumEditors[i].saveSettings());

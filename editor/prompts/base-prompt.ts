@@ -17,6 +17,51 @@ import type { Prompt } from "./prompt";
 
 const { div } = HTML;
 
+export function buildPromptTitlebar(container: HTMLElement): void {
+	if (container.querySelector(".prompt-titlebar")) return;
+
+	const h2El: HTMLElement | null = container.querySelector("h2");
+	if (!h2El) {
+		const shadeBtn: HTMLButtonElement = iconButton("shadeButton", { type: "button" });
+		container.appendChild(shadeBtn);
+		shadeBtn.addEventListener("click", (event: Event) => {
+			event.stopPropagation();
+			container.classList.toggle("shaded");
+		});
+		return;
+	}
+
+	const titlebar = div({ class: "prompt-titlebar" });
+	const shadeBtn: HTMLButtonElement = iconButton("shadeButton", { type: "button" });
+	const cancelButton = container.querySelector(".cancelButton");
+	if (cancelButton) cancelButton.remove();
+
+	h2El.remove();
+	container.insertBefore(titlebar, container.firstChild);
+	titlebar.appendChild(shadeBtn);
+	titlebar.appendChild(h2El);
+	if (cancelButton) titlebar.appendChild(cancelButton);
+
+	let dragMoved = false;
+	const toggleShade = (): void => {
+		if (!dragMoved) container.classList.toggle("shaded");
+		dragMoved = false;
+	};
+	shadeBtn.addEventListener("click", (event: Event) => {
+		event.stopPropagation();
+		toggleShade();
+	});
+	h2El.addEventListener("click", () => {
+		if (container.classList.contains("shaded")) toggleShade();
+	});
+	container.addEventListener("mousedown", () => {
+		dragMoved = false;
+	});
+	container.addEventListener("mousemove", (event: Event) => {
+		if ((event as MouseEvent).buttons) dragMoved = true;
+	});
+}
+
 export abstract class BasePrompt implements Prompt {
 	private static _nextId: number = 0;
 	public readonly id: number = BasePrompt._nextId++;
@@ -42,6 +87,8 @@ export abstract class BasePrompt implements Prompt {
 			this._doc.prompt = null;
 		}
 	};
+
+	public discard(): void {}
 
 	public cleanUp(): void {
 		this._okayButton.removeEventListener("click", this._onOkayClick);
@@ -102,51 +149,7 @@ export abstract class BasePrompt implements Prompt {
 	}
 
 	public buildTitlebar(): void {
-		if (this.container.querySelector(".prompt-titlebar")) return;
-
-		const h2El: HTMLElement | null = this.container.querySelector("h2");
-
-		if (h2El) {
-			const titlebar = div({ class: "prompt-titlebar" });
-			const shadeBtn: HTMLButtonElement = iconButton("shadeButton", { type: "button" });
-
-			const cancelButton = this.container.querySelector(".cancelButton");
-			if (cancelButton) cancelButton.remove();
-
-			h2El.remove();
-			this.container.insertBefore(titlebar, this.container.firstChild);
-			titlebar.appendChild(shadeBtn);
-			titlebar.appendChild(h2El);
-			if (cancelButton) titlebar.appendChild(cancelButton);
-
-			let dragMoved = false;
-			const toggleShade = (): void => {
-				if (!dragMoved) this.container.classList.toggle("shaded");
-				dragMoved = false;
-			};
-			shadeBtn.addEventListener("click", (e: Event) => {
-				e.stopPropagation();
-				toggleShade();
-			});
-			h2El.addEventListener("click", () => {
-				if (this.container.classList.contains("shaded")) {
-					toggleShade();
-				}
-			});
-			this.container.addEventListener("mousedown", () => {
-				dragMoved = false;
-			});
-			this.container.addEventListener("mousemove", (e: Event) => {
-				if ((e as MouseEvent).buttons) dragMoved = true;
-			});
-		} else {
-			const shadeBtn: HTMLButtonElement = iconButton("shadeButton", { type: "button" });
-			this.container.appendChild(shadeBtn);
-			shadeBtn.addEventListener("click", (e: Event) => {
-				e.stopPropagation();
-				this.container.classList.toggle("shaded");
-			});
-		}
+		buildPromptTitlebar(this.container);
 	}
 
 	public animateExit(callback: () => void): void {

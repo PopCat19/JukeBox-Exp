@@ -16,10 +16,11 @@ import { Config } from "../../synth/synth-config";
 import { ChangeHarmonics } from "../changes";
 import { prettyNumber } from "../config/editor-config";
 import type { PromptEditorRefs } from "../core/prompt-manager";
+import { buildPromptTitlebar } from "../prompts/base-prompt";
 import { closePrompt, updatePlayButton } from "../prompts/input-helpers";
 import type { Prompt } from "../prompts/prompt";
 import type { SongDocument } from "../song-document";
-import { flexRowCenter } from "../ui";
+import { actionButton, flexRowCenter } from "../ui";
 
 export class HarmonicsEditor {
 	private readonly _editorWidth: number = 120;
@@ -68,12 +69,14 @@ export class HarmonicsEditor {
 
 	private _undoHistoryState: number = 0;
 	private _changeQueue: number[][] = [];
+	private readonly _initialHarmonics: number[];
 
 	constructor(
 		private _doc: SongDocument,
 		private _isPrompt: boolean = false,
 	) {
 		this.instrument = this._doc.getCurrentInstrumentObj();
+		this._initialHarmonics = this.instrument.harmonicsWave.harmonics.slice();
 
 		for (let i: number = 1; i <= Config.harmonicsControlPoints; i = i * 2) {
 			this._octaves.appendChild(
@@ -191,7 +194,7 @@ export class HarmonicsEditor {
 	private _whenMousePressed = (event: MouseEvent): void => {
 		event.preventDefault();
 		this._mouseDown = true;
-		if (!this._svgRect) this._svgRect = this._svg.getBoundingClientRect();
+		this._svgRect = this._svg.getBoundingClientRect();
 		const boundingRect: DOMRect = this._svgRect;
 		this._mouseX =
 			(((event.clientX || event.pageX) - boundingRect.left) * this._editorWidth) /
@@ -210,7 +213,7 @@ export class HarmonicsEditor {
 	private _whenTouchPressed = (event: TouchEvent): void => {
 		event.preventDefault();
 		this._mouseDown = true;
-		if (!this._svgRect) this._svgRect = this._svg.getBoundingClientRect();
+		this._svgRect = this._svg.getBoundingClientRect();
 		const boundingRect: DOMRect = this._svgRect;
 		this._mouseX =
 			((event.touches[0].clientX - boundingRect.left) * this._editorWidth) /
@@ -296,6 +299,7 @@ export class HarmonicsEditor {
 	}
 
 	private _whenCursorReleased = (_event: Event): void => {
+		this._svgRect = null;
 		if (this._mouseDown) {
 			if (!this._isPrompt) {
 				this._doc.record(this._change!);
@@ -332,7 +336,8 @@ export class HarmonicsEditor {
 		return new ChangeHarmonics(this._doc, instrument, instrument.harmonicsWave);
 	}
 
-	public resetToInitial() {
+	public resetToInitial(): void {
+		this.setHarmonicsWave(this._initialHarmonics);
 		this._changeQueue = [];
 		this._undoHistoryState = 0;
 	}
@@ -387,15 +392,11 @@ export class HarmonicsEditorPrompt implements Prompt {
 	});
 
 	private readonly _cancelButton: HTMLButtonElement = HTML.button({ class: "cancelButton" });
-	private readonly _okayButton: HTMLButtonElement = HTML.button(
-		{ class: "okayButton", style: "width:45%;" },
-		"Okay",
-	);
+	private readonly _okayButton: HTMLButtonElement = actionButton("Commit");
 
 	private readonly copyButton: HTMLButtonElement = HTML.button(
 		{
-			style: `width:${Sizing.inputSm}; margin-right: 5px;`,
-			class: "copyButton",
+			class: "iconBtnSm promptCopyPasteButton copyButton",
 		},
 		[
 			// Copy icon:
@@ -429,7 +430,7 @@ export class HarmonicsEditorPrompt implements Prompt {
 		],
 	);
 	private readonly pasteButton: HTMLButtonElement = HTML.button(
-		{ style: `width:${Sizing.inputSm};`, class: "pasteButton" },
+		{ class: "iconBtnSm promptCopyPasteButton pasteButton" },
 		[
 			// Paste icon:
 			SVG.svg(
@@ -470,12 +471,12 @@ export class HarmonicsEditorPrompt implements Prompt {
 		],
 	);
 	private readonly copyPasteContainer: HTMLDivElement = HTML.div(
-		{ style: "width: 185px;" },
+		{ class: "promptCopyPasteActions" },
 		this.copyButton,
 		this.pasteButton,
 	);
 	public readonly container: HTMLDivElement = HTML.div(
-		{ class: "prompt noSelection", style: "width: 500px;" },
+		{ class: "prompt graphEditorPrompt noSelection" },
 		HTML.h2("Edit Harmonics Instrument"),
 		HTML.div(
 			{
@@ -484,13 +485,7 @@ export class HarmonicsEditorPrompt implements Prompt {
 			this._playButton,
 		),
 		flexRowCenter(undefined, this.harmonicsEditor.container),
-		HTML.div(
-			{
-				style: "display: flex; flex-direction: row-reverse; justify-content: space-between;",
-			},
-			this._okayButton,
-			this.copyPasteContainer,
-		),
+		HTML.div({ class: "prompt-button-row" }, this._okayButton, this.copyPasteContainer),
 		this._cancelButton,
 	);
 
@@ -504,6 +499,7 @@ export class HarmonicsEditorPrompt implements Prompt {
 		this.copyButton.addEventListener("click", this._copySettings);
 		this.pasteButton.addEventListener("click", this._pasteSettings);
 		this._playButton.addEventListener("click", this._togglePlay);
+		buildPromptTitlebar(this.container);
 
 		this.updatePlayButton();
 
@@ -523,7 +519,21 @@ export class HarmonicsEditorPrompt implements Prompt {
 		updatePlayButton(this._playButton, this._doc.synth.playing);
 	}
 
+	private _saved: boolean = false;
+	private _restored: boolean = false;
+
+	public discard(): void {
+		this._restoreOpeningState();
+	}
+
+	private _restoreOpeningState(): void {
+		if (this._saved || this._restored) return;
+		this._restored = true;
+		this.harmonicsEditor.resetToInitial();
+	}
+
 	private _close = (): void => {
+		this._restoreOpeningState();
 		closePrompt(this._doc, this.closeCallback, this);
 	};
 
@@ -570,6 +580,7 @@ export class HarmonicsEditorPrompt implements Prompt {
 	}
 
 	public cleanUp = (): void => {
+		this._restoreOpeningState();
 		this._okayButton.removeEventListener("click", this._saveChanges);
 		this._cancelButton.removeEventListener("click", this._close);
 		this.container.removeEventListener("keydown", this.whenKeyPressed);
@@ -585,11 +596,15 @@ export class HarmonicsEditorPrompt implements Prompt {
 	};
 
 	private _pasteSettings = (): void => {
-		const storedHarmonicsWave: number[] = JSON.parse(
-			String(window.localStorage.getItem("harmonicsCopy")),
-		);
-		this.harmonicsEditor.setHarmonicsWave(storedHarmonicsWave);
-		this.harmonicsEditor.storeChange();
+		try {
+			const storedHarmonicsWave: number[] = JSON.parse(
+				String(window.localStorage.getItem("harmonicsCopy")),
+			);
+			this.harmonicsEditor.setHarmonicsWave(storedHarmonicsWave);
+			this.harmonicsEditor.storeChange();
+		} catch (error) {
+			console.warn("Could not paste harmonics settings.", error);
+		}
 	};
 
 	public whenKeyPressed = (event: KeyboardEvent): void => {
@@ -605,7 +620,7 @@ export class HarmonicsEditorPrompt implements Prompt {
 	};
 
 	private _saveChanges = (): void => {
-		this._doc.prompt = null;
+		this._saved = true;
 		this._doc.record(this.harmonicsEditor.saveSettings(), true);
 		this._doc.prompt = null;
 	};

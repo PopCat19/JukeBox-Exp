@@ -13,6 +13,7 @@ export interface Prompt {
 	id: number;
 	container: HTMLElement;
 	cleanUp: () => void;
+	discard: () => void;
 	buildTitlebar?: (() => void) | undefined;
 	whenKeyPressed?: ((event: KeyboardEvent) => void) | undefined;
 	gotMouseUp?: boolean | undefined;

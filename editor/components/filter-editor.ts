@@ -37,6 +37,8 @@ export class FilterEditor {
 	// private readonly _octaves: SVGSVGElement = SVG.svg({"pointer-events": "none", overflow: "visible"});
 	private _indicators: SVGTextElement[] = [];
 	private _subFilters: FilterSettings[] = [];
+	private _initialFilterSettings: FilterSettings | null = null;
+	private _initialSubFilters: (FilterSettings | null)[] = [];
 	private _writingMods: boolean = false;
 	private readonly _controlPointPath: SVGPathElement = SVG.path({
 		fill: "currentColor",
@@ -143,7 +145,7 @@ export class FilterEditor {
 				"color",
 				ColorConfig.getChannelColor(this._doc.song, this._doc.channel).primaryNote,
 			);
-			this.container.style.setProperty("width", "85%");
+			this.container.style.setProperty("width", "100%");
 			this._highlight.setAttribute("r", "20");
 			this._controlPointPath.setAttribute(
 				"fill",
@@ -178,6 +180,15 @@ export class FilterEditor {
 				filterSettings = this._useNoteFilter ? instrument.noteFilter : instrument.eqFilter;
 			}
 			this.selfUndoSettings.push(JSON.stringify(filterSettings.toJsonObject()));
+			this._initialFilterSettings = this._copyFilter(filterSettings);
+			const targetSubFilters = this._forSong
+				? this._doc.song.eqSubFilters
+				: this._useNoteFilter
+					? instrument.noteSubFilters
+					: instrument.eqSubFilters;
+			this._initialSubFilters = targetSubFilters.map((filter) =>
+				filter == null ? null : this._copyFilter(filter),
+			);
 
 			this._subFilters[0] = filterSettings;
 			for (let i: number = 1; i < Config.filterMorphCount; i++) {
@@ -281,7 +292,7 @@ export class FilterEditor {
 		event.preventDefault();
 		event.stopPropagation();
 		this._touchMode = false;
-		if (!this._svgRect) this._svgRect = this._svg.getBoundingClientRect();
+		this._svgRect = this._svg.getBoundingClientRect();
 		this._dragSvgRect = DOMRect.fromRect(this._svgRect);
 		const boundingRect: DOMRect = this._svgRect;
 		this._mouseX =
@@ -298,7 +309,7 @@ export class FilterEditor {
 	private _whenTouchPressed = (event: TouchEvent): void => {
 		event.stopPropagation();
 		this._touchMode = true;
-		if (!this._svgRect) this._svgRect = this._svg.getBoundingClientRect();
+		this._svgRect = this._svg.getBoundingClientRect();
 		this._dragSvgRect = DOMRect.fromRect(this._svgRect);
 		const boundingRect: DOMRect = this._svgRect;
 		this._mouseX =
@@ -625,6 +636,7 @@ export class FilterEditor {
 	}
 
 	private _whenCursorReleased = (_event: Event): void => {
+		this._svgRect = null;
 		this._dragSvgRect = null;
 		if (this._writingMods) {
 			if (this._forSong) {
@@ -861,7 +873,12 @@ export class FilterEditor {
 	public saveSettings() {
 		const firstFilter: FilterSettings = new FilterSettings();
 		const instrument: Instrument = this._doc.getCurrentInstrumentObj();
-		firstFilter.fromJsonObject(JSON.parse(String(this.selfUndoSettings[0])));
+		try {
+			firstFilter.fromJsonObject(JSON.parse(String(this.selfUndoSettings[0])));
+		} catch (error) {
+			console.error("Could not save filter settings.", error);
+			return;
+		}
 		if (this._forSong) {
 			this._doc.record(
 				new ChangeSongFilterSettings(
@@ -903,16 +920,18 @@ export class FilterEditor {
 				this.swapToSubfilter(this._subfilterIndex, jumpIndex);
 				return jumpIndex;
 				// Jumping to FIRST state of this subfilter
-			} else if (this.selfUndoSettings[this.selfUndoHistoryPos].startsWith("jmp")) {
-				const savedFilter: FilterSettings = new FilterSettings();
-				const str: string = this.selfUndoSettings[this.selfUndoHistoryPos];
-				savedFilter.fromJsonObject(JSON.parse(str.substring(str.indexOf(":") + 1)));
-				this.swapToSettings(savedFilter, false);
 			} else {
 				const savedFilter: FilterSettings = new FilterSettings();
-				savedFilter.fromJsonObject(
-					JSON.parse(String(this.selfUndoSettings[this.selfUndoHistoryPos])),
-				);
+				const serialized = this.selfUndoSettings[this.selfUndoHistoryPos];
+				const json = serialized.startsWith("jmp")
+					? serialized.substring(serialized.indexOf(":") + 1)
+					: serialized;
+				try {
+					savedFilter.fromJsonObject(JSON.parse(json));
+				} catch (error) {
+					console.error("Could not undo filter settings.", error);
+					return -1;
+				}
 				this.swapToSettings(savedFilter, false);
 			}
 		}
@@ -931,18 +950,59 @@ export class FilterEditor {
 				return jumpIndex;
 			} else {
 				const savedFilter: FilterSettings = new FilterSettings();
-				savedFilter.fromJsonObject(
-					JSON.parse(String(this.selfUndoSettings[this.selfUndoHistoryPos])),
-				);
+				try {
+					savedFilter.fromJsonObject(
+						JSON.parse(String(this.selfUndoSettings[this.selfUndoHistoryPos])),
+					);
+				} catch (error) {
+					console.error("Could not redo filter settings.", error);
+					return -1;
+				}
 				this.swapToSettings(savedFilter, false);
 			}
 		}
 		return -1;
 	}
 
-	public resetToInitial() {
-		this.selfUndoHistoryPos = 1;
-		this.undo();
+	private _copyFilter(filter: FilterSettings): FilterSettings {
+		const copy = new FilterSettings();
+		copy.fromJsonObject(filter.toJsonObject());
+		return copy;
+	}
+
+	public resetToInitial(): void {
+		if (this._initialFilterSettings == null) return;
+		const restoredMain = this._copyFilter(this._initialFilterSettings);
+		const restoredSubFilters = this._initialSubFilters.map((filter) =>
+			filter == null ? null : this._copyFilter(filter),
+		);
+		const instrument = this._doc.getCurrentInstrumentObj();
+		if (this._forSong) {
+			new ChangeSongFilterSettings(
+				this._doc,
+				restoredMain,
+				this._doc.song.eqFilter,
+				restoredSubFilters,
+				this._doc.song.eqSubFilters,
+			);
+		} else {
+			new ChangeFilterSettings(
+				this._doc,
+				restoredMain,
+				this._useNoteFilter ? instrument.noteFilter : instrument.eqFilter,
+				this._useNoteFilter,
+				restoredSubFilters,
+				this._useNoteFilter ? instrument.noteSubFilters : instrument.eqSubFilters,
+			);
+		}
+		this._subFilters = restoredSubFilters.map(
+			(filter) => filter ?? undefined,
+		) as FilterSettings[];
+		this._subFilters[0] = restoredMain;
+		this._subfilterIndex = 0;
+		this._filterSettings = restoredMain;
+		this._useFilterSettings = restoredMain;
+		this._updatePath();
 	}
 
 	public swapSubfilterIndices(newIndex: number) {
