@@ -19,7 +19,7 @@ import type { Change } from "./core/change";
 import "./ui/layout/layout"; // Imported here for the sake of ensuring this code is transpiled early.
 import { HTML, SVG } from "imperative-html/dist/esm/elements-strict";
 import { spectrumCanvas } from "../shared/spectrum";
-import { type Channel, getRegisteredPlugins, type Instrument, type Pattern } from "../synth";
+import { type Channel, getRegisteredPlugins, type Instrument, InstrumentType, type Pattern } from "../synth";
 import { getInstrumentCapabilities } from "../synth/socket/capability-lookup";
 import {
 	ChangeArpeggioSpeed,
@@ -1921,7 +1921,9 @@ export class SongEditor
 
 	private readonly _instrumentTypeSelect: HTMLSelectElement = buildOptions(
 		select(),
-		getRegisteredPlugins().map((p) => p.displayName ?? p.name),
+		getRegisteredPlugins()
+			.filter((p) => p.type !== InstrumentType.mod && p.type !== InstrumentType.drumset)
+			.map((p) => p.displayName ?? p.name),
 	);
 	private readonly _onInstrumentTypeChange = (): void => {
 		const plugins = getRegisteredPlugins();

@@ -982,10 +982,12 @@ export class InstrumentBrowserPrompt extends BasePrompt {
 	};
 
 	private _buildTypeItems(): void {
-		this._typeItems = getRegisteredPlugins().map((p) => ({
-			name: p.displayName ?? p.name,
-			type: p.type,
-		}));
+		this._typeItems = getRegisteredPlugins()
+			.filter((p) => p.type !== InstrumentType.mod && p.type !== InstrumentType.drumset)
+			.map((p) => ({
+				name: p.displayName ?? p.name,
+				type: p.type,
+			}));
 	}
 
 	private _buildTypesTabContent(): void {
