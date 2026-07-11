@@ -55,6 +55,10 @@ export function buildFormInputsCSS(): string {
 .beepboxEditor input[type=number].stepper-input-wide {
 	width: 150%;
 }
+.beepboxEditor input[type=number].note-limit-input {
+	width: 4em;
+	font-size: 80%;
+}
 
 .beepboxEditor input[type=text]::selection, .beepboxEditor input[type=number]::selection {
 	background: var(--primary-text);

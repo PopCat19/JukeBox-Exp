@@ -1463,7 +1463,7 @@ export class SongEditor
 	private readonly _modTargetIndicators: SVGElement[] = [];
 
 	private readonly _upperNoteLimitInputBox: HTMLInputElement = numberInput({
-		style: "width: 4em; font-size: 80%; ",
+		class: "note-limit-input",
 		id: "upperNoteLimitInputBox",
 		type: "number",
 		step: "1",
@@ -1479,7 +1479,7 @@ export class SongEditor
 		this._upperNoteLimitInputBox,
 	);
 	private readonly _lowerNoteLimitInputBox: HTMLInputElement = numberInput({
-		style: "width: 4em; font-size: 80%; ",
+		class: "note-limit-input",
 		id: "lowerNoteLimitInputBox",
 		type: "number",
 		step: "1",
