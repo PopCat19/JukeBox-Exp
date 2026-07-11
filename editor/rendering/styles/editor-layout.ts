@@ -272,5 +272,23 @@ export function buildEditorLayoutCSS(): string {
 .beepboxEditor .slider-flex-fixed {
 	flex-shrink: 0;
 }
+
+.beepboxEditor .pitch-shift-row {
+	display: flex;
+	position: relative;
+}
+.beepboxEditor .pattern-editor-row {
+	flex: 1;
+	height: 100%;
+	display: flex;
+	overflow: hidden;
+	justify-content: center;
+}
+.beepboxEditor .track-visible-area {
+	position: absolute;
+	width: 100%;
+	height: 100%;
+	pointer-events: none;
+}
 `;
 }

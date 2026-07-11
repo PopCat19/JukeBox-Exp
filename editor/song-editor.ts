@@ -864,7 +864,7 @@ export class SongEditor
 		}),
 	];
 	private readonly _pitchShiftMarkerContainer: HTMLDivElement = div(
-		{ style: "display: flex; position: relative;" },
+		{ class: "pitch-shift-row" },
 		this._pitchShiftWidget.slider.container,
 		div(
 			{ class: "pitchShiftMarkerContainer" },
@@ -2012,7 +2012,7 @@ export class SongEditor
 	});
 	private readonly _patternEditorRow: HTMLDivElement = div(
 		{
-			style: "flex: 1; height: 100%; display: flex; overflow: hidden; justify-content: center;",
+			class: "pattern-editor-row",
 		},
 		this._patternEditorPrev.container,
 		this._patternEditor.container,
@@ -2032,7 +2032,7 @@ export class SongEditor
 		this._loopEditor.container,
 	);
 	private readonly _trackVisibleArea: HTMLDivElement = div({
-		style: "position: absolute; width: 100%; height: 100%; pointer-events: none;",
+		class: "track-visible-area",
 	});
 	private readonly _trackAndMuteContainer: HTMLDivElement = div(
 		{ class: "trackAndMuteContainer" },
