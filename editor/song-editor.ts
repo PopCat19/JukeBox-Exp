@@ -2067,15 +2067,14 @@ export class SongEditor
 					},
 					div(
 						{
-							class: "tip",
-							style: "flex-shrink: 0; position:absolute; left: 0; top: 0; width: 12px; height: 12px",
+							class: "tip song-settings-indicator",
+							style: "left: 0",
 							onclick: () => {
 								this._openPrompt("usedPattern");
 							},
 						},
 						SVG.svg(
 							{
-								style: "flex-shrink: 0; position: absolute; left: 0; top: 0; pointer-events: none;",
 								width: "12px",
 								height: "12px",
 								"margin-right": "0.5em",
@@ -2086,15 +2085,14 @@ export class SongEditor
 					),
 					div(
 						{
-							class: "tip",
-							style: "flex-shrink: 0; position: absolute; left: 14px; top: 0; width: 12px; height: 12px",
+							class: "tip song-settings-indicator",
+							style: "left: 14px",
 							onclick: () => {
 								this._openPrompt("usedInstrument");
 							},
 						},
 						SVG.svg(
 							{
-								style: "flex-shrink: 0; position: absolute; left: 0; top: 0; pointer-events: none;",
 								width: "12px",
 								height: "12px",
 								"margin-right": "1em",

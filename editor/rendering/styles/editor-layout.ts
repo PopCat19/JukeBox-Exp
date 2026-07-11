@@ -325,5 +325,19 @@ export function buildEditorLayoutCSS(): string {
 .beepboxEditor .stepper-group {
 	display: flex;
 }
+.beepboxEditor .song-settings-indicator {
+	flex-shrink: 0;
+	position: absolute;
+	top: 0;
+	width: 12px;
+	height: 12px;
+}
+.beepboxEditor .song-settings-indicator svg {
+	flex-shrink: 0;
+	position: absolute;
+	left: 0;
+	top: 0;
+	pointer-events: none;
+}
 `;
 }
