@@ -89,6 +89,7 @@ export class PlaybackControls {
 			style: "width: 5em; flex-grow: 1; margin: 0;",
 			title: "main volume",
 		});
+		this.volumeSlider.container.classList.add("playback-volume-slider");
 
 		this.volumeInputBox = numberInput({
 			class: "slider-num-input",
@@ -167,6 +168,7 @@ export class PlaybackControls {
 			this._outVolumeBar,
 			this._outVolumeCap,
 		);
+		this.volumeBarContainer.classList.add("playback-volume-container");
 
 		this.volumeBarBox = div(
 			{

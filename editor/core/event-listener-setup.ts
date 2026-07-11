@@ -358,11 +358,6 @@ export class EventListenerSetup {
 		});
 
 		// The song volume slider is styled slightly different than the class' default.
-		host.volumeSlider.container.style.setProperty("flex-grow", "1");
-		host.volumeSlider.container.style.setProperty("display", "flex");
-
-		host.volumeBarContainer.style.setProperty("flex-grow", "1");
-		host.volumeBarContainer.style.setProperty("display", "flex");
 		host.volumeBarContainer.addEventListener("click", () => {
 			host.openPrompt("channelVolumeVisualizer");
 		});

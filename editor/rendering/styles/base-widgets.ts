@@ -260,6 +260,15 @@ export function buildBaseWidgetsCSS(): string {
 	grid-column-gap: 4px;
 }
 
+.beepboxEditor .playback-volume-slider {
+	flex-grow: 1;
+}
+
+.beepboxEditor .playback-volume-container {
+	display: flex;
+	flex-grow: 1;
+}
+
 .beepboxEditor button.playButton::before {
 	content: "";
 	flex-shrink: 0;
