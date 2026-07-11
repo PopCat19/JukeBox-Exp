@@ -607,9 +607,7 @@ export class SongEditor
 			() => {
 				this._openPrompt("clicklessTransition");
 			},
-			{
-				style: "margin-left:4px;",
-			},
+			{ class: "tip-indent-sm" },
 		),
 		this._clicklessTransitionBox,
 	);
@@ -924,7 +922,7 @@ export class SongEditor
 			() => {
 				this._openPrompt("aliases");
 			},
-			{ style: "margin-left:10px;" },
+			{ class: "tip-indent-md" },
 		),
 		this._aliasingBox,
 	);
@@ -1219,9 +1217,7 @@ export class SongEditor
 			() => {
 				this._openPrompt("twoNoteArpeggio");
 			},
-			{
-				style: "margin-left:4px;",
-			},
+			{ class: "tip-indent-sm" },
 		),
 		this._twoNoteArpBox,
 	);
@@ -1243,9 +1239,7 @@ export class SongEditor
 			() => {
 				this._openPrompt("invertWave");
 			},
-			{
-				style: "margin-left:10px;",
-			},
+			{ class: "tip-indent-md" },
 		),
 		this._invertWaveBox,
 	);
@@ -1328,7 +1322,7 @@ export class SongEditor
 			() => {
 				this._openPrompt("vibratoType");
 			},
-			{ style: "margin-left:4px;" },
+			{ class: "tip-indent-sm" },
 		),
 		div({ class: "selectContainer select-container-narrow" }, this._vibratoTypeSelect),
 	);
