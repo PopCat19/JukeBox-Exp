@@ -1701,15 +1701,12 @@ export class SongEditor
 		canvas({
 			width: 384,
 			height: 64,
-			style: "display: block; width: 100%; height: 32px;",
 			id: "spectrumAll",
 		}),
 		1,
 	);
 	private readonly _globalSpectrumContainer: HTMLDivElement = div(
-		{
-			style: "height: 32px; margin: 2px 0; overflow: hidden;",
-		},
+		{ class: "spectrum-container" },
 		this._globalSpectrum.canvas,
 	);
 	// Overlay spectrum rendered on track editor (separate canvas, controlled by showSpectrumOverlay pref)
@@ -1717,16 +1714,13 @@ export class SongEditor
 		canvas({
 			width: 384,
 			height: 64,
-			style: "display: block; width: 100%; height: 100%;",
 			id: "spectrumOverlay",
 		}),
 		1,
 		true,
 	);
 	private readonly _overlaySpectrumContainer: HTMLDivElement = div(
-		{
-			style: "position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; opacity: 0.12; overflow: hidden; z-index: 1;",
-		},
+		{ class: "spectrum-overlay-container" },
 		this._overlaySpectrum.canvas,
 	);
 	private readonly _customWaveDrawCanvas: CustomChipCanvas = new CustomChipCanvas(

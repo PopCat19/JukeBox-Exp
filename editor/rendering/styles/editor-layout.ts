@@ -138,6 +138,24 @@ export function buildEditorLayoutCSS(): string {
 	position: static;
 	overflow: hidden;
 	cursor: default;
+	width: 100%;
+	height: 32px;
+}
+.beepboxEditor .spectrum-container {
+	height: 32px;
+	margin: 2px 0;
+	overflow: hidden;
+}
+.beepboxEditor .spectrum-overlay-container {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	pointer-events: none;
+	opacity: 0.12;
+	overflow: hidden;
+	z-index: 1;
 }
 
 .beepboxEditor .trackContainer {
