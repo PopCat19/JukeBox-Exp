@@ -117,4 +117,124 @@ describe("loop-editor UI contract / song-editor focus-steal contract", () => {
 		expect(hasHandleKeyDown).toBeTrue();
 	});
 });
+
+	// -------------------------------------------------------------------
+	// Category D: mouseup listener does NOT steal focus from <select>
+	// (regression guard for issue #11: Firefox closes native dropdown)
+	// -------------------------------------------------------------------
+	describe("mouseup focus-steal select regression contract", () => {
+		/** Return the source slice of the mouseup rAF listener block. */
+		function mouseupListenerBlock(): string[] {
+			const idx = songLines.findIndex((l) => l.includes('addEventListener("mouseup"'));
+			if (idx < 0) throw new Error("mouseup listener not found");
+			const block: string[] = [];
+			let depth = 0;
+			let started = false;
+			for (let i = idx; i < songLines.length; i++) {
+				const line = songLines[i];
+				if (!started) {
+					if (line.includes("{")) {
+						started = true;
+						depth = (line.match(/{/g) || []).length - (line.match(/}/g) || []).length;
+						if (depth <= 0) break;
+					}
+					continue;
+				}
+				depth += (line.match(/{/g) || []).length;
+				depth -= (line.match(/}/g) || []).length;
+				block.push(line);
+				if (depth <= 0) break;
+			}
+			return block;
+		}
+
+		test("mouseup listener condition omits HTMLSelectElement branch", () => {
+			const block = mouseupListenerBlock();
+			const hasSelectBranch = block.some((l) => l.includes("HTMLSelectElement"));
+			expect(hasSelectBranch).toBeFalse();
+		});
+
+		test("mouseup listener retains document.body branch (off-click path)", () => {
+			const block = mouseupListenerBlock();
+			const hasBodyBranch = block.some((l) => l.includes("activeElement === document.body"));
+			expect(hasBodyBranch).toBeTrue();
+		});
+
+		test("mouseup listener retains HTMLButtonElement branch (button path)", () => {
+			const block = mouseupListenerBlock();
+			const hasButtonBranch = block.some((l) => l.includes("HTMLButtonElement"));
+			expect(hasButtonBranch).toBeTrue();
+		});
+
+		test("mouseup listener clears openedSelect only inside the focus-restore branch", () => {
+			const block = mouseupListenerBlock();
+			// openedSelect is cleared inside the body/button branch only, not
+			// unconditionally, so the opening click retains state for the pick.
+			const hasBranchClear = block.some((l) => l.includes("openedSelect = null"));
+			expect(hasBranchClear).toBeTrue();
+		});
+	});
+
+	// -------------------------------------------------------------------
+	// Category E: change listener restores mainLayer focus after a pick
+	// -------------------------------------------------------------------
+	describe("change listener focus-restore contract", () => {
+		test("document-level change listener targets HTMLSelectElement", () => {
+			const hasChangeListener = songLines.some((l) => l.includes('addEventListener("change"'));
+			expect(hasChangeListener).toBeTrue();
+			const hasSelectCheck = songLines.some((l) =>
+				l.includes("event.target instanceof HTMLSelectElement"));
+			expect(hasSelectCheck).toBeTrue();
+		});
+
+		test("change listener restores mainLayer focus inside requestAnimationFrame", () => {
+			const idx = songLines.findIndex((l) => l.includes('addEventListener("change"'));
+			expect(idx).toBeGreaterThanOrEqual(0);
+			const slice = songLines.slice(idx, idx + 16);
+			const hasRaf = slice.some((l) => l.includes("requestAnimationFrame"));
+			expect(hasRaf).toBeTrue();
+			const hasFocus = slice.some((l) => l.includes("mainLayer.focus"));
+			expect(hasFocus).toBeTrue();
+		});
+
+		test("change listener is gated on openedSelect and keyboardNavigatingSelect", () => {
+			const idx = songLines.findIndex((l) => l.includes('addEventListener("change"'));
+			expect(idx).toBeGreaterThanOrEqual(0);
+			const slice = songLines.slice(idx, idx + 16);
+			const hasOpenGate = slice.some((l) => l.includes("openedSelect !== null"));
+			expect(hasOpenGate).toBeTrue();
+			const hasKeyboardGate = slice.some((l) => l.includes("!keyboardNavigatingSelect"));
+			expect(hasKeyboardGate).toBeTrue();
+		});
+
+		test("mousedown listener stores the select element in openedSelect", () => {
+			const hasMousedown = songLines.some((l) =>
+				l.includes('addEventListener("mousedown"'));
+			expect(hasMousedown).toBeTrue();
+			const hasStore = songLines.some((l) => l.includes("openedSelect = target"));
+			expect(hasStore).toBeTrue();
+		});
+
+		test("keydown listener handles arrow, Enter, and Escape on openedSelect", () => {
+			let idx = -1;
+			for (let i = 0; i < songLines.length; i++) {
+				if (
+					songLines[i].includes('addEventListener("keydown"') &&
+					songLines.slice(i, i + 30).some((s) => s.includes("openedSelect"))
+				) {
+					idx = i;
+					break;
+				}
+			}
+			expect(idx).toBeGreaterThanOrEqual(0);
+			const slice = songLines.slice(idx, idx + 40);
+			const hasArrows = slice.some((l) => l.includes("keyboardNavigatingSelect = true"));
+			expect(hasArrows).toBeTrue();
+			const hasEnter = slice.some((l) =>
+				l.includes("keyboardNavigatingSelect = false"));
+			expect(hasEnter).toBeTrue();
+			const hasEscape = slice.some((l) => l.includes("event.keyCode === 27"));
+			expect(hasEscape).toBeTrue();
+		});
+	});
 });

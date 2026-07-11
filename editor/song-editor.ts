@@ -3045,18 +3045,74 @@ export class SongEditor
 		this._keyboardHandler = new KeyboardHandler(this);
 		this._dispatch = new ChangeDispatcher(this);
 
-		// Restore editor hotkeys after pointer interaction with non-text controls.
+		// Track the <select> opened by pointer so editor focus can be
+		// restored after the dropdown closes, without stealing focus during
+		// the opening click (Firefox closes the native dropdown when focus
+		// is ripped within ~1 frame). The stored select persists across the
+		// opening mouseup until the dropdown actually closes via pick,
+		// Escape, or off-click.
+		let openedSelect: HTMLSelectElement | null = null;
+		let keyboardNavigatingSelect = false;
+		document.addEventListener("mousedown", (event: Event) => {
+			const target = (event.target as HTMLElement | null)?.closest("select");
+			if (target instanceof HTMLSelectElement) {
+				openedSelect = target;
+				keyboardNavigatingSelect = false;
+			}
+		});
 		document.addEventListener("mouseup", () => {
+			keyboardNavigatingSelect = false;
 			requestAnimationFrame(() => {
 				const activeElement = document.activeElement;
-				if (
-					activeElement === document.body ||
-					activeElement instanceof HTMLButtonElement ||
-					activeElement instanceof HTMLSelectElement
-				) {
+				if (activeElement === document.body || activeElement instanceof HTMLButtonElement) {
+					openedSelect = null;
 					this.mainLayer.focus({ preventScroll: true });
 				}
 			});
+		});
+		// After a pointer pick from a <select>, restore mainLayer focus so the
+		// next Space toggles playback instead of re-opening the select. Gated
+		// on openedSelect and !keyboardNavigatingSelect so keyboard arrow
+		// navigation through options (which also fires change in some browsers)
+		// does not rip focus mid-navigation. Restoring on change (not mouseup)
+		// avoids stealing focus during the opening click, which closes the
+		// native dropdown on Firefox.
+		document.addEventListener("change", (event: Event) => {
+			if (
+				openedSelect !== null &&
+				!keyboardNavigatingSelect &&
+				event.target instanceof HTMLSelectElement
+			) {
+				openedSelect = null;
+				requestAnimationFrame(() => {
+					this.mainLayer.focus({ preventScroll: true });
+				});
+			}
+		});
+		// Keyboard interaction with an open select: arrow keys mark
+		// navigation (suppress change-driven focus restoration), Enter
+		// commits the pick (clears the marker so the following change
+		// restores focus), Escape closes the popup and restores focus.
+		document.addEventListener("keydown", (event: KeyboardEvent) => {
+			if (openedSelect === null) return;
+			const target = event.target as HTMLElement | null;
+			if (target?.closest("select") !== openedSelect) return;
+			if (
+				event.keyCode === 37 ||
+				event.keyCode === 38 ||
+				event.keyCode === 39 ||
+				event.keyCode === 40
+			) {
+				keyboardNavigatingSelect = true;
+			} else if (event.keyCode === 13) {
+				keyboardNavigatingSelect = false;
+			} else if (event.keyCode === 27) {
+				openedSelect = null;
+				keyboardNavigatingSelect = false;
+				requestAnimationFrame(() => {
+					this.mainLayer.focus({ preventScroll: true });
+				});
+			}
 		});
 		// Capture-phase keyboard interceptor. Routes arrow keys and
 		// space to the keyboard handler instead of letting them scroll
