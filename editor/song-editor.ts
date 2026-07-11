@@ -3056,8 +3056,20 @@ export class SongEditor
 		document.addEventListener("mousedown", (event: Event) => {
 			const target = (event.target as HTMLElement | null)?.closest("select");
 			if (target instanceof HTMLSelectElement) {
-				openedSelect = target;
-				keyboardNavigatingSelect = false;
+				// Clicking the already-open select toggles it closed. The browser
+				// closes the popup on mousedown, so schedule focus restore after
+				// the browser settles. The opening click (openedSelect was null)
+				// just arms the tracker without touching focus.
+				if (openedSelect === target) {
+					openedSelect = null;
+					keyboardNavigatingSelect = false;
+					requestAnimationFrame(() => {
+						this.mainLayer.focus({ preventScroll: true });
+					});
+				} else {
+					openedSelect = target;
+					keyboardNavigatingSelect = false;
+				}
 			}
 		});
 		document.addEventListener("mouseup", () => {
