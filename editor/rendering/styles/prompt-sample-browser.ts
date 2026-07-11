@@ -402,11 +402,6 @@ export function buildSampleBrowserCSS(): string {
 	border-radius: var(--border-radius-medium);
 }
 
-.beepboxEditor .prompt.sampleBrowserPrompt .sbpCheckbox {
-	cursor: pointer;
-	flex-shrink: 0;
-}
-
 .beepboxEditor .prompt.sampleBrowserPrompt .sbpMoveCol {
 	display: flex;
 	flex-direction: column;

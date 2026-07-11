@@ -144,7 +144,7 @@ export class AddSamplesPrompt extends BasePrompt {
 		this._detailSrStepper = stepperInput(8000, 96000, Config.defaultSampleRate);
 		this._detailRkStepper = stepperInput(0, Config.maxPitch + Config.pitchesPerOctave, 60);
 		this._detailRkDisplay = span({ class: "sbpNoteName" });
-		this._detailPercBox = input({ type: "checkbox", class: "sbpCheckbox" });
+		this._detailPercBox = input({ type: "checkbox" });
 		this._detailLsStepper = stepperInput(0, 999999, 0);
 		this._detailLeStepper = stepperInput(0, 999999, 0);
 		this._detailSoStepper = stepperInput(0, 999999, 0);
@@ -158,7 +158,7 @@ export class AddSamplesPrompt extends BasePrompt {
 			option({ value: 3 }, "Play Loop Once"),
 		);
 
-		this._detailBwBox = input({ type: "checkbox", class: "sbpCheckbox" });
+		this._detailBwBox = input({ type: "checkbox" });
 
 		// Wire detail events
 		this._detailUrl.addEventListener("change", this._onDetailUrlChange);
