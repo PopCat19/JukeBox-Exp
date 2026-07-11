@@ -1019,8 +1019,7 @@ export class SongEditor
 			{},
 			span(
 				{
-					class: "tip",
-					style: "height:1em; font-size: smaller;",
+					class: "tip tip-unison",
 					onclick: () => {
 						this._openPrompt("unisonVoices");
 					},
@@ -1045,8 +1044,7 @@ export class SongEditor
 			{},
 			span(
 				{
-					class: "tip",
-					style: "height:1em; font-size: smaller;",
+					class: "tip tip-unison",
 					onclick: () => {
 						this._openPrompt("unisonSpread");
 					},
@@ -1072,8 +1070,7 @@ export class SongEditor
 			{},
 			span(
 				{
-					class: "tip",
-					style: "height:1em; font-size: smaller;",
+					class: "tip tip-unison",
 					onclick: () => {
 						this._openPrompt("unisonOffset");
 					},
@@ -1098,8 +1095,7 @@ export class SongEditor
 			{},
 			span(
 				{
-					class: "tip",
-					style: "height:1em; font-size: smaller;",
+					class: "tip tip-unison",
 					onclick: () => {
 						this._openPrompt("unisonExpression");
 					},
@@ -1124,8 +1120,7 @@ export class SongEditor
 			{},
 			span(
 				{
-					class: "tip",
-					style: "height:1em; font-size: smaller;",
+					class: "tip tip-unison",
 					onclick: () => {
 						this._openPrompt("unisonSign");
 					},

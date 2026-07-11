@@ -33,6 +33,10 @@ export function buildIconButtonsCSS(): string {
 .beepboxEditor .tip.tip-indent-md {
 	margin-left: 10px;
 }
+.beepboxEditor .tip.tip-unison {
+	height: 1em;
+	font-size: smaller;
+}
 
 .beepboxEditor .volume-speaker {
 	flex-shrink: 0;
