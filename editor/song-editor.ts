@@ -243,7 +243,7 @@ export class SongEditor
 	private readonly _songEqFilterEditor: FilterEditor = this._songSettingsPanel.songEqFilterEditor;
 	private readonly _songEqFilterZoom: HTMLButtonElement = button(
 		{
-			style: "margin-left:0em; padding-left:0.2em; height:1.5em; max-width: 12px;",
+			class: "zoom-button zoom-button-sm",
 			onclick: () => {
 				this._openPrompt("customSongEQFilterSettings");
 			},
@@ -646,7 +646,7 @@ export class SongEditor
 	private readonly _eqFilterEditor: FilterEditor = new FilterEditor(this.doc);
 	private readonly _eqFilterZoom: HTMLButtonElement = button(
 		{
-			style: "margin-left:0em; padding-left:0.2em; height:1.5em; max-width: 12px;",
+			class: "zoom-button zoom-button-sm",
 			onclick: () => {
 				this._openPrompt("customEQFilterSettings");
 			},
@@ -710,7 +710,7 @@ export class SongEditor
 	private readonly _noteFilterEditor: FilterEditor = new FilterEditor(this.doc, true);
 	private readonly _noteFilterZoom: HTMLButtonElement = button(
 		{
-			style: "margin-left:0em; padding-left:0.2em; height:1.5em; max-width: 12px;",
+			class: "zoom-button zoom-button-sm",
 			onclick: () => {
 				this._openPrompt("customNoteFilterSettings");
 			},
@@ -1373,7 +1373,7 @@ export class SongEditor
 	private readonly _spectrumEditor: SpectrumEditor = new SpectrumEditor(this.doc, null);
 	private readonly _spectrumZoom: HTMLButtonElement = button(
 		{
-			style: "margin-left:0em; padding-left:0.2em; height:1.5em; max-width: 12px;",
+			class: "zoom-button zoom-button-sm",
 			onclick: () => {
 				this._openPrompt("spectrumSettings");
 			},
@@ -1395,7 +1395,7 @@ export class SongEditor
 	private readonly _harmonicsEditor: HarmonicsEditor = new HarmonicsEditor(this.doc);
 	private readonly _harmonicsZoom: HTMLButtonElement = button(
 		{
-			style: "padding-left:0.2em; height:1.5em; max-width: 12px;",
+			class: "zoom-button zoom-button-sm",
 			onclick: () => {
 				this._openPrompt("harmonicsSettings");
 			},
@@ -1463,7 +1463,7 @@ export class SongEditor
 	private readonly _drumsetGroup: HTMLElement = div({ class: "editor-controls" });
 	private readonly _drumsetZoom: HTMLButtonElement = button(
 		{
-			style: "margin-left:0em; padding-left:0.3em; margin-right:0.5em; height:1.5em; max-width: 16px;",
+			class: "zoom-button zoom-button-md",
 			onclick: () => {
 				this._openPrompt("drumsetSettings");
 			},
@@ -1760,7 +1760,7 @@ export class SongEditor
 	);
 	private readonly _customWaveZoom: HTMLButtonElement = button(
 		{
-			style: "margin-left:0.5em; height:1.5em; max-width: 20px;",
+			class: "zoom-button zoom-button-lg",
 			onclick: () => {
 				this._openPrompt("customChipSettings");
 			},

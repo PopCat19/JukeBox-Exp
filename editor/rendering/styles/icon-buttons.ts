@@ -251,6 +251,22 @@ export function buildIconButtonsCSS(): string {
 	position: absolute;
 	right: 10px;
 }
+.beepboxEditor .zoom-button {
+	height: 1.5em;
+}
+.beepboxEditor .zoom-button-sm {
+	padding-left: 0.2em;
+	max-width: 12px;
+}
+.beepboxEditor .zoom-button-md {
+	padding-left: 0.3em;
+	margin-right: 0.5em;
+	max-width: 16px;
+}
+.beepboxEditor .zoom-button-lg {
+	margin-left: 0.5em;
+	max-width: 20px;
+}
 .beepboxEditor .zoomInButton {
 	top: 10px;
 }
