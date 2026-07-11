@@ -7,3 +7,5 @@ Purpose: Architecture refactors, audits, and integration guides for the JukeBox-
 - `phase4-integration-guide.md`, Step-by-step guide for integrating new components into song-editor.ts
 - `nixos-to-typescript-mapping.md`, Maps NixOS config layering concepts to the TypeScript project structure
 - `song-editor-simplified-example.ts`, Annotated excerpt of a simplified song-editor structure
+- `synth-impl-todo.md`, Tracks gaps between current synth capabilities and modern production-quality sound, prioritized P0-P2
+- `presets-ng-gm-mapping.md`, Maps NG preset categories to GM sound categories
