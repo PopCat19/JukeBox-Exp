@@ -75,25 +75,25 @@ export function buildPlayerCSS(): string {
 		${buildDesignTokensCSS("'B612', sans-serif", "monospace")}
 	}
 
-	body {
+	.pm-player {
 		color: var(--primary-text, white);
 		background: var(--editor-background, black);
 	}
-	h1 {
+	.pm-player h1 {
 		font-weight: bold;
 		font-size: 14px;
 		line-height: 22px;
 		text-align: initial;
 		margin: 0;
 	}
-	a {
+	.pm-player a {
 		font-weight: bold;
 		font-size: 12px;
 		line-height: 22px;
 		white-space: nowrap;
 		color: var(--link-accent, #98f);
 	}
-	button {
+	.pm-player button {
 		margin: 0;
 		padding: 0;
 		position: relative;
@@ -105,14 +105,14 @@ export function buildPlayerCSS(): string {
 		font-size: 14px;
 		font-family: inherit;
 	}
-	button:hover, button:focus {
+	.pm-player button:hover, .pm-player button:focus {
 		background: var(--ui-widget-focus, #777);
 	}
-	.playButton, .pauseButton {
+	.pm-player .playButton, .pm-player .pauseButton {
 		padding-left: 24px;
 		padding-right: 6px;
 	}
-	.playButton::before {
+	.pm-player .playButton::before {
 		content: "";
 		position: absolute;
 		left: 6px;
@@ -131,7 +131,7 @@ export function buildPlayerCSS(): string {
 		mask-position: center;
 		mask-size: 12px 12px;
 	}
-	.pauseButton::before {
+	.pm-player .pauseButton::before {
 		content: "";
 		position: absolute;
 		left: 6px;
@@ -151,7 +151,7 @@ export function buildPlayerCSS(): string {
 		mask-size: 12px 12px;
 	}
 
-	input[type=range] {
+	.pm-player input[type=range] {
 		-webkit-appearance: none;
 		appearance: none;
 		height: 16px;
@@ -160,16 +160,16 @@ export function buildPlayerCSS(): string {
 		background-color: var(--editor-background, black);
 		touch-action: pan-y;
 	}
-	input[type=range]:focus {
+	.pm-player input[type=range]:focus {
 		outline: none;
 	}
-	input[type=range]::-webkit-slider-runnable-track {
+	.pm-player input[type=range]::-webkit-slider-runnable-track {
 		width: 100%;
 		height: 4px;
 		cursor: pointer;
 		background: var(--ui-widget-background, #444);
 	}
-	input[type=range]::-webkit-slider-thumb {
+	.pm-player input[type=range]::-webkit-slider-thumb {
 		height: 16px;
 		width: 4px;
 		border-radius: 2px;
@@ -178,19 +178,19 @@ export function buildPlayerCSS(): string {
 		-webkit-appearance: none;
 		margin-top: -6px;
 	}
-	input[type=range]:focus::-webkit-slider-runnable-track, input[type=range]:hover::-webkit-slider-runnable-track {
+	.pm-player input[type=range]:focus::-webkit-slider-runnable-track, .pm-player input[type=range]:hover::-webkit-slider-runnable-track {
 		background: var(--ui-widget-focus, #777);
 	}
-	input[type=range]::-moz-range-track {
+	.pm-player input[type=range]::-moz-range-track {
 		width: 100%;
 		height: 4px;
 		cursor: pointer;
 		background: var(--ui-widget-background, #444);
 	}
-	input[type=range]:focus::-moz-range-track, input[type=range]:hover::-moz-range-track  {
+	.pm-player input[type=range]:focus::-moz-range-track, .pm-player input[type=range]:hover::-moz-range-track  {
 		background: var(--ui-widget-focus, #777);
 	}
-	input[type=range]::-moz-range-thumb {
+	.pm-player input[type=range]::-moz-range-thumb {
 		height: 16px;
 		width: 4px;
 		border-radius: 2px;
@@ -198,17 +198,17 @@ export function buildPlayerCSS(): string {
 		background: var(--primary-text, white);
 		cursor: pointer;
 	}
-	input[type=range]::-ms-track {
+	.pm-player input[type=range]::-ms-track {
 		width: 100%;
 		height: 4px;
 		cursor: pointer;
 		background: var(--ui-widget-background, #444);
 		border-color: transparent;
 	}
-	input[type=range]:focus::-ms-track, input[type=range]:hover::-ms-track {
+	.pm-player input[type=range]:focus::-ms-track, .pm-player input[type=range]:hover::-ms-track {
 		background: var(--ui-widget-focus, #777);
 	}
-	input[type=range]::-ms-thumb {
+	.pm-player input[type=range]::-ms-thumb {
 		height: 16px;
 		width: 4px;
 		border-radius: 2px;
@@ -218,25 +218,25 @@ export function buildPlayerCSS(): string {
 
 	/* --- scoped player UI classes --- */
 
-	.pm-player-spectrum {
+	.pm-player .pm-player-spectrum {
 		border: 2px solid var(--ui-widget-background, #444);
 		overflow: hidden;
 	}
-	.pm-player-title {
+	.pm-player .pm-player-title {
 		flex-grow: 1;
 		margin: 0 1px;
 		margin-left: 10px;
 		overflow: hidden;
 	}
-	.pm-player-link {
+	.pm-player .pm-player-link {
 		margin: 0 4px;
 	}
-	.pm-player-play-btn {
+	.pm-player .pm-player-play-btn {
 		width: 100%;
 		height: 100%;
 		max-height: 50px;
 	}
-	.pm-player-btn-container {
+	.pm-player .pm-player-btn-container {
 		flex-shrink: 0;
 		display: flex;
 		padding: 2px;
@@ -245,7 +245,7 @@ export function buildPlayerCSS(): string {
 		box-sizing: border-box;
 		align-items: center;
 	}
-	.pm-player-icon-btn {
+	.pm-player .pm-player-icon-btn {
 		background: none;
 		flex: 0 0 12px;
 		margin: 0 3px;
@@ -253,28 +253,28 @@ export function buildPlayerCSS(): string {
 		height: 12px;
 		display: flex;
 	}
-	.pm-player-icon-btn:hover, .pm-player-icon-btn:focus {
+	.pm-player .pm-player-icon-btn:hover, .pm-player .pm-player-icon-btn:focus {
 		background: none;
 	}
-	.pm-player-vol-icon {
+	.pm-player .pm-player-vol-icon {
 		flex: 0 0 12px;
 		margin: 0 1px;
 		width: 12px;
 		height: 12px;
 	}
-	.pm-player-vol-slider {
+	.pm-player .pm-player-vol-slider {
 		width: 12vw;
 		max-width: 100px;
 	}
-	input.pm-player-vol-slider {
+	.pm-player input.pm-player-vol-slider {
 		margin: 0 1px;
 	}
-	.pm-player-timeline {
+	.pm-player .pm-player-timeline {
 		min-width: 0;
 		min-height: 0;
 		touch-action: pan-y pinch-zoom;
 	}
-	.pm-player-playhead {
+	.pm-player .pm-player-playhead {
 		position: absolute;
 		left: 0;
 		top: 0;
@@ -283,13 +283,13 @@ export function buildPlayerCSS(): string {
 		background: var(--playhead, white);
 		pointer-events: none;
 	}
-	.pm-player-timeline-container {
+	.pm-player .pm-player-timeline-container {
 		display: flex;
 		flex-grow: 1;
 		flex-shrink: 1;
 		position: relative;
 	}
-	.pm-player-viz-container {
+	.pm-player .pm-player-viz-container {
 		display: flex;
 		flex-grow: 1;
 		flex-shrink: 1;
@@ -298,29 +298,29 @@ export function buildPlayerCSS(): string {
 		align-items: center;
 		overflow: hidden;
 	}
-	.pm-player-volbar-svg {
+	.pm-player .pm-player-volbar-svg {
 		touch-action: none;
 		overflow: hidden;
 		margin: auto;
 	}
-	.pm-player-sample-bar {
+	.pm-player .pm-player-sample-bar {
 		height: 100%;
 		background-color: var(--indicator-primary, #74f);
 	}
-	.pm-player-sample-bar-container {
+	.pm-player .pm-player-sample-bar-container {
 		overflow: hidden;
 		margin: auto;
 		width: 90%;
 		height: 50%;
 	}
-	.pm-player-vol-bar-wrapper {
+	.pm-player .pm-player-vol-bar-wrapper {
 		display: flex;
 		flex-direction: column;
 		touch-action: none;
 		overflow: hidden;
 		margin: auto;
 	}
-	.pm-player-control-bar {
+	.pm-player .pm-player-control-bar {
 		flex-shrink: 0;
 		height: 20vh;
 		min-height: 22px;
@@ -328,7 +328,7 @@ export function buildPlayerCSS(): string {
 		display: flex;
 		align-items: center;
 	}
-	.pm-player-sample-status-row {
+	.pm-player .pm-player-sample-status-row {
 		overflow: hidden;
 		margin: auto;
 		width: 160px;

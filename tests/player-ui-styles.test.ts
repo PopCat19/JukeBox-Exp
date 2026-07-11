@@ -91,20 +91,41 @@ describe("buildPlayerCSS", () => {
 		expect(css).toContain("--font-family");
 	});
 
-	test("contains global player selectors", () => {
+	test("roots tag and reset selectors under .pm-player", () => {
 		const css = buildPlayerCSS();
-		expect(css).toContain("body {");
-		expect(css).toContain("h1 {");
-		expect(css).toContain("button");
-		expect(css).toContain("input[type=range]");
+		expect(css).toContain(".pm-player {");
+		expect(css).toContain(".pm-player h1 {");
+		expect(css).toContain(".pm-player button {");
+		expect(css).toContain(".pm-player input[type=range]");
 	});
 
-	test("contains existing play/pause class selectors", () => {
+	test("scopes play/pause class selectors under .pm-player", () => {
 		const css = buildPlayerCSS();
-		expect(css).toContain(".playButton");
-		expect(css).toContain(".pauseButton");
-		expect(css).toContain(".playButton::before");
-		expect(css).toContain(".pauseButton::before");
+		expect(css).toContain(".pm-player .playButton");
+		expect(css).toContain(".pm-player .pauseButton");
+		expect(css).toContain(".pm-player .playButton::before");
+		expect(css).toContain(".pm-player .pauseButton::before");
+	});
+
+	test("emits no bare unscoped tag or class selectors that leak to the host page", () => {
+		const css = buildPlayerCSS();
+		const ruleSelectors = css
+			.split("}")
+			.map((s) => s.split("{")[0].trim())
+			.filter((s) => s.length > 0);
+		const individual = ruleSelectors.flatMap((s) => s.split(",").map((part) => part.trim()));
+		const bareTag = individual.filter((s) =>
+			/^(body|h1|a|button|button:hover|button:focus|input(?:\[type=range\])?)$/.test(s),
+		);
+		expect(bareTag).toBeEmpty();
+		const barePlayPause = individual.filter(
+			(s) => /^(\.playButton|\.pauseButton)/.test(s) && !s.startsWith(".pm-player"),
+		);
+		expect(barePlayPause).toBeEmpty();
+		const barePmClass = individual.filter(
+			(s) => /^\.pm-player-/.test(s) && !s.startsWith(".pm-player "),
+		);
+		expect(barePmClass).toBeEmpty();
 	});
 
 	test("contains all expected scoped player UI classes", () => {
@@ -143,19 +164,19 @@ describe("buildPlayerCSS", () => {
 
 	test("icon buttons keep transparent hover and focus background", () => {
 		const css = buildPlayerCSS();
-		const rule = cssRule(css, ".pm-player-icon-btn:hover, .pm-player-icon-btn:focus");
+		const rule = cssRule(css, ".pm-player .pm-player-icon-btn:hover, .pm-player .pm-player-icon-btn:focus");
 		expect(rule).toContain("background: none");
 	});
 
 	test("volume slider keeps its class margin despite the base range rule", () => {
 		const css = buildPlayerCSS();
-		const rule = cssRule(css, "input.pm-player-vol-slider");
+		const rule = cssRule(css, ".pm-player input.pm-player-vol-slider");
 		expect(rule).toContain("margin: 0 1px");
 	});
 
 	test(".pm-player-playhead has pointer-events: none for click-through", () => {
 		const css = buildPlayerCSS();
-		const rule = cssRule(css, ".pm-player-playhead");
+		const rule = cssRule(css, ".pm-player .pm-player-playhead");
 		expect(rule).toContain("pointer-events: none");
 	});
 
