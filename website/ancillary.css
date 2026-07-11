@@ -25,6 +25,24 @@ body {
     align-content: center;
 }
 
+/* wide screen */
+@media (min-width: 711px) {
+    html {
+        width: 100%;
+    }
+
+    body {
+        width: 100%;
+    }
+}
+
+/* narrow screen */
+@media (max-width: 710px) {
+    body {
+        width: 100%;
+    }
+}
+
 h1 {
     font-size: 1.7rem;
     text-align: center;
@@ -94,4 +112,15 @@ body.page-player {
     width: 100vw;
     flex-direction: column;
     align-items: stretch;
+}
+
+/* index_debug: stretch <main> so the editor container fills viewport width.
+   <main> is a centered flex child of body and would otherwise shrink-wrap,
+   causing #beepboxEditorContainer to hug its content instead of filling. */
+body.page-index-debug > main {
+    width: 100%;
+    max-width: initial;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }

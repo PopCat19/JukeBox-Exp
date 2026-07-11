@@ -33,7 +33,7 @@ export class Layout {
 #beepboxEditorContainer {
 	max-width: initial;
 	height: 100vh;
-	padding-top: 0px !important;
+	padding: 0px !important;
 }
 .beepboxEditor {
 	width: 100%;
@@ -52,7 +52,15 @@ export class Layout {
 }`;
 
 	private static readonly _layoutMap: { [K: string]: string } = {
-		small: "",
+		small: `\
+#beepboxEditorContainer {
+	height: 100vh;
+	min-height: initial;
+}
+.beepboxEditor {
+	height: 100vh;
+	overflow-y: auto;
+}`,
 		long: `\
 
 			/* long layout */
