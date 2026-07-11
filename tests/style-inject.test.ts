@@ -3,13 +3,14 @@
 // Purpose: Behavioral tests for shared/styles/inject.ts
 
 import { describe, expect, test } from "bun:test";
-import { injectGlobalStyles } from "../shared/styles/inject";
+import { injectGlobalStyles, removeGlobalStyles } from "../shared/styles/inject";
 
 interface MockStyleElement {
 	textContent: string | null;
 	attributes: Record<string, string>;
 	getAttribute(name: string): string | null;
 	setAttribute(name: string, value: string): void;
+	remove(): void;
 }
 
 interface MockStyleList {
@@ -17,7 +18,7 @@ interface MockStyleList {
 	item(index: number): HTMLStyleElement;
 }
 
-function createMockStyleElement(): HTMLStyleElement {
+function createMockStyleElement(appendedStyles?: HTMLStyleElement[]): HTMLStyleElement {
 	const style: MockStyleElement = {
 		textContent: null,
 		attributes: {},
@@ -26,6 +27,11 @@ function createMockStyleElement(): HTMLStyleElement {
 		},
 		setAttribute(name: string, value: string): void {
 			this.attributes[name] = value;
+		},
+		remove(): void {
+			if (!appendedStyles) return;
+			const index = appendedStyles.indexOf(this as unknown as HTMLStyleElement);
+			if (index !== -1) appendedStyles.splice(index, 1);
 		},
 	};
 
@@ -54,7 +60,7 @@ function createMockDocument(): { doc: Document; appendedStyles: HTMLStyleElement
 		head,
 		createElement(tag: string): HTMLStyleElement {
 			expect(tag).toBe("style");
-			return createMockStyleElement();
+			return createMockStyleElement(appendedStyles);
 		},
 	};
 
@@ -96,5 +102,43 @@ describe("injectGlobalStyles", () => {
 		expect(second).toBe(first);
 		expect(first.getAttribute("data-jb-style")).toBe(id);
 		expect(first.textContent).toBe(".a { color: blue; }");
+	});
+});
+
+describe("removeGlobalStyles", () => {
+	test("removes a tagged style element by id", () => {
+		const { doc, appendedStyles } = createMockDocument();
+
+		injectGlobalStyles(doc, "editor-main", ".a { color: red; }");
+		expect(appendedStyles).toHaveLength(1);
+
+		const removed = removeGlobalStyles(doc, "editor-main");
+
+		expect(removed).toBe(true);
+		expect(appendedStyles).toHaveLength(0);
+	});
+
+	test("remove returns false when id is absent", () => {
+		const { doc, appendedStyles } = createMockDocument();
+
+		injectGlobalStyles(doc, "editor-main", ".a { color: red; }");
+		const removed = removeGlobalStyles(doc, "player-main");
+
+		expect(removed).toBe(false);
+		expect(appendedStyles).toHaveLength(1);
+	});
+
+	test("remove only deletes the matching id not others", () => {
+		const { doc, appendedStyles } = createMockDocument();
+
+		injectGlobalStyles(doc, "editor-main", ".a { color: red; }");
+		injectGlobalStyles(doc, "player-main", ".b { color: blue; }");
+		expect(appendedStyles).toHaveLength(2);
+
+		const removed = removeGlobalStyles(doc, "editor-main");
+
+		expect(removed).toBe(true);
+		expect(appendedStyles).toHaveLength(1);
+		expect(appendedStyles[0].getAttribute("data-jb-style")).toBe("player-main");
 	});
 });
