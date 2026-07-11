@@ -1,0 +1,66 @@
+name: Refactor
+about: Structural improvement without outward-facing changes
+title: "[Refactor]: "
+labels: ["refactor"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Describe the refactoring scope, motivation, and dependencies.
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: What's wrong with the current structure?
+      placeholder: "e.g. Style injection scattered across three modules"
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposal
+      description: What should change?
+      placeholder: "e.g. Route injection through named data-jb-style slots"
+    validations:
+      required: true
+
+  - type: textarea
+    id: scope
+    attributes:
+      label: Scope
+      description: Files, modules, and boundaries affected.
+      placeholder: "e.g. shared/styles/inject.ts, editor/ui/theme.ts"
+    validations:
+      required: true
+
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance criteria
+      description: Measurable outcomes that define done.
+      placeholder: |
+        - Every stylesheet has a unique data-jb-style tag
+        - Reinjecting a slot updates without duplicating elements
+    validations:
+      required: true
+
+  - type: textarea
+    id: risk
+    attributes:
+      label: Risk
+      description: What could break and how to catch it early.
+      placeholder: |
+        Verify with at least two themes before removing legacy paths.
+    validations:
+      required: false
+
+  - type: input
+    id: depends
+    attributes:
+      label: Depends on
+      description: Issue numbers this depends on.
+      placeholder: "#23, #24"
+    validations:
+      required: false

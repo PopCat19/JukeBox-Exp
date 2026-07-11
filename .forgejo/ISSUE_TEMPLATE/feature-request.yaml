@@ -1,0 +1,49 @@
+name: Feature Request
+about: Suggest a new feature or enhancement
+title: "[Feature]: "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Describe the feature and why it matters.
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: What need does this address?
+      placeholder: "e.g. No way to save custom presets across sessions"
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution
+      description: How should it work?
+      placeholder: "e.g. Add a save/load button that stores to localStorage"
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: What else did you try or think about?
+    validations:
+      required: false
+
+  - type: dropdown
+    id: context
+    attributes:
+      label: Affected context
+      multiple: true
+      options:
+        - editor
+        - player
+        - website
+        - synth
+        - shared
+    validations:
+      required: true

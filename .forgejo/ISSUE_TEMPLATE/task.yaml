@@ -1,0 +1,35 @@
+name: Task
+about: General work item that is not a bug, feature, or refactor
+title: "[Task]: "
+labels: ["refactor"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Describe the task and how to verify it's done.
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: What needs to be done?
+    validations:
+      required: true
+
+  - type: textarea
+    id: verification
+    attributes:
+      label: Verification
+      description: How to confirm it's done.
+      placeholder: "e.g. Before/after: open editor, do X, check Y"
+    validations:
+      required: false
+
+  - type: input
+    id: depends
+    attributes:
+      label: Depends on
+      description: Issue numbers this depends on.
+      placeholder: "#23, #24"
+    validations:
+      required: false
