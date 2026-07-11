@@ -167,6 +167,69 @@ describe("Category B: AudioBackendHost live-read contract", () => {
 		expect(host.onSpectrumUpdate === undefined || typeof host.onSpectrumUpdate === "function").toBeTrue();
 		expect(host.onSpectrumReset === undefined || typeof host.onSpectrumReset === "function").toBeTrue();
 	});
+
+	test("activation synchronizes sample rate before worklet init and playback setup", async () => {
+		const synth = new Synth(createTestSong());
+		const events: string[] = [];
+		const sampleRate = 96_000;
+		let initPayload: Record<string, unknown> | null = null;
+		const computeWorkletPort = {
+			onmessage: null as ((event: { data: unknown }) => void) | null,
+			postMessage: (payload: Record<string, unknown>) => {
+				initPayload = payload;
+				events.push(`worklet:${String(payload.sampleRate)}`);
+			},
+			start: () => {},
+		};
+		type TestSynth = {
+			_audio: {
+				context: { sampleRate: number } | null;
+				computeWorkletPort: typeof computeWorkletPort;
+				isActive: boolean;
+				activate: () => Promise<void>;
+				setComputeWorkletUrl: (url: string) => void;
+				cancelSpectrumDecay: () => void;
+				resumeContext: () => Promise<void>;
+				resetRingForPlayback: () => void;
+			};
+			warmUpSynthesizer: (song: ReturnType<typeof createTestSong>) => void;
+		};
+		type TestSynthConstructor = { _computeWorkletEnabled: () => boolean };
+		const internals = synth as unknown as TestSynth;
+		const synthConstructor = Synth as unknown as TestSynthConstructor;
+		const originalComputeWorkletEnabled = synthConstructor._computeWorkletEnabled;
+		internals._audio = {
+			context: null,
+			computeWorkletPort,
+			isActive: true,
+			activate: () => {
+				events.push("activate");
+				internals._audio.context = { sampleRate };
+				return Promise.resolve();
+			},
+			setComputeWorkletUrl: () => {},
+			cancelSpectrumDecay: () => {},
+			resumeContext: () => Promise.resolve(),
+			resetRingForPlayback: () => events.push(`reset:${synth.samplesPerSecond}`),
+		};
+		internals.warmUpSynthesizer = () => events.push(`warmup:${synth.samplesPerSecond}`);
+		synthConstructor._computeWorkletEnabled = () => true;
+
+		try {
+			await synth.play();
+		} finally {
+			synthConstructor._computeWorkletEnabled = originalComputeWorkletEnabled;
+		}
+
+		expect(events).toEqual([
+			"activate",
+			`worklet:${sampleRate}`,
+			`warmup:${sampleRate}`,
+			`reset:${sampleRate}`,
+		]);
+		expect(initPayload).toMatchObject({ type: "init", sampleRate });
+		expect(synth.samplesPerSecond).toBe(sampleRate);
+	});
 });
 
 // ---------------------------------------------------------------------------

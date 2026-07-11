@@ -956,11 +956,11 @@ export class Synth {
 	}
 
 	private activateAudio(): Promise<void> {
-		if (this.isPlayingSong && this._audio.context) {
-			this.samplesPerSecond = this._audio.context.sampleRate;
-		}
 		this._audio.setComputeWorkletUrl("beepbox_synth_worklet.js");
 		return this._audio.activate(this._toAudioHost()).then((): void => {
+			if (this._audio.context) {
+				this.samplesPerSecond = this._audio.context.sampleRate;
+			}
 			if (Synth._computeWorkletEnabled()) this._initComputeWorklet();
 		});
 	}
@@ -1465,9 +1465,6 @@ export class Synth {
 		// Drop any stale ring slots, then start the rAF fill loop while
 		// isPlayingSong is already true so the first fill renders beat 0.
 		this._audio.resetRingForPlayback();
-		if (this._audio.context) {
-			this.samplesPerSecond = this._audio.context.sampleRate;
-		}
 		this._dbg("isPlayingSong set to true, playhead:", this.playheadInternal, "bar:", this.bar);
 	}
 
