@@ -431,11 +431,7 @@ export class AddSamplesPrompt extends BasePrompt {
 				this._moveDown(globalIdx);
 			});
 
-			const moveCol = div(
-				{ class: "sbpMoveCol" },
-				upBtn,
-				downBtn,
-			);
+			const moveCol = div({ class: "sbpMoveCol" }, upBtn, downBtn);
 			const row = div({ class: "sbpRow" }, moveCol, item, removeBtn);
 			item.addEventListener("click", () => {
 				this._lastInteraction = null;
@@ -507,14 +503,8 @@ export class AddSamplesPrompt extends BasePrompt {
 
 		const settingsRow = div(
 			{ class: "sbpSettingsRow" },
-			div(
-				{ class: "sbpSettingsCol" },
-				settingsSection,
-			),
-			div(
-				{ class: "sbpSettingsCol" },
-				chipSection,
-			),
+			div({ class: "sbpSettingsCol" }, settingsSection),
+			div({ class: "sbpSettingsCol" }, chipSection),
 		);
 		this._detailCard.appendChild(settingsRow);
 

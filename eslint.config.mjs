@@ -27,7 +27,6 @@ export default tseslint.config(
             // tsconfig.json only extends tsconfig_editor, so projectService never
             // loads tsconfig_player/tsconfig_synth; these fall back to the default
             // project (tsconfig.json) for type info.
-            "shared/styles/css-var-contract.ts",
             "editor/generated-ui/change-factory.ts",
             "editor/generated-ui/panel-factory.ts",
             "editor/core/tag-autocomplete.ts",

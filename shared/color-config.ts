@@ -11,8 +11,8 @@
 
 import { events } from "./events";
 import { applyPMDTheme } from "./pmd-adapter";
-import { injectGlobalStyles } from "./styles/inject";
 import { themeCssVarFallbacks } from "./styles/css-var-contract";
+import { injectGlobalStyles } from "./styles/inject";
 import { themes } from "./themes";
 
 interface SongChannelCounts {
