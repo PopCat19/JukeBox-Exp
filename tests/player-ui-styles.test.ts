@@ -8,7 +8,7 @@
 
 import { Window } from "happy-dom";
 import { describe, expect, test } from "bun:test";
-import { buildPlayerCSS, buildPlayerUI } from "../player/player-ui";
+import { buildPlayerCSS, buildPlayerUI, injectPlayerStyles } from "../player/player-ui";
 
 function cssRule(css: string, selector: string): string {
 	const escaped = selector.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
@@ -259,6 +259,27 @@ describe("buildPlayerCSS", () => {
 			const bId = bGrad.slice(6, -2);
 			expect(a.root.querySelector("linearGradient")?.id).toBe(aId);
 			expect(b.root.querySelector("linearGradient")?.id).toBe(bId);
+		});
+	});
+
+	test("two player instances leave no player elements as direct body siblings", () => {
+		withFreshDom(() => {
+			buildPlayerUI();
+			buildPlayerUI();
+			const bodyChildren = Array.from(document.body.children);
+			for (const child of bodyChildren) {
+				expect(child.classList.contains("pm-player")).toBeTrue();
+			}
+			expect(document.querySelectorAll(".pm-player").length).toBe(2);
+		});
+	});
+
+	test("repeated style injection dedupes to a single player-main slot", () => {
+		withFreshDom(() => {
+			injectPlayerStyles();
+			injectPlayerStyles();
+			const slots = document.head.querySelectorAll('style[data-jb-style="player-main"]');
+			expect(slots.length).toBe(1);
 		});
 	});
 
