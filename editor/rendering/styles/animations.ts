@@ -12,8 +12,12 @@ import { Animation } from "../../ui/style-constants";
 
 export function buildAnimationsCSS(): string {
 	return `\
+/* fill-mode: both applies the from-state (opacity 0, scale 0.96) before
+ * the animation starts, so the class doubles as the pre-enter hide set
+ * before append — no inline opacity needed. Forwards keeps the to-state
+ * until animationend removes the class. */
 .beepboxEditor .prompt.entering {
-	animation: prompt-enter 150ms ${Animation.easingDefault};
+	animation: prompt-enter 150ms ${Animation.easingDefault} both;
 }
 
 @keyframes prompt-enter {

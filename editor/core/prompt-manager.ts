@@ -601,7 +601,19 @@ export class PromptManager {
 		}
 
 		this._host.promptContainer.style.display = "";
-		newPrompt.container.style.opacity = "0";
+		// Pre-enter hide via the entering class + fill-mode: both (see
+		// animations.ts). The from-state (opacity 0, scale 0.96) applies
+		// before the animation starts, replacing the former inline
+		// opacity="0". Positioning happens in the rAF below before the
+		// first animated frame is painted.
+		newPrompt.container.classList.add("entering");
+		newPrompt.container.addEventListener(
+			"animationend",
+			() => {
+				newPrompt.container.classList.remove("entering");
+			},
+			{ once: true },
+		);
 		this._host.promptContainer.appendChild(newPrompt.container);
 
 		// Close over cursor info here (synchronously before any
@@ -612,9 +624,10 @@ export class PromptManager {
 
 		const savedPos = this._promptPositions.get(promptName);
 
-		// Measure and position via rAF (for layout) before starting
-		// the enter animation. The 0.96→1.0 scale animation makes
-		// getBoundingClientRect unreliable mid-anim.
+		// Measure and position via rAF (for layout) before the
+		// enter animation's first painted frame. offsetWidth/offsetHeight
+		// are transform-safe, so the scale(0.96) from-state does not skew
+		// the measurement.
 		const afterPos = (): void => {
 			if (cursorInfo) {
 				this._spawnNearCursor(newPrompt, promptName, cursorInfo);
@@ -623,16 +636,6 @@ export class PromptManager {
 			} else {
 				this._centerPrompt(newPrompt, promptName);
 			}
-			// Start enter animation; remove initial opacity hide.
-			newPrompt.container.classList.add("entering");
-			newPrompt.container.style.removeProperty("opacity");
-			newPrompt.container.addEventListener(
-				"animationend",
-				() => {
-					newPrompt.container.classList.remove("entering");
-				},
-				{ once: true },
-			);
 		};
 		requestAnimationFrame(afterPos);
 
