@@ -253,6 +253,8 @@ export class SongDocument {
 			this.synth.goToBar(0);
 			this.notifier.changed();
 			this._cleanDocumentDeferred();
+			this._validateDocState();
+			this.persistCurrentPosition();
 			return;
 		}
 
@@ -275,6 +277,8 @@ export class SongDocument {
 
 		this._recoveryUid = state.recoveryUid;
 		this.selection.fromJSON(state.selection);
+		this._validateDocState();
+		this.persistCurrentPosition();
 
 		// this.barScrollPos = Math.min(this.bar, Math.max(this.bar - (this.trackVisibleBars - 1), this.barScrollPos));
 
@@ -431,10 +435,10 @@ export class SongDocument {
 		this._stateShouldBePushed = false;
 		this._recordedNewSong = false;
 
-		// Persist bar/channel to sessionStorage so they survive page refresh
-		// (window.history.state is null on fresh page loads). The synth
-		// playhead bar is saved alongside so paused-at-bar-N resumes at N
-		// instead of snapping back to the start.
+		this.persistCurrentPosition();
+	};
+
+	public persistCurrentPosition(): void {
 		try {
 			window.sessionStorage.setItem("jukeboxCurrentBar", String(this.bar));
 			window.sessionStorage.setItem("jukeboxCurrentChannel", String(this.channel));
@@ -445,7 +449,7 @@ export class SongDocument {
 		} catch {
 			/* sessionStorage may be unavailable */
 		}
-	};
+	}
 
 	public record(change: Change, replace: boolean = false, newSong: boolean = false): void {
 		if (change.isNoop()) {
@@ -457,6 +461,7 @@ export class SongDocument {
 			this._recentChange = change;
 			this._stateShouldBePushed = this._stateShouldBePushed || !replace;
 			this._recordedNewSong = this._recordedNewSong || newSong;
+			this.persistCurrentPosition();
 			if (!this._waitingToUpdateState) {
 				// Defer updating the url/history until all sequenced changes have
 				// committed and the interface has rendered the latest changes to

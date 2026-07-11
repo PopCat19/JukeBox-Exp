@@ -48,6 +48,7 @@ export default tseslint.config(
             "tests/css-var-contract.test.ts",
             "tests/interactions-behavior.test.ts",
             "tests/loop-editor-contract.test.ts",
+            "tests/song-document-contract.test.ts",
             "tests/style-inject.test.ts",
             "tests/style-slots.test.ts",
             "tests/dom-hooks.test.ts",

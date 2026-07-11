@@ -192,6 +192,7 @@ export class Selection {
 		if (!this._doc.hasRedoHistory()) {
 			this._doc.record(this._changeTrack, canReplaceLastChange);
 		}
+		this._doc.persistCurrentPosition();
 		this.selectionUpdated();
 	}
 
