@@ -105,6 +105,11 @@ export function buildCleanChannelCSS(): string {
 	overflow: hidden;
 }
 
+.beepboxEditor .prompt.cleanChannelPrompt .ccpDetailPane {
+	border: 2px solid var(--ui-widget-background);
+	border-radius: var(--border-radius-medium);
+}
+
 .beepboxEditor .prompt.cleanChannelPrompt .ccpListContainer {
 	display: flex;
 	flex-direction: column;

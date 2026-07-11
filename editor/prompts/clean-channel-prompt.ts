@@ -277,8 +277,7 @@ export class CleanChannelPrompt extends BasePrompt {
 		this._cleanOneButton.addEventListener("click", this._onCleanOne);
 		this._cleanAllButton.addEventListener("click", this._onCleanAll);
 
-		this._detailPane.style.border = "2px solid var(--ui-widget-background)";
-		this._detailPane.style.borderRadius = "var(--border-radius-medium)";
+		this._detailPane.classList.add("ccpDetailPane");
 		this._detailPane.addEventListener("mouseenter", () => {
 			this._lastInteraction = "hover";
 			this._hoveredPane = "details";

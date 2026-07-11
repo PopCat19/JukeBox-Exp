@@ -313,6 +313,8 @@ export function buildSampleBrowserCSS(): string {
 	display: flex;
 	flex-direction: column;
 	padding: 8px;
+	border: 2px solid var(--ui-widget-background);
+	border-radius: var(--border-radius-medium);
 	gap: 0;
 }
 
@@ -396,6 +398,8 @@ export function buildSampleBrowserCSS(): string {
 .beepboxEditor .prompt.sampleBrowserPrompt .sbpRightPane {
 	display: flex;
 	flex-direction: column;
+	border: 2px solid var(--ui-widget-background);
+	border-radius: var(--border-radius-medium);
 }
 
 .beepboxEditor .prompt.sampleBrowserPrompt input[type=number],
