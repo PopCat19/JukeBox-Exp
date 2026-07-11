@@ -483,5 +483,10 @@ export function buildIconButtonsCSS(): string {
 
 .beepboxEditor .mute-button.modMute::before {
   background: var(--mute-button-mod);
+}
+
+.beepboxEditor .icon-overlay {
+	flex-shrink: 0;
+	pointer-events: none;
 }`;
 }

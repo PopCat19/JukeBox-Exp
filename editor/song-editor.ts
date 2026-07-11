@@ -1581,7 +1581,7 @@ export class SongEditor
 			// Copy icon:
 			SVG.svg(
 				{
-					style: "flex-shrink: 0; pointer-events: none;",
+					class: "icon-overlay",
 					width: Sizing.iconMd,
 					height: Sizing.iconMd,
 					viewBox: "0 0 24 24",
@@ -1618,7 +1618,7 @@ export class SongEditor
 			// Paste icon:
 			SVG.svg(
 				{
-					style: "flex-shrink: 0; pointer-events: none;",
+					class: "icon-overlay",
 					width: Sizing.iconMd,
 					height: Sizing.iconMd,
 					viewBox: "0 0 24 24",
@@ -1663,7 +1663,7 @@ export class SongEditor
 			// Export icon:
 			SVG.svg(
 				{
-					style: "flex-shrink: 0; pointer-events: none;",
+					class: "icon-overlay",
 					width: Sizing.iconMd,
 					height: Sizing.iconMd,
 					viewBox: "0 0 24 24",
@@ -1691,7 +1691,7 @@ export class SongEditor
 			// Import icon:
 			SVG.svg(
 				{
-					style: "flex-shrink: 0; pointer-events: none;",
+					class: "icon-overlay",
 					width: Sizing.iconMd,
 					height: Sizing.iconMd,
 					viewBox: "0 0 24 24",
