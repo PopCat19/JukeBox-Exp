@@ -47,6 +47,8 @@ Purpose: bun:test test files covering editor, synth, and shared modules.
 - `css-var-contract.test.ts`, Contract tests for CSS custom property registration, theme variable declarations, and ColorConfig fallback coverage for required theme variables
 - `style-inject.test.ts`, Behavioral tests for tagged global style injection deduplication
 - `style-slots.test.ts`, Guard that hardcoded injectGlobalStyles slot ids stay unique and accounted for
+- `dom-hooks.test.ts`, Static source-read guards for editor and prompt DOM hook literals (mount, shell, lifecycle, popout, PMD role, scrollbars)
+- `player-ui-styles.test.ts`, Contract tests for player CSS builder and player UI body-root append contract
 
 ## Source-to-test cross-reference
 

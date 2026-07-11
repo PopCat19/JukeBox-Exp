@@ -102,6 +102,14 @@ All 12 types verified via encode→decode→type-preservation.
 | `editor/components/mute-editor.ts` | `tests/ui-states.test.ts` | Source-grep: single-branch loop enter handler, leave reuses _updateLoopButton |
 | `editor/prompts/channel-volume-visualizer-prompt.ts` | `tests/ui-states.test.ts` | Source-grep: single-branch loop enter handler, leave reuses _updateLoopButton |
 | `editor/song-editor.ts` | `tests/loop-editor-contract.test.ts` | Focus-steal listeners for buttons/selects |
+| `editor/song-editor.ts` | `tests/dom-hooks.test.ts` | Source literal `"beepboxEditor"` and `"promptContainer"` class declarations |
+| `editor/main.ts` | `tests/dom-hooks.test.ts` | Source literal `"beepboxEditorContainer"` getElementById mount point |
+| `editor/ui/style.ts` | `tests/dom-hooks.test.ts` | Source literal `"prompt noSelection"` promptFrame class |
+| `editor/core/prompt-manager.ts` | `tests/dom-hooks.test.ts` | classList.add literals: entering, exiting, focused, refocus |
+| `editor/core/prompt-dock.ts` | `tests/dom-hooks.test.ts` | classList.add("docked") lifecycle hook |
+| `editor/core/prompt-popout.ts` | `tests/dom-hooks.test.ts` | dataset.popout set and data-popout removeAttribute |
+| `editor/ui/interactions.ts` | `tests/dom-hooks.test.ts` | dataset.pmdRole assignment literals |
+| `editor/rendering/style.ts` | `tests/dom-hooks.test.ts` | classList.add("obtrusive-scrollbars") hook |
 
 **Untested editor modules:** All `editor/core/`, `editor/changes/`,
 `editor/prompts/` (except channel-volume-visualizer above), `editor/renderers/`,
@@ -109,6 +117,12 @@ All 12 types verified via encode→decode→type-preservation.
 `editor/ui/*` subdirectories (except states/surfaces/interactions/barrel), `editor/main.ts`,
 `editor/song-document.ts`,
 `editor/song-custom-samples.ts`.
+
+### player/
+
+| Source | Test file | Scope |
+|--------|-----------|-------|
+| `player/player-ui.ts` | `tests/player-ui-styles.test.ts` | buildPlayerCSS selector contract, scoped class wiring, player body-root append contract |
 
 ### shared/
 

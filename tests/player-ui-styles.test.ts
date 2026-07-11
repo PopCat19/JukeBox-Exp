@@ -191,6 +191,18 @@ describe("buildPlayerCSS", () => {
 		});
 	});
 
+	test("buildPlayerUI appends control bar and visualization roots to the body", () => {
+		withFreshDom(() => {
+			buildPlayerUI();
+			const controlBar = document.querySelector(".pm-player-control-bar");
+			const vizContainer = document.querySelector(".pm-player-viz-container");
+			expect(controlBar?.parentElement).toBe(document.body);
+			expect(vizContainer?.parentElement).toBe(document.body);
+			expect(document.querySelectorAll(".pm-player-control-bar").length).toBe(1);
+			expect(document.querySelectorAll(".pm-player-viz-container").length).toBe(1);
+		});
+	});
+
 	test("CSS braces are balanced", () => {
 		const css = buildPlayerCSS();
 		let depth = 0;
