@@ -986,12 +986,12 @@ export class SongEditor
 	);
 	// Custom row: dynamic label + slider + input (widget row tip is static).
 	private readonly _stringSustainRow: HTMLDivElement = (() => {
-		const wrapper = div({ style: "display: flex; align-items: center; min-width: 0;" });
+		const wrapper = div({ class: "slider-flex-row" });
 		wrapper.appendChild(this._stringSustainWidget.slider.container);
 		wrapper.appendChild(this._stringSustainWidget.inputBox);
 		this._stringSustainWidget.slider.container.style.flex = "1 1 auto";
 		this._stringSustainWidget.slider.container.style.minWidth = "0";
-		this._stringSustainWidget.inputBox.style.flexShrink = "0";
+		this._stringSustainWidget.inputBox.classList.add("slider-flex-fixed");
 		return div({ class: "selectRow" }, this._stringSustainLabel, wrapper);
 	})();
 
@@ -2168,9 +2168,9 @@ export class SongEditor
 				(() => {
 					this._tempoSlider.container.style.flex = "1 1 auto";
 					this._tempoSlider.container.style.minWidth = "0";
-					this._tempoStepper.style.flexShrink = "0";
+					this._tempoStepper.classList.add("slider-flex-fixed");
 					return span(
-						{ style: "display: flex; align-items: center; min-width: 0;" },
+						{ class: "slider-flex-row" },
 						this._tempoSlider.container,
 						this._tempoStepper,
 					);

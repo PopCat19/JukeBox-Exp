@@ -263,5 +263,14 @@ export function buildEditorLayoutCSS(): string {
 	background: currentColor;
 	border-radius: 1px;
 }
+
+.beepboxEditor .slider-flex-row {
+	display: flex;
+	align-items: center;
+	min-width: 0;
+}
+.beepboxEditor .slider-flex-fixed {
+	flex-shrink: 0;
+}
 `;
 }
