@@ -540,7 +540,7 @@ export class SongEditor
 			{ class: "tip-xs" },
 		),
 		this._visualLoopControlsButton,
-		span({ style: "display: flex;" }, this._chipWaveLoopStartStepper),
+		span({ class: "stepper-group" }, this._chipWaveLoopStartStepper),
 	);
 	private readonly _chipWaveLoopEndRow = div(
 		{ class: "selectRow" },
@@ -552,7 +552,7 @@ export class SongEditor
 			{ class: "tip-xs" },
 		),
 		span(
-			{ style: "display: flex;" },
+			{ class: "stepper-group" },
 			this._chipWaveLoopEndStepper,
 			this._setChipWaveLoopEndToEndButton,
 		),
@@ -562,7 +562,7 @@ export class SongEditor
 		tipSpan("Offset: ", () => {
 			this._openPrompt("offset");
 		}),
-		span({ style: "display: flex;" }, this._chipWaveStartOffsetStepper),
+		span({ class: "stepper-group" }, this._chipWaveStartOffsetStepper),
 	);
 	private readonly _chipWavePlayBackwardsRow = div(
 		{ class: "selectRow" },

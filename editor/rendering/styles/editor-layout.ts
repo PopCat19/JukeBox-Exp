@@ -322,5 +322,8 @@ export function buildEditorLayoutCSS(): string {
 	flex-grow: 1;
 	text-align: center;
 }
+.beepboxEditor .stepper-group {
+	display: flex;
+}
 `;
 }
