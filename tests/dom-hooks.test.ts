@@ -36,6 +36,15 @@ describe("editor and prompt DOM hooks", () => {
 		assertLiteral("editor/song-editor.ts", '"promptContainer"');
 	});
 
+	test("editor grid and component layout hooks stay declared", () => {
+		assertLiteral("editor/song-editor.ts", '"pattern-area"');
+		assertLiteral("editor/song-editor.ts", '"song-settings-area"');
+		assertLiteral("editor/song-editor.ts", '"instrument-settings-area"');
+		assertLiteral("editor/song-editor.ts", '"trackAndMuteContainer"');
+		assertLiteral("editor/components/bar-scroll-bar.ts", '"barScrollBar"');
+		assertLiteral("editor/components/track-editor.ts", '"noSelection"');
+	});
+
 	test("prompt structural and lifecycle hooks stay declared", () => {
 		assertLiteral("editor/components/spectrum-editor.ts", '"prompt noSelection"');
 		assertLiteral("editor/core/prompt-manager.ts", 'classList.add("entering")');
@@ -50,5 +59,21 @@ describe("editor and prompt DOM hooks", () => {
 		assertLiteral("editor/core/prompt-popout.ts", 'removeAttribute("data-popout")');
 		assertLiteral("editor/ui/interactions.ts", "dataset.pmdRole");
 		assertLiteral("editor/rendering/style.ts", 'classList.add("obtrusive-scrollbars")');
+	});
+});
+
+describe("player DOM hooks", () => {
+	test("player root and key element class hooks stay declared", () => {
+		assertLiteral("player/player-ui.ts", '"pm-player"');
+		assertLiteral("player/player-ui.ts", '"pm-player-spectrum"');
+		assertLiteral("player/player-ui.ts", '"pm-player-play-btn"');
+		assertLiteral("player/player-ui.ts", '"pm-player-timeline"');
+		assertLiteral("player/player-ui.ts", '"pm-player-playhead"');
+		assertLiteral("player/player-ui.ts", '"pm-player-control-bar"');
+		assertLiteral("player/player-ui.ts", '"pm-player-viz-container"');
+	});
+
+	test("player root appends to document body without a container element", () => {
+		assertLiteral("player/player-ui.ts", 'document.body.appendChild');
 	});
 });

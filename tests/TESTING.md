@@ -110,6 +110,10 @@ All 12 types verified via encode→decode→type-preservation.
 | `editor/core/prompt-popout.ts` | `tests/dom-hooks.test.ts` | dataset.popout set and data-popout removeAttribute |
 | `editor/ui/interactions.ts` | `tests/dom-hooks.test.ts` | dataset.pmdRole assignment literals |
 | `editor/rendering/style.ts` | `tests/dom-hooks.test.ts` | classList.add("obtrusive-scrollbars") hook |
+| `editor/song-editor.ts` | `tests/dom-hooks.test.ts` | Grid layout class literals: pattern-area, song-settings-area, instrument-settings-area, trackAndMuteContainer |
+| `editor/components/bar-scroll-bar.ts` | `tests/dom-hooks.test.ts` | Source literal `"barScrollBar"` class declaration |
+| `editor/components/track-editor.ts` | `tests/dom-hooks.test.ts` | Source literal `"noSelection"` class declaration |
+| `player/player-ui.ts` | `tests/dom-hooks.test.ts` | Player root and element class literals: pm-player, pm-player-spectrum, pm-player-play-btn, pm-player-timeline, pm-player-playhead, pm-player-control-bar, pm-player-viz-container, body append |
 
 **Untested editor modules:** All `editor/core/`, `editor/changes/`,
 `editor/prompts/` (except channel-volume-visualizer above), `editor/renderers/`,
@@ -136,7 +140,7 @@ All 12 types verified via encode→decode→type-preservation.
 | `shared/color-config.ts` | `tests/shared-utilities.test.ts` | colorConfig (indirect through color utils) |
 | `shared/color-config.ts` | `tests/css-var-contract.test.ts` | fallback defaults cover all requiredThemeCssVars |
 | `shared/events.ts` | `tests/barrel-exports.test.ts` | events (indirect) |
-| `shared/styles/css-var-contract.ts` | `tests/css-var-contract.test.ts` | known CSS custom properties, source references, theme declarations, ColorConfig fallback coverage for required theme variables |
+| `shared/styles/css-var-contract.ts` | `tests/css-var-contract.test.ts` | known CSS custom properties, source references, theme declarations, ColorConfig fallback coverage for required theme variables, required var set stability, theme registry wiring, per-theme :root presence |
 | `shared/styles/inject.ts` | `tests/style-inject.test.ts` | tagged global style injection and same-id deduplication |
 | `shared/styles/inject.ts` | `tests/style-slots.test.ts` | hardcoded slot id uniqueness and known-set guard |
 | `shared/spectrum.ts` | none | Spectrogram type exports |

@@ -44,10 +44,10 @@ Purpose: bun:test test files covering editor, synth, and shared modules.
 - `song-serialization-shared.test.ts`, Unit tests for shared serialization constants and version ranges
 - `custom-algorithm.test.ts`, Unit tests for CustomAlgorithm — FM operator routing
 - `custom-feedback.test.ts`, Unit tests for CustomFeedBack — FM feedback routing
-- `css-var-contract.test.ts`, Contract tests for CSS custom property registration, theme variable declarations, and ColorConfig fallback coverage for required theme variables
+- `css-var-contract.test.ts`, Contract tests for CSS custom property registration, theme variable declarations, ColorConfig fallback coverage, required var set stability, theme registry wiring, per-theme :root presence
 - `style-inject.test.ts`, Behavioral tests for tagged global style injection deduplication
 - `style-slots.test.ts`, Guard that hardcoded injectGlobalStyles slot ids stay unique and accounted for
-- `dom-hooks.test.ts`, Static source-read guards for editor and prompt DOM hook literals (mount, shell, lifecycle, popout, PMD role, scrollbars)
+- `dom-hooks.test.ts`, Static source-read guards for editor, prompt, and player DOM hook literals (mount, shell, grid layout, lifecycle, popout, PMD role, scrollbars, player root and element classes)
 - `player-ui-styles.test.ts`, Contract tests for player CSS builder and player UI body-root append contract
 
 ## Source-to-test cross-reference
