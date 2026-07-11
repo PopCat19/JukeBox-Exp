@@ -81,6 +81,9 @@ export function buildBaseWidgetsCSS(): string {
 	color: ${ColorConfig.linkAccent};
 	font-weight: ${Typography.weightSemibold};
 }
+.beepboxEditor select option.mod-invalid-option {
+	color: red;
+}
 
 /* PMD opacity.txt:9: 88×24% foreground = disabled state.
  * Applies to every natively-disabled form control inside the editor.

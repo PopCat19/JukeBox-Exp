@@ -617,7 +617,7 @@ export function renderModSettings(
 					option(
 						{
 							value: Config.modulators[instrument.modulators[mod]].name,
-							style: "color: red;",
+							class: "mod-invalid-option",
 						},
 						Config.modulators[instrument.modulators[mod]].name,
 					),
@@ -745,7 +745,7 @@ export function renderModSettings(
 					useName = "morph";
 				}
 				refs.modFilterBoxes[mod].insertBefore(
-					option({ value: useName, style: "color: red;" }, useName),
+					option({ value: useName, class: "mod-invalid-option" }, useName),
 					refs.modFilterBoxes[mod].children[0],
 				);
 				refs.modFilterBoxes[mod].selectedIndex = 0;
@@ -792,7 +792,7 @@ export function renderModSettings(
 				instrument.invalidModulators[mod] = true;
 				const useName: string = `envelope ${instrument.modEnvelopeNumbers[mod]}`;
 				refs.modEnvelopeBoxes[mod].insertBefore(
-					option({ value: useName, style: "color: red;" }, useName),
+					option({ value: useName, class: "mod-invalid-option" }, useName),
 					refs.modEnvelopeBoxes[mod].children[0],
 				);
 				refs.modEnvelopeBoxes[mod].selectedIndex = 0;
