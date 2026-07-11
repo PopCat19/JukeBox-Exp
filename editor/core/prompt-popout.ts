@@ -23,6 +23,7 @@
 //   Chromium/Firefox but is not spec-guaranteed.
 
 import { events } from "../../shared/events";
+import { injectGlobalStyles } from "../../shared/styles/inject";
 import type { Prompt } from "../prompts/prompt";
 
 export interface PromptPopoutHost {
@@ -85,12 +86,12 @@ export class PromptPopout {
 		// --padding-12 margin on both axes. body gets .beepboxEditor so the scoped
 		// rules (.beepboxEditor .prompt { ... }) still match. overflow:hidden keeps
 		// the scroll inside the channels pane rather than the body.
-		const base = doc.createElement("style");
-		base.setAttribute(POPOUT_STYLE_ATTR, "");
-		base.textContent =
+		injectGlobalStyles(
+			doc,
+			"popout-base",
 			"html,body{margin:0;padding:0;height:100%;}" +
-			"body{padding:var(--padding-12);overflow:hidden;box-sizing:border-box;}";
-		doc.head.appendChild(base);
+				"body{padding:var(--padding-12);overflow:hidden;box-sizing:border-box;}",
+		);
 		doc.body.classList.add("beepboxEditor");
 
 		this._cloneStyles(doc);
@@ -208,10 +209,15 @@ export class PromptPopout {
 		// (a <style> node in document.head), so cloning head nodes captures those.
 		for (const node of Array.from(document.head.children)) {
 			if (node instanceof HTMLStyleElement) {
-				const clone = doc.createElement("style");
-				clone.setAttribute(POPOUT_STYLE_ATTR, "");
-				clone.textContent = node.textContent;
-				doc.head.appendChild(clone);
+				const slotId = node.getAttribute("data-jb-style");
+				if (slotId) {
+					injectGlobalStyles(doc, slotId, node.textContent ?? "");
+				} else {
+					const clone = doc.createElement("style");
+					clone.setAttribute(POPOUT_STYLE_ATTR, "");
+					clone.textContent = node.textContent;
+					doc.head.appendChild(clone);
+				}
 			} else if (node instanceof HTMLLinkElement && node.rel === "stylesheet") {
 				const clone = doc.createElement("link");
 				clone.setAttribute(POPOUT_STYLE_ATTR, "");
