@@ -102,7 +102,7 @@ All 12 types verified via encode→decode→type-preservation.
 | `editor/components/mute-editor.ts` | `tests/ui-states.test.ts` | Source-grep: single-branch loop enter handler, leave reuses _updateLoopButton |
 | `editor/prompts/channel-volume-visualizer-prompt.ts` | `tests/ui-states.test.ts` | Source-grep: single-branch loop enter handler, leave reuses _updateLoopButton |
 | `editor/song-editor.ts` | `tests/loop-editor-contract.test.ts` | Focus-steal listeners for buttons/selects |
-| `editor/song-document.ts`, `editor/core/selection.ts` | `tests/song-document-contract.test.ts` | Position persistence ordering for record, redo-preserving navigation, and history-state application |
+| `editor/song-document.ts`, `editor/core/selection.ts`, `editor/song-editor.ts` | `tests/song-document-contract.test.ts` | Position persistence ordering, redo-preserving navigation, history-state application, and playback channel controls refresh |
 | `editor/song-editor.ts` | `tests/dom-hooks.test.ts` | Source literal `"beepboxEditor"` and `"promptContainer"` class declarations |
 | `editor/main.ts` | `tests/dom-hooks.test.ts` | Source literal `"beepboxEditorContainer"` getElementById mount point |
 | `editor/ui/style.ts` | `tests/dom-hooks.test.ts` | Source literal `"prompt noSelection"` promptFrame class |

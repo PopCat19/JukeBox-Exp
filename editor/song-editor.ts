@@ -2240,6 +2240,8 @@ export class SongEditor
 	};
 
 	private _renderedInstrumentCount: number = 0;
+	private _renderedChannel: number = -1;
+	private _renderedInstrument: number = -1;
 	private _renderedIsPlaying: boolean = false;
 	private _renderedIsRecording: boolean = false;
 	private _renderedShowRecordButton: boolean = false;
@@ -3976,12 +3978,14 @@ export class SongEditor
 		const prefs: Preferences = this.doc.prefs;
 		renderLayout(this._layoutRefs, this.doc);
 
-		// During playback, skip the full settings re-render cascade.
-		// All per-frame visual updates (playhead, mod sliders, filters,
-		// volume bar, center-follow, pattern notes) run in PlayerAnimator
-		// and component rAF loops. renderLayout above still runs to apply
-		// scroll position and update bar highlights in the track editor.
-		if (this.doc.synth.playing) {
+		const instrumentIndex: number = this.doc.getCurrentInstrument();
+		// During playback, skip repeated settings renders unless navigation changed
+		// which channel or pattern instrument the controls must represent.
+		if (
+			this.doc.synth.playing &&
+			this._renderedChannel === this.doc.channel &&
+			this._renderedInstrument === instrumentIndex
+		) {
 			return;
 		}
 
@@ -3992,7 +3996,6 @@ export class SongEditor
 		const textOffIcon: string = ColorConfig.getComputed("--text-disabled-icon");
 
 		const channel: Channel = this.doc.song.channels[this.doc.channel];
-		const instrumentIndex: number = this.doc.getCurrentInstrument();
 		const instrument: Instrument = channel.instruments[instrumentIndex];
 		const wasActive: boolean = this.mainLayer.contains(document.activeElement);
 		const activeElement: Element | null = document.activeElement;
@@ -4082,6 +4085,8 @@ export class SongEditor
 			},
 		);
 		this._promptManager.repositionOutOfBounds();
+		this._renderedChannel = this.doc.channel;
+		this._renderedInstrument = instrumentIndex;
 	};
 
 	public handleModRecording(): void {

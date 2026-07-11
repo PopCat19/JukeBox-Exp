@@ -13,6 +13,10 @@ const selectionSource = readFileSync(
 	new URL("../editor/core/selection.ts", import.meta.url),
 	"utf8",
 );
+const songEditorSource = readFileSync(
+	new URL("../editor/song-editor.ts", import.meta.url),
+	"utf8",
+);
 
 function methodBody(source: string, signature: string, nextSignature: string): string {
 	const start = source.indexOf(signature);
@@ -55,6 +59,41 @@ describe("SongDocument position persistence", () => {
 		expect(record).toBeGreaterThan(conditionalStart);
 		expect(conditionalEnd).toBeGreaterThan(record);
 		expect(persist).toBeGreaterThan(conditionalEnd);
+	});
+
+	test("playback still refreshes controls after channel navigation", () => {
+		const body = methodBody(
+			songEditorSource,
+			"public whenUpdated =",
+			"public handleModRecording(",
+		);
+		const instrumentRead = body.indexOf(
+			"const instrumentIndex: number = this.doc.getCurrentInstrument()",
+		);
+		const playingGuard = body.indexOf("this.doc.synth.playing", instrumentRead);
+		const channelComparison = body.indexOf(
+			"this._renderedChannel === this.doc.channel",
+			playingGuard,
+		);
+		const instrumentComparison = body.indexOf(
+			"this._renderedInstrument === instrumentIndex",
+			channelComparison,
+		);
+		const renderedChannelUpdate = body.indexOf(
+			"this._renderedChannel = this.doc.channel",
+			instrumentComparison,
+		);
+		const renderedInstrumentUpdate = body.indexOf(
+			"this._renderedInstrument = instrumentIndex",
+			renderedChannelUpdate,
+		);
+
+		expect(instrumentRead).toBeGreaterThanOrEqual(0);
+		expect(playingGuard).toBeGreaterThan(instrumentRead);
+		expect(channelComparison).toBeGreaterThan(playingGuard);
+		expect(instrumentComparison).toBeGreaterThan(channelComparison);
+		expect(renderedChannelUpdate).toBeGreaterThan(instrumentComparison);
+		expect(renderedInstrumentUpdate).toBeGreaterThan(renderedChannelUpdate);
 	});
 
 	test("history changes persist after applying and validating position", () => {
