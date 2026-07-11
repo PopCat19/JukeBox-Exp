@@ -429,7 +429,7 @@ export class SongEditor
 	// @TODO: Add a dropdown for these. Or maybe this checkbox is fine?
 	private readonly _useChipWaveAdvancedLoopControlsBox = input({
 		type: "checkbox",
-		style: "padding: 0; margin-left: 0.4em; margin-right: 4em;",
+		class: "select-row-checkbox-spaced",
 	});
 	private readonly _chipWaveLoopModeSelect = buildOptions(select(), [
 		"Loop",
@@ -480,7 +480,7 @@ export class SongEditor
 	});
 	private readonly _chipWavePlayBackwardsBox = input({
 		type: "checkbox",
-		style: "padding: 0; margin-left: 0.4em; margin-right: 4em;",
+		class: "select-row-checkbox-spaced",
 	});
 	// advloop addition
 	private readonly _chipWaveSelectRow: HTMLDivElement = div(
@@ -602,7 +602,7 @@ export class SongEditor
 	);
 	private readonly _clicklessTransitionBox: HTMLInputElement = input({
 		type: "checkbox",
-		style: "width: 1em; padding: 0; margin-right: 4em;",
+		class: "select-row-checkbox-narrow",
 	});
 	private readonly _clicklessTransitionRow: HTMLElement = div(
 		{ class: "selectRow dropFader" },
@@ -923,7 +923,7 @@ export class SongEditor
 	);
 	private readonly _aliasingBox: HTMLInputElement = input({
 		type: "checkbox",
-		style: "width: 1em; padding: 0; margin-right: 4em;",
+		class: "select-row-checkbox-narrow",
 	});
 	private readonly _aliasingRow: HTMLElement = div(
 		{ class: "selectRow" },
@@ -1218,7 +1218,7 @@ export class SongEditor
 	);
 	private readonly _twoNoteArpBox: HTMLInputElement = input({
 		type: "checkbox",
-		style: "width: 1em; padding: 0; margin-right: 4em;",
+		class: "select-row-checkbox-narrow",
 	});
 	private readonly _twoNoteArpRow: HTMLElement = div(
 		{ class: "selectRow dropFader" },
@@ -1242,7 +1242,7 @@ export class SongEditor
 
 	private readonly _invertWaveBox: HTMLInputElement = input({
 		type: "checkbox",
-		style: "width: 1em; padding: 0; margin-right: 4em;",
+		class: "select-row-checkbox-narrow",
 	});
 	private readonly _invertWaveRow: HTMLElement = div(
 		{ class: "selectRow" },

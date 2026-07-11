@@ -83,6 +83,16 @@ export function buildFormInputsCSS(): string {
 	height: 1.2em;
 	margin: 0 0.3em;
 }
+.beepboxEditor input[type=checkbox].select-row-checkbox-spaced {
+	padding: 0;
+	margin-left: 0.4em;
+	margin-right: 4em;
+}
+.beepboxEditor input[type=checkbox].select-row-checkbox-narrow {
+	width: 1em;
+	padding: 0;
+	margin-right: 4em;
+}
 .beepboxEditor input[type=checkbox]:checked {
 	background: ${ColorConfig.primaryText};
 	border-color: ${ColorConfig.primaryText};
