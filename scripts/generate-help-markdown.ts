@@ -120,7 +120,7 @@ for (const page of manualPages) {
 	const beginIdx = content.indexOf(beginMarker);
 	const endIdx = content.indexOf(endMarker);
 
-	if (beginIdx === -1 || endIdx === -1) {
+	if (beginIdx === -1 || endIdx === -1 || endIdx < beginIdx) {
 		console.warn(`Skipping ${page.file}: nav delimiters not found`);
 		continue;
 	}

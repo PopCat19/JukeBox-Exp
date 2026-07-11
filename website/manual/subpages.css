@@ -581,12 +581,16 @@ body.page-faq th {
 @media (min-width: 711px) {
     body.page-faq {
         width: 100%;
+        max-width: none;
+        padding: 0;
     }
 }
 
 @media (max-width: 710px) {
     body.page-faq {
         width: 100%;
+        max-width: none;
+        padding: 0;
     }
 
     body.page-faq p {

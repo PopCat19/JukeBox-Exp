@@ -10,7 +10,7 @@
 	<meta name="description" content="JukeBox is a mod of Slarmoo's Box that aims to add a crap ton of presets." />
 	<!-- Self-hosted B612 font -->
 	<link rel="stylesheet" href="../assets/fonts/google/fonts.css" />
-    <script>
+	<script>
 		function linkTo(update) {
 			window.history.replaceState(null, "", location.pathname + "#" + update);
 			navigator.clipboard.writeText(window.location).then(() => {
@@ -23,8 +23,10 @@
 				}
 			});
 		}
-		document.querySelectorAll('a.link[title="Copy link"]').forEach(function(a) {
-			a.addEventListener('click', function() { linkTo(a.dataset.linkTo); });
+		document.addEventListener('DOMContentLoaded', function() {
+			document.querySelectorAll('a.link[title="Copy link"]').forEach(function(a) {
+				a.addEventListener('click', function() { linkTo(a.dataset.linkTo); });
+			});
 		});
 	</script>
 	<title>JukeBox Top Sneaky</title>
