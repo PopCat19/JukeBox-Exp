@@ -7,4 +7,4 @@
 - `physics.ts`, Physics engine for shiggy system
 - `summoning.ts`, Summoned shiggy lifecycle management
 - `tracking.ts`, Physics driver and DOM applier for shiggy tracking
-- `types.ts`, Shared types and constants for shiggy system
+- `types.ts`, Shared types and constants for shiggy system. Keyframe CSS injected via tagged slot "shiggy" (data-jb-style) through injectGlobalStyles

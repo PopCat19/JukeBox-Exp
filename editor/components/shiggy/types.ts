@@ -2,6 +2,8 @@
 //
 // Purpose: Shared types and constants for shiggy system
 
+import { injectGlobalStyles } from "../../../shared/styles/inject";
+
 export const GIF_RESTART_MS = 11000;
 export const AUTO_SPAWN_MS = 6000;
 export const PET_SUMMON_THRESHOLD = 5;
@@ -95,10 +97,10 @@ export interface MouseSample {
 }
 
 export function injectShiggyCss(): void {
-	if (document.getElementById("shiggy-css")) return;
-	const style = document.createElement("style");
-	style.id = "shiggy-css";
-	style.textContent = `
+	injectGlobalStyles(
+		document,
+		"shiggy",
+		`
         @keyframes shiggy-float {
             0%, 100% { transform: translateY(0); }
             25% { transform: translateY(-8px); }
@@ -121,6 +123,6 @@ export function injectShiggyCss(): void {
             80% { opacity: 1; }
             100% { opacity: 0; transform: translateX(-50%) translateY(-6px); }
         }
-    `;
-	document.head.appendChild(style);
+    `,
+	);
 }

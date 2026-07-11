@@ -9,6 +9,7 @@
 
 import { HTML } from "imperative-html/dist/esm/elements-strict";
 import { formatColorForTab, parseCssColor, rgbaToHex } from "../../shared/color-utils";
+import { injectGlobalStyles, removeGlobalStyles } from "../../shared/styles/inject";
 import type { SongDocument } from "../song-document";
 import { actionButton } from "../ui";
 import { createColorPicker, getLastColorTab } from "../ui/inputs/color-picker";
@@ -362,21 +363,11 @@ function getStoredCss(): string {
 }
 
 function applyCssToDoc(css: string): void {
-	const styleEl = document.getElementById("custom-palette-preview");
-	if (!styleEl) {
-		const el = document.createElement("style");
-		el.id = "custom-palette-preview";
-		el.type = "text/css";
-		document.head.appendChild(el);
-		el.textContent = css;
-	} else {
-		styleEl.textContent = css;
-	}
+	injectGlobalStyles(document, "palette-preview", css);
 }
 
 function removePreviewCss(): void {
-	const el = document.getElementById("custom-palette-preview");
-	if (el) el.remove();
+	removeGlobalStyles(document, "palette-preview");
 }
 
 const ROW_STYLE =
