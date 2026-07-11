@@ -305,11 +305,10 @@ export class InstrumentSettingsPanel {
 		this.eqFilterAdvancedButton = eqFilterToggle.buttons[1];
 
 		this.eqFilterTypeRow = div(
-			{ class: "selectRow", style: "padding-top: 4px; margin-bottom: 0px;" },
+			{ class: "selectRow filter-type-row" },
 			span(
 				{
-					style: "font-size: x-small;",
-					class: "tip",
+					class: "tip tip-xs",
 					onclick: () => {
 						onOpenPrompt("filterType");
 					},
@@ -386,11 +385,10 @@ export class InstrumentSettingsPanel {
 		this.noteFilterAdvancedButton = noteFilterToggle.buttons[1];
 
 		this.noteFilterTypeRow = div(
-			{ class: "selectRow", style: "padding-top: 4px; margin-bottom: 0px;" },
+			{ class: "selectRow filter-type-row" },
 			span(
 				{
-					style: "font-size: x-small;",
-					class: "tip",
+					class: "tip tip-xs",
 					onclick: () => {
 						onOpenPrompt("filterType");
 					},
