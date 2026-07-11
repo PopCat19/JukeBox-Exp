@@ -3059,17 +3059,28 @@ export class SongEditor
 				// Clicking the already-open select toggles it closed. The browser
 				// closes the popup on mousedown, so schedule focus restore after
 				// the browser settles. The opening click (openedSelect was null)
-				// just arms the tracker without touching focus.
+				// just arms the tracker without touching focus. Re-check inside
+				// the rAF: if the user re-opened this or another select before
+				// the frame fired, openedSelect is re-armed and we must not steal
+				// focus from the freshly opened popup.
 				if (openedSelect === target) {
 					openedSelect = null;
 					keyboardNavigatingSelect = false;
 					requestAnimationFrame(() => {
+						if (openedSelect !== null) return;
+						const active = document.activeElement;
+						if (active instanceof HTMLSelectElement) return;
 						this.mainLayer.focus({ preventScroll: true });
 					});
 				} else {
 					openedSelect = target;
 					keyboardNavigatingSelect = false;
 				}
+			} else {
+				// Click outside any select clears stale tracker state so a later
+				// click on the same select is treated as an open, not a toggle.
+				openedSelect = null;
+				keyboardNavigatingSelect = false;
 			}
 		});
 		document.addEventListener("mouseup", () => {
