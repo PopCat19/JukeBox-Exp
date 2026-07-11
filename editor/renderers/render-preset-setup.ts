@@ -24,6 +24,7 @@ export interface PresetSetupRefs {
 
 	instrumentVolumeSliderRow: HTMLElement;
 	instrumentTypeSelectRow: HTMLElement;
+	instrumentTypeRow: HTMLElement;
 	instrumentSettingsGroup: HTMLElement;
 	instrumentExportGroup: HTMLElement;
 	instrumentCopyGroup: HTMLElement;
@@ -49,6 +50,7 @@ export function renderPresetSetup(
 
 	refs.instrumentVolumeSliderRow.style.display = "";
 	refs.instrumentTypeSelectRow.style.setProperty("display", "");
+	refs.instrumentTypeRow.style.setProperty("display", "");
 	if (prefs.instrumentButtonsAtTop) {
 		refs.instrumentSettingsGroup.insertBefore(
 			refs.instrumentExportGroup,
@@ -81,6 +83,7 @@ export function renderPresetSetup(
 	usageCheck(doc.channel, doc.getCurrentInstrument());
 
 	if (doc.song.getChannelIsNoise(doc.channel)) {
+		refs.instrumentTypeRow.style.setProperty("display", "none");
 		refs.pitchedPresetSelect.style.display = "none";
 		refs.drumPresetSelect.style.display = "";
 		if (refs.drumPresetSelect instanceof HTMLButtonElement) {

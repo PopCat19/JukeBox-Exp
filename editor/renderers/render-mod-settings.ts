@@ -79,6 +79,7 @@ export interface ModSettingsRefs {
 
 	instrumentVolumeSliderRow: HTMLElement;
 	instrumentTypeSelectRow: HTMLElement;
+	instrumentTypeRow: HTMLElement;
 	instrumentSettingsGroup: HTMLElement;
 
 	// Presets
@@ -825,6 +826,7 @@ export function renderModSettings(
 
 	refs.instrumentVolumeSliderRow.style.display = "none";
 	refs.instrumentTypeSelectRow.style.setProperty("display", "none");
+	refs.instrumentTypeRow.style.setProperty("display", "none");
 
 	refs.instrumentSettingsGroup.style.color = ColorConfig.getChannelColor(
 		doc.song,
