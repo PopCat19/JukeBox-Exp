@@ -14,6 +14,7 @@ import { HTML } from "imperative-html/dist/esm/elements-strict";
 export interface TipSpanOptions {
 	style?: string;
 	tabindex?: string;
+	class?: string;
 }
 
 export function tipSpan(
@@ -23,6 +24,7 @@ export function tipSpan(
 ): HTMLSpanElement {
 	const attrs: Record<string, string> = { class: "tip" };
 
+	if (options?.class) attrs.class = `tip ${options.class}`;
 	if (options?.style) attrs.style = options.style;
 	if (options?.tabindex) attrs.tabindex = options.tabindex;
 	if (onClick) (attrs as any).onclick = onClick;

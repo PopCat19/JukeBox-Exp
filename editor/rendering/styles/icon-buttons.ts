@@ -24,6 +24,9 @@ export function buildIconButtonsCSS(): string {
 .beepboxEditor .tip:active {
 	color: ${ColorConfig.primaryText};
 }
+.beepboxEditor .tip.tip-xs {
+	font-size: x-small;
+}
 
 .beepboxEditor .volume-speaker {
 	flex-shrink: 0;

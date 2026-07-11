@@ -526,9 +526,7 @@ export class SongEditor
 			() => {
 				this._openPrompt("loopMode");
 			},
-			{
-				style: "font-size: x-small;",
-			},
+			{ class: "tip-xs" },
 		),
 		div({ class: "selectContainer" }, this._chipWaveLoopModeSelect),
 	);
@@ -539,9 +537,7 @@ export class SongEditor
 			() => {
 				this._openPrompt("loopStart");
 			},
-			{
-				style: "font-size: x-small;",
-			},
+			{ class: "tip-xs" },
 		),
 		this._visualLoopControlsButton,
 		span({ style: "display: flex;" }, this._chipWaveLoopStartStepper),
@@ -553,7 +549,7 @@ export class SongEditor
 			() => {
 				this._openPrompt("loopEnd");
 			},
-			{ style: "font-size: x-small;" },
+			{ class: "tip-xs" },
 		),
 		span(
 			{ style: "display: flex;" },
@@ -637,9 +633,7 @@ export class SongEditor
 			() => {
 				this._openPrompt("filterType");
 			},
-			{
-				style: "font-size: x-small;",
-			},
+			{ class: "tip-xs" },
 		),
 		this._eqFilterToggle.container,
 	);
@@ -701,9 +695,7 @@ export class SongEditor
 			() => {
 				this._openPrompt("filterType");
 			},
-			{
-				style: "font-size: x-small;",
-			},
+			{ class: "tip-xs" },
 		),
 		this._noteFilterToggle.container,
 	);
