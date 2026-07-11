@@ -14,3 +14,4 @@ Purpose: Forgejo issue drafts and the baseline ownership audit for restructuring
   Depends on #01.
 - `08-css-dom-regression-guards.md`, Adds baseline contract checks before migration and final coverage after.
   Depends on #02, #03.
+- `09-rendered-dom-checklist.md`, Repeatable manual browser verification checklist for audit §8 paths. Issue #30 phase 2.
