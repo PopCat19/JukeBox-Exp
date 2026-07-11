@@ -42,6 +42,20 @@ export function buildFormInputsCSS(): string {
 	border-color: var(--indicator-primary, #4444ff);
 }
 
+.beepboxEditor input[type=number].stepper-input,
+.beepboxEditor input[type=number].stepper-input-wide {
+	height: 1.5em;
+	font-size: 80%;
+	margin-left: 0.4em;
+	vertical-align: middle;
+}
+.beepboxEditor input[type=number].stepper-input {
+	width: 100%;
+}
+.beepboxEditor input[type=number].stepper-input-wide {
+	width: 150%;
+}
+
 .beepboxEditor input[type=text]::selection, .beepboxEditor input[type=number]::selection {
 	background: var(--primary-text);
 	color: var(--editor-background);

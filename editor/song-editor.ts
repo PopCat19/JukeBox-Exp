@@ -442,14 +442,14 @@ export class SongEditor
 		min: "0",
 		step: "1",
 		value: "0",
-		style: "width: 100%; height: 1.5em; font-size: 80%; margin-left: 0.4em; vertical-align: middle;",
+		class: "stepper-input",
 	});
 	private readonly _chipWaveLoopEndStepper = numberInput({
 		type: "number",
 		min: "0",
 		step: "1",
 		value: "0",
-		style: "width: 100%; height: 1.5em; font-size: 80%; margin-left: 0.4em; vertical-align: middle;",
+		class: "stepper-input",
 	});
 	private readonly _setChipWaveLoopEndToEndButton = button(
 		{ type: "button", style: "width: 1.5em; height: 1.5em; padding: 0; margin-left: 0.5em;" },
@@ -476,7 +476,7 @@ export class SongEditor
 		min: "0",
 		step: "1",
 		value: "0",
-		style: "width: 100%; height: 1.5em; font-size: 80%; margin-left: 0.4em; vertical-align: middle;",
+		class: "stepper-input",
 	});
 	private readonly _chipWavePlayBackwardsBox = input({
 		type: "checkbox",
@@ -1015,7 +1015,7 @@ export class SongEditor
 	);
 
 	private readonly _unisonVoicesInputBox: HTMLInputElement = numberInput({
-		style: "width: 150%; height: 1.5em; font-size: 80%; margin-left: 0.4em; vertical-align: middle;",
+		class: "stepper-input-wide",
 		id: "unisonVoicesInputBox",
 		type: "number",
 		step: "1",
@@ -1041,7 +1041,7 @@ export class SongEditor
 		),
 	);
 	private readonly _unisonSpreadInputBox: HTMLInputElement = numberInput({
-		style: "width: 150%; height: 1.5em; font-size: 80%; margin-left: 0.4em; vertical-align: middle;",
+		class: "stepper-input-wide",
 		id: "unisonSpreadInputBox",
 		type: "number",
 		step: "0.001",
@@ -1068,7 +1068,7 @@ export class SongEditor
 	);
 
 	private readonly _unisonOffsetInputBox: HTMLInputElement = numberInput({
-		style: "width: 150%; height: 1.5em; font-size: 80%; margin-left: 0.4em; vertical-align: middle;",
+		class: "stepper-input-wide",
 		id: "unisonOffsetInputBox",
 		type: "number",
 		step: "0.001",
@@ -1094,7 +1094,7 @@ export class SongEditor
 		),
 	);
 	private readonly _unisonExpressionInputBox: HTMLInputElement = numberInput({
-		style: "width: 150%; height: 1.5em; font-size: 80%; margin-left: 0.4em; vertical-align: middle;",
+		class: "stepper-input-wide",
 		id: "unisonExpressionInputBox",
 		type: "number",
 		step: "0.001",
@@ -1120,7 +1120,7 @@ export class SongEditor
 		),
 	);
 	private readonly _unisonSignInputBox: HTMLInputElement = input({
-		style: "width: 150%; height: 1.5em; font-size: 80%; margin-left: 0.4em; vertical-align: middle;",
+		class: "stepper-input-wide",
 		id: "unisonSignInputBox",
 		type: "number",
 		step: "0.001",
