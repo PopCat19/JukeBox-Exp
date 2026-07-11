@@ -31,7 +31,7 @@ import { buildPickedStringSource } from "../synth/synthesis/picked-string";
 import { buildPulseWidthSource } from "../synth/synthesis/pulse";
 import { buildSpectrumSource } from "../synth/synthesis/spectrum";
 import { buildSupersawSource } from "../synth/synthesis/supersaw";
-import { createTestInstrument } from "./test-helpers";
+import { createTestInstrument, createTestSong } from "./test-helpers";
 
 // ---------------------------------------------------------------------------
 // Category A: Generated-source drift — every synth.* reference in generated
@@ -140,9 +140,9 @@ describe("Category B: AudioBackendHost live-read contract", () => {
 		// Not fading by default
 		expect(host.isFadingOut()).toBe(false);
 		// Set the internal field directly to simulate fade state
-		synth._stopFadeSamplesRemaining = 100;
+		(synth as any)._stopFadeSamplesRemaining = 100;
 		expect(host.isFadingOut()).toBe(true);
-		synth._stopFadeSamplesRemaining = 0;
+		(synth as any)._stopFadeSamplesRemaining = 0;
 		expect(host.isFadingOut()).toBe(false);
 	});
 
@@ -183,10 +183,44 @@ describe("Category C: dedicated state flags", () => {
 });
 
 // ---------------------------------------------------------------------------
-// Category D: Barrel export erosion — verify key exports are present
+// Category D: Paused transport position stays frozen while queued audio drains.
 // ---------------------------------------------------------------------------
 
-describe("Category D: barrel exports", () => {
+describe("Category D: paused playhead contract", () => {
+	test("playhead remains at the pause snapshot after fade completion", () => {
+		const synth = new Synth(createTestSong());
+		const internals = synth as any;
+		internals.isPlayingSong = true;
+		internals.playheadInternal = 3;
+		internals._audio.getQueuedSampleCount = () => 0;
+		synth.pause();
+		const pausedPlayhead = synth.playhead;
+
+		internals.playheadInternal = 4;
+		internals._stopFadeSamplesRemaining = 0;
+		internals._audio.getQueuedSampleCount = () => synth.getSamplesPerBar();
+
+		expect(synth.playhead).toBe(pausedPlayhead);
+	});
+
+	test("paused playhead setter refreshes the frozen position", () => {
+		const synth = new Synth(createTestSong());
+		synth.playhead = 2.5;
+		expect(synth.playhead).toBe(2.5);
+	});
+
+	test("goToBar refreshes the frozen position while paused", () => {
+		const synth = new Synth(createTestSong());
+		synth.goToBar(3);
+		expect(synth.playhead).toBe(3);
+	});
+});
+
+// ---------------------------------------------------------------------------
+// Category E: Barrel export erosion — verify key exports are present
+// ---------------------------------------------------------------------------
+
+describe("Category E: barrel exports", () => {
 	test("Synth is exported from synth barrel", async () => {
 		const barrel = await import("../synth");
 		expect(barrel.Synth).toBe(Synth);
@@ -199,11 +233,11 @@ describe("Category D: barrel exports", () => {
 });
 
 // ---------------------------------------------------------------------------
-// Category E: Socket module capability wiring — verify render path uses
+// Category F: Socket module capability wiring — verify render path uses
 // getInstrumentCapability() helper, not direct getCapabilities() calls.
 // ---------------------------------------------------------------------------
 
-describe("Category E: socket capability lookup", () => {
+describe("Category F: socket capability lookup", () => {
 	test("synth.ts imports getInstrumentCapability from socket/capability-lookup", () => {
 		const source = readFileSync(
 			new URL("../synth/synth.ts", import.meta.url),

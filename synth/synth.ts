@@ -484,11 +484,9 @@ export class Synth {
 		// (playSong=false, contributes no song-bars to playheadInternal), so
 		// during the silent-prebuffer window the raw subtraction can go
 		// negative before the reader reaches the first real-audio slot.
-		// During fadeout the ring buffer keeps filling with tail audio while
-		// playheadInternal is frozen, so queuedBars oscillates and the raw
-		// subtraction causes the playhead to jitter. Return the snapshot
-		// taken when fadeout began so the playhead stays stationary.
-		if (this._stopFadeSamplesRemaining > 0) return this._fadeoutPlayheadSnapshot;
+		// While song playback is stopped, queued tail audio can continue draining.
+		// Keep the public position fixed at the snapshot until playback resumes.
+		if (!this.isPlayingSong) return this._fadeoutPlayheadSnapshot;
 		if (this.song == null) return this.playheadInternal;
 		const queuedSamples: number = this._audio.getQueuedSampleCount();
 		if (queuedSamples <= 0) return this.playheadInternal;
@@ -512,6 +510,9 @@ export class Synth {
 			this.tickSampleCountdown = 0;
 			this.isAtStartOfTick = true;
 			this.prevBar = null;
+			if (!this.isPlayingSong) {
+				this._fadeoutPlayheadSnapshot = this.playheadInternal;
+			}
 		}
 	}
 
@@ -1473,10 +1474,10 @@ export class Synth {
 	public pause(): void {
 		this._dbg("pause() called, isPlayingSong:", this.isPlayingSong);
 		if (!this.isPlayingSong) return;
+		this._fadeoutPlayheadSnapshot = this.playhead;
 		this.isPlayingSong = false;
 		this.isRecording = false;
 		this.preferLowerLatency = false;
-		this._fadeoutPlayheadSnapshot = this.playhead;
 		this._dbg("Pausing with fade, playhead:", this.playheadInternal, "bar:", this.bar);
 
 		// Start spectrum decay loop so it fades smoothly instead of freezing
@@ -1652,10 +1653,8 @@ export class Synth {
 		this.bar = bar;
 		this.resetEffects();
 		this.playheadInternal = this.bar;
-		// During fadeout the playhead getter returns a snapshot so the
-		// display stays stationary; update the snapshot so goToBar jumps
-		// the visible playhead to the new position.
-		if (this._stopFadeSamplesRemaining > 0) {
+		// Paused navigation must replace the frozen public position.
+		if (!this.isPlayingSong) {
 			this._fadeoutPlayheadSnapshot = this.playheadInternal;
 		}
 		// Use the mod-aware sample count so the elapsed counter is accurate for
