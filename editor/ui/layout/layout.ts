@@ -8,8 +8,8 @@
 
 // Copyright (c) 2012-2022 John Nesky and contributing authors, distributed under the MIT license, see accompanying the LICENSE.md file.
 
-import { HTML } from "imperative-html/dist/esm/elements-strict";
 import { ColorConfig } from "../../../shared/color-config";
+import { injectGlobalStyles } from "../../../shared/styles/inject";
 
 export class Layout {
 	private static readonly _webkitScrollbarCSS: string = `\
@@ -535,7 +535,7 @@ export class Layout {
 	private static _initialized = false;
 	private static _ensureInit(): void {
 		if (!Layout._initialized && typeof document !== "undefined") {
-			Layout._styleElement = document.head.appendChild(HTML.style({ type: "text/css" }));
+			Layout._styleElement = injectGlobalStyles(document, "layout", "");
 			Layout._initialized = true;
 		}
 	}

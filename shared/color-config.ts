@@ -9,9 +9,9 @@
 
 // Copyright (c) 2012-2022 John Nesky and contributing authors, distributed under the MIT license, see accompanying the LICENSE.md file.
 
-import { HTML } from "imperative-html/dist/esm/elements-strict";
 import { events } from "./events";
 import { applyPMDTheme } from "./pmd-adapter";
+import { injectGlobalStyles } from "./styles/inject";
 import { themes } from "./themes";
 
 interface SongChannelCounts {
@@ -1003,7 +1003,7 @@ export class ColorConfig {
 	private static _initialized = false;
 	private static _ensureInit(): void {
 		if (!ColorConfig._initialized && typeof document !== "undefined") {
-			ColorConfig._styleElement = document.head.appendChild(HTML.style({ type: "text/css" }));
+			ColorConfig._styleElement = injectGlobalStyles(document, "theme", "");
 			ColorConfig._initialized = true;
 		}
 	}
