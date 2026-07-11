@@ -19,70 +19,14 @@
 	<meta property="og:image" content="https://jukeebox.github.io/icon_shadow_192.png">
 	<!-- Self-hosted Google Fonts (Fredoka, Fira Code) — no CDN dependency -->
 	<link rel="stylesheet" href="./assets/fonts/google/fonts.css" />
-	<style type="text/css">
-		html {
-			background: var(--page-margin, black);
-			overflow-x: hidden;
-			font-size: large;
-			font-family: 'Fredoka', 'Rounded Mplus 1c', sans-serif;
-			line-height: 1.3;
-			color: var(--primary-text, white);
-		}
-		body {
-			margin: auto;
-			overflow-x: hidden;
-			display: flex;
-			flex-direction: column;
-			align-items: center;
-			align-content: center;
-		}
-		#beepboxEditorContainer {
-			min-height: 645px;
-			overflow: auto;
-			background: var(--editor-background, black);
-			width: 100%;
-			max-width: 710px;
-			padding-left: 30px;
-			padding-right: 30px;
-		}
-		
-		/* wide screen */
-		@media (min-width: 711px) {
-			html {
-				width: 100%;
-			}
-			body {
-				width: 100%;
-			}
-			.column-container {
-				width: 710px;
-				display: flex;
-				gap: 25px;
-			}
-			.instructions-column {
-				min-width: 0;
-			}
-		}
-		
-		/* narrow screen */
-		@media (max-width: 710px) {
-			body {
-				width: 100%;
-			}
-			p, .donation {
-				margin: 1em 0.5em;
-			}
-			.column-container {
-				display: flex;
-				flex-direction: column;
-				align-items: center;
-			}
-		}
-	</style>
+	<link rel="stylesheet" href="./ancillary.css" />
+	<link rel="stylesheet" href="./index.css" />
 </head>
 <body>
+<main>
 <div id="beepboxEditorContainer"></div>
 <h1>JukeBox DEBUG</h1>
+</main>
 <script>var OFFLINE = false;</script>
 <script src="beepbox_editor.js"></script>
 </body></html>
