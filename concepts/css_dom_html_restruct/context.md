@@ -1,7 +1,8 @@
 # CSS DOM HTML Restruct Context
 
-Purpose: Forgejo issue drafts for restructuring CSS, DOM, and HTML ownership.
+Purpose: Forgejo issue drafts and the baseline ownership audit for restructuring CSS, DOM, and HTML ownership.
 
+- `audit-inventory.md`, Checked-in baseline inventory of style sources, DOM hooks, CSS custom property classification, duplicate selectors, and naming rules. Deliverable for issue #23.
 - `01-audit-and-contract.md`, Defines the baseline inventory and target contracts.
 - `02-style-injection-and-cascade.md`, Defines deterministic injected stylesheet slots and theme order.
 - `03-shared-tokens-and-theme-contract.md`, Separates shared design tokens from theme variable contracts.
