@@ -1926,7 +1926,9 @@ export class SongEditor
 			.map((p) => p.displayName ?? p.name),
 	);
 	private readonly _onInstrumentTypeChange = (): void => {
-		const plugins = getRegisteredPlugins();
+		const plugins = getRegisteredPlugins().filter(
+			(p) => p.type !== InstrumentType.mod && p.type !== InstrumentType.drumset,
+		);
 		const idx = this._instrumentTypeSelect.selectedIndex;
 		const plugin = plugins[idx];
 		if (plugin) {
