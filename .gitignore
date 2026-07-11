@@ -53,3 +53,6 @@ bun.lock
 # pi generated analysis/orchestration caches
 .pi-lens/
 .pi-subagents/
+
+# generated help markdown (output of scripts/generate-help-markdown.ts)
+/website/manual/help/
