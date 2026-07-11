@@ -1132,6 +1132,24 @@ export class ColorConfig {
 			valuesToAdd += "--inverted-text:black;";
 		}
 		if (
+			getComputedStyle(ColorConfig._styleElement).getPropertyValue("--indicator-primary") ===
+			""
+		) {
+			valuesToAdd += "--indicator-primary:#9c64f7;";
+		}
+		if (
+			getComputedStyle(ColorConfig._styleElement).getPropertyValue(
+				"--indicator-secondary",
+			) === ""
+		) {
+			valuesToAdd += "--indicator-secondary:#444;";
+		}
+		if (
+			getComputedStyle(ColorConfig._styleElement).getPropertyValue("--secondary-text") === ""
+		) {
+			valuesToAdd += "--secondary-text:#999;";
+		}
+		if (
 			getComputedStyle(ColorConfig._styleElement).getPropertyValue(
 				"--track-editor-bg-pitch",
 			) === ""

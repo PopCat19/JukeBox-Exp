@@ -102,4 +102,16 @@ describe("css variable contract", () => {
 		const missing = requiredThemeCssVars.filter((cssVar) => !knownCssVarSet.has(cssVar));
 		expect(missing).toEqual([]);
 	});
+
+	test("ColorConfig fallback covers all required theme variables", () => {
+		const source = stripLineComments(read("shared/color-config.ts"));
+		const fallbackVars = new Set(
+			Array.from(
+				source.matchAll(/valuesToAdd\s*\+=\s*"(--[A-Za-z0-9_-]+):/g),
+				(match) => match[1],
+			),
+		);
+		const missing = requiredThemeCssVars.filter((cssVar) => !fallbackVars.has(cssVar));
+		expect(missing).toEqual([]);
+	});
 });

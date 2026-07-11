@@ -44,7 +44,7 @@ Purpose: bun:test test files covering editor, synth, and shared modules.
 - `song-serialization-shared.test.ts`, Unit tests for shared serialization constants and version ranges
 - `custom-algorithm.test.ts`, Unit tests for CustomAlgorithm — FM operator routing
 - `custom-feedback.test.ts`, Unit tests for CustomFeedBack — FM feedback routing
-- `css-var-contract.test.ts`, Contract tests for CSS custom property registration and theme variable declarations
+- `css-var-contract.test.ts`, Contract tests for CSS custom property registration, theme variable declarations, and ColorConfig fallback coverage for required theme variables
 - `style-inject.test.ts`, Behavioral tests for tagged global style injection deduplication
 
 ## Source-to-test cross-reference
