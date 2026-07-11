@@ -163,7 +163,7 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 	private _rafWin: Window = window;
 
 	private readonly _contentContainer: HTMLDivElement = div({
-		style: "display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; align-content: start;",
+		class: "cvvContentGrid",
 	});
 	private readonly _channelsPane: HTMLDivElement = div(
 		{
@@ -484,8 +484,7 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 
 	public container: HTMLDivElement = div(
 		{
-			class: "prompt noSelection fill-y",
-			style: "width: 720px; height: auto; max-height: 80vh; display: flex; flex-direction: column;",
+			class: "prompt noSelection fill-y cvvPrompt",
 			tabindex: "0",
 		},
 		h2(

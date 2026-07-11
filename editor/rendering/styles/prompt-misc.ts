@@ -311,5 +311,18 @@ export function buildPromptMiscCSS(): string {
 	text-align: center;
 	line-height: 12px;
 }
+
+.beepboxEditor .prompt.cvvPrompt {
+	width: 720px;
+	height: auto;
+	max-height: 80vh;
+}
+
+.beepboxEditor .prompt.cvvPrompt .cvvContentGrid {
+	display: grid;
+	grid-template-columns: repeat(6, 1fr);
+	gap: 8px;
+	align-content: start;
+}
 `;
 }
