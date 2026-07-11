@@ -30,7 +30,8 @@
 		"lint:fix": "bash ./scripts/lint-fix.sh",
 		"test": "bun test",
 		"deploy": "bash ./scripts/deploy.sh",
-		"deploy-files": "bash ./scripts/deploy_files.sh"
+		"deploy-files": "bash ./scripts/deploy_files.sh",
+		"issue:label": "bun scripts/issue-label-context.ts"
 	},
 	"repository": {
 		"type": "git",

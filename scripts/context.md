@@ -11,3 +11,4 @@
 - `check-input-staleness.ts`, Detects input binding inventory drift against source files
 - `generate-help-markdown.ts`, Generates help guide markdown from the input binding inventory
 - `verify-delete-module.sh`, Removes a module folder, runs build + tests, restores it to detect import coupling
+- `issue-label-context.ts`, Applies context labels from issue template "Affected context" dropdown via Forgejo API
