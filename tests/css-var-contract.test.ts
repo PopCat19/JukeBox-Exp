@@ -5,7 +5,13 @@
 import { describe, expect, test } from "bun:test";
 import { readdirSync, readFileSync, statSync } from "node:fs";
 import { join } from "node:path";
-import { isKnownCssVariable, knownCssVarSet, requiredThemeCssVars } from "../shared/styles/css-var-contract";
+import {
+	isKnownCssVariable,
+	knownCssVarSet,
+	requiredThemeCssVars,
+	supplementalThemeFallbackCssVars,
+	themeCssVarFallbacks,
+} from "../shared/styles/css-var-contract";
 
 const scanRoots: readonly string[] = ["editor", "player", "shared", "website"];
 const scanExtensions: readonly string[] = [".ts", ".css", ".html"];
@@ -103,15 +109,24 @@ describe("css variable contract", () => {
 		expect(missing).toEqual([]);
 	});
 
-	test("ColorConfig fallback covers all required theme variables", () => {
-		const source = stripLineComments(read("shared/color-config.ts"));
-		const fallbackVars = new Set(
-			Array.from(
-				source.matchAll(/valuesToAdd\s*\+=\s*"(--[A-Za-z0-9_-]+):/g),
-				(match) => match[1],
-			),
-		);
-		const missing = requiredThemeCssVars.filter((cssVar) => !fallbackVars.has(cssVar));
+	test("theme fallback map covers all required theme variables", () => {
+		const fallbackKeys = new Set(Object.keys(themeCssVarFallbacks));
+		const missing = requiredThemeCssVars.filter((cssVar) => !fallbackKeys.has(cssVar));
 		expect(missing).toEqual([]);
+	});
+
+	test("theme fallback map covers all supplemental fallback variables (#34)", () => {
+		const fallbackKeys = new Set(Object.keys(themeCssVarFallbacks));
+		const missing = supplementalThemeFallbackCssVars.filter((cssVar) => !fallbackKeys.has(cssVar));
+		expect(missing).toEqual([]);
+	});
+
+	test("theme fallback map values are non-empty and keys are registered", () => {
+		const bad: string[] = [];
+		for (const [varName, value] of Object.entries(themeCssVarFallbacks)) {
+			if (!knownCssVarSet.has(varName)) bad.push(`${varName}: not in knownCssVarSet`);
+			if (typeof value !== "string" || value.length === 0) bad.push(`${varName}: empty value`);
+		}
+		expect(bad).toEqual([]);
 	});
 });

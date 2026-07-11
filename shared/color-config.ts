@@ -12,6 +12,7 @@
 import { events } from "./events";
 import { applyPMDTheme } from "./pmd-adapter";
 import { injectGlobalStyles } from "./styles/inject";
+import { themeCssVarFallbacks } from "./styles/css-var-contract";
 import { themes } from "./themes";
 
 interface SongChannelCounts {
@@ -1022,6 +1023,14 @@ export class ColorConfig {
 		// for getComputed — fill any variables still unset
 		let valuesToAdd: string = ":root{";
 
+		// Canonical theme fallbacks (issues #25, #34). A theme satisfies a
+		// variable by declaring it or by inheriting the value here.
+		for (const [varName, fallbackValue] of Object.entries(themeCssVarFallbacks)) {
+			if (getComputedStyle(ColorConfig._styleElement).getPropertyValue(varName) === "") {
+				valuesToAdd += `${varName}:${fallbackValue};`;
+			}
+		}
+
 		if (
 			getComputedStyle(ColorConfig._styleElement).getPropertyValue("--spectrum-line-L") === ""
 		) {
@@ -1101,19 +1110,6 @@ export class ColorConfig {
 		) {
 			valuesToAdd += "--formula-mod-channel-limit:360;";
 		}
-		if (
-			getComputedStyle(ColorConfig._styleElement).getPropertyValue("--editor-background") ===
-			""
-		) {
-			valuesToAdd += "--editor-background:black;";
-		}
-		if (
-			getComputedStyle(ColorConfig._styleElement).getPropertyValue(
-				"--ui-widget-background",
-			) === ""
-		) {
-			valuesToAdd += "--ui-widget-background:#444;";
-		}
 		if (getComputedStyle(ColorConfig._styleElement).getPropertyValue("--loop-accent") === "") {
 			valuesToAdd += "--loop-accent:#74f;";
 		}
@@ -1123,31 +1119,10 @@ export class ColorConfig {
 		) {
 			valuesToAdd += "--box-selection-fill:rgba(255,255,255,0.2);";
 		}
-		if (getComputedStyle(ColorConfig._styleElement).getPropertyValue("--primary-text") === "") {
-			valuesToAdd += "--primary-text:white;";
-		}
 		if (
 			getComputedStyle(ColorConfig._styleElement).getPropertyValue("--inverted-text") === ""
 		) {
 			valuesToAdd += "--inverted-text:black;";
-		}
-		if (
-			getComputedStyle(ColorConfig._styleElement).getPropertyValue("--indicator-primary") ===
-			""
-		) {
-			valuesToAdd += "--indicator-primary:#9c64f7;";
-		}
-		if (
-			getComputedStyle(ColorConfig._styleElement).getPropertyValue(
-				"--indicator-secondary",
-			) === ""
-		) {
-			valuesToAdd += "--indicator-secondary:#444;";
-		}
-		if (
-			getComputedStyle(ColorConfig._styleElement).getPropertyValue("--secondary-text") === ""
-		) {
-			valuesToAdd += "--secondary-text:#999;";
 		}
 		if (
 			getComputedStyle(ColorConfig._styleElement).getPropertyValue(

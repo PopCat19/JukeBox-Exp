@@ -13,12 +13,14 @@ export const themeCoreCssVars = [
 	"--hover-preview",
 	"--indicator-primary",
 	"--indicator-secondary",
+	"--input-box-outline",
 	"--inverted-text",
 	"--link-accent",
 	"--loop-accent",
 	"--multiplicative-mod-slider",
 	"--mute-button-mod",
 	"--mute-button-normal",
+	"--mute-editor-text-dim",
 	"--note-flash",
 	"--note-flash-secondary",
 	"--overwriting-mod-slider",
@@ -243,6 +245,7 @@ export const designTokenCssVars = [
 	"--border-width-default",
 	"--border-width-hairline",
 	"--border-width-thick",
+	"--ease",
 	"--font-family",
 	"--font-family-input",
 	"--font-family-mono",
@@ -414,8 +417,6 @@ export const promptSurfaceCssVars = [
 	"--tab-inactive-fg",
 ] as const;
 
-export const miscCssVars = ["--ease", "--input-box-outline", "--mute-editor-text-dim"] as const;
-
 export const cssVariableContract = {
 	themeCore: themeCoreCssVars,
 	channelColor: channelColorCssVars,
@@ -424,7 +425,6 @@ export const cssVariableContract = {
 	interactionState: interactionStateCssVars,
 	layoutToken: layoutTokenCssVars,
 	promptSurface: promptSurfaceCssVars,
-	misc: miscCssVars,
 } as const;
 
 export const knownCssVars = [
@@ -435,7 +435,6 @@ export const knownCssVars = [
 	...interactionStateCssVars,
 	...layoutTokenCssVars,
 	...promptSurfaceCssVars,
-	...miscCssVars,
 ] as const;
 
 export const knownCssVariables = knownCssVars;
@@ -456,3 +455,49 @@ export const requiredThemeCssVars = [
 	"--indicator-primary",
 	"--indicator-secondary",
 ] as const satisfies readonly CssVarName[];
+
+// Supplemental theme variables that no bundled theme declares but PMD sets at
+// runtime. Without fallbacks, non-PMD themes render invisible UI for these
+// vars (issue #34). Values follow the existing dark-neutral fallback aesthetic
+// (#444 widget bg, #333 dim, #999 secondary text, black/white primary).
+export const supplementalThemeFallbackCssVars = [
+	"--base02-surface",
+	"--base03-muted",
+	"--cta-bg",
+	"--cta-fg",
+	"--prompt-list-item-bg",
+	"--prompt-list-item-border",
+	"--prompt-titlebar-text",
+	"--scrollbar-color",
+	"--subtext",
+	"--tab-inactive-bg",
+	"--tab-inactive-fg",
+] as const satisfies readonly CssVarName[];
+
+// Canonical fallback values for theme CSS variables. Consumed by
+// ColorConfig.setTheme to fill gaps a theme omits. The fallback is the
+// contract: a theme satisfies a variable by declaring it or by inheriting
+// the value here (issue #25).
+type ThemeFallbackVar =
+	| (typeof requiredThemeCssVars)[number]
+	| (typeof supplementalThemeFallbackCssVars)[number];
+
+export const themeCssVarFallbacks: Readonly<Record<ThemeFallbackVar, string>> = {
+	"--editor-background": "black",
+	"--primary-text": "white",
+	"--secondary-text": "#999",
+	"--ui-widget-background": "#444",
+	"--indicator-primary": "#9c64f7",
+	"--indicator-secondary": "#444",
+	"--base02-surface": "#444",
+	"--base03-muted": "#999",
+	"--cta-bg": "#bbb",
+	"--cta-fg": "#000",
+	"--prompt-list-item-bg": "#444",
+	"--prompt-list-item-border": "#333",
+	"--prompt-titlebar-text": "#ccc",
+	"--scrollbar-color": "#444",
+	"--subtext": "#bbb",
+	"--tab-inactive-bg": "#444",
+	"--tab-inactive-fg": "#999",
+} as const;
