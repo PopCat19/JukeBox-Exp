@@ -18,6 +18,8 @@ import { Synth } from "../synth";
 const { a, button, div, h1, input, canvas } = HTML;
 const { svg, circle, path } = SVG;
 
+let playerInstanceCount: number = 0;
+
 export const isMobile: boolean =
 	/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini|android|ipad|playbook|silk/i.test(
 		navigator.userAgent,
@@ -64,6 +66,7 @@ export interface PlayerUI {
 	outVolumeCap: SVGRectElement;
 	sampleLoadingBar: HTMLDivElement;
 	sampleLoadingBarContainer: HTMLDivElement;
+	root: HTMLDivElement;
 }
 
 export function buildPlayerCSS(): string {
@@ -351,7 +354,6 @@ export function buildPlayerUI(): PlayerUI {
 			width: isMobile ? 144 : 288,
 			height: isMobile ? 32 : 64,
 			class: "pm-player-spectrum",
-			id: "spectrumAll",
 		}),
 		isMobile ? 1 : 2,
 	);
@@ -466,13 +468,14 @@ export function buildPlayerUI(): PlayerUI {
 		y: "25%",
 		fill: "var(--ui-widget-background, #444)",
 	});
+	const volumeGradId: string = `volumeGrad2-${playerInstanceCount++}`;
 	const outVolumeBar: SVGRectElement = SVG.rect({
 		"pointer-events": "none",
 		height: "50%",
 		width: "0%",
 		x: "5%",
 		y: "25%",
-		fill: "url('#volumeGrad2')",
+		fill: `url('#${volumeGradId}')`,
 	});
 	const outVolumeCap: SVGRectElement = SVG.rect({
 		"pointer-events": "none",
@@ -486,7 +489,7 @@ export function buildPlayerUI(): PlayerUI {
 	const stop2: SVGStopElement = SVG.stop({ "stop-color": "orange", offset: "90%" });
 	const stop3: SVGStopElement = SVG.stop({ "stop-color": "red", offset: "100%" });
 	const gradient: SVGGradientElement = SVG.linearGradient(
-		{ id: "volumeGrad2", gradientUnits: "userSpaceOnUse" },
+		{ id: volumeGradId, gradientUnits: "userSpaceOnUse" },
 		stop1,
 		stop2,
 		stop3,
@@ -510,7 +513,7 @@ export function buildPlayerUI(): PlayerUI {
 	});
 	const sampleLoadingBarContainer: HTMLDivElement = div(
 		{
-			class: "sampleLoadingContainer pm-player-sample-bar-container",
+			class: "pm-player-sample-bar-container",
 			style: "background-color: var(--empty-sample-bar, var(--indicator-secondary, #444));",
 			preserveAspectRatio: "none",
 		},
@@ -520,38 +523,38 @@ export function buildPlayerUI(): PlayerUI {
 		{},
 		div(
 			{
-				class: "selectRow pm-player-sample-status-row",
+				class: "pm-player-sample-status-row",
 			},
 			sampleLoadingBarContainer,
 		),
 	);
 	const volumeBarContainerDiv: HTMLDivElement = div(
 		{
-			class: "volBarContainer pm-player-vol-bar-wrapper",
+			class: "pm-player-vol-bar-wrapper",
 		},
 		volumeBarContainer,
 		sampleLoadingStatusContainer,
 	);
-	document.body.appendChild(visualizationContainer);
-	document.body.appendChild(
-		div(
-			{ class: "pm-player-control-bar" },
-			playButtonContainer,
-			loopButton,
-			volumeIcon,
-			volumeSlider,
-			zoomButton,
-			volumeBarContainerDiv,
-			spectrum.canvas, // make it auto remove itself later
-			titleText,
-			editLink,
-			copyLink,
-			shareLink,
-			fullscreenLink,
-		),
+	const controlBar: HTMLDivElement = div(
+		{ class: "pm-player-control-bar" },
+		playButtonContainer,
+		loopButton,
+		volumeIcon,
+		volumeSlider,
+		zoomButton,
+		volumeBarContainerDiv,
+		spectrum.canvas, // make it auto remove itself later
+		titleText,
+		editLink,
+		copyLink,
+		shareLink,
+		fullscreenLink,
 	);
+	const root: HTMLDivElement = div({ class: "pm-player" }, visualizationContainer, controlBar);
+	document.body.appendChild(root);
 
 	return {
+		root,
 		synth,
 		spectrum,
 		titleText,

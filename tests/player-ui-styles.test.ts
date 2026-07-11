@@ -191,15 +191,53 @@ describe("buildPlayerCSS", () => {
 		});
 	});
 
-	test("buildPlayerUI appends control bar and visualization roots to the body", () => {
+	test("buildPlayerUI mounts all elements under a single .pm-player root on body", () => {
 		withFreshDom(() => {
-			buildPlayerUI();
-			const controlBar = document.querySelector(".pm-player-control-bar");
-			const vizContainer = document.querySelector(".pm-player-viz-container");
-			expect(controlBar?.parentElement).toBe(document.body);
-			expect(vizContainer?.parentElement).toBe(document.body);
+			const ui = buildPlayerUI();
+			const roots = document.querySelectorAll(".pm-player");
+			expect(roots.length).toBe(1);
+			const root = roots[0] as HTMLDivElement;
+			expect(root).toBe(ui.root);
+			expect(root.parentElement).toBe(document.body);
+			const controlBar = root.querySelector(".pm-player-control-bar");
+			const vizContainer = root.querySelector(".pm-player-viz-container");
+			expect(controlBar?.parentElement).toBe(root);
+			expect(vizContainer?.parentElement).toBe(root);
 			expect(document.querySelectorAll(".pm-player-control-bar").length).toBe(1);
 			expect(document.querySelectorAll(".pm-player-viz-container").length).toBe(1);
+		});
+	});
+
+	test("buildPlayerUI produces instance-safe element ids and no spectrumAll", () => {
+		withFreshDom(() => {
+			buildPlayerUI();
+			expect(document.querySelector("#spectrumAll")).toBeNull();
+			const ids = Array.from(document.querySelectorAll("[id]")).map((e) => e.id);
+			expect(ids).not.toContain("spectrumAll");
+			expect(ids).not.toContain("volumeGrad2");
+			for (const id of ids) {
+				expect(id).toMatch(/^volumeGrad2-\d+$/);
+			}
+		});
+	});
+
+	test("two player instances get distinct volume gradient ids and no id collisions", () => {
+		withFreshDom(() => {
+			const a = buildPlayerUI();
+			const b = buildPlayerUI();
+			expect(a.root).not.toBe(b.root);
+			const aGrad = a.outVolumeBar.getAttribute("fill") ?? "";
+			const bGrad = b.outVolumeBar.getAttribute("fill") ?? "";
+			expect(aGrad).not.toBe(bGrad);
+			expect(aGrad).toMatch(/^url\('#volumeGrad2-\d+'\)$/);
+			expect(bGrad).toMatch(/^url\('#volumeGrad2-\d+'\)$/);
+			const ids = Array.from(document.querySelectorAll("[id]")).map((e) => e.id);
+			const duplicates = ids.filter((id, i) => ids.indexOf(id) !== i);
+			expect(duplicates).toBeEmpty();
+			const aId = aGrad.slice(6, -2);
+			const bId = bGrad.slice(6, -2);
+			expect(a.root.querySelector("linearGradient")?.id).toBe(aId);
+			expect(b.root.querySelector("linearGradient")?.id).toBe(bId);
 		});
 	});
 
