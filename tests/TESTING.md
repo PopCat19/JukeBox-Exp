@@ -92,6 +92,7 @@ All 12 types verified via encode→decode→type-preservation.
 | Source | Test file | Scope |
 |--------|-----------|-------|
 | `editor/input/inventory.ts` | `tests/input-inventory.test.ts` | InputBinding, inputBindings |
+| `editor/navigator/contracts.ts`, `editor/navigator/route-identity.ts`, `editor/navigator/ownership.ts` | `tests/navigator-contracts.test.ts` | Lifecycle and command contracts, canonical finite-JSON identity, generation-safe ownership |
 | `editor/components/pattern-editor.ts` | `tests/pattern-editor-contract.test.ts` | Stale canvas path guard, SVG/canvas y-center alignment |
 | `editor/components/loop-editor.ts` | `tests/loop-editor-contract.test.ts` | CSS class for disabled state, no inline opacity conflict |
 | `editor/ui/index.ts` (barrel) | `tests/barrel-exports.test.ts` | buildOptions, numberInput, Slider, Layout, createDiv, etc. |

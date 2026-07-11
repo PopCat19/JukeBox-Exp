@@ -13,6 +13,7 @@ Purpose: bun:test test files covering editor, synth, and shared modules.
 - `dsp-utils.test.ts`, Unit tests for pure DSP utility functions (applyFilters, sanitizeDelayLine, findRandomZeroCrossing)
 - `filtering.test.ts`, Unit tests for digital filter coefficient computation and frequency response
 - `input-inventory.test.ts`, Unit tests for input binding inventory and concern modules
+- `navigator-contracts.test.ts`, Behavioral tests for canonical route identity and generation-safe pane ownership
 - `notes.test.ts`, Unit tests for note and pattern data structures
 - `pattern-editor-contract.test.ts`, Structural contract tests for pattern-editor.ts rendering invariants (stale canvas path, SVG/canvas y-center alignment)
 - `loop-editor-contract.test.ts`, Structural contract tests for loop-editor.ts UI invariants (CSS class for disabled state, no inline opacity conflict) and song-editor.ts focus-steal listeners (mouseup blur buttons, keydown intercept Space on button/select)

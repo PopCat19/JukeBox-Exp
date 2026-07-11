@@ -44,6 +44,7 @@ export default tseslint.config(
             "synth/modules/drumset/serde.ts",
             "synth/modules/mod/serde.ts",
             // Test files (not scanned by scripts/lint.sh; listed for manual eslint runs)
+            "tests/navigator-contracts.test.ts",
             "tests/css-var-contract.test.ts",
             "tests/interactions-behavior.test.ts",
             "tests/loop-editor-contract.test.ts",
