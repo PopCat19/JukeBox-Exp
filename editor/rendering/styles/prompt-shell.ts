@@ -46,7 +46,10 @@
 // Inline-style exceptions (audit §6): measured position (left/top),
 // dock pinning, divider geometry, and editor padding stay inline in
 // prompt-manager.ts / prompt-dock.ts. Visual state (spawn opacity)
-// moved to the .entering class under #27.
+// moved to the .entering class under #27. The backdrop/background
+// toggle in _updatePromptFocus (showPromptBackdrop pref) remains
+// inline — it is runtime-coupled with prompt-popout.ts documentElement
+// custom-property overrides and awaits popout boundary work.
 
 import { ColorConfig } from "../../../shared/color-config";
 import { Animation, Typography } from "../../ui/style-constants";
