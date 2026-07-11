@@ -2,7 +2,9 @@
 
 import type { PaneRoute, SerializableValue } from "./contracts";
 
-export type PaneIdentity = string;
+declare const PaneIdentityBrand: unique symbol;
+
+export type PaneIdentity = string & { readonly [PaneIdentityBrand]: never };
 
 function compareUtf16(left: string, right: string): number {
 	if (left < right) return -1;
@@ -52,5 +54,5 @@ export function canonicalRouteIdentity(route: PaneRoute): PaneIdentity {
 	if (typeof route.paneId !== "string" || route.paneId.length === 0)
 		throw new TypeError("paneId must be a non-empty string");
 	const context = Object.hasOwn(route, "context") ? normalize(route.context, new Set()) : null;
-	return JSON.stringify([route.paneId, context]);
+	return JSON.stringify([route.paneId, context]) as PaneIdentity;
 }
