@@ -144,7 +144,7 @@ export class AddSamplesPrompt extends BasePrompt {
 		this._detailSrStepper = stepperInput(8000, 96000, Config.defaultSampleRate);
 		this._detailRkStepper = stepperInput(0, Config.maxPitch + Config.pitchesPerOctave, 60);
 		this._detailRkDisplay = span({ class: "sbpNoteName" });
-		this._detailPercBox = input({ type: "checkbox", style: "cursor:pointer; flex-shrink:0;" });
+		this._detailPercBox = input({ type: "checkbox", class: "sbpCheckbox" });
 		this._detailLsStepper = stepperInput(0, 999999, 0);
 		this._detailLeStepper = stepperInput(0, 999999, 0);
 		this._detailSoStepper = stepperInput(0, 999999, 0);
@@ -158,7 +158,7 @@ export class AddSamplesPrompt extends BasePrompt {
 			option({ value: 3 }, "Play Loop Once"),
 		);
 
-		this._detailBwBox = input({ type: "checkbox", style: "cursor:pointer; flex-shrink:0;" });
+		this._detailBwBox = input({ type: "checkbox", class: "sbpCheckbox" });
 
 		// Wire detail events
 		this._detailUrl.addEventListener("change", this._onDetailUrlChange);
@@ -432,7 +432,7 @@ export class AddSamplesPrompt extends BasePrompt {
 			});
 
 			const moveCol = div(
-				{ style: "display:flex; flex-direction:column; flex-shrink:0; gap:4px;" },
+				{ class: "sbpMoveCol" },
 				upBtn,
 				downBtn,
 			);
@@ -506,13 +506,13 @@ export class AddSamplesPrompt extends BasePrompt {
 		);
 
 		const settingsRow = div(
-			{ style: "display:flex; flex-direction:row; gap:8px; flex:1;" },
+			{ class: "sbpSettingsRow" },
 			div(
-				{ style: "flex:1; min-width:0; display:flex; flex-direction:column;" },
+				{ class: "sbpSettingsCol" },
 				settingsSection,
 			),
 			div(
-				{ style: "flex:1; min-width:0; display:flex; flex-direction:column;" },
+				{ class: "sbpSettingsCol" },
 				chipSection,
 			),
 		);

@@ -402,6 +402,32 @@ export function buildSampleBrowserCSS(): string {
 	border-radius: var(--border-radius-medium);
 }
 
+.beepboxEditor .prompt.sampleBrowserPrompt .sbpCheckbox {
+	cursor: pointer;
+	flex-shrink: 0;
+}
+
+.beepboxEditor .prompt.sampleBrowserPrompt .sbpMoveCol {
+	display: flex;
+	flex-direction: column;
+	flex-shrink: 0;
+	gap: 4px;
+}
+
+.beepboxEditor .prompt.sampleBrowserPrompt .sbpSettingsRow {
+	display: flex;
+	flex-direction: row;
+	gap: 8px;
+	flex: 1;
+}
+
+.beepboxEditor .prompt.sampleBrowserPrompt .sbpSettingsCol {
+	flex: 1;
+	min-width: 0;
+	display: flex;
+	flex-direction: column;
+}
+
 .beepboxEditor .prompt.sampleBrowserPrompt input[type=number],
 .beepboxEditor .prompt.sampleBrowserPrompt select {
 	color: var(--primary-text);
