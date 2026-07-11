@@ -8,17 +8,20 @@
 //
 // Prompt DOM state contract (issue #27):
 //
-// Lifecycle classes, owned by prompt-manager.ts and base-prompt.ts,
-// asserted by tests/dom-hooks.test.ts — do not rename:
+// Lifecycle classes, asserted by tests/dom-hooks.test.ts — do not rename:
 //   .entering  — pre-enter hide + enter animation (fill-mode: both).
-//                Added before append; removed on animationend.
-//   .exiting   — exit animation (fill-mode: forwards). Added on close
-//                or via BasePrompt.animateExit; removed on animationend
-//                which triggers DOM removal (doRemove).
-//   .focused   — steady focus outline. Toggled by _updatePromptFocus.
+//                Owned by prompt-manager.ts. Added before append;
+//                removed on animationend.
+//   .exiting   — exit animation (fill-mode: forwards). Owned by
+//                prompt-manager.ts (close) and base-prompt.ts
+//                (animateExit). Removed on animationend which
+//                triggers DOM removal (doRemove).
+//   .focused   — steady focus outline. Owned by prompt-manager.ts
+//                (_updatePromptFocus).
 //   .refocus   — transient raise-gesture outline flash when an
-//                existing prompt is reopened. Removed on animationend.
-//   .docked    — pinned to L/R editor edge by prompt-dock.ts.
+//                existing prompt is reopened. Owned by
+//                prompt-manager.ts. Removed on animationend.
+//   .docked    — pinned to L/R editor edge. Owned by prompt-dock.ts.
 //
 // View-state class (NOT a lifecycle state; not in the dom-hooks set):
 //   .shaded    — titlebar-only collapsed view, toggled by BasePrompt.
@@ -30,8 +33,11 @@
 //
 // Shell markup contract:
 //   .promptContainer > .prompt (variant classes per factory)
-//   .prompt > .prompt-titlebar > [shadeButton] h2 [cancelButton]
-//   .prompt > (factory content: form rows, hints, button rows)
+//   Standard prompts: .prompt > .prompt-titlebar > [shadeButton] h2
+//   [cancelButton], then factory content (form rows, hints, button
+//   rows). The titlebar is built by BasePrompt.buildTitlebar.
+//   Some prompts (e.g. spectrum-editor, harmonics-editor) place h2
+//   and cancelButton as direct children without a titlebar wrapper.
 // Factories hand-build the .prompt div; no shared shell helper exists.
 //
 // Reduced motion: prompt lifecycle animations collapse to 0.01ms
