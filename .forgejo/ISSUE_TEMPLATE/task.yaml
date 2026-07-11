@@ -1,7 +1,6 @@
 name: Task
 about: General work item that is not a bug, feature, or refactor
 title: "[Task]: "
-labels: ["refactor"]
 body:
   - type: markdown
     attributes:

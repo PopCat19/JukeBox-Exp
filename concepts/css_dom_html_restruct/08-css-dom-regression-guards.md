@@ -16,7 +16,7 @@ Phase 1, baseline guards, land before #04, #05, #06, #07:
 
 - Extend the existing CSS-variable contract test for editor, player, themes, and fallbacks.
 - Add DOM smoke checks for editor root, prompt shell, and player root contracts.
-- Add static checks for duplicate style-slot identifiers and unscoped selectors where practical.
+- Add static checks for duplicate style-slot identifiers and unscoped selectors.
 
 Phase 2, final coverage, after the migration issues:
 

@@ -21,7 +21,7 @@ Migrated manual pages: `introduction.html`, `instructions.html`, `features.html`
 
 ## Acceptance criteria
 
-- Landing and manual pages use semantic `header`, `main`, `nav`, and `footer` landmarks where appropriate.
+- Landing and manual pages use semantic `header`, `main`, `nav`, and `footer` landmarks.
 - Static inline `style` and inline event handlers are removed from migrated pages.
 - Manual page navigation has one source of truth at build time or in a checked-in partial.
 - Existing manual URLs and direct deep links still load as standalone static pages.
