@@ -276,7 +276,7 @@ export class ChangeDispatcher {
 			if (invalidIndex) {
 				this._host.modSetBoxes[mod].selectedOptions
 					.item(0)!
-					.style.setProperty("color", "red");
+					.classList.add("mod-invalid-option");
 				this._host.modSetBoxes[mod].classList.add("invalidSetting");
 				this.doc.getCurrentInstrumentObj().invalidModulators[mod] = true;
 			} else {
