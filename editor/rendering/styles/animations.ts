@@ -60,6 +60,23 @@ export function buildAnimationsCSS(): string {
 	}
 }
 
+/* Reduced motion: collapse prompt lifecycle animations to a near-zero
+ * duration. Duration 0.01ms (not animation: none) preserves the
+ * animationend event that prompt-manager.ts relies on for exit cleanup
+ * (doRemove) and class teardown. Fill-mode stays, so entering still
+ * pre-hides and exiting still settles at opacity 0 before removal. */
+@media (prefers-reduced-motion: reduce) {
+	.beepboxEditor .prompt.entering {
+		animation-duration: 0.01ms;
+	}
+	.beepboxEditor .prompt.exiting {
+		animation-duration: 0.01ms;
+	}
+	.beepboxEditor .prompt.refocus {
+		animation-duration: 0.01ms;
+	}
+}
+
 @keyframes dash-animation {
   to {
     stroke-dashoffset: -100;
