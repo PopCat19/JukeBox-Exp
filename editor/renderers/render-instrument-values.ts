@@ -8,7 +8,7 @@
 // - Updates note limit labels with current pitch names
 // - Syncs filter, envelope, and arpeggio speed displays
 
-import { getRegisteredPlugins, type Instrument } from "../../synth";
+import { getRegisteredPlugins, type Instrument, InstrumentType } from "../../synth";
 import { Config, calculateRingModHertz } from "../../synth/synth-config";
 import { Piano } from "../components/piano";
 import { prettyNumber } from "../config/editor-config";
@@ -63,8 +63,11 @@ export function renderInstrumentValues(
 	instrument: Instrument,
 ): void {
 	// Sync type select: find the index of the plugin matching instrument.type
+	// in a filtered list matching what the <select> shows (no mod/drumset)
 	if (refs.instrumentTypeSelect) {
-		const plugins = getRegisteredPlugins();
+		const plugins = getRegisteredPlugins().filter(
+			(p) => p.type !== InstrumentType.mod && p.type !== InstrumentType.drumset,
+		);
 		const typeIdx = plugins.findIndex((p) => p.type === instrument.type);
 		if (typeIdx >= 0 && refs.instrumentTypeSelect.selectedIndex !== typeIdx) {
 			refs.instrumentTypeSelect.selectedIndex = typeIdx;
