@@ -77,6 +77,7 @@ import { OctaveScrollBar } from "./components/octave-scroll-bar";
 import { PlaybackControls } from "./components/playback-controls";
 import { SongSettingsPanel } from "./components/song-settings-panel";
 import { KeyboardLayout } from "./config/keyboard-layout";
+import { ApplicationRouter } from "./core/application-router";
 import { ChangeDispatcher } from "./core/change-dispatcher";
 import { makeLogger } from "./core/debug-log";
 import { DrumsetSetup, type DrumsetSetupHost } from "./core/drumset-setup";
@@ -94,8 +95,10 @@ import type { Preferences } from "./core/preferences";
 import { type PromptEditorRefs, type PromptHost, PromptManager } from "./core/prompt-manager";
 
 import { MidiInputHandler } from "./io/midi-input";
+import { LegacyPromptPaneFactory } from "./navigator/navigator-route-host";
+import { NavigatorRuntime } from "./navigator/navigator-runtime";
+import { NavigatorShell } from "./navigator/navigator-shell";
 import { CustomChipPrompt } from "./prompts/custom-chip-prompt";
-import { ImportPrompt } from "./prompts/import-prompt";
 import type { Prompt } from "./prompts/prompt";
 import {
 	applyInstrumentVisibility,
@@ -2220,6 +2223,7 @@ export class SongEditor
 		this._instrumentSettingsArea,
 	);
 
+	private readonly _navigatorShell = new NavigatorShell();
 	public readonly mainLayer: HTMLDivElement = div(
 		{ class: "beepboxEditor", tabIndex: "0" },
 		this._patternArea,
@@ -2229,13 +2233,34 @@ export class SongEditor
 	);
 
 	private readonly _promptManager: PromptManager = new PromptManager(this, this);
+	private readonly _legacyPromptPanes: LegacyPromptPaneFactory = new LegacyPromptPaneFactory(
+		this._promptManager,
+		() => this._navigatorRuntime.closeNavigator(),
+		(scope) => this._applicationRouter.routePrompt(scope),
+	);
+	private readonly _navigatorRuntime: NavigatorRuntime = new NavigatorRuntime(
+		this._navigatorShell,
+		this._legacyPromptPanes.create,
+	);
+	private readonly _applicationRouter: ApplicationRouter = new ApplicationRouter({
+		openGlobal: () => undefined,
+		navigator: {
+			open: (route) => this._navigatorRuntime.open(route),
+			focus: () => {
+				this._navigatorShell.focus();
+			},
+		},
+	});
 	private _highlightedInstrumentIndex: number = -1;
 	private _lastPrompt: string | null = null;
 
 	private _onDocPromptChange = (): void => {
-		if (this.doc.prompt !== this._lastPrompt) {
-			this._lastPrompt = this.doc.prompt;
-			this._promptManager.sync(this._lastPrompt);
+		if (this.doc.prompt === this._lastPrompt) return;
+		this._lastPrompt = this.doc.prompt;
+		if (this._lastPrompt === null) {
+			void this._navigatorRuntime.closeNavigator();
+		} else {
+			void this._applicationRouter.routePrompt(this._lastPrompt);
 		}
 	};
 
@@ -3044,6 +3069,7 @@ export class SongEditor
 	private _modRecTimeout: number = -1;
 
 	constructor(/*private _doc: SongDocument*/) {
+		this._promptContainer.append(this._navigatorShell.container);
 		this._keyboardHandler = new KeyboardHandler(this);
 		this._dispatch = new ChangeDispatcher(this);
 
@@ -3202,7 +3228,7 @@ export class SongEditor
 				e.preventDefault();
 			}
 		};
-		const _onDrop = (e: DragEvent) => {
+		const _onDrop = async (e: DragEvent) => {
 			if (!e.dataTransfer) return;
 			const files: FileList = e.dataTransfer.files;
 			if (files.length === 0) return;
@@ -3210,15 +3236,8 @@ export class SongEditor
 			const name: string = file.name.toLowerCase();
 			if (name.endsWith(".mid") || name.endsWith(".midi") || name.endsWith(".json")) {
 				e.preventDefault();
-				this._promptManager.open("import");
-				const importPrompt: ImportPrompt | null = this._promptManager
-					.prompt as ImportPrompt | null;
-				if (
-					importPrompt &&
-					typeof (importPrompt as any).handleExternalFile === "function"
-				) {
-					(importPrompt as any).handleExternalFile(file);
-				}
+				await this._openNavigatorScope("import");
+				this._legacyPromptPanes.deliverImportFile(file);
 			}
 		};
 		window.addEventListener("dragover", _onDragOver);
@@ -3867,32 +3886,30 @@ export class SongEditor
 
 	private _openPrompt(promptName: string): void {
 		log.log("_openPrompt", promptName, { docPrompt: this.doc.prompt });
-		// Delegate to the prompt manager. The manager is the source
-		// of truth for "should this be a toggle" — comparing
-		// doc.prompt here would be a double-check and would close the
-		// just-opened prompt on the first call.
-		this._promptManager.open(promptName);
+		void this._applicationRouter.routePrompt(promptName);
+	}
+
+	private _openNavigatorScope(scope: string): Promise<void> {
+		return this._applicationRouter.routePrompt(scope);
 	}
 
 	public openPresetSelector(): void {
 		log.log("openPresetSelector", { docPrompt: this.doc.prompt });
-		// Same as _openPrompt: let the manager decide, no client-side
-		// toggle-close.
-		this._promptManager.open("instrumentBrowser");
+		this._openPrompt("instrumentBrowser");
 	}
 
 	public openShortcuts(): void {
 		log.log("openShortcuts", { docPrompt: this.doc.prompt });
-		this._promptManager.open("keyboardShortcuts");
+		this._openPrompt("keyboardShortcuts");
 	}
 
 	public closePrompt(prompt: Prompt | null): void {
 		log.log("closePrompt", prompt?.name ?? null);
-		this._promptManager.close(prompt);
+		void this._navigatorRuntime.closeNavigator();
 	}
 
 	public popoutCurrentPrompt(): void {
-		this._promptManager.popoutCurrent();
+		// Disabled until Navigator can transfer this legacy root atomically.
 	}
 
 	public promptShouldReceiveKeys = (): boolean => {
@@ -4065,7 +4082,7 @@ export class SongEditor
 			);
 		}
 
-		this._promptManager.sync(this.doc.prompt);
+		this._onDocPromptChange();
 
 		renderPostBranchSync(
 			this._postSyncRefs,
@@ -4526,12 +4543,9 @@ export class SongEditor
 		this.doc.notifier.notifyWatchers();
 	}
 
-	public handleImportFile(file: File, rafWin?: Window): void {
-		this._promptManager.open("import");
-		const importPrompt: ImportPrompt | null = this._promptManager.prompt as ImportPrompt | null;
-		if (importPrompt && typeof (importPrompt as any).handleExternalFile === "function") {
-			(importPrompt as any).handleExternalFile(file, rafWin);
-		}
+	public async handleImportFile(file: File, rafWin?: Window): Promise<void> {
+		await this._openNavigatorScope("import");
+		this._legacyPromptPanes.deliverImportFile(file, rafWin);
 	}
 
 	public get _animate(): () => void {

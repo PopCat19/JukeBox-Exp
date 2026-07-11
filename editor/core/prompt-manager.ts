@@ -73,11 +73,26 @@ export interface PromptHost {
 	onLayoutChanged(): void;
 }
 
-// Prompts that offer a "pop out" titlebar button to detach into a separate
-// OS window via PromptPopout. Limited to read-only live visualizers whose
-// only inputs are play/pause and channel hover; prompts that mutate song
-// state or rely on editor-component geometry are not popout-safe.
-const _popoutCapablePrompts: ReadonlySet<Function> = new Set([ChannelVolumeVisualizerPrompt]);
+// Legacy popout cannot transfer Navigator host ownership atomically. Keep it
+// disabled until pane extraction supplies a Navigator-owned detached host.
+const _popoutCapablePrompts: ReadonlySet<object> = new Set();
+
+export class PromptRootOwnership {
+	private readonly navigatorOwned = new WeakSet<Prompt>();
+
+	claim(prompt: Prompt): () => void {
+		this.navigatorOwned.add(prompt);
+		return () => {
+			this.navigatorOwned.delete(prompt);
+		};
+	}
+
+	bringLegacyPromptToFront(prompt: Prompt, legacyHost: HTMLElement): boolean {
+		if (this.navigatorOwned.has(prompt)) return false;
+		if (legacyHost.lastElementChild !== prompt.container) legacyHost.append(prompt.container);
+		return true;
+	}
+}
 
 const _noPlayPausePrompts: ReadonlySet<Function> = new Set([
 	TipPrompt,
@@ -122,6 +137,7 @@ export class PromptManager {
 	private readonly _focusController: PromptFocusController;
 	private readonly _dock: PromptDock;
 	private readonly _popout: PromptPopout;
+	private readonly _rootOwnership = new PromptRootOwnership();
 
 	constructor(
 		private readonly _host: PromptHost,
@@ -201,6 +217,10 @@ export class PromptManager {
 
 	public get prompt(): Prompt | null {
 		return this._focusedPrompt;
+	}
+
+	public claimNavigatorOwnership(prompt: Prompt): () => void {
+		return this._rootOwnership.claim(prompt);
 	}
 
 	// Programmatic popout for the currently-focused prompt (keybinding).
@@ -376,12 +396,8 @@ export class PromptManager {
 			}
 			if (p === this._focusedPrompt) {
 				p.container.classList.add("focused");
-				if (
-					!docked &&
-					!popped &&
-					this._host.promptContainer.lastElementChild !== p.container
-				) {
-					this._host.promptContainer.appendChild(p.container);
+				if (!docked && !popped) {
+					this._rootOwnership.bringLegacyPromptToFront(p, this._host.promptContainer);
 				}
 			} else {
 				p.container.classList.remove("focused");

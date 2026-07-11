@@ -92,7 +92,8 @@ All 12 types verified via encode→decode→type-preservation.
 | Source | Test file | Scope |
 |--------|-----------|-------|
 | `editor/input/inventory.ts` | `tests/input-inventory.test.ts` | InputBinding, inputBindings |
-| `editor/navigator/contracts.ts`, `editor/navigator/route-identity.ts`, `editor/navigator/ownership.ts` | `tests/navigator-contracts.test.ts` | Lifecycle and command contracts, canonical finite-JSON identity, generation-safe ownership |
+| `editor/core/application-router.ts`, `editor/song-editor.ts` | `tests/application-router.test.ts` | Global funnel convergence, all-scope Navigator routing, production wiring, immutable context, ordered import file delivery |
+| `editor/core/prompt-manager.ts`, `editor/navigator/contracts.ts`, `editor/navigator/route-identity.ts`, `editor/navigator/ownership.ts`, `editor/navigator/navigator-runtime.ts`, `editor/navigator/navigator-route-host.ts`, `editor/rendering/styles/prompt-navigator.ts` | `tests/navigator-contracts.test.ts` | Lifecycle and command contracts, canonical finite-JSON identity, explicit legacy Prompt root ownership, hidden shell rendering, duplicate focus, generation-safe ownership |
 | `editor/components/pattern-editor.ts` | `tests/pattern-editor-contract.test.ts` | Stale canvas path guard, SVG/canvas y-center alignment |
 | `editor/components/loop-editor.ts` | `tests/loop-editor-contract.test.ts` | CSS class for disabled state, no inline opacity conflict |
 | `editor/ui/index.ts` (barrel) | `tests/barrel-exports.test.ts` | buildOptions, numberInput, Slider, Layout, createDiv, etc. |

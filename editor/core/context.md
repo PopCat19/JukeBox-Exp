@@ -1,5 +1,6 @@
 # editor/core context
 
+- `application-router.ts`, Routes global prompt actions and Navigator commands through one immutable boundary
 - `index.ts`, Barrel re-export of editor core modules
 - `history-manager.ts`, Abstraction over browser undo/redo history with dual-mode storage (window.history + sessionStorage fallback)
 - `change.ts`, Defines base classes for undoable and grouped editor mutations

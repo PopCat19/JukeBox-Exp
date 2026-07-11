@@ -9,6 +9,7 @@ export class NavigatorShell implements PaneHost {
 	constructor(title = "Navigator") {
 		this.container = document.createElement("div");
 		this.container.className = "navigator-shell";
+		this.container.hidden = true;
 		this.container.tabIndex = -1;
 		const heading = document.createElement("h2");
 		heading.className = "navigator-title";
@@ -18,7 +19,20 @@ export class NavigatorShell implements PaneHost {
 		this.container.append(heading, this.body);
 	}
 
-	attach(root: PaneRoot): void { this.body.appendChild(root.element); }
-	detach(root: PaneRoot): void { if (root.element.parentNode === this.body) this.body.removeChild(root.element); }
-	focus(): void { this.container.focus({ preventScroll: true }); }
+	attach(root: PaneRoot): void {
+		this.container.hidden = false;
+		this.body.appendChild(root.element);
+	}
+	detach(root: PaneRoot): void {
+		if (root.element.parentNode === this.body) this.body.removeChild(root.element);
+		if (this.body.childElementCount === 0) this.container.hidden = true;
+	}
+	focus(): void {
+		const pane = this.body.firstElementChild;
+		if (pane instanceof HTMLElement) {
+			pane.focus({ preventScroll: true });
+		} else {
+			this.container.focus({ preventScroll: true });
+		}
+	}
 }

@@ -6,10 +6,14 @@
 import { describe, expect, test } from "bun:test";
 import { GlobalRegistrator } from "@happy-dom/global-registrator";
 import { Window } from "happy-dom";
+import { PromptRootOwnership } from "../editor/core/prompt-manager";
 import type { CloseDecision, CommandReference, HostLease, LeaveDecision, PaneHost, PaneLifecycle, SerializableValue } from "../editor/navigator/contracts";
 import { isSerializableValue, validateRetainedState } from "../editor/navigator/contracts";
+import { LegacyPromptPaneFactory } from "../editor/navigator/navigator-route-host";
+import type { Prompt } from "../editor/prompts/prompt";
 import { NavigatorRuntime, type DetachedPane } from "../editor/navigator/navigator-runtime";
 import { NavigatorShell } from "../editor/navigator/navigator-shell";
+import { buildNavigatorCSS } from "../editor/rendering/styles/prompt-navigator";
 import { PaneOwnership, type PaneOwner } from "../editor/navigator/ownership";
 import { canonicalRouteIdentity, type PaneIdentity } from "../editor/navigator/route-identity";
 
@@ -505,16 +509,113 @@ describe("navigator runtime", () => {
 		expect(factoryCalls).toBe(1);
 		expect(effects).toContain("focus:first");
 	});
+
+	test("existing attached route focuses without constructing duplicate", async () => {
+		resetDocument();
+		const effects: string[] = [];
+		let factoryCalls = 0;
+		const runtime = new NavigatorRuntime(new NavigatorShell(), (route) => {
+			factoryCalls++;
+			return runtimeOwner(route, effects);
+		});
+		await runtime.open({ paneId: "first", context: { channel: 1 } });
+		await runtime.open({ paneId: "first", context: { channel: 1 } });
+		expect(factoryCalls).toBe(1);
+		expect(effects).toEqual(["mount:first", "focus:first"]);
+	});
 });
 
 describe("navigator shell", () => {
-	test("container is programmatically focusable", () => {
+	test("hidden shell stays out of flex layout until a pane mounts", () => {
 		Object.defineProperty(globalThis, "document", { configurable: true, value: new Window().document });
+		const style = document.createElement("style");
+		style.textContent = buildNavigatorCSS();
+		document.head.append(style);
 		const shell = new NavigatorShell();
+		document.body.className = "beepboxEditor";
 		document.body.append(shell.container);
-		expect(shell.container.tabIndex).toBe(-1);
-		shell.focus();
-		expect(document.activeElement).toBe(shell.container);
+		expect(getComputedStyle(shell.container).display).toBe("none");
+		const pane = { element: document.createElement("article") };
+		shell.attach(pane);
+		expect(getComputedStyle(shell.container).display).toBe("flex");
+		shell.detach(pane);
+		expect(getComputedStyle(shell.container).display).toBe("none");
+	});
+
+	test("explicit Navigator claim blocks legacy focus reparenting", () => {
+		Object.defineProperty(globalThis, "document", { configurable: true, value: new Window().document });
+		const legacyHost = document.createElement("div");
+		const navigatorHost = document.createElement("div");
+		const element = document.createElement("article");
+		const prompt = { container: element } as Prompt;
+		const ownership = new PromptRootOwnership();
+		navigatorHost.append(element);
+		const release = ownership.claim(prompt);
+		expect(ownership.bringLegacyPromptToFront(prompt, legacyHost)).toBeFalse();
+		expect(element.parentElement).toBe(navigatorHost);
+		release();
+		expect(ownership.bringLegacyPromptToFront(prompt, legacyHost)).toBeTrue();
+		expect(element.parentElement).toBe(legacyHost);
+	});
+
+	test("legacy adapter mounts real prompt roots and preserves cleanup", async () => {
+		Object.defineProperty(globalThis, "document", { configurable: true, value: new Window().document });
+		const effects: string[] = [];
+		const promptContainer = document.createElement("div");
+		let current: Prompt | null = null;
+		let navigatorClaimed = false;
+		const prompts = {
+			open: (scope: string) => {
+				const container = document.createElement("article");
+				container.tabIndex = -1;
+				container.textContent = `domain:${scope}`;
+				promptContainer.append(container);
+				current = {
+					id: 1,
+					name: scope,
+					container,
+					cleanUp: () => effects.push(`cleanup:${scope}`),
+					discard: () => effects.push(`discard:${scope}`),
+				};
+			},
+			get prompt(): Prompt | null { return current; },
+			claimNavigatorOwnership: () => {
+				navigatorClaimed = true;
+				return () => { navigatorClaimed = false; };
+			},
+			close: (prompt: Prompt | null) => {
+				prompt?.discard();
+				prompt?.container.remove();
+				prompt?.cleanUp();
+				current = null;
+			},
+		};
+		const shell = new NavigatorShell();
+		let runtime: NavigatorRuntime;
+		const adapter = new LegacyPromptPaneFactory(
+			prompts,
+			() => runtime.closeNavigator(),
+			(scope) => runtime.open({ paneId: scope }),
+		);
+		runtime = new NavigatorRuntime(shell, adapter.create);
+		document.body.append(shell.container);
+		await runtime.open({ paneId: "export" });
+		const root = shell.container.querySelector<HTMLElement>("[data-navigator-scope=export]");
+		expect(root?.textContent).toBe("domain:export");
+		expect(navigatorClaimed).toBeTrue();
+		root?.focus();
+		expect(document.activeElement).toBe(root);
+		await runtime.open({ paneId: "instrumentTags" });
+		expect(shell.container.textContent).toContain("domain:instrumentTags");
+		expect(effects).toEqual(["discard:export", "cleanup:export"]);
+		expect(await runtime.closeNavigator()).toBeTrue();
+		expect(effects).toEqual([
+			"discard:export",
+			"cleanup:export",
+			"discard:instrumentTags",
+			"cleanup:instrumentTags",
+		]);
+		expect(navigatorClaimed).toBeFalse();
 		shell.container.remove();
 	});
 });

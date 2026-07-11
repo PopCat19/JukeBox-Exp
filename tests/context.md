@@ -6,6 +6,7 @@ Purpose: bun:test test files covering editor, synth, and shared modules.
 
 - `test-helpers.ts`, Shared test fixtures (Song factories, assertion helpers)
 - `TESTING.md`, Conventions doc + source-to-test cross-reference table
+- `application-router.test.ts`, Behavioral and structural tests for all-scope Navigator routing, funnel convergence, immutable context, and ordered import delivery
 - `barrel-exports.test.ts`, Barrel re-export contract tests for synth, editor/ui, shared
 - `interactions-behavior.test.ts`, Behavioral tests for editor/ui/interactions.ts using a hand-rolled DOM mock (classList adds/removes, style custom props, dataset writes, native disabled property writes, setDisabled helper, tagged style injection dedupe)
 - `ui-states.test.ts`, Contract tests for the PMD state/surface/interaction token layer (states.ts, surfaces.ts, interactions.ts) plus source-grep proofs for refactored buttons and loop-button migrations
@@ -13,7 +14,7 @@ Purpose: bun:test test files covering editor, synth, and shared modules.
 - `dsp-utils.test.ts`, Unit tests for pure DSP utility functions (applyFilters, sanitizeDelayLine, findRandomZeroCrossing)
 - `filtering.test.ts`, Unit tests for digital filter coefficient computation and frequency response
 - `input-inventory.test.ts`, Unit tests for input binding inventory and concern modules
-- `navigator-contracts.test.ts`, Behavioral tests for canonical route identity, generation-safe ownership, and root-preserving host transfer
+- `navigator-contracts.test.ts`, Behavioral tests for canonical route identity, legacy Prompt pane adaptation, cleanup/focus, duplicate focus, generation-safe ownership, and root-preserving host transfer
 - `notes.test.ts`, Unit tests for note and pattern data structures
 - `pattern-editor-contract.test.ts`, Structural contract tests for pattern-editor.ts rendering invariants (stale canvas path, SVG/canvas y-center alignment)
 - `loop-editor-contract.test.ts`, Structural contract tests for loop-editor.ts UI invariants (CSS class for disabled state, no inline opacity conflict) and song-editor.ts focus-steal listeners (mouseup blur buttons, keydown intercept Space on button/select)

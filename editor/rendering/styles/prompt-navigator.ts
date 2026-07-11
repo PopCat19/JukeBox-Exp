@@ -2,6 +2,9 @@
 
 export function buildNavigatorCSS(): string {
 	return `
+.beepboxEditor .navigator-shell[hidden] {
+	display: none;
+}
 .beepboxEditor .navigator-shell {
 	display: flex;
 	flex-direction: column;
