@@ -3,6 +3,7 @@
 // Purpose: Shared types and constants for shiggy system
 
 import { injectGlobalStyles } from "../../../shared/styles/inject";
+import { Typography } from "../../ui/style-constants";
 
 export const GIF_RESTART_MS = 11000;
 export const AUTO_SPAWN_MS = 6000;
@@ -122,6 +123,30 @@ export function injectShiggyCss(): void {
             35% { transform: translateX(-50%) scale(1); }
             80% { opacity: 1; }
             100% { opacity: 0; transform: translateX(-50%) translateY(-6px); }
+        }
+        .beepboxEditor .shiggy-img {
+            width: 60px; height: auto; pointer-events: none; opacity: 0;
+            transition: opacity 0.2s; cursor: pointer;
+        }
+        .beepboxEditor .shiggy-toggle {
+            text-align: center; user-select: none; margin-top: 2px;
+        }
+        .beepboxEditor .shiggy-label {
+            font-size: ${Typography.sizeSm}; color: var(--secondary-text); cursor: pointer;
+        }
+        .beepboxEditor .shiggy-pet-display {
+            font-size: ${Typography.sizeXs}; color: var(--secondary-text);
+            min-height: 1.2em; text-align: center; margin-top: 2px;
+            word-wrap: break-word; overflow-wrap: break-word; white-space: normal;
+        }
+        .beepboxEditor .shiggy-counter {
+            font-size: ${Typography.sizeXs}; color: var(--secondary-text);
+            opacity: 0; transition: opacity 0.3s; min-height: 1.2em;
+        }
+        .beepboxEditor .shiggy-release-btn {
+            font-size: ${Typography.sizeXs}; color: var(--secondary-text); cursor: pointer;
+            opacity: 0; pointer-events: none;
+            transition: opacity 0.3s, pointer-events 0s 0.3s; margin-top: 2px; user-select: none;
         }
     `,
 	);

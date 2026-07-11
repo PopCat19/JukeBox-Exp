@@ -5,7 +5,6 @@
 // - Pet counter, message display, and release button
 // - Delegates tracking, summoning, dialogue, and audio to submodules
 
-import { Typography } from "../../ui/style-constants";
 import { ShiggyAudio } from "./audio";
 import { PET_MESSAGES } from "./bubbles";
 import { clearAllSummoned, spawnShiggy, startGifRestart } from "./summoning";
@@ -45,8 +44,7 @@ export class Shiggy {
 		// Sidebar image
 		this._img = document.createElement("img");
 		this._img.src = `assets/images/shiggy.gif?v=${Date.now()}`;
-		this._img.style.cssText =
-			"width: 60px; height: auto; pointer-events: none; opacity: 0; transition: opacity 0.2s; cursor: pointer;";
+		this._img.className = "shiggy-img";
 
 		this._img.ontouchstart = (e: TouchEvent) => {
 			e.preventDefault();
@@ -81,24 +79,24 @@ export class Shiggy {
 
 		// Sidebar layout
 		this._toggle = document.createElement("div");
-		this._toggle.style.cssText = "text-align: center; user-select: none; margin-top: 2px;";
+		this._toggle.className = "shiggy-toggle";
 
 		const label = document.createElement("div");
-		label.style.cssText = `font-size: ${Typography.sizeSm}; color: var(--secondary-text); cursor: pointer;`;
+		label.className = "shiggy-label";
 		label.textContent = "summon shiggy";
 		label.onclick = () => {
 			this.toggle();
 		};
 
 		this._petDisplay = document.createElement("div");
-		this._petDisplay.style.cssText = `font-size: ${Typography.sizeXs}; color: var(--secondary-text); min-height: 1.2em; text-align: center; margin-top: 2px; word-wrap: break-word; overflow-wrap: break-word; white-space: normal;`;
+		this._petDisplay.className = "shiggy-pet-display";
 
 		this._counter = document.createElement("div");
-		this._counter.style.cssText = `font-size: ${Typography.sizeXs}; color: var(--secondary-text); opacity: 0; transition: opacity 0.3s; min-height: 1.2em;`;
+		this._counter.className = "shiggy-counter";
 
 		this._releaseBtn = document.createElement("div");
 		this._releaseBtn.textContent = "release one";
-		this._releaseBtn.style.cssText = `font-size: ${Typography.sizeXs}; color: var(--secondary-text); cursor: pointer; opacity: 0; pointer-events: none; transition: opacity 0.3s, pointer-events 0s 0.3s; margin-top: 2px; user-select: none;`;
+		this._releaseBtn.className = "shiggy-release-btn";
 		this._releaseBtn.onclick = () => {
 			this._releaseOne();
 		};
