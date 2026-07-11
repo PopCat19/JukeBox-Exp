@@ -76,6 +76,18 @@
             color: var(--link-accent, #98f);
         }
 
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
+        }
+
         .donation form {
             display: inline;
         }
@@ -128,6 +140,11 @@
                 align-items: center;
             }
         }
-        
+
+        .goldbox-plant {
+            display: inline;
+            color: #62a13b;
+        }
+
         /* INSERT_SELECT2_CSS_HERE */
-        
+
