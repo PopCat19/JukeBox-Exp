@@ -218,6 +218,10 @@ export function buildEditorLayoutCSS(): string {
 	flex-shrink: 0;
 	min-width: 0;
 }
+.beepboxEditor .selectRow.filter-type-row {
+	padding-top: 4px;
+	margin-bottom: 0;
+}
 
 .beepboxEditor .menu-area {
 	display: flex;

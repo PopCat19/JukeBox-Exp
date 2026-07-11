@@ -625,7 +625,7 @@ export class SongEditor
 	private readonly _eqFilterSimpleButton: HTMLButtonElement = this._eqFilterToggle.buttons[0];
 	private readonly _eqFilterAdvancedButton: HTMLButtonElement = this._eqFilterToggle.buttons[1];
 	private readonly _eqFilterTypeRow: HTMLElement = div(
-		{ class: "selectRow", style: "padding-top: 4px; margin-bottom: 0px;" },
+		{ class: "selectRow filter-type-row" },
 		tipSpan(
 			"EQ Filt.Type:",
 			() => {
@@ -687,7 +687,7 @@ export class SongEditor
 	private readonly _noteFilterAdvancedButton: HTMLButtonElement =
 		this._noteFilterToggle.buttons[1];
 	private readonly _noteFilterTypeRow: HTMLElement = div(
-		{ class: "selectRow", style: "padding-top: 4px; margin-bottom: 0px;" },
+		{ class: "selectRow filter-type-row" },
 		tipSpan(
 			"Note Filt.Type:",
 			() => {
@@ -871,7 +871,6 @@ export class SongEditor
 	);
 	private readonly _detuneSlider: Slider = new Slider(
 		input({
-			style: "margin: 0;",
 			type: "range",
 			min: Config.detuneMin - Config.detuneCenter,
 			max: Config.detuneMax - Config.detuneCenter,
