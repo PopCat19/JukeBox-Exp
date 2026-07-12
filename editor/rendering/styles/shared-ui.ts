@@ -1,7 +1,7 @@
 // Shared UI
 //
-// Purpose: CSS for shared UI components — labelRow, searchInput, tagListItem,
-// tagChip, and sectionLabel used across editor prompts.
+// Purpose: CSS for shared UI components — labelRow, searchInput, selectableRow,
+// tagListItem, tagChip, and sectionLabel used across editor prompts.
 //
 // Extracted from style.ts. Uses BorderWidth from style-constants.
 
@@ -37,6 +37,26 @@ export function buildSharedUICSS(): string {
 
 .beepboxEditor .searchInput:focus {
 	border-color: var(--indicator-primary, #4444ff);
+}
+
+.beepboxEditor .selectableRow {
+	min-width: 0;
+	padding: var(--padding-6) var(--padding-12);
+	box-sizing: border-box;
+	border: 0;
+	border-radius: var(--border-radius-medium);
+	outline: 2px solid transparent;
+	outline-offset: -2px;
+	box-shadow: none;
+	background: var(--prompt-list-item-bg);
+	color: var(--primary-text);
+	font-size: 12px;
+	line-height: 1.3;
+	cursor: pointer;
+}
+
+.beepboxEditor .selectableRow.active {
+	font-weight: 600;
 }
 
 .beepboxEditor .tagListItem {

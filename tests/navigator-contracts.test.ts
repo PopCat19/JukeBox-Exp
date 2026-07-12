@@ -15,6 +15,7 @@ import type { Prompt } from "../editor/prompts/prompt";
 import { NavigatorRuntime, type DetachedPane } from "../editor/navigator/navigator-runtime";
 import { NavigatorShell } from "../editor/navigator/navigator-shell";
 import { buildNavigatorCSS } from "../editor/rendering/styles/prompt-navigator";
+import { buildSharedUICSS } from "../editor/rendering/styles/shared-ui";
 import { PaneOwnership, type PaneOwner } from "../editor/navigator/ownership";
 import { createPromptPaneOwner } from "../editor/navigator/prompt-pane-owner";
 import { canonicalRouteIdentity, type PaneIdentity } from "../editor/navigator/route-identity";
@@ -688,7 +689,10 @@ describe("navigator shell", () => {
 		expect(css).toContain("width: min(880px, calc(100vw - 32px))");
 		expect(css).toContain("height: min(640px, calc(100vh - 32px))");
 		expect(css).toContain("grid-template-columns: 184px minmax(0, 1fr)");
-		expect(css).toMatch(/\.navigator-route\.active \{[^}]*background: var\(--cta-bg\)[^}]*color: var\(--cta-fg\)[^}]*font-weight: 600/s);
+		expect(css).not.toContain(".navigator-route.active");
+		const sharedCSS = buildSharedUICSS();
+		expect(sharedCSS).toMatch(/\.selectableRow \{[^}]*padding: var\(--padding-6\) var\(--padding-12\)[^}]*outline: 2px solid transparent[^}]*outline-offset: -2px[^}]*box-shadow: none[^}]*background: var\(--prompt-list-item-bg\)[^}]*font-size: 12px/s);
+		expect(sharedCSS).toMatch(/\.selectableRow\.active \{[^}]*font-weight: 600/s);
 		expect(css).toMatch(/\.navigator-detach-button,[^}]*min-width: 40px[^}]*min-height: 40px/s);
 		expect(css).toContain("@media (max-width: 639px)");
 		expect(css).toMatch(/@media \(max-width: 639px\)[\s\S]*\.navigator-route-list \{[^}]*flex-direction: row[^}]*overflow-x: auto/);
@@ -711,6 +715,8 @@ describe("navigator shell", () => {
 		expect(routeLabels).toContain("Custom EQ filter settings");
 		expect(routeLabels).not.toContain("customChipSettings");
 		if (search === null) throw new Error("missing route search");
+		expect(search.classList.contains("searchInput")).toBeTrue();
+		expect(search.parentElement?.classList.contains("inputRow")).toBeTrue();
 		search.value = "customChipSettings";
 		search.dispatchEvent(new Event("input"));
 		expect(shell.container.querySelector(".navigator-route")?.textContent).toBe(
@@ -727,6 +733,10 @@ describe("navigator shell", () => {
 		shell.attach({ element: pane });
 		expect(shell.container.querySelector(".navigator-active-title")?.textContent).toBe("Add samples");
 		expect(route?.getAttribute("aria-current")).toBe("page");
+		expect(route?.classList.contains("selectableRow")).toBeTrue();
+		expect(route?.classList.contains("pmd-hover")).toBeTrue();
+		expect(route?.classList.contains("pmd-focus")).toBeTrue();
+		expect(route?.classList.contains("pmd-active")).toBeTrue();
 		shell.container.querySelector<HTMLButtonElement>(".navigator-close-button")?.click();
 		expect(closed).toBeTrue();
 	});

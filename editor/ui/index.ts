@@ -112,6 +112,7 @@ export {
 	promptRowEnd,
 	promptValue,
 } from "./prompts";
+export { selectableRow, setSelectableRowActive } from "./rows/selectable-row";
 export type { SliderRowOptions, SliderRowWithInputOptions } from "./rows/slider-row";
 // Rows
 export { simpleSliderRow, sliderRow, sliderRowWithInput } from "./rows/slider-row";

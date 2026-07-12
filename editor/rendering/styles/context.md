@@ -22,4 +22,4 @@ CSS-in-JS style definitions for the editor UI. Each file exports a CSS string (e
 - `prompt-shell.ts`, CSS for generic prompt container, dock, shell, titlebar
 - `prompt-small.ts`, CSS for small one-off prompts — beatsPerBar, export header
 - `responsive.ts`, CSS for responsive layout breakpoints — wide screen (>=711px) and narrow
-- `shared-ui.ts`, CSS for shared UI components — labelRow, searchInput, tagListItem
+- `shared-ui.ts`, CSS for shared UI components — labelRow, searchInput, selectableRow, tagListItem

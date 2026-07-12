@@ -64,12 +64,7 @@ export function buildNavigatorCSS(): string {
 	font-weight: 600;
 	text-transform: uppercase;
 }
-.beepboxEditor .navigator-route { text-align: left; }
-.beepboxEditor .navigator-route.active {
-	background: var(--cta-bg);
-	color: var(--cta-fg);
-	font-weight: 600;
-}
+.beepboxEditor .navigator-route { text-align: left; font-weight: 500; }
 .beepboxEditor .navigator-workspace { display: flex; flex-direction: column; min-width: 0; min-height: 0; }
 .beepboxEditor .navigator-active-title {
 	flex: 0 0 auto;

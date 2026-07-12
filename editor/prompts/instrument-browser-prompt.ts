@@ -29,6 +29,8 @@ import {
 	instructions,
 	paneContainer,
 	searchInput,
+	selectableRow,
+	setSelectableRowActive,
 	tagChip,
 } from "../ui";
 import { tabButton } from "../ui/buttons/tab-button";
@@ -530,6 +532,7 @@ export class InstrumentBrowserPrompt extends BasePrompt {
 					div({ style: STYLES.smallText }, `Presets: ${cat.presets.length}`),
 				),
 			);
+			selectableRow(item);
 			const idx = i;
 			item.addEventListener("mousedown", (event: MouseEvent) => {
 				event.preventDefault();
@@ -567,6 +570,7 @@ export class InstrumentBrowserPrompt extends BasePrompt {
 				},
 				div({}, preset.name, div({ style: STYLES.smallText }, `Position: ${i + 1}`)),
 			);
+			selectableRow(item);
 			const idx = i;
 			item.addEventListener("mousedown", (event: MouseEvent) => {
 				event.preventDefault();
@@ -617,7 +621,7 @@ export class InstrumentBrowserPrompt extends BasePrompt {
 				);
 				const isActive = i === this._selectedCategoryIndex;
 				this._categoryItems[i].classList.toggle("focused", false);
-				this._categoryItems[i].classList.toggle("active", isActive);
+				setSelectableRowActive(this._categoryItems[i], isActive);
 				this._categoryItems[i].classList.toggle("committed", isCommitted);
 			}
 			for (let i = 0; i < this._presetItems.length; i++) {
@@ -629,7 +633,7 @@ export class InstrumentBrowserPrompt extends BasePrompt {
 				const isActive = isFocused && !isCommitted;
 				this._presetItems[i].classList.toggle("focused", isFocused && !isActive);
 				this._presetItems[i].classList.toggle("committed", isCommitted);
-				this._presetItems[i].classList.toggle("active", isActive);
+				setSelectableRowActive(this._presetItems[i], isActive);
 			}
 			return;
 		}
@@ -648,7 +652,7 @@ export class InstrumentBrowserPrompt extends BasePrompt {
 				(p) => p.value === this._committedPreset,
 			);
 			this._categoryItems[i].classList.toggle("focused", isFocused);
-			this._categoryItems[i].classList.toggle("active", isActive);
+			setSelectableRowActive(this._categoryItems[i], isActive);
 			this._categoryItems[i].classList.toggle("committed", isCommitted);
 		}
 		for (let i = 0; i < this._presetItems.length; i++) {
@@ -660,7 +664,7 @@ export class InstrumentBrowserPrompt extends BasePrompt {
 			const isActive = isFocused && !isCommitted;
 			this._presetItems[i].classList.toggle("focused", isFocused && !isActive);
 			this._presetItems[i].classList.toggle("committed", isCommitted);
-			this._presetItems[i].classList.toggle("active", isActive);
+			setSelectableRowActive(this._presetItems[i], isActive);
 		}
 		// Info panel DOM rebuild is heavy. RAF to coalesce rapid
 		// mouse moves into a single frame update.
@@ -1018,6 +1022,7 @@ export class InstrumentBrowserPrompt extends BasePrompt {
 				},
 				item.name,
 			);
+			selectableRow(el);
 			const idx = i;
 			el.addEventListener("mouseenter", () => {
 				this._lastInteraction = "hover";
@@ -1065,7 +1070,7 @@ export class InstrumentBrowserPrompt extends BasePrompt {
 			const isFocused = this._selectedTypeIndex === i;
 			// focused = keyboard nav; active = currently selected item
 			el.classList.toggle("focused", isFocused);
-			el.classList.toggle("active", isFocused);
+			setSelectableRowActive(el, isFocused);
 		}
 	}
 

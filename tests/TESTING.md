@@ -103,6 +103,7 @@ All 12 types verified via encode→decode→type-preservation.
 | `editor/ui/surfaces.ts` | `tests/ui-states.test.ts` | primarySurface/secondarySurface/ghostSurface role outputs |
 | `editor/ui/interactions.ts` | `tests/interactions-behavior.test.ts` | Behavioral: classList adds, style custom props, dataset writes, native disabled property writes, tagged style injection dedupe |
 | `editor/ui/interactions.ts` (source-grep) | `tests/ui-states.test.ts` | CSS rule content (incl. pmd-disabled), helper exports, DisableableElement union coverage |
+| `editor/ui/rows/selectable-row.ts`, `editor/rendering/styles/shared-ui.ts` | `tests/navigator-contracts.test.ts` | Shared search and selectable-row structure, PMD outline feedback, and active state reuse |
 | `editor/components/mute-editor.ts` | `tests/ui-states.test.ts` | Source-grep: single-branch loop enter handler, leave reuses _updateLoopButton |
 | `editor/prompts/channel-volume-visualizer-prompt.ts` | `tests/ui-states.test.ts` | Source-grep: single-branch loop enter handler, leave reuses _updateLoopButton |
 | `editor/song-editor.ts` | `tests/loop-editor-contract.test.ts` | Focus-steal listeners for buttons/selects |

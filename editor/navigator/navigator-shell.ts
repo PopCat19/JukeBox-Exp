@@ -1,5 +1,6 @@
 // Purpose: Provides the persistent PMD navigator shell and pane host.
 
+import { inputRow, searchInput, selectableRow, setSelectableRowActive } from "../ui";
 import { commandRegistry } from "./command-registry";
 import type { PaneHost, PaneRoot } from "./contracts";
 
@@ -102,10 +103,8 @@ export class NavigatorShell implements PaneHost {
 		this.attachDrag(titlebar);
 		const content = document.createElement("div");
 		content.className = "navigator-content";
-		this.routeSearch = document.createElement("input");
-		this.routeSearch.className = "navigator-route-search";
-		this.routeSearch.type = "search";
-		this.routeSearch.placeholder = "Search routes";
+		this.routeSearch = searchInput("Search routes");
+		this.routeSearch.classList.add("navigator-route-search");
 		this.routeSearch.setAttribute("aria-label", "Search routes");
 		this.routeList = document.createElement("div");
 		this.routeList.className = "navigator-route-list";
@@ -114,7 +113,7 @@ export class NavigatorShell implements PaneHost {
 		});
 		const sidebar = document.createElement("aside");
 		sidebar.className = "navigator-sidebar";
-		sidebar.append(this.routeSearch, this.routeList);
+		sidebar.append(inputRow({}, this.routeSearch), this.routeList);
 		const workspace = document.createElement("section");
 		workspace.className = "navigator-workspace";
 		this.activeTitle = document.createElement("h3");
@@ -142,7 +141,7 @@ export class NavigatorShell implements PaneHost {
 			for (let index = 0; index < routeButtons.length; index++) {
 				const button = routeButtons[index];
 				const active = button.dataset.routeId === routeId;
-				button.classList.toggle("active", active);
+				setSelectableRowActive(button, active);
 				button.setAttribute("aria-current", active ? "page" : "false");
 			}
 		}
@@ -197,7 +196,7 @@ export class NavigatorShell implements PaneHost {
 			button.dataset.routeId = route.id;
 			button.textContent = route.title;
 			const active = route.id === this.activeRouteId;
-			button.classList.toggle("active", active);
+			selectableRow(button, active);
 			button.setAttribute("aria-current", active ? "page" : "false");
 			button.addEventListener("click", () => this.onRoute?.(route.id));
 			group.append(button);

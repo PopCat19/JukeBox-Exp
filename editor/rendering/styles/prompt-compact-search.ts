@@ -74,26 +74,6 @@ export function buildPromptCompactSearchCSS(): string {
 	margin: 4px 0;
 }
 
-.beepboxEditor .prompt.compactSearchPrompt .categoryItem,
-.beepboxEditor .prompt.compactSearchPrompt .presetItem,
-.beepboxEditor .prompt.compactSearchPrompt .typeItem {
-	padding: var(--padding-6) var(--padding-12);
-	cursor: pointer;
-	font-size: 12px;
-	line-height: 1.3;
-	border-radius: var(--border-radius-medium);
-	background: var(--prompt-list-item-bg);
-	border: 2px solid transparent;
-	box-sizing: border-box;
-	min-width: 0;
-}
-
-.beepboxEditor .prompt.compactSearchPrompt .categoryItem:hover,
-.beepboxEditor .prompt.compactSearchPrompt .presetItem:hover,
-.beepboxEditor .prompt.compactSearchPrompt .typeItem:hover {
-	border-color: var(--hout, var(--primary-text));
-}
-
 .beepboxEditor .prompt.compactSearchPrompt .categoryItem.committed,
 .beepboxEditor .prompt.compactSearchPrompt .presetItem.committed,
 .beepboxEditor .prompt.compactSearchPrompt .typeItem.committed {
@@ -117,23 +97,6 @@ export function buildPromptCompactSearchCSS(): string {
 .beepboxEditor .prompt.compactSearchPrompt .presetItem.focused,
 .beepboxEditor .prompt.compactSearchPrompt .typeItem.focused {
 	border-color: var(--hout, var(--primary-text));
-}
-
-/* Active (selected but not committed): CTA fill, like committed
- * but without the final confirmation. Single-click in presets pane
- * immediately shows this state. */
-.beepboxEditor .prompt.compactSearchPrompt .presetItem.active,
-.beepboxEditor .prompt.compactSearchPrompt .categoryItem.active,
-.beepboxEditor .prompt.compactSearchPrompt .typeItem.active {
-	background: var(--cta-bg);
-	color: var(--cta-fg);
-	border-color: var(--cta-bg);
-}
-
-.beepboxEditor .prompt.compactSearchPrompt .presetItem.active:hover,
-.beepboxEditor .prompt.compactSearchPrompt .categoryItem.active:hover,
-.beepboxEditor .prompt.compactSearchPrompt .typeItem.active:hover {
-	border-color: var(--editor-background);
 }
 
 .beepboxEditor .prompt.compactSearchPrompt .categoryItem.committed.focused,

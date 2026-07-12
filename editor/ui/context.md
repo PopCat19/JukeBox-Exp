@@ -28,5 +28,5 @@ Purpose: Reusable UI primitives, factory functions, design tokens, and interacti
 - `labels/`, Label variants (field label, section label)
 - `layout/`, Editor layout mode CSS grid configuration
 - `prompts/`, Prompt sub-components (pane, input row, info banner, instructions)
-- `rows/`, Row layout variants (slider row, slider row with input)
+- `rows/`, Selectable list rows and slider row layout variants
 - `sliders/`, Slider component with regular and delta-track variants
