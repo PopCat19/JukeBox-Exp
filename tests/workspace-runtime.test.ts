@@ -73,6 +73,78 @@ describe("WorkspaceRuntime", () => {
 		expect(f.runtime.identities().length).toBe(2);
 	});
 
+	test("child replacement denial has no construction or cleanup side effects", async () => {
+		const f = fixture({ denyLeave: "a" });
+		const token = await f.runtime.open(specs("a", "b"));
+		expect(await f.runtime.replaceChild(token, { paneId: "a" }, specs("c")[0])).toBeNull();
+		expect(f.constructs()).toBe(2);
+		expect(f.events.filter((event) => event.startsWith("leave:"))).toEqual(["leave:a"]);
+		expect(f.events.some((event) => event.startsWith("unmount:") || event.startsWith("dispose:"))).toBeFalse();
+	});
+
+	test("child replacement with the same identity is a side-effect-free no-op", async () => {
+		const f = fixture();
+		const token = await f.runtime.open(specs("a", "b"));
+		const eventCount = f.events.length;
+		expect(await f.runtime.replaceChild(token, { paneId: "a" }, specs("a")[0])).toBe(token);
+		expect(f.constructs()).toBe(2);
+		expect(f.events).toHaveLength(eventCount);
+		expect(f.disposeCounts.size).toBe(0);
+	});
+
+	test("child replacement rejects a sibling identity before construction", async () => {
+		const f = fixture();
+		const token = await f.runtime.open(specs("a", "b"));
+		await expect(f.runtime.replaceChild(token, { paneId: "a" }, specs("b")[0])).rejects.toThrow("duplicate");
+		expect(f.constructs()).toBe(2);
+		expect(f.events.includes("leave:a")).toBeFalse();
+	});
+
+	test("child replacement mount failure preserves workspace token and selection", async () => {
+		const f = fixture({ failMount: "c" });
+		const token = await f.runtime.open(specs("a", "b"));
+		await f.runtime.switchActive(token, { paneId: "b" });
+		await expect(f.runtime.replaceChild(token, { paneId: "a" }, specs("c")[0])).rejects.toThrow("mount failed");
+		expect(f.runtime.identities()).toEqual(specs("a", "b").map((x) => canonicalRouteIdentity(x.route)));
+		expect(f.runtime.active()).toBe(canonicalRouteIdentity({ paneId: "b" }));
+		expect(await f.runtime.switchActive(token, { paneId: "a" })).toBeTrue();
+		expect(f.events.includes("unmount:a")).toBeFalse();
+		expect(f.disposeCounts.get("c")).toBe(1);
+	});
+
+	test("child replacement swaps in place and preserves sibling selection", async () => {
+		const f = fixture();
+		const token = await f.runtime.open(specs("a", "b", "d"));
+		await f.runtime.switchActive(token, { paneId: "b" });
+		const replacement = await f.runtime.replaceChild(token, { paneId: "a" }, specs("c")[0]);
+		expect(replacement).not.toBeNull();
+		expect(f.runtime.identities()).toEqual(specs("c", "b", "d").map((x) => canonicalRouteIdentity(x.route)));
+		expect(f.runtime.active()).toBe(canonicalRouteIdentity({ paneId: "b" }));
+		expect(f.disposeCounts.get("a")).toBe(1);
+		expect(f.disposeCounts.get("b")).toBeUndefined();
+	});
+
+	test("child replacement moves active selection and rejects stale token", async () => {
+		const f = fixture();
+		const token = await f.runtime.open(specs("a", "b"));
+		const replacement = await f.runtime.replaceChild(token, { paneId: "a" }, specs("c")[0]);
+		expect(f.runtime.active()).toBe(canonicalRouteIdentity({ paneId: "c" }));
+		expect(await f.runtime.replaceChild(token, { paneId: "b" }, specs("d")[0])).toBeNull();
+		expect(await f.runtime.switchActive(replacement!, { paneId: "b" })).toBeTrue();
+	});
+
+	test("child replacement cleanup error reports and returns usable token", async () => {
+		const f = fixture({ throwUnmount: "a" });
+		const errors: unknown[] = [];
+		const runtime = new WorkspaceRuntime(f.factory, (error) => errors.push(error));
+		const token = await runtime.open(specs("a", "b"));
+		const replacement = await runtime.replaceChild(token, { paneId: "a" }, specs("c")[0]);
+		expect(errors).toHaveLength(1);
+		expect(replacement).not.toBeNull();
+		expect(await runtime.switchActive(replacement!, { paneId: "b" })).toBeTrue();
+		expect(f.disposeCounts.get("a")).toBe(1);
+	});
+
 	test("tokens reject forged, unopened, cross-runtime, and replaced access", async () => {
 		const first = fixture();
 		const second = fixture();

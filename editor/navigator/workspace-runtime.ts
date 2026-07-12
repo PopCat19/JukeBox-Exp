@@ -79,6 +79,40 @@ export class WorkspaceRuntime {
 		});
 	}
 
+	replaceChild(
+		token: WorkspaceToken,
+		oldRoute: PaneRoute,
+		replacement: WorkspaceChildSpec,
+	): Promise<WorkspaceToken | null> {
+		return this.serialize(async () => {
+			if (!this.isCurrent(token)) return null;
+			const oldIdentity = canonicalRouteIdentity(oldRoute);
+			const index = this.children.findIndex((child) => child.identity === oldIdentity);
+			if (index < 0) return null;
+			const replacementIdentity = canonicalRouteIdentity(replacement.route);
+			if (replacementIdentity === oldIdentity) return token;
+			if (
+				this.children.some(
+					(child, childIndex) =>
+						childIndex !== index && child.identity === replacementIdentity,
+				)
+			)
+				throw new Error("duplicate pane identity in workspace");
+			const previous = this.children[index];
+			if ((await previous.owner.lifecycle.requestLeave()) !== "allow") return null;
+			if (!this.isCurrent(token)) return null;
+			const staged = this.stageChildren([replacement])[0];
+			const wasActive = this.activeIdentity === oldIdentity;
+			const wasFocused = this.focusedIdentity === oldIdentity;
+			this.children[index] = staged;
+			if (wasActive) this.activeIdentity = replacementIdentity;
+			if (wasFocused) this.focusedIdentity = replacementIdentity;
+			const replacementToken = this.issueToken();
+			this.cleanupCommitted([previous]);
+			return replacementToken;
+		});
+	}
+
 	close(token: WorkspaceToken): Promise<boolean> {
 		return this.serialize(async () => {
 			if (!this.isCurrent(token)) return false;
