@@ -642,11 +642,19 @@ describe("native navigator extraction", () => {
 		expect(source).not.toContain('case "channelVolumeVisualizer":');
 	});
 
-	test("domain CSS supports attached and detached native panes", () => {
+	test("domain CSS contains attached native panes without changing legacy prompts", () => {
 		const css = buildNavigatorPanesCSS();
-		expect(css).toContain(".navigator-native-pane");
-		expect(css).toContain(".navigator-detached-host");
-		expect(css).toContain("height: 100%");
+		expect(css).toMatch(
+			/\.navigator-pane-host > \.navigator-native-pane \{[^}]*position: static !important[^}]*inset: auto !important[^}]*width: 100% !important[^}]*max-width: 100%[^}]*height: auto[^}]*min-height: 100%[^}]*overflow: visible/s,
+		);
+		expect(css).not.toMatch(/\.beepboxEditor \.navigator-native-pane \{/);
+	});
+
+	test("domain CSS preserves detached native pane sizing", () => {
+		const css = buildNavigatorPanesCSS();
+		expect(css).toMatch(
+			/\.navigator-detached-host > \.navigator-native-pane \{[^}]*width: 100%[^}]*height: 100%[^}]*max-height: none/s,
+		);
 	});
 });
 

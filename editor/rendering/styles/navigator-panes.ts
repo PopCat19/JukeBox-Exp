@@ -13,17 +13,28 @@ export function buildNavigatorPanesCSS(): string {
 	height: 100vh;
 	padding: var(--padding-12);
 }
-.beepboxEditor .navigator-native-pane {
+.beepboxEditor .navigator-pane-host > .navigator-native-pane {
+	position: static !important;
+	inset: auto !important;
+	box-sizing: border-box;
+	width: 100% !important;
+	max-width: 100%;
+	height: auto;
+	min-height: 100%;
+	max-height: none;
+	margin: 0;
+	overflow: visible;
+	transform: none;
+}
+.beepboxEditor .navigator-detached-host > .navigator-native-pane {
 	position: static;
 	box-sizing: border-box;
 	width: 100%;
 	max-width: none;
-	margin: 0;
-	transform: none;
-}
-.beepboxEditor .navigator-detached-host > .navigator-native-pane {
 	height: 100%;
 	max-height: none;
+	margin: 0;
+	transform: none;
 }
 `;
 }
