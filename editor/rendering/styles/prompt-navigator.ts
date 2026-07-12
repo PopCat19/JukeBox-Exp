@@ -3,56 +3,32 @@
 export function buildNavigatorCSS(): string {
 	return `
 .beepboxEditor .navigator-shell[hidden] { display: none; }
-.beepboxEditor .navigator-shell {
+.beepboxEditor .navigator-prompt-variant {
 	display: flex;
-	flex-direction: column;
 	box-sizing: border-box;
 	width: min(880px, calc(100vw - 32px));
 	height: min(640px, calc(100vh - 32px));
 	max-width: calc(100vw - 32px);
 	max-height: calc(100vh - 32px);
+	padding: 0;
+	gap: 0;
+	text-align: left;
 	overflow: hidden;
-	border-radius: var(--border-radius-large);
-	background: color-mix(in oklch, var(--ui-widget-background) 40%, transparent);
-	backdrop-filter: blur(24px);
-	-webkit-backdrop-filter: blur(24px);
-	color: var(--primary-text);
-	outline: 2px solid transparent;
-	outline-offset: -2px;
 }
-.beepboxEditor .navigator-shell:hover,
-.beepboxEditor .navigator-shell:focus-visible {
-	outline-color: var(--hout, var(--primary-text));
-}
-.beepboxEditor .navigator-titlebar {
-	display: flex;
-	flex: 0 0 auto;
-	align-items: center;
-	justify-content: space-between;
-	gap: 8px;
-	padding: 8px 12px;
-	background: var(--ui-widget-background);
-	cursor: move;
-	user-select: none;
-}
-.beepboxEditor .navigator-title { margin: 0; font-size: 16px; font-weight: 600; }
-.beepboxEditor .navigator-titlebar-controls { display: flex; gap: 8px; }
-.beepboxEditor .navigator-detach-button,
-.beepboxEditor .navigator-close-button {
-	box-sizing: border-box;
-	min-width: 40px;
-	min-height: 40px;
-	font-size: 20px;
-}
-.beepboxEditor .navigator-detach-button,
-.beepboxEditor .navigator-close-button,
-.beepboxEditor .navigator-route { cursor: pointer; font-weight: 500; }
+.beepboxEditor .navigator-detach-button { flex: var(--flex-fit); }
 .beepboxEditor .navigator-content {
 	display: grid;
-	grid-template-columns: 184px minmax(0, 1fr);
+	grid-template-columns: 224px minmax(0, 1fr);
 	grid-template-rows: minmax(0, 1fr);
+	gap: 12px;
 	flex: 1 1 auto;
 	min-height: 0;
+	padding: 12px;
+}
+.beepboxEditor .navigator-sidebar,
+.beepboxEditor .navigator-workspace {
+	border: 2px solid var(--ui-widget-background);
+	border-radius: var(--border-radius-medium);
 }
 .beepboxEditor .navigator-sidebar {
 	display: flex;
@@ -60,7 +36,6 @@ export function buildNavigatorCSS(): string {
 	gap: 8px;
 	min-width: 0;
 	padding: 12px;
-	background: var(--editor-background);
 }
 .beepboxEditor .navigator-route-search { box-sizing: border-box; width: 100%; }
 .beepboxEditor .navigator-route-list { display: flex; flex-direction: column; gap: 12px; overflow: auto; }
@@ -73,7 +48,19 @@ export function buildNavigatorCSS(): string {
 	font-weight: 600;
 	text-transform: uppercase;
 }
-.beepboxEditor .navigator-route { text-align: left; font-weight: 500; }
+.beepboxEditor .navigator-route {
+	min-width: 0;
+	overflow: hidden;
+	text-align: left;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+.beepboxEditor .navigator-route.selectableRow.active {
+	background: var(--cta-bg);
+	color: var(--cta-fg);
+	border-color: var(--cta-bg);
+	font-weight: inherit;
+}
 .beepboxEditor .navigator-workspace {
 	display: flex;
 	flex: 1 1 auto;
@@ -88,7 +75,7 @@ export function buildNavigatorCSS(): string {
 	padding: 12px;
 	font-size: 14px;
 	font-weight: 600;
-	background: var(--ui-widget-background);
+	text-align: center;
 }
 .beepboxEditor .navigator-pane-host {
 	flex: 1 1 0;
@@ -100,12 +87,12 @@ export function buildNavigatorCSS(): string {
 	color: var(--secondary-text);
 }
 @media (max-width: 639px) {
-	.beepboxEditor .navigator-content { display: flex; flex-direction: column; }
-	.beepboxEditor .navigator-sidebar { flex: 0 0 auto; padding: 8px; }
-	.beepboxEditor .navigator-route-list { flex-direction: row; gap: 12px; overflow-x: auto; }
+	.beepboxEditor .navigator-content { display: flex; flex-direction: column; box-sizing: border-box; max-width: 100%; gap: 8px; padding: 8px; overflow-x: hidden; }
+	.beepboxEditor .navigator-sidebar { flex: 0 0 auto; box-sizing: border-box; width: 100%; max-width: 100%; padding: 8px; overflow: hidden; }
+	.beepboxEditor .navigator-route-list { box-sizing: border-box; max-width: 100%; flex-direction: row; gap: 12px; overflow-x: auto; }
 	.beepboxEditor .navigator-route-group { flex: 0 0 auto; flex-direction: row; align-items: center; }
-	.beepboxEditor .navigator-route-group-title { position: sticky; left: 0; background: var(--editor-background); }
-	.beepboxEditor .navigator-route { flex: 0 0 auto; white-space: nowrap; }
+	.beepboxEditor .navigator-route-group-title { position: sticky; left: 0; }
+	.beepboxEditor .navigator-route { flex: 0 0 auto; }
 }
 `;
 }

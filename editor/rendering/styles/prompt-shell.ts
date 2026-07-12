@@ -67,6 +67,10 @@ export function buildPromptShellCSS(): string {
 	pointer-events: none;
 }
 
+.beepboxEditor .promptContainer.navigatorVisible {
+	display: flex !important;
+}
+
 .beepboxEditor .promptContainer > * {
 	pointer-events: auto;
 }

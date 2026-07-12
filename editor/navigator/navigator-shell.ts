@@ -1,6 +1,8 @@
 // Purpose: Provides the persistent PMD navigator shell and pane host.
 
-import { inputRow, searchInput, selectableRow, setSelectableRowActive } from "../ui";
+import { attachPromptDrag } from "../core/prompt-drag";
+import { buildPromptTitlebar } from "../prompts/base-prompt";
+import { iconButton, inputRow, searchInput, selectableRow, setSelectableRowActive } from "../ui";
 import { tabButton } from "../ui/buttons/tab-button";
 import type { PaneHost, PaneRoot } from "./contracts";
 import { catalogItemRoutes, navigatorOtherRoutes, navigatorRouteCatalog } from "./route-catalog";
@@ -36,6 +38,8 @@ export class NavigatorShell implements PaneHost {
 	private readonly routes: readonly NavigatorRoute[];
 	private readonly onRoute: ((id: string) => void) | undefined;
 	private activeRouteId: string | undefined;
+	private normalRouteId: string | undefined;
+	private dragDispose: (() => void) | null = null;
 
 	constructor(
 		title = "Navigator",
@@ -45,41 +49,40 @@ export class NavigatorShell implements PaneHost {
 		routes: readonly NavigatorRoute[] = DEFAULT_ROUTES,
 	) {
 		this.container = document.createElement("div");
-		this.container.className = "navigator-shell";
+		this.container.className = "prompt navigator-shell navigator-prompt-variant";
 		this.container.hidden = true;
 		this.container.tabIndex = -1;
 		this.routes = routes;
 		this.onRoute = onRoute;
-		const titlebar = document.createElement("div");
-		titlebar.className = "navigator-titlebar";
 		const heading = document.createElement("h2");
-		heading.className = "navigator-title";
 		heading.textContent = title;
-		titlebar.append(heading);
-		const controls = document.createElement("div");
-		controls.className = "navigator-titlebar-controls";
-		this.detachButton = onDetach === undefined ? null : document.createElement("button");
-		if (this.detachButton !== null) {
-			this.detachButton.className = "navigator-detach-button";
-			this.detachButton.type = "button";
-			this.detachButton.title = "Detach Navigator";
-			this.detachButton.setAttribute("aria-label", "Detach Navigator");
-			this.detachButton.textContent = "↗";
-			this.detachButton.addEventListener("click", () => onDetach?.());
-			controls.append(this.detachButton);
-		}
+		this.container.append(heading);
+		this.detachButton =
+			onDetach === undefined
+				? null
+				: iconButton("navigator-detach-button", {
+						type: "button",
+						title: "Detach Navigator",
+					});
+		this.detachButton?.setAttribute("aria-label", "Detach Navigator");
+		if (this.detachButton !== null) this.detachButton.textContent = "↗";
+		this.detachButton?.addEventListener("click", () => onDetach?.());
 		if (onClose !== undefined) {
-			const closeButton = document.createElement("button");
-			closeButton.className = "navigator-close-button";
-			closeButton.type = "button";
-			closeButton.title = "Close Navigator";
+			const closeButton = iconButton("cancelButton navigator-close-button", {
+				type: "button",
+				title: "Close Navigator",
+			});
 			closeButton.setAttribute("aria-label", "Close Navigator");
-			closeButton.textContent = "×";
 			closeButton.addEventListener("click", onClose);
-			controls.append(closeButton);
+			this.container.append(closeButton);
 		}
-		titlebar.append(controls);
-		this.attachDrag(titlebar);
+		buildPromptTitlebar(this.container);
+		const titlebar = this.container.querySelector<HTMLElement>(".prompt-titlebar");
+		if (titlebar === null) throw new Error("Navigator titlebar was not built");
+		if (this.detachButton !== null) {
+			const cancel = titlebar.querySelector(".cancelButton");
+			titlebar.insertBefore(this.detachButton, cancel);
+		}
 		const content = document.createElement("div");
 		content.className = "navigator-content";
 		this.routeSearch = searchInput("Search routes");
@@ -159,7 +162,7 @@ export class NavigatorShell implements PaneHost {
 		this.exportTab.addEventListener("keydown", onTabKey);
 		this.recoveryTab.addEventListener("keydown", onTabKey);
 		content.append(sidebar, this.workspace);
-		this.container.append(titlebar, content);
+		this.container.append(content);
 		this.renderRoutes(routes);
 	}
 
@@ -167,6 +170,7 @@ export class NavigatorShell implements PaneHost {
 		this.container.hidden = false;
 		const routeId = root.element.dataset.navigatorScope;
 		this.activeRouteId = routeId;
+		this.normalRouteId = routeId;
 		const route = this.routes.find((entry) => entry.id === routeId);
 		if (route !== undefined) {
 			this.activeTitle.textContent = route.title;
@@ -199,7 +203,11 @@ export class NavigatorShell implements PaneHost {
 			this.detachButton.disabled = active;
 			this.detachButton.hidden = active;
 		}
-		this.setFileActiveRoute(rightRoute, rightRoute);
+		if (active) {
+			this.setFileActiveRoute(rightRoute, rightRoute);
+		} else if (this.body.childElementCount > 0) {
+			this.restoreNormalRoute();
+		}
 	}
 
 	setFileActiveRoute(
@@ -234,8 +242,26 @@ export class NavigatorShell implements PaneHost {
 	}
 
 	private updateVisibility(visible: boolean): void {
-		if (this.container.parentElement?.classList.contains("promptContainer")) {
-			this.container.parentElement.style.display = visible ? "flex" : "none";
+		const parent = this.container.parentElement;
+		if (!parent?.classList.contains("promptContainer")) return;
+		parent.classList.toggle("navigatorVisible", visible);
+		if (visible && this.dragDispose === null) this.attachDrag(parent);
+		if (!visible) {
+			this.dragDispose?.();
+			this.dragDispose = null;
+		}
+	}
+
+	private restoreNormalRoute(): void {
+		this.activeRouteId = this.normalRouteId;
+		const route = this.routes.find((entry) => entry.id === this.normalRouteId);
+		this.activeTitle.textContent = route?.title ?? "";
+		const buttons = this.routeList.querySelectorAll<HTMLButtonElement>(".navigator-route");
+		for (let index = 0; index < buttons.length; index++) {
+			const button = buttons[index];
+			const active = button.dataset.routeId === this.normalRouteId;
+			setSelectableRowActive(button, active);
+			button.setAttribute("aria-current", active ? "page" : "false");
 		}
 	}
 
@@ -302,6 +328,7 @@ export class NavigatorShell implements PaneHost {
 		button.className = "navigator-route";
 		button.dataset.routeId = route.id;
 		button.textContent = route.title;
+		button.title = route.title;
 		const active = route.id === this.activeRouteId;
 		selectableRow(button, active);
 		button.setAttribute("aria-current", active ? "page" : "false");
@@ -309,31 +336,12 @@ export class NavigatorShell implements PaneHost {
 		return button;
 	}
 
-	private attachDrag(titlebar: HTMLElement): void {
-		titlebar.addEventListener("mousedown", (event: MouseEvent) => {
-			if ((event.target as HTMLElement).closest("button")) return;
-			const parent = this.container.parentElement;
-			if (parent === null) return;
-			const start = this.container.getBoundingClientRect();
-			const bounds = parent.getBoundingClientRect();
-			const offsetX = event.clientX - start.left;
-			const offsetY = event.clientY - start.top;
-			this.container.style.position = "absolute";
-			const onMove = (move: MouseEvent): void => {
-				const maxX = Math.max(0, bounds.width - this.container.offsetWidth);
-				const maxY = Math.max(0, bounds.height - this.container.offsetHeight);
-				const x = Math.max(0, Math.min(move.clientX - bounds.left - offsetX, maxX));
-				const y = Math.max(0, Math.min(move.clientY - bounds.top - offsetY, maxY));
-				this.container.style.left = `${x}px`;
-				this.container.style.top = `${y}px`;
-			};
-			const onUp = (): void => {
-				document.removeEventListener("mousemove", onMove);
-				document.removeEventListener("mouseup", onUp);
-			};
-			document.addEventListener("mousemove", onMove);
-			document.addEventListener("mouseup", onUp);
-			event.preventDefault();
+	private attachDrag(bounds: HTMLElement): void {
+		this.dragDispose = attachPromptDrag({
+			container: this.container,
+			bounds,
+			getPosition: () => ({ x: this.container.offsetLeft, y: this.container.offsetTop }),
+			onPosition: () => undefined,
 		});
 	}
 }

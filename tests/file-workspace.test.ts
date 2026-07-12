@@ -8,6 +8,7 @@ import type { FilePromptFactory } from "../editor/navigator/file-workspace";
 import { FileWorkspace } from "../editor/navigator/file-workspace";
 import { NavigatorShell } from "../editor/navigator/navigator-shell";
 import { buildNavigatorPanesCSS } from "../editor/rendering/styles/navigator-panes";
+import { buildPromptShellCSS } from "../editor/rendering/styles/prompt-shell";
 import type { Prompt } from "../editor/prompts/prompt";
 import type { SongDocument } from "../editor/song-document";
 
@@ -65,17 +66,31 @@ describe("FileWorkspace", () => {
 	test("shows parent, exposes tabs, and hides parent after close", async () => {
 		const parent = document.createElement("div");
 		parent.className = "promptContainer";
+		parent.style.display = "none";
+		const editor = document.createElement("div");
+		editor.className = "beepboxEditor";
+		const style = document.createElement("style");
+		style.textContent = buildPromptShellCSS();
+		document.head.append(style);
+		editor.append(parent);
+		document.body.append(editor);
 		const shell = new NavigatorShell();
 		parent.append(shell.container);
 		const workspace = new FileWorkspace({} as SongDocument, shell, {
 			create: (route) => prompt(route),
 		});
 		await workspace.open();
-		expect(parent.style.display).toBe("flex");
+		expect(parent.classList.contains("navigatorVisible")).toBeTrue();
+		expect(parent.style.display).toBe("none");
+		expect(getComputedStyle(parent).display).toBe("flex");
 		expect(shell.container.querySelectorAll("[role='tab']").length).toBe(2);
 		expect(shell.container.querySelector("[role='tabpanel']")?.id).toBe("navigator-file-right-panel");
 		await workspace.close();
+		expect(parent.classList.contains("navigatorVisible")).toBeFalse();
 		expect(parent.style.display).toBe("none");
+		expect(getComputedStyle(parent).display).toBe("none");
+		editor.remove();
+		style.remove();
 	});
 
 	test("denied aggregate close remains open", async () => {
@@ -98,7 +113,7 @@ describe("FileWorkspace", () => {
 		expect(workspace.isOpen()).toBeTrue();
 	});
 
-	test("tab keyboard invokes routes without changing selection early", async () => {
+	test("tab keyboard invokes routes without changing selection early", () => {
 		const opened: string[] = [];
 		const shell = new NavigatorShell("Navigator", undefined, undefined, (route) => opened.push(route));
 		shell.setFileWorkspace(true, "export");

@@ -119,6 +119,7 @@ export const navigatorOtherRoutes: readonly NavigatorCatalogRoute[] = commandReg
 		command.presentation === "navigator" &&
 		command.scope !== undefined &&
 		command.scope !== "instrumentTags" &&
+		command.scope !== "tipPromptScope" &&
 		!visibleRouteIds.has(command.scope)
 			? [route(command.scope, humanize(command.label))]
 			: [],

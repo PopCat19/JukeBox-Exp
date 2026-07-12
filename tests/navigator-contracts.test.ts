@@ -12,6 +12,7 @@ import { isSerializableValue, validateRetainedState } from "../editor/navigator/
 import { LegacyPromptPaneFactory } from "../editor/navigator/navigator-route-host";
 import { buildNavigatorPanesCSS } from "../editor/rendering/styles/navigator-panes";
 import { buildPromptExportCSS } from "../editor/rendering/styles/prompt-export";
+import { buildPromptShellCSS } from "../editor/rendering/styles/prompt-shell";
 import { getExportPaneAuthority } from "../editor/prompts/export-prompt";
 import type { Prompt } from "../editor/prompts/prompt";
 import { NavigatorRuntime, type DetachedPane } from "../editor/navigator/navigator-runtime";
@@ -625,10 +626,11 @@ describe("native navigator extraction", () => {
 	test("shell exposes titlebar drag and explicit detach control", () => {
 		let detached = false;
 		const shell = new NavigatorShell("Navigator", () => { detached = true; });
-		const titlebar = shell.container.querySelector<HTMLElement>(".navigator-titlebar");
+		const titlebar = shell.container.querySelector<HTMLElement>(".prompt-titlebar");
 		const button = shell.container.querySelector<HTMLButtonElement>(".navigator-detach-button");
 		expect(titlebar).not.toBeNull();
 		expect(button?.title).toBe("Detach Navigator");
+		expect(button?.textContent).toBe("↗");
 		button?.click();
 		expect(detached).toBeTrue();
 	});
@@ -681,7 +683,7 @@ describe("native navigator extraction", () => {
 		const css = buildNavigatorPanesCSS();
 		expect(css).toMatch(/\.navigator-pane-host > \.navigator-native-pane \{[^}]*position: static !important[^}]*width: 100% !important[^}]*min-height: 0[^}]*background: transparent !important[^}]*backdrop-filter: none !important[^}]*-webkit-backdrop-filter: none !important/s);
 		expect(css).not.toMatch(/\.navigator-pane-host > \.navigator-native-pane \{[^}]*min-height: 100%/s);
-		expect(css).toMatch(/\.navigator-pane-host > \.navigator-native-pane:hover \{[^}]*outline: none;/s);
+		expect(css).toMatch(/\.navigator-pane-host > \.navigator-native-pane:hover,[^{]*\.navigator-native-pane\.focused,[^{]*\.navigator-native-pane:focus-visible \{[^}]*outline: none !important;/s);
 		expect(css).not.toMatch(/\.navigator-detached-content > \.navigator-native-pane:hover \{[^}]*outline: none;/s);
 		expect(css).not.toMatch(/\.navigator-pane-host[^,{]*[> ](?:button|\.selectableRow):hover/);
 		expect(css).toMatch(/\.navigator-detached-content > \.navigator-native-pane \{[^}]*min-height: 100%/s);
@@ -727,6 +729,7 @@ describe("navigator shell", () => {
 		expect(visualThemes.routes.map((route) => route.id)).toEqual(["theme", "customTheme", "customThemeRaw"]);
 		expect(navigatorRouteCatalog[5].items[0].kind).toBe("split");
 		expect(navigatorOtherRoutes.map((route) => route.id)).not.toContain("instrumentTags");
+		expect(navigatorOtherRoutes.map((route) => route.id)).not.toContain("tipPromptScope");
 		expect(navigatorOtherRoutes.map((route) => route.id)).toContain("keyboardShortcuts");
 	});
 
@@ -734,23 +737,27 @@ describe("navigator shell", () => {
 		const css = buildNavigatorCSS();
 		expect(css).toContain("width: min(880px, calc(100vw - 32px))");
 		expect(css).toContain("height: min(640px, calc(100vh - 32px))");
-		expect(css).toContain("border-radius: var(--border-radius-large)");
-		expect(css).toContain("background: color-mix(in oklch, var(--ui-widget-background) 40%, transparent)");
-		expect(css).toContain("backdrop-filter: blur(24px)");
-		expect(css).toMatch(/\.navigator-shell:hover,[^{]*\{[^}]*outline-color: var\(--hout, var\(--primary-text\)\)/s);
-		expect(css).toContain("grid-template-columns: 184px minmax(0, 1fr)");
+		expect(css).not.toMatch(/background: color-mix|backdrop-filter|navigator-shell:hover/);
+		const promptCSS = buildPromptShellCSS();
+		expect(promptCSS).toMatch(/\.prompt \{[^}]*background: var\(--prompt-bg-color, transparent\)[^}]*backdrop-filter: var\(--prompt-backdrop-filter, blur\(24px\)\)/s);
+		expect(promptCSS).toMatch(/\.prompt:hover \{[^}]*outline: 2px solid/s);
+		expect(promptCSS).toMatch(/\.promptContainer\.navigatorVisible \{[^}]*display: flex !important/s);
+		expect(css).toContain("grid-template-columns: 224px minmax(0, 1fr)");
+		expect(css).toMatch(/\.navigator-sidebar,[^{]*\.navigator-workspace \{[^}]*border: 2px solid var\(--ui-widget-background\)[^}]*border-radius: var\(--border-radius-medium\)/s);
 		expect(css).toContain("grid-template-rows: minmax(0, 1fr)");
 		expect(css).toMatch(/\.navigator-workspace \{[^}]*flex: 1 1 auto[^}]*overflow: hidden/s);
 		expect(css).toMatch(/\.navigator-pane-host \{[^}]*flex: 1 1 0[^}]*overflow: auto/s);
 		expect(css).not.toContain(".navigator-route.active");
 		const sharedCSS = buildSharedUICSS();
 		expect(sharedCSS).toMatch(/\.selectableRow \{[^}]*padding: var\(--padding-6\) var\(--padding-12\)[^}]*outline: 2px solid transparent[^}]*outline-offset: -2px[^}]*box-shadow: none[^}]*background: var\(--prompt-list-item-bg\)[^}]*font-size: 12px/s);
-		expect(sharedCSS).toMatch(/\.selectableRow\.active \{[^}]*font-weight: 600/s);
-		expect(css).toMatch(/\.navigator-detach-button,[^}]*min-width: 40px[^}]*min-height: 40px/s);
+		expect(css).toMatch(/\.navigator-route\.selectableRow\.active \{[^}]*background: var\(--cta-bg\)[^}]*color: var\(--cta-fg\)[^}]*border-color: var\(--cta-bg\)/s);
+		expect(css).toMatch(/\.navigator-route \{[^}]*text-overflow: ellipsis[^}]*white-space: nowrap/s);
 		expect(css).toContain("@media (max-width: 639px)");
 		expect(css).not.toContain("navigator-route-split");
 		expect(css).not.toContain("navigator-route-tab");
-		expect(css).toMatch(/@media \(max-width: 639px\)[\s\S]*\.navigator-route-list \{[^}]*flex-direction: row[^}]*overflow-x: auto/);
+		expect(css).toMatch(/@media \(max-width: 639px\)[\s\S]*\.navigator-content \{[^}]*max-width: 100%[^}]*overflow-x: hidden/);
+		expect(css).toMatch(/@media \(max-width: 639px\)[\s\S]*\.navigator-sidebar \{[^}]*box-sizing: border-box[^}]*max-width: 100%[^}]*overflow: hidden/);
+		expect(css).toMatch(/@media \(max-width: 639px\)[\s\S]*\.navigator-route-list \{[^}]*max-width: 100%[^}]*flex-direction: row[^}]*overflow-x: auto/);
 		expect(css).not.toMatch(/box-shadow|linear-gradient|radial-gradient/);
 		expect(css).toMatch(/\.navigator-pane-host \{[^}]*min-height: 0[^}]*overflow: auto/s);
 	});
@@ -830,6 +837,68 @@ describe("navigator shell", () => {
 		}
 		expect(opened).toEqual(["import", "export", "songRecovery", "custom.route:id"]);
 		expect(shell.container.querySelector(".navigator-route-list [role='tablist'], .navigator-route-list [role='tab'], .navigator-route-list [aria-selected]")).toBeNull();
+	});
+
+	test("drags from shell surfaces, excludes controls, and cleans listeners across reopen", () => {
+		Object.defineProperty(globalThis, "document", { configurable: true, value: new Window().document });
+		const parent = document.createElement("div");
+		parent.className = "promptContainer";
+		Object.defineProperties(parent, {
+			clientWidth: { configurable: true, value: 600 },
+			clientHeight: { configurable: true, value: 400 },
+		});
+		const shell = new NavigatorShell("Navigator", () => {});
+		Object.defineProperties(shell.container, {
+			offsetLeft: { configurable: true, value: 20 },
+			offsetTop: { configurable: true, value: 30 },
+		});
+		shell.container.getBoundingClientRect = () =>
+			({ width: 200, height: 100 } as DOMRect);
+		parent.append(shell.container);
+		const pane = document.createElement("article");
+		pane.dataset.navigatorScope = "addExternal";
+		shell.attach({ element: pane });
+		const surface = shell.container.querySelector<HTMLElement>(".navigator-content");
+		if (surface === null) throw new Error("missing Navigator surface");
+		surface.dispatchEvent(new MouseEvent("mousedown", { bubbles: true, clientX: 40, clientY: 50 }));
+		document.dispatchEvent(new MouseEvent("mousemove", { clientX: 100, clientY: 110 }));
+		expect(shell.container.style.left).toBe("80px");
+		expect(shell.container.style.top).toBe("90px");
+		document.dispatchEvent(new MouseEvent("mouseup"));
+		const leftAfterSurfaceDrag = shell.container.style.left;
+		const button = shell.container.querySelector<HTMLButtonElement>(".navigator-detach-button");
+		button?.dispatchEvent(new MouseEvent("mousedown", { bubbles: true, clientX: 40, clientY: 50 }));
+		document.dispatchEvent(new MouseEvent("mousemove", { clientX: 150, clientY: 160 }));
+		expect(shell.container.style.left).toBe(leftAfterSurfaceDrag);
+		const input = shell.container.querySelector<HTMLInputElement>(".navigator-route-search");
+		input?.dispatchEvent(new MouseEvent("mousedown", { bubbles: true, clientX: 40, clientY: 50 }));
+		document.dispatchEvent(new MouseEvent("mousemove", { clientX: 170, clientY: 180 }));
+		expect(shell.container.style.left).toBe(leftAfterSurfaceDrag);
+		surface.dispatchEvent(new MouseEvent("mousedown", { bubbles: true, clientX: 40, clientY: 50 }));
+		shell.detach({ element: pane });
+		document.dispatchEvent(new MouseEvent("mousemove", { clientX: 200, clientY: 210 }));
+		expect(shell.container.style.left).toBe(leftAfterSurfaceDrag);
+		shell.attach({ element: pane });
+		surface.dispatchEvent(new MouseEvent("mousedown", { bubbles: true, clientX: 100, clientY: 100 }));
+		document.dispatchEvent(new MouseEvent("mousemove", { clientX: 120, clientY: 130 }));
+		expect(shell.container.style.left).toBe("40px");
+		document.dispatchEvent(new MouseEvent("mouseup"));
+	});
+
+	test("restores the normal heading after File mode closes", () => {
+		Object.defineProperty(globalThis, "document", { configurable: true, value: new Window().document });
+		const parent = document.createElement("div");
+		parent.className = "promptContainer";
+		const shell = new NavigatorShell();
+		parent.append(shell.container);
+		const pane = document.createElement("article");
+		pane.dataset.navigatorScope = "addExternal";
+		shell.attach({ element: pane });
+		shell.setFileWorkspace(true, "export");
+		expect(shell.container.querySelector(".navigator-active-title")?.textContent).toBe("Export");
+		shell.setFileWorkspace(false);
+		expect(shell.container.querySelector(".navigator-active-title")?.textContent).toBe("Add Samples");
+		expect(shell.container.querySelector("[data-route-id='addExternal']")?.getAttribute("aria-current")).toBe("page");
 	});
 
 	test("hidden shell stays out of flex layout until a pane mounts", () => {
