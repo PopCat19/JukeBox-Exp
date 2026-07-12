@@ -651,6 +651,15 @@ describe("native navigator extraction", () => {
 });
 
 describe("navigator shell", () => {
+	test("bounds and clips mounted panes while the host owns scrolling", () => {
+		const css = buildNavigatorCSS();
+		expect(css).toContain("height: min(720px, calc(100vh - 32px))");
+		expect(css).toContain("max-width: calc(100vw - 32px)");
+		expect(css).toMatch(/\.navigator-shell \{[^}]*overflow: hidden/s);
+		expect(css).toMatch(/\.navigator-titlebar \{[^}]*flex: 0 0 auto/s);
+		expect(css).toMatch(/\.navigator-pane-host \{[^}]*flex: 1 1 auto[^}]*min-height: 0[^}]*overflow: auto/s);
+	});
+
 	test("hidden shell stays out of flex layout until a pane mounts", () => {
 		Object.defineProperty(globalThis, "document", { configurable: true, value: new Window().document });
 		const style = document.createElement("style");
