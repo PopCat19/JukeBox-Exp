@@ -22,7 +22,13 @@ export function flattenPromptRootForNavigator(prompt: Prompt, scope: string): vo
 	prompt.container.style.removeProperty("max-height");
 	prompt.container.style.removeProperty("position");
 	prompt.container.style.removeProperty("inset");
+	prompt.container.style.removeProperty("left");
+	prompt.container.style.removeProperty("top");
 	prompt.container.style.removeProperty("transform");
+	prompt.container.style.removeProperty("background");
+	prompt.container.style.removeProperty("background-color");
+	prompt.container.style.removeProperty("backdrop-filter");
+	prompt.container.style.removeProperty("-webkit-backdrop-filter");
 	prompt.container.querySelector(":scope > .prompt-titlebar")?.remove();
 	prompt.container.querySelectorAll(":scope > .cancelButton").forEach((cancelButton) => {
 		cancelButton.remove();

@@ -18,7 +18,24 @@ export function buildNavigatorPanesCSS(): string {
 }
 .beepboxEditor .navigator-detached-title { margin: 0; font-size: 14px; font-weight: 600; }
 .beepboxEditor .navigator-detached-content { flex: 1 1 auto; min-height: 0; padding: 12px; overflow: auto; }
-.beepboxEditor .navigator-pane-host > .navigator-native-pane,
+.beepboxEditor .navigator-pane-host > .navigator-native-pane {
+	position: static !important;
+	inset: auto !important;
+	box-sizing: border-box;
+	width: 100% !important;
+	max-width: none !important;
+	height: auto !important;
+	min-height: 0;
+	max-height: none !important;
+	margin: 0 !important;
+	padding: 0 !important;
+	overflow: visible;
+	transform: none !important;
+	border-radius: 0 !important;
+	background: transparent !important;
+	backdrop-filter: none !important;
+	-webkit-backdrop-filter: none !important;
+}
 .beepboxEditor .navigator-detached-content > .navigator-native-pane {
 	position: static !important;
 	inset: auto !important;
@@ -34,6 +51,8 @@ export function buildNavigatorPanesCSS(): string {
 	transform: none !important;
 	border-radius: 0 !important;
 	background: transparent !important;
+	backdrop-filter: none !important;
+	-webkit-backdrop-filter: none !important;
 }
 .beepboxEditor .navigator-native-pane > .prompt-titlebar,
 .beepboxEditor .navigator-native-pane > .cancelButton,

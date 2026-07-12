@@ -42,6 +42,7 @@ export function buildNavigatorCSS(): string {
 .beepboxEditor .navigator-content {
 	display: grid;
 	grid-template-columns: 184px minmax(0, 1fr);
+	grid-template-rows: minmax(0, 1fr);
 	flex: 1 1 auto;
 	min-height: 0;
 }
@@ -65,7 +66,14 @@ export function buildNavigatorCSS(): string {
 	text-transform: uppercase;
 }
 .beepboxEditor .navigator-route { text-align: left; font-weight: 500; }
-.beepboxEditor .navigator-workspace { display: flex; flex-direction: column; min-width: 0; min-height: 0; }
+.beepboxEditor .navigator-workspace {
+	display: flex;
+	flex: 1 1 auto;
+	flex-direction: column;
+	min-width: 0;
+	min-height: 0;
+	overflow: hidden;
+}
 .beepboxEditor .navigator-active-title {
 	flex: 0 0 auto;
 	margin: 0;
@@ -75,7 +83,7 @@ export function buildNavigatorCSS(): string {
 	background: var(--ui-widget-background);
 }
 .beepboxEditor .navigator-pane-host {
-	flex: 1 1 auto;
+	flex: 1 1 0;
 	min-width: 0;
 	min-height: 0;
 	padding: 12px;

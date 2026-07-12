@@ -647,7 +647,7 @@ describe("native navigator extraction", () => {
 	test("native pane owner extracts legacy chrome and fixed geometry", () => {
 		const container = document.createElement("div");
 		container.className = "prompt fill-y shaded docked compactSearchPrompt";
-		container.style.cssText = "width:800px;max-height:90%;position:fixed;transform:translateX(1px)";
+		container.style.cssText = "width:800px;max-height:90%;position:fixed;left:24px;top:12px;transform:translateX(1px);background:red;backdrop-filter:blur(4px)";
 		const titlebar = document.createElement("div");
 		titlebar.className = "prompt-titlebar";
 		const cancel = document.createElement("button");
@@ -666,12 +666,19 @@ describe("native navigator extraction", () => {
 		expect(container.style.width).toBe("");
 		expect(container.style.maxHeight).toBe("");
 		expect(container.style.position).toBe("");
+		expect(container.style.left).toBe("");
+		expect(container.style.top).toBe("");
 		expect(container.style.transform).toBe("");
+		expect(container.style.background).toBe("");
+		expect(container.style.backdropFilter).toBe("");
+		expect(container.style.getPropertyValue("-webkit-backdrop-filter")).toBe("");
 	});
 
 	test("domain CSS flattens attached legacy chrome and geometry", () => {
 		const css = buildNavigatorPanesCSS();
-		expect(css).toMatch(/\.navigator-pane-host > \.navigator-native-pane,[^{]*\{[^}]*position: static !important[^}]*width: 100% !important[^}]*max-height: none !important[^}]*background: transparent !important/s);
+		expect(css).toMatch(/\.navigator-pane-host > \.navigator-native-pane \{[^}]*position: static !important[^}]*width: 100% !important[^}]*min-height: 0[^}]*background: transparent !important[^}]*backdrop-filter: none !important[^}]*-webkit-backdrop-filter: none !important/s);
+		expect(css).not.toMatch(/\.navigator-pane-host > \.navigator-native-pane \{[^}]*min-height: 100%/s);
+		expect(css).toMatch(/\.navigator-detached-content > \.navigator-native-pane \{[^}]*min-height: 100%/s);
 		expect(css).toContain(".navigator-native-pane > .prompt-titlebar");
 		expect(css).toContain("display: none !important");
 	});
@@ -689,6 +696,9 @@ describe("navigator shell", () => {
 		expect(css).toContain("width: min(880px, calc(100vw - 32px))");
 		expect(css).toContain("height: min(640px, calc(100vh - 32px))");
 		expect(css).toContain("grid-template-columns: 184px minmax(0, 1fr)");
+		expect(css).toContain("grid-template-rows: minmax(0, 1fr)");
+		expect(css).toMatch(/\.navigator-workspace \{[^}]*flex: 1 1 auto[^}]*overflow: hidden/s);
+		expect(css).toMatch(/\.navigator-pane-host \{[^}]*flex: 1 1 0[^}]*overflow: auto/s);
 		expect(css).not.toContain(".navigator-route.active");
 		const sharedCSS = buildSharedUICSS();
 		expect(sharedCSS).toMatch(/\.selectableRow \{[^}]*padding: var\(--padding-6\) var\(--padding-12\)[^}]*outline: 2px solid transparent[^}]*outline-offset: -2px[^}]*box-shadow: none[^}]*background: var\(--prompt-list-item-bg\)[^}]*font-size: 12px/s);
