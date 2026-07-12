@@ -1,8 +1,13 @@
 // Purpose: Provides the persistent PMD navigator shell and pane host.
 
 import { inputRow, searchInput, selectableRow, setSelectableRowActive } from "../ui";
-import { commandRegistry } from "./command-registry";
 import type { PaneHost, PaneRoot } from "./contracts";
+import {
+	catalogItemRoutes,
+	type NavigatorCatalogItem,
+	navigatorOtherRoutes,
+	navigatorRouteCatalog,
+} from "./route-catalog";
 
 export interface NavigatorRoute {
 	readonly id: string;
@@ -10,43 +15,13 @@ export interface NavigatorRoute {
 	readonly category: string;
 }
 
-const routeTitles: Readonly<Record<string, string>> = {
-	addExternal: "Add samples",
-	channelVolumeVisualizer: "Channel visualizer",
-	cleanLsdj: "Clean LSDJ song",
-	customEQFilterSettings: "Custom EQ filter settings",
-	customSongEQFilterSettings: "Custom song EQ filter settings",
-	instrumentTags: "Instrument tags",
-};
-
-const categoryTitles: Readonly<Record<string, string>> = {
-	editor: "Editor",
-	instrument: "Instrument",
-	prompt: "Tools and settings",
-	song: "Song",
-};
-
-function humanizeRouteTitle(value: string): string {
-	const words = value
-		.replace(/([a-z0-9])([A-Z])/g, "$1 $2")
-		.replace(/([A-Z]+)([A-Z][a-z])/g, "$1 $2")
-		.toLocaleLowerCase();
-	return words.charAt(0).toLocaleUpperCase() + words.slice(1);
-}
-
-const DEFAULT_ROUTES: readonly NavigatorRoute[] = commandRegistry.flatMap((command) =>
-	command.presentation === "navigator" &&
-	command.scope !== undefined &&
-	command.scope !== "instrumentTags"
-		? [
-				{
-					id: command.scope,
-					title: routeTitles[command.scope] ?? humanizeRouteTitle(command.label),
-					category: command.id.split(".")[0],
-				},
-			]
-		: [],
-);
+const DEFAULT_ROUTES: readonly NavigatorRoute[] = navigatorRouteCatalog
+	.flatMap((group) =>
+		group.items
+			.flatMap(catalogItemRoutes)
+			.map((route) => ({ ...route, category: group.title })),
+	)
+	.concat(navigatorOtherRoutes.map((route) => ({ ...route, category: "Other tools" })));
 
 export class NavigatorShell implements PaneHost {
 	readonly container: HTMLDivElement;
@@ -171,36 +146,87 @@ export class NavigatorShell implements PaneHost {
 	private renderRoutes(routes: readonly NavigatorRoute[]): void {
 		const query = this.routeSearch.value.trim().toLocaleLowerCase();
 		this.routeList.replaceChildren();
-		const groups = new Map<string, HTMLDivElement>();
-		for (const route of routes) {
-			if (
-				query !== "" &&
-				!`${route.title} ${route.id} ${route.category}`.toLocaleLowerCase().includes(query)
-			)
-				continue;
-			let group = groups.get(route.category);
-			if (group === undefined) {
-				group = document.createElement("div");
-				group.className = "navigator-route-group";
-				const heading = document.createElement("div");
-				heading.className = "navigator-route-group-title";
-				heading.textContent =
-					categoryTitles[route.category] ?? humanizeRouteTitle(route.category);
-				group.append(heading);
-				groups.set(route.category, group);
-				this.routeList.append(group);
+		const catalogCategories = navigatorRouteCatalog.map((group) => group.title);
+		const categories = [
+			...catalogCategories,
+			...(routes.some((route) => route.category === "Other tools") ? ["Other tools"] : []),
+			...routes
+				.map((route) => route.category)
+				.filter(
+					(category, index, routeCategories) =>
+						!catalogCategories.includes(category) &&
+						category !== "Other tools" &&
+						routeCategories.indexOf(category) === index,
+				),
+		];
+		for (const category of categories) {
+			const matches = routes.filter(
+				(route) =>
+					route.category === category &&
+					(query === "" ||
+						`${route.title} ${route.id} ${route.category}`
+							.toLocaleLowerCase()
+							.includes(query)),
+			);
+			if (matches.length === 0) continue;
+			const group = document.createElement("div");
+			group.className = "navigator-route-group";
+			const heading = document.createElement("h4");
+			heading.className = "navigator-route-group-title";
+			heading.textContent = category;
+			group.append(heading);
+			const catalogGroup = navigatorRouteCatalog.find((entry) => entry.title === category);
+			if (catalogGroup === undefined) {
+				for (const route of matches) group.append(this.createRouteButton(route));
+			} else {
+				for (const item of catalogGroup.items) {
+					const rendered = this.renderCatalogItem(item, matches);
+					if (rendered !== null) group.append(rendered);
+				}
 			}
-			const button = document.createElement("button");
-			button.type = "button";
-			button.className = "navigator-route";
-			button.dataset.routeId = route.id;
-			button.textContent = route.title;
-			const active = route.id === this.activeRouteId;
-			selectableRow(button, active);
-			button.setAttribute("aria-current", active ? "page" : "false");
-			button.addEventListener("click", () => this.onRoute?.(route.id));
-			group.append(button);
+			this.routeList.append(group);
 		}
+	}
+
+	private renderCatalogItem(
+		item: NavigatorCatalogItem,
+		matches: readonly NavigatorRoute[],
+	): HTMLElement | null {
+		if (item.kind === "route") {
+			const route = matches.find((candidate) => candidate.id === item.route.id);
+			return route === undefined ? null : this.createRouteButton(route);
+		}
+		const children: HTMLElement[] = [];
+		if (item.kind === "tabs") {
+			for (const itemRoute of item.routes) {
+				const route = matches.find((candidate) => candidate.id === itemRoute.id);
+				if (route !== undefined) children.push(this.createRouteButton(route, true));
+			}
+		} else {
+			for (const slot of item.slots) {
+				const child = this.renderCatalogItem(slot, matches);
+				if (child !== null) children.push(child);
+			}
+		}
+		if (children.length === 0) return null;
+		const container = document.createElement("div");
+		container.className =
+			item.kind === "tabs" ? "navigator-route-tab-strip" : "navigator-route-split";
+		container.append(...children);
+		return container;
+	}
+
+	private createRouteButton(route: NavigatorRoute, tab = false): HTMLButtonElement {
+		const button = document.createElement("button");
+		button.type = "button";
+		button.className = tab ? "navigator-route navigator-route-tab-item" : "navigator-route";
+		button.dataset.routeId = route.id;
+		button.textContent = route.title;
+		const active = route.id === this.activeRouteId;
+		selectableRow(button, active);
+		button.setAttribute("aria-current", active ? "page" : "false");
+		button.addEventListener("click", () => this.onRoute?.(route.id));
+		return button;
 	}
 
 	private attachDrag(titlebar: HTMLElement): void {

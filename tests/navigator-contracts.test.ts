@@ -15,6 +15,7 @@ import { buildPromptExportCSS } from "../editor/rendering/styles/prompt-export";
 import type { Prompt } from "../editor/prompts/prompt";
 import { NavigatorRuntime, type DetachedPane } from "../editor/navigator/navigator-runtime";
 import { NavigatorShell } from "../editor/navigator/navigator-shell";
+import { navigatorOtherRoutes, navigatorRouteCatalog } from "../editor/navigator/route-catalog";
 import { buildNavigatorCSS } from "../editor/rendering/styles/prompt-navigator";
 import { buildSharedUICSS } from "../editor/rendering/styles/shared-ui";
 import { PaneOwnership, type PaneOwner } from "../editor/navigator/ownership";
@@ -711,10 +712,31 @@ describe("native navigator extraction", () => {
 });
 
 describe("navigator shell", () => {
+	test("catalog defines the six dashboard groups and composition metadata", () => {
+		expect(navigatorRouteCatalog.map((group) => group.title)).toEqual([
+			"File Config", "Song Config", "Pattern Config", "Track Config", "Visual Config", "Focused Instr. Config",
+		]);
+		const fileLead = navigatorRouteCatalog[0].items[0];
+		expect(fileLead.kind).toBe("split");
+		if (fileLead.kind !== "split") throw new Error("missing File split");
+		expect(fileLead.slots.map((slot) => slot.kind)).toEqual(["route", "tabs"]);
+		const visualThemes = navigatorRouteCatalog[4].items[2];
+		expect(visualThemes.kind).toBe("tabs");
+		if (visualThemes.kind !== "tabs") throw new Error("missing Visual tabs");
+		expect(visualThemes.routes.map((route) => route.id)).toEqual(["theme", "customTheme", "customThemeRaw"]);
+		expect(navigatorRouteCatalog[5].items[0].kind).toBe("split");
+		expect(navigatorOtherRoutes.map((route) => route.id)).not.toContain("instrumentTags");
+		expect(navigatorOtherRoutes.map((route) => route.id)).toContain("keyboardShortcuts");
+	});
+
 	test("uses the bounded desktop workspace and responsive route strip", () => {
 		const css = buildNavigatorCSS();
 		expect(css).toContain("width: min(880px, calc(100vw - 32px))");
 		expect(css).toContain("height: min(640px, calc(100vh - 32px))");
+		expect(css).toContain("border-radius: var(--border-radius-large)");
+		expect(css).toContain("background: color-mix(in oklch, var(--ui-widget-background) 40%, transparent)");
+		expect(css).toContain("backdrop-filter: blur(24px)");
+		expect(css).toMatch(/\.navigator-shell:hover,[^{]*\{[^}]*outline-color: var\(--hout, var\(--primary-text\)\)/s);
 		expect(css).toContain("grid-template-columns: 184px minmax(0, 1fr)");
 		expect(css).toContain("grid-template-rows: minmax(0, 1fr)");
 		expect(css).toMatch(/\.navigator-workspace \{[^}]*flex: 1 1 auto[^}]*overflow: hidden/s);
@@ -725,7 +747,11 @@ describe("navigator shell", () => {
 		expect(sharedCSS).toMatch(/\.selectableRow\.active \{[^}]*font-weight: 600/s);
 		expect(css).toMatch(/\.navigator-detach-button,[^}]*min-width: 40px[^}]*min-height: 40px/s);
 		expect(css).toContain("@media (max-width: 639px)");
+		expect(css).toMatch(/\.navigator-route-split \{[^}]*display: grid[^}]*grid-template-columns: repeat\(2, minmax\(0, 1fr\)\)/s);
+		expect(css).toMatch(/\.navigator-route-tab-strip \{[^}]*display: flex[^}]*border-bottom:/s);
+		expect(css).toMatch(/\.navigator-route-tab-item\.active \{[^}]*border-bottom: 2px solid/s);
 		expect(css).toMatch(/@media \(max-width: 639px\)[\s\S]*\.navigator-route-list \{[^}]*flex-direction: row[^}]*overflow-x: auto/);
+		expect(css).toMatch(/@media \(max-width: 639px\)[\s\S]*\.navigator-route-split \{[^}]*display: flex[^}]*flex-direction: column/);
 		expect(css).not.toMatch(/box-shadow|linear-gradient|radial-gradient/);
 		expect(css).toMatch(/\.navigator-pane-host \{[^}]*min-height: 0[^}]*overflow: auto/s);
 	});
@@ -738,11 +764,24 @@ describe("navigator shell", () => {
 		const search = shell.container.querySelector<HTMLInputElement>(".navigator-route-search");
 		expect(shell.container.querySelectorAll(".navigator-route").length).toBeGreaterThan(30);
 		expect(Array.from(shell.container.querySelectorAll(".navigator-route-group-title"), (heading) => heading.textContent)).toEqual([
-			"Song", "Editor", "Instrument", "Tools and settings",
+			"File Config", "Song Config", "Pattern Config", "Track Config", "Visual Config", "Focused Instr. Config", "Other tools",
 		]);
+		const fileGroup = shell.container.querySelectorAll(".navigator-route-group")[0];
+		const fileSplit = fileGroup.querySelector(".navigator-route-split");
+		expect(fileSplit?.children.length).toBe(2);
+		expect(fileSplit?.children[0].textContent).toBe("Import");
+		expect(Array.from(fileSplit?.children[1].querySelectorAll(".navigator-route-tab-item") ?? [], (tab) => tab.textContent)).toEqual(["Export", "Recover Song"]);
+		const visualGroup = shell.container.querySelectorAll(".navigator-route-group")[4];
+		expect(Array.from(visualGroup.querySelectorAll(".navigator-route-tab-strip .navigator-route-tab-item"), (tab) => tab.textContent)).toEqual(["Theme", "Custom Theme", "Custom Theme Raw"]);
+		expect(shell.container.querySelector("[role='tablist'], [role='tab'], [aria-selected]")).toBeNull();
+		const focusedGroup = shell.container.querySelectorAll(".navigator-route-group")[5];
+		expect(Array.from(focusedGroup.querySelectorAll(".navigator-route-split > .navigator-route"), (button) => button.textContent)).toEqual(["Import Instrument", "Export Instrument"]);
+		expect(shell.container.querySelector(".navigator-route-separator")).toBeNull();
+		fileSplit?.dispatchEvent(new Event("click"));
+		expect(opened).toBe("");
 		const routeLabels = Array.from(shell.container.querySelectorAll(".navigator-route"), (route) => route.textContent ?? "");
-		expect(routeLabels).toContain("Custom chip settings");
-		expect(routeLabels).toContain("Custom EQ filter settings");
+		expect(routeLabels).toContain("Custom Chip Settings");
+		expect(routeLabels).toContain("Custom EQ Filter Settings");
 		expect(routeLabels).not.toContain("customChipSettings");
 		if (search === null) throw new Error("missing route search");
 		expect(search.classList.contains("searchInput")).toBeTrue();
@@ -750,18 +789,18 @@ describe("navigator shell", () => {
 		search.value = "customChipSettings";
 		search.dispatchEvent(new Event("input"));
 		expect(shell.container.querySelector(".navigator-route")?.textContent).toBe(
-			"Custom chip settings",
+			"Custom Chip Settings",
 		);
 		search.value = "sample";
 		search.dispatchEvent(new Event("input"));
 		const route = shell.container.querySelector<HTMLButtonElement>(".navigator-route");
-		expect(route?.textContent).toBe("Add samples");
+		expect(route?.textContent).toBe("Add Samples");
 		route?.click();
 		expect(opened).toBe("addExternal");
 		const pane = document.createElement("article");
 		pane.dataset.navigatorScope = "addExternal";
 		shell.attach({ element: pane });
-		expect(shell.container.querySelector(".navigator-active-title")?.textContent).toBe("Add samples");
+		expect(shell.container.querySelector(".navigator-active-title")?.textContent).toBe("Add Samples");
 		expect(route?.getAttribute("aria-current")).toBe("page");
 		expect(route?.classList.contains("selectableRow")).toBeTrue();
 		expect(route?.classList.contains("pmd-hover")).toBeTrue();
@@ -769,6 +808,30 @@ describe("navigator shell", () => {
 		expect(route?.classList.contains("pmd-active")).toBeTrue();
 		shell.container.querySelector<HTMLButtonElement>(".navigator-close-button")?.click();
 		expect(closed).toBeTrue();
+	});
+
+	test("preserves custom categories and unchanged composed route ids", () => {
+		Object.defineProperty(globalThis, "document", { configurable: true, value: new Window().document });
+		const opened: string[] = [];
+		const shell = new NavigatorShell(
+			"Navigator",
+			undefined,
+			undefined,
+			(id) => opened.push(id),
+			[
+				{ id: "import", title: "Import", category: "File Config" },
+				{ id: "export", title: "Export", category: "File Config" },
+				{ id: "songRecovery", title: "Recover Song", category: "File Config" },
+				{ id: "custom.route:id", title: "Custom Route", category: "Caller Tools" },
+			],
+		);
+		expect(Array.from(shell.container.querySelectorAll(".navigator-route-group-title"), (heading) => heading.textContent)).toEqual(["File Config", "Caller Tools"]);
+		expect(shell.container.querySelector(".navigator-route-group-title")?.tagName).toBe("H4");
+		for (const id of ["import", "export", "songRecovery", "custom.route:id"]) {
+			shell.container.querySelector<HTMLButtonElement>(`[data-route-id='${id}']`)?.click();
+		}
+		expect(opened).toEqual(["import", "export", "songRecovery", "custom.route:id"]);
+		expect(shell.container.querySelector("[role='tablist'], [role='tab'], [aria-selected]")).toBeNull();
 	});
 
 	test("hidden shell stays out of flex layout until a pane mounts", () => {
