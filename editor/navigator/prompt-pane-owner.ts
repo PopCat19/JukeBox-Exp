@@ -62,6 +62,9 @@ export function createPromptPaneOwner(
 			prompt.container.remove();
 		},
 		dispose: () => {
+			prompt.closeCallback = undefined;
+			prompt.openAlongsideCallback = undefined;
+			closeAuthority = () => Promise.resolve(false);
 			prompt.cleanUp();
 		},
 		requestLeave: () => (prompt.requestPaneLeave?.() === false ? "deny" : "allow"),

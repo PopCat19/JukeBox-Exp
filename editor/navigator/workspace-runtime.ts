@@ -113,6 +113,29 @@ export class WorkspaceRuntime {
 		});
 	}
 
+	refreshChild(
+		token: WorkspaceToken,
+		route: PaneRoute,
+		replacement: WorkspaceChildSpec,
+	): Promise<WorkspaceToken | null> {
+		return this.serialize(async () => {
+			if (!this.isCurrent(token)) return null;
+			const identity = canonicalRouteIdentity(route);
+			if (canonicalRouteIdentity(replacement.route) !== identity)
+				throw new Error("refreshed pane identity must remain unchanged");
+			const index = this.children.findIndex((child) => child.identity === identity);
+			if (index < 0) return null;
+			const previous = this.children[index];
+			if ((await previous.owner.lifecycle.requestLeave()) !== "allow") return null;
+			if (!this.isCurrent(token)) return null;
+			const staged = this.stageChildren([replacement])[0];
+			this.children[index] = staged;
+			const replacementToken = this.issueToken();
+			this.cleanupCommitted([previous]);
+			return replacementToken;
+		});
+	}
+
 	close(token: WorkspaceToken): Promise<boolean> {
 		return this.serialize(async () => {
 			if (!this.isCurrent(token)) return false;

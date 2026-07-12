@@ -112,6 +112,16 @@ describe("WorkspaceRuntime", () => {
 		expect(f.disposeCounts.get("c")).toBe(1);
 	});
 
+	test("refreshes one child while preserving its canonical identity", async () => {
+		const f = fixture();
+		const token = await f.runtime.open(specs("a", "b"));
+		const refreshed = await f.runtime.refreshChild(token, { paneId: "a" }, specs("a")[0]);
+		expect(refreshed).not.toBeNull();
+		expect(f.runtime.identities()).toEqual(specs("a", "b").map((x) => canonicalRouteIdentity(x.route)));
+		expect(f.disposeCounts.get("a")).toBe(1);
+		expect(f.constructs()).toBe(3);
+	});
+
 	test("child replacement swaps in place and preserves sibling selection", async () => {
 		const f = fixture();
 		const token = await f.runtime.open(specs("a", "b", "d"));

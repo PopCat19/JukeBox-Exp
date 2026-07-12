@@ -17,6 +17,8 @@ Purpose: bun:test test files covering editor, synth, and shared modules.
 - `filtering.test.ts`, Unit tests for digital filter coefficient computation and frequency response
 - `input-inventory.test.ts`, Unit tests for input binding inventory and concern modules
 - `navigator-contracts.test.ts`, Behavioral tests for canonical route identity, native content extraction and geometry stripping, bounded shell layout, searchable routing, cleanup/focus, generation-safe ownership, and host transfer
+- `file-workspace.test.ts`, File aggregate composition, Import refresh, focus deduplication, detach lockout, and transactional right-tab replacement
+- `navigator-mode-coordinator.test.ts`, Serialized normal/File transitions, denial, route races, and queued close/open behavior
 - `workspace-runtime.test.ts`, Transactional aggregate pane ownership, preflight, rollback, duplicate, detach, and stale-token tests
 - `notes.test.ts`, Unit tests for note and pattern data structures
 - `pattern-editor-contract.test.ts`, Structural contract tests for pattern-editor.ts rendering invariants (stale canvas path, SVG/canvas y-center alignment)

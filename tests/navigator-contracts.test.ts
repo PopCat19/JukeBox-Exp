@@ -776,7 +776,7 @@ describe("navigator shell", () => {
 			"Import Instrument", "Export Instrument",
 		]);
 		expect(shell.container.querySelector(".navigator-route-split, .navigator-route-tab-strip, .navigator-route-tab-item")).toBeNull();
-		expect(shell.container.querySelector("[role='tablist'], [role='tab'], [aria-selected]")).toBeNull();
+		expect(shell.container.querySelector(".navigator-route-list [role='tablist'], .navigator-route-list [role='tab'], .navigator-route-list [aria-selected]")).toBeNull();
 		const routeLabels = Array.from(shell.container.querySelectorAll(".navigator-route"), (route) => route.textContent ?? "");
 		expect(routeLabels).toContain("Custom Chip Settings");
 		expect(routeLabels).toContain("Custom EQ Filter Settings");
@@ -829,7 +829,7 @@ describe("navigator shell", () => {
 			shell.container.querySelector<HTMLButtonElement>(`[data-route-id='${id}']`)?.click();
 		}
 		expect(opened).toEqual(["import", "export", "songRecovery", "custom.route:id"]);
-		expect(shell.container.querySelector("[role='tablist'], [role='tab'], [aria-selected]")).toBeNull();
+		expect(shell.container.querySelector(".navigator-route-list [role='tablist'], .navigator-route-list [role='tab'], .navigator-route-list [aria-selected]")).toBeNull();
 	});
 
 	test("hidden shell stays out of flex layout until a pane mounts", () => {
@@ -1062,6 +1062,27 @@ describe("prompt pane authority", () => {
 		);
 		expect(owner.lifecycle.requestLeave()).toBe("deny");
 		expect(owner.lifecycle.requestClose()).toBe("close");
+	});
+
+	test("disposed prompt callbacks are inert before cleanup", async () => {
+		const events: string[] = [];
+		const prompt = promptWithAuthority(undefined, undefined);
+		prompt.cleanUp = () => {
+			events.push(String(prompt.closeCallback === undefined));
+			events.push(String(prompt.openAlongsideCallback === undefined));
+		};
+		const owner = createPromptPaneOwner(
+			{ paneId: "import" },
+			prompt,
+			() => Promise.resolve(true),
+			() => Promise.resolve(),
+		);
+		const staleClose = prompt.closeCallback;
+		owner.lifecycle.dispose();
+		staleClose?.(prompt);
+		await Promise.resolve();
+		expect(events).toEqual(["true", "true"]);
+		expect(prompt.closeCallback).toBeUndefined();
 	});
 
 	test("native prompt adapter defaults missing authority to allow and close", () => {

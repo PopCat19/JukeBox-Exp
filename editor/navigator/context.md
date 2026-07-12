@@ -9,10 +9,12 @@ Purpose: Defines navigator contracts, persistent shell, runtime, and identity ow
 - `command-registry.ts` - Shared typed command metadata, ranking, argument validation, and executors
 - `instrument-browser-pane.ts` - Standalone instrument browser pane wrapper
 - `contracts.ts` - Pane lifecycle, decisions, commands, and retained-state contracts
+- `file-workspace.ts` - Live Import plus transactional Export or Recovery File workspace coordinator
 - `route-identity.ts` - Canonical finite-JSON pane route identity
 - `workspace-runtime.ts` - Transactional aggregate ownership for canonical child panes
 - `route-catalog.ts` - Authoritative dashboard groups, route labels, composition metadata, and Other tools derivation
 - `ownership.ts` - Generation-safe ownership for one live pane
+- `navigator-mode-coordinator.ts` - Serialized ownership transitions between normal and File modes
 - `navigator-runtime.ts` - Serialized attached and detached pane coordination
 - `navigator-route-host.ts` - Transitional adapter owning flattened legacy Prompt roots and typed transient import delivery
 - `native-panes.ts` - Native pane domain routing
