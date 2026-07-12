@@ -1,8 +1,8 @@
 // Prompt Small
 //
-// Purpose: CSS for small one-off prompts — beatsPerBar, export (header),
-// tip, octaveCount, shortenerConfig, songDuration, moveNotesSideways,
-// instrumentImport/Export, layout, channelSettings, sampleLoadingStatus,
+// Purpose: CSS for small one-off prompts — beatsPerBar, tip, octaveCount,
+// shortenerConfig, songDuration, moveNotesSideways, instrumentImport/Export,
+// layout, channelSettings, sampleLoadingStatus,
 // sustain, and loopControlsCanvas.
 //
 // Extracted from style.ts. Uses Gap from style-constants for layoutPrompt.
@@ -31,21 +31,6 @@ export function buildPromptSmallCSS(): string {
 	font-size: 10px;
 	color: var(--secondary-text);
 	text-align: right;
-}
-
-.beepboxEditor .prompt.exportPrompt {
-	width: 340px;
-}
-
-.beepboxEditor .prompt.exportPrompt .exportValue {
-	font-size: 12px;
-	color: var(--primary-text);
-}
-
-/* SelectField wraps the select in a right-aligned row, so the select
- * needs to fill its container to appear at the expected position. */
-.beepboxEditor .prompt.exportPrompt select {
-	width: 100%;
 }
 
 /* ── Tip Prompt ── */

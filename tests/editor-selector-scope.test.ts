@@ -19,6 +19,7 @@ import { buildIconSymbolsCSS } from "../editor/rendering/styles/icon-symbols";
 import { buildCleanChannelCSS } from "../editor/rendering/styles/prompt-clean-channel";
 import { buildPromptCompactSearchCSS } from "../editor/rendering/styles/prompt-compact-search";
 import { buildKeyboardShortcutsCSS } from "../editor/rendering/styles/prompt-keyboard-shortcuts";
+import { buildPromptExportCSS } from "../editor/rendering/styles/prompt-export";
 import { buildPromptMiscCSS } from "../editor/rendering/styles/prompt-misc";
 import { buildSampleBrowserCSS } from "../editor/rendering/styles/prompt-sample-browser";
 import { buildPromptShellCSS } from "../editor/rendering/styles/prompt-shell";
@@ -51,6 +52,7 @@ const builders: ReadonlyArray<readonly [string, () => string]> = [
 	["prompt-clean-channel", buildCleanChannelCSS],
 	["prompt-compact-search", buildPromptCompactSearchCSS],
 	["prompt-keyboard-shortcuts", buildKeyboardShortcutsCSS],
+	["prompt-export", buildPromptExportCSS],
 	["prompt-misc", buildPromptMiscCSS],
 	["prompt-sample-browser", buildSampleBrowserCSS],
 	["prompt-shell", buildPromptShellCSS],

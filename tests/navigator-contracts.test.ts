@@ -11,6 +11,7 @@ import type { CloseDecision, CommandReference, HostLease, LeaveDecision, PaneHos
 import { isSerializableValue, validateRetainedState } from "../editor/navigator/contracts";
 import { LegacyPromptPaneFactory } from "../editor/navigator/navigator-route-host";
 import { buildNavigatorPanesCSS } from "../editor/rendering/styles/navigator-panes";
+import { buildPromptExportCSS } from "../editor/rendering/styles/prompt-export";
 import type { Prompt } from "../editor/prompts/prompt";
 import { NavigatorRuntime, type DetachedPane } from "../editor/navigator/navigator-runtime";
 import { NavigatorShell } from "../editor/navigator/navigator-shell";
@@ -690,6 +691,22 @@ describe("native navigator extraction", () => {
 		const css = buildNavigatorPanesCSS();
 		expect(css).toContain(".navigator-detached-titlebar");
 		expect(css).toContain(".navigator-detached-content > .navigator-native-pane");
+	});
+
+	test("Export Song keeps legacy geometry and uses flat attached anatomy", () => {
+		const css = buildPromptExportCSS();
+		expect(css).toMatch(/\.prompt\.exportPrompt \{[^}]*width: 340px;[^}]*max-width: 340px;/s);
+		expect(css).toMatch(/\.navigator-pane-host > \.navigator-native-pane\.exportPrompt \.exportPromptBody,[^{]*\{[^}]*width: min\(520px, 100%\);[^}]*max-width: 520px;/s);
+		expect(css).toContain(".navigator-pane-host > .navigator-native-pane.exportPrompt {");
+		expect(css).not.toContain(".navigator-native-pane .exportPrompt {");
+		expect(css).not.toMatch(/\.navigator-pane-host[^,{]*[> ](?:button|input|select):hover/);
+	});
+
+	test("Export Song keeps detached padding and responsive containment", () => {
+		const css = buildPromptExportCSS();
+		expect(css).toMatch(/\.navigator-detached-content > \.navigator-native-pane\.exportPrompt \.exportPromptBody,[^{]*\.exportPromptFooter \{[^}]*width: min\(520px, 100%\);[^}]*max-width: 520px;/s);
+		expect(css).toContain("@media (max-width: 639px)");
+		expect(css).toMatch(/\.navigator-pane-host > \.navigator-native-pane\.exportPrompt \.exportPromptBody,[^{]*\.exportPromptFooter \{ width: 100%; \}/s);
 	});
 });
 

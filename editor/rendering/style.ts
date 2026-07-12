@@ -24,6 +24,7 @@ import { buildNavigatorPanesCSS } from "./styles/navigator-panes";
 import { buildCleanChannelCSS } from "./styles/prompt-clean-channel";
 import { buildCommandPaletteCSS } from "./styles/prompt-command-palette";
 import { buildPromptCompactSearchCSS } from "./styles/prompt-compact-search";
+import { buildPromptExportCSS } from "./styles/prompt-export";
 import { buildKeyboardShortcutsCSS } from "./styles/prompt-keyboard-shortcuts";
 import { buildPromptMiscCSS } from "./styles/prompt-misc";
 import { buildNavigatorCSS } from "./styles/prompt-navigator";
@@ -239,6 +240,8 @@ ${buildPromptSmallCSS()}
 ${buildSampleBrowserCSS()}
 
 ${buildPromptMiscCSS()}
+
+${buildPromptExportCSS()}
 
 ${buildNavigatorCSS()}
 

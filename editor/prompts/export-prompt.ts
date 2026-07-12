@@ -81,37 +81,39 @@ export class ExportPrompt extends BasePrompt {
 	public readonly container: HTMLDivElement = div(
 		{ class: "prompt exportPrompt noSelection" },
 		h2("Export Options"),
-		promptRowBetween(promptLabel("File name:"), this._fileName),
-		promptRowBetween(promptLabel("Length:"), this._computedSamplesLabel),
 		div(
-			{ class: "exportGridRow" },
+			{ class: "exportPromptBody" },
+			promptRowBetween(promptLabel("File name:"), this._fileName),
+			promptRowBetween(promptLabel("Length:"), this._computedSamplesLabel),
 			div(
-				{ class: "exportGridCell" },
-				this._enableIntro,
-				div({ class: "exportGridLabel" }, "Intro"),
+				{ class: "exportGridRow" },
+				div(
+					{ class: "exportGridCell" },
+					this._enableIntro,
+					div({ class: "exportGridLabel" }, "Intro"),
+				),
+				div(
+					{ class: "exportGridCell" },
+					div({ class: "exportGridLabel" }, "Loop"),
+					this._loopDropDown,
+				),
+				div(
+					{ class: "exportGridCell" },
+					this._enableOutro,
+					div({ class: "exportGridLabel" }, "Outro"),
+				),
 			),
+			promptRowBetween(promptLabel("Remove Whitespace:"), this._removeWhitespace),
+			promptRowBetween(promptLabel("Keep Open:"), this._keepOpen),
+			this._oggWarning,
+			selectField("Format:", this._formatSelect, { selectWidth: "100%" }),
 			div(
-				{ class: "exportGridCell" },
-				div({ class: "exportGridLabel" }, "Loop"),
-				this._loopDropDown,
+				{ class: "exportNote" },
+				"Exporting can be slow. Reloading the page or clicking the X will cancel it. Please be patient.",
 			),
-			div(
-				{ class: "exportGridCell" },
-				this._enableOutro,
-				div({ class: "exportGridLabel" }, "Outro"),
-			),
+			this._outputProgressContainer,
 		),
-		promptRowBetween(promptLabel("Remove Whitespace:"), this._removeWhitespace),
-		promptRowBetween(promptLabel("Keep Open:"), this._keepOpen),
-		this._oggWarning,
-		selectField("Format:", this._formatSelect, { selectWidth: "100%" }),
-		div(
-			{ class: "exportNote" },
-			"Exporting can be slow. Reloading the page or clicking the X will cancel it. Please be patient.",
-		),
-		this._outputProgressContainer,
-		this._getOkayRow(),
-		this._cancelButton,
+		div({ class: "exportPromptFooter" }, this._getOkayRow(), this._cancelButton),
 	);
 
 	constructor(doc: SongDocument) {

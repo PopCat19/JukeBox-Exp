@@ -1,12 +1,7 @@
 // Prompt Misc
 //
 // Purpose: CSS for remaining miscellaneous prompts — songRecovery, import,
-// theme, customTheme, recordingSetup, palette, customScale, and exportPrompt
-// body (grid layout, progress bar).
-//
-// Extracted from style.ts. Uses Gap from style-constants for exportPrompt.
-
-import { Gap } from "../../ui/style-constants";
+// theme, customTheme, recordingSetup, palette, and customScale.
 
 export function buildPromptMiscCSS(): string {
 	return `\
@@ -223,93 +218,6 @@ export function buildPromptMiscCSS(): string {
 	flex-direction: row;
 	align-items: center;
 	justify-content: flex-end;
-}
-
-.beepboxEditor .prompt.exportPrompt input[type="text"] {
-	flex: 1;
-	min-width: 0;
-	width: auto;
-}
-
-.beepboxEditor .prompt.exportPrompt .exportGridRow {
-	display: flex;
-	flex-direction: row;
-	justify-content: space-between;
-	gap: ${Gap.lg};
-	margin: 2px 0 6px 0;
-}
-
-.beepboxEditor .prompt.exportPrompt .exportGridCell {
-	display: flex;
-	align-items: center;
-	gap: 4px;
-	font-size: 12px;
-	flex: 1;
-	justify-content: center;
-}
-
-.beepboxEditor .prompt.exportPrompt .exportGridCell:first-child {
-	justify-content: flex-start;
-}
-
-.beepboxEditor .prompt.exportPrompt .exportGridCell:last-child {
-	justify-content: flex-end;
-}
-
-.beepboxEditor .prompt.exportPrompt .exportGridLabel {
-	font-size: 12px;
-	color: var(--primary-text);
-	white-space: nowrap;
-}
-
-.beepboxEditor .prompt.exportPrompt .exportGridCell input[type="number"] {
-	width: 3em;
-	text-align: center;
-}
-
-.beepboxEditor .prompt.exportPrompt .exportOggWarning {
-	font-size: 10px;
-	color: var(--secondary-text);
-	padding: 4px 0;
-}
-
-.beepboxEditor .prompt.exportPrompt .exportNote {
-	font-size: 10px;
-	color: var(--secondary-text);
-	text-align: left;
-	margin: 4px 0;
-}
-
-.beepboxEditor .prompt.exportPrompt .exportProgressContainer {
-	height: 12px;
-	display: block;
-	position: relative;
-	z-index: 1;
-	background: var(--ui-widget-background);
-	margin: 4px 0;
-	border-radius: var(--border-radius-medium);
-	overflow: hidden;
-}
-
-.beepboxEditor .prompt.exportPrompt .exportProgressBar {
-	width: 0%;
-	height: 100%;
-	position: absolute;
-	z-index: 2;
-	background: var(--loop-accent);
-	transition: width 150ms var(--ease);
-}
-
-.beepboxEditor .prompt.exportPrompt .exportProgressLabel {
-	position: relative;
-	top: -1px;
-	z-index: 3;
-	mix-blend-mode: difference;
-	color: #ffffff;
-	font-weight: 600;
-	font-size: 10px;
-	text-align: center;
-	line-height: 12px;
 }
 
 .beepboxEditor .prompt.cvvPrompt {
