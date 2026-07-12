@@ -12,8 +12,26 @@ export interface NavigatorRoute {
 const routeTitles: Readonly<Record<string, string>> = {
 	addExternal: "Add samples",
 	channelVolumeVisualizer: "Channel visualizer",
+	cleanLsdj: "Clean LSDJ song",
+	customEQFilterSettings: "Custom EQ filter settings",
+	customSongEQFilterSettings: "Custom song EQ filter settings",
 	instrumentTags: "Instrument tags",
 };
+
+const categoryTitles: Readonly<Record<string, string>> = {
+	editor: "Editor",
+	instrument: "Instrument",
+	prompt: "Tools and settings",
+	song: "Song",
+};
+
+function humanizeRouteTitle(value: string): string {
+	const words = value
+		.replace(/([a-z0-9])([A-Z])/g, "$1 $2")
+		.replace(/([A-Z]+)([A-Z][a-z])/g, "$1 $2")
+		.toLocaleLowerCase();
+	return words.charAt(0).toLocaleUpperCase() + words.slice(1);
+}
 
 const DEFAULT_ROUTES: readonly NavigatorRoute[] = commandRegistry.flatMap((command) =>
 	command.presentation === "navigator" &&
@@ -22,7 +40,7 @@ const DEFAULT_ROUTES: readonly NavigatorRoute[] = commandRegistry.flatMap((comma
 		? [
 				{
 					id: command.scope,
-					title: routeTitles[command.scope] ?? command.label,
+					title: routeTitles[command.scope] ?? humanizeRouteTitle(command.label),
 					category: command.id.split(".")[0],
 				},
 			]
@@ -119,8 +137,10 @@ export class NavigatorShell implements PaneHost {
 		const route = this.routes.find((entry) => entry.id === routeId);
 		if (route !== undefined) {
 			this.activeTitle.textContent = route.title;
-			for (const button of Array.from(this.routeList.children)) {
-				if (!(button instanceof HTMLButtonElement)) continue;
+			const routeButtons =
+				this.routeList.querySelectorAll<HTMLButtonElement>(".navigator-route");
+			for (let index = 0; index < routeButtons.length; index++) {
+				const button = routeButtons[index];
 				const active = button.dataset.routeId === routeId;
 				button.classList.toggle("active", active);
 				button.setAttribute("aria-current", active ? "page" : "false");
@@ -152,12 +172,25 @@ export class NavigatorShell implements PaneHost {
 	private renderRoutes(routes: readonly NavigatorRoute[]): void {
 		const query = this.routeSearch.value.trim().toLocaleLowerCase();
 		this.routeList.replaceChildren();
+		const groups = new Map<string, HTMLDivElement>();
 		for (const route of routes) {
 			if (
 				query !== "" &&
-				!`${route.title} ${route.category}`.toLocaleLowerCase().includes(query)
+				!`${route.title} ${route.id} ${route.category}`.toLocaleLowerCase().includes(query)
 			)
 				continue;
+			let group = groups.get(route.category);
+			if (group === undefined) {
+				group = document.createElement("div");
+				group.className = "navigator-route-group";
+				const heading = document.createElement("div");
+				heading.className = "navigator-route-group-title";
+				heading.textContent =
+					categoryTitles[route.category] ?? humanizeRouteTitle(route.category);
+				group.append(heading);
+				groups.set(route.category, group);
+				this.routeList.append(group);
+			}
 			const button = document.createElement("button");
 			button.type = "button";
 			button.className = "navigator-route";
@@ -167,7 +200,7 @@ export class NavigatorShell implements PaneHost {
 			button.classList.toggle("active", active);
 			button.setAttribute("aria-current", active ? "page" : "false");
 			button.addEventListener("click", () => this.onRoute?.(route.id));
-			this.routeList.append(button);
+			group.append(button);
 		}
 	}
 

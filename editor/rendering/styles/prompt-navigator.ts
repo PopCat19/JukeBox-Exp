@@ -28,7 +28,14 @@ export function buildNavigatorCSS(): string {
 	user-select: none;
 }
 .beepboxEditor .navigator-title { margin: 0; font-size: 16px; font-weight: 600; }
-.beepboxEditor .navigator-titlebar-controls { display: flex; gap: 4px; }
+.beepboxEditor .navigator-titlebar-controls { display: flex; gap: 8px; }
+.beepboxEditor .navigator-detach-button,
+.beepboxEditor .navigator-close-button {
+	box-sizing: border-box;
+	min-width: 40px;
+	min-height: 40px;
+	font-size: 20px;
+}
 .beepboxEditor .navigator-detach-button,
 .beepboxEditor .navigator-close-button,
 .beepboxEditor .navigator-route { cursor: pointer; font-weight: 500; }
@@ -47,8 +54,22 @@ export function buildNavigatorCSS(): string {
 	background: var(--editor-background);
 }
 .beepboxEditor .navigator-route-search { box-sizing: border-box; width: 100%; }
-.beepboxEditor .navigator-route-list { display: flex; flex-direction: column; gap: 4px; overflow: auto; }
+.beepboxEditor .navigator-route-list { display: flex; flex-direction: column; gap: 12px; overflow: auto; }
+.beepboxEditor .navigator-route-group { display: flex; flex-direction: column; gap: 4px; }
+.beepboxEditor .navigator-route-group-title {
+	margin: 0;
+	padding: 4px 8px;
+	color: var(--secondary-text);
+	font-size: 10px;
+	font-weight: 600;
+	text-transform: uppercase;
+}
 .beepboxEditor .navigator-route { text-align: left; }
+.beepboxEditor .navigator-route.active {
+	background: var(--cta-bg);
+	color: var(--cta-fg);
+	font-weight: 600;
+}
 .beepboxEditor .navigator-workspace { display: flex; flex-direction: column; min-width: 0; min-height: 0; }
 .beepboxEditor .navigator-active-title {
 	flex: 0 0 auto;
@@ -70,7 +91,9 @@ export function buildNavigatorCSS(): string {
 @media (max-width: 639px) {
 	.beepboxEditor .navigator-content { display: flex; flex-direction: column; }
 	.beepboxEditor .navigator-sidebar { flex: 0 0 auto; padding: 8px; }
-	.beepboxEditor .navigator-route-list { flex-direction: row; overflow-x: auto; }
+	.beepboxEditor .navigator-route-list { flex-direction: row; gap: 12px; overflow-x: auto; }
+	.beepboxEditor .navigator-route-group { flex: 0 0 auto; flex-direction: row; align-items: center; }
+	.beepboxEditor .navigator-route-group-title { position: sticky; left: 0; background: var(--editor-background); }
 	.beepboxEditor .navigator-route { flex: 0 0 auto; white-space: nowrap; }
 }
 `;

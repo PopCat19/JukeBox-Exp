@@ -688,7 +688,10 @@ describe("navigator shell", () => {
 		expect(css).toContain("width: min(880px, calc(100vw - 32px))");
 		expect(css).toContain("height: min(640px, calc(100vh - 32px))");
 		expect(css).toContain("grid-template-columns: 184px minmax(0, 1fr)");
+		expect(css).toMatch(/\.navigator-route\.active \{[^}]*background: var\(--cta-bg\)[^}]*color: var\(--cta-fg\)[^}]*font-weight: 600/s);
+		expect(css).toMatch(/\.navigator-detach-button,[^}]*min-width: 40px[^}]*min-height: 40px/s);
 		expect(css).toContain("@media (max-width: 639px)");
+		expect(css).toMatch(/@media \(max-width: 639px\)[\s\S]*\.navigator-route-list \{[^}]*flex-direction: row[^}]*overflow-x: auto/);
 		expect(css).not.toMatch(/box-shadow|linear-gradient|radial-gradient/);
 		expect(css).toMatch(/\.navigator-pane-host \{[^}]*min-height: 0[^}]*overflow: auto/s);
 	});
@@ -700,7 +703,19 @@ describe("navigator shell", () => {
 		const shell = new NavigatorShell("Navigator", undefined, () => { closed = true; }, (id) => { opened = id; });
 		const search = shell.container.querySelector<HTMLInputElement>(".navigator-route-search");
 		expect(shell.container.querySelectorAll(".navigator-route").length).toBeGreaterThan(30);
+		expect(Array.from(shell.container.querySelectorAll(".navigator-route-group-title"), (heading) => heading.textContent)).toEqual([
+			"Song", "Editor", "Instrument", "Tools and settings",
+		]);
+		const routeLabels = Array.from(shell.container.querySelectorAll(".navigator-route"), (route) => route.textContent ?? "");
+		expect(routeLabels).toContain("Custom chip settings");
+		expect(routeLabels).toContain("Custom EQ filter settings");
+		expect(routeLabels).not.toContain("customChipSettings");
 		if (search === null) throw new Error("missing route search");
+		search.value = "customChipSettings";
+		search.dispatchEvent(new Event("input"));
+		expect(shell.container.querySelector(".navigator-route")?.textContent).toBe(
+			"Custom chip settings",
+		);
 		search.value = "sample";
 		search.dispatchEvent(new Event("input"));
 		const route = shell.container.querySelector<HTMLButtonElement>(".navigator-route");
