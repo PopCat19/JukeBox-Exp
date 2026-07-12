@@ -58,6 +58,7 @@ Purpose: bun:test test files covering editor, synth, and shared modules.
 - `dom-hooks.test.ts`, Static source-read guards for editor, prompt, and player DOM hook literals (mount, shell, grid layout, lifecycle, popout, PMD role, scrollbars, player root and element classes)
 - `player-ui-styles.test.ts`, Contract tests for player CSS builder and player UI body-root append contract
 - `prompt-shell-contract.test.ts`, Structural contracts for harmonics, spectrum, and custom filter prompt titlebars and button rows
+- `prompt-drag.test.ts`, Behavioral tests for whole-surface prompt dragging, exclusions, clamping, cleanup, and PromptManager wiring
 - `svg-editor-rect-contract.test.ts`, Regression contracts for fresh graph editor geometry on press and cache invalidation on release
 - `svg-prompt-transaction-contract.test.ts`, Transaction contracts for discard restoration and save-before-close ordering in live SVG prompts
 - `editor-selector-scope.test.ts`, Selector scoping guard: editor CSS class selectors must root under .beepboxEditor or be baseline-allowed page-level exceptions

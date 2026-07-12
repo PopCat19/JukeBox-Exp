@@ -115,6 +115,7 @@ All 12 types verified via encode→decode→type-preservation.
 | `editor/main.ts` | `tests/dom-hooks.test.ts` | Source literal `"beepboxEditorContainer"` getElementById mount point |
 | `editor/ui/style.ts` | `tests/dom-hooks.test.ts` | Source literal `"prompt noSelection"` promptFrame class |
 | `editor/core/prompt-manager.ts` | `tests/dom-hooks.test.ts` | classList.add literals: entering, exiting, focused, refocus |
+| `editor/core/prompt-drag.ts`, `editor/core/prompt-manager.ts` | `tests/prompt-drag.test.ts` | Whole-surface dragging, interactive exclusions, clamping, listener cleanup, and production wiring |
 | `editor/core/prompt-dock.ts` | `tests/dom-hooks.test.ts` | classList.add("docked") lifecycle hook |
 | `editor/core/prompt-popout.ts` | `tests/dom-hooks.test.ts` | dataset.popout set and data-popout removeAttribute |
 | `editor/ui/interactions.ts` | `tests/dom-hooks.test.ts` | dataset.pmdRole assignment literals |

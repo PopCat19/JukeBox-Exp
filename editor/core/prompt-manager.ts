@@ -42,6 +42,7 @@ import type { SongDocument } from "../song-document";
 import { iconButton } from "../ui";
 import { makeLogger } from "./debug-log";
 import { PromptDock } from "./prompt-dock";
+import { attachPromptDrag } from "./prompt-drag";
 import { PromptFocusController } from "./prompt-focus-controller";
 import { PromptPopout } from "./prompt-popout";
 
@@ -127,6 +128,7 @@ export class PromptManager {
 	private _mousePos: { x: number; y: number } = { x: 0, y: 0 };
 	private _focusedPrompt: Prompt | null = null;
 	private readonly _promptPositions: Map<string, { x: number; y: number }> = new Map();
+	private readonly _promptDragDisposers = new Map<Prompt, () => void>();
 	private _draggingPrompt: boolean = false;
 	private _wasPlaying: boolean = false;
 	private readonly _focusController: PromptFocusController;
@@ -225,6 +227,8 @@ export class PromptManager {
 		this._prompts.splice(index, 1);
 		this._dock.remove(prompt);
 		this._popout.closeWindow(prompt);
+		this._promptDragDisposers.get(prompt)?.();
+		this._promptDragDisposers.delete(prompt);
 		prompt.container.remove();
 		prompt.cleanUp();
 		if (this._focusedPrompt === prompt) {
@@ -297,6 +301,8 @@ export class PromptManager {
 		if (prompt) {
 			const index = this._prompts.indexOf(prompt);
 			if (index !== -1) {
+				this._promptDragDisposers.get(prompt)?.();
+				this._promptDragDisposers.delete(prompt);
 				prompt.discard();
 				this._prompts.splice(index, 1);
 				this._dock.remove(prompt);
@@ -831,89 +837,56 @@ export class PromptManager {
 	}
 
 	private _attachDrag(prompt: Prompt, promptName: string): void {
-		prompt.container.addEventListener("mousedown", (e: MouseEvent) => {
-			// Popped-out prompts live in another window; the drag/dock math is
-			// computed against the main editor's mainLayer rect and would misfire.
-			if (this._popout.isOpen(prompt)) return;
-			const target = e.target as HTMLElement;
-			if (
-				target instanceof HTMLInputElement ||
-				target instanceof HTMLButtonElement ||
-				target instanceof HTMLSelectElement ||
-				target instanceof HTMLTextAreaElement ||
-				target.closest(".slider") ||
-				target.closest(".harmonics") ||
-				target.closest(".filterEditor") ||
-				target.closest(".spectrum") ||
-				target.closest(".prompt-dock-divider") ||
-				target.closest(".prompt-dock-slot-divider")
-			)
-				return;
-
-			this._draggingPrompt = true;
-			let anchorX = e.clientX;
-			let suppressSnap = false;
-			const dockedAtDown = this._dock.isDocked(prompt);
-			let currentPos = this._promptPositions.get(promptName) || { x: 0, y: 0 };
-			if (dockedAtDown) {
-				const r = prompt.container.getBoundingClientRect();
-				const mlRect = this._host.mainLayer.getBoundingClientRect();
-				currentPos = { x: r.left - mlRect.left, y: r.top - mlRect.top };
-			}
-			let startX = e.clientX - currentPos.x;
-			let startY = e.clientY - currentPos.y;
-
-			const onMove = (me: MouseEvent): void => {
-				if (!this._prompts.includes(prompt)) return;
-				if (this._dock.isDocked(prompt)) {
-					if (this._dock.shouldUnsnapByDrag(prompt, me.clientX - anchorX)) {
-						this._dock.undock(prompt);
-						// Recompute drag offset from the undocked position so the
-						// cursor stays at the same point on the prompt (no jump).
-						const mlRect = this._host.mainLayer.getBoundingClientRect();
-						const r = prompt.container.getBoundingClientRect();
-						startX = me.clientX - (r.left - mlRect.left);
-						startY = me.clientY - (r.top - mlRect.top);
-						anchorX = me.clientX;
-						suppressSnap = true;
-					} else {
-						return;
-					}
+		this._promptDragDisposers.get(prompt)?.();
+		this._promptDragDisposers.delete(prompt);
+		let suppressSnap = false;
+		const dispose = attachPromptDrag({
+			container: prompt.container,
+			bounds: this._host.mainLayer,
+			isDisabled: () => this._popout.isOpen(prompt),
+			getPosition: () => {
+				if (!this._dock.isDocked(prompt)) {
+					return this._promptPositions.get(promptName) || { x: 0, y: 0 };
 				}
 				const rect = prompt.container.getBoundingClientRect();
-				const w = this._host.mainLayer.clientWidth;
-				const h = this._host.mainLayer.clientHeight;
-				const pad = this._editorPadding();
-				const x = Math.max(
-					pad.left,
-					Math.min(me.clientX - startX, w - pad.right - rect.width),
-				);
-				const y = Math.max(
-					pad.top,
-					Math.min(me.clientY - startY, h - pad.bottom - rect.height),
-				);
-				const side = this._dock.getSnapSide(x, rect.width, me.clientX);
+				const boundsRect = this._host.mainLayer.getBoundingClientRect();
+				return { x: rect.left - boundsRect.left, y: rect.top - boundsRect.top };
+			},
+			getPadding: () => this._editorPadding(),
+			onStart: () => {
+				this._draggingPrompt = true;
+				suppressSnap = false;
+			},
+			beforeMove: (event, session) => {
+				if (!this._prompts.includes(prompt)) return false;
+				if (!this._dock.isDocked(prompt)) return true;
+				if (!this._dock.shouldUnsnapByDrag(prompt, event.clientX - session.anchorX))
+					return false;
+				this._dock.undock(prompt);
+				const boundsRect = this._host.mainLayer.getBoundingClientRect();
+				const rect = prompt.container.getBoundingClientRect();
+				session.reanchor(event.clientX, event.clientY, {
+					x: rect.left - boundsRect.left,
+					y: rect.top - boundsRect.top,
+				});
+				suppressSnap = true;
+				return true;
+			},
+			onMove: ({ event, position, width, session }) => {
+				const side = this._dock.getSnapSide(position.x, width, event.clientX);
 				if (side && !suppressSnap) {
 					this._dock.snap(prompt, side);
-					anchorX = me.clientX;
-					return;
+					session.anchorX = event.clientX;
+					return false;
 				}
-				if (!side) {
-					// Pointer left the edge zone: re-arm snapping so the prompt
-					// can dock to the opposite side later in the same drag.
-					suppressSnap = false;
-				}
-				prompt.container.style.left = `${x}px`;
-				prompt.container.style.top = `${y}px`;
-				this._promptPositions.set(promptName, { x, y });
-			};
-			const onUp = (): void => {
+				if (!side) suppressSnap = false;
+				return true;
+			},
+			onPosition: (position) => this._promptPositions.set(promptName, position),
+			onEnd: () => {
 				this._draggingPrompt = false;
-				document.removeEventListener("mousemove", onMove);
-				document.removeEventListener("mouseup", onUp);
-			};
-			document.addEventListener("mousemove", onMove);
-			document.addEventListener("mouseup", onUp);
+			},
 		});
+		this._promptDragDisposers.set(prompt, dispose);
 	}
 }
