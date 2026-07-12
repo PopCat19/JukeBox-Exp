@@ -809,6 +809,25 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 		// No changes to save
 	}
 
+	public suspendPane(): void {
+		this._doc.synth.channelAudioCaptureEnabled = false;
+		if (this._animationId !== 0) {
+			this._rafWin.cancelAnimationFrame(this._animationId);
+			this._animationId = 0;
+		}
+		if (this._scheduledPlayTimer !== null) {
+			clearTimeout(this._scheduledPlayTimer);
+			this._scheduledPlayTimer = null;
+		}
+		this._resizeObserver?.disconnect();
+	}
+
+	public resumePane(): void {
+		this._doc.synth.channelAudioCaptureEnabled = true;
+		this._setupResizeObserver();
+		if (this._animationId === 0) this._scheduleFrame();
+	}
+
 	public override cleanUp = (): void => {
 		super.cleanUp();
 		this._doc.synth.channelAudioCaptureEnabled = false;

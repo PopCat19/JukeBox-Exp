@@ -96,6 +96,8 @@ import type { Preferences } from "./core/preferences";
 import { type PromptEditorRefs, type PromptHost, PromptManager } from "./core/prompt-manager";
 
 import { MidiInputHandler } from "./io/midi-input";
+import { NativePaneFactory } from "./navigator/native-panes";
+import { NavigatorDetachedHost } from "./navigator/navigator-detached-host";
 import { LegacyPromptPaneFactory } from "./navigator/navigator-route-host";
 import { NavigatorRuntime } from "./navigator/navigator-runtime";
 import { NavigatorShell } from "./navigator/navigator-shell";
@@ -2224,7 +2226,9 @@ export class SongEditor
 		this._instrumentSettingsArea,
 	);
 
-	private readonly _navigatorShell = new NavigatorShell();
+	private readonly _navigatorShell = new NavigatorShell("Navigator", () => {
+		this.popoutCurrentPrompt();
+	});
 	public readonly mainLayer: HTMLDivElement = div(
 		{ class: "beepboxEditor", tabIndex: "0" },
 		this._patternArea,
@@ -2239,9 +2243,18 @@ export class SongEditor
 		() => this._navigatorRuntime.closeNavigator(),
 		(scope) => this._applicationRouter.routePrompt(scope),
 	);
+	private readonly _nativePanes = new NativePaneFactory(
+		this.doc,
+		this,
+		() => this._navigatorRuntime.closeNavigator(),
+		(scope) => this._applicationRouter.routePrompt(scope),
+	);
 	private readonly _navigatorRuntime: NavigatorRuntime = new NavigatorRuntime(
 		this._navigatorShell,
-		this._legacyPromptPanes.create,
+		(route) =>
+			this._nativePanes.supports(route)
+				? this._nativePanes.create(route)
+				: this._legacyPromptPanes.create(route),
 	);
 	private readonly _applicationRouter: ApplicationRouter = new ApplicationRouter({
 		openGlobal: () => undefined,
@@ -3940,7 +3953,16 @@ export class SongEditor
 	}
 
 	public popoutCurrentPrompt(): void {
-		// Disabled until Navigator can transfer this legacy root atomically.
+		const host = NavigatorDetachedHost.open();
+		if (host === null) return;
+		void this._navigatorRuntime
+			.detach((owner, _host, close, forceClose) => host.bind(owner, close, forceClose), host)
+			.then((pane) => {
+				if (pane === null) host.closeEmpty();
+			})
+			.catch(() => {
+				host.closeEmpty();
+			});
 	}
 
 	public promptShouldReceiveKeys = (): boolean => {

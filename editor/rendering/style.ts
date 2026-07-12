@@ -20,6 +20,7 @@ import { buildFilterEditorsCSS } from "./styles/filter-editors";
 import { buildFormInputsCSS } from "./styles/form-inputs";
 import { buildIconButtonsCSS } from "./styles/icon-buttons";
 import { buildIconSymbolsCSS } from "./styles/icon-symbols";
+import { buildNavigatorPanesCSS } from "./styles/navigator-panes";
 import { buildCleanChannelCSS } from "./styles/prompt-clean-channel";
 import { buildCommandPaletteCSS } from "./styles/prompt-command-palette";
 import { buildPromptCompactSearchCSS } from "./styles/prompt-compact-search";
@@ -240,6 +241,8 @@ ${buildSampleBrowserCSS()}
 ${buildPromptMiscCSS()}
 
 ${buildNavigatorCSS()}
+
+${buildNavigatorPanesCSS()}
 
 ${buildFilterEditorsCSS()}
 

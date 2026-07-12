@@ -40,6 +40,7 @@ declare const OFFLINE: boolean;
 export class AddSamplesPrompt extends BasePrompt {
 	private readonly _maxSamples: number = 64;
 	private _entries: SampleEntry[] = [];
+	private _baselineEntries: string = "";
 	private _selectedIndex: number = -1;
 	private _filterText: string = "";
 	private _entryOptionsDisplayStates: Dictionary<boolean> = {};
@@ -88,6 +89,7 @@ export class AddSamplesPrompt extends BasePrompt {
 		if (EditorConfig.customSamples != null) {
 			this._entries = parseSampleURLs(EditorConfig.customSamples, false);
 		}
+		this._baselineEntries = generateAllSampleURLs(this._entries);
 
 		// ── Left pane: sample list ──
 
@@ -299,6 +301,15 @@ export class AddSamplesPrompt extends BasePrompt {
 		setTimeout(() => {
 			this._searchInput.focus();
 		}, 100);
+	}
+
+	public requestPaneClose(): boolean {
+		if (generateAllSampleURLs(this._entries) === this._baselineEntries) return true;
+		return window.confirm("Discard unsaved sample changes?");
+	}
+
+	public capturePaneState(): string {
+		return generateAllSampleURLs(this._entries);
 	}
 
 	public override cleanUp(): void {

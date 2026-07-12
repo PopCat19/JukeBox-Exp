@@ -11,6 +11,7 @@ CSS-in-JS style definitions for the editor UI. Each file exports a CSS string (e
 - `form-inputs.ts`, CSS for editor form input controls — text, number, checkbox, dropdown
 - `icon-buttons.ts`, CSS for editor icon button components — tip spans, volume speaker
 - `icon-symbols.ts`, CSS custom property declarations for editor icon SVGs (data URIs)
+- `navigator-panes.ts`, CSS for attached and detached Navigator-owned pane domains
 - `prompt-clean-channel.ts`, CSS for the clean channel prompt — tab bar, channel list pane
 - `prompt-command-palette.ts`, PMD CSS for the transient compact command palette
 - `prompt-compact-search.ts`, CSS for compact search prompt (preset/tag browser with tabs)

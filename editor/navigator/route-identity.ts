@@ -53,6 +53,7 @@ function normalize(value: unknown, ancestors: Set<object>): SerializableValue {
 export function canonicalRouteIdentity(route: PaneRoute): PaneIdentity {
 	if (typeof route.paneId !== "string" || route.paneId.length === 0)
 		throw new TypeError("paneId must be a non-empty string");
+	const paneId = route.paneId === "instrumentTags" ? "instrumentBrowser" : route.paneId;
 	const context = Object.hasOwn(route, "context") ? normalize(route.context, new Set()) : null;
-	return JSON.stringify([route.paneId, context]) as PaneIdentity;
+	return JSON.stringify([paneId, context]) as PaneIdentity;
 }

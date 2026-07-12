@@ -10,10 +10,8 @@
 import { HarmonicsEditorPrompt } from "../components/harmonics-editor";
 import type { PatternEditor } from "../components/pattern-editor";
 import { type SpectrumEditor, SpectrumEditorPrompt } from "../components/spectrum-editor";
-import { AddSamplesPrompt } from "../prompts/add-samples-prompt";
 import { BeatsPerBarPrompt } from "../prompts/beats-per-bar-prompt";
 import { ChannelSettingsPrompt } from "../prompts/channel-settings-prompt";
-import { ChannelVolumeVisualizerPrompt } from "../prompts/channel-volume-visualizer-prompt";
 import { CleanChannelPrompt } from "../prompts/clean-channel-prompt";
 import { CustomChipPrompt } from "../prompts/custom-chip-prompt";
 import { CustomFilterPrompt } from "../prompts/custom-filter-prompt";
@@ -22,7 +20,6 @@ import { CustomThemePrompt } from "../prompts/custom-theme-prompt";
 import { EuclidgenRhythmPrompt } from "../prompts/euclidgen-rhythm-prompt";
 import { ExportPrompt } from "../prompts/export-prompt";
 import { ImportPrompt } from "../prompts/import-prompt";
-import { InstrumentBrowserPrompt } from "../prompts/instrument-browser-prompt";
 import { InstrumentExportPrompt } from "../prompts/instrument-export-prompt";
 import { InstrumentImportPrompt } from "../prompts/instrument-import-prompt";
 import { KeyboardShortcutsPrompt } from "../prompts/keyboard-shortcuts-prompt";
@@ -103,9 +100,7 @@ const _noPlayPausePrompts: ReadonlySet<Function> = new Set([
 	SustainPrompt,
 	HarmonicsEditorPrompt,
 	SpectrumEditorPrompt,
-	InstrumentBrowserPrompt,
 	KeyboardShortcutsPrompt,
-	ChannelVolumeVisualizerPrompt,
 ]);
 
 export class PromptManager {
@@ -480,9 +475,6 @@ export class PromptManager {
 			case "channelSettings":
 				newPrompt = new ChannelSettingsPrompt(doc);
 				break;
-			case "channelVolumeVisualizer":
-				newPrompt = new ChannelVolumeVisualizerPrompt(doc, refs);
-				break;
 			case "limiterSettings":
 				newPrompt = new LimiterPrompt(doc, refs);
 				break;
@@ -519,9 +511,6 @@ export class PromptManager {
 			case "stringSustain":
 				newPrompt = new SustainPrompt(doc);
 				break;
-			case "addExternal":
-				newPrompt = new AddSamplesPrompt(doc);
-				break;
 			case "cleanLsdj":
 				newPrompt = new CleanChannelPrompt(doc);
 				break;
@@ -556,12 +545,6 @@ export class PromptManager {
 				break;
 			case "drumsetSettings":
 				newPrompt = new SpectrumEditorPrompt(doc, refs, true);
-				break;
-			case "instrumentBrowser":
-				newPrompt = new InstrumentBrowserPrompt(doc, "presets");
-				break;
-			case "instrumentTags":
-				newPrompt = new InstrumentBrowserPrompt(doc, "tags");
 				break;
 			case "keyboardShortcuts":
 				newPrompt = new KeyboardShortcutsPrompt(doc);

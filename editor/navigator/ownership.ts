@@ -8,6 +8,7 @@ export interface PaneOwner<State extends SerializableValue = SerializableValue> 
 	readonly identity: PaneIdentity;
 	readonly lifecycle: PaneLifecycle<State>;
 	focus(): void;
+	bindCloseAuthority?(close: () => Promise<boolean>): void;
 }
 
 export interface OwnershipToken {
@@ -84,14 +85,24 @@ export class PaneOwnership {
 		if (!this.isLeaseCurrent(lease)) throw new Error("stale host lease");
 		if (!this.mounted || this.host === null) throw new Error("pane not mounted");
 		const oldHost = this.host;
-		const root = this.owner!.lifecycle.root;
+		const lifecycle = this.owner!.lifecycle;
+		const root = lifecycle.root;
 		this.busy = true;
 		try {
+			lifecycle.suspend();
 			oldHost.detach(root);
 			try {
 				newHost.attach(root);
+				lifecycle.resume();
 			} catch (error) {
+				newHost.detach(root);
 				oldHost.attach(root);
+				this.host = oldHost;
+				try {
+					lifecycle.resume();
+				} catch {
+					// Preserve the transfer failure after restoring structural ownership.
+				}
 				throw error;
 			}
 			this.host = newHost;

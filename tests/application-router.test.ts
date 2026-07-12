@@ -67,7 +67,7 @@ describe("application router", () => {
 		expect(Object.isFrozen(opened[0])).toBeTrue();
 	});
 
-	test("routes every PromptManager scope and default tip through Navigator", async () => {
+	test("routes every legacy PromptManager scope and default tip through Navigator", async () => {
 		const opened: PaneRoute[] = [];
 		const globals: GlobalApplicationRoute[] = [];
 		let focusCount = 0;
@@ -86,7 +86,10 @@ describe("application router", () => {
 		expect(opened[0].context).toEqual({ channel: 4 });
 		expect(focusCount).toBe(scopes.length);
 		expect(globals).toEqual([]);
-		expect(manager).toContain('case "instrumentTags":');
+		expect(manager).not.toContain('case "instrumentTags":');
+		expect(manager).not.toContain('case "instrumentBrowser":');
+		expect(manager).not.toContain('case "addExternal":');
+		expect(manager).not.toContain('case "channelVolumeVisualizer":');
 		expect(manager).toContain('case "export":');
 	});
 

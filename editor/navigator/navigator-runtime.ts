@@ -57,15 +57,27 @@ export class NavigatorRuntime {
 			}
 			if (this.lease === null) throw new Error("attached pane lacks host lease");
 			const replacement = await this.ownership.replace(this.token, this.lease, next);
-			if (replacement === null) return;
+			if (replacement === null) {
+				next.lifecycle.dispose();
+				return;
+			}
 			this.token = replacement;
 			this.lease = this.ownership.mount(replacement, this.host);
-			if (this.lease === null) throw new Error("replacement pane mount failed");
+			if (this.lease === null) {
+				this.ownership.dispose(replacement);
+				this.token = null;
+				throw new Error("replacement pane mount failed");
+			}
 		});
 	}
 
 	detach(
-		create: (owner: PaneOwner, host: PaneHost, close: () => Promise<boolean>) => DetachedPane,
+		create: (
+			owner: PaneOwner,
+			host: PaneHost,
+			close: () => Promise<boolean>,
+			forceClose: () => Promise<void>,
+		) => DetachedPane,
 		host: PaneHost,
 	): Promise<DetachedPane | null> {
 		return this.serialize(() => {
@@ -75,11 +87,16 @@ export class NavigatorRuntime {
 			if (owner === null) return null;
 			const oldLease = this.lease;
 			const detachedLease = this.ownership.transferHost(token, oldLease, host);
+			const closeDetached = async (): Promise<boolean> => this.closeDetached(token.identity);
 			let pane: DetachedPane;
 			try {
-				pane = create(owner, host, async () => this.closeDetached(token.identity));
+				pane = create(owner, host, closeDetached, async () =>
+					this.forceCloseDetached(token.identity),
+				);
+				owner.bindCloseAuthority?.(() => pane.close());
 			} catch (error) {
 				this.lease = this.ownership.transferHost(token, detachedLease, this.host);
+				owner.bindCloseAuthority?.(() => this.closeNavigator());
 				throw error;
 			}
 			this.detached.set(token.identity, {
@@ -116,6 +133,15 @@ export class NavigatorRuntime {
 		const closed = await record.ownership.close(record.token, record.lease);
 		if (closed) this.detached.delete(identity);
 		return closed;
+	}
+
+	private forceCloseDetached(identity: PaneIdentity): Promise<void> {
+		return this.serialize(() => {
+			const record = this.detached.get(identity);
+			if (record === undefined) return;
+			record.ownership.dispose(record.token, record.lease);
+			this.detached.delete(identity);
+		});
 	}
 	private serialize<T>(operation: () => T | Promise<T>): Promise<T> {
 		const result = this.queue.then(operation, operation);

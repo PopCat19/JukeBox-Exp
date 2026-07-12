@@ -10,6 +10,7 @@ import { PromptRootOwnership } from "../editor/core/prompt-manager";
 import type { CloseDecision, CommandReference, HostLease, LeaveDecision, PaneHost, PaneLifecycle, SerializableValue } from "../editor/navigator/contracts";
 import { isSerializableValue, validateRetainedState } from "../editor/navigator/contracts";
 import { LegacyPromptPaneFactory } from "../editor/navigator/navigator-route-host";
+import { buildNavigatorPanesCSS } from "../editor/rendering/styles/navigator-panes";
 import type { Prompt } from "../editor/prompts/prompt";
 import { NavigatorRuntime, type DetachedPane } from "../editor/navigator/navigator-runtime";
 import { NavigatorShell } from "../editor/navigator/navigator-shell";
@@ -381,8 +382,37 @@ describe("host transfer", () => {
 		ownership.transferHost(token, lease, oldHost);
 		const nextHost: PaneHost = { attach: (value) => transfers.push(value === root ? "attach" : "wrong"), detach: () => {} };
 		ownership.transferHost(token, ownership.transferHost(token, { generation: lease.generation + 1 } as HostLease, host), nextHost);
-		expect(effects).toEqual(["mount"]);
+		expect(effects).toEqual([
+			"mount", "suspend", "resume", "suspend", "resume", "suspend", "resume",
+		]);
 		expect(transfers).toEqual(["detach", "attach"]);
+	});
+
+	test("resume failure rolls root and lease back to original host", () => {
+		const effects: string[] = [];
+		const ownership = new PaneOwnership();
+		const pane = owner("pane", effects);
+		let resumeCalls = 0;
+		pane.lifecycle.resume = () => {
+			resumeCalls++;
+			if (resumeCalls === 1) throw new Error("resume failed");
+		};
+		const token = ownership.open(pane);
+		const oldRoots: unknown[] = [];
+		const newRoots: unknown[] = [];
+		const oldHost: PaneHost = {
+			attach: (value) => oldRoots.push(value),
+			detach: (value) => oldRoots.splice(oldRoots.indexOf(value), 1),
+		};
+		const newHost: PaneHost = {
+			attach: (value) => newRoots.push(value),
+			detach: (value) => newRoots.splice(newRoots.indexOf(value), 1),
+		};
+		const lease = ownership.mount(token, oldHost)!;
+		expect(() => ownership.transferHost(token, lease, newHost)).toThrow("resume failed");
+		expect(oldRoots).toEqual([root]);
+		expect(newRoots).toEqual([]);
+		expect(ownership.suspend(token, lease)).toBeTrue();
 	});
 });
 
@@ -498,6 +528,54 @@ describe("navigator runtime", () => {
 		expect(await runtime.closeNavigator()).toBeTrue();
 	});
 
+	test("forced detached close removes dirty unreachable ownership", async () => {
+		resetDocument();
+		const effects: string[] = [];
+		const runtime = new NavigatorRuntime(new NavigatorShell(), (route) => {
+			const result = runtimeOwner(route, effects);
+			result.lifecycle.requestClose = () => "keep-open";
+			return result;
+		});
+		await runtime.open({ paneId: "first" });
+		let forceClose: (() => Promise<void>) | null = null;
+		await runtime.detach((owner, _host, close, force) => {
+			forceClose = force;
+			return { identity: owner.identity, focus: owner.focus, close };
+		}, new NavigatorShell());
+		await forceClose!();
+		expect(runtime.findDetached({ paneId: "first" })).toBeNull();
+		expect(effects).toContain("dispose:first");
+	});
+
+	test("detached in-pane close uses detached authority", async () => {
+		resetDocument();
+		const effects: string[] = [];
+		let inPaneClose: (() => Promise<boolean>) | null = null;
+		const runtime = new NavigatorRuntime(new NavigatorShell(), (route) => {
+			const result = runtimeOwner(route, effects);
+			result.bindCloseAuthority = (close) => { inPaneClose = close; };
+			return result;
+		});
+		await runtime.open({ paneId: "first" });
+		let windowClosed = false;
+		await runtime.detach((owner, _host, close) => ({
+			identity: owner.identity,
+			focus: owner.focus,
+			close: async () => {
+				const closed = await close();
+				windowClosed = closed;
+				return closed;
+			},
+		}), new NavigatorShell());
+		await runtime.open({ paneId: "second" });
+		expect(await inPaneClose!()).toBeTrue();
+		expect(runtime.findDetached({ paneId: "first" })).toBeNull();
+		expect(await runtime.closeNavigator()).toBeTrue();
+		expect(effects).toContain("dispose:first");
+		expect(effects).toContain("dispose:second");
+		expect(windowClosed).toBeTrue();
+	});
+
 	test("existing detached route focuses without constructing duplicate", async () => {
 		resetDocument();
 		const effects: string[] = [];
@@ -522,6 +600,53 @@ describe("navigator runtime", () => {
 		await runtime.open({ paneId: "first", context: { channel: 1 } });
 		expect(factoryCalls).toBe(1);
 		expect(effects).toEqual(["mount:first", "focus:first"]);
+	});
+
+	test("denied replacement disposes the rejected owner", async () => {
+		resetDocument();
+		const effects: string[] = [];
+		const runtime = new NavigatorRuntime(new NavigatorShell(), (route) => {
+			const next = runtimeOwner(route, effects);
+			if (route.paneId === "first") next.lifecycle.requestLeave = () => "deny";
+			return next;
+		});
+		await runtime.open({ paneId: "first" });
+		await runtime.open({ paneId: "second" });
+		expect(effects).toEqual(["mount:first", "dispose:second"]);
+	});
+});
+
+describe("native navigator extraction", () => {
+	test("shell exposes titlebar drag and explicit detach control", () => {
+		let detached = false;
+		const shell = new NavigatorShell("Navigator", () => { detached = true; });
+		const titlebar = shell.container.querySelector<HTMLElement>(".navigator-titlebar");
+		const button = shell.container.querySelector<HTMLButtonElement>(".navigator-detach-button");
+		expect(titlebar).not.toBeNull();
+		expect(button?.title).toBe("Detach Navigator");
+		button?.click();
+		expect(detached).toBeTrue();
+	});
+
+	test("instrument tags share the canonical browser identity", () => {
+		expect(canonicalRouteIdentity({ paneId: "instrumentTags" })).toBe(
+			canonicalRouteIdentity({ paneId: "instrumentBrowser" }),
+		);
+	});
+
+	test("legacy prompt manager no longer constructs extracted domains", async () => {
+		const source = await Bun.file("editor/core/prompt-manager.ts").text();
+		expect(source).not.toContain('case "instrumentBrowser":');
+		expect(source).not.toContain('case "instrumentTags":');
+		expect(source).not.toContain('case "addExternal":');
+		expect(source).not.toContain('case "channelVolumeVisualizer":');
+	});
+
+	test("domain CSS supports attached and detached native panes", () => {
+		const css = buildNavigatorPanesCSS();
+		expect(css).toContain(".navigator-native-pane");
+		expect(css).toContain(".navigator-detached-host");
+		expect(css).toContain("height: 100%");
 	});
 });
 

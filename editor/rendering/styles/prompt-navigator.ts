@@ -17,10 +17,22 @@ export function buildNavigatorCSS(): string {
 	backdrop-filter: blur(24px);
 	color: var(--primary-text);
 }
+.beepboxEditor .navigator-titlebar {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: var(--gap-md);
+	cursor: move;
+	user-select: none;
+}
 .beepboxEditor .navigator-title {
 	margin: 0;
 	font-size: 20px;
 	font-weight: 600;
+}
+.beepboxEditor .navigator-detach-button {
+	flex: 0 0 auto;
+	cursor: pointer;
 }
 .beepboxEditor .navigator-pane-host {
 	min-height: 0;
