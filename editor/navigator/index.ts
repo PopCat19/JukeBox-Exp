@@ -6,3 +6,4 @@ export * from "./navigator-runtime";
 export * from "./navigator-shell";
 export * from "./ownership";
 export * from "./route-identity";
+export * from "./workspace-runtime";

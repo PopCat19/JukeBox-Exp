@@ -10,6 +10,7 @@ Purpose: Defines navigator contracts, persistent shell, runtime, and identity ow
 - `instrument-browser-pane.ts` - Standalone instrument browser pane wrapper
 - `contracts.ts` - Pane lifecycle, decisions, commands, and retained-state contracts
 - `route-identity.ts` - Canonical finite-JSON pane route identity
+- `workspace-runtime.ts` - Transactional aggregate ownership for canonical child panes
 - `route-catalog.ts` - Authoritative dashboard groups, route labels, composition metadata, and Other tools derivation
 - `ownership.ts` - Generation-safe ownership for one live pane
 - `navigator-runtime.ts` - Serialized attached and detached pane coordination
