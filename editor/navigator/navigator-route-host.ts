@@ -77,8 +77,8 @@ export class LegacyPromptPaneFactory implements ImportFileTransientSink {
 				this.prompts.disposeNavigatorPrompt(prompt);
 				if (this.importPrompt === prompt) this.importPrompt = null;
 			},
-			requestLeave: () => "allow",
-			requestClose: () => "close",
+			requestLeave: () => (prompt.requestPaneLeave?.() === false ? "deny" : "allow"),
+			requestClose: () => (prompt.requestPaneClose?.() === false ? "keep-open" : "close"),
 			captureRetainedState: (): SerializableValue => route.context ?? null,
 		};
 		return {

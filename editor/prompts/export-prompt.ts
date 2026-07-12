@@ -21,13 +21,21 @@ import { save } from "./save";
 
 const { div, h2, input, select, option } = HTML;
 
-declare const OFFLINE: boolean;
+export function getExportPaneAuthority(state: { outputStarted: boolean; keepOpen: boolean }): {
+	allowLeave: boolean;
+	allowClose: boolean;
+} {
+	return {
+		allowLeave: !state.outputStarted,
+		allowClose: !state.keepOpen,
+	};
+}
 
 export class ExportPrompt extends BasePrompt {
 	private synth: Synth;
 	private thenExportTo: string;
-	private recordedSamplesL: Float32Array;
-	private recordedSamplesR: Float32Array;
+	private recordedSamplesL: Float32Array = new Float32Array(0);
+	private recordedSamplesR: Float32Array = new Float32Array(0);
 	private sampleFrames: number;
 	private totalChunks: number;
 	private currentChunk: number;
@@ -221,8 +229,33 @@ export class ExportPrompt extends BasePrompt {
 		}
 	};
 
+	public requestPaneLeave(): boolean {
+		return getExportPaneAuthority({
+			outputStarted: this.outputStarted,
+			keepOpen: this._keepOpen.checked,
+		}).allowLeave;
+	}
+
+	public requestPaneClose(): boolean {
+		return getExportPaneAuthority({
+			outputStarted: this.outputStarted,
+			keepOpen: this._keepOpen.checked,
+		}).allowClose;
+	}
+
+	private _cancelRendering(): void {
+		if (this.synth != null) this.synth.renderingSong = false;
+		this.outputStarted = false;
+		this.recordedSamplesL = new Float32Array(0);
+		this.recordedSamplesR = new Float32Array(0);
+		this.sampleFrames = 0;
+		this.totalChunks = 0;
+		this.currentChunk = 0;
+	}
+
 	public override cleanUp(): void {
 		super.cleanUp();
+		this._cancelRendering();
 		this._fileName.removeEventListener("input", ExportPrompt._validateFileName);
 		this._loopDropDown.removeEventListener("blur", ExportPrompt._validateNumber);
 	}

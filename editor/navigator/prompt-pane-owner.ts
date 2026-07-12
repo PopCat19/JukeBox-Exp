@@ -8,7 +8,6 @@ import { canonicalRouteIdentity } from "./route-identity";
 export interface PanePrompt extends Prompt {
 	suspendPane?(): void;
 	resumePane?(): void;
-	requestPaneClose?(): boolean;
 	capturePaneState?(): SerializableValue;
 }
 
@@ -65,7 +64,7 @@ export function createPromptPaneOwner(
 		dispose: () => {
 			prompt.cleanUp();
 		},
-		requestLeave: () => (prompt.requestPaneClose?.() === false ? "deny" : "allow"),
+		requestLeave: () => (prompt.requestPaneLeave?.() === false ? "deny" : "allow"),
 		requestClose: () => (prompt.requestPaneClose?.() === false ? "keep-open" : "close"),
 		captureRetainedState: () => prompt.capturePaneState?.() ?? route.context ?? null,
 	};

@@ -21,6 +21,8 @@ export interface Prompt {
 	closeCallback?: ((prompt: Prompt) => void) | undefined;
 	openAlongsideCallback?: ((promptName: string) => void) | undefined;
 	animateExit?: ((callback: () => void) => void) | undefined;
+	requestPaneLeave?: (() => boolean) | undefined;
+	requestPaneClose?: (() => boolean) | undefined;
 	// Number of times the manager has routed an 'open' call to
 	// this prompt. The first invocation (spawn) is count 1, the
 	// second is count 2, etc. Used to suppress the 88x 'raise'

@@ -303,9 +303,21 @@ export class AddSamplesPrompt extends BasePrompt {
 		}, 100);
 	}
 
-	public requestPaneClose(): boolean {
-		if (generateAllSampleURLs(this._entries) === this._baselineEntries) return true;
+	private _hasUnsavedSampleChanges(): boolean {
+		return generateAllSampleURLs(this._entries) !== this._baselineEntries;
+	}
+
+	private _requestDiscardUnsavedSampleChanges(): boolean {
+		if (!this._hasUnsavedSampleChanges()) return true;
 		return window.confirm("Discard unsaved sample changes?");
+	}
+
+	public requestPaneLeave(): boolean {
+		return this._requestDiscardUnsavedSampleChanges();
+	}
+
+	public requestPaneClose(): boolean {
+		return this._requestDiscardUnsavedSampleChanges();
 	}
 
 	public capturePaneState(): string {

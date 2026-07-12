@@ -12,6 +12,7 @@ import { isSerializableValue, validateRetainedState } from "../editor/navigator/
 import { LegacyPromptPaneFactory } from "../editor/navigator/navigator-route-host";
 import { buildNavigatorPanesCSS } from "../editor/rendering/styles/navigator-panes";
 import { buildPromptExportCSS } from "../editor/rendering/styles/prompt-export";
+import { getExportPaneAuthority } from "../editor/prompts/export-prompt";
 import type { Prompt } from "../editor/prompts/prompt";
 import { NavigatorRuntime, type DetachedPane } from "../editor/navigator/navigator-runtime";
 import { NavigatorShell } from "../editor/navigator/navigator-shell";
@@ -870,6 +871,8 @@ describe("navigator shell", () => {
 		let current: Prompt | null = null;
 		let navigatorClaimed = false;
 		let keyCount = 0;
+		let allowLeave = false;
+		let leaveRequests = 0;
 		const prompts = {
 			open: (scope: string) => {
 				const container = document.createElement("article");
@@ -889,6 +892,10 @@ describe("navigator shell", () => {
 					cleanUp: () => effects.push(`cleanup:${scope}`),
 					discard: () => effects.push(`discard:${scope}`),
 					whenKeyPressed: () => { keyCount++; },
+					requestPaneLeave: () => {
+						leaveRequests++;
+						return allowLeave;
+					},
 				};
 			},
 			get prompt(): Prompt | null { return current; },
@@ -929,10 +936,22 @@ describe("navigator shell", () => {
 		root?.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", bubbles: true }));
 		expect(keyCount).toBe(1);
 		await runtime.open({ paneId: "instrumentTags" });
+		expect(shell.container.textContent).toContain("domain:export");
+		expect(leaveRequests).toBe(1);
+		allowLeave = true;
+		await runtime.open({ paneId: "instrumentTags" });
 		expect(shell.container.textContent).toContain("domain:instrumentTags");
-		expect(effects).toEqual(["discard:export", "cleanup:export"]);
+		expect(leaveRequests).toBe(2);
+		expect(effects).toEqual([
+			"discard:instrumentTags",
+			"cleanup:instrumentTags",
+			"discard:export",
+			"cleanup:export",
+		]);
 		expect(await runtime.closeNavigator()).toBeTrue();
 		expect(effects).toEqual([
+			"discard:instrumentTags",
+			"cleanup:instrumentTags",
 			"discard:export",
 			"cleanup:export",
 			"discard:instrumentTags",
@@ -1016,5 +1035,75 @@ describe("branded owner operations", () => {
 		const token = ownership.open(pane);
 		expect(token.identity).toBe(pane.identity);
 		expect(typeof token.identity).toBe("string");
+	});
+});
+
+describe("prompt pane authority", () => {
+	function promptWithAuthority(
+		leave: boolean | undefined,
+		close: boolean | undefined,
+	): Prompt {
+		return {
+			id: 1,
+			container: document.createElement("div"),
+			cleanUp: () => {},
+			discard: () => {},
+			requestPaneLeave: leave === undefined ? undefined : () => leave,
+			requestPaneClose: close === undefined ? undefined : () => close,
+		};
+	}
+
+	test("native prompt adapter keeps leave and close decisions separate", () => {
+		const owner = createPromptPaneOwner(
+			{ paneId: "export" },
+			promptWithAuthority(false, true),
+			() => Promise.resolve(true),
+			() => Promise.resolve(),
+		);
+		expect(owner.lifecycle.requestLeave()).toBe("deny");
+		expect(owner.lifecycle.requestClose()).toBe("close");
+	});
+
+	test("native prompt adapter defaults missing authority to allow and close", () => {
+		const owner = createPromptPaneOwner(
+			{ paneId: "import" },
+			promptWithAuthority(undefined, undefined),
+			() => Promise.resolve(true),
+			() => Promise.resolve(),
+		);
+		expect(owner.lifecycle.requestLeave()).toBe("allow");
+		expect(owner.lifecycle.requestClose()).toBe("close");
+	});
+
+	test("export authority covers active rendering and keep-open independently", () => {
+		expect(getExportPaneAuthority({ outputStarted: false, keepOpen: false })).toEqual({
+			allowLeave: true,
+			allowClose: true,
+		});
+		expect(getExportPaneAuthority({ outputStarted: true, keepOpen: false })).toEqual({
+			allowLeave: false,
+			allowClose: true,
+		});
+		expect(getExportPaneAuthority({ outputStarted: false, keepOpen: true })).toEqual({
+			allowLeave: true,
+			allowClose: false,
+		});
+		expect(getExportPaneAuthority({ outputStarted: true, keepOpen: true })).toEqual({
+			allowLeave: false,
+			allowClose: false,
+		});
+	});
+
+	test("export cleanup source contract retains release operations", async () => {
+		const source = await Bun.file("editor/prompts/export-prompt.ts").text();
+		expect(source).toContain("this.recordedSamplesL = new Float32Array(0);");
+		expect(source).toContain("this.recordedSamplesR = new Float32Array(0);");
+		expect(source).toContain("if (this.synth != null) this.synth.renderingSong = false;");
+	});
+
+	test("add samples uses one dirty decision path for leave and close", async () => {
+		const source = await Bun.file("editor/prompts/add-samples-prompt.ts").text();
+		expect(source.match(/return this\._requestDiscardUnsavedSampleChanges\(\);/g)?.length).toBe(2);
+		expect(source.match(/window\.confirm\("Discard unsaved sample changes\?"\)/g)?.length).toBe(1);
 	});
 });
