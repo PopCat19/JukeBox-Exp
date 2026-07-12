@@ -678,6 +678,9 @@ describe("native navigator extraction", () => {
 		const css = buildNavigatorPanesCSS();
 		expect(css).toMatch(/\.navigator-pane-host > \.navigator-native-pane \{[^}]*position: static !important[^}]*width: 100% !important[^}]*min-height: 0[^}]*background: transparent !important[^}]*backdrop-filter: none !important[^}]*-webkit-backdrop-filter: none !important/s);
 		expect(css).not.toMatch(/\.navigator-pane-host > \.navigator-native-pane \{[^}]*min-height: 100%/s);
+		expect(css).toMatch(/\.navigator-pane-host > \.navigator-native-pane:hover \{[^}]*outline: none;/s);
+		expect(css).not.toMatch(/\.navigator-detached-content > \.navigator-native-pane:hover \{[^}]*outline: none;/s);
+		expect(css).not.toMatch(/\.navigator-pane-host[^,{]*[> ](?:button|\.selectableRow):hover/);
 		expect(css).toMatch(/\.navigator-detached-content > \.navigator-native-pane \{[^}]*min-height: 100%/s);
 		expect(css).toContain(".navigator-native-pane > .prompt-titlebar");
 		expect(css).toContain("display: none !important");

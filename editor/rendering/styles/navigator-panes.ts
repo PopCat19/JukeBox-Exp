@@ -36,6 +36,9 @@ export function buildNavigatorPanesCSS(): string {
 	backdrop-filter: none !important;
 	-webkit-backdrop-filter: none !important;
 }
+.beepboxEditor .navigator-pane-host > .navigator-native-pane:hover {
+	outline: none;
+}
 .beepboxEditor .navigator-detached-content > .navigator-native-pane {
 	position: static !important;
 	inset: auto !important;
