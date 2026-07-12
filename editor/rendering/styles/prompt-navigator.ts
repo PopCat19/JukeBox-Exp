@@ -65,17 +65,6 @@ export function buildNavigatorCSS(): string {
 .beepboxEditor .navigator-route-search { box-sizing: border-box; width: 100%; }
 .beepboxEditor .navigator-route-list { display: flex; flex-direction: column; gap: 12px; overflow: auto; }
 .beepboxEditor .navigator-route-group { display: flex; flex-direction: column; gap: 4px; }
-.beepboxEditor .navigator-route-split { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px; }
-.beepboxEditor .navigator-route-tab-strip { display: flex; min-width: 0; border-bottom: 1px solid var(--secondary-text); }
-.beepboxEditor .navigator-route-tab-item {
-	flex: 1 1 0;
-	min-width: 0;
-	border-radius: 0;
-	background: transparent;
-	outline-offset: -2px;
-	text-align: center;
-}
-.beepboxEditor .navigator-route-tab-item.active { border-bottom: 2px solid var(--hout, var(--primary-text)); }
 .beepboxEditor .navigator-route-group-title {
 	margin: 0;
 	padding: 4px 8px;
@@ -116,8 +105,6 @@ export function buildNavigatorCSS(): string {
 	.beepboxEditor .navigator-route-list { flex-direction: row; gap: 12px; overflow-x: auto; }
 	.beepboxEditor .navigator-route-group { flex: 0 0 auto; flex-direction: row; align-items: center; }
 	.beepboxEditor .navigator-route-group-title { position: sticky; left: 0; background: var(--editor-background); }
-	.beepboxEditor .navigator-route-split { display: flex; flex-direction: column; }
-	.beepboxEditor .navigator-route-tab-strip { flex: 0 0 auto; }
 	.beepboxEditor .navigator-route { flex: 0 0 auto; white-space: nowrap; }
 }
 `;

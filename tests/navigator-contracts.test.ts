@@ -747,11 +747,9 @@ describe("navigator shell", () => {
 		expect(sharedCSS).toMatch(/\.selectableRow\.active \{[^}]*font-weight: 600/s);
 		expect(css).toMatch(/\.navigator-detach-button,[^}]*min-width: 40px[^}]*min-height: 40px/s);
 		expect(css).toContain("@media (max-width: 639px)");
-		expect(css).toMatch(/\.navigator-route-split \{[^}]*display: grid[^}]*grid-template-columns: repeat\(2, minmax\(0, 1fr\)\)/s);
-		expect(css).toMatch(/\.navigator-route-tab-strip \{[^}]*display: flex[^}]*border-bottom:/s);
-		expect(css).toMatch(/\.navigator-route-tab-item\.active \{[^}]*border-bottom: 2px solid/s);
+		expect(css).not.toContain("navigator-route-split");
+		expect(css).not.toContain("navigator-route-tab");
 		expect(css).toMatch(/@media \(max-width: 639px\)[\s\S]*\.navigator-route-list \{[^}]*flex-direction: row[^}]*overflow-x: auto/);
-		expect(css).toMatch(/@media \(max-width: 639px\)[\s\S]*\.navigator-route-split \{[^}]*display: flex[^}]*flex-direction: column/);
 		expect(css).not.toMatch(/box-shadow|linear-gradient|radial-gradient/);
 		expect(css).toMatch(/\.navigator-pane-host \{[^}]*min-height: 0[^}]*overflow: auto/s);
 	});
@@ -766,19 +764,18 @@ describe("navigator shell", () => {
 		expect(Array.from(shell.container.querySelectorAll(".navigator-route-group-title"), (heading) => heading.textContent)).toEqual([
 			"File Config", "Song Config", "Pattern Config", "Track Config", "Visual Config", "Focused Instr. Config", "Other tools",
 		]);
-		const fileGroup = shell.container.querySelectorAll(".navigator-route-group")[0];
-		const fileSplit = fileGroup.querySelector(".navigator-route-split");
-		expect(fileSplit?.children.length).toBe(2);
-		expect(fileSplit?.children[0].textContent).toBe("Import");
-		expect(Array.from(fileSplit?.children[1].querySelectorAll(".navigator-route-tab-item") ?? [], (tab) => tab.textContent)).toEqual(["Export", "Recover Song"]);
-		const visualGroup = shell.container.querySelectorAll(".navigator-route-group")[4];
-		expect(Array.from(visualGroup.querySelectorAll(".navigator-route-tab-strip .navigator-route-tab-item"), (tab) => tab.textContent)).toEqual(["Theme", "Custom Theme", "Custom Theme Raw"]);
+		const groups = shell.container.querySelectorAll(".navigator-route-group");
+		expect(Array.from(groups[0].querySelectorAll(".navigator-route"), (button) => button.textContent)).toEqual([
+			"Import", "Export", "Recover Song", "Add Samples", "Shortener Config",
+		]);
+		expect(Array.from(groups[4].querySelectorAll(".navigator-route"), (button) => button.textContent)).toEqual([
+			"Channel Visualizer", "Layout", "Theme", "Custom Theme", "Custom Theme Raw",
+		]);
+		expect(Array.from(groups[5].querySelectorAll(".navigator-route"), (button) => button.textContent).slice(0, 2)).toEqual([
+			"Import Instrument", "Export Instrument",
+		]);
+		expect(shell.container.querySelector(".navigator-route-split, .navigator-route-tab-strip, .navigator-route-tab-item")).toBeNull();
 		expect(shell.container.querySelector("[role='tablist'], [role='tab'], [aria-selected]")).toBeNull();
-		const focusedGroup = shell.container.querySelectorAll(".navigator-route-group")[5];
-		expect(Array.from(focusedGroup.querySelectorAll(".navigator-route-split > .navigator-route"), (button) => button.textContent)).toEqual(["Import Instrument", "Export Instrument"]);
-		expect(shell.container.querySelector(".navigator-route-separator")).toBeNull();
-		fileSplit?.dispatchEvent(new Event("click"));
-		expect(opened).toBe("");
 		const routeLabels = Array.from(shell.container.querySelectorAll(".navigator-route"), (route) => route.textContent ?? "");
 		expect(routeLabels).toContain("Custom Chip Settings");
 		expect(routeLabels).toContain("Custom EQ Filter Settings");

@@ -2,12 +2,7 @@
 
 import { inputRow, searchInput, selectableRow, setSelectableRowActive } from "../ui";
 import type { PaneHost, PaneRoot } from "./contracts";
-import {
-	catalogItemRoutes,
-	type NavigatorCatalogItem,
-	navigatorOtherRoutes,
-	navigatorRouteCatalog,
-} from "./route-catalog";
+import { catalogItemRoutes, navigatorOtherRoutes, navigatorRouteCatalog } from "./route-catalog";
 
 export interface NavigatorRoute {
 	readonly id: string;
@@ -176,50 +171,23 @@ export class NavigatorShell implements PaneHost {
 			heading.textContent = category;
 			group.append(heading);
 			const catalogGroup = navigatorRouteCatalog.find((entry) => entry.title === category);
-			if (catalogGroup === undefined) {
-				for (const route of matches) group.append(this.createRouteButton(route));
-			} else {
-				for (const item of catalogGroup.items) {
-					const rendered = this.renderCatalogItem(item, matches);
-					if (rendered !== null) group.append(rendered);
-				}
-			}
+			const orderedMatches =
+				catalogGroup === undefined
+					? matches
+					: catalogGroup.items
+							.flatMap(catalogItemRoutes)
+							.flatMap((itemRoute) =>
+								matches.filter((candidate) => candidate.id === itemRoute.id),
+							);
+			for (const route of orderedMatches) group.append(this.createRouteButton(route));
 			this.routeList.append(group);
 		}
 	}
 
-	private renderCatalogItem(
-		item: NavigatorCatalogItem,
-		matches: readonly NavigatorRoute[],
-	): HTMLElement | null {
-		if (item.kind === "route") {
-			const route = matches.find((candidate) => candidate.id === item.route.id);
-			return route === undefined ? null : this.createRouteButton(route);
-		}
-		const children: HTMLElement[] = [];
-		if (item.kind === "tabs") {
-			for (const itemRoute of item.routes) {
-				const route = matches.find((candidate) => candidate.id === itemRoute.id);
-				if (route !== undefined) children.push(this.createRouteButton(route, true));
-			}
-		} else {
-			for (const slot of item.slots) {
-				const child = this.renderCatalogItem(slot, matches);
-				if (child !== null) children.push(child);
-			}
-		}
-		if (children.length === 0) return null;
-		const container = document.createElement("div");
-		container.className =
-			item.kind === "tabs" ? "navigator-route-tab-strip" : "navigator-route-split";
-		container.append(...children);
-		return container;
-	}
-
-	private createRouteButton(route: NavigatorRoute, tab = false): HTMLButtonElement {
+	private createRouteButton(route: NavigatorRoute): HTMLButtonElement {
 		const button = document.createElement("button");
 		button.type = "button";
-		button.className = tab ? "navigator-route navigator-route-tab-item" : "navigator-route";
+		button.className = "navigator-route";
 		button.dataset.routeId = route.id;
 		button.textContent = route.title;
 		const active = route.id === this.activeRouteId;
