@@ -15,6 +15,6 @@ Purpose: Defines navigator contracts, persistent shell, runtime, and identity ow
 - `navigator-route-host.ts` - Transitional adapter owning legacy Prompt roots and typed transient import delivery
 - `native-panes.ts` - Native pane domain routing
 - `navigator-detached-host.ts` - Same-origin detached window host and close coordination
-- `prompt-pane-owner.ts` - Shared prompt-root lifecycle adapter for extracted pane wrappers
-- `navigator-shell.ts` - Persistent PMD pane host shell
+- `prompt-pane-owner.ts` - Native content-root extraction and shared prompt lifecycle adapter
+- `navigator-shell.ts` - Searchable PMD route workspace and attached pane host
 - `index.ts` - Navigator contract barrel

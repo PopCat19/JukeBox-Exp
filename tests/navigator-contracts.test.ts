@@ -16,6 +16,7 @@ import { NavigatorRuntime, type DetachedPane } from "../editor/navigator/navigat
 import { NavigatorShell } from "../editor/navigator/navigator-shell";
 import { buildNavigatorCSS } from "../editor/rendering/styles/prompt-navigator";
 import { PaneOwnership, type PaneOwner } from "../editor/navigator/ownership";
+import { createPromptPaneOwner } from "../editor/navigator/prompt-pane-owner";
 import { canonicalRouteIdentity, type PaneIdentity } from "../editor/navigator/route-identity";
 
 if (!GlobalRegistrator.isRegistered) GlobalRegistrator.register();
@@ -642,30 +643,77 @@ describe("native navigator extraction", () => {
 		expect(source).not.toContain('case "channelVolumeVisualizer":');
 	});
 
-	test("domain CSS contains attached native panes without changing legacy prompts", () => {
-		const css = buildNavigatorPanesCSS();
-		expect(css).toMatch(
-			/\.navigator-pane-host > \.navigator-native-pane \{[^}]*position: static !important[^}]*inset: auto !important[^}]*width: 100% !important[^}]*max-width: 100%[^}]*height: auto[^}]*min-height: 100%[^}]*overflow: visible/s,
+	test("native pane owner extracts legacy chrome and fixed geometry", () => {
+		const container = document.createElement("div");
+		container.className = "prompt fill-y shaded docked compactSearchPrompt";
+		container.style.cssText = "width:800px;max-height:90%;position:fixed;transform:translateX(1px)";
+		const titlebar = document.createElement("div");
+		titlebar.className = "prompt-titlebar";
+		const cancel = document.createElement("button");
+		cancel.className = "cancelButton";
+		container.append(titlebar, cancel, document.createElement("input"));
+		createPromptPaneOwner(
+			{ paneId: "instrumentBrowser" },
+			{ id: 1, name: "", container, cleanUp: () => {}, discard: () => {} },
+			() => Promise.resolve(true),
+			() => Promise.resolve(),
 		);
-		expect(css).not.toMatch(/\.beepboxEditor \.navigator-native-pane \{/);
+		expect(container.classList.contains("prompt")).toBeTrue();
+		expect(container.classList.contains("compactSearchPrompt")).toBeTrue();
+		expect(container.querySelector(":scope > .prompt-titlebar")).toBeNull();
+		expect(container.querySelector(":scope > .cancelButton")).toBeNull();
+		expect(container.style.width).toBe("");
+		expect(container.style.maxHeight).toBe("");
+		expect(container.style.position).toBe("");
+		expect(container.style.transform).toBe("");
 	});
 
-	test("domain CSS preserves detached native pane sizing", () => {
+	test("domain CSS flattens attached legacy chrome and geometry", () => {
 		const css = buildNavigatorPanesCSS();
-		expect(css).toMatch(
-			/\.navigator-detached-host > \.navigator-native-pane \{[^}]*width: 100%[^}]*height: 100%[^}]*max-height: none/s,
-		);
+		expect(css).toMatch(/\.navigator-pane-host > \.navigator-native-pane,[^{]*\{[^}]*position: static !important[^}]*width: 100% !important[^}]*max-height: none !important[^}]*background: transparent !important/s);
+		expect(css).toContain(".navigator-native-pane > .prompt-titlebar");
+		expect(css).toContain("display: none !important");
+	});
+
+	test("domain CSS gives detached panes a thin title wrapper", () => {
+		const css = buildNavigatorPanesCSS();
+		expect(css).toContain(".navigator-detached-titlebar");
+		expect(css).toContain(".navigator-detached-content > .navigator-native-pane");
 	});
 });
 
 describe("navigator shell", () => {
-	test("bounds and clips mounted panes while the host owns scrolling", () => {
+	test("uses the bounded desktop workspace and responsive route strip", () => {
 		const css = buildNavigatorCSS();
-		expect(css).toContain("height: min(720px, calc(100vh - 32px))");
-		expect(css).toContain("max-width: calc(100vw - 32px)");
-		expect(css).toMatch(/\.navigator-shell \{[^}]*overflow: hidden/s);
-		expect(css).toMatch(/\.navigator-titlebar \{[^}]*flex: 0 0 auto/s);
-		expect(css).toMatch(/\.navigator-pane-host \{[^}]*flex: 1 1 auto[^}]*min-height: 0[^}]*overflow: auto/s);
+		expect(css).toContain("width: min(880px, calc(100vw - 32px))");
+		expect(css).toContain("height: min(640px, calc(100vh - 32px))");
+		expect(css).toContain("grid-template-columns: 184px minmax(0, 1fr)");
+		expect(css).toContain("@media (max-width: 639px)");
+		expect(css).not.toMatch(/box-shadow|linear-gradient|radial-gradient/);
+		expect(css).toMatch(/\.navigator-pane-host \{[^}]*min-height: 0[^}]*overflow: auto/s);
+	});
+
+	test("searches routes and invokes canonical route navigation", () => {
+		Object.defineProperty(globalThis, "document", { configurable: true, value: new Window().document });
+		let opened = "";
+		let closed = false;
+		const shell = new NavigatorShell("Navigator", undefined, () => { closed = true; }, (id) => { opened = id; });
+		const search = shell.container.querySelector<HTMLInputElement>(".navigator-route-search");
+		expect(shell.container.querySelectorAll(".navigator-route").length).toBeGreaterThan(30);
+		if (search === null) throw new Error("missing route search");
+		search.value = "sample";
+		search.dispatchEvent(new Event("input"));
+		const route = shell.container.querySelector<HTMLButtonElement>(".navigator-route");
+		expect(route?.textContent).toBe("Add samples");
+		route?.click();
+		expect(opened).toBe("addExternal");
+		const pane = document.createElement("article");
+		pane.dataset.navigatorScope = "addExternal";
+		shell.attach({ element: pane });
+		expect(shell.container.querySelector(".navigator-active-title")?.textContent).toBe("Add samples");
+		expect(route?.getAttribute("aria-current")).toBe("page");
+		shell.container.querySelector<HTMLButtonElement>(".navigator-close-button")?.click();
+		expect(closed).toBeTrue();
 	});
 
 	test("hidden shell stays out of flex layout until a pane mounts", () => {

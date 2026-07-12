@@ -23,7 +23,19 @@ export function createPromptPaneOwner(
 	prompt.closeCallback = () => void closeAuthority();
 	prompt.openAlongsideCallback = (scope) => void openPane(scope);
 	prompt.container.dataset.navigatorScope = route.paneId;
+	prompt.container.classList.remove("fill-y", "shaded", "docked");
 	prompt.container.classList.add("navigator-native-pane");
+	prompt.container.style.removeProperty("width");
+	prompt.container.style.removeProperty("height");
+	prompt.container.style.removeProperty("max-width");
+	prompt.container.style.removeProperty("max-height");
+	prompt.container.style.removeProperty("position");
+	prompt.container.style.removeProperty("inset");
+	prompt.container.style.removeProperty("transform");
+	prompt.container.querySelector(":scope > .prompt-titlebar")?.remove();
+	prompt.container.querySelectorAll(":scope > .cancelButton").forEach((cancelButton) => {
+		cancelButton.remove();
+	});
 	const root = { element: prompt.container };
 	const onKeyDown = (event: KeyboardEvent): void => {
 		if (!event.defaultPrevented) prompt.whenKeyPressed?.(event);

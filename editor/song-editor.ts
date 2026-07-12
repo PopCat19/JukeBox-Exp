@@ -2226,9 +2226,14 @@ export class SongEditor
 		this._instrumentSettingsArea,
 	);
 
-	private readonly _navigatorShell = new NavigatorShell("Navigator", () => {
-		this.popoutCurrentPrompt();
-	});
+	private readonly _navigatorShell = new NavigatorShell(
+		"Navigator",
+		() => {
+			this.popoutCurrentPrompt();
+		},
+		() => void this._navigatorRuntime.closeNavigator(),
+		(scope) => void this._applicationRouter.routePrompt(scope),
+	);
 	public readonly mainLayer: HTMLDivElement = div(
 		{ class: "beepboxEditor", tabIndex: "0" },
 		this._patternArea,

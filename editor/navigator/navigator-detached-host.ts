@@ -6,6 +6,8 @@ import type { PaneOwner } from "./ownership";
 
 export class NavigatorDetachedHost implements PaneHost {
 	private readonly body: HTMLDivElement;
+	private readonly content: HTMLDivElement;
+	private readonly closeButton: HTMLButtonElement;
 	private forceClose: (() => Promise<void>) | null = null;
 	private closing = false;
 
@@ -18,6 +20,19 @@ export class NavigatorDetachedHost implements PaneHost {
 		this.win.document.body.classList.add("beepboxEditor", "navigator-detached-body");
 		this.body = this.win.document.createElement("div");
 		this.body.className = "navigator-detached-host";
+		const titlebar = this.win.document.createElement("div");
+		titlebar.className = "navigator-detached-titlebar";
+		const title = this.win.document.createElement("h2");
+		title.className = "navigator-detached-title";
+		title.textContent = "Navigator";
+		this.closeButton = this.win.document.createElement("button");
+		this.closeButton.type = "button";
+		this.closeButton.setAttribute("aria-label", "Close pane");
+		this.closeButton.textContent = "×";
+		titlebar.append(title, this.closeButton);
+		this.content = this.win.document.createElement("div");
+		this.content.className = "navigator-detached-content";
+		this.body.append(titlebar, this.content);
 		this.win.document.body.append(this.body);
 		this.win.addEventListener("pagehide", () => {
 			if (!this.closing) void this.forceClose?.();
@@ -35,13 +50,22 @@ export class NavigatorDetachedHost implements PaneHost {
 	}
 
 	attach(root: PaneRoot): void {
-		this.body.append(root.element);
+		this.content.append(root.element);
 		root.element.dataset.popout = "true";
+		const routeTitles: Readonly<Record<string, string>> = {
+			instrumentBrowser: "Instrument browser",
+			instrumentTags: "Instrument tags",
+			addExternal: "Add samples",
+			channelVolumeVisualizer: "Channel visualizer",
+		};
+		const routeId = root.element.dataset.navigatorScope ?? "";
+		const title = this.body.querySelector<HTMLElement>(".navigator-detached-title");
+		if (title !== null) title.textContent = routeTitles[routeId] ?? "Navigator";
 	}
 
 	detach(root: PaneRoot): void {
 		root.element.removeAttribute("data-popout");
-		if (root.element.parentNode === this.body) root.element.remove();
+		if (root.element.parentNode === this.content) root.element.remove();
 	}
 
 	bind(
@@ -64,6 +88,7 @@ export class NavigatorDetachedHost implements PaneHost {
 				return closed;
 			},
 		};
+		this.closeButton.addEventListener("click", () => void pane.close());
 		return pane;
 	}
 

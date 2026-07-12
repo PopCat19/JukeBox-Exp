@@ -2,21 +2,16 @@
 
 export function buildNavigatorCSS(): string {
 	return `
-.beepboxEditor .navigator-shell[hidden] {
-	display: none;
-}
+.beepboxEditor .navigator-shell[hidden] { display: none; }
 .beepboxEditor .navigator-shell {
 	display: flex;
 	flex-direction: column;
 	box-sizing: border-box;
-	gap: var(--gap-md);
-	width: min(720px, calc(100vw - 32px));
-	height: min(720px, calc(100vh - 32px));
+	width: min(880px, calc(100vw - 32px));
+	height: min(640px, calc(100vh - 32px));
 	max-width: calc(100vw - 32px);
 	max-height: calc(100vh - 32px);
-	padding: var(--padding-16);
 	overflow: hidden;
-	border-radius: var(--border-radius-large);
 	background: color-mix(in oklch, var(--ui-widget-background) 40%, transparent);
 	backdrop-filter: blur(24px);
 	color: var(--primary-text);
@@ -26,26 +21,57 @@ export function buildNavigatorCSS(): string {
 	flex: 0 0 auto;
 	align-items: center;
 	justify-content: space-between;
-	gap: var(--gap-md);
+	gap: 8px;
+	padding: 8px 12px;
+	background: var(--ui-widget-background);
 	cursor: move;
 	user-select: none;
 }
-.beepboxEditor .navigator-title {
-	margin: 0;
-	font-size: 20px;
-	font-weight: 600;
+.beepboxEditor .navigator-title { margin: 0; font-size: 16px; font-weight: 600; }
+.beepboxEditor .navigator-titlebar-controls { display: flex; gap: 4px; }
+.beepboxEditor .navigator-detach-button,
+.beepboxEditor .navigator-close-button,
+.beepboxEditor .navigator-route { cursor: pointer; font-weight: 500; }
+.beepboxEditor .navigator-content {
+	display: grid;
+	grid-template-columns: 184px minmax(0, 1fr);
+	flex: 1 1 auto;
+	min-height: 0;
 }
-.beepboxEditor .navigator-detach-button {
+.beepboxEditor .navigator-sidebar {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+	min-width: 0;
+	padding: 12px;
+	background: var(--editor-background);
+}
+.beepboxEditor .navigator-route-search { box-sizing: border-box; width: 100%; }
+.beepboxEditor .navigator-route-list { display: flex; flex-direction: column; gap: 4px; overflow: auto; }
+.beepboxEditor .navigator-route { text-align: left; }
+.beepboxEditor .navigator-workspace { display: flex; flex-direction: column; min-width: 0; min-height: 0; }
+.beepboxEditor .navigator-active-title {
 	flex: 0 0 auto;
-	cursor: pointer;
+	margin: 0;
+	padding: 12px;
+	font-size: 14px;
+	font-weight: 600;
+	background: var(--ui-widget-background);
 }
 .beepboxEditor .navigator-pane-host {
 	flex: 1 1 auto;
 	min-width: 0;
 	min-height: 0;
+	padding: 12px;
 	overflow: auto;
 	overscroll-behavior: contain;
 	color: var(--secondary-text);
+}
+@media (max-width: 639px) {
+	.beepboxEditor .navigator-content { display: flex; flex-direction: column; }
+	.beepboxEditor .navigator-sidebar { flex: 0 0 auto; padding: 8px; }
+	.beepboxEditor .navigator-route-list { flex-direction: row; overflow-x: auto; }
+	.beepboxEditor .navigator-route { flex: 0 0 auto; white-space: nowrap; }
 }
 `;
 }
