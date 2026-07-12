@@ -45,6 +45,8 @@ export default tseslint.config(
             "synth/modules/mod/serde.ts",
             // Test files (not scanned by scripts/lint.sh; listed for manual eslint runs)
             "tests/application-router.test.ts",
+            "tests/command-palette.test.ts",
+            "tests/command-registry.test.ts",
             "tests/navigator-contracts.test.ts",
             "tests/css-var-contract.test.ts",
             "tests/interactions-behavior.test.ts",
@@ -99,7 +101,7 @@ export default tseslint.config(
             "tests/examples/community-simple-synth.test.ts",
             "eslint.config.mjs",
           ],
-          maximumDefaultProjectFileMatchCount_THIS_WILL_SLOW_DOWN_LINTING: 30,
+          maximumDefaultProjectFileMatchCount_THIS_WILL_SLOW_DOWN_LINTING: 32,
         },
         tsconfigRootDir: import.meta.dirname,
       },

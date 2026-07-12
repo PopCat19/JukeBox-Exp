@@ -4,6 +4,7 @@
 - `bar-scroll-bar.ts`, Renders and manages the horizontal bar navigation scrollbar
 - `playback-controls.ts`, Playback control buttons and volume visualization
 - `channel-row.ts`, Renders individual channel rows in the track editor view
+- `command-palette.ts`, Runs shared commands from a transient compact keyboard-first palette
 - `editor-layout.ts`, Main editor layout composing pattern, track, and settings areas
 - `effects-panel.ts`, Audio effects controls (ring mod, granular, echo, phaser, etc.)
 - `envelope-editor.ts`, Renders envelope editor UI for instrument automation envelopes

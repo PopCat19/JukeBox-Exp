@@ -90,6 +90,25 @@ describe("application router", () => {
 		expect(manager).toContain('case "export":');
 	});
 
+	test("preserves unknown legacy TipPrompt scopes without unstable command ids", async () => {
+		const opened: PaneRoute[] = [];
+		const router = new ApplicationRouter({
+			openGlobal: () => {},
+			navigator: {
+				open: (route) => { opened.push(route); return Promise.resolve(); },
+				focus: () => {},
+			},
+		});
+		for (const scope of ["algorithm", "pitchRange", "modChannel"]) {
+			await router.routePrompt(scope);
+		}
+		expect(opened).toEqual([
+			{ paneId: "algorithm" },
+			{ paneId: "pitchRange" },
+			{ paneId: "modChannel" },
+		]);
+	});
+
 	test("key, menu, label, and context funnels converge on routePrompt", () => {
 		const songEditor = readFileSync("editor/song-editor.ts", "utf8");
 		const keyboard = readFileSync("editor/core/keyboard-handler.ts", "utf8");

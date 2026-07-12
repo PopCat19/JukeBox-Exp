@@ -43,6 +43,18 @@ const log = makeLogger("keys");
 
 declare const OFFLINE: boolean;
 
+export type SlashShortcutAction = "palette" | "shortcuts" | "prevent-default" | "ignore";
+
+export function resolveSlashShortcut(options: {
+	readonly canPlayNotes: boolean;
+	readonly hasPrompt: boolean;
+	readonly shiftKey: boolean;
+}): SlashShortcutAction {
+	if (options.canPlayNotes) return "ignore";
+	if (options.hasPrompt) return "prevent-default";
+	return options.shiftKey ? "shortcuts" : "palette";
+}
+
 export interface KeyboardHandlerHost {
 	doc: SongDocument;
 	patternEditor: PatternEditor;
@@ -86,6 +98,7 @@ export interface KeyboardHandlerHost {
 	closePrompt(prompt: Prompt | null): void;
 	openPresetSelector(): void;
 	openShortcuts(): void;
+	openCommandPalette(): void;
 	copyInstrument(): void;
 	pasteInstrument(): void;
 	randomPreset(): void;
@@ -209,7 +222,8 @@ export class KeyboardHandler {
 			event.target instanceof HTMLInputElement ||
 			event.target instanceof HTMLTextAreaElement ||
 			event.target instanceof HTMLSelectElement ||
-			event.target instanceof HTMLButtonElement
+			event.target instanceof HTMLButtonElement ||
+			(event.target instanceof HTMLElement && event.target.isContentEditable)
 		) {
 			return;
 		}
@@ -1122,13 +1136,19 @@ export class KeyboardHandler {
 				);
 				event.preventDefault();
 				break;
-			case 191: // /?
-				if (canPlayNotes) break;
-				if (event.shiftKey) {
-					host.openShortcuts();
-					event.preventDefault();
-				}
+			case 191: {
+				// /?
+				const action = resolveSlashShortcut({
+					canPlayNotes,
+					hasPrompt: host.prompt !== null,
+					shiftKey: event.shiftKey,
+				});
+				if (action === "ignore") break;
+				event.preventDefault();
+				if (action === "shortcuts") host.openShortcuts();
+				if (action === "palette") host.openCommandPalette();
 				break;
+			}
 			default:
 				doc.selection.digits = "";
 				doc.selection.instrumentDigits = "";

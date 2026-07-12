@@ -4,6 +4,7 @@ Purpose: Defines navigator contracts, persistent shell, runtime, and identity ow
 
 ## Files
 
+- `command-registry.ts` - Shared typed command metadata, ranking, argument validation, and executors
 - `contracts.ts` - Pane lifecycle, decisions, commands, and retained-state contracts
 - `route-identity.ts` - Canonical finite-JSON pane route identity
 - `ownership.ts` - Generation-safe ownership for one live pane

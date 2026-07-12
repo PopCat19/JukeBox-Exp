@@ -67,6 +67,7 @@ import {
 	TrackEditor,
 } from "./components";
 import { ChannelRow } from "./components/channel-row";
+import { CommandPalette } from "./components/command-palette";
 import { EffectsPanel } from "./components/effects-panel";
 import { EnvelopeEditor } from "./components/envelope-editor";
 import { FadeInOutEditor } from "./components/fade-in-out-editor";
@@ -2251,6 +2252,32 @@ export class SongEditor
 			},
 		},
 	});
+	private readonly _commandPalette = new CommandPalette(
+		{
+			getBarCount: () => this.doc.song.barCount,
+			openNavigator: (route) =>
+				this._applicationRouter.routePrompt(route.paneId, route.context),
+			goToBar: (bar) => {
+				this.doc.selection.setChannelBar(this.doc.channel, bar);
+				this.doc.selection.resetBoxSelection();
+				this.doc.synth.goToBar(bar);
+				this.doc.synth.snapToBar();
+			},
+			selectBars: (firstBar, lastBar) => {
+				this.doc.selection.setChannelBar(this.doc.channel, firstBar);
+				this.doc.selection.setTrackSelection(
+					firstBar,
+					lastBar,
+					this.doc.channel,
+					this.doc.channel,
+				);
+				this.doc.selection.scrollToEndOfSelection();
+			},
+		},
+		() => {
+			this.refocusStage();
+		},
+	);
 	private _highlightedInstrumentIndex: number = -1;
 	private _lastPrompt: string | null = null;
 
@@ -3011,6 +3038,9 @@ export class SongEditor
 	public openPrompt(name: string): void {
 		this._openPrompt(name);
 	}
+	public openCommandPalette(): void {
+		this._commandPalette.open();
+	}
 	public copyInstrument(): void {
 		this._dispatch.copyInstrument();
 	}
@@ -3070,6 +3100,7 @@ export class SongEditor
 
 	constructor(/*private _doc: SongDocument*/) {
 		this._promptContainer.append(this._navigatorShell.container);
+		this.mainLayer.append(this._commandPalette.container);
 		this._keyboardHandler = new KeyboardHandler(this);
 		this._dispatch = new ChangeDispatcher(this);
 

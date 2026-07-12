@@ -12,6 +12,7 @@ CSS-in-JS style definitions for the editor UI. Each file exports a CSS string (e
 - `icon-buttons.ts`, CSS for editor icon button components — tip spans, volume speaker
 - `icon-symbols.ts`, CSS custom property declarations for editor icon SVGs (data URIs)
 - `prompt-clean-channel.ts`, CSS for the clean channel prompt — tab bar, channel list pane
+- `prompt-command-palette.ts`, PMD CSS for the transient compact command palette
 - `prompt-compact-search.ts`, CSS for compact search prompt (preset/tag browser with tabs)
 - `prompt-keyboard-shortcuts.ts`, CSS for the keyboard shortcuts prompt — shortcut categories
 - `prompt-misc.ts`, CSS for remaining miscellaneous prompts — songRecovery, import, etc.

@@ -1,5 +1,6 @@
 // Purpose: Routes global prompt actions and navigator commands through one application boundary.
 
+import { getPromptCommand } from "../navigator/command-registry";
 import {
 	isSerializableValue,
 	type NavigatorCommandReference,
@@ -69,9 +70,10 @@ export class ApplicationRouter {
 	constructor(private readonly targets: ApplicationRouterTargets) {}
 
 	routePrompt(scope: string, context?: SerializableValue): Promise<void> {
+		const command = getPromptCommand(scope);
 		return this.route({
 			presentation: "navigator",
-			commandId: `open-${scope}`,
+			commandId: command?.id ?? "legacy-prompt",
 			route: { paneId: scope, ...(context === undefined ? {} : { context }) },
 		});
 	}

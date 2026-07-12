@@ -70,6 +70,7 @@ export class MenuBar {
 			option({ value: "channelSettings" }, "Channel Settings... (Q)"),
 			option({ value: "limiterSettings" }, "Limiter Settings... (⇧L)"),
 			option({ value: "addExternal" }, "Add Custom Samples... (⇧Q)"),
+			option({ value: "commandPalette" }, "Command Palette... (/)"),
 			option({ value: "keyboardShortcuts" }, "Keyboard Shortcuts (? / ⇧/)"),
 		);
 

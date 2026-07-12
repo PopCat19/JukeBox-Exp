@@ -16,6 +16,7 @@ export interface MenuHandlerHost {
 	doc: SongDocument;
 	openPrompt(name: string): void;
 	openShortcuts(): void;
+	openCommandPalette(): void;
 	copyTextToClipboard(text: string): void;
 
 	refocusStage(): void;
@@ -76,27 +77,25 @@ export class MenuHandler {
 				});
 				break;
 			case "shortenUrl": {
-				let shortenerStrategy: string = "https://tinyurl.com/api-create.php?url=";
-				const localShortenerStrategy: string | null =
-					window.localStorage.getItem("shortenerStrategySelect");
-
-				if (localShortenerStrategy === "isgd")
-					shortenerStrategy = "https://is.gd/create.php?format=simple&url=";
-
-				window.open(
-					shortenerStrategy +
-						encodeURIComponent(
-							new URL(`#${this._host.doc.song.toBase64String()}`, location.href).href,
-						),
+				const songUrl = encodeURIComponent(
+					new URL(`#${this._host.doc.song.toBase64String()}`, location.href).href,
 				);
+				if (window.localStorage.getItem("shortenerStrategySelect") === "isgd") {
+					window.open(`https://is.gd/create.php?format=simple&url=${songUrl}`);
+				} else {
+					window.open(`https://tinyurl.com/api-create.php?url=${songUrl}`);
+				}
 				break;
 			}
 			case "configureShortener":
 				this._host.openPrompt("configureShortener");
 				break;
-			case "viewPlayer":
-				location.href = `player/${OFFLINE ? "index.html" : ""}#song=${this._host.doc.song.toBase64String()}`;
+			case "viewPlayer": {
+				const playerUrl = new URL(`player/${OFFLINE ? "index.html" : ""}`, location.href);
+				playerUrl.hash = `song=${this._host.doc.song.toBase64String()}`;
+				location.assign(playerUrl);
 				break;
+			}
 			case "copyEmbed":
 				this._host.copyTextToClipboard(
 					`<iframe width="384" height="60" style="border: none;" src="${
@@ -117,6 +116,7 @@ export class MenuHandler {
 	};
 
 	private _editMenuHandler = (_event: Event): void => {
+		let refocusStage = true;
 		switch (this._editMenu.value) {
 			case "undo":
 				this._host.doc.undo();
@@ -193,13 +193,17 @@ export class MenuHandler {
 			case "addExternal":
 				this._host.openPrompt("addExternal");
 				break;
+			case "commandPalette":
+				this._host.openCommandPalette();
+				refocusStage = false;
+				break;
 			case "keyboardShortcuts":
 				this._host.openShortcuts();
 				break;
 		}
 		this._editMenu.selectedIndex = 0;
 		this._editMenu.blur();
-		this._host.refocusStage();
+		if (refocusStage) this._host.refocusStage();
 	};
 
 	private _optionsMenuHandler = (_event: Event): void => {

@@ -1,5 +1,6 @@
 // Purpose: Exposes navigator contracts, route identity, and ownership primitives.
 
+export * from "./command-registry";
 export * from "./contracts";
 export * from "./navigator-runtime";
 export * from "./navigator-shell";

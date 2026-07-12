@@ -21,6 +21,7 @@ import { buildFormInputsCSS } from "./styles/form-inputs";
 import { buildIconButtonsCSS } from "./styles/icon-buttons";
 import { buildIconSymbolsCSS } from "./styles/icon-symbols";
 import { buildCleanChannelCSS } from "./styles/prompt-clean-channel";
+import { buildCommandPaletteCSS } from "./styles/prompt-command-palette";
 import { buildPromptCompactSearchCSS } from "./styles/prompt-compact-search";
 import { buildKeyboardShortcutsCSS } from "./styles/prompt-keyboard-shortcuts";
 import { buildPromptMiscCSS } from "./styles/prompt-misc";
@@ -223,6 +224,8 @@ html {
 .beepboxEditor .settings-volume{ grid-area: settings-volume-area; }
 
 ${buildIconButtonsCSS()}
+
+${buildCommandPaletteCSS()}
 
 ${buildPromptCompactSearchCSS()}
 

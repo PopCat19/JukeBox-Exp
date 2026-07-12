@@ -7,6 +7,8 @@ Purpose: bun:test test files covering editor, synth, and shared modules.
 - `test-helpers.ts`, Shared test fixtures (Song factories, assertion helpers)
 - `TESTING.md`, Conventions doc + source-to-test cross-reference table
 - `application-router.test.ts`, Behavioral and structural tests for all-scope Navigator routing, funnel convergence, immutable context, and ordered import delivery
+- `command-palette.test.ts`, Behavioral tests for compact rendering, execution close, inline errors, and Escape cancellation
+- `command-registry.test.ts`, Behavioral tests for shared command metadata, fuzzy ranking, routing, and one-based bar conversion
 - `barrel-exports.test.ts`, Barrel re-export contract tests for synth, editor/ui, shared
 - `interactions-behavior.test.ts`, Behavioral tests for editor/ui/interactions.ts using a hand-rolled DOM mock (classList adds/removes, style custom props, dataset writes, native disabled property writes, setDisabled helper, tagged style injection dedupe)
 - `ui-states.test.ts`, Contract tests for the PMD state/surface/interaction token layer (states.ts, surfaces.ts, interactions.ts) plus source-grep proofs for refactored buttons and loop-button migrations
