@@ -754,11 +754,18 @@ describe("navigator shell", () => {
 		const promptContainer = document.createElement("div");
 		let current: Prompt | null = null;
 		let navigatorClaimed = false;
+		let keyCount = 0;
 		const prompts = {
 			open: (scope: string) => {
 				const container = document.createElement("article");
 				container.tabIndex = -1;
-				container.textContent = `domain:${scope}`;
+				container.className = "prompt fill-y shaded docked legacyPrompt";
+				container.style.cssText = "width:480px;max-height:90%;position:fixed;transform:translateX(1px)";
+				const titlebar = document.createElement("div");
+				titlebar.className = "prompt-titlebar";
+				const cancel = document.createElement("button");
+				cancel.className = "cancelButton";
+				container.append(titlebar, cancel, `domain:${scope}`);
 				promptContainer.append(container);
 				current = {
 					id: 1,
@@ -766,6 +773,7 @@ describe("navigator shell", () => {
 					container,
 					cleanUp: () => effects.push(`cleanup:${scope}`),
 					discard: () => effects.push(`discard:${scope}`),
+					whenKeyPressed: () => { keyCount++; },
 				};
 			},
 			get prompt(): Prompt | null { return current; },
@@ -773,10 +781,10 @@ describe("navigator shell", () => {
 				navigatorClaimed = true;
 				return () => { navigatorClaimed = false; };
 			},
-			close: (prompt: Prompt | null) => {
-				prompt?.discard();
-				prompt?.container.remove();
-				prompt?.cleanUp();
+			disposeNavigatorPrompt: (prompt: Prompt) => {
+				prompt.discard();
+				prompt.container.remove();
+				prompt.cleanUp();
 				current = null;
 			},
 		};
@@ -792,9 +800,19 @@ describe("navigator shell", () => {
 		await runtime.open({ paneId: "export" });
 		const root = shell.container.querySelector<HTMLElement>("[data-navigator-scope=export]");
 		expect(root?.textContent).toBe("domain:export");
+		expect(root?.classList.contains("navigator-native-pane")).toBeTrue();
+		expect(root?.classList.contains("legacyPrompt")).toBeTrue();
+		expect(root?.querySelector(":scope > .prompt-titlebar")).toBeNull();
+		expect(root?.querySelector(":scope > .cancelButton")).toBeNull();
+		expect(root?.style.width).toBe("");
+		expect(root?.style.maxHeight).toBe("");
+		expect(root?.style.position).toBe("");
+		expect(root?.style.transform).toBe("");
 		expect(navigatorClaimed).toBeTrue();
 		root?.focus();
 		expect(document.activeElement).toBe(root);
+		root?.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", bubbles: true }));
+		expect(keyCount).toBe(1);
 		await runtime.open({ paneId: "instrumentTags" });
 		expect(shell.container.textContent).toContain("domain:instrumentTags");
 		expect(effects).toEqual(["discard:export", "cleanup:export"]);

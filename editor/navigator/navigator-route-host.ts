@@ -4,6 +4,7 @@ import { ImportPrompt } from "../prompts/import-prompt";
 import type { Prompt } from "../prompts/prompt";
 import type { PaneLifecycle, PaneRoute, SerializableValue } from "./contracts";
 import type { PaneOwner } from "./ownership";
+import { flattenPromptRootForNavigator } from "./prompt-pane-owner";
 import { canonicalRouteIdentity } from "./route-identity";
 
 export interface ImportFileTransientSink {
@@ -13,7 +14,7 @@ export interface ImportFileTransientSink {
 interface LegacyPromptManager {
 	readonly prompt: Prompt | null;
 	open(scope: string): void;
-	close(prompt: Prompt | null): void;
+	disposeNavigatorPrompt(prompt: Prompt): void;
 	claimNavigatorOwnership(prompt: Prompt): () => void;
 }
 
@@ -48,27 +49,32 @@ export class LegacyPromptPaneFactory implements ImportFileTransientSink {
 
 	private createOwner(route: PaneRoute, prompt: Prompt): PaneOwner {
 		const element = prompt.container;
-		element.dataset.navigatorScope = route.paneId;
+		flattenPromptRootForNavigator(prompt, route.paneId);
 		let host: { detach(root: { readonly element: HTMLElement }): void } | null = null;
 		const releaseOwnership = this.prompts.claimNavigatorOwnership(prompt);
 		const root = { element };
+		const onKeyDown = (event: KeyboardEvent): void => {
+			if (!event.defaultPrevented) prompt.whenKeyPressed?.(event);
+		};
 		const lifecycle: PaneLifecycle = {
 			root,
 			mount: (nextHost) => {
 				host = nextHost;
 				nextHost.attach(root);
+				element.addEventListener("keydown", onKeyDown);
 				if (prompt instanceof ImportPrompt) this.importPrompt = prompt;
 			},
 			suspend: () => undefined,
 			resume: () => undefined,
 			unmount: () => {
+				element.removeEventListener("keydown", onKeyDown);
 				host?.detach(root);
 				host = null;
 				if (this.importPrompt === prompt) this.importPrompt = null;
 			},
 			dispose: () => {
 				releaseOwnership();
-				this.prompts.close(prompt);
+				this.prompts.disposeNavigatorPrompt(prompt);
 				if (this.importPrompt === prompt) this.importPrompt = null;
 			},
 			requestLeave: () => "allow",

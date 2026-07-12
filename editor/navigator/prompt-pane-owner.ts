@@ -12,17 +12,8 @@ export interface PanePrompt extends Prompt {
 	capturePaneState?(): SerializableValue;
 }
 
-export function createPromptPaneOwner(
-	route: PaneRoute,
-	prompt: PanePrompt,
-	closePane: () => Promise<boolean>,
-	openPane: (scope: string) => Promise<void>,
-): PaneOwner {
-	prompt.name = route.paneId;
-	let closeAuthority = closePane;
-	prompt.closeCallback = () => void closeAuthority();
-	prompt.openAlongsideCallback = (scope) => void openPane(scope);
-	prompt.container.dataset.navigatorScope = route.paneId;
+export function flattenPromptRootForNavigator(prompt: Prompt, scope: string): void {
+	prompt.container.dataset.navigatorScope = scope;
 	prompt.container.classList.remove("fill-y", "shaded", "docked");
 	prompt.container.classList.add("navigator-native-pane");
 	prompt.container.style.removeProperty("width");
@@ -36,6 +27,19 @@ export function createPromptPaneOwner(
 	prompt.container.querySelectorAll(":scope > .cancelButton").forEach((cancelButton) => {
 		cancelButton.remove();
 	});
+}
+
+export function createPromptPaneOwner(
+	route: PaneRoute,
+	prompt: PanePrompt,
+	closePane: () => Promise<boolean>,
+	openPane: (scope: string) => Promise<void>,
+): PaneOwner {
+	prompt.name = route.paneId;
+	let closeAuthority = closePane;
+	prompt.closeCallback = () => void closeAuthority();
+	prompt.openAlongsideCallback = (scope) => void openPane(scope);
+	flattenPromptRootForNavigator(prompt, route.paneId);
 	const root = { element: prompt.container };
 	const onKeyDown = (event: KeyboardEvent): void => {
 		if (!event.defaultPrevented) prompt.whenKeyPressed?.(event);

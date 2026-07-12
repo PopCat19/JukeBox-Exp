@@ -12,9 +12,9 @@ Purpose: Defines navigator contracts, persistent shell, runtime, and identity ow
 - `route-identity.ts` - Canonical finite-JSON pane route identity
 - `ownership.ts` - Generation-safe ownership for one live pane
 - `navigator-runtime.ts` - Serialized attached and detached pane coordination
-- `navigator-route-host.ts` - Transitional adapter owning legacy Prompt roots and typed transient import delivery
+- `navigator-route-host.ts` - Transitional adapter owning flattened legacy Prompt roots and typed transient import delivery
 - `native-panes.ts` - Native pane domain routing
 - `navigator-detached-host.ts` - Same-origin detached window host and close coordination
-- `prompt-pane-owner.ts` - Native content-root extraction and shared prompt lifecycle adapter
+- `prompt-pane-owner.ts` - Shared attached prompt-root flattening and native prompt lifecycle adapter
 - `navigator-shell.ts` - Searchable PMD route workspace and attached pane host
 - `index.ts` - Navigator contract barrel

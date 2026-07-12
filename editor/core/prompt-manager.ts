@@ -218,6 +218,23 @@ export class PromptManager {
 		return this._rootOwnership.claim(prompt);
 	}
 
+	public disposeNavigatorPrompt(prompt: Prompt): void {
+		const index = this._prompts.indexOf(prompt);
+		if (index === -1) return;
+		prompt.discard();
+		this._prompts.splice(index, 1);
+		this._dock.remove(prompt);
+		this._popout.closeWindow(prompt);
+		prompt.container.remove();
+		prompt.cleanUp();
+		if (this._focusedPrompt === prompt) {
+			this._focusedPrompt = this._prompts[this._prompts.length - 1] || null;
+			this._updatePromptFocus();
+		}
+		this._host.doc.prompt = this._focusedPrompt?.name ?? null;
+		this._host.doc.notifier.changed();
+	}
+
 	// Programmatic popout for the currently-focused prompt (keybinding).
 	public popoutCurrent(): void {
 		const p = this._focusedPrompt;
