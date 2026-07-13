@@ -733,6 +733,13 @@ describe("navigator shell", () => {
 		expect(navigatorOtherRoutes.map((route) => route.id)).toContain("keyboardShortcuts");
 	});
 
+	test("shared prompt titlebar and controls keep their PMD height under constrained flex layout", () => {
+		const css = buildPromptShellCSS();
+		expect(css).toMatch(/\.prompt-titlebar \{[^}]*flex-shrink: 0;[^}]*height: 28px;[^}]*min-height: 28px;[^}]*overflow: hidden;/s);
+		expect(css).toMatch(/\.prompt-titlebar > h2 \{[^}]*min-height: 28px;/s);
+		expect(css).toMatch(/\.prompt-titlebar > button,[^{]*\.prompt-titlebar > button\.cancelButton \{[^}]*height: 28px;[^}]*width: 28px;[^}]*min-width: 28px;/s);
+	});
+
 	test("uses the bounded desktop workspace and responsive route strip", () => {
 		const css = buildNavigatorCSS();
 		expect(css).toContain("width: min(880px, calc(100vw - 32px))");

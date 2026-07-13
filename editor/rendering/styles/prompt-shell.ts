@@ -277,10 +277,12 @@ ${buildAnimationsCSS()}
 
 .beepboxEditor .prompt-titlebar {
 	display: flex;
+	flex-shrink: 0;
 	align-items: center;
 	gap: var(--gap-md);
 	width: 100%;
 	height: 28px;
+	min-height: 28px;
 	overflow: hidden;
 }
 
