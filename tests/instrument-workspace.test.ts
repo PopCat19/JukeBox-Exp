@@ -261,6 +261,28 @@ describe("InstrumentWorkspace", () => {
 		expect(aggregate.hidden).toBeTrue();
 	});
 
+	test("active Instrument Data host stretches and keeps host scrolling", () => {
+		const style = document.createElement("style");
+		style.textContent = buildNavigatorPanesCSS();
+		document.head.append(style);
+		const editor = document.createElement("div");
+		editor.className = "beepboxEditor";
+		const shell = new NavigatorShell();
+		editor.append(shell.container);
+		document.body.append(editor);
+		shell.setInstrumentWorkspace(true);
+		const aggregate = shell.container.querySelector<HTMLElement>(".navigator-instrument-data");
+		const host = shell.container.querySelector<HTMLElement>(".navigator-instrument-host");
+		if (aggregate === null || host === null) throw new Error("Instrument Data host was not built");
+		expect(getComputedStyle(aggregate).display).toBe("flex");
+		expect(getComputedStyle(aggregate).width).toBe("100%");
+		expect(getComputedStyle(host).display).toBe("flex");
+		expect(getComputedStyle(host).width).toBe("100%");
+		expect(getComputedStyle(host).overflow).toBe("auto");
+		editor.remove();
+		style.remove();
+	});
+
 	test("attached CVV responds while detached six-column geometry stays unchanged", () => {
 		const css = buildNavigatorPanesCSS();
 		expect(css).toMatch(/\.navigator-pane-host > \.cvvPrompt \.cvvContentGrid \{[^}]*repeat\(auto-fit, minmax\(160px, 1fr\)\)/s);

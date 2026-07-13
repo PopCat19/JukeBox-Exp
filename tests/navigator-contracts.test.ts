@@ -788,11 +788,10 @@ describe("native navigator extraction", () => {
 		expect(container.style.getPropertyValue("-webkit-backdrop-filter")).toBe("");
 	});
 
-	test("domain CSS flattens attached legacy chrome and geometry", () => {
+	test("domain CSS flattens and stretches attached legacy roots", () => {
 		const css = buildNavigatorPanesCSS();
-		expect(css).toMatch(/\.navigator-pane-host > \.navigator-native-pane \{[^}]*position: static !important[^}]*width: 100% !important[^}]*min-height: 0[^}]*box-shadow: inset 0 0 0 2px transparent !important[^}]*background: transparent !important[^}]*backdrop-filter: none !important[^}]*-webkit-backdrop-filter: none !important/s);
-		expect(css).not.toMatch(/\.navigator-pane-host > \.navigator-native-pane \{[^}]*min-height: 100%/s);
-		expect(css).toMatch(/\.navigator-pane-host > \.navigator-native-pane:hover,[^{]*\.navigator-native-pane\.focused,[^{]*\.navigator-native-pane:focus-visible \{[^}]*box-shadow: inset 0 0 0 2px var\(--hout\) !important;[^}]*outline: none !important;/s);
+		expect(css).toMatch(/\.navigator-pane-host > \.navigator-native-pane \{[^}]*position: static !important[^}]*align-self: stretch[^}]*flex: 1 1 0[^}]*width: 100% !important[^}]*max-width: none !important[^}]*height: 100% !important[^}]*min-width: 0[^}]*min-height: 0[^}]*box-shadow: none !important[^}]*background: transparent !important[^}]*backdrop-filter: none !important[^}]*-webkit-backdrop-filter: none !important/s);
+		expect(css).toMatch(/\.navigator-pane-host > \.navigator-native-pane:hover,[^{]*\.navigator-native-pane\.focused,[^{]*\.navigator-native-pane:focus-visible \{[^}]*box-shadow: none !important;[^}]*outline: none !important;/s);
 		expect(css).not.toMatch(/\.navigator-detached-content > \.navigator-native-pane:hover \{[^}]*outline: none;/s);
 		expect(css).not.toMatch(/\.navigator-pane-host[^,{]*[> ](?:button|\.selectableRow):hover/);
 		expect(css).toMatch(/\.navigator-detached-content > \.navigator-native-pane \{[^}]*min-height: 100%/s);
@@ -800,7 +799,7 @@ describe("native navigator extraction", () => {
 		expect(css).toContain("display: none !important");
 	});
 
-	test("shell outline remains while child uses inset focused feedback", () => {
+	test("attached root fills its host without replacing shell outline", () => {
 		Object.defineProperty(globalThis, "document", { configurable: true, value: new Window().document });
 		document.body.className = "beepboxEditor";
 		document.documentElement.style.setProperty("--hout", "rgb(1, 2, 3)");
@@ -819,14 +818,14 @@ describe("native navigator extraction", () => {
 
 		const resting = getComputedStyle(pane);
 		expect(resting.boxSizing).toBe("border-box");
+		expect(resting.alignSelf).toBe("stretch");
 		expect(resting.width).toBe("100%");
-		expect(resting.boxShadow).toBe("inset 0 0 0 2px transparent");
-		pane.dispatchEvent(new MouseEvent("mouseover", { bubbles: true }));
-		// Happy DOM does not update the :hover pseudo-class from mouse events.
-		expect(getComputedStyle(pane).boxShadow).toBe("inset 0 0 0 2px transparent");
+		expect(resting.height).toBe("100%");
+		expect(resting.minHeight).toBe("0");
+		expect(resting.boxShadow).toBe("none");
 		pane.classList.add("focused");
 		const focused = getComputedStyle(pane);
-		expect(focused.boxShadow).toBe("inset 0 0 0 2px rgb(1, 2, 3)");
+		expect(focused.boxShadow).toBe("none");
 		expect(focused.outlineStyle).toBe("none");
 		expect(getComputedStyle(shell).outlineStyle).toBe("solid");
 		expect(getComputedStyle(shell).outlineWidth).toBe("2px");
@@ -911,7 +910,7 @@ describe("navigator shell", () => {
 		expect(css).toMatch(/\.navigator-sidebar,[^{]*\.navigator-workspace \{[^}]*border: 2px solid var\(--ui-widget-background\)[^}]*border-radius: var\(--border-radius-medium\)/s);
 		expect(css).toContain("grid-template-rows: minmax(0, 1fr)");
 		expect(css).toMatch(/\.navigator-workspace \{[^}]*flex: 1 1 auto[^}]*overflow: hidden/s);
-		expect(css).toMatch(/\.navigator-pane-host \{[^}]*flex: 1 1 0[^}]*overflow: auto/s);
+		expect(css).toMatch(/\.navigator-pane-host \{[^}]*display: flex[^}]*flex: 1 1 0[^}]*flex-direction: column[^}]*overflow: auto/s);
 		expect(css).not.toContain(".navigator-route.active");
 		const sharedCSS = buildSharedUICSS();
 		expect(sharedCSS).toMatch(/\.selectableRow \{[^}]*padding: var\(--padding-6\) var\(--padding-12\)[^}]*outline: 2px solid transparent[^}]*outline-offset: -2px[^}]*box-shadow: none[^}]*background: var\(--prompt-list-item-bg\)[^}]*font-size: 12px/s);

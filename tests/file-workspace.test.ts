@@ -38,10 +38,10 @@ describe("FileWorkspace", () => {
 		expect(group?.querySelector(".navigator-route")?.textContent).toBe("Project Data");
 	});
 
-	test("Project Data owns one bounded content host and PMD tabs", () => {
+	test("Project Data owns one full-size scrolling content host and PMD tabs", () => {
 		const css = buildNavigatorPanesCSS();
-		expect(css).toMatch(/\.navigator-project-data,[^{]*\.navigator-instrument-data \{[^}]*flex: 1 1 auto[^}]*overflow: hidden/s);
-		expect(css).toMatch(/\.navigator-file-right-host,[^{]*\.navigator-instrument-host \{[^}]*overflow: auto/s);
+		expect(css).toMatch(/\.navigator-project-data,[^{]*\.navigator-instrument-data \{[^}]*align-self: stretch[^}]*flex: 1 1 auto[^}]*width: 100%[^}]*min-width: 0[^}]*overflow: hidden/s);
+		expect(css).toMatch(/\.navigator-file-right-host,[^{]*\.navigator-instrument-host \{[^}]*display: flex[^}]*flex: 1 1 0[^}]*width: 100%[^}]*overflow: auto/s);
 		expect(css).toMatch(/\.navigator-file-tabs[^}]*max-width: 100%[^}]*overflow-x: auto[^}]*border-radius: 16px/s);
 		expect(css).toMatch(/\.navigator-file-tabs > \.tabButton\.active \{[^}]*background: var\(--cta-bg\)/s);
 		expect(css).not.toContain("navigator-file-left-host");
@@ -61,7 +61,13 @@ describe("FileWorkspace", () => {
 		expect(split.hidden).toBeTrue();
 		expect(getComputedStyle(split).display).toBe("none");
 		shell.setFileWorkspace(true);
+		const host = split.querySelector<HTMLElement>(".navigator-file-right-host");
+		if (host === null) throw new Error("Navigator Project Data host was not built");
 		expect(getComputedStyle(split).display).toBe("flex");
+		expect(getComputedStyle(split).width).toBe("100%");
+		expect(getComputedStyle(host).display).toBe("flex");
+		expect(getComputedStyle(host).width).toBe("100%");
+		expect(getComputedStyle(host).overflow).toBe("auto");
 		shell.setFileWorkspace(false);
 		expect(getComputedStyle(split).display).toBe("none");
 		editor.remove();

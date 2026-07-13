@@ -84,7 +84,9 @@ export function buildNavigatorCSS(): string {
 	text-align: center;
 }
 .beepboxEditor .navigator-pane-host {
+	display: flex;
 	flex: 1 1 0;
+	flex-direction: column;
 	min-width: 0;
 	min-height: 0;
 	padding: 12px;

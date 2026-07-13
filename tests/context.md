@@ -16,9 +16,9 @@ Purpose: bun:test test files covering editor, synth, and shared modules.
 - `dsp-utils.test.ts`, Unit tests for pure DSP utility functions (applyFilters, sanitizeDelayLine, findRandomZeroCrossing)
 - `filtering.test.ts`, Unit tests for digital filter coefficient computation and frequency response
 - `input-inventory.test.ts`, Unit tests for input binding inventory and concern modules
-- `navigator-contracts.test.ts`, Behavioral tests for canonical route identity, native content extraction and geometry stripping, pane hover borders, detached root theme sync and disposal, bounded shell layout, searchable routing, cleanup/focus, generation-safe ownership, and host transfer
-- `file-workspace.test.ts`, File aggregate composition, Import refresh, focus deduplication, detach lockout, and transactional right-tab replacement
-- `instrument-workspace.test.ts`, Instrument Data composition, transactional tabs, denial, serialization, Escape, stale callbacks, and responsive CVV scope
+- `navigator-contracts.test.ts`, Behavioral tests for canonical route identity, native content extraction, attached full-size geometry without inner outlines, detached root theme sync and disposal, bounded shell layout, searchable routing, cleanup/focus, generation-safe ownership, and host transfer
+- `file-workspace.test.ts`, File aggregate composition, full-size active host geometry, Import refresh, focus deduplication, detach lockout, and transactional right-tab replacement
+- `instrument-workspace.test.ts`, Instrument Data composition, full-size active host geometry, transactional tabs, denial, serialization, Escape, stale callbacks, and responsive CVV scope
 - `navigator-mode-coordinator.test.ts`, Serialized normal/File/Instrument transitions, denial, route races, and queued close/open behavior
 - `navigator-dock.test.ts`, Shared PromptDock edge snap, padding, undock, cleanup, mobile fallback, and prompt regression behavior
 - `workspace-runtime.test.ts`, Transactional aggregate pane ownership, preflight, rollback, duplicate, detach, and stale-token tests

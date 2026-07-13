@@ -22,9 +22,12 @@ export function buildNavigatorPanesCSS(): string {
 	position: static !important;
 	inset: auto !important;
 	box-sizing: border-box;
+	align-self: stretch;
+	flex: 1 1 0;
 	width: 100% !important;
 	max-width: none !important;
-	height: auto !important;
+	height: 100% !important;
+	min-width: 0;
 	min-height: 0;
 	max-height: none !important;
 	margin: 0 !important;
@@ -32,7 +35,7 @@ export function buildNavigatorPanesCSS(): string {
 	overflow: visible;
 	transform: none !important;
 	border-radius: 0 !important;
-	box-shadow: inset 0 0 0 2px transparent !important;
+	box-shadow: none !important;
 	background: transparent !important;
 	backdrop-filter: none !important;
 	-webkit-backdrop-filter: none !important;
@@ -40,7 +43,7 @@ export function buildNavigatorPanesCSS(): string {
 .beepboxEditor .navigator-pane-host > .navigator-native-pane:hover,
 .beepboxEditor .navigator-pane-host > .navigator-native-pane.focused,
 .beepboxEditor .navigator-pane-host > .navigator-native-pane:focus-visible {
-	box-shadow: inset 0 0 0 2px var(--hout) !important;
+	box-shadow: none !important;
 	outline: none !important;
 }
 .beepboxEditor .navigator-detached-content > .navigator-native-pane {
@@ -64,17 +67,24 @@ export function buildNavigatorPanesCSS(): string {
 .beepboxEditor .navigator-project-data,
 .beepboxEditor .navigator-instrument-data {
 	display: flex;
+	box-sizing: border-box;
+	align-self: stretch;
 	flex: 1 1 auto;
 	flex-direction: column;
-	gap: 8px;
+	width: 100%;
+	min-width: 0;
 	min-height: 0;
+	gap: 8px;
 	overflow: hidden;
 }
 .beepboxEditor .navigator-project-data[hidden],
 .beepboxEditor .navigator-instrument-data[hidden] { display: none; }
 .beepboxEditor .navigator-file-right-host,
 .beepboxEditor .navigator-instrument-host {
-	flex: 1 1 auto;
+	display: flex;
+	flex: 1 1 0;
+	flex-direction: column;
+	width: 100%;
 	min-width: 0;
 	min-height: 0;
 	overflow: auto;
