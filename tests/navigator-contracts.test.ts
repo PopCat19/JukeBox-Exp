@@ -1391,6 +1391,28 @@ describe("Navigator detached host theme sync", () => {
 		};
 	}
 
+	test("runs transfer callback only after popup creation succeeds", () => {
+		const parent = new Window();
+		Object.defineProperty(globalThis, "window", { configurable: true, value: parent });
+		Object.defineProperty(globalThis, "document", { configurable: true, value: parent.document });
+		const order: string[] = [];
+		parent.open = (() => {
+			order.push("popup");
+			return null;
+		}) as typeof parent.open;
+		expect(NavigatorDetachedHost.open(() => order.push("undock"))).toBeNull();
+		expect(order).toEqual(["popup"]);
+		const child = new Window();
+		parent.open = (() => {
+			order.push("popup-success");
+			return child;
+		}) as typeof parent.open;
+		const host = NavigatorDetachedHost.open(() => order.push("undock"));
+		expect(host).not.toBeNull();
+		expect(order).toEqual(["popup", "popup-success", "undock"]);
+		host?.closeEmpty();
+	});
+
 	test("copies PMD and channel root custom properties at open", () => {
 		const parent = new Window();
 		parent.document.documentElement.style.setProperty("--pmd-base-8x", "#123456");

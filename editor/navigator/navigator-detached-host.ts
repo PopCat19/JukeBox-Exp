@@ -45,14 +45,17 @@ export class NavigatorDetachedHost implements PaneHost {
 		this.win.addEventListener("pagehide", this.pagehide);
 	}
 
-	static open(): NavigatorDetachedHost | null {
+	static open(beforeTransfer?: () => void): NavigatorDetachedHost | null {
 		const openWindow = window.open.bind(window);
 		const win = openWindow(
 			"about:blank",
 			"_blank",
 			"width=760,height=720,resizable=yes,scrollbars=yes",
 		);
-		return win === null ? null : new NavigatorDetachedHost(win);
+		if (win === null) return null;
+		const host = new NavigatorDetachedHost(win);
+		beforeTransfer?.();
+		return host;
 	}
 
 	attach(root: PaneRoot): void {

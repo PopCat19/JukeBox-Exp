@@ -51,6 +51,7 @@ export default tseslint.config(
             "tests/instrument-workspace.test.ts",
             "tests/navigator-contracts.test.ts",
             "tests/navigator-mode-coordinator.test.ts",
+            "tests/navigator-dock.test.ts",
             "tests/css-var-contract.test.ts",
             "tests/interactions-behavior.test.ts",
             "tests/loop-editor-contract.test.ts",

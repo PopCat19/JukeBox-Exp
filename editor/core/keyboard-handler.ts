@@ -45,6 +45,24 @@ declare const OFFLINE: boolean;
 
 export type SlashShortcutAction = "palette" | "shortcuts" | "prevent-default" | "ignore";
 
+export function routeGlobalSlashKey(
+	event: KeyboardEvent,
+	handle: (event: KeyboardEvent) => void,
+): boolean {
+	if (event.key !== "/" && event.key !== "?") return false;
+	const target = event.target;
+	if (
+		target instanceof HTMLInputElement ||
+		target instanceof HTMLTextAreaElement ||
+		target instanceof HTMLSelectElement ||
+		target instanceof HTMLButtonElement ||
+		(target instanceof HTMLElement && target.isContentEditable)
+	)
+		return false;
+	handle(event);
+	return true;
+}
+
 export function resolveSlashShortcut(options: {
 	readonly canPlayNotes: boolean;
 	readonly hasPrompt: boolean;

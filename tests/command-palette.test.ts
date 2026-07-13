@@ -97,6 +97,41 @@ describe("command palette", () => {
 		expect(keyboard).toContain("event.target instanceof HTMLElement && event.target.isContentEditable");
 	});
 
+	test("global slash route dispatches and guards editor controls", async () => {
+		const { routeGlobalSlashKey } = await import("../editor/core/keyboard-handler");
+		const routed: KeyboardEvent[] = [];
+		const handle = (event: KeyboardEvent): void => { routed.push(event); };
+		for (const [key, shiftKey] of [["/", false], ["?", true]] as const) {
+			const surface = document.createElement("div");
+			document.body.append(surface);
+			const event = new KeyboardEvent("keydown", { key, shiftKey, bubbles: true });
+			surface.addEventListener("keydown", (value) => routeGlobalSlashKey(value, handle));
+			surface.dispatchEvent(event);
+			expect(routed.pop()).toBe(event);
+		}
+		for (const control of [
+			document.createElement("input"),
+			document.createElement("textarea"),
+			document.createElement("select"),
+			document.createElement("button"),
+		]) {
+			document.body.append(control);
+			const event = new KeyboardEvent("keydown", { key: "/", bubbles: true });
+			control.addEventListener("keydown", (value: Event) =>
+				routeGlobalSlashKey(value as KeyboardEvent, handle));
+			control.dispatchEvent(event);
+			expect(routed).toEqual([]);
+		}
+		const editable = document.createElement("div");
+		editable.contentEditable = "true";
+		document.body.append(editable);
+		const event = new KeyboardEvent("keydown", { key: "/", bubbles: true });
+		editable.addEventListener("keydown", (value) => routeGlobalSlashKey(value, handle));
+		editable.dispatchEvent(event);
+		expect(routed).toEqual([]);
+		expect(routeGlobalSlashKey(new KeyboardEvent("keydown", { key: "a" }), handle)).toBeFalse();
+	});
+
 	test("menu entry leaves focus in palette input", async () => {
 		const { MenuHandler } = await import("../editor/core/menu-handler");
 		const { palette } = setup();

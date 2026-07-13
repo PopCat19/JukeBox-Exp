@@ -1160,6 +1160,17 @@ export const inputBindings: InputBinding[] = [
 	},
 
 	{
+		id: "view_command_palette",
+		kind: "key",
+		concern: "views",
+		sourceFile: "editor/core/keyboard-handler.ts",
+		handler: "handleKeyDown",
+		keys: "/",
+		condition:
+			"when not canPlayNotes and not editing input, textarea, select, button, or contenteditable",
+		detail: "Open command palette",
+	},
+	{
 		id: "view_shortcuts",
 		kind: "key",
 		concern: "views",

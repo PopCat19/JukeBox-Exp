@@ -84,7 +84,7 @@ import { makeLogger } from "./core/debug-log";
 import { DrumsetSetup, type DrumsetSetupHost } from "./core/drumset-setup";
 import { EventListenerSetup, type EventListenerSetupHost } from "./core/event-listener-setup";
 import { FmOperatorSetup, type FmOperatorSetupHost } from "./core/fm-operator-setup";
-import { KeyboardHandler } from "./core/keyboard-handler";
+import { KeyboardHandler, routeGlobalSlashKey } from "./core/keyboard-handler";
 import { MenuHandler, type MenuHandlerHost } from "./core/menu-handler";
 
 const log = makeLogger("song-editor");
@@ -3137,6 +3137,7 @@ export class SongEditor
 	private _modRecTimeout: number = -1;
 
 	constructor(/*private _doc: SongDocument*/) {
+		this._navigatorShell.setDockController(this._promptManager.dockController);
 		this._promptContainer.append(this._navigatorShell.container);
 		this.mainLayer.append(this._commandPalette.container);
 		this._keyboardHandler = new KeyboardHandler(this);
@@ -3978,7 +3979,9 @@ export class SongEditor
 
 	public popoutCurrentPrompt(): void {
 		if (this._fileWorkspace.isOpen() || this._instrumentWorkspace.isOpen()) return;
-		const host = NavigatorDetachedHost.open();
+		const host = NavigatorDetachedHost.open(() => {
+			this._promptManager.dockController.undock(this._navigatorShell);
+		});
 		if (host === null) return;
 		void this._navigatorRuntime
 			.detach((owner, _host, close, forceClose) => host.bind(owner, close, forceClose), host)
@@ -4053,11 +4056,14 @@ export class SongEditor
 			return;
 		}
 
+		if (isFormElement || target.isContentEditable) return;
+
+		// Slash is global outside note-input surfaces. The keyboard policy
+		// chooses Command Palette, Shortcuts, ignore, or prompt isolation.
+		if (routeGlobalSlashKey(event, this._keyboardHandler.handleKeyDown)) return;
+
 		// Prompt-only shortcuts: only route if a prompt is open.
 		if (!this.prompt) return;
-		if (isFormElement) return;
-		if (target.isContentEditable) return;
-
 		this._keyboardHandler.handleKeyDown(event);
 	}
 

@@ -1,5 +1,6 @@
 // Purpose: Provides the persistent PMD navigator shell and pane host.
 
+import type { PromptDock } from "../core/prompt-dock";
 import { attachPromptDrag } from "../core/prompt-drag";
 import { buildPromptTitlebar } from "../prompts/base-prompt";
 import { iconButton, inputRow, searchInput, selectableRow, setSelectableRowActive } from "../ui";
@@ -46,6 +47,9 @@ export class NavigatorShell implements PaneHost {
 	private normalRouteId: string | undefined;
 	private dragDispose: (() => void) | null = null;
 	private backdropPreference: boolean | null = null;
+	private dock: PromptDock | null = null;
+	private aggregateMode = false;
+	private suppressSnap = false;
 
 	constructor(
 		title = "Navigator",
@@ -55,7 +59,7 @@ export class NavigatorShell implements PaneHost {
 		routes: readonly NavigatorRoute[] = DEFAULT_ROUTES,
 	) {
 		this.container = document.createElement("div");
-		this.container.className = "prompt navigator-shell navigator-prompt-variant";
+		this.container.className = "prompt navigator-shell navigator-prompt-variant fill-y";
 		this.container.hidden = true;
 		this.container.tabIndex = -1;
 		this.routes = routes;
@@ -214,6 +218,29 @@ export class NavigatorShell implements PaneHost {
 		this.renderRoutes(routes);
 	}
 
+	setDockController(dock: PromptDock): void {
+		this.dock = dock;
+	}
+
+	readonly canDock = (): boolean =>
+		window.innerWidth > 639 && this.container.dataset.popout !== "true";
+
+	private updateDetachAvailability(): void {
+		if (this.detachButton === null) return;
+		const unavailable = this.aggregateMode || this.dock?.isDocked(this) === true;
+		this.detachButton.disabled = unavailable;
+		this.detachButton.hidden = unavailable;
+	}
+
+	readonly onDockChange = (side: "left" | "right" | null): void => {
+		this.container.classList.remove("shaded");
+		if (side === null && window.innerWidth <= 639) {
+			this.container.style.left = "0px";
+			this.container.style.top = "0px";
+		}
+		this.updateDetachAvailability();
+	};
+
 	setBackdropPreference(enabled: boolean): void {
 		if (this.backdropPreference === enabled) return;
 		this.backdropPreference = enabled;
@@ -233,10 +260,8 @@ export class NavigatorShell implements PaneHost {
 		this.body.hidden = false;
 		this.fileWorkspace.hidden = true;
 		this.instrumentWorkspace.hidden = true;
-		if (this.detachButton !== null) {
-			this.detachButton.disabled = false;
-			this.detachButton.hidden = false;
-		}
+		this.aggregateMode = false;
+		this.updateDetachAvailability();
 		const routeId = root.element.dataset.navigatorScope;
 		this.activeRouteId = routeId;
 		this.normalRouteId = routeId;
@@ -270,10 +295,8 @@ export class NavigatorShell implements PaneHost {
 		this.activeTitle.hidden = false;
 		this.fileWorkspace.hidden = !active;
 		if (active) this.instrumentWorkspace.hidden = true;
-		if (this.detachButton !== null) {
-			this.detachButton.disabled = active;
-			this.detachButton.hidden = active;
-		}
+		this.aggregateMode = active;
+		this.updateDetachAvailability();
 		if (active) {
 			this.setFileActiveRoute(rightRoute);
 		} else if (this.body.childElementCount > 0) {
@@ -289,10 +312,8 @@ export class NavigatorShell implements PaneHost {
 		this.activeTitle.hidden = false;
 		this.instrumentWorkspace.hidden = !active;
 		if (active) this.fileWorkspace.hidden = true;
-		if (this.detachButton !== null) {
-			this.detachButton.disabled = active;
-			this.detachButton.hidden = active;
-		}
+		this.aggregateMode = active;
+		this.updateDetachAvailability();
 		if (!active && this.body.childElementCount > 0) this.restoreNormalRoute();
 	}
 
@@ -352,6 +373,7 @@ export class NavigatorShell implements PaneHost {
 		if (!visible) {
 			this.dragDispose?.();
 			this.dragDispose = null;
+			this.dock?.remove(this);
 		}
 	}
 
@@ -467,7 +489,42 @@ export class NavigatorShell implements PaneHost {
 		this.dragDispose = attachPromptDrag({
 			container: this.container,
 			bounds,
-			getPosition: () => ({ x: this.container.offsetLeft, y: this.container.offsetTop }),
+			getPosition: () => {
+				if (this.dock?.isDocked(this) !== true) {
+					return { x: this.container.offsetLeft, y: this.container.offsetTop };
+				}
+				const rect = this.container.getBoundingClientRect();
+				const boundsRect = bounds.getBoundingClientRect();
+				return { x: rect.left - boundsRect.left, y: rect.top - boundsRect.top };
+			},
+			onStart: () => {
+				this.suppressSnap = false;
+			},
+			beforeMove: (event, session) => {
+				if (this.dock?.isDocked(this) !== true) return true;
+				if (!this.dock.shouldUnsnapByDrag(this, event.clientX - session.anchorX))
+					return false;
+				this.dock.undock(this);
+				const rect = this.container.getBoundingClientRect();
+				const boundsRect = bounds.getBoundingClientRect();
+				session.reanchor(event.clientX, event.clientY, {
+					x: rect.left - boundsRect.left,
+					y: rect.top - boundsRect.top,
+				});
+				this.suppressSnap = true;
+				return true;
+			},
+			onMove: ({ event, position, width, session }) => {
+				if (!this.canDock()) return true;
+				const side = this.dock?.getSnapSide(position.x, width, event.clientX) ?? null;
+				if (side !== null && !this.suppressSnap) {
+					this.dock?.snap(this, side);
+					session.anchorX = event.clientX;
+					return false;
+				}
+				if (side === null) this.suppressSnap = false;
+				return true;
+			},
 			onPosition: () => undefined,
 		});
 	}

@@ -238,6 +238,10 @@ export class PromptManager {
 		return this._focusedPrompt;
 	}
 
+	public get dockController(): PromptDock {
+		return this._dock;
+	}
+
 	public claimNavigatorOwnership(prompt: Prompt): () => void {
 		return this._rootOwnership.claim(prompt);
 	}
