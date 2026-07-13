@@ -33,12 +33,18 @@ const split = (...slots: readonly NavigatorCatalogItem[]): NavigatorCatalogItem 
 
 export const navigatorRouteCatalog: readonly NavigatorCatalogGroup[] = Object.freeze([
 	{
+		title: "Project Data",
+		items: [
+			tabs(
+				route("import", "Import"),
+				route("export", "Export"),
+				route("songRecovery", "Recover"),
+			),
+		],
+	},
+	{
 		title: "File Config",
 		items: [
-			split(
-				routeItem("import", "Import"),
-				tabs(route("export", "Export"), route("songRecovery", "Recover Song")),
-			),
 			routeItem("addExternal", "Add Samples"),
 			routeItem("configureShortener", "Shortener Config"),
 		],

@@ -715,19 +715,19 @@ describe("native navigator extraction", () => {
 });
 
 describe("navigator shell", () => {
-	test("catalog defines the six dashboard groups and composition metadata", () => {
+	test("catalog defines Project Data and dashboard composition metadata", () => {
 		expect(navigatorRouteCatalog.map((group) => group.title)).toEqual([
-			"File Config", "Song Config", "Pattern Config", "Track Config", "Visual Config", "Focused Instr. Config",
+			"Project Data", "File Config", "Song Config", "Pattern Config", "Track Config", "Visual Config", "Focused Instr. Config",
 		]);
-		const fileLead = navigatorRouteCatalog[0].items[0];
-		expect(fileLead.kind).toBe("split");
-		if (fileLead.kind !== "split") throw new Error("missing File split");
-		expect(fileLead.slots.map((slot) => slot.kind)).toEqual(["route", "tabs"]);
-		const visualThemes = navigatorRouteCatalog[4].items[2];
+		const projectData = navigatorRouteCatalog[0].items[0];
+		expect(projectData.kind).toBe("tabs");
+		if (projectData.kind !== "tabs") throw new Error("missing Project Data tabs");
+		expect(projectData.routes.map((route) => route.id)).toEqual(["import", "export", "songRecovery"]);
+		const visualThemes = navigatorRouteCatalog[5].items[2];
 		expect(visualThemes.kind).toBe("tabs");
 		if (visualThemes.kind !== "tabs") throw new Error("missing Visual tabs");
 		expect(visualThemes.routes.map((route) => route.id)).toEqual(["theme", "customTheme", "customThemeRaw"]);
-		expect(navigatorRouteCatalog[5].items[0].kind).toBe("split");
+		expect(navigatorRouteCatalog[6].items[0].kind).toBe("split");
 		expect(navigatorOtherRoutes.map((route) => route.id)).not.toContain("instrumentTags");
 		expect(navigatorOtherRoutes.map((route) => route.id)).not.toContain("tipPromptScope");
 		expect(navigatorOtherRoutes.map((route) => route.id)).toContain("keyboardShortcuts");
@@ -777,16 +777,17 @@ describe("navigator shell", () => {
 		const search = shell.container.querySelector<HTMLInputElement>(".navigator-route-search");
 		expect(shell.container.querySelectorAll(".navigator-route").length).toBeGreaterThan(30);
 		expect(Array.from(shell.container.querySelectorAll(".navigator-route-group-title"), (heading) => heading.textContent)).toEqual([
-			"File Config", "Song Config", "Pattern Config", "Track Config", "Visual Config", "Focused Instr. Config", "Other tools",
+			"Project Data", "File Config", "Song Config", "Pattern Config", "Track Config", "Visual Config", "Focused Instr. Config", "Other tools",
 		]);
 		const groups = shell.container.querySelectorAll(".navigator-route-group");
-		expect(Array.from(groups[0].querySelectorAll(".navigator-route"), (button) => button.textContent)).toEqual([
-			"Import", "Export", "Recover Song", "Add Samples", "Shortener Config",
+		expect(Array.from(groups[0].querySelectorAll(".navigator-route"), (button) => button.textContent)).toEqual(["Project Data"]);
+		expect(Array.from(groups[1].querySelectorAll(".navigator-route"), (button) => button.textContent)).toEqual([
+			"Add Samples", "Shortener Config",
 		]);
-		expect(Array.from(groups[4].querySelectorAll(".navigator-route"), (button) => button.textContent)).toEqual([
+		expect(Array.from(groups[5].querySelectorAll(".navigator-route"), (button) => button.textContent)).toEqual([
 			"Channel Visualizer", "Layout", "Theme", "Custom Theme", "Custom Theme Raw",
 		]);
-		expect(Array.from(groups[5].querySelectorAll(".navigator-route"), (button) => button.textContent).slice(0, 2)).toEqual([
+		expect(Array.from(groups[6].querySelectorAll(".navigator-route"), (button) => button.textContent).slice(0, 2)).toEqual([
 			"Import Instrument", "Export Instrument",
 		]);
 		expect(shell.container.querySelector(".navigator-route-split, .navigator-route-tab-strip, .navigator-route-tab-item")).toBeNull();
@@ -902,7 +903,7 @@ describe("navigator shell", () => {
 		pane.dataset.navigatorScope = "addExternal";
 		shell.attach({ element: pane });
 		shell.setFileWorkspace(true, "export");
-		expect(shell.container.querySelector(".navigator-active-title")?.textContent).toBe("Export");
+		expect(shell.container.querySelector(".navigator-active-title")?.textContent).toBe("Project Data");
 		shell.setFileWorkspace(false);
 		expect(shell.container.querySelector(".navigator-active-title")?.textContent).toBe("Add Samples");
 		expect(shell.container.querySelector("[data-route-id='addExternal']")?.getAttribute("aria-current")).toBe("page");

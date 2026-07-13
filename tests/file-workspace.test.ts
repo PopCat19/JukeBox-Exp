@@ -1,6 +1,6 @@
 // file-workspace.test.ts
 //
-// Purpose: Verifies File workspace composition and transactional right-tab replacement.
+// Purpose: Verifies Project Data tab composition and transactional prompt replacement.
 
 import { describe, expect, test } from "bun:test";
 import { GlobalRegistrator } from "@happy-dom/global-registrator";
@@ -29,12 +29,22 @@ function prompt(name: string, allow = true): Prompt {
 }
 
 describe("FileWorkspace", () => {
-	test("File split owns bounded desktop and mobile scrolling", () => {
+	test("catalog shows one Project Data sidebar entry", () => {
+		const shell = new NavigatorShell();
+		const group = Array.from(
+			shell.container.querySelectorAll(".navigator-route-group"),
+		).find((entry) => entry.querySelector("h4")?.textContent === "Project Data");
+		expect(group?.querySelectorAll(".navigator-route").length).toBe(1);
+		expect(group?.querySelector(".navigator-route")?.textContent).toBe("Project Data");
+	});
+
+	test("Project Data owns one bounded content host and PMD tabs", () => {
 		const css = buildNavigatorPanesCSS();
-		expect(css).toMatch(/\.navigator-file-split \{[^}]*flex: 1 1 auto[^}]*overflow: hidden/s);
-		expect(css).toMatch(/\.navigator-file-left-host,[^{]*\{[^}]*overflow: auto/s);
-		expect(css).toMatch(/@media \(max-width: 639px\)[\s\S]*grid-template-columns: minmax\(0, 1fr\)[^}]*grid-template-rows: repeat\(2, minmax\(0, 1fr\)\)/);
-		expect(css).not.toMatch(/\.navigator-file-tabs \.tabButton\.active \{[^}]*background: var\(/s);
+		expect(css).toMatch(/\.navigator-project-data \{[^}]*flex: 1 1 auto[^}]*overflow: hidden/s);
+		expect(css).toMatch(/\.navigator-file-right-host \{[^}]*overflow: auto/s);
+		expect(css).toMatch(/\.navigator-file-tabs[^}]*max-width: 100%[^}]*overflow-x: auto[^}]*border-radius: 16px/s);
+		expect(css).toMatch(/\.navigator-file-tabs > \.tabButton\.active \{[^}]*background: var\(--cta-bg\)/s);
+		expect(css).not.toContain("navigator-file-left-host");
 	});
 
 	test("hidden File split does not occupy the normal route workspace", () => {
@@ -46,26 +56,26 @@ describe("FileWorkspace", () => {
 		const shell = new NavigatorShell();
 		editor.append(shell.container);
 		document.body.append(editor);
-		const split = shell.container.querySelector<HTMLElement>(".navigator-file-split");
-		if (split === null) throw new Error("Navigator File split was not built");
+		const split = shell.container.querySelector<HTMLElement>(".navigator-project-data");
+		if (split === null) throw new Error("Navigator Project Data workspace was not built");
 		expect(split.hidden).toBeTrue();
 		expect(getComputedStyle(split).display).toBe("none");
 		shell.setFileWorkspace(true);
-		expect(getComputedStyle(split).display).toBe("grid");
+		expect(getComputedStyle(split).display).toBe("flex");
 		shell.setFileWorkspace(false);
 		expect(getComputedStyle(split).display).toBe("none");
 		editor.remove();
 		style.remove();
 	});
-	test("mounts Import and Export, focuses Import without duplication, and disables detach", async () => {
+	test("switches Export to Import in one host and disables detach", async () => {
 		const created: string[] = [];
 		const factory: FilePromptFactory = { create: (route) => { created.push(route); return prompt(route); } };
 		const shell = new NavigatorShell("Navigator", () => {});
 		const workspace = new FileWorkspace({} as SongDocument, shell, factory);
 		await workspace.open("export");
 		await workspace.open("import");
-		expect(created).toEqual(["import", "export"]);
-		expect(shell.container.querySelectorAll(".navigator-native-pane").length).toBe(2);
+		expect(created).toEqual(["export", "import"]);
+		expect(shell.container.querySelectorAll(".navigator-native-pane").length).toBe(1);
 		expect((shell.container.querySelector(".navigator-detach-button") as HTMLButtonElement).disabled).toBeTrue();
 	});
 
@@ -80,8 +90,8 @@ describe("FileWorkspace", () => {
 		const shell = new NavigatorShell();
 		const workspace = new FileWorkspace({} as SongDocument, shell, factory);
 		await Promise.all([workspace.open("export"), workspace.open("import")]);
-		expect(created).toEqual(["import", "export"]);
-		expect(shell.container.querySelectorAll(".navigator-native-pane").length).toBe(2);
+		expect(created).toEqual(["export", "import"]);
+		expect(shell.container.querySelectorAll(".navigator-native-pane").length).toBe(1);
 	});
 
 	test("shows parent, exposes tabs, and hides parent after close", async () => {
@@ -104,8 +114,8 @@ describe("FileWorkspace", () => {
 		expect(parent.classList.contains("navigatorVisible")).toBeTrue();
 		expect(parent.style.display).toBe("none");
 		expect(getComputedStyle(parent).display).toBe("flex");
-		expect(shell.container.querySelectorAll("[role='tab']").length).toBe(2);
-		expect(shell.container.querySelector("[role='tabpanel']")?.id).toBe("navigator-file-right-panel");
+		expect(shell.container.querySelectorAll("[role='tab']").length).toBe(3);
+		expect(shell.container.querySelector("[role='tabpanel']")?.id).toBe("navigator-file-panel");
 		await workspace.close();
 		expect(parent.classList.contains("navigatorVisible")).toBeFalse();
 		expect(parent.style.display).toBe("none");
@@ -117,7 +127,7 @@ describe("FileWorkspace", () => {
 	test("denied aggregate close remains open", async () => {
 		const shell = new NavigatorShell();
 		const workspace = new FileWorkspace({} as SongDocument, shell, {
-			create: (route) => prompt(route, route !== "import"),
+			create: (route) => prompt(route, route !== "export"),
 		});
 		await workspace.open();
 		expect(await workspace.close()).toBeFalse();
@@ -166,6 +176,37 @@ describe("FileWorkspace", () => {
 		expect(workspace.isOpen()).toBeTrue();
 	});
 
+	test("Project Data sidebar stays active for every tab route", () => {
+		const shell = new NavigatorShell();
+		const button = shell.container.querySelector<HTMLElement>("[data-route-id='export']")!;
+		for (const route of ["import", "export", "songRecovery"] as const) {
+			shell.setFileActiveRoute(route);
+			expect(button.getAttribute("aria-current")).toBe("page");
+		}
+		expect(shell.container.querySelectorAll("[data-route-id='export']").length).toBe(1);
+	});
+
+	test("stale Import completion after switching tabs does not replace current tab", async () => {
+		const prompts: Prompt[] = [];
+		const shell = new NavigatorShell();
+		const workspace = new FileWorkspace({} as SongDocument, shell, {
+			create: (route) => {
+				const next = prompt(route);
+				prompts.push(next);
+				return next;
+			},
+		});
+		await workspace.open("import");
+		const staleCompletion = prompts[0].closeCallback;
+		await workspace.open("export");
+		staleCompletion?.(prompts[0]);
+		await Promise.resolve();
+		await Promise.resolve();
+		expect(shell.container.querySelector("[data-navigator-scope='export']") !== null).toBeTrue();
+		expect(shell.container.querySelector("[data-navigator-scope='import']") === null).toBeTrue();
+		expect(prompts.filter((entry) => entry.name === "import").length).toBe(1);
+	});
+
 	test("Import completion refreshes Import while denied Export stays mounted", async () => {
 		const prompts: Prompt[] = [];
 		const shell = new NavigatorShell();
@@ -176,7 +217,7 @@ describe("FileWorkspace", () => {
 				return next;
 			},
 		});
-		await workspace.open();
+		await workspace.open("import");
 		const firstImport = prompts[0];
 		firstImport.closeCallback?.(firstImport);
 		await Promise.resolve();
@@ -184,7 +225,6 @@ describe("FileWorkspace", () => {
 		await Promise.resolve();
 		expect(workspace.isOpen()).toBeTrue();
 		expect(prompts.filter((entry) => entry.name === "import").length).toBe(2);
-		expect(shell.container.querySelector("[data-navigator-scope='export']") !== null).toBeTrue();
 		expect(shell.container.querySelectorAll("[data-navigator-scope='import']").length).toBe(1);
 	});
 
@@ -198,13 +238,12 @@ describe("FileWorkspace", () => {
 		expect(shell.container.querySelector("[data-navigator-scope='songRecovery']") === null).toBeTrue();
 	});
 
-	test("allowed Recovery replacement only replaces Export", async () => {
+	test("allowed Recovery replacement leaves one active root", async () => {
 		const factory: FilePromptFactory = { create: (route) => prompt(route) };
 		const shell = new NavigatorShell();
 		const workspace = new FileWorkspace({} as SongDocument, shell, factory);
 		await workspace.open();
 		expect(await workspace.open("songRecovery")).toBeTrue();
-		expect(shell.container.querySelector("[data-navigator-scope='import']") !== null).toBeTrue();
 		expect(shell.container.querySelector("[data-navigator-scope='export']") === null).toBeTrue();
 		expect(shell.container.querySelector("[data-navigator-scope='songRecovery']") !== null).toBeTrue();
 		expect(shell.container.querySelector("[role='tabpanel']")?.getAttribute("aria-labelledby")).toBe("navigator-file-tab-recovery");

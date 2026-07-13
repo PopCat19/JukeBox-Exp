@@ -29,9 +29,9 @@ export class NavigatorShell implements PaneHost {
 	private readonly activeTitle: HTMLHeadingElement;
 	private readonly workspace: HTMLElement;
 	private readonly detachButton: HTMLButtonElement | null;
-	readonly fileImportHost: PaneHost;
 	readonly fileRightHost: PaneHost;
-	private readonly fileSplit: HTMLDivElement;
+	private readonly fileWorkspace: HTMLDivElement;
+	private readonly importTab: HTMLButtonElement;
 	private readonly exportTab: HTMLButtonElement;
 	private readonly recoveryTab: HTMLButtonElement;
 	private readonly fileRightPanel: HTMLDivElement;
@@ -106,34 +106,33 @@ export class NavigatorShell implements PaneHost {
 		this.body = document.createElement("div");
 		this.body.className = "navigator-pane-host";
 		this.workspace.append(this.body);
-		this.fileSplit = document.createElement("div");
-		this.fileSplit.className = "navigator-file-split";
-		this.fileSplit.hidden = true;
-		const left = document.createElement("section");
-		left.className = "navigator-file-left-host navigator-pane-host";
-		const right = document.createElement("section");
-		right.className = "navigator-file-right";
+		this.fileWorkspace = document.createElement("div");
+		this.fileWorkspace.className = "navigator-project-data compactSearchPrompt";
+		this.fileWorkspace.hidden = true;
 		const tabs = document.createElement("div");
-		tabs.className = "navigator-file-tabs";
+		tabs.className = "navigator-file-tabs tabBar toggle-group";
 		tabs.setAttribute("role", "tablist");
+		this.importTab = tabButton("Import");
 		this.exportTab = tabButton("Export", true);
-		this.exportTab.dataset.fileRoute = "export";
-		this.exportTab.id = "navigator-file-tab-export";
-		this.exportTab.setAttribute("role", "tab");
-		this.exportTab.setAttribute("aria-controls", "navigator-file-right-panel");
 		this.recoveryTab = tabButton("Recover");
-		this.recoveryTab.dataset.fileRoute = "songRecovery";
-		this.recoveryTab.id = "navigator-file-tab-recovery";
-		this.recoveryTab.setAttribute("role", "tab");
-		this.recoveryTab.setAttribute("aria-controls", "navigator-file-right-panel");
-		tabs.append(this.exportTab, this.recoveryTab);
+		const tabSpecs = [
+			[this.importTab, "import", "import"],
+			[this.exportTab, "export", "export"],
+			[this.recoveryTab, "songRecovery", "recovery"],
+		] as const;
+		for (const [button, routeId, idSuffix] of tabSpecs) {
+			button.dataset.fileRoute = routeId;
+			button.id = `navigator-file-tab-${idSuffix}`;
+			button.setAttribute("role", "tab");
+			button.setAttribute("aria-controls", "navigator-file-panel");
+		}
+		tabs.append(this.importTab, this.exportTab, this.recoveryTab);
 		this.fileRightPanel = document.createElement("div");
 		this.fileRightPanel.className = "navigator-file-right-host navigator-pane-host";
-		this.fileRightPanel.id = "navigator-file-right-panel";
+		this.fileRightPanel.id = "navigator-file-panel";
 		this.fileRightPanel.setAttribute("role", "tabpanel");
-		right.append(tabs, this.fileRightPanel);
-		this.fileSplit.append(left, right);
-		this.workspace.append(this.fileSplit);
+		this.fileWorkspace.append(tabs, this.fileRightPanel);
+		this.workspace.append(this.fileWorkspace);
 		const host = (element: HTMLElement): PaneHost => ({
 			attach: (root) => {
 				element.append(root.element);
@@ -142,12 +141,12 @@ export class NavigatorShell implements PaneHost {
 				if (root.element.parentNode === element) root.element.remove();
 			},
 		});
-		this.fileImportHost = host(left);
 		this.fileRightHost = host(this.fileRightPanel);
-		this.exportTab.addEventListener("click", () => this.onRoute?.("export"));
-		this.recoveryTab.addEventListener("click", () => this.onRoute?.("songRecovery"));
+		for (const tab of [this.importTab, this.exportTab, this.recoveryTab]) {
+			tab.addEventListener("click", () => this.onRoute?.(tab.dataset.fileRoute!));
+		}
 		const onTabKey = (event: KeyboardEvent): void => {
-			const tabs = [this.exportTab, this.recoveryTab];
+			const tabs = [this.importTab, this.exportTab, this.recoveryTab];
 			const current = tabs.indexOf(event.currentTarget as HTMLButtonElement);
 			let next = current;
 			if (event.key === "ArrowRight") next = (current + 1) % tabs.length;
@@ -159,6 +158,7 @@ export class NavigatorShell implements PaneHost {
 			tabs[next].focus();
 			this.onRoute?.(tabs[next].dataset.fileRoute!);
 		};
+		this.importTab.addEventListener("keydown", onTabKey);
 		this.exportTab.addEventListener("keydown", onTabKey);
 		this.recoveryTab.addEventListener("keydown", onTabKey);
 		content.append(sidebar, this.workspace);
@@ -198,47 +198,40 @@ export class NavigatorShell implements PaneHost {
 		this.updateVisibility(active || this.body.childElementCount > 0);
 		this.body.hidden = active;
 		this.activeTitle.hidden = false;
-		this.fileSplit.hidden = !active;
+		this.fileWorkspace.hidden = !active;
 		if (this.detachButton !== null) {
 			this.detachButton.disabled = active;
 			this.detachButton.hidden = active;
 		}
 		if (active) {
-			this.setFileActiveRoute(rightRoute, rightRoute);
+			this.setFileActiveRoute(rightRoute);
 		} else if (this.body.childElementCount > 0) {
 			this.restoreNormalRoute();
 		}
 	}
 
-	setFileActiveRoute(
-		activeRoute: "import" | "export" | "songRecovery",
-		rightRoute: "export" | "songRecovery",
-	): void {
+	setFileActiveRoute(activeRoute: "import" | "export" | "songRecovery"): void {
 		this.activeRouteId = activeRoute;
-		const route = this.routes.find((entry) => entry.id === activeRoute);
-		this.activeTitle.textContent =
-			route?.title ??
-			(activeRoute === "songRecovery"
-				? "Song Recovery"
-				: activeRoute[0].toUpperCase() + activeRoute.slice(1));
+		this.activeTitle.textContent = "Project Data";
 		const buttons = this.routeList.querySelectorAll<HTMLButtonElement>(".navigator-route");
 		for (let index = 0; index < buttons.length; index++) {
 			const button = buttons[index];
-			const active = button.dataset.routeId === activeRoute;
+			const active =
+				button.textContent === "Project Data"
+					? ["import", "export", "songRecovery"].includes(activeRoute)
+					: button.dataset.routeId === activeRoute;
 			setSelectableRowActive(button, active);
 			button.setAttribute("aria-current", active ? "page" : "false");
 		}
-		const exportActive = rightRoute === "export";
-		this.exportTab.classList.toggle("active", exportActive);
-		this.recoveryTab.classList.toggle("active", !exportActive);
-		this.exportTab.setAttribute("aria-selected", String(exportActive));
-		this.recoveryTab.setAttribute("aria-selected", String(!exportActive));
-		this.exportTab.tabIndex = exportActive ? 0 : -1;
-		this.recoveryTab.tabIndex = exportActive ? -1 : 0;
-		this.fileRightPanel.setAttribute(
-			"aria-labelledby",
-			exportActive ? this.exportTab.id : this.recoveryTab.id,
-		);
+		const tabs = [this.importTab, this.exportTab, this.recoveryTab];
+		for (const tab of tabs) {
+			const active = tab.dataset.fileRoute === activeRoute;
+			tab.classList.toggle("active", active);
+			tab.setAttribute("aria-selected", String(active));
+			tab.tabIndex = active ? 0 : -1;
+		}
+		const activeTab = tabs.find((tab) => tab.dataset.fileRoute === activeRoute)!;
+		this.fileRightPanel.setAttribute("aria-labelledby", activeTab.id);
 	}
 
 	private updateVisibility(visible: boolean): void {
@@ -266,9 +259,9 @@ export class NavigatorShell implements PaneHost {
 	}
 
 	focus(): void {
-		const pane = this.fileSplit.hidden
+		const pane = this.fileWorkspace.hidden
 			? this.body.firstElementChild
-			: this.fileSplit.querySelector(".navigator-native-pane");
+			: this.fileWorkspace.querySelector(".navigator-native-pane");
 		if (pane instanceof HTMLElement) {
 			pane.focus({ preventScroll: true });
 		} else {
@@ -309,15 +302,24 @@ export class NavigatorShell implements PaneHost {
 			heading.textContent = category;
 			group.append(heading);
 			const catalogGroup = navigatorRouteCatalog.find((entry) => entry.title === category);
+			const catalogRoutes = catalogGroup?.items.flatMap(catalogItemRoutes) ?? [];
+			const catalogRouteIds = new Set(catalogRoutes.map((route) => route.id));
 			const orderedMatches =
 				catalogGroup === undefined
 					? matches
-					: catalogGroup.items
-							.flatMap(catalogItemRoutes)
-							.flatMap((itemRoute) =>
+					: [
+							...catalogRoutes.flatMap((itemRoute) =>
 								matches.filter((candidate) => candidate.id === itemRoute.id),
-							);
-			for (const route of orderedMatches) group.append(this.createRouteButton(route));
+							),
+							...matches.filter((candidate) => !catalogRouteIds.has(candidate.id)),
+						];
+			if (category === "Project Data") {
+				group.append(
+					this.createRouteButton({ id: "export", title: "Project Data", category }),
+				);
+			} else {
+				for (const route of orderedMatches) group.append(this.createRouteButton(route));
+			}
 			this.routeList.append(group);
 		}
 	}
@@ -329,7 +331,10 @@ export class NavigatorShell implements PaneHost {
 		button.dataset.routeId = route.id;
 		button.textContent = route.title;
 		button.title = route.title;
-		const active = route.id === this.activeRouteId;
+		const active =
+			route.title === "Project Data"
+				? ["import", "export", "songRecovery"].includes(this.activeRouteId ?? "")
+				: route.id === this.activeRouteId;
 		selectableRow(button, active);
 		button.setAttribute("aria-current", active ? "page" : "false");
 		button.addEventListener("click", () => this.onRoute?.(route.id));

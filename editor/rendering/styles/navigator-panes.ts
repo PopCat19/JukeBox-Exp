@@ -59,51 +59,53 @@ export function buildNavigatorPanesCSS(): string {
 	backdrop-filter: none !important;
 	-webkit-backdrop-filter: none !important;
 }
-.beepboxEditor .navigator-file-split {
-	display: grid;
-	grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-	gap: 12px;
+.beepboxEditor .navigator-project-data {
+	display: flex;
 	flex: 1 1 auto;
+	flex-direction: column;
+	gap: 8px;
 	min-height: 0;
 	overflow: hidden;
 }
-.beepboxEditor .navigator-file-split[hidden] {
-	display: none;
-}
-.beepboxEditor .navigator-file-left-host,
+.beepboxEditor .navigator-project-data[hidden] { display: none; }
 .beepboxEditor .navigator-file-right-host {
+	flex: 1 1 auto;
 	min-width: 0;
 	min-height: 0;
 	overflow: auto;
 }
-.beepboxEditor .navigator-file-right {
-	display: flex;
-	flex-direction: column;
-	min-width: 0;
-	min-height: 0;
-	overflow: hidden;
-}
 .beepboxEditor .navigator-file-tabs {
 	display: flex;
-	border-bottom: 1px solid var(--ui-widget-focus);
+	gap: 4px;
+	max-width: 100%;
+	overflow-x: auto;
+	border-radius: 16px;
 }
-.beepboxEditor .navigator-file-tabs .tabButton {
-	border-radius: 0;
+.beepboxEditor .navigator-file-tabs > .tabButton {
+	flex: 1;
+	height: 32px;
+	padding: 0 var(--padding-10);
+	background: var(--tab-inactive-bg);
+	border: 2px solid transparent;
+	border-radius: 8px;
+	color: var(--tab-inactive-fg);
 	box-shadow: none;
-	background: transparent;
-	border-bottom: 2px solid transparent;
 }
-.beepboxEditor .navigator-file-tabs .tabButton.active {
-	color: var(--primary-text);
-	border-bottom-color: var(--ui-widget-focus);
-	background: transparent;
+.beepboxEditor .navigator-file-tabs > :first-child.tabButton {
+	border-top-left-radius: 16px;
+	border-bottom-left-radius: 16px;
 }
-@media (max-width: 639px) {
-	.beepboxEditor .navigator-file-split {
-		grid-template-columns: minmax(0, 1fr);
-		grid-template-rows: repeat(2, minmax(0, 1fr));
-	}
+.beepboxEditor .navigator-file-tabs > :last-child.tabButton {
+	border-top-right-radius: 16px;
+	border-bottom-right-radius: 16px;
 }
+.beepboxEditor .navigator-file-tabs > .tabButton:hover { border-color: var(--hout, var(--primary-text)); }
+.beepboxEditor .navigator-file-tabs > .tabButton.active {
+	color: var(--cta-fg);
+	background: var(--cta-bg);
+	font-weight: 600;
+}
+.beepboxEditor .navigator-file-tabs > .tabButton.active:hover { border-color: var(--editor-background); }
 .beepboxEditor .navigator-native-pane > .prompt-titlebar,
 .beepboxEditor .navigator-native-pane > .cancelButton,
 .beepboxEditor .navigator-native-pane > .prompt-button-row > .cancelButton {

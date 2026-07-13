@@ -3299,8 +3299,7 @@ export class SongEditor
 			const name: string = file.name.toLowerCase();
 			if (name.endsWith(".mid") || name.endsWith(".midi") || name.endsWith(".json")) {
 				e.preventDefault();
-				await this._openNavigatorScope("import");
-				this._fileWorkspace.deliverImportFile(file);
+				await this.handleImportFile(file);
 			}
 		};
 		window.addEventListener("dragover", _onDragOver);
@@ -3954,10 +3953,6 @@ export class SongEditor
 	private _openPrompt(promptName: string): void {
 		log.log("_openPrompt", promptName, { docPrompt: this.doc.prompt });
 		void this._applicationRouter.routePrompt(promptName);
-	}
-
-	private _openNavigatorScope(scope: string): Promise<void> {
-		return this._applicationRouter.routePrompt(scope);
 	}
 
 	public openPresetSelector(): void {
@@ -4624,7 +4619,8 @@ export class SongEditor
 	}
 
 	public async handleImportFile(file: File, rafWin?: Window): Promise<void> {
-		await this._openNavigatorScope("import");
+		const opened = await this._navigatorMode.open({ paneId: "import" });
+		if (!opened) return;
 		this._fileWorkspace.deliverImportFile(file, rafWin);
 	}
 

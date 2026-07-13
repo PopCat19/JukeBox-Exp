@@ -1,4 +1,4 @@
-// Purpose: Coordinates the live Import, Export, and Recovery File workspace.
+// Purpose: Coordinates the tabbed Import, Export, and Recovery Project Data workspace.
 
 import { ExportPrompt } from "../prompts/export-prompt";
 import { ImportPrompt } from "../prompts/import-prompt";
@@ -35,7 +35,7 @@ const directPromptFactory: FilePromptFactory = {
 export class FileWorkspace {
 	private readonly runtime: WorkspaceRuntime;
 	private token: WorkspaceToken | null = null;
-	private rightRoute: PaneRoute = FILE_EXPORT_ROUTE;
+	private activeRoute: PaneRoute = FILE_EXPORT_ROUTE;
 	private importPrompt: ImportPrompt | null = null;
 	private generation = 0;
 	private constructingGeneration = 0;
@@ -98,29 +98,24 @@ export class FileWorkspace {
 	}
 
 	private async openImpl(route: FileRouteId): Promise<boolean> {
+		const next = this.routeFor(route);
 		if (this.token === null) {
-			this.rightRoute = route === "songRecovery" ? FILE_RECOVERY_ROUTE : FILE_EXPORT_ROUTE;
+			this.activeRoute = next;
 			this.constructingGeneration = this.generation + 1;
 			try {
 				this.token = await this.runtime.open([
-					{ route: FILE_IMPORT_ROUTE, host: this.shell.fileImportHost },
-					{ route: this.rightRoute, host: this.shell.fileRightHost },
+					{ route: next, host: this.shell.fileRightHost },
 				]);
 				this.generation = this.constructingGeneration;
 			} catch (error) {
 				this.shell.setFileWorkspace(false);
 				throw error;
 			}
-			this.shell.setFileWorkspace(true, this.rightRoute.paneId as "export" | "songRecovery");
+			this.shell.setFileWorkspace(true, route === "songRecovery" ? "songRecovery" : "export");
+			this.shell.setFileActiveRoute(route);
+			return true;
 		}
-		if (route === "import") {
-			this.shell.setFileActiveRoute(
-				"import",
-				this.rightRoute.paneId as "export" | "songRecovery",
-			);
-			return this.runtime.focus(FILE_IMPORT_ROUTE);
-		}
-		return this.selectRightImpl(route);
+		return this.switchRoute(next, route);
 	}
 
 	private async closeImpl(): Promise<boolean> {
@@ -142,9 +137,10 @@ export class FileWorkspace {
 			)
 				return false;
 			this.constructingGeneration = this.generation;
+			if (this.activeRoute.paneId !== "import") return false;
 			const replacement = await this.runtime.refreshChild(this.token, FILE_IMPORT_ROUTE, {
 				route: FILE_IMPORT_ROUTE,
-				host: this.shell.fileImportHost,
+				host: this.shell.fileRightHost,
 			});
 			if (replacement === null) return false;
 			this.token = replacement;
@@ -161,19 +157,30 @@ export class FileWorkspace {
 
 	private async selectRightImpl(route: Exclude<FileRouteId, "import">): Promise<boolean> {
 		if (this.token === null) return this.openImpl(route);
-		const next = route === "export" ? FILE_EXPORT_ROUTE : FILE_RECOVERY_ROUTE;
-		if (next.paneId !== this.rightRoute.paneId) {
+		return this.switchRoute(this.routeFor(route), route);
+	}
+
+	private async switchRoute(next: PaneRoute, route: FileRouteId): Promise<boolean> {
+		if (this.token === null) return false;
+		if (next.paneId !== this.activeRoute.paneId) {
 			this.constructingGeneration = this.generation;
-			const replacement = await this.runtime.replaceChild(this.token, this.rightRoute, {
+			const replacement = await this.runtime.replaceChild(this.token, this.activeRoute, {
 				route: next,
 				host: this.shell.fileRightHost,
 			});
 			if (replacement === null) return false;
 			this.token = replacement;
-			this.rightRoute = next;
+			this.activeRoute = next;
+			if (route !== "import") this.importPrompt = null;
 		}
-		this.shell.setFileActiveRoute(route, route);
+		this.shell.setFileActiveRoute(route);
 		return this.runtime.focus(next);
+	}
+
+	private routeFor(route: FileRouteId): PaneRoute {
+		if (route === "import") return FILE_IMPORT_ROUTE;
+		if (route === "export") return FILE_EXPORT_ROUTE;
+		return FILE_RECOVERY_ROUTE;
 	}
 
 	private serialize<T>(operation: () => T | Promise<T>): Promise<T> {

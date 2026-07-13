@@ -4,6 +4,7 @@
 
 import { describe, expect, test } from "bun:test";
 import { readFileSync } from "node:fs";
+import { GlobalRegistrator } from "@happy-dom/global-registrator";
 import {
 	ApplicationRouter,
 	type GlobalApplicationRoute,
@@ -131,13 +132,33 @@ describe("application router", () => {
 		expect(songEditor).toContain("new NavigatorRuntime(");
 		expect(songEditor).toContain("this._promptContainer.append(this._navigatorShell.container);");
 		expect(songEditor).toContain("await this._navigatorMode.open(route);");
-		expect(songEditor).toContain('await this._openNavigatorScope("import");\n\t\tthis._fileWorkspace.deliverImportFile(file, rafWin);');
-		expect(songEditor).toContain('await this._openNavigatorScope("import");\n\t\t\t\tthis._fileWorkspace.deliverImportFile(file);');
+		expect(songEditor).toContain('const opened = await this._navigatorMode.open({ paneId: "import" });\n\t\tif (!opened) return;\n\t\tthis._fileWorkspace.deliverImportFile(file, rafWin);');
+		expect(songEditor).toContain("await this.handleImportFile(file);");
 		expect(adapter).toContain("interface ImportFileTransientSink");
 		expect(adapter).toContain("this.importPrompt.handleExternalFile(file, rafWin);");
 		expect(adapter).not.toContain("document.createElement(\"h3\")");
 		expect(songEditor).not.toContain("new ImportPrompt");
 		expect(songEditor).not.toContain("context: { file");
+	});
+
+	test("denied public import returns without file delivery", async () => {
+		const ownsDom = typeof document === "undefined";
+		if (ownsDom) GlobalRegistrator.register();
+		try {
+			const { SongEditor } = await import("../editor/song-editor");
+			let deliveries = 0;
+			const host = {
+				_navigatorMode: { open: () => Promise.resolve(false) },
+				_fileWorkspace: { deliverImportFile: () => { deliveries++; } },
+			};
+			await SongEditor.prototype.handleImportFile.call(
+				host as never,
+				new File(["song"], "song.json"),
+			);
+			expect(deliveries).toBe(0);
+		} finally {
+			if (ownsDom) GlobalRegistrator.unregister();
+		}
 	});
 
 	test("rejects invalid routes before invoking targets", async () => {

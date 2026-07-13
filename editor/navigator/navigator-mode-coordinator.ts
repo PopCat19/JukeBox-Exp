@@ -1,4 +1,4 @@
-// Purpose: Serializes ownership transitions between normal and File navigator modes.
+// Purpose: Serializes ownership transitions between normal and Project Data navigator modes.
 
 import type { PaneRoute } from "./contracts";
 import type { FileRouteId } from "./file-workspace";

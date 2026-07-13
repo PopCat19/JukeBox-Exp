@@ -1,6 +1,6 @@
 // navigator-mode-coordinator.test.ts
 //
-// Purpose: Verifies serialized transitions between normal and File navigator modes.
+// Purpose: Verifies serialized transitions between normal and Project Data navigator modes.
 
 import { describe, expect, test } from "bun:test";
 import type { PaneRoute } from "../editor/navigator/contracts";
@@ -12,26 +12,27 @@ function fixture(denyNormalClose = false, denyFileClose = false) {
 	let fileOpen = false;
 	let overlap = false;
 	const normal = {
-		open: async (_route: PaneRoute) => {
+		open: (_route: PaneRoute) => {
 			normalOpen = true;
 			overlap ||= fileOpen;
+			return Promise.resolve();
 		},
-		closeNavigator: async () => {
-			if (denyNormalClose && normalOpen) return false;
+		closeNavigator: () => {
+			if (denyNormalClose && normalOpen) return Promise.resolve(false);
 			normalOpen = false;
-			return true;
+			return Promise.resolve(true);
 		},
 	};
 	const file = {
-		open: async (_route: FileRouteId) => {
+		open: (_route: FileRouteId) => {
 			fileOpen = true;
 			overlap ||= normalOpen;
-			return true;
+			return Promise.resolve(true);
 		},
-		close: async () => {
-			if (denyFileClose && fileOpen) return false;
+		close: () => {
+			if (denyFileClose && fileOpen) return Promise.resolve(false);
 			fileOpen = false;
-			return true;
+			return Promise.resolve(true);
 		},
 		isOpen: () => fileOpen,
 	};
