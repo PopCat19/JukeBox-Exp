@@ -36,6 +36,27 @@ describe("FileWorkspace", () => {
 		expect(css).toMatch(/@media \(max-width: 639px\)[\s\S]*grid-template-columns: minmax\(0, 1fr\)[^}]*grid-template-rows: repeat\(2, minmax\(0, 1fr\)\)/);
 		expect(css).not.toMatch(/\.navigator-file-tabs \.tabButton\.active \{[^}]*background: var\(/s);
 	});
+
+	test("hidden File split does not occupy the normal route workspace", () => {
+		const editor = document.createElement("div");
+		editor.className = "beepboxEditor";
+		const style = document.createElement("style");
+		style.textContent = buildNavigatorPanesCSS();
+		document.head.append(style);
+		const shell = new NavigatorShell();
+		editor.append(shell.container);
+		document.body.append(editor);
+		const split = shell.container.querySelector<HTMLElement>(".navigator-file-split");
+		if (split === null) throw new Error("Navigator File split was not built");
+		expect(split.hidden).toBeTrue();
+		expect(getComputedStyle(split).display).toBe("none");
+		shell.setFileWorkspace(true);
+		expect(getComputedStyle(split).display).toBe("grid");
+		shell.setFileWorkspace(false);
+		expect(getComputedStyle(split).display).toBe("none");
+		editor.remove();
+		style.remove();
+	});
 	test("mounts Import and Export, focuses Import without duplication, and disables detach", async () => {
 		const created: string[] = [];
 		const factory: FilePromptFactory = { create: (route) => { created.push(route); return prompt(route); } };

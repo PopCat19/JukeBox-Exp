@@ -67,6 +67,9 @@ export function buildNavigatorPanesCSS(): string {
 	min-height: 0;
 	overflow: hidden;
 }
+.beepboxEditor .navigator-file-split[hidden] {
+	display: none;
+}
 .beepboxEditor .navigator-file-left-host,
 .beepboxEditor .navigator-file-right-host {
 	min-width: 0;
