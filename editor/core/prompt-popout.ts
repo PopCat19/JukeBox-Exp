@@ -22,9 +22,9 @@
 //   2d contexts were captured in the main context; painting after adoption works in
 //   Chromium/Firefox but is not spec-guaranteed.
 
-import { events } from "../../shared/events";
 import { injectGlobalStyles } from "../../shared/styles/inject";
 import type { Prompt } from "../prompts/prompt";
+import { PopoutDocumentSync } from "./popout-document-sync";
 
 export interface PromptPopoutHost {
 	// Called when the user closes the popout window itself (X button), so the
@@ -32,35 +32,28 @@ export interface PromptPopoutHost {
 	onPopoutClosed(prompt: Prompt): void;
 }
 
-// Attribute tagging every <style>/<link> we clone into a popout head, so a
-// themeChange can remove just our clones and re-clone without touching any
-// UA default stylesheets the popout document may have.
-const POPOUT_STYLE_ATTR = "data-popout-style";
-
 export class PromptPopout {
 	private readonly _windows: Map<Prompt, Window> = new Map();
 	private readonly _cleanupOnClose: Map<Prompt, () => void> = new Map();
-	private readonly _onThemeChange: (name: string) => void;
+	private readonly _parentWindow: Window;
+	private readonly _onBeforeUnload = (): void => {
+		for (const win of this._windows.values()) {
+			try {
+				win.close();
+			} catch {
+				/* already closed */
+			}
+		}
+	};
+	private _disposed = false;
 
 	constructor(private readonly _host: PromptPopoutHost) {
-		this._onThemeChange = (): void => {
-			this._resyncAllThemes();
-		};
-		events.listen("themeChange", this._onThemeChange);
-
+		this._parentWindow = window;
 		// Close all popouts when the editor tab refreshes or closes.
 		// window.opener is unreliable across navigation (it may persist
 		// even after the opener page reloads), so the parent must
 		// explicitly close popouts before it unloads.
-		window.addEventListener("beforeunload", () => {
-			for (const win of this._windows.values()) {
-				try {
-					win.close();
-				} catch {
-					/* already closed */
-				}
-			}
-		});
+		this._parentWindow.addEventListener("beforeunload", this._onBeforeUnload);
 	}
 
 	public isOpen(prompt: Prompt): boolean {
@@ -72,7 +65,12 @@ export class PromptPopout {
 		// Empty URL + same-origin so the popout shares the main document's origin
 		// and can receive adopted DOM nodes. A blank window has no stylesheets of
 		// its own beyond the UA default; _cloneStyles supplies everything else.
-		const win = window.open("", "", "width=760,height=720,resizable=yes,scrollbars=yes");
+		const openWindow = this._parentWindow.open.bind(this._parentWindow);
+		const win = openWindow(
+			"about:blank",
+			"_blank",
+			"width=760,height=720,resizable=yes,scrollbars=yes",
+		);
 		if (!win) return; // popup blocked or disabled
 
 		this._windows.set(prompt, win);
@@ -94,7 +92,12 @@ export class PromptPopout {
 		);
 		doc.body.classList.add("beepboxEditor");
 
-		this._cloneStyles(doc);
+		const documentSync = new PopoutDocumentSync(document, doc, {
+			rootOverrides: {
+				"--prompt-bg-color": "transparent",
+				"--prompt-backdrop-filter": "none",
+			},
+		});
 
 		// Override PMD prompt-surface vars at the popout root so the panel and any
 		// child referencing --prompt-bg-color (or backdrop-filter) resolve to
@@ -171,9 +174,13 @@ export class PromptPopout {
 		};
 		win.addEventListener("pagehide", onUnload);
 
+		let cleaned = false;
 		this._cleanupOnClose.set(prompt, (): void => {
+			if (cleaned) return;
+			cleaned = true;
 			doc.removeEventListener("keydown", onKey);
 			win.removeEventListener("pagehide", onUnload);
+			documentSync.dispose();
 		});
 	}
 
@@ -203,67 +210,10 @@ export class PromptPopout {
 		this._host.onPopoutClosed(prompt);
 	}
 
-	private _cloneStyles(doc: Document): void {
-		// Copy every <style> and stylesheet <link> from the main head. Built-in
-		// themes write their :root variables into ColorConfig._styleElement.textContent
-		// (a <style> node in document.head), so cloning head nodes captures those.
-		for (const node of Array.from(document.head.children)) {
-			if (node instanceof HTMLStyleElement) {
-				const slotId = node.getAttribute("data-jb-style");
-				if (slotId) {
-					injectGlobalStyles(doc, slotId, node.textContent ?? "");
-				} else {
-					const clone = doc.createElement("style");
-					clone.setAttribute(POPOUT_STYLE_ATTR, "");
-					clone.textContent = node.textContent;
-					doc.head.appendChild(clone);
-				}
-			} else if (node instanceof HTMLLinkElement && node.rel === "stylesheet") {
-				const clone = doc.createElement("link");
-				clone.setAttribute(POPOUT_STYLE_ATTR, "");
-				for (const attr of Array.from(node.attributes)) {
-					clone.setAttribute(attr.name, attr.value);
-				}
-				doc.head.appendChild(clone);
-			}
-		}
-		// PMD theme path: applyPMDTheme sets each color var via
-		// document.documentElement.style.setProperty(...), i.e. inline style on
-		// <html>, not inside any <style> node. The head clone above misses these,
-		// so the popout would fall back to default beepbox colors under PMD. Copy
-		// every custom property currently set on the main <html> onto the popout's
-		// <html>. Enumerating via the computed style (not a hardcoded var list) so
-		// this tracks future vars without drift.
-		const srcRoot = document.documentElement;
-		const dstRoot = doc.documentElement;
-		const srcStyle = srcRoot.style;
-		// source.style only lists vars set via JS (not those from <style> :root),
-		// which is exactly the PMD-injected set we need to mirror.
-		for (let i = 0; i < srcStyle.length; i++) {
-			const prop = srcStyle.item(i);
-			if (prop.startsWith("--")) {
-				dstRoot.style.setProperty(prop, srcStyle.getPropertyValue(prop));
-			}
-		}
-	}
-
-	private _resyncAllThemes(): void {
-		for (const win of this._windows.values()) {
-			if (win.closed) continue;
-			const doc = win.document;
-			for (const node of Array.from(doc.head.querySelectorAll(`[${POPOUT_STYLE_ATTR}]`))) {
-				node.parentNode?.removeChild(node);
-			}
-			// Clear PMD vars set on the popout's <html> by the previous clone so a
-			// theme switch (e.g. PMD -> built-in) does not leave stale inline vars
-			// overriding the newly cloned <style> :root block.
-			doc.documentElement.style.cssText = "";
-			this._cloneStyles(doc);
-		}
-	}
-
 	public dispose(): void {
-		events.unlisten("themeChange", this._onThemeChange);
+		if (this._disposed) return;
+		this._disposed = true;
+		this._parentWindow.removeEventListener("beforeunload", this._onBeforeUnload);
 		for (const prompt of Array.from(this._windows.keys())) {
 			this.closeWindow(prompt);
 		}

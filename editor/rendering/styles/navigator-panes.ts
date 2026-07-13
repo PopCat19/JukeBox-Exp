@@ -32,6 +32,7 @@ export function buildNavigatorPanesCSS(): string {
 	overflow: visible;
 	transform: none !important;
 	border-radius: 0 !important;
+	box-shadow: inset 0 0 0 2px transparent !important;
 	background: transparent !important;
 	backdrop-filter: none !important;
 	-webkit-backdrop-filter: none !important;
@@ -39,6 +40,7 @@ export function buildNavigatorPanesCSS(): string {
 .beepboxEditor .navigator-pane-host > .navigator-native-pane:hover,
 .beepboxEditor .navigator-pane-host > .navigator-native-pane.focused,
 .beepboxEditor .navigator-pane-host > .navigator-native-pane:focus-visible {
+	box-shadow: inset 0 0 0 2px var(--hout) !important;
 	outline: none !important;
 }
 .beepboxEditor .navigator-detached-content > .navigator-native-pane {

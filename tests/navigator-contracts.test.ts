@@ -7,6 +7,8 @@ import { describe, expect, test } from "bun:test";
 import { GlobalRegistrator } from "@happy-dom/global-registrator";
 import { Window } from "happy-dom";
 import { PromptPlaybackOwnership, PromptRootOwnership } from "../editor/core/prompt-manager";
+import { PopoutDocumentSync } from "../editor/core/popout-document-sync";
+import { PromptPopout } from "../editor/core/prompt-popout";
 import { PromptFocusController } from "../editor/core/prompt-focus-controller";
 import { applyPMDToDOM, pmdGenerateColors } from "../shared/pmd-adapter";
 import type { CloseDecision, CommandReference, HostLease, LeaveDecision, PaneHost, PaneLifecycle, SerializableValue } from "../editor/navigator/contracts";
@@ -17,6 +19,7 @@ import { buildPromptExportCSS } from "../editor/rendering/styles/prompt-export";
 import { buildPromptShellCSS } from "../editor/rendering/styles/prompt-shell";
 import { getExportPaneAuthority } from "../editor/prompts/export-prompt";
 import type { Prompt } from "../editor/prompts/prompt";
+import { NavigatorDetachedHost } from "../editor/navigator/navigator-detached-host";
 import { NavigatorRuntime, type DetachedPane } from "../editor/navigator/navigator-runtime";
 import { NavigatorShell } from "../editor/navigator/navigator-shell";
 import { navigatorOtherRoutes, navigatorRouteCatalog } from "../editor/navigator/route-catalog";
@@ -25,6 +28,7 @@ import { buildSharedUICSS } from "../editor/rendering/styles/shared-ui";
 import { PaneOwnership, type PaneOwner } from "../editor/navigator/ownership";
 import { createPromptPaneOwner } from "../editor/navigator/prompt-pane-owner";
 import { canonicalRouteIdentity, type PaneIdentity } from "../editor/navigator/route-identity";
+import { events } from "../shared/events";
 
 if (!GlobalRegistrator.isRegistered) GlobalRegistrator.register();
 
@@ -783,14 +787,46 @@ describe("native navigator extraction", () => {
 
 	test("domain CSS flattens attached legacy chrome and geometry", () => {
 		const css = buildNavigatorPanesCSS();
-		expect(css).toMatch(/\.navigator-pane-host > \.navigator-native-pane \{[^}]*position: static !important[^}]*width: 100% !important[^}]*min-height: 0[^}]*background: transparent !important[^}]*backdrop-filter: none !important[^}]*-webkit-backdrop-filter: none !important/s);
+		expect(css).toMatch(/\.navigator-pane-host > \.navigator-native-pane \{[^}]*position: static !important[^}]*width: 100% !important[^}]*min-height: 0[^}]*box-shadow: inset 0 0 0 2px transparent !important[^}]*background: transparent !important[^}]*backdrop-filter: none !important[^}]*-webkit-backdrop-filter: none !important/s);
 		expect(css).not.toMatch(/\.navigator-pane-host > \.navigator-native-pane \{[^}]*min-height: 100%/s);
-		expect(css).toMatch(/\.navigator-pane-host > \.navigator-native-pane:hover,[^{]*\.navigator-native-pane\.focused,[^{]*\.navigator-native-pane:focus-visible \{[^}]*outline: none !important;/s);
+		expect(css).toMatch(/\.navigator-pane-host > \.navigator-native-pane:hover,[^{]*\.navigator-native-pane\.focused,[^{]*\.navigator-native-pane:focus-visible \{[^}]*box-shadow: inset 0 0 0 2px var\(--hout\) !important;[^}]*outline: none !important;/s);
 		expect(css).not.toMatch(/\.navigator-detached-content > \.navigator-native-pane:hover \{[^}]*outline: none;/s);
 		expect(css).not.toMatch(/\.navigator-pane-host[^,{]*[> ](?:button|\.selectableRow):hover/);
 		expect(css).toMatch(/\.navigator-detached-content > \.navigator-native-pane \{[^}]*min-height: 100%/s);
 		expect(css).toContain(".navigator-native-pane > .prompt-titlebar");
 		expect(css).toContain("display: none !important");
+	});
+
+	test("shell outline remains while child uses inset focused feedback", () => {
+		Object.defineProperty(globalThis, "document", { configurable: true, value: new Window().document });
+		document.body.className = "beepboxEditor";
+		document.documentElement.style.setProperty("--hout", "rgb(1, 2, 3)");
+		const style = document.createElement("style");
+		style.textContent = `${buildPromptShellCSS()}${buildNavigatorPanesCSS()}`;
+		document.head.append(style);
+		const shell = document.createElement("section");
+		shell.className = "prompt focused";
+		const paneHost = document.createElement("div");
+		paneHost.className = "navigator-pane-host";
+		const pane = document.createElement("article");
+		pane.className = "navigator-native-pane";
+		paneHost.append(pane);
+		shell.append(paneHost);
+		document.body.append(shell);
+
+		const resting = getComputedStyle(pane);
+		expect(resting.boxSizing).toBe("border-box");
+		expect(resting.width).toBe("100%");
+		expect(resting.boxShadow).toBe("inset 0 0 0 2px transparent");
+		pane.dispatchEvent(new MouseEvent("mouseover", { bubbles: true }));
+		// Happy DOM does not update the :hover pseudo-class from mouse events.
+		expect(getComputedStyle(pane).boxShadow).toBe("inset 0 0 0 2px transparent");
+		pane.classList.add("focused");
+		const focused = getComputedStyle(pane);
+		expect(focused.boxShadow).toBe("inset 0 0 0 2px rgb(1, 2, 3)");
+		expect(focused.outlineStyle).toBe("none");
+		expect(getComputedStyle(shell).outlineStyle).toBe("solid");
+		expect(getComputedStyle(shell).outlineWidth).toBe("2px");
 	});
 
 	test("domain CSS gives detached panes a thin title wrapper", () => {
@@ -1194,6 +1230,236 @@ describe("navigator shell", () => {
 		]);
 		expect(navigatorClaimed).toBeFalse();
 		shell.container.remove();
+	});
+});
+
+describe("shared popout document sync", () => {
+	test("owns one clone per source node and preserves source and destination natives", () => {
+		const source = new Window().document;
+		const destination = new Window().document;
+		const sourceStyle = source.createElement("style");
+		sourceStyle.textContent = ".source { color: red; }";
+		const sourceLink = source.createElement("link");
+		sourceLink.rel = "stylesheet";
+		sourceLink.href = "/theme.css";
+		source.head.append(sourceStyle, sourceLink);
+		source.documentElement.classList.add("source-theme");
+		source.documentElement.style.setProperty("--source-color", "red");
+		const nativeStyle = destination.createElement("style");
+		nativeStyle.textContent = ".native { color: blue; }";
+		destination.head.append(nativeStyle);
+		destination.documentElement.classList.add("destination-native");
+		destination.documentElement.style.setProperty("--native-color", "blue");
+
+		const sync = new PopoutDocumentSync(
+			source as unknown as Document,
+			destination as unknown as Document,
+			{
+				rootOverrides: { "--source-color": "transparent" },
+			},
+		);
+		expect(destination.head.querySelectorAll("[data-popout-style]").length).toBe(2);
+		expect(source.head.querySelectorAll("[data-popout-style]").length).toBe(0);
+		expect(destination.head.contains(nativeStyle)).toBeTrue();
+		expect(destination.documentElement.classList.contains("destination-native")).toBeTrue();
+		expect(destination.documentElement.classList.contains("source-theme")).toBeTrue();
+		expect(destination.documentElement.style.getPropertyValue("--native-color")).toBe("blue");
+		expect(destination.documentElement.style.getPropertyValue("--source-color")).toBe("transparent");
+
+		events.raise("themeChange", "refresh");
+		expect(destination.head.querySelectorAll("[data-popout-style]").length).toBe(2);
+		sync.dispose();
+		sync.dispose();
+		expect(destination.head.querySelectorAll("[data-popout-style]").length).toBe(0);
+		expect(destination.head.contains(nativeStyle)).toBeTrue();
+		expect(destination.documentElement.classList.contains("destination-native")).toBeTrue();
+		expect(destination.documentElement.classList.contains("source-theme")).toBeFalse();
+		expect(destination.documentElement.style.getPropertyValue("--native-color")).toBe("blue");
+		expect(destination.documentElement.style.getPropertyValue("--source-color")).toBe("");
+	});
+
+	test("restores destination properties overridden by copied values", () => {
+		const source = new Window().document;
+		const destination = new Window().document;
+		source.documentElement.style.setProperty("--shared", "source");
+		destination.documentElement.style.setProperty("--shared", "native", "important");
+		const sync = new PopoutDocumentSync(
+			source as unknown as Document,
+			destination as unknown as Document,
+		);
+		expect(destination.documentElement.style.getPropertyValue("--shared")).toBe("source");
+		sync.dispose();
+		expect(destination.documentElement.style.getPropertyValue("--shared")).toBe("native");
+		expect(destination.documentElement.style.getPropertyPriority("--shared")).toBe("important");
+	});
+});
+
+describe("PromptPopout sync lifecycle", () => {
+	test("preserves base style and overrides without duplicate cloned head nodes", () => {
+		const parent = new Window();
+		const child = new Window();
+		Object.defineProperty(globalThis, "window", { configurable: true, value: parent });
+		Object.defineProperty(globalThis, "document", { configurable: true, value: parent.document });
+		const theme = parent.document.createElement("style");
+		theme.textContent = ":root { --theme-color: red; }";
+		parent.document.head.append(theme);
+		parent.open = (() => child) as typeof parent.open;
+		const prompt: Prompt = {
+			id: 1,
+			name: "Test",
+			container: parent.document.createElement("div") as unknown as HTMLElement,
+			cleanUp: () => {},
+			discard: () => {},
+		};
+		const popout = new PromptPopout({ onPopoutClosed: () => {} });
+		popout.open(prompt);
+		expect(child.document.head.querySelectorAll("[data-jb-style=popout-base]").length).toBe(1);
+		expect(child.document.head.querySelectorAll("[data-popout-style]").length).toBe(1);
+		expect(child.document.documentElement.style.getPropertyValue("--prompt-bg-color")).toBe("transparent");
+		events.raise("themeChange", "refresh");
+		expect(child.document.head.querySelectorAll("[data-jb-style=popout-base]").length).toBe(1);
+		expect(child.document.head.querySelectorAll("[data-popout-style]").length).toBe(1);
+		popout.dispose();
+	});
+
+	test("disposed manager beforeunload callback stays inert across repeated lifecycle", () => {
+		const parent = new Window();
+		const child = new Window();
+		Object.defineProperty(globalThis, "window", { configurable: true, value: parent });
+		Object.defineProperty(globalThis, "document", { configurable: true, value: parent.document });
+		parent.open = (() => child) as typeof parent.open;
+		let closes = 0;
+		child.close = (): void => {
+			closes++;
+		};
+		const prompt: Prompt = {
+			id: 1,
+			container: parent.document.createElement("div") as unknown as HTMLElement,
+			cleanUp: () => {},
+			discard: () => {},
+		};
+		const first = new PromptPopout({ onPopoutClosed: () => {} });
+		first.open(prompt);
+		first.dispose();
+		first.dispose();
+		expect(closes).toBe(1);
+		parent.dispatchEvent(new parent.Event("beforeunload"));
+		expect(closes).toBe(1);
+		const second = new PromptPopout({ onPopoutClosed: () => {} });
+		second.dispose();
+		parent.dispatchEvent(new parent.Event("beforeunload"));
+		expect(closes).toBe(1);
+	});
+});
+
+describe("Navigator detached host theme sync", () => {
+	function openDetached(): { parent: Window; child: Window; host: NavigatorDetachedHost } {
+		const parent = new Window();
+		const child = new Window();
+		Object.defineProperty(globalThis, "window", { configurable: true, value: parent });
+		Object.defineProperty(globalThis, "document", { configurable: true, value: parent.document });
+		parent.open = (() => child) as typeof parent.open;
+		const host = NavigatorDetachedHost.open();
+		if (host === null) throw new Error("detached window did not open");
+		return { parent, child, host };
+	}
+
+	function detachedOwner(): PaneOwner {
+		const lifecycle: PaneLifecycle = {
+			root: { element: document.createElement("article") },
+			mount: () => {},
+			unmount: () => {},
+			suspend: () => {},
+			resume: () => {},
+			dispose: () => {},
+			requestLeave: () => "allow",
+			requestClose: () => "close",
+			captureRetainedState: () => null,
+		};
+		return {
+			identity: canonicalRouteIdentity({ paneId: "theme-test" }),
+			lifecycle,
+			focus: () => {},
+		};
+	}
+
+	test("copies PMD and channel root custom properties at open", () => {
+		const parent = new Window();
+		parent.document.documentElement.style.setProperty("--pmd-base-8x", "#123456");
+		parent.document.documentElement.style.setProperty("--channel-color-3", "#abcdef");
+		const child = new Window();
+		Object.defineProperty(globalThis, "window", { configurable: true, value: parent });
+		Object.defineProperty(globalThis, "document", { configurable: true, value: parent.document });
+		parent.open = (() => child) as typeof parent.open;
+		const host = NavigatorDetachedHost.open();
+		if (host === null) throw new Error("detached window did not open");
+		expect(child.document.documentElement.style.getPropertyValue("--pmd-base-8x")).toBe("#123456");
+		expect(child.document.documentElement.style.getPropertyValue("--channel-color-3")).toBe("#abcdef");
+		host.closeEmpty();
+		parent.document.documentElement.style.setProperty("--after-empty-close", "not-copied");
+		events.raise("themeChange", "after");
+		expect(child.document.documentElement.style.getPropertyValue("--after-empty-close")).toBe("");
+	});
+
+	test("themeChange refreshes head and removes stale PMD variables", () => {
+		const { parent, child, host } = openDetached();
+		const theme = parent.document.createElement("style");
+		theme.textContent = ":root { --built-in-theme: old; }";
+		parent.document.head.append(theme);
+		parent.document.documentElement.style.setProperty("--pmd-stale", "old");
+		events.raise("themeChange", "pmd");
+		expect(child.document.documentElement.style.getPropertyValue("--pmd-stale")).toBe("old");
+		parent.document.documentElement.style.removeProperty("--pmd-stale");
+		theme.textContent = ":root { --built-in-theme: new; }";
+		events.raise("themeChange", "built-in");
+		expect(child.document.documentElement.style.getPropertyValue("--pmd-stale")).toBe("");
+		expect(child.document.head.textContent).toContain("--built-in-theme: new");
+		expect(child.document.head.textContent).not.toContain("--built-in-theme: old");
+		host.closeEmpty();
+	});
+
+	test("normal close disposal stops later theme updates", async () => {
+		const { parent, child, host } = openDetached();
+		const pane = host.bind(
+			detachedOwner(),
+			() => Promise.resolve(true),
+			() => Promise.resolve(),
+		);
+		parent.document.documentElement.style.setProperty("--before-close", "copied");
+		events.raise("themeChange", "before");
+		expect(child.document.documentElement.style.getPropertyValue("--before-close")).toBe("copied");
+		expect(await pane.close()).toBeTrue();
+		parent.document.documentElement.style.setProperty("--after-close", "not-copied");
+		events.raise("themeChange", "after");
+		expect(child.document.documentElement.style.getPropertyValue("--after-close")).toBe("");
+	});
+
+	test("persisted pagehide keeps authority until a real unload", async () => {
+		const { parent, child, host } = openDetached();
+		let forced = 0;
+		host.bind(
+			detachedOwner(),
+			() => Promise.resolve(true),
+			() => {
+				forced++;
+				return Promise.resolve();
+			},
+		);
+		const persistedPagehide = new child.PageTransitionEvent("pagehide");
+		Object.defineProperty(persistedPagehide, "persisted", { value: true });
+		child.dispatchEvent(persistedPagehide);
+		await Promise.resolve();
+		expect(forced).toBe(0);
+		parent.document.documentElement.style.setProperty("--after-persisted", "copied");
+		events.raise("themeChange", "persisted");
+		expect(child.document.documentElement.style.getPropertyValue("--after-persisted")).toBe("copied");
+		child.dispatchEvent(new child.PageTransitionEvent("pagehide"));
+		child.dispatchEvent(new child.PageTransitionEvent("pagehide"));
+		await Promise.resolve();
+		expect(forced).toBe(1);
+		parent.document.documentElement.style.setProperty("--after-pagehide", "not-copied");
+		events.raise("themeChange", "after");
+		expect(child.document.documentElement.style.getPropertyValue("--after-pagehide")).toBe("");
 	});
 });
 

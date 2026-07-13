@@ -17,6 +17,7 @@
 - `menu-handler.ts`, Handles menu change events for file, edit, and preferences menus
 - `mod-slider-registry.ts`, Maps mod setting indices to Slider refs via a provider interface
 - `player-animator.ts`, Drives animation-frame loop for playback UI updates
+- `popout-document-sync.ts`, Mirrors head styles and inline root custom properties into popout documents with theme refresh disposal
 - `preferences.ts`, Manages user preference settings with localStorage persistence via data-driven preference schema
 - `prompt-focus-controller.ts`, Manages Hyprland-style focus behavior for prompt dialogs
 - `prompt-dock.ts`, Snaps prompts to the L/R edge outside the editor with up to two stacked slots per side and resizable dividers
