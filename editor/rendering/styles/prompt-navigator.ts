@@ -15,6 +15,12 @@ export function buildNavigatorCSS(): string {
 	text-align: left;
 	overflow: hidden;
 }
+.beepboxEditor .navigator-prompt-variant.shaded {
+	box-sizing: border-box;
+	height: 40px;
+	max-height: 40px;
+	padding: 6px 14px;
+}
 .beepboxEditor .navigator-detach-button { flex: var(--flex-fit); }
 .beepboxEditor .navigator-content {
 	display: grid;

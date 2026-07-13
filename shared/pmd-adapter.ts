@@ -121,7 +121,8 @@ export function applyPMDToDOM(colors: Base16Palette): void {
 	set("--mute-button-mod", c("base0C"));
 
 	// Prompt/modal chrome
-	set("--prompt-bg-color", withAlpha("base02", 0.4));
+	set("--prompt-backdrop-color", withAlpha("base01", 0.4));
+	set("--prompt-bg-color", "var(--prompt-backdrop-color)");
 	set("--prompt-backdrop-filter", "blur(24px)");
 
 	// Page chrome

@@ -75,6 +75,26 @@ export interface PromptHost {
 // disabled until pane extraction supplies a Navigator-owned detached host.
 const _popoutCapablePrompts: ReadonlySet<object> = new Set();
 
+export class PromptPlaybackOwnership {
+	private readonly pausingPrompts = new Set<Prompt>();
+	private wasPlaying = false;
+
+	open(prompt: Prompt, pausesPlayback: boolean, playing: boolean, pause: () => void): void {
+		if (!pausesPlayback || this.pausingPrompts.has(prompt)) return;
+		if (this.pausingPrompts.size === 0) {
+			this.wasPlaying = playing;
+			pause();
+		}
+		this.pausingPrompts.add(prompt);
+	}
+
+	close(prompt: Prompt, play: () => void): void {
+		if (!this.pausingPrompts.delete(prompt) || this.pausingPrompts.size !== 0) return;
+		if (this.wasPlaying) play();
+		this.wasPlaying = false;
+	}
+}
+
 export class PromptRootOwnership {
 	private readonly navigatorOwned = new WeakSet<Prompt>();
 
@@ -119,6 +139,7 @@ export class PromptManager {
 	// sync() calls hit the existing-found path on every render and
 	// should not flash; user-targeted opens should.
 	private _userInitiatedOpen: boolean = false;
+	private _openingForNavigator: boolean = false;
 	// Cursor position and target element rect at last click before a
 	// prompt opens. Used by _spawnNearCursor for desktop desktop
 	// (near cursor) vs mobile (centered) spawning.
@@ -130,11 +151,12 @@ export class PromptManager {
 	private readonly _promptPositions: Map<string, { x: number; y: number }> = new Map();
 	private readonly _promptDragDisposers = new Map<Prompt, () => void>();
 	private _draggingPrompt: boolean = false;
-	private _wasPlaying: boolean = false;
+	private readonly _playbackOwnership = new PromptPlaybackOwnership();
 	private readonly _focusController: PromptFocusController;
 	private readonly _dock: PromptDock;
 	private readonly _popout: PromptPopout;
 	private readonly _rootOwnership = new PromptRootOwnership();
+	private _backdropPreference: boolean | null = null;
 
 	constructor(
 		private readonly _host: PromptHost,
@@ -220,6 +242,22 @@ export class PromptManager {
 		return this._rootOwnership.claim(prompt);
 	}
 
+	public openForNavigator(promptName: string): void {
+		this._openingForNavigator = true;
+		try {
+			this.open(promptName);
+		} finally {
+			this._openingForNavigator = false;
+		}
+	}
+
+	public syncBackdropPreference(): void {
+		const enabled = this._host.doc.prefs.showPromptBackdrop;
+		if (this._backdropPreference === enabled) return;
+		this._backdropPreference = enabled;
+		for (const prompt of this._prompts) this._applyBackdropPreference(prompt);
+	}
+
 	public disposeNavigatorPrompt(prompt: Prompt): void {
 		const index = this._prompts.indexOf(prompt);
 		if (index === -1) return;
@@ -229,12 +267,14 @@ export class PromptManager {
 		this._popout.closeWindow(prompt);
 		this._promptDragDisposers.get(prompt)?.();
 		this._promptDragDisposers.delete(prompt);
+		this._focusController.detachPrompt(prompt);
 		prompt.container.remove();
 		prompt.cleanUp();
 		if (this._focusedPrompt === prompt) {
 			this._focusedPrompt = this._prompts[this._prompts.length - 1] || null;
 			this._updatePromptFocus();
 		}
+		this._playbackOwnership.close(prompt, () => this._host.doc.performance.play());
 		this._host.doc.prompt = this._focusedPrompt?.name ?? null;
 		this._host.doc.notifier.changed();
 	}
@@ -303,8 +343,10 @@ export class PromptManager {
 			if (index !== -1) {
 				this._promptDragDisposers.get(prompt)?.();
 				this._promptDragDisposers.delete(prompt);
+				this._focusController.detachPrompt(prompt);
 				prompt.discard();
 				this._prompts.splice(index, 1);
+				this._playbackOwnership.close(prompt, () => this._host.doc.performance.play());
 				this._dock.remove(prompt);
 				this._popout.closeWindow(prompt);
 				log.log("spliced", prompt.name, {
@@ -355,10 +397,6 @@ export class PromptManager {
 				this._host.promptContainer.style.display = "none";
 				this._hideContainerTimer = null;
 			}, 150);
-			if (this._wasPlaying) {
-				this._host.doc.performance.play();
-			}
-			this._wasPlaying = false;
 			this._host.refocusStage();
 		}
 	}
@@ -388,30 +426,34 @@ export class PromptManager {
 		}
 	}
 
+	private _applyBackdropPreference(prompt: Prompt): void {
+		prompt.container.style.boxShadow = "none";
+		const docked = this._dock.isDocked(prompt);
+		const popped = this._popout.isOpen(prompt);
+		if (docked || popped) {
+			prompt.container.style.removeProperty("--prompt-backdrop-filter");
+			prompt.container.style.removeProperty("--prompt-bg-color");
+			prompt.container.style.background = "";
+			prompt.container.style.opacity = "";
+		} else if (this._host.doc.prefs.showPromptBackdrop) {
+			prompt.container.style.setProperty("--prompt-backdrop-filter", "blur(24px)");
+			prompt.container.style.setProperty("--prompt-bg-color", "var(--prompt-backdrop-color)");
+			prompt.container.style.background = "";
+		} else {
+			prompt.container.style.setProperty("--prompt-backdrop-filter", "none");
+			prompt.container.style.setProperty("--prompt-bg-color", "transparent");
+			prompt.container.style.background = "";
+			prompt.container.style.opacity = "";
+		}
+	}
+
 	private _updatePromptFocus(): void {
 		const activeEl = document.activeElement;
 		const wasInPrompt = this._host.promptContainer.contains(activeEl);
 		for (const p of this._prompts) {
-			p.container.style.boxShadow = "none";
+			this._applyBackdropPreference(p);
 			const docked = this._dock.isDocked(p);
 			const popped = this._popout.isOpen(p);
-			if (docked || popped) {
-				p.container.style.removeProperty("--prompt-backdrop-filter");
-				p.container.style.removeProperty("--prompt-bg-color");
-				p.container.style.background = "";
-				p.container.style.opacity = "";
-			} else if (this._host.doc.prefs.showPromptBackdrop) {
-				p.container.style.setProperty(
-					"--prompt-backdrop-filter",
-					"blur(14px) brightness(0.9)",
-				);
-				p.container.style.background = "rgba(0, 0, 0, 0.4)";
-			} else {
-				p.container.style.removeProperty("--prompt-backdrop-filter");
-				p.container.style.removeProperty("--prompt-bg-color");
-				p.container.style.background = "";
-				p.container.style.opacity = "";
-			}
 			if (p === this._focusedPrompt) {
 				p.container.classList.add("focused");
 				if (!docked && !popped) {
@@ -596,10 +638,14 @@ export class PromptManager {
 		this._focusedPrompt = newPrompt;
 		this._updatePromptFocus();
 
-		if (this._prompts.length === 1 && !_noPlayPausePrompts.has(newPrompt.constructor)) {
-			this._wasPlaying = doc.synth.playing;
-			doc.performance.pause();
-		}
+		this._playbackOwnership.open(
+			newPrompt,
+			!this._openingForNavigator && !_noPlayPausePrompts.has(newPrompt.constructor),
+			doc.synth.playing,
+			() => {
+				doc.performance.pause();
+			},
+		);
 
 		// Cancel any pending container-hide timeout from a recent close
 		// — otherwise it would fire after this open and hide the new

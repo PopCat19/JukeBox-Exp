@@ -22,7 +22,7 @@ export class PromptFocusController {
 	private holdFocus: boolean = false;
 	private cursorMoved: boolean = false;
 	private mouseInPrompt: boolean = false;
-	private cleanupFns: Array<() => void> = [];
+	private cleanupFns = new Map<Prompt, Array<() => void>>();
 	private lastFocusedElement: HTMLElement | null = null;
 
 	constructor(private host: PromptFocusHost) {}
@@ -42,6 +42,9 @@ export class PromptFocusController {
 	}
 
 	attachPrompt(prompt: Prompt): void {
+		this.detachPrompt(prompt);
+		const cleanupFns: Array<() => void> = [];
+		this.cleanupFns.set(prompt, cleanupFns);
 		this.holdFocus = true;
 		this.cursorMoved = false;
 		this.mouseInPrompt = true;
@@ -73,7 +76,7 @@ export class PromptFocusController {
 			document.removeEventListener("mousemove", onFirstMouseMove);
 		};
 		document.addEventListener("mousemove", onFirstMouseMove);
-		this.cleanupFns.push(() => {
+		cleanupFns.push(() => {
 			document.removeEventListener("mousemove", onFirstMouseMove);
 		});
 
@@ -94,7 +97,7 @@ export class PromptFocusController {
 			}
 		};
 		prompt.container.addEventListener("mouseenter", onMouseEnter);
-		this.cleanupFns.push(() => {
+		cleanupFns.push(() => {
 			prompt.container.removeEventListener("mouseenter", onMouseEnter);
 		});
 
@@ -106,7 +109,7 @@ export class PromptFocusController {
 			}
 		};
 		prompt.container.addEventListener("focusin", onFocusIn);
-		this.cleanupFns.push(() => {
+		cleanupFns.push(() => {
 			prompt.container.removeEventListener("focusin", onFocusIn);
 		});
 
@@ -122,7 +125,7 @@ export class PromptFocusController {
 			refocusSongEditor();
 		};
 		prompt.container.addEventListener("mouseleave", onMouseLeave);
-		this.cleanupFns.push(() => {
+		cleanupFns.push(() => {
 			prompt.container.removeEventListener("mouseleave", onMouseLeave);
 		});
 
@@ -142,16 +145,21 @@ export class PromptFocusController {
 			}
 		};
 		prompt.container.addEventListener("mousedown", onMouseDown);
-		this.cleanupFns.push(() => {
+		cleanupFns.push(() => {
 			prompt.container.removeEventListener("mousedown", onMouseDown);
 		});
 	}
 
+	detachPrompt(prompt: Prompt): void {
+		const cleanupFns = this.cleanupFns.get(prompt);
+		if (cleanupFns === undefined) return;
+		for (const cleanup of cleanupFns) cleanup();
+		this.cleanupFns.delete(prompt);
+		if (this.cleanupFns.size === 0) this.holdFocus = false;
+	}
+
 	detachAll(): void {
 		this.holdFocus = false;
-		for (const cleanup of this.cleanupFns) {
-			cleanup();
-		}
-		this.cleanupFns = [];
+		for (const prompt of [...this.cleanupFns.keys()]) this.detachPrompt(prompt);
 	}
 }

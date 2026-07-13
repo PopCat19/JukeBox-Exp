@@ -40,6 +40,7 @@ export class NavigatorShell implements PaneHost {
 	private activeRouteId: string | undefined;
 	private normalRouteId: string | undefined;
 	private dragDispose: (() => void) | null = null;
+	private backdropPreference: boolean | null = null;
 
 	constructor(
 		title = "Navigator",
@@ -166,7 +167,21 @@ export class NavigatorShell implements PaneHost {
 		this.renderRoutes(routes);
 	}
 
+	setBackdropPreference(enabled: boolean): void {
+		if (this.backdropPreference === enabled) return;
+		this.backdropPreference = enabled;
+		this.container.style.setProperty(
+			"--prompt-backdrop-filter",
+			enabled ? "blur(24px)" : "none",
+		);
+		this.container.style.setProperty(
+			"--prompt-bg-color",
+			enabled ? "var(--prompt-backdrop-color)" : "transparent",
+		);
+	}
+
 	attach(root: PaneRoot): void {
+		this.container.classList.remove("shaded");
 		this.container.hidden = false;
 		const routeId = root.element.dataset.navigatorScope;
 		this.activeRouteId = routeId;
@@ -194,6 +209,7 @@ export class NavigatorShell implements PaneHost {
 		}
 	}
 	setFileWorkspace(active: boolean, rightRoute: "export" | "songRecovery" = "export"): void {
+		if (active) this.container.classList.remove("shaded");
 		this.container.hidden = !active && this.body.childElementCount === 0;
 		this.updateVisibility(active || this.body.childElementCount > 0);
 		this.body.hidden = active;

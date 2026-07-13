@@ -6,7 +6,9 @@
 import { describe, expect, test } from "bun:test";
 import { GlobalRegistrator } from "@happy-dom/global-registrator";
 import { Window } from "happy-dom";
-import { PromptRootOwnership } from "../editor/core/prompt-manager";
+import { PromptPlaybackOwnership, PromptRootOwnership } from "../editor/core/prompt-manager";
+import { PromptFocusController } from "../editor/core/prompt-focus-controller";
+import { applyPMDToDOM, pmdGenerateColors } from "../shared/pmd-adapter";
 import type { CloseDecision, CommandReference, HostLease, LeaveDecision, PaneHost, PaneLifecycle, SerializableValue } from "../editor/navigator/contracts";
 import { isSerializableValue, validateRetainedState } from "../editor/navigator/contracts";
 import { LegacyPromptPaneFactory } from "../editor/navigator/navigator-route-host";
@@ -66,6 +68,106 @@ function brandedOwner(paneId: string, effects: string[]): PaneOwner {
 		focus: () => effects.push("focus"),
 	};
 }
+
+describe("prompt focus lifecycle", () => {
+	test("repeated extracted attach and dispose removes every container listener", () => {
+		Object.defineProperty(globalThis, "document", { configurable: true, value: new Window().document });
+		const controller = new PromptFocusController({
+			isDraggingPrompt: () => false,
+			getFocusedPrompt: () => null,
+			setFocusedPrompt: () => undefined,
+			updatePromptFocus: () => undefined,
+			refocusSongEditor: () => undefined,
+			isInPromptContainer: () => false,
+		});
+		for (let iteration = 0; iteration < 3; iteration++) {
+			const container = document.createElement("div");
+			const attached: string[] = [];
+			const removed: string[] = [];
+			const add = container.addEventListener.bind(container);
+			const remove = container.removeEventListener.bind(container);
+			container.addEventListener = ((type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions) => {
+				attached.push(type);
+				add(type, listener, options);
+			}) as typeof container.addEventListener;
+			container.removeEventListener = ((type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions) => {
+				removed.push(type);
+				remove(type, listener, options);
+			}) as typeof container.removeEventListener;
+			const prompt = { id: iteration, container, cleanUp: () => undefined, discard: () => undefined };
+			controller.attachPrompt(prompt);
+			controller.detachPrompt(prompt);
+			expect(removed).toEqual(attached);
+		}
+	});
+});
+
+describe("prompt playback ownership", () => {
+	function prompt(): Prompt {
+		return {
+			id: 1,
+			container: document.createElement("div"),
+			cleanUp: () => undefined,
+			discard: () => undefined,
+		};
+	}
+
+	test("Navigator extraction preserves initially playing and paused states", () => {
+		Object.defineProperty(globalThis, "document", { configurable: true, value: new Window().document });
+		for (const playing of [true, false]) {
+			const ownership = new PromptPlaybackOwnership();
+			const extracted = prompt();
+			let pauses = 0;
+			let plays = 0;
+			ownership.open(extracted, false, playing, () => pauses++);
+			ownership.close(extracted, () => plays++);
+			expect({ pauses, plays }).toEqual({ pauses: 0, plays: 0 });
+		}
+	});
+
+	test("standalone prompt pauses and resumes only preexisting playback", () => {
+		Object.defineProperty(globalThis, "document", { configurable: true, value: new Window().document });
+		for (const playing of [true, false]) {
+			const ownership = new PromptPlaybackOwnership();
+			const standalone = prompt();
+			let pauses = 0;
+			let plays = 0;
+			ownership.open(standalone, true, playing, () => pauses++);
+			ownership.close(standalone, () => plays++);
+			expect(pauses).toBe(1);
+			expect(plays).toBe(playing ? 1 : 0);
+		}
+	});
+
+	test("extracted disposal cannot resume a later standalone prompt", () => {
+		Object.defineProperty(globalThis, "document", { configurable: true, value: new Window().document });
+		const ownership = new PromptPlaybackOwnership();
+		const extracted = prompt();
+		const standalone = prompt();
+		let pauses = 0;
+		let plays = 0;
+		ownership.open(extracted, false, true, () => pauses++);
+		ownership.close(extracted, () => plays++);
+		ownership.open(standalone, true, false, () => pauses++);
+		ownership.close(standalone, () => plays++);
+		expect({ pauses, plays }).toEqual({ pauses: 1, plays: 0 });
+	});
+
+	test("stacked standalone prompts resume after the last pausing owner closes", () => {
+		Object.defineProperty(globalThis, "document", { configurable: true, value: new Window().document });
+		const ownership = new PromptPlaybackOwnership();
+		const first = prompt();
+		const second = prompt();
+		let pauses = 0;
+		let plays = 0;
+		ownership.open(first, true, true, () => pauses++);
+		ownership.open(second, true, false, () => pauses++);
+		ownership.close(first, () => plays++);
+		expect(plays).toBe(0);
+		ownership.close(second, () => plays++);
+		expect({ pauses, plays }).toEqual({ pauses: 1, plays: 1 });
+	});
+});
 
 describe("navigator route identity", () => {
 	test("sorts nested keys, preserves arrays, excludes category, and normalizes negative zero", () => {
@@ -744,6 +846,16 @@ describe("navigator shell", () => {
 		const css = buildNavigatorCSS();
 		expect(css).toContain("width: min(880px, calc(100vw - 32px))");
 		expect(css).toContain("height: min(640px, calc(100vh - 32px))");
+		expect(css).toMatch(/\.navigator-prompt-variant\.shaded \{[^}]*height: 40px;[^}]*max-height: 40px;[^}]*padding: 6px 14px;/s);
+		Object.defineProperty(globalThis, "document", { configurable: true, value: new Window().document });
+		document.body.className = "beepboxEditor";
+		const style = document.createElement("style");
+		style.textContent = `${buildPromptShellCSS()}${css}`;
+		document.head.append(style);
+		const shell = new NavigatorShell();
+		shell.container.classList.add("shaded");
+		document.body.append(shell.container);
+		expect(getComputedStyle(shell.container).height).toBe("40px");
 		expect(css).not.toMatch(/background: color-mix|backdrop-filter|navigator-shell:hover/);
 		const promptCSS = buildPromptShellCSS();
 		expect(promptCSS).toMatch(/\.prompt \{[^}]*background: var\(--prompt-bg-color, transparent\)[^}]*backdrop-filter: var\(--prompt-backdrop-filter, blur\(24px\)\)/s);
@@ -767,6 +879,51 @@ describe("navigator shell", () => {
 		expect(css).toMatch(/@media \(max-width: 639px\)[\s\S]*\.navigator-route-list \{[^}]*max-width: 100%[^}]*flex-direction: row[^}]*overflow-x: auto/);
 		expect(css).not.toMatch(/box-shadow|linear-gradient|radial-gradient/);
 		expect(css).toMatch(/\.navigator-pane-host \{[^}]*min-height: 0[^}]*overflow: auto/s);
+	});
+
+	test("backdrop preference uses direct PMD 8x and updates the open shell", () => {
+		Object.defineProperty(globalThis, "document", { configurable: true, value: new Window().document });
+		const colors = pmdGenerateColors(245, true);
+		applyPMDToDOM(colors);
+		expect(document.documentElement.style.getPropertyValue("--prompt-backdrop-color")).toBe(
+			`rgba(${colors.base01.rgb.r}, ${colors.base01.rgb.g}, ${colors.base01.rgb.b}, 0.4)`,
+		);
+		expect(document.documentElement.style.getPropertyValue("--prompt-bg-color")).toBe(
+			"var(--prompt-backdrop-color)",
+		);
+		const shell = new NavigatorShell();
+		shell.setBackdropPreference(true);
+		expect(shell.container.style.getPropertyValue("--prompt-bg-color")).toBe(
+			"var(--prompt-backdrop-color)",
+		);
+		expect(shell.container.style.getPropertyValue("--prompt-backdrop-filter")).toBe("blur(24px)");
+		shell.setBackdropPreference(false);
+		expect(shell.container.style.getPropertyValue("--prompt-bg-color")).toBe("transparent");
+		expect(shell.container.style.getPropertyValue("--prompt-backdrop-filter")).toBe("none");
+	});
+
+	test("opening Project Data clears stale shade state", () => {
+		Object.defineProperty(globalThis, "document", { configurable: true, value: new Window().document });
+		const shell = new NavigatorShell();
+		shell.container.classList.add("shaded");
+		shell.setFileWorkspace(true, "export");
+		expect(shell.container.classList.contains("shaded")).toBeFalse();
+		expect(shell.container.querySelector<HTMLElement>(".navigator-project-data")?.hidden).toBeFalse();
+	});
+
+	test("reopening a shaded shell clears stale shade state", () => {
+		Object.defineProperty(globalThis, "document", { configurable: true, value: new Window().document });
+		const shell = new NavigatorShell();
+		const first = { element: document.createElement("article") };
+		first.element.dataset.navigatorScope = "addExternal";
+		shell.attach(first);
+		shell.container.classList.add("shaded");
+		shell.detach(first);
+		const second = { element: document.createElement("article") };
+		second.element.dataset.navigatorScope = "theme";
+		shell.attach(second);
+		expect(shell.container.classList.contains("shaded")).toBeFalse();
+		expect(second.element.parentElement?.classList.contains("navigator-pane-host")).toBeTrue();
 	});
 
 	test("searches routes and invokes canonical route navigation", () => {
@@ -950,8 +1107,7 @@ describe("navigator shell", () => {
 		let keyCount = 0;
 		let allowLeave = false;
 		let leaveRequests = 0;
-		const prompts = {
-			open: (scope: string) => {
+		const openPrompt = (scope: string) => {
 				const container = document.createElement("article");
 				container.tabIndex = -1;
 				container.className = "prompt fill-y shaded docked legacyPrompt";
@@ -974,7 +1130,9 @@ describe("navigator shell", () => {
 						return allowLeave;
 					},
 				};
-			},
+			};
+		const prompts = {
+			openForNavigator: openPrompt,
 			get prompt(): Prompt | null { return current; },
 			claimNavigatorOwnership: () => {
 				navigatorClaimed = true;

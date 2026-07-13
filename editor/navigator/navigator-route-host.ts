@@ -13,7 +13,7 @@ export interface ImportFileTransientSink {
 
 interface LegacyPromptManager {
 	readonly prompt: Prompt | null;
-	open(scope: string): void;
+	openForNavigator(scope: string): void;
 	disposeNavigatorPrompt(prompt: Prompt): void;
 	claimNavigatorOwnership(prompt: Prompt): () => void;
 }
@@ -28,7 +28,7 @@ export class LegacyPromptPaneFactory implements ImportFileTransientSink {
 	) {}
 
 	create = (route: PaneRoute): PaneOwner => {
-		this.prompts.open(route.paneId);
+		this.prompts.openForNavigator(route.paneId);
 		const prompt = this.prompts.prompt;
 		if (prompt === null || prompt.name !== route.paneId) {
 			throw new Error(`legacy prompt factory failed for ${route.paneId}`);

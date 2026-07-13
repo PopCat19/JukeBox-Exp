@@ -4069,6 +4069,8 @@ export class SongEditor
 	public whenUpdated = (): void => {
 		const prefs: Preferences = this.doc.prefs;
 		renderLayout(this._layoutRefs, this.doc);
+		this._promptManager.syncBackdropPreference();
+		this._navigatorShell.setBackdropPreference(prefs.showPromptBackdrop);
 
 		const instrumentIndex: number = this.doc.getCurrentInstrument();
 		// During playback, skip repeated settings renders unless navigation changed
